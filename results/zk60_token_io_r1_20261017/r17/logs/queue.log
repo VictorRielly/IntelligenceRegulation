@@ -1,0 +1,24 @@
+2026-10-29T15:29:16Z red: the two r17 tests on the unfixed recorder
+2026-10-29T15:32:31Z red end 101
+2026-10-29T15:38:44Z g1: the r17 tests on the fixed recorder
+2026-10-29T15:42:05Z g1 end 0
+2026-10-29T15:43:36Z green
+2026-10-29T15:48:34Z chain end green
+2026-10-29T15:49:24Z green
+2026-10-29T15:54:24Z mutant h19-3-off
+2026-10-29T15:54:35Z mutant h19-4-off
+2026-10-29T15:57:45Z mutant replay-blind
+2026-10-29T16:00:55Z mutant group-skip
+2026-10-29T16:04:06Z s22-suite
+2026-10-29T16:18:43Z b17-cli-build
+2026-10-29T16:18:57Z xbin
+2026-10-29T16:19:06Z real-verify-hate
+2026-10-29T16:20:19Z chain end 0
+2026-10-29T16:20:35Z mutant h19-3-off (again)
+2026-10-29T16:23:48Z mutant h19-3-off (again) end exit=101  panicked=2 compile_errors=1
+2026-10-29T16:24:29Z values: rung capture
+2026-10-29T16:27:36Z values: v22 format check (rung)
+2026-10-29T16:27:46Z values: real capture (moderate-hate)
+2026-10-29T16:29:52Z values end v22-rung
+2026-10-29T16:30:45Z v22 format check (real, blocks 2, 3)
+2026-10-29T16:33:26Z v22 format check (real) end 1

@@ -1,0 +1,8 @@
+{
+  "utc": "2026-10-29T17:03:56.717908+00:00",
+  "tool_session": 44198,
+  "tool_exit": 130,
+  "heavy_leaf_started": false,
+  "reason": "Queued launcher withdrawn via original tool Ctrl-C before heavy leaf to require no concurrent light job over1GiB; existing guard advisory precheck alone allowed1.3GiB light job. No guard signal, protocol/source change or foreign job change.",
+  "retained_command": "sol-r14-attack-non-dd-per-piece-round-q-1.command.json"
+}

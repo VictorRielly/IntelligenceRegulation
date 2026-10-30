@@ -1,0 +1,32 @@
+
+running 1 test
+test private_block::token_io::review_r14_tests::rv14_s8_receipts_do_not_cross_between_the_r12_r13_and_r14_binaries ... RV14 S8 | r12 proved the full item: "schema": "zk60-classify-run/1",
+RV14 S8 | r13 proved the full item: "schema": "zk60-classify-run/2",
+RV14 S8 | r14 proved the full item: "schema": "zk60-classify-run/3",
+RV14 S8 | r12 receipt verified by r12: exit 0 {"event":"classified","verdict":"not-flagged","chunk":0,"chunks":1,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"061340df02f975c16fa1b3f9a2e1c8d582a54888a33edafab112426a69c5ae88","input_token_endpoint_root":"1243a40124b82bfcc7b03e585f2fdecadd673e46f915c4bd2a82f20c63650148","verify_seconds":0.332,"whole_run_floor_bits":94,"published_by":"this verifier"}
+RV14 S8 | r12 receipt verified by r13: exit 1 {"event":"refused","command":"classify-verify","error":"statement.json: not schema zk60-classify-run/2"}
+RV14 S8 | r12 receipt verified by r14: exit 1 {"event":"refused","command":"classify-verify","error":"statement.json: not schema zk60-classify-run/3"}
+RV14 S8 | r13 receipt verified by r12: exit 1 {"event":"refused","command":"classify-verify","error":"statement.json: not schema zk60-classify-run/1"}
+RV14 S8 | r13 receipt verified by r13: exit 0 {"event":"classified","verdict":"not-flagged","chunk":0,"chunks":1,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"061340df02f975c16fa1b3f9a2e1c8d582a54888a33edafab112426a69c5ae88","input_token_endpoint_root":"f212beeebd00562e129274d314c4ea5612d6bf77de8dd4277bb8e45415b26693","verify_seconds":0.309,"whole_run_floor_bits":94,"published_by":"this verifier"}
+RV14 S8 | r13 receipt verified by r14: exit 1 {"event":"refused","command":"classify-verify","error":"statement.json: not schema zk60-classify-run/3"}
+RV14 S8 | r14 receipt verified by r12: exit 1 {"event":"refused","command":"classify-verify","error":"statement.json: not schema zk60-classify-run/1"}
+RV14 S8 | r14 receipt verified by r13: exit 1 {"event":"refused","command":"classify-verify","error":"statement.json: not schema zk60-classify-run/2"}
+RV14 S8 | r14 receipt verified by r14: exit 0 {"event":"classified","verdict":"not-flagged","chunk":0,"chunks":1,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"061340df02f975c16fa1b3f9a2e1c8d582a54888a33edafab112426a69c5ae88","input_token_endpoint_root":"029da7a108b97b84a85ab41f46cbd1c30a5103c0c7bf0d706284a33079ea020e","verify_seconds":0.330,"whole_run_floor_bits":94,"published_by":"this verifier"}
+RV14 S8 | r12 prove of the 22-id item: exit 1 {"event":"refused","command":"classify-prove","error":"classifier chunks: a content of 22 ids is shorter than one chunk of 23 ids; short content is not built (DESIGN v2.2 §13.1: T < T_pad or the trailing-pad route)"} 
+RV14 S8 | r13 prove of the 22-id item: exit 1 {"event":"refused","command":"classify-prove","error":"classifier chunks: a content of 22 ids is shorter than one chunk of 23 ids; short content is not built (DESIGN v2.2 §13.1: T < T_pad or the trailing-pad route)"} 
+RV14 S8 | r14 prove of the 22-id item: exit 0 {"event":"proved","run":"/home/victor/zk60-artifacts/token-io/review-r14-tmp/tio-cls-rv14-s8-195331/short-r14","owner_dir":"/home/victor/zk60-artifacts/token-io/review-r14-tmp/tio-cls-owners-rv14-s8-195331/short-r14.owner-private","verdict":"not-flagged","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"segments":3,"receipt_bytes":11134808,"prove_seconds":1.601,"whole_run_floor_bits":94,"total_seconds":1.748,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"} 
+RV14 S8 | r14 short receipt verified by r12: exit 1 {"event":"refused","command":"classify-verify","error":"statement.json: not schema zk60-classify-run/1"}
+RV14 S8 | r14 short receipt verified by r13: exit 1 {"event":"refused","command":"classify-verify","error":"statement.json: not schema zk60-classify-run/2"}
+RV14 S8 | r14 short receipt verified by r14: exit 0 {"event":"classified","verdict":"not-flagged","chunk":0,"chunks":1,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"061340df02f975c16fa1b3f9a2e1c8d582a54888a33edafab112426a69c5ae88","input_token_endpoint_root":"28f87ccf63329fddbd81c80d94d1d2446f62b49b5a769742ebb3b600084e601c","verify_seconds":0.343,"whole_run_floor_bits":94,"published_by":"this verifier"}
+RV14 S8 | segments of /home/victor/zk60-artifacts/token-io/review-r14-tmp/tio-cls-rv14-s8-195331/full-r13 under the statement of /home/victor/zk60-artifacts/token-io/review-r14-tmp/tio-cls-rv14-s8-195331/full-r14 (/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/cli/zk60_classify.r14.release.bin): exit 1 {"event":"refused","command":"classify-verify","error":"token I/O wire: this segment belongs to another run"}
+RV14 S8 | segments of /home/victor/zk60-artifacts/token-io/review-r14-tmp/tio-cls-rv14-s8-195331/full-r14 under the statement of /home/victor/zk60-artifacts/token-io/review-r14-tmp/tio-cls-rv14-s8-195331/full-r13 (/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/cli/zk60_classify.r13.release.bin): exit 1 {"event":"refused","command":"classify-verify","error":"token I/O wire: this segment belongs to another run"}
+RV14 S8 | r13 receipt relabelled /3, r14 verifier: exit 1 {"event":"refused","command":"classify-verify","error":"/home/victor/zk60-artifacts/token-io/review-r14-tmp/tio-cls-rv14-s8-195331/r13-relabelled.unverified-statement/statement.json: not byte for byte the canonical statement of this run under the verifier's own inputs (B-3: the margin vector, ids, threshold, template and model are re-derived, never taken from the statement)"}
+{"event":"refused","command":"classify-verify","error":"statement.json: not schema zk60-classify-run/3"}
+{"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling D45(4), Victor 2026-10-29)"}
+{"event":"refused","command":"classify-verify","error":"statement.json: not schema zk60-classify-run/3"}
+{"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling D45(4), Victor 2026-10-29)"}
+RV14 S8 | PASS: only the diagonal verifies; the short item is r14-only; no upgrade / downgrade / relabel
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 764 filtered out; finished in 9.98s
+

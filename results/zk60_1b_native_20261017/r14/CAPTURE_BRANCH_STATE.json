@@ -1,0 +1,19 @@
+{
+  "utc": "2026-10-30T06:32:10.874800+00:00",
+  "source": "3c7b1dcfd47ba8cb257c6f734348f25fb960af3f25f8b1b14ea4e262ff8defda",
+  "files": 287,
+  "status": "Both3stage native captures/transport/local adapters and actualS2L25native6gates PASS; all current own tools terminal.",
+  "pending": "50relation regressions,legacycompat,additionalC3 controls,newstreamingCLI,whole26proof,soundnessreview,freeze/D24/fullprivacy.",
+  "regression_scope": "21 high-byte probes across both true D/F pieces and unchanged domains, DD unused/counts, three registered table support tails. No native pass yet.",
+  "public_receipt_provenance": "Uncompiled writer records actual accepted stage receipt SHA256/length and explicit ordered public block digests.",
+  "source_edits_held": true,
+  "pipeline": null,
+  "active_recovery_contract": "recovery-20261030-1/contract.json",
+  "active_recovery_status": "recovery-20261030-1/status.json",
+  "original_pipeline_status": "Interrupted before native build; original plan retained for source/runner pins",
+  "active_tool_session": null,
+  "arithmetic_dependency": "corrected-candidate-2/ACCEPTANCE.json",
+  "old_recovery_status": "Terminal failed candidate2 fixture; original recovery/observer drivers are obsolete for corrected dependency; preserve them, do not restart.",
+  "queue_migration": "NATIVE_CAPTURE_QUEUE_MIGRATION.json",
+  "validator": "validate_capture_v3.py"
+}

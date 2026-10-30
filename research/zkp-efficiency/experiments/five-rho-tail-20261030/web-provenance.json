@@ -1,0 +1,164 @@
+{
+  "run_id": "20261030T005649Z-506c4db2",
+  "tool": "native LIVE tools.web__run",
+  "access_date_utc": "2026-10-30",
+  "requests": [
+    {
+      "batch": 0,
+      "search_query": [
+        "GPU finite field linear combination batched polynomial commitments memory traffic 2026 NTT",
+        "GPU zero knowledge sumcheck Goldilocks 2026 October batched memory",
+        "GPU NTT polynomial commitment registers fusion 2025 2026 GitHub"
+      ]
+    },
+    {
+      "batch": 1,
+      "open": [
+        "https://github.com/Artemarius/cuda-zkp-ntt",
+        "https://arxiv.org/abs/2606.16146",
+        "https://bu-icsg.github.io/publications/2022/fhe_gpu_seed_2022.pdf",
+        "https://github.com/MMRROOO/ntt-tensorcore"
+      ]
+    },
+    {
+      "batch": 2,
+      "open": [
+        "https://link.springer.com/article/10.1007/s44443-026-00722-6",
+        "https://github.com/hogwash1/Karatsuba-NTT"
+      ],
+      "search_query": [
+        "GPU Goldilocks sumcheck October 2026 batching ZKP release GitHub",
+        "GPU cryptography matrix vector multiple right hand sides 2015 register blocking finite field"
+      ]
+    },
+    {
+      "batch": 3,
+      "open": [
+        "https://arxiv.org/abs/1004.3719",
+        "https://github.com/snarang181/zk-duel"
+      ],
+      "find": [
+        [
+          "https://link.springer.com/article/10.1007/s44443-026-00722-6",
+          "Published:"
+        ],
+        [
+          "https://link.springer.com/article/10.1007/s44443-026-00722-6",
+          "2026"
+        ],
+        [
+          "https://github.com/Artemarius/cuda-zkp-ntt",
+          "Releases"
+        ],
+        [
+          "https://github.com/hogwash1/Karatsuba-NTT",
+          "LICENSE"
+        ]
+      ]
+    },
+    {
+      "batch": 4,
+      "click": [
+        [
+          "https://github.com/Artemarius/cuda-zkp-ntt",
+          82
+        ],
+        [
+          "https://arxiv.org/abs/1004.3719",
+          8
+        ]
+      ],
+      "open": [
+        "https://github.com/Artemarius/cuda-zkp-ntt/releases",
+        "https://github.com/snarang181/zk-duel/commits/main/"
+      ],
+      "find": [
+        [
+          "https://github.com/snarang181/zk-duel",
+          "License"
+        ],
+        [
+          "https://github.com/snarang181/zk-duel",
+          "2026"
+        ],
+        [
+          "https://link.springer.com/article/10.1007/s44443-026-00722-6",
+          "99.7"
+        ],
+        [
+          "https://link.springer.com/article/10.1007/s44443-026-00722-6",
+          "4096"
+        ]
+      ]
+    },
+    {
+      "batch": 5,
+      "open": [
+        "https://github.com/snarang181/zk-duel/commits/master/",
+        "https://raw.githubusercontent.com/Artemarius/cuda-zkp-ntt/main/LICENSE",
+        "https://raw.githubusercontent.com/snarang181/zk-duel/master/LICENSE"
+      ],
+      "find": [
+        [
+          "https://github.com/Artemarius/cuda-zkp-ntt/releases",
+          "Sep"
+        ],
+        [
+          "https://arxiv.org/pdf/1004.3719",
+          "double"
+        ],
+        [
+          "https://arxiv.org/pdf/1004.3719",
+          "modular"
+        ],
+        [
+          "https://github.com/hogwash1/Karatsuba-NTT",
+          "Files"
+        ]
+      ]
+    },
+    {
+      "batch": 6,
+      "open": [
+        [
+          "https://github.com/Artemarius/cuda-zkp-ntt/releases",
+          145
+        ],
+        [
+          "https://link.springer.com/article/10.1007/s44443-026-00722-6",
+          165
+        ],
+        [
+          "https://arxiv.org/pdf/1004.3719",
+          1
+        ],
+        [
+          "https://github.com/snarang181/zk-duel",
+          266
+        ]
+      ],
+      "search_query": [
+        "site.arxiv.org October 2026 zero knowledge GPU sumcheck memory",
+        "site.github.com zero knowledge GPU release October 2026 Goldilocks NTT"
+      ]
+    },
+    {
+      "batch": 7,
+      "open": [
+        "https://arxiv.org/abs/2610.14849",
+        [
+          "https://github.com/Artemarius/cuda-zkp-ntt/releases",
+          150
+        ]
+      ]
+    },
+    {
+      "batch": 8,
+      "open": [
+        "https://github.com/Oraclizer/statesync-gkr/releases/tag/v1.2.1"
+      ]
+    }
+  ],
+  "response_hash_file": "web-response-hashes.jsonl",
+  "scope": "Search results are leads. Source claims are distinguished from local reproduction in sources-cycle.jsonl. No source instructions followed; no foreign code executed."
+}

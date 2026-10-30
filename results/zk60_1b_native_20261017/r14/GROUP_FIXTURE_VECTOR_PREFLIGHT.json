@@ -1,0 +1,14 @@
+{
+  "utc": "2026-10-30T05:04:35.710192+00:00",
+  "source": "79093470047464587140fc63d4ca84b95c11c090bd32d4cbd1057503969d6db5",
+  "build3": "Compiled16/0 but fixture not run: independent retained table vectors show gate1 scaled outputs equal32768. Source/binary saved in checkpoints/actual-build-3.",
+  "fix": "Two selected WG input weights -127 with m_g64 give rounded gate2; require independent vector scaled outputs65536 versus67584. Only test source changed.",
+  "reference_norm_words": [
+    -115,
+    -114
+  ],
+  "accumulator": 29083,
+  "gate": 2,
+  "correct_scaled": 65536,
+  "wrong_scaled": 67584
+}

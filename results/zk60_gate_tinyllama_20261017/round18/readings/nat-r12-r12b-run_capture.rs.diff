@@ -1,0 +1,22 @@
+--- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12/frozen-tree/hashline/src/private_block/run_capture.rs	2026-10-20 22:06:56.735286981 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12b/frozen-tree/hashline/src/private_block/run_capture.rs	2026-10-28 15:30:02.117728830 -0700
+@@ -216,7 +216,7 @@
+     "../zkp-core/src/tables.rs",
+ ];
+ 
+-pub(super) const OWN_SOURCE_FILES: [&str; 18] = [
++pub(super) const OWN_SOURCE_FILES: [&str; 20] = [
+     "src/private_block/run_capture.rs",
+     "src/private_block/run.rs",
+     "src/private_block/boundary.rs",
+@@ -265,6 +265,10 @@
+     // NATIVE R12 (F1): the RoPE frequency transforms, which decide the public
+     // cos / sin tables a trained run binds (the loader's generator)
+     "src/private_block/rope.rs",
++    // R12b: these decide whether the token tables are derived from the
++    // authenticated model before their digests enter a trained statement.
++    "src/private_block/tied_tables.rs",
++    "src/private_block/tied_tables/derive.rs",
+ ];
+ 
+ /// **The production modules of `private_block` that are NOT source pins, with

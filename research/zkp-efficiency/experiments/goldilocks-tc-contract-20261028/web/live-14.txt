@@ -1,0 +1,273 @@
+ (https://raw.githubusercontent.com/Terminus-IMRC/tensor-core-ntt/6f407daa8a4cef96331511ae86b922b520d7aa33/include/polyarith/cuda/ntt.cuh)
+citeturn14view0 [wordlim: 200] Crawled: 3 weeks ago; Content type: text/plain; Source: open({"ref_id":"https://raw.githubusercontent.com/Terminus-IMRC/tensor-core-ntt/6f407daa8a4cef96331511ae86b922b520d7aa33/include/polyarith/cuda/ntt.cuh","lineno":1}); Total lines: 339
+L0: // SPDX-License-Identifier: Apache-2.0
+L1: // SPDX-FileCopyrightText: Copyright © 2026 Yukimasa Sugizaki
+L2: 
+L3: #ifndef POLYARITH_CUDA_NTT_CUH_INCLUDED
+L4: #define POLYARITH_CUDA_NTT_CUH_INCLUDED
+L5: 
+L6: #include <cstdint>
+L7: #include <cstring>
+L8: #include <stdexcept>
+L9: #include <vector>
+L10: 
+L11: #include <mma.h>
+L12: #include "../arithmetic.cuh"
+L13: #include "../modular.cuh"
+L14: #include "../modulus.cuh"
+L15: #include "matrix.cuh"
+L16: #include "mma.cuh"
+L17: #include "thread.cuh"
+L18: 
+L19: namespace polyarith {
+L20: 
+L21: namespace cuda {
+L22: 
+L23: template <class reduction_type_> class NttForward16x16Coalesced {
+L24: 
+L25: public:
+L26:   using reduction_type = reduction_type_;
+L27: 
+L28: private:
+L29:   struct {
+L30:     struct {
+L31:       std::uint64_t value;
+L32:     } by_lane[32];
+L33:   } values[8];
+L34: 
+L35: public:
+L36:   NttForward16x16Coalesced(void) = default;
+L37:   NttForward16x16Coalesced(const Modulus &modulus) {
+L38:     const std::uint64_t factor = modulus.power(2, reduction_type::get_factor());
+L39:     const std::uint64_t root = modulus.get_root_forward(16);
+L40: 
+L41:     std::uint64_t forward_ntt[16][16];
+L42:     for (int row = 0; row < 16; ++row) {
+L43:       for (int col = 0; col < 16; ++col) {
+L44:         forward_ntt[row][col] = modulus.multiply(
+L45:             modulus.power(
+L46:                 root, arithmetic::bitswap_within<std::uint32_t>(row, 4) * col),
+L47:             factor);
+L48:       }
+L49:     }
+L50:     for (int laneId = 0; laneId < 32; ++laneId) {
+L51:       std::uint64_t a[8];
+L52:       load_matrix_16x16_packed4cols_n_lane(a, &forward_ntt[0][0], 16, laneId);
+L53:       for (int pos = 0; pos < 8; ++pos) {
+L54:         std::uint8_t aa[8];
+L55:         for (int i = 0; i < 8; ++i) {
+L56:           aa[i] = a[i] >> (8 * pos);
+L57:         }
+L58:         std::memcpy(&values[pos].by_lane[laneId].value, aa, 8);
+L59:       }
+L60:     }
+L61:   }
+L62: 
+L63:   __device__ void get(void *const out) const {
+L64:     const int laneId = get_laneId();
+L65:     for (int i = 0; i < (reduction_type::modulus_bits + 7) / 8; ++i) {
+L66:       reinterpret_cast<std::uint64_t *>(out)[i] =
+L67:           values[i].by_lane[laneId].value;
+L68:     }
+L69:   }
+L70: private:
+L71:   static __device__ void multiply_ntt_matrix(std::uint64_t uu[8],
+L72:                                              const std::uint32_t aa[8][2],
+L73:                                              const std::uint32_t bb[8][2],
+L74:                                              const std::uint64_t modulus,
+L75:                                              const reduction_type &reduction) {
+L76:     std::uint32_t ss[15][8]{};
+L77:     std::uint32_t tt[8][8]{};
+L78:     constexpr int num_digits = (reduction_type::modulus_bits + 7) / 8;
+L79:     for (int i = 0; i <= 2 * (num_digits - 1); ++i) {
+L80:       for (int j = 0; j < num_digits; ++j) {
+L81:         const int k = i - j;
+L82:         if (0 <= k && k < num_digits) {
+L83:           mma_m16n16k16(ss[i], aa[j], bb[k], ss[i]);
+L84:         }
+L85:       }
+L86:     }
+L87:     for (int i = 0; i < num_digits - 1; ++i) {
+L88:       for (int j = 0; j < 8; ++j) {
+L89:         tt[i][j] = ss[2 * i + 0][j] + (ss[2 * i + 1][j] << 8);
+L90:       }
+L91:     }
+L92:     for (int j = 0; j < 8; ++j) {
+L93:       tt[num_digits - 1][j] = ss[2 * (num_digits - 1)][j];
+L94:     }
+L95: 
+L96:     for (int i = 0; i < 8; ++i) {
+L97:       uu[i] = reduction.reduce(tt[0][i], tt[1][i], tt[2][i], tt[3][i], tt[4][i],
+L98:                                tt[5][i], tt[6][i], tt[7][i], modulus);
+L99:     }
+L100:   }
+L101: public:
+L102:   __device__ void compute_2n(std::uint64_t a[8], const std::uint64_t modulus,
+L103:                              const reduction_type &reduction) const {
+L104:     const int laneId = get_laneId();
+L105:     const dim3 groupIdx(laneId % 4, laneId / 4);
+L106: 
+L107:     std::uint32_t aa[8][2];
+L108:     matrix_16x16_decompose_u64_to_u8<reduction_type::modulus_bits>(aa, a);
+L109: 
+L110:     __align__(16) std::uint32_t forward_ntt[8][2];
+L111:     get(forward_ntt);
+L112:     // mma(A, N^T) = A N
+L113:     // mma(A^T, N^T) = A^T N
+L114:     multiply_ntt_matrix(a, aa, forward_ntt, modulus, reduction);
+L115:   }
+L116: 
+L117:   __device__ void compute_2t(std::uint64_t a[8], const std::uint64_t modulus,
+L118:                              const reduction_type &reduction) const {
+L119:     const int laneId = get_laneId();
+L120:     const dim3 groupIdx(laneId % 4, laneId / 4);
+L121: 
+L122:     std::uint32_t aa[8][2];
+L123:     matrix_16x16_decompose_u64_to_u8<reduction_type::modulus_bits>(aa, a);
+L124:     __align__(16) std::uint32_t forward_ntt[8][2];
+L125:     get(forward_ntt);
+L126: 
+L127:     // mma(N^T, A) = N^T A^T = (A N)^T
+L128:     // mma(N^T, A^T) = N^T A = (A^T N)^T
+L129:     multiply_ntt_matrix(a, forward_ntt, aa, modulus, reduction);
+L130:   }
+L131: };
+L132: 
+L133: template <class reduction_type_> class NttForwardWmma16x16 {
+L134: 
+L135: public:
+L136:   using reduction_type = reduction_type_;
+L137: 
+L138: private:
+L139:   std::uint8_t values[8][16][16];
+L140: 
+L141: public:
+L142:   NttForwardWmma16x16(void) = default;
+L143:   NttForwardWmma16x16(const Modulus &modulus) {
+L144:     const std::uint64_t factor = modulus.power(2, reduction_type::get_factor());
+L145:     const std::uint64_t root = modulus.get_root_forward(16);
+L146: 
+L147:     std::uint64_t forward_ntt[16][16];
+L148:     for (int row = 0; row < 16; ++row) {
+L149:       for (int col = 0; col < 16; ++col) {
+L150:         forward_ntt[row][col] = modulus.multiply(
+L151:             modulus.power(
+L152:                 root, arithmetic::bitswap_within<std::uint32_t>(row, 4) * col),
+L153:             factor);
+L154:       }
+L155:     }
+L156:     for (int row = 0; row < 16; ++row) {
+L157:       for (int col = 0; col < 16; ++col) {
+L158:         for (int pos = 0; pos < 8; ++pos) {
+L159:           values[pos][row][col] = forward_ntt[row][col] >> (8 * pos);
+L160:         }
+L161:       }
+L162:     }
+L163:   }
+L164: private:
+L165:   static __device__ void multiply_ntt_matrix_wmma(
+L166:       std::uint64_t uu[8],
+L167:       const nvcuda::wmma::fragment<nvcuda::wmma::matrix_a, 16, 16, 16,
+L168:                                    std::uint8_t, nvcuda::wmma::row_major>
+L169:           aa[8],
+L170:       const nvcuda::wmma::fragment<nvcuda::wmma::matrix_b, 16, 16, 16,
+L171:                                    std::uint8_t, nvcuda::wmma::col_major>
+L172:           bb[8],
+L173:       const nvcuda::wmma::layout_t layout, const std::uint64_t modulus,
+L174:       const reduction_type &reduction) {
+L175:     const int laneId = get_laneId();
+L176:     const int warpId = get_warpId<2>();
+L177:     nvcuda::wmma::fragment<nvcuda::wmma::accumulator, 16, 16, 16, std::int32_t>
+L178:         ss[15], tt[8];
+L179:     for (int i = 0; i < 15; ++i) {
+L180:       nvcuda::wmma::fill_fragment(ss[i], 0);
+L181:     }
+L182:     constexpr int num_digits = (reduction_type::modulus_bits + 7) / 8;
+L183:     for (int i = 0; i <= 2 * (num_digits - 1); ++i) {
+L184:       for (int j = 0; j < num_digits; ++j) {
+L185:         const int k = i - j;
+L186:         if (0 <= k && k < num_digits) {
+L187:           nvcuda::wmma::mma_sync(ss[i], aa[j], bb[k], ss[i]);
+L188:         }
+L189:       }
+L190:     }
+L191:     for (int i = 0; i < num_digits - 1; ++i) {
+L192:       for (int j = 0; j < 8; ++j) {
+L193:         tt[i].x[j] = ss[2 * i + 0].x[j] + (ss[2 * i + 1].x[j] << 8);
+L194:       }
+L195:     }
+L196:     for (int j = 0; j < 8; ++j) {
+L197:       tt[num_digits - 1].x[j] = ss[2 * (num_digits - 1)].x[j];
+L198:     }
+L199: 
+L200:     extern __shared__ std::int32_t vv[][8][16][16];
+L201:     for (int i = 0; i < 8; ++i) {
+L202:       nvcuda::wmma::store_matrix_sync(&vv[warpId][i][0][0], tt[i], 16, layout);
+L203:     }
+L204: 
+L205:     __syncwarp();
+L206:     for (int i = 0; i < 8; ++i) {
+L207:       const int row = 2 * i + 1 * (laneId / 16);
+L208:       const int col = laneId % 16;
+L209:       uu[i] = reduction.reduce(vv[warpId][0][row][col], vv[warpId][1][row][col],
+L210:                                vv[warpId][2][row][col], vv[warpId][3][row][col],
+L211:                                vv[warpId][4][row][col], vv[warpId][5][row][col],
+L212:                                vv[warpId][6][row][col], vv[warpId][7][row][col],
+L213:                                modulus);
+L214:     }
+L215:   }
+L216: public:
+L217:   __device__ void compute(std::uint64_t a[8],
+L218:                           const nvcuda::wmma::layout_t layout,
+L219:                           const std::uint64_t modulus,
+L220:                           const reduction_type &reduction) const {
+L221:     const int laneId = get_laneId();
+L222:     const int warpId = get_warpId<2>();
+L223: 
+L224:     std::uint32_t aa[8][2];
+L225:     matrix_16x16_decompose_u64_to_u8<reduction_type::modulus_bits>(aa, a);
+L226:     extern __shared__ std::uint8_t bb[][8][16][16];
+L227:     for (int pos = 0; pos < 8; ++pos) {
+L228:       for (int i = 0; i < 8; ++i) {
+L229:         const int row = 2 * i + 1 * (laneId / 16);
+L230:         const int col = laneId % 16;
+L231:         // XXX
+L232:         bb[warpId * 4][pos][row][col] =
+L233:             aa[pos][(i < 4) ? 0 : 1] >> (8 * (i % 4));
+L234:       }
+L235:     }
+L236: 
+L237:     __syncwarp();
+L238:     nvcuda::wmma::fragment<nvcuda::wmma::matrix_a, 16, 16, 16, std::uint8_t,
+L239:                            nvcuda::wmma::row_major>
+L240:         cc[8];
+L241:     nvcuda::wmma::fragment<nvcuda::wmma::matrix_b, 16, 16, 16, std::uint8_t,
+L242:                            nvcuda::wmma::col_major>
+L243:         dd[8];
+L244:     for (int pos = 0; pos < 8; ++pos) {
+L245:       nvcuda::wmma::load_matrix_sync(cc[pos], &bb[warpId * 4][pos][0][0], 16);
+L246:       nvcuda::wmma::load_matrix_sync(dd[pos], &values[pos][0][0], 16);
+L247:     }
+L248:     // mma(A, N^T) = A N
+L249:     // mma(A^T, N^T) = A^T N
+L250:     multiply_ntt_matrix_wmma(a, cc, dd, layout, modulus, reduction);
+L251:   }
+L252: };
+L253: 
+L254: template <int n_, int radix_> class NttForwardScalarIterative {
+L255: 
+L256: public:
+L257:   static constexpr int n = n_;
+L258:   static constexpr int radix = radix_;
+L259: 
+L260: private:
+L261:   using multiplier_type = modular::MontgomeryFriendlyMultiplier64;
+L262: 
+L263:   multiplier_type values[radix - 1][n / radix];
+L264: 
+L265: public:
+L266:   NttForwardScalarIterative(void) = default;
+--------------------------------------------------------------------------------
+Internal Error ()
+citeturn14view1 [wordlim: 200] Source: open({"ref_id":"https://github.com/Terminus-IMRC/tensor-core-ntt/commit/ab7f23892f9f9c71dc5bdb53359145464131678d","lineno":null}); 
+Failed to fetch https://github.com/Terminus-IMRC/tensor-core-ntt/commit/ab7f23892f9f9c71dc5bdb53359145464131678d: Cache miss

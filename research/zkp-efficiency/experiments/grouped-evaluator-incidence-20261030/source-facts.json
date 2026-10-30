@@ -1,0 +1,17 @@
+{
+  "grouped_bracket_body_identical_between_active_and_r14": true,
+  "grouped_bracket_body_sha256": "df8f50922bea494e4ebf69699c52c95ec847c70045fb1e5950f880c82ab29511",
+  "source_scope": "Literal private SC_SZC groups/bracket and host table loops; not whole-program incidence or security review",
+  "facts": [
+    "Only SC_SZC assigns def.groups in inspected argument.rs",
+    "All k columns receive cur/dif and max_degree interpolation in GroupedEqRounds::round",
+    "Three Eq columns precede mask/data/helper/support tables",
+    "Bracket group0 uses every remaining column in the selected ls2/3 lp2 projection",
+    "Host groups use sum/ght and s8/rsl/gs, subsets of group0 dependencies",
+    "All original tables fold and all finals preserve original order",
+    "SC_SZC if sh.dd_cap > 0 branch precedes grouped branch and returns b.finish with groups None",
+    "DD source retains keyed sum, beta*mask*e, beta2*p, exp helper and all dictionary obligations; projection uses default keyed branch only"
+  ],
+  "dd_branch_body_identical_active_r14": true,
+  "dd_branch_body_sha256": "1836f044a39f07dbcb505d262e4ca758eb3b75c97700096254768c7b32d473eb"
+}

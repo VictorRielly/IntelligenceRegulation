@@ -1,0 +1,7 @@
+
+running 1 test
+test private_block::matched_r14_benchmark::r14_matched_r13_t128_non_dd_two_blocks ... R13_MATCHED_STREAM {"dd":false,"tokens":128,"blocks":2,"prove_seconds":49.22540287,"verify_seconds":1.3097519979999999,"process_hwm_mib":7671.29296875,"bytes":[32181896, 33199720],"model_identity":"2e6c6caac2ba301224181362559d042a3f620fe291693344024b6834a05d92a2","block_digest":"70c065a71fefa6f8caeaef95d66f739cc6137def79f75235c433645f6e7bf6a9","fixture_helpers_sha256":"9bce20f3bc9f97592db66bbbef9a307529604dbf46980bac9dce43c3a1ad8c96","scope":"accepted R13 native source plus test-only exact R14 public synthetic fixture, same2layer calibrations; n1 sharedhost, not approved trained-model performance"}
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 723 filtered out; finished in 60.90s
+

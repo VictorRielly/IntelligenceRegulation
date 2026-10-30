@@ -1,0 +1,15 @@
+{
+  "case": "r13-low-dense-plain",
+  "utc_before_prove": "2026-10-29T07:41:56.038337+00:00",
+  "cli_sha256": "5ff7e86beb2cd71d8824a6d526383654e121edbb63a536434a69bd3d47f3cf47",
+  "cli_path": "/home/victor/IntelligenceRegulation/results/zk60_sol_20261026/r13-f1/zk60_trained_block.r13-f1.release.bin",
+  "source_tree_sha256": "b4f7d795c23eef05676dc5fafbc91f7d70391f972ec5d6b46ca9116720a55f9f",
+  "profile_sha256": "31ac461a2d380ef6ce2b4f559a7a5b34d6cf25bfa86d0f828dfca70680f8298b",
+  "scope": "public synthetic fixture",
+  "statement_identity": "2f386a9fd7480b2d8bcca4064e679e204ba2068358bd50677e7f6bf54feb6dbd",
+  "receipt_dir": "/home/victor/IntelligenceRegulation/results/zk60_sol_20261026/r13-f1/receipts/r13-low-dense-plain",
+  "segment_sha256": "ad50a59ab2893df366e8d9189b09fa6977f18bb43624011f2daa21f4341ebb8b",
+  "calibration_controls_reach_receipt": 11,
+  "all_refusals": 19,
+  "old_receipt_verifies": true
+}

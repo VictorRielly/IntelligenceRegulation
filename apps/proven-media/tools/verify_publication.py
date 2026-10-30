@@ -30,8 +30,20 @@ from proven_media.publisher import AnchorRef, LocalChainPublisher, content_commi
 
 
 def run_verifier(pub: LocalChainPublisher, manifest: dict, post_id: str) -> dict:
-    if manifest.get("verifier_id") != config.STUB_BIN_SHA256:  # noqa: SIM102
+    from proven_media import shieldstral_runtime as runtime
+    real = manifest.get('verifier_id') == runtime.BINARY_SHA
+    if manifest.get("verifier_id") != config.STUB_BIN_SHA256 and not real:
         return {"ok": False, "why": "no local binary for this verifier id"}
+    if real:
+        choices = {c['id']: c for c in runtime.categories()}
+        category = choices.get(manifest.get('category'))
+        if (category is None or manifest.get('model_id') != runtime.IDENTITY
+                or manifest.get('verdict') not in ('yes', 'no')
+                or manifest.get('profile_id') != runtime.PROFILE_SHA
+                or manifest.get('policy_id') != category['sha256']
+                or records.sha256_file(runtime.BINARY) != runtime.BINARY_SHA
+                or records.sha256_file(runtime.VERIFIER_EXPORT/'profile.json') != runtime.PROFILE_SHA):
+            return {'ok': False, 'why': 'real classifier publication differs from pinned deployment'}
     base = pub.store.parent / "verify-from-store" / f"{post_id[:16]}-c{manifest.get('chunk', 0)}-{int(time.time())}"
     run = base / "run"
     (run / "statement").mkdir(parents=True)
@@ -48,10 +60,28 @@ def run_verifier(pub: LocalChainPublisher, manifest: dict, post_id: str) -> dict
            "--log", str(log), "--done", str(done), "--result-json", str(res), "--",
            str(config.STUB_BIN), "verify", "--export", str(v), "--emb", str(v), "--head", str(config.STUB_HEAD),
            "--artifact", str(run), "--expect-statement", manifest["model_id"], "--expect-token-profile", manifest["profile_id"]]
+    if real:
+        need, cap, maximum = runtime.RESOURCES['verify']
+        cmd = ['python3', str(config.GUARD), 'run', '--class', 'cpu', '--need-gib', str(need),
+               '--cap-gib', str(cap), '--label', 'pm-verifypub-'+post_id[:12], '--wait-secs', '3600',
+               '--max-secs', str(maximum), '--log', str(log), '--done', str(done), '--result-json', str(res), '--',
+               '/usr/bin/env', 'RAYON_NUM_THREADS=2', 'OPENBLAS_NUM_THREADS=2', 'OMP_NUM_THREADS=2',
+               str(runtime.BINARY), 'verify', '--export', str(runtime.VERIFIER_EXPORT),
+               '--tables', str(runtime.VERIFIER_EXPORT/'token_io'), '--policy', category['policy_id'],
+               '--label', 'zk60-classify-verdict', '--artifact', str(run),
+               '--expect-statement', runtime.IDENTITY, '--min-bits', '95']
     rc = subprocess.run(cmd, capture_output=True, text=True).returncode
     ev = [json.loads(x) for x in log.read_text().splitlines() if x.startswith("{")] if log.exists() else []
-    verified = next((e for e in reversed(ev) if e.get("event") == "verified"), None)
-    return {"ok": rc == 0 and verified is not None, "exit": rc, "verified": verified, "rebuilt_run": str(run),
+    expected_event = 'classified' if real else 'verified'
+    successes = [e for e in ev if e.get('event') == expected_event]
+    verified = successes[0] if len(successes) == 1 else None
+    valid = rc == 0 and verified is not None and not any(e.get('event') in ('refused','app-outcome') for e in ev)
+    if real and valid:
+        valid = (verified.get('trained_statement_identity') == runtime.IDENTITY
+                 and verified.get('policy') == category['policy_id']
+                 and verified.get('verdict') == ('flagged' if manifest['verdict'] == 'yes' else 'not-flagged')
+                 and verified.get('whole_run_floor_bits', 0) >= 95)
+    return {"ok": valid, "exit": rc, "verified": verified, "rebuilt_run": str(run),
             "guard": {k: json.loads(res.read_text()).get(k) for k in ("waited_s", "guard_wall_s", "peak_rss_gib")} if res.exists() else None}
 
 

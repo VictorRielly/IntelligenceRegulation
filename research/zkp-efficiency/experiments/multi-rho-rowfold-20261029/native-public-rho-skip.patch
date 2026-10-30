@@ -1,0 +1,29 @@
+--- a/hashline/src/gpu/kernels.cu
++++ b/hashline/src/gpu/kernels.cu
+@@ -946,12 +946,23 @@
+     #pragma unroll
+     for (int g = 0; g < FR_MAX_K; g++) acc[g] = f2_zero();
+     for (int i = 0; i < rows; i++) {
++        // rho is public opening data. No branch inspects private data.
++        f2 rw[FR_MAX_K];
++        bool any = false;
++        #pragma unroll
++        for (int g = 0; g < FR_MAX_K; g++) {
++            rw[g] = f2_zero();
++            if (g < k) {
++                rw[g] = ld_f2(rhos, (size_t)g * rows + i);
++                any |= (rw[g].c0 != 0ULL || rw[g].c1 != 0ULL);
++            }
++        }
++        if (!any) continue;
+         u64 v = data[(size_t)i * n + j];
+         #pragma unroll
+         for (int g = 0; g < FR_MAX_K; g++) {
+-            if (g < k) {
+-                f2 r = ld_f2(rhos, (size_t)g * rows + i);
+-                acc[g] = f2_add(acc[g], f2_mul_base(r, v));
++            if (g < k && (rw[g].c0 != 0ULL || rw[g].c1 != 0ULL)) {
++                acc[g] = f2_add(acc[g], f2_mul_base(rw[g], v));
+             }
+         }
+     }

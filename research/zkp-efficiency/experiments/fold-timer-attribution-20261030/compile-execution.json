@@ -1,0 +1,25 @@
+{
+  "stage": "compile",
+  "command": [
+    "/usr/bin/rustc",
+    "--edition=2021",
+    "-C",
+    "opt-level=2",
+    "-C",
+    "codegen-units=1",
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/fold-timer-attribution-20261030/mock.rs",
+    "-o",
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/fold-timer-attribution-20261030/probe"
+  ],
+  "exit_code": 0,
+  "wall_s": 1.1734576990002097,
+  "max_rss_kib": 161416,
+  "cpu_affinity_count": 1,
+  "nice": 19,
+  "cpu_limit_s": 30,
+  "alarm_s": 40,
+  "parent_timeout_s": 45,
+  "address_space_mib": 384,
+  "estimated_memory_mib": 300,
+  "gpu": false
+}

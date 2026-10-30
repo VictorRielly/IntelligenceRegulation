@@ -1,0 +1,18 @@
+{
+  "original_rank": 78,
+  "refinement": {
+    "rank": 79,
+    "title": "TESTED current R14 public layout repin; historical group provenance and fresh-proximity max4 boundary",
+    "baseline": "Previous representation experiments used frozen R13 8B/T128 A4577/H4390 without DD. R14 is an explicit Shieldstral3072/9216 T128/T256 prototype. No native exclusive fold clocks.",
+    "eliminated_work": "No native work removed. Eliminates invalid cross-profile row/count transplantation and undercounting rho vectors/batches by omitting fresh proximity.",
+    "added_costs": "Public source extraction and standalone metadata constructor/reference validation. All per-proof masks/pads/proximity, transfers, allocation, serialization, verification and setup remain recurring unless separately measured otherwise.",
+    "prerequisites": "Current source pins, owner profile/reviews/admission and exclusive device/enclosing clocks. Historical generic-point group counts have drifted producer files; current native define/groups not executed here.",
+    "integration_cost": "Low-cost read-only public counters at fold_rows_multi_zk/EncodedStore::fold_rows/dev_fold_rows; owner applies under current locks. No production patch or native build.",
+    "exactness": "12 T128/T256 x DD/nonDD x fe9/12/16 layouts: unchanged extracted SplitLayout and13Shape method bodies match independent Python block/prefix-sum metadata and recorded native inventory.11251assertions,132extracted-native and120Pythonnegative controls. Native arithmetic/FS/PCS/receipts/privacy unrun.",
+    "privacy_soundness": "Public geometry only; every reserved mask pair, external spare and fresh proximity counted. No hidden input/activation/model data, mask reuse or changed functional. Constructor/reference checks are not privacy acceptance.",
+    "compatibility": "R14 actual-working-tree public metadata only. split_profile admits four Shieldstral names, not8B. Data/mask/proximity source files match held manifest; four historical census producer files differ.",
+    "end_to_end_ceiling": "No numerical GPU8B forecast. N/(T-C_removed_exclusive+A_added), free deletion<=1/(1-f) with measured exclusive f unknown. Historical conditional source operands and metadata are not physical traffic or time.",
+    "falsification": "Reject inherited profile/counts on row/source mismatch. Current group/refusal/claim-source/limb/order/RNG/FS/PCS drift, omitted endpoint/proximity, or slower enclosing verified workload rejects promotion.",
+    "disposition": "Repin succeeds as exact geometry/cost-accounting evidence; no native proving improvement. Keep actual current groups and device phases unmeasured."
+  }
+}

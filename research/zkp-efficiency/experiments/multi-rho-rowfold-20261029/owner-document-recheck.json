@@ -1,0 +1,41 @@
+{
+  "utc": "2026-10-29T17:13:18.465539+00:00",
+  "documents": [
+    {
+      "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/AGENDA.md",
+      "startup_sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139",
+      "current_sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139",
+      "unchanged": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/CLAUDE.md",
+      "startup_sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6",
+      "current_sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6",
+      "unchanged": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/MVP_STATUS.md",
+      "startup_sha256": "20c64a4899ee8aed287c80c8b1d3e712be8129f12f07b436c9a9e7c39522e522",
+      "current_sha256": "20c64a4899ee8aed287c80c8b1d3e712be8129f12f07b436c9a9e7c39522e522",
+      "unchanged": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_DECISIONS.md",
+      "startup_sha256": "c44dee3a37007bc561a89818e0e43e96cf0fd7852ecbbf117cb9ef2952d1a0f5",
+      "current_sha256": "c44dee3a37007bc561a89818e0e43e96cf0fd7852ecbbf117cb9ef2952d1a0f5",
+      "unchanged": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_CODEX_FABLE_COORDINATION.md",
+      "startup_sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f",
+      "current_sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f",
+      "unchanged": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_THROUGHPUT_TARGET.md",
+      "startup_sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53",
+      "current_sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53",
+      "unchanged": true
+    }
+  ]
+}

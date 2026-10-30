@@ -1,0 +1,13 @@
+{
+  "layer": 20,
+  "seconds": 1.4244885444641113,
+  "diagnostics": [
+    {
+      "sequence": 97,
+      "first_refusal": null,
+      "violations": {}
+    }
+  ],
+  "input_sha256": "e0f4a1a3fe38b344cf72125b96b236179c8de5e4f3d82b2cadef84d62d33ad23",
+  "output_sha256": "0f5af356c6c922decf80285031e6d30f997c452a2c39fef448d0f6f6513fcfb3"
+}

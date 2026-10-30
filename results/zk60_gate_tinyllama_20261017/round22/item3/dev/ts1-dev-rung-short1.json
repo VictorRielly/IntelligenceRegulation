@@ -1,0 +1,95 @@
+{
+ "arrays_checked": 79,
+ "bundle": "classify-r13-rung-L2-v1-short1",
+ "controls": {
+  "TS_1_partial": [
+   {
+    "fires": true,
+    "group": 0,
+    "honest_disclosed_Fp": 0,
+    "pair_removed_disclosed_Fp": 4096,
+    "role": "A-in",
+    "seconds": 15.5,
+    "stage": 0,
+    "stage_kind": "IN-C"
+   },
+   {
+    "fires": true,
+    "group": 0,
+    "honest_disclosed_Fp": 0,
+    "pair_removed_disclosed_Fp": 8192,
+    "role": "H-in",
+    "seconds": 37.8,
+    "stage": 0,
+    "stage_kind": "IN-C"
+   },
+   {
+    "fires": true,
+    "group": 0,
+    "honest_disclosed_Fp": 0,
+    "pair_removed_disclosed_Fp": 256,
+    "role": "E-token-in",
+    "seconds": 0.1,
+    "stage": 0,
+    "stage_kind": "IN-C"
+   },
+   {
+    "fires": true,
+    "group": 0,
+    "honest_disclosed_Fp": 0,
+    "pair_removed_disclosed_Fp": 4096,
+    "role": "A-out",
+    "seconds": 14.8,
+    "stage": 3,
+    "stage_kind": "OUT-C"
+   },
+   {
+    "fires": true,
+    "group": 0,
+    "honest_disclosed_Fp": 0,
+    "pair_removed_disclosed_Fp": 8192,
+    "role": "H-out",
+    "seconds": 38.3,
+    "stage": 3,
+    "stage_kind": "OUT-C"
+   },
+   {
+    "fires": true,
+    "group": 0,
+    "honest_disclosed_Fp": 0,
+    "pair_removed_disclosed_Fp": 16384,
+    "role": "B-out",
+    "seconds": 312.0,
+    "stage": 3,
+    "stage_kind": "OUT-C"
+   },
+   {
+    "fires": true,
+    "group": 0,
+    "honest_disclosed_Fp": 0,
+    "pair_removed_disclosed_Fp": 16384,
+    "role": "A",
+    "seconds": 289.6,
+    "stage": 1,
+    "stage_kind": "BLOCK"
+   }
+  ]
+ },
+ "privacy_acceptance": false,
+ "profile": "hashline-zk-mr1/private-classify-run-rung-lh-t32-public-row-tst/1",
+ "roles": [],
+ "seconds_so_far": 710.0,
+ "stage0": {
+  "ok": true,
+  "random_systems": 60,
+  "sparse_vs_dense_disagreements": 0
+ },
+ "stages_read": [
+  0,
+  3,
+  1
+ ],
+ "ts_trained_sha256": "d6f6cf93ff1d5ad0dad6cb75671145b4e53bdd03be479841a72a0f2ae281f8bc",
+ "what": "gate round 22 item 3: the G-7 terminal surjection on a classifier capture's IN-C / OUT-C roles and R13 block roles, TS-1 on every role, the review controls on a block A; NOT a privacy result",
+ "written_after": "TS-1 row 7"
+}

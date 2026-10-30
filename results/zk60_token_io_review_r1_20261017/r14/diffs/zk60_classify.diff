@@ -1,0 +1,18 @@
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r13/hashline/examples/zk60_classify.rs	2026-10-28 16:42:48.578780725 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r14/hashline/examples/zk60_classify.rs	2026-10-28 19:12:07.674756935 -0700
+@@ -24,9 +24,12 @@
+ //! development rung only, else 95: D27) is refused. The content never goes on the
+ //! command line (`--content` is refused, exit 2). D41: the content file holds
+ //! the WHOLE content's ids; `--chunk J` proves chunk J of the profile's public
+-//! split; `label` prints the OR over every chunk run of one item. Every
+-//! refusal prints the fail-closed outcome line (B-4: no accepted proof is
+-//! handled as flagged). See `src/private_block/token_io/classify_cli.rs`.
++//! split; `label` prints the OR over every chunk run of one item. ROUND 14
++//! (rung R-C3): a content SHORTER than one chunk is one chunk of its true
++//! length, its trailing positions holding the policy's public pad id (the
++//! content length is public: D45(1)); statement schema `zk60-classify-run/3`.
++//! Every refusal prints the fail-closed outcome line (D45(4): no accepted proof
++//! is handled as flagged). See `src/private_block/token_io/classify_cli.rs`.
+ //!
+ //! SCOPE: the development rung is the registered run profile (Shieldstral's
+ //! tied source is wired through native R12b's recompute; its classifier run

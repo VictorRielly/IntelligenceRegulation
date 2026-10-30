@@ -1,0 +1,11 @@
+error: this file contains an unclosed delimiter
+  --> results/zk60_1b_native_20261017/r13/layout-next/layout_stub.rs:80:43
+   |
+77 | pub(crate) const A_SITES: [usize;
+   |                           - unclosed delimiter
+...
+80 | pub(crate) const A_DATA_ROWS: usize = 213;
+   |                                           ^
+
+error: aborting due to 1 previous error
+

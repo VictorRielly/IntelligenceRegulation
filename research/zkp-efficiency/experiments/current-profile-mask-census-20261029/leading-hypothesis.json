@@ -1,0 +1,14 @@
+{
+  "hypothesis": 53,
+  "question": "Does the previous public-tail/paired-mask cost model cover the current admitted LOW+h24/DD schedule?",
+  "baseline": "Previous old norm4/sigma3/P2 non-DD T128 catalog:174 pairs,174 Eq builds,4,872,192 private-word reads. Native baseline remains two mask row dots with fresh Eq per call.",
+  "eliminated_work": "Metadata itself eliminates no proving work. Conditional one-entry current-slot exact ordered public-tail cache would avoid168/171 non-DD or170/173 DD Eq constructions; retain all private evaluations. Counts vary with f_E.",
+  "added_costs": "Point comparisons/copies,dispatch,public cache lifetime; up to262144B Eq payload per active context. Optional eager sum buffer adds33/36 allocations,up to131072B extra live payload and34.93..36.76MB logical accesses. No private mask/value/result/opening reuse.",
+  "prerequisites": "Frozen R13 metadata and exact coordinates; actual native exclusive phase clocks,ownership/lifetime/peak check; golden bytes,refusal,RNG,transcript,PCS,capture and independent full-receipt/privacy gates.",
+  "integration_cost": "Small metadata adapter at argument.rs::mask_eval/run_slot, but native gate work belongs to main/Claude. No production patch applied.",
+  "exactness": "Independent source-derived schedule versus six unchanged compiled metadata methods and retained native census; small Boolean-cube plus large MSB-fold algebra references. Native define/constructor not executed.",
+  "privacy_soundness": "Current-call public-point equality only; distinct fresh reserved pairs,ordered full points,per-site offsets,widths,two bilinear extension families and later zero-extension recurrence preserved. No profile/ruling change.",
+  "end_to_end_ceiling": "N/(T-Cexclusive_removed+Aadded). Unknown without exclusive native clocks. A free deletion fraction f gives at most1/(1-f),before costs; counted products/accesses are not f. No50/s forecast.",
+  "falsification": "Any registry/count/value/address/order/extension/refusal/RNG/transcript/PCS/privacy mismatch,or added traffic/lifetime/register cost erases enclosing verified-workload gain.",
+  "disposition": "Incidence question answered; no native speedup. Eager sums remain parked; owner clocks are next."
+}

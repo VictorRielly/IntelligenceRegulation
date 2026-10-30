@@ -1,0 +1,37 @@
+{
+  "stages": [
+    {
+      "stage": 0,
+      "private_tables": 307,
+      "split_norms": 2,
+      "split_matrices": 11,
+      "public_zero_tail_words": 21504
+    },
+    {
+      "stage": 1,
+      "private_tables": 307,
+      "split_norms": 2,
+      "split_matrices": 11,
+      "public_zero_tail_words": 21504
+    },
+    {
+      "stage": 2,
+      "private_tables": 307,
+      "split_norms": 2,
+      "split_matrices": 11,
+      "public_zero_tail_words": 21504
+    }
+  ],
+  "published_claims_checked": 924,
+  "exclusive_site_pairs_checked": 921,
+  "schema": "hashline-native-capture/6-split-run",
+  "source": "3c7b1dcfd47ba8cb257c6f734348f25fb960af3f25f8b1b14ea4e262ff8defda",
+  "checker_sha256": "c49472e9c8806eb1abecbe0913aa9f0c9c0a656e09db4cd8e7ca6d09402ce701",
+  "field_helper_sha256": "35439d03f9e30e906aefb3cf4c5dd9f2a569a604d1a815cf80c26acbe168b5be",
+  "contract_helper_sha256": "e3f0183689888eb799580e03456a9f79a75b7c01617602a3f016c0b8da842ecb",
+  "source_manifest_sha256": "5e66124455ef5a298cc4b595c48045dff614452ecc5f93eda2d8283426782406",
+  "peak_cached_stage_json": 2,
+  "privacy_acceptance": false,
+  "status": "PASS native Tab/claim provenance, unscaled private projections and public B-gates",
+  "scope": "Exact observed private terminal/PCS claim binding, every captured boundary source, both new norm pieces and all matrix broadcasts/zero lifts. Does not reconstruct all host polynomials or global weight folds; full rank/NL1/privacy review still required."
+}

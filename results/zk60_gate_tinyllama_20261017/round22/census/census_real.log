@@ -1,0 +1,2 @@
+{"profile_len": 73, "replay_ok": true, "challenges_checked": 263324, "C-R1_no_40_byte_F_U_input_in_the_gate_recomputations": true, "C-R2_constructor_not_47": true, "W-2_holds": true, "transcript_query_count_A_measured": 287237, "seconds": 26.5}
+constructors {'85': 1} W-2 neighbours {'85': []}

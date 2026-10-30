@@ -1,0 +1,49 @@
+--- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block.rs	2026-10-19 09:44:41.022052784 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12/frozen-tree/hashline/src/private_block.rs	2026-10-20 20:07:44.049304759 -0700
+@@ -99,6 +99,8 @@
+ // file per segment) and the `L` file names a streaming verifier reads back
+ // one at a time. The wire format of a segment does not move here.
+ mod run_sink;
++// NATIVE R12 (F1): RoPE frequency transforms, public tables only
++mod rope;
+ mod shape;
+ // STAGE 11: the phase clock. A write-only recorder, inert unless
+ // `HL_PB_TIMING=1`, that answers WHERE the seconds of one block go (the P5
+@@ -176,6 +178,13 @@
+ // NATIVE R9: DD, the per-row division dictionary (D30) (test only)
+ #[cfg(test)]
+ mod r9_tests;
++// NATIVE R12 (D38): Shieldstral — F1 RoPE transforms, F2 decoupled head_dim,
++// F3 tied embeddings, the profiles (test only)
++#[cfg(test)]
++mod r12_tests;
++// NATIVE R12: byte identity of the existing profiles across R9 -> R12 (test only)
++#[cfg(test)]
++mod r12_golden_tests;
+ // STAGE 19 (test-only): DENSE public weights and a numerically non-trivial
+ // witness at the shaped geometries, where the diagonal fixture leaves every
+ // hidden unit above `d` with no input and no output weight.
+@@ -407,7 +416,9 @@
+ impl Axis {
+     fn len(self, sh: &shape::Shape) -> usize {
+         match self {
+-            Axis::D | Axis::Q => sh.d_pad,
++            Axis::D => sh.d_pad,
++            // NATIVE R12 (F2): the query axis has its own padded width
++            Axis::Q => sh.q_pad(),
+             Axis::F => sh.f_pad,
+             Axis::Full(n) => n,
+         }
+@@ -558,8 +569,10 @@
+     /// shape it is proved at, before anything is absorbed, committed or drawn.
+     #[allow(clippy::too_many_arguments)]
+     fn check_words(sh: &shape::Shape, wq: &[i8], wk: &[i8], wv: &[i8], wo: &[i8], gamma_a: &[i8], rope_cos: &[i64], rope_sin: &[i64], exp: &[i64]) -> Result<(), String> {
+-        let (d, kv, half) = (sh.d_pad, sh.kv_heads * sh.head_dim, sh.head_dim / 2);
+-        if [wq.len(), wo.len()] != [d * d; 2] || [wk.len(), wv.len()] != [kv * d; 2] || gamma_a.len() != d {
++        // NATIVE R12 (F2): `Wq` is (query axis, model axis), `Wo` (model
++        // axis, query axis); `q == d` at every profile before R12
++        let (d, q, kv, half) = (sh.d_pad, sh.q_pad(), sh.kv_heads * sh.head_dim, sh.head_dim / 2);
++        if [wq.len(), wo.len()] != [q * d; 2] || [wk.len(), wv.len()] != [kv * d; 2] || gamma_a.len() != d {
+             return Err("private block: public weight shape".into());
+         }
+         // P-2: the destination axis's support, axis by axis. `Wq` writes the

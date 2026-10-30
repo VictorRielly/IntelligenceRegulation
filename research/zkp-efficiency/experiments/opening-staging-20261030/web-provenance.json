@@ -1,0 +1,50 @@
+{
+  "tool": "tools.web__run",
+  "native_live": true,
+  "request_batches": 9,
+  "saved_response_hashes": 8,
+  "first_exploratory_response": "Only in native tool history; no raw response hash retained.",
+  "queries": [
+    "2026 GPU sumcheck GKR prover batching memory GitHub October",
+    "2026 zero knowledge attention softmax lookup proof GPU GitHub",
+    "CUDA stream ordered memory allocator graphs data transfer staging buffer reuse official documentation",
+    "GPU sumcheck October 2026 github release GKR batching prover",
+    "zero knowledge attention softmax lookup October 2026 arxiv",
+    "GPU batching host device copies staging CUDA Mark Harris December 2012 overlap"
+  ],
+  "primary_urls": [
+    "https://developer.nvidia.com/blog/how-overlap-data-transfers-cuda-cc/",
+    "https://docs.pytorch.org/devlogs/eager/2026-09-29-cross-stream-memory-without-record-stream/",
+    "https://github.com/NVIDIA/cuda-rust/releases/tag/cutile-rs/v0.4.0",
+    "https://tanvirarafin.github.io/assets/pdf/DATE_2026.pdf",
+    "https://arxiv.org/abs/2610.08258",
+    "https://docs.nvidia.com/cuda/archive/13.1.0/cuda-programming-guide/04-special-topics/stream-ordered-memory-allocation.html"
+  ],
+  "blocked": [
+    {
+      "url": "https://github.com/NVlabs/cuda-oxide/blob/main/cuda-oxide-book/async-programming/overlapping-transfers-and-compute.md",
+      "error": "404NotFound; root redirects to NVIDIA/cuda-rust"
+    },
+    {
+      "url": "https://github.com/SPIRE-GMU/sum_cats/commits/main/",
+      "error": "Cache miss"
+    },
+    {
+      "url": "https://github.com/NVIDIA/cuda-rust/commits/main/",
+      "error": "Cache miss"
+    },
+    {
+      "url": "https://github.com/NVIDIA/cuda-rust/blob/main/cuda-oxide/cuda-oxide-book/async-programming/overlapping-transfers-and-compute.md",
+      "error": "Cache miss"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/NVIDIA/cuda-rust/main/cuda-oxide/cuda-oxide-book/async-programming/overlapping-transfers-and-compute.md",
+      "error": "Cache miss"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/NVIDIA/cuda-rust/a6f1706cd832f0919b981cf61c86010c6c7c0c64/cutile-rs/CHANGELOG.md",
+      "error": "Cache miss"
+    }
+  ],
+  "foreign_code_executed": false
+}

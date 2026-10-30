@@ -1,0 +1,11 @@
+{
+  "commands": [
+    "python3 experiments/public-row-support-20261029/run_bounded.py prepare",
+    "python3 experiments/public-row-support-20261029/run_bounded.py compile",
+    "python3 experiments/public-row-support-20261029/run_bounded.py probe",
+    "python3 experiments/public-row-support-20261029/run_bounded.py census",
+    "python3 experiments/public-row-support-20261029/run_bounded.py audit"
+  ],
+  "seed": 202610290148,
+  "notes": "Standalone locally authored/extracted CPU helper only. Compile/probe repeated once to add explicit H-sum coverage; original passing logs preserved. No heavy job."
+}

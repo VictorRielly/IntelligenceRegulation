@@ -1,0 +1,10 @@
+
+running 5 tests
+test private_block::r12b_tests::pinned_tied_tables_accept_honest_and_refuse_rehashed_forgery ... ignored, full pinned checkpoint/table reads; run guarded with ZK60_R12B_TIED_FIXTURE
+test private_block::tied_tables::derive::tests::calibrated_norm_class_and_classifier_window_are_explicit ... ok
+test private_block::tied_tables::derive::tests::python_rotated_quantization_reference_and_negative_ties ... ok
+test private_block::tied_tables::derive::tests::safetensors_extents_refuse_wrong_dtype_shape_and_bounds ... ok
+test private_block::tied_tables::tests::bounded_hash_rejects_wrong_sizes_and_special_files ... ok
+
+test result: ok. 4 passed; 0 failed; 1 ignored; 0 measured; 632 filtered out; finished in 0.00s
+

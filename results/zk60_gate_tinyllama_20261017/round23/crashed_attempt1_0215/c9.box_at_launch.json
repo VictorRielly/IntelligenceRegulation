@@ -1,0 +1,1 @@
+{"live_guarded_jobs": [{"label": "tio18-s23-suite", "class": "cpu", "need_gib": 9.9}], "fifo_tickets": [], "guard_processes": [{"pid": 509337, "label": "tio18-s23-suite"}], "holds": [], "mem_available_gib": 13.19, "committed_gib": 9.9, "sol_or_astra": [], "alone": false}

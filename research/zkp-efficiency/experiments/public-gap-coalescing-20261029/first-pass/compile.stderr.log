@@ -1,0 +1,28 @@
+warning: unused variable: `counts`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-gap-coalescing-20261029/harness.rs:84:168
+   |
+84 | ...og_cols as u32);let(mut sets,counts)=supports(&cs,n,rows);assert_eq!(sets.len(),groups.len());let mut tr=Transcript{state:202610290153...
+   |                                 ^^^^^^ help: if this is intentional, prefix it with an underscore: `_counts`
+   |
+   = note: `#[warn(unused_variables)]` on by default
+
+warning: unused variable: `numeric`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-gap-coalescing-20261029/harness.rs:84:356
+   |
+84 | ...s.push(vec![true;rows]);let numeric:Vec<_>=rhos.iter().enumerate().map(|(i,rho)|{for r in 0..rows{assert!(sets[i][r]||rho[r]==Fp2::ZER...
+   |                                ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_numeric`
+
+warning: unused variable: `v`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-gap-coalescing-20261029/harness.rs:85:49
+   |
+85 |  let order:Vec<_>=(0..sets.len()).collect();let v=visits(&sets,&order);let baseline=((sets.len()+3)/4)*rows;let overlaps=(0..data).filter...
+   |                                                 ^ help: if this is intentional, prefix it with an underscore: `_v`
+
+warning: unused variable: `baseline`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-gap-coalescing-20261029/harness.rs:85:76
+   |
+85 | ...v=visits(&sets,&order);let baseline=((sets.len()+3)/4)*rows;let overlaps=(0..data).filter(|r|sets[..sets.len()-1].iter().filter(|s|s[*...
+   |                               ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_baseline`
+
+warning: 4 warnings emitted
+

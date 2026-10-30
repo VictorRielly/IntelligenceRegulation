@@ -1,0 +1,10 @@
+{
+  "case": "a-h-same-root",
+  "stage": 0,
+  "offset": 184,
+  "bytes_changed_region": 32,
+  "same_frame_lengths": true,
+  "metadata_unchanged": true,
+  "expected_refusal": "repeated commitment root",
+  "source": "067ba4622a51fc62c320bfd01a96a04aa614a6f798ef46757669d4faa97404f7"
+}

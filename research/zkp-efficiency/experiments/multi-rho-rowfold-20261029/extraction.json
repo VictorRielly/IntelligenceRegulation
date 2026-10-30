@@ -1,0 +1,12 @@
+{
+  "host_adapter": "into_par_iter -> into_iter only",
+  "kernel_compiled": false,
+  "cuda_launched": false,
+  "patch_applied": false,
+  "r14_checkpoint_seam": {
+    "host_function_equal": true,
+    "wrapper_equal": true,
+    "kernel_equal": true,
+    "adapter_equal": true
+  }
+}

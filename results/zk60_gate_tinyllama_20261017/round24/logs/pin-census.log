@@ -1,0 +1,17 @@
+{
+ "v24_accepts_r17_r18_r19_r19b_trees": true,
+ "v23_refuses_r18_r19_r19b_trees_by_name": true,
+ "v23_refusals_r19b": [
+  "src/private_block.rs: 96c1cd16270b has no reading",
+  "src/private_block/tied_tables/derive.rs: 1d6150100abb has no reading"
+ ],
+ "v24_self_checks_ok": true,
+ "v23_r13_self_check_ok_at_r16b": true,
+ "controls_fire": true,
+ "census_c_r1_carries": true,
+ "census_no_hash_token_added": true,
+ "census_control_fires": true,
+ "e7_on_this_box_is_the_v23_path": true,
+ "v23_consulted_tables_moved_exactly_the_two": true
+}
+/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/round24/PIN_CENSUS_R24.json 3b815b3d6990694dd6537238e08b2d6e8f4c65dc0c6042db47fccf99d0e5000f ok

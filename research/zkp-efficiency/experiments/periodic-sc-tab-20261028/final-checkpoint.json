@@ -1,0 +1,53 @@
+{
+  "run_id": "20261028T215649Z-43c1f18d",
+  "cycle": "0128",
+  "status": "COMPLETE",
+  "checkpoint_utc": "2026-10-28T22:10:28.423971+00:00",
+  "deadline_utc": "2026-10-28T22:16:49Z",
+  "next_cycle_no_earlier_than_utc": "2026-10-28T22:56:49Z",
+  "final_audit": {
+    "status": "PASS_FINAL_EVIDENCE_AUDIT",
+    "checks": 334,
+    "immutable_artifacts": 63,
+    "native_pins": 9,
+    "preserved_source_records": 821,
+    "appended_source_records": 9,
+    "hypotheses": 42,
+    "elapsed_seconds": 0.017065242000171565,
+    "max_rss_kib": 19176
+  },
+  "files": [
+    {
+      "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/STATE.md",
+      "sha256": "12311bcfdafc137a99618460d242be7e76ff4a0902b321e0596dc4879463dae7"
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/FINDINGS.md",
+      "sha256": "576a0f2f5ffac543dc4e28d8872642c8160d47aaeb4309311eb0062eb2b6073c"
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/sources.jsonl",
+      "sha256": "307367ccb65da117d1a8cfc521b887888246e85c47050753339aab03f69b92e9"
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/PROGRESS.md",
+      "sha256": "1d595e57f9a249c48e220804449836d0d9b19e91bbf00ed78c4ed504659ef8a2"
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/progress/20261028T215649Z-43c1f18d.md",
+      "sha256": "3b2dbe0d7441be213bc67bf2172ef7e713532ee5b440d77cb4167169a3e4b44f"
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/handoffs/20261028-periodic-sc-tab.md",
+      "sha256": "2e2817391bb9d1a0e70ed9a64b2df6a504bcf4d833ef49000514187d0cbb089f"
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/periodic-sc-tab-20261028/artifact-manifest.json",
+      "sha256": "133e843b9924c841a7101c4d0c42754becfb823b2b5a9dcc749a8cab4240893c"
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/periodic-sc-tab-20261028/artifact-audit-result.json",
+      "sha256": "8a3e279c40a73fb50afb40f0e9dce41bee8ac0a4912fef14a2a1ae4bf48f5c42"
+    }
+  ]
+}

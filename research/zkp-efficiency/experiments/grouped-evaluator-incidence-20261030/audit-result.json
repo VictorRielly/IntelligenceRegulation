@@ -1,0 +1,28 @@
+{
+  "status": "PASS",
+  "checks": {
+    "native_snapshot_hashes": 11,
+    "copied_reference_hashes": 4,
+    "dd_returns_generic_definition": 1,
+    "non_dd_sets_groups": 1,
+    "dd_keyed_tuple": 1,
+    "all_tables_cur_dif": 1,
+    "all_tables_fold": 1,
+    "native_sums_start_from_actual_claims": 1,
+    "non_dd_closed_counts": 192,
+    "non_dd_live_union": 64,
+    "non_dd_direct_finals": 1760,
+    "non_dd_saved_round_replay": 12,
+    "dd_direct_finals": 240,
+    "dd_table_order_count": 16,
+    "independent_dd_round_replay": 24,
+    "independent_generic_operation_formula": 6,
+    "independent_grouped_operation_formula": 6,
+    "independent_dd_removed_counts": 6
+  },
+  "total_checks": 2347,
+  "imports_candidate": false,
+  "imports_experiment": false,
+  "native_execution": false,
+  "cryptographic_verification": false
+}

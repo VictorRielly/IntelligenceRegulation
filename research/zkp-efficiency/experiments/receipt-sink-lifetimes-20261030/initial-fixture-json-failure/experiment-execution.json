@@ -1,0 +1,20 @@
+{
+  "command": [
+    "/usr/bin/python3",
+    "-B",
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/receipt-sink-lifetimes-20261030/experiment.py"
+  ],
+  "utc": "2026-10-30T14:47:04.730869+00:00",
+  "returncode": 1,
+  "wall_s": 0.37502383399987593,
+  "child_maxrss_kib": 28256,
+  "limits": {
+    "threads": 1,
+    "cpu_s": 30,
+    "alarm_s": 40,
+    "parent_s": 45,
+    "address_space_mib": 256,
+    "estimated_memory_mib": 64
+  },
+  "device": "CPU only, no GPU"
+}

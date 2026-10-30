@@ -1,0 +1,17 @@
+{
+  "this_cycle": [
+    "sumcheck/GKR",
+    "proof composition",
+    "memory traffic",
+    "same-slot amortization"
+  ],
+  "next_cycle": [
+    "lookup arguments/softmax",
+    "quantization/arithmetic"
+  ],
+  "retained": [
+    "GPU NTT/commitments",
+    "batching/amortization"
+  ],
+  "selection": "Highest-priority owner GPU/resident workload work cannot run in this CPU-light lane. Test a new exactness prerequisite, retain strict enclosing-cost ceiling."
+}

@@ -1,0 +1,2 @@
+[zk60-guard 04:40:57] START gate19-real-prove class=cpu need=10.3G cap=11.5G enforce=cgroup+watchdog waited=0s run=2075c39e8b33
+[zk60-guard 04:40:57] END gate19-real-prove exit=1 child_wall=0s peak_rss=0.00G min_avail=13.92G

@@ -1,0 +1,94 @@
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r12/hashline/src/private_block/token_io/classify_run.rs	2026-10-20 20:22:29.637734866 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r13/hashline/src/private_block/token_io/classify_run.rs	2026-10-28 16:42:48.584148241 -0700
+@@ -245,10 +245,17 @@
+     let start = position_tag(&tr);
+     let (seg, end) = st.in_geom(&in_lay).decode(&segments[0], &binding, &start)?;
+     let b0 = st.boundary_spec(0)?;
++    // ROUND 12 (gate round 16 capture request 2.2): the run capture opens
++    // stage IN-C where the token run opens stage IN (decoded, before the
++    // stage words). A no-op unless a recorder is attached; test builds only.
++    #[cfg(test)]
++    super::super::run_capture::stage_begin_stage(0, "IN-C", &segments[0], start, seg.b_root, seg.a_root, seg.h_root, seg.mask_root, super::stage_in_c::capture_planes(&in_lay), &tr);
+     let (mut pending, b_root) = super::stage_in_c::verify(&in_lay, cp, tables, &seg, &b0, &st.in_spec, &st.in_root(), &ntt, &mut tr, &tag)?;
+     if position_tag(&tr) != end {
+         return Err("classifier run: stage IN-C's trailer is not the verifier's own transcript position".into());
+     }
++    #[cfg(test)]
++    super::super::run_capture::stage_end(0, end, &tr);
+     let mut prev: (BoundarySpec, Digest) = (b0, b_root);
+ 
+     // ---- the blocks
+@@ -260,6 +267,8 @@
+         let start = position_tag(&tr);
+         let (seg, end) = wire::decode_segment(&segments[k + 1], &lay, st.block_geom(k)?, &binding, &start)?;
+         super::super::hash_domain::segment_paths_are_the_tree_depth(&seg, sh)?;
++        #[cfg(test)]
++        super::super::run_capture::stage_begin_stage(k + 1, "BLOCK", &segments[k + 1], start, seg.b_root, seg.a_root, seg.h_root, seg.mask_root, super::super::run_capture::StagePlanes::Block(&lay), &tr);
+         tr.absorb_u64(b"pb-run-stage", (k + 1) as u64);
+         tr.absorb(b"pb-run-block", &st.block_digests[k]);
+         let spec = st.boundary_spec(k + 1)?;
+@@ -270,16 +279,46 @@
+         let ([ic, oc], _) = protocol::verify_core(&ssh, &lay, &blk, view, &ntt, &mut tr, &mut ph).map_err(|e| format!("block {k}: {e}"))?;
+         drop(blk);
+         let mut claims = std::mem::take(&mut pending);
++        #[cfg(test)]
++        let (pending_n, incoming_n) = (claims.len(), ic.len());
+         claims.extend(ic);
+         let (pspec, proot) = prev;
+         boundary::check_opening(&pspec, &claims, &tr)?;
+         let bp = pspec.params();
++        #[cfg(test)]
++        let rc_before = super::super::run_capture::checkpoint(&tr);
+         pcs::verify_zk_tagged(&bp, &ZkOpts::standard(&bp), &protocol::commitment(proot, pspec.commitment_rows(), pspec.log_n()), &claims, &seg.in_open, &ntt, &mut tr, &tag).map_err(|e| format!("boundary {k}{}: {e}", if k == 0 { " (B_in)" } else { "" }))?;
++        // ROUND 12: the boundary opening, as the token run wraps it; B_in
++        // (k = 0) carries stage IN-C's QZC claims, a later boundary the
++        // previous block's outgoing equality slot's
++        #[cfg(test)]
++        super::super::run_capture::pcs(
++            super::super::run_capture::Geom {
++                role: "Input",
++                commitment_kind: if k == 0 { "B-in" } else { "internal-boundary" },
++                params: bp,
++                root: proot,
++                rows: pspec.commitment_rows(),
++                data_rows: pspec.data_rows(),
++                site_rows: pspec.site_rows(),
++                sum_rows: None,
++                prox_row: pspec.prox_row(),
++                boundary: Some(k),
++                claim_sources: vec![if k == 0 { (0, super::stage_in_c::SIC_QZC, pending_n) } else { (k, super::super::layout::SC_IO_OUT, pending_n) }, (k + 1, super::super::layout::SC_IO_IN, incoming_n)],
++            },
++            &claims,
++            &seg.in_open,
++            &ntt,
++            rc_before,
++            &tr,
++        );
+         pending = oc;
+         prev = (spec, root);
+         if position_tag(&tr) != end {
+             return Err(format!("classifier run: block segment {k}'s trailer is not the verifier's own transcript position"));
+         }
++        #[cfg(test)]
++        super::super::run_capture::stage_end(k + 1, end, &tr);
+     }
+ 
+     // ---- stage OUT-C
+@@ -287,10 +326,17 @@
+     let start = position_tag(&tr);
+     let (seg, end) = st.out_geom(&out_lay)?.decode(&segments[l + 1], &binding, &start)?;
+     let (bspec, broot) = prev;
++    #[cfg(test)]
++    super::super::run_capture::stage_begin_stage(l + 1, "OUT-C", &segments[l + 1], start, seg.b_root, seg.a_root, seg.h_root, seg.mask_root, super::stage_out_c::capture_planes(&out_lay), &tr);
+     super::stage_out_c::verify(&out_lay, cp, tables, st.verdict(), &seg, &bspec, &broot, pending, (l + 1) as u64, &ntt, &mut tr, &tag)?;
+     if position_tag(&tr) != end {
+         return Err("classifier run: stage OUT-C's trailer is not the verifier's own transcript position".into());
+     }
++    #[cfg(test)]
++    {
++        super::super::run_capture::stage_end(l + 1, end, &tr);
++        super::super::run_capture::run_accepted();
++    }
+     Ok(())
+ }
+ 

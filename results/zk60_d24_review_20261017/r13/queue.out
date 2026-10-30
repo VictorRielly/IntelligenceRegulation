@@ -1,0 +1,25 @@
+[06:53:36Z] queue start stage=a
+[06:56:31Z] rv13-test-build exit 0
+[06:58:32Z] rv13-cli-build exit 0
+[06:59:32Z] lib test binary: /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r13-scratch/tree/hashline/target/release/deps/hashline-c24e3b74d84d1e9d
+[07:00:08Z] rv13-review exit 0
+[07:01:43Z] rv13-sol-attacks exit 0
+[07:02:44Z] rv13-components exit 0
+[07:02:45Z] rv13-cli-r13-low-dense-plain exit 0
+[07:02:46Z] rv13-cli-r13-low-dense-dd exit 0
+[07:02:46Z] rv13-cli-r13-h24-wide-plain exit 0
+[07:02:47Z] rv13-cli-r13-h24-wide-dd exit 0
+[07:02:56Z] rv13-compat-tl-dd exit 0
+[07:03:34Z] rv13-compat-8b-dd exit 0
+[07:03:42Z] rv13-compat-tl exit 0
+[07:04:19Z] rv13-compat-8b exit 0
+[07:05:19Z] queue end stage=a
+[07:09:16Z] queue start stage=b
+[07:09:16Z] lib test binary: /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r13-scratch/tree/hashline/target/release/deps/hashline-c24e3b74d84d1e9d
+[07:11:53Z] rv13-test-build-2 exit 0
+[07:11:53Z] lib test binary (2): /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r13-scratch/tree/hashline/target/release/deps/hashline-c24e3b74d84d1e9d
+[07:12:56Z] rv13-controls exit 0
+[07:14:48Z] rv13-goldens exit 0
+[07:15:48Z] rv13-shield exit 101
+[07:16:48Z] queue end stage=b
+[07:17:54Z] rv13-shield (rerun, path fixed) exit 0

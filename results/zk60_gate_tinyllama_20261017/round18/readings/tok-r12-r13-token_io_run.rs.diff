@@ -1,0 +1,11 @@
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r12/hashline/src/private_block/token_io/run.rs	2026-10-19 18:34:11.583008385 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r13/hashline/src/private_block/token_io/run.rs	2026-10-28 16:42:48.584630555 -0700
+@@ -519,6 +519,8 @@
+             boundaries,
+             external_scales: (0, 0),
+             token: Some(token),
++            // ROUND 12 (gate round 16): a token run carries no classifier facts
++            classify: None,
+         })
+     }
+ 

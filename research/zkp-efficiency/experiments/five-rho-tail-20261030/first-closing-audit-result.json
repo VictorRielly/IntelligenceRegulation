@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "checks": 63,
+  "utc": "2026-10-30T01:12:01.883245+00:00",
+  "source_drift": [],
+  "history_prefixes_preserved": true,
+  "hypotheses_preserved": 80,
+  "source_records": 1032,
+  "new_full_stack_proofs": 0,
+  "target_reached": false
+}

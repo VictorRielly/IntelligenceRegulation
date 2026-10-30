@@ -1,0 +1,1 @@
+{"status":"PASS","fixtures":288,"scalar_limb_outputs_compared":19680,"controls":3,"digest":"b141d4da3160d738","scope":"Exact extracted original/candidate kernel bodies in CPU C++ shim, independent row-first modular reference; no device build/launch, register or performance evidence."}

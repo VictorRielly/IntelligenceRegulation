@@ -1,0 +1,9 @@
+
+running 1 test
+test private_block::argument::split_streaming_tests::split_streaming_t128_source_prover_and_both_verifiers ... R14_STREAM_SOURCE_PROVE stages=2 peak_owned_public_blocks=1
+R14_STREAM_SOURCE_VERIFY stages=2 peak_owned_public_blocks=1 reload_changes_refused=2
+R14_NATIVE_STREAM {"tokens":128,"dd":false,"blocks":2,"narrow_boundary_forgery":false,"prove_seconds":19.502382317,"verify_seconds":7.6739593809999995,"prove_hwm_mib":5956.25390625,"bytes":[33872200, 35414312],"model_identity":"2e6c6caac2ba301224181362559d042a3f620fe291693344024b6834a05d92a2","block_digest":"70c065a71fefa6f8caeaef95d66f739cc6137def79f75235c433645f6e7bf6a9","fixture_helpers_sha256":"9bce20f3bc9f97592db66bbbef9a307529604dbf46980bac9dce43c3a1ad8c96","scope":"new native run/segment path, public synthetic model with explicit native test waiver; prove timer excludes endpoint/setup and later controls, includes on-demand second witness; n1 sharedhost, no trained-model/privacy acceptance"}
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 762 filtered out; finished in 33.82s
+

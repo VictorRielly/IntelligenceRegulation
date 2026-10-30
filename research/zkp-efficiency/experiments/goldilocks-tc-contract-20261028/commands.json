@@ -1,0 +1,36 @@
+{
+  "run_id": "20261028T235649Z-d1bc0725",
+  "command": "python3 -I -B /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/goldilocks-tc-contract-20261028/run.py",
+  "runs": [
+    {
+      "stage": "initial-before-scaled-matrix",
+      "exit_code": 0
+    },
+    {
+      "stage": "before-explicit-carry",
+      "exit_code": 0
+    },
+    {
+      "stage": "before-top-fold",
+      "exit_code": 0
+    },
+    {
+      "stage": "final",
+      "exit_code": 0
+    }
+  ],
+  "reason_for_repeats": "Only adaptive added matrix, explicit carry, top-fold and scale controls; no benchmarking repetitions.",
+  "no_gpu": true,
+  "no_build": true,
+  "no_foreign_execution": true,
+  "source_queries": [
+    "\"tensor-core-ntt\" 64 bit Montgomery reduction GitHub",
+    "GPU NTT Goldilocks tensor core2026 64bit",
+    "Montgomery arithmetic software perspective Seiler2018 64bit reduction subtraction",
+    "GPU NTT October2026 release Goldilocks64bit",
+    "Goldilocks NTT tensor core modular reduction2026 paper"
+  ],
+  "search_batches": 2,
+  "retained_followup_live_batches": 14,
+  "initial_search_raw_not_saved": true
+}

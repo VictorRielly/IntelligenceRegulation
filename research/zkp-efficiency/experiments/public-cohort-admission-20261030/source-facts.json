@@ -1,0 +1,157 @@
+[
+  {
+    "path": "hashline/src/private_block/argument.rs",
+    "line": 364,
+    "text": "Tab::Pub(v) => std::mem::take(v),"
+  },
+  {
+    "path": "hashline/src/private_block/argument.rs",
+    "line": 855,
+    "text": "if !sh.carries_pad_rule() || !sh.pads(dom) {"
+  },
+  {
+    "path": "hashline/src/private_block/argument.rs",
+    "line": 1236,
+    "text": "let i_tau = b.eq(&tau, 0);"
+  },
+  {
+    "path": "hashline/src/private_block/argument.rs",
+    "line": 1301,
+    "text": "b.eq(&tau, 0);"
+  },
+  {
+    "path": "hashline/src/private_block/argument.rs",
+    "line": 1319,
+    "text": "b.eq(&pts.p_ht, 0);"
+  },
+  {
+    "path": "hashline/src/private_block/argument.rs",
+    "line": 1519,
+    "text": "b.eq(&tau, 0);"
+  },
+  {
+    "path": "hashline/src/private_block/argument.rs",
+    "line": 1677,
+    "text": "b.eq(&tau, 0);"
+  },
+  {
+    "path": "hashline/src/private_block/argument.rs",
+    "line": 1733,
+    "text": "b.eq(&tau, 0);"
+  },
+  {
+    "path": "hashline/src/private_block/argument.rs",
+    "line": 1808,
+    "text": "b.eq(&tau, 0);"
+  },
+  {
+    "path": "hashline/src/private_block/argument.rs",
+    "line": 1809,
+    "text": "b.eq(&pts.p_ht, 0);"
+  },
+  {
+    "path": "hashline/src/private_block/argument.rs",
+    "line": 1810,
+    "text": "b.eq(&pts.p_s, 0);"
+  },
+  {
+    "path": "hashline/src/private_block/argument.rs",
+    "line": 1811,
+    "text": "let im = b.public(causal_mask_at(sh));"
+  },
+  {
+    "path": "hashline/src/private_block/argument.rs",
+    "line": 1849,
+    "text": "SC_SZC => {"
+  },
+  {
+    "path": "hashline/src/private_block/argument.rs",
+    "line": 1856,
+    "text": "b.eq(&tau, 0);"
+  },
+  {
+    "path": "hashline/src/private_block/argument.rs",
+    "line": 1857,
+    "text": "b.eq(&pts.p_ht, 0);"
+  },
+  {
+    "path": "hashline/src/private_block/argument.rs",
+    "line": 1858,
+    "text": "b.eq(&pts.p_s, 0);"
+  },
+  {
+    "path": "hashline/src/private_block/argument.rs",
+    "line": 1859,
+    "text": "let im = b.public(causal_mask_at(sh));"
+  },
+  {
+    "path": "hashline/src/private_block/argument.rs",
+    "line": 1998,
+    "text": "b.eq(&tau, 0);"
+  },
+  {
+    "path": "hashline/src/private_block/argument.rs",
+    "line": 2078,
+    "text": "b.eq(&tau, 0);"
+  },
+  {
+    "path": "hashline/src/private_block/argument.rs",
+    "line": 2127,
+    "text": "b.eq(&tau, 0);"
+  },
+  {
+    "path": "hashline/src/private_block/protocol.rs",
+    "line": 1297,
+    "text": "let pd = ProverData { data: [a.data.as_slice(), h.data.as_slice(), io_data[0], io_data[1]], masks: &mc.masks };"
+  },
+  {
+    "path": "hashline/src/private_block/protocol.rs",
+    "line": 1299,
+    "text": "let acc = argument(&mut side, &ctx, tr, ph)?;"
+  },
+  {
+    "path": "hashline/src/private_block/protocol.rs",
+    "line": 1307,
+    "text": "let mask_open = zk::mask_open(&mc, &acc.fs, ntt, tr);"
+  },
+  {
+    "path": "hashline/src/private_block/protocol.rs",
+    "line": 1308,
+    "text": "drop(mc);"
+  },
+  {
+    "path": "hashline/src/private_block/protocol.rs",
+    "line": 1313,
+    "text": "let a_open = pcs::open_zk(&a, &ac, tr);"
+  },
+  {
+    "path": "hashline/src/private_block/protocol.rs",
+    "line": 1314,
+    "text": "drop(a);"
+  },
+  {
+    "path": "hashline/src/private_block/protocol.rs",
+    "line": 1319,
+    "text": "let h_open = pcs::open_zk(&h, &hc, tr);"
+  },
+  {
+    "path": "hashline/src/private_block/protocol.rs",
+    "line": 1320,
+    "text": "drop(h);"
+  },
+  {
+    "path": "hashline/src/private_block/protocol.rs",
+    "line": 1399,
+    "text": "let acc = argument(&mut side, &ctx, tr, ph)?;"
+  },
+  {
+    "path": "zkp-core/src/sumcheck/rounds.rs",
+    "line": 157,
+    "text": "tb.truncate(half);"
+  },
+  {
+    "path": "zkp-core/src/sumcheck/grouped.rs",
+    "line": 167,
+    "text": "tb.truncate(half);"
+  }
+]

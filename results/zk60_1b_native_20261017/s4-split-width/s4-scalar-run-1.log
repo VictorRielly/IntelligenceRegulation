@@ -1,0 +1,1 @@
+{"native_scalar_piece_equivalences":104,"true_axis_words_mapped_bijectively":12288,"wrong_global_c2_counterexamples":48,"wrong_global_group_counterexamples":779,"per_piece_rounding_counterexamples":6,"shared_norm_denominator_counterexamples":3,"scope":"isolated native scalar arithmetic and global-index checks, not a full split block or proof"}

@@ -1,0 +1,232 @@
+   Compiling hashline v0.1.0 (/home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r19/hashline)
+warning: unused doc comment
+   --> src/private_block/token_io/run.rs:737:1
+    |
+737 | / /// **THE TOKEN-I/O RUN PROVER.** One transcript, one OS stream, `L + 2`
+738 | | /// segments, each handed to `sink` and dropped (M-3); block `k` asked for
+739 | | /// at its own stage (R3 streaming).
+740 | | ///
+...   |
+749 | | /// it receives as UNPUBLISHED until this function returns `Ok` (the CLI's
+750 | | /// sink writes `<out>.incomplete/` and renames it only then).
+    | |_-------------------------------------------------------------^
+    |   |
+    |   rustdoc does not generate documentation for macro invocations
+    |
+    = help: to document an item produced by a macro, the macro must produce the documentation as part of its expansion
+    = note: `#[warn(unused_doc_comments)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Dom`
+  --> src/private_block/s28_review_tests.rs:19:21
+   |
+19 | use super::layout::{Dom, Layout, U8_LEN};
+   |                     ^^^
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: unused variable: `ls`
+   --> src/private_block/argument_accuracy.rs:149:9
+    |
+149 |     let(ls,lp)=(sh.limbs_sigma_s(),sh.limbs_p());
+    |         ^^ help: if this is intentional, prefix it with an underscore: `_ls`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `lp`
+   --> src/private_block/argument_accuracy.rs:149:12
+    |
+149 |     let(ls,lp)=(sh.limbs_sigma_s(),sh.limbs_p());
+    |            ^^ help: if this is intentional, prefix it with an underscore: `_lp`
+
+warning: unused variable: `n_pad`
+   --> src/private_block/argument_accuracy.rs:152:9
+    |
+152 |     let n_pad=usize::from(pad_on);let cube=1usize<<sh.slots()[SC_SZC].0;
+    |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_n_pad`
+
+warning: unused variable: `low`
+   --> src/private_block/argument_accuracy.rs:332:9
+    |
+332 |     let low=ids.accuracy()?;let precision=sh.accuracy_precision()?;
+    |         ^^^ help: if this is intentional, prefix it with an underscore: `_low`
+
+warning: unused variable: `precision`
+   --> src/private_block/argument_accuracy.rs:332:33
+    |
+332 |     let low=ids.accuracy()?;let precision=sh.accuracy_precision()?;
+    |                                 ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_precision`
+
+warning: unused variable: `g_exp`
+   --> src/private_block/argument_accuracy.rs:333:25
+    |
+333 |     let(alpha,beta,g_u8,g_exp)=(ctx.alpha,ctx.beta,ctx.g_u8,ctx.g_exp);
+    |                         ^^^^^ help: if this is intentional, prefix it with an underscore: `_g_exp`
+
+warning: unused variable: `n_pad`
+   --> src/private_block/argument_accuracy.rs:337:9
+    |
+337 |     let n_pad=usize::from(pad_on);let cube=1usize<<sh.slots()[SC_DD].0;
+    |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_n_pad`
+
+warning: unused variable: `cube`
+   --> src/private_block/argument_accuracy.rs:337:39
+    |
+337 |     let n_pad=usize::from(pad_on);let cube=1usize<<sh.slots()[SC_DD].0;
+    |                                       ^^^^ help: if this is intentional, prefix it with an underscore: `_cube`
+
+warning: variable does not need to be mutable
+    --> src/private_block/run.rs:1308:13
+     |
+1308 |         let mut tr = st.transcript()?;
+     |             ----^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:302:18
+    |
+302 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+
+warning: value assigned to `cached` is never read
+    --> src/private_block/run_capture.rs:2102:13
+     |
+2102 |             cached = None;
+     |             ^^^^^^
+     |
+     = help: maybe it is overwritten before being read?
+     = note: `#[warn(unused_assignments)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: method `slot` is never used
+   --> src/private_block/timing.rs:259:19
+    |
+216 | impl Phases {
+    | ----------- method in this implementation
+...
+259 |     pub(crate) fn slot(&mut self, s: usize, size: u64, unit: &'static str) {
+    |                   ^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `constants_of` is never used
+   --> src/private_block/trained_block.rs:454:4
+    |
+454 | fn constants_of(c:&J,what:&str,rope_pin:f64)->Result<Constants,String> {
+    |    ^^^^^^^^^^^^
+
+warning: function `table_keys_of` is never used
+   --> src/private_block/trained_block.rs:652:4
+    |
+652 | fn table_keys_of(c:&J,what:&str)->Result<TableKeys,String> {
+    |    ^^^^^^^^^^^^^
+
+warning: method `is_dd` is never used
+   --> src/private_block/trained_block.rs:759:19
+    |
+708 | impl Geometry {
+    | ------------- method in this implementation
+...
+759 |     pub(crate) fn is_dd(self) -> bool {
+    |                   ^^^^^
+
+warning: field `boundaries` is never read
+   --> src/private_block/run_capture.rs:839:5
+    |
+832 | struct Rec {
+    |        --- field in this struct
+...
+839 |     boundaries: Vec<Vec<u8>>,
+    |     ^^^^^^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib test) generated 27 warnings (run `cargo fix --lib -p hashline --tests` to apply 18 suggestions)
+    Finished `release` profile [optimized] target(s) in 3m 28s
+     Running unittests src/lib.rs (ops/zkp-mvp/token-io-r19/hashline/target/release/deps/hashline-2ff6bbb1bc483715)
+
+running 1 test
+
+thread 'private_block::s25_tests::r18_the_census_reads_the_batch_files_through_their_path_lines' (175301) panicked at src/private_block/s25_tests.rs:1651:5:
+assertion `left == right` failed: the production module graph of the path moved (REVIEW A5 finding 2, REVIEW_R18 R18-2): read each new module, then list its edge here
+  left: [("src/private_block.rs", "src/private_block/accuracy.rs"), ("src/private_block.rs", "src/private_block/accuracy_act.rs"), ("src/private_block.rs", "src/private_block/accuracy_aligned.rs"), ("src/private_block.rs", "src/private_block/accuracy_fold.rs"), ("src/private_block.rs", "src/private_block/accuracy_groups.rs"), ("src/private_block.rs", "src/private_block/accuracy_layout.rs"), ("src/private_block.rs", "src/private_block/accuracy_precision.rs"), ("src/private_block.rs", "src/private_block/accuracy_public.rs"), ("src/private_block.rs", "src/private_block/accuracy_tables.rs"), ("src/private_block.rs", "src/private_block/argument.rs"), ("src/private_block.rs", "src/private_block/boundary.rs"), ("src/private_block.rs", "src/private_block/endpoint_g.rs"), ("src/private_block.rs", "src/private_block/hash_domain.rs"), ("src/private_block.rs", "src/private_block/layout.rs"), ("src/private_block.rs", "src/private_block/mvp_driver.rs"), ("src/private_block.rs", "src/private_block/pad.rs"), ("src/private_block.rs", "src/private_block/protocol.rs"), ("src/private_block.rs", "src/private_block/rope.rs"), ("src/private_block.rs", "src/private_block/run.rs"), ("src/private_block.rs", "src/private_block/run_sink.rs"), ("src/private_block.rs", "src/private_block/shape.rs"), ("src/private_block.rs", "src/private_block/tied_tables.rs"), ("src/private_block.rs", "src/private_block/timing.rs"), ("src/private_block.rs", "src/private_block/token_io.rs"), ("src/private_block.rs", "src/private_block/trained_block.rs"), ("src/private_block.rs", "src/private_block/trained_statement.rs"), ("src/private_block.rs", "src/private_block/wire.rs"), ("src/private_block.rs", "src/private_block/witness.rs"), ("src/private_block/tied_tables.rs", "src/private_block/tied_tables/derive.rs"), ("src/private_block/token_io.rs", "src/private_block/token_io/classify.rs"), ("src/private_block/token_io.rs", "src/private_block/token_io/classify_cli.rs"), ("src/private_block/token_io.rs", "src/private_block/token_io/classify_run.rs"), ("src/private_block/token_io.rs", "src/private_block/token_io/classify_tied.rs"), ("src/private_block/token_io.rs", "src/private_block/token_io/cli.rs"), ("src/private_block/token_io.rs", "src/private_block/token_io/load.rs"), ("src/private_block/token_io.rs", "src/private_block/token_io/run.rs"), ("src/private_block/token_io.rs", "src/private_block/token_io/stage_in.rs"), ("src/private_block/token_io.rs", "src/private_block/token_io/stage_in_c.rs"), ("src/private_block/token_io.rs", "src/private_block/token_io/stage_out.rs"), ("src/private_block/token_io.rs", "src/private_block/token_io/stage_out_c.rs")]
+ right: [("src/private_block.rs", "src/private_block/accuracy.rs"), ("src/private_block.rs", "src/private_block/accuracy_act.rs"), ("src/private_block.rs", "src/private_block/accuracy_aligned.rs"), ("src/private_block.rs", "src/private_block/accuracy_fold.rs"), ("src/private_block.rs", "src/private_block/accuracy_groups.rs"), ("src/private_block.rs", "src/private_block/accuracy_layout.rs"), ("src/private_block.rs", "src/private_block/accuracy_precision.rs"), ("src/private_block.rs", "src/private_block/accuracy_public.rs"), ("src/private_block.rs", "src/private_block/accuracy_tables.rs"), ("src/private_block.rs", "src/private_block/argument.rs"), ("src/private_block.rs", "src/private_block/boundary.rs"), ("src/private_block.rs", "src/private_block/endpoint_g.rs"), ("src/private_block.rs", "src/private_block/hash_domain.rs"), ("src/private_block.rs", "src/private_block/layout.rs"), ("src/private_block.rs", "src/private_block/mvp_driver.rs"), ("src/private_block.rs", "src/private_block/pad.rs"), ("src/private_block.rs", "src/private_block/protocol.rs"), ("src/private_block.rs", "src/private_block/rope.rs"), ("src/private_block.rs", "src/private_block/run.rs"), ("src/private_block.rs", "src/private_block/run_sink.rs"), ("src/private_block.rs", "src/private_block/shape.rs"), ("src/private_block.rs", "src/private_block/tied_tables.rs"), ("src/private_block.rs", "src/private_block/timing.rs"), ("src/private_block.rs", "src/private_block/token_io.rs"), ("src/private_block.rs", "src/private_block/trained_block.rs"), ("src/private_block.rs", "src/private_block/trained_statement.rs"), ("src/private_block.rs", "src/private_block/wire.rs"), ("src/private_block.rs", "src/private_block/witness.rs"), ("src/private_block/argument.rs", "src/private_block/argument_accuracy.rs"), ("src/private_block/tied_tables.rs", "src/private_block/tied_tables/derive.rs"), ("src/private_block/token_io.rs", "src/private_block/token_io/classify.rs"), ("src/private_block/token_io.rs", "src/private_block/token_io/classify_cli.rs"), ("src/private_block/token_io.rs", "src/private_block/token_io/classify_run.rs"), ("src/private_block/token_io.rs", "src/private_block/token_io/classify_tied.rs"), ("src/private_block/token_io.rs", "src/private_block/token_io/cli.rs"), ("src/private_block/token_io.rs", "src/private_block/token_io/load.rs"), ("src/private_block/token_io.rs", "src/private_block/token_io/run.rs"), ("src/private_block/token_io.rs", "src/private_block/token_io/stage_in.rs"), ("src/private_block/token_io.rs", "src/private_block/token_io/stage_in_c.rs"), ("src/private_block/token_io.rs", "src/private_block/token_io/stage_out.rs"), ("src/private_block/token_io.rs", "src/private_block/token_io/stage_out_c.rs"), ("src/private_block/token_io/classify_batch.rs", "src/private_block/token_io/classify_batch_plan.rs"), ("src/private_block/token_io/classify_cli.rs", "src/private_block/token_io/classify_batch.rs"), ("src/private_block/trained_block.rs", "src/private_block/trained_accuracy.rs"), ("src/private_block/witness.rs", "src/private_block/witness_accuracy.rs")]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test private_block::s25_tests::r18_the_census_reads_the_batch_files_through_their_path_lines ... FAILED
+
+failures:
+
+failures:
+    private_block::s25_tests::r18_the_census_reads_the_batch_files_through_their_path_lines
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 891 filtered out; finished in 0.02s
+
+error: test failed, to rerun pass `--lib`

@@ -1,0 +1,31 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/CLAUDE.md",
+    "sha256_at_start": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6",
+    "sha256_now": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/MVP_STATUS.md",
+    "sha256_at_start": "6b2610666701449995b9b84648d041d6a45e45b618d9828bea751761793d07fb",
+    "sha256_now": "f75da8ddcf7edefaf3f367ecd6ac63b07ab17f418cae4a3a0c9e9a1c9c09e28b",
+    "reviewed_at_utc": "2026-10-30T11:55:29.966596+00:00",
+    "reviewed_change": "Read exact diff: classifier draft filenames and security-owner C-9 reading/v3 text-check corrections. No new privacy acceptance or throughput amendment."
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_DECISIONS.md",
+    "sha256_at_start": "53da1418b1e2ccdf162c046eaf6c0c9ed4d4ac8c30877d812122965e13349853",
+    "sha256_now": "bc48e85e09798f8768a67c6c02c131c964259b20379ae209281df393a3ebf30c",
+    "reviewed_at_utc": "2026-10-30T11:55:29.969236+00:00",
+    "reviewed_change": "Read exact diff: classifier draft filenames and security-owner C-9 reading/v3 text-check corrections. No new privacy acceptance or throughput amendment."
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_CODEX_FABLE_COORDINATION.md",
+    "sha256_at_start": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f",
+    "sha256_now": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_THROUGHPUT_TARGET.md",
+    "sha256_at_start": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53",
+    "sha256_now": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53"
+  }
+]

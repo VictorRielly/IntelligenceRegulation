@@ -1,0 +1,32 @@
+{
+  "command": [
+    "/usr/bin/python3",
+    "/home/victor/IntelligenceRegulation/scripts/zk60_resource_guard.py",
+    "run",
+    "--class",
+    "light",
+    "--label",
+    "sol-r14-cli-source-audit-4",
+    "--need-gib",
+    "0.4",
+    "--cap-gib",
+    "1",
+    "--wait-secs",
+    "21600",
+    "--max-secs",
+    "1800",
+    "--log",
+    "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/sol-r14-cli-source-audit-4.log",
+    "--done",
+    "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/sol-r14-cli-source-audit-4.done",
+    "--result-json",
+    "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/sol-r14-cli-source-audit-4.guard.json",
+    "--",
+    "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/checkpoints/cli-build-1/hashline.test.bin",
+    "private_block::s25_tests::no_profile_on_this_path_can_obtain_a_generator_other_than_from_the_operating_system",
+    "--test-threads=1",
+    "--nocapture"
+  ],
+  "source": "7324dd1f779cebc9d558185ab6fce2804f768284179fd766b7f471e853fa58b5",
+  "runner_sha256": "46f2ef9943d1bef23b48f60b38178c1ee6c2da14ff7b02eb3a72fe903efeca87"
+}

@@ -1,0 +1,21 @@
+public_path	decision	note
+apps/proven-media/PROGRESS.md	include	Technical media-app ledger; ~/zk60-owner-private/... paths, 127.0.0.1 localhost port, PID and the dev-key file PATH (no key value) kept as records; "faucet funding" is testnet faucet, not personal funding; "(pending Victor)" is a bare ruling mention.
+apps/proven-media/R_C1_DEVELOPMENT.md	include	Technical classifier-adapter notes, binary SHA-256 pins and evidence paths only; nothing personal or secret.
+apps/proven-media/deploy.json	include	Hardware/classifier profiles, binary/statement/profile SHA-256 digests and guard limits only; no private key, no RPC URL, no API key (and in fact no Sepolia addresses in this file).
+docs/zkmatrix-poc/ZK60_OPUS_ATTENTION_INVENTORY.md	include	Purely technical O4 attention inventory (tables, digests, /home/victor/wt-zk60-fa commands); nothing personal.
+docs/zkmatrix-poc/ZK60_OPUS_ENDPOINT_EXPERIMENT_REVIEW.md	include	Technical O9 review; kept the author names of two published eprint papers (2020/1448, 2023/569) in academic citations (lines 223, 244) as public bibliographic references, not private individuals - flagging for coordinator in case the people-names rule is meant literally.
+docs/zkmatrix-poc/ZK60_OPUS_IO_ANALYSIS.md	include	Technical O8 joint capture analysis, digests and commands only.
+docs/zkmatrix-poc/ZK60_OPUS_IO_REVIEW.md	include	Technical O7 IO-binding review, digests and commands only.
+docs/zkmatrix-poc/ZK60_OPUS_MASK_AUDIT.md	include	Technical O3 mask-schedule audit, digests and commands only.
+docs/zkmatrix-poc/ZK60_OPUS_ORACLE_BOOKKEEPING_REVIEW.md	include	Technical O10 oracle/hash call-format audit; "key"/"secret" occurrences describe the RNG design, not credentials.
+docs/zkmatrix-poc/ZK60_OPUS_REPEATED_VIEW_REVIEW.md	include	Technical O11 two-proof model audit only.
+docs/zkmatrix-poc/ZK60_OPUS_REVIEW.md	include	Technical O1/O2 capture review; "Fable, whose usage is exhausted" (line 5) is an agent-usage note, kept.
+docs/zkmatrix-poc/ZK60_OPUS_ROUND16_DELIVERY.md	include	Technical delivery record; line 3 "Victor's Fable usage ran out mid-round" left as is (agent usage limit, not clearly personal; when in doubt kept) - coordinator may prefer "Fable's usage ran out"; file sha 3fcba472 not cited elsewhere so editable.
+docs/zkmatrix-poc/ZK60_OPUS_SEAM_REVIEW.md	include	Technical O6 seam inventory, digests and commands only.
+docs/zkmatrix-poc/ZK60_OPUS_WIRE_REVIEW.md	include	Technical O5 wire-format review, digests and commands only.
+docs/zkmatrix-poc/ZK60_PARALLEL_ROUND1.md	include	Technical round ledger; "Opened at Victor's request" and the 5090 hardware-arrival note kept (hardware, not personal schedule).
+docs/zkmatrix-poc/ZK60_PARALLEL_ROUND2.md	include-redacted	Line 4: removed " while away" from "autonomous parallel work while away" (owner availability); sha before edit d18d2f29... was cited by no other staging file.
+docs/zkmatrix-poc/ZK60_PARALLEL_ROUND3.md	include	Technical round ledger; "after Victor requested commit/push" is a bare direction mention.
+docs/zkmatrix-poc/ZK60_PARALLEL_ROUND4.md	include	Technical round ledger; "Victor asked to continue" / "Victor said Claude will take its queue" are bare direction mentions.
+docs/zkmatrix-poc/ZK60_PARALLEL_ROUND5.md	include	Technical round ledger; "an approved host launch" (line 68) is a bare approval mention with no phone/Telegram workflow detail, kept.
+docs/zkmatrix-poc/ZK60_PARALLEL_ROUND6.md	include	Technical round ledger; "Victor requested continuation" is a bare direction mention.

@@ -1,0 +1,9 @@
+{
+  "source": "27b2a427491912cd54969b66f1d6ace29740ba8923dce6ba5ac4e23cfd992191",
+  "files": 291,
+  "tree": "final-working-tree",
+  "session": 65891,
+  "rust_passed": 838,
+  "rust_ignored": 75,
+  "scope": "test/log/capturepins changes only; productionmathandcodec unchanged; full26 capturetestcompilednotrun"
+}

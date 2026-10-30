@@ -1,0 +1,2 @@
+[zk60-guard 18:54:42] START gate22-ts2-real-classifier class=cpu need=1G cap=2G enforce=cgroup+watchdog waited=0s run=3f035e1c3f4f
+[zk60-guard 19:00:35] END gate22-ts2-real-classifier exit=0 child_wall=353s peak_rss=0.11G min_avail=13.52G

@@ -1,0 +1,100 @@
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r14/hashline/src/private_block.rs	2026-10-28 19:12:07.676922779 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r16b/hashline/src/private_block.rs	2026-10-29 03:50:55.901989333 -0700
+@@ -59,6 +59,22 @@
+ //! Transcript, ownership and openings: `protocol.rs`. Bounded codec: `wire.rs`.
+ 
+ mod argument;
++// R13 precision primitives; legacy paths do not call them.
++mod accuracy;
++mod accuracy_tables;
++mod accuracy_groups;
++mod accuracy_aligned;
++mod accuracy_layout;
++mod accuracy_fold;
++mod accuracy_act;
++mod accuracy_precision;
++mod accuracy_public;
++#[cfg(test)]
++mod accuracy_binding_tests;
++#[cfg(test)]
++mod accuracy_profile_tests;
++#[cfg(test)]
++mod accuracy_proof_tests;
+ // STAGE 12: the INTERNAL BOUNDARY of a private run — one hiding commitment to
+ // a hidden plane with TWO claim sites, opened once, whose row count is DERIVED
+ // from the plane and the site count (ruling M-1) and never accepted from a
+@@ -793,12 +809,44 @@
+ pub struct BlockPublic {
+     attention: AttentionPublic,
+     feed_forward: FeedForwardPublic,
++    accuracy: Option<accuracy_public::AccuracyPublic>,
+ }
+ 
+ impl BlockPublic {
+     pub fn new(attention: AttentionPublic, feed_forward: FeedForwardPublic) -> Self {
+-        Self { attention, feed_forward }
++        Self { attention, feed_forward, accuracy: None }
++    }
++    /// R13 attachment; no legacy caller uses this method.
++    pub(crate) fn with_accuracy(mut self, accuracy: accuracy_public::AccuracyPublic) -> Self {
++        self.accuracy = Some(accuracy);
++        self
++    }
++    pub(crate) fn accuracy(&self) -> Option<&accuracy_public::AccuracyPublic> { self.accuracy.as_ref() }
++
++    /// Verifier-derived R13 public context. Calling this validates the
++    /// component; the shared proof entry still has its activation refusal.
++    pub(crate) fn check_accuracy_for_shape(&self,sh:&shape::Shape)->Result<(),String> {
++        if sh.accuracy_stack()==accuracy_precision::Stack::Legacy {
++            return Err("R13 public validation requires a registered accuracy profile".into());
++        }
++        sh.check_constructed()?;
++        self.attention.check_for_shape(sh)?;
++        self.feed_forward.check_for_shape(sh)?;
++        let data=self.accuracy().ok_or("R13 profile is missing its public accuracy data")?;
++        let geometry=accuracy_public::Geometry{width:sh.width,query_width:sh.q_width(),kv_width:sh.kv_heads*sh.head_dim,hidden:sh.hidden};
++        data.check_for_registry(sh.accuracy_registry(),geometry,sh.accuracy_base(),sh.accuracy_stack())?;
++        if data.folds().gate.shift!=sh.accuracy_gate_shift {
++            return Err("R13 public folded gate denominator differs from the stage shape".into());
++        }
++        if [&self.attention.wq,&self.attention.wk,&self.attention.wv,&self.attention.wo,&self.attention.gamma_a,
++            &self.feed_forward.gamma_m,&self.feed_forward.wg_t,&self.feed_forward.wu_t,&self.feed_forward.wd_t]
++            .into_iter().any(|words|words.contains(&i8::MIN)) {
++            return Err("R13 public weights/gains must be symmetric int8".into());
++        }
++        if sh.dd_cap>0 {self.attention.dd_e_column(sh.dd_cap)?;}
++        Ok(())
+     }
++
+     pub(crate) fn attention(&self) -> &AttentionPublic {
+         &self.attention
+     }
+@@ -810,8 +858,15 @@
+     /// it is proved at** — the attention half's one check, then the
+     /// feed-forward half's, in block order, each refusing by its own name.
+     pub(crate) fn check_for_shape(&self, sh: &shape::Shape) -> Result<(), String> {
++        if sh.accuracy_stack()!=accuracy_precision::Stack::Legacy {
++            return self.check_accuracy_for_shape(sh);
++        }
++
+         self.attention.check_for_shape(sh)?;
+         self.feed_forward.check_for_shape(sh)?;
++        if self.accuracy.is_some() {
++            return Err("R13 accuracy data requires its registered LOW or LOW+h24 profile".into());
++        }
+         // NATIVE R9 (D30 condition 6, CHECK.md B-8): at a DD profile the
+         // block's exp table must fit the dictionary — refused by name, from
+         // the public table alone, wherever a block meets a DD shape (the
+@@ -827,6 +882,12 @@
+         h.update(b"hashline/private-block-public/1");
+         self.attention.absorb_into(&mut h);
+         self.feed_forward.absorb_into(&mut h);
++        if let Some(accuracy) = &self.accuracy {
++            let encoded = accuracy.encode();
++            h.update(b"R13-accuracy");
++            h.update(&(encoded.len() as u64).to_le_bytes());
++            h.update(&encoded);
++        }
+         *h.finalize().as_bytes()
+     }
+ 

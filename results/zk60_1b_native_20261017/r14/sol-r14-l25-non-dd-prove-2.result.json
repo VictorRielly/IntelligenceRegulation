@@ -1,0 +1,198 @@
+{
+  "label": "sol-r14-l25-non-dd-prove-2",
+  "source": "3c7b1dcfd47ba8cb257c6f734348f25fb960af3f25f8b1b14ea4e262ff8defda",
+  "binary_sha256": "8269a449f4aab839bb980377ac2aba8e141396d6f8aa07fb8cf62a408cacf93c",
+  "guard": {
+    "ts_end": "2026-10-30T06:26:52Z",
+    "run_id": "1e0761b5f74d",
+    "label": "sol-r14-l25-non-dd-prove-2",
+    "class": "cpu",
+    "cmd": [
+      "/usr/bin/env",
+      "RAYON_NUM_THREADS=2",
+      "OPENBLAS_NUM_THREADS=1",
+      "HL_R14_DD=0",
+      "HL_R14_ACTUAL_L25_EXPORT=/home/victor/IntelligenceRegulation/results/zk60_shieldstral_export_20261026/native_low_h24_t128",
+      "HL_R14_L25_INPUT=/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/l25-causal-prefix/input.i16",
+      "HL_R14_ACTUAL_L25_PROVE=1",
+      "HL_R14_ACTUAL_L25_OUTPUT=/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/actual-l25-native-fixtures/non-dd"
+    ],
+    "need_gib": 9.6,
+    "cap_gib": 11.5,
+    "exit": 0,
+    "child_rc": 0,
+    "guard_killed": null,
+    "child_wall_seconds": 55.18724179267883,
+    "refused": null,
+    "guard_error": null,
+    "guard_pid": 6,
+    "boot_id": "4f7dab84-38e2-4f1a-9518-e305e81ef580",
+    "pid_ns": "pid:[4026532360]",
+    "guard_starttime_ticks": 598351,
+    "lock_ids": {
+      "heavy": "2096:715313",
+      "build": "2096:715314"
+    },
+    "enforcement": "watchdog-only",
+    "waited_s": 360.9,
+    "guard_wall_s": 55.2,
+    "stragglers_killed": 0,
+    "hard_killed": 0,
+    "scope_unit": null,
+    "scope_adopted": null,
+    "foreign_cgroups_refused": [],
+    "peak_rss_gib": 5.58,
+    "peak_cgroup_gib": null,
+    "peak_vram_mib": null,
+    "min_mem_available_gib": 8.03,
+    "vram_drain_s": null,
+    "gpu_drain_failed": false,
+    "gpu_telemetry_lost": false,
+    "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache"
+  },
+  "trace_sites": [
+    {
+      "dd": false,
+      "site": "input",
+      "words": 393216,
+      "sha256": "f2cf0593048fbe1506312675394e97e665b40c533195769c1948b4a5d82f85c3",
+      "reference_and_physical_match": true
+    },
+    {
+      "dd": false,
+      "site": "y",
+      "words": 393216,
+      "sha256": "8c1bc7dfe96371c7381cf4a60f7a99090fc621a623e7f30650cd3bf3a54efef0",
+      "reference_and_physical_match": true
+    },
+    {
+      "dd": false,
+      "site": "q",
+      "words": 524288,
+      "sha256": "482d1798482499cead622d83cfbedc8c403e1065e9073894bdfc59f358b5d9f1",
+      "reference_and_physical_match": true
+    },
+    {
+      "dd": false,
+      "site": "k",
+      "words": 131072,
+      "sha256": "9e017ead8c0c3475f05bc5643fa44872fa29546546fe2aecfd87f00c697e4cd4",
+      "reference_and_physical_match": true
+    },
+    {
+      "dd": false,
+      "site": "v",
+      "words": 131072,
+      "sha256": "97de303048743627d1d1e448d59f20999c36f79e25dfc290b805585e6d7cb662",
+      "reference_and_physical_match": true
+    },
+    {
+      "dd": false,
+      "site": "qr",
+      "words": 524288,
+      "sha256": "c9f3669618aa8eefd14cdc5db02ac50bd70704d99a8d403c8b0a8ce714b1b64e",
+      "reference_and_physical_match": true
+    },
+    {
+      "dd": false,
+      "site": "kr",
+      "words": 131072,
+      "sha256": "5c5494b97b7d52220cd242245603a979ffcf2dc3ddf46131e7e223155f74b9a3",
+      "reference_and_physical_match": true
+    },
+    {
+      "dd": false,
+      "site": "s",
+      "words": 524288,
+      "sha256": "1f1ea848fba7ac122ed9015bdf27fa20837ff5b1aa94d94fd033d2c7b97ffd43",
+      "reference_and_physical_match": true
+    },
+    {
+      "dd": false,
+      "site": "p",
+      "words": 524288,
+      "sha256": "5218292cf60841e256bf4758bab1cd25d391a3caed2da66af4116224c665a9ff",
+      "reference_and_physical_match": true
+    },
+    {
+      "dd": false,
+      "site": "o",
+      "words": 524288,
+      "sha256": "f19994e4f6aad515c1e190c96785d98a86f28e7620d428a22f081c4582d07ea4",
+      "reference_and_physical_match": true
+    },
+    {
+      "dd": false,
+      "site": "ao",
+      "words": 393216,
+      "sha256": "3d25f3bd6791ff42df5ebd4f2e0364e5775b3ee2ee6ec0a200ec97da2acfdb0d",
+      "reference_and_physical_match": true
+    },
+    {
+      "dd": false,
+      "site": "x1",
+      "words": 393216,
+      "sha256": "6c1407e2a02387b7e74f20e34c9413df79b360e9a400b630083a4e9abc49e5d1",
+      "reference_and_physical_match": true
+    },
+    {
+      "dd": false,
+      "site": "nm",
+      "words": 393216,
+      "sha256": "eb4d3b94ddf1bf88da93ef540747e6bd7a8faddc0d7888c49153f140090d20fe",
+      "reference_and_physical_match": true
+    },
+    {
+      "dd": false,
+      "site": "gate",
+      "words": 1179648,
+      "sha256": "db11d47d7296f1caf8e76a4fe9573067510110171b03de51615377a8cf6149da",
+      "reference_and_physical_match": true
+    },
+    {
+      "dd": false,
+      "site": "a_scaled",
+      "words": 1179648,
+      "sha256": "c75d3b7bf74ec5e2b07d37aeb5dd884796eca05acb475c523ac96b18c0898d14",
+      "reference_and_physical_match": true
+    },
+    {
+      "dd": false,
+      "site": "up",
+      "words": 1179648,
+      "sha256": "b2a508276bd4a90ebb8b2a710b407df5ce4c65376351f8c32f9376a9ae404b1e",
+      "reference_and_physical_match": true
+    },
+    {
+      "dd": false,
+      "site": "h",
+      "words": 1179648,
+      "sha256": "d033f3649b815155a9b41651023dc4e5309955e2f0f3ea3ebd8b250a63eea484",
+      "reference_and_physical_match": true
+    },
+    {
+      "dd": false,
+      "site": "z",
+      "words": 393216,
+      "sha256": "dd3c8c9b1de86c3fe565eddc6938dc7c637d6ed64114f551e0fb5b0a31e7570f",
+      "reference_and_physical_match": true
+    },
+    {
+      "dd": false,
+      "site": "x2",
+      "words": 393216,
+      "sha256": "d16c6a96749fd7e05a2e8abb8d5f964cd4fdb7bd5b27b07a440cc5b1a48c33a7",
+      "reference_and_physical_match": true
+    }
+  ],
+  "proof": {
+    "dd": false,
+    "trace_sites": 19,
+    "bytes": 34875688,
+    "prove_seconds": 18.998503235,
+    "process_hwm_mib": 5707.65234375,
+    "model_identity": "c6d324cc25d21db63d0097c81802664229416692e004a3ca7a2dc2d944f59d75",
+    "test_synthetic_waiver": false,
+    "scope": "actual S2 L25 public weights, reviewer residual causal prefix, native R14 one-stage only; no full26/CLI/privacy acceptance"
+  }
+}

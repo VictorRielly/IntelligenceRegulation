@@ -1,0 +1,237 @@
+[
+  {
+    "path": "PROGRESS.md",
+    "sha256": "05a1cb1cd8580bd0cef9015efc76c9794a0477057626829d8d176c803b1b875d",
+    "bytes": 2141
+  },
+  {
+    "path": "STATE.md",
+    "sha256": "6553da6874c093230244eb7b03438c767199ce4242e6d1eed04267a6960b115a",
+    "bytes": 4932
+  },
+  {
+    "path": "experiments/finite-field-provenance-20261029/README.md",
+    "sha256": "e7c3a7c827603d78532d3492aff5a34eb799cc4906080c7b46c6f484fa2a2376",
+    "bytes": 6739
+  },
+  {
+    "path": "experiments/finite-field-provenance-20261029/audit-initial-failure.json",
+    "sha256": "349941c6a942342187495303fdeceedb1d7b369f52372b675800f5366015a506",
+    "bytes": 431
+  },
+  {
+    "path": "experiments/finite-field-provenance-20261029/audit-result.json",
+    "sha256": "37412c1d7fbdb65a364b815890ad44b14b8ddcd4d5ecd11534b06b9cf97fb5c5",
+    "bytes": 306
+  },
+  {
+    "path": "experiments/finite-field-provenance-20261029/audit.py",
+    "sha256": "04b0ac7c6b4f269ac64a0d3f5bf0abe34291add2839643c32ba0fb895bf39827",
+    "bytes": 3251
+  },
+  {
+    "path": "experiments/finite-field-provenance-20261029/candidate.py",
+    "sha256": "466e7ca3ef635a5992a24b9ddb2508fe3cf8b65936035de5948579757ec4be7e",
+    "bytes": 1727
+  },
+  {
+    "path": "experiments/finite-field-provenance-20261029/checkpoint.py",
+    "sha256": "cc9c8c4e59ac44421bca543a434d8a5d6bf9dfadfb6fe2825cadabdccc666cbd",
+    "bytes": 21569
+  },
+  {
+    "path": "experiments/finite-field-provenance-20261029/commands.json",
+    "sha256": "c09f1374984f9f1755ca0a4eb259dd3a7a3dba7a1910ee7f5f3248637fd2ff62",
+    "bytes": 803
+  },
+  {
+    "path": "experiments/finite-field-provenance-20261029/completion.json",
+    "sha256": "968386eb21e23106bbade5a31a5b8990be716a38428e2f12df50e55ad60d25f1",
+    "bytes": 370
+  },
+  {
+    "path": "experiments/finite-field-provenance-20261029/environment.json",
+    "sha256": "3ae7126c46e2ef93e33a480699241e4314d0326f6c0d610f5dc11c00e4ef29da",
+    "bytes": 197
+  },
+  {
+    "path": "experiments/finite-field-provenance-20261029/final-audit-result.json",
+    "sha256": "49e0ec9bb85375ccf33e5436d85ecf08ac57d04cdef1e8fe5e481b958564409f",
+    "bytes": 435
+  },
+  {
+    "path": "experiments/finite-field-provenance-20261029/final-direction-check.json",
+    "sha256": "20e8ea990865f07a63f8491e48d9cf99e301b3da4e7b218d7cc6f04d99dccad2",
+    "bytes": 1194
+  },
+  {
+    "path": "experiments/finite-field-provenance-20261029/final_audit.py",
+    "sha256": "a667314e473fe7a0772a793dbafcdcba738ee634a2a11b3449a8dd32668cfa73",
+    "bytes": 4601
+  },
+  {
+    "path": "experiments/finite-field-provenance-20261029/hypotheses.json",
+    "sha256": "0c43f9dfbc49a46d8337150e71e8100731aa765cf34c0fd83e153b0a3876b29f",
+    "bytes": 101361
+  },
+  {
+    "path": "experiments/finite-field-provenance-20261029/native/hashline__src__private_block__argument.rs",
+    "sha256": "c4f9f9f4cb477346b03e9f769d7c3141a8529f096d08da2be6c415d5160a5e66",
+    "bytes": 111325
+  },
+  {
+    "path": "experiments/finite-field-provenance-20261029/native/hashline__src__private_block__shape.rs",
+    "sha256": "9a87081897ff0ec716d7f27a2813cc32117683eb5b2f2082a248f479ef98c4c5",
+    "bytes": 139369
+  },
+  {
+    "path": "experiments/finite-field-provenance-20261029/native/hashline__src__private_block__witness.rs",
+    "sha256": "a586b777c36c9fa5060d3dfa195a75ff0a2b7794a2521cad59aaf7f3f6144ec3",
+    "bytes": 41694
+  },
+  {
+    "path": "experiments/finite-field-provenance-20261029/native/zkp-core__src__field.rs",
+    "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+    "bytes": 11065
+  },
+  {
+    "path": "experiments/finite-field-provenance-20261029/native-pins.json",
+    "sha256": "f4ee04ed653551dc4946fb90265939f2b3c9b914a58323b9a0c5cd84dd6c1c92",
+    "bytes": 1044
+  },
+  {
+    "path": "experiments/finite-field-provenance-20261029/prior-hypotheses.json",
+    "sha256": "300acbdb9eb373a9d71d696f0afd8404c3dea55e8ea168488baa6dd10eac6721",
+    "bytes": 100665
+  },
+  {
+    "path": "experiments/finite-field-provenance-20261029/record_sources.py",
+    "sha256": "76e5987ccbac6ae25b675bf26c3f1a1ec5be1116d24f7fb1788b83c9f1e9e975",
+    "bytes": 8417
+  },
+  {
+    "path": "experiments/finite-field-provenance-20261029/reference.py",
+    "sha256": "de800a211f6fbd7bd80f1ef64406e865ca0e72fdb3c4e91e11c8a5e873e91c73",
+    "bytes": 1068
+  },
+  {
+    "path": "experiments/finite-field-provenance-20261029/result.json",
+    "sha256": "231c010e6368106cef163a87780dc4bda7b8cec75f72b679107c261af61b873b",
+    "bytes": 8576
+  },
+  {
+    "path": "experiments/finite-field-provenance-20261029/rotation.json",
+    "sha256": "64ce55a558ceb9483bae10a287783ab9c1e500e8133061771eb8e917def86f40",
+    "bytes": 819
+  },
+  {
+    "path": "experiments/finite-field-provenance-20261029/run.py",
+    "sha256": "4b81634bd7d706c3f0c5e3863b95357ccd603e3e3ee44836739ac5b939c25389",
+    "bytes": 7900
+  },
+  {
+    "path": "experiments/finite-field-provenance-20261029/search-queries.json",
+    "sha256": "9abb0e38b5d293078fcee225b94b49ea8976cbea9b6bb5064bb1cff4b6c49f67",
+    "bytes": 302
+  },
+  {
+    "path": "experiments/finite-field-provenance-20261029/sources-cycle.json",
+    "sha256": "63b95e18813b46226bba79619a1a58ce1ebf63ba1bec660dcfd56864070f1482",
+    "bytes": 12023
+  },
+  {
+    "path": "experiments/finite-field-provenance-20261029/startup/AGENDA.md",
+    "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139",
+    "bytes": 5603
+  },
+  {
+    "path": "experiments/finite-field-provenance-20261029/startup/CLAUDE.md",
+    "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6",
+    "bytes": 14089
+  },
+  {
+    "path": "experiments/finite-field-provenance-20261029/startup/FINDINGS.md",
+    "sha256": "cad3eae42cee2cfbf6477ab0ef6343f763d6aacc1c485100130f6fc4810933dc",
+    "bytes": 970425
+  },
+  {
+    "path": "experiments/finite-field-provenance-20261029/startup/MVP_STATUS.md",
+    "sha256": "1b7de29785acdab18a3692741d2fb75e5cf17c7d22a335b6d084b247bf3eaee1",
+    "bytes": 94260
+  },
+  {
+    "path": "experiments/finite-field-provenance-20261029/startup/PROGRESS.md",
+    "sha256": "e437fbbc1d353878a58ab480d8c6b28d9f4acbaba2549746d07b50b941e45ca9",
+    "bytes": 2514
+  },
+  {
+    "path": "experiments/finite-field-provenance-20261029/startup/STATE.md",
+    "sha256": "2e28903345cfce70145a13fee606c91ecc15f2c8241d9f7a5b3be78a62dd15dc",
+    "bytes": 5258
+  },
+  {
+    "path": "experiments/finite-field-provenance-20261029/startup/ZK60_CODEX_FABLE_COORDINATION.md",
+    "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f",
+    "bytes": 64889
+  },
+  {
+    "path": "experiments/finite-field-provenance-20261029/startup/ZK60_DECISIONS.md",
+    "sha256": "0543fff4dab090ce98700075731e55e8e311be87a90eadbbb5ac8759adc414de",
+    "bytes": 130071
+  },
+  {
+    "path": "experiments/finite-field-provenance-20261029/startup/ZK60_THROUGHPUT_TARGET.md",
+    "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53",
+    "bytes": 4941
+  },
+  {
+    "path": "experiments/finite-field-provenance-20261029/startup/prior-audit-result.json",
+    "sha256": "e9d7f4e3cea9299ee73e26184d29c8b2b077ff1f39a77215e6cc9db37e0757ad",
+    "bytes": 17172
+  },
+  {
+    "path": "experiments/finite-field-provenance-20261029/startup/prior-native-pins.json",
+    "sha256": "eae86af62010405291fb4a3bf6380874c60a1a8f51053f1db3c78be13c6f1ad1",
+    "bytes": 1947
+  },
+  {
+    "path": "experiments/finite-field-provenance-20261029/startup/prior-result.json",
+    "sha256": "31eafa31cd872d061d3bbc209f06cbe129e58aba4c84fdb335bf55489684a5dc",
+    "bytes": 24344
+  },
+  {
+    "path": "experiments/finite-field-provenance-20261029/startup/prior-target-accounting.json",
+    "sha256": "e1e1ea9b4b0d73ecfbf1cc1769f64e888fe728cc06da023f8f3f990b3927351e",
+    "bytes": 539
+  },
+  {
+    "path": "experiments/finite-field-provenance-20261029/startup/sources.jsonl",
+    "sha256": "245197646f52e86b2f02fd9dca37fe84c2de9f0f95286f34322b52e8b433275c",
+    "bytes": 1074203
+  },
+  {
+    "path": "experiments/finite-field-provenance-20261029/startup-manifest.json",
+    "sha256": "b4dc80baa1e174bb8f9f6ed107c9ba8b49e16edf295b862d30aa24aca3d5dbd4",
+    "bytes": 1963
+  },
+  {
+    "path": "experiments/finite-field-provenance-20261029/target-accounting.json",
+    "sha256": "07b29bd7d80545ceff333b6d22892c9b536af6cc123b69d2125ca4c195ae5583",
+    "bytes": 1340
+  },
+  {
+    "path": "experiments/finite-field-provenance-20261029/web-last-response.json",
+    "sha256": "5160fc1ac6d5cf7b6c80d8b17f747f5587100919eab1754402ab20fae688319e",
+    "bytes": 8677
+  },
+  {
+    "path": "handoffs/20261029-finite-field-provenance-negative.md",
+    "sha256": "50b6b6d92df0bbac75580a9fba842a8b2293be07386787c9d58cea8b8a56cc83",
+    "bytes": 2694
+  },
+  {
+    "path": "progress/20261029T035649Z-8ea509dd.md",
+    "sha256": "38e0a032ed652db39724cdb87f632d4d0f305b401b1f7435f213de50fbc9556f",
+    "bytes": 6082
+  }
+]

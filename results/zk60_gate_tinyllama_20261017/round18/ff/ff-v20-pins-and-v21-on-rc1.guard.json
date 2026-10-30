@@ -1,0 +1,43 @@
+{
+ "ts_end": "2026-10-29T03:29:28Z",
+ "run_id": "51b8c46b313b",
+ "label": "gate18-ff-v20-pins-and-v21-on-rc1",
+ "class": "light",
+ "cmd": [
+  "python3",
+  "-c",
+  "\nimport json, os, sys, types\nC = '/home/victor/zk60-artifacts/token-io/captures'\nnames = ['classify-rc3-rung-L1-v0', 'classify-rc3-rung-L1-v1', 'classify-rc3-rung-L1-vtie', 'classify-rc3-rung-L2-v0',\n         'classify-rc3-rung-L2-v1', 'classify-rc3-rung-L2-vtie', 'classify-rc3-rung-L2-v1-chunk0o27',\n         'classify-rc3-rung-L2-v1-chunk1o27', 'classify-rc3-rung-L2-v1-short20', 'classify-rc3-rung-L1-vtie-short20',\n         'classify-rc3-cli-p18-r14']\nsys.path.insert(0, '/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/frozen_v20/scripts')\nimport zk60_native_rg_classpins as CP20, zk60_native_rg_classterminals as CT20\nout = {'v20_on_r14': {}}\nfor n in names:\n    m = json.load(open(os.path.join(C, n, 'manifest.json')))\n    p = CP20.classify_capture_pins(m)\n    r = CT20.check_classify_terminals(types.SimpleNamespace(manifest=m, name=n))\n    out['v20_on_r14'][n] = {'v20_pins_ok': p['ok'], 'v20_pin_refusals': len(p['refusals']), 'first_refusals': p['refusals'][:3],\n                            'v20_terminals_ok': r.get('ok'), 'v20_slots_checked': r.get('slots_checked'), 'v20_findings': r.get('findings')[:2]}\nfor k in [k for k in list(sys.modules) if k.startswith('zk60_')]:\n    del sys.modules[k]\nsys.path.remove('/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/frozen_v20/scripts')\nsys.path.insert(0, '/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/frozen_v21/scripts')\nimport zk60_native_rg_classgate as CG\nb = CG.load(os.path.join(C, 'classify-rung-L1-v1'))\ni = CG.class_integrity(b)\nout['v21_on_rc1'] = {'capture': 'classify-rung-L1-v1 (R-C1, token frozen-r12 hooked)', 'integrity_ok': i['ok'],\n                     'pin_refusals': i['source_pins']['refusals'], 'other_findings': [x for x in i['findings'] if not x.startswith('source pin')][:6]}\nout['all_v20_refuse'] = all(not v['v20_pins_ok'] and not v['v20_terminals_ok'] for v in out['v20_on_r14'].values())\nout['v21_refuses_rc1'] = not i['ok']\njson.dump(out, open('/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/round18/ff/ff-v20-pins-and-v21-on-rc1.json', 'w'), indent=1, default=str)\nprint(out['all_v20_refuse'], out['v21_refuses_rc1'])\n"
+ ],
+ "need_gib": 0.5,
+ "cap_gib": 1.0,
+ "exit": 0,
+ "child_rc": 0,
+ "guard_killed": null,
+ "child_wall_seconds": 0.6672337055206299,
+ "refused": null,
+ "guard_error": null,
+ "guard_pid": 205557,
+ "boot_id": "9ecf0dc6-8b67-411a-8ac8-042f41dfd9d5",
+ "pid_ns": "pid:[4026532216]",
+ "guard_starttime_ticks": 2356130,
+ "lock_ids": {
+  "heavy": "2096:1134228",
+  "build": "2096:1134231"
+ },
+ "enforcement": "cgroup+watchdog",
+ "waited_s": 0.0,
+ "guard_wall_s": 0.7,
+ "stragglers_killed": 0,
+ "hard_killed": 0,
+ "scope_unit": "zk60-51b8c46b313b.scope",
+ "scope_adopted": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/zk60.slice/zk60-51b8c46b313b.scope",
+ "foreign_cgroups_refused": [],
+ "peak_rss_gib": 0.08,
+ "peak_cgroup_gib": 0.06,
+ "peak_vram_mib": null,
+ "min_mem_available_gib": 13.7,
+ "vram_drain_s": null,
+ "gpu_drain_failed": false,
+ "gpu_telemetry_lost": false,
+ "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache"
+}

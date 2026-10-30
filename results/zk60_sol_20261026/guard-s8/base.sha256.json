@@ -1,0 +1,6 @@
+{
+  "utc": "2026-10-28T22:10:49.577923+00:00",
+  "installed_sha256": "87138bda80ae4499a668e67a1c0e7706bb859eafb5e766020bcd59567c8ac59c",
+  "candidate_sha256": "88af4c639848d39df8da559652db11529575aa745b916a06eb522c20ea89fbd3",
+  "status": "PROPOSED ONLY; no live swap/pin/test changes; independent review and quiescent window required"
+}

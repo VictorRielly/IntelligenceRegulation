@@ -1,0 +1,1 @@
+{"head_int8_perrow.bin": {"sha256": "43ec0671edd361b87958fb4a6e70c1d1baf87774940c04daf55f4ce781e5f3d0"}, "head_mult12.bin": {"sha256": "626c731ed9c80d904a4f01c6f1559f50333da0c3d61fb1ced65cedcaf4beefb0"}, "source_tensor": {"name": "language_model.model.embed_tokens.weight", "sha256": "67a138c1c483b89874526ef523f5f0c30f161808076561730193d1de2093dd19"}}

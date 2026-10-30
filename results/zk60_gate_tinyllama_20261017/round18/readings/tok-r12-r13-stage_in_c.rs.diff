@@ -1,0 +1,62 @@
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r12/hashline/src/private_block/token_io/stage_in_c.rs	2026-10-20 20:19:21.839341645 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r13/hashline/src/private_block/token_io/stage_in_c.rs	2026-10-28 16:42:48.584716748 -0700
+@@ -238,6 +238,11 @@
+ fn run_slots(side: &mut Side, cx: &InCCtx, tr: &mut Transcript) -> Result<Acc, String> {
+     let mut acc = Acc::default();
+     for slot in 0..cx.lay.sched.slots.len() {
++        // ROUND 12 (gate round 16 capture request 2.2): the run capture's
++        // definition checkpoint, as stage IN takes it (verify side only; a
++        // no-op unless a recorder is attached; test builds only)
++        #[cfg(test)]
++        super::super::run_capture::start_slot(side, tr);
+         let def = define(slot, cx, tr)?;
+         run_stage_slot(side, &mut acc, def, &cx.lay.sched, tr)?;
+     }
+@@ -418,14 +423,47 @@
+     let cx = InCCtx { lay, cp, alpha, beta, g_emb, r_emb, tau_tab, b_in_row: b_spec.mask_row(0)?, b_in_log: (cp.t_pad * cp.d_pad).trailing_zeros() as usize, ep_mask_row: ep_data_rows };
+     let mut side = Side::Verify { slots: &seg.slots };
+     let acc = run_slots(&mut side, &cx, tr)?;
++    // ROUND 12 (gate round 16 capture request 2.2): every opening of the
++    // stage wrapped as stage IN wraps its own (checkpoint after the schedule
++    // check, the hook after the verification; no-ops unless a recorder is
++    // attached; test builds only)
++    #[cfg(test)]
++    let rc_before = super::super::run_capture::checkpoint(tr);
+     crate::zk::mask_verify_tagged(&seg.mask_root, &lay.mask_specs(), &acc.fs, &seg.mask_open, ntt, tr, tag).map_err(|e| format!("stage IN-C M: {e}"))?;
++    #[cfg(test)]
++    super::super::run_capture::mask(&lay.mask_specs(), &seg.mask_root, &acc.fs, &seg.mask_open, ntt, rc_before, tr);
+     let [ac, mut hc, ic, oc] = acc.claims;
+     hc.push(lay.logup_sum_claim());
+     protocol::check_opening(&ac, lay.log_n, lay.a_rows, &lay.a_site_rows(), None, lay.a_prox, A_GROUPS, tr)?;
++    #[cfg(test)]
++    let rc_before = super::super::run_capture::checkpoint(tr);
+     pcs::verify_zk_tagged(&params, &zko, &protocol::commitment(seg.a_root, lay.a_rows, lay.log_n), &ac, &seg.a_open, ntt, tr, tag).map_err(|e| format!("stage IN-C A: {e}"))?;
++    #[cfg(test)]
++    super::super::run_capture::pcs(capture_a_geom("A-in", "stage-in-c", lay, seg.a_root), &ac, &seg.a_open, ntt, rc_before, tr);
+     protocol::check_opening(&hc, lay.log_n, lay.h_rows, &lay.h_site_rows(), Some(lay.h_u_rows()), lay.h_prox, H_GROUPS, tr)?;
++    #[cfg(test)]
++    let rc_before = super::super::run_capture::checkpoint(tr);
+     pcs::verify_zk_tagged(&params, &zko, &protocol::commitment(seg.h_root, lay.h_rows, lay.log_n), &hc, &seg.h_open, ntt, tr, tag).map_err(|e| format!("stage IN-C H (the LogUp sum claim is part of this opening): {e}"))?;
++    #[cfg(test)]
++    super::super::run_capture::pcs(capture_h_geom("H-in", "stage-in-c", lay, seg.h_root), &hc, &seg.h_open, ntt, rc_before, tr);
+     check_token_endpoint_opening(&ic, ep_data_rows, cp.tier.ep_n(), tr)?;
++    #[cfg(test)]
++    let rc_before = super::super::run_capture::checkpoint(tr);
+     pcs::verify_zk_tagged(&ep_params, &ZkOpts::standard(&ep_params), &protocol::commitment(*ep_root, ep_spec.commitment_rows(), cp.tier.ep_log_n), &ic, &seg.closes[0], ntt, tr, tag).map_err(|e| format!("input token endpoint: {e}"))?;
++    #[cfg(test)]
++    super::super::run_capture::pcs(capture_ep_geom("E-token-in", ep_spec, *ep_root, vec![(0, SIC_IO, ic.len())]), &ic, &seg.closes[0], ntt, rc_before, tr);
+     Ok((oc, b_root))
+ }
++
++/// ROUND 12 (gate round 16 capture request 2.1(b)): stage IN-C's plane table
++/// for the run capture (the plane names are this module's, in plane order)
++#[cfg(test)]
++pub(crate) fn capture_planes(lay: &StageLayout) -> super::super::run_capture::StagePlanes<'_> {
++    super::super::run_capture::StagePlanes::Stage {
++        lay,
++        a_names: vec!["A_TOK".into(), "A_MULT".into()],
++        h_names: vec!["H_Q".into(), "H_TAB".into(), "H_U".into()],
++        // [A, H, In = the input token endpoint, Out = B_in]
++        roles: ["A-in", "H-in", "E-token-in", "B-in"],
++    }
++}

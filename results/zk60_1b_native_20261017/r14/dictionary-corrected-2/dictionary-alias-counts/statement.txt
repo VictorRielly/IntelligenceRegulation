@@ -1,0 +1,3 @@
+R14-public-synthetic-equivalent-dictionary-control/1
+case=dictionary-alias-counts
+expected_accept=true

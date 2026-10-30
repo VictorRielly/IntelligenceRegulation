@@ -1,0 +1,84 @@
+--- r12b/hashline/src/private_block/run.rs
++++ token-r13/hashline/src/private_block/run.rs
+@@ -95,4 +95,51 @@
+ /// NATIVE LANE: the run profile of the trained-calibration development rung.
+ pub(crate) const RUN_PROFILE_RUNG_TC: &str = "hashline-zk-mr1/private-run-rung-tc-t32-dev/1";
++/// TOKEN I/O R1 LANE (2026-10-17): the token-I/O run over the trained-
++/// calibration development rung (DESIGN v3 rung R1: public-row variant, mode
++/// (i), stage IN + L blocks + stage OUT). A NEW profile string under D17 — its
++/// own transcript; a run under it is built by `token_io::run` only.
++pub(crate) const RUN_PROFILE_TOKEN_IO_RUNG_TC: &str = "hashline-zk-mr1/private-token-io-run-rung-tc-t32-public-row-dev/1";
++/// TOKEN I/O R2 (2026-10-17): the token-I/O run over the trained TinyLlama-
++/// 1.1B T32 blocks (DESIGN v3 rung R2: public-row variant, mode (i), V =
++/// 32,000 padded to 2^15, multi-row stage planes). A NEW profile string under
++/// D17; built by `token_io::run` only.
++/// (The string is chosen so that its transcript-constructor input, 98 bytes,
++/// equals the length of no other hash-input kind of the run and is not one
++/// byte from any: stage 25's W-2 census; the first choice, 76 characters,
++/// gave an 88-byte constructor equal to the `schedule` absorb.)
++pub(crate) const RUN_PROFILE_TOKEN_IO_TINYLLAMA_T32: &str = "hashline-zk-mr1/private-token-io-run-tinyllama-1.1b-t32-trained-statement-public-row/1";
++/// TOKEN I/O R3 (2026-10-18): the token-I/O run over the trained Llama-3-8B
++/// T32 blocks (DESIGN v3 rung R3: public-row variant, mode (i), V = 128,256
++/// padded to 2^17, d = 4,096, BOS 128,000). A NEW profile string under D17;
++/// its transcript-constructor input (94 bytes) equals the length of no other
++/// hash-input kind and is one byte from none (stage 25's W-2 census).
++pub(crate) const RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T32: &str = "hashline-zk-mr1/private-token-io-run-llama-3-8b-t32-trained-statement-public-row/1";
++/// TOKEN I/O ROUND 8 (2026-10-19): the token-I/O run over the trained
++/// TinyLlama-1.1B T128 blocks (DESIGN v3's first geometry: T <= 128, the
++/// input endpoint ONE 256-word row; public-row variant, mode (i)). A NEW
++/// profile string under D17; built by `token_io::run` only. (Not
++/// "...-tinyllama-1.1b-t128-...": that 87-character string gives a 99-byte
++/// transcript constructor, the length of another hash-input kind of the
++/// TinyLlama run (stage 25's W-2 census); this one's is 94 bytes.)
++pub(crate) const RUN_PROFILE_TOKEN_IO_TINYLLAMA_T128: &str = "hashline-zk-mr1/private-token-io-run-tinyllama-t128-trained-statement-public-row/1";
++/// TOKEN I/O ROUND 8 (2026-10-19): the token-I/O run over the trained
++/// Llama-3-8B T128 blocks (DESIGN v3's first geometry, as above; V =
++/// 128,256 padded to 2^17, d = 4,096, BOS 128,000). A NEW profile string under
++/// D17; its transcript constructor is 95 bytes (stage 25's W-2 census).
++pub(crate) const RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T128: &str = "hashline-zk-mr1/private-token-io-run-llama-3-8b-t128-trained-statement-public-row/1";
++/// every token-I/O run profile this build registers (a blocks-only run may
++/// carry none of them)
++pub(crate) const TOKEN_IO_RUN_PROFILES: [&str; 5] = [RUN_PROFILE_TOKEN_IO_RUNG_TC, RUN_PROFILE_TOKEN_IO_TINYLLAMA_T32, RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T32, RUN_PROFILE_TOKEN_IO_TINYLLAMA_T128, RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T128];
++/// TOKEN I/O ROUND 12 (2026-10-21): the CLASSIFIER run over the trained-
++/// calibration development rung (DESIGN_CLASSIFIER v2, rung R-C1: stage IN-C
++/// with the public template and the control-id column, the L blocks, stage
++/// OUT-C with the margin slot and the PUBLIC verdict bit; one external
++/// endpoint). A NEW profile string under D17 — its own transcript; a run
++/// under it is built by `token_io::classify_run` only. Same length as the
++/// token rung's string (65 characters), whose transcript constructor the W-2
++/// census already admits.
++pub(crate) const RUN_PROFILE_CLASSIFY_RUNG_TC: &str = "hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1";
++/// every classifier run profile this build registers
++pub(crate) const CLASSIFY_RUN_PROFILES: [&str; 1] = [RUN_PROFILE_CLASSIFY_RUNG_TC];
+ /// **NATIVE R9 (D30): the run profiles of the three DD block profiles** (one
+ /// per shape, D17), at the lengths of their non-DD twins' (67 / 63 / 45)
+@@ -141,4 +188,10 @@
+         RUN_PROFILE_M125 => Ok(Shape::m125()),
+         RUN_PROFILE_RUNG_TC => Shape::rung_tc(&cal),
++        RUN_PROFILE_TOKEN_IO_RUNG_TC => Shape::rung_tc(&cal),
++        RUN_PROFILE_CLASSIFY_RUNG_TC => Shape::rung_tc(&cal),
++        RUN_PROFILE_TOKEN_IO_TINYLLAMA_T32 => Shape::tinyllama_trained(32, &cal, sh.f_e),
++        RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T32 => Shape::llama3_8b_t32_trained(&cal, sh.f_e),
++        RUN_PROFILE_TOKEN_IO_TINYLLAMA_T128 => Shape::tinyllama_trained(128, &cal, sh.f_e),
++        RUN_PROFILE_TOKEN_IO_LLAMA3_8B_T128 => Shape::llama3_8b_trained(128, &cal, sh.f_e),
+         RUN_PROFILE_TINYLLAMA_T32_TRAINED => Shape::tinyllama_trained(32, &cal, sh.f_e),
+         RUN_PROFILE_TINYLLAMA_T64_TRAINED => Shape::tinyllama_trained(64, &cal, sh.f_e),
+@@ -381,4 +434,9 @@
+         if digests.len() != rs.l {
+             return Err(format!("private run: the statement is for {} blocks, {} block digests and {} scale pairs were given", rs.l, digests.len(), block_scales.len()));
++        }
++        // TOKEN I/O R1 LANE: a token-I/O run profile is built by
++        // `token_io::run` only; a blocks-only run may not carry its string
++        if TOKEN_IO_RUN_PROFILES.contains(&rs.profile) {
++            return Err(format!("private run: {} is a token-I/O run profile; a blocks-only run statement may not carry it", rs.profile));
+         }
+         // RULING CS-4: the endpoint policy against the run's shape
+@@ -695,4 +753,8 @@
+             boundaries,
+             external_scales: (self.expected.spec.input_scale(), self.expected.spec.output_scale()),
++            // TOKEN I/O (round 7): a block run carries no token facts
++            token: None,
++            // ROUND 12 (gate round 16): nor classifier facts
++            classify: None,
+         })
+     }

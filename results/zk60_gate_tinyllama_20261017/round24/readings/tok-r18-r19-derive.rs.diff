@@ -1,0 +1,121 @@
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r18/hashline/src/private_block/tied_tables/derive.rs	2026-10-30 02:17:26.299371130 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r19/hashline/src/private_block/tied_tables/derive.rs	2026-10-30 05:10:42.328961904 -0700
+@@ -7,7 +7,45 @@
+ const TENSOR: &str = "language_model.model.embed_tokens.weight";
+ const NORM: &str = "language_model.model.norm.weight";
+ const CHECKPOINT_BYTES: u64 = 7698241104;
+-const DEFAULT_CHECKPOINT: &str = "/home/victor/models/shieldstral-1.0-3b/snapshot-003ec7e2/model.safetensors";
++/// TOKEN ROUND 19 (open release E7): the pinned checkpoint's place below a
++/// models directory. WHERE that directory is, is configuration
++/// ([`default_checkpoint`]); WHAT is read there is not: the bytes are
++/// authenticated by `CHECKPOINT_BYTES`, the pinned file SHA-256 and the
++/// consumed tied-tensor digest, whichever directory they come from.
++const CHECKPOINT_IN_MODELS: &str = "shieldstral-1.0-3b/snapshot-003ec7e2/model.safetensors";
++
++/// TOKEN ROUND 19 (open release E7; it replaces round 18's hard-coded
++/// absolute `DEFAULT_CHECKPOINT`): the checkpoint a derivation reads when
++/// the export declares no `tied_embeddings.checkpoint_file` —
++/// `$ZK60_MODELS/shieldstral-1.0-3b/snapshot-003ec7e2/model.safetensors` when
++/// `ZK60_MODELS` is set and non-empty, else the same path under
++/// `$HOME/models/`. On the development box (its HOME, the variable unset)
++/// that is round 18's path byte for byte. With neither variable there is no
++/// default: refused, never a guessed path.
++fn default_checkpoint() -> Result<std::path::PathBuf, String> {
++    default_checkpoint_from(std::env::var_os("ZK60_MODELS"), std::env::var_os("HOME"))
++}
++
++/// [`default_checkpoint`] with the two variables passed in (so that no test
++/// sets the process environment)
++fn default_checkpoint_from(models: Option<std::ffi::OsString>, home: Option<std::ffi::OsString>) -> Result<std::path::PathBuf, String> {
++    let dir = match (models.filter(|m| !m.is_empty()), home.filter(|h| !h.is_empty())) {
++        (Some(m), _) => std::path::PathBuf::from(m),
++        (None, Some(h)) => std::path::PathBuf::from(h).join("models"),
++        (None, None) => return Err("tied tables: the export declares no tied_embeddings.checkpoint_file and neither ZK60_MODELS nor HOME is set, so the pinned checkpoint has no default location".into()),
++    };
++    Ok(dir.join(CHECKPOINT_IN_MODELS))
++}
++
++/// The checkpoint a derivation opens: the export's declared `checkpoint_file`
++/// when it has one (precedence unchanged from round 18), else `default()`,
++/// which is evaluated only then. A non-string declaration is refused.
++fn checkpoint_path_with(declaration: &J, default: impl FnOnce() -> Result<std::path::PathBuf, String>) -> Result<std::path::PathBuf, String> {
++    match declaration.opt("checkpoint_file").map(J::str).transpose()? {
++        Some(declared) => Ok(std::path::PathBuf::from(declared)),
++        None => default(),
++    }
++}
+ 
+ /// Public calibrated norm constants, read from the profile rather than a
+ /// classifier's copy. The calling token proof must bind its own relation.
+@@ -241,8 +279,8 @@
+     let declaration = profile.get("tied_embeddings")?;
+     let (_, pin) = crate::private_block::trained_statement::tied_tensor_for_profile(crate::private_block::shape::SHIELDSTRAL_T128_TRAINED_PROFILE).unwrap();
+     if declaration.get("tensor")?.str()? != TENSOR || unhex32(declaration.get("sha256")?.str()?)? != pin { return Err("tied tensor declaration differs from pin".into()); }
+-    let checkpoint_path = declaration.opt("checkpoint_file").map(J::str).transpose()?.unwrap_or(DEFAULT_CHECKPOINT);
+-    let mut checkpoint = Checkpoint::open(Path::new(checkpoint_path))?;
++    let path = checkpoint_path_with(declaration, default_checkpoint)?;
++    let mut checkpoint = Checkpoint::open(&path)?;
+     checkpoint.file.seek(SeekFrom::Start(checkpoint.tensor_offset)).map_err(|e| e.to_string())?;
+     let mut raw_bytes = vec![0; WIDTH*2];
+     let (mut tensor_hash,mut embedding_hash,mut head_hash) = (Sha256::new(),Sha256::new(),Sha256::new());
+@@ -340,4 +378,60 @@
+         let mut invalid=[1.,2.,3.,4.];
+         assert!(rotate(&mut invalid,&[1.,1.,0.,1.],4).is_err());
+     }
++
++    /// TOKEN ROUND 19 (open release E7): the default checkpoint is under
++    /// `$ZK60_MODELS` when it is set and non-empty, else under `$HOME/models`,
++    /// with neither it is refused; the two variables are passed in, so no test
++    /// touches the process environment.
++    #[test]
++    fn r19_the_default_checkpoint_is_under_zk60_models_when_set_else_under_home_models() {
++        use std::ffi::OsString;
++        use std::path::PathBuf;
++        let o = |s: &str| Some(OsString::from(s));
++        let under = |d: &str| PathBuf::from(format!("{d}/shieldstral-1.0-3b/snapshot-003ec7e2/model.safetensors"));
++        assert_eq!(default_checkpoint_from(o("/srv/zk60-models"), o("/home/someone")).unwrap(), under("/srv/zk60-models"), "ZK60_MODELS set: the checkpoint is under it");
++        assert_eq!(default_checkpoint_from(o("/srv/zk60-models"), None).unwrap(), under("/srv/zk60-models"), "ZK60_MODELS set and HOME unset");
++        assert_eq!(default_checkpoint_from(None, o("/home/someone")).unwrap(), under("/home/someone/models"), "ZK60_MODELS unset: under $HOME/models");
++        assert_eq!(default_checkpoint_from(o(""), o("/home/someone")).unwrap(), under("/home/someone/models"), "ZK60_MODELS set but EMPTY counts as unset");
++        assert!(default_checkpoint_from(None, None).is_err(), "neither variable: refused, never a guessed path");
++        assert!(default_checkpoint_from(o(""), o("")).is_err(), "both empty: refused");
++        assert_eq!(default_checkpoint_from(None, o("/home/victor")).unwrap(), PathBuf::from("/home/victor/models/shieldstral-1.0-3b/snapshot-003ec7e2/model.safetensors"), "the development box's HOME gives round 18's constant");
++        eprintln!("TOKEN-IO R19 | E7: default checkpoint = $ZK60_MODELS/... when set, else $HOME/models/..., else refused");
++    }
++
++    /// TOKEN ROUND 19 (open release E7): a `checkpoint_file` the export
++    /// declares keeps precedence over every default (as in round 18), the
++    /// default is not even evaluated then, and a non-string declaration is
++    /// still refused.
++    #[test]
++    fn r19_a_declared_checkpoint_file_keeps_precedence_over_the_default() {
++        use std::path::PathBuf;
++        let declared = parse_json(br#"{"tensor":"t","sha256":"00","checkpoint_file":"/declared/model.safetensors"}"#).unwrap();
++        let none = parse_json(br#"{"tensor":"t","sha256":"00"}"#).unwrap();
++        let bad = parse_json(br#"{"tensor":"t","sha256":"00","checkpoint_file":7}"#).unwrap();
++        let models = || default_checkpoint_from(Some("/srv/zk60-models".into()), Some("/home/someone".into()));
++        assert_eq!(checkpoint_path_with(&declared, models).unwrap(), PathBuf::from("/declared/model.safetensors"), "a declared checkpoint_file wins over ZK60_MODELS");
++        assert_eq!(checkpoint_path_with(&none, models).unwrap(), models().unwrap(), "no declaration: the default");
++        assert!(checkpoint_path_with(&bad, models).is_err(), "a non-string checkpoint_file is refused");
++        assert_eq!(checkpoint_path_with(&declared, || Err("the default must not be evaluated".to_string())).unwrap(), PathBuf::from("/declared/model.safetensors"));
++        assert!(checkpoint_path_with(&none, || Err("no default".to_string())).is_err(), "no declaration and no default: refused");
++        eprintln!("TOKEN-IO R19 | E7: a declared tied_embeddings.checkpoint_file keeps precedence; the default is evaluated only without one");
++    }
++
++    /// TOKEN ROUND 19 (open release E7): [`default_checkpoint`] reads exactly
++    /// `ZK60_MODELS` and `HOME`; on the development box with `ZK60_MODELS`
++    /// unset it is round 18's constant path byte for byte.
++    #[test]
++    fn r19_with_zk60_models_unset_on_this_box_the_default_is_round_18s_path() {
++        use std::path::PathBuf;
++        let got = default_checkpoint();
++        assert_eq!(got, default_checkpoint_from(std::env::var_os("ZK60_MODELS"), std::env::var_os("HOME")), "default_checkpoint reads ZK60_MODELS and HOME");
++        let unset = std::env::var_os("ZK60_MODELS").map_or(true, |m| m.is_empty());
++        if unset && std::env::var_os("HOME").as_deref() == Some(std::ffi::OsStr::new("/home/victor")) {
++            assert_eq!(got.unwrap(), PathBuf::from("/home/victor/models/shieldstral-1.0-3b/snapshot-003ec7e2/model.safetensors"), "unset on this box: round 18's path");
++            eprintln!("TOKEN-IO R19 | E7: ZK60_MODELS unset, HOME=/home/victor: the default is round 18's path");
++        } else {
++            eprintln!("TOKEN-IO R19 | E7: not the development box's environment (ZK60_MODELS set or another HOME): round 18's path is checked by the pure test only");
++        }
++    }
+ }

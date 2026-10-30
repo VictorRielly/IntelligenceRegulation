@@ -1,0 +1,86 @@
+[
+  {
+    "source": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/AGENDA.md",
+    "snapshot": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/periodic-sc-tab-20261028/startup/AGENDA.md",
+    "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139",
+    "bytes": 5603
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/STATE.md",
+    "snapshot": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/periodic-sc-tab-20261028/startup/STATE.md",
+    "sha256": "e5ac914bee6dcc51870500bcb199f26bd0b5d6d700ae328ef652dfd7e996e949",
+    "bytes": 4604
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/FINDINGS.md",
+    "snapshot": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/periodic-sc-tab-20261028/startup/FINDINGS.md",
+    "sha256": "d4230933c37d6ba42b1f37f16ab040b26ff5126d5859da4ed34da2dcdcc68090",
+    "bytes": 935726
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/sources.jsonl",
+    "snapshot": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/periodic-sc-tab-20261028/startup/sources.jsonl",
+    "sha256": "7791ed8bd812eba328d679db71a38cdaf8979cabca26544ae7b4aa7e5c54ec53",
+    "bytes": 1009031
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/PROGRESS.md",
+    "snapshot": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/periodic-sc-tab-20261028/startup/PROGRESS.md",
+    "sha256": "3e0ec6b8df4c90a6ff1263e42fbe70f4877b0921f35de2262434bef6d84f6acd",
+    "bytes": 2678
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/CLAUDE.md",
+    "snapshot": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/periodic-sc-tab-20261028/startup/CLAUDE.md",
+    "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6",
+    "bytes": 14089
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/MVP_STATUS.md",
+    "snapshot": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/periodic-sc-tab-20261028/startup/MVP_STATUS.md",
+    "sha256": "86888b578a306269252b9af6c26236feedbd97882ce3f56b66f344f7789007d7",
+    "bytes": 91903
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_DECISIONS.md",
+    "snapshot": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/periodic-sc-tab-20261028/startup/ZK60_DECISIONS.md",
+    "sha256": "4a5e0d0447b753d3f9e35d189c2adc00ae014326d5d5491a924cdbd35d0f51bf",
+    "bytes": 121967
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_CODEX_FABLE_COORDINATION.md",
+    "snapshot": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/periodic-sc-tab-20261028/startup/ZK60_CODEX_FABLE_COORDINATION.md",
+    "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f",
+    "bytes": 64889
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_THROUGHPUT_TARGET.md",
+    "snapshot": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/periodic-sc-tab-20261028/startup/ZK60_THROUGHPUT_TARGET.md",
+    "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53",
+    "bytes": 4941
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/lookup-row-tiling-20261026/result.json",
+    "snapshot": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/periodic-sc-tab-20261028/startup/prior-result.json",
+    "sha256": "11af7233e6803fbd1e422b1e9182d5f99cf6fa08cfe23fc79e3ad55a05639fbf",
+    "bytes": 8414
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/lookup-row-tiling-20261026/hypotheses.json",
+    "snapshot": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/periodic-sc-tab-20261028/startup/prior-hypotheses.json",
+    "sha256": "60654a099d2bbce09e0bf6b0f4c316cb707d60ec785025e3d44ca9d57925ba61",
+    "bytes": 78693
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/lookup-row-tiling-20261026/audit-result.json",
+    "snapshot": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/periodic-sc-tab-20261028/startup/prior-audit-result.json",
+    "sha256": "9fa0b5086a53e824d7d8b0abc841b7e28bfbb6b830eec3e2509a75bdb2996a3d",
+    "bytes": 16317
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12/SHIELDSTRAL_COST.md",
+    "snapshot": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/periodic-sc-tab-20261028/startup/owner-SHIELDSTRAL_COST.md",
+    "sha256": "a4b107010ad9320c84049e8bdcdeac999f3445c56ee6d7fb13f99c0d00ede4dc",
+    "bytes": 9538
+  }
+]

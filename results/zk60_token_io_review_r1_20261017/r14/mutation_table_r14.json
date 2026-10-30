@@ -1,0 +1,186 @@
+{
+ "baseline": {
+  "result": [
+   [
+    "ok",
+    "49",
+    "0",
+    "5"
+   ]
+  ],
+  "ok": 49
+ },
+ "mutants": {
+  "n2": {
+   "result": [
+    [
+     "FAILED",
+     "48",
+     "1",
+     "5"
+    ]
+   ],
+   "killed": true,
+   "lane_killers": [
+    "r14_the_post_derivation_profile_digest_check_refuses_a_derivation_that_read_another_profile"
+   ],
+   "reviewer_killers": []
+  },
+  "pad": {
+   "result": [
+    [
+     "FAILED",
+     "47",
+     "2",
+     "5"
+    ]
+   ],
+   "killed": true,
+   "lane_killers": [
+    "r14_a_doctored_pad_position_is_refused"
+   ],
+   "reviewer_killers": [
+    "rv14_s3_forged_layouts_are_refused"
+   ]
+  },
+  "bind": {
+   "result": [
+    [
+     "FAILED",
+     "48",
+     "1",
+     "5"
+    ]
+   ],
+   "killed": true,
+   "lane_killers": [
+    "r14_tables_bound_to_another_trained_statement_are_refused_at_every_entry_point"
+   ],
+   "reviewer_killers": []
+  },
+  "src": {
+   "result": [
+    [
+     "FAILED",
+     "48",
+     "1",
+     "5"
+    ]
+   ],
+   "killed": true,
+   "lane_killers": [
+    "r14_the_block_and_run_profiles_must_name_one_tied_source"
+   ],
+   "reviewer_killers": []
+  },
+  "check-tables": {
+   "result": [
+    [
+     "FAILED",
+     "48",
+     "1",
+     "5"
+    ]
+   ],
+   "killed": true,
+   "lane_killers": [
+    "r14_tables_bound_to_another_trained_statement_are_refused_at_every_entry_point"
+   ],
+   "reviewer_killers": []
+  },
+  "n-free": {
+   "result": [
+    [
+     "FAILED",
+     "47",
+     "2",
+     "5"
+    ]
+   ],
+   "killed": true,
+   "lane_killers": [
+    "r14_a_short_item_proves_and_verifies_and_reads_its_public_verdict_row"
+   ],
+   "reviewer_killers": [
+    "rv14_s1_short_item_boundaries"
+   ]
+  },
+  "size-from-n": {
+   "result": [
+    [
+     "FAILED",
+     "43",
+     "6",
+     "5"
+    ]
+   ],
+   "killed": true,
+   "lane_killers": [
+    "r14_a_short_dev_rung_item_is_one_chunk_of_its_true_length",
+    "r14_a_short_items_statement_read_under_another_length_is_refused",
+    "r14_a_short_item_proves_and_verifies_and_reads_its_public_verdict_row"
+   ],
+   "reviewer_killers": [
+    "rv14_s1_short_item_boundaries",
+    "rv14_s2_a_short_receipt_under_any_other_length_is_refused",
+    "rv14_s7_cli_truncation_coverage_and_statement_fields"
+   ]
+  },
+  "vr-last": {
+   "result": [
+    [
+     "FAILED",
+     "40",
+     "9",
+     "5"
+    ]
+   ],
+   "killed": true,
+   "lane_killers": [
+    "r14_a_short_item_is_captured",
+    "r14_a_short_items_statement_read_under_another_length_is_refused",
+    "r14_a_margin_read_at_another_row_than_the_verdict_row_is_refused",
+    "r14_a_short_item_proves_and_verifies_and_reads_its_public_verdict_row"
+   ],
+   "reviewer_killers": [
+    "rv14_s1_short_item_boundaries",
+    "rv14_s4_a_margin_at_any_other_row_is_refused",
+    "rv14_s5_a_masked_weight_toward_a_pad_row_is_refused_by_the_relation",
+    "rv14_s6_the_pad_id_is_bound_and_never_reaches_the_verdict_row",
+    "rv14_s7_cli_truncation_coverage_and_statement_fields"
+   ]
+  },
+  "replay": {
+   "result": [
+    [
+     "FAILED",
+     "48",
+     "1",
+     "5"
+    ]
+   ],
+   "killed": true,
+   "lane_killers": [
+    "r14_a_capture_of_relation_test_tables_is_refused_by_the_replay"
+   ],
+   "reviewer_killers": []
+  },
+  "empty": {
+   "result": [
+    [
+     "FAILED",
+     "47",
+     "2",
+     "5"
+    ]
+   ],
+   "killed": true,
+   "lane_killers": [
+    "r12_chunk_ranges_cover_the_content_consecutively_with_the_overlap_and_end_align"
+   ],
+   "reviewer_killers": [
+    "rv14_s1_short_item_boundaries"
+   ]
+  }
+ }
+}

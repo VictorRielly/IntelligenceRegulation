@@ -1,0 +1,247 @@
+[
+  {
+    "path": "zkp-core/src/pcs.rs",
+    "line": 161,
+    "text": "let tile = 64usize;"
+  },
+  {
+    "path": "zkp-core/src/pcs.rs",
+    "line": 166,
+    "text": "let mut bufs: Vec<Vec<u8>> = (0..w).map(|_| Vec::with_capacity(rows * 8)).collect();"
+  },
+  {
+    "path": "zkp-core/src/pcs.rs",
+    "line": 186,
+    "text": "let tile = 64usize;"
+  },
+  {
+    "path": "zkp-core/src/pcs.rs",
+    "line": 191,
+    "text": "let mut bufs: Vec<Vec<u8>> = (0..w).map(|_| Vec::with_capacity(rows * 8)).collect();"
+  },
+  {
+    "path": "zkp-core/src/pcs.rs",
+    "line": 221,
+    "text": "let tree = MerkleTree::build(leaves);"
+  },
+  {
+    "path": "zkp-core/src/pcs.rs",
+    "line": 232,
+    "text": "let tree = MerkleTree::build(leaves);"
+  },
+  {
+    "path": "zkp-core/src/pcs.rs",
+    "line": 727,
+    "text": "let pads = rng.fp_vec(rows * q);"
+  },
+  {
+    "path": "zkp-core/src/pcs.rs",
+    "line": 728,
+    "text": "let salts: Vec<[u8; 32]> = (0..nn).map(|_| rng.bytes32()).collect();"
+  },
+  {
+    "path": "zkp-core/src/pcs.rs",
+    "line": 729,
+    "text": "let pows = coset_powers(zk.coset, nn);"
+  },
+  {
+    "path": "zkp-core/src/pcs.rs",
+    "line": 743,
+    "text": "let salted: Vec<Digest> = leaves.par_iter().zip(salts.par_iter()).map(|(l, s)| salt_leaf(l, s)).collect();"
+  },
+  {
+    "path": "zkp-core/src/pcs.rs",
+    "line": 744,
+    "text": "let tree = MerkleTree::build(salted);"
+  },
+  {
+    "path": "zkp-core/src/pcs.rs",
+    "line": 774,
+    "text": "let pads = rng.fp_vec(rows * q);"
+  },
+  {
+    "path": "zkp-core/src/pcs.rs",
+    "line": 775,
+    "text": "let salts: Vec<[u8; 32]> = (0..nn).map(|_| rng.bytes32()).collect();"
+  },
+  {
+    "path": "zkp-core/src/pcs.rs",
+    "line": 776,
+    "text": "let pows = coset_powers(zk.coset, nn);"
+  },
+  {
+    "path": "zkp-core/src/pcs.rs",
+    "line": 790,
+    "text": "let salted: Vec<Digest> = leaves.par_iter().zip(salts.par_iter()).map(|(l, s)| salt_leaf_keyed(l, s, tag.leaf_key())).collect();"
+  },
+  {
+    "path": "zkp-core/src/pcs.rs",
+    "line": 791,
+    "text": "let tree = MerkleTree::build_keyed(salted, tag.node_key());"
+  },
+  {
+    "path": "zkp-core/src/pcs.rs",
+    "line": 1093,
+    "text": "let pows = coset_powers(zk.coset, nn);"
+  },
+  {
+    "path": "zkp-core/src/pcs.rs",
+    "line": 1215,
+    "text": "let pows = coset_powers(zk.coset, nn);"
+  },
+  {
+    "path": "zkp-core/src/pcs/encode_buffer.rs",
+    "line": 22,
+    "text": "let mut encoded: Vec<Fp> = Vec::with_capacity(len);"
+  },
+  {
+    "path": "zkp-core/src/pcs/encode_buffer.rs",
+    "line": 51,
+    "text": "let mut coeffs = data.to_vec();"
+  },
+  {
+    "path": "zkp-core/src/pcs/encode_buffer.rs",
+    "line": 52,
+    "text": "ntt.inverse(&mut coeffs);"
+  },
+  {
+    "path": "zkp-core/src/merkle.rs",
+    "line": 38,
+    "text": "let mut levels = vec![leaves];"
+  },
+  {
+    "path": "zkp-core/src/merkle.rs",
+    "line": 45,
+    "text": "levels.push(next);"
+  },
+  {
+    "path": "zkp-core/src/merkle.rs",
+    "line": 55,
+    "text": "let mut levels = vec![leaves];"
+  },
+  {
+    "path": "zkp-core/src/merkle.rs",
+    "line": 62,
+    "text": "levels.push(next);"
+  },
+  {
+    "path": "hashline/src/private_block/protocol.rs",
+    "line": 583,
+    "text": "let looked: Vec<(Dom, Vec<Vec<i64>>)> = lay.lookup_doms().iter().map(|d| (*d, lookup_values(lay, wit, *d))).collect();"
+  },
+  {
+    "path": "hashline/src/private_block/protocol.rs",
+    "line": 1054,
+    "text": "let mut a_data = vec![Fp::ZERO; lay.a_rows * n];"
+  },
+  {
+    "path": "hashline/src/private_block/protocol.rs",
+    "line": 1064,
+    "text": "let looked: Vec<(Dom, Vec<Vec<i64>>)> = lay.lookup_doms().iter().map(|d| (*d, lookup_values(&lay, &wit, *d))).collect();"
+  },
+  {
+    "path": "hashline/src/private_block/protocol.rs",
+    "line": 1070,
+    "text": "let deltas = exp_deltas(lay, &wit);"
+  },
+  {
+    "path": "hashline/src/private_block/protocol.rs",
+    "line": 1072,
+    "text": "let act_idx = if blk.accuracy().is_some() {Vec::new()} else {act_indices(lay,&wit)};"
+  },
+  {
+    "path": "hashline/src/private_block/protocol.rs",
+    "line": 1139,
+    "text": "let mc = zk::mask_commit_tagged(&lay.mask_specs(), ntt, rng, &tag);"
+  },
+  {
+    "path": "hashline/src/private_block/protocol.rs",
+    "line": 1153,
+    "text": "let mut h_data = vec![Fp::ZERO; lay.h_rows * n];"
+  },
+  {
+    "path": "hashline/src/private_block/protocol.rs",
+    "line": 1228,
+    "text": "drop(looked);"
+  },
+  {
+    "path": "hashline/src/private_block/protocol.rs",
+    "line": 1229,
+    "text": "drop(wit);"
+  },
+  {
+    "path": "hashline/src/private_block/protocol.rs",
+    "line": 1230,
+    "text": "drop(deltas);"
+  },
+  {
+    "path": "hashline/src/private_block/protocol.rs",
+    "line": 1231,
+    "text": "drop(act_idx);"
+  },
+  {
+    "path": "hashline/src/private_block/protocol.rs",
+    "line": 1286,
+    "text": "let mut h = pcs::commit_zk_owned_tagged(&params, h_data, ntt, &zko, rng, &tag);"
+  },
+  {
+    "path": "zkp-core/src/field.rs",
+    "line": 117,
+    "text": "let mut prefix = Vec::with_capacity(n);"
+  },
+  {
+    "path": "zkp-core/src/field.rs",
+    "line": 210,
+    "text": "let mut prefix = Vec::with_capacity(n);"
+  },
+  {
+    "path": "hashline/src/zk.rs",
+    "line": 434,
+    "text": "let masks: Vec<CfsMask> = specs.iter().map(|&(n, d)| CfsMask::random(rng, n, d)).collect();"
+  },
+  {
+    "path": "hashline/src/zk.rs",
+    "line": 436,
+    "text": "let mut encoded = vec![Fp::ZERO; n_base * dom];"
+  },
+  {
+    "path": "hashline/src/zk.rs",
+    "line": 437,
+    "text": "let mut a_coefs = Vec::with_capacity(2 * masks.len());"
+  },
+  {
+    "path": "hashline/src/zk.rs",
+    "line": 452,
+    "text": "let mut b_re = rng.fp_vec(2 * m);"
+  },
+  {
+    "path": "hashline/src/zk.rs",
+    "line": 456,
+    "text": "let u_re = rng.fp_vec(2 * m);"
+  },
+  {
+    "path": "hashline/src/zk.rs",
+    "line": 485,
+    "text": "let masks: Vec<CfsMask> = specs.iter().map(|&(n, d)| CfsMask::random(rng, n, d)).collect();"
+  },
+  {
+    "path": "hashline/src/zk.rs",
+    "line": 487,
+    "text": "let mut encoded = vec![Fp::ZERO; n_base * dom];"
+  },
+  {
+    "path": "hashline/src/zk.rs",
+    "line": 488,
+    "text": "let mut a_coefs = Vec::with_capacity(2 * masks.len());"
+  },
+  {
+    "path": "hashline/src/zk.rs",
+    "line": 503,
+    "text": "let mut b_re = rng.fp_vec(2 * m);"
+  },
+  {
+    "path": "hashline/src/zk.rs",
+    "line": 507,
+    "text": "let u_re = rng.fp_vec(2 * m);"
+  }
+]

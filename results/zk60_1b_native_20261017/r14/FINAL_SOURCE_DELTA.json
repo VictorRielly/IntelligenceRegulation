@@ -1,0 +1,27 @@
+{
+  "utc": "2026-10-30T10:43:09.150979+00:00",
+  "base": "06c540f2a7616e052540ce8dae44f043403ed8974b510f34c47623e54e48856a",
+  "final": "27b2a427491912cd54969b66f1d6ace29740ba8923dce6ba5ac4e23cfd992191",
+  "source_files": 291,
+  "same_file_set": true,
+  "changes": [
+    {
+      "file": "hashline/src/private_block/s25_tests.rs",
+      "scope": "Test module or test-only observer; see parent cfg(test) declarations"
+    },
+    {
+      "file": "hashline/src/private_block/split_attack_tests.rs",
+      "scope": "Test module or test-only observer; see parent cfg(test) declarations"
+    },
+    {
+      "file": "hashline/src/private_block/split_capture.rs",
+      "scope": "Test module or test-only observer; see parent cfg(test) declarations"
+    },
+    {
+      "file": "hashline/src/private_block/trained_split.rs",
+      "scope": "Only existing cfg(test) module changed; production prefix byte-identical",
+      "production_prefix_sha256": "7d72cf55bef56370365119aba6d241509e6d6f7f2dc0a0c79430382239dbfac6"
+    }
+  ],
+  "claim": "All other source files byte-identical to accepted experimental CLI2 candidate. Three test/observer modules plus one cfg(test) body changed. Full final suite/goldens/legacy acceptance remains authoritative. No production CLI/math/codec change in this delta."
+}

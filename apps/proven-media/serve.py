@@ -9,7 +9,7 @@ detached and the next server start re-attaches to it):
 
     touch ~/zk60-owner-private/proven-media/STOP-SERVER
 
-Environment: PM_PROVER=stub (default) | fake (no proof; UI work only, shown in red);
+Environment: PM_PROVER=stub (default) | shieldstral (explicit testnet demo) | fake (no proof);
 PM_PRIVATE_DIR / PM_PUBLIC_DIR move the data roots; PM_NO_WORKER=1 serves without the queue worker.
 """
 import argparse

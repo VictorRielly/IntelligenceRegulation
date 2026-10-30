@@ -1,0 +1,25 @@
+{
+  "case": "original25",
+  "command": [
+    "/usr/bin/env",
+    "OPENBLAS_NUM_THREADS=2",
+    "OMP_NUM_THREADS=2",
+    "CUDA_CACHE_PATH=/tmp/zk60_astra_cuda_cache",
+    "python3",
+    "/home/victor/IntelligenceRegulation/results/zk60_shieldstral_export_20261026/probe_gpu_integer.py",
+    "--case",
+    "original25",
+    "--out",
+    "/home/victor/IntelligenceRegulation/results/zk60_shieldstral_export_20261026/gpu_probe/original25-1"
+  ],
+  "need_gib": 2.5,
+  "cap_gib": 4.5,
+  "measurement_basis": "baseline1.14GiB + estimated0.5GiB Torch +0.3GiB copies, plus29% margin",
+  "gpu_allocator_cap_gib": 3,
+  "required_total_vram_max_mib": 4096,
+  "source_sha256": {
+    "run_gpu_probe.py": "64ce434783200d215c7129e4d950a26e0979dab4ff5aacc224a94b2b36cba3a4",
+    "gpu_integer.py": "564d128371276b7a9458d707c02fdff98f694caa20c960f890f687e79cb5cd44",
+    "probe_gpu_integer.py": "4b62cd08c7bf741281a5054c70026bfd8e4694b0e67e591f16cec02d453a18eb"
+  }
+}

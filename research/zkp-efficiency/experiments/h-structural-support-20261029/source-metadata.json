@@ -1,0 +1,60 @@
+[
+  {
+    "profile": "hashline-zk-mr1/private-block-llama-3-8b-t128-lh24-v1/1",
+    "dd": false,
+    "log_cols": 14,
+    "logs": {
+      "T": 7,
+      "Ht": 12,
+      "L": 14,
+      "D": 19,
+      "Q": 19,
+      "Kv": 17,
+      "S": 19,
+      "F": 21,
+      "Tab": 14,
+      "Dd": 14
+    },
+    "helpers": {
+      "L": 1,
+      "D": 17,
+      "Q": 7,
+      "Kv": 7,
+      "F": 7,
+      "S": 8,
+      "Dd": 0
+    },
+    "expected_rows": 4390,
+    "expected_sites": 53,
+    "expected_data": 4282
+  },
+  {
+    "profile": "hashline-zk-mr1/private-block-llama-3-8b-t128-lh24-dd/1",
+    "dd": true,
+    "log_cols": 14,
+    "logs": {
+      "T": 7,
+      "Ht": 12,
+      "L": 14,
+      "D": 19,
+      "Q": 19,
+      "Kv": 17,
+      "S": 19,
+      "F": 21,
+      "Tab": 14,
+      "Dd": 17
+    },
+    "helpers": {
+      "L": 1,
+      "D": 17,
+      "Q": 7,
+      "Kv": 7,
+      "F": 7,
+      "S": 3,
+      "Dd": 5
+    },
+    "expected_rows": 4234,
+    "expected_sites": 55,
+    "expected_data": 4122
+  }
+]

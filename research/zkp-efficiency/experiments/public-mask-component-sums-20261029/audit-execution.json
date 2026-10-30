@@ -1,0 +1,26 @@
+{
+  "stage": "audit",
+  "command": [
+    "/usr/bin/python3",
+    "-B",
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-mask-component-sums-20261029/audit.py"
+  ],
+  "exit_code": 0,
+  "elapsed_s": 0.06592499600083102,
+  "max_rss_kib": 18088,
+  "threads": 1,
+  "nice": 19,
+  "affinity": [
+    0
+  ],
+  "cpu_cap_s": 40,
+  "alarm_s": 45,
+  "parent_timeout_s": 50,
+  "address_space_cap_bytes": 402653184,
+  "estimated_memory_bytes": 67108864,
+  "cargo": false,
+  "gpu": false,
+  "rust_source_sha256": {},
+  "binary_sha256": "c4fa50260adb7506c9ea2ef38eb4839b2ea55fe93d3a57f834c61cd2bb66d5a2",
+  "thread_limit_kind": "Single-thread harness; compiler one codegen unit and one-CPU affinity. Auxiliary OS thread count not measured."
+}

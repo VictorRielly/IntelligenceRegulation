@@ -1,0 +1,103 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/CLAUDE.md",
+    "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6",
+    "lines": 235,
+    "headings": [
+      "# IntelligenceRegulation \u2014 project instructions",
+      "## Command style (prompt hygiene)",
+      "## Heavy runs: detach, queue, marker (the no-hangup protocol, 2026-08-26)",
+      "## Protocol invariants (from the PROGRESS ledgers \u2014 verify there before acting)",
+      "## Approval etiquette",
+      "## Codex unattended workflow \u2014 Victor's direction, 2026-09-22",
+      "## Persistent efficiency research lane (Victor, 2026-09-22)"
+    ]
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/START_HERE.md",
+    "sha256": "89f6732a39f4294f2f1b7b68add8fdcbb76b86006e21041f52c0f40d9e39df9d",
+    "lines": 588,
+    "headings": [
+      "# START HERE \u2014 the proof project in plain words",
+      "## 1. What the project does",
+      "## 2. The one number that matters: seconds per proof",
+      "## 3. Where we stand (the honest numbers)",
+      "### 3.1 What has been measured",
+      "### 3.2 What the 8B proof is expected to cost with today's protocol",
+      "### 3.3 The gap to the goal, in one line",
+      "## 4. What is finished (so you do not redo it)",
+      "## 5. Why the speed goal is hard (plain explanation)",
+      "## 6. What was tried against the gap, and the verdicts",
+      "## 7. The choices, and what was decided (2026-09-03: ROUND 11 CLOSED, ROUND 12 OPENED)",
+      "## 8. How to work here (the rules that keep results trustworthy)",
+      "## 9. Where things are (the map)",
+      "## 10. Glossary (terms you will meet in the ledgers)"
+    ]
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/MVP_STATUS.md",
+    "sha256": "fedc7be8d822e57a0a3e6c3f5c067be88366bb37c0beb767bba328bbaea97caf",
+    "lines": 1481,
+    "headings": [
+      "# Where the MVP stands, in plain words",
+      "## 1. Do we have a workable proof?",
+      "## 2. How slow are we against the target?",
+      "## 3. What blocks a private, model-scale MVP at speed, and what is being done",
+      "## 4. Where the evidence is",
+      "## 2026-09-29 (PDT): VC readiness snapshot for Tech Week SF"
+    ]
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_DECISIONS.md",
+    "sha256": "15c9867f1ab934505f8ddd76c428e36a3e20710b66829463085f4efa226ce14b",
+    "lines": 1439,
+    "headings": [
+      "# ZK60 decisions register \u2014 the rulings that govern the proof project",
+      "## At a glance",
+      "## D1 \u2014 Privacy scope (standing since 2026-09-09)",
+      "## D2 \u2014 Two lines (standing since 2026-09-17)",
+      "## D3 \u2014 About 97 bits of conjectured soundness accepted for the zkVM intermediate (2026-09-18)",
+      "## D4 \u2014 Groth16 trusted setup accepted for soundness (2026-09-18)",
+      "## D5 \u2014 Receipt kind: Groth16 only (2026-09-18)",
+      "## D6 \u2014 Groth16 proving path on this box (in progress)",
+      "## D7 \u2014 New endpoint and weight identity profile (implemented, ruling pending)",
+      "## D8 \u2014 Caller-fixed endpoint roots on the custom line (corrected 2026-09-18)",
+      "## D11 \u2014 Technical correction to D8 and profile clarification (2026-09-18)",
+      "## D12 \u2014 How a complete private block is composed on the custom line (construction rule, 2026-09-19)",
+      "## D9 \u2014 `fp()` reduction bias (accepted as stated, 2026-09-19)",
+      "## D10 \u2014 Compact-PCS proof-size lever (declined, 2026-09-19)",
+      "## D15 \u2014 \"106 bits\" is per opening; the whole 8B proof is about 94 (technical clarification, 2026-09-19)",
+      "## D16 \u2014 The private block's norm before it is widened (construction rule, 2026-09-19)",
+      "## D17 \u2014 Hiding endpoints beyond the tiny shape (construction rule, 2026-09-19)",
+      "## D8/D11 \u2014 note of 2026-09-19: a restatement was attempted and NOT accepted; the obligation stands",
+      "## D18 \u2014 Who fixes the commitment to a hidden input (decided 2026-09-19: the prover, for the first MVP)",
+      "## D13 \u2014 What the first MVP must prove (decided 2026-09-19)",
+      "## D14 \u2014 A costed memo for the fewer-hashed-bytes speed lever (commissioned 2026-09-19)",
+      "## D24 \u2014 Norm precision per profile instead of a fifth remainder limb (proposed 2026-10-17)"
+    ]
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_CODEX_FABLE_COORDINATION.md",
+    "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f",
+    "lines": 995,
+    "headings": [
+      "# Codex \u2194 Fable active loop \u2014 2026-09-18",
+      "## Reboot recovery coordination \u2014 2026-09-30 00:54 UTC",
+      "## CURRENT \u2014 Codex pickup, 2026-09-19",
+      "## Codex lane: complete functional receipt and integration",
+      "## Fable request: implement the custom attention path",
+      "## Integration and rulings"
+    ]
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_THROUGHPUT_TARGET.md",
+    "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53",
+    "lines": 90,
+    "headings": [
+      "# Current throughput target \u2014 2026-09-26",
+      "## Measure completed proof work",
+      "## Keep the workloads identifiable",
+      "## GPU and evidence"
+    ]
+  }
+]

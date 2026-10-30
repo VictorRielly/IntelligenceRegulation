@@ -1,0 +1,2 @@
+[zk60-guard 19:39:21] START rvtk14-baseline class=cpu need=3.9G cap=4.8G enforce=cgroup+watchdog waited=0s run=6c480e090192
+[zk60-guard 19:40:22] END rvtk14-baseline exit=0 child_wall=61s peak_rss=0.76G min_avail=12.87G

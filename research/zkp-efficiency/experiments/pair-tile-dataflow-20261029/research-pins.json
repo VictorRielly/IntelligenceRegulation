@@ -1,0 +1,17 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-mask-component-sums-20261029/serial_eq.rs",
+    "snapshot": "serial_eq.rs",
+    "sha256": "1d04996dc68df2b354270b6b974cfe82793905fc8908ebdc11f30fedaf7912a5"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/current-profile-mask-census-20261029/model.py",
+    "snapshot": "model.py",
+    "sha256": "a5b88666c819839ec4f2ea175fb60a7d87ee9a75aa907b3e0bc12c7143c7c82c"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/current-profile-mask-census-20261029/legacy_catalog.py",
+    "snapshot": "legacy_catalog.py",
+    "sha256": "4a730b4c4da652b9f5838e69c67c26977f07e1ee060a02012cf2f348ee5dc7e9"
+  }
+]

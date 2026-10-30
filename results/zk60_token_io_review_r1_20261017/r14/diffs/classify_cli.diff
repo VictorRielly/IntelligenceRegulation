@@ -1,0 +1,177 @@
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r13/hashline/src/private_block/token_io/classify_cli.rs	2026-10-28 16:42:48.584068139 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r14/hashline/src/private_block/token_io/classify_cli.rs	2026-10-28 19:12:07.680339014 -0700
+@@ -1,4 +1,5 @@
+-//! **THE CLASSIFIER CLI** (round 12, rung R-C1; round 13, rung R-C2; DESIGN_CLASSIFIER v2.3):
++//! **THE CLASSIFIER CLI** (round 12, rung R-C1; round 13, rung R-C2; round 14,
++//! rung R-C3: short items and the library binding; DESIGN_CLASSIFIER v2.4):
+ //!
+ //! ```text
+ //! zk60_classify prove        --export DIR --tables DIR --policy ID --content-file FILE|-
+@@ -21,6 +22,12 @@
+ //!   the OR of the chunk verdicts, FAIL-CLOSED (a missing, repeated or
+ //!   refused chunk, or chunks naming different public fields, give
+ //!   `flagged`).
++//! * **Round 14 (DESIGN v2.4 §15), short items:** a content of N ids with
++//!   `1 <= N < T - P0 - S` is ONE chunk of its true length `[0, N)`: the item
++//!   is the prefix, the content, the suffix, then the policy's PUBLIC pad id
++//!   up to T (pinned by the template clause), and stage OUT-C reads the public
++//!   verdict row `P0 + N + S - 1`. The prover's activations (`--seq` /
++//!   `--seq-dir`) are those of that padded item. N is public (D45(1)).
+ //!
+ //! * `--tables DIR` holds the classifier's public tables: `token_io.json` +
+ //!   `embedding_int16.bin` (the token run's embedding format) and
+@@ -51,12 +58,12 @@
+ //!   `--expect-statement`), re-renders the canonical statement and refuses
+ //!   unless the found statement is that text byte for byte, BEFORE any segment
+ //!   is read; then verifies every segment and writes `<artifact>/statement/`.
+-//! * **Fail-closed (ruling B-4, recommended default):** every refusal prints
++//! * **Fail-closed (ruling B-4 = D45(4), Victor 2026-10-29):** every refusal prints
+ //!   `{"event":"app-outcome","outcome":"flagged",...}`: an item without an
+ //!   accepted proof is handled as flagged.
+ //!
+-//! SCOPE: short content (N < one chunk) is refused by name (§13.1); the development rung (the classifier profile family registers more
+-//! shapes with the native F1-F3); public-row variant (n public, B-5); NO
++//! SCOPE: the development rung (the classifier profile family registers more
++//! shapes with the native F1-F3); public-row variant (n public, D45(1)); NO
+ //! privacy acceptance. JSON lines on stdout; exit 0 = done, 1 = refused, 2 =
+ //! bad arguments. The frozen next-token CLI (`zk60_token_io`) is untouched.
+ 
+@@ -82,9 +89,12 @@
+ pub(crate) const CLASSIFY_LABELS: [&str; 1] = ["zk60-classify-verdict"];
+ const MAX_STATEMENT_BYTES: u64 = 1 << 20;
+ const MAX_DECOMMITMENT_BYTES: u64 = 16 << 20;
+-pub(crate) const CLASSIFY_STATEMENT_SCHEMA: &str = "zk60-classify-run/2";
++/// ROUND 14: `/3` adds `item_length`, `pad_id`, `pad_positions` and
++/// `verdict_row` (short items) and the profile text's new terms; a `/2`
++/// statement is refused (its profile digest is not this build's)
++pub(crate) const CLASSIFY_STATEMENT_SCHEMA: &str = "zk60-classify-run/3";
+ const CONTENT_ON_COMMAND_LINE: &str = "--content is not accepted: the hidden content never goes on the command line (it shows in the process list and shell history); give --content-file FILE (mode 0600) or --content-file - (standard input) (PR4-17)";
+-const FAIL_CLOSED_LINE: &str = "{\"event\":\"app-outcome\",\"outcome\":\"flagged\",\"why\":\"no accepted proof: fail-closed (ruling B-4, the recommended default; Victor's ruling pending)\"}";
++const FAIL_CLOSED_LINE: &str = "{\"event\":\"app-outcome\",\"outcome\":\"flagged\",\"why\":\"no accepted proof: fail-closed (ruling D45(4), Victor 2026-10-29)\"}";
+ 
+ fn refused(what: &str, e: &str) -> i32 {
+     println!("{{\"event\":\"refused\",\"command\":{},\"error\":{}}}", js(what), js(e));
+@@ -223,9 +233,12 @@
+     Ok(s.to_ascii_lowercase())
+ }
+ 
+-/// **THE CLASSIFIER TABLES' LOADER**: the embedding (token_io.json), the
+-/// margin vector, BOS and the final norm (classifier.json), each binary table
+-/// read with its length checked first and its SHA-256 streamed and compared
++/// **R-C1'S TABLES READER** (TEST BUILDS ONLY since round 14, REVIEW_R13
++/// N-r13-10: no production path trusts the files again): the embedding
++/// (token_io.json), the margin vector, BOS and the final norm
++/// (classifier.json), each binary table read with its length checked first
++/// and its SHA-256 streamed and compared with its own manifest
++#[cfg(test)]
+ pub(crate) fn load_classifier_tables(dir: &Path, d: usize) -> Result<(ClassifierTables, u64, FinalNorm), String> {
+     read_classifier_files(dir, d).map(|(t, bos, norm, _)| (t, bos, norm))
+ }
+@@ -311,9 +324,9 @@
+ fn render(p: &ExportPublic, st: &ClassifyRunStatement, label: &str, writer: Writer) -> Result<String, String> {
+     let cp = &st.cp;
+     Ok(format!(
+-        "{{\n \"schema\": {},\n \"scope\": {},\n \"statement_written_by\": {},\n \"run_profile\": {},\n \"block_profile\": {},\n \"blocks\": {},\n \"export_variant\": {},\n \"trained_statement_identity\": {},\n \"policy\": {},\n \"verdict\": {},\n \"verdict_bit\": {},\n \"threshold_c\": {},\n \"yes_id\": {},\n \"no_id\": {},\n \"template_prefix_ids\": {},\n \"template_suffix_ids\": {},\n \"content_length_n\": {},\n \"chunk\": {{\"index\": {}, \"count\": {}, \"range\": [{}, {}], \"content_total\": {}, \"chunk_size\": {}, \"overlap\": {}, \"split\": \"end-aligned (DESIGN v2.2 13.1)\"}},\n \"T\": {},\n \"control_ids_below\": {},\n \"tokenizer\": {},\n \"margin_vector_digest\": {},\n \"margin_scale\": {:e},\n \"tied_source\": {},\n \"embedding_digest\": {},\n \"bos\": {},\n \"final_norm\": {{\"g0\": {}, \"cn\": {}, \"tn\": {}, \"ceps\": {}}},\n \"classifier_profile_digest\": {},\n \"rulings\": {},\n \"context_label\": {},\n \"context\": {},\n \"input_token_endpoint_root\": {},\n \"whole_run_floor_bits\": {},\n \"parameter_line\": {}\n}}\n",
++        "{{\n \"schema\": {},\n \"scope\": {},\n \"statement_written_by\": {},\n \"run_profile\": {},\n \"block_profile\": {},\n \"blocks\": {},\n \"export_variant\": {},\n \"trained_statement_identity\": {},\n \"policy\": {},\n \"verdict\": {},\n \"verdict_bit\": {},\n \"threshold_c\": {},\n \"yes_id\": {},\n \"no_id\": {},\n \"template_prefix_ids\": {},\n \"template_suffix_ids\": {},\n \"content_length_n\": {},\n \"chunk\": {{\"index\": {}, \"count\": {}, \"range\": [{}, {}], \"content_total\": {}, \"chunk_size\": {}, \"overlap\": {}, \"split\": \"end-aligned (DESIGN v2.2 13.1); a short content is one chunk of its length (v2.4 15)\"}},\n \"T\": {},\n \"item_length\": {},\n \"pad_id\": {},\n \"pad_positions\": {},\n \"verdict_row\": {},\n \"control_ids_below\": {},\n \"tokenizer\": {},\n \"margin_vector_digest\": {},\n \"margin_scale\": {:e},\n \"tied_source\": {},\n \"embedding_digest\": {},\n \"bos\": {},\n \"final_norm\": {{\"g0\": {}, \"cn\": {}, \"tn\": {}, \"ceps\": {}}},\n \"classifier_profile_digest\": {},\n \"rulings\": {},\n \"context_label\": {},\n \"context\": {},\n \"input_token_endpoint_root\": {},\n \"whole_run_floor_bits\": {},\n \"parameter_line\": {}\n}}\n",
+         js(CLASSIFY_STATEMENT_SCHEMA),
+-        js("a classifier proof (DESIGN_CLASSIFIER v2, rung R-C2): the approved integer model's verdict on hidden content under a pre-registered policy; the margin row and the embedding re-derived from the pinned tied tensor; one external endpoint; the verdict bit is public; NOT a privacy acceptance"),
++        js("a classifier proof (DESIGN_CLASSIFIER v2.4, rung R-C3): the approved integer model's verdict on hidden content under a pre-registered policy; the margin row and the embedding re-derived from the pinned tied tensor; one external endpoint; the verdict bit and the content length are public (D45); a short item's trailing positions hold the public pad id; NOT a privacy acceptance"),
+         js(writer.text()),
+         js(st.profile()),
+         js(st.sh().profile),
+@@ -337,6 +350,10 @@
+         st.chunk().size,
+         st.chunk().overlap,
+         cp.tokens,
++        cp.item_len(),
++        cp.policy.pad,
++        cp.pad_positions(),
++        cp.verdict_row(),
+         cp.policy.num_special,
+         js(&cp.policy.tokenizer),
+         js(&hex(&cp.w_digest)),
+@@ -497,17 +514,19 @@
+     // the tables RE-DERIVED from the pinned tied tensor and compared with the
+     // files; the run's margin row is the recomputed one
+     let policy = policy_by_id(need(f, "--policy")?)?;
+-    let (tables, bos, norm) = super::classify_tied::load_tied_classifier_tables(&p, &export, Path::new(need(f, "--tables")?), &policy)?;
++    let bound = super::classify_tied::load_tied_classifier_tables(&p, &export, Path::new(need(f, "--tables")?), &policy)?;
++    let tables = bound.tables();
+     let whole = content_of(f)?;
+     let index: usize = flag(f, "--chunk").unwrap_or("0").parse().map_err(|_| "--chunk: a chunk index (0, 1, ...)")?;
++    // round 14: a short content is one chunk of its true length
+     let ch = ChunkRef::derive(whole.len(), index, chunk_plan(sh, &policy, p.profile)?)?;
+     let content = whole[ch.a..ch.b].to_vec();
+-    let tokens = item_tokens(&policy, &content);
+-    let cp = ClassifierProfile::new(sh, &tables, bos, norm, &policy, content.len(), Tier::R1_MVP)?;
++    let cp = ClassifierProfile::new(sh, tables, bound.bos(), bound.norm(), &policy, content.len(), Tier::R1_MVP)?;
++    let tokens = cp.tokens_of(&content)?;
+     println!("{{\"event\":\"loaded\",\"export_variant\":{},\"run_profile\":{},\"blocks\":{},\"trained_statement_identity\":{},\"policy\":{},\"chunk\":{},\"chunks\":{},\"content_length_n\":{}}}", js(&p.ex.variant), js(p.profile), p.layers.len(), js(&hex(&p.model.identity())), js(&policy.id), ch.index, ch.count, cp.n);
+     // the honest pipeline's refusals (template, control ids, lengths) fire
+     // here, before any header (H-1)
+-    let (wit_in, b_in, in_plane) = super::stage_in_c::honest_inputs(&cp, &tables, &tokens)?;
++    let (wit_in, b_in, in_plane) = super::stage_in_c::honest_inputs(&cp, tables, &tokens)?;
+     let x_in0 = seq.load(&p.ex, sh, p.layers[0])?.0;
+     if unpad(sh, &b_in) != x_in0 {
+         return Err("classifier run: the embedding table does not embed the item to the export's x_in_L00".into());
+@@ -515,16 +534,18 @@
+     let mut seal_blocks = ExportTokenBlocks::new(&p);
+     let x_last = seal_chain(&p, &seq, &mut seal_blocks, x_in0.clone())?;
+     drop(seal_blocks);
++    // the public verdict row (T - 1, or P0 + n + S - 1 for a short item)
++    let vr = cp.verdict_row();
+     let mut row = vec![0i64; cp.d_pad];
+-    for (i, v) in x_last[(cp.tokens - 1) * cp.d..cp.tokens * cp.d].iter().enumerate() {
++    for (i, v) in x_last[vr * cp.d..(vr + 1) * cp.d].iter().enumerate() {
+         row[i] = i64::from(*v);
+     }
+-    let ov = super::stage_out_c::out_values(&cp, &tables, &row, true)?;
++    let ov = super::stage_out_c::out_values(&cp, tables, &row, true)?;
+     let wout = super::stage_out_c::witness_from_values(&cp, &ov)?;
+     let ctx = stack_context(&p.ex.variant, &p.layers, label)?;
+     let spec = input_endpoint_spec(sh, ctx, &cp)?;
+     let (root, owner) = seal_input(&spec, &in_plane, &sh.hash_tag())?;
+-    let st = ClassifyRunStatement::new_chunk(RunShape::new(sh.clone(), p.layers.len(), p.profile)?, ctx, p.digests.clone(), &p.model, &tables, bos, norm, &policy, content.len(), Tier::R1_MVP, root, ov.verdict, whole.len(), index)?;
++    let st = ClassifyRunStatement::new_chunk(RunShape::new(sh.clone(), p.layers.len(), p.profile)?, ctx, p.digests.clone(), &p.model, &bound, &policy, content.len(), Tier::R1_MVP, root, ov.verdict, whole.len(), index)?;
+     if st.chunk() != ch {
+         return Err("classifier run: the statement's chunk is not the prover's slice".into());
+     }
+@@ -532,7 +553,7 @@
+     let mut src = CliSource { p: &p, seq: &seq, ids: Ids::new(sh)?, stage_in: Some((wit_in, b_in)), stage_out: Some(wout), x: x_in0, parity: 0, sealed: true };
+     let mut blocks = ExportTokenBlocks::new(&p);
+     let t = Instant::now();
+-    let (_, dec) = prove_classify_run_with(&st, &mut blocks, &tables, &mut src, owner, &mut |k, bytes| {
++    let (_, dec) = prove_classify_run_with(&st, &mut blocks, &bound, &mut src, owner, &mut |k, bytes| {
+         let n = bytes.len();
+         SegmentSink::accept(&mut disk, k, bytes)?;
+         println!("{{\"event\":\"segment\",\"index\":{k},\"bytes\":{n},\"elapsed_seconds\":{:.3}}}", t.elapsed().as_secs_f64());
+@@ -582,7 +603,7 @@
+ pub(super) struct DoorPassed {
+     pub st: ClassifyRunStatement,
+     pub p: ExportPublic,
+-    pub tables: ClassifierTables,
++    pub tables: super::classify_tied::BoundClassifierTables,
+     pub segs: Vec<Vec<u8>>,
+     pub label: String,
+     pub min_bits: u32,
+@@ -624,7 +645,7 @@
+     // and BOS / the final norm from the export's token_io_parameters; any
+     // table file that disagrees is refused (never trusted)
+     let policy = policy_by_id(need(f, "--policy")?)?;
+-    let (tables, bos, norm) = super::classify_tied::load_tied_classifier_tables(&p, &export, Path::new(need(f, "--tables")?), &policy)?;
++    let tables = super::classify_tied::load_tied_classifier_tables(&p, &export, Path::new(need(f, "--tables")?), &policy)?;
+     let published_dir = art.join(run_sink::STATEMENT_DIR);
+     let (sdir, writer) = if std::fs::symlink_metadata(&published_dir).is_ok() { (published_dir.clone(), Writer::Verifier) } else { (sibling(&art, ".unverified-statement"), Writer::Prover) };
+     check_statement_dir(&sdir, &["statement.json"])?;
+@@ -637,8 +658,9 @@
+     if found.context != ctx {
+         return Err("the statement's context is not this export's and label's".into());
+     }
+-    // D41: the chunk's range is re-derived from (N, index, the profile's plan)
+-    let st = ClassifyRunStatement::new_chunk(RunShape::new(p.sh.clone(), p.layers.len(), p.profile)?, ctx, p.digests.clone(), &p.model, &tables, bos, norm, &policy, found.n, Tier::R1_MVP, found.root, found.verdict, found.chunk_total, found.chunk_index)?;
++    // D41: the chunk's range is re-derived from (N, index, the profile's plan);
++    // round 14: n must be its length (a short item's one chunk is [0, N))
++    let st = ClassifyRunStatement::new_chunk(RunShape::new(p.sh.clone(), p.layers.len(), p.profile)?, ctx, p.digests.clone(), &p.model, &tables, &policy, found.n, Tier::R1_MVP, found.root, found.verdict, found.chunk_total, found.chunk_index)?;
+     // B-3: every field the verifier can derive is derived and compared, by
+     // re-rendering the whole canonical statement (margin vector, yes / no,
+     // c, template, tokenizer, model, final norm, rulings, parameters)

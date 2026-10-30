@@ -1,0 +1,14 @@
+{
+  "status": "PASS_FINAL_CHECKPOINT_PROVENANCE_ONLY",
+  "checks": 70,
+  "elapsed_s": 0.011335965999023756,
+  "max_rss_kib": 22616,
+  "prior_findings_preserved": true,
+  "prior_source_records_preserved": 873,
+  "total_source_records": 882,
+  "prior_hypotheses_preserved": 51,
+  "refined_hypothesis": 51,
+  "required_directions_unchanged": true,
+  "native_pins_unchanged": true,
+  "checkpoint_utc": "2026-10-29T04:09:38.110430+00:00"
+}

@@ -1,0 +1,71 @@
+{
+  "status": "PASS",
+  "checks": 133,
+  "registry_rows": 144,
+  "distinct_profile_precision_rows": 36,
+  "bench": [
+    {
+      "log_cols": 4,
+      "ratio_of_helper_medians": 1.4471086036671368,
+      "allocations_removed": 11,
+      "requested_bytes_removed": 1952
+    },
+    {
+      "log_cols": 8,
+      "ratio_of_helper_medians": 7.492307692307692,
+      "allocations_removed": 11,
+      "requested_bytes_removed": 29024
+    },
+    {
+      "log_cols": 14,
+      "ratio_of_helper_medians": 296.32563791008505,
+      "allocations_removed": 11,
+      "requested_bytes_removed": 1835648
+    }
+  ],
+  "sized": [
+    {
+      "label": "nonDD-A",
+      "ratio_of_group_rhos_drop_medians": 2.1968441375082164,
+      "allocation_calls_removed": 108,
+      "cumulative_requested_bytes_removed": 16083712,
+      "scope": "Synthetic public descriptors/current row counts and fresh synthetic values. Grouping+rhos+drop only; no actual matrix fold, FS hash, native proof or GPU."
+    },
+    {
+      "label": "nonDD-H",
+      "ratio_of_group_rhos_drop_medians": 1.6156701775737006,
+      "allocation_calls_removed": 25,
+      "cumulative_requested_bytes_removed": 4458240,
+      "scope": "Synthetic public descriptors/current row counts and fresh synthetic values. Grouping+rhos+drop only; no actual matrix fold, FS hash, native proof or GPU."
+    },
+    {
+      "label": "DD-A",
+      "ratio_of_group_rhos_drop_medians": 2.0366972793556473,
+      "allocation_calls_removed": 114,
+      "cumulative_requested_bytes_removed": 16936096,
+      "scope": "Synthetic public descriptors/current row counts and fresh synthetic values. Grouping+rhos+drop only; no actual matrix fold, FS hash, native proof or GPU."
+    },
+    {
+      "label": "DD-H",
+      "ratio_of_group_rhos_drop_medians": 1.5125966014752872,
+      "allocation_calls_removed": 28,
+      "cumulative_requested_bytes_removed": 4982752,
+      "scope": "Synthetic public descriptors/current row counts and fresh synthetic values. Grouping+rhos+drop only; no actual matrix fold, FS hash, native proof or GPU."
+    }
+  ],
+  "eliminated": "Only unused dense column weights in prover grouping, their Eq/reversal temporaries and copies. Row weights, full key validation/group order, masks/pads/salts, all commitment reads/NTT/hash/folds/transfers/openings remain.",
+  "added_costs": "One bool branch per new group and empty Vec header in existing tuple; verifier path retains true columns. Native compiler optimization/allocator/parallel behavior and retained cache capacity unmeasured.",
+  "ceiling": "N/(T-C_exclusive_removed+A_added); speedup=1/((1-f)+f/k); f and native k unknown. Free deletion of exclusive fraction f <=1/(1-f). No numeric native/GPU/token forecast.",
+  "elapsed_s": 0.03588272299384698,
+  "max_rss_kib": 15924,
+  "full_stack_proofs": 0,
+  "model_passes": 0,
+  "proved_positions": 0,
+  "startup_fraction": null,
+  "witness_s": null,
+  "proof_s": null,
+  "serialization_s": null,
+  "verification_s": null,
+  "steady_tokens_per_s": null,
+  "total_tokens_per_s": null
+}

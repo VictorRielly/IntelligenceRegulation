@@ -1,0 +1,199 @@
+{
+  "arrays": {
+    "act": {
+      "dtype": "int16",
+      "file": "act.bin",
+      "sha256": "30ab385dff759ea2a64e1e5aa72b18f2ad8dbbbac79cff4a116adc64185923cc",
+      "shape": [
+        4,
+        4096
+      ]
+    },
+    "exp": {
+      "dtype": "int64",
+      "file": "exp.bin",
+      "sha256": "36c6ef0f0566cb5326a7d7ee3e3f6a0c2a9762704680f2d9d324d4cf562a244f",
+      "shape": [
+        256
+      ]
+    },
+    "gamma_a": {
+      "dtype": "int8",
+      "file": "gamma_a.bin",
+      "sha256": "fa34589d3b8ef905ad78901af5d4f75eb273c0fdb0539078190a63f50dee10bb",
+      "shape": [
+        384
+      ]
+    },
+    "gamma_m": {
+      "dtype": "int8",
+      "file": "gamma_m.bin",
+      "sha256": "253e29e42b6229ef26c327f5c7494f761cef02b1717f7ca621b67ea5c7a6331e",
+      "shape": [
+        384
+      ]
+    },
+    "m_d": {
+      "dtype": "int64",
+      "file": "m_d.bin",
+      "sha256": "564cdd45cc7a8f79b19d3453d6c29235ecb7e184e12a2659ceaeab9b55add6e3",
+      "shape": [
+        384
+      ]
+    },
+    "m_g": {
+      "dtype": "int64",
+      "file": "m_g.bin",
+      "sha256": "29fba1756e2c9ce2d7e7c64b9d5a496859dc4876e607194909ebba8b5035f7ed",
+      "shape": [
+        768
+      ]
+    },
+    "m_k": {
+      "dtype": "int64",
+      "file": "m_k.bin",
+      "sha256": "c4468054e3f5310bc9e5df2e4d05b3d1e69c6b2dd2c1801f81ba6ae49292a149",
+      "shape": [
+        512
+      ]
+    },
+    "m_o": {
+      "dtype": "int64",
+      "file": "m_o.bin",
+      "sha256": "d9b604e44dd9fa2ef742a8febcd115125d976cff7929a294910185dea23accad",
+      "shape": [
+        384
+      ]
+    },
+    "m_q": {
+      "dtype": "int64",
+      "file": "m_q.bin",
+      "sha256": "f05c689688377dde4fbbb7b9b98603ec12e1cb150bd14e0b0927032b954022bd",
+      "shape": [
+        1024
+      ]
+    },
+    "m_u": {
+      "dtype": "int64",
+      "file": "m_u.bin",
+      "sha256": "5fd15da4a11c3cee3922213b5626e63d9f0ceb09e6b3de9c486f5e5ad34acd43",
+      "shape": [
+        768
+      ]
+    },
+    "m_v": {
+      "dtype": "int64",
+      "file": "m_v.bin",
+      "sha256": "24f3e726e0d8a1aea5413cfd72384d5d3cf7be55dc07a17547eb5d101c0b9701",
+      "shape": [
+        512
+      ]
+    },
+    "silu_group_ids": {
+      "dtype": "int64",
+      "file": "silu_group_ids.bin",
+      "sha256": "d0e0850cf1d53bb372a3d2beaa7571ba69371683a988049f55ffdc7821df0109",
+      "shape": [
+        768
+      ]
+    },
+    "silu_groups": {
+      "dtype": "int64",
+      "file": "silu_groups.bin",
+      "sha256": "d77b1bdd99af90af04423c398aca7cafff6b970c3974ac4374f77785042f562f",
+      "shape": [
+        4,
+        2
+      ]
+    },
+    "wd_t": {
+      "dtype": "int8",
+      "file": "wd_t.bin",
+      "sha256": "8f6a57062d15158352e589ad5e015896dabb61932cc09dc3059bc66f57bb6665",
+      "shape": [
+        768,
+        384
+      ]
+    },
+    "wg_t": {
+      "dtype": "int8",
+      "file": "wg_t.bin",
+      "sha256": "7ea019e971ae68516375521d6d315ea199c035ed517017feb9799173dc861360",
+      "shape": [
+        384,
+        768
+      ]
+    },
+    "wk": {
+      "dtype": "int8",
+      "file": "wk.bin",
+      "sha256": "12cf3a90d137d81f213e60c3e15fb99f5636e060dac0b0c53727a8a0b09f8422",
+      "shape": [
+        512,
+        384
+      ]
+    },
+    "wo": {
+      "dtype": "int8",
+      "file": "wo.bin",
+      "sha256": "8fc2507d21951a03ac895ae945fafed49db62516e5fd06cc2f234ad35bbface3",
+      "shape": [
+        384,
+        1024
+      ]
+    },
+    "wq": {
+      "dtype": "int8",
+      "file": "wq.bin",
+      "sha256": "e3bbdbf114dc7b15b6eb7ab948cafcfca9f2b7a8c2c6dcd8df3ca46621374cf0",
+      "shape": [
+        1024,
+        384
+      ]
+    },
+    "wu_t": {
+      "dtype": "int8",
+      "file": "wu_t.bin",
+      "sha256": "426379a98dc2c259191e29d2d5df5952752491c009f38617ccaaa1496950a3e5",
+      "shape": [
+        384,
+        768
+      ]
+    },
+    "wv": {
+      "dtype": "int8",
+      "file": "wv.bin",
+      "sha256": "1e9589008181ccdf1f04c71055138a220cfe908510829c080e095f12f96f2470",
+      "shape": [
+        512,
+        384
+      ]
+    }
+  },
+  "constants": {
+    "exp_e_s": 4,
+    "f_e": 12,
+    "f_p": 12,
+    "f_ro": 7,
+    "norm_ceps": 1,
+    "norm_cn_a": 2000,
+    "norm_cn_m": 2000,
+    "norm_tn": 10,
+    "rope_theta": 10000,
+    "sh_ao": 7,
+    "sh_g": 8,
+    "sh_h": 14,
+    "sh_o": 9,
+    "sh_qkv": 8,
+    "sh_r2": 0,
+    "sh_rope": 7,
+    "sh_s": 6,
+    "sh_u": 0,
+    "sh_z": 6,
+    "silu_member": [
+      -3,
+      -11
+    ]
+  },
+  "layer": 0
+}

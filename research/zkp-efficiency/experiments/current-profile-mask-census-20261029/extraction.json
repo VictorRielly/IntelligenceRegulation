@@ -1,0 +1,35 @@
+{
+  "methods": [
+    {
+      "name": "a_plane_doms",
+      "sha256": "fc8e8c364c929ecf6f5803bf56af134aeee8569087c60b45b0c1e993b25895fb",
+      "bytes": 1878
+    },
+    {
+      "name": "lookups_per_position",
+      "sha256": "b5d1e2daa7ea3731dd54154e7d459dadd84f8db5e8e2e2642c19681a8f226d3f",
+      "bytes": 1749
+    },
+    {
+      "name": "helpers",
+      "sha256": "c20b8a5879641ab32e0e8bd994e0abdfb3dc03d49b0f5b1e6b78f11b5c9a5148",
+      "bytes": 110
+    },
+    {
+      "name": "h_plane_doms",
+      "sha256": "5546b20f66cf67743954a60452a923a7e3485415bdab800b6ae0c5f46fd84358",
+      "bytes": 1105
+    },
+    {
+      "name": "a_planes_on",
+      "sha256": "5912b1cb6fa9f9dd00ba76e13954deacb4018aa2eb474b92651b4b7ede3601df",
+      "bytes": 118
+    },
+    {
+      "name": "claim_sites",
+      "sha256": "e5879c37424d7562422644312052bc5ca263c50f3de47deb067114e56534b45b",
+      "bytes": 1913
+    }
+  ],
+  "scope": "Six unchanged native metadata methods; stub Shape accessors, Dom and stack. Native constructor/define/refusal/prover not executed."
+}

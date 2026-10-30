@@ -1,0 +1,31 @@
+// DESIGN ONLY: uncompiled/unapplied. Main/Claude review and integration only.
+// A private child module owns the certificate constructor and fields.
+// It borrows the ACTUAL original BlockPublic, whose Vec<i8> has no interior
+// mutability. Safe Rust keeps that owner immutable for this borrow's lifetime.
+mod support_checked {
+    pub(super) struct SupportChecked<'a> {
+        block: &'a super::BlockPublic,
+        support: SupportGeometry, // all role extents + actual D/Q/F supports
+    }
+    // Constructor calls the ORIGINAL whole-block validation, in its order.
+    // No assume_valid, deserializer, caller digest, pointer-only, or detached key.
+    // A token minted before the constructor's copy must not authorize new bytes.
+    pub(super) fn check<'a>(
+        block: &'a super::BlockPublic, sh: &super::shape::Shape
+    ) -> Result<SupportChecked<'a>, String> { /* original check */ }
+
+    // Consumers may elide only support scans justified by this still-live
+    // immutable borrow and equal support predicate. All original length,
+    // RoPE, exp, act[128], DD, profile, provenance, digest and policy checks
+    // still run in their original order, before absorb/commit/RNG/header.
+    // Support-key mismatch takes the original full validator/fallback.
+    // Header/checkpoint/profile fingerprints alone cannot authorize a skip.
+}
+// Thread a borrow-scoped checked view across actual repeated calls in witness,
+// seal lookup check and prove/verify core. This is an internal API refactor;
+// creating a new checked view per original entry saves ZERO support scans.
+// Reload/new owner pays original first validation; cross-file/cold-cache
+// reuse and changing refusal semantics are out of scope.
+// Tables deliberately remain outside the support certificate. f_e, tokens,
+// dd_cap or profile calibration changes must still trigger their own checks.
+// Native code/RNG/transcript/PCS/independent receipt/privacy gates are owed.

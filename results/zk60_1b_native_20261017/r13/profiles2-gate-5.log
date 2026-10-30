@@ -1,0 +1,7 @@
+
+running 1 test
+test private_block::s25_tests::stage_24s_twelve_key_test_still_covers_every_tagged_profile ... S25 W-7: 58 profiles in the registry, 2 legacy, 34 tagged, 136 live keys pairwise distinct — covered by s24_tests::every_registered_profile_is_covered_and_every_tagged_ones_keys_are_pairwise_distinct
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 698 filtered out; finished in 0.00s
+

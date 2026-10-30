@@ -1,0 +1,8 @@
+R14-public-synthetic-malicious-fixture/1
+case=per-piece-round-q
+dd=0
+model_identity=c938cee189603756466ff5648f8677a97254d1831c38c599dd16b3ed66bd608b
+input_root=ddb231a17f4fbb799a7e7b245bdf9f6b10e3b585a8ac7fcceed9f14ab1656a29
+output_root=56acd02f214407b2f210b3ce08cb11f5fb1277807e3b62723472871a62bbd7b5
+binding=04b31953e2ecb3733368b10360437318652bed4ca60ed9c77d8972fdf9c12dea
+error=slot 20 [R14 04 Q zero-check (hosts 09Q, 11) Whole]: sumcheck round 0: s(0) + s(1) != claim

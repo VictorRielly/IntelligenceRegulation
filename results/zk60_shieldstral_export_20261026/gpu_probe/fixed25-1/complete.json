@@ -1,0 +1,23 @@
+{
+  "case": "fixed25",
+  "layer": 25,
+  "bit_identical": true,
+  "diagnostics": {
+    "refused": false,
+    "first_site": null,
+    "violations": {}
+  },
+  "baseline_seconds": 1.1149991450001835,
+  "gpu_setup_seconds": 0.20950404299946968,
+  "gpu_seconds": 0.3974190089993499,
+  "gpu_peak_allocated_bytes": 399753728,
+  "gpu_peak_reserved_bytes": 459276288,
+  "device": "NVIDIA GeForce RTX 4070 Laptop GPU",
+  "torch_version": "2.4.1+cu121",
+  "result_sha256": "31a7dfd9927b64f36c3f66b72ace2c00924056769b94e644c881ad28acfef0c8",
+  "input_sha256": "5d1cc2947828bfc59b8bc1f540cfc732748b33f28f1dc369e2f683f67bb466b6",
+  "backend_sha256": "564d128371276b7a9458d707c02fdff98f694caa20c960f890f687e79cb5cd44",
+  "probe_sha256": "4b62cd08c7bf741281a5054c70026bfd8e4694b0e67e591f16cec02d453a18eb",
+  "scope": "MEASURED one guarded actual-layer pass, n=1 shared box; full26-layer parity and held-out fidelity remain required",
+  "upstream_api_source": "https://github.com/pytorch/pytorch/tree/v2.4.1/aten/src/ATen/native/cuda"
+}

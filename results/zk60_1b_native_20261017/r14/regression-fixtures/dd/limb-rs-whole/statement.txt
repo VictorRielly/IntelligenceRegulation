@@ -1,0 +1,8 @@
+R14-public-synthetic-malicious-fixture/1
+case=limb-rs-whole
+dd=1
+model_identity=d363a0f78f4b673e86b8ac1e930c63c068b7048578ee6142adde04d1d615fde4
+input_root=07621bfb4967d3cd4255a136a22bcab9fbab67f4a4d11f6de462a1ecb81e4aaf
+output_root=1bbd2d13b838aad7d2f90229632291f35df138df68c585d0d824015cdc0da273
+binding=bfafc6ad36d32a934be5434a42646a38237613ff7b7571396cc8ddb3ccdfb532
+error=slot 22 [R14 06 softmax zero-check (hosts 07, 10) Whole]: sumcheck round 0: s(0) + s(1) != claim

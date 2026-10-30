@@ -1,0 +1,10 @@
+RAM   12.77 GiB available of 15.39; swap used 0.85 GiB
+BUDGET 1.3 of 11.89 GiB committed by guarded jobs
+  job  gate20-ff-v22-gate-r17-rung  light need 1.3G since 2026-10-29T17:13:07Z
+LOCKS heavy free, build free
+GPU   51 of 8188 MiB used
+kernel memory cap available: True
+  rss   1029 MiB  pid 439618  /usr/bin/python3 -B /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/frozen_v22/scripts/zk60_nat
+  rss    499 MiB  pid 2149    claude 
+[zk60-guard 10:18:08] START astra-gpu-benchmark-l05 class=gpu need=2.8G cap=4.5G enforce=cgroup+watchdog waited=0s run=9b98f0c4f8e9
+[zk60-guard 10:26:17] END astra-gpu-benchmark-l05 exit=0 child_wall=489s peak_rss=1.68G min_avail=10.81G peak_vram=642MiB

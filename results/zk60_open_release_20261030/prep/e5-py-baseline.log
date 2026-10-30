@@ -1,0 +1,758 @@
+.......hashline benchmark: duplicate log contents cannot count as independent samples
+...{"summary": "/tmp/tmpifkmw0mq/report/summary.json", "measurement_eligible": false, "goal_met": false}
+cold sample 0/2: /tmp/tmp1ghvygvy/report/cold-000.log
+warm sample 1/2: /tmp/tmp1ghvygvy/report/warm-001.log
+Stopping after ineligible sample: nonzero process exit; failure diagnostic present; expected exactly one pass header and one pass summary; positive layers required; positive tokens required; positive d required; positive f required; missing or mixed proof parameters; privacy declaration mismatch; GPU execution declaration mismatch; missing or ambiguous serialized proof digest; one HASHLINE_TIMING record required for measured proof readiness; observed layers differs from requested manifest; observed tokens differs from requested manifest; observed d differs from requested manifest; observed f differs from requested manifest; written proof missing or length mismatch
+..hashline benchmark: requested shape exceeds export or has zero rows/layers
+hashline benchmark: requested shape exceeds export or has zero rows/layers
+hashline benchmark: tokens must be a power of two
+hashline benchmark: requested shape exceeds export or has zero rows/layers
+hashline benchmark: requested shape exceeds export or has zero rows/layers
+hashline benchmark: seed must be in 0..2^64-1
+hashline benchmark: seed must be in 0..2^64-1
+hashline benchmark: all export dimensions must be positive
+.............{"summary": "/tmp/tmp1ghvygvy/report/summary.json", "measurement_eligible": false, "goal_met": false}
+cold sample 0/0: /tmp/tmpc66avda0/report/cold-000.log
+.{"summary": "/tmp/tmpc66avda0/report/summary.json", "measurement_eligible": false, "goal_met": false}
+cold sample 0/20: /tmp/tmpoph0ddcs/report/cold-000.log
+Stopping after ineligible sample: nonzero process exit; failure diagnostic present; expected exactly one pass header and one pass summary; positive layers required; positive tokens required; positive d required; positive f required; missing or mixed proof parameters; privacy declaration mismatch; GPU execution declaration mismatch; missing or ambiguous serialized proof digest; one HASHLINE_TIMING record required for measured proof readiness; observed layers differs from requested manifest; observed tokens differs from requested manifest; observed d differs from requested manifest; observed f differs from requested manifest; written proof missing or length mismatch
+.{"summary": "/tmp/tmpoph0ddcs/report/summary.json", "measurement_eligible": false, "goal_met": false}
+Waiting for /tmp/zk-heavy.lock
+.cold sample 0/0: /tmp/tmpf_9vxw2l/report/cold-000.log
+Stopping after ineligible sample: observed layers differs from requested manifest
+................................................................................................sss....s......................................................................................................................FFFFFFFFEFFFEEFFFF..........s.....................................................s....................................................................................E................................................{"summary": "/tmp/tmpf_9vxw2l/report/summary.json", "measurement_eligible": false, "goal_met": false}
+{"summary": "/tmp/tmp6az75i0p/out/summary.json", "samples": 3, "goal_met": false}
+Private diagnostic: P0, one 125M layer, 16 rows
+........{"summary": "/tmp/tmpgil7dnht/out/summary.json", "samples": 1, "goal_met": false}
+Private diagnostic: P0, one 125M layer, 16 rows
+hashline profile: one-layer diagnostic exceeded 120 seconds; process terminated
+..............................ssssssssssssssssssssss......E.......................................FEE.EEEEEEE...E..VERIFIED weights.safetensors SHA256=41c7760c50efde99bf574ed8fffc7a6dd3405d546d3da929b214c8945acf8a97
+..VERIFIED weights.safetensors SHA256=dc4b6e1c042d1bd554483784087e8df85a64bcf27ceb097933e4b3dfa5799dbf
+VERIFIED cached weights.safetensors
+....................F......................................................sssss....................................................F..................ssssss.....[zk60-guard 00:07:34] START python3 class=cpu need=11G cap=11.5G enforce=watchdog-only waited=0s run=4e0c90198577
+cpu
+[zk60-guard 00:07:34] END python3 exit=0 child_wall=0s peak_rss=0.00G min_avail=12.00G
+.[zk60-guard 00:07:34] admission waiting: budget: scripted
+[zk60-guard 00:07:34] REFUSED: after waiting: budget: scripted
+[zk60-guard 00:07:34] admission waiting: budget: scripted
+[zk60-guard 00:07:35] REFUSED: after waiting: budget: scripted
+..[zk60-guard 00:07:35] admission waiting: budget: scripted
+[zk60-guard 00:07:35] START B class=build need=4G cap=5.5G enforce=watchdog-only waited=0s run=8c684e7bab9d
+[zk60-guard 00:07:35] END B exit=0 child_wall=0s peak_rss=0.00G min_avail=12.00G
+.[zk60-guard 00:07:35] waiting for /tmp/guardfix-vfirb70v/heavy.lock (0s)
+[zk60-guard 00:07:37] REFUSED: terminated by signal 15 while waiting to start
+.[zk60-guard 00:07:37] admission waiting: budget: scripted
+[zk60-guard 00:07:37] REFUSED: terminated by signal 15 while waiting to start
+.[zk60-guard 00:07:37] admission waiting: budget: scripted
+[zk60-guard 00:07:38] REFUSED: after waiting: budget: scripted
+[zk60-guard 00:07:38] waiting for /tmp/guardfix-u1mca3rk/heavy.lock (0s)
+[zk60-guard 00:07:39] REFUSED: could not take /tmp/guardfix-u1mca3rk/heavy.lock within 1s
+.s...............EE.....................sssssE..E..sE....E.EEE......s...................s.s............ssssssssssssssssssssssss........ssss..........................ssssssssssssssss.......ssssssssssss........sss...................................................EEEEEE.{"paused": true, "signalled_supervisor": null}
+Explorer is paused; watchdog will not start it.
+wrote /tmp/tmp299xh776/r.json
+wrote /tmp/tmp3_t8ja7x/repair.json
+fibre all_ok=True k_slots all_ok=True pad_budget all_ok=True
+fp bias log2 = -96.000
+  PASS: one proof, one slot (FA3 whole_W_p3 shape): disclosed 0 (expected 0)
+  PASS: two proofs, distinct slots: disclosed 0 (expected 0)
+  PASS: three proofs, distinct slots, prox over all 3 slot sets: disclosed 0 (expected 0)
+  PASS: three slots, slot 1 burned (proofs on 0 and 2): disclosed 0 (expected 0)
+  PASS: NEGATIVE: two proofs declare the same slot: disclosed 12 (expected > 0)
+  PASS: NEGATIVE: three proofs, slot 1 reused twice: disclosed 12 (expected > 0)
+  PASS: NEGATIVE: slot 1's pair rows are copies of slot 0's (AM4 across slots): disclosed 20 (expected > 0)
+  PASS: one proof, one slot, n = 8: disclosed 0 (expected 0)
+  PASS: two proofs, distinct slots, n = 8, single-row blocks: disclosed 0 (expected 0)
+self-check (accepted attention, committed tool unmodified): 29/29 cross-checks, failures none, reproduced=True
+EEE......probe: exit 0, native wall 0.01s
+...probe: exit 70, native wall Nones
+..probe: exit 7, native wall 0.01247779599907517s
+................................................/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_zk60_resource_guard.py:234: ResourceWarning: unclosed file <_io.TextIOWrapper name=4 encoding='UTF-8'>
+  self._sigkill_case([])
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_zk60_resource_guard.py:234: ResourceWarning: unclosed file <_io.TextIOWrapper name=7 encoding='UTF-8'>
+  self._sigkill_case([])
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_zk60_resource_guard.py:230: ResourceWarning: unclosed file <_io.TextIOWrapper name=4 encoding='UTF-8'>
+  self._sigkill_case(["--no-cgroup"])
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_zk60_resource_guard.py:230: ResourceWarning: unclosed file <_io.TextIOWrapper name=7 encoding='UTF-8'>
+  self._sigkill_case(["--no-cgroup"])
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./usr/lib/python3.10/unittest/case.py:549: ResourceWarning: unclosed file <_io.TextIOWrapper name=4 encoding='UTF-8'>
+  method()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/usr/lib/python3.10/unittest/case.py:549: ResourceWarning: unclosed file <_io.TextIOWrapper name=7 encoding='UTF-8'>
+  method()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./usr/lib/python3.10/unittest/case.py:549: ResourceWarning: unclosed file <_io.TextIOWrapper name=6 encoding='UTF-8'>
+  method()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/usr/lib/python3.10/unittest/case.py:549: ResourceWarning: unclosed file <_io.TextIOWrapper name=8 encoding='UTF-8'>
+  method()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+......s...E......sE...........zk60 cycle gate: pattern zero: execute timed out after 1s
+....zk60 cycle gate: fewer than two patterns accepted; there is nothing to compare
+..zk60 cycle gate: [Errno 2] No such file or directory: '/nonexistent/host'
+zk60 cycle gate: [Errno 2] No such file or directory: '/nonexistent/r0vm'
+zk60 cycle gate: [Errno 2] No such file or directory: '/nonexistent/model.bin'
+zk60 cycle gate: [Errno 2] No such file or directory: '/tmp/tmprfvmmk57/no/such/parent'
+..zk60 cycle gate: /tmp/tmpm01xxgsj/taken already exists; the gate needs a new directory
+....zk60 cycle gate: expected exactly one execute JSON line, saw 0
+zk60 cycle gate: child claimed mvp_complete; refused
+.zk60 cycle gate: Declared timing leakage: the executor-only stage is NOT constant-cycle over 7 accepted input patterns; padded total cycles span 262144 (262144 to 524288) across 2 distinct (total_cycles, segments) shapes, and user cycles span 102400 (200000 to 302400). These are private executor measurements, not fields of the public Groth16 receipt; they demonstrate input-dependent work without quantifying information leakage to a timing observer.
+.zk60_zkvm_demo: block MODEL_BIN must be exactly 6184 bytes
+.zk60_zkvm_demo: destination already exists (refusing to overwrite): /tmp/tmpnlzhiiy9/run
+.zk60_zkvm_demo: destination already exists (refusing to overwrite): /tmp/tmpep3u_8kb/run
+.zk60_zkvm_demo: native tool stark_verify_final.pk.dmp missing: /tmp/tmplpsz1r38/native/stark_verify_final.pk.dmp: No such file or directory
+.zk60_zkvm_demo: destination parent is not a directory: /tmp/tmp616gygh3/run
+zk60_zkvm_demo: destination already exists (refusing to overwrite): /tmp/tmp616gygh3
+zk60_zkvm_demo: public and private destinations must be disjoint
+...zk60_zkvm_demo: destination parent is reached through a symlink: /tmp/tmpxl47l3vj/link
+...................zk60_zkvm_demo: image ids must be exactly 64 lowercase hex characters
+zk60_zkvm_demo: image ids must be exactly 64 lowercase hex characters
+zk60_zkvm_demo: image ids must be exactly 64 lowercase hex characters
+zk60_zkvm_demo: image ids must be exactly 64 lowercase hex characters
+..zk60_zkvm_demo: timeouts and kill grace must be finite positive seconds
+zk60_zkvm_demo: timeouts and kill grace must be finite positive seconds
+zk60_zkvm_demo: timeouts and kill grace must be finite positive seconds
+zk60_zkvm_demo: threads must be between 1 and 256
+..zk60_zkvm_demo: block owner input must be exactly 1024 bytes (512 LE i16)
+........................zk60_zkvm_demo: token MODEL_BIN must be exactly 13928 bytes
+....zk60_zkvm_demo: block MODEL_BIN must be exactly 6184 bytes
+.zk60_zkvm_demo: token owner input must be exactly 128 bytes (32 LE u32 token IDs in 0..31)
+.....................sssssssssssss...........
+======================================================================
+ERROR: test_header_documents_the_lock_ownership (test_hashline_cl_gpu_gates.FloorsRunner)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_hashline_cl_gpu_gates.py", line 1125, in test_header_documents_the_lock_ownership
+    with open(_FLOORS, encoding="utf-8") as fh:
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/results/cl1_floors.sh'
+
+======================================================================
+ERROR: test_required_order_self_test_before_build_before_hardware (test_hashline_cl_gpu_gates.FloorsRunner)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_hashline_cl_gpu_gates.py", line 1007, in test_required_order_self_test_before_build_before_hardware
+    selftest = self.first(lambda l: l.endswith("self-test"))
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_hashline_cl_gpu_gates.py", line 962, in first
+    return next(i for i, l in enumerate(self.lines) if predicate(l))
+StopIteration
+
+======================================================================
+ERROR: test_storage_tests_cannot_overwrite_the_recorded_cpu_or_gpu_binary (test_hashline_cl_gpu_gates.FloorsRunner)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_hashline_cl_gpu_gates.py", line 1197, in test_storage_tests_cannot_overwrite_the_recorded_cpu_or_gpu_binary
+    line = next(l for l in self.lines if "cargo test" in l and "stable-weight-storage" in l and " record " not in l)
+StopIteration
+
+======================================================================
+ERROR: test_the_archived_sample_parses_as_eligible (test_hashline_cl_profile.Gate)
+results/cl5_sample_p1cold.log: a real p1cold rep 1 from the 2026-09-04
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_hashline_cl_profile.py", line 352, in test_the_archived_sample_parses_as_eligible
+    with open(_SAMPLE, encoding="utf-8", errors="replace") as fh:
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/results/cl5_sample_p1cold.log'
+
+======================================================================
+ERROR: setUpModule (test_zk60_attention_cfs_slots)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_zk60_attention_cfs_slots.py", line 33, in setUpModule
+    with open(INVENTORY) as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/results/zk60_opus_attention_inventory.json'
+
+======================================================================
+ERROR: test_other_seed_same_verdicts (test_zk60_attention_pair_schedule.Determinism)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_zk60_attention_pair_schedule.py", line 331, in test_other_seed_same_verdicts
+    sched = T.build_schedule(inventory(), "block")
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_zk60_attention_pair_schedule.py", line 47, in inventory
+    _CACHE["inv"] = T.load_inventory(str(INVENTORY))
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/scripts/zk60_attention_pair_schedule.py", line 145, in load_inventory
+    with open(path) as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/results/zk60_opus_attention_inventory.json'
+
+======================================================================
+ERROR: test_same_seed_same_output (test_zk60_attention_pair_schedule.Determinism)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_zk60_attention_pair_schedule.py", line 325, in test_same_seed_same_output
+    res1, rec1 = results()
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_zk60_attention_pair_schedule.py", line 41, in results
+    _CACHE["run"] = T.run_all(str(INVENTORY), seed=SEED, n_values=4, brute_force=False)
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/scripts/zk60_attention_pair_schedule.py", line 1498, in run_all
+    inv = load_inventory(inv_path)
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/scripts/zk60_attention_pair_schedule.py", line 145, in load_inventory
+    with open(path) as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/results/zk60_opus_attention_inventory.json'
+
+======================================================================
+ERROR: test_on_the_whole_attention_A_per_column (test_zk60_attention_pair_schedule.Engine)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_zk60_attention_pair_schedule.py", line 174, in test_on_the_whole_attention_A_per_column
+    sched = T.build_schedule(inventory(), "block")
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_zk60_attention_pair_schedule.py", line 47, in inventory
+    _CACHE["inv"] = T.load_inventory(str(INVENTORY))
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/scripts/zk60_attention_pair_schedule.py", line 145, in load_inventory
+    with open(path) as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/results/zk60_opus_attention_inventory.json'
+
+======================================================================
+ERROR: test_block_profile_counts_and_members (test_zk60_attention_pair_schedule.GroupReconstruction)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_zk60_attention_pair_schedule.py", line 55, in test_block_profile_counts_and_members
+    claims = T.claims_for_profile(inventory(), "block")
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_zk60_attention_pair_schedule.py", line 47, in inventory
+    _CACHE["inv"] = T.load_inventory(str(INVENTORY))
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/scripts/zk60_attention_pair_schedule.py", line 145, in load_inventory
+    with open(path) as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/results/zk60_opus_attention_inventory.json'
+
+======================================================================
+ERROR: test_receipt_profile_counts_and_members (test_zk60_attention_pair_schedule.GroupReconstruction)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_zk60_attention_pair_schedule.py", line 64, in test_receipt_profile_counts_and_members
+    claims = T.claims_for_profile(inventory(), "receipt")
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_zk60_attention_pair_schedule.py", line 47, in inventory
+    _CACHE["inv"] = T.load_inventory(str(INVENTORY))
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/scripts/zk60_attention_pair_schedule.py", line 145, in load_inventory
+    with open(path) as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/results/zk60_opus_attention_inventory.json'
+
+======================================================================
+ERROR: test_seam_group_and_sum_group (test_zk60_attention_pair_schedule.GroupReconstruction)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_zk60_attention_pair_schedule.py", line 72, in test_seam_group_and_sum_group
+    groups = T.build_groups(T.claims_for_profile(inventory(), "block"))
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_zk60_attention_pair_schedule.py", line 47, in inventory
+    _CACHE["inv"] = T.load_inventory(str(INVENTORY))
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/scripts/zk60_attention_pair_schedule.py", line 145, in load_inventory
+    with open(path) as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/results/zk60_opus_attention_inventory.json'
+
+======================================================================
+ERROR: setUpClass (test_zk60_attention_pair_schedule.NegativeControls)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_zk60_attention_pair_schedule.py", line 250, in setUpClass
+    cls.nc = results()[0]["profiles"]["block"]["negative_controls"]
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_zk60_attention_pair_schedule.py", line 41, in results
+    _CACHE["run"] = T.run_all(str(INVENTORY), seed=SEED, n_values=4, brute_force=False)
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/scripts/zk60_attention_pair_schedule.py", line 1498, in run_all
+    inv = load_inventory(inv_path)
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/scripts/zk60_attention_pair_schedule.py", line 145, in load_inventory
+    with open(path) as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/results/zk60_opus_attention_inventory.json'
+
+======================================================================
+ERROR: setUpClass (test_zk60_attention_pair_schedule.PositiveVerdicts)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_zk60_attention_pair_schedule.py", line 185, in setUpClass
+    cls.res, cls.rec = results()
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_zk60_attention_pair_schedule.py", line 41, in results
+    _CACHE["run"] = T.run_all(str(INVENTORY), seed=SEED, n_values=4, brute_force=False)
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/scripts/zk60_attention_pair_schedule.py", line 1498, in run_all
+    inv = load_inventory(inv_path)
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/scripts/zk60_attention_pair_schedule.py", line 145, in load_inventory
+    with open(path) as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/results/zk60_opus_attention_inventory.json'
+
+======================================================================
+ERROR: setUpClass (test_zk60_attention_pair_schedule.Schedule)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_zk60_attention_pair_schedule.py", line 91, in setUpClass
+    cls.block = T.build_schedule(inventory(), "block")
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_zk60_attention_pair_schedule.py", line 47, in inventory
+    _CACHE["inv"] = T.load_inventory(str(INVENTORY))
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/scripts/zk60_attention_pair_schedule.py", line 145, in load_inventory
+    with open(path) as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/results/zk60_opus_attention_inventory.json'
+
+======================================================================
+ERROR: setUpClass (test_zk60_budgeted_endpoint_boundary.BudgetedEndpointBoundary)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_zk60_budgeted_endpoint_boundary.py", line 31, in setUpClass
+    source = DELIVERY.read_bytes()
+  File "/usr/lib/python3.10/pathlib.py", line 1126, in read_bytes
+    with self.open(mode='rb') as f:
+  File "/usr/lib/python3.10/pathlib.py", line 1119, in open
+    return self._accessor.open(self, mode, buffering, encoding, errors,
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/results/zk60_loop_20260918/reviews/fable_reuse/scripts/zk60_reusable_endpoint_probe.py'
+
+======================================================================
+ERROR: test_hardening_stops_after_guard_refusal (test_zk60_guarded_command.LegacyLauncherTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_zk60_guarded_command.py", line 111, in test_hardening_stops_after_guard_refusal
+    launcher = load_launcher(ROOT / 'ops/zkp-mvp/sonnet-hardening/build_check.py', 'legacy_hardening_build')
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_zk60_guarded_command.py", line 89, in load_launcher
+    spec.loader.exec_module(module)
+  File "<frozen importlib._bootstrap_external>", line 879, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 1016, in get_code
+  File "<frozen importlib._bootstrap_external>", line 1073, in get_data
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/ops/zkp-mvp/sonnet-hardening/build_check.py'
+
+======================================================================
+ERROR: test_native_refusal_retains_original_evidence_and_writes_terminal_attempt (test_zk60_guarded_command.LegacyLauncherTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_zk60_guarded_command.py", line 95, in test_native_refusal_retains_original_evidence_and_writes_terminal_attempt
+    launcher = load_launcher(ROOT / 'ops/zkp-mvp/build_native.py', 'legacy_native_build')
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_zk60_guarded_command.py", line 89, in load_launcher
+    spec.loader.exec_module(module)
+  File "<frozen importlib._bootstrap_external>", line 879, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 1016, in get_code
+  File "<frozen importlib._bootstrap_external>", line 1073, in get_data
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/ops/zkp-mvp/build_native.py'
+
+======================================================================
+ERROR: setUpClass (test_zk60_io_review_gate.ReviewAcceptance)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_zk60_io_review_gate.py", line 16, in setUpClass
+    cls.report = json.loads((gate.ROOT / "results/zk60_opus_io_capture_analysis.json").read_text())
+  File "/usr/lib/python3.10/pathlib.py", line 1134, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/usr/lib/python3.10/pathlib.py", line 1119, in open
+    return self._accessor.open(self, mode, buffering, encoding, errors,
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/results/zk60_opus_io_capture_analysis.json'
+
+======================================================================
+ERROR: test_zk60_mvp_baseline (unittest.loader._FailedTest)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_zk60_mvp_baseline
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/unittest/loader.py", line 436, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/usr/lib/python3.10/unittest/loader.py", line 377, in _get_module_from_name
+    __import__(name)
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_zk60_mvp_baseline.py", line 14, in <module>
+    spec.loader.exec_module(baseline)
+  File "<frozen importlib._bootstrap_external>", line 879, in exec_module
+  File "<frozen importlib._bootstrap_external>", line 1016, in get_code
+  File "<frozen importlib._bootstrap_external>", line 1073, in get_data
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/ops/zkp-mvp/baseline_run.py'
+
+
+======================================================================
+ERROR: test_diagnostic_does_not_close_security_requirements (test_zk60_mvp_security_probe.Scope)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_zk60_mvp_security_probe.py", line 207, in test_diagnostic_does_not_close_security_requirements
+    result = probe.run(None)
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/scripts/zk60_mvp_security_probe.py", line 456, in run
+    pins = check_source_pins()
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/scripts/zk60_mvp_security_probe.py", line 77, in check_source_pins
+    manifest = json.loads(MANIFEST.read_text())
+  File "/usr/lib/python3.10/pathlib.py", line 1134, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/usr/lib/python3.10/pathlib.py", line 1119, in open
+    return self._accessor.open(self, mode, buffering, encoding, errors,
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/results/zk60_round22_captures.json'
+
+======================================================================
+ERROR: test_pins_match_round22_manifest (test_zk60_mvp_security_probe.SourceBound)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_zk60_mvp_security_probe.py", line 40, in test_pins_match_round22_manifest
+    r = probe.check_source_pins()
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/scripts/zk60_mvp_security_probe.py", line 77, in check_source_pins
+    manifest = json.loads(MANIFEST.read_text())
+  File "/usr/lib/python3.10/pathlib.py", line 1134, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/usr/lib/python3.10/pathlib.py", line 1119, in open
+    return self._accessor.open(self, mode, buffering, encoding, errors,
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/results/zk60_round22_captures.json'
+
+======================================================================
+ERROR: test_reviewed_source_keeps_the_archived_producer_identity (test_zk60_mvp_security_probe.SourceBound)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_zk60_mvp_security_probe.py", line 46, in test_reviewed_source_keeps_the_archived_producer_identity
+    rows = probe.check_source_pins()["pinned"]
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/scripts/zk60_mvp_security_probe.py", line 77, in check_source_pins
+    manifest = json.loads(MANIFEST.read_text())
+  File "/usr/lib/python3.10/pathlib.py", line 1134, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/usr/lib/python3.10/pathlib.py", line 1119, in open
+    return self._accessor.open(self, mode, buffering, encoding, errors,
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/results/zk60_round22_captures.json'
+
+======================================================================
+ERROR: test_rewriting_the_capture_pin_cannot_masquerade_as_review (test_zk60_mvp_security_probe.SourceBound)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_zk60_mvp_security_probe.py", line 65, in test_rewriting_the_capture_pin_cannot_masquerade_as_review
+    manifest = json.loads(probe.MANIFEST.read_text())
+  File "/usr/lib/python3.10/pathlib.py", line 1134, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/usr/lib/python3.10/pathlib.py", line 1119, in open
+    return self._accessor.open(self, mode, buffering, encoding, errors,
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/results/zk60_round22_captures.json'
+
+======================================================================
+ERROR: test_unknown_source_drift_still_refuses_with_a_reviewed_update (test_zk60_mvp_security_probe.SourceBound)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_zk60_mvp_security_probe.py", line 60, in test_unknown_source_drift_still_refuses_with_a_reviewed_update
+    self.assertFalse(probe.check_source_pins()["all_pinned_match"])
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/scripts/zk60_mvp_security_probe.py", line 77, in check_source_pins
+    manifest = json.loads(MANIFEST.read_text())
+  File "/usr/lib/python3.10/pathlib.py", line 1134, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/usr/lib/python3.10/pathlib.py", line 1119, in open
+    return self._accessor.open(self, mode, buffering, encoding, errors,
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/results/zk60_round22_captures.json'
+
+======================================================================
+ERROR: test_adapted_parser_reads_every_site (test_zk60_private_block_inventory.TestAdaptersAreNeeded)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_zk60_private_block_inventory.py", line 115, in test_adapted_parser_reads_every_site
+    lay = PB.BlockLayout(self.INV, self.layout_src)
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/scripts/zk60_private_block_inventory.py", line 187, in __new__
+    lay = INV.Layout(src)
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/scripts/zk60_attention_native_inventory.py", line 359, in __init__
+    self.dom_logs = parse_dom_logs(self.src)
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/scripts/zk60_attention_native_inventory.py", line 196, in parse_dom_logs
+    i = body.index("{", body.index("match"))
+ValueError: substring not found
+
+======================================================================
+ERROR: test_committed_define_parser_fails_on_the_block (test_zk60_private_block_inventory.TestAdaptersAreNeeded)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_zk60_private_block_inventory.py", line 105, in test_committed_define_parser_fails_on_the_block
+    lay = self.INV.Layout(self.layout_src)
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/scripts/zk60_attention_native_inventory.py", line 359, in __init__
+    self.dom_logs = parse_dom_logs(self.src)
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/scripts/zk60_attention_native_inventory.py", line 196, in parse_dom_logs
+    i = body.index("{", body.index("match"))
+ValueError: substring not found
+
+======================================================================
+ERROR: test_committed_logup_parser_fails_on_the_block (test_zk60_private_block_inventory.TestAdaptersAreNeeded)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_zk60_private_block_inventory.py", line 110, in test_committed_logup_parser_fails_on_the_block
+    lay = self.INV.Layout(self.layout_src)
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/scripts/zk60_attention_native_inventory.py", line 359, in __init__
+    self.dom_logs = parse_dom_logs(self.src)
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/scripts/zk60_attention_native_inventory.py", line 196, in parse_dom_logs
+    i = body.index("{", body.index("match"))
+ValueError: substring not found
+
+======================================================================
+ERROR: test_layout_rs_parses_with_the_committed_class (test_zk60_private_block_inventory.TestAdaptersAreNeeded)
+Only `define` and `logup_sum_claim` need adapters; layout.rs itself does not.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_zk60_private_block_inventory.py", line 99, in test_layout_rs_parses_with_the_committed_class
+    lay = self.INV.Layout(self.layout_src)
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/scripts/zk60_attention_native_inventory.py", line 359, in __init__
+    self.dom_logs = parse_dom_logs(self.src)
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/scripts/zk60_attention_native_inventory.py", line 196, in parse_dom_logs
+    i = body.index("{", body.index("match"))
+ValueError: substring not found
+
+======================================================================
+ERROR: test_limb_off_m_matches_layout_arithmetic (test_zk60_private_block_inventory.TestAdaptersAreNeeded)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_zk60_private_block_inventory.py", line 147, in test_limb_off_m_matches_layout_arithmetic
+    lay = PB.BlockLayout(self.INV, self.layout_src)
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/scripts/zk60_private_block_inventory.py", line 187, in __new__
+    lay = INV.Layout(src)
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/scripts/zk60_attention_native_inventory.py", line 359, in __init__
+    self.dom_logs = parse_dom_logs(self.src)
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/scripts/zk60_attention_native_inventory.py", line 196, in parse_dom_logs
+    i = body.index("{", body.index("match"))
+ValueError: substring not found
+
+======================================================================
+ERROR: test_logup_adapter_finds_the_three_table_helpers (test_zk60_private_block_inventory.TestAdaptersAreNeeded)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_zk60_private_block_inventory.py", line 130, in test_logup_adapter_finds_the_three_table_helpers
+    lay = PB.BlockLayout(self.INV, self.layout_src)
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/scripts/zk60_private_block_inventory.py", line 187, in __new__
+    lay = INV.Layout(src)
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/scripts/zk60_attention_native_inventory.py", line 359, in __init__
+    self.dom_logs = parse_dom_logs(self.src)
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/scripts/zk60_attention_native_inventory.py", line 196, in parse_dom_logs
+    i = body.index("{", body.index("match"))
+ValueError: substring not found
+
+======================================================================
+ERROR: setUpClass (test_zk60_private_block_inventory.TestEndToEnd)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_zk60_private_block_inventory.py", line 163, in setUpClass
+    cls.rc = PB.main(["--repo", ROOT, "--out-dir", cls.tmp])
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/scripts/zk60_private_block_inventory.py", line 1061, in main
+    s = build_all(args.repo, out_dir, seed=args.seed, n_values=args.n_values,
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/scripts/zk60_private_block_inventory.py", line 689, in build_all
+    lay = BlockLayout(INV, layout_src)
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/scripts/zk60_private_block_inventory.py", line 187, in __new__
+    lay = INV.Layout(src)
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/scripts/zk60_attention_native_inventory.py", line 359, in __init__
+    self.dom_logs = parse_dom_logs(self.src)
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/scripts/zk60_attention_native_inventory.py", line 196, in parse_dom_logs
+    i = body.index("{", body.index("match"))
+ValueError: substring not found
+
+======================================================================
+ERROR: test_cross_checks_catch_a_wrong_expectation (test_zk60_private_block_inventory.TestWrongExpectationFails)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_zk60_private_block_inventory.py", line 403, in test_cross_checks_catch_a_wrong_expectation
+    lay = PB.BlockLayout(INV, f.read())
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/scripts/zk60_private_block_inventory.py", line 187, in __new__
+    lay = INV.Layout(src)
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/scripts/zk60_attention_native_inventory.py", line 359, in __init__
+    self.dom_logs = parse_dom_logs(self.src)
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/scripts/zk60_attention_native_inventory.py", line 196, in parse_dom_logs
+    i = body.index("{", body.index("match"))
+ValueError: substring not found
+
+======================================================================
+ERROR: test_the_driver_fails_end_to_end_on_a_wrong_expectation (test_zk60_private_block_inventory.TestWrongExpectationFails)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_zk60_private_block_inventory.py", line 432, in test_the_driver_fails_end_to_end_on_a_wrong_expectation
+    s = PB.build_all(ROOT, tmp, seed=2026, expect=expect, self_check=False)
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/scripts/zk60_private_block_inventory.py", line 689, in build_all
+    lay = BlockLayout(INV, layout_src)
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/scripts/zk60_private_block_inventory.py", line 187, in __new__
+    lay = INV.Layout(src)
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/scripts/zk60_attention_native_inventory.py", line 359, in __init__
+    self.dom_logs = parse_dom_logs(self.src)
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/scripts/zk60_attention_native_inventory.py", line 196, in parse_dom_logs
+    i = body.index("{", body.index("match"))
+ValueError: substring not found
+
+======================================================================
+ERROR: test_exit_one_with_success_json_is_not_rejection (test_zk60_techweek_demo.TechweekDemoTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_zk60_techweek_demo.py", line 139, in test_exit_one_with_success_json_is_not_rejection
+    self.assertFalse(result['checks'][-1]['passed'])
+IndexError: list index out of range
+
+======================================================================
+ERROR: test_verifier_crash_is_not_rejection (test_zk60_techweek_demo.TechweekDemoTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_zk60_techweek_demo.py", line 40, in test_verifier_crash_is_not_rejection
+    self.assertFalse(result['checks'][-1]['passed'])
+IndexError: list index out of range
+
+======================================================================
+FAIL: test_bash_syntax (test_hashline_cl_gpu_gates.FloorsRunner)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_hashline_cl_gpu_gates.py", line 965, in test_bash_syntax
+    self.assertEqual(subprocess.run(["bash", "-n", _FLOORS], capture_output=True).returncode, 0)
+AssertionError: 127 != 0
+
+======================================================================
+FAIL: test_broken_parser_fails_before_any_build (test_hashline_cl_gpu_gates.FloorsRunner)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_hashline_cl_gpu_gates.py", line 1086, in test_broken_parser_fails_before_any_build
+    self.assertEqual(r.returncode, 1)
+AssertionError: 127 != 1
+
+======================================================================
+FAIL: test_core_commands_are_emitted_with_quoted_paths_locked_and_offline (test_hashline_cl_gpu_gates.FloorsRunner)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_hashline_cl_gpu_gates.py", line 1142, in test_core_commands_are_emitted_with_quoted_paths_locked_and_offline
+    self.assertEqual(len(core), 2)
+AssertionError: 0 != 2
+
+======================================================================
+FAIL: test_dry_run_exits_zero_and_writes_nothing_under_scratch (test_hashline_cl_gpu_gates.FloorsRunner)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_hashline_cl_gpu_gates.py", line 968, in test_dry_run_exits_zero_and_writes_nothing_under_scratch
+    self.assertEqual(self.result.returncode, 0, self.result.stdout + self.result.stderr)
+AssertionError: 127 != 0 : bash: /tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/results/cl1_floors.sh: No such file or directory
+
+
+======================================================================
+FAIL: test_dry_run_reports_both_crates_identity (test_hashline_cl_gpu_gates.FloorsRunner)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_hashline_cl_gpu_gates.py", line 1168, in test_dry_run_reports_both_crates_identity
+    self.assertIn("hashline/  tree <none>", out)
+AssertionError: 'hashline/  tree <none>' not found in ''
+
+======================================================================
+FAIL: test_env_defaults_are_honoured (test_hashline_cl_gpu_gates.FloorsRunner)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_hashline_cl_gpu_gates.py", line 1112, in test_env_defaults_are_honoured
+    self.assertEqual(r.returncode, 0)
+AssertionError: 127 != 0
+
+======================================================================
+FAIL: test_every_emitted_command_survives_shell_splitting_with_spaced_paths (test_hashline_cl_gpu_gates.FloorsRunner)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_hashline_cl_gpu_gates.py", line 977, in test_every_emitted_command_survives_shell_splitting_with_spaced_paths
+    self.assertGreater(len(self.lines), 80)
+AssertionError: 0 not greater than 80
+
+======================================================================
+FAIL: test_gpu_gates_carry_the_device_env_and_the_cpu_gates_do_not (test_hashline_cl_gpu_gates.FloorsRunner)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_hashline_cl_gpu_gates.py", line 1041, in test_gpu_gates_carry_the_device_env_and_the_cpu_gates_do_not
+    self.assertEqual(len(gpu), 8)
+AssertionError: 0 != 8
+
+======================================================================
+FAIL: test_manifest_lifecycle_is_emitted_for_every_case (test_hashline_cl_gpu_gates.FloorsRunner)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_hashline_cl_gpu_gates.py", line 1055, in test_manifest_lifecycle_is_emitted_for_every_case
+    self.assertEqual(starts, EXPECTED_V5)        # [CL21] the default suite is v7
+AssertionError: Lists differ: [] != ['build_cpu', 'build_gpu', 'cargo_test_cpu[336 chars]sal']
+
+Second list contains 24 additional elements.
+First extra element 0:
+'build_cpu'
+
+- []
++ ['build_cpu',
++  'build_gpu',
++  'cargo_test_cpu',
++  'core_tests',
++  'core_example',
++  'storage_tests',
++  'oracle_gpu',
++  'nofeature_required_refuses',
++  'nofeature_plain_reports_zero',
++  'cpu-v2',
++  'cpu-v3',
++  'cpu-zk',
++  'cpu-zkv3',
++  'gpu-v2',
++  'gpu-v3',
++  'gpu-zk',
++  'gpu-zkv3',
++  'gpu-zkchunk-v2',
++  'gpu-zkchunk-v3',
++  'gpu-zkchunk-zk',
++  'gpu-zkchunk-zkv3',
++  'cache_cold_zkv3',
++  'cache_warm_zkv3',
++  'cache_p3_refusal']
+
+======================================================================
+FAIL: test_missing_helper_fails_before_any_build (test_hashline_cl_gpu_gates.FloorsRunner)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_hashline_cl_gpu_gates.py", line 1076, in test_missing_helper_fails_before_any_build
+    self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+AssertionError: 127 != 1 : bash: /tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/results/cl1_floors.sh: No such file or directory
+
+
+======================================================================
+FAIL: test_missing_or_dirty_core_refuses_to_start_before_any_build (test_hashline_cl_gpu_gates.FloorsRunner)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_hashline_cl_gpu_gates.py", line 1228, in test_missing_or_dirty_core_refuses_to_start_before_any_build
+    self.assertEqual(r.returncode, 1, f"{name}: {r.stdout}{r.stderr}")
+AssertionError: 127 != 1 : missing core: bash: /tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/results/cl1_floors.sh: No such file or directory
+
+
+======================================================================
+FAIL: test_suite_v3_dry_run_has_no_core_cases_but_records_the_identity (test_hashline_cl_gpu_gates.FloorsRunner)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_hashline_cl_gpu_gates.py", line 1177, in test_suite_v3_dry_run_has_no_core_cases_but_records_the_identity
+    self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+AssertionError: 127 != 0 : bash: /tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/results/cl1_floors.sh: No such file or directory
+
+
+======================================================================
+FAIL: test_threads_and_shape_overrides_reach_every_prover_command (test_hashline_cl_gpu_gates.FloorsRunner)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_hashline_cl_gpu_gates.py", line 1094, in test_threads_and_shape_overrides_reach_every_prover_command
+    self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+AssertionError: 127 != 0 : bash: /tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/results/cl1_floors.sh: No such file or directory
+
+
+======================================================================
+FAIL: test_usage_and_success_line_name_the_core (test_hashline_cl_gpu_gates.FloorsRunner)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_hashline_cl_gpu_gates.py", line 1189, in test_usage_and_success_line_name_the_core
+    self.assertIn(f"default {gg.DEFAULT_SUITE} =", r.stdout)
+AssertionError: 'default 11 =' not found in ''
+
+======================================================================
+FAIL: test_usage_states_the_shape_rule (test_hashline_cl_gpu_gates.FloorsRunner)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_hashline_cl_gpu_gates.py", line 1118, in test_usage_states_the_shape_rule
+    self.assertEqual(r.returncode, 0)
+AssertionError: 127 != 0
+
+======================================================================
+FAIL: test_cli_exit_zero_and_outputs (test_zk60_attention_pair_schedule.CLI)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_zk60_attention_pair_schedule.py", line 346, in test_cli_exit_zero_and_outputs
+    self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/scripts/zk60_attention_pair_schedule.py", line 1590, in <module>
+    sys.exit(main())
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/scripts/zk60_attention_pair_schedule.py", line 1573, in main
+    results, record = run_all(args.inventory, seed=args.seed, n_values=args.n_values, brute_force=not args.no_brute_force)
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/scripts/zk60_attention_pair_schedule.py", line 1498, in run_all
+    inv = load_inventory(inv_path)
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/scripts/zk60_attention_pair_schedule.py", line 145, in load_inventory
+    with open(path) as f:
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/results/zk60_opus_attention_inventory.json'
+
+
+======================================================================
+FAIL: test_plan_does_not_read_captured_output_values (test_zk60_endpoint_view.EndpointGeneration)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_zk60_endpoint_view.py", line 92, in test_plan_does_not_read_captured_output_values
+    self.assertEqual(len(paths), 4, "mandatory retained captures absent")
+AssertionError: 0 != 4 : mandatory retained captures absent
+
+======================================================================
+FAIL: test_disposition_record_matches_generator (test_zk60_fable_transcript_sim.Records)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/ir-public-orig/tests/test_zk60_fable_transcript_sim.py", line 132, in test_disposition_record_matches_generator
+    self.assertTrue(path.exists(), "run: python3 scripts/zk60_fable_transcript_sim.py disposition -o results/zk60_fable_fa8_disposition.json")
+AssertionError: False is not true : run: python3 scripts/zk60_fable_transcript_sim.py disposition -o results/zk60_fable_fa8_disposition.json
+
+----------------------------------------------------------------------
+Ran 1232 tests in 356.627s
+
+FAILED (failures=18, errors=35, skipped=123)
+{"cycle_gate": true, "constant_cycles": false, "constant_total_cycles": true, "constant_user_cycles": false, "accepted": 7, "refused": 2, "total_cycle_spread": 0, "user_cycle_spread": 51200, "out": "/tmp/tmpb5tsd093/out/cycle_gate.json", "mvp_complete": false}
+{"cycle_gate": true, "constant_cycles": true, "constant_total_cycles": true, "constant_user_cycles": true, "accepted": 7, "refused": 2, "total_cycle_spread": 0, "user_cycle_spread": 0, "out": "/tmp/tmpy_gqi3iv/out/cycle_gate.json", "mvp_complete": false}
+{"cycle_gate": true, "constant_cycles": true, "constant_total_cycles": true, "constant_user_cycles": true, "accepted": 7, "refused": 2, "total_cycle_spread": 0, "user_cycle_spread": 0, "out": "/tmp/tmpw7oo83mi/out/cycle_gate.json", "mvp_complete": false}
+{"cycle_gate": true, "constant_cycles": false, "constant_total_cycles": false, "constant_user_cycles": false, "accepted": 7, "refused": 2, "total_cycle_spread": 262144, "user_cycle_spread": 102400, "out": "/tmp/tmpzfbk351l/out/cycle_gate.json", "mvp_complete": false}
+{"cycle_gate": true, "constant_cycles": false, "constant_total_cycles": false, "constant_user_cycles": false, "accepted": 7, "refused": 2, "total_cycle_spread": 262144, "user_cycle_spread": 102400, "out": "/tmp/tmpzfbk351l/strict/cycle_gate.json", "mvp_complete": false}

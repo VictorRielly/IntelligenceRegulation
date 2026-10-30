@@ -1,0 +1,44 @@
+{
+  "global_top_three": [
+    {
+      "rank": 1,
+      "title": "Owner whole-prover high-end GPU plus verified fixed-context resident1/2/4/8"
+    },
+    {
+      "rank": 2,
+      "title": "REFINED owner DD larger-context scaling after measured T128 null result"
+    },
+    {
+      "rank": 3,
+      "title": "REFINED tested public-role exclusive FZC clocks before allocator/capacity changes"
+    }
+  ],
+  "feasible_local_order": [
+    {
+      "priority": 1,
+      "hypothesis": 59,
+      "reason": "Previously unassessed exact CPU output-prefix lifetime seam, inexpensive compiled differential and decisive capacity bound; owner split-width protocol lane not duplicated."
+    },
+    {
+      "priority": 2,
+      "hypothesis": 57,
+      "reason": "Next sumcheck/GKR rotation can test fresh public component sums; charge traffic and defer native integration until exclusive clocks."
+    },
+    {
+      "priority": 3,
+      "hypothesis": 58,
+      "reason": "Existing exact-column-storage candidate parked pending actual admitted layer incidence."
+    }
+  ],
+  "total": 59,
+  "prior_retained": 58,
+  "new": [
+    59
+  ],
+  "refined": [
+    1,
+    12,
+    34
+  ],
+  "owner_work_launched": false
+}

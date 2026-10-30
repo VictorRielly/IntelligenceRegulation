@@ -1,0 +1,12 @@
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r13/hashline/src/private_block/token_io.rs	2026-10-28 16:42:48.583790516 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r14/hashline/src/private_block/token_io.rs	2026-10-28 19:12:07.680032398 -0700
+@@ -84,6 +84,9 @@
+ // TOKEN I/O (round 12, gate round 16): classifier run captures
+ #[cfg(test)]
+ mod classify_capture_tests;
++// TOKEN I/O (round 14): REVIEW_R13 N-r13-1 (the library binding) and short items
++#[cfg(test)]
++mod classify_r14_tests;
+ 
+ /// **THE TOKEN-I/O RUN PROFILES THIS BUILD REGISTERS, with their block shape**
+ /// (test only): the one list the profile-registry censuses (s24 / s25 / s33)

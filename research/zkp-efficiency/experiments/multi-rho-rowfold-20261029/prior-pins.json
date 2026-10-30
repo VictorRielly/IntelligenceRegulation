@@ -1,0 +1,12 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/composition-eq-scope-20261029/sized-metadata.json",
+    "snapshot": "prior/sized-metadata.json",
+    "sha256": "0a5a2b7d3ec6586a3966e62b8a18b4a42271eced6cbf77928e3012de0378b357"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/composition-eq-scope-20261029/native/NATIVE_LAYOUT_CENSUS.json",
+    "snapshot": "prior/native/NATIVE_LAYOUT_CENSUS.json",
+    "sha256": "36caa5bb71da50a3be89570eeaa8c533f3cab8291cea45816f1b8b6e13edb21a"
+  }
+]

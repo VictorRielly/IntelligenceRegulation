@@ -1,0 +1,491 @@
+{
+ "what": "gate round 19 reading sub-lane: the source-pin readings for token frozen-r16b captures (native R12b -> R13; token r14 -> r15 -> r16 -> r16b) [READ / COUNTED]; NOT a privacy statement",
+ "read_at_utc": "2026-10-29T11:25:41Z",
+ "module": "ops/zkp-mvp/gate-tinyllama/staging_v22/scripts/zk60_native_rg_r13_pins.py",
+ "trees": {
+  "native_r12b": "results/zk60_1b_native_20261017/r12b/frozen-tree/hashline",
+  "native_r13": "results/zk60_1b_native_20261017/r13/frozen-tree/hashline",
+  "native_r13_tree_sha256": "bb9eb2123c9350c738dafd19fe3b0133d6e2e7ab93f1e765cac4f20ccaed69ec",
+  "token": [
+   "results/zk60_token_io_r1_20261017/frozen-r14/hashline",
+   "results/zk60_token_io_r1_20261017/frozen-r15/hashline",
+   "results/zk60_token_io_r1_20261017/frozen-r16/hashline",
+   "results/zk60_token_io_r1_20261017/frozen-r16b/hashline"
+  ],
+  "token_r16b_manifest_list_sha256": "04d94bc0904ccaeb621d001b72be51b54034bfb5f7135a543e872a36a834c549"
+ },
+ "self_check": {
+  "ok": true,
+  "problems": [],
+  "digests_rehashed": 119
+ },
+ "per_file": [
+  {
+   "file": "src/private_block.rs",
+   "r16b_digest": "2af1df7d5bc222695c1d233050ff87a5f0981a26a5df1828678b67a6fe0a1cb3",
+   "chain": [
+    "2af1df7d5bc222695c1d233050ff87a5f0981a26a5df1828678b67a6fe0a1cb3",
+    "295409589f53c74144ce7fe8e9e4571f614660fe69b6f6f3cbd2e382b5940256"
+   ],
+   "native_r13_digest": "c55da6ade97d9e2864d0cad43fc330620b4929f86a7338ff5517163b1242e677",
+   "diff_stat": "+62 / -1, 4 hunks against 29540958 (token frozen-r14)",
+   "classification": "gated-on-new-profiles",
+   "moves_a_receipt_byte": false,
+   "diff_file": "results/zk60_gate_tinyllama_20261017/round19/readings/tok-r14-r16b-_private_block.rs.diff"
+  },
+  {
+   "file": "src/private_block/accuracy.rs",
+   "r16b_digest": "2996ff41016a65ac6b22db78768295879f4b37a48316267c655a410d667bc6af",
+   "chain": [
+    "2996ff41016a65ac6b22db78768295879f4b37a48316267c655a410d667bc6af",
+    null
+   ],
+   "native_r13_digest": "2996ff41016a65ac6b22db78768295879f4b37a48316267c655a410d667bc6af",
+   "diff_stat": "NEW at native R13 (read in full for the gate's purpose: entry points and their callers)",
+   "classification": "new-file",
+   "moves_a_receipt_byte": false,
+   "diff_file": ""
+  },
+  {
+   "file": "src/private_block/accuracy_act.rs",
+   "r16b_digest": "7ef5fe26fc9395817436fc55851dc1f2ea066bc06b8a5eaaa3e2c39a8045eb4e",
+   "chain": [
+    "7ef5fe26fc9395817436fc55851dc1f2ea066bc06b8a5eaaa3e2c39a8045eb4e",
+    null
+   ],
+   "native_r13_digest": "7ef5fe26fc9395817436fc55851dc1f2ea066bc06b8a5eaaa3e2c39a8045eb4e",
+   "diff_stat": "NEW at native R13 (read in full for the gate's purpose: entry points and their callers)",
+   "classification": "new-file",
+   "moves_a_receipt_byte": false,
+   "diff_file": ""
+  },
+  {
+   "file": "src/private_block/accuracy_aligned.rs",
+   "r16b_digest": "396d0cf271b9ac401364e0c96a6c549eb4a31f91750a3072391d55ac8b9e9f8d",
+   "chain": [
+    "396d0cf271b9ac401364e0c96a6c549eb4a31f91750a3072391d55ac8b9e9f8d",
+    null
+   ],
+   "native_r13_digest": "396d0cf271b9ac401364e0c96a6c549eb4a31f91750a3072391d55ac8b9e9f8d",
+   "diff_stat": "NEW at native R13 (read in full for the gate's purpose: entry points and their callers)",
+   "classification": "new-file",
+   "moves_a_receipt_byte": false,
+   "diff_file": ""
+  },
+  {
+   "file": "src/private_block/accuracy_fold.rs",
+   "r16b_digest": "53e2b5726440eb747f55d5d22bdd36929f8d17bba8b769d17162c0948890731a",
+   "chain": [
+    "53e2b5726440eb747f55d5d22bdd36929f8d17bba8b769d17162c0948890731a",
+    null
+   ],
+   "native_r13_digest": "53e2b5726440eb747f55d5d22bdd36929f8d17bba8b769d17162c0948890731a",
+   "diff_stat": "NEW at native R13 (read in full for the gate's purpose: entry points and their callers)",
+   "classification": "new-file",
+   "moves_a_receipt_byte": false,
+   "diff_file": ""
+  },
+  {
+   "file": "src/private_block/accuracy_groups.rs",
+   "r16b_digest": "63a87749a6e03e54104fdaa382d76421b0b984599fce7cca8714f348b7731731",
+   "chain": [
+    "63a87749a6e03e54104fdaa382d76421b0b984599fce7cca8714f348b7731731",
+    null
+   ],
+   "native_r13_digest": "63a87749a6e03e54104fdaa382d76421b0b984599fce7cca8714f348b7731731",
+   "diff_stat": "NEW at native R13 (read in full for the gate's purpose: entry points and their callers)",
+   "classification": "new-file",
+   "moves_a_receipt_byte": false,
+   "diff_file": ""
+  },
+  {
+   "file": "src/private_block/accuracy_layout.rs",
+   "r16b_digest": "37a3e3458e4961ddaab98440de114e575da3af21f7d872b532cb71a04ac788d3",
+   "chain": [
+    "37a3e3458e4961ddaab98440de114e575da3af21f7d872b532cb71a04ac788d3",
+    null
+   ],
+   "native_r13_digest": "37a3e3458e4961ddaab98440de114e575da3af21f7d872b532cb71a04ac788d3",
+   "diff_stat": "NEW at native R13 (read in full for the gate's purpose: entry points and their callers)",
+   "classification": "new-file",
+   "moves_a_receipt_byte": false,
+   "diff_file": ""
+  },
+  {
+   "file": "src/private_block/accuracy_precision.rs",
+   "r16b_digest": "145c1e0f66ea5aad558148aa7885b4fcaaf74c6145893cc1efd10f7a77eee56b",
+   "chain": [
+    "145c1e0f66ea5aad558148aa7885b4fcaaf74c6145893cc1efd10f7a77eee56b",
+    null
+   ],
+   "native_r13_digest": "145c1e0f66ea5aad558148aa7885b4fcaaf74c6145893cc1efd10f7a77eee56b",
+   "diff_stat": "NEW at native R13 (read in full for the gate's purpose: entry points and their callers)",
+   "classification": "new-file",
+   "moves_a_receipt_byte": false,
+   "diff_file": ""
+  },
+  {
+   "file": "src/private_block/accuracy_public.rs",
+   "r16b_digest": "0b44bf5424fed9ea9911e3b041c0977ea0727bb461b83be198a5d2210d73d660",
+   "chain": [
+    "0b44bf5424fed9ea9911e3b041c0977ea0727bb461b83be198a5d2210d73d660",
+    null
+   ],
+   "native_r13_digest": "0b44bf5424fed9ea9911e3b041c0977ea0727bb461b83be198a5d2210d73d660",
+   "diff_stat": "NEW at native R13 (read in full for the gate's purpose: entry points and their callers)",
+   "classification": "new-file",
+   "moves_a_receipt_byte": false,
+   "diff_file": ""
+  },
+  {
+   "file": "src/private_block/accuracy_tables.rs",
+   "r16b_digest": "0a92b7fff83a460b2f79560b195ed65c4a7024b80108631b3741bfbaba5511e8",
+   "chain": [
+    "0a92b7fff83a460b2f79560b195ed65c4a7024b80108631b3741bfbaba5511e8",
+    null
+   ],
+   "native_r13_digest": "0a92b7fff83a460b2f79560b195ed65c4a7024b80108631b3741bfbaba5511e8",
+   "diff_stat": "NEW at native R13 (read in full for the gate's purpose: entry points and their callers)",
+   "classification": "new-file",
+   "moves_a_receipt_byte": false,
+   "diff_file": ""
+  },
+  {
+   "file": "src/private_block/argument.rs",
+   "r16b_digest": "bc0332e39904ca881d26c255581aa1ab6a0e73899141689960ec2262f8561830",
+   "chain": [
+    "bc0332e39904ca881d26c255581aa1ab6a0e73899141689960ec2262f8561830",
+    "c4f9f9f4cb477346b03e9f769d7c3141a8529f096d08da2be6c415d5160a5e66"
+   ],
+   "native_r13_digest": "bc0332e39904ca881d26c255581aa1ab6a0e73899141689960ec2262f8561830",
+   "diff_stat": "+27 / -2, 5 hunks against c4f9f9f4 (native R12b)",
+   "classification": "gated-on-new-profiles",
+   "moves_a_receipt_byte": false,
+   "diff_file": "results/zk60_gate_tinyllama_20261017/round19/readings/nat-r12b-r13-argument.rs.diff"
+  },
+  {
+   "file": "src/private_block/argument_accuracy.rs",
+   "r16b_digest": "a5e02391b61577c7041efc41c04cd2564610e3fbb26b188b66b1623a5b7940d9",
+   "chain": [
+    "a5e02391b61577c7041efc41c04cd2564610e3fbb26b188b66b1623a5b7940d9",
+    null
+   ],
+   "native_r13_digest": "a5e02391b61577c7041efc41c04cd2564610e3fbb26b188b66b1623a5b7940d9",
+   "diff_stat": "NEW at native R13 (read in full for the gate's purpose: entry points and their callers)",
+   "classification": "new-file",
+   "moves_a_receipt_byte": false,
+   "diff_file": ""
+  },
+  {
+   "file": "src/private_block/layout.rs",
+   "r16b_digest": "8519a514b8d1f43ab51c86b0a8af955230a2eab4fff4fc4c594733c59dcfd0bf",
+   "chain": [
+    "8519a514b8d1f43ab51c86b0a8af955230a2eab4fff4fc4c594733c59dcfd0bf",
+    "9332802e597beacab56cfa69cfe18325bc476d2ce6485f517051992b26d26efa"
+   ],
+   "native_r13_digest": "8519a514b8d1f43ab51c86b0a8af955230a2eab4fff4fc4c594733c59dcfd0bf",
+   "diff_stat": "+32 / -3, 7 hunks against 9332802e (native R12b = R9)",
+   "classification": "gated-on-new-profiles",
+   "moves_a_receipt_byte": false,
+   "diff_file": "results/zk60_gate_tinyllama_20261017/round19/readings/nat-r12b-r13-layout.rs.diff"
+  },
+  {
+   "file": "src/private_block/protocol.rs",
+   "r16b_digest": "1011441431a37f735999405986af6c9f11c2d303b48aa6d9cefae55b0311718d",
+   "chain": [
+    "1011441431a37f735999405986af6c9f11c2d303b48aa6d9cefae55b0311718d",
+    "c482402329e4da32a70c780435b2077e8054d1805b1006289f571820017564a4"
+   ],
+   "native_r13_digest": "1011441431a37f735999405986af6c9f11c2d303b48aa6d9cefae55b0311718d",
+   "diff_stat": "+38 / -15, 10 hunks against c4824023 (native R12b = R9)",
+   "classification": "gated-on-new-profiles",
+   "moves_a_receipt_byte": false,
+   "diff_file": "results/zk60_gate_tinyllama_20261017/round19/readings/nat-r12b-r13-protocol.rs.diff"
+  },
+  {
+   "file": "src/private_block/run.rs",
+   "r16b_digest": "3dc5393db188cdd92a775011318fc8d8031812ff7d8772d6528dbc3261efa99f",
+   "chain": [
+    "3dc5393db188cdd92a775011318fc8d8031812ff7d8772d6528dbc3261efa99f",
+    "51e8aed2c52d21149618f0ba7f16c35774dd376c4bc0c557d6c2c7ef1e4ea6e9"
+   ],
+   "native_r13_digest": "66f0ac950f7ddff23fa89e2788b70fed9785c846cbc8beeb3612c1527566b156",
+   "diff_stat": "+133 / -13, 13 hunks against 51e8aed2 (token frozen-r14); = native R13 66f0ac95 + the token lane's hunks (+123 / -0 against native R13)",
+   "classification": "gated-on-new-profiles",
+   "moves_a_receipt_byte": false,
+   "diff_file": "results/zk60_gate_tinyllama_20261017/round19/readings/tok-r14-r16b-run.rs.diff"
+  },
+  {
+   "file": "src/private_block/run_capture.rs",
+   "r16b_digest": "cad25086949c34d5d338fd1522401486f8099448cce47551f5487d3a05fc0fd7",
+   "chain": [
+    "cad25086949c34d5d338fd1522401486f8099448cce47551f5487d3a05fc0fd7",
+    "527df40efb5e427bd779359be7a9699d3d0de93814cd020dec23d3aee8937ef0",
+    "ef9c54dbdf9588df381055b6f959ee8d7a9f8396075c59bf2b774115b76cb012"
+   ],
+   "native_r13_digest": "affddeae00a953f745de172b7b9829770b53cf724f253cb61c857b17ee3e2cc2",
+   "diff_stat": "+15 / -1, 2 hunks against 527df40e (token frozen-r15)",
+   "classification": "test-only",
+   "moves_a_receipt_byte": false,
+   "diff_file": "results/zk60_gate_tinyllama_20261017/round19/readings/tok-r15-r16-run_capture.rs.diff"
+  },
+  {
+   "file": "src/private_block/shape.rs",
+   "r16b_digest": "8e00a144bd194fd5a3dd30c9aaece2869d43d461df623cdcfc5a9da59e51436b",
+   "chain": [
+    "8e00a144bd194fd5a3dd30c9aaece2869d43d461df623cdcfc5a9da59e51436b",
+    "9a87081897ff0ec716d7f27a2813cc32117683eb5b2f2082a248f479ef98c4c5"
+   ],
+   "native_r13_digest": "8e00a144bd194fd5a3dd30c9aaece2869d43d461df623cdcfc5a9da59e51436b",
+   "diff_stat": "+123 / -5, 17 hunks against 9a870818 (native R12b)",
+   "classification": "gated-on-new-profiles",
+   "moves_a_receipt_byte": false,
+   "diff_file": "results/zk60_gate_tinyllama_20261017/round19/readings/nat-r12b-r13-shape.rs.diff"
+  },
+  {
+   "file": "src/private_block/tied_tables.rs",
+   "r16b_digest": "45fc3f0fe20c5d8b798f6bbc0fe3f1b7aa68f4427b0a3521c92ba83230b30e33",
+   "chain": [
+    "45fc3f0fe20c5d8b798f6bbc0fe3f1b7aa68f4427b0a3521c92ba83230b30e33",
+    "049ddc181ca31435681e24199b80c03b4ffc494898be80f8515156652df1a7ce"
+   ],
+   "native_r13_digest": "1a321aff73517f94cb0311cd4bf2d7d243c063d442fc4c9aa27c3f92e2ada228",
+   "diff_stat": "+3 / -1, 1 hunk against 049ddc18 (token frozen-r14)",
+   "classification": "gated-on-new-profiles",
+   "moves_a_receipt_byte": false,
+   "diff_file": "results/zk60_gate_tinyllama_20261017/round19/readings/tok-r14-r16b-tied_tables.rs.diff"
+  },
+  {
+   "file": "src/private_block/tied_tables/derive.rs",
+   "r16b_digest": "c5bec3c676e635aab1c609fdf2f541d003e14d7a50efc36d0fed42fc85b7d981",
+   "chain": [
+    "c5bec3c676e635aab1c609fdf2f541d003e14d7a50efc36d0fed42fc85b7d981",
+    "5cebeef0f0deea3973898648f87e1905ed87c76ddc6ceaf5a24ab742429a4f41"
+   ],
+   "native_r13_digest": "5cebeef0f0deea3973898648f87e1905ed87c76ddc6ceaf5a24ab742429a4f41",
+   "diff_stat": "+10 / -1, 1 hunk against 5cebeef0 (token frozen-r14 = native R13)",
+   "classification": "gated-on-new-profiles",
+   "moves_a_receipt_byte": false,
+   "diff_file": "results/zk60_gate_tinyllama_20261017/round19/readings/tok-r14-r16b-tied_tables_derive.rs.diff"
+  },
+  {
+   "file": "src/private_block/token_io.rs",
+   "r16b_digest": "2aabe64f8c9d4c9028f94af87d25dfddd44f0631ddb636616ec8679d09bed337",
+   "chain": [
+    "2aabe64f8c9d4c9028f94af87d25dfddd44f0631ddb636616ec8679d09bed337",
+    "3808d844490c2653ce4e7232eede59e70ec1dfcf840ce77806cbb56ab0e009c0",
+    "eda64c31babe2efabb47f4f843c8f9061506042d82d469309a2697987d5f5f11"
+   ],
+   "native_r13_digest": null,
+   "diff_stat": "+3 / -0, 1 hunk against 3808d844 (token frozen-r15)",
+   "classification": "test-only",
+   "moves_a_receipt_byte": false,
+   "diff_file": "results/zk60_gate_tinyllama_20261017/round19/readings/tok-r15-r16-token_io.rs.diff"
+  },
+  {
+   "file": "src/private_block/token_io/classify.rs",
+   "r16b_digest": "c180c83fb50f624d15ef9d17dae4195b53161a1131892ea0bb15b0761da99b1d",
+   "chain": [
+    "c180c83fb50f624d15ef9d17dae4195b53161a1131892ea0bb15b0761da99b1d",
+    "c23074e9db87563d610ebd65a4083cdddeda07744f86a4c3ddf00fa94d5b82c7",
+    "6c828db6673ec389eaa75eef7c543b378ce4f7693dbf70c0c999a6fe959a90ae"
+   ],
+   "native_r13_digest": null,
+   "diff_stat": "+21 / -7, 2 hunks against c23074e9 (token frozen-r16)",
+   "classification": "gated-on-new-profiles",
+   "moves_a_receipt_byte": false,
+   "diff_file": "results/zk60_gate_tinyllama_20261017/round19/readings/tok-r16-r16b-token_io_classify.rs.diff"
+  },
+  {
+   "file": "src/private_block/token_io/classify_run.rs",
+   "r16b_digest": "8abbf72f1c8e18bea1ac99e93a82562bca793afb4d94ed27dea24403850523f9",
+   "chain": [
+    "8abbf72f1c8e18bea1ac99e93a82562bca793afb4d94ed27dea24403850523f9",
+    "5d1d077f510202d17d76c7660a87a5cb6afd7254fc2fc450bf1a39577cb9ebd1"
+   ],
+   "native_r13_digest": null,
+   "diff_stat": "+15 / -1, 2 hunks against 5d1d077f (token frozen-r14 = r15)",
+   "classification": "gated-on-new-profiles",
+   "moves_a_receipt_byte": false,
+   "diff_file": "results/zk60_gate_tinyllama_20261017/round19/readings/tok-r14-r16b-token_io_classify_run.rs.diff"
+  },
+  {
+   "file": "src/private_block/token_io/classify_tied.rs",
+   "r16b_digest": "a89acfabc75c869c1f53d493a5caaa236af1a8df18ba6e30b1f3ab26167c4aaf",
+   "chain": [
+    "a89acfabc75c869c1f53d493a5caaa236af1a8df18ba6e30b1f3ab26167c4aaf",
+    "401d38d444b6ae2b69d19ab4b2e6a78996521e432303ea551d91889d43a6e76c"
+   ],
+   "native_r13_digest": null,
+   "diff_stat": "+39 / -3, 6 hunks against 401d38d4 (token frozen-r14 = r15)",
+   "classification": "gated-on-new-profiles",
+   "moves_a_receipt_byte": false,
+   "diff_file": "results/zk60_gate_tinyllama_20261017/round19/readings/tok-r14-r16b-token_io_classify_tied.rs.diff"
+  },
+  {
+   "file": "src/private_block/token_io/load.rs",
+   "r16b_digest": "67307f096ca4ea9dd12e182a9b173436fd0015e7367a3b444e5733d188a4ce79",
+   "chain": [
+    "67307f096ca4ea9dd12e182a9b173436fd0015e7367a3b444e5733d188a4ce79",
+    "a9b72811350e1042392b0a8b60bcffddcd01a6b8a39cfa32f97ce4f72cb030dc"
+   ],
+   "native_r13_digest": null,
+   "diff_stat": "+13 / -2, 2 hunks against a9b72811 (token frozen-r14)",
+   "classification": "identity-at-captured-profiles",
+   "moves_a_receipt_byte": false,
+   "diff_file": "results/zk60_gate_tinyllama_20261017/round19/readings/tok-r14-r16b-token_io_load.rs.diff"
+  },
+  {
+   "file": "src/private_block/token_io/run.rs",
+   "r16b_digest": "aae4b0ab9568f90150f78a1eaf68710c65b52e54ab2654e18452de279039117e",
+   "chain": [
+    "aae4b0ab9568f90150f78a1eaf68710c65b52e54ab2654e18452de279039117e",
+    "477cfc8ce45070ec44d846ff19e05045978d045396a1735aad0e5c56e3c1f439"
+   ],
+   "native_r13_digest": null,
+   "diff_stat": "+42 / -3, 2 hunks against 477cfc8c (token frozen-r14)",
+   "classification": "gated-on-new-profiles",
+   "moves_a_receipt_byte": false,
+   "diff_file": "results/zk60_gate_tinyllama_20261017/round19/readings/tok-r14-r16b-token_io_run.rs.diff"
+  },
+  {
+   "file": "src/private_block/trained_accuracy.rs",
+   "r16b_digest": "f47b1084574a36a160db6d81fc1a25dd43f4547d438653d5de53ec86826c66d7",
+   "chain": [
+    "f47b1084574a36a160db6d81fc1a25dd43f4547d438653d5de53ec86826c66d7",
+    null
+   ],
+   "native_r13_digest": "20d44812a1d38a37a1ad20cd5378a921633d35b8c11031d0fea0918bf52e21fa",
+   "diff_stat": "NEW at native R13 (read in full for the gate's purpose: entry points and their callers)",
+   "classification": "new-file",
+   "moves_a_receipt_byte": false,
+   "diff_file": "results/zk60_gate_tinyllama_20261017/round19/readings/nat-r13-tok-r16b-trained_accuracy.rs.diff"
+  },
+  {
+   "file": "src/private_block/trained_block.rs",
+   "r16b_digest": "dc6e8772bf80ff3d16dff49b416667cf92bf58148da60d8695004df01900ca07",
+   "chain": [
+    "dc6e8772bf80ff3d16dff49b416667cf92bf58148da60d8695004df01900ca07",
+    "f892dbc7d4de24d0a17945637107fb4e22a09d4e9a0bdc8520790352f121d06b"
+   ],
+   "native_r13_digest": "4ee6dccb5d788f4d99ad82ff7884ee4aa35d2b679d52a20f0cb3b72dd6d315ad",
+   "diff_stat": "+167 / -43, 38 hunks against f892dbc7 (token frozen-r14); = native R13 4ee6dccb + the token lane's hunks (+51 / -14 against native R13)",
+   "classification": "gated-on-new-profiles",
+   "moves_a_receipt_byte": false,
+   "diff_file": "results/zk60_gate_tinyllama_20261017/round19/readings/tok-r14-r16b-trained_block.rs.diff"
+  },
+  {
+   "file": "src/private_block/trained_statement.rs",
+   "r16b_digest": "f6be924c6b8625ae6a51649b843ab7d118f3925e248ee140d081b9e0bc23e9d4",
+   "chain": [
+    "f6be924c6b8625ae6a51649b843ab7d118f3925e248ee140d081b9e0bc23e9d4",
+    "7908d827889d5bb424b51cb470313c666533577b29fd45c78957db00963e6a1d"
+   ],
+   "native_r13_digest": "f6be924c6b8625ae6a51649b843ab7d118f3925e248ee140d081b9e0bc23e9d4",
+   "diff_stat": "+123 / -7, 10 hunks against 7908d827 (native R12b)",
+   "classification": "gated-on-new-profiles",
+   "moves_a_receipt_byte": false,
+   "diff_file": "results/zk60_gate_tinyllama_20261017/round19/readings/nat-r12b-r13-trained_statement.rs.diff"
+  },
+  {
+   "file": "src/private_block/witness.rs",
+   "r16b_digest": "7620447c30ecf111f47f44cd3cd8d75152fda753802fb99c74a873bf7e8c9625",
+   "chain": [
+    "7620447c30ecf111f47f44cd3cd8d75152fda753802fb99c74a873bf7e8c9625",
+    "a586b777c36c9fa5060d3dfa195a75ff0a2b7794a2521cad59aaf7f3f6144ec3"
+   ],
+   "native_r13_digest": "7620447c30ecf111f47f44cd3cd8d75152fda753802fb99c74a873bf7e8c9625",
+   "diff_stat": "+37 / -7, 2 hunks against a586b777 (native R12b)",
+   "classification": "identity-at-captured-profiles",
+   "moves_a_receipt_byte": false,
+   "diff_file": "results/zk60_gate_tinyllama_20261017/round19/readings/nat-r12b-r13-witness.rs.diff"
+  },
+  {
+   "file": "src/private_block/witness_accuracy.rs",
+   "r16b_digest": "8b03abadc73db1d46be642e32c83312c87e34bfa4d560ab8d8e2675b14abcf2a",
+   "chain": [
+    "8b03abadc73db1d46be642e32c83312c87e34bfa4d560ab8d8e2675b14abcf2a",
+    null
+   ],
+   "native_r13_digest": "8b03abadc73db1d46be642e32c83312c87e34bfa4d560ab8d8e2675b14abcf2a",
+   "diff_stat": "NEW at native R13 (read in full for the gate's purpose: entry points and their callers)",
+   "classification": "new-file",
+   "moves_a_receipt_byte": false,
+   "diff_file": ""
+  }
+ ],
+ "anything_that_moves_a_receipt_byte_at_a_previously_captured_profile": [],
+ "moves_only_outside_the_captured_profiles": [
+  "NEW profiles only: the twelve R13 block / run profiles, the two R13 Shieldstral classifier run profiles and the test-only R13 rung classifier profile; their shapes (AccuracyIds plane lists, R13 lookups, the seven redefined slot relations, multiplier folds in the matmul public tables, the group column, the ACT3 table), the schema-/2 export, the per-layer G in records / identities / stage lines, the R13 whole-run term, the moderate policies and the N-r13-5 derivation reuse."
+ ],
+ "capture_metadata_changes": [
+  "every bundle's source_pins: + the twelve R13 accuracy modules (OWN_SOURCE_FILES 26 -> 38)",
+  "run.json's shape.slots: exactly n_slots = 23 triples (F18-1, token round 15)"
+ ],
+ "classifier_level_changes": [
+  "policies (D45(2)): production list at r16b = [rung dev (V 300), moderate-sexual/1, moderate-violence/1, moderate-hate/1]; the card policy is #[cfg(test)] (r16 admitted it at both R13 Shieldstral profiles: REVIEW_R16 F-1); P0 72 / 72 / 78, suffix [4], num_special 1000, yes 13059, no 2649, c 0, pad 11, V 131072, margin_scale_bits 0x3ed11ff597db2fb6 (4.08288030735373e-6); chunk size T - P0 - S = 55 / 55 / 49 at T128, 183 / 183 / 177 at T256; overlap 8 at both Shieldstral profiles, 4 at the rung and the test rung",
+  "run profiles: hashline-zk-mr1/private-classify-run-shieldstral-3b-t{128,256}-r13-public-row/1 (CS-7 over R13_SHIELD_T{128,256}_H24), test-only hashline-zk-mr1/private-classify-run-rung-lh-t32-public-row-tst/1 (over R13_RUNG_H24, tied source DevRung)",
+  "stage_shape(k): at R13 the seed shape (G 17) with_accuracy_gate_shift(G_k) from the layer record; the stage line gains '; R13 gate denominator {G_k} (the layer record's accuracy-gate-layer)'; the model identity encodes accuracy-gate-layer per R13 layer",
+  "the run header's layout_description and the schedule digest use Layout::for_shape(SEED shape): the calibration line 'calibration: R13 stack=LowH24 registry=... gate-common=17 precision=...' names the SEED's G, never a stage's; the per-stage G is visible only in the stage lines (and the identity)",
+  "the verifier's pre-header stage pass (R13 only): every block against its own stage shape before the header (no transcript byte; one more block-load pass)",
+  "whole-run figure: off Legacy the block term is l * (N + 4 T_d - 1) with T_d = 512 + 4096 * 4 (+|Dd|), stage OUT-C's legacy (N + 3R - 1); T128 floor 96, T256 floor 95 (r16b tests pin them); the parameter line's whole-run-floor-{b}-bits-{openings} moves with it",
+  "N-r13-5: one checkpoint stream per command; the tied derivation reused only at the bound (yes, no, scale bits)",
+  "NO change: the classify statement schema zk60-classify-run/3 (classify_cli.rs:110), the profile text format (describe_under), kappa / is_template / chunk_ranges, stage_in_c.rs / stage_out_c.rs (6a92da0e / 93a79a2b), run_capture's ALLOWED_KEYS (identical r14 -> r16b), ClassifyFacts and write_run_classify (run.json's `classify` keys), CLASSIFY_SOURCE_FILES [5] (classify.rs, classify_tied.rs, classify_run.rs, stage_in_c.rs, stage_out_c.rs)",
+  "capture metadata: OWN_SOURCE_FILES 38 (twelve R13 modules: 4 first, 8 last), so an r16b bundle carries 60 + 12 = 72 source pins (CORE/SHARED unchanged); F18-1: run.json shape.slots has exactly 23 triples",
+  "run.json's `shape` object has NO accuracy field (no stack, registry or G: run_capture.rs:2743-2787); an R13 capture shows R13 only through block_profile / shape.profile, layout_description, the stage lines and the parameter line"
+ ],
+ "classify_ported_from_v22_suggested": {
+  "src/private_block/token_io/classify.rs": "c180c83fb50f624d15ef9d17dae4195b53161a1131892ea0bb15b0761da99b1d",
+  "src/private_block/token_io/classify_run.rs": "8abbf72f1c8e18bea1ac99e93a82562bca793afb4d94ed27dea24403850523f9",
+  "src/private_block/token_io/stage_in_c.rs": "6a92da0ecfe736537f859bcde5eb3fb89c0852e8d06dfe7f21e0feb9c4bbe6ff",
+  "src/private_block/token_io/stage_out_c.rs": "93a79a2b39ab1eb70442b6ee7f0d949cfbf20f7c84b660ec4aa4ebe2ef7a564a",
+  "src/private_block/token_io/classify_tied.rs": "a89acfabc75c869c1f53d493a5caaa236af1a8df18ba6e30b1f3ab26167c4aaf"
+ },
+ "open_questions": [
+  "R19-PIN-1 (capture blocker, [READ]): plane_index.rs (13a7dd6f, #[cfg(test)], unchanged since R12b) names A planes with the LEGACY segment table (79 names at an R13 shape with limbs_norm forced to 3, limbs_p 2, limbs_sigma_s 3; 77 at ls 2) while Ids at an R13 shape is AccuracyIds (109 A planes at LOW+h24 non-DD, ls 3, 107 at ls 2: T 4, Ht 2, L 2, D 39, Q 14, Kv 14, S 15, F 16, Tab 3).  `plane_index::build` refuses on the count, and run_capture's recorder fails every R13 block stage ('replay: the plane index does not build at stage k', run_capture.rs:981 / 1137 / 1277).  Even with R13 names, its hand-written legacy push order differs from the R13 definitions: SC_DZC (legacy range A_X..A_RDL; R13 pushes the whole D domain X..X2L1, whose order is ...Z, ZL, RDL x3, X2, X2L), and SC_FZC at LOW (A_RH1 is not the last RH limb).  No R13-stack bundle can be written by frozen-r16b's recorder; an R13 plane-index port (AccuracyIds.names exists, accuracy_layout.rs) is needed in the gate's capture tree (a test-only module, but a SOURCE PIN) or by the token / native lane.",
+  "run.json carries no accuracy fields; the port must read each block stage's G from the stage lines ('R13 gate denominator G') or the trained statement, and the seed G (17) from layout_description.",
+  "The redefined R13 slots draw in a different ORDER from the legacy ports' assumption (tau first): SC_DZC, SC_FZC, SC_QZC / SC_KVZC draw mu, nu, zeta and THEN tau (argument_accuracy.rs dzc / fzc / qzc); SC_SZC (R13) draws tau, mu, nu, zeta; SC_TAB tau, mu, zeta; SC_DD tau, mu.",
+  "frozen-r16b is UNREVIEWED by its freeze note (the r16b check is to follow); R19_BUNDLES is empty until the parent captures.",
+  "native R13's derive.rs (5cebeef0) equals token frozen-r14's, already read in v21 (DERIVE_T14).",
+  "Not pinned, so read only for context: classify_cli.rs t14 c1862e4b -> t15 8eddafc9 -> t16 = t16b b3b661b5 (round 15's label --expect-total; round 16's R13 export loading, build_for_block and stage shapes); its statement schema stays zk60-classify-run/3."
+ ],
+ "r13_block_changes_for_the_port": {
+  "what": "where native R13 changes the BLOCK stage a verifier sees at an R13 shape (for the block-port sub-lane); file:line in the native R13 frozen tree unless a token path is named [READ]",
+  "profiles": {
+   "block": "shape.rs:183-194 (twelve R13_* strings), ACCURACY_PROFILES shape.rs:200-213, accuracy_spec shape.rs:214; stack/registry are profile facts (accuracy_stack shape.rs:664)",
+   "r13_rung_h24": "hashline-zk-mr1/private-block-rung-lh-t32-dev/1: T 32, width 384, hidden 768, q_heads 16, head_dim 64, kv_heads 8, log_cols 14, LowH24, Registry::Standard (legacy twin rung-hd)",
+   "shieldstral_t128": "hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/1: T 128, width 3072, hidden 9216, q 32 x 128, kv 8, log_cols 14, LowH24, Registry::Shieldstral"
+  },
+  "slot_list": {
+   "n_slots": "unchanged: N_SLOTS 23 (+1 at DD), shape.rs:2600; m_rows 2 n_slots + 4 = 50; n_functionals 34 (+2 at DD) shape.rs:2609",
+   "redefined_slots": "argument_accuracy.rs:11-27 define_changed: SC_DZC 14 (dzc :29-72), SC_FZC 18 (fzc :74-108), SC_QZC 15 / SC_KVZC 16 (qzc :110-143), SC_SZC 17 (szc :205-328 non-DD; szc_dd :145-203 DD), SC_DD 23 (dd :330-395, DD only), SC_TAB 19 (tab :397-425); every other slot runs argument.rs's legacy body (define, argument.rs:1181-1185)",
+   "degrees_rounds": "slots() (n, e, d) shape.rs:2370ff not changed by R13 (the R13 polynomials are tested to stay within the declared degree: argument_accuracy.rs tests 'accuracy_native_polynomials_obey_declared_degree_and_extension_zero_property')",
+   "draw_order": "DZC / FZC / QZC / KVZC draw mu, nu, (zeta), THEN tau (argument_accuracy.rs:34-36, :79-81, :115-117); SZC (non-DD) draws tau, mu (5 + n_help + 1 + n_pad), nu 2, zeta (:214-218); TAB tau, mu (3 + pad), zeta (:403); DD tau, mu (:343-346). Draw counts: DZC mu 13 + n_help + pad, FZC mu 4 + n_help + pad, QZC mu 4 + n_help + pad, each nu 2"
+  },
+  "claim_sites": "shape.rs:2309-2351 unchanged code over R13 counts: DZC a_planes_on(D) + 2 A / helpers(D) H; QZC a_planes_on(Q) + 1; KVZC a_planes_on(Kv) + 1; SZC a_planes_on(S) + 2 / helpers(S) + 1; FZC a_planes_on(F) / helpers(F) + 1; TAB 3 / 3",
+  "a_planes": {
+   "doms": "shape.rs:2205-2212: T 4, Ht 2, L 2, D 39 (h24) / 38 (LOW), Q 14, Kv 14, S 9 + 2 ls (non-DD) / 7 (DD), F 16, [Dd 4 + 2 ls at DD], Tab 3 -> 109 at LowH24 non-DD ls 3 [COUNTED]",
+   "names_and_order": "accuracy_layout.rs:39-96 AccuracyIds::new (names in `names`): T D DSQ DM DSQM; Ht MX SUM; L LIMB LIMBM; D X XL0 XL1 Y YL0 YL1 NR0-2 NS0-2 AO AL0 AL1 RAL0-2 X1 X1L0 X1L1 YM YML0 YML1 MR0-2 MS0-2 Z ZL0 ZL1 RDL0-2(h24; 0-1 LOW) X2 X2L0 X2L1; Q Q QL0 QL1 RQL0 RQL1 QR QRL0 QRL1 RQRL O OL0 OL1 RO0 RO1; Kv K KL0 KL1 RKL0 RKL1 V VL0 VL1 RVL0 RVL1 KR KRL0 KRL1 RKRL; S S RSL0-2 ZSEL E P PL0 PL1 SR0..ls-1 SG0..ls-1; F G RGL0-2 A_SCALED U UL0 UL1 RU0 RU1 H HL0-2(h24; 0-1 LOW) RH0-1(h24; 0-2 LOW); Tab MU8 MEXP MACT. Legacy toy ids map onto these (map), e.g. A_RDL -> RDL0, A_RH0/1 -> RH0/1; NOTE the D-domain ORDER differs from legacy (legacy: ... Z16, X2, X2L0, X2L1, ZL0, ZL1, RDL)",
+   "limb_roles": "accuracy_layout.rs:7-12 Limbs; role(b, ids, group) = b.tab(limb plane) over a_range's shaped map (argument_accuracy.rs:5-9)"
+  },
+  "lookups": "accuracy_layout.rs:109-170 (layout.rs:818-820 returns them off Legacy): per domain the byte limbs of each word / remainder group and ONE exact top-bit pin Lk{(top limb, 1 << (8 count - bits))} for Rao (precision.ao), Rd (down), Rq (q), Rqr (SH_ROPE), Ro (pv), Rk (k), Rv (v), Rkr (SH_ROPE), Rg (the STAGE's gate shift G), Ru (up), Rs (score), P (f_p + 1 = 13), Sr / Sg (wrho_s); S also s + 127 and 127 - s first. lookups_per_position shape.rs:2243-2247: L 2, D 34 (h24) / 33, Q / Kv / F 14, S 11 + 2 ls (non-DD) / 6 (DD), Dd 5 + 2 ls; helpers = div_ceil(2) shape.rs:2276 -> L 1, D 17, Q 7, Kv 7, S 9 (ls 3), F 7",
+  "public_tables_per_slot": {
+   "SC_DZC": "eq(tau_D), eq(p_a), eq(p_z); public gamma_a lifted (i % d_pad), public gamma_m; A: the whole D range (39) then A_D, A_DM (log t_pad, Dom::T slices); H: H_D x n_help; supp(D) when it pads; hosts SC_WO (nu0) and SC_DMM (nu1); constants 2 Cn_a, 2 Cn_m, 2^tn', 2^(tn'+1), 2^precision.ao, 2^precision.down (argument_accuracy.rs:29-72)",
+   "SC_FZC": "eq(tau_F), eq(p_g), eq(p_u); A: the whole F range (16); H: H_F x n_help, H_FACT; public GROUP COLUMN (accuracy_act.rs:33-41: gid of channel j at t * f_pad + j, 0 at pads); supp(F); ACT3 query (g + 2048) + beta a + beta^2 gid + g_act; product shift r = data.folds().product.shift, gate host 2^G (the stage's accuracy_gate_shift), up host 2^precision.up; hosts SC_GMM, SC_UMM (:74-108)",
+   "SC_QZC/SC_KVZC": "eq(tau), eq(pq | pk), eq(p_o | pv); public rope cos, sin (rope_tables_at); A: the whole domain range then the flipped source (a_at with Coord::Flip on the head_dim coordinate); H helpers; supp; RoPE clause with SH_ROPE; hosts QMM/PV and KMM/VMM at precision.q/pv and k/v (:110-143)",
+   "SC_SZC": "non-DD: eq(tau_S), eq(p_ht), eq(p_s); public causal mask; A: S8 .. SG(ls-1) range, then MX, SUM (Ht slices); H: H_S x n_help, H_SEXP; supp(Ht) lifted and supp(S); grouped (3 equality groups); host_s with 2^precision.score and the Rs limbs; b_fp 2^f_p (f_p 12) (:205-328)",
+   "SC_TAB": "eq(tau_Tab); A_MU8, H_GU8, public u8 table; A_MEXP, H_GEXP, public exp table; A_MACT, H_GACT, public ACT3 compressed table (accuracy_act.rs:13-31: 4096 G rows i + beta T_g[i] + beta^2 g + g_act, rows beyond 4096 G = 2048 + g_act with support 0); when pad_on: supp(Tab) and the public ACT support indicator (act.support), pad groups [1,4],[2,5] by supp and [7],[8] by the ACT support (:397-425)",
+   "matmul_slots": "SC_QMM/KMM/VMM/WO (argument.rs:1354-1363) and SC_GMM/UMM/DMM (:1495-1504): the public fold is accuracy_fold::fold(w, rows, cols, Axis, coefficients(sh, data, site), eq) = fold of the weights with eq(r_j) * m_j (multipliers at Boolean output channels; Q through the head-slot permutation; Gate = folds().gate.multipliers c_j = m_j 2^(G - s_j); zero at padded channels) (accuracy_fold.rs:16-57)"
+  },
+  "gate_shift_G": "Shape.accuracy_gate_shift (shape.rs:653; 17 at Shape::build of an R13 profile = the run SEED, with_accuracy_gate_shift 17..=24); per layer LayerRecord.accuracy_gate_shift (trained_statement.rs:417), encoded 'accuracy-gate-layer' in the identity (:895); the stage shape = seed.with_accuracy_gate_shift(G_k) (token classify.rs stage_shape); G enters FZC's host 2^G, the Rg top-bit pin, the Gate fold coefficients and the schedule's calibration line",
+  "what_run_capture_records": "token r16b run_capture.rs:2736-2790 write_run_classify: run.json `shape` = name, profile, tokens, width, hidden, q/kv heads, head_dim, pads, log_cols, cols, rates, opened_cols, f_e, endpoint_*, norm_wrho, wrho_s, slots (take(N_SLOTS)), a_groups, h_groups, n_slots -- NO accuracy stack / registry / G / precision key; layout_description = Layout::for_shape(SEED).describe() (its calibration line names R13 stack, registry, base, gate-common = the SEED's 17, precision: layout.rs:1502-1503); stage_lines carry '; R13 gate denominator G_k'; the block plane index is built by plane_index::build(stage layout) per block stage and compared byte for byte (run_capture.rs:1277-1292)",
+  "BLOCKER_R19_PIN_1": "plane_index.rs (#[cfg(test)] recorder module, 13a7dd6f, unchanged since R12b) builds names from the LEGACY a_segments table (plane_index.rs:124-191) and a hand-written LEGACY slot push order (slot_planes :333-436). At an R13 shape Ids = AccuracyIds (layout.rs:363-367), 109 A planes vs 79 legacy names (ls 3) -> plane_index::build returns Err (:241-244) -> run_capture fails the stage ('replay: the plane index does not build at stage k'). Even with names fixed, SC_DZC's legacy range A_X..A_RDL misses RDL1-2, X2, X2L0-1 at R13, and FZC's A_G8..A_RH1 is short at LOW. No R13 block stage can be captured by frozen-r16b's recorder; an R13 plane index (names from AccuracyIds.names; push orders mirroring argument_accuracy's B calls) is needed first.",
+  "receipt_level_reference": "REVIEW_R13 \u00a7\u00a72-4 (relations, windows, group protocol), \u00a76 (bits; per-block term (N + 4 T_d - 1)/p^2)"
+ },
+ "cited_not_relied_on": [
+  "REVIEW_R13.md \u00a71 (existing profiles byte-identical, 9/9 golden lines)",
+  "REVIEW_R16.md \u00a72, \u00a77 (rebase, r15<->r16 cross-verify, identity 061340df unchanged)",
+  "frozen-r16b.FROZEN.txt (no statement byte of the moderate policies moved; rung xbin both ways)"
+ ],
+ "privacy_acceptance": false
+}

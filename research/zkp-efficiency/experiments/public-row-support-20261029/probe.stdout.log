@@ -1,0 +1,1 @@
+{"status":"PASS","seed":202610290148,"fixtures":81,"h_sum_fixtures":3,"reserved_row_checks":4752,"independent_dense_coefficients":405216,"independent_message_plus_pad_fold_values":5049,"restored_order_values":5049,"dense_proximity_fixtures":81,"audit_refusals":7,"negative_controls":164,"elapsed_s":0.026539017,"full_stack_proofs":0,"model_passes":0,"proved_positions":0}

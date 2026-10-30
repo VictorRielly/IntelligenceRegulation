@@ -1,0 +1,46 @@
+{
+  "owner_priorities": [
+    {
+      "rank": 1,
+      "title": "Owner whole-prover high-end GPU plus verified fixed-context resident1/2/4/8"
+    },
+    {
+      "rank": 2,
+      "title": "REFINED owner DD larger-context scaling after measured T128 null result"
+    },
+    {
+      "rank": 3,
+      "title": "REFINED tested public-role exclusive FZC clocks before allocator/capacity changes"
+    }
+  ],
+  "highest_feasible_local": {
+    "rank": 79,
+    "title": "TESTED current R14 public layout repin; historical group provenance and fresh-proximity max4 boundary",
+    "baseline": "Previous representation experiments used frozen R13 8B/T128 A4577/H4390 without DD. R14 is an explicit Shieldstral3072/9216 T128/T256 prototype. No native exclusive fold clocks.",
+    "eliminated_work": "No native work removed. Eliminates invalid cross-profile row/count transplantation and undercounting rho vectors/batches by omitting fresh proximity.",
+    "added_costs": "Public source extraction and standalone metadata constructor/reference validation. All per-proof masks/pads/proximity, transfers, allocation, serialization, verification and setup remain recurring unless separately measured otherwise.",
+    "prerequisites": "Current source pins, owner profile/reviews/admission and exclusive device/enclosing clocks. Historical generic-point group counts have drifted producer files; current native define/groups not executed here.",
+    "integration_cost": "Low-cost read-only public counters at fold_rows_multi_zk/EncodedStore::fold_rows/dev_fold_rows; owner applies under current locks. No production patch or native build.",
+    "exactness": "12 T128/T256 x DD/nonDD x fe9/12/16 layouts: unchanged extracted SplitLayout and13Shape method bodies match independent Python block/prefix-sum metadata and recorded native inventory.11251assertions,132extracted-native and120Pythonnegative controls. Native arithmetic/FS/PCS/receipts/privacy unrun.",
+    "privacy_soundness": "Public geometry only; every reserved mask pair, external spare and fresh proximity counted. No hidden input/activation/model data, mask reuse or changed functional. Constructor/reference checks are not privacy acceptance.",
+    "compatibility": "R14 actual-working-tree public metadata only. split_profile admits four Shieldstral names, not8B. Data/mask/proximity source files match held manifest; four historical census producer files differ.",
+    "end_to_end_ceiling": "No numerical GPU8B forecast. N/(T-C_removed_exclusive+A_added), free deletion<=1/(1-f) with measured exclusive f unknown. Historical conditional source operands and metadata are not physical traffic or time.",
+    "falsification": "Reject inherited profile/counts on row/source mismatch. Current group/refusal/claim-source/limb/order/RNG/FS/PCS drift, omitted endpoint/proximity, or slower enclosing verified workload rejects promotion.",
+    "disposition": "Repin succeeds as exact geometry/cost-accounting evidence; no native proving improvement. Keep actual current groups and device phases unmeasured."
+  },
+  "next_local": {
+    "rank": 80,
+    "title": "NEW five-vector final fold batch to absorb fresh proximity at a max4 batch boundary",
+    "baseline": "Current CUDA k_fold_rows FR_MAX_K4 and dev_fold_rows<=4. Historical R14 generic groups56/11(nonDD),58/12(DD), so rhos57/12 and59/13. Current full-run group distributions unknown.",
+    "eliminated_work": "At a public rho_count=4m+1 with m>=1, replacing the last4+1 by5 can conditionally avoid one complete systematic matrix scan and one kernel dispatch per opening; same rho operands and ordered outputs. No native savings yet.",
+    "added_costs": "A fifth Fp2 accumulator, register/occupancy/spill risk, adapter/launch changes, public batch choice and complete validation. No reduction in masks, pads, coefficient uploads, proximity, openings or verification.",
+    "prerequisites": "First bounded host differential of exact Goldilocks Fp2 folds with independent dot-product oracle; include full mask/proximity rows and odd widths. Owner actual group counters and exclusive fold clocks precede any native/GPU integration.",
+    "integration_cost": "Small research-only tail planner/reference next cycle; moderate explicit CUDA max5-tail route and native byte/refusal/privacy gates later. Never change held owner sources.",
+    "exactness": "Untested optimization. Planned seed-controlled synthetic k1..5 full-limb/dense/sparse rows plus overflow/shape/missing-proximity controls; same output order for repeated4 vs tail5. Native FS/PCS parity still owed.",
+    "privacy_soundness": "Public shape/count scheduling only. All fresh per-proof randomness and proximity maintained. No reordering challenge draws, claims, pads or outputs; no adaptive scheduling on private values.",
+    "compatibility": "fold_rows_multi_zk chunks4 -> EncodedStore::fold_rows -> dev_fold_rows -> k_fold_rows; currently rejects5. New research sketch only; acceptance requires explicit owner review.",
+    "end_to_end_ceiling": "At T128 historical generic counts, avoided logical matrix reads would be461373440B (A/nonDD) or408420352B (H/DD). These are source operands only. Exclusive f unknown; extra registers/cache/transfers can erase any saving. No GPU rate forecast.",
+    "falsification": "Any exact-limb/output/order/refusal mismatch, absent tail1 groups, spills or slower enclosing fold/proof, or no material exclusive fold fraction. CPU timing cannot establish GPU benefit.",
+    "disposition": "Next local experiment. Owner verified high-endGPU resident workloads and exclusive phase clocks remain higher priority."
+  }
+}

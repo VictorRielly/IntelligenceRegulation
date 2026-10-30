@@ -1,0 +1,15 @@
+{
+ "batch-c0": {
+  "receipt": true,
+  "statement": true,
+  "owner": true,
+  "files": 30
+ },
+ "batch-c1": {
+  "receipt": true,
+  "statement": true,
+  "owner": true,
+  "files": 30
+ },
+ "ok": true
+}

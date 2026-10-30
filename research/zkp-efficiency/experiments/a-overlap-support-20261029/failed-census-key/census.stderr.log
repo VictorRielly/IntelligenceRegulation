@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/census.py", line 92, in <module>
+    row=meta['native_census'];check(p['rows']==row['a_rows']);check(site==row['a_sites']);check(data==row['a_mask_base']);check(row['a_groups']==len(sets)-1)
+KeyError: 'a_groups'

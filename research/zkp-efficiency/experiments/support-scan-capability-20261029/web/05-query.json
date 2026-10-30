@@ -1,0 +1,17 @@
+{
+  "open": [
+    {
+      "ref_id": "https://arxiv.org/abs/2609.10149"
+    },
+    {
+      "ref_id": "https://arxiv.org/html/2609.10149v1"
+    },
+    {
+      "ref_id": "https://github.com/SPIRE-GMU/sum_cats"
+    },
+    {
+      "ref_id": "https://github.com/THU-HAS/MegaZK/commit/main"
+    }
+  ],
+  "response_length": "long"
+}

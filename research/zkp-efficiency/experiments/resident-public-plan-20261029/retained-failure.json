@@ -1,0 +1,6 @@
+{
+  "failure": "Harness changed data[0], but synthetic slices start at offset3. It was correctly ignored; negative control targeted an unread word.",
+  "location": "harness.rs private-data freshness negative control",
+  "candidate_arithmetic_mismatches_observed": 0,
+  "correction": "Mutate data[p.slices[0].0], a word actually read. Original logs and harness retained."
+}

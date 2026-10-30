@@ -1,0 +1,12 @@
+{
+  "top3": [
+    1,
+    2,
+    3
+  ],
+  "refined": 103,
+  "new_demoted": 105,
+  "total": 105,
+  "prior_hypotheses_preserved": 104,
+  "reason": "Selected LOW+h24 dispatch invalidates legacy-only promotion; full scalar counts reject tiny cubes. Prioritize actual relation/phase evidence."
+}

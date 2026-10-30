@@ -1,0 +1,1084 @@
+diff -ruN /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r17/hashline/examples/zk60_classify.rs /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r18/hashline/examples/zk60_classify.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r17/hashline/examples/zk60_classify.rs	2026-10-29 09:24:16.059127607 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r18/hashline/examples/zk60_classify.rs	2026-10-30 02:17:26.291944787 -0700
+@@ -12,6 +12,15 @@
+ //!   zk60_classify input-owner  (verify's arguments) --decommitment FILE --content-file FILE|-
+ //!   zk60_classify label        --export DIR --tables DIR --policy ID --runs DIR,DIR,...
+ //!                              --expect-statement HEX --expect-total N [--label L] [--min-bits N]
++//!   zk60_classify prove-batch  --export DIR --tables DIR --content-file FILE --batch-file FILE
++//!                              [--label L]
++//!
++//! TOKEN ROUND 18 (A5): `prove-batch` proves one post's whole plan (the three
++//! moderate categories, every chunk once) after ONE model / table load; each
++//! job is a `prove` with its own fresh randomness; one post per process; a
++//! refused batch leaves no receipt, statement or owner file of any job. It
++//! never verifies (`verify` / `input-owner` / `label` decide, in fresh
++//! processes). See `src/private_block/token_io/classify_batch.rs`.
+ //!
+ //! `--tables` holds `token_io.json` + `embedding_int16.bin` and
+ //! `classifier.json` + `margin_int16.bin` (and, at the development rung, the
+@@ -52,12 +61,13 @@
+ fn main() {
+     let args: Vec<String> = std::env::args().skip(1).collect();
+     let code = match args.first().map(String::as_str) {
++        Some("prove-batch") => hashline::private_block::classify_prove_batch_command(&args[1..]),
+         Some("prove") => hashline::private_block::classify_prove_command(&args[1..]),
+         Some("verify") => hashline::private_block::classify_verify_command(&args[1..]),
+         Some("input-owner") => hashline::private_block::classify_input_owner_command(&args[1..]),
+         Some("label") => hashline::private_block::classify_label_command(&args[1..]),
+         _ => {
+-            eprintln!("usage: zk60_classify prove|verify|input-owner|label ... (see the header of examples/zk60_classify.rs)");
++            eprintln!("usage: zk60_classify prove|prove-batch|verify|input-owner|label ... (see the header of examples/zk60_classify.rs)");
+             2
+         }
+     };
+diff -ruN /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r17/hashline/src/private_block/hash_domain_tests.rs /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r18/hashline/src/private_block/hash_domain_tests.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r17/hashline/src/private_block/hash_domain_tests.rs	2026-10-29 09:24:16.062305663 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r18/hashline/src/private_block/hash_domain_tests.rs	2026-10-30 02:17:26.295442366 -0700
+@@ -365,7 +365,7 @@
+         assert!(!u.label.is_empty() && !u.site.is_empty() && !u.data.is_empty(), "the table entry for `{}` is incomplete", u.label);
+     }
+     let table: Vec<String> = entries.iter().map(|u| u.label.to_string()).collect();
+-    let lane: [(&str, &str); 36] = [
++    let lane: [(&str, &str); 39] = [
+         ("argument_accuracy.rs", include_str!("argument_accuracy.rs")),
+         ("accuracy_act.rs", include_str!("accuracy_act.rs")),
+         ("accuracy_fold.rs", include_str!("accuracy_fold.rs")),
+@@ -405,7 +405,27 @@
+         ("token_io/classify_run.rs", include_str!("token_io/classify_run.rs")),
+         ("token_io/stage_in_c.rs", include_str!("token_io/stage_in_c.rs")),
+         ("token_io/stage_out_c.rs", include_str!("token_io/stage_out_c.rs")),
++        // TOKEN ROUND 18 (REVIEW A5 finding 2): the classifier CLI and its two
++        // `#[path]` files (`prove-batch` and its preflight). They absorb
++        // nothing today; a literal label added to any of them fails here
++        ("token_io/classify_cli.rs", include_str!("token_io/classify_cli.rs")),
++        ("token_io/classify_batch.rs", include_str!("token_io/classify_batch.rs")),
++        ("token_io/classify_batch_plan.rs", include_str!("token_io/classify_batch_plan.rs")),
+     ];
++    // TOKEN ROUND 18 (REVIEW A5 finding 2), FAIL-CLOSED: every production
++    // `#[path]` child of a scanned file is itself in the list (s25's reader,
++    // resolved beside the declaring file), so a new one cannot sit unscanned
++    let names: Vec<&str> = lane.iter().map(|(n, _)| *n).collect();
++    let mut followed = 0usize;
++    for (name, src) in lane {
++        let cut = src.find("\n#[cfg(test)]\nmod tests {").map(|k| k + 1).unwrap_or(src.len());
++        for child in super::super::s25_tests::path_children(name, &src[..cut]) {
++            assert!(names.contains(&child.as_str()), "{name} declares the production `#[path]` child {child}, which this label scan does not read (REVIEW A5 finding 2)");
++            followed += 1;
++        }
++    }
++    // argument -> argument_accuracy, witness -> witness_accuracy, classify_cli -> classify_batch -> classify_batch_plan
++    assert_eq!(followed, 4, "the scanned files' production `#[path]` children moved");
+     // TOKEN I/O ROUND 12: the classifier header's two labels are absorbed ONLY
+     // by a classifier run's header (`ClassifyRunStatement::transcript`) and by
+     // the run capture's rebuild of that header; the shared table, and so every
+diff -ruN /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r17/hashline/src/private_block/s25_tests.rs /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r18/hashline/src/private_block/s25_tests.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r17/hashline/src/private_block/s25_tests.rs	2026-10-29 09:24:16.065051857 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r18/hashline/src/private_block/s25_tests.rs	2026-10-30 02:17:26.298608795 -0700
+@@ -1652,9 +1652,87 @@
+     // therefore on the block's path, although it lives outside this module
+     // and outside this lane's write set
+     out.push(("src/private_seam.rs".to_string(), source("src/private_seam.rs")));
++    // TOKEN ROUND 18 (REVIEW A5 finding 2): every scanned production file's own
++    // PRODUCTION `#[path]` children are scanned too, transitively. Before it,
++    // `token_io/classify_batch.rs` (a `#[path]` child of `classify_cli.rs`:
++    // the `prove-batch` command) and its child `classify_batch_plan.rs` were
++    // read by no scan here. FAIL-CLOSED: the `#[path]` edges found must be
++    // exactly the enumeration below, so a new one anywhere on the path fails
++    // this until it is read and listed (and it is scanned the moment it exists).
++    let mut edges: Vec<(String, String)> = Vec::new();
++    let mut k = 0;
++    while k < out.len() {
++        let (file, text) = (out[k].0.clone(), out[k].1.clone());
++        for child in path_children(&file, production_text(&text)) {
++            if !out.iter().any(|(p, _)| *p == child) {
++                let t = source(&child);
++                out.push((child.clone(), t));
++            }
++            edges.push((file.clone(), child));
++        }
++        k += 1;
++    }
++    edges.sort();
++    let want: Vec<(String, String)> = [
++        ("src/private_block/argument.rs", "src/private_block/argument_accuracy.rs"),
++        ("src/private_block/token_io/classify_batch.rs", "src/private_block/token_io/classify_batch_plan.rs"),
++        ("src/private_block/token_io/classify_cli.rs", "src/private_block/token_io/classify_batch.rs"),
++        ("src/private_block/trained_block.rs", "src/private_block/trained_accuracy.rs"),
++        ("src/private_block/witness.rs", "src/private_block/witness_accuracy.rs"),
++    ]
++    .iter()
++    .map(|(a, b)| (a.to_string(), b.to_string()))
++    .collect();
++    assert_eq!(edges, want, "the production `#[path]` children on the path moved (REVIEW A5 finding 2): read each new one, then list it here");
+     out
+ }
+ 
++/// TOKEN ROUND 18 (REVIEW A5 finding 2): the PRODUCTION `#[path]` children a
++/// source file declares — `#[path = "x.rs"] mod m;`, any visibility, with no
++/// `cfg(test)` among the attribute lines directly above the `mod` line —
++/// resolved as rustc resolves a `#[path]` outside any inline module: beside
++/// the declaring file. An inline `mod m { ... }` is not a file child.
++pub(super) fn path_children(file: &str, text: &str) -> Vec<String> {
++    let dir = file.rfind('/').map(|k| &file[..k]).unwrap_or("");
++    let lines: Vec<&str> = text.lines().map(str::trim).collect();
++    let mut out = Vec::new();
++    for (j, &l) in lines.iter().enumerate() {
++        let t = l.strip_prefix("pub(crate) ").or_else(|| l.strip_prefix("pub(super) ")).or_else(|| l.strip_prefix("pub ")).unwrap_or(l);
++        let Some(rest) = t.strip_prefix("mod ") else { continue };
++        if !rest.ends_with(';') {
++            continue;
++        }
++        let (mut path, mut test_only, mut a) = (None, false, j);
++        while a > 0 && lines[a - 1].starts_with("#[") {
++            a -= 1;
++            let attr = lines[a];
++            test_only |= attr.contains("cfg(test)");
++            if let Some(v) = attr.strip_prefix("#[path").map(str::trim_start).and_then(|r| r.strip_prefix('=')).and_then(|r| r.trim().strip_suffix(']')) {
++                path = Some(v.trim().trim_matches('"').to_string());
++            }
++        }
++        if let (Some(p), false) = (path, test_only) {
++            out.push(if dir.is_empty() { p } else { format!("{dir}/{p}") });
++        }
++    }
++    out
++}
++
++/// NON-VACUITY of [`path_children`] (token round 18): a production child is
++/// found in both spellings and under any visibility; a `cfg(test)` child is
++/// skipped whichever attribute comes first; a plain `mod` and an inline
++/// module are not `#[path]` children; and on the real `classify_batch.rs` it
++/// finds the plan file and skips the round's test module.
++#[test]
++fn r18_the_path_child_reader_finds_production_children_and_skips_test_ones() {
++    let text = "use x;\n#[path = \"a.rs\"]\nmod a;\n#[cfg(test)]\n#[path = \"b_tests.rs\"]\nmod b;\n#[path=\"c.rs\"]\npub(super) mod c;\n#[path = \"d.rs\"]\n#[cfg(test)]\nmod d;\nmod e;\n#[path = \"f.rs\"]\nmod f { }\n";
++    assert_eq!(path_children("src/private_block/token_io/x.rs", text), vec!["src/private_block/token_io/a.rs".to_string(), "src/private_block/token_io/c.rs".to_string()]);
++    assert_eq!(path_children("src/private_block/witness.rs", "#[path = \"witness_accuracy.rs\"]\nmod accuracy;\n"), vec!["src/private_block/witness_accuracy.rs".to_string()]);
++    let batch = source("src/private_block/token_io/classify_batch.rs");
++    assert!(batch.contains("#[cfg(test)]\n#[path = \"classify_r18_tests.rs\"]\nmod r18;"), "the round's test module line moved");
++    assert_eq!(path_children("src/private_block/token_io/classify_batch.rs", production_text(&batch)), vec!["src/private_block/token_io/classify_batch_plan.rs".to_string()]);
++}
++
+ /// The part of a source file above its own `#[cfg(test)] mod tests {` — the
+ /// production text. Every scan below is over this and never over a test.
+ fn production_text(src: &str) -> &str {
+@@ -1782,6 +1860,30 @@
+     eprintln!("S25 W-8(7): the path's four generators are all `ZkRng::from_os` ({on_path:?}); a fifth site, src/private_seam.rs:349 in `private_seam::prove`, is off this path and no file on it names that function; no production file names ZkConfig");
+ }
+ 
++/// **TOKEN ROUND 18 (REVIEW A5 finding 2): the census reads the batch's two
++/// `#[path]` files.** `token_io/classify_batch.rs` (a production `#[path]`
++/// child of `token_io/classify_cli.rs`, the `prove-batch` command) and
++/// `token_io/classify_batch_plan.rs` (its own `#[path]` child) are production
++/// code on the classifier's path. Before round 18 [`production_sources`] read
++/// a module and one level of plain `mod` children only, so neither file was
++/// read: a seeded generator planted in `classify_batch.rs` left the generator
++/// census above green (r18/logs/red.log). Each must be scanned exactly once,
++/// and the round's TEST module (a `#[cfg(test)]` `#[path]` child of
++/// `classify_batch.rs`) must not be read as production text.
++#[test]
++fn r18_the_census_reads_the_batch_files_through_their_path_lines() {
++    let scanned: Vec<String> = production_sources().into_iter().map(|(p, _)| p).collect();
++    for f in ["src/private_block/token_io/classify_cli.rs", "src/private_block/token_io/classify_batch.rs", "src/private_block/token_io/classify_batch_plan.rs"] {
++        assert_eq!(scanned.iter().filter(|p| p.as_str() == f).count(), 1, "{f} is not scanned exactly once by the census (REVIEW A5 finding 2): {scanned:?}");
++    }
++    assert!(!scanned.iter().any(|p| p.ends_with("_tests.rs")), "a test module is scanned as production text: {scanned:?}");
++    let mut dedup = scanned.clone();
++    dedup.sort();
++    dedup.dedup();
++    assert_eq!(dedup.len(), scanned.len(), "a file is scanned twice (its sites would be counted twice)");
++    eprintln!("TOKEN-IO R18 | Fix 2: the census reads token_io/classify_batch.rs and token_io/classify_batch_plan.rs ({} production files scanned)", scanned.len());
++}
++
+ /// **W-8, ASSERTION 5 of the memo's §3.1** — *"the generator is never cloned,
+ /// forked or serialised, and `prove_run` constructs exactly one"* (ruling
+ /// R-2's condition, which until now was a READING of `run.rs:510`).
+diff -ruN /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r17/hashline/src/private_block/token_io/classify_batch.rs /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r18/hashline/src/private_block/token_io/classify_batch.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r17/hashline/src/private_block/token_io/classify_batch.rs	1969-12-31 16:00:00.000000000 -0800
++++ /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r18/hashline/src/private_block/token_io/classify_batch.rs	2026-10-30 02:17:26.299681090 -0700
+@@ -0,0 +1,250 @@
++//! **`zk60_classify prove-batch`: ONE POST, ONE MODEL LOAD** (A5; Astra's
++//! staged candidate, adopted in token round 18 with the review's fixes,
++//! `r18/A5_PATCH_REVIEW.md`). One public export / checkpoint pass and one tied
++//! table derivation, then the post's proofs one after another, each exactly a
++//! single `prove` (`prove_with_public`): its own two fresh operating-system
++//! draws (the input endpoint's seal, then the run stream), its own seal,
++//! transcript, witness source and streamed block readers, every block reload
++//! digest-checked. The batch never verifies a receipt (`verified:false`).
++//!
++//! * **One post per process** (the coordinator's reading of rule 3, register
++//!   "A5 one-load batch"): one `--content-file`, one `--batch-file`; any
++//!   repeated flag is refused (exit 2) before anything is read. The tables
++//!   and the digest pass are held in memory, immutable, for this post only.
++//! * **A failed batch leaves nothing that looks finished** (REVIEW A5 finding
++//!   1): each finished job's run directory, unverified statement and owner
++//!   directory (its `input.dec`) join the batch's ONE claim ([`BatchClaim`]);
++//!   any later refusal removes them all (a `removed` line each) before the
++//!   `refused` and fail-closed lines; they are released only just before
++//!   `batch-proved`. A kill or an abort skips this: the caller removes every
++//!   path its request lists when no `batch-proved` arrives.
++//! * D45: the content length is public, the three moderate D37 policies are
++//!   the one fixed list (in that order, every chunk exactly once), and every
++//!   refusal prints the fail-closed line.
++use super::*;
++#[path = "classify_batch_plan.rs"]
++mod plan;
++use plan::{Row, POLICIES};
++
++const BATCH_SCHEMA: &str = "zk60-classify-prove-batch/1";
++const BATCH_PROFILE: &str = "hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/1";
++const MAX_BATCH_BYTES: u64 = 64 << 10;
++const MAX_CONTENT: usize = 336;
++const BATCH_FLAGS: [&str; 5] = ["--export", "--tables", "--content-file", "--batch-file", "--label"];
++
++/// `O_NOFOLLOW | O_NONBLOCK` for the request's open (REVIEW A5 note 7): the
++/// x86-64 Linux values (`0o400000 | 0o4000` = 0x20800), the one target this
++/// command is built and tested for. Elsewhere the values differ (aarch64
++/// Linux: 0o400000 is `O_LARGEFILE`), so another target refuses every
++/// request at run time instead of following a symlink silently; the crate
++/// still builds there.
++#[cfg(all(target_os = "linux", target_arch = "x86_64"))]
++const NOFOLLOW_NONBLOCK: Option<i32> = Some(0o400000 | 0o4000);
++#[cfg(not(all(target_os = "linux", target_arch = "x86_64")))]
++const NOFOLLOW_NONBLOCK: Option<i32> = None;
++
++/// TOKEN ROUND 18 (a test hook; no behaviour change): the run profile a batch
++/// admits, its T and its ONE fixed policy list (D45(2), D37 order). The CLI
++/// admits exactly [`SHIELD_T128`]; the round's tests pass the development
++/// rung's.
++struct Spec {
++    profile: &'static str,
++    tokens: usize,
++    policies: &'static [&'static str],
++}
++
++const SHIELD_T128: Spec = Spec { profile: BATCH_PROFILE, tokens: 128, policies: &POLICIES };
++
++/// **THE BATCH'S ONE CLAIM (REVIEW A5 finding 1, token round 18).** Every
++/// finished job's run directory, `.unverified-statement` directory and owner
++/// directory join it, in job order, BEFORE that job's own claim lets go of
++/// them; dropped unreleased (any refusal of a later job or of the batch), it
++/// removes all of them, latest first, with a `removed` line each. Released
++/// ([`BatchClaim::keep`]) only immediately before `batch-proved`. It also
++/// records each finished job's block reloads (REVIEW A5 note 9).
++#[derive(Default)]
++pub(super) struct BatchClaim {
++    dirs: Vec<PathBuf>,
++    reloads: Vec<(usize, usize)>,
++}
++
++impl BatchClaim {
++    /// a finished job's three directories (under their final names) and its
++    /// (sealing pass, proving pass) block reloads, each one digest-checked
++    pub(super) fn hold(&mut self, dirs: [&Path; 3], reloads: (usize, usize)) {
++        self.dirs.extend(dirs.iter().map(|d| d.to_path_buf()));
++        self.reloads.push(reloads);
++    }
++    fn keep(mut self) {
++        self.dirs.clear();
++    }
++}
++
++impl Drop for BatchClaim {
++    fn drop(&mut self) {
++        for d in self.dirs.iter().rev() {
++            match std::fs::remove_dir_all(d) {
++                Ok(()) => println!("{{\"event\":\"removed\",\"path\":{},\"why\":\"the batch was refused; this directory was made by a finished job of this batch and is removed with everything in it: no receipt, statement or decommitment of a failed batch is left (REVIEW A5 finding 1)\"}}", js(&d.display().to_string())),
++                Err(e) => {
++                    let line = format!("{{\"event\":\"REMOVAL-FAILED\",\"path\":{},\"error\":{},\"what_to_do\":\"remove it by hand (rm -r) before anything syncs its parent; never publish it\"}}", js(&d.display().to_string()), js(&e.to_string()));
++                    println!("{line}");
++                    eprintln!("{line}");
++                }
++            }
++        }
++    }
++}
++
++fn exact_keys(j: &J, keys: &[&str]) -> Result<(), String> {
++    let entries = j.obj()?;
++    if entries.len() != keys.len() || entries.iter().any(|(k, _)| !keys.contains(&k.as_str())) {
++        return Err("batch: unexpected or missing fields".into());
++    }
++    Ok(())
++}
++
++fn uint(j: &J) -> Result<usize, String> {
++    usize::try_from(j.i64()?).map_err(|_| "batch: expected a nonnegative integer".into())
++}
++
++fn read_request(path: &Path) -> Result<J, String> {
++    use std::io::Read;
++    use std::os::unix::fs::{OpenOptionsExt, PermissionsExt};
++    // O_NOFOLLOW | O_NONBLOCK: refuse symlinks and inspect a FIFO without
++    // blocking before its non-regular-file rejection.
++    let flags = NOFOLLOW_NONBLOCK.ok_or("batch: O_NOFOLLOW / O_NONBLOCK are not defined for this target; prove-batch is refused here (REVIEW A5 note 7)")?;
++    let f = std::fs::OpenOptions::new().read(true).custom_flags(flags).open(path)
++        .map_err(|e| format!("batch request: {e}"))?;
++    let m = f.metadata().map_err(|e| format!("batch request metadata: {e}"))?;
++    if !m.is_file() || m.permissions().mode() & 0o077 != 0 || m.len() > MAX_BATCH_BYTES {
++        return Err("batch: request must be an owner-only regular file of at most 64 KiB".into());
++    }
++    let mut bytes = Vec::new();
++    f.take(MAX_BATCH_BYTES + 1).read_to_end(&mut bytes).map_err(|e| format!("batch request read: {e}"))?;
++    if bytes.len() as u64 > MAX_BATCH_BYTES { return Err("batch: request grew past 64 KiB".into()); }
++    parse_json(&bytes)
++}
++
++pub fn classify_prove_batch_command(args: &[String]) -> i32 {
++    batch_command(args, &SHIELD_T128)
++}
++
++fn batch_command(args: &[String], spec: &Spec) -> i32 {
++    if args.iter().any(|a| a == "--content") {
++        eprintln!("zk60_classify prove-batch: {CONTENT_ON_COMMAND_LINE}");
++        return 2;
++    }
++    let f = match flags(args, &BATCH_FLAGS, &[]) {
++        Ok(f) => f,
++        Err(e) => { eprintln!("zk60_classify prove-batch: {e}"); return 2; }
++    };
++    // one post per process (rule 3's reading): one content, one request, one
++    // export; a flag given twice is refused, never silently resolved
++    if let Some(k) = BATCH_FLAGS.iter().find(|k| f.iter().filter(|(x, _)| x.as_str() == **k).count() > 1) {
++        eprintln!("zk60_classify prove-batch: {k} is given more than once; a batch proves ONE post in ONE process (its tables and digest pass are held for that post only)");
++        return 2;
++    }
++    match batch_inner(&f, spec) {
++        Ok(_) => 0,
++        Err(e) => refused("classify-prove-batch", &e),
++    }
++}
++
++/// the batch; on success each job's (sealing pass, proving pass) block reloads
++fn batch_inner(f: &[(String, String)], spec: &Spec) -> Result<Vec<(usize, usize)>, String> {
++    let t_all = Instant::now();
++    let label = label_of(f)?;
++    let request = PathBuf::from(need(f, "--batch-file")?);
++    let content_path = PathBuf::from(need(f, "--content-file")?);
++    if !request.is_absolute() || !content_path.is_absolute() {
++        return Err("batch: request/content must be absolute file paths, never stdin".into());
++    }
++    let j = read_request(&request)?;
++    exact_keys(&j, &["schema", "expect_statement", "content_total", "jobs"])?;
++    if j.get("schema")?.str()? != BATCH_SCHEMA { return Err("batch: unsupported schema".into()); }
++    let expect = unhex32(j.get("expect_statement")?.str()?)?;
++    let total = uint(j.get("content_total")?)?;
++    if total == 0 || total > MAX_CONTENT { return Err("batch: content_total must be 1..336".into()); }
++    let whole = content_of(f)?;
++    if whole.len() != total { return Err("batch: whole content differs from the caller's expected total".into()); }
++    let jobs = j.get("jobs")?.arr()?;
++    if jobs.is_empty() || jobs.len() > plan::MAX_JOBS { return Err("batch: requires 1..24 jobs".into()); }
++    let mut rows = Vec::new();
++    for job in jobs {
++        exact_keys(job, &["name", "policy_id", "chunk_index", "sequence_dir", "out", "owner_dir"])?;
++        rows.push(Row {
++            name: job.get("name")?.str()?.into(), policy: job.get("policy_id")?.str()?.into(),
++            chunk: uint(job.get("chunk_index")?)?, sequence: PathBuf::from(job.get("sequence_dir")?.str()?),
++            out: PathBuf::from(job.get("out")?.str()?), owner: PathBuf::from(job.get("owner_dir")?.str()?),
++        });
++    }
++    let mut expected = Vec::new();
++    for id in spec.policies {
++        let policy = policy_by_id(id)?;
++        let size = spec.tokens.checked_sub(policy.prefix.len() + policy.suffix.len()).ok_or("batch: invalid template")?;
++        // round 18: the registered overlap of the spec's run profile (the native
++        // `chunk_plan` reads the same registry; REVIEW A5 note 5)
++        let ch = ChunkRef::derive(total, 0, ChunkPlan { size, overlap: chunk_overlap_of(spec.profile)? })?;
++        if ch.count > 8 { return Err("batch: at most eight chunks per category".into()); }
++        expected.extend((0..ch.count).map(|i| (id.to_string(), i)));
++    }
++    plan::check_coverage(&rows, &expected, spec.policies)?;
++    let export = PathBuf::from(need(f, "--export")?);
++    let tables_path = PathBuf::from(need(f, "--tables")?);
++    plan::check_paths(&mut rows, &[export.clone(), tables_path.clone(), request, content_path])?;
++    let mut job_flags = Vec::new();
++    for row in &rows {
++        let mut jf = f.iter().filter(|(k, _)| k != "--batch-file").cloned().collect::<Vec<_>>();
++        jf.extend([
++            ("--policy".into(), row.policy.clone()), ("--chunk".into(), row.chunk.to_string()),
++            ("--seq-dir".into(), row.sequence.to_str().ok_or("batch: non-UTF8 sequence path")?.into()),
++            ("--out".into(), row.out.to_str().ok_or("batch: non-UTF8 output path")?.into()),
++            ("--owner-dir".into(), row.owner.to_str().ok_or("batch: non-UTF8 owner path")?.into()),
++        ]);
++        // All owner checks before any model load or proof. Explicit owners
++        // make this check side-effect-free (no default directory creation).
++        owner_dir_at(&jf, &row.out, None)?;
++        job_flags.push(jf);
++    }
++    // REVIEW A5 note 9: the loads are counted where they happen, not printed as constants
++    let (mut model_loads, mut table_loads) = (0usize, 0usize);
++    let t_load = Instant::now();
++    let p = load_export(&export)?;
++    model_loads += 1;
++    if p.profile != spec.profile || p.sh.tokens != spec.tokens || p.model.identity() != expect {
++        return Err("batch: model identity or T128 classifier profile differs".into());
++    }
++    let first = policy_by_id(spec.policies.first().ok_or("batch: no policy")?)?;
++    let bound = super::super::classify_tied::load_tied_classifier_tables(&p, &export, &tables_path, &first)?;
++    table_loads += 1;
++    // The same derived table value is reusable only when every registered
++    // policy agrees on its tied parameters. Do not clone the embedding.
++    for row in &rows {
++        let policy = policy_by_id(&row.policy)?;
++        bound.check_for(&p.sh, p.profile, &p.model, &policy)?;
++        let ch = ChunkRef::derive(total, row.chunk, chunk_plan(&p.sh, &policy, p.profile)?)?;
++        let cp = ClassifierProfile::new(&p.sh, bound.tables(), bound.bos(), bound.norm(), &policy, ch.b - ch.a, Tier::R1_MVP)?;
++        cp.tokens_of(&whole[ch.a..ch.b])?;
++    }
++    println!("{{\"event\":\"batch-loaded\",\"jobs\":{},\"model_loads\":{model_loads},\"table_loads\":{table_loads},\"load_seconds\":{:.3},\"trained_statement_identity\":{},\"context_label\":{}}}", rows.len(), t_load.elapsed().as_secs_f64(), js(&hex(&p.model.identity())), js(label));
++    // REVIEW A5 finding 1: the batch's ONE claim, released only at `batch-proved`
++    let mut claim = BatchClaim::default();
++    for (index, (row, jf)) in rows.iter().zip(&job_flags).enumerate() {
++        println!("{{\"event\":\"batch-job-start\",\"index\":{index},\"name\":{},\"policy\":{},\"chunk\":{}}}", js(&row.name), js(&row.policy), row.chunk);
++        // Each call creates fresh seal/proof randomness and a fresh streamed
++        // block reader; every reload still checks its bound layer digest.
++        prove_with_public(jf, Some(SharedProve { p: &p, bound: &bound, whole: &whole, claim: &mut claim }))?;
++        let (seal_loads, prove_loads) = *claim.reloads.get(index).ok_or("batch: a finished job did not join the batch's claim")?;
++        println!("{{\"event\":\"batch-job-proved\",\"index\":{index},\"name\":{},\"seal_block_loads\":{seal_loads},\"prove_block_loads\":{prove_loads},\"blocks\":{}}}", js(&row.name), p.layers.len());
++    }
++    let reloads = claim.reloads.clone();
++    claim.keep();
++    println!("{{\"event\":\"batch-proved\",\"jobs\":{},\"total_seconds\":{:.3},\"verified\":false}}", rows.len(), t_all.elapsed().as_secs_f64());
++    Ok(reloads)
++}
++
++// TOKEN ROUND 18: the round's tests (test code only), a child of this module so
++// that they reach its private items
++#[cfg(test)]
++#[path = "classify_r18_tests.rs"]
++mod r18;
+diff -ruN /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r17/hashline/src/private_block/token_io/classify_batch_plan.rs /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r18/hashline/src/private_block/token_io/classify_batch_plan.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r17/hashline/src/private_block/token_io/classify_batch_plan.rs	1969-12-31 16:00:00.000000000 -0800
++++ /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r18/hashline/src/private_block/token_io/classify_batch_plan.rs	2026-10-30 02:17:26.299716970 -0700
+@@ -0,0 +1,166 @@
++//! Transport preflight only. No proof, model, or acceptance cache.
++//! Standalone light tests: rustc --test classify_batch_plan.rs -o /tmp/a5-plan-tests
++use std::collections::BTreeSet;
++use std::path::{Component, Path, PathBuf};
++
++pub(super) const POLICIES: [&str; 3] = [
++    "shieldstral-1.0-3b-moderate-sexual/1",
++    "shieldstral-1.0-3b-moderate-violence/1",
++    "shieldstral-1.0-3b-moderate-hate/1",
++];
++pub(super) const MAX_JOBS: usize = 24;
++
++#[derive(Clone, Debug)]
++pub(super) struct Row {
++    pub name: String,
++    pub policy: String,
++    pub chunk: usize,
++    pub sequence: PathBuf,
++    pub out: PathBuf,
++    pub owner: PathBuf,
++}
++
++/// The caller derives expected from the WHOLE content and native ChunkRef.
++/// Canonical ordering also makes log routing independent of worker timing.
++/// TOKEN ROUND 18: `policies` is the caller's run profile's ONE fixed policy
++/// list (D45(2)); production passes [`POLICIES`].
++pub(super) fn check_coverage(rows: &[Row], expected: &[(String, usize)], policies: &[&str]) -> Result<(), String> {
++    if rows.is_empty() || rows.len() > MAX_JOBS || rows.len() != expected.len() {
++        return Err("batch: requires the complete post plan (1..24 runs)".into());
++    }
++    let mut names = BTreeSet::new();
++    for (r, (policy, chunk)) in rows.iter().zip(expected) {
++        if r.name.is_empty() || r.name.len() > 48
++            || !r.name.bytes().all(|c| c.is_ascii_alphanumeric() || c == b'_' || c == b'-')
++            || !names.insert(&r.name)
++        {
++            return Err("batch: job names must be distinct simple names of at most 48 bytes".into());
++        }
++        if &r.policy != policy || r.chunk != *chunk || !policies.contains(&r.policy.as_str()) {
++            return Err("batch: missing, repeated, reordered, or unexpected policy/chunk".into());
++        }
++    }
++    Ok(())
++}
++
++fn canonical(p: &Path) -> Result<PathBuf, String> {
++    if !p.is_absolute() || p.components().any(|c| matches!(c, Component::ParentDir | Component::CurDir)) {
++        return Err("batch: paths must be absolute and contain no dot components".into());
++    }
++    std::fs::canonicalize(p).map_err(|e| format!("batch: {}: {e}", p.display()))
++}
++
++fn new_path(p: &Path) -> Result<PathBuf, String> {
++    if !p.is_absolute() || p.components().any(|c| matches!(c, Component::ParentDir | Component::CurDir)) {
++        return Err("batch: output paths must be absolute and contain no dot components".into());
++    }
++    let name = p.file_name().ok_or("batch: output names no directory")?;
++    let parent = canonical(p.parent().ok_or("batch: output has no parent")?)?;
++    let result = parent.join(name);
++    match std::fs::symlink_metadata(&result) {
++        Ok(_) => Err(format!("batch: {} already exists; no overwrite or automatic retry", result.display())),
++        Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(result),
++        Err(e) => Err(format!("batch: {}: {e}", result.display())),
++    }
++}
++
++pub(super) fn sibling(p: &Path, suffix: &str) -> PathBuf {
++    let mut s = p.as_os_str().to_owned();
++    s.push(suffix);
++    PathBuf::from(s)
++}
++
++fn overlaps(a: &Path, b: &Path) -> bool {
++    a.starts_with(b) || b.starts_with(a)
++}
++
++/// Resolve existing parents before comparing: symlink aliases must not
++/// turn distinct-looking jobs into the same receipt or private directory.
++/// No files/directories are created here. The native owner_dir_at check
++/// additionally refuses owners inside a git tree.
++pub(super) fn check_paths(rows: &mut [Row], protected: &[PathBuf]) -> Result<(), String> {
++    let mut inputs = protected.iter().map(|p| canonical(p)).collect::<Result<Vec<_>, _>>()?;
++    let mut outputs = Vec::new();
++    for r in rows.iter_mut() {
++        r.sequence = canonical(&r.sequence)?;
++        if !r.sequence.is_dir() {
++            return Err("batch: sequence path is not a directory".into());
++        }
++        inputs.push(r.sequence.clone());
++        r.out = new_path(&r.out)?;
++        r.owner = new_path(&r.owner)?;
++        outputs.push(r.out.clone());
++        outputs.push(new_path(&sibling(&r.out, ".incomplete"))?);
++        outputs.push(new_path(&sibling(&r.out, ".unverified-statement"))?);
++        outputs.push(r.owner.clone());
++    }
++    for (i, a) in outputs.iter().enumerate() {
++        if outputs[..i].iter().any(|b| overlaps(a, b)) || inputs.iter().any(|b| overlaps(a, b)) {
++            return Err("batch: output/private paths overlap another job or an input".into());
++        }
++    }
++    for owner in rows.iter().map(|r| &r.owner) {
++        if rows.iter().any(|r| owner.starts_with(r.out.parent().expect("canonical output parent"))) {
++            return Err("batch: an owner directory lies inside a receipt parent".into());
++        }
++    }
++    Ok(())
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++    use std::sync::atomic::{AtomicUsize, Ordering};
++    static SERIAL: AtomicUsize = AtomicUsize::new(0);
++    struct Fixture { root: PathBuf, rows: Vec<Row>, expected: Vec<(String, usize)> }
++    impl Fixture {
++        fn new() -> Self {
++            let root = std::env::temp_dir().join(format!("a5-batch-plan-{}-{}", std::process::id(), SERIAL.fetch_add(1, Ordering::Relaxed)));
++            std::fs::create_dir(&root).unwrap();
++            for d in ["receipts", "private", "sequences", "export"] { std::fs::create_dir(root.join(d)).unwrap(); }
++            let rows = POLICIES.iter().enumerate().map(|(i, p)| {
++                let sequence = root.join(format!("sequences/c{i}")); std::fs::create_dir(&sequence).unwrap();
++                Row { name: format!("c{i}"), policy: p.to_string(), chunk: 0, sequence,
++                    out: root.join(format!("receipts/c{i}")), owner: root.join(format!("private/c{i}")) }
++            }).collect();
++            let expected = POLICIES.iter().map(|p| (p.to_string(), 0)).collect();
++            Self { root, rows, expected }
++        }
++        fn check(&mut self) -> Result<(), String> {
++            check_coverage(&self.rows, &self.expected, &POLICIES)?;
++            check_paths(&mut self.rows, &[self.root.join("export")])
++        }
++    }
++    impl Drop for Fixture { fn drop(&mut self) { std::fs::remove_dir_all(&self.root).unwrap(); } }
++    #[test] fn complete_plan_creates_nothing() {
++        let mut f = Fixture::new(); f.check().unwrap();
++        assert!(f.rows.iter().all(|r| !r.out.exists() && !r.owner.exists()));
++    }
++    #[test] fn missing_category_refused() { let mut f = Fixture::new(); f.rows.pop(); assert!(f.check().is_err()); }
++    #[test] fn repeated_chunk_refused() { let mut f = Fixture::new(); f.rows[1].policy = POLICIES[0].into(); assert!(f.check().is_err()); }
++    #[test] fn reordered_plan_refused() { let mut f = Fixture::new(); f.rows.swap(0, 1); assert!(f.check().is_err()); }
++    #[test] fn prefix_subset_refused() {
++        let mut f = Fixture::new(); f.expected.insert(1, (POLICIES[0].into(), 1)); assert!(f.check().is_err());
++    }
++    #[test] fn distinct_names_required() { let mut f = Fixture::new(); f.rows[1].name = f.rows[0].name.clone(); assert!(f.check().is_err()); }
++    #[test] fn existing_receipt_and_sidecar_refused() {
++        for suffix in ["", ".incomplete", ".unverified-statement"] {
++            let mut f = Fixture::new(); std::fs::create_dir(sibling(&f.rows[0].out, suffix)).unwrap(); assert!(f.check().is_err());
++        }
++    }
++    #[test] fn owner_under_other_receipt_parent_refused() {
++        let mut f = Fixture::new(); f.rows[0].owner = f.root.join("receipts/secret"); assert!(f.check().is_err());
++    }
++    #[test] fn symlink_parent_alias_refused() {
++        let mut f = Fixture::new(); std::os::unix::fs::symlink(f.root.join("receipts"), f.root.join("alias")).unwrap();
++        f.rows[1].out = f.root.join("alias/c0"); assert!(f.check().is_err());
++    }
++    #[test] fn dangling_symlink_refused() {
++        let mut f = Fixture::new(); std::os::unix::fs::symlink(f.root.join("absent"), &f.rows[0].out).unwrap(); assert!(f.check().is_err());
++    }
++    #[test] fn output_in_model_refused() { let mut f = Fixture::new(); f.rows[0].out = f.root.join("export/run"); assert!(f.check().is_err()); }
++    #[test] fn output_sidecar_alias_refused() {
++        let mut f = Fixture::new(); f.rows[1].out = sibling(&f.rows[0].out, ".unverified-statement"); assert!(f.check().is_err());
++    }
++    #[test] fn dotdot_path_refused() { let mut f = Fixture::new(); f.rows[0].owner = f.root.join("private/../secret"); assert!(f.check().is_err()); }
++}
+diff -ruN /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r17/hashline/src/private_block/token_io/classify_cli.rs /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r18/hashline/src/private_block/token_io/classify_cli.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r17/hashline/src/private_block/token_io/classify_cli.rs	2026-10-29 09:24:16.066076344 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r18/hashline/src/private_block/token_io/classify_cli.rs	2026-10-30 02:17:26.299804685 -0700
+@@ -10,8 +10,22 @@
+ //! zk60_classify input-owner  (verify's arguments) --decommitment FILE --content-file FILE|-
+ //! zk60_classify label        --export DIR --tables DIR --policy ID --runs DIR,DIR,...
+ //!                            --expect-statement HEX --expect-total N [--label L] [--min-bits N]
++//! zk60_classify prove-batch  --export DIR --tables DIR --content-file FILE --batch-file FILE [--label L]
+ //! ```
+ //!
++//! * **Token round 18 (A5, `classify_batch.rs`): `prove-batch` proves ONE
++//!   post's whole plan** (the three moderate D37 categories, every chunk
++//!   exactly once, in that order; the R13 Shieldstral T128 profile only)
++//!   after ONE export / checkpoint pass and ONE tied table derivation. Each
++//!   job is exactly a `prove` below (its own two fresh OS draws, seal,
++//!   transcript, witness source and digest-checked block reloads). The
++//!   request (`--batch-file`, owner-only, at most 64 KiB) names each job's
++//!   policy, chunk, activations, run and owner directory. One post per
++//!   process: a repeated flag is refused. A refused batch removes every
++//!   directory its finished jobs made (REVIEW A5 finding 1) before the
++//!   fail-closed line. It never verifies: `verify`, `input-owner` and
++//!   `label` (fresh processes) decide acceptance, as for `prove`.
++//!
+ //! * **D41 (DESIGN v2.2 §13), chunks:** `--content-file` holds the WHOLE
+ //!   content's ids (N of them); `prove --chunk J` (default 0) proves chunk J
+ //!   of the profile's public split (size `T - P0 - S`, the registered
+@@ -519,7 +533,26 @@
+     }
+ }
+ 
++#[path = "classify_batch.rs"]
++mod batch;
++pub use batch::classify_prove_batch_command;
++
++/// A5 (token round 18): what a `prove-batch` job borrows from its batch — the
++/// one digest pass, the one tied table derivation and the whole content, all
++/// immutable — and the batch's ONE claim, which the job's directories join
++/// when it completes (REVIEW A5 finding 1)
++struct SharedProve<'a> {
++    p: &'a ExportPublic,
++    bound: &'a super::classify_tied::BoundClassifierTables,
++    whole: &'a [u64],
++    claim: &'a mut batch::BatchClaim,
++}
++
+ fn prove_inner(f: &[(String, String)]) -> Result<(), String> {
++    prove_with_public(f, None)
++}
++
++fn prove_with_public(f: &[(String, String)], shared: Option<SharedProve<'_>>) -> Result<(), String> {
+     let t_all = Instant::now();
+     let out = PathBuf::from(need(f, "--out")?);
+     let (incomplete, unverified) = (sibling(&out, ".incomplete"), sibling(&out, ".unverified-statement"));
+@@ -535,15 +568,31 @@
+     let label = label_of(f)?;
+     let seq = SeqIn::of(f)?;
+     let export = PathBuf::from(need(f, "--export")?);
+-    let p = load_export(&export)?;
++    let loaded_p;
++    let p = match shared.as_ref() {
++        Some(s) => s.p,
++        None => { loaded_p = load_export(&export)?; &loaded_p }
++    };
+     let sh = &p.sh;
+     // R-C2: the policy first (its yes / no ids and public margin scale), then
+     // the tables RE-DERIVED from the pinned tied tensor and compared with the
+     // files; the run's margin row is the recomputed one
+     let policy = policy_by_id(need(f, "--policy")?)?;
+-    let bound = super::classify_tied::load_tied_classifier_tables(&p, &export, Path::new(need(f, "--tables")?), &policy)?;
++    let loaded_bound;
++    let bound = match shared.as_ref() {
++        Some(s) => s.bound,
++        None => {
++            loaded_bound = super::classify_tied::load_tied_classifier_tables(p, &export, Path::new(need(f, "--tables")?), &policy)?;
++            &loaded_bound
++        }
++    };
++    bound.check_for(sh, p.profile, &p.model, &policy)?;
+     let tables = bound.tables();
+-    let whole = content_of(f)?;
++    let loaded_whole;
++    let whole: &[u64] = match shared.as_ref() {
++        Some(s) => s.whole,
++        None => { loaded_whole = content_of(f)?; &loaded_whole }
++    };
+     let index: usize = flag(f, "--chunk").unwrap_or("0").parse().map_err(|_| "--chunk: a chunk index (0, 1, ...)")?;
+     // round 14: a short content is one chunk of its true length
+     let ch = ChunkRef::derive(whole.len(), index, chunk_plan(sh, &policy, p.profile)?)?;
+@@ -558,8 +607,9 @@
+     if unpad(sh, &b_in) != x_in0 {
+         return Err("classifier run: the embedding table does not embed the item to the export's x_in_L00".into());
+     }
+-    let mut seal_blocks = ExportTokenBlocks::new(&p);
+-    let x_last = seal_chain(&p, &seq, &mut seal_blocks, x_in0.clone())?;
++    let mut seal_blocks = ExportTokenBlocks::new(p);
++    let x_last = seal_chain(p, &seq, &mut seal_blocks, x_in0.clone())?;
++    let seal_loads = seal_blocks.loads;
+     drop(seal_blocks);
+     // the public verdict row (T - 1, or P0 + n + S - 1 for a short item)
+     let vr = cp.verdict_row();
+@@ -572,15 +622,15 @@
+     let ctx = stack_context(&p.ex.variant, &p.layers, label)?;
+     let spec = input_endpoint_spec(sh, ctx, &cp)?;
+     let (root, owner) = seal_input(&spec, &in_plane, &sh.hash_tag())?;
+-    let st = ClassifyRunStatement::new_chunk(RunShape::new(sh.clone(), p.layers.len(), p.profile)?, ctx, p.digests.clone(), &p.model, &bound, &policy, content.len(), Tier::R1_MVP, root, ov.verdict, whole.len(), index)?;
++    let st = ClassifyRunStatement::new_chunk(RunShape::new(sh.clone(), p.layers.len(), p.profile)?, ctx, p.digests.clone(), &p.model, bound, &policy, content.len(), Tier::R1_MVP, root, ov.verdict, whole.len(), index)?;
+     if st.chunk() != ch {
+         return Err("classifier run: the statement's chunk is not the prover's slice".into());
+     }
+     let mut disk = run_sink::DirSink::create(&incomplete, p.layers.len() + 2)?;
+-    let mut src = CliSource { p: &p, seq: &seq, ids: Ids::new(sh)?, stage_in: Some((wit_in, b_in)), stage_out: Some(wout), x: x_in0, parity: 0, sealed: true };
+-    let mut blocks = ExportTokenBlocks::new(&p);
++    let mut src = CliSource { p, seq: &seq, ids: Ids::new(sh)?, stage_in: Some((wit_in, b_in)), stage_out: Some(wout), x: x_in0, parity: 0, sealed: true };
++    let mut blocks = ExportTokenBlocks::new(p);
+     let t = Instant::now();
+-    let (_, dec) = prove_classify_run_with(&st, &mut blocks, &bound, &mut src, owner, &mut |k, bytes| {
++    let (_, dec) = prove_classify_run_with(&st, &mut blocks, bound, &mut src, owner, &mut |k, bytes| {
+         let n = bytes.len();
+         SegmentSink::accept(&mut disk, k, bytes)?;
+         println!("{{\"event\":\"segment\",\"index\":{k},\"bytes\":{n},\"elapsed_seconds\":{:.3}}}", t.elapsed().as_secs_f64());
+@@ -594,8 +644,14 @@
+         return Err("classifier run: the written segments are not the counted lengths".into());
+     }
+     write_private(&owners_dir.join("input.dec"), &dec.to_bytes())?;
+-    write_new(&unverified.join("statement.json"), render(&p, &st, label, Writer::Prover)?.as_bytes())?;
++    write_new(&unverified.join("statement.json"), render(p, &st, label, Writer::Prover)?.as_bytes())?;
+     std::fs::rename(&incomplete, &out).map_err(|e| format!("{} -> {}: {e}", incomplete.display(), out.display()))?;
++    // A5 (REVIEW finding 1, token round 18): a batch job's three directories
++    // join the batch's ONE claim BEFORE this job's own claim lets go of them;
++    // the batch releases them only just before `batch-proved`
++    if let Some(s) = shared {
++        s.claim.hold([&out, &unverified, &owners_dir], (seal_loads, blocks.loads));
++    }
+     claimed.keep();
+     println!(
+         "{{\"event\":\"proved\",\"run\":{},\"owner_dir\":{},\"verdict\":{},\"policy\":{},\"chunk\":{},\"chunks\":{},\"segments\":{},\"receipt_bytes\":{},\"prove_seconds\":{prove_s:.3},\"whole_run_floor_bits\":{},\"total_seconds\":{:.3},\"statement\":\"UNVERIFIED until zk60_classify verify publishes <run>/statement/\"}}",
+diff -ruN /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r17/hashline/src/private_block/token_io/classify_r18_tests.rs /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r18/hashline/src/private_block/token_io/classify_r18_tests.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r17/hashline/src/private_block/token_io/classify_r18_tests.rs	1969-12-31 16:00:00.000000000 -0800
++++ /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r18/hashline/src/private_block/token_io/classify_r18_tests.rs	2026-10-30 02:17:26.300105154 -0700
+@@ -0,0 +1,312 @@
++//! **TOKEN I/O ROUND 18: THE A5 ONE-LOAD BATCH (`zk60_classify prove-batch`),
++//! ADOPTED FROM ASTRA'S STAGED CANDIDATE.** TEST CODE ONLY. A child of the
++//! batch module (`classify_batch.rs`, registered by one `#[cfg(test)]
++//! #[path]` line at its end), so these tests reach the batch's private items,
++//! and, through `classify_cli_tests`, the development rung's classifier
++//! fixture (`Cc`: the tiny export, L = 1, T = 32, chunk size 23, overlap 4).
++//! The batch runs here under the rung's [`Spec`] (`RUNG`); the CLI admits only
++//! the Shieldstral T128 one (`SHIELD_T128`), checked below by name.
++//!
++//! * **REVIEW A5 finding 1 (Fix 1).** A batch whose job 1 is refused before
++//!   its header (an empty activation directory, the review's §4.3 step 10)
++//!   leaves NOTHING: no run directory, `.incomplete`, `.unverified-statement`
++//!   or owner directory (with its `input.dec`) of job 0 either. Failing first
++//!   on Astra's staged code (job 0's three directories stayed).
++//! * **One post per process** (the coordinator's reading of rule 3): a second
++//!   `--content-file` (or any repeated flag) is refused before anything is
++//!   read. Failing first (the staged code took the first and ignored the rest).
++//! * A complete rung batch proves every job; each receipt verifies in the
++//!   verifier's own pass, the input owner's check holds on the whole content,
++//!   and the category label over both chunks is accepted (`--expect-total`).
++//! * The production command refuses the rung post (the fixed policy list and
++//!   profile) and creates nothing.
++//! * REVIEW A5 note 7: the request reader refuses a symlink and a FIFO, and
++//!   the FIFO is refused without blocking.
++//! * REVIEW A5 note 9: each job's block reloads (sealing pass, proving pass)
++//!   are counted, one per block each, every one digest-checked.
++//! * **The byte-identity rule at the rung, under FIXED TEST ENTROPY** (ignored;
++//!   run only under `r18/tools/run_fixed.sh`): the batch's receipts,
++//!   unverified statements and `input.dec` equal two single proves' byte for
++//!   byte when each proof is handed the same two 32-byte blocks.
++
++use super::*;
++use super::super::super::classify_cli_tests::{Cc, POLICY_RUNG_DEV};
++use super::super::super::super::trained_block::sha256;
++use std::path::{Path, PathBuf};
++
++/// the development rung's batch spec (test only): its run profile, T = 32 and
++/// its one policy
++const RUNG: Spec = Spec { profile: RUN_PROFILE_CLASSIFY_RUNG_TC, tokens: 32, policies: &[POLICY_RUNG_DEV] };
++
++fn s(v: &[&str]) -> Vec<String> {
++    v.iter().map(|x| x.to_string()).collect()
++}
++
++fn sib(p: &Path, suffix: &str) -> PathBuf {
++    let mut s = p.as_os_str().to_owned();
++    s.push(suffix);
++    PathBuf::from(s)
++}
++
++fn write_0600(path: &Path, bytes: &[u8]) {
++    use std::io::Write;
++    use std::os::unix::fs::OpenOptionsExt;
++    let mut f = std::fs::OpenOptions::new().write(true).create_new(true).mode(0o600).open(path).unwrap();
++    f.write_all(bytes).unwrap();
++}
++
++/// one rung post of 27 ids (two chunks: [0, 23) and [4, 27)) with its
++/// prover-private activations per chunk and a batch request; the runs under
++/// the fixture root, the owners, activations, content and request under the
++/// owners' directory
++struct Post {
++    whole: String,
++    content: PathBuf,
++    request: PathBuf,
++    outs: Vec<PathBuf>,
++    owners: Vec<PathBuf>,
++    seqs: Vec<PathBuf>,
++}
++
++impl Post {
++    /// `empty_job`: that job's activation directory exists and is EMPTY (the
++    /// review's step 10: it passes the batch's preflight and is refused by
++    /// the job itself, before its header)
++    fn new(cc: &Cc, tag: &str, empty_job: Option<usize>) -> Post {
++        let whole = format!("{},33,34,35,36", cc.content);
++        let p = policy_rung_dev();
++        let ids: Vec<u64> = whole.split(',').map(|x| x.parse().unwrap()).collect();
++        assert_eq!(ids.len(), 27);
++        let items = [item_tokens(&p, &ids[0..23]), item_tokens(&p, &ids[4..27])];
++        let content = cc.content_file(&whole);
++        let (mut outs, mut owners, mut seqs) = (Vec::new(), Vec::new(), Vec::new());
++        for (i, item) in items.iter().enumerate() {
++            assert_eq!(item.len(), 32);
++            let out = cc.root.join(format!("{tag}-c{i}"));
++            let seq = cc.owners.join(format!("{tag}-seq-c{i}"));
++            if empty_job == Some(i) {
++                std::fs::create_dir(&seq).unwrap();
++            } else {
++                cc.write_seq_dir(&seq, item);
++            }
++            owners.push(cc.owner_dir(&out));
++            outs.push(out);
++            seqs.push(seq);
++        }
++        let jobs: Vec<String> = (0..2)
++            .map(|i| format!("{{\"name\": \"c{i}\", \"policy_id\": {}, \"chunk_index\": {i}, \"sequence_dir\": {}, \"out\": {}, \"owner_dir\": {}}}", js(POLICY_RUNG_DEV), js(seqs[i].to_str().unwrap()), js(outs[i].to_str().unwrap()), js(owners[i].to_str().unwrap())))
++            .collect();
++        let request = cc.owners.join(format!("{tag}-batch-request.json"));
++        let body = format!("{{\"schema\": \"zk60-classify-prove-batch/1\", \"expect_statement\": {}, \"content_total\": 27, \"jobs\": [{}]}}", js(&cc.identity), jobs.join(", "));
++        write_0600(&request, body.as_bytes());
++        Post { whole, content, request, outs, owners, seqs }
++    }
++    fn args(&self, cc: &Cc) -> Vec<String> {
++        s(&["--export", cc.export.to_str().unwrap(), "--tables", cc.tables.to_str().unwrap(), "--content-file", self.content.to_str().unwrap(), "--batch-file", self.request.to_str().unwrap()])
++    }
++    /// every path a job of this post may create, with whether it exists
++    fn created(&self) -> Vec<(PathBuf, bool)> {
++        let mut v = Vec::new();
++        for (out, owner) in self.outs.iter().zip(&self.owners) {
++            for p in [out.clone(), sib(out, ".incomplete"), sib(out, ".unverified-statement"), owner.clone()] {
++                let e = std::fs::symlink_metadata(&p).is_ok();
++                v.push((p, e));
++            }
++        }
++        v
++    }
++}
++
++/// the names in a directory that start with `tag`
++fn named(dir: &Path, tag: &str) -> Vec<String> {
++    let mut v: Vec<String> = std::fs::read_dir(dir).unwrap().map(|e| e.unwrap().file_name().to_string_lossy().into_owned()).filter(|n| n.starts_with(tag)).collect();
++    v.sort();
++    v
++}
++
++// ------------------------------------------------------------------ Fix 1
++
++/// **REVIEW A5 FINDING 1 (Fix 1): a failed batch leaves nothing that looks
++/// finished** — the native control of the review's §4.3 step 10 at the rung.
++/// Job 0 proves; job 1's activation directory is empty, so job 1 is refused
++/// before its header. Afterwards no path either job may create exists: in
++/// particular job 0's run directory (all its segments), its unverified
++/// `statement.json` and its owner's `input.dec`, which a fresh `verify` would
++/// accept. Failing first on Astra's staged code (r18/logs/red.log): job 0's
++/// three directories stayed behind.
++#[test]
++fn r18_a_failed_batch_leaves_no_receipt_statement_or_decommitment_behind() {
++    let cc = Cc::new("r18-fail");
++    let post = Post::new(&cc, "r18f", Some(1));
++    assert_eq!(batch_command(&post.args(&cc), &RUNG), 1, "the batch must be refused at job 1");
++    let left: Vec<(PathBuf, bool)> = post.created().into_iter().filter(|(_, e)| *e).collect();
++    assert!(left.is_empty(), "A FAILED BATCH LEFT RUN / STATEMENT / OWNER DIRECTORIES BEHIND (REVIEW A5 finding 1): {left:?}");
++    // nothing else of this post under the runs' parent; under the owners'
++    // directory only the inputs this test wrote
++    assert_eq!(named(&cc.root, "r18f"), Vec::<String>::new());
++    assert_eq!(named(&cc.owners, "r18f"), vec!["r18f-batch-request.json".to_string(), "r18f-seq-c0".to_string(), "r18f-seq-c1".to_string()]);
++    eprintln!("TOKEN-IO R18 | Fix 1 | job 0 proved, job 1 refused before its header: no run, .incomplete, .unverified-statement or owner directory of either job is left");
++}
++
++// ------------------------------------------------------------------ one post per process
++
++/// **One post per process** (the coordinator's reading of rule 3, register
++/// "A5 one-load batch"): a second `--content-file` is refused before anything
++/// is read, and so is any other repeated flag; nothing is created. Failing
++/// first on the staged code (it proved the FIRST content and ignored the
++/// second).
++#[test]
++fn r18_a_second_post_or_any_repeated_flag_is_refused_before_anything_is_read() {
++    let cc = Cc::new("r18-two");
++    let post = Post::new(&cc, "r18t", None);
++    let other = cc.content_file(&post.whole);
++    // (the post's arguments carry no --label, so that case gives it twice)
++    for extra in [vec!["--content-file", other.to_str().unwrap()], vec!["--batch-file", post.request.to_str().unwrap()], vec!["--export", cc.export.to_str().unwrap()], vec!["--label", "zk60-classify-verdict", "--label", "zk60-classify-verdict"]] {
++        let k = extra[0];
++        let mut a = post.args(&cc);
++        a.extend(s(&extra));
++        assert_eq!(batch_command(&a, &RUNG), 2, "a repeated {k} is refused as a bad argument (one post per process)");
++        assert!(post.created().iter().all(|(_, e)| !*e), "a refused batch created {:?}", post.created());
++    }
++    eprintln!("TOKEN-IO R18 | one post per process: a second --content-file, --batch-file, --export or --label is refused (exit 2), nothing created");
++}
++
++// ------------------------------------------------------------------ the batch works
++
++/// A complete rung batch: exit 0; each job's run directory, unverified
++/// statement and owner `input.dec` (0600) exist and no `.incomplete` is left;
++/// each receipt verifies in the verifier's own pass, the input owner's check
++/// holds on the WHOLE content, and the category label over both chunks is
++/// accepted with `--expect-total 27`.
++#[test]
++fn r18_a_rung_batch_proves_every_job_and_each_receipt_verifies_owner_checks_and_labels() {
++    use std::os::unix::fs::PermissionsExt;
++    let cc = Cc::new("r18-ok");
++    let post = Post::new(&cc, "r18k", None);
++    assert_eq!(batch_command(&post.args(&cc), &RUNG), 0, "the rung batch");
++    for (out, owner) in post.outs.iter().zip(&post.owners) {
++        assert!(out.is_dir() && !sib(out, ".incomplete").exists(), "{}", out.display());
++        assert!(sib(out, ".unverified-statement").join("statement.json").is_file());
++        let dec = owner.join("input.dec");
++        assert_eq!(std::fs::metadata(&dec).unwrap().permissions().mode() & 0o777, 0o600, "{}", dec.display());
++        assert_eq!(std::fs::metadata(owner).unwrap().permissions().mode() & 0o777, 0o700, "{}", owner.display());
++    }
++    for out in &post.outs {
++        assert_eq!(cc.verify(out, &cc.tables), 0, "{} verifies", out.display());
++        assert_eq!(cc.input_owner(out, &cc.tables, &post.whole), 0, "{}: the owner's check on the whole content", out.display());
++    }
++    assert_eq!(cc.label(&[&post.outs[0], &post.outs[1]], 27), 0, "the label over both chunks");
++    assert!(post.seqs.iter().all(|d| d.is_dir()), "the batch never removes its inputs");
++    eprintln!("TOKEN-IO R18 | rung batch: 2 jobs proved, both verify, both owner-check on the whole content, label --expect-total 27 accepted");
++}
++
++/// REVIEW A5 note 9: the batch reports each job's REAL block reloads (the
++/// sealing pass's and the proving pass's readers, each reload digest-checked
++/// against the one digest pass), not printed constants: at the rung (L = 1)
++/// one each per job, in job order.
++#[test]
++fn r18_each_batch_job_reloads_every_block_through_its_own_digest_checked_readers() {
++    let cc = Cc::new("r18-loads");
++    let post = Post::new(&cc, "r18l", None);
++    let f = flags(&post.args(&cc), &BATCH_FLAGS, &[]).unwrap();
++    let reloads = batch_inner(&f, &RUNG).expect("the rung batch");
++    let l = load_export(&cc.export).unwrap().layers.len();
++    assert_eq!(l, 1, "the rung fixture's export has one block");
++    assert_eq!(reloads, vec![(l, l), (l, l)], "each job reloads each block once in its sealing pass and once in its proving pass");
++    eprintln!("TOKEN-IO R18 | note 9: per-job block reloads (sealing, proving) = {reloads:?} at L = {l}");
++}
++
++/// The CLI's production command admits only the Shieldstral T128 profile's
++/// three moderate policies: the rung post (its one dev policy) is refused
++/// before any load, and nothing is created.
++#[test]
++fn r18_the_production_batch_command_refuses_a_rung_post_and_creates_nothing() {
++    let cc = Cc::new("r18-prod");
++    let post = Post::new(&cc, "r18p", None);
++    assert_eq!(classify_prove_batch_command(&post.args(&cc)), 1, "the production batch refuses the rung post");
++    assert!(post.created().iter().all(|(_, e)| !*e), "a refused batch created {:?}", post.created());
++    assert_eq!(SHIELD_T128.policies, &POLICIES[..]);
++    assert_eq!((SHIELD_T128.profile, SHIELD_T128.tokens), (super::super::super::super::run::RUN_PROFILE_CLASSIFY_R13_SHIELD_T128, 128));
++    eprintln!("TOKEN-IO R18 | the production prove-batch refuses the rung post (policy list, profile); nothing created");
++}
++
++// ------------------------------------------------------------------ note 7
++
++/// REVIEW A5 note 7: the request reader opens with O_NOFOLLOW | O_NONBLOCK, so
++/// a symlink to a valid request is refused, and a FIFO is refused at once
++/// (not read, not waited on); the valid request itself is read.
++#[test]
++fn r18_the_request_reader_refuses_a_symlink_and_a_fifo_without_blocking() {
++    let cc = Cc::new("r18-req");
++    let post = Post::new(&cc, "r18q", None);
++    assert!(read_request(&post.request).is_ok(), "the valid request");
++    let link = cc.owners.join("r18q-link.json");
++    std::os::unix::fs::symlink(&post.request, &link).unwrap();
++    assert!(read_request(&link).is_err(), "a symlinked request is refused");
++    let fifo = cc.owners.join("r18q-fifo.json");
++    let made = std::process::Command::new("mkfifo").arg("-m").arg("600").arg(&fifo).status().unwrap();
++    assert!(made.success());
++    let t = std::time::Instant::now();
++    assert!(read_request(&fifo).is_err(), "a FIFO request is refused");
++    assert!(t.elapsed().as_secs_f64() < 5.0, "the FIFO was waited on");
++    eprintln!("TOKEN-IO R18 | note 7: a symlinked request and a FIFO request are refused (the FIFO at once)");
++}
++
++// ------------------------------------------------------------------ byte identity
++
++/// the files of a directory tree with their SHA-256 (relative paths)
++fn tree(d: &Path) -> Vec<(String, String)> {
++    fn walk(root: &Path, d: &Path, out: &mut Vec<(String, String)>) {
++        for e in std::fs::read_dir(d).unwrap() {
++            let p = e.unwrap().path();
++            if p.is_dir() {
++                walk(root, &p, out);
++            } else {
++                out.push((p.strip_prefix(root).unwrap().to_string_lossy().into_owned(), hex(&sha256(&std::fs::read(&p).unwrap()))));
++            }
++        }
++    }
++    let mut out = Vec::new();
++    walk(d, d, &mut out);
++    out.sort();
++    out
++}
++
++/// **THE BYTE-IDENTITY RULE AT THE RUNG, UNDER FIXED TEST ENTROPY.** IGNORED:
++/// it holds only when run as
++/// `r18/tools/run_fixed.sh rung8.bin -- env HL_R18_FIXED_ENTROPY=rung8 <the lib test binary> <this test> --exact --ignored`,
++/// with `rung8.bin` = the 32-byte blocks e0 r0 e1 r1 (the batch's two jobs:
++/// each the input-endpoint seal's draw, then the run stream's), e0 r0 (single
++/// prove 0), e1 r1 (single prove 1); the harness exits 97 if a block is left
++/// unread. Then each batch job's run directory (every segment), unverified
++/// `statement.json` and `input.dec` equal the single prove's byte for byte.
++/// These receipts hide nothing (public entropy): test only, removed with the
++/// fixture.
++#[test]
++#[ignore]
++fn r18_rung_batch_receipts_equal_single_proves_under_fixed_entropy() {
++    assert_eq!(std::env::var("HL_R18_FIXED_ENTROPY").as_deref(), Ok("rung8"), "run only under r18/tools/run_fixed.sh with rung8.bin (HL_R18_FIXED_ENTROPY=rung8)");
++    let cc = Cc::new("r18-eq");
++    let post = Post::new(&cc, "r18e", None);
++    assert_eq!(batch_command(&post.args(&cc), &RUNG), 0, "the batch (blocks e0 r0 e1 r1)");
++    let singles: Vec<PathBuf> = (0..2).map(|i| cc.root.join(format!("r18e-single-c{i}"))).collect();
++    for (i, out) in singles.iter().enumerate() {
++        let cf = cc.content_file(&post.whole);
++        let od = cc.owner_dir(out);
++        let ck = i.to_string();
++        let code = classify_prove_command(&s(&["--export", cc.export.to_str().unwrap(), "--tables", cc.tables.to_str().unwrap(), "--policy", POLICY_RUNG_DEV, "--content-file", cf.to_str().unwrap(), "--chunk", &ck, "--seq-dir", post.seqs[i].to_str().unwrap(), "--out", out.to_str().unwrap(), "--owner-dir", od.to_str().unwrap()]));
++        assert_eq!(code, 0, "single prove {i}");
++    }
++    for i in 0..2 {
++        let (b, o) = (&post.outs[i], &singles[i]);
++        let (tb, to) = (tree(b), tree(o));
++        assert!(!tb.is_empty());
++        assert_eq!(tb, to, "job {i}: the batch's run directory is not the single prove's byte for byte");
++        let st = |r: &Path| std::fs::read(sib(r, ".unverified-statement").join("statement.json")).unwrap();
++        assert_eq!(st(b), st(o), "job {i}: the unverified statements differ");
++        let dec = |r: &Path| std::fs::read(cc.owner_dir(r).join("input.dec")).unwrap();
++        assert_eq!(dec(b), dec(o), "job {i}: the owners' input.dec differ");
++        eprintln!("TOKEN-IO R18 | byte identity | job {i}: {} receipt files, statement.json and input.dec equal the single prove's", tb.len());
++    }
++    assert_ne!(tree(&post.outs[0]), tree(&post.outs[1]), "the two jobs' receipts are equal: the harness is not feeding distinct blocks");
++}
+diff -ruN /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r17/hashline/src/private_block.rs /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r18/hashline/src/private_block.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r17/hashline/src/private_block.rs	2026-10-29 09:24:16.061242568 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r18/hashline/src/private_block.rs	2026-10-30 02:17:26.294302366 -0700
+@@ -139,7 +139,7 @@
+ // (`examples/zk60_token_io.rs`): a CALLER of the token run, like the above
+ pub use token_io::cli::{token_input_owner_command, token_owner_command, token_profile_command, token_prove_command, token_verify_command};
+ // TOKEN I/O ROUND 12 (R-C1): the classifier CLI bridge (`examples/zk60_classify.rs`)
+-pub use token_io::classify_cli::{classify_input_owner_command, classify_label_command, classify_prove_command, classify_verify_command};
++pub use token_io::classify_cli::{classify_input_owner_command, classify_label_command, classify_prove_batch_command, classify_prove_command, classify_verify_command};
+ // TOKEN I/O R1 LANE (2026-10-17): the token-in / token-out stages of a
+ // private run (DESIGN v3 rung R1, public-row variant) under a NEW run profile
+ // (D17). Additive: no existing profile, relation or byte moves.

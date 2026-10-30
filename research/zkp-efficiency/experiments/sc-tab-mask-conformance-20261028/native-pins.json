@@ -1,0 +1,56 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/argument.rs",
+    "snapshot": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/sc-tab-mask-conformance-20261028/native/hashline__src__private_block__argument.rs",
+    "sha256": "c4f9f9f4cb477346b03e9f769d7c3141a8529f096d08da2be6c415d5160a5e66",
+    "bytes": 111325
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/shape.rs",
+    "snapshot": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/sc-tab-mask-conformance-20261028/native/hashline__src__private_block__shape.rs",
+    "sha256": "9a87081897ff0ec716d7f27a2813cc32117683eb5b2f2082a248f479ef98c4c5",
+    "bytes": 139369
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/layout.rs",
+    "snapshot": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/sc-tab-mask-conformance-20261028/native/hashline__src__private_block__layout.rs",
+    "sha256": "9332802e597beacab56cfa69cfe18325bc476d2ce6485f517051992b26d26efa",
+    "bytes": 74733
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/zk.rs",
+    "snapshot": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/sc-tab-mask-conformance-20261028/native/hashline__src__zk.rs",
+    "sha256": "66d1128675bea3b473abd4f2fe70d470b1abc19a7fe5a579a227616d76280e32",
+    "bytes": 254060
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/zkp-core/src/sumcheck.rs",
+    "snapshot": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/sc-tab-mask-conformance-20261028/native/zkp-core__src__sumcheck.rs",
+    "sha256": "fc7374bbd5e5cc4ede62e8a21d325eb62acff9b9dcc786d12eae39efbdfdbb95",
+    "bytes": 22023
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/zkp-core/src/sumcheck/rounds.rs",
+    "snapshot": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/sc-tab-mask-conformance-20261028/native/zkp-core__src__sumcheck__rounds.rs",
+    "sha256": "c60520596e6d855687e0a225850850c12bd15b8741522de69a624f0db8a003df",
+    "bytes": 7092
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/zkp-core/src/transcript.rs",
+    "snapshot": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/sc-tab-mask-conformance-20261028/native/zkp-core__src__transcript.rs",
+    "sha256": "cc9752d0ef9bcd6d7b20e94e611ff26748593a2ea1a4f55b63d8c221715f1967",
+    "bytes": 10238
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/zkp-core/src/field.rs",
+    "snapshot": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/sc-tab-mask-conformance-20261028/native/zkp-core__src__field.rs",
+    "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+    "bytes": 11065
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/zkp-core/src/sumcheck/rounds/tests.rs",
+    "snapshot": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/sc-tab-mask-conformance-20261028/native/zkp-core__src__sumcheck__rounds__tests.rs",
+    "sha256": "e724f79891155101f2a8c0330deabeaa9e244f2ca375aa163fa3029cc72c1d8b",
+    "bytes": 8571
+  }
+]

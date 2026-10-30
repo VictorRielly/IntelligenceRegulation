@@ -1,0 +1,529 @@
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/capture-tree-r16b/hashline/src/private_block/run_capture.rs	2026-10-29 04:34:46.820592837 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r17/hashline/src/private_block/run_capture.rs	2026-10-29 09:24:16.064574764 -0700
+@@ -39,8 +39,10 @@
+ //! header, the per-boundary objects a run adds, and every size the toy writer
+ //! left implicit written out as data so the Python side ports no layout.
+ 
++use super::accuracy_precision::Stack;
+ use super::argument::{Acc, Coord, Side, SlotDef, SlotProof, Tab};
+-use super::layout::{Layout, N_SLOTS, SLOT_KINDS, SLOT_NAMES};
++use super::layout::{Dom, Layout, N_SLOTS, SC_DMM, SC_DZC, SC_FZC, SC_GMM, SC_KMM, SC_KVZC, SC_QMM, SC_QZC, SC_TAB, SC_UMM, SC_VMM, SC_WO, SLOT_KINDS, SLOT_NAMES, U8_LEN};
++use super::BlockPublic;
+ use super::plane_index::{self, PlaneIndex, Ref};
+ use super::shape::Shape;
+ use crate::field::{Fp, Fp2};
+@@ -848,6 +850,10 @@
+     store: ArrayStore,
+     /// **STAGE 27.** Whether a public table carries its values, taken once.
+     public_tables: bool,
++    /// **TOKEN ROUND 17.** The STATEMENT tables whose values this capture
++    /// records at an R13 block stage, in recording order, for
++    /// [`export_replay`].
++    statement: Vec<StatementTable>,
+ }
+ 
+ thread_local! {
+@@ -936,7 +942,7 @@
+             tr.absorb(b"classify-chunk", &cf.chunk_bytes());
+         }
+         let derived = header.classify.as_ref().map(|cf| cf.tables_derived);
+-        let mut r = Rec { header, binding, own: tr, stages: Vec::new(), boundaries: Vec::new(), cur: None, closed: 0, failure: None, index: None, index_json: Vec::new(), store: ArrayStore::new(opts.arrays), public_tables: opts.public_tables };
++        let mut r = Rec { header, binding, own: tr, stages: Vec::new(), boundaries: Vec::new(), cur: None, closed: 0, failure: None, index: None, index_json: Vec::new(), store: ArrayStore::new(opts.arrays), public_tables: opts.public_tables, statement: Vec::new() };
+         if r.own.state() != r.binding {
+             fail(&mut r, "replay: the rebuilt run header is not the verifier's binding".into());
+         }
+@@ -1496,7 +1502,9 @@
+             }
+             match table {
+                 Tab::Eq { point, start } => write!(out, "{{\"kind\":\"eq\",\"start\":{start},\"point\":{:?}}}", fp2s(point)).expect("write to a Vec"),
+-                Tab::Pub(v) => write_public_table(&mut out, &mut r.store, v, public_tables),
++                Tab::Pub(v) => {
++                    write_public_table(&mut out, &mut r.store, v, public_tables);
++                }
+                 Tab::Priv(v) => {
+                     let role = roles[v.cm as usize];
+                     let ci = &mut indices[v.cm as usize];
+@@ -1685,13 +1693,42 @@
+             }
+         }
+         let mut indices = std::array::from_fn::<_, 4, _>(|i| acc.claims[i].len() - counts[i]);
++        // TOKEN ROUND 17: at an R13 block stage whose public-table VALUES are
++        // recorded, every STATEMENT table (a function of the layer's public
++        // data, which a reader takes rather than rebuilds) is listed for the
++        // export replay; the shape tables (supp, causal, u8, ones) are not
++        let statement_stage = if public_tables && def.sh.accuracy_stack() != Stack::Legacy {
++            let (k, kind, logup) = {
++                let cur = r.cur.as_ref().expect("an open stage");
++                (cur.k, cur.kind, cur.logup.clone())
++            };
++            if kind != "BLOCK" {
++                None
++            } else if def.sh.dd_cap > 0 {
++                fail(r, format!("replay: stage {k}: the export replay of an R13 DD block profile's statement tables is not implemented (no DD classifier profile is registered); capture it with length + digest only"));
++                return;
++            } else {
++                let block = if r.header.classify.is_some() || r.header.token.is_some() { k - 1 } else { k };
++                Some((k, block, logup))
++            }
++        } else {
++            None
++        };
++        let n_pub = def.tabs.iter().filter(|t| matches!(t, Tab::Pub(_))).count();
++        let mut nth = 0usize;
+         for (i, table) in def.tabs.iter().enumerate() {
+             if i > 0 {
+                 write!(out, ",").expect("write to a Vec");
+             }
+             match table {
+                 Tab::Eq { point, start } => write!(out, "{{\"kind\":\"eq\",\"start\":{start},\"point\":{:?}}}", fp2s(point)).expect("write to a Vec"),
+-                Tab::Pub(v) => write_public_table(&mut out, &mut r.store, v, public_tables),
++                Tab::Pub(v) => {
++                    let sha256 = write_public_table(&mut out, &mut r.store, v, public_tables);
++                    if let (Some((stage, block, logup)), Some(what)) = (statement_stage.as_ref(), r13_statement_table(s, nth, n_pub)) {
++                        r.statement.push(StatementTable { stage: *stage, block: *block, slot: s, nth, what, len: v.len(), sha256, draws: draws.clone(), logup: logup.clone(), sh: def.sh.clone() });
++                    }
++                    nth += 1;
++                }
+                 Tab::Priv(v) => {
+                     let role = ["A", "H", "Input", "Output"][v.cm as usize];
+                     let ci = &mut indices[v.cm as usize];
+@@ -1886,6 +1923,13 @@
+     pub arrays: ArrayStore,
+     /// TOKEN I/O (round 7): a token-I/O run's bundle (`L + 2` stage files)
+     pub token: bool,
++    /// **TOKEN ROUND 17.** The statement tables whose values this bundle
++    /// carries at R13 block stages (empty unless public-table values were
++    /// recorded at an R13 shape); [`write_bundle`] refuses a bundle that lists
++    /// any of them until [`export_replay`] has checked them all.
++    pub statement: Vec<StatementTable>,
++    /// **TOKEN ROUND 17.** The export replay's result, once it passed.
++    pub export_replay: Option<ExportReplay>,
+ }
+ 
+ pub(super) fn take() -> Result<Bundle, String> {
+@@ -1907,11 +1951,370 @@
+     // run's, its own run file and schema)
+     if r.header.classify.is_some() {
+         let run_json = write_run_classify(&r);
+-        return Ok(Bundle { run_json, stages: r.stages, profile: r.header.profile.to_string(), l: r.header.l, arrays: r.store, token: true });
++        return Ok(Bundle { run_json, stages: r.stages, profile: r.header.profile.to_string(), l: r.header.l, arrays: r.store, token: true, statement: r.statement, export_replay: None });
+     }
+     let run_json = if r.header.token.is_some() { write_run_token(&r) } else { write_run(&r) };
+     let token = r.header.token.is_some();
+-    Ok(Bundle { run_json, stages: r.stages, profile: r.header.profile.to_string(), l: r.header.l, arrays: r.store, token })
++    Ok(Bundle { run_json, stages: r.stages, profile: r.header.profile.to_string(), l: r.header.l, arrays: r.store, token, statement: r.statement, export_replay: None })
++}
++
++// ---------------------------------------------------------------- token round 17: the export replay
++
++/// **TOKEN ROUND 17: ONE RECORDED STATEMENT TABLE.** A public table of an R13
++/// block stage that is a function of the layer's PUBLIC DATA as the export
++/// carries it — a weight matrix folded with its R13 output-channel
++/// multipliers at the slot's own output point, the two padded norm gains, the
++/// RoPE pair on `Dom::Q` / `Dom::Kv`, the FFN group-id column, the exp and
++/// ACT3 tables and the ACT support — rather than of the shape alone. The
++/// privacy gate TAKES these values from a bundle (gate v22 `PUBLIC_SPEC` /
++/// `R13_PUBLIC_SPEC`, kind "captured") and rebuilds every other public table
++/// from the shape, so a bundle that carries them must show that they are the
++/// export's: [`export_replay`] re-derives each one from the export's layer
++/// and compares it with the SHA-256 this record carries (the digest of the
++/// exact values the verifier evaluated).
++#[derive(Clone)]
++pub(super) struct StatementTable {
++    pub stage: usize,
++    pub block: usize,
++    pub slot: usize,
++    /// its index among the slot's public tables, in push order
++    pub nth: usize,
++    pub what: &'static str,
++    pub len: usize,
++    pub sha256: String,
++    /// the slot's definition challenges (a fold's output point is their tail)
++    draws: Vec<Fp2>,
++    /// the stage's three LogUp challenges in draw order (beta, gamma, alpha)
++    logup: Vec<Fp2>,
++    /// the stage's own shape (at R13: its gate denominator)
++    sh: Shape,
++}
++
++/// What [`export_replay`] checked.
++#[derive(Clone, Debug)]
++pub(super) struct ExportReplay {
++    pub tables: usize,
++    pub entries: usize,
++    pub blocks: usize,
++    /// per kind (`fold(w_q)`, `gamma_a`, ...): how many tables were checked
++    pub per_kind: Vec<(&'static str, usize)>,
++}
++
++/// **The statement tables of an R13 block stage**, by `(slot, nth public
++/// table)` in the slots' push order (`argument.rs` matmuls with the R13
++/// fold, `argument_accuracy.rs` DZC / QZC / KVZC / FZC / TAB). `n_pub` is the
++/// slot's number of public tables: TAB's ACT support is its fifth, pushed
++/// only when `Dom::Tab` pads. Every other public table of an R13 block stage
++/// is a SHAPE table (a support indicator, the causal mask, the byte table, the
++/// ones vector), which a reader rebuilds without the export.
++fn r13_statement_table(slot: usize, nth: usize, n_pub: usize) -> Option<&'static str> {
++    Some(match (slot, nth) {
++        (SC_QMM, 0) => "fold(w_q)",
++        (SC_KMM, 0) => "fold(w_k)",
++        (SC_VMM, 0) => "fold(w_v)",
++        (SC_WO, 0) => "fold(w_o)",
++        (SC_GMM, 0) => "fold(w_g)",
++        (SC_UMM, 0) => "fold(w_u)",
++        (SC_DMM, 0) => "fold(w_d)",
++        (SC_DZC, 0) => "gamma_a",
++        (SC_DZC, 1) => "gamma_m",
++        (SC_QZC, 0) => "rope_cos@Q",
++        (SC_QZC, 1) => "rope_sin@Q",
++        (SC_KVZC, 0) => "rope_cos@Kv",
++        (SC_KVZC, 1) => "rope_sin@Kv",
++        (SC_FZC, 0) => "group_column",
++        (SC_TAB, 1) => "exp_values",
++        (SC_TAB, 2) => "act3_values",
++        (SC_TAB, 4) if n_pub == 5 => "act_support",
++        _ => return None,
++    })
++}
++
++/// the `(slot, nth)` every R13 block stage must list (TAB's ACT support is
++/// optional: it exists only when `Dom::Tab` pads)
++const R13_REQUIRED_STATEMENT_TABLES: [(usize, usize); 16] = [
++    (SC_QMM, 0),
++    (SC_KMM, 0),
++    (SC_VMM, 0),
++    (SC_WO, 0),
++    (SC_GMM, 0),
++    (SC_UMM, 0),
++    (SC_DMM, 0),
++    (SC_DZC, 0),
++    (SC_DZC, 1),
++    (SC_QZC, 0),
++    (SC_QZC, 1),
++    (SC_KVZC, 0),
++    (SC_KVZC, 1),
++    (SC_FZC, 0),
++    (SC_TAB, 1),
++    (SC_TAB, 2),
++];
++
++/// **TOKEN ROUND 17: THE EXPORT REPLAY.** Every statement table the bundle
++/// records is derived again, here, from the export's layer (`export(k)`
++/// loads block `k`'s public data through a path of the caller's choosing,
++/// independent of the verifier's own load), with the recorded stage's shape,
++/// its definition challenges and its LogUp challenges, and its SHA-256 is
++/// compared with the one the record carries. A table that disagrees with the
++/// export — or a block stage that lists fewer statement tables than an R13
++/// block stage has — refuses the bundle ("replay: ..."), and
++/// [`write_bundle`] writes no bundle that lists a statement table until this
++/// has passed. One layer is held at a time.
++///
++/// The derivations are written here from the relations' definitions, not by
++/// calling the slot definitions: a matrix fold is `sum_j eq(r_j, j) m_j
++/// w[j, i]` (rows: Q, K, V, O) or `sum_j eq(r_j, j) m_j w[i, j]` (columns:
++/// gate, up, down) with `r_j` the tail of the slot's definition challenges
++/// and `m` the layer's R13 output-channel coefficients on the padded axis
++/// (the query axis in head-slot order; the gate's are the folded
++/// `c_j = m_j 2^(G - s_j)` the layer's accuracy data carries); a gain is
++/// `gamma[x mod d_pad]`; the RoPE pair is the layer's cos / sin at
++/// `(t, i mod head_dim / 2)` on live positions (sin negated on the first
++/// half); the group column is `gid(j)` at `t < T, j < hidden`; the exp table
++/// is `i + beta exp[i] + gamma TAG_EXP` (`i = x mod 256`); the ACT3 table is
++/// `i + beta word_g[i] + beta^2 g + gamma TAG_ACT` on the `4096 G` rows and
++/// `2048 + gamma TAG_ACT` elsewhere, its support 1 on those rows.
++pub(super) fn export_replay(b: &mut Bundle, export: &mut dyn FnMut(usize) -> Result<BlockPublic, String>) -> Result<ExportReplay, String> {
++    if b.statement.is_empty() {
++        return Err("replay: this bundle records no statement-table values (an R13 capture with public-table values records them); there is nothing to replay against the export".into());
++    }
++    // every R13 block stage lists every statement table of its slots
++    let first = b.statement.first().map(|t| t.stage).unwrap_or(0);
++    let stages: std::collections::BTreeSet<usize> = b.statement.iter().map(|t| t.stage).collect();
++    if stages.len() != b.l || (0..b.l).any(|k| !stages.contains(&(first + k))) {
++        return Err(format!("replay: statement tables were recorded at {} of the run's {} block stages", stages.len(), b.l));
++    }
++    for &stage in &stages {
++        let listed: std::collections::BTreeSet<(usize, usize)> = b.statement.iter().filter(|t| t.stage == stage).map(|t| (t.slot, t.nth)).collect();
++        for (slot, nth) in R13_REQUIRED_STATEMENT_TABLES {
++            if !listed.contains(&(slot, nth)) {
++                return Err(format!("replay: stage {stage} lists no statement table {nth} of slot {slot} [{}]", SLOT_NAMES[slot]));
++            }
++        }
++    }
++    let mut cached: Option<(usize, BlockPublic)> = None;
++    let mut blocks = std::collections::BTreeSet::new();
++    let mut per: std::collections::BTreeMap<&'static str, usize> = std::collections::BTreeMap::new();
++    let mut entries = 0usize;
++    for t in &b.statement {
++        if cached.as_ref().map(|(k, _)| *k) != Some(t.block) {
++            cached = None;
++            let blk = export(t.block).map_err(|e| format!("replay: the export's layer {} does not load: {e}", t.block))?;
++            cached = Some((t.block, blk));
++        }
++        let blk = &cached.as_ref().expect("a loaded layer").1;
++        let want = derive_statement_table(t, blk).map_err(|e| format!("replay: stage {} (block {}) slot {} [{}] public table {} ({}): no derivation from the export's layer: {e}", t.stage, t.block, t.slot, SLOT_NAMES[t.slot], t.nth, t.what))?;
++        let mut bytes = Vec::with_capacity(want.len() * 16);
++        for x in &want {
++            bytes.extend_from_slice(&x.to_bytes());
++        }
++        let got = crate::export_v3::sha256_hex(&bytes);
++        if want.len() != t.len || got != t.sha256 {
++            return Err(format!(
++                "replay: stage {} (block {}) slot {} [{}] public table {} ({}) disagrees with the export: the export's layer {} derives {} entries hashing to {}, the verifier evaluated {} entries hashing to {}; no bundle is written",
++                t.stage,
++                t.block,
++                t.slot,
++                SLOT_NAMES[t.slot],
++                t.nth,
++                t.what,
++                t.block,
++                want.len(),
++                &got[..16],
++                t.len,
++                &t.sha256[..16.min(t.sha256.len())]
++            ));
++        }
++        blocks.insert(t.block);
++        *per.entry(t.what).or_default() += 1;
++        entries += t.len;
++    }
++    let rep = ExportReplay { tables: b.statement.len(), entries, blocks: blocks.len(), per_kind: per.into_iter().collect() };
++    b.export_replay = Some(rep.clone());
++    Ok(rep)
++}
++
++/// one output axis' R13 coefficients, padded with zeros to the axis length
++fn padded_coefficients(m: &[u16], len: usize) -> Result<Vec<u64>, String> {
++    if m.len() > len {
++        return Err(format!("{} multipliers for an axis of {len}", m.len()));
++    }
++    let mut c: Vec<u64> = m.iter().map(|&v| u64::from(v)).collect();
++    c.resize(len, 0);
++    Ok(c)
++}
++
++/// the tail of the definition challenges that is a fold's output point
++fn fold_point<'a>(draws: &'a [Fp2], outputs: usize) -> Result<&'a [Fp2], String> {
++    if !outputs.is_power_of_two() {
++        return Err(format!("an output axis of {outputs} is not a power of two"));
++    }
++    let lo = outputs.trailing_zeros() as usize;
++    if draws.len() < lo {
++        return Err(format!("{} definition challenges for an output axis of {lo} bits", draws.len()));
++    }
++    Ok(&draws[draws.len() - lo..])
++}
++
++/// `out[i] = sum_j eq(r, j) m_j w[j * inner + i]` (`w` is output-major)
++fn fold_rows_export(w: &[i8], outer: usize, inner: usize, m: &[u64], draws: &[Fp2]) -> Result<Vec<Fp2>, String> {
++    use rayon::prelude::*;
++    if w.len() != outer * inner || m.len() != outer {
++        return Err(format!("a {outer} x {inner} fold over {} weights and {} coefficients", w.len(), m.len()));
++    }
++    let eq = eq_table_msb(fold_point(draws, outer)?);
++    let weighted: Vec<Fp2> = eq.iter().zip(m).map(|(e, &c)| e.mul_base(Fp::new(c))).collect();
++    const CHUNK: usize = 256;
++    let mut out = vec![Fp2::ZERO; inner];
++    out.par_chunks_mut(CHUNK).enumerate().for_each(|(ci, o)| {
++        let i0 = ci * CHUNK;
++        for (j, wj) in weighted.iter().enumerate() {
++            if wj.is_zero() {
++                continue;
++            }
++            let row = &w[j * inner + i0..j * inner + i0 + o.len()];
++            for (acc, &x) in o.iter_mut().zip(row) {
++                if x != 0 {
++                    *acc = acc.add(wj.mul_base(Fp::from_i64(i64::from(x))));
++                }
++            }
++        }
++    });
++    Ok(out)
++}
++
++/// `out[i] = sum_j eq(r, j) m_j w[i * outer + j]` (`w` is input-major)
++fn fold_cols_export(w: &[i8], inner: usize, outer: usize, m: &[u64], draws: &[Fp2]) -> Result<Vec<Fp2>, String> {
++    use rayon::prelude::*;
++    if w.len() != outer * inner || m.len() != outer {
++        return Err(format!("a {inner} x {outer} fold over {} weights and {} coefficients", w.len(), m.len()));
++    }
++    let eq = eq_table_msb(fold_point(draws, outer)?);
++    let weighted: Vec<Fp2> = eq.iter().zip(m).map(|(e, &c)| e.mul_base(Fp::new(c))).collect();
++    Ok((0..inner)
++        .into_par_iter()
++        .map(|i| {
++            w[i * outer..(i + 1) * outer].iter().zip(&weighted).fold(Fp2::ZERO, |acc, (&x, wj)| if x == 0 { acc } else { acc.add(wj.mul_base(Fp::from_i64(i64::from(x)))) })
++        })
++        .collect())
++}
++
++/// one statement table, derived from the export's layer (see [`export_replay`])
++fn derive_statement_table(t: &StatementTable, blk: &BlockPublic) -> Result<Vec<Fp2>, String> {
++    let sh = &t.sh;
++    let (at, ff) = (&blk.attention, &blk.feed_forward);
++    let acc = blk.accuracy().ok_or("the layer carries no R13 accuracy data")?;
++    let geometry = super::accuracy_public::Geometry { width: sh.width, query_width: sh.q_width(), kv_width: sh.kv_heads * sh.head_dim, hidden: sh.hidden };
++    if acc.geometry() != geometry {
++        return Err("the layer's accuracy geometry is not the stage shape's".into());
++    }
++    let m = acc.multipliers();
++    let kvw = sh.kv_heads * sh.head_dim;
++    let k = Fp2::from_i64;
++    match (t.slot, t.nth) {
++        (SC_QMM, 0) => {
++            let mut c = vec![0u64; sh.q_pad()];
++            if m.q.len() != sh.q_heads * sh.head_dim {
++                return Err(format!("{} query multipliers for {} query channels", m.q.len(), sh.q_heads * sh.head_dim));
++            }
++            for h in 0..sh.q_heads {
++                for i in 0..sh.head_dim {
++                    c[sh.head_slot(h) * sh.head_dim + i] = u64::from(m.q[h * sh.head_dim + i]);
++                }
++            }
++            fold_rows_export(&at.wq, sh.q_pad(), sh.d_pad, &c, &t.draws)
++        }
++        (SC_KMM, 0) => fold_rows_export(&at.wk, kvw, sh.d_pad, &padded_coefficients(&m.k, kvw)?, &t.draws),
++        (SC_VMM, 0) => fold_rows_export(&at.wv, kvw, sh.d_pad, &padded_coefficients(&m.v, kvw)?, &t.draws),
++        (SC_WO, 0) => fold_rows_export(&at.wo, sh.d_pad, sh.q_pad(), &padded_coefficients(&m.o, sh.d_pad)?, &t.draws),
++        (SC_GMM, 0) => {
++            let mut c = acc.folds().gate.multipliers.clone();
++            if c.len() > sh.f_pad {
++                return Err(format!("{} gate coefficients for an axis of {}", c.len(), sh.f_pad));
++            }
++            c.resize(sh.f_pad, 0);
++            fold_cols_export(&ff.wg_t, sh.d_pad, sh.f_pad, &c, &t.draws)
++        }
++        (SC_UMM, 0) => fold_cols_export(&ff.wu_t, sh.d_pad, sh.f_pad, &padded_coefficients(&m.u, sh.f_pad)?, &t.draws),
++        (SC_DMM, 0) => fold_cols_export(&ff.wd_t, sh.f_pad, sh.d_pad, &padded_coefficients(&m.d, sh.d_pad)?, &t.draws),
++        (SC_DZC, n) if n < 2 => {
++            let g: &[i8] = if n == 0 { &at.gamma_a } else { &ff.gamma_m };
++            if g.len() < sh.d_pad {
++                return Err(format!("a gain of {} entries for d_pad {}", g.len(), sh.d_pad));
++            }
++            Ok((0..sh.size(Dom::D)).map(|x| k(i64::from(g[x % sh.d_pad]))).collect())
++        }
++        (SC_QZC, n) | (SC_KVZC, n) if n < 2 => {
++            let dom = if t.slot == SC_QZC { Dom::Q } else { Dom::Kv };
++            let (dh, half) = (sh.head_dim, sh.head_dim / 2);
++            let heads = if dom == Dom::Q { sh.h_pad } else { sh.kv_heads };
++            let len = sh.size(dom);
++            let mut out = vec![Fp2::ZERO; len];
++            for (x, o) in out.iter_mut().enumerate() {
++                let (i, slot, tok) = (x % dh, (x / dh) % heads, x / (dh * heads));
++                let live = tok < sh.tokens && (dom != Dom::Q || sh.slot_is_true_head(slot)) && x < sh.t_pad * heads * dh;
++                if !live {
++                    continue;
++                }
++                let a = tok * half + i % half;
++                let (c, s) = (*at.rope_cos.get(a).ok_or("the RoPE table is short")?, *at.rope_sin.get(a).ok_or("the RoPE table is short")?);
++                *o = if n == 0 {
++                    k(c)
++                } else if i < half {
++                    k(-s)
++                } else {
++                    k(s)
++                };
++            }
++            Ok(out)
++        }
++        (SC_FZC, 0) => {
++            let ids = acc.group_ids();
++            if ids.len() != sh.hidden {
++                return Err(format!("{} group ids for {} channels", ids.len(), sh.hidden));
++            }
++            let mut out = vec![Fp2::ZERO; sh.size(Dom::F)];
++            for tok in 0..sh.tokens {
++                for (j, &g) in ids.iter().enumerate() {
++                    out[tok * sh.f_pad + j] = k(g as i64);
++                }
++            }
++            Ok(out)
++        }
++        (SC_TAB, n) if n == 1 || n == 2 || n == 4 => {
++            if t.logup.len() != 3 {
++                return Err(format!("{} LogUp challenges recorded for the stage", t.logup.len()));
++            }
++            let (beta, gamma) = (t.logup[0], t.logup[1]);
++            let len = sh.size(Dom::Tab);
++            if n == 1 {
++                let g_exp = gamma.mul_base(Fp::new(crate::tables_attn::TAG_EXP));
++                return Ok((0..len).map(|x| x % U8_LEN).map(|i| k(i as i64).add(beta.mul(k(at.exp[i]))).add(g_exp)).collect());
++            }
++            let words = acc.scaled_tables();
++            let rows = words.len() * 4096;
++            if words.is_empty() || rows > len {
++                return Err(format!("{} SiLU tables for a table domain of {len}", words.len()));
++            }
++            if n == 4 {
++                return Ok((0..len).map(|x| if x < rows { Fp2::ONE } else { Fp2::ZERO }).collect());
++            }
++            let g_act = gamma.mul_base(Fp::new(crate::tables_attn::TAG_ACT));
++            let beta2 = beta.mul(beta);
++            let mut out = vec![k(2048).add(g_act); len];
++            for (g, ws) in words.iter().enumerate() {
++                if ws.len() != 4096 {
++                    return Err(format!("SiLU table {g} has {} words", ws.len()));
++                }
++                for (gate, &w) in ws.iter().enumerate() {
++                    out[g * 4096 + gate] = k(gate as i64).add(beta.mul(k(w))).add(beta2.mul(k(g as i64))).add(g_act);
++                }
++            }
++            Ok(out)
++        }
++        _ => Err(format!("no export derivation is declared for slot {} public table {}", t.slot, t.nth)),
++    }
+ }
+ 
+ /// Detach and discard, whatever state the recorder is in. A rejected run must
+@@ -1991,12 +2394,16 @@
+ /// development rung the values of the twenty-three slots' public cubes are the
+ /// largest thing in a bundle by a wide margin, and the Python side can rebuild
+ /// any of them from the statement it already has.
+-fn write_public_table(out: &mut Vec<u8>, st: &mut ArrayStore, v: &[Fp2], values: bool) {
++///
++/// TOKEN ROUND 17: returns the table's SHA-256 (hex), the one the record
++/// carries, for the export replay of a statement table.
++fn write_public_table(out: &mut Vec<u8>, st: &mut ArrayStore, v: &[Fp2], values: bool) -> String {
+     let mut bytes = Vec::with_capacity(v.len() * 16);
+     for x in v {
+         bytes.extend_from_slice(&x.to_bytes());
+     }
+-    write!(out, "{{\"kind\":\"public\",\"len\":{},\"sha256\":{:?}", v.len(), crate::export_v3::sha256_hex(&bytes)).expect("write to a Vec");
++    let sha256 = crate::export_v3::sha256_hex(&bytes);
++    write!(out, "{{\"kind\":\"public\",\"len\":{},\"sha256\":{:?}", v.len(), sha256).expect("write to a Vec");
+     if values {
+         write!(out, ",\"values\":").expect("write to a Vec");
+         // **STAGE 27.** The bytes are already here and they are exactly the
+@@ -2012,6 +2419,7 @@
+         }
+     }
+     write!(out, "}}").expect("write to a Vec");
++    sha256
+ }
+ 
+ pub(super) fn public_tables_wanted() -> bool {
+@@ -3385,6 +3793,25 @@
+ /// pins, and a README. The manifest is written LAST, so a directory without
+ /// one is an incomplete bundle and not an accepted capture.
+ pub(super) fn write_bundle(dir: &std::path::Path, b: &Bundle, segments: &[Vec<u8>], note: &str, command: &str) -> Result<(), String> {
++    // TOKEN ROUND 17: a bundle that carries the values of statement tables
++    // (an R13 capture with public-table values) is written only after the
++    // export replay checked every one of them; its README says so
++    let replay_note;
++    let note = if b.statement.is_empty() {
++        note
++    } else {
++        let Some(rep) = b.export_replay.as_ref() else {
++            return Err(format!("run capture: this bundle carries the values of {} statement tables (an R13 capture with public-table values), and they were not replayed against the export (token round 17: run_capture::export_replay); no bundle is written", b.statement.len()));
++        };
++        replay_note = format!(
++            "{note}\n\nEXPORT REPLAY (token round 17, `run_capture::export_replay`): every public table of this bundle's {} block stage(s) that a reader TAKES rather than rebuilds from the shape ({} tables, {} entries: {}) was derived again by the recorder from the EXPORT's public layer data, with the stage's own shape, definition challenges and LogUp challenges, and is byte-equal (SHA-256) to the table the verifier evaluated. The other public tables (supports, the causal mask, the byte table, the ones vector) are functions of the shape and the challenges alone and carry their values too.",
++            rep.blocks,
++            rep.tables,
++            rep.entries,
++            rep.per_kind.iter().map(|(k, n)| format!("{k} x{n}")).collect::<Vec<_>>().join(", ")
++        );
++        replay_note.as_str()
++    };
+     std::fs::create_dir_all(dir).map_err(|e| format!("run capture: {}: {e}", dir.display()))?;
+     if segments.len() != b.stages.len() {
+         return Err(format!("run capture: {} segments for a run of {} stages", segments.len(), b.stages.len()));

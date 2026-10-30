@@ -1,0 +1,98 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/AGENDA.md",
+    "snapshot": "startup/00-AGENDA.md",
+    "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139",
+    "bytes": 5603
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/STATE.md",
+    "snapshot": "startup/01-STATE.md",
+    "sha256": "e77692cd986f3467d9071c6c9e7e4e588f720a32c6ad42df9a2411733c6d8f6a",
+    "bytes": 5391
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/FINDINGS.md",
+    "snapshot": "startup/02-FINDINGS.md",
+    "sha256": "4f06a23cefa60d70b55ca54c26daeea201c643cb76c39f86b0f837215297606f",
+    "bytes": 964646
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/sources.jsonl",
+    "snapshot": "startup/03-sources.jsonl",
+    "sha256": "ce3339dbda9e9fddc61e7c0eb9e4de86fc049c08f016ac390bbb67e7ac2c3e49",
+    "bytes": 1063588
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/PROGRESS.md",
+    "snapshot": "startup/04-PROGRESS.md",
+    "sha256": "4de72059e1d88cd65993e57d2b4beca707d37117894438cec63fe3bf1d1fd182",
+    "bytes": 2494
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/CLAUDE.md",
+    "snapshot": "startup/05-CLAUDE.md",
+    "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6",
+    "bytes": 14089
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_THROUGHPUT_TARGET.md",
+    "snapshot": "startup/06-ZK60_THROUGHPUT_TARGET.md",
+    "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53",
+    "bytes": 4941
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/MVP_STATUS.md",
+    "snapshot": "startup/07-MVP_STATUS.md",
+    "sha256": "1b7de29785acdab18a3692741d2fb75e5cf17c7d22a335b6d084b247bf3eaee1",
+    "bytes": 94260
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_DECISIONS.md",
+    "snapshot": "startup/08-ZK60_DECISIONS.md",
+    "sha256": "886960796af77c9336970db6643ee991cc15847a106e668c4f4d899c13581b73",
+    "bytes": 129270
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_CODEX_FABLE_COORDINATION.md",
+    "snapshot": "startup/09-ZK60_CODEX_FABLE_COORDINATION.md",
+    "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f",
+    "bytes": 64889
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/START_HERE.md",
+    "snapshot": "startup/10-START_HERE.md",
+    "sha256": "89f6732a39f4294f2f1b7b68add8fdcbb76b86006e21041f52c0f40d9e39df9d",
+    "bytes": 42025
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_PRIVACY_REQUIREMENTS.md",
+    "snapshot": "startup/11-ZK60_PRIVACY_REQUIREMENTS.md",
+    "sha256": "77037699ed0a89471d72795e112812276bdca1850078fbdd24abee26d7ff04a3",
+    "bytes": 2264
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/layer-stream-digest-20261029/result.json",
+    "snapshot": "startup/12-result.json",
+    "sha256": "148271497b17c27f088f654904886733430b115a76dec93ee26c5b08e2fc7fb5",
+    "bytes": 103620
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/layer-stream-digest-20261029/audit-result.json",
+    "snapshot": "startup/13-audit-result.json",
+    "sha256": "bc92d03b16c6153ecb55c0014c6fbd8e50916d88a141acaa2d52c5e87afcee72",
+    "bytes": 2124
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/layer-stream-digest-20261029/hypotheses.json",
+    "snapshot": "startup/14-hypotheses.json",
+    "sha256": "acb0029cfed06e463cad312e93c659f5b98ec57be08f36dac327caec22eb58ac",
+    "bytes": 96718
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/layer-stream-digest-20261029/README.md",
+    "snapshot": "startup/15-README.md",
+    "sha256": "c48a4728fb2b00f56922e114b8ad128b43cc525fa9fc235af18a2a4323cee4f0",
+    "bytes": 6654
+  }
+]

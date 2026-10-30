@@ -1,0 +1,1 @@
+Closing checker incorrectly assumed every historical source record has an id field. Historical heterogeneous records are preserved and checked by byte-prefix identity; uniqueness is required for this cycle's eight new IDs. No experiment result changed.

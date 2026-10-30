@@ -1,0 +1,15 @@
+--- results/zk60_token_io_r1_20261017/frozen-r16b/hashline/src/private_block/run_capture.rs	2026-10-29 03:50:55.907273090 -0700
++++ ops/zkp-mvp/gate-tinyllama/capture-tree-r16b/hashline/src/private_block/run_capture.rs	2026-10-29 04:34:46.820592837 -0700
+@@ -2636,7 +2636,11 @@
+ 
+ /// a bundle of a classifier run (its run profile is a classifier run profile)
+ pub(super) fn bundle_is_classify(b: &Bundle) -> bool {
+-    super::run::CLASSIFY_RUN_PROFILES.contains(&b.profile.as_str())
++    // PRIVACY GATE ROUND 19 (test-only patch H19-4, the gate's capture tree
++    // only): `is_classify_run_profile` also admits the test-only R13 rung
++    // classifier profile, whose bundles were written under the TOKEN schema
++    // without the five classifier pins (finding F19-1 for the token lane)
++    super::run::is_classify_run_profile(b.profile.as_str())
+ }
+ 
+ fn classify_source_pins(mut pins: Vec<(String, String)>) -> Result<Vec<(String, String)>, String> {

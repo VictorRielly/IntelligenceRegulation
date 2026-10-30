@@ -1,0 +1,15 @@
+{
+  "group_functions": [
+    "zpart_weights",
+    "zkey_weights",
+    "group_zclaims",
+    "zk_rhos"
+  ],
+  "audit_functions": [
+    "part_rows",
+    "audit_claims"
+  ],
+  "serial_eq_change": "par_iter_mut -> iter_mut only",
+  "native_audit_sha256": "8b1795992b919822529b610777bfb4430c4a78f3d6f83707a3d4bab39930c663",
+  "transcript": "scripted xorshift fresh synthetic draws, not native FS"
+}

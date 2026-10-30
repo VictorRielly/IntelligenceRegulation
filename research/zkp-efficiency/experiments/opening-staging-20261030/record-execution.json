@@ -1,0 +1,19 @@
+{
+  "stage": "record",
+  "command": [
+    "/usr/bin/python3",
+    "-B",
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/opening-staging-20261030/record.py"
+  ],
+  "exit_code": 0,
+  "wall_s": 0.06559017799736466,
+  "max_rss_kib": 19828,
+  "one_cpu_affinity": true,
+  "nice": 19,
+  "cpu_limit_s": 40,
+  "alarm_s": 45,
+  "parent_timeout_s": 50,
+  "address_space_mib": 384,
+  "estimated_memory_mib": 96,
+  "gpu": false
+}

@@ -1,0 +1,6 @@
+{
+  "native_threads": 2,
+  "prove_max_seconds": 1200,
+  "source": "retained original guard argv and source snapshot",
+  "prove_guard": "/tmp/zk60-astra-real-app-demo-20261029-1/jobs/d1800de17fffed4565733d12e5c30f52/prove/logs/prove.guard.json"
+}

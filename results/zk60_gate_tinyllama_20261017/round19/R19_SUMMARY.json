@@ -1,0 +1,5200 @@
+{
+ "what": "[gate round 19] One summary of the round's records (frozen tools v22 on",
+ "privacy_acceptance": false,
+ "records": [
+  {
+   "record": "round19/v22/v22-classify-r13-rung-L1-v1.json",
+   "bundle": "classify-r13-rung-L1-v1",
+   "status": "PASS",
+   "false_parts": [],
+   "tools_equal_v22": true,
+   "blocks": 1,
+   "verdict": 1,
+   "c": -228713,
+   "chunk": {
+    "a": 0,
+    "b": 23,
+    "count": 1,
+    "index": 0,
+    "overlap": 4,
+    "size": 23,
+    "total": 23
+   },
+   "n": 23,
+   "item_length": 32,
+   "pad_positions": 0,
+   "verdict_row": 31,
+   "short_item": false,
+   "replay": [
+    2143,
+    203,
+    true
+   ],
+   "classifier_slots": [
+    12,
+    12
+   ],
+   "public_tables_rebuilt_taken": [
+    19,
+    0
+   ],
+   "block_stage_slots": [
+    [
+     23,
+     23
+    ]
+   ],
+   "block_stage_gates": [
+    20
+   ],
+   "block_tables_absent_by_capture_option": false,
+   "per_commitment": [
+    [
+     "A-in@0",
+     10,
+     3,
+     3,
+     0,
+     0
+    ],
+    [
+     "H-in@0",
+     14,
+     4,
+     4,
+     2,
+     2
+    ],
+    [
+     "E-token-in",
+     6,
+     1,
+     1,
+     0,
+     0
+    ],
+    [
+     "A@1",
+     437,
+     148,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@1",
+     248,
+     55,
+     9,
+     2,
+     2
+    ],
+    [
+     "B0",
+     7,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A-out@2",
+     76,
+     29,
+     16,
+     0,
+     0
+    ],
+    [
+     "H-out@2",
+     38,
+     10,
+     5,
+     2,
+     2
+    ],
+    [
+     "B1",
+     7,
+     2,
+     2,
+     0,
+     0
+    ]
+   ],
+   "cfs": [
+    [
+     "IN-C",
+     5337,
+     0,
+     8
+    ],
+    [
+     "BLOCK",
+     16125,
+     0,
+     34
+    ],
+    [
+     "OUT-C",
+     7557,
+     0,
+     14
+    ]
+   ],
+   "joint": [
+    33312,
+    0,
+    true
+   ],
+   "full_preimage": [
+    9,
+    1237802,
+    0
+   ],
+   "joint_preimage": true,
+   "B3": true,
+   "B3_derived": {
+    "differing": 0,
+    "entries": 512,
+    "first_differing": []
+   },
+   "one_public_bit": true,
+   "taken_tables": [],
+   "D41": true,
+   "NL1": [
+    12,
+    12
+   ],
+   "bout_claim_row": 31,
+   "capture_format_notes": [],
+   "controls_fired": [
+    "C13-2_pad_inside_the_content_range",
+    "C13-3_shifted_verdict_row",
+    "C13-4_declared_length_not_the_actual",
+    "CC-1_verdict_flipped",
+    "CC-2_threshold_moved",
+    "CC-3_margin_terminal_moved",
+    "CC-4_margin_vector_entry_moved",
+    "CC-5_template_id_in_the_captured_kappa",
+    "CC-6_chunk_range_moved",
+    "CC-8_preimage_controls_on_stage_IN_C",
+    "CC-9_preimage_controls_on_stage_OUT_C",
+    "J-1_endpoint_reserved_row_identified_with_tok",
+    "J-2_B_in_reserved_row_identified_with_block_0_input",
+    "J-3_shared_proximity_row"
+   ],
+   "controls_not_applicable": [
+    "C13-1_doctored_pad_position"
+   ],
+   "controls_not_fired": [],
+   "seconds": 631.7,
+   "peak_rss_mb": 997
+  },
+  {
+   "record": "round19/v22/v22-classify-r13-rung-L2-v0-short1.json",
+   "bundle": "classify-r13-rung-L2-v0-short1",
+   "status": "PASS",
+   "false_parts": [],
+   "tools_equal_v22": true,
+   "blocks": 2,
+   "verdict": 0,
+   "c": -228711,
+   "chunk": {
+    "a": 0,
+    "b": 1,
+    "count": 1,
+    "index": 0,
+    "overlap": 4,
+    "size": 23,
+    "total": 1
+   },
+   "n": 1,
+   "item_length": 10,
+   "pad_positions": 22,
+   "verdict_row": 9,
+   "short_item": true,
+   "replay": [
+    3786,
+    327,
+    true
+   ],
+   "classifier_slots": [
+    12,
+    12
+   ],
+   "public_tables_rebuilt_taken": [
+    19,
+    0
+   ],
+   "block_stage_slots": [
+    [
+     23,
+     23
+    ],
+    [
+     23,
+     23
+    ]
+   ],
+   "block_stage_gates": [
+    20,
+    21
+   ],
+   "block_tables_absent_by_capture_option": false,
+   "per_commitment": [
+    [
+     "A-in@0",
+     10,
+     3,
+     3,
+     0,
+     0
+    ],
+    [
+     "H-in@0",
+     14,
+     4,
+     4,
+     2,
+     2
+    ],
+    [
+     "E-token-in",
+     6,
+     1,
+     1,
+     0,
+     0
+    ],
+    [
+     "A@1",
+     437,
+     148,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@1",
+     248,
+     55,
+     9,
+     2,
+     2
+    ],
+    [
+     "B0",
+     7,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@2",
+     437,
+     148,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@2",
+     248,
+     55,
+     9,
+     2,
+     2
+    ],
+    [
+     "B1",
+     7,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A-out@3",
+     76,
+     29,
+     16,
+     0,
+     0
+    ],
+    [
+     "H-out@3",
+     38,
+     10,
+     5,
+     2,
+     2
+    ],
+    [
+     "B2",
+     7,
+     2,
+     2,
+     0,
+     0
+    ]
+   ],
+   "cfs": [
+    [
+     "IN-C",
+     5337,
+     0,
+     8
+    ],
+    [
+     "BLOCK",
+     16125,
+     0,
+     34
+    ],
+    [
+     "BLOCK",
+     16125,
+     0,
+     34
+    ],
+    [
+     "OUT-C",
+     7557,
+     0,
+     14
+    ]
+   ],
+   "joint": [
+    33312,
+    0,
+    true
+   ],
+   "full_preimage": [
+    12,
+    2247071,
+    0
+   ],
+   "joint_preimage": true,
+   "B3": true,
+   "B3_derived": {
+    "differing": 0,
+    "entries": 512,
+    "first_differing": []
+   },
+   "one_public_bit": true,
+   "taken_tables": [],
+   "D41": true,
+   "NL1": [
+    12,
+    12
+   ],
+   "bout_claim_row": 9,
+   "capture_format_notes": [],
+   "controls_fired": [
+    "C13-1_doctored_pad_position",
+    "C13-2_pad_inside_the_content_range",
+    "C13-3_shifted_verdict_row",
+    "C13-4_declared_length_not_the_actual",
+    "CC-1_verdict_flipped",
+    "CC-2_threshold_moved",
+    "CC-3_margin_terminal_moved",
+    "CC-4_margin_vector_entry_moved",
+    "CC-5_template_id_in_the_captured_kappa",
+    "CC-6_chunk_range_moved",
+    "CC-8_preimage_controls_on_stage_IN_C",
+    "CC-9_preimage_controls_on_stage_OUT_C",
+    "J-1_endpoint_reserved_row_identified_with_tok",
+    "J-2_B_in_reserved_row_identified_with_block_0_input",
+    "J-3_shared_proximity_row"
+   ],
+   "controls_not_applicable": [],
+   "controls_not_fired": [],
+   "seconds": 911.9,
+   "peak_rss_mb": 1033
+  },
+  {
+   "record": "round19/v22/v22-classify-r13-rung-L2-v0-short11.json",
+   "bundle": "classify-r13-rung-L2-v0-short11",
+   "status": "PASS",
+   "false_parts": [],
+   "tools_equal_v22": true,
+   "blocks": 2,
+   "verdict": 0,
+   "c": -228711,
+   "chunk": {
+    "a": 0,
+    "b": 11,
+    "count": 1,
+    "index": 0,
+    "overlap": 4,
+    "size": 23,
+    "total": 11
+   },
+   "n": 11,
+   "item_length": 20,
+   "pad_positions": 12,
+   "verdict_row": 19,
+   "short_item": true,
+   "replay": [
+    3786,
+    327,
+    true
+   ],
+   "classifier_slots": [
+    12,
+    12
+   ],
+   "public_tables_rebuilt_taken": [
+    19,
+    0
+   ],
+   "block_stage_slots": [
+    [
+     23,
+     23
+    ],
+    [
+     23,
+     23
+    ]
+   ],
+   "block_stage_gates": [
+    20,
+    21
+   ],
+   "block_tables_absent_by_capture_option": false,
+   "per_commitment": [
+    [
+     "A-in@0",
+     10,
+     3,
+     3,
+     0,
+     0
+    ],
+    [
+     "H-in@0",
+     14,
+     4,
+     4,
+     2,
+     2
+    ],
+    [
+     "E-token-in",
+     6,
+     1,
+     1,
+     0,
+     0
+    ],
+    [
+     "A@1",
+     437,
+     148,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@1",
+     248,
+     55,
+     9,
+     2,
+     2
+    ],
+    [
+     "B0",
+     7,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@2",
+     437,
+     148,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@2",
+     248,
+     55,
+     9,
+     2,
+     2
+    ],
+    [
+     "B1",
+     7,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A-out@3",
+     76,
+     29,
+     16,
+     0,
+     0
+    ],
+    [
+     "H-out@3",
+     38,
+     10,
+     5,
+     2,
+     2
+    ],
+    [
+     "B2",
+     7,
+     2,
+     2,
+     0,
+     0
+    ]
+   ],
+   "cfs": [
+    [
+     "IN-C",
+     5337,
+     0,
+     8
+    ],
+    [
+     "BLOCK",
+     16125,
+     0,
+     34
+    ],
+    [
+     "BLOCK",
+     16125,
+     0,
+     34
+    ],
+    [
+     "OUT-C",
+     7557,
+     0,
+     14
+    ]
+   ],
+   "joint": [
+    33312,
+    0,
+    true
+   ],
+   "full_preimage": [
+    12,
+    2246128,
+    0
+   ],
+   "joint_preimage": true,
+   "B3": true,
+   "B3_derived": {
+    "differing": 0,
+    "entries": 512,
+    "first_differing": []
+   },
+   "one_public_bit": true,
+   "taken_tables": [],
+   "D41": true,
+   "NL1": [
+    12,
+    12
+   ],
+   "bout_claim_row": 19,
+   "capture_format_notes": [],
+   "controls_fired": [
+    "C13-1_doctored_pad_position",
+    "C13-2_pad_inside_the_content_range",
+    "C13-3_shifted_verdict_row",
+    "C13-4_declared_length_not_the_actual",
+    "CC-1_verdict_flipped",
+    "CC-2_threshold_moved",
+    "CC-3_margin_terminal_moved",
+    "CC-4_margin_vector_entry_moved",
+    "CC-5_template_id_in_the_captured_kappa",
+    "CC-6_chunk_range_moved",
+    "CC-8_preimage_controls_on_stage_IN_C",
+    "CC-9_preimage_controls_on_stage_OUT_C",
+    "J-1_endpoint_reserved_row_identified_with_tok",
+    "J-2_B_in_reserved_row_identified_with_block_0_input",
+    "J-3_shared_proximity_row"
+   ],
+   "controls_not_applicable": [],
+   "controls_not_fired": [],
+   "seconds": 901.4,
+   "peak_rss_mb": 1031
+  },
+  {
+   "record": "round19/v22/v22-classify-r13-rung-L2-v0.json",
+   "bundle": "classify-r13-rung-L2-v0",
+   "status": "PASS",
+   "false_parts": [],
+   "tools_equal_v22": true,
+   "blocks": 2,
+   "verdict": 0,
+   "c": -228711,
+   "chunk": {
+    "a": 0,
+    "b": 23,
+    "count": 1,
+    "index": 0,
+    "overlap": 4,
+    "size": 23,
+    "total": 23
+   },
+   "n": 23,
+   "item_length": 32,
+   "pad_positions": 0,
+   "verdict_row": 31,
+   "short_item": false,
+   "replay": [
+    3786,
+    327,
+    true
+   ],
+   "classifier_slots": [
+    12,
+    12
+   ],
+   "public_tables_rebuilt_taken": [
+    19,
+    0
+   ],
+   "block_stage_slots": [
+    [
+     23,
+     23
+    ],
+    [
+     23,
+     23
+    ]
+   ],
+   "block_stage_gates": [
+    20,
+    21
+   ],
+   "block_tables_absent_by_capture_option": false,
+   "per_commitment": [
+    [
+     "A-in@0",
+     10,
+     3,
+     3,
+     0,
+     0
+    ],
+    [
+     "H-in@0",
+     14,
+     4,
+     4,
+     2,
+     2
+    ],
+    [
+     "E-token-in",
+     6,
+     1,
+     1,
+     0,
+     0
+    ],
+    [
+     "A@1",
+     437,
+     148,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@1",
+     248,
+     55,
+     9,
+     2,
+     2
+    ],
+    [
+     "B0",
+     7,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@2",
+     437,
+     148,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@2",
+     248,
+     55,
+     9,
+     2,
+     2
+    ],
+    [
+     "B1",
+     7,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A-out@3",
+     76,
+     29,
+     16,
+     0,
+     0
+    ],
+    [
+     "H-out@3",
+     38,
+     10,
+     5,
+     2,
+     2
+    ],
+    [
+     "B2",
+     7,
+     2,
+     2,
+     0,
+     0
+    ]
+   ],
+   "cfs": [
+    [
+     "IN-C",
+     5337,
+     0,
+     8
+    ],
+    [
+     "BLOCK",
+     16125,
+     0,
+     34
+    ],
+    [
+     "BLOCK",
+     16125,
+     0,
+     34
+    ],
+    [
+     "OUT-C",
+     7557,
+     0,
+     14
+    ]
+   ],
+   "joint": [
+    33312,
+    0,
+    true
+   ],
+   "full_preimage": [
+    12,
+    2246234,
+    0
+   ],
+   "joint_preimage": true,
+   "B3": true,
+   "B3_derived": {
+    "differing": 0,
+    "entries": 512,
+    "first_differing": []
+   },
+   "one_public_bit": true,
+   "taken_tables": [],
+   "D41": true,
+   "NL1": [
+    12,
+    12
+   ],
+   "bout_claim_row": 31,
+   "capture_format_notes": [],
+   "controls_fired": [
+    "C13-2_pad_inside_the_content_range",
+    "C13-3_shifted_verdict_row",
+    "C13-4_declared_length_not_the_actual",
+    "CC-1_verdict_flipped",
+    "CC-2_threshold_moved",
+    "CC-3_margin_terminal_moved",
+    "CC-4_margin_vector_entry_moved",
+    "CC-5_template_id_in_the_captured_kappa",
+    "CC-6_chunk_range_moved",
+    "CC-8_preimage_controls_on_stage_IN_C",
+    "CC-9_preimage_controls_on_stage_OUT_C",
+    "J-1_endpoint_reserved_row_identified_with_tok",
+    "J-2_B_in_reserved_row_identified_with_block_0_input",
+    "J-3_shared_proximity_row"
+   ],
+   "controls_not_applicable": [
+    "C13-1_doctored_pad_position"
+   ],
+   "controls_not_fired": [],
+   "seconds": 905.7,
+   "peak_rss_mb": 1031
+  },
+  {
+   "record": "round19/v22/v22-classify-r13-rung-L2-v1-chunk0o27.json",
+   "bundle": "classify-r13-rung-L2-v1-chunk0o27",
+   "status": "PASS",
+   "false_parts": [],
+   "tools_equal_v22": true,
+   "blocks": 2,
+   "verdict": 1,
+   "c": -228713,
+   "chunk": {
+    "a": 0,
+    "b": 23,
+    "count": 2,
+    "index": 0,
+    "overlap": 4,
+    "size": 23,
+    "total": 27
+   },
+   "n": 23,
+   "item_length": 32,
+   "pad_positions": 0,
+   "verdict_row": 31,
+   "short_item": false,
+   "replay": [
+    3786,
+    327,
+    true
+   ],
+   "classifier_slots": [
+    12,
+    12
+   ],
+   "public_tables_rebuilt_taken": [
+    19,
+    0
+   ],
+   "block_stage_slots": [
+    [
+     23,
+     23
+    ],
+    [
+     23,
+     23
+    ]
+   ],
+   "block_stage_gates": [
+    20,
+    21
+   ],
+   "block_tables_absent_by_capture_option": false,
+   "per_commitment": [
+    [
+     "A-in@0",
+     10,
+     3,
+     3,
+     0,
+     0
+    ],
+    [
+     "H-in@0",
+     14,
+     4,
+     4,
+     2,
+     2
+    ],
+    [
+     "E-token-in",
+     6,
+     1,
+     1,
+     0,
+     0
+    ],
+    [
+     "A@1",
+     437,
+     148,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@1",
+     248,
+     55,
+     9,
+     2,
+     2
+    ],
+    [
+     "B0",
+     7,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@2",
+     437,
+     148,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@2",
+     248,
+     55,
+     9,
+     2,
+     2
+    ],
+    [
+     "B1",
+     7,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A-out@3",
+     76,
+     29,
+     16,
+     0,
+     0
+    ],
+    [
+     "H-out@3",
+     38,
+     10,
+     5,
+     2,
+     2
+    ],
+    [
+     "B2",
+     7,
+     2,
+     2,
+     0,
+     0
+    ]
+   ],
+   "cfs": [
+    [
+     "IN-C",
+     5337,
+     0,
+     8
+    ],
+    [
+     "BLOCK",
+     16125,
+     0,
+     34
+    ],
+    [
+     "BLOCK",
+     16125,
+     0,
+     34
+    ],
+    [
+     "OUT-C",
+     7557,
+     0,
+     14
+    ]
+   ],
+   "joint": [
+    33312,
+    0,
+    true
+   ],
+   "full_preimage": [
+    12,
+    2246910,
+    0
+   ],
+   "joint_preimage": true,
+   "B3": true,
+   "B3_derived": {
+    "differing": 0,
+    "entries": 512,
+    "first_differing": []
+   },
+   "one_public_bit": true,
+   "taken_tables": [],
+   "D41": true,
+   "NL1": [
+    12,
+    12
+   ],
+   "bout_claim_row": 31,
+   "capture_format_notes": [],
+   "controls_fired": [
+    "C13-2_pad_inside_the_content_range",
+    "C13-3_shifted_verdict_row",
+    "C13-4_declared_length_not_the_actual",
+    "CC-1_verdict_flipped",
+    "CC-2_threshold_moved",
+    "CC-3_margin_terminal_moved",
+    "CC-4_margin_vector_entry_moved",
+    "CC-5_template_id_in_the_captured_kappa",
+    "CC-6_chunk_range_moved",
+    "CC-8_preimage_controls_on_stage_IN_C",
+    "CC-9_preimage_controls_on_stage_OUT_C",
+    "J-1_endpoint_reserved_row_identified_with_tok",
+    "J-2_B_in_reserved_row_identified_with_block_0_input",
+    "J-3_shared_proximity_row"
+   ],
+   "controls_not_applicable": [
+    "C13-1_doctored_pad_position"
+   ],
+   "controls_not_fired": [],
+   "seconds": 901.9,
+   "peak_rss_mb": 1033
+  },
+  {
+   "record": "round19/v22/v22-classify-r13-rung-L2-v1-chunk1o27.json",
+   "bundle": "classify-r13-rung-L2-v1-chunk1o27",
+   "status": "PASS",
+   "false_parts": [],
+   "tools_equal_v22": true,
+   "blocks": 2,
+   "verdict": 1,
+   "c": -228713,
+   "chunk": {
+    "a": 4,
+    "b": 27,
+    "count": 2,
+    "index": 1,
+    "overlap": 4,
+    "size": 23,
+    "total": 27
+   },
+   "n": 23,
+   "item_length": 32,
+   "pad_positions": 0,
+   "verdict_row": 31,
+   "short_item": false,
+   "replay": [
+    3786,
+    327,
+    true
+   ],
+   "classifier_slots": [
+    12,
+    12
+   ],
+   "public_tables_rebuilt_taken": [
+    19,
+    0
+   ],
+   "block_stage_slots": [
+    [
+     23,
+     23
+    ],
+    [
+     23,
+     23
+    ]
+   ],
+   "block_stage_gates": [
+    20,
+    21
+   ],
+   "block_tables_absent_by_capture_option": false,
+   "per_commitment": [
+    [
+     "A-in@0",
+     10,
+     3,
+     3,
+     0,
+     0
+    ],
+    [
+     "H-in@0",
+     14,
+     4,
+     4,
+     2,
+     2
+    ],
+    [
+     "E-token-in",
+     6,
+     1,
+     1,
+     0,
+     0
+    ],
+    [
+     "A@1",
+     437,
+     148,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@1",
+     248,
+     55,
+     9,
+     2,
+     2
+    ],
+    [
+     "B0",
+     7,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@2",
+     437,
+     148,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@2",
+     248,
+     55,
+     9,
+     2,
+     2
+    ],
+    [
+     "B1",
+     7,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A-out@3",
+     76,
+     29,
+     16,
+     0,
+     0
+    ],
+    [
+     "H-out@3",
+     38,
+     10,
+     5,
+     2,
+     2
+    ],
+    [
+     "B2",
+     7,
+     2,
+     2,
+     0,
+     0
+    ]
+   ],
+   "cfs": [
+    [
+     "IN-C",
+     5337,
+     0,
+     8
+    ],
+    [
+     "BLOCK",
+     16125,
+     0,
+     34
+    ],
+    [
+     "BLOCK",
+     16125,
+     0,
+     34
+    ],
+    [
+     "OUT-C",
+     7557,
+     0,
+     14
+    ]
+   ],
+   "joint": [
+    33312,
+    0,
+    true
+   ],
+   "full_preimage": [
+    12,
+    2246265,
+    0
+   ],
+   "joint_preimage": true,
+   "B3": true,
+   "B3_derived": {
+    "differing": 0,
+    "entries": 512,
+    "first_differing": []
+   },
+   "one_public_bit": true,
+   "taken_tables": [],
+   "D41": true,
+   "NL1": [
+    12,
+    12
+   ],
+   "bout_claim_row": 31,
+   "capture_format_notes": [],
+   "controls_fired": [
+    "C13-2_pad_inside_the_content_range",
+    "C13-3_shifted_verdict_row",
+    "C13-4_declared_length_not_the_actual",
+    "CC-1_verdict_flipped",
+    "CC-2_threshold_moved",
+    "CC-3_margin_terminal_moved",
+    "CC-4_margin_vector_entry_moved",
+    "CC-5_template_id_in_the_captured_kappa",
+    "CC-6_chunk_range_moved",
+    "CC-8_preimage_controls_on_stage_IN_C",
+    "CC-9_preimage_controls_on_stage_OUT_C",
+    "J-1_endpoint_reserved_row_identified_with_tok",
+    "J-2_B_in_reserved_row_identified_with_block_0_input",
+    "J-3_shared_proximity_row"
+   ],
+   "controls_not_applicable": [
+    "C13-1_doctored_pad_position"
+   ],
+   "controls_not_fired": [],
+   "seconds": 904.3,
+   "peak_rss_mb": 1031
+  },
+  {
+   "record": "round19/v22/v22-classify-r13-rung-L2-v1-short1.json",
+   "bundle": "classify-r13-rung-L2-v1-short1",
+   "status": "PASS",
+   "false_parts": [],
+   "tools_equal_v22": true,
+   "blocks": 2,
+   "verdict": 1,
+   "c": -228713,
+   "chunk": {
+    "a": 0,
+    "b": 1,
+    "count": 1,
+    "index": 0,
+    "overlap": 4,
+    "size": 23,
+    "total": 1
+   },
+   "n": 1,
+   "item_length": 10,
+   "pad_positions": 22,
+   "verdict_row": 9,
+   "short_item": true,
+   "replay": [
+    3786,
+    327,
+    true
+   ],
+   "classifier_slots": [
+    12,
+    12
+   ],
+   "public_tables_rebuilt_taken": [
+    19,
+    0
+   ],
+   "block_stage_slots": [
+    [
+     23,
+     23
+    ],
+    [
+     23,
+     23
+    ]
+   ],
+   "block_stage_gates": [
+    20,
+    21
+   ],
+   "block_tables_absent_by_capture_option": false,
+   "per_commitment": [
+    [
+     "A-in@0",
+     10,
+     3,
+     3,
+     0,
+     0
+    ],
+    [
+     "H-in@0",
+     14,
+     4,
+     4,
+     2,
+     2
+    ],
+    [
+     "E-token-in",
+     6,
+     1,
+     1,
+     0,
+     0
+    ],
+    [
+     "A@1",
+     437,
+     148,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@1",
+     248,
+     55,
+     9,
+     2,
+     2
+    ],
+    [
+     "B0",
+     7,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@2",
+     437,
+     148,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@2",
+     248,
+     55,
+     9,
+     2,
+     2
+    ],
+    [
+     "B1",
+     7,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A-out@3",
+     76,
+     29,
+     16,
+     0,
+     0
+    ],
+    [
+     "H-out@3",
+     38,
+     10,
+     5,
+     2,
+     2
+    ],
+    [
+     "B2",
+     7,
+     2,
+     2,
+     0,
+     0
+    ]
+   ],
+   "cfs": [
+    [
+     "IN-C",
+     5337,
+     0,
+     8
+    ],
+    [
+     "BLOCK",
+     16125,
+     0,
+     34
+    ],
+    [
+     "BLOCK",
+     16125,
+     0,
+     34
+    ],
+    [
+     "OUT-C",
+     7557,
+     0,
+     14
+    ]
+   ],
+   "joint": [
+    33312,
+    0,
+    true
+   ],
+   "full_preimage": [
+    12,
+    2247164,
+    0
+   ],
+   "joint_preimage": true,
+   "B3": true,
+   "B3_derived": {
+    "differing": 0,
+    "entries": 512,
+    "first_differing": []
+   },
+   "one_public_bit": true,
+   "taken_tables": [],
+   "D41": true,
+   "NL1": [
+    12,
+    12
+   ],
+   "bout_claim_row": 9,
+   "capture_format_notes": [],
+   "controls_fired": [
+    "C13-1_doctored_pad_position",
+    "C13-2_pad_inside_the_content_range",
+    "C13-3_shifted_verdict_row",
+    "C13-4_declared_length_not_the_actual",
+    "CC-1_verdict_flipped",
+    "CC-2_threshold_moved",
+    "CC-3_margin_terminal_moved",
+    "CC-4_margin_vector_entry_moved",
+    "CC-5_template_id_in_the_captured_kappa",
+    "CC-6_chunk_range_moved",
+    "CC-8_preimage_controls_on_stage_IN_C",
+    "CC-9_preimage_controls_on_stage_OUT_C",
+    "J-1_endpoint_reserved_row_identified_with_tok",
+    "J-2_B_in_reserved_row_identified_with_block_0_input",
+    "J-3_shared_proximity_row"
+   ],
+   "controls_not_applicable": [],
+   "controls_not_fired": [],
+   "seconds": 905.5,
+   "peak_rss_mb": 1033
+  },
+  {
+   "record": "round19/v22/v22-classify-r13-rung-L2-v1-short11.json",
+   "bundle": "classify-r13-rung-L2-v1-short11",
+   "status": "PASS",
+   "false_parts": [],
+   "tools_equal_v22": true,
+   "blocks": 2,
+   "verdict": 1,
+   "c": -228713,
+   "chunk": {
+    "a": 0,
+    "b": 11,
+    "count": 1,
+    "index": 0,
+    "overlap": 4,
+    "size": 23,
+    "total": 11
+   },
+   "n": 11,
+   "item_length": 20,
+   "pad_positions": 12,
+   "verdict_row": 19,
+   "short_item": true,
+   "replay": [
+    3786,
+    327,
+    true
+   ],
+   "classifier_slots": [
+    12,
+    12
+   ],
+   "public_tables_rebuilt_taken": [
+    19,
+    0
+   ],
+   "block_stage_slots": [
+    [
+     23,
+     23
+    ],
+    [
+     23,
+     23
+    ]
+   ],
+   "block_stage_gates": [
+    20,
+    21
+   ],
+   "block_tables_absent_by_capture_option": false,
+   "per_commitment": [
+    [
+     "A-in@0",
+     10,
+     3,
+     3,
+     0,
+     0
+    ],
+    [
+     "H-in@0",
+     14,
+     4,
+     4,
+     2,
+     2
+    ],
+    [
+     "E-token-in",
+     6,
+     1,
+     1,
+     0,
+     0
+    ],
+    [
+     "A@1",
+     437,
+     148,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@1",
+     248,
+     55,
+     9,
+     2,
+     2
+    ],
+    [
+     "B0",
+     7,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@2",
+     437,
+     148,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@2",
+     248,
+     55,
+     9,
+     2,
+     2
+    ],
+    [
+     "B1",
+     7,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A-out@3",
+     76,
+     29,
+     16,
+     0,
+     0
+    ],
+    [
+     "H-out@3",
+     38,
+     10,
+     5,
+     2,
+     2
+    ],
+    [
+     "B2",
+     7,
+     2,
+     2,
+     0,
+     0
+    ]
+   ],
+   "cfs": [
+    [
+     "IN-C",
+     5337,
+     0,
+     8
+    ],
+    [
+     "BLOCK",
+     16125,
+     0,
+     34
+    ],
+    [
+     "BLOCK",
+     16125,
+     0,
+     34
+    ],
+    [
+     "OUT-C",
+     7557,
+     0,
+     14
+    ]
+   ],
+   "joint": [
+    33312,
+    0,
+    true
+   ],
+   "full_preimage": [
+    12,
+    2245637,
+    0
+   ],
+   "joint_preimage": true,
+   "B3": true,
+   "B3_derived": {
+    "differing": 0,
+    "entries": 512,
+    "first_differing": []
+   },
+   "one_public_bit": true,
+   "taken_tables": [],
+   "D41": true,
+   "NL1": [
+    12,
+    12
+   ],
+   "bout_claim_row": 19,
+   "capture_format_notes": [],
+   "controls_fired": [
+    "C13-1_doctored_pad_position",
+    "C13-2_pad_inside_the_content_range",
+    "C13-3_shifted_verdict_row",
+    "C13-4_declared_length_not_the_actual",
+    "CC-1_verdict_flipped",
+    "CC-2_threshold_moved",
+    "CC-3_margin_terminal_moved",
+    "CC-4_margin_vector_entry_moved",
+    "CC-5_template_id_in_the_captured_kappa",
+    "CC-6_chunk_range_moved",
+    "CC-8_preimage_controls_on_stage_IN_C",
+    "CC-9_preimage_controls_on_stage_OUT_C",
+    "J-1_endpoint_reserved_row_identified_with_tok",
+    "J-2_B_in_reserved_row_identified_with_block_0_input",
+    "J-3_shared_proximity_row"
+   ],
+   "controls_not_applicable": [],
+   "controls_not_fired": [],
+   "seconds": 899.4,
+   "peak_rss_mb": 1032
+  },
+  {
+   "record": "round19/v22/v22-classify-r13-rung-L2-v1-short22.json",
+   "bundle": "classify-r13-rung-L2-v1-short22",
+   "status": "PASS",
+   "false_parts": [],
+   "tools_equal_v22": true,
+   "blocks": 2,
+   "verdict": 1,
+   "c": -228713,
+   "chunk": {
+    "a": 0,
+    "b": 22,
+    "count": 1,
+    "index": 0,
+    "overlap": 4,
+    "size": 23,
+    "total": 22
+   },
+   "n": 22,
+   "item_length": 31,
+   "pad_positions": 1,
+   "verdict_row": 30,
+   "short_item": true,
+   "replay": [
+    3786,
+    327,
+    true
+   ],
+   "classifier_slots": [
+    12,
+    12
+   ],
+   "public_tables_rebuilt_taken": [
+    19,
+    0
+   ],
+   "block_stage_slots": [
+    [
+     23,
+     23
+    ],
+    [
+     23,
+     23
+    ]
+   ],
+   "block_stage_gates": [
+    20,
+    21
+   ],
+   "block_tables_absent_by_capture_option": false,
+   "per_commitment": [
+    [
+     "A-in@0",
+     10,
+     3,
+     3,
+     0,
+     0
+    ],
+    [
+     "H-in@0",
+     14,
+     4,
+     4,
+     2,
+     2
+    ],
+    [
+     "E-token-in",
+     6,
+     1,
+     1,
+     0,
+     0
+    ],
+    [
+     "A@1",
+     437,
+     148,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@1",
+     248,
+     55,
+     9,
+     2,
+     2
+    ],
+    [
+     "B0",
+     7,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@2",
+     437,
+     148,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@2",
+     248,
+     55,
+     9,
+     2,
+     2
+    ],
+    [
+     "B1",
+     7,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A-out@3",
+     76,
+     29,
+     16,
+     0,
+     0
+    ],
+    [
+     "H-out@3",
+     38,
+     10,
+     5,
+     2,
+     2
+    ],
+    [
+     "B2",
+     7,
+     2,
+     2,
+     0,
+     0
+    ]
+   ],
+   "cfs": [
+    [
+     "IN-C",
+     5337,
+     0,
+     8
+    ],
+    [
+     "BLOCK",
+     16125,
+     0,
+     34
+    ],
+    [
+     "BLOCK",
+     16125,
+     0,
+     34
+    ],
+    [
+     "OUT-C",
+     7557,
+     0,
+     14
+    ]
+   ],
+   "joint": [
+    33312,
+    0,
+    true
+   ],
+   "full_preimage": [
+    12,
+    2246543,
+    0
+   ],
+   "joint_preimage": true,
+   "B3": true,
+   "B3_derived": {
+    "differing": 0,
+    "entries": 512,
+    "first_differing": []
+   },
+   "one_public_bit": true,
+   "taken_tables": [],
+   "D41": true,
+   "NL1": [
+    12,
+    12
+   ],
+   "bout_claim_row": 30,
+   "capture_format_notes": [],
+   "controls_fired": [
+    "C13-1_doctored_pad_position",
+    "C13-2_pad_inside_the_content_range",
+    "C13-3_shifted_verdict_row",
+    "C13-4_declared_length_not_the_actual",
+    "CC-1_verdict_flipped",
+    "CC-2_threshold_moved",
+    "CC-3_margin_terminal_moved",
+    "CC-4_margin_vector_entry_moved",
+    "CC-5_template_id_in_the_captured_kappa",
+    "CC-6_chunk_range_moved",
+    "CC-8_preimage_controls_on_stage_IN_C",
+    "CC-9_preimage_controls_on_stage_OUT_C",
+    "J-1_endpoint_reserved_row_identified_with_tok",
+    "J-2_B_in_reserved_row_identified_with_block_0_input",
+    "J-3_shared_proximity_row"
+   ],
+   "controls_not_applicable": [],
+   "controls_not_fired": [],
+   "seconds": 865.4,
+   "peak_rss_mb": 1031
+  },
+  {
+   "record": "round19/v22/v22-classify-r13-rung-L2-v1.json",
+   "bundle": "classify-r13-rung-L2-v1",
+   "status": "PASS",
+   "false_parts": [],
+   "tools_equal_v22": true,
+   "blocks": 2,
+   "verdict": 1,
+   "c": -228713,
+   "chunk": {
+    "a": 0,
+    "b": 23,
+    "count": 1,
+    "index": 0,
+    "overlap": 4,
+    "size": 23,
+    "total": 23
+   },
+   "n": 23,
+   "item_length": 32,
+   "pad_positions": 0,
+   "verdict_row": 31,
+   "short_item": false,
+   "replay": [
+    3786,
+    327,
+    true
+   ],
+   "classifier_slots": [
+    12,
+    12
+   ],
+   "public_tables_rebuilt_taken": [
+    19,
+    0
+   ],
+   "block_stage_slots": [
+    [
+     23,
+     23
+    ],
+    [
+     23,
+     23
+    ]
+   ],
+   "block_stage_gates": [
+    20,
+    21
+   ],
+   "block_tables_absent_by_capture_option": false,
+   "per_commitment": [
+    [
+     "A-in@0",
+     10,
+     3,
+     3,
+     0,
+     0
+    ],
+    [
+     "H-in@0",
+     14,
+     4,
+     4,
+     2,
+     2
+    ],
+    [
+     "E-token-in",
+     6,
+     1,
+     1,
+     0,
+     0
+    ],
+    [
+     "A@1",
+     437,
+     148,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@1",
+     248,
+     55,
+     9,
+     2,
+     2
+    ],
+    [
+     "B0",
+     7,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@2",
+     437,
+     148,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@2",
+     248,
+     55,
+     9,
+     2,
+     2
+    ],
+    [
+     "B1",
+     7,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A-out@3",
+     76,
+     29,
+     16,
+     0,
+     0
+    ],
+    [
+     "H-out@3",
+     38,
+     10,
+     5,
+     2,
+     2
+    ],
+    [
+     "B2",
+     7,
+     2,
+     2,
+     0,
+     0
+    ]
+   ],
+   "cfs": [
+    [
+     "IN-C",
+     5337,
+     0,
+     8
+    ],
+    [
+     "BLOCK",
+     16125,
+     0,
+     34
+    ],
+    [
+     "BLOCK",
+     16125,
+     0,
+     34
+    ],
+    [
+     "OUT-C",
+     7557,
+     0,
+     14
+    ]
+   ],
+   "joint": [
+    33312,
+    0,
+    true
+   ],
+   "full_preimage": [
+    12,
+    2246541,
+    0
+   ],
+   "joint_preimage": true,
+   "B3": true,
+   "B3_derived": {
+    "differing": 0,
+    "entries": 512,
+    "first_differing": []
+   },
+   "one_public_bit": true,
+   "taken_tables": [],
+   "D41": true,
+   "NL1": [
+    12,
+    12
+   ],
+   "bout_claim_row": 31,
+   "capture_format_notes": [],
+   "controls_fired": [
+    "C13-2_pad_inside_the_content_range",
+    "C13-3_shifted_verdict_row",
+    "C13-4_declared_length_not_the_actual",
+    "CC-1_verdict_flipped",
+    "CC-2_threshold_moved",
+    "CC-3_margin_terminal_moved",
+    "CC-4_margin_vector_entry_moved",
+    "CC-5_template_id_in_the_captured_kappa",
+    "CC-6_chunk_range_moved",
+    "CC-8_preimage_controls_on_stage_IN_C",
+    "CC-9_preimage_controls_on_stage_OUT_C",
+    "J-1_endpoint_reserved_row_identified_with_tok",
+    "J-2_B_in_reserved_row_identified_with_block_0_input",
+    "J-3_shared_proximity_row"
+   ],
+   "controls_not_applicable": [
+    "C13-1_doctored_pad_position"
+   ],
+   "controls_not_fired": [],
+   "seconds": 915.3,
+   "peak_rss_mb": 1032
+  },
+  {
+   "record": "round19/v22/v22-classify-r13-rung-L2-vtie-short1.json",
+   "bundle": "classify-r13-rung-L2-vtie-short1",
+   "status": "PASS",
+   "false_parts": [],
+   "tools_equal_v22": true,
+   "blocks": 2,
+   "verdict": 0,
+   "c": -228712,
+   "chunk": {
+    "a": 0,
+    "b": 1,
+    "count": 1,
+    "index": 0,
+    "overlap": 4,
+    "size": 23,
+    "total": 1
+   },
+   "n": 1,
+   "item_length": 10,
+   "pad_positions": 22,
+   "verdict_row": 9,
+   "short_item": true,
+   "replay": [
+    3786,
+    327,
+    true
+   ],
+   "classifier_slots": [
+    12,
+    12
+   ],
+   "public_tables_rebuilt_taken": [
+    19,
+    0
+   ],
+   "block_stage_slots": [
+    [
+     23,
+     23
+    ],
+    [
+     23,
+     23
+    ]
+   ],
+   "block_stage_gates": [
+    20,
+    21
+   ],
+   "block_tables_absent_by_capture_option": false,
+   "per_commitment": [
+    [
+     "A-in@0",
+     10,
+     3,
+     3,
+     0,
+     0
+    ],
+    [
+     "H-in@0",
+     14,
+     4,
+     4,
+     2,
+     2
+    ],
+    [
+     "E-token-in",
+     6,
+     1,
+     1,
+     0,
+     0
+    ],
+    [
+     "A@1",
+     437,
+     148,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@1",
+     248,
+     55,
+     9,
+     2,
+     2
+    ],
+    [
+     "B0",
+     7,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@2",
+     437,
+     148,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@2",
+     248,
+     55,
+     9,
+     2,
+     2
+    ],
+    [
+     "B1",
+     7,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A-out@3",
+     76,
+     29,
+     16,
+     0,
+     0
+    ],
+    [
+     "H-out@3",
+     38,
+     10,
+     5,
+     2,
+     2
+    ],
+    [
+     "B2",
+     7,
+     2,
+     2,
+     0,
+     0
+    ]
+   ],
+   "cfs": [
+    [
+     "IN-C",
+     5337,
+     0,
+     8
+    ],
+    [
+     "BLOCK",
+     16125,
+     0,
+     34
+    ],
+    [
+     "BLOCK",
+     16125,
+     0,
+     34
+    ],
+    [
+     "OUT-C",
+     7557,
+     0,
+     14
+    ]
+   ],
+   "joint": [
+    33312,
+    0,
+    true
+   ],
+   "full_preimage": [
+    12,
+    2247254,
+    0
+   ],
+   "joint_preimage": true,
+   "B3": true,
+   "B3_derived": {
+    "differing": 0,
+    "entries": 512,
+    "first_differing": []
+   },
+   "one_public_bit": true,
+   "taken_tables": [],
+   "D41": true,
+   "NL1": [
+    12,
+    12
+   ],
+   "bout_claim_row": 9,
+   "capture_format_notes": [],
+   "controls_fired": [
+    "C13-1_doctored_pad_position",
+    "C13-2_pad_inside_the_content_range",
+    "C13-3_shifted_verdict_row",
+    "C13-4_declared_length_not_the_actual",
+    "CC-1_verdict_flipped",
+    "CC-2_threshold_moved",
+    "CC-3_margin_terminal_moved",
+    "CC-4_margin_vector_entry_moved",
+    "CC-5_template_id_in_the_captured_kappa",
+    "CC-6_chunk_range_moved",
+    "CC-8_preimage_controls_on_stage_IN_C",
+    "CC-9_preimage_controls_on_stage_OUT_C",
+    "J-1_endpoint_reserved_row_identified_with_tok",
+    "J-2_B_in_reserved_row_identified_with_block_0_input",
+    "J-3_shared_proximity_row"
+   ],
+   "controls_not_applicable": [],
+   "controls_not_fired": [],
+   "seconds": 907.4,
+   "peak_rss_mb": 1033
+  },
+  {
+   "record": "round19/v22/v22-classify-r13-rung-L2-vtie-short11.json",
+   "bundle": "classify-r13-rung-L2-vtie-short11",
+   "status": "PASS",
+   "false_parts": [],
+   "tools_equal_v22": true,
+   "blocks": 2,
+   "verdict": 0,
+   "c": -228712,
+   "chunk": {
+    "a": 0,
+    "b": 11,
+    "count": 1,
+    "index": 0,
+    "overlap": 4,
+    "size": 23,
+    "total": 11
+   },
+   "n": 11,
+   "item_length": 20,
+   "pad_positions": 12,
+   "verdict_row": 19,
+   "short_item": true,
+   "replay": [
+    3786,
+    327,
+    true
+   ],
+   "classifier_slots": [
+    12,
+    12
+   ],
+   "public_tables_rebuilt_taken": [
+    19,
+    0
+   ],
+   "block_stage_slots": [
+    [
+     23,
+     23
+    ],
+    [
+     23,
+     23
+    ]
+   ],
+   "block_stage_gates": [
+    20,
+    21
+   ],
+   "block_tables_absent_by_capture_option": false,
+   "per_commitment": [
+    [
+     "A-in@0",
+     10,
+     3,
+     3,
+     0,
+     0
+    ],
+    [
+     "H-in@0",
+     14,
+     4,
+     4,
+     2,
+     2
+    ],
+    [
+     "E-token-in",
+     6,
+     1,
+     1,
+     0,
+     0
+    ],
+    [
+     "A@1",
+     437,
+     148,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@1",
+     248,
+     55,
+     9,
+     2,
+     2
+    ],
+    [
+     "B0",
+     7,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@2",
+     437,
+     148,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@2",
+     248,
+     55,
+     9,
+     2,
+     2
+    ],
+    [
+     "B1",
+     7,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A-out@3",
+     76,
+     29,
+     16,
+     0,
+     0
+    ],
+    [
+     "H-out@3",
+     38,
+     10,
+     5,
+     2,
+     2
+    ],
+    [
+     "B2",
+     7,
+     2,
+     2,
+     0,
+     0
+    ]
+   ],
+   "cfs": [
+    [
+     "IN-C",
+     5337,
+     0,
+     8
+    ],
+    [
+     "BLOCK",
+     16125,
+     0,
+     34
+    ],
+    [
+     "BLOCK",
+     16125,
+     0,
+     34
+    ],
+    [
+     "OUT-C",
+     7557,
+     0,
+     14
+    ]
+   ],
+   "joint": [
+    33312,
+    0,
+    true
+   ],
+   "full_preimage": [
+    12,
+    2247021,
+    0
+   ],
+   "joint_preimage": true,
+   "B3": true,
+   "B3_derived": {
+    "differing": 0,
+    "entries": 512,
+    "first_differing": []
+   },
+   "one_public_bit": true,
+   "taken_tables": [],
+   "D41": true,
+   "NL1": [
+    12,
+    12
+   ],
+   "bout_claim_row": 19,
+   "capture_format_notes": [],
+   "controls_fired": [
+    "C13-1_doctored_pad_position",
+    "C13-2_pad_inside_the_content_range",
+    "C13-3_shifted_verdict_row",
+    "C13-4_declared_length_not_the_actual",
+    "CC-1_verdict_flipped",
+    "CC-2_threshold_moved",
+    "CC-3_margin_terminal_moved",
+    "CC-4_margin_vector_entry_moved",
+    "CC-5_template_id_in_the_captured_kappa",
+    "CC-6_chunk_range_moved",
+    "CC-8_preimage_controls_on_stage_IN_C",
+    "CC-9_preimage_controls_on_stage_OUT_C",
+    "J-1_endpoint_reserved_row_identified_with_tok",
+    "J-2_B_in_reserved_row_identified_with_block_0_input",
+    "J-3_shared_proximity_row"
+   ],
+   "controls_not_applicable": [],
+   "controls_not_fired": [],
+   "seconds": 903.2,
+   "peak_rss_mb": 1032
+  },
+  {
+   "record": "round19/v22/v22-classify-r13-rung-L2-vtie.json",
+   "bundle": "classify-r13-rung-L2-vtie",
+   "status": "PASS",
+   "false_parts": [],
+   "tools_equal_v22": true,
+   "blocks": 2,
+   "verdict": 0,
+   "c": -228712,
+   "chunk": {
+    "a": 0,
+    "b": 23,
+    "count": 1,
+    "index": 0,
+    "overlap": 4,
+    "size": 23,
+    "total": 23
+   },
+   "n": 23,
+   "item_length": 32,
+   "pad_positions": 0,
+   "verdict_row": 31,
+   "short_item": false,
+   "replay": [
+    3786,
+    327,
+    true
+   ],
+   "classifier_slots": [
+    12,
+    12
+   ],
+   "public_tables_rebuilt_taken": [
+    19,
+    0
+   ],
+   "block_stage_slots": [
+    [
+     23,
+     23
+    ],
+    [
+     23,
+     23
+    ]
+   ],
+   "block_stage_gates": [
+    20,
+    21
+   ],
+   "block_tables_absent_by_capture_option": false,
+   "per_commitment": [
+    [
+     "A-in@0",
+     10,
+     3,
+     3,
+     0,
+     0
+    ],
+    [
+     "H-in@0",
+     14,
+     4,
+     4,
+     2,
+     2
+    ],
+    [
+     "E-token-in",
+     6,
+     1,
+     1,
+     0,
+     0
+    ],
+    [
+     "A@1",
+     437,
+     148,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@1",
+     248,
+     55,
+     9,
+     2,
+     2
+    ],
+    [
+     "B0",
+     7,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@2",
+     437,
+     148,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@2",
+     248,
+     55,
+     9,
+     2,
+     2
+    ],
+    [
+     "B1",
+     7,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A-out@3",
+     76,
+     29,
+     16,
+     0,
+     0
+    ],
+    [
+     "H-out@3",
+     38,
+     10,
+     5,
+     2,
+     2
+    ],
+    [
+     "B2",
+     7,
+     2,
+     2,
+     0,
+     0
+    ]
+   ],
+   "cfs": [
+    [
+     "IN-C",
+     5337,
+     0,
+     8
+    ],
+    [
+     "BLOCK",
+     16125,
+     0,
+     34
+    ],
+    [
+     "BLOCK",
+     16125,
+     0,
+     34
+    ],
+    [
+     "OUT-C",
+     7557,
+     0,
+     14
+    ]
+   ],
+   "joint": [
+    33312,
+    0,
+    true
+   ],
+   "full_preimage": [
+    12,
+    2247268,
+    0
+   ],
+   "joint_preimage": true,
+   "B3": true,
+   "B3_derived": {
+    "differing": 0,
+    "entries": 512,
+    "first_differing": []
+   },
+   "one_public_bit": true,
+   "taken_tables": [],
+   "D41": true,
+   "NL1": [
+    12,
+    12
+   ],
+   "bout_claim_row": 31,
+   "capture_format_notes": [],
+   "controls_fired": [
+    "C13-2_pad_inside_the_content_range",
+    "C13-3_shifted_verdict_row",
+    "C13-4_declared_length_not_the_actual",
+    "CC-1_verdict_flipped",
+    "CC-2_threshold_moved",
+    "CC-3_margin_terminal_moved",
+    "CC-4_margin_vector_entry_moved",
+    "CC-5_template_id_in_the_captured_kappa",
+    "CC-6_chunk_range_moved",
+    "CC-8_preimage_controls_on_stage_IN_C",
+    "CC-9_preimage_controls_on_stage_OUT_C",
+    "J-1_endpoint_reserved_row_identified_with_tok",
+    "J-2_B_in_reserved_row_identified_with_block_0_input",
+    "J-3_shared_proximity_row"
+   ],
+   "controls_not_applicable": [
+    "C13-1_doctored_pad_position"
+   ],
+   "controls_not_fired": [],
+   "seconds": 907.2,
+   "peak_rss_mb": 1033
+  },
+  {
+   "record": "round19/v22/v22-classify-r13-shield-t128-cli-sexual-r16b.json",
+   "bundle": "classify-r13-shield-t128-cli-sexual-r16b",
+   "status": "PASS-WITH-DECLARED-LIMITS",
+   "false_parts": [],
+   "tools_equal_v22": true,
+   "blocks": 26,
+   "verdict": 0,
+   "c": 0,
+   "chunk": {
+    "a": 0,
+    "b": 35,
+    "count": 1,
+    "index": 0,
+    "overlap": 8,
+    "size": 55,
+    "total": 35
+   },
+   "n": 35,
+   "item_length": 108,
+   "pad_positions": 20,
+   "verdict_row": 107,
+   "short_item": true,
+   "replay": [
+    263324,
+    3303,
+    true
+   ],
+   "classifier_slots": [
+    12,
+    12
+   ],
+   "public_tables_rebuilt_taken": [
+    19,
+    0
+   ],
+   "block_stage_slots": [
+    [
+     11,
+     11
+    ],
+    [
+     11,
+     11
+    ],
+    [
+     11,
+     11
+    ],
+    [
+     11,
+     11
+    ],
+    [
+     11,
+     11
+    ],
+    [
+     11,
+     11
+    ],
+    [
+     11,
+     11
+    ],
+    [
+     11,
+     11
+    ],
+    [
+     11,
+     11
+    ],
+    [
+     11,
+     11
+    ],
+    [
+     11,
+     11
+    ],
+    [
+     11,
+     11
+    ],
+    [
+     11,
+     11
+    ],
+    [
+     11,
+     11
+    ],
+    [
+     11,
+     11
+    ],
+    [
+     11,
+     11
+    ],
+    [
+     11,
+     11
+    ],
+    [
+     11,
+     11
+    ],
+    [
+     11,
+     11
+    ],
+    [
+     11,
+     11
+    ],
+    [
+     11,
+     11
+    ],
+    [
+     11,
+     11
+    ],
+    [
+     11,
+     11
+    ],
+    [
+     11,
+     11
+    ],
+    [
+     11,
+     11
+    ],
+    [
+     11,
+     11
+    ]
+   ],
+   "block_stage_gates": [
+    19,
+    19,
+    18,
+    20,
+    20,
+    20,
+    20,
+    20,
+    20,
+    20,
+    19,
+    20,
+    20,
+    20,
+    19,
+    20,
+    20,
+    20,
+    20,
+    20,
+    20,
+    20,
+    20,
+    19,
+    19,
+    19
+   ],
+   "block_tables_absent_by_capture_option": true,
+   "per_commitment": [
+    [
+     "A-in@0",
+     41,
+     3,
+     3,
+     0,
+     0
+    ],
+    [
+     "H-in@0",
+     76,
+     4,
+     4,
+     2,
+     2
+    ],
+    [
+     "E-token-in",
+     6,
+     1,
+     1,
+     0,
+     0
+    ],
+    [
+     "A@1",
+     4577,
+     146,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@1",
+     4390,
+     54,
+     9,
+     2,
+     2
+    ],
+    [
+     "B0",
+     38,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@2",
+     4577,
+     146,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@2",
+     4390,
+     54,
+     9,
+     2,
+     2
+    ],
+    [
+     "B1",
+     38,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@3",
+     4577,
+     146,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@3",
+     4390,
+     54,
+     9,
+     2,
+     2
+    ],
+    [
+     "B2",
+     38,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@4",
+     4577,
+     146,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@4",
+     4390,
+     54,
+     9,
+     2,
+     2
+    ],
+    [
+     "B3",
+     38,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@5",
+     4577,
+     146,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@5",
+     4390,
+     54,
+     9,
+     2,
+     2
+    ],
+    [
+     "B4",
+     38,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@6",
+     4577,
+     146,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@6",
+     4390,
+     54,
+     9,
+     2,
+     2
+    ],
+    [
+     "B5",
+     38,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@7",
+     4577,
+     146,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@7",
+     4390,
+     54,
+     9,
+     2,
+     2
+    ],
+    [
+     "B6",
+     38,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@8",
+     4577,
+     146,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@8",
+     4390,
+     54,
+     9,
+     2,
+     2
+    ],
+    [
+     "B7",
+     38,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@9",
+     4577,
+     146,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@9",
+     4390,
+     54,
+     9,
+     2,
+     2
+    ],
+    [
+     "B8",
+     38,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@10",
+     4577,
+     146,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@10",
+     4390,
+     54,
+     9,
+     2,
+     2
+    ],
+    [
+     "B9",
+     38,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@11",
+     4577,
+     146,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@11",
+     4390,
+     54,
+     9,
+     2,
+     2
+    ],
+    [
+     "B10",
+     38,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@12",
+     4577,
+     146,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@12",
+     4390,
+     54,
+     9,
+     2,
+     2
+    ],
+    [
+     "B11",
+     38,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@13",
+     4577,
+     146,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@13",
+     4390,
+     54,
+     9,
+     2,
+     2
+    ],
+    [
+     "B12",
+     38,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@14",
+     4577,
+     146,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@14",
+     4390,
+     54,
+     9,
+     2,
+     2
+    ],
+    [
+     "B13",
+     38,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@15",
+     4577,
+     146,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@15",
+     4390,
+     54,
+     9,
+     2,
+     2
+    ],
+    [
+     "B14",
+     38,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@16",
+     4577,
+     146,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@16",
+     4390,
+     54,
+     9,
+     2,
+     2
+    ],
+    [
+     "B15",
+     38,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@17",
+     4577,
+     146,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@17",
+     4390,
+     54,
+     9,
+     2,
+     2
+    ],
+    [
+     "B16",
+     38,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@18",
+     4577,
+     146,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@18",
+     4390,
+     54,
+     9,
+     2,
+     2
+    ],
+    [
+     "B17",
+     38,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@19",
+     4577,
+     146,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@19",
+     4390,
+     54,
+     9,
+     2,
+     2
+    ],
+    [
+     "B18",
+     38,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@20",
+     4577,
+     146,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@20",
+     4390,
+     54,
+     9,
+     2,
+     2
+    ],
+    [
+     "B19",
+     38,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@21",
+     4577,
+     146,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@21",
+     4390,
+     54,
+     9,
+     2,
+     2
+    ],
+    [
+     "B20",
+     38,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@22",
+     4577,
+     146,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@22",
+     4390,
+     54,
+     9,
+     2,
+     2
+    ],
+    [
+     "B21",
+     38,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@23",
+     4577,
+     146,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@23",
+     4390,
+     54,
+     9,
+     2,
+     2
+    ],
+    [
+     "B22",
+     38,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@24",
+     4577,
+     146,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@24",
+     4390,
+     54,
+     9,
+     2,
+     2
+    ],
+    [
+     "B23",
+     38,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@25",
+     4577,
+     146,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@25",
+     4390,
+     54,
+     9,
+     2,
+     2
+    ],
+    [
+     "B24",
+     38,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@26",
+     4577,
+     146,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@26",
+     4390,
+     54,
+     9,
+     2,
+     2
+    ],
+    [
+     "B25",
+     38,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A-out@27",
+     76,
+     29,
+     16,
+     0,
+     0
+    ],
+    [
+     "H-out@27",
+     38,
+     10,
+     5,
+     2,
+     2
+    ],
+    [
+     "B26",
+     38,
+     2,
+     2,
+     0,
+     0
+    ]
+   ],
+   "cfs": [
+    [
+     "IN-C",
+     5362,
+     0,
+     8
+    ],
+    [
+     "BLOCK",
+     16434,
+     0,
+     34
+    ],
+    [
+     "BLOCK",
+     16434,
+     0,
+     34
+    ],
+    [
+     "BLOCK",
+     16434,
+     0,
+     34
+    ],
+    [
+     "BLOCK",
+     16434,
+     0,
+     34
+    ],
+    [
+     "BLOCK",
+     16434,
+     0,
+     34
+    ],
+    [
+     "BLOCK",
+     16434,
+     0,
+     34
+    ],
+    [
+     "BLOCK",
+     16434,
+     0,
+     34
+    ],
+    [
+     "BLOCK",
+     16434,
+     0,
+     34
+    ],
+    [
+     "BLOCK",
+     16434,
+     0,
+     34
+    ],
+    [
+     "BLOCK",
+     16434,
+     0,
+     34
+    ],
+    [
+     "BLOCK",
+     16434,
+     0,
+     34
+    ],
+    [
+     "BLOCK",
+     16434,
+     0,
+     34
+    ],
+    [
+     "BLOCK",
+     16434,
+     0,
+     34
+    ],
+    [
+     "BLOCK",
+     16434,
+     0,
+     34
+    ],
+    [
+     "BLOCK",
+     16434,
+     0,
+     34
+    ],
+    [
+     "BLOCK",
+     16434,
+     0,
+     34
+    ],
+    [
+     "BLOCK",
+     16434,
+     0,
+     34
+    ],
+    [
+     "BLOCK",
+     16434,
+     0,
+     34
+    ],
+    [
+     "BLOCK",
+     16434,
+     0,
+     34
+    ],
+    [
+     "BLOCK",
+     16434,
+     0,
+     34
+    ],
+    [
+     "BLOCK",
+     16434,
+     0,
+     34
+    ],
+    [
+     "BLOCK",
+     16434,
+     0,
+     34
+    ],
+    [
+     "BLOCK",
+     16434,
+     0,
+     34
+    ],
+    [
+     "BLOCK",
+     16434,
+     0,
+     34
+    ],
+    [
+     "BLOCK",
+     16434,
+     0,
+     34
+    ],
+    [
+     "BLOCK",
+     16434,
+     0,
+     34
+    ],
+    [
+     "OUT-C",
+     7575,
+     0,
+     14
+    ]
+   ],
+   "joint": [
+    1052800,
+    0,
+    true
+   ],
+   "full_preimage": [
+    15,
+    9668010,
+    0
+   ],
+   "joint_preimage": true,
+   "B3": true,
+   "B3_derived": {
+    "differing": 0,
+    "entries": 4096,
+    "first_differing": []
+   },
+   "one_public_bit": true,
+   "taken_tables": [],
+   "D41": true,
+   "NL1": [
+    12,
+    12
+   ],
+   "bout_claim_row": 107,
+   "capture_format_notes": [],
+   "controls_fired": [
+    "C13-1_doctored_pad_position",
+    "C13-2_pad_inside_the_content_range",
+    "C13-3_shifted_verdict_row",
+    "C13-4_declared_length_not_the_actual",
+    "CC-1_verdict_flipped",
+    "CC-2_threshold_moved",
+    "CC-3_margin_terminal_moved",
+    "CC-4_margin_vector_entry_moved",
+    "CC-5_template_id_in_the_captured_kappa",
+    "CC-6_chunk_range_moved",
+    "CC-8_preimage_controls_on_stage_IN_C",
+    "CC-9_preimage_controls_on_stage_OUT_C",
+    "J-1_endpoint_reserved_row_identified_with_tok",
+    "J-2_B_in_reserved_row_identified_with_block_0_input",
+    "J-3_shared_proximity_row"
+   ],
+   "controls_not_applicable": [],
+   "controls_not_fired": [],
+   "seconds": 2438.7,
+   "peak_rss_mb": 5293
+  }
+ ],
+ "cross_verdict": {
+  "L1": {
+   "captures": [
+    "classify-r13-rung-L1-v1"
+   ],
+   "verdicts": [
+    1
+   ],
+   "randomness_free_figures_equal": true,
+   "compared": [
+    "replay",
+    "classifier_slots",
+    "public_tables_rebuilt_taken",
+    "block_stage_slots",
+    "per_commitment",
+    "joint",
+    "NL1",
+    "cfs (stage, entries, differing)"
+   ]
+  },
+  "L2": {
+   "captures": [
+    "classify-r13-rung-L2-v0",
+    "classify-r13-rung-L2-v1",
+    "classify-r13-rung-L2-vtie"
+   ],
+   "verdicts": [
+    0,
+    1,
+    0
+   ],
+   "randomness_free_figures_equal": true,
+   "compared": [
+    "replay",
+    "classifier_slots",
+    "public_tables_rebuilt_taken",
+    "block_stage_slots",
+    "per_commitment",
+    "joint",
+    "NL1",
+    "cfs (stage, entries, differing)"
+   ]
+  }
+ },
+ "cross_verdict_per_n": {
+  "L2 n=1": {
+   "captures": [
+    "classify-r13-rung-L2-v0-short1",
+    "classify-r13-rung-L2-v1-short1",
+    "classify-r13-rung-L2-vtie-short1"
+   ],
+   "verdicts": [
+    0,
+    1,
+    0
+   ],
+   "randomness_free_figures_equal": true
+  },
+  "L2 n=11": {
+   "captures": [
+    "classify-r13-rung-L2-v0-short11",
+    "classify-r13-rung-L2-v1-short11",
+    "classify-r13-rung-L2-vtie-short11"
+   ],
+   "verdicts": [
+    0,
+    1,
+    0
+   ],
+   "randomness_free_figures_equal": true
+  },
+  "L2 n=22": {
+   "captures": [
+    "classify-r13-rung-L2-v1-short22"
+   ],
+   "verdicts": [
+    1
+   ],
+   "randomness_free_figures_equal": true
+  }
+ },
+ "short_vs_full": {
+  "classify-r13-rung-L2-v1-short1 vs classify-r13-rung-L2-v1": {
+   "randomness_free_figures_equal": true,
+   "per_commitment_disclosure_equal": true,
+   "per_commitment_rows_claims_groups_equal": true,
+   "disclosed_dimensions": [
+    [
+     "A-in@0",
+     0
+    ],
+    [
+     "A-out@3",
+     0
+    ],
+    [
+     "A@1",
+     0
+    ],
+    [
+     "A@2",
+     0
+    ],
+    [
+     "B0",
+     0
+    ],
+    [
+     "B1",
+     0
+    ],
+    [
+     "B2",
+     0
+    ],
+    [
+     "E-token-in",
+     0
+    ],
+    [
+     "H-in@0",
+     2
+    ],
+    [
+     "H-out@3",
+     2
+    ],
+    [
+     "H@1",
+     2
+    ],
+    [
+     "H@2",
+     2
+    ]
+   ],
+   "public_lengths": {
+    "short": [
+     1,
+     10,
+     22,
+     9
+    ],
+    "full": [
+     23,
+     32,
+     0,
+     31
+    ]
+   },
+   "classify_facts_diff": {
+    "keys_differing": [
+     "chunk",
+     "input_root",
+     "n",
+     "profile_digest",
+     "profile_text"
+    ],
+    "subkeys_differing": {
+     "chunk": [
+      "b",
+      "total"
+     ]
+    },
+    "profile_text_words_differing": [
+     "item-length=10",
+     "item-length=32",
+     "n=1",
+     "n=23",
+     "pad-positions=0",
+     "pad-positions=22",
+     "verdict-row=31",
+     "verdict-row=9"
+    ]
+   },
+   "profile_text_differs_only_in_public_length_words": true,
+   "classify_keys_differing_beyond_length_and_run_random": [],
+   "nothing_beyond_the_public_length_differs": true
+  },
+  "classify-r13-rung-L2-v1-short11 vs classify-r13-rung-L2-v1": {
+   "randomness_free_figures_equal": true,
+   "per_commitment_disclosure_equal": true,
+   "per_commitment_rows_claims_groups_equal": true,
+   "disclosed_dimensions": [
+    [
+     "A-in@0",
+     0
+    ],
+    [
+     "A-out@3",
+     0
+    ],
+    [
+     "A@1",
+     0
+    ],
+    [
+     "A@2",
+     0
+    ],
+    [
+     "B0",
+     0
+    ],
+    [
+     "B1",
+     0
+    ],
+    [
+     "B2",
+     0
+    ],
+    [
+     "E-token-in",
+     0
+    ],
+    [
+     "H-in@0",
+     2
+    ],
+    [
+     "H-out@3",
+     2
+    ],
+    [
+     "H@1",
+     2
+    ],
+    [
+     "H@2",
+     2
+    ]
+   ],
+   "public_lengths": {
+    "short": [
+     11,
+     20,
+     12,
+     19
+    ],
+    "full": [
+     23,
+     32,
+     0,
+     31
+    ]
+   },
+   "classify_facts_diff": {
+    "keys_differing": [
+     "chunk",
+     "input_root",
+     "n",
+     "profile_digest",
+     "profile_text"
+    ],
+    "subkeys_differing": {
+     "chunk": [
+      "b",
+      "total"
+     ]
+    },
+    "profile_text_words_differing": [
+     "item-length=20",
+     "item-length=32",
+     "n=11",
+     "n=23",
+     "pad-positions=0",
+     "pad-positions=12",
+     "verdict-row=19",
+     "verdict-row=31"
+    ]
+   },
+   "profile_text_differs_only_in_public_length_words": true,
+   "classify_keys_differing_beyond_length_and_run_random": [],
+   "nothing_beyond_the_public_length_differs": true
+  },
+  "classify-r13-rung-L2-v1-short22 vs classify-r13-rung-L2-v1": {
+   "randomness_free_figures_equal": true,
+   "per_commitment_disclosure_equal": true,
+   "per_commitment_rows_claims_groups_equal": true,
+   "disclosed_dimensions": [
+    [
+     "A-in@0",
+     0
+    ],
+    [
+     "A-out@3",
+     0
+    ],
+    [
+     "A@1",
+     0
+    ],
+    [
+     "A@2",
+     0
+    ],
+    [
+     "B0",
+     0
+    ],
+    [
+     "B1",
+     0
+    ],
+    [
+     "B2",
+     0
+    ],
+    [
+     "E-token-in",
+     0
+    ],
+    [
+     "H-in@0",
+     2
+    ],
+    [
+     "H-out@3",
+     2
+    ],
+    [
+     "H@1",
+     2
+    ],
+    [
+     "H@2",
+     2
+    ]
+   ],
+   "public_lengths": {
+    "short": [
+     22,
+     31,
+     1,
+     30
+    ],
+    "full": [
+     23,
+     32,
+     0,
+     31
+    ]
+   },
+   "classify_facts_diff": {
+    "keys_differing": [
+     "chunk",
+     "input_root",
+     "n",
+     "profile_digest",
+     "profile_text"
+    ],
+    "subkeys_differing": {
+     "chunk": [
+      "b",
+      "total"
+     ]
+    },
+    "profile_text_words_differing": [
+     "item-length=31",
+     "item-length=32",
+     "n=22",
+     "n=23",
+     "pad-positions=0",
+     "pad-positions=1",
+     "verdict-row=30",
+     "verdict-row=31"
+    ]
+   },
+   "profile_text_differs_only_in_public_length_words": true,
+   "classify_keys_differing_beyond_length_and_run_random": [],
+   "nothing_beyond_the_public_length_differs": true
+  },
+  "classify-r13-rung-L2-v0-short11 vs classify-r13-rung-L2-v0": {
+   "randomness_free_figures_equal": true,
+   "per_commitment_disclosure_equal": true,
+   "per_commitment_rows_claims_groups_equal": true,
+   "disclosed_dimensions": [
+    [
+     "A-in@0",
+     0
+    ],
+    [
+     "A-out@3",
+     0
+    ],
+    [
+     "A@1",
+     0
+    ],
+    [
+     "A@2",
+     0
+    ],
+    [
+     "B0",
+     0
+    ],
+    [
+     "B1",
+     0
+    ],
+    [
+     "B2",
+     0
+    ],
+    [
+     "E-token-in",
+     0
+    ],
+    [
+     "H-in@0",
+     2
+    ],
+    [
+     "H-out@3",
+     2
+    ],
+    [
+     "H@1",
+     2
+    ],
+    [
+     "H@2",
+     2
+    ]
+   ],
+   "public_lengths": {
+    "short": [
+     11,
+     20,
+     12,
+     19
+    ],
+    "full": [
+     23,
+     32,
+     0,
+     31
+    ]
+   },
+   "classify_facts_diff": {
+    "keys_differing": [
+     "chunk",
+     "input_root",
+     "n",
+     "profile_digest",
+     "profile_text"
+    ],
+    "subkeys_differing": {
+     "chunk": [
+      "b",
+      "total"
+     ]
+    },
+    "profile_text_words_differing": [
+     "item-length=20",
+     "item-length=32",
+     "n=11",
+     "n=23",
+     "pad-positions=0",
+     "pad-positions=12",
+     "verdict-row=19",
+     "verdict-row=31"
+    ]
+   },
+   "profile_text_differs_only_in_public_length_words": true,
+   "classify_keys_differing_beyond_length_and_run_random": [],
+   "nothing_beyond_the_public_length_differs": true
+  },
+  "classify-r13-rung-L2-vtie-short11 vs classify-r13-rung-L2-vtie": {
+   "randomness_free_figures_equal": true,
+   "per_commitment_disclosure_equal": true,
+   "per_commitment_rows_claims_groups_equal": true,
+   "disclosed_dimensions": [
+    [
+     "A-in@0",
+     0
+    ],
+    [
+     "A-out@3",
+     0
+    ],
+    [
+     "A@1",
+     0
+    ],
+    [
+     "A@2",
+     0
+    ],
+    [
+     "B0",
+     0
+    ],
+    [
+     "B1",
+     0
+    ],
+    [
+     "B2",
+     0
+    ],
+    [
+     "E-token-in",
+     0
+    ],
+    [
+     "H-in@0",
+     2
+    ],
+    [
+     "H-out@3",
+     2
+    ],
+    [
+     "H@1",
+     2
+    ],
+    [
+     "H@2",
+     2
+    ]
+   ],
+   "public_lengths": {
+    "short": [
+     11,
+     20,
+     12,
+     19
+    ],
+    "full": [
+     23,
+     32,
+     0,
+     31
+    ]
+   },
+   "classify_facts_diff": {
+    "keys_differing": [
+     "chunk",
+     "input_root",
+     "n",
+     "profile_digest",
+     "profile_text"
+    ],
+    "subkeys_differing": {
+     "chunk": [
+      "b",
+      "total"
+     ]
+    },
+    "profile_text_words_differing": [
+     "item-length=20",
+     "item-length=32",
+     "n=11",
+     "n=23",
+     "pad-positions=0",
+     "pad-positions=12",
+     "verdict-row=19",
+     "verdict-row=31"
+    ]
+   },
+   "profile_text_differs_only_in_public_length_words": true,
+   "classify_keys_differing_beyond_length_and_run_random": [],
+   "nothing_beyond_the_public_length_differs": true
+  },
+  "classify-r13-rung-L2-v0-short1 vs classify-r13-rung-L2-v0": {
+   "randomness_free_figures_equal": true,
+   "per_commitment_disclosure_equal": true,
+   "per_commitment_rows_claims_groups_equal": true,
+   "disclosed_dimensions": [
+    [
+     "A-in@0",
+     0
+    ],
+    [
+     "A-out@3",
+     0
+    ],
+    [
+     "A@1",
+     0
+    ],
+    [
+     "A@2",
+     0
+    ],
+    [
+     "B0",
+     0
+    ],
+    [
+     "B1",
+     0
+    ],
+    [
+     "B2",
+     0
+    ],
+    [
+     "E-token-in",
+     0
+    ],
+    [
+     "H-in@0",
+     2
+    ],
+    [
+     "H-out@3",
+     2
+    ],
+    [
+     "H@1",
+     2
+    ],
+    [
+     "H@2",
+     2
+    ]
+   ],
+   "public_lengths": {
+    "short": [
+     1,
+     10,
+     22,
+     9
+    ],
+    "full": [
+     23,
+     32,
+     0,
+     31
+    ]
+   },
+   "classify_facts_diff": {
+    "keys_differing": [
+     "chunk",
+     "input_root",
+     "n",
+     "profile_digest",
+     "profile_text"
+    ],
+    "subkeys_differing": {
+     "chunk": [
+      "b",
+      "total"
+     ]
+    },
+    "profile_text_words_differing": [
+     "item-length=10",
+     "item-length=32",
+     "n=1",
+     "n=23",
+     "pad-positions=0",
+     "pad-positions=22",
+     "verdict-row=31",
+     "verdict-row=9"
+    ]
+   },
+   "profile_text_differs_only_in_public_length_words": true,
+   "classify_keys_differing_beyond_length_and_run_random": [],
+   "nothing_beyond_the_public_length_differs": true
+  }
+ },
+ "statement_v3_check_real_shieldstral": {
+  "schema": "zk60-classify-run/3",
+  "keys": [
+   "T",
+   "block_profile",
+   "blocks",
+   "bos",
+   "chunk",
+   "classifier_profile_digest",
+   "content_length_n",
+   "context",
+   "context_label",
+   "control_ids_below",
+   "embedding_digest",
+   "export_variant",
+   "final_norm",
+   "input_token_endpoint_root",
+   "item_length",
+   "margin_scale",
+   "margin_vector_digest",
+   "no_id",
+   "pad_id",
+   "pad_positions",
+   "parameter_line",
+   "policy",
+   "rulings",
+   "run_profile",
+   "schema",
+   "scope",
+   "statement_written_by",
+   "template_prefix_ids",
+   "template_suffix_ids",
+   "threshold_c",
+   "tied_source",
+   "tokenizer",
+   "trained_statement_identity",
+   "verdict",
+   "verdict_bit",
+   "verdict_row",
+   "whole_run_floor_bits",
+   "yes_id"
+  ],
+  "keys_not_classified": [],
+  "item_length_is_P0_n_S": true,
+  "pad_positions_is_T_minus_item": true,
+  "verdict_row_is_item_minus_1": true,
+  "pad_id_is_the_registered_policy_s": true,
+  "chunk": {
+   "index": 0,
+   "count": 1,
+   "range": [
+    0,
+    35
+   ],
+   "content_total": 35,
+   "chunk_size": 55,
+   "overlap": 8,
+   "split": "end-aligned (DESIGN v2.2 13.1); a short content is one chunk of its length (v2.4 15)"
+  },
+  "ok": true
+ },
+ "statement_v3_key_classes_READ": {
+  "data-dependent, public by design": [
+   "verdict",
+   "verdict_bit"
+  ],
+  "the content length and its pad layout (public: D45(1)); functions of (T, P0, S, n) and the policy's pad id": [
+   "content_length_n",
+   "chunk (index, count, range, content_total, chunk_size, overlap)",
+   "item_length",
+   "pad_id",
+   "pad_positions",
+   "verdict_row"
+  ],
+  "binding to the post (D45(3)) and the run context": [
+   "input_token_endpoint_root",
+   "context",
+   "context_label"
+  ],
+  "public constants of the registered policy / profile / model": [
+   "schema",
+   "scope",
+   "statement_written_by",
+   "run_profile",
+   "block_profile",
+   "blocks",
+   "export_variant",
+   "trained_statement_identity",
+   "policy",
+   "threshold_c",
+   "yes_id",
+   "no_id",
+   "template_prefix_ids",
+   "template_suffix_ids",
+   "T",
+   "control_ids_below",
+   "tokenizer",
+   "margin_vector_digest",
+   "margin_scale",
+   "tied_source",
+   "embedding_digest",
+   "bos",
+   "final_norm",
+   "classifier_profile_digest",
+   "rulings",
+   "whole_run_floor_bits",
+   "parameter_line"
+  ]
+ },
+ "all_pass": true,
+ "statuses": [
+  [
+   "classify-r13-rung-L1-v1",
+   "PASS"
+  ],
+  [
+   "classify-r13-rung-L2-v0",
+   "PASS"
+  ],
+  [
+   "classify-r13-rung-L2-v0-short1",
+   "PASS"
+  ],
+  [
+   "classify-r13-rung-L2-v0-short11",
+   "PASS"
+  ],
+  [
+   "classify-r13-rung-L2-v1",
+   "PASS"
+  ],
+  [
+   "classify-r13-rung-L2-v1-chunk0o27",
+   "PASS"
+  ],
+  [
+   "classify-r13-rung-L2-v1-chunk1o27",
+   "PASS"
+  ],
+  [
+   "classify-r13-rung-L2-v1-short1",
+   "PASS"
+  ],
+  [
+   "classify-r13-rung-L2-v1-short11",
+   "PASS"
+  ],
+  [
+   "classify-r13-rung-L2-v1-short22",
+   "PASS"
+  ],
+  [
+   "classify-r13-rung-L2-vtie",
+   "PASS"
+  ],
+  [
+   "classify-r13-rung-L2-vtie-short1",
+   "PASS"
+  ],
+  [
+   "classify-r13-rung-L2-vtie-short11",
+   "PASS"
+  ],
+  [
+   "classify-r13-shield-t128-cli-sexual-r16b",
+   "PASS-WITH-DECLARED-LIMITS"
+  ]
+ ],
+ "d41/d41-item-27-r13.json": {
+  "item_27_two_chunks": {
+   "label": 1,
+   "verdict_or": 1,
+   "K": 2,
+   "ranges": [
+    [
+     0,
+     23
+    ],
+    [
+     4,
+     27
+    ]
+   ],
+   "fail_closed_reasons": [],
+   "covers": true,
+   "chunks_given": [
+    [
+     0,
+     0,
+     23,
+     1
+    ],
+    [
+     1,
+     4,
+     27,
+     1
+    ]
+   ]
+  },
+  "item_27_chunk1_only": {
+   "label": 1,
+   "verdict_or": 1,
+   "K": 2,
+   "ranges": [
+    [
+     0,
+     23
+    ],
+    [
+     4,
+     27
+    ]
+   ],
+   "fail_closed_reasons": [
+    "chunks [0] have no accepted proof"
+   ],
+   "covers": true,
+   "chunks_given": [
+    [
+     1,
+     4,
+     27,
+     1
+    ]
+   ]
+  },
+  "item_27_chunk1_twice": {
+   "label": 1,
+   "verdict_or": 1,
+   "K": 2,
+   "ranges": [
+    [
+     0,
+     23
+    ],
+    [
+     4,
+     27
+    ]
+   ],
+   "fail_closed_reasons": [
+    "chunk 1 appears twice"
+   ],
+   "covers": true,
+   "chunks_given": [
+    [
+     0,
+     0,
+     23,
+     1
+    ],
+    [
+     1,
+     4,
+     27,
+     1
+    ],
+    [
+     1,
+     4,
+     27,
+     1
+    ]
+   ]
+  },
+  "item_22_short": {
+   "label": 1,
+   "verdict_or": 1,
+   "K": 1,
+   "ranges": [
+    [
+     0,
+     22
+    ]
+   ],
+   "fail_closed_reasons": [],
+   "covers": true,
+   "chunks_given": [
+    [
+     0,
+     0,
+     22,
+     1
+    ]
+   ]
+  },
+  "integrity_D41": {
+   "chunk0o27": {
+    "recorded": {
+     "index": 0,
+     "count": 2,
+     "a": 0,
+     "b": 23,
+     "total": 27,
+     "size": 23,
+     "overlap": 4
+    },
+    "plan_size": 23,
+    "short_item": false,
+    "ranges": [
+     [
+      0,
+      23
+     ],
+     [
+      4,
+      27
+     ]
+    ],
+    "ok": true
+   },
+   "chunk1o27": {
+    "recorded": {
+     "index": 1,
+     "count": 2,
+     "a": 4,
+     "b": 27,
+     "total": 27,
+     "size": 23,
+     "overlap": 4
+    },
+    "plan_size": 23,
+    "short_item": false,
+    "ranges": [
+     [
+      0,
+      23
+     ],
+     [
+      4,
+      27
+     ]
+    ],
+    "ok": true
+   },
+   "short22": {
+    "recorded": {
+     "index": 0,
+     "count": 1,
+     "a": 0,
+     "b": 22,
+     "total": 22,
+     "size": 23,
+     "overlap": 4
+    },
+    "plan_size": 23,
+    "short_item": true,
+    "ranges": [
+     [
+      0,
+      22
+     ]
+    ],
+    "ok": true
+   }
+  }
+ },
+ "ff/ff-v21-pins-and-v22-on-old.json": {
+  "v21_on_r19": {
+   "classify-r13-rung-L1-v1": {
+    "v21_pins_ok": false,
+    "v21_pin_refusals": 31,
+    "first_refusals": [
+     "src/private_block.rs: 2af1df7d5bc2 has no reading",
+     "src/private_block/accuracy.rs: 2996ff41016a has no reading",
+     "src/private_block/accuracy_act.rs: 7ef5fe26fc93 has no reading"
+    ],
+    "v21_integrity_ok": false,
+    "v21_other_findings": [
+     "the profile text's pad-id 2 is not the registered policy's None",
+     "the profile text does not carry 'chunk-size=23 chunk-overlap=None chunk-split=end-aligned sho'",
+     "D41: the chunk {'index': 0, 'count': 1, 'a': 0, 'b': 23, 'total': 23, 'size': 23, 'overlap': 4} is not the split's (plan size T - P0 - S = 23, n = b - a = 23, overlap None)"
+    ]
+   },
+   "classify-r13-rung-L2-v0": {
+    "v21_pins_ok": false,
+    "v21_pin_refusals": 31,
+    "first_refusals": [
+     "src/private_block.rs: 2af1df7d5bc2 has no reading",
+     "src/private_block/accuracy.rs: 2996ff41016a has no reading",
+     "src/private_block/accuracy_act.rs: 7ef5fe26fc93 has no reading"
+    ],
+    "v21_integrity_ok": false,
+    "v21_other_findings": [
+     "the profile text's pad-id 2 is not the registered policy's None",
+     "the profile text does not carry 'chunk-size=23 chunk-overlap=None chunk-split=end-aligned sho'",
+     "D41: the chunk {'index': 0, 'count': 1, 'a': 0, 'b': 23, 'total': 23, 'size': 23, 'overlap': 4} is not the split's (plan size T - P0 - S = 23, n = b - a = 23, overlap None)"
+    ]
+   },
+   "classify-r13-rung-L2-v0-short1": {
+    "v21_pins_ok": false,
+    "v21_pin_refusals": 31,
+    "first_refusals": [
+     "src/private_block.rs: 2af1df7d5bc2 has no reading",
+     "src/private_block/accuracy.rs: 2996ff41016a has no reading",
+     "src/private_block/accuracy_act.rs: 7ef5fe26fc93 has no reading"
+    ],
+    "v21_integrity_ok": false,
+    "v21_other_findings": [
+     "the profile text's pad-id 2 is not the registered policy's None",
+     "the profile text does not carry 'chunk-size=23 chunk-overlap=None chunk-split=end-aligned sho'",
+     "D41: the chunk {'index': 0, 'count': 1, 'a': 0, 'b': 1, 'total': 1, 'size': 23, 'overlap': 4} is not the split's (plan size T - P0 - S = 23, n = b - a = 1, overlap None)"
+    ]
+   },
+   "classify-r13-rung-L2-v0-short11": {
+    "v21_pins_ok": false,
+    "v21_pin_refusals": 31,
+    "first_refusals": [
+     "src/private_block.rs: 2af1df7d5bc2 has no reading",
+     "src/private_block/accuracy.rs: 2996ff41016a has no reading",
+     "src/private_block/accuracy_act.rs: 7ef5fe26fc93 has no reading"
+    ],
+    "v21_integrity_ok": false,
+    "v21_other_findings": [
+     "the profile text's pad-id 2 is not the registered policy's None",
+     "the profile text does not carry 'chunk-size=23 chunk-overlap=None chunk-split=end-aligned sho'",
+     "D41: the chunk {'index': 0, 'count': 1, 'a': 0, 'b': 11, 'total': 11, 'size': 23, 'overlap': 4} is not the split's (plan size T - P0 - S = 23, n = b - a = 11, overlap None)"
+    ]
+   },
+   "classify-r13-rung-L2-v1": {
+    "v21_pins_ok": false,
+    "v21_pin_refusals": 31,
+    "first_refusals": [
+     "src/private_block.rs: 2af1df7d5bc2 has no reading",
+     "src/private_block/accuracy.rs: 2996ff41016a has no reading",
+     "src/private_block/accuracy_act.rs: 7ef5fe26fc93 has no reading"
+    ],
+    "v21_integrity_ok": false,
+    "v21_other_findings": [
+     "the profile text's pad-id 2 is not the registered policy's None",
+     "the profile text does not carry 'chunk-size=23 chunk-overlap=None chunk-split=end-aligned sho'",
+     "D41: the chunk {'index': 0, 'count': 1, 'a': 0, 'b': 23, 'total': 23, 'size': 23, 'overlap': 4} is not the split's (plan size T - P0 - S = 23, n = b - a = 23, overlap None)"
+    ]
+   },
+   "classify-r13-rung-L2-v1-chunk0o27": {
+    "v21_pins_ok": false,
+    "v21_pin_refusals": 31,
+    "first_refusals": [
+     "src/private_block.rs: 2af1df7d5bc2 has no reading",
+     "src/private_block/accuracy.rs: 2996ff41016a has no reading",
+     "src/private_block/accuracy_act.rs: 7ef5fe26fc93 has no reading"
+    ],
+    "v21_integrity_ok": false,
+    "v21_other_findings": [
+     "the profile text's pad-id 2 is not the registered policy's None",
+     "the profile text does not carry 'chunk-size=23 chunk-overlap=None chunk-split=end-aligned sho'",
+     "D41: the chunk {'index': 0, 'count': 2, 'a': 0, 'b': 23, 'total': 27, 'size': 23, 'overlap': 4} is not the split's (plan size T - P0 - S = 23, n = b - a = 23, overlap None)"
+    ]
+   },
+   "classify-r13-rung-L2-v1-chunk1o27": {
+    "v21_pins_ok": false,
+    "v21_pin_refusals": 31,
+    "first_refusals": [
+     "src/private_block.rs: 2af1df7d5bc2 has no reading",
+     "src/private_block/accuracy.rs: 2996ff41016a has no reading",
+     "src/private_block/accuracy_act.rs: 7ef5fe26fc93 has no reading"
+    ],
+    "v21_integrity_ok": false,
+    "v21_other_findings": [
+     "the profile text's pad-id 2 is not the registered policy's None",
+     "the profile text does not carry 'chunk-size=23 chunk-overlap=None chunk-split=end-aligned sho'",
+     "D41: the chunk {'index': 1, 'count': 2, 'a': 4, 'b': 27, 'total': 27, 'size': 23, 'overlap': 4} is not the split's (plan size T - P0 - S = 23, n = b - a = 23, overlap None)"
+    ]
+   },
+   "classify-r13-rung-L2-v1-short1": {
+    "v21_pins_ok": false,
+    "v21_pin_refusals": 31,
+    "first_refusals": [
+     "src/private_block.rs: 2af1df7d5bc2 has no reading",
+     "src/private_block/accuracy.rs: 2996ff41016a has no reading",
+     "src/private_block/accuracy_act.rs: 7ef5fe26fc93 has no reading"
+    ],
+    "v21_integrity_ok": false,
+    "v21_other_findings": [
+     "the profile text's pad-id 2 is not the registered policy's None",
+     "the profile text does not carry 'chunk-size=23 chunk-overlap=None chunk-split=end-aligned sho'",
+     "D41: the chunk {'index': 0, 'count': 1, 'a': 0, 'b': 1, 'total': 1, 'size': 23, 'overlap': 4} is not the split's (plan size T - P0 - S = 23, n = b - a = 1, overlap None)"
+    ]
+   },
+   "classify-r13-rung-L2-v1-short11": {
+    "v21_pins_ok": false,
+    "v21_pin_refusals": 31,
+    "first_refusals": [
+     "src/private_block.rs: 2af1df7d5bc2 has no reading",
+     "src/private_block/accuracy.rs: 2996ff41016a has no reading",
+     "src/private_block/accuracy_act.rs: 7ef5fe26fc93 has no reading"
+    ],
+    "v21_integrity_ok": false,
+    "v21_other_findings": [
+     "the profile text's pad-id 2 is not the registered policy's None",
+     "the profile text does not carry 'chunk-size=23 chunk-overlap=None chunk-split=end-aligned sho'",
+     "D41: the chunk {'index': 0, 'count': 1, 'a': 0, 'b': 11, 'total': 11, 'size': 23, 'overlap': 4} is not the split's (plan size T - P0 - S = 23, n = b - a = 11, overlap None)"
+    ]
+   },
+   "classify-r13-rung-L2-v1-short22": {
+    "v21_pins_ok": false,
+    "v21_pin_refusals": 31,
+    "first_refusals": [
+     "src/private_block.rs: 2af1df7d5bc2 has no reading",
+     "src/private_block/accuracy.rs: 2996ff41016a has no reading",
+     "src/private_block/accuracy_act.rs: 7ef5fe26fc93 has no reading"
+    ],
+    "v21_integrity_ok": false,
+    "v21_other_findings": [
+     "the profile text's pad-id 2 is not the registered policy's None",
+     "the profile text does not carry 'chunk-size=23 chunk-overlap=None chunk-split=end-aligned sho'",
+     "D41: the chunk {'index': 0, 'count': 1, 'a': 0, 'b': 22, 'total': 22, 'size': 23, 'overlap': 4} is not the split's (plan size T - P0 - S = 23, n = b - a = 22, overlap None)"
+    ]
+   },
+   "classify-r13-rung-L2-vtie": {
+    "v21_pins_ok": false,
+    "v21_pin_refusals": 31,
+    "first_refusals": [
+     "src/private_block.rs: 2af1df7d5bc2 has no reading",
+     "src/private_block/accuracy.rs: 2996ff41016a has no reading",
+     "src/private_block/accuracy_act.rs: 7ef5fe26fc93 has no reading"
+    ],
+    "v21_integrity_ok": false,
+    "v21_other_findings": [
+     "the profile text's pad-id 2 is not the registered policy's None",
+     "the profile text does not carry 'chunk-size=23 chunk-overlap=None chunk-split=end-aligned sho'",
+     "D41: the chunk {'index': 0, 'count': 1, 'a': 0, 'b': 23, 'total': 23, 'size': 23, 'overlap': 4} is not the split's (plan size T - P0 - S = 23, n = b - a = 23, overlap None)"
+    ]
+   },
+   "classify-r13-rung-L2-vtie-short1": {
+    "v21_pins_ok": false,
+    "v21_pin_refusals": 31,
+    "first_refusals": [
+     "src/private_block.rs: 2af1df7d5bc2 has no reading",
+     "src/private_block/accuracy.rs: 2996ff41016a has no reading",
+     "src/private_block/accuracy_act.rs: 7ef5fe26fc93 has no reading"
+    ],
+    "v21_integrity_ok": false,
+    "v21_other_findings": [
+     "the profile text's pad-id 2 is not the registered policy's None",
+     "the profile text does not carry 'chunk-size=23 chunk-overlap=None chunk-split=end-aligned sho'",
+     "D41: the chunk {'index': 0, 'count': 1, 'a': 0, 'b': 1, 'total': 1, 'size': 23, 'overlap': 4} is not the split's (plan size T - P0 - S = 23, n = b - a = 1, overlap None)"
+    ]
+   },
+   "classify-r13-rung-L2-vtie-short11": {
+    "v21_pins_ok": false,
+    "v21_pin_refusals": 31,
+    "first_refusals": [
+     "src/private_block.rs: 2af1df7d5bc2 has no reading",
+     "src/private_block/accuracy.rs: 2996ff41016a has no reading",
+     "src/private_block/accuracy_act.rs: 7ef5fe26fc93 has no reading"
+    ],
+    "v21_integrity_ok": false,
+    "v21_other_findings": [
+     "the profile text's pad-id 2 is not the registered policy's None",
+     "the profile text does not carry 'chunk-size=23 chunk-overlap=None chunk-split=end-aligned sho'",
+     "D41: the chunk {'index': 0, 'count': 1, 'a': 0, 'b': 11, 'total': 11, 'size': 23, 'overlap': 4} is not the split's (plan size T - P0 - S = 23, n = b - a = 11, overlap None)"
+    ]
+   },
+   "classify-r13-shield-t128-cli-sexual-r16b": {
+    "v21_pins_ok": false,
+    "v21_pin_refusals": 31,
+    "first_refusals": [
+     "src/private_block.rs: 2af1df7d5bc2 has no reading",
+     "src/private_block/accuracy.rs: 2996ff41016a has no reading",
+     "src/private_block/accuracy_act.rs: 7ef5fe26fc93 has no reading"
+    ]
+   }
+  },
+  "v22_on_old": {
+   "classify-rc3-cli-p18-r14": {
+    "integrity_ok": false,
+    "pin_refusals": [
+     "src/private_block/token_io/classify.rs: 6c828db6673e, the v22 classifier port was read at c180c83fb50f",
+     "src/private_block/token_io/classify_run.rs: 5d1d077f5102, the v22 classifier port was read at 8abbf72f1c8e",
+     "src/private_block/token_io/classify_tied.rs: 401d38d444b6, the v22 classifier port was read at a89acfabc75c"
+    ]
+   },
+   "classify-rc3-rung-L2-v1-short20": {
+    "integrity_ok": false,
+    "pin_refusals": [
+     "src/private_block/token_io/classify.rs: 6c828db6673e, the v22 classifier port was read at c180c83fb50f",
+     "src/private_block/token_io/classify_run.rs: 5d1d077f5102, the v22 classifier port was read at 8abbf72f1c8e",
+     "src/private_block/token_io/classify_tied.rs: 401d38d444b6, the v22 classifier port was read at a89acfabc75c"
+    ]
+   },
+   "classify-rung-L1-v1": {
+    "integrity_ok": false,
+    "pin_refusals": [
+     "src/private_block/token_io/classify.rs: 5d2c642a60d1, the v22 classifier port was read at c180c83fb50f",
+     "src/private_block/token_io/classify_run.rs: be2ccd1c97f1, the v22 classifier port was read at 8abbf72f1c8e",
+     "src/private_block/token_io/stage_in_c.rs: 05c1aae26519, the v22 classifier port was read at 6a92da0ecfe7",
+     "src/private_block/token_io/stage_out_c.rs: ee1cd2374ef3, the v22 classifier port was read at 93a79a2b39ab",
+     "src/private_block/token_io/classify_tied.rs: not pinned (the v22 classifier port was read from it)"
+    ]
+   }
+  },
+  "all_v21_refuse": true,
+  "v22_refuses_old": true
+ }
+}

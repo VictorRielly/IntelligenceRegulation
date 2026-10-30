@@ -197,10 +197,10 @@ fn block_public_digest_input_len(sh: &Shape) -> usize {
     let (d, f, kv, half) = (sh.d_pad, sh.f_pad, sh.kv_heads * sh.head_dim, sh.head_dim / 2);
     let framed_i8 = |n: usize| 8 + n;
     let framed_i64 = |n: usize| 8 + 8 * n;
-    31 + framed_i8(d * d)            // wq
+    31 + framed_i8(sh.q_pad() * d)            // wq
         + framed_i8(kv * d)          // wk
         + framed_i8(kv * d)          // wv
-        + framed_i8(d * d)           // wo
+        + framed_i8(d * sh.q_pad())           // wo
         + framed_i8(d)               // gamma_a
         + framed_i64(sh.tokens * half) // rope_cos
         + framed_i64(sh.tokens * half) // rope_sin
@@ -210,6 +210,24 @@ fn block_public_digest_input_len(sh: &Shape) -> usize {
         + framed_i8(d * f)           // wu_t
         + framed_i8(f * d)           // wd_t
         + 8 + 2 * 256 // the activation table, [i16; 256]
+}
+
+fn block_public_digest_input_lengths(sh:&Shape)->Vec<usize> {
+    let base=block_public_digest_input_len(sh);
+    if sh.accuracy_stack()==super::accuracy_precision::Stack::Legacy {return vec![base]}
+    let geo=super::accuracy_public::Geometry{width:sh.width,query_width:sh.q_width(),kv_width:sh.kv_heads*sh.head_dim,hidden:sh.hidden};
+    let registry=sh.accuracy_registry();let stack=sh.accuracy_stack();
+    (1..=4).map(|groups| {
+        // Independent transcription of the framing, not the production
+        // helper's expression. Its inputs are all constructor-bounded.
+        let prefix=19+4+registry.name().len()+4+stack.export_name().unwrap().len();
+        let axes=7*8+2*(sh.q_width()+2*sh.kv_heads*sh.head_dim+2*sh.width+2*sh.hidden);
+        let context=32+36+8;
+        let members=8+groups*8;let ids=8+sh.hidden*8;let tables=groups*(8+8192);
+        let encoded=prefix+context+axes+members+ids+tables;
+        assert_eq!(encoded,super::accuracy_public::encoded_len(geo,registry,stack,groups).unwrap());
+        base+12+8+encoded
+    }).collect()
 }
 
 /// **D3 / D5, a schedule digest's input**: the domain literal, then every
@@ -289,7 +307,11 @@ fn kinds_of(sh: &Shape, run: Option<(&str, usize, &RunStatement)>) -> Vec<Kind> 
 
     // (3) THE STATEMENT CLASS — unkeyed at every rule.
     push("the calibration identity digest (D1)".to_string(), "F_U", 30);
-    push("the block's public/weights digest (D2)".to_string(), "F_U", block_public_digest_input_len(sh));
+    for (index,len) in block_public_digest_input_lengths(sh).into_iter().enumerate() {
+        let label=if sh.accuracy_stack()==super::accuracy_precision::Stack::Legacy {"the block's public/weights digest (D2)".to_string()}
+            else {format!("the block's public/weights digest (D2, R13 groups={})",index+1)};
+        push(label,"F_U",len);
+    }
     push("the block's schedule digest (D3)".to_string(), "F_U", schedule_digest_input_len(33, &lay.describe()));
     if sh.endpoint_general {
         push("the generalised endpoint's spec digest (D6)".to_string(), "F_U", 142);
@@ -432,7 +454,7 @@ fn every_hash_input_kind_of_every_registered_profile_is_printed_with_its_length(
     // NATIVE LANE: the trained-calibration profiles — the blocks, and each
     // run bound to its trained-model statement, at L = 1 (what is proved
     // first) and at the whole TinyLlama stack's L = 22
-    for sh in super::trained_calib_tests::registered_trained_shapes() {
+    for sh in super::trained_calib_tests::registered_trained_shapes().into_iter().chain(super::accuracy_profile_tests::registered_shapes()) {
         profiles.push((sh.profile.to_string(), sh, None));
     }
     for (p, sh) in super::trained_calib_tests::registered_trained_runs() {
@@ -440,6 +462,17 @@ fn every_hash_input_kind_of_every_registered_profile_is_printed_with_its_length(
             let spec = IoSpec::new_shaped(&sh, s25_context(), 0, 0).expect("the run's endpoint spec");
             let st = super::trained_calib_tests::trained_run_statement(&sh, p, l, s25_context(), ExpectedIo::from_roots(spec, [1u8; 32], [2u8; 32]));
             profiles.push((p.to_string(), sh.clone(), Some((p, l, st))));
+        }
+    }
+
+    for (p,sh) in super::accuracy_profile_tests::registered_runs() {
+        for l in [1usize,22] {
+            let spec=IoSpec::new_shaped(&sh,s25_context(),0,0).unwrap();
+            let model=super::trained_statement::accuracy_hash_model(&sh,l);
+            let st=RunStatement::new_bound_from_digests(RunShape::accuracy(sh.clone(),l).unwrap(),s25_context(),
+                ExpectedIo::from_roots(spec,[1;32],[2;32]),model.layers.iter().map(|r|r.block_digest).collect(),
+                &vec![super::ENDPOINT_SCALES;l],&model).unwrap();
+            profiles.push((p.to_string(),sh.clone(),Some((p,l,st))));
         }
     }
     // the registry, read out of the source exactly as stage 24 reads it
@@ -1259,6 +1292,7 @@ fn stage_24s_twelve_key_test_still_covers_every_tagged_profile() {
     let (mut legacy, mut tagged) = (0usize, 0usize);
     let mut all_shapes = every_shape();
     all_shapes.extend(super::trained_calib_tests::registered_trained_shapes());
+    all_shapes.extend(super::accuracy_profile_tests::registered_shapes());
     for sh in all_shapes.iter().cloned() {
         let t = sh.hash_tag();
         if sh.hashes_under_the_legacy_rule() {
@@ -1284,7 +1318,7 @@ fn stage_24s_twelve_key_test_still_covers_every_tagged_profile() {
             assert_ne!(keys[i], keys[j], "two of the live keys collide");
         }
     }
-    assert_eq!(in_source.len(), all_shapes.len() + every_run().len() + super::trained_calib_tests::registered_trained_runs().len(), "the source registry holds a profile this test does not measure (or vice versa)");
+    assert_eq!(in_source.len(), all_shapes.len() + every_run().len() + super::trained_calib_tests::registered_trained_runs().len() + super::accuracy_profile_tests::registered_runs().len(), "the source registry holds a profile this test does not measure (or vice versa)");
     eprintln!(
         "S25 W-7: {} profiles in the registry, {legacy} legacy, {tagged} tagged, {} live keys pairwise distinct — covered by s24_tests::{cited}",
         in_source.len(),
@@ -1306,7 +1340,7 @@ fn production_sources() -> Vec<(String, String)> {
     let lines: Vec<&str> = parent.lines().collect();
     let mut out: Vec<(String, String)> = Vec::new();
     for (i, l) in lines.iter().enumerate() {
-        let Some(rest) = l.trim().strip_prefix("mod ") else { continue };
+        let Some(rest) = l.trim().strip_prefix("mod ").or_else(|| l.trim().strip_prefix("pub mod ")) else { continue };
         let Some(name) = rest.strip_suffix(';') else { continue };
         if i > 0 && lines[i - 1].trim() == "#[cfg(test)]" {
             continue;
@@ -1316,6 +1350,23 @@ fn production_sources() -> Vec<(String, String)> {
         out.push((path, text));
     }
     out.push(("src/private_block.rs".to_string(), parent));
+    // R12b's public wrapper has one production child. Scan it too, and fail
+    // closed if another child is added without extending this enumeration.
+    let tied=source("src/private_block/tied_tables.rs");
+    let children=tied.lines().take_while(|line| line.trim()!="#[cfg(test)]")
+        .filter_map(|line| line.trim().strip_prefix("mod ").or_else(|| line.trim().strip_prefix("pub mod ")))
+        .collect::<Vec<_>>();
+    assert_eq!(children,vec!["derive;"],"the tied-table production module enumeration moved");
+    out.push(("src/private_block/tied_tables/derive.rs".to_string(),source("src/private_block/tied_tables/derive.rs")));
+    for (parent,child) in [("trained_block.rs","trained_accuracy.rs"),("witness.rs","witness_accuracy.rs"),("argument.rs","argument_accuracy.rs")] {
+        let text=source(&format!("src/private_block/{parent}"));
+        assert!(text.contains(&format!(r#"#[path = "{child}"]"#)),"{parent}: accuracy child path changed");
+        let declarations=text.lines().filter_map(|line| line.trim().strip_prefix("mod "))
+            .filter(|rest| rest.ends_with(';')).collect::<Vec<_>>();
+        assert_eq!(declarations,vec!["accuracy;"],"{parent}: production child enumeration changed");
+        out.push((format!("src/private_block/{child}"),source(&format!("src/private_block/{child}"))));
+    }
+
     // the frozen seam is the toy's and the frozen-seam rung's endpoint and is
     // therefore on the block's path, although it lives outside this module
     // and outside this lane's write set
@@ -1542,13 +1593,16 @@ fn the_draw_accounting_assertions_are_still_blocked_on_the_generators_accessor()
 /// — and the three `cfg(test)` modules that WRITE a retained bundle, because
 /// a retained capture counts as publishing and its digests are call sites
 /// like any other.
-const CALL_SITES: [(&str, &str, usize, &str); 15] = [
+const CALL_SITES: [(&str, &str, usize, &str); 16] = [
     // NATIVE LANE: the trained-block CLI's request context, an unkeyed hash of
     // public words (variant, label, layer); its file digests are SHA-256 via
     // `Sha256::digest`, not an entry point of this table
     ("src/private_block/trained_block.rs", "blake3::hash(", 2, "driver-side, outside the protocol: the trained-block CLI's and the trained-stack CLI's request contexts, unkeyed hashes of public length-prefixed words (variant, label, layer indices)"),
-    // NATIVE R12 (F3): the loader's streamed file digest
-    ("src/private_block/trained_block.rs", "Sha256::new(", 1, "driver-side, outside the protocol: the trained loader's streamed SHA-256 of the three public token tables a tied model's export names (F3), checked against their manifests; public files, never a transcript input"),
+    // R12b moves bounded public-file hashing out of trained_block.rs and
+    // authenticates/recomputes the tied tables. These SHA-256 operations
+    // share no oracle with BLAKE3 and consume no private witness value.
+    ("src/private_block/tied_tables.rs", "Sha256::new(", 1, "C1 — bounded public token-file SHA-256, checked against the manifest and checkpoint derivation; its public digest is bound through D9"),
+    ("src/private_block/tied_tables/derive.rs", "Sha256::new(", 5, "C1 — public checkpoint authentication, consumed tied-tensor bytes, derived embedding, head and multiplier table SHA-256; public digests bound through D9, outside the proof's BLAKE3 oracle classes"),
     // NATIVE LANE: the driver overlay's CLI bridge (pre-existing in the
     // candidate; this table had not been told about it): D4 recomputed to
     // check a policy's model root, the CLI's context derivation, and an

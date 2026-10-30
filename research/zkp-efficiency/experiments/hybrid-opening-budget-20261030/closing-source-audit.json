@@ -1,0 +1,88 @@
+{
+  "source_checks": [
+    {
+      "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/opening-staging-20261030/field.rs",
+      "matches_snapshot": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/opening-staging-20261030/native_host.rs",
+      "matches_snapshot": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/zkp-core/src/field.rs",
+      "matches_snapshot": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/zkp-core/src/pcs.rs",
+      "matches_snapshot": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/zkp-core/src/pcs/backend.rs",
+      "matches_snapshot": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/hashline/src/gpu/cuda.rs",
+      "matches_snapshot": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/hashline/src/gpu/kernels.cu",
+      "matches_snapshot": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/hashline/Cargo.toml",
+      "matches_snapshot": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/hashline/Cargo.lock",
+      "matches_snapshot": true
+    },
+    {
+      "path": "/home/victor/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cudarc-0.13.9/src/driver/safe/alloc.rs",
+      "matches_snapshot": true
+    },
+    {
+      "path": "/home/victor/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cudarc-0.13.9/src/driver/safe/core.rs",
+      "matches_snapshot": true
+    },
+    {
+      "path": "/home/victor/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cudarc-0.13.9/src/driver/sys/sys_12040.rs",
+      "matches_snapshot": true
+    },
+    {
+      "path": "/home/victor/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cudarc-0.13.9/LICENSE-MIT",
+      "matches_snapshot": true
+    },
+    {
+      "path": "/home/victor/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cudarc-0.13.9/LICENSE-APACHE",
+      "matches_snapshot": true
+    }
+  ],
+  "project_document_checks": [
+    {
+      "path": "/home/victor/IntelligenceRegulation/CLAUDE.md",
+      "unchanged": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/MVP_STATUS.md",
+      "unchanged": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_DECISIONS.md",
+      "unchanged": false
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_CODEX_FABLE_COORDINATION.md",
+      "unchanged": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_THROUGHPUT_TARGET.md",
+      "unchanged": true
+    }
+  ],
+  "prior_hypotheses_preserved": true,
+  "findings_prefix_preserved": true,
+  "sources_prefix_preserved": true,
+  "source_records": 1045,
+  "full_stack_proofs": 0,
+  "read_only_production": true
+}

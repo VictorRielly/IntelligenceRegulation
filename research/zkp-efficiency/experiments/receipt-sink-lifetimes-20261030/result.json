@@ -1,0 +1,25 @@
+{
+  "status": "PASS",
+  "seed": 20261030166,
+  "checks": 3012,
+  "negative_controls": 861,
+  "fixtures": 21,
+  "stream_variants": 126,
+  "fault_cases": 210,
+  "shape_mutations": 315,
+  "saved_fixtures": [
+    "l1-k0",
+    "l2-k1",
+    "l4-k3"
+  ],
+  "native_source_pins": 8,
+  "source_facts": 7,
+  "wire_bytes_min": 41528,
+  "wire_bytes_max": 58616,
+  "proofs": 0,
+  "complete_model_passes": 0,
+  "proved_positions": 0,
+  "native_execution": false,
+  "actual_peak_or_speed": null,
+  "wall_s": 6.530665084996144
+}

@@ -1,0 +1,16 @@
+
+running 1 test
+test private_block::token_io::review_r13_tests::rv13_r11_the_margin_is_the_float_logit_difference_with_g_folded_once ... RV13 R11 | integer margin -137415 | k*L: g once -172950.5 (err 35535.5), g twice -211252.5 (err 73837.5), no g -138648.8 (err 1233.8) | rounding bound 373115.2 | k 1659.121 | verdict 0
+
+thread 'private_block::token_io::review_r13_tests::rv13_r11_the_margin_is_the_float_logit_difference_with_g_folded_once' (129651) panicked at src/private_block/token_io/review_r13_tests.rs:658:5:
+g once fits better than twice or none
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    private_block::token_io::review_r13_tests::rv13_r11_the_margin_is_the_float_logit_difference_with_g_folded_once
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 753 filtered out; finished in 0.39s
+

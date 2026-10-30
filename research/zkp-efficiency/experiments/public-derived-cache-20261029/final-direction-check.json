@@ -1,0 +1,43 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/AGENDA.md",
+    "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139",
+    "unchanged": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/CLAUDE.md",
+    "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6",
+    "unchanged": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/START_HERE.md",
+    "sha256": "89f6732a39f4294f2f1b7b68add8fdcbb76b86006e21041f52c0f40d9e39df9d",
+    "unchanged": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/MVP_STATUS.md",
+    "sha256": "cc792757796505a2ecd820d45e781331c4399a4f966cc385605c8f16fa6418f8",
+    "unchanged": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_DECISIONS.md",
+    "sha256": "51df069fffccc6748fb32eb5a455f649e03cefd8d0ffad46e300669be4fd0bde",
+    "unchanged": false,
+    "diff": "--- \n\n+++ \n\n@@ -72,4 +72,5 @@\n\n | D43 | **Funding first; a paper with the demo once the PoC works.** (a) The top priority is to obtain funding for continuing the work as soon as possible \u2014 grants, other funding sources or publications, whichever gets there fastest and best; the coordinator researches the routes and brings one ranked plan (research under `results/zk60_funding_20261028/`). (b) Once the proof of concept works, write and publish a paper on the ZKP technology built here at a prestigious venue, together with the PoC demo, so the technology enters the literature for others to use. Working notes (coordinator, not rulings): in this field the top venues are mostly conferences (security and cryptography), with an IACR ePrint preprint as the fast public form; publication is prior art, so any patent filing must come first \u2014 Victor's call, flagged 2026-10-28 21:02 UTC. Neither part changes D1, D13, D27, D33, D36 or any security claim | **product direction (Victor)**; plan written 2026-10-28 21:23 UTC: `docs/zkmatrix-poc/ZK60_FUNDING_PLAN.md` (drafts for Foresight, due Oct 31, and YC W27, due Nov 2, in `results/zk60_funding_20261028/`); **ruled by Victor 2026-10-28 21:24 UTC (console):** (1) **file a US provisional patent before anything is published** (preprint, open-source release) \u2014 the private YC / Foresight applications are not blocked by it; (2) **open-source scope for grants that require it = the verifier + the specification + the benchmarks** (open-core; the prover stays the product). Still open: when the company is formed. **Addendum, Victor 2026-10-28 21:39 UTC (console):** \"apply for multiple avenues of funding just in case some do not pan out \u2026 consider all options even if they might be a little out there\" \u2014 apply broadly in parallel (all four of this week's applications plus every further fitting route), and widen the search to unconventional sources; a second research wave runs under `results/zk60_funding_20261028/wave2/` | 2026-10-28 21:01 / 21:02 | Victor (console: \"once we have a working proof of concept, I want to see about writing and publishing a paper on the ZKP technology \u2026 together with the proof of concept demo\"; then \"the top priority is to find funding for continuation of this work \u2026 The priority is to achieve funding for this as soon as possible\") |\n | D44 | **Install the S8 guard swap-rule fix.** The live `scripts/zk60_resource_guard.py` (87138bda\u2026) is replaced by Sol's candidate `results/zk60_sol_20261026/guard-s8/zk60_resource_guard.py.candidate` (88af4c63\u2026). It changes one admission rule: while swap use is over 1 GiB, refuse only if MemAvailable < need + 1 GiB margin + all swap in use (before: refuse whenever swap use was over 1 GiB). Coordinator review: `results/zk60_guard_fix_20261021/S8_REVIEW.md` (accept, with conditions). The install follows D42's S3 procedure: drain and holds, `.orig` backup outside /tmp, atomic replace, both static consumer pins updated, the official suites (45 with the swap fixture changed in the official file, plus 31, plus the 9 S8 policy tests) on the host without systemd skips, FIFO off, a note in `ZK60_RESOURCE_PROTOCOL.md` that the guard cannot see Windows host memory, and rollback on any failure | **operations ruling (Victor)**; **done 2026-10-29 00:33:31 UTC** (Sol, attempt 2; attempt 1 at 00:24 aborted on a test-runner import path and rolled back cleanly). Host preflight clean; official 45 + S3 31 + S8 9 + consumer suites 8 / 13 / 14, all with zero skips; both static pins = 88af4c63\u2026; FIFO off. Coordinator re-verified the live hash, the pins, `status` / `check` and the protocol note at 00:33:59; window 00:10\u201300:34 UTC, holds removed | 2026-10-28 23:50 | Victor (console: \"Go ahead and install the guard swap-rule fix\") |\n+| D45 | **The four classifier-proof rulings (from the classifier design's adversarial check, `results/zk60_token_io_r1_20261017/classifier/check/CHECK.md`).** **(1) Content length is public:** a proof reveals the post's length in tokens, besides the verdict, model and policy. Hiding the length is a later, costlier variant. **(2) One fixed policy list, one threshold each; an item is never re-proved under a different policy or threshold** (each extra policy is another yes / no question about the hidden content). **(3) The proof is linked to the post (amends D23 for classifier runs):** the proof's sealed input fingerprint is stored with the post and anchored on-chain (D39), and the app keeps the opening so anyone given the post's text can check the link. Accepted consequence: whoever holds an opening can prove which content was posted. **(4) Fail closed:** a post without an accepted proof is not published and is shown as \"could not be verified\", never as safe | **product rulings (Victor)**; consistent with D1 (P1) and D37\u2013D41. Token round 14's short-item support (T < T_pad) stays within (1) | 2026-10-29 01:04 | Victor (console: \"1) yes, 2) yes, 3) yes, 4) yes\"), answering the open item of 2026-10-21 03:00 UTC in `ZK60_RULINGS_FOR_VICTOR_20261017.md` |\n | D35 | **Next-token statement at calibration `pg_rot1_b4_T32_cal128`: which block-layer evidence carries from D33's calibration.** The calibration-SENSITIVE block controls were run at b4 inside the token captures and fire (NC-1: `sh_z` moved, fails exactly at slot 14; NC-2: the frozen-calibration fallback fails exactly at slots 2, 14, 15, 16, 18; NC-3: the cross-check; NC-4: a per-layer table swap), and the absorbed calibration word recomputed from the b4 export and the named embedding / head tables equals the statement header in 5 of 5 cases and 10 of 10 captures (gate round 10, PR4-9, tools v16). The remaining block control families \u2014 CT, GQ, P, M, X, C, CH, M9, the pin controls and G-10 \u2014 test the tools and the block shape, not the calibration constants; they were exercised at pg_rot1 on the same block shape and tools, and are recorded as carrying to b4. The token run's own integrity controls (TC-1..TC-12, J-1..J-3) fire on all ten token captures. In plain words: the parts of the privacy checks that depend on the calibration numbers were re-run at the new calibration; the parts that only test the machinery are not repeated | **statement-evidence note (security owner); not a privacy acceptance** \u2014 lapses if a carried family is found to read a calibration constant, or the block shape or the tools differ between the D33 runs and the b4 captures | 2026-10-20 04:34 | Claude (coordinating session as security owner), on privacy review round 4 PR4-9 (\"can carry, if the owner records it\") and gate round 10 (`results/zk60_gate_tinyllama_20261017/round9/PRIVACY_STATEMENT_NEXT_TOKEN_T32_DRAFT.ADDENDUM-20261020.md`) |\n | \u2014 | RTX 5090 install (an action, not a ruling; the 600 W bound was ruled on 2026-09-04) | **go**; date, machine and host RAM still to be named | 2026-09-19 | Victor (Telegram 11:50) |"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_CODEX_FABLE_COORDINATION.md",
+    "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f",
+    "unchanged": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_THROUGHPUT_TARGET.md",
+    "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53",
+    "unchanged": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/TASK_BOARD.md",
+    "sha256": "d96f67dd1d199ffc31672974dad5bd8c8d6453f2f7bab6a4849d229a91bef953",
+    "unchanged": true
+  }
+]

@@ -1,0 +1,14 @@
+{
+  "native_live_search_batches": 3,
+  "queries": [
+    "site.eprint.iacr.org 2026 zkML preprocessing public tables caching prover",
+    "site.github.com ZKML verifier preprocessing immutable model cache tied tables",
+    "site.eprint.iacr.org reusable preprocessing lookup arguments Lasso 2023",
+    "site.eprint.iacr.org 2026 lookup preprocessing prover cached table commitment",
+    "site.github.com Lagrange-Labs deep-prove Context cache models precompute",
+    "site.eprint.iacr.org/2026 preprocessing lookup October",
+    "site.github.com/Plonky3/Plonky3/releases p3-sumcheck v0.9.0 October 2026",
+    "site.eprint.iacr.org/2026 zkLLM amortized proving preprocessing GPU"
+  ],
+  "external_execution": false
+}

@@ -1,0 +1,16 @@
+{
+  "utc": "2026-10-30T05:14:23.416443+00:00",
+  "expected_old_guard": "88af4c639848d39df8da559652db11529575aa745b916a06eb522c20ea89fbd3",
+  "observed_in_order": [
+    "c61854f80666d1b1f98216913454a4efb13564d8ccdba3d2b741becbecfb0869",
+    "67e9478f55518c2808ff65e5f303f70e155a5f21c5987243a39cf579d1a9a6f3"
+  ],
+  "native_preflight": "corrected-candidate-1 stopped before any native leaf, full snapshot retained",
+  "unpinned_suites": {
+    "resource_guard": "51 tests,5 errors,4 systemd skips; source/test files changed during run; errors reference removed disk JSON telemetry fields; inconclusive for final guard",
+    "guard_fix": "31/31 passed across the change; not attributed to a single guard hash",
+    "S8": "9/9 passed before final guard edit; swap-rule code unchanged"
+  },
+  "next": "verify_guard_continuity.py pins exact final guard and all three test files for complete run; retain logs and fail if any hash changes",
+  "source_or_policy_edits_by_Sol": false
+}

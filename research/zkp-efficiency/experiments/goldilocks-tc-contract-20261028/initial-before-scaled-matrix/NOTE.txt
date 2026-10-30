@@ -1,0 +1,1 @@
+Initial 38971-check result preserved. Original run.py reconstructed exactly from additive refinement; its SHA256 matches initial result.json. Do not rerun this archived driver without adjusting output location; no rerun performed.

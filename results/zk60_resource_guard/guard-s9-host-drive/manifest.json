@@ -1,0 +1,17 @@
+{
+ "installed_utc": "2026-10-30T05:15:33+00:00",
+ "why": "2026-10-29 ~02:50Z the laptop crashed with C: (VM disk + Windows page file) at ~5 GB free; heavy jobs now wait under 40 GiB free, any job is killed under 8 GiB",
+ "guard_new_sha256": "67e9478f55518c2808ff65e5f303f70e155a5f21c5987243a39cf579d1a9a6f3",
+ "guard_old_sha256": "88af4c639848d39df8da559652db11529575aa745b916a06eb522c20ea89fbd3",
+ "rollback": "copy zk60_resource_guard.s8-88af4c63.py over scripts/zk60_resource_guard.py and restore the two pins (scripts/zk60_guarded_command.py REVIEWED_GUARD_SHA256, scripts/zk60_techweek_demo.py GUARD_PIN) to guard_old_sha256",
+ "tests": {
+  "test_zk60_resource_guard.py": "50 OK (45 old + 5 host-drive)",
+  "test_zk60_guard_s8.py": "9 OK",
+  "test_zk60_guard_fix.py": "31 OK (record/status JSON shape unchanged)"
+ },
+ "test_file_sha256": "984f462567aef41f19916be6a61ae8855cb72cf623486b60764933bc2875b050",
+ "pins_moved": [
+  "scripts/zk60_guarded_command.py",
+  "scripts/zk60_techweek_demo.py"
+ ]
+}

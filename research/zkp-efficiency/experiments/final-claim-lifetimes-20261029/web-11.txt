@@ -1,0 +1,815 @@
+Releases · Oraclizer/statesync-gkr · GitHub (https://github.com/Oraclizer/statesync-gkr/releases)
+citeturn10view0 [wordlim: 200] Crawled: today; Content type: text/html; Source: open({"ref_id":"https://github.com/Oraclizer/statesync-gkr/releases","lineno":null}); Total lines: 380
+L0: 【0†Skip to content】
+L1: ## Navigation Menu
+L2: 
+L3:   * Products
+L4: 
+L5:     *       * 【1†GitHubRepository hosting, code review, and collaboration】
+L6:       * 【2†CopilotAI coding agent for tasks, projects and automated work】
+L7: 
+L8:     * Build & Ship
+L9:       * 【3†ActionsCI/CD and automation】
+L10:       * 【4†Code QualityQuality analysis, fixes, and enforcement】
+L11:       * 【5†CodespacesCloud development environments】
+L12: 
+L13:     * Secure
+L14:       * 【6†Code SecurityVulnerability detection and remediation】
+L15:       * 【7†Secret ProtectionSecret scanning and leak prevention】
+L16: 【8†All Features】
+L17: 
+L18:   * Developers
+L19: 
+L20:     * Learn
+L21:       * 【9†Documentation†docs.github.com】
+L22:       * 【10†Training†learn.github.com】
+L23:       * 【11†Certifications†learn.github.com】
+L24: 
+L25:     * Build
+L26:       * 【12†Build with Copilot】
+L27:       * 【13†Customize Copilot†docs.github.com】
+L28:       * 【14†Integrations】
+L29: 
+L30:     * Explore
+L31:       * 【15†Trending repos】
+L32:       * 【16†GitHub Sponsors】
+L33:       * 【17†Events】
+L34:     *       * 【18†ChangelogYour source for the latest features, improvements, and fixes across GitHub products, all in one place.†github.blog】
+L35: 
+L36:   * Businesses
+L37: 
+L38:     * By Stage
+L39:       * 【19†Enterprises】
+L40:       * 【20†Team】
+L41:       * 【21†Startups】
+L42:       * 【22†Nonprofits】
+L43: 
+L44:     * By Industry
+L45:       * 【23†Healthcare】
+L46:       * 【24†Financial services】
+L47:       * 【25†Manufacturing】
+L48:       * 【26†Government】
+L49:       * 【27†See all industries】
+L50:     * Evaluate GitHub
+L51:       * 【28†Why GitHub】
+L52:       * 【29†Customer Stories】
+L53:       * 【30†Business insights】
+L54:       * 【31†Trust Center】
+L55: 
+L56:     * Add-ons
+L57:       * 【32†GitHub Advanced SecurityEnterprise-grade code security】
+L58:       * 【33†Copilot for businessEnterprise-grade AI features】
+L59:       * 【34†Premium SupportEnterprise-grade 24/7 support】
+L60: 
+L61:   * Resources
+L62:     * Learn & Connect
+L63:       * 【9†Documentation†docs.github.com】
+L64:       * 【35†Resource center】
+L65:       * 【36†Blog†github.blog】
+L66:       * 【17†Events & webinars】
+L67:       * 【37†Community Forum】
+L68:       * 【29†Customer Stories】
+L69:       * 【14†Integrations】
+L70: 
+L71:     * Support
+L72:       * 【38†Customer support†help.github.com】
+L73:       * 【10†Training†learn.github.com】
+L74:       * 【39†GitHub Status†www.githubstatus.com】
+L75: 
+L76:     * Company
+L77:       * 【40†About】
+L78:       * 【41†Partners】
+L79:       * 【18†Changelog†github.blog】
+L80:     *       * 【42†GitHub UniverseThe event for developers, by developers — talks, workshops, and what’s next for GitHub.†githubuniverse.com】
+L81: 
+L82:   * 【43†Pricing】
+L83: 
+L84: Search`/`
+L85: 
+L86: 【44†Sign in】
+L87: 
+L88: 【45†Sign up】
+L89: 
+L90: Appearance settings
+L91: 
+L92: You signed in with another tab or window. Reload to refresh your session. You signed out in another tab or window. Reload to refresh your session. You switched accounts on another tab or window. Reload to refresh your session. Dismiss alert
+L93: 
+L94:   1. 【46†Oraclizer】
+L95:   2. 【47†statesync-gkr】
+L96: ## Repository navigation
+L97: 
+L98:   *   * 【47†Code】
+L99:   * 【48†Issues】
+L100:   * 【49†Pull requests1 (1)】
+L101:   * 【50†Actions】
+L102:   * 【51†Security and quality】
+L103:   * 【52†Insights】
+L104: 
+L105: More items
+L106: 
+L107: # Releases: Oraclizer/statesync-gkr
+L108: 
+L109: 【53†Releases】 【54†Tags】
+L110: 
+L111: [Input: Find a release] [Input]
+L112: 
+L113: Releases · Oraclizer/statesync-gkr
+L114: 
+L115: ## Release list
+L116: 
+L117:   * 【55†StateSync-GKR v1.2.1】
+L118:   * 【56†StateSync-GKR v1.2.0】
+L119:   * 【57†StateSync-GKR v1.1.1】
+L120: 
+L121: Jump to release
+L122: 
+L123: ## StateSync-GKR v1.2.1
+L124: 
+L125: 【58†StateSync-GKR v1.2.1】
+L126: 
+L127: 【59†Latest】
+L128: 
+L129: Compare
+L130: # Choose a tag to compare
+L131: 
+L132: ## Sorry, something went wrong.
+L133: 
+L134: Filter
+L135: 
+L136: Loading [Input]
+L137: 
+L138: ## Sorry, something went wrong.
+L139: 
+L140: ### Uh oh!
+L141: 
+L142: There was an error while loading. Please reload this page.
+L143: ## No results found
+L144: 
+L145: 【54†View all tags】
+L146: 
+L147: 【60†Image: @jay-oraclizer†avatars.githubusercontent.com】 【61†jay-oraclizer】 released this 26 Oct 08:48
+L148: 
+L149: Immutable release. Only release title and notes can be modified.
+L150: 
+L151: 【62†v1.2.1】
+L152: 
+L153: This tag was signed with the committer’s verified signature.
+L154: 
+L155: 【61†jay-oraclizer】 Jay Kim
+L156: 
+L157: SSH Key Fingerprint: T30Gc137QYID9vssfvgMEuRpxlrpftZnQHdddZY4A0Y
+L158: 
+L159: Verified
+L160: 
+L161: 【63†Learn about vigilant mode†docs.github.com】.
+L162: 
+L163: 【64†`54e7651`】
+L164: This commit was created on GitHub.com and signed with GitHub’s verified signature.
+L165: 
+L166: GPG key ID: B5690EEEBB952194
+L167: 
+L168: Verified
+L169: 
+L170: 【63†Learn about vigilant mode†docs.github.com】.
+L171: # StateSync-GKR v1.2.1
+L172: StateSync-GKR v1.2.1 attaches an external zkVM proof of the v1.2 program identity. The library crates, the proof format and the program identity are unchanged from v1.2.0. `statesync-gkr-v1.2-proof.cbor` is a secure succinct RISC Zero proof bound to image ID `1a8b55f4e1a5f703386dcfc07e5e8b2e42b5adade6be3d0057f2d565f75eb131`; the zkVerify RISC0 verifier on the Volta test network accepted it and aggregated it into an authenticated receipt.
+L173: The proof manifest, the public inputs and the run record describe the proof, its public statement and the receipt. The v1.1 proof remains a record of the v1.1 program and is not attached to this release; its manifest and public inputs are kept for comparison.
+L174: The documentation reports the v1.2.0 measurements against v1.1.0 measured on the same days and instance types: on one 192-core VM, a p99 latency of 34 ms at 1,000 requests/s against 440 ms, and 3,300 requests/s with every request accepted within one second against 1,150/s.
+L175: StateSync-GKR v1.1.1 and later versions are licensed under the Business Source License 1.1. Research and other non-production use are free, and production use solely to verify proofs is granted. Production proving, and redistribution or services that provide proving functionality, require the commercial license described in LICENSE. Versions up to and including v1.1.0 were released under MIT OR Apache-2.0. Contribution and dependency notices are recorded in NOTICE and the software bill of materials.
+L176: Software DOI: 【65†10.5281/zenodo.23655511†doi.org】. Release notes: 【66†release/v1.2/RELEASE_NOTES.md】.
+L177: 
+L178: Download the 17 assets and follow REPRODUCING.md to verify them. SHA256SUMS lists the attachment digests, and the source archive is built deterministically.
+L179: 
+L180: Assets 20
+L181: 
+L182:   * 【67†statesync-gkr-v1.1-proof-manifest.json】
+L183: 
+L184: sha256:880456ed769f8c1bc41883b15b418300c28b01b1f2aec54c09f2a38fe25761df
+L185: 
+L186: 3.79 KB 2026-10-26T08:48:09Z
+L187: 
+L188:   * 【68†statesync-gkr-v1.1-public-inputs.json】
+L189: sha256:67a00effdd8910d1615df7fbcb0d670370961940214ea668a133048d81c107b5
+L190: 
+L191: 1.79 KB 2026-10-26T08:48:09Z
+L192: 
+L193:   * 【69†statesync-gkr-v1.2-attachments.json】
+L194: 
+L195: sha256:5c75fb9a2665790f8b3ecead14d89c10dfbec1eecf19dff87755feb3a124a6f6
+L196: 
+L197: 5.57 KB 2026-10-26T08:48:09Z
+L198: 
+L199:   * 【70†statesync-gkr-v1.2-dependency-update-policy.json】
+L200: 
+L201: sha256:34466e5ce04a074c8072f302da21ace72e9118085c0290467d1cfd8d30201d8b
+L202: 
+L203: 1.95 KB 2026-10-26T08:48:09Z
+L204: 
+L205:   * 【71†statesync-gkr-v1.2-expected-guest-identity.json】
+L206: sha256:df4d95ee7e353d4281419b5bc8adc4860292a3ada32a515d6fd6a52ecc09b261
+L207: 
+L208: 2.5 KB 2026-10-26T08:48:09Z
+L209: 
+L210:   * 【72†statesync-gkr-v1.2-frozen-source-allowlist.json】
+L211: 
+L212: sha256:e441ee976d22131a498f59a04ce4c7ed82b8b69b9b2980d5343c4d755a58887b
+L213: 
+L214: 520 KB 2026-10-26T08:48:10Z
+L215: 
+L216:   * 【73†statesync-gkr-v1.2-gkr-protocol.pdf】
+L217: 
+L218: sha256:13d8030b608ee1bcdb7cbf736b9cd93890d2370ee428707a16ab1f80ea40bdcf
+L219: 
+L220: 638 KB 2026-10-26T08:48:10Z
+L221: 
+L222:   * 【74†statesync-gkr-v1.2-identity-distribution.json】
+L223: sha256:c01ab539e6ac3c483863d12cb395504832480861572031e57b80a9747fdaa5c5
+L224: 
+L225: 2.54 KB 2026-10-26T08:48:10Z
+L226: 
+--------------------------------------------------------------------------------
+statesync-gkr/LICENSE at main · Oraclizer/statesync-gkr · GitHub (https://github.com/Oraclizer/statesync-gkr/blob/main/LICENSE)
+citeturn10view1 [wordlim: 200] Crawled: last week; Content type: text/html; Source: find({"ref_id":"turn9view1","pattern":"Business Source"}); Total lines: 565
+L58:     * EXPLORE BY TOPIC
+L59:       * 【34†AI】
+L60:       * 【35†Software Development】
+L61:       * 【36†DevOps】
+L62:       * 【37†Security】
+L63:       * 【38†View all topics】
+L64: 
+L65:     * EXPLORE BY TYPE
+L66:       * 【39†Customer stories】
+L67:       * 【40†Events & webinars】
+L68:       * 【41†Ebooks & reports】
+L69:       * 【42†Business insights】
+L70:       * 【43†GitHub Skills†skills.github.com】
+L71:     * SUPPORT & SERVICES
+L72:       * 【14†Documentation†docs.github.com】
+L73:       * 【44†Customer support†support.github.com】
+L74:       * 【45†Community forum】
+L75:       * 【46†Trust center】
+L76:       * 【47†Partners】
+L77: 
+L78: 【48†View all resources】
+L79: 
+L80:   * Open Source
+L81: 
+L82:     * COMMUNITY
+L83:       * 【49†GitHub SponsorsFund open source developers】
+L84:     * PROGRAMS
+L85:       * 【50†Security Lab†securitylab.github.com】
+L86:       * 【51†Maintainer Community†maintainers.github.com】
+L87:       * 【52†GitHub Stars†stars.github.com】
+L88:       * 【53†Archive Program†archiveprogram.github.com】
+L89: 
+L90:     * REPOSITORIES
+L91:       * 【54†Topics】
+L92:       * 【55†Trending】
+L93:       * 【56†Collections】
+L94: 
+L95:   * Enterprise
+L96: 
+L97:     * ENTERPRISE SOLUTIONS
+L98:       * 【19†Enterprise platformAI-powered developer platform】
+L99:     * AVAILABLE ADD-ONS
+L100:       * 【10†GitHub Advanced SecurityEnterprise-grade security features】
+L101:       * 【57†Copilot for BusinessEnterprise-grade AI features】
+L102:       * 【58†Premium SupportEnterprise-grade 24/7 support】
+L103: 
+L104:   * 【59†Pricing】
+L105: 
+L106: Search`/`
+L107: 
+L108: 【1†Sign in】
+L109: 
+L110: 【60†Sign up】
+L111: 
+L112: Appearance settings
+L113: You signed in with another tab or window. Reload to refresh your session. You signed out in another tab or window. Reload to refresh your session. You switched accounts on another tab or window. Reload to refresh your session. Dismiss alert
+L114: 
+L115:   1. 【61†Oraclizer】
+L116:   2. 【62†statesync-gkr】
+L117: ## Repository navigation
+L118: 
+L119:   *   * 【62†Code】
+L120:   * 【63†Issues】
+L121:   * 【64†Pull requests】
+L122:   * 【65†Actions】
+L123:   * 【66†Security and quality】
+L124:   * 【67†Insights】
+L125: 
+L126: More items
+L127: 
+L128: ## Files Expand file tree
+L129: 
+L130: main
+L131: 
+L132: ## Breadcrumbs
+L133: 
+L134:   1. 【68†statesync-gkr】
+L135: 
+L136: /
+L137: 
+L138: # LICENSE
+L139: 
+L140: Copy path
+L141: 
+L142: [Input: Go to file]
+L143: 
+L144: Blame More file actions
+L145: 
+L146: Blame More file actions
+L147: 
+L148: ## Latest commit
+L149: 
+L150: 
+L151: 
+L152: ## History
+L153: 
+L154: History
+L155: 
+L156: main
+L157: 
+L158: ## Breadcrumbs
+L159: 
+L160:   1. 【68†statesync-gkr】
+L161: 
+L162: /
+L163: 
+L164: # LICENSE
+L165: 
+L166: Copy path
+L167: 
+L168: Top
+L169: ## File metadata and controls
+L170: 
+L171:   * Code
+L172: 
+L173:   * Blame
+L174: 
+L175: 112 lines (82 loc) · 5.09 KB
+L176: 
+L177: 【69†Raw】
+L178: 
+L179: Copy raw file
+L180: 
+L181: Download raw file
+L182: 
+L183: Open symbols panel
+L184: 
+L185: Edit and raw actions
+L186: 
+L187: 1
+L188: 
+L189: 2
+L190: 
+L191: 3
+L192: 
+L193: 4
+L194: 
+L195: 5
+L196: 
+L197: 6
+L198: 
+L199: 7
+L200: 
+L201: 8
+L202: 
+L203: 9
+L204: 
+L205: 10
+L206: 
+L207: 11
+L208: 
+L209: 12
+L210: 
+L211: 13
+L212: 
+L213: 14
+L214: 
+L215: 15
+L216: 
+L217: 16
+L218: 
+L219: 17
+L220: 
+L221: 18
+L222: 
+L223: 19
+L224: 
+L225: 20
+L226: 
+L227: 21
+L228: 
+L229: 22
+L230: 
+L231: 23
+L232: 
+L233: 24
+L234: 
+L235: 25
+L236: 
+L237: 26
+L238: 
+L239: 27
+L240: 
+L241: 28
+L242: 
+L243: 29
+L244: 
+L245: 30
+L246: 
+L247: 31
+L248: 
+L249: 32
+L250: 
+L251: 33
+L252: 
+L253: 34
+L254: 
+L255: 35
+L256: 
+L257: 36
+L258: 
+L259: 37
+L260: 
+L261: 38
+L262: 
+L263: 39
+L264: 
+L265: 40
+L266: 
+L267: 41
+L268: 
+L269: 42
+L270: 
+L271: 43
+L272: 
+L273: 44
+L274: 
+L275: 45
+L276: 
+L277: 46
+L278: 
+L279: 47
+L280: 
+L281: 48
+L282: 
+L283: 49
+L284: 
+L285: 50
+L286: 
+L287: 51
+L288: 
+L289: 52
+L290: 
+L291: 53
+L292: 
+L293: 54
+L294: 
+L295: 55
+L296: 
+L297: 56
+L298: 
+L299: 57
+L300: 
+L301: 58
+L302: 
+L303: 59
+L304: 
+L305: 60
+L306: 
+L307: 61
+L308: 
+L309: 62
+L310: 
+L311: 63
+L312: 
+L313: 64
+L314: 
+L315: 65
+L316: 
+L317: 66
+L318: 
+L319: 67
+L320: 
+L321: 68
+L322: 
+L323: 69
+L324: 
+L325: 70
+L326: 
+L327: 71
+L328: 
+L329: 72
+L330: 
+L331: 73
+L332: 
+L333: 74
+L334: 
+L335: 75
+L336: 
+L337: 76
+L338: 
+L339: 77
+L340: 
+L341: 78
+L342: 
+L343: 79
+L344: 
+L345: 80
+L346: 
+L347: 81
+L348: 
+L349: 82
+L350: 
+L351: 83
+L352: 
+L353: 84
+L354: 
+L355: 85
+L356: 
+L357: 86
+L358: 
+L359: 87
+L360: 
+L361: 88
+L362: 89
+L363: 
+L364: 90
+L365: 
+L366: 91
+L367: 
+L368: 92
+L369: 
+L370: 93
+L371: 
+L372: 94
+L373: 
+L374: 95
+L375: 
+L376: 96
+L377: 
+L378: 97
+L379: 
+L380: 98
+L381: 
+L382: 99
+L383: 
+L384: 100
+L385: 
+L386: 101
+L387: 
+L388: 102
+L389: 
+L390: 103
+L391: 
+L392: 104
+L393: 
+L394: 105
+L395: 
+L396: 106
+L397: 
+L398: 107
+L399: 
+L400: 108
+L401: 
+L402: 109
+L403: 
+L404: 110
+L405: 
+L406: 111
+L407: 
+L408: 112
+L409: 
+L410: Business Source License 1.1
+L411: 
+L412: License text copyright (c) 2017 MariaDB Corporation Ab, All Rights Reserved.
+L413: 
+L414: "Business Source License" is a trademark of MariaDB Corporation Ab.
+L415: 
+L416: -----------------------------------------------------------------------------
+L417: 
+L418: Parameters
+L419: 
+L420: Licensor: Oraclizer Labs, Inc.
+L421: 
+L422: Licensed Work: StateSync-GKR, every version published after v1.1.0
+L423: from https://github.com/Oraclizer/statesync-gkr
+L424: 
+L425: The Licensed Work is (c) 2026 Oraclizer Labs, Inc.
+L426: 
+L427: Additional Use Grant: You may make production use of the Licensed Work solely
+L428: 
+L429: to verify proofs, including embedding or distributing
+L430: 
+L431: its verification functionality for that purpose. This
+L432: 
+L433: grant does not extend to production use that generates
+L434: 
+L435: proofs, that embeds or redistributes the proving
+L436: 
+L437: functionality of the Licensed Work in a product or
+L438: 
+L439: service, or that offers proof generation to third
+L440: parties; such use requires a commercial license from
+L441: 
+L442: the Licensor.
+L443: 
+L444: Change Date: For each version of the Licensed Work, three years from
+L445: 
+L446: the date that version is first publicly distributed
+L447: 
+L448: under this License.
+L449: 
+L450: Change License: Apache License, Version 2.0
+L451: 
+L452: For information about alternative licensing arrangements for the Licensed
+L453: 
+L454: Work, please visit: https://oraclizer.io
+L455: 
+L456: -----------------------------------------------------------------------------
+L457: 
+L458: Terms
+L459: The Licensor hereby grants you the right to copy, modify, create derivative
+L460: 
+L461: works, redistribute, and make non-production use of the Licensed Work. The
+L462: 
+L463: Licensor may make an Additional Use Grant, above, permitting limited
+L464: 
+L465: production use.
+L466: 
+L467: Effective on the Change Date, or the fourth anniversary of the first publicly
+L468: 
+L469: available distribution of a specific version of the Licensed Work under this
+L470: 
+L471: License, whichever comes first, the Licensor hereby grants you rights under
+L472: the terms of the Change License, and the rights granted in the paragraph
+L473: 
+L474: above terminate.
+L475: 
+L476: If your use of the Licensed Work does not comply with the requirements
+L477: 
+L478: currently in effect as described in this License, you must purchase a
+L479: 
+L480: commercial license from the Licensor, its affiliated entities, or authorized
+L481: 
+L482: resellers, or you must refrain from using the Licensed Work.
+L483: 
+L484: All copies of the original and modified Licensed Work, and derivative works
+L485: of the Licensed Work, are subject to this License. This License applies
+L486: 
+L487: separately for each version of the Licensed Work and the Change Date may vary
+L488: 
+L489: for each version of the Licensed Work released by Licensor.
+L490: 
+L491: You must conspicuously display this License on each original or modified copy
+L492: 
+L493: of the Licensed Work. If you receive the Licensed Work in original or
+L494: 
+L495: modified form from a third party, the terms and conditions set forth in this
+L496: 
+L497: License apply to your use of that work.
+L498: Any use of the Licensed Work in violation of this License will automatically
+L499: 
+L500: terminate your rights under this License for the current and all other
+L501: 
+L502: versions of the Licensed Work.
+L503: 
+L504: This License does not grant you any right in any trademark or logo of
+L505: 
+L506: Licensor or its affiliates (provided that you may use a trademark or logo of
+L507: 
+L508: Licensor as expressly required by this License).
+L509: 
+L510: TO THE EXTENT PERMITTED BY APPLICABLE LAW, THE LICENSED WORK IS PROVIDED ON
+L511: AN "AS IS" BASIS. LICENSOR HEREBY DISCLAIMS ALL WARRANTIES AND CONDITIONS,
+L512: 
+L513: EXPRESS OR IMPLIED, INCLUDING (WITHOUT LIMITATION) WARRANTIES OF
+L514: 
+L515: MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
+L516: 
+L517: TITLE.
+L518: 
+L519: MariaDB hereby grants you permission to use this License's text to license
+L520: 
+L521: your works, and to refer to it using the trademark "Business Source License",
+L522: 
+L523: as long as you comply with the Covenants of Licensor below.
+L524: -----------------------------------------------------------------------------
+L525: 
+L526: Covenants of Licensor
+L527: 
+L528: In consideration of the right to use this License's text and the "Business
+L529: 
+L530: Source License" name and trademark, Licensor covenants to MariaDB, and to all
+L531: 
+L532: other recipients of the licensed work to be provided by Licensor:
+L533: 
+L534: 1. To specify as the Change License the GPL Version 2.0 or any later version,
+L535: 
+L536: or a license that is compatible with GPL Version 2.0 or a later version,
+L537: where "compatible" means that software provided under the Change License can
+L538: 
+L539: be included in a program with software provided under GPL Version 2.0 or a
+L540: 
+L541: later version. Licensor may specify additional Change Licenses without
+L542: 
+L543: limitation.
+L544: 
+L545: 2. To either: (a) specify an additional grant of rights to use that does not
+L546: 
+L547: impose any additional restriction on the right granted in this License, as
+L548: 
+L549: the Additional Use Grant; or (b) insert the text "None".
+L550: 
+L551: 3. To specify a Change Date.
+L552: 4. Not to modify this License in any other way.
+L553: 
+L554: -----------------------------------------------------------------------------
+L555: 
+L556: Notice
+L557: 
+L558: The Business Source License (this document, or the "License") is not an Open
+L559: 
+L560: Source license. However, the Licensed Work will eventually be made available
+L561: 
+L562: under an Open Source License, as stated in this License.
+L563: 
+L564: You can’t perform that action at this time.
+--------------------------------------------------------------------------------
+GitHub - Oraclizer/statesync-gkr: Rust prover for sparse-Merkle state transitions, with GKR and sumcheck mechanized in Isabelle/HOL · GitHub (https://github.com/Oraclizer/statesync-gkr)
+citeturn10view2 [wordlim: 200] Crawled: today; Content type: text/html; Source: find({"ref_id":"turn8view0","pattern":"Releases"}); Total lines: 523
+L454: We thank Bernhard Müller (【173†@muellerberndt】) for his independent review of the verifier's challenge-generation assumptions and the implementation-facing interpretation of the extension-field soundness bound. His analysis clarified the distinction between the mechanized field/model results and the remaining multi-round Fiat–Shamir and input-binding arguments, and informed the corresponding claim corrections.
+L455: The project maintainer remains responsible for the implementation and the remaining security arguments.
+L456: 【96†Contributor and review history】 records the original authorship and the scope of this review.
+L457: ## License and citation
+L458: StateSync-GKR v1.1.1 and later versions are licensed under the 【102†Business Source License 1.1】. Research, development, evaluation, auditing, benchmarking and other non-production use are free, and production use solely to verify proofs is granted.
+L459: Production use that generates proofs, embeds or redistributes proving functionality in a product or service, or offers proof generation to third parties requires a commercial license from Oraclizer Labs, Inc.; see 【172†StateSync-GKR licensing†oraclizer.io】 for the licensing contact. Each version licensed under BSL converts to Apache-2.0 three years after it is first publicly distributed under BSL. The Business Source License is source-available and is not an Open Source license in the OSI sense.
+L460: Versions up to and including v1.1.0 were released under MIT OR Apache-2.0. 【103†NOTICE】 records the contribution notices, and dependency licenses are listed in the 【174†software bill of materials】.
+L461: To cite this software, use 【93†CITATION.cff】 or 【175†DOI 10.5281/zenodo.23655511†doi.org】 (v1.2.1). 【176†Citing StateSync-GKR†oraclizer.io】 gives BibTeX entries for the software and both papers. The earlier measurements refer to v1.1.0, archived as 【177†DOI 10.5281/zenodo.23136385†doi.org】. The v1.2.0 measurements and their same-day v1.1.0 references are described in 【115†Performance and operating profiles】.
+L462: The 【105†reproduction guidance】 separates current source checks from the checks of the release assets and the attached proof.
+L463: The companion paper, StateSync-GKR: Machine-Checking the Trust Chain from Sparse-Merkle State Transitions to GKR Verification, is available as 【133†arXiv:2610.05335†arxiv.org】. The paper uses the arXiv non-exclusive distribution license. This identifier names the formal study. The separate engineering paper, StateSync-GKR: Design and Evaluation of a Reusable Sparse GKR Engine, is available as 【178†arXiv:2610.14849†arxiv.org】 under the arXiv non-exclusive distribution license.
+L464: It connects the engine design to the controlled memory, repeated-request and full-proof delivery measurements. The separate dataset remains prepared for review; its dataset DOI, archive digest and public download URL are still unassigned. The current data state is recorded in the 【179†dataset locator】.
+L465: ## About
+L466: 
+L467: Rust prover for sparse-Merkle state transitions, with GKR and sumcheck mechanized in Isabelle/HOL
+L468: 
+L469: 【55†oraclizer.io/ss-gkr/†oraclizer.io】
+L470: 
+L471: ### Topics
+L472: 
+L473: 【56†arxiv】【57†cryptography】【58†formal-verification】【59†gkr】【60†merkle-tree】【61†rust】【62†sparse-merkle-tree】【63†sumcheck】【64†verifiable-computation】
+L474: 
+L475: ### Resources
+L476: 
+L477: 【65†Readme】
+L478: 
+L479: 【66†License】
+L480: 
+L481: ### Code of conduct
+L482: 
+L483: 【67†Code of conduct】
+L484: 
+L485: ### Contributing
+L486: 
+L487: 【68†Contributing】
+L488: ### Security policy
+L489: 
+L490: 【69†Security policy】
+L491: 
+L492: Cite this repository
+L493: 
+L494: 【70†Activity】
+L495: 
+L496: 【71†Custom properties】
+L497: 
+L498: ### Stars
+L499: 
+L500: 0 stars
+L501: 
+L502: ### Watchers
+L503: 
+L504: 0 watching
+L505: 
+L506: ### Forks
+L507: 
+L508: 【72†0 forks】
+L509: 
+L510: 【73†Report repository】
+L511: 
+L512: ## Releases
+L513: 
+L514: ## Packages
+L515: 
+L516: ## Used by
+L517: 
+L518: ## Contributors
+L519: 
+L520: ## Languages
+L521: 
+L522: You can’t perform that action at this time.
+--------------------------------------------------------------------------------
+Internal Error ()
+citeturn10view3 [wordlim: 200] Source: find({"ref_id":"turn7view1","pattern":"4a6897c"}); 
+URL  cannot be opened (non-retryable error)

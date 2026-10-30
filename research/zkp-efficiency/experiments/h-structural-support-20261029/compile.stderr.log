@@ -1,0 +1,15 @@
+warning: type `native::Layout` is more private than the item `logup_sum_claim`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/h-structural-support-20261029/sum_claim.rs:1:1
+   |
+1  | pub(crate) fn logup_sum_claim(lay: &Layout) -> ZClaim {
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ function `logup_sum_claim` is reachable at visibility `pub(crate)`
+   |
+note: but type `native::Layout` is only usable at visibility `pub(self)`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/h-structural-support-20261029/harness.rs:35:2
+   |
+35 |  struct Layout{sh:Shape,ids:HIds,h_off:Vec<(usize,usize)>,h_mask_base:usize,h_prox:usize,h_rows:usize,sites:Vec<Vec<usize>>,prefix:Vec<us...
+   |  ^^^^^^^^^^^^^
+   = note: `#[warn(private_interfaces)]` on by default
+
+warning: 1 warning emitted
+

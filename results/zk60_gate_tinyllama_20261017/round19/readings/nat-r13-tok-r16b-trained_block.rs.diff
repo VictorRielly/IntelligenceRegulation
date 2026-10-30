@@ -1,0 +1,173 @@
+--- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/hashline/src/private_block/trained_block.rs	2026-10-28 23:08:24.416407704 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r16b/hashline/src/private_block/trained_block.rs	2026-10-29 03:50:55.911364488 -0700
+@@ -546,11 +546,38 @@
+ /// Manifest consistency alone is insufficient. An untied geometry's export
+ /// may not declare a tie.
+ pub(super) fn tied_of(dir: &Path, p: &J, geometry: Geometry, source: &ModelSource) -> Result<Option<TiedEmbedding>, String> {
++    tied_of_with_derivation(dir, p, geometry, source).map(|(t, _)| t)
++}
++
++/// **TOKEN ROUND 16 (token review N-r13-5): the loader's tied-table
++/// derivation, kept.** A tied export whose `profile.json` names well-formed
++/// `classifier_margin_parameters` (`yes_id`, `no_id` below the vocabulary and
++/// distinct, a finite positive `public_scale`) has the classifier difference
++/// row derived in the SAME authenticated pass; the classifier loader then
++/// reuses it (after every one of its own checks) instead of streaming the
++/// 7.7 GB checkpoint a second time. The admission rule of the load is
++/// unchanged: if the pass with the row is refused, the pass without it
++/// decides (the classifier's own derivation then refuses the row by name).
++pub(crate) struct TiedDerivation {
++    /// the `(yes, no, public_scale bits)` the row was derived with, if any
++    pub margin: Option<(u32, u32, u64)>,
++    pub tables: super::tied_tables::RecomputedTiedTables,
++}
++
++fn declared_classifier_margin(p: &J) -> Option<(u32, u32, f64)> {
++    let m = p.opt("classifier_margin_parameters")?;
++    let id = |k: &str| m.opt(k).and_then(|v| v.i64().ok()).and_then(|v| u32::try_from(v).ok());
++    let (yes, no) = (id("yes_id")?, id("no_id")?);
++    let scale = m.opt("public_scale").and_then(|v| v.f64().ok())?;
++    (yes != no && (yes as usize) < 131_072 && (no as usize) < 131_072 && scale.is_finite() && scale > 0.0).then_some((yes, no, scale))
++}
++
++pub(crate) fn tied_of_with_derivation(dir: &Path, p: &J, geometry: Geometry, source: &ModelSource) -> Result<(Option<TiedEmbedding>, Option<TiedDerivation>), String> {
+     let profile = geometry.shape_profile();
+     let decl = p.opt("tied_embeddings").filter(|v| **v != J::Null);
+     let pin = tied_tensor_for_profile(profile);
+     let (name, digest) = match (pin, decl) {
+-        (None, None) => return Ok(None),
++        (None, None) => return Ok((None, None)),
+         (None, Some(_)) => return Err(format!("the export declares tied_embeddings, but its geometry's model ({profile}) is untied")),
+         (Some((n, _)), None) => return Err(format!("the geometry's model ties its embedding and head ({n}); profile.json must name the tied tensor (tied_embeddings)")),
+         (Some((pn, pd)), Some(d)) => {
+@@ -607,13 +634,19 @@
+             return Err(format!("token_io/{file}: SHA-256 {} is not its manifest's {}", hex(&got), hex(&want)));
+         }
+     }
+-    let derived = super::tied_tables::recompute_declared_tied_tables(dir, p)?;
++    // TOKEN ROUND 16 (N-r13-5): with the classifier row when the profile
++    // names its parameters; the pass without it decides when that is refused
++    let margin = declared_classifier_margin(p);
++    let (derived, kept_margin) = match margin.map(|m| super::tied_tables::recompute_declared_tied_tables_with_margin(dir, p, Some(m))) {
++        Some(Ok(d)) => (d, margin.map(|(y, n, s)| (y, n, s.to_bits()))),
++        _ => (super::tied_tables::recompute_declared_tied_tables(dir, p)?, None),
++    };
+     for (what, actual, expected) in [("embedding", emb, derived.embedding_sha256), ("head", head, derived.head_sha256), ("head multipliers", mult, derived.multipliers_sha256)] {
+         if actual != expected {
+             return Err(format!("tied {what}: integer table is not derived from the pinned tensor under the export's quantizer"));
+         }
+     }
+-    Ok(Some(TiedEmbedding { tensor: name.into(), tensor_sha256: digest, embedding_table_sha256: emb, head_table_sha256: head, head_mult_sha256: mult }))
++    Ok((Some(TiedEmbedding { tensor: name.into(), tensor_sha256: digest, embedding_table_sha256: emb, head_table_sha256: head, head_mult_sha256: mult }), Some(TiedDerivation { margin: kept_margin, tables: derived })))
+ }
+ 
+ fn table_keys_of(c:&J,what:&str)->Result<TableKeys,String> {
+@@ -855,6 +888,9 @@
+     /// NATIVE R12 (F3): a tied model's embedding / head record, read from the
+     /// export's `token_io/` manifests and checked against the pinned tensor
+     pub tied: Option<TiedEmbedding>,
++    /// TOKEN ROUND 16 (N-r13-5): the load's tied derivation (tied models
++    /// only), reused by the classifier loader
++    pub tied_derivation: Option<TiedDerivation>,
+ }
+ 
+ /// One loaded layer: the padded public statement and its record.
+@@ -1071,7 +1107,7 @@
+             return Err(ctx(format!("the export declares the RoPE transform {}, but its geometry's model fixes {} (a model fact, pinned per profile)", rope_scaling.describe(), geometry.rope_scaling().describe())));
+         }
+         // NATIVE R12 (F3): a tied model's embedding / head record
+-        let tied = tied_of(dir, &p, geometry, &source).map_err(ctx)?;
++        let (tied, tied_derivation) = tied_of_with_derivation(dir, &p, geometry, &source).map_err(ctx)?;
+         Ok(TrainedExport {
+             dir: dir.to_path_buf(),
+             geometry,
+@@ -1090,6 +1126,7 @@
+             calibration_set_sha256,
+             rope_scaling,
+             tied,
++            tied_derivation,
+         })
+     }
+ 
+@@ -1592,7 +1629,7 @@
+     Ok(*blake3::hash(&b).as_bytes())
+ }
+ 
+-fn flags(args: &[String], allowed: &[&str], switches: &[&str]) -> Result<Vec<(String, String)>, String> {
++pub(crate) fn flags(args: &[String], allowed: &[&str], switches: &[&str]) -> Result<Vec<(String, String)>, String> {
+     let mut out = Vec::new();
+     let mut i = 0;
+     while i < args.len() {
+@@ -1611,15 +1648,15 @@
+     Ok(out)
+ }
+ 
+-fn flag<'a>(f: &'a [(String, String)], k: &str) -> Option<&'a str> {
++pub(crate) fn flag<'a>(f: &'a [(String, String)], k: &str) -> Option<&'a str> {
+     f.iter().find(|(x, _)| x == k).map(|(_, v)| v.as_str())
+ }
+ 
+-fn need<'a>(f: &'a [(String, String)], k: &str) -> Result<&'a str, String> {
++pub(crate) fn need<'a>(f: &'a [(String, String)], k: &str) -> Result<&'a str, String> {
+     flag(f, k).ok_or_else(|| format!("{k} is required"))
+ }
+ 
+-fn js(s: &str) -> String {
++pub(crate) fn js(s: &str) -> String {
+     let mut o = String::from("\"");
+     for c in s.chars() {
+         match c {
+@@ -1712,7 +1749,7 @@
+ /// holds a prover-private `seq_*` entry**, so that "the export" handed to a
+ /// verifier can never carry the hidden input and its per-layer activations.
+ /// (The verifier never opened them; this makes shipping them a refusal.)
+-fn refuse_prover_private_entries(export: &Path) -> Result<(), String> {
++pub(crate) fn refuse_prover_private_entries(export: &Path) -> Result<(), String> {
+     let rd = std::fs::read_dir(export).map_err(|e| format!("{}: {e}", export.display()))?;
+     for e in rd {
+         let e = e.map_err(|e| format!("{}: {e}", export.display()))?;
+@@ -1727,7 +1764,7 @@
+     Ok(())
+ }
+ 
+-fn write_new(path: &Path, bytes: &[u8]) -> Result<(), String> {
++pub(crate) fn write_new(path: &Path, bytes: &[u8]) -> Result<(), String> {
+     use std::io::Write;
+     let mut f = std::fs::OpenOptions::new().write(true).create_new(true).open(path).map_err(|e| format!("{}: {e}", path.display()))?;
+     f.write_all(bytes).and_then(|_| f.sync_all()).map_err(|e| format!("{}: {e}", path.display()))
+@@ -2318,7 +2355,7 @@
+     }
+ }
+ 
+-fn stack_context(variant: &str, layers: &[u32], label: &str) -> Result<Digest, String> {
++pub(crate) fn stack_context(variant: &str, layers: &[u32], label: &str) -> Result<Digest, String> {
+     let mut b = Vec::new();
+     for s in ["hashline/zk60-trained-stack-context/1", variant, label] {
+         b.extend_from_slice(&(s.len() as u64).to_le_bytes());
+@@ -2623,7 +2660,7 @@
+ /// the `segments.json` of a run: one entry per segment, its file name, length
+ /// and SHA-256 (from the prover's sink, or from the bytes a verification
+ /// consumed)
+-fn render_segments_json(seen: &[(u64, String)]) -> String {
++pub(crate) fn render_segments_json(seen: &[(u64, String)]) -> String {
+     let segs: Vec<String> = seen.iter().enumerate().map(|(k, (n, h))| format!("{{\"file\":{},\"bytes\":{n},\"sha256\":{}}}", js(&super::run_sink::segment_file_name(k)), js(h))).collect();
+     format!("[\n {}\n]\n", segs.join(",\n "))
+ }
+@@ -2635,7 +2672,7 @@
+ /// as found: a REAL directory (a symbolic link is refused by name, never
+ /// followed) holding exactly `names`, each a regular file. Anything else —
+ /// an extra file, a link, a FIFO, a subdirectory — is refused.
+-fn check_statement_dir(dir: &Path, names: &[&str]) -> Result<(), String> {
++pub(crate) fn check_statement_dir(dir: &Path, names: &[&str]) -> Result<(), String> {
+     let m = std::fs::symlink_metadata(dir).map_err(|e| format!("{}: {e}", dir.display()))?;
+     if m.file_type().is_symlink() {
+         return Err(format!("{} is a symbolic link; a statement directory is never followed (review r5_A)", dir.display()));
+@@ -2729,7 +2766,7 @@
+ /// only make the rename replace an EMPTY directory or a link entry, or fail:
+ /// nothing of theirs is published.) On any failure the new directory is
+ /// removed.
+-fn publish_statement_dir(art: &Path, files: &[(&str, &[u8])]) -> Result<PathBuf, String> {
++pub(crate) fn publish_statement_dir(art: &Path, files: &[(&str, &[u8])]) -> Result<PathBuf, String> {
+     let target = art.join(super::run_sink::STATEMENT_DIR);
+     let tmp = art.join(format!("{}.writing-{}", super::run_sink::STATEMENT_DIR, std::process::id()));
+     std::fs::create_dir(&tmp).map_err(|e| format!("{}: {e}", tmp.display()))?;

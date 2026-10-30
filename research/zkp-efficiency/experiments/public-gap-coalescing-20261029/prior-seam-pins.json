@@ -1,0 +1,44 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/hashline/src/gpu/kernels.cu",
+    "snapshot": "seam-snapshots/hashline/src/gpu/kernels.cu",
+    "sha256": "bd00229fd61e86ae2bc0e037d5fa9cd90acc8a8a0f0fbf5583d501d2caf7b6aa",
+    "prior_sha256": "bd00229fd61e86ae2bc0e037d5fa9cd90acc8a8a0f0fbf5583d501d2caf7b6aa",
+    "unchanged": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/hashline/src/gpu/cuda.rs",
+    "snapshot": "seam-snapshots/hashline/src/gpu/cuda.rs",
+    "sha256": "a0ed0b3af7e38bd9a842cc0c024f9c12cc988c81fa586d2e4a67d5c7c5c11e9d",
+    "prior_sha256": "a0ed0b3af7e38bd9a842cc0c024f9c12cc988c81fa586d2e4a67d5c7c5c11e9d",
+    "unchanged": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/hashline/src/gpu/mod.rs",
+    "snapshot": "seam-snapshots/hashline/src/gpu/mod.rs",
+    "sha256": "706ca7fafb3e54114ca7c7241541a52ed6238764314f2877585071a1be37a31c",
+    "prior_sha256": "706ca7fafb3e54114ca7c7241541a52ed6238764314f2877585071a1be37a31c",
+    "unchanged": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/zkp-core/src/pcs.rs",
+    "snapshot": "seam-snapshots/zkp-core/src/pcs.rs",
+    "sha256": "2d9149564ff7f77482bcc314ad1949eef4e183d2a6c9b6b3f8ac7ac4cc72b24d",
+    "prior_sha256": "2d9149564ff7f77482bcc314ad1949eef4e183d2a6c9b6b3f8ac7ac4cc72b24d",
+    "unchanged": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/CURRENT_DEV_STATE.json",
+    "snapshot": "seam-snapshots/results/zk60_1b_native_20261017/r14/CURRENT_DEV_STATE.json",
+    "sha256": "d3e2b63bde604af0ad622cc33874e1e69ee8a083ef050238b1bf8cef42c11799",
+    "prior_sha256": "d3e2b63bde604af0ad622cc33874e1e69ee8a083ef050238b1bf8cef42c11799",
+    "unchanged": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/MATCHED_R13_R14_COMPARISON.json",
+    "snapshot": "seam-snapshots/results/zk60_1b_native_20261017/r14/MATCHED_R13_R14_COMPARISON.json",
+    "sha256": "a8c494d42fc45d00542bf19be99cf6f28a094e0453a20ec74e242e5630ad2159",
+    "prior_sha256": "a8c494d42fc45d00542bf19be99cf6f28a094e0453a20ec74e242e5630ad2159",
+    "unchanged": true
+  }
+]

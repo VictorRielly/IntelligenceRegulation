@@ -1,0 +1,33 @@
+{
+  "native_materiality": "Exclusive current GPU rowfold/kernel/enclosing clocks unavailable; secs_fold includes rhoH2D/allocation/kernel/D2H.",
+  "profile": "FrozenR13 geometry only; heldR14 split profile requires own source/census.",
+  "authority": "No GPU/native build/full proofs here. Owner uses current shared heavy/build locks for later review.",
+  "network": [
+    {
+      "title": "Celty RLC-CSC paper v2 and implementation availability",
+      "blocked_urls": [
+        "https://raw.githubusercontent.com/RuokaiYin/Celty/main/celty/KERNELs.cuh: Cache miss",
+        "https://github.com/RuokaiYin/Celty/blob/main/celty/KERNELs.cuh: Cache miss",
+        "https://github.com/RuokaiYin/Celty/blob/main/LICENSE: Cache miss",
+        "https://github.com/RuokaiYin/Celty/commits/main/: Cache miss"
+      ]
+    },
+    {
+      "title": "BlockSmith ultra-dense block transformation",
+      "blocked_urls": [
+        "https://doi.org/10.1145/3828547:403 Forbidden",
+        "https://dl.acm.org/doi/10.1145/3828547:403 Forbidden"
+      ]
+    },
+    {
+      "title": "DIV index/value compression ICS2025 and repository license",
+      "blocked_urls": [
+        "https://github.com/cslab-ntua/SpMV-Research/tree/main/benchmark_code/CPU/AMD/spmv_code_bench/DIV: Cache miss",
+        "https://raw.githubusercontent.com/cslab-ntua/SpMV-Research/main/LICENSE: Cache miss"
+      ]
+    }
+  ],
+  "capture_write": "Initial shell-based bulk capture save exceeded argument-list limit; corrected with research-only apply_patch. Ten bounded search provenance records and raw-response hashes saved; no permissions changed.",
+  "independent_progress": "Completed bounded local CPU differential and cost census despite source fetch blockers.",
+  "approval_requests": 0
+}

@@ -1,0 +1,23 @@
+.............s.................s......s......s/home/victor/IntelligenceRegulation/tests/test_zk60_resource_guard.py:230: ResourceWarning: unclosed file <_io.TextIOWrapper name=3 encoding='UTF-8'>
+  self._sigkill_case(["--no-cgroup"])
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/IntelligenceRegulation/tests/test_zk60_resource_guard.py:230: ResourceWarning: unclosed file <_io.TextIOWrapper name=5 encoding='UTF-8'>
+  self._sigkill_case(["--no-cgroup"])
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./usr/lib/python3.10/unittest/case.py:549: ResourceWarning: unclosed file <_io.TextIOWrapper name=3 encoding='UTF-8'>
+  method()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/usr/lib/python3.10/unittest/case.py:549: ResourceWarning: unclosed file <_io.TextIOWrapper name=5 encoding='UTF-8'>
+  method()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./usr/lib/python3.10/unittest/case.py:549: ResourceWarning: unclosed file <_io.TextIOWrapper name=4 encoding='UTF-8'>
+  method()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/usr/lib/python3.10/unittest/case.py:549: ResourceWarning: unclosed file <_io.TextIOWrapper name=6 encoding='UTF-8'>
+  method()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+..
+----------------------------------------------------------------------
+Ran 50 tests in 72.694s
+
+OK (skipped=4)

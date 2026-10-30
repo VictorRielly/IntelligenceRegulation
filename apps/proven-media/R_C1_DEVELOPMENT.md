@@ -1,11 +1,12 @@
-# R-C1 classifier adapter
+# Classifier development adapter
 
 `proven_media.classifier_prover.RungClassifierProver` implements the app's
 `ClassifierProver` interface for the frozen **synthetic** R-C1 fixture. It
 accepts `RungTokenItem`, not text or images. It is not exposed as a web-app
 prover mode and its single `synthetic` category cannot be published as media
-labels. The current `ShieldstralProver` remains unavailable until A2 and the
-reviewed native R12/S2 classifier release arrive.
+labels. The separate real `shieldstral_prover.ShieldstralProver` now integrates
+the reviewed r16b CLI for the explicitly authorized testnet demo; see README.
+Its first end-to-end run, full A2 benchmark and privacy acceptance remain pending.
 
 The worker executes one fresh CLI process per stage through the resource
 guard: `prove`, `verify`, `input-owner`. It observes the app, prep and export
@@ -27,9 +28,9 @@ For a retained fixture, construct the deployment with the frozen binary
 the fixture's prover export and a separate public export without `seq_*`, its
 classifier tables and trained statement identity. Set
 `policy="rung-tc-synthetic-policy-dev/1"`, `chunk_size=23`, `overlap=4`,
-`min_bits=93`, `development=True`. This exact binary/policy pair is the only
-93-bit exception. Production deployments require at least 95 bits and cannot
-use this binary.
+`min_bits=93`, `development=True`. The binary, policy and statement schema must
+match the frozen development version. Production deployments require at least
+95 bits and cannot use either development binary listed here.
 
 Pass the whole fixture's IDs and one private activation sequence directory
 per registered chunk to `RungTokenItem`. `start` launches a detached worker;
@@ -71,3 +72,118 @@ test data and is never a trained classifier.
 Only its retained `classifier_integration/complete.json`, fresh verification
 logs and public receipts can establish that the native integration ran.
 The bootstrap and retained integration are complete; no rerun is queued.
+
+## R-C2 adapter preparation
+
+The adapter also supports the frozen r13 development binary
+`zk60_classify.r13.release.bin`, SHA256
+`e320c2379bf765226c73e17ad5fe59dbd812e00980861102a1b9f727655feebb`, with explicit
+`statement_schema="zk60-classify-run/2"`. A mismatched binary/schema pair is
+refused; retained R-C1 jobs continue to use their original schema and binary.
+R-C2 collection checks the reported yes/no IDs, threshold, margin scale, BOS and
+final norm against the verifier export's profile, and checks the expected tied
+source. Fresh native verification remains mandatory: these transport checks do
+not substitute for the native tensor derivation or proof verification.
+
+The independent token round-13 review accepted R-C2 on soundness for the
+shipped CLI's scope; the coordinator recorded that acceptance at
+2026-10-29T00:56:21Z. Retained r13 operations use the frozen CLI: its loader
+binds the tables to the pinned model, while that release's library entry points
+do not enforce the binding (N-r13-1). Round14 fixed the library binding; the
+new r15 integration below also remains on the CLI.
+See `results/zk60_token_io_review_r1_20261017/REVIEW_R13.md` from the repository
+root. This acceptance does not establish privacy, classifier fidelity, or
+availability of the real Shieldstral app path.
+
+Nineteen adapter/orchestration tests pass, including schema downgrade, changed
+classifier parameters, owner mismatch, altered receipt, missing chunks and
+aggregate failures. `results/zk60_astra_20261026/classifier_c2_fixture/` contains
+a separate synthetic fixture whose tensor, embedding and margin exactly match
+the independent native-lane reference. The Python block matches a retained
+native sequence. Its 327-input candidate search only observed verdict bit zero;
+this fixture does not claim both native verdict branches. The fixed tensor and
+registered policy were preserved.
+
+`results/zk60_astra_20261026/classifier_c2_integration_1/complete.json` now
+records successful native app integration: three public receipts, fresh
+verification and input-owner checks, repeated rechecks and reversed multi-chunk
+OR. Both a rehashed margin table and a changed verdict statement were refused
+by the native verifier. `native_checks.json` retains the 20 guarded outcomes
+(18 successes and two expected refusals), redacted events and log digests.
+Peak sampled RSS was 0.16 GiB; these were watchdog-only runs on a shared box,
+and sub-second verifiers can finish between samples. The fixture exercises
+verdict bit zero only; both-bit transport tests are separate synthetic mocks.
+The web app's Shieldstral mode remains unavailable pending the native R13
+export, registered category profiles and review.
+
+The r13 native split refused content shorter than one full chunk.
+The exact A1 policies need 48–55 content tokens at T128 and 176–183 at T256.
+`results/zk60_shieldstral_export_20261026/category_chunk_coverage.json` counts
+the consequence across all 4,872 benchmark inputs: 32.5–77.0% of each
+dataset/policy group is too short at T128, and 90–100% at T256 (unweighted).
+The coordinator accepted this coverage file as the native round14 acceptance
+set. The schema/3 integration below implements this route with explicit public
+padding. Category prefix lengths differ, so each category keeps its own native
+chunk plan. The app must not truncate or reuse the general card-unsafe policy.
+
+## R-C3 short content and whole-post coverage
+
+The adapter supports frozen r15 `zk60_classify.r15.release.bin`, SHA256
+`5edb7241f3c6b788289fca4a03f4fd40649355cf016663ec9dadbdaaa66c9a8e`, with
+`zk60-classify-run/3`. R14 was accepted on soundness at03:05:49Z; r15 is frozen
+and was directed for app integration by the coordinator, with independent review
+still separate. This app check is neither privacy nor real-model acceptance.
+
+A short item is one range `[0,N)`. Its template is prefix, true content, suffix,
+then public pads (development id2, Shieldstral id11). Collection checks the true
+content length, padded context, item length, pad count and verdict row. The
+original synthetic item is now required by `prepare_label` / `start_label`;
+the expected total is never obtained from a receipt. The shared adapter checks
+every statement's total, count, index and exact D41 range before launching an
+aggregate, and r15 receives `--expect-total N`. The real-text coverage helper
+derives N from the actual post using the pinned Tekken encoder and checks all
+three category plans. Fresh proof verification and input-owner binding remain
+mandatory; coverage alone establishes neither.
+
+`results/zk60_astra_20261026/classifier_c3_integration_1/complete.json` records
+five actual native cases: lengths1,11,22,23 and27, six receipts, a fresh short-item
+recheck and reversed multi-chunk aggregation. Four truncated sets were refused
+both before app job creation and by the native CLI. All29 guarded leaves ended:
+25 successes and4 expected refusals. Peak sampled RSS0.16GiB, watchdog-only,
+n=1 shared box; subsecond sampling can miss peaks. The registered synthetic
+policy produced only verdict0, and the native reported floor was94 bits. The
+production floor remains95, and the development binary cannot enable the web
+Shieldstral mode. All130 app tests pass, including the new prefix controls.
+
+## Category queue and current native handoff (2026-10-29)
+
+`proof_plans.category_work_plan` preserves each category's native split and
+assigns a distinct post-wide job index. The web routes use the prover's own
+encoder/planner, and the worker recomputes the complete plan before starting,
+collecting or publishing. Collection matches the record and schema/3 statement
+to the category, policy, threshold, native chunk index, count, total and range.
+Classifier jobs additionally require accepted verification, input binding and
+a bound verdict. A changed plan after restart terminates as failed without
+relaunching. Aggregation, manifests, publication addressing and the UI use only
+the categories actually assigned to each job. Full suite:139 passed, including
+nine queue tests with unbound local fixtures; no native proof in those tests.
+
+The latest coordinator handoff supersedes the earlier native-registration wait:
+R13 was accepted on soundness, and token round16 registered the real T128/T256
+classifier and moderate policies. The app is directed to pin r16b binary
+`dfb8025eb903b203f4b50371fdd0dd00659d46a9dbaad9d121d6a68343ebc70c`,
+which removes the card-unsafe policy. The identity for the T128 export is
+`29aeba6c04a819cdbafde311f7c9d0c678d85aff22292ae6b9647761158a0bd1`.
+The prover-private per-item writer is implemented at
+`results/zk60_shieldstral_export_20261026/write_item_activations.py`. It emits
+`x_in_LXX.bin` / `x_out_LXX.bin`, little-endian int16 `[128,3072]` for all26
+layers. All156 files for the retained35-token, three-category item match the
+native writer byte for byte, with zero numerical refusals and75 checked layer
+joins. Evidence: `results/zk60_astra_20261026/item_activations_check_2/complete.json`.
+The guarded writer took66.15s/RSS0.71GiB, watchdog-only, n=1 shared box;
+seven focused tests also pass. These are activation checks, not new proofs.
+The next task is integrating this writer with the r16b adapter. The current
+development adapter still pins r15; this handoff does not activate r16b.
+Keep CLI-only, `--min-bits 95`, native `label --expect-total N`, the pinned
+Tekken coverage check and input-owner verification. Strict versus moderate
+remains a product ruling; real-classifier privacy acceptance is separate.

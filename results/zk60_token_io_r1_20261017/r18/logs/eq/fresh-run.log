@@ -1,0 +1,24 @@
+[zk60-guard 01:49:25] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 01:50:25] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 01:51:25] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 01:52:25] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 01:53:26] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 01:53:36] START tio18-a5-c0-verify class=cpu need=2.9G cap=7G enforce=cgroup+watchdog waited=251s run=f4e9f9cf745e
+[zk60-guard 01:54:51] END tio18-a5-c0-verify exit=0 child_wall=76s peak_rss=2.31G min_avail=11.19G
+[zk60-guard 01:54:52] START tio18-a5-c0-inowner class=cpu need=2.9G cap=7G enforce=cgroup+watchdog waited=0s run=ccf746d2dfba
+[zk60-guard 01:56:06] END tio18-a5-c0-inowner exit=0 child_wall=74s peak_rss=2.26G min_avail=11.30G
+[zk60-guard 01:56:06] START tio18-a5-c1-verify class=cpu need=2.9G cap=7G enforce=cgroup+watchdog waited=0s run=01a9378aa766
+[zk60-guard 01:57:19] END tio18-a5-c1-verify exit=0 child_wall=74s peak_rss=2.30G min_avail=11.33G
+[zk60-guard 01:57:19] START tio18-a5-c1-inowner class=cpu need=2.9G cap=7G enforce=cgroup+watchdog waited=0s run=02fbf3e3d875
+[zk60-guard 01:58:32] END tio18-a5-c1-inowner exit=0 child_wall=72s peak_rss=2.30G min_avail=11.30G
+[zk60-guard 01:58:32] START tio18-a5-c2-verify class=cpu need=2.9G cap=7G enforce=cgroup+watchdog waited=0s run=bd93f8f904cc
+[zk60-guard 01:59:46] END tio18-a5-c2-verify exit=0 child_wall=74s peak_rss=2.29G min_avail=11.22G
+[zk60-guard 01:59:46] START tio18-a5-c2-inowner class=cpu need=2.9G cap=7G enforce=cgroup+watchdog waited=0s run=c3fb70d6c497
+[zk60-guard 02:01:00] END tio18-a5-c2-inowner exit=0 child_wall=74s peak_rss=2.26G min_avail=11.37G
+[zk60-guard 02:01:00] START tio18-a5-sexual-label class=cpu need=2.9G cap=7G enforce=cgroup+watchdog waited=0s run=3bd0bd88f64e
+[zk60-guard 02:02:14] END tio18-a5-sexual-label exit=0 child_wall=74s peak_rss=2.31G min_avail=11.25G
+[zk60-guard 02:02:14] START tio18-a5-violence-label class=cpu need=2.9G cap=7G enforce=cgroup+watchdog waited=0s run=21f85997f6b3
+[zk60-guard 02:03:27] END tio18-a5-violence-label exit=0 child_wall=73s peak_rss=2.31G min_avail=11.36G
+[zk60-guard 02:03:27] START tio18-a5-hate-label class=cpu need=2.9G cap=7G enforce=cgroup+watchdog waited=0s run=aae9ce1b731e
+[zk60-guard 02:04:41] END tio18-a5-hate-label exit=0 child_wall=74s peak_rss=2.25G min_avail=11.37G
+{"c0-verify": 0, "c0-inowner": 0, "c1-verify": 0, "c1-inowner": 0, "c2-verify": 0, "c2-inowner": 0, "sexual-label": 0, "violence-label": 0, "hate-label": 0}

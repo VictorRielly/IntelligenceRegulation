@@ -1,0 +1,24 @@
+{
+  "current": [
+    "memory traffic",
+    "GPU NTT/commitments",
+    "quantization/arithmetic"
+  ],
+  "next": [
+    "sumcheck/GKR",
+    "lookup arguments and softmax",
+    "batching/amortization",
+    "proof composition"
+  ],
+  "queue": [
+    "GPU NTT/commitments",
+    "sumcheck/GKR",
+    "lookup arguments and softmax",
+    "memory traffic",
+    "batching/amortization",
+    "quantization/arithmetic",
+    "proof composition"
+  ],
+  "tested": 81,
+  "next_local": 82
+}

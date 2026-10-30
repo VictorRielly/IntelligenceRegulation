@@ -1,0 +1,15 @@
+{
+  "status": "COMPLETE",
+  "run_id": "20261030T134123Z-9551f712",
+  "checkpoint_utc": "2026-10-30T13:53:41.004971+00:00",
+  "prior_source_records": 1095,
+  "new_source_records": 9,
+  "total_source_records": 1104,
+  "all_prior_findings_preserved": true,
+  "all_prior_hypotheses_preserved": 97,
+  "new_hypotheses": 1,
+  "owner_document_drift": [],
+  "target_achieved": false,
+  "new_proofs": 0,
+  "no_native_execution": true
+}

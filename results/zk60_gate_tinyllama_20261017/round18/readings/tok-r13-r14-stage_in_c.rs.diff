@@ -1,0 +1,22 @@
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r13/hashline/src/private_block/token_io/stage_in_c.rs	2026-10-28 16:42:48.584716748 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r14/hashline/src/private_block/token_io/stage_in_c.rs	2026-10-28 19:12:07.681141328 -0700
+@@ -2,7 +2,9 @@
+ //! (`super::stage_in`, DESIGN v3 2.3) with two additions, and nothing else:
+ //!
+ //! * **the template clause** — every template position (the public prefix
+-//!   and suffix around the content) is pinned to its public id, by a clause
++//!   and suffix around the content; round 14, DESIGN v2.4 §15: and every
++//!   position after a short item's suffix, up to `T`, holding the policy's
++//!   public pad id) is pinned to its public id, by a clause
+ //!   with its OWN fresh coefficient in the query zero-check (a shared one
+ //!   would let it cancel against the LogUp clause: CHECK2 N-1, R-C0);
+ //! * **the control-id column (B-2)** — the lookup tuple gains a third, public
+@@ -44,7 +46,7 @@
+         label: "stage IN-C",
+         slots: vec![
+             SlotSpec { name: "INC-00 IO-in: token endpoint = supp_T tok (whole padded plane: template and content)", main: clog2(cp.in_ep_words()), ext: 1, degree: 3, kind: SlotKind::Standalone, a_sites: 1, h_sites: 0, io_sites: 1 },
+-            SlotSpec { name: "INC-01 query zero-check: LogUp over (id, row, ctl) + BOS + TEMPLATE + pad, fresh mu each", main: lti, ext: 1, degree: 4, kind: SlotKind::Standalone, a_sites: 1, h_sites: 1, io_sites: 1 },
++            SlotSpec { name: "INC-01 query zero-check: LogUp over (id, row, ctl) + BOS + TEMPLATE (prefix, suffix, trailing pad ids) + pad, fresh mu each", main: lti, ext: 1, degree: 4, kind: SlotKind::Standalone, a_sites: 1, h_sites: 1, io_sites: 1 },
+             SlotSpec { name: "INC-02 table zero-check: h_tab (alpha - tau(v, ctl)) = m + pad, fresh mu each", main: lvoc, ext: 1, degree: 4, kind: SlotKind::Standalone, a_sites: 1, h_sites: 1, io_sites: 0 },
+             SlotSpec { name: "INC-03 ZS zero-sum row", main: lt, ext: 1, degree: 2, kind: SlotKind::Standalone, a_sites: 0, h_sites: 1, io_sites: 0 },
+         ],

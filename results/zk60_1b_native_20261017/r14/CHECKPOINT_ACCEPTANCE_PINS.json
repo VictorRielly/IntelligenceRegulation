@@ -1,0 +1,16 @@
+{
+  "author_checkpoint_only": true,
+  "release_accepted": false,
+  "privacy_accepted": false,
+  "source": "06c540f2a7616e052540ce8dae44f043403ed8974b510f34c47623e54e48856a",
+  "files": {
+    "CLI_BUILD_ACCEPTANCE_2.json": "3606be9183a8428907787090d616ebfd4ef7ae8a3619564ac1248836462322c0",
+    "NATIVE_RELATION_REGRESSIONS.json": "0dd4d33aab643412936ba3fb73320099c704451242cd23ff3873d604387fe337",
+    "LEGACY_COMPATIBILITY_ACCEPTANCE.json": "20877f3a4e6a4cb9dc37c116916dc735d9b8416e1c00c0609cc7634991df4185",
+    "STREAMING_SOURCE_HANDOFF.json": "8e1c5861dca7b1a9542bfd087c9fd9c4f24824d4cc366bc233db5ea9fd528e08",
+    "cli-native-2/ACCEPTANCE.json": "e05b0de87ab87f1a566f4f5b70369463063e28344d16541d317560123af123f7",
+    "cli-native-2/M9_ACCEPTANCE.json": "409aa9d92c03c9ffb1ac46247bbe98a3d8140e2c2eaa48ec41d784bbded98cf9",
+    "CONTINUATION_20261030.json": "414a9ad3765210e636a387bcd7f3473dca1af22ae5c6fd2fe06d21c34f2c431e",
+    "sol-r14-cli-build-2.source.json": "7d576da53bc7d74fae019fc1f2ae041e8a702a90745b843e153c091c63780eb3"
+  }
+}

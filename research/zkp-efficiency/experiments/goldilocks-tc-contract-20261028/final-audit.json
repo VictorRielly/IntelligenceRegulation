@@ -1,0 +1,15 @@
+{
+  "status": "PASS_FINAL_RESEARCH_EVIDENCE_AUDIT",
+  "checks": 272,
+  "immutable_artifacts": 66,
+  "native_pins_unchanged": 7,
+  "required_project_documents_unchanged": 6,
+  "prior_source_records_preserved": 840,
+  "total_source_records": 849,
+  "prior_hypotheses_preserved": 44,
+  "total_hypotheses": 46,
+  "checked_at_utc": "2026-10-29T00:14:29.651392+00:00",
+  "elapsed_seconds": 0.030180611000105273,
+  "max_rss_kib": 25872,
+  "scope": "Artifact/provenance/links/ledger audit; not native proof, privacy or performance validation."
+}

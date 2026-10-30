@@ -1,0 +1,17 @@
+
+running 12 tests
+test private_block::token_io::classify_r16_tests::r16_a_block_at_another_stage_shape_and_the_run_seed_shape_are_refused ... ok
+test private_block::token_io::classify_r16_tests::r16_a_doctored_per_layer_gate_shift_is_refused_before_any_header ... ok
+test private_block::token_io::classify_r16_tests::r16_a_t256_export_statement_with_a_t128_profile_is_refused ... ok
+test private_block::token_io::classify_r16_tests::r16_an_r13_classifier_run_with_two_gate_denominators_proves_and_verifies ... ok
+test private_block::token_io::classify_r16_tests::r16_the_loaders_tied_derivation_is_reused_only_with_the_bound_margin_parameters ... ok
+test private_block::token_io::classify_r16_tests::r16_the_r13_shieldstral_classifier_profiles_are_registered_at_their_block_shapes ... ok
+test private_block::token_io::classify_r16_tests::r16_the_r13_whole_run_figure_charges_the_degree_two_tables_and_clears_95 ... ok
+test private_block::token_io::classify_r16_tests::r16_write_item_activations ... ignored, real Shieldstral export via HL_R16_EXPORT / HL_R16_ITEMS; streams the checkpoint once; guarded
+test private_block::token_io::review_r16_tests::rv16_s1_the_policies_the_r13_shieldstral_profiles_admit ... ok
+test private_block::token_io::review_r16_tests::rv16_s2_whole_run_terms_floors_and_min_bits ... ok
+test private_block::token_io::review_r16_tests::rv16_s3_a_wrong_activation_set_yields_no_accepting_receipt ... ok
+test private_block::token_io::review_r16_tests::rv16_s4_the_reused_derivation_needs_its_row_of_the_block_width ... ok
+
+test result: ok. 11 passed; 0 failed; 1 ignored; 0 measured; 849 filtered out; finished in 109.41s
+

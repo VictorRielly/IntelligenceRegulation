@@ -1,0 +1,1364 @@
+{
+ "arrays_checked": 31,
+ "bundle": "classify-r13-rung-L2-v1-short1",
+ "controls": {
+  "TS_1_pair_removed_every_role": {
+   "fired": 6,
+   "live": 6,
+   "ok": true,
+   "rows": [
+    {
+     "fires": true,
+     "group": 0,
+     "honest_disclosed_Fp": 0,
+     "pair_removed_disclosed_Fp": 4096,
+     "role": "A-in",
+     "stage": 0,
+     "stage_kind": "IN-C"
+    },
+    {
+     "fires": true,
+     "group": 0,
+     "honest_disclosed_Fp": 0,
+     "pair_removed_disclosed_Fp": 8192,
+     "role": "H-in",
+     "stage": 0,
+     "stage_kind": "IN-C"
+    },
+    {
+     "fires": true,
+     "group": 0,
+     "honest_disclosed_Fp": 0,
+     "pair_removed_disclosed_Fp": 256,
+     "role": "E-token-in",
+     "stage": 0,
+     "stage_kind": "IN-C"
+    },
+    {
+     "fires": true,
+     "group": 0,
+     "honest_disclosed_Fp": 0,
+     "pair_removed_disclosed_Fp": 4096,
+     "role": "A-out",
+     "stage": 3,
+     "stage_kind": "OUT-C"
+    },
+    {
+     "fires": true,
+     "group": 0,
+     "honest_disclosed_Fp": 0,
+     "pair_removed_disclosed_Fp": 8192,
+     "role": "H-out",
+     "stage": 3,
+     "stage_kind": "OUT-C"
+    },
+    {
+     "fires": true,
+     "group": 0,
+     "honest_disclosed_Fp": 0,
+     "pair_removed_disclosed_Fp": 16384,
+     "role": "B-out",
+     "stage": 3,
+     "stage_kind": "OUT-C"
+    }
+   ]
+  },
+  "ok": true
+ },
+ "expectation": [
+  {
+   "disclosed_Fp": 0,
+   "expected": 0,
+   "ok": true,
+   "role": "A-in",
+   "stage": 0
+  },
+  {
+   "disclosed_Fp": 2,
+   "expected": 2,
+   "ok": true,
+   "role": "H-in",
+   "stage": 0
+  },
+  {
+   "disclosed_Fp": 0,
+   "expected": 0,
+   "ok": true,
+   "role": "E-token-in",
+   "stage": 0
+  },
+  {
+   "disclosed_Fp": 0,
+   "expected": 0,
+   "ok": true,
+   "role": "A-out",
+   "stage": 3
+  },
+  {
+   "disclosed_Fp": 2,
+   "expected": 2,
+   "ok": true,
+   "role": "H-out",
+   "stage": 3
+  },
+  {
+   "disclosed_Fp": 0,
+   "expected": 0,
+   "ok": true,
+   "role": "B-out",
+   "stage": 3
+  }
+ ],
+ "ok": true,
+ "peak_rss_mb": 116,
+ "privacy_acceptance": false,
+ "profile": "hashline-zk-mr1/private-classify-run-rung-lh-t32-public-row-tst/1",
+ "roles": [
+  {
+   "annihilator_kills_blinding": true,
+   "annihilator_kills_data": true,
+   "census": {
+    "claims": 3,
+    "equal_published_values": [],
+    "identical_claims": [],
+    "same_data_weights_same_group": [],
+    "same_group_pairs_sharing_a_data_row": 0
+   },
+   "disclosed_by_group": {},
+   "groups": 3,
+   "inv_rate": 4,
+   "joint_components": [],
+   "original_form_checked": [
+    [
+     0,
+     true
+    ],
+    [
+     1,
+     true
+    ],
+    [
+     2,
+     true
+    ]
+   ],
+   "per_group": [
+    {
+     "annihilator_kills_all_blinding_generators": true,
+     "annihilator_kills_all_data_generators": true,
+     "annihilator_nonzero": true,
+     "blinding_rows": 2,
+     "cw_support": 256,
+     "data_generators": 4096,
+     "data_rows_touched": 1,
+     "disclosed_Fp": 0,
+     "expected_rank": 8192,
+     "left_null_dim": 2,
+     "members": 1,
+     "observations_Fp": 8194,
+     "original_form_agrees": true,
+     "original_form_disclosed_Fp": 0,
+     "rank_blinding": 8192,
+     "rank_blinding_plus_data": 8192,
+     "seconds": 0.2,
+     "surjective_onto_consistency_subspace": true,
+     "u_rows_in_group": []
+    },
+    {
+     "annihilator_kills_all_blinding_generators": true,
+     "annihilator_kills_all_data_generators": true,
+     "annihilator_nonzero": true,
+     "blinding_rows": 2,
+     "cw_support": 4096,
+     "data_generators": 4096,
+     "data_rows_touched": 1,
+     "disclosed_Fp": 0,
+     "expected_rank": 8192,
+     "left_null_dim": 2,
+     "members": 1,
+     "observations_Fp": 8194,
+     "original_form_agrees": true,
+     "original_form_disclosed_Fp": 0,
+     "rank_blinding": 8192,
+     "rank_blinding_plus_data": 8192,
+     "seconds": 0.3,
+     "surjective_onto_consistency_subspace": true,
+     "u_rows_in_group": []
+    },
+    {
+     "annihilator_kills_all_blinding_generators": true,
+     "annihilator_kills_all_data_generators": true,
+     "annihilator_nonzero": true,
+     "blinding_rows": 2,
+     "cw_support": 4096,
+     "data_generators": 4096,
+     "data_rows_touched": 1,
+     "disclosed_Fp": 0,
+     "expected_rank": 8192,
+     "left_null_dim": 2,
+     "members": 1,
+     "observations_Fp": 8194,
+     "original_form_agrees": true,
+     "original_form_disclosed_Fp": 0,
+     "rank_blinding": 8192,
+     "rank_blinding_plus_data": 8192,
+     "seconds": 0.3,
+     "surjective_onto_consistency_subspace": true,
+     "u_rows_in_group": []
+    }
+   ],
+   "role": "A-in",
+   "rows": 10,
+   "short_groups": [],
+   "stage": 0,
+   "stage1": [
+    {
+     "capture": "stage-00.json",
+     "claims": 3,
+     "cm_all_nonzero": true,
+     "cm_norms_all_nonzero": true,
+     "cw_all_nonzero": true,
+     "cw_sums_to_one_or_len": true,
+     "cw_support_max": 4096,
+     "cw_support_min": 256,
+     "data_rows": 2,
+     "findings": [],
+     "group_identity_failures": 0,
+     "groups": 3,
+     "lambda_count": 3,
+     "lambda_zero": 0,
+     "ok": true,
+     "pair_weights_exactly_cm_cmU": 3,
+     "profile": "private-classify-run-rung-lh-t32-public-row-tst",
+     "prox_pair_det_nonzero": true,
+     "reserved_pairs_used": 3,
+     "rho_is_lambda_combination_failures": 0,
+     "role": "A-in",
+     "rows": 10,
+     "u_rows": []
+    }
+   ],
+   "stage_kind": "IN-C",
+   "surjective_groups": 3,
+   "total_disclosed_Fp": 0,
+   "width": 4096,
+   "width_log_cols": 12
+  },
+  {
+   "annihilator_kills_blinding": true,
+   "annihilator_kills_data": true,
+   "census": {
+    "claims": 4,
+    "equal_published_values": [],
+    "identical_claims": [],
+    "same_data_weights_same_group": [],
+    "same_group_pairs_sharing_a_data_row": 0
+   },
+   "disclosed_by_group": {
+    "3": 2
+   },
+   "groups": 4,
+   "inv_rate": 4,
+   "joint_components": [
+    {
+     "blinding_generators": 16382,
+     "blinding_rows": 4,
+     "claims": 2,
+     "data_generators": 16384,
+     "data_rows": 4,
+     "disclosed_Fp": 2,
+     "groups": [
+      2,
+      3
+     ],
+     "left_null_dim": 6,
+     "observation_Fp": 16388,
+     "rank_blinding": 16382,
+     "rank_blinding_plus_data": 16384,
+     "seconds": 22.7,
+     "u_rows": [
+      4,
+      5
+     ]
+    }
+   ],
+   "original_form_checked": [
+    [
+     0,
+     true
+    ],
+    [
+     1,
+     true
+    ],
+    [
+     2,
+     true
+    ],
+    [
+     3,
+     true
+    ]
+   ],
+   "per_group": [
+    {
+     "annihilator_kills_all_blinding_generators": true,
+     "annihilator_kills_all_data_generators": true,
+     "annihilator_nonzero": true,
+     "blinding_rows": 2,
+     "cw_support": 4096,
+     "data_generators": 8192,
+     "data_rows_touched": 2,
+     "disclosed_Fp": 0,
+     "expected_rank": 8192,
+     "left_null_dim": 2,
+     "members": 1,
+     "observations_Fp": 8194,
+     "original_form_agrees": true,
+     "original_form_disclosed_Fp": 0,
+     "rank_blinding": 8192,
+     "rank_blinding_plus_data": 8192,
+     "seconds": 0.3,
+     "surjective_onto_consistency_subspace": true,
+     "u_rows_in_group": []
+    },
+    {
+     "annihilator_kills_all_blinding_generators": true,
+     "annihilator_kills_all_data_generators": true,
+     "annihilator_nonzero": true,
+     "blinding_rows": 2,
+     "cw_support": 4096,
+     "data_generators": 8192,
+     "data_rows_touched": 2,
+     "disclosed_Fp": 0,
+     "expected_rank": 8192,
+     "left_null_dim": 2,
+     "members": 1,
+     "observations_Fp": 8194,
+     "original_form_agrees": true,
+     "original_form_disclosed_Fp": 0,
+     "rank_blinding": 8192,
+     "rank_blinding_plus_data": 8192,
+     "seconds": 0.3,
+     "surjective_onto_consistency_subspace": true,
+     "u_rows_in_group": []
+    },
+    {
+     "annihilator_kills_all_blinding_generators": true,
+     "annihilator_kills_all_data_generators": true,
+     "annihilator_nonzero": true,
+     "blinding_rows": 4,
+     "cw_support": 4096,
+     "data_generators": 0,
+     "data_rows_touched": 0,
+     "disclosed_Fp": 0,
+     "expected_rank": 8192,
+     "left_null_dim": 2,
+     "members": 1,
+     "observations_Fp": 8194,
+     "original_form_agrees": true,
+     "original_form_disclosed_Fp": 0,
+     "rank_blinding": 8192,
+     "rank_blinding_plus_data": 8192,
+     "seconds": 0.4,
+     "surjective_onto_consistency_subspace": true,
+     "u_rows_in_group": [
+      4,
+      5
+     ]
+    },
+    {
+     "annihilator_kills_all_blinding_generators": true,
+     "annihilator_kills_all_data_generators": true,
+     "annihilator_nonzero": true,
+     "blinding_rows": 2,
+     "cw_support": 4096,
+     "data_generators": 16384,
+     "data_rows_touched": 4,
+     "disclosed_Fp": 2,
+     "expected_rank": 8192,
+     "left_null_dim": 4,
+     "members": 1,
+     "observations_Fp": 8194,
+     "original_form_agrees": true,
+     "original_form_disclosed_Fp": 2,
+     "rank_blinding": 8190,
+     "rank_blinding_plus_data": 8192,
+     "seconds": 0.5,
+     "surjective_onto_consistency_subspace": false,
+     "u_rows_in_group": [
+      4,
+      5
+     ]
+    }
+   ],
+   "role": "H-in",
+   "rows": 14,
+   "short_groups": [
+    3
+   ],
+   "stage": 0,
+   "stage1": [
+    {
+     "capture": "stage-00.json",
+     "claims": 4,
+     "cm_all_nonzero": true,
+     "cm_norms_all_nonzero": true,
+     "cw_all_nonzero": true,
+     "cw_sums_to_one_or_len": true,
+     "cw_support_max": 4096,
+     "cw_support_min": 4096,
+     "data_rows": 4,
+     "findings": [],
+     "group_identity_failures": 0,
+     "groups": 4,
+     "lambda_count": 4,
+     "lambda_zero": 0,
+     "ok": true,
+     "pair_weights_exactly_cm_cmU": 4,
+     "profile": "private-classify-run-rung-lh-t32-public-row-tst",
+     "prox_pair_det_nonzero": true,
+     "reserved_pairs_used": 4,
+     "rho_is_lambda_combination_failures": 0,
+     "role": "H-in",
+     "rows": 14,
+     "u_rows": [
+      4,
+      5
+     ]
+    }
+   ],
+   "stage_kind": "IN-C",
+   "surjective_groups": 3,
+   "total_disclosed_Fp": 2,
+   "width": 4096,
+   "width_log_cols": 12
+  },
+  {
+   "annihilator_kills_blinding": true,
+   "annihilator_kills_data": true,
+   "census": {
+    "claims": 1,
+    "equal_published_values": [],
+    "identical_claims": [],
+    "same_data_weights_same_group": [],
+    "same_group_pairs_sharing_a_data_row": 0
+   },
+   "disclosed_by_group": {},
+   "groups": 1,
+   "inv_rate": 8,
+   "joint_components": [],
+   "original_form_checked": [
+    [
+     0,
+     true
+    ]
+   ],
+   "per_group": [
+    {
+     "annihilator_kills_all_blinding_generators": true,
+     "annihilator_kills_all_data_generators": true,
+     "annihilator_nonzero": true,
+     "blinding_rows": 2,
+     "cw_support": 256,
+     "data_generators": 256,
+     "data_rows_touched": 1,
+     "disclosed_Fp": 0,
+     "expected_rank": 512,
+     "left_null_dim": 2,
+     "members": 1,
+     "observations_Fp": 514,
+     "original_form_agrees": true,
+     "original_form_disclosed_Fp": 0,
+     "rank_blinding": 512,
+     "rank_blinding_plus_data": 512,
+     "seconds": 0.0,
+     "surjective_onto_consistency_subspace": true,
+     "u_rows_in_group": []
+    }
+   ],
+   "role": "E-token-in",
+   "rows": 6,
+   "short_groups": [],
+   "stage": 0,
+   "stage1": [
+    {
+     "capture": "stage-00.json",
+     "claims": 1,
+     "cm_all_nonzero": true,
+     "cm_norms_all_nonzero": true,
+     "cw_all_nonzero": true,
+     "cw_sums_to_one_or_len": true,
+     "cw_support_max": 256,
+     "cw_support_min": 256,
+     "data_rows": 1,
+     "findings": [],
+     "group_identity_failures": 0,
+     "groups": 1,
+     "lambda_count": 1,
+     "lambda_zero": 0,
+     "ok": true,
+     "pair_weights_exactly_cm_cmU": 1,
+     "profile": "private-classify-run-rung-lh-t32-public-row-tst",
+     "prox_pair_det_nonzero": true,
+     "reserved_pairs_used": 1,
+     "rho_is_lambda_combination_failures": 0,
+     "role": "E-token-in",
+     "rows": 6,
+     "u_rows": []
+    }
+   ],
+   "stage_kind": "IN-C",
+   "surjective_groups": 1,
+   "total_disclosed_Fp": 0,
+   "width": 256,
+   "width_log_cols": 8
+  },
+  {
+   "annihilator_kills_blinding": true,
+   "annihilator_kills_data": true,
+   "census": {
+    "claims": 29,
+    "equal_published_values": [],
+    "identical_claims": [],
+    "same_data_weights_same_group": [],
+    "same_group_pairs_sharing_a_data_row": 0
+   },
+   "disclosed_by_group": {},
+   "groups": 16,
+   "inv_rate": 4,
+   "joint_components": [],
+   "original_form_checked": [
+    [
+     0,
+     true
+    ],
+    [
+     1,
+     true
+    ],
+    [
+     3,
+     true
+    ],
+    [
+     4,
+     true
+    ],
+    [
+     5,
+     true
+    ],
+    [
+     6,
+     true
+    ],
+    [
+     7,
+     true
+    ],
+    [
+     8,
+     true
+    ],
+    [
+     9,
+     true
+    ],
+    [
+     10,
+     true
+    ],
+    [
+     11,
+     true
+    ],
+    [
+     12,
+     true
+    ],
+    [
+     14,
+     true
+    ],
+    [
+     15,
+     true
+    ]
+   ],
+   "per_group": [
+    {
+     "annihilator_kills_all_blinding_generators": true,
+     "annihilator_kills_all_data_generators": true,
+     "annihilator_nonzero": true,
+     "blinding_rows": 2,
+     "cw_support": 512,
+     "data_generators": 4096,
+     "data_rows_touched": 1,
+     "disclosed_Fp": 0,
+     "expected_rank": 8192,
+     "left_null_dim": 2,
+     "members": 1,
+     "observations_Fp": 8194,
+     "original_form_agrees": true,
+     "original_form_disclosed_Fp": 0,
+     "rank_blinding": 8192,
+     "rank_blinding_plus_data": 8192,
+     "seconds": 0.2,
+     "surjective_onto_consistency_subspace": true,
+     "u_rows_in_group": []
+    },
+    {
+     "annihilator_kills_all_blinding_generators": true,
+     "annihilator_kills_all_data_generators": true,
+     "annihilator_nonzero": true,
+     "blinding_rows": 2,
+     "cw_support": 4096,
+     "data_generators": 4096,
+     "data_rows_touched": 1,
+     "disclosed_Fp": 0,
+     "expected_rank": 8192,
+     "left_null_dim": 2,
+     "members": 1,
+     "observations_Fp": 8194,
+     "original_form_agrees": true,
+     "original_form_disclosed_Fp": 0,
+     "rank_blinding": 8192,
+     "rank_blinding_plus_data": 8192,
+     "seconds": 0.3,
+     "surjective_onto_consistency_subspace": true,
+     "u_rows_in_group": []
+    },
+    {
+     "annihilator_kills_all_blinding_generators": true,
+     "annihilator_kills_all_data_generators": true,
+     "annihilator_nonzero": true,
+     "blinding_rows": 6,
+     "cw_support": 2,
+     "data_generators": 12288,
+     "data_rows_touched": 3,
+     "disclosed_Fp": 0,
+     "expected_rank": 8196,
+     "left_null_dim": 2,
+     "members": 3,
+     "observations_Fp": 8198,
+     "rank_blinding": 8196,
+     "rank_blinding_plus_data": 8196,
+     "seconds": 0.2,
+     "surjective_onto_consistency_subspace": true,
+     "u_rows_in_group": []
+    },
+    {
+     "annihilator_kills_all_blinding_generators": true,
+     "annihilator_kills_all_data_generators": true,
+     "annihilator_nonzero": true,
+     "blinding_rows": 2,
+     "cw_support": 2,
+     "data_generators": 4096,
+     "data_rows_touched": 1,
+     "disclosed_Fp": 0,
+     "expected_rank": 8192,
+     "left_null_dim": 2,
+     "members": 1,
+     "observations_Fp": 8194,
+     "original_form_agrees": true,
+     "original_form_disclosed_Fp": 0,
+     "rank_blinding": 8192,
+     "rank_blinding_plus_data": 8192,
+     "seconds": 0.2,
+     "surjective_onto_consistency_subspace": true,
+     "u_rows_in_group": []
+    },
+    {
+     "annihilator_kills_all_blinding_generators": true,
+     "annihilator_kills_all_data_generators": true,
+     "annihilator_nonzero": true,
+     "blinding_rows": 2,
+     "cw_support": 2,
+     "data_generators": 4096,
+     "data_rows_touched": 1,
+     "disclosed_Fp": 0,
+     "expected_rank": 8192,
+     "left_null_dim": 2,
+     "members": 1,
+     "observations_Fp": 8194,
+     "original_form_agrees": true,
+     "original_form_disclosed_Fp": 0,
+     "rank_blinding": 8192,
+     "rank_blinding_plus_data": 8192,
+     "seconds": 0.3,
+     "surjective_onto_consistency_subspace": true,
+     "u_rows_in_group": []
+    },
+    {
+     "annihilator_kills_all_blinding_generators": true,
+     "annihilator_kills_all_data_generators": true,
+     "annihilator_nonzero": true,
+     "blinding_rows": 2,
+     "cw_support": 2,
+     "data_generators": 4096,
+     "data_rows_touched": 1,
+     "disclosed_Fp": 0,
+     "expected_rank": 8192,
+     "left_null_dim": 2,
+     "members": 1,
+     "observations_Fp": 8194,
+     "original_form_agrees": true,
+     "original_form_disclosed_Fp": 0,
+     "rank_blinding": 8192,
+     "rank_blinding_plus_data": 8192,
+     "seconds": 0.2,
+     "surjective_onto_consistency_subspace": true,
+     "u_rows_in_group": []
+    },
+    {
+     "annihilator_kills_all_blinding_generators": true,
+     "annihilator_kills_all_data_generators": true,
+     "annihilator_nonzero": true,
+     "blinding_rows": 2,
+     "cw_support": 2,
+     "data_generators": 4096,
+     "data_rows_touched": 1,
+     "disclosed_Fp": 0,
+     "expected_rank": 8192,
+     "left_null_dim": 2,
+     "members": 1,
+     "observations_Fp": 8194,
+     "original_form_agrees": true,
+     "original_form_disclosed_Fp": 0,
+     "rank_blinding": 8192,
+     "rank_blinding_plus_data": 8192,
+     "seconds": 0.2,
+     "surjective_onto_consistency_subspace": true,
+     "u_rows_in_group": []
+    },
+    {
+     "annihilator_kills_all_blinding_generators": true,
+     "annihilator_kills_all_data_generators": true,
+     "annihilator_nonzero": true,
+     "blinding_rows": 2,
+     "cw_support": 2,
+     "data_generators": 4096,
+     "data_rows_touched": 1,
+     "disclosed_Fp": 0,
+     "expected_rank": 8192,
+     "left_null_dim": 2,
+     "members": 1,
+     "observations_Fp": 8194,
+     "original_form_agrees": true,
+     "original_form_disclosed_Fp": 0,
+     "rank_blinding": 8192,
+     "rank_blinding_plus_data": 8192,
+     "seconds": 0.2,
+     "surjective_onto_consistency_subspace": true,
+     "u_rows_in_group": []
+    },
+    {
+     "annihilator_kills_all_blinding_generators": true,
+     "annihilator_kills_all_data_generators": true,
+     "annihilator_nonzero": true,
+     "blinding_rows": 2,
+     "cw_support": 2,
+     "data_generators": 4096,
+     "data_rows_touched": 1,
+     "disclosed_Fp": 0,
+     "expected_rank": 8192,
+     "left_null_dim": 2,
+     "members": 1,
+     "observations_Fp": 8194,
+     "original_form_agrees": true,
+     "original_form_disclosed_Fp": 0,
+     "rank_blinding": 8192,
+     "rank_blinding_plus_data": 8192,
+     "seconds": 0.2,
+     "surjective_onto_consistency_subspace": true,
+     "u_rows_in_group": []
+    },
+    {
+     "annihilator_kills_all_blinding_generators": true,
+     "annihilator_kills_all_data_generators": true,
+     "annihilator_nonzero": true,
+     "blinding_rows": 2,
+     "cw_support": 2,
+     "data_generators": 4096,
+     "data_rows_touched": 1,
+     "disclosed_Fp": 0,
+     "expected_rank": 8192,
+     "left_null_dim": 2,
+     "members": 1,
+     "observations_Fp": 8194,
+     "original_form_agrees": true,
+     "original_form_disclosed_Fp": 0,
+     "rank_blinding": 8192,
+     "rank_blinding_plus_data": 8192,
+     "seconds": 0.2,
+     "surjective_onto_consistency_subspace": true,
+     "u_rows_in_group": []
+    },
+    {
+     "annihilator_kills_all_blinding_generators": true,
+     "annihilator_kills_all_data_generators": true,
+     "annihilator_nonzero": true,
+     "blinding_rows": 2,
+     "cw_support": 2,
+     "data_generators": 4096,
+     "data_rows_touched": 1,
+     "disclosed_Fp": 0,
+     "expected_rank": 8192,
+     "left_null_dim": 2,
+     "members": 1,
+     "observations_Fp": 8194,
+     "original_form_agrees": true,
+     "original_form_disclosed_Fp": 0,
+     "rank_blinding": 8192,
+     "rank_blinding_plus_data": 8192,
+     "seconds": 0.2,
+     "surjective_onto_consistency_subspace": true,
+     "u_rows_in_group": []
+    },
+    {
+     "annihilator_kills_all_blinding_generators": true,
+     "annihilator_kills_all_data_generators": true,
+     "annihilator_nonzero": true,
+     "blinding_rows": 2,
+     "cw_support": 512,
+     "data_generators": 4096,
+     "data_rows_touched": 1,
+     "disclosed_Fp": 0,
+     "expected_rank": 8192,
+     "left_null_dim": 2,
+     "members": 1,
+     "observations_Fp": 8194,
+     "original_form_agrees": true,
+     "original_form_disclosed_Fp": 0,
+     "rank_blinding": 8192,
+     "rank_blinding_plus_data": 8192,
+     "seconds": 0.2,
+     "surjective_onto_consistency_subspace": true,
+     "u_rows_in_group": []
+    },
+    {
+     "annihilator_kills_all_blinding_generators": true,
+     "annihilator_kills_all_data_generators": true,
+     "annihilator_nonzero": true,
+     "blinding_rows": 2,
+     "cw_support": 4096,
+     "data_generators": 4096,
+     "data_rows_touched": 1,
+     "disclosed_Fp": 0,
+     "expected_rank": 8192,
+     "left_null_dim": 2,
+     "members": 1,
+     "observations_Fp": 8194,
+     "original_form_agrees": true,
+     "original_form_disclosed_Fp": 0,
+     "rank_blinding": 8192,
+     "rank_blinding_plus_data": 8192,
+     "seconds": 0.3,
+     "surjective_onto_consistency_subspace": true,
+     "u_rows_in_group": []
+    },
+    {
+     "annihilator_kills_all_blinding_generators": true,
+     "annihilator_kills_all_data_generators": true,
+     "annihilator_nonzero": true,
+     "blinding_rows": 24,
+     "cw_support": 4096,
+     "data_generators": 49152,
+     "data_rows_touched": 12,
+     "disclosed_Fp": 0,
+     "expected_rank": 8214,
+     "left_null_dim": 2,
+     "members": 12,
+     "observations_Fp": 8216,
+     "rank_blinding": 8214,
+     "rank_blinding_plus_data": 8214,
+     "seconds": 2.2,
+     "surjective_onto_consistency_subspace": true,
+     "u_rows_in_group": []
+    },
+    {
+     "annihilator_kills_all_blinding_generators": true,
+     "annihilator_kills_all_data_generators": true,
+     "annihilator_nonzero": true,
+     "blinding_rows": 2,
+     "cw_support": 1,
+     "data_generators": 4096,
+     "data_rows_touched": 1,
+     "disclosed_Fp": 0,
+     "expected_rank": 8192,
+     "left_null_dim": 2,
+     "members": 1,
+     "observations_Fp": 8194,
+     "original_form_agrees": true,
+     "original_form_disclosed_Fp": 0,
+     "rank_blinding": 8192,
+     "rank_blinding_plus_data": 8192,
+     "seconds": 0.2,
+     "surjective_onto_consistency_subspace": true,
+     "u_rows_in_group": []
+    },
+    {
+     "annihilator_kills_all_blinding_generators": true,
+     "annihilator_kills_all_data_generators": true,
+     "annihilator_nonzero": true,
+     "blinding_rows": 2,
+     "cw_support": 4096,
+     "data_generators": 4096,
+     "data_rows_touched": 1,
+     "disclosed_Fp": 0,
+     "expected_rank": 8192,
+     "left_null_dim": 2,
+     "members": 1,
+     "observations_Fp": 8194,
+     "original_form_agrees": true,
+     "original_form_disclosed_Fp": 0,
+     "rank_blinding": 8192,
+     "rank_blinding_plus_data": 8192,
+     "seconds": 0.3,
+     "surjective_onto_consistency_subspace": true,
+     "u_rows_in_group": []
+    }
+   ],
+   "role": "A-out",
+   "rows": 76,
+   "short_groups": [],
+   "stage": 3,
+   "stage1": [
+    {
+     "capture": "stage-03.json",
+     "claims": 29,
+     "cm_all_nonzero": true,
+     "cm_norms_all_nonzero": true,
+     "cw_all_nonzero": true,
+     "cw_sums_to_one_or_len": true,
+     "cw_support_max": 4096,
+     "cw_support_min": 1,
+     "data_rows": 16,
+     "findings": [],
+     "group_identity_failures": 0,
+     "groups": 16,
+     "lambda_count": 29,
+     "lambda_zero": 0,
+     "ok": true,
+     "pair_weights_exactly_cm_cmU": 29,
+     "profile": "private-classify-run-rung-lh-t32-public-row-tst",
+     "prox_pair_det_nonzero": true,
+     "reserved_pairs_used": 29,
+     "rho_is_lambda_combination_failures": 0,
+     "role": "A-out",
+     "rows": 76,
+     "u_rows": []
+    }
+   ],
+   "stage_kind": "OUT-C",
+   "surjective_groups": 16,
+   "total_disclosed_Fp": 0,
+   "width": 4096,
+   "width_log_cols": 12
+  },
+  {
+   "annihilator_kills_blinding": true,
+   "annihilator_kills_data": true,
+   "census": {
+    "claims": 10,
+    "equal_published_values": [],
+    "identical_claims": [],
+    "same_data_weights_same_group": [],
+    "same_group_pairs_sharing_a_data_row": 0
+   },
+   "disclosed_by_group": {
+    "4": 2
+   },
+   "groups": 5,
+   "inv_rate": 4,
+   "joint_components": [
+    {
+     "blinding_generators": 16382,
+     "blinding_rows": 4,
+     "claims": 2,
+     "data_generators": 65536,
+     "data_rows": 16,
+     "disclosed_Fp": 2,
+     "groups": [
+      3,
+      4
+     ],
+     "left_null_dim": 6,
+     "observation_Fp": 16388,
+     "rank_blinding": 16382,
+     "rank_blinding_plus_data": 16384,
+     "seconds": 23.6,
+     "u_rows": [
+      16,
+      17
+     ]
+    }
+   ],
+   "original_form_checked": [
+    [
+     0,
+     true
+    ],
+    [
+     2,
+     true
+    ],
+    [
+     3,
+     true
+    ]
+   ],
+   "per_group": [
+    {
+     "annihilator_kills_all_blinding_generators": true,
+     "annihilator_kills_all_data_generators": true,
+     "annihilator_nonzero": true,
+     "blinding_rows": 2,
+     "cw_support": 4096,
+     "data_generators": 8192,
+     "data_rows_touched": 2,
+     "disclosed_Fp": 0,
+     "expected_rank": 8192,
+     "left_null_dim": 2,
+     "members": 1,
+     "observations_Fp": 8194,
+     "original_form_agrees": true,
+     "original_form_disclosed_Fp": 0,
+     "rank_blinding": 8192,
+     "rank_blinding_plus_data": 8192,
+     "seconds": 0.4,
+     "surjective_onto_consistency_subspace": true,
+     "u_rows_in_group": []
+    },
+    {
+     "annihilator_kills_all_blinding_generators": true,
+     "annihilator_kills_all_data_generators": true,
+     "annihilator_nonzero": true,
+     "blinding_rows": 12,
+     "cw_support": 4096,
+     "data_generators": 49152,
+     "data_rows_touched": 12,
+     "disclosed_Fp": 0,
+     "expected_rank": 8202,
+     "left_null_dim": 2,
+     "members": 6,
+     "observations_Fp": 8204,
+     "rank_blinding": 8202,
+     "rank_blinding_plus_data": 8202,
+     "seconds": 1.0,
+     "surjective_onto_consistency_subspace": true,
+     "u_rows_in_group": []
+    },
+    {
+     "annihilator_kills_all_blinding_generators": true,
+     "annihilator_kills_all_data_generators": true,
+     "annihilator_nonzero": true,
+     "blinding_rows": 2,
+     "cw_support": 4096,
+     "data_generators": 8192,
+     "data_rows_touched": 2,
+     "disclosed_Fp": 0,
+     "expected_rank": 8192,
+     "left_null_dim": 2,
+     "members": 1,
+     "observations_Fp": 8194,
+     "original_form_agrees": true,
+     "original_form_disclosed_Fp": 0,
+     "rank_blinding": 8192,
+     "rank_blinding_plus_data": 8192,
+     "seconds": 0.3,
+     "surjective_onto_consistency_subspace": true,
+     "u_rows_in_group": []
+    },
+    {
+     "annihilator_kills_all_blinding_generators": true,
+     "annihilator_kills_all_data_generators": true,
+     "annihilator_nonzero": true,
+     "blinding_rows": 4,
+     "cw_support": 4096,
+     "data_generators": 0,
+     "data_rows_touched": 0,
+     "disclosed_Fp": 0,
+     "expected_rank": 8192,
+     "left_null_dim": 2,
+     "members": 1,
+     "observations_Fp": 8194,
+     "original_form_agrees": true,
+     "original_form_disclosed_Fp": 0,
+     "rank_blinding": 8192,
+     "rank_blinding_plus_data": 8192,
+     "seconds": 0.4,
+     "surjective_onto_consistency_subspace": true,
+     "u_rows_in_group": [
+      16,
+      17
+     ]
+    },
+    {
+     "annihilator_kills_all_blinding_generators": true,
+     "annihilator_kills_all_data_generators": true,
+     "annihilator_nonzero": true,
+     "blinding_rows": 2,
+     "cw_support": 4096,
+     "data_generators": 65536,
+     "data_rows_touched": 16,
+     "disclosed_Fp": 2,
+     "expected_rank": 8192,
+     "left_null_dim": 4,
+     "members": 1,
+     "observations_Fp": 8194,
+     "rank_blinding": 8190,
+     "rank_blinding_plus_data": 8192,
+     "seconds": 0.7,
+     "surjective_onto_consistency_subspace": false,
+     "u_rows_in_group": [
+      16,
+      17
+     ]
+    }
+   ],
+   "role": "H-out",
+   "rows": 38,
+   "short_groups": [
+    4
+   ],
+   "stage": 3,
+   "stage1": [
+    {
+     "capture": "stage-03.json",
+     "claims": 10,
+     "cm_all_nonzero": true,
+     "cm_norms_all_nonzero": true,
+     "cw_all_nonzero": true,
+     "cw_sums_to_one_or_len": true,
+     "cw_support_max": 4096,
+     "cw_support_min": 4096,
+     "data_rows": 16,
+     "findings": [],
+     "group_identity_failures": 0,
+     "groups": 5,
+     "lambda_count": 10,
+     "lambda_zero": 0,
+     "ok": true,
+     "pair_weights_exactly_cm_cmU": 10,
+     "profile": "private-classify-run-rung-lh-t32-public-row-tst",
+     "prox_pair_det_nonzero": true,
+     "reserved_pairs_used": 10,
+     "rho_is_lambda_combination_failures": 0,
+     "role": "H-out",
+     "rows": 38,
+     "u_rows": [
+      16,
+      17
+     ]
+    }
+   ],
+   "stage_kind": "OUT-C",
+   "surjective_groups": 4,
+   "total_disclosed_Fp": 2,
+   "width": 4096,
+   "width_log_cols": 12
+  },
+  {
+   "annihilator_kills_blinding": true,
+   "annihilator_kills_data": true,
+   "census": {
+    "claims": 2,
+    "equal_published_values": [],
+    "identical_claims": [],
+    "same_data_weights_same_group": [],
+    "same_group_pairs_sharing_a_data_row": 0
+   },
+   "disclosed_by_group": {},
+   "groups": 2,
+   "inv_rate": 4,
+   "joint_components": [],
+   "original_form_checked": [
+    [
+     0,
+     true
+    ],
+    [
+     1,
+     true
+    ]
+   ],
+   "per_group": [
+    {
+     "annihilator_kills_all_blinding_generators": true,
+     "annihilator_kills_all_data_generators": true,
+     "annihilator_nonzero": true,
+     "blinding_rows": 2,
+     "cw_support": 16384,
+     "data_generators": 16384,
+     "data_rows_touched": 1,
+     "disclosed_Fp": 0,
+     "expected_rank": 32768,
+     "left_null_dim": 2,
+     "members": 1,
+     "observations_Fp": 32770,
+     "original_form_agrees": true,
+     "original_form_disclosed_Fp": 0,
+     "rank_blinding": 32768,
+     "rank_blinding_plus_data": 32768,
+     "seconds": 1.1,
+     "surjective_onto_consistency_subspace": true,
+     "u_rows_in_group": []
+    },
+    {
+     "annihilator_kills_all_blinding_generators": true,
+     "annihilator_kills_all_data_generators": true,
+     "annihilator_nonzero": true,
+     "blinding_rows": 2,
+     "cw_support": 512,
+     "data_generators": 16384,
+     "data_rows_touched": 1,
+     "disclosed_Fp": 0,
+     "expected_rank": 32768,
+     "left_null_dim": 2,
+     "members": 1,
+     "observations_Fp": 32770,
+     "original_form_agrees": true,
+     "original_form_disclosed_Fp": 0,
+     "rank_blinding": 32768,
+     "rank_blinding_plus_data": 32768,
+     "seconds": 0.9,
+     "surjective_onto_consistency_subspace": true,
+     "u_rows_in_group": []
+    }
+   ],
+   "role": "B-out",
+   "rows": 7,
+   "short_groups": [],
+   "stage": 3,
+   "stage1": [
+    {
+     "capture": "stage-03.json",
+     "claims": 2,
+     "cm_all_nonzero": true,
+     "cm_norms_all_nonzero": true,
+     "cw_all_nonzero": true,
+     "cw_sums_to_one_or_len": true,
+     "cw_support_max": 16384,
+     "cw_support_min": 512,
+     "data_rows": 1,
+     "findings": [],
+     "group_identity_failures": 0,
+     "groups": 2,
+     "lambda_count": 2,
+     "lambda_zero": 0,
+     "ok": true,
+     "pair_weights_exactly_cm_cmU": 2,
+     "profile": "private-classify-run-rung-lh-t32-public-row-tst",
+     "prox_pair_det_nonzero": true,
+     "reserved_pairs_used": 2,
+     "rho_is_lambda_combination_failures": 0,
+     "role": "B-out",
+     "rows": 7,
+     "u_rows": []
+    }
+   ],
+   "stage_kind": "OUT-C",
+   "surjective_groups": 2,
+   "total_disclosed_Fp": 0,
+   "width": 16384,
+   "width_log_cols": 14
+  }
+ ],
+ "seconds": 440.8,
+ "stage0": {
+  "ok": true,
+  "random_systems": 60,
+  "sparse_vs_dense_disagreements": 0
+ },
+ "stages_read": [
+  0,
+  3
+ ],
+ "status": "PASS",
+ "summary": {
+  "0:IN-C:A-in": {
+   "census_equal_published_values": [],
+   "census_identical_claims": [],
+   "disclosed_Fp": 0,
+   "groups": 3,
+   "joint": [],
+   "rows": 10,
+   "surjective": 3,
+   "width": 4096
+  },
+  "0:IN-C:E-token-in": {
+   "census_equal_published_values": [],
+   "census_identical_claims": [],
+   "disclosed_Fp": 0,
+   "groups": 1,
+   "joint": [],
+   "rows": 6,
+   "surjective": 1,
+   "width": 256
+  },
+  "0:IN-C:H-in": {
+   "census_equal_published_values": [],
+   "census_identical_claims": [],
+   "disclosed_Fp": 2,
+   "groups": 4,
+   "joint": [
+    [
+     [
+      2,
+      3
+     ],
+     2
+    ]
+   ],
+   "rows": 14,
+   "surjective": 3,
+   "width": 4096
+  },
+  "3:OUT-C:A-out": {
+   "census_equal_published_values": [],
+   "census_identical_claims": [],
+   "disclosed_Fp": 0,
+   "groups": 16,
+   "joint": [],
+   "rows": 76,
+   "surjective": 16,
+   "width": 4096
+  },
+  "3:OUT-C:B-out": {
+   "census_equal_published_values": [],
+   "census_identical_claims": [],
+   "disclosed_Fp": 0,
+   "groups": 2,
+   "joint": [],
+   "rows": 7,
+   "surjective": 2,
+   "width": 16384
+  },
+  "3:OUT-C:H-out": {
+   "census_equal_published_values": [],
+   "census_identical_claims": [],
+   "disclosed_Fp": 2,
+   "groups": 5,
+   "joint": [
+    [
+     [
+      3,
+      4
+     ],
+     2
+    ]
+   ],
+   "rows": 38,
+   "surjective": 4,
+   "width": 4096
+  }
+ },
+ "tool_sha256": {
+  "zk60_native_rg_tokents.py": "16cbc5d072c55043292262fc83ca80bc3f21bad51792abd7fe1f8f705df026fc",
+  "zk60_r22_classts.py": "fb886564d90a5520da5581e58d6be82415d7ac500c8d11bee400733986ca61f3"
+ },
+ "ts_trained_sha256": "d6f6cf93ff1d5ad0dad6cb75671145b4e53bdd03be479841a72a0f2ae281f8bc",
+ "what": "gate round 22 item 3: the G-7 terminal surjection on a classifier capture's IN-C / OUT-C roles and R13 block roles, TS-1 on every role, the review controls on a block A; NOT a privacy result"
+}

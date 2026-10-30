@@ -1,0 +1,51 @@
+{
+  "T": 32,
+  "accuracy_stack": "low-h24-v1",
+  "calibration_tool": {
+    "path": "loader-next/prepare_fixtures.py",
+    "sha256": "0a91e68f2bf6b7f6f4f72d13c2cf175272bd641dc3fa7f75f091cc893a460c37"
+  },
+  "geometry": "rung-hd-t32-dev",
+  "kind": "profile",
+  "layers": [
+    {
+      "dir": "layer_00",
+      "layer": 0,
+      "manifest_sha256": "2ccb17f3838e051fde45b908c2fa456b239964326a63f8e392edd3b1a5c09309"
+    }
+  ],
+  "model": {
+    "repo": "synthetic/r13-native-public-fixture",
+    "revision": "r13-public-v2",
+    "sha256": "85827a323104f698ffb08cccf5e4a2f1353d176d9cf1db3cc8fc7854a2c0b305"
+  },
+  "per_layer_constants_differ": [],
+  "profile_constants": {
+    "exp_e_s": 4,
+    "f_e": 12,
+    "f_p": 12,
+    "f_ro": 7,
+    "norm_ceps": 1,
+    "norm_cn_a": 4000,
+    "norm_cn_m": 4000,
+    "norm_tn": 10,
+    "rope_theta": 10000,
+    "sh_ao": 7,
+    "sh_g": 8,
+    "sh_h": 14,
+    "sh_o": 9,
+    "sh_qkv": 8,
+    "sh_r2": 0,
+    "sh_rope": 7,
+    "sh_s": 6,
+    "sh_u": 0,
+    "sh_z": 6,
+    "silu_member": [
+      -3,
+      -11
+    ]
+  },
+  "residual_unit": 1.0,
+  "schema": "zk60-trained-profile-export/2",
+  "variant": "r13-h24-4g"
+}

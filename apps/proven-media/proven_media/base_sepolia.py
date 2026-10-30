@@ -10,6 +10,8 @@ import json
 import os
 from pathlib import Path
 import stat
+import time
+import urllib.error
 import urllib.request
 from urllib.parse import urlsplit
 
@@ -107,17 +109,32 @@ class BaseSepoliaRPC:
         request = urllib.request.Request(self.rpc_url, data=json.dumps(
             {"jsonrpc": "2.0", "id": 1, "method": method, "params": params}).encode(),
             headers={"Content-Type": "application/json"})
-        try:
-            with urllib.request.urlopen(request, timeout=15) as response:
-                data = response.read(4 * 1024 * 1024 + 1)
-            if len(data) > 4 * 1024 * 1024:
-                raise ValueError("oversized RPC response")
-            result = json.loads(data)
-            if result.get("id") != 1 or "error" in result or "result" not in result:
-                raise ValueError("RPC refused or malformed response")
-            return result["result"]
-        except (OSError, ValueError) as e:
-            raise PublishError(f"Base Sepolia RPC failed for {method}") from e
+        for attempt in range(4):
+            try:
+                with urllib.request.urlopen(request, timeout=15) as response:
+                    data = response.read(4 * 1024 * 1024 + 1)
+                if len(data) > 4 * 1024 * 1024:
+                    raise ValueError("oversized RPC response")
+                result = json.loads(data)
+                if result.get("id") != 1 or "error" in result or "result" not in result:
+                    raise ValueError("RPC refused or malformed response")
+                return result["result"]
+            except urllib.error.HTTPError as e:
+                # Retry the identical request only for explicit transient HTTP
+                # responses. A broadcast retains its signed bytes and nonce;
+                # uncertain delivery still uses the durable batch journal.
+                if e.code not in (429, 502, 503, 504) or attempt == 3:
+                    raise PublishError(f"Base Sepolia RPC failed for {method}") from e
+                delay = 2 ** (attempt + 1)
+                retry_after = (e.headers or {}).get('Retry-After', '')
+                if retry_after.isdigit():
+                    if int(retry_after) > 30:
+                        raise PublishError(f"Base Sepolia RPC retry deferred for {method}") from e
+                    delay = max(delay, int(retry_after))
+                e.close()
+                time.sleep(delay)
+            except (OSError, ValueError) as e:
+                raise PublishError(f"Base Sepolia RPC failed for {method}") from e
 
     def check_chain(self):
         if int(self.call("eth_chainId", []), 16) != CHAIN_ID:

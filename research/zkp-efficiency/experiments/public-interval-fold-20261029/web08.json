@@ -1,0 +1,17 @@
+{
+  "tool": "tools.web__run",
+  "access_date": "2026-10-29",
+  "access_timezone": "UTC",
+  "commands": {
+    "open": [
+      "https://raw.githubusercontent.com/RuokaiYin/Celty/main/celty/KERNELs.cuh",
+      "https://github.com/RuokaiYin/Celty/blob/main/LICENSE",
+      "https://raw.githubusercontent.com/cslab-ntua/SpMV-Research/main/LICENSE",
+      "https://arxiv.org/html/2608.01536v2"
+    ]
+  },
+  "raw_response_sha256": "94322a6a7bfea7f7b5e44a0069d4aa7d989565ad7d6f85ac12c88e9171f93f4e",
+  "raw_response_bytes": 15421,
+  "retention": "Provenance and source assessments retained; full webpage/paper text not redistributed. Exact source dates/licenses/limits in sources-cycle.jsonl.",
+  "external_execution": false
+}

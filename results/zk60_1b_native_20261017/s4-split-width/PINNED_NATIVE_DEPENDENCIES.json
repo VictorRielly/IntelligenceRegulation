@@ -1,0 +1,21 @@
+{
+  "anchor": "bb9eb2123c9350c738dafd19fe3b0133d6e2e7ab93f1e765cac4f20ccaed69ec",
+  "native_library": {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/working-tree/hashline/target/release/deps/libhashline-779e537f6d239754.rlib",
+    "sha256": "bdb08e434377a2ec0e4c34e6866228163d4e976e1b07b86d3dfe679ea6420569",
+    "source": "frozenR13 bb9eb212, normal-release full-suite dependency artifact"
+  },
+  "files": {
+    "hashline/src/private_block/argument.rs": "bc0332e39904ca881d26c255581aa1ab6a0e73899141689960ec2262f8561830",
+    "hashline/src/zk.rs": "66d1128675bea3b473abd4f2fe70d470b1abc19a7fe5a579a227616d76280e32",
+    "zkp-core/src/pcs.rs": "5c9cfc4e9c84283309f4c47f87d4a9146e2c9c9f5b52aa608b4ce6a7588cd495",
+    "zkp-core/src/sumcheck.rs": "fc7374bbd5e5cc4ede62e8a21d325eb62acff9b9dcc786d12eae39efbdfdbb95",
+    "zkp-core/src/transcript.rs": "cc9752d0ef9bcd6d7b20e94e611ff26748593a2ea1a4f55b63d8c221715f1967",
+    "hashline/src/private_block/accuracy.rs": "2996ff41016a65ac6b22db78768295879f4b37a48316267c655a410d667bc6af",
+    "hashline/src/private_block/accuracy_tables.rs": "0a92b7fff83a460b2f79560b195ed65c4a7024b80108631b3741bfbaba5511e8",
+    "hashline/src/private_block/accuracy_groups.rs": "63a87749a6e03e54104fdaa382d76421b0b984599fce7cca8714f348b7731731",
+    "hashline/src/private_block/accuracy_precision.rs": "145c1e0f66ea5aad558148aa7885b4fcaaf74c6145893cc1efd10f7a77eee56b",
+    "hashline/src/private_block/accuracy_aligned.rs": "396d0cf271b9ac401364e0c96a6c549eb4a31f91750a3072391d55ac8b9e9f8d"
+  },
+  "scope": "Direct scalar module imports and native compiled CFS/PCS/M dependencies; experimental point/claim adapter remains separate from private-block integration"
+}

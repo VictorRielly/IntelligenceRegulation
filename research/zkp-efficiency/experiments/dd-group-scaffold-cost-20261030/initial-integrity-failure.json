@@ -1,0 +1,7 @@
+{
+  "status": "FAIL",
+  "scope": "final metadata link audit; main experiment and arithmetic/source audits passed",
+  "error": "Dated progress report used root-relative experiments/handoff link strings; interpreted relative to progress/ they did not resolve.",
+  "correction": "Prefix those two dated-report links with ../; reproduce this in finish_cycle.py.",
+  "production_touched": false
+}

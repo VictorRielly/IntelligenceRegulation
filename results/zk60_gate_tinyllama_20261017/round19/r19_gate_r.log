@@ -1,0 +1,2 @@
+[zk60-guard 05:44:34] START gate19-v22-classify-r13-shield-t128-cli-sexual-r16b class=cpu need=7.2G cap=9G enforce=cgroup+watchdog waited=0s run=9a5cb8f89a4d
+[zk60-guard 06:25:13] END gate19-v22-classify-r13-shield-t128-cli-sexual-r16b exit=0 child_wall=2439s peak_rss=5.17G min_avail=9.02G

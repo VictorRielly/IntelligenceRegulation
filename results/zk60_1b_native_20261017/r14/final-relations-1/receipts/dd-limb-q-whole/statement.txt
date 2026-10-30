@@ -1,0 +1,8 @@
+R14-public-synthetic-malicious-fixture/1
+case=limb-q-whole
+dd=1
+model_identity=d363a0f78f4b673e86b8ac1e930c63c068b7048578ee6142adde04d1d615fde4
+input_root=88b777f9d14e2046c7289dddde604a2dde64bf6dbb8a22e6ae51c47e0da80917
+output_root=2ca9cdd79e77359cfdfb31fe35a9f1e022d793d40936fa60976c0ca175d524ae
+binding=695623ea078ff698b33ab5f7a167f7e4a9a20642b4e318bdccce80454991df09
+error=slot 20 [R14 04 Q zero-check (hosts 09Q, 11) Whole]: sumcheck round 0: s(0) + s(1) != claim

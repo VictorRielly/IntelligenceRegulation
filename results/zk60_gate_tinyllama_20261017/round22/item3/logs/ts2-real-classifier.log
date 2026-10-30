@@ -1,0 +1,92 @@
+stage-00.json IN-C A-in: groups 3, surjective 3, disclosed 0 {}, joint [] (1.4 s)
+stage-00.json IN-C H-in: groups 4, surjective 3, disclosed 2 {'3': 2}, joint [([2, 3], 2)] (26.2 s)
+stage-00.json IN-C E-token-in: groups 1, surjective 1, disclosed 0 {}, joint [] (26.2 s)
+stage-27.json OUT-C A-out: groups 16, surjective 16, disclosed 0 {}, joint [] (31.1 s)
+stage-27.json OUT-C H-out: groups 5, surjective 4, disclosed 2 {'4': 2}, joint [([3, 4], 2)] (52.4 s)
+stage-27.json OUT-C B-out: groups 2, surjective 2, disclosed 0 {}, joint [] (56.3 s)
+TS-1 0:A-in: True honest 0 removed 4096 (12.7 s)
+TS-1 0:H-in: True honest 0 removed 8192 (31.4 s)
+TS-1 0:E-token-in: True honest 0 removed 256 (0.1 s)
+TS-1 27:A-out: True honest 0 removed 4096 (15.5 s)
+TS-1 27:H-out: True honest 0 removed 8192 (31.0 s)
+TS-1 27:B-out: True honest 0 removed 16384 (206.2 s)
+TS-1: 6/6 fire (353.1 s)
+{
+ "0:IN-C:A-in": {
+  "width": 4096,
+  "rows": 41,
+  "groups": 3,
+  "surjective": 3,
+  "disclosed_Fp": 0,
+  "joint": [],
+  "census_identical_claims": [],
+  "census_equal_published_values": []
+ },
+ "0:IN-C:H-in": {
+  "width": 4096,
+  "rows": 76,
+  "groups": 4,
+  "surjective": 3,
+  "disclosed_Fp": 2,
+  "joint": [
+   [
+    [
+     2,
+     3
+    ],
+    2
+   ]
+  ],
+  "census_identical_claims": [],
+  "census_equal_published_values": []
+ },
+ "0:IN-C:E-token-in": {
+  "width": 256,
+  "rows": 6,
+  "groups": 1,
+  "surjective": 1,
+  "disclosed_Fp": 0,
+  "joint": [],
+  "census_identical_claims": [],
+  "census_equal_published_values": []
+ },
+ "27:OUT-C:A-out": {
+  "width": 4096,
+  "rows": 76,
+  "groups": 16,
+  "surjective": 16,
+  "disclosed_Fp": 0,
+  "joint": [],
+  "census_identical_claims": [],
+  "census_equal_published_values": []
+ },
+ "27:OUT-C:H-out": {
+  "width": 4096,
+  "rows": 38,
+  "groups": 5,
+  "surjective": 4,
+  "disclosed_Fp": 2,
+  "joint": [
+   [
+    [
+     3,
+     4
+    ],
+    2
+   ]
+  ],
+  "census_identical_claims": [],
+  "census_equal_published_values": []
+ },
+ "27:OUT-C:B-out": {
+  "width": 16384,
+  "rows": 38,
+  "groups": 2,
+  "surjective": 2,
+  "disclosed_Fp": 0,
+  "joint": [],
+  "census_identical_claims": [],
+  "census_equal_published_values": []
+ }
+}
+record: /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/round22/item3/ts2-real-hate-classifier-stages.json  status PASS

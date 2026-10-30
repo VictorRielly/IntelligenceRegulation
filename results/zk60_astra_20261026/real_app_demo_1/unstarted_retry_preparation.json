@@ -1,0 +1,46 @@
+{
+  "at": "2026-10-29T18:29:03.476971+00:00",
+  "post_id": "d1800de17fffed4565733d12e5c30f52",
+  "prior_job": {
+    "id": 1,
+    "post_id": "d1800de17fffed4565733d12e5c30f52",
+    "kind": "prove",
+    "status": "failed",
+    "created_at": "2026-10-29T17:46:24Z",
+    "started_at": "2026-10-29T17:48:29Z",
+    "finished_at": "2026-10-29T18:26:56Z",
+    "job_dir": "/tmp/zk60-astra-real-app-demo-20261029-1/jobs/d1800de17fffed4565733d12e5c30f52/prove",
+    "result": null,
+    "error": "Classifier verification failed: classifier pipeline has not succeeded | Classifier verification failed: classifier pipeline has not succeeded",
+    "chunk": 0
+  },
+  "prior_chunk_record": {
+    "post_id": "d1800de17fffed4565733d12e5c30f52",
+    "chunk": 0,
+    "status": "failed",
+    "record": null,
+    "error": "Classifier verification failed: classifier pipeline has not succeeded",
+    "attempted": 0,
+    "finished_at": "2026-10-29T18:26:56Z"
+  },
+  "private_archive": "/tmp/zk60-astra-real-app-demo-20261029-1/jobs/d1800de17fffed4565733d12e5c30f52/prove.unstarted-wait-1",
+  "reason": "same reserved item and policy, verified zero computation before SIGTERM of own waiting guard",
+  "screening_context_unchanged": true,
+  "content_tokens": 17,
+  "source_sha256": {
+    "apps/proven-media/proven_media/shieldstral_prover.py": "f31d373368bff8ed7bb82abe2122df83eba7018c924854c01d3a373cc3acabb0",
+    "apps/proven-media/proven_media/shieldstral_runtime.py": "b0cbf83877d18e328b20eb5c26508cadc5e87e57d7bc66388399837e7e582f73",
+    "apps/proven-media/proven_media/classifier_cli.py": "78a12f75f95df6f3899b62207e3766ca489d991cc7007edfb6a51fbca7eebd79",
+    "apps/proven-media/proven_media/classifier_prover.py": "3b36969f3889f8bdb2c5b61edf0f96d73f6bf7d053e3f1979e4adec20be5cf48",
+    "apps/proven-media/proven_media/provers.py": "0d92039c97b2bb831aa336b7acb38d83758ae20a8f29184aa44f3216da673acd",
+    "apps/proven-media/proven_media/jobs.py": "27afa7d12c4b2bf19ab767669d168ee62809ad158b911a8b3d7b1f18e1d87e7a",
+    "apps/proven-media/proven_media/proof_plans.py": "2f586ccc429af60ae41ce87c89539bf2e1d685bbadf42ef7e428250a496ba71d",
+    "apps/proven-media/proven_media/records.py": "93d73246b84253bf79e30f0d0d95225b5246a3206330f00b5098a6806041c7d3",
+    "apps/proven-media/proven_media/config.py": "9de948a0e6e80747a595497033162b65c25ea357953519359fc6146fb74bf8df",
+    "apps/proven-media/proven_media/app.py": "e07d365987507a1f3f3c0fa5d36abe74fdbbc9b0fefe03045275cb49dc0d9d82",
+    "apps/proven-media/proven_media/manifest.py": "e8722a753c4156d54b532edcca70d00c399da2a276cb7191f9d095d9c267ef02",
+    "apps/proven-media/tools/classifier_pipeline.py": "dd2de31a5dee01b4780efec3b5a2865f803f6acdfc30dc919eb0d2963b8c5e0b",
+    "results/zk60_astra_20261026/run_real_app_demo.py": "e5b7d00b89c74e51e43fbea404fdcb62a766d02aab7f16e98d4707d24748345d"
+  },
+  "launch_performed": false
+}

@@ -41,6 +41,69 @@ synthetic rung, from the fixture the capture test declares
 terminal identity at those constants is then their check (a wrong constant
 fails its slots: TL-2 / NC-1).
 
+[v21, gate round 18, 2026-10-29] PORTED to token frozen-r14 (rungs R-C2 and
+R-C3; statement schema `zk60-classify-run/3`; the capture schema is still
+`7-classify-run`, its `classify` keys unchanged):
+
+* the pins: `zk60_native_rg_classpins.classify_capture_pins_v21` (the five
+  ported classifier files at r14, `classify_tied.rs` new; the native files the
+  rebase onto R12b moved, chained to the block gate's native R9 readings);
+* the profile text: every R-C2 / R-C3 field re-derived and checked
+  (`item-length`, `pad-id`, `pad-positions`, `verdict-row`, `chunk-size` = the
+  PLAN's size T - P0 - S, `short-content=...`, `margin-scale(-bits)`, the
+  tied source, the D45 rulings sentence);
+* D41 with the plan size (never n) and n == b - a; a SHORT item is ONE chunk
+  [0, n) (`zk60_native_rg_classify.chunk_ranges`);
+* B-3 with the tables DERIVED from the pinned tensor
+  (`zk60_native_rg_classtied`): w_Delta and tau are rebuilt, none taken;
+* OUTC-00 and the joint figure at the public verdict row P0 + n + S - 1, and
+  B_out's OUTC-00 claim decoded to that row;
+* gate item C-13 (short items): controls C13-1..C13-4 on the capture (a
+  doctored pad position, a pad inside the content range, a shifted verdict
+  row, a declared length that is not the actual one).
+
+[v22, gate round 19, 2026-10-29] PORTED to token frozen-r16b on native R13
+(the real Shieldstral-1.0-3B classifier; captures made through the gate's
+capture tree `capture-tree-r16b` + the test-only patches H19-1..H19-4):
+
+* the pins: `zk60_native_rg_classpins.classify_capture_pins_v22` (the five
+  classifier files at r16b, the native R12b -> R13 and token r14 -> r16b
+  readings of `zk60_native_rg_r13_pins`, the gate's own H19-3 / H19-4 patch
+  readings; 72 pins on an r16b classifier capture);
+* the R13 classifier run profiles (Shieldstral T128 / T256 and the test-only
+  R13 h24 rung): their pad ids (11 / 2), overlaps (8 / 4), block profiles, the
+  registered Shieldstral policy list (D45(2): the three moderate category
+  policies; the card policy refused by name), and EVERY block stage line's
+  R13 gate denominator (one per stage, in the class range [17, 24]; none at a
+  legacy profile);
+* B-3 at the real Shieldstral profile: the margin row and the embedding
+  DERIVED by the gate from the pinned checkpoint (`--tied-export`,
+  `zk60_native_rg_classtied.shieldstral_derive`) and tau rebuilt with the
+  exact numpy fold;
+* the block stages at an R13 shape: `zk60_native_rg_r13blocks.r13_block_terminals`
+  (the block-port sub-lane's module: the 23 slots at each stage's own gate
+  denominator and precision, R13's seven redefined slots, the R13 plane list).
+
+[v23, gate round 20, 2026-10-29] token frozen-r17 (the gate's H19-1..H19-4
+adopted; R13 captures WITH public-table values, the recorder's export replay):
+
+* the pins: `zk60_native_rg_classpins.classify_capture_pins_v23` (v22's rule
+  plus the reading of frozen-r17's run_capture.rs cce0fc2a..., test-only; its
+  plane_index.rs is the gate's H19-3 ce79803c... byte for byte);
+* F19-G2: a capture whose pins are refused is REFUSED BY NAME right after the
+  integrity check (status REFUSED, exit code 3, the refusals in the record);
+  nothing else runs, so no KeyError;
+* the file hash in `class_integrity` streams and is cached per process (a
+  values capture's arrays.bin is 2.25 GB; v22 held it whole six times).
+
+[v24, gate round 24, 2026-10-30] token frozen-r18 / r19 / r19b (A5 one-load
+batch, E7, REVIEW_R19's fixes): no code change here.  The pins come from
+`zk60_native_rg_classpins.classify_capture_pins_v24` (v23's rule plus the
+readings of private_block.rs 96c1cd16... and derive.rs 4b53222b... /
+1d615010..., `zk60_native_rg_r13_pins.TOKEN_R19B_READINGS`); B-3 at the
+Shieldstral profile reads the checkpoint where E7 says
+(`zk60_native_rg_classtied.shield_checkpoint_path`).
+
 NOTHING HERE IS A PRIVACY RESULT OR A PRIVACY ACCEPTANCE.
 """
 
@@ -82,6 +145,10 @@ EXPECTED = TG.EXPECTED
 RUNG_FIXTURE_CALIBRATION = {"norm_tn": 10, "norm_cn_a": 1336, "norm_cn_m": 2158, "norm_ceps": 33554467,
                             "sh_ao": 6, "sh_qkv": 8, "sh_s": 5, "sh_o": 10, "sh_g": 8, "sh_h": 13, "sh_z": 5}
 RUNG_BLOCK_PROFILE = "hashline-zk-mr1/private-block-rung-tc-t32-dev/1"
+# [v23] exit codes of `main`: 0 PASS / PASS-WITH-DECLARED-LIMITS, 1 NOT-OK (a
+# part false or a control not fired), 3 REFUSED by name before evaluation (the
+# capture's source pins have no reading in these tools: F19-G2)
+EXIT_REFUSED = 3
 
 
 # ------------------------------------------------------------------ the loader
@@ -131,7 +198,26 @@ class ClassRunBundle:
         self.n_stages = d["stages"]
         if self.n_stages != self.l + 2 or d["boundaries"] != self.l + 1:
             raise ValueError("run.json: a classifier run has L + 2 stages and L + 1 boundaries")
-        self.shape = Shape(d["shape"], d["mask_domain"])
+        # [v21] finding F18-1 (capture format, token frozen-r14): the classifier
+        # writer emits `sh.slots()` WHOLE (run_capture.rs:2717-2758 at ef9c54db;
+        # MAX_SLOTS = 24 since native R9) while declaring n_slots = 23; the block
+        # writer takes n_slots (:2229). Shape::slots is zero beyond n_slots
+        # (shape.rs:2286-2288), so the extra triple is the unused SC_DD slot's
+        # (0, 0, 0). Accepted only when EVERY extra triple is zero, recorded, and
+        # stripped in memory (the bytes on disk are hashed as they are).
+        sh_doc = d["shape"]
+        extra = sh_doc.get("slots", [])[sh_doc.get("n_slots", 0):]
+        self.shape_slot_note = None
+        if extra:
+            if any(list(x) != [0, 0, 0] for x in extra):
+                raise ValueError(f"shape: {len(extra)} slot triples beyond n_slots {sh_doc.get('n_slots')} and not all zero")
+            sh_doc = dict(sh_doc, slots=sh_doc["slots"][:sh_doc["n_slots"]])
+            d["shape"] = sh_doc
+            self.shape_slot_note = {"finding": "F18-1", "extra_zero_slot_triples_stripped": len(extra),
+                                    "declared_n_slots": sh_doc["n_slots"],
+                                    "why": "the classifier capture writer emits Shape::slots() (MAX_SLOTS) unclipped; "
+                                           "the triples beyond n_slots are (0, 0, 0)"}
+        self.shape = Shape(sh_doc, d["mask_domain"])
         with open(os.path.join(self.dir, "manifest.json"), "rb") as fh:
             self.manifest = json.loads(fh.read())
         self.array_refusals: list[str] = []
@@ -154,10 +240,13 @@ class ClassRunBundle:
         self.public_tables_included = bool(d.get("public_tables_included", False))
         self.blocks = self.n_stages
         cf = d["classify"]
+        import zk60_native_rg_classtied as TD
+        self.profile_fields = TD.profile_fields(cf.get("profile_text", ""))
+        pad = self.profile_fields["pad_id"]
         self.geom = CL.ClassGeom(name=d["profile"], tokens=cf["T"], t_pad=cf["t_pad"], d=cf["d"], d_pad=cf["d_pad"],
                                  v=cf["V"], p0=cf["P0"], n=cf["n"], s=cf["S"], c=cf["policy"]["c"],
                                  num_special=cf["policy"]["num_special"], block_log_n=self.shape.endpoint_log_n,
-                                 block_inv_rate=self.shape.endpoint_inv_rate)
+                                 block_inv_rate=self.shape.endpoint_inv_rate, pad=pad if pad is not None else -1)
 
     @property
     def name(self) -> str:
@@ -331,9 +420,26 @@ class ClassRunReplay(TG.TokenRunReplay):
 
 
 # ------------------------------------------------------------------ integrity
+# [v23, gate round 20] the file hash STREAMS (1 MiB at a time) and is cached
+# per process on (path, size, mtime, inode): a capture WITH public-table
+# values carries a 2.25 GB arrays.bin, which v22's `fh.read()` held whole --
+# once per `class_integrity` call, and the controls call it five more times on
+# in-memory variants of run.json (no file on disk changes between the calls, so
+# the cached digest is the digest of the same bytes).
+_SHA_CACHE: dict = {}
+
+
 def _sha(path):
-    with open(path, "rb") as fh:
-        return hashlib.sha256(fh.read()).hexdigest()
+    st = os.stat(path)
+    key = (os.path.abspath(path), st.st_size, st.st_mtime_ns, st.st_ino)
+    got = _SHA_CACHE.get(key)
+    if got is None:
+        h = hashlib.sha256()
+        with open(path, "rb") as fh:
+            for chunk in iter(lambda: fh.read(1 << 20), b""):
+                h.update(chunk)
+        got = _SHA_CACHE[key] = h.hexdigest()
+    return got
 
 
 def class_integrity(b) -> dict:
@@ -381,25 +487,78 @@ def class_integrity(b) -> dict:
     if bytes(cf["policy"]["template_digest"]).hex() != td:
         f.append("classify.policy.template_digest is not the template ids' digest")
     pt = cf.get("profile_text", "")
+    pf = b.profile_fields
+    # [v21] the R-C2 / R-C3 profile text (classify.rs:578-622 at r14): every
+    # length field RE-DERIVED from (T, P0, n, S) and the pad id the policy's
+    rc3 = {"item_length": g.item_len(), "pad_positions": g.pad_positions(), "verdict_row": g.verdict_row(),
+           "chunk_size": g.plan_size(), "T": g.tokens, "P0": g.p0, "n": g.n, "S": g.s}
+    for key, want in rc3.items():
+        if pf.get(key) != want:
+            f.append(f"the profile text's {key} is {pf.get(key)!r}, re-derived {want}")
+    if pf.get("pad_id") is None or not (0 <= pf["pad_id"] < g.v):
+        f.append(f"the profile text's pad-id {pf.get('pad_id')!r} is not an id below V")
+    elif pf["pad_id"] != CL.PAD_IDS.get(b.profile):
+        f.append(f"the profile text's pad-id {pf['pad_id']} is not the registered policy's {CL.PAD_IDS.get(b.profile)!r}")
     for frag in (f"threshold c={cf['policy']['c']} ", f"yes={cf['policy']['yes']} no={cf['policy']['no']}",
                  f"ctl=ids<{cf['policy']['num_special']} ", f"template={td}",
                  f"{bytes(cf['margin_vector']['digest']).hex()}", f"byte-limbs={g.limbs} ",
-                 f"P0={g.p0} n={g.n} S={g.s} ", "no-output-endpoint"):
+                 f"P0={g.p0} n={g.n} S={g.s} ", "no-output-endpoint",
+                 # [v21] R-C2 / R-C3 / D45
+                 f"item-length={g.item_len()} pad-id={pf.get('pad_id')} pad-positions={g.pad_positions()} "
+                 f"verdict-row={g.verdict_row()} ",
+                 f"chunk-size={g.plan_size()} chunk-overlap={CL.CHUNK_OVERLAPS.get(b.profile)} chunk-split=end-aligned "
+                 "short-content=one-chunk-of-its-length-pad-pinned ",
+                 "margin-scale-bits=", "tied-source=",
+                 "rulings: B-5 n-public=true B-6 fixed-policy-list=true B-8 binding=input-endpoint-root "
+                 "B-4 fail-closed=true (accepted by Victor: D45, 2026-10-29)"):
         if frag not in pt:
-            f.append(f"the profile text does not carry {frag.strip()!r}")
+            f.append(f"the profile text does not carry {frag.strip()[:60]!r}")
     if cf.get("profile_text", "") not in b.run["parameter_line"]:
         f.append("the profile text is not inside the absorbed parameter line")
-    # D41: the chunk the header absorbs, re-derived from (total, index, plan)
+    # [v21] the schedule's OUT-C stage line names the verdict row (classify.rs:974-979 at r14)
+    want_line = f"= B_out at the fixed public row {g.verdict_row()} at pair row"
+    if not any(want_line in ln for ln in b.run.get("stage_lines", [])):
+        f.append(f"no stage line names B_out at the verdict row {g.verdict_row()}")
+    # [v22] the R13 classifier run profiles: the block profile, every block
+    # stage line's gate denominator (classify.rs `stage_lines` at r16b), the
+    # registered Shieldstral policy list (D45(2))
+    import re as _re
+    gates = []
+    for ln in b.run.get("stage_lines", []):
+        m = _re.search(r"^stage (\d+) \(block (\d+)\):", ln)
+        if not m:
+            continue
+        found = _re.findall(r"; R13 gate denominator (\d+) \(the layer record's accuracy-gate-layer\)", ln)
+        gates.append({"stage": int(m.group(1)), "block": int(m.group(2)),
+                      "gate": int(found[0]) if len(found) == 1 else None, "mentions": len(found)})
+    r13 = b.profile in CL.R13_CLASSIFY_RUN_PROFILES
+    if r13:
+        if b.run["shape"].get("profile") != CL.R13_BLOCK_PROFILE_OF[b.profile]:
+            f.append(f"the block profile {b.run['shape'].get('profile')!r} is not the R13 block profile "
+                     f"{CL.R13_BLOCK_PROFILE_OF[b.profile]!r} of {b.profile}")
+        if len(gates) != L or [g_["block"] for g_ in gates] != list(range(L)):
+            f.append(f"the stage lines name {len(gates)} block stages, the run has {L}")
+        for g_ in gates:
+            if g_["mentions"] != 1 or g_["gate"] is None or not (17 <= g_["gate"] <= 24):
+                f.append(f"stage {g_['stage']}: the stage line names {g_['mentions']} R13 gate denominator(s) "
+                         f"{g_['gate']!r}, one in [17, 24] is required at an R13 profile")
+        if b.profile != CL.RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST:
+            f += [f"policy: {x}" for x in CL.shieldstral_policy_check(cf["policy"])]
+    elif any(g_["mentions"] for g_ in gates):
+        f.append("a legacy classifier profile's stage line names an R13 gate denominator")
+    # D41: the chunk the header absorbs, re-derived from (total, index, the
+    # PLAN: size T - P0 - S, the registered overlap); n == b - a [v21]
     ch = cf["chunk"]
-    d41 = {"recorded": ch}
+    d41 = {"recorded": ch, "plan_size": g.plan_size(), "short_item": g.is_short()}
     try:
         rng = CL.chunk_ranges(ch["total"], ch["size"], ch["overlap"])
         d41["ranges"] = rng
-        ok = (ch["size"] == g.n and ch["count"] == len(rng) and 0 <= ch["index"] < len(rng)
-              and (ch["a"], ch["b"]) == rng[ch["index"]]
+        ok = (ch["size"] == g.plan_size() and ch["count"] == len(rng) and 0 <= ch["index"] < len(rng)
+              and (ch["a"], ch["b"]) == rng[ch["index"]] and ch["b"] - ch["a"] == g.n
               and ch["overlap"] == CL.CHUNK_OVERLAPS.get(b.profile))
         if not ok:
-            f.append(f"D41: the chunk {ch} is not the split's (size = n = {g.n}, overlap {CL.CHUNK_OVERLAPS.get(b.profile)})")
+            f.append(f"D41: the chunk {ch} is not the split's (plan size T - P0 - S = {g.plan_size()}, n = b - a = {g.n}, "
+                     f"overlap {CL.CHUNK_OVERLAPS.get(b.profile)})")
         d41["ok"] = ok
     except ValueError as exc:
         f.append(f"D41: {exc}")
@@ -475,13 +634,49 @@ def class_integrity(b) -> dict:
                 f.append(f"boundary {k}: claim sources {src}, expected {want_src}")
     if stz.doc["boundary_committed"] is not None:
         f.append("stage OUT-C commits a boundary")
+    # [v21, R-C3] B_out's claim from OUTC-00 sits at the fixed public bits of
+    # the verdict row P0 + n + S - 1 (stage_out_c.rs:302 at r14)
+    vr = verdict_row_of_bout_claim(b)
+    if vr.get("row") != g.verdict_row():
+        f.append(f"B_out's OUTC-00 claim is at row {vr.get('row')!r}, the verdict row is {g.verdict_row()} ({vr.get('why')})")
     return {"findings": f, "ok": not f, "stages": len(b.stages), "blocks": L,
+            "r13_profile": r13, "r13_stage_gates": [g_["gate"] for g_ in gates],
+            "rc3_lengths_re_derived": rc3, "pad_id": pf.get("pad_id"), "bout_claim_row": vr,
             "source_pins": {k: pins[k] for k in ("pins", "refusals", "ok")},
             "source_pin_status": sorted({x["status"].split(":")[0] for x in pins["per_file"]}),
             "D41_chunk": d41,
             "re_derived": {"stage_in_c": CL.StageLayout.summary(g.stage_in_c()),
                            "stage_out_c": CL.StageLayout.summary(g.stage_out_c()),
                            "input_endpoint": ep, "output_endpoint": None, "boundary": bf}}
+
+
+def verdict_row_of_bout_claim(b) -> dict:
+    """[v21] the row of B_out's claim from OUTC-00, decoded from the claim
+    point's leading (row) coordinates, which must be public bits (MSB
+    first, as `fixed_bits`): `stage_out_c.rs:302` puts
+    fixed_bits(verdict_row, t_bits) there"""
+    from zk60_native_jv_field import f2_from_list
+    L = b.l
+    op = next((r for r in b.stages[L + 1].roles if r.get("boundary") == L), None)
+    if op is None:
+        return {"row": None, "why": "no B_out opening in stage OUT-C"}
+    src = [(c["stage"], c["slot"]) for c in op["claim_sources"]]
+    if (L + 1, CL.SOC_IO) not in src:
+        return {"row": None, "why": f"B_out's claim sources {src} have no OUTC-00 claim"}
+    ci = src.index((L + 1, CL.SOC_IO))
+    c = op["claims"][ci]
+    p0 = c["parts"][0]
+    pt = [f2_from_list(x) for x in p0["point"]]
+    t_bits = CL.clog2(b.geom.t_pad)
+    # the B_out plane is (t_pad x d_pad) row-major: its leading t_bits
+    # variables are the token row (MSB first), then the d_pad column bits
+    bits = pt[:t_bits]
+    if any(x not in ((0, 0), (1, 0)) for x in bits):
+        return {"row": None, "why": "the claim's leading coordinates are not public bits"}
+    row = 0
+    for x in bits:
+        row = 2 * row + x[0]
+    return {"row": row, "claim_index": ci, "t_bits": t_bits, "why": "decoded"}
 
 
 # ------------------------------------------------------------------ per commitment (G-1)
@@ -589,7 +784,8 @@ def g6_endpoint_c(rows, views) -> dict:
 def class_joint_figure(b, views) -> dict:
     """`token_joint_figure` for a classifier run: the identifications tok
     (input; INC-00), B_in (slot 21 of block 0), B_out (slot 22 of block L-1)
-    and B_out row T-1 against A-out's x (OUTC-00); there is no output token."""
+    and B_out at the verdict row P0 + n + S - 1 (T - 1 without pad; v21)
+    against A-out's x (OUTC-00); there is no output token."""
     from zk60_native_rg_joint import RunJointSystem, block_from_view
     L, g = b.l, b.geom
     st_in, st_out = b.stages[0], b.stages[-1]
@@ -619,7 +815,8 @@ def class_joint_figure(b, views) -> dict:
             for w in range(1 << op["params"]["log_cols"]):
                 edges.append(((akey, ar, w), (bkey, br, w)))
     n_b = width["B_out"]
-    base = (g.tokens - 1) * g.d_pad
+    # [v21, R-C3] A-out's x is B_out at the public verdict row P0 + n + S - 1
+    base = g.verdict_row() * g.d_pad
     b_row, b_col = base // n_b, base % n_b
     x_row = plane_row(spi_out, "A_X")
     for w in range(g.d_pad):
@@ -822,9 +1019,17 @@ def class_controls(b, rp, terminals) -> dict:
     pd_tabs = b.stages[-1].doc["arguments"][CL.SOC_PD]["tables"]
     wi = next(i for i, t in enumerate(pd_tabs) if t["kind"] == "public")
     t4 = CT.check_classify_terminals(b, rp, table_delta={("OUT-C", CL.SOC_PD): (wi, 0, (1, 0))}, check_digests=False)
-    out["CC-4_margin_vector_entry_moved"] = {"B3_ok": t4["B3_margin_vector"]["ok"],
-                                             "B3_findings": t4["B3_margin_vector"]["findings"][:2],
-                                             "fires": not t4["B3_margin_vector"]["ok"]}
+    # [v23] F19-G2: a terminal record without a B-3 member (its slots were not
+    # evaluated) is a control that did NOT fire, never a KeyError
+    b3_4 = t4.get("B3_margin_vector")
+    if not isinstance(b3_4, dict):
+        out["CC-4_margin_vector_entry_moved"] = {"B3_ok": None, "fires": False,
+                                                 "why": "the terminal record has no B3_margin_vector (no slot evaluated: "
+                                                        f"{t4.get('findings')})"}
+    else:
+        out["CC-4_margin_vector_entry_moved"] = {"B3_ok": b3_4.get("ok"),
+                                                 "B3_findings": list(b3_4.get("findings") or [])[:2],
+                                                 "fires": b3_4.get("ok") is False}
     # CC-5 a template id in the recorded kappa table: the rebuilt-vs-captured check refuses
     q_tabs = b.stages[0].doc["arguments"][CL.SIC_QZC]["tables"]
     pubs = [i for i, t in enumerate(q_tabs) if t["kind"] == "public"]
@@ -848,15 +1053,134 @@ def class_controls(b, rp, terminals) -> dict:
     # CC-7 the template clause dropped from the port (an extra term cancels it): INC-01 refuses
     # (the clause is load-bearing on the recorded terminals)
     _ = f2_from_list
-    out["not_fired"] = [k for k, v in out.items() if isinstance(v, dict) and not v.get("fires")]
+    out.update(c13_controls(b, rp))
+    out["not_fired"] = [k for k, v in out.items() if isinstance(v, dict) and v.get("fires") is False]
     out["ok"] = not out["not_fired"]
     return out
 
 
+def _failing(t):
+    return sorted({(r["stage"], r["slot"]) for r in t["slots"] if not r["equal"]})
+
+
+def c13_controls(b, rp) -> dict:
+    """[v21] GATE ITEM C-13 (short items, DESIGN v2.4 §15): negative controls
+    on the REAL capture, in memory, each predicted:
+
+    C13-1 a doctored PAD position (applicable when the item has pad
+          positions): (a) the port's pad id + 1, (b) the captured kappa
+          table's first pad entry + 1 -> exactly INC-01 refuses, both ways
+          (the template clause pins the pad positions);
+    C13-2 a pad INSIDE the content range: (a) the port pins the last content
+          position P0 + n - 1 to the pad id (pi = 1, kappa = pad there) ->
+          exactly INC-01 refuses; (b) the profile text claims one pad
+          position more -> the integrity check refuses (item-length +
+          pad-positions != T);
+    C13-3 a SHIFTED verdict row: the port's OUTC-00 at verdict_row - 1 (and
+          + 1 where it exists) -> exactly OUTC-00 refuses; and the integrity
+          check refuses a recorded B_out claim decoded at another row;
+    C13-4 a declared length that is not the actual one: (a) classify.n + 1
+          in the facts (chunk and absorbed text unchanged) -> the integrity
+          check refuses (n != b - a, the profile text's n / item-length) and
+          INC-01 refuses (pi, kappa move); (b) the chunk declares one id more
+          (b + 1, total + 1) -> the run binding and D41 refuse."""
+    import zk60_native_rg_classtied as TD
+    out = {}
+    g = b.geom
+    cf = b.run["classify"]
+    inc01, outc00 = [("IN-C", CL.SIC_QZC)], [("OUT-C", CL.SOC_IO)]
+
+    def replay_of(mutate):
+        b2 = copy.copy(b)
+        b2.run = copy.deepcopy(b.run)
+        mutate(b2.run)
+        return ClassRunReplay(b2).run().summary()
+
+    def integrity_of(mutate):
+        b2 = copy.copy(b)
+        b2.run = copy.deepcopy(b.run)
+        mutate(b2.run)
+        b2.profile_fields = TD.profile_fields(b2.run["classify"].get("profile_text", ""))
+        cf2 = b2.run["classify"]
+        b2.geom = CL.ClassGeom(name=b2.run["profile"], tokens=cf2["T"], t_pad=cf2["t_pad"], d=cf2["d"],
+                               d_pad=cf2["d_pad"], v=cf2["V"], p0=cf2["P0"], n=cf2["n"], s=cf2["S"],
+                               c=cf2["policy"]["c"], num_special=cf2["policy"]["num_special"],
+                               block_log_n=b.shape.endpoint_log_n, block_inv_rate=b.shape.endpoint_inv_rate,
+                               pad=b2.profile_fields["pad_id"] if b2.profile_fields["pad_id"] is not None else -1)
+        return class_integrity(b2), b2
+    # C13-1
+    if g.pad_positions() > 0:
+        pad = b.profile_fields["pad_id"]
+        ta = CT.check_classify_terminals(b, rp, facts_override={"pad": pad + 1})
+        q_tabs = b.stages[0].doc["arguments"][CL.SIC_QZC]["tables"]
+        ki = [i for i, t in enumerate(q_tabs) if t["kind"] == "public"][3]   # supp, u0, pi, KAPPA, ctl_q
+        tb = CT.check_classify_terminals(b, rp, table_delta={("IN-C", CL.SIC_QZC): (ki, g.item_len(), (1, 0))},
+                                         check_digests=False)
+        out["C13-1_doctored_pad_position"] = {
+            "pad_positions": g.pad_positions(), "first_pad_position": g.item_len(),
+            "a_port_pad_id_plus_1_failing": _failing(ta), "b_captured_kappa_at_first_pad_plus_1_failing": _failing(tb),
+            "fires": _failing(ta) == inc01 and _failing(tb) == inc01}
+    else:
+        out["C13-1_doctored_pad_position"] = {"applicable": False, "why": "a full-length item has no pad position",
+                                              "fires": None}
+    # C13-2
+    t_in = g.p0 + g.n - 1
+    tc = CT.check_classify_terminals(b, rp, facts_override={"extra_pad_positions": [t_in]})
+
+    def more_pad(r):
+        pt = r["classify"]["profile_text"]
+        r["classify"]["profile_text"] = pt.replace(f" pad-positions={g.pad_positions()} ", f" pad-positions={g.pad_positions() + 1} ", 1)
+        r["parameter_line"] = r["parameter_line"].replace(pt, r["classify"]["profile_text"], 1)
+    i2, _ = integrity_of(more_pad)
+    why2 = [x for x in i2["findings"] if "pad_positions" in x or "pad-positions" in x]
+    out["C13-2_pad_inside_the_content_range"] = {
+        "content_position_pinned_to_pad": t_in, "a_port_failing": _failing(tc),
+        "b_profile_text_one_pad_more_integrity_refused": bool(why2), "b_findings": why2[:3],
+        "fires": _failing(tc) == inc01 and bool(why2)}
+    # C13-3
+    vr = g.verdict_row()
+    shifts = [x for x in (vr - 1, vr + 1) if 0 <= x < g.tokens]
+    fails = {x: _failing(CT.check_classify_terminals(b, rp, facts_override={"verdict_row": x})) for x in shifts}
+
+    gs = copy.copy(g)
+    gs.verdict_row = lambda: vr - 1
+    bs = copy.copy(b)
+    bs.geom = gs
+    i3 = class_integrity(bs)
+    why3 = [x for x in i3["findings"] if x.startswith("B_out's OUTC-00 claim is at row")]
+    out["C13-3_shifted_verdict_row"] = {
+        "verdict_row": vr, "port_rows_tried": shifts, "failing_per_row": {str(k): v for k, v in fails.items()},
+        "integrity_with_the_expected_row_moved_refused": bool(why3), "integrity_findings": why3[:2],
+        "fires": all(v == outc00 for v in fails.values()) and bool(fails) and bool(why3)}
+    # C13-4
+    t4 = CT.check_classify_terminals(b, rp, facts_override={"n": g.n + 1})
+
+    def n_up(r):
+        r["classify"]["n"] = r["classify"]["n"] + 1
+    i4, _ = integrity_of(n_up)
+
+    def ch_up(r):
+        r["classify"]["chunk"]["b"] += 1
+        r["classify"]["chunk"]["total"] += 1
+    s4 = replay_of(ch_up)
+    i4b, _ = integrity_of(ch_up)
+    why4 = [x for x in i4["findings"] if "the profile text's n " in x or "D41" in x or "item_length" in x]
+    out["C13-4_declared_length_not_the_actual"] = {
+        "a_facts_n_plus_1_integrity_refused": bool(why4), "a_findings": why4[:3],
+        "a_port_failing": _failing(t4),
+        "b_chunk_one_id_more_binding_refused": not s4["run_binding_reproduced"],
+        "b_D41_refused": not i4b["D41_chunk"]["ok"],
+        "fires": bool(why4) and _failing(t4) == inc01 and (not s4["run_binding_reproduced"])
+        and not i4b["D41_chunk"]["ok"]}
+    return out
+
+
 # ------------------------------------------------------------------ the gate
-def gate(directory: str, controls=True, full_preimage=True, calibration_export=None) -> dict:
+def gate(directory: str, controls=True, full_preimage=True, calibration_export=None, preimage_names=None) -> dict:
     t0 = time.time()
-    rec = {"what": "the privacy gate on ONE classifier run capture (D38 / D40 / D41; gate round 17); NOT a privacy result",
+    rec = {"what": "the privacy gate on ONE classifier run capture (D38 / D40 / D41 / D45; gate round 20, tools v23: "
+                   "token frozen-r17 / frozen-r16b on native R13, the R13 h24 rung and the real Shieldstral-1.0-3B); "
+                   "NOT a privacy result",
            "privacy_acceptance": False, "privacy_property_established": False, "timings": {}}
 
     def tick(name, t):
@@ -867,9 +1191,34 @@ def gate(directory: str, controls=True, full_preimage=True, calibration_export=N
     rec["blocks"], rec["stages"] = b.l, len(b.stages)
     cf = b.run["classify"]
     rec["public_outputs"] = {"verdict": cf["verdict"], "chunk": cf["chunk"], "policy": cf["policy"]["id"],
-                             "c": cf["policy"]["c"]}
+                             "c": cf["policy"]["c"],
+                             # [v21] D45(1): the content length is public, and with it the pad layout
+                             "n": cf["n"], "item_length": b.geom.item_len(), "pad_positions": b.geom.pad_positions(),
+                             "verdict_row": b.geom.verdict_row(), "pad_id": b.profile_fields["pad_id"],
+                             "short_item": b.geom.is_short()}
     rec["integrity"] = class_integrity(b)
+    rec["capture_format_notes"] = [x for x in (b.shape_slot_note,) if x]
     tick("load_and_integrity", t)
+    # [v23, gate round 20] F19-G2: a capture whose source pins these tools have
+    # not read is REFUSED BY NAME here, before any part that relies on the
+    # port runs (v21 / v22 went on and ended in a KeyError in the controls:
+    # fail closed, but by a crash rather than a written refusal).  The record
+    # is written with status REFUSED and `main` exits with EXIT_REFUSED.
+    sp = rec["integrity"].get("source_pins") or {}
+    if not sp.get("ok"):
+        rec["refusal"] = {"by": "source pins", "refusals": list(sp.get("refusals") or []),
+                          "port": CP.classify_capture_pins(b.manifest).get("port"),
+                          "what": "the capture pins source files at digests these tools have no reading for; "
+                                  "nothing else was evaluated (fail closed by a written refusal, F19-G2)"}
+        rec["false_parts"] = ["integrity"]
+        rec["ok"] = False
+        rec["status"] = "REFUSED"
+        rec["declared_limits"] = []
+        rec["controls"] = {"skipped": "refused before evaluation", "ok": None}
+        rec["total_seconds"] = round(time.time() - t0, 1)
+        import zk60_native_run_gate as G
+        rec["tool_sha256"] = G.tool_hashes()
+        return rec
     t = time.time()
     rp = ClassRunReplay(b).run()
     rec["replay"] = rp.summary()
@@ -903,7 +1252,7 @@ def gate(directory: str, controls=True, full_preimage=True, calibration_export=N
     tick("terminals_and_NL1", t)
     t = time.time()
     cal, cal_src, stage_cals = None, None, None
-    if calibration_export:
+    if calibration_export and b.profile not in CL.R13_CLASSIFY_RUN_PROFILES:
         import zk60_native_rg_tokenblocks as TB
         exp = TB.load_export(calibration_export)
         ident = TB.identify_layers(b, exp, None)
@@ -912,20 +1261,49 @@ def gate(directory: str, controls=True, full_preimage=True, calibration_export=N
             cals = TB.calibrations(exp, layers)
             cal, stage_cals = cals["run_values"], cals["stage_values"]
             cal_src = f"export {calibration_export}, layers {layers} (identified by their gains, X10)"
-    rec["terminals_block_stages"] = class_block_terminals(b, rp, calibration=cal, calibration_source=cal_src,
-                                                          controls=controls, stage_calibrations=stage_cals)
+    if b.profile in CL.R13_CLASSIFY_RUN_PROFILES:
+        # [v22] the block stages at an R13 shape: the block-port sub-lane's module
+        try:
+            import zk60_native_rg_r13blocks as RB
+        except ImportError as exc:
+            rec["terminals_block_stages"] = {"refused": f"no R13 block-stage port in these tools ({exc})", "ok": False}
+        else:
+            rec["terminals_block_stages"] = RB.r13_block_terminals(b, rp, calibration_export=calibration_export,
+                                                                   controls=controls)
+    else:
+        rec["terminals_block_stages"] = class_block_terminals(b, rp, calibration=cal, calibration_source=cal_src,
+                                                              controls=controls, stage_calibrations=stage_cals)
     tick("terminals_block_stages", t)
+    # [v22] DECLARED LIMITS (never silent): a capture recorded with public tables as length + digest
+    # (the real Shieldstral capture) leaves the block slots that need a captured table OPEN, by the
+    # capture option (`zk60_native_rg_r13blocks`: `tables_absent_by_capture_option`); the block part
+    # then counts as passed only on the slots it covers without tables, and the run's status says so
+    tbs = rec["terminals_block_stages"]
+    blocks_tables_open = bool(tbs.get("tables_absent_by_capture_option"))
+    blocks_ok = tbs.get("ok") is True or (blocks_tables_open and tbs.get("ok_on_the_covered_slots") is True)
+    rec["declared_limits"] = []
+    if blocks_tables_open:
+        rec["declared_limits"].append(
+            f"block-stage terminals: slots {tbs.get('slots_open_without_tables')} open in every block stage (the "
+            "capture carries public tables as length + digest only); covered without tables: "
+            f"{tbs.get('slots_covered_without_tables')}, ok on them: {tbs.get('ok_on_the_covered_slots')}")
     if full_preimage:
         t = time.time()
         from zk60_native_rg_ahpreimage import full_preimages
-        s11 = full_preimages(b, views, names=list(views))
+        names = list(views) if preimage_names is None else [n for n in preimage_names if n in views]
+        s11 = full_preimages(b, views, names=names)
         rec["full_preimage"] = {k: s11[k] for k in ("ok", "view_entries_compared", "view_entries_differing",
                                                     "salted_leaves_authenticated", "commitments") if k in s11}
+        if preimage_names is not None:
+            rec["full_preimage"]["sampled_commitments"] = names
+            rec["full_preimage"]["not_evaluated"] = [n for n in views if n not in names]
+            rec["declared_limits"].append(f"full preimage on a declared SAMPLE of {len(names)} of {len(views)} "
+                                          f"commitments: {names}")
         tick("full_preimage", t)
         rec["joint_preimage"] = TG.token_joint_preimage(
             b, views, s11, rec["G3_mask_cfs"], rec["G1_joint"],
             {"classifier_slots": rec["terminals_classifier_slots"], "block_stages": rec["terminals_block_stages"],
-             "ok": rec["terminals_classifier_slots"].get("ok") is True and rec["terminals_block_stages"].get("ok") is True})
+             "ok": rec["terminals_classifier_slots"].get("ok") is True and blocks_ok})
     else:
         rec["full_preimage"] = {"skipped": "not requested", "ok": None}
         rec["joint_preimage"] = {"skipped": "needs the full preimage", "ok": None}
@@ -963,8 +1341,12 @@ def gate(directory: str, controls=True, full_preimage=True, calibration_export=N
     rec["boundaries_ok"] = all(v["disclosed_on_the_reserved_block_fp"] == 0 and v["full_row_rank"]
                                and v["determinant_nonzero"] and v["row_rule"] == "data + 2*sites + 2" for v in bres.values())
     rec["false_parts"] = [p for p in parts if not (rec[p] or {}).get("ok")] + ([] if rec["boundaries_ok"] else ["boundaries"])
+    if blocks_tables_open and blocks_ok and "terminals_block_stages" in rec["false_parts"]:
+        rec["false_parts"].remove("terminals_block_stages")      # passed on its covered slots: a declared limit
     rec["ok"] = not rec["false_parts"] and (rec["controls"].get("ok") is True if controls else True)
     rec["status"] = "PASS" if rec["ok"] and controls else ("PASS-NO-CONTROLS" if rec["ok"] else "NOT-OK")
+    if rec["status"] == "PASS" and rec["declared_limits"]:
+        rec["status"] = "PASS-WITH-DECLARED-LIMITS"
     rec["total_seconds"] = round(time.time() - t0, 1)
     try:
         import resource
@@ -985,16 +1367,29 @@ def main(argv=None):
     ap.add_argument("--no-controls", action="store_true")
     ap.add_argument("--no-full-preimage", action="store_true")
     ap.add_argument("--calibration-export", default=None)
+    # [v22] the export whose profile.json / rotation signs / checkpoint
+    # declaration B-3 derives the Shieldstral tables from
+    ap.add_argument("--tied-export", default=None)
+    # [v22] the full preimage on a declared sample of commitments (comma list of view names)
+    ap.add_argument("--preimage-names", default=None)
     a = ap.parse_args(argv)
+    if a.tied_export:
+        import zk60_native_rg_classtied as TD
+        TD.SHIELD_EXPORT = a.tied_export
     rec = gate(a.bundle, controls=not a.no_controls, full_preimage=not a.no_full_preimage,
-               calibration_export=a.calibration_export)
+               calibration_export=a.calibration_export,
+               preimage_names=a.preimage_names.split(",") if a.preimage_names else None)
     os.makedirs(a.evidence, exist_ok=True)
     path = os.path.join(a.evidence, f"{a.name}.json")
     with open(path, "w") as fh:
         json.dump(rec, fh, indent=1, sort_keys=True, default=str)
+    if rec["status"] == "REFUSED":
+        print(f"{a.name}: status REFUSED by {rec['refusal']['by']}: {rec['refusal']['refusals']}; "
+              f"{rec['total_seconds']} s; record {path}")
+        return EXIT_REFUSED
     print(f"{a.name}: status {rec['status']}; false parts {rec['false_parts']}; controls not fired "
           f"{rec['controls'].get('not_fired')}; {rec['total_seconds']} s; record {path}")
-    return 0 if rec["status"] == "PASS" else 1
+    return 0 if rec["status"] in ("PASS", "PASS-WITH-DECLARED-LIMITS") else 1
 
 
 if __name__ == "__main__":

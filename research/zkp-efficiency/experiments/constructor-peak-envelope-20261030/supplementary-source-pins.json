@@ -1,0 +1,9 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/hashline/src/gpu/kernels.cu",
+    "snapshot": "native/hashline__src__gpu__kernels.cu",
+    "sha256": "b59bc396fa955bbdbc8bf8bb7b047c37c7f8df1fed0992d7b15ef983e2fc3969",
+    "bytes": 78055,
+    "scope": "Literature compatibility screen only; no CUDA executed; NTT p1 already fuses gather/DIT/padding."
+  }
+]

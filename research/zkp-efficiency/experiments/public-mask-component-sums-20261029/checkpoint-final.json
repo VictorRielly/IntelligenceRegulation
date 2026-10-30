@@ -1,0 +1,10 @@
+{
+  "run_id": "20261029T105649Z-8532a02d",
+  "checkpoint_utc": "2026-10-29T11:11:55.162185+00:00",
+  "deadline_utc": "2026-10-29T11:16:49Z",
+  "full_stack_proofs": 0,
+  "model_passes": 0,
+  "proved_positions": 0,
+  "sources": 940,
+  "hypotheses": 60
+}

@@ -1,0 +1,6 @@
+17:13:07 v23/v23-classify-r13-rung-L2-v1-r17-values exit 0
+17:24:48 ff/ff-v22-gate-r17-rung exit 1
+17:24:49 ff/ff-pins-v22-v23 exit 0
+17:24:50 ff/ff-v23-refuses-r14 exit 3
+17:26:01 suite/unittests-v23-frozen exit 0
+17:27:09 suite/unittests-v23-working-copy exit 0

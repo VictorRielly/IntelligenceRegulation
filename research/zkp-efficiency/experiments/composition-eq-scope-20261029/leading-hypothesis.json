@@ -1,0 +1,14 @@
+{
+  "rank": 63,
+  "title": "TESTED prover-only PCS grouping omits unused dense column tables",
+  "baseline": "R13 open_zk calls group_zclaims, which builds column vectors never read by zk_rhos/open_zk; current private schedule audit already uses compact keys.",
+  "eliminated_work": "Per modeled8BT128 core block45/48 dense column vectors,44/47 Eq/reverse temporaries,1.092/1.166M source Fp2 products and133/142 nonempty allocation calls. No native work removed yet.",
+  "added_costs": "Bool branch per new group and existing tuple empty Vec header; native compiler/allocator effects unknown. All original row weights and group keys retained.",
+  "prerequisites": "Owner exclusive group/row-fold/open/enclosing clocks and native byte/refusal/RNG/transcript/receipt/privacy gates with current shared build/heavy locks.",
+  "integration_cost": "Small generated unapplied patch in zkp-core/src/pcs.rs; isolated std-only extracted helper compiled, whole native patch uncompiled.",
+  "exactness": "162small differential fixtures,662256independent cube coefficients,4current-row/descriptor synthetic cases,8same-panic cases/8controls. Scripted transcript is not actual FS.",
+  "privacy_soundness": "No mask/pad/salt/opening/challenge reuse; verifier retains original columns; all native schedule/refusal checks remain. No full privacy or proof acceptance.",
+  "compatibility": "Actual R13 open_zk common A/H/consuming-boundary seam, host and external store. No CUDA kernel changes.",
+  "end_to_end_ceiling": "N/(T-C_exclusive_removed+A_added); fraction f/native phase ratio unknown; no numeric whole-workload forecast.",
+  "falsification": "Any grouping/order/row coefficient/refusal/draw/fold/native receipt/privacy mismatch; current compiler already eliminates tables; no enclosing gain, memory/regression, or a newly added consumer needs columns."
+}

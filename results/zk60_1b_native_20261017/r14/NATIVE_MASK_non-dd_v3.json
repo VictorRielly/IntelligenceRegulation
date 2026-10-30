@@ -1,0 +1,1530 @@
+{
+  "schema": "hashline-native-capture/6-split-run",
+  "source": "3c7b1dcfd47ba8cb257c6f734348f25fb960af3f25f8b1b14ea4e262ff8defda",
+  "field_modulus": 18446744069414584321,
+  "extension_nonresidue": 7,
+  "message_positions": 512,
+  "encoding_domain_positions": 4096,
+  "random_pad_positions_per_mask_row": 256,
+  "stages": [
+    {
+      "slots": 31,
+      "functionals": 46,
+      "private_scalars_hosted_once": 16,
+      "max_CFS_coefficients": 86,
+      "slot_budgets": [
+        {
+          "slot": 0,
+          "base": 0,
+          "part": "Whole",
+          "kind": "Private",
+          "rounds": 19,
+          "degree": 3,
+          "CFS_coefficients": 59,
+          "random_pad_positions": 256,
+          "zero_positions": 197,
+          "pad_interval": [
+            59,
+            315
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 1,
+          "base": 1,
+          "part": "Whole",
+          "kind": "Private",
+          "rounds": 19,
+          "degree": 3,
+          "CFS_coefficients": 59,
+          "random_pad_positions": 256,
+          "zero_positions": 197,
+          "pad_interval": [
+            59,
+            315
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 2,
+          "base": 2,
+          "part": "Whole",
+          "kind": "Host",
+          "rounds": 8,
+          "degree": 3,
+          "CFS_coefficients": 26,
+          "random_pad_positions": 256,
+          "zero_positions": 230,
+          "pad_interval": [
+            26,
+            282
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 3,
+          "base": 3,
+          "part": "Whole",
+          "kind": "Standalone",
+          "rounds": 15,
+          "degree": 4,
+          "CFS_coefficients": 62,
+          "random_pad_positions": 256,
+          "zero_positions": 194,
+          "pad_interval": [
+            62,
+            318
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 4,
+          "base": 4,
+          "part": "Whole",
+          "kind": "Private",
+          "rounds": 20,
+          "degree": 3,
+          "CFS_coefficients": 62,
+          "random_pad_positions": 256,
+          "zero_positions": 194,
+          "pad_interval": [
+            62,
+            318
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 5,
+          "base": 5,
+          "part": "Whole",
+          "kind": "Private",
+          "rounds": 12,
+          "degree": 2,
+          "CFS_coefficients": 26,
+          "random_pad_positions": 256,
+          "zero_positions": 230,
+          "pad_interval": [
+            26,
+            282
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 6,
+          "base": 6,
+          "part": "Whole",
+          "kind": "Private",
+          "rounds": 12,
+          "degree": 2,
+          "CFS_coefficients": 26,
+          "random_pad_positions": 256,
+          "zero_positions": 230,
+          "pad_interval": [
+            26,
+            282
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 7,
+          "base": 7,
+          "part": "Whole",
+          "kind": "Private",
+          "rounds": 12,
+          "degree": 2,
+          "CFS_coefficients": 26,
+          "random_pad_positions": 256,
+          "zero_positions": 230,
+          "pad_interval": [
+            26,
+            282
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 8,
+          "base": 8,
+          "part": "Whole",
+          "kind": "Private",
+          "rounds": 12,
+          "degree": 3,
+          "CFS_coefficients": 38,
+          "random_pad_positions": 256,
+          "zero_positions": 218,
+          "pad_interval": [
+            38,
+            294
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 9,
+          "base": 9,
+          "part": "Whole",
+          "kind": "Private",
+          "rounds": 12,
+          "degree": 3,
+          "CFS_coefficients": 38,
+          "random_pad_positions": 256,
+          "zero_positions": 218,
+          "pad_interval": [
+            38,
+            294
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 10,
+          "base": 10,
+          "part": "Wide",
+          "kind": "Private",
+          "rounds": 13,
+          "degree": 2,
+          "CFS_coefficients": 28,
+          "random_pad_positions": 256,
+          "zero_positions": 228,
+          "pad_interval": [
+            28,
+            284
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 11,
+          "base": 10,
+          "part": "Narrow",
+          "kind": "Private",
+          "rounds": 13,
+          "degree": 2,
+          "CFS_coefficients": 28,
+          "random_pad_positions": 256,
+          "zero_positions": 228,
+          "pad_interval": [
+            28,
+            284
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 12,
+          "base": 11,
+          "part": "Wide",
+          "kind": "Private",
+          "rounds": 12,
+          "degree": 2,
+          "CFS_coefficients": 26,
+          "random_pad_positions": 256,
+          "zero_positions": 230,
+          "pad_interval": [
+            26,
+            282
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 13,
+          "base": 11,
+          "part": "Narrow",
+          "kind": "Private",
+          "rounds": 12,
+          "degree": 2,
+          "CFS_coefficients": 26,
+          "random_pad_positions": 256,
+          "zero_positions": 230,
+          "pad_interval": [
+            26,
+            282
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 14,
+          "base": 12,
+          "part": "Wide",
+          "kind": "Private",
+          "rounds": 12,
+          "degree": 2,
+          "CFS_coefficients": 26,
+          "random_pad_positions": 256,
+          "zero_positions": 230,
+          "pad_interval": [
+            26,
+            282
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 15,
+          "base": 12,
+          "part": "Narrow",
+          "kind": "Private",
+          "rounds": 12,
+          "degree": 2,
+          "CFS_coefficients": 26,
+          "random_pad_positions": 256,
+          "zero_positions": 230,
+          "pad_interval": [
+            26,
+            282
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 16,
+          "base": 13,
+          "part": "Wide",
+          "kind": "Private",
+          "rounds": 14,
+          "degree": 2,
+          "CFS_coefficients": 30,
+          "random_pad_positions": 256,
+          "zero_positions": 226,
+          "pad_interval": [
+            30,
+            286
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 17,
+          "base": 13,
+          "part": "Narrow",
+          "kind": "Private",
+          "rounds": 14,
+          "degree": 2,
+          "CFS_coefficients": 30,
+          "random_pad_positions": 256,
+          "zero_positions": 226,
+          "pad_interval": [
+            30,
+            286
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 18,
+          "base": 14,
+          "part": "Wide",
+          "kind": "Host",
+          "rounds": 19,
+          "degree": 4,
+          "CFS_coefficients": 78,
+          "random_pad_positions": 256,
+          "zero_positions": 178,
+          "pad_interval": [
+            78,
+            334
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 19,
+          "base": 14,
+          "part": "Narrow",
+          "kind": "Host",
+          "rounds": 18,
+          "degree": 4,
+          "CFS_coefficients": 74,
+          "random_pad_positions": 256,
+          "zero_positions": 182,
+          "pad_interval": [
+            74,
+            330
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 20,
+          "base": 15,
+          "part": "Whole",
+          "kind": "Host",
+          "rounds": 20,
+          "degree": 4,
+          "CFS_coefficients": 82,
+          "random_pad_positions": 256,
+          "zero_positions": 174,
+          "pad_interval": [
+            82,
+            338
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 21,
+          "base": 16,
+          "part": "Whole",
+          "kind": "Host",
+          "rounds": 18,
+          "degree": 4,
+          "CFS_coefficients": 74,
+          "random_pad_positions": 256,
+          "zero_positions": 182,
+          "pad_interval": [
+            74,
+            330
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 22,
+          "base": 17,
+          "part": "Whole",
+          "kind": "Host",
+          "rounds": 20,
+          "degree": 4,
+          "CFS_coefficients": 82,
+          "random_pad_positions": 256,
+          "zero_positions": 174,
+          "pad_interval": [
+            82,
+            338
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 23,
+          "base": 18,
+          "part": "Wide",
+          "kind": "Host",
+          "rounds": 21,
+          "degree": 4,
+          "CFS_coefficients": 86,
+          "random_pad_positions": 256,
+          "zero_positions": 170,
+          "pad_interval": [
+            86,
+            342
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 24,
+          "base": 18,
+          "part": "Narrow",
+          "kind": "Host",
+          "rounds": 18,
+          "degree": 4,
+          "CFS_coefficients": 74,
+          "random_pad_positions": 256,
+          "zero_positions": 182,
+          "pad_interval": [
+            74,
+            330
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 25,
+          "base": 19,
+          "part": "Whole",
+          "kind": "Standalone",
+          "rounds": 15,
+          "degree": 3,
+          "CFS_coefficients": 47,
+          "random_pad_positions": 256,
+          "zero_positions": 209,
+          "pad_interval": [
+            47,
+            303
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 26,
+          "base": 20,
+          "part": "Whole",
+          "kind": "Standalone",
+          "rounds": 15,
+          "degree": 2,
+          "CFS_coefficients": 32,
+          "random_pad_positions": 256,
+          "zero_positions": 224,
+          "pad_interval": [
+            32,
+            288
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 27,
+          "base": 21,
+          "part": "Wide",
+          "kind": "Standalone",
+          "rounds": 19,
+          "degree": 2,
+          "CFS_coefficients": 40,
+          "random_pad_positions": 256,
+          "zero_positions": 216,
+          "pad_interval": [
+            40,
+            296
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 28,
+          "base": 21,
+          "part": "Narrow",
+          "kind": "Standalone",
+          "rounds": 18,
+          "degree": 2,
+          "CFS_coefficients": 38,
+          "random_pad_positions": 256,
+          "zero_positions": 218,
+          "pad_interval": [
+            38,
+            294
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 29,
+          "base": 22,
+          "part": "Wide",
+          "kind": "Standalone",
+          "rounds": 19,
+          "degree": 2,
+          "CFS_coefficients": 40,
+          "random_pad_positions": 256,
+          "zero_positions": 216,
+          "pad_interval": [
+            40,
+            296
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 30,
+          "base": 22,
+          "part": "Narrow",
+          "kind": "Standalone",
+          "rounds": 18,
+          "degree": 2,
+          "CFS_coefficients": 38,
+          "random_pad_positions": 256,
+          "zero_positions": 218,
+          "pad_interval": [
+            38,
+            294
+          ],
+          "encoding_domain": 4096
+        }
+      ],
+      "stage": 0
+    },
+    {
+      "slots": 31,
+      "functionals": 46,
+      "private_scalars_hosted_once": 16,
+      "max_CFS_coefficients": 86,
+      "slot_budgets": [
+        {
+          "slot": 0,
+          "base": 0,
+          "part": "Whole",
+          "kind": "Private",
+          "rounds": 19,
+          "degree": 3,
+          "CFS_coefficients": 59,
+          "random_pad_positions": 256,
+          "zero_positions": 197,
+          "pad_interval": [
+            59,
+            315
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 1,
+          "base": 1,
+          "part": "Whole",
+          "kind": "Private",
+          "rounds": 19,
+          "degree": 3,
+          "CFS_coefficients": 59,
+          "random_pad_positions": 256,
+          "zero_positions": 197,
+          "pad_interval": [
+            59,
+            315
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 2,
+          "base": 2,
+          "part": "Whole",
+          "kind": "Host",
+          "rounds": 8,
+          "degree": 3,
+          "CFS_coefficients": 26,
+          "random_pad_positions": 256,
+          "zero_positions": 230,
+          "pad_interval": [
+            26,
+            282
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 3,
+          "base": 3,
+          "part": "Whole",
+          "kind": "Standalone",
+          "rounds": 15,
+          "degree": 4,
+          "CFS_coefficients": 62,
+          "random_pad_positions": 256,
+          "zero_positions": 194,
+          "pad_interval": [
+            62,
+            318
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 4,
+          "base": 4,
+          "part": "Whole",
+          "kind": "Private",
+          "rounds": 20,
+          "degree": 3,
+          "CFS_coefficients": 62,
+          "random_pad_positions": 256,
+          "zero_positions": 194,
+          "pad_interval": [
+            62,
+            318
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 5,
+          "base": 5,
+          "part": "Whole",
+          "kind": "Private",
+          "rounds": 12,
+          "degree": 2,
+          "CFS_coefficients": 26,
+          "random_pad_positions": 256,
+          "zero_positions": 230,
+          "pad_interval": [
+            26,
+            282
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 6,
+          "base": 6,
+          "part": "Whole",
+          "kind": "Private",
+          "rounds": 12,
+          "degree": 2,
+          "CFS_coefficients": 26,
+          "random_pad_positions": 256,
+          "zero_positions": 230,
+          "pad_interval": [
+            26,
+            282
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 7,
+          "base": 7,
+          "part": "Whole",
+          "kind": "Private",
+          "rounds": 12,
+          "degree": 2,
+          "CFS_coefficients": 26,
+          "random_pad_positions": 256,
+          "zero_positions": 230,
+          "pad_interval": [
+            26,
+            282
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 8,
+          "base": 8,
+          "part": "Whole",
+          "kind": "Private",
+          "rounds": 12,
+          "degree": 3,
+          "CFS_coefficients": 38,
+          "random_pad_positions": 256,
+          "zero_positions": 218,
+          "pad_interval": [
+            38,
+            294
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 9,
+          "base": 9,
+          "part": "Whole",
+          "kind": "Private",
+          "rounds": 12,
+          "degree": 3,
+          "CFS_coefficients": 38,
+          "random_pad_positions": 256,
+          "zero_positions": 218,
+          "pad_interval": [
+            38,
+            294
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 10,
+          "base": 10,
+          "part": "Wide",
+          "kind": "Private",
+          "rounds": 13,
+          "degree": 2,
+          "CFS_coefficients": 28,
+          "random_pad_positions": 256,
+          "zero_positions": 228,
+          "pad_interval": [
+            28,
+            284
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 11,
+          "base": 10,
+          "part": "Narrow",
+          "kind": "Private",
+          "rounds": 13,
+          "degree": 2,
+          "CFS_coefficients": 28,
+          "random_pad_positions": 256,
+          "zero_positions": 228,
+          "pad_interval": [
+            28,
+            284
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 12,
+          "base": 11,
+          "part": "Wide",
+          "kind": "Private",
+          "rounds": 12,
+          "degree": 2,
+          "CFS_coefficients": 26,
+          "random_pad_positions": 256,
+          "zero_positions": 230,
+          "pad_interval": [
+            26,
+            282
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 13,
+          "base": 11,
+          "part": "Narrow",
+          "kind": "Private",
+          "rounds": 12,
+          "degree": 2,
+          "CFS_coefficients": 26,
+          "random_pad_positions": 256,
+          "zero_positions": 230,
+          "pad_interval": [
+            26,
+            282
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 14,
+          "base": 12,
+          "part": "Wide",
+          "kind": "Private",
+          "rounds": 12,
+          "degree": 2,
+          "CFS_coefficients": 26,
+          "random_pad_positions": 256,
+          "zero_positions": 230,
+          "pad_interval": [
+            26,
+            282
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 15,
+          "base": 12,
+          "part": "Narrow",
+          "kind": "Private",
+          "rounds": 12,
+          "degree": 2,
+          "CFS_coefficients": 26,
+          "random_pad_positions": 256,
+          "zero_positions": 230,
+          "pad_interval": [
+            26,
+            282
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 16,
+          "base": 13,
+          "part": "Wide",
+          "kind": "Private",
+          "rounds": 14,
+          "degree": 2,
+          "CFS_coefficients": 30,
+          "random_pad_positions": 256,
+          "zero_positions": 226,
+          "pad_interval": [
+            30,
+            286
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 17,
+          "base": 13,
+          "part": "Narrow",
+          "kind": "Private",
+          "rounds": 14,
+          "degree": 2,
+          "CFS_coefficients": 30,
+          "random_pad_positions": 256,
+          "zero_positions": 226,
+          "pad_interval": [
+            30,
+            286
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 18,
+          "base": 14,
+          "part": "Wide",
+          "kind": "Host",
+          "rounds": 19,
+          "degree": 4,
+          "CFS_coefficients": 78,
+          "random_pad_positions": 256,
+          "zero_positions": 178,
+          "pad_interval": [
+            78,
+            334
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 19,
+          "base": 14,
+          "part": "Narrow",
+          "kind": "Host",
+          "rounds": 18,
+          "degree": 4,
+          "CFS_coefficients": 74,
+          "random_pad_positions": 256,
+          "zero_positions": 182,
+          "pad_interval": [
+            74,
+            330
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 20,
+          "base": 15,
+          "part": "Whole",
+          "kind": "Host",
+          "rounds": 20,
+          "degree": 4,
+          "CFS_coefficients": 82,
+          "random_pad_positions": 256,
+          "zero_positions": 174,
+          "pad_interval": [
+            82,
+            338
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 21,
+          "base": 16,
+          "part": "Whole",
+          "kind": "Host",
+          "rounds": 18,
+          "degree": 4,
+          "CFS_coefficients": 74,
+          "random_pad_positions": 256,
+          "zero_positions": 182,
+          "pad_interval": [
+            74,
+            330
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 22,
+          "base": 17,
+          "part": "Whole",
+          "kind": "Host",
+          "rounds": 20,
+          "degree": 4,
+          "CFS_coefficients": 82,
+          "random_pad_positions": 256,
+          "zero_positions": 174,
+          "pad_interval": [
+            82,
+            338
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 23,
+          "base": 18,
+          "part": "Wide",
+          "kind": "Host",
+          "rounds": 21,
+          "degree": 4,
+          "CFS_coefficients": 86,
+          "random_pad_positions": 256,
+          "zero_positions": 170,
+          "pad_interval": [
+            86,
+            342
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 24,
+          "base": 18,
+          "part": "Narrow",
+          "kind": "Host",
+          "rounds": 18,
+          "degree": 4,
+          "CFS_coefficients": 74,
+          "random_pad_positions": 256,
+          "zero_positions": 182,
+          "pad_interval": [
+            74,
+            330
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 25,
+          "base": 19,
+          "part": "Whole",
+          "kind": "Standalone",
+          "rounds": 15,
+          "degree": 3,
+          "CFS_coefficients": 47,
+          "random_pad_positions": 256,
+          "zero_positions": 209,
+          "pad_interval": [
+            47,
+            303
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 26,
+          "base": 20,
+          "part": "Whole",
+          "kind": "Standalone",
+          "rounds": 15,
+          "degree": 2,
+          "CFS_coefficients": 32,
+          "random_pad_positions": 256,
+          "zero_positions": 224,
+          "pad_interval": [
+            32,
+            288
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 27,
+          "base": 21,
+          "part": "Wide",
+          "kind": "Standalone",
+          "rounds": 19,
+          "degree": 2,
+          "CFS_coefficients": 40,
+          "random_pad_positions": 256,
+          "zero_positions": 216,
+          "pad_interval": [
+            40,
+            296
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 28,
+          "base": 21,
+          "part": "Narrow",
+          "kind": "Standalone",
+          "rounds": 18,
+          "degree": 2,
+          "CFS_coefficients": 38,
+          "random_pad_positions": 256,
+          "zero_positions": 218,
+          "pad_interval": [
+            38,
+            294
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 29,
+          "base": 22,
+          "part": "Wide",
+          "kind": "Standalone",
+          "rounds": 19,
+          "degree": 2,
+          "CFS_coefficients": 40,
+          "random_pad_positions": 256,
+          "zero_positions": 216,
+          "pad_interval": [
+            40,
+            296
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 30,
+          "base": 22,
+          "part": "Narrow",
+          "kind": "Standalone",
+          "rounds": 18,
+          "degree": 2,
+          "CFS_coefficients": 38,
+          "random_pad_positions": 256,
+          "zero_positions": 218,
+          "pad_interval": [
+            38,
+            294
+          ],
+          "encoding_domain": 4096
+        }
+      ],
+      "stage": 1
+    },
+    {
+      "slots": 31,
+      "functionals": 46,
+      "private_scalars_hosted_once": 16,
+      "max_CFS_coefficients": 86,
+      "slot_budgets": [
+        {
+          "slot": 0,
+          "base": 0,
+          "part": "Whole",
+          "kind": "Private",
+          "rounds": 19,
+          "degree": 3,
+          "CFS_coefficients": 59,
+          "random_pad_positions": 256,
+          "zero_positions": 197,
+          "pad_interval": [
+            59,
+            315
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 1,
+          "base": 1,
+          "part": "Whole",
+          "kind": "Private",
+          "rounds": 19,
+          "degree": 3,
+          "CFS_coefficients": 59,
+          "random_pad_positions": 256,
+          "zero_positions": 197,
+          "pad_interval": [
+            59,
+            315
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 2,
+          "base": 2,
+          "part": "Whole",
+          "kind": "Host",
+          "rounds": 8,
+          "degree": 3,
+          "CFS_coefficients": 26,
+          "random_pad_positions": 256,
+          "zero_positions": 230,
+          "pad_interval": [
+            26,
+            282
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 3,
+          "base": 3,
+          "part": "Whole",
+          "kind": "Standalone",
+          "rounds": 15,
+          "degree": 4,
+          "CFS_coefficients": 62,
+          "random_pad_positions": 256,
+          "zero_positions": 194,
+          "pad_interval": [
+            62,
+            318
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 4,
+          "base": 4,
+          "part": "Whole",
+          "kind": "Private",
+          "rounds": 20,
+          "degree": 3,
+          "CFS_coefficients": 62,
+          "random_pad_positions": 256,
+          "zero_positions": 194,
+          "pad_interval": [
+            62,
+            318
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 5,
+          "base": 5,
+          "part": "Whole",
+          "kind": "Private",
+          "rounds": 12,
+          "degree": 2,
+          "CFS_coefficients": 26,
+          "random_pad_positions": 256,
+          "zero_positions": 230,
+          "pad_interval": [
+            26,
+            282
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 6,
+          "base": 6,
+          "part": "Whole",
+          "kind": "Private",
+          "rounds": 12,
+          "degree": 2,
+          "CFS_coefficients": 26,
+          "random_pad_positions": 256,
+          "zero_positions": 230,
+          "pad_interval": [
+            26,
+            282
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 7,
+          "base": 7,
+          "part": "Whole",
+          "kind": "Private",
+          "rounds": 12,
+          "degree": 2,
+          "CFS_coefficients": 26,
+          "random_pad_positions": 256,
+          "zero_positions": 230,
+          "pad_interval": [
+            26,
+            282
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 8,
+          "base": 8,
+          "part": "Whole",
+          "kind": "Private",
+          "rounds": 12,
+          "degree": 3,
+          "CFS_coefficients": 38,
+          "random_pad_positions": 256,
+          "zero_positions": 218,
+          "pad_interval": [
+            38,
+            294
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 9,
+          "base": 9,
+          "part": "Whole",
+          "kind": "Private",
+          "rounds": 12,
+          "degree": 3,
+          "CFS_coefficients": 38,
+          "random_pad_positions": 256,
+          "zero_positions": 218,
+          "pad_interval": [
+            38,
+            294
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 10,
+          "base": 10,
+          "part": "Wide",
+          "kind": "Private",
+          "rounds": 13,
+          "degree": 2,
+          "CFS_coefficients": 28,
+          "random_pad_positions": 256,
+          "zero_positions": 228,
+          "pad_interval": [
+            28,
+            284
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 11,
+          "base": 10,
+          "part": "Narrow",
+          "kind": "Private",
+          "rounds": 13,
+          "degree": 2,
+          "CFS_coefficients": 28,
+          "random_pad_positions": 256,
+          "zero_positions": 228,
+          "pad_interval": [
+            28,
+            284
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 12,
+          "base": 11,
+          "part": "Wide",
+          "kind": "Private",
+          "rounds": 12,
+          "degree": 2,
+          "CFS_coefficients": 26,
+          "random_pad_positions": 256,
+          "zero_positions": 230,
+          "pad_interval": [
+            26,
+            282
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 13,
+          "base": 11,
+          "part": "Narrow",
+          "kind": "Private",
+          "rounds": 12,
+          "degree": 2,
+          "CFS_coefficients": 26,
+          "random_pad_positions": 256,
+          "zero_positions": 230,
+          "pad_interval": [
+            26,
+            282
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 14,
+          "base": 12,
+          "part": "Wide",
+          "kind": "Private",
+          "rounds": 12,
+          "degree": 2,
+          "CFS_coefficients": 26,
+          "random_pad_positions": 256,
+          "zero_positions": 230,
+          "pad_interval": [
+            26,
+            282
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 15,
+          "base": 12,
+          "part": "Narrow",
+          "kind": "Private",
+          "rounds": 12,
+          "degree": 2,
+          "CFS_coefficients": 26,
+          "random_pad_positions": 256,
+          "zero_positions": 230,
+          "pad_interval": [
+            26,
+            282
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 16,
+          "base": 13,
+          "part": "Wide",
+          "kind": "Private",
+          "rounds": 14,
+          "degree": 2,
+          "CFS_coefficients": 30,
+          "random_pad_positions": 256,
+          "zero_positions": 226,
+          "pad_interval": [
+            30,
+            286
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 17,
+          "base": 13,
+          "part": "Narrow",
+          "kind": "Private",
+          "rounds": 14,
+          "degree": 2,
+          "CFS_coefficients": 30,
+          "random_pad_positions": 256,
+          "zero_positions": 226,
+          "pad_interval": [
+            30,
+            286
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 18,
+          "base": 14,
+          "part": "Wide",
+          "kind": "Host",
+          "rounds": 19,
+          "degree": 4,
+          "CFS_coefficients": 78,
+          "random_pad_positions": 256,
+          "zero_positions": 178,
+          "pad_interval": [
+            78,
+            334
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 19,
+          "base": 14,
+          "part": "Narrow",
+          "kind": "Host",
+          "rounds": 18,
+          "degree": 4,
+          "CFS_coefficients": 74,
+          "random_pad_positions": 256,
+          "zero_positions": 182,
+          "pad_interval": [
+            74,
+            330
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 20,
+          "base": 15,
+          "part": "Whole",
+          "kind": "Host",
+          "rounds": 20,
+          "degree": 4,
+          "CFS_coefficients": 82,
+          "random_pad_positions": 256,
+          "zero_positions": 174,
+          "pad_interval": [
+            82,
+            338
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 21,
+          "base": 16,
+          "part": "Whole",
+          "kind": "Host",
+          "rounds": 18,
+          "degree": 4,
+          "CFS_coefficients": 74,
+          "random_pad_positions": 256,
+          "zero_positions": 182,
+          "pad_interval": [
+            74,
+            330
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 22,
+          "base": 17,
+          "part": "Whole",
+          "kind": "Host",
+          "rounds": 20,
+          "degree": 4,
+          "CFS_coefficients": 82,
+          "random_pad_positions": 256,
+          "zero_positions": 174,
+          "pad_interval": [
+            82,
+            338
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 23,
+          "base": 18,
+          "part": "Wide",
+          "kind": "Host",
+          "rounds": 21,
+          "degree": 4,
+          "CFS_coefficients": 86,
+          "random_pad_positions": 256,
+          "zero_positions": 170,
+          "pad_interval": [
+            86,
+            342
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 24,
+          "base": 18,
+          "part": "Narrow",
+          "kind": "Host",
+          "rounds": 18,
+          "degree": 4,
+          "CFS_coefficients": 74,
+          "random_pad_positions": 256,
+          "zero_positions": 182,
+          "pad_interval": [
+            74,
+            330
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 25,
+          "base": 19,
+          "part": "Whole",
+          "kind": "Standalone",
+          "rounds": 15,
+          "degree": 3,
+          "CFS_coefficients": 47,
+          "random_pad_positions": 256,
+          "zero_positions": 209,
+          "pad_interval": [
+            47,
+            303
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 26,
+          "base": 20,
+          "part": "Whole",
+          "kind": "Standalone",
+          "rounds": 15,
+          "degree": 2,
+          "CFS_coefficients": 32,
+          "random_pad_positions": 256,
+          "zero_positions": 224,
+          "pad_interval": [
+            32,
+            288
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 27,
+          "base": 21,
+          "part": "Wide",
+          "kind": "Standalone",
+          "rounds": 19,
+          "degree": 2,
+          "CFS_coefficients": 40,
+          "random_pad_positions": 256,
+          "zero_positions": 216,
+          "pad_interval": [
+            40,
+            296
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 28,
+          "base": 21,
+          "part": "Narrow",
+          "kind": "Standalone",
+          "rounds": 18,
+          "degree": 2,
+          "CFS_coefficients": 38,
+          "random_pad_positions": 256,
+          "zero_positions": 218,
+          "pad_interval": [
+            38,
+            294
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 29,
+          "base": 22,
+          "part": "Wide",
+          "kind": "Standalone",
+          "rounds": 19,
+          "degree": 2,
+          "CFS_coefficients": 40,
+          "random_pad_positions": 256,
+          "zero_positions": 216,
+          "pad_interval": [
+            40,
+            296
+          ],
+          "encoding_domain": 4096
+        },
+        {
+          "slot": 30,
+          "base": 22,
+          "part": "Narrow",
+          "kind": "Standalone",
+          "rounds": 18,
+          "degree": 2,
+          "CFS_coefficients": 38,
+          "random_pad_positions": 256,
+          "zero_positions": 218,
+          "pad_interval": [
+            38,
+            294
+          ],
+          "encoding_domain": 4096
+        }
+      ],
+      "stage": 2
+    }
+  ],
+  "checker_sha256": "0181efdfea0aff29240464cba37b477a0ee6b5fb9ae6604325f8419bdf73e5a6",
+  "status": "PASS captured native CFS storage budget, exact M functionals/order, host scalar binding and sumcheck consistency",
+  "scope": "Source-pinned public accepted verifier observations. No polynomial equivalence, source-map proof, rank/CFS joint leakage, NL1 or full privacy approval.",
+  "privacy_acceptance": false
+}

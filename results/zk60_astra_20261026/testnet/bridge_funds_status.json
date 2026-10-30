@@ -1,0 +1,23 @@
+{
+  "at": "2026-10-28T23:37:07.853618+00:00",
+  "networks": [
+    {
+      "chain_id": 11155111,
+      "address": "0x775E8A2D741446d74E3f5a02244D1241eceB187d",
+      "balance_wei": 505000000000000000,
+      "pending_nonce": 0,
+      "bridge": "0xfd0Bf71F60660E2f608ed56e1659C450eB113120",
+      "bridge_code_bytes": 2472,
+      "bridge_code_keccak": "c7b46fc754979c0fd29ec7105b045a5705d172da4364b24a72e42e586906056f",
+      "canary_gas_estimate": 666742,
+      "latest_base_fee_per_gas": 15
+    },
+    {
+      "chain_id": 84532,
+      "address": "0x775E8A2D741446d74E3f5a02244D1241eceB187d",
+      "balance_wei": 0,
+      "pending_nonce": 0
+    }
+  ],
+  "bridge_documentation": "https://docs.base.org/specifications/reference/base-contracts"
+}

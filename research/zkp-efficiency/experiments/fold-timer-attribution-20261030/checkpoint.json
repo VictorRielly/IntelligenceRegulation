@@ -1,0 +1,11 @@
+{
+  "status": "COMPLETE",
+  "time_utc": "2026-10-30T07:55:01.314464+00:00",
+  "run_id": "20261030T074123Z-71d2f333",
+  "source_count": 1055,
+  "hypotheses": 90,
+  "new_full_stack_proofs": 0,
+  "passes": 0,
+  "positions": 0,
+  "target_achieved": false
+}

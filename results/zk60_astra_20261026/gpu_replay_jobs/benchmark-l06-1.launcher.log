@@ -1,0 +1,19 @@
+RAM   12.89 GiB available of 15.39; swap used 0.53 GiB
+BUDGET 7.5 of 11.89 GiB committed by guarded jobs
+  job  sol-r14-corrected-dd-per-piece-round-q-1 cpu   need 7.5G since 2026-10-30T05:20:28Z
+LOCKS heavy HELD, build free
+GPU   0 of 8188 MiB used
+DISK  /mnt/c 134.6 GiB free (heavy jobs wait under 40, any job is killed under 8)
+kernel memory cap available: True
+  rss    849 MiB  pid 20403   /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/corrected-candidate-2/checkpoint/hashl
+  rss    350 MiB  pid 6847    /home/victor/.codex/packages/app-server-daemon/releases/0.166.0-x86_64-unknown-linux-musl/bin/codex app-server
+  rss    344 MiB  pid 2294    claude 
+[zk60-guard 22:20:35] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 22:21:36] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 22:22:36] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 22:23:37] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 22:24:37] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 22:25:38] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 22:26:39] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 22:27:29] START astra-gpu-benchmark-l06 class=gpu need=2.8G cap=4.5G enforce=cgroup+watchdog waited=414s run=544171767a0a
+[zk60-guard 22:37:34] END astra-gpu-benchmark-l06 exit=3 child_wall=605s peak_rss=2.16G min_avail=10.98G peak_vram=591MiB

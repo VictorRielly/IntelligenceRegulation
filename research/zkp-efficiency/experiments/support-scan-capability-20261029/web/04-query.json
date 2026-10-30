@@ -1,0 +1,14 @@
+{
+  "search_query": [
+    {
+      "q": "\"MegaZK\" \"2026\" published memory efficient GPU"
+    },
+    {
+      "q": "\"GPU Acceleration of the Sum-Check\" \"2026\" binary github"
+    },
+    {
+      "q": "site.arxiv.org 2026 zero knowledge softmax lookup quantization \"September\""
+    }
+  ],
+  "response_length": "long"
+}

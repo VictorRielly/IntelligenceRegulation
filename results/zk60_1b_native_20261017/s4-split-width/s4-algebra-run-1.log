@@ -1,0 +1,6 @@
+
+thread 'main' (44) panicked at /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/s4-split-width/algebra.rs:75:32:
+assertion `left != right` failed
+  left: Fp2 { c0: Fp(9216), c1: Fp(18446744069414571982) }
+ right: Fp2 { c0: Fp(9216), c1: Fp(18446744069414571982) }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace

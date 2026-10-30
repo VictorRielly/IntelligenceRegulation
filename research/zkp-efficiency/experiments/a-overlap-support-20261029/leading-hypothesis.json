@@ -1,0 +1,15 @@
+{
+  "rank": 71,
+  "title": "TESTED frozen R13 A overlapping public source support and bounded physical packing",
+  "baseline": "Source8BT128 A noDD4577rows/36groups and DD4455/38;dense chunk4visits45770/44550. Native define/FS not run; prior H partition is not an A assumption.",
+  "eliminated_work": "With prior zero-skip candidate, existing-order A structural visits9654/9328:78.9076/79.0617%fewer logical matrix reads. Combined A/H68.7275/69.1085%. Native work/time unchanged in this lane.",
+  "added_costs": "Prior rw4 branch/checks and64to128B/thread source accumulator+weight payload. Every row scan and logical rhooperand retained; matrix+rho sourceoperand reduction only9.3938/8.9843% before compiler/cache/broadcast. All transfers,outputs,pads,freshmasks,PCSremain. Pair-swap planner17.9/27.3ms n1component; simple rho clones2.710/2.780MB.",
+  "prerequisites": "Owner actual public descriptor/group/support counters,current profile/source and exclusive rhoH2D/allocation/kernel/D2H/pad/open/enclosing clocks. Current shared heavy/build locks for device work. R14 must be re-pinned independently.",
+  "integration_cost": "Prior unapplied k_fold_rows zero-skip patch at fold_rows_multi_zk -> EncodedStore::fold_rows -> dev_fold_rows. No production patch. Optionalpublic supportpacking plusinverse scatter.",
+  "exactness": "14Rustfixtures;27,540,288independent full-cube coefficients,5172restoredmessage+padvalues,380source-row/narrow5basefield packedvalues,62controls.517independentPythonname/offset/descriptor/key/support/planchecks. Source-sized fullmatrix not materialized; synthetic small shapes not admitted profiles.",
+  "privacy_soundness": "Onlypublicgeometry/rho supports; no privatevaluesdrivedispatch. Actual native claim_point/build/group/audit helpers extracted. Same-slot extension coefficients shared in final synthetic harness; native FS not run. Preserve all fresh site/proximity masks,pads,claim/outputorder,RNG/FS/PCS and refusals. No acceptance.",
+  "compatibility": "FrozenR13 native AccuracyIds allocation,a_plane_doms,offsetloop,a_slice,claim_point,build_claim,group/rho/audit extracted unchanged,serialEqadaptation,localShape/Layout/publicslotschedule. R14splitgeometry differs.",
+  "end_to_end_ceiling": "N/(T-C_removed_exclusive+A_added);unknownexclusivefractionf;freedeletion<=1/(1-f). No numerical8BGPU forecast.",
+  "falsification": "Current native descriptors/counters differ,any coefficient/limb/order/mask/pad/refusal/RNG/FS/PCS/privacy mismatch,register/plan/copy cost erases gain,or no independentlyverified whole-workload improvement.",
+  "disposition": "Strongersourceincidence,handoffforownermeasurementonly. A overlap508/509data rows;Hpartition assumption rejected. Pair-swap plans5658/5794visits are local optima only; prior mask-onlypackingnegative preserved."
+}

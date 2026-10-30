@@ -1306,7 +1306,7 @@ fn production_sources() -> Vec<(String, String)> {
     let lines: Vec<&str> = parent.lines().collect();
     let mut out: Vec<(String, String)> = Vec::new();
     for (i, l) in lines.iter().enumerate() {
-        let Some(rest) = l.trim().strip_prefix("mod ") else { continue };
+        let Some(rest) = l.trim().strip_prefix("mod ").or_else(|| l.trim().strip_prefix("pub mod ")) else { continue };
         let Some(name) = rest.strip_suffix(';') else { continue };
         if i > 0 && lines[i - 1].trim() == "#[cfg(test)]" {
             continue;
@@ -1316,6 +1316,14 @@ fn production_sources() -> Vec<(String, String)> {
         out.push((path, text));
     }
     out.push(("src/private_block.rs".to_string(), parent));
+    // R12b's public wrapper has one production child. Scan it too, and fail
+    // closed if another child is added without extending this enumeration.
+    let tied=source("src/private_block/tied_tables.rs");
+    let children=tied.lines().take_while(|line| line.trim()!="#[cfg(test)]")
+        .filter_map(|line| line.trim().strip_prefix("mod ").or_else(|| line.trim().strip_prefix("pub mod ")))
+        .collect::<Vec<_>>();
+    assert_eq!(children,vec!["derive;"],"the tied-table production module enumeration moved");
+    out.push(("src/private_block/tied_tables/derive.rs".to_string(),source("src/private_block/tied_tables/derive.rs")));
     // the frozen seam is the toy's and the frozen-seam rung's endpoint and is
     // therefore on the block's path, although it lives outside this module
     // and outside this lane's write set
@@ -1542,13 +1550,16 @@ fn the_draw_accounting_assertions_are_still_blocked_on_the_generators_accessor()
 /// — and the three `cfg(test)` modules that WRITE a retained bundle, because
 /// a retained capture counts as publishing and its digests are call sites
 /// like any other.
-const CALL_SITES: [(&str, &str, usize, &str); 15] = [
+const CALL_SITES: [(&str, &str, usize, &str); 16] = [
     // NATIVE LANE: the trained-block CLI's request context, an unkeyed hash of
     // public words (variant, label, layer); its file digests are SHA-256 via
     // `Sha256::digest`, not an entry point of this table
     ("src/private_block/trained_block.rs", "blake3::hash(", 2, "driver-side, outside the protocol: the trained-block CLI's and the trained-stack CLI's request contexts, unkeyed hashes of public length-prefixed words (variant, label, layer indices)"),
-    // NATIVE R12 (F3): the loader's streamed file digest
-    ("src/private_block/trained_block.rs", "Sha256::new(", 1, "driver-side, outside the protocol: the trained loader's streamed SHA-256 of the three public token tables a tied model's export names (F3), checked against their manifests; public files, never a transcript input"),
+    // R12b moves bounded public-file hashing out of trained_block.rs and
+    // authenticates/recomputes the tied tables. These SHA-256 operations
+    // share no oracle with BLAKE3 and consume no private witness value.
+    ("src/private_block/tied_tables.rs", "Sha256::new(", 1, "C1 — bounded public token-file SHA-256, checked against the manifest and checkpoint derivation; its public digest is bound through D9"),
+    ("src/private_block/tied_tables/derive.rs", "Sha256::new(", 5, "C1 — public checkpoint authentication, consumed tied-tensor bytes, derived embedding, head and multiplier table SHA-256; public digests bound through D9, outside the proof's BLAKE3 oracle classes"),
     // NATIVE LANE: the driver overlay's CLI bridge (pre-existing in the
     // candidate; this table had not been told about it): D4 recomputed to
     // check a policy's model root, the CLI's context derivation, and an

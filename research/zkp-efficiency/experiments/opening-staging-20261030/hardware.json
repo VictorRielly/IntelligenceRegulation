@@ -1,0 +1,10 @@
+{
+  "cpu_model": "Intel(R) Core(TM) Ultra 9 185H",
+  "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "machine": "x86_64",
+  "one_cpu_experiment_affinity": true,
+  "gpu_used": false,
+  "actual_accelerator": null,
+  "seed": 202610300156,
+  "rustc": "/usr/bin/rustc"
+}

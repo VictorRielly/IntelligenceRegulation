@@ -1,0 +1,26 @@
+{
+  "experiments": [
+    {
+      "command": "python3 run.py",
+      "cwd": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/support-scan-capability-20261029",
+      "seed": 202610290133,
+      "result": "result.json",
+      "exit_code": 0
+    },
+    {
+      "command": "python3 audit.py",
+      "cwd": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/support-scan-capability-20261029",
+      "result": "audit-result.json",
+      "exit_code": 0
+    }
+  ],
+  "searches": "web/*query.json",
+  "source_census": "audit-result.json sites; native-pins.json",
+  "scope": "Only locally authored Python executed; no native build/GPU/installation/Git/external writes.",
+  "final_audit": {
+    "command": "python3 experiments/support-scan-capability-20261029/final-audit.py",
+    "cwd": "/home/victor/IntelligenceRegulation/research/zkp-efficiency",
+    "result": "final-audit-result.json",
+    "exit_code": 0
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "owner_priorities": [
+    {
+      "rank": 1,
+      "title": "Complete independently verified high-end-GPU fixed-context resident1/2/4/8 workloads",
+      "impact": "Highest: discover recurring complete cost and startup slope; unknown ceiling",
+      "prerequisites": "Admitted8B path,trained/calibration/profile pins,fresh masks,all receipts verify",
+      "integration": "Owner locks/device work; not authorized in explorer"
+    },
+    {
+      "rank": 2,
+      "title": "Admitted context/DD/fidelity scaling",
+      "impact": "Potentially reduce quadratic attention/PCS cost; no new shape accepted",
+      "prerequisites": "Exactness,refusal,privacy/calibration and full receipt review",
+      "integration": "High protocol/profile review cost"
+    },
+    {
+      "rank": 3,
+      "title": "Exclusive phase/capacity evidence; H96 source prerequisite",
+      "impact": "Prevents optimizing nested clocks or incomplete buffers; no measured speedup",
+      "prerequisites": "Actual host/device live/idle/quarantined capacity and source roster",
+      "integration": "Native observer; source model local only"
+    },
+    {
+      "rank": 4,
+      "title": "H97 public prefetch with lifetime and shared-bandwidth constraints",
+      "impact": "Unknown until exposed transfer fraction measured",
+      "prerequisites": "Current adapter source pins and public dependency slack",
+      "integration": "Medium/high native scheduling effort; no drop-in G10 port"
+    }
+  ],
+  "tested_local_hypothesis": 96,
+  "new_hypothesis": 97
+}

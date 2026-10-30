@@ -1,0 +1,15 @@
+{
+  "utc": "2026-10-29T00:10:07.077407+00:00",
+  "ruling": "D44",
+  "candidate_sha256": "88af4c639848d39df8da559652db11529575aa745b916a06eb522c20ea89fbd3",
+  "swap_script_sha256": "b3fce737e6924da6642259430cd52ccb5fa7b9a30c238d35032f1c387b219377",
+  "own_jobs_terminal": true,
+  "policy_red": "official-policy-red.json",
+  "expected_host_cases": [
+    45,
+    31,
+    9
+  ],
+  "status": "awaiting fresh coordinator OPEN record and host preflight",
+  "driver_unit_tests": 8
+}

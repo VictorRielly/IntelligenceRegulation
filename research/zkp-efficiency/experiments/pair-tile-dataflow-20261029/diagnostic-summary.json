@@ -1,0 +1,12 @@
+{
+  "final_slower": 39,
+  "final_comparisons": 42,
+  "initial_slower": 42,
+  "initial_comparisons": 42,
+  "final_ratio_range": [
+    0.8374945040140042,
+    1.0719471120184547
+  ],
+  "all_raw_samples_retained": true,
+  "confidence_or_native_gain_claim": false
+}

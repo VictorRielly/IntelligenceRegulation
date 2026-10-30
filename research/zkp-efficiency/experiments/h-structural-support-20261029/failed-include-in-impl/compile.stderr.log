@@ -1,0 +1,36 @@
+error: non-impl item macro in impl item position: include
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/h-structural-support-20261029/harness.rs:13:3
+   |
+13 |   include!("h_domains.rs");
+   |   ^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: non-impl item macro in impl item position: include
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/h-structural-support-20261029/harness.rs:43:3
+   |
+43 |   include!("h_builder.rs");
+   |   ^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0599]: no method named `h_plane_doms` found for reference `&shape::Shape` in the current scope
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/h-structural-support-20261029/hids.rs:47:23
+   |
+47 |         if doms != sh.h_plane_doms() {
+   |                       ^^^^^^^^^^^^ method not found in `&Shape`
+
+error[E0599]: no method named `h_plane_doms` found for reference `&shape::Shape` in the current scope
+ --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/h-structural-support-20261029/h_offsets.rs:2:15
+  |
+2 | let h_doms=sh.h_plane_doms();let n=1usize<<sh.log_cols;
+  |               ^^^^^^^^^^^^ method not found in `&Shape`
+
+error[E0599]: no method named `h` found for struct `B` in the current scope
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/h-structural-support-20261029/harness.rs:75:139
+   |
+41 |  struct B<'a>{lay:&'a Layout,slot:usize,hk:usize,tabs:Vec<Tab>}
+   |  ------------ method `h` not found for this struct
+...
+75 |    for slot in 0..24{let mut b=B{lay:&lay,slot,hk:0,tabs:vec![]};for p in &lay.sites[slot]{assert!(!plane_seen[*p]);plane_seen[*p]=true;b.h(*p...
+   |                                                                                                                                           ^ method not found in `B<'_>`
+
+error: aborting due to 5 previous errors
+
+For more information about this error, try `rustc --explain E0599`.

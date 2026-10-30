@@ -1281,7 +1281,7 @@ fn the_slot_definitions_are_built_from_the_shape() {
         let mut pubs = [0usize; N_SLOTS];
         let lay = Layout::for_shape(&sh).unwrap_or_else(|e| panic!("{}: {e}", sh.name));
         let (public, ff, _input) = tame_case(&sh);
-        let ctx = Ctx {
+        let ctx = Ctx { accuracy:None,
             lay: &lay,
             public: &public,
             ff: &ff,

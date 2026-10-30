@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/frozen_v20/scripts/zk60_native_rg_classgate.py", line 1001, in <module>
+    raise SystemExit(main())
+  File "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/frozen_v20/scripts/zk60_native_rg_classgate.py", line 989, in main
+    rec = gate(a.bundle, controls=not a.no_controls, full_preimage=not a.no_full_preimage,
+  File "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/frozen_v20/scripts/zk60_native_rg_classgate.py", line 865, in gate
+    b = load(directory)
+  File "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/frozen_v20/scripts/zk60_native_rg_classgate.py", line 173, in load
+    return ClassRunBundle(directory)
+  File "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/frozen_v20/scripts/zk60_native_rg_classgate.py", line 134, in __init__
+    self.shape = Shape(d["shape"], d["mask_domain"])
+  File "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/frozen_v20/scripts/zk60_native_rg_bundle.py", line 343, in __init__
+    raise ValueError(
+ValueError: shape: 24 slot triples for n_slots 23

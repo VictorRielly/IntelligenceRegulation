@@ -1,0 +1,18 @@
+{
+  "scope": "COUNTED independent rational vectors, including zero direct shift and derived exponent3..16; not native validation",
+  "vectors": 2016,
+  "sha256": "e7e5bca03673c7fd933de842197998c7f45b5387df4dbfd57b8163db36920805",
+  "max_coefficient": 65536,
+  "min_exponent": 3,
+  "max_exponent": 16,
+  "columns": [
+    "stack",
+    "base_sh_h",
+    "out_delta",
+    "aligned_coefficient_exponent",
+    "raw_act",
+    "up",
+    "rounded_h",
+    "within_output_word_class"
+  ]
+}

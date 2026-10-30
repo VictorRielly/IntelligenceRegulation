@@ -1,0 +1,7 @@
+[zk60-guard 18:13:46] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 18:14:46] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 18:15:46] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 18:15:51] START tio14-red-build-tests class=build need=3.7G cap=4.5G enforce=cgroup+watchdog waited=125s run=199b035250e3
+[zk60-guard 18:18:55] END tio14-red-build-tests exit=101 child_wall=184s peak_rss=2.16G min_avail=11.87G
+[zk60-guard 18:18:55] START tio14-red-r13-binary class=cpu need=1G cap=2G enforce=cgroup+watchdog waited=0s run=3154043d8e5b
+[zk60-guard 18:18:55] END tio14-red-r13-binary exit=101 child_wall=1s peak_rss=0.00G min_avail=13.82G

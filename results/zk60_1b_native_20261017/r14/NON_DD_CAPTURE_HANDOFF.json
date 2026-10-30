@@ -1,0 +1,43 @@
+{
+  "utc": "2026-10-30T06:11:12.111413+00:00",
+  "source": "3c7b1dcfd47ba8cb257c6f734348f25fb960af3f25f8b1b14ea4e262ff8defda",
+  "files": 287,
+  "producer_result": "18component tests and public synthetic3stage nonDD native capture with/without recorder/reject-bundle controls PASS",
+  "native_clock": {
+    "seconds": 103.02,
+    "peak_rss_gib": 6.25,
+    "scope": "whole capture test, shared box,watchdog-only,n1; not prove-only latency"
+  },
+  "transport": {
+    "stages": 3,
+    "openings": 10,
+    "arrays": 1849,
+    "streaming_validator_peak_rss_gib": 0.05,
+    "seconds": 2,
+    "mutations_rejected": 6
+  },
+  "limited_adapter": {
+    "local_row_views": 10,
+    "M_stages": 3,
+    "claims": 909,
+    "exclusive_pairs": 906
+  },
+  "privacy_acceptance": false,
+  "limits": "No full global/joint rank, complete host polynomial/CFSlemma/NL1 or privacy review. ActualL25/50relations/legacy/newCLI/freeze/D24 still pending; DD waiting on original21304.",
+  "artifacts": {
+    "sol-r14-capture-build-1.source.json": "5e66124455ef5a298cc4b595c48045dff614452ecc5f93eda2d8283426782406",
+    "NATIVE_CAPTURE_non-dd_VALIDATION_v3.json": "065bd9bbf015bed74958f0f6c0fc6ec5d700de5e1b04fca725977f02b3134602",
+    "LOCAL_ROW_PRECHECK_non-dd_v3.json": "4fe4ce82f10fcf1fa7b7f3c8b412dcd7093375ca19b9f02ee0fed6cf36298ff8",
+    "NATIVE_MASK_non-dd_v3.json": "f7c3384df1fd31cc21f7fbe00f0e43486bfdda87f4190c3bf42005de01ed9d48",
+    "NATIVE_CLAIMS_non-dd_v3.json": "b9d62a78d87c21206f878d567f42e54ee789620eb3ef81570ff5a4194904640e",
+    "CAPTURE_TRANSPORT_NEGATIVES_v3.json": "52d9d0e224eec99275fdeee1567f7aab76bfb6522d8b76e726b4cd88f981b498",
+    "CAPTURE_VALIDATOR_V2_CHANGE.json": "095bffe6a69d323b9858924d83270d4218e4729d1dc7e89290359fe74f23919d",
+    "CAPTURE_VALIDATOR_V3_CHANGE.json": "61ab08a6dd5647156bd927df2631dc71644c5cdab526d8a0e4111c2c312c82aa",
+    "NATIVE_CAPTURE_QUEUE_MIGRATION.json": "77a0ff9258f137a20654fd90fb401b2225d05467d9c429efdf8737d3305e7543",
+    "validate_capture_v3.py": "a092488c8816d4898e7515c1e02783c77cef60ca0d6dd3ba850fb22de6dac8f4",
+    "test_capture_streams.py": "cde0de3d3b5832177ad96d398e41a566d94bda9d68b8cd3958593d9241a13e3b",
+    "native_mask_checks.py": "0181efdfea0aff29240464cba37b477a0ee6b5fb9ae6604325f8419bdf73e5a6",
+    "native_claim_checks.py": "877398f5e79868c874fc0e827a5e9304fb92a25f4f5b4bb722f2cd5ec06e6196",
+    "local_row_rank.py": "5b60eaa0f180e5391a108245cf1fcd8fe09c94d49f55e8ec061bd129529d5f88"
+  }
+}

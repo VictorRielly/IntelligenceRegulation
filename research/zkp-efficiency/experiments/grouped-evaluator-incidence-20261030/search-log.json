@@ -1,0 +1,30 @@
+{
+  "access_date": "2026-10-30",
+  "native_live": true,
+  "queries": [
+    "GPU sumcheck grouped equality polynomial factorization 2026 October sumcheck prover lookup NTT",
+    "GPU NTT commitments zero knowledge October 2026 release GitHub",
+    "sumcheck equality polynomial factoring linear time prover efficient 2013 Thaler",
+    "site.github.com sumcheck October 2026 release",
+    "sumcheck sparse 2017 prover",
+    "Libra sumcheck 2019 prover linear time",
+    "Giraffe Full Accounting 2017 verification",
+    "site.arxiv.org sumcheck Oct 2026 GPU",
+    "site.github.com sumcheck Oct 29 2026 release",
+    "site.arxiv.org zkLLM Oct 2026"
+  ],
+  "evidence_files": [
+    "web-1.json",
+    "web-10.json",
+    "web-2.json",
+    "web-3.json",
+    "web-4.json",
+    "web-5.json",
+    "web-6.json",
+    "web-7.json",
+    "web-8.json",
+    "web-9.json",
+    "web-evidence-initial.json"
+  ],
+  "limitations": "Some GitHub history/LICENSE requests Cache miss; one click invalid arguments. No network/login/permission bypass; local experiment remained unblocked. Other search hits were screened only,not relied on as primary evidence."
+}

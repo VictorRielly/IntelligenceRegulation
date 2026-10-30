@@ -1,0 +1,18 @@
+{
+  "scope": "Small test documentation/log corrections to combine with the final capture/freeze source revision; do not edit held06source midrun. No effect on current native math or test pass criteria.",
+  "items": [
+    {
+      "file": "hashline/src/private_block/split_attack_tests.rs",
+      "change": "Describe tuple key as (SUM,E,P); same h/t row used by the control implies sameSUM. Change row_total log label to total_multiplicity because current assertion sums the whole MDDplane. Addexplicitfirst-rowtotal assertion if useful."
+    },
+    {
+      "file": "hashline/src/private_block/s25_tests.rs",
+      "change": "Update explanatory legacy four-generator prose/log for the additional two R14 entrypoints; executable audit already checks7constructed/6onpath OS RNG sites."
+    }
+  ],
+  "remaining_final_validation": [
+    "Final source-pinned captures and native/legacy regression gates",
+    "Full26 reference/proof chain",
+    "Whole-run count and independent D24/privacy review"
+  ]
+}

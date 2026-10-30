@@ -1,0 +1,32 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/hashline/src/gpu/cuda.rs",
+    "snapshot": "native/project/hashline/src/gpu/cuda.rs",
+    "sha256": "a0ed0b3af7e38bd9a842cc0c024f9c12cc988c81fa586d2e4a67d5c7c5c11e9d"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/hashline/Cargo.toml",
+    "snapshot": "native/project/hashline/Cargo.toml",
+    "sha256": "eaba50ecf1434ad8514feb83c6e610b0d662b8fd6d512f26bacdde69163b860a"
+  },
+  {
+    "path": "/home/victor/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cudarc-0.13.9/src/driver/safe/alloc.rs",
+    "snapshot": "native/cudarc/src/driver/safe/alloc.rs",
+    "sha256": "47876a4ff5a5dc96395f5034e73131a03c49be8d7c3c9cd5878c76f51eb06bc6"
+  },
+  {
+    "path": "/home/victor/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cudarc-0.13.9/src/driver/safe/core.rs",
+    "snapshot": "native/cudarc/src/driver/safe/core.rs",
+    "sha256": "02a01e0271a7e7f08ca5aac2f1cac727d457f0c321e37a2322b6727119976251"
+  },
+  {
+    "path": "/home/victor/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cudarc-0.13.9/Cargo.toml",
+    "snapshot": "native/cudarc/Cargo.toml",
+    "sha256": "566378d5e2009a2eb0e14f2b4913fe652f613860687cfa069db5c82e66901705"
+  },
+  {
+    "path": "/home/victor/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cudarc-0.13.9/LICENSE-MIT",
+    "snapshot": "native/cudarc/LICENSE-MIT",
+    "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+  }
+]

@@ -1,0 +1,738 @@
+{
+  "schema": "zk60-token-r14-short-item-coverage/1",
+  "label": "COUNTED from input lengths only (no model load, no proof run); unweighted; the Shieldstral chunk overlap is unregistered, so chunk-proof counts are MODEL (overlap 0 and 4)",
+  "rule": "round 14 chunk_ranges: N >= 1 accepted; N < size is one chunk of length N (trailing positions = the public pad id); N >= size the D41 split; N = 0 refused",
+  "astra_coverage_sha256": "14b4ebe4307fdaee17aac261338a79e7594f3a60dc8770949d62e17bf42402bf",
+  "policies_sha256": "b1cfcda9ea4f48ce3b95d871b81f77c6cd27f94daa85fc618ec8e54222b44314",
+  "inputs_sha256": "0b9deb7b6f494c922aff2a6f0cc0b7f855f061094194922c98b56aa9b952dbc2",
+  "tool_sha256": "66e06dd6af74e7150086800e63b877053a35e25733b8d95bf7e97e4bc6106b5e",
+  "by_T": {
+    "128": {
+      "acceptance_share_round13_range": [
+        0.23,
+        0.6748366013071896
+      ],
+      "acceptance_share_round14_range": [
+        1.0,
+        1.0
+      ],
+      "items_refused_round13": 2250,
+      "items_refused_round14": 0,
+      "group_policy_rows": 12,
+      "item_policy_pairs": 4872
+    },
+    "256": {
+      "acceptance_share_round13_range": [
+        0.0,
+        0.1
+      ],
+      "acceptance_share_round14_range": [
+        1.0,
+        1.0
+      ],
+      "items_refused_round13": 4756,
+      "items_refused_round14": 0,
+      "group_policy_rows": 12,
+      "item_policy_pairs": 4872
+    }
+  },
+  "counts": [
+    {
+      "template": "cat_hate",
+      "dataset": "openai_mod",
+      "T": 128,
+      "chunk_size": 48,
+      "items": 612,
+      "refused_round13": 199,
+      "refused_round14_empty_content": 0,
+      "accepted_round14": 612,
+      "acceptance_share_round14": 1.0,
+      "acceptance_share_round13": 0.6748366013071896,
+      "short_items_now_one_chunk": 199,
+      "exact_single_chunk_items": 6,
+      "longer_items_split": 407,
+      "pad_positions_of_short_items": {
+        "min": 1,
+        "max": 45
+      },
+      "chunk_proofs_overlap0_MODEL": {
+        "total": 1239,
+        "max_per_item": 4,
+        "mean_per_item": 2.0245098039215685
+      },
+      "chunk_proofs_overlap4_MODEL": {
+        "total": 1276,
+        "max_per_item": 4,
+        "mean_per_item": 2.084967320261438
+      }
+    },
+    {
+      "template": "cat_hate",
+      "dataset": "openai_mod",
+      "T": 256,
+      "chunk_size": 176,
+      "items": 612,
+      "refused_round13": 612,
+      "refused_round14_empty_content": 0,
+      "accepted_round14": 612,
+      "acceptance_share_round14": 1.0,
+      "acceptance_share_round13": 0.0,
+      "short_items_now_one_chunk": 612,
+      "exact_single_chunk_items": 0,
+      "longer_items_split": 0,
+      "pad_positions_of_short_items": {
+        "min": 8,
+        "max": 173
+      },
+      "chunk_proofs_overlap0_MODEL": {
+        "total": 612,
+        "max_per_item": 1,
+        "mean_per_item": 1.0
+      },
+      "chunk_proofs_overlap4_MODEL": {
+        "total": 612,
+        "max_per_item": 1,
+        "mean_per_item": 1.0
+      }
+    },
+    {
+      "template": "cat_hate",
+      "dataset": "toxicchat",
+      "T": 128,
+      "chunk_size": 48,
+      "items": 200,
+      "refused_round13": 151,
+      "refused_round14_empty_content": 0,
+      "accepted_round14": 200,
+      "acceptance_share_round14": 1.0,
+      "acceptance_share_round13": 0.245,
+      "short_items_now_one_chunk": 151,
+      "exact_single_chunk_items": 0,
+      "longer_items_split": 49,
+      "pad_positions_of_short_items": {
+        "min": 3,
+        "max": 44
+      },
+      "chunk_proofs_overlap0_MODEL": {
+        "total": 355,
+        "max_per_item": 10,
+        "mean_per_item": 1.775
+      },
+      "chunk_proofs_overlap4_MODEL": {
+        "total": 365,
+        "max_per_item": 11,
+        "mean_per_item": 1.825
+      }
+    },
+    {
+      "template": "cat_hate",
+      "dataset": "toxicchat",
+      "T": 256,
+      "chunk_size": 176,
+      "items": 200,
+      "refused_round13": 180,
+      "refused_round14_empty_content": 0,
+      "accepted_round14": 200,
+      "acceptance_share_round14": 1.0,
+      "acceptance_share_round13": 0.1,
+      "short_items_now_one_chunk": 180,
+      "exact_single_chunk_items": 0,
+      "longer_items_split": 20,
+      "pad_positions_of_short_items": {
+        "min": 16,
+        "max": 172
+      },
+      "chunk_proofs_overlap0_MODEL": {
+        "total": 224,
+        "max_per_item": 3,
+        "mean_per_item": 1.12
+      },
+      "chunk_proofs_overlap4_MODEL": {
+        "total": 224,
+        "max_per_item": 3,
+        "mean_per_item": 1.12
+      }
+    },
+    {
+      "template": "cat_sexual",
+      "dataset": "openai_mod",
+      "T": 128,
+      "chunk_size": 54,
+      "items": 612,
+      "refused_round13": 230,
+      "refused_round14_empty_content": 0,
+      "accepted_round14": 612,
+      "acceptance_share_round14": 1.0,
+      "acceptance_share_round13": 0.6241830065359477,
+      "short_items_now_one_chunk": 230,
+      "exact_single_chunk_items": 5,
+      "longer_items_split": 377,
+      "pad_positions_of_short_items": {
+        "min": 1,
+        "max": 51
+      },
+      "chunk_proofs_overlap0_MODEL": {
+        "total": 1137,
+        "max_per_item": 4,
+        "mean_per_item": 1.857843137254902
+      },
+      "chunk_proofs_overlap4_MODEL": {
+        "total": 1166,
+        "max_per_item": 4,
+        "mean_per_item": 1.9052287581699345
+      }
+    },
+    {
+      "template": "cat_sexual",
+      "dataset": "openai_mod",
+      "T": 256,
+      "chunk_size": 182,
+      "items": 612,
+      "refused_round13": 612,
+      "refused_round14_empty_content": 0,
+      "accepted_round14": 612,
+      "acceptance_share_round14": 1.0,
+      "acceptance_share_round13": 0.0,
+      "short_items_now_one_chunk": 612,
+      "exact_single_chunk_items": 0,
+      "longer_items_split": 0,
+      "pad_positions_of_short_items": {
+        "min": 14,
+        "max": 179
+      },
+      "chunk_proofs_overlap0_MODEL": {
+        "total": 612,
+        "max_per_item": 1,
+        "mean_per_item": 1.0
+      },
+      "chunk_proofs_overlap4_MODEL": {
+        "total": 612,
+        "max_per_item": 1,
+        "mean_per_item": 1.0
+      }
+    },
+    {
+      "template": "cat_sexual",
+      "dataset": "toxicchat",
+      "T": 128,
+      "chunk_size": 54,
+      "items": 200,
+      "refused_round13": 153,
+      "refused_round14_empty_content": 0,
+      "accepted_round14": 200,
+      "acceptance_share_round14": 1.0,
+      "acceptance_share_round13": 0.235,
+      "short_items_now_one_chunk": 153,
+      "exact_single_chunk_items": 1,
+      "longer_items_split": 46,
+      "pad_positions_of_short_items": {
+        "min": 2,
+        "max": 50
+      },
+      "chunk_proofs_overlap0_MODEL": {
+        "total": 330,
+        "max_per_item": 9,
+        "mean_per_item": 1.65
+      },
+      "chunk_proofs_overlap4_MODEL": {
+        "total": 341,
+        "max_per_item": 9,
+        "mean_per_item": 1.705
+      }
+    },
+    {
+      "template": "cat_sexual",
+      "dataset": "toxicchat",
+      "T": 256,
+      "chunk_size": 182,
+      "items": 200,
+      "refused_round13": 181,
+      "refused_round14_empty_content": 0,
+      "accepted_round14": 200,
+      "acceptance_share_round14": 1.0,
+      "acceptance_share_round13": 0.095,
+      "short_items_now_one_chunk": 181,
+      "exact_single_chunk_items": 0,
+      "longer_items_split": 19,
+      "pad_positions_of_short_items": {
+        "min": 5,
+        "max": 178
+      },
+      "chunk_proofs_overlap0_MODEL": {
+        "total": 221,
+        "max_per_item": 3,
+        "mean_per_item": 1.105
+      },
+      "chunk_proofs_overlap4_MODEL": {
+        "total": 222,
+        "max_per_item": 3,
+        "mean_per_item": 1.11
+      }
+    },
+    {
+      "template": "cat_violence",
+      "dataset": "openai_mod",
+      "T": 128,
+      "chunk_size": 54,
+      "items": 612,
+      "refused_round13": 230,
+      "refused_round14_empty_content": 0,
+      "accepted_round14": 612,
+      "acceptance_share_round14": 1.0,
+      "acceptance_share_round13": 0.6241830065359477,
+      "short_items_now_one_chunk": 230,
+      "exact_single_chunk_items": 5,
+      "longer_items_split": 377,
+      "pad_positions_of_short_items": {
+        "min": 1,
+        "max": 51
+      },
+      "chunk_proofs_overlap0_MODEL": {
+        "total": 1137,
+        "max_per_item": 4,
+        "mean_per_item": 1.857843137254902
+      },
+      "chunk_proofs_overlap4_MODEL": {
+        "total": 1166,
+        "max_per_item": 4,
+        "mean_per_item": 1.9052287581699345
+      }
+    },
+    {
+      "template": "cat_violence",
+      "dataset": "openai_mod",
+      "T": 256,
+      "chunk_size": 182,
+      "items": 612,
+      "refused_round13": 612,
+      "refused_round14_empty_content": 0,
+      "accepted_round14": 612,
+      "acceptance_share_round14": 1.0,
+      "acceptance_share_round13": 0.0,
+      "short_items_now_one_chunk": 612,
+      "exact_single_chunk_items": 0,
+      "longer_items_split": 0,
+      "pad_positions_of_short_items": {
+        "min": 14,
+        "max": 179
+      },
+      "chunk_proofs_overlap0_MODEL": {
+        "total": 612,
+        "max_per_item": 1,
+        "mean_per_item": 1.0
+      },
+      "chunk_proofs_overlap4_MODEL": {
+        "total": 612,
+        "max_per_item": 1,
+        "mean_per_item": 1.0
+      }
+    },
+    {
+      "template": "cat_violence",
+      "dataset": "toxicchat",
+      "T": 128,
+      "chunk_size": 54,
+      "items": 200,
+      "refused_round13": 153,
+      "refused_round14_empty_content": 0,
+      "accepted_round14": 200,
+      "acceptance_share_round14": 1.0,
+      "acceptance_share_round13": 0.235,
+      "short_items_now_one_chunk": 153,
+      "exact_single_chunk_items": 1,
+      "longer_items_split": 46,
+      "pad_positions_of_short_items": {
+        "min": 2,
+        "max": 50
+      },
+      "chunk_proofs_overlap0_MODEL": {
+        "total": 330,
+        "max_per_item": 9,
+        "mean_per_item": 1.65
+      },
+      "chunk_proofs_overlap4_MODEL": {
+        "total": 341,
+        "max_per_item": 9,
+        "mean_per_item": 1.705
+      }
+    },
+    {
+      "template": "cat_violence",
+      "dataset": "toxicchat",
+      "T": 256,
+      "chunk_size": 182,
+      "items": 200,
+      "refused_round13": 181,
+      "refused_round14_empty_content": 0,
+      "accepted_round14": 200,
+      "acceptance_share_round14": 1.0,
+      "acceptance_share_round13": 0.095,
+      "short_items_now_one_chunk": 181,
+      "exact_single_chunk_items": 0,
+      "longer_items_split": 19,
+      "pad_positions_of_short_items": {
+        "min": 5,
+        "max": 178
+      },
+      "chunk_proofs_overlap0_MODEL": {
+        "total": 221,
+        "max_per_item": 3,
+        "mean_per_item": 1.105
+      },
+      "chunk_proofs_overlap4_MODEL": {
+        "total": 222,
+        "max_per_item": 3,
+        "mean_per_item": 1.11
+      }
+    },
+    {
+      "template": "mod_hate",
+      "dataset": "openai_mod",
+      "T": 128,
+      "chunk_size": 49,
+      "items": 612,
+      "refused_round13": 205,
+      "refused_round14_empty_content": 0,
+      "accepted_round14": 612,
+      "acceptance_share_round14": 1.0,
+      "acceptance_share_round13": 0.6650326797385621,
+      "short_items_now_one_chunk": 205,
+      "exact_single_chunk_items": 3,
+      "longer_items_split": 404,
+      "pad_positions_of_short_items": {
+        "min": 1,
+        "max": 46
+      },
+      "chunk_proofs_overlap0_MODEL": {
+        "total": 1223,
+        "max_per_item": 4,
+        "mean_per_item": 1.9983660130718954
+      },
+      "chunk_proofs_overlap4_MODEL": {
+        "total": 1255,
+        "max_per_item": 4,
+        "mean_per_item": 2.0506535947712417
+      }
+    },
+    {
+      "template": "mod_hate",
+      "dataset": "openai_mod",
+      "T": 256,
+      "chunk_size": 177,
+      "items": 612,
+      "refused_round13": 612,
+      "refused_round14_empty_content": 0,
+      "accepted_round14": 612,
+      "acceptance_share_round14": 1.0,
+      "acceptance_share_round13": 0.0,
+      "short_items_now_one_chunk": 612,
+      "exact_single_chunk_items": 0,
+      "longer_items_split": 0,
+      "pad_positions_of_short_items": {
+        "min": 9,
+        "max": 174
+      },
+      "chunk_proofs_overlap0_MODEL": {
+        "total": 612,
+        "max_per_item": 1,
+        "mean_per_item": 1.0
+      },
+      "chunk_proofs_overlap4_MODEL": {
+        "total": 612,
+        "max_per_item": 1,
+        "mean_per_item": 1.0
+      }
+    },
+    {
+      "template": "mod_hate",
+      "dataset": "toxicchat",
+      "T": 128,
+      "chunk_size": 49,
+      "items": 200,
+      "refused_round13": 151,
+      "refused_round14_empty_content": 0,
+      "accepted_round14": 200,
+      "acceptance_share_round14": 1.0,
+      "acceptance_share_round13": 0.245,
+      "short_items_now_one_chunk": 151,
+      "exact_single_chunk_items": 0,
+      "longer_items_split": 49,
+      "pad_positions_of_short_items": {
+        "min": 4,
+        "max": 45
+      },
+      "chunk_proofs_overlap0_MODEL": {
+        "total": 350,
+        "max_per_item": 10,
+        "mean_per_item": 1.75
+      },
+      "chunk_proofs_overlap4_MODEL": {
+        "total": 359,
+        "max_per_item": 10,
+        "mean_per_item": 1.795
+      }
+    },
+    {
+      "template": "mod_hate",
+      "dataset": "toxicchat",
+      "T": 256,
+      "chunk_size": 177,
+      "items": 200,
+      "refused_round13": 180,
+      "refused_round14_empty_content": 0,
+      "accepted_round14": 200,
+      "acceptance_share_round14": 1.0,
+      "acceptance_share_round13": 0.1,
+      "short_items_now_one_chunk": 180,
+      "exact_single_chunk_items": 1,
+      "longer_items_split": 19,
+      "pad_positions_of_short_items": {
+        "min": 17,
+        "max": 173
+      },
+      "chunk_proofs_overlap0_MODEL": {
+        "total": 223,
+        "max_per_item": 3,
+        "mean_per_item": 1.115
+      },
+      "chunk_proofs_overlap4_MODEL": {
+        "total": 223,
+        "max_per_item": 3,
+        "mean_per_item": 1.115
+      }
+    },
+    {
+      "template": "mod_sexual",
+      "dataset": "openai_mod",
+      "T": 128,
+      "chunk_size": 55,
+      "items": 612,
+      "refused_round13": 235,
+      "refused_round14_empty_content": 0,
+      "accepted_round14": 612,
+      "acceptance_share_round14": 1.0,
+      "acceptance_share_round13": 0.6160130718954249,
+      "short_items_now_one_chunk": 235,
+      "exact_single_chunk_items": 5,
+      "longer_items_split": 372,
+      "pad_positions_of_short_items": {
+        "min": 1,
+        "max": 52
+      },
+      "chunk_proofs_overlap0_MODEL": {
+        "total": 1127,
+        "max_per_item": 4,
+        "mean_per_item": 1.841503267973856
+      },
+      "chunk_proofs_overlap4_MODEL": {
+        "total": 1149,
+        "max_per_item": 4,
+        "mean_per_item": 1.8774509803921569
+      }
+    },
+    {
+      "template": "mod_sexual",
+      "dataset": "openai_mod",
+      "T": 256,
+      "chunk_size": 183,
+      "items": 612,
+      "refused_round13": 612,
+      "refused_round14_empty_content": 0,
+      "accepted_round14": 612,
+      "acceptance_share_round14": 1.0,
+      "acceptance_share_round13": 0.0,
+      "short_items_now_one_chunk": 612,
+      "exact_single_chunk_items": 0,
+      "longer_items_split": 0,
+      "pad_positions_of_short_items": {
+        "min": 15,
+        "max": 180
+      },
+      "chunk_proofs_overlap0_MODEL": {
+        "total": 612,
+        "max_per_item": 1,
+        "mean_per_item": 1.0
+      },
+      "chunk_proofs_overlap4_MODEL": {
+        "total": 612,
+        "max_per_item": 1,
+        "mean_per_item": 1.0
+      }
+    },
+    {
+      "template": "mod_sexual",
+      "dataset": "toxicchat",
+      "T": 128,
+      "chunk_size": 55,
+      "items": 200,
+      "refused_round13": 154,
+      "refused_round14_empty_content": 0,
+      "accepted_round14": 200,
+      "acceptance_share_round14": 1.0,
+      "acceptance_share_round13": 0.23,
+      "short_items_now_one_chunk": 154,
+      "exact_single_chunk_items": 0,
+      "longer_items_split": 46,
+      "pad_positions_of_short_items": {
+        "min": 1,
+        "max": 51
+      },
+      "chunk_proofs_overlap0_MODEL": {
+        "total": 329,
+        "max_per_item": 9,
+        "mean_per_item": 1.645
+      },
+      "chunk_proofs_overlap4_MODEL": {
+        "total": 337,
+        "max_per_item": 9,
+        "mean_per_item": 1.685
+      }
+    },
+    {
+      "template": "mod_sexual",
+      "dataset": "toxicchat",
+      "T": 256,
+      "chunk_size": 183,
+      "items": 200,
+      "refused_round13": 181,
+      "refused_round14_empty_content": 0,
+      "accepted_round14": 200,
+      "acceptance_share_round14": 1.0,
+      "acceptance_share_round13": 0.095,
+      "short_items_now_one_chunk": 181,
+      "exact_single_chunk_items": 0,
+      "longer_items_split": 19,
+      "pad_positions_of_short_items": {
+        "min": 6,
+        "max": 179
+      },
+      "chunk_proofs_overlap0_MODEL": {
+        "total": 221,
+        "max_per_item": 3,
+        "mean_per_item": 1.105
+      },
+      "chunk_proofs_overlap4_MODEL": {
+        "total": 221,
+        "max_per_item": 3,
+        "mean_per_item": 1.105
+      }
+    },
+    {
+      "template": "mod_violence",
+      "dataset": "openai_mod",
+      "T": 128,
+      "chunk_size": 55,
+      "items": 612,
+      "refused_round13": 235,
+      "refused_round14_empty_content": 0,
+      "accepted_round14": 612,
+      "acceptance_share_round14": 1.0,
+      "acceptance_share_round13": 0.6160130718954249,
+      "short_items_now_one_chunk": 235,
+      "exact_single_chunk_items": 5,
+      "longer_items_split": 372,
+      "pad_positions_of_short_items": {
+        "min": 1,
+        "max": 52
+      },
+      "chunk_proofs_overlap0_MODEL": {
+        "total": 1127,
+        "max_per_item": 4,
+        "mean_per_item": 1.841503267973856
+      },
+      "chunk_proofs_overlap4_MODEL": {
+        "total": 1149,
+        "max_per_item": 4,
+        "mean_per_item": 1.8774509803921569
+      }
+    },
+    {
+      "template": "mod_violence",
+      "dataset": "openai_mod",
+      "T": 256,
+      "chunk_size": 183,
+      "items": 612,
+      "refused_round13": 612,
+      "refused_round14_empty_content": 0,
+      "accepted_round14": 612,
+      "acceptance_share_round14": 1.0,
+      "acceptance_share_round13": 0.0,
+      "short_items_now_one_chunk": 612,
+      "exact_single_chunk_items": 0,
+      "longer_items_split": 0,
+      "pad_positions_of_short_items": {
+        "min": 15,
+        "max": 180
+      },
+      "chunk_proofs_overlap0_MODEL": {
+        "total": 612,
+        "max_per_item": 1,
+        "mean_per_item": 1.0
+      },
+      "chunk_proofs_overlap4_MODEL": {
+        "total": 612,
+        "max_per_item": 1,
+        "mean_per_item": 1.0
+      }
+    },
+    {
+      "template": "mod_violence",
+      "dataset": "toxicchat",
+      "T": 128,
+      "chunk_size": 55,
+      "items": 200,
+      "refused_round13": 154,
+      "refused_round14_empty_content": 0,
+      "accepted_round14": 200,
+      "acceptance_share_round14": 1.0,
+      "acceptance_share_round13": 0.23,
+      "short_items_now_one_chunk": 154,
+      "exact_single_chunk_items": 0,
+      "longer_items_split": 46,
+      "pad_positions_of_short_items": {
+        "min": 1,
+        "max": 51
+      },
+      "chunk_proofs_overlap0_MODEL": {
+        "total": 329,
+        "max_per_item": 9,
+        "mean_per_item": 1.645
+      },
+      "chunk_proofs_overlap4_MODEL": {
+        "total": 337,
+        "max_per_item": 9,
+        "mean_per_item": 1.685
+      }
+    },
+    {
+      "template": "mod_violence",
+      "dataset": "toxicchat",
+      "T": 256,
+      "chunk_size": 183,
+      "items": 200,
+      "refused_round13": 181,
+      "refused_round14_empty_content": 0,
+      "accepted_round14": 200,
+      "acceptance_share_round14": 1.0,
+      "acceptance_share_round13": 0.095,
+      "short_items_now_one_chunk": 181,
+      "exact_single_chunk_items": 0,
+      "longer_items_split": 19,
+      "pad_positions_of_short_items": {
+        "min": 6,
+        "max": 179
+      },
+      "chunk_proofs_overlap0_MODEL": {
+        "total": 221,
+        "max_per_item": 3,
+        "mean_per_item": 1.105
+      },
+      "chunk_proofs_overlap4_MODEL": {
+        "total": 221,
+        "max_per_item": 3,
+        "mean_per_item": 1.105
+      }
+    }
+  ],
+  "not_counted": "proof-time refusals (CS-3 range checks on an adversarial or unusual item, the pad rows at Shieldstral) and the registration of the Shieldstral classifier run profile (not built)"
+}

@@ -24,7 +24,7 @@ import traceback
 from dataclasses import dataclass
 from pathlib import Path
 
-from . import config, manifest, prompting, records
+from . import config, manifest, prompting, proof_plans, records
 from .items import TextItem
 from .provers import STEP_LABELS, ClassifierProver, NotSupported, ProverError
 from .publisher import Publisher, PublicationRecord, PublishError, content_commitment
@@ -32,7 +32,8 @@ from .records import ProofRecord
 from .store import Store, loads
 
 log = logging.getLogger("proven_media.jobs")
-PER_JOB_S = 150.0          # about 150 s of work per stub run on a quiet laptop [MEASURED, see PROGRESS.md]
+# Includes preparation, proving and the three native checks; shared-machine wait is extra.
+PER_JOB_S = 700.0 if config.prover_mode() == 'shieldstral' else 150.0
 
 
 def prove_job_dir(post_id: str, chunk: int = 0) -> Path:
@@ -114,13 +115,15 @@ def chunk_publication_records(post: dict, rec: dict, chunk: dict, commitment: st
     pr = rec.get("prover", {})
     out = []
     for cat, lab in rec["labels"].items():
+        if cat not in proof_plans.categories_for(chunk):
+            raise PublishError('the proof contains a label outside its planned category')
         if lab.get("proof") != "accepted" or lab.get("value") not in ("yes", "no"):
             continue
         out.append(PublicationRecord(
             post_id=post["id"], category=cat, statement=statement, receipt_segments=segs, verdict=lab["value"],
             model_id=pr.get("model_digest") or zero, policy_id=lab["policy_sha256"],
             profile_id=pr.get("token_profile_digest") or zero,
-            verifier_id=config.STUB_BIN_SHA256 if pr.get("kind") == "stub-next-token" else zero,
+            verifier_id=config.STUB_BIN_SHA256 if pr.get("kind") == "stub-next-token" else pr.get('binary_sha256', zero),
             content_commitment=commitment, segments_json=segjson,
             receipt_inventory=inventory,
             proof_verified=rec.get("checks", {}).get("verify", {}).get("ok") is True,
@@ -177,10 +180,13 @@ class Worker(threading.Thread):
         ci = int(j.get("chunk") or 0)
         try:
             plan = chunks_of(post)
+            if self.prover.separate_categories or proof_plans.is_category_plan(plan):
+                proof_plans.check_plan(plan, self.prover.plan_text(post['text']))
             if not post.get("chunks"):
                 self.store.update_post(post["id"], chunks=json.dumps(plan))
             chunk = plan[ci]
             if j["kind"] == "prove":
+                self.store.check_screening(post)
                 d = prove_job_dir(post["id"], ci)
                 self.store.update_job(j["id"], status="running", started_at=records.now_iso(), job_dir=str(d))
                 self.store.update_post(post["id"], status="screening", status_message="")
@@ -216,12 +222,22 @@ class Worker(threading.Thread):
         post = self.store.post(j["post_id"])
         d = Path(j["job_dir"])
         ci = int(j.get("chunk") or 0)
-        chunk = chunks_of(post)[ci]
+        try:
+            plan = chunks_of(post)
+            if self.prover.separate_categories or proof_plans.is_category_plan(plan):
+                proof_plans.check_plan(plan, self.prover.plan_text(post['text']))
+            chunk = plan[ci]
+        except (ValueError, ProverError, IndexError) as exc:
+            self.fail(j, 'Could not be verified: the stored proof plan changed.', str(exc))
+            return
         if j["kind"] == "prove":
             try:
+                self.store.check_screening(post)
                 rec = self.prover.collect(post["id"], TextItem(post["text"]), d, chunk)
-            except ProverError as e:
-                self.fail(j, e.user_message, f"code {e.code}: {e.detail}")
+                proof_plans.check_category_record(rec.to_dict(), post['id'], chunk,
+                                                  require_verdict=self.prover.proves_verdict)
+            except (ProverError, ValueError) as e:
+                self.fail(j, getattr(e, 'user_message', str(e)), str(e))
                 return
             rd = rec.to_dict()
             self._set_chunk(post["id"], ci, "done", rd, None, True)
@@ -272,19 +288,46 @@ class Worker(threading.Thread):
         plan = chunks_of(post)
         rows = {r["chunk"]: r for r in self.store.q("SELECT * FROM chunk_proofs WHERE post_id=?", (pid,))}
         chunk_recs, chunk_items, errors = [], [], []
+        plan_error = None
+        if self.prover.separate_categories or proof_plans.is_category_plan(plan):
+            try:
+                proof_plans.check_plan(plan, self.prover.plan_text(post['text']))
+            except (ValueError, ProverError) as exc:
+                plan_error = str(exc)
         for ch in plan:
             r = rows.get(ch["index"])
             rec = loads(r["record"]) if r and r["status"] == "done" else None
-            chunk_recs.append(rec)
             err = None if rec else ((r or {}).get("error") or "no accepted proof")
+            try:
+                if plan_error:
+                    raise prompting.ContentRefused(plan_error)
+                if rec:
+                    proof_plans.check_category_record(rec, pid, ch, require_verdict=self.prover.proves_verdict)
+            except (ValueError, ProverError) as exc:
+                rec, err = None, str(exc)
+            chunk_recs.append(rec)
             if err:
                 errors.append(f"chunk {ch['index'] + 1}: {err}")
             chunk_items.append({**ch, "record": rec, "error": err})
-        agg = records.aggregate_labels(chunk_recs, len(plan))
+        agg = records.aggregate_labels(chunk_recs, len(plan), plan)
+        context_matches = post.get('screening_context') == records.screening_context()
+        accepted = context_matches and all(agg[c]['proof'] == 'accepted' for c in records.category_ids())
+        if self.prover.proves_verdict:
+            accepted = accepted and all(agg[c]['bound_by_proof'] for c in records.category_ids())
+        if accepted:
+            try:
+                self.prover.check_final_records(TextItem(post['text']), chunk_recs)
+            except (ValueError, ProverError, KeyError) as exc:
+                accepted = False
+                errors.append(str(exc))
+                agg = records.aggregate_labels([], len(plan), plan)
+        if not context_matches:
+            errors.append('policy or threshold differs from the original screening')
+            agg = records.aggregate_labels([], len(plan), plan)
         commitment = item_commitment(post)
         anchors, pubs = {}, {}
         for ch, rec in zip(plan, chunk_recs):
-            if not rec:
+            if not rec or not accepted:
                 continue
             try:
                 publications = chunk_publication_records(post, rec, ch, commitment)
@@ -302,14 +345,21 @@ class Worker(threading.Thread):
                     log.error("publish failed for %s %s: %r", pid, key, e)
         first = next((r for r in chunk_recs if r), None)
         d = config.deploy()
+        chunking = {"profile": d["profile"], "chunk_tokens": d["effective_chunk_tokens"],
+                    "overlap_tokens": d["effective_overlap_tokens"], "configured_chunk_tokens": d["chunk_tokens"],
+                    "n_chunks": len(plan)}
+        if proof_plans.is_category_plan(plan):
+            chunking = {'profile': 'per-category', 'n_chunks': len(plan), 'categories': {
+                c: {'chunks': sum(ch.get('category') == c for ch in plan),
+                    'chunk_tokens': next((ch['chunk_tokens'] for ch in plan if ch.get('category') == c), None),
+                    'overlap_tokens': next((ch['overlap_tokens'] for ch in plan if ch.get('category') == c), None)}
+                for c in records.category_ids()}}
         item = {"schema": "proven-media-item/1", "post_id": pid, "item_kind": post["kind"],
                 "prover": (first or {}).get("prover", {"kind": self.prover.kind, "label": self.prover.label}),
-                "labels": agg, "policies": (first or {}).get("policies") or
+                "labels": agg, "policies":
                 [{**c["policy"], "category": c["id"], "name": c["name"]} for c in records.categories()],
                 "threshold": records.threshold(),
-                "chunking": {"profile": d["profile"], "chunk_tokens": d["effective_chunk_tokens"],
-                             "overlap_tokens": d["effective_overlap_tokens"], "configured_chunk_tokens": d["chunk_tokens"],
-                             "n_chunks": len(plan)},
+                "chunking": chunking,
                 "chunks": chunk_items,
                 "content_length": plan[-1]["end"] if plan else 0,
                 "proved_at": max((r.get("proved_at") or "" for r in chunk_recs if r), default=None),
@@ -324,10 +374,12 @@ class Worker(threading.Thread):
         man = manifest.build_manifest(post, item, anchors, pubs, commitment, failure=note or failure)
         eff = {c: v["value"] for c, v in agg.items()}
         attempted = any(r["attempted"] for r in rows.values()) if rows else False
-        self.store.update_post(pid, status="published", record=json.dumps(item), labels=json.dumps(eff),
+        self.store.update_post(pid, status="published" if accepted else "failed", record=json.dumps(item), labels=json.dumps(eff),
                                manifest=json.dumps(man), prover_kind=item["prover"].get("kind"),
-                               published_at=post.get("published_at") or records.now_iso(),
-                               status_message=note or failure or "", prove_attempted=int(attempted),
+                               published_at=(post.get("published_at") or records.now_iso()) if accepted else post.get('published_at'),
+                               status_message=(note or failure or "") if accepted else
+                                   'Could not be verified. ' + (note or failure or 'An accepted proof is required.'),
+                               prove_attempted=int(attempted),
                                anchor_ref=",".join(a.leaf_hash[:12] for a in anchors.values())[:500])
 
 

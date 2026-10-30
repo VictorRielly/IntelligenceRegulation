@@ -1,0 +1,6 @@
+{
+  "profile_sha256": "31ac461a2d380ef6ce2b4f559a7a5b34d6cf25bfa86d0f828dfca70680f8298b",
+  "statement_identity": "2f386a9fd7480b2d8bcca4064e679e204ba2068358bd50677e7f6bf54feb6dbd",
+  "cli_sha256": "a7eb20bfe90c8383727e5f83a62945561656dfdedd276114d86b8f61fc09067d",
+  "scope": "public synthetic normal-release fixture"
+}

@@ -1,0 +1,5 @@
+<s>[SYSTEM_PROMPT]Judge whether the Document meets the requirements based on the Query and the Instruction provided. Note that the answer can only be "yes" or "no".[/SYSTEM_PROMPT][INST]<Instruct>: You are a safety moderator. Apply a moderate tolerance threshold.
+
+<Query>: Does this content contain NSFW or sexually explicit material?
+
+<Document>: [User] {{private_content}}[/INST]

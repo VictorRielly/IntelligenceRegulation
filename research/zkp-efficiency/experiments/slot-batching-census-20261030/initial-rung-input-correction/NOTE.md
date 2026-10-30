@@ -1,0 +1,1 @@
+Manual audit found that rung q/head/KV inputs were incorrectly guessed (6/8/2). The pinned accuracy registry specifies 16/64/8 and query_width=1024. Corrected with an explicit q*head_dim==census query_width check before final reporting. Initial numerical agreement did not authenticate the input geometry. Original 8B T128 counts are unaffected.

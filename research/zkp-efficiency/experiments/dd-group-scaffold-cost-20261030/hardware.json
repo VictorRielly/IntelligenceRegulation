@@ -1,0 +1,9 @@
+{
+  "cpu": "Intel(R) Core(TM) Ultra 9 185H",
+  "python": "3.10.12",
+  "affinity": [
+    0
+  ],
+  "threads": 1,
+  "gpu": "not used"
+}

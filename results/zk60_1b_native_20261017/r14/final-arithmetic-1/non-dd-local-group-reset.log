@@ -1,0 +1,17 @@
+
+running 1 test
+test private_block::argument::split_attack_tests::split_run_t128_malicious_arithmetic_receipt_from_env ... R14_GROUP_FIXTURE dd=false global_channel=8192 gate=2 global_group=2 local_group=0 correct=65536 wrong=67584
+R14_MALICIOUS_RECEIPT {"case":"global-group-honest","dd":false,"bytes":34875688,"expected_accept":true,"canonical_frame_decoded":true,"native_verifier_used":true}
+
+thread 'private_block::argument::split_attack_tests::split_run_t128_malicious_arithmetic_receipt_from_env' (1850) panicked at src/private_block/split_attack_tests.rs:291:13:
+do not overwrite retained accepted control
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    private_block::argument::split_attack_tests::split_run_t128_malicious_arithmetic_receipt_from_env
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 767 filtered out; finished in 24.60s
+

@@ -1,0 +1,110 @@
+[
+  {
+    "path": "hashline/src/private_block/trained_block.rs",
+    "role": "sealing_already_overlaps_next_load",
+    "line": 2342,
+    "literal": "let ((wres, ws), nxt) = rayon::join("
+  },
+  {
+    "path": "hashline/src/private_block/trained_block.rs",
+    "role": "proving_cache_drops_before_reload",
+    "line": 2082,
+    "literal": "self.cur = None;"
+  },
+  {
+    "path": "hashline/src/private_block/trained_block.rs",
+    "role": "actual_reloaded_block_authenticated",
+    "line": 2088,
+    "literal": "if blk.digest() != self.digests[k]"
+  },
+  {
+    "path": "hashline/src/private_block/trained_block.rs",
+    "role": "cache_is_single_thread_rc_refcell",
+    "line": 2066,
+    "literal": "std::rc::Rc<std::cell::RefCell<BlockCache"
+  },
+  {
+    "path": "hashline/src/private_block/trained_block.rs",
+    "role": "raw_arrays_parallel",
+    "line": 1225,
+    "literal": "expect.par_iter().map("
+  },
+  {
+    "path": "hashline/src/private_block/trained_block.rs",
+    "role": "reload_skips_raw_hashes",
+    "line": 1167,
+    "literal": "self.load_layer_mode(sh, c, index, rope_from_export, false)?.blk"
+  },
+  {
+    "path": "hashline/src/private_block.rs",
+    "role": "attention_copies_padded_words",
+    "line": 554,
+    "literal": "wq: wq.to_vec()"
+  },
+  {
+    "path": "hashline/src/private_block.rs",
+    "role": "ffn_copies_padded_words",
+    "line": 711,
+    "literal": "wg_t: wg_t.to_vec()"
+  },
+  {
+    "path": "hashline/src/private_block/run.rs",
+    "role": "demand_read_nofollow",
+    "line": 1429,
+    "literal": "opts.custom_flags(SEGMENT_OPEN_FLAGS)"
+  },
+  {
+    "path": "hashline/src/gpu/cuda.rs",
+    "role": "upload_waits_for_completion",
+    "line": 1142,
+    "literal": "u.send(dst, 0, src).and_then(|_| u.wait())"
+  },
+  {
+    "path": "hashline/src/gpu/cuda.rs",
+    "role": "device_entry_uploads_before_commit",
+    "line": 2045,
+    "literal": "g.upload_sync(d_data.get_mut(), as_u64s(data))?"
+  },
+  {
+    "path": "hashline/src/gpu/cuda.rs",
+    "role": "device_attempt_uses_mutex",
+    "line": 701,
+    "literal": "let mut g = g.lock().unwrap();"
+  },
+  {
+    "path": "hashline/src/gpu/cuda.rs",
+    "role": "failed_resident_work_charged",
+    "line": 3766,
+    "literal": "let t_discarded = (t1.elapsed().as_secs_f64() - t_upload).max(0.0);"
+  },
+  {
+    "path": "hashline/src/gpu/mod.rs",
+    "role": "required_gpu_decline_panics",
+    "line": 45,
+    "literal": "if required() {"
+  },
+  {
+    "path": "zkp-core/src/pcs.rs",
+    "role": "fresh_pads_before_offer",
+    "line": 727,
+    "literal": "let pads = rng.fp_vec(rows * q);"
+  },
+  {
+    "path": "zkp-core/src/pcs.rs",
+    "role": "fresh_salts_before_offer",
+    "line": 728,
+    "literal": "let salts: Vec<[u8; 32]> = (0..nn).map(|_| rng.bytes32()).collect();"
+  },
+  {
+    "path": "zkp-core/src/pcs.rs",
+    "role": "explicit_keyed_backend_offer",
+    "line": 780,
+    "literal": "Some(key) => backend.try_commit_zk_keyed("
+  },
+  {
+    "path": "zkp-core/src/pcs.rs",
+    "role": "cpu_fallback_reencodes_same_data",
+    "line": 785,
+    "literal": "let encoded = encode_buffer::encode_rows(ntt, data_ref, n, &pads, q, &pows);"
+  }
+]

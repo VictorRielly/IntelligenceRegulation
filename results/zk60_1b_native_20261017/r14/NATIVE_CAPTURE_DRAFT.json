@@ -1,0 +1,13 @@
+{
+  "status": "STAGED ONLY, uncompiled/unhooked; not a native capture or privacy result",
+  "draft_sha256": "101c086610fc9348985e028c89c805021ef4b03f14d5fe096cb8606fbbad40e9",
+  "public_serializer_source_sha256": "affddeae00a953f745de172b7b9829770b53cf724f253cb61c857b17ee3e2cc2",
+  "implemented_draft": "New schema, independent public transcript seed/roots/slot/M/PCS replay, physical layout metadata, public serializer reuse, accepted-run-only bundle extraction and explicit source pins.",
+  "pending": [
+    "Native integration hooks and trusted header getters",
+    "Runtime source-map/allow-list tests and rejection bundle suppression",
+    "Joint spec/scale/source metadata in IO observations",
+    "Native3stage honest/malicious capture fixtures",
+    "Exact rank/CFSbudget/NL1/joint privacy adapter and review"
+  ]
+}

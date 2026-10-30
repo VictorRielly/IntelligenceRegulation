@@ -1,0 +1,24 @@
+{
+  "command": [
+    "/usr/bin/rustc",
+    "--edition=2021",
+    "-C",
+    "opt-level=1",
+    "-C",
+    "codegen-units=1",
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-gap-coalescing-20261029/harness.rs",
+    "-o",
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-gap-coalescing-20261029/probe"
+  ],
+  "exit_code": 0,
+  "wall_s": 3.494185743998969,
+  "max_rss_kib": 199492,
+  "one_cpu_affinity": true,
+  "nice": 19,
+  "cpu_limit_s": 40,
+  "alarm_s": 45,
+  "parent_timeout_s": 50,
+  "address_space_mib": 384,
+  "estimated_memory_mib": 300,
+  "gpu": false
+}

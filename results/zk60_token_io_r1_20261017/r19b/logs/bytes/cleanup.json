@@ -1,0 +1,24 @@
+{
+ "removed": [
+  {
+   "path": "/home/victor/zk60-artifacts/token-io/r19b/single",
+   "files": 29,
+   "bytes": 848417277
+  },
+  {
+   "path": "/home/victor/zk60-artifacts/token-io/r19b/batch",
+   "files": 0,
+   "bytes": 0
+  },
+  {
+   "path": "/home/victor/zk60-owner-private/token-io/r19b",
+   "files": 164,
+   "bytes": 122802518
+  }
+ ],
+ "left_in_eq": [
+  "bin",
+  "ent",
+  "tmp"
+ ]
+}

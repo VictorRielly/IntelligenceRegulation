@@ -1,0 +1,1057 @@
+{
+  "schema": "pm-r-c3-native-app-integration/1",
+  "at": "2026-10-29T06:19:39.226590+00:00",
+  "scope": "MEASURED synthetic r15 app integration; no real Shieldstral, policy registration or privacy acceptance",
+  "binary_sha256": "5edb7241f3c6b788289fca4a03f4fd40649355cf016663ec9dadbdaaa66c9a8e",
+  "fixture_sha256": "3b66cc23e88ab46106f93030425aea0a504cbcce524522e47b505f9ae64d111e",
+  "source_sha256": {
+    "results/zk60_astra_20261026/run_c3_integration.py": "53b0b54f374b62414e888c4d1c9beda6743be3ea61982032b174b371b6182557",
+    "apps/proven-media/proven_media/classifier_cli.py": "78a12f75f95df6f3899b62207e3766ca489d991cc7007edfb6a51fbca7eebd79",
+    "apps/proven-media/proven_media/classifier_prover.py": "3b36969f3889f8bdb2c5b61edf0f96d73f6bf7d053e3f1979e4adec20be5cf48",
+    "apps/proven-media/tools/classifier_pipeline.py": "3bc4f6aad4c6a7a3b033bc6a823068955b00cf75ada91e15ebb17ab7e7d5fc51"
+  },
+  "cases": [
+    {
+      "name": "short1",
+      "content_total": 1,
+      "records": [
+        {
+          "post_id": "short1",
+          "item_kind": "classifier-dev-tokens",
+          "prover": {
+            "kind": "classifier-dev-rung",
+            "label": "Synthetic R-C3 classifier development fixture",
+            "supports": [
+              "classifier-dev-tokens"
+            ],
+            "proves_verdict": true,
+            "development_only": true,
+            "policy": "rung-tc-synthetic-policy-dev/1",
+            "binary_sha256": "5edb7241f3c6b788289fca4a03f4fd40649355cf016663ec9dadbdaaa66c9a8e",
+            "what_is_proved": "Synthetic token fixture verdict; no real-text, Shieldstral or privacy acceptance."
+          },
+          "labels": {
+            "synthetic": {
+              "value": "no",
+              "proof": "accepted",
+              "bound_by_proof": true,
+              "policy_id": "rung-tc-synthetic-policy-dev/1",
+              "development_only": true
+            }
+          },
+          "policies": [
+            {
+              "id": "rung-tc-synthetic-policy-dev/1",
+              "category": "synthetic",
+              "development_only": true
+            }
+          ],
+          "threshold": {
+            "margin_gt": 0
+          },
+          "content_commitment": {
+            "kind": "synthetic fixture input endpoint",
+            "value": "a1a1434bcb5deee82e26ed239aba13649bd210bdf1eb53fdcabfc07240dd867e"
+          },
+          "statement": {
+            "schema": "zk60-classify-run/3",
+            "scope": "a classifier proof (DESIGN_CLASSIFIER v2.4, rung R-C3): the approved integer model's verdict on hidden content under a pre-registered policy; the margin row and the embedding re-derived from the pinned tied tensor; one external endpoint; the verdict bit and the content length are public (D45); a short item's trailing positions hold the public pad id; NOT a privacy acceptance",
+            "statement_written_by": "zk60_classify verify, after its fresh-process verification of the run directory, from its own data",
+            "run_profile": "hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1",
+            "block_profile": "hashline-zk-mr1/private-block-rung-tc-t32-dev/1",
+            "blocks": 1,
+            "export_variant": "astra-retained-rung-c2",
+            "trained_statement_identity": "bc83e090c1e122148deeb60d1c73315ca74fd0b4456d3e46da1cf97bccb3ea4a",
+            "policy": "rung-tc-synthetic-policy-dev/1",
+            "verdict": "not-flagged",
+            "verdict_bit": 0,
+            "threshold_c": 0,
+            "yes_id": 40,
+            "no_id": 41,
+            "template_prefix_ids": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8
+            ],
+            "template_suffix_ids": [
+              32
+            ],
+            "content_length_n": 1,
+            "chunk": {
+              "index": 0,
+              "count": 1,
+              "range": [
+                0,
+                1
+              ],
+              "content_total": 1,
+              "chunk_size": 23,
+              "overlap": 4,
+              "split": "end-aligned (DESIGN v2.2 13.1); a short content is one chunk of its length (v2.4 15)"
+            },
+            "T": 32,
+            "item_length": 10,
+            "pad_id": 2,
+            "pad_positions": 22,
+            "verdict_row": 9,
+            "control_ids_below": 5,
+            "tokenizer": "synthetic (ids only, no text)",
+            "margin_vector_digest": "40f3fe498402edec315cfc92bec67365b3c0784bfe72b47040043ecbfe1095fd",
+            "margin_scale": 0.00390625,
+            "tied_source": "tied-source=dev-rung-synthetic-bf16 file=dev_tied_tensor_bf16.bin V=300 d=384 sha256=bba6d094831861aa0b207ae5ca46938e2115e02c81215ba95e27e2bad1cc1dd6 derivation=R12b-quantize(floor(x/scale+0.5),refuse-outside-int16,no-clip,no-rotation)",
+            "embedding_digest": "a8d55fc067234ea1f587e3668e000096c803abc8d4f75838798b482efa4fa60b",
+            "bos": 1,
+            "final_norm": {
+              "g0": 127,
+              "cn": 2048,
+              "tn": 11,
+              "ceps": 33554467
+            },
+            "classifier_profile_digest": "9d12c6ab737aff15039089a65e0310f8115b7ba66855162c69469cfdf4c895b6",
+            "rulings": "rulings: B-5 n-public=true B-6 fixed-policy-list=true B-8 binding=input-endpoint-root B-4 fail-closed=true (accepted by Victor: D45, 2026-10-29)",
+            "context_label": "zk60-classify-verdict",
+            "context": "3be040325f562c8b49cab056d8a859f71de46b79a133fc27c527940873bd882e",
+            "input_token_endpoint_root": "a1a1434bcb5deee82e26ed239aba13649bd210bdf1eb53fdcabfc07240dd867e",
+            "whole_run_floor_bits": 94,
+            "parameter_line": "T32/d384/f512/H12/KV4/dh32/log_cols10/inv_rate4/Q256/P1/sh-g7-u0-h14-z6/two-internal-boundaries/one-proof-one-transcript/endpoint-log_n10-rate4-pad256-rows21/L1/boundaries-B_in-B_out-and-interior-log_n10-rate4-pad256-rows22-sites2/token-endpoint-in-log_n8-rate8-pad256-words256-rows6-sites1/no-output-endpoint/stages-log_n12-rate4-pad256/classify (DESIGN_CLASSIFIER v2) under hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1: V=300 V_pad=512 d=384 d_pad=512 T=32 P0=8 n=1 S=1 item-length=10 pad-id=2 pad-positions=22 verdict-row=9 BOS=1 final-norm g0=127 cn=2048 tn=11 ceps=33554467 wrho=32 dmax=642145 margin-vector=int16[-32767,32767] 40f3fe498402edec315cfc92bec67365b3c0784bfe72b47040043ecbfe1095fd threshold c=0 c-class=[-2^33,2^33] margin-window=34 byte-limbs=5 limbs-at-Lo-entry=32 no-pin yes=40 no=41 ctl=ids<5 template=1980a3704eb94693c6aabf7e8998bd39cdb27c3375a99c0dd4c4c8c74048c028 policy=rung-tc-synthetic-policy-dev/1 tokenizer=synthetic (ids only, no text) embedding=a8d55fc067234ea1f587e3668e000096c803abc8d4f75838798b482efa4fa60b variant=public-row mode=verdict-public-bit no-output-endpoint chunk-size=23 chunk-overlap=4 chunk-split=end-aligned short-content=one-chunk-of-its-length-pad-pinned margin-scale=3.90625e-3 margin-scale-bits=0x3f70000000000000 tied-source=dev-rung-synthetic-bf16 file=dev_tied_tensor_bf16.bin V=300 d=384 sha256=bba6d094831861aa0b207ae5ca46938e2115e02c81215ba95e27e2bad1cc1dd6 derivation=R12b-quantize(floor(x/scale+0.5),refuse-outside-int16,no-clip,no-rotation) rulings: B-5 n-public=true B-6 fixed-policy-list=true B-8 binding=input-endpoint-root B-4 fail-closed=true (accepted by Victor: D45, 2026-10-29) tier mvp-95-whole-run (D27): Q=256 stage-row 2^12 rate 1/4 token-endpoint-row 2^8 rate 1/8 lookup-field F_p^2/whole-run-floor-94-bits-12-openings-column-plus-logup-derived-plus-pcs-field-and-sumcheck-bound/one-run-one-transcript"
+          },
+          "statement_sha256": "5e2234a73f9d359fcff5848a3cbb34f22a3b2e71dc77994479718eed5b0b1157",
+          "receipt": {
+            "run_dir": "/home/victor/IntelligenceRegulation/results/zk60_astra_20261026/classifier_c3_integration_1/public-runs/short1-c0",
+            "files": [
+              {
+                "file": "segment-000.bin",
+                "bytes": 1224328,
+                "sha256": "369c16c993079d71fb384ef19cf4e36e16894565509b3f2590992372603703c8"
+              },
+              {
+                "file": "segment-001.bin",
+                "bytes": 7421464,
+                "sha256": "2375321e7b7fbee69c21dcd76be249852cffab2ec6c669c42acae5d85d634a3e"
+              },
+              {
+                "file": "segment-002.bin",
+                "bytes": 2489016,
+                "sha256": "4548e5b2e3b126d732daf50edb950f7a2096aafb568e3ff28c37be161c63971f"
+              }
+            ],
+            "segments": 3,
+            "bytes": 11134808,
+            "inventory_source": "app record; native R-C3 has no segments.json"
+          },
+          "timings": {},
+          "security": {
+            "whole_run_floor_bits": 94,
+            "min_bits_required": 93,
+            "note": "Development floor only; no production or privacy acceptance."
+          },
+          "checks": {
+            "verify": {
+              "ok": true,
+              "by": "pinned R-C3 fresh process"
+            },
+            "content_binding": {
+              "ok": true
+            }
+          },
+          "content_length": {
+            "tokens": 1,
+            "total_tokens": 1,
+            "tokenizer": "synthetic IDs, not text"
+          },
+          "chunk": {
+            "index": 0,
+            "start": 0,
+            "end": 1
+          },
+          "proved_at": "2026-10-29T06:19:41Z",
+          "created_at": "2026-10-29T06:19:41Z",
+          "schema": "proven-media-record/2",
+          "notes": [
+            "Development fixture only; never use these labels for media categories or testnet publication."
+          ]
+        }
+      ],
+      "aggregate": {
+        "value": "no",
+        "proof": "accepted",
+        "bound_by_proof": true,
+        "policy_id": "rung-tc-synthetic-policy-dev/1",
+        "development_only": true,
+        "flagged_ranges": [],
+        "chunks": 1
+      }
+    },
+    {
+      "name": "short11",
+      "content_total": 11,
+      "records": [
+        {
+          "post_id": "short11",
+          "item_kind": "classifier-dev-tokens",
+          "prover": {
+            "kind": "classifier-dev-rung",
+            "label": "Synthetic R-C3 classifier development fixture",
+            "supports": [
+              "classifier-dev-tokens"
+            ],
+            "proves_verdict": true,
+            "development_only": true,
+            "policy": "rung-tc-synthetic-policy-dev/1",
+            "binary_sha256": "5edb7241f3c6b788289fca4a03f4fd40649355cf016663ec9dadbdaaa66c9a8e",
+            "what_is_proved": "Synthetic token fixture verdict; no real-text, Shieldstral or privacy acceptance."
+          },
+          "labels": {
+            "synthetic": {
+              "value": "no",
+              "proof": "accepted",
+              "bound_by_proof": true,
+              "policy_id": "rung-tc-synthetic-policy-dev/1",
+              "development_only": true
+            }
+          },
+          "policies": [
+            {
+              "id": "rung-tc-synthetic-policy-dev/1",
+              "category": "synthetic",
+              "development_only": true
+            }
+          ],
+          "threshold": {
+            "margin_gt": 0
+          },
+          "content_commitment": {
+            "kind": "synthetic fixture input endpoint",
+            "value": "e3809032f79a31c9ec5077f73175bf24f5dcf8f8c9af0a1c96ade2e13bca29f1"
+          },
+          "statement": {
+            "schema": "zk60-classify-run/3",
+            "scope": "a classifier proof (DESIGN_CLASSIFIER v2.4, rung R-C3): the approved integer model's verdict on hidden content under a pre-registered policy; the margin row and the embedding re-derived from the pinned tied tensor; one external endpoint; the verdict bit and the content length are public (D45); a short item's trailing positions hold the public pad id; NOT a privacy acceptance",
+            "statement_written_by": "zk60_classify verify, after its fresh-process verification of the run directory, from its own data",
+            "run_profile": "hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1",
+            "block_profile": "hashline-zk-mr1/private-block-rung-tc-t32-dev/1",
+            "blocks": 1,
+            "export_variant": "astra-retained-rung-c2",
+            "trained_statement_identity": "bc83e090c1e122148deeb60d1c73315ca74fd0b4456d3e46da1cf97bccb3ea4a",
+            "policy": "rung-tc-synthetic-policy-dev/1",
+            "verdict": "not-flagged",
+            "verdict_bit": 0,
+            "threshold_c": 0,
+            "yes_id": 40,
+            "no_id": 41,
+            "template_prefix_ids": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8
+            ],
+            "template_suffix_ids": [
+              32
+            ],
+            "content_length_n": 11,
+            "chunk": {
+              "index": 0,
+              "count": 1,
+              "range": [
+                0,
+                11
+              ],
+              "content_total": 11,
+              "chunk_size": 23,
+              "overlap": 4,
+              "split": "end-aligned (DESIGN v2.2 13.1); a short content is one chunk of its length (v2.4 15)"
+            },
+            "T": 32,
+            "item_length": 20,
+            "pad_id": 2,
+            "pad_positions": 12,
+            "verdict_row": 19,
+            "control_ids_below": 5,
+            "tokenizer": "synthetic (ids only, no text)",
+            "margin_vector_digest": "40f3fe498402edec315cfc92bec67365b3c0784bfe72b47040043ecbfe1095fd",
+            "margin_scale": 0.00390625,
+            "tied_source": "tied-source=dev-rung-synthetic-bf16 file=dev_tied_tensor_bf16.bin V=300 d=384 sha256=bba6d094831861aa0b207ae5ca46938e2115e02c81215ba95e27e2bad1cc1dd6 derivation=R12b-quantize(floor(x/scale+0.5),refuse-outside-int16,no-clip,no-rotation)",
+            "embedding_digest": "a8d55fc067234ea1f587e3668e000096c803abc8d4f75838798b482efa4fa60b",
+            "bos": 1,
+            "final_norm": {
+              "g0": 127,
+              "cn": 2048,
+              "tn": 11,
+              "ceps": 33554467
+            },
+            "classifier_profile_digest": "621f56ecd989de96320ed6691da9d47b201718518b6d09c1b1fc8c234e314a3f",
+            "rulings": "rulings: B-5 n-public=true B-6 fixed-policy-list=true B-8 binding=input-endpoint-root B-4 fail-closed=true (accepted by Victor: D45, 2026-10-29)",
+            "context_label": "zk60-classify-verdict",
+            "context": "3be040325f562c8b49cab056d8a859f71de46b79a133fc27c527940873bd882e",
+            "input_token_endpoint_root": "e3809032f79a31c9ec5077f73175bf24f5dcf8f8c9af0a1c96ade2e13bca29f1",
+            "whole_run_floor_bits": 94,
+            "parameter_line": "T32/d384/f512/H12/KV4/dh32/log_cols10/inv_rate4/Q256/P1/sh-g7-u0-h14-z6/two-internal-boundaries/one-proof-one-transcript/endpoint-log_n10-rate4-pad256-rows21/L1/boundaries-B_in-B_out-and-interior-log_n10-rate4-pad256-rows22-sites2/token-endpoint-in-log_n8-rate8-pad256-words256-rows6-sites1/no-output-endpoint/stages-log_n12-rate4-pad256/classify (DESIGN_CLASSIFIER v2) under hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1: V=300 V_pad=512 d=384 d_pad=512 T=32 P0=8 n=11 S=1 item-length=20 pad-id=2 pad-positions=12 verdict-row=19 BOS=1 final-norm g0=127 cn=2048 tn=11 ceps=33554467 wrho=32 dmax=642145 margin-vector=int16[-32767,32767] 40f3fe498402edec315cfc92bec67365b3c0784bfe72b47040043ecbfe1095fd threshold c=0 c-class=[-2^33,2^33] margin-window=34 byte-limbs=5 limbs-at-Lo-entry=32 no-pin yes=40 no=41 ctl=ids<5 template=1980a3704eb94693c6aabf7e8998bd39cdb27c3375a99c0dd4c4c8c74048c028 policy=rung-tc-synthetic-policy-dev/1 tokenizer=synthetic (ids only, no text) embedding=a8d55fc067234ea1f587e3668e000096c803abc8d4f75838798b482efa4fa60b variant=public-row mode=verdict-public-bit no-output-endpoint chunk-size=23 chunk-overlap=4 chunk-split=end-aligned short-content=one-chunk-of-its-length-pad-pinned margin-scale=3.90625e-3 margin-scale-bits=0x3f70000000000000 tied-source=dev-rung-synthetic-bf16 file=dev_tied_tensor_bf16.bin V=300 d=384 sha256=bba6d094831861aa0b207ae5ca46938e2115e02c81215ba95e27e2bad1cc1dd6 derivation=R12b-quantize(floor(x/scale+0.5),refuse-outside-int16,no-clip,no-rotation) rulings: B-5 n-public=true B-6 fixed-policy-list=true B-8 binding=input-endpoint-root B-4 fail-closed=true (accepted by Victor: D45, 2026-10-29) tier mvp-95-whole-run (D27): Q=256 stage-row 2^12 rate 1/4 token-endpoint-row 2^8 rate 1/8 lookup-field F_p^2/whole-run-floor-94-bits-12-openings-column-plus-logup-derived-plus-pcs-field-and-sumcheck-bound/one-run-one-transcript"
+          },
+          "statement_sha256": "681423b21933b1656ce6060202c1c50f016c714e0c7eb6c1f3c64c4b307cac2e",
+          "receipt": {
+            "run_dir": "/home/victor/IntelligenceRegulation/results/zk60_astra_20261026/classifier_c3_integration_1/public-runs/short11-c0",
+            "files": [
+              {
+                "file": "segment-000.bin",
+                "bytes": 1224328,
+                "sha256": "dde52aa31d0b0dc95057a526d421853081c1a9a1cf9a4247b385fb84b4d29efa"
+              },
+              {
+                "file": "segment-001.bin",
+                "bytes": 7421464,
+                "sha256": "0996f575b8d4691d361e35fcf8078725c92d2268d8a390182cbcac71f98a51cb"
+              },
+              {
+                "file": "segment-002.bin",
+                "bytes": 2489016,
+                "sha256": "aca3085c594963279af7b404b2ec14777abfe3b308864776048a5f3dad23a3bf"
+              }
+            ],
+            "segments": 3,
+            "bytes": 11134808,
+            "inventory_source": "app record; native R-C3 has no segments.json"
+          },
+          "timings": {},
+          "security": {
+            "whole_run_floor_bits": 94,
+            "min_bits_required": 93,
+            "note": "Development floor only; no production or privacy acceptance."
+          },
+          "checks": {
+            "verify": {
+              "ok": true,
+              "by": "pinned R-C3 fresh process"
+            },
+            "content_binding": {
+              "ok": true
+            }
+          },
+          "content_length": {
+            "tokens": 11,
+            "total_tokens": 11,
+            "tokenizer": "synthetic IDs, not text"
+          },
+          "chunk": {
+            "index": 0,
+            "start": 0,
+            "end": 11
+          },
+          "proved_at": "2026-10-29T06:19:44Z",
+          "created_at": "2026-10-29T06:19:44Z",
+          "schema": "proven-media-record/2",
+          "notes": [
+            "Development fixture only; never use these labels for media categories or testnet publication."
+          ]
+        }
+      ],
+      "aggregate": {
+        "value": "no",
+        "proof": "accepted",
+        "bound_by_proof": true,
+        "policy_id": "rung-tc-synthetic-policy-dev/1",
+        "development_only": true,
+        "flagged_ranges": [],
+        "chunks": 1
+      }
+    },
+    {
+      "name": "short22",
+      "content_total": 22,
+      "records": [
+        {
+          "post_id": "short22",
+          "item_kind": "classifier-dev-tokens",
+          "prover": {
+            "kind": "classifier-dev-rung",
+            "label": "Synthetic R-C3 classifier development fixture",
+            "supports": [
+              "classifier-dev-tokens"
+            ],
+            "proves_verdict": true,
+            "development_only": true,
+            "policy": "rung-tc-synthetic-policy-dev/1",
+            "binary_sha256": "5edb7241f3c6b788289fca4a03f4fd40649355cf016663ec9dadbdaaa66c9a8e",
+            "what_is_proved": "Synthetic token fixture verdict; no real-text, Shieldstral or privacy acceptance."
+          },
+          "labels": {
+            "synthetic": {
+              "value": "no",
+              "proof": "accepted",
+              "bound_by_proof": true,
+              "policy_id": "rung-tc-synthetic-policy-dev/1",
+              "development_only": true
+            }
+          },
+          "policies": [
+            {
+              "id": "rung-tc-synthetic-policy-dev/1",
+              "category": "synthetic",
+              "development_only": true
+            }
+          ],
+          "threshold": {
+            "margin_gt": 0
+          },
+          "content_commitment": {
+            "kind": "synthetic fixture input endpoint",
+            "value": "d66be70b88ab7a916f676a96878ff8e0da5c1b4edbb5f69a976f0ebbb671df4f"
+          },
+          "statement": {
+            "schema": "zk60-classify-run/3",
+            "scope": "a classifier proof (DESIGN_CLASSIFIER v2.4, rung R-C3): the approved integer model's verdict on hidden content under a pre-registered policy; the margin row and the embedding re-derived from the pinned tied tensor; one external endpoint; the verdict bit and the content length are public (D45); a short item's trailing positions hold the public pad id; NOT a privacy acceptance",
+            "statement_written_by": "zk60_classify verify, after its fresh-process verification of the run directory, from its own data",
+            "run_profile": "hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1",
+            "block_profile": "hashline-zk-mr1/private-block-rung-tc-t32-dev/1",
+            "blocks": 1,
+            "export_variant": "astra-retained-rung-c2",
+            "trained_statement_identity": "bc83e090c1e122148deeb60d1c73315ca74fd0b4456d3e46da1cf97bccb3ea4a",
+            "policy": "rung-tc-synthetic-policy-dev/1",
+            "verdict": "not-flagged",
+            "verdict_bit": 0,
+            "threshold_c": 0,
+            "yes_id": 40,
+            "no_id": 41,
+            "template_prefix_ids": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8
+            ],
+            "template_suffix_ids": [
+              32
+            ],
+            "content_length_n": 22,
+            "chunk": {
+              "index": 0,
+              "count": 1,
+              "range": [
+                0,
+                22
+              ],
+              "content_total": 22,
+              "chunk_size": 23,
+              "overlap": 4,
+              "split": "end-aligned (DESIGN v2.2 13.1); a short content is one chunk of its length (v2.4 15)"
+            },
+            "T": 32,
+            "item_length": 31,
+            "pad_id": 2,
+            "pad_positions": 1,
+            "verdict_row": 30,
+            "control_ids_below": 5,
+            "tokenizer": "synthetic (ids only, no text)",
+            "margin_vector_digest": "40f3fe498402edec315cfc92bec67365b3c0784bfe72b47040043ecbfe1095fd",
+            "margin_scale": 0.00390625,
+            "tied_source": "tied-source=dev-rung-synthetic-bf16 file=dev_tied_tensor_bf16.bin V=300 d=384 sha256=bba6d094831861aa0b207ae5ca46938e2115e02c81215ba95e27e2bad1cc1dd6 derivation=R12b-quantize(floor(x/scale+0.5),refuse-outside-int16,no-clip,no-rotation)",
+            "embedding_digest": "a8d55fc067234ea1f587e3668e000096c803abc8d4f75838798b482efa4fa60b",
+            "bos": 1,
+            "final_norm": {
+              "g0": 127,
+              "cn": 2048,
+              "tn": 11,
+              "ceps": 33554467
+            },
+            "classifier_profile_digest": "af3fbf4995c2ae4c9a6b0724ee9e04f69b9546d1d681e2d6a8684cdde5d4ef05",
+            "rulings": "rulings: B-5 n-public=true B-6 fixed-policy-list=true B-8 binding=input-endpoint-root B-4 fail-closed=true (accepted by Victor: D45, 2026-10-29)",
+            "context_label": "zk60-classify-verdict",
+            "context": "3be040325f562c8b49cab056d8a859f71de46b79a133fc27c527940873bd882e",
+            "input_token_endpoint_root": "d66be70b88ab7a916f676a96878ff8e0da5c1b4edbb5f69a976f0ebbb671df4f",
+            "whole_run_floor_bits": 94,
+            "parameter_line": "T32/d384/f512/H12/KV4/dh32/log_cols10/inv_rate4/Q256/P1/sh-g7-u0-h14-z6/two-internal-boundaries/one-proof-one-transcript/endpoint-log_n10-rate4-pad256-rows21/L1/boundaries-B_in-B_out-and-interior-log_n10-rate4-pad256-rows22-sites2/token-endpoint-in-log_n8-rate8-pad256-words256-rows6-sites1/no-output-endpoint/stages-log_n12-rate4-pad256/classify (DESIGN_CLASSIFIER v2) under hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1: V=300 V_pad=512 d=384 d_pad=512 T=32 P0=8 n=22 S=1 item-length=31 pad-id=2 pad-positions=1 verdict-row=30 BOS=1 final-norm g0=127 cn=2048 tn=11 ceps=33554467 wrho=32 dmax=642145 margin-vector=int16[-32767,32767] 40f3fe498402edec315cfc92bec67365b3c0784bfe72b47040043ecbfe1095fd threshold c=0 c-class=[-2^33,2^33] margin-window=34 byte-limbs=5 limbs-at-Lo-entry=32 no-pin yes=40 no=41 ctl=ids<5 template=1980a3704eb94693c6aabf7e8998bd39cdb27c3375a99c0dd4c4c8c74048c028 policy=rung-tc-synthetic-policy-dev/1 tokenizer=synthetic (ids only, no text) embedding=a8d55fc067234ea1f587e3668e000096c803abc8d4f75838798b482efa4fa60b variant=public-row mode=verdict-public-bit no-output-endpoint chunk-size=23 chunk-overlap=4 chunk-split=end-aligned short-content=one-chunk-of-its-length-pad-pinned margin-scale=3.90625e-3 margin-scale-bits=0x3f70000000000000 tied-source=dev-rung-synthetic-bf16 file=dev_tied_tensor_bf16.bin V=300 d=384 sha256=bba6d094831861aa0b207ae5ca46938e2115e02c81215ba95e27e2bad1cc1dd6 derivation=R12b-quantize(floor(x/scale+0.5),refuse-outside-int16,no-clip,no-rotation) rulings: B-5 n-public=true B-6 fixed-policy-list=true B-8 binding=input-endpoint-root B-4 fail-closed=true (accepted by Victor: D45, 2026-10-29) tier mvp-95-whole-run (D27): Q=256 stage-row 2^12 rate 1/4 token-endpoint-row 2^8 rate 1/8 lookup-field F_p^2/whole-run-floor-94-bits-12-openings-column-plus-logup-derived-plus-pcs-field-and-sumcheck-bound/one-run-one-transcript"
+          },
+          "statement_sha256": "70c9d4b2f734d63ad97057d189c2f7dcd1862e2f067a057e09aa9aa88e666dd6",
+          "receipt": {
+            "run_dir": "/home/victor/IntelligenceRegulation/results/zk60_astra_20261026/classifier_c3_integration_1/public-runs/short22-c0",
+            "files": [
+              {
+                "file": "segment-000.bin",
+                "bytes": 1224328,
+                "sha256": "afae566880d7f023dcad41c11a71f5187849417852c6203571451dc4fb2dede8"
+              },
+              {
+                "file": "segment-001.bin",
+                "bytes": 7421464,
+                "sha256": "bce4160de47fae9a83b42c3dc87c6230e16aea768f3d77d2900541e0f0353240"
+              },
+              {
+                "file": "segment-002.bin",
+                "bytes": 2489016,
+                "sha256": "5b7b2957cd5012e26abdcdd2b6af7a7ea6453a5b1f8e2f3bbba1023fb0f1b2b3"
+              }
+            ],
+            "segments": 3,
+            "bytes": 11134808,
+            "inventory_source": "app record; native R-C3 has no segments.json"
+          },
+          "timings": {},
+          "security": {
+            "whole_run_floor_bits": 94,
+            "min_bits_required": 93,
+            "note": "Development floor only; no production or privacy acceptance."
+          },
+          "checks": {
+            "verify": {
+              "ok": true,
+              "by": "pinned R-C3 fresh process"
+            },
+            "content_binding": {
+              "ok": true
+            }
+          },
+          "content_length": {
+            "tokens": 22,
+            "total_tokens": 22,
+            "tokenizer": "synthetic IDs, not text"
+          },
+          "chunk": {
+            "index": 0,
+            "start": 0,
+            "end": 22
+          },
+          "proved_at": "2026-10-29T06:19:48Z",
+          "created_at": "2026-10-29T06:19:48Z",
+          "schema": "proven-media-record/2",
+          "notes": [
+            "Development fixture only; never use these labels for media categories or testnet publication."
+          ]
+        }
+      ],
+      "aggregate": {
+        "value": "no",
+        "proof": "accepted",
+        "bound_by_proof": true,
+        "policy_id": "rung-tc-synthetic-policy-dev/1",
+        "development_only": true,
+        "flagged_ranges": [],
+        "chunks": 1
+      }
+    },
+    {
+      "name": "negative",
+      "content_total": 23,
+      "records": [
+        {
+          "post_id": "negative",
+          "item_kind": "classifier-dev-tokens",
+          "prover": {
+            "kind": "classifier-dev-rung",
+            "label": "Synthetic R-C3 classifier development fixture",
+            "supports": [
+              "classifier-dev-tokens"
+            ],
+            "proves_verdict": true,
+            "development_only": true,
+            "policy": "rung-tc-synthetic-policy-dev/1",
+            "binary_sha256": "5edb7241f3c6b788289fca4a03f4fd40649355cf016663ec9dadbdaaa66c9a8e",
+            "what_is_proved": "Synthetic token fixture verdict; no real-text, Shieldstral or privacy acceptance."
+          },
+          "labels": {
+            "synthetic": {
+              "value": "no",
+              "proof": "accepted",
+              "bound_by_proof": true,
+              "policy_id": "rung-tc-synthetic-policy-dev/1",
+              "development_only": true
+            }
+          },
+          "policies": [
+            {
+              "id": "rung-tc-synthetic-policy-dev/1",
+              "category": "synthetic",
+              "development_only": true
+            }
+          ],
+          "threshold": {
+            "margin_gt": 0
+          },
+          "content_commitment": {
+            "kind": "synthetic fixture input endpoint",
+            "value": "a15dbd30dbe288f42979d8ec216bb6560170613278605a441ae55e68b261e99f"
+          },
+          "statement": {
+            "schema": "zk60-classify-run/3",
+            "scope": "a classifier proof (DESIGN_CLASSIFIER v2.4, rung R-C3): the approved integer model's verdict on hidden content under a pre-registered policy; the margin row and the embedding re-derived from the pinned tied tensor; one external endpoint; the verdict bit and the content length are public (D45); a short item's trailing positions hold the public pad id; NOT a privacy acceptance",
+            "statement_written_by": "zk60_classify verify, after its fresh-process verification of the run directory, from its own data",
+            "run_profile": "hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1",
+            "block_profile": "hashline-zk-mr1/private-block-rung-tc-t32-dev/1",
+            "blocks": 1,
+            "export_variant": "astra-retained-rung-c2",
+            "trained_statement_identity": "bc83e090c1e122148deeb60d1c73315ca74fd0b4456d3e46da1cf97bccb3ea4a",
+            "policy": "rung-tc-synthetic-policy-dev/1",
+            "verdict": "not-flagged",
+            "verdict_bit": 0,
+            "threshold_c": 0,
+            "yes_id": 40,
+            "no_id": 41,
+            "template_prefix_ids": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8
+            ],
+            "template_suffix_ids": [
+              32
+            ],
+            "content_length_n": 23,
+            "chunk": {
+              "index": 0,
+              "count": 1,
+              "range": [
+                0,
+                23
+              ],
+              "content_total": 23,
+              "chunk_size": 23,
+              "overlap": 4,
+              "split": "end-aligned (DESIGN v2.2 13.1); a short content is one chunk of its length (v2.4 15)"
+            },
+            "T": 32,
+            "item_length": 32,
+            "pad_id": 2,
+            "pad_positions": 0,
+            "verdict_row": 31,
+            "control_ids_below": 5,
+            "tokenizer": "synthetic (ids only, no text)",
+            "margin_vector_digest": "40f3fe498402edec315cfc92bec67365b3c0784bfe72b47040043ecbfe1095fd",
+            "margin_scale": 0.00390625,
+            "tied_source": "tied-source=dev-rung-synthetic-bf16 file=dev_tied_tensor_bf16.bin V=300 d=384 sha256=bba6d094831861aa0b207ae5ca46938e2115e02c81215ba95e27e2bad1cc1dd6 derivation=R12b-quantize(floor(x/scale+0.5),refuse-outside-int16,no-clip,no-rotation)",
+            "embedding_digest": "a8d55fc067234ea1f587e3668e000096c803abc8d4f75838798b482efa4fa60b",
+            "bos": 1,
+            "final_norm": {
+              "g0": 127,
+              "cn": 2048,
+              "tn": 11,
+              "ceps": 33554467
+            },
+            "classifier_profile_digest": "29bcdc62fe06e205ab8f3df00db25946e232bcac0db4673a743df981ef6e3044",
+            "rulings": "rulings: B-5 n-public=true B-6 fixed-policy-list=true B-8 binding=input-endpoint-root B-4 fail-closed=true (accepted by Victor: D45, 2026-10-29)",
+            "context_label": "zk60-classify-verdict",
+            "context": "3be040325f562c8b49cab056d8a859f71de46b79a133fc27c527940873bd882e",
+            "input_token_endpoint_root": "a15dbd30dbe288f42979d8ec216bb6560170613278605a441ae55e68b261e99f",
+            "whole_run_floor_bits": 94,
+            "parameter_line": "T32/d384/f512/H12/KV4/dh32/log_cols10/inv_rate4/Q256/P1/sh-g7-u0-h14-z6/two-internal-boundaries/one-proof-one-transcript/endpoint-log_n10-rate4-pad256-rows21/L1/boundaries-B_in-B_out-and-interior-log_n10-rate4-pad256-rows22-sites2/token-endpoint-in-log_n8-rate8-pad256-words256-rows6-sites1/no-output-endpoint/stages-log_n12-rate4-pad256/classify (DESIGN_CLASSIFIER v2) under hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1: V=300 V_pad=512 d=384 d_pad=512 T=32 P0=8 n=23 S=1 item-length=32 pad-id=2 pad-positions=0 verdict-row=31 BOS=1 final-norm g0=127 cn=2048 tn=11 ceps=33554467 wrho=32 dmax=642145 margin-vector=int16[-32767,32767] 40f3fe498402edec315cfc92bec67365b3c0784bfe72b47040043ecbfe1095fd threshold c=0 c-class=[-2^33,2^33] margin-window=34 byte-limbs=5 limbs-at-Lo-entry=32 no-pin yes=40 no=41 ctl=ids<5 template=1980a3704eb94693c6aabf7e8998bd39cdb27c3375a99c0dd4c4c8c74048c028 policy=rung-tc-synthetic-policy-dev/1 tokenizer=synthetic (ids only, no text) embedding=a8d55fc067234ea1f587e3668e000096c803abc8d4f75838798b482efa4fa60b variant=public-row mode=verdict-public-bit no-output-endpoint chunk-size=23 chunk-overlap=4 chunk-split=end-aligned short-content=one-chunk-of-its-length-pad-pinned margin-scale=3.90625e-3 margin-scale-bits=0x3f70000000000000 tied-source=dev-rung-synthetic-bf16 file=dev_tied_tensor_bf16.bin V=300 d=384 sha256=bba6d094831861aa0b207ae5ca46938e2115e02c81215ba95e27e2bad1cc1dd6 derivation=R12b-quantize(floor(x/scale+0.5),refuse-outside-int16,no-clip,no-rotation) rulings: B-5 n-public=true B-6 fixed-policy-list=true B-8 binding=input-endpoint-root B-4 fail-closed=true (accepted by Victor: D45, 2026-10-29) tier mvp-95-whole-run (D27): Q=256 stage-row 2^12 rate 1/4 token-endpoint-row 2^8 rate 1/8 lookup-field F_p^2/whole-run-floor-94-bits-12-openings-column-plus-logup-derived-plus-pcs-field-and-sumcheck-bound/one-run-one-transcript"
+          },
+          "statement_sha256": "7dfb727669f40e51ff9b305600c9cccf4d5bfc1ac8b79211c948eebd3ae2b8b3",
+          "receipt": {
+            "run_dir": "/home/victor/IntelligenceRegulation/results/zk60_astra_20261026/classifier_c3_integration_1/public-runs/negative-c0",
+            "files": [
+              {
+                "file": "segment-000.bin",
+                "bytes": 1224328,
+                "sha256": "888156691ba637be9ad553798044ca5b4e38d3480f20160888b1fc08352fd42d"
+              },
+              {
+                "file": "segment-001.bin",
+                "bytes": 7421464,
+                "sha256": "007cc1a0b7a74aa8cb0f6c6daaa1ab004d3796b06601e0ef4ed9e1aa1c1c4069"
+              },
+              {
+                "file": "segment-002.bin",
+                "bytes": 2489016,
+                "sha256": "36932fa569761380f0c983cb8bfdbafc9560790dcd48d50c240c2e8a72f348d8"
+              }
+            ],
+            "segments": 3,
+            "bytes": 11134808,
+            "inventory_source": "app record; native R-C3 has no segments.json"
+          },
+          "timings": {},
+          "security": {
+            "whole_run_floor_bits": 94,
+            "min_bits_required": 93,
+            "note": "Development floor only; no production or privacy acceptance."
+          },
+          "checks": {
+            "verify": {
+              "ok": true,
+              "by": "pinned R-C3 fresh process"
+            },
+            "content_binding": {
+              "ok": true
+            }
+          },
+          "content_length": {
+            "tokens": 23,
+            "total_tokens": 23,
+            "tokenizer": "synthetic IDs, not text"
+          },
+          "chunk": {
+            "index": 0,
+            "start": 0,
+            "end": 23
+          },
+          "proved_at": "2026-10-29T06:19:52Z",
+          "created_at": "2026-10-29T06:19:52Z",
+          "schema": "proven-media-record/2",
+          "notes": [
+            "Development fixture only; never use these labels for media categories or testnet publication."
+          ]
+        }
+      ],
+      "aggregate": {
+        "value": "no",
+        "proof": "accepted",
+        "bound_by_proof": true,
+        "policy_id": "rung-tc-synthetic-policy-dev/1",
+        "development_only": true,
+        "flagged_ranges": [],
+        "chunks": 1
+      }
+    },
+    {
+      "name": "multi",
+      "content_total": 27,
+      "records": [
+        {
+          "post_id": "multi",
+          "item_kind": "classifier-dev-tokens",
+          "prover": {
+            "kind": "classifier-dev-rung",
+            "label": "Synthetic R-C3 classifier development fixture",
+            "supports": [
+              "classifier-dev-tokens"
+            ],
+            "proves_verdict": true,
+            "development_only": true,
+            "policy": "rung-tc-synthetic-policy-dev/1",
+            "binary_sha256": "5edb7241f3c6b788289fca4a03f4fd40649355cf016663ec9dadbdaaa66c9a8e",
+            "what_is_proved": "Synthetic token fixture verdict; no real-text, Shieldstral or privacy acceptance."
+          },
+          "labels": {
+            "synthetic": {
+              "value": "no",
+              "proof": "accepted",
+              "bound_by_proof": true,
+              "policy_id": "rung-tc-synthetic-policy-dev/1",
+              "development_only": true
+            }
+          },
+          "policies": [
+            {
+              "id": "rung-tc-synthetic-policy-dev/1",
+              "category": "synthetic",
+              "development_only": true
+            }
+          ],
+          "threshold": {
+            "margin_gt": 0
+          },
+          "content_commitment": {
+            "kind": "synthetic fixture input endpoint",
+            "value": "977775a4662cebf99e0029b6ba8ead9bfe8686465fa0c4068859913d0a1aeed6"
+          },
+          "statement": {
+            "schema": "zk60-classify-run/3",
+            "scope": "a classifier proof (DESIGN_CLASSIFIER v2.4, rung R-C3): the approved integer model's verdict on hidden content under a pre-registered policy; the margin row and the embedding re-derived from the pinned tied tensor; one external endpoint; the verdict bit and the content length are public (D45); a short item's trailing positions hold the public pad id; NOT a privacy acceptance",
+            "statement_written_by": "zk60_classify verify, after its fresh-process verification of the run directory, from its own data",
+            "run_profile": "hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1",
+            "block_profile": "hashline-zk-mr1/private-block-rung-tc-t32-dev/1",
+            "blocks": 1,
+            "export_variant": "astra-retained-rung-c2",
+            "trained_statement_identity": "bc83e090c1e122148deeb60d1c73315ca74fd0b4456d3e46da1cf97bccb3ea4a",
+            "policy": "rung-tc-synthetic-policy-dev/1",
+            "verdict": "not-flagged",
+            "verdict_bit": 0,
+            "threshold_c": 0,
+            "yes_id": 40,
+            "no_id": 41,
+            "template_prefix_ids": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8
+            ],
+            "template_suffix_ids": [
+              32
+            ],
+            "content_length_n": 23,
+            "chunk": {
+              "index": 0,
+              "count": 2,
+              "range": [
+                0,
+                23
+              ],
+              "content_total": 27,
+              "chunk_size": 23,
+              "overlap": 4,
+              "split": "end-aligned (DESIGN v2.2 13.1); a short content is one chunk of its length (v2.4 15)"
+            },
+            "T": 32,
+            "item_length": 32,
+            "pad_id": 2,
+            "pad_positions": 0,
+            "verdict_row": 31,
+            "control_ids_below": 5,
+            "tokenizer": "synthetic (ids only, no text)",
+            "margin_vector_digest": "40f3fe498402edec315cfc92bec67365b3c0784bfe72b47040043ecbfe1095fd",
+            "margin_scale": 0.00390625,
+            "tied_source": "tied-source=dev-rung-synthetic-bf16 file=dev_tied_tensor_bf16.bin V=300 d=384 sha256=bba6d094831861aa0b207ae5ca46938e2115e02c81215ba95e27e2bad1cc1dd6 derivation=R12b-quantize(floor(x/scale+0.5),refuse-outside-int16,no-clip,no-rotation)",
+            "embedding_digest": "a8d55fc067234ea1f587e3668e000096c803abc8d4f75838798b482efa4fa60b",
+            "bos": 1,
+            "final_norm": {
+              "g0": 127,
+              "cn": 2048,
+              "tn": 11,
+              "ceps": 33554467
+            },
+            "classifier_profile_digest": "29bcdc62fe06e205ab8f3df00db25946e232bcac0db4673a743df981ef6e3044",
+            "rulings": "rulings: B-5 n-public=true B-6 fixed-policy-list=true B-8 binding=input-endpoint-root B-4 fail-closed=true (accepted by Victor: D45, 2026-10-29)",
+            "context_label": "zk60-classify-verdict",
+            "context": "3be040325f562c8b49cab056d8a859f71de46b79a133fc27c527940873bd882e",
+            "input_token_endpoint_root": "977775a4662cebf99e0029b6ba8ead9bfe8686465fa0c4068859913d0a1aeed6",
+            "whole_run_floor_bits": 94,
+            "parameter_line": "T32/d384/f512/H12/KV4/dh32/log_cols10/inv_rate4/Q256/P1/sh-g7-u0-h14-z6/two-internal-boundaries/one-proof-one-transcript/endpoint-log_n10-rate4-pad256-rows21/L1/boundaries-B_in-B_out-and-interior-log_n10-rate4-pad256-rows22-sites2/token-endpoint-in-log_n8-rate8-pad256-words256-rows6-sites1/no-output-endpoint/stages-log_n12-rate4-pad256/classify (DESIGN_CLASSIFIER v2) under hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1: V=300 V_pad=512 d=384 d_pad=512 T=32 P0=8 n=23 S=1 item-length=32 pad-id=2 pad-positions=0 verdict-row=31 BOS=1 final-norm g0=127 cn=2048 tn=11 ceps=33554467 wrho=32 dmax=642145 margin-vector=int16[-32767,32767] 40f3fe498402edec315cfc92bec67365b3c0784bfe72b47040043ecbfe1095fd threshold c=0 c-class=[-2^33,2^33] margin-window=34 byte-limbs=5 limbs-at-Lo-entry=32 no-pin yes=40 no=41 ctl=ids<5 template=1980a3704eb94693c6aabf7e8998bd39cdb27c3375a99c0dd4c4c8c74048c028 policy=rung-tc-synthetic-policy-dev/1 tokenizer=synthetic (ids only, no text) embedding=a8d55fc067234ea1f587e3668e000096c803abc8d4f75838798b482efa4fa60b variant=public-row mode=verdict-public-bit no-output-endpoint chunk-size=23 chunk-overlap=4 chunk-split=end-aligned short-content=one-chunk-of-its-length-pad-pinned margin-scale=3.90625e-3 margin-scale-bits=0x3f70000000000000 tied-source=dev-rung-synthetic-bf16 file=dev_tied_tensor_bf16.bin V=300 d=384 sha256=bba6d094831861aa0b207ae5ca46938e2115e02c81215ba95e27e2bad1cc1dd6 derivation=R12b-quantize(floor(x/scale+0.5),refuse-outside-int16,no-clip,no-rotation) rulings: B-5 n-public=true B-6 fixed-policy-list=true B-8 binding=input-endpoint-root B-4 fail-closed=true (accepted by Victor: D45, 2026-10-29) tier mvp-95-whole-run (D27): Q=256 stage-row 2^12 rate 1/4 token-endpoint-row 2^8 rate 1/8 lookup-field F_p^2/whole-run-floor-94-bits-12-openings-column-plus-logup-derived-plus-pcs-field-and-sumcheck-bound/one-run-one-transcript"
+          },
+          "statement_sha256": "047766af417cb30ddbb4a94b5604f75a441391b7d2bab5df7e9f2ababbefeef1",
+          "receipt": {
+            "run_dir": "/home/victor/IntelligenceRegulation/results/zk60_astra_20261026/classifier_c3_integration_1/public-runs/multi-c0",
+            "files": [
+              {
+                "file": "segment-000.bin",
+                "bytes": 1224328,
+                "sha256": "6d2006efab28ac21e5f7c3bf57d79faa41c7744e4012e87363f136bd494c6f7a"
+              },
+              {
+                "file": "segment-001.bin",
+                "bytes": 7421464,
+                "sha256": "157fd517117219d6baecd9aa5b95c840d2c9ed912a0b0e74d7c34346bbfdf99e"
+              },
+              {
+                "file": "segment-002.bin",
+                "bytes": 2489016,
+                "sha256": "69d2b5d5e0992a5157dd5b6d5b3db8f999cb3bb0865ee95b398a7f7d877c504b"
+              }
+            ],
+            "segments": 3,
+            "bytes": 11134808,
+            "inventory_source": "app record; native R-C3 has no segments.json"
+          },
+          "timings": {},
+          "security": {
+            "whole_run_floor_bits": 94,
+            "min_bits_required": 93,
+            "note": "Development floor only; no production or privacy acceptance."
+          },
+          "checks": {
+            "verify": {
+              "ok": true,
+              "by": "pinned R-C3 fresh process"
+            },
+            "content_binding": {
+              "ok": true
+            }
+          },
+          "content_length": {
+            "tokens": 23,
+            "total_tokens": 27,
+            "tokenizer": "synthetic IDs, not text"
+          },
+          "chunk": {
+            "index": 0,
+            "start": 0,
+            "end": 23
+          },
+          "proved_at": "2026-10-29T06:19:55Z",
+          "created_at": "2026-10-29T06:19:55Z",
+          "schema": "proven-media-record/2",
+          "notes": [
+            "Development fixture only; never use these labels for media categories or testnet publication."
+          ]
+        },
+        {
+          "post_id": "multi",
+          "item_kind": "classifier-dev-tokens",
+          "prover": {
+            "kind": "classifier-dev-rung",
+            "label": "Synthetic R-C3 classifier development fixture",
+            "supports": [
+              "classifier-dev-tokens"
+            ],
+            "proves_verdict": true,
+            "development_only": true,
+            "policy": "rung-tc-synthetic-policy-dev/1",
+            "binary_sha256": "5edb7241f3c6b788289fca4a03f4fd40649355cf016663ec9dadbdaaa66c9a8e",
+            "what_is_proved": "Synthetic token fixture verdict; no real-text, Shieldstral or privacy acceptance."
+          },
+          "labels": {
+            "synthetic": {
+              "value": "no",
+              "proof": "accepted",
+              "bound_by_proof": true,
+              "policy_id": "rung-tc-synthetic-policy-dev/1",
+              "development_only": true
+            }
+          },
+          "policies": [
+            {
+              "id": "rung-tc-synthetic-policy-dev/1",
+              "category": "synthetic",
+              "development_only": true
+            }
+          ],
+          "threshold": {
+            "margin_gt": 0
+          },
+          "content_commitment": {
+            "kind": "synthetic fixture input endpoint",
+            "value": "277dd9faca648f9d4befee98b5b3d7d852e282aa84c7c32a586dadb1fa6cee05"
+          },
+          "statement": {
+            "schema": "zk60-classify-run/3",
+            "scope": "a classifier proof (DESIGN_CLASSIFIER v2.4, rung R-C3): the approved integer model's verdict on hidden content under a pre-registered policy; the margin row and the embedding re-derived from the pinned tied tensor; one external endpoint; the verdict bit and the content length are public (D45); a short item's trailing positions hold the public pad id; NOT a privacy acceptance",
+            "statement_written_by": "zk60_classify verify, after its fresh-process verification of the run directory, from its own data",
+            "run_profile": "hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1",
+            "block_profile": "hashline-zk-mr1/private-block-rung-tc-t32-dev/1",
+            "blocks": 1,
+            "export_variant": "astra-retained-rung-c2",
+            "trained_statement_identity": "bc83e090c1e122148deeb60d1c73315ca74fd0b4456d3e46da1cf97bccb3ea4a",
+            "policy": "rung-tc-synthetic-policy-dev/1",
+            "verdict": "not-flagged",
+            "verdict_bit": 0,
+            "threshold_c": 0,
+            "yes_id": 40,
+            "no_id": 41,
+            "template_prefix_ids": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8
+            ],
+            "template_suffix_ids": [
+              32
+            ],
+            "content_length_n": 23,
+            "chunk": {
+              "index": 1,
+              "count": 2,
+              "range": [
+                4,
+                27
+              ],
+              "content_total": 27,
+              "chunk_size": 23,
+              "overlap": 4,
+              "split": "end-aligned (DESIGN v2.2 13.1); a short content is one chunk of its length (v2.4 15)"
+            },
+            "T": 32,
+            "item_length": 32,
+            "pad_id": 2,
+            "pad_positions": 0,
+            "verdict_row": 31,
+            "control_ids_below": 5,
+            "tokenizer": "synthetic (ids only, no text)",
+            "margin_vector_digest": "40f3fe498402edec315cfc92bec67365b3c0784bfe72b47040043ecbfe1095fd",
+            "margin_scale": 0.00390625,
+            "tied_source": "tied-source=dev-rung-synthetic-bf16 file=dev_tied_tensor_bf16.bin V=300 d=384 sha256=bba6d094831861aa0b207ae5ca46938e2115e02c81215ba95e27e2bad1cc1dd6 derivation=R12b-quantize(floor(x/scale+0.5),refuse-outside-int16,no-clip,no-rotation)",
+            "embedding_digest": "a8d55fc067234ea1f587e3668e000096c803abc8d4f75838798b482efa4fa60b",
+            "bos": 1,
+            "final_norm": {
+              "g0": 127,
+              "cn": 2048,
+              "tn": 11,
+              "ceps": 33554467
+            },
+            "classifier_profile_digest": "29bcdc62fe06e205ab8f3df00db25946e232bcac0db4673a743df981ef6e3044",
+            "rulings": "rulings: B-5 n-public=true B-6 fixed-policy-list=true B-8 binding=input-endpoint-root B-4 fail-closed=true (accepted by Victor: D45, 2026-10-29)",
+            "context_label": "zk60-classify-verdict",
+            "context": "3be040325f562c8b49cab056d8a859f71de46b79a133fc27c527940873bd882e",
+            "input_token_endpoint_root": "277dd9faca648f9d4befee98b5b3d7d852e282aa84c7c32a586dadb1fa6cee05",
+            "whole_run_floor_bits": 94,
+            "parameter_line": "T32/d384/f512/H12/KV4/dh32/log_cols10/inv_rate4/Q256/P1/sh-g7-u0-h14-z6/two-internal-boundaries/one-proof-one-transcript/endpoint-log_n10-rate4-pad256-rows21/L1/boundaries-B_in-B_out-and-interior-log_n10-rate4-pad256-rows22-sites2/token-endpoint-in-log_n8-rate8-pad256-words256-rows6-sites1/no-output-endpoint/stages-log_n12-rate4-pad256/classify (DESIGN_CLASSIFIER v2) under hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1: V=300 V_pad=512 d=384 d_pad=512 T=32 P0=8 n=23 S=1 item-length=32 pad-id=2 pad-positions=0 verdict-row=31 BOS=1 final-norm g0=127 cn=2048 tn=11 ceps=33554467 wrho=32 dmax=642145 margin-vector=int16[-32767,32767] 40f3fe498402edec315cfc92bec67365b3c0784bfe72b47040043ecbfe1095fd threshold c=0 c-class=[-2^33,2^33] margin-window=34 byte-limbs=5 limbs-at-Lo-entry=32 no-pin yes=40 no=41 ctl=ids<5 template=1980a3704eb94693c6aabf7e8998bd39cdb27c3375a99c0dd4c4c8c74048c028 policy=rung-tc-synthetic-policy-dev/1 tokenizer=synthetic (ids only, no text) embedding=a8d55fc067234ea1f587e3668e000096c803abc8d4f75838798b482efa4fa60b variant=public-row mode=verdict-public-bit no-output-endpoint chunk-size=23 chunk-overlap=4 chunk-split=end-aligned short-content=one-chunk-of-its-length-pad-pinned margin-scale=3.90625e-3 margin-scale-bits=0x3f70000000000000 tied-source=dev-rung-synthetic-bf16 file=dev_tied_tensor_bf16.bin V=300 d=384 sha256=bba6d094831861aa0b207ae5ca46938e2115e02c81215ba95e27e2bad1cc1dd6 derivation=R12b-quantize(floor(x/scale+0.5),refuse-outside-int16,no-clip,no-rotation) rulings: B-5 n-public=true B-6 fixed-policy-list=true B-8 binding=input-endpoint-root B-4 fail-closed=true (accepted by Victor: D45, 2026-10-29) tier mvp-95-whole-run (D27): Q=256 stage-row 2^12 rate 1/4 token-endpoint-row 2^8 rate 1/8 lookup-field F_p^2/whole-run-floor-94-bits-12-openings-column-plus-logup-derived-plus-pcs-field-and-sumcheck-bound/one-run-one-transcript"
+          },
+          "statement_sha256": "cb3520f7e117dd296ac6ead00e5036d67b2ff990e30c2fe39ebd146eb9b7e2c4",
+          "receipt": {
+            "run_dir": "/home/victor/IntelligenceRegulation/results/zk60_astra_20261026/classifier_c3_integration_1/public-runs/multi-c1",
+            "files": [
+              {
+                "file": "segment-000.bin",
+                "bytes": 1224328,
+                "sha256": "2c4ddbcfb66f51d01ce8662c20472c72d9f16f50afac5b586e9a4a501b1bdd49"
+              },
+              {
+                "file": "segment-001.bin",
+                "bytes": 7421464,
+                "sha256": "9eb31b045a2531af3c79be060599fc6ebf18fd60ad001c4aa5a25872e28d5901"
+              },
+              {
+                "file": "segment-002.bin",
+                "bytes": 2489016,
+                "sha256": "848c10761816b870159481e0896769607a4e68626049a902f49f617b1fd4601d"
+              }
+            ],
+            "segments": 3,
+            "bytes": 11134808,
+            "inventory_source": "app record; native R-C3 has no segments.json"
+          },
+          "timings": {},
+          "security": {
+            "whole_run_floor_bits": 94,
+            "min_bits_required": 93,
+            "note": "Development floor only; no production or privacy acceptance."
+          },
+          "checks": {
+            "verify": {
+              "ok": true,
+              "by": "pinned R-C3 fresh process"
+            },
+            "content_binding": {
+              "ok": true
+            }
+          },
+          "content_length": {
+            "tokens": 23,
+            "total_tokens": 27,
+            "tokenizer": "synthetic IDs, not text"
+          },
+          "chunk": {
+            "index": 1,
+            "start": 4,
+            "end": 27
+          },
+          "proved_at": "2026-10-29T06:19:57Z",
+          "created_at": "2026-10-29T06:19:57Z",
+          "schema": "proven-media-record/2",
+          "notes": [
+            "Development fixture only; never use these labels for media categories or testnet publication."
+          ]
+        }
+      ],
+      "aggregate": {
+        "value": "no",
+        "proof": "accepted",
+        "bound_by_proof": true,
+        "policy_id": "rung-tc-synthetic-policy-dev/1",
+        "development_only": true,
+        "flagged_ranges": [],
+        "chunks": 2
+      }
+    }
+  ],
+  "truncation_controls": []
+}

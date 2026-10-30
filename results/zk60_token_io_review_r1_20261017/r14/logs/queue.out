@@ -1,0 +1,53 @@
+2026-10-29T02:34:43Z queue start (build)
+2026-10-29T02:36:03Z launch build
+2026-10-29T02:39:05Z build exit 0
+2026-10-29T02:39:05Z test binary /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-review-r14-scratch/hashline/target/release/deps/hashline-14931f569895103b
+2026-10-29T02:39:05Z queue end (build)
+2026-10-29T02:39:21Z queue start (baseline)
+2026-10-29T02:39:21Z test binary /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-review-r14-scratch/hashline/target/release/deps/hashline-14931f569895103b
+2026-10-29T02:39:21Z launch baseline
+2026-10-29T02:40:22Z baseline exit 0
+2026-10-29T02:40:22Z queue end (baseline)
+2026-10-29T02:40:53Z queue start (detail)
+2026-10-29T02:40:53Z test binary /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-review-r14-scratch/hashline/target/release/deps/hashline-14931f569895103b
+2026-10-29T02:40:54Z launch detail
+2026-10-29T02:41:36Z detail exit 0
+2026-10-29T02:41:36Z queue end (detail)
+2026-10-29T02:41:36Z queue start (xbin)
+2026-10-29T02:41:37Z test binary /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-review-r14-scratch/hashline/target/release/deps/hashline-14931f569895103b
+2026-10-29T02:41:37Z launch xbin
+2026-10-29T02:41:46Z xbin exit 0
+2026-10-29T02:41:46Z queue end (xbin)
+2026-10-29T02:41:46Z queue start (mut)
+2026-10-29T02:41:46Z test binary /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-review-r14-scratch/hashline/target/release/deps/hashline-14931f569895103b
+2026-10-29T02:41:46Z launch mut-n2
+2026-10-29T02:42:46Z mut-n2 exit 101
+2026-10-29T02:42:47Z launch mut-pad
+2026-10-29T02:43:43Z mut-pad exit 101
+2026-10-29T02:43:43Z launch mut-bind
+2026-10-29T02:44:44Z mut-bind exit 101
+2026-10-29T02:44:44Z launch mut-src
+2026-10-29T02:45:46Z mut-src exit 101
+2026-10-29T02:45:46Z launch mut-check-tables
+2026-10-29T02:46:48Z mut-check-tables exit 101
+2026-10-29T02:46:48Z launch mut-n-free
+2026-10-29T02:50:47Z mut-n-free exit 101
+2026-10-29T02:50:48Z launch mut-size-from-n
+2026-10-29T02:51:45Z mut-size-from-n exit 101
+2026-10-29T02:51:45Z launch mut-vr-last
+2026-10-29T02:52:41Z mut-vr-last exit 101
+2026-10-29T02:52:41Z launch mut-replay
+2026-10-29T02:53:41Z mut-replay exit 101
+2026-10-29T02:53:41Z launch mut-empty
+2026-10-29T02:54:45Z mut-empty exit 101
+2026-10-29T02:54:45Z queue end (mut)
+2026-10-29T02:55:03Z post queue start
+2026-10-29T02:59:05Z launch build2
+2026-10-29T03:02:24Z build2 exit 0
+2026-10-29T03:02:24Z launch s5b
+2026-10-29T03:02:38Z s5b exit 0
+2026-10-29T03:02:38Z launch xbin2
+2026-10-29T03:02:49Z xbin2 exit 0
+2026-10-29T03:02:49Z launch baseline2
+2026-10-29T03:03:51Z baseline2 exit 0
+2026-10-29T03:03:51Z post queue end

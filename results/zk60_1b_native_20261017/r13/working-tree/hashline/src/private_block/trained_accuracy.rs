@@ -1,11 +1,34 @@
-//! Bounded R13 public-array reader. The v2 export/proof entry point is not
-//! activated yet; legacy exports do not call this reader.
+//! Bounded R13 v2 public-array reader; legacy exports use their frozen reader.
 use super::*;
 use crate::private_block::accuracy_groups::Group;
 use crate::private_block::accuracy_precision::{BaseShifts, Stack};
+use crate::private_block::accuracy_tables::Registry;
 use crate::private_block::accuracy_public::{
     AccuracyPublic, Geometry as AccuracyGeometry, Multipliers,
 };
+
+/// The export chooses one approved arithmetic stack for its model.
+/// The decoupled-head rung is synthetic and supports both development stacks.
+pub(super) fn profile_for(geometry:super::Geometry,stack:Stack,dd:bool)->Result<&'static str,String> {
+    use crate::private_block::shape::*;
+    use super::Geometry as G;
+    let p=match (geometry,stack,dd) {
+        (G::TinyLlama(128),Stack::Low,false)=>R13_TINY_T128_LOW,
+        (G::TinyLlama(128),Stack::Low,true)=>R13_TINY_T128_LOW_DD,
+        (G::Llama3_8B(128),Stack::LowH24,false)=>R13_8B_T128_H24,
+        (G::Llama3_8B(128),Stack::LowH24,true)=>R13_8B_T128_H24_DD,
+        (G::Shieldstral(128),Stack::LowH24,false)=>R13_SHIELD_T128_H24,
+        (G::Shieldstral(128),Stack::LowH24,true)=>R13_SHIELD_T128_H24_DD,
+        (G::Shieldstral(256),Stack::LowH24,false)=>R13_SHIELD_T256_H24,
+        (G::Shieldstral(256),Stack::LowH24,true)=>R13_SHIELD_T256_H24_DD,
+        (G::RungHdDev,Stack::Low,false)=>R13_RUNG_LOW,
+        (G::RungHdDev,Stack::LowH24,false)=>R13_RUNG_H24,
+        (G::RungHdDev,Stack::Low,true)=>R13_RUNG_LOW_DD,
+        (G::RungHdDev,Stack::LowH24,true)=>R13_RUNG_H24_DD,
+        _=>return Err("R13 export: this model/context/stack has no registered arithmetic profile".into()),
+    };
+    Ok(p)
+}
 
 pub(super) struct Loaded {
     pub accuracy: AccuracyPublic,
@@ -20,7 +43,19 @@ pub(super) fn load(
     base: BaseShifts,
     member: (i32, i32),
 ) -> Result<Loaded, String> {
-    geometry.check_bounds()?;
+    load_for_registry(Registry::Standard, dir, arrays, stack, geometry, base, member)
+}
+
+pub(super) fn load_for_registry(
+    registry: Registry,
+    dir: &Path,
+    arrays: &J,
+    stack: Stack,
+    geometry: AccuracyGeometry,
+    base: BaseShifts,
+    member: (i32, i32),
+) -> Result<Loaded, String> {
+    geometry.check_registry(registry)?;
     if stack == Stack::Legacy {
         return Err("R13 arrays require an explicit LOW export stack".into());
     }
@@ -99,7 +134,8 @@ pub(super) fn load(
         .chunks_exact(4096)
         .map(|words| words.to_vec())
         .collect();
-    let accuracy = AccuracyPublic::new(
+    let accuracy = AccuracyPublic::new_with_registry(
+        registry,
         stack,
         geometry,
         base,
@@ -142,12 +178,14 @@ mod tests {
     }
     impl Drop for Fixture {
         fn drop(&mut self) {
-            let _ = std::fs::remove_dir_all(&self.dir);
+            // Retain public refusal fixtures under the lane results directory.
         }
     }
     impl Fixture {
         fn new() -> Self {
-            let dir = std::env::temp_dir().join(format!(
+            let root=std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../results/r13-array-tests");
+            std::fs::create_dir_all(&root).unwrap();
+            let dir = root.join(format!(
                 "zk60-r13-arrays-{}-{}",
                 std::process::id(),
                 std::time::SystemTime::now()
@@ -273,11 +311,14 @@ mod tests {
 
     #[test]
     fn bad_table_shape_is_refused_before_the_missing_payload_is_read() {
-        let mut f = Fixture::new();
-        f.put("act", "int16", &[4, usize::MAX], &[]);
-        std::fs::remove_file(f.dir.join("act.bin")).unwrap();
-        let error = f.load(Stack::Low).err().unwrap();
-        assert!(error.contains("refused before it is read"), "{error}");
+        for (shape, reason) in [([4,4097], "refused before it is read"),
+                                ([4,usize::MAX], "expected an integer")] {
+            let mut f = Fixture::new();
+            f.put("act", "int16", &shape, &[]);
+            std::fs::remove_file(f.dir.join("act.bin")).unwrap();
+            let error = f.load(Stack::Low).err().unwrap();
+            assert!(error.contains("array `act`") && error.contains(reason), "{error}");
+        }
     }
 
     #[test]
@@ -296,5 +337,208 @@ mod tests {
             .err()
             .unwrap()
             .contains("derived by the verifier"));
+    }
+
+    #[test]
+    fn shieldstral_four_group_arrays_are_verified_and_cannot_enter_the_standard_registry() {
+        let mut f = Fixture::new();
+        let geo = AccuracyGeometry { width: 3072, query_width: 4096, kv_width: 1024, hidden: 9216 };
+        for (name, n) in [("m_q",4096),("m_k",1024),("m_v",1024),("m_o",3072),
+            ("m_g",9216),("m_u",9216),("m_d",3072)] {
+            let bytes: Vec<u8> = (0..n).flat_map(|_| 1i64.to_le_bytes()).collect();
+            f.put(name,"int64",&[n],&bytes);
+        }
+        let ids: Vec<u8> = (0..9216).flat_map(|i| ((i%4) as i64).to_le_bytes()).collect();
+        f.put("silu_group_ids","int64",&[9216],&ids);
+        let groups = [(-3,-11),(-2,-11),(-1,-9),(0,-8)];
+        let bytes: Vec<u8> = groups.iter().flat_map(|&(i,o)| [i as i64,o as i64]).flat_map(i64::to_le_bytes).collect();
+        f.put("silu_groups","int64",&[4,2],&bytes);
+        let tables: Vec<u8> = groups.iter().flat_map(|&(i,o)|
+            crate::private_block::accuracy_tables::silu_table_for(Registry::Shieldstral,i,o,12).unwrap())
+            .flat_map(i16::to_le_bytes).collect();
+        f.put("act","int16",&[4,4096],&tables);
+        let base = BaseShifts { product: 15, ..BASE };
+        for stack in [Stack::Low,Stack::LowH24] {
+            let loaded = load_for_registry(Registry::Shieldstral,&f.dir,&f.arrays,stack,geo,base,(-1,-9)).unwrap();
+            assert_eq!(loaded.sha256.len(),10);
+            assert_eq!(loaded.accuracy.registry(),Registry::Shieldstral);
+            loaded.accuracy.check_for_registry(Registry::Shieldstral,geo,base,stack).unwrap();
+            assert!(load(&f.dir,&f.arrays,stack,geo,base,(-1,-9)).is_err());
+        }
+        let mut forged = tables;
+        forged[3*8192+6000] ^= 1;
+        f.put("act","int16",&[4,4096],&forged);
+        assert!(load_for_registry(Registry::Shieldstral,&f.dir,&f.arrays,Stack::LowH24,geo,base,(-1,-9))
+            .err().unwrap().contains("generated member"));
+    }
+
+    #[test]
+    fn the_shieldstral_geometry_gate_runs_before_any_array_file_is_opened() {
+        let error = load_for_registry(Registry::Shieldstral,Path::new("/does-not-exist"),
+            &J::Obj(vec![]),Stack::LowH24,GEO,BASE,(-1,-9)).err().unwrap();
+        assert!(error.contains("pinned geometry"),"{error}");
+    }
+
+    #[test]
+    #[ignore = "requires the authenticated 26-layer public-array adapter via HL_R13_SHIELDSTRAL_ARRAYS"]
+    fn all_26_actual_shieldstral_layers_pass_the_native_public_array_loader() {
+        let root=PathBuf::from(std::env::var("HL_R13_SHIELDSTRAL_ARRAYS").expect("explicit intake directory required"));
+        let manifest=parse_json(&std::fs::read(root.join("manifest.json")).unwrap()).unwrap();
+        let layers=manifest.get("layers").unwrap().arr().unwrap();
+        assert_eq!(layers.len(),26);
+        let geo=AccuracyGeometry{width:3072,query_width:4096,kv_width:1024,hidden:9216};
+        for (i,row) in layers.iter().enumerate() {
+            assert_eq!(row.get("index").unwrap().i64().unwrap(),i as i64);
+            let c=row.get("constants").unwrap();
+            let shift=|key|u32::try_from(c.get(key).unwrap().i64().unwrap()).unwrap();
+            let base=BaseShifts{norm_tn:shift("norm_tn"),qkv:shift("sh_qkv"),score:shift("sh_s"),
+                pv:shift("sh_o"),ao:shift("sh_ao"),gate:shift("sh_g"),up:shift("sh_u"),
+                product:shift("sh_h"),down:shift("sh_z")};
+            let member=c.get("silu").unwrap().arr().unwrap();
+            let member=(i32::try_from(member[0].i64().unwrap()).unwrap(),i32::try_from(member[1].i64().unwrap()).unwrap());
+            let dir=root.join(row.get("directory").unwrap().str().unwrap());
+            let loaded=load_for_registry(Registry::Shieldstral,&dir,row.get("arrays").unwrap(),Stack::LowH24,geo,base,member)
+                .unwrap_or_else(|e|panic!("layer {i}: {e}"));
+            let a=loaded.accuracy;
+            a.check_for_registry(Registry::Shieldstral,geo,base,Stack::LowH24).unwrap();
+            assert_eq!(loaded.sha256.len(),10);
+            assert!(a.groups().len()<=4);
+            let expected=|key|row.get(key).unwrap().i64().unwrap();
+            assert_eq!(a.folds().gate.shift as i64,expected("gate_common_shift"),"layer {i}");
+            assert_eq!(*a.folds().gate.multipliers.iter().max().unwrap() as i64,expected("folded_gate_multiplier_max"),"layer {i}");
+            assert_eq!(a.folds().product.shift as i64,expected("aligned_product_shift"),"layer {i}");
+            assert_eq!(a.scaled_tables().iter().flatten().map(|v|v.abs()).max().unwrap(),expected("derived_table_max_abs"),"layer {i}");
+            if i==25 {assert!(a.groups().iter().any(|g|(g.e_in,g.e_out)==(0,-8)));}
+        }
+    }
+}
+
+#[cfg(test)]
+mod profile_tests {
+    use super::*;
+
+    fn fixture(name:&str)->PathBuf {
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("../../loader-fixtures").join(name)
+    }
+
+    #[test]
+    fn accuracy_v2_loader_imports_both_stacks_and_reconstructs_dd_records() {
+        for (name,stack,ng) in [("r13-low-1g",Stack::Low,1),("r13-h24-4g",Stack::LowH24,4)] {
+            for dd in [false,true] {
+                let mut ex=TrainedExport::load(&fixture(name)).unwrap();
+                assert_eq!(ex.accuracy_stack,stack);
+                if dd {ex.enable_dd().unwrap();}
+                let c=ex.run_constants(&[0]).unwrap();let seed=ex.shape_for(&c).unwrap();
+                assert_eq!(seed.accuracy_stack(),stack);assert_eq!(seed.dd_cap>0,dd);
+                let layer=ex.load_layer(&seed,&c,0,false).unwrap();let data=layer.blk.accuracy().unwrap();
+                assert_eq!(data.groups().len(),ng);
+                assert_eq!(layer.record.accuracy_gate_shift,Some(data.folds().gate.shift));
+                let stage=seed.clone().with_accuracy_gate_shift(data.folds().gate.shift).unwrap();
+                layer.blk.check_accuracy_for_shape(&stage).unwrap();
+                let statement=ex.statement(&seed,&c,&[&layer]).unwrap();
+                assert_eq!(statement.run_profile,ex.run_profile());
+                assert_eq!(statement.layers[0].accuracy_gate_shift,layer.record.accuracy_gate_shift);
+                layer.blk.check_for_shape(&stage).unwrap();
+            }
+        }
+    }
+
+    #[test]
+    fn accuracy_v2_model_stack_selection_has_no_global_fallback() {
+        use crate::private_block::shape::*;
+        use crate::private_block::trained_block::Geometry as G;
+        let expected=[
+            (G::TinyLlama(128),Stack::Low,false,R13_TINY_T128_LOW),
+            (G::TinyLlama(128),Stack::Low,true,R13_TINY_T128_LOW_DD),
+            (G::Llama3_8B(128),Stack::LowH24,false,R13_8B_T128_H24),
+            (G::Llama3_8B(128),Stack::LowH24,true,R13_8B_T128_H24_DD),
+            (G::Shieldstral(128),Stack::LowH24,false,R13_SHIELD_T128_H24),
+            (G::Shieldstral(128),Stack::LowH24,true,R13_SHIELD_T128_H24_DD),
+            (G::Shieldstral(256),Stack::LowH24,false,R13_SHIELD_T256_H24),
+            (G::Shieldstral(256),Stack::LowH24,true,R13_SHIELD_T256_H24_DD),
+            (G::RungHdDev,Stack::Low,false,R13_RUNG_LOW),
+            (G::RungHdDev,Stack::Low,true,R13_RUNG_LOW_DD),
+            (G::RungHdDev,Stack::LowH24,false,R13_RUNG_H24),
+            (G::RungHdDev,Stack::LowH24,true,R13_RUNG_H24_DD),
+        ];
+        for (geometry,stack,dd,profile) in expected {assert_eq!(profile_for(geometry,stack,dd).unwrap(),profile);}
+        for (geometry,stack) in [(G::TinyLlama(128),Stack::LowH24),(G::Llama3_8B(128),Stack::Low),
+            (G::Shieldstral(128),Stack::Low),(G::TinyLlama(32),Stack::Low),(G::Llama3_8B(64),Stack::LowH24),
+            (G::RungTcDev,Stack::Low),(G::RungHdDev,Stack::Legacy)] {
+            for dd in [false,true] {assert!(profile_for(geometry,stack,dd).is_err());}
+        }
+    }
+
+    #[test]
+    fn accuracy_v2_schema_stack_and_fp12_are_checked_before_layer_payloads() {
+        let original=std::fs::read_to_string(fixture("r13-low-1g").join("profile.json")).unwrap();
+        let cases=[
+            (original.replace("zk60-trained-profile-export/2","zk60-trained-profile-export/1"),"legacy export"),
+            (original.replace("  \"accuracy_stack\": \"low-v1\",\n",""),"accuracy_stack"),
+            (original.replace("\"accuracy_stack\": \"low-v1\"","\"accuracy_stack\": \"unknown\""),"accuracy_stack"),
+            (original.replace("\"f_p\": 12","\"f_p\": 9"),"f_p"),
+        ];
+        for (i,(text,needle)) in cases.into_iter().enumerate() {
+            assert_ne!(text,original);
+            let dir=crate::private_block::trained_block_tests::base_dir(&format!("r13-schema-{i}"));
+            std::fs::write(dir.join("profile.json"),text).unwrap();
+            let error=match TrainedExport::load(&dir) {Err(e)=>e,Ok(_)=>panic!("malformed schema/stack was accepted")};
+            assert!(error.contains(needle),"unexpected refusal: {error}");
+        }
+    }
+
+    #[test]
+    fn accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces() {
+        use crate::private_block::{layout::*,witness};
+        fn true_plane(sh:&Shape,words:&[i64],dom:Dom)->Vec<i64> {
+            let mut out=Vec::new();
+            match dom {
+                Dom::D=>for t in 0..sh.tokens {for i in 0..sh.width {out.push(words[t*sh.d_pad+i]);}},
+                Dom::Q=>for t in 0..sh.tokens {for h in 0..sh.q_heads {for i in 0..sh.head_dim {
+                    out.push(words[t*sh.q_pad()+sh.head_slot(h)*sh.head_dim+i]);
+                }}},
+                Dom::Kv=>for t in 0..sh.tokens {for i in 0..sh.kv_heads*sh.head_dim {out.push(words[t*sh.kv_heads*sh.head_dim+i]);}},
+                Dom::S=>for h in 0..sh.q_heads {for t in 0..sh.tokens {for j in 0..sh.tokens {
+                    out.push(words[(sh.head_slot(h)*sh.t_pad+t)*sh.t_pad+j]);
+                }}},
+                Dom::F=>for t in 0..sh.tokens {for i in 0..sh.hidden {out.push(words[t*sh.f_pad+i]);}},
+                _=>panic!("no oracle word in this domain"),
+            }
+            out
+        }
+        for (name,digest) in [
+            ("r13-low-dense","3dbedc947aa1cb62f214edbdda67d2bd087611aefb05bdd580ef0736eb75a080"),
+            ("r13-h24-dense","03c708bfeeb29e76b7a5ba4a2bac794ae09cab308fd6191370abba1c5029695b"),
+            ("r13-h24-wide","71c5b10c213e94e84de287d9961682795d2071ec389a16293272b44647023eb6"),
+        ] {
+            let path=fixture(name);let bytes=std::fs::read(path.join("independent_trace.tsv")).unwrap();
+            assert_eq!(hex(&sha256(&bytes)),digest,"independent reference changed");
+            let text=std::str::from_utf8(&bytes).unwrap();
+            let mut traces=std::collections::BTreeMap::new();
+            for line in text.lines() {let mut fields=line.split('\t');let name=fields.next().unwrap();
+                assert!(traces.insert(name,fields.map(|n|n.parse::<i64>().unwrap()).collect::<Vec<_>>()).is_none());}
+            for dd in [false,true] {
+                let mut ex=TrainedExport::load(&path).unwrap();if dd {ex.enable_dd().unwrap();}
+                let c=ex.run_constants(&[0]).unwrap();let seed=ex.shape_for(&c).unwrap();
+                let layer=ex.load_layer(&seed,&c,0,false).unwrap();let sh=layer.record.shape_at(&seed).unwrap();
+                let(x,expected)=ex.load_seq(&sh,"public",0).unwrap();
+                assert_eq!(x.iter().map(|&v|i64::from(v)).collect::<Vec<_>>(),traces["input"]);
+                let data=layer.blk.accuracy().unwrap();
+                let wit=witness::build_accuracy(&sh,layer.blk.attention(),layer.blk.feed_forward(),data,&x).unwrap();
+                let ids=Ids::new(&sh).unwrap();
+                let names=[("input",A_X),("y",A_Y),("q",A_Q8),("k",A_K8),("v",A_V8),("qr",A_QR8),("kr",A_KR8),
+                    ("s",A_S8),("p",A_P),("o",A_O8),("ao",A_AO),("x1",A_X1),("nm",A_YM),("gate",A_G8),
+                    ("a_scaled",A_A16),("up",A_U16),("h",A_H16),("z",A_Z16),("x2",A_X2)];
+                assert_eq!(names.len(),19);
+                for (site,old) in names {
+                    let plane=ids.at(old);let actual=true_plane(&sh,&wit.planes[plane],ids.dom(plane));
+                    assert_eq!(actual,traces[site],"{name} DD={dd} site{site}");
+                }
+                assert_eq!(expected.iter().map(|&v|i64::from(v)).collect::<Vec<_>>(),traces["x2"]);
+                assert!(traces["q"].iter().any(|v|v.abs()>127));
+                assert!(traces["nm"].iter().any(|v|v.abs()>127));
+                if name=="r13-h24-wide" {assert!(traces["h"].iter().any(|v|v.abs()>32767));}
+            }
+        }
     }
 }

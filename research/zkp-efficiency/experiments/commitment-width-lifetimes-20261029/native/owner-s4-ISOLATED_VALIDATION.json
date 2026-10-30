@@ -1,0 +1,119 @@
+{
+  "utc": "2026-10-29T07:14:07.067558+00:00",
+  "status": "PASS: S4 isolated-validation stage; awaiting independent design check",
+  "scope": "No native split profile, full-block split receipt, endpoint/wire integration or security/privacy/fidelity acceptance",
+  "anchor_unchanged": {
+    "frozen-tree": {
+      "manifest_files_unchanged": 269,
+      "tree_sha256": "bb9eb2123c9350c738dafd19fe3b0133d6e2e7ab93f1e765cac4f20ccaed69ec"
+    },
+    "working-tree": {
+      "manifest_files_unchanged": 269,
+      "tree_sha256": "bb9eb2123c9350c738dafd19fe3b0133d6e2e7ab93f1e765cac4f20ccaed69ec"
+    }
+  },
+  "required_gates": {
+    "s4-native-role-build": {
+      "exit": 0,
+      "child_wall_seconds": 0.8661298751831055,
+      "peak_rss_gib": 0.07,
+      "enforcement": "watchdog-only"
+    },
+    "s4-native-role-census": {
+      "exit": 0,
+      "child_wall_seconds": 0.0014307498931884766,
+      "peak_rss_gib": 0.0,
+      "enforcement": "watchdog-only"
+    },
+    "s4-algebra-build-2": {
+      "exit": 0,
+      "child_wall_seconds": 0.6649272441864014,
+      "peak_rss_gib": 0.1,
+      "enforcement": "watchdog-only"
+    },
+    "s4-algebra-run-2": {
+      "exit": 0,
+      "child_wall_seconds": 0.06412386894226074,
+      "peak_rss_gib": 0.0,
+      "enforcement": "watchdog-only"
+    },
+    "s4-pcs-lift-build-1": {
+      "exit": 0,
+      "child_wall_seconds": 1.5664770603179932,
+      "peak_rss_gib": 0.46,
+      "enforcement": "watchdog-only"
+    },
+    "s4-pcs-lift-run-1": {
+      "exit": 0,
+      "child_wall_seconds": 0.0035309791564941406,
+      "peak_rss_gib": 0.0,
+      "enforcement": "watchdog-only"
+    },
+    "s4-cfs-lift-build-4": {
+      "exit": 0,
+      "child_wall_seconds": 2.0346262454986572,
+      "peak_rss_gib": 0.48,
+      "enforcement": "watchdog-only"
+    },
+    "s4-cfs-lift-run-4": {
+      "exit": 0,
+      "child_wall_seconds": 0.5326066017150879,
+      "peak_rss_gib": 0.0,
+      "enforcement": "watchdog-only"
+    },
+    "s4-scalar-build-1": {
+      "exit": 0,
+      "child_wall_seconds": 0.4151499271392822,
+      "peak_rss_gib": 0.0,
+      "enforcement": "watchdog-only"
+    },
+    "s4-scalar-run-1": {
+      "exit": 0,
+      "child_wall_seconds": 0.00784444808959961,
+      "peak_rss_gib": 0.0,
+      "enforcement": "watchdog-only"
+    }
+  },
+  "results": {
+    "algebra": {
+      "lift_and_mask_identities": 148,
+      "coordinate_degree_checks": 22,
+      "zero_coefficient_cases": 6,
+      "scope": "isolated native-field algebra; no PCS/CFS/privacy acceptance or split-layout implementation"
+    },
+    "initial_pcs": {
+      "honest_weighted_openings": 3,
+      "rejected_bad_claims": 5,
+      "zero_group_guard_retained": true,
+      "checked_zero_normalization": true,
+      "scope": "native PCS microtest only; CFS/wire/rank/privacy integration not established"
+    },
+    "cfs_components": {
+      "honest_cfs_pcs_microproofs": 24,
+      "emitted_bad_microproofs_rejected": 192,
+      "zero_lift_honest_functionals": 24,
+      "zero_lift_bad_functionals_rejected": 48,
+      "mask_styles": [
+        "whole-lift: primary coordinated design, checked zero normalization",
+        "independent: experimental alternative requiring separate design review"
+      ],
+      "scope": "native CFS/sumcheck/PCS/M components with experimental adapter; no private-block wire/profile or privacy acceptance"
+    },
+    "native_scalars": {
+      "native_scalar_piece_equivalences": 104,
+      "true_axis_words_mapped_bijectively": 12288,
+      "wrong_global_c2_counterexamples": 48,
+      "wrong_global_group_counterexamples": 779,
+      "per_piece_rounding_counterexamples": 6,
+      "shared_norm_denominator_counterexamples": 3,
+      "scope": "isolated native scalar arithmetic and global-index checks, not a full split block or proof"
+    }
+  },
+  "design_review_request": "DESIGN_REVIEW_REQUEST.json",
+  "retained_failures": {
+    "s4-algebra-run-1": "Ineffective wrong-axis negative point was all equal; non-vacuity failed; retained and corrected in attempt2",
+    "s4-cfs-lift-run-1": "Changing only short-slice PCS opening point did not forge a false terminal; ineffective control accepted, corrected in attempt2 and retained. Full fixed-token validation in attempt4"
+  },
+  "memory": "COUNT.json is a model, not measured split RSS or T256-fit evidence; extremely fast microtest RSS sampling may report0.00GiB and is not a zero-memory claim",
+  "native_layout_work": "held until coordinator-routed independent design check per 2026-10-29T06:35:14Z"
+}

@@ -55,6 +55,7 @@ use std::time::Instant;
 mod accuracy;
 
 pub(crate) const PROFILE_SCHEMA: &str = "zk60-trained-profile-export/1";
+pub(crate) const ACCURACY_PROFILE_SCHEMA:&str="zk60-trained-profile-export/2";
 const MAX_JSON_BYTES: u64 = 4 * 1024 * 1024;
 const MAX_ARRAY_BYTES: u64 = 256 * 1024 * 1024;
 const SCOPE: &str = "ONE trained TinyLlama-1.1B-Chat block (of 22) at the export's T (32, 64 or 128), CPU unless the run line says gpu; the integer model the calibration export names; NOT a model pass; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement";
@@ -450,10 +451,16 @@ pub(crate) const RUN_LEVEL_KEYS: [&str; 18] = [
     "norm_tn", "norm_cn_a", "norm_cn_m", "norm_ceps", "sh_ao", "sh_qkv", "sh_s", "sh_o", "sh_g", "sh_h", "sh_z", "f_e", "rope_theta", "sh_rope", "sh_u", "f_p", "f_ro", "sh_r2",
 ];
 
-fn constants_of(c: &J, what: &str, rope_pin: f64) -> Result<Constants, String> {
+fn constants_of(c:&J,what:&str,rope_pin:f64)->Result<Constants,String> {
+    constants_for_stack(c,what,rope_pin,super::accuracy_precision::Stack::Legacy)
+}
+fn constants_for_stack(c:&J,what:&str,rope_pin:f64,stack:super::accuracy_precision::Stack)->Result<Constants,String> {
     let ctx = |e: String| format!("{what}: {e}");
     let int = |k: &str| -> Result<i64, String> { c.get(k).and_then(J::i64).map_err(|e| format!("{what}: constant `{k}`: {e}")) };
     for (k, want) in fixed_constants() {
+        // sh_u=0 remains the BASE export shift; R13 derives effective12.
+        // F_P is a fixed arithmetic constant and v2 must declare12.
+        let want=if k=="f_p" && stack!=super::accuracy_precision::Stack::Legacy {12} else {want};
         let got = int(k)?;
         if got != want {
             return Err(format!("{what}: constant `{k}` = {got}, but the proof relations hold it at {want} (a different value is a different layout or kernel, not a calibration)"));
@@ -533,9 +540,11 @@ pub(super) fn rope_scaling_of(v: Option<&J>) -> Result<RopeScaling, String> {
 /// of `token_io/` name that same tensor as their source
 /// (`token_io.json` `embedding_table.source_tensor` and `head_manifest.json`
 /// `source_tensor`, each `{name, sha256}`); the name is the profile's pin and,
-/// for the pinned checkpoint, so is the digest. The three table files are
-/// streamed and their SHA-256 checked against the manifests. An untied
-/// geometry's export may not declare a tie.
+/// for the pinned checkpoint, so is the digest. R12b checks the three table
+/// files' dtype, shape, exact length and SHA-256, then recomputes their
+/// digests from the authenticated BF16 checkpoint and profile quantizer.
+/// Manifest consistency alone is insufficient. An untied geometry's export
+/// may not declare a tie.
 pub(super) fn tied_of(dir: &Path, p: &J, geometry: Geometry, source: &ModelSource) -> Result<Option<TiedEmbedding>, String> {
     let profile = geometry.shape_profile();
     let decl = p.opt("tied_embeddings").filter(|v| **v != J::Null);
@@ -578,33 +587,39 @@ pub(super) fn tied_of(dir: &Path, p: &J, geometry: Geometry, source: &ModelSourc
     let emb = digest_of(et, "token_io.json embedding_table")?;
     let head = digest_of(hm.get("head_int8_perrow.bin").map_err(|e| format!("head_manifest.json: {e}"))?, "head_manifest.json head_int8_perrow.bin")?;
     let mult = digest_of(hm.get("head_mult12.bin").map_err(|e| format!("head_manifest.json: {e}"))?, "head_manifest.json head_mult12.bin")?;
-    for (file, want) in [(et.get("file").and_then(J::str).unwrap_or("embedding_int16.bin"), emb), ("head_int8_perrow.bin", head), ("head_mult12.bin", mult)] {
+    let he = hm.get("head_int8_perrow.bin")?;
+    let mu = hm.get("head_mult12.bin")?;
+    let checked_length = |j: &J, kind: Dtype, shape: &[usize], what: &str| -> Result<u64, String> {
+        let got_kind = Dtype::parse(j.get("dtype").and_then(J::str)?)?;
+        let got_shape = j.get("shape").and_then(J::arr)?.iter().map(|x| x.i64().and_then(|n| usize::try_from(n).map_err(|_| "negative shape".into()))).collect::<Result<Vec<_>, _>>()?;
+        if got_kind != kind || got_shape != shape {
+            return Err(format!("{what}: dtype/shape {:?} {got_shape:?}, expected {kind:?} {shape:?}", got_kind));
+        }
+        Ok(shape.iter().product::<usize>() as u64 * kind.size() as u64)
+    };
+    let emb_len = checked_length(et, Dtype::I16, &[131072, 3072], "embedding_table")?;
+    let head_len = checked_length(he, Dtype::I8, &[131072, 3072], "head_int8_perrow.bin")?;
+    let mult_len = checked_length(mu, Dtype::I64, &[131072], "head_mult12.bin")?;
+    for (file, want, length) in [(et.get("file").and_then(J::str).unwrap_or("embedding_int16.bin"), emb, emb_len), ("head_int8_perrow.bin", head, head_len), ("head_mult12.bin", mult, mult_len)] {
         plain_name(file)?;
-        let got = sha256_file(&td.join(file))?;
+        let got = super::tied_tables::hash_regular_exact(&td.join(file), length)?;
         if got != want {
             return Err(format!("token_io/{file}: SHA-256 {} is not its manifest's {}", hex(&got), hex(&want)));
+        }
+    }
+    let derived = super::tied_tables::recompute_declared_tied_tables(dir, p)?;
+    for (what, actual, expected) in [("embedding", emb, derived.embedding_sha256), ("head", head, derived.head_sha256), ("head multipliers", mult, derived.multipliers_sha256)] {
+        if actual != expected {
+            return Err(format!("tied {what}: integer table is not derived from the pinned tensor under the export's quantizer"));
         }
     }
     Ok(Some(TiedEmbedding { tensor: name.into(), tensor_sha256: digest, embedding_table_sha256: emb, head_table_sha256: head, head_mult_sha256: mult }))
 }
 
-/// the SHA-256 of a file, streamed (the token tables run to a gigabyte)
-fn sha256_file(path: &Path) -> Result<[u8; 32], String> {
-    use std::io::Read;
-    let mut f = std::fs::File::open(path).map_err(|e| format!("{}: {e}", path.display()))?;
-    let mut h = Sha256::new();
-    let mut buf = vec![0u8; 1 << 22];
-    loop {
-        let n = f.read(&mut buf).map_err(|e| format!("{}: {e}", path.display()))?;
-        if n == 0 {
-            break;
-        }
-        h.update(&buf[..n]);
-    }
-    Ok(h.finalize().into())
+fn table_keys_of(c:&J,what:&str)->Result<TableKeys,String> {
+    table_keys_for_registry(c,what,None)
 }
-
-fn table_keys_of(c: &J, what: &str) -> Result<TableKeys, String> {
+fn table_keys_for_registry(c:&J,what:&str,registry:Option<super::accuracy_tables::Registry>)->Result<TableKeys,String> {
     let ctx = |e: String| format!("{what}: {e}");
     let silu = c.get("silu_member").and_then(J::arr).map_err(ctx)?;
     if silu.len() != 2 {
@@ -617,7 +632,11 @@ fn table_keys_of(c: &J, what: &str) -> Result<TableKeys, String> {
     if !super::shape::TRAINED_EXP_E_S_RANGE.contains(&tk.exp_e_s) {
         return Err(ctx(format!("exp_e_s {} is outside its declared class {:?}", tk.exp_e_s, super::shape::TRAINED_EXP_E_S_RANGE)));
     }
-    if crate::tables_v3::int16out_member(crate::tables_v3::Act16Fn::Silu, tk.silu.0, tk.silu.1).is_none() {
+    let member_ok=match registry {
+        Some(r)=>r.permits(tk.silu),
+        None=>crate::tables_v3::int16out_member(crate::tables_v3::Act16Fn::Silu,tk.silu.0,tk.silu.1).is_some(),
+    };
+    if !member_ok {
         return Err(ctx(format!("silu_member {:?} is not in the frozen SiLU registry", tk.silu)));
     }
     Ok(tk)
@@ -755,6 +774,8 @@ impl Geometry {
         }
     }
     pub(crate) fn run_shape(self, sh: &Shape, l: usize) -> Result<RunShape, String> {
+        if sh.accuracy_stack()!=super::accuracy_precision::Stack::Legacy {return RunShape::accuracy(sh.clone(),l);}
+
         match self {
             Geometry::TinyLlama(_) | Geometry::Llama3_8B(_) | Geometry::TinyLlamaDd | Geometry::Llama3_8BDd | Geometry::Shieldstral(_) | Geometry::ShieldstralDd(_) => RunShape::tinyllama_trained(sh.clone(), l),
             Geometry::RungTcDev => RunShape::rung_tc(sh.clone(), l),
@@ -808,6 +829,8 @@ impl Geometry {
 pub(crate) struct TrainedExport {
     pub dir: PathBuf,
     pub geometry: Geometry,
+    pub accuracy_stack:super::accuracy_precision::Stack,
+    pub accuracy_dd:bool,
     pub source: ModelSource,
     pub variant: String,
     pub profile_sha256: [u8; 32],
@@ -845,6 +868,19 @@ pub(crate) struct TrainedLayer {
 }
 
 impl TrainedExport {
+    pub(crate) fn run_profile(&self)->&'static str {
+        match accuracy::profile_for(self.geometry,self.accuracy_stack,self.accuracy_dd) {
+            Ok(block)=>super::run::accuracy_run_profile(block).expect("registered R13 run profile"),
+            Err(_) if self.accuracy_stack==super::accuracy_precision::Stack::Legacy=>self.geometry.run_profile(),
+            Err(e)=>panic!("invalid R13 export geometry/stack: {e}"),
+        }
+    }
+    fn enable_dd(&mut self)->Result<(),String> {
+        if self.accuracy_stack==super::accuracy_precision::Stack::Legacy {self.geometry=self.geometry.dd()?;}
+        else {accuracy::profile_for(self.geometry,self.accuracy_stack,true)?;self.accuracy_dd=true;}
+        Ok(())
+    }
+
     /// Read `<dir>/profile.json` (`dir` is the variant directory).
     pub(crate) fn load(dir: &Path) -> Result<TrainedExport, String> {
         let path = dir.join("profile.json");
@@ -852,9 +888,14 @@ impl TrainedExport {
         let p = parse_json(&bytes).map_err(|e| format!("{}: {e}", path.display()))?;
         let ctx = |e: String| format!("{}: {e}", path.display());
         let schema = p.get("schema").and_then(J::str).map_err(ctx)?;
-        if schema != PROFILE_SCHEMA {
-            return Err(ctx(format!("schema `{schema}`, this reader reads `{PROFILE_SCHEMA}`")));
-        }
+        let accuracy_stack=match schema {
+            PROFILE_SCHEMA=>{
+                if p.opt("accuracy_stack").is_some() {return Err(ctx("legacy export cannot select R13 arithmetic".into()));}
+                super::accuracy_precision::Stack::Legacy
+            },
+            ACCURACY_PROFILE_SCHEMA=>super::accuracy_precision::Stack::from_export_name(p.get("accuracy_stack").and_then(J::str).map_err(ctx)?).map_err(ctx)?,
+            _=>return Err(ctx(format!("unsupported schema `{schema}`"))),
+        };
         // ROUND 3 (R3-2): the context length decides the TinyLlama profile.
         // An export that names no geometry (the B4 writer) is the TinyLlama
         // geometry at its own `T`; one that names a geometry must name the
@@ -884,6 +925,9 @@ impl TrainedExport {
         };
         if geometry.tokens() != tokens {
             return Err(ctx(format!("the geometry fixes T = {}, the profile declares T = {tokens}", geometry.tokens())));
+        }
+        if accuracy_stack!=super::accuracy_precision::Stack::Legacy {
+            accuracy::profile_for(geometry,accuracy_stack,false).map_err(ctx)?;
         }
         // the model pin: THE pinned source for TinyLlama, a synthetic recipe
         // for the development rung
@@ -967,7 +1011,7 @@ impl TrainedExport {
         if sorted_nulls != per_layer_differ {
             return Err(ctx(format!("profile_constants has null {sorted_nulls:?} but per_layer_constants_differ names {per_layer_differ:?}")));
         }
-        let constants = if nulls.iter().all(|k| !RUN_LEVEL_KEYS.contains(&k.as_str())) { Some(constants_of(pc, &path.display().to_string(), geometry.rope_theta())?) } else { None };
+        let constants = if nulls.iter().all(|k| !RUN_LEVEL_KEYS.contains(&k.as_str())) { Some(constants_for_stack(pc,&path.display().to_string(),geometry.rope_theta(),accuracy_stack)?) } else { None };
         let mut layers = Vec::new();
         let mut layer_manifest_sha256 = Vec::new();
         for l in p.get("layers").and_then(J::arr).map_err(ctx)? {
@@ -1031,6 +1075,8 @@ impl TrainedExport {
         Ok(TrainedExport {
             dir: dir.to_path_buf(),
             geometry,
+            accuracy_stack,
+            accuracy_dd:false,
             source,
             variant,
             profile_sha256: sha256(&bytes),
@@ -1100,7 +1146,7 @@ impl TrainedExport {
         let mut all: Vec<(PathBuf, Constants)> = Vec::with_capacity(layers.len());
         for &l in layers {
             let (mpath, _, m) = self.manifest(l)?;
-            let c = constants_of(m.get("constants").map_err(|e| format!("{}: {e}", mpath.display()))?, &mpath.display().to_string(), self.geometry.rope_theta())?;
+            let c = constants_for_stack(m.get("constants").map_err(|e|format!("{}: {e}",mpath.display()))?,&mpath.display().to_string(),self.geometry.rope_theta(),self.accuracy_stack)?;
             all.push((mpath, c));
         }
         let base: Option<NormCalibration> = if !fields.is_empty() && out.is_none() {
@@ -1142,7 +1188,12 @@ impl TrainedExport {
         }
         // review finding F-1, mirrored before any shape is built
         Shape::check_f_e_class(self.tokens, c.f_e)?;
-        let sh = self.geometry.shape_at(&c.cal, c.f_e)?;
+        let sh=if self.accuracy_stack==super::accuracy_precision::Stack::Legacy {
+            self.geometry.shape_at(&c.cal,c.f_e)?
+        } else {
+            // Geometry seed only. A loaded layer's record carries its G.
+            Shape::accuracy_trained(accuracy::profile_for(self.geometry,self.accuracy_stack,self.accuracy_dd)?,&c.cal,c.f_e,17)?
+        };
         sh.check_trained_class()?;
         Ok(sh)
     }
@@ -1166,6 +1217,9 @@ impl TrainedExport {
     }
 
     fn load_layer_mode(&self, sh: &Shape, c: &Constants, index: u32, rope_from_export: bool, full: bool) -> Result<TrainedLayer, String> {
+        if rope_from_export && self.rope_scaling != RopeScaling::None {
+            return Err("--rope-from-export is refused at a profile with a pinned RoPE transform".into());
+        }
         let dir = self.layer_dir(index);
         let (mpath, mbytes, m) = self.manifest(index)?;
         let ctx = |e: String| format!("{}: {e}", mpath.display());
@@ -1173,7 +1227,7 @@ impl TrainedExport {
         if mi != i64::from(index) {
             return Err(ctx(format!("the manifest is for layer {mi}, not {index}")));
         }
-        let lc = constants_of(m.get("constants").map_err(ctx)?, &mpath.display().to_string(), self.geometry.rope_theta())?;
+        let lc = constants_for_stack(m.get("constants").map_err(ctx)?,&mpath.display().to_string(),self.geometry.rope_theta(),self.accuracy_stack)?;
         // NATIVE R8 (R6 for sh_s): a profile that names calibration fields
         // per layer lets this layer's values of THOSE fields differ from the
         // run's; every other constant is the run's (one calibration per run)
@@ -1187,11 +1241,24 @@ impl TrainedExport {
             sh.with_layer_calibration(&lc.cal).map_err(|e| ctx(format!("layer {index}'s own calibration: {e}")))?;
         }
         // the per-block table keys: this layer's own
-        let tk = table_keys_of(m.get("constants").map_err(ctx)?, &mpath.display().to_string())?;
+        let tk=table_keys_for_registry(m.get("constants").map_err(ctx)?,&mpath.display().to_string(),
+            if self.accuracy_stack==super::accuracy_precision::Stack::Legacy {None} else {Some(sh.accuracy_registry())})?;
         if sh.norm_calibration() != c.cal || sh.f_e != c.f_e {
             return Err(ctx("the shape was not built from the run's constants".into()));
         }
         let arrays = m.get("arrays").map_err(ctx)?;
+        let accuracy_loaded=if self.accuracy_stack==super::accuracy_precision::Stack::Legacy {
+            for key in ["m_q","m_k","m_v","m_o","m_g","m_u","m_d","silu_groups","silu_group_ids"] {
+                if arrays.opt(key).is_some() {return Err(ctx(format!("legacy export carries R13 array `{key}`")));}
+            }
+            None
+        } else {
+            let local=sh.with_layer_calibration(&lc.cal).map_err(ctx)?;
+            let geometry=super::accuracy_public::Geometry{width:local.width,query_width:local.q_width(),kv_width:local.kv_heads*local.head_dim,hidden:local.hidden};
+            // Read/hash narrow public data before any large weight array.
+            Some(accuracy::load_for_registry(local.accuracy_registry(),&dir,arrays,self.accuracy_stack,geometry,local.accuracy_base(),tk.silu).map_err(ctx)?)
+        };
+
         // ROUND 5 (R5-2): the eleven arrays read and hashed IN PARALLEL (the
         // same bytes, the same digests, the same checks)
         let (d, f, kvw, half) = (sh.width, sh.hidden, sh.kv_heads * sh.head_dim, sh.head_dim / 2);
@@ -1217,7 +1284,7 @@ impl TrainedExport {
         ];
         let mut loaded: std::collections::VecDeque<Result<Array, String>> = {
             use rayon::prelude::*;
-            expect.par_iter().map(|(name, dt, shp)| load_array_checked(&dir, name, arrays.get(name).map_err(ctx)?, full, &[(*dt, *shp)]).map_err(|e| format!("layer {index}: {e}"))).collect::<Vec<_>>().into()
+            expect.par_iter().filter(|(name,_,_)|self.accuracy_stack==super::accuracy_precision::Stack::Legacy || *name!="act").map(|(name, dt, shp)| load_array_checked(&dir, name, arrays.get(name).map_err(ctx)?, full, &[(*dt, *shp)]).map_err(|e| format!("layer {index}: {e}"))).collect::<Vec<_>>().into()
         };
         // the results come back in `expect`'s order, which is the order of the
         // `get` calls below
@@ -1242,17 +1309,23 @@ impl TrainedExport {
         wd.expect("wd_t", Dtype::I8, &[f, d])?;
         let exp = get("exp")?;
         exp.expect("exp", Dtype::I64, &[256])?;
-        let act = get("act")?;
-        act.expect("act", Dtype::I16, &[256])?;
+        let act=if self.accuracy_stack==super::accuracy_precision::Stack::Legacy {
+            let a=get("act")?;a.expect("act",Dtype::I16,&[256])?;Some(a)
+        } else {None};
         // the tables against the generators the run's constants name
         let (gexp, _) = crate::tables_attn::exp_member(tk.exp_e_s, sh.head_dim, c.f_e);
         if exp.i64s() != gexp.to_vec() {
             return Err(ctx(format!("the exported exp table is not exp_member(e_s = {}, head_dim = {}, f_e = {})", tk.exp_e_s, sh.head_dim, c.f_e)));
         }
-        let (gact, _) = crate::tables_v3::int16out_member(crate::tables_v3::Act16Fn::Silu, tk.silu.0, tk.silu.1).ok_or_else(|| ctx(format!("silu_member {:?} is not in the frozen SiLU registry", tk.silu)))?;
-        if act.i16s() != gact.to_vec() {
-            return Err(ctx(format!("the exported act table is not the frozen SiLU member {:?}", tk.silu)));
-        }
+        // R13's ACT relation uses AccuracyPublic exclusively. Keep the old
+        // typed field at one canonical, fixed member; its bytes remain bound
+        // by the block digest, and the actual raw ACT tables are recorded.
+        let member=if self.accuracy_stack==super::accuracy_precision::Stack::Legacy {tk.silu} else {(-3,-11)};
+        let(gact,_)=crate::tables_v3::int16out_member(crate::tables_v3::Act16Fn::Silu,member.0,member.1)
+            .ok_or_else(||ctx(format!("unknown SiLU member {member:?}")))?;
+        if let Some(act)=&act {if act.i16s()!=gact.to_vec() {
+            return Err(ctx(format!("the exported act table is not the frozen SiLU member {:?}",tk.silu)));
+        }}
         // NATIVE R12 (F1): the generator at the profile's pinned transform
         // (the frozen generator itself at every unscaled profile)
         let (gcos, gsin) = super::shape::rope_tables_for(sh, c.rope_theta).map_err(ctx)?;
@@ -1295,8 +1368,14 @@ impl TrainedExport {
         ];
         let fw = [pad_matrix(&gm.i8s(), 1, d, 1, dp, &id, &id), pad_matrix(&wg.i8s(), d, f, dp, fp, &id, &id), pad_matrix(&wu.i8s(), d, f, dp, fp, &id, &id), pad_matrix(&wd.i8s(), f, d, fp, dp, &id, &id)];
         let public = AttentionPublic::new_shaped(sh, &aw[0], &aw[1], &aw[2], &aw[3], &aw[4], &cos, &sin, &exp.i64s()).map_err(ctx)?;
-        let ff = FeedForwardPublic::new_shaped(sh, &fw[0], &fw[1], &fw[2], &fw[3], &act.i16s()).map_err(ctx)?;
-        let blk = BlockPublic::new(public, ff);
+        let ff=FeedForwardPublic::new_shaped(sh,&fw[0],&fw[1],&fw[2],&fw[3],&gact).map_err(ctx)?;
+        let mut blk=BlockPublic::new(public,ff);
+        if let Some(loaded)=accuracy_loaded {
+            let g=loaded.accuracy.folds().gate.shift;
+            blk=blk.with_accuracy(loaded.accuracy);
+            let local=sh.with_layer_calibration(&lc.cal)?.with_accuracy_gate_shift(g)?;
+            blk.check_accuracy_for_shape(&local).map_err(ctx)?;
+        }
         // NATIVE R9 (D30 condition 6, CHECK.md B-8): at a DD profile the
         // trained door refuses a layer whose exp table needs more than `cap`
         // dictionary slots — by name (the layer and its table key), from the
@@ -1317,6 +1396,7 @@ impl TrainedExport {
         record.silu_member = tk.silu;
         record.exp_e_s = tk.exp_e_s;
         record.own = own;
+        record.accuracy_gate_shift=blk.accuracy().map(|a|a.folds().gate.shift);
         let _ = (wq.sha256, exp.sha256);
         Ok(TrainedLayer { index, manifest_sha256, blk, record, rope_note })
     }
@@ -1382,7 +1462,7 @@ impl TrainedExport {
             rope_scaling: self.rope_scaling,
         };
         let cal = IntegerCalibration::as_the_code_proves(sh, &prov);
-        TrainedModelStatement::new_with_tied(sh, self.geometry.run_profile(), self.source.clone(), cal, records, self.tied.clone())
+        TrainedModelStatement::new_with_tied(sh, self.run_profile(), self.source.clone(), cal, records, self.tied.clone())
     }
 }
 
@@ -1422,8 +1502,18 @@ fn pad_matrix(w: &[i8], to: usize, ti: usize, po: usize, pi: usize, omap: &(dyn 
 /// R5b (privacy review P-6, ruling K-2): a mismatch is refused WITHOUT a
 /// count, a position or a value — all three are functions of the hidden
 /// input; the refusal names the check (and, in a stack, the layer) only.
+fn witness_for_block(sh:&Shape,blk:&BlockPublic,input:&[i16])->Result<Witness,String> {
+    match blk.accuracy() {
+        Some(data)=>{
+            let local=sh.clone().with_accuracy_gate_shift(data.folds().gate.shift)?;
+            witness::build_for_block(&local,blk,input)
+        },
+        None=>witness::build_shaped(sh,blk.attention(),blk.feed_forward(),input),
+    }
+}
+
 pub(crate) fn parity(sh: &Shape, blk: &BlockPublic, x_in: &[i16], x_out: &[i16]) -> Result<Witness, String> {
-    let w = witness::build_shaped(sh, blk.attention(), blk.feed_forward(), x_in).map_err(|e| format!("parity: the native witness REFUSES the exported input: {e}"))?;
+    let w = witness_for_block(sh,blk,x_in).map_err(|e| format!("parity: the native witness REFUSES the exported input: {e}"))?;
     let ids = Ids::new(sh)?;
     let x2 = &w.planes[ids.at(A_X2)];
     let differs = (0..sh.tokens).any(|t| (0..sh.width).any(|i| x2[t * sh.d_pad + i] != i64::from(x_out[t * sh.width + i])));
@@ -1559,7 +1649,7 @@ fn render_statement(ex: &TrainedExport, sh: &Shape, layer: &TrainedLayer, st: &T
         crate::gpu::declines(),
         js(PROVER_REPORTED_WHAT),
         js(sh.profile),
-        js(ex.geometry.run_profile()),
+        js(ex.run_profile()),
         js(&ex.variant),
         js(&hex(&ex.profile_sha256)),
         js(&hex(&ex.tool_sha256)),
@@ -1682,7 +1772,7 @@ fn prove_inner(f: &[(String, String)]) -> Result<(), String> {
     // NATIVE R9 (D30): `--dd` proves / verifies under the DD profile of the
     // export's model and T (refused by name where none is registered)
     if flag(f, "--dd").is_some() {
-        ex.geometry = ex.geometry.dd()?;
+        ex.enable_dd()?;
     }
     let c = ex.run_constants(&[layer_ix])?;
     let sh = ex.shape_for(&c)?;
@@ -1766,7 +1856,7 @@ fn inconsistent_witness_controls(ex: &TrainedExport, sh: &Shape, layer: &Trained
         })?;
         run::verify_run(&rst, &blocks, &segs)
     };
-    let honest = || witness::build_shaped(sh, layer.blk.attention(), layer.blk.feed_forward(), x_in);
+    let honest = || witness_for_block(sh,&layer.blk,x_in);
     let mid = (sh.tokens / 2) * sh.d_pad + sh.width / 3;
     let mut cases: Vec<(&str, Witness)> = Vec::new();
     let mut w = honest()?;
@@ -1776,8 +1866,8 @@ fn inconsistent_witness_controls(ex: &TrainedExport, sh: &Shape, layer: &Trained
     w.planes[ids.at(A_Q8)][mid] += if w.planes[ids.at(A_Q8)][mid] < 127 { 1 } else { -1 };
     cases.push(("one query activation moved by one", w));
     let c = sh.norm_calibration();
-    let other = ex.geometry.shape_at(&NormCalibration { cn_m: c.cn_m + 7, ..c }, sh.f_e)?;
-    cases.push(("a witness honest under norm_cn_m + 7", witness::build_shaped(&other, layer.blk.attention(), layer.blk.feed_forward(), x_in)?));
+    let other = sh.with_layer_calibration(&NormCalibration { cn_m: c.cn_m + 7, ..c })?;
+    cases.push(("a witness honest under norm_cn_m + 7", witness_for_block(&other,&layer.blk,x_in)?));
     let mut n = 0usize;
     for (name, w) in cases {
         match attempt(w) {
@@ -1831,7 +1921,7 @@ fn verify_inner(f: &[(String, String)]) -> Result<(), String> {
     // NATIVE R9 (D30): `--dd` proves / verifies under the DD profile of the
     // export's model and T (refused by name where none is registered)
     if flag(f, "--dd").is_some() {
-        ex.geometry = ex.geometry.dd()?;
+        ex.enable_dd()?;
     }
     let c = ex.run_constants(&[layer_ix])?;
     let sh = ex.shape_for(&c)?;
@@ -1956,7 +2046,8 @@ fn controls(ex: &TrainedExport, rc: &Constants, sh: &Shape, layer: &TrainedLayer
         let mut gamma = a.gamma_a.clone();
         gamma[0] = if gamma[0] == 127 { 126 } else { gamma[0] + 1 };
         let pub2 = AttentionPublic::new_shaped(sh, &a.wq, &a.wk, &a.wv, &a.wo, &gamma, &a.rope_cos, &a.rope_sin, &a.exp)?;
-        let blk2 = BlockPublic::new(pub2, layer.blk.feed_forward().clone());
+        let mut blk2 = BlockPublic::new(pub2, layer.blk.feed_forward().clone());
+        if let Some(a)=layer.blk.accuracy() {blk2=blk2.with_accuracy(a.clone());}
         let mut rec2 = LayerRecord::of_block(layer.index, &blk2, layer.record.source_tensors.clone());
         rec2.manifest_sha256 = layer.manifest_sha256;
         rec2.silu_member = layer.record.silu_member;
@@ -2162,7 +2253,7 @@ impl<'a> StackSource<'a> {
         let t = Instant::now();
         let x = if k == 0 { self.chain.x_in0.clone() } else { true_words(self.sh, &self.chain.outs[k - 1]) };
         let blk = self.blocks.borrow_mut().get(k)?;
-        let w = witness::build_shaped(&self.chain.shapes[k], blk.attention(), blk.feed_forward(), &x)?;
+        let w = witness_for_block(&self.chain.shapes[k],&blk,&x)?;
         drop(blk);
         if padded_plane(&w, self.ids.at(A_X2))? != self.chain.outs[k] {
             return Err(format!("trained stack: the rebuilt witness of block {k} is not the sealed one (the builder is not deterministic?); the run is abandoned"));
@@ -2318,7 +2409,7 @@ fn seal_and_record(ex: &TrainedExport, layers: &[u32], rope_from_export: bool, s
     let (mut kept_bytes, mut load_s, mut witness_s) = (0u64, 0.0f64, 0.0f64);
     let mut first: Option<Vec<i16>> = None;
     let mut shapes: Vec<Shape> = Vec::with_capacity(l);
-    let mut lays: Vec<(NormCalibration, super::layout::Layout)> = Vec::new();
+    let mut lays:Vec<(Shape,super::layout::Layout)>=Vec::new();
     let mut x = x_in0.clone();
     let timed_load = |k: usize| -> (Result<TrainedLayer, String>, f64) {
         let t = Instant::now();
@@ -2333,11 +2424,11 @@ fn seal_and_record(ex: &TrainedExport, layers: &[u32], rope_from_export: bool, s
         let layer = layers[k];
         // NATIVE R8 (R6 for sh_s): the block's witness at its layer's own
         // calibration
-        let ssh = if has_own(&cur.record.own) { sh.with_layer_calibration(&apply_own(&sh.norm_calibration(), &cur.record.own)?)? } else { sh.clone() };
+        let ssh=cur.record.shape_at(&sh)?;
         let ((wres, ws), nxt) = rayon::join(
             || {
                 let t = Instant::now();
-                let r = witness::build_shaped(&ssh, cur.blk.attention(), cur.blk.feed_forward(), &x);
+                let r = witness_for_block(&ssh,&cur.blk,&x);
                 (r, t.elapsed().as_secs_f64())
             },
             || if k + 1 < l { Some(timed_load(k + 1)) } else { None },
@@ -2349,10 +2440,10 @@ fn seal_and_record(ex: &TrainedExport, layers: &[u32], rope_from_export: bool, s
         // refusal on the sealed witness, here in the sealing pass, so that no
         // refusal of an admissible-looking chain is left to `prove_core`
         // mid-run (H-1 as a fact of the code). One layout per score shift.
-        let lay = match lays.iter().position(|(v, _)| *v == ssh.norm_calibration()) {
+        let lay = match lays.iter().position(|(v,_)|*v==ssh) {
             Some(i) => &lays[i].1,
             None => {
-                lays.push((ssh.norm_calibration(), super::layout::Layout::for_shape(&ssh)?));
+                lays.push((ssh.clone(),super::layout::Layout::for_shape(&ssh)?));
                 &lays[lays.len() - 1].1
             }
         };
@@ -2692,7 +2783,8 @@ fn render_stack_statement(ex: &TrainedExport, sh: &Shape, layers: &[LayerMeta], 
             // NATIVE R8 (R6 for sh_s): a layer's own constants, when it has
             // any, under their export keys in the canonical order (`sh_s`
             // first, so an sh_s-only record renders as in R6)
-            let own: String = l.record.own.iter().enumerate().filter_map(|(i, v)| v.map(|v| format!(", \"{}\": {v}", OWN_FIELDS[i].0))).collect();
+            let mut own: String = l.record.own.iter().enumerate().filter_map(|(i, v)| v.map(|v| format!(", \"{}\": {v}", OWN_FIELDS[i].0))).collect();
+            if let Some(g)=l.record.accuracy_gate_shift {own.push_str(&format!(", \"accuracy_gate_shift\": {g}"));}
             format!("{{\"layer\": {}, \"block_digest\": {}, \"manifest_sha256\": {}, \"silu_member\": [{}, {}], \"exp_e_s\": {}{own}}}", l.index, js(&hex(&l.record.block_digest)), js(&hex(&l.manifest_sha256)), l.record.silu_member.0, l.record.silu_member.1, l.record.exp_e_s)
         })
         .collect();
@@ -2705,7 +2797,7 @@ fn render_stack_statement(ex: &TrainedExport, sh: &Shape, layers: &[LayerMeta], 
         claims.gpu_declines,
         js(PROVER_REPORTED_WHAT),
         js(sh.profile),
-        js(ex.geometry.run_profile()),
+        js(ex.run_profile()),
         layers.len(),
         js(&ex.variant),
         js(&hex(&ex.profile_sha256)),
@@ -2744,7 +2836,7 @@ fn render_stack_statement(ex: &TrainedExport, sh: &Shape, layers: &[LayerMeta], 
 
 /// NATIVE R12 (D38): the stack scope of a Shieldstral run (every earlier
 /// model keeps [`STACK_SCOPE`] byte for byte)
-const STACK_SCOPE_SHIELDSTRAL: &str = "ALL the listed trained blocks of Shieldstral-1.0-3B's text decoder as ONE bound run at the export's T (one transcript, hidden internal boundaries); the image encoder, the embedding, final norm, LM head and the verdict are NOT covered (D13, D38: the token stages bind the tied embedding / head by the statement's digests); CPU unless the run line says gpu; NOT a soundness or privacy acceptance; float fidelity is the calibration lane's measurement";
+const STACK_SCOPE_SHIELDSTRAL: &str = "ALL the listed trained blocks of Shieldstral-1.0-3B's text decoder as ONE bound run at the export's T (one transcript, hidden internal boundaries); the image encoder, the embedding, final norm, LM head and the verdict are NOT covered (D13, D38: the loader checks tied-table derivation from the pinned tensor; token-stage relations require their own review); CPU unless the run line says gpu; NOT a soundness or privacy acceptance; float fidelity is the calibration lane's measurement";
 
 /// the stack scope of a geometry's run
 fn stack_scope(g: Geometry) -> &'static str {
@@ -2833,7 +2925,7 @@ fn stack_prove_inner(f: &[(String, String)]) -> Result<(), String> {
     // NATIVE R9 (D30): `--dd` proves / verifies under the DD profile of the
     // export's model and T (refused by name where none is registered)
     if flag(f, "--dd").is_some() {
-        ex.geometry = ex.geometry.dd()?;
+        ex.enable_dd()?;
     }
     let layers = parse_layers(flag(f, "--layers"), &ex.layers)?;
     let l = layers.len();
@@ -3020,7 +3112,7 @@ fn stack_verify_inner(f: &[(String, String)]) -> Result<(), String> {
     // NATIVE R9 (D30): `--dd` proves / verifies under the DD profile of the
     // export's model and T (refused by name where none is registered)
     if flag(f, "--dd").is_some() {
-        ex.geometry = ex.geometry.dd()?;
+        ex.enable_dd()?;
     }
     let layers = parse_layers(flag(f, "--layers"), &ex.layers)?;
     let l = layers.len();

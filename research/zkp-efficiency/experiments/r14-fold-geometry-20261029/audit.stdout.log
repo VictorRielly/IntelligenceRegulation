@@ -1,0 +1,190 @@
+{"status": "PASS", "seed": 202610290154, "fixtures": 12, "assertions": 11251, "python_negative_controls": 120, "extracted_native_negative_controls": 132, "scope": "Exact public metadata/reference/census comparison; conditional logical operands use historical generic-point group counts. Native define, actual rho vectors, physical traffic, full PCS pads/FS/CUDA/proofs/privacy unrun.", "new_verified_full_stack_proofs": 0, "new_proved_positions": 0}
+manifest drift [('sol-r14-builders-2.source.json', 'hashline/src/private_block/split_endpoint.rs'), ('sol-r14-builders-2.source.json', 'hashline/src/private_block/split_protocol.rs'), ('sol-r14-builders-2.source.json', 'hashline/src/private_block/split_definition_tests.rs'), ('sol-r14-builders-2.source.json', 'hashline/src/private_block/split_run.rs')]
+T128fe9 [
+  {
+    "t": 128,
+    "dd": false,
+    "fe": 9,
+    "n": 16384,
+    "a_data": 3075,
+    "h_data": 3114,
+    "a_rows": 3517,
+    "h_rows": 3272,
+    "m_rows": 66,
+    "endpoint": [
+      24,
+      31,
+      34
+    ],
+    "a_planes": 162,
+    "h_planes": 78,
+    "a_sites": 220,
+    "h_sites": 78,
+    "slots": 31,
+    "joint_external_rows": 31,
+    "joint_internal_rows": 34,
+    "a_h_words": 111230976,
+    "vs_base_a_h_word_reduction": 0.24289059886249587,
+    "rowbands": {
+      "A": {
+        "data": 3075,
+        "claim_mask_rows": 440,
+        "proximity_rows": 2
+      },
+      "H": {
+        "data": 3114,
+        "claim_mask_rows": 156,
+        "proximity_rows": 2
+      }
+    },
+    "endpoint_rowbands": {
+      "external": {
+        "data": [
+          0,
+          24
+        ],
+        "claim_masks": [
+          24,
+          28
+        ],
+        "spare": [
+          28,
+          29
+        ],
+        "proximity": [
+          29,
+          31
+        ]
+      },
+      "internal": {
+        "data": [
+          0,
+          24
+        ],
+        "claim_masks": [
+          24,
+          32
+        ],
+        "proximity": [
+          32,
+          34
+        ]
+      }
+    },
+    "internal_endpoint_group_bounds": {
+      "claims": 4,
+      "possible_groups": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "rho_counts": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "max4_dispatch_counts": [
+        1,
+        1,
+        1,
+        2
+      ],
+      "note": "Conservative group bounds only; current native grouping not executed. Never count as two independent external endpoints."
+    },
+    "conditional_generic_group_fold_model": [
+      {
+        "cm": "A",
+        "rows": 3517,
+        "recorded_generic_groups": 56,
+        "rhos_including_fresh_proximity": 57,
+        "batch_widths": [
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          1
+        ],
+        "matrix_row_visits_per_column": 52755,
+        "rho_memberships_per_column": 200469,
+        "logical_matrix_B": 6914703360,
+        "logical_rho_B": 52551745536,
+        "logical_output_B": 14942208,
+        "logical_total_B": 59481391104,
+        "missed_visits_if_proximity_omitted": 3517
+      },
+      {
+        "cm": "H",
+        "rows": 3272,
+        "recorded_generic_groups": 11,
+        "rhos_including_fresh_proximity": 12,
+        "batch_widths": [
+          4,
+          4,
+          4
+        ],
+        "matrix_row_visits_per_column": 9816,
+        "rho_memberships_per_column": 39264,
+        "logical_matrix_B": 1286602752,
+        "logical_rho_B": 10292822016,
+        "logical_output_B": 3145728,
+        "logical_total_B": 11582570496,
+        "missed_visits_if_proximity_omitted": 0
+      },
+      {
+        "cm": "Input",
+        "rows": 31,
+        "recorded_generic_groups": 2,
+        "rhos_including_fresh_proximity": 3,
+        "batch_widths": [
+          3
+        ],
+        "matrix_row_visits_per_column": 31,
+        "rho_memberships_per_column": 93,
+        "logical_matrix_B": 4063232,
+        "logical_rho_B": 24379392,
+        "logical_output_B": 786432,
+        "logical_total_B": 29229056,
+        "missed_visits_if_proximity_omitted": 0
+      },
+      {
+        "cm": "Output",
+        "rows": 31,
+        "recorded_generic_groups": 2,
+        "rhos_including_fresh_proximity": 3,
+        "batch_widths": [
+          3
+        ],
+        "matrix_row_visits_per_column": 31,
+        "rho_memberships_per_column": 93,
+        "logical_matrix_B": 4063232,
+        "logical_rho_B": 24379392,
+        "logical_output_B": 786432,
+        "logical_total_B": 29229056,
+        "missed_visits_if_proximity_omitted": 0
+      }
+    ]
+  },
+  {
+    "t": 128,
+    "dd": true,
+    "fe": 9,
+    "n": 16384,
+    "a_data": 2947,
+    "h_data": 2954,
+    "a_rows": 3395,
+    "h_rows": 3116,
+    "m_rows": 68,
+    "endpoint": [
+

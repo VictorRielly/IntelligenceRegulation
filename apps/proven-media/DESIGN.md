@@ -67,14 +67,16 @@ chain, network, wallet or real key.
 4. **A "yes" label** (for example `violence: yes`) is published like any other label. Adults
    receive the item. Minors receive a placeholder: **"Hidden for this audience (Minor): violence:
    proved yes"**. The content itself is never served to that audience.
-5. **No accepted proof** (refused, failed, timed out). The item page reads **"Labels not
-   proved"**, with the reason. Fail closed **per category**: every category without an accepted
-   proof counts as the most restrictive label (`not proved`, treated as yes), so restricted
-   audiences never receive the item. The manifest is still issued and signed, with "unproved"
-   entries.
+5. **No accepted proof** (refused, failed, timed out). Publication is all or nothing:
+   no text, labels, record, manifest or proof bundle is served for a failed item.
+   Only its authenticated author can see the per-post result **"Could not be verified."**
+   It contains no chunk, category, reason, layer, timing or attempt count. Unpublished
+   content is accessible only to the authenticated author. Query parameters do not
+   establish authorship; the operator provisions random access keys, exchanged for
+   revocable browser sessions. Failure diagnostics remain in private operator storage.
 
-   The item is never re-proved. The same text may be submitted again only if nothing ever ran on
-   the first submission, that is, it only waited for the shared machine.
+   The item is never re-proved. Existing D45 reservation and retry rules remain:
+   a retry is eligible only if no proof ever started and the reserved context matches.
 6. **Viewer audience.** A pill in the top bar ("Viewing as Adult / Minor") and the "Your audience"
    panel select the profile:
    - **Adult** receives every labelled item and may additionally hide any category.
@@ -133,7 +135,7 @@ Design and cost: the multimodal lane, §4-§5.
     │  labels per category (stub: one run for all three; placeholder values, not bound)
     ├─ per category with an accepted proof → Publisher.publish(PublicationRecord) → AnchorRef
     ├─ manifest.build_manifest(...) → zk60.manifest/1, Ed25519-signed (dev key)
-    └─ failure → every label "unproved" (fail closed), manifest still signed
+    └─ failure → entire item withheld; authenticated author sees one generic failure result
 ```
 
 * **Two data roots, both outside the repository.** The prover refuses owner files inside a git

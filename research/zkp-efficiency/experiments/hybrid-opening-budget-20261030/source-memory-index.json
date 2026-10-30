@@ -1,0 +1,5192 @@
+[
+  {
+    "id": "sumcheck-extended-2026",
+    "url": "https://eprint.iacr.org/2026/587",
+    "title": null
+  },
+  {
+    "id": "sumcheck-author-update-september",
+    "url": "https://www.cs.cmu.edu/~csd-phd-blog/2026/sumcheck-proving/",
+    "title": null
+  },
+  {
+    "id": "sumcheck-equality-2024",
+    "url": "https://eprint.iacr.org/2024/1210",
+    "title": null
+  },
+  {
+    "id": "sumcheck-projective-2026",
+    "url": "https://eprint.iacr.org/2026/762",
+    "title": null
+  },
+  {
+    "id": "tensorzkp-2026",
+    "url": "https://www.usenix.org/system/files/usenixsecurity26-lu-tao.pdf",
+    "title": null
+  },
+  {
+    "id": "deep-prove-llm",
+    "url": "https://github.com/Lagrange-Labs/deep-prove/blob/master/zkml/README.md",
+    "title": null
+  },
+  {
+    "id": "jolt-repository",
+    "url": "https://github.com/a16z/jolt",
+    "title": null
+  },
+  {
+    "id": "epfl-efficient-sumcheck",
+    "url": "https://github.com/compsec-epfl/efficient-sumcheck",
+    "title": null
+  },
+  {
+    "id": "zksecurity-sage-sumcheck",
+    "url": "https://github.com/zksecurity/sumcheck-optimized-sagemath",
+    "title": null
+  },
+  {
+    "id": "plonky3-projective-issue",
+    "url": "https://github.com/Plonky3/Plonky3/issues/1890",
+    "title": null
+  },
+  {
+    "id": "zkllm-ccs2024",
+    "url": "https://github.com/jvhs0706/zkllm-ccs2024",
+    "title": null
+  },
+  {
+    "id": "cycle2-equality-date-correction",
+    "url": "https://eprint.iacr.org/2024/1210",
+    "title": null
+  },
+  {
+    "id": "cycle2-dao-september-refresh",
+    "url": "https://www.cs.cmu.edu/~csd-phd-blog/2026/sumcheck-proving/",
+    "title": null
+  },
+  {
+    "id": "cycle2-sumcats-paper",
+    "url": "https://tanvirarafin.github.io/assets/pdf/DATE_2026.pdf",
+    "title": null
+  },
+  {
+    "id": "cycle2-sumcats-repo",
+    "url": "https://github.com/SPIRE-GMU/sum_cats",
+    "title": null
+  },
+  {
+    "id": "cycle2-qingming-g64-ntt",
+    "url": "https://github.com/uulong950/qingming-g64-ntt",
+    "title": null
+  },
+  {
+    "id": "cycle2-small-space-2025",
+    "url": "https://eprint.iacr.org/2025/611",
+    "title": null
+  },
+  {
+    "id": "cycle2-sumcheckpim",
+    "url": "https://csarch.korea.ac.kr/publication/pim_sumcheck_ics26/",
+    "title": null
+  },
+  {
+    "id": "cycle2-nanozk-v2",
+    "url": "https://arxiv.org/abs/2603.18046",
+    "title": null
+  },
+  {
+    "id": "cycle2-icicle-release-discovery",
+    "url": "https://github.com/ingonyama-zk/icicle/releases/tag/v4.0.0",
+    "title": null
+  },
+  {
+    "id": "cycle2-polygon-goldilocks-discovery",
+    "url": "https://github.com/0xPolygon/goldilocks",
+    "title": null
+  },
+  {
+    "id": "cycle2-jolt-eq-docs",
+    "url": "https://jolt.a16zcrypto.com/how/optimizations/eq.html",
+    "title": null
+  },
+  {
+    "id": "cycle3-qingming-cuda-contract",
+    "url": "https://github.com/uulong950/qingming-g64-ntt-cuda",
+    "title": null
+  },
+  {
+    "id": "cycle3-qingming-cuda-source",
+    "url": "https://raw.githubusercontent.com/uulong950/qingming-g64-ntt-cuda/main/rtx4090-24g/kernels/qingming_g64_ntt_cuda.cu",
+    "title": null
+  },
+  {
+    "id": "cycle3-gpu-ntt-repository",
+    "url": "https://github.com/Alisah-Ozcan/GPU-NTT",
+    "title": null
+  },
+  {
+    "id": "cycle3-fourstep-older-paper",
+    "url": "https://eprint.iacr.org/2023/1410",
+    "title": null
+  },
+  {
+    "id": "cycle3-fourstep-journal-followup",
+    "url": "https://research.sabanciuniv.edu/id/eprint/51889/",
+    "title": null
+  },
+  {
+    "id": "cycle3-hardware-ntt-sumcheck-2026",
+    "url": "https://arxiv.org/abs/2606.16146",
+    "title": null
+  },
+  {
+    "id": "cycle4-logup-revised",
+    "url": "https://eprint.iacr.org/2022/1530",
+    "title": null
+  },
+  {
+    "id": "cycle4-fractional-gkr-older",
+    "url": "https://eprint.iacr.org/2023/1284",
+    "title": null
+  },
+  {
+    "id": "cycle4-plonky3-multilinear-lookup",
+    "url": "https://github.com/Plonky3/Plonky3/pull/1968",
+    "title": null
+  },
+  {
+    "id": "cycle4-plonky3-release-discovery",
+    "url": "https://github.com/Plonky3/Plonky3/releases/tag/v0.8.0",
+    "title": null
+  },
+  {
+    "id": "cycle4-nonlinear-lookup-revision",
+    "url": "https://eprint.iacr.org/2025/507",
+    "title": null
+  },
+  {
+    "id": "cycle5-plonky3-fusion-followups",
+    "url": "https://github.com/Plonky3/Plonky3/releases",
+    "title": null
+  },
+  {
+    "id": "cycle5-thaler-time-optimal-older",
+    "url": "https://arxiv.org/abs/1304.3812",
+    "title": null
+  },
+  {
+    "id": "cycle5-gpu-instruction-wall",
+    "url": "https://arxiv.org/abs/2608.13696",
+    "title": null
+  },
+  {
+    "id": "cycle6-slp-september-paper",
+    "url": "https://arxiv.org/abs/2609.27367",
+    "title": null
+  },
+  {
+    "id": "cycle6-slp-data-repository",
+    "url": "https://github.com/TrueOpen/slp-experiments",
+    "title": null
+  },
+  {
+    "id": "cycle6-zktorch-accumulation-paper",
+    "url": "https://arxiv.org/abs/2507.07031",
+    "title": null
+  },
+  {
+    "id": "cycle6-zktorch-repository",
+    "url": "https://github.com/uiuc-kang-lab/zk-torch",
+    "title": null
+  },
+  {
+    "id": "cycle6-cqlin-older-technique",
+    "url": "https://eprint.iacr.org/2023/393",
+    "title": null
+  },
+  {
+    "id": "cycle6-plonky3-release-refresh",
+    "url": "https://github.com/Plonky3/Plonky3/releases",
+    "title": null
+  },
+  {
+    "id": "cycle7-quadratic-arithmetic-older",
+    "url": "https://eprint.iacr.org/2006/471",
+    "title": null
+  },
+  {
+    "id": "cycle7-plonky3-goldilocks-pr",
+    "url": "https://github.com/Plonky3/Plonky3/pull/2098",
+    "title": null
+  },
+  {
+    "id": "cycle7-plonky3-quadratic-implementation",
+    "url": "https://raw.githubusercontent.com/Plonky3/Plonky3/main/field/src/extension/binomial_extension.rs",
+    "title": null
+  },
+  {
+    "id": "cycle7-prime-ir-addition-cost",
+    "url": "https://github.com/fractalyze/prime-ir/issues/409",
+    "title": null
+  },
+  {
+    "id": "cycle7-instruction-wall-refresh",
+    "url": "https://arxiv.org/abs/2608.13696",
+    "title": null
+  },
+  {
+    "id": "cycle7-plonky3-release-arithmetic-refresh",
+    "url": "https://github.com/Plonky3/Plonky3/releases/tag/v0.8.0",
+    "title": null
+  },
+  {
+    "id": "cycle8-fractional-gkr-refresh",
+    "url": "https://eprint.iacr.org/2023/1284",
+    "title": null
+  },
+  {
+    "id": "cycle8-plonky3-lookup-binding",
+    "url": "https://github.com/Plonky3/Plonky3/pull/1968",
+    "title": null
+  },
+  {
+    "id": "cycle8-plonky3-release-refresh",
+    "url": "https://github.com/Plonky3/Plonky3/releases/tag/v0.8.0",
+    "title": null
+  },
+  {
+    "id": "cycle8-sp1-verifier-source",
+    "url": "https://docs.rs/sp1-hypercube/latest/src/sp1_hypercube/logup_gkr/verifier.rs.html",
+    "title": null
+  },
+  {
+    "id": "cycle8-sp1-zorch-tree-memory",
+    "url": "https://github.com/fractalyze/sp1-zorch/issues/112",
+    "title": null
+  },
+  {
+    "id": "cycle8-winterfell-interface-older",
+    "url": "https://github.com/facebook/winterfell/issues/292",
+    "title": null
+  },
+  {
+    "id": "cycle8-boolean-gkr-older",
+    "url": "https://eprint.iacr.org/2025/717",
+    "title": null
+  },
+  {
+    "id": "cycle8-jolt-atlas-discovery",
+    "url": "https://arxiv.org/abs/2602.17452",
+    "title": null
+  },
+  {
+    "id": "cycle9-icicle-fusion-older",
+    "url": "https://www.ingonyama.com/post/hardware-friendliness-of-hyperplonk-part2",
+    "title": null
+  },
+  {
+    "id": "cycle9-plonky3-release-refresh",
+    "url": "https://github.com/Plonky3/Plonky3/releases/tag/v0.8.0",
+    "title": null
+  },
+  {
+    "id": "cycle9-plonky3-strategy-inspection",
+    "url": "https://docs.rs/p3-sumcheck/latest/src/p3_sumcheck/strategy.rs.html",
+    "title": null
+  },
+  {
+    "id": "cycle9-jolt-eq-refresh",
+    "url": "https://jolt.a16zcrypto.com/how/optimizations/eq.html",
+    "title": null
+  },
+  {
+    "id": "cycle9-extended-sumcheck-refresh",
+    "url": "https://eprint.iacr.org/2026/587",
+    "title": null
+  },
+  {
+    "id": "cycle9-september-round-batching-refresh",
+    "url": "https://www.cs.cmu.edu/~csd-phd-blog/2026/sumcheck-proving/",
+    "title": null
+  },
+  {
+    "id": "cycle9-hardware-comparison-methodology",
+    "url": "https://arxiv.org/abs/2606.16146",
+    "title": null
+  },
+  {
+    "id": "cycle9-zerocheck-simulator-repository",
+    "url": "https://github.com/beekayg15/zerocheck",
+    "title": null
+  },
+  {
+    "id": "cycle10-cupqc-six-field-bound",
+    "url": "https://nvidia.github.io/cuPQC/releases/v0.6/",
+    "title": null
+  },
+  {
+    "id": "cycle10-unintt-older",
+    "url": "https://doi.org/10.1145/3669940.3707241",
+    "title": null
+  },
+  {
+    "id": "cycle10-yrrid-cache-residency",
+    "url": "https://github.com/yrrid/GoldilocksNTT",
+    "title": null
+  },
+  {
+    "id": "cycle10-cuda-sector-model",
+    "url": "https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/",
+    "title": null
+  },
+  {
+    "id": "cycle10-gpu-ntt-release-check",
+    "url": "https://github.com/Alisah-Ozcan/GPU-NTT/releases",
+    "title": null
+  },
+  {
+    "id": "cycle10-ntt-sumcheck-paper-refresh",
+    "url": "https://arxiv.org/abs/2606.16146",
+    "title": null
+  },
+  {
+    "id": "cycle11-logup-original",
+    "url": "https://eprint.iacr.org/2022/1530",
+    "title": null
+  },
+  {
+    "id": "cycle11-jolt-atlas-paper",
+    "url": "https://arxiv.org/abs/2602.17452",
+    "title": null
+  },
+  {
+    "id": "cycle11-jolt-atlas-repository-license",
+    "url": "https://github.com/ICME-Lab/jolt-atlas",
+    "title": null
+  },
+  {
+    "id": "cycle11-plonky3-v080-release",
+    "url": "https://github.com/Plonky3/Plonky3/releases/tag/v0.8.0",
+    "title": null
+  },
+  {
+    "id": "cycle12-cupqc-ntt-features",
+    "url": "https://docs.nvidia.com/cuda/cupqc/libraries/cupqc_ntt/cupqc_ntt_feature.html",
+    "title": null
+  },
+  {
+    "id": "cycle12-cupqc-repository",
+    "url": "https://github.com/NVIDIA/cuPQC",
+    "title": null
+  },
+  {
+    "id": "cycle12-ozcan-savas-ntt",
+    "url": "https://eprint.iacr.org/2023/1410",
+    "title": null
+  },
+  {
+    "id": "cycle12-mo-ntt-sumcheck-refresh",
+    "url": "https://arxiv.org/abs/2606.16146",
+    "title": null
+  },
+  {
+    "id": "cycle13-dao-sumcheck-refresh",
+    "url": "https://eprint.iacr.org/2026/587",
+    "title": null
+  },
+  {
+    "id": "cycle13-sumcats-paper",
+    "url": "https://tanvirarafin.github.io/assets/pdf/DATE_2026.pdf",
+    "title": null
+  },
+  {
+    "id": "cycle13-sumcats-repository",
+    "url": "https://github.com/SPIRE-GMU/sum_cats",
+    "title": null
+  },
+  {
+    "id": "cycle13-zorch-issue327",
+    "url": "https://github.com/fractalyze/zorch/issues/327",
+    "title": null
+  },
+  {
+    "id": "cycle13-nvidia-clmad-sumcheck",
+    "url": "https://developer.nvidia.com/blog/?p=119649",
+    "title": null
+  },
+  {
+    "id": "cycle13-time-space-sumcheck",
+    "url": "https://eprint.iacr.org/2024/524",
+    "title": null
+  },
+  {
+    "id": "cycle15-flexgen-older-schedule",
+    "url": "https://arxiv.org/abs/2303.06865",
+    "title": null
+  },
+  {
+    "id": "cycle15-flexllmgen-repository",
+    "url": "https://github.com/FMInference/FlexLLMGen",
+    "title": null
+  },
+  {
+    "id": "cycle15-zkcomposer-july",
+    "url": "https://arxiv.org/abs/2607.08095",
+    "title": null
+  },
+  {
+    "id": "cycle15-deepprove-context-cache-license",
+    "url": "https://github.com/Lagrange-Labs/deep-prove/blob/master/zkml/README.md",
+    "title": null
+  },
+  {
+    "id": "cycle16-adacc-exactness-filter",
+    "url": "https://arxiv.org/abs/2508.00806",
+    "title": null
+  },
+  {
+    "id": "cycle16-checkmate-rematerialization",
+    "url": "https://arxiv.org/abs/1910.02653",
+    "title": null
+  },
+  {
+    "id": "cycle16-checkmate-author-repository",
+    "url": "https://github.com/parasj/checkmate",
+    "title": null
+  },
+  {
+    "id": "cycle16-hybridserve-kv-checkpoint",
+    "url": "https://arxiv.org/abs/2501.01792",
+    "title": null
+  },
+  {
+    "id": "cycle16-fastar-september-locality",
+    "url": "https://arxiv.org/abs/2609.25535",
+    "title": null
+  },
+  {
+    "id": "cycle17-pico-september-record-packing",
+    "url": "https://blog.brevis.network/2026/09/30/pico-3-0-real-time-ethereum-proving-on-4-gpus-with-100-bit-provable-security/",
+    "title": null
+  },
+  {
+    "id": "cycle17-pico-repository-date-gap",
+    "url": "https://github.com/brevis-network/pico",
+    "title": null
+  },
+  {
+    "id": "cycle17-spartan-whir-linked-typed-witness",
+    "url": "https://github.com/ethereum/spartan-whir",
+    "title": null
+  },
+  {
+    "id": "cycle17-streaming-zk-older-boundary",
+    "url": "https://arxiv.org/abs/2301.02161",
+    "title": null
+  },
+  {
+    "id": "cycle17-small-value-sumcheck-provenance",
+    "url": "https://eprint.iacr.org/2026/587",
+    "title": null
+  },
+  {
+    "id": "cycle18-step-by-step-private-streaming",
+    "url": "https://eprint.iacr.org/2025/251",
+    "title": null
+  },
+  {
+    "id": "cycle18-nova-current-release-and-privacy",
+    "url": "https://github.com/microsoft/Nova",
+    "title": null
+  },
+  {
+    "id": "cycle18-hardware-memory-locality-refresh",
+    "url": "https://arxiv.org/abs/2606.16146",
+    "title": null
+  },
+  {
+    "id": "cycle18-zk-stream-scope-refusal",
+    "url": "https://github.com/nzengi/zk-stream",
+    "title": null
+  },
+  {
+    "id": "cycle19-zkprophet-older-bottleneck-study",
+    "url": "https://arxiv.org/abs/2509.22684",
+    "title": null
+  },
+  {
+    "id": "cycle19-icicle-transfer-concurrency-reference",
+    "url": "https://github.com/ingonyama-zk/icicle/blob/main/examples/c%2B%2B/best-practice-ntt/README.md",
+    "title": null
+  },
+  {
+    "id": "cycle19-tensorzkp-dated-refresh-and-field-filter",
+    "url": "https://eprint.iacr.org/2026/1250",
+    "title": null
+  },
+  {
+    "id": "cycle20-bits-under-zkllm-september-scope",
+    "url": "https://arxiv.org/abs/2609.36437",
+    "title": null
+  },
+  {
+    "id": "cycle20-tassle-older-small-table-filter",
+    "url": "https://eprint.iacr.org/2024/1075",
+    "title": null
+  },
+  {
+    "id": "cycle20-jolt-september-memory-and-blinding-history",
+    "url": "https://github.com/a16z/jolt",
+    "title": null
+  },
+  {
+    "id": "cycle20-rust-zero-vector-specialization-boundary",
+    "url": "https://doc.rust-lang.org/src/alloc/vec/spec_from_elem.rs.html",
+    "title": null
+  },
+  {
+    "id": "cycle21-packed-sumcheck-september-revision",
+    "url": "https://eprint.iacr.org/2025/719",
+    "title": null
+  },
+  {
+    "id": "cycle21-older-small-value-combined-paper",
+    "url": "https://eprint.iacr.org/2025/1117",
+    "title": null
+  },
+  {
+    "id": "cycle21-epfl-simd-representation-and-final-oracle",
+    "url": "https://github.com/compsec-epfl/efficient-sumcheck",
+    "title": null
+  },
+  {
+    "id": "cycle21-plonky3-september-release-pin",
+    "url": "https://github.com/Plonky3/Plonky3/releases",
+    "title": null
+  },
+  {
+    "id": "cycle22-ozaki-older-integer-engines",
+    "url": "https://arxiv.org/abs/2306.11975",
+    "title": "DGEMM on Integer Matrix Multiplication Unit"
+  },
+  {
+    "id": "cycle22-ozaki-scaling-uniqueness-warning",
+    "url": "https://arxiv.org/abs/2606.29129",
+    "title": "Improved Scaling for Fast Mode of Ozaki Scheme II"
+  },
+  {
+    "id": "cycle22-gemmul8-framework-filter",
+    "url": "https://github.com/RIKEN-RCCS/GEMMul8",
+    "title": "GEMMul8 integer matrix-engine emulation"
+  },
+  {
+    "id": "cycle22-gemmlowp-older-offset-cache",
+    "url": "https://github.com/google/gemmlowp/blob/master/doc/low-precision.md",
+    "title": "Efficient handling of offsets"
+  },
+  {
+    "id": "cycle22-cutlass-september-release-scope",
+    "url": "https://github.com/NVIDIA/cutlass/releases/tag/v4.8.0",
+    "title": "CUTLASS4.8.0 September release"
+  },
+  {
+    "id": "cycle22-cublas-integer-contract",
+    "url": "https://docs.nvidia.com/cuda/cublas/index.html",
+    "title": "cuBLAS13.4 integer compute contract"
+  },
+  {
+    "id": "cycle23-september-exact-fast-matmul-cost-filter",
+    "url": "https://arxiv.org/abs/2609.39816",
+    "title": "Beyond Accuracy: Prefix-Invariant Realizations of Low-Precision Fast Matrix Multiplication"
+  },
+  {
+    "id": "cycle23-older-custom-epilogue-visitor",
+    "url": "https://research.colfax-intl.com/epilogue_visitor_tree/",
+    "title": "Epilogue Fusion in CUTLASS with Epilogue Visitor Trees"
+  },
+  {
+    "id": "cycle23-cutlass-epilogue-integer-conversion-boundary",
+    "url": "https://github.com/NVIDIA/cutlass/blob/main/include/cutlass/epilogue/thread/linear_combination.h",
+    "title": "CUTLASS LinearCombination source and split-K epilogue contract"
+  },
+  {
+    "id": "cycle23-cutlass-release-date-and-license-scope-refresh",
+    "url": "https://github.com/NVIDIA/cutlass/releases",
+    "title": "CUTLASS4.8 release/version update"
+  },
+  {
+    "id": "cycle24-cublas-pointer-batch-integer-contract",
+    "url": "https://docs.nvidia.com/cuda/cublas/index.html",
+    "title": "cuBLAS13.4 integer pointer-batched, grouped and strided contracts"
+  },
+  {
+    "id": "cycle24-older-strided-broadcast-contract-conflict",
+    "url": "https://developer.nvidia.com/blog/cublas-strided-batched-matrix-multiply/",
+    "title": "Pro Tip: cuBLAS Strided Batched Matrix Multiply"
+  },
+  {
+    "id": "cycle24-older-grouped-api-scope",
+    "url": "https://developer.nvidia.com/blog/introducing-grouped-gemm-apis-in-cublas-and-more-performance-updates/",
+    "title": "Introducing Grouped GEMM APIs in cuBLAS and More Performance Updates"
+  },
+  {
+    "id": "cycle24-cutlass-persistent-scheduler-contract",
+    "url": "https://github.com/NVIDIA/cutlass/blob/main/media/docs/cpp/grouped_scheduler.md",
+    "title": "CUTLASS Grouped Kernel Schedulers"
+  },
+  {
+    "id": "cycle24-cutlass-grouped-header-ownership",
+    "url": "https://github.com/NVIDIA/cutlass/blob/main/include/cutlass/gemm/kernel/gemm_grouped.h",
+    "title": "CUTLASS GemmGrouped kernel pointer/stride ownership"
+  },
+  {
+    "id": "cycle24-cutlass-september-grouped-release",
+    "url": "https://github.com/NVIDIA/cutlass/releases",
+    "title": "CUTLASS4.8 grouped performance and update"
+  },
+  {
+    "id": "cycle24-august-integer-stack-availability-filter",
+    "url": "https://arxiv.org/abs/2608.11693",
+    "title": "Spec Sheets Are Not Kernels: An ISA- and Source-Level Audit of INT8 Availability on NVIDIA Blackwell Ultra"
+  },
+  {
+    "id": "cycle25-cublas-TN-cache-and-algorithm-check",
+    "url": "https://docs.nvidia.com/cuda/cublas/index.html",
+    "title": "cuBLAS13.4 TN integer layout, heuristic reuse and algorithm checks"
+  },
+  {
+    "id": "cycle25-gemmlowp-pack-and-sums-older",
+    "url": "https://github.com/google/gemmlowp/blob/master/internal/pack.h",
+    "title": "gemmlowp packing and depth sums"
+  },
+  {
+    "id": "cycle25-ZKTorch-parallel-accumulation-older",
+    "url": "https://arxiv.org/abs/2507.07031",
+    "title": "ZKTorch parallel proof accumulation"
+  },
+  {
+    "id": "cycle25-FICS-FACS-code-switching",
+    "url": "https://eprint.iacr.org/2025/737",
+    "title": "FICS and FACS code switching and accumulation"
+  },
+  {
+    "id": "cycle25-cutlass-september-update-refresh",
+    "url": "https://github.com/NVIDIA/cutlass/releases",
+    "title": "CUTLASS4.8 release and version diff"
+  },
+  {
+    "id": "cycle25-zkTransformer-repository-scope-filter",
+    "url": "https://github.com/uiuc-kang-lab/zkTransformer/",
+    "title": "UIUC zkTransformer repository"
+  },
+  {
+    "id": "cycle26-cuda-zkp-ntt-release-negative-filter",
+    "url": "https://github.com/Artemarius/cuda-zkp-ntt",
+    "title": "cuda-zkp-ntt v5.0.0 and negative results"
+  },
+  {
+    "id": "cycle26-small-characteristic-older-negative",
+    "url": "https://eprint.iacr.org/2024/1046",
+    "title": "The Sum-Check Protocol over Fields of Small Characteristic"
+  },
+  {
+    "id": "cycle26-smallfield-implementation-scope",
+    "url": "https://github.com/ingonyama-zk/smallfield-super-sumcheck",
+    "title": "smallfield-super-sumcheck repository"
+  },
+  {
+    "id": "cycle26-august-batch-polynomial-PCS-cost-filter",
+    "url": "https://drops.dagstuhl.de/entities/document/10.4230/LIPIcs.ITC.2026.3",
+    "title": "Interactive Proofs for Batch Polynomial Evaluation"
+  },
+  {
+    "id": "cycle26-packed-mask-scope-filter",
+    "url": "https://github.com/ls-rm-rf/sumcheck",
+    "title": "Packing Breaks the Mask accompanying repository"
+  },
+  {
+    "id": "cycle27-GlueLUT-September-PCS-exclusion",
+    "url": "https://eprint.iacr.org/2026/494",
+    "title": "GlueLUT: Efficient Lookup Table Arguments over Residue Rings"
+  },
+  {
+    "id": "cycle27-cq-older-preprocessing-filter",
+    "url": "https://eprint.iacr.org/2022/1763",
+    "title": "cq: Cached quotients for fast lookups"
+  },
+  {
+    "id": "cycle27-Rust-OnceLock-owner-clone-contract",
+    "url": "https://doc.rust-lang.org/std/sync/struct.OnceLock.html",
+    "title": "Rust OnceLock initialization and Clone source"
+  },
+  {
+    "id": "cycle27-DeepProve-context-refresh",
+    "url": "https://github.com/Lagrange-Labs/deep-prove/blob/master/zkml/README.md",
+    "title": "DeepProve saved proving context and code-history scope"
+  },
+  {
+    "id": "cycle27-BLAKE3-latest-release-scope",
+    "url": "https://github.com/BLAKE3-team/BLAKE3/releases",
+    "title": "BLAKE3 1.8.7 release and version commit"
+  },
+  {
+    "id": "cycle28-sumcheck-streaming-refresh",
+    "url": "https://eprint.iacr.org/2026/587",
+    "title": "Speeding Up Sum-Check Proving (Extended Version)"
+  },
+  {
+    "id": "cycle28-september-round-batching-refresh",
+    "url": "https://www.cs.cmu.edu/~csd-phd-blog/2026/sumcheck-proving/",
+    "title": "Algorithms for the Sum-check Protocol"
+  },
+  {
+    "id": "cycle28-modular-VE-older-PCS-filter",
+    "url": "https://eprint.iacr.org/2023/1342",
+    "title": "Modular Sumcheck Proofs with Applications to Machine Learning and Image Processing"
+  },
+  {
+    "id": "cycle28-epfl-streaming-design-vs-native-contract",
+    "url": "https://github.com/compsec-epfl/efficient-sumcheck",
+    "title": "Efficient Sumcheck: streaming schedules and security boundary"
+  },
+  {
+    "id": "cycle28-icicle-current-release-check",
+    "url": "https://github.com/ingonyama-zk/icicle/releases",
+    "title": "ICICLE v4.0.0 current release"
+  },
+  {
+    "id": "cycle28-blake3-prefix-state-and-release-date-correction",
+    "url": "https://docs.rs/blake3/latest/blake3/struct.Hasher.html",
+    "title": "BLAKE3 incremental Hasher Clone and pinned1.8.7 publication date"
+  },
+  {
+    "id": "cycle29-product-sumcheck-time-space-2026-revision",
+    "url": "https://eprint.iacr.org/2025/1473",
+    "title": "Time-Space Trade-Offs for Sumcheck"
+  },
+  {
+    "id": "cycle29-blendy-older-fulltext-scope",
+    "url": "https://eprint.iacr.org/2024/524",
+    "title": "A Time-Space Tradeoff for the Sumcheck Prover"
+  },
+  {
+    "id": "cycle29-scribe-RW-streaming-old-and-2026-publication",
+    "url": "https://eprint.iacr.org/2024/1970",
+    "title": "Scribe: Low-memory SNARKs via Read-Write Streaming"
+  },
+  {
+    "id": "cycle29-epfl-streaming-design-license-refinement",
+    "url": "https://github.com/compsec-epfl/efficient-sumcheck/blob/main/docs/design.md",
+    "title": "Efficient Sumcheck space strategies and variable ordering"
+  },
+  {
+    "id": "cycle29-hardware-locality-primary-refresh",
+    "url": "https://arxiv.org/abs/2606.16146",
+    "title": "When Proofs Meet Hardware: Comparing NTT and SumCheck in Zero-Knowledge Systems"
+  },
+  {
+    "id": "cycle29-jolt-current-release-mem-and-eq-not-native-speed",
+    "url": "https://github.com/a16z/jolt/releases",
+    "title": "Jolt displayed v0.3.0-alpha release"
+  },
+  {
+    "id": "cycle29-rust-vector-capacity-contract",
+    "url": "https://doc.rust-lang.org/std/vec/struct.Vec.html#method.truncate",
+    "title": "Rust Vec::truncate allocation contract"
+  },
+  {
+    "id": "cycle30-gruen-older-protocol-vs-arithmetic",
+    "url": "https://eprint.iacr.org/2024/108",
+    "title": "Some Improvements for the PIOP for ZeroCheck"
+  },
+  {
+    "id": "cycle30-dao-thaler-older-eq-split",
+    "url": "https://eprint.iacr.org/2024/1210",
+    "title": "More Optimizations to Sum-Check Proving"
+  },
+  {
+    "id": "cycle30-extended-sumcheck-current-primary",
+    "url": "https://eprint.iacr.org/2026/587",
+    "title": "Speeding Up Sum-Check Proving (Extended Version)"
+  },
+  {
+    "id": "cycle30-jolt-eq-implementation-license-and-old-PR-date",
+    "url": "https://github.com/a16z/jolt/blob/main/jolt-core/src/poly/split_eq_poly.rs",
+    "title": "Jolt split equality source and shared-state PR"
+  },
+  {
+    "id": "cycle30-jolt-book-eq-scope-refresh",
+    "url": "https://jolt.a16zcrypto.com/how/optimizations/eq.html",
+    "title": "JoltBook equality polynomial optimizations"
+  },
+  {
+    "id": "cycle30-tensorzkp-proceedings-memory-and-degree-filter",
+    "url": "https://www.usenix.org/conference/usenixsecurity26/presentation/lu-tao",
+    "title": "TensorZKP: Repurposing GPU Tensor Cores for High-Performance Zero-Knowledge Proofs"
+  },
+  {
+    "id": "cycle31-dao-thaler-two-layer-count-transfer",
+    "url": "https://eprint.iacr.org/2024/1210",
+    "title": "More Optimizations to Sum-Check Proving"
+  },
+  {
+    "id": "cycle31-extended-sumcheck-current-refresh",
+    "url": "https://eprint.iacr.org/2026/587",
+    "title": "Speeding Up Sum-Check Proving (Extended Version)"
+  },
+  {
+    "id": "cycle31-jolt-nested-fold-and-old-release-PR",
+    "url": "https://github.com/a16z/jolt/blob/main/jolt-core/src/poly/split_eq_poly.rs",
+    "title": "Jolt split equality nested fold helpers and product-sum PR"
+  },
+  {
+    "id": "cycle31-icicle-batch-api-and-release-scope",
+    "url": "https://github.com/ingonyama-zk/icicle/blob/main/wrappers/rust/icicle-core/src/sumcheck/mod.rs",
+    "title": "ICICLE sumcheck configuration and current displayed release"
+  },
+  {
+    "id": "cycle31-jolt-opening-batch-architecture-filter",
+    "url": "https://jolt.a16zcrypto.com/how/architecture/opening-proof.html",
+    "title": "JoltBook batched opening proof"
+  },
+  {
+    "id": "cycle31-packed-small-field-newly-assessed-revision",
+    "url": "https://eprint.iacr.org/2025/719",
+    "title": "SNARKs over Small Prime Fields without Extension Field Multiplication"
+  },
+  {
+    "id": "cycle31-flock-september-batch-boolean-filter",
+    "url": "https://eprint.iacr.org/2026/1329",
+    "title": "Flock: Fast Proving for Batch Boolean Computations"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2024/1210",
+    "title": "More Optimizations to Sum-Check Proving, scope recheck"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2026/762",
+    "title": "The Sum-Check Protocol over the Monomial Basis, and Other Optimizations"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/quangvdao/monomial-sumcheck-benchmarks",
+    "title": "Monomial sumcheck benchmark implementation and September methodology update"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/Plonky3/Plonky3/pull/2305",
+    "title": "Plonky3 PR2305: borrowed points and packed equality kernel"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2024/1046",
+    "title": "Small-characteristic sumcheck: base-vs-extension cost qualification"
+  },
+  {
+    "id": "cycle33-prepared-lookup-schema-and-link-refinement",
+    "url": "https://github.com/Plonky3/Plonky3/pull/1968",
+    "title": "Plonky3 multilinear lookup planning and committed-trace link"
+  },
+  {
+    "id": "cycle33-current-logup-zero-denominator-bound",
+    "url": "https://docs.rs/p3-security/latest/p3_security/logup/index.html",
+    "title": "Plonky3 LogUp soundness accounting and zero denominators"
+  },
+  {
+    "id": "cycle33-newly-assessed-divide-conquer-older-protocol",
+    "url": "https://arxiv.org/abs/2504.00693",
+    "title": "A divide-and-conquer sumcheck protocol"
+  },
+  {
+    "id": "cycle33-newly-assessed-swirl-batched-domain-filter",
+    "url": "https://openvm.dev/swirl.pdf",
+    "title": "SWIRL: Stacked WHIR with interaction reductions via LogUp"
+  },
+  {
+    "id": "cycle33-plonky3-release-lookup-and-zk-code-scope",
+    "url": "https://github.com/Plonky3/Plonky3/releases",
+    "title": "Plonky3 displayed v0.8.0 release"
+  },
+  {
+    "id": "cycle34-vega-newly-assessed-recent-revision",
+    "url": "https://eprint.iacr.org/2025/2094",
+    "title": "Vega: Low-Latency Zero-Knowledge Proofs over Existing Credentials"
+  },
+  {
+    "id": "cycle34-vega-delayed-reduction-and-july-bounds",
+    "url": "https://github.com/microsoft/vega-prover",
+    "title": "Vega implementation history, conformance contract and July fold guard"
+  },
+  {
+    "id": "cycle34-sumcats-setup-regression-recheck",
+    "url": "https://tanvirarafin.github.io/assets/pdf/DATE_2026.pdf",
+    "title": "SumCATS setup and GPU local-memory tradeoff"
+  },
+  {
+    "id": "cycle34-nvidia-july-binary-field-scope-refresh",
+    "url": "https://developer.nvidia.com/blog/building-faster-cryptography-with-carryless-multiplication-in-nvidia-cuda-13-3/",
+    "title": "NVIDIA CUDA13.3 carryless sumcheck report"
+  },
+  {
+    "id": "cycle34-matched-hardware-locality-refinement",
+    "url": "https://arxiv.org/abs/2606.16146",
+    "title": "When Proofs Meet Hardware: Comparing NTT and SumCheck"
+  },
+  {
+    "id": "cycle35-newly-assessed-older-goldilocks-fused-mac",
+    "url": "https://github.com/0xPolygonZero/plonky2/blob/main/field/src/goldilocks_field.rs",
+    "title": "Plonky2 Goldilocks multiply-accumulate and historical arithmetic source"
+  },
+  {
+    "id": "cycle35-current-gnark-release-field-filter",
+    "url": "https://github.com/Consensys-Incorporated/gnark-crypto/releases/tag/v0.22.0",
+    "title": "gnark-crypto v0.22.0 October release and lazy reduction scope"
+  },
+  {
+    "id": "cycle35-epfl-current-simd-and-transcript-boundary",
+    "url": "https://github.com/compsec-epfl/efficient-sumcheck",
+    "title": "Efficient Sumcheck canonical rewrite and dated history scope"
+  },
+  {
+    "id": "cycle35-delayed-reduction-2026-paper-refresh",
+    "url": "https://eprint.iacr.org/2026/587",
+    "title": "Speeding Up Sum-Check Proving (Extended Version)"
+  },
+  {
+    "id": "cycle35-older-sumcheck-paper-reduction-filter",
+    "url": "https://eprint.iacr.org/2025/1117",
+    "title": "Speeding Up Sum-Check Proving, older combined preprint"
+  },
+  {
+    "id": "cycle35-nebu-unverified-u128-batch-claim",
+    "url": "https://docs.rs/cyb-nebu/latest/nebu/field/struct.Goldilocks.html",
+    "title": "cyb-nebu Goldilocks Dot search result; implementation unresolved"
+  },
+  {
+    "id": "cycle36-goldilocks-mac-canonical-headroom",
+    "url": "https://github.com/0xPolygonZero/plonky2/blob/main/field/src/goldilocks_field.rs",
+    "title": "Plonky2 Goldilocks multiply-accumulate and reduction representation"
+  },
+  {
+    "id": "cycle36-gnark-october-release-commit-inspected",
+    "url": "https://github.com/Consensys-Incorporated/gnark-crypto/releases/tag/v0.22.0",
+    "title": "gnark-crypto v0.22.0 release and pinned version diff"
+  },
+  {
+    "id": "cycle36-new-october-zkllmpot-scope",
+    "url": "https://arxiv.org/abs/2610.08258",
+    "title": "zkLLMPoT: Efficient Zero Knowledge Proof of Training for Large Language Models"
+  },
+  {
+    "id": "cycle36-newly-assessed-older-zk-sumcheck-composition",
+    "url": "https://arxiv.org/abs/1704.02086",
+    "title": "A Zero Knowledge Sumcheck and its Applications"
+  },
+  {
+    "id": "cycle37-new-older-jolt-comparator-mle",
+    "url": "https://eprint.iacr.org/2023/1217",
+    "title": "Jolt structured less-than MLE, newly assessed comparator seam"
+  },
+  {
+    "id": "cycle37-new-cuda-qingming-layout-filter",
+    "url": "https://github.com/uulong950/qingming-g64-ntt-cuda",
+    "title": "Qingming CUDA Goldilocks NTT artifact and natural-order wrapper"
+  },
+  {
+    "id": "cycle37-new-cubutterfly-residence-boundary",
+    "url": "https://github.com/TruNcat3/cuButterfly",
+    "title": "cuButterfly v0.9 framework and frozen V100 evidence boundary"
+  },
+  {
+    "id": "cycle37-current-lattice-jolt-privacy-filter",
+    "url": "https://a16zcrypto.com/posts/article/lattice-snarks-jolt-post-quantum-faster/",
+    "title": "September Lattice Jolt release and privacy boundary"
+  },
+  {
+    "id": "cycle37-small-space-prefix-suffix-scope",
+    "url": "https://eprint.iacr.org/2025/611",
+    "title": "Proving CPU Executions in Small Space, prefix-suffix refresh"
+  },
+  {
+    "id": "cycle37-september-round-batching-refresh",
+    "url": "https://www.cs.cmu.edu/~csd-phd-blog/2026/sumcheck-proving/",
+    "title": "Algorithms for the Sum-check Protocol, author September explanation"
+  },
+  {
+    "id": "cycle38-plonky3-projective-whir-negative",
+    "url": "https://github.com/Plonky3/Plonky3/pull/1949",
+    "title": "Plonky3 projective WHIR: enclosing negative after faster binding"
+  },
+  {
+    "id": "cycle38-october-resettable-nizk",
+    "url": "https://eprint.iacr.org/2026/1036",
+    "title": "Resettable Non-Interactive Zero-Knowledge: October revision and residency randomness filter"
+  },
+  {
+    "id": "cycle38-new-older-jagged-pcs",
+    "url": "https://eprint.iacr.org/2025/917",
+    "title": "Jagged Polynomial Commitments: older structured public indexing technique newly assessed"
+  },
+  {
+    "id": "cycle38-plonky3-current-release-pin",
+    "url": "https://github.com/Plonky3/Plonky3/releases/tag/v0.8.0",
+    "title": "Plonky3 v0.8.0 release and inspected version/CHANGELOG diff"
+  },
+  {
+    "id": "cycle38-jolt-mle-typed-reader",
+    "url": "https://jolt.a16zcrypto.com/how/appendix/multilinear-extensions.html",
+    "title": "JoltBook MLE evaluation/binding/PCS traits and public representations"
+  },
+  {
+    "id": "cycle38-projective-paper-negative-context",
+    "url": "https://eprint.iacr.org/2026/762",
+    "title": "Projective monomial sumcheck paper revisited alongside implementation negative"
+  },
+  {
+    "id": "cycle39-jolt-standalone-september-boundaries",
+    "url": "https://github.com/a16z/jolt/pull/1865",
+    "title": "Jolt standalone sumcheck: September field/transcript boundary"
+  },
+  {
+    "id": "cycle39-jolt-symbolic-concrete-spec",
+    "url": "https://github.com/a16z/jolt/blob/main/specs/symbolic-sumcheck.md",
+    "title": "Jolt symbolic/concrete sumcheck proposed spec"
+  },
+  {
+    "id": "cycle39-efficient-sumcheck-compatibility-oracle",
+    "url": "https://github.com/compsec-epfl/efficient-sumcheck/blob/main/docs/compatibility.md",
+    "title": "Efficient Sumcheck non-arkworks compatibility and terminal-oracle contract"
+  },
+  {
+    "id": "cycle39-new-older-formal-sumcheck",
+    "url": "https://arxiv.org/abs/2402.06093",
+    "title": "Formal Verification of the Sumcheck Protocol: independent algebra obligations"
+  },
+  {
+    "id": "cycle39-new-older-sparrow-space-efficient",
+    "url": "https://eprint.iacr.org/2024/1631",
+    "title": "Sparrow: older data-parallel space-efficient GKR/sumcheck candidate"
+  },
+  {
+    "id": "cycle39-jolt-release-memory-date-filter",
+    "url": "https://github.com/a16z/jolt/releases",
+    "title": "Jolt displayed release and older batched-memory PR date check"
+  },
+  {
+    "id": "cycle40-akita-mixed-factor-boundary",
+    "url": "https://layerzero-labs.github.io/akita/foundations/eq-factored-sumcheck.html",
+    "title": "Akita equality-factored sumcheck: mixed-factor and normalization contract"
+  },
+  {
+    "id": "cycle40-akita-release-compressed-round-pin",
+    "url": "https://github.com/LayerZero-Labs/akita/commit/029ceceaba879a0d9bf80a47d2e08534e630457d",
+    "title": "Akita v0.1.0 release-linked compressed-round validation commit"
+  },
+  {
+    "id": "cycle40-nvidia-clmad-isa-scope-refresh",
+    "url": "https://developer.nvidia.com/blog/?p=119649",
+    "title": "NVIDIA carryless GPU sumcheck and current PTX instruction contract"
+  },
+  {
+    "id": "cycle40-monomial-benchmark-boundary-refresh",
+    "url": "https://github.com/quangvdao/monomial-sumcheck-benchmarks",
+    "title": "Monomial sumcheck repository methodology and preparation boundary"
+  },
+  {
+    "id": "cycle40-new-older-devirgo-batch-filter",
+    "url": "https://arxiv.org/abs/2210.00264",
+    "title": "deVirgo in zkBridge: independent-copy batching, PCS and privacy boundary"
+  },
+  {
+    "id": "cycle41-akita-suffix-cache-contract",
+    "url": "https://layerzero-labs.github.io/akita/foundations/eq-factored-sumcheck.html",
+    "title": "Akita split equality suffix caches and mixed-factor message boundary"
+  },
+  {
+    "id": "cycle41-akita-release-validation-refresh",
+    "url": "https://github.com/LayerZero-Labs/akita/releases",
+    "title": "Akita September release and inspected ordinary compressed-round validation diff"
+  },
+  {
+    "id": "cycle41-bddt-extended-2026-cache-refresh",
+    "url": "https://eprint.iacr.org/2026/587",
+    "title": "Speeding Up Sum-Check Proving (Extended Version): decomposable equality overhead"
+  },
+  {
+    "id": "cycle41-dao-thaler-2024-cache-refresh",
+    "url": "https://eprint.iacr.org/2024/1210",
+    "title": "More Optimizations to Sum-Check Proving: avoid claiming the whole Eq speedup twice"
+  },
+  {
+    "id": "cycle41-libra-older-sparse-bookkeeping",
+    "url": "https://eprint.iacr.org/2019/317",
+    "title": "Libra: older sparse GKR bookkeeping, initialization costs and distinct ZK obligations"
+  },
+  {
+    "id": "cycle42-plonky3-current-release-fusion-refresh",
+    "url": "https://github.com/Plonky3/Plonky3/releases/tag/v0.8.0",
+    "title": "Plonky3 v0.8.0 release: ordinary/hiding fusion and periodic-column ownership"
+  },
+  {
+    "id": "cycle42-plonky3-versioned-strategy-ownership",
+    "url": "https://docs.rs/p3-sumcheck/0.8.0/src/p3_sumcheck/strategy.rs.html",
+    "title": "Version-addressed Plonky3 sumcheck strategy: pending binding and reader settlement"
+  },
+  {
+    "id": "cycle42-new-older-bcs-composition",
+    "url": "https://eprint.iacr.org/2021/333",
+    "title": "Sumcheck Arguments and their Applications: older commitment/folding architecture filter"
+  },
+  {
+    "id": "cycle42-packed-mask-author-scope-filter",
+    "url": "https://github.com/ls-rm-rf/sumcheck",
+    "title": "Author experiment repository for Packing Breaks the Mask: fixed-suffix privacy boundary"
+  },
+  {
+    "id": "cycle43-plonky3-period-storage-refinement",
+    "url": "https://github.com/Plonky3/Plonky3/pull/2197",
+    "title": "Plonky3 periodic-column compact packing: actual PR and generic-width correction"
+  },
+  {
+    "id": "cycle43-icicle-release-scope-refresh",
+    "url": "https://github.com/ingonyama-zk/icicle/releases/tag/v4.0.0",
+    "title": "ICICLE v4.0.0 release and inspected version bump"
+  },
+  {
+    "id": "cycle43-product-time-space-refresh",
+    "url": "https://eprint.iacr.org/2025/1473",
+    "title": "Time-Space Trade-Offs for Sumcheck: compact structure versus generic reconstruction"
+  },
+  {
+    "id": "cycle43-new-older-regular-circuit-filter",
+    "url": "https://eprint.iacr.org/2013/351",
+    "title": "Time-Optimal Interactive Proofs for Circuit Evaluation: regularity and independent-copy boundary"
+  },
+  {
+    "id": "cycle44-gpir-cache-wall-new",
+    "url": "https://arxiv.org/abs/2604.04696",
+    "title": "GPIR: current 5090 stage-aware batching and cache-capacity study"
+  },
+  {
+    "id": "cycle44-small-point-shift-ntt-new-older",
+    "url": "https://www.mdpi.com/2227-7390/12/3/458",
+    "title": "Older small-point matrix NTT with power-of-two twiddles, newly assessed"
+  },
+  {
+    "id": "cycle44-cuda-zkp-ntt-refined-negative",
+    "url": "https://github.com/Artemarius/cuda-zkp-ntt/releases",
+    "title": "Current displayed cuda-zkp-ntt release and inspected Goldilocks twiddle ownership"
+  },
+  {
+    "id": "cycle45-new-older-native-root-shift-filter",
+    "url": "https://www.ingonyama.com/oldblogs/goldilocks-ntt-trick",
+    "title": "Goldilocks NTT Trick: original older note and actual native-root compatibility"
+  },
+  {
+    "id": "cycle45-gpu-ntt-current-interface-date-filter",
+    "url": "https://eprint.iacr.org/2023/1410",
+    "title": "GPU-NTT: older memory-layout paper and current Barrett interface/2026 fixes"
+  },
+  {
+    "id": "cycle45-new-september-small-modulus-scope-filter",
+    "url": "https://arxiv.org/abs/2609.28904",
+    "title": "September2026 CGLA NTT: exact reconstruction and cyclic/incomplete scope boundary"
+  },
+  {
+    "id": "cycle45-cuda-otf-negative-scope-refinement",
+    "url": "https://github.com/Artemarius/cuda-zkp-ntt/releases",
+    "title": "Current CUDA NTT release negatives: OTF and higher-radix tradeoffs"
+  },
+  {
+    "id": "cycle46-new-older-mle-lookup-compatibility",
+    "url": "https://eprint.iacr.org/2024/1058",
+    "title": "Natively Compatible Super-Efficient Lookup Arguments and How to Apply Them"
+  },
+  {
+    "id": "cycle46-logup-chunk-local-fallback-refinement",
+    "url": "https://github.com/Plonky3/Plonky3/blob/main/lookup/src/logup.rs",
+    "title": "Plonky3 LogUp chunk-local batch inversion implementation"
+  },
+  {
+    "id": "cycle46-recent-lookup-obligation-review",
+    "url": "https://github.com/Plonky3/Plonky3/pull/2293",
+    "title": "Plonky3 caller soundness obligations and derived schedule guards"
+  },
+  {
+    "id": "cycle46-logup-primary-refusal-refresh",
+    "url": "https://eprint.iacr.org/2022/1530",
+    "title": "Multivariate lookups based on logarithmic derivatives"
+  },
+  {
+    "id": "cycle47-new-older-coefficient-sumcheck-framework",
+    "url": "https://eprint.iacr.org/2021/333",
+    "title": "Sumcheck Arguments and their Applications: older coefficient construction and commitment coupling"
+  },
+  {
+    "id": "cycle47-coefficient-factory-wire-boundary",
+    "url": "https://github.com/compsec-epfl/efficient-sumcheck/blob/main/docs/design.md",
+    "title": "Efficient Sumcheck coefficient factory, current design and original-point boundary"
+  },
+  {
+    "id": "cycle47-september-projective-methodology-filter",
+    "url": "https://github.com/quangvdao/monomial-sumcheck-benchmarks",
+    "title": "Monomial benchmark September process isolation and original-domain distinction"
+  },
+  {
+    "id": "cycle47-new-october-binary-field-release-filter",
+    "url": "https://docs.rs/crate/hekate-math/0.12.1",
+    "title": "Hekate-math October 0.12.1 package and private arithmetic feature boundary"
+  },
+  {
+    "id": "cycle47-product-sumcheck-coefficient-refresh",
+    "url": "https://eprint.iacr.org/2026/587",
+    "title": "Extended product sumcheck paper and local coefficient boundary"
+  },
+  {
+    "id": "cycle48-coefficient-part-reduction-boundary",
+    "url": "https://github.com/compsec-epfl/efficient-sumcheck/blob/main/docs/design.md",
+    "title": "Efficient Sumcheck coefficient factory and reduction/wire composition boundary"
+  },
+  {
+    "id": "cycle48-october-p3-release-and-linear-coefficients",
+    "url": "https://docs.rs/crate/p3-sumcheck/latest",
+    "title": "Plonky3 sumcheck Oct11 release candidate metadata and inspected0.8 coefficient reduction"
+  },
+  {
+    "id": "cycle48-zkllmpot-fulltext-composition-filter",
+    "url": "https://arxiv.org/html/2610.08258v1",
+    "title": "zkLLMPoT full text: scope, composition and operator aggregation"
+  },
+  {
+    "id": "cycle48-new-older-allspice-static-selection",
+    "url": "https://www.microsoft.com/en-us/research/publication/a-hybrid-architecture-for-interactive-verifiable-computation/",
+    "title": "A Hybrid Architecture for Interactive Verifiable Computation: public cost selection and batching"
+  },
+  {
+    "id": "cycle50-new-older-hyperplonk-affine-karatsuba",
+    "url": "https://eprint.iacr.org/2022/1355",
+    "title": "HyperPlonk high-degree sumcheck coefficient multiplication and Karatsuba"
+  },
+  {
+    "id": "cycle50-plonky3-october-release-and-equality-traffic",
+    "url": "https://github.com/Plonky3/Plonky3/releases/tag/p3-sumcheck-v0.9.0-rc.1",
+    "title": "Plonky3 October11 release, packed equality traffic and fresh mask sampler boundary"
+  },
+  {
+    "id": "cycle50-hardware-locality-cost-model-refresh",
+    "url": "https://arxiv.org/abs/2606.16146",
+    "title": "Matched NTT/SumCheck locality, pipeline and arithmetic comparison boundary"
+  },
+  {
+    "id": "cycle50-icicle-release-refresh-no-ntt-migration",
+    "url": "https://github.com/ingonyama-zk/icicle/releases/tag/v4.0.0",
+    "title": "ICICLE current displayed v4 release and interface migration scope"
+  },
+  {
+    "id": "cycle51-new-older-roche-static-space",
+    "url": "https://roche.work/research/papers/sfu09.pdf",
+    "title": "Fast and Small: Multiplying Polynomials without Extra Space"
+  },
+  {
+    "id": "cycle51-plonky3-october16-plan-ownership",
+    "url": "https://github.com/Plonky3/Plonky3/releases/tag/p3-sumcheck-v0.9.0-rc.2",
+    "title": "Plonky3 October16 rc.2 and immutable public protocol plans"
+  },
+  {
+    "id": "cycle51-new-statesync-gkr-reuse-scope",
+    "url": "https://arxiv.org/abs/2610.14849",
+    "title": "StateSync-GKR reusable sparse GKR engine and preparation boundaries"
+  },
+  {
+    "id": "cycle51-expander-release-date-filter",
+    "url": "https://github.com/PolyhedraZK/Expander/releases",
+    "title": "Expander release refresh: test data is not a new GPU prover release"
+  },
+  {
+    "id": "cycle52-new-older-haggies-public-cse-liveness",
+    "url": "https://arxiv.org/abs/0907.3714",
+    "title": "Optimising Code Generation with haggies: expression reuse and temporary lifetimes"
+  },
+  {
+    "id": "cycle52-plonky3-compiled-component-scope",
+    "url": "https://github.com/Plonky3/Plonky3/pull/2292",
+    "title": "Plonky3 repeated compiled components and October16 rc.2 release refresh"
+  },
+  {
+    "id": "cycle52-deepprove-softmax-table-reuse-exactness-filter",
+    "url": "https://github.com/Lagrange-Labs/deep-prove/blob/master/zkml/docs/src/softmax.md",
+    "title": "DeepProve softmax table reuse and approximate-normalization boundary"
+  },
+  {
+    "id": "cycle53-new-spagkr-public-vs-private-sparsity",
+    "url": "https://eprint.iacr.org/2024/1018",
+    "title": "SpaGKR: older sparsity-aware GKR and transformed-model boundary"
+  },
+  {
+    "id": "cycle53-new-goquant-exactness-filter",
+    "url": "https://arxiv.org/abs/2605.26092",
+    "title": "GoQuant July2026 revision: multiplier-reduced quantization is a changed model"
+  },
+  {
+    "id": "cycle53-plonky3-jagged-claims-pcs-boundary",
+    "url": "https://github.com/Plonky3/Plonky3/pull/2285",
+    "title": "Plonky3 authenticated jagged claims and October16rc.2 scope"
+  },
+  {
+    "id": "cycle53-goldilocks-cache-residency-refresh",
+    "url": "https://github.com/yrrid/GoldilocksNTT",
+    "title": "GoldilocksNTT memory-residency qualification refresh"
+  },
+  {
+    "id": "cycle53-nanozk-v2-coverage-refresh",
+    "url": "https://arxiv.org/abs/2603.18046",
+    "title": "NanoZK v2 layerwise composition and approximation scope refresh"
+  },
+  {
+    "id": "cycle54-new-older-dory-and-release-point-binding",
+    "url": "https://eprint.iacr.org/2020/1274",
+    "title": "Dory 2020 PCS and August2026 implementation release: caching does not replace point binding"
+  },
+  {
+    "id": "cycle54-epfl-concrete-coefficient-wire-and-oracle-refresh",
+    "url": "https://raw.githubusercontent.com/compsec-epfl/efficient-sumcheck/main/src/provers/coefficient.rs",
+    "title": "EPFL concrete MSB coefficient factory and EvalsInfty boundary"
+  },
+  {
+    "id": "cycle54-folddcs-older-commitment-and-hiding-filter",
+    "url": "https://arxiv.org/abs/2504.00693",
+    "title": "Fold-DCS refresh: fewer rounds still charge multivariate commitments and hiding"
+  },
+  {
+    "id": "cycle54-nvidia-binary-field-boundary-refresh",
+    "url": "https://developer.nvidia.com/blog/?p=119649",
+    "title": "CUDA13.3 carryless multiplication remains a binary-field primitive"
+  },
+  {
+    "id": "cycle54-icicle-release-refresh-memory-overlap-charge",
+    "url": "https://github.com/ingonyama-zk/icicle/releases",
+    "title": "ICICLE release and concurrent NTT transfer scratch tradeoff refresh"
+  },
+  {
+    "id": "cycle54-plonky3-oct16-batched-hash-metadata",
+    "url": "https://docs.rs/crate/p3-blake2s/0.9.0-rc.2",
+    "title": "October16 Plonky3 BLAKE2s package metadata and hash-contract filter"
+  },
+  {
+    "id": "cycle54-faest-october-search-blocked",
+    "url": "https://eprint.iacr.org/2026/2489",
+    "title": "FAEST GPU field multiplication October discovery: primary fetch blocked"
+  },
+  {
+    "id": "cycle55-september-quantization-table-ceiling",
+    "url": "https://arxiv.org/abs/2609.36437",
+    "title": "Bits Under ZK-LLM: utility simulation and proving-cost boundaries"
+  },
+  {
+    "id": "cycle55-oct15-range-physical-batch-ownership",
+    "url": "https://arxiv.org/abs/2610.21241",
+    "title": "Range: per-object overhead and completion-owned physical batches"
+  },
+  {
+    "id": "cycle55-new-older-private-matrix-lookup",
+    "url": "https://eprint.iacr.org/2023/1518",
+    "title": "cq+/zkcq+/cq++ private-table lookup and composition filter"
+  },
+  {
+    "id": "cycle55-verilora-2026-source-exactness-filter",
+    "url": "https://www.ndss-symposium.org/wp-content/uploads/2026-f2361-paper.pdf",
+    "title": "VeriLoRA zkSoftmax: actual CUDA source versus native integer relation"
+  },
+  {
+    "id": "cycle55-deepprove-license-history-and-amortization",
+    "url": "https://github.com/Lagrange-Labs/deep-prove/blob/master/zkml/README.md",
+    "title": "DeepProve reusable setup versus recurring lookup costs and current license"
+  },
+  {
+    "id": "cycle55-nonlinear-lookup-small-table-refresh",
+    "url": "https://eprint.iacr.org/2025/507",
+    "title": "Small-table nonlinear lookup framework metadata refresh"
+  },
+  {
+    "id": "cycle56-airbender-prime-new-scope-and-version",
+    "url": "https://www.zksync.io/blog/introducing-airbender-prime",
+    "title": "October Airbender Prime announcement: GPU proof scope and unversioned final stage"
+  },
+  {
+    "id": "cycle56-icicle-overlap-storage-and-release-pin",
+    "url": "https://github.com/ingonyama-zk/icicle/blob/main/examples/c%2B%2B/best-practice-ntt/README.md",
+    "title": "ICICLE transfer overlap requires additional device vectors; release target inspected"
+  },
+  {
+    "id": "cycle56-sumcats-register-spill-specific-refresh",
+    "url": "https://tanvirarafin.github.io/assets/pdf/DATE_2026.pdf",
+    "title": "SumCATS shared accumulators and small-shape setup regressions"
+  },
+  {
+    "id": "cycle56-product-time-space-memory-is-not-free",
+    "url": "https://eprint.iacr.org/2025/1473",
+    "title": "Product-sumcheck streaming trades recomputation for table capacity"
+  },
+  {
+    "id": "cycle56-new-older-sethi-register-allocation",
+    "url": "https://epubs.siam.org/doi/10.1137/0204020",
+    "title": "Complete Register Allocation Problems: general DAG scheduling is not an optimal tree schedule"
+  },
+  {
+    "id": "cycle56-hardware-locality-scope-refresh",
+    "url": "https://arxiv.org/abs/2606.16146",
+    "title": "NTT/sumcheck locality and PIM architecture scope refresh"
+  },
+  {
+    "id": "cycle57-zkllmpot-v2-scope-correction",
+    "url": "https://arxiv.org/html/2610.08258v2",
+    "title": "zkLLMPoT v2: actual October revision and operator accounting"
+  },
+  {
+    "id": "cycle57-zktransformer-current-readme-correction",
+    "url": "https://github.com/uiuc-kang-lab/zkTransformer",
+    "title": "zkTransformer current artifact: structured lookup, actual benchmark/backend scope"
+  },
+  {
+    "id": "cycle57-new-older-updatable-lookup-ram",
+    "url": "https://eprint.iacr.org/2024/840",
+    "title": "Batching-Efficient RAM using Updatable Lookup Arguments"
+  },
+  {
+    "id": "cycle57-new-zkiop-composition-conditions",
+    "url": "https://eprint.iacr.org/2026/307",
+    "title": "Composition Theorems for Zero-Knowledge IOPs"
+  },
+  {
+    "id": "cycle58-epfl-msb-dependency-and-commit-refresh",
+    "url": "https://github.com/compsec-epfl/efficient-sumcheck/blob/main/docs/design.md",
+    "title": "Efficient Sumcheck MSB layout and terminal oracle contract"
+  },
+  {
+    "id": "cycle58-sumcheck-extended-approved-date-refinement",
+    "url": "https://eprint.iacr.org/2026/587",
+    "title": "Speeding Up Sum-Check Proving (Extended Version)"
+  },
+  {
+    "id": "cycle58-new-older-quarks-preprocessing-filter",
+    "url": "https://eprint.iacr.org/2020/1275",
+    "title": "Quarks: Quadruple-efficient transparent zkSNARKs"
+  },
+  {
+    "id": "cycle58-icicle-current-release-msb-contract-filter",
+    "url": "https://github.com/ingonyama-zk/icicle/releases/tag/v4.0.0",
+    "title": "ICICLE displayed v4.0.0 release and version-bump commit"
+  },
+  {
+    "id": "cycle58-october-plonky3-release-refresh-blocked",
+    "url": "https://github.com/Plonky3/Plonky3/releases/tag/p3-sumcheck-v0.9.0-rc.2",
+    "title": "Plonky3 p3-sumcheck0.9.0-rc.2 October release refresh attempt"
+  },
+  {
+    "id": "cycle59-new-morph-layout-and-memory-cost-filter",
+    "url": "https://arxiv.org/abs/2604.17808",
+    "title": "Enabling AI ASICs for Zero Knowledge Proof (MORPH)"
+  },
+  {
+    "id": "cycle59-new-older-zkmatrix-batching-forward-cost-filter",
+    "url": "https://eprint.iacr.org/2024/161",
+    "title": "zkMatrix: Batched Short Proof for Committed Matrix Multiplication"
+  },
+  {
+    "id": "cycle59-tensorzkp-witness-and-field-boundary-refresh",
+    "url": "https://www.usenix.org/conference/usenixsecurity26/presentation/lu-tao",
+    "title": "TensorZKP proceedings: matrix layout and field/hardware boundary"
+  },
+  {
+    "id": "cycle59-icicle-full-commit-and-license-clock-filter",
+    "url": "https://dev.ingonyama.com/api/cpp/sumcheck",
+    "title": "ICICLE current sumcheck docs and v4 release: extension limitation, full commit and license scope"
+  },
+  {
+    "id": "cycle59-tassle-small-table-priority-refresh",
+    "url": "https://eprint.iacr.org/2024/1075",
+    "title": "TaSSLE: Lasso for the commitment-phobic \u2014 large-table boundary"
+  },
+  {
+    "id": "cycle59-october-plonky3-exact-release-access-blocked",
+    "url": "https://github.com/Plonky3/Plonky3/releases/tag/p3-sumcheck-v0.9.0-rc.2",
+    "title": "October p3-sumcheck0.9.0-rc.2 refresh attempt"
+  },
+  {
+    "id": "cycle60-new-integer-alibi-exact-projection-contract",
+    "url": "https://arxiv.org/abs/2608.13756",
+    "title": "The Integer Alibi: accumulator/epilogue boundary for exact native witness arithmetic"
+  },
+  {
+    "id": "cycle60-cutlass-int8-open-pr-commit-and-license-scope",
+    "url": "https://github.com/NVIDIA/cutlass/pull/3302",
+    "title": "CUTLASS INT8 MMA source and open PR3302: exact accumulator and output contract"
+  },
+  {
+    "id": "cycle60-cutlass48-current-release-date-discrepancy",
+    "url": "https://github.com/NVIDIA/cutlass/releases/tag/v4.8.0",
+    "title": "CUTLASS4.8.0 current release and September changelog date"
+  },
+  {
+    "id": "cycle60-new-awe-fp4-exactness-negative-native-int8-baseline",
+    "url": "https://arxiv.org/abs/2609.24519",
+    "title": "AWE: exact six-FP4-product INT8 encoding, baseline filter"
+  },
+  {
+    "id": "cycle60-ozaki-known-older-refresh-width-bound",
+    "url": "https://arxiv.org/abs/2306.11975",
+    "title": "DGEMM on Integer Matrix Multiplication Unit / ozIMMU refresh"
+  },
+  {
+    "id": "cycle60-new-zkie-public-activation-and-verifier-rerun-filter",
+    "url": "https://github.com/trustless-ai/zkIE",
+    "title": "zkIE current README: public activations, verifier recomputation"
+  },
+  {
+    "id": "cycle61-hybridspartan-october14-proof-size-cost-correction",
+    "url": "https://eprint.iacr.org/2025/908",
+    "title": "SubLogarithmic Linear Time SNARKs from Improved Sumcheck"
+  },
+  {
+    "id": "cycle61-new-older-sublinear-space-merkle-transcript-boundary",
+    "url": "https://arxiv.org/abs/2509.05326",
+    "title": "Zero-Knowledge Proofs in Sublinear Space v2"
+  },
+  {
+    "id": "cycle61-new-hc-stark-resource-bounds-and-version-scope",
+    "url": "https://github.com/logannye/hc-stark",
+    "title": "hc-stark resource-bounded Plonky3 backend and retired KZG prototype"
+  },
+  {
+    "id": "cycle61-epfl-unreleased-rewrite-and-rate-limited-pin",
+    "url": "https://github.com/compsec-epfl/efficient-sumcheck",
+    "title": "Efficient Sumcheck current streaming design and unreleased rewrite"
+  },
+  {
+    "id": "cycle61-cuda-ntt-invalid-hierarchy-negative-preserved",
+    "url": "https://github.com/Artemarius/cuda-zkp-ntt/releases",
+    "title": "cuda-zkp-ntt displayed release and invalid hierarchical transform"
+  },
+  {
+    "id": "cycle61-october-algebraic-geometry-primary-access-blocked",
+    "url": "https://eprint.iacr.org/2026/2494",
+    "title": "Speeding up Sumcheck using Algebraic Geometry discovery, primary unavailable"
+  },
+  {
+    "id": "cycle62-new-older-hobbit-streaming-total-space",
+    "url": "https://www.usenix.org/conference/usenixsecurity25/presentation/pappas",
+    "title": "Hobbit: Space-Efficient zkSNARK with Optimal Prover Time"
+  },
+  {
+    "id": "cycle62-new-ring-logup-domain-boundary",
+    "url": "https://eprint.iacr.org/2026/471",
+    "title": "Lookup Arguments over Rings and Applications to Batch-Verification of RAM Programs"
+  },
+  {
+    "id": "cycle62-statesync-reuse-measurement-scope-refined",
+    "url": "https://arxiv.org/abs/2610.14849",
+    "title": "StateSync-GKR: Design and Evaluation of a Reusable Sparse GKR Engine"
+  },
+  {
+    "id": "cycle62-statesync-current-distribution-license",
+    "url": "https://github.com/Oraclizer/statesync-gkr",
+    "title": "StateSync-GKR official repository and current license scope"
+  },
+  {
+    "id": "cycle62-deepprove-history-release-license-refresh",
+    "url": "https://github.com/Lagrange-Labs/deep-prove",
+    "title": "DeepProve history, empty releases page and custom license"
+  },
+  {
+    "id": "cycle63-new-older-whir-p3-svo-degree-one-boundary",
+    "url": "https://blog.lambdaclass.com/speeding-up-sumcheck-an-in-depth-walkthrough-of-our-implementation/",
+    "title": "LambdaClass WHIR/Plonky3 implementation of base-vs-extension separation"
+  },
+  {
+    "id": "cycle63-new-prpll-cuda-ntt-consumer-hardware-filter",
+    "url": "https://github.com/gwoltman/gpuowl",
+    "title": "PRPLL/gpuowl CUDA NTT and consumer-GPU tuning history"
+  },
+  {
+    "id": "cycle63-plonky3-oct16-release-exact-rng-boundary",
+    "url": "https://github.com/Plonky3/Plonky3/releases",
+    "title": "Plonky3 p3-sumcheck0.9.0-rc.2 October16 release refresh"
+  },
+  {
+    "id": "cycle63-extended-sumcheck-base-constant-scope-refreshed",
+    "url": "https://eprint.iacr.org/2026/587",
+    "title": "Speeding Up Sum-Check Proving (Extended Version), base/extension cost boundary"
+  },
+  {
+    "id": "cycle63-october-algebraic-geometry-primary-blocked",
+    "url": "https://eprint.iacr.org/2026/2494",
+    "title": "Speeding up Sumcheck using Algebraic Geometry, repeated primary access blocker"
+  },
+  {
+    "id": "cycle64-new-older-arkworks-product-list-oracle",
+    "url": "https://github.com/arkworks-rs/sumcheck",
+    "title": "Arkworks older product-list sumcheck: oracle structure and ordering boundary"
+  },
+  {
+    "id": "cycle64-plonky3-oct16-release-refresh",
+    "url": "https://github.com/Plonky3/Plonky3/releases",
+    "title": "Plonky3 October release refresh: equality and mask-sampling scope"
+  },
+  {
+    "id": "cycle64-plonky3-equality-kernel-negative-refinement",
+    "url": "https://github.com/Plonky3/Plonky3/pull/2305",
+    "title": "Plonky3 PR2305: bit order, equality setup costs and small-shape regression"
+  },
+  {
+    "id": "cycle64-mask-rng-obligation-refresh",
+    "url": "https://github.com/Plonky3/Plonky3/pull/2260",
+    "title": "Plonky3 PR2260: fresh unpredictable masks remain required"
+  },
+  {
+    "id": "cycle64-statesync-october-prepared-request-boundary",
+    "url": "https://arxiv.org/abs/2610.14849",
+    "title": "StateSync-GKR October paper: prepared requests still charge full-proof delivery"
+  },
+  {
+    "id": "cycle64-equality-paper-degree-and-group-claim-contract",
+    "url": "https://eprint.iacr.org/2024/1210",
+    "title": "More Optimizations to Sum-Check Proving: exact per-group applicability"
+  },
+  {
+    "id": "cycle65-nvidia-cache-and-traffic-boundary",
+    "url": "https://docs.nvidia.com/nsight-compute/ProfilingGuide/index.html",
+    "title": "Nsight Compute current profiling and replay boundaries"
+  },
+  {
+    "id": "cycle65-new-older-hierarchical-roofline",
+    "url": "https://arxiv.org/abs/2009.02449",
+    "title": "Hierarchical Roofline Analysis, newly assessed older methodology"
+  },
+  {
+    "id": "cycle65-new-older-nersc-traffic-reference",
+    "url": "https://gitlab.com/NERSC/roofline-on-nvidia-gpus/-/raw/master/README.md",
+    "title": "NERSC older hierarchical metric workflow and measurement controls"
+  },
+  {
+    "id": "cycle65-instruction-wall-boundary-refresh",
+    "url": "https://arxiv.org/abs/2608.13696",
+    "title": "August GPU instruction-wall paper: no bandwidth-only inference"
+  },
+  {
+    "id": "cycle65-valk-artifact-scope",
+    "url": "https://github.com/SvenHepkema/Valk/tree/arxiv-artifact",
+    "title": "Valk arXiv artifact repository inspection"
+  },
+  {
+    "id": "cycle65-oct16-plonky3-release-and-caller-gates",
+    "url": "https://github.com/Plonky3/Plonky3/releases",
+    "title": "Plonky3 October16 rc.2 release refresh"
+  },
+  {
+    "id": "cycle66-new-older-logup-star-actual-commitment-boundary",
+    "url": "https://eprint.iacr.org/2025/946",
+    "title": "Logup*: small-table indexed lookup and already-uncommitted native query boundary"
+  },
+  {
+    "id": "cycle66-new-older-powdr-logup-star-hash-pcs",
+    "url": "https://powdr.org/papers/twist_shout_logup_star.pdf",
+    "title": "Twist and Shout via logup*: hash PCS, pushforward commitment and terminal binding"
+  },
+  {
+    "id": "cycle66-binius-logup-star-scope-license-no-release",
+    "url": "https://github.com/binius-zk/binius64/issues/1368",
+    "title": "Binius64 LogUp* task: reduction outputs remain caller-owned claims"
+  },
+  {
+    "id": "cycle66-oct16-plonky3-release-docs-scope",
+    "url": "https://github.com/Plonky3/Plonky3/releases",
+    "title": "October16 Plonky3 rc.2 refresh: current release versus served docs"
+  },
+  {
+    "id": "cycle66-september-quantization-query-count-refresh",
+    "url": "https://arxiv.org/abs/2609.36437",
+    "title": "Bits Under ZK-LLM: table/precision savings require whole-prover accounting"
+  },
+  {
+    "id": "cycle67-logup-star-private-virtual-claim",
+    "url": "https://eprint.iacr.org/2025/946",
+    "title": "Logup*: indexed lookup architecture, private evaluation boundary"
+  },
+  {
+    "id": "cycle67-powdr-pushforward-commit-and-terminal-binding",
+    "url": "https://powdr.org/papers/twist_shout_logup_star.pdf",
+    "title": "Twist and Shout via logup*: pushforward opening obligations"
+  },
+  {
+    "id": "cycle67-binius-caller-owned-logup-terminals",
+    "url": "https://github.com/binius-zk/binius64/issues/1368",
+    "title": "Binius64 LogUp* task and release status"
+  },
+  {
+    "id": "cycle67-oct16-plonky3-release-refresh",
+    "url": "https://github.com/Plonky3/Plonky3/releases",
+    "title": "Plonky3 October16 rc.2 releases"
+  },
+  {
+    "id": "cycle67-plonky3-residual-claims-and-lint-limit",
+    "url": "https://github.com/Plonky3/Plonky3/pull/2293",
+    "title": "Plonky3 PR2293: residual claim obligations and must_use limits"
+  },
+  {
+    "id": "cycle67-tassle-prior-small-table-negative-retained",
+    "url": "https://eprint.iacr.org/2024/1075",
+    "title": "TaSSLE small-table boundary refresh"
+  },
+  {
+    "id": "cycle67-new-older-duplex-privacy-versus-compatibility",
+    "url": "https://eprint.iacr.org/2024/1509",
+    "title": "DUPLEX: new older lookup privacy architecture assessment"
+  },
+  {
+    "id": "cycle67-new-older-locq-preprocessing-is-not-recurring-helper-deletion",
+    "url": "https://eprint.iacr.org/2024/618",
+    "title": "Locq / Losum: new older private lookup and preprocessing boundary"
+  },
+  {
+    "id": "cycle68-powdr-batch-claims-versus-dense-padding",
+    "url": "https://powdr.org/papers/twist_shout_logup_star.pdf",
+    "title": "Twist and Shout via logup*: column batching and distinct-point reduction"
+  },
+  {
+    "id": "cycle68-binius-column-domain-and-terminal-boundary",
+    "url": "https://github.com/binius-zk/binius64/issues/1368",
+    "title": "Binius64 LogUp* task, January batching contract and September history"
+  },
+  {
+    "id": "cycle68-oct16-plonky3-release-and-served-mask-scope",
+    "url": "https://github.com/Plonky3/Plonky3/releases",
+    "title": "Plonky3 October16 release and currently served HVZK mask documentation"
+  },
+  {
+    "id": "cycle68-zk-ior-composition-mask-budget-reference",
+    "url": "https://eprint.iacr.org/2026/391",
+    "title": "Zero-Knowledge IOPPs for Constrained Interleaved Codes: composition boundary"
+  },
+  {
+    "id": "cycle68-new-older-mle-compatible-super-efficient-lookup",
+    "url": "https://eprint.iacr.org/2024/1058",
+    "title": "Natively Compatible Super-Efficient Lookup Arguments and How to Apply Them"
+  },
+  {
+    "id": "cycle68-zorch-natural-width-and-full-stage-negative",
+    "url": "https://github.com/fractalyze/openvm-zorch/issues/44",
+    "title": "openvm-zorch issue44: natural widths, launch cost and corrected enclosing result"
+  },
+  {
+    "id": "cycle68-oct11-zkllmpot-recent-public-challenge-filter",
+    "url": "https://arxiv.org/abs/2610.08258",
+    "title": "zkLLMPoT v2: public audit sequences and operator benchmark scope"
+  },
+  {
+    "id": "cycle69-sp1-oct10-ordering-and-constraint-release",
+    "url": "https://github.com/succinctlabs/sp1/releases/tag/v6.9.0",
+    "title": "SP1 v6.9.0: NTT order and zerocheck changes"
+  },
+  {
+    "id": "cycle69-epfl-msb-lsb-and-terminal-scope",
+    "url": "https://github.com/compsec-epfl/efficient-sumcheck",
+    "title": "Efficient Sumcheck: variable order and caller terminal obligations"
+  },
+  {
+    "id": "cycle69-cmu-round-batching-domain-cost",
+    "url": "https://www.cs.cmu.edu/~csd-phd-blog/2026/sumcheck-proving/",
+    "title": "Algorithms for the Sum-check Protocol: author explanation"
+  },
+  {
+    "id": "cycle69-statesync-recent-sparse-baseline-refresh",
+    "url": "https://arxiv.org/abs/2610.14849",
+    "title": "StateSync-GKR: sparse and prepared-request measurement scope"
+  },
+  {
+    "id": "cycle69-new-older-fli-final-proving-obligation",
+    "url": "https://eprint.iacr.org/2024/1531",
+    "title": "FLI: Folding Lookup Instances"
+  },
+  {
+    "id": "cycle69-new-older-deep-thought-state-binding",
+    "url": "https://eprint.iacr.org/2024/325",
+    "title": "Proofs for Deep Thought: accumulation for large memories"
+  },
+  {
+    "id": "cycle69-new-older-power-circuit-wiring-filter",
+    "url": "https://eprint.iacr.org/2023/1611",
+    "title": "Power circuits: a new arithmetization for GKR-styled sumcheck"
+  },
+  {
+    "id": "cycle69-cfs-whole-cube-mask-preservation",
+    "url": "https://arxiv.org/abs/1704.02086",
+    "title": "A Zero Knowledge Sumcheck and its Applications"
+  },
+  {
+    "id": "cycle70-sp1-october-ordering-refresh",
+    "url": "https://github.com/succinctlabs/sp1/releases/tag/v6.9.0",
+    "title": "SP1 current release and NTT producer/consumer ordering contract"
+  },
+  {
+    "id": "cycle70-epfl-split-eq-versus-distinct-column-mixtures",
+    "url": "https://raw.githubusercontent.com/compsec-epfl/efficient-sumcheck/main/src/provers/eq_factored.rs",
+    "title": "Efficient Sumcheck current EqFactoredProver source"
+  },
+  {
+    "id": "cycle70-combined-sumcheck-factorization-boundary",
+    "url": "https://eprint.iacr.org/2026/587",
+    "title": "Speeding Up Sum-Check Proving (Extended Version)"
+  },
+  {
+    "id": "cycle70-jolt-current-release-old-implementation-dates",
+    "url": "https://github.com/a16z/jolt/releases",
+    "title": "Jolt displayed release and older split-equality/streaming PRs"
+  },
+  {
+    "id": "cycle70-new-older-orion-revised-security-filter",
+    "url": "https://eprint.iacr.org/2022/1010",
+    "title": "Orion: linear-time commitments and corrected code switching"
+  },
+  {
+    "id": "cycle70-older-time-space-tradeoff-retained",
+    "url": "https://eprint.iacr.org/2024/524",
+    "title": "A Time-Space Tradeoff for the Sumcheck Prover"
+  },
+  {
+    "id": "cycle71-p3-versioned-pending-binding-state",
+    "url": "https://docs.rs/p3-sumcheck/0.8.0/src/p3_sumcheck/strategy.rs.html",
+    "title": "Plonky3 p3-sumcheck0.8.0 pending-binding implementation"
+  },
+  {
+    "id": "cycle71-p3-current-release-and-idft-allocation-filter",
+    "url": "https://github.com/Plonky3/Plonky3/releases",
+    "title": "Plonky3 October16 displayed releases and September9 IDFT/matrix PR"
+  },
+  {
+    "id": "cycle71-new-older-ntt-consecutive-twiddle-products",
+    "url": "https://arxiv.org/abs/2012.01968",
+    "title": "Accelerating Number Theoretic Transformations for Bootstrappable Homomorphic Encryption on GPUs"
+  },
+  {
+    "id": "cycle71-hermes-fpga-dataflow-scope",
+    "url": "https://arxiv.org/abs/2603.01556",
+    "title": "Hermes: A Unified High-Performance NTT Architecture with Hybrid Dataflow"
+  },
+  {
+    "id": "cycle71-instruction-roofline-versus-logical-bytes",
+    "url": "https://arxiv.org/abs/2608.13696",
+    "title": "Over the Memory Wall, Into the Instruction Wall: The New Bottleneck in GPU Data Processing"
+  },
+  {
+    "id": "cycle71-icicle-current-release-scope-refresh",
+    "url": "https://github.com/ingonyama-zk/icicle/releases",
+    "title": "ICICLE displayed v4.0.0 release refresh"
+  },
+  {
+    "id": "cycle72-kim-OT-native-order64-refinement",
+    "url": "https://arxiv.org/abs/2012.01968",
+    "title": "On-the-fly twiddling: consecutive roots and late-stage tradeoff"
+  },
+  {
+    "id": "cycle72-new-older-convolution-fusion-seam-filter",
+    "url": "https://arxiv.org/abs/2209.01290",
+    "title": "Accelerating Polynomial Multiplication for Homomorphic Encryption on GPUs"
+  },
+  {
+    "id": "cycle72-cuda-zkp-NTT-current-cache-and-negatives",
+    "url": "https://github.com/Artemarius/cuda-zkp-ntt/releases",
+    "title": "cuda-zkp-ntt current Goldilocks cache and displayed releases"
+  },
+  {
+    "id": "cycle72-goldilocks-NTT-cache-qualified-refresh",
+    "url": "https://github.com/yrrid/GoldilocksNTT",
+    "title": "GoldilocksNTT cache qualification"
+  },
+  {
+    "id": "cycle72-new-CGLA2026-field-and-completeness-filter",
+    "url": "https://arxiv.org/abs/2609.28904",
+    "title": "Implementation and Evaluation of NTT Arithmetic for ML-KEM on a CGLA"
+  },
+  {
+    "id": "cycle72-icicle-release-labels-refresh",
+    "url": "https://github.com/ingonyama-zk/icicle/releases",
+    "title": "ICICLE and open-icicle displayed release scope"
+  },
+  {
+    "id": "cycle73-SumCATS-base-extension-refresh",
+    "url": "https://tanvirarafin.github.io/assets/pdf/DATE_2026.pdf",
+    "title": "GPU Acceleration of the Sum-Check Protocol Over Towers of Binary Fields for Verifiable Computing"
+  },
+  {
+    "id": "cycle73-extended-sumcheck-smallvalue-refresh",
+    "url": "https://eprint.iacr.org/2026/587",
+    "title": "Speeding Up Sum-Check Proving, extended2026 version and author explanation"
+  },
+  {
+    "id": "cycle73-new-older-linear-combination-precompute",
+    "url": "https://www2.eecs.berkeley.edu/Pubs/TechRpts/2025/EECS-2025-20.html",
+    "title": "Efficient Zero-Knowledge Proofs: Theory and Practice \u2014 precombine GKR arrays"
+  },
+  {
+    "id": "cycle73-p3-releases-precise-tag-refresh",
+    "url": "https://github.com/Plonky3/Plonky3/releases",
+    "title": "Plonky3 displayed0.9.0-rc.2 releases and MIT terms"
+  },
+  {
+    "id": "cycle73-p3-caller-obligations-concrete-guards",
+    "url": "https://github.com/Plonky3/Plonky3/pull/2293",
+    "title": "Plonky3 PR2293: enforce caller soundness obligations"
+  },
+  {
+    "id": "cycle73-p3-planning-and-hiding-causality",
+    "url": "https://github.com/Plonky3/Plonky3/pull/2297",
+    "title": "Plonky3 PR2297: single-owner planning and hiding transcript steps"
+  },
+  {
+    "id": "cycle74-ntt-sumcheck-unique-table-cost-refresh",
+    "url": "https://arxiv.org/abs/2606.16146",
+    "title": "When Proofs Meet Hardware: unique polynomials and SRAM tradeoff"
+  },
+  {
+    "id": "cycle74-epfl-claim-recovery-and-final-oracle-refresh",
+    "url": "https://github.com/compsec-epfl/efficient-sumcheck",
+    "title": "Efficient Sumcheck current design and displayed history"
+  },
+  {
+    "id": "cycle74-sage-precompute-full-product-filter-refresh",
+    "url": "https://github.com/zksecurity/sumcheck-optimized-sagemath",
+    "title": "Optimized sumcheck Sage reference source"
+  },
+  {
+    "id": "cycle74-new-older-training-recursive-gkr-filter",
+    "url": "https://eprint.iacr.org/2024/162",
+    "title": "Zero-Knowledge Proofs of Training for Deep Neural Networks"
+  },
+  {
+    "id": "cycle74-new-rosetta-private-inference-not-proof-filter",
+    "url": "https://arxiv.org/abs/2609.16915",
+    "title": "ROSETTA hybrid CKKS/TFHE decoding"
+  },
+  {
+    "id": "cycle74-hekate-engine-new-release-scope-and-hiding-postmortem",
+    "url": "https://github.com/oumuamua-labs/hekate/releases",
+    "title": "Hekate engine0.37 release and helper-tree hiding postmortem"
+  },
+  {
+    "id": "cycle75-new-MSCProof-implementation-scope",
+    "url": "https://github.com/imdea-software/MSCProof",
+    "title": "MSCProof: older modular sumcheck implementation"
+  },
+  {
+    "id": "cycle75-extended-sumcheck-round-batching-refresh",
+    "url": "https://eprint.iacr.org/2026/587",
+    "title": "Speeding Up Sum-Check Proving; author explanation and Sage prototype"
+  },
+  {
+    "id": "cycle75-TensorZKP-memory-schedule-refresh",
+    "url": "https://www.usenix.org/conference/usenixsecurity26/presentation/lu-tao",
+    "title": "TensorZKP USENIX Security2026"
+  },
+  {
+    "id": "cycle75-new-Ziren-architecture-and-composition-filter",
+    "url": "https://www.zkm.io/blog/ziren-succinct-arguments-for-mips32-execution",
+    "title": "Ziren: Succinct Arguments for MIPS32 Execution"
+  },
+  {
+    "id": "cycle75-Airbender-release-and-version-boundary-refresh",
+    "url": "https://www.zksync.io/blog/introducing-airbender-prime",
+    "title": "Airbender Prime; public releases and machine configuration"
+  },
+  {
+    "id": "cycle76-new-older-Spartan-source-and-recovery-baseline",
+    "url": "https://raw.githubusercontent.com/microsoft/Spartan/master/src/sumcheck.rs",
+    "title": "Spartan older implementation: claim recovery, incremental points and separate ZK wrapper"
+  },
+  {
+    "id": "cycle76-epfl-MSB-coefficient-reduction-original-wire",
+    "url": "https://raw.githubusercontent.com/compsec-epfl/efficient-sumcheck/main/src/provers/coefficient.rs",
+    "title": "Efficient Sumcheck: concrete half-split coefficient reduction and EvalsInfty boundary"
+  },
+  {
+    "id": "cycle76-monomial-bench-conversion-and-precomputed-challenge-boundary",
+    "url": "https://github.com/quangvdao/monomial-sumcheck-benchmarks",
+    "title": "Monomial benchmark: full evaluation-and-binding kernels and measurement boundary"
+  },
+  {
+    "id": "cycle76-new-Pico3-batching-and-version-boundary",
+    "url": "https://blog.brevis.network/2026/09/30/pico-3-0-real-time-ethereum-proving-on-4-gpus-with-100-bit-provable-security/",
+    "title": "Pico3 September30: heterogeneous batching, chunk sizing and complete traffic accounting"
+  },
+  {
+    "id": "cycle76-Plonky3-current-release-and-fresh-mask-boundary",
+    "url": "https://github.com/Plonky3/Plonky3/releases",
+    "title": "Plonky3 rc2 release refresh: bind-and-measure, coefficient planning and cryptographic masks"
+  },
+  {
+    "id": "cycle76-older-sumcheck-commitment-framework-refresh",
+    "url": "https://eprint.iacr.org/2021/333",
+    "title": "Sumcheck Arguments and their Applications: commitment coupling still remains"
+  },
+  {
+    "id": "cycle76-Flock-batch-and-field-filter-refresh",
+    "url": "https://arxiv.org/abs/2607.27491",
+    "title": "Flock: batch Boolean computations and input/output glue"
+  },
+  {
+    "id": "cycle77-new-older-super-sumcheck-source",
+    "url": "https://github.com/ingonyama-zk/super-sumcheck",
+    "title": "Super-sumcheck: collapsing arrays versus witness/challenge precomputation"
+  },
+  {
+    "id": "cycle77-nvidia-static-indexing-lifetime-filter",
+    "url": "https://developer.nvidia.com/blog/fast-dynamic-indexing-private-arrays-cuda/",
+    "title": "NVIDIA: Fast Dynamic Indexing of Private Arrays in CUDA"
+  },
+  {
+    "id": "cycle77-cuda-current-local-memory-scope-refresh",
+    "url": "https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html",
+    "title": "CUDA C++ Best Practices Guide13.4: local memory and register pressure"
+  },
+  {
+    "id": "cycle77-plonky3-october-release-refresh",
+    "url": "https://github.com/Plonky3/Plonky3/releases",
+    "title": "Plonky3 p3-sumcheck0.9.0-rc.2 and current commitment release notes"
+  },
+  {
+    "id": "cycle77-icicle-release-commit-scope",
+    "url": "https://github.com/ingonyama-zk/icicle/releases/tag/v4.0.0",
+    "title": "ICICLEv4 release and inspected version-bump diff"
+  },
+  {
+    "id": "cycle77-matched-hardware-locality-refresh",
+    "url": "https://arxiv.org/abs/2606.16146",
+    "title": "When Proofs Meet Hardware: Comparing NTT and SumCheck"
+  },
+  {
+    "id": "cycle77-SumCATS-memory-obligations-refresh",
+    "url": "https://tanvirarafin.github.io/assets/pdf/DATE_2026.pdf",
+    "title": "GPU Acceleration of Sum-Check over Towers of Binary Fields"
+  },
+  {
+    "id": "cycle78-new-Chimera-Oct16-residency-tail-integration",
+    "url": "https://eprint.iacr.org/2026/1388",
+    "title": "Chimera: resident sumcheck and hybrid CPU tail, revised October16"
+  },
+  {
+    "id": "cycle78-new-Sluice-Oct16-NTT-IOboundary",
+    "url": "https://eprint.iacr.org/2026/1758",
+    "title": "Sluice: prove-phase bounded-memory Groth16 and external-stream NTT"
+  },
+  {
+    "id": "cycle78-new-older-linear-scan-complete-live-intervals",
+    "url": "https://web.cs.ucla.edu/~palsberg/course/cs132/linearscan.pdf",
+    "title": "Linear Scan Register Allocation, TOPLAS September1999"
+  },
+  {
+    "id": "cycle78-new-recmo-Goldilocks-source-license-boundary",
+    "url": "https://github.com/recmo/goldilocks",
+    "title": "recmo Goldilocks NTT/PCS library and benchmark wrapper"
+  },
+  {
+    "id": "cycle78-Plonky3-Oct-release-fresh-mask-and-phase-boundary",
+    "url": "https://github.com/Plonky3/Plonky3/releases",
+    "title": "Plonky3 p3-sumcheck0.9.0-rc.2 release refresh"
+  },
+  {
+    "id": "cycle78-GoldilocksNTT-cache-qualified-refresh",
+    "url": "https://github.com/yrrid/GoldilocksNTT",
+    "title": "GoldilocksNTT: cached batch versus whole-workload rates"
+  },
+  {
+    "id": "cycle78-zorch327-public-shape-and-whole-layer-residency",
+    "url": "https://github.com/fractalyze/zorch/issues/327",
+    "title": "zorch issue327: shape-polymorphic round composites"
+  },
+  {
+    "id": "cycle78-new-older-register-future-active-cost-filter",
+    "url": "https://arxiv.org/abs/2011.05608",
+    "title": "Efficient global register allocation,2020"
+  },
+  {
+    "id": "cycle79-MinReg-older-DAG-scheduling",
+    "url": "https://arxiv.org/abs/2303.06855",
+    "title": "Optimal and Heuristic Min-Reg Scheduling Algorithms for GPU Programs"
+  },
+  {
+    "id": "cycle79-BitsUnderZKLLM-query-cost-and-clock-boundary",
+    "url": "https://arxiv.org/abs/2609.36437",
+    "title": "Bits Under ZK-LLM: proving scope and lookup precision boundary"
+  },
+  {
+    "id": "cycle79-deepprove-softmax-current-readme-license",
+    "url": "https://github.com/Lagrange-Labs/deep-prove",
+    "title": "DeepProve softmax documentation, current README and licensing commit"
+  },
+  {
+    "id": "cycle79-Plonky3-current-release-and-mask-RNG",
+    "url": "https://github.com/Plonky3/Plonky3/releases",
+    "title": "Plonky3 rc2 release and cryptographic mask RNG PR"
+  },
+  {
+    "id": "cycle79-packed-sumcheck-mask-boundary-refresh",
+    "url": "https://github.com/ls-rm-rf/sumcheck",
+    "title": "Packing Breaks the Mask experiment repository"
+  },
+  {
+    "id": "cycle80-new-ReedWeave-RS-interleaving",
+    "url": "https://eprint.iacr.org/2026/2147",
+    "title": "ReedWeave: Faster Reed-Solomon Polynomial Commitments from Interleaving and Folding"
+  },
+  {
+    "id": "cycle80-new-Quasar-QA-code-switching",
+    "url": "https://eprint.iacr.org/2026/1839",
+    "title": "Quasar: Field-Agnostic PCS from Quasi-Abelian Codes"
+  },
+  {
+    "id": "cycle80-new-Terrazzo-memory-occupancy",
+    "url": "https://eprint.iacr.org/2026/1870",
+    "title": "Terrazzo: Memory-Aware GPU Framework for Private Transformer Inference"
+  },
+  {
+    "id": "cycle80-zorch-runtime-round-compile-boundary",
+    "url": "https://github.com/fractalyze/zorch/issues/327",
+    "title": "Zorch issue327: shape-polymorphic round composites"
+  },
+  {
+    "id": "cycle80-cuda-ntt-license-and-invalid-hierarchy",
+    "url": "https://github.com/Artemarius/cuda-zkp-ntt",
+    "title": "cuda-zkp-ntt current releases,Goldilocks source and license"
+  },
+  {
+    "id": "cycle80-MinReg-compiler-reality-refresh",
+    "url": "https://arxiv.org/abs/2303.06855",
+    "title": "Optimal and Heuristic Min-Reg Scheduling Algorithms for GPU Programs"
+  },
+  {
+    "id": "cycle80-LLVM-schedule-register-frame-separation",
+    "url": "https://llvm.org/docs/CodeGenerator.html",
+    "title": "LLVM target-independent code generator"
+  },
+  {
+    "id": "cycle80-new-older-Sethi-Ullman-primary-bibliography",
+    "url": "https://www2.cs.arizona.edu/~rsethi/publications.html",
+    "title": "Sethi and Ullman:The Generation of Optimal Code for Arithmetic Expressions"
+  },
+  {
+    "id": "cycle81-new-ComFuse-fusion-clock-and-boundary",
+    "url": "https://arxiv.org/abs/2608.03537",
+    "title": "ComFuse: dependency-rich fusion, explicit kernel-clock boundary"
+  },
+  {
+    "id": "cycle81-new-older-LLVM-outlining-cost-model",
+    "url": "https://lists.llvm.org/pipermail/llvm-dev/2017-September/117814.html",
+    "title": "LLVM interprocedural outlining: repeated-shape and frame/call costs"
+  },
+  {
+    "id": "cycle81-new-NVIDIA-fusion-intermediate-and-clock-filter",
+    "url": "https://developer.nvidia.com/blog/?p=119743",
+    "title": "NVIDIA explicit fusion versus compiler-selected kernels"
+  },
+  {
+    "id": "cycle81-statesync-prepared-and-drain-refresh",
+    "url": "https://arxiv.org/abs/2610.14849",
+    "title": "StateSync-GKR reusable preparation and accepted-work/drain boundary"
+  },
+  {
+    "id": "cycle81-statesync-release-license-pin-blocker",
+    "url": "https://github.com/Oraclizer/statesync-gkr/releases",
+    "title": "StateSync-GKR v1.1.1 release and actual current license"
+  },
+  {
+    "id": "cycle81-Plonky3-current-strategy-protocol-filter",
+    "url": "https://docs.rs/p3-sumcheck/latest/src/p3_sumcheck/strategy.rs.html",
+    "title": "Plonky3 current sumcheck strategy and October rc2 release"
+  },
+  {
+    "id": "cycle81-older-arkworks-sumcheck-fetch-negative",
+    "url": "https://github.com/arkworks-rs/sumcheck",
+    "title": "arkworks older sumcheck academic reference, source-access limit"
+  },
+  {
+    "id": "cycle82-new-older-global-function-merger",
+    "url": "https://arxiv.org/abs/2312.03214",
+    "title": "Optimistic Global Function Merger: code sharing versus runtime costs"
+  },
+  {
+    "id": "cycle82-new-older-LLVM-constant-parameterization-patch",
+    "url": "https://lists.llvm.org/pipermail/llvm-commits/Week-of-Mon-20231016/1225745.html",
+    "title": "LLVM preliminary patch: merge functions differing in constants"
+  },
+  {
+    "id": "cycle82-new-older-function-merging-talk",
+    "url": "https://llvm.org/devmtg/2025-04/slides/technical_talk/lee_function_merging.pdf",
+    "title": "Advances in Function Merging and Symbolication"
+  },
+  {
+    "id": "cycle82-current-LLVM-release-context",
+    "url": "https://github.com/llvm/llvm-project/releases/tag/llvmorg-23.1.3",
+    "title": "LLVM23.1.3 current release versus installed LLVM22.1.6"
+  },
+  {
+    "id": "cycle82-zkLLMPoT-lookup-and-operator-scope-refresh",
+    "url": "https://arxiv.org/abs/2610.08258",
+    "title": "zkLLMPoT v2: lookup/sumcheck scope refreshed"
+  },
+  {
+    "id": "cycle82-zkIE-public-activation-and-verifier-filter",
+    "url": "https://github.com/trustless-ai/zkIE",
+    "title": "zkIE current repository: stage scheduling, privacy and verifier boundary"
+  },
+  {
+    "id": "cycle83-new-MLIR-affine-address-obligations",
+    "url": "https://mlir.llvm.org/docs/Dialects/Affine/",
+    "title": "MLIR Affine dialect: symbolic address maps and legality"
+  },
+  {
+    "id": "cycle83-new-older-Polygeist-affine-census",
+    "url": "https://acohen.gitlabpages.inria.fr/impact/impact2021/papers/IMPACT_2021_paper_1.pdf",
+    "title": "Polygeist: Affine C in MLIR"
+  },
+  {
+    "id": "cycle83-new-Polygeist-current-artifact-status",
+    "url": "https://github.com/llvm/Polygeist",
+    "title": "Polygeist repository, displayed history and actual license"
+  },
+  {
+    "id": "cycle83-super-sumcheck-witness-challenge-scope-refresh",
+    "url": "https://github.com/ingonyama-zk/super-sumcheck",
+    "title": "Super-sumcheck and Sumcheck201: collapsing arrays versus precomputation"
+  },
+  {
+    "id": "cycle83-efficient-sumcheck-current-rewrite-filter",
+    "url": "https://github.com/compsec-epfl/efficient-sumcheck",
+    "title": "Efficient Sumcheck: current rewrite, variable order and terminal obligation"
+  },
+  {
+    "id": "cycle83-zkLLMPoT-recent-paper-scope-refresh",
+    "url": "https://arxiv.org/abs/2610.08258",
+    "title": "zkLLMPoT v2: covered-operator benchmark scope"
+  },
+  {
+    "id": "cycle83-new-older-BatchZK-resident-workloads",
+    "url": "https://eprint.iacr.org/2024/1862",
+    "title": "BatchZK: pipelined GPU batch generation and dynamic loading"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2610.14849",
+    "title": "StateSync-GKR reusable preparation, October2026 paper refresh"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/Oraclizer/statesync-gkr/releases",
+    "title": "StateSync-GKR v1.1.1 release, source pins and license boundary"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/ingonyama-zk/icicle/blob/main/docs/versioned_docs/version-4.0.0/api/cpp/ntt.md",
+    "title": "ICICLEv4 NTT domain reuse and per-device lifecycle contract"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/Plonky3/Plonky3/releases",
+    "title": "Plonky3 October16 rc2 release and mask-randomness guard refresh"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2022/1321",
+    "title": "cuZK: older whole-prover transfer elimination and overlap newly assessed"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/Tao-Lu-123/cuZK",
+    "title": "cuZK author repository, README licensing and inspected documentation commit"
+  },
+  {
+    "id": null,
+    "url": "https://doi.org/10.1145/3774934.3786448",
+    "title": "Pipelonk2026 end-to-end segmentation lead; primary full-text/artifact access blocked"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/microsoft/Spartan/commit/5af241044f27819364ed718eb494b6f08ccae1b6",
+    "title": "Spartan historical public-instance digest residency commit, newly assessed code seam"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2019/550",
+    "title": "Spartan computation preprocessing claim boundary, older primary refresh"
+  },
+  {
+    "id": null,
+    "url": "https://www.microsoft.com/en-us/research/wp-content/uploads/2026/10/magnetar-1.pdf",
+    "title": "Magnetar October paper and announcement: composition implementation boundary"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2610.14849",
+    "title": "StateSync-GKR October reusable preparation refresh"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2024/1862",
+    "title": "BatchZK dynamic loading and full pipeline boundary, known older lead refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2509.22684",
+    "title": "ZKProphet whole-workload bottleneck scope refresh"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/Artemarius/cuda-zkp-ntt/releases",
+    "title": "cuda-zkp-ntt v5 invalid full transform filter and license refresh"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/Plonky3/Plonky3/releases",
+    "title": "Plonky3 current rc2 release: mask RNG guard and public compiled components"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/microsoft/Spartan/commit/3a2c097cab39ffa191560f445440a41ed40db5b3",
+    "title": "Spartan historical blind-vector fix inspected as a non-residency control"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/PolyhedraZK/Expander/commits/main/",
+    "title": "Expander public clone and batch scratch allocation leads, newly assessed historical metadata"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2609.36437",
+    "title": "Bits Under ZK-LLM: refreshed quantization and complete-clock boundary"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2610.08258",
+    "title": "zkLLMPoT v2: October operator/commitment accounting refresh"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2404.16109",
+    "title": "zkLLM historical CUDA lookup/softmax and independent-verifier boundary refresh"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2606.16146",
+    "title": "When Proofs Meet Hardware: memory availability and primitive comparison refresh"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/Plonky3/Plonky3/releases",
+    "title": "Plonky3 release lookup: fresh retrieval has inconsistent cached release views"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2025/507",
+    "title": "Small-table nonlinear protocols: older metadata refresh"
+  },
+  {
+    "id": "cycle87-new-FluxZK-transfer-aware-NTT-source-filter",
+    "url": "https://github.com/SJTU-Liquid/FluxZK",
+    "title": "FluxZK: transfer-aware MSM and out-of-core NTT artifact"
+  },
+  {
+    "id": "cycle87-new-FluxZK-upcoming-SC26-date-scope",
+    "url": "https://sc26.conference-program.com/presentation/?id=pap593&sess=sess231",
+    "title": "FluxZK official SC26 program, future presentation boundary"
+  },
+  {
+    "id": "cycle87-new-older-MoMA-code-generation-field-filter",
+    "url": "https://arxiv.org/abs/2501.07535",
+    "title": "Code Generation for Cryptographic Kernels using Multi-word Modular Arithmetic on GPU"
+  },
+  {
+    "id": "cycle87-new-older-MoMA-license-and-implementation-scope",
+    "url": "https://github.com/Naifeng/moma",
+    "title": "MoMA implementation and SPIRAL license"
+  },
+  {
+    "id": "cycle87-Chimera-Oct16-residency-and-enclosing-clock-refresh",
+    "url": "https://eprint.iacr.org/2026/1388",
+    "title": "Chimera: hybrid GPU sumcheck backend"
+  },
+  {
+    "id": "cycle87-ICICLE-v4-release-and-version-only-commit-refresh",
+    "url": "https://github.com/ingonyama-zk/icicle/releases",
+    "title": "ICICLE v4.0.0 release and inspected version bump"
+  },
+  {
+    "id": "cycle87-new-Impeller-Oct14-graph-and-memory-planning-lead",
+    "url": "https://github.com/SJTU-Liquid/Impeller",
+    "title": "Impeller graph compiler and heterogeneous runtime"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2602.17452",
+    "title": "Jolt Atlas: full-text small-space lookup and staging assessment"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/ICME-Lab/jolt-atlas",
+    "title": "Jolt Atlas implementation license, history and empty release page"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/a16z/jolt/pull/881",
+    "title": "Jolt older R1CS witness streaming PR881, newly assessed historical seam"
+  },
+  {
+    "id": null,
+    "url": "https://doc.rust-lang.org/reference/destructors.html",
+    "title": "Rust Reference: destructor/drop-scope contract for explicit public release"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2026/307",
+    "title": "Composition Theorems for Zero-Knowledge IOPs, conditional composition refresh"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2026/2517",
+    "title": "Zippel October16 compiler/analyzer lead, primary index only"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2610.08258",
+    "title": "zkLLMPoT October v2: covered-operator benchmark boundary refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2509.05326",
+    "title": "Zero-Knowledge Proofs in Sublinear Space, conditional transcript refresh"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2301.02161",
+    "title": "Streaming Zero-Knowledge Proofs: newly assessed older setup and verifier-space distinction"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/compsec-epfl/efficient-sumcheck",
+    "title": "Efficient Sumcheck: ownership/streaming design and history refresh"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2026/1388",
+    "title": "Chimera October16 revision: residency versus enclosing complete-prover gains"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2606.16146",
+    "title": "When Proofs Meet Hardware: memory availability and locality refresh"
+  },
+  {
+    "id": null,
+    "url": "https://csarch.korea.ac.kr/publication/pim_sumcheck_ics26/",
+    "title": "SumcheckPIM author page: HBM-specific architecture excluded from GPU port"
+  },
+  {
+    "id": null,
+    "url": "https://doc.rust-lang.org/reference/destructors.html#temporary-scopes",
+    "title": "Rust Reference: statement-scoped borrowed argument temporaries correct public-padding model"
+  },
+  {
+    "id": null,
+    "url": "https://doc.rust-lang.org/reference/destructors.html#temporary-scopes",
+    "title": "Rust Reference temporary argument scopes"
+  },
+  {
+    "id": null,
+    "url": "https://lang-team.rust-lang.org/design_notes/eager_drop.html",
+    "title": "Older eager-drop design note and closed proposal"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/fractalyze/sp1-zorch/issues/55",
+    "title": "Newly assessed older sp1-zorch55: rolled GKR kernel versus composed-chain memory"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2026/1388",
+    "title": "Chimera October16 complete-prover residency revision"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2026/2532",
+    "title": "HERMES: private decode KV residency has a different security relation"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2026/2494",
+    "title": "AG skip October15: binary-field sumcheck compatibility screen"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/ingonyama-zk/icicle/releases/tag/v4.0.0",
+    "title": "ICICLE release/license and version-only commit refresh"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/compsec-epfl/efficient-sumcheck",
+    "title": "Efficient sumcheck ownership and memory-order history refresh"
+  },
+  {
+    "id": null,
+    "url": "https://doc.rust-lang.org/std/alloc/trait.GlobalAlloc.html",
+    "title": "Rust GlobalAlloc: observed allocations are not a language guarantee"
+  },
+  {
+    "id": null,
+    "url": "https://doc.rust-lang.org/std/alloc/struct.System.html",
+    "title": "Rust System allocator: requested allocation accounting wrapper"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2026/1388",
+    "title": "Chimera October16 revision: resident sumcheck versus complete proving gains"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2503.20481",
+    "title": "NEW older source: Huerta2025 GPU register-file cache and dependency scheduling"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2023/1410",
+    "title": "GPU-NTT older layout algorithms and current public implementation interface"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/yrrid/GoldilocksNTT",
+    "title": "GoldilocksNTT L2-cache qualification refresh"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/recmo/goldilocks",
+    "title": "recmo Goldilocks NTT/PCS license refresh"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/Plonky3/Plonky3/pull/2260",
+    "title": "Plonky3 mask RNG boundary and inconsistent cached release views"
+  },
+  {
+    "id": null,
+    "url": "https://www.mdpi.com/2079-9292/13/16/3128",
+    "title": "NEW older source screen: memory versus arithmetic in FPGA twiddle generation"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2509.22684",
+    "title": "ZKProphet GPU bottleneck scope refresh"
+  },
+  {
+    "id": null,
+    "url": "https://docs.nvidia.com/cuda/cuda-programming-guide/04-special-topics/stream-ordered-memory-allocation.html",
+    "title": "CUDA current guide: reserved/used watermarks and release-completion obligations"
+  },
+  {
+    "id": null,
+    "url": "https://developer.nvidia.com/blog/using-cuda-stream-ordered-memory-allocator-part-1/",
+    "title": "NEW older source screened: NVIDIA2021 stream-ordered allocation"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/NVIDIA/cuCascade",
+    "title": "NEW repository screen: cuCascade public reservations versus pool capacity"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2610.08258",
+    "title": "zkLLMPoT v2 lookup/softmax and benchmark-scope refresh"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/succinctlabs/sp1/releases/tag/v6.9.0",
+    "title": "SP1 v6.9.0 October release and exact inspected release-commit scope"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/succinctlabs/sp1/pull/2990/files",
+    "title": "SP1 NTT reorder PR diff: explicit input/output ordering tests"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/succinctlabs/sp1/pull/2993/files",
+    "title": "SP1 zerocheck PR diff: public-constant simplification and assertion retention"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2609.36437",
+    "title": "Bits Under ZK-LLM: quantization cost and measurement-scope refresh"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/compsec-epfl/efficient-sumcheck/blob/main/docs/design.md",
+    "title": "Efficient Sumcheck: strategy/order/composition scope refresh"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/Consensys-Incorporated/gnark/releases/tag/v0.16.4",
+    "title": "NEW October gnark v0.16.4 release: batching changes proof schedule"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/Consensys-Incorporated/gnark/pull/1828",
+    "title": "NEW gnark scheduler PR: batching and multi-source final binding"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/chelsea0x3b/cudarc/blob/v0.13.9/src/driver/safe/alloc.rs",
+    "title": "cudarc0.13.9 pinned synchronous copy semantics"
+  },
+  {
+    "id": null,
+    "url": "https://developer.nvidia.com/blog/gpu-pro-tip-cuda-7-streams-simplify-concurrency/",
+    "title": "NEW older source: CUDA7 stream ordering and concurrency"
+  },
+  {
+    "id": null,
+    "url": "https://tanvirarafin.github.io/assets/pdf/DATE_2026.pdf",
+    "title": "SumCATS scratch/setup regression refresh"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2610.13003",
+    "title": "NEW SlackSwap: link-budgeted offload is simulated, not a prover measurement"
+  },
+  {
+    "id": null,
+    "url": "https://research.nvidia.com/publication/2016-10_vdnn-virtualized-deep-neural-networks-scalable-memory-efficient-neural-network",
+    "title": "NEW older vDNN: selective residency versus logical owner lifetime"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/ingonyama-zk/icicle/releases/tag/v4.0.0",
+    "title": "ICICLE displayed v4 release, NTT memory tradeoff and scoped MIT license"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/succinctlabs/sp1/releases/tag/v6.9.0",
+    "title": "SP1 October release and NTT ordering diff refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2610.08258",
+    "title": "zkLLMPoT October v2 lookup/softmax scope"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2606.16146",
+    "title": "When Proofs Meet Hardware: retained-memory budget is part of NTT/sumcheck comparison"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/jvhs0706/zkllm-ccs2024",
+    "title": "zkLLM archived reference and inspected MIT license"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2610.14849",
+    "title": "NEW StateSync-GKR engineering: prepared requests and memory/transport clocks"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2610.05335",
+    "title": "NEW StateSync-GKR formal companion explicitly limits Fiat-Shamir assurance"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/Oraclizer/statesync-gkr/releases",
+    "title": "NEW StateSync-GKR v1.1.1 release and scoped licensing"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/succinctlabs/sp1/pull/3005",
+    "title": "NEW SP1 GKR heights metadata change, open PR3005"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/succinctlabs/sp1/releases/tag/v6.9.0",
+    "title": "SP1 v6.9.0 recent release refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/fractalyze/sp1-zorch/issues/55",
+    "title": "NEW older composed-prover capacity negative:SP1-zorch55"
+  },
+  {
+    "id": null,
+    "url": "https://d2j16w31g89z0j.cloudfront.net/site/2026w/abs/0292-GJXMH.pdf",
+    "title": "NEW older INT4 quantization-native FFN result is toy-scale"
+  },
+  {
+    "id": null,
+    "url": "https://www.ingonyama.com/post/sumcheck-201",
+    "title": "Older Sumcheck201 memory-efficient scheduling refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2609.36437",
+    "title": "Bits Under ZK-LLM recent quantization paper refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/compsec-epfl/efficient-sumcheck",
+    "title": "Efficient-sumcheck implementation/history refresh"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/MMRROOO/ntt-tensorcore",
+    "title": "NEW ntt-tensorcore architecture/field filter; consumer large-N negative"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/succinctlabs/sp1/releases/tag/v6.9.0",
+    "title": "SP1 recent release6.9.0 and full tag commit refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/succinctlabs/sp1/pull/2993",
+    "title": "NEW inspected SP1 PR2993 constant simplification/register cap"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/ingonyama-zk/icicle/releases/tag/v4.0.0",
+    "title": "ICICLE v4 release/tag and scoped license refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2610.08258",
+    "title": "zkLLMPoT Octoberv2 softmax/composition scope refined"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/trustless-ai/zkIE",
+    "title": "zkIE schedule/composition filter refreshed: public witness and forward verifier"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2509.22684",
+    "title": "Older ZKProphet and TensorZKP profiling leads refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2512.18345",
+    "title": "NEW older Theodosian: L2 bandwidth and bounded batching on RTX5090"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2405.11353",
+    "title": "NEW older NTTSuite: exact reference and no-copy layout limits"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2610.23328",
+    "title": "NEW October peak-memory scheduling paper: allocator frame condition and recomputation limits"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2304.14463",
+    "title": "NEW older Moccasin: constrained execution-time minimization with rematerialization caps"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/succinctlabs/sp1/releases/tag/v6.9.0",
+    "title": "SP1 recent6.9.0 release and immutable tag commit refresh"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2026/1388",
+    "title": "Chimera October16 revision: native CPU-tail schedule comparison refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://tanvirarafin.github.io/assets/pdf/DATE_2026.pdf",
+    "title": "SumCATS older source refreshed; implementation fetch and date limitations"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/fractalyze/openvm-zorch/issues/44",
+    "title": "OpenVM-zorch44 older corrected host/device and capture negative refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/ingonyama-zk/icicle/releases/tag/v4.0.0",
+    "title": "ICICLE v4 release scope refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/compsec-epfl/efficient-sumcheck",
+    "title": "Efficient-sumcheck streaming/field support and displayed history refresh"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2025/719",
+    "title": "NEW older packed sumcheck: September revision verified against primary history"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/fractalyze/prime-ir/issues/409",
+    "title": "NEW prime-ir409 measured-and-rejected Goldilocks carry/128-bit accumulation"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/succinctlabs/sp1/releases/tag/v6.9.0",
+    "title": "SP1 recent6.9.0 release and immutable full commit refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2609.36437",
+    "title": "Bits Under ZK-LLM quantization/lookup utility and full-clock scope refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2610.08258",
+    "title": "zkLLMPoT October v2: synthetic operator sums and recurring activation commitments"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2026/587",
+    "title": "Extended sumcheck and author explanation: small-value first-round scope"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2026/2435",
+    "title": "NEW TenseUp dynamic/tensor-code lookup lead; primary index only"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2026/335",
+    "title": "NEW older composition filter: Sumcheck-based zkSNARKs are Non-Malleable"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/Lagrange-Labs/deep-prove",
+    "title": "DeepProve checked preprocessing/chaining scope and restrictive implementation license"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2603.18046",
+    "title": "NanoZK v2 full-layer and GPU-projection scope refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/succinctlabs/sp1/releases/tag/v6.9.0",
+    "title": "SP1 recent6.9.0 release and full immutable tag commit refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2610.08258",
+    "title": "zkLLMPoT Octoberv2 operator-level scope refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/pscamillo/icicle-blackwell-ntt",
+    "title": "NEW consumer Blackwell ICICLE NTT reorder/PCIe scope screen"
+  },
+  {
+    "id": null,
+    "url": "https://csaws.cs.technion.ac.il/~itai/Courses/Cache/bit.pdf",
+    "title": "NEW older COBRA permutation locality filter"
+  },
+  {
+    "id": null,
+    "url": "https://blog.brevis.network/2026/09/30/pico-3-0-real-time-ethereum-proving-on-4-gpus-with-100-bit-provable-security/",
+    "title": "NEW recent Pico3.0 whole-pipeline and LogUp-GKR screen"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/ingonyama-zk/icicle/releases/tag/v4.0.0",
+    "title": "ICICLE4.0.0 release and immutable version commit refresh"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/Consensys-Incorporated/gnark-crypto/releases/tag/v0.22.0",
+    "title": "Recent gnark-crypto0.22.0 release and source date verified"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/compsec-epfl/efficient-sumcheck",
+    "title": "Efficient-sumcheck canonical rewrite and history caveat refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2024/108",
+    "title": "Older ZeroCheck base-field optimization protocol boundary refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2023/1284",
+    "title": "Older LogUp-GKR note refreshed after Pico pipeline lead"
+  },
+  {
+    "id": null,
+    "url": "https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html",
+    "title": "NVIDIA CUDA13.4 coalescing and shared-bank measurement contract"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/ingonyama-zk/icicle/issues/1046",
+    "title": "Blackwell reorder report primary publication date recovered from author ICICLE issue"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2502.11110",
+    "title": "NEW older GNTT direct float64 matrix path rejected for native Goldilocks"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2610.20354",
+    "title": "NEW October14 placement-controlled Grace-Blackwell memory study"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/succinctlabs/sp1/releases/tag/v6.9.0",
+    "title": "SP1v6.9.0 and merged NTT reorder removal scope refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/MMRROOO/ntt-tensorcore",
+    "title": "NTT-TensorCore consumer large-N negative refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2024/1058",
+    "title": "NEW older MLE-compatible lookup preprocessing screen (mu-seek)"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2023/1284",
+    "title": "LogUp-GKR helper-commitment reduction and revision date refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2022/1763",
+    "title": "cq cached preprocessing primary date and PCS boundary refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2610.08258",
+    "title": "October zkLLMPoT v2 operator scope and date refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/Lagrange-Labs/deep-prove",
+    "title": "DeepProve current history/release metadata and implementation license"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/PolyhedraZK/Expander",
+    "title": "Expander current release inventory and primary license screen"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2022/957",
+    "title": "NEW older Caulk+ table independence: small-table applicability filter"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2024/1058",
+    "title": "Correct cycle0102 initial NEW label: mu-seek already screened in0046/0068"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2023/1284",
+    "title": "Improving logarithmic derivative lookups using GKR \u2014 refreshed applicability"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2022/1447",
+    "title": "NEW older screen: flookup"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/fractalyze/openvm-zorch/issues/44",
+    "title": "OpenVM-zorch LogUp-GKR natural width and capture negatives \u2014 refresh"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/starkware-libs/stwo/releases",
+    "title": "Stwo releases/version metadata and license screen"
+  },
+  {
+    "id": null,
+    "url": "https://starkware.co/blog/s-two-2-0-0-prover-for-developers/",
+    "title": "Official S-two 2.0 developer release announcement \u2014 date cross-check"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2610.08258",
+    "title": "zkLLMPoT October2026 paper refresh"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2026/1388",
+    "title": "Chimera October16 revision refresh"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2610.14849",
+    "title": "StateSync-GKR October10 refresh"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2019/1482",
+    "title": "NEW older Virgo masked GKR/transparent polynomial delegation filter"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2024/1631",
+    "title": "Sparrow space-efficient GKR refresh"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/fractalyze/zorch/issues/362",
+    "title": "NEW zorch fixed-floor pyramid lifetime regression report"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/fractalyze/sp1-zorch/issues/112",
+    "title": "SP1-zorch bounded rolled-pyramid follow-on and corrections"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/fractalyze/zorch",
+    "title": "Zorch repository license and release screen"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2023/1284",
+    "title": "LogUp-GKR fraction construction refresh"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2026/1388",
+    "title": "Chimera October16 hybrid schedule revision refresh"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2025/1214",
+    "title": "Hobbit refreshed streaming total-memory and proof-size tradeoff"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2509.05326",
+    "title": "Sublinear-space paper refreshed against implementation status"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/logannye/space-efficient-zero-knowledge-proofs",
+    "title": "Sublinear-space companion repository declares full-vector opening paths"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/fractalyze/sp1-zorch/issues/182",
+    "title": "NEW host versus GPU Fiat-Shamir scheduling negative: SP1-zorch182"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/starkware-libs/stwo/blob/dev/README.md",
+    "title": "Stwo source freshness: development migration to proving repository"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/succinctlabs/sp1/releases/tag/v6.9.0",
+    "title": "Recent SP1v6.9.0 release and full version commit refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2024/1631",
+    "title": "Sparrow refreshed as streaming-GKR architectural filter"
+  },
+  {
+    "id": null,
+    "url": "https://www.fractalyze.io/blog/flock-without-writing-a-kernel",
+    "title": "Newly screened author equality-tensor and full-window scheduling discussion"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/compsec-epfl/efficient-sumcheck/blob/main/docs/design.md",
+    "title": "Efficient-sumcheck ownership and streaming taxonomy refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/1109.6882",
+    "title": "Newly screened older CTY11 streaming verifier versus prover-space filter"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2024/524",
+    "title": "Sumcheck time-space single-polynomial baseline refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2025/1473",
+    "title": "Product-sumcheck time-space revision refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2026/1388",
+    "title": "Recent Chimera revision and enclosing-clock filter refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/succinctlabs/sp1/releases/tag/v6.9.0",
+    "title": "Recent SP1v6.9.0 release refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2610.14849",
+    "title": "StateSync recent preparation/memory scope refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2301.02161",
+    "title": "Streaming zero-knowledge access-model filter refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2026/2494",
+    "title": "Algebraic-geometry sumcheck recent-paper fetch remains blocked"
+  },
+  {
+    "id": null,
+    "url": "https://docs.rs/p3-sumcheck/latest/src/p3_sumcheck/strategy.rs.html",
+    "title": "Plonky3 streaming/fused-round implementation refresh, access model distinguished"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/Plonky3/Plonky3/releases/tag/p3-sumcheck-v0.9.0-rc.2",
+    "title": "Recent Plonky3 rc.2 release and full version commit inspected"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/Plonky3/Plonky3/pull/2036",
+    "title": "Plonky3 bind/measure PR fetch blocker retained"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/1202.1350",
+    "title": "NEW older GPU GKR two-layer residency and transfer accounting filter"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2026/1388",
+    "title": "Chimera October16 revision: chunked to resident transition filter"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2025/1214",
+    "title": "Hobbit streaming total-space filter refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2024/524",
+    "title": "Sumcheck time-space single-polynomial baseline refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2504.00693",
+    "title": "Fold-DCS older lead revisited: changed rounds charge PCS"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2023/1284",
+    "title": "LogUp-GKR native-field and private-wrapper boundary refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/Plonky3/Plonky3/blob/main/goldilocks/src/extension.rs",
+    "title": "Goldilocks quadratic extension implementation polynomial checked"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/Plonky3/Plonky3/pull/2305",
+    "title": "Plonky3 equality kernel PR refreshed, prior assessment retained"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/Plonky3/Plonky3/releases/tag/p3-sumcheck-v0.9.0-rc.2",
+    "title": "Recent sumcheck rc.2 release refresh, inconsistent release-list view"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/Plonky3/Plonky3/pull/2260",
+    "title": "Cryptographic RNG obligation refresh for future private consumer"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2026/1388",
+    "title": "Chimera October16 revision refreshed for whole-proof integration filter"
+  },
+  {
+    "id": null,
+    "url": "https://www.usenix.org/system/files/sec22-bernstein.pdf",
+    "title": "NEW older batch inversion integration screen: OpenSSLNTRU"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2012/002",
+    "title": "NEW older GPU arithmetic screen, exact PDF access blocker"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2024/1058",
+    "title": "MLE lookup compatibility older lead refreshed, not new"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2602.17452",
+    "title": "Jolt Atlas streaming lookup privacy-wrapper filter refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2022/1530",
+    "title": "Original logarithmic derivative multi-column lookup refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/openvm-org/stark-backend/blob/main/docs/cuda-backend/gkr-prover.md",
+    "title": "NEW implementation screen: SWIRL fractional GKR CUDA memory/point contract"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/openvm-org/stark-backend/releases/tag/v2.0.1",
+    "title": "NEW release screen: pinned host pool and phase peak estimates"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/openvm-org/stark-backend/blob/main/docs/interactions.md",
+    "title": "NEW input-consistency boundary: GKR root does not bind original expressions"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2023/1284",
+    "title": "LogUp-GKR commitment-count framing refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2026/1388",
+    "title": "Chimera October16 whole-prover filter refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2020/1247",
+    "title": "NEW older technique screen: Virgo++ unlayered GKR"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/TAMUCrypto/virgo-plus",
+    "title": "NEW older implementation screen: Virgo++ author repository"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/1704.02086",
+    "title": "Older ZK sumcheck IPCP boundary refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://drops.dagstuhl.de/entities/document/10.4230/LIPIcs.CCC.2024.2",
+    "title": "Streaming ZK verifier/prover distinction refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2026/1036",
+    "title": "Resettable randomness obligations October8 refresh"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2025/717",
+    "title": "Boolean GKR older claim and correction refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/openvm-org/stark-backend/blob/main/docs/cuda-backend/gkr-prover.md",
+    "title": "OpenVM reversible fraction storage: implementation and private-boundary filter"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/openvm-org/stark-backend/releases/tag/v2.0.1",
+    "title": "OpenVM v2.0.1 phase-peak and pinned-transfer release refresh"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/ingonyama-zk/icicle/releases/tag/v4.0.0",
+    "title": "ICICLE v4.0.0 NTT/batching release and version-only commit refresh"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2026/587",
+    "title": "Small-value/streaming sumcheck and equality factoring refresh"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2026/1388",
+    "title": "Chimera October16 revision: whole-prover and residency scope refresh"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2025/105",
+    "title": "NEW older technique assessed: Twist and Shout, October17 revision"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2024/325",
+    "title": "Proofs for Deep Thought accumulation/KV composition refresh"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/fractalyze/openvm-zorch/issues/71",
+    "title": "NEW author negative: OpenVM-zorch71 contention and scan regression"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/days/7",
+    "title": "Primary seven-day update queue checked October20"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/openvm-org/stark-backend/blob/main/docs/cuda-backend/gkr-prover.md",
+    "title": "OpenVM reversible GKR and online challenge boundary refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/openvm-org/stark-backend/releases/tag/v2.0.1",
+    "title": "OpenVM v2.0.1 memory/transfer release check"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/compsec-epfl/efficient-sumcheck",
+    "title": "Efficient-sumcheck streaming/API and unreleased rewrite screen"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2024/524",
+    "title": "Earlier sumcheck time-space baseline refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2025/1473",
+    "title": "Product-sumcheck streaming bounds refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2609.36437",
+    "title": "Bits Under ZK-LLM: detailed exactness and precision-cost screen"
+  },
+  {
+    "id": null,
+    "url": "https://www.usenix.org/system/files/usenixsecurity25-pappas.pdf",
+    "title": "Hobbit source-bound chunk folding inspected beyond asymptotics"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2024/1606",
+    "title": "NEW older technique: NeutronNova source-bound zero-check folding"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/microsoft/Nova",
+    "title": "Microsoft Nova experimental NeutronNova implementation screen"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2024/1164",
+    "title": "NEW older correction: Scorpius and Orion multi-point soundness"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/days/7",
+    "title": "Current primary seven-day update queue"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/Lagrange-Labs/deep-prove/blob/master/zkml/README.md",
+    "title": "DeepProve precision/source interface refresh"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2609.36437",
+    "title": "Bits Under ZK-LLM precision/cost refresh"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2404.16109",
+    "title": "zkLLM exactness screen: segmented exponentials have explicit approximation error"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2025/507",
+    "title": "Known small-table nonlinear framework: proceedings full text now accessible"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2026/1388",
+    "title": "Chimera October16 revision refreshed for complete phase ceilings"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/Lagrange-Labs/deep-prove",
+    "title": "DeepProve current interface, license and release screen"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2025/2301",
+    "title": "NEW older encoder technique: SIMD Spielman cache slicing"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/flokrieger/SIMD-Spielman-for-ZKPs",
+    "title": "NEW SIMD Spielman implementation/license screen"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2024/1531",
+    "title": "Known FLI accumulation/final-prover obligation refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2024/618",
+    "title": "Known Locq/Losum preprocessing/PCS boundary refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/days/7",
+    "title": "Current seven-day primary update queue"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/days/7",
+    "title": "Primary October20 update queue"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2026/1388",
+    "title": "Chimera current revision residency and enclosing-proof distinction"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/ingonyama-zk/icicle/releases/tag/v4.0.0",
+    "title": "ICICLE release and exact tag commit refresh"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/ingonyama-zk/icicle/blob/main/examples/c%2B%2B/best-practice-ntt/README.md",
+    "title": "ICICLE concurrent NTT capacity tradeoff refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/yrrid/GoldilocksNTT",
+    "title": "Known GoldilocksNTT L2-only rate screen refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2022/1763",
+    "title": "cq preprocessing boundary and corrected primary history refresh"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2026/471",
+    "title": "Known ring lookup applicability boundary refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2025/2109",
+    "title": "NEW older MARLUT tensor-decomposition screen"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/AntCPLab/Marlut",
+    "title": "NEW MARLUT Rust artifact assumption/license screen"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/uulong950/qingming-g64-ntt-cuda",
+    "title": "Known Qingming CUDA layout contract refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/days/7",
+    "title": "Current primary October20 update queue"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2026/1388",
+    "title": "Chimera October16 revision refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/openvm-org/stark-backend/releases/tag/v2.0.1",
+    "title": "OpenVM STARK backend2.0.1 release, memory/transfer changes and commit pin"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/openvm-org/stark-backend/blob/main/docs/cuda-backend/gkr-prover.md",
+    "title": "OpenVM GPU GKR source-binding and input-layer documentation refresh"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2024/1075",
+    "title": "TaSSLE decomposition boundary refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2023/1284",
+    "title": "Older LogUp-GKR multiplicity-versus-input consistency boundary refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2024/1841",
+    "title": "NEW older Verifying Jolt zkVM Lookup Semantics"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/days/7",
+    "title": "Primary October20 update queue refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2026/1388",
+    "title": "Chimera October16 revision: residency is not a complete-prover speed multiplier"
+  },
+  {
+    "id": null,
+    "url": "https://dev.ingonyama.com/3.0.0/icicle/primitives/ntt",
+    "title": "ICICLE documented per-device domain reuse and separate coset configuration"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/ingonyama-zk/icicle/releases/tag/v4.0.0",
+    "title": "ICICLEv4 release and exact version-only commit refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2606.16146",
+    "title": "When Proofs Meet Hardware: memory budgets and primitive comparison refresh"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2012.01968",
+    "title": "Older on-the-fly twiddling GPU paper refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2024/1740",
+    "title": "NEW older OpenNTT public-generation processing-order screen"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/flokrieger/OpenNTT",
+    "title": "NEW OpenNTT FPGA generator artifact and full MIT body"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/openvm-org/stark-backend/releases/tag/v2.0.1",
+    "title": "OpenVM2.0.1 memory/transfer release refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/days/7",
+    "title": "Recent primary update queue refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2026/1388",
+    "title": "Chimera October16 integration/clock boundary refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://nvidia.github.io/cuPQC/releases/v0.6/",
+    "title": "cuPQC0.6 dated release refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://nvidia.github.io/cuPQC/applications/ntt-staged-transform/",
+    "title": "cuPQC staged inverse normalization method"
+  },
+  {
+    "id": null,
+    "url": "https://docs.nvidia.com/cuda/cupqc/libraries/cupqc_ntt/cupqc_ntt_feature.html",
+    "title": "cuPQC exact modulus compatibility refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/NVIDIA/cuPQC",
+    "title": "cuPQC sample artifact license and release metadata"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/Alisah-Ozcan/GPU-NTT",
+    "title": "GPU-NTT implementation/release/license refresh"
+  },
+  {
+    "id": null,
+    "url": "https://www.hourui-arch.net/publication/nttfusion-efficient-number-theoretic-transform-acceleration-on-gpus/",
+    "title": "NEW older NTTFusion author publication page"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2026/2494",
+    "title": "AG skip repeated exact-primary access blocker"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2026/1388",
+    "title": "Chimera October16 revision: existing CPUtail is not anew integration"
+  },
+  {
+    "id": null,
+    "url": "https://www.cs.cmu.edu/~csd-phd-blog/2026/sumcheck-proving/",
+    "title": "Algorithms for the Sum-check Protocol: roundbatching applicability"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/ingonyama-zk/icicle/releases/tag/v4.0.0",
+    "title": "ICICLE latestreleasev4.0.0 andinspected tagcommit"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/ingonyama-zk/icicle/blob/main/wrappers/rust/icicle-core/src/sumcheck/mod.rs",
+    "title": "ICICLE Rust sumcheck host/device adapter"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/compsec-epfl/efficient-sumcheck",
+    "title": "Efficient Sumcheck current README/changelog: MSB ordering andseparate oraclecheck"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2024/524",
+    "title": "Older CFFZ2024 time-space tradeoff refreshed atboundary"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2025/1117",
+    "title": "Speeding Up Sum-Check Proving primarynames anddomainfilter"
+  },
+  {
+    "id": null,
+    "url": "https://developer.nvidia.com/blog/building-faster-cryptography-with-carryless-multiplication-in-nvidia-cuda-13-3/",
+    "title": "CUDA13.3 carrylessbinarysumcheck: fieldincompatibility"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2606.16146",
+    "title": "When Proofs Meet Hardware: memorybudgetmethodology"
+  },
+  {
+    "id": null,
+    "url": "https://developer.nvidia.com/blog/cuda-graphs/",
+    "title": "NEW older CUDA Graphs2019: limitedwithin-challenge replay"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2026/1388",
+    "title": "Chimera October16 revision: charge host allocation and handoff separately"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/ingonyama-zk/icicle/releases/tag/v4.0.0",
+    "title": "ICICLE latest v4.0.0 release and inspected version-bump commit"
+  },
+  {
+    "id": null,
+    "url": "https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html",
+    "title": "CUDA13.4 Best Practices: heavyweight host pinning and discrete zero-copy limits"
+  },
+  {
+    "id": null,
+    "url": "https://developer.nvidia.com/blog/how-optimize-data-transfers-cuda-cc/",
+    "title": "NEW older2012 pinned transfer error checking and batching methodology"
+  },
+  {
+    "id": null,
+    "url": "https://developer.nvidia.com/blog/using-cuda-stream-ordered-memory-allocator-part-1",
+    "title": "Older2021 stream-ordered allocator: device/host distinction retained"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2610.20354",
+    "title": "October14 Grace-Blackwell placement-controlled memory study refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/NVIDIA/cuda-samples/blob/master/Samples/0_Introduction/simpleZeroCopy/simpleZeroCopy.cu",
+    "title": "CUDA Samples zero-copy source access failure; current license inspected"
+  },
+  {
+    "id": null,
+    "url": "https://docs.nvidia.com/cuda/cuda-driver-api/cuda_driver_api/group__CUDA__EVENT.html",
+    "title": "CUDA13.4 completion events: unrecorded SUCCESS and capture boundary"
+  },
+  {
+    "id": null,
+    "url": "https://docs.nvidia.com/cuda/archive/8.0/cuda-driver-api/group__CUDA__EVENT.html",
+    "title": "NEW older CUDA8 event lifecycle reference"
+  },
+  {
+    "id": null,
+    "url": "https://docs.nvidia.com/cuda/cuda-driver-api/cuda_driver_api/group__CUDA__STREAM.html",
+    "title": "CUDA13.4 stream completion scope and destroy semantics"
+  },
+  {
+    "id": null,
+    "url": "https://docs.nvidia.com/cuda/cuda-driver-api/cuda_driver_api/group__CUDA__MEM.html",
+    "title": "CUDA13.4 host free documentation: no inferred lifetime fence"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2026/1388",
+    "title": "Chimera latest October16 revision refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/Plonky3/Plonky3/releases",
+    "title": "Plonky3 current rc.2 release: fusion lead already screened"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/ingonyama-zk/icicle/releases",
+    "title": "ICICLE current release search and older sumcheck leak note"
+  },
+  {
+    "id": null,
+    "url": "https://docs.nvidia.com/nsight-systems/AnalysisGuide/index.html",
+    "title": "Nsight Systems analysis: host API, queue and kernel times overlap"
+  },
+  {
+    "id": null,
+    "url": "https://docs.nvidia.com/nsight-systems/UserGuide/index.html",
+    "title": "Nsight Systems user guide: instrumentation perturbation"
+  },
+  {
+    "id": null,
+    "url": "https://developer.nvidia.com/blog/understanding-the-visualization-of-overhead-and-latency-in-nsight-systems/",
+    "title": "Older Nsight overhead methodology newly assessed"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/NVIDIA/NVTX/releases",
+    "title": "NVTX release and Rust annotation interface screen"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2026/1388",
+    "title": "Chimera October16 revision: preserve enclosing integration clocks"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/ingonyama-zk/icicle/releases",
+    "title": "ICICLE current v4 release and license refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2610.08258",
+    "title": "zkLLMPoT October11 v2: covered-operator scope filter"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2025/507",
+    "title": "Older scalable nonlinear table lookup refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2606.16146",
+    "title": "When Proofs Meet Hardware: locality and whole-architecture comparison"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2025/105",
+    "title": "Twist and Shout October17 revision; one-hot and small-characteristic obligations"
+  },
+  {
+    "id": null,
+    "url": "https://jolt.a16zcrypto.com/how/twist-shout.html",
+    "title": "Newly assessed older Shout tensor virtualization and Twist write-value virtualization"
+  },
+  {
+    "id": null,
+    "url": "https://jolt.a16zcrypto.com/how/architecture/opening-proof.html",
+    "title": "Jolt batched opening architecture refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://jolt.a16zcrypto.com/how/blindfold.html",
+    "title": "Jolt BlindFold current backend privacy boundary"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/a16z/jolt/releases/tag/v0.2.0-alpha",
+    "title": "Jolt repository and historical Twist/Shout release inspected"
+  },
+  {
+    "id": null,
+    "url": "https://raw.githubusercontent.com/a16z/jolt/main/LICENSE-MIT",
+    "title": "Jolt root implementation license bodies"
+  },
+  {
+    "id": null,
+    "url": "https://a16zcrypto.com/posts/article/lattice-snarks-jolt-post-quantum-faster/",
+    "title": "Lattice Jolt September9 announcement"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2602.17452",
+    "title": "Jolt Atlas current paper scope"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2025/946",
+    "title": "Logup* small-table indexed lookup refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2024/1058",
+    "title": "MLE-compatible lookup older screen refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2026/1388",
+    "title": "Chimera October16 revision refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2606.16146",
+    "title": "When Proofs Meet Hardware memory-budget screen refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/ingonyama-zk/icicle/releases",
+    "title": "ICICLE release search result refresh"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/BrianSeong99/Plonky3_RangeCheck",
+    "title": "Newly assessed older field-specific range-check tutorial"
+  },
+  {
+    "id": null,
+    "url": "https://zkhack.dev/zkhackV/workshopV3.html",
+    "title": "Range-check workshop primary date and repository link"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/Plonky3/Plonky3/pull/2292",
+    "title": "Compiled repeated-gadget metadata refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/Plonky3/Plonky3/releases",
+    "title": "Current release screen: Boolean operands, hiding and packed kernels"
+  },
+  {
+    "id": null,
+    "url": "https://raw.githubusercontent.com/Plonky3/Plonky3/main/LICENSE-MIT",
+    "title": "Plonky3 root license body"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2025/538",
+    "title": "Newly assessed older range-check versus lookup tradeoff lead"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2025/105",
+    "title": "Twist/Shout latest revision refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2026/1388",
+    "title": "Chimera October16 revision refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2026/2494",
+    "title": "Algebraic-geometry sumcheck primary access blocker"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/BLAKE3-team/BLAKE3-specs/blob/master/blake3.tex",
+    "title": "BLAKE3 older incremental-stack and memory-sizing technique"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/BLAKE3-team/BLAKE3/releases/tag/1.8.7",
+    "title": "BLAKE3 official implementation license and current release"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/BLAKE3-team/BLAKE3/commit/f3149ec5bb5449af877ba20377a11008ff499fa2",
+    "title": "BLAKE3 1.8.7 commit diff inspected"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/yaoyunzhou/MARS",
+    "title": "MARS2026 author repository, newly assessed scheduling technique"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2024/1862",
+    "title": "BatchZK throughput and dynamic-loading precedent refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2026/1388",
+    "title": "Chimera latest October16 revision refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2604.17808",
+    "title": "MORPH2026 architecture/dataflow filter"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2019/458",
+    "title": "Poseidon older hash-circuit applicability filter"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/BLAKE3-team/BLAKE3/blob/f3149ec5bb5449af877ba20377a11008ff499fa2/c/blake3.c",
+    "title": "BLAKE3 pinned C lazy-merging implementation"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/BLAKE3-team/BLAKE3/blob/master/reference_impl/reference_impl.rs",
+    "title": "BLAKE3 reference eager-stack algorithm"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/BLAKE3-team/BLAKE3/releases/tag/1.8.7",
+    "title": "BLAKE3 current release and inspected version diff"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/Blaze-3/BLAKE3-gpu",
+    "title": "Blaze3 older GPU hash parallelism screen"
+  },
+  {
+    "id": null,
+    "url": "https://nvidia.github.io/cuPQC/blogs/merkle/",
+    "title": "NVIDIA cuPQC Merkle scheduling modes"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2026/1388",
+    "title": "Chimera October16 revision"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2610.08258",
+    "title": "zkLLMPoT October11 v2 scope refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2301.02161",
+    "title": "Streaming zero-knowledge access model"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2509.05326",
+    "title": "Sublinear-space proof transcript conditions"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/itzmeanjan/merklize-blake3",
+    "title": "NEW older OpenCL BLAKE3 Merkle implementation and transfer accounting"
+  },
+  {
+    "id": null,
+    "url": "https://nvidia.github.io/cuPQC/blogs/merkle/",
+    "title": "cuPQC Merkle scheduling modes refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2026/1388",
+    "title": "Chimera complete-prover versus accelerated-region scope refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2026/391",
+    "title": "NEW screen Zero-Knowledge IOPPs for Constrained Interleaved Codes"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/ingonyama-zk/icicle/releases",
+    "title": "ICICLE current release interface and inspected full version commit"
+  },
+  {
+    "id": null,
+    "url": "https://docs.rs/crate/turboblake/1.8.7",
+    "title": "NEW same-day turboblake1.8.7 registry lead; implementation inaccessible"
+  },
+  {
+    "id": null,
+    "url": "https://docs.rs/crate/blake3/1.8.7",
+    "title": "BLAKE3 release date resolved from primary registry"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2026/2468",
+    "title": "FlatMerkle primary-source access blocker; no technical evidence credited"
+  },
+  {
+    "id": null,
+    "url": "https://people.maths.ox.ac.uk/trefethen/barycentric.pdf",
+    "title": "NEW older Newton/Lagrange interpolation arithmetic filter"
+  },
+  {
+    "id": null,
+    "url": "https://dlmf.nist.gov/3.3",
+    "title": "NEW NIST Newton formula corroboration"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/snarang181/zk-duel",
+    "title": "NEW zkDuel matched CUDA/Triton sumcheck kernels screen"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/2610.14849",
+    "title": "StateSync October prepared-proof methodology and current license boundary"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/compsec-epfl/efficient-sumcheck/blob/main/CHANGELOG.md",
+    "title": "Efficient Sumcheck rewrite: domain/terminal boundary refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/Consensys-Incorporated/gnark/releases/tag/v0.16.4",
+    "title": "gnark October release batching is a protocol boundary"
+  },
+  {
+    "id": null,
+    "url": "https://people.cs.georgetown.edu/jthaler/Tcode.htm",
+    "title": "Thaler historical code availability and license newly inspected"
+  },
+  {
+    "id": null,
+    "url": "https://doc.rust-lang.org/std/vec/struct.Vec.html#method.extend_from_within",
+    "title": "Rust destination-prefix cloning API: existing eq_cube pattern applied to paired tables"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2026/1453",
+    "title": "NEW older Celer large-query lookup paper: table/query asymmetry screen"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/quwenjie/Celer/blob/main/dory_pcs.hpp",
+    "title": "NEW Celer prototype: explicit no-blinding privacy incompatibility"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/succinctlabs/sp1/releases",
+    "title": "SP1 current6.10.0 release and inspected release commit"
+  },
+  {
+    "id": null,
+    "url": "https://docs.rs/crate/sp1-gpu-logup-gkr/latest",
+    "title": "SP1 GPU LogUp-GKR package: version-rendering and field-boundary filter"
+  },
+  {
+    "id": null,
+    "url": "https://levs57.github.io/logup_.pdf",
+    "title": "Logup* author PDF newly inspected; known protocol alternative retained"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2026/2435",
+    "title": "TenseUp current-paper refresh blocked at primary page"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/compsec-epfl/efficient-sumcheck",
+    "title": "Efficient Sumcheck public evaluator/ordering contract refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2024/524",
+    "title": "A Time-Space Tradeoff for the Sumcheck Prover refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/succinctlabs/sp1/releases/tag/v6.10.0",
+    "title": "SP1 recent v6.10.0 release and dependency pin refresh"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2026/587",
+    "title": "Speeding Up Sum-Check Proving extended version refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://www.cs.cmu.edu/~csd-phd-blog/2026/sumcheck-proving/",
+    "title": "Author September sumcheck implementation explanation refreshed"
+  },
+  {
+    "id": null,
+    "url": "https://arxiv.org/abs/1105.2003",
+    "title": "NEW older original CMT circuit wiring/preprocessing source"
+  },
+  {
+    "id": null,
+    "url": "https://eccc.weizmann.ac.il/report/2022/093/",
+    "title": "NEW older bounded-space verifier optimization: applicability negative"
+  },
+  {
+    "id": null,
+    "url": "https://github.com/microsoft/vega-prover",
+    "title": "Vega official sumcheck/MLE representation source screen"
+  },
+  {
+    "id": null,
+    "url": "https://eprint.iacr.org/2024/1058",
+    "title": "Known MLE lookup compatibility and regular wiring references refreshed"
+  },
+  {
+    "id": "cycle0129-source-1",
+    "url": "https://eprint.iacr.org/2017/305",
+    "title": "NEW original CFS sumcheck primary source; technique already referenced in native code"
+  },
+  {
+    "id": "cycle0129-source-2",
+    "url": "https://eprint.iacr.org/2019/317",
+    "title": "Libra older masking/GKR reference refreshed"
+  },
+  {
+    "id": "cycle0129-source-3",
+    "url": "https://github.com/Plonky3/Plonky3/pull/1605",
+    "title": "Plonky3 HVZK sumcheck implemented boundary: PR1605 and current docs"
+  },
+  {
+    "id": "cycle0129-source-4",
+    "url": "https://eprint.iacr.org/2026/391",
+    "title": "Constrained interleaved-code IOPP paper refreshed"
+  },
+  {
+    "id": "cycle0129-source-5",
+    "url": "https://github.com/Plonky3/Plonky3/releases",
+    "title": "Plonky3 current release list differs from stale v0.8 search excerpt"
+  },
+  {
+    "id": "cycle0129-source-6",
+    "url": "https://github.com/Terminus-IMRC/tensor-core-ntt",
+    "title": "NEW Tensor Core NTT2026 implementation source screen"
+  },
+  {
+    "id": "cycle0129-source-7",
+    "url": "https://github.com/Alisah-Ozcan/GPU-NTT",
+    "title": "GPU-NTT32/64 Barrett interface refreshed"
+  },
+  {
+    "id": "cycle0129-source-8",
+    "url": "https://github.com/ingonyama-zk/icicle/releases",
+    "title": "ICICLE current release and license refreshed"
+  },
+  {
+    "id": "cycle0129-source-9",
+    "url": "https://arxiv.org/abs/2609.36437",
+    "title": "Bits Under ZK-LLM operator precision/cost refresh"
+  },
+  {
+    "id": "cycle0129-source-10",
+    "url": "https://doi.org/10.1145/3857809",
+    "title": "LightZK October2026 discovery blocked at primary DOI"
+  },
+  {
+    "id": "cycle0130-source-1",
+    "url": "https://github.com/Terminus-IMRC/tensor-core-ntt/commit/6f407daa8a4cef96331511ae86b922b520d7aa33",
+    "title": "Tensor Core NTT immutable commit and current history"
+  },
+  {
+    "id": "cycle0130-source-2",
+    "url": "https://raw.githubusercontent.com/Terminus-IMRC/tensor-core-ntt/6f407daa8a4cef96331511ae86b922b520d7aa33/include/polyarith/modular.cuh",
+    "title": "General Montgomery multiplier is distinct from a general full-width NTT"
+  },
+  {
+    "id": "cycle0130-source-3",
+    "url": "https://raw.githubusercontent.com/Terminus-IMRC/tensor-core-ntt/6f407daa8a4cef96331511ae86b922b520d7aa33/include/polyarith/cuda/ntt.cuh",
+    "title": "Tensor NTT16 byte accumulators, scaling and scalar lazy boundary"
+  },
+  {
+    "id": "cycle0130-source-4",
+    "url": "https://eprint.iacr.org/2017/1057",
+    "title": "NEW older Bos/Montgomery software arithmetic perspective"
+  },
+  {
+    "id": "cycle0130-source-5",
+    "url": "https://github.com/ingonyama-zk/icicle/releases",
+    "title": "ICICLE release refresh: current API scope"
+  },
+  {
+    "id": "cycle0130-source-6",
+    "url": "https://github.com/Alisah-Ozcan/GPU-NTT/releases",
+    "title": "GPU-NTT current release absence"
+  },
+  {
+    "id": "cycle0130-source-7",
+    "url": "https://github.com/Plonky3/Plonky3/releases",
+    "title": "Plonky3 current release and fresh-mask requirement refreshed"
+  },
+  {
+    "id": "cycle0130-source-8",
+    "url": "https://eprint.iacr.org/2026/587",
+    "title": "Known sumcheck extended paper refreshed"
+  },
+  {
+    "id": "cycle0130-source-9",
+    "url": "https://www.ingonyama.com/post/goldilocks-ntt-trick",
+    "title": "Goldilocks NTT small-root shifts older lead refreshed"
+  },
+  {
+    "id": "cycle0131-source-1",
+    "url": "https://eprint.iacr.org/2025/238",
+    "title": "NEW older polynomial preprocessing paper with August2026 revision"
+  },
+  {
+    "id": "cycle0131-source-2",
+    "url": "https://github.com/Lagrange-Labs/deep-prove/commit/9d1a53e2ef49ffa2c902b8689cd3c58057a4e662",
+    "title": "DeepProve immutable proving-context cache documentation and licensing change"
+  },
+  {
+    "id": "cycle0131-source-3",
+    "url": "https://arxiv.org/abs/2607.08095",
+    "title": "Known July2026 zkComposer decomposition/privacy boundary refreshed"
+  },
+  {
+    "id": "cycle0131-source-4",
+    "url": "https://eprint.iacr.org/2024/1058",
+    "title": "Known MLE-native super-efficient lookup compatibility refreshed"
+  },
+  {
+    "id": "cycle0131-source-5",
+    "url": "https://eprint.iacr.org/2023/1518",
+    "title": "Known private-table cq family refreshed"
+  },
+  {
+    "id": "cycle0131-source-6",
+    "url": "https://www.microsoft.com/en-us/research/publication/unlocking-the-lookup-singularity-with-lasso/",
+    "title": "Known Lasso structured versus arbitrary table preprocessing boundary"
+  },
+  {
+    "id": "cycle0131-source-7",
+    "url": "https://github.com/Plonky3/Plonky3/releases",
+    "title": "Plonky3 current release refresh supersedes stale search snippet"
+  },
+  {
+    "id": "cycle0131-source-8",
+    "url": "https://www.aisafety.sg/research/what-proving-llm-inference-actually-costs-research-note",
+    "title": "NEW September SASH8B measurement note: phase methodology, privacy rejection"
+  },
+  {
+    "id": "cycle0132-source-1",
+    "url": "https://ppopp26.sigplan.org/details/PPoPP-2026-papers/38/Pipelonk-Accelerating-End-to-End-Zero-Knowledge-Proof-Generation-on-GPUs-for-PLONK-b",
+    "title": "Pipelonk segmentation and end-to-end dependency scheduling: primary abstract now accessible"
+  },
+  {
+    "id": "cycle0132-source-2",
+    "url": "https://github.com/ingonyama-zk/icicle/releases",
+    "title": "ICICLE current release and pinned version-bump commit: API and Goldilocks extension boundary"
+  },
+  {
+    "id": "cycle0132-source-3",
+    "url": "https://arxiv.org/abs/2606.03046",
+    "title": "NEW ZK-Flex hardware memory-aware scheduling filter"
+  },
+  {
+    "id": "cycle0132-source-4",
+    "url": "https://www.cs.cmu.edu/~csd-phd-blog/2026/sumcheck-proving/",
+    "title": "Known September sumcheck author explanation refreshed: streaming reread and batching costs"
+  },
+  {
+    "id": "cycle0132-source-5",
+    "url": "https://arxiv.org/abs/2609.36437",
+    "title": "Known Bits Under ZK-LLM precision and complete-cost boundary refreshed"
+  },
+  {
+    "id": "cycle0132-source-6",
+    "url": "https://eprint.iacr.org/2024/265",
+    "title": "NEW older Beyond the Circuit lookup/foreign arithmetic filter"
+  },
+  {
+    "id": "cycle0132-source-7",
+    "url": "https://github.com/mmaker/tinybear",
+    "title": "NEW older Tinybear reference lookup implementation readme and license metadata"
+  },
+  {
+    "id": "cycle0132-source-8",
+    "url": "https://eprint.iacr.org/2026/538",
+    "title": "NEW Proof-Carrying Data via Holography Accumulation: stateless composition filter"
+  },
+  {
+    "id": "cycle0133-source-1",
+    "url": "https://arxiv.org/abs/2609.10149",
+    "title": "NEW Sound Debloating of Redundant Checks in Zero-Knowledge Machine-Learning Circuits"
+  },
+  {
+    "id": "cycle0133-source-2",
+    "url": "https://github.com/xuezhantong/zk-debloater",
+    "title": "NEW zk-debloater artifact README and actual availability"
+  },
+  {
+    "id": "cycle0133-source-3",
+    "url": "https://figshare.com/articles/software/Artifact_for_Sound_Debloating_of_Redundant_Checks_in_Zero-Knowledge_Machine-Learning_Circuits_/33517921",
+    "title": "NEW primary debloater software artifact metadata"
+  },
+  {
+    "id": "cycle0133-source-4",
+    "url": "https://github.com/THU-HAS/MegaZK",
+    "title": "NEW MegaZK2026 GPU system reference: verification and scope filter"
+  },
+  {
+    "id": "cycle0133-source-5",
+    "url": "https://plv.mpi-sws.org/refinedrust/",
+    "title": "NEW older RefinedRust ownership and functional-invariant methodology"
+  },
+  {
+    "id": "cycle0133-source-6",
+    "url": "https://arxiv.org/abs/2507.16793",
+    "title": "Known older MTU hybrid tree traversal refreshed"
+  },
+  {
+    "id": "cycle0133-source-7",
+    "url": "https://arxiv.org/abs/2608.13696",
+    "title": "Known August2026 instruction-wall boundary: exact metadata now verified"
+  },
+  {
+    "id": "cycle0133-source-8",
+    "url": "https://past.date-conference.com/proceedings-archive/2026/DATA/926.pdf",
+    "title": "Known SumCATS2026 primary conference implementation boundary refreshed"
+  },
+  {
+    "id": "cycle0134-source-1",
+    "url": "https://arxiv.org/abs/2609.10149",
+    "title": "September semantic debloating: backward uniqueness and cumulative provenance"
+  },
+  {
+    "id": "cycle0134-source-2",
+    "url": "https://github.com/xuezhantong/zk-debloater",
+    "title": "Debloater repository points to separate artifact, not implementation in GitHub"
+  },
+  {
+    "id": "cycle0134-source-3",
+    "url": "https://figshare.com/articles/software/Artifact_for_Sound_Debloating_of_Redundant_Checks_in_Zero-Knowledge_Machine-Learning_Circuits_/33517921",
+    "title": "Debloater software artifact metadata and exact download blocker"
+  },
+  {
+    "id": "cycle0134-source-4",
+    "url": "https://www.nethermind.io/blog/clap-correctly-compiling-the-leanest-possible-circuits",
+    "title": "NEW CLAP May 2026 Lean redesign and current entrypoint"
+  },
+  {
+    "id": "cycle0134-source-5",
+    "url": "https://arxiv.org/abs/2405.12115",
+    "title": "NEW older Clap Rust semantics-preserving eDSL boundary"
+  },
+  {
+    "id": "cycle0134-source-6",
+    "url": "https://chyanju.github.io/publications/oopsla25-tabby.pdf",
+    "title": "NEW older Tabby synthesis and component equivalence methodology"
+  },
+  {
+    "id": "cycle0134-source-7",
+    "url": "https://github.com/ingonyama-zk/icicle/releases/tag/v4.0.0",
+    "title": "ICICLE current release and exact inspected version-bump diff refreshed"
+  },
+  {
+    "id": "cycle0134-source-8",
+    "url": "https://arxiv.org/abs/2602.17452",
+    "title": "Jolt Atlas exact-lookup and arithmetic compatibility filter refreshed"
+  },
+  {
+    "id": "cycle0134-source-9",
+    "url": "https://github.com/arkworks-rs/sumcheck",
+    "title": "Older arkworks multilinear/GKR sumcheck reference and review scope"
+  },
+  {
+    "id": "cycle0135-source-1",
+    "url": "https://docs.nvidia.com/cuda/cupqc/libraries/cupqc_ntt/cupqc_ntt_feature.html",
+    "title": "cuPQC v0.6 NTT field limit and staged fusion interface refreshed"
+  },
+  {
+    "id": "cycle0135-source-2",
+    "url": "https://nvidia.github.io/cuPQC/releases/v0.6/",
+    "title": "cuPQC August 2026 release announcement and absent GitHub releases"
+  },
+  {
+    "id": "cycle0135-source-3",
+    "url": "https://cs.newpaltz.edu/~lik/publications/Qilin-Hu-ACM-TRTS-2025",
+    "title": "NEW older HiFA imbalanced decomposition and cyclic-shuffle methodology"
+  },
+  {
+    "id": "cycle0135-source-4",
+    "url": "https://zprize.hardcaml.com/ntt-4step.html",
+    "title": "NEW older Hardcaml four-step operation and transpose cost reference"
+  },
+  {
+    "id": "cycle0135-source-5",
+    "url": "https://research.sabanciuniv.edu/id/eprint/51889/",
+    "title": "GPU-NTT 2025 journal date and Goldilocks reduction context refreshed"
+  },
+  {
+    "id": "cycle0135-source-6",
+    "url": "https://github.com/Alisah-Ozcan/GPU-NTT",
+    "title": "GPU-NTT current README license and observed June2026 history pin"
+  },
+  {
+    "id": "cycle0135-source-7",
+    "url": "https://github.com/uulong950/qingming-g64-ntt-cuda",
+    "title": "Qingming CUDA natural-order versus mapped-output contract refreshed"
+  },
+  {
+    "id": "cycle0135-source-8",
+    "url": "https://grid.hust.edu.cn/info/1053/3070.htm",
+    "title": "LightZK author-lab September announcement and inaccessible October paper"
+  },
+  {
+    "id": "cycle0135-source-9",
+    "url": "https://github.com/fractalyze/zisk-zorch/issues/58",
+    "title": "NEW zisk-zorch July2026 RTX5090 LDE layout attribution issue"
+  },
+  {
+    "id": "cycle0136-source-1",
+    "url": "https://arxiv.org/abs/2610.14849",
+    "title": "StateSync-GKR October revision: per-layer equality preparation and request boundaries"
+  },
+  {
+    "id": "cycle0136-source-2",
+    "url": "https://github.com/Oraclizer/statesync-gkr/releases/tag/v1.2.1",
+    "title": "StateSync-GKR v1.2.1 release, observed source coordinate and current license"
+  },
+  {
+    "id": "cycle0136-source-3",
+    "url": "https://layerzero-labs.github.io/akita/foundations/multilinear-sumcheck.html",
+    "title": "Newly inspected Akita MLE/folding and final oracle contract"
+  },
+  {
+    "id": "cycle0136-source-4",
+    "url": "https://github.com/LayerZero-Labs/akita/issues/61",
+    "title": "Newly inspected Akita/Jolt sumcheck migration tracker and residual ownership"
+  },
+  {
+    "id": "cycle0136-source-5",
+    "url": "https://github.com/LayerZero-Labs/akita/commits/main/",
+    "title": "Akita observed historical commit is not current code pin"
+  },
+  {
+    "id": "cycle0136-source-6",
+    "url": "https://microsoft.github.io/vega-prover/building-blocks/multilinear.html",
+    "title": "Vega primary equality-weight and top-variable folding convention refreshed"
+  },
+  {
+    "id": "cycle0136-source-7",
+    "url": "https://eprint.iacr.org/2026/587",
+    "title": "Extended sumcheck 2026 primary history and equality factor context refreshed"
+  },
+  {
+    "id": "cycle0136-source-8",
+    "url": "https://arxiv.org/abs/1304.3812",
+    "title": "Thaler older regular-wiring and work-reuse construction refreshed"
+  },
+  {
+    "id": "cycle0136-source-9",
+    "url": "https://escholarship.org/content/qt5qm6n0s0/qt5qm6n0s0.pdf",
+    "title": "NEW detailed older subset-claim circuit treatment in author thesis"
+  },
+  {
+    "id": "cycle0136-source-10",
+    "url": "https://eprint.iacr.org/2020/1247",
+    "title": "Virgo++ canonical dates refreshed; abstract-only prior disposition retained"
+  },
+  {
+    "id": "cycle0137-source-1",
+    "url": "https://eprint.iacr.org/2026/2668",
+    "title": "NEW October28 algebraic polynomial evaluation datastructure; abstract-only compatibility filter"
+  },
+  {
+    "id": "cycle0137-source-2",
+    "url": "https://arxiv.org/abs/2602.17452",
+    "title": "Jolt Atlas fulltext refreshed: complete-stage clocks and protocol migration separation"
+  },
+  {
+    "id": "cycle0137-source-3",
+    "url": "https://github.com/ICME-Lab/jolt-atlas/pull/401",
+    "title": "NEW Jolt Atlas raw versus physical dimensions proposal, not a performance change"
+  },
+  {
+    "id": "cycle0137-source-4",
+    "url": "https://github.com/ICME-Lab/jolt-atlas/pull/400",
+    "title": "NEW Jolt Atlas October adoption roadmap; privacy/protocol stages remain prerequisites"
+  },
+  {
+    "id": "cycle0137-source-5",
+    "url": "https://raw.githubusercontent.com/ICME-Lab/jolt-atlas/main/LICENSE",
+    "title": "Jolt Atlas current LICENSE body inspected; no permissive-code assumption"
+  },
+  {
+    "id": "cycle0137-source-6",
+    "url": "https://github.com/ICME-Lab/jolt-atlas/releases",
+    "title": "Jolt Atlas release absence and stale historical commit retained accurately"
+  },
+  {
+    "id": "cycle0137-source-7",
+    "url": "https://arxiv.org/abs/2501.08889",
+    "title": "NEW older Karatsuba matrix paper: additions and accumulations compatibility filter"
+  },
+  {
+    "id": "cycle0137-source-8",
+    "url": "https://eprint.iacr.org/2006/471",
+    "title": "Known older quadratic-extension arithmetic reference refreshed"
+  },
+  {
+    "id": "cycle0138-source-1",
+    "url": "https://arxiv.org/abs/2609.06022",
+    "title": "Fast Evaluation of Polynomials with Rational Preprocessing"
+  },
+  {
+    "id": "cycle0138-source-2",
+    "url": "https://upcommons.upc.edu/entities/publication/7d5f3945-e5ed-4354-abda-5b509ea8a854",
+    "title": "Sailor: Sumcheck and GKR over Zpk via Galois rings"
+  },
+  {
+    "id": "cycle0138-source-3",
+    "url": "https://github.com/Plonky3/Plonky3/pull/2305",
+    "title": "Plonky3 current release listing and borrowed-point equality kernel PR2305"
+  },
+  {
+    "id": "cycle0138-source-4",
+    "url": "https://github.com/arkworks-rs/sumcheck",
+    "title": "arkworks linear-time sumcheck and visible historical commit history"
+  },
+  {
+    "id": "cycle0138-source-5",
+    "url": "https://drops.dagstuhl.de/entities/document/10.4230/LIPIcs.ITC.2026.3",
+    "title": "Interactive Proofs for Batch Polynomial Evaluation"
+  },
+  {
+    "id": "cycle0138-source-6",
+    "url": "https://eprint.iacr.org/2025/1117",
+    "title": "Speeding Up Sum-Check Proving"
+  },
+  {
+    "id": "cycle0138-source-7",
+    "url": "https://jolt.a16zcrypto.com/how/optimizations/eq.html",
+    "title": "JoltBook EQ polynomial optimizations"
+  },
+  {
+    "id": "cycle0139-source-1",
+    "url": "https://eprint.iacr.org/2022/1565",
+    "title": "NEW older Baloo lookup preprocessing compatibility screen"
+  },
+  {
+    "id": "cycle0139-source-2",
+    "url": "https://eprint.iacr.org/2022/1763",
+    "title": "Known cq cached-quotient preprocessing refreshed"
+  },
+  {
+    "id": "cycle0139-source-3",
+    "url": "https://github.com/xfu2006/halo2_pse_cq",
+    "title": "NEW halo2_pse_cq integration and explicit zero-knowledge linking costs"
+  },
+  {
+    "id": "cycle0139-source-4",
+    "url": "https://github.com/Plonky3/Plonky3/releases",
+    "title": "Plonky3 release listing refreshed; metadata is not performance evidence"
+  },
+  {
+    "id": "cycle0139-source-5",
+    "url": "https://github.com/Plonky3/Plonky3/pull/2292",
+    "title": "Known Plonky3 compiled repeated components refreshed"
+  },
+  {
+    "id": "cycle0139-source-6",
+    "url": "https://github.com/Plonky3/Plonky3/pull/2293",
+    "title": "Known Plonky3 caller obligations and lookup tuple-width review refreshed"
+  },
+  {
+    "id": "cycle0139-source-7",
+    "url": "https://www.petsymposium.org/popets/2026/popets-2026-0044.php",
+    "title": "NEW Gryphes modular lookup and proof-linking primary metadata"
+  },
+  {
+    "id": "cycle0139-source-8",
+    "url": "https://arxiv.org/abs/2404.16109",
+    "title": "Known zkLLM tensor lookup/attention CUDA evidence refreshed"
+  },
+  {
+    "id": "cycle0140-source-1",
+    "url": "https://github.com/ingonyama-zk/icicle/issues/1046",
+    "title": "Known ICICLE Blackwell reorder/transfer bottleneck refreshed"
+  },
+  {
+    "id": "cycle0140-source-2",
+    "url": "https://github.com/ingonyama-zk/icicle/issues/1047",
+    "title": "New primary ICICLE Goldilocks benchmark-contract issue"
+  },
+  {
+    "id": "cycle0140-source-3",
+    "url": "https://arxiv.org/abs/2604.04696",
+    "title": "Known GPIR stage-aware batching and cache-capacity method refreshed"
+  },
+  {
+    "id": "cycle0140-source-4",
+    "url": "https://github.com/Artemarius/cuda-zkp-ntt/releases",
+    "title": "Known cuda-zkp-ntt releases/negative results refreshed"
+  },
+  {
+    "id": "cycle0140-source-5",
+    "url": "https://fhe.desilo.dev/2.0.0/release_notes/",
+    "title": "New October DESILO2.0 release compatibility and memory screen"
+  },
+  {
+    "id": "cycle0140-source-6",
+    "url": "https://ieeexplore.ieee.org/document/10843144/",
+    "title": "New older in-place conflict-free NTT architecture metadata screen"
+  },
+  {
+    "id": "cycle0140-source-7",
+    "url": "https://arxiv.org/abs/2209.01290",
+    "title": "Known older mixed-radix/shared-memory HE NTT paper refreshed"
+  },
+  {
+    "id": "cycle0140-source-8",
+    "url": "https://github.com/uulong950/qingming-g64-ntt-cuda",
+    "title": "Known QingmingCUDA layout/size boundary refreshed"
+  },
+  {
+    "id": "cycle0141-source-1",
+    "url": "https://arxiv.org/abs/2610.14849",
+    "title": "Known October StateSync-GKR v2 preparation/delivery scope refreshed"
+  },
+  {
+    "id": "cycle0141-source-2",
+    "url": "https://github.com/Oraclizer/statesync-gkr/releases",
+    "title": "Known current StateSync-GKR1.2.1 release and license boundary"
+  },
+  {
+    "id": "cycle0141-source-3",
+    "url": "https://github.com/LayerZero-Labs/akita/blob/main/book/src/how/proving/extension-opening-reduction.md",
+    "title": "NEW inspected Akita extension-opening reduction public-factor grouping page"
+  },
+  {
+    "id": "cycle0141-source-4",
+    "url": "https://github.com/quangvdao/monomial-sumcheck-benchmarks/commit/b2e6df5bb19a2af5313e7abe8fbd51313e30e6a1",
+    "title": "NEW inspected monomial benchmark busy-host methodology commit"
+  },
+  {
+    "id": "cycle0141-source-5",
+    "url": "https://arxiv.org/abs/cs/0404008",
+    "title": "NEW older word-size finite-field dot-product size/traffic study"
+  },
+  {
+    "id": "cycle0141-source-6",
+    "url": "https://arxiv.org/abs/0809.0063",
+    "title": "NEW older REDQ/Kronecker small-field applicability screen"
+  },
+  {
+    "id": "cycle0141-source-7",
+    "url": "https://eprint.iacr.org/2023/1611",
+    "title": "Known older power-circuit arithmetization screened again"
+  },
+  {
+    "id": "cycle0141-source-8",
+    "url": "https://eprint.iacr.org/2006/471",
+    "title": "Known older quadratic-extension multiplication operation-count baseline"
+  },
+  {
+    "id": "cycle0142-source-1",
+    "url": "https://arxiv.org/abs/2610.08258",
+    "title": "Known October zkLLMPoT v2 complete-workload boundary refreshed"
+  },
+  {
+    "id": "cycle0142-source-2",
+    "url": "https://arxiv.org/abs/2609.36437",
+    "title": "Known Bits Under ZK-LLM precision/cost boundary refreshed"
+  },
+  {
+    "id": "cycle0142-source-3",
+    "url": "https://eprint.iacr.org/2025/105",
+    "title": "Known Twist and Shout with October17 revision"
+  },
+  {
+    "id": "cycle0142-source-4",
+    "url": "https://github.com/a16z/jolt/pull/936",
+    "title": "NEW older Jolt booleanity memory specialization"
+  },
+  {
+    "id": "cycle0142-source-5",
+    "url": "https://github.com/a16z/jolt/pull/916",
+    "title": "NEW older Jolt same-call index/H reuse lead"
+  },
+  {
+    "id": "cycle0142-source-6",
+    "url": "https://eprint.iacr.org/2020/315",
+    "title": "NEW older plookup committed-polynomial range architecture screen"
+  },
+  {
+    "id": "cycle0142-source-7",
+    "url": "https://github.com/a16z/jolt/commits/main/",
+    "title": "Jolt current repository/release and phase-methodology screen"
+  },
+  {
+    "id": "cycle0142-source-8",
+    "url": "https://github.com/jvhs0706/zkllm-ccs2024",
+    "title": "Known zkLLM archive and code-license boundary refreshed"
+  },
+  {
+    "id": "cycle0143-source-1",
+    "url": "https://arxiv.org/abs/1710.09745",
+    "title": "NEW older block-Krylov cache/register tiling applicability"
+  },
+  {
+    "id": "cycle0143-source-2",
+    "url": "https://docs.nvidia.com/cuda/blackwell-tuning-guide/index.html",
+    "title": "NEW inspected Blackwell register/occupancy tuning guide"
+  },
+  {
+    "id": "cycle0143-source-3",
+    "url": "https://tanvirarafin.github.io/assets/pdf/DATE_2026.pdf",
+    "title": "Known SumCATS primary paper and implementation scope refreshed"
+  },
+  {
+    "id": "cycle0143-source-4",
+    "url": "https://github.com/snarang181/zk-duel",
+    "title": "Known zkDuel Goldilocks methodology and register diagnostics refreshed"
+  },
+  {
+    "id": "cycle0143-source-5",
+    "url": "https://developer.nvidia.com/blog/building-faster-cryptography-with-carryless-multiplication-in-nvidia-cuda-13-3/",
+    "title": "Known CUDA13.3 binary carryless instruction boundary refreshed"
+  },
+  {
+    "id": "cycle0143-source-6",
+    "url": "https://eprint.iacr.org/2026/587",
+    "title": "Known extended sumcheck paper equality/small-value applicability refreshed"
+  },
+  {
+    "id": "cycle0143-source-7",
+    "url": "https://arxiv.org/abs/2610.08258",
+    "title": "Known October zkLLMPoT complete-workload boundary refreshed"
+  },
+  {
+    "id": "cycle0144-source-1",
+    "url": "https://arxiv.org/abs/2604.06664",
+    "title": "NEW Foundry2026 template versus dynamic execution context boundary"
+  },
+  {
+    "id": "cycle0144-source-2",
+    "url": "https://developer.nvidia.com/blog/constructing-cuda-graphs-with-dynamic-parameters/",
+    "title": "NEW older dynamic CUDA graph node updates (2022)"
+  },
+  {
+    "id": "cycle0144-source-3",
+    "url": "https://github.com/hummingtree/cuda-graph-with-dynamic-parameters",
+    "title": "NEW inspected dynamic graph implementation and per-file MIT grant"
+  },
+  {
+    "id": "cycle0144-source-4",
+    "url": "https://docs.nvidia.com/cuda/cuda-programming-guide/04-special-topics/cuda-graphs.html",
+    "title": "Current official CUDA graph update constraints"
+  },
+  {
+    "id": "cycle0144-source-5",
+    "url": "https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html",
+    "title": "Current CUDA13.4 Update2 release screen"
+  },
+  {
+    "id": "cycle0144-source-6",
+    "url": "https://github.com/THU-HAS/MegaZK",
+    "title": "Known MegaZK repository current verification/scope refresh"
+  },
+  {
+    "id": "cycle0144-source-7",
+    "url": "https://arxiv.org/abs/1304.3812",
+    "title": "Known Thaler regular-wiring preprocessing versus field work refreshed"
+  },
+  {
+    "id": "cycle0144-source-8",
+    "url": "https://eprint.iacr.org/2026/587",
+    "title": "Known extended sumcheck paper field/small-value boundary refreshed"
+  },
+  {
+    "id": "cycle0144-source-9",
+    "url": "https://arxiv.org/abs/2610.08258",
+    "title": "Known October zkLLMPoT workload boundary refreshed"
+  },
+  {
+    "id": "cycle0145-source-1",
+    "url": "https://www.cs.cmu.edu/~csd-phd-blog/2026/sumcheck-proving/",
+    "title": "NEW assessed author September sumcheck algorithms post"
+  },
+  {
+    "id": "cycle0145-source-2",
+    "url": "https://eprint.iacr.org/2026/762",
+    "title": "Known monomial-basis paper refreshed; distinct from unchanged-basis Eq rewrite"
+  },
+  {
+    "id": "cycle0145-source-3",
+    "url": "https://github.com/quangvdao/monomial-sumcheck-benchmarks",
+    "title": "Monomial benchmark methodology source diff inspected at exact commit"
+  },
+  {
+    "id": "cycle0145-source-4",
+    "url": "https://github.com/EspressoSystems/hyperplonk/blob/main/arithmetic/src/virtual_polynomial.rs",
+    "title": "NEW assessed older HyperPlonk complement-product Eq construction"
+  },
+  {
+    "id": "cycle0145-source-5",
+    "url": "https://github.com/EspressoSystems/hyperplonk/releases",
+    "title": "Older HyperPlonk release/source licensing provenance and current history"
+  },
+  {
+    "id": "cycle0145-source-6",
+    "url": "https://datatracker.ietf.org/doc/draft-irtf-cfrg-longfellow/",
+    "title": "NEW October Longfellow IRTF draft Eq ordering and fresh transcript pads"
+  },
+  {
+    "id": "cycle0145-source-7",
+    "url": "https://eprint.iacr.org/2026/2494",
+    "title": "Recent algebraic-geometry sumcheck lead blocked at primary fetch"
+  },
+  {
+    "id": "cycle0146-source-1",
+    "url": "https://arxiv.org/abs/2601.03031",
+    "title": "NEW screened FlexProofs all-index proof amortization"
+  },
+  {
+    "id": "cycle0146-source-2",
+    "url": "https://github.com/Plonky3/Plonky3/pull/2305",
+    "title": "Plonky3 borrowed public points and one packed Eq kernel, deeper PR review"
+  },
+  {
+    "id": "cycle0146-source-3",
+    "url": "https://github.com/Plonky3/Plonky3/releases",
+    "title": "Plonky3 latest visible p3-sumcheck0.9.0-rc.2 release refreshed"
+  },
+  {
+    "id": "cycle0146-source-4",
+    "url": "https://github.com/arkworks-rs/poly-commit/blob/master/poly-commit/src/hyrax/mod.rs",
+    "title": "NEW detailed older Hyrax row/column opening implementation boundary"
+  },
+  {
+    "id": "cycle0146-source-5",
+    "url": "https://github.com/arkworks-rs/poly-commit/commit/a05ec99d0d3e46c8ba0d6d3592980777bc2847e8",
+    "title": "Arkworks poly-commit release provenance diff inspected"
+  },
+  {
+    "id": "cycle0146-source-6",
+    "url": "https://eprint.iacr.org/2017/1132",
+    "title": "Original Hyrax older paper, row/column migration comparison"
+  },
+  {
+    "id": "cycle0146-source-7",
+    "url": "https://drops.dagstuhl.de/entities/document/10.4230/LIPIcs.ITC.2026.3",
+    "title": "ITC2026 batch polynomial evaluation refreshed with verified publication"
+  },
+  {
+    "id": "cycle0147-source-1",
+    "url": "https://arxiv.org/abs/2604.04696",
+    "title": "GPIR: verified 5090 stage-wise traffic/occupancy methodology"
+  },
+  {
+    "id": "cycle0147-source-2",
+    "url": "https://arxiv.org/abs/2606.16146",
+    "title": "June2026 NTT versus sumcheck: matched memory-budget hardware study"
+  },
+  {
+    "id": "cycle0147-source-3",
+    "url": "https://arxiv.org/abs/1601.03184",
+    "title": "NEW assessed older2016 multiple-right-hand-side memory reuse boundary"
+  },
+  {
+    "id": "cycle0147-source-4",
+    "url": "https://github.com/icl-utk-edu/magma/blob/master/magmablas/gemv_template_kernel_batched.cuh",
+    "title": "NEW inspected MAGMA batched GEMV physical batch dimension versus shared native matrix"
+  },
+  {
+    "id": "cycle0147-source-5",
+    "url": "https://github.com/icl-utk-edu/magma/commit/752e63cfb102e5de7e31cb9f2e35db7ed0842be4",
+    "title": "MAGMA2.10 release provenance and inspected version diff"
+  },
+  {
+    "id": "cycle0147-source-6",
+    "url": "https://arxiv.org/abs/2610.19840",
+    "title": "NEW October GPU-preprocessor scan-plan-apply applicability screen"
+  },
+  {
+    "id": "cycle0147-source-7",
+    "url": "https://www.zksync.io/blog/introducing-airbender-prime",
+    "title": "Recent AirbenderPrime primary announcement refreshed, different workload"
+  },
+  {
+    "id": "cycle0147-source-8",
+    "url": "https://blog.brevis.network/2026/09/30/pico-3-0-real-time-ethereum-proving-on-4-gpus-with-100-bit-provable-security/",
+    "title": "September30 Pico3.0 WHIR data-reuse claim refreshed"
+  },
+  {
+    "id": "cycle0147-source-9",
+    "url": "https://github.com/matter-labs/zksync-airbender/releases",
+    "title": "Airbender release chronology and MIT implementation-license boundary"
+  },
+  {
+    "id": "cycle0148-source-1",
+    "url": "https://arxiv.org/abs/2610.14849",
+    "title": "StateSync-GKR Oct26v2: sparse gate booking and prepared service boundaries refreshed"
+  },
+  {
+    "id": "cycle0148-source-2",
+    "url": "https://github.com/Oraclizer/statesync-gkr/blob/main/crates/protocol/src/reduce.rs",
+    "title": "StateSync reduce.rs body: sparse gate list, provenance and license limits"
+  },
+  {
+    "id": "cycle0148-source-3",
+    "url": "https://arxiv.org/abs/1803.08601",
+    "title": "NEW assessed older2018 CSR SpMM: coalesced access and load balance boundary"
+  },
+  {
+    "id": "cycle0148-source-4",
+    "url": "https://github.com/owensgroup/merge-spmm",
+    "title": "NEW merge-spmm implementation availability and provenance screen"
+  },
+  {
+    "id": "cycle0148-source-5",
+    "url": "https://github.com/ethereum/spartan-whir",
+    "title": "Spartan-WHIR current README: authenticate reusable relation and separate privacy modes"
+  },
+  {
+    "id": "cycle0148-source-6",
+    "url": "https://www.seas.upenn.edu/~leebcc/documents/mehrabi21-ispass.pdf",
+    "title": "Older2021 row-permutation and SumCATS additional search screens; no implementation adopted"
+  },
+  {
+    "id": "cycle0149-source-1",
+    "url": "https://arxiv.org/abs/2610.14849",
+    "title": "StateSync October26v2 current sparse preparation screen"
+  },
+  {
+    "id": "cycle0149-source-2",
+    "url": "https://arxiv.org/abs/1202.3856",
+    "title": "NEW assessed older2012 cache-locality split/ordering framework"
+  },
+  {
+    "id": "cycle0149-source-3",
+    "url": "https://arxiv.org/abs/2605.20497",
+    "title": "NEW May2026 GPU partitioning incidence constraints applicability screen"
+  },
+  {
+    "id": "cycle0149-source-4",
+    "url": "https://github.com/EMJzero/AxonCUDA",
+    "title": "NEW AxonCUDA repository objective, feasibility and license screen"
+  },
+  {
+    "id": "cycle0149-source-5",
+    "url": "https://github.com/snarang181/zk-duel",
+    "title": "zkDuel primefield/register/wall-clock methodology refreshed"
+  },
+  {
+    "id": "cycle0149-source-6",
+    "url": "https://arxiv.org/abs/2606.16146",
+    "title": "June2026 matched-budget NTT/sumcheck study refreshed"
+  },
+  {
+    "id": "cycle0149-source-7",
+    "url": "https://github.com/PolyhedraZK/Expander/pull/131/commits/4c7d50a03b40867032167aac37dc7af026e1afcd",
+    "title": "Expander historical CUDA commit and current release/license provenance correction"
+  },
+  {
+    "id": "cycle0150-source-1",
+    "url": "https://arxiv.org/abs/2610.14849",
+    "title": "StateSync October26v2 and current repository scope/license refreshed"
+  },
+  {
+    "id": "cycle0150-source-2",
+    "url": "https://arxiv.org/abs/2506.10356",
+    "title": "NEW assessed older2025 reordering methodology and cache reuse bias"
+  },
+  {
+    "id": "cycle0150-source-3",
+    "url": "https://arxiv.org/abs/2604.04683",
+    "title": "NEW assessed diagonal-packing objective and sparse metadata boundary"
+  },
+  {
+    "id": "cycle0150-source-4",
+    "url": "https://github.com/compsec-epfl/efficient-sumcheck",
+    "title": "Efficient-sumcheck current canonical rewrite and terminal-oracle boundary"
+  },
+  {
+    "id": "cycle0150-source-5",
+    "url": "https://github.com/THU-HAS/MegaZK",
+    "title": "MegaZK current repository verified-completion and memory-reporting screen"
+  },
+  {
+    "id": "cycle0151-source-1",
+    "url": "https://eprints.gla.ac.uk/396825/",
+    "title": "NEW October2026 SpMV bottleneck characterization; primary metadata only"
+  },
+  {
+    "id": "cycle0151-source-2",
+    "url": "https://arxiv.org/abs/2608.16308",
+    "title": "NEW August2026 DB-SpMSpV public-vector-mask applicability screen"
+  },
+  {
+    "id": "cycle0151-source-3",
+    "url": "https://ieee-hpec.org/wp-content/uploads/2024/09/140.pdf",
+    "title": "NEW assessed older2024 JIT SpMM memory-pool/API accounting"
+  },
+  {
+    "id": "cycle0151-source-4",
+    "url": "https://github.com/VSJ001/Cache-Aware-and-GPU-Accelerated-Sparse-Matrix-Vector-Multiplication",
+    "title": "NEW repository screen: cache-aware GPU SpMV exposes irregular-case losses"
+  },
+  {
+    "id": "cycle0151-source-5",
+    "url": "https://github.com/Lagrange-Labs/deep-prove",
+    "title": "DeepProve current provenance/release/license screen"
+  },
+  {
+    "id": "cycle0152-source-1",
+    "url": "https://arxiv.org/abs/2608.01536",
+    "title": "Celty RLC-CSC paper v2 and implementation availability"
+  },
+  {
+    "id": "cycle0152-source-2",
+    "url": "https://doi.org/10.1145/3828547",
+    "title": "BlockSmith ultra-dense block transformation"
+  },
+  {
+    "id": "cycle0152-source-3",
+    "url": "https://craft.cs.tsinghua.edu.cn/publication/vdha-vector-drivenhash-aggregation-for-sparse-matrixsparse-vector-multiplication-on-gpus/",
+    "title": "VDHA vector-driven hash aggregation"
+  },
+  {
+    "id": "cycle0152-source-4",
+    "url": "https://www.comp.nus.edu.sg/~wongwf/papers/SC13.pdf",
+    "title": "BRO sparse GPU index compression, SC2013"
+  },
+  {
+    "id": "cycle0152-source-5",
+    "url": "https://hpcrl.github.io/ICS2025-webpage/program/Proceedings_ICS25/ics25-28.pdf",
+    "title": "DIV index/value compression ICS2025 and repository license"
+  },
+  {
+    "id": "cycle0152-source-6",
+    "url": "https://blog.brevis.network/2026/09/30/pico-3-0-real-time-ethereum-proving-on-4-gpus-with-100-bit-provable-security/",
+    "title": "Pico3.0 current multilinear/LogUp-GKR composition release screen"
+  },
+  {
+    "id": "cycle0153-source-1",
+    "url": "https://nvidia.github.io/cuPQC/releases/v0.6/",
+    "title": "REFRESH cuPQC v0.6 release and unchanged Goldilocks field exclusion"
+  },
+  {
+    "id": "cycle0153-source-2",
+    "url": "https://github.com/Artemarius/cuda-zkp-ntt",
+    "title": "REFRESH cuda-zkp-ntt Goldilocks cache and incomplete-transform exclusion"
+  },
+  {
+    "id": "cycle0153-source-3",
+    "url": "https://arxiv.org/abs/2604.17834",
+    "title": "NEW AsyncSparse public-padding versus indexing tradeoff"
+  },
+  {
+    "id": "cycle0153-source-4",
+    "url": "https://arxiv.org/abs/1910.10776",
+    "title": "NEW older SMASH compression granularity versus redundant zero work"
+  },
+  {
+    "id": "cycle0153-source-5",
+    "url": "https://arxiv.org/abs/2609.31087",
+    "title": "NEW BenX resource sharing compatibility screen"
+  },
+  {
+    "id": "cycle0153-source-6",
+    "url": "https://github.com/uulong950/qingming-g64-ntt",
+    "title": "Qingming HIP mapped/standard NTT interface cost and provenance refresh"
+  },
+  {
+    "id": "cycle0154-source-1",
+    "url": "https://arxiv.org/abs/2610.14849",
+    "title": "REFRESH StateSync-GKR October26v2 / v1.2.1: reusable preparation and source-identity proof boundary"
+  },
+  {
+    "id": "cycle0154-source-2",
+    "url": "https://github.com/trustless-ai/zkIE",
+    "title": "REFRESH zkIE current public-witness and shard scheduling exclusion"
+  },
+  {
+    "id": "cycle0154-source-3",
+    "url": "https://arxiv.org/abs/2602.17452",
+    "title": "REFRESH Jolt Atlas tensor/streaming lookup and distinct BlindFold boundary"
+  },
+  {
+    "id": "cycle0154-source-4",
+    "url": "https://eprint.iacr.org/2023/1611",
+    "title": "REFRESH older Power circuits GKR arithmetization compatibility screen"
+  },
+  {
+    "id": "cycle0154-source-5",
+    "url": "https://arxiv.org/abs/2404.10404",
+    "title": "NEW older Sisu shared-pool commitment and pipeline-drain boundary"
+  },
+  {
+    "id": "cycle0155-source-1",
+    "url": "https://arxiv.org/abs/1004.3719",
+    "title": "NEW older exact SpMV2010: modulus-bound arithmetic and repeated-matrix preprocessing boundary"
+  },
+  {
+    "id": "cycle0155-source-2",
+    "url": "https://link.springer.com/article/10.1007/s44443-026-00722-6",
+    "title": "NEW May2026 Karatsuba-NTT: occupancy versus fusion and missing native hiding interface"
+  },
+  {
+    "id": "cycle0155-source-3",
+    "url": "https://github.com/Artemarius/cuda-zkp-ntt/releases",
+    "title": "REFRESH cuda-zkp-ntt releases: incomplete full transform stays excluded"
+  },
+  {
+    "id": "cycle0155-source-4",
+    "url": "https://github.com/snarang181/zk-duel",
+    "title": "REFRESH zkDuel: register/occupancy plus independent arithmetic and whole-wall clocks"
+  },
+  {
+    "id": "cycle0155-source-5",
+    "url": "https://arxiv.org/abs/2610.14849",
+    "title": "REFRESH StateSync-GKR October26v2/v1.2.1: preserve verified completion and source-identity scope"
+  },
+  {
+    "id": "cycle0156-source-1",
+    "url": "https://developer.nvidia.com/blog/how-overlap-data-transfers-cuda-cc/",
+    "title": "NEW older2012 CUDA overlap: ordering and transfer prerequisites"
+  },
+  {
+    "id": "cycle0156-source-2",
+    "url": "https://docs.pytorch.org/devlogs/eager/2026-09-29-cross-stream-memory-without-record-stream/",
+    "title": "NEW September2026 cross-stream lifetime and bounded event dependencies"
+  },
+  {
+    "id": "cycle0156-source-3",
+    "url": "https://github.com/NVIDIA/cuda-rust/releases/tag/cutile-rs/v0.4.0",
+    "title": "NEW inspected CUDA Rust0.4 changelog: launch allocation and asynchronous resource retention"
+  },
+  {
+    "id": "cycle0156-source-4",
+    "url": "https://tanvirarafin.github.io/assets/pdf/DATE_2026.pdf",
+    "title": "REFRESH SumCATS2026: binary-field algorithm and unavailable exact update date"
+  },
+  {
+    "id": "cycle0156-source-5",
+    "url": "https://arxiv.org/abs/2610.08258",
+    "title": "REFRESH October2026 zkLLMPoT: operator aggregation,public inputs and exact softmax boundary"
+  },
+  {
+    "id": "cycle0156-source-6",
+    "url": "https://docs.nvidia.com/cuda/archive/13.1.0/cuda-programming-guide/04-special-topics/stream-ordered-memory-allocation.html",
+    "title": "NEW inspected CUDA13.1 allocator ordering: all queued uses precede release"
+  }
+]

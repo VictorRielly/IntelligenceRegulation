@@ -1,0 +1,27 @@
+{
+  "utc": "2026-10-30T06:21:40.860470+00:00",
+  "source": "3c7b1dcfd47ba8cb257c6f734348f25fb960af3f25f8b1b14ea4e262ff8defda",
+  "scope": "Two separate public synthetic T1283stage native runs, DD/nonDD. Capture source and binary pinned. Full native accepted/rejected recorder controls, strict transport and limited local row/M/claim checks pass. Not full rank/CFSlemma/NL1/privacy or trained complete-model acceptance.",
+  "variants": [
+    {
+      "mode": "non-dd",
+      "stages": 3,
+      "local_views": 10,
+      "arrays": 1849,
+      "claims": 909,
+      "pairs": 906
+    },
+    {
+      "mode": "dd",
+      "stages": 3,
+      "local_views": 10,
+      "arrays": 1862,
+      "claims": 924,
+      "pairs": 921
+    }
+  ],
+  "distinct_native_roots_across_runs": 26,
+  "privacy_acceptance": false,
+  "global_joint_rank_proved": false,
+  "next": "ActualL25gates queued original78849, then50relation regressions/legacy. Additional C3 and strict one-block source/CLI still staged/uncompiled; full freeze/D24/privacy owed."
+}

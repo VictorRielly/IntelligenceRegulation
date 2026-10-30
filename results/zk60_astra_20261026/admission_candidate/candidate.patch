@@ -1,0 +1,39 @@
+--- a/apps/proven-media/tools/classifier_pipeline.py
++++ b/apps/proven-media/tools/classifier_pipeline.py
+@@ -50,6 +50,23 @@
+     return execution
+ 
+ 
++def prove_preflight_busy(status):
++    """Honor the lean rule while allowing existing light jobs of at most1GiB.
++
++    The unchanged guard still performs memory, disk and shared-lock admission.
++    Unknown status data fails closed; this is not permission to overlap heavy jobs.
++    """
++    require(type(status) is dict and type(status.get('live_guarded_jobs')) is list,
++            'invalid guarded-job status')
++    busy = False
++    for job in status['live_guarded_jobs']:
++        require(type(job) is dict and job.get('class') in ('light','cpu','build','gpu')
++                and type(job.get('need_gib')) in (int,float)
++                and 0 < job['need_gib'] < float('inf'), 'invalid guarded-job declaration')
++        busy |= job['class'] != 'light' or job['need_gib'] > 1
++    return busy
++
++
+ def run_step(job,name,command,cli):
+     logs=job/'logs';deadline=time.monotonic()+config.GUARD_WAIT_SECS
+     while True:
+@@ -58,10 +75,10 @@
+         atomic(job/'step.current',f'{"held" if held else name} {time.time()}\n')
+         if held:time.sleep(15);continue
+         if not cli.deployment.development and name == 'prove':
+-            status = subprocess.run(['python3', str(config.GUARD), 'status'],
++            status = subprocess.run(['python3', str(config.GUARD), 'status', '--json'],
+                                     capture_output=True, text=True, timeout=15)
+             require(status.returncode == 0, 'cannot inspect shared machine admission')
+-            if any(line.strip().startswith('job ') for line in status.stdout.splitlines()):
++            if prove_preflight_busy(json.loads(status.stdout)):
+                 atomic(job/'step.current', f'held {time.time()}\n')
+                 time.sleep(5)
+                 continue

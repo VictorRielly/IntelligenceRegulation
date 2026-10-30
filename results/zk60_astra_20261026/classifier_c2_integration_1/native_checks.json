@@ -1,0 +1,661 @@
+{
+  "at": "2026-10-29T00:41:54.270899+00:00",
+  "schema": "pm-r-c2-native-checks/1",
+  "scope": "MEASURED n=1 shared box; watchdog-only, not a performance or privacy claim",
+  "integration_sha256": "732e93f376501928dcc53de5c1d9b908a96d2904d90fa554b8eaaf106bddbddb",
+  "checks": [
+    {
+      "job": "attack-margin",
+      "step": "verify",
+      "guard": {
+        "exit": 1,
+        "child_rc": 1,
+        "child_wall_seconds": 0.0321049690246582,
+        "peak_rss_gib": 0.0,
+        "peak_cgroup_gib": null,
+        "enforcement": "watchdog-only",
+        "refused": null,
+        "guard_killed": null
+      },
+      "guard_sha256": "3eb885e6d15f7725c5893a64abac728acfdc5243bb303cc2d338be65d6751752",
+      "log_sha256": "9fcca1c97fc1d7bb1d20b8184b5fb4c27f51df5b9509f023a22a39fc6e67371e",
+      "events": [
+        {
+          "event": "refused",
+          "command": "classify-verify",
+          "error": "classifier (R-C2): margin_int16.bin is not the margin row recomputed from the pinned tensor with the bound profile's yes / no ids and public scale (the file is compared, never trusted)"
+        },
+        {
+          "event": "app-outcome"
+        }
+      ]
+    },
+    {
+      "job": "attack-verdict",
+      "step": "verify",
+      "guard": {
+        "exit": 1,
+        "child_rc": 1,
+        "child_wall_seconds": 0.031937360763549805,
+        "peak_rss_gib": 0.0,
+        "peak_cgroup_gib": null,
+        "enforcement": "watchdog-only",
+        "refused": null,
+        "guard_killed": null
+      },
+      "guard_sha256": "dbc2cea3668eb76f247d8c71806b6657fe3302238f3022aec55858cf3418d087",
+      "log_sha256": "bbc49816750a578a5fe0d6becf40029a92735dfb081ef1e0fe1313025a47d5c8",
+      "events": [
+        {
+          "event": "refused",
+          "command": "classify-verify",
+          "error": "/home/victor/IntelligenceRegulation/results/zk60_astra_20261026/classifier_c2_integration_1/forged-verdict-run/statement/statement.json: not byte for byte the canonical statement of this run under the verifier's own inputs (B-3: the margin vector, ids, threshold, template and model are re-derived, never taken from the statement)"
+        },
+        {
+          "event": "app-outcome"
+        }
+      ]
+    },
+    {
+      "job": "bootstrap",
+      "step": "prove",
+      "guard": {
+        "exit": 0,
+        "child_rc": 0,
+        "child_wall_seconds": 1.7665817737579346,
+        "peak_rss_gib": 0.16,
+        "peak_cgroup_gib": null,
+        "enforcement": "watchdog-only",
+        "refused": null,
+        "guard_killed": null
+      },
+      "guard_sha256": "a3e8576135702b585cb5e40c364c4ec8750bbdfd7cc04c1cb4eea03f244007e6",
+      "log_sha256": "65eba13897c2a26f355c3922d65776385981dfc17fd6144151c2ee45257e7eeb",
+      "events": [
+        {
+          "event": "loaded",
+          "trained_statement_identity": "bc83e090c1e122148deeb60d1c73315ca74fd0b4456d3e46da1cf97bccb3ea4a",
+          "policy": "rung-tc-synthetic-policy-dev/1",
+          "chunk": 0,
+          "chunks": 1
+        },
+        {
+          "event": "segment"
+        },
+        {
+          "event": "segment"
+        },
+        {
+          "event": "segment"
+        },
+        {
+          "event": "proved",
+          "verdict": "not-flagged",
+          "policy": "rung-tc-synthetic-policy-dev/1",
+          "chunk": 0,
+          "chunks": 1,
+          "whole_run_floor_bits": 94
+        }
+      ]
+    },
+    {
+      "job": "multi-c0",
+      "step": "inowner",
+      "guard": {
+        "exit": 0,
+        "child_rc": 0,
+        "child_wall_seconds": 0.364978551864624,
+        "peak_rss_gib": 0.0,
+        "peak_cgroup_gib": null,
+        "enforcement": "watchdog-only",
+        "refused": null,
+        "guard_killed": null
+      },
+      "guard_sha256": "635a3c72aaf8b533d43d3e2ff6f14d4dd8371f3204177daa7d3e27e1fdeb95eb",
+      "log_sha256": "5f4e7df3066badd1b42ff9aafde5115edf24e0d154b7407640a4413233250c8d",
+      "events": [
+        {
+          "event": "content-checked",
+          "content_total": 27,
+          "chunk": 0,
+          "range": [
+            0,
+            23
+          ],
+          "verdict": "not-flagged"
+        }
+      ]
+    },
+    {
+      "job": "multi-c0",
+      "step": "prove",
+      "guard": {
+        "exit": 0,
+        "child_rc": 0,
+        "child_wall_seconds": 1.7662827968597412,
+        "peak_rss_gib": 0.16,
+        "peak_cgroup_gib": null,
+        "enforcement": "watchdog-only",
+        "refused": null,
+        "guard_killed": null
+      },
+      "guard_sha256": "98efc2018a5f32b282da1d931b3a01a1f8b88c4b2c2f1d96ac3215d6f6834699",
+      "log_sha256": "1efeb4da4c6b783c0288440c7b05a67397eea0a54be35769d06eddb8938b467f",
+      "events": [
+        {
+          "event": "loaded",
+          "trained_statement_identity": "bc83e090c1e122148deeb60d1c73315ca74fd0b4456d3e46da1cf97bccb3ea4a",
+          "policy": "rung-tc-synthetic-policy-dev/1",
+          "chunk": 0,
+          "chunks": 2
+        },
+        {
+          "event": "segment"
+        },
+        {
+          "event": "segment"
+        },
+        {
+          "event": "segment"
+        },
+        {
+          "event": "proved",
+          "verdict": "not-flagged",
+          "policy": "rung-tc-synthetic-policy-dev/1",
+          "chunk": 0,
+          "chunks": 2,
+          "whole_run_floor_bits": 94
+        }
+      ]
+    },
+    {
+      "job": "multi-c0",
+      "step": "verify",
+      "guard": {
+        "exit": 0,
+        "child_rc": 0,
+        "child_wall_seconds": 0.3648407459259033,
+        "peak_rss_gib": 0.0,
+        "peak_cgroup_gib": null,
+        "enforcement": "watchdog-only",
+        "refused": null,
+        "guard_killed": null
+      },
+      "guard_sha256": "86b389c8170b888794600fd6ae28f247b9cb9de8a980d94a3f22ef936bd0b9f6",
+      "log_sha256": "e22572fbf7890da6f19caae4ead5e6997f117766bc97af46556d7e1c53a5f5a2",
+      "events": [
+        {
+          "event": "classified",
+          "verdict": "not-flagged",
+          "chunk": 0,
+          "chunks": 2,
+          "policy": "rung-tc-synthetic-policy-dev/1",
+          "trained_statement_identity": "bc83e090c1e122148deeb60d1c73315ca74fd0b4456d3e46da1cf97bccb3ea4a",
+          "input_token_endpoint_root": "1d9bd8fbda401da50ecca837147a10c74f19d6354249a7f90edfae42801fc0cf",
+          "whole_run_floor_bits": 94,
+          "published_by": "this verifier"
+        }
+      ]
+    },
+    {
+      "job": "multi-c0-recheck",
+      "step": "inowner",
+      "guard": {
+        "exit": 0,
+        "child_rc": 0,
+        "child_wall_seconds": 0.3649730682373047,
+        "peak_rss_gib": 0.0,
+        "peak_cgroup_gib": null,
+        "enforcement": "watchdog-only",
+        "refused": null,
+        "guard_killed": null
+      },
+      "guard_sha256": "edbdcc9fe8deef441b41e4c0c93bfef4be0415d98a881435bc867a94492227ad",
+      "log_sha256": "5f4e7df3066badd1b42ff9aafde5115edf24e0d154b7407640a4413233250c8d",
+      "events": [
+        {
+          "event": "content-checked",
+          "content_total": 27,
+          "chunk": 0,
+          "range": [
+            0,
+            23
+          ],
+          "verdict": "not-flagged"
+        }
+      ]
+    },
+    {
+      "job": "multi-c0-recheck",
+      "step": "verify",
+      "guard": {
+        "exit": 0,
+        "child_rc": 0,
+        "child_wall_seconds": 0.3650984764099121,
+        "peak_rss_gib": 0.0,
+        "peak_cgroup_gib": null,
+        "enforcement": "watchdog-only",
+        "refused": null,
+        "guard_killed": null
+      },
+      "guard_sha256": "4be100ef2ca7ef8234f8d9d81907d91b34202c70c284ff6f368834005f18fb28",
+      "log_sha256": "28ad2f9a7fa6e36a7f3922359b8d86df5776ed79bbb112c4c88aadf2ba3fe62c",
+      "events": [
+        {
+          "event": "classified",
+          "verdict": "not-flagged",
+          "chunk": 0,
+          "chunks": 2,
+          "policy": "rung-tc-synthetic-policy-dev/1",
+          "trained_statement_identity": "bc83e090c1e122148deeb60d1c73315ca74fd0b4456d3e46da1cf97bccb3ea4a",
+          "input_token_endpoint_root": "1d9bd8fbda401da50ecca837147a10c74f19d6354249a7f90edfae42801fc0cf",
+          "whole_run_floor_bits": 94,
+          "published_by": "an earlier verifier (re-checked byte for byte)"
+        }
+      ]
+    },
+    {
+      "job": "multi-c1",
+      "step": "inowner",
+      "guard": {
+        "exit": 0,
+        "child_rc": 0,
+        "child_wall_seconds": 0.3648498058319092,
+        "peak_rss_gib": 0.0,
+        "peak_cgroup_gib": null,
+        "enforcement": "watchdog-only",
+        "refused": null,
+        "guard_killed": null
+      },
+      "guard_sha256": "bda003959e4796b7e872df77051e36f08cb18d600989eea213f21fe13226159d",
+      "log_sha256": "f904b3cb997745d2204520de6a8963caa2cb80325f4b5989e304975b7f387e6e",
+      "events": [
+        {
+          "event": "content-checked",
+          "content_total": 27,
+          "chunk": 1,
+          "range": [
+            4,
+            27
+          ],
+          "verdict": "not-flagged"
+        }
+      ]
+    },
+    {
+      "job": "multi-c1",
+      "step": "prove",
+      "guard": {
+        "exit": 0,
+        "child_rc": 0,
+        "child_wall_seconds": 1.7666547298431396,
+        "peak_rss_gib": 0.16,
+        "peak_cgroup_gib": null,
+        "enforcement": "watchdog-only",
+        "refused": null,
+        "guard_killed": null
+      },
+      "guard_sha256": "9eeb4f1abc073fbb9cce7ffe9a5a79875bda5ab469899b1b645e4933364e4822",
+      "log_sha256": "5ec02a95f7042992deb29f445c207ef76665ebbd5882db7e0bfb11a5713212b5",
+      "events": [
+        {
+          "event": "loaded",
+          "trained_statement_identity": "bc83e090c1e122148deeb60d1c73315ca74fd0b4456d3e46da1cf97bccb3ea4a",
+          "policy": "rung-tc-synthetic-policy-dev/1",
+          "chunk": 1,
+          "chunks": 2
+        },
+        {
+          "event": "segment"
+        },
+        {
+          "event": "segment"
+        },
+        {
+          "event": "segment"
+        },
+        {
+          "event": "proved",
+          "verdict": "not-flagged",
+          "policy": "rung-tc-synthetic-policy-dev/1",
+          "chunk": 1,
+          "chunks": 2,
+          "whole_run_floor_bits": 94
+        }
+      ]
+    },
+    {
+      "job": "multi-c1",
+      "step": "verify",
+      "guard": {
+        "exit": 0,
+        "child_rc": 0,
+        "child_wall_seconds": 0.3649940490722656,
+        "peak_rss_gib": 0.0,
+        "peak_cgroup_gib": null,
+        "enforcement": "watchdog-only",
+        "refused": null,
+        "guard_killed": null
+      },
+      "guard_sha256": "4a87326331b4b78258cc5a05c0db3b7938d8648649b6650e495cac630d93fa20",
+      "log_sha256": "4db972a24b3e3c4cc409864703ba49319b694e616f94f6507e4ecce187fbf3e9",
+      "events": [
+        {
+          "event": "classified",
+          "verdict": "not-flagged",
+          "chunk": 1,
+          "chunks": 2,
+          "policy": "rung-tc-synthetic-policy-dev/1",
+          "trained_statement_identity": "bc83e090c1e122148deeb60d1c73315ca74fd0b4456d3e46da1cf97bccb3ea4a",
+          "input_token_endpoint_root": "3eea453915380772e9f5659187f491b747e0a9cecaa6d73b6de4c6cddaea90fe",
+          "whole_run_floor_bits": 94,
+          "published_by": "this verifier"
+        }
+      ]
+    },
+    {
+      "job": "multi-c1-recheck",
+      "step": "inowner",
+      "guard": {
+        "exit": 0,
+        "child_rc": 0,
+        "child_wall_seconds": 0.365065336227417,
+        "peak_rss_gib": 0.0,
+        "peak_cgroup_gib": null,
+        "enforcement": "watchdog-only",
+        "refused": null,
+        "guard_killed": null
+      },
+      "guard_sha256": "d5057d4f053256326067c98fd9e8b841b851381c20a91eb427bb315d1c4b08ed",
+      "log_sha256": "f904b3cb997745d2204520de6a8963caa2cb80325f4b5989e304975b7f387e6e",
+      "events": [
+        {
+          "event": "content-checked",
+          "content_total": 27,
+          "chunk": 1,
+          "range": [
+            4,
+            27
+          ],
+          "verdict": "not-flagged"
+        }
+      ]
+    },
+    {
+      "job": "multi-c1-recheck",
+      "step": "verify",
+      "guard": {
+        "exit": 0,
+        "child_rc": 0,
+        "child_wall_seconds": 0.364912748336792,
+        "peak_rss_gib": 0.0,
+        "peak_cgroup_gib": null,
+        "enforcement": "watchdog-only",
+        "refused": null,
+        "guard_killed": null
+      },
+      "guard_sha256": "174e8c859e505a251bffcf474fe2d5f4f474f421101431c4a5a4debe23acfeab",
+      "log_sha256": "ec714e57105afba5d8a4f78ac87866053f0a9e3ed2e399d24a55397eb5c13815",
+      "events": [
+        {
+          "event": "classified",
+          "verdict": "not-flagged",
+          "chunk": 1,
+          "chunks": 2,
+          "policy": "rung-tc-synthetic-policy-dev/1",
+          "trained_statement_identity": "bc83e090c1e122148deeb60d1c73315ca74fd0b4456d3e46da1cf97bccb3ea4a",
+          "input_token_endpoint_root": "3eea453915380772e9f5659187f491b747e0a9cecaa6d73b6de4c6cddaea90fe",
+          "whole_run_floor_bits": 94,
+          "published_by": "an earlier verifier (re-checked byte for byte)"
+        }
+      ]
+    },
+    {
+      "job": "multi-label",
+      "step": "label",
+      "guard": {
+        "exit": 0,
+        "child_rc": 0,
+        "child_wall_seconds": 0.6648530960083008,
+        "peak_rss_gib": 0.04,
+        "peak_cgroup_gib": null,
+        "enforcement": "watchdog-only",
+        "refused": null,
+        "guard_killed": null
+      },
+      "guard_sha256": "8ff69f8f7297dcbf4ffdd5dc949687af6ba327bb30b8df41c786afee08f1f6a6",
+      "log_sha256": "427b6c03f105ea129ee677a62e2bada5f8e5596e6af838838c0800901a1c5a08",
+      "events": [
+        {
+          "event": "chunk-verified",
+          "chunk": 1,
+          "range": [
+            4,
+            27
+          ],
+          "verdict": "not-flagged"
+        },
+        {
+          "event": "chunk-verified",
+          "chunk": 0,
+          "range": [
+            0,
+            23
+          ],
+          "verdict": "not-flagged"
+        },
+        {
+          "event": "label",
+          "policy": "rung-tc-synthetic-policy-dev/1",
+          "label": "not-flagged",
+          "chunks": 2,
+          "content_total": 27,
+          "chunk_size": 23,
+          "overlap": 4,
+          "flagged_ranges": []
+        }
+      ]
+    },
+    {
+      "job": "negative-c0",
+      "step": "inowner",
+      "guard": {
+        "exit": 0,
+        "child_rc": 0,
+        "child_wall_seconds": 0.36487841606140137,
+        "peak_rss_gib": 0.0,
+        "peak_cgroup_gib": null,
+        "enforcement": "watchdog-only",
+        "refused": null,
+        "guard_killed": null
+      },
+      "guard_sha256": "6430b1fbf3497dfacf4266df26bab9205ee01c5ac4515e681a11f4e23d46edf7",
+      "log_sha256": "a8fa2542af859b4ae1319aa642c9595cc17d27f49bd4f4c80d9a5ff5629bb43b",
+      "events": [
+        {
+          "event": "content-checked",
+          "content_total": 23,
+          "chunk": 0,
+          "range": [
+            0,
+            23
+          ],
+          "verdict": "not-flagged"
+        }
+      ]
+    },
+    {
+      "job": "negative-c0",
+      "step": "prove",
+      "guard": {
+        "exit": 0,
+        "child_rc": 0,
+        "child_wall_seconds": 1.6170923709869385,
+        "peak_rss_gib": 0.16,
+        "peak_cgroup_gib": null,
+        "enforcement": "watchdog-only",
+        "refused": null,
+        "guard_killed": null
+      },
+      "guard_sha256": "8278342860f0cda2889d1cc3e6be9c49f9ea102f869271f4b3ee3a3cecc0ae2d",
+      "log_sha256": "e8cd5afcd86fa8068c26a4cb67addf80a5dcae935071208233db33481f46a967",
+      "events": [
+        {
+          "event": "loaded",
+          "trained_statement_identity": "bc83e090c1e122148deeb60d1c73315ca74fd0b4456d3e46da1cf97bccb3ea4a",
+          "policy": "rung-tc-synthetic-policy-dev/1",
+          "chunk": 0,
+          "chunks": 1
+        },
+        {
+          "event": "segment"
+        },
+        {
+          "event": "segment"
+        },
+        {
+          "event": "segment"
+        },
+        {
+          "event": "proved",
+          "verdict": "not-flagged",
+          "policy": "rung-tc-synthetic-policy-dev/1",
+          "chunk": 0,
+          "chunks": 1,
+          "whole_run_floor_bits": 94
+        }
+      ]
+    },
+    {
+      "job": "negative-c0",
+      "step": "verify",
+      "guard": {
+        "exit": 0,
+        "child_rc": 0,
+        "child_wall_seconds": 0.36498284339904785,
+        "peak_rss_gib": 0.0,
+        "peak_cgroup_gib": null,
+        "enforcement": "watchdog-only",
+        "refused": null,
+        "guard_killed": null
+      },
+      "guard_sha256": "20343d22d04f53b8edc37c94153c51591e7311e3fc0d7ecf9d208d72255d2ef6",
+      "log_sha256": "240d34ded208cf6729fec677a54811175cfc30ca41191de129625dadf5d5b105",
+      "events": [
+        {
+          "event": "classified",
+          "verdict": "not-flagged",
+          "chunk": 0,
+          "chunks": 1,
+          "policy": "rung-tc-synthetic-policy-dev/1",
+          "trained_statement_identity": "bc83e090c1e122148deeb60d1c73315ca74fd0b4456d3e46da1cf97bccb3ea4a",
+          "input_token_endpoint_root": "774d8400ad33bf647c27078088316d6a5f7bc59fcd6ec1d2ed835fa552aa2b8f",
+          "whole_run_floor_bits": 94,
+          "published_by": "this verifier"
+        }
+      ]
+    },
+    {
+      "job": "negative-c0-recheck",
+      "step": "inowner",
+      "guard": {
+        "exit": 0,
+        "child_rc": 0,
+        "child_wall_seconds": 0.3650236129760742,
+        "peak_rss_gib": 0.0,
+        "peak_cgroup_gib": null,
+        "enforcement": "watchdog-only",
+        "refused": null,
+        "guard_killed": null
+      },
+      "guard_sha256": "1e11e4dbf84318c164fb52f4d9b105826822ec4fb878e19a770e00d4d8701c89",
+      "log_sha256": "a8fa2542af859b4ae1319aa642c9595cc17d27f49bd4f4c80d9a5ff5629bb43b",
+      "events": [
+        {
+          "event": "content-checked",
+          "content_total": 23,
+          "chunk": 0,
+          "range": [
+            0,
+            23
+          ],
+          "verdict": "not-flagged"
+        }
+      ]
+    },
+    {
+      "job": "negative-c0-recheck",
+      "step": "verify",
+      "guard": {
+        "exit": 0,
+        "child_rc": 0,
+        "child_wall_seconds": 0.36496472358703613,
+        "peak_rss_gib": 0.0,
+        "peak_cgroup_gib": null,
+        "enforcement": "watchdog-only",
+        "refused": null,
+        "guard_killed": null
+      },
+      "guard_sha256": "5f2b14d65832ec8f15ff769640ffddbcad124ff97bbe498292072c0edd35956c",
+      "log_sha256": "4aed6c25b1ad007842907807e83c20009906a8a519bbfb692b971e9a2059beb8",
+      "events": [
+        {
+          "event": "classified",
+          "verdict": "not-flagged",
+          "chunk": 0,
+          "chunks": 1,
+          "policy": "rung-tc-synthetic-policy-dev/1",
+          "trained_statement_identity": "bc83e090c1e122148deeb60d1c73315ca74fd0b4456d3e46da1cf97bccb3ea4a",
+          "input_token_endpoint_root": "774d8400ad33bf647c27078088316d6a5f7bc59fcd6ec1d2ed835fa552aa2b8f",
+          "whole_run_floor_bits": 94,
+          "published_by": "an earlier verifier (re-checked byte for byte)"
+        }
+      ]
+    },
+    {
+      "job": "negative-label",
+      "step": "label",
+      "guard": {
+        "exit": 0,
+        "child_rc": 0,
+        "child_wall_seconds": 0.36516785621643066,
+        "peak_rss_gib": 0.0,
+        "peak_cgroup_gib": null,
+        "enforcement": "watchdog-only",
+        "refused": null,
+        "guard_killed": null
+      },
+      "guard_sha256": "45aceb9a6d0db69aecabf83d75091e6c4faf828b4e325ee8fff1d693ddbfaf74",
+      "log_sha256": "15f84cecaabe42d7a4df093ab77d4c39af4353a94af9eebb120cf57493c018ca",
+      "events": [
+        {
+          "event": "chunk-verified",
+          "chunk": 0,
+          "range": [
+            0,
+            23
+          ],
+          "verdict": "not-flagged"
+        },
+        {
+          "event": "label",
+          "policy": "rung-tc-synthetic-policy-dev/1",
+          "label": "not-flagged",
+          "chunks": 1,
+          "content_total": 23,
+          "chunk_size": 23,
+          "overlap": 4,
+          "flagged_ranges": []
+        }
+      ]
+    }
+  ],
+  "app_source_snapshot_after_run": {
+    "proven_media/classifier_cli.py": "30a2a2320a12cef7eaccf244b67ee80681b44d027044f0f868cf51d53c9a2421",
+    "proven_media/classifier_prover.py": "9a44faa39948e162c8f9dafae885c2e8dab93992bf2a92c4e4724a990f6d823a",
+    "tools/classifier_pipeline.py": "02a29c5a0458514b963fa5f4e9ba4a49230def3f0ce2b6813bee2bd2c1285f21"
+  },
+  "source_snapshot_note": "Captured after the successful run; app sources were not edited while it was running.",
+  "peak_sampled_rss_gib": 0.16,
+  "sampling_note": "Sub-second verifier/attack processes can finish between RSS samples."
+}

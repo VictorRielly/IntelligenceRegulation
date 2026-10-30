@@ -1,0 +1,8 @@
+[zk60-guard 18:45:43] START gate22-gr4-build class=build need=2.7G cap=3.5G enforce=cgroup+watchdog waited=0s run=f53384c83fc3
+[zk60-guard 18:49:00] END gate22-gr4-build exit=0 child_wall=198s peak_rss=2.32G min_avail=11.57G
+[zk60-guard 18:50:01] START gate22-gr4-l2-v1-whole class=cpu need=2G cap=3G enforce=cgroup+watchdog waited=0s run=8bea3629376a
+[zk60-guard 18:50:14] END gate22-gr4-l2-v1-whole exit=0 child_wall=13s peak_rss=0.60G min_avail=13.24G
+[zk60-guard 18:51:14] START gate22-gr4-l2-v0-short1 class=cpu need=2G cap=3G enforce=cgroup+watchdog waited=0s run=4938310509ec
+[zk60-guard 18:51:28] END gate22-gr4-l2-v0-short1 exit=0 child_wall=14s peak_rss=0.60G min_avail=13.19G
+[zk60-guard 18:52:28] START gate22-gr4-l1-vtie-whole class=cpu need=2G cap=3G enforce=cgroup+watchdog waited=0s run=6e335611194c
+[zk60-guard 18:52:35] END gate22-gr4-l1-vtie-whole exit=0 child_wall=7s peak_rss=0.55G min_avail=13.28G

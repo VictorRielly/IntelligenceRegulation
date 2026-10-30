@@ -1,0 +1,1 @@
+Experimental R14 unverified statement. Only a verifier that independently rebuilds the model and verifies every segment may publish statement/. No privacy acceptance is claimed.

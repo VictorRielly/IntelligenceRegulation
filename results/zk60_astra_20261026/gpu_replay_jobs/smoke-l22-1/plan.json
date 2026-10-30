@@ -1,0 +1,28 @@
+{
+  "command": [
+    "/usr/bin/env",
+    "OPENBLAS_NUM_THREADS=2",
+    "OMP_NUM_THREADS=2",
+    "CUDA_CACHE_PATH=/tmp/zk60_astra_cuda_cache",
+    "python3",
+    "/home/victor/IntelligenceRegulation/results/zk60_shieldstral_export_20261026/evaluate_verdicts_gpu.py",
+    "--layer",
+    "22",
+    "--out",
+    "/home/victor/IntelligenceRegulation/results/zk60_shieldstral_export_20261026/fidelity_smoke8_gpu",
+    "--max-minutes",
+    "1.0",
+    "--limit",
+    "8"
+  ],
+  "need_gib": 2.1,
+  "cap_gib": 4.5,
+  "measurement_basis": "GPU layer25 peak1.10GiB +0.52GiB for T533 attention, plus29% margin",
+  "gpu_allocator_cap_gib": 3,
+  "total_vram_limit_mib": 4096,
+  "source_sha256": {
+    "run_gpu_replay.py": "f2526517e2d3dea0748a7248d4383752ec98e0d675c1224a7dc5bb6d04d12935",
+    "evaluate_verdicts_gpu.py": "90558df022259b77e7b1d80691a4bcf7eeef6424801ff8571b3b52e9a0aaa511",
+    "gpu_integer.py": "564d128371276b7a9458d707c02fdff98f694caa20c960f890f687e79cb5cd44"
+  }
+}

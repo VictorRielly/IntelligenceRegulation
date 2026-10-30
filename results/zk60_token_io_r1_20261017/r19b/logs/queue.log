@@ -1,0 +1,54 @@
+2026-10-30T12:56:37Z red
+2026-10-30T12:59:52Z red end 101
+2026-10-30T13:03:15Z green
+2026-10-30T13:08:23Z rung-eq
+2026-10-30T13:08:30Z mutant e7-no-pin-compare
+2026-10-30T13:11:37Z mutant e7-follow-symlink
+2026-10-30T13:14:43Z mutant after-tests-rng
+2026-10-30T13:17:44Z mutant after-tests-label
+2026-10-30T13:20:46Z mutant after-tests-mod-u
+2026-10-30T13:23:50Z mutant after-tests-mod-l
+2026-10-30T13:26:53Z mutant include-u
+2026-10-30T13:29:55Z mutant macro-mod
+2026-10-30T13:32:57Z mutant fix1-revert
+2026-10-30T13:36:03Z mutant fix2-revert
+2026-10-30T13:39:06Z mutant rng-plant
+2026-10-30T13:42:10Z mutant label-plant
+2026-10-30T13:45:15Z mutant one-post-revert
+2026-10-30T13:48:24Z mutant e7-ignore-models
+2026-10-30T13:51:26Z mutant e7-empty-is-set
+2026-10-30T13:54:30Z mutant e7-precedence
+2026-10-30T13:57:34Z mutant hide-oneline-u
+2026-10-30T14:00:37Z mutant hide-oneline-l
+2026-10-30T14:03:40Z mutant hide-comment-u
+2026-10-30T14:06:42Z mutant hide-comment-l
+2026-10-30T14:09:45Z mutant hide-pubin-u
+2026-10-30T14:12:48Z mutant hide-pubin-l
+2026-10-30T14:15:50Z mutant hide-pubself-u
+2026-10-30T14:18:53Z mutant hide-pubself-l
+2026-10-30T14:21:56Z mutant hide-grandchild-u
+2026-10-30T14:24:59Z mutant hide-grandchild-l
+2026-10-30T14:28:02Z mutant job-order (build)
+2026-10-30T14:31:04Z mutant job-order (harness)
+2026-10-30T14:31:11Z mutant reused-draw (build)
+2026-10-30T14:34:17Z mutant reused-draw (harness)
+2026-10-30T14:34:24Z chain end mutations
+2026-10-30T14:34:43Z queue2 start (queue: chain mutations)
+2026-10-30T14:34:43Z mutant after-tests-label-2
+2026-10-30T14:37:49Z s24-suite
+2026-10-30T14:52:17Z b19b-cli-build
+2026-10-30T14:52:31Z suite end 0
+2026-10-30T14:52:31Z xbin
+2026-10-30T14:52:40Z verify-hate-unset
+2026-10-30T14:53:51Z verify-hate-models
+2026-10-30T14:54:59Z wrong-file
+2026-10-30T14:54:59Z verify-hate-wrong
+2026-10-30T14:55:11Z symlink
+2026-10-30T14:55:11Z verify-hate-symlink
+2026-10-30T14:55:13Z prepare
+2026-10-30T14:55:14Z activations
+2026-10-30T14:56:06Z single-c0
+2026-10-30T15:03:29Z compare
+2026-10-30T15:03:30Z check end 0
+2026-10-30T15:03:30Z freeze end 0
+2026-10-30T15:03:30Z queue2 end 0

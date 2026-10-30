@@ -1,0 +1,64 @@
+--- a/hashline/src/private_block/argument_accuracy.rs
++++ b/hashline/src/private_block/argument_accuracy.rs
+@@ -198,6 +198,37 @@
+             let gs = Gate(b.supp(Dom::S, cube)?);
+             let (g_dd, beta2) = (ctx.g_dd, beta.mul(beta));
+             let keyed = !dd_lapse(DD_LAPSE_DROP_KEY);
++            // RESEARCH CANDIDATE: uncompiled; owner review/native gates required.
++            let groups = vec![
++                sumcheck::EqualityGroup { point: tau, start: 0, bracket_degree: 3 },
++                sumcheck::EqualityGroup { point: pts.p_ht.clone(), start: 0, bracket_degree: 1 },
++                sumcheck::EqualityGroup { point: pts.p_s.clone(), start: 0, bracket_degree: 1 },
++            ];
++            let bracket: GroupPoly = {
++                let (idx, rsl_ix, lks, mu, nu) = (idx.clone(), rsl_ix.clone(), lks.clone(), mu.clone(), nu.clone());
++                std::sync::Arc::new(move |group: usize, v: &[Fp2]| {
++                    let at = |p: usize| v[idx[p]];
++                    if group == 1 {
++                        return nu[0].mul(ght.at(v)).mul(v[isum].add(lam));
++                    }
++                    if group == 2 {
++                        let host_s = at(A_S8).mul_base(b_shs).add(limbs(v, &rsl_ix)).sub(k_s_half);
++                        return nu[1].mul(gs.at(v)).mul(host_s);
++                    }
++                    assert_eq!(group, 0);
++                    let (mask, s8, zsel, e, p, sum) = (v[im], at(A_S8), at(A_ZSEL), at(A_E), at(A_P), v[isum]);
++                    let delta = v[imx].sub(mask.mul(s8.add(k(-MASK_SCORE)))).add(k(-MASK_SCORE));
++                    let c0 = zsel.mul(zsel).sub(zsel);
++                    let c1 = zsel.mul(delta);
++                    let cx = v[ihx].mul(alpha.sub(delta.add(beta.mul(e)).add(g_exp))).sub(Fp2::ONE);
++                    // the tuple lookup into this row's dictionary (D30)
++                    let key = if keyed { sum } else { Fp2::ZERO };
++                    let ct = v[iht].mul(alpha.sub(g_dd.add(key).add(beta.mul(mask.mul(e))).add(beta2.mul(p)))).sub(Fp2::ONE);
++                    let clauses = mu[0].mul(c0).add(mu[1].mul(c1));
++                    let zc = helper_sum(v, &lks, h0, alpha, &mu[2..2 + n_help]).add(mu[2 + n_help].mul(cx)).add(mu[3 + n_help].mul(ct)).add(gs.at(v).mul(clauses));
++                    zc
++                })
++            };
+             let poly = move |v: &[Fp2]| {
+                 let at = |p: usize| v[idx[p]];
+                 let host_rs = nu[0].mul(ght.at(v)).mul(v[isum].add(lam));
+@@ -214,7 +245,11 @@
+                 let zc = helper_sum(v, &lks, h0, alpha, &mu[2..2 + n_help]).add(mu[2 + n_help].mul(cx)).add(mu[3 + n_help].mul(ct)).add(gs.at(v).mul(clauses));
+                 v[0].mul(zc).add(v[1].mul(host_rs)).add(v[2].mul(host_s))
+             };
+-            b.finish(Box::new(poly), hosted)
++            let mut def = b.finish(Box::new(poly), hosted)?;
++            if ght.0.is_none() && gs.0.is_none() {
++                def.groups = Some((groups, bracket));
++            }
++            Ok(def)
+ }
+ 
+ fn szc(ctx:&Ctx<'_>,pts:&Points,tr:&mut Transcript)->Result<SlotDef,String> {
+@@ -338,7 +373,9 @@
+             let poly = move |v: &[Fp2]| (0..3).fold(Fp2::ZERO,
+                 |a, group| a.add(v[group].mul(poly_bracket(group, v))));
+             let mut def = b.finish(Box::new(poly), hosted)?;
+-            def.groups = Some((groups, bracket));
++            if ght.0.is_none() && gs.0.is_none() {
++                def.groups = Some((groups, bracket));
++            }
+             Ok(def)
+ }
+ 

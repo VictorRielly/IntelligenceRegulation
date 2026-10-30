@@ -1,0 +1,73 @@
+{
+  "utc": "2026-10-29T19:14:14.315989+00:00",
+  "phase": "Existing actualL00/joint/matched results retained; candidate and observer validation pipelines queued, both sources held",
+  "live_tool_sessions": [
+    {
+      "session": 47150,
+      "task": "original consolidated actual2build, source7152ef1a, waiting outside heavy lock"
+    },
+    {
+      "session": 24662,
+      "task": "original dependent attack3/dense/reference batch, waits for existing build2"
+    },
+    {
+      "session": 48014,
+      "task": "original observer pipeline waits for candidate batch; source and seven runner files held"
+    }
+  ],
+  "source_base_sha256": "b4f7d795c23eef05676dc5fafbc91f7d70391f972ec5d6b46ca9116720a55f9f",
+  "s4_design_review_path": "results/zk60_d24_review_20261017/S4_DESIGN_CHECK.md",
+  "s4_review_sha256": "a1c521ca7eeb3af4bea264b4e4c3dfdb9707bb19d8d53083ec94d0a03c7f3ac5",
+  "adopted_rules": [
+    "B-gate: zero lift folded into existing public factor, never private functional",
+    "single joint commitment per logical endpoint/boundary, ordered row blocks; no additional openings",
+    "new profile and source/hash domains; oldR13 andlegacybytes fixed",
+    "receipt-level attacks for wrong source map/rounding/c2/group/norm, all19 trace-site parity",
+    "native layout+degree+M budget census and whole-run bits before registration",
+    "freeze->D24->privacy gate before any use; T256 proofsdesktoponly"
+  ],
+  "endpoint_plan": {
+    "external": "two sites, two proximity rows and one spare: data24+7=31rows at ShieldstralT128/T256 Nratio",
+    "internal": "four sites plus two proximity rows: data24+10=34rows"
+  },
+  "next": "Poll original47150/24662/48014. Never duplicate or edit either held source or the observer plan-pinned runners. On failure retain logs/source/binary, stop dependent work and diagnose before a new labelled attempt. Native experimental CLI/full privacy/reviews still owed.",
+  "source_edits_held": true,
+  "live_stage": "sol-r14-actual-build-2",
+  "live_tool_session": 47150,
+  "source_pin": "sol-r14-actual-build-2.source.json",
+  "source_sha256": "7152ef1a269b2aca5b0ec7ee507a8591db46225466653aaa3113789bfce24262",
+  "staged_modules": [
+    "argument_split.rs",
+    "split_profile.rs",
+    "split_endpoint.rs",
+    "split_definition_tests.rs",
+    "split_witness.rs"
+  ],
+  "receipt_tradeoff": "Native DD/nonDD first/last bytes exactly match counter; T128 backend receipt +~6%, A/H words -24..25%. Coordinator10:23 accepted proceed.",
+  "matched_report": "MATCHED_R13_R14_COMPARISON.json",
+  "source_tree": "actual-working-tree",
+  "independent_uncompiled_branch": {
+    "tree": "capture-working-tree",
+    "source": "3c7b1dcfd47ba8cb257c6f734348f25fb960af3f25f8b1b14ea4e262ff8defda",
+    "files": 287,
+    "status": "QUEUED AND HELD by original48014; no capture compile command yet; no native capture/L25/regression pass",
+    "prepared": [
+      "schema6 observer hooks with independent FS replay, native physical metadata and rejected-bundle suppression",
+      "3stage DD/nonDD capture tests and transport/public allow-list/array validator",
+      "actualL25 reviewer causal-prefix19site proof/fresh/corruption gates",
+      "50relation regressions, high bytes onbothD/Fpieces/DDvariants, dictionary unused/counts, pairedhelper supporttail moves"
+    ],
+    "entrypoints": [
+      "capture_gate.py",
+      "capture_checks.py",
+      "actual_l25_checks.py",
+      "regression_checks.py"
+    ],
+    "queue_plan": "sol-r14-observer-pipeline-1.plan.json",
+    "pipeline_session": 48014,
+    "extra_prepared": [
+      "Accepted receipt byte hashes/length and explicit ordered block digests in observer export; transport validator checks binding/profile/stage/header/core roots/trailer and stage links",
+      "Full legacy suite, four seeded old byte goldens, fresh retained R8/R9/R13 CLI receipts and R12 Shieldstral verification"
+    ]
+  }
+}

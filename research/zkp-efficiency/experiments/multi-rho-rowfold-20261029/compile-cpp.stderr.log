@@ -1,0 +1,7 @@
+/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/multi-rho-rowfold-20261029/kernel_host.cpp: In function ‘int main()’:
+/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/multi-rho-rowfold-20261029/kernel_host.cpp:58:2: warning: this ‘for’ clause does not guard... [-Wmisleading-indentation]
+   58 |  for(size_t i=2;i<guarded.size();i++)assert(guarded[i]==123456789);controls++;
+      |  ^~~
+/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/multi-rho-rowfold-20261029/kernel_host.cpp:58:68: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘for’
+   58 |  for(size_t i=2;i<guarded.size();i++)assert(guarded[i]==123456789);controls++;
+      |                                                                    ^~~~~~~~

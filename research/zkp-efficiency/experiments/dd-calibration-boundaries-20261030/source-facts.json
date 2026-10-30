@@ -1,0 +1,1 @@
+{"checked_literal_facts":11,"dd_branch_sha256":"860d59e0c415aed6896868ca7660be35fb1495924882b0d265edc5e9996a9335","shifts":[1,2,3,4,5,6,7,8],"range_coefficients":[128,64,32,16,8,4,2,1],"lookups":4,"helpers":2,"bracket_degrees":[3,1,1],"slot_degree":4,"native_refusal_execution":false}

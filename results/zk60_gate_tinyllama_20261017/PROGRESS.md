@@ -3366,3 +3366,1393 @@ token lane's final round-7 manifest lands.
     (token round 12, native R8). Next for the gate: re-capture + re-gate on the
     R-C1 tree rebased onto native R12b (after Sol's S1b), then the classifier
     privacy statement draft for the security owner.
+
+## Gate round 18 (coordinator brief, 2026-10-29 ~02:14 UTC): R-C2 / R-C3 on token frozen-r14
+
+- 02:14 UTC round 18 started (agent of the coordinating session). Brief: port
+  the classifier gate to statement schema `zk60-classify-run/3` and the
+  R-C2 / R-C3 profile text, transcript and derived tables (staging_v21 from
+  frozen_v20); C-13 short-item pad controls; captures through the frozen r14
+  test hooks (L1 / L2 x v0 / v1 / vtie, one 2-chunk item, one short item) plus
+  the token lane's P-18 CLI capture `classify-rc3-cli-p18-r14`; failing-first
+  (v20 refuses a /3 capture); freeze v21; R18 summary. Not a privacy
+  acceptance.
+- [READ] token frozen-r14 (`frozen-r14.FROZEN.txt`: frozen 02:12:07Z, 258
+  files, list 0b4c429b...; binary zk60_classify.r14 48dac988...; UNREVIEWED,
+  REVIEW_R14 to follow: **dependency** -- if REVIEW_R14 requires fixes, the
+  round-18 captures may have to be redone); REVIEW_R13 (R-C2 ACCEPTED on
+  soundness; §10: no R-C1 capture carries over); DESIGN_CLASSIFIER §13-§15;
+  register D45 (content length public; one fixed policy list; proof linked to
+  post; fail closed).
+- 02:16 UTC [MEASURED] frozen v20's pin check on the P-18 r14 capture: 60 pins,
+  **23 refused** (13 native files moved by the R8 -> R12b rebase, 5 token-I/O
+  files, the 5 classifier files incl. the new classify_tied.rs). Of the 13
+  native ones, 4 are native R9's own bytes (protocol, layout, wire,
+  hash_domain: read by the block gate in v17's R9 readings, but not consulted
+  by the classifier pin check), the others move again at native R12 / R12b.
+  The [READ] list for v21 therefore has two parts: native R9 -> R12 -> R12b
+  (argument, shape, witness, pad, run, private_block, trained_statement,
+  trained_block, rope (new), tied_tables + derive (new), run_capture) and
+  token frozen-r12 -> frozen-r14 (the classifier and token files).
+- No WINDOW_HOLD, no lane HOLD; guard status: budget 0 of 11.89 GiB, locks free.
+- 02:21-02:26 UTC **capture tree and build [MEASURED]:** the gate's copy of token
+  frozen-r14 at `ops/zkp-mvp/gate-tinyllama/capture-tree-r14/` (258 / 258 files
+  equal to manifest_final_r14, list 0b4c429b..., 0 extra). Guarded build of the
+  lib test binary (`cargo test --release --offline --locked -j2 --lib --no-run`,
+  label gate18-build-tests, build class, need 2.7 / cap 3.5 from the token
+  lane's tio14-red-build-tests peak 2.16 GiB): exit 0, 193 s, peak 2.17 GiB
+  (cgroup 2.13). Capture queue `round18/cap/r18_captures.sh` launched 02:26
+  (detached; marker `r18_captures.done`): L1 / L2 x v0 / v1 / vtie, the 27-id
+  item's two chunks 0/27 and 1/27 at L2 v1, short items 0/20 at L2 v1 and at
+  L1 vtie; each through `capture_a_classify_rung_run` with public tables, need
+  0.7 / cap 1.5 (token lane's rung captures peaked 0.20-0.22 GiB).
+- 02:24 UTC a reading sub-lane (subagent) reads native R9 -> R12 -> R12b for the
+  pinned native files (argument, shape, witness, pad, trained_statement,
+  trained_block, private_block.rs, run.rs, run_capture.rs, rope.rs,
+  tied_tables + derive.rs) and writes the NEW module
+  `staging_v21/scripts/zk60_native_rg_tinyllama_r12b_pins.py` (its exclusive
+  file) plus `round18/readings/NATIVE_R12B_READINGS.json`. The classifier and
+  token-I/O files are read here. Diffs saved in `round18/readings/*.diff`.
+- 02:26:46 UTC **10 captures written [MEASURED, shared box n=1]** (`r18_captures.done`
+  = 0; each `capture_a_classify_rung_run` exit 0, 2.3-4.0 s, peak 0.20-0.22 GiB
+  RSS): `~/zk60-artifacts/token-io/captures/classify-rc3-rung-{L1,L2}-{v0,v1,vtie}`,
+  `classify-rc3-rung-L2-v1-chunk0o27` ([0, 23) of 27), `...-chunk1o27` ([4, 27)),
+  `classify-rc3-rung-L2-v1-short20` and `classify-rc3-rung-L1-vtie-short20`
+  (chunk [0, 20) of a 20-id item, 3 pad positions, verdict row 28), all with
+  public table values, recorder commit `token-frozen-r14-0b4c429b-gate-copy`.
+  Note for D41: the fixture places c per chunk from that chunk's own margin
+  (each a test policy `rung-tc-capture-test-policy/<c>` with its own export,
+  N-r13-3), so the two chunks of the 27-id item are under two policies and
+  two trained identities; an item-level label over them must fail closed.
+- ~02:31 UTC (time reconstructed: written before reading the clock; the next
+  reading was 02:39) **v21 B-3 derivation [MEASURED]:** new `zk60_native_rg_classtied.py`
+  regenerates the pinned dev tensor (sha256 bba6d094... = the pin), derives
+  the int16 embedding (SHA-256 c0e816c9...) and the dev policy's margin row
+  (SHA-256 24e6ff4c...) = REVIEW_R13's independent reference digests, and
+  their BLAKE3 statement digests a8d55fc0... (embedding) / 40f3fe49... (margin
+  vector) = the P-18 r14 capture's profile text. 0.08 s.
+- 02:39 UTC **staging_v21 dev checks [MEASURED, in-process, dev only; the pin
+  check stubbed while the native readings are pending]:**
+  - ported so far: `zk60_native_rg_classify` (door P0 + n + S <= T, pad id,
+    kappa with the pad, verdict row, plan size, chunk_ranges' short rule,
+    the r14 slot names of INC-01 / OUTC-00), `zk60_native_rg_classterminals`
+    (ClassCtx n / pad / verdict row; OUTC-00 at the verdict row; tau and
+    w_Delta REBUILT from the derived tables), new `zk60_native_rg_classtied`,
+    `zk60_native_rg_classgate` (profile-text fields re-derived, D41 with the
+    plan size and n == b - a, the stage line, B_out's OUTC-00 claim decoded
+    to the verdict row, joint figure at the verdict row, C-13 controls),
+    `zk60_native_rg_classpins` (CLASSIFY_R14_READINGS, CLASSIFY_PORTED_FROM_V21,
+    the v21 chain rule incl. the block gate's native R9 digests).
+  - **Finding F18-1 (capture format):** the r14 classifier (and token-run)
+    capture writer emits `Shape::slots()` whole (24 triples since native R9's
+    MAX_SLOTS = 24) while declaring n_slots 23 (run_capture.rs:2478 / 2717;
+    the block writer takes n_slots at :2229); v20's Shape loader refuses
+    ("24 slot triples for n_slots 23"). v21 accepts only all-zero extra
+    triples (shape.rs:2286-2288 zero-fills beyond n_slots), strips them in
+    memory and records the note. For the token lane: clip at n_slots.
+  - On `classify-rc3-rung-L2-v1-short20` and the P-18 r14 capture: replay ok;
+    the 12 classifier slots 12 / 12 equal; **19 public tables rebuilt, 0
+    taken** (tau rebuilt from the derived embedding digest-for-digest, w_Delta
+    = the derived row, 0 of 512 entries differing); B-3 ok; NL-1 12 / 12;
+    B_out's OUTC-00 claim decodes to row 28 (short) / 31 (full).
+  - Controls: CC-1..CC-6 fire; **C-13: C13-1 (doctored pad position: port pad
+    id + 1, and captured kappa at the first pad + 1) -> exactly INC-01; C13-2
+    (pad pinned at content position P0 + n - 1 -> exactly INC-01; profile text
+    one pad more -> integrity refuses); C13-3 (OUTC-00 at verdict row -1 / +1
+    -> exactly OUTC-00; expected row moved -> integrity refuses on the decoded
+    B_out claim); C13-4 (facts n + 1 -> integrity + exactly INC-01; chunk one
+    id more -> binding + D41 refuse)** all fire on the short item; on a
+    full-length item C13-1 is not applicable (no pad), C13-2..4 fire.
+- 02:42 UTC **reading sub-lane done [READ]** (`staging_v21/scripts/zk60_native_rg_tinyllama_r12b_pins.py`,
+  `round18/readings/NATIVE_R12B_READINGS.json`; 22 readings, `self_check()` ok):
+  native R9 -> R12 -> R12b and the token tree's hunks on R12b move **no receipt
+  byte, no block-stage byte and no public-statement byte at any profile the gate
+  captured before** (TinyLlama T32 block / token, the rung block profiles, the
+  token rung, the classifier rung). R12's changes are (i) gated by name on new
+  profiles (Shieldstral, rung-HD), (ii) the query axis's own width q_pad =
+  h_pad x head_dim, the identity where q_pad == d_pad (true at every pre-R12
+  shape, rung-TC 16 x 32 = 512 [COUNTED]), (iii) optional statement fields
+  only for a tied model or a scaled RoPE, (iv) rope.rs = the frozen generator
+  at every unscaled profile. argument.rs c4f9f9f4: one hunk in the Q/K/V/O
+  matmul arm (q_pad for Wq's output / Wo's input); the bilinear arms untouched
+  -> "repaired" (I re-read that hunk: confirmed). Token run_capture aaff4e6e ->
+  23293061 (+573 / -2) accounted line by line (562 of v20's 564 hook lines
+  verbatim, the native carry +9 / -2, two hook lines for classify_tied.rs).
+  Frozen-r14 differs from native R12b in exactly the 10 files of
+  `r13/token_vs_native_r12b.diff`. Open notes recorded in the JSON (no golden
+  at rung-TC / the classifier rung: byte identity rests on the reading plus the
+  captures' own terminal checks).
+- 02:43 UTC merged: `zk60_native_rg_terminals` (PINNED_IF_PRESENT shape 9a870818,
+  pad 91141ea0), `zk60_native_rg_gqa` (ARGUMENT_DEFINITIONS c4f9f9f4 repaired),
+  `zk60_native_rg_mask` (MASK_LAYER_PINS argument / shape), each at the R9
+  merge site, one marked block; R18_BUNDLES filled. **v21 pin check: 60 / 60
+  accepted on all 11 r14 captures** (36 by the token gate, 7 by the block
+  gate's R9 readings, 12 by chains, 5 = the v21 port's digests); an R-C1
+  capture is refused by name (classify_tied.rs not pinned; the four ported
+  files at R-C1 digests).
+- 02:44-02:47 UTC staging suite: first run 4 errors (staging lacked
+  `original/`, the reference tree four tests load; copied byte-equal from
+  frozen_v20), then **93 OK** [MEASURED, 65 s, 0.39 GiB] (`round18/suite/unittests-staging-v21b.log`).
+  Guarded dev run of the whole v21 gate on `classify-rc3-rung-L2-v1-short20`
+  running (label gate18-dev1, light 0.8 / 2).
+- Observation O18-1 [COUNTED from the captures' c]: at the dev rung the margin at
+  the verdict row is the SAME for the 23-id item, the 20-id short item and both
+  chunks of the 27-id item (c placed at -190167 for L2 v1 everywhere,
+  -174280 for L1 vtie): the synthetic generic blocks make the margin
+  content-independent here. The gate's figures do not depend on it; for the
+  token lane, the captures do not exercise content-dependence of the margin
+  (a "generic honest witness" note). Consequence for D41: the two chunks of
+  the 27-id item share one test policy and one trained identity, so an
+  item-level label over them is a real check, not a forced fail-closed.
+- 02:48 UTC added: the pad id must be the registered policy's (`CL.PAD_IDS`,
+  rung 2 [READ classify.rs:137]). Dev run of the whole v21 gate on
+  `classify-rc3-rung-L2-v1-short20` (staging, guarded light, label
+  gate18-dev1): **PASS, 0 false parts, 0 unfired controls** [MEASURED, 444 s,
+  0.33 GiB]: block stages 23 / 23 and 23 / 23 at the rung fixture's
+  calibration (frozen-r14 trained_calib_tests.rs:55-58 unchanged), NC-1 fires;
+  per commitment A 0 / H 2 / E 0 / B 0 everywhere; full preimage 1,729,620 view
+  entries, 0 differing; joint 0 over 33,312 identified word pairs; 15 controls
+  fire (CC-1..6, C13-1..4, J-1..3, CC-8 / CC-9).
+- 02:52 UTC staging suite 93 OK (after the pad-id binding).
+- 02:53 UTC **tools v21 FROZEN:** `frozen_v21/` (+ `original/`), manifest
+  `gate-tinyllama.tools.frozen.v21.sha256` = 77 files,
+  258149772c1b9c9453f27d05dada541a158f0d2c6a44544b2b91df71b521e8cf (check:
+  77 listed, 0 moved, 0 unlisted; staging == frozen). Patches: v20 -> v21
+  scripts 14eeda6b... (124,893 B), tests 54fb4d91... (10,378 B); vs original
+  3ad773bc.... New files: `zk60_native_rg_classtied.py`,
+  `zk60_native_rg_tinyllama_r12b_pins.py`. NOT yet installed in the working
+  copy (still v20); install after the round.
+- 02:53:35 UTC official queues launched (detached, frozen v21; toolcheck 77 / 0 / 0):
+  `round18/r18_gate_a.sh` (L1 v0 / v1 / vtie, L1 vtie short20, P-18 r14, the
+  27-id item's chunk 0; then failing-first, D41 over the item, the v21 suite)
+  and `r18_gate_b.sh` (L2 v0 / v1 / vtie, L2 v1 short20, chunk 1). Light
+  class, need 0.8 / cap 2 (dev peak 0.33 GiB). Another lane's cpu job
+  (rvtk14-mut-replay, 1.5 GiB) holds the heavy lock; light jobs do not take it.
+- ~03:05 UTC **Coordinator:** token round 14 ACCEPTED on soundness
+  (`results/zk60_token_io_review_r1_20261017/REVIEW_R14.md`, no fixes: the
+  frozen-r14 basis stands, so the REVIEW_R14 dependency is closed). Its §10
+  adds C-13 requirements: (a) the route makes no T < T_pad inside the blocks:
+  pad rows are ordinary hidden rows with public ids; (b) pad positions are
+  known words in IN-C's joint view and their count varies with n: show the
+  joint figure per n (the disclosed-rank / CFS computation with the pad words
+  as known constants); (c) the verdict-row opening moves with n; (d)
+  re-capture at n = 1, n = 22 and a middle n, each at v0 / v1 / vtie with its
+  own test-policy export, derived tables, plus the CLI path for one short
+  item; (e) pad-row refusals in the refusal analysis; (f) at n = 1 the
+  verdict is a function of one hidden id (plain words for the statement).
+  Tools v21 had already been frozen (02:53) and its official queues were
+  running; none of (a)-(f) needs a change to a gate check (each capture's
+  record already carries the per-commitment, CFS, joint, B_out-row and
+  block-stage figures at its own n), so v21 stays frozen and the per-n
+  analysis is a round-18 script over the frozen tools' records
+  (`round18/c13_per_n.py`), plus new captures gated by frozen v21.
+- 03:09 UTC n-sweep capture queue `round18/cap/r18_captures_n.sh` launched (the
+  same byte-equal tree and test binary as the first ten): L2 x v0 / v1 / vtie
+  at n = 1, 11, 22 (`classify-rc3-rung-L2-{v0,v1,vtie}-short{1,11,22}`).
+- 03:11 UTC n sweep written [MEASURED]: 9 / 9 captures exit 0 (3.0-3.4 s each);
+  frozen v21's integrity passes on each, B_out's OUTC-00 claim at rows 9 /
+  19 / 30 for n = 1 / 11 / 22 (= P0 + n + S - 1), pad positions 22 / 12 / 1.
+  O18-1 refined: c (placed from the item's own margin) is -190166 +- 1 at n =
+  11, 20, 22, 23 but -202071 +- 1 at n = 1, so the rung's margin moves with the
+  position of the verdict row at small n and hardly with the content.
+- 03:12 UTC **gate test-only patch H18-1** (REVIEW_R14 §10 item 4: the CLI path
+  for one short item; the frozen hooks' P-18 test has no short-content
+  option): one new `#[ignore]` test `gate18_capture_a_short_item_through_the_cli`
+  appended to `token_io/classify_capture_tests.rs` in the gate's capture tree
+  only (9540bb20... -> 7229da16...; patch
+  `round18/cap/H18-1.classify_capture_tests.patch` 90e0d13f...). That file is
+  NOT a source pin; the named r14 binary, the recorder (run_capture.rs) and
+  every pinned file stay frozen-r14's bytes. The first ten captures and the n
+  sweep came from the unpatched tree (byte-equal 258 / 258) before the patch.
+  Queue `round18/cap/r18_cli_short.sh` (rebuild of the test binary, build
+  need 2.7 / cap 3.5; then the CLI capture at n = 11, cpu 0.7 / 1.5, the
+  published /3 statement copied to `round18/cap/classify-rc3-cli-short11-r14.statement.json`).
+- 03:12:51 UTC gate queue C launched (frozen v21): the n sweep, then the CLI short
+  capture when it exists. New round script `round18/c13_per_n.py` (reads the
+  frozen-v21 records and the captures: known / hidden IN-C words from the
+  CAPTURED pi / kappa, the joint figure per n over hidden and known words, the
+  B_out fixed-point claims, the block shape and the receipt length per n);
+  preview on the first six official records: all ok.
+- Official queue progress 03:13 UTC [MEASURED]: L1 v0 / v1 / vtie and L2 v0 / v1
+  PASS (exit 0), ~6-7 min each.
+- 03:30 UTC **queues A and B done** (`r18_gate_a.done` = 0, `r18_gate_b.done` = 0) [MEASURED, frozen v21]:
+  - PASS, 0 false parts, 0 unfired controls: L1 v0 / v1 / vtie, L2 v0 / v1 /
+    vtie, L1 vtie short20, L2 v1 short20, P-18 r14 (CLI path, n = 23), L2 v1
+    chunk 0 / chunk 1 of the 27-id item (each ~6-7 min, light).
+  - Failing-first: frozen v20's whole gate on `classify-rc3-rung-L2-v1-short20`
+    exits 1 at its loader ("24 slot triples for n_slots 23", F18-1); v20's pin
+    check refuses 23 pins on every r14 capture and its capture reader
+    evaluates 0 slots ("source pins without a reading"); `all_v20_refuse` =
+    true. v21 refuses the R-C1 capture `classify-rung-L1-v1` by name (the four
+    ported files at R-C1 digests, classify_tied.rs not pinned) and on the R-C3
+    profile fields (`v21_refuses_rc1` = true).
+  - D41 (`round18/d41/d41-item-27.json`): the 27-id item's two chunks ([0, 23)
+    and [4, 27), one test policy, one trained identity): label 1 = the OR of
+    the two verdict bits, **no fail-closed reason**, coverage ok; chunk 1
+    alone -> label 1 (chunk 0 has no proof); the 20-id short item -> its
+    verdict.
+  - v21 suite in the frozen snapshot: 93 OK (45 s).
+- 03:16:04 UTC (marker mtime) the CLI short-item capture `classify-rc3-cli-short11-r14` written [MEASURED]
+  (H18-1; rebuild exit 0; the named binary's prove 1.6 s / verify 0.4 s,
+  recorded verify 0.5 s; segments 1,224,328 / 7,421,464 / 2,489,016 B = the
+  full-length P-18 capture's: the receipt length does not depend on n). Its
+  published statement `zk60-classify-run/3`: n 11, item_length 20, pad_id 2,
+  pad_positions 12, verdict_row 19, chunk [0, 11) of 11 with chunk_size 23;
+  the four length fields = functions of (n, T, P0, S, policy).
+- Queue C (n sweep + the CLI short item) running: L2 v0 short1 and L2 v1 short1
+  PASS so far.
+- 04:10 UTC **queue C done** (`r18_gate_c.done` = 0): the n sweep (L2 x v0 / v1 / vtie at n = 1, 11,
+  22) and the CLI short item `classify-rc3-cli-short11-r14`: all PASS, 0 false
+  parts, 0 unfired controls [MEASURED, frozen v21, 0.28-0.33 GiB, 290-412 s].
+- 04:11-04:13 UTC **round 18 integrated** (`round18/R18_SUMMARY.json` d3ad213c...,
+  `round18/C13_PER_N.json` ab83a255..., `round18/R18_SUMMARY.md` c8046dd0...):
+  - **21 / 21 captures PASS** on frozen v21 (L1 / L2 x v0 / v1 / vtie; the
+    27-id item's 2 chunks; short items n = 1 / 11 / 22 x 3 verdicts at L2, n =
+    20 at L2 v1 and L1 vtie; P-18 CLI full length; CLI short n = 11).
+    Disclosed dimension per commitment: 0 on every A / E / B, 2 on every H.
+    19 public tables rebuilt, 0 taken, on every capture. Full preimage 0
+    differing everywhere (0.95-1.74 M view entries).
+  - Cross-verdict: randomness-free figures equal at L1, L2 and at each of n =
+    1, 11, 20, 22. Short vs full (6 pairs): figures and disclosure equal; the
+    run facts differ only in n, the chunk's b / total, the profile text's
+    length words, the profile digest and the input root (plus the test
+    policy's c / id at n = 1, a fixture constant).
+  - C-13 per n (REVIEW_R14 §10): the captured pi / kappa pin exactly the
+    template + pad positions (known words 31 / 21 / 12 / 10 / 9 at n = 1 / 11 /
+    20 / 22 / 23); joint figure 0 at every n (over the hidden and the known
+    words); block shape identical at every n (T = t_pad = 32: no T < T_pad);
+    B_out's OUTC-00 claim at rows 9 / 19 / 28 / 30 / 31, the only B_out claim
+    with fixed row bits; segment bytes independent of n; the /3 statement's
+    38 keys classified and its length fields re-derived. Refusal analysis and
+    the n = 1 sentence written in R18_SUMMARY.md §5.
+  - Failing-first (v20 refuses every r14 capture; v21 refuses R-C1), D41
+    (label = OR, no fail-closed reason over the two chunks), suites 93 OK.
+- 04:12 UTC **v21 installed in the working copy** (77 / 0 / 0 against the v21
+  manifest); the suite there runs 93 OK (`round18/suite/unittests-v21-working-copy.log`).
+- **State at hand-back:** round 18 complete. NOT a privacy acceptance. No job
+  of this lane is pending. Next for the gate: the classifier privacy
+  statement draft (R18_SUMMARY.md §8: statement text, per-run distance
+  numbers for the IN-C / OUT-C draws, owner checks, Shieldstral profile and
+  captures, an independent privacy review, the security owner's sign-off and
+  Victor's acceptance). For the token lane: F18-1 (clip the capture writer's
+  slot list at n_slots), O18-1 (the rung margin barely depends on content),
+  and a CLI-path short-item hook in the frozen tree (the gate used its own
+  test-only patch H18-1).
+
+## Gate round 19 (coordinator brief, 2026-10-29 ~10:58 UTC): the classifier gate on the R13 stack and the REAL Shieldstral-1.0-3B classifier (token frozen-r16b)
+
+- 10:58 UTC round 19 started (agent of the coordinating session). Brief: port tools v21 -> v22 for the
+  R13 stack (R13 block-stage terminals: per-layer gate denominators, c2 multipliers, grouped SiLU with
+  the public group column, int16 widened words, h24; the classifier stages; source pins moved to token
+  frozen-r16b; [READ] list with digests; failing-first: v21 refuses an R13-stack capture); captures
+  (R13 dev-rung classifier captures through the frozen r16b tree in a byte-equal copy, verdict 0 / 1 /
+  tie, a 2-chunk item, short items; ONE real Shieldstral T128 capture through the CLI path, a second
+  only if the first needs a comparison); gate all of them; the refusal-distance recount at the R13
+  Shieldstral shape (REVIEW_R16 §10); freeze v22, R19_SUMMARY, and what a classifier privacy statement
+  draft still needs. Not a privacy acceptance.
+- [READ] REVIEW_R16 (ACCEPTED WITH FIXES; §10 = this round's list), token rounds 16 / 16b (frozen-r16b:
+  301 files, list 04d94bc0..., binary cli/zk60_classify.r16b.release.bin dfb8025e...; unreviewed; F-1
+  and N-r16-1 fixed, no statement bytes moved), REVIEW_R13 (native R13 ACCEPTED on soundness), register
+  D1 / D33 / D36 / D37-D41 / D45 and the notes for native R13, token rounds 13-16b, gate round 18; lane
+  rules incl. the 10-29 00:34 addendum (guard 88af4c63, at most one job declaring >= 3 GiB box-wide).
+- 10:58 UTC no WINDOW_HOLD, no lane HOLD; guard status: Sol's sol-r14-run-build-4 (build, 2.5 GiB)
+  holds the heavy lock.
+- [COUNTED] frozen-r14 -> frozen-r16b moves 18 of the 60 capture source pins (native R12b -> R13:
+  run_capture, run, protocol, argument, layout, shape, private_block, witness, trained_statement,
+  trained_block, tied_tables, tied_tables/derive; token: token_io.rs, token_io/run.rs, load.rs,
+  classify.rs, classify_tied.rs, classify_run.rs); boundary, plane_index, pad, rope, stage_in_c,
+  stage_out_c and the core files do not move. OWN_SOURCE_FILES at r16b has 38 entries: four new R13
+  pins in front (argument_accuracy.rs, accuracy_act.rs, accuracy_fold.rs, accuracy_layout.rs).
+- [READ] argument_accuracy.rs (native R13): at an R13 block shape SEVEN slots are redefined
+  (`define_changed`): SC_DZC 14, SC_QZC 15, SC_KVZC 16, SC_SZC 17 (and its DD twin), SC_FZC 18,
+  SC_DD 23 (DD profiles only), SC_TAB 19; the other 16 slots keep the legacy bodies (their weight folds
+  carry the R13 multipliers, `accuracy_fold`). New: widened-word limb clauses (w + 32768 = lo + 256 hi),
+  the R13 norm (nr + ns + 1 = 2^(tn'+1) D), host remainders at the R13 precisions, FZC's ACT3 tuple query
+  (g + 2048) + beta a + beta^2 gid + tag with the PUBLIC group column, TAB's third table = the derived
+  ACT3 table with its own support indicator. The gate's v21 block port knows none of these.
+- ~11:05 UTC (written before reading the clock; the next reading was 11:08:40) staging_v22 = a copy of frozen_v21 (scripts, tests, counts, original). Capture tree
+  `ops/zkp-mvp/gate-tinyllama/capture-tree-r16b/` = a byte-equal copy of token frozen-r16b: 301 / 301
+  files equal to manifest_final_r16b (list 04d94bc0...), 0 extra, 0 missing.
+- The R13-stack captures need TEST-ONLY gate hooks: frozen-r16b's capture hooks are the legacy rung's
+  only (`capture_a_classify_rung_run` binds RUN_PROFILE_CLASSIFY_RUNG_TC; round 16's two-stage R13 rung
+  test uses synthetic tables, which the replay refuses). Plan H19-1 (R13 rung, derived tables, two
+  stages at different G) and H19-2 (the real CLI run directory through the CLI's own door, recorded):
+  one new test file plus one `#[path]` line in classify_capture_tests.rs (not a source pin).
+- 11:15:54 UTC queue `round19/cap/r19_captures.sh` launched (detached): guarded build of the lib test
+  binary in capture-tree-r16b + H19 (build, 2.7 / 3.5), then 13 R13-rung captures (cpu, 1.2 / 2.5).
+  H19 = `token_io/gate19_capture_tests.rs` (new, test-only) + one `#[path]` line at the end of
+  classify_capture_tests.rs (08b15e35 -> 226553ba; NOT a source pin); patches
+  `round19/cap/H19.classify_capture_tests.patch` (4c7372a5...), `H19.gate19_capture_tests.patch`.
+- 11:19:04 UTC [MEASURED] build exit 0 (3 min 09 s). **Attempt 1 of the captures FAILED, all 13, in 3 s**
+  (each exit 101, 0.1 s, no bundle written, no capture directory created): the honest R13 pipeline
+  refused at block 0, "fixed oracle range refusal: norm quotient/remainder". Cause [READ / MEASURED]:
+  the R13 loader fixture declares residual_unit 1.0, under which the dev tensor (|x| < 32) derives an
+  embedding of RMS ~8 that the R13 norm's oracle refuses (the fixture's own x_in has RMS 58; round 16's
+  generic tables RMS ~3,500 prove). My queue did not stop at the first failure; the coordinator flagged
+  the 13 zero-second exits (heads-up received ~11:19). Fix in H19: the fixture COPY declares the legacy
+  dev rung's residual unit 0.0053663705198366135 (RMS ~1,500; the blocks' constants do not read it),
+  and the queue now stops at its first failure. Attempt 1's logs moved to `round19/cap/attempt1/`.
+- 11:20:26 UTC queue relaunched once (attempt 2).
+- 11:23:33 UTC [MEASURED] attempt 2: build exit 0; the first capture (L2 v1) refused again, the same
+  "norm quotient/remainder" at block 0 (the queue stopped there; logs `round19/cap/attempt2/`). The
+  residual unit was not the cause: the R13 norm is scale-free. [COUNTED] cause: r13-h24-wide declares
+  norm_cn_a = norm_cn_m = 10000 (tn 10 -> tn' 2, gamma 64); the R13 norm word q ~ x_i gamma Cn / (D 2^tn')
+  must stay in int16, and the PINNED dev tensor's rows are heavy-tailed (log-uniform magnitudes, peak /
+  RMS ~4), so at Cn 10000 **102 of the 300 derived embedding rows** overflow (max |q| 37,926); at Cn 4000
+  none does (max 15,170). Coordinator diagnosis received ~11:24 (fix the fixture, not the check; verify
+  one capture before relaunching; record the refusal for the refusal-channel note). Fix: H19-1 uses Sol's
+  `r13-h24-dense` (same rung-hd geometry, LOW + h24, dense weights, four SiLU groups, Cn 4000;
+  `HL_PB_R13_FIXTURE` overrides); the copy keeps the legacy dev residual unit (more nonzero embedding
+  words; the gate's constant).
+- **Refusal-channel datum R19-1 [COUNTED]:** at the r13-h24-wide calibration an HONEST item is refused by
+  the prover (before any header) exactly when it contains one of 102 of the 300 vocabulary ids, i.e.
+  whether a run proves depends on the hidden content. Completeness, not a transcript disclosure (no proof,
+  no view: D29's reading; D45(4) "could not be verified"), but it belongs in the refusal channel of any
+  classifier statement, with the pad rows (§10 item 4). The same mechanism exists at every R13 profile
+  (int16 norm words, the widened words, the range windows), so the Shieldstral refusal set is content-
+  dependent too; round 16's real item proved (no refusal observed).
+- 11:25:54 UTC `round19/cap/r19_one.sh` launched: rebuild + ONE capture (L2 v1) to verify the fixed hook;
+  the queue runs only after it passes.
+- 11:28 UTC [MEASURED] the verifying capture (attempt 3, r13-h24-dense) got past the pipeline and the
+  proof, then the RECORDER refused: "replay: the plane index does not build at stage 1: the A plane name
+  table has 79 names for 109 planes". The reading sub-lane reached the same finding independently
+  (R19-PIN-1): the test-only `plane_index.rs` (13a7dd6f, unchanged since R12b) names A planes from the
+  LEGACY segment table; an R13 shape has `AccuracyIds`' 109 planes (LOW + h24, 3 sigma limbs). **No R13
+  capture can be recorded by frozen-r16b's recorder.** Gate test-only patch **H19-3** (capture tree only):
+  at an accuracy shape `build` takes `AccuracyIds`' names (prefix `A_`) and domains (already matched by
+  `Ids::new` to the independently counted `Shape::a_plane_doms`), and DZC / QZC / KVZC / FZC sweep the
+  whole domain range (argument_accuracy.rs `b.a_range(range.start, range.end - 1)`); every other slot
+  keeps the legacy push order. The recorder still cross-checks each slot's ACTUAL push order and the
+  claim-site counts. plane_index.rs 13a7dd6f -> ce79803c (a source pin moves; test-only module).
+- 11:3x UTC [MEASURED] attempt 4 recorded and wrote the bundle, then my read-back check failed: the
+  manifest declared `6-token-run` with 67 pins (no classifier pins). Cause [READ run_capture.rs:2638]:
+  `bundle_is_classify` tests the 3 production CLASSIFY_RUN_PROFILES, not `is_classify_run_profile`
+  (which admits the test-only R13 rung profile). Finding **F19-1 for the token lane** (test recorder
+  only; the real Shieldstral profiles are in the list). Gate patch **H19-4**: `bundle_is_classify` ->
+  `is_classify_run_profile` (run_capture.rs cad25086 -> 8292b1c6; cfg(test) module). The bad bundle was
+  moved aside (`captures/classify-r13-rung-L2-v1.bad-schema`, to delete).
+- [MEASURED, guarded light, 36.9 s, peak RSS 2.58 GiB over a declared 2.0 / cap 3.0; shared box n=1]
+  **B-3 at the REAL Shieldstral profile, derived by the gate:** staging_v22's numpy port of native
+  R12b `recompute_profile` (whole-checkpoint SHA-256 = the model pin 87753e30...; tensor 67a138c1...;
+  block-Hadamard 3 x 1024 with the export's signs; f32 rounding; floor(x/s + 0.5), no clip) reproduces
+  the round-16 real statement's `embedding_digest` 1cb276d1... and `margin_vector_digest` 6429a242...
+  BIT FOR BIT (moderate-sexual: yes 13059 / no 2649 / scale 0x3ed11ff597db2fb6); the numpy embedding fold
+  equals the exact pure-Python fold on 64 spot rows. Evidence `round19/dev/shield_b3_dev.json`. Next
+  declaration of this step: 3.3 / 4 (peak + 25%).
+- 11:34:46 UTC the verifying capture relaunched (attempt 5).
+- 11:3x UTC [MEASURED] attempt 5: **the first R13-stack classifier capture** `classify-r13-rung-L2-v1`
+  written and read back (exit 0; 9.3 s; peak RSS 0.56 GiB): two block stages at R13 gate denominators
+  **G 20 and G 21**, verdict 1 (margin -228,712, c = margin - 1), segments 1,224,328 / 15,420,264 x 2 /
+  3,228,344 B, bundle run.json 48.9 kB, stages 2.4 / 5.1 / 5.1 / 3.3 MB, arrays.bin 38.4 MB (public tables
+  with values); manifest schema `7-classify-run` with 72 source pins (60 + the 12 R13 modules).
+- 11:38:14-11:40:02 UTC [MEASURED] the queue made the other 12 (`r19_captures.done` = 0; each exit 0,
+  ~9 s, 0.53-0.56 GiB): `classify-r13-rung-L2-{v0,vtie}`, `-L1-v1` (G 20), the 27-id item's chunks
+  `-L2-v1-chunk{0,1}o27` ([0, 23), [4, 27)), short items `-L2-{v0,v1,vtie}-short{1,11}` and
+  `-L2-v1-short22`. All at G 20 / 21.
+- **Observation O19-1 (generic-honest-witness note, token lane / native):** at the R13 h24 rung (Sol's
+  r13-h24-dense + the derived dev embedding) the margin is EXACTLY -228,712 for every item: n = 1, 11, 22,
+  23 and both chunks of the 27-id item [MEASURED from the capture logs]. The rung's margin does not depend
+  on the content at all (stronger than O18-1 at the legacy rung). The gate's figures do not rely on it,
+  but these captures cannot exercise content-dependence of the verdict; the real Shieldstral capture is
+  the only content-dependent one this round.
+- 11:39 UTC block-port sub-lane launched (a fork; exclusive: the block-stage modules of staging_v22 +
+  `round19/blk/`; entry point `zk60_native_rg_r13blocks.r13_block_terminals`). The reading sub-lane
+  handed back (module `staging_v22/scripts/zk60_native_rg_r13_pins.py` 838f60e8..., self_check ok, 119
+  digests; `round19/readings/R13_READINGS.json` e8708b6a...; 50 diffs): **none of the r14 -> r16b steps
+  moves a receipt, block-stage or public-statement byte at a previously captured profile** [READ]; an r16b
+  classifier bundle carries 72 pins; run.json `shape` has NO accuracy field (stack / G / precision must be
+  derived); unchanged: schema /3, stage_in_c.rs, stage_out_c.rs, the capture allow-list.
+- 11:40:57 UTC real chain `round19/cap/r19_real.sh` attempt 1: the prove refused in 0 s before any work
+  ("--owner-dir ... inside the run's parent directory", TR4-3: correct fail-closed CLI behaviour; my
+  layout error). Fixed: the CLI's default owner directory (outside the repo, under ~/zk60-owner-private/),
+  read from the prove log. Logs `round19/cap/real-attempt1/`.
+- 11:41:41 UTC real chain relaunched; **the real prove is running ALONE on the box** (guard: budget 10.3 of
+  11.89 GiB, the only job; need 10.3 / cap 11.5 = round 16's 8.27 GiB peak + 25%).
+- 11:41:41-11:52:28 UTC **THE REAL CAPTURE, through the CLI path** (`round19/cap/r19_real.sh`, marker
+  `real/r19_real.done` = 0) [MEASURED, laptop, shared box n=1, each step ALONE on the box (lean: no other
+  live job > 1 GiB; Sol / Astra idle)]:
+  * prove: the named r16b binary **dfb8025e...** (sha256 re-checked), Astra's T128 export
+    native_low_h24_t128, policy shieldstral-1.0-3b-moderate-sexual/1, round 16's 35-id ToxicChat post (a
+    SHORT item at T128: P0 72 + n 35 + S 1 = 108, 20 pad positions at id 11, verdict row 107), its
+    prover-private seq dir read in place: exit 0, **469.3 s** total (proving 358.6 s), **peak RSS 8.13
+    GiB** (cgroup 11.5 = the cap: reclaimable page cache; no kill), receipt 848,412,096 B in 28
+    segments, whole-run floor 96 bits, verdict **not-flagged**; the owner's decommitment went to the
+    CLI's default owner directory under ~/zk60-owner-private/token-io/ (0700; never copied);
+  * verify: the same binary, fresh process: exit 0, 74.6 s, peak RSS 2.32 GiB; trained statement
+    identity 29aeba6c... (round 16's), input root c8027b13..., published by this verifier;
+  * capture (H19-2: the CLI's door + the recorded verification in the gate's capture-tree test binary,
+    public tables as length + digest): exit 0, **103.2 s** (door 35.3 s with its one checkpoint stream,
+    recorded verify 53.3 s), **peak RSS 4.05 GiB** (cgroup 6.87); bundle
+    `~/zk60-artifacts/token-io/captures/classify-r13-shield-t128-cli-sexual-r16b/` 908 MB (run.json 75 kB,
+    28 stage files 3.0 / 26 x 4.4 / 3.5 MB, arrays.bin 830.5 MB), its 26 block stages at the layers' own
+    R13 gate denominators **[19, 19, 18, 20 x 7, 19, 20 x 3, 19, 20 x 8, 19, 19, 19]** (= round 16's list).
+  One real prove in the round, as planned. Public statement copied to
+  `round19/cap/real/classify-r13-shield-t128-cli-sexual-r16b.statement.json`.
+- 11:4x-11:52 UTC staging_v22 classifier-level port [READ / dev]: `zk60_native_rg_classify` (the three
+  R13 classifier run profiles, pad ids 11 / 2, overlaps 8 / 4, their R13 block profiles, the registered
+  Shieldstral policy list with the round-16 prefix digests, the card policy refused by name),
+  `zk60_native_rg_classpins.classify_capture_pins_v22` (72 / 72 pins accepted on the R13 rung capture:
+  35 token gate, 3 block gate, 29 by chains of readings, 5 = the v22 port's digests; an r14 capture is
+  refused by name), `zk60_native_rg_classgate` (R13 integrity: the block profile, ONE R13 gate
+  denominator per block stage line in [17, 24], none at legacy; the Shieldstral policy check;
+  `--tied-export`; the R13 block-stage dispatch to the sub-lane's module), `zk60_native_rg_classtied` /
+  `classterminals` (B-3 from the real checkpoint; tau by the exact numpy fold).
+- Dev [MEASURED, in-process, staging, < 1 GiB] on `classify-r13-rung-L2-v1-short11`: v22 integrity ok
+  (gates [20, 21]); the replay reproduces the run binding (327 positions, 3,786 challenges); **per
+  commitment, mask / CFS, the joint figure, the 12 classifier slots and NL-1 all ok on the R13 rung's
+  block commitments unchanged** (the generic machinery reads the larger R13 plane list from the
+  capture). Failing-first probe: frozen v21's integrity on the same capture refuses (31 pins without a
+  reading, pad id and overlap unknown for the run profile, D41).
+- 11:53:44 UTC dev run `round19/dev/real_dev.py` (staging, the non-block parts on the REAL capture)
+  launched as guarded LIGHT 3.3 / cap 5: integrity ok (72 pins; the 26 gates; policy, pad 11, profile
+  text), replay ok (run binding reproduced; 3,303 positions, 263,324 challenges), hash layer ok,
+  per commitment ok (258.8 s, RSS 3.07 GiB); then **the guard killed it at 11:59 (RSS 5.20 GiB > cap 5)**
+  while B-3 derived the Shieldstral tables beside the held views. Coordinator (~12:00): the real
+  capture's analysis is memory-heavy: `--class cpu` (heavy lock, alone), need >= 6.5 / cap >= 8, never
+  light; stream where possible. My error: a >= 3 GiB declaration as light. Fix: B-3 now STREAMS the
+  checkpoint (`classtied._shield_stream`: one 1,024-row chunk at a time; the digests incremental; tau's
+  fold at the replayed r_emb by a second stream, `ShieldEmb.fold`): the 805 MB int16 table is never held.
+- 12:01:06 UTC dev run attempt 2 as cpu 6.5 / 8 (also times the full preimage on IN-C, block 0, block 25
+  and OUT-C to size the official run). Rung reference [MEASURED, in-process, beside the real prove]:
+  the full zero-data preimage of `classify-r13-rung-L2-v1-short11` = 2,245,637 view entries, 0
+  differing, 629.8 s, 1.0 GiB; hash layer ok.
+- [COUNTED] refusal-distance recount (`round19/refusal/refusal_recount.py` -> `R19_REFUSAL_RECOUNT.json`):
+  2 (sum_blocks T_d + T + 256) / p^2 with T_d = 256 (U8) + 256 (EXP) + 4096 x groups (ACT3; legacy 768):
+  **Shieldstral T128 / T256 at R13: 2^-108.25** (groups at the class max 4; 2^-108.42 with the T128
+  export's actual 3-4 groups per layer), against D40's accepted 2^-112.66 at the legacy shape; the R13
+  rung 2^-112.93 / -111.94 (L 1 / 2). The pad rows add no distinct denominator (IN-C pins them to the
+  public pad id; in the blocks they are ordinary hidden rows querying the same tables).
+- 11:5x UTC block-port sub-lane log [read, not yet handed back]: `zk60_native_rg_r13blocks` gives 23 / 23
+  slots at both stages of every R13 rung capture, plane index ok (109 A planes = the independent
+  AccuracyIds port), 7 R13 controls predicted and fired (G +1 -> exactly slot 18; score precision -> 17;
+  norm tn' -> 14; a group id -> 18; an ACT3 entry -> 19; a gate weight fold -> 11; the legacy FZC body on
+  R13 bytes refused).
+- Staging suite: v21's three r14-capture tests updated (v22's pin rule refuses r14 captures by name; the
+  rest of each test runs under v21's rule, kept for the record) and a new class ClassifierV22 (policy list,
+  the Shieldstral butterfly bit for bit against a scalar transcription, the exact numpy fold, the refusal
+  recount, an R13 capture end to end with C-13 and a doctored stage-line gate refused): 10 / 10 OK.
+- 12:01:31 UTC lean-rule deviation (block-port sub-lane, reported by it): its guarded dev job
+  `gate19-blk-shield-dev0` (light 2.5 / cap 3.5) on the real capture started 25 s after my
+  `gate19-real-dev-2` (cpu 6.5 / 8), from a status read made before my message reached it; budget 9.0 of
+  11.89 GiB, RAM 11.9 GiB available at 12:01:51; nobody signals it; it ends under its own kernel cap. The
+  sub-lane launches nothing else on the real capture; the real capture's block part is run only inside
+  my own cpu-class jobs from now on.
+- 12:06 UTC [MEASURED, dev attempt 2, cpu 6.5 / 8, alone] on the REAL capture: per commitment ok
+  (84 commitments, every one at its expected disclosed dimension; 253 s, RSS 3.07 GiB); NL-1 ok; joint
+  ok; the streaming B-3 kept RSS at 3.2 GiB (was 5.2); but the 12 classifier slots REFUSED: "public table
+  ... the capture carries no values" — v21's classifier-slot check required captured VALUES even for the
+  tables it rebuilds, and the real capture was recorded with public tables as length + digest. v22 fix
+  (`classterminals.check_classify_terminals`): when the capture declares `public_tables_included: false`
+  (and only then) every IN-C / OUT-C table is REBUILT and compared with the capture's length and SHA-256
+  (nothing taken; B-3 on the rebuilt row; a control's moved entry applies to the table the port uses).
+  Dev on an R13 rung capture with its 19 table values stripped in memory: 12 / 12 slots, 19 rebuilt, 0
+  taken, B-3 ok, CC-1..CC-6 and C13-1..C13-4 all fire, a doctored digest refused; without the declaration
+  a missing value is still refused. New test `ClassifierV22.test_length_and_digest_only_capture_path`.
+- 12:19 UTC **block-port sub-lane handed back** [MEASURED dev / READ]: new `zk60_native_rg_r13slots.py`
+  (09878d5e...: the seven R13 slot ports from argument_accuracy.rs, the independent R13 plane list,
+  lookups, precision, table structure) and `zk60_native_rg_r13blocks.py` (f4ef6373...: the driver; the
+  stack from the block profile, the base calibration from the R13 calibration line with its printed
+  precision equal to the derived one, each stage's G and constants from the stage lines, all bound by
+  recomputing the classifier schedule digest; controls; the no-tables path), `zk60_native_rg_terminals.py`
+  43eed070 -> 094029b7 (R13 pin readings; the output-projection fold length h_pad x head_dim, the same at
+  every pre-R12 shape), `zk60_native_rg_gqa.py` 24e9b963 -> 1d540c53 (argument.rs bc0332e3 = the repaired
+  definition). On all 13 R13 rung captures: **23 / 23 slots per stage** at G 20 / 21 (slots 14-19 by the
+  R13 ports, 16 legacy bodies through plane-name aliases), plane index 109 A planes = the rebuild; ~0.9 s
+  per stage; **7 / 7 R13 controls fire exactly as predicted**; the legacy rung captures still 23 / 23. No
+  tables: slots 5-7, 10-16, 18, 19 open by the capture option, `ok` never true in that mode
+  (`ok_on_the_covered_slots`, `tables_absent_by_capture_option`); G then bound only by the schedule digest
+  (its arithmetic check is slot 18). On the REAL capture's block 0 (its own dev job, 1.38 GiB, the
+  lean-rule overlap above): G 19 and the layer's constants (score shift 7, cn_a 848, cn_m 1716, ao shift 8,
+  product shift 16); all 11 table-free slots equal; plane index 107 A planes = the rebuild; schedule digest
+  equal. Not ported: the DD dictionary / softmax twins (a DD bundle is refused by name); the ACT3 table is
+  checked for structure only (a capture carries no group members).
+- 12:28:48 UTC dev attempt 2 on the real capture done (exit 0; 1,653 s; peak RSS 5.57 GiB guard / 5.70
+  in-process; alone): mask / CFS ok (211 s); full zero-data preimage samples: IN-C 71,552 entries, block 0
+  3,132,905, block 25 3,137,444, OUT-C 188,627 entries, **0 differing in each**; ~500 s per block at a
+  STABLE 5.7 GiB (transient per commitment). A full 26-block preimage would take ~3.6 h of a 7 GiB heavy job.
+- Classgate v22 (status): a capture recorded without table values passes its block part only on the
+  covered slots and its status is **PASS-WITH-DECLARED-LIMITS** with the limits listed
+  (`declared_limits`); `--preimage-names` runs the full preimage on a declared sample and records what was
+  not evaluated. Staging suite 98 OK (56 s). TOOLS list += r13_pins, r13slots, r13blocks.
+- Official real-capture plan (`round19/r19_gate_r.sh`, frozen v22, cpu 7.2 / 9 = 5.70 + 25%, alone): every
+  part on all 26 blocks except the full preimage, which runs on a declared sample (IN-C, blocks 0 / 12 / 25,
+  OUT-C); the other 23 blocks' preimage (~3.2 h) is left for the coordinator to schedule.
+- 12:30:02-12:43:5x UTC [MEASURED, staging, guarded light 1.3 / 2, alone] the WHOLE v22 classifier gate on
+  `classify-r13-rung-L2-v1-short11`: **PASS, 0 false parts, 0 unfired controls**, 821 s, peak 1.01 GiB:
+  block stages 23 / 23 at G 20 and 23 / 23 at G 21; the 7 R13 controls and the classifier / joint /
+  C-13 controls fire; full preimage 2,245,637 entries, 0 differing.
+- 12:44:22 UTC **tools v22 FROZEN:** `frozen_v22/` (+ `original/`), manifest
+  `gate-tinyllama.tools.frozen.v22.sha256` = 80 files,
+  ab7035965ef024ec6f7ec200deb6f17882983e7f43ea7a230ed5d887b8fc8027 (check: 80 listed, 0 moved, 0
+  unlisted; staging == frozen). Patches: v21 -> v22 scripts 8526311f... (181,981 B), tests 1ea79064...
+  (10,624 B); vs original 3d744e94.... New modules: zk60_native_rg_r13_pins.py, zk60_native_rg_r13slots.py,
+  zk60_native_rg_r13blocks.py.
+- 12:44:34 UTC official chain `round19/r19_chain.sh` launched (detached; marker `r19_chain.done`): queue R
+  (the real capture, cpu 7.2 / 9, alone), then queues A and B side by side (the 13 R13 rung captures,
+  failing-first, D41, the v22 suite in the frozen snapshot).
+- 12:45 UTC [READ, my own spot check of the reading sub-lane] native R12b -> R13 argument.rs (+27 / -2):
+  the `#[path] mod accuracy`, `Ctx.accuracy`, `define` trying `accuracy::define_changed` only when
+  `accuracy_stack() != Legacy`, and the two matmul folds taking the multiplier fold only off Legacy
+  (`fold_rows_i8` / `fold_cols_i8` unchanged at Legacy): confirmed "gated on new profiles".
+- 12:46:56 UTC queued `round19/cap/real/r19_owner.sh`: after queue R, the input owner's check on the gate's
+  real run (the named r16b binary's `input-owner`, fresh process, cpu 2.9 / 4.5; decommitment and content
+  read in place).
+- 12:47-12:49 UTC tried installing v22 in the working copy (80 / 0 / 0), then its suite there: 98 run, **8
+  errors** (FileNotFoundError .../home/victor/results/...): **finding F19-G1 (the gate's own tools):** two v22
+  modules (`zk60_native_rg_r13_pins._ROOT`, `zk60_native_rg_classpins._full`) find the repository root by a
+  FIXED depth of five parent directories, true at `frozen_v22/` and `staging_v22/` but not at the working copy
+  `ops/zkp-mvp/gate-tinyllama/scripts/`. v22 therefore runs from `frozen_v22/` only (every official queue
+  does); **the working copy was put back to v21** (77 / 0 / 0 against the v21 manifest; the three new
+  modules removed). Fix for v23: search upward for `results/`. The frozen suite runs in queue A.
+- 12:44:34-13:25:13 UTC **queue R: the REAL Shieldstral capture gated by frozen v22** [MEASURED, cpu 7.2 / 9,
+  alone; 2,439 s; peak RSS 5.17 GiB, cgroup 7.17]: **status PASS-WITH-DECLARED-LIMITS, 0 false parts, 0
+  unfired controls** (`round19/v22/v22-classify-r13-shield-t128-cli-sexual-r16b.json`):
+  * integrity ok (72 pins; the 26 stage gates [19, 19, 18, 20 x 7, 19, 20 x 3, 19, 20 x 8, 19 x 3]; the
+    moderate-sexual policy against the registered list; pad id 11, 20 pad positions; B_out's OUTC-00 claim
+    decoded to row **107** = P0 + n + S - 1); replay: the run binding reproduced (3,303 positions, 263,324
+    challenges); hash layer 28,672 columns authenticated (482.8 MB hashed);
+  * **per commitment, all 84: disclosed dimension 0 on every A, endpoint and boundary commitment (B0..B26), 2
+    on every H**; the 28 masking commitments 0; mask / CFS 440,221 entries recomputed, 0 differing; **joint
+    figure 0 over 1,052,800 identified word pairs** (= the sum of the parts);
+  * the 12 classifier slots 12 / 12 with **19 public tables rebuilt, 0 taken**; **B-3 from the checkpoint**
+    (whole file authenticated 87753e30...; embedding 1cb276d1... and margin 6429a242... = the statement's;
+    the receipt's margin vector = the derived row, 0 of 4,096 differing); NL-1 12 / 12; D41 ok (one chunk
+    [0, 35), plan 55);
+  * block stages: **11 / 11 table-free slots equal in each of the 26 stages** (0-4, 8, 9, 17, 20-22, each at
+    its own G); slots 5-7, 10-16, 18, 19 OPEN by the capture option (declared); NC-1 (score precision -> 17)
+    and NC-2 (ceps -> 2) fire; the six table-needing R13 controls not applicable here;
+  * full zero-data preimage on the DECLARED SAMPLE (IN-C, blocks 0 / 12 / 25 with their boundaries, OUT-C
+    with B_out: 15 of 84 commitments): **9,668,010 view entries, 0 differing**; joint preimage: the four
+    couplings respected;
+  * controls 15 / 15 fire: CC-1..CC-6, CC-8 / CC-9, **C13-1..C13-4 at pad id 11**, J-1..J-3.
+- 13:25 UTC queues A and B started (light, side by side) and the owner check (cpu 2.9 / 4.5); toolchecks
+  80 / 0 / 0.
+- 13:25:26-13:26:44 UTC [MEASURED] **the input owner's check on the gate's real run**: the named r16b
+  binary's `input-owner`, fresh process re-verifying all 28 segments: exit 0, `content-checked`
+  (content_total 35, range [0, 35), not-flagged, checked against the verified input root), 77.6 s, peak RSS
+  2.29 GiB (`round19/cap/real/owner.log`). The decommitment and the content were read in place.
+- 13:3x UTC the gate's capture tree against frozen-r16b [MEASURED]: exactly three files differ
+  (classify_capture_tests.rs 226553ba, plane_index.rs ce79803c, run_capture.rs 8292b1c6) and one is new
+  (gate19_capture_tests.rs 90a2871b, the version every round-19 capture was made with); target/ aside, nothing
+  else. Patches re-saved against frozen-r16b: `round19/cap/H19-1.classify_capture_tests.patch` (4c7372a5...),
+  `H19-1-2.gate19_capture_tests.patch` (8d5f3e0a...), `H19-3.plane_index.patch` (48f8dad1...),
+  `H19-4.run_capture.patch` (7b1dbefc...); the early `H19.*.patch` pair (before the fixture fix) removed.
+- 13:25-15:10:10 UTC **queues A and B done** (`r19_chain.done`) [MEASURED, frozen v22, light 1.3 / 2, side by
+  side]: **all 13 R13-rung captures PASS, 0 false parts, 0 unfired controls** (865-916 s each, ~631 s at L 1,
+  ~1.0 GiB): block stages 23 / 23 per stage at G 20 / 21, the 7 R13 controls fire in every record; 12 / 12
+  classifier slots, 19 tables rebuilt, 0 taken; disclosed 0 on every A / E / B, 2 on every H; full preimage
+  1.24 M (L 1) / 2.25 M (L 2) entries, 0 differing; 14 controls (+ C13-1 not applicable at full length) or 15.
+  Failing-first: frozen v21's pin rule refuses all 14 round-19 captures (31 pins each); frozen v21's whole gate
+  on `classify-r13-rung-L2-v1-short11` exits 1 after 693 s, but by a KeyError in its controls (its classifier
+  slots are not evaluated without pins) instead of a written refusal: **finding F19-G2** (also in v22's code
+  path; fail closed either way; fix for v23); v22 refuses the r14, r14-short and R-C1 captures by name. D41
+  over the R13 27-id item: label 1 (OR), no fail-closed reason; chunk 1 alone -> "chunks [0] have no accepted
+  proof"; a duplicated chunk -> "chunk 1 appears twice". **v22 suite in the frozen snapshot: 98 OK** (58.6 s).
+- 15:10-15:11 UTC summaries (guarded light 2.5 / 3.5, peak 1.24 GiB): `round19/R19_SUMMARY.json` (96e333e8...;
+  14 records, every record's tool hashes = the v22 manifest, all pass), `round19/C13_PER_N.json`
+  (65bcae83...): cross-verdict equal at L 1, at L 2 and at n = 1 / 11 / 22; six short-vs-full pairs: nothing
+  beyond the public length differs; C-13 per n: known words 31 / 21 / 10 / 9 (rung n = 1 / 11 / 22 / 23) and 93
+  at the real item (73 template + 20 pad, 35 hidden), joint 0 over hidden and known words at every n, B_out's
+  OUTC-00 claim at rows 9 / 19 / 30 / 31 / 107 (the only B_out claim with fixed row bits), segment bytes
+  independent of n; the real run's `/3` statement: 38 keys classified, the length fields re-derived, pad id 11.
+- 15:11:49 UTC `round19/R19_SUMMARY.md` written (c01ff9f5...; plain summary first; §8 = what a classifier
+  privacy statement draft still needs).
+- **State at hand-back:** round 19 complete. NOT a privacy acceptance. No job of this lane is pending (both
+  sub-lanes handed back; guard: nothing of this lane live). Tools v22 frozen (ab703596...); the working copy
+  stays at v21 (F19-G1). Open for the coordinator: the full preimage on the real capture's 23 unsampled blocks
+  (~3.2 h, a 7.2 / 9 GiB heavy job alone) and a capture with table values (or export-derived folds) for the
+  real shape's 12 table-needing block slots; the token lane: adopt H19-1..H19-4 (R19-PIN-1, F19-1), note O19-1;
+  the D40 figure at R13 Shieldstral is 2^-108.25.
+
+## Gate round 20 (coordinator brief, 2026-10-29 ~16:35 UTC): close round 19's two declared limits on a real Shieldstral capture (token frozen-r17)
+
+- 16:35:51 UTC round 20 started (agent of the coordinating session). Brief: tools v23 (the pin reading for frozen-r17's
+  run_capture.rs cce0fc2a... / plane_index.rs ce79803c..., [READ] with digests; F19-G1 = search upward for `results/`;
+  F19-G2 = refused pins write a refusal and exit with a clear code; failing-first: v22 must refuse an r17 capture by
+  name); LIMIT 1 = the REAL values bundle `classify-r13-shield-t128-cli-hate-r17-values` (moderate-hate, 442 recorded
+  statement tables, arrays.bin 2.25 GB) gated in full: all 23 block slots on all 26 real blocks + everything round 19
+  checked (one cpu-class job alone; declared from round 19's peaks + 25%, higher if the arrays need it: measure first on
+  a block subset); LIMIT 2 = the FULL zero-data preimage over all commitments of a real capture (~3.2 h; detached with a
+  .done marker, alone; no sol- / astra- job live or waiting first); freeze v23, round20/R20_SUMMARY.md, what remains
+  for a classifier privacy statement draft. Not a privacy acceptance.
+- [READ] CLAUDE.md; LANE_RULES with addenda (guard 88af4c63; lean-memory rule: one job declaring >= 3 GiB box-wide);
+  register notes gate round 19 / token rounds 16b and 17; this ledger's round 19; R19_SUMMARY.md; token round 17
+  (frozen-r17: 303 files, list 23a95876...; 6 paths vs frozen-r16b, all `#[cfg(test)]`); FROZEN note; DESIGN_CLASSIFIER
+  §18 by the token ledger's description.
+- 16:36 UTC guard: idle (0 of 11.89 GiB, locks free); no WINDOW_HOLD, no lane HOLD.
+- [COUNTED] the r17 values bundle against round 19's real capture: 72 / 72 source pins, exactly ONE differs:
+  `src/private_block/run_capture.rs` 8292b1c6 (the gate's H19-4) -> **cce0fc2a**; `plane_index.rs` is ce79803c in both
+  (= the gate's H19-3, already read in v22's GATE19_PATCH_READINGS). So v22's pin rule refuses the r17 bundle by name on
+  run_capture.rs alone (to be shown).
+- [READ] run_capture.rs 8292b1c6 (capture-tree-r16b) -> cce0fc2a (frozen-r17): +436 / -9 lines (diff
+  round20/readings/run_capture.H19-4_to_r17.diff). The module is declared `#[cfg(test)] mod run_capture;`
+  (private_block.rs:258-259 at frozen-r17): no release build compiles it. What moves: (a) `use` lines; (b) `Rec.statement`
+  / `Bundle.statement` / `Bundle.export_replay` fields; (c) at an R13 BLOCK stage with values, each `Tab::Pub` table that
+  `r13_statement_table` names (the 7 folds, gamma_a / gamma_m, the RoPE pairs on Q / Kv, the group column, the exp /
+  ACT3 tables, the ACT support) is pushed to `statement` with its digest — `write_public_table` now RETURNS the same
+  sha256 it writes, the bytes it writes are unchanged; (d) an R13 DD block stage with values is refused by name; (e)
+  `export_replay` (new; re-derives each statement table from an export layer and compares SHA-256s, refuses on any
+  difference or a missing required table); (f) `write_bundle` refuses a bundle with statement tables until the replay
+  passed and appends the replay to the README note. No stage-file key, no run.json key and no value encoding moves (the
+  token lane's keyset compare: 167 / 142 / 11 keys, 0 only in r17). Classification: **test-only, recorder-side; moves no
+  receipt, block-stage or statement byte; adds refusals only**. The gate does not rely on the recorder's replay: it
+  TAKES the 15 statement tables per block stage from the capture and checks the terminal identity on them (what the
+  replay adds is the recorder's attestation that they are the export's; noted as such).
+- staging_v23 = a copy of frozen_v22 (scripts, tests, counts, original; 80 / 0 / 0 against the v22 manifest), 16:41 UTC.
+- 16:42-16:47 UTC staging_v23 changes [dev]:
+  * `zk60_native_rg_classpins`: `TOKEN_R17_READINGS` (run_capture.rs **cce0fc2a...** -> base 8292b1c6 = H19-4, test-only,
+    the reading above; plane_index.rs ce79803c = H19-3 by digest), `_reading_v23`, `classify_capture_pins_v23` (v22's
+    rule with the r17 readings in front; v22's function takes an optional reading / port, its own call unchanged), the
+    dispatcher -> v23; `r17_self_check()` [COUNTED]: manifest_final_r16b (301) vs manifest_final_r17 (303) moves 6 paths,
+    of the 72 pinned files exactly run_capture.rs / plane_index.rs; the three files re-hashed (frozen-r17's two, the
+    gate's capture-tree H19-4 copy). **F19-G1:** `_repo_root()` searches upward for a directory holding `results/` and
+    `ops/zkp-mvp/` (classpins `_full`, r13_pins `repo_root()` / `_ROOT`); refuses by name when none.
+  * `zk60_native_rg_classgate`: **F19-G2** — right after `class_integrity`, a capture whose source pins are refused gets
+    a written record with status **REFUSED** (`refusal`: by "source pins", the refusals by name), nothing else runs,
+    `main` exits **3** (`EXIT_REFUSED`; 0 = PASS / PASS-WITH-DECLARED-LIMITS, 1 = NOT-OK); CC-4 reads B-3 with `.get`
+    (a terminal record without B-3 is a control that did not fire, never a KeyError). **Memory:** `_sha` STREAMS (1 MiB
+    chunks) and is cached per process on (path, size, mtime, inode): v22 read each listed file whole, six times per run
+    (integrity + CC-6 + C13-2 / -3 / -4 x2); with the values bundle that is a 2.25 GB bytes object each time.
+  * tests: class `ClassifierV23` (5): the r17 reading + self-check + v22's own rule refusing both r17 captures by name
+    + a moved r17 digest refused; F19-G1 at depth 4 (working copy) and 5 (frozen), refused outside the repo, the r13
+    pins' 119-digest self-check from the found root; the streamed hash; F19-G2 on an r14 capture (main -> exit 3,
+    record status REFUSED, no `replay` member); the r17 RUNG values capture: integrity 72 pins, G [20, 21], replay, R13
+    block terminals 23 / 23 at both stages, none open, the R13 controls fire.
+- 16:45 UTC [MEASURED, manifest-only, unguarded < 0.2 GiB] **failing-first on the pin rule** (`round20/ff_pins.py` ->
+  `round20/dev/ff_pins_staging.json`): frozen v22 refuses BOTH r17 captures (the real hate values bundle and the r17 rung
+  values bundle) by name, each with exactly ONE refusal: "src/private_block/run_capture.rs: cce0fc2a4062 has no reading";
+  v22 accepts round 19's r16b captures; staging v23 accepts the two r17 captures (72 / 72) and the r16b ones, refuses an
+  r14 short capture and an R-C1 capture by name; the r17 self-check ok.
+- 16:46:38-16:46:47 UTC [MEASURED, guarded light 1.3 / 2, 9 s, 0.14 GiB] ClassifierV23 in staging: 5 / 5 OK.
+- 16:48:31 UTC dev measurement launched (detached, guarded cpu 6.5 / 8 = round 19's dev declaration, alone): staging v23 on
+  the REAL values bundle: load, integrity, replay, per-commitment views held, then the R13 block terminals WITH values on
+  blocks 0, 2, 25 (one call, controls on), RSS sampled (RssAnon / RssFile) - `round20/dev/real_values_dev.py`.
+  First checkpoint: after load RSS 2.56 GiB = RssAnon 0.45 + **RssFile 2.12** — the array store's per-reference SHA-256
+  touches every page of the 2.25 GB arrays.bin, so the whole store is resident (file-backed, counted by the guard's RSS
+  watchdog); integrity with the streamed hash 1.3 s (ok, 72 pins).
+- 16:49:45-16:50:52 UTC [MEASURED, guarded light 0.8 / 1.5, beside the dev job (lean rule: light <= 1 GiB), peak 0.43
+  GiB] the whole staging_v23 suite: **103 OK** (98 + 5) in 66.8 s.
+- 16:48:31-16:55:13 UTC [MEASURED, dev, guarded cpu 6.5 / 8, alone; 402.6 s; guard peak RSS 5.09 GiB, cgroup 5.29]
+  `round20/dev/real_dev.json`, staging v23 on the REAL values bundle: load 2.56 GiB (RssAnon 0.45 + RssFile 2.12: the
+  whole 2.25 GB store resident, every reference SHA-256-checked); integrity ok (72 pins) in 1.3 s; replay ok; the 84
+  commitments' views held: 4.32 GiB (anon 2.21 + file 2.12; round 19 at this point 3.07 with an 0.83 GB store); **the
+  R13 block terminals WITH values on blocks 0 (G 19), 2 (G 18), 25 (G 19): 23 / 23 slots equal in each, none open, 15
+  captured tables taken per stage, ~15 s per block**; all 7 R13 controls fire (R13-G, NC-1, R13-N, R13-GC, R13-ACT,
+  R13-W, R13-L); after the call 4.37 GiB, transient peak 5.18 (anon 2.96). So the values add the store's 1.3 GiB of
+  file pages and almost no anon memory; the block part of a full run is ~26 x 15 s.
+- **Declaration [MODEL from MEASURED]:** round 19's in-process peak 5.70 GiB (in the preimage phase, 0.83 GB store) +
+  1.30 GiB of extra resident store = ~7.0 GiB; + 25% -> **need 8.8 / cap 10.5**, cpu class, alone.
+- **Plan change (the brief's B-3 rule):** one gate process streams the 7.7 GB checkpoint for B-3 (an authenticated
+  whole-file SHA-256 and the tied tensor; the tau fold is cached in-process). A separate limit-1 job and limit-2 job
+  would each run B-3, i.e. stream the checkpoint TWICE, which the brief forbids. So limits 1 and 2 are closed by ONE
+  detached cpu job: the whole v23 gate on the real values bundle with the FULL zero-data preimage over all 84
+  commitments (no `--preimage-names`): every part round 19 checked, all 23 block slots on all 26 blocks, B-3 from the
+  checkpoint once. ~4.2 h [MODEL: round 19's 2,439 s + 23 more blocks x ~530 s]. It runs last, after the light queue
+  A, once no other guarded job (sol- / astra- included) is live or waiting.
+- 16:57:05 UTC **tools v23 FROZEN:** `frozen_v23/` (+ `original/`, `counts/`), manifest
+  `gate-tinyllama.tools.frozen.v23.sha256` = 80 files, **64f4b7572674caef31d21da014869b119a58b186418174ad97d21400f7440230**
+  (check 80 / 0 / 0; staging == frozen). Patches: v22 -> v23 scripts c94ba62d... (21,092 B), tests 9b40b852... (6,131 B);
+  vs original 29776eb8... No new module (TOOLS list unchanged); changed: classpins, r13_pins, classgate, the test file.
+- 16:57 UTC v23 INSTALLED in the gate's working copy `ops/zkp-mvp/gate-tinyllama/{scripts,tests,counts}`
+  (`round20/r20_install_wc.py`: 80 manifest files copied from frozen_v23, nothing deleted; check 80 / 0 / 0). The
+  working copy was at v21 since round 19 (F19-G1); its suite runs in queue A.
+- 16:57:43 UTC official chain `round20/r20_chain.sh` launched (detached; marker `r20_chain.done`): queue A (light,
+  frozen v23: the r17 rung values capture gated in full; failing-first = frozen v22's whole gate on that r17 capture,
+  the pin rule v22 vs v23, v23 on an r14 capture by the CLI; the v23 suite in the frozen snapshot and in the working
+  copy), then queue R (`r20_gate_r.sh`: waits for `alone_check.py` -- no other guarded job live or waiting, no hold
+  file -- then the whole v23 gate with the FULL preimage on the real values bundle, cpu 8.8 / 10.5, max 8 h).
+  Guard at launch: Sol's `sol-r14-run-build-5` (build 2.5 GiB) had started at 16:57:29; queue A's light jobs run beside
+  it (no job >= 3 GiB live); queue R lets it finish first.
+- 16:57:40-17:13:07 UTC [MEASURED, frozen v23, light 1.3 / 2, beside Sol's builds (no job >= 3 GiB live); 926 s, peak
+  1.03 GiB] **the r17 RUNG values capture `classify-r13-rung-L2-v1-r17-values` (made by frozen-r17's adopted H19-1
+  hook): status PASS, no declared limit, 0 false parts, 0 unfired controls** (`round20/v23/v23-...-r17-values.json`):
+  72 pins (v23); block stages 23 / 23 at G 20 and 23 / 23 at G 21, none open, 15 captured tables taken per stage; the 7
+  R13 controls fire; 12 / 12 classifier slots (19 rebuilt, 0 taken); full preimage 2,247,034 entries, 0 differing;
+  joint preimage C4 with block_stages = true; 14 controls fire + C13-1 n/a (full-length item).
+- 17:13-17:27:09 UTC queue A, rest [MEASURED, frozen v23 / frozen v22, light]:
+  * **failing-first, frozen v22's WHOLE gate on the r17 rung values capture** (`round20/ff/ff-v22-gate-r17-rung.log`):
+    its integrity refuses the pins by name (run_capture.rs cce0fc2a), it runs on, and ends after 701 s in
+    `KeyError: 'B3_margin_vector'` in `class_controls` (CC-4), exit 1 -- F19-G2 reproduced on an r17 capture, no record
+    written;
+  * the pin rule v22 vs v23 from the FROZEN copies (`round20/ff/ff-pins-v22-v23.json`): ok -- v22 refuses both r17
+    captures with exactly the one refusal "src/private_block/run_capture.rs: cce0fc2a4062 has no reading"; v23 accepts
+    them (72 / 72), still accepts round 19's r16b captures, refuses the r14 / R-C1 ones; r17 self-check ok;
+  * **F19-G2 fixed, by the CLI**: frozen v23 on the r14 short capture `classify-rc3-rung-L2-v1-short20` -> status
+    REFUSED (by source pins: classify.rs / classify_run.rs / classify_tied.rs at r14 digests, named), record written
+    (`round20/ff/ff-v23-refuses-r14.json`), **exit 3**, 0.7 s;
+  * **the v23 suite: 103 OK in the frozen snapshot** (70.1 s) **and 103 OK in the WORKING COPY** (68.1 s): F19-G1
+    fixed (round 19: 8 errors there, FileNotFoundError .../home/victor/results/...).
+- 17:27 UTC queue R waiting in its alone-check loop: Sol's `sol-r14-actual-non-dd-prove-1` (cpu 9.6 GiB) started at
+  17:27:03, so mine lets it go first (brief). No hold file.
+- 17:30:10 UTC **queue R launched ALONE** (`round20/r20_gate_r.alone_at_launch.json`: no live guarded job, no guard
+  process waiting, no FIFO ticket, no hold; Sol's short R14 jobs had drained): frozen v23's whole gate on
+  `classify-r13-shield-t128-cli-hate-r17-values` with the FULL preimage, cpu 8.8 / 10.5, max 8 h; record
+  `round20/v23/v23-classify-r13-shield-t128-cli-hate-r17-values.json`, marker `round20/v23/...values.done` and
+  `round20/r20_chain.done`. ~4.2 h [MODEL]. Sol's 17:11 log line asks for no light job > 1 GiB beside a >= 3 GiB
+  proof; this lane launches nothing else until it ends.
+- 17:42-18:12 UTC queue R running alone [MEASURED, guard status samples]: RSS 4.35 GiB (17:42), 6.10 (17:52), 6.56
+  (18:02), 5.70 (18:12) -- under the 8.8 declaration and the 10.5 cap; MemAvailable >= 8.9 GiB.
+- 18:21-19:00 UTC queue R still running alone [MEASURED, guard status samples]: RSS 5.16 / 5.97 / 5.84 / 5.88 / 5.30
+  GiB (the full preimage's per-commitment transients); nothing else guarded live.
+- 19:09-19:58 UTC queue R still running alone [MEASURED, guard samples]: RSS 6.32 / 6.37 / 5.71 / 5.17 / 5.81 / 5.84
+  GiB; nothing else guarded live.
+- 20:08-20:57 UTC queue R still running alone [MEASURED, guard samples]: RSS 5.84 / 5.89 / 6.49 / 5.94 / 5.41 / 5.95
+  GiB; 3 h 26 min in at 20:56.
+- 17:30:10-21:33:37 UTC **queue R: the REAL Shieldstral values bundle gated by frozen v23 with the FULL preimage**
+  [MEASURED, cpu 8.8 / 10.5, ALONE the whole run (guard samples every ~10 min showed no other guarded job); 14,605.5 s;
+  guard peak RSS **6.47 GiB** (record 6.63), cgroup 9.08 (page cache), MemAvailable >= 8.1 GiB; exit 0]
+  `round20/v23/v23-classify-r13-shield-t128-cli-hate-r17-values.json` (e94d6e7b...): **status PASS -- no declared limit,
+  0 false parts, 0 unfired controls**:
+  * integrity ok (72 pins by v23's rule; the 26 stage gates [19, 19, 18, 20 x 7, 19, 20 x 3, 19, 20 x 8, 19 x 3]; the
+    moderate-hate policy against the registered list (P0 78, S 1, n 35 -> item 114, **14 pad positions at id 11**);
+    B_out's OUTC-00 claim decoded to row **113** = P0 + n + S - 1); replay: run binding reproduced (3,303 positions,
+    263,324 challenges); hash layer 28,672 columns authenticated (482.8 MB);
+  * per commitment, all 84: disclosed 0 on every A / endpoint / boundary commitment, 2 on every H (= round 19's per
+    kind; rows / claims / groups of the block commitments equal round 19's); mask / CFS 440,221 entries, 0 differing;
+    joint 0 over 1,052,800 word pairs;
+  * 12 / 12 classifier slots, 19 public tables rebuilt, 0 taken; **B-3 from the checkpoint, ONE stream in the round**
+    (whole file authenticated 87753e30...; embedding 1cb276d1... and margin 6429a242... = the statement's; the receipt's
+    margin vector = the derived row, 0 of 4,096 differing); NL-1 12 / 12; D41 ok (one chunk [0, 35), plan 49);
+  * **LIMIT 1 CLOSED: block stages 23 / 23 slots equal in EACH of the 26 stages, none open**, each at its own G, 15
+    captured statement tables taken per stage, 0 structure failures (group columns 3-4 groups; ACT3 3-4 groups of
+    4096 small words), group factors ok, plane index (R13) and I/O wiring ok; the export's constants = the transcript
+    line's; 489 s for the block part (384 s in the 26 stages); **all 7 R13 controls fire** (R13-G, NC-1, R13-N,
+    R13-GC, R13-ACT, R13-W, R13-L: round 19 could fire only 2 of them on a real capture);
+  * **LIMIT 2 CLOSED: full zero-data preimage over ALL 84 commitments (none sampled): 81,731,058 view entries, 0
+    differing**, 21,504 salted leaves authenticated (13,381 s); joint preimage: all four couplings respected, C4 with
+    block_stages = true;
+  * controls 15 / 15 fire: CC-1..CC-6, CC-8 / CC-9, **C13-1..C13-4 at pad id 11**, J-1..J-3.
+- 21:34 UTC [MEASURED, unguarded < 0.2 GiB, JSON only] `round20/summarize_r20.py` -> `round20/R20_SUMMARY.json`
+  (24e1d6b9...): both r17 records PASS; limit_1_closed / limit_2_closed / status without declared limits: true; the
+  real record's disclosure per commitment kind = round 19's real record's; the hate run's published `/3` statement
+  (38 keys, all classified; item 114 = 78 + 35 + 1, pad 14, verdict row 113, pad id 11) has the capture's input root
+  4cf9e8ae...; suites 103 / 103 (frozen, working copy).
+- 21:36 UTC `round20/R20_SUMMARY.md` written (b4db9702...; plain summary first: **both limits are closed on one real
+  capture**, status PASS with no declared limit; §6 = what a classifier privacy statement draft still needs, with a
+  proposed R19-1 refusal-channel wording for the review to attack; §7 findings F20-G1 (fixed), O20-1 (the store's
+  resident pages count in the guard's RSS), N20-1 (token lane: the r17 bundle README names the round-19 tree)).
+  Tools re-checked at hand-back: frozen_v23 80 / 0 / 0, the working copy 80 / 0 / 0 against the v23 manifest.
+- **State at hand-back (21:36 UTC):** round 20 complete. NOT a privacy acceptance. No job of this lane is pending
+  (guard idle: 0 of 11.89 GiB, locks free). Tools v23 frozen (64f4b757...) and installed in the working copy. The
+  checkpoint was streamed once in the round (B-3 inside queue R). Next for the coordinator: the statement draft and
+  its distance figure (§6 items 1-3); a review of token r17's export replay or a gate-side derivation of the 15 taken
+  block tables (§6 item 4); the gate-side owner record on the hate run; N20-1 to the token lane.
+
+## Gate round 21 (coordinator brief, 2026-10-29 ~21:37 UTC): the Shieldstral classifier privacy statement DRAFT, and the gate's remaining evidence items
+
+- 21:37:35 UTC round 21 started (agent of the coordinating session). Brief: (1) an independent gate-side derivation of
+  the 15 block tables per block stage (17 arrays: seven weight folds with the R13 multipliers, gamma_a / gamma_m, RoPE
+  cos / sin on Q and Kv, the group column, exp, ACT3, the ACT support) from Astra's T128 export
+  `results/zk60_shieldstral_export_20261026/native_low_h24_t128` (read-only), ACT3 against an independent SiLU
+  generator, compared byte for byte with the hate-values capture for all 26 blocks; guarded cpu job declared from a
+  small measured subset + 25% (O20-1: count any memory-mapped store), after Astra's real-app proves; (2) the per-run
+  distance figure for one Shieldstral T128 run (26 R13 blocks + IN-C / OUT-C) with the 2^-108.25 refusal term; (3) a
+  gate-side owner record on the hate run, and on short items at other n from round 19's captures; (4) the DRAFT
+  statement `docs/zkmatrix-poc/ZK60_PRIVACY_STATEMENT_CLASSIFIER_SHIELDSTRAL_T128_DRAFT.md` (D33 / D36 structure;
+  moderate wording pending Victor; the policy list a parameter); (5) ledger + `round21/R21_SUMMARY.md`. Not a privacy
+  acceptance.
+- [READ] CLAUDE.md; LANE_RULES with addenda (guard 88af4c63; lean-memory rule); register D1, D33, D36, D37-D41, D45
+  and the notes for native R12 / R12b / R13, token rounds 13-17, gate rounds 18-20; the accepted statements D33 / D36
+  (structure only, not edited); R19_SUMMARY / R20_SUMMARY (§6); R19_REFUSAL_RECOUNT.json; DESIGN_CLASSIFIER refs.
+- 21:38 UTC guard: idle (0 of 11.89 GiB, locks free); no WINDOW_HOLD. Astra's PROGRESS (last entry 19:20 UTC): the first
+  real app post's three category proves are QUEUED (waiting for the heavy slot my round-20 run held until 21:33); not
+  yet launched. My heavy jobs wait for them (brief).
+- [READ] the derivation sources in token frozen-r17 (the definitions, not the recorder's replay): `accuracy_fold.rs`
+  (coefficients per site, the fold), `accuracy_act.rs` (ACT3 table / support, group column), `accuracy_aligned.rs` +
+  `accuracy_groups.rs` (gate fold multipliers c_j = m_j 2^(G - s_j), G = max(s_j, 17); scaled SiLU words x
+  2^(24 - sh_h + e_out - base_out)), `accuracy_tables.rs` (`silu_table_for`, the (0, -8) Shieldstral member),
+  `argument.rs` (SC_QMM / KMM / VMM / WO Rows-axis folds, SC_GMM / UMM / DMM Columns-axis folds, `rope_tables_at`,
+  `table_values_exp_at`, the gains in SC_DZC), `argument_accuracy.rs` (the R13 TAB and QZC / KVZC slots),
+  `trained_block.rs` (export loading, `pad_matrix` with the head map), `trained_accuracy.rs` (`load_for_registry`),
+  `shape.rs` (`head_slot`, `slot_is_true_head`), zkp-core `mle.rs` (`eq_table_msb`), `field.rs` (p = 2^64 - 2^32 + 1,
+  Fp2 nonresidue 7), `protocol.rs:1146-1152` (beta, gamma, alpha; g_x = gamma TAG_x, TAG_U8 133 / EXP 129 / ACT 134).
+- [READ] Sol's `results/zk60_1b_native_20261017/r13/reference_silu.py`: a float64 transcription of the int12 SiLU
+  definition (floor(x / (1 + e^-x) / 2^e_out + 0.5), clamp +-32767) over the NINE standard members only (not the
+  Shieldstral (0, -8) member), and it WRITES its vectors into Sol's working tree -- so it is NOT run here (write set);
+  its formula is transcribed side-effect-free into the gate's script, beside an exact-arithmetic generator (Decimal,
+  60 digits) and the native tree's own reference vectors `r13_vectors/silu_*.bin` (all ten members, read-only).
+- 21:52 UTC `round21/derive_block_tables.py` written (the gate's own derivation, nothing of the token lane imported or
+  run): per block stage, every export array SHA-256-checked against its layer manifest, each manifest against
+  profile.json, profile.json against the run's export digest 2ba468f9...; the R13 public data rebuilt (group folds,
+  G_k = max(s_j, 17), the scaled SiLU tables, the registry checks); the 17 arrays derived with exact arithmetic (folds
+  by 16-bit limbs in float64 BLAS, every partial sum an integer < 2^37, then reduced mod p); compared with the capture
+  by SHA-256 AND byte for byte (pread of arrays.bin at the recorded offset: no mmap, so the store is page cache, not
+  RSS -- O20-1). SiLU words against four sources (float64 definition, Sol's formula transcribed, exact 60-digit
+  Decimal, the native tree's `r13_vectors`); exp words against `exp_table_generate` (float64 and exact). Eight
+  non-vacuity controls C21-1..C21-8 on the first evaluated block.
+- 21:54:23-21:54:28 UTC [MEASURED, guarded light 1.0 / 1.5, 5 s, guard peak RSS 0.31 GiB (maxrss 0.33, RssFile
+  0.02)] dev run on stage 1 (layer 0) with controls (`round21/dev/dev_b1.json`): **17 / 17 arrays equal by digest and
+  byte for byte** (4,546,560 entries), G 19 = the stage line's; 3 SiLU groups (-5,-13), (-4,-12), (-3,-11), each
+  equal to all four sources (closest approach to a rounding tie 1.0e-5); exp (e_s 2, f_e 9) = its generator; **all 8
+  controls fire exactly as predicted** (a w_q weight +1 -> only fold(w_q); a q multiplier -> only fold(w_q); a gate
+  coefficient -> only fold(w_g); fold(w_v) at slot 6's point -> only fold(w_v); the sin sign -> only the two sin
+  tables; a raw SiLU word -> only act3; G + 1 -> only fold(w_g); layer 1's export for stage 1 -> all 7 folds, both
+  gains, the group column and act3 differ). So the derivation is light, not heavy: declaration for the full run 0.33
+  GiB + 25% -> need 0.5 / cap 1.0.
+- 21:56:28-21:56:29 UTC [COUNTED, guarded light 0.8 / 1.5, 1 s, 0.04 GiB] `round21/classify_run_counts.py` ->
+  `round21/CLASSIFY_RUN_COUNTS.json` (513c376d...): **per-run distance of one Shieldstral T128 classifier run =
+  2^-68.19** (235,660,902 draws: IN-C 110,192; 26 blocks x 8,932,968; OUT-C 373,862; 27 boundaries x 108,032; the
+  input endpoint 2,816), the refusal term 2^-108.25 (count 879,360 / p^2), salt guessing 2^-105.65 (N_leaf
+  5,359,616), transcript pre-query <= 2^-108.0 (A bounded by 2^20, not measured: the replay needs the store resident),
+  the rest < 2^-125. Controls: K-0 the same residual function reproduces D36's L22 2^-70.35 from round 9's geometry;
+  K-1 every boundary draws 108,032 (the frozen script's C3 figure). The draw count is COUNTED from the capture's
+  geometry and the READ draw sites; it is NOT confirmed by value (the stage-47 root-rebuild replay was never ported
+  to the classifier stages or R13: owed item for the review).
+- 21:58:32 UTC chain `round21/r21_chain.sh` launched DETACHED (marker `round21/r21_chain.done`): waits on
+  `round21/astra_wait.py` (Astra's app workers use guard labels `pm-classify-{seqgen,prove,verify,inowner,label}` and
+  HOLD their prove while any guarded job is live; go when the box is alone AND three `pm-classify-label` runs ended
+  after 21:33:40Z, or -- if Astra has started nothing since then -- after an idle deadline, or at a hard deadline
+  04:00Z), then ONE guarded cpu job `gate21-derive-26`, need 0.5 / cap 1.0 (dev 0.33 GiB + 25%), max 1800 s: all 26
+  blocks + the arrays.bin SHA-256 + the 8 controls -> `round21/derive/DERIVE_ALL.json`. No checkpoint stream, no
+  prove, no verify in this round.
+- 22:00 UTC task 3 decided as READ-only (brief: "read, don't re-prove"; the rule against streaming the checkpoint): an
+  input-owner re-run would re-verify 28 segments and stream the 7.7 GB checkpoint, so the gate-side owner record is
+  built from the existing evidence. `round21/owner_record.py` (46d810b1...) -> `round21/owner/OWNER_RECORD.json`
+  (09b824df...) [READ, unguarded < 0.1 GiB]: (1) the hate run's input-owner (token round 16, `tio16-owner-hate`, exit
+  0, content-checked, content_total 35, range [0, 35), verdict not-flagged, against the statement's input root
+  4cf9e8ae... re-verified over 28 segments; binary named by the token lane's real_runs.json e94cecf9..., the path
+  since rebuilt to dae5abd7...) -- and that root IS the hate-values capture's (round 20's PASS record); (2) the gate's
+  own input-owner on its round-19 re-prove (named r16b binary dfb8025e..., re-hashed equal; root c8027b13...): both
+  PASS. (3) Short items at n != 35: NO owner record is possible -- round 19's 9 rung short captures were made
+  in-process by H19-1, which drops the decommitment (no input.dec, no run dir); the gate's C-13 per-n checks are the
+  public-side evidence. (4) Astra's 17-id app post: its pipeline runs `inowner` per category; not run yet -> owed.
+  Nothing private read (no decommitment, no content file).
+- 22:01-22:06 UTC the DRAFT statement written:
+  `docs/zkmatrix-poc/ZK60_PRIVACY_STATEMENT_CLASSIFIER_SHIELDSTRAL_T128_DRAFT.md` (D33 / D36 structure: plain words
+  first; scope with binaries r16b dfb8025e / r17 81bd8624, frozen-r16b 04d94bc0 / frozen-r17 23a95876, the 72 pins,
+  export 2ba468f9, identity 29aeba6c, the policy list as a parameter evaluated at the moderate three; the sentence with
+  2^-68.19 per run; the refusal channel in plain words; the small-n sentence; steps 1-5 with what is measured and what
+  is MINE; the residual table with the arithmetic; conditions, operating rules (D45(1)-(4)), findings, must-not-claim,
+  lapse list, owed list, evidence index with digests). Marked DRAFT, NOT accepted; the all-26 derivation slot to be
+  filled when the chain lands.
+- 22:06 UTC Astra still idle (no `pm-classify-*` since 21:33; last Astra ledger entry 19:20 UTC). `astra_wait.py`'s
+  idle deadline moved from 23:15 to **22:45 UTC** (the helper is re-run fresh each loop; the running bash script is
+  not edited): if Astra starts by then the chain waits for its three categories; if not, the 2-minute light-memory
+  derivation runs and gets out of the way.
+- 22:45:14 UTC the chain's wait ended at the idle deadline (`round21/derive/astra_wait.at_launch.json`: alone, no
+  `pm-classify-*` run since 21:33:40Z: Astra started nothing); one guarded cpu job, alone.
+- 22:45:14-22:45:37 UTC [MEASURED, guarded cpu 0.5 / 1.0, 22.9 s, guard peak RSS 0.29 GiB, exit 0]
+  `round21/derive/DERIVE_ALL.json` (5c2c7111...): **all 26 block stages, 442 / 442 arrays equal to the hate-values
+  capture by SHA-256 AND byte for byte (118,210,560 entries)**; arrays.bin (2,253,896,728 B), the 26 stage files and
+  run.json re-hashed equal to the capture manifest; export profile = the run's 2ba468f9...; **G_k derived from the
+  export = the stage line in 26 / 26** ([19, 19, 18, 20 x 7, 19, 20 x 3, 19, 20 x 8, 19 x 3]); 3-4 SiLU groups per
+  layer, 7 distinct members incl. (0, -8), each equal to the float64 definition, Sol's formula, exact Decimal and the
+  native r13_vectors (closest tie approach 1.0e-5); 5 exp tables (e_s 1, 2, 3, 4, 6) = generator; **8 / 8 controls
+  fire**. Marker r21_chain.done = 0. No checkpoint stream.
+- 22:46 UTC the DRAFT statement's Step 3 / §7 / §10 / §11 filled with the all-26 result (draft sha256 db89f427...,
+  51,407 B); owner record re-run (unchanged, Astra's n = 17 post still not run).
+- 22:47 UTC `round21/R21_SUMMARY.md` (cffc21b3...) and `R21_SUMMARY.json` (fdeb6270...; `summarize_r21.py`
+  54413083...).
+- **State at hand-back (22:47 UTC):** round 21 complete. NOT a privacy acceptance. No job of this lane pending (guard
+  idle). The draft goes to an independent privacy review next. Owed (draft §10): the review; the stage-47 draw replay
+  at the classifier stages / R13; NL-1 S3-S5 + surjection on the classifier and R13-redefined slots; the C-R1 / C-R2
+  census for the classifier absorbs; an owner check at n != 35 (Astra's 17-id post when it runs); Victor's strict /
+  moderate ruling; the check of token 16b / 17; the security owner and Victor.
+
+## Gate round 22 (coordinator message, 2026-10-29 ~22:50 UTC): the draft's §10 owed items 2, 3 and 4
+
+- 22:51:37 UTC round 22 started. Brief: (2) the stage-47 root-rebuild replay (G-R4 by value) at the classifier
+  stages and the R13 blocks, confirming §4's draw count by value; (3) NL-1 S3-S5 and the terminal surjection (with
+  TS-1) on the 12 classifier slots and the seven R13-redefined block slots; (4) the C-R1 / C-R2 hash-input census for
+  the classifier absorbs. Do NOT edit the draft (under independent review, results/zk60_privacy_review_20261029/);
+  results and a proposed-changes list in round22/R22_SUMMARY.md. Heavy priority: Astra's first app post, then token
+  round 18 (tio18-*); status before each heavy step; one >= 3 GiB job box-wide; real-capture tools as cpu class. An
+  item needing a new capture / re-prove / checkpoint stream is NOT run: name the command and cost. Not a privacy
+  acceptance.
+- 22:51 UTC guard idle (0 of 11.89 GiB; locks free); no tio18-* or astra job live at this moment.
+- 23:0x UTC plan [READ the existing tools]: item 2 = a Rust TEST-ONLY port of the stage-47 GR4 replay
+  (`trained-1b-gate-tk9/.../gr4_token_tests.rs`, which replicates the run prover's body on ONE seeded `ZkRng` and is
+  checked by the production verifier) to `prove_classify_run_with` (stage IN-C, R13 blocks, stage OUT-C) in a new gate
+  copy of token frozen-r17 (`ops/zkp-mvp/gate-tinyllama/gr4-tree-r17/`), run at the R13 h24 rung (seconds, ~1 GiB);
+  the real Shieldstral shape would need a seeded re-prove (~8 GiB, checkpoint stream) and is NOT run. Item 4 = a
+  READ census of the classifier path's unkeyed BLAKE3 inputs and the run-profile constructor length. Item 3 is
+  delegated to a FORK of this agent (exclusive write set `round22/item3/` + `ops/zkp-mvp/gate-tinyllama/r22-item3/`;
+  NL-1 S3-S5 via the Poly ring + frozen nl_check, the surjection via ts_trained with a classifier loader; rung
+  captures first); its report is merged here.
+- (clock note: the "23:0x UTC plan" stamp above was written at 22:56 UTC.)
+- 22:58 UTC item 3 forked (background agent, its own write set); its job `gate22-item3-ts-dev` (light 1 GiB) is live
+  beside token round 18's `tio18-green` (build class 6.5 GiB, running its test binary at ~3.9 GiB).
+- 23:00-23:03 UTC **item 4, the hash-input census** (`round22/census/`):
+  * [MEASURED, guarded light, 3 s / 0.13 GiB and 27 s / 0.80 GiB] `hash_census.py` (9b2a2433...) runs the frozen v23
+    classifier replay with the transcript classes and the blake3 constructor wrapped (lengths only, no value kept):
+    the R13 rung `classify-r13-rung-L2-v1` -> `CENSUS_RUNG_L2_v1.json` (59614924...) and the REAL hate capture ->
+    `CENSUS_REAL_HATE.json` (9868205e...; `--lazy-store`: array references resolved without re-hashing, so the 2.25 GB
+    store is not made resident (O20-1); round 20 checked every reference and round 21 re-hashed the whole store, both
+    equal). Real: replay ok, 263,324 challenges (= round 20), 3,303 positions, keyed rule; **C-R2: the constructor input
+    is 12 + 73 = 85 B, not 47**; **W-2: no absorb input of 84, 85 or 86 B among the run's 36 absorb lengths (nearest 81
+    and 87)**; every one of 287,236 F_T calls keyed. **A, the transcript-query count, MEASURED = 287,237** (constructor
+    + 13,330 absorbs + 273,906 squeezes, every instance incl. the position tags' clones): replaces §4's bound 2^20
+    (pre-query term 2^-109.87 instead of <= 2^-108.0; the total stays 2^-68.19).
+  * [READ] `C_R1_READ.json` (d3923ea0...): the unkeyed BLAKE3 inputs on the classifier path in token frozen-r17
+    (13 sites: the classifier's embedding / margin-vector / template / profile / public-statement / calibration /
+    schedule digests, the run context (guarded at run time by `c_r1`), the R13 block digest, the boundary and endpoint
+    spec digests, the trained identity, and the generators' refill). **C-R1 holds**: apart from the generators' refills
+    (the reserved 40-byte class; their keys are keyed-derived from OS entropy) every input's length formula exceeds 40
+    for every admissible parameter (minimum the template digest's 45 + 8k); none depends on the hidden content.
+- 23:05-23:13 UTC item 2 prepared [READ the native code, then written]: `round22/gr4/gr4_classify_tests.rs` (the
+  test-only port of gate round 10's token GR4 replay to `prove_classify_run_with`: the body replicated on ONE seeded
+  `ZkRng`, a 32-byte probe after each stage; (2) the count BY VALUE per stage: a fresh seeded generator advanced by the
+  gate's FORMULA bytes (hiding (rows - mask_base) n + rows Q fp + nn salts; H + 2 (n - 1); M 2 sum L + 2 N Q + 8 m fp +
+  4096 salts) must give the prover's probe; (3) every root rebuilt in the predicted order -- IN-C B_in / A_in / M_in /
+  H_in (H from the replayed challenges, tau, the ctl clause), per R13 block B_{k+1} / A / M / H (`prove_core`'s R13
+  path restated: the ACT3 histogram, query values and table), OUT-C A_out / M_out / H_out; (4) five non-vacuity
+  perturbations; (5) the input endpoint in situ; verified by the production `verify_classify_run`); three tests (L2 v1
+  whole, L2 v0 short n = 1, L1 tie whole). Gate copy `ops/zkp-mvp/gate-tinyllama/gr4-tree-r17/` = token frozen-r17
+  303 / 303 files equal except `token_io/gate19_capture_tests.rs` (+ one `#[path]` line; not a capture pin) and the
+  new module. Chain `round22/gr4/r22_gr4.sh` launched DETACHED 23:13:55 UTC (marker `round22/gr4/r22_gr4.done`): waits
+  until no other lane's guarded job is live or waiting, twice 60 s apart (token round 18's tio18-* chain is running),
+  then the test build (build 2.7 / 3.5) and the three replays (cpu 2.0 / 3.0, the review's form).
+- 23:10-23:13 UTC the independent privacy review returned NOT ACCEPTABLE YET
+  (`results/zk60_privacy_review_20261029/CLASSIFIER_T128_PRIVACY_REVIEW.md`, read in full): BLOCKING P-1 (NL-1 has no
+  entry at all on the 7 R13-redefined block slots: S1-S5 + surjection + TS-1 needed there, S3-S5 + surjection on the
+  12 classifier slots; rung first, then the real capture) and P-2 (the GR4 replay at the rung, L = 1 and 2, not at the
+  real shape); must-change P-3..P-9, notes P-10..P-15; item 4 reported closed (A = 287,237). The fork (item 3) was
+  sent P-1's exact scope. Coordinator: after the items land, write draft v2 (P-3..P-10 + a disposition table), keep v1
+  as `..._DRAFT_v1.md`.
+- 23:15-23:18 UTC draft v2 prepared (coordinator: write v2 after round 22's items land; v1 kept): v1 copied byte for
+  byte to `docs/zkmatrix-poc/ZK60_PRIVACY_STATEMENT_CLASSIFIER_SHIELDSTRAL_T128_DRAFT_v1.md` (db89f427..., = v1);
+  v2 written at `..._DRAFT_v2.md` with P-3..P-10 taken in (the one-post corollary J x 2^-68.19 with its four
+  hypotheses; prove-batch / r18 not covered until named; admissibility revealed by every accepted proof; the three
+  plain-words fixes; rules R1-R4 + condition C-7 "no non-public post through the app until failure status is served
+  only to the authenticated author" + C-8 refusal rate before non-public posts; D20 timing / memory, the app's
+  `timings.work_s`, the guard-cap margin, the app's salted SHA-256 out of scope; which binary made each piece of
+  evidence; the end-aligned overlap), the notes P-11..P-15, A = 287,237 (pre-query 2^-109.87), and a §12
+  disposition table. Two slots (§3 Step 4 G-R2 / G-R4, §10) wait for round 22 items 3 / 2. The original
+  `..._DRAFT.md` (= v1 bytes) is removed when v2 is final (the rename).
+- 23:16 UTC the fork reported: the 7 R13 slots it uses = SC_DZC 14, QZC 15, KVZC 16, SZC 17, FZC 18, TAB 19 (the six
+  bodies argument_accuracy.rs redefines) + SC_LZC 3 (its Dom::L lookups change at R13); SC_DD and the DD softmax twin
+  not applicable (no classifier DD profile). Surjection on the rung L2-v1 (frozen tokents, unmodified, reads the /7
+  schema) [MEASURED, light]: A-in 3/3 surjective disclosed 0, H-in 3/4 disclosed 2 (joint {2,3}), E-token-in 0, A-out
+  16/16 0, H-out 4/5 2 (joint {3,4}), B-out 0, block A 36/36 0, block H 8/9 2 (joint {7,8}), Input 0; its controls and
+  NL-1 S1-S5 still running.
+- 23:18 UTC the GR4 chain waits: token round 18's mutation jobs (tio18-mut-*, build class 2.9 GiB) run back to back.
+- 23:23:27 UTC the GR4 chain's quiet check passed (token round 18 idle for 60 s); the build `gate22-gr4-build` has
+  WAITED for the heavy lock since then: the fork's cpu jobs (gate22-item3-nl-real-dev, -nl-real, -ts-real-classifier
+  23:24-00:04, -ts-real-block1 since 00:04:38, max-secs 5400 -> at worst 01:34:38 UTC) took it back to back
+  (admission is not FIFO). 00:18 UTC the fork reported [MEASURED]: NL-1 S1-S5 PASS on the rung (classifier 12/12 in
+  4 challenge modes, S3 35/35, S5 all fire; the 7 R13 slots x 2 blocks at G 20 / 21: T-0 14/14, E-0 14/14, S1 / S4
+  14/14, S3 25/25, S5 all fire) and on the REAL hate capture (1.53 GiB, 100 s; lazy store); the real classifier-stage
+  surjection analysed all 6 roles in 65 s (A-in / E / A-out / B-out disclosed 0, H-in / H-out exactly 2) but its record
+  was lost when TS-1 hit max-secs. Asked the fork (00:18) to launch no further cpu / build job until
+  `round22/gr4/r22_gr4.done`, and to stop real-block surjection at one block if it takes > ~1 h (name the rest).
+- 00:23 UTC coordinator: Astra's first real post resumed 00:15 and waits for the heavy lock since 00:17; after the
+  fork's ts-real-block1, NO cpu / build job (the gr4 chain included) until Astra's three categories are done; stop
+  block 1 cleanly if it runs past ~00:50 (if the script supports it), name the rest.
+- 00:24:00 UTC my still-QUEUED build guard (pid 485350, `gate22-gr4-build`, no child ever started) withdrawn with
+  SIGTERM (never SIGKILL; guard exit 70 = queued) so it cannot race Astra for the lock; the first chain ended with
+  marker `round22/gr4/r22_gr4.done` = "build" (a withdrawal, not a build failure). 00:24:41 UTC relaunch
+  `round22/gr4/r22_gr4b.sh` DETACHED (marker `r22_gr4b.done`): first waits on `round22/gr4/astra_done.py` (three
+  `pm-classify-label` runs after 00:15Z, or Astra stopped: none live / waiting and the last ended > 15 min ago), then
+  the same quiet check, build and three replays. The fork was told the coordinator's instruction and to wait for
+  `r22_gr4b.done`, not the withdrawn `r22_gr4.done`.
+- 00:26 UTC fork: `gate22-item3-ts-real-block1` has no clean stop hook (only a signal, which neither the fork nor I
+  send: the coordinator said not to kill a guard), so it runs to completion or its max-secs 5400 (worst case 01:34:38
+  UTC) and may delay Astra's post by up to ~70 min -- stated plainly for the coordinator. Landed [MEASURED, log]: real
+  block 1 A 36/36 groups surjective, disclosed 0 (818 s); H, Input and TS-1 in progress. **Rung surjection official
+  PASS** [MEASURED, `classify-r13-rung-L2-v1-r17-values`, 3,864 s, 1.14 GiB]: 12 roles (IN-C, OUT-C, block 1 at G 20,
+  block 2 at G 21): A / E / B / Input disclosed 0, every H exactly 2; TS-1 fires 12 / 12 incl. block A / H / Input; the
+  review controls C1 / C2 / G7-D3 fire and the rest do not, as predicted.
+- 00:54 UTC coordinator: the fork's `gate22-item3-ts-real-block1` held the heavy lock past the 00:50 cut-off (Astra and
+  Sol's R14 build waiting): save the partial result, then stop it cleanly (SIGTERM, never SIGKILL); record real-block
+  surjection as "one block partial, the rest named"; no new cpu / build job until Astra's three categories are done.
+- 00:54:32 UTC partial saved: `round22/ITEM3_REAL_BLOCK1_PARTIAL.json` + `round22/item3_real_block1_partial.log` (the
+  job's own log lines) [MEASURED]: real block 0 (stage-01) A 36 groups, 36 surjective, disclosed 0 (818 s); H 9 groups,
+  8 surjective, disclosed 2 (joint {7, 8}) (2,573 s cumulative); Input 2 / 2, disclosed 0 (2,580 s); TS-1 not landed.
+  00:54:40 UTC SIGTERM to its GUARD (pid 488596, the guard's stop path): guard exit 75, child 143 ("guard received
+  signal 15"), 3,011 s, peak 0.85 GiB, ts_end 00:54:49Z. Astra's `pm-classify-seqgen` started at once. The fork was told.
+- 00:5x UTC the fork handed back (`round22/item3/ITEM3_REPORT.md`, 3be42c0a...; scripts in
+  `ops/zkp-mvp/gate-tinyllama/r22-item3/`; nothing pending) [MEASURED]: **NL-1 S1-S5 PASS** on the 12 classifier slots
+  and the 7 R13-changed block slots (SC_DZC, QZC, KVZC, SZC, FZC, TAB + SC_LZC; SC_DD n/a), frozen `nl_check`, four
+  challenge modes, on three rung captures (L2 at G 20 / 21, short n = 1, tie: T-0 classifier 12 / 12, R13 14 / 14, E-0
+  14 / 14, S1 / S4 all, S3 35 / 35 and 25 / 25, S5 all fire) and on the REAL hate capture (classifier slots + blocks 0
+  and 2 at G 19 / 18: R13 T-0 / E-0 14 / 14, S3 55 / 55 at the real (N, d), 100 s, 1.53 GiB; the classifier T-0 not
+  repeated, it needs the checkpoint stream, round 20 measured it 12 / 12); **surjection + TS-1 PASS on the rung** (12
+  roles, TS-1 12 / 12; short n = 1 TS-1 6 / 6); **real shape partial** (classifier-stage roles same figures, record lost
+  to the TS-1 time limit; real block 0 three roles, no TS-1). Remaining named with commands and costs (report §5): TS-1
+  at the real classifier stages (v2 wrapper, cpu 1.0 / 2.0, ~7-10 min [MODEL]); TS-1 on real block 0 and further real
+  blocks (~1 h of a cpu slot each); NL-1 on the other 24 real blocks (~26 x 25 s, 1.6 GiB). Merged into draft v2 §3
+  Step 4 "G-R2" and §10.
+- 01:44:42 UTC Astra's three categories done (astra_done.py go: three `pm-classify-label` runs, all exit 0, the last
+  01:44Z); the relaunched GR4 chain then found the box quiet.
+- 01:45-01:52:35 UTC **item 2, the G-R4 replay BY VALUE** [MEASURED, `round22/gr4/`; build `gate22-gr4-build` 3 min 17 s
+  exit 0 first time; three replays exit 0, 7-14 s each, guarded cpu 2.0 / 3.0]: at the R13 h24 rung, L 2 (gates 20 /
+  21) verdict 1 whole item, L 2 verdict 0 short item n = 1, L 1 tie whole item -- in each: **the production
+  classifier verifier accepts the seeded replica**; **every stage's draw count predicted by the gate's formula equals
+  what the prover consumed (fresh-generator probe) and what the replay stream consumed**, stage by stage (IN-C
+  6,259,840 B = B_in 100,096 fp + 65,536 salts, A-in 35,328 + 16,384, M-in 6,474 + 4,096, H-in 44,542 + 16,384; each R13
+  block 118,593,824 B = B 100,096 + 65,536, A 4,994,304 + 65,536, M 17,812 + 4,096, H 1,898,494 + 65,536; OUT-C
+  7,161,056 B = A-out 265,216 + 16,384, M-out 8,784 + 4,096, H-out 99,838 + 16,384); run stream L 2: 14,581,690 fp +
+  540,672 salts = 250,608,544 B = (counted draws - the endpoint's) x 16 + (salts - the endpoint's) x 32; **every root
+  rebuilt in the predicted order** (IN-C B_in / A_in / M_in / H_in, per block B_k+1 / A / M / H, OUT-C A_out / M_out /
+  H_out: all true); **5 / 5 non-vacuity perturbations move exactly their roots and nothing earlier**; the input
+  endpoint in situ 2,816 drawn words + 2,048 salts pairwise distinct. Cross-check [COUNTED]: round 21's counting
+  script's geometry and formula on the rung captures' files (`round22/gr4/count_rung.py`; `COUNT_RUNG_L2_v1.json`,
+  `COUNT_RUNG_L1_v1.json`) gives exactly the replay's per-part counts and run-stream totals (L 2 14,581,690 / 540,672;
+  L 1 7,570,984 / 339,968): the same function that produced §4's Shieldstral figure from the real capture's geometry.
+- 01:54:42 UTC the box alone: launched `round22/ts2_real.sh` DETACHED (marker `round22/ts2_real.done`): TS-1 and a
+  written record of the surjection at the REAL classifier stages with the fork's v2 wrapper, cpu 1.0 / 2.0, max 1500 s.
+- 01:55 UTC coordinator: Astra's post done (all three categories proved, verified, owner- and label-checked by
+  01:44); record the n = 17 owner check read-only and cite it in v2 (P-9: r16b receipts at n = 17, three policies).
+- 01:58 UTC [READ, no .dec / content / activation opened] `round22/OWNER_RECORD_N17.json` (dcf54d86...) from the app
+  lane's public `real_app_demo_1/input_owner_capture.json` and `sexual.json` / `violence.json` / `hate.json`: 17 content
+  ids, the named r16b binary dfb8025e under all three moderate policies, each input-owner exit 0 content-checked
+  content_total 17 range [0, 17) not-flagged; each statement digest = the owner record's; identity 29aeba6c; three
+  distinct roots 60efbf79 / 952e06e3 / 92a6aafd; item lengths 90 / 90 / 96, pads 38 / 38 / 32: PASS. Cited in v2 (§0,
+  §1, §3 Step 4 owner checks, §10 item 4, §11, §12). v2's G-R4 / G-R2 / §10 slots filled with the round-22 results.
+- (clock note: the "01:58 UTC" stamp of the entry above was written at 01:56:40 UTC.)
+- 01:54:42-02:00:35 UTC [MEASURED, guarded cpu 1.0 / 2.0, alone, 353 s, 0.11 GiB, exit 0] the real classifier stages'
+  surjection with TS-1 (the fork's v2 wrapper, `round22/item3/ts2-real-hate-classifier-stages.json`, 6da6296a...):
+  A-in 3 / 3, E-token-in 1 / 1, A-out 16 / 16, B-out 2 / 2 onto, disclosed 0; H-in 3 / 4 and H-out 4 / 5 disclosed
+  exactly 2 (joint {2, 3} / {3, 4}); **TS-1 6 / 6 fire**: status PASS. Merged into v2.
+- 02:02 UTC `round22/R22_SUMMARY.md` (c2378313...) written. Draft v2 final for re-review:
+  `docs/zkmatrix-poc/ZK60_PRIVACY_STATEMENT_CLASSIFIER_SHIELDSTRAL_T128_DRAFT_v2.md` (cfbfeafe..., 70,894 B); v1 kept
+  as `..._DRAFT_v1.md` (db89f427..., byte-identical to v1); the original `..._DRAFT.md` (v1's bytes, compared equal
+  first) removed: the rename is complete. The register's pointer to the draft should now name `_DRAFT_v2.md`
+  (coordinator; this lane does not edit the register).
+- **State at hand-back (02:03 UTC):** round 22 complete. NOT a privacy acceptance. No job of this lane pending (the
+  guard shows only token round 18's tio18-*). Item 2 PASS at the rung (L = 1, 2); item 3 PASS on the rung and the
+  real classifier stages, the real R13 block partial (named); item 4 done (A = 287,237); n = 17 owner record PASS.
+  Next: the coordinator routes the privacy re-review of v2; the named real-block items (TS-1 on a real block, more
+  real blocks, NL-1 on the other 24 real blocks) only if the re-review asks for them.
+
+## Gate round 23 (coordinator message, 2026-10-30 ~02:13 UTC): the re-review of v2, draft v3, condition C-9
+
+- 02:14 UTC round 23 started. [READ] the re-review `results/zk60_privacy_review_20261029/CLASSIFIER_T128_PRIVACY_REREVIEW_v2.md`
+  in full: **ACCEPTABLE WITH CHANGES**; P-1 / P-2 closed (P-1 apart from TS-1 + the claim census on a real block);
+  must-change text R-1 (rung vs real block rows / claims; what the carry rests on), R-2 (corollary hypothesis 1 vs one
+  run per process), R-3 ("one of at most 8 verdict patterns among ids admissible under all three policies"), R-4
+  (TS-1 on a real block as a stated limit + condition C-9 with its lapse trigger); notes N-1 (label the 16 unchanged
+  slots' carry [READ] + round-20 citation; S3 at five legacy pairs; G = 20 at the real shape), N-2 (guard cap in RSS
+  terms), N-3 (count_rung provenance), N-4 (ITEM3_REPORT stale on real TS-1), N-5 (dangling register pointer).
+  Coordinator: write v3 (keep v2 as `_v2.md`, add the R-items to §12); run C-9 (light class if single-threaded and
+  < 1 GiB, max 7200) and NL-1 on the other real blocks under the same rule; report v3's path / hash, C-9, NL-1.
+- 02:15:10 UTC **C-9 launched** DETACHED (`round23/c9.sh`, marker `round23/c9.done`): the round-22 v2 wrapper on real
+  block 0 (`--block-stages 1 --skip-classifier`: the three roles, TS-1 on each, the review controls on block A, the
+  claim census), LIGHT class need 1.0 / cap 1.5 (single-threaded; round 22's three roles peaked 0.85 GiB), max 7200 s,
+  beside token round 18's `tio18-s23-suite` (cpu 9.9 GiB); no heavy lock, no checkpoint stream.
+- 02:15:28-02:15:29 UTC **N-3** [MEASURED, guarded light, < 1 s each]: `round22/gr4/count_rung.py` re-run through the
+  guard on the L2 and L1 rung captures (`round23/logs/n3-count-rung{,-l1}.log`, guard JSONs): outputs
+  `round23/COUNT_RUNG_L{2,1}_v1.rerun.json` byte-identical to round 22's `COUNT_RUNG_L{2,1}_v1.json`. (Round 22's
+  `gr4/count_rung.log` is the earlier failed attempt of round 21's script, exit 1 on its Shieldstral-only refusal
+  check; the JSONs then came from an unguarded run of count_rung.py ~20 s later.)
+- 02:15:51-02:16:06 UTC **N-1, S3 at every real pair** [MEASURED, guarded light, 15 s, 0.08 GiB]
+  `round23/s3_all_pairs.py` -> `round23/S3_ALL_PAIRS_REAL.json`: Fact 2.1 (five regimes, frozen nl_check) at every
+  distinct (N, d) of all 23 block slots and the 12 classifier slots of the real capture (stage files only): **85 / 85
+  tight**, PASS; the block pairs {(8,3), (12,3), (13,2), (15,2), (15,3), (15,4), (18,4), (20,2), (20,3), (20,4), (20,5),
+  (22,5)} include the five the re-review named (legacy-only); every block slot's pair is the same in all 26 blocks.
+- 02:16:28 UTC **NL-1 on all 26 real blocks** queued DETACHED (`round23/nl26.sh`, marker `round23/nl26.done`): the
+  round-22 script `--parts r13 --lazy-store --no-b3 --skip-classifier-t0` (all blocks: covers G = 20 at the real
+  shape), cpu 2.5 / 3.5 (round 22: 1.53 GiB on two blocks), max 3600 s; it waits until no other lane's guarded job is
+  live or waiting, twice 60 s apart (token round 18 / Sol go first).
+- 02:18-02:21 UTC draft v3 prepared: `docs/zkmatrix-poc/ZK60_PRIVACY_STATEMENT_CLASSIFIER_SHIELDSTRAL_T128_DRAFT_v3.md`
+  (from v2, which stays at `_DRAFT_v2.md`, cfbfeafe...): R-1 (§3 Step 4: the rung's A 437 rows / 148 claims and H
+  248 / 55 against the real 4,577 / 146 and 4,390 / 54; the carry rests on the 26 identical real blocks, D33's
+  real-block controls on the same group structure, H's exact disclosure of 2 at the real block, TS-1 at the real
+  classifier roles), R-2 (corollary hypothesis 1: each run its own process under the named binaries; prove-batch needs
+  its own reading), R-3 (one of at most 8 verdict patterns among ids admissible under all three policies), R-4 (C-9 as
+  a stated limit + condition with its lapse trigger in §0, §3, §5, §9, §10), N-1 (the 16 unchanged slots' carry
+  labelled [READ] with the round-20 citation; S3 at all real pairs 85 / 85), N-2 (guard cap in RSS terms), N-4
+  (ITEM3_REPORT superseded note; the handed-back bytes kept as `ITEM3_REPORT.md.as-handed-back-0057`, 3be42c0a...;
+  the noted file 7e2d5d9c...), N-5 (header); §12 gains the re-review rows. Slots `[C-9 STATE]` and `[NL-1 ALL-26
+  STATE]` wait for the two runs.
+- **~02:50 UTC the laptop crashed** (hard; cause: Windows drive C: full, which holds the WSL disk file and the page
+  file -- not Linux memory; `ZK60_RESOURCE_PROTOCOL.md` §S9, D46). State at the crash [READ, files]: C-9 had run
+  02:15:10 -> crash; its only output was the guard log `round23/logs/c9-real-block0.log` (84 B, one line: "stage-01.json
+  BLOCK A: groups 36, surjective 36, disclosed 0 {}, joint [] (913.8 s)"); no record JSON (v2 writes it only after all
+  three role analyses), no guard JSON / done, no `c9.done`. NL-1 all-26 never left its wait loop (`nl26.alone.last`
+  19:49 PDT = 02:49 UTC: not alone, token round 18's `tio18-a5-batch` cpu 10.4 GiB live beside C-9); `nl26.log` empty,
+  no `nl26.launched`, no record, no `nl26.done`. The agent of this lane died with the session; nothing of this lane
+  runs now.
+- 05:26 UTC **crash and resume** (successor agent, coordinator brief ~05:2x UTC). [READ] the lane rules with all
+  addenda (newest 2026-10-30 05:20 UTC: guard `67e9478f...`; heavy jobs wait under 40 GiB free on C:, any job killed
+  under 8 GiB; delete test receipts, clean `*.incomplete`, no tree copies with `target/`, announce > 10 GB writers),
+  the protocol's §S9, this round-23 section and round 22, the re-review v2 (C-9 and its lapse trigger, (b)), v3's
+  slots, `c9.sh` / `nl26.sh` and their logs. Guard at 05:22 UTC: 7.2 of 11.89 GiB committed
+  (`sol-r14-corrected-dense-non-dd-1`, cpu 7.2, heavy lock held), DISK /mnt/c 134.7 GiB free. Plan: integrity of the
+  two runs' inputs first; then move the crashed attempt's partial outputs aside; relaunch both exactly as before.
+- 05:27:00-05:27:02 UTC **integrity after the crash** [MEASURED, guarded light 0.3 / 0.8, 2 s, 0.02 GiB, exit 0]
+  `round23/integrity_after_crash.py` (33827377...) -> `round23/INTEGRITY_AFTER_CRASH.json` (d7afb3b4...): **120 / 120
+  files equal, size and SHA-256, to the hashes recorded before the crash; none zero-byte or truncated**: the real
+  hate-values capture's 31 manifest files (run.json, stage-00..27, arrays.bin 2,253,896,728 B = 41d58c64..., README;
+  manifest self-consistent, no unlisted file); the frozen v23 tool tree, 80 / 80 against
+  `gate-tinyllama.tools.frozen.v23.sha256`; the in-code pins `g7/ts_trained.py` d6f6cf93..., `nl_check.py` e4db99a2...,
+  `nl_field.py` ea8ca392...; the round-22 wrappers `zk60_r22_classts2.py` 7a8e2649... and `zk60_r22_classnl.py`
+  4f0c2061... (round 22's records); the live guard 67e9478f...; the capture's named binary `zk60_classify.r17.release.bin`
+  81bd8624... (provenance; neither run executes it); drafts v1 db89f427... and v2 cfbfeafe... unchanged. No pre-crash
+  hash exists for `round20/alone_check.py` (6e2afdae...), `c9.sh` (00188caf...) and `nl26.sh` (722924dc...): each
+  non-empty, the Python compiles, and the two scripts read back as written at 02:15 / 02:16 (above). Also intact:
+  `S3_ALL_PAIRS_REAL.json`, the two count_rung re-runs (still byte-identical to round 22's) and draft v3 (77,732 B, no
+  NUL byte, ends on its last §12 row). Nothing differs: no STOP.
+- 05:27:44 UTC the crashed attempt's partial outputs moved aside (not deleted) to `round23/crashed_attempt1_0215/`
+  (record `MOVED.json`, 788af5e9..., sizes and hashes): `c9.log`, `c9.launched`, `c9.box_at_launch.json`,
+  `logs/c9-real-block0.log` (the block-A line), `nl26.log` (empty), `nl26.alone.last`; nothing else of either run
+  existed (no record JSON, guard JSON or done file). So the new run's log and record start empty.
+- 05:27:55 UTC **C-9 relaunched** DETACHED, unchanged script and caps (`setsid nohup bash round23/c9.sh >> c9.log`,
+  marker `round23/c9.done`): guard START `gate23-c9-real-block0-ts1` light need 1.0 / cap 1.5, max 7200 s, waited 0 s,
+  run 4d7355289a60; beside Astra's `astra-gpu-benchmark-l06` (gpu 2.8) and Sol's `sol-r14-capture-build-1` (queued);
+  lean-memory rule kept (C-9 declares 1.0 GiB). **NL-1 all-26 re-queued** DETACHED, unchanged (`nl26.sh >> nl26.log`,
+  marker `round23/nl26.done`): it waits until no other lane's guarded job is live or waiting, twice 60 s apart
+  (`nl26.alone.last` at 05:28: not alone).
+- 07:02 UTC C-9 progress [MEASURED, the job's own log and its incremental record
+  `round23/c9-real-block0-ts1-census.json`; shared box, n = 1: beside `tio18-a5-batch` cpu 10.4 GiB 05:52-~06:50, then
+  Sol's `sol-r14-legacy-full-suite-1` cpu 4.2 GiB]: real block 0 (stage-01) **A** 4,577 rows, 36 groups, 36 surjective,
+  disclosed 0 (771.6 s); **H** 4,390 rows, 9 groups, 8 surjective, disclosed 2 (joint {7, 8}) (2,941.6 s cum.);
+  **Input** 38 rows, 2 / 2, disclosed 0 (2,948.6 s) -- the same figures as round 22's partial; **claim census: A 146
+  claims, H 54, Input 2: identical claims 0, equal published values 0, same data weights in one group 0, same-group
+  pairs sharing a data row 0, on all three roles**; **TS-1 on A fires** (group 17, honest disclosed 0 -> pair removed
+  32,768 Fp; 2,584.2 s for that one row). TS-1 on H, Input and the review controls on block A still to run;
+  elapsed 5,533 s of the 7,200-s cap at the last flush, so the cap may cut the run before them (the record is flushed
+  after every TS-1 row, so whatever lands is kept).
+- 07:27:55 UTC **C-9 attempt 2 ended at its cap** [MEASURED, guard]: "KILL gate23-c9-real-block0-ts1: exceeded
+  --max-secs 7200", guard exit 75 (`c9.done` = 75), child_wall 7,201 s, peak RSS 0.85 GiB, min MemAvailable 3.14 GiB.
+  Landed (record `round23/c9-real-block0-ts1-census.json`, 8db0818f..., `written_after` "TS-1 row 2"; log
+  `logs/c9-real-block0.log` 0f47e642...; guard JSON ad514296...): the three role analyses and the census (above),
+  **TS-1 on A fires** (group 17, 0 -> 32,768, 2,584.2 s) and **TS-1 on H fires** (group 0, 0 -> 32,768, 551.3 s; at
+  6,084 s). NOT landed: TS-1 on Input (running 1,116 s when cut; its cheapest singleton group has 524,288 data
+  generators, 16x H's 32,768) and the review controls on block A. So C-9 is NOT complete from attempt 2.
+- 07:28:56 UTC **C-9 attempt 3 launched** DETACHED (`round23/c9b.sh`, eb031133..., marker `round23/c9b.done`): the same
+  command -- the same unmodified v2 wrapper (7a8e2649...), the same capture (hash-checked 05:27), `--block-stages 1
+  --skip-classifier`, light need 1.0 / cap 1.5 -- with only `--max-secs` sized to the job, 25,200 s (the re-review's
+  N22-1: "sized to the slot it is given"; attempt 2's measured rows give ~6,100 s to the end of TS-1 on H, plus
+  Input's TS-1 and the eight controls), and its own output names (`c9b-real-block0-ts1-census.json`,
+  `logs/c9b-real-block0.log`, guard JSON / done) so the two runs never share a file. A full re-run rather than a
+  completion of the missing rows, so that one record of the named wrapper carries all of C-9 (and repeats attempt 2's
+  role analyses, census and TS-1 rows as a check). Guard START waited 0 s, run 0674e78f03ce, beside Sol's
+  `sol-r14-legacy-full-suite-2` (cpu 4.2). Lean-memory rule kept. This is the lane's own sizing decision, stated here
+  for the coordinator; attempt 2's record stays as it is.
+- 07:29-09:22 UTC attempt 3 [MEASURED, its log; shared box, n = 1]: A 36 / 36 disclosed 0 (764.3 s), H 8 / 9 disclosed 2
+  joint {7, 8} (2,667.4 s cum.), Input 2 / 2 disclosed 0 (2,674.9 s), TS-1 A fires 0 -> 32,768 (2,658.4 s), TS-1 H
+  fires 0 -> 32,768 (599.1 s) -- attempt 2's figures repeated; TS-1 on Input running.
+- 09:21:34 UTC **NL-1 all-26 started** (its queue found the box quiet twice 60 s apart: only this lane's C-9 live,
+  `nl26.alone_at_launch.json`): guard START `gate23-nl1-real-all26` cpu need 2.5 / cap 3.5, max 3600 s, waited 0 s, run
+  de828b86b314. Beside it only C-9 (light 1.0): lean-memory rule kept (no job declares >= 3 GiB).
+- 09:21:34-09:33:46 UTC **NL-1 S1-S5 on ALL 26 real blocks: PASS** [MEASURED, guarded cpu 2.5 / 3.5, 731 s, peak RSS
+  2.60 GiB (cgroup 2.96 GiB: above the declared 2.5, under the 3.5 cap -- declare >= 3.3 next time), exit 0,
+  `nl26.done` = 0; shared box, n = 1, beside C-9 only] the round-22 script unchanged (`zk60_r22_classnl.py`
+  4f0c2061..., frozen v23 modules' hashes in the record = the v23 manifest, nl_check pins e4db99a2... / ea8ca392...;
+  `--parts r13 --lazy-store --no-b3 --skip-classifier-t0`) -> `round23/nl-real-hate-all26.json` (95fce6d5...; log
+  `logs/nl26.log` 21aefd2e..., guard JSON f3ff5ea5...): the 7 R13-changed slots (SC_LZC 3, SC_DZC 14, QZC 15, KVZC 16,
+  SZC 17, FZC 18, TAB 19; SC_DD n/a) x 26 blocks = **182 slot instances**, blocks 0..25 at their own gate denominators
+  (G 20 x 18, 19 x 7, 18 x 1 = the capture's list; so G = 20 at the real shape is covered): replay ok, plane index ok;
+  **T-0 182 / 182** (its control, one terminal + 1, fires 182 / 182); **E-0 182 / 182**; in each of the four challenge
+  modes (random-1..3, run) **F-0 182 / 182, S1 premise / public factor / degree / budget 182 / 182, S4 miniatures and
+  terminal map onto 182 / 182**; **S3 30 / 30 tight** at the six real-shape pairs (15, 3), (15, 4), (18, 4), (20, 4),
+  (20, 5), (22, 5); **S5** N5-1 182 / 182, N5-2 130 / 130 (n/a at slack > 0: 52 = SC_DZC and SC_FZC x 26), N5-3 and
+  N5-4 fire, F-1 182 / 182. The classifier slots' T-0 is not repeated (it needs the checkpoint stream; round 20
+  measured 12 / 12; round 22 ran their S1-S5).
+- (between 09:34 and 10:30 UTC; the clock was not read at the edit) v3's three NL-1 slots filled with the result above (§3 Step 4 last G-R2 bullet, §10 "Closed" row, §12 N-1
+  row).
+- 07:28:56-11:34:14 UTC **C-9 attempt 3: PASS** [MEASURED, guarded light 1.0 / 1.5, child_wall 14,718 s, peak RSS 0.85
+  GiB (cgroup 0.88), exit 0, `c9b.done` = 0; shared box, n = 1] the round-22 v2 wrapper unchanged (7a8e2649...;
+  frozen tokents 16cbc5d0..., ts_trained pin d6f6cf93...; stage-0 self-test ok, 60 random systems, 0 sparse / dense
+  disagreements; 49 array references SHA-checked) on real block 0 (stage-01) of the hate-values capture ->
+  `round23/c9b-real-block0-ts1-census.json` (a2d2dea3..., `written_after` complete, status PASS; log
+  `logs/c9b-real-block0.log` ec11ebd9...; guard JSON 5d9f6938...):
+  * the three roles at width 2^14: **A** 4,577 rows, 36 / 36 groups onto, disclosed 0; **H** 4,390 rows, 8 / 9, disclosed
+    exactly 2 (joint {7, 8}); **Input** 38 rows, 2 / 2, disclosed 0; expectation (every A / Input 0, every H 2) 3 / 3;
+  * **the claim census** (D31's reopen check): A 146 claims, H 54, Input 2 -- **identical claims: none; equal
+    published values: none**; same data weights in one group: none; same-group pairs sharing a data row: 0; on all
+    three roles;
+  * **TS-1 (one claim's reserved pair removed) fires 3 / 3**: A group 17, H group 0, Input group 0 -- each honest
+    disclosed 0, pair removed 32,768 Fp (2,658 s, 599 s, 8,777 s);
+  * **the review controls on block A** (group 3, two claims): honest reference rank 32,770 = expected, disclosed 0;
+    **C1 shared reserved pair fires** (rank 32,768, disclosed 2); **C2 cm = 0 fires** (2); C3 lambda_c = 0, C6 cw =
+    delta, C8 pair weights Fp-dependent do not fire (0); G7-D1 (duplicate with its own pair) onto, rank 32,772,
+    disclosed 0; G7-D2 (exact copy) rank short by 2 (32,770 of 32,772), disclosed 0; **G7-D3 (a copy sharing the pair,
+    data weights differ in one row) fires** (2); original-form disclosure agrees in every row -- **exactly the
+    prediction** (C1 / C2 / G7-D3 fire, the five others do not), controls ok.
+  * Attempt 2's landed parts are equal to attempt 3's, timings aside (roles with their censuses, TS-1 rows A and H,
+    stage-0 self-test, 49 array checks): the computation repeats.
+  **C-9's lapse trigger does not fire**: TS-1 fires on A, H and Input, and the census finds no identical claims and no
+  equal published values. This is C-9's measured result, NOT a privacy acceptance; whether C-9 is met is for the
+  security owner.
+- 11:35-11:37 UTC v3's six C-9 slots filled with that result only (§0 round-22 bullet + a new "Gate round 23" bullet and
+  "What is still open"; §3 Step 4 G-R2 bullet + a fifth carry item; §5 C-9 row "State"; §10 "Closed" row and "Still
+  owed" item 1; §12 R-4 row); §11's round-23 row names the complete record (c9b), attempt 2's capped record, the crash
+  remnants and the integrity check; the header notes when the slots were filled. **C-9's lapse trigger text unchanged**
+  in §5 ("the statement lapses if TS-1 does not fire on A, H and Input, or if the census finds identical claims or
+  equal published values (D31's reopen check)") and §9. No slot marker remains.
+- 11:37 UTC **draft v3 final**: `docs/zkmatrix-poc/ZK60_PRIVACY_STATEMENT_CLASSIFIER_SHIELDSTRAL_T128_DRAFT_v3.md`, sha256
+  `c752abe6d8857df28c271e7d1fdfc84371f8a740dc8426d01fb08b8d449d46e4`, 82,957 B; v1 (db89f427...) and v2 (cfbfeafe...)
+  unchanged (re-hashed 11:37). `round23/R23_SUMMARY.md` (097ab15c...) written.
+- **Round-23 report (11:38 UTC):** round 23 complete; NOT a privacy acceptance; v3 goes to Victor through the
+  coordinator. [MEASURED] after the 02:50 crash: the inputs 120 / 120 intact; **C-9 PASS on real block 0** -- TS-1
+  fires on A, H and Input (3 / 3), the census over 146 / 54 / 2 claims finds no identical claims and no equal
+  published values, the review controls as predicted: **the lapse trigger does not fire**; **NL-1 S1-S5 PASS on all
+  26 real blocks** (182 / 182 slot instances, G 18 / 19 / 20). What failed: C-9 attempt 1 (the crash; remnants in
+  `round23/crashed_attempt1_0215/`) and attempt 2 (its 7,200-s cap, guard exit 75, `round23/logs/c9-real-block0.log`);
+  attempt 3 ran with a 25,200-s cap (the lane's sizing decision, above). Not measured: the classifier slots' T-0 again
+  (needs the checkpoint stream; round 20's 12 / 12 stands). Note: NL-1's peak 2.60 GiB RSS / 2.96 GiB cgroup exceeded
+  its declared 2.5 GiB (under the 3.5 cap); declare >= 3.3 next time. No job of this lane is pending (guard at 11:37:
+  only `tio19-mut-reused-draw-build`). Next: the coordinator routes v3 (and, if wanted, a re-review read of C-9's
+  record) to the security owner; the register's draft pointer is the coordinator's to move to `_DRAFT_v3.md`.
+
+- 2026-10-30 11:47 UTC COORDINATOR: v3 checked by an independent reader
+  (`results/zk60_privacy_review_20261029/CLASSIFIER_T128_V3_CHECK.md`: R-1..R-4 and N-1..N-5 in, numbers equal the
+  records). Two text corrections, made by the coordinator in v3: the S3 sentence now says 17 distinct pairs (85 =
+  17 × 5), not 12; the §10 NL-1 row now lists the per-mode checks (F-0, S1, S4) separately and gives S5's N5-2 as
+  130 / 130 with 52 n/a. v3 sha256 c752abe6d885… → 6356e35b339ada2d9984a1f56da96de9239b52e552584e1f698681d417860908. The attempt-3 cap change is accepted (register,
+  gate round 23 entry).
+
+## Gate round 24 (coordinator brief, 2026-10-30 ~15:34 UTC): re-pin the tools to token rounds 18, 19 and 19b
+
+- 15:34:54 UTC round 24 started (agent of the coordinating session). Brief: tools v24 from frozen_v23 (v23 kept):
+  the pins and mirrors that move r17 -> r18 -> r19 -> r19b (`src/private_block.rs` 2af1df7d -> 96c1cd16;
+  `tied_tables/derive.rs` c5bec3c6 -> 4b53222b -> 1d615010, i.e. `DERIVE_T16`, classtied's derive.rs citations and
+  `SHIELD_DEFAULT_CHECKPOINT`, which must mirror E7 incl. Rust's refusal of an empty declared `checkpoint_file`; the
+  CLI binary 841ba983 -> 6d65d32e), each verified against the frozen trees; a test of the mirrored checkpoint rule;
+  the pin / census checks against frozen-r19b passing with the new pins and failing with the old; the cheapest real
+  check that the re-pinned tools read a capture made by the r19b binary; freeze v24, ledger, R24 summary; draft v3
+  NOT edited; say what a v4 would need. Not a privacy acceptance.
+- [READ] CLAUDE.md; LANE_RULES with all addenda (newest D46: guard 67e9478f, C: floor 40 / kill 8 GiB, delete
+  test-only receipts, no `target/` copies, announce > 10 GB writers; lean-memory rule: one job >= 3 GiB box-wide);
+  RESOURCE_PROTOCOL S9; this ledger's rounds 20-23; REVIEW_R18 / R19 / R19B in full; the register's token round
+  18 / 19 / 19b entries; pins_r18_r19.json, pins_r19_r19b.json; frozen_v23's classpins, r13_pins, classtied,
+  classgate (integrity), the test file's ClassifierV22 / V23.
+- 15:45 UTC guard idle (0 of 11.89 GiB, locks free), C: 134.1 GiB free; no WINDOW_HOLD, no lane HOLD. frozen_v23
+  and the working copy both 80 / 0 / 0 against the v23 manifest (64f4b757...).
+- 15:46-15:48 UTC [MEASURED, unguarded < 0.2 GiB, hashing ~110 MB] `round24/readings.py` -> `round24/READINGS_R24.json`
+  (8cc99202...; diffs in `round24/readings/`): frozen-r16b / r17 / r18 / r19 / r19b re-hash to their manifests
+  (301 / 303 / 306 / 306 / 306, none moved, no unlisted file); r17 -> r19b moves 10 paths; the three capture pin
+  lists (OWN 38, SHARED 29, CLASSIFY 5 = 72) are equal in r17 / r18 / r19 / r19b and every listed file exists;
+  **exactly two pins move: `src/private_block.rs` 2af1df7d -> 96c1cd16 (r18) and `tied_tables/derive.rs` c5bec3c6
+  -> c5bec3c6 (r18) -> 4b53222b (r19) -> 1d615010 (r19b)** (= the brief, verified). derive.rs production text
+  (comment lines dropped, above `mod tests`) r16b -> r19b: 23 differing lines, all E7 (the absolute
+  DEFAULT_CHECKPOINT replaced by CHECKPOINT_IN_MODELS, default_checkpoint / _from, checkpoint_path_with, the call
+  site); no absorb / transcript / BLAKE3 in it, `Sha256::new(` 5 -> 5. classify_cli.rs (not a pin): `door` byte-equal
+  r17 vs r19b (7fa6e8cb...), and from `door` to the end of the file equal without comment lines (203 lines).
+  The five classifier binaries re-hash to their lists (r16b dfb8025e, r17 81bd8624, r18 110f0c53, r19 841ba983,
+  r19b 6d65d32e). **No frozen v23 tool names any classifier binary digest** (the binary is named only in a capture's
+  README note, the round records and the drafts), so the binary is NOT a tool pin to move. On this box the real
+  export declares no `checkpoint_file`, ZK60_MODELS is unset, HOME=/home/victor; the default file is a regular file,
+  7,698,241,104 B, 1 link.
+- 15:48 UTC `ops/zkp-mvp/gate-tinyllama/capture-tree-r19b/` = frozen-r19b copied (no target/), 306 / 0 / 0, 20.6 MB
+  (`round24/COPY_TREE.json`). 15:49:17 UTC chain `round24/r24_capture.sh` launched DETACHED (marker
+  `round24/r24_capture.done`): lean-rule wait, the lib test build (build 2.9 / 3.5), the binary re-hashed, then ONE
+  P-18 capture made by the r19b release binary at the classifier rung (cpu 1.0 / 2.0) into
+  `~/zk60-artifacts/token-io/captures/classify-rc3-cli-p18-r19b-gate24` (test-only: deleted once recorded, D46).
+- 15:49:36 UTC staging_v24 = a copy of frozen_v23 (scripts, tests, counts, original; 80 / 0 / 0 against the v23
+  manifest).
+- 15:49:17-15:52:29 UTC the capture chain [MEASURED, guard; box otherwise idle]: lean check ok at once; build
+  `gate24-build-tests` (build 2.9 / 3.5) exit 0, 188.1 s, peak RSS 2.37 GiB (cgroup 2.82), target/ 58 MB;
+  the r19b binary re-hashed = 6d65d32e...; capture `gate24-cap-p18-r19b` (cpu 1.0 / 2.0) exit 0, 2.9 s, 0.21 GiB:
+  "CLASSIFY CAPTURE THROUGH THE CLI (the named binary, sha256 6d65d32ea783): rung L=1, verdict 0, CLI prove 1.7 s,
+  CLI verify 0.3 s, recorded verify 0.4 s" -> `classify-rc3-cli-p18-r19b-gate24` (schema 7-classify-run, profile
+  `...rung-tc-t32-public-row-dev/1`, 1 block, 72 source pins, README names the r19b binary by path and sha256;
+  20.3 MB). Marker `r24_capture.done` = 0.
+- 15:50-15:53 UTC staging_v24 changes so far [dev]: `zk60_native_rg_r13_pins`: PRIVATE_BLOCK_T18 / DERIVE_T19 /
+  DERIVE_T19B / RUN_CAPTURE_T17, `TOKEN_R19B_READINGS` (private_block.rs 96c1cd16 -> 2af1df7d; derive.rs 4b53222b ->
+  c5bec3c6, 1d615010 -> 4b53222b), `TOKEN_R19B_DIGESTS` (the r19b terminal table), self_check extended (the r19b
+  terminals chained and re-hashed against frozen-r19b and manifest_final_r19b; frozen-r17..r19b in the tree list):
+  ok, 155 digests re-hashed (v23: 119). DERIVE_T16 / PRIVATE_BLOCK_T16 are NOT overwritten: in the gate's
+  reading-chain model they are the r16b links (overwriting would break the r16b self-check and misname the r16b
+  reading); the terminal for derive.rs moves to DERIVE_T19B in the new terminal table. `zk60_native_rg_classpins`:
+  `_reading_v24`, `classify_capture_pins_v24`, the dispatcher -> v24, `r19b_self_check()` (ok: of the 10 paths
+  moved r17 -> r19b exactly the two pinned ones; their chains r19b -> r17; files re-hashed in frozen-r18 / r19 /
+  r19b; the five CLI binaries re-hashed = their lists), `TOKEN_CLI_BINARIES` + `capture_cli_binary()` (report-only:
+  which named binary a CLI-path capture's README records; never a pin rule).
+- 15:53 UTC [MEASURED, unguarded < 0.2 GiB] on the new capture's manifest: **v24's rule accepts 72 / 72; frozen
+  v23's rule refuses it by name with exactly two refusals** ("src/private_block.rs: 96c1cd16270b has no reading",
+  "src/private_block/tied_tables/derive.rs: 1d6150100abb has no reading"); `capture_cli_binary` -> r19b.
+- 15:53-15:57 UTC staging_v24 changes, continued [dev]: `zk60_native_rg_classtied`: v23's absolute
+  `SHIELD_DEFAULT_CHECKPOINT` replaced by `SHIELD_CHECKPOINT_IN_MODELS` + `shield_default_checkpoint(env)` (derive.rs
+  1d615010 :53-60: ZK60_MODELS when set and non-empty, else HOME/models, else refused; a set ZK60_MODELS never falls
+  back) + `shield_checkpoint_path(decl, env)` (:65-70 and `regular`: a declared checkpoint_file wins and the default
+  is not evaluated; a non-string declaration, null included, refused; an EMPTY declared path refused, where v23's
+  `or` used the default); `_shield_stream` calls it (was :414); the READ comment (was :303) and the two docstrings
+  (:388 / :498) now cite r19b's digest and lines (Checkpoint::open :182-220, whole-file pin :216, consumed-tensor
+  pin :325, rotate :223-238, quantize :240-247, recompute_profile :287-336, the path at :304) beside r16b's. Left
+  as in v22 / v23 and said in the module text: Rust also refuses a SYMLINKED model file, the gate's `open` follows
+  it (both authenticate the bytes). `zk60_native_rg_classgate`: module text only. Tests: class `ClassifierV24` (8)
+  and ClassifierV23's port assertion now calls `classify_capture_pins_v23` by name (the dispatcher is v24's).
+- 15:56:15-15:56:25 UTC [MEASURED, guarded light 0.8 / 1.5, 10 s, 0.14 GiB] ClassifierV24 + ClassifierV23 in
+  staging: 13 / 13 OK (`round24/logs/dev-v24tests-2.log`; the first attempt named the module wrongly: an
+  ImportError of my command, not of a test).
+- 15:58:06 UTC [MEASURED, guarded light 0.8 / 1.5, < 1 s] `round24/pin_census.py` dev with staging v24 ->
+  `round24/dev/PIN_CENSUS_staging.json`: all verdicts true (below, re-run official with frozen v24).
+- 15:58:26 UTC dev run launched DETACHED: staging v24's whole classifier gate on the r19b P-18 capture (light
+  0.8 / 2.0; round 18's v21 gate on the r14 P-18 capture: 350 s, 0.28 GiB), marker `round24/dev/dev-v24-p18.done`.
+- 16:00:08-16:01:16 UTC [MEASURED, guarded light 0.8 / 1.5, 68 s, 0.46 GiB] the whole staging_v24 suite: **111 OK**
+  (v23's 103 + ClassifierV24's 8), beside the dev gate run (light 0.8).
+- 16:0x UTC `round24/freeze_v24.py`, `r24_install_wc.py` (from round 20's, v24 names) and the official chain
+  `round24/r24_official.sh` written (toolcheck; pin census with frozen v24; the frozen v24 suite; frozen v23's gate
+  on the r19b capture expecting exit 3; frozen v24's gate on it expecting 0; install in the working copy + its suite).
+- 16:02 UTC `round24/pin_census.py` gains two items: every pin TABLE the classifier gate consults (terminals
+  PORTED_FROM / ALSO_ACCEPTED / PINNED_IF_PRESENT, CLASSIFY_PORTED_FROM_V22, r13 TOKEN_R16B_DIGESTS, TOKEN_R17 / GATE19
+  readings, the report-only lists) intersected with the paths moved r17 -> r19b, and v24's checkpoint rule on the real
+  export's declaration in this environment. Dev re-run (unguarded, < 1 s, `round24/dev/PIN_CENSUS_staging2.json`):
+  of the consulted tables only r13 TOKEN_R16B_DIGESTS names moved files, exactly private_block.rs and derive.rs
+  (classify_cli.rs / examples/zk60_classify.rs appear only in the report-only lists of v19 / v21, not consulted);
+  the rule gives `/home/victor/models/shieldstral-1.0-3b/snapshot-003ec7e2/model.safetensors` (= v23's constant),
+  a regular file of the pinned 7,698,241,104 B.
+- 15:58:26-16:03:27 UTC [MEASURED, dev, guarded light 0.8 / 2.0, 300 s, peak RSS 0.27 GiB] staging v24's whole
+  classifier gate on the r19b P-18 capture (`round24/dev/dev-v24-classify-rc3-cli-p18-r19b-gate24.json`): **status
+  PASS, no declared limit, 0 false parts, 0 unfired controls**; integrity ok with 72 pins (statuses: v22 port 5,
+  token gate, block gate, chains); every part true (replay, per-commitment, mask / CFS, joint, 12 classifier
+  slots + NL-1, B-3, the one public bit, D41, block-stage terminals at the rung, full preimage, joint preimage,
+  controls). The legacy-rung path of the v22+ gate, untried since v21, holds on an r19b-tree capture.
+- 16:03:56 UTC **tools v24 FROZEN:** `frozen_v24/` (+ `original/`, `counts/`), manifest
+  `gate-tinyllama.tools.frozen.v24.sha256` = 80 files, **b0532c6e9ef4998f5b25bab6d7af4fd36204cf935b12102e5442954182095efc**
+  (check 80 / 0 / 0; staging == frozen). Patches: v23 -> v24 scripts c23698cd... (33,491 B), tests 33ba4ce3...
+  (13,260 B); vs original 74ea696a... No new module (TOOLS list unchanged); changed: r13_pins, classpins,
+  classtied, classgate (text), the test file. v23 unchanged (80 / 0 / 0 at 15:45).
+- 16:04:11 UTC official chain `round24/r24_official.sh` launched DETACHED (marker `round24/r24_official.done`).
+- 16:04:11 UTC [MEASURED, guarded light 0.8 / 1.5, < 1 s] **step 2, official:** `round24/pin_census.py` with
+  frozen v24 and frozen v23 (each in its own process) -> `round24/PIN_CENSUS_R24.json` (3b815b3d...), ok, every
+  verdict true:
+  * the capture pin rule on the 72 pins the recorder of each frozen tree writes (files hashed in the tree): **v24
+    accepts r17, r18, r19 and r19b (72 / 72 each); v23 accepts r17 and refuses r18 (private_block.rs), r19 and r19b
+    (private_block.rs 96c1cd16, derive.rs 1d615010 / 4b53222b) by name** -- the control; on the captures on disk:
+    v24 accepts the r19b P-18, the r17 real and the r16b real captures and refuses the r14 short capture by name
+    (classify / classify_run / classify_tied at r14), v23 the same except the r19b capture (refused, the two pins);
+  * r13_pins self_check: v24 ok, 155 digests re-hashed (incl. the r19b terminals against frozen-r19b and
+    manifest_final_r19b cfae2d1e...); v23's ok at r16b (119); r17_self_check ok in both; r19b_self_check (v24) ok;
+  * **controls with the OLD pins:** v24 with the round-24 readings removed refuses the r19b pins by name and its
+    r19b self-check fails naming both files; the r19b terminal of derive.rs set back to DERIVE_T16 (c5bec3c6) fails
+    the r13 self-check ("re-hashed 1d6150100abb, the module says c5bec3c676e6"): both fire;
+  * of every pin table the v23 gate consults, only r13 TOKEN_R16B_DIGESTS names a moved path, and exactly the two;
+  * the C-R1 census (round 22, 13 sites) at r19b: 12 sites' files unchanged r17 -> r19b; BlockPublic::digest's file
+    (private_block.rs) moved but its lines :880-893 are equal; the changed production files (private_block.rs,
+    derive.rs, classify_cli.rs, examples/zk60_classify.rs, the new classify_batch.rs / classify_batch_plan.rs) add no
+    BLAKE3 / hasher / absorb / squeeze / transcript / generator / SHA-256 token (the two batch files contain none);
+    a planted BLAKE3 call in a copy is seen (control fires);
+  * v24's checkpoint rule on the real export here = v23's path, a regular file of the pinned size.
+- 16:04:11-16:05:12 UTC [MEASURED, guarded light 0.8 / 1.5, 60.7 s, 0.43 GiB] **the frozen v24 suite: 111 OK**.
+- 16:05:13 UTC [MEASURED, guarded light 0.8 / 2.0, 0.7 s, 0.08 GiB] **step 3 control: frozen v23's whole classifier
+  gate on the r19b P-18 capture -> status REFUSED by source pins, exit 3** (the two refusals by name; nothing else
+  ran) -> `round24/ff/ff-v23-classify-rc3-cli-p18-r19b-gate24.json`.
+- 16:05:13-16:10:03 UTC [MEASURED, guarded light 0.8 / 2.0, 289.5 s, peak RSS 0.27 GiB; shared box, n = 1, nothing
+  else guarded live] **step 3, official: frozen v24's whole classifier gate on the r19b P-18 capture -> status PASS,
+  no declared limit, 0 false parts, 0 unfired controls** (`round24/v24/v24-classify-rc3-cli-p18-r19b-gate24.json`,
+  274c8a37...): integrity ok, 72 pins (v24 rule); replay ok (run binding reproduced, 4,224 challenges, 203
+  positions, blake3-keyed/1); per-commitment, mask / CFS, joint ok; 12 / 12 classifier slots, 19 public tables
+  rebuilt, 0 taken; NL-1 ok; B-3 ok (dev-rung tensor); the one public bit ok; D41 ok; block stage 23 / 23 slots at
+  the rung; full preimage 952,463 view entries, 0 differing, 2,304 salted leaves authenticated; joint preimage ok;
+  controls CC-1..CC-6, CC-8 / CC-9, C13-2..C13-4, J-1..J-3 fire, C13-1 n/a (a full-length item has no pad
+  position). Same as the dev run (300 s).
+- 16:10:03 UTC v24 INSTALLED in the gate's working copy (`round24/r24_install_wc.py`: 80 files from frozen_v24,
+  nothing deleted; check 80 / 0 / 0 against the v24 manifest). 16:10:03-16:11:04 UTC [MEASURED, guarded light
+  0.8 / 1.5, 60.7 s, 0.47 GiB] **the working-copy suite: 111 OK**. Marker `r24_official.done` = 0 (every step
+  gave its expected exit).
+- 16:12:35 UTC D46 clean-up (`round24/record_and_clean.py`, refuses unless the v24 record says PASS): the r19b
+  P-18 capture recorded first (`round24/CAPTURE_P18_R19B.json` c5f0a597...: 7 files re-hashed = its manifest
+  55c49aaa..., README names the r19b binary; copies of manifest.json / README.md in `round24/capture_p18_r19b/`),
+  then DELETED (21.3 MB, test-only); `capture-tree-r19b/hashline/target/` deleted (273 files, 63.5 MB,
+  regenerable); `round24/CLEANUP.json` (0510f749...). The tree's sources (= frozen-r19b, 21 MB) stay for a
+  re-capture. Nothing over 10 GB was written in the round (no D46 announcement needed).
+- 16:13-16:15 UTC `round24/R24_SUMMARY.md` (059cd28b...): plain summary; what moved (old -> new, where); every tool
+  change with v24 line numbers; the mirrored checkpoint rule (table) and its tests; the checks (new pins pass, old
+  refuse) and controls; the real check; not done (no real Shieldstral r18 / r19 / r19b capture; no batch-path
+  capture: `prove-batch` builds its Spec for SHIELD_T128 only), N24-1 (the gate still follows a symlinked model
+  file, Rust refuses it; both authenticate the bytes) and N24-2; §6 what a draft v4 would need (binaries and trees
+  by name, the v24 pins, why round 20-23's real-shape evidence carries to r19b, E7 as an operating rule, the batch
+  path incl. R18-1 still open, which binary made each piece of evidence). Draft v3 NOT edited.
+- 16:15 UTC re-checked at hand-back: frozen_v23 80 / 0 / 0 (v23 manifest 64f4b757..., unchanged), frozen_v24 and
+  the working copy 80 / 0 / 0 against the v24 manifest b0532c6e...; guard idle (0 of 11.89 GiB, locks free), C:
+  134.1 GiB free; no capture of this round left on disk.
+- **State at hand-back (16:15 UTC):** round 24 complete. NOT a privacy acceptance. Tools v24 frozen (b0532c6e...)
+  and installed in the working copy; the two moved capture pins read (private_block.rs 96c1cd16, derive.rs
+  4b53222b / 1d615010); E7 mirrored; checks pass with the new pins and refuse with the old; a real r19b-binary
+  capture (classifier rung) PASS under v24, REFUSED by v23. No job of this lane pending. Next for the coordinator:
+  whether to write a draft v4 (R24_SUMMARY §6), and whether it needs a real r19b Shieldstral capture (§5 names its
+  cost) or carries round 20-23's r17 evidence by reading.

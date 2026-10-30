@@ -1,0 +1,6 @@
+[
+  "python3 experiments/current-profile-mask-census-20261029/run_bounded.py prepare",
+  "python3 experiments/current-profile-mask-census-20261029/run_bounded.py compile",
+  "python3 experiments/current-profile-mask-census-20261029/run_bounded.py probe",
+  "python3 experiments/current-profile-mask-census-20261029/run_bounded.py audit"
+]

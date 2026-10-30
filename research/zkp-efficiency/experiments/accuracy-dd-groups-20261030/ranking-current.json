@@ -1,0 +1,12 @@
+{
+  "top3": [
+    1,
+    2,
+    3
+  ],
+  "conditional_priority4": 103,
+  "new_priority5": 106,
+  "total": 106,
+  "prior_records_preserved": 105,
+  "refinement": "H103current18table exact algebra only; no native speed"
+}

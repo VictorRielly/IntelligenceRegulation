@@ -1,0 +1,14 @@
+--- a/hashline/src/gpu/cuda.rs
++++ b/hashline/src/gpu/cuda.rs
+@@ -3414,7 +3414,10 @@
+     let mut flat: Vec<u64> = Vec::with_capacity(k * rows * 2);
+     for rho in rhos {
+         assert_eq!(rho.len(), rows);
+-        flat.extend(as_u64s_f2(rho));
++        for x in rho {
++            flat.push(x.c0.0);
++            flat.push(x.c1.0);
++        }
+     }
+     let d_rho = dev.htod_sync_copy(&flat).map_err(|e| e.to_string())?;
+     let mut d_out = unsafe { dev.alloc::<u64>(k * n * 2) }.map_err(|e| e.to_string())?;

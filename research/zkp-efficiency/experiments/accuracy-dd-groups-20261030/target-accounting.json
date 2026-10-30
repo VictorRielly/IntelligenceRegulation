@@ -1,0 +1,65 @@
+{
+  "new_independently_verified_full_stack_proofs": 0,
+  "complete_model_passes": 0,
+  "proved_positions": 0,
+  "actual_model_context": null,
+  "passes": 0,
+  "device": "one CPU affinity, Intel Core Ultra9 185H; no GPU",
+  "synthetic_dimensions": {
+    "n": [
+      3,
+      4
+    ],
+    "row_eq_span": [
+      1,
+      2
+    ],
+    "total_tables": 18,
+    "private_terminals": 14,
+    "derived_score_shifts": [
+      17,
+      18,
+      19,
+      20
+    ],
+    "fixtures": 48
+  },
+  "clocks": {
+    "witness_s": null,
+    "proof_s": null,
+    "serialization_s": null,
+    "verification_s": null,
+    "startup_s": null,
+    "initial_prefill_s": null,
+    "steady_interval_s": null,
+    "total_workload_s": null,
+    "proof_latency_s": null,
+    "proof_bytes": null,
+    "startup_fraction": null,
+    "steady_state_proved_tokens_per_s": null,
+    "total_workload_proved_tokens_per_s": null
+  },
+  "workload_kind": "Synthetic algebra only; no long-context prefill,resident-model proof series or decode.",
+  "target": "Complete private8B >=50 provedtokens/s on RTX5090 or named high-endGPU remains unachieved.",
+  "ceiling": "N/(T-C_removed+A_added), unknown. Necessary total-workload target condition T-C+A<=N/50; no numeric time inferred from product counts.",
+  "privacy": "Fresh native randomness remains mandatory; no mask,pad or private-opening reuse; no private data used.",
+  "historical_not_newly_counted": {
+    "context": 128,
+    "layers": 32,
+    "passes": 1,
+    "threads": 16,
+    "gpu": false,
+    "total_s": 478.737,
+    "total_rate_per_s": 0.26737,
+    "prove_s": 393.785,
+    "witness_nested_s": 98.348,
+    "load_nested_s": 17.595,
+    "seal_s": 84.824,
+    "seal_load_overlap_s": 27.151,
+    "seal_witness_overlap_s": 80.897,
+    "verify_s": 42.709,
+    "verify_load_s": 13.681,
+    "receipt_bytes": 922711264,
+    "limits": "Carried older-profileCPU diagnostic,not rerun/reverified/current-profile/GPU evidence. Nested clocks not summed. Exclusive serialization,startupfraction and steady slope unknown."
+  }
+}

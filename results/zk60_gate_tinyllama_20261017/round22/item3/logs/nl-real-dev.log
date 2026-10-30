@@ -1,0 +1,81 @@
+r13: ok True (56.8 s)
+{
+ "r13": {
+  "slots": 7,
+  "ok": true,
+  "T0": "7/7",
+  "E0": "7/7",
+  "per_mode": {
+   "run": {
+    "F0": "7/7",
+    "S1": {
+     "premise_holds": 7,
+     "public_factor_every_monomial": 7,
+     "degree_fits": 7,
+     "budget_ok": 7,
+     "of": 7
+    },
+    "S4": {
+     "miniatures_pass": 7,
+     "terminal_map_onto": 7,
+     "of": 7
+    }
+   },
+   "random-1": {
+    "F0": "7/7",
+    "S1": {
+     "premise_holds": 7,
+     "public_factor_every_monomial": 7,
+     "degree_fits": 7,
+     "budget_ok": 7,
+     "of": 7
+    },
+    "S4": {
+     "miniatures_pass": 7,
+     "terminal_map_onto": 7,
+     "of": 7
+    }
+   },
+   "random-2": {
+    "F0": "7/7",
+    "S1": {
+     "premise_holds": 7,
+     "public_factor_every_monomial": 7,
+     "degree_fits": 7,
+     "budget_ok": 7,
+     "of": 7
+    },
+    "S4": {
+     "miniatures_pass": 7,
+     "terminal_map_onto": 7,
+     "of": 7
+    }
+   },
+   "random-3": {
+    "F0": "7/7",
+    "S1": {
+     "premise_holds": 7,
+     "public_factor_every_monomial": 7,
+     "degree_fits": 7,
+     "budget_ok": 7,
+     "of": 7
+    },
+    "S4": {
+     "miniatures_pass": 7,
+     "terminal_map_onto": 7,
+     "of": 7
+    }
+   }
+  },
+  "S3": "30/30 at [(15, 3), (15, 4), (18, 4), (20, 4), (20, 5), (22, 5)]",
+  "S5": {
+   "N5_1_fires": "7/7",
+   "N5_2_fires": "5/5 (not applicable at slack > 0: 2)",
+   "N5_3_fires": true,
+   "N5_4_fires": true,
+   "F_1_fires": "7/7"
+  },
+  "S5_ok": true
+ }
+}
+record: /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/round22/item3/dev/nl-real-dev-block0.json  status PASS

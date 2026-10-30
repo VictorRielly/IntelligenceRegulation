@@ -4,6 +4,22 @@ Token-I/O lane, round 12 (2026-10-21). Status: **design; v2 answers the adversar
 `check/CHECK.md`; nothing built.** Not a privacy acceptance.
 - v2.1 (§12) reads the product as content labels (D37 revised); v2.2 (§13) splits long content
   into chunks (D41). R-C1 is being built on frozen-r11 (`token_io/classify*.rs`).
+- v2.3 (§14) ties the tables to the pinned tensor (R-C2); v2.4 (§15) adds short items and the
+  library binding (R-C3); v2.5 (§16, token round 15) adds the label's whole-post check
+  (`--expect-total`), the capture writers' slot list (F18-1) and the corrected causality
+  argument (§15.2). Victor ruled all four pending items on 2026-10-29 (D45); the table below and
+  §5 / §6 now say so.
+- v2.6 (§17, token round 16) registers the REAL Shieldstral classifier on native R13 (REVIEW_R13 §10):
+  per-layer gate denominators in every stage shape, the R13 whole-run term, the D37 category policies
+  (moderate wording, pending Victor), one checkpoint stream per command, and the first real proofs.
+- v2.6.1 (§17.4 and §17.9, token round 16b) applies REVIEW_R16's F-1 and N-r16-1: round 12's card policy is
+  test-only, so the fixed list really has three Shieldstral entries, and the whole-run floors are pinned exactly.
+- v2.7 (§18, token round 17) answers gate round 19: the recorder records R13 runs (the gate's H19-1..4 adopted),
+  and a capture with public-table values carries the 12 block slots' statement tables in the format v22 already
+  reads, each checked by the recorder's export replay before the bundle is written (no new key; recorder only).
+- v2.8 (§19, token round 18) adds `prove-batch`: one post's whole plan after one model / table load, each proof a
+  single `prove` with its own fresh draws; one post per process; a refused batch leaves no job's receipt behind;
+  the randomness and label censuses read the batch files (Astra's A5, adopted with REVIEW A5's fixes).
 - v1 is kept beside this file as `DESIGN_CLASSIFIER.v1.md` (sha256 `f9fe043f…`).
 - It follows DESIGN v3 (`results/zk60_token_io_design_20261017/DESIGN.md`, cited "v3 §n") and the
   built token run on frozen-r11 / binary `0c9f247c…`.
@@ -21,7 +37,8 @@ Labels:
 - [MODEL]: an estimate.
 - [OPEN]: a fact to be fixed during implementation.
 - **[RULING PENDING]**: a section that stays a set of marked options until the coordinator relays
-  Victor's answer.
+  Victor's answer. (None is left: B-4, B-5, B-6 and B-8 were ruled on 2026-10-29 01:04 UTC as
+  D45; each place is now marked **[RULED … D45(n)]**.)
 
 ## 0. Changes in version 2 (answers to `check/CHECK.md`)
 
@@ -30,11 +47,11 @@ Labels:
 | C-1 (high) template boundary | **B-1 adopted:** the prefix ends at `:` (84 ids for the card template); the content segment is tekken's plain-text encoding of `' ' + content`; the suffix is `[/INST]`. Reproduced 24/24 against Mistral's reference encoder (`check/tok_probe.json`, [RAN]); R-C0 re-runs it (§3.5) |
 | C-2 (high) control-token injection | **B-2 adopted:** the canonical tokenizer is tekken's plain-text encoder (no special-token parsing), named in the statement by digest; content positions are proved free of control ids by one public column `ctl` in the stage-IN lookup tuple (§3.6) |
 | C-3 margin vector | **B-3 adopted:** the verifier re-derives the margin vector, the yes / no ids and c from the export at the door and compares digests; it never takes them from the statement. **The difference row is quantised directly** (int16, one scale): no multipliers, |w_Δ| ≤ 32,767, B_Δ = 2^33.57 (§4.1) |
-| C-4 refusals in the app | **B-4:** app rule "no accepted proof ⇒ handled exactly as flagged / not published" written as the app's obligation (§5); refusal-free final-norm constants preferred. [RULING PENDING] for the rule itself |
-| C-5 n public | **B-5:** [RULING PENDING] (Victor: n public for the MVP, or the hidden-length variant) |
-| C-6 policies | **B-6:** [RULING PENDING] (Victor: a fixed, pre-registered policy list with one c each) |
+| C-4 refusals in the app | **B-4:** app rule "no accepted proof ⇒ handled exactly as flagged / not published" written as the app's obligation (§5); refusal-free final-norm constants preferred. **[RULED 2026-10-29: D45(4), fail closed]** (was RULING PENDING) |
+| C-5 n public | **B-5: [RULED 2026-10-29: D45(1), n public]** (was RULING PENDING: n public for the MVP, or the hidden-length variant) |
+| C-6 policies | **B-6: [RULED 2026-10-29: D45(2)]**, a fixed policy list with one threshold each, never re-proved under another (was RULING PENDING) |
 | C-7 one endpoint; D34 recount | **B-7:** the coordinator records the one-external-endpoint classifier profile and the D34 recount (≈ 2^-112.7 at L = 26, T ≤ 512) as security owner; cited in §5 |
-| C-8 D23 amendment | **B-8:** [RULING PENDING] (Victor: the amendment covers on-chain anchoring, D39, and names the decommitment's transferability) (§6) |
+| C-8 D23 amendment | **B-8: [RULED 2026-10-29: D45(3)]**, the proof linked to the post (sealed input fingerprint stored and anchored, D39; the app keeps the opening; its transferability accepted) (§6) (was RULING PENDING) |
 | §3.4 option (check) | **Seeded endpoint randomness** written up as option S for the security owner's reading, **not adopted** (§6.3) |
 | C-11 / C-14 / C-15 | |w_Δ| typo fixed (two-row bound 2^19.99); "Ceps < 2^40" stated beside the tn = 10 window; c = ⌊θ/κ⌋ is **exact** for integer Δ (no rounding direction) |
 | C-12 hidden length | the sketch now requires in-circuit length binding (§3.4) |
@@ -118,7 +135,7 @@ public-row variant, IO-in unchanged.
   unknown (BOS and the zero pads are public today).
 - The input owner's check gains the template and control-id comparisons (§6).
 
-**3.4 Length.** [RULING PENDING, B-5]
+**3.4 Length.** [RULED 2026-10-29: D45(1), option N; was RULING PENDING, B-5]
 - **Option N (public n, the built public-row variant).** T = P0 + n + S is in the statement.
   Blocks already run with tokens < t_pad (rung_g / rung_k4), but **at trained shapes T < T_pad is
   a new configuration**: the gate's pad controls must cover it before any figure is quoted
@@ -268,7 +285,9 @@ variant gets its own schema and run-profile family; the next-token runs stay `/2
   CFS-masked, the window and L are fixed by the class, and the proof's length depends only on T.
   [gate] The rank / CFS gate re-reads MRG (terminals on y and λ). The privacy statement's
   simulator is given b, the policy, c and (B-5) n.
-* **B-4, refusals in the app** [RULING PENDING on the rule's wording, Victor]. Proposed rule: an
+* **B-4, refusals in the app** **[RULED 2026-10-29: D45(4), fail closed]** (was RULING PENDING on
+  the rule's wording). The rule as ruled: a post without an accepted proof is not published and is
+  shown as "could not be verified", never as safe. The proposal it answered: an
   item without an accepted proof is handled exactly as b = 1 (flagged / not published). It is
   never published unverified, and a refusal is never shown as a separate outcome.
   - This removes the third outcome and the bypass: content crafted to overflow the final norm or
@@ -276,7 +295,7 @@ variant gets its own schema and run-profile family; the next-token runs stay `/2
     on evaluation sets).
   - Refusal-free final-norm constants are preferred (§4.1).
   - At the receipt level D20 / D29 / D21 hold as built.
-* **B-6, policies** [RULING PENDING].
+* **B-6, policies** **[RULED 2026-10-29: D45(2), option P]** (was RULING PENDING).
   - Option P: one fixed, short, pre-registered policy list per profile family, one c per policy
     globally. The number of bits disclosed per item equals the number of listed policies, and the
     privacy statement says so.
@@ -291,7 +310,7 @@ variant gets its own schema and run-profile family; the next-token runs stay `/2
   - D34 recounted: `2·(768·26 + T + 256)/p²` ≈ **2^-112.7** at T = 512 [COUNTED, check]. The
     public template rows only lower it.
 
-## 6. Binding the proof to the posted item [RULING PENDING, B-8]
+## 6. Binding the proof to the posted item [RULED 2026-10-29: D45(3), option R with the D23 amendment; was RULING PENDING, B-8]
 
 From the receipt alone, a third party learns the template, that the content ids are below V and
 free of control ids, the sealed root R, and the verdict. **Without a decommitment nobody can tell
@@ -305,7 +324,8 @@ that this content is the posted item.** That is inherent to hiding the content (
   2. checks the template, the content ids and the absence of control ids;
   3. rebuilds R (the built `input-owner` check, extended).
 - Tokenisation is checked by anyone with the bytes, not proved.
-- **This needs the D23 amendment. Proposed text, for Victor:** "An accepted classifier receipt's
+- **This needs the D23 amendment; D45(3) (2026-10-29) made it, and the register's wording
+  governs. The text proposed then:** "An accepted classifier receipt's
   input root may be recorded beside its item by the app, and anchored on-chain with its statement
   (D39), provided no later proof ever claims or opens that root. The decommitment goes only to
   parties entitled to the content; it is a transferable proof that a given content is the one
@@ -421,7 +441,7 @@ K_pub / V_pub must be exactly the integer model's prefix K / V.
 
 ## 11. Rulings, readings and open facts
 
-**Victor** (the coordinator is relaying):
+**Victor** (the coordinator is relaying; all four RULED 2026-10-29 01:04 UTC as D45, §15.1):
 - B-5, n public;
 - B-6, the policy list;
 - B-8, the D23 amendment text in §6.1;
@@ -512,7 +532,7 @@ ordinary classifier proof (§3–§6) whose content positions hold that chunk's 
 - **Short content** (N < n_i) gets one chunk of N ids. That needs either T < T_pad (C-13), or
   trailing public pad positions pinned by the template clause with stage OUT-C reading the public
   row `P0 + N + S − 1`. The second route is preferred. Neither is built in R-C1: short content is
-  refused by name.
+  refused by name. **Built in round 14 (R-C3) by the second route: §15.**
 - **The prover never chooses n_i or o per item** (the spirit of O-1). Both sit in the classifier
   profile, so in its digest, and in the statement. The verifier re-derives the ranges from
   (N, n_i, o), as B-3 does for the margin vector, and refuses any other range.
@@ -592,3 +612,448 @@ ordinary classifier proof (§3–§6) whose content positions hold that chunk's 
 - `verify` re-derives the range.
 - `input-owner` checks the slice of the whole content.
 - `label` verifies every chunk run of one item and prints the OR, fail-closed.
+
+## 14. Addendum v2.3 (2026-10-28): the tables tied to the pinned tensor (rung R-C2)
+
+**14.1 The gap R-C2 closes.** In R-C1 the classifier's public tables were checked only against the
+digests their own manifests declared:
+- `margin_int16.bin` (the row `w = yes − no`) was a given table, not derived from the model;
+- `embedding_int16.bin` was never tied to the model's tied tensor;
+- `classifier.json`'s BOS and final norm were not compared with the export's.
+
+So a tables directory with a doctored margin row and a rehashed `classifier.json` gave a valid proof
+about a row that is not the model's. This is the classifier side of native review finding R12-F1
+(coordinator 2026-10-26 20:11).
+
+**14.2 The rule.** Prove and verify both re-derive the tables and refuse any disagreement. There is
+no "prefer the file" fallback (coordinator 2026-10-28 21:35, condition 1).
+- **The margin row.** `w = floor((E[yes] − E[no]) · g / scale + 0.5)`, from the pinned tied tensor.
+  - `yes`, `no`, the public `scale` and the threshold `c` come only from the export profile's
+    `classifier_margin_parameters`, inside the profile digest the trained statement binds (reviewer
+    requirement 1, REVIEW_R12B §5). The pre-registered policy (B-6 = D45(2)) must name the same four
+    values, and any copy in `classifier.json` must equal them; either disagreement is a refusal. The
+    scale is a policy constant too, written into the classifier profile text. (Corrected in round 14,
+    REVIEW_R13 N-r13-4: this line said "only from the pre-registered policy".)
+  - `g` is the checkpoint's final-norm weight vector.
+  - A word outside [−32767, 32767] is refused, never clamped (condition 3).
+  - `margin_int16.bin` must equal the derived row; the run uses the derived row.
+- **The embedding.** The SHA-256 of the int16 table is derived from the same tensor. The file must
+  have exactly that digest.
+- **BOS and the final norm.** These come from the export's `profile.json.token_io_parameters`, which
+  lies inside the profile digest the trained statement binds. The derivation's own read of
+  `profile.json` must have the loaded export's digest. `classifier.json`'s copies must equal these
+  values.
+
+**14.3 Sources** (one per block profile; anything else is refused by name):
+- **Shieldstral-1.0-3B** (every registered Shieldstral block profile). Native R12b's public
+  `tied_tables::recompute_tied_tables(export, Some((yes, no, scale)))`, which authenticates and
+  streams the 7.7 GB checkpoint: 17.3 s per call measured by the token lane with a warm page cache
+  (round 13, r13/logs/shieldstral-r12b.log; the native lane's earlier figure was about 55 s cold)
+  [MEASURED, n=1]. Every prove and every verify streams it TWICE (once in the export load's tied
+  check, once in the recompute: REVIEW_R13 N-r13-5, open). The quantizer
+  is the native lane's, spelled out in its SOL_REPORT_20261028.md. The registered card policy uses the
+  native lane's chosen scale 4.08288030735373e-6 (zero coordinate refusals [COUNTED]).
+- **The development rung** (d 384, V 300, synthetic export, no rotation). R12b's function cannot be
+  called here: it is pinned to Shieldstral's 131072 × 3072 tensor.
+  - The rung uses a pinned synthetic BF16 tensor, `dev_tied_tensor_bf16.bin` in `--tables`: 300 × 384
+    rows, then 384 norm weights. Its SHA-256 is `bba6d094…`.
+  - The tensor is quantized with R12b's own `quantize` / `bf16` / `norm` functions. Making them
+    callable from the token lane took three visibility words and one re-export line, additive.
+  - An independent Python reference (`r13/tools/dev_tied_reference.py`) reproduces the pin and the
+    derived digests.
+
+**14.4 Also in R-C2.**
+- The statement schema becomes `zk60-classify-run/2`, adding `margin_scale` and `tied_source`.
+- `--min-bits` below the run profile's floor is refused: 93 only at the development rung, 95
+  everywhere else (D27).
+
+**14.5 Cost and what it does not do.**
+- At Shieldstral, every prove and every verify pays the checkpoint pass. A one-time public commitment
+  to the tables (backlog S6), or a derivation cached under the checkpoint pin, would amortize it.
+- R-C2 binds the tables to the model. It makes no privacy claim and no classifier-fidelity claim.
+
+## 15. Addendum v2.4 (2026-10-29, token round 14 = rung R-C3): short items, and the binding in the library
+
+**15.1 Rulings.** Victor accepted the four classifier rulings on 2026-10-29 01:04 UTC (register D45):
+(1) the content length is public (B-5, option N, the built variant); (2) one fixed policy list, one
+threshold each, never re-prove an item under another policy or threshold (B-6); (3) the proof is linked to
+the post by its sealed input fingerprint, stored and anchored, the app keeping the opening (B-8, amends
+D23); (4) fail closed (B-4). The ruling switches' text in the profile and the fail-closed line now name D45.
+Round 14 stays inside D45(1): it reveals nothing beyond n, T, P0, S and public policy constants.
+
+**15.2 Short items (Astra, 2026-10-29 00:29:56; the trailing-pad route of §13.1).** An item of N content ids
+with `1 <= N < n_i = T − P0 − S` is ONE chunk `[0, N)` of its true length, at the profile's T:
+
+  `tok = prefix ‖ c[0 : N] ‖ suffix ‖ pad^(T − P0 − N − S)`
+
+- `pad` is a PUBLIC policy constant (the development rung: 2; Shieldstral's card policy: 11, tekken.json's
+  `<pad>`, a control id, = generation_config.json's `pad_token_id`).
+- **Pinning.** The template indicator π covers the trailing positions and κ(t) = pad there, so the template
+  clause (§3.1, its own fresh coefficient) pins every one of them; the control column uses `ctl(pad)` there,
+  so the LogUp matches the table's own entry. The owner's check (§6.1) compares them too.
+- **The verdict row.** Stage OUT-C's IO-in reads the public row `P0 + N + S − 1` (the suffix's last
+  position), `T − 1` when there is no pad. It is derived from (P0, N, S), all public.
+- **Why the verdict is the model's on the short item** (v2.5: corrected per REVIEW_R14 N-r14-2; v2.4 gave
+  the witness's `MASK_SCORE` as the reason, which is only what the HONEST prover computes, and the exp of
+  `max − MASK_SCORE` is in general not zero). The reason that holds against a cheating prover is the
+  RELATION of every block, native R12b's `argument.rs` (REVIEW_R14 §3, line numbers of frozen-r14):
+  * the causal mask is a PUBLIC column, `causal_mask_at(sh)` (`:1053`), 1 on j ≤ t and 0 on j > t;
+  * SC_RS (`:1308–1321`) sums `mask · E`, so each row's softmax denominator `Sum` is causal;
+  * SC_SZC's division clause (`:1939`), `c2 = mask·E·2^F_P − P·Sum − ρ`, with P, ρ and σ = Sum − 1 − ρ in
+    byte limbs (so each lies in a range far below p: P·Sum + ρ is about 2^40 at the largest registered shape),
+    forces P = ρ = 0 wherever mask = 0; on a DD profile the dictionary tuple `(Sum, mask·E, P)` (`:1817`)
+    looks P up as ⌊0 · 2^F_P / Sum⌋ = 0;
+  * SC_PV (`:1431–1456`) sums P·V over every source position, so a masked weight would be the only way a
+    later row could enter, and it is forced to 0;
+  * every other block operation is row-local (norms, RoPE, FFN, residuals), and the max selector's value is
+    read from the row's own scores (at a masked j it is −127, attainable only if every true score is −127).
+
+  Hence each block's row t is a function of rows ≤ t of its input, and the verdict row `P0 + N + S − 1` is a
+  function of the prefix, the content and the suffix only. The review's consistent forgery (S5b: a masked
+  weight P = 1/8 at a pad column, with the cheating prover's PV over every position so every later plane is
+  consistent; it moved the margin 5,269,429 → 5,214,444) was refused at block 0, slot 17, the softmax
+  zero-check: the division clause above. The honest pad rows are computed and proved like every row; a test
+  shows other ids at the pad positions give the same margin. A pad row can still trip a block's range
+  refusal (CS-3, N-r14-6); then the item has no proof and D45(4) applies. At Shieldstral that pad-row
+  behaviour is to be checked when its classifier run profile is registered.
+- **The split.** `chunk_ranges(N, plan)` returns `[(0, N)]` for `1 <= N < size` and refuses N = 0. The
+  verifier derives the plan's size from the shape and the policy (never from n) and requires n = the
+  chunk's length, so the prover still never chooses n (§13.1). The label (§13.4) over the one chunk is its
+  verdict; coverage of `[0, N)` is exact.
+- **What becomes public.** Nothing new: n (= N) was public (D45(1)); the pad id, the item length
+  `P0 + N + S`, the pad count and the verdict row are functions of public values. The profile text names
+  `item-length`, `pad-id`, `pad-positions`, `verdict-row` and `short-content=one-chunk-of-its-length-pad-pinned`;
+  the statement schema becomes `zk60-classify-run/3` with `item_length`, `pad_id`, `pad_positions`,
+  `verdict_row`. **C-13 still applies:** the privacy gate's pad controls must cover the short-item
+  configuration before any figure about it is quoted.
+- **Coverage** [COUNTED, input lengths only, r14/short_item_coverage.json]: Astra's 4,872 benchmark
+  item/policy pairs are all admitted at T128 and T256 (round 13: 23–67% at T128, 0–10% at T256).
+
+**15.3 The binding in the library (REVIEW_R13 N-r13-1, N-r13-2, N-r13-6).**
+- Every classifier run entry point (`ClassifyRunStatement::new` / `new_chunk`, `prove_classify_run(_with)`,
+  `verify_classify_run(_with)`, and through them the run capture's replay) takes `BoundClassifierTables`, a
+  type whose fields are private to `classify_tied.rs`. Outside it a value exists only as `load_bound_tables`
+  returns it: the §14 re-derivation under the trained statement's own `export_profile_sha256` and residual
+  unit, then the file comparison. Test builds alone have a second constructor for the relation tests'
+  generic tables, marked not-derived; the capture replay refuses such a run.
+- The statement constructor checks that the tables were derived for THIS trained statement (identity and
+  profile digest), that the policy names the bound margin parameters, and that the block profile and the run
+  profile name one tied source (N-r13-6). BOS and the final norm are the tables'. Prove and verify check the
+  tables are the statement's.
+- The post-derivation profile-digest check (§14.2) is now covered by a test that fails without it: a stub
+  in place of native R12b's recompute returns another profile's digest (N-r13-2; the mutation run is in the
+  round-14 ledger).
+- The gate's capture fixture and `capture_a_classify_rung_run` prove with the derived tables (each placed
+  policy with its own export profile, N-r13-3).
+
+**15.4 Not done here.** N-r13-5 (two checkpoint streams per Shieldstral prove / verify), the Shieldstral
+classifier run profile and its pad-row check, the hidden-length variant (§3.4 option H, not needed under
+D45(1)), any privacy or fidelity claim.
+
+## 16. Addendum v2.5 (2026-10-29, token round 15): the label's whole-post check, the capture format, notes
+
+**16.1 The label checks the post's own length (REVIEW_R14 N-r14-1).** `label` verifies each chunk run and
+checks that the runs are one item's whole split (§13.4), but the proofs cannot tell how long the POST is: a
+proof set of only the post's first k < N ids (since §15 a short item of any k ≥ 1 is one chunk; before, a
+k-id item of at least one full chunk) labelled cleanly with `content_total` = k. Round 15:
+- `zk60_classify label … --expect-total N` is **required**; N is the post's own token count, counted by the
+  caller with the policy's pinned tokenizer (public by D45(1)), never read from the proofs. Without it, or
+  with 0 or a non-number, the label is refused with the fail-closed line (D45(4)).
+- The library's `aggregate_label(seen, expect_total)` refuses unless every run's `content_total` is N, the
+  runs' chunk count is the split's, each run's range is exactly its index's range in `chunk_ranges(N, plan)`,
+  every index appears once, and the ranges together cover `[0, N)` with no gap and nothing beyond. The
+  label event prints `expect_total` beside `content_total`.
+- The app's recipe (cli/README.md): one item per post; pass the post's own count as `--expect-total`; the
+  app's adapter makes the same comparison itself (the coordinator's 2026-10-29 03:05 note to Astra), so the
+  CLI's check is defence in depth. `input-owner` already refused a content of another length; D45(3) ties
+  each proof to its post.
+- Nothing becomes public that was not: N is the statement's `content_total`.
+
+**16.2 The capture format (gate round 18, F18-1).** The token-run and classifier run files listed all 24
+entries of `Shape::slots()` (MAX_SLOTS; the 24th `(0, 0, 0)` on every non-DD shape) under `n_slots` 23. They
+now list exactly `n_slots` = N_SLOTS triples, as the block run file does. Reader contract (written on the
+writer): `shape.slots` holds exactly `shape.n_slots` triples, the block stages' slots in transcript order;
+the replay admits only N_SLOTS-slot block stages, so no capture exists for a block running native R9's DD
+slot. The gate's tools v21 already accept both forms (an all-zero extra triple is stripped). No receipt, no
+statement and no transcript byte moves: only `run.json`'s slot list.
+
+**16.3 The CLI-path capture of a short item (gate H18-1)** is now the token tree's own `#[ignore]`d hook,
+`classify_capture_tests::capture_a_short_item_through_the_classify_cli` (`HL_PB_CLI_SHORT_N`, default 22),
+adopted from the gate's round-18 patch; it asserts the published statement's short-item fields and the slot
+count on the bundle.
+
+**16.4 Observation O18-1 (the gate, round 18): the development rung's margin hardly depends on the
+content.** The gate placed c from each item's own margin and found −190166 ± 1 at n = 11, 20, 22, 23 and for
+both chunks of a 27-id item, and −202071 ± 1 at n = 1 (round 14 saw the same: the 20-id item's margin equals
+the 23-id item's, 5,269,429). The synthetic generic blocks keep the verdict row's output close to a function
+of its position. So the rung's captures and this tree's tests barely exercise the margin's dependence on the
+content: the verdict-flip tests place c per item or swap the policy's yes / no ids, they do not flip a
+verdict by changing the content. This is a generic-honest-witness note, not a soundness gap (the relation
+does not depend on the margin's spread). Content-dependence of the verdict is a fidelity fact to be shown on
+a trained export (Shieldstral, F11), not claimed here.
+
+**16.5 Notes carried.**
+- N-r14-2's last part (the `ctl_q` comment in `classify.rs`, "0 at content and pad positions": the trailing
+  pads carry `ctl(pad)`) is NOT fixed in round 15: `classify.rs` is a capture source pin the gate ports by
+  digest, so a comment-only change would force a re-port; it goes with the next round that changes the file.
+- N-r14-4: the next-token test fixtures (`cli_tests.rs`, `r3_tests.rs`) write under TMPDIR when set, else
+  `~/zk60-artifacts/token-io/test-fixtures/`, never `/tmp` by default.
+- Open as before: N-r14-3 (stage-level primitives `pub(crate)` with raw tables), N-r14-6 / N-r13-5 and the
+  Shieldstral classifier run profile; C-13 for any figure about short items; no privacy or fidelity claim.
+
+## 17. Addendum v2.6 (2026-10-29, token round 16): the Shieldstral classifier on native R13
+
+Basis: native R13 (`bb9eb212…`, ACCEPTED on soundness at 07:21 UTC, `results/zk60_d24_review_20261017/REVIEW_R13.md`;
+its §10 is this round's requirement list). Tree `ops/zkp-mvp/token-io-r16/` = frozen-r15 rebased onto R13. Not a
+privacy acceptance; not a classifier-quality claim (fidelity is the export lane's benchmark).
+
+**17.1 Profiles.** Two classifier run profiles, one per R13 block profile (D17, CS-7):
+`hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/1` over `R13_SHIELD_T128_H24` and
+`…-t256-r13-public-row/1` over `R13_SHIELD_T256_H24` (LOW + h24, non-DD; the CLI has no DD switch). CS-7 rebuilds the
+registered shape through `Shape::accuracy_trained` at the handed shape's calibration, f_e and gate, so a T256 shape
+is refused under the T128 profile and the reverse; a blocks-only run statement may not carry either profile. Tied
+source: Shieldstral (both maps, N-r13-6). Chunk overlap 8 at both (a D41 deployment constant, tunable; not a ruling).
+A third, TEST-ONLY profile over native R13's h24 development rung (`…-rung-lh-t32-public-row-tst/1`) lets the R13
+classifier path prove in seconds on Sol's public loader fixture.
+
+**17.2 Stage shapes (REVIEW_R13 §10 items 3 and 4).** Each layer record carries exactly one class-checked gate
+denominator (`accuracy-gate-layer` in the trained statement's identity, which the header absorbs);
+`ClassifyRunStatement::stage_shape(k)` is native R13's: the layer's own calibration, then
+`with_accuracy_gate_shift(G_k)` (a legacy stage carrying a G is refused); every stage shape is built when the
+statement is constructed; an R13 stage line names its G (legacy lines unchanged). Blocks are built with native
+`witness::build_for_block` (the block's accuracy data at the stage's G) — the legacy `build_shaped` refuses R13
+shapes, a requirement §10 did not list. The prover's sealing pass and, at R13, the verifier both check every block
+against its OWN stage shape before their headers (native `fit_the_stages`); the run seed's G = 17 fits no real layer
+(the rung test: 2 of 2 blocks misfit it).
+
+**17.3 Whole-run figure (§10 item 6) [COUNTED].** At an R13 shape a block's LogUp term is (N + 4·T_d − 1)/p², N = the
+`U8` lookups over the padded / lifted domains (incl. `Dd` at DD) + |S| exp + |F| ACT3 (+ |S| DD tuples), T_d = 512 +
+4096·4 (+ |Dd|), G charged at the class maximum 4 (so the figure is a profile constant). Legacy terms are unchanged.
+Shieldstral, 26 blocks: per block 2^-102.00 (T128) / 2^-100.79 (T256), equal to REVIEW_R13 §6; the whole run with the
+column test (112 openings), the stages and the PCS / sumcheck bound: **T128 2^-96.86 -> floor 96, T256 2^-95.91 ->
+floor 95**. Both pass D27's `--min-bits 95`; T256 has 0.91 bit of margin. (An 8B T512 classifier would not: N-r13-1.)
+
+**17.4 Policies.** One fixed list (D45(2)): `shieldstral-1.0-3b-moderate-sexual/1`, `…-violence/1`, `…-hate/1`, the
+D37 categories in Astra's moderate wording (`category_policy_candidates.json` b1cfcda9…, prefixes 72 / 72 / 78 ids
+pinned by SHA-256 in a test; suffix `[/INST]` = [4]; yes 13059 / no 2649 / c 0; pad 11; the card's margin scale).
+**The strict / moderate wording is Victor's open ruling (sheet item 1, 2026-10-28 23:15, recommendation moderate);
+this build registers the moderate list, flagged, and a strict ruling replaces the three entries.** Chunk sizes at
+T128: 55 / 55 / 49 content ids.
+**Round 16b (REVIEW_R16 F-1):** round 16 left round 12's `shieldstral-1.0-3b-card-unsafe/1` (the model card's
+7-category template) in the production list. Its (yes, no, scale, c) are the R13 exports' own, so both R13 Shieldstral
+profiles admitted it as a FOURTH policy. Since round 16b it is `#[cfg(test)]` and pre-registered by no build. The
+production list is now the synthetic rung's dev policy (V = 300, refused at Shieldstral by its vocabulary and margin
+parameters) plus the three category policies. A test builds the statement at each R13 Shieldstral profile under every
+registered policy and checks that exactly the three moderate ones are admitted. The card policy is refused by name at
+`policy_by_id` (the CLI's `--policy`), at the classifier door and at the statement constructor. The three policies'
+bytes did not move.
+
+**17.5 One checkpoint stream per command (token review N-r13-5).** The export loader's authenticated pass over the
+7.7 GB checkpoint also derives the classifier difference row when `profile.json` names well-formed
+`classifier_margin_parameters`; the tied loader reuses it only if it was made with exactly the bound profile's
+(yes, no, public_scale), and keeps every check (bound profile digest, policy, row width, the post-derivation profile
+digest). A refused with-row pass falls back to the old pass, so the load's admission rule does not move.
+
+**17.6 Activations.** The prover's sealing pass checks every block's output against the item's per-layer
+activations (`--seq-dir`). This round wrote them with the native builder (`r16_write_item_activations`), so the
+parity there is self-consistency; REVIEW_R13 §2's reference parity on real rows (layers 0 and 25) is the independent
+one. An app needs a per-item source of these files (an integer evaluator of the S2 arithmetic, or the native
+builder through a CLI mode that does not exist yet): the main open item for the media app's switch to real proofs.
+
+**17.7 First real proofs [MEASURED, laptop, shared box, n = 1].** One 35-id ToxicChat post (Astra's A1 inputs), a
+short item at T128 (20 / 20 / 14 trailing pad positions under the three templates; no pad-row refusal: N-r14-6 not
+observed on this item), each category proved, verified in a fresh process, input-owner checked and labelled with
+`--expect-total 35` (table: the round-16 ledger, `r16/real_runs.json`). Per category: prove 439-456 s total
+(328-349 s proving), 848,412,096 B in 28 segments, peak RSS 8.08-8.27 GiB; verify, input-owner and label 66-71 s each
+(about 36 s verifying 28 segments), peak RSS 2.25-2.32 GiB; all three verdicts not-flagged (a benign post).
+
+**17.8 Notes carried.** N-r14-2's `ctl_q` comment is corrected now (`classify.rs` changes this round anyway;
+comment only, after the real runs: the rebuilt binary is compared with the receipts' binary); N-r14-3; C-13 for any figure about short items;
+the gate re-pins on R13 (`run_capture.rs` OWN_SOURCE_FILES is now 38 entries, R13's 12 merged: REVIEW_R13 N-r13-6).
+
+**17.9 Round 16b: the exact floors (REVIEW_R16 N-r16-1) [COUNTED].** Round 16's bits test pinned the per-block
+numerator but only checked `floor >= 95`. So the reviewer's `bits-l` mutant, which charges one block instead of L,
+raised T128's floor from 96 to 98 and every lane test stayed green. A round-16b test now pins, at L = 26 and under each
+of the three policies:
+- the floors exactly: T128 96, T256 95;
+- the total, column, LogUp and PCS + sumcheck terms to 0.01 bit (REVIEW_R16 §3's recompute);
+- the per-block term (N + 4·T_d − 1)/p²;
+- the two stage terms (OUT-C 2^-112.28, IN-C 2^-107.09);
+- the LogUp term as the stages' plus 26 block terms, to 1e-9;
+- `--min-bits` at the floor passing the verifier's floor door, and one more bit refused.
+
+The mutant is re-run against it (round-16b ledger).
+
+
+## 18. Addendum v2.7 (2026-10-29, token round 17): R13 captures from a frozen token tree, and table values
+
+Token round 17 answers gate round 19 (`results/zk60_gate_tinyllama_20261017/round19/R19_SUMMARY.md` §7, §8 item 3).
+UNREVIEWED; recorder code and tests only (`cfg(test)`); not a privacy acceptance.
+
+**18.1 What gate round 19 found.** (1) R19-PIN-1: the token recorder as frozen at r16b cannot record ANY R13 run:
+`plane_index.rs` named the A planes from the legacy table (79 names for 109 planes at LOW + h24) and its DZC / FZC
+push ranges were short at R13, so the recorder's own check of every slot's private-table order refused. (2) F19-1:
+`bundle_is_classify` tested only the production classifier profiles, so a bundle of the test-only R13 rung profile was
+written under the TOKEN schema without the five classifier pins. (3) The gate patched its own copy (H19-1..4, test-only).
+(4) The real Shieldstral capture was recorded WITHOUT public-table values, so v22 left 12 of the 23 block slots open
+(5-7, 10-16, 18, 19): their public tables are functions of the layer's public data, which v22 takes from the capture
+instead of rebuilding.
+
+**18.2 Adopted (r17).** H19-3 = `plane_index.rs` byte for byte (`ce79803c…`, the gate's reading); H19-4 in
+`run_capture.rs` (`bundle_is_classify` = `run::is_classify_run_profile`); H19-1 / H19-2 = `token_io/gate19_capture_tests.rs`
+(the R13-rung capture hook, L = 1 or 2 at two gate denominators, verdict 0 / 1 / tie, chunks, short items; the P-18 hook
+that records a REAL run directory through the CLI's own door), registered by the gate's one `#[path]` line in
+`classify_capture_tests.rs`, with one addition per hook (18.4). Later rounds capture from a frozen token tree without
+gate patches. The failing-first run on the unpatched recorder: both new tests refused ("79 names for 109 planes").
+
+**18.3 The table-value format: unchanged, read by v22's existing paths [READ, frozen_v22].** Nothing new in the bundle
+format. In detail:
+- A public table is `{"kind":"public","len":N,"sha256":"<hex>"}`. With `HL_RUN_CAPTURE_PUBLIC_TABLES=1` it also carries
+  `"values"`: inline for short arrays, otherwise an array-store reference into `arrays.bin` (`/5-run` encoding, 16 bytes
+  per fp2, identical arrays stored once).
+- run.json says `"public_tables_included": true`.
+- v22 reads that flag. True: every IN-C / OUT-C table must carry values (it rebuilds and compares them). In a block
+  stage it TAKES the values of exactly the "captured" tables of `PUBLIC_SPEC` / `R13_PUBLIC_SPEC` and REBUILDS the
+  shape tables (supports, the causal mask, the byte table, the ones vector). So the 12 slots are evaluated.
+- No key was added. v22's key schema is closed (S1) and would refuse a new key. The export replay (18.4) is reported in
+  the README text only.
+
+| slot | statement table(s) a reader takes | per block at Shieldstral T128 [COUNTED] |
+|---|---|---|
+| 5, 6, 7, 10 | fold(w_q / w_k / w_v / w_o) with the R13 output multipliers | 4,096 each |
+| 11, 12, 13 | fold(w_g / w_u / w_d); the gate's coefficients are the folded c_j = m_j 2^(G - s_j) | 4,096 / 4,096 / 16,384 |
+| 14 | gamma_a, gamma_m tiled over Dom::D | 2 x 524,288 |
+| 15, 16 | RoPE cos / sin on Dom::Q, Dom::Kv | 2 x 524,288; 2 x 131,072 (one array for all 26 blocks) |
+| 18 | the group-id column on Dom::F | 2,097,152 |
+| 19 | the exp table, the ACT3 table, the ACT support | 3 x 16,384 |
+
+**Sizes at the real capture [COUNTED from round 19's real capture: its 26 block stage files' `len` / `sha256`].**
+- 9,330,688 public-table entries per block: 242.6 M over 26 blocks (3.88 GB as fp2).
+- Only 88,653,824 are DISTINCT (1.42 GB). The store writes an identical array once; the supports, the causal mask and
+  the RoPE tables are the same array in all 26 blocks.
+- What stays distinct per block: the group column (872 MB over the run), the gains (436 MB), and the folds, u8, exp
+  and ACT3 tables (small).
+- IN-C + OUT-C public tables: 323,842 entries (5.2 MB).
+- So a real capture WITH values adds about 1.42 GB to the 830 MB `arrays.bin`. Round 19 estimated "~4 GB"; that
+  estimate left out deduplication. The recorder keeps the store in memory until the run is accepted, so its peak should
+  rise by about the same amount [MODEL] (round 19 measured 4.05 GiB without values).
+
+**18.4 The export replay (`run_capture::export_replay`).** v22 takes the statement tables on trust of their digest, so
+the r17 recorder must show that each one is the EXPORT's.
+- **What is listed.** At an R13 block stage whose values are recorded, the block-slot hook lists each statement table:
+  its stage, block, slot, push index, length and SHA-256, plus the slot's definition challenges, the stage's LogUp
+  challenges (beta, gamma, alpha) and the stage shape. That is 16 tables per stage, 17 when `Dom::Tab` pads.
+- **Derived again from the export.** `export_replay(bundle, export)` derives every listed table from the caller's own
+  load of each layer (one layer held at a time). The derivations are written from the relations' definitions, not by
+  calling the slot definitions:
+  - a fold is sum_j eq(r_j, j) m_j w[j, i] (rows: Q, K, V, O) or sum_j eq(r_j, j) m_j w[i, j] (columns: gate, up,
+    down). r_j is the tail of the slot's definition challenges. m holds the layer's R13 coefficients on the padded
+    axis (the query axis in head-slot order);
+  - a gain is gamma[x mod d_pad];
+  - the RoPE pair is the layer's cos / sin at (t, i mod head_dim/2) on live positions, with sin negated on the first
+    half;
+  - the group column is gid(j) at t < T, j < hidden;
+  - exp is i + beta exp[i] + gamma TAG_EXP;
+  - ACT3 is i + beta word_g[i] + beta^2 g + gamma TAG_ACT on the 4096 G rows and 2048 + gamma TAG_ACT elsewhere;
+    the support is 1 on those rows.
+- **What it compares.** The replay compares SHA-256s, and every block stage must list all 16 required (slot, index)
+  pairs.
+- **Refusal.** A disagreement refuses: "replay: stage s (block k) slot n [name] public table i (kind) disagrees with
+  the export …". `write_bundle` writes no bundle that lists statement tables until the replay has passed, and the
+  README then says what was replayed. An R13 DD block profile with values is refused by name (no DD classifier profile
+  is registered).
+- **What it is not.** It is the recorder's check, written in the same tree as the verifier. It is not the gate's
+  check, and not a soundness claim.
+- **Sources.** H19-1 (rung) replays against the fixture's own blocks: layer 1 is a synthetic variant of layer 0 that
+  is not in the fixture. H19-2 (a real run directory) replays against a SECOND `ExportTokenBlocks` load of the
+  export, independent of the verifier's.
+
+**18.5 Tests (failing first) and mutants.** In `token_io/classify_r17_tests.rs`, a child of the gate-19 module:
+- **The plane index** at both R13 stage shapes of a two-stage rung run (G 20 / 21): 109 A planes by the accuracy
+  layout's names, 54 H planes, and the four R13 zero-checks listing their whole domain.
+- **The R13 rung run recorded** under the classifier schema, with the classifier pins.
+- **With values:**
+  - every public table of every stage carries values;
+  - 34 statement tables are listed (17 kinds x 2 stages; 435,200 entries);
+  - the unreplayed bundle is refused at write;
+  - the replay loads each layer once and passes, and the bundle is written with the replay in its README.
+- **A recorded table that disagrees with the export is refused:**
+  - 18 one-datum doctorings of the export are each refused at the predicted stage and slot: a gain -> 14, a Wq / Wd
+    weight -> 5 / 13, a RoPE sine -> 15, an exp entry -> 19, an output / gate multiplier -> 10 / 11, a group id -> 11
+    (its gate coefficient moves with the group);
+  - each of the 34 recorded tables with a moved digest is refused, naming exactly that table (all 17 kinds; this shows
+    slot 18 directly);
+  - a layer that does not load is refused by name;
+  - the honest export then passes.
+- **Mutants:** `h19-3-off`, `h19-4-off`, `replay-blind` (the replay never compares), `group-skip` (the group column is
+  not listed). Results are in the round-17 ledger.
+
+**18.6 For the gate (next round).**
+- **Pins.** The capture pins that move are `run_capture.rs` (H19-4 plus the export replay; a new digest for the gate to
+  read) and `plane_index.rs` (= H19-3, `ce79803c…`, the gate's own reading). Not pins: `gate19_capture_tests.rs`
+  (adopted, plus the export binding), `classify_r17_tests.rs` and `s25_tests.rs` (one census row:
+  run_capture.rs's `sha256_hex(` sites 11 -> 12).
+- **What does not move.** No prover, verifier or statement file changes; the release binary is in the r17 ledger.
+- **A real capture with values (done, round 17) [MEASURED, laptop, shared box, n = 1; round-17 ledger].** The H19-2
+  hook with `HL_RUN_CAPTURE_PUBLIC_TABLES=1` ran on round 16's moderate-hate run directory (one checkpoint stream).
+  - It recorded the 26 x 17 = 442 statement tables (118,210,560 entries) and replayed every one against a second load
+    of the export in 14.5 s.
+  - Output: `arrays.bin` 2,253,896,728 B, as 18.3 predicted.
+  - Cost: 125.7 s, peak RSS 8.77 GiB. That is above the 7.5 declared: the hook's owner-word scan builds a set over the
+    whole store. The next declaration is 11 / 11.5.
+  - Bundle: `~/zk60-artifacts/token-io/captures/classify-r13-shield-t128-cli-hate-r17-values`.
+- **v22 on the values bundles (format check, `r17/tools/v22_format_check.py`, read only).** The gate's frozen v22
+  replay and R13 block evaluators were run on two bundles; v22's terminal-port pin check passed on both, unbypassed:
+  - the r17 rung bundle: all 23 block slots closed at both stages (G 20 / 21), all seven R13 controls fire;
+  - the REAL values bundle, blocks 2 (G 18) and 3 (G 20) only (a declared bound): 23 / 23 slots each, 15 captured
+    tables taken per stage, all seven R13 controls fire as predicted; 160 s, 3.42 GiB.
+  The bundle key sets equal those of round 19's gate-passed captures (0 new keys).
+- **Open until the gate re-pins.** The gate's classifier capture-pin rule (`zk60_native_rg_classpins`, which pins
+  run_capture.rs) still has to read the r17 digest. The other 24 real blocks are not evaluated yet.
+
+## 19. Addendum v2.8 (2026-10-29/30, token round 18): `prove-batch`, one model load for a whole post (A5)
+
+Token round 18 adopts Astra's staged A5 candidate (`results/zk60_astra_20261026/a5_batch_candidate/`, read only) onto
+frozen-r17 with the review's required fixes (`r18/A5_PATCH_REVIEW.md`, READY WITH FIXES; register "A5 one-load
+batch"). UNREVIEWED; not a privacy acceptance; no verifier, statement encoding, receipt format or relation changes.
+
+**19.1 The command.** `zk60_classify prove-batch --export DIR --tables DIR --content-file FILE --batch-file FILE
+[--label L]` proves ONE post's whole plan: the three moderate D37 policies in that order, every D41 chunk of each
+exactly once (at most 8 per category, at most 336 content ids, so at most 24 jobs), under the R13 Shieldstral T128
+profile only. The request (owner-only, at most 64 KiB, opened O_NOFOLLOW | O_NONBLOCK) names each job's policy,
+chunk, activation directory, run directory and owner directory. The batch:
+- makes every path and owner check before any load (nothing is created by a refusal);
+- loads the export's public side (the digest pass) ONCE and derives the tied tables ONCE; every policy's tied
+  parameters are checked against that one derivation;
+- runs each job as exactly a single `prove` (`prove_with_public`): its own two fresh OS draws (the input endpoint's
+  seal, then the run stream), seal, transcript, witness source and streamed block readers; every block reload is
+  digest-checked against the one digest pass (26 + 26 reloads per job at T128);
+- never verifies (`verified:false`): `verify`, `input-owner` and `label --expect-total` in fresh processes decide.
+
+**19.2 Rule 3 (the coordinator's reading, register).** The in-memory reuse of the derived embedding / margin tables
+and of the digest pass, immutable, for the proofs of ONE post in ONE process meets "no weights reused across proofs
+without that check". Condition: one process per post. The CLI enforces it: any batch flag given twice (a second
+`--content-file`, `--batch-file`, `--export`, ...) is refused (exit 2) before anything is read. Astra's staged code
+proved the FIRST content and ignored a second (r18 red run).
+
+**19.3 A failed batch leaves nothing that looks finished (REVIEW A5 finding 1).** Each finished job's run directory,
+`.unverified-statement` directory and owner directory (with `input.dec`) join the batch's ONE claim (`BatchClaim`)
+BEFORE that job's own claim lets go of them. Any later refusal drops the claim: every one of them is removed, latest
+first, with a `removed` line each, before the `refused` and fail-closed lines. The claim is released only immediately
+before `batch-proved`. A kill or an abort (release builds abort on panic) skips this; the caller must then remove
+every path its request lists (the app's half, Astra's).
+
+**19.4 The randomness and label censuses see the batch files (REVIEW A5 finding 2).** `classify_batch.rs` (a `#[path]`
+child of `classify_cli.rs`) and `classify_batch_plan.rs` (its child) were read by no scan. s25's `production_sources`
+now follows every scanned production file's PRODUCTION `#[path]` children (no `cfg(test)` among the attributes),
+transitively, with a fail-closed list of the 5 edges on the path; the generator census still finds exactly 7
+`ZkRng::from_os` sites. The absorb-label scan lists `classify_cli.rs` and both batch files and checks, fail-closed,
+that every production `#[path]` child of a listed file is listed.
+
+**19.5 Notes taken (REVIEW A5).** 3: the batch file compiles, type-checks and runs (rung tests). 5: the expected plan
+uses the spec's T (checked = the export's) and the registered overlap, the same inputs as the native `chunk_plan`. 7:
+the O_NOFOLLOW | O_NONBLOCK value is x86-64 Linux's; other targets refuse every request at run time. 9:
+`model_loads` / `table_loads` are counted; `batch-job-proved` carries each job's sealing / proving block reloads. 14:
+the module texts. Left as notes: 6 (bad activations found late), 8 (inputs under a receipt parent), 10 (the moved
+capture pin: `src/private_block.rs`'s `pub use` line), 11 (the app checks the guard record), 12 (a full post's memory
+and duration), 13 (review state of r16b / r17).

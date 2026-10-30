@@ -1,0 +1,137 @@
+{
+  "at": "2026-10-30T05:25:43.946519+00:00",
+  "float_sources": {
+    "bench/openai_mod_cat_sexual_le168_strat300.jsonl": {
+      "sha256": "1be6f2929d1c6fff850ef102cb38c07f404a2dc733d8e9a5cd76a62fb63cd3a4",
+      "rows": 612
+    },
+    "bench/openai_mod_cat_violence_le168_strat300.jsonl": {
+      "sha256": "21af02e86a16e49dc717dfea888cf77292c780f249009d3c4a93193c95ec2563",
+      "rows": 612
+    },
+    "bench/openai_mod_cat_hate_le168_strat300.jsonl": {
+      "sha256": "8712c263b08e93859913eb38047762c6ffc42384fb21dd729f35abd2535f9a77",
+      "rows": 612
+    },
+    "bench/toxicchat_cat_sexual.jsonl": {
+      "sha256": "f85c3b01ab2046312576fa527baaa459fd08997fa2e27013b6a7594969effa85",
+      "rows": 200
+    },
+    "bench/toxicchat_cat_violence.jsonl": {
+      "sha256": "f48967b56de140accb038aa80261b87a2c1f07d033e0364ceca7a18313cb005b",
+      "rows": 200
+    },
+    "bench/toxicchat_cat_hate.jsonl": {
+      "sha256": "2467fae597b0888509b3fba71a7627ab21e4fa85d6713c8564d360e1eee610b1",
+      "rows": 200
+    },
+    "bench/openai_mod_mod_sexual_le168_strat300.jsonl": {
+      "sha256": "bb515c30e9c61c2d832fb28452936d7d27424935b6592196bcdd75d06aaca461",
+      "rows": 612
+    },
+    "bench/openai_mod_mod_violence_le168_strat300.jsonl": {
+      "sha256": "1ecb8db482f4a6e2bb53c1e4fd93c866d397659e3438ec9fd0809a1379407ee4",
+      "rows": 612
+    },
+    "bench/openai_mod_mod_hate_le168_strat300.jsonl": {
+      "sha256": "cc8cded375e68fbb1a2836795a2409d01e4877f851d8b72f7f8c3a00b62998c7",
+      "rows": 612
+    },
+    "bench/toxicchat_mod_sexual.jsonl": {
+      "sha256": "67e055c1bc42dfd0df60dc3d6cbb8051eca65b756d9fd1049272aa4c7024d052",
+      "rows": 200
+    },
+    "bench/toxicchat_mod_violence.jsonl": {
+      "sha256": "ce8e7f2542c59ff8ffb8b2f2bcd6f009efaa5db0e0ebf26fc5f189ffd37d5dcd",
+      "rows": 200
+    },
+    "bench/toxicchat_mod_hate.jsonl": {
+      "sha256": "f18549a00a74977c837225c2af57d07bd3202996516eb72b41ea0e61e6a2c7aa",
+      "rows": 200
+    }
+  },
+  "float_total_rows": 4872,
+  "paired_reference_metadata_hashes_match": true,
+  "benchmark_progress": {
+    "started": true,
+    "complete": false,
+    "fully_verified": false,
+    "model_artifact_hashes_verified": false,
+    "scope": "all 12 A1 sets without truncation",
+    "expected_items": 4872,
+    "expected_tokens_per_layer": 702006,
+    "run_sha256": "d40dec34c69a7ffbc1e9a84bf1f2ecbef3aebde2e29305fa901e326256eca5b5",
+    "stages": {
+      "input": {
+        "items": 4872,
+        "refused_items": [],
+        "violations_by_site": {},
+        "incomplete_journal_tail": false,
+        "complete": true,
+        "residual_hash_verified": false
+      },
+      "layer_00": {
+        "items": 4872,
+        "refused_items": [],
+        "violations_by_site": {},
+        "incomplete_journal_tail": false,
+        "complete": true,
+        "residual_hash_verified": false
+      },
+      "layer_01": {
+        "items": 4872,
+        "refused_items": [],
+        "violations_by_site": {},
+        "incomplete_journal_tail": false,
+        "complete": true,
+        "residual_hash_verified": false
+      },
+      "layer_02": {
+        "items": 4872,
+        "refused_items": [],
+        "violations_by_site": {},
+        "incomplete_journal_tail": false,
+        "complete": true,
+        "residual_hash_verified": false
+      },
+      "layer_03": {
+        "items": 4872,
+        "refused_items": [],
+        "violations_by_site": {},
+        "incomplete_journal_tail": false,
+        "complete": true,
+        "residual_hash_verified": false
+      },
+      "layer_04": {
+        "items": 4872,
+        "refused_items": [],
+        "violations_by_site": {},
+        "incomplete_journal_tail": false,
+        "complete": true,
+        "residual_hash_verified": false
+      },
+      "layer_05": {
+        "items": 4872,
+        "refused_items": [],
+        "violations_by_site": {},
+        "incomplete_journal_tail": false,
+        "complete": true,
+        "residual_hash_verified": false
+      }
+    },
+    "stack_refused_items_so_far": [],
+    "head_refusals": {},
+    "zero_refusals": false,
+    "note": "Numerical replay only. Native export, proof and privacy acceptance are separate.",
+    "at": "2026-10-30T05:25:43.946519+00:00",
+    "complete_layers": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+    ]
+  },
+  "scope": "Read-only source/input/journal coverage check after reboot; residual and model payload bytes were not rehashed; no fidelity acceptance."
+}

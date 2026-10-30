@@ -1,0 +1,161 @@
+............/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/staging_v22/tests/test_v4_status_g10.py:1381: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io/hashline/src/private_block/token_io/stage_out_c.rs' mode='r' encoding='UTF-8'>
+  text = open(src).read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/staging_v22/scripts/zk60_native_rg_classpins.py:574: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/manifest_final_r16b.sha256' mode='r' encoding='UTF-8'>
+  for line in open(man):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+..../usr/lib/python3.10/json/decoder.py:353: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/zk60-artifacts/token-io/captures/classify-rung-L2-v1-chunk1o27/arrays.bin'>
+  obj, end = self.scan_once(s, idx)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/usr/lib/python3.10/unittest/case.py:549: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/zk60-artifacts/token-io/captures/classify-rung-L1-v1/arrays.bin'>
+  method()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+../usr/lib/python3.10/unittest/case.py:549: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/zk60-artifacts/token-io/captures/classify-rc3-rung-L2-v1-short20/arrays.bin'>
+  method()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+../usr/lib/python3.10/unittest/case.py:549: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/zk60-artifacts/token-io/captures/classify-rc3-cli-p18-r14/arrays.bin'>
+  method()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./usr/lib/python3.10/unittest/case.py:549: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/zk60-artifacts/token-io/captures/classify-r13-rung-L2-v1-short11/arrays.bin'>
+  method()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+....../home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/staging_v22/tests/test_v4_status_g10.py:1194: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/zk60-artifacts/dd-gate-r9/dd-rung-l1-dense/arrays.bin'>
+  c = DC.run(DD_RUNG_L1)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/staging_v22/tests/test_v4_status_g10.py:1196: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/zk60-artifacts/dd-gate-r9/dd-rung-l1-dense/arrays.bin'>
+  n = DN.run(DD_RUNG_L1)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/usr/lib/python3.10/unittest/case.py:549: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/zk60-artifacts/dd-gate-r9/dd-rung-l1-dense/arrays.bin'>
+  method()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+../usr/lib/python3.10/unittest/case.py:549: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/zk60-artifacts/tinyllama-trained-capture-dense-l1/arrays.bin'>
+  method()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./usr/lib/python3.10/json/decoder.py:353: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/zk60-artifacts/tinyllama-trained-capture-zero-l1/arrays.bin'>
+  obj, end = self.scan_once(s, idx)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/usr/lib/python3.10/unittest/case.py:549: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/zk60-artifacts/tinyllama-trained-capture-dense-l2/arrays.bin'>
+  method()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+............/usr/lib/python3.10/json/decoder.py:353: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/zk60-artifacts/tinyllama-trained-capture-zero-l2/arrays.bin'>
+  obj, end = self.scan_once(s, idx)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+........./usr/lib/python3.10/json/decoder.py:353: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/zk60-artifacts/tinyllama-trained-capture-dense-l1/arrays.bin'>
+  obj, end = self.scan_once(s, idx)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+../usr/lib/python3.10/json/decoder.py:353: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/zk60-artifacts/dd-gate-r9/dd-rung-l1-dense/arrays.bin'>
+  obj, end = self.scan_once(s, idx)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./usr/lib/python3.10/json/decoder.py:353: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/zk60-artifacts/dd-gate-r9/tl128dd-l2-dense/arrays.bin'>
+  obj, end = self.scan_once(s, idx)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+........................../home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/staging_v22/scripts/zk60_native_rg_tokenblocks.py:225: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/zk60-artifacts/token-io/captures/tinyllama-t32-L1-dense-pt1/README.md' mode='r' encoding='UTF-8'>
+  text = open(path).read() if os.path.exists(path) else ""
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/staging_v22/scripts/zk60_native_rg_tokenblocks.py:240: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T32_cal128/profile.json' mode='r' encoding='UTF-8'>
+  prof = json.load(open(prof_path))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/staging_v22/scripts/zk60_native_rg_tokenblocks.py:247: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T32_cal128/layer_00/manifest.json' mode='r' encoding='UTF-8'>
+  man = json.load(open(man_path))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/staging_v22/scripts/zk60_native_rg_tokenblocks.py:247: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T32_cal128/layer_01/manifest.json' mode='r' encoding='UTF-8'>
+  man = json.load(open(man_path))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/staging_v22/scripts/zk60_native_rg_tokenblocks.py:247: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T32_cal128/layer_02/manifest.json' mode='r' encoding='UTF-8'>
+  man = json.load(open(man_path))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/staging_v22/scripts/zk60_native_rg_tokenblocks.py:247: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T32_cal128/layer_03/manifest.json' mode='r' encoding='UTF-8'>
+  man = json.load(open(man_path))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/staging_v22/scripts/zk60_native_rg_tokenblocks.py:247: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T32_cal128/layer_04/manifest.json' mode='r' encoding='UTF-8'>
+  man = json.load(open(man_path))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/staging_v22/scripts/zk60_native_rg_tokenblocks.py:247: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T32_cal128/layer_05/manifest.json' mode='r' encoding='UTF-8'>
+  man = json.load(open(man_path))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/staging_v22/scripts/zk60_native_rg_tokenblocks.py:247: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T32_cal128/layer_06/manifest.json' mode='r' encoding='UTF-8'>
+  man = json.load(open(man_path))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/staging_v22/scripts/zk60_native_rg_tokenblocks.py:247: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T32_cal128/layer_07/manifest.json' mode='r' encoding='UTF-8'>
+  man = json.load(open(man_path))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/staging_v22/scripts/zk60_native_rg_tokenblocks.py:247: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T32_cal128/layer_08/manifest.json' mode='r' encoding='UTF-8'>
+  man = json.load(open(man_path))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/staging_v22/scripts/zk60_native_rg_tokenblocks.py:247: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T32_cal128/layer_09/manifest.json' mode='r' encoding='UTF-8'>
+  man = json.load(open(man_path))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/staging_v22/scripts/zk60_native_rg_tokenblocks.py:247: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T32_cal128/layer_10/manifest.json' mode='r' encoding='UTF-8'>
+  man = json.load(open(man_path))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/staging_v22/scripts/zk60_native_rg_tokenblocks.py:247: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T32_cal128/layer_11/manifest.json' mode='r' encoding='UTF-8'>
+  man = json.load(open(man_path))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/staging_v22/scripts/zk60_native_rg_tokenblocks.py:247: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T32_cal128/layer_12/manifest.json' mode='r' encoding='UTF-8'>
+  man = json.load(open(man_path))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/staging_v22/scripts/zk60_native_rg_tokenblocks.py:247: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T32_cal128/layer_13/manifest.json' mode='r' encoding='UTF-8'>
+  man = json.load(open(man_path))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/staging_v22/scripts/zk60_native_rg_tokenblocks.py:247: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T32_cal128/layer_14/manifest.json' mode='r' encoding='UTF-8'>
+  man = json.load(open(man_path))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/staging_v22/scripts/zk60_native_rg_tokenblocks.py:247: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T32_cal128/layer_15/manifest.json' mode='r' encoding='UTF-8'>
+  man = json.load(open(man_path))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/staging_v22/scripts/zk60_native_rg_tokenblocks.py:247: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T32_cal128/layer_16/manifest.json' mode='r' encoding='UTF-8'>
+  man = json.load(open(man_path))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/staging_v22/scripts/zk60_native_rg_tokenblocks.py:247: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T32_cal128/layer_17/manifest.json' mode='r' encoding='UTF-8'>
+  man = json.load(open(man_path))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/staging_v22/scripts/zk60_native_rg_tokenblocks.py:247: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T32_cal128/layer_18/manifest.json' mode='r' encoding='UTF-8'>
+  man = json.load(open(man_path))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/staging_v22/scripts/zk60_native_rg_tokenblocks.py:247: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T32_cal128/layer_19/manifest.json' mode='r' encoding='UTF-8'>
+  man = json.load(open(man_path))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/staging_v22/scripts/zk60_native_rg_tokenblocks.py:247: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T32_cal128/layer_20/manifest.json' mode='r' encoding='UTF-8'>
+  man = json.load(open(man_path))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/staging_v22/scripts/zk60_native_rg_tokenblocks.py:247: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/IntelligenceRegulation/results/zk60_1b_calibration_20260929/export/pg_rot1_b4_T32_cal128/layer_21/manifest.json' mode='r' encoding='UTF-8'>
+  man = json.load(open(man_path))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/usr/lib/python3.10/unittest/case.py:549: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/zk60-artifacts/token-io/captures/tinyllama-t32-L1-dense-pt1/arrays.bin'>
+  method()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/staging_v22/scripts/zk60_native_rg_tokencal.py:114: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/zk60-artifacts/token-io/captures/tinyllama-t32-L1-dense-pt1/run.json' mode='r' encoding='UTF-8'>
+  run = json.load(open(os.path.join(bundle_dir, "run.json")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/staging_v22/tests/test_v4_status_g10.py:1078: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/zk60-artifacts/token-io/captures/tinyllama-t32-L1-dense-pt1/arrays.bin'>
+  rec = TC.check_one(TOKEN_L1, atts)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+............./home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/staging_v22/tests/test_v4_status_g10.py:857: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/zk60-artifacts/token-io/captures/tinyllama-t32-L1-dense-pt1/arrays.bin'>
+  r = NLT.run(TOKEN_L1)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/g7/ts_trained.py:62: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/IntelligenceRegulation/results/zk60_terminal_surjection_review/ts_review.py'>
+  return hashlib.sha256(open(p, "rb").read()).hexdigest()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/g7/ts_trained.py:62: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/IntelligenceRegulation/results/zk60_terminal_surjection_review/ts_field.py'>
+  return hashlib.sha256(open(p, "rb").read()).hexdigest()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/g7/ts_trained.py:62: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/IntelligenceRegulation/results/zk60_terminal_surjection_review/ts_components.py'>
+  return hashlib.sha256(open(p, "rb").read()).hexdigest()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/staging_v22/scripts/zk60_native_rg_tokents.py:78: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/zk60-artifacts/token-io/captures/tinyllama-t32-L1-dense-pt1/run.json' mode='r' encoding='UTF-8'>
+  run = json.load(open(os.path.join(d, "run.json")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/g7/ts_trained.py:90: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/zk60-artifacts/token-io/captures/tinyllama-t32-L1-dense-pt1/arrays.bin'>
+  self.mm = open(path, "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/staging_v22/scripts/zk60_native_rg_tokents.py:85: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/zk60-artifacts/token-io/captures/tinyllama-t32-L1-dense-pt1/stage-00.json' mode='r' encoding='UTF-8'>
+  st = json.load(open(os.path.join(d, sf)))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/staging_v22/scripts/zk60_native_rg_tokents.py:85: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/zk60-artifacts/token-io/captures/tinyllama-t32-L1-dense-pt1/stage-02.json' mode='r' encoding='UTF-8'>
+  st = json.load(open(os.path.join(d, sf)))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+.
+----------------------------------------------------------------------
+Ran 97 tests in 53.568s
+
+OK

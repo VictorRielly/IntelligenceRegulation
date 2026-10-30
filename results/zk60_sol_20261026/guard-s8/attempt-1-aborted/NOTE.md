@@ -1,0 +1,1 @@
+Attempt 1: 45+31+9 host cases passed, then consumer import failed because the runner omitted the repository root from sys.path. Automatic rollback complete. run_suite.py copied here contains the subsequent one-line root-path fix; the failure log preserves the original execution.

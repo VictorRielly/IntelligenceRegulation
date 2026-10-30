@@ -1,0 +1,1 @@
+{"log": "/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/r19b/logs/mut-after-tests-label.log", "exit": "101", "compiled": true, "failed": {"private_block::hash_domain::tests::every_absorb_label_on_the_path_is_in_the_table": true}, "reasons": {"tied_tables/derive.rs absorbs": true}, "killed_as_named": true}

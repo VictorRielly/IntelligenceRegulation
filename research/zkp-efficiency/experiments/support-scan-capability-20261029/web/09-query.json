@@ -1,0 +1,17 @@
+{
+  "click": [
+    {
+      "ref_id": "turn7view0",
+      "id": 79
+    }
+  ],
+  "open": [
+    {
+      "ref_id": "https://github.com/xuezhantong/zk-debloater/commits/main/README.md"
+    },
+    {
+      "ref_id": "https://github.com/THU-HAS/MegaZK/releases"
+    }
+  ],
+  "response_length": "long"
+}

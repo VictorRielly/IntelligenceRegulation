@@ -1,0 +1,370 @@
+{
+  "label": "sol-r14-legacy-full-suite-3",
+  "guard": {
+    "ts_end": "2026-10-30T08:09:33Z",
+    "run_id": "2dd56b0d2d55",
+    "label": "sol-r14-legacy-full-suite-3",
+    "class": "cpu",
+    "cmd": [
+      "/usr/bin/env",
+      "RAYON_NUM_THREADS=2",
+      "OPENBLAS_NUM_THREADS=1",
+      "ZK60_R12_EVIDENCE_DIR=/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/compatibility/attempt3/generated-r12-receipts",
+      "ZK60_NATIVE_TINY_EXPORT_DIR=/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/compatibility/attempt3/generated-tiny-exports",
+      "/home/victor/.cargo/bin/cargo",
+      "test",
+      "--release"
+    ],
+    "need_gib": 4.2,
+    "cap_gib": 8.0,
+    "exit": 0,
+    "child_rc": 0,
+    "guard_killed": null,
+    "child_wall_seconds": 506.5011830329895,
+    "refused": null,
+    "guard_error": null,
+    "guard_pid": 6,
+    "boot_id": "4f7dab84-38e2-4f1a-9518-e305e81ef580",
+    "pid_ns": "pid:[4026532299]",
+    "guard_starttime_ticks": 1098583,
+    "lock_ids": {
+      "heavy": "2096:715313",
+      "build": "2096:715314"
+    },
+    "enforcement": "watchdog-only",
+    "waited_s": 1067.8,
+    "guard_wall_s": 506.5,
+    "stragglers_killed": 0,
+    "hard_killed": 0,
+    "scope_unit": null,
+    "scope_adopted": null,
+    "foreign_cgroups_refused": [],
+    "peak_rss_gib": 2.49,
+    "peak_cgroup_gib": null,
+    "peak_vram_mib": null,
+    "min_mem_available_gib": 10.94,
+    "vram_drain_s": null,
+    "gpu_drain_failed": false,
+    "gpu_telemetry_lost": false,
+    "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache"
+  },
+  "adopted_successful_leaf": true,
+  "census_checker_sha256": "6ac7064cdb2476fdd93176811a472a513d1fe95a4c1db58d7895d6e3327b2bc7",
+  "passed": 834,
+  "ignored": 71,
+  "summaries": [
+    [
+      "689",
+      "71"
+    ],
+    [
+      "0",
+      "0"
+    ],
+    [
+      "3",
+      "0"
+    ],
+    [
+      "4",
+      "0"
+    ],
+    [
+      "9",
+      "0"
+    ],
+    [
+      "6",
+      "0"
+    ],
+    [
+      "2",
+      "0"
+    ],
+    [
+      "6",
+      "0"
+    ],
+    [
+      "2",
+      "0"
+    ],
+    [
+      "12",
+      "0"
+    ],
+    [
+      "9",
+      "0"
+    ],
+    [
+      "5",
+      "0"
+    ],
+    [
+      "2",
+      "0"
+    ],
+    [
+      "1",
+      "0"
+    ],
+    [
+      "5",
+      "0"
+    ],
+    [
+      "4",
+      "0"
+    ],
+    [
+      "3",
+      "0"
+    ],
+    [
+      "4",
+      "0"
+    ],
+    [
+      "4",
+      "0"
+    ],
+    [
+      "9",
+      "0"
+    ],
+    [
+      "5",
+      "0"
+    ],
+    [
+      "7",
+      "0"
+    ],
+    [
+      "12",
+      "0"
+    ],
+    [
+      "8",
+      "0"
+    ],
+    [
+      "8",
+      "0"
+    ],
+    [
+      "7",
+      "0"
+    ],
+    [
+      "3",
+      "0"
+    ],
+    [
+      "0",
+      "0"
+    ],
+    [
+      "5",
+      "0"
+    ]
+  ],
+  "baseline_passed_preserved": 816,
+  "baseline_ignored_preserved": 51,
+  "baseline_log_sha256": "359060c37110e96be1016f6249f0f91bdb2b93ddf70d39b8a5c5f79841ae230b",
+  "current_log_sha256": "fb8a5885265b516f34e8625fa70ba020d5bfcdf80d6926e0df936f491ba69c0a",
+  "added": [
+    {
+      "test": "private_block::argument::split_actual_tests::split_actual_s2_t128_all19_sites_and_optional_native_proof",
+      "state": "ignored",
+      "count": 1
+    },
+    {
+      "test": "private_block::argument::split_actual_tests::split_actual_s2_t128_fresh_native_corruption_refusal",
+      "state": "ignored",
+      "count": 1
+    },
+    {
+      "test": "private_block::argument::split_actual_tests::split_actual_s2_t128_fresh_native_verifier",
+      "state": "ignored",
+      "count": 1
+    },
+    {
+      "test": "private_block::argument::split_attack_tests::split_run_t128_malicious_arithmetic_receipt_from_env",
+      "state": "ignored",
+      "count": 1
+    },
+    {
+      "test": "private_block::argument::split_attack_tests::split_run_t128_relation_regression_receipt_from_env",
+      "state": "ignored",
+      "count": 1
+    },
+    {
+      "test": "private_block::argument::split_capture_tests::split_capture_public_seed_matches_native_and_changed_context_refuses_replay",
+      "state": "ok",
+      "count": 1
+    },
+    {
+      "test": "private_block::argument::split_capture_tests::split_capture_rejected_or_incomplete_run_cannot_return_a_bundle",
+      "state": "ok",
+      "count": 1
+    },
+    {
+      "test": "private_block::argument::split_capture_tests::split_capture_t128_three_stage_native_verifier_view_and_rejected_bundle_suppression",
+      "state": "ignored",
+      "count": 1
+    },
+    {
+      "test": "private_block::argument::split_cfs_tests::split_scheduled_native_cfs_emitted_gate_forgeries_reach_m_and_refuse",
+      "state": "ok",
+      "count": 1
+    },
+    {
+      "test": "private_block::argument::split_cfs_tests::split_scheduled_native_cfs_pcs_m_accepts_public_factor_lift_at_slot30",
+      "state": "ok",
+      "count": 1
+    },
+    {
+      "test": "private_block::argument::split_definition_tests::split_actual_definitions_match_all_physical_sites_sources_hosts_and_degrees",
+      "state": "ok",
+      "count": 1
+    },
+    {
+      "test": "private_block::argument::split_definition_tests::split_native_core_t128_dd_proves_verifies_and_tamper_refuses",
+      "state": "ignored",
+      "count": 1
+    },
+    {
+      "test": "private_block::argument::split_definition_tests::split_native_core_t128_non_dd_proves_verifies_and_tamper_refuses",
+      "state": "ignored",
+      "count": 1
+    },
+    {
+      "test": "private_block::argument::split_definition_tests::split_run_plan_binds_trained_context_layer_calibrations_scales_and_joint_geometry",
+      "state": "ok",
+      "count": 1
+    },
+    {
+      "test": "private_block::argument::split_definition_tests::split_witness_global_histograms_remove_only_the_old_padding_queries",
+      "state": "ok",
+      "count": 1
+    },
+    {
+      "test": "private_block::argument::split_dense_tests::split_generic_dense_t128_native_receipt_and_physical_trace",
+      "state": "ignored",
+      "count": 1
+    },
+    {
+      "test": "private_block::argument::split_l25_tests::split_actual_l25_t128_all19_sites_and_optional_native_proof",
+      "state": "ignored",
+      "count": 1
+    },
+    {
+      "test": "private_block::argument::split_l25_tests::split_actual_l25_t128_fresh_native_corruption_refusal",
+      "state": "ignored",
+      "count": 1
+    },
+    {
+      "test": "private_block::argument::split_l25_tests::split_actual_l25_t128_fresh_native_verifier",
+      "state": "ignored",
+      "count": 1
+    },
+    {
+      "test": "private_block::argument::split_run_tests::split_run_t128_dd_fresh_rejects_corrupt_stream",
+      "state": "ignored",
+      "count": 1
+    },
+    {
+      "test": "private_block::argument::split_run_tests::split_run_t128_dd_fresh_verify_from_dir",
+      "state": "ignored",
+      "count": 1
+    },
+    {
+      "test": "private_block::argument::split_run_tests::split_run_t128_dd_narrow_boundary_forgery_emits_and_refuses",
+      "state": "ignored",
+      "count": 1
+    },
+    {
+      "test": "private_block::argument::split_run_tests::split_run_t128_dd_serialized_two_blocks_with_own_calibration_verify",
+      "state": "ignored",
+      "count": 1
+    },
+    {
+      "test": "private_block::argument::split_run_tests::split_run_t128_non_dd_fresh_rejects_corrupt_stream",
+      "state": "ignored",
+      "count": 1
+    },
+    {
+      "test": "private_block::argument::split_run_tests::split_run_t128_non_dd_fresh_verify_from_dir",
+      "state": "ignored",
+      "count": 1
+    },
+    {
+      "test": "private_block::argument::split_run_tests::split_run_t128_non_dd_narrow_boundary_forgery_emits_and_refuses",
+      "state": "ignored",
+      "count": 1
+    },
+    {
+      "test": "private_block::argument::split_run_tests::split_run_t128_non_dd_serialized_two_blocks_with_own_calibration_verify",
+      "state": "ignored",
+      "count": 1
+    },
+    {
+      "test": "private_block::source_audit::test_attributes_and_public_children_are_enumerated_without_scanning_test_modules",
+      "state": "ok",
+      "count": 1
+    },
+    {
+      "test": "private_block::split_endpoint::tests::split_joint_descriptor_and_source_roles_refuse_foreign_geometry",
+      "state": "ok",
+      "count": 1
+    },
+    {
+      "test": "private_block::split_endpoint::tests::split_joint_one_opening_accepts_two_and_four_piece_claims_and_rejects_mutations",
+      "state": "ok",
+      "count": 1
+    },
+    {
+      "test": "private_block::split_geometry::tests::both_matrix_orientations_use_global_coefficients_and_one_public_gate",
+      "state": "ok",
+      "count": 1
+    },
+    {
+      "test": "private_block::split_geometry::tests::gather_all_true_numeric_roles_preserves_global_token_feature_indices",
+      "state": "ok",
+      "count": 1
+    },
+    {
+      "test": "private_block::split_geometry::tests::native_private_broadcast_maps_keep_fixed_and_moving_tokens",
+      "state": "ok",
+      "count": 1
+    },
+    {
+      "test": "private_block::split_layout::tests::native_split_inventory_census",
+      "state": "ok",
+      "count": 1
+    },
+    {
+      "test": "private_block::split_layout::tests::split_inventory_refuses_missing_extent_and_short_h_piece",
+      "state": "ok",
+      "count": 1
+    },
+    {
+      "test": "private_block::split_profile::tests::split_descriptors_bind_geometry_calibration_and_new_hash_domains",
+      "state": "ok",
+      "count": 1
+    },
+    {
+      "test": "private_block::split_run::root_tests::split_run_repeated_root_audit_covers_endpoint_block_mask_and_boundary_roles",
+      "state": "ok",
+      "count": 1
+    },
+    {
+      "test": "private_block::wire::split::tests::split_wire_exact_shapes_roundtrip_and_hostile_headers_words_and_counts_refuse",
+      "state": "ok",
+      "count": 1
+    }
+  ],
+  "normalization": "Only numeric doctest (line N) locations; names, status and multiplicity preserved."
+}

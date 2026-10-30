@@ -1,0 +1,26 @@
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r13/hashline/src/private_block/token_io/tests.rs	2026-10-28 16:42:48.584907022 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r14/hashline/src/private_block/token_io/tests.rs	2026-10-28 19:12:07.681354221 -0700
+@@ -119,6 +119,13 @@
+ }
+ 
+ pub(super) fn model_with_records(sh: &Shape, recs: Vec<LayerRecord>, run_profile: &str) -> TrainedModelStatement {
++    model_with_records_prov(sh, recs, run_profile, 1.0 / 512.0, [0; 32])
++}
++
++/// TOKEN ROUND 14: the synthetic statement naming an export's residual unit
++/// and `profile.json` digest (the classifier capture fixture's tables are
++/// derived under that profile: REVIEW_R13 N-r13-1)
++pub(super) fn model_with_records_prov(sh: &Shape, recs: Vec<LayerRecord>, run_profile: &str, residual_unit: f64, export_profile_sha256: [u8; 32]) -> TrainedModelStatement {
+     let src = ModelSource {
+         kind: SourceKind::PublicSyntheticRecipe,
+         repo: "hashline/token-io-r1/synthetic".into(),
+@@ -128,7 +135,8 @@
+         checkpoint_parameters: 0,
+         checkpoint_layers: recs.len() as u32,
+     };
+-    let mut prov = Provenance::recipe("token-io-r1/synthetic", 1.0 / 512.0, [5; 32], [6; 32]);
++    let mut prov = Provenance::recipe("token-io-r1/synthetic", residual_unit, [5; 32], [6; 32]);
++    prov.export_profile_sha256 = export_profile_sha256;
+     prov.rope_theta = super::super::shape::trained_rope_theta(sh.profile).expect("a trained profile");
+     let cal = IntegerCalibration::as_the_code_proves(sh, &prov);
+     // the development rung admits a synthetic recipe; a trained profile

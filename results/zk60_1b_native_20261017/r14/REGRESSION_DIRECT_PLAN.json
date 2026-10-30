@@ -1,0 +1,10 @@
+{
+  "utc": "2026-10-30T06:34:34.588752+00:00",
+  "source": "3c7b1dcfd47ba8cb257c6f734348f25fb960af3f25f8b1b14ea4e262ff8defda",
+  "cases": 50,
+  "runner_sha256": "8a2c3bb88cb597c66899bd5f4edcdc41244edfcac55579f5895b8a093877efd0",
+  "guard_sha256": "67e9478f55518c2808ff65e5f303f70e155a5f21c5987243a39cf579d1a9a6f3",
+  "rayon_threads": 8,
+  "reason": "D46 closed window; use reviewed direct admission and <=1GiB light-job policy. Original pinned runner and native source unchanged. Two-job restriction applies to cargo builds, no2thread proof restriction. Native gate clocks shared-host diagnostics only.",
+  "scope": "All50 prepared emitted-receipt tests; stops on first failure. No automatic failed-case retry."
+}

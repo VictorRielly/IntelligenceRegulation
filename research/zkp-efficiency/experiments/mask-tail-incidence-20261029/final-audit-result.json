@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "at": "2026-10-29T08:13:41.302753+00:00",
+  "artifact_files": 84,
+  "append_only_history": true,
+  "sources": 916,
+  "hypotheses": 57,
+  "native_pins": 8,
+  "owner_document_drift": [],
+  "new_proved_positions": 0
+}

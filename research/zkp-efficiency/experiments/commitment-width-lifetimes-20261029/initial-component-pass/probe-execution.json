@@ -1,0 +1,21 @@
+{
+  "stage": "probe",
+  "command": [
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/commitment-width-lifetimes-20261029/probe"
+  ],
+  "exit_code": 0,
+  "elapsed_s": 0.16682065799977863,
+  "max_rss_kib": 7928,
+  "threads": 1,
+  "nice": 19,
+  "affinity": [
+    0
+  ],
+  "cpu_cap_s": 40,
+  "alarm_s": 45,
+  "parent_timeout_s": 50,
+  "address_space_cap_bytes": 402653184,
+  "estimated_memory_bytes": 67108864,
+  "cargo": false,
+  "gpu": false
+}

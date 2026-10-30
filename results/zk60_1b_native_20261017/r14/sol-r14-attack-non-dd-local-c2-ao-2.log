@@ -1,0 +1,15 @@
+
+running 1 test
+test private_block::argument::split_attack_tests::split_run_t128_malicious_arithmetic_receipt_from_env ... 
+thread 'private_block::argument::split_attack_tests::split_run_t128_malicious_arithmetic_receipt_from_env' (552) panicked at src/private_block/split_attack_tests.rs:159:5:
+fixture supplied no global-c2 counterexample
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    private_block::argument::split_attack_tests::split_run_t128_malicious_arithmetic_receipt_from_env
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 747 filtered out; finished in 6.37s
+

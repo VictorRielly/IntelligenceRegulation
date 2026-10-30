@@ -1,0 +1,258 @@
+   Compiling hashline v0.1.0 (/home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r12b/hashline)
+warning: unused doc comment
+   --> src/private_block/token_io/run.rs:698:1
+    |
+698 | / /// **THE TOKEN-I/O RUN PROVER.** One transcript, one OS stream, `L + 2`
+699 | | /// segments, each handed to `sink` and dropped (M-3); block `k` asked for
+700 | | /// at its own stage (R3 streaming).
+701 | | ///
+...   |
+710 | | /// it receives as UNPUBLISHED until this function returns `Ok` (the CLI's
+711 | | /// sink writes `<out>.incomplete/` and renames it only then).
+    | |_-------------------------------------------------------------^
+    |   |
+    |   rustdoc does not generate documentation for macro invocations
+    |
+    = help: to document an item produced by a macro, the macro must produce the documentation as part of its expansion
+    = note: `#[warn(unused_doc_comments)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Dom`
+  --> src/private_block/s28_review_tests.rs:19:21
+   |
+19 | use super::layout::{Dom, Layout, U8_LEN};
+   |                     ^^^
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: variable does not need to be mutable
+    --> src/private_block/run.rs:1188:13
+     |
+1188 |         let mut tr = st.transcript()?;
+     |             ----^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:302:18
+    |
+302 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: function `limbs` is never used
+   --> src/private_block/argument.rs:905:4
+    |
+905 | fn limbs(v: &[Fp2], ix: &[usize]) -> Fp2 {
+    |    ^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `slot` is never used
+   --> src/private_block/timing.rs:259:19
+    |
+216 | impl Phases {
+    | ----------- method in this implementation
+...
+259 |     pub(crate) fn slot(&mut self, s: usize, size: u64, unit: &'static str) {
+    |                   ^^^^
+
+warning: method `is_dd` is never used
+   --> src/private_block/trained_block.rs:709:19
+    |
+658 | impl Geometry {
+    | ------------- method in this implementation
+...
+709 |     pub(crate) fn is_dd(self) -> bool {
+    |                   ^^^^^
+
+warning: field `boundaries` is never read
+   --> src/private_block/run_capture.rs:818:5
+    |
+811 | struct Rec {
+    |        --- field in this struct
+...
+818 |     boundaries: Vec<Vec<u8>>,
+    |     ^^^^^^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib test) generated 17 warnings (run `cargo fix --lib -p hashline --tests` to apply 10 suggestions)
+    Finished `release` profile [optimized] target(s) in 3m 38s
+     Running unittests src/lib.rs (ops/zkp-mvp/token-io-r12b/hashline/target/release/deps/hashline-76303676ece1b326)
+
+running 30 tests
+test private_block::token_io::classify_capture_tests::capture_a_classify_rung_run ... ignored, writes a classifier rung capture; set HL_PB_CAPTURE_DIR (outside the repo), HL_PB_CLASSIFY_VERDICT and HL_RUN_CAPTURE_PUBLIC_TABLES
+test private_block::token_io::classify_capture_tests::capture_the_classify_cli_verify_path ... ignored, writes the classifier CLI-path capture; set HL_PB_CAPTURE_DIR, HL_PB_CLI_BIN, HL_PB_CLI_BIN_SHA256 and HL_RUN_CAPTURE_PUBLIC_TABLES
+test private_block::token_io::classify_capture_tests::r12_a_tampered_or_reverdicted_classify_run_is_refused_and_no_bundle_is_written ... ok
+test private_block::token_io::classify_capture_tests::r12_a_classify_chunk_at_the_tie_is_captured ... ok
+test private_block::token_io::classify_capture_tests::r12_the_classify_hooks_are_inert_on_the_prover_and_a_run_verifies_the_same_with_and_without_a_recorder ... ok
+test private_block::token_io::classify_capture_tests::r12_a_classify_run_is_captured_and_its_bundle_is_self_consistent ... ok
+test private_block::token_io::classify_cli_tests::r12_cli_other_tables_a_consistently_flipped_verdict_or_a_tampered_segment_are_refused ... ok
+test private_block::token_io::classify_cli_tests::r12_cli_the_label_is_the_or_over_every_chunk_exactly_once ... ok
+test private_block::token_io::classify_cli_tests::r12_cli_the_classifier_tables_loader_refuses_a_changed_margin_vector ... ok
+test private_block::token_io::classify_cli_tests::r12_cli_the_prover_refuses_content_on_the_command_line_an_unknown_policy_and_a_control_id ... ok
+test private_block::token_io::classify_tests::r12_a_changed_template_position_is_refused_at_the_template_clause ... ok
+test private_block::token_io::classify_tests::r12_a_chunk_receipt_is_bound_to_its_index_and_total ... ok
+test private_block::token_io::classify_tests::r12_a_content_control_id_is_refused_by_the_ctl_column ... ok
+test private_block::token_io::classify_cli_tests::r12_cli_the_classifier_proves_at_both_verdicts_the_verifier_publishes_and_the_owner_checks ... ok
+test private_block::token_io::classify_cli_tests::r12_cli_chunks_prove_verify_owner_check_and_label_fail_closed ... ok
+test private_block::token_io::classify_tests::r12_a_flipped_verdict_with_field_limbs_is_refused_at_the_byte_lookups ... ok
+test private_block::token_io::classify_tests::r12_chunk_ranges_cover_the_content_consecutively_with_the_overlap_and_end_align ... ok
+test private_block::token_io::classify_tests::r12_a_nonzero_limb_pad_is_refused ... ok
+test private_block::token_io::classify_tests::r12_byte_limbs_that_break_the_margin_identity_are_refused ... ok
+test private_block::token_io::classify_tests::r12_the_ruling_switches_are_in_the_profile_text ... ok
+test private_block::token_io::classify_tests::r12_a_receipt_does_not_verify_under_the_other_verdict ... ok
+test private_block::token_io::classify_tests::r12_the_door_refuses_an_unregistered_policy_and_reads_the_margin_vector_itself ... ok
+test private_block::token_io::classify_tests::r12_the_tie_is_not_flagged_and_proves ... ok
+test private_block::token_io::classify_tied_tests::rc2_a_doctored_embedding_with_a_consistent_manifest_is_refused ... FAILED
+test private_block::token_io::classify_tied_tests::rc2_a_doctored_final_norm_or_bos_is_refused ... FAILED
+test private_block::token_io::classify_tied_tests::rc2_shieldstral_tables_are_recomputed_through_native_r12b ... ignored, streams the pinned 7.7 GB Shieldstral checkpoint twice through native R12b; run guarded with ZK60_RC2_SHIELDSTRAL_EXPORT and ZK60_RC2_SHIELDSTRAL_TABLES
+test private_block::token_io::classify_tied_tests::rc2_the_dev_tensor_is_pinned_and_the_tables_derive_with_r12bs_quantizer ... ok
+test private_block::token_io::classify_tied_tests::rc2_min_bits_below_the_profile_floor_is_refused ... FAILED
+test private_block::token_io::classify_tests::r12_honest_runs_prove_and_verify_at_both_verdicts_and_the_owner_check_holds ... ok
+test private_block::token_io::classify_tied_tests::rc2_a_doctored_margin_row_with_a_consistent_manifest_is_refused ... FAILED
+
+failures:
+
+---- private_block::token_io::classify_tied_tests::rc2_a_doctored_embedding_with_a_consistent_manifest_is_refused stdout ----
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1","blocks":1,"trained_statement_identity":"cbe03702e13bf5112b3fe6cf8840a8d4a46f0c918796d13a034f1cc443ce1eb1","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"content_length_n":23}
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.237}
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":1.646}
+{"event":"segment","index":2,"bytes":2489016,"elapsed_seconds":1.937}
+{"event":"proved","run":"/tmp/tio-cls-rc2-emb-79502/run-honest","owner_dir":"/tmp/tio-cls-owners-rc2-emb-79502/run-honest.owner-private","verdict":"not-flagged","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"segments":3,"receipt_bytes":11134808,"prove_seconds":1.937,"whole_run_floor_bits":94,"total_seconds":2.099,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"}
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1","blocks":1,"trained_statement_identity":"cbe03702e13bf5112b3fe6cf8840a8d4a46f0c918796d13a034f1cc443ce1eb1","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"content_length_n":23}
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.207}
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":1.770}
+{"event":"segment","index":2,"bytes":2489016,"elapsed_seconds":1.974}
+{"event":"proved","run":"/tmp/tio-cls-rc2-emb-79502/run-forged","owner_dir":"/tmp/tio-cls-owners-rc2-emb-79502/run-forged.owner-private","verdict":"not-flagged","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"segments":3,"receipt_bytes":11134808,"prove_seconds":1.975,"whole_run_floor_bits":94,"total_seconds":2.130,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"}
+
+thread 'private_block::token_io::classify_tied_tests::rc2_a_doctored_embedding_with_a_consistent_manifest_is_refused' (79652) panicked at src/private_block/token_io/classify_tied_tests.rs:137:5:
+assertion `left == right` failed: the prover refuses an embedding that is not the model's
+  left: 0
+ right: 1
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- private_block::token_io::classify_tied_tests::rc2_a_doctored_final_norm_or_bos_is_refused stdout ----
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1","blocks":1,"trained_statement_identity":"cbe03702e13bf5112b3fe6cf8840a8d4a46f0c918796d13a034f1cc443ce1eb1","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"content_length_n":23}
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.265}
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":1.794}
+{"event":"segment","index":2,"bytes":2489016,"elapsed_seconds":2.005}
+{"event":"proved","run":"/tmp/tio-cls-rc2-norm-79502/run-cn","owner_dir":"/tmp/tio-cls-owners-rc2-norm-79502/run-cn.owner-private","verdict":"not-flagged","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"segments":3,"receipt_bytes":11134808,"prove_seconds":2.008,"whole_run_floor_bits":94,"total_seconds":2.161,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"}
+
+thread 'private_block::token_io::classify_tied_tests::rc2_a_doctored_final_norm_or_bos_is_refused' (79686) panicked at src/private_block/token_io/classify_tied_tests.rs:158:5:
+assertion `left == right` failed: the prover refuses a final norm that is not the export's
+  left: 0
+ right: 1
+
+---- private_block::token_io::classify_tied_tests::rc2_min_bits_below_the_profile_floor_is_refused stdout ----
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1","blocks":1,"trained_statement_identity":"cbe03702e13bf5112b3fe6cf8840a8d4a46f0c918796d13a034f1cc443ce1eb1","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"content_length_n":23}
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.217}
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":1.350}
+{"event":"segment","index":2,"bytes":2489016,"elapsed_seconds":1.487}
+{"event":"proved","run":"/tmp/tio-cls-rc2-bits-79502/run","owner_dir":"/tmp/tio-cls-owners-rc2-bits-79502/run.owner-private","verdict":"not-flagged","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"segments":3,"receipt_bytes":11134808,"prove_seconds":1.488,"whole_run_floor_bits":94,"total_seconds":1.696,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"}
+{"event":"classified","verdict":"not-flagged","chunk":0,"chunks":1,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"cbe03702e13bf5112b3fe6cf8840a8d4a46f0c918796d13a034f1cc443ce1eb1","input_token_endpoint_root":"62fd7dd6363043a3494f5fb87994b1a73fa99b8fdbca54bc947c29beb74cf514","verify_seconds":0.405,"whole_run_floor_bits":94,"published_by":"this verifier"}
+
+thread 'private_block::token_io::classify_tied_tests::rc2_min_bits_below_the_profile_floor_is_refused' (79698) panicked at src/private_block/token_io/classify_tied_tests.rs:184:5:
+assertion `left == right` failed: below the development rung's floor
+  left: 0
+ right: 1
+
+---- private_block::token_io::classify_tied_tests::rc2_a_doctored_margin_row_with_a_consistent_manifest_is_refused stdout ----
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1","blocks":1,"trained_statement_identity":"cbe03702e13bf5112b3fe6cf8840a8d4a46f0c918796d13a034f1cc443ce1eb1","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"content_length_n":23}
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.175}
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":1.531}
+{"event":"segment","index":2,"bytes":2489016,"elapsed_seconds":1.716}
+{"event":"proved","run":"/tmp/tio-cls-rc2-margin-79502/run-honest","owner_dir":"/tmp/tio-cls-owners-rc2-margin-79502/run-honest.owner-private","verdict":"not-flagged","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"segments":3,"receipt_bytes":11134808,"prove_seconds":1.717,"whole_run_floor_bits":94,"total_seconds":1.895,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"}
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1","blocks":1,"trained_statement_identity":"cbe03702e13bf5112b3fe6cf8840a8d4a46f0c918796d13a034f1cc443ce1eb1","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"content_length_n":23}
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.205}
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":1.552}
+{"event":"segment","index":2,"bytes":2489016,"elapsed_seconds":1.699}
+{"event":"proved","run":"/tmp/tio-cls-rc2-margin-79502/run-forged","owner_dir":"/tmp/tio-cls-owners-rc2-margin-79502/run-forged.owner-private","verdict":"not-flagged","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"segments":3,"receipt_bytes":11134808,"prove_seconds":1.700,"whole_run_floor_bits":94,"total_seconds":1.862,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"}
+
+thread 'private_block::token_io::classify_tied_tests::rc2_a_doctored_margin_row_with_a_consistent_manifest_is_refused' (79692) panicked at src/private_block/token_io/classify_tied_tests.rs:117:5:
+assertion `left == right` failed: the prover refuses a margin row that is not the model's
+  left: 0
+ right: 1
+
+
+failures:
+    private_block::token_io::classify_tied_tests::rc2_a_doctored_embedding_with_a_consistent_manifest_is_refused
+    private_block::token_io::classify_tied_tests::rc2_a_doctored_final_norm_or_bos_is_refused
+    private_block::token_io::classify_tied_tests::rc2_a_doctored_margin_row_with_a_consistent_manifest_is_refused
+    private_block::token_io::classify_tied_tests::rc2_min_bits_below_the_profile_floor_is_refused
+
+test result: FAILED. 23 passed; 4 failed; 3 ignored; 0 measured; 710 filtered out; finished in 25.56s
+
+error: test failed, to rerun pass `--lib`
+error: 1 target failed:
+    `--lib`

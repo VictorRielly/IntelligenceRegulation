@@ -1,0 +1,5 @@
+/home/victor/IntelligenceRegulation/results/zk60_open_release_20261030/scan_history.py:39: DeprecationWarning: Flags not at the start of the expression '(?i)(^|/)(\\.env[^/]*' (truncated) but at position 286
+  SENSITIVE_NAME = re.compile(
+A_source_docs rc 0 commits 1 s 55.0
+B_results_ops_research_text rc 0 commits 0 s 12.6
+{"A_source_docs": 1, "B_results_ops_research_text": 0}

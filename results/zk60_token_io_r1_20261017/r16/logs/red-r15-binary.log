@@ -1,0 +1,2 @@
+{"event":"refused","command":"classify-verify","error":"/home/victor/IntelligenceRegulation/results/zk60_shieldstral_export_20261026/native_low_h24_t128/profile.json: schema `zk60-trained-profile-export/2`, this reader reads `zk60-trained-profile-export/1`"}
+{"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling D45(4), Victor 2026-10-29)"}

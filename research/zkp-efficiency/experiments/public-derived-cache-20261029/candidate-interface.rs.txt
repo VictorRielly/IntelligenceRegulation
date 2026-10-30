@@ -1,0 +1,42 @@
+// LOCALLY AUTHORED API DESIGN ONLY. Uncompiled, unapplied, incomplete.
+// No external implementation copied. Keep live-file APIs unchanged.
+// Owner security review must first approve explicit snapshot/refusal semantics.
+// This sketch demonstrates ownership/binding, not a Rust patch or proof.
+
+mod authenticated_tied {
+    // Private fields in this CHILD module; parent cannot construct/replace them.
+    // No Deserialize, public constructor, unchecked setters or mutable getter.
+    pub(crate) struct AuthenticatedTied {
+        profile_sha256: [u8; 32],
+        checkpoint_sha256: [u8; 32],
+        tensor_sha256: [u8; 32],
+        signs_sha256: [u8; 32],
+        derivation_version: u32,
+        // Original native quantizer output, not an exact-rational replacement.
+        derived: RecomputedTiedTables,
+    }
+
+    // PSEUDOCODE: constructor derives every parameter from one bound profile.
+    // Full pinned checkpoint hash; norm captured during that hash; consumed
+    // tensor hash; signs hash/geometry; existing calibration/refusal checks.
+    // Verify second profile digest after native derivation, as current R-C2.
+    // Bind model/profile/algorithm/version and margin's yes/no/scale/threshold.
+    // No authorization is delegated to a caller-supplied digest/result alone.
+    fn authenticate_bound_source(...) -> Result<AuthenticatedTied, String>;
+
+    impl AuthenticatedTied {
+        // Project same base digests for trained_block::tied_of, then use same
+        // original margin/calibration in token_io::classify_tied. Keep actual
+        // file/table/manifest/statement/policy comparisons at their call sites.
+        // Match exact bound profile bytes; preserve bitwise binary64 scale.
+        fn check_statement_and_policy(...) -> Result<BoundProjection<'_>, String>;
+    }
+}
+
+// Per request: Arc<AuthenticatedTied>, authenticated once, no global path cache.
+// Resident session: separately reviewed explicit immutable snapshot lifetime;
+// independent verifier creates its OWN authenticated object. Fresh proof
+// masks/pads/salts/challenges/openings stay outside this public object.
+// Frozen live APIs retain mutation/missing-file refusals. A snapshot method
+// cannot silently replace them: mutation/deletion controls prove a difference.
+// Current Llama-3-8B is untied: this source seam removes zero work there.

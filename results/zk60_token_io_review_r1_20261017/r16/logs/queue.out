@@ -1,0 +1,22 @@
+2026-10-29T09:48:43Z queue start (build)
+2026-10-29T09:48:43Z launch build
+2026-10-29T09:51:54Z build exit 0
+2026-10-29T09:51:54Z test binary /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-review-r16-scratch/hashline/target/release/deps/hashline-ebd2a2baa34ac31d
+2026-10-29T09:51:54Z queue end (build)
+2026-10-29T09:52:06Z queue start (tests)
+2026-10-29T09:52:06Z test binary /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-review-r16-scratch/hashline/target/release/deps/hashline-ebd2a2baa34ac31d
+2026-10-29T09:54:47Z launch tests
+2026-10-29T09:56:36Z tests exit 0
+2026-10-29T09:56:36Z queue end (tests)
+2026-10-29T09:57:09Z queue start (mut)
+2026-10-29T09:57:09Z test binary /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-review-r16-scratch/hashline/target/release/deps/hashline-ebd2a2baa34ac31d
+2026-10-29T09:57:09Z launch mut-bits-l
+2026-10-29T09:58:32Z mut-bits-l exit 101
+2026-10-29T09:58:32Z launch mut-prehdr-cs6
+2026-10-29T10:00:21Z mut-prehdr-cs6 exit 0
+2026-10-29T10:00:21Z queue end (mut)
+2026-10-29T10:00:21Z queue start (verify)
+2026-10-29T10:00:21Z test binary /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-review-r16-scratch/hashline/target/release/deps/hashline-ebd2a2baa34ac31d
+2026-10-29T10:00:22Z launch verify-hate
+2026-10-29T10:01:33Z verify-hate exit 0
+2026-10-29T10:01:33Z queue end (verify)

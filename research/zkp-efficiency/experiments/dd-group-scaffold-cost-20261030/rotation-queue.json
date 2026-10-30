@@ -1,0 +1,30 @@
+[
+  {
+    "topic": "GPU NTT/commitments",
+    "status": "screened current cuPQC0.6 prime exclusion and binary field mismatch; actual device phase required"
+  },
+  {
+    "topic": "sumcheck/GKR",
+    "status": "tested full legacy scalar scaffold; actual accuracy dispatch negative redirects next exact relation"
+  },
+  {
+    "topic": "lookup arguments and softmax",
+    "status": "NEXT actual LOW+h24 three-limb score/sixlookups/threehelpers source projection"
+  },
+  {
+    "topic": "memory traffic",
+    "status": "splitEq payload34304B at legacy n19 counted; physical/cache/allocator evidence unknown"
+  },
+  {
+    "topic": "batching/amortization",
+    "status": "zero-safe norm batching tiny; resident1/2/4/8 remains owner priority1"
+  },
+  {
+    "topic": "quantization/arithmetic",
+    "status": "actual precision.score=base+12 vs prior shifts1..8 gap found"
+  },
+  {
+    "topic": "proof composition",
+    "status": "native CFS/PCS/joint privacy/refusal review still owed; no new composition accepted"
+  }
+]

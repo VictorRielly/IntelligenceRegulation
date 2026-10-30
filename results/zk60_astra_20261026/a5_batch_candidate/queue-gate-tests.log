@@ -1,0 +1,16 @@
+...F.....................................
+======================================================================
+FAIL: test_frozen_r18_native_payloads_pass_transport_only (test_batch_queue_gate.QueueGateTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/victor/IntelligenceRegulation/results/zk60_astra_20261026/a5_batch_candidate/test_batch_queue_gate.py", line 103, in test_frozen_r18_native_payloads_pass_transport_only
+    self.assertEqual(self.recover()['status'],'unverified')
+AssertionError: 'quarantined' != 'unverified'
+- quarantined
++ unverified
+
+
+----------------------------------------------------------------------
+Ran 41 tests in 1.796s
+
+FAILED (failures=1)

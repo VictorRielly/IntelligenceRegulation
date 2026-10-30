@@ -1,0 +1,32 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/argument.rs",
+    "sha256": "c4f9f9f4cb477346b03e9f769d7c3141a8529f096d08da2be6c415d5160a5e66",
+    "unchanged_since_start": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/layout.rs",
+    "sha256": "9332802e597beacab56cfa69cfe18325bc476d2ce6485f517051992b26d26efa",
+    "unchanged_since_start": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/shape.rs",
+    "sha256": "9a87081897ff0ec716d7f27a2813cc32117683eb5b2f2082a248f479ef98c4c5",
+    "unchanged_since_start": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/witness.rs",
+    "sha256": "a586b777c36c9fa5060d3dfa195a75ff0a2b7794a2521cad59aaf7f3f6144ec3",
+    "unchanged_since_start": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/zkp-core/src/sumcheck/grouped.rs",
+    "sha256": "7777a19c8db97694c51e66c78d1a7688573158bddaa7fcb370345ebd14ab669b",
+    "unchanged_since_start": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/zkp-core/src/sumcheck/rounds.rs",
+    "sha256": "c60520596e6d855687e0a225850850c12bd15b8741522de69a624f0db8a003df",
+    "unchanged_since_start": true
+  }
+]

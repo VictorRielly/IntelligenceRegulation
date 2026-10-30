@@ -1,0 +1,59 @@
+
+running 54 tests
+test private_block::token_io::classify_capture_tests::capture_a_classify_rung_run ... ignored, writes a classifier rung capture; set HL_PB_CAPTURE_DIR (outside the repo), HL_PB_CLASSIFY_VERDICT and HL_RUN_CAPTURE_PUBLIC_TABLES
+test private_block::token_io::classify_capture_tests::capture_the_classify_cli_verify_path ... ignored, writes the classifier CLI-path capture; set HL_PB_CAPTURE_DIR, HL_PB_CLI_BIN, HL_PB_CLI_BIN_SHA256 and HL_RUN_CAPTURE_PUBLIC_TABLES
+test private_block::token_io::classify_capture_tests::r12_a_tampered_or_reverdicted_classify_run_is_refused_and_no_bundle_is_written ... ok
+test private_block::token_io::classify_capture_tests::r12_a_classify_chunk_at_the_tie_is_captured ... ok
+test private_block::token_io::classify_capture_tests::r14_a_capture_of_relation_test_tables_is_refused_by_the_replay ... ok
+test private_block::token_io::classify_capture_tests::r12_the_classify_hooks_are_inert_on_the_prover_and_a_run_verifies_the_same_with_and_without_a_recorder ... ok
+test private_block::token_io::classify_capture_tests::r12_a_classify_run_is_captured_and_its_bundle_is_self_consistent ... ok
+test private_block::token_io::classify_capture_tests::r14_the_gate_capture_fixture_proves_with_the_tables_derived_from_the_pinned_tensor ... ok
+test private_block::token_io::classify_capture_tests::r14_a_short_item_is_captured ... ok
+test private_block::token_io::classify_cli_tests::r12_cli_the_classifier_tables_loader_refuses_a_changed_margin_vector ... ok
+test private_block::token_io::classify_cli_tests::r12_cli_the_label_is_the_or_over_every_chunk_exactly_once ... ok
+test private_block::token_io::classify_cli_tests::r12_cli_other_tables_a_consistently_flipped_verdict_or_a_tampered_segment_are_refused ... ok
+test private_block::token_io::classify_cli_tests::r12_cli_the_prover_refuses_content_on_the_command_line_an_unknown_policy_and_a_control_id ... ok
+test private_block::token_io::classify_r14_tests::r14_a_library_call_with_doctored_tables_and_a_consistent_manifest_is_refused ... ok
+test private_block::token_io::classify_r14_tests::r14_a_short_item_proves_and_verifies_through_the_named_binary_in_fresh_processes ... ignored, runs the named zk60_classify binary; set HL_PB_CLI_BIN
+test private_block::token_io::classify_cli_tests::r12_cli_the_classifier_proves_at_both_verdicts_the_verifier_publishes_and_the_owner_checks ... ok
+test private_block::token_io::classify_r14_tests::r14_only_the_tied_derivation_constructs_bound_tables ... ok
+test private_block::token_io::classify_r14_tests::r14_a_short_items_statement_read_under_another_length_is_refused ... ok
+test private_block::token_io::classify_r14_tests::r14_the_block_and_run_profiles_must_name_one_tied_source ... ok
+test private_block::token_io::classify_cli_tests::r12_cli_chunks_prove_verify_owner_check_and_label_fail_closed ... ok
+test private_block::token_io::classify_r14_tests::r14_tables_bound_to_another_trained_statement_are_refused_at_every_entry_point ... ok
+test private_block::token_io::classify_r14_tests::r14_a_short_dev_rung_item_is_one_chunk_of_its_true_length ... ok
+test private_block::token_io::classify_tests::r12_a_changed_template_position_is_refused_at_the_template_clause ... ok
+test private_block::token_io::classify_tests::r12_a_chunk_receipt_is_bound_to_its_index_and_total ... ok
+test private_block::token_io::classify_tests::r12_a_content_control_id_is_refused_by_the_ctl_column ... ok
+test private_block::token_io::classify_tests::r12_a_flipped_verdict_with_field_limbs_is_refused_at_the_byte_lookups ... ok
+test private_block::token_io::classify_tests::r12_chunk_ranges_cover_the_content_consecutively_with_the_overlap_and_end_align ... ok
+test private_block::token_io::classify_tests::r12_a_nonzero_limb_pad_is_refused ... ok
+test private_block::token_io::classify_tests::r12_a_receipt_does_not_verify_under_the_other_verdict ... ok
+test private_block::token_io::classify_tests::r12_the_ruling_switches_are_in_the_profile_text ... ok
+test private_block::token_io::classify_tests::r12_byte_limbs_that_break_the_margin_identity_are_refused ... ok
+test private_block::token_io::classify_tests::r12_the_door_refuses_an_unregistered_policy_and_reads_the_margin_vector_itself ... ok
+test private_block::token_io::classify_tests::r12_the_tie_is_not_flagged_and_proves ... ok
+test private_block::token_io::classify_tests::r14_a_margin_read_at_another_row_than_the_verdict_row_is_refused ... ok
+test private_block::token_io::classify_tied_tests::r14_the_post_derivation_profile_digest_check_refuses_a_derivation_that_read_another_profile ... ok
+test private_block::token_io::classify_tests::r12_honest_runs_prove_and_verify_at_both_verdicts_and_the_owner_check_holds ... ok
+test private_block::token_io::classify_tied_tests::rc2_a_doctored_final_norm_or_bos_is_refused ... ok
+test private_block::token_io::classify_tied_tests::rc2_a_doctored_embedding_with_a_consistent_manifest_is_refused ... ok
+test private_block::token_io::classify_tests::r14_a_short_item_proves_and_verifies_and_reads_its_public_verdict_row ... ok
+test private_block::token_io::classify_tied_tests::rc2_a_margin_word_beyond_int16_is_refused_never_clamped ... ok
+test private_block::token_io::classify_tied_tests::rc2_the_dev_tensor_is_pinned_and_the_tables_derive_with_r12bs_quantizer ... ok
+test private_block::token_io::classify_tied_tests::rc2_the_margin_parameters_come_only_from_the_bound_profile ... ok
+test private_block::token_io::classify_tied_tests::rc2_the_shieldstral_export_tables_are_recomputed_through_native_r12b ... ignored, streams the pinned 7.7 GB Shieldstral checkpoint through native R12b; run guarded with ZK60_RC2_SHIELDSTRAL_EXPORT
+test private_block::token_io::classify_tied_tests::rc2_a_doctored_margin_row_with_a_consistent_manifest_is_refused ... ok
+test private_block::token_io::classify_tests::r14_a_doctored_pad_position_is_refused ... ok
+test private_block::token_io::classify_tied_tests::rc2_min_bits_below_the_profile_floor_is_refused ... ok
+test private_block::token_io::review_r14_tests::rv14_s2_a_short_receipt_under_any_other_length_is_refused ... ok
+test private_block::token_io::review_r14_tests::rv14_s1_short_item_boundaries ... ok
+test private_block::token_io::review_r14_tests::rv14_s4_a_margin_at_any_other_row_is_refused ... ok
+test private_block::token_io::review_r14_tests::rv14_s5_a_masked_weight_toward_a_pad_row_is_refused_by_the_relation ... ok
+test private_block::token_io::review_r14_tests::rv14_s8_receipts_do_not_cross_between_the_r12_r13_and_r14_binaries ... ignored, runs the named zk60_classify binaries; set RV14_R12_BIN, RV14_R13_BIN, RV14_R14_BIN
+test private_block::token_io::review_r14_tests::rv14_s6_the_pad_id_is_bound_and_never_reaches_the_verdict_row ... ok
+test private_block::token_io::review_r14_tests::rv14_s7_cli_truncation_coverage_and_statement_fields ... ok
+test private_block::token_io::review_r14_tests::rv14_s3_forged_layouts_are_refused ... ok
+
+test result: ok. 49 passed; 0 failed; 5 ignored; 0 measured; 710 filtered out; finished in 60.67s
+

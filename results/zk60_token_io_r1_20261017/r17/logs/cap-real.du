@@ -1,0 +1,36 @@
+2374855722	/home/victor/zk60-artifacts/token-io/captures/classify-r13-shield-t128-cli-hate-r17-values
+total 2319268
+drwxr-xr-x  2 victor victor       4096 Oct 29 09:29 .
+drwx------ 62 victor victor       4096 Oct 29 09:29 ..
+-rw-r--r--  1 victor victor       5012 Oct 29 09:29 README.md
+-rw-r--r--  1 victor victor 2253896728 Oct 29 09:29 arrays.bin
+-rw-r--r--  1 victor victor      12248 Oct 29 09:29 manifest.json
+-rw-r--r--  1 victor victor      75436 Oct 29 09:29 run.json
+-rw-r--r--  1 victor victor    2956761 Oct 29 09:29 stage-00.json
+-rw-r--r--  1 victor victor    4403884 Oct 29 09:29 stage-01.json
+-rw-r--r--  1 victor victor    4401746 Oct 29 09:29 stage-02.json
+-rw-r--r--  1 victor victor    4400634 Oct 29 09:29 stage-03.json
+-rw-r--r--  1 victor victor    4399389 Oct 29 09:29 stage-04.json
+-rw-r--r--  1 victor victor    4401564 Oct 29 09:29 stage-05.json
+-rw-r--r--  1 victor victor    4403929 Oct 29 09:29 stage-06.json
+-rw-r--r--  1 victor victor    4401836 Oct 29 09:29 stage-07.json
+-rw-r--r--  1 victor victor    4403006 Oct 29 09:29 stage-08.json
+-rw-r--r--  1 victor victor    4400255 Oct 29 09:29 stage-09.json
+-rw-r--r--  1 victor victor    4402913 Oct 29 09:29 stage-10.json
+-rw-r--r--  1 victor victor    4403251 Oct 29 09:29 stage-11.json
+-rw-r--r--  1 victor victor    4403643 Oct 29 09:29 stage-12.json
+-rw-r--r--  1 victor victor    4403413 Oct 29 09:29 stage-13.json
+-rw-r--r--  1 victor victor    4404821 Oct 29 09:29 stage-14.json
+-rw-r--r--  1 victor victor    4398792 Oct 29 09:29 stage-15.json
+-rw-r--r--  1 victor victor    4397651 Oct 29 09:29 stage-16.json
+-rw-r--r--  1 victor victor    4404920 Oct 29 09:29 stage-17.json
+-rw-r--r--  1 victor victor    4405908 Oct 29 09:29 stage-18.json
+-rw-r--r--  1 victor victor    4399941 Oct 29 09:29 stage-19.json
+-rw-r--r--  1 victor victor    4403027 Oct 29 09:29 stage-20.json
+-rw-r--r--  1 victor victor    4400865 Oct 29 09:29 stage-21.json
+-rw-r--r--  1 victor victor    4398875 Oct 29 09:29 stage-22.json
+-rw-r--r--  1 victor victor    4399932 Oct 29 09:29 stage-23.json
+-rw-r--r--  1 victor victor    4401390 Oct 29 09:29 stage-24.json
+-rw-r--r--  1 victor victor    4403604 Oct 29 09:29 stage-25.json
+-rw-r--r--  1 victor victor    4402037 Oct 29 09:29 stage-26.json
+-rw-r--r--  1 victor victor    3454215 Oct 29 09:29 stage-27.json

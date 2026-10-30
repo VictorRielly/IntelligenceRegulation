@@ -1,0 +1,996 @@
+diff -ruN /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r18/hashline/src/private_block/hash_domain_tests.rs /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r19/hashline/src/private_block/hash_domain_tests.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r18/hashline/src/private_block/hash_domain_tests.rs	2026-10-30 02:17:26.295442366 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r19/hashline/src/private_block/hash_domain_tests.rs	2026-10-30 05:10:42.325460000 -0700
+@@ -365,7 +365,7 @@
+         assert!(!u.label.is_empty() && !u.site.is_empty() && !u.data.is_empty(), "the table entry for `{}` is incomplete", u.label);
+     }
+     let table: Vec<String> = entries.iter().map(|u| u.label.to_string()).collect();
+-    let lane: [(&str, &str); 39] = [
++    let lane: [(&str, &str); 47] = [
+         ("argument_accuracy.rs", include_str!("argument_accuracy.rs")),
+         ("accuracy_act.rs", include_str!("accuracy_act.rs")),
+         ("accuracy_fold.rs", include_str!("accuracy_fold.rs")),
+@@ -411,21 +411,50 @@
+         ("token_io/classify_cli.rs", include_str!("token_io/classify_cli.rs")),
+         ("token_io/classify_batch.rs", include_str!("token_io/classify_batch.rs")),
+         ("token_io/classify_batch_plan.rs", include_str!("token_io/classify_batch_plan.rs")),
++        // TOKEN ROUND 19 (REVIEW_R18 R18-2): the eight production modules of
++        // `private_block.rs` and `token_io.rs` this list did not read (plain
++        // `mod` children of listed files). They absorb no literal label today
++        // (each mentions `absorb` in comments only); one added fails here
++        ("mvp_driver.rs", include_str!("mvp_driver.rs")),
++        ("rope.rs", include_str!("rope.rs")),
++        ("timing.rs", include_str!("timing.rs")),
++        ("trained_block.rs", include_str!("trained_block.rs")),
++        ("trained_statement.rs", include_str!("trained_statement.rs")),
++        ("token_io/classify_tied.rs", include_str!("token_io/classify_tied.rs")),
++        ("token_io/cli.rs", include_str!("token_io/cli.rs")),
++        ("token_io/load.rs", include_str!("token_io/load.rs")),
+     ];
+-    // TOKEN ROUND 18 (REVIEW A5 finding 2), FAIL-CLOSED: every production
+-    // `#[path]` child of a scanned file is itself in the list (s25's reader,
+-    // resolved beside the declaring file), so a new one cannot sit unscanned
+-    let names: Vec<&str> = lane.iter().map(|(n, _)| *n).collect();
++    // TOKEN ROUND 18 (REVIEW A5 finding 2) and ROUND 19 (REVIEW_R18 R18-2),
++    // FAIL-CLOSED over every module line: every production FILE module a
++    // listed file declares — a `#[path]` child or a plain `mod m;`, however
++    // its line is written — is itself in the list (s25's follower, resolved as
++    // rustc resolves it), except `hash_domain.rs`, which is checked below to
++    // make no absorb at all. A module line the follower cannot classify fails
++    // here too. Before round 19 only `#[path]` children written on two lines
++    // were followed, and `private_block.rs` / `token_io.rs` had eight plain
++    // children this list did not read.
++    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
++    let crate_path = |n: &str| if n == "private_block.rs" { "src/private_block.rs".to_string() } else { format!("src/private_block/{n}") };
++    let graph = super::super::s25_tests::module_graph(root, &["src/private_block.rs", "src/private_seam.rs"]).unwrap_or_else(|e| panic!("REVIEW_R18 R18-2: {e}"));
++    let names: Vec<String> = lane.iter().map(|(n, _)| crate_path(n)).collect();
+     let mut followed = 0usize;
+     for (name, src) in lane {
++        let file = crate_path(name);
+         let cut = src.find("\n#[cfg(test)]\nmod tests {").map(|k| k + 1).unwrap_or(src.len());
+-        for child in super::super::s25_tests::path_children(name, &src[..cut]) {
+-            assert!(names.contains(&child.as_str()), "{name} declares the production `#[path]` child {child}, which this label scan does not read (REVIEW A5 finding 2)");
++        // a production file is resolved the way the graph loaded it; the two
++        // `cfg(test)` modules listed here (run_capture.rs, plane_index.rs) as
++        // plain modules of `private_block.rs`
++        let path_loaded = graph.files.iter().any(|(f, p)| *f == file && *p);
++        let children = super::super::s25_tests::module_children(root, &file, path_loaded, &src[..cut]).unwrap_or_else(|e| panic!("REVIEW_R18 R18-2: {e}"));
++        for (child, _) in children {
++            assert!(names.contains(&child) || child == "src/private_block/hash_domain.rs", "{name} declares the production module {child}, which this label scan does not read (REVIEW A5 finding 2, REVIEW_R18 R18-2)");
+             followed += 1;
+         }
+     }
+-    // argument -> argument_accuracy, witness -> witness_accuracy, classify_cli -> classify_batch -> classify_batch_plan
+-    assert_eq!(followed, 4, "the scanned files' production `#[path]` children moved");
++    // private_block.rs's 28 production modules, token_io.rs's 11, and the six
++    // others: tied_tables -> derive, argument / witness / trained_block -> their
++    // accuracy children, classify_cli -> classify_batch -> classify_batch_plan
++    assert_eq!(followed, 45, "the scanned files' production modules moved");
+     // TOKEN I/O ROUND 12: the classifier header's two labels are absorbed ONLY
+     // by a classifier run's header (`ClassifyRunStatement::transcript`) and by
+     // the run capture's rebuild of that header; the shared table, and so every
+diff -ruN /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r18/hashline/src/private_block/s25_tests.rs /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r19/hashline/src/private_block/s25_tests.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r18/hashline/src/private_block/s25_tests.rs	2026-10-30 02:17:26.298608795 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r19/hashline/src/private_block/s25_tests.rs	2026-10-30 05:10:42.328233094 -0700
+@@ -1588,156 +1588,625 @@
+ // ---------------------------------------------------------------------------
+ 
+ /// Every production source of this module, plus the parent, plus the one
+-/// file outside it that the block's endpoints go through. The list is PARSED
+-/// from `private_block.rs`'s own `mod` lines (a `#[cfg(test)]` module is a
+-/// test module), so a production module added tomorrow is scanned without
+-/// anybody remembering to add it.
++/// file outside it that the block's endpoints go through. TOKEN ROUND 19
++/// (REVIEW_R18 R18-2): the list is the production MODULE GRAPH from
++/// `private_block.rs` and `private_seam.rs` ([`module_graph`]): every file
++/// module of any shape — plain or `#[path]`, on one line or several, any
++/// visibility, comments anywhere, any depth — that is not `#[cfg(test)]`,
++/// resolved as rustc resolves it, so a production module added tomorrow is
++/// scanned without anybody remembering to add it. FAIL-CLOSED twice: a module
++/// line the follower cannot classify panics here, and the graph's edges must
++/// be exactly the enumeration below, so a new module anywhere on the path
++/// fails every scan that reads this list until it is read and listed.
+ fn production_sources() -> Vec<(String, String)> {
+-    let parent = source("src/private_block.rs");
+-    let lines: Vec<&str> = parent.lines().collect();
+-    let mut out: Vec<(String, String)> = Vec::new();
+-    for (i, l) in lines.iter().enumerate() {
+-        let Some(rest) = l.trim().strip_prefix("mod ").or_else(|| l.trim().strip_prefix("pub mod ")) else { continue };
+-        let Some(name) = rest.strip_suffix(';') else { continue };
+-        if i > 0 && lines[i - 1].trim() == "#[cfg(test)]" {
+-            continue;
+-        }
+-        let path = format!("src/private_block/{name}.rs");
+-        let text = source(&path);
+-        // TOKEN I/O R1 LANE: a production module's own PRODUCTION submodules
+-        // (`src/private_block/<name>/<sub>.rs`, its `mod` lines not under
+-        // `#[cfg(test)]`, any visibility) are scanned too — a strengthening:
+-        // before it, a module directory was invisible to every scan here
+-        let sub: Vec<&str> = text.lines().collect();
+-        for (j, sl) in sub.iter().enumerate() {
+-            let t = sl.trim();
+-            let t = t.strip_prefix("pub(crate) ").or_else(|| t.strip_prefix("pub(super) ")).or_else(|| t.strip_prefix("pub ")).unwrap_or(t);
+-            let Some(rest) = t.strip_prefix("mod ") else { continue };
+-            let Some(child) = rest.strip_suffix(';') else { continue };
+-            if j > 0 && sub[j - 1].trim() == "#[cfg(test)]" {
+-                continue;
+-            }
+-            let cpath = format!("src/private_block/{name}/{child}.rs");
+-            if std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join(&cpath).exists() {
+-                let ctext = source(&cpath);
+-                out.push((cpath, ctext));
+-            }
+-        }
+-        out.push((path, text));
+-    }
+-    out.push(("src/private_block.rs".to_string(), parent));
+-    // R12b's public wrapper has one production child. Scan it too, and fail
+-    // closed if another child is added without extending this enumeration.
++    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
++    let graph = module_graph(root, &["src/private_block.rs", "src/private_seam.rs"])
++        .unwrap_or_else(|e| panic!("the census cannot classify a module declaration on the path, so it fails closed (REVIEW_R18 R18-2): {e}"));
++    // R12b's public wrapper has one production child, and each accuracy
++    // parent one `#[path]` child (kept from rounds 13 / 18 as text pins; the
++    // graph's edge list below is the complete enumeration)
+     let tied=source("src/private_block/tied_tables.rs");
+     let children=tied.lines().take_while(|line| line.trim()!="#[cfg(test)]")
+         .filter_map(|line| line.trim().strip_prefix("mod ").or_else(|| line.trim().strip_prefix("pub mod ")))
+         .collect::<Vec<_>>();
+     assert_eq!(children,vec!["derive;"],"the tied-table production module enumeration moved");
+-    // TOKEN ROUND 13 (rebase onto R12b): the token lane's submodule scan above
+-    // already reaches `tied_tables/derive.rs`; push it only once, so its sites
+-    // are not counted twice (the merged scan found 59 against the table's 54)
+-    if !out.iter().any(|(p, _)| p == "src/private_block/tied_tables/derive.rs") {
+-        out.push(("src/private_block/tied_tables/derive.rs".to_string(),source("src/private_block/tied_tables/derive.rs")));
+-    }
+     for (parent,child) in [("trained_block.rs","trained_accuracy.rs"),("witness.rs","witness_accuracy.rs"),("argument.rs","argument_accuracy.rs")] {
+         let text=source(&format!("src/private_block/{parent}"));
+         assert!(text.contains(&format!(r#"#[path = "{child}"]"#)),"{parent}: accuracy child path changed");
+         let declarations=text.lines().filter_map(|line| line.trim().strip_prefix("mod "))
+             .filter(|rest| rest.ends_with(';')).collect::<Vec<_>>();
+         assert_eq!(declarations,vec!["accuracy;"],"{parent}: production child enumeration changed");
+-        out.push((format!("src/private_block/{child}"),source(&format!("src/private_block/{child}"))));
+     }
++    // THE PATH'S PRODUCTION MODULE GRAPH (token round 19; round 18 listed its
++    // five `#[path]` edges only). The frozen seam is a root of its own: it is
++    // the toy's and the frozen-seam rung's endpoint and therefore on the
++    // block's path, although it lives outside this module and outside this
++    // lane's write set; it declares no module.
++    const PB: &str = "src/private_block.rs";
++    let mut want: Vec<(String, String)> = [
++        "accuracy", "accuracy_act", "accuracy_aligned", "accuracy_fold", "accuracy_groups", "accuracy_layout", "accuracy_precision", "accuracy_public", "accuracy_tables", "argument", "boundary", "endpoint_g",
++        "hash_domain", "layout", "mvp_driver", "pad", "protocol", "rope", "run", "run_sink", "shape", "tied_tables", "timing", "token_io", "trained_block", "trained_statement", "wire", "witness",
++    ]
++    .iter()
++    .map(|m| (PB.to_string(), format!("src/private_block/{m}.rs")))
++    .collect();
++    want.extend(
++        ["classify", "classify_cli", "classify_run", "classify_tied", "cli", "load", "run", "stage_in", "stage_in_c", "stage_out", "stage_out_c"]
++            .iter()
++            .map(|m| ("src/private_block/token_io.rs".to_string(), format!("src/private_block/token_io/{m}.rs"))),
++    );
++    want.extend(
++        [
++            ("src/private_block/argument.rs", "src/private_block/argument_accuracy.rs"),
++            ("src/private_block/tied_tables.rs", "src/private_block/tied_tables/derive.rs"),
++            ("src/private_block/token_io/classify_batch.rs", "src/private_block/token_io/classify_batch_plan.rs"),
++            ("src/private_block/token_io/classify_cli.rs", "src/private_block/token_io/classify_batch.rs"),
++            ("src/private_block/trained_block.rs", "src/private_block/trained_accuracy.rs"),
++            ("src/private_block/witness.rs", "src/private_block/witness_accuracy.rs"),
++        ]
++        .iter()
++        .map(|(a, b)| (a.to_string(), b.to_string())),
++    );
++    want.sort();
++    assert_eq!(graph.edges, want, "the production module graph of the path moved (REVIEW A5 finding 2, REVIEW_R18 R18-2): read each new module, then list its edge here");
++    assert_eq!(graph.files.len(), 47, "the path's production files are no longer the 47 this census was written against");
++    graph.files.into_iter().map(|(f, _)| {
++        let t = source(&f);
++        (f, t)
++    }).collect()
++}
+ 
+-    // the frozen seam is the toy's and the frozen-seam rung's endpoint and is
+-    // therefore on the block's path, although it lives outside this module
+-    // and outside this lane's write set
+-    out.push(("src/private_seam.rs".to_string(), source("src/private_seam.rs")));
+-    // TOKEN ROUND 18 (REVIEW A5 finding 2): every scanned production file's own
+-    // PRODUCTION `#[path]` children are scanned too, transitively. Before it,
+-    // `token_io/classify_batch.rs` (a `#[path]` child of `classify_cli.rs`:
+-    // the `prove-batch` command) and its child `classify_batch_plan.rs` were
+-    // read by no scan here. FAIL-CLOSED: the `#[path]` edges found must be
+-    // exactly the enumeration below, so a new one anywhere on the path fails
+-    // this until it is read and listed (and it is scanned the moment it exists).
+-    let mut edges: Vec<(String, String)> = Vec::new();
+-    let mut k = 0;
+-    while k < out.len() {
+-        let (file, text) = (out[k].0.clone(), out[k].1.clone());
+-        for child in path_children(&file, production_text(&text)) {
+-            if !out.iter().any(|(p, _)| *p == child) {
+-                let t = source(&child);
+-                out.push((child.clone(), t));
++/// NON-VACUITY of the module reader [`mod_items`] (token round 18's test,
++/// token round 19's reader): a `#[path]` child is found in both spellings and
++/// under any visibility; a `cfg(test)` one is test-only whichever attribute
++/// comes first; a plain `mod` is a file module without a path and an inline
++/// module is no file; and on the real `classify_batch.rs` the one production
++/// file module is the plan file, the round's test module is test-only.
++#[test]
++fn r18_the_path_child_reader_finds_production_children_and_skips_test_ones() {
++    let text = "use x;\n#[path = \"a.rs\"]\nmod a;\n#[cfg(test)]\n#[path = \"b_tests.rs\"]\nmod b;\n#[path=\"c.rs\"]\npub(super) mod c;\n#[path = \"d.rs\"]\n#[cfg(test)]\nmod d;\nmod e;\n#[path = \"f.rs\"]\nmod f { }\n";
++    let got: Vec<(String, bool, Option<String>, bool)> = mod_items(text).expect("the reader classifies every line").into_iter().map(|m| (m.name, m.file, m.path, m.test_only)).collect();
++    let s = |x: &str| Some(x.to_string());
++    assert_eq!(
++        got,
++        vec![
++            ("a".to_string(), true, s("a.rs"), false),
++            ("b".to_string(), true, s("b_tests.rs"), true),
++            ("c".to_string(), true, s("c.rs"), false),
++            ("d".to_string(), true, s("d.rs"), true),
++            ("e".to_string(), true, None, false),
++            ("f".to_string(), false, s("f.rs"), false),
++        ]
++    );
++    let batch = source("src/private_block/token_io/classify_batch.rs");
++    assert!(batch.contains("#[cfg(test)]\n#[path = \"classify_r18_tests.rs\"]\nmod r18;"), "the round's test module line moved");
++    let items = mod_items(production_text(&batch)).unwrap();
++    assert_eq!(items.iter().filter(|m| m.file && !m.test_only).map(|m| m.path.clone()).collect::<Vec<_>>(), vec![s("classify_batch_plan.rs")]);
++    assert_eq!(items.iter().filter(|m| m.test_only).map(|m| m.name.as_str()).collect::<Vec<_>>(), vec!["r18"]);
++}
++
++/// The part of a source file above its own `#[cfg(test)] mod tests {` — the
++/// production text. Every scan below is over this and never over a test.
++fn production_text(src: &str) -> &str {
++    let cut = src.find("\n#[cfg(test)]\nmod tests {").map(|k| k + 1).unwrap_or(src.len());
++    &src[..cut]
++}
++
++// ---------------------------------------------------------------------------
++// TOKEN ROUND 19 (REVIEW_R18 R18-2): the module follower, fail-closed
++// ---------------------------------------------------------------------------
++
++/// TOKEN ROUND 19: the production module graph from a set of roots — every
++/// file reached (with whether a `#[path]` loaded it) and every edge, sorted.
++pub(super) struct ModuleGraph {
++    pub(super) files: Vec<(String, bool)>,
++    pub(super) edges: Vec<(String, String)>,
++}
++
++/// A token of Rust source as the module follower reads it: comments are gone,
++/// a string literal (plain, raw, byte or C) is ONE token carrying its text,
++/// every other literal and every lifetime is opaque. Enough to find every
++/// `mod` item however its line is written, and nothing a string, a char
++/// literal or a comment says can look like one (or unbalance a brace).
++#[derive(Clone, Debug, PartialEq)]
++enum Tok {
++    Ident(String),
++    Str(String),
++    Punct(char),
++    Opaque,
++}
++
++/// the end (one past the closing quote) and the text of an escaped string
++/// literal whose opening quote is at `q`
++fn escaped_string(c: &[char], q: usize) -> Option<(usize, String)> {
++    let (mut i, mut s) = (q + 1, String::new());
++    while i < c.len() {
++        match c[i] {
++            '\\' => {
++                s.push('\\');
++                if let Some(&x) = c.get(i + 1) {
++                    s.push(x);
++                }
++                i += 2;
++            }
++            '"' => return Some((i + 1, s)),
++            x => {
++                s.push(x);
++                i += 1;
+             }
+-            edges.push((file.clone(), child));
+         }
+-        k += 1;
+     }
+-    edges.sort();
+-    let want: Vec<(String, String)> = [
+-        ("src/private_block/argument.rs", "src/private_block/argument_accuracy.rs"),
+-        ("src/private_block/token_io/classify_batch.rs", "src/private_block/token_io/classify_batch_plan.rs"),
+-        ("src/private_block/token_io/classify_cli.rs", "src/private_block/token_io/classify_batch.rs"),
+-        ("src/private_block/trained_block.rs", "src/private_block/trained_accuracy.rs"),
+-        ("src/private_block/witness.rs", "src/private_block/witness_accuracy.rs"),
+-    ]
+-    .iter()
+-    .map(|(a, b)| (a.to_string(), b.to_string()))
+-    .collect();
+-    assert_eq!(edges, want, "the production `#[path]` children on the path moved (REVIEW A5 finding 2): read each new one, then list it here");
+-    out
++    None
++}
++
++/// the end and the text of a raw string literal whose hashes (or quote)
++/// start at `h`: `r"…"`, `r#"…"#`, …
++fn raw_string(c: &[char], h: usize) -> Option<(usize, String)> {
++    let mut i = h;
++    while c.get(i) == Some(&'#') {
++        i += 1;
++    }
++    let hashes = i - h;
++    if c.get(i) != Some(&'"') {
++        return None;
++    }
++    let start = i + 1;
++    let mut j = start;
++    while j < c.len() {
++        if c[j] == '"' && (1..=hashes).all(|k| c.get(j + k) == Some(&'#')) {
++            return Some((j + 1 + hashes, c[start..j].iter().collect()));
++        }
++        j += 1;
++    }
++    None
++}
++
++/// the end of a char literal (`'x'`, `'\n'`, `'\''`, `'\u{..}'`) or of a
++/// lifetime / label (`'a`) whose quote is at `q`
++fn char_or_lifetime(c: &[char], q: usize) -> Option<usize> {
++    if c.get(q + 1) == Some(&'\\') {
++        let mut j = q + 3;
++        while j < c.len() && c[j] != '\'' {
++            j += 1;
++        }
++        return (j < c.len()).then_some(j + 1);
++    }
++    if c.get(q + 2) == Some(&'\'') {
++        return Some(q + 3);
++    }
++    let mut j = q + 1;
++    while j < c.len() && (c[j].is_alphanumeric() || c[j] == '_') {
++        j += 1;
++    }
++    Some(j)
++}
++
++/// The tokens of `text`, each with its 1-based line. A malformed literal or
++/// an unterminated block comment is an error, never a guess.
++fn rust_tokens(text: &str) -> Result<Vec<(Tok, usize)>, String> {
++    let c: Vec<char> = text.chars().collect();
++    let (mut i, mut line, mut out) = (0usize, 1usize, Vec::new());
++    let is_id = |x: char| x.is_alphanumeric() || x == '_';
++    while i < c.len() {
++        let (start, at) = (i, line);
++        let bad = |what: &str| format!("line {at}: {what}");
++        let ch = c[i];
++        if ch.is_whitespace() {
++            i += 1;
++        } else if ch == '/' && c.get(i + 1) == Some(&'/') {
++            while i < c.len() && c[i] != '\n' {
++                i += 1;
++            }
++        } else if ch == '/' && c.get(i + 1) == Some(&'*') {
++            let mut depth = 0usize;
++            loop {
++                if i >= c.len() {
++                    return Err(bad("an unterminated block comment"));
++                }
++                if c[i] == '/' && c.get(i + 1) == Some(&'*') {
++                    depth += 1;
++                    i += 2;
++                } else if c[i] == '*' && c.get(i + 1) == Some(&'/') {
++                    depth -= 1;
++                    i += 2;
++                    if depth == 0 {
++                        break;
++                    }
++                } else {
++                    i += 1;
++                }
++            }
++        } else if ch == '"' {
++            let (end, s) = escaped_string(&c, i).ok_or_else(|| bad("an unterminated string literal"))?;
++            out.push((Tok::Str(s), at));
++            i = end;
++        } else if ch == '\'' {
++            i = char_or_lifetime(&c, i).ok_or_else(|| bad("an unterminated char literal"))?;
++            out.push((Tok::Opaque, at));
++        } else if ch.is_alphabetic() || ch == '_' {
++            let mut j = i;
++            while j < c.len() && is_id(c[j]) {
++                j += 1;
++            }
++            let word: String = c[i..j].iter().collect();
++            let next = c.get(j).copied();
++            let raw_next = next == Some('"') || (next == Some('#') && matches!(c.get(j + 1), Some('"') | Some('#')));
++            if matches!(word.as_str(), "r" | "br" | "cr") && raw_next {
++                let (end, s) = raw_string(&c, j).ok_or_else(|| bad("an unterminated raw string literal"))?;
++                out.push((Tok::Str(s), at));
++                i = end;
++            } else if matches!(word.as_str(), "b" | "c") && next == Some('"') {
++                let (end, s) = escaped_string(&c, j).ok_or_else(|| bad("an unterminated string literal"))?;
++                out.push((Tok::Str(s), at));
++                i = end;
++            } else if word == "b" && next == Some('\'') {
++                i = char_or_lifetime(&c, j).ok_or_else(|| bad("an unterminated byte literal"))?;
++                out.push((Tok::Opaque, at));
++            } else if word == "r" && next == Some('#') && c.get(j + 1).map_or(false, |x| x.is_alphabetic() || *x == '_') {
++                // a raw identifier keeps its `r#`: `r#mod` is a name, never the keyword
++                let mut k = j + 1;
++                while k < c.len() && is_id(c[k]) {
++                    k += 1;
++                }
++                out.push((Tok::Ident(c[i..k].iter().collect()), at));
++                i = k;
++            } else {
++                out.push((Tok::Ident(word), at));
++                i = j;
++            }
++        } else if ch.is_ascii_digit() {
++            while i < c.len() && is_id(c[i]) {
++                i += 1;
++            }
++            out.push((Tok::Opaque, at));
++        } else {
++            out.push((Tok::Punct(ch), at));
++            i += 1;
++        }
++        line += c[start..i].iter().filter(|&&x| x == '\n').count();
++    }
++    Ok(out)
+ }
+ 
+-/// TOKEN ROUND 18 (REVIEW A5 finding 2): the PRODUCTION `#[path]` children a
+-/// source file declares — `#[path = "x.rs"] mod m;`, any visibility, with no
+-/// `cfg(test)` among the attribute lines directly above the `mod` line —
+-/// resolved as rustc resolves a `#[path]` outside any inline module: beside
+-/// the declaring file. An inline `mod m { ... }` is not a file child.
+-pub(super) fn path_children(file: &str, text: &str) -> Vec<String> {
+-    let dir = file.rfind('/').map(|k| &file[..k]).unwrap_or("");
+-    let lines: Vec<&str> = text.lines().map(str::trim).collect();
++/// One `mod` item of a source text, as the follower classifies it.
++#[derive(Clone, Debug, PartialEq)]
++pub(super) struct ModItem {
++    /// the module's name (a raw identifier without its `r#`)
++    pub(super) name: String,
++    /// `mod m;` (a file module) rather than `mod m { … }` (inline, no file)
++    pub(super) file: bool,
++    /// the value of its `#[path = "…"]`, if it has one
++    pub(super) path: Option<String>,
++    /// `#[cfg(test)]` among its own attributes, or inside an inline module
++    /// that has it
++    pub(super) test_only: bool,
++    pub(super) line: usize,
++}
++
++/// **TOKEN ROUND 19 (REVIEW_R18 R18-2): every `mod` item of a source text,
++/// however it is written** — on one line or several, a line, doc or block
++/// comment between the attributes and `mod`, any visibility (`pub`,
++/// `pub(crate)`, `pub(super)`, `pub(self)`, `pub(in …)`), attributes in any
++/// order. It reads TOKENS ([`rust_tokens`]), not lines. FAIL-CLOSED: a `mod`
++/// it cannot classify is an error naming its line, never a skipped line:
++/// * `mod` not followed by a name and then `;` or `{` (a macro's `$v mod $m;`);
++/// * a token before the item that is no item boundary (`;`, `{`, `}`, the end
++///   of an attribute, the start of the text) and no visibility;
++/// * a `path` attribute that is not one plain string literal, a second one,
++///   or a `path` inside `cfg_attr` (a conditional path);
++/// * a FILE module (`mod m;`) inside braces other than a `#[cfg(test)]`
++///   inline module's (in a function, a block, a macro body or a production
++///   inline module its file is found by other rules);
++/// * unbalanced braces, an unterminated comment or literal.
++pub(super) fn mod_items(text: &str) -> Result<Vec<ModItem>, String> {
++    let t = rust_tokens(text)?;
++    let punct = |k: usize, p: char| matches!(t.get(k), Some((Tok::Punct(x), _)) if *x == p);
++    let ident = |k: usize, w: &str| matches!(t.get(k), Some((Tok::Ident(x), _)) if x == w);
++    // the index of the bracket that opens the group `close` closes
++    let opening = |close: usize, open: char, shut: char| -> Option<usize> {
++        let (mut depth, mut k) = (0usize, close);
++        loop {
++            if punct(k, shut) {
++                depth += 1;
++            } else if punct(k, open) {
++                depth -= 1;
++                if depth == 0 {
++                    return Some(k);
++                }
++            }
++            if k == 0 {
++                return None;
++            }
++            k -= 1;
++        }
++    };
++    let mut items = Vec::new();
++    // every open brace: (a module's own braces, test-only)
++    let mut scopes: Vec<(bool, bool)> = Vec::new();
++    let mut inline_open: Option<(usize, bool)> = None;
++    for k in 0..t.len() {
++        let line = t[k].1;
++        if punct(k, '{') {
++            let outer = scopes.iter().any(|s| s.1);
++            match inline_open.take() {
++                Some((at, test)) if at == k => scopes.push((true, test || outer)),
++                _ => scopes.push((false, outer)),
++            }
++            continue;
++        }
++        if punct(k, '}') {
++            scopes.pop().ok_or_else(|| format!("line {line}: a `}}` that closes nothing"))?;
++            continue;
++        }
++        if !ident(k, "mod") {
++            continue;
++        }
++        let name = match t.get(k + 1) {
++            Some((Tok::Ident(x), _)) => x.strip_prefix("r#").unwrap_or(x).to_string(),
++            _ => return Err(format!("line {line}: a `mod` with no module name after it (a macro's `mod $m`?)")),
++        };
++        let file = if punct(k + 2, ';') {
++            true
++        } else if punct(k + 2, '{') {
++            false
++        } else {
++            return Err(format!("line {line}: `mod {name}` followed by neither `;` nor `{{`"));
++        };
++        // backwards: the visibility, then the outer attributes, nearest first
++        let mut b = k;
++        if b > 0 && punct(b - 1, ')') {
++            let o = opening(b - 1, '(', ')').ok_or_else(|| format!("line {line}: an unbalanced `)` before `mod {name}`"))?;
++            if o == 0 || !ident(o - 1, "pub") {
++                return Err(format!("line {line}: `mod {name}` after a `)` that ends no `pub(…)` visibility"));
++            }
++            b = o - 1;
++        } else if b > 0 && ident(b - 1, "pub") {
++            b -= 1;
++        }
++        let (mut path, mut test_only) = (None::<String>, false);
++        while b > 0 && punct(b - 1, ']') {
++            let o = opening(b - 1, '[', ']').ok_or_else(|| format!("line {line}: an unbalanced `]` before `mod {name}`"))?;
++            if o >= 2 && punct(o - 1, '!') && punct(o - 2, '#') {
++                break; // an inner attribute: it belongs to the enclosing module
++            }
++            if o == 0 || !punct(o - 1, '#') {
++                return Err(format!("line {line}: `mod {name}` after a `]` that ends no attribute"));
++            }
++            let body: Vec<&Tok> = t[o + 1..b - 1].iter().map(|(x, _)| x).collect();
++            match body.first() {
++                Some(Tok::Ident(w)) if w == "path" => match body.as_slice() {
++                    [_, Tok::Punct('='), Tok::Str(p)] if path.is_none() && !p.is_empty() && !p.contains('\\') => path = Some(p.clone()),
++                    _ => return Err(format!("line {line}: `mod {name}` has a `path` attribute this reader cannot resolve (not one plain string literal, or a second one)")),
++                },
++                Some(Tok::Ident(w)) if w == "cfg" => {
++                    if matches!(body.as_slice(), [_, Tok::Punct('('), Tok::Ident(x), Tok::Punct(')')] if x == "test") {
++                        test_only = true;
++                    }
++                }
++                Some(Tok::Ident(w)) if w == "cfg_attr" => {
++                    if body.iter().any(|x| matches!(x, Tok::Ident(w) if w == "path")) {
++                        return Err(format!("line {line}: `mod {name}` takes a `path` through `cfg_attr`: a conditional path this reader cannot resolve"));
++                    }
++                }
++                _ => {}
++            }
++            b = o - 1;
++        }
++        if b > 0 && !(punct(b - 1, ';') || punct(b - 1, '{') || punct(b - 1, '}') || punct(b - 1, ']')) {
++            return Err(format!("line {line}: `mod {name}` is preceded by {:?}, which is no item boundary", t[b - 1].0));
++        }
++        let enclosing_test = scopes.iter().any(|s| s.1);
++        if file && !scopes.is_empty() && !enclosing_test {
++            return Err(format!("line {line}: the file module `mod {name};` sits inside braces that are no `#[cfg(test)]` module, where its file is found by other rules"));
++        }
++        if !file {
++            inline_open = Some((k + 2, test_only || enclosing_test));
++        }
++        items.push(ModItem { name, file, path, test_only: test_only || enclosing_test, line });
++    }
++    if !scopes.is_empty() {
++        return Err("a `{` that is never closed".into());
++    }
++    Ok(items)
++}
++
++/// **TOKEN ROUND 19 (REVIEW_R18 R18-2): the production FILE modules a source
++/// declares, resolved as rustc resolves them** (`rustc_expand::module`): a
++/// `#[path]` beside the declaring file; a plain `mod m;` in a mod-rs file
++/// (`lib.rs`, `main.rs`, `mod.rs`, or ANY file loaded through a `#[path]`,
++/// which rustc treats as mod-rs) as `<dir>/m.rs` or `<dir>/m/mod.rs`, and in
++/// any other file `<dir>/<stem>/m.rs` or `<dir>/<stem>/m/mod.rs`. `file` and
++/// the children are relative to `root`; each child carries whether a
++/// `#[path]` loaded it. FAIL-CLOSED: every item [`mod_items`] cannot classify,
++/// a path that leaves the declaring directory, and a module whose file is
++/// missing or ambiguous are errors naming `file:line`; a test-only module is
++/// the one kind left out, and an inline module has no file.
++pub(super) fn module_children(root: &std::path::Path, file: &str, path_loaded: bool, text: &str) -> Result<Vec<(String, bool)>, String> {
++    let (dir, base_name) = match file.rfind('/') {
++        Some(k) => (&file[..k], &file[k + 1..]),
++        None => ("", file),
++    };
++    let stem = base_name.strip_suffix(".rs").ok_or_else(|| format!("{file}: not a .rs file"))?;
++    let join = |a: &str, b: &str| if a.is_empty() { b.to_string() } else { format!("{a}/{b}") };
++    let base = if path_loaded || matches!(stem, "lib" | "main" | "mod") { dir.to_string() } else { join(dir, stem) };
+     let mut out = Vec::new();
+-    for (j, &l) in lines.iter().enumerate() {
+-        let t = l.strip_prefix("pub(crate) ").or_else(|| l.strip_prefix("pub(super) ")).or_else(|| l.strip_prefix("pub ")).unwrap_or(l);
+-        let Some(rest) = t.strip_prefix("mod ") else { continue };
+-        if !rest.ends_with(';') {
++    for m in mod_items(text).map_err(|e| format!("{file}: {e}"))? {
++        if !m.file || m.test_only {
+             continue;
+         }
+-        let (mut path, mut test_only, mut a) = (None, false, j);
+-        while a > 0 && lines[a - 1].starts_with("#[") {
+-            a -= 1;
+-            let attr = lines[a];
+-            test_only |= attr.contains("cfg(test)");
+-            if let Some(v) = attr.strip_prefix("#[path").map(str::trim_start).and_then(|r| r.strip_prefix('=')).and_then(|r| r.trim().strip_suffix(']')) {
+-                path = Some(v.trim().trim_matches('"').to_string());
++        let at = format!("{file}:{}", m.line);
++        if let Some(p) = &m.path {
++            if p.starts_with('/') || p.split('/').any(|s| s == ".." || s == "." || s.is_empty()) {
++                return Err(format!("{at}: `#[path = {p:?}]` leaves the declaring directory; this reader does not follow it"));
++            }
++            let child = join(dir, p.as_str());
++            if !root.join(&child).is_file() {
++                return Err(format!("{at}: `mod {}` names {child}, which is not a file", m.name));
++            }
++            out.push((child, true));
++        } else {
++            let (single, dir_mod) = (format!("{}.rs", m.name), format!("{}/mod.rs", m.name));
++            let found: Vec<String> = [join(base.as_str(), single.as_str()), join(base.as_str(), dir_mod.as_str())].into_iter().filter(|c| root.join(c).is_file()).collect();
++            match found.as_slice() {
++                [one] => out.push((one.clone(), false)),
++                [] => return Err(format!("{at}: `mod {};` has no file ({base}/{}.rs or {base}/{}/mod.rs)", m.name, m.name, m.name)),
++                _ => return Err(format!("{at}: `mod {};` has two files: {found:?}", m.name)),
+             }
+         }
+-        if let (Some(p), false) = (path, test_only) {
+-            out.push(if dir.is_empty() { p } else { format!("{dir}/{p}") });
++    }
++    Ok(out)
++}
++
++/// The production module graph from `roots` (files loaded plainly): every
++/// file reached through production file modules of any shape, transitively
++/// (over each file's production text), with every edge. Fails closed with
++/// [`module_children`]; one file loaded both plainly and through a `#[path]`
++/// (two module kinds) is an error too.
++pub(super) fn module_graph(root: &std::path::Path, roots: &[&str]) -> Result<ModuleGraph, String> {
++    let mut files: Vec<(String, bool)> = roots.iter().map(|r| (r.to_string(), false)).collect();
++    let mut edges = Vec::new();
++    let mut k = 0;
++    while k < files.len() {
++        let (file, path_loaded) = files[k].clone();
++        let text = std::fs::read_to_string(root.join(&file)).map_err(|e| format!("{file}: {e}"))?;
++        for (child, via_path) in module_children(root, &file, path_loaded, production_text(&text))? {
++            let known: Option<bool> = files.iter().find(|(f, _)| *f == child).map(|(_, kind)| *kind);
++            match known {
++                Some(kind) if kind != via_path => return Err(format!("{child} is loaded both plainly and through a `#[path]`")),
++                Some(_) => {}
++                None => files.push((child.clone(), via_path)),
++            }
++            edges.push((file.clone(), child));
++        }
++        k += 1;
++    }
++    edges.sort();
++    Ok(ModuleGraph { files, edges })
++}
++
++/// TOKEN ROUND 19: a throwaway fixture tree of public source text, removed
++/// when dropped; under `HL_TIO_FIXTURE_DIR` when set (the lane's guarded runs
++/// set it), else the system temp directory.
++struct ModTree(std::path::PathBuf);
++
++impl ModTree {
++    fn new(tag: &str, files: &[(&str, &str)]) -> ModTree {
++        use std::sync::atomic::{AtomicUsize, Ordering};
++        static N: AtomicUsize = AtomicUsize::new(0);
++        let base = std::env::var_os("HL_TIO_FIXTURE_DIR").map(std::path::PathBuf::from).unwrap_or_else(std::env::temp_dir);
++        let dir = base.join(format!("r19-modtree-{}-{}-{tag}", std::process::id(), N.fetch_add(1, Ordering::SeqCst)));
++        let _ = std::fs::remove_dir_all(&dir);
++        for (rel, text) in files {
++            let p = dir.join(rel);
++            std::fs::create_dir_all(p.parent().expect("a fixture file has a parent")).expect("fixture dir");
++            std::fs::write(&p, text).expect("fixture file");
+         }
++        ModTree(dir)
++    }
++}
++
++impl Drop for ModTree {
++    fn drop(&mut self) {
++        let _ = std::fs::remove_dir_all(&self.0);
+     }
+-    out
+ }
+ 
+-/// NON-VACUITY of [`path_children`] (token round 18): a production child is
+-/// found in both spellings and under any visibility; a `cfg(test)` child is
+-/// skipped whichever attribute comes first; a plain `mod` and an inline
+-/// module are not `#[path]` children; and on the real `classify_batch.rs` it
+-/// finds the plan file and skips the round's test module.
++/// **TOKEN ROUND 19 (REVIEW_R18 R18-2), FAILING FIRST: the module follower
++/// finds a production module however its line is written.** Each case is its
++/// own small fixture tree: `src/root.rs` plays `private_block.rs` and declares
++/// `mod m;`; `src/root/m.rs` plays a module such as `token_io.rs` and carries
++/// the shape. The follower must return exactly the expected edges. Round 18's
++/// reader missed the one-line `#[path] mod`, a comment between `#[path]` and
++/// `mod`, `pub(in …)`, `pub(self)` and a plain `mod` one level further down
++/// (a token-io file's own child; REVIEW_R18 §5, the reviewer's probe); the
++/// other cases are shapes rustc accepts that a line reader also misses
++/// (rustc's rules: a `#[path]` file and a `mod.rs` file keep their plain
++/// children beside them), and three controls round 18 already passed.
+ #[test]
+-fn r18_the_path_child_reader_finds_production_children_and_skips_test_ones() {
+-    let text = "use x;\n#[path = \"a.rs\"]\nmod a;\n#[cfg(test)]\n#[path = \"b_tests.rs\"]\nmod b;\n#[path=\"c.rs\"]\npub(super) mod c;\n#[path = \"d.rs\"]\n#[cfg(test)]\nmod d;\nmod e;\n#[path = \"f.rs\"]\nmod f { }\n";
+-    assert_eq!(path_children("src/private_block/token_io/x.rs", text), vec!["src/private_block/token_io/a.rs".to_string(), "src/private_block/token_io/c.rs".to_string()]);
+-    assert_eq!(path_children("src/private_block/witness.rs", "#[path = \"witness_accuracy.rs\"]\nmod accuracy;\n"), vec!["src/private_block/witness_accuracy.rs".to_string()]);
+-    let batch = source("src/private_block/token_io/classify_batch.rs");
+-    assert!(batch.contains("#[cfg(test)]\n#[path = \"classify_r18_tests.rs\"]\nmod r18;"), "the round's test module line moved");
+-    assert_eq!(path_children("src/private_block/token_io/classify_batch.rs", production_text(&batch)), vec!["src/private_block/token_io/classify_batch_plan.rs".to_string()]);
++fn r19_the_module_follower_finds_every_module_line_shape() {
++    const ROOT: &str = "src/root.rs";
++    const M: &str = "src/root/m.rs";
++    let in_m = |text: &'static str, more: Vec<(&'static str, &'static str)>| -> Vec<(&'static str, &'static str)> {
++        let mut v = vec![(ROOT, "mod m;\n"), (M, text)];
++        v.extend(more);
++        v
++    };
++    let cases: Vec<(&str, Vec<(&str, &str)>, Vec<(&str, &str)>)> = vec![
++        ("control: plain `mod a;`", in_m("mod a;\n", vec![("src/root/m/a.rs", "")]), vec![(M, "src/root/m/a.rs")]),
++        ("control: another attribute between `#[path]` and `mod`", in_m("#[path = \"a.rs\"]\n#[allow(dead_code)]\nmod a;\n", vec![("src/root/a.rs", "")]), vec![(M, "src/root/a.rs")]),
++        (
++            "control: test-only, inline, quoted and commented `mod`s are not followed",
++            in_m("#[cfg(test)]\nmod t;\n#[cfg(test)] #[path = \"u.rs\"] mod u;\n#[cfg(test)]\nmod inline_t {\n    mod deeper;\n}\nmod inline_p { fn f() {} }\nconst S: &str = \"mod fake;\";\nconst C: char = '{';\n// mod commented;\n", vec![]),
++            vec![],
++        ),
++        ("one-line `#[path = \"a.rs\"] mod a;`", in_m("#[path = \"a.rs\"] mod a;\n", vec![("src/root/a.rs", "")]), vec![(M, "src/root/a.rs")]),
++        ("a line comment between `#[path]` and `mod`", in_m("#[path = \"a.rs\"]\n// why it is here\nmod a;\n", vec![("src/root/a.rs", "")]), vec![(M, "src/root/a.rs")]),
++        ("a doc comment and a block comment between `#[path]` and `mod`", in_m("#[path = \"a.rs\"]\n/// what it is\n/* and a block */\nmod a;\n", vec![("src/root/a.rs", "")]), vec![(M, "src/root/a.rs")]),
++        ("`pub(in …)` visibility", in_m("#[path = \"a.rs\"]\npub(in crate::root) mod a;\n", vec![("src/root/a.rs", "")]), vec![(M, "src/root/a.rs")]),
++        ("`pub(self)` visibility", in_m("#[path = \"a.rs\"]\npub(self) mod a;\n", vec![("src/root/a.rs", "")]), vec![(M, "src/root/a.rs")]),
++        (
++            "a plain `mod` in a module's own child (a token-io file's `mod x;`)",
++            in_m("pub(crate) mod cli;\n", vec![("src/root/m/cli.rs", "mod hidden;\n"), ("src/root/m/cli/hidden.rs", "")]),
++            vec![(M, "src/root/m/cli.rs"), ("src/root/m/cli.rs", "src/root/m/cli/hidden.rs")],
++        ),
++        ("a `mod.rs` file", in_m("mod a;\n", vec![("src/root/m/a/mod.rs", "mod b;\n"), ("src/root/m/a/b.rs", "")]), vec![(M, "src/root/m/a/mod.rs"), ("src/root/m/a/mod.rs", "src/root/m/a/b.rs")]),
++        ("a `#[path]` file's plain child (beside it)", in_m("#[path = \"p.rs\"]\nmod p;\n", vec![("src/root/p.rs", "mod q;\n"), ("src/root/q.rs", "")]), vec![(M, "src/root/p.rs"), ("src/root/p.rs", "src/root/q.rs")]),
++        ("the `;` on the next line", in_m("mod a\n    ;\n", vec![("src/root/m/a.rs", "")]), vec![(M, "src/root/m/a.rs")]),
++        ("`pub(crate) mod` in the root itself", vec![(ROOT, "pub(crate) mod m;\n"), (M, "")], vec![]),
++    ];
++    let mut bad: Vec<String> = Vec::new();
++    for (shape, files, want) in &cases {
++        let tree = ModTree::new("follow", files);
++        let mut want: Vec<(String, String)> = want.iter().map(|(a, b)| (a.to_string(), b.to_string())).collect();
++        want.push((ROOT.to_string(), M.to_string()));
++        want.sort();
++        match module_graph(&tree.0, &[ROOT]) {
++            Ok(g) if g.edges == want => {}
++            Ok(g) => bad.push(format!("MISSED {shape}: found {:?}, want {want:?}", g.edges)),
++            Err(e) => bad.push(format!("ERROR {shape}: {e}")),
++        }
++    }
++    assert!(bad.is_empty(), "the module follower gets {} of {} module-line shapes wrong (REVIEW_R18 R18-2):\n{}", bad.len(), cases.len(), bad.join("\n"));
++    eprintln!("TOKEN-IO R19 | R18-2: the module follower finds exactly the production modules of all {} module-line shapes", cases.len());
+ }
+ 
+-/// The part of a source file above its own `#[cfg(test)] mod tests {` — the
+-/// production text. Every scan below is over this and never over a test.
+-fn production_text(src: &str) -> &str {
+-    let cut = src.find("\n#[cfg(test)]\nmod tests {").map(|k| k + 1).unwrap_or(src.len());
+-    &src[..cut]
++/// **TOKEN ROUND 19 (REVIEW_R18 R18-2), FAILING FIRST: a module line the
++/// follower cannot classify FAILS, it is never skipped.** Each case is a
++/// `src/root/m.rs` of a small fixture tree (as above) whose module is hidden
++/// from a line reader, or whose file cannot be named for certain: the
++/// follower must return an error naming `m.rs`. Round 18's reader returned a
++/// graph for most of them, silently without the module (or with a wrong one).
++#[test]
++fn r19_the_module_follower_fails_on_every_module_line_it_cannot_classify() {
++    const ROOT: &str = "src/root.rs";
++    const M: &str = "src/root/m.rs";
++    let cases: Vec<(&str, &str, Vec<(&str, &str)>)> = vec![
++        ("a `path` set through `cfg_attr`", "#[cfg_attr(feature = \"x\", path = \"a.rs\")]\nmod a;\n", vec![("src/root/m/a.rs", ""), ("src/root/a.rs", "")]),
++        ("a `path` that is not one string literal", "#[path = concat!(\"a\", \".rs\")]\nmod a;\n", vec![("src/root/m/a.rs", "")]),
++        ("two `path` attributes", "#[path = \"a.rs\"]\n#[path = \"b.rs\"]\nmod a;\n", vec![("src/root/a.rs", ""), ("src/root/b.rs", "")]),
++        ("a file module inside a function", "fn f() {\n    mod hidden;\n}\n", vec![("src/root/m/hidden.rs", "")]),
++        ("a file module inside a production inline module", "mod inline_p {\n    mod nested;\n}\n", vec![("src/root/m/nested.rs", ""), ("src/root/m/inline_p/nested.rs", "")]),
++        ("a macro's `$v mod $n;`", "macro_rules! m {\n    ($v:vis $n:ident) => { $v mod $n; };\n}\n", vec![]),
++        ("a plain module with no file", "mod missing;\n", vec![]),
++        ("a `#[path]` module with no file", "#[path = \"nowhere.rs\"]\nmod nowhere;\n", vec![]),
++        ("a module with two files", "mod both;\n", vec![("src/root/m/both.rs", ""), ("src/root/m/both/mod.rs", "")]),
++        ("a `#[path]` out of the declaring directory", "#[path = \"../up.rs\"]\nmod up;\n", vec![("src/up.rs", "")]),
++        ("an unterminated block comment", "/* mod a;\nmod b;\n", vec![("src/root/m/b.rs", "")]),
++        ("an unclosed brace", "mod a {\n", vec![]),
++    ];
++    let mut bad: Vec<String> = Vec::new();
++    for (what, text, more) in &cases {
++        let mut files = vec![(ROOT, "mod m;\n"), (M, *text)];
++        files.extend(more.iter().copied());
++        let tree = ModTree::new("refuse", &files);
++        match module_graph(&tree.0, &[ROOT]) {
++            Err(e) if e.contains(M) => {}
++            Err(e) => bad.push(format!("REFUSED WITHOUT NAMING m.rs {what}: {e}")),
++            Ok(g) => bad.push(format!("NOT REFUSED {what}: followed {:?}", g.edges)),
++        }
++    }
++    assert!(bad.is_empty(), "the module follower does not fail closed on {} of {} unclassifiable module lines (REVIEW_R18 R18-2):\n{}", bad.len(), cases.len(), bad.join("\n"));
++    eprintln!("TOKEN-IO R19 | R18-2: the module follower refuses all {} unclassifiable module lines, naming the file", cases.len());
+ }
+ 
+ /// **W-8, ASSERTION 7 of the memo's §3.1 — "the key is fresh".** This is the
+diff -ruN /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r18/hashline/src/private_block/tied_tables/derive.rs /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r19/hashline/src/private_block/tied_tables/derive.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r18/hashline/src/private_block/tied_tables/derive.rs	2026-10-30 02:17:26.299371130 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r19/hashline/src/private_block/tied_tables/derive.rs	2026-10-30 05:10:42.328961904 -0700
+@@ -7,7 +7,45 @@
+ const TENSOR: &str = "language_model.model.embed_tokens.weight";
+ const NORM: &str = "language_model.model.norm.weight";
+ const CHECKPOINT_BYTES: u64 = 7698241104;
+-const DEFAULT_CHECKPOINT: &str = "/home/victor/models/shieldstral-1.0-3b/snapshot-003ec7e2/model.safetensors";
++/// TOKEN ROUND 19 (open release E7): the pinned checkpoint's place below a
++/// models directory. WHERE that directory is, is configuration
++/// ([`default_checkpoint`]); WHAT is read there is not: the bytes are
++/// authenticated by `CHECKPOINT_BYTES`, the pinned file SHA-256 and the
++/// consumed tied-tensor digest, whichever directory they come from.
++const CHECKPOINT_IN_MODELS: &str = "shieldstral-1.0-3b/snapshot-003ec7e2/model.safetensors";
++
++/// TOKEN ROUND 19 (open release E7; it replaces round 18's hard-coded
++/// absolute `DEFAULT_CHECKPOINT`): the checkpoint a derivation reads when
++/// the export declares no `tied_embeddings.checkpoint_file` —
++/// `$ZK60_MODELS/shieldstral-1.0-3b/snapshot-003ec7e2/model.safetensors` when
++/// `ZK60_MODELS` is set and non-empty, else the same path under
++/// `$HOME/models/`. On the development box (its HOME, the variable unset)
++/// that is round 18's path byte for byte. With neither variable there is no
++/// default: refused, never a guessed path.
++fn default_checkpoint() -> Result<std::path::PathBuf, String> {
++    default_checkpoint_from(std::env::var_os("ZK60_MODELS"), std::env::var_os("HOME"))
++}
++
++/// [`default_checkpoint`] with the two variables passed in (so that no test
++/// sets the process environment)
++fn default_checkpoint_from(models: Option<std::ffi::OsString>, home: Option<std::ffi::OsString>) -> Result<std::path::PathBuf, String> {
++    let dir = match (models.filter(|m| !m.is_empty()), home.filter(|h| !h.is_empty())) {
++        (Some(m), _) => std::path::PathBuf::from(m),
++        (None, Some(h)) => std::path::PathBuf::from(h).join("models"),
++        (None, None) => return Err("tied tables: the export declares no tied_embeddings.checkpoint_file and neither ZK60_MODELS nor HOME is set, so the pinned checkpoint has no default location".into()),
++    };
++    Ok(dir.join(CHECKPOINT_IN_MODELS))
++}
++
++/// The checkpoint a derivation opens: the export's declared `checkpoint_file`
++/// when it has one (precedence unchanged from round 18), else `default()`,
++/// which is evaluated only then. A non-string declaration is refused.
++fn checkpoint_path_with(declaration: &J, default: impl FnOnce() -> Result<std::path::PathBuf, String>) -> Result<std::path::PathBuf, String> {
++    match declaration.opt("checkpoint_file").map(J::str).transpose()? {
++        Some(declared) => Ok(std::path::PathBuf::from(declared)),
++        None => default(),
++    }
++}
+ 
+ /// Public calibrated norm constants, read from the profile rather than a
+ /// classifier's copy. The calling token proof must bind its own relation.
+@@ -241,8 +279,8 @@
+     let declaration = profile.get("tied_embeddings")?;
+     let (_, pin) = crate::private_block::trained_statement::tied_tensor_for_profile(crate::private_block::shape::SHIELDSTRAL_T128_TRAINED_PROFILE).unwrap();
+     if declaration.get("tensor")?.str()? != TENSOR || unhex32(declaration.get("sha256")?.str()?)? != pin { return Err("tied tensor declaration differs from pin".into()); }
+-    let checkpoint_path = declaration.opt("checkpoint_file").map(J::str).transpose()?.unwrap_or(DEFAULT_CHECKPOINT);
+-    let mut checkpoint = Checkpoint::open(Path::new(checkpoint_path))?;
++    let path = checkpoint_path_with(declaration, default_checkpoint)?;
++    let mut checkpoint = Checkpoint::open(&path)?;
+     checkpoint.file.seek(SeekFrom::Start(checkpoint.tensor_offset)).map_err(|e| e.to_string())?;
+     let mut raw_bytes = vec![0; WIDTH*2];
+     let (mut tensor_hash,mut embedding_hash,mut head_hash) = (Sha256::new(),Sha256::new(),Sha256::new());
+@@ -340,4 +378,60 @@
+         let mut invalid=[1.,2.,3.,4.];
+         assert!(rotate(&mut invalid,&[1.,1.,0.,1.],4).is_err());
+     }
++
++    /// TOKEN ROUND 19 (open release E7): the default checkpoint is under
++    /// `$ZK60_MODELS` when it is set and non-empty, else under `$HOME/models`,
++    /// with neither it is refused; the two variables are passed in, so no test
++    /// touches the process environment.
++    #[test]
++    fn r19_the_default_checkpoint_is_under_zk60_models_when_set_else_under_home_models() {
++        use std::ffi::OsString;
++        use std::path::PathBuf;
++        let o = |s: &str| Some(OsString::from(s));
++        let under = |d: &str| PathBuf::from(format!("{d}/shieldstral-1.0-3b/snapshot-003ec7e2/model.safetensors"));
++        assert_eq!(default_checkpoint_from(o("/srv/zk60-models"), o("/home/someone")).unwrap(), under("/srv/zk60-models"), "ZK60_MODELS set: the checkpoint is under it");
++        assert_eq!(default_checkpoint_from(o("/srv/zk60-models"), None).unwrap(), under("/srv/zk60-models"), "ZK60_MODELS set and HOME unset");
++        assert_eq!(default_checkpoint_from(None, o("/home/someone")).unwrap(), under("/home/someone/models"), "ZK60_MODELS unset: under $HOME/models");
++        assert_eq!(default_checkpoint_from(o(""), o("/home/someone")).unwrap(), under("/home/someone/models"), "ZK60_MODELS set but EMPTY counts as unset");
++        assert!(default_checkpoint_from(None, None).is_err(), "neither variable: refused, never a guessed path");
++        assert!(default_checkpoint_from(o(""), o("")).is_err(), "both empty: refused");
++        assert_eq!(default_checkpoint_from(None, o("/home/victor")).unwrap(), PathBuf::from("/home/victor/models/shieldstral-1.0-3b/snapshot-003ec7e2/model.safetensors"), "the development box's HOME gives round 18's constant");
++        eprintln!("TOKEN-IO R19 | E7: default checkpoint = $ZK60_MODELS/... when set, else $HOME/models/..., else refused");
++    }
++
++    /// TOKEN ROUND 19 (open release E7): a `checkpoint_file` the export
++    /// declares keeps precedence over every default (as in round 18), the
++    /// default is not even evaluated then, and a non-string declaration is
++    /// still refused.
++    #[test]
++    fn r19_a_declared_checkpoint_file_keeps_precedence_over_the_default() {
++        use std::path::PathBuf;
++        let declared = parse_json(br#"{"tensor":"t","sha256":"00","checkpoint_file":"/declared/model.safetensors"}"#).unwrap();
++        let none = parse_json(br#"{"tensor":"t","sha256":"00"}"#).unwrap();
++        let bad = parse_json(br#"{"tensor":"t","sha256":"00","checkpoint_file":7}"#).unwrap();
++        let models = || default_checkpoint_from(Some("/srv/zk60-models".into()), Some("/home/someone".into()));
++        assert_eq!(checkpoint_path_with(&declared, models).unwrap(), PathBuf::from("/declared/model.safetensors"), "a declared checkpoint_file wins over ZK60_MODELS");
++        assert_eq!(checkpoint_path_with(&none, models).unwrap(), models().unwrap(), "no declaration: the default");
++        assert!(checkpoint_path_with(&bad, models).is_err(), "a non-string checkpoint_file is refused");
++        assert_eq!(checkpoint_path_with(&declared, || Err("the default must not be evaluated".to_string())).unwrap(), PathBuf::from("/declared/model.safetensors"));
++        assert!(checkpoint_path_with(&none, || Err("no default".to_string())).is_err(), "no declaration and no default: refused");
++        eprintln!("TOKEN-IO R19 | E7: a declared tied_embeddings.checkpoint_file keeps precedence; the default is evaluated only without one");
++    }
++
++    /// TOKEN ROUND 19 (open release E7): [`default_checkpoint`] reads exactly
++    /// `ZK60_MODELS` and `HOME`; on the development box with `ZK60_MODELS`
++    /// unset it is round 18's constant path byte for byte.
++    #[test]
++    fn r19_with_zk60_models_unset_on_this_box_the_default_is_round_18s_path() {
++        use std::path::PathBuf;
++        let got = default_checkpoint();
++        assert_eq!(got, default_checkpoint_from(std::env::var_os("ZK60_MODELS"), std::env::var_os("HOME")), "default_checkpoint reads ZK60_MODELS and HOME");
++        let unset = std::env::var_os("ZK60_MODELS").map_or(true, |m| m.is_empty());
++        if unset && std::env::var_os("HOME").as_deref() == Some(std::ffi::OsStr::new("/home/victor")) {
++            assert_eq!(got.unwrap(), PathBuf::from("/home/victor/models/shieldstral-1.0-3b/snapshot-003ec7e2/model.safetensors"), "unset on this box: round 18's path");
++            eprintln!("TOKEN-IO R19 | E7: ZK60_MODELS unset, HOME=/home/victor: the default is round 18's path");
++        } else {
++            eprintln!("TOKEN-IO R19 | E7: not the development box's environment (ZK60_MODELS set or another HOME): round 18's path is checked by the pure test only");
++        }
++    }
+ }
+diff -ruN /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r18/hashline/src/private_block/token_io/classify_batch.rs /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r19/hashline/src/private_block/token_io/classify_batch.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r18/hashline/src/private_block/token_io/classify_batch.rs	2026-10-30 02:17:26.299681090 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r19/hashline/src/private_block/token_io/classify_batch.rs	2026-10-30 05:10:42.329266211 -0700
+@@ -18,9 +18,15 @@
+ //!   `refused` and fail-closed lines; they are released only just before
+ //!   `batch-proved`. A kill or an abort skips this: the caller removes every
+ //!   path its request lists when no `batch-proved` arrives.
+-//! * D45: the content length is public, the three moderate D37 policies are
+-//!   the one fixed list (in that order, every chunk exactly once), and every
+-//!   refusal prints the fail-closed line.
++//! * D45: the content length is public, and the three moderate D37 policies
++//!   are the one fixed list (in that order, every chunk exactly once).
++//! * Refusals (TOKEN ROUND 19, REVIEW_R18 R18-4; round 18 said "every refusal
++//!   prints the fail-closed line"): a refusal once the arguments are read
++//!   prints `refused`, then the fail-closed line, and exits 1. An ARGUMENT
++//!   refusal prints neither: `--content` on the command line, an unknown flag
++//!   or a repeated one exits 2 with one line on stderr, exactly as a single
++//!   `prove` does. The router fails closed on any non-zero exit, so neither
++//!   kind leaves an accepted result.
+ use super::*;
+ #[path = "classify_batch_plan.rs"]
+ mod plan;
+diff -ruN /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r18/hashline/src/private_block/token_io/classify_r18_tests.rs /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r19/hashline/src/private_block/token_io/classify_r18_tests.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r18/hashline/src/private_block/token_io/classify_r18_tests.rs	2026-10-30 02:17:26.300105154 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r19/hashline/src/private_block/token_io/classify_r18_tests.rs	2026-10-30 05:10:42.329675556 -0700
+@@ -200,10 +200,16 @@
+     eprintln!("TOKEN-IO R18 | rung batch: 2 jobs proved, both verify, both owner-check on the whole content, label --expect-total 27 accepted");
+ }
+ 
+-/// REVIEW A5 note 9: the batch reports each job's REAL block reloads (the
+-/// sealing pass's and the proving pass's readers, each reload digest-checked
+-/// against the one digest pass), not printed constants: at the rung (L = 1)
+-/// one each per job, in job order.
++/// REVIEW A5 note 9: the batch reports each job's REAL block reloads, not
++/// printed constants, each reload digest-checked against the one digest
++/// pass. Per job: (the CLI's sealing-pass reader, the run prover's reader).
++/// The prover's reader serves TWO passes, the prover's own sealing pass and
++/// its proving pass, so at L blocks a job reloads L + 2L = 3L blocks: 78 per
++/// job at the real L = 26 (26 + 52; `r18/logs/eq/batch.log`). TOKEN ROUND 19
++/// (REVIEW_R18 R18-3): this text said "once in its sealing pass and once in
++/// its proving pass", which is true only at L = 1. At the rung (L = 1) the
++/// prover's second visit of its one block hits that reader's one-block
++/// cache, so the counts are (1, 1) per job, in job order.
+ #[test]
+ fn r18_each_batch_job_reloads_every_block_through_its_own_digest_checked_readers() {
+     let cc = Cc::new("r18-loads");
+@@ -212,7 +218,7 @@
+     let reloads = batch_inner(&f, &RUNG).expect("the rung batch");
+     let l = load_export(&cc.export).unwrap().layers.len();
+     assert_eq!(l, 1, "the rung fixture's export has one block");
+-    assert_eq!(reloads, vec![(l, l), (l, l)], "each job reloads each block once in its sealing pass and once in its proving pass");
++    assert_eq!(reloads, vec![(l, l), (l, l)], "at L = 1 each job reloads its one block once for the CLI's sealing pass and once for the prover's two passes (the second visit is the reader's one-block cache); at L = 26 it is 26 + 52 = 78");
+     eprintln!("TOKEN-IO R18 | note 9: per-job block reloads (sealing, proving) = {reloads:?} at L = {l}");
+ }
+ 

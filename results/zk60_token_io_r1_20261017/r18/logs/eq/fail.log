@@ -1,0 +1,43 @@
+{"event":"batch-loaded","jobs":3,"model_loads":1,"table_loads":1,"load_seconds":39.348,"trained_statement_identity":"29aeba6c04a819cdbafde311f7c9d0c678d85aff22292ae6b9647761158a0bd1","context_label":"zk60-classify-verdict"}
+{"event":"batch-job-start","index":0,"name":"c0","policy":"shieldstral-1.0-3b-moderate-sexual/1","chunk":0}
+{"event":"loaded","export_variant":"shieldstral-s2-fixed-low-h24-t128-v2","run_profile":"hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/1","blocks":26,"trained_statement_identity":"29aeba6c04a819cdbafde311f7c9d0c678d85aff22292ae6b9647761158a0bd1","policy":"shieldstral-1.0-3b-moderate-sexual/1","chunk":0,"chunks":1,"content_length_n":17}
+{"event":"segment","index":0,"bytes":1415192,"elapsed_seconds":13.377}
+{"event":"segment","index":1,"bytes":32450184,"elapsed_seconds":26.643}
+{"event":"segment","index":2,"bytes":32450184,"elapsed_seconds":40.237}
+{"event":"segment","index":3,"bytes":32450184,"elapsed_seconds":53.492}
+{"event":"segment","index":4,"bytes":32450184,"elapsed_seconds":66.704}
+{"event":"segment","index":5,"bytes":32450184,"elapsed_seconds":80.221}
+{"event":"segment","index":6,"bytes":32450184,"elapsed_seconds":93.439}
+{"event":"segment","index":7,"bytes":32450184,"elapsed_seconds":106.743}
+{"event":"segment","index":8,"bytes":32450184,"elapsed_seconds":119.972}
+{"event":"segment","index":9,"bytes":32450184,"elapsed_seconds":133.734}
+{"event":"segment","index":10,"bytes":32450184,"elapsed_seconds":147.105}
+{"event":"segment","index":11,"bytes":32450184,"elapsed_seconds":160.449}
+{"event":"segment","index":12,"bytes":32450184,"elapsed_seconds":173.887}
+{"event":"segment","index":13,"bytes":32450184,"elapsed_seconds":187.468}
+{"event":"segment","index":14,"bytes":32450184,"elapsed_seconds":200.984}
+{"event":"segment","index":15,"bytes":32450184,"elapsed_seconds":214.651}
+{"event":"segment","index":16,"bytes":32450184,"elapsed_seconds":228.184}
+{"event":"segment","index":17,"bytes":32450184,"elapsed_seconds":241.547}
+{"event":"segment","index":18,"bytes":32450184,"elapsed_seconds":255.529}
+{"event":"segment","index":19,"bytes":32450184,"elapsed_seconds":269.022}
+{"event":"segment","index":20,"bytes":32450184,"elapsed_seconds":282.689}
+{"event":"segment","index":21,"bytes":32450184,"elapsed_seconds":295.999}
+{"event":"segment","index":22,"bytes":32450184,"elapsed_seconds":309.399}
+{"event":"segment","index":23,"bytes":32450184,"elapsed_seconds":322.744}
+{"event":"segment","index":24,"bytes":32450184,"elapsed_seconds":336.088}
+{"event":"segment","index":25,"bytes":32450184,"elapsed_seconds":349.986}
+{"event":"segment","index":26,"bytes":32450184,"elapsed_seconds":363.376}
+{"event":"segment","index":27,"bytes":3292120,"elapsed_seconds":363.490}
+{"event":"proved","run":"/home/victor/zk60-artifacts/token-io/r18-a5-eq/fail/c0","owner_dir":"/home/victor/zk60-owner-private/token-io/r18-a5-eq/fail/owners/c0","verdict":"not-flagged","policy":"shieldstral-1.0-3b-moderate-sexual/1","chunk":0,"chunks":1,"segments":28,"receipt_bytes":848412096,"prove_seconds":363.491,"whole_run_floor_bits":96,"total_seconds":449.565,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"}
+{"event":"batch-job-proved","index":0,"name":"c0","seal_block_loads":26,"prove_block_loads":52,"blocks":26}
+{"event":"batch-job-start","index":1,"name":"c1","policy":"shieldstral-1.0-3b-moderate-violence/1","chunk":0}
+{"event":"loaded","export_variant":"shieldstral-s2-fixed-low-h24-t128-v2","run_profile":"hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/1","blocks":26,"trained_statement_identity":"29aeba6c04a819cdbafde311f7c9d0c678d85aff22292ae6b9647761158a0bd1","policy":"shieldstral-1.0-3b-moderate-violence/1","chunk":0,"chunks":1,"content_length_n":17}
+{"event":"removed","path":"/home/victor/zk60-owner-private/token-io/r18-a5-eq/fail/owners/c1","why":"the prove was refused; this directory was created by this prove and is removed with everything in it"}
+{"event":"removed","path":"/home/victor/zk60-artifacts/token-io/r18-a5-eq/fail/c1.unverified-statement","why":"the prove was refused; this directory was created by this prove and is removed with everything in it"}
+{"event":"removed","path":"/home/victor/zk60-artifacts/token-io/r18-a5-eq/fail/c1.incomplete","why":"the prove was refused; this directory was created by this prove and is removed with everything in it"}
+{"event":"removed","path":"/home/victor/zk60-owner-private/token-io/r18-a5-eq/fail/owners/c0","why":"the batch was refused; this directory was made by a finished job of this batch and is removed with everything in it: no receipt, statement or decommitment of a failed batch is left (REVIEW A5 finding 1)"}
+{"event":"removed","path":"/home/victor/zk60-artifacts/token-io/r18-a5-eq/fail/c0.unverified-statement","why":"the batch was refused; this directory was made by a finished job of this batch and is removed with everything in it: no receipt, statement or decommitment of a failed batch is left (REVIEW A5 finding 1)"}
+{"event":"removed","path":"/home/victor/zk60-artifacts/token-io/r18-a5-eq/fail/c0","why":"the batch was refused; this directory was made by a finished job of this batch and is removed with everything in it: no receipt, statement or decommitment of a failed batch is left (REVIEW A5 finding 1)"}
+{"event":"refused","command":"classify-prove-batch","error":"the prover-private sequence files of layer 0 (x_in_L00 / x_out_L00) are missing or fail their dtype / shape / SHA-256 check; no digest, size or value is printed (ruling K-2)"}
+{"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling D45(4), Victor 2026-10-29)"}

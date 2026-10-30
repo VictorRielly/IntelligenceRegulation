@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/accuracy-dd-groups-20261030/experiment.py", line 154, in <module>
+    if __name__=='__main__':main()
+  File "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/accuracy-dd-groups-20261030/experiment.py", line 132, in main
+    assert truth!=bad,mutation
+AssertionError: drop_tuple_mask

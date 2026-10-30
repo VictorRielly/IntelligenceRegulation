@@ -1,0 +1,26 @@
+zk60_classify round-19 CPU binary (frozen-r18 + REVIEW_R18 R18-2 / R18-3 / R18-4 + the open release's E7). Production
+sources moved: tied_tables/derive.rs (the checkpoint's default location: $ZK60_MODELS, else $HOME/models; a declared
+checkpoint_file first) and one doc comment in token_io/classify_batch.rs. The single `prove` path gives round 18's (and
+the reviewed r16b binary's) bytes exactly for one real moderate job under fixed public entropy (r19/logs/bytes/bytes.json).
+UNREVIEWED.
+
+file:      /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/cli/zk60_classify.r19.release.bin
+sha256:    841ba983cebaae65bbae6289d71f740d44c137fdc6cc98ed46410f2d33a09fd8
+built:     2026-10-30T11:54:38Z on MSI by r19/tools/r19_suite.sh after the full suite s24 (log r19/logs/b19-cli-build.log; 14 s,
+           0.44 GiB); copied unchanged to cli/ by r19/tools/r19_freeze.sh (cmp equal; r19/logs/freeze-bin.cmp)
+source:    frozen-r19 exactly (manifest_final_r19.sha256 = r19/manifest_r19A.sha256: 306 files, list sha256
+           91585afe62335ba50c1568a7e63f44e2858759aa146091990438b44a16dfb0d9); vs frozen-r18: 5 changed paths
+           (r19/r19A_vs_frozen_r18.txt)
+vs r18:    NOT byte-equal to 110f0c53c56f… (r19/logs/b19-vs-r18.cmp): derive.rs moved, and the tree path is baked in
+checked:   the job-0 receipt bytes at real scale = round 18's recorded digests (r19/logs/bytes/), the real moderate-hate
+           receipt re-verified in three fresh processes (ZK60_MODELS unset / set / naming a missing dir: refused;
+           r19/logs/verify-hate*.log; its bytes unchanged, r19/logs/hate-tree-*.json), rung receipts cross-verified with r18
+           110f0c53… both ways (r19/logs/xbin-r19-r18.log)
+command:   /home/victor/.cargo/bin/cargo build --release --offline --locked -j2 --manifest-path /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r19/hashline/Cargo.toml --example zk60_classify
+toolchain: rustc 1.97.1 (8bab26f4f 2026-07-14); cargo 1.97.1 (c980f4866 2026-06-30)
+features:  the crate's defaults only; gpu-cuda NOT enabled: CPU backend only.
+profile:   [profile.release] as frozen-r18 (hashline/Cargo.toml unchanged since r17)
+runtime:   reads ZK60_MODELS and HOME only when the export declares no tied_embeddings.checkpoint_file (the Shieldstral T128
+           export declares none); with neither set it refuses
+rustflags: none set by the lane
+scope:     a build record, not a privacy acceptance and not a classifier-quality claim; unreviewed

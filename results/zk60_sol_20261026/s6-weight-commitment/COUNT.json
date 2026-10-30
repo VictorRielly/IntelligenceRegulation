@@ -1,0 +1,4975 @@
+{
+  "status": "S6 design/count only; public PCS of verifier-derived weighted matrices",
+  "anchor": "R13 bb9eb2123c9350c738dafd19fe3b0133d6e2e7ab93f1e765cac4f20ccaed69ec",
+  "native_padded_public_weight_bytes_reproduced": 243277824,
+  "int8_true_matrix_gib_whole_model": 2.818359375,
+  "padded_matrices": [
+    {
+      "site": "Q",
+      "output_piece": 0,
+      "input_piece": 0,
+      "output_width": 4096,
+      "input_width": 4096,
+      "words": 16777216
+    },
+    {
+      "site": "K",
+      "output_piece": 0,
+      "input_piece": 0,
+      "output_width": 1024,
+      "input_width": 4096,
+      "words": 4194304
+    },
+    {
+      "site": "V",
+      "output_piece": 0,
+      "input_piece": 0,
+      "output_width": 1024,
+      "input_width": 4096,
+      "words": 4194304
+    },
+    {
+      "site": "O",
+      "output_piece": 0,
+      "input_piece": 0,
+      "output_width": 4096,
+      "input_width": 4096,
+      "words": 16777216
+    },
+    {
+      "site": "gate",
+      "output_piece": 0,
+      "input_piece": 0,
+      "output_width": 16384,
+      "input_width": 4096,
+      "words": 67108864
+    },
+    {
+      "site": "up",
+      "output_piece": 0,
+      "input_piece": 0,
+      "output_width": 16384,
+      "input_width": 4096,
+      "words": 67108864
+    },
+    {
+      "site": "down",
+      "output_piece": 0,
+      "input_piece": 0,
+      "output_width": 4096,
+      "input_width": 16384,
+      "words": 67108864
+    }
+  ],
+  "true_piece_matrices": [
+    {
+      "site": "Q",
+      "output_piece": 0,
+      "input_piece": 0,
+      "output_width": 4096,
+      "input_width": 2048,
+      "words": 8388608
+    },
+    {
+      "site": "Q",
+      "output_piece": 0,
+      "input_piece": 1,
+      "output_width": 4096,
+      "input_width": 1024,
+      "words": 4194304
+    },
+    {
+      "site": "K",
+      "output_piece": 0,
+      "input_piece": 0,
+      "output_width": 1024,
+      "input_width": 2048,
+      "words": 2097152
+    },
+    {
+      "site": "K",
+      "output_piece": 0,
+      "input_piece": 1,
+      "output_width": 1024,
+      "input_width": 1024,
+      "words": 1048576
+    },
+    {
+      "site": "V",
+      "output_piece": 0,
+      "input_piece": 0,
+      "output_width": 1024,
+      "input_width": 2048,
+      "words": 2097152
+    },
+    {
+      "site": "V",
+      "output_piece": 0,
+      "input_piece": 1,
+      "output_width": 1024,
+      "input_width": 1024,
+      "words": 1048576
+    },
+    {
+      "site": "O",
+      "output_piece": 0,
+      "input_piece": 0,
+      "output_width": 2048,
+      "input_width": 4096,
+      "words": 8388608
+    },
+    {
+      "site": "O",
+      "output_piece": 1,
+      "input_piece": 0,
+      "output_width": 1024,
+      "input_width": 4096,
+      "words": 4194304
+    },
+    {
+      "site": "gate",
+      "output_piece": 0,
+      "input_piece": 0,
+      "output_width": 8192,
+      "input_width": 2048,
+      "words": 16777216
+    },
+    {
+      "site": "gate",
+      "output_piece": 0,
+      "input_piece": 1,
+      "output_width": 8192,
+      "input_width": 1024,
+      "words": 8388608
+    },
+    {
+      "site": "gate",
+      "output_piece": 1,
+      "input_piece": 0,
+      "output_width": 1024,
+      "input_width": 2048,
+      "words": 2097152
+    },
+    {
+      "site": "gate",
+      "output_piece": 1,
+      "input_piece": 1,
+      "output_width": 1024,
+      "input_width": 1024,
+      "words": 1048576
+    },
+    {
+      "site": "up",
+      "output_piece": 0,
+      "input_piece": 0,
+      "output_width": 8192,
+      "input_width": 2048,
+      "words": 16777216
+    },
+    {
+      "site": "up",
+      "output_piece": 0,
+      "input_piece": 1,
+      "output_width": 8192,
+      "input_width": 1024,
+      "words": 8388608
+    },
+    {
+      "site": "up",
+      "output_piece": 1,
+      "input_piece": 0,
+      "output_width": 1024,
+      "input_width": 2048,
+      "words": 2097152
+    },
+    {
+      "site": "up",
+      "output_piece": 1,
+      "input_piece": 1,
+      "output_width": 1024,
+      "input_width": 1024,
+      "words": 1048576
+    },
+    {
+      "site": "down",
+      "output_piece": 0,
+      "input_piece": 0,
+      "output_width": 2048,
+      "input_width": 8192,
+      "words": 16777216
+    },
+    {
+      "site": "down",
+      "output_piece": 0,
+      "input_piece": 1,
+      "output_width": 2048,
+      "input_width": 1024,
+      "words": 2097152
+    },
+    {
+      "site": "down",
+      "output_piece": 1,
+      "input_piece": 0,
+      "output_width": 1024,
+      "input_width": 8192,
+      "words": 8388608
+    },
+    {
+      "site": "down",
+      "output_piece": 1,
+      "input_piece": 1,
+      "output_width": 1024,
+      "input_width": 1024,
+      "words": 1048576
+    }
+  ],
+  "rows": [
+    {
+      "geometry": "current_R13_padded_axes",
+      "packing": "per_tensor",
+      "log_cols": 12,
+      "n": 4096,
+      "inv_rate": 4,
+      "column_checks": 256,
+      "layers": 26,
+      "roots_per_layer": 7,
+      "matrix_terminals_per_layer": 7,
+      "weight_words_per_layer": 243269632,
+      "added_bytes_per_layer_bound": 123369584,
+      "added_mib_per_layer_bound": 117.65440368652344,
+      "added_mib_whole_26_layer_bound": 3059.0144958496094,
+      "verifier_fp2_base_macs_per_layer": 30408704,
+      "verifier_base_ntt_butterflies_per_layer": 3899392,
+      "verifier_merkle_path_hashes_per_layer": 25088,
+      "base_field_matrix_gib_per_layer": 1.8125,
+      "encoded_matrix_gib_per_layer": 7.25,
+      "encoded_matrix_gib_whole_model": 188.5,
+      "merkle_tree_mib_whole_model": 181.99444580078125,
+      "largest_single_root_base_plus_encoded_gib": 2.5,
+      "root_details": [
+        {
+          "sites": [
+            "Q"
+          ],
+          "pieces": 1,
+          "rows": 4096,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 8636416,
+          "clear_vector_bytes": 131072,
+          "sampled_column_and_path_bytes": 8505344,
+          "verifier_fp2_base_macs": 2097152,
+          "verifier_base_ntt_butterflies": 557056,
+          "merkle_path_hashes": 3584,
+          "encoded_matrix_bytes": 536870912,
+          "base_field_matrix_bytes": 134217728,
+          "merkle_tree_bytes": 1048544
+        },
+        {
+          "sites": [
+            "K"
+          ],
+          "pieces": 1,
+          "rows": 1024,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 2344960,
+          "clear_vector_bytes": 131072,
+          "sampled_column_and_path_bytes": 2213888,
+          "verifier_fp2_base_macs": 524288,
+          "verifier_base_ntt_butterflies": 557056,
+          "merkle_path_hashes": 3584,
+          "encoded_matrix_bytes": 134217728,
+          "base_field_matrix_bytes": 33554432,
+          "merkle_tree_bytes": 1048544
+        },
+        {
+          "sites": [
+            "V"
+          ],
+          "pieces": 1,
+          "rows": 1024,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 2344960,
+          "clear_vector_bytes": 131072,
+          "sampled_column_and_path_bytes": 2213888,
+          "verifier_fp2_base_macs": 524288,
+          "verifier_base_ntt_butterflies": 557056,
+          "merkle_path_hashes": 3584,
+          "encoded_matrix_bytes": 134217728,
+          "base_field_matrix_bytes": 33554432,
+          "merkle_tree_bytes": 1048544
+        },
+        {
+          "sites": [
+            "O"
+          ],
+          "pieces": 1,
+          "rows": 4096,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 8636416,
+          "clear_vector_bytes": 131072,
+          "sampled_column_and_path_bytes": 8505344,
+          "verifier_fp2_base_macs": 2097152,
+          "verifier_base_ntt_butterflies": 557056,
+          "merkle_path_hashes": 3584,
+          "encoded_matrix_bytes": 536870912,
+          "base_field_matrix_bytes": 134217728,
+          "merkle_tree_bytes": 1048544
+        },
+        {
+          "sites": [
+            "gate"
+          ],
+          "pieces": 1,
+          "rows": 16384,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 33802240,
+          "clear_vector_bytes": 131072,
+          "sampled_column_and_path_bytes": 33671168,
+          "verifier_fp2_base_macs": 8388608,
+          "verifier_base_ntt_butterflies": 557056,
+          "merkle_path_hashes": 3584,
+          "encoded_matrix_bytes": 2147483648,
+          "base_field_matrix_bytes": 536870912,
+          "merkle_tree_bytes": 1048544
+        },
+        {
+          "sites": [
+            "up"
+          ],
+          "pieces": 1,
+          "rows": 16384,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 33802240,
+          "clear_vector_bytes": 131072,
+          "sampled_column_and_path_bytes": 33671168,
+          "verifier_fp2_base_macs": 8388608,
+          "verifier_base_ntt_butterflies": 557056,
+          "merkle_path_hashes": 3584,
+          "encoded_matrix_bytes": 2147483648,
+          "base_field_matrix_bytes": 536870912,
+          "merkle_tree_bytes": 1048544
+        },
+        {
+          "sites": [
+            "down"
+          ],
+          "pieces": 1,
+          "rows": 16384,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 33802240,
+          "clear_vector_bytes": 131072,
+          "sampled_column_and_path_bytes": 33671168,
+          "verifier_fp2_base_macs": 8388608,
+          "verifier_base_ntt_butterflies": 557056,
+          "merkle_path_hashes": 3584,
+          "encoded_matrix_bytes": 2147483648,
+          "base_field_matrix_bytes": 536870912,
+          "merkle_tree_bytes": 1048544
+        }
+      ],
+      "scope": "COUNTED new public PCS opening upper bound, excluding wire framing/metadata; no native profile or measured timing/RSS"
+    },
+    {
+      "geometry": "current_R13_padded_axes",
+      "packing": "per_tensor",
+      "log_cols": 13,
+      "n": 8192,
+      "inv_rate": 4,
+      "column_checks": 256,
+      "layers": 26,
+      "roots_per_layer": 7,
+      "matrix_terminals_per_layer": 7,
+      "weight_words_per_layer": 243269632,
+      "added_bytes_per_layer_bound": 63527024,
+      "added_mib_per_layer_bound": 60.58409118652344,
+      "added_mib_whole_26_layer_bound": 1575.1863708496094,
+      "verifier_fp2_base_macs_per_layer": 15204352,
+      "verifier_base_ntt_butterflies_per_layer": 8372224,
+      "verifier_merkle_path_hashes_per_layer": 26880,
+      "base_field_matrix_gib_per_layer": 1.8125,
+      "encoded_matrix_gib_per_layer": 7.25,
+      "encoded_matrix_gib_whole_model": 188.5,
+      "merkle_tree_mib_whole_model": 363.99444580078125,
+      "largest_single_root_base_plus_encoded_gib": 2.5,
+      "root_details": [
+        {
+          "sites": [
+            "Q"
+          ],
+          "pieces": 1,
+          "rows": 2048,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 4581376,
+          "clear_vector_bytes": 262144,
+          "sampled_column_and_path_bytes": 4319232,
+          "verifier_fp2_base_macs": 1048576,
+          "verifier_base_ntt_butterflies": 1196032,
+          "merkle_path_hashes": 3840,
+          "encoded_matrix_bytes": 536870912,
+          "base_field_matrix_bytes": 134217728,
+          "merkle_tree_bytes": 2097120
+        },
+        {
+          "sites": [
+            "K"
+          ],
+          "pieces": 1,
+          "rows": 512,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 1435648,
+          "clear_vector_bytes": 262144,
+          "sampled_column_and_path_bytes": 1173504,
+          "verifier_fp2_base_macs": 262144,
+          "verifier_base_ntt_butterflies": 1196032,
+          "merkle_path_hashes": 3840,
+          "encoded_matrix_bytes": 134217728,
+          "base_field_matrix_bytes": 33554432,
+          "merkle_tree_bytes": 2097120
+        },
+        {
+          "sites": [
+            "V"
+          ],
+          "pieces": 1,
+          "rows": 512,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 1435648,
+          "clear_vector_bytes": 262144,
+          "sampled_column_and_path_bytes": 1173504,
+          "verifier_fp2_base_macs": 262144,
+          "verifier_base_ntt_butterflies": 1196032,
+          "merkle_path_hashes": 3840,
+          "encoded_matrix_bytes": 134217728,
+          "base_field_matrix_bytes": 33554432,
+          "merkle_tree_bytes": 2097120
+        },
+        {
+          "sites": [
+            "O"
+          ],
+          "pieces": 1,
+          "rows": 2048,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 4581376,
+          "clear_vector_bytes": 262144,
+          "sampled_column_and_path_bytes": 4319232,
+          "verifier_fp2_base_macs": 1048576,
+          "verifier_base_ntt_butterflies": 1196032,
+          "merkle_path_hashes": 3840,
+          "encoded_matrix_bytes": 536870912,
+          "base_field_matrix_bytes": 134217728,
+          "merkle_tree_bytes": 2097120
+        },
+        {
+          "sites": [
+            "gate"
+          ],
+          "pieces": 1,
+          "rows": 8192,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 17164288,
+          "clear_vector_bytes": 262144,
+          "sampled_column_and_path_bytes": 16902144,
+          "verifier_fp2_base_macs": 4194304,
+          "verifier_base_ntt_butterflies": 1196032,
+          "merkle_path_hashes": 3840,
+          "encoded_matrix_bytes": 2147483648,
+          "base_field_matrix_bytes": 536870912,
+          "merkle_tree_bytes": 2097120
+        },
+        {
+          "sites": [
+            "up"
+          ],
+          "pieces": 1,
+          "rows": 8192,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 17164288,
+          "clear_vector_bytes": 262144,
+          "sampled_column_and_path_bytes": 16902144,
+          "verifier_fp2_base_macs": 4194304,
+          "verifier_base_ntt_butterflies": 1196032,
+          "merkle_path_hashes": 3840,
+          "encoded_matrix_bytes": 2147483648,
+          "base_field_matrix_bytes": 536870912,
+          "merkle_tree_bytes": 2097120
+        },
+        {
+          "sites": [
+            "down"
+          ],
+          "pieces": 1,
+          "rows": 8192,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 17164288,
+          "clear_vector_bytes": 262144,
+          "sampled_column_and_path_bytes": 16902144,
+          "verifier_fp2_base_macs": 4194304,
+          "verifier_base_ntt_butterflies": 1196032,
+          "merkle_path_hashes": 3840,
+          "encoded_matrix_bytes": 2147483648,
+          "base_field_matrix_bytes": 536870912,
+          "merkle_tree_bytes": 2097120
+        }
+      ],
+      "scope": "COUNTED new public PCS opening upper bound, excluding wire framing/metadata; no native profile or measured timing/RSS"
+    },
+    {
+      "geometry": "current_R13_padded_axes",
+      "packing": "per_tensor",
+      "log_cols": 14,
+      "n": 16384,
+      "inv_rate": 4,
+      "column_checks": 256,
+      "layers": 26,
+      "roots_per_layer": 7,
+      "matrix_terminals_per_layer": 7,
+      "weight_words_per_layer": 243269632,
+      "added_bytes_per_layer_bound": 35010672,
+      "added_mib_per_layer_bound": 33.38877868652344,
+      "added_mib_whole_26_layer_bound": 868.1082458496094,
+      "verifier_fp2_base_macs_per_layer": 7602176,
+      "verifier_base_ntt_butterflies_per_layer": 17891328,
+      "verifier_merkle_path_hashes_per_layer": 28672,
+      "base_field_matrix_gib_per_layer": 1.8125,
+      "encoded_matrix_gib_per_layer": 7.25,
+      "encoded_matrix_gib_whole_model": 188.5,
+      "merkle_tree_mib_whole_model": 727.9944458007812,
+      "largest_single_root_base_plus_encoded_gib": 2.5,
+      "root_details": [
+        {
+          "sites": [
+            "Q"
+          ],
+          "pieces": 1,
+          "rows": 1024,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 2754560,
+          "clear_vector_bytes": 524288,
+          "sampled_column_and_path_bytes": 2230272,
+          "verifier_fp2_base_macs": 524288,
+          "verifier_base_ntt_butterflies": 2555904,
+          "merkle_path_hashes": 4096,
+          "encoded_matrix_bytes": 536870912,
+          "base_field_matrix_bytes": 134217728,
+          "merkle_tree_bytes": 4194272
+        },
+        {
+          "sites": [
+            "K"
+          ],
+          "pieces": 1,
+          "rows": 256,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 1181696,
+          "clear_vector_bytes": 524288,
+          "sampled_column_and_path_bytes": 657408,
+          "verifier_fp2_base_macs": 131072,
+          "verifier_base_ntt_butterflies": 2555904,
+          "merkle_path_hashes": 4096,
+          "encoded_matrix_bytes": 134217728,
+          "base_field_matrix_bytes": 33554432,
+          "merkle_tree_bytes": 4194272
+        },
+        {
+          "sites": [
+            "V"
+          ],
+          "pieces": 1,
+          "rows": 256,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 1181696,
+          "clear_vector_bytes": 524288,
+          "sampled_column_and_path_bytes": 657408,
+          "verifier_fp2_base_macs": 131072,
+          "verifier_base_ntt_butterflies": 2555904,
+          "merkle_path_hashes": 4096,
+          "encoded_matrix_bytes": 134217728,
+          "base_field_matrix_bytes": 33554432,
+          "merkle_tree_bytes": 4194272
+        },
+        {
+          "sites": [
+            "O"
+          ],
+          "pieces": 1,
+          "rows": 1024,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 2754560,
+          "clear_vector_bytes": 524288,
+          "sampled_column_and_path_bytes": 2230272,
+          "verifier_fp2_base_macs": 524288,
+          "verifier_base_ntt_butterflies": 2555904,
+          "merkle_path_hashes": 4096,
+          "encoded_matrix_bytes": 536870912,
+          "base_field_matrix_bytes": 134217728,
+          "merkle_tree_bytes": 4194272
+        },
+        {
+          "sites": [
+            "gate"
+          ],
+          "pieces": 1,
+          "rows": 4096,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 9046016,
+          "clear_vector_bytes": 524288,
+          "sampled_column_and_path_bytes": 8521728,
+          "verifier_fp2_base_macs": 2097152,
+          "verifier_base_ntt_butterflies": 2555904,
+          "merkle_path_hashes": 4096,
+          "encoded_matrix_bytes": 2147483648,
+          "base_field_matrix_bytes": 536870912,
+          "merkle_tree_bytes": 4194272
+        },
+        {
+          "sites": [
+            "up"
+          ],
+          "pieces": 1,
+          "rows": 4096,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 9046016,
+          "clear_vector_bytes": 524288,
+          "sampled_column_and_path_bytes": 8521728,
+          "verifier_fp2_base_macs": 2097152,
+          "verifier_base_ntt_butterflies": 2555904,
+          "merkle_path_hashes": 4096,
+          "encoded_matrix_bytes": 2147483648,
+          "base_field_matrix_bytes": 536870912,
+          "merkle_tree_bytes": 4194272
+        },
+        {
+          "sites": [
+            "down"
+          ],
+          "pieces": 1,
+          "rows": 4096,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 9046016,
+          "clear_vector_bytes": 524288,
+          "sampled_column_and_path_bytes": 8521728,
+          "verifier_fp2_base_macs": 2097152,
+          "verifier_base_ntt_butterflies": 2555904,
+          "merkle_path_hashes": 4096,
+          "encoded_matrix_bytes": 2147483648,
+          "base_field_matrix_bytes": 536870912,
+          "merkle_tree_bytes": 4194272
+        }
+      ],
+      "scope": "COUNTED new public PCS opening upper bound, excluding wire framing/metadata; no native profile or measured timing/RSS"
+    },
+    {
+      "geometry": "current_R13_padded_axes",
+      "packing": "per_tensor",
+      "log_cols": 15,
+      "n": 32768,
+      "inv_rate": 4,
+      "column_checks": 256,
+      "layers": 26,
+      "roots_per_layer": 7,
+      "matrix_terminals_per_layer": 7,
+      "weight_words_per_layer": 243269632,
+      "added_bytes_per_layer_bound": 23533680,
+      "added_mib_per_layer_bound": 22.443466186523438,
+      "added_mib_whole_26_layer_bound": 583.5301208496094,
+      "verifier_fp2_base_macs_per_layer": 3801088,
+      "verifier_base_ntt_butterflies_per_layer": 38076416,
+      "verifier_merkle_path_hashes_per_layer": 30464,
+      "base_field_matrix_gib_per_layer": 1.8125,
+      "encoded_matrix_gib_per_layer": 7.25,
+      "encoded_matrix_gib_whole_model": 188.5,
+      "merkle_tree_mib_whole_model": 1455.9944458007812,
+      "largest_single_root_base_plus_encoded_gib": 2.5,
+      "root_details": [
+        {
+          "sites": [
+            "Q"
+          ],
+          "pieces": 1,
+          "rows": 512,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 2238464,
+          "clear_vector_bytes": 1048576,
+          "sampled_column_and_path_bytes": 1189888,
+          "verifier_fp2_base_macs": 262144,
+          "verifier_base_ntt_butterflies": 5439488,
+          "merkle_path_hashes": 4352,
+          "encoded_matrix_bytes": 536870912,
+          "base_field_matrix_bytes": 134217728,
+          "merkle_tree_bytes": 8388576
+        },
+        {
+          "sites": [
+            "K"
+          ],
+          "pieces": 1,
+          "rows": 128,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 1452032,
+          "clear_vector_bytes": 1048576,
+          "sampled_column_and_path_bytes": 403456,
+          "verifier_fp2_base_macs": 65536,
+          "verifier_base_ntt_butterflies": 5439488,
+          "merkle_path_hashes": 4352,
+          "encoded_matrix_bytes": 134217728,
+          "base_field_matrix_bytes": 33554432,
+          "merkle_tree_bytes": 8388576
+        },
+        {
+          "sites": [
+            "V"
+          ],
+          "pieces": 1,
+          "rows": 128,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 1452032,
+          "clear_vector_bytes": 1048576,
+          "sampled_column_and_path_bytes": 403456,
+          "verifier_fp2_base_macs": 65536,
+          "verifier_base_ntt_butterflies": 5439488,
+          "merkle_path_hashes": 4352,
+          "encoded_matrix_bytes": 134217728,
+          "base_field_matrix_bytes": 33554432,
+          "merkle_tree_bytes": 8388576
+        },
+        {
+          "sites": [
+            "O"
+          ],
+          "pieces": 1,
+          "rows": 512,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 2238464,
+          "clear_vector_bytes": 1048576,
+          "sampled_column_and_path_bytes": 1189888,
+          "verifier_fp2_base_macs": 262144,
+          "verifier_base_ntt_butterflies": 5439488,
+          "merkle_path_hashes": 4352,
+          "encoded_matrix_bytes": 536870912,
+          "base_field_matrix_bytes": 134217728,
+          "merkle_tree_bytes": 8388576
+        },
+        {
+          "sites": [
+            "gate"
+          ],
+          "pieces": 1,
+          "rows": 2048,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 5384192,
+          "clear_vector_bytes": 1048576,
+          "sampled_column_and_path_bytes": 4335616,
+          "verifier_fp2_base_macs": 1048576,
+          "verifier_base_ntt_butterflies": 5439488,
+          "merkle_path_hashes": 4352,
+          "encoded_matrix_bytes": 2147483648,
+          "base_field_matrix_bytes": 536870912,
+          "merkle_tree_bytes": 8388576
+        },
+        {
+          "sites": [
+            "up"
+          ],
+          "pieces": 1,
+          "rows": 2048,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 5384192,
+          "clear_vector_bytes": 1048576,
+          "sampled_column_and_path_bytes": 4335616,
+          "verifier_fp2_base_macs": 1048576,
+          "verifier_base_ntt_butterflies": 5439488,
+          "merkle_path_hashes": 4352,
+          "encoded_matrix_bytes": 2147483648,
+          "base_field_matrix_bytes": 536870912,
+          "merkle_tree_bytes": 8388576
+        },
+        {
+          "sites": [
+            "down"
+          ],
+          "pieces": 1,
+          "rows": 2048,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 5384192,
+          "clear_vector_bytes": 1048576,
+          "sampled_column_and_path_bytes": 4335616,
+          "verifier_fp2_base_macs": 1048576,
+          "verifier_base_ntt_butterflies": 5439488,
+          "merkle_path_hashes": 4352,
+          "encoded_matrix_bytes": 2147483648,
+          "base_field_matrix_bytes": 536870912,
+          "merkle_tree_bytes": 8388576
+        }
+      ],
+      "scope": "COUNTED new public PCS opening upper bound, excluding wire framing/metadata; no native profile or measured timing/RSS"
+    },
+    {
+      "geometry": "current_R13_padded_axes",
+      "packing": "per_tensor",
+      "log_cols": 16,
+      "n": 65536,
+      "inv_rate": 4,
+      "column_checks": 256,
+      "layers": 26,
+      "roots_per_layer": 7,
+      "matrix_terminals_per_layer": 7,
+      "weight_words_per_layer": 243269632,
+      "added_bytes_per_layer_bound": 23328880,
+      "added_mib_per_layer_bound": 22.248153686523438,
+      "added_mib_whole_26_layer_bound": 578.4519958496094,
+      "verifier_fp2_base_macs_per_layer": 1900544,
+      "verifier_base_ntt_butterflies_per_layer": 80740352,
+      "verifier_merkle_path_hashes_per_layer": 32256,
+      "base_field_matrix_gib_per_layer": 1.8125,
+      "encoded_matrix_gib_per_layer": 7.25,
+      "encoded_matrix_gib_whole_model": 188.5,
+      "merkle_tree_mib_whole_model": 2911.9944458007812,
+      "largest_single_root_base_plus_encoded_gib": 2.5,
+      "root_details": [
+        {
+          "sites": [
+            "Q"
+          ],
+          "pieces": 1,
+          "rows": 256,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 2770944,
+          "clear_vector_bytes": 2097152,
+          "sampled_column_and_path_bytes": 673792,
+          "verifier_fp2_base_macs": 131072,
+          "verifier_base_ntt_butterflies": 11534336,
+          "merkle_path_hashes": 4608,
+          "encoded_matrix_bytes": 536870912,
+          "base_field_matrix_bytes": 134217728,
+          "merkle_tree_bytes": 16777184
+        },
+        {
+          "sites": [
+            "K"
+          ],
+          "pieces": 1,
+          "rows": 64,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 2377728,
+          "clear_vector_bytes": 2097152,
+          "sampled_column_and_path_bytes": 280576,
+          "verifier_fp2_base_macs": 32768,
+          "verifier_base_ntt_butterflies": 11534336,
+          "merkle_path_hashes": 4608,
+          "encoded_matrix_bytes": 134217728,
+          "base_field_matrix_bytes": 33554432,
+          "merkle_tree_bytes": 16777184
+        },
+        {
+          "sites": [
+            "V"
+          ],
+          "pieces": 1,
+          "rows": 64,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 2377728,
+          "clear_vector_bytes": 2097152,
+          "sampled_column_and_path_bytes": 280576,
+          "verifier_fp2_base_macs": 32768,
+          "verifier_base_ntt_butterflies": 11534336,
+          "merkle_path_hashes": 4608,
+          "encoded_matrix_bytes": 134217728,
+          "base_field_matrix_bytes": 33554432,
+          "merkle_tree_bytes": 16777184
+        },
+        {
+          "sites": [
+            "O"
+          ],
+          "pieces": 1,
+          "rows": 256,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 2770944,
+          "clear_vector_bytes": 2097152,
+          "sampled_column_and_path_bytes": 673792,
+          "verifier_fp2_base_macs": 131072,
+          "verifier_base_ntt_butterflies": 11534336,
+          "merkle_path_hashes": 4608,
+          "encoded_matrix_bytes": 536870912,
+          "base_field_matrix_bytes": 134217728,
+          "merkle_tree_bytes": 16777184
+        },
+        {
+          "sites": [
+            "gate"
+          ],
+          "pieces": 1,
+          "rows": 1024,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 4343808,
+          "clear_vector_bytes": 2097152,
+          "sampled_column_and_path_bytes": 2246656,
+          "verifier_fp2_base_macs": 524288,
+          "verifier_base_ntt_butterflies": 11534336,
+          "merkle_path_hashes": 4608,
+          "encoded_matrix_bytes": 2147483648,
+          "base_field_matrix_bytes": 536870912,
+          "merkle_tree_bytes": 16777184
+        },
+        {
+          "sites": [
+            "up"
+          ],
+          "pieces": 1,
+          "rows": 1024,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 4343808,
+          "clear_vector_bytes": 2097152,
+          "sampled_column_and_path_bytes": 2246656,
+          "verifier_fp2_base_macs": 524288,
+          "verifier_base_ntt_butterflies": 11534336,
+          "merkle_path_hashes": 4608,
+          "encoded_matrix_bytes": 2147483648,
+          "base_field_matrix_bytes": 536870912,
+          "merkle_tree_bytes": 16777184
+        },
+        {
+          "sites": [
+            "down"
+          ],
+          "pieces": 1,
+          "rows": 1024,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 4343808,
+          "clear_vector_bytes": 2097152,
+          "sampled_column_and_path_bytes": 2246656,
+          "verifier_fp2_base_macs": 524288,
+          "verifier_base_ntt_butterflies": 11534336,
+          "merkle_path_hashes": 4608,
+          "encoded_matrix_bytes": 2147483648,
+          "base_field_matrix_bytes": 536870912,
+          "merkle_tree_bytes": 16777184
+        }
+      ],
+      "scope": "COUNTED new public PCS opening upper bound, excluding wire framing/metadata; no native profile or measured timing/RSS"
+    },
+    {
+      "geometry": "current_R13_padded_axes",
+      "packing": "per_tensor",
+      "log_cols": 17,
+      "n": 131072,
+      "inv_rate": 4,
+      "column_checks": 256,
+      "layers": 26,
+      "roots_per_layer": 7,
+      "matrix_terminals_per_layer": 7,
+      "weight_words_per_layer": 243269632,
+      "added_bytes_per_layer_bound": 34265200,
+      "added_mib_per_layer_bound": 32.67784118652344,
+      "added_mib_whole_26_layer_bound": 849.6238708496094,
+      "verifier_fp2_base_macs_per_layer": 950272,
+      "verifier_base_ntt_butterflies_per_layer": 170655744,
+      "verifier_merkle_path_hashes_per_layer": 34048,
+      "base_field_matrix_gib_per_layer": 1.8125,
+      "encoded_matrix_gib_per_layer": 7.25,
+      "encoded_matrix_gib_whole_model": 188.5,
+      "merkle_tree_mib_whole_model": 5823.994445800781,
+      "largest_single_root_base_plus_encoded_gib": 2.5,
+      "root_details": [
+        {
+          "sites": [
+            "Q"
+          ],
+          "pieces": 1,
+          "rows": 128,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 4614144,
+          "clear_vector_bytes": 4194304,
+          "sampled_column_and_path_bytes": 419840,
+          "verifier_fp2_base_macs": 65536,
+          "verifier_base_ntt_butterflies": 24379392,
+          "merkle_path_hashes": 4864,
+          "encoded_matrix_bytes": 536870912,
+          "base_field_matrix_bytes": 134217728,
+          "merkle_tree_bytes": 33554400
+        },
+        {
+          "sites": [
+            "K"
+          ],
+          "pieces": 1,
+          "rows": 32,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 4417536,
+          "clear_vector_bytes": 4194304,
+          "sampled_column_and_path_bytes": 223232,
+          "verifier_fp2_base_macs": 16384,
+          "verifier_base_ntt_butterflies": 24379392,
+          "merkle_path_hashes": 4864,
+          "encoded_matrix_bytes": 134217728,
+          "base_field_matrix_bytes": 33554432,
+          "merkle_tree_bytes": 33554400
+        },
+        {
+          "sites": [
+            "V"
+          ],
+          "pieces": 1,
+          "rows": 32,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 4417536,
+          "clear_vector_bytes": 4194304,
+          "sampled_column_and_path_bytes": 223232,
+          "verifier_fp2_base_macs": 16384,
+          "verifier_base_ntt_butterflies": 24379392,
+          "merkle_path_hashes": 4864,
+          "encoded_matrix_bytes": 134217728,
+          "base_field_matrix_bytes": 33554432,
+          "merkle_tree_bytes": 33554400
+        },
+        {
+          "sites": [
+            "O"
+          ],
+          "pieces": 1,
+          "rows": 128,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 4614144,
+          "clear_vector_bytes": 4194304,
+          "sampled_column_and_path_bytes": 419840,
+          "verifier_fp2_base_macs": 65536,
+          "verifier_base_ntt_butterflies": 24379392,
+          "merkle_path_hashes": 4864,
+          "encoded_matrix_bytes": 536870912,
+          "base_field_matrix_bytes": 134217728,
+          "merkle_tree_bytes": 33554400
+        },
+        {
+          "sites": [
+            "gate"
+          ],
+          "pieces": 1,
+          "rows": 512,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 5400576,
+          "clear_vector_bytes": 4194304,
+          "sampled_column_and_path_bytes": 1206272,
+          "verifier_fp2_base_macs": 262144,
+          "verifier_base_ntt_butterflies": 24379392,
+          "merkle_path_hashes": 4864,
+          "encoded_matrix_bytes": 2147483648,
+          "base_field_matrix_bytes": 536870912,
+          "merkle_tree_bytes": 33554400
+        },
+        {
+          "sites": [
+            "up"
+          ],
+          "pieces": 1,
+          "rows": 512,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 5400576,
+          "clear_vector_bytes": 4194304,
+          "sampled_column_and_path_bytes": 1206272,
+          "verifier_fp2_base_macs": 262144,
+          "verifier_base_ntt_butterflies": 24379392,
+          "merkle_path_hashes": 4864,
+          "encoded_matrix_bytes": 2147483648,
+          "base_field_matrix_bytes": 536870912,
+          "merkle_tree_bytes": 33554400
+        },
+        {
+          "sites": [
+            "down"
+          ],
+          "pieces": 1,
+          "rows": 512,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 5400576,
+          "clear_vector_bytes": 4194304,
+          "sampled_column_and_path_bytes": 1206272,
+          "verifier_fp2_base_macs": 262144,
+          "verifier_base_ntt_butterflies": 24379392,
+          "merkle_path_hashes": 4864,
+          "encoded_matrix_bytes": 2147483648,
+          "base_field_matrix_bytes": 536870912,
+          "merkle_tree_bytes": 33554400
+        }
+      ],
+      "scope": "COUNTED new public PCS opening upper bound, excluding wire framing/metadata; no native profile or measured timing/RSS"
+    },
+    {
+      "geometry": "current_R13_padded_axes",
+      "packing": "joint",
+      "log_cols": 12,
+      "n": 4096,
+      "inv_rate": 4,
+      "column_checks": 256,
+      "layers": 26,
+      "roots_per_layer": 1,
+      "matrix_terminals_per_layer": 7,
+      "weight_words_per_layer": 243269632,
+      "added_bytes_per_layer_bound": 122275952,
+      "added_mib_per_layer_bound": 116.61143493652344,
+      "added_mib_whole_26_layer_bound": 3031.8973083496094,
+      "verifier_fp2_base_macs_per_layer": 121634816,
+      "verifier_base_ntt_butterflies_per_layer": 2228224,
+      "verifier_merkle_path_hashes_per_layer": 3584,
+      "base_field_matrix_gib_per_layer": 1.8125,
+      "encoded_matrix_gib_per_layer": 7.25,
+      "encoded_matrix_gib_whole_model": 188.5,
+      "merkle_tree_mib_whole_model": 25.99920654296875,
+      "largest_single_root_base_plus_encoded_gib": 9.0625,
+      "root_details": [
+        {
+          "sites": [
+            "K",
+            "O",
+            "Q",
+            "V",
+            "down",
+            "gate",
+            "up"
+          ],
+          "pieces": 7,
+          "rows": 59392,
+          "groups_bound": 7,
+          "vectors": 8,
+          "opening_bytes": 122275840,
+          "clear_vector_bytes": 524288,
+          "sampled_column_and_path_bytes": 121751552,
+          "verifier_fp2_base_macs": 121634816,
+          "verifier_base_ntt_butterflies": 2228224,
+          "merkle_path_hashes": 3584,
+          "encoded_matrix_bytes": 7784628224,
+          "base_field_matrix_bytes": 1946157056,
+          "merkle_tree_bytes": 1048544
+        }
+      ],
+      "scope": "COUNTED new public PCS opening upper bound, excluding wire framing/metadata; no native profile or measured timing/RSS"
+    },
+    {
+      "geometry": "current_R13_padded_axes",
+      "packing": "joint",
+      "log_cols": 13,
+      "n": 8192,
+      "inv_rate": 4,
+      "column_checks": 256,
+      "layers": 26,
+      "roots_per_layer": 1,
+      "matrix_terminals_per_layer": 7,
+      "weight_words_per_layer": 243269632,
+      "added_bytes_per_layer_bound": 61991024,
+      "added_mib_per_layer_bound": 59.11924743652344,
+      "added_mib_whole_26_layer_bound": 1537.1004333496094,
+      "verifier_fp2_base_macs_per_layer": 60817408,
+      "verifier_base_ntt_butterflies_per_layer": 4784128,
+      "verifier_merkle_path_hashes_per_layer": 3840,
+      "base_field_matrix_gib_per_layer": 1.8125,
+      "encoded_matrix_gib_per_layer": 7.25,
+      "encoded_matrix_gib_whole_model": 188.5,
+      "merkle_tree_mib_whole_model": 51.99920654296875,
+      "largest_single_root_base_plus_encoded_gib": 9.0625,
+      "root_details": [
+        {
+          "sites": [
+            "K",
+            "O",
+            "Q",
+            "V",
+            "down",
+            "gate",
+            "up"
+          ],
+          "pieces": 7,
+          "rows": 29696,
+          "groups_bound": 7,
+          "vectors": 8,
+          "opening_bytes": 61990912,
+          "clear_vector_bytes": 1048576,
+          "sampled_column_and_path_bytes": 60942336,
+          "verifier_fp2_base_macs": 60817408,
+          "verifier_base_ntt_butterflies": 4784128,
+          "merkle_path_hashes": 3840,
+          "encoded_matrix_bytes": 7784628224,
+          "base_field_matrix_bytes": 1946157056,
+          "merkle_tree_bytes": 2097120
+        }
+      ],
+      "scope": "COUNTED new public PCS opening upper bound, excluding wire framing/metadata; no native profile or measured timing/RSS"
+    },
+    {
+      "geometry": "current_R13_padded_axes",
+      "packing": "joint",
+      "log_cols": 14,
+      "n": 16384,
+      "inv_rate": 4,
+      "column_checks": 256,
+      "layers": 26,
+      "roots_per_layer": 1,
+      "matrix_terminals_per_layer": 7,
+      "weight_words_per_layer": 243269632,
+      "added_bytes_per_layer_bound": 32639088,
+      "added_mib_per_layer_bound": 31.127059936523438,
+      "added_mib_whole_26_layer_bound": 809.3035583496094,
+      "verifier_fp2_base_macs_per_layer": 30408704,
+      "verifier_base_ntt_butterflies_per_layer": 10223616,
+      "verifier_merkle_path_hashes_per_layer": 4096,
+      "base_field_matrix_gib_per_layer": 1.8125,
+      "encoded_matrix_gib_per_layer": 7.25,
+      "encoded_matrix_gib_whole_model": 188.5,
+      "merkle_tree_mib_whole_model": 103.99920654296875,
+      "largest_single_root_base_plus_encoded_gib": 9.0625,
+      "root_details": [
+        {
+          "sites": [
+            "K",
+            "O",
+            "Q",
+            "V",
+            "down",
+            "gate",
+            "up"
+          ],
+          "pieces": 7,
+          "rows": 14848,
+          "groups_bound": 7,
+          "vectors": 8,
+          "opening_bytes": 32638976,
+          "clear_vector_bytes": 2097152,
+          "sampled_column_and_path_bytes": 30541824,
+          "verifier_fp2_base_macs": 30408704,
+          "verifier_base_ntt_butterflies": 10223616,
+          "merkle_path_hashes": 4096,
+          "encoded_matrix_bytes": 7784628224,
+          "base_field_matrix_bytes": 1946157056,
+          "merkle_tree_bytes": 4194272
+        }
+      ],
+      "scope": "COUNTED new public PCS opening upper bound, excluding wire framing/metadata; no native profile or measured timing/RSS"
+    },
+    {
+      "geometry": "current_R13_padded_axes",
+      "packing": "joint",
+      "log_cols": 15,
+      "n": 32768,
+      "inv_rate": 4,
+      "column_checks": 256,
+      "layers": 26,
+      "roots_per_layer": 1,
+      "matrix_terminals_per_layer": 7,
+      "weight_words_per_layer": 243269632,
+      "added_bytes_per_layer_bound": 19540080,
+      "added_mib_per_layer_bound": 18.634872436523438,
+      "added_mib_whole_26_layer_bound": 484.5066833496094,
+      "verifier_fp2_base_macs_per_layer": 15204352,
+      "verifier_base_ntt_butterflies_per_layer": 21757952,
+      "verifier_merkle_path_hashes_per_layer": 4352,
+      "base_field_matrix_gib_per_layer": 1.8125,
+      "encoded_matrix_gib_per_layer": 7.25,
+      "encoded_matrix_gib_whole_model": 188.5,
+      "merkle_tree_mib_whole_model": 207.99920654296875,
+      "largest_single_root_base_plus_encoded_gib": 9.0625,
+      "root_details": [
+        {
+          "sites": [
+            "K",
+            "O",
+            "Q",
+            "V",
+            "down",
+            "gate",
+            "up"
+          ],
+          "pieces": 7,
+          "rows": 7424,
+          "groups_bound": 7,
+          "vectors": 8,
+          "opening_bytes": 19539968,
+          "clear_vector_bytes": 4194304,
+          "sampled_column_and_path_bytes": 15345664,
+          "verifier_fp2_base_macs": 15204352,
+          "verifier_base_ntt_butterflies": 21757952,
+          "merkle_path_hashes": 4352,
+          "encoded_matrix_bytes": 7784628224,
+          "base_field_matrix_bytes": 1946157056,
+          "merkle_tree_bytes": 8388576
+        }
+      ],
+      "scope": "COUNTED new public PCS opening upper bound, excluding wire framing/metadata; no native profile or measured timing/RSS"
+    },
+    {
+      "geometry": "current_R13_padded_axes",
+      "packing": "joint",
+      "log_cols": 16,
+      "n": 65536,
+      "inv_rate": 4,
+      "column_checks": 256,
+      "layers": 26,
+      "roots_per_layer": 1,
+      "matrix_terminals_per_layer": 7,
+      "weight_words_per_layer": 243269632,
+      "added_bytes_per_layer_bound": 16140400,
+      "added_mib_per_layer_bound": 15.392684936523438,
+      "added_mib_whole_26_layer_bound": 400.2098083496094,
+      "verifier_fp2_base_macs_per_layer": 7602176,
+      "verifier_base_ntt_butterflies_per_layer": 46137344,
+      "verifier_merkle_path_hashes_per_layer": 4608,
+      "base_field_matrix_gib_per_layer": 1.8125,
+      "encoded_matrix_gib_per_layer": 7.25,
+      "encoded_matrix_gib_whole_model": 188.5,
+      "merkle_tree_mib_whole_model": 415.99920654296875,
+      "largest_single_root_base_plus_encoded_gib": 9.0625,
+      "root_details": [
+        {
+          "sites": [
+            "K",
+            "O",
+            "Q",
+            "V",
+            "down",
+            "gate",
+            "up"
+          ],
+          "pieces": 7,
+          "rows": 3712,
+          "groups_bound": 7,
+          "vectors": 8,
+          "opening_bytes": 16140288,
+          "clear_vector_bytes": 8388608,
+          "sampled_column_and_path_bytes": 7751680,
+          "verifier_fp2_base_macs": 7602176,
+          "verifier_base_ntt_butterflies": 46137344,
+          "merkle_path_hashes": 4608,
+          "encoded_matrix_bytes": 7784628224,
+          "base_field_matrix_bytes": 1946157056,
+          "merkle_tree_bytes": 16777184
+        }
+      ],
+      "scope": "COUNTED new public PCS opening upper bound, excluding wire framing/metadata; no native profile or measured timing/RSS"
+    },
+    {
+      "geometry": "current_R13_padded_axes",
+      "packing": "joint",
+      "log_cols": 17,
+      "n": 131072,
+      "inv_rate": 4,
+      "column_checks": 256,
+      "layers": 26,
+      "roots_per_layer": 1,
+      "matrix_terminals_per_layer": 7,
+      "weight_words_per_layer": 243269632,
+      "added_bytes_per_layer_bound": 20736112,
+      "added_mib_per_layer_bound": 19.775497436523438,
+      "added_mib_whole_26_layer_bound": 514.1629333496094,
+      "verifier_fp2_base_macs_per_layer": 3801088,
+      "verifier_base_ntt_butterflies_per_layer": 97517568,
+      "verifier_merkle_path_hashes_per_layer": 4864,
+      "base_field_matrix_gib_per_layer": 1.8125,
+      "encoded_matrix_gib_per_layer": 7.25,
+      "encoded_matrix_gib_whole_model": 188.5,
+      "merkle_tree_mib_whole_model": 831.9992065429688,
+      "largest_single_root_base_plus_encoded_gib": 9.0625,
+      "root_details": [
+        {
+          "sites": [
+            "K",
+            "O",
+            "Q",
+            "V",
+            "down",
+            "gate",
+            "up"
+          ],
+          "pieces": 7,
+          "rows": 1856,
+          "groups_bound": 7,
+          "vectors": 8,
+          "opening_bytes": 20736000,
+          "clear_vector_bytes": 16777216,
+          "sampled_column_and_path_bytes": 3958784,
+          "verifier_fp2_base_macs": 3801088,
+          "verifier_base_ntt_butterflies": 97517568,
+          "merkle_path_hashes": 4864,
+          "encoded_matrix_bytes": 7784628224,
+          "base_field_matrix_bytes": 1946157056,
+          "merkle_tree_bytes": 33554400
+        }
+      ],
+      "scope": "COUNTED new public PCS opening upper bound, excluding wire framing/metadata; no native profile or measured timing/RSS"
+    },
+    {
+      "geometry": "true_piece_axes_REQUIRES_S4",
+      "packing": "per_piece",
+      "log_cols": 12,
+      "n": 4096,
+      "inv_rate": 4,
+      "column_checks": 256,
+      "layers": 26,
+      "roots_per_layer": 20,
+      "matrix_terminals_per_layer": 20,
+      "weight_words_per_layer": 116391936,
+      "added_bytes_per_layer_bound": 63152448,
+      "added_mib_per_layer_bound": 60.22686767578125,
+      "added_mib_whole_26_layer_bound": 1565.8985595703125,
+      "verifier_fp2_base_macs_per_layer": 14548992,
+      "verifier_base_ntt_butterflies_per_layer": 11141120,
+      "verifier_merkle_path_hashes_per_layer": 71680,
+      "base_field_matrix_gib_per_layer": 0.8671875,
+      "encoded_matrix_gib_per_layer": 3.46875,
+      "encoded_matrix_gib_whole_model": 90.1875,
+      "merkle_tree_mib_whole_model": 519.984130859375,
+      "largest_single_root_base_plus_encoded_gib": 0.625,
+      "root_details": [
+        {
+          "sites": [
+            "Q"
+          ],
+          "pieces": 1,
+          "rows": 2048,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 4442112,
+          "clear_vector_bytes": 131072,
+          "sampled_column_and_path_bytes": 4311040,
+          "verifier_fp2_base_macs": 1048576,
+          "verifier_base_ntt_butterflies": 557056,
+          "merkle_path_hashes": 3584,
+          "encoded_matrix_bytes": 268435456,
+          "base_field_matrix_bytes": 67108864,
+          "merkle_tree_bytes": 1048544
+        },
+        {
+          "sites": [
+            "Q"
+          ],
+          "pieces": 1,
+          "rows": 1024,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 2344960,
+          "clear_vector_bytes": 131072,
+          "sampled_column_and_path_bytes": 2213888,
+          "verifier_fp2_base_macs": 524288,
+          "verifier_base_ntt_butterflies": 557056,
+          "merkle_path_hashes": 3584,
+          "encoded_matrix_bytes": 134217728,
+          "base_field_matrix_bytes": 33554432,
+          "merkle_tree_bytes": 1048544
+        },
+        {
+          "sites": [
+            "K"
+          ],
+          "pieces": 1,
+          "rows": 512,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 1296384,
+          "clear_vector_bytes": 131072,
+          "sampled_column_and_path_bytes": 1165312,
+          "verifier_fp2_base_macs": 262144,
+          "verifier_base_ntt_butterflies": 557056,
+          "merkle_path_hashes": 3584,
+          "encoded_matrix_bytes": 67108864,
+          "base_field_matrix_bytes": 16777216,
+          "merkle_tree_bytes": 1048544
+        },
+        {
+          "sites": [
+            "K"
+          ],
+          "pieces": 1,
+          "rows": 256,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 772096,
+          "clear_vector_bytes": 131072,
+          "sampled_column_and_path_bytes": 641024,
+          "verifier_fp2_base_macs": 131072,
+          "verifier_base_ntt_butterflies": 557056,
+          "merkle_path_hashes": 3584,
+          "encoded_matrix_bytes": 33554432,
+          "base_field_matrix_bytes": 8388608,
+          "merkle_tree_bytes": 1048544
+        },
+        {
+          "sites": [
+            "V"
+          ],
+          "pieces": 1,
+          "rows": 512,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 1296384,
+          "clear_vector_bytes": 131072,
+          "sampled_column_and_path_bytes": 1165312,
+          "verifier_fp2_base_macs": 262144,
+          "verifier_base_ntt_butterflies": 557056,
+          "merkle_path_hashes": 3584,
+          "encoded_matrix_bytes": 67108864,
+          "base_field_matrix_bytes": 16777216,
+          "merkle_tree_bytes": 1048544
+        },
+        {
+          "sites": [
+            "V"
+          ],
+          "pieces": 1,
+          "rows": 256,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 772096,
+          "clear_vector_bytes": 131072,
+          "sampled_column_and_path_bytes": 641024,
+          "verifier_fp2_base_macs": 131072,
+          "verifier_base_ntt_butterflies": 557056,
+          "merkle_path_hashes": 3584,
+          "encoded_matrix_bytes": 33554432,
+          "base_field_matrix_bytes": 8388608,
+          "merkle_tree_bytes": 1048544
+        },
+        {
+          "sites": [
+            "O"
+          ],
+          "pieces": 1,
+          "rows": 2048,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 4442112,
+          "clear_vector_bytes": 131072,
+          "sampled_column_and_path_bytes": 4311040,
+          "verifier_fp2_base_macs": 1048576,
+          "verifier_base_ntt_butterflies": 557056,
+          "merkle_path_hashes": 3584,
+          "encoded_matrix_bytes": 268435456,
+          "base_field_matrix_bytes": 67108864,
+          "merkle_tree_bytes": 1048544
+        },
+        {
+          "sites": [
+            "O"
+          ],
+          "pieces": 1,
+          "rows": 1024,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 2344960,
+          "clear_vector_bytes": 131072,
+          "sampled_column_and_path_bytes": 2213888,
+          "verifier_fp2_base_macs": 524288,
+          "verifier_base_ntt_butterflies": 557056,
+          "merkle_path_hashes": 3584,
+          "encoded_matrix_bytes": 134217728,
+          "base_field_matrix_bytes": 33554432,
+          "merkle_tree_bytes": 1048544
+        },
+        {
+          "sites": [
+            "gate"
+          ],
+          "pieces": 1,
+          "rows": 4096,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 8636416,
+          "clear_vector_bytes": 131072,
+          "sampled_column_and_path_bytes": 8505344,
+          "verifier_fp2_base_macs": 2097152,
+          "verifier_base_ntt_butterflies": 557056,
+          "merkle_path_hashes": 3584,
+          "encoded_matrix_bytes": 536870912,
+          "base_field_matrix_bytes": 134217728,
+          "merkle_tree_bytes": 1048544
+        },
+        {
+          "sites": [
+            "gate"
+          ],
+          "pieces": 1,
+          "rows": 2048,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 4442112,
+          "clear_vector_bytes": 131072,
+          "sampled_column_and_path_bytes": 4311040,
+          "verifier_fp2_base_macs": 1048576,
+          "verifier_base_ntt_butterflies": 557056,
+          "merkle_path_hashes": 3584,
+          "encoded_matrix_bytes": 268435456,
+          "base_field_matrix_bytes": 67108864,
+          "merkle_tree_bytes": 1048544
+        },
+        {
+          "sites": [
+            "gate"
+          ],
+          "pieces": 1,
+          "rows": 512,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 1296384,
+          "clear_vector_bytes": 131072,
+          "sampled_column_and_path_bytes": 1165312,
+          "verifier_fp2_base_macs": 262144,
+          "verifier_base_ntt_butterflies": 557056,
+          "merkle_path_hashes": 3584,
+          "encoded_matrix_bytes": 67108864,
+          "base_field_matrix_bytes": 16777216,
+          "merkle_tree_bytes": 1048544
+        },
+        {
+          "sites": [
+            "gate"
+          ],
+          "pieces": 1,
+          "rows": 256,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 772096,
+          "clear_vector_bytes": 131072,
+          "sampled_column_and_path_bytes": 641024,
+          "verifier_fp2_base_macs": 131072,
+          "verifier_base_ntt_butterflies": 557056,
+          "merkle_path_hashes": 3584,
+          "encoded_matrix_bytes": 33554432,
+          "base_field_matrix_bytes": 8388608,
+          "merkle_tree_bytes": 1048544
+        },
+        {
+          "sites": [
+            "up"
+          ],
+          "pieces": 1,
+          "rows": 4096,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 8636416,
+          "clear_vector_bytes": 131072,
+          "sampled_column_and_path_bytes": 8505344,
+          "verifier_fp2_base_macs": 2097152,
+          "verifier_base_ntt_butterflies": 557056,
+          "merkle_path_hashes": 3584,
+          "encoded_matrix_bytes": 536870912,
+          "base_field_matrix_bytes": 134217728,
+          "merkle_tree_bytes": 1048544
+        },
+        {
+          "sites": [
+            "up"
+          ],
+          "pieces": 1,
+          "rows": 2048,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 4442112,
+          "clear_vector_bytes": 131072,
+          "sampled_column_and_path_bytes": 4311040,
+          "verifier_fp2_base_macs": 1048576,
+          "verifier_base_ntt_butterflies": 557056,
+          "merkle_path_hashes": 3584,
+          "encoded_matrix_bytes": 268435456,
+          "base_field_matrix_bytes": 67108864,
+          "merkle_tree_bytes": 1048544
+        },
+        {
+          "sites": [
+            "up"
+          ],
+          "pieces": 1,
+          "rows": 512,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 1296384,
+          "clear_vector_bytes": 131072,
+          "sampled_column_and_path_bytes": 1165312,
+          "verifier_fp2_base_macs": 262144,
+          "verifier_base_ntt_butterflies": 557056,
+          "merkle_path_hashes": 3584,
+          "encoded_matrix_bytes": 67108864,
+          "base_field_matrix_bytes": 16777216,
+          "merkle_tree_bytes": 1048544
+        },
+        {
+          "sites": [
+            "up"
+          ],
+          "pieces": 1,
+          "rows": 256,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 772096,
+          "clear_vector_bytes": 131072,
+          "sampled_column_and_path_bytes": 641024,
+          "verifier_fp2_base_macs": 131072,
+          "verifier_base_ntt_butterflies": 557056,
+          "merkle_path_hashes": 3584,
+          "encoded_matrix_bytes": 33554432,
+          "base_field_matrix_bytes": 8388608,
+          "merkle_tree_bytes": 1048544
+        },
+        {
+          "sites": [
+            "down"
+          ],
+          "pieces": 1,
+          "rows": 4096,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 8636416,
+          "clear_vector_bytes": 131072,
+          "sampled_column_and_path_bytes": 8505344,
+          "verifier_fp2_base_macs": 2097152,
+          "verifier_base_ntt_butterflies": 557056,
+          "merkle_path_hashes": 3584,
+          "encoded_matrix_bytes": 536870912,
+          "base_field_matrix_bytes": 134217728,
+          "merkle_tree_bytes": 1048544
+        },
+        {
+          "sites": [
+            "down"
+          ],
+          "pieces": 1,
+          "rows": 512,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 1296384,
+          "clear_vector_bytes": 131072,
+          "sampled_column_and_path_bytes": 1165312,
+          "verifier_fp2_base_macs": 262144,
+          "verifier_base_ntt_butterflies": 557056,
+          "merkle_path_hashes": 3584,
+          "encoded_matrix_bytes": 67108864,
+          "base_field_matrix_bytes": 16777216,
+          "merkle_tree_bytes": 1048544
+        },
+        {
+          "sites": [
+            "down"
+          ],
+          "pieces": 1,
+          "rows": 2048,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 4442112,
+          "clear_vector_bytes": 131072,
+          "sampled_column_and_path_bytes": 4311040,
+          "verifier_fp2_base_macs": 1048576,
+          "verifier_base_ntt_butterflies": 557056,
+          "merkle_path_hashes": 3584,
+          "encoded_matrix_bytes": 268435456,
+          "base_field_matrix_bytes": 67108864,
+          "merkle_tree_bytes": 1048544
+        },
+        {
+          "sites": [
+            "down"
+          ],
+          "pieces": 1,
+          "rows": 256,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 772096,
+          "clear_vector_bytes": 131072,
+          "sampled_column_and_path_bytes": 641024,
+          "verifier_fp2_base_macs": 131072,
+          "verifier_base_ntt_butterflies": 557056,
+          "merkle_path_hashes": 3584,
+          "encoded_matrix_bytes": 33554432,
+          "base_field_matrix_bytes": 8388608,
+          "merkle_tree_bytes": 1048544
+        }
+      ],
+      "scope": "COUNTED new public PCS opening upper bound, excluding wire framing/metadata; no native profile or measured timing/RSS"
+    },
+    {
+      "geometry": "true_piece_axes_REQUIRES_S4",
+      "packing": "per_piece",
+      "log_cols": 13,
+      "n": 8192,
+      "inv_rate": 4,
+      "column_checks": 256,
+      "layers": 26,
+      "roots_per_layer": 20,
+      "matrix_terminals_per_layer": 20,
+      "weight_words_per_layer": 116391936,
+      "added_bytes_per_layer_bound": 36839744,
+      "added_mib_per_layer_bound": 35.13311767578125,
+      "added_mib_whole_26_layer_bound": 913.4610595703125,
+      "verifier_fp2_base_macs_per_layer": 7274496,
+      "verifier_base_ntt_butterflies_per_layer": 23920640,
+      "verifier_merkle_path_hashes_per_layer": 76800,
+      "base_field_matrix_gib_per_layer": 0.8671875,
+      "encoded_matrix_gib_per_layer": 3.46875,
+      "encoded_matrix_gib_whole_model": 90.1875,
+      "merkle_tree_mib_whole_model": 1039.984130859375,
+      "largest_single_root_base_plus_encoded_gib": 0.625,
+      "root_details": [
+        {
+          "sites": [
+            "Q"
+          ],
+          "pieces": 1,
+          "rows": 1024,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 2484224,
+          "clear_vector_bytes": 262144,
+          "sampled_column_and_path_bytes": 2222080,
+          "verifier_fp2_base_macs": 524288,
+          "verifier_base_ntt_butterflies": 1196032,
+          "merkle_path_hashes": 3840,
+          "encoded_matrix_bytes": 268435456,
+          "base_field_matrix_bytes": 67108864,
+          "merkle_tree_bytes": 2097120
+        },
+        {
+          "sites": [
+            "Q"
+          ],
+          "pieces": 1,
+          "rows": 512,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 1435648,
+          "clear_vector_bytes": 262144,
+          "sampled_column_and_path_bytes": 1173504,
+          "verifier_fp2_base_macs": 262144,
+          "verifier_base_ntt_butterflies": 1196032,
+          "merkle_path_hashes": 3840,
+          "encoded_matrix_bytes": 134217728,
+          "base_field_matrix_bytes": 33554432,
+          "merkle_tree_bytes": 2097120
+        },
+        {
+          "sites": [
+            "K"
+          ],
+          "pieces": 1,
+          "rows": 256,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 911360,
+          "clear_vector_bytes": 262144,
+          "sampled_column_and_path_bytes": 649216,
+          "verifier_fp2_base_macs": 131072,
+          "verifier_base_ntt_butterflies": 1196032,
+          "merkle_path_hashes": 3840,
+          "encoded_matrix_bytes": 67108864,
+          "base_field_matrix_bytes": 16777216,
+          "merkle_tree_bytes": 2097120
+        },
+        {
+          "sites": [
+            "K"
+          ],
+          "pieces": 1,
+          "rows": 128,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 649216,
+          "clear_vector_bytes": 262144,
+          "sampled_column_and_path_bytes": 387072,
+          "verifier_fp2_base_macs": 65536,
+          "verifier_base_ntt_butterflies": 1196032,
+          "merkle_path_hashes": 3840,
+          "encoded_matrix_bytes": 33554432,
+          "base_field_matrix_bytes": 8388608,
+          "merkle_tree_bytes": 2097120
+        },
+        {
+          "sites": [
+            "V"
+          ],
+          "pieces": 1,
+          "rows": 256,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 911360,
+          "clear_vector_bytes": 262144,
+          "sampled_column_and_path_bytes": 649216,
+          "verifier_fp2_base_macs": 131072,
+          "verifier_base_ntt_butterflies": 1196032,
+          "merkle_path_hashes": 3840,
+          "encoded_matrix_bytes": 67108864,
+          "base_field_matrix_bytes": 16777216,
+          "merkle_tree_bytes": 2097120
+        },
+        {
+          "sites": [
+            "V"
+          ],
+          "pieces": 1,
+          "rows": 128,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 649216,
+          "clear_vector_bytes": 262144,
+          "sampled_column_and_path_bytes": 387072,
+          "verifier_fp2_base_macs": 65536,
+          "verifier_base_ntt_butterflies": 1196032,
+          "merkle_path_hashes": 3840,
+          "encoded_matrix_bytes": 33554432,
+          "base_field_matrix_bytes": 8388608,
+          "merkle_tree_bytes": 2097120
+        },
+        {
+          "sites": [
+            "O"
+          ],
+          "pieces": 1,
+          "rows": 1024,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 2484224,
+          "clear_vector_bytes": 262144,
+          "sampled_column_and_path_bytes": 2222080,
+          "verifier_fp2_base_macs": 524288,
+          "verifier_base_ntt_butterflies": 1196032,
+          "merkle_path_hashes": 3840,
+          "encoded_matrix_bytes": 268435456,
+          "base_field_matrix_bytes": 67108864,
+          "merkle_tree_bytes": 2097120
+        },
+        {
+          "sites": [
+            "O"
+          ],
+          "pieces": 1,
+          "rows": 512,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 1435648,
+          "clear_vector_bytes": 262144,
+          "sampled_column_and_path_bytes": 1173504,
+          "verifier_fp2_base_macs": 262144,
+          "verifier_base_ntt_butterflies": 1196032,
+          "merkle_path_hashes": 3840,
+          "encoded_matrix_bytes": 134217728,
+          "base_field_matrix_bytes": 33554432,
+          "merkle_tree_bytes": 2097120
+        },
+        {
+          "sites": [
+            "gate"
+          ],
+          "pieces": 1,
+          "rows": 2048,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 4581376,
+          "clear_vector_bytes": 262144,
+          "sampled_column_and_path_bytes": 4319232,
+          "verifier_fp2_base_macs": 1048576,
+          "verifier_base_ntt_butterflies": 1196032,
+          "merkle_path_hashes": 3840,
+          "encoded_matrix_bytes": 536870912,
+          "base_field_matrix_bytes": 134217728,
+          "merkle_tree_bytes": 2097120
+        },
+        {
+          "sites": [
+            "gate"
+          ],
+          "pieces": 1,
+          "rows": 1024,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 2484224,
+          "clear_vector_bytes": 262144,
+          "sampled_column_and_path_bytes": 2222080,
+          "verifier_fp2_base_macs": 524288,
+          "verifier_base_ntt_butterflies": 1196032,
+          "merkle_path_hashes": 3840,
+          "encoded_matrix_bytes": 268435456,
+          "base_field_matrix_bytes": 67108864,
+          "merkle_tree_bytes": 2097120
+        },
+        {
+          "sites": [
+            "gate"
+          ],
+          "pieces": 1,
+          "rows": 256,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 911360,
+          "clear_vector_bytes": 262144,
+          "sampled_column_and_path_bytes": 649216,
+          "verifier_fp2_base_macs": 131072,
+          "verifier_base_ntt_butterflies": 1196032,
+          "merkle_path_hashes": 3840,
+          "encoded_matrix_bytes": 67108864,
+          "base_field_matrix_bytes": 16777216,
+          "merkle_tree_bytes": 2097120
+        },
+        {
+          "sites": [
+            "gate"
+          ],
+          "pieces": 1,
+          "rows": 128,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 649216,
+          "clear_vector_bytes": 262144,
+          "sampled_column_and_path_bytes": 387072,
+          "verifier_fp2_base_macs": 65536,
+          "verifier_base_ntt_butterflies": 1196032,
+          "merkle_path_hashes": 3840,
+          "encoded_matrix_bytes": 33554432,
+          "base_field_matrix_bytes": 8388608,
+          "merkle_tree_bytes": 2097120
+        },
+        {
+          "sites": [
+            "up"
+          ],
+          "pieces": 1,
+          "rows": 2048,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 4581376,
+          "clear_vector_bytes": 262144,
+          "sampled_column_and_path_bytes": 4319232,
+          "verifier_fp2_base_macs": 1048576,
+          "verifier_base_ntt_butterflies": 1196032,
+          "merkle_path_hashes": 3840,
+          "encoded_matrix_bytes": 536870912,
+          "base_field_matrix_bytes": 134217728,
+          "merkle_tree_bytes": 2097120
+        },
+        {
+          "sites": [
+            "up"
+          ],
+          "pieces": 1,
+          "rows": 1024,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 2484224,
+          "clear_vector_bytes": 262144,
+          "sampled_column_and_path_bytes": 2222080,
+          "verifier_fp2_base_macs": 524288,
+          "verifier_base_ntt_butterflies": 1196032,
+          "merkle_path_hashes": 3840,
+          "encoded_matrix_bytes": 268435456,
+          "base_field_matrix_bytes": 67108864,
+          "merkle_tree_bytes": 2097120
+        },
+        {
+          "sites": [
+            "up"
+          ],
+          "pieces": 1,
+          "rows": 256,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 911360,
+          "clear_vector_bytes": 262144,
+          "sampled_column_and_path_bytes": 649216,
+          "verifier_fp2_base_macs": 131072,
+          "verifier_base_ntt_butterflies": 1196032,
+          "merkle_path_hashes": 3840,
+          "encoded_matrix_bytes": 67108864,
+          "base_field_matrix_bytes": 16777216,
+          "merkle_tree_bytes": 2097120
+        },
+        {
+          "sites": [
+            "up"
+          ],
+          "pieces": 1,
+          "rows": 128,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 649216,
+          "clear_vector_bytes": 262144,
+          "sampled_column_and_path_bytes": 387072,
+          "verifier_fp2_base_macs": 65536,
+          "verifier_base_ntt_butterflies": 1196032,
+          "merkle_path_hashes": 3840,
+          "encoded_matrix_bytes": 33554432,
+          "base_field_matrix_bytes": 8388608,
+          "merkle_tree_bytes": 2097120
+        },
+        {
+          "sites": [
+            "down"
+          ],
+          "pieces": 1,
+          "rows": 2048,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 4581376,
+          "clear_vector_bytes": 262144,
+          "sampled_column_and_path_bytes": 4319232,
+          "verifier_fp2_base_macs": 1048576,
+          "verifier_base_ntt_butterflies": 1196032,
+          "merkle_path_hashes": 3840,
+          "encoded_matrix_bytes": 536870912,
+          "base_field_matrix_bytes": 134217728,
+          "merkle_tree_bytes": 2097120
+        },
+        {
+          "sites": [
+            "down"
+          ],
+          "pieces": 1,
+          "rows": 256,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 911360,
+          "clear_vector_bytes": 262144,
+          "sampled_column_and_path_bytes": 649216,
+          "verifier_fp2_base_macs": 131072,
+          "verifier_base_ntt_butterflies": 1196032,
+          "merkle_path_hashes": 3840,
+          "encoded_matrix_bytes": 67108864,
+          "base_field_matrix_bytes": 16777216,
+          "merkle_tree_bytes": 2097120
+        },
+        {
+          "sites": [
+            "down"
+          ],
+          "pieces": 1,
+          "rows": 1024,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 2484224,
+          "clear_vector_bytes": 262144,
+          "sampled_column_and_path_bytes": 2222080,
+          "verifier_fp2_base_macs": 524288,
+          "verifier_base_ntt_butterflies": 1196032,
+          "merkle_path_hashes": 3840,
+          "encoded_matrix_bytes": 268435456,
+          "base_field_matrix_bytes": 67108864,
+          "merkle_tree_bytes": 2097120
+        },
+        {
+          "sites": [
+            "down"
+          ],
+          "pieces": 1,
+          "rows": 128,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 649216,
+          "clear_vector_bytes": 262144,
+          "sampled_column_and_path_bytes": 387072,
+          "verifier_fp2_base_macs": 65536,
+          "verifier_base_ntt_butterflies": 1196032,
+          "merkle_path_hashes": 3840,
+          "encoded_matrix_bytes": 33554432,
+          "base_field_matrix_bytes": 8388608,
+          "merkle_tree_bytes": 2097120
+        }
+      ],
+      "scope": "COUNTED new public PCS opening upper bound, excluding wire framing/metadata; no native profile or measured timing/RSS"
+    },
+    {
+      "geometry": "true_piece_axes_REQUIRES_S4",
+      "packing": "per_piece",
+      "log_cols": 14,
+      "n": 16384,
+      "inv_rate": 4,
+      "column_checks": 256,
+      "layers": 26,
+      "roots_per_layer": 20,
+      "matrix_terminals_per_layer": 20,
+      "weight_words_per_layer": 116391936,
+      "added_bytes_per_layer_bound": 27697472,
+      "added_mib_per_layer_bound": 26.41436767578125,
+      "added_mib_whole_26_layer_bound": 686.7735595703125,
+      "verifier_fp2_base_macs_per_layer": 3637248,
+      "verifier_base_ntt_butterflies_per_layer": 51118080,
+      "verifier_merkle_path_hashes_per_layer": 81920,
+      "base_field_matrix_gib_per_layer": 0.8671875,
+      "encoded_matrix_gib_per_layer": 3.46875,
+      "encoded_matrix_gib_whole_model": 90.1875,
+      "merkle_tree_mib_whole_model": 2079.984130859375,
+      "largest_single_root_base_plus_encoded_gib": 0.625,
+      "root_details": [
+        {
+          "sites": [
+            "Q"
+          ],
+          "pieces": 1,
+          "rows": 512,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 1705984,
+          "clear_vector_bytes": 524288,
+          "sampled_column_and_path_bytes": 1181696,
+          "verifier_fp2_base_macs": 262144,
+          "verifier_base_ntt_butterflies": 2555904,
+          "merkle_path_hashes": 4096,
+          "encoded_matrix_bytes": 268435456,
+          "base_field_matrix_bytes": 67108864,
+          "merkle_tree_bytes": 4194272
+        },
+        {
+          "sites": [
+            "Q"
+          ],
+          "pieces": 1,
+          "rows": 256,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 1181696,
+          "clear_vector_bytes": 524288,
+          "sampled_column_and_path_bytes": 657408,
+          "verifier_fp2_base_macs": 131072,
+          "verifier_base_ntt_butterflies": 2555904,
+          "merkle_path_hashes": 4096,
+          "encoded_matrix_bytes": 134217728,
+          "base_field_matrix_bytes": 33554432,
+          "merkle_tree_bytes": 4194272
+        },
+        {
+          "sites": [
+            "K"
+          ],
+          "pieces": 1,
+          "rows": 128,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 919552,
+          "clear_vector_bytes": 524288,
+          "sampled_column_and_path_bytes": 395264,
+          "verifier_fp2_base_macs": 65536,
+          "verifier_base_ntt_butterflies": 2555904,
+          "merkle_path_hashes": 4096,
+          "encoded_matrix_bytes": 67108864,
+          "base_field_matrix_bytes": 16777216,
+          "merkle_tree_bytes": 4194272
+        },
+        {
+          "sites": [
+            "K"
+          ],
+          "pieces": 1,
+          "rows": 64,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 788480,
+          "clear_vector_bytes": 524288,
+          "sampled_column_and_path_bytes": 264192,
+          "verifier_fp2_base_macs": 32768,
+          "verifier_base_ntt_butterflies": 2555904,
+          "merkle_path_hashes": 4096,
+          "encoded_matrix_bytes": 33554432,
+          "base_field_matrix_bytes": 8388608,
+          "merkle_tree_bytes": 4194272
+        },
+        {
+          "sites": [
+            "V"
+          ],
+          "pieces": 1,
+          "rows": 128,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 919552,
+          "clear_vector_bytes": 524288,
+          "sampled_column_and_path_bytes": 395264,
+          "verifier_fp2_base_macs": 65536,
+          "verifier_base_ntt_butterflies": 2555904,
+          "merkle_path_hashes": 4096,
+          "encoded_matrix_bytes": 67108864,
+          "base_field_matrix_bytes": 16777216,
+          "merkle_tree_bytes": 4194272
+        },
+        {
+          "sites": [
+            "V"
+          ],
+          "pieces": 1,
+          "rows": 64,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 788480,
+          "clear_vector_bytes": 524288,
+          "sampled_column_and_path_bytes": 264192,
+          "verifier_fp2_base_macs": 32768,
+          "verifier_base_ntt_butterflies": 2555904,
+          "merkle_path_hashes": 4096,
+          "encoded_matrix_bytes": 33554432,
+          "base_field_matrix_bytes": 8388608,
+          "merkle_tree_bytes": 4194272
+        },
+        {
+          "sites": [
+            "O"
+          ],
+          "pieces": 1,
+          "rows": 512,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 1705984,
+          "clear_vector_bytes": 524288,
+          "sampled_column_and_path_bytes": 1181696,
+          "verifier_fp2_base_macs": 262144,
+          "verifier_base_ntt_butterflies": 2555904,
+          "merkle_path_hashes": 4096,
+          "encoded_matrix_bytes": 268435456,
+          "base_field_matrix_bytes": 67108864,
+          "merkle_tree_bytes": 4194272
+        },
+        {
+          "sites": [
+            "O"
+          ],
+          "pieces": 1,
+          "rows": 256,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 1181696,
+          "clear_vector_bytes": 524288,
+          "sampled_column_and_path_bytes": 657408,
+          "verifier_fp2_base_macs": 131072,
+          "verifier_base_ntt_butterflies": 2555904,
+          "merkle_path_hashes": 4096,
+          "encoded_matrix_bytes": 134217728,
+          "base_field_matrix_bytes": 33554432,
+          "merkle_tree_bytes": 4194272
+        },
+        {
+          "sites": [
+            "gate"
+          ],
+          "pieces": 1,
+          "rows": 1024,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 2754560,
+          "clear_vector_bytes": 524288,
+          "sampled_column_and_path_bytes": 2230272,
+          "verifier_fp2_base_macs": 524288,
+          "verifier_base_ntt_butterflies": 2555904,
+          "merkle_path_hashes": 4096,
+          "encoded_matrix_bytes": 536870912,
+          "base_field_matrix_bytes": 134217728,
+          "merkle_tree_bytes": 4194272
+        },
+        {
+          "sites": [
+            "gate"
+          ],
+          "pieces": 1,
+          "rows": 512,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 1705984,
+          "clear_vector_bytes": 524288,
+          "sampled_column_and_path_bytes": 1181696,
+          "verifier_fp2_base_macs": 262144,
+          "verifier_base_ntt_butterflies": 2555904,
+          "merkle_path_hashes": 4096,
+          "encoded_matrix_bytes": 268435456,
+          "base_field_matrix_bytes": 67108864,
+          "merkle_tree_bytes": 4194272
+        },
+        {
+          "sites": [
+            "gate"
+          ],
+          "pieces": 1,
+          "rows": 128,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 919552,
+          "clear_vector_bytes": 524288,
+          "sampled_column_and_path_bytes": 395264,
+          "verifier_fp2_base_macs": 65536,
+          "verifier_base_ntt_butterflies": 2555904,
+          "merkle_path_hashes": 4096,
+          "encoded_matrix_bytes": 67108864,
+          "base_field_matrix_bytes": 16777216,
+          "merkle_tree_bytes": 4194272
+        },
+        {
+          "sites": [
+            "gate"
+          ],
+          "pieces": 1,
+          "rows": 64,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 788480,
+          "clear_vector_bytes": 524288,
+          "sampled_column_and_path_bytes": 264192,
+          "verifier_fp2_base_macs": 32768,
+          "verifier_base_ntt_butterflies": 2555904,
+          "merkle_path_hashes": 4096,
+          "encoded_matrix_bytes": 33554432,
+          "base_field_matrix_bytes": 8388608,
+          "merkle_tree_bytes": 4194272
+        },
+        {
+          "sites": [
+            "up"
+          ],
+          "pieces": 1,
+          "rows": 1024,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 2754560,
+          "clear_vector_bytes": 524288,
+          "sampled_column_and_path_bytes": 2230272,
+          "verifier_fp2_base_macs": 524288,
+          "verifier_base_ntt_butterflies": 2555904,
+          "merkle_path_hashes": 4096,
+          "encoded_matrix_bytes": 536870912,
+          "base_field_matrix_bytes": 134217728,
+          "merkle_tree_bytes": 4194272
+        },
+        {
+          "sites": [
+            "up"
+          ],
+          "pieces": 1,
+          "rows": 512,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 1705984,
+          "clear_vector_bytes": 524288,
+          "sampled_column_and_path_bytes": 1181696,
+          "verifier_fp2_base_macs": 262144,
+          "verifier_base_ntt_butterflies": 2555904,
+          "merkle_path_hashes": 4096,
+          "encoded_matrix_bytes": 268435456,
+          "base_field_matrix_bytes": 67108864,
+          "merkle_tree_bytes": 4194272
+        },
+        {
+          "sites": [
+            "up"
+          ],
+          "pieces": 1,
+          "rows": 128,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 919552,
+          "clear_vector_bytes": 524288,
+          "sampled_column_and_path_bytes": 395264,
+          "verifier_fp2_base_macs": 65536,
+          "verifier_base_ntt_butterflies": 2555904,
+          "merkle_path_hashes": 4096,
+          "encoded_matrix_bytes": 67108864,
+          "base_field_matrix_bytes": 16777216,
+          "merkle_tree_bytes": 4194272
+        },
+        {
+          "sites": [
+            "up"
+          ],
+          "pieces": 1,
+          "rows": 64,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 788480,
+          "clear_vector_bytes": 524288,
+          "sampled_column_and_path_bytes": 264192,
+          "verifier_fp2_base_macs": 32768,
+          "verifier_base_ntt_butterflies": 2555904,
+          "merkle_path_hashes": 4096,
+          "encoded_matrix_bytes": 33554432,
+          "base_field_matrix_bytes": 8388608,
+          "merkle_tree_bytes": 4194272
+        },
+        {
+          "sites": [
+            "down"
+          ],
+          "pieces": 1,
+          "rows": 1024,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 2754560,
+          "clear_vector_bytes": 524288,
+          "sampled_column_and_path_bytes": 2230272,
+          "verifier_fp2_base_macs": 524288,
+          "verifier_base_ntt_butterflies": 2555904,
+          "merkle_path_hashes": 4096,
+          "encoded_matrix_bytes": 536870912,
+          "base_field_matrix_bytes": 134217728,
+          "merkle_tree_bytes": 4194272
+        },
+        {
+          "sites": [
+            "down"
+          ],
+          "pieces": 1,
+          "rows": 128,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 919552,
+          "clear_vector_bytes": 524288,
+          "sampled_column_and_path_bytes": 395264,
+          "verifier_fp2_base_macs": 65536,
+          "verifier_base_ntt_butterflies": 2555904,
+          "merkle_path_hashes": 4096,
+          "encoded_matrix_bytes": 67108864,
+          "base_field_matrix_bytes": 16777216,
+          "merkle_tree_bytes": 4194272
+        },
+        {
+          "sites": [
+            "down"
+          ],
+          "pieces": 1,
+          "rows": 512,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 1705984,
+          "clear_vector_bytes": 524288,
+          "sampled_column_and_path_bytes": 1181696,
+          "verifier_fp2_base_macs": 262144,
+          "verifier_base_ntt_butterflies": 2555904,
+          "merkle_path_hashes": 4096,
+          "encoded_matrix_bytes": 268435456,
+          "base_field_matrix_bytes": 67108864,
+          "merkle_tree_bytes": 4194272
+        },
+        {
+          "sites": [
+            "down"
+          ],
+          "pieces": 1,
+          "rows": 64,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 788480,
+          "clear_vector_bytes": 524288,
+          "sampled_column_and_path_bytes": 264192,
+          "verifier_fp2_base_macs": 32768,
+          "verifier_base_ntt_butterflies": 2555904,
+          "merkle_path_hashes": 4096,
+          "encoded_matrix_bytes": 33554432,
+          "base_field_matrix_bytes": 8388608,
+          "merkle_tree_bytes": 4194272
+        }
+      ],
+      "scope": "COUNTED new public PCS opening upper bound, excluding wire framing/metadata; no native profile or measured timing/RSS"
+    },
+    {
+      "geometry": "true_piece_axes_REQUIRES_S4",
+      "packing": "per_piece",
+      "log_cols": 15,
+      "n": 32768,
+      "inv_rate": 4,
+      "column_checks": 256,
+      "layers": 26,
+      "roots_per_layer": 20,
+      "matrix_terminals_per_layer": 20,
+      "weight_words_per_layer": 116391936,
+      "added_bytes_per_layer_bound": 31072576,
+      "added_mib_per_layer_bound": 29.63311767578125,
+      "added_mib_whole_26_layer_bound": 770.4610595703125,
+      "verifier_fp2_base_macs_per_layer": 1818624,
+      "verifier_base_ntt_butterflies_per_layer": 108789760,
+      "verifier_merkle_path_hashes_per_layer": 87040,
+      "base_field_matrix_gib_per_layer": 0.8671875,
+      "encoded_matrix_gib_per_layer": 3.46875,
+      "encoded_matrix_gib_whole_model": 90.1875,
+      "merkle_tree_mib_whole_model": 4159.984130859375,
+      "largest_single_root_base_plus_encoded_gib": 0.625,
+      "root_details": [
+        {
+          "sites": [
+            "Q"
+          ],
+          "pieces": 1,
+          "rows": 256,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 1714176,
+          "clear_vector_bytes": 1048576,
+          "sampled_column_and_path_bytes": 665600,
+          "verifier_fp2_base_macs": 131072,
+          "verifier_base_ntt_butterflies": 5439488,
+          "merkle_path_hashes": 4352,
+          "encoded_matrix_bytes": 268435456,
+          "base_field_matrix_bytes": 67108864,
+          "merkle_tree_bytes": 8388576
+        },
+        {
+          "sites": [
+            "Q"
+          ],
+          "pieces": 1,
+          "rows": 128,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 1452032,
+          "clear_vector_bytes": 1048576,
+          "sampled_column_and_path_bytes": 403456,
+          "verifier_fp2_base_macs": 65536,
+          "verifier_base_ntt_butterflies": 5439488,
+          "merkle_path_hashes": 4352,
+          "encoded_matrix_bytes": 134217728,
+          "base_field_matrix_bytes": 33554432,
+          "merkle_tree_bytes": 8388576
+        },
+        {
+          "sites": [
+            "K"
+          ],
+          "pieces": 1,
+          "rows": 64,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 1320960,
+          "clear_vector_bytes": 1048576,
+          "sampled_column_and_path_bytes": 272384,
+          "verifier_fp2_base_macs": 32768,
+          "verifier_base_ntt_butterflies": 5439488,
+          "merkle_path_hashes": 4352,
+          "encoded_matrix_bytes": 67108864,
+          "base_field_matrix_bytes": 16777216,
+          "merkle_tree_bytes": 8388576
+        },
+        {
+          "sites": [
+            "K"
+          ],
+          "pieces": 1,
+          "rows": 32,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 1255424,
+          "clear_vector_bytes": 1048576,
+          "sampled_column_and_path_bytes": 206848,
+          "verifier_fp2_base_macs": 16384,
+          "verifier_base_ntt_butterflies": 5439488,
+          "merkle_path_hashes": 4352,
+          "encoded_matrix_bytes": 33554432,
+          "base_field_matrix_bytes": 8388608,
+          "merkle_tree_bytes": 8388576
+        },
+        {
+          "sites": [
+            "V"
+          ],
+          "pieces": 1,
+          "rows": 64,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 1320960,
+          "clear_vector_bytes": 1048576,
+          "sampled_column_and_path_bytes": 272384,
+          "verifier_fp2_base_macs": 32768,
+          "verifier_base_ntt_butterflies": 5439488,
+          "merkle_path_hashes": 4352,
+          "encoded_matrix_bytes": 67108864,
+          "base_field_matrix_bytes": 16777216,
+          "merkle_tree_bytes": 8388576
+        },
+        {
+          "sites": [
+            "V"
+          ],
+          "pieces": 1,
+          "rows": 32,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 1255424,
+          "clear_vector_bytes": 1048576,
+          "sampled_column_and_path_bytes": 206848,
+          "verifier_fp2_base_macs": 16384,
+          "verifier_base_ntt_butterflies": 5439488,
+          "merkle_path_hashes": 4352,
+          "encoded_matrix_bytes": 33554432,
+          "base_field_matrix_bytes": 8388608,
+          "merkle_tree_bytes": 8388576
+        },
+        {
+          "sites": [
+            "O"
+          ],
+          "pieces": 1,
+          "rows": 256,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 1714176,
+          "clear_vector_bytes": 1048576,
+          "sampled_column_and_path_bytes": 665600,
+          "verifier_fp2_base_macs": 131072,
+          "verifier_base_ntt_butterflies": 5439488,
+          "merkle_path_hashes": 4352,
+          "encoded_matrix_bytes": 268435456,
+          "base_field_matrix_bytes": 67108864,
+          "merkle_tree_bytes": 8388576
+        },
+        {
+          "sites": [
+            "O"
+          ],
+          "pieces": 1,
+          "rows": 128,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 1452032,
+          "clear_vector_bytes": 1048576,
+          "sampled_column_and_path_bytes": 403456,
+          "verifier_fp2_base_macs": 65536,
+          "verifier_base_ntt_butterflies": 5439488,
+          "merkle_path_hashes": 4352,
+          "encoded_matrix_bytes": 134217728,
+          "base_field_matrix_bytes": 33554432,
+          "merkle_tree_bytes": 8388576
+        },
+        {
+          "sites": [
+            "gate"
+          ],
+          "pieces": 1,
+          "rows": 512,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 2238464,
+          "clear_vector_bytes": 1048576,
+          "sampled_column_and_path_bytes": 1189888,
+          "verifier_fp2_base_macs": 262144,
+          "verifier_base_ntt_butterflies": 5439488,
+          "merkle_path_hashes": 4352,
+          "encoded_matrix_bytes": 536870912,
+          "base_field_matrix_bytes": 134217728,
+          "merkle_tree_bytes": 8388576
+        },
+        {
+          "sites": [
+            "gate"
+          ],
+          "pieces": 1,
+          "rows": 256,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 1714176,
+          "clear_vector_bytes": 1048576,
+          "sampled_column_and_path_bytes": 665600,
+          "verifier_fp2_base_macs": 131072,
+          "verifier_base_ntt_butterflies": 5439488,
+          "merkle_path_hashes": 4352,
+          "encoded_matrix_bytes": 268435456,
+          "base_field_matrix_bytes": 67108864,
+          "merkle_tree_bytes": 8388576
+        },
+        {
+          "sites": [
+            "gate"
+          ],
+          "pieces": 1,
+          "rows": 64,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 1320960,
+          "clear_vector_bytes": 1048576,
+          "sampled_column_and_path_bytes": 272384,
+          "verifier_fp2_base_macs": 32768,
+          "verifier_base_ntt_butterflies": 5439488,
+          "merkle_path_hashes": 4352,
+          "encoded_matrix_bytes": 67108864,
+          "base_field_matrix_bytes": 16777216,
+          "merkle_tree_bytes": 8388576
+        },
+        {
+          "sites": [
+            "gate"
+          ],
+          "pieces": 1,
+          "rows": 32,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 1255424,
+          "clear_vector_bytes": 1048576,
+          "sampled_column_and_path_bytes": 206848,
+          "verifier_fp2_base_macs": 16384,
+          "verifier_base_ntt_butterflies": 5439488,
+          "merkle_path_hashes": 4352,
+          "encoded_matrix_bytes": 33554432,
+          "base_field_matrix_bytes": 8388608,
+          "merkle_tree_bytes": 8388576
+        },
+        {
+          "sites": [
+            "up"
+          ],
+          "pieces": 1,
+          "rows": 512,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 2238464,
+          "clear_vector_bytes": 1048576,
+          "sampled_column_and_path_bytes": 1189888,
+          "verifier_fp2_base_macs": 262144,
+          "verifier_base_ntt_butterflies": 5439488,
+          "merkle_path_hashes": 4352,
+          "encoded_matrix_bytes": 536870912,
+          "base_field_matrix_bytes": 134217728,
+          "merkle_tree_bytes": 8388576
+        },
+        {
+          "sites": [
+            "up"
+          ],
+          "pieces": 1,
+          "rows": 256,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 1714176,
+          "clear_vector_bytes": 1048576,
+          "sampled_column_and_path_bytes": 665600,
+          "verifier_fp2_base_macs": 131072,
+          "verifier_base_ntt_butterflies": 5439488,
+          "merkle_path_hashes": 4352,
+          "encoded_matrix_bytes": 268435456,
+          "base_field_matrix_bytes": 67108864,
+          "merkle_tree_bytes": 8388576
+        },
+        {
+          "sites": [
+            "up"
+          ],
+          "pieces": 1,
+          "rows": 64,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 1320960,
+          "clear_vector_bytes": 1048576,
+          "sampled_column_and_path_bytes": 272384,
+          "verifier_fp2_base_macs": 32768,
+          "verifier_base_ntt_butterflies": 5439488,
+          "merkle_path_hashes": 4352,
+          "encoded_matrix_bytes": 67108864,
+          "base_field_matrix_bytes": 16777216,
+          "merkle_tree_bytes": 8388576
+        },
+        {
+          "sites": [
+            "up"
+          ],
+          "pieces": 1,
+          "rows": 32,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 1255424,
+          "clear_vector_bytes": 1048576,
+          "sampled_column_and_path_bytes": 206848,
+          "verifier_fp2_base_macs": 16384,
+          "verifier_base_ntt_butterflies": 5439488,
+          "merkle_path_hashes": 4352,
+          "encoded_matrix_bytes": 33554432,
+          "base_field_matrix_bytes": 8388608,
+          "merkle_tree_bytes": 8388576
+        },
+        {
+          "sites": [
+            "down"
+          ],
+          "pieces": 1,
+          "rows": 512,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 2238464,
+          "clear_vector_bytes": 1048576,
+          "sampled_column_and_path_bytes": 1189888,
+          "verifier_fp2_base_macs": 262144,
+          "verifier_base_ntt_butterflies": 5439488,
+          "merkle_path_hashes": 4352,
+          "encoded_matrix_bytes": 536870912,
+          "base_field_matrix_bytes": 134217728,
+          "merkle_tree_bytes": 8388576
+        },
+        {
+          "sites": [
+            "down"
+          ],
+          "pieces": 1,
+          "rows": 64,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 1320960,
+          "clear_vector_bytes": 1048576,
+          "sampled_column_and_path_bytes": 272384,
+          "verifier_fp2_base_macs": 32768,
+          "verifier_base_ntt_butterflies": 5439488,
+          "merkle_path_hashes": 4352,
+          "encoded_matrix_bytes": 67108864,
+          "base_field_matrix_bytes": 16777216,
+          "merkle_tree_bytes": 8388576
+        },
+        {
+          "sites": [
+            "down"
+          ],
+          "pieces": 1,
+          "rows": 256,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 1714176,
+          "clear_vector_bytes": 1048576,
+          "sampled_column_and_path_bytes": 665600,
+          "verifier_fp2_base_macs": 131072,
+          "verifier_base_ntt_butterflies": 5439488,
+          "merkle_path_hashes": 4352,
+          "encoded_matrix_bytes": 268435456,
+          "base_field_matrix_bytes": 67108864,
+          "merkle_tree_bytes": 8388576
+        },
+        {
+          "sites": [
+            "down"
+          ],
+          "pieces": 1,
+          "rows": 32,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 1255424,
+          "clear_vector_bytes": 1048576,
+          "sampled_column_and_path_bytes": 206848,
+          "verifier_fp2_base_macs": 16384,
+          "verifier_base_ntt_butterflies": 5439488,
+          "merkle_path_hashes": 4352,
+          "encoded_matrix_bytes": 33554432,
+          "base_field_matrix_bytes": 8388608,
+          "merkle_tree_bytes": 8388576
+        }
+      ],
+      "scope": "COUNTED new public PCS opening upper bound, excluding wire framing/metadata; no native profile or measured timing/RSS"
+    },
+    {
+      "geometry": "true_piece_axes_REQUIRES_S4",
+      "packing": "per_piece",
+      "log_cols": 16,
+      "n": 65536,
+      "inv_rate": 4,
+      "column_checks": 256,
+      "layers": 26,
+      "roots_per_layer": 20,
+      "matrix_terminals_per_layer": 20,
+      "weight_words_per_layer": 116391936,
+      "added_bytes_per_layer_bound": 48570688,
+      "added_mib_per_layer_bound": 46.32061767578125,
+      "added_mib_whole_26_layer_bound": 1204.3360595703125,
+      "verifier_fp2_base_macs_per_layer": 909312,
+      "verifier_base_ntt_butterflies_per_layer": 230686720,
+      "verifier_merkle_path_hashes_per_layer": 92160,
+      "base_field_matrix_gib_per_layer": 0.8671875,
+      "encoded_matrix_gib_per_layer": 3.46875,
+      "encoded_matrix_gib_whole_model": 90.1875,
+      "merkle_tree_mib_whole_model": 8319.984130859375,
+      "largest_single_root_base_plus_encoded_gib": 0.625,
+      "root_details": [
+        {
+          "sites": [
+            "Q"
+          ],
+          "pieces": 1,
+          "rows": 128,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 2508800,
+          "clear_vector_bytes": 2097152,
+          "sampled_column_and_path_bytes": 411648,
+          "verifier_fp2_base_macs": 65536,
+          "verifier_base_ntt_butterflies": 11534336,
+          "merkle_path_hashes": 4608,
+          "encoded_matrix_bytes": 268435456,
+          "base_field_matrix_bytes": 67108864,
+          "merkle_tree_bytes": 16777184
+        },
+        {
+          "sites": [
+            "Q"
+          ],
+          "pieces": 1,
+          "rows": 64,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 2377728,
+          "clear_vector_bytes": 2097152,
+          "sampled_column_and_path_bytes": 280576,
+          "verifier_fp2_base_macs": 32768,
+          "verifier_base_ntt_butterflies": 11534336,
+          "merkle_path_hashes": 4608,
+          "encoded_matrix_bytes": 134217728,
+          "base_field_matrix_bytes": 33554432,
+          "merkle_tree_bytes": 16777184
+        },
+        {
+          "sites": [
+            "K"
+          ],
+          "pieces": 1,
+          "rows": 32,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 2312192,
+          "clear_vector_bytes": 2097152,
+          "sampled_column_and_path_bytes": 215040,
+          "verifier_fp2_base_macs": 16384,
+          "verifier_base_ntt_butterflies": 11534336,
+          "merkle_path_hashes": 4608,
+          "encoded_matrix_bytes": 67108864,
+          "base_field_matrix_bytes": 16777216,
+          "merkle_tree_bytes": 16777184
+        },
+        {
+          "sites": [
+            "K"
+          ],
+          "pieces": 1,
+          "rows": 16,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 2279424,
+          "clear_vector_bytes": 2097152,
+          "sampled_column_and_path_bytes": 182272,
+          "verifier_fp2_base_macs": 8192,
+          "verifier_base_ntt_butterflies": 11534336,
+          "merkle_path_hashes": 4608,
+          "encoded_matrix_bytes": 33554432,
+          "base_field_matrix_bytes": 8388608,
+          "merkle_tree_bytes": 16777184
+        },
+        {
+          "sites": [
+            "V"
+          ],
+          "pieces": 1,
+          "rows": 32,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 2312192,
+          "clear_vector_bytes": 2097152,
+          "sampled_column_and_path_bytes": 215040,
+          "verifier_fp2_base_macs": 16384,
+          "verifier_base_ntt_butterflies": 11534336,
+          "merkle_path_hashes": 4608,
+          "encoded_matrix_bytes": 67108864,
+          "base_field_matrix_bytes": 16777216,
+          "merkle_tree_bytes": 16777184
+        },
+        {
+          "sites": [
+            "V"
+          ],
+          "pieces": 1,
+          "rows": 16,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 2279424,
+          "clear_vector_bytes": 2097152,
+          "sampled_column_and_path_bytes": 182272,
+          "verifier_fp2_base_macs": 8192,
+          "verifier_base_ntt_butterflies": 11534336,
+          "merkle_path_hashes": 4608,
+          "encoded_matrix_bytes": 33554432,
+          "base_field_matrix_bytes": 8388608,
+          "merkle_tree_bytes": 16777184
+        },
+        {
+          "sites": [
+            "O"
+          ],
+          "pieces": 1,
+          "rows": 128,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 2508800,
+          "clear_vector_bytes": 2097152,
+          "sampled_column_and_path_bytes": 411648,
+          "verifier_fp2_base_macs": 65536,
+          "verifier_base_ntt_butterflies": 11534336,
+          "merkle_path_hashes": 4608,
+          "encoded_matrix_bytes": 268435456,
+          "base_field_matrix_bytes": 67108864,
+          "merkle_tree_bytes": 16777184
+        },
+        {
+          "sites": [
+            "O"
+          ],
+          "pieces": 1,
+          "rows": 64,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 2377728,
+          "clear_vector_bytes": 2097152,
+          "sampled_column_and_path_bytes": 280576,
+          "verifier_fp2_base_macs": 32768,
+          "verifier_base_ntt_butterflies": 11534336,
+          "merkle_path_hashes": 4608,
+          "encoded_matrix_bytes": 134217728,
+          "base_field_matrix_bytes": 33554432,
+          "merkle_tree_bytes": 16777184
+        },
+        {
+          "sites": [
+            "gate"
+          ],
+          "pieces": 1,
+          "rows": 256,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 2770944,
+          "clear_vector_bytes": 2097152,
+          "sampled_column_and_path_bytes": 673792,
+          "verifier_fp2_base_macs": 131072,
+          "verifier_base_ntt_butterflies": 11534336,
+          "merkle_path_hashes": 4608,
+          "encoded_matrix_bytes": 536870912,
+          "base_field_matrix_bytes": 134217728,
+          "merkle_tree_bytes": 16777184
+        },
+        {
+          "sites": [
+            "gate"
+          ],
+          "pieces": 1,
+          "rows": 128,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 2508800,
+          "clear_vector_bytes": 2097152,
+          "sampled_column_and_path_bytes": 411648,
+          "verifier_fp2_base_macs": 65536,
+          "verifier_base_ntt_butterflies": 11534336,
+          "merkle_path_hashes": 4608,
+          "encoded_matrix_bytes": 268435456,
+          "base_field_matrix_bytes": 67108864,
+          "merkle_tree_bytes": 16777184
+        },
+        {
+          "sites": [
+            "gate"
+          ],
+          "pieces": 1,
+          "rows": 32,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 2312192,
+          "clear_vector_bytes": 2097152,
+          "sampled_column_and_path_bytes": 215040,
+          "verifier_fp2_base_macs": 16384,
+          "verifier_base_ntt_butterflies": 11534336,
+          "merkle_path_hashes": 4608,
+          "encoded_matrix_bytes": 67108864,
+          "base_field_matrix_bytes": 16777216,
+          "merkle_tree_bytes": 16777184
+        },
+        {
+          "sites": [
+            "gate"
+          ],
+          "pieces": 1,
+          "rows": 16,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 2279424,
+          "clear_vector_bytes": 2097152,
+          "sampled_column_and_path_bytes": 182272,
+          "verifier_fp2_base_macs": 8192,
+          "verifier_base_ntt_butterflies": 11534336,
+          "merkle_path_hashes": 4608,
+          "encoded_matrix_bytes": 33554432,
+          "base_field_matrix_bytes": 8388608,
+          "merkle_tree_bytes": 16777184
+        },
+        {
+          "sites": [
+            "up"
+          ],
+          "pieces": 1,
+          "rows": 256,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 2770944,
+          "clear_vector_bytes": 2097152,
+          "sampled_column_and_path_bytes": 673792,
+          "verifier_fp2_base_macs": 131072,
+          "verifier_base_ntt_butterflies": 11534336,
+          "merkle_path_hashes": 4608,
+          "encoded_matrix_bytes": 536870912,
+          "base_field_matrix_bytes": 134217728,
+          "merkle_tree_bytes": 16777184
+        },
+        {
+          "sites": [
+            "up"
+          ],
+          "pieces": 1,
+          "rows": 128,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 2508800,
+          "clear_vector_bytes": 2097152,
+          "sampled_column_and_path_bytes": 411648,
+          "verifier_fp2_base_macs": 65536,
+          "verifier_base_ntt_butterflies": 11534336,
+          "merkle_path_hashes": 4608,
+          "encoded_matrix_bytes": 268435456,
+          "base_field_matrix_bytes": 67108864,
+          "merkle_tree_bytes": 16777184
+        },
+        {
+          "sites": [
+            "up"
+          ],
+          "pieces": 1,
+          "rows": 32,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 2312192,
+          "clear_vector_bytes": 2097152,
+          "sampled_column_and_path_bytes": 215040,
+          "verifier_fp2_base_macs": 16384,
+          "verifier_base_ntt_butterflies": 11534336,
+          "merkle_path_hashes": 4608,
+          "encoded_matrix_bytes": 67108864,
+          "base_field_matrix_bytes": 16777216,
+          "merkle_tree_bytes": 16777184
+        },
+        {
+          "sites": [
+            "up"
+          ],
+          "pieces": 1,
+          "rows": 16,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 2279424,
+          "clear_vector_bytes": 2097152,
+          "sampled_column_and_path_bytes": 182272,
+          "verifier_fp2_base_macs": 8192,
+          "verifier_base_ntt_butterflies": 11534336,
+          "merkle_path_hashes": 4608,
+          "encoded_matrix_bytes": 33554432,
+          "base_field_matrix_bytes": 8388608,
+          "merkle_tree_bytes": 16777184
+        },
+        {
+          "sites": [
+            "down"
+          ],
+          "pieces": 1,
+          "rows": 256,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 2770944,
+          "clear_vector_bytes": 2097152,
+          "sampled_column_and_path_bytes": 673792,
+          "verifier_fp2_base_macs": 131072,
+          "verifier_base_ntt_butterflies": 11534336,
+          "merkle_path_hashes": 4608,
+          "encoded_matrix_bytes": 536870912,
+          "base_field_matrix_bytes": 134217728,
+          "merkle_tree_bytes": 16777184
+        },
+        {
+          "sites": [
+            "down"
+          ],
+          "pieces": 1,
+          "rows": 32,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 2312192,
+          "clear_vector_bytes": 2097152,
+          "sampled_column_and_path_bytes": 215040,
+          "verifier_fp2_base_macs": 16384,
+          "verifier_base_ntt_butterflies": 11534336,
+          "merkle_path_hashes": 4608,
+          "encoded_matrix_bytes": 67108864,
+          "base_field_matrix_bytes": 16777216,
+          "merkle_tree_bytes": 16777184
+        },
+        {
+          "sites": [
+            "down"
+          ],
+          "pieces": 1,
+          "rows": 128,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 2508800,
+          "clear_vector_bytes": 2097152,
+          "sampled_column_and_path_bytes": 411648,
+          "verifier_fp2_base_macs": 65536,
+          "verifier_base_ntt_butterflies": 11534336,
+          "merkle_path_hashes": 4608,
+          "encoded_matrix_bytes": 268435456,
+          "base_field_matrix_bytes": 67108864,
+          "merkle_tree_bytes": 16777184
+        },
+        {
+          "sites": [
+            "down"
+          ],
+          "pieces": 1,
+          "rows": 16,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 2279424,
+          "clear_vector_bytes": 2097152,
+          "sampled_column_and_path_bytes": 182272,
+          "verifier_fp2_base_macs": 8192,
+          "verifier_base_ntt_butterflies": 11534336,
+          "merkle_path_hashes": 4608,
+          "encoded_matrix_bytes": 33554432,
+          "base_field_matrix_bytes": 8388608,
+          "merkle_tree_bytes": 16777184
+        }
+      ],
+      "scope": "COUNTED new public PCS opening upper bound, excluding wire framing/metadata; no native profile or measured timing/RSS"
+    },
+    {
+      "geometry": "true_piece_axes_REQUIRES_S4",
+      "packing": "per_piece",
+      "log_cols": 17,
+      "n": 131072,
+      "inv_rate": 4,
+      "column_checks": 256,
+      "layers": 26,
+      "roots_per_layer": 20,
+      "matrix_terminals_per_layer": 20,
+      "weight_words_per_layer": 116391936,
+      "added_bytes_per_layer_bound": 88858944,
+      "added_mib_per_layer_bound": 84.74249267578125,
+      "added_mib_whole_26_layer_bound": 2203.3048095703125,
+      "verifier_fp2_base_macs_per_layer": 454656,
+      "verifier_base_ntt_butterflies_per_layer": 487587840,
+      "verifier_merkle_path_hashes_per_layer": 97280,
+      "base_field_matrix_gib_per_layer": 0.8671875,
+      "encoded_matrix_gib_per_layer": 3.46875,
+      "encoded_matrix_gib_whole_model": 90.1875,
+      "merkle_tree_mib_whole_model": 16639.984130859375,
+      "largest_single_root_base_plus_encoded_gib": 0.625,
+      "root_details": [
+        {
+          "sites": [
+            "Q"
+          ],
+          "pieces": 1,
+          "rows": 64,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 4483072,
+          "clear_vector_bytes": 4194304,
+          "sampled_column_and_path_bytes": 288768,
+          "verifier_fp2_base_macs": 32768,
+          "verifier_base_ntt_butterflies": 24379392,
+          "merkle_path_hashes": 4864,
+          "encoded_matrix_bytes": 268435456,
+          "base_field_matrix_bytes": 67108864,
+          "merkle_tree_bytes": 33554400
+        },
+        {
+          "sites": [
+            "Q"
+          ],
+          "pieces": 1,
+          "rows": 32,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 4417536,
+          "clear_vector_bytes": 4194304,
+          "sampled_column_and_path_bytes": 223232,
+          "verifier_fp2_base_macs": 16384,
+          "verifier_base_ntt_butterflies": 24379392,
+          "merkle_path_hashes": 4864,
+          "encoded_matrix_bytes": 134217728,
+          "base_field_matrix_bytes": 33554432,
+          "merkle_tree_bytes": 33554400
+        },
+        {
+          "sites": [
+            "K"
+          ],
+          "pieces": 1,
+          "rows": 16,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 4384768,
+          "clear_vector_bytes": 4194304,
+          "sampled_column_and_path_bytes": 190464,
+          "verifier_fp2_base_macs": 8192,
+          "verifier_base_ntt_butterflies": 24379392,
+          "merkle_path_hashes": 4864,
+          "encoded_matrix_bytes": 67108864,
+          "base_field_matrix_bytes": 16777216,
+          "merkle_tree_bytes": 33554400
+        },
+        {
+          "sites": [
+            "K"
+          ],
+          "pieces": 1,
+          "rows": 8,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 4368384,
+          "clear_vector_bytes": 4194304,
+          "sampled_column_and_path_bytes": 174080,
+          "verifier_fp2_base_macs": 4096,
+          "verifier_base_ntt_butterflies": 24379392,
+          "merkle_path_hashes": 4864,
+          "encoded_matrix_bytes": 33554432,
+          "base_field_matrix_bytes": 8388608,
+          "merkle_tree_bytes": 33554400
+        },
+        {
+          "sites": [
+            "V"
+          ],
+          "pieces": 1,
+          "rows": 16,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 4384768,
+          "clear_vector_bytes": 4194304,
+          "sampled_column_and_path_bytes": 190464,
+          "verifier_fp2_base_macs": 8192,
+          "verifier_base_ntt_butterflies": 24379392,
+          "merkle_path_hashes": 4864,
+          "encoded_matrix_bytes": 67108864,
+          "base_field_matrix_bytes": 16777216,
+          "merkle_tree_bytes": 33554400
+        },
+        {
+          "sites": [
+            "V"
+          ],
+          "pieces": 1,
+          "rows": 8,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 4368384,
+          "clear_vector_bytes": 4194304,
+          "sampled_column_and_path_bytes": 174080,
+          "verifier_fp2_base_macs": 4096,
+          "verifier_base_ntt_butterflies": 24379392,
+          "merkle_path_hashes": 4864,
+          "encoded_matrix_bytes": 33554432,
+          "base_field_matrix_bytes": 8388608,
+          "merkle_tree_bytes": 33554400
+        },
+        {
+          "sites": [
+            "O"
+          ],
+          "pieces": 1,
+          "rows": 64,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 4483072,
+          "clear_vector_bytes": 4194304,
+          "sampled_column_and_path_bytes": 288768,
+          "verifier_fp2_base_macs": 32768,
+          "verifier_base_ntt_butterflies": 24379392,
+          "merkle_path_hashes": 4864,
+          "encoded_matrix_bytes": 268435456,
+          "base_field_matrix_bytes": 67108864,
+          "merkle_tree_bytes": 33554400
+        },
+        {
+          "sites": [
+            "O"
+          ],
+          "pieces": 1,
+          "rows": 32,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 4417536,
+          "clear_vector_bytes": 4194304,
+          "sampled_column_and_path_bytes": 223232,
+          "verifier_fp2_base_macs": 16384,
+          "verifier_base_ntt_butterflies": 24379392,
+          "merkle_path_hashes": 4864,
+          "encoded_matrix_bytes": 134217728,
+          "base_field_matrix_bytes": 33554432,
+          "merkle_tree_bytes": 33554400
+        },
+        {
+          "sites": [
+            "gate"
+          ],
+          "pieces": 1,
+          "rows": 128,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 4614144,
+          "clear_vector_bytes": 4194304,
+          "sampled_column_and_path_bytes": 419840,
+          "verifier_fp2_base_macs": 65536,
+          "verifier_base_ntt_butterflies": 24379392,
+          "merkle_path_hashes": 4864,
+          "encoded_matrix_bytes": 536870912,
+          "base_field_matrix_bytes": 134217728,
+          "merkle_tree_bytes": 33554400
+        },
+        {
+          "sites": [
+            "gate"
+          ],
+          "pieces": 1,
+          "rows": 64,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 4483072,
+          "clear_vector_bytes": 4194304,
+          "sampled_column_and_path_bytes": 288768,
+          "verifier_fp2_base_macs": 32768,
+          "verifier_base_ntt_butterflies": 24379392,
+          "merkle_path_hashes": 4864,
+          "encoded_matrix_bytes": 268435456,
+          "base_field_matrix_bytes": 67108864,
+          "merkle_tree_bytes": 33554400
+        },
+        {
+          "sites": [
+            "gate"
+          ],
+          "pieces": 1,
+          "rows": 16,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 4384768,
+          "clear_vector_bytes": 4194304,
+          "sampled_column_and_path_bytes": 190464,
+          "verifier_fp2_base_macs": 8192,
+          "verifier_base_ntt_butterflies": 24379392,
+          "merkle_path_hashes": 4864,
+          "encoded_matrix_bytes": 67108864,
+          "base_field_matrix_bytes": 16777216,
+          "merkle_tree_bytes": 33554400
+        },
+        {
+          "sites": [
+            "gate"
+          ],
+          "pieces": 1,
+          "rows": 8,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 4368384,
+          "clear_vector_bytes": 4194304,
+          "sampled_column_and_path_bytes": 174080,
+          "verifier_fp2_base_macs": 4096,
+          "verifier_base_ntt_butterflies": 24379392,
+          "merkle_path_hashes": 4864,
+          "encoded_matrix_bytes": 33554432,
+          "base_field_matrix_bytes": 8388608,
+          "merkle_tree_bytes": 33554400
+        },
+        {
+          "sites": [
+            "up"
+          ],
+          "pieces": 1,
+          "rows": 128,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 4614144,
+          "clear_vector_bytes": 4194304,
+          "sampled_column_and_path_bytes": 419840,
+          "verifier_fp2_base_macs": 65536,
+          "verifier_base_ntt_butterflies": 24379392,
+          "merkle_path_hashes": 4864,
+          "encoded_matrix_bytes": 536870912,
+          "base_field_matrix_bytes": 134217728,
+          "merkle_tree_bytes": 33554400
+        },
+        {
+          "sites": [
+            "up"
+          ],
+          "pieces": 1,
+          "rows": 64,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 4483072,
+          "clear_vector_bytes": 4194304,
+          "sampled_column_and_path_bytes": 288768,
+          "verifier_fp2_base_macs": 32768,
+          "verifier_base_ntt_butterflies": 24379392,
+          "merkle_path_hashes": 4864,
+          "encoded_matrix_bytes": 268435456,
+          "base_field_matrix_bytes": 67108864,
+          "merkle_tree_bytes": 33554400
+        },
+        {
+          "sites": [
+            "up"
+          ],
+          "pieces": 1,
+          "rows": 16,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 4384768,
+          "clear_vector_bytes": 4194304,
+          "sampled_column_and_path_bytes": 190464,
+          "verifier_fp2_base_macs": 8192,
+          "verifier_base_ntt_butterflies": 24379392,
+          "merkle_path_hashes": 4864,
+          "encoded_matrix_bytes": 67108864,
+          "base_field_matrix_bytes": 16777216,
+          "merkle_tree_bytes": 33554400
+        },
+        {
+          "sites": [
+            "up"
+          ],
+          "pieces": 1,
+          "rows": 8,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 4368384,
+          "clear_vector_bytes": 4194304,
+          "sampled_column_and_path_bytes": 174080,
+          "verifier_fp2_base_macs": 4096,
+          "verifier_base_ntt_butterflies": 24379392,
+          "merkle_path_hashes": 4864,
+          "encoded_matrix_bytes": 33554432,
+          "base_field_matrix_bytes": 8388608,
+          "merkle_tree_bytes": 33554400
+        },
+        {
+          "sites": [
+            "down"
+          ],
+          "pieces": 1,
+          "rows": 128,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 4614144,
+          "clear_vector_bytes": 4194304,
+          "sampled_column_and_path_bytes": 419840,
+          "verifier_fp2_base_macs": 65536,
+          "verifier_base_ntt_butterflies": 24379392,
+          "merkle_path_hashes": 4864,
+          "encoded_matrix_bytes": 536870912,
+          "base_field_matrix_bytes": 134217728,
+          "merkle_tree_bytes": 33554400
+        },
+        {
+          "sites": [
+            "down"
+          ],
+          "pieces": 1,
+          "rows": 16,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 4384768,
+          "clear_vector_bytes": 4194304,
+          "sampled_column_and_path_bytes": 190464,
+          "verifier_fp2_base_macs": 8192,
+          "verifier_base_ntt_butterflies": 24379392,
+          "merkle_path_hashes": 4864,
+          "encoded_matrix_bytes": 67108864,
+          "base_field_matrix_bytes": 16777216,
+          "merkle_tree_bytes": 33554400
+        },
+        {
+          "sites": [
+            "down"
+          ],
+          "pieces": 1,
+          "rows": 64,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 4483072,
+          "clear_vector_bytes": 4194304,
+          "sampled_column_and_path_bytes": 288768,
+          "verifier_fp2_base_macs": 32768,
+          "verifier_base_ntt_butterflies": 24379392,
+          "merkle_path_hashes": 4864,
+          "encoded_matrix_bytes": 268435456,
+          "base_field_matrix_bytes": 67108864,
+          "merkle_tree_bytes": 33554400
+        },
+        {
+          "sites": [
+            "down"
+          ],
+          "pieces": 1,
+          "rows": 8,
+          "groups_bound": 1,
+          "vectors": 2,
+          "opening_bytes": 4368384,
+          "clear_vector_bytes": 4194304,
+          "sampled_column_and_path_bytes": 174080,
+          "verifier_fp2_base_macs": 4096,
+          "verifier_base_ntt_butterflies": 24379392,
+          "merkle_path_hashes": 4864,
+          "encoded_matrix_bytes": 33554432,
+          "base_field_matrix_bytes": 8388608,
+          "merkle_tree_bytes": 33554400
+        }
+      ],
+      "scope": "COUNTED new public PCS opening upper bound, excluding wire framing/metadata; no native profile or measured timing/RSS"
+    },
+    {
+      "geometry": "true_piece_axes_REQUIRES_S4",
+      "packing": "per_tensor",
+      "log_cols": 12,
+      "n": 4096,
+      "inv_rate": 4,
+      "column_checks": 256,
+      "layers": 26,
+      "roots_per_layer": 7,
+      "matrix_terminals_per_layer": 20,
+      "weight_words_per_layer": 116391936,
+      "added_bytes_per_layer_bound": 60782912,
+      "added_mib_per_layer_bound": 57.96710205078125,
+      "added_mib_whole_26_layer_bound": 1507.1446533203125,
+      "verifier_fp2_base_macs_per_layer": 32440320,
+      "verifier_base_ntt_butterflies_per_layer": 7520256,
+      "verifier_merkle_path_hashes_per_layer": 25088,
+      "base_field_matrix_gib_per_layer": 0.8671875,
+      "encoded_matrix_gib_per_layer": 3.46875,
+      "encoded_matrix_gib_whole_model": 90.1875,
+      "merkle_tree_mib_whole_model": 181.99444580078125,
+      "largest_single_root_base_plus_encoded_gib": 1.0546875,
+      "root_details": [
+        {
+          "sites": [
+            "Q"
+          ],
+          "pieces": 2,
+          "rows": 3072,
+          "groups_bound": 2,
+          "vectors": 3,
+          "opening_bytes": 6604800,
+          "clear_vector_bytes": 196608,
+          "sampled_column_and_path_bytes": 6408192,
+          "verifier_fp2_base_macs": 2359296,
+          "verifier_base_ntt_butterflies": 835584,
+          "merkle_path_hashes": 3584,
+          "encoded_matrix_bytes": 402653184,
+          "base_field_matrix_bytes": 100663296,
+          "merkle_tree_bytes": 1048544
+        },
+        {
+          "sites": [
+            "K"
+          ],
+          "pieces": 2,
+          "rows": 768,
+          "groups_bound": 2,
+          "vectors": 3,
+          "opening_bytes": 1886208,
+          "clear_vector_bytes": 196608,
+          "sampled_column_and_path_bytes": 1689600,
+          "verifier_fp2_base_macs": 589824,
+          "verifier_base_ntt_butterflies": 835584,
+          "merkle_path_hashes": 3584,
+          "encoded_matrix_bytes": 100663296,
+          "base_field_matrix_bytes": 25165824,
+          "merkle_tree_bytes": 1048544
+        },
+        {
+          "sites": [
+            "V"
+          ],
+          "pieces": 2,
+          "rows": 768,
+          "groups_bound": 2,
+          "vectors": 3,
+          "opening_bytes": 1886208,
+          "clear_vector_bytes": 196608,
+          "sampled_column_and_path_bytes": 1689600,
+          "verifier_fp2_base_macs": 589824,
+          "verifier_base_ntt_butterflies": 835584,
+          "merkle_path_hashes": 3584,
+          "encoded_matrix_bytes": 100663296,
+          "base_field_matrix_bytes": 25165824,
+          "merkle_tree_bytes": 1048544
+        },
+        {
+          "sites": [
+            "O"
+          ],
+          "pieces": 2,
+          "rows": 3072,
+          "groups_bound": 2,
+          "vectors": 3,
+          "opening_bytes": 6604800,
+          "clear_vector_bytes": 196608,
+          "sampled_column_and_path_bytes": 6408192,
+          "verifier_fp2_base_macs": 2359296,
+          "verifier_base_ntt_butterflies": 835584,
+          "merkle_path_hashes": 3584,
+          "encoded_matrix_bytes": 402653184,
+          "base_field_matrix_bytes": 100663296,
+          "merkle_tree_bytes": 1048544
+        },
+        {
+          "sites": [
+            "gate"
+          ],
+          "pieces": 4,
+          "rows": 6912,
+          "groups_bound": 4,
+          "vectors": 5,
+          "opening_bytes": 14600192,
+          "clear_vector_bytes": 327680,
+          "sampled_column_and_path_bytes": 14272512,
+          "verifier_fp2_base_macs": 8847360,
+          "verifier_base_ntt_butterflies": 1392640,
+          "merkle_path_hashes": 3584,
+          "encoded_matrix_bytes": 905969664,
+          "base_field_matrix_bytes": 226492416,
+          "merkle_tree_bytes": 1048544
+        },
+        {
+          "sites": [
+            "up"
+          ],
+          "pieces": 4,
+          "rows": 6912,
+          "groups_bound": 4,
+          "vectors": 5,
+          "opening_bytes": 14600192,
+          "clear_vector_bytes": 327680,
+          "sampled_column_and_path_bytes": 14272512,
+          "verifier_fp2_base_macs": 8847360,
+          "verifier_base_ntt_butterflies": 1392640,
+          "merkle_path_hashes": 3584,
+          "encoded_matrix_bytes": 905969664,
+          "base_field_matrix_bytes": 226492416,
+          "merkle_tree_bytes": 1048544
+        },
+        {
+          "sites": [
+            "down"
+          ],
+          "pieces": 4,
+          "rows": 6912,
+          "groups_bound": 4,
+          "vectors": 5,
+          "opening_bytes": 14600192,
+          "clear_vector_bytes": 327680,
+          "sampled_column_and_path_bytes": 14272512,
+          "verifier_fp2_base_macs": 8847360,
+          "verifier_base_ntt_butterflies": 1392640,
+          "merkle_path_hashes": 3584,
+          "encoded_matrix_bytes": 905969664,
+          "base_field_matrix_bytes": 226492416,
+          "merkle_tree_bytes": 1048544
+        }
+      ],
+      "scope": "COUNTED new public PCS opening upper bound, excluding wire framing/metadata; no native profile or measured timing/RSS"
+    },
+    {
+      "geometry": "true_piece_axes_REQUIRES_S4",
+      "packing": "per_tensor",
+      "log_cols": 13,
+      "n": 8192,
+      "inv_rate": 4,
+      "column_checks": 256,
+      "layers": 26,
+      "roots_per_layer": 7,
+      "matrix_terminals_per_layer": 20,
+      "weight_words_per_layer": 116391936,
+      "added_bytes_per_layer_bound": 33511744,
+      "added_mib_per_layer_bound": 31.95928955078125,
+      "added_mib_whole_26_layer_bound": 830.9415283203125,
+      "verifier_fp2_base_macs_per_layer": 16220160,
+      "verifier_base_ntt_butterflies_per_layer": 16146432,
+      "verifier_merkle_path_hashes_per_layer": 26880,
+      "base_field_matrix_gib_per_layer": 0.8671875,
+      "encoded_matrix_gib_per_layer": 3.46875,
+      "encoded_matrix_gib_whole_model": 90.1875,
+      "merkle_tree_mib_whole_model": 363.99444580078125,
+      "largest_single_root_base_plus_encoded_gib": 1.0546875,
+      "root_details": [
+        {
+          "sites": [
+            "Q"
+          ],
+          "pieces": 2,
+          "rows": 1536,
+          "groups_bound": 2,
+          "vectors": 3,
+          "opening_bytes": 3663872,
+          "clear_vector_bytes": 393216,
+          "sampled_column_and_path_bytes": 3270656,
+          "verifier_fp2_base_macs": 1179648,
+          "verifier_base_ntt_butterflies": 1794048,
+          "merkle_path_hashes": 3840,
+          "encoded_matrix_bytes": 402653184,
+          "base_field_matrix_bytes": 100663296,
+          "merkle_tree_bytes": 2097120
+        },
+        {
+          "sites": [
+            "K"
+          ],
+          "pieces": 2,
+          "rows": 384,
+          "groups_bound": 2,
+          "vectors": 3,
+          "opening_bytes": 1304576,
+          "clear_vector_bytes": 393216,
+          "sampled_column_and_path_bytes": 911360,
+          "verifier_fp2_base_macs": 294912,
+          "verifier_base_ntt_butterflies": 1794048,
+          "merkle_path_hashes": 3840,
+          "encoded_matrix_bytes": 100663296,
+          "base_field_matrix_bytes": 25165824,
+          "merkle_tree_bytes": 2097120
+        },
+        {
+          "sites": [
+            "V"
+          ],
+          "pieces": 2,
+          "rows": 384,
+          "groups_bound": 2,
+          "vectors": 3,
+          "opening_bytes": 1304576,
+          "clear_vector_bytes": 393216,
+          "sampled_column_and_path_bytes": 911360,
+          "verifier_fp2_base_macs": 294912,
+          "verifier_base_ntt_butterflies": 1794048,
+          "merkle_path_hashes": 3840,
+          "encoded_matrix_bytes": 100663296,
+          "base_field_matrix_bytes": 25165824,
+          "merkle_tree_bytes": 2097120
+        },
+        {
+          "sites": [
+            "O"
+          ],
+          "pieces": 2,
+          "rows": 1536,
+          "groups_bound": 2,
+          "vectors": 3,
+          "opening_bytes": 3663872,
+          "clear_vector_bytes": 393216,
+          "sampled_column_and_path_bytes": 3270656,
+          "verifier_fp2_base_macs": 1179648,
+          "verifier_base_ntt_butterflies": 1794048,
+          "merkle_path_hashes": 3840,
+          "encoded_matrix_bytes": 402653184,
+          "base_field_matrix_bytes": 100663296,
+          "merkle_tree_bytes": 2097120
+        },
+        {
+          "sites": [
+            "gate"
+          ],
+          "pieces": 4,
+          "rows": 3456,
+          "groups_bound": 4,
+          "vectors": 5,
+          "opening_bytes": 7858176,
+          "clear_vector_bytes": 655360,
+          "sampled_column_and_path_bytes": 7202816,
+          "verifier_fp2_base_macs": 4423680,
+          "verifier_base_ntt_butterflies": 2990080,
+          "merkle_path_hashes": 3840,
+          "encoded_matrix_bytes": 905969664,
+          "base_field_matrix_bytes": 226492416,
+          "merkle_tree_bytes": 2097120
+        },
+        {
+          "sites": [
+            "up"
+          ],
+          "pieces": 4,
+          "rows": 3456,
+          "groups_bound": 4,
+          "vectors": 5,
+          "opening_bytes": 7858176,
+          "clear_vector_bytes": 655360,
+          "sampled_column_and_path_bytes": 7202816,
+          "verifier_fp2_base_macs": 4423680,
+          "verifier_base_ntt_butterflies": 2990080,
+          "merkle_path_hashes": 3840,
+          "encoded_matrix_bytes": 905969664,
+          "base_field_matrix_bytes": 226492416,
+          "merkle_tree_bytes": 2097120
+        },
+        {
+          "sites": [
+            "down"
+          ],
+          "pieces": 4,
+          "rows": 3456,
+          "groups_bound": 4,
+          "vectors": 5,
+          "opening_bytes": 7858176,
+          "clear_vector_bytes": 655360,
+          "sampled_column_and_path_bytes": 7202816,
+          "verifier_fp2_base_macs": 4423680,
+          "verifier_base_ntt_butterflies": 2990080,
+          "merkle_path_hashes": 3840,
+          "encoded_matrix_bytes": 905969664,
+          "base_field_matrix_bytes": 226492416,
+          "merkle_tree_bytes": 2097120
+        }
+      ],
+      "scope": "COUNTED new public PCS opening upper bound, excluding wire framing/metadata; no native profile or measured timing/RSS"
+    },
+    {
+      "geometry": "true_piece_axes_REQUIRES_S4",
+      "packing": "per_tensor",
+      "log_cols": 14,
+      "n": 16384,
+      "inv_rate": 4,
+      "column_checks": 256,
+      "layers": 26,
+      "roots_per_layer": 7,
+      "matrix_terminals_per_layer": 20,
+      "weight_words_per_layer": 116391936,
+      "added_bytes_per_layer_bound": 22559040,
+      "added_mib_per_layer_bound": 21.51397705078125,
+      "added_mib_whole_26_layer_bound": 559.3634033203125,
+      "verifier_fp2_base_macs_per_layer": 8110080,
+      "verifier_base_ntt_butterflies_per_layer": 34504704,
+      "verifier_merkle_path_hashes_per_layer": 28672,
+      "base_field_matrix_gib_per_layer": 0.8671875,
+      "encoded_matrix_gib_per_layer": 3.46875,
+      "encoded_matrix_gib_whole_model": 90.1875,
+      "merkle_tree_mib_whole_model": 727.9944458007812,
+      "largest_single_root_base_plus_encoded_gib": 1.0546875,
+      "root_details": [
+        {
+          "sites": [
+            "Q"
+          ],
+          "pieces": 2,
+          "rows": 768,
+          "groups_bound": 2,
+          "vectors": 3,
+          "opening_bytes": 2492416,
+          "clear_vector_bytes": 786432,
+          "sampled_column_and_path_bytes": 1705984,
+          "verifier_fp2_base_macs": 589824,
+          "verifier_base_ntt_butterflies": 3833856,
+          "merkle_path_hashes": 4096,
+          "encoded_matrix_bytes": 402653184,
+          "base_field_matrix_bytes": 100663296,
+          "merkle_tree_bytes": 4194272
+        },
+        {
+          "sites": [
+            "K"
+          ],
+          "pieces": 2,
+          "rows": 192,
+          "groups_bound": 2,
+          "vectors": 3,
+          "opening_bytes": 1312768,
+          "clear_vector_bytes": 786432,
+          "sampled_column_and_path_bytes": 526336,
+          "verifier_fp2_base_macs": 147456,
+          "verifier_base_ntt_butterflies": 3833856,
+          "merkle_path_hashes": 4096,
+          "encoded_matrix_bytes": 100663296,
+          "base_field_matrix_bytes": 25165824,
+          "merkle_tree_bytes": 4194272
+        },
+        {
+          "sites": [
+            "V"
+          ],
+          "pieces": 2,
+          "rows": 192,
+          "groups_bound": 2,
+          "vectors": 3,
+          "opening_bytes": 1312768,
+          "clear_vector_bytes": 786432,
+          "sampled_column_and_path_bytes": 526336,
+          "verifier_fp2_base_macs": 147456,
+          "verifier_base_ntt_butterflies": 3833856,
+          "merkle_path_hashes": 4096,
+          "encoded_matrix_bytes": 100663296,
+          "base_field_matrix_bytes": 25165824,
+          "merkle_tree_bytes": 4194272
+        },
+        {
+          "sites": [
+            "O"
+          ],
+          "pieces": 2,
+          "rows": 768,
+          "groups_bound": 2,
+          "vectors": 3,
+          "opening_bytes": 2492416,
+          "clear_vector_bytes": 786432,
+          "sampled_column_and_path_bytes": 1705984,
+          "verifier_fp2_base_macs": 589824,
+          "verifier_base_ntt_butterflies": 3833856,
+          "merkle_path_hashes": 4096,
+          "encoded_matrix_bytes": 402653184,
+          "base_field_matrix_bytes": 100663296,
+          "merkle_tree_bytes": 4194272
+        },
+        {
+          "sites": [
+            "gate"
+          ],
+          "pieces": 4,
+          "rows": 1728,
+          "groups_bound": 4,
+          "vectors": 5,
+          "opening_bytes": 4982784,
+          "clear_vector_bytes": 1310720,
+          "sampled_column_and_path_bytes": 3672064,
+          "verifier_fp2_base_macs": 2211840,
+          "verifier_base_ntt_butterflies": 6389760,
+          "merkle_path_hashes": 4096,
+          "encoded_matrix_bytes": 905969664,
+          "base_field_matrix_bytes": 226492416,
+          "merkle_tree_bytes": 4194272
+        },
+        {
+          "sites": [
+            "up"
+          ],
+          "pieces": 4,
+          "rows": 1728,
+          "groups_bound": 4,
+          "vectors": 5,
+          "opening_bytes": 4982784,
+          "clear_vector_bytes": 1310720,
+          "sampled_column_and_path_bytes": 3672064,
+          "verifier_fp2_base_macs": 2211840,
+          "verifier_base_ntt_butterflies": 6389760,
+          "merkle_path_hashes": 4096,
+          "encoded_matrix_bytes": 905969664,
+          "base_field_matrix_bytes": 226492416,
+          "merkle_tree_bytes": 4194272
+        },
+        {
+          "sites": [
+            "down"
+          ],
+          "pieces": 4,
+          "rows": 1728,
+          "groups_bound": 4,
+          "vectors": 5,
+          "opening_bytes": 4982784,
+          "clear_vector_bytes": 1310720,
+          "sampled_column_and_path_bytes": 3672064,
+          "verifier_fp2_base_macs": 2211840,
+          "verifier_base_ntt_butterflies": 6389760,
+          "merkle_path_hashes": 4096,
+          "encoded_matrix_bytes": 905969664,
+          "base_field_matrix_bytes": 226492416,
+          "merkle_tree_bytes": 4194272
+        }
+      ],
+      "scope": "COUNTED new public PCS opening upper bound, excluding wire framing/metadata; no native profile or measured timing/RSS"
+    },
+    {
+      "geometry": "true_piece_axes_REQUIRES_S4",
+      "packing": "per_tensor",
+      "log_cols": 15,
+      "n": 32768,
+      "inv_rate": 4,
+      "column_checks": 256,
+      "layers": 26,
+      "roots_per_layer": 7,
+      "matrix_terminals_per_layer": 20,
+      "weight_words_per_layer": 116391936,
+      "added_bytes_per_layer_bound": 22419776,
+      "added_mib_per_layer_bound": 21.38116455078125,
+      "added_mib_whole_26_layer_bound": 555.9102783203125,
+      "verifier_fp2_base_macs_per_layer": 4055040,
+      "verifier_base_ntt_butterflies_per_layer": 73433088,
+      "verifier_merkle_path_hashes_per_layer": 30464,
+      "base_field_matrix_gib_per_layer": 0.8671875,
+      "encoded_matrix_gib_per_layer": 3.46875,
+      "encoded_matrix_gib_whole_model": 90.1875,
+      "merkle_tree_mib_whole_model": 1455.9944458007812,
+      "largest_single_root_base_plus_encoded_gib": 1.0546875,
+      "root_details": [
+        {
+          "sites": [
+            "Q"
+          ],
+          "pieces": 2,
+          "rows": 384,
+          "groups_bound": 2,
+          "vectors": 3,
+          "opening_bytes": 2500608,
+          "clear_vector_bytes": 1572864,
+          "sampled_column_and_path_bytes": 927744,
+          "verifier_fp2_base_macs": 294912,
+          "verifier_base_ntt_butterflies": 8159232,
+          "merkle_path_hashes": 4352,
+          "encoded_matrix_bytes": 402653184,
+          "base_field_matrix_bytes": 100663296,
+          "merkle_tree_bytes": 8388576
+        },
+        {
+          "sites": [
+            "K"
+          ],
+          "pieces": 2,
+          "rows": 96,
+          "groups_bound": 2,
+          "vectors": 3,
+          "opening_bytes": 1910784,
+          "clear_vector_bytes": 1572864,
+          "sampled_column_and_path_bytes": 337920,
+          "verifier_fp2_base_macs": 73728,
+          "verifier_base_ntt_butterflies": 8159232,
+          "merkle_path_hashes": 4352,
+          "encoded_matrix_bytes": 100663296,
+          "base_field_matrix_bytes": 25165824,
+          "merkle_tree_bytes": 8388576
+        },
+        {
+          "sites": [
+            "V"
+          ],
+          "pieces": 2,
+          "rows": 96,
+          "groups_bound": 2,
+          "vectors": 3,
+          "opening_bytes": 1910784,
+          "clear_vector_bytes": 1572864,
+          "sampled_column_and_path_bytes": 337920,
+          "verifier_fp2_base_macs": 73728,
+          "verifier_base_ntt_butterflies": 8159232,
+          "merkle_path_hashes": 4352,
+          "encoded_matrix_bytes": 100663296,
+          "base_field_matrix_bytes": 25165824,
+          "merkle_tree_bytes": 8388576
+        },
+        {
+          "sites": [
+            "O"
+          ],
+          "pieces": 2,
+          "rows": 384,
+          "groups_bound": 2,
+          "vectors": 3,
+          "opening_bytes": 2500608,
+          "clear_vector_bytes": 1572864,
+          "sampled_column_and_path_bytes": 927744,
+          "verifier_fp2_base_macs": 294912,
+          "verifier_base_ntt_butterflies": 8159232,
+          "merkle_path_hashes": 4352,
+          "encoded_matrix_bytes": 402653184,
+          "base_field_matrix_bytes": 100663296,
+          "merkle_tree_bytes": 8388576
+        },
+        {
+          "sites": [
+            "gate"
+          ],
+          "pieces": 4,
+          "rows": 864,
+          "groups_bound": 4,
+          "vectors": 5,
+          "opening_bytes": 4532224,
+          "clear_vector_bytes": 2621440,
+          "sampled_column_and_path_bytes": 1910784,
+          "verifier_fp2_base_macs": 1105920,
+          "verifier_base_ntt_butterflies": 13598720,
+          "merkle_path_hashes": 4352,
+          "encoded_matrix_bytes": 905969664,
+          "base_field_matrix_bytes": 226492416,
+          "merkle_tree_bytes": 8388576
+        },
+        {
+          "sites": [
+            "up"
+          ],
+          "pieces": 4,
+          "rows": 864,
+          "groups_bound": 4,
+          "vectors": 5,
+          "opening_bytes": 4532224,
+          "clear_vector_bytes": 2621440,
+          "sampled_column_and_path_bytes": 1910784,
+          "verifier_fp2_base_macs": 1105920,
+          "verifier_base_ntt_butterflies": 13598720,
+          "merkle_path_hashes": 4352,
+          "encoded_matrix_bytes": 905969664,
+          "base_field_matrix_bytes": 226492416,
+          "merkle_tree_bytes": 8388576
+        },
+        {
+          "sites": [
+            "down"
+          ],
+          "pieces": 4,
+          "rows": 864,
+          "groups_bound": 4,
+          "vectors": 5,
+          "opening_bytes": 4532224,
+          "clear_vector_bytes": 2621440,
+          "sampled_column_and_path_bytes": 1910784,
+          "verifier_fp2_base_macs": 1105920,
+          "verifier_base_ntt_butterflies": 13598720,
+          "merkle_path_hashes": 4352,
+          "encoded_matrix_bytes": 905969664,
+          "base_field_matrix_bytes": 226492416,
+          "merkle_tree_bytes": 8388576
+        }
+      ],
+      "scope": "COUNTED new public PCS opening upper bound, excluding wire framing/metadata; no native profile or measured timing/RSS"
+    },
+    {
+      "geometry": "true_piece_axes_REQUIRES_S4",
+      "packing": "per_tensor",
+      "log_cols": 16,
+      "n": 65536,
+      "inv_rate": 4,
+      "column_checks": 256,
+      "layers": 26,
+      "roots_per_layer": 7,
+      "matrix_terminals_per_layer": 20,
+      "weight_words_per_layer": 116391936,
+      "added_bytes_per_layer_bound": 32995648,
+      "added_mib_per_layer_bound": 31.46710205078125,
+      "added_mib_whole_26_layer_bound": 818.1446533203125,
+      "verifier_fp2_base_macs_per_layer": 2027520,
+      "verifier_base_ntt_butterflies_per_layer": 155713536,
+      "verifier_merkle_path_hashes_per_layer": 32256,
+      "base_field_matrix_gib_per_layer": 0.8671875,
+      "encoded_matrix_gib_per_layer": 3.46875,
+      "encoded_matrix_gib_whole_model": 90.1875,
+      "merkle_tree_mib_whole_model": 2911.9944458007812,
+      "largest_single_root_base_plus_encoded_gib": 1.0546875,
+      "root_details": [
+        {
+          "sites": [
+            "Q"
+          ],
+          "pieces": 2,
+          "rows": 192,
+          "groups_bound": 2,
+          "vectors": 3,
+          "opening_bytes": 3688448,
+          "clear_vector_bytes": 3145728,
+          "sampled_column_and_path_bytes": 542720,
+          "verifier_fp2_base_macs": 147456,
+          "verifier_base_ntt_butterflies": 17301504,
+          "merkle_path_hashes": 4608,
+          "encoded_matrix_bytes": 402653184,
+          "base_field_matrix_bytes": 100663296,
+          "merkle_tree_bytes": 16777184
+        },
+        {
+          "sites": [
+            "K"
+          ],
+          "pieces": 2,
+          "rows": 48,
+          "groups_bound": 2,
+          "vectors": 3,
+          "opening_bytes": 3393536,
+          "clear_vector_bytes": 3145728,
+          "sampled_column_and_path_bytes": 247808,
+          "verifier_fp2_base_macs": 36864,
+          "verifier_base_ntt_butterflies": 17301504,
+          "merkle_path_hashes": 4608,
+          "encoded_matrix_bytes": 100663296,
+          "base_field_matrix_bytes": 25165824,
+          "merkle_tree_bytes": 16777184
+        },
+        {
+          "sites": [
+            "V"
+          ],
+          "pieces": 2,
+          "rows": 48,
+          "groups_bound": 2,
+          "vectors": 3,
+          "opening_bytes": 3393536,
+          "clear_vector_bytes": 3145728,
+          "sampled_column_and_path_bytes": 247808,
+          "verifier_fp2_base_macs": 36864,
+          "verifier_base_ntt_butterflies": 17301504,
+          "merkle_path_hashes": 4608,
+          "encoded_matrix_bytes": 100663296,
+          "base_field_matrix_bytes": 25165824,
+          "merkle_tree_bytes": 16777184
+        },
+        {
+          "sites": [
+            "O"
+          ],
+          "pieces": 2,
+          "rows": 192,
+          "groups_bound": 2,
+          "vectors": 3,
+          "opening_bytes": 3688448,
+          "clear_vector_bytes": 3145728,
+          "sampled_column_and_path_bytes": 542720,
+          "verifier_fp2_base_macs": 147456,
+          "verifier_base_ntt_butterflies": 17301504,
+          "merkle_path_hashes": 4608,
+          "encoded_matrix_bytes": 402653184,
+          "base_field_matrix_bytes": 100663296,
+          "merkle_tree_bytes": 16777184
+        },
+        {
+          "sites": [
+            "gate"
+          ],
+          "pieces": 4,
+          "rows": 432,
+          "groups_bound": 4,
+          "vectors": 5,
+          "opening_bytes": 6277120,
+          "clear_vector_bytes": 5242880,
+          "sampled_column_and_path_bytes": 1034240,
+          "verifier_fp2_base_macs": 552960,
+          "verifier_base_ntt_butterflies": 28835840,
+          "merkle_path_hashes": 4608,
+          "encoded_matrix_bytes": 905969664,
+          "base_field_matrix_bytes": 226492416,
+          "merkle_tree_bytes": 16777184
+        },
+        {
+          "sites": [
+            "up"
+          ],
+          "pieces": 4,
+          "rows": 432,
+          "groups_bound": 4,
+          "vectors": 5,
+          "opening_bytes": 6277120,
+          "clear_vector_bytes": 5242880,
+          "sampled_column_and_path_bytes": 1034240,
+          "verifier_fp2_base_macs": 552960,
+          "verifier_base_ntt_butterflies": 28835840,
+          "merkle_path_hashes": 4608,
+          "encoded_matrix_bytes": 905969664,
+          "base_field_matrix_bytes": 226492416,
+          "merkle_tree_bytes": 16777184
+        },
+        {
+          "sites": [
+            "down"
+          ],
+          "pieces": 4,
+          "rows": 432,
+          "groups_bound": 4,
+          "vectors": 5,
+          "opening_bytes": 6277120,
+          "clear_vector_bytes": 5242880,
+          "sampled_column_and_path_bytes": 1034240,
+          "verifier_fp2_base_macs": 552960,
+          "verifier_base_ntt_butterflies": 28835840,
+          "merkle_path_hashes": 4608,
+          "encoded_matrix_bytes": 905969664,
+          "base_field_matrix_bytes": 226492416,
+          "merkle_tree_bytes": 16777184
+        }
+      ],
+      "scope": "COUNTED new public PCS opening upper bound, excluding wire framing/metadata; no native profile or measured timing/RSS"
+    },
+    {
+      "geometry": "true_piece_axes_REQUIRES_S4",
+      "packing": "per_tensor",
+      "log_cols": 17,
+      "n": 131072,
+      "inv_rate": 4,
+      "column_checks": 256,
+      "layers": 26,
+      "roots_per_layer": 7,
+      "matrix_terminals_per_layer": 20,
+      "weight_words_per_layer": 116391936,
+      "added_bytes_per_layer_bound": 59545920,
+      "added_mib_per_layer_bound": 56.78741455078125,
+      "added_mib_whole_26_layer_bound": 1476.4727783203125,
+      "verifier_fp2_base_macs_per_layer": 1013760,
+      "verifier_base_ntt_butterflies_per_layer": 329121792,
+      "verifier_merkle_path_hashes_per_layer": 34048,
+      "base_field_matrix_gib_per_layer": 0.8671875,
+      "encoded_matrix_gib_per_layer": 3.46875,
+      "encoded_matrix_gib_whole_model": 90.1875,
+      "merkle_tree_mib_whole_model": 5823.994445800781,
+      "largest_single_root_base_plus_encoded_gib": 1.0546875,
+      "root_details": [
+        {
+          "sites": [
+            "Q"
+          ],
+          "pieces": 2,
+          "rows": 96,
+          "groups_bound": 2,
+          "vectors": 3,
+          "opening_bytes": 6645760,
+          "clear_vector_bytes": 6291456,
+          "sampled_column_and_path_bytes": 354304,
+          "verifier_fp2_base_macs": 73728,
+          "verifier_base_ntt_butterflies": 36569088,
+          "merkle_path_hashes": 4864,
+          "encoded_matrix_bytes": 402653184,
+          "base_field_matrix_bytes": 100663296,
+          "merkle_tree_bytes": 33554400
+        },
+        {
+          "sites": [
+            "K"
+          ],
+          "pieces": 2,
+          "rows": 24,
+          "groups_bound": 2,
+          "vectors": 3,
+          "opening_bytes": 6498304,
+          "clear_vector_bytes": 6291456,
+          "sampled_column_and_path_bytes": 206848,
+          "verifier_fp2_base_macs": 18432,
+          "verifier_base_ntt_butterflies": 36569088,
+          "merkle_path_hashes": 4864,
+          "encoded_matrix_bytes": 100663296,
+          "base_field_matrix_bytes": 25165824,
+          "merkle_tree_bytes": 33554400
+        },
+        {
+          "sites": [
+            "V"
+          ],
+          "pieces": 2,
+          "rows": 24,
+          "groups_bound": 2,
+          "vectors": 3,
+          "opening_bytes": 6498304,
+          "clear_vector_bytes": 6291456,
+          "sampled_column_and_path_bytes": 206848,
+          "verifier_fp2_base_macs": 18432,
+          "verifier_base_ntt_butterflies": 36569088,
+          "merkle_path_hashes": 4864,
+          "encoded_matrix_bytes": 100663296,
+          "base_field_matrix_bytes": 25165824,
+          "merkle_tree_bytes": 33554400
+        },
+        {
+          "sites": [
+            "O"
+          ],
+          "pieces": 2,
+          "rows": 96,
+          "groups_bound": 2,
+          "vectors": 3,
+          "opening_bytes": 6645760,
+          "clear_vector_bytes": 6291456,
+          "sampled_column_and_path_bytes": 354304,
+          "verifier_fp2_base_macs": 73728,
+          "verifier_base_ntt_butterflies": 36569088,
+          "merkle_path_hashes": 4864,
+          "encoded_matrix_bytes": 402653184,
+          "base_field_matrix_bytes": 100663296,
+          "merkle_tree_bytes": 33554400
+        },
+        {
+          "sites": [
+            "gate"
+          ],
+          "pieces": 4,
+          "rows": 216,
+          "groups_bound": 4,
+          "vectors": 5,
+          "opening_bytes": 11085824,
+          "clear_vector_bytes": 10485760,
+          "sampled_column_and_path_bytes": 600064,
+          "verifier_fp2_base_macs": 276480,
+          "verifier_base_ntt_butterflies": 60948480,
+          "merkle_path_hashes": 4864,
+          "encoded_matrix_bytes": 905969664,
+          "base_field_matrix_bytes": 226492416,
+          "merkle_tree_bytes": 33554400
+        },
+        {
+          "sites": [
+            "up"
+          ],
+          "pieces": 4,
+          "rows": 216,
+          "groups_bound": 4,
+          "vectors": 5,
+          "opening_bytes": 11085824,
+          "clear_vector_bytes": 10485760,
+          "sampled_column_and_path_bytes": 600064,
+          "verifier_fp2_base_macs": 276480,
+          "verifier_base_ntt_butterflies": 60948480,
+          "merkle_path_hashes": 4864,
+          "encoded_matrix_bytes": 905969664,
+          "base_field_matrix_bytes": 226492416,
+          "merkle_tree_bytes": 33554400
+        },
+        {
+          "sites": [
+            "down"
+          ],
+          "pieces": 4,
+          "rows": 216,
+          "groups_bound": 4,
+          "vectors": 5,
+          "opening_bytes": 11085824,
+          "clear_vector_bytes": 10485760,
+          "sampled_column_and_path_bytes": 600064,
+          "verifier_fp2_base_macs": 276480,
+          "verifier_base_ntt_butterflies": 60948480,
+          "merkle_path_hashes": 4864,
+          "encoded_matrix_bytes": 905969664,
+          "base_field_matrix_bytes": 226492416,
+          "merkle_tree_bytes": 33554400
+        }
+      ],
+      "scope": "COUNTED new public PCS opening upper bound, excluding wire framing/metadata; no native profile or measured timing/RSS"
+    },
+    {
+      "geometry": "true_piece_axes_REQUIRES_S4",
+      "packing": "joint",
+      "log_cols": 12,
+      "n": 4096,
+      "inv_rate": 4,
+      "column_checks": 256,
+      "layers": 26,
+      "roots_per_layer": 1,
+      "matrix_terminals_per_layer": 20,
+      "weight_words_per_layer": 116391936,
+      "added_bytes_per_layer_bound": 59689280,
+      "added_mib_per_layer_bound": 56.92413330078125,
+      "added_mib_whole_26_layer_bound": 1480.0274658203125,
+      "verifier_fp2_base_macs_per_layer": 152764416,
+      "verifier_base_ntt_butterflies_per_layer": 5849088,
+      "verifier_merkle_path_hashes_per_layer": 3584,
+      "base_field_matrix_gib_per_layer": 0.8671875,
+      "encoded_matrix_gib_per_layer": 3.46875,
+      "encoded_matrix_gib_whole_model": 90.1875,
+      "merkle_tree_mib_whole_model": 25.99920654296875,
+      "largest_single_root_base_plus_encoded_gib": 4.3359375,
+      "root_details": [
+        {
+          "sites": [
+            "K",
+            "O",
+            "Q",
+            "V",
+            "down",
+            "gate",
+            "up"
+          ],
+          "pieces": 20,
+          "rows": 28416,
+          "groups_bound": 20,
+          "vectors": 21,
+          "opening_bytes": 59688960,
+          "clear_vector_bytes": 1376256,
+          "sampled_column_and_path_bytes": 58312704,
+          "verifier_fp2_base_macs": 152764416,
+          "verifier_base_ntt_butterflies": 5849088,
+          "merkle_path_hashes": 3584,
+          "encoded_matrix_bytes": 3724541952,
+          "base_field_matrix_bytes": 931135488,
+          "merkle_tree_bytes": 1048544
+        }
+      ],
+      "scope": "COUNTED new public PCS opening upper bound, excluding wire framing/metadata; no native profile or measured timing/RSS"
+    },
+    {
+      "geometry": "true_piece_axes_REQUIRES_S4",
+      "packing": "joint",
+      "log_cols": 13,
+      "n": 8192,
+      "inv_rate": 4,
+      "column_checks": 256,
+      "layers": 26,
+      "roots_per_layer": 1,
+      "matrix_terminals_per_layer": 20,
+      "weight_words_per_layer": 116391936,
+      "added_bytes_per_layer_bound": 31975744,
+      "added_mib_per_layer_bound": 30.49444580078125,
+      "added_mib_whole_26_layer_bound": 792.8555908203125,
+      "verifier_fp2_base_macs_per_layer": 76382208,
+      "verifier_base_ntt_butterflies_per_layer": 12558336,
+      "verifier_merkle_path_hashes_per_layer": 3840,
+      "base_field_matrix_gib_per_layer": 0.8671875,
+      "encoded_matrix_gib_per_layer": 3.46875,
+      "encoded_matrix_gib_whole_model": 90.1875,
+      "merkle_tree_mib_whole_model": 51.99920654296875,
+      "largest_single_root_base_plus_encoded_gib": 4.3359375,
+      "root_details": [
+        {
+          "sites": [
+            "K",
+            "O",
+            "Q",
+            "V",
+            "down",
+            "gate",
+            "up"
+          ],
+          "pieces": 20,
+          "rows": 14208,
+          "groups_bound": 20,
+          "vectors": 21,
+          "opening_bytes": 31975424,
+          "clear_vector_bytes": 2752512,
+          "sampled_column_and_path_bytes": 29222912,
+          "verifier_fp2_base_macs": 76382208,
+          "verifier_base_ntt_butterflies": 12558336,
+          "merkle_path_hashes": 3840,
+          "encoded_matrix_bytes": 3724541952,
+          "base_field_matrix_bytes": 931135488,
+          "merkle_tree_bytes": 2097120
+        }
+      ],
+      "scope": "COUNTED new public PCS opening upper bound, excluding wire framing/metadata; no native profile or measured timing/RSS"
+    },
+    {
+      "geometry": "true_piece_axes_REQUIRES_S4",
+      "packing": "joint",
+      "log_cols": 14,
+      "n": 16384,
+      "inv_rate": 4,
+      "column_checks": 256,
+      "layers": 26,
+      "roots_per_layer": 1,
+      "matrix_terminals_per_layer": 20,
+      "weight_words_per_layer": 116391936,
+      "added_bytes_per_layer_bound": 20187456,
+      "added_mib_per_layer_bound": 19.25225830078125,
+      "added_mib_whole_26_layer_bound": 500.5587158203125,
+      "verifier_fp2_base_macs_per_layer": 38191104,
+      "verifier_base_ntt_butterflies_per_layer": 26836992,
+      "verifier_merkle_path_hashes_per_layer": 4096,
+      "base_field_matrix_gib_per_layer": 0.8671875,
+      "encoded_matrix_gib_per_layer": 3.46875,
+      "encoded_matrix_gib_whole_model": 90.1875,
+      "merkle_tree_mib_whole_model": 103.99920654296875,
+      "largest_single_root_base_plus_encoded_gib": 4.3359375,
+      "root_details": [
+        {
+          "sites": [
+            "K",
+            "O",
+            "Q",
+            "V",
+            "down",
+            "gate",
+            "up"
+          ],
+          "pieces": 20,
+          "rows": 7104,
+          "groups_bound": 20,
+          "vectors": 21,
+          "opening_bytes": 20187136,
+          "clear_vector_bytes": 5505024,
+          "sampled_column_and_path_bytes": 14682112,
+          "verifier_fp2_base_macs": 38191104,
+          "verifier_base_ntt_butterflies": 26836992,
+          "merkle_path_hashes": 4096,
+          "encoded_matrix_bytes": 3724541952,
+          "base_field_matrix_bytes": 931135488,
+          "merkle_tree_bytes": 4194272
+        }
+      ],
+      "scope": "COUNTED new public PCS opening upper bound, excluding wire framing/metadata; no native profile or measured timing/RSS"
+    },
+    {
+      "geometry": "true_piece_axes_REQUIRES_S4",
+      "packing": "joint",
+      "log_cols": 15,
+      "n": 32768,
+      "inv_rate": 4,
+      "column_checks": 256,
+      "layers": 26,
+      "roots_per_layer": 1,
+      "matrix_terminals_per_layer": 20,
+      "weight_words_per_layer": 116391936,
+      "added_bytes_per_layer_bound": 18426176,
+      "added_mib_per_layer_bound": 17.57257080078125,
+      "added_mib_whole_26_layer_bound": 456.8868408203125,
+      "verifier_fp2_base_macs_per_layer": 19095552,
+      "verifier_base_ntt_butterflies_per_layer": 57114624,
+      "verifier_merkle_path_hashes_per_layer": 4352,
+      "base_field_matrix_gib_per_layer": 0.8671875,
+      "encoded_matrix_gib_per_layer": 3.46875,
+      "encoded_matrix_gib_whole_model": 90.1875,
+      "merkle_tree_mib_whole_model": 207.99920654296875,
+      "largest_single_root_base_plus_encoded_gib": 4.3359375,
+      "root_details": [
+        {
+          "sites": [
+            "K",
+            "O",
+            "Q",
+            "V",
+            "down",
+            "gate",
+            "up"
+          ],
+          "pieces": 20,
+          "rows": 3552,
+          "groups_bound": 20,
+          "vectors": 21,
+          "opening_bytes": 18425856,
+          "clear_vector_bytes": 11010048,
+          "sampled_column_and_path_bytes": 7415808,
+          "verifier_fp2_base_macs": 19095552,
+          "verifier_base_ntt_butterflies": 57114624,
+          "merkle_path_hashes": 4352,
+          "encoded_matrix_bytes": 3724541952,
+          "base_field_matrix_bytes": 931135488,
+          "merkle_tree_bytes": 8388576
+        }
+      ],
+      "scope": "COUNTED new public PCS opening upper bound, excluding wire framing/metadata; no native profile or measured timing/RSS"
+    },
+    {
+      "geometry": "true_piece_axes_REQUIRES_S4",
+      "packing": "joint",
+      "log_cols": 16,
+      "n": 65536,
+      "inv_rate": 4,
+      "column_checks": 256,
+      "layers": 26,
+      "roots_per_layer": 1,
+      "matrix_terminals_per_layer": 20,
+      "weight_words_per_layer": 116391936,
+      "added_bytes_per_layer_bound": 25807168,
+      "added_mib_per_layer_bound": 24.61163330078125,
+      "added_mib_whole_26_layer_bound": 639.9024658203125,
+      "verifier_fp2_base_macs_per_layer": 9547776,
+      "verifier_base_ntt_butterflies_per_layer": 121110528,
+      "verifier_merkle_path_hashes_per_layer": 4608,
+      "base_field_matrix_gib_per_layer": 0.8671875,
+      "encoded_matrix_gib_per_layer": 3.46875,
+      "encoded_matrix_gib_whole_model": 90.1875,
+      "merkle_tree_mib_whole_model": 415.99920654296875,
+      "largest_single_root_base_plus_encoded_gib": 4.3359375,
+      "root_details": [
+        {
+          "sites": [
+            "K",
+            "O",
+            "Q",
+            "V",
+            "down",
+            "gate",
+            "up"
+          ],
+          "pieces": 20,
+          "rows": 1776,
+          "groups_bound": 20,
+          "vectors": 21,
+          "opening_bytes": 25806848,
+          "clear_vector_bytes": 22020096,
+          "sampled_column_and_path_bytes": 3786752,
+          "verifier_fp2_base_macs": 9547776,
+          "verifier_base_ntt_butterflies": 121110528,
+          "merkle_path_hashes": 4608,
+          "encoded_matrix_bytes": 3724541952,
+          "base_field_matrix_bytes": 931135488,
+          "merkle_tree_bytes": 16777184
+        }
+      ],
+      "scope": "COUNTED new public PCS opening upper bound, excluding wire framing/metadata; no native profile or measured timing/RSS"
+    },
+    {
+      "geometry": "true_piece_axes_REQUIRES_S4",
+      "packing": "joint",
+      "log_cols": 17,
+      "n": 131072,
+      "inv_rate": 4,
+      "column_checks": 256,
+      "layers": 26,
+      "roots_per_layer": 1,
+      "matrix_terminals_per_layer": 20,
+      "weight_words_per_layer": 116391936,
+      "added_bytes_per_layer_bound": 46016832,
+      "added_mib_per_layer_bound": 43.88507080078125,
+      "added_mib_whole_26_layer_bound": 1141.0118408203125,
+      "verifier_fp2_base_macs_per_layer": 4773888,
+      "verifier_base_ntt_butterflies_per_layer": 255983616,
+      "verifier_merkle_path_hashes_per_layer": 4864,
+      "base_field_matrix_gib_per_layer": 0.8671875,
+      "encoded_matrix_gib_per_layer": 3.46875,
+      "encoded_matrix_gib_whole_model": 90.1875,
+      "merkle_tree_mib_whole_model": 831.9992065429688,
+      "largest_single_root_base_plus_encoded_gib": 4.3359375,
+      "root_details": [
+        {
+          "sites": [
+            "K",
+            "O",
+            "Q",
+            "V",
+            "down",
+            "gate",
+            "up"
+          ],
+          "pieces": 20,
+          "rows": 888,
+          "groups_bound": 20,
+          "vectors": 21,
+          "opening_bytes": 46016512,
+          "clear_vector_bytes": 44040192,
+          "sampled_column_and_path_bytes": 1976320,
+          "verifier_fp2_base_macs": 4773888,
+          "verifier_base_ntt_butterflies": 255983616,
+          "merkle_path_hashes": 4864,
+          "encoded_matrix_bytes": 3724541952,
+          "base_field_matrix_bytes": 931135488,
+          "merkle_tree_bytes": 33554400
+        }
+      ],
+      "scope": "COUNTED new public PCS opening upper bound, excluding wire framing/metadata; no native profile or measured timing/RSS"
+    }
+  ],
+  "exclusions": [
+    "No speedup or zkVM cycle conversion from unlike primitive operation counts",
+    "Opening fields only; new profile/wire framing, model registration and domain metadata are additional",
+    "No claim that public PCS roots alone remove current checkpoint authentication, tied-table derivation, full-weight hashing or model validation",
+    "Verifier-side weight arrays must be removed through a separately reviewed registered-model context for verification to avoid O(parameters)",
+    "All true-piece rows depend on unimplemented S4; current padded rows are a new S6 design, not existing receipts"
+  ]
+}

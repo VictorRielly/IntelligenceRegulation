@@ -1,0 +1,117 @@
+{
+ "manifest_list_sha256": "6edb1ce682e2f68970169c6f66b0e058d5506a1ed636f7f328b6f9d1cad96215",
+ "manifest_count": 257,
+ "frozen": {
+  "found": 257,
+  "extra": [],
+  "missing": [],
+  "differ": []
+ },
+ "scratch": {
+  "found": 257,
+  "extra": [],
+  "missing": [],
+  "differ": []
+ },
+ "r12b": {
+  "manifest_count": 229,
+  "found": 229,
+  "tree_sha256_manifest": "51de5b83bc0dcaeeeb430165081c47653ac012c462c09f3df4ce7f125faf904f",
+  "tree_sha256_recomputed": [
+   "ad4061de850e12d58d8f272a89595154060877346c38f592b1349a7de5941569",
+   "51de5b83bc0dcaeeeb430165081c47653ac012c462c09f3df4ce7f125faf904f"
+  ],
+  "differ_from_manifest": [],
+  "extra": []
+ },
+ "native_vs_token": {
+  "r12b_files": 229,
+  "equal": 219,
+  "differ": [
+   "hashline/src/private_block.rs",
+   "hashline/src/private_block/hash_domain_tests.rs",
+   "hashline/src/private_block/run.rs",
+   "hashline/src/private_block/run_capture.rs",
+   "hashline/src/private_block/s24_tests.rs",
+   "hashline/src/private_block/s25_tests.rs",
+   "hashline/src/private_block/s33_tests.rs",
+   "hashline/src/private_block/tied_tables.rs",
+   "hashline/src/private_block/tied_tables/derive.rs",
+   "hashline/src/private_block/trained_block.rs"
+  ],
+  "missing_in_token": [],
+  "token_only_count": 28,
+  "token_only": [
+   "hashline/examples/zk60_classify.rs",
+   "hashline/examples/zk60_token_io.rs",
+   "hashline/src/private_block/token_io.rs",
+   "hashline/src/private_block/token_io/capture_tests.rs",
+   "hashline/src/private_block/token_io/classify.rs",
+   "hashline/src/private_block/token_io/classify_capture_tests.rs",
+   "hashline/src/private_block/token_io/classify_cli.rs",
+   "hashline/src/private_block/token_io/classify_cli_tests.rs",
+   "hashline/src/private_block/token_io/classify_run.rs",
+   "hashline/src/private_block/token_io/classify_tests.rs",
+   "hashline/src/private_block/token_io/classify_tied.rs",
+   "hashline/src/private_block/token_io/classify_tied_tests.rs",
+   "hashline/src/private_block/token_io/cli.rs",
+   "hashline/src/private_block/token_io/cli_tests.rs",
+   "hashline/src/private_block/token_io/load.rs",
+   "hashline/src/private_block/token_io/r0_words.rs",
+   "hashline/src/private_block/token_io/r11_tests.rs",
+   "hashline/src/private_block/token_io/r2_tests.rs",
+   "hashline/src/private_block/token_io/r3_tests.rs",
+   "hashline/src/private_block/token_io/r9_tests.rs",
+   "hashline/src/private_block/token_io/r9v_tests.rs",
+   "hashline/src/private_block/token_io/run.rs",
+   "hashline/src/private_block/token_io/stage_in.rs",
+   "hashline/src/private_block/token_io/stage_in_c.rs",
+   "hashline/src/private_block/token_io/stage_out.rs",
+   "hashline/src/private_block/token_io/stage_out_c.rs",
+   "hashline/src/private_block/token_io/t128_tests.rs",
+   "hashline/src/private_block/token_io/tests.rs"
+  ],
+  "diffstat": {
+   "hashline/src/private_block.rs": {
+    "added": 10,
+    "removed": 0
+   },
+   "hashline/src/private_block/hash_domain_tests.rs": {
+    "added": 20,
+    "removed": 2
+   },
+   "hashline/src/private_block/run.rs": {
+    "added": 62,
+    "removed": 0
+   },
+   "hashline/src/private_block/run_capture.rs": {
+    "added": 1473,
+    "removed": 12
+   },
+   "hashline/src/private_block/s24_tests.rs": {
+    "added": 12,
+    "removed": 0
+   },
+   "hashline/src/private_block/s25_tests.rs": {
+    "added": 341,
+    "removed": 15
+   },
+   "hashline/src/private_block/s33_tests.rs": {
+    "added": 4,
+    "removed": 0
+   },
+   "hashline/src/private_block/tied_tables.rs": {
+    "added": 2,
+    "removed": 0
+   },
+   "hashline/src/private_block/tied_tables/derive.rs": {
+    "added": 3,
+    "removed": 3
+   },
+   "hashline/src/private_block/trained_block.rs": {
+    "added": 10,
+    "removed": 10
+   }
+  }
+ }
+}

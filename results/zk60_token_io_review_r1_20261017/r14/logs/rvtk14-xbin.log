@@ -1,0 +1,32 @@
+
+running 1 test
+test private_block::token_io::review_r14_tests::rv14_s8_receipts_do_not_cross_between_the_r12_r13_and_r14_binaries ... RV14 S8 | r12 proved the full item: "schema": "zk60-classify-run/1",
+RV14 S8 | r13 proved the full item: "schema": "zk60-classify-run/2",
+RV14 S8 | r14 proved the full item: "schema": "zk60-classify-run/3",
+RV14 S8 | r12 receipt verified by r12: exit 0 {"event":"classified","verdict":"not-flagged","chunk":0,"chunks":1,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"061340df02f975c16fa1b3f9a2e1c8d582a54888a33edafab112426a69c5ae88","input_token_endpoint_root":"7eb1eb1d0e8115c679b6194b9400b289a3c47f8f80cd84e29235888813bf69b7","verify_seconds":0.280,"whole_run_floor_bits":94,"published_by":"this verifier"}
+RV14 S8 | r12 receipt verified by r13: exit 1 {"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling B-4, the recommended default; Victor's ruling pending)"}
+RV14 S8 | r12 receipt verified by r14: exit 1 {"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling D45(4), Victor 2026-10-29)"}
+RV14 S8 | r13 receipt verified by r12: exit 1 {"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling B-4, the recommended default; Victor's ruling pending)"}
+RV14 S8 | r13 receipt verified by r13: exit 0 {"event":"classified","verdict":"not-flagged","chunk":0,"chunks":1,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"061340df02f975c16fa1b3f9a2e1c8d582a54888a33edafab112426a69c5ae88","input_token_endpoint_root":"f654bbd6fbf56a18dce37fb753b70109fef693bd51a476e1fc98730a1928c66f","verify_seconds":0.284,"whole_run_floor_bits":94,"published_by":"this verifier"}
+RV14 S8 | r13 receipt verified by r14: exit 1 {"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling D45(4), Victor 2026-10-29)"}
+RV14 S8 | r14 receipt verified by r12: exit 1 {"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling B-4, the recommended default; Victor's ruling pending)"}
+RV14 S8 | r14 receipt verified by r13: exit 1 {"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling B-4, the recommended default; Victor's ruling pending)"}
+RV14 S8 | r14 receipt verified by r14: exit 0 {"event":"classified","verdict":"not-flagged","chunk":0,"chunks":1,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"061340df02f975c16fa1b3f9a2e1c8d582a54888a33edafab112426a69c5ae88","input_token_endpoint_root":"cf68838bd13d1946c7ed277c7af7ad7db214fb695799ed8e7fe5977d55ac5d47","verify_seconds":0.286,"whole_run_floor_bits":94,"published_by":"this verifier"}
+RV14 S8 | r12 prove of the 22-id item: exit 1 {"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling B-4, the recommended default; Victor's ruling pending)"} 
+RV14 S8 | r13 prove of the 22-id item: exit 1 {"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling B-4, the recommended default; Victor's ruling pending)"} 
+RV14 S8 | r14 prove of the 22-id item: exit 0 {"event":"proved","run":"/home/victor/zk60-artifacts/token-io/review-r14-tmp/tio-cls-rv14-s8-184927/short-r14","owner_dir":"/home/victor/zk60-artifacts/token-io/review-r14-tmp/tio-cls-owners-rv14-s8-184927/short-r14.owner-private","verdict":"not-flagged","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"segments":3,"receipt_bytes":11134808,"prove_seconds":1.575,"whole_run_floor_bits":94,"total_seconds":1.712,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"} 
+RV14 S8 | r14 short receipt verified by r12: exit 1 {"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling B-4, the recommended default; Victor's ruling pending)"}
+RV14 S8 | r14 short receipt verified by r13: exit 1 {"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling B-4, the recommended default; Victor's ruling pending)"}
+RV14 S8 | r14 short receipt verified by r14: exit 0 {"event":"classified","verdict":"not-flagged","chunk":0,"chunks":1,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"061340df02f975c16fa1b3f9a2e1c8d582a54888a33edafab112426a69c5ae88","input_token_endpoint_root":"bac775f10da05461a584418c0765264e75e7c0e0896bf18cde622cb33f4fe7cb","verify_seconds":0.281,"whole_run_floor_bits":94,"published_by":"this verifier"}
+RV14 S8 | segments of /home/victor/zk60-artifacts/token-io/review-r14-tmp/tio-cls-rv14-s8-184927/full-r13 under the statement of /home/victor/zk60-artifacts/token-io/review-r14-tmp/tio-cls-rv14-s8-184927/full-r14 (/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/cli/zk60_classify.r14.release.bin): exit 1 {"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling D45(4), Victor 2026-10-29)"}
+RV14 S8 | segments of /home/victor/zk60-artifacts/token-io/review-r14-tmp/tio-cls-rv14-s8-184927/full-r14 under the statement of /home/victor/zk60-artifacts/token-io/review-r14-tmp/tio-cls-rv14-s8-184927/full-r13 (/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/cli/zk60_classify.r13.release.bin): exit 1 {"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling B-4, the recommended default; Victor's ruling pending)"}
+RV14 S8 | r13 receipt relabelled /3, r14 verifier: exit 1 {"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling D45(4), Victor 2026-10-29)"}
+{"event":"refused","command":"classify-verify","error":"statement.json: not schema zk60-classify-run/3"}
+{"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling D45(4), Victor 2026-10-29)"}
+{"event":"refused","command":"classify-verify","error":"statement.json: not schema zk60-classify-run/3"}
+{"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling D45(4), Victor 2026-10-29)"}
+RV14 S8 | PASS: only the diagonal verifies; the short item is r14-only; no upgrade / downgrade / relabel
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 763 filtered out; finished in 9.20s
+

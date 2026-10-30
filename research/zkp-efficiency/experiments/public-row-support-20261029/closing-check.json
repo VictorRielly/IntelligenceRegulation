@@ -1,0 +1,20 @@
+{
+  "status": "PASS",
+  "utc": "2026-10-29T18:11:33.613867+00:00",
+  "artifact_files": 87,
+  "manifest_hashes_verified": true,
+  "original_history_preserved": true,
+  "all66prior_hypotheses_preserved": true,
+  "final_reports": {
+    "STATE.md": "5d41872d3fabb0ac430a6d8a0feab1c8587283741d0cb2507b01c75691dfbbeb",
+    "PROGRESS.md": "1ac20a7fbb896eaeaca1378cc64a3cb4cafae41e3e8141fbb01b6832a3b5ebc9",
+    "FINDINGS.md": "7c36273e4d8eabda94a8cc5b40290f274ae2ef1dd0e6d16be766816d360aa74b",
+    "sources.jsonl": "cf662c3a03dcbeea33f506123271345315297403d65f228e2394fe48f5d06541",
+    "progress/20261029T175649Z-b41890ba.md": "d6163419077ee0ac7999072e3368f4106b7b151150557cdb7dd66a71c092df04",
+    "handoffs/20261029-public-mask-row-bound.md": "d6e4cd14ead44f9848968488aadd344e87e7cc0df7b9e11982af0db6221320ad"
+  },
+  "completed_before_deadline": true,
+  "full_stack_proofs": 0,
+  "model_passes": 0,
+  "proved_positions": 0
+}

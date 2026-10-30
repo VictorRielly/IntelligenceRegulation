@@ -229,6 +229,15 @@ TOOLS = [
     "zk60_native_rg_classpins.py",
     # [v20, gate round 17] the classifier capture reader and gate
     "zk60_native_rg_classgate.py",
+    # [v21, gate round 18] B-3 with the tables derived from the pinned tensor,
+    # and the readings of native R9 -> R12 -> R12b (the token tree's rebase)
+    "zk60_native_rg_classtied.py",
+    "zk60_native_rg_tinyllama_r12b_pins.py",
+    # [v22, gate round 19] the readings of native R12b -> R13 and token
+    # r14 -> r16b (the reading sub-lane), and the R13 block-stage port
+    "zk60_native_rg_r13_pins.py",
+    "zk60_native_rg_r13slots.py",
+    "zk60_native_rg_r13blocks.py",
 ]
 
 EXPECTED_DISCLOSED = {

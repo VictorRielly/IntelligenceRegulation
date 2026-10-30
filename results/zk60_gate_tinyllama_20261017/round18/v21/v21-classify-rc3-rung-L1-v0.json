@@ -1,0 +1,3534 @@
+{
+ "B3_margin_vector": {
+  "derived": {
+   "derived_embedding_digest": "a8d55fc067234ea1f587e3668e000096c803abc8d4f75838798b482efa4fa60b",
+   "derived_embedding_sha256_int16": "c0e816c9f41a251df8560c5532d3f24c3b753ceb6ad712adcc7a893f71bfa475",
+   "derived_margin_digest": "40f3fe498402edec315cfc92bec67365b3c0784bfe72b47040043ecbfe1095fd",
+   "derived_margin_sha256_int16": "24e6ff4ca67bac45c810f78b72d967894b6806615206c5571842055ce20ef3c1",
+   "findings": [],
+   "ok": true,
+   "profile_fields": {
+    "margin_scale": 0.00390625,
+    "margin_scale_bits": "0x3f70000000000000",
+    "no": 41,
+    "tied_source": "dev-rung-synthetic-bf16",
+    "tied_source_sentence_is_the_dev_rung": true,
+    "yes": 40
+   },
+   "recorded_vs_derived": {
+    "differing": 0,
+    "entries": 512,
+    "first_differing": []
+   },
+   "residual_unit": 0.0053663705198366135,
+   "statement_embedding_digest": "a8d55fc067234ea1f587e3668e000096c803abc8d4f75838798b482efa4fa60b",
+   "statement_margin_digest": "40f3fe498402edec315cfc92bec67365b3c0784bfe72b47040043ecbfe1095fd",
+   "tensor_pin": "bba6d094831861aa0b207ae5ca46938e2115e02c81215ba95e27e2bad1cc1dd6",
+   "tensor_sha256": "bba6d094831861aa0b207ae5ca46938e2115e02c81215ba95e27e2bad1cc1dd6",
+   "what": "B-3 (v21): the margin row and the embedding DERIVED from the pinned tied tensor, not taken"
+  },
+  "findings": [],
+  "ok": true,
+  "recomputed_digest": "40f3fe498402edec315cfc92bec67365b3c0784bfe72b47040043ecbfe1095fd",
+  "statement_digest": "40f3fe498402edec315cfc92bec67365b3c0784bfe72b47040043ecbfe1095fd"
+ },
+ "D41": {
+  "ok": true,
+  "plan_size": 23,
+  "ranges": [
+   [
+    0,
+    23
+   ]
+  ],
+  "recorded": {
+   "a": 0,
+   "b": 23,
+   "count": 1,
+   "index": 0,
+   "overlap": 4,
+   "size": 23,
+   "total": 23
+  },
+  "short_item": false
+ },
+ "G1_G2_boundaries_reserved": {
+  "B_in": {
+   "boundary": 0,
+   "commitment": "B0",
+   "data_rows": 16,
+   "determinant": 3361768904385604097,
+   "determinant_nonzero": true,
+   "disclosed_on_the_reserved_block_fp": 0,
+   "full_row_rank": true,
+   "generators": 6,
+   "groups": 2,
+   "pivot_columns": [
+    "row 16",
+    "row 17",
+    "row 18",
+    "row 19",
+    "row 20",
+    "row 21"
+   ],
+   "prox_row": 20,
+   "rank_on_the_reserved_block": 6,
+   "rank_over_all_rows": 6,
+   "reserved_columns": [
+    "row 16",
+    "row 17",
+    "row 18",
+    "row 19",
+    "row 20",
+    "row 21"
+   ],
+   "row_rule": "data + 2*sites + 2",
+   "rows": 22,
+   "site_rows": [
+    16,
+    17,
+    18,
+    19
+   ],
+   "sites": 2
+  },
+  "B_out": {
+   "boundary": 1,
+   "commitment": "B1",
+   "data_rows": 16,
+   "determinant": 10776624365449209186,
+   "determinant_nonzero": true,
+   "disclosed_on_the_reserved_block_fp": 0,
+   "full_row_rank": true,
+   "generators": 6,
+   "groups": 2,
+   "pivot_columns": [
+    "row 16",
+    "row 17",
+    "row 18",
+    "row 19",
+    "row 20",
+    "row 21"
+   ],
+   "prox_row": 20,
+   "rank_on_the_reserved_block": 6,
+   "rank_over_all_rows": 6,
+   "reserved_columns": [
+    "row 16",
+    "row 17",
+    "row 18",
+    "row 19",
+    "row 20",
+    "row 21"
+   ],
+   "row_rule": "data + 2*sites + 2",
+   "rows": 22,
+   "site_rows": [
+    16,
+    17,
+    18,
+    19
+   ],
+   "sites": 2
+  }
+ },
+ "G1_joint": {
+  "commitments_alone": {
+   "A-in@0": {
+    "disclosed_fp_per_word": 0,
+    "k0": 0,
+    "words": 4096,
+    "words_in_an_identification": 32
+   },
+   "A-out@2": {
+    "disclosed_fp_per_word": 0,
+    "k0": 0,
+    "words": 4096,
+    "words_in_an_identification": 512
+   },
+   "A@1": {
+    "disclosed_fp_per_word": 0,
+    "k0": 0,
+    "words": 1024,
+    "words_in_an_identification": 1024
+   },
+   "B0": {
+    "disclosed_fp_per_word": 0,
+    "k0": 0,
+    "words": 1024,
+    "words_in_an_identification": 1024
+   },
+   "B1": {
+    "disclosed_fp_per_word": 0,
+    "k0": 0,
+    "words": 1024,
+    "words_in_an_identification": 1024
+   },
+   "E-token-in": {
+    "disclosed_fp_per_word": 0,
+    "k0": 0,
+    "words": 256,
+    "words_in_an_identification": 32
+   }
+  },
+  "components": [
+   {
+    "commitments": [
+     "A-in@0",
+     "E-token-in"
+    ],
+    "findings": [],
+    "identification_reaches_a_non_data_row": false,
+    "joint_disclosed_fp_per_word": 0,
+    "k0": 0,
+    "row_identifications": 1,
+    "sum_of_parts_per_word": 0,
+    "word_positions": 32
+   },
+   {
+    "commitments": [
+     "A@1",
+     "B0",
+     "B1"
+    ],
+    "findings": [],
+    "identification_reaches_a_non_data_row": false,
+    "joint_disclosed_fp_per_word": 0,
+    "k0": 0,
+    "row_identifications": 32,
+    "sum_of_parts_per_word": 0,
+    "word_positions": 512
+   },
+   {
+    "commitments": [
+     "A-out@2",
+     "A@1",
+     "B0",
+     "B1"
+    ],
+    "findings": [],
+    "identification_reaches_a_non_data_row": false,
+    "joint_disclosed_fp_per_word": 0,
+    "k0": 0,
+    "row_identifications": 33,
+    "sum_of_parts_per_word": 0,
+    "word_positions": 512
+   }
+  ],
+  "findings": [],
+  "identified_word_pairs": 33312,
+  "joint_disclosed_fp": 0,
+  "joint_equals_sum_of_parts": true,
+  "ok": true,
+  "ruling_R3": "joint == sum of parts is a consistency check, not evidence that the blinding is independent (G-R4)",
+  "sum_of_parts_fp": 0,
+  "what": "the joint figure over the classifier run's shared planes, computed at word level (token_joint_figure's model; no output token)"
+ },
+ "G1_per_commitment": {
+  "masking_commitments": [
+   {
+    "commitment": "M@0",
+    "disclosed_dimension": 0,
+    "expected_disclosed_dimension": 0,
+    "meets_expectation": true,
+    "rows": 12,
+    "slots": 4,
+    "stage_kind": "IN-C"
+   },
+   {
+    "commitment": "M@1",
+    "disclosed_dimension": 0,
+    "expected_disclosed_dimension": 0,
+    "meets_expectation": true,
+    "rows": 50,
+    "slots": 23,
+    "stage_kind": "BLOCK"
+   },
+   {
+    "commitment": "M@2",
+    "disclosed_dimension": 0,
+    "expected_disclosed_dimension": 0,
+    "meets_expectation": true,
+    "rows": 20,
+    "slots": 8,
+    "stage_kind": "OUT-C"
+   }
+  ],
+  "ok": true,
+  "pad_block_exact_rank_cross_check": {
+   "commitment": "B0 (B_in)",
+   "distinct_columns": 248,
+   "exact_rank_of_the_pad_block": 248,
+   "full_rank": true,
+   "seconds": 4.7
+  },
+  "per_commitment": [
+   {
+    "boundary": null,
+    "certifying_minor": {
+     "G": 3,
+     "determinant": 13444041268569352299,
+     "determinant_nonzero": true,
+     "full_row_rank": true,
+     "g": 8,
+     "generator_indices": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+     ],
+     "generators": "the real and imaginary parts of the G group vectors and of the proximity vector",
+     "non_data_row_indices": [
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     "rank_on_non_data_rows": 8
+    },
+    "claims": 3,
+    "claims_evaluating_u_rows": 0,
+    "class": "A",
+    "column_identity_checked": 28,
+    "column_identity_failures": 0,
+    "commitment_kind": "stage-in",
+    "coset_nodes_distinct": true,
+    "data_rows": 2,
+    "disclosed_dimension": 0,
+    "distinct_columns": 256,
+    "distinct_opened_columns": 256,
+    "distinct_opened_columns_within_pad_count": true,
+    "exclusivity": {
+     "clauses": {
+      "EX-1": true,
+      "EX-10": true,
+      "EX-11": true,
+      "EX-12": true,
+      "EX-13": true,
+      "EX-14": true,
+      "EX-15": true,
+      "EX-16": true,
+      "EX-2": true,
+      "EX-3": true,
+      "EX-4": true,
+      "EX-5": true,
+      "EX-6": true,
+      "EX-7": true,
+      "EX-8": true,
+      "EX-9": true
+     },
+     "clauses_checked": 16,
+     "clauses_passed": 16,
+     "evaluation_claims": 3,
+     "failing": [],
+     "groups": 3,
+     "groups_the_schedule_declares": 3,
+     "ok": true,
+     "site_rows": 6,
+     "site_rows_used_exactly_once": 6,
+     "sum_claims": 0
+    },
+    "expected_disclosed_dimension": 0,
+    "findings": [],
+    "group_claim_identities_checked": 3,
+    "group_claim_identity_failures": 0,
+    "groups": 3,
+    "k0": 0,
+    "meets_expectation": true,
+    "non_data_rows": 8,
+    "pad_count": 256,
+    "pad_margin": 0,
+    "proximity_pair_determinant_nonzero": true,
+    "q_pad": 256,
+    "rank_P1": 8,
+    "rank_P1_on_non_data_rows": 8,
+    "reduction_hypotheses": {
+     "H-pad": true,
+     "H-pair": true,
+     "H-prox": true
+    },
+    "reserved_mask_rows": 6,
+    "reserved_pairs_used": 3,
+    "role": "A-in@0",
+    "rows": 10,
+    "sampled_columns": 256,
+    "site_role": "A-in",
+    "spare_mask_rows": [],
+    "stage": 0,
+    "stage_kind": "IN-C",
+    "sum_claims_on_u_rows": 0,
+    "u_rows": [],
+    "vanishing_Zn_nodes": 0
+   },
+   {
+    "boundary": null,
+    "certifying_minor": {
+     "G": 4,
+     "determinant": 10629108233746869938,
+     "determinant_nonzero": true,
+     "full_row_rank": true,
+     "g": 10,
+     "generator_indices": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     "generators": "the real and imaginary parts of the G group vectors and of the proximity vector",
+     "non_data_row_indices": [
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13
+     ],
+     "rank_on_non_data_rows": 10
+    },
+    "claims": 4,
+    "claims_evaluating_u_rows": 2,
+    "class": "H",
+    "column_identity_checked": 35,
+    "column_identity_failures": 0,
+    "commitment_kind": "stage-in",
+    "coset_nodes_distinct": true,
+    "data_rows": 4,
+    "declared_data_rows_vs_row_roles": {
+     "declared": 6,
+     "difference_is_the_zero_sum_rows": true,
+     "kind_data": 4
+    },
+    "disclosed_dimension": 2,
+    "distinct_columns": 255,
+    "distinct_opened_columns": 255,
+    "distinct_opened_columns_within_pad_count": true,
+    "exclusivity": {
+     "clauses": {
+      "EX-1": true,
+      "EX-10": true,
+      "EX-11": true,
+      "EX-12": true,
+      "EX-13": true,
+      "EX-14": true,
+      "EX-15": true,
+      "EX-16": true,
+      "EX-2": true,
+      "EX-3": true,
+      "EX-4": true,
+      "EX-5": true,
+      "EX-6": true,
+      "EX-7": true,
+      "EX-8": true,
+      "EX-9": true
+     },
+     "clauses_checked": 16,
+     "clauses_passed": 16,
+     "evaluation_claims": 3,
+     "failing": [],
+     "groups": 4,
+     "groups_the_schedule_declares": 4,
+     "ok": true,
+     "site_rows": 6,
+     "site_rows_used_exactly_once": 6,
+     "sum_claims": 1
+    },
+    "expected_disclosed_dimension": 2,
+    "findings": [],
+    "group_claim_identities_checked": 4,
+    "group_claim_identity_failures": 0,
+    "groups": 4,
+    "k0": 0,
+    "meets_expectation": true,
+    "non_data_rows": 10,
+    "pad_count": 256,
+    "pad_margin": 1,
+    "proximity_pair_determinant_nonzero": true,
+    "q_pad": 256,
+    "rank_P1": 10,
+    "rank_P1_on_non_data_rows": 10,
+    "reduction_hypotheses": {
+     "H-pad": true,
+     "H-pair": true,
+     "H-prox": true
+    },
+    "reserved_mask_rows": 6,
+    "reserved_pairs_used": 4,
+    "role": "H-in@0",
+    "rows": 14,
+    "sampled_columns": 256,
+    "site_role": "H-in",
+    "spare_mask_rows": [],
+    "stage": 0,
+    "stage_kind": "IN-C",
+    "sum_claims_on_u_rows": 1,
+    "u_row_term": {
+     "equals_public_logup_identity": true,
+     "exact_form": "u* = rank \u0393_{D\u222aN'} \u2212 rank \u0393_{N'} \u2212 k0, \u0393 the real and imaginary parts of the group and proximity row-combinations, D the data rows, N' the non-data rows that are not zero-sum rows (ruling GC-2, finding F-3; the draft's \u00a72.2.3 derives it)",
+     "extra_dimension_beyond_k0": 2,
+     "per_indicator_equals_exact": true,
+     "per_indicator_term": 2,
+     "rank_gamma_on_data_and_n_prime": 10,
+     "rank_gamma_on_n_prime": 8,
+     "u_row_indicators_admissible": 2,
+     "xi_row_weights_nonzero": [
+      2,
+      2
+     ]
+    },
+    "u_rows": [
+     4,
+     5
+    ],
+    "vanishing_Zn_nodes": 0
+   },
+   {
+    "boundary": null,
+    "certifying_minor": {
+     "G": 1,
+     "determinant": 1109154129621344766,
+     "determinant_nonzero": true,
+     "full_row_rank": true,
+     "g": 4,
+     "generator_indices": [
+      0,
+      1,
+      2,
+      3
+     ],
+     "generators": "the real and imaginary parts of the G group vectors and of the proximity vector",
+     "non_data_row_indices": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "rank_on_non_data_rows": 4
+    },
+    "claims": 1,
+    "claims_evaluating_u_rows": 0,
+    "class": "endpoint",
+    "column_identity_checked": 14,
+    "column_identity_failures": 0,
+    "commitment_kind": "external-endpoint",
+    "coset_nodes_distinct": true,
+    "data_rows": 1,
+    "disclosed_dimension": 0,
+    "distinct_columns": 239,
+    "distinct_opened_columns": 239,
+    "distinct_opened_columns_within_pad_count": true,
+    "exclusivity": {
+     "clauses": {
+      "EX-1": true,
+      "EX-10": true,
+      "EX-11": true,
+      "EX-12": true,
+      "EX-13": true,
+      "EX-14": true,
+      "EX-15": true,
+      "EX-16": true,
+      "EX-2": true,
+      "EX-3": true,
+      "EX-4": true,
+      "EX-5": true,
+      "EX-6": true,
+      "EX-7": true,
+      "EX-8": true,
+      "EX-9": true
+     },
+     "clauses_checked": 16,
+     "clauses_passed": 16,
+     "evaluation_claims": 1,
+     "failing": [],
+     "groups": 1,
+     "groups_the_schedule_declares": 1,
+     "ok": true,
+     "site_rows": 2,
+     "site_rows_used_exactly_once": 2,
+     "sum_claims": 0
+    },
+    "expected_disclosed_dimension": 0,
+    "findings": [],
+    "group_claim_identities_checked": 1,
+    "group_claim_identity_failures": 0,
+    "groups": 1,
+    "k0": 0,
+    "meets_expectation": true,
+    "non_data_rows": 5,
+    "pad_count": 256,
+    "pad_margin": 17,
+    "proximity_pair_determinant_nonzero": true,
+    "q_pad": 256,
+    "rank_P1": 4,
+    "rank_P1_on_non_data_rows": 4,
+    "reduction_hypotheses": {
+     "H-pad": true,
+     "H-pair": true,
+     "H-prox": true
+    },
+    "reserved_mask_rows": 3,
+    "reserved_pairs_used": 1,
+    "role": "E-token-in",
+    "rows": 6,
+    "sampled_columns": 256,
+    "site_role": "E-token-in",
+    "spare_mask_rows": [
+     5
+    ],
+    "stage": 0,
+    "stage_kind": "IN-C",
+    "sum_claims_on_u_rows": 0,
+    "u_rows": [],
+    "vanishing_Zn_nodes": 0
+   },
+   {
+    "boundary": null,
+    "certifying_minor": {
+     "G": 36,
+     "determinant": 14934081097591150940,
+     "determinant_nonzero": true,
+     "full_row_rank": true,
+     "g": 74,
+     "generator_indices": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63,
+      64,
+      65,
+      66,
+      67,
+      68,
+      69,
+      70,
+      71,
+      72,
+      73
+     ],
+     "generators": "the real and imaginary parts of the G group vectors and of the proximity vector",
+     "non_data_row_indices": [
+      1091,
+      1092,
+      1093,
+      1094,
+      1095,
+      1096,
+      1097,
+      1098,
+      1101,
+      1102,
+      1103,
+      1104,
+      1105,
+      1106,
+      1107,
+      1108,
+      1109,
+      1110,
+      1111,
+      1112,
+      1113,
+      1114,
+      1115,
+      1116,
+      1139,
+      1140,
+      1143,
+      1144,
+      1147,
+      1148,
+      1149,
+      1150,
+      1151,
+      1152,
+      1153,
+      1154,
+      1155,
+      1156,
+      1157,
+      1158,
+      1159,
+      1160,
+      1161,
+      1162,
+      1163,
+      1164,
+      1165,
+      1166,
+      1167,
+      1168,
+      1169,
+      1170,
+      1239,
+      1240,
+      1243,
+      1244,
+      1257,
+      1258,
+      1259,
+      1260,
+      1271,
+      1272,
+      1273,
+      1274,
+      1299,
+      1300,
+      1303,
+      1304,
+      1325,
+      1326,
+      1331,
+      1332,
+      1333,
+      1334
+     ],
+     "rank_on_non_data_rows": 74
+    },
+    "claims": 122,
+    "claims_evaluating_u_rows": 0,
+    "class": "A",
+    "column_identity_checked": 28,
+    "column_identity_failures": 0,
+    "commitment_kind": "block",
+    "coset_nodes_distinct": true,
+    "data_rows": 1091,
+    "disclosed_dimension": 0,
+    "distinct_columns": 245,
+    "distinct_opened_columns": 245,
+    "distinct_opened_columns_within_pad_count": true,
+    "exclusivity": {
+     "clauses": {
+      "EX-1": true,
+      "EX-10": true,
+      "EX-11": true,
+      "EX-12": true,
+      "EX-13": true,
+      "EX-14": true,
+      "EX-15": true,
+      "EX-16": true,
+      "EX-2": true,
+      "EX-3": true,
+      "EX-4": true,
+      "EX-5": true,
+      "EX-6": true,
+      "EX-7": true,
+      "EX-8": true,
+      "EX-9": true
+     },
+     "clauses_checked": 16,
+     "clauses_passed": 16,
+     "evaluation_claims": 122,
+     "failing": [],
+     "groups": 36,
+     "groups_the_schedule_declares": 36,
+     "ok": true,
+     "site_rows": 244,
+     "site_rows_used_exactly_once": 244,
+     "sum_claims": 0
+    },
+    "expected_disclosed_dimension": 0,
+    "findings": [],
+    "group_claim_identities_checked": 36,
+    "group_claim_identity_failures": 0,
+    "groups": 36,
+    "k0": 0,
+    "meets_expectation": true,
+    "non_data_rows": 246,
+    "pad_count": 256,
+    "pad_margin": 11,
+    "proximity_pair_determinant_nonzero": true,
+    "q_pad": 256,
+    "rank_P1": 74,
+    "rank_P1_on_non_data_rows": 74,
+    "reduction_hypotheses": {
+     "H-pad": true,
+     "H-pair": true,
+     "H-prox": true
+    },
+    "reserved_mask_rows": 244,
+    "reserved_pairs_used": 122,
+    "role": "A@1",
+    "rows": 1337,
+    "sampled_columns": 256,
+    "site_role": "A",
+    "spare_mask_rows": [],
+    "stage": 1,
+    "stage_kind": "BLOCK",
+    "sum_claims_on_u_rows": 0,
+    "u_rows": [],
+    "vanishing_Zn_nodes": 0
+   },
+   {
+    "boundary": null,
+    "certifying_minor": {
+     "G": 9,
+     "determinant": 6040260911356046689,
+     "determinant_nonzero": true,
+     "full_row_rank": true,
+     "g": 20,
+     "generator_indices": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19
+     ],
+     "generators": "the real and imaginary parts of the G group vectors and of the proximity vector",
+     "non_data_row_indices": [
+      1368,
+      1369,
+      1370,
+      1371,
+      1372,
+      1373,
+      1374,
+      1375,
+      1410,
+      1411,
+      1424,
+      1425,
+      1436,
+      1437,
+      1454,
+      1455,
+      1466,
+      1467,
+      1472,
+      1473
+     ],
+     "rank_on_non_data_rows": 20
+    },
+    "claims": 53,
+    "claims_evaluating_u_rows": 2,
+    "class": "H",
+    "column_identity_checked": 28,
+    "column_identity_failures": 0,
+    "commitment_kind": "block",
+    "coset_nodes_distinct": true,
+    "data_rows": 1368,
+    "declared_data_rows_vs_row_roles": {
+     "declared": 1370,
+     "difference_is_the_zero_sum_rows": true,
+     "kind_data": 1368
+    },
+    "disclosed_dimension": 2,
+    "distinct_columns": 254,
+    "distinct_opened_columns": 254,
+    "distinct_opened_columns_within_pad_count": true,
+    "exclusivity": {
+     "clauses": {
+      "EX-1": true,
+      "EX-10": true,
+      "EX-11": true,
+      "EX-12": true,
+      "EX-13": true,
+      "EX-14": true,
+      "EX-15": true,
+      "EX-16": true,
+      "EX-2": true,
+      "EX-3": true,
+      "EX-4": true,
+      "EX-5": true,
+      "EX-6": true,
+      "EX-7": true,
+      "EX-8": true,
+      "EX-9": true
+     },
+     "clauses_checked": 16,
+     "clauses_passed": 16,
+     "evaluation_claims": 52,
+     "failing": [],
+     "groups": 9,
+     "groups_the_schedule_declares": 9,
+     "ok": true,
+     "site_rows": 104,
+     "site_rows_used_exactly_once": 104,
+     "sum_claims": 1
+    },
+    "expected_disclosed_dimension": 2,
+    "findings": [],
+    "group_claim_identities_checked": 9,
+    "group_claim_identity_failures": 0,
+    "groups": 9,
+    "k0": 0,
+    "meets_expectation": true,
+    "non_data_rows": 108,
+    "pad_count": 256,
+    "pad_margin": 2,
+    "proximity_pair_determinant_nonzero": true,
+    "q_pad": 256,
+    "rank_P1": 20,
+    "rank_P1_on_non_data_rows": 20,
+    "reduction_hypotheses": {
+     "H-pad": true,
+     "H-pair": true,
+     "H-prox": true
+    },
+    "reserved_mask_rows": 104,
+    "reserved_pairs_used": 53,
+    "role": "H@1",
+    "rows": 1476,
+    "sampled_columns": 256,
+    "site_role": "H",
+    "spare_mask_rows": [],
+    "stage": 1,
+    "stage_kind": "BLOCK",
+    "sum_claims_on_u_rows": 1,
+    "u_row_term": {
+     "equals_public_logup_identity": true,
+     "exact_form": "u* = rank \u0393_{D\u222aN'} \u2212 rank \u0393_{N'} \u2212 k0, \u0393 the real and imaginary parts of the group and proximity row-combinations, D the data rows, N' the non-data rows that are not zero-sum rows (ruling GC-2, finding F-3; the draft's \u00a72.2.3 derives it)",
+     "extra_dimension_beyond_k0": 2,
+     "per_indicator_equals_exact": true,
+     "per_indicator_term": 2,
+     "rank_gamma_on_data_and_n_prime": 20,
+     "rank_gamma_on_n_prime": 18,
+     "u_row_indicators_admissible": 2,
+     "xi_row_weights_nonzero": [
+      684,
+      684
+     ]
+    },
+    "u_rows": [
+     1368,
+     1369
+    ],
+    "vanishing_Zn_nodes": 0
+   },
+   {
+    "boundary": 0,
+    "certifying_minor": {
+     "G": 2,
+     "determinant": 3361768904385604097,
+     "determinant_nonzero": true,
+     "full_row_rank": true,
+     "g": 6,
+     "generator_indices": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+     ],
+     "generators": "the real and imaginary parts of the G group vectors and of the proximity vector",
+     "non_data_row_indices": [
+      16,
+      17,
+      18,
+      19,
+      20,
+      21
+     ],
+     "rank_on_non_data_rows": 6
+    },
+    "claims": 2,
+    "claims_evaluating_u_rows": 0,
+    "class": "boundary",
+    "column_identity_checked": 21,
+    "column_identity_failures": 0,
+    "commitment_kind": "internal-boundary",
+    "coset_nodes_distinct": true,
+    "data_rows": 16,
+    "disclosed_dimension": 0,
+    "distinct_columns": 248,
+    "distinct_opened_columns": 248,
+    "distinct_opened_columns_within_pad_count": true,
+    "exclusivity": {
+     "clauses": {
+      "EX-1": true,
+      "EX-10": true,
+      "EX-11": true,
+      "EX-12": true,
+      "EX-13": true,
+      "EX-14": true,
+      "EX-15": true,
+      "EX-16": true,
+      "EX-2": true,
+      "EX-3": true,
+      "EX-4": true,
+      "EX-5": true,
+      "EX-6": true,
+      "EX-7": true,
+      "EX-8": true,
+      "EX-9": true
+     },
+     "clauses_checked": 16,
+     "clauses_passed": 16,
+     "evaluation_claims": 2,
+     "failing": [],
+     "groups": 2,
+     "groups_the_schedule_declares": 2,
+     "ok": true,
+     "site_rows": 4,
+     "site_rows_used_exactly_once": 4,
+     "sum_claims": 0
+    },
+    "expected_disclosed_dimension": 0,
+    "findings": [],
+    "group_claim_identities_checked": 2,
+    "group_claim_identity_failures": 0,
+    "groups": 2,
+    "k0": 0,
+    "meets_expectation": true,
+    "non_data_rows": 6,
+    "pad_count": 256,
+    "pad_margin": 8,
+    "proximity_pair_determinant_nonzero": true,
+    "q_pad": 256,
+    "rank_P1": 6,
+    "rank_P1_on_non_data_rows": 6,
+    "reduction_hypotheses": {
+     "H-pad": true,
+     "H-pair": true,
+     "H-prox": true
+    },
+    "reserved_mask_rows": 4,
+    "reserved_pairs_used": 2,
+    "role": "B0",
+    "rows": 22,
+    "sampled_columns": 256,
+    "site_role": "Input",
+    "spare_mask_rows": [],
+    "stage": 1,
+    "stage_kind": "BLOCK",
+    "sum_claims_on_u_rows": 0,
+    "u_rows": [],
+    "vanishing_Zn_nodes": 0
+   },
+   {
+    "boundary": null,
+    "certifying_minor": {
+     "G": 16,
+     "determinant": 17842629548417683016,
+     "determinant_nonzero": true,
+     "full_row_rank": true,
+     "g": 34,
+     "generator_indices": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33
+     ],
+     "generators": "the real and imaginary parts of the G group vectors and of the proximity vector",
+     "non_data_row_indices": [
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      70,
+      71,
+      72,
+      73
+     ],
+     "rank_on_non_data_rows": 34
+    },
+    "claims": 29,
+    "claims_evaluating_u_rows": 0,
+    "class": "A",
+    "column_identity_checked": 28,
+    "column_identity_failures": 0,
+    "commitment_kind": "stage-out",
+    "coset_nodes_distinct": true,
+    "data_rows": 16,
+    "disclosed_dimension": 0,
+    "distinct_columns": 254,
+    "distinct_opened_columns": 254,
+    "distinct_opened_columns_within_pad_count": true,
+    "exclusivity": {
+     "clauses": {
+      "EX-1": true,
+      "EX-10": true,
+      "EX-11": true,
+      "EX-12": true,
+      "EX-13": true,
+      "EX-14": true,
+      "EX-15": true,
+      "EX-16": true,
+      "EX-2": true,
+      "EX-3": true,
+      "EX-4": true,
+      "EX-5": true,
+      "EX-6": true,
+      "EX-7": true,
+      "EX-8": true,
+      "EX-9": true
+     },
+     "clauses_checked": 16,
+     "clauses_passed": 16,
+     "evaluation_claims": 29,
+     "failing": [],
+     "groups": 16,
+     "groups_the_schedule_declares": 16,
+     "ok": true,
+     "site_rows": 58,
+     "site_rows_used_exactly_once": 58,
+     "sum_claims": 0
+    },
+    "expected_disclosed_dimension": 0,
+    "findings": [],
+    "group_claim_identities_checked": 16,
+    "group_claim_identity_failures": 0,
+    "groups": 16,
+    "k0": 0,
+    "meets_expectation": true,
+    "non_data_rows": 60,
+    "pad_count": 256,
+    "pad_margin": 2,
+    "proximity_pair_determinant_nonzero": true,
+    "q_pad": 256,
+    "rank_P1": 34,
+    "rank_P1_on_non_data_rows": 34,
+    "reduction_hypotheses": {
+     "H-pad": true,
+     "H-pair": true,
+     "H-prox": true
+    },
+    "reserved_mask_rows": 58,
+    "reserved_pairs_used": 29,
+    "role": "A-out@2",
+    "rows": 76,
+    "sampled_columns": 256,
+    "site_role": "A-out",
+    "spare_mask_rows": [],
+    "stage": 2,
+    "stage_kind": "OUT-C",
+    "sum_claims_on_u_rows": 0,
+    "u_rows": [],
+    "vanishing_Zn_nodes": 0
+   },
+   {
+    "boundary": null,
+    "certifying_minor": {
+     "G": 5,
+     "determinant": 16563907440536049237,
+     "determinant_nonzero": true,
+     "full_row_rank": true,
+     "g": 12,
+     "generator_indices": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11
+     ],
+     "generators": "the real and imaginary parts of the G group vectors and of the proximity vector",
+     "non_data_row_indices": [
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      32,
+      33,
+      34,
+      35
+     ],
+     "rank_on_non_data_rows": 12
+    },
+    "claims": 10,
+    "claims_evaluating_u_rows": 2,
+    "class": "H",
+    "column_identity_checked": 21,
+    "column_identity_failures": 0,
+    "commitment_kind": "stage-out",
+    "coset_nodes_distinct": true,
+    "data_rows": 16,
+    "declared_data_rows_vs_row_roles": {
+     "declared": 18,
+     "difference_is_the_zero_sum_rows": true,
+     "kind_data": 16
+    },
+    "disclosed_dimension": 2,
+    "distinct_columns": 251,
+    "distinct_opened_columns": 251,
+    "distinct_opened_columns_within_pad_count": true,
+    "exclusivity": {
+     "clauses": {
+      "EX-1": true,
+      "EX-10": true,
+      "EX-11": true,
+      "EX-12": true,
+      "EX-13": true,
+      "EX-14": true,
+      "EX-15": true,
+      "EX-16": true,
+      "EX-2": true,
+      "EX-3": true,
+      "EX-4": true,
+      "EX-5": true,
+      "EX-6": true,
+      "EX-7": true,
+      "EX-8": true,
+      "EX-9": true
+     },
+     "clauses_checked": 16,
+     "clauses_passed": 16,
+     "evaluation_claims": 9,
+     "failing": [],
+     "groups": 5,
+     "groups_the_schedule_declares": 5,
+     "ok": true,
+     "site_rows": 18,
+     "site_rows_used_exactly_once": 18,
+     "sum_claims": 1
+    },
+    "expected_disclosed_dimension": 2,
+    "findings": [],
+    "group_claim_identities_checked": 5,
+    "group_claim_identity_failures": 0,
+    "groups": 5,
+    "k0": 0,
+    "meets_expectation": true,
+    "non_data_rows": 22,
+    "pad_count": 256,
+    "pad_margin": 5,
+    "proximity_pair_determinant_nonzero": true,
+    "q_pad": 256,
+    "rank_P1": 12,
+    "rank_P1_on_non_data_rows": 12,
+    "reduction_hypotheses": {
+     "H-pad": true,
+     "H-pair": true,
+     "H-prox": true
+    },
+    "reserved_mask_rows": 18,
+    "reserved_pairs_used": 10,
+    "role": "H-out@2",
+    "rows": 38,
+    "sampled_columns": 256,
+    "site_role": "H-out",
+    "spare_mask_rows": [],
+    "stage": 2,
+    "stage_kind": "OUT-C",
+    "sum_claims_on_u_rows": 1,
+    "u_row_term": {
+     "equals_public_logup_identity": true,
+     "exact_form": "u* = rank \u0393_{D\u222aN'} \u2212 rank \u0393_{N'} \u2212 k0, \u0393 the real and imaginary parts of the group and proximity row-combinations, D the data rows, N' the non-data rows that are not zero-sum rows (ruling GC-2, finding F-3; the draft's \u00a72.2.3 derives it)",
+     "extra_dimension_beyond_k0": 2,
+     "per_indicator_equals_exact": true,
+     "per_indicator_term": 2,
+     "rank_gamma_on_data_and_n_prime": 12,
+     "rank_gamma_on_n_prime": 10,
+     "u_row_indicators_admissible": 2,
+     "xi_row_weights_nonzero": [
+      8,
+      8
+     ]
+    },
+    "u_rows": [
+     16,
+     17
+    ],
+    "vanishing_Zn_nodes": 0
+   },
+   {
+    "boundary": 1,
+    "certifying_minor": {
+     "G": 2,
+     "determinant": 10776624365449209186,
+     "determinant_nonzero": true,
+     "full_row_rank": true,
+     "g": 6,
+     "generator_indices": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5
+     ],
+     "generators": "the real and imaginary parts of the G group vectors and of the proximity vector",
+     "non_data_row_indices": [
+      16,
+      17,
+      18,
+      19,
+      20,
+      21
+     ],
+     "rank_on_non_data_rows": 6
+    },
+    "claims": 2,
+    "claims_evaluating_u_rows": 0,
+    "class": "boundary",
+    "column_identity_checked": 21,
+    "column_identity_failures": 0,
+    "commitment_kind": "internal-boundary",
+    "coset_nodes_distinct": true,
+    "data_rows": 16,
+    "disclosed_dimension": 0,
+    "distinct_columns": 252,
+    "distinct_opened_columns": 252,
+    "distinct_opened_columns_within_pad_count": true,
+    "exclusivity": {
+     "clauses": {
+      "EX-1": true,
+      "EX-10": true,
+      "EX-11": true,
+      "EX-12": true,
+      "EX-13": true,
+      "EX-14": true,
+      "EX-15": true,
+      "EX-16": true,
+      "EX-2": true,
+      "EX-3": true,
+      "EX-4": true,
+      "EX-5": true,
+      "EX-6": true,
+      "EX-7": true,
+      "EX-8": true,
+      "EX-9": true
+     },
+     "clauses_checked": 16,
+     "clauses_passed": 16,
+     "evaluation_claims": 2,
+     "failing": [],
+     "groups": 2,
+     "groups_the_schedule_declares": 2,
+     "ok": true,
+     "site_rows": 4,
+     "site_rows_used_exactly_once": 4,
+     "sum_claims": 0
+    },
+    "expected_disclosed_dimension": 0,
+    "findings": [],
+    "group_claim_identities_checked": 2,
+    "group_claim_identity_failures": 0,
+    "groups": 2,
+    "k0": 0,
+    "meets_expectation": true,
+    "non_data_rows": 6,
+    "pad_count": 256,
+    "pad_margin": 4,
+    "proximity_pair_determinant_nonzero": true,
+    "q_pad": 256,
+    "rank_P1": 6,
+    "rank_P1_on_non_data_rows": 6,
+    "reduction_hypotheses": {
+     "H-pad": true,
+     "H-pair": true,
+     "H-prox": true
+    },
+    "reserved_mask_rows": 4,
+    "reserved_pairs_used": 2,
+    "role": "B1",
+    "rows": 22,
+    "sampled_columns": 256,
+    "site_role": "B-out",
+    "spare_mask_rows": [],
+    "stage": 2,
+    "stage_kind": "OUT-C",
+    "sum_claims_on_u_rows": 0,
+    "u_rows": [],
+    "vanishing_Zn_nodes": 0
+   }
+  ]
+ },
+ "G2_claim_points": {
+  "checks": {
+   "B_in_stage_IN_claim_has_r_emb_column_point": true,
+   "B_out_public_bits_split_as_re_derived": true,
+   "B_out_stage_OUT_claim_has_the_public_row_bits": true,
+   "every_claim_masked_on_its_own_pair": true
+  },
+  "claims": {
+   "B_in": {
+    "boundary": 0,
+    "claims": [
+     {
+      "claim": 0,
+      "column_coordinates": [
+       "random",
+       "r_emb[0]",
+       "r_emb[1]",
+       "r_emb[2]",
+       "r_emb[3]",
+       "r_emb[4]",
+       "r_emb[5]",
+       "r_emb[6]",
+       "r_emb[7]",
+       "r_emb[8]"
+      ],
+      "mask_parts_share_the_column_key": true,
+      "mask_rows": [
+       16,
+       17
+      ],
+      "public_bits": 0,
+      "public_column_bits": 0,
+      "r_emb_column_coordinates": 9,
+      "row_coordinates": [
+       "random",
+       "random",
+       "random",
+       "random"
+      ],
+      "source": {
+       "claims": 1,
+       "slot": 1,
+       "stage": 0
+      }
+     },
+     {
+      "claim": 1,
+      "column_coordinates": [
+       "random",
+       "random",
+       "random",
+       "random",
+       "random",
+       "random",
+       "random",
+       "random",
+       "random",
+       "random"
+      ],
+      "mask_parts_share_the_column_key": true,
+      "mask_rows": [
+       18,
+       19
+      ],
+      "public_bits": 0,
+      "public_column_bits": 0,
+      "r_emb_column_coordinates": 0,
+      "row_coordinates": [
+       "random",
+       "random",
+       "random",
+       "random"
+      ],
+      "source": {
+       "claims": 1,
+       "slot": 21,
+       "stage": 1
+      }
+     }
+    ],
+    "opened_at_stage": 1
+   },
+   "B_out": {
+    "boundary": 1,
+    "claims": [
+     {
+      "claim": 0,
+      "column_coordinates": [
+       "random",
+       "random",
+       "random",
+       "random",
+       "random",
+       "random",
+       "random",
+       "random",
+       "random",
+       "random"
+      ],
+      "mask_parts_share_the_column_key": true,
+      "mask_rows": [
+       16,
+       17
+      ],
+      "public_bits": 0,
+      "public_column_bits": 0,
+      "r_emb_column_coordinates": 0,
+      "row_coordinates": [
+       "random",
+       "random",
+       "random",
+       "random"
+      ],
+      "source": {
+       "claims": 1,
+       "slot": 22,
+       "stage": 1
+      }
+     },
+     {
+      "claim": 1,
+      "column_coordinates": [
+       "public",
+       "random",
+       "random",
+       "random",
+       "random",
+       "random",
+       "random",
+       "random",
+       "random",
+       "random"
+      ],
+      "mask_parts_share_the_column_key": true,
+      "mask_rows": [
+       18,
+       19
+      ],
+      "public_bits": 5,
+      "public_column_bits": 1,
+      "r_emb_column_coordinates": 0,
+      "row_coordinates": [
+       "public",
+       "public",
+       "public",
+       "public"
+      ],
+      "source": {
+       "claims": 1,
+       "slot": 0,
+       "stage": 2
+      }
+     }
+    ],
+    "opened_at_stage": 2
+   }
+  },
+  "ok": true
+ },
+ "G3_mask_cfs": {
+  "ok": true,
+  "per_stage": [
+   {
+    "cfs_findings": [],
+    "disclosed": {
+     "coefficient_unknowns_fp": 330,
+     "disclosed_fp_computed": 2,
+     "disclosed_fp_predicted": 2,
+     "fibre_dimension_fp": 328,
+     "matches_prediction": true,
+     "published_functionals_fp2": 1
+    },
+    "domain_ok": true,
+    "entries_differing": 0,
+    "entries_recomputed": 5337,
+    "functional_values": 8,
+    "functionals_match": true,
+    "functionals_re_derived": 8,
+    "ok": true,
+    "salted_leaves_authenticated": 256,
+    "specs_ok": true,
+    "stage": 0,
+    "stage_kind": "IN-C"
+   },
+   {
+    "cfs_findings": [],
+    "disclosed": {
+     "coefficient_unknowns_fp": 1868,
+     "disclosed_fp_computed": 2,
+     "disclosed_fp_predicted": 2,
+     "fibre_dimension_fp": 1866,
+     "matches_prediction": true,
+     "published_functionals_fp2": 1
+    },
+    "domain_ok": true,
+    "entries_differing": 0,
+    "entries_recomputed": 16068,
+    "functional_values": 34,
+    "ok": true,
+    "salted_leaves_authenticated": 256,
+    "specs_ok": true,
+    "stage": 1,
+    "stage_kind": "BLOCK"
+   },
+   {
+    "cfs_findings": [],
+    "disclosed": {
+     "coefficient_unknowns_fp": 592,
+     "disclosed_fp_computed": 2,
+     "disclosed_fp_predicted": 2,
+     "fibre_dimension_fp": 590,
+     "matches_prediction": true,
+     "published_functionals_fp2": 1
+    },
+    "domain_ok": true,
+    "entries_differing": 0,
+    "entries_recomputed": 7557,
+    "functional_values": 14,
+    "functionals_match": true,
+    "functionals_re_derived": 14,
+    "ok": true,
+    "salted_leaves_authenticated": 256,
+    "specs_ok": true,
+    "stage": 2,
+    "stage_kind": "OUT-C"
+   }
+  ]
+ },
+ "G5_tab_width": {
+  "ok": true,
+  "stage_out_c_row_width_log": 12,
+  "tab_planes": [
+   {
+    "log_size": 12,
+    "name": "A_MU8"
+   },
+   {
+    "log_size": 12,
+    "name": "H_GU8"
+   }
+  ]
+ },
+ "G6_endpoint": {
+  "endpoints": {
+   "E-token-in": {
+    "certifying_minor": {
+     "G": 1,
+     "determinant": 1109154129621344766,
+     "determinant_nonzero": true,
+     "full_row_rank": true,
+     "g": 4,
+     "generator_indices": [
+      0,
+      1,
+      2,
+      3
+     ],
+     "generators": "the real and imaginary parts of the G group vectors and of the proximity vector",
+     "non_data_row_indices": [
+      1,
+      2,
+      3,
+      4
+     ],
+     "rank_on_non_data_rows": 4
+    },
+    "disclosed_dimension": 0,
+    "distinct_opened_columns": 239,
+    "exclusivity_ok": true,
+    "k0": 0,
+    "ok": true,
+    "pad_block_full_rank": true,
+    "pad_block_rank": 239
+   }
+  },
+  "no_output_endpoint": true,
+  "ok": true
+ },
+ "NL1_classifier_slots": {
+  "findings": [],
+  "ok": true,
+  "seconds": 0.02,
+  "slots": [
+   {
+    "declared_degree": 3,
+    "degree_fits": true,
+    "max_table_degree": 3,
+    "name": "INC-00 IO-in: token endpoint = supp_T tok (whole padded plane: template and content)",
+    "one_extension_round_all_private_in_round_0": true,
+    "premises_hold": true,
+    "private_terminals_port": 2,
+    "public_factor_in_every_monomial": true,
+    "schedule_sites": 2,
+    "slot": 0,
+    "stage": "IN-C",
+    "terminal_count_ok": true,
+    "terminals_recorded": 2
+   },
+   {
+    "declared_degree": 4,
+    "degree_fits": true,
+    "max_table_degree": 3,
+    "name": "INC-01 query zero-check: LogUp over (id, row, ctl) + BOS + TEMPLATE (prefix, suffix, trailing pad ids) + pad, fresh mu each",
+    "one_extension_round_all_private_in_round_0": true,
+    "premises_hold": true,
+    "private_terminals_port": 3,
+    "public_factor_in_every_monomial": true,
+    "schedule_sites": 3,
+    "slot": 1,
+    "stage": "IN-C",
+    "terminal_count_ok": true,
+    "terminals_recorded": 3
+   },
+   {
+    "declared_degree": 4,
+    "degree_fits": true,
+    "max_table_degree": 3,
+    "name": "INC-02 table zero-check: h_tab (alpha - tau(v, ctl)) = m + pad, fresh mu each",
+    "one_extension_round_all_private_in_round_0": true,
+    "premises_hold": true,
+    "private_terminals_port": 2,
+    "public_factor_in_every_monomial": true,
+    "schedule_sites": 2,
+    "slot": 2,
+    "stage": "IN-C",
+    "terminal_count_ok": true,
+    "terminals_recorded": 2
+   },
+   {
+    "declared_degree": 2,
+    "degree_fits": true,
+    "max_table_degree": 2,
+    "name": "INC-03 ZS zero-sum row",
+    "one_extension_round_all_private_in_round_0": true,
+    "premises_hold": true,
+    "private_terminals_port": 1,
+    "public_factor_in_every_monomial": true,
+    "schedule_sites": 1,
+    "slot": 3,
+    "stage": "IN-C",
+    "terminal_count_ok": true,
+    "terminals_recorded": 1
+   },
+   {
+    "declared_degree": 2,
+    "degree_fits": true,
+    "max_table_degree": 2,
+    "name": "OUTC-00 IO-in: x = B_out at the public verdict row P0+n+S-1 (fixed public row bits; T-1 without pad)",
+    "one_extension_round_all_private_in_round_0": true,
+    "premises_hold": true,
+    "private_terminals_port": 2,
+    "public_factor_in_every_monomial": true,
+    "schedule_sites": 2,
+    "slot": 0,
+    "stage": "OUT-C",
+    "terminal_count_ok": true,
+    "terminals_recorded": 2
+   },
+   {
+    "declared_degree": 4,
+    "degree_fits": true,
+    "max_table_degree": 3,
+    "name": "OUTC-01 SS final-norm row sum (private, hosted by TZC)",
+    "one_extension_round_all_private_in_round_0": true,
+    "premises_hold": true,
+    "private_terminals_port": 1,
+    "public_factor_in_every_monomial": true,
+    "schedule_sites": 1,
+    "slot": 1,
+    "stage": "OUT-C",
+    "terminal_count_ok": true,
+    "terminals_recorded": 1
+   },
+   {
+    "declared_degree": 3,
+    "degree_fits": true,
+    "max_table_degree": 3,
+    "name": "OUTC-02 TZC isqrt (D, Dsq, 9 limb slices; hosts SS)",
+    "one_extension_round_all_private_in_round_0": true,
+    "premises_hold": true,
+    "private_terminals_port": 11,
+    "public_factor_in_every_monomial": true,
+    "schedule_sites": 11,
+    "slot": 2,
+    "stage": "OUT-C",
+    "terminal_count_ok": true,
+    "terminals_recorded": 11
+   },
+   {
+    "declared_degree": 2,
+    "degree_fits": true,
+    "max_table_degree": 2,
+    "name": "OUTC-03 PD margin sum_i y(i) w_Delta(i) (private, hosted by LZC)",
+    "one_extension_round_all_private_in_round_0": true,
+    "premises_hold": true,
+    "private_terminals_port": 1,
+    "public_factor_in_every_monomial": true,
+    "schedule_sites": 1,
+    "slot": 3,
+    "stage": "OUT-C",
+    "terminal_count_ok": true,
+    "terminals_recorded": 1
+   },
+   {
+    "declared_degree": 4,
+    "degree_fits": true,
+    "max_table_degree": 3,
+    "name": "OUTC-04 LZC limb lookups (+pad; isqrt and margin limbs) + host term sigma g limb + u0 (sigma b + c)",
+    "one_extension_round_all_private_in_round_0": true,
+    "premises_hold": true,
+    "private_terminals_port": 2,
+    "public_factor_in_every_monomial": true,
+    "schedule_sites": 2,
+    "slot": 4,
+    "stage": "OUT-C",
+    "terminal_count_ok": true,
+    "terminals_recorded": 2
+   },
+   {
+    "declared_degree": 5,
+    "degree_fits": true,
+    "max_table_degree": 4,
+    "name": "OUTC-05 DZC final-norm quotient + x limbs + helpers (+pad)",
+    "one_extension_round_all_private_in_round_0": true,
+    "premises_hold": true,
+    "private_terminals_port": 19,
+    "public_factor_in_every_monomial": true,
+    "schedule_sites": 19,
+    "slot": 5,
+    "stage": "OUT-C",
+    "terminal_count_ok": true,
+    "terminals_recorded": 19
+   },
+   {
+    "declared_degree": 3,
+    "degree_fits": true,
+    "max_table_degree": 3,
+    "name": "OUTC-06 TAB byte-table helper (+pad)",
+    "one_extension_round_all_private_in_round_0": true,
+    "premises_hold": true,
+    "private_terminals_port": 2,
+    "public_factor_in_every_monomial": true,
+    "schedule_sites": 2,
+    "slot": 6,
+    "stage": "OUT-C",
+    "terminal_count_ok": true,
+    "terminals_recorded": 2
+   },
+   {
+    "declared_degree": 2,
+    "degree_fits": true,
+    "max_table_degree": 2,
+    "name": "OUTC-07 ZS zero-sum row",
+    "one_extension_round_all_private_in_round_0": true,
+    "premises_hold": true,
+    "private_terminals_port": 1,
+    "public_factor_in_every_monomial": true,
+    "schedule_sites": 1,
+    "slot": 7,
+    "stage": "OUT-C",
+    "terminal_count_ok": true,
+    "terminals_recorded": 1
+   }
+  ],
+  "slots_checked": 12,
+  "slots_with_premises": 12
+ },
+ "blocks": 1,
+ "boundaries_ok": true,
+ "bundle": "classify-rc3-rung-L1-v0",
+ "bundle_dir": "/home/victor/zk60-artifacts/token-io/captures/classify-rc3-rung-L1-v0",
+ "capture_format_notes": [
+  {
+   "declared_n_slots": 23,
+   "extra_zero_slot_triples_stripped": 1,
+   "finding": "F18-1",
+   "why": "the classifier capture writer emits Shape::slots() (MAX_SLOTS) unclipped; the triples beyond n_slots are (0, 0, 0)"
+  }
+ ],
+ "controls": {
+  "C13-1_doctored_pad_position": {
+   "applicable": false,
+   "fires": null,
+   "why": "a full-length item has no pad position"
+  },
+  "C13-2_pad_inside_the_content_range": {
+   "a_port_failing": [
+    [
+     "IN-C",
+     1
+    ]
+   ],
+   "b_findings": [
+    "the profile text's pad_positions is 1, re-derived 0",
+    "the profile text does not carry 'item-length=32 pad-id=2 pad-positions=0 verdict-row=31'"
+   ],
+   "b_profile_text_one_pad_more_integrity_refused": true,
+   "content_position_pinned_to_pad": 30,
+   "fires": true
+  },
+  "C13-3_shifted_verdict_row": {
+   "failing_per_row": {
+    "30": [
+     [
+      "OUT-C",
+      0
+     ]
+    ]
+   },
+   "fires": true,
+   "integrity_findings": [
+    "B_out's OUTC-00 claim is at row 31, the verdict row is 30 (decoded)"
+   ],
+   "integrity_with_the_expected_row_moved_refused": true,
+   "port_rows_tried": [
+    30
+   ],
+   "verdict_row": 31
+  },
+  "C13-4_declared_length_not_the_actual": {
+   "a_facts_n_plus_1_integrity_refused": true,
+   "a_findings": [
+    "the profile text's item_length is 32, re-derived 33",
+    "the profile text's n is 23, re-derived 24",
+    "D41: the chunk {'index': 0, 'count': 1, 'a': 0, 'b': 23, 'total': 23, 'size': 23, 'overlap': 4} is not the split's (plan size T - P0 - S = 23, n = b - a = 24, overlap 4)"
+   ],
+   "a_port_failing": [
+    [
+     "IN-C",
+     1
+    ]
+   ],
+   "b_D41_refused": true,
+   "b_chunk_one_id_more_binding_refused": true,
+   "fires": true
+  },
+  "CC-1_verdict_flipped": {
+   "fires": true,
+   "replay_binding_refused": true,
+   "terminal_slots_failing": [
+    [
+     "OUT-C",
+     4
+    ]
+   ]
+  },
+  "CC-2_threshold_moved": {
+   "fires": true,
+   "terminal_slots_failing": [
+    [
+     "OUT-C",
+     4
+    ]
+   ]
+  },
+  "CC-3_margin_terminal_moved": {
+   "fires": true,
+   "terminal_slots_failing": [
+    [
+     "OUT-C",
+     3
+    ]
+   ]
+  },
+  "CC-4_margin_vector_entry_moved": {
+   "B3_findings": [
+    "B-3: the recorded margin vector hashes to d7ebcbdbbabd, the statement's digest is 40f3fe498402",
+    "B-3: the recorded margin vector differs from the derived row at 1 entries"
+   ],
+   "B3_ok": false,
+   "fires": true
+  },
+  "CC-5_template_id_in_the_captured_kappa": {
+   "fires": true,
+   "terminal_slots_failing": [
+    [
+     "IN-C",
+     1
+    ]
+   ]
+  },
+  "CC-6_chunk_range_moved": {
+   "D41_refused": true,
+   "fires": true,
+   "replay_binding_refused": true
+  },
+  "CC-8_preimage_controls_on_stage_IN_C": {
+   "applicable": 6,
+   "fired": 6,
+   "fires": true,
+   "not_applicable": []
+  },
+  "CC-9_preimage_controls_on_stage_OUT_C": {
+   "applicable": 6,
+   "fired": 6,
+   "fires": true,
+   "not_applicable": []
+  },
+  "J-1_endpoint_reserved_row_identified_with_tok": {
+   "findings": [
+    "class 0 identifies a data row with a non-data row: [('A-in@0', 0), ('E-token-in', 1)]"
+   ],
+   "fires": true
+  },
+  "J-2_B_in_reserved_row_identified_with_block_0_input": {
+   "findings": [
+    "class 8 identifies a data row with a non-data row: [('A@1', 8), ('B0', 16)]"
+   ],
+   "fires": true
+  },
+  "J-3_shared_proximity_row": {
+   "fires": true,
+   "joint_disclosed_fp_per_word": 0,
+   "shared_non_data_classes": 1,
+   "sum_of_parts": 0
+  },
+  "not_fired": [],
+  "ok": true
+ },
+ "false_parts": [],
+ "full_preimage": {
+  "commitments": [
+   "A-in@0",
+   "H-in@0",
+   "E-token-in",
+   "A@1",
+   "H@1",
+   "B0",
+   "A-out@2",
+   "H-out@2",
+   "B1"
+  ],
+  "ok": true,
+  "salted_leaves_authenticated": 2304,
+  "view_entries_compared": 958229,
+  "view_entries_differing": 0
+ },
+ "hash_layer": {
+  "bytes_hashed": 6313984,
+  "columns_authenticated": 3072,
+  "columns_checked": 3072,
+  "findings": [],
+  "ok": true
+ },
+ "integrity": {
+  "D41_chunk": {
+   "ok": true,
+   "plan_size": 23,
+   "ranges": [
+    [
+     0,
+     23
+    ]
+   ],
+   "recorded": {
+    "a": 0,
+    "b": 23,
+    "count": 1,
+    "index": 0,
+    "overlap": 4,
+    "size": 23,
+    "total": 23
+   },
+   "short_item": false
+  },
+  "blocks": 1,
+  "bout_claim_row": {
+   "claim_index": 1,
+   "row": 31,
+   "t_bits": 5,
+   "why": "decoded"
+  },
+  "findings": [],
+  "ok": true,
+  "pad_id": 2,
+  "rc3_lengths_re_derived": {
+   "P0": 8,
+   "S": 1,
+   "T": 32,
+   "chunk_size": 23,
+   "item_length": 32,
+   "n": 23,
+   "pad_positions": 0,
+   "verdict_row": 31
+  },
+  "re_derived": {
+   "boundary": {
+    "data_rows": 16,
+    "inv_rate": 4,
+    "plane": [
+     32,
+     512
+    ],
+    "row_width_log": 10,
+    "rows": 22,
+    "sites": 2
+   },
+   "input_endpoint": {
+    "commitment_rows": 6,
+    "content_words": 23,
+    "data_rows": 1,
+    "inv_rate": 8,
+    "pad_id_words": 0,
+    "pad_words": 224,
+    "row_width_log": 8,
+    "template_words": 9,
+    "true_words": 32,
+    "words": 256
+   },
+   "output_endpoint": null,
+   "stage_in_c": {
+    "A": {
+     "data_rows": 2,
+     "plane_logs": [
+      12,
+      12
+     ],
+     "prox_pair": [
+      8,
+      9
+     ],
+     "rows": 10,
+     "site_pairs": 3
+    },
+    "H": {
+     "data_rows": 6,
+     "plane_logs": [
+      12,
+      12,
+      12
+     ],
+     "prox_pair": [
+      12,
+      13
+     ],
+     "rows": 14,
+     "signs": [
+      1,
+      -1,
+      1
+     ],
+     "site_pairs": 3,
+     "zero_sum_pair": [
+      4,
+      5
+     ]
+    },
+    "M": {
+     "functionals": 8,
+     "mask_specs": [
+      [
+       9,
+       3
+      ],
+      [
+       13,
+       4
+      ],
+      [
+       13,
+       4
+      ],
+      [
+       13,
+       2
+      ]
+     ],
+     "rows": 12
+    },
+    "committed_elements": 98304,
+    "hosts": [],
+    "label": "stage IN-C",
+    "row_log_A_H_In_Out": [
+     12,
+     12,
+     8,
+     10
+    ],
+    "row_width_log": 12,
+    "slots": [
+     {
+      "a_sites": 1,
+      "degree": 3,
+      "ext": 1,
+      "h_sites": 0,
+      "io_sites": 1,
+      "kind": "Standalone",
+      "main": 8,
+      "name": "INC-00 IO-in: token endpoint = supp_T tok (whole padded plane: template and content)"
+     },
+     {
+      "a_sites": 1,
+      "degree": 4,
+      "ext": 1,
+      "h_sites": 1,
+      "io_sites": 1,
+      "kind": "Standalone",
+      "main": 12,
+      "name": "INC-01 query zero-check: LogUp over (id, row, ctl) + BOS + TEMPLATE (prefix, suffix, trailing pad ids) + pad, fresh mu each"
+     },
+     {
+      "a_sites": 1,
+      "degree": 4,
+      "ext": 1,
+      "h_sites": 1,
+      "io_sites": 0,
+      "kind": "Standalone",
+      "main": 12,
+      "name": "INC-02 table zero-check: h_tab (alpha - tau(v, ctl)) = m + pad, fresh mu each"
+     },
+     {
+      "a_sites": 0,
+      "degree": 2,
+      "ext": 1,
+      "h_sites": 1,
+      "io_sites": 0,
+      "kind": "Standalone",
+      "main": 12,
+      "name": "INC-03 ZS zero-sum row"
+     }
+    ]
+   },
+   "stage_out_c": {
+    "A": {
+     "data_rows": 16,
+     "plane_logs": [
+      1,
+      1,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12
+     ],
+     "prox_pair": [
+      74,
+      75
+     ],
+     "rows": 76,
+     "site_pairs": 29
+    },
+    "H": {
+     "data_rows": 18,
+     "plane_logs": [
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12,
+      12
+     ],
+     "prox_pair": [
+      36,
+      37
+     ],
+     "rows": 38,
+     "signs": [
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      1,
+      -1,
+      1
+     ],
+     "site_pairs": 9,
+     "zero_sum_pair": [
+      16,
+      17
+     ]
+    },
+    "M": {
+     "functionals": 14,
+     "mask_specs": [
+      [
+       10,
+       2
+      ],
+      [
+       13,
+       4
+      ],
+      [
+       2,
+       3
+      ],
+      [
+       10,
+       2
+      ],
+      [
+       13,
+       4
+      ],
+      [
+       13,
+       5
+      ],
+      [
+       13,
+       3
+      ],
+      [
+       13,
+       2
+      ]
+     ],
+     "rows": 20
+    },
+    "committed_elements": 466944,
+    "hosts": [
+     [
+      2,
+      [
+       1
+      ]
+     ],
+     [
+      4,
+      [
+       3
+      ]
+     ]
+    ],
+    "label": "stage OUT-C",
+    "row_log_A_H_In_Out": [
+     12,
+     12,
+     10,
+     12
+    ],
+    "row_width_log": 12,
+    "slots": [
+     {
+      "a_sites": 1,
+      "degree": 2,
+      "ext": 1,
+      "h_sites": 0,
+      "io_sites": 1,
+      "kind": "Standalone",
+      "main": 9,
+      "name": "OUTC-00 IO-in: x = B_out at the public verdict row P0+n+S-1 (fixed public row bits; T-1 without pad)"
+     },
+     {
+      "a_sites": 1,
+      "degree": 4,
+      "ext": 1,
+      "h_sites": 0,
+      "io_sites": 0,
+      "kind": "Private",
+      "main": 12,
+      "name": "OUTC-01 SS final-norm row sum (private, hosted by TZC)"
+     },
+     {
+      "a_sites": 11,
+      "degree": 3,
+      "ext": 1,
+      "h_sites": 0,
+      "io_sites": 0,
+      "kind": "Host",
+      "main": 1,
+      "name": "OUTC-02 TZC isqrt (D, Dsq, 9 limb slices; hosts SS)"
+     },
+     {
+      "a_sites": 1,
+      "degree": 2,
+      "ext": 1,
+      "h_sites": 0,
+      "io_sites": 0,
+      "kind": "Private",
+      "main": 9,
+      "name": "OUTC-03 PD margin sum_i y(i) w_Delta(i) (private, hosted by LZC)"
+     },
+     {
+      "a_sites": 1,
+      "degree": 4,
+      "ext": 1,
+      "h_sites": 1,
+      "io_sites": 0,
+      "kind": "Host",
+      "main": 12,
+      "name": "OUTC-04 LZC limb lookups (+pad; isqrt and margin limbs) + host term sigma g limb + u0 (sigma b + c)"
+     },
+     {
+      "a_sites": 13,
+      "degree": 5,
+      "ext": 1,
+      "h_sites": 6,
+      "io_sites": 0,
+      "kind": "Standalone",
+      "main": 12,
+      "name": "OUTC-05 DZC final-norm quotient + x limbs + helpers (+pad)"
+     },
+     {
+      "a_sites": 1,
+      "degree": 3,
+      "ext": 1,
+      "h_sites": 1,
+      "io_sites": 0,
+      "kind": "Standalone",
+      "main": 12,
+      "name": "OUTC-06 TAB byte-table helper (+pad)"
+     },
+     {
+      "a_sites": 0,
+      "degree": 2,
+      "ext": 1,
+      "h_sites": 1,
+      "io_sites": 0,
+      "kind": "Standalone",
+      "main": 12,
+      "name": "OUTC-07 ZS zero-sum row"
+     }
+    ]
+   }
+  },
+  "source_pin_status": [
+   "read by a chain of readings",
+   "read by the block gate (v17 native R9 readings and earlier)",
+   "read by the token gate (v18)",
+   "the v21 classifier port's digest"
+  ],
+  "source_pins": {
+   "ok": true,
+   "pins": 60,
+   "refusals": []
+  },
+  "stages": 3
+ },
+ "joint_preimage": {
+  "all_four_couplings_respected": true,
+  "couplings": {
+   "C1_shared_planes": {
+    "identified_word_pairs": 33312,
+    "reaches_a_non_data_row": false,
+    "respected": true
+   },
+   "C2_shared_claim_values": {
+    "claim_values_published_by_two_commitments": 1,
+    "respected": true,
+    "why": "each commitment's preimage meets the captured value; a shared value is one number"
+   },
+   "C3_masking_layer_against_the_slots": {
+    "entries_differing": 0,
+    "respected": true,
+    "stages": 3
+   },
+   "C4_the_terminal_identity": {
+    "respected": true,
+    "terminal_records": {
+     "block_stages": true,
+     "classifier_slots": true
+    },
+    "what": "the terminal identity on the captured terminals at every new slot and every block slot"
+   }
+  },
+  "ok": true,
+  "per_commitment_preimage": {
+   "ok": true,
+   "view_entries_compared": 958229,
+   "view_entries_differing": 0
+  }
+ },
+ "ok": true,
+ "one_public_bit": {
+  "ok": true,
+  "rebuilt_public_tables_all_equal_the_capture": true,
+  "taken_tables": [],
+  "what": "every IN-C / OUT-C public table the port rebuilds from the geometry, the profile, the re-derived challenges and the PUBLIC verdict equals the capture's, digest for digest; [v21] tau and w_Delta are REBUILT too, from the tables derived from the pinned tied tensor (B-3), so no table is taken from the capture when the profile names the development rung's source. So no public value of the classifier stages depends on the hidden data except through b (and, D45(1), the public length n through the template tables and the verdict row)"
+ },
+ "peak_rss_mb": 291,
+ "privacy_acceptance": false,
+ "privacy_property_established": false,
+ "profile": "hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1",
+ "public_outputs": {
+  "c": -174279,
+  "chunk": {
+   "a": 0,
+   "b": 23,
+   "count": 1,
+   "index": 0,
+   "overlap": 4,
+   "size": 23,
+   "total": 23
+  },
+  "item_length": 32,
+  "n": 23,
+  "pad_id": 2,
+  "pad_positions": 0,
+  "policy": "rung-tc-capture-test-policy/-174279",
+  "short_item": false,
+  "verdict": 0,
+  "verdict_row": 31
+ },
+ "replay": {
+  "bundle": "classify-rc3-rung-L1-v0",
+  "challenges_checked": 4224,
+  "failures": [],
+  "final_counter": 4992,
+  "hash_rule": "blake3-keyed/1",
+  "not_rederived": [],
+  "ok": true,
+  "positions_checked": 203,
+  "profile": "hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1",
+  "run_binding_reproduced": true,
+  "segment_position_tags": [
+   {
+    "end_tag_ok": true,
+    "stage": 0,
+    "start_tag_ok": true
+   },
+   {
+    "end_tag_ok": true,
+    "stage": 1,
+    "start_tag_ok": true
+   },
+   {
+    "end_tag_ok": true,
+    "stage": 2,
+    "start_tag_ok": true
+   }
+  ],
+  "stages": 3
+ },
+ "stages": 3,
+ "status": "PASS",
+ "terminals_block_stages": {
+  "blocks": 1,
+  "calibration": {
+   "derived_norm_wrho_equals_the_shape": true,
+   "per_stage": [
+    {
+     "differs_from_the_run_on": [],
+     "stage": 1
+    }
+   ],
+   "source": "the rung fixture: frozen-r12 trained_calib_tests.rs:55-58 rung_tc_calibration (the classifier capture test's rung())",
+   "values": {
+    "norm_ceps": 33554467,
+    "norm_cn_a": 1336,
+    "norm_cn_m": 2158,
+    "norm_tn": 10,
+    "sh_ao": 6,
+    "sh_g": 8,
+    "sh_h": 13,
+    "sh_o": 10,
+    "sh_qkv": 8,
+    "sh_s": 5,
+    "sh_z": 5
+   }
+  },
+  "controls": {
+   "NC-1_constant_moved": {
+    "failing": [
+     [
+      1,
+      17
+     ]
+    ],
+    "fires": true,
+    "perturbation": "sh_s moved by one in every block stage's shim",
+    "predicted": [
+     [
+      1,
+      17
+     ]
+    ]
+   }
+  },
+  "io_wiring": {
+   "findings": [],
+   "mapping": {
+    "block k": "token stage k + 1",
+    "block k's Input (slot 21's IO table)": "token boundary k (B_in at k = 0)",
+    "block k's Output (slot 22's IO table)": "token boundary k + 1 (B_out at k = L - 1)",
+    "external endpoints": "none in a block stage (the token endpoints are opened at stages IN and OUT, which no shim exposes)",
+    "native internal boundary j": "token boundary j + 1"
+   },
+   "ok": true,
+   "per_stage": [
+    {
+     "block": 0,
+     "commits_token_boundary": 1,
+     "opened_commitment_kind": "B-in",
+     "opens_token_boundary": 0,
+     "slot21_private_roles": [
+      "A",
+      "Input"
+     ],
+     "slot22_private_roles": [
+      "A",
+      "Output"
+     ],
+     "token_stage": 1
+    }
+   ]
+  },
+  "ok": true,
+  "per_stage": [
+   {
+    "bilinear_group_factor_ok": true,
+    "block": 0,
+    "checked_not_equal": [],
+    "ok": true,
+    "port_findings": [],
+    "refused_or_open": [],
+    "slot_checks_equal": 23,
+    "slot_checks_expected": 23,
+    "source_pins_ok": true,
+    "stage": 1
+   }
+  ],
+  "plane_index": {
+   "a_data_rows": 1091,
+   "a_planes": 83,
+   "findings": [],
+   "h_data_rows": 1370,
+   "h_planes": 52,
+   "ok": true,
+   "slots": 23
+  },
+  "privacy_acceptance": false,
+  "seconds": 1.1,
+  "source_pin_adaptation": {
+   "added_in_memory": null,
+   "already_accepted_by_the_port": true,
+   "bundle_pins": "9a87081897ff0ec716d7f27a2813cc32117683eb5b2f2082a248f479ef98c4c5",
+   "file": "src/private_block/shape.rs",
+   "removed_after": false
+  },
+  "what": "the frozen block-stage terminal identity on each block stage of ONE classifier capture"
+ },
+ "terminals_classifier_slots": {
+  "B3_margin_vector": {
+   "derived": {
+    "derived_embedding_digest": "a8d55fc067234ea1f587e3668e000096c803abc8d4f75838798b482efa4fa60b",
+    "derived_embedding_sha256_int16": "c0e816c9f41a251df8560c5532d3f24c3b753ceb6ad712adcc7a893f71bfa475",
+    "derived_margin_digest": "40f3fe498402edec315cfc92bec67365b3c0784bfe72b47040043ecbfe1095fd",
+    "derived_margin_sha256_int16": "24e6ff4ca67bac45c810f78b72d967894b6806615206c5571842055ce20ef3c1",
+    "findings": [],
+    "ok": true,
+    "profile_fields": {
+     "margin_scale": 0.00390625,
+     "margin_scale_bits": "0x3f70000000000000",
+     "no": 41,
+     "tied_source": "dev-rung-synthetic-bf16",
+     "tied_source_sentence_is_the_dev_rung": true,
+     "yes": 40
+    },
+    "recorded_vs_derived": {
+     "differing": 0,
+     "entries": 512,
+     "first_differing": []
+    },
+    "residual_unit": 0.0053663705198366135,
+    "statement_embedding_digest": "a8d55fc067234ea1f587e3668e000096c803abc8d4f75838798b482efa4fa60b",
+    "statement_margin_digest": "40f3fe498402edec315cfc92bec67365b3c0784bfe72b47040043ecbfe1095fd",
+    "tensor_pin": "bba6d094831861aa0b207ae5ca46938e2115e02c81215ba95e27e2bad1cc1dd6",
+    "tensor_sha256": "bba6d094831861aa0b207ae5ca46938e2115e02c81215ba95e27e2bad1cc1dd6",
+    "what": "B-3 (v21): the margin row and the embedding DERIVED from the pinned tied tensor, not taken"
+   },
+   "findings": [],
+   "ok": true,
+   "recomputed_digest": "40f3fe498402edec315cfc92bec67365b3c0784bfe72b47040043ecbfe1095fd",
+   "statement_digest": "40f3fe498402edec315cfc92bec67365b3c0784bfe72b47040043ecbfe1095fd"
+  },
+  "bundle": "classify-rc3-rung-L1-v0",
+  "challenges_from": "transcript replay",
+  "findings": [],
+  "ok": true,
+  "one_public_bit": {
+   "rebuilt_public_tables_all_equal_the_capture": true,
+   "taken_tables": [],
+   "what": "every IN-C / OUT-C public table the port rebuilds from the geometry, the profile, the re-derived challenges and the PUBLIC verdict equals the capture's, digest for digest; [v21] tau and w_Delta are REBUILT too, from the tables derived from the pinned tied tensor (B-3), so no table is taken from the capture when the profile names the development rung's source. So no public value of the classifier stages depends on the hidden data except through b (and, D45(1), the public length n through the template tables and the verdict row)"
+  },
+  "public_tables_rebuilt": 19,
+  "public_tables_taken": 0,
+  "replay_ok": true,
+  "seconds": 0.4,
+  "slots": [
+   {
+    "a_poly_equals_terminal_polynomial": true,
+    "b_claimed_sum_recomputed": true,
+    "c_fin_recomputed_equals_capture": true,
+    "c_identity_fin_eq_c_mask_eval_plus_poly": true,
+    "c_round_consistency": true,
+    "counts": {
+     "definition_draws": 8,
+     "draw_layout": [
+      [
+       "tau",
+       8
+      ]
+     ],
+     "private": 2,
+     "public": 1,
+     "tables": 4
+    },
+    "equal": true,
+    "expansion_reproduces_poly": true,
+    "findings": [],
+    "name": "INC-00 IO-in: token endpoint = supp_T tok (whole padded plane: template and content)",
+    "parts": [
+     "eq(tau)",
+     "endpoint - supp_T * tok"
+    ],
+    "public_tables": [
+     {
+      "captured_values_match_own_digest": true,
+      "class": "indicator",
+      "evaluations_agree": true,
+      "len": 256,
+      "rebuilt": true,
+      "rebuilt_digest_matches_capture": true,
+      "table": 1,
+      "what": "supp(32) over 256"
+     }
+    ],
+    "slot": 0,
+    "stage": "IN-C",
+    "stage_index": 0,
+    "structure_findings": []
+   },
+   {
+    "a_poly_equals_terminal_polynomial": true,
+    "b_claimed_sum_recomputed": true,
+    "c_fin_recomputed_equals_capture": true,
+    "c_identity_fin_eq_c_mask_eval_plus_poly": true,
+    "c_round_consistency": true,
+    "counts": {
+     "definition_draws": 17,
+     "draw_layout": [
+      [
+       "tau",
+       12
+      ],
+      [
+       "mu",
+       4
+      ],
+      [
+       "zeta",
+       1
+      ]
+     ],
+     "private": 3,
+     "public": 5,
+     "tables": 9
+    },
+    "equal": true,
+    "expansion_reproduces_poly": true,
+    "findings": [],
+    "name": "INC-01 query zero-check: LogUp over (id, row, ctl) + BOS + TEMPLATE (prefix, suffix, trailing pad ids) + pad, fresh mu each",
+    "parts": [
+     "eq(tau)",
+     "mu0 LogUp h_q (alpha - q(tok, row, ctl)) - supp_T",
+     "mu1 BOS u0 (tok - bos)",
+     "mu2 TEMPLATE pi (tok - kappa)",
+     "mu3 pad (1 - supp_T)(tok + zeta h_q)"
+    ],
+    "public_tables": [
+     {
+      "captured_values_match_own_digest": true,
+      "class": "indicator",
+      "evaluations_agree": true,
+      "len": 4096,
+      "rebuilt": true,
+      "rebuilt_digest_matches_capture": true,
+      "table": 1,
+      "what": "supp(32) over 4096"
+     },
+     {
+      "captured_values_match_own_digest": true,
+      "class": "indicator",
+      "evaluations_agree": true,
+      "len": 4096,
+      "rebuilt": true,
+      "rebuilt_digest_matches_capture": true,
+      "table": 2,
+      "what": "supp(1) over 4096"
+     },
+     {
+      "captured_values_match_own_digest": true,
+      "class": "indicator",
+      "evaluations_agree": true,
+      "len": 4096,
+      "rebuilt": true,
+      "rebuilt_digest_matches_capture": true,
+      "table": 3,
+      "what": "template indicator pi"
+     },
+     {
+      "captured_values_match_own_digest": true,
+      "class": "values",
+      "evaluations_agree": true,
+      "len": 4096,
+      "rebuilt": true,
+      "rebuilt_digest_matches_capture": true,
+      "table": 4,
+      "what": "template ids kappa"
+     },
+     {
+      "captured_values_match_own_digest": true,
+      "class": "values",
+      "evaluations_agree": true,
+      "len": 4096,
+      "rebuilt": true,
+      "rebuilt_digest_matches_capture": true,
+      "table": 5,
+      "what": "query control column beta^2 ctl_q"
+     }
+    ],
+    "slot": 1,
+    "stage": "IN-C",
+    "stage_index": 0,
+    "structure_findings": []
+   },
+   {
+    "a_poly_equals_terminal_polynomial": true,
+    "b_claimed_sum_recomputed": true,
+    "c_fin_recomputed_equals_capture": true,
+    "c_identity_fin_eq_c_mask_eval_plus_poly": true,
+    "c_round_consistency": true,
+    "counts": {
+     "definition_draws": 15,
+     "draw_layout": [
+      [
+       "tau",
+       12
+      ],
+      [
+       "mu",
+       2
+      ],
+      [
+       "zeta",
+       1
+      ]
+     ],
+     "private": 2,
+     "public": 2,
+     "tables": 5
+    },
+    "equal": true,
+    "expansion_reproduces_poly": true,
+    "findings": [],
+    "name": "INC-02 table zero-check: h_tab (alpha - tau(v, ctl)) = m + pad, fresh mu each",
+    "parts": [
+     "eq(tau)",
+     "mu0 h_tab (alpha - tau(v, ctl)) - m",
+     "mu1 pad (1 - supp_V)(m + zeta h_tab)"
+    ],
+    "public_tables": [
+     {
+      "captured_values_match_own_digest": true,
+      "class": "indicator",
+      "evaluations_agree": true,
+      "len": 4096,
+      "rebuilt": true,
+      "rebuilt_digest_matches_capture": true,
+      "table": 1,
+      "what": "supp(300) over 4096"
+     },
+     {
+      "captured_values_match_own_digest": true,
+      "class": "values",
+      "evaluations_agree": true,
+      "len": 4096,
+      "rebuilt": true,
+      "rebuilt_digest_matches_capture": true,
+      "rebuilt_from": "the embedding derived from the pinned tied tensor (B-3, v21)",
+      "table": 2,
+      "what": "captured tau_tab_c"
+     }
+    ],
+    "slot": 2,
+    "stage": "IN-C",
+    "stage_index": 0,
+    "structure_findings": []
+   },
+   {
+    "a_poly_equals_terminal_polynomial": true,
+    "b_claimed_sum_recomputed": true,
+    "c_fin_recomputed_equals_capture": true,
+    "c_identity_fin_eq_c_mask_eval_plus_poly": true,
+    "c_round_consistency": true,
+    "counts": {
+     "definition_draws": 0,
+     "draw_layout": [],
+     "private": 1,
+     "public": 1,
+     "tables": 2
+    },
+    "equal": true,
+    "expansion_reproduces_poly": true,
+    "findings": [],
+    "name": "INC-03 ZS zero-sum row",
+    "parts": [
+     "ones * u"
+    ],
+    "public_tables": [
+     {
+      "captured_values_match_own_digest": true,
+      "class": "constant-MLE",
+      "evaluations_agree": true,
+      "len": 4096,
+      "rebuilt": true,
+      "rebuilt_digest_matches_capture": true,
+      "table": 0,
+      "what": "ones over 4096"
+     }
+    ],
+    "slot": 3,
+    "stage": "IN-C",
+    "stage_index": 0,
+    "structure_findings": []
+   },
+   {
+    "a_poly_equals_terminal_polynomial": true,
+    "b_claimed_sum_recomputed": true,
+    "c_fin_recomputed_equals_capture": true,
+    "c_identity_fin_eq_c_mask_eval_plus_poly": true,
+    "c_round_consistency": true,
+    "counts": {
+     "definition_draws": 9,
+     "draw_layout": [
+      [
+       "tau",
+       9
+      ]
+     ],
+     "private": 2,
+     "public": 0,
+     "tables": 3
+    },
+    "equal": true,
+    "expansion_reproduces_poly": true,
+    "findings": [],
+    "name": "OUTC-00 IO-in: x = B_out at the public verdict row P0+n+S-1 (fixed public row bits; T-1 without pad)",
+    "parts": [
+     "eq(tau)",
+     "x - B_out(verdict row, .)"
+    ],
+    "public_tables": [],
+    "slot": 0,
+    "stage": "OUT-C",
+    "stage_index": 2,
+    "structure_findings": []
+   },
+   {
+    "a_poly_equals_terminal_polynomial": true,
+    "b_claimed_sum_recomputed": true,
+    "c_fin_recomputed_equals_capture": true,
+    "c_identity_fin_eq_c_mask_eval_plus_poly": true,
+    "c_round_consistency": true,
+    "counts": {
+     "definition_draws": 0,
+     "draw_layout": [],
+     "private": 1,
+     "public": 1,
+     "tables": 2
+    },
+    "equal": true,
+    "expansion_reproduces_poly": true,
+    "findings": [],
+    "name": "OUTC-01 SS final-norm row sum (private, hosted by TZC)",
+    "parts": [
+     "supp_d * x * x"
+    ],
+    "public_tables": [
+     {
+      "captured_values_match_own_digest": true,
+      "class": "indicator",
+      "evaluations_agree": true,
+      "len": 4096,
+      "rebuilt": true,
+      "rebuilt_digest_matches_capture": true,
+      "table": 0,
+      "what": "supp(384) over 4096"
+     }
+    ],
+    "slot": 1,
+    "stage": "OUT-C",
+    "stage_index": 2,
+    "structure_findings": []
+   },
+   {
+    "a_poly_equals_terminal_polynomial": true,
+    "b_claimed_sum_recomputed": true,
+    "c_fin_recomputed_equals_capture": true,
+    "c_identity_fin_eq_c_mask_eval_plus_poly": true,
+    "c_round_consistency": true,
+    "counts": {
+     "definition_draws": 7,
+     "draw_layout": [
+      [
+       "tau",
+       1
+      ],
+      [
+       "mu",
+       4
+      ],
+      [
+       "nu",
+       1
+      ],
+      [
+       "zeta",
+       1
+      ]
+     ],
+     "private": 11,
+     "public": 1,
+     "tables": 13
+    },
+    "equal": true,
+    "expansion_reproduces_poly": true,
+    "findings": [],
+    "name": "OUTC-02 TZC isqrt (D, Dsq, 9 limb slices; hosts SS)",
+    "parts": [
+     "eq(tau)",
+     "mu0 Dsq - D^2",
+     "mu1 D - limbs",
+     "mu2 2D - a1 - a2",
+     "mu3 pad",
+     "nu u0 (Dsq + a1 - Ceps) [host of SS]"
+    ],
+    "public_tables": [
+     {
+      "captured_values_match_own_digest": true,
+      "class": "indicator",
+      "evaluations_agree": true,
+      "len": 2,
+      "rebuilt": true,
+      "rebuilt_digest_matches_capture": true,
+      "table": 1,
+      "what": "supp(1) over 2"
+     }
+    ],
+    "slot": 2,
+    "stage": "OUT-C",
+    "stage_index": 2,
+    "structure_findings": []
+   },
+   {
+    "a_poly_equals_terminal_polynomial": true,
+    "b_claimed_sum_recomputed": true,
+    "c_fin_recomputed_equals_capture": true,
+    "c_identity_fin_eq_c_mask_eval_plus_poly": true,
+    "c_round_consistency": true,
+    "counts": {
+     "definition_draws": 0,
+     "draw_layout": [],
+     "private": 1,
+     "public": 1,
+     "tables": 2
+    },
+    "equal": true,
+    "expansion_reproduces_poly": true,
+    "findings": [],
+    "name": "OUTC-03 PD margin sum_i y(i) w_Delta(i) (private, hosted by LZC)",
+    "parts": [
+     "y * w_Delta (the margin, private, hosted by LZC)"
+    ],
+    "public_tables": [
+     {
+      "captured_values_match_own_digest": true,
+      "class": "values",
+      "evaluations_agree": true,
+      "len": 512,
+      "rebuilt": true,
+      "rebuilt_digest_matches_capture": true,
+      "table": 1,
+      "what": "margin vector w_Delta"
+     }
+    ],
+    "slot": 3,
+    "stage": "OUT-C",
+    "stage_index": 2,
+    "structure_findings": []
+   },
+   {
+    "a_poly_equals_terminal_polynomial": true,
+    "b_claimed_sum_recomputed": true,
+    "c_fin_recomputed_equals_capture": true,
+    "c_identity_fin_eq_c_mask_eval_plus_poly": true,
+    "c_round_consistency": true,
+    "counts": {
+     "definition_draws": 15,
+     "draw_layout": [
+      [
+       "tau",
+       12
+      ],
+      [
+       "mu",
+       2
+      ],
+      [
+       "nu",
+       1
+      ]
+     ],
+     "private": 2,
+     "public": 3,
+     "tables": 6
+    },
+    "equal": true,
+    "expansion_reproduces_poly": true,
+    "findings": [],
+    "name": "OUTC-04 LZC limb lookups (+pad; isqrt and margin limbs) + host term sigma g limb + u0 (sigma b + c)",
+    "parts": [
+     "eq(tau)",
+     "mu0 the limb lookups (isqrt and margin limbs)",
+     "mu1 pad (1 - live) limb",
+     "nu (g limb + u0 (sigma b + c)) [host of PD: the margin identity]"
+    ],
+    "public_tables": [
+     {
+      "captured_values_match_own_digest": true,
+      "class": "indicator",
+      "evaluations_agree": true,
+      "len": 4096,
+      "rebuilt": true,
+      "rebuilt_digest_matches_capture": true,
+      "table": 1,
+      "what": "limb-plane live selector (isqrt + margin limbs)"
+     },
+     {
+      "captured_values_match_own_digest": true,
+      "class": "values",
+      "evaluations_agree": true,
+      "len": 4096,
+      "rebuilt": true,
+      "rebuilt_digest_matches_capture": true,
+      "table": 2,
+      "what": "g(z) = sigma 256^(z-32) on the margin limbs"
+     },
+     {
+      "captured_values_match_own_digest": true,
+      "class": "indicator",
+      "evaluations_agree": true,
+      "len": 4096,
+      "rebuilt": true,
+      "rebuilt_digest_matches_capture": true,
+      "table": 3,
+      "what": "supp(1) over 4096"
+     }
+    ],
+    "slot": 4,
+    "stage": "OUT-C",
+    "stage_index": 2,
+    "structure_findings": []
+   },
+   {
+    "a_poly_equals_terminal_polynomial": true,
+    "b_claimed_sum_recomputed": true,
+    "c_fin_recomputed_equals_capture": true,
+    "c_identity_fin_eq_c_mask_eval_plus_poly": true,
+    "c_round_consistency": true,
+    "counts": {
+     "definition_draws": 23,
+     "draw_layout": [
+      [
+       "tau",
+       12
+      ],
+      [
+       "mu",
+       10
+      ],
+      [
+       "zeta",
+       1
+      ]
+     ],
+     "private": 19,
+     "public": 1,
+     "tables": 21
+    },
+    "equal": true,
+    "expansion_reproduces_poly": true,
+    "findings": [],
+    "name": "OUTC-05 DZC final-norm quotient + x limbs + helpers (+pad)",
+    "parts": [
+     "eq(tau)",
+     "supp_d (mu0 c0 + mu1 c1 + mu2 c2)",
+     "6 helpers on 12 byte lookups",
+     "pad (1 - supp_d) zeta-fold of 12 planes"
+    ],
+    "public_tables": [
+     {
+      "captured_values_match_own_digest": true,
+      "class": "indicator",
+      "evaluations_agree": true,
+      "len": 4096,
+      "rebuilt": true,
+      "rebuilt_digest_matches_capture": true,
+      "table": 1,
+      "what": "supp(384) over 4096"
+     }
+    ],
+    "slot": 5,
+    "stage": "OUT-C",
+    "stage_index": 2,
+    "structure_findings": []
+   },
+   {
+    "a_poly_equals_terminal_polynomial": true,
+    "b_claimed_sum_recomputed": true,
+    "c_fin_recomputed_equals_capture": true,
+    "c_identity_fin_eq_c_mask_eval_plus_poly": true,
+    "c_round_consistency": true,
+    "counts": {
+     "definition_draws": 15,
+     "draw_layout": [
+      [
+       "tau",
+       12
+      ],
+      [
+       "mu",
+       2
+      ],
+      [
+       "zeta",
+       1
+      ]
+     ],
+     "private": 2,
+     "public": 2,
+     "tables": 5
+    },
+    "equal": true,
+    "expansion_reproduces_poly": true,
+    "findings": [],
+    "name": "OUTC-06 TAB byte-table helper (+pad)",
+    "parts": [
+     "eq(tau)",
+     "mu0 h (alpha - tv) - m",
+     "mu1 pad"
+    ],
+    "public_tables": [
+     {
+      "captured_values_match_own_digest": true,
+      "class": "indicator",
+      "evaluations_agree": true,
+      "len": 4096,
+      "rebuilt": true,
+      "rebuilt_digest_matches_capture": true,
+      "table": 1,
+      "what": "supp(256) over 4096"
+     },
+     {
+      "captured_values_match_own_digest": true,
+      "class": "values",
+      "evaluations_agree": true,
+      "len": 4096,
+      "rebuilt": true,
+      "rebuilt_digest_matches_capture": true,
+      "table": 2,
+      "what": "byte table over 4096"
+     }
+    ],
+    "slot": 6,
+    "stage": "OUT-C",
+    "stage_index": 2,
+    "structure_findings": []
+   },
+   {
+    "a_poly_equals_terminal_polynomial": true,
+    "b_claimed_sum_recomputed": true,
+    "c_fin_recomputed_equals_capture": true,
+    "c_identity_fin_eq_c_mask_eval_plus_poly": true,
+    "c_round_consistency": true,
+    "counts": {
+     "definition_draws": 0,
+     "draw_layout": [],
+     "private": 1,
+     "public": 1,
+     "tables": 2
+    },
+    "equal": true,
+    "expansion_reproduces_poly": true,
+    "findings": [],
+    "name": "OUTC-07 ZS zero-sum row",
+    "parts": [
+     "ones * u"
+    ],
+    "public_tables": [
+     {
+      "captured_values_match_own_digest": true,
+      "class": "constant-MLE",
+      "evaluations_agree": true,
+      "len": 4096,
+      "rebuilt": true,
+      "rebuilt_digest_matches_capture": true,
+      "table": 0,
+      "what": "ones over 4096"
+     }
+    ],
+    "slot": 7,
+    "stage": "OUT-C",
+    "stage_index": 2,
+    "structure_findings": []
+   }
+  ],
+  "slots_checked": 12,
+  "slots_equal": 12,
+  "source_pins": {
+   "ok": true,
+   "pins": 60,
+   "refusals": []
+  },
+  "statement_facts_read": {
+   "b_in_row": 16,
+   "b_out_row": 18,
+   "bos": 1,
+   "c": -174279,
+   "ep_mask_row": 1,
+   "final_norm": {
+    "ceps": 33554467,
+    "cn": 2048,
+    "g0": 127,
+    "tn": 11
+   },
+   "n": 23,
+   "num_special": 5,
+   "pad": 2,
+   "prefix": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8
+   ],
+   "suffix": [
+    32
+   ],
+   "tables_derived_from_the_pinned_tensor": true,
+   "verdict": 0,
+   "verdict_row": 31
+  },
+  "what": "per classifier slot: fin == c*mask_eval + poly(vals); the polynomial transcribed from stage_in_c.rs / stage_out_c.rs define; every public table rebuilt from public data and the verdict (tau structure-checked, w_Delta digest-checked: B-3)"
+ },
+ "timings": {
+  "G1_joint": 0.3,
+  "G3": 15.4,
+  "boundaries_and_G2": 0.0,
+  "controls": 212.6,
+  "full_preimage": 115.3,
+  "hash_layer": 0.2,
+  "load_and_integrity": 0.6,
+  "per_commitment": 8.1,
+  "replay": 0.2,
+  "terminals_and_NL1": 0.4,
+  "terminals_block_stages": 1.2
+ },
+ "tool_sha256": {
+  "zk60_native_jv_capture.py": "11f598d1472eac3cdffd69555452ae112c9c9841e8cd74bed97e2165f2e6e904",
+  "zk60_native_jv_cfs.py": "2338e6a7966793c0c5ee69d4e4c2bbed08ca739ee583985799b1c0023b0ea2cb",
+  "zk60_native_jv_field.py": "ecd5ad199d31b55f88e0728368d7df1ae313c022d1b723b49a34ee9c9140b2bf",
+  "zk60_native_jv_joint.py": "544bfcc6412a861993091fb4c7b54345ac1612a20069acf991ac37549d52b907",
+  "zk60_native_jv_pcs.py": "cdaeebe7df60de0eba22136186c36df20bba9a66e7dfd32fe33043594acda89a",
+  "zk60_native_jv_replay.py": "7f69839b5e72344447ee516564e0472a329dd5bae996f7f995eb4ff8b01b3d70",
+  "zk60_native_manifest_pins.py": "1b08589ae22b842f09fc6e600d4710c6cd760cd278908ee5ffa778a73ca2d9e6",
+  "zk60_native_mask_commit.py": "fae15b4927b76f47a380050a66acdce245746db779b03b7f96d66061920334f1",
+  "zk60_native_pg_cfs.py": "4ee924228f3248f965dc8dce5c5f88fac0131b11ee4ede5ec72b2c3dac7d8302",
+  "zk60_native_pg_pcs.py": "9d37dd078bbbcf50d82a08db4b44d9556798ddd7371240e9cb457712f5d91c50",
+  "zk60_native_privacy_gate.py": "040891a757fc6efb991a57a02d4c713a31059ff0dcbe70b754df2ce4b31a7f98",
+  "zk60_native_profile_pins.py": "3689bbb3c6e4f55bb14260282124ef4bd73250107825c9cfba6dedd41de2c6ec",
+  "zk60_native_rg_ahcontrols.py": "d10e5168bd383a38edd86bf88140a2e9141db470d4b5bf004cd69b734e7468c2",
+  "zk60_native_rg_ahpreimage.py": "7113266cf720f16da95bf0ca46af272f9dc641ee59d025d46292fbd9b545eef2",
+  "zk60_native_rg_arrays.py": "0f0d167d4c4e0089b8c3687c73433b55a8ad9ccc2e6bdcfb7e252cbcf05aa63f",
+  "zk60_native_rg_block.py": "89fdfd8519563f6da928b90f00d2130759b3b5d728ecb8641f34cd4ba60b689b",
+  "zk60_native_rg_bundle.py": "1bb93a90dde772cd6314317b7c746269cb8fe4a4e0e664709aa834564f4d454c",
+  "zk60_native_rg_classgate.py": "d6783ccacf56d072e6b93caac81900570154278c06c4c700f2b154d365eb40bf",
+  "zk60_native_rg_classify.py": "1da91523019adc2aca0b873a0d302f9b7173c1f29306ef79f3b30cca45837049",
+  "zk60_native_rg_classpins.py": "8acb7084cb0876f36b2cdcee68269a68634f9c824e057ffb5f3f05ab50e9c063",
+  "zk60_native_rg_classterminals.py": "453a0a67d40053280b85357e49c69912b558760179f627d3305a58c7a0796618",
+  "zk60_native_rg_classtied.py": "47d9b3e793fc5d35bbb01c044842570cdcee2b4ae088f43ca31933f4c741ace9",
+  "zk60_native_rg_controls.py": "9a7197350109d8bfef6b13f32d40ccbfa7f196cbb1785c4af1a6d3cd19a10f9d",
+  "zk60_native_rg_exclusivity.py": "caf3e1fd17aff4a04deca5f6ff5c35841c3031daa7458e04bc0b8b4f9cd3d070",
+  "zk60_native_rg_exportcheck.py": "f825be16db7a50c7b96103c1be5acc0ba79f646cdf3096837c99ba7bb7162314",
+  "zk60_native_rg_g10controls.py": "81727bbd674ebd533af7d7142735e1433a5d7d30c1ad3f90bbb447273bcf2f80",
+  "zk60_native_rg_gcontrols.py": "419154b4226f98b55d9de2e9cb9c2d911f531ea6da4f09fae67cb1af6bfe8933",
+  "zk60_native_rg_gqa.py": "24e9b9636916975183e44848991d7d65006c6992a55b5780c3fba78136e52d4d",
+  "zk60_native_rg_hashlayer.py": "c9ceb75dbad369f0142e13714fc06f3fc60ff304b83419039a6acb80e479e572",
+  "zk60_native_rg_hashrule.py": "1dd46effc79ec22ec7471ba67e1fbfbc19bff7c3d5078051b868571af49b2233",
+  "zk60_native_rg_hcontrols.py": "0ca766b561707eeca44f424a2fef628cd7a22da4fd4e756dad92cfaae5d3f048",
+  "zk60_native_rg_joint.py": "d8007a395094fde7d0a02eee163e0edc2cf91e610e2c23f2a01ad64186a02e1a",
+  "zk60_native_rg_m125.py": "b64799b32e8d5fc3a3fea0d67ab28e49bfc167439d96fd8d561d12ad644f3ce9",
+  "zk60_native_rg_m125controls.py": "843f42d387823547cd6a4c0a51ce31180fc4f3e57817fafded7366120b4d9125",
+  "zk60_native_rg_mask.py": "3ff2930d8863da603b725eb7627fb02330be75d8a677349991f8fbf4891cb20d",
+  "zk60_native_rg_mcontrols.py": "a555fca540b5f12e43906ff5d9d52a8184d522646c8c61b6acaf579589af96cd",
+  "zk60_native_rg_mjoint.py": "9a22097d89358c63faa0adeb07c8a263292d6d3fa7acb9ef53cfeb37652bf19c",
+  "zk60_native_rg_pcs.py": "b51ae706e42ab2d0e69517a7f39f808dcfcf5b065addfef4f7d750707c3f51ab",
+  "zk60_native_rg_pincontrols.py": "63902d150f3a8ff8ee295e34e27db2ef850c13d344108b79d444e10080608def",
+  "zk60_native_rg_planes.py": "b8c39921dd599efff4e5daa93e21488d98c2c2e5851f447447716ddb3c669fd8",
+  "zk60_native_rg_predict.py": "a1ae9cae1f93c11b68f8d07e672de2139a27775fc2d3fa354573af2f49210b9a",
+  "zk60_native_rg_preimage.py": "48bdd7c48a8c85f0ac1839704e1eaf78cc1f3a523436e208b563ff2917a804f6",
+  "zk60_native_rg_replay.py": "6852cd94ab0fcaa7780ce5f92ad3d9ebdb20614d43787e629015eeb97e141360",
+  "zk60_native_rg_runpins.py": "32f5c052be091a863644e207bd24e96ae95ddcd5d1c62e719ac419f44f2b4af2",
+  "zk60_native_rg_schema.py": "07e83172a006c5d7c6bbcb8763561d4026b01b3442288453a8b6b20176525970",
+  "zk60_native_rg_stagecal.py": "a47b9a982368d6db7ccff14fe5e41ef1a2a08031048ba65e1292dd9196ed731a",
+  "zk60_native_rg_status.py": "0578430f50f03020db26cc7c27b66fcc8b501e602cfec7ad4c9f8ec612376992",
+  "zk60_native_rg_tcontrols.py": "9e87d34feb0b10f19fc4c54d91f0f186228a698ec6f5dd987b555f86aa6c861b",
+  "zk60_native_rg_terminals.py": "43eed070b3a45c4c6259cee64a00f9f46c1b0b98c4f667fb74ac90fe7d3b051b",
+  "zk60_native_rg_tinyllama_pins.py": "f26085d5c5b3abe1a06ffa5cf7426d365e58203d2c2341f3b4ffa8f8bc25ef78",
+  "zk60_native_rg_tinyllama_r12b_pins.py": "e859a5306cfd966436bed7b52f924c9ad921f404a0d66ba36855cab87549ae63",
+  "zk60_native_rg_tinyllama_r5_pins.py": "f49a85a1dd3ac8e0fd67c9a5adda7a63caeea6dfc0187ea97ee28dde46f6d3c8",
+  "zk60_native_rg_tinyllama_r5b_pins.py": "4f88125aa6a8948fc2cf69dde585e576045cc6bc29e5d232191185521401a37c",
+  "zk60_native_rg_tinyllama_r7_pins.py": "bf18e73efb16e4d068ec78451f8c8ea4540b44b1698038cdf1aeb7109e4ae197",
+  "zk60_native_rg_tinyllama_r9_pins.py": "bf7254678eed8d220f7bd646b356afa9e6c03680b5f34f7f6f94cc1a023c072d",
+  "zk60_native_rg_tinyllama_tk7_pins.py": "0ac3ae3b86ae7a3350e4c1d002af249e7d27422f04da7d58c0337d523ae75d57",
+  "zk60_native_rg_tinyllama_tk9_pins.py": "4122cd42ab2eaba3f074760f1e6f29527ae597b7997a7b5506db639524bfc17a",
+  "zk60_native_rg_tlcontrols.py": "ef0147978d51517243638237051d45558ff8121ed0fd1e1a96a4b8d08c55aa22",
+  "zk60_native_rg_tokenblocks.py": "b5fdee30032498a57335521f57b284c5600222785f3c87f910a14aa92fb4096e",
+  "zk60_native_rg_tokencal.py": "d6fb455407e9f5c283eb2def5e922f0fb3783c31a3daee750de5ebead72cdf71",
+  "zk60_native_rg_tokengate.py": "385d03739ab027c1d883e713d24d1fa8b67306b98771c499b4028db5e657655b",
+  "zk60_native_rg_tokenio.py": "89927d28a6eb01c4ffd132f188e6f71d3d45d18c549b0f76ecf247461c4e44e4",
+  "zk60_native_rg_tokenio_r11_pins.py": "07353455b5fbe00ab5b9b47d18403ef6055b172546427cef377ee29ef900e78f",
+  "zk60_native_rg_tokenio_r7c_pins.py": "f6c2cc546052faba9d100cc286fa5c01a19ddb601ecffd33e6a733048b2162ed",
+  "zk60_native_rg_tokenio_r9_pins.py": "5aaf61c5e381d46187c5ff9e384f7e2b8cf24cacdcd3b26348b277966f3aa4e9",
+  "zk60_native_rg_tokennl.py": "c5047cf0eec180a067435de2f76b5ab714dce5eae90fd1ee3174d18407f52f21",
+  "zk60_native_rg_tokenterminals.py": "23c5c72f0fb3cb0e6a62a5e55e4abcb55da47d8351c47019456d55823785490c",
+  "zk60_native_rg_tokents.py": "16cbc5d072c55043292262fc83ca80bc3f21bad51792abd7fe1f8f705df026fc",
+  "zk60_native_run_gate.py": "d542f714b42a2a0c3edbefd2a171624c9e5f28d0d0ed21be03ee61a080c61def"
+ },
+ "total_seconds": 356.8,
+ "what": "the privacy gate on ONE classifier run capture (D38 / D40 / D41 / D45; gate round 18, tools v21: R-C2 / R-C3, token frozen-r14); NOT a privacy result"
+}

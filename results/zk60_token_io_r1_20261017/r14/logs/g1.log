@@ -1,0 +1,118 @@
+   Compiling hashline v0.1.0 (/home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r14/hashline)
+warning: unused doc comment
+   --> src/private_block/token_io/run.rs:698:1
+    |
+698 | / /// **THE TOKEN-I/O RUN PROVER.** One transcript, one OS stream, `L + 2`
+699 | | /// segments, each handed to `sink` and dropped (M-3); block `k` asked for
+700 | | /// at its own stage (R3 streaming).
+701 | | ///
+...   |
+710 | | /// it receives as UNPUBLISHED until this function returns `Ok` (the CLI's
+711 | | /// sink writes `<out>.incomplete/` and renames it only then).
+    | |_-------------------------------------------------------------^
+    |   |
+    |   rustdoc does not generate documentation for macro invocations
+    |
+    = help: to document an item produced by a macro, the macro must produce the documentation as part of its expansion
+    = note: `#[warn(unused_doc_comments)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Dom`
+  --> src/private_block/s28_review_tests.rs:19:21
+   |
+19 | use super::layout::{Dom, Layout, U8_LEN};
+   |                     ^^^
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+error[E0308]: mismatched types
+   --> src/private_block/token_io/classify_tests.rs:408:56
+    |
+408 |     let (_, dec) = prove_classify_run(&st, &cx.blocks, &cx.tables, &mut ClassifySource(&mut p), owner, &mut |_, b| {
+    |                    ------------------                  ^^^^^^^^^^ expected `&BoundClassifierTables`, found `&ClassifierTables`
+    |                    |
+    |                    arguments to this function are incorrect
+    |
+    = note: expected reference `&BoundClassifierTables`
+               found reference `&classify::ClassifierTables`
+note: function defined here
+   --> src/private_block/token_io/classify_run.rs:90:15
+    |
+ 90 | pub(crate) fn prove_classify_run(
+    |               ^^^^^^^^^^^^^^^^^^
+...
+ 93 |     tables: &BoundClassifierTables,
+    |     ------------------------------
+
+warning: variable does not need to be mutable
+    --> src/private_block/run.rs:1188:13
+     |
+1188 |         let mut tr = st.transcript()?;
+     |             ----^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:302:18
+    |
+302 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+For more information about this error, try `rustc --explain E0308`.
+warning: `hashline` (lib test) generated 11 warnings
+error: could not compile `hashline` (lib test) due to 1 previous error; 11 warnings emitted

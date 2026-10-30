@@ -1,0 +1,7 @@
+{
+  "actual_native_rho_support": "Not captured; source-mask-only conservative bound established. Catalog generic grouping is not native descriptor execution.",
+  "native_timing": "Exclusive current rowfold/upload/alloc/kernel/download/pad/open/enclosing clocks absent; H2D accounting omission carried from prior cycle.",
+  "native_gpu": "No CUDA build/device arithmetic/register/spill/cache/DRAM test permitted/run here; owner uses shared heavy/build locks only if material.",
+  "current_owner": "R14 current dev report17:33:30 says actual6/joint20PASS and consolidated build2queued; owner status is not liveness evidence. Matched report remains n1 public sparse synthetic2blockT128, unreviewed for activation.",
+  "web": "Exact primary fetch failures and unverified dates/commits/licenses recorded in sources-cycle.jsonl; no workaround/install/foreign execution."
+}

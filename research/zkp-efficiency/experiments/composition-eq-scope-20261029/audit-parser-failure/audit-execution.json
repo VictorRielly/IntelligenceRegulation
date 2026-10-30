@@ -1,0 +1,19 @@
+{
+  "command": [
+    "/usr/bin/python3",
+    "-B",
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/composition-eq-scope-20261029/audit.py"
+  ],
+  "exit_code": 1,
+  "elapsed_s": 0.115895447001094,
+  "max_rss_kib": 26544,
+  "cpu_affinity": "one available CPU",
+  "nice": 19,
+  "cpu_cap_s": 40,
+  "alarm_s": 45,
+  "parent_timeout_s": 50,
+  "address_space_bytes": 402653184,
+  "estimated_memory_mib": 96,
+  "gpu": false,
+  "compiler_auxiliary_threads": "not measured; one CPU affinity and codegen-units=1"
+}

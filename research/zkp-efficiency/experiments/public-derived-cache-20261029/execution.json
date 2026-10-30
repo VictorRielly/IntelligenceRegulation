@@ -1,0 +1,19 @@
+{
+  "command": [
+    "python3",
+    "-I",
+    "-B",
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-derived-cache-20261029/run.py"
+  ],
+  "cwd": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-derived-cache-20261029",
+  "exit_code": 0,
+  "wall_s": 0.6885671209984139,
+  "timeout_s": 55,
+  "seed": 202610290131,
+  "estimated_memory_MiB": 64,
+  "source_hashes": {
+    "run.py": "35dd0f0f70b46e2c9118b58f49b7ec26f139de2d88263360f988ef35ad0a792e",
+    "model.py": "60440ec37d9b9cb4d1f36d9dce8cf57b4cdafba1bab005e91f7e0c8fe491f3dc",
+    "reference.py": "2a33da78eb531d00ece7cc4083851cbbf96cb1dd82f9aaab042356882052defb"
+  }
+}

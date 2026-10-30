@@ -1,0 +1,659 @@
+{
+ "what": "gate round 24: what the gate pins and what moved, token frozen-r17 -> r19b (read from the trees)",
+ "privacy_acceptance": false,
+ "trees": {
+  "r16b": {
+   "tree": "frozen-r16b",
+   "manifest": "manifest_final_r16b.sha256",
+   "manifest_list_sha256": "04d94bc0904ccaeb621d001b72be51b54034bfb5f7135a543e872a36a834c549",
+   "listed": 301,
+   "moved_or_missing": [],
+   "unlisted_on_disk": [],
+   "ok": true
+  },
+  "r17": {
+   "tree": "frozen-r17",
+   "manifest": "manifest_final_r17.sha256",
+   "manifest_list_sha256": "23a958766cf946d07b35e93e1f82685c3f952e5526a99f4d389be766881dd9a2",
+   "listed": 303,
+   "moved_or_missing": [],
+   "unlisted_on_disk": [],
+   "ok": true
+  },
+  "r18": {
+   "tree": "frozen-r18",
+   "manifest": "manifest_final_r18.sha256",
+   "manifest_list_sha256": "1ca1b2d74bac0405ed125f8b20eede491141d41315a87c9a73b71fc668338d5b",
+   "listed": 306,
+   "moved_or_missing": [],
+   "unlisted_on_disk": [],
+   "ok": true
+  },
+  "r19": {
+   "tree": "frozen-r19",
+   "manifest": "manifest_final_r19.sha256",
+   "manifest_list_sha256": "91585afe62335ba50c1568a7e63f44e2858759aa146091990438b44a16dfb0d9",
+   "listed": 306,
+   "moved_or_missing": [],
+   "unlisted_on_disk": [],
+   "ok": true
+  },
+  "r19b": {
+   "tree": "frozen-r19b",
+   "manifest": "manifest_final_r19b.sha256",
+   "manifest_list_sha256": "cfae2d1e3c9f662b477bc7ba7ee418ed74c8732d0717732a74385cd8430b67b9",
+   "listed": 306,
+   "moved_or_missing": [],
+   "unlisted_on_disk": [],
+   "ok": true
+  }
+ },
+ "moved": {
+  "r16b->r17": [
+   {
+    "path": "hashline/src/private_block/plane_index.rs",
+    "r16b": "13a7dd6ff1f9178dd640e3d38309a5581a39cf13c9c61238c41ceba83420afbf",
+    "r17": "ce79803c86a80dde832dc92a262a023efdd52bb95b9a15f128791978c306ffac"
+   },
+   {
+    "path": "hashline/src/private_block/run_capture.rs",
+    "r16b": "cad25086949c34d5d338fd1522401486f8099448cce47551f5487d3a05fc0fd7",
+    "r17": "cce0fc2a4062fcb4c92e771b8d7ac7f996c9ccfbc985bfb6decd79b29fba7ddf"
+   },
+   {
+    "path": "hashline/src/private_block/s25_tests.rs",
+    "r16b": "c5b7e0af4af6300ad1cf7a4ae814afb59b6c4237ca9bd2e08e304d8c5589b1d4",
+    "r17": "e730f1d1190a2f326c2d59df5dc487cfbf8dd8cc33edee5bf90b5a929f616494"
+   },
+   {
+    "path": "hashline/src/private_block/token_io/classify_capture_tests.rs",
+    "r16b": "08b15e357950f1e1d4ed863d7d675656bd32ef3a6746b5ff2fee7063a863eaec",
+    "r17": "226553ba72026f3f287b0d61d78659fc24661940f716cb31ed3915e89cbe5e03"
+   },
+   {
+    "path": "hashline/src/private_block/token_io/classify_r17_tests.rs",
+    "r16b": null,
+    "r17": "154927e61b95bed489a245107191455f5a74322111abe8ec7e6da008bca0c469"
+   },
+   {
+    "path": "hashline/src/private_block/token_io/gate19_capture_tests.rs",
+    "r16b": null,
+    "r17": "d018fa27f7ac0a8ad5f8cd0cd7e5f32b3da5e2ffc7f2cc971dc926f942ec19eb"
+   }
+  ],
+  "r17->r18": [
+   {
+    "path": "hashline/examples/zk60_classify.rs",
+    "r17": "af8cfd0e919d6cce4a6dcb20e67f27eac390d1d0e9b4a7a34435efd1408a1282",
+    "r18": "01c88770ed1748bea6283ca627624a31ff66a7cd4c1d7f2a54ac4e6f5f7750e9"
+   },
+   {
+    "path": "hashline/src/private_block.rs",
+    "r17": "2af1df7d5bc222695c1d233050ff87a5f0981a26a5df1828678b67a6fe0a1cb3",
+    "r18": "96c1cd16270b087ab56d8fd4cf3777009e5000800ab2d65afc1342ae555c6ac4"
+   },
+   {
+    "path": "hashline/src/private_block/hash_domain_tests.rs",
+    "r17": "8af74839bcd5733d3a2e8c4ec46ca4f13e666b28376c11cb6c21531ac978038a",
+    "r18": "004654fffb654d083698b6b32a76f92df21cd45eca31e490cb17c2d7a6438c4f"
+   },
+   {
+    "path": "hashline/src/private_block/s25_tests.rs",
+    "r17": "e730f1d1190a2f326c2d59df5dc487cfbf8dd8cc33edee5bf90b5a929f616494",
+    "r18": "c4ce2c9e3ec4d8d6d11a615889495d841e2d2fbd743bc5978117550538639a08"
+   },
+   {
+    "path": "hashline/src/private_block/token_io/classify_batch.rs",
+    "r17": null,
+    "r18": "9efc66e7fb6726de7d83d5e9d04bdd7a97fb0dc6ab46c1833e534c699bd1b5ae"
+   },
+   {
+    "path": "hashline/src/private_block/token_io/classify_batch_plan.rs",
+    "r17": null,
+    "r18": "a814b7d616a72db68f750cfb82a7852ebc52a44f4fb5c1184920ab4248b4dd48"
+   },
+   {
+    "path": "hashline/src/private_block/token_io/classify_cli.rs",
+    "r17": "b3b661b5f609ac4195cbbbc0f56d7191458986baf7af0006c63c5aaa3d8a6e17",
+    "r18": "6e93e5d714cec7bfec3c65d7add62c33711caa9381521f10f191529944ac3370"
+   },
+   {
+    "path": "hashline/src/private_block/token_io/classify_r18_tests.rs",
+    "r17": null,
+    "r18": "b53bae1aa970be3164ea6b66ccef0f18fcdc13a367972d2c004673d1531341cc"
+   }
+  ],
+  "r18->r19": [
+   {
+    "path": "hashline/src/private_block/hash_domain_tests.rs",
+    "r18": "004654fffb654d083698b6b32a76f92df21cd45eca31e490cb17c2d7a6438c4f",
+    "r19": "a61f14bb2fe26b4ccebad57c300fc964116a0a2b5a8792504ea3c2ab3326c46b"
+   },
+   {
+    "path": "hashline/src/private_block/s25_tests.rs",
+    "r18": "c4ce2c9e3ec4d8d6d11a615889495d841e2d2fbd743bc5978117550538639a08",
+    "r19": "4849de14b3404ee2c0a32017f9ba224b8c03d0f00ce8a0a1e2ca3125553cf719"
+   },
+   {
+    "path": "hashline/src/private_block/tied_tables/derive.rs",
+    "r18": "c5bec3c676e635aab1c609fdf2f541d003e14d7a50efc36d0fed42fc85b7d981",
+    "r19": "4b53222b37820936821eea2fd506ff3dee991e2474d39a3b21f1c0c10d357d75"
+   },
+   {
+    "path": "hashline/src/private_block/token_io/classify_batch.rs",
+    "r18": "9efc66e7fb6726de7d83d5e9d04bdd7a97fb0dc6ab46c1833e534c699bd1b5ae",
+    "r19": "707c8db27986a1fc265bad2ab5a0620382f44e40b1fa8b99c8fb886624a26efb"
+   },
+   {
+    "path": "hashline/src/private_block/token_io/classify_r18_tests.rs",
+    "r18": "b53bae1aa970be3164ea6b66ccef0f18fcdc13a367972d2c004673d1531341cc",
+    "r19": "bc169eeb2e449a5773769ce7f43a0f128e41c8b80e1027c917e68145ff5aa475"
+   }
+  ],
+  "r19->r19b": [
+   {
+    "path": "hashline/src/private_block/hash_domain_tests.rs",
+    "r19": "a61f14bb2fe26b4ccebad57c300fc964116a0a2b5a8792504ea3c2ab3326c46b",
+    "r19b": "1ab44ee1a7ea1f7f29a8f6975d499dc113a7a4a559ab414168df1a121fc6e824"
+   },
+   {
+    "path": "hashline/src/private_block/s25_tests.rs",
+    "r19": "4849de14b3404ee2c0a32017f9ba224b8c03d0f00ce8a0a1e2ca3125553cf719",
+    "r19b": "9e205e41f952cb0faa178641d523f7fdf108d92ff88f4e0a43135aab82456b0f"
+   },
+   {
+    "path": "hashline/src/private_block/s26_tests.rs",
+    "r19": "3e119dedaf2e4cd5223bd4be55770797e02f97c2372e69c392ff43498717d9f8",
+    "r19b": "cb8260d104ae3c1803d3faf275a227959cfb13e0186e820b321164af238b8e67"
+   },
+   {
+    "path": "hashline/src/private_block/tied_tables/derive.rs",
+    "r19": "4b53222b37820936821eea2fd506ff3dee991e2474d39a3b21f1c0c10d357d75",
+    "r19b": "1d6150100abb051d08e77d6c86e2cafed0915342203480ce73c8583170810fb7"
+   },
+   {
+    "path": "hashline/src/private_block/token_io/classify_cli.rs",
+    "r19": "6e93e5d714cec7bfec3c65d7add62c33711caa9381521f10f191529944ac3370",
+    "r19b": "616e33b95cb9ad67a49c2229fe1960b73b5fd2c0372c2432626a3f89202ff4b8"
+   }
+  ],
+  "r17->r19b": [
+   {
+    "path": "hashline/examples/zk60_classify.rs",
+    "r17": "af8cfd0e919d6cce4a6dcb20e67f27eac390d1d0e9b4a7a34435efd1408a1282",
+    "r19b": "01c88770ed1748bea6283ca627624a31ff66a7cd4c1d7f2a54ac4e6f5f7750e9"
+   },
+   {
+    "path": "hashline/src/private_block.rs",
+    "r17": "2af1df7d5bc222695c1d233050ff87a5f0981a26a5df1828678b67a6fe0a1cb3",
+    "r19b": "96c1cd16270b087ab56d8fd4cf3777009e5000800ab2d65afc1342ae555c6ac4"
+   },
+   {
+    "path": "hashline/src/private_block/hash_domain_tests.rs",
+    "r17": "8af74839bcd5733d3a2e8c4ec46ca4f13e666b28376c11cb6c21531ac978038a",
+    "r19b": "1ab44ee1a7ea1f7f29a8f6975d499dc113a7a4a559ab414168df1a121fc6e824"
+   },
+   {
+    "path": "hashline/src/private_block/s25_tests.rs",
+    "r17": "e730f1d1190a2f326c2d59df5dc487cfbf8dd8cc33edee5bf90b5a929f616494",
+    "r19b": "9e205e41f952cb0faa178641d523f7fdf108d92ff88f4e0a43135aab82456b0f"
+   },
+   {
+    "path": "hashline/src/private_block/s26_tests.rs",
+    "r17": "3e119dedaf2e4cd5223bd4be55770797e02f97c2372e69c392ff43498717d9f8",
+    "r19b": "cb8260d104ae3c1803d3faf275a227959cfb13e0186e820b321164af238b8e67"
+   },
+   {
+    "path": "hashline/src/private_block/tied_tables/derive.rs",
+    "r17": "c5bec3c676e635aab1c609fdf2f541d003e14d7a50efc36d0fed42fc85b7d981",
+    "r19b": "1d6150100abb051d08e77d6c86e2cafed0915342203480ce73c8583170810fb7"
+   },
+   {
+    "path": "hashline/src/private_block/token_io/classify_batch.rs",
+    "r17": null,
+    "r19b": "707c8db27986a1fc265bad2ab5a0620382f44e40b1fa8b99c8fb886624a26efb"
+   },
+   {
+    "path": "hashline/src/private_block/token_io/classify_batch_plan.rs",
+    "r17": null,
+    "r19b": "a814b7d616a72db68f750cfb82a7852ebc52a44f4fb5c1184920ab4248b4dd48"
+   },
+   {
+    "path": "hashline/src/private_block/token_io/classify_cli.rs",
+    "r17": "b3b661b5f609ac4195cbbbc0f56d7191458986baf7af0006c63c5aaa3d8a6e17",
+    "r19b": "616e33b95cb9ad67a49c2229fe1960b73b5fd2c0372c2432626a3f89202ff4b8"
+   },
+   {
+    "path": "hashline/src/private_block/token_io/classify_r18_tests.rs",
+    "r17": null,
+    "r19b": "bc169eeb2e449a5773769ce7f43a0f128e41c8b80e1027c917e68145ff5aa475"
+   }
+  ]
+ },
+ "capture_pins": {
+  "lists_equal_r17_r18_r19_r19b": true,
+  "counts": {
+   "SHARED_SOURCE_FILES": 29,
+   "OWN_SOURCE_FILES": 38,
+   "CLASSIFY_SOURCE_FILES": 5
+  },
+  "total": 72,
+  "missing_in_r19b": [],
+  "moving_r17_to_r19b": [
+   {
+    "file": "src/private_block.rs",
+    "r16b": "2af1df7d5bc222695c1d233050ff87a5f0981a26a5df1828678b67a6fe0a1cb3",
+    "r17": "2af1df7d5bc222695c1d233050ff87a5f0981a26a5df1828678b67a6fe0a1cb3",
+    "r18": "96c1cd16270b087ab56d8fd4cf3777009e5000800ab2d65afc1342ae555c6ac4",
+    "r19": "96c1cd16270b087ab56d8fd4cf3777009e5000800ab2d65afc1342ae555c6ac4",
+    "r19b": "96c1cd16270b087ab56d8fd4cf3777009e5000800ab2d65afc1342ae555c6ac4"
+   },
+   {
+    "file": "src/private_block/tied_tables/derive.rs",
+    "r16b": "c5bec3c676e635aab1c609fdf2f541d003e14d7a50efc36d0fed42fc85b7d981",
+    "r17": "c5bec3c676e635aab1c609fdf2f541d003e14d7a50efc36d0fed42fc85b7d981",
+    "r18": "c5bec3c676e635aab1c609fdf2f541d003e14d7a50efc36d0fed42fc85b7d981",
+    "r19": "4b53222b37820936821eea2fd506ff3dee991e2474d39a3b21f1c0c10d357d75",
+    "r19b": "1d6150100abb051d08e77d6c86e2cafed0915342203480ce73c8583170810fb7"
+   }
+  ],
+  "r19b_digests": {
+   "src/private_block/argument_accuracy.rs": "a5e02391b61577c7041efc41c04cd2564610e3fbb26b188b66b1623a5b7940d9",
+   "src/private_block/accuracy_act.rs": "7ef5fe26fc9395817436fc55851dc1f2ea066bc06b8a5eaaa3e2c39a8045eb4e",
+   "src/private_block/accuracy_fold.rs": "53e2b5726440eb747f55d5d22bdd36929f8d17bba8b769d17162c0948890731a",
+   "src/private_block/accuracy_layout.rs": "37a3e3458e4961ddaab98440de114e575da3af21f7d872b532cb71a04ac788d3",
+   "src/private_block/run_capture.rs": "cce0fc2a4062fcb4c92e771b8d7ac7f996c9ccfbc985bfb6decd79b29fba7ddf",
+   "src/private_block/run.rs": "3dc5393db188cdd92a775011318fc8d8031812ff7d8772d6528dbc3261efa99f",
+   "src/private_block/boundary.rs": "5b1c85feefacf61fd97fa6e60b9f72d737f1dd56349ecaa650fc93d3ad0e6581",
+   "src/private_block/protocol.rs": "1011441431a37f735999405986af6c9f11c2d303b48aa6d9cefae55b0311718d",
+   "src/private_block/argument.rs": "bc0332e39904ca881d26c255581aa1ab6a0e73899141689960ec2262f8561830",
+   "src/private_block/layout.rs": "8519a514b8d1f43ab51c86b0a8af955230a2eab4fff4fc4c594733c59dcfd0bf",
+   "src/private_block/plane_index.rs": "ce79803c86a80dde832dc92a262a023efdd52bb95b9a15f128791978c306ffac",
+   "src/private_block/shape.rs": "8e00a144bd194fd5a3dd30c9aaece2869d43d461df623cdcfc5a9da59e51436b",
+   "src/private_block/wire.rs": "f312067871bb87dc93436263b5820e5f3fb9a9623f190efc924023a28c5d41d0",
+   "src/private_block/run_sink.rs": "005bac239d8dd616a46573f948c30ce1e2c540e02cf97035d3c457717c32921d",
+   "src/private_block/endpoint_g.rs": "6e3691d0bfa1c1fb1f66b9be8ae5438597492c62dc00451d6f25dbff90ab84ce",
+   "src/private_block/hash_domain.rs": "2012142194303e3b7d4bf0757d89621ae9d78c000cd5b58aac33de43bd946214",
+   "src/private_block.rs": "96c1cd16270b087ab56d8fd4cf3777009e5000800ab2d65afc1342ae555c6ac4",
+   "src/private_block/witness.rs": "7620447c30ecf111f47f44cd3cd8d75152fda753802fb99c74a873bf7e8c9625",
+   "src/private_block/pad.rs": "91141ea025d01257a5f0b5007e711d883af896b72d3c109badb6999f48d78967",
+   "src/private_block/trained_statement.rs": "f6be924c6b8625ae6a51649b843ab7d118f3925e248ee140d081b9e0bc23e9d4",
+   "src/private_block/token_io.rs": "2aabe64f8c9d4c9028f94af87d25dfddd44f0631ddb636616ec8679d09bed337",
+   "src/private_block/token_io/stage_in.rs": "e4609b1acc8c9306c200321f1e80c13fa9ffdfa2b28e50dce88611b2be12eecd",
+   "src/private_block/token_io/stage_out.rs": "69abed433fd751bf12b30fca40174ca21638230fd9e39af69ea07b987d03e8ca",
+   "src/private_block/token_io/run.rs": "aae4b0ab9568f90150f78a1eaf68710c65b52e54ab2654e18452de279039117e",
+   "src/private_block/token_io/load.rs": "67307f096ca4ea9dd12e182a9b173436fd0015e7367a3b444e5733d188a4ce79",
+   "src/private_block/token_io/cli.rs": "3eaaacdbafdcd2a7863a52294a7f762898f70f0837eaa06eb34cb7560751fabc",
+   "src/private_block/trained_block.rs": "dc6e8772bf80ff3d16dff49b416667cf92bf58148da60d8695004df01900ca07",
+   "src/private_block/rope.rs": "a2f34537ecebe4db8b477fca3a7bbd83ae7f62ae9ca042dc4dbe0031236b901f",
+   "src/private_block/tied_tables.rs": "45fc3f0fe20c5d8b798f6bbc0fe3f1b7aa68f4427b0a3521c92ba83230b30e33",
+   "src/private_block/tied_tables/derive.rs": "1d6150100abb051d08e77d6c86e2cafed0915342203480ce73c8583170810fb7",
+   "src/private_block/accuracy.rs": "2996ff41016a65ac6b22db78768295879f4b37a48316267c655a410d667bc6af",
+   "src/private_block/accuracy_aligned.rs": "396d0cf271b9ac401364e0c96a6c549eb4a31f91750a3072391d55ac8b9e9f8d",
+   "src/private_block/accuracy_groups.rs": "63a87749a6e03e54104fdaa382d76421b0b984599fce7cca8714f348b7731731",
+   "src/private_block/accuracy_precision.rs": "145c1e0f66ea5aad558148aa7885b4fcaaf74c6145893cc1efd10f7a77eee56b",
+   "src/private_block/accuracy_public.rs": "0b44bf5424fed9ea9911e3b041c0977ea0727bb461b83be198a5d2210d73d660",
+   "src/private_block/accuracy_tables.rs": "0a92b7fff83a460b2f79560b195ed65c4a7024b80108631b3741bfbaba5511e8",
+   "src/private_block/trained_accuracy.rs": "f47b1084574a36a160db6d81fc1a25dd43f4547d438653d5de53ec86826c66d7",
+   "src/private_block/witness_accuracy.rs": "8b03abadc73db1d46be642e32c83312c87e34bfa4d560ab8d8e2675b14abcf2a",
+   "src/zk.rs": "66d1128675bea3b473abd4f2fe70d470b1abc19a7fe5a579a227616d76280e32",
+   "src/tables_attn.rs": "5a874788e20581010b492d50ccc5e662255115c65b9eebcf2f88314733b121e3",
+   "src/causal_oracle.rs": "758bd3401cc726dd621ff0b04b9d7b09a50decc773f03f4a21ddbc031921d85a",
+   "src/private_seam.rs": "2f36c779e79c4d7a45538fb1d596a83e6eef9fe18f1b5e138b7d72afd3ee8cf5",
+   "src/export_v3.rs": "e0394ab4113d150336ee91353d7ba26589d5e4dffcb3cb7d2ad0fea833842acb",
+   "src/field.rs": "1dc6c53b9d3b014b8cabfb784c15dcbddde31bc58e6d7216101c6a4fbbf45669",
+   "src/merkle.rs": "06fd5f0bd725599d601dacb1b8aac1e797914c7ca8c344c0a52a412260b47eee",
+   "src/mle.rs": "bffe83fb5636f445f3a5a3b85141c374bdfeb4e4716c386eec30d10f5ed33741",
+   "src/ntt.rs": "a7f7ac0b838747c4de59e8226213500a41c047356ddd8bcdb3ab906818843c7c",
+   "src/pcs.rs": "8b14096b66f6597e3cdfe239a7359457dd17dfd475c2a5d0f4e112a41342127f",
+   "src/sumcheck.rs": "f097dd71fab7888e95e61a29ab035b13153313d068e7547d91acbfd20c7bc566",
+   "src/transcript.rs": "4850b2b4dc80317659fd643908e307ca58923c98e98baf32c4c1623ba239fd78",
+   "../zkp-core/src/lib.rs": "388f012fbb535617bc5a105de8640c84b5572544284cb4947a4ad7606e891164",
+   "../zkp-core/src/field.rs": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+   "../zkp-core/src/hashtag.rs": "71bf33150a296c2ce4da49d189c6d84a9f741b9ada1ef2488711938cffd6b651",
+   "../zkp-core/src/merkle.rs": "6e7817bd767a883985bfcd62b7a387d0c5f4c361010c4c5db37f5087d965744a",
+   "../zkp-core/src/mle.rs": "b20c8b75c9246471fe1cc395122558eba715f66d9efe1dc4cd5be1750f2e542e",
+   "../zkp-core/src/ntt.rs": "97572d4f242637d21a089388abad4b5b39136c62036faa17ae94b3ba6f170890",
+   "../zkp-core/src/pcs.rs": "5c9cfc4e9c84283309f4c47f87d4a9146e2c9c9f5b52aa608b4ce6a7588cd495",
+   "../zkp-core/src/pcs/backend.rs": "ff2cb5c1806b34653f8a44ad82f54201fb5d9f6ba2602afe5efeae4d104e0103",
+   "../zkp-core/src/rng.rs": "0d4a99abbc424286de60ec4bfbe1084dc2ccaa2db8c5380e5f4594157ccea9eb",
+   "../zkp-core/src/sumcheck.rs": "fc7374bbd5e5cc4ede62e8a21d325eb62acff9b9dcc786d12eae39efbdfdbb95",
+   "../zkp-core/src/transcript.rs": "cc9752d0ef9bcd6d7b20e94e611ff26748593a2ea1a4f55b63d8c221715f1967",
+   "../zkp-core/src/pcs/encode_buffer.rs": "3c01433d84507cddadcf5c1387c08948fd3efe853a066d74690c0a6e1ce3dd70",
+   "../zkp-core/src/sumcheck/rounds.rs": "c60520596e6d855687e0a225850850c12bd15b8741522de69a624f0db8a003df",
+   "../zkp-core/src/sumcheck/grouped.rs": "7777a19c8db97694c51e66c78d1a7688573158bddaa7fcb370345ebd14ab669b",
+   "src/gpu/mod.rs": "d651be2ccf8f19ff75fe6bca5ad42f4b773b569d0ae2017306f0bf819c51b283",
+   "src/tables_v3.rs": "726c9355f9e663ef1a43dc9efe17cb2c85aa3583977d0c794dad4cf21a24715d",
+   "../zkp-core/src/tables.rs": "8cc95bc8b576907a99f24755cd9d16ea8904cd9ccc514f32f471a95ca8f13e50",
+   "src/private_block/token_io/classify.rs": "c180c83fb50f624d15ef9d17dae4195b53161a1131892ea0bb15b0761da99b1d",
+   "src/private_block/token_io/classify_tied.rs": "a89acfabc75c869c1f53d493a5caaa236af1a8df18ba6e30b1f3ab26167c4aaf",
+   "src/private_block/token_io/classify_run.rs": "8abbf72f1c8e18bea1ac99e93a82562bca793afb4d94ed27dea24403850523f9",
+   "src/private_block/token_io/stage_in_c.rs": "6a92da0ecfe736537f859bcde5eb3fb89c0852e8d06dfe7f21e0feb9c4bbe6ff",
+   "src/private_block/token_io/stage_out_c.rs": "93a79a2b39ab1eb70442b6ee7f0d949cfbf20f7c84b660ec4aa4ebe2ef7a564a"
+  }
+ },
+ "gate_tool_mentions_of_moved_paths": {
+  "hashline/examples/zk60_classify.rs": [
+   "frozen_v23/scripts/zk60_native_rg_classpins.py:13: classifier stages, run, CLI and tests, and `examples/zk60_classify.rs`).  No",
+   "frozen_v23/scripts/zk60_native_rg_classpins.py:45: \"bridge for `examples/zk60_classify.rs`) with its comment. No item of a block, \"",
+   "frozen_v23/scripts/zk60_native_rg_classpins.py:198: \"examples/zk60_classify.rs\": \"10332833db8535ddb14201b81357b1af6c5b0a8a24a85bea4642781a97e97609\","
+  ],
+  "hashline/src/private_block.rs": [
+   "frozen_v23/scripts/zk60_native_jv_capture.py:30: # private_block.rs::calibration_identity(); the attention profile absorbs no calibration",
+   "frozen_v23/scripts/zk60_native_jv_capture.py:32: # private_block.rs / private_attention.rs slot labels",
+   "frozen_v23/scripts/zk60_native_mask_commit.py:209: # `hashline/src/private_block.rs` and the hashline-side `merkle`,",
+   "frozen_v23/scripts/zk60_native_mask_commit.py:217: # tree, by following `use` and call from `hashline/src/private_block.rs` and",
+   "frozen_v23/scripts/zk60_native_mask_commit.py:260: \"hashline/src/private_block.rs\",",
+   "frozen_v23/scripts/zk60_native_mask_commit.py:480: \"hashline/src/private_block.rs\": {",
+   "frozen_v23/scripts/zk60_native_rg_block.py:109: # `private_block.rs` `ExpectedIo::to_bytes`: the magic, the context, the two",
+   "frozen_v23/scripts/zk60_native_rg_block.py:300: #   * `private_block.rs` -- `ExpectedIo::to_bytes`'s 112-byte policy frame,",
+   "frozen_v23/scripts/zk60_native_rg_block.py:335: \"src/private_block.rs\": (",
+   "frozen_v23/scripts/zk60_native_rg_block.py:367: \"src/private_block.rs\": {",
+   "frozen_v23/scripts/zk60_native_rg_block.py:419: (\"src/private_block.rs\",",
+   "frozen_v23/scripts/zk60_native_rg_block.py:467: \"src/private_block.rs\": (",
+   "frozen_v23/scripts/zk60_native_rg_block.py:541: \"\"\"`ExpectedIo::to_bytes` (private_block.rs:998-1007), or None.\"\"\"",
+   "frozen_v23/scripts/zk60_native_rg_block.py:553: # `private_block.rs:371`, read at 58a73b40: the approved calibration's scales",
+   "frozen_v23/scripts/zk60_native_rg_block.py:1237: \"(private_block.rs:371, ENDPOINT_SCALES = (0, 0); IoSpec::new \"",
+   "frozen_v23/scripts/zk60_native_rg_classpins.py:39: \"src/private_block.rs\": {",
+   "frozen_v23/scripts/zk60_native_rg_classpins.py:684: # `#[cfg(test)]` recorder modules (private_block.rs:258-259 / :267-268 at r17):",
+   "frozen_v23/scripts/zk60_native_rg_classpins.py:696: \"classification\": \"token frozen-r17: test-only (`#[cfg(test)] mod run_capture;`, private_block.rs:258-259)\",",
+   "frozen_v23/scripts/zk60_native_rg_r13_pins.py:133: \"src/private_block.rs\")",
+   "frozen_v23/scripts/zk60_native_rg_r13_pins.py:381: cls=GATED, diff=_D + \"nat-r12b-r13-_private_block.rs.diff\"),",
+   "frozen_v23/scripts/zk60_native_rg_r13_pins.py:460: cls=GATED, diff=_D + \"tok-r14-r16b-_private_block.rs.diff\"),",
+   "frozen_v23/scripts/zk60_native_rg_runpins.py:267: \"`endpoint_g.rs`, `hash_domain.rs`, `private_block.rs`, `witness.rs` and \"",
+   "frozen_v23/scripts/zk60_native_rg_runpins.py:441: \"src/private_block.rs\": \"the module root; nothing is transcribed\",",
+   "frozen_v23/scripts/zk60_native_rg_runpins.py:569: # private_block.rs digests are the ones at `6d71b40`, one commit",
+   "frozen_v23/scripts/zk60_native_rg_terminals.py:2123: \"(AttentionPublic::dd_e_column, private_block.rs R9)\",",
+   "frozen_v23/scripts/zk60_native_rg_terminals.py:2597: `cap` (`dd_e_column_of`, private_block.rs R9) must equal one period of",
+   "frozen_v23/scripts/zk60_native_rg_tinyllama_pins.py:395: \"src/private_block.rs\": (",
+   "frozen_v23/scripts/zk60_native_rg_tinyllama_r12b_pins.py:56: private_block.rs:242-243 in frozen-r14).",
+   "frozen_v23/scripts/zk60_native_rg_tinyllama_r12b_pins.py:58: already read on native R8 (run.rs and private_block.rs byte-identical hunk",
+   "frozen_v23/scripts/zk60_native_rg_tinyllama_r12b_pins.py:145: \"src/private_block.rs\")",
+   "frozen_v23/scripts/zk60_native_rg_tinyllama_r12b_pins.py:355: \"`#[allow(dead_code)] mod token_io;` with comments (private_block.rs:122-131) -- \"",
+   "frozen_v23/scripts/zk60_native_rg_tinyllama_r12b_pins.py:383: \"TEST-ONLY module (`#[cfg(test)] mod run_capture;`, private_block.rs:242-243).  \"",
+   "frozen_v23/scripts/zk60_native_rg_tinyllama_r5_pins.py:313: \"src/private_block.rs\": (",
+   "frozen_v23/scripts/zk60_native_rg_tinyllama_r5b_pins.py:158: \"src/private_block.rs\": (",
+   "frozen_v23/scripts/zk60_native_rg_tinyllama_r7_pins.py:145: \"src/private_block.rs\": (",
+   "frozen_v23/scripts/zk60_native_rg_tinyllama_r9_pins.py:14: `#[cfg(test)]` (`private_block.rs:220-230`).  Every production file is",
+   "frozen_v23/scripts/zk60_native_rg_tinyllama_r9_pins.py:26: * run.rs, private_block.rs and trained_block.rs, which the token lane also",
+   "frozen_v23/scripts/zk60_native_rg_tinyllama_r9_pins.py:74: \"src/private_block.rs\": (",
+   "frozen_v23/scripts/zk60_native_rg_tokenio_r7c_pins.py:55: 'src/private_block.rs': '386194fe90f01829feea20d012f4d50eabf53c1e9e2977fc2e03fbe918293587',",
+   "frozen_v23/scripts/zk60_native_rg_tokenio_r7c_pins.py:81: 'src/private_block.rs': {",
+   "frozen_v23/scripts/zk60_native_rg_tokenio_r7c_pins.py:188: '`#[cfg(test)]` (private_block.rs:222-223); hooks take `&Transcript` and draw only on the'",
+   "frozen_v23/counts/run_hash_counts.py:323: out[\"calibration identity (private_block.rs:221-223)\"] = 30",
+   "frozen_v23/counts/run_hash_counts.py:332: out[\"block public-statement digest (private_block.rs:512-518), at least\"] = 31"
+  ],
+  "hashline/src/private_block/hash_domain_tests.rs": [],
+  "hashline/src/private_block/s25_tests.rs": [],
+  "hashline/src/private_block/s26_tests.rs": [],
+  "hashline/src/private_block/tied_tables/derive.rs": [
+   "frozen_v23/scripts/zk60_native_jv_replay.py:1: \"\"\"Stage 1: re-derive the whole Fiat-Shamir transcript of a native capture.",
+   "frozen_v23/scripts/zk60_native_rg_classgate.py:911: d_max = TB.derive(calibration, sh[\"width\"], sh[\"tokens\"], sh[\"f_e\"])",
+   "frozen_v23/scripts/zk60_native_rg_classgate.py:917: stage_extra = [{\"norm_wrho\": TB.derive(v, sh[\"width\"], sh[\"tokens\"], sh[\"f_e\"])[\"norm_wrho\"]} for v in stage_cals]",
+   "frozen_v23/scripts/zk60_native_rg_classtied.py:22: * native R12b `tied_tables/derive.rs` (5cebeef0 in the token tree):",
+   "frozen_v23/scripts/zk60_native_rg_classtied.py:303: # * `tied_tables/derive.rs` (c5bec3c6): WIDTH 3072, VOCAB 131072, TENSOR",
+   "frozen_v23/scripts/zk60_native_rg_classtied.py:347: \"\"\"`derive.rs::rotate` on every row of `x` (float64, rows x width):",
+   "frozen_v23/scripts/zk60_native_rg_classtied.py:388: \"\"\"[v22] native R12b `recompute_profile` (derive.rs:227-276) as a STREAM over",
+   "frozen_v23/scripts/zk60_native_rg_classtied.py:498: \"\"\"native R12b `recompute_profile` (derive.rs:227-276) on the pinned",
+   "frozen_v23/scripts/zk60_native_rg_gcontrols.py:26: this tool cannot derive a different point and get away with it either --",
+   "frozen_v23/scripts/zk60_native_rg_gcontrols.py:277: # repair of that failure is not a repair: both sites derive the stage",
+   "frozen_v23/scripts/zk60_native_rg_gcontrols.py:337: \"mechanism\": \"the derive-and-compare, refused by name\",",
+   "frozen_v23/scripts/zk60_native_rg_gqa.py:43: then evaluates.  **Re-derive, never consume** (ruling T-7, as round 3",
+   "frozen_v23/scripts/zk60_native_rg_gqa.py:465: f\"{want} this shape and definition derive\")",
+   "frozen_v23/scripts/zk60_native_rg_hashrule.py:285: \"(ruling T-7: re-derive, never consume)\",",
+   "frozen_v23/scripts/zk60_native_rg_predict.py:119: table's business and this module does not re-derive it).\"\"\"",
+   "frozen_v23/scripts/zk60_native_rg_r13_pins.py:135: TTB, DRV = \"src/private_block/tied_tables.rs\", \"src/private_block/tied_tables/derive.rs\"",
+   "frozen_v23/scripts/zk60_native_rg_r13_pins.py:305: \"builder; `Witness` gains `output_plane` and `#[derive(Clone)]`; `output()` reads \"",
+   "frozen_v23/scripts/zk60_native_rg_r13_pins.py:407: \"`pub(crate) use derive::{bf16, norm, quantize};` with a comment: native R13 carries the token lane's \"",
+   "frozen_v23/scripts/zk60_native_rg_r13_pins.py:411: # DRV: native R13's derive.rs IS token frozen-r14's 5cebeef0 (Sol carried the three visibility words),",
+   "frozen_v23/scripts/zk60_native_rg_r13_pins.py:478: \"derive::recompute_declared_tied_tables_with_margin;`.  No body\",",
+   "frozen_v23/scripts/zk60_native_rg_r13_pins.py:487: cls=GATED, diff=_D + \"tok-r14-r16b-tied_tables_derive.rs.diff\"),",
+   "frozen_v23/scripts/zk60_native_rg_r13_pins.py:575: \"accuracy_precision\": \"`Stack` {Legacy, Low, LowH24}, `BaseShifts`, `Precision`, `derive` (the R13 shifts \"",
+   "frozen_v23/scripts/zk60_native_rg_r13_pins.py:660: \"native R13's derive.rs (5cebeef0) equals token frozen-r14's, already read in v21 (DERIVE_T14).\",",
+   "frozen_v23/scripts/zk60_native_rg_r13blocks.py:24: (`accuracy_precision.rs::derive`, ported);",
+   "frozen_v23/scripts/zk60_native_rg_r13blocks.py:207: # (accuracy_layout.rs:133-136); the legacy `lookups_at` would derive the",
+   "frozen_v23/scripts/zk60_native_rg_r13slots.py:14: (`accuracy_precision.rs::derive`) and the public tables each R13 slot pushes.",
+   "frozen_v23/scripts/zk60_native_rg_r13slots.py:21: accuracy_precision.rs 145c1e0f....     (derive)",
+   "frozen_v23/scripts/zk60_native_rg_r13slots.py:193: #  the precision (accuracy_precision.rs derive) and the calibration line",
+   "frozen_v23/scripts/zk60_native_rg_r13slots.py:201: \"\"\"`accuracy_precision.rs::derive` (:55-98) from the base shifts\"\"\"",
+   "frozen_v23/scripts/zk60_native_rg_stagecal.py:91: def derive(sh: dict) -> tuple[int, int]:",
+   "frozen_v23/scripts/zk60_native_rg_stagecal.py:154: d_max, wrho = derive(s)",
+   "frozen_v23/scripts/zk60_native_rg_stagecal.py:163: d0, w0 = derive(sh) if sh.get(\"trained_calibration\") is True else (None, None)",
+   "frozen_v23/scripts/zk60_native_rg_tinyllama_r12b_pins.py:32: `tied_tables/derive.rs`; bounded regular-file hashing; `--rope-from-export`",
+   "frozen_v23/scripts/zk60_native_rg_tinyllama_r12b_pins.py:72: every bundle's `source_pins` gains rope.rs, tied_tables.rs and derive.rs, a",
+   "frozen_v23/scripts/zk60_native_rg_tinyllama_r12b_pins.py:147: TTB, DRV = (\"src/private_block/tied_tables.rs\", \"src/private_block/tied_tables/derive.rs\")",
+   "frozen_v23/scripts/zk60_native_rg_tinyllama_r12b_pins.py:390: \"`tied_tables/derive.rs` with a comment.  Capture metadata only (two more `source_pins`)\"),",
+   "frozen_v23/scripts/zk60_native_rg_tinyllama_r12b_pins.py:400: \"tied_tables.rs and tied_tables/derive.rs, and R9's `sh.slots().iter().take(sh.n_slots())` \"",
+   "frozen_v23/scripts/zk60_native_rg_tinyllama_r12b_pins.py:434: \"`mod derive` and its re-exports; a `#[cfg(test)]` test.  SHA-256 over public token-table \"",
+   "frozen_v23/scripts/zk60_native_rg_tinyllama_r12b_pins.py:440: \"One re-export with its comment: `pub(crate) use derive::{bf16, norm, quantize};` \\\"for the \"",
+   "frozen_v23/scripts/zk60_native_rg_tinyllama_r12b_pins.py:630: \"src/private_block/tied_tables/derive.rs (OWN_SOURCE_FILES 23 -> 26 in the token tree)\",",
+   "frozen_v23/scripts/zk60_native_rg_tokenblocks.py:45: constants of THAT stage, and the `norm_wrho` they derive.",
+   "frozen_v23/scripts/zk60_native_rg_tokenblocks.py:211: def derive(values: dict, width: int, tokens: int, f_e: int) -> dict:",
+   "frozen_v23/scripts/zk60_native_rg_tokenblocks.py:350: dv = derive(run_vals, sh[\"width\"], sh[\"tokens\"], pc.get(\"f_e\"))",
+   "frozen_v23/scripts/zk60_native_rg_tokenblocks.py:443: dvi = derive(v, sh[\"width\"], sh[\"tokens\"], pc.get(\"f_e\"))",
+   "frozen_v23/scripts/zk60_native_rg_tokenblocks.py:751: stage_extra = [{\"norm_wrho\": derive(v, width, tokens, f_e)[\"norm_wrho\"]}",
+   "frozen_v23/scripts/zk60_native_run_gate.py:1090: \"re-derive, never consume (ruling T-7).  The bytes are then shown to be \"",
+   "frozen_v23/tests/test_v4_status_g10.py:1641: want = [x * s for x, s in zip(row, signs)]          # derive.rs::rotate, transcribed scalar"
+  ],
+  "hashline/src/private_block/token_io/classify_batch.rs": [],
+  "hashline/src/private_block/token_io/classify_batch_plan.rs": [],
+  "hashline/src/private_block/token_io/classify_cli.rs": [
+   "frozen_v23/scripts/zk60_native_rg_classpins.py:44: \"reading\": \"ADDITIVE: one `pub use token_io::classify_cli::{...}` line (the classifier CLI \"",
+   "frozen_v23/scripts/zk60_native_rg_classpins.py:68: \"classify_cli, stage_in_c, stage_out_c) and two `#[cfg(test)] mod` declarations \"",
+   "frozen_v23/scripts/zk60_native_rg_classpins.py:197: \"src/private_block/token_io/classify_cli.rs\": \"7c4057589be96d5e5f5fcc5dbe416cf2028af6409285dbd75c51dd0fc9c04a2f\",",
+   "frozen_v23/scripts/zk60_native_rg_classpins.py:350: \"src/private_block/token_io/classify_cli.rs\": \"c1862e4b13f8ec3da3a931941ef6978c02ec7f12dbbe4b48653831a77c8abb68\",",
+   "frozen_v23/scripts/zk60_native_rg_r13_pins.py:522: \"(`zk60-classify-run/3`, classify_cli.rs) are outside the hunks.  The policy LIST is not encoded in any \"",
+   "frozen_v23/scripts/zk60_native_rg_r13_pins.py:627: \"NO change: the classify statement schema zk60-classify-run/3 (classify_cli.rs:110), the profile text \"",
+   "frozen_v23/scripts/zk60_native_rg_r13_pins.py:661: \"Not pinned, so read only for context: classify_cli.rs t14 c1862e4b -> t15 8eddafc9 -> t16 = t16b b3b661b5 \"",
+   "frozen_v23/scripts/zk60_native_rg_tinyllama_r12b_pins.py:353: \"token commands}`, round 12's `pub use token_io::classify_cli::{classify_input_owner_command, \""
+  ],
+  "hashline/src/private_block/token_io/classify_r18_tests.rs": []
+ },
+ "diffs": [
+  {
+   "file": "hashline/src/private_block.rs",
+   "from": "r17",
+   "to": "r18",
+   "diff": "results/zk60_gate_tinyllama_20261017/round24/readings/tok-r17-r18-private_block.rs.diff",
+   "sha256": "35b2d6fbc1cdc1057e6b1721f21558a5d4fcdb9843b484e30e6d549196b84fa2",
+   "plus": 1,
+   "minus": 1,
+   "hunks": 1
+  },
+  {
+   "file": "hashline/src/private_block/tied_tables/derive.rs",
+   "from": "r17",
+   "to": "r18",
+   "diff": "results/zk60_gate_tinyllama_20261017/round24/readings/tok-r17-r18-derive.rs.diff",
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+   "plus": 0,
+   "minus": 0,
+   "hunks": 0
+  },
+  {
+   "file": "hashline/src/private_block/tied_tables/derive.rs",
+   "from": "r18",
+   "to": "r19",
+   "diff": "results/zk60_gate_tinyllama_20261017/round24/readings/tok-r18-r19-derive.rs.diff",
+   "sha256": "c4eaad36766825ae3b7ae896873e0f28f5e7635f7015454748a21a5463444943",
+   "plus": 97,
+   "minus": 3,
+   "hunks": 3
+  },
+  {
+   "file": "hashline/src/private_block/tied_tables/derive.rs",
+   "from": "r19",
+   "to": "r19b",
+   "diff": "results/zk60_gate_tinyllama_20261017/round24/readings/tok-r19-r19b-derive.rs.diff",
+   "sha256": "f9c3804d7624210f0bb7a767afaf7d65b430d0dc413632513752118a69c80d63",
+   "plus": 136,
+   "minus": 0,
+   "hunks": 2
+  },
+  {
+   "file": "hashline/src/private_block/tied_tables/derive.rs",
+   "from": "r16b",
+   "to": "r19b",
+   "diff": "results/zk60_gate_tinyllama_20261017/round24/readings/tok-r16b-r19b-derive.rs.diff",
+   "sha256": "dfd7377e34569cedf0f7281daa6209b478782d775318ac1d516811a4ae033e31",
+   "plus": 233,
+   "minus": 3,
+   "hunks": 3
+  },
+  {
+   "file": "hashline/src/private_block/token_io/classify_cli.rs",
+   "from": "r17",
+   "to": "r18",
+   "diff": "results/zk60_gate_tinyllama_20261017/round24/readings/tok-r17-r18-classify_cli.rs.diff",
+   "sha256": "808d1daba9df952f792b98f9413a340dc57a055a5319f691e9cc16356620e352",
+   "plus": 66,
+   "minus": 10,
+   "hunks": 6
+  },
+  {
+   "file": "hashline/src/private_block/token_io/classify_cli.rs",
+   "from": "r18",
+   "to": "r19b",
+   "diff": "results/zk60_gate_tinyllama_20261017/round24/readings/tok-r18-r19b-classify_cli.rs.diff",
+   "sha256": "e5e9e6b9d9491be1238bf65fd02b7cb2009720dd2886d8e3d0deec7d0e213ff8",
+   "plus": 9,
+   "minus": 3,
+   "hunks": 1
+  },
+  {
+   "file": "hashline/examples/zk60_classify.rs",
+   "from": "r17",
+   "to": "r18",
+   "diff": "results/zk60_gate_tinyllama_20261017/round24/readings/tok-r17-r18-examples_zk60_classify.rs.diff",
+   "sha256": "4490360443e2c07d6b1c231a680ec3f17f0573e6db5570f18a542a4d8c2cb694",
+   "plus": 11,
+   "minus": 1,
+   "hunks": 2
+  }
+ ],
+ "derive_production_text_r16b_to_r19b": {
+  "lines_r16b": 230,
+  "lines_r19b": 247,
+  "differing": [
+   "-const DEFAULT_CHECKPOINT: &str = \"/home/victor/models/shieldstral-1.0-3b/snapshot-003ec7e2/model.safetensors\";",
+   "+const CHECKPOINT_IN_MODELS: &str = \"shieldstral-1.0-3b/snapshot-003ec7e2/model.safetensors\";",
+   "+fn default_checkpoint() -> Result<std::path::PathBuf, String> {",
+   "+    default_checkpoint_from(std::env::var_os(\"ZK60_MODELS\"), std::env::var_os(\"HOME\"))",
+   "+}",
+   "+fn default_checkpoint_from(models: Option<std::ffi::OsString>, home: Option<std::ffi::OsString>) -> Result<std::path::PathBuf, String> {",
+   "+    let dir = match (models.filter(|m| !m.is_empty()), home.filter(|h| !h.is_empty())) {",
+   "+        (Some(m), _) => std::path::PathBuf::from(m),",
+   "+        (None, Some(h)) => std::path::PathBuf::from(h).join(\"models\"),",
+   "+        (None, None) => return Err(\"tied tables: the export declares no tied_embeddings.checkpoint_file and neither ZK60_MODELS nor HOME is set, so the pinned checkpoint has no default location\".into()),",
+   "+    };",
+   "+    Ok(dir.join(CHECKPOINT_IN_MODELS))",
+   "+}",
+   "+fn checkpoint_path_with(declaration: &J, default: impl FnOnce() -> Result<std::path::PathBuf, String>) -> Result<std::path::PathBuf, String> {",
+   "+    match declaration.opt(\"checkpoint_file\").map(J::str).transpose()? {",
+   "+        Some(declared) => Ok(std::path::PathBuf::from(declared)),",
+   "+        None => default(),",
+   "+    }",
+   "+}",
+   "-    let checkpoint_path = declaration.opt(\"checkpoint_file\").map(J::str).transpose()?.unwrap_or(DEFAULT_CHECKPOINT);",
+   "-    let mut checkpoint = Checkpoint::open(Path::new(checkpoint_path))?;",
+   "+    let path = checkpoint_path_with(declaration, default_checkpoint)?;",
+   "+    let mut checkpoint = Checkpoint::open(&path)?;"
+  ],
+  "absorb_or_transcript_in_production_r19b": [],
+  "sha256_new_count": [
+   5,
+   5
+  ]
+ },
+ "classify_cli_door_r17_equals_r19b": {
+  "found": true,
+  "door_text_equal": true,
+  "door_sha256": [
+   "7fa6e8cb293c854f5ef6d596e276854f699490275254879989c434537d547b37",
+   "7fa6e8cb293c854f5ef6d596e276854f699490275254879989c434537d547b37"
+  ],
+  "door_to_end_of_file_without_comment_lines_equal": true,
+  "lines": [
+   203,
+   203
+  ]
+ },
+ "cli_binaries": {
+  "r16b": {
+   "path": "results/zk60_token_io_r1_20261017/cli/zk60_classify.r16b.release.bin",
+   "sha256": "dfb8025eb903b203f4b50371fdd0dd00659d46a9dbaad9d121d6a68343ebc70c",
+   "listed": "dfb8025eb903b203f4b50371fdd0dd00659d46a9dbaad9d121d6a68343ebc70c",
+   "equal": true,
+   "starts": true
+  },
+  "r17": {
+   "path": "results/zk60_token_io_r1_20261017/cli/zk60_classify.r17.release.bin",
+   "sha256": "81bd86248e9f42393c9fe739e6794b7af155ad9a0a06874c89efb7a7bba18317",
+   "listed": "81bd86248e9f42393c9fe739e6794b7af155ad9a0a06874c89efb7a7bba18317",
+   "equal": true,
+   "starts": true
+  },
+  "r18": {
+   "path": "results/zk60_token_io_r1_20261017/cli/zk60_classify.r18.release.bin",
+   "sha256": "110f0c53c56f691c301fe4f47d13afc1ccc9898efbaaf8506f1e0d5cde5f4496",
+   "listed": "110f0c53c56f691c301fe4f47d13afc1ccc9898efbaaf8506f1e0d5cde5f4496",
+   "equal": true,
+   "starts": true
+  },
+  "r19": {
+   "path": "results/zk60_token_io_r1_20261017/cli/zk60_classify.r19.release.bin",
+   "sha256": "841ba983cebaae65bbae6289d71f740d44c137fdc6cc98ed46410f2d33a09fd8",
+   "listed": "841ba983cebaae65bbae6289d71f740d44c137fdc6cc98ed46410f2d33a09fd8",
+   "equal": true,
+   "starts": true
+  },
+  "r19b": {
+   "path": "results/zk60_token_io_r1_20261017/cli/zk60_classify.r19b.release.bin",
+   "sha256": "6d65d32ea783e36db2458ccce2d459cb29a91bcb45a89c4e23e484914126d609",
+   "listed": "6d65d32ea783e36db2458ccce2d459cb29a91bcb45a89c4e23e484914126d609",
+   "equal": true,
+   "starts": true
+  }
+ },
+ "frozen_v23_tools_naming_a_classifier_binary": [],
+ "this_box": {
+  "export_tied_embeddings": {
+   "sha256": "67a138c1c483b89874526ef523f5f0c30f161808076561730193d1de2093dd19",
+   "tensor": "language_model.model.embed_tokens.weight"
+  },
+  "checkpoint_file_declared": false,
+  "ZK60_MODELS": null,
+  "HOME": "/home/victor",
+  "default_checkpoint": "/home/victor/models/shieldstral-1.0-3b/snapshot-003ec7e2/model.safetensors",
+  "regular_file": true,
+  "symlink": false,
+  "bytes": 7698241104,
+  "links": 1
+ },
+ "summary": {
+  "trees_ok": true,
+  "moved_r17_to_r19b": [
+   "hashline/examples/zk60_classify.rs",
+   "hashline/src/private_block.rs",
+   "hashline/src/private_block/hash_domain_tests.rs",
+   "hashline/src/private_block/s25_tests.rs",
+   "hashline/src/private_block/s26_tests.rs",
+   "hashline/src/private_block/tied_tables/derive.rs",
+   "hashline/src/private_block/token_io/classify_batch.rs",
+   "hashline/src/private_block/token_io/classify_batch_plan.rs",
+   "hashline/src/private_block/token_io/classify_cli.rs",
+   "hashline/src/private_block/token_io/classify_r18_tests.rs"
+  ],
+  "moved_and_pinned": [
+   "src/private_block.rs",
+   "src/private_block/tied_tables/derive.rs"
+  ],
+  "moved_and_named_by_a_gate_tool": [
+   "hashline/examples/zk60_classify.rs",
+   "hashline/src/private_block.rs",
+   "hashline/src/private_block/tied_tables/derive.rs",
+   "hashline/src/private_block/token_io/classify_cli.rs"
+  ],
+  "binaries_equal_their_lists": true
+ }
+}

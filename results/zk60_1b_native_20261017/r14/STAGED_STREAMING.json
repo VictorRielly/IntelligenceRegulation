@@ -1,0 +1,20 @@
+{
+  "utc": "2026-10-30T05:46:12.011763+00:00",
+  "base": "3c7b1dcfd47ba8cb257c6f734348f25fb960af3f25f8b1b14ea4e262ff8defda",
+  "base_file_sha256": "71358835263368aafa70aad8d00720df1b01a274470dc5c66eea7df855d201fb",
+  "staged_file_sha256": "f109d477043e1f7fbbab1e19fc82f35e1994cc2b6c573861aba7a79fa1bc2539",
+  "patch_sha256": "ccf279242753772f269e6d34c0e88146d1837e9274851c055050bf8721027076",
+  "status": "STAGED ONLY; rustfmt parse passed. NOT cargo type-checked, tested, applied to held trees, integrated into CLI or accepted.",
+  "construction": "Strict model-record/digest Plan factory; borrowed/Arc public block source; complete public shape/digest preflight before transcript; per-stage reload check; existing eager entrypoints wrap the same path. No RNG, transcript, scalar, opening or boundary format changes intended.",
+  "needed_tests": [
+    "Native eager/source Plan digest/profile equivalence DD/nonDD",
+    "Count/shape/digest/order/reload-change controls before header and per-stage",
+    "Native canonical frames accepted by both resident and one-block-cache verifiers; controlled public synthetic proof parity",
+    "Real trained export sealing/parity/cache memory, 26block source-based prove/fresh verify",
+    "Merge with final observer source, regenerate captures, old goldens and independent review"
+  ],
+  "h1_m9": "Caller still must seal/parity-check all witnesses before header, authenticate model/export independently, publish only after full verification.",
+  "limits": "One-block loader implementation and experimental CLI still needed. No actual streaming memory measurement or profile activation.",
+  "preflight": "Protocol-owned non-overridable preflight; source trait supplies only count and block handles. Every stage also independently rechecks shape/digest.",
+  "review_note": "Avoid redundant matrix digest scans: eager constructor already authenticates computed digests; per-stage begin_stage owns the reload shape/digest check. Non-overridable full preflight remains before RNG/transcript."
+}

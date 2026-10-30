@@ -1,0 +1,8 @@
+RAM   13.91 GiB available of 15.39; swap used 0.6 GiB
+BUDGET 0 of 11.89 GiB committed by guarded jobs
+LOCKS heavy free, build free
+GPU   57 of 8188 MiB used
+kernel memory cap available: True
+  rss    450 MiB  pid 2149    claude 
+[zk60-guard 18:20:13] START astra-gpu-benchmark-l02 class=gpu need=2.8G cap=4.5G enforce=cgroup+watchdog waited=0s run=2c6dc76c672e
+[zk60-guard 18:27:29] END astra-gpu-benchmark-l02 exit=0 child_wall=436s peak_rss=1.71G min_avail=12.32G peak_vram=647MiB

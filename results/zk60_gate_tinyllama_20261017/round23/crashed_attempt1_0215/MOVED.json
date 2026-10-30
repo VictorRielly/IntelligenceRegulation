@@ -1,0 +1,43 @@
+{
+ "what": "gate round 23: the partial outputs of the C-9 / NL-1 attempt that the 2026-10-30 ~02:50 UTC crash cut off, moved aside before the relaunch so no result mixes two runs",
+ "moved_at_utc": "2026-10-30T05:27:44Z",
+ "moved": [
+  {
+   "from": "round23/c9.log",
+   "to": "round23/crashed_attempt1_0215/c9.log",
+   "bytes": 134,
+   "sha256": "b3438b1a2dfabdd0f76adfc967d4728318c54139808e4e5ee23648bde6117b00"
+  },
+  {
+   "from": "round23/c9.launched",
+   "to": "round23/crashed_attempt1_0215/c9.launched",
+   "bytes": 29,
+   "sha256": "db98a37f666f48ddaaa1864c93c6ff854f21745577a92a6aff77b4350bc5c699"
+  },
+  {
+   "from": "round23/c9.box_at_launch.json",
+   "to": "round23/crashed_attempt1_0215/c9.box_at_launch.json",
+   "bytes": 272,
+   "sha256": "c6e7321501122cba7b22214fe7fa507e28fc95494f96edff49fc77a3e7c49c3b"
+  },
+  {
+   "from": "round23/logs/c9-real-block0.log",
+   "to": "round23/crashed_attempt1_0215/logs/c9-real-block0.log",
+   "bytes": 84,
+   "sha256": "0b15d9e8b07eaaf786743f48106b507f4c4df083be43ff9c570c724251c3009b"
+  },
+  {
+   "from": "round23/nl26.log",
+   "to": "round23/crashed_attempt1_0215/nl26.log",
+   "bytes": 0,
+   "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+   "from": "round23/nl26.alone.last",
+   "to": "round23/crashed_attempt1_0215/nl26.alone.last",
+   "bytes": 401,
+   "sha256": "e6bc244c787827ebe1d48cecb12ac19142a13e13bc10da3fdae97e93176069f7"
+  }
+ ],
+ "left_in_round23_after_move": []
+}

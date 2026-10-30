@@ -1,0 +1,33 @@
+{
+ "generated_utc": "2026-10-30T06:08:27Z",
+ "sensitive_names_in_candidate_tree": [],
+ "around_candidate_tree": {
+  "apps/proven-media/.testnet-private": [
+   "bridge-bulk.complete.json",
+   "bridge-bulk.pending.json",
+   "bridge-canary.complete.json",
+   "bridge-canary.pending.json",
+   "bridge.lock",
+   "deployment.pending.json",
+   "real-app-demo-recovery/app.key",
+   "real-app-demo-recovery/app.sqlite3",
+   "real-app-demo-recovery/auth.sqlite3",
+   "real-app-demo-recovery/publisher-dev-ed25519.key",
+   "sepolia.json",
+   "throwaway.sepolia-key.json"
+  ],
+  "~/zk60-owner-private": {
+   "exists": true,
+   "entries": 4,
+   "inside_candidate_tree": false
+  }
+ },
+ "sensitive_names_outside_candidate_depth5": {
+  "count": 2,
+  "paths": [
+   "results/zk60_open_release_20261030/secret_scan_hits.tsv",
+   "results/zk60_open_release_20261030/secret_scan_summary.json"
+  ]
+ },
+ "rule": "(?i)(^\\.env$|\\.env\\.|\\.pem$|\\.key$|id_rsa|id_ed25519|\\.p12$|\\.pfx$|\\.sqlite3?$|\\.db$|sepolia-key|owner-private|\\.dec$|secret|credential|wallet|keystore|\\.npmrc$|\\.pypirc$|netrc)"
+}

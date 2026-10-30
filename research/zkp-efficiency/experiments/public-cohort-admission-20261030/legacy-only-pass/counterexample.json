@@ -1,0 +1,11 @@
+{
+  "budget": 9845477376,
+  "background": 4096,
+  "persistent_payload": 4765450240,
+  "table_capacity": 209715200,
+  "naive_second_admission_total": 9845477376,
+  "actual_second_admission_total": 9950334976,
+  "naive_underestimate": 104857600,
+  "correct_result": "REFUSE until table last-use completion and retirement; safe same-capacity reuse only",
+  "actual_fit_claim": false
+}

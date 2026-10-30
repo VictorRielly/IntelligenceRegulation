@@ -1,0 +1,11 @@
+{
+  "status": "PASS_SOURCE_AND_PROVENANCE_AUDIT_ONLY",
+  "checks": 186,
+  "elapsed_s": 0.008392645002459176,
+  "max_rss_kib": 20844,
+  "native_pins_unchanged": true,
+  "prior_eight_native_pins_unchanged": true,
+  "source_records_before": 873,
+  "source_records_after": 882,
+  "external_execution": false
+}

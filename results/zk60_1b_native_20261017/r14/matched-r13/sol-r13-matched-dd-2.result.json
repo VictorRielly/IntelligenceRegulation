@@ -1,0 +1,16 @@
+{
+  "dd": true,
+  "tokens": 128,
+  "blocks": 2,
+  "prove_seconds": 48.65727558,
+  "verify_seconds": 1.369657555,
+  "process_hwm_mib": 7936.6484375,
+  "bytes": [
+    32416904,
+    33434728
+  ],
+  "model_identity": "2771835e24824e8dc99899264655cc60870bf2b70775182538b3190ad47b6b07",
+  "block_digest": "70c065a71fefa6f8caeaef95d66f739cc6137def79f75235c433645f6e7bf6a9",
+  "fixture_helpers_sha256": "9bce20f3bc9f97592db66bbbef9a307529604dbf46980bac9dce43c3a1ad8c96",
+  "scope": "accepted R13 native source plus test-only exact R14 public synthetic fixture, same2layer calibrations; n1 sharedhost, not approved trained-model performance"
+}

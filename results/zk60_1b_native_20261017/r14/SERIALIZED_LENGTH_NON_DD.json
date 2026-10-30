@@ -1,0 +1,14 @@
+{
+  "utc": "2026-10-29T10:55:21.199129+00:00",
+  "scope": "observed native2stage publicsynthetic file lengths equal exactcodec counter",
+  "observed_bytes": [
+    33872200,
+    35414312
+  ],
+  "counted_bytes": [
+    33872200,
+    35414312
+  ],
+  "sum_bytes": 69286512,
+  "source": "57c204b6b12248c368dbd3c6bd4d1abfc6b66d801cbb470cb88b8d176d97a19d"
+}

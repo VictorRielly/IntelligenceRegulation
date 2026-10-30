@@ -1,0 +1,6 @@
+
+running 1 test
+test private_block::hash_domain::tests::every_absorb_label_on_the_path_is_in_the_table ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 721 filtered out; finished in 0.00s
+

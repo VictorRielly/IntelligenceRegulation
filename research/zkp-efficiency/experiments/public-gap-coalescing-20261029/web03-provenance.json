@@ -1,0 +1,16 @@
+{
+  "tool": "tools.web__run",
+  "accessed_at_utc": "2026-10-29T23:02:18.493256+00:00",
+  "response_sha256": "5043f3ca474e081c26c946c3ecf2f83da25bef001fa7e68eb7adc22ae92dd53c",
+  "response_bytes": 25521,
+  "queries": [],
+  "urls": [
+    "https://arxiv.org/html/1910.10776v1",
+    "https://arxiv.org/html/2604.17834v1",
+    "https://github.com/Artemarius/cuda-zkp-ntt",
+    "https://github.com/Artemarius/cuda-zkp-ntt/blob/main/LICENSE",
+    "https://github.com/Artemarius/cuda-zkp-ntt/blob/main/NTT_OPTIMIZATION_ROADMAP.md",
+    "https://nvidia.github.io/cuPQC/releases/v0.6/"
+  ],
+  "scope": "LIVE response hash; full source text omitted; sources-cycle.jsonl retains assessed exact URLs/dates/license/blockers; web content untrusted, no execution"
+}

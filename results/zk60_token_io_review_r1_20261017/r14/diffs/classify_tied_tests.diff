@@ -1,0 +1,63 @@
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r13/hashline/src/private_block/token_io/classify_tied_tests.rs	2026-10-28 16:42:48.584255063 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r14/hashline/src/private_block/token_io/classify_tied_tests.rs	2026-10-28 19:12:07.680594530 -0700
+@@ -86,8 +86,9 @@
+     assert_eq!(tied.margin, MarginParameters { yes: 40, no: 41, scale_bits: (1.0f64 / 256.0).to_bits(), c: 0 }, "the bound profile's classifier_margin_parameters");
+     assert_eq!(tied.profile_sha256, p.model.calibration.export_profile_sha256, "the derivation read the statement's profile.json");
+     // the honest files load through R-C2 and carry the recomputed row
+-    let (tables, bos, nm) = load_tied_classifier_tables(&p, &cc.export, &cc.tables, &policy_rung_dev()).unwrap();
+-    assert_eq!((tables.w_delta.clone(), bos, nm), (tied.w.clone(), 1, norm()));
++    let b = load_tied_classifier_tables(&p, &cc.export, &cc.tables, &policy_rung_dev()).unwrap();
++    assert_eq!((b.tables().w_delta.clone(), b.bos(), b.norm()), (tied.w.clone(), 1, norm()));
++    assert!(b.is_derived() && b.model_identity() == p.model.identity() && b.profile_sha256() == p.model.calibration.export_profile_sha256, "round 14: bound to the export's trained statement");
+     // the swapped export: the other row from the same tensor (about -w)
+     let neg = dev(&cc.export_neg, &cc.tables_neg, &policy_rung_dev_swapped()).unwrap();
+     assert_eq!(neg.emb_sha256, tied.emb_sha256);
+@@ -341,3 +342,48 @@
+     assert!(err.contains("is not the export profile's classifier_margin_parameters"), "{err} (refused before any checkpoint read)");
+     println!("RC2-SHIELDSTRAL honest export tables PASS; doctored margin / embedding digest / bos / final norm and another scale REFUSED");
+ }
++
++/// **ROUND 14 (REVIEW_R13 N-r13-2): the POST-derivation profile digest check
++/// is load-bearing.** At Shieldstral the token lane reads `profile.json` once
++/// (the statement's digest), then native R12b's recompute reads it AGAIN with
++/// the checkpoint. A recompute that read another profile (here a stub standing
++/// in for R12b, returning a calibration whose `profile_sha256` is another
++/// file's: the file swapped between the two reads) must be refused, even
++/// though the first read was the bound one; the same stub returning the bound
++/// digest is accepted. Removing the check (classify_tied.rs, "requirement 2,
++/// after the derivation's own read") turns this test red (round-14 mutation
++/// run `mut-n2`).
++#[test]
++fn r14_the_post_derivation_profile_digest_check_refuses_a_derivation_that_read_another_profile() {
++    use super::super::tied_tables::{RecomputedTiedTables, TiedFinalNorm, TiedTokenCalibration};
++    let root = super::classify_cli_tests::fixture_root().join(format!("r14-n2-{}", std::process::id()));
++    let _ = std::fs::remove_dir_all(&root);
++    let (export, tables) = (root.join("export"), root.join("tables"));
++    std::fs::create_dir_all(&export).unwrap();
++    std::fs::create_dir_all(&tables).unwrap();
++    let card = policy_shieldstral_card();
++    let profile = format!("{{\"kind\": \"r14-n2-stub-profile\", \"classifier_margin_parameters\": {{\"yes_id\": {}, \"no_id\": {}, \"public_scale\": {:?}, \"threshold_c\": {}}}}}\n", card.yes, card.no, card.margin_scale(), card.c);
++    std::fs::write(export.join("profile.json"), &profile).unwrap();
++    let bound = sha256(profile.as_bytes());
++    let mut swapped = bound;
++    swapped[0] ^= 1;
++    let stub = |profile_sha256: [u8; 32]| -> Box<dyn Fn(&Path, (u32, u32, f64)) -> Result<RecomputedTiedTables, String>> {
++        Box::new(move |_export: &Path, m: (u32, u32, f64)| {
++            assert_eq!(m, (13059, 2649, 4.08288030735373e-6), "the recompute is asked for the bound profile's margin parameters");
++            let fnm = TiedFinalNorm { g0: 127, cn: 1024, tn: 10, ceps: 2439 };
++            Ok(RecomputedTiedTables { embedding_sha256: [3; 32], head_sha256: [4; 32], multipliers_sha256: [5; 32], margin: Some(vec![7i16; 3072]), calibration: TiedTokenCalibration { bos: 1, classifier_final_norm: fnm.clone(), head_final_norm: fnm, profile_sha256 } })
++        })
++    };
++    {
++        let _g = stub_shieldstral_recompute(stub(swapped));
++        let e = recompute_tied_classifier(TiedSource::Shieldstral, &export, &tables, &card, 0.0, 3072, &bound).err().expect("A DERIVATION THAT READ ANOTHER profile.json WAS ACCEPTED (N-r13-2)");
++        assert!(e.contains("the derivation read a profile.json other than the one the trained statement binds"), "{e}");
++    }
++    {
++        let _g = stub_shieldstral_recompute(stub(bound));
++        let t = recompute_tied_classifier(TiedSource::Shieldstral, &export, &tables, &card, 0.0, 3072, &bound).expect("the same stub with the bound digest");
++        assert_eq!((t.w.len(), t.profile_sha256, t.bos), (3072, bound, 1));
++    }
++    let _ = std::fs::remove_dir_all(&root);
++    eprintln!("TOKEN-IO R14 | N-r13-2 | a Shieldstral-path derivation that read another profile.json is refused by the post-derivation check; the bound one is accepted");
++}

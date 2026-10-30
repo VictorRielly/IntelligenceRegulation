@@ -1,0 +1,8 @@
+[zk60-guard 00:09:16] START rv13-test-build-2 class=build need=2.5G cap=4.5G enforce=cgroup+watchdog waited=0s run=a052c0e547a8
+[zk60-guard 00:11:53] END rv13-test-build-2 exit=0 child_wall=157s peak_rss=1.97G min_avail=12.04G
+[zk60-guard 00:12:53] START rv13-controls class=cpu need=1.5G cap=3G enforce=cgroup+watchdog waited=0s run=589d6ccd1076
+[zk60-guard 00:12:56] END rv13-controls exit=0 child_wall=3s peak_rss=0.54G min_avail=13.39G
+[zk60-guard 00:13:56] START rv13-goldens class=cpu need=7.5G cap=9.5G enforce=cgroup+watchdog waited=0s run=af9853da11eb
+[zk60-guard 00:14:48] END rv13-goldens exit=0 child_wall=52s peak_rss=5.91G min_avail=8.05G
+[zk60-guard 00:15:48] START rv13-shield class=cpu need=2.5G cap=4.5G enforce=cgroup+watchdog waited=0s run=43708643997e
+[zk60-guard 00:15:48] END rv13-shield exit=101 child_wall=0s peak_rss=0.00G min_avail=14.03G

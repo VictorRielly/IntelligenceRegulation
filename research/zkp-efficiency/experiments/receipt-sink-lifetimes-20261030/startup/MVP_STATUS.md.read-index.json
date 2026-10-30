@@ -1,0 +1,32 @@
+{
+  "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/MVP_STATUS.md",
+  "headings": [
+    {
+      "line": 1,
+      "text": "# Where the MVP stands, in plain words"
+    },
+    {
+      "line": 1184,
+      "text": "## 1. Do we have a workable proof?"
+    },
+    {
+      "line": 1297,
+      "text": "## 2. How slow are we against the target?"
+    },
+    {
+      "line": 1350,
+      "text": "## 3. What blocks a private, model-scale MVP at speed, and what is being done"
+    },
+    {
+      "line": 1466,
+      "text": "## 4. Where the evidence is"
+    },
+    {
+      "line": 1474,
+      "text": "## 2026-09-29 (PDT): VC readiness snapshot for Tech Week SF"
+    }
+  ],
+  "bytes": 106429,
+  "lines": 1543,
+  "sha256": "f75da8ddcf7edefaf3f367ecd6ac63b07ab17f418cae4a3a0c9e9a1c9c09e28b"
+}

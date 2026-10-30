@@ -1,0 +1,65 @@
+{
+  "path": "docs/zkmatrix-poc/MVP_STATUS.md",
+  "lines_read": 1543,
+  "sha256": "f75da8ddcf7edefaf3f367ecd6ac63b07ab17f418cae4a3a0c9e9a1c9c09e28b",
+  "headings": [
+    {
+      "line": 1,
+      "heading": "# Where the MVP stands, in plain words"
+    },
+    {
+      "line": 1184,
+      "heading": "## 1. Do we have a workable proof?"
+    },
+    {
+      "line": 1297,
+      "heading": "## 2. How slow are we against the target?"
+    },
+    {
+      "line": 1350,
+      "heading": "## 3. What blocks a private, model-scale MVP at speed, and what is being done"
+    },
+    {
+      "line": 1466,
+      "heading": "## 4. Where the evidence is"
+    },
+    {
+      "line": 1474,
+      "heading": "## 2026-09-29 (PDT): VC readiness snapshot for Tech Week SF"
+    }
+  ],
+  "current_mentions": [
+    {
+      "line": 3,
+      "text": "**2026-10-30 11:35 UTC: work interrupted by the crash is caught up.**"
+    },
+    {
+      "line": 16,
+      "text": "  that anyone can verify a receipt (needed for the open-source release, D48)."
+    },
+    {
+      "line": 17,
+      "text": "- **Sol (R14)** is close to a freeze; its independent soundness review follows."
+    },
+    {
+      "line": 19,
+      "text": "**2026-10-30 05:30 UTC: the laptop crashed at about 02:50 UTC and work has resumed; safeguards added (D46).**"
+    },
+    {
+      "line": 47,
+      "text": "**2026-10-30 01:54 UTC: the first real post went through the app, and all three classifier"
+    },
+    {
+      "line": 127,
+      "text": "- **Speed (Sol's split-width round, S4 / R14), 16:53 UTC:** on a matched"
+    },
+    {
+      "line": 630,
+      "text": "**2026-10-17 14:00 UTC \u2014 how far from 50 proved tokens/s, measured-model"
+    },
+    {
+      "line": 770,
+      "text": "forward-pass proof at >=50 proved tokens/s on an RTX 5090 or another high-end"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+--- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12b/frozen-tree/hashline/src/private_block/tied_tables/derive.rs	2026-10-28 15:30:02.119390357 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/hashline/src/private_block/tied_tables/derive.rs	2026-10-28 23:08:24.416223975 -0700
+@@ -50,7 +50,7 @@
+     Ok(value)
+ }
+ 
+-fn norm(value: &J, classifier: bool) -> Result<TiedFinalNorm, String> {
++pub(crate) fn norm(value: &J, classifier: bool) -> Result<TiedFinalNorm, String> {
+     let get = |key: &str| value.get(key).and_then(J::i64);
+     let out = TiedFinalNorm { g0: get("g0")?, cn: get("cn")?,
+         tn: u32::try_from(get("tn")?).map_err(|_| "final norm tn out of range")?, ceps: get("ceps")? };
+@@ -110,7 +110,7 @@
+     Ok(bytes)
+ }
+ 
+-fn bf16(bytes: &[u8]) -> Result<Vec<f64>, String> {
++pub(crate) fn bf16(bytes: &[u8]) -> Result<Vec<f64>, String> {
+     let values = bytes.chunks_exact(2).map(|x| f32::from_bits(u32::from(u16::from_le_bytes([x[0], x[1]])) << 16) as f64).collect::<Vec<_>>();
+     if values.iter().any(|x| !x.is_finite()) { return Err("nonfinite BF16 tensor value".into()); }
+     Ok(values)
+@@ -177,7 +177,7 @@
+     Ok(())
+ }
+ 
+-fn quantize(values: &[f64], scale: f64, low: i64, high: i64) -> Result<Vec<i64>, String> {
++pub(crate) fn quantize(values: &[f64], scale: f64, low: i64, high: i64) -> Result<Vec<i64>, String> {
+     positive(scale,"quantization")?;
+     values.iter().map(|value| {
+         let q = (value/scale+0.5).floor();

@@ -1,0 +1,13 @@
+{
+  "cycle": "0164",
+  "run_id": "20261030T124123Z-126f56e8",
+  "checkpoint_utc": "2026-10-30T12:53:31.419503+00:00",
+  "status": "COMPLETE",
+  "target_achieved": false,
+  "new_source_records": 8,
+  "prior_source_records": 1087,
+  "full_stack_proofs": 0,
+  "proved_positions": 0,
+  "final_checkpoint_utc": "2026-10-30T12:54:10.525911+00:00",
+  "final_audit_checks": 119
+}

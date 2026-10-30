@@ -1,0 +1,9 @@
+{
+  "root_r13_field_equal": true,
+  "root_r13_cfs_equal": true,
+  "round_interface_unmasked_contract": true,
+  "driver_absorb_challenge_fold_order": true,
+  "argument_uses_typed_rounds": true,
+  "argument_direct_legacy_gpu_calls": 0,
+  "scope": "Inspected R13 argument -> masked_prove_rounds -> prove_rounds -> ClosureRounds/GroupedEqRounds; no current private block port to legacy GPU API established. Not a general reachability proof."
+}

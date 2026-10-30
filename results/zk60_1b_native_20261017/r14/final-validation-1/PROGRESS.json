@@ -1,0 +1,1128 @@
+[
+  {
+    "name": "suite",
+    "guard": {
+      "ts_end": "2026-10-30T10:13:01Z",
+      "run_id": "22416b727da0",
+      "label": "sol-r14-final-suite-1",
+      "class": "cpu",
+      "cmd": [
+        "/usr/bin/env",
+        "CARGO_TARGET_DIR=/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/cli-working-tree/hashline/target",
+        "RAYON_NUM_THREADS=2",
+        "OPENBLAS_NUM_THREADS=1",
+        "ZK60_NATIVE_TINY_EXPORT_DIR=/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/final-validation-1/generated-tiny-exports",
+        "ZK60_R12_EVIDENCE_DIR=/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/final-validation-1/generated-r12-receipts",
+        "/home/victor/.cargo/bin/cargo",
+        "test"
+      ],
+      "need_gib": 4.2,
+      "cap_gib": 8.0,
+      "exit": 0,
+      "child_rc": 0,
+      "guard_killed": null,
+      "child_wall_seconds": 838.1034243106842,
+      "refused": null,
+      "guard_error": null,
+      "guard_pid": 3,
+      "boot_id": "4f7dab84-38e2-4f1a-9518-e305e81ef580",
+      "pid_ns": "pid:[4026532235]",
+      "guard_starttime_ticks": 1913031,
+      "lock_ids": {
+        "heavy": "2096:715313",
+        "build": "2096:715314"
+      },
+      "enforcement": "watchdog-only",
+      "waited_s": 0.0,
+      "guard_wall_s": 838.1,
+      "stragglers_killed": 0,
+      "hard_killed": 0,
+      "scope_unit": null,
+      "scope_adopted": null,
+      "foreign_cgroups_refused": [],
+      "peak_rss_gib": 3.1,
+      "peak_cgroup_gib": null,
+      "peak_vram_mib": null,
+      "min_mem_available_gib": 10.72,
+      "vram_drain_s": null,
+      "gpu_drain_failed": false,
+      "gpu_telemetry_lost": false,
+      "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache"
+    },
+    "log_sha256": "6f3e4e88edc76d7419f4cc849234716d748984060b8e7904f23c855b50c5d938",
+    "census": {
+      "passed": 838,
+      "ignored": 75,
+      "summaries": [
+        [
+          "693",
+          "75"
+        ],
+        [
+          "0",
+          "0"
+        ],
+        [
+          "3",
+          "0"
+        ],
+        [
+          "4",
+          "0"
+        ],
+        [
+          "9",
+          "0"
+        ],
+        [
+          "6",
+          "0"
+        ],
+        [
+          "2",
+          "0"
+        ],
+        [
+          "6",
+          "0"
+        ],
+        [
+          "2",
+          "0"
+        ],
+        [
+          "12",
+          "0"
+        ],
+        [
+          "9",
+          "0"
+        ],
+        [
+          "5",
+          "0"
+        ],
+        [
+          "2",
+          "0"
+        ],
+        [
+          "1",
+          "0"
+        ],
+        [
+          "5",
+          "0"
+        ],
+        [
+          "4",
+          "0"
+        ],
+        [
+          "3",
+          "0"
+        ],
+        [
+          "4",
+          "0"
+        ],
+        [
+          "4",
+          "0"
+        ],
+        [
+          "9",
+          "0"
+        ],
+        [
+          "5",
+          "0"
+        ],
+        [
+          "7",
+          "0"
+        ],
+        [
+          "12",
+          "0"
+        ],
+        [
+          "8",
+          "0"
+        ],
+        [
+          "8",
+          "0"
+        ],
+        [
+          "7",
+          "0"
+        ],
+        [
+          "3",
+          "0"
+        ],
+        [
+          "0",
+          "0"
+        ],
+        [
+          "5",
+          "0"
+        ]
+      ],
+      "baseline_passed_preserved": 816,
+      "baseline_ignored_preserved": 51,
+      "baseline_log_sha256": "359060c37110e96be1016f6249f0f91bdb2b93ddf70d39b8a5c5f79841ae230b",
+      "current_log_sha256": "6f3e4e88edc76d7419f4cc849234716d748984060b8e7904f23c855b50c5d938",
+      "added": [
+        {
+          "test": "private_block::argument::split_actual_tests::split_actual_s2_t128_all19_sites_and_optional_native_proof",
+          "state": "ignored",
+          "count": 1
+        },
+        {
+          "test": "private_block::argument::split_actual_tests::split_actual_s2_t128_fresh_native_corruption_refusal",
+          "state": "ignored",
+          "count": 1
+        },
+        {
+          "test": "private_block::argument::split_actual_tests::split_actual_s2_t128_fresh_native_verifier",
+          "state": "ignored",
+          "count": 1
+        },
+        {
+          "test": "private_block::argument::split_attack_tests::split_local_group_fixture_has_distinct_outputs",
+          "state": "ignored",
+          "count": 1
+        },
+        {
+          "test": "private_block::argument::split_attack_tests::split_run_t128_malicious_arithmetic_receipt_from_env",
+          "state": "ignored",
+          "count": 1
+        },
+        {
+          "test": "private_block::argument::split_attack_tests::split_run_t128_relation_regression_receipt_from_env",
+          "state": "ignored",
+          "count": 1
+        },
+        {
+          "test": "private_block::argument::split_capture_tests::split_capture_public_seed_matches_native_and_changed_context_refuses_replay",
+          "state": "ok",
+          "count": 1
+        },
+        {
+          "test": "private_block::argument::split_capture_tests::split_capture_rejected_or_incomplete_run_cannot_return_a_bundle",
+          "state": "ok",
+          "count": 1
+        },
+        {
+          "test": "private_block::argument::split_capture_tests::split_capture_t128_three_stage_native_verifier_view_and_rejected_bundle_suppression",
+          "state": "ignored",
+          "count": 1
+        },
+        {
+          "test": "private_block::argument::split_cfs_tests::split_scheduled_native_cfs_emitted_gate_forgeries_reach_m_and_refuse",
+          "state": "ok",
+          "count": 1
+        },
+        {
+          "test": "private_block::argument::split_cfs_tests::split_scheduled_native_cfs_pcs_m_accepts_public_factor_lift_at_slot30",
+          "state": "ok",
+          "count": 1
+        },
+        {
+          "test": "private_block::argument::split_definition_tests::split_actual_definitions_match_all_physical_sites_sources_hosts_and_degrees",
+          "state": "ok",
+          "count": 1
+        },
+        {
+          "test": "private_block::argument::split_definition_tests::split_native_core_t128_dd_proves_verifies_and_tamper_refuses",
+          "state": "ignored",
+          "count": 1
+        },
+        {
+          "test": "private_block::argument::split_definition_tests::split_native_core_t128_non_dd_proves_verifies_and_tamper_refuses",
+          "state": "ignored",
+          "count": 1
+        },
+        {
+          "test": "private_block::argument::split_definition_tests::split_run_plan_binds_trained_context_layer_calibrations_scales_and_joint_geometry",
+          "state": "ok",
+          "count": 1
+        },
+        {
+          "test": "private_block::argument::split_definition_tests::split_witness_global_histograms_remove_only_the_old_padding_queries",
+          "state": "ok",
+          "count": 1
+        },
+        {
+          "test": "private_block::argument::split_dense_tests::split_generic_dense_t128_native_receipt_and_physical_trace",
+          "state": "ignored",
+          "count": 1
+        },
+        {
+          "test": "private_block::argument::split_l25_tests::split_actual_l25_t128_all19_sites_and_optional_native_proof",
+          "state": "ignored",
+          "count": 1
+        },
+        {
+          "test": "private_block::argument::split_l25_tests::split_actual_l25_t128_fresh_native_corruption_refusal",
+          "state": "ignored",
+          "count": 1
+        },
+        {
+          "test": "private_block::argument::split_l25_tests::split_actual_l25_t128_fresh_native_verifier",
+          "state": "ignored",
+          "count": 1
+        },
+        {
+          "test": "private_block::argument::split_run_tests::split_run_t128_dd_fresh_rejects_corrupt_stream",
+          "state": "ignored",
+          "count": 1
+        },
+        {
+          "test": "private_block::argument::split_run_tests::split_run_t128_dd_fresh_verify_from_dir",
+          "state": "ignored",
+          "count": 1
+        },
+        {
+          "test": "private_block::argument::split_run_tests::split_run_t128_dd_narrow_boundary_forgery_emits_and_refuses",
+          "state": "ignored",
+          "count": 1
+        },
+        {
+          "test": "private_block::argument::split_run_tests::split_run_t128_dd_serialized_two_blocks_with_own_calibration_verify",
+          "state": "ignored",
+          "count": 1
+        },
+        {
+          "test": "private_block::argument::split_run_tests::split_run_t128_non_dd_fresh_rejects_corrupt_stream",
+          "state": "ignored",
+          "count": 1
+        },
+        {
+          "test": "private_block::argument::split_run_tests::split_run_t128_non_dd_fresh_verify_from_dir",
+          "state": "ignored",
+          "count": 1
+        },
+        {
+          "test": "private_block::argument::split_run_tests::split_run_t128_non_dd_narrow_boundary_forgery_emits_and_refuses",
+          "state": "ignored",
+          "count": 1
+        },
+        {
+          "test": "private_block::argument::split_run_tests::split_run_t128_non_dd_serialized_two_blocks_with_own_calibration_verify",
+          "state": "ignored",
+          "count": 1
+        },
+        {
+          "test": "private_block::argument::split_streaming_tests::split_streaming_record_plan_matches_resident_plan_and_refuses_invalid_metadata",
+          "state": "ok",
+          "count": 1
+        },
+        {
+          "test": "private_block::argument::split_streaming_tests::split_streaming_source_count_and_digest_are_checked_before_verifier_header",
+          "state": "ok",
+          "count": 1
+        },
+        {
+          "test": "private_block::argument::split_streaming_tests::split_streaming_t128_source_prover_and_both_verifiers",
+          "state": "ignored",
+          "count": 1
+        },
+        {
+          "test": "private_block::source_audit::test_attributes_and_public_children_are_enumerated_without_scanning_test_modules",
+          "state": "ok",
+          "count": 1
+        },
+        {
+          "test": "private_block::split_endpoint::tests::split_joint_descriptor_and_source_roles_refuse_foreign_geometry",
+          "state": "ok",
+          "count": 1
+        },
+        {
+          "test": "private_block::split_endpoint::tests::split_joint_one_opening_accepts_two_and_four_piece_claims_and_rejects_mutations",
+          "state": "ok",
+          "count": 1
+        },
+        {
+          "test": "private_block::split_geometry::tests::both_matrix_orientations_use_global_coefficients_and_one_public_gate",
+          "state": "ok",
+          "count": 1
+        },
+        {
+          "test": "private_block::split_geometry::tests::gather_all_true_numeric_roles_preserves_global_token_feature_indices",
+          "state": "ok",
+          "count": 1
+        },
+        {
+          "test": "private_block::split_geometry::tests::native_private_broadcast_maps_keep_fixed_and_moving_tokens",
+          "state": "ok",
+          "count": 1
+        },
+        {
+          "test": "private_block::split_layout::tests::native_split_inventory_census",
+          "state": "ok",
+          "count": 1
+        },
+        {
+          "test": "private_block::split_layout::tests::split_inventory_refuses_missing_extent_and_short_h_piece",
+          "state": "ok",
+          "count": 1
+        },
+        {
+          "test": "private_block::split_profile::tests::split_descriptors_bind_geometry_calibration_and_new_hash_domains",
+          "state": "ok",
+          "count": 1
+        },
+        {
+          "test": "private_block::split_run::root_tests::split_run_repeated_root_audit_covers_endpoint_block_mask_and_boundary_roles",
+          "state": "ok",
+          "count": 1
+        },
+        {
+          "test": "private_block::trained_block::split_cli::tests::split_cli_actual_full26_native_capture_and_rejected_bundle_suppression",
+          "state": "ignored",
+          "count": 1
+        },
+        {
+          "test": "private_block::trained_block::split_cli::tests::split_cli_policy_is_versioned_and_exact_length",
+          "state": "ok",
+          "count": 1
+        },
+        {
+          "test": "private_block::trained_block::split_cli::tests::split_cli_publication_names_only_the_segment_bytes_consumed_by_verification",
+          "state": "ignored",
+          "count": 1
+        },
+        {
+          "test": "private_block::trained_block::split_cli::tests::split_cli_requires_explicit_experimental_flag_before_io",
+          "state": "ok",
+          "count": 1
+        },
+        {
+          "test": "private_block::wire::split::tests::split_wire_exact_shapes_roundtrip_and_hostile_headers_words_and_counts_refuse",
+          "state": "ok",
+          "count": 1
+        }
+      ],
+      "normalization": "Only numeric doctest (line N) locations; names, status and multiplicity preserved."
+    }
+  },
+  {
+    "name": "goldens",
+    "guard": {
+      "ts_end": "2026-10-30T10:14:35Z",
+      "run_id": "060cb9c0cd4d",
+      "label": "sol-r14-final-goldens-1",
+      "class": "cpu",
+      "cmd": [
+        "/usr/bin/env",
+        "RAYON_NUM_THREADS=2",
+        "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/checkpoints/final-build-1/hashline.test.bin",
+        "r12_golden_tests",
+        "--ignored",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "need_gib": 8.0,
+      "cap_gib": 10.5,
+      "exit": 0,
+      "child_rc": 0,
+      "guard_killed": null,
+      "child_wall_seconds": 93.99324679374695,
+      "refused": null,
+      "guard_error": null,
+      "guard_pid": 2835,
+      "boot_id": "4f7dab84-38e2-4f1a-9518-e305e81ef580",
+      "pid_ns": "pid:[4026532235]",
+      "guard_starttime_ticks": 1996853,
+      "lock_ids": {
+        "heavy": "2096:715313",
+        "build": "2096:715314"
+      },
+      "enforcement": "watchdog-only",
+      "waited_s": 0.0,
+      "guard_wall_s": 94.0,
+      "stragglers_killed": 0,
+      "hard_killed": 0,
+      "scope_unit": null,
+      "scope_adopted": null,
+      "foreign_cgroups_refused": [],
+      "peak_rss_gib": 5.9,
+      "peak_cgroup_gib": null,
+      "peak_vram_mib": null,
+      "min_mem_available_gib": 7.46,
+      "vram_drain_s": null,
+      "gpu_drain_failed": false,
+      "gpu_telemetry_lost": false,
+      "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache"
+    },
+    "log_sha256": "c5ec12d64ff24456ef52d4b7f46ea88a27fe94fc8bdbaaec7a654a236e48bc73"
+  },
+  {
+    "name": "build-zk60_split_stack",
+    "guard": {
+      "ts_end": "2026-10-30T10:14:51Z",
+      "run_id": "a8cb63ade438",
+      "label": "sol-r14-final-build-zk60_split_stack-1",
+      "class": "build",
+      "cmd": [
+        "/usr/bin/env",
+        "CARGO_TARGET_DIR=/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/cli-working-tree/hashline/target",
+        "RAYON_NUM_THREADS=2",
+        "OPENBLAS_NUM_THREADS=1",
+        "ZK60_NATIVE_TINY_EXPORT_DIR=/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/final-validation-1/generated-tiny-exports",
+        "ZK60_R12_EVIDENCE_DIR=/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/final-validation-1/generated-r12-receipts",
+        "/home/victor/.cargo/bin/cargo",
+        "build"
+      ],
+      "need_gib": 2.6,
+      "cap_gib": 5.0,
+      "exit": 0,
+      "child_rc": 0,
+      "guard_killed": null,
+      "child_wall_seconds": 15.286183595657349,
+      "refused": null,
+      "guard_error": null,
+      "guard_pid": 2845,
+      "boot_id": "4f7dab84-38e2-4f1a-9518-e305e81ef580",
+      "pid_ns": "pid:[4026532235]",
+      "guard_starttime_ticks": 2006261,
+      "lock_ids": {
+        "heavy": "2096:715313",
+        "build": "2096:715314"
+      },
+      "enforcement": "watchdog-only",
+      "waited_s": 0.0,
+      "guard_wall_s": 15.3,
+      "stragglers_killed": 0,
+      "hard_killed": 0,
+      "scope_unit": null,
+      "scope_adopted": null,
+      "foreign_cgroups_refused": [],
+      "peak_rss_gib": 0.41,
+      "peak_cgroup_gib": null,
+      "peak_vram_mib": null,
+      "min_mem_available_gib": 13.07,
+      "vram_drain_s": null,
+      "gpu_drain_failed": false,
+      "gpu_telemetry_lost": false,
+      "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache"
+    },
+    "log_sha256": "3d8ff68682109da41e8ffecb55d6cd99e9584e0b1e53ad17c82a24f0c25837a1"
+  },
+  {
+    "name": "build-zk60_trained_block",
+    "guard": {
+      "ts_end": "2026-10-30T10:15:07Z",
+      "run_id": "ceb148f4e944",
+      "label": "sol-r14-final-build-zk60_trained_block-1",
+      "class": "build",
+      "cmd": [
+        "/usr/bin/env",
+        "CARGO_TARGET_DIR=/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/cli-working-tree/hashline/target",
+        "RAYON_NUM_THREADS=2",
+        "OPENBLAS_NUM_THREADS=1",
+        "ZK60_NATIVE_TINY_EXPORT_DIR=/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/final-validation-1/generated-tiny-exports",
+        "ZK60_R12_EVIDENCE_DIR=/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/final-validation-1/generated-r12-receipts",
+        "/home/victor/.cargo/bin/cargo",
+        "build"
+      ],
+      "need_gib": 2.6,
+      "cap_gib": 5.0,
+      "exit": 0,
+      "child_rc": 0,
+      "guard_killed": null,
+      "child_wall_seconds": 16.28793954849243,
+      "refused": null,
+      "guard_error": null,
+      "guard_pid": 2901,
+      "boot_id": "4f7dab84-38e2-4f1a-9518-e305e81ef580",
+      "pid_ns": "pid:[4026532235]",
+      "guard_starttime_ticks": 2007798,
+      "lock_ids": {
+        "heavy": "2096:715313",
+        "build": "2096:715314"
+      },
+      "enforcement": "watchdog-only",
+      "waited_s": 0.0,
+      "guard_wall_s": 16.3,
+      "stragglers_killed": 0,
+      "hard_killed": 0,
+      "scope_unit": null,
+      "scope_adopted": null,
+      "foreign_cgroups_refused": [],
+      "peak_rss_gib": 0.42,
+      "peak_cgroup_gib": null,
+      "peak_vram_mib": null,
+      "min_mem_available_gib": 13.17,
+      "vram_drain_s": null,
+      "gpu_drain_failed": false,
+      "gpu_telemetry_lost": false,
+      "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache"
+    },
+    "log_sha256": "15d1c1aca7a5be9c32eaa5acb37518114219f092c5cb033232a25e0442c39485"
+  },
+  {
+    "name": "compat-tl",
+    "guard": {
+      "ts_end": "2026-10-30T10:15:20Z",
+      "run_id": "855a6548a28c",
+      "label": "sol-r14-final-compat-tl-1",
+      "class": "cpu",
+      "cmd": [
+        "/usr/bin/env",
+        "RAYON_NUM_THREADS=2",
+        "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/checkpoints/final-build-1/zk60_trained_block.bin",
+        "stack-verify",
+        "--export",
+        "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r8/verifier-exports/tinyllama_dg_rot1_T128",
+        "--artifact",
+        "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r8/stack-tinyllama_dg_rot1_T128-ho00-cpu/run"
+      ],
+      "need_gib": 2.5,
+      "cap_gib": 5.0,
+      "exit": 0,
+      "child_rc": 0,
+      "guard_killed": null,
+      "child_wall_seconds": 12.682695627212524,
+      "refused": null,
+      "guard_error": null,
+      "guard_pid": 2941,
+      "boot_id": "4f7dab84-38e2-4f1a-9518-e305e81ef580",
+      "pid_ns": "pid:[4026532235]",
+      "guard_starttime_ticks": 2009435,
+      "lock_ids": {
+        "heavy": "2096:715313",
+        "build": "2096:715314"
+      },
+      "enforcement": "watchdog-only",
+      "waited_s": 0.0,
+      "guard_wall_s": 12.7,
+      "stragglers_killed": 0,
+      "hard_killed": 0,
+      "scope_unit": null,
+      "scope_adopted": null,
+      "foreign_cgroups_refused": [],
+      "peak_rss_gib": 0.43,
+      "peak_cgroup_gib": null,
+      "peak_vram_mib": null,
+      "min_mem_available_gib": 12.94,
+      "vram_drain_s": null,
+      "gpu_drain_failed": false,
+      "gpu_telemetry_lost": false,
+      "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache"
+    },
+    "log_sha256": "4770408df56541f846450e77f2ca21251afe7eb6fb0cc2ff49bccd37e92e0faf",
+    "verified": {
+      "event": "verified",
+      "blocks": 22,
+      "receipt_bytes": 497665904,
+      "load_seconds": 2.314,
+      "verify_seconds": 10.327,
+      "of_which_block_load_seconds": 1.906,
+      "vmhwm_mib": 440,
+      "statement_identity": "caf6ced22fbb87a94c1f571a96faf278815668996863146805c9d2eea76c9165",
+      "scope": "ALL the listed trained blocks of the export's model (TinyLlama-1.1B-Chat or Llama-3-8B) as ONE bound run at the export's T (one transcript, hidden internal boundaries); embedding, final norm, LM head and token selection are NOT covered (D13); CPU unless the run line says gpu; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement"
+    },
+    "prior_command_sha256": "4c5058061812b236e1064ef8017f15191f9b50daffcc61cfa3de83af06b60a00"
+  },
+  {
+    "name": "compat-tl-dd",
+    "guard": {
+      "ts_end": "2026-10-30T10:15:33Z",
+      "run_id": "acfb34f31120",
+      "label": "sol-r14-final-compat-tl-dd-1",
+      "class": "cpu",
+      "cmd": [
+        "/usr/bin/env",
+        "RAYON_NUM_THREADS=2",
+        "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/checkpoints/final-build-1/zk60_trained_block.bin",
+        "stack-verify",
+        "--export",
+        "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/verifier-exports/tinyllama_dg_rot1_T128",
+        "--artifact",
+        "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/stack-tinyllama_dg_rot1_T128-ho00-cpu-dd/run"
+      ],
+      "need_gib": 2.5,
+      "cap_gib": 5.0,
+      "exit": 0,
+      "child_rc": 0,
+      "guard_killed": null,
+      "child_wall_seconds": 13.332345485687256,
+      "refused": null,
+      "guard_error": null,
+      "guard_pid": 2946,
+      "boot_id": "4f7dab84-38e2-4f1a-9518-e305e81ef580",
+      "pid_ns": "pid:[4026532235]",
+      "guard_starttime_ticks": 2010714,
+      "lock_ids": {
+        "heavy": "2096:715313",
+        "build": "2096:715314"
+      },
+      "enforcement": "watchdog-only",
+      "waited_s": 0.0,
+      "guard_wall_s": 13.3,
+      "stragglers_killed": 0,
+      "hard_killed": 0,
+      "scope_unit": null,
+      "scope_adopted": null,
+      "foreign_cgroups_refused": [],
+      "peak_rss_gib": 0.43,
+      "peak_cgroup_gib": null,
+      "peak_vram_mib": null,
+      "min_mem_available_gib": 13.03,
+      "vram_drain_s": null,
+      "gpu_drain_failed": false,
+      "gpu_telemetry_lost": false,
+      "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache"
+    },
+    "log_sha256": "b47f71d22046a969f68755b7a5f92bb302f170aa85d4d4a00232542807c23afa",
+    "verified": {
+      "event": "verified",
+      "blocks": 22,
+      "receipt_bytes": 502836080,
+      "load_seconds": 2.521,
+      "verify_seconds": 10.759,
+      "of_which_block_load_seconds": 1.91,
+      "vmhwm_mib": 440,
+      "statement_identity": "d57212761b29a8eab43d03af012a3b5bec7154455786275f4000502893d22e4b",
+      "scope": "ALL the listed trained blocks of the export's model (TinyLlama-1.1B-Chat or Llama-3-8B) as ONE bound run at the export's T (one transcript, hidden internal boundaries); embedding, final norm, LM head and token selection are NOT covered (D13); CPU unless the run line says gpu; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement"
+    },
+    "prior_command_sha256": "3910422478de93ed88fc5323357d8ec997c7bbd30462457e2858fab30fc5068d"
+  },
+  {
+    "name": "compat-8b",
+    "guard": {
+      "ts_end": "2026-10-30T10:16:34Z",
+      "run_id": "f5d720978e86",
+      "label": "sol-r14-final-compat-8b-1",
+      "class": "cpu",
+      "cmd": [
+        "/usr/bin/env",
+        "RAYON_NUM_THREADS=2",
+        "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/checkpoints/final-build-1/zk60_trained_block.bin",
+        "stack-verify",
+        "--export",
+        "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r8/verifier-exports/llama3_8b_pg_rot1_b7voc0_T128",
+        "--artifact",
+        "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r8/stack-llama3_8b_pg_rot1_b7voc0_T128-ho00-cpu/run"
+      ],
+      "need_gib": 2.5,
+      "cap_gib": 5.0,
+      "exit": 0,
+      "child_rc": 0,
+      "guard_killed": null,
+      "child_wall_seconds": 60.395769119262695,
+      "refused": null,
+      "guard_error": null,
+      "guard_pid": 2951,
+      "boot_id": "4f7dab84-38e2-4f1a-9518-e305e81ef580",
+      "pid_ns": "pid:[4026532235]",
+      "guard_starttime_ticks": 2012056,
+      "lock_ids": {
+        "heavy": "2096:715313",
+        "build": "2096:715314"
+      },
+      "enforcement": "watchdog-only",
+      "waited_s": 0.0,
+      "guard_wall_s": 60.4,
+      "stragglers_killed": 0,
+      "hard_killed": 0,
+      "scope_unit": null,
+      "scope_adopted": null,
+      "foreign_cgroups_refused": [],
+      "peak_rss_gib": 1.46,
+      "peak_cgroup_gib": null,
+      "peak_vram_mib": null,
+      "min_mem_available_gib": 11.98,
+      "vram_drain_s": null,
+      "gpu_drain_failed": false,
+      "gpu_telemetry_lost": false,
+      "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache"
+    },
+    "log_sha256": "55400bc250b3e0feb8673873ace37e6384327eff817181e31cdbdf87495e6bdf",
+    "verified": {
+      "event": "verified",
+      "blocks": 32,
+      "receipt_bytes": 922711264,
+      "load_seconds": 16.596,
+      "verify_seconds": 43.74,
+      "of_which_block_load_seconds": 15.882,
+      "vmhwm_mib": 1512,
+      "statement_identity": "5585f5eed7a24a559ce76ddbd0413ddffd877637efb07d29bbd9408b4fc5a3b4",
+      "scope": "ALL the listed trained blocks of the export's model (TinyLlama-1.1B-Chat or Llama-3-8B) as ONE bound run at the export's T (one transcript, hidden internal boundaries); embedding, final norm, LM head and token selection are NOT covered (D13); CPU unless the run line says gpu; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement"
+    },
+    "prior_command_sha256": "9ac275bc5a84f218b38063a33e54fef9d33eabe112ade2fece92ecd849e92794"
+  },
+  {
+    "name": "compat-8b-dd",
+    "guard": {
+      "ts_end": "2026-10-30T10:17:35Z",
+      "run_id": "5d46e775106a",
+      "label": "sol-r14-final-compat-8b-dd-1",
+      "class": "cpu",
+      "cmd": [
+        "/usr/bin/env",
+        "RAYON_NUM_THREADS=2",
+        "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/checkpoints/final-build-1/zk60_trained_block.bin",
+        "stack-verify",
+        "--export",
+        "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/verifier-exports/llama3_8b_pg_rot1_b7voc0_T128",
+        "--artifact",
+        "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/stack-llama3_8b_pg_rot1_b7voc0_T128-ho00-cpu-dd/run"
+      ],
+      "need_gib": 2.5,
+      "cap_gib": 5.0,
+      "exit": 0,
+      "child_rc": 0,
+      "guard_killed": null,
+      "child_wall_seconds": 61.29756999015808,
+      "refused": null,
+      "guard_error": null,
+      "guard_pid": 2956,
+      "boot_id": "4f7dab84-38e2-4f1a-9518-e305e81ef580",
+      "pid_ns": "pid:[4026532235]",
+      "guard_starttime_ticks": 2018110,
+      "lock_ids": {
+        "heavy": "2096:715313",
+        "build": "2096:715314"
+      },
+      "enforcement": "watchdog-only",
+      "waited_s": 0.0,
+      "guard_wall_s": 61.3,
+      "stragglers_killed": 0,
+      "hard_killed": 0,
+      "scope_unit": null,
+      "scope_adopted": null,
+      "foreign_cgroups_refused": [],
+      "peak_rss_gib": 1.48,
+      "peak_cgroup_gib": null,
+      "peak_vram_mib": null,
+      "min_mem_available_gib": 12.02,
+      "vram_drain_s": null,
+      "gpu_drain_failed": false,
+      "gpu_telemetry_lost": false,
+      "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache"
+    },
+    "log_sha256": "476bbb7b881019e04c66661e82a9d9edd698a3f7c517ea182f9b9e03cfb55c70",
+    "verified": {
+      "event": "verified",
+      "blocks": 32,
+      "receipt_bytes": 930231520,
+      "load_seconds": 16.685,
+      "verify_seconds": 44.567,
+      "of_which_block_load_seconds": 16.117,
+      "vmhwm_mib": 1528,
+      "statement_identity": "4da580bdda8b9e4aef4ceb281e2b31e8008d99425d2601553b38f753b1492520",
+      "scope": "ALL the listed trained blocks of the export's model (TinyLlama-1.1B-Chat or Llama-3-8B) as ONE bound run at the export's T (one transcript, hidden internal boundaries); embedding, final norm, LM head and token selection are NOT covered (D13); CPU unless the run line says gpu; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement"
+    },
+    "prior_command_sha256": "1d4d54a9a43cd63695e7b7bb34659d2535edc97d078dbf92c10259cf3ac12a13"
+  },
+  {
+    "name": "cli-verify-r13-low-dense-plain",
+    "guard": {
+      "ts_end": "2026-10-30T10:17:36Z",
+      "run_id": "b49a2ba6f9d3",
+      "label": "sol-r14-final-cli-verify-r13-low-dense-plain-1",
+      "class": "cpu",
+      "cmd": [
+        "/usr/bin/env",
+        "RAYON_NUM_THREADS=2",
+        "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/checkpoints/final-build-1/zk60_trained_block.bin",
+        "verify",
+        "--export",
+        "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/release-exports/r13-low-dense",
+        "--layer",
+        "0"
+      ],
+      "need_gib": 2.5,
+      "cap_gib": 5.0,
+      "exit": 0,
+      "child_rc": 0,
+      "guard_killed": null,
+      "child_wall_seconds": 0.9665706157684326,
+      "refused": null,
+      "guard_error": null,
+      "guard_pid": 2961,
+      "boot_id": "4f7dab84-38e2-4f1a-9518-e305e81ef580",
+      "pid_ns": "pid:[4026532235]",
+      "guard_starttime_ticks": 2024255,
+      "lock_ids": {
+        "heavy": "2096:715313",
+        "build": "2096:715314"
+      },
+      "enforcement": "watchdog-only",
+      "waited_s": 0.0,
+      "guard_wall_s": 1.0,
+      "stragglers_killed": 0,
+      "hard_killed": 0,
+      "scope_unit": null,
+      "scope_adopted": null,
+      "foreign_cgroups_refused": [],
+      "peak_rss_gib": 0.07,
+      "peak_cgroup_gib": null,
+      "peak_vram_mib": null,
+      "min_mem_available_gib": 13.51,
+      "vram_drain_s": null,
+      "gpu_drain_failed": false,
+      "gpu_telemetry_lost": false,
+      "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache"
+    },
+    "log_sha256": "f9f2e0809860c73e49c5b657fb06ca1f690accdc6a3b5e76d7605a693bf73928",
+    "verified": {
+      "event": "verified",
+      "segment_bytes": 15831864,
+      "segment_sha256": "072b13a84adc1920cbb7daf72172427b62b1efd1fd642d17becb9ac41b374358",
+      "load_seconds": 0.033,
+      "verify_seconds": 0.22,
+      "peak_rss_mib": 90,
+      "statement_identity": "2f386a9fd7480b2d8bcca4064e679e204ba2068358bd50677e7f6bf54feb6dbd",
+      "scope": "SYNTHETIC development export at the decoupled-head rung (rung-HD, width 192, query axis 512): NOT a trained model; a test of the export reader and the driver only; no privacy acceptance"
+    },
+    "prior_command_sha256": "7b119fb965a327c0161b8ea0e287dbb7c0d0f73c42d08748d45ff5f2e68b3dde"
+  },
+  {
+    "name": "cli-verify-r13-low-dense-dd",
+    "guard": {
+      "ts_end": "2026-10-30T10:17:37Z",
+      "run_id": "cce34ffae890",
+      "label": "sol-r14-final-cli-verify-r13-low-dense-dd-1",
+      "class": "cpu",
+      "cmd": [
+        "/usr/bin/env",
+        "RAYON_NUM_THREADS=2",
+        "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/checkpoints/final-build-1/zk60_trained_block.bin",
+        "verify",
+        "--export",
+        "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/release-exports/r13-low-dense",
+        "--layer",
+        "0"
+      ],
+      "need_gib": 2.5,
+      "cap_gib": 5.0,
+      "exit": 0,
+      "child_rc": 0,
+      "guard_killed": null,
+      "child_wall_seconds": 0.966590166091919,
+      "refused": null,
+      "guard_error": null,
+      "guard_pid": 2966,
+      "boot_id": "4f7dab84-38e2-4f1a-9518-e305e81ef580",
+      "pid_ns": "pid:[4026532235]",
+      "guard_starttime_ticks": 2024361,
+      "lock_ids": {
+        "heavy": "2096:715313",
+        "build": "2096:715314"
+      },
+      "enforcement": "watchdog-only",
+      "waited_s": 0.0,
+      "guard_wall_s": 1.0,
+      "stragglers_killed": 0,
+      "hard_killed": 0,
+      "scope_unit": null,
+      "scope_adopted": null,
+      "foreign_cgroups_refused": [],
+      "peak_rss_gib": 0.08,
+      "peak_cgroup_gib": null,
+      "peak_vram_mib": null,
+      "min_mem_available_gib": 13.48,
+      "vram_drain_s": null,
+      "gpu_drain_failed": false,
+      "gpu_telemetry_lost": false,
+      "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache"
+    },
+    "log_sha256": "e871726bb08aa4a26b95c566cfd6eb3b5b3358d1034167b638b6952c45c6d677",
+    "verified": {
+      "event": "verified",
+      "segment_bytes": 16668744,
+      "segment_sha256": "dfb1f81eeb2c5760984dbe70b66f34dceb9e53878315382b567efcfe8c88d428",
+      "load_seconds": 0.028,
+      "verify_seconds": 0.229,
+      "peak_rss_mib": 94,
+      "statement_identity": "62d849886e90b7d3f6595f33fb8bff5e6b9009c6c3b34e5979ed4f9bd46666d5",
+      "scope": "SYNTHETIC development export at the decoupled-head rung (rung-HD, width 192, query axis 512): NOT a trained model; a test of the export reader and the driver only; no privacy acceptance"
+    },
+    "prior_command_sha256": "9fc0154cbb08a020c6c1de43cf60c05bb194be867089b9b9ef38403b5a967235"
+  },
+  {
+    "name": "cli-verify-r13-h24-wide-plain",
+    "guard": {
+      "ts_end": "2026-10-30T10:17:38Z",
+      "run_id": "fef313141915",
+      "label": "sol-r14-final-cli-verify-r13-h24-wide-plain-1",
+      "class": "cpu",
+      "cmd": [
+        "/usr/bin/env",
+        "RAYON_NUM_THREADS=2",
+        "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/checkpoints/final-build-1/zk60_trained_block.bin",
+        "verify",
+        "--export",
+        "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/release-exports/r13-h24-wide",
+        "--layer",
+        "0"
+      ],
+      "need_gib": 2.5,
+      "cap_gib": 5.0,
+      "exit": 0,
+      "child_rc": 0,
+      "guard_killed": null,
+      "child_wall_seconds": 1.001814842224121,
+      "refused": null,
+      "guard_error": null,
+      "guard_pid": 2971,
+      "boot_id": "4f7dab84-38e2-4f1a-9518-e305e81ef580",
+      "pid_ns": "pid:[4026532235]",
+      "guard_starttime_ticks": 2024466,
+      "lock_ids": {
+        "heavy": "2096:715313",
+        "build": "2096:715314"
+      },
+      "enforcement": "watchdog-only",
+      "waited_s": 0.0,
+      "guard_wall_s": 1.0,
+      "stragglers_killed": 0,
+      "hard_killed": 0,
+      "scope_unit": null,
+      "scope_adopted": null,
+      "foreign_cgroups_refused": [],
+      "peak_rss_gib": 0.11,
+      "peak_cgroup_gib": null,
+      "peak_vram_mib": null,
+      "min_mem_available_gib": 13.39,
+      "vram_drain_s": null,
+      "gpu_drain_failed": false,
+      "gpu_telemetry_lost": false,
+      "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache"
+    },
+    "log_sha256": "91763d442096a3361286d523eb5e4caf34a228f580543d2fdacff0e34f4accfb",
+    "verified": {
+      "event": "verified",
+      "segment_bytes": 15838024,
+      "segment_sha256": "5765dad15c547b7cf9ca6eba7aab02996e0b3b15578452f103aa71c31b74349d",
+      "load_seconds": 0.033,
+      "verify_seconds": 0.222,
+      "peak_rss_mib": 91,
+      "statement_identity": "6ac6d19087ee02ba9f87bcc6f772404b23726c293dd213b04d7392dc7f519b5b",
+      "scope": "SYNTHETIC development export at the decoupled-head rung (rung-HD, width 192, query axis 512): NOT a trained model; a test of the export reader and the driver only; no privacy acceptance"
+    },
+    "prior_command_sha256": "cfbca2746a43afdb6a18012a0422f3264b764b4447870a1074fe91d44095cd65"
+  },
+  {
+    "name": "cli-verify-r13-h24-wide-dd",
+    "guard": {
+      "ts_end": "2026-10-30T10:17:39Z",
+      "run_id": "c09a95d2439f",
+      "label": "sol-r14-final-cli-verify-r13-h24-wide-dd-1",
+      "class": "cpu",
+      "cmd": [
+        "/usr/bin/env",
+        "RAYON_NUM_THREADS=2",
+        "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/checkpoints/final-build-1/zk60_trained_block.bin",
+        "verify",
+        "--export",
+        "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/release-exports/r13-h24-wide",
+        "--layer",
+        "0"
+      ],
+      "need_gib": 2.5,
+      "cap_gib": 5.0,
+      "exit": 0,
+      "child_rc": 0,
+      "guard_killed": null,
+      "child_wall_seconds": 0.9667832851409912,
+      "refused": null,
+      "guard_error": null,
+      "guard_pid": 2976,
+      "boot_id": "4f7dab84-38e2-4f1a-9518-e305e81ef580",
+      "pid_ns": "pid:[4026532235]",
+      "guard_starttime_ticks": 2024576,
+      "lock_ids": {
+        "heavy": "2096:715313",
+        "build": "2096:715314"
+      },
+      "enforcement": "watchdog-only",
+      "waited_s": 0.0,
+      "guard_wall_s": 1.0,
+      "stragglers_killed": 0,
+      "hard_killed": 0,
+      "scope_unit": null,
+      "scope_adopted": null,
+      "foreign_cgroups_refused": [],
+      "peak_rss_gib": 0.08,
+      "peak_cgroup_gib": null,
+      "peak_vram_mib": null,
+      "min_mem_available_gib": 13.41,
+      "vram_drain_s": null,
+      "gpu_drain_failed": false,
+      "gpu_telemetry_lost": false,
+      "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache"
+    },
+    "log_sha256": "b5cfa295530b8231d968ce8a8c0f28ef8cd3c5e1950bf9830ff2c49836caadb5",
+    "verified": {
+      "event": "verified",
+      "segment_bytes": 16674904,
+      "segment_sha256": "39977733dcfc8e818bb9999a94f6151c933dcb11845f44c1e0cf95bcf9edc7f8",
+      "load_seconds": 0.031,
+      "verify_seconds": 0.238,
+      "peak_rss_mib": 94,
+      "statement_identity": "1fc37b86657ad43d2fa2025a99312d796b4f76cafcacabd2b779219221010ff3",
+      "scope": "SYNTHETIC development export at the decoupled-head rung (rung-HD, width 192, query axis 512): NOT a trained model; a test of the export reader and the driver only; no privacy acceptance"
+    },
+    "prior_command_sha256": "d72ae482c3f9cc4d8f3f0df454533469c31e6193f8afa6228cc39124345ba004"
+  },
+  {
+    "name": "retained-r12",
+    "guard": {
+      "ts_end": "2026-10-30T10:17:49Z",
+      "run_id": "ce6112581b32",
+      "label": "sol-r14-final-retained-r12-1",
+      "class": "light",
+      "cmd": [
+        "/usr/bin/env",
+        "RAYON_NUM_THREADS=2",
+        "ZK60_R12_EVIDENCE_DIR=/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12b/dense-receipts",
+        "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/checkpoints/final-build-1/hashline.test.bin",
+        "f2_saved_shieldstral",
+        "--ignored",
+        "--test-threads=1",
+        "--nocapture"
+      ],
+      "need_gib": 1.0,
+      "cap_gib": 2.0,
+      "exit": 0,
+      "child_rc": 0,
+      "guard_killed": null,
+      "child_wall_seconds": 9.011628150939941,
+      "refused": null,
+      "guard_error": null,
+      "guard_pid": 2981,
+      "boot_id": "4f7dab84-38e2-4f1a-9518-e305e81ef580",
+      "pid_ns": "pid:[4026532235]",
+      "guard_starttime_ticks": 2024681,
+      "lock_ids": {
+        "heavy": "2096:715313",
+        "build": "2096:715314"
+      },
+      "enforcement": "watchdog-only",
+      "waited_s": 0.0,
+      "guard_wall_s": 9.0,
+      "stragglers_killed": 0,
+      "hard_killed": 0,
+      "scope_unit": null,
+      "scope_adopted": null,
+      "foreign_cgroups_refused": [],
+      "peak_rss_gib": 0.73,
+      "peak_cgroup_gib": null,
+      "peak_vram_mib": null,
+      "min_mem_available_gib": 12.66,
+      "vram_drain_s": null,
+      "gpu_drain_failed": false,
+      "gpu_telemetry_lost": false,
+      "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache"
+    },
+    "log_sha256": "dd343f4193e342574721272178e5ee0aadb1d9139ae4cab2e1698162fd8c080f"
+  }
+]

@@ -1,0 +1,31 @@
+{
+  "status": "PASS",
+  "seed": 202610290142,
+  "checks": 22461,
+  "fixtures": 564,
+  "synthetic_site_comparisons": 4908,
+  "independent_extension_terminals": 4908,
+  "native_metadata_cases": 8,
+  "native_census_rows_checked": 144,
+  "distinct_profile_context_precision_rows": 36,
+  "negative_controls": [
+    "legacy-8B-census-undercounts-current-R13",
+    "private-freshness",
+    "offset-kept",
+    "ordered-tail",
+    "real-imag-kept",
+    "length-only-cache",
+    "leading-Ht-versus-score-tail",
+    "RoPE-flip",
+    "later-zero-extension"
+  ],
+  "synthetic_digest": "2afa029ac1393bac785f590b0833f98ea9bc783664a21d940f1e21de0070c35d",
+  "elapsed_s": 2.168731668003602,
+  "max_rss_kib": 25616,
+  "full_stack_proofs": 0,
+  "model_passes": 0,
+  "proved_positions": 0,
+  "native_metadata_methods_executed": true,
+  "native_constructor_or_define_executed": false,
+  "native_receipts_verified": false
+}

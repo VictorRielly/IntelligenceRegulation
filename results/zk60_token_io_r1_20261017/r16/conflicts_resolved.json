@@ -1,0 +1,65 @@
+{
+ "utc": "2026-10-29T07:26:33.547553+00:00",
+ "files": {
+  "tied_tables.rs": [
+   {
+    "rule": "r13",
+    "token_lines": 2,
+    "r13_lines": 2,
+    "result_lines": 2
+   }
+  ],
+  "hash_domain_tests.rs": [
+   {
+    "rule": "hd_lane",
+    "token_lines": 1,
+    "r13_lines": 13,
+    "result_lines": 13
+   }
+  ],
+  "run_capture.rs": [
+   {
+    "rule": "rc_own",
+    "token_lines": 1,
+    "r13_lines": 5,
+    "result_lines": 5
+   }
+  ],
+  "s24_tests.rs": [
+   {
+    "rule": "both",
+    "token_lines": 4,
+    "r13_lines": 1,
+    "result_lines": 5
+   },
+   {
+    "rule": "both",
+    "token_lines": 5,
+    "r13_lines": 1,
+    "result_lines": 6
+   }
+  ],
+  "s33_tests.rs": [
+   {
+    "rule": "both",
+    "token_lines": 4,
+    "r13_lines": 1,
+    "result_lines": 5
+   }
+  ],
+  "s25_tests.rs": [
+   {
+    "rule": "s25_count",
+    "token_lines": 5,
+    "r13_lines": 1,
+    "result_lines": 5
+   },
+   {
+    "rule": "s25_scan",
+    "token_lines": 6,
+    "r13_lines": 10,
+    "result_lines": 15
+   }
+  ]
+ }
+}

@@ -1,0 +1,1095 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/AGENDA.md",
+    "bytes": 5603,
+    "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139",
+    "sections": [
+      {
+        "line": 1,
+        "heading": "# Standing research agenda \u2014 Victor, 2026-09-26"
+      },
+      {
+        "line": 16,
+        "heading": "## Every cycle"
+      },
+      {
+        "line": 51,
+        "heading": "## Initial questions to pursue"
+      }
+    ]
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/STATE.md",
+    "bytes": 5960,
+    "sha256": "757223b0d07e43ece59ba37162194f4ae1f94174a3cf09e84e86d3c5b285229c",
+    "sections": [
+      {
+        "line": 1,
+        "heading": "# ZKP efficiency explorer \u2014 durable state"
+      }
+    ]
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/FINDINGS.md",
+    "bytes": 1193525,
+    "sha256": "eacc4ce1b118806a69f775c132c4cbe32ce4938c90184f491165d1ea178c2266",
+    "sections": [
+      {
+        "line": 1,
+        "heading": "# ZKP efficiency findings"
+      },
+      {
+        "line": 3,
+        "heading": "## Cycle 0001 \u2014 2026-09-22"
+      },
+      {
+        "line": 25,
+        "heading": "### Executed experiment"
+      },
+      {
+        "line": 41,
+        "heading": "### Negative findings / limits that change the next action"
+      },
+      {
+        "line": 66,
+        "heading": "## Cycle 0002 \u2014 2026-09-24 \u2014 SC_SZC groups and GPU-memory triage"
+      },
+      {
+        "line": 73,
+        "heading": "### Current bottleneck and ranking"
+      },
+      {
+        "line": 103,
+        "heading": "### Experiment and interpretation"
+      },
+      {
+        "line": 138,
+        "heading": "### Source/access corrections and next action"
+      },
+      {
+        "line": 158,
+        "heading": "## Cycle 0003 \u2014 2026-09-26 \u2014 hiding-row NTT layout and pad overlap"
+      },
+      {
+        "line": 167,
+        "heading": "### Current evidence and ranked choices"
+      },
+      {
+        "line": 195,
+        "heading": "### Reproduced result and negative findings"
+      },
+      {
+        "line": 228,
+        "heading": "### Durable follow-up and access"
+      },
+      {
+        "line": 251,
+        "heading": "## Cycle 0004 \u2014 2026-09-26 \u2014 exact pair-table inverse cache"
+      },
+      {
+        "line": 262,
+        "heading": "### Current bottleneck and ranked candidates"
+      },
+      {
+        "line": 290,
+        "heading": "### Experiment and negative findings"
+      },
+      {
+        "line": 333,
+        "heading": "### Access and next experiment"
+      },
+      {
+        "line": 356,
+        "heading": "## Cycle 0005 \u2014 2026-09-26 \u2014 fuse fold and next-round sampling"
+      },
+      {
+        "line": 368,
+        "heading": "### Current bottleneck and ranked hypotheses"
+      },
+      {
+        "line": 390,
+        "heading": "### Reproduced experiment"
+      },
+      {
+        "line": 428,
+        "heading": "### Primary-source assessment and next action"
+      },
+      {
+        "line": 456,
+        "heading": "## Cycle 0006 \u2014 2026-09-26 \u2014 public-weight batching has a tiny phase ceiling"
+      },
+      {
+        "line": 472,
+        "heading": "### Updated bottleneck evidence and ranking"
+      },
+      {
+        "line": 507,
+        "heading": "### Experiment and decisive negatives"
+      },
+      {
+        "line": 540,
+        "heading": "### Primary sources and next action"
+      },
+      {
+        "line": 574,
+        "heading": "## Cycle 0007 \u2014 2026-09-26 \u2014 exact Fp2 multiplication and squaring"
+      },
+      {
+        "line": 585,
+        "heading": "### Bottleneck, ranking and falsification"
+      },
+      {
+        "line": 609,
+        "heading": "### Reproduced experiment and negative controls"
+      },
+      {
+        "line": 652,
+        "heading": "### Sources and concrete next action"
+      },
+      {
+        "line": 684,
+        "heading": "## Cycle 0008 \u2014 2026-09-26 \u2014 fractional LogUp tree and private binding"
+      },
+      {
+        "line": 695,
+        "heading": "### Cost and ranking"
+      },
+      {
+        "line": 717,
+        "heading": "### Experiment and falsification"
+      },
+      {
+        "line": 767,
+        "heading": "### Primary sources and next experiment"
+      },
+      {
+        "line": 806,
+        "heading": "## Cycle 0009 \u2014 2026-09-27 \u2014 grouped fold / next-round fusion"
+      },
+      {
+        "line": 818,
+        "heading": "### Measured bottleneck and ranked hypotheses"
+      },
+      {
+        "line": 840,
+        "heading": "### Reproduced experiment and meaningful negative"
+      },
+      {
+        "line": 880,
+        "heading": "### Source findings and next action"
+      },
+      {
+        "line": 916,
+        "heading": "## Cycle 0010 \u2014 2026-09-27 \u2014 NTT pad-load fusion loses locality"
+      },
+      {
+        "line": 929,
+        "heading": "### Bottleneck and ranked hypotheses"
+      },
+      {
+        "line": 952,
+        "heading": "### Experiment and decisive qualification"
+      },
+      {
+        "line": 998,
+        "heading": "### Sources and next action"
+      },
+      {
+        "line": 1028,
+        "heading": "## Cycle 0011 \u2014 2026-09-27 \u2014 Direct U8 helper planes: exact, small ceiling"
+      },
+      {
+        "line": 1050,
+        "heading": "### Tested hypothesis and falsification"
+      },
+      {
+        "line": 1090,
+        "heading": "### Ranked hypotheses after this cycle"
+      },
+      {
+        "line": 1114,
+        "heading": "## Cycle 0012 \u2014 2026-09-27 \u2014 Inverse-store hiding fusion, then a new GPU bottleneck"
+      },
+      {
+        "line": 1125,
+        "heading": "### What the experiment established"
+      },
+      {
+        "line": 1164,
+        "heading": "### New owner measurement and rank change"
+      },
+      {
+        "line": 1229,
+        "heading": "## Cycle 0013 \u2014 2026-09-27 \u2014 attention SC_SZC device-round boundary"
+      },
+      {
+        "line": 1233,
+        "heading": "### Tested hypothesis and bounded result"
+      },
+      {
+        "line": 1241,
+        "heading": "### Primary search and ranking"
+      },
+      {
+        "line": 1252,
+        "heading": "## Cycle 0015 \u2014 2026-09-30 \u2014 bounded full-validation tile batches"
+      },
+      {
+        "line": 1261,
+        "heading": "### Tested question and evidence"
+      },
+      {
+        "line": 1320,
+        "heading": "### New owner evidence and missing clocks"
+      },
+      {
+        "line": 1347,
+        "heading": "### Ranked hypotheses and next experiment"
+      },
+      {
+        "line": 1369,
+        "heading": "## Cycle 0016 \u2014 2026-10-03 \u2014 bounded lossless suffix witness replay"
+      },
+      {
+        "line": 1456,
+        "heading": "## Cycle 0017 \u2014 2026-10-03 \u2014 typed readers and lazy lookup preparation"
+      },
+      {
+        "line": 1550,
+        "heading": "## Cycle0018 \u2014 public last-read witness release (2026-10-04)"
+      },
+      {
+        "line": 1570,
+        "heading": "## Cycle0019 \u2014 chunk-local opening gather ownership (2026-10-04)"
+      },
+      {
+        "line": 1599,
+        "heading": "## Cycle 0020 \u2014 public A-row write coverage (2026-10-04)"
+      },
+      {
+        "line": 1626,
+        "heading": "## Cycle 0021 \u2014 exact signed-i64 conversion and a compiled negative (2026-10-04)"
+      },
+      {
+        "line": 1659,
+        "heading": "## Cycle 0022 \u2014 exact int16 FFN-down and corrected run clock attribution (2026-10-04)"
+      },
+      {
+        "line": 1690,
+        "heading": "## Cycle 0023 \u2014 exact row-tiled down/requant (2026-10-04)"
+      },
+      {
+        "line": 1718,
+        "heading": "## Cycle 0024 \u2014 public integer batch scheduling and a grouped-API negative (2026-10-04)"
+      },
+      {
+        "line": 1748,
+        "heading": "## Cycle 0025 \u2014 TN weight preprocessing and separated-scan residency (2026-10-04)"
+      },
+      {
+        "line": 1775,
+        "heading": "## Cycle 0026 \u2014 canonical TN readers and bounded digest transpose (2026-10-04)"
+      },
+      {
+        "line": 1805,
+        "heading": "## Cycle 0027 \u2014 complete public digest cache and scan attribution (2026-10-04)"
+      },
+      {
+        "line": 1825,
+        "heading": "## Cycle 0028 \u2014 public hash prefix reuse has a large remaining suffix (2026-10-04)"
+      },
+      {
+        "line": 1844,
+        "heading": "## Cycle 0029 \u2014 reconstruction tradeoff and symbolic equality storage (2026-10-04)"
+      },
+      {
+        "line": 1873,
+        "heading": "## Cycle0030 \u2014 tagged equality storage and cubic contraction filter (2026-10-04)"
+      },
+      {
+        "line": 1903,
+        "heading": "## Cycle 0031 \u2014 adaptive two-layer equality accumulation (2026-10-04)"
+      },
+      {
+        "line": 1926,
+        "heading": "## Cycle0032 \u2014 actual SC_SZC clauses and weighting ceiling (2026-10-04)"
+      },
+      {
+        "line": 1960,
+        "heading": "## Cycle0033 \u2014 compiled lookup denominators and explicit dispatch costs (2026-10-04)"
+      },
+      {
+        "line": 1997,
+        "heading": "## Cycle0034 \u2014 row-local denominators pass algebra but worsen API count (2026-10-04)"
+      },
+      {
+        "line": 2022,
+        "heading": "## Cycle0035 \u2014 recovered exact wide-accumulation result (reported 2026-10-12)"
+      },
+      {
+        "line": 2053,
+        "heading": "## Cycle0036 \u2014 four-reduction Fp2 arithmetic and CUDA carry model (2026-10-12)"
+      },
+      {
+        "line": 2163,
+        "heading": "## Cycle 0037 \u2014 public causal-mask descriptor (2026-10-12)"
+      },
+      {
+        "line": 2194,
+        "heading": "## Cycle 0038 \u2014 compact public support descriptors (2026-10-12)"
+      },
+      {
+        "line": 2227,
+        "heading": "## Cycle 0039 \u2014 heterogeneous public/dense driver (2026-10-12)"
+      },
+      {
+        "line": 2338,
+        "heading": "## Cycle 0040 \u2014 heterogeneous grouped public-table driver (2026-10-12)"
+      },
+      {
+        "line": 2443,
+        "heading": "## Cycle 0041 \u2014 per-proof split equality suffix cache (2026-10-12)"
+      },
+      {
+        "line": 2542,
+        "heading": "## Cycle 0042 \u2014 2026-10-12 \u2014 lifted Ht host multiplicity"
+      },
+      {
+        "line": 2638,
+        "heading": "## Cycle 0043 \u2014 2026-10-13 \u2014 compact private leading planes through grouped softmax"
+      },
+      {
+        "line": 2758,
+        "heading": "## Cycle0044 \u2014 2026-10-13 \u2014 symbolic equality in current mixed grouped SC_SZC"
+      },
+      {
+        "line": 2850,
+        "heading": "## Cycle0045 \u2014 2026-10-13 \u2014 actual native-root shift twiddles"
+      },
+      {
+        "line": 2913,
+        "heading": "## Cycle0046 \u2014 2026-10-13 \u2014 bounded exact-pair fallback and denominator census"
+      },
+      {
+        "line": 3020,
+        "heading": "## Cycle 0047 \u2014 2026-10-13 \u2014 selective SC_SZC row coefficients"
+      },
+      {
+        "line": 3133,
+        "heading": "## Cycle0048 \u2014 2026-10-13 \u2014 suffix-weighted coefficients before samples"
+      },
+      {
+        "line": 3231,
+        "heading": "## Cycle0049 \u2014 recovered public-axis result, reported2026-10-14"
+      },
+      {
+        "line": 3259,
+        "heading": "## Cycle0050 \u2014 2026-10-14 \u2014 fixed affine Karatsuba and an API-cost negative"
+      },
+      {
+        "line": 3357,
+        "heading": "## Cycle0051 \u2014 2026-10-17 \u2014 public static plans and blocked3x2 cost tradeoff"
+      },
+      {
+        "line": 3479,
+        "heading": "## Cycle 0052 \u2014 2026-10-17 \u2014 public row CSE: no multiplication saving"
+      },
+      {
+        "line": 3604,
+        "heading": "## Cycle 0053 \u2014 2026-10-17 \u2014 correct optional supports before estimating gains"
+      },
+      {
+        "line": 3727,
+        "heading": "## Cycle0054 \u2014 2026-10-17 \u2014 only round0 repays unpadded cubic construction"
+      },
+      {
+        "line": 3855,
+        "heading": "## Cycle 0055 \u2014 2026-10-17 \u2014 fixed unpadded round0 arithmetic and lifetimes"
+      },
+      {
+        "line": 3895,
+        "heading": "## Cycle 0056 \u2014 2026-10-17 \u2014 exact public DAG order reduces logical retention"
+      },
+      {
+        "line": 3936,
+        "heading": "## Cycle0057 \u2014 2026-10-17 \u2014 native capture mapping without a per-row gather"
+      },
+      {
+        "line": 3966,
+        "heading": "## Cycle 0058 \u2014 2026-10-17 \u2014 native public-axis selector prerequisite"
+      },
+      {
+        "line": 3994,
+        "heading": "## Cycle 0059 \u2014 2026-10-17 \u2014 trained witness and inclusive-clock audit"
+      },
+      {
+        "line": 4091,
+        "heading": "## Cycle0060 \u2014 exact witness projection census and new linked-stack accounting (20261017T102624Z-c13de864)"
+      },
+      {
+        "line": 4245,
+        "heading": "## Cycle0061 \u2014 deferred witness planes after R3 moves the bottleneck (20261017T112624Z-88d6b64e)"
+      },
+      {
+        "line": 4353,
+        "heading": "## Cycle 0062 \u2014 2026-10-17 \u2014 borrowed lookup catalog; trained GPU phase correction"
+      },
+      {
+        "line": 4426,
+        "heading": "## Cycle 0063 \u2014 2026-10-17 \u2014 F constants/support factoring; new 8B clocks"
+      },
+      {
+        "line": 4499,
+        "heading": "## Cycle0064 \u2014 current F three-bracket grouped arithmetic, 2026-10-17"
+      },
+      {
+        "line": 4554,
+        "heading": "## Cycle 0065 \u2014 F-device source traffic, 2026-10-17"
+      },
+      {
+        "line": 4596,
+        "heading": "## Cycle 0066 \u2014 resident helper integer/field boundary, 2026-10-17"
+      },
+      {
+        "line": 4667,
+        "heading": "## Cycle 0067 \u2014 private LogUp* pushforward boundary, 2026-10-17"
+      },
+      {
+        "line": 4743,
+        "heading": "## Cycle 0068 \u2014 lookup batching domains, 2026-10-17"
+      },
+      {
+        "line": 4807,
+        "heading": "## Cycle 0069 \u2014 public padding and native MSB bit placement, 2026-10-17"
+      },
+      {
+        "line": 4908,
+        "heading": "## Cycle 0070 \u2014 factorized distinct-column public equality, 2026-10-17"
+      },
+      {
+        "line": 4999,
+        "heading": "## Cycle 0071 \u2014 pending previous fold plus next weighted round, 2026-10-18"
+      },
+      {
+        "line": 5082,
+        "heading": "## Cycle 0072 \u2014 native order-64 late-root compression, 2026-10-18"
+      },
+      {
+        "line": 5181,
+        "heading": "## Cycle0073 \u2014 base-aware derived construction, 2026-10-18"
+      },
+      {
+        "line": 5255,
+        "heading": "## Final owner-source movement checkpoint"
+      },
+      {
+        "line": 5277,
+        "heading": "## Cycle0074 \u2014 D affine aggregate, 2026-10-18"
+      },
+      {
+        "line": 5440,
+        "heading": "## Cycle0075 \u2014 actual D catalog and a memory negative, 2026-10-18"
+      },
+      {
+        "line": 5556,
+        "heading": "## Cycle0076 \u2014 D endpoint coefficient schedule, 2026-10-18"
+      },
+      {
+        "line": 5681,
+        "heading": "## Cycle0077 \u2014 D helper streaming: complete-lifetime negative, 2026-10-19"
+      },
+      {
+        "line": 5783,
+        "heading": "## Cycle 0078 \u2014 Lazy D endpoint construction, 2026-10-19"
+      },
+      {
+        "line": 5911,
+        "heading": "## Cycle0079 \u2014 use-driven D affine lifetimes and actual8B ceiling, 2026-10-19"
+      },
+      {
+        "line": 6034,
+        "heading": "## Cycle0080 \u2014 2026-10-19: static D runtime parameters and compiler boundaries"
+      },
+      {
+        "line": 6120,
+        "heading": "## Cycle 0081 \u2014 2026-10-19 \u2014 generic helper grouping is a negative result"
+      },
+      {
+        "line": 6204,
+        "heading": "## Cycle 0082 \u2014 2026-10-19 \u2014 shared helper code shrinks; no speed gain"
+      },
+      {
+        "line": 6285,
+        "heading": "## Cycle 0083 \u2014 2026-10-19 \u2014 single raw-pointer translation falsified"
+      },
+      {
+        "line": 6367,
+        "heading": "## Cycle0084 \u2014 2026-10-19 \u2014 public setup lifetime and partial-LRU negatives"
+      },
+      {
+        "line": 6463,
+        "heading": "## Cycle0085 \u2014 2026-10-19: public owner freshness and live leases"
+      },
+      {
+        "line": 6585,
+        "heading": "## Cycle0086 \u2014 2026-10-19: checked public constructor transfer"
+      },
+      {
+        "line": 6691,
+        "heading": "## Cycle0087 \u2014 2026-10-19: direct signed-byte padding"
+      },
+      {
+        "line": 6805,
+        "heading": "## Cycle0088 \u2014 2026-10-19: public raw-array last use"
+      },
+      {
+        "line": 6930,
+        "heading": "## Cycle0089 \u2014 split public matrix release"
+      },
+      {
+        "line": 6961,
+        "heading": "## Cycle0090 \u2014 separate public decode statement scopes"
+      },
+      {
+        "line": 7089,
+        "heading": "## Cycle0091 \u2014 original Vec allocation-scope evidence"
+      },
+      {
+        "line": 7240,
+        "heading": "## Cycle0092 \u2014 public request pool retention, 2026-10-20"
+      },
+      {
+        "line": 7328,
+        "heading": "## Cycle0093 \u2014 allocation coverage and host-backed staging,2026-10-20"
+      },
+      {
+        "line": 7463,
+        "heading": "# Cycle0094 \u2014 private-stage commitment lifetimes"
+      },
+      {
+        "line": 7585,
+        "heading": "# Cycle0095 \u2014 private transients and mixed FZC arena"
+      },
+      {
+        "line": 7701,
+        "heading": "## Cycle 0096 \u2014 FZC arena algebra and implicit affine tables (2026-10-20T04:33:40.848204+00:00)"
+      },
+      {
+        "line": 7807,
+        "heading": "## Cycle 0097 \u2014 paired affine derivation and rematerialization cost"
+      },
+      {
+        "line": 7961,
+        "heading": "## Cycle 0098 \u2014 BASE paired affine derivation and an upstream negative"
+      },
+      {
+        "line": 8057,
+        "heading": "## Cycle 0099 \u2014 host-free BASE GL-only derivation (2026-10-20)"
+      },
+      {
+        "line": 8144,
+        "heading": "## Cycle 0100 \u2014 reachable public pad weights and affine dispatch (2026-10-20)"
+      },
+      {
+        "line": 8236,
+        "heading": "## Cycle 0101 \u2014 fused NTT sector requests and ownership limit (2026-10-20)"
+      },
+      {
+        "line": 8348,
+        "heading": "## Cycle 0102 \u2014 private PCS small-transform incidence (2026-10-20)"
+      },
+      {
+        "line": 8429,
+        "heading": "## Cycle 0103 \u2014 recurring private U8 helpers versus fraction-tree storage (2026-10-20)"
+      },
+      {
+        "line": 8520,
+        "heading": "## Cycle 0104 \u2014 private fraction-forest lifetime and recomputation (2026-10-20)"
+      },
+      {
+        "line": 8610,
+        "heading": "## Cycle 0105 \u2014 explicit lookup layer-consumer capacity (2026-10-20)"
+      },
+      {
+        "line": 8766,
+        "heading": "## Cycle 0106 \u2014 owned lookup-layer buffers and factorized equality (2026-10-20)"
+      },
+      {
+        "line": 8909,
+        "heading": "## Cycle 0107 \u2014 budget-adaptive tiled lookup prefix (2026-10-20)"
+      },
+      {
+        "line": 9075,
+        "heading": "## Cycle 0108 \u2014 native Fp2 ordered U8 consumer prerequisite (2026-10-20)"
+      },
+      {
+        "line": 9165,
+        "heading": "## Cycle 0109 \u2014 ordered fraction-tree sites and native point mapping (2026-10-20)"
+      },
+      {
+        "line": 9306,
+        "heading": "## Cycle0110 \u2014 reversible fraction tree: exact, full-column capacity negative (2026-10-20)"
+      },
+      {
+        "line": 9415,
+        "heading": "## Cycle0111 \u2014 disposable reversible tiles: matched-budget cost negative (2026-10-20)"
+      },
+      {
+        "line": 9584,
+        "heading": "## Cycle 0112 \u2014 2026-10-20 \u2014 exact S12/DD cardinality and larger public caps"
+      },
+      {
+        "line": 9618,
+        "heading": "## Cycle0113 \u2014 2026-10-20 \u2014 public per-layer dictionary caps: limited diversity and unchanged peak"
+      },
+      {
+        "line": 9658,
+        "heading": "# Cycle0114 \u2014 public dyadic dictionary union feasibility"
+      },
+      {
+        "line": 9703,
+        "heading": "## Cycle 0115 \u2014 public coset leases after the NTT cache negative (2026-10-20)"
+      },
+      {
+        "line": 9809,
+        "heading": "## Cycle0116 \u2014 2026-10-21 \u2014 inverse-length scaling: exact small cleanup, GPU fusion already present"
+      },
+      {
+        "line": 9894,
+        "heading": "## Cycle0117 \u2014 FZC CPU-tail boundary: exact small launch/traffic candidate"
+      },
+      {
+        "line": 9896,
+        "heading": "# Cycle 0117 \u2014 FZC tail boundary \u2014 2026-10-21"
+      },
+      {
+        "line": 9997,
+        "heading": "## Cycle 0118 \u2014 FZC scratch reuse: allocation counts and lifecycle gates"
+      },
+      {
+        "line": 9999,
+        "heading": "# FZC scratch storage study \u2014 cycle 0118"
+      },
+      {
+        "line": 10071,
+        "heading": "## Reproduce and scope"
+      },
+      {
+        "line": 10126,
+        "heading": "## Cycle 0119 \u2014 FZC error retirement and recorded completion, 2026-10-21"
+      },
+      {
+        "line": 10221,
+        "heading": "## Cycle 0120 \u2014 FZC exclusive phase and role accounting, 2026-10-21"
+      },
+      {
+        "line": 10322,
+        "heading": "## Cycle 0121 \u2014 ordered U8 one-hot contracts and dense PCS negative, 2026-10-21"
+      },
+      {
+        "line": 10449,
+        "heading": "## Cycle 0122 \u2014 2026-10-21 \u2014 affine U8 source sharing and exact aliases"
+      },
+      {
+        "line": 10564,
+        "heading": "## Cycle 0123 \u2014 streaming BLAKE3 state: exact CPU model, native benefit unknown"
+      },
+      {
+        "line": 10658,
+        "heading": "## Cycle0124 \u2014 public frontier removes stored count; native benefit unknown"
+      },
+      {
+        "line": 10757,
+        "heading": "## Cycle0125 \u2014 salted Merkle fusion: exact model, small counts and transfer negative"
+      },
+      {
+        "line": 10880,
+        "heading": "## Cycle 0126 \u2014 exact interpolation, scalar incidence and stale public encodings"
+      },
+      {
+        "line": 11040,
+        "heading": "## Cycle0127 \u2014 fresh periodic lookup encoding: exact model, extra-read tradeoff"
+      },
+      {
+        "line": 11171,
+        "heading": "## Cycle 0128 \u2014 periodic public SC_TAB descriptor"
+      },
+      {
+        "line": 11300,
+        "heading": "## Cycle 0129 \u2014 masked SC_TAB conformance; no proving gain"
+      },
+      {
+        "line": 11391,
+        "heading": "## Cycle 0130 \u2014 Goldilocks Tensor NTT port boundary; no proving gain"
+      },
+      {
+        "line": 11467,
+        "heading": "## Cycle 0131 \u2014 public derivation cache contract; zero direct 8B incidence"
+      },
+      {
+        "line": 11542,
+        "heading": "## Cycle 0132 \u2014 same-call full-loader SHA identity reuse; reload zero"
+      },
+      {
+        "line": 11626,
+        "heading": "## Cycle 0133 \u2014 support evidence needs actual immutable ownership (2026-10-29)"
+      },
+      {
+        "line": 11711,
+        "heading": "## Cycle 0134 \u2014 modular bounds and cumulative evidence before check removal (2026-10-29)"
+      },
+      {
+        "line": 11780,
+        "heading": "## Cycle 0135 \u2014 split-coset hiding encoder: exact model and bounded cost negative"
+      },
+      {
+        "line": 11888,
+        "heading": "## Cycle 0136 \u2014 terminal weights share public work; enclosing scope is small"
+      },
+      {
+        "line": 11996,
+        "heading": "## Cycle0137 \u2014 paired mask-dot reconstruction after accumulation (2026-10-29)"
+      },
+      {
+        "line": 12086,
+        "heading": "## Cycle0138 \u2014 all-slot mask-tail incidence and cache capacity tradeoff (2026-10-29)"
+      },
+      {
+        "line": 12190,
+        "heading": "## Cycle 0139 \u2014 exact R13 lookup storage: small logical savings, native gain unknown"
+      },
+      {
+        "line": 12290,
+        "heading": "## Cycle0140 \u2014 final-output prefix removes CPU row scratch; impact bounded"
+      },
+      {
+        "line": 12420,
+        "heading": "## Cycle0141 \u2014 prepared public sums trade additions for traffic (2026-10-29)"
+      },
+      {
+        "line": 12555,
+        "heading": "## Cycle0142 \u2014 current R13 mask-site census (2026-10-29T12:08:53.130978+00:00)"
+      },
+      {
+        "line": 12700,
+        "heading": "## Cycle0143 \u2014 pair-tile dataflow: exact component, no useful CPU gain"
+      },
+      {
+        "line": 12831,
+        "heading": "## Cycle0144 \u2014 public half-map reuse preserves fresh values"
+      },
+      {
+        "line": 12952,
+        "heading": "## Cycle0145 \u2014 same-basis fresh Eq complement doubling"
+      },
+      {
+        "line": 13106,
+        "heading": "## Cycle0146 \u2014 prover-only PCS column preparation (2026-10-29)"
+      },
+      {
+        "line": 13237,
+        "heading": "## Cycle0147 \u2014 public-rho row-fold skipping (2026-10-29)"
+      },
+      {
+        "line": 13372,
+        "heading": "# Cycle 0148 \u2014 public mask-row incidence bound, 2026-10-29"
+      },
+      {
+        "line": 13501,
+        "heading": "## Cycle0149 \u2014 2026-10-29: exact H source support and conditional packing"
+      },
+      {
+        "line": 13641,
+        "heading": "## Cycle 0150 \u2014 2026-10-29: A support and empty row scans"
+      },
+      {
+        "line": 13643,
+        "heading": "# Cycle 0150 \u2014 A support and the cost of empty row scans"
+      },
+      {
+        "line": 13769,
+        "heading": "## Cycle 0151 \u2014 public indexed membership rowfold, 20261029T205649Z-c620e79d"
+      },
+      {
+        "line": 13810,
+        "heading": "#73 records packed membership; #74 asks about public consecutive-row/flag"
+      },
+      {
+        "line": 13893,
+        "heading": "## Cycle0152 \u2014 public consecutive-row/membership intervals (2026-10-29)"
+      },
+      {
+        "line": 13932,
+        "heading": "#75 records intervals, #76 asks public zero-gap coalescing. Higher priorities"
+      },
+      {
+        "line": 14004,
+        "heading": "## Cycle0153 \u2014 public zero-gap interval coalescing"
+      },
+      {
+        "line": 14154,
+        "heading": "## Cycle0154 \u2014 R14 public geometry and fresh-proximity batch boundary"
+      },
+      {
+        "line": 14278,
+        "heading": "## Cycle0155 \u2014 Exact five-vector tail fold and conditional scan ceiling"
+      },
+      {
+        "line": 14436,
+        "heading": "## Cycle 0156 \u2014 opening-local staging and scratch lifetime"
+      },
+      {
+        "line": 14612,
+        "heading": "## Cycle 0157 \u2014 hybrid opening staging and public scratch-budget fallback"
+      },
+      {
+        "line": 14795,
+        "heading": "## Cycle 0158 \u2014 explicit host limb packing and omitted mutex waits"
+      },
+      {
+        "line": 14970,
+        "heading": "## Cycle0159 \u2014 fold counter boundaries and queued-work attribution \u2014 2026-10-30T07:55:01.314464+00:00"
+      },
+      {
+        "line": 15061,
+        "heading": "# Cycle0160 \u2014 same-capture fold attribution and completeness negative"
+      },
+      {
+        "line": 15165,
+        "heading": "## Cycle0161 \u2014 source-derived slot batching compatibility negative"
+      }
+    ]
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/sources.jsonl",
+    "bytes": 1327068,
+    "sha256": "a9add219f1276b3828baead310a6726744df821b799c50146c21546a8786082a",
+    "sections": []
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/PROGRESS.md",
+    "bytes": 2093,
+    "sha256": "4abe5946effc4fd39cae1e7d4dc0bfd87a9bf6c7b45a89ebcabb0ac9f374547a",
+    "sections": [
+      {
+        "line": 1,
+        "heading": "# ZKP efficiency progress"
+      }
+    ]
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/CLAUDE.md",
+    "bytes": 14089,
+    "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6",
+    "sections": [
+      {
+        "line": 1,
+        "heading": "# IntelligenceRegulation \u2014 project instructions"
+      },
+      {
+        "line": 77,
+        "heading": "## Command style (prompt hygiene)"
+      },
+      {
+        "line": 103,
+        "heading": "## Heavy runs: detach, queue, marker (the no-hangup protocol, 2026-08-26)"
+      },
+      {
+        "line": 136,
+        "heading": "## Protocol invariants (from the PROGRESS ledgers \u2014 verify there before acting)"
+      },
+      {
+        "line": 153,
+        "heading": "## Approval etiquette"
+      },
+      {
+        "line": 160,
+        "heading": "## Codex unattended workflow \u2014 Victor's direction, 2026-09-22"
+      },
+      {
+        "line": 198,
+        "heading": "## Persistent efficiency research lane (Victor, 2026-09-22)"
+      }
+    ]
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/MVP_STATUS.md",
+    "bytes": 105092,
+    "sha256": "044afa457fb32bcdc1e3cf5350f1b032c040b2eed42167a396fb7de114cf0c13",
+    "sections": [
+      {
+        "line": 1,
+        "heading": "# Where the MVP stands, in plain words"
+      },
+      {
+        "line": 1168,
+        "heading": "## 1. Do we have a workable proof?"
+      },
+      {
+        "line": 1281,
+        "heading": "## 2. How slow are we against the target?"
+      },
+      {
+        "line": 1334,
+        "heading": "## 3. What blocks a private, model-scale MVP at speed, and what is being done"
+      },
+      {
+        "line": 1450,
+        "heading": "## 4. Where the evidence is"
+      },
+      {
+        "line": 1458,
+        "heading": "## 2026-09-29 (PDT): VC readiness snapshot for Tech Week SF"
+      }
+    ]
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_DECISIONS.md",
+    "bytes": 160754,
+    "sha256": "56617387192f8adfc242652f4e1a4b0cb444533cfd231350932ae8f28f46041e",
+    "sections": [
+      {
+        "line": 1,
+        "heading": "# ZK60 decisions register \u2014 the rulings that govern the proof project"
+      },
+      {
+        "line": 9,
+        "heading": "## At a glance"
+      },
+      {
+        "line": 86,
+        "heading": "## D1 \u2014 Privacy scope (standing since 2026-09-09)"
+      },
+      {
+        "line": 102,
+        "heading": "## D2 \u2014 Two lines (standing since 2026-09-17)"
+      },
+      {
+        "line": 125,
+        "heading": "## D3 \u2014 About 97 bits of conjectured soundness accepted for the zkVM intermediate (2026-09-18)"
+      },
+      {
+        "line": 177,
+        "heading": "## D4 \u2014 Groth16 trusted setup accepted for soundness (2026-09-18)"
+      },
+      {
+        "line": 232,
+        "heading": "## D5 \u2014 Receipt kind: Groth16 only (2026-09-18)"
+      },
+      {
+        "line": 251,
+        "heading": "## D6 \u2014 Groth16 proving path on this box (in progress)"
+      },
+      {
+        "line": 271,
+        "heading": "## D7 \u2014 New endpoint and weight identity profile (implemented, ruling pending)"
+      },
+      {
+        "line": 307,
+        "heading": "## D8 \u2014 Caller-fixed endpoint roots on the custom line (corrected 2026-09-18)"
+      },
+      {
+        "line": 332,
+        "heading": "## D11 \u2014 Technical correction to D8 and profile clarification (2026-09-18)"
+      },
+      {
+        "line": 355,
+        "heading": "## D12 \u2014 How a complete private block is composed on the custom line (construction rule, 2026-09-19)"
+      },
+      {
+        "line": 419,
+        "heading": "## D9 \u2014 `fp()` reduction bias (accepted as stated, 2026-09-19)"
+      },
+      {
+        "line": 459,
+        "heading": "## D10 \u2014 Compact-PCS proof-size lever (declined, 2026-09-19)"
+      },
+      {
+        "line": 487,
+        "heading": "## D15 \u2014 \"106 bits\" is per opening; the whole 8B proof is about 94 (technical clarification, 2026-09-19)"
+      },
+      {
+        "line": 569,
+        "heading": "## D16 \u2014 The private block's norm before it is widened (construction rule, 2026-09-19)"
+      },
+      {
+        "line": 618,
+        "heading": "## D17 \u2014 Hiding endpoints beyond the tiny shape (construction rule, 2026-09-19)"
+      },
+      {
+        "line": 659,
+        "heading": "## D8/D11 \u2014 note of 2026-09-19: a restatement was attempted and NOT accepted; the obligation stands"
+      },
+      {
+        "line": 682,
+        "heading": "## D18 \u2014 Who fixes the commitment to a hidden input (decided 2026-09-19: the prover, for the first MVP)"
+      },
+      {
+        "line": 739,
+        "heading": "## D13 \u2014 What the first MVP must prove (decided 2026-09-19)"
+      },
+      {
+        "line": 757,
+        "heading": "## D14 \u2014 A costed memo for the fewer-hashed-bytes speed lever (commissioned 2026-09-19)"
+      },
+      {
+        "line": 778,
+        "heading": "## D24 \u2014 Norm precision per profile instead of a fifth remainder limb (proposed 2026-10-17)"
+      }
+    ]
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_CODEX_FABLE_COORDINATION.md",
+    "bytes": 64889,
+    "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f",
+    "sections": [
+      {
+        "line": 1,
+        "heading": "# Codex \u2194 Fable active loop \u2014 2026-09-18"
+      },
+      {
+        "line": 3,
+        "heading": "## Reboot recovery coordination \u2014 2026-09-30 00:54 UTC"
+      },
+      {
+        "line": 43,
+        "heading": "## CURRENT \u2014 Codex pickup, 2026-09-19"
+      },
+      {
+        "line": 898,
+        "heading": "## Codex lane: complete functional receipt and integration"
+      },
+      {
+        "line": 924,
+        "heading": "## Fable request: implement the custom attention path"
+      },
+      {
+        "line": 964,
+        "heading": "## Integration and rulings"
+      }
+    ]
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_THROUGHPUT_TARGET.md",
+    "bytes": 4941,
+    "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53",
+    "sections": [
+      {
+        "line": 1,
+        "heading": "# Current throughput target \u2014 2026-09-26"
+      },
+      {
+        "line": 15,
+        "heading": "## Measure completed proof work"
+      },
+      {
+        "line": 47,
+        "heading": "## Keep the workloads identifiable"
+      },
+      {
+        "line": 72,
+        "heading": "## GPU and evidence"
+      }
+    ]
+  }
+]

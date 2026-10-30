@@ -1,0 +1,42 @@
+{
+  "case": "original25",
+  "layer": 25,
+  "bit_identical": true,
+  "diagnostics": {
+    "refused": true,
+    "first_site": "FFN up",
+    "violations": {
+      "FFN up": {
+        "violations": 2,
+        "elements": 2359296,
+        "max": 21062,
+        "min": -56729,
+        "lo": -32768,
+        "hi": 32767,
+        "seqs_refused": 1
+      },
+      "FFN gate": {
+        "violations": 395,
+        "elements": 2359296,
+        "max": 1226,
+        "min": -2821,
+        "lo": -2048,
+        "hi": 2047,
+        "seqs_refused": 1
+      }
+    }
+  },
+  "baseline_seconds": 1.2230733509995844,
+  "gpu_setup_seconds": 0.09588129900021158,
+  "gpu_seconds": 0.4761392740001611,
+  "gpu_peak_allocated_bytes": 399753728,
+  "gpu_peak_reserved_bytes": 459276288,
+  "device": "NVIDIA GeForce RTX 4070 Laptop GPU",
+  "torch_version": "2.4.1+cu121",
+  "result_sha256": "072939adfdcbd092d63435bac97e0df801c14c2e8c9854bc17d870dc314a6b9e",
+  "input_sha256": "5d1cc2947828bfc59b8bc1f540cfc732748b33f28f1dc369e2f683f67bb466b6",
+  "backend_sha256": "564d128371276b7a9458d707c02fdff98f694caa20c960f890f687e79cb5cd44",
+  "probe_sha256": "4b62cd08c7bf741281a5054c70026bfd8e4694b0e67e591f16cec02d453a18eb",
+  "scope": "MEASURED one guarded actual-layer pass, n=1 shared box; full26-layer parity and held-out fidelity remain required",
+  "upstream_api_source": "https://github.com/pytorch/pytorch/tree/v2.4.1/aten/src/ATen/native/cuda"
+}

@@ -1,0 +1,190 @@
+{
+ "item_27_two_chunks": {
+  "label": 1,
+  "verdict_or": 1,
+  "K": 2,
+  "ranges": [
+   [
+    0,
+    23
+   ],
+   [
+    4,
+    27
+   ]
+  ],
+  "fail_closed_reasons": [],
+  "covers": true,
+  "chunks_given": [
+   [
+    0,
+    0,
+    23,
+    1
+   ],
+   [
+    1,
+    4,
+    27,
+    1
+   ]
+  ]
+ },
+ "item_27_chunk1_only": {
+  "label": 1,
+  "verdict_or": 1,
+  "K": 2,
+  "ranges": [
+   [
+    0,
+    23
+   ],
+   [
+    4,
+    27
+   ]
+  ],
+  "fail_closed_reasons": [
+   "chunks [0] have no accepted proof"
+  ],
+  "covers": true,
+  "chunks_given": [
+   [
+    1,
+    4,
+    27,
+    1
+   ]
+  ]
+ },
+ "item_27_chunk1_twice": {
+  "label": 1,
+  "verdict_or": 1,
+  "K": 2,
+  "ranges": [
+   [
+    0,
+    23
+   ],
+   [
+    4,
+    27
+   ]
+  ],
+  "fail_closed_reasons": [
+   "chunk 1 appears twice"
+  ],
+  "covers": true,
+  "chunks_given": [
+   [
+    0,
+    0,
+    23,
+    1
+   ],
+   [
+    1,
+    4,
+    27,
+    1
+   ],
+   [
+    1,
+    4,
+    27,
+    1
+   ]
+  ]
+ },
+ "item_20_short": {
+  "label": 1,
+  "verdict_or": 1,
+  "K": 1,
+  "ranges": [
+   [
+    0,
+    20
+   ]
+  ],
+  "fail_closed_reasons": [],
+  "covers": true,
+  "chunks_given": [
+   [
+    0,
+    0,
+    20,
+    1
+   ]
+  ]
+ },
+ "integrity_D41": {
+  "chunk0o27": {
+   "recorded": {
+    "index": 0,
+    "count": 2,
+    "a": 0,
+    "b": 23,
+    "total": 27,
+    "size": 23,
+    "overlap": 4
+   },
+   "plan_size": 23,
+   "short_item": false,
+   "ranges": [
+    [
+     0,
+     23
+    ],
+    [
+     4,
+     27
+    ]
+   ],
+   "ok": true
+  },
+  "chunk1o27": {
+   "recorded": {
+    "index": 1,
+    "count": 2,
+    "a": 4,
+    "b": 27,
+    "total": 27,
+    "size": 23,
+    "overlap": 4
+   },
+   "plan_size": 23,
+   "short_item": false,
+   "ranges": [
+    [
+     0,
+     23
+    ],
+    [
+     4,
+     27
+    ]
+   ],
+   "ok": true
+  },
+  "short20": {
+   "recorded": {
+    "index": 0,
+    "count": 1,
+    "a": 0,
+    "b": 20,
+    "total": 20,
+    "size": 23,
+    "overlap": 4
+   },
+   "plan_size": 23,
+   "short_item": true,
+   "ranges": [
+    [
+     0,
+     20
+    ]
+   ],
+   "ok": true
+  }
+ }
+}

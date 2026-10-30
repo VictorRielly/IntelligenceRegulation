@@ -1,0 +1,409 @@
+statesync-gkr/LICENSE at main · Oraclizer/statesync-gkr · GitHub (https://github.com/Oraclizer/statesync-gkr/blob/main/LICENSE)
+citeturn12view0 [wordlim: 200] Crawled: last week; Content type: text/html; Source: open({"ref_id":"turn9view1","lineno":210}); Total lines: 565
+L169: ## File metadata and controls
+L170: 
+L171:   * Code
+L172: 
+L173:   * Blame
+L174: 
+L175: 112 lines (82 loc) · 5.09 KB
+L176: 
+L177: 【69†Raw】
+L178: 
+L179: Copy raw file
+L180: 
+L181: Download raw file
+L182: 
+L183: Open symbols panel
+L184: 
+L185: Edit and raw actions
+L186: 
+L187: 1
+L188: 
+L189: 2
+L190: 
+L191: 3
+L192: 
+L193: 4
+L194: 
+L195: 5
+L196: 
+L197: 6
+L198: 
+L199: 7
+L200: 
+L201: 8
+L202: 
+L203: 9
+L204: 
+L205: 10
+L206: 
+L207: 11
+L208: 
+L209: 12
+L210: 
+L211: 13
+L212: 
+L213: 14
+L214: 
+L215: 15
+L216: 
+L217: 16
+L218: 
+L219: 17
+L220: 
+L221: 18
+L222: 
+L223: 19
+L224: 
+L225: 20
+L226: 
+L227: 21
+L228: 
+L229: 22
+L230: 
+L231: 23
+L232: 
+L233: 24
+L234: 
+L235: 25
+L236: 
+L237: 26
+L238: 
+L239: 27
+L240: 
+L241: 28
+L242: 
+L243: 29
+L244: 
+L245: 30
+L246: 
+L247: 31
+L248: 
+L249: 32
+L250: 
+L251: 33
+L252: 
+L253: 34
+L254: 
+L255: 35
+L256: 
+L257: 36
+L258: 
+L259: 37
+L260: 
+L261: 38
+L262: 
+L263: 39
+L264: 
+L265: 40
+L266: 
+L267: 41
+L268: 
+L269: 42
+L270: 
+L271: 43
+L272: 
+L273: 44
+L274: 
+L275: 45
+L276: 
+L277: 46
+L278: 
+L279: 47
+L280: 
+L281: 48
+L282: 
+L283: 49
+L284: 
+L285: 50
+L286: 
+L287: 51
+L288: 
+L289: 52
+L290: 
+L291: 53
+L292: 
+L293: 54
+L294: 
+L295: 55
+L296: 
+L297: 56
+L298: 
+L299: 57
+L300: 
+L301: 58
+L302: 
+L303: 59
+L304: 
+L305: 60
+L306: 
+L307: 61
+L308: 
+L309: 62
+L310: 
+L311: 63
+L312: 
+L313: 64
+L314: 
+L315: 65
+L316: 
+L317: 66
+L318: 
+L319: 67
+L320: 
+L321: 68
+L322: 
+L323: 69
+L324: 
+L325: 70
+L326: 
+L327: 71
+L328: 
+L329: 72
+L330: 
+L331: 73
+L332: 
+L333: 74
+L334: 
+L335: 75
+L336: 
+L337: 76
+L338: 
+L339: 77
+L340: 
+L341: 78
+L342: 
+L343: 79
+L344: 
+L345: 80
+L346: 
+L347: 81
+L348: 
+L349: 82
+L350: 
+L351: 83
+L352: 
+L353: 84
+L354: 
+L355: 85
+L356: 
+L357: 86
+L358: 
+L359: 87
+L360: 
+L361: 88
+L362: 89
+L363: 
+L364: 90
+L365: 
+L366: 91
+L367: 
+L368: 92
+L369: 
+L370: 93
+L371: 
+L372: 94
+L373: 
+L374: 95
+L375: 
+L376: 96
+L377: 
+L378: 97
+L379: 
+L380: 98
+L381: 
+L382: 99
+L383: 
+L384: 100
+L385: 
+L386: 101
+L387: 
+L388: 102
+L389: 
+L390: 103
+L391: 
+L392: 104
+L393: 
+L394: 105
+L395: 
+L396: 106
+L397: 
+L398: 107
+L399: 
+L400: 108
+L401: 
+L402: 109
+L403: 
+L404: 110
+L405: 
+L406: 111
+L407: 
+L408: 112
+L409: 
+L410: Business Source License 1.1
+L411: 
+L412: License text copyright (c) 2017 MariaDB Corporation Ab, All Rights Reserved.
+L413: 
+L414: "Business Source License" is a trademark of MariaDB Corporation Ab.
+L415: 
+L416: -----------------------------------------------------------------------------
+L417: 
+L418: Parameters
+L419: 
+L420: Licensor: Oraclizer Labs, Inc.
+L421: 
+L422: Licensed Work: StateSync-GKR, every version published after v1.1.0
+--------------------------------------------------------------------------------
+Release StateSync-GKR v1.2.1 · Oraclizer/statesync-gkr · GitHub (https://github.com/Oraclizer/statesync-gkr/releases/tag/v1.2.1)
+citeturn12view1 [wordlim: 200] Crawled: today; Content type: text/html; Source: open({"ref_id":"turn11view2","lineno":120}); Total lines: 173
+L96: ## Repository navigation
+L97: 
+L98:   *   * 【47†Code】
+L99:   * 【48†Issues】
+L100:   * 【49†Pull requests1 (1)】
+L101:   * 【50†Actions】
+L102:   * 【51†Security and quality】
+L103:   * 【52†Insights】
+L104: 
+L105: More items
+L106: 
+L107: # StateSync-GKR v1.2.1
+L108: 
+L109: 【53†Latest】
+L110: 
+L111: Compare
+L112: 
+L113: # Choose a tag to compare
+L114: 
+L115: ## Sorry, something went wrong.
+L116: 
+L117: Filter
+L118: 
+L119: Loading [Input]
+L120: 
+L121: ## Sorry, something went wrong.
+L122: 
+L123: ### Uh oh!
+L124: 
+L125: There was an error while loading. Please reload this page.
+L126: ## No results found
+L127: 
+L128: 【54†View all tags】
+L129: 
+L130: 【55†Image: @jay-oraclizer†avatars.githubusercontent.com】 【56†jay-oraclizer】 released this 26 Oct 08:48
+L131: 
+L132: · 【57†2 commits】 to main since this release
+L133: 
+L134: Immutable release. Only release title and notes can be modified.
+L135: 
+L136: 【58†v1.2.1】
+L137: 
+L138: This tag was signed with the committer’s verified signature.
+L139: 
+L140: 【56†jay-oraclizer】 Jay Kim
+L141: 
+L142: SSH Key Fingerprint: T30Gc137QYID9vssfvgMEuRpxlrpftZnQHdddZY4A0Y
+L143: 
+L144: Verified
+L145: 
+L146: 【59†Learn about vigilant mode†docs.github.com】.
+L147: 
+L148: 【60†`54e7651`】
+--------------------------------------------------------------------------------
+Tracking: consolidate Akita sumcheck into Jolt and complete native Spongefish integration · Issue #61 · LayerZero-Labs/akita · GitHub (https://github.com/LayerZero-Labs/akita/issues/61)
+citeturn12view2 [wordlim: 200] Crawled: 2 days ago; Content type: text/html; Source: open({"ref_id":"turn3view0","lineno":170}); Total lines: 299
+L169: Downstream constraint: Akita's generic batched driver has external consumers even though it has no current production callers inside Akita. Internal call-site searches are not sufficient grounds to remove its capabilities. Keep those consumers pinned until an equivalent shared API is available and their migration is validated; do not add permanent forwarding aliases as a substitute for the cutover.
+L170: ## Ownership after migration
+L171: Owner  | Responsibilities
+L172: --- | ---
+L173: `jolt-field`  | Canonical field types and arithmetic capabilities
+L174: `jolt-poly`  | Ordinary full/compressed univariate representations and shared polynomial arithmetic; normalized inner-polynomial representation where appropriate
+L175: `jolt-sumcheck`  | Checked round shapes, ordinary and normalized claim transitions, generic proving/replay, batching geometry, scheduler integration, reduction results
+L176: `jolt-transcript` / Spongefish  | Typed native message codecs and prover/verifier operations; shared checked verifier-state behavior and reusable sampling primitives
+L177: Akita protocol crates  | PCS relations, stage order, setup/schedules, grinding plans, protocol/session/instance binding, terminal equations, diagnostics
+L178: `akita-cpu-backend`  | Specialized arithmetic, opaque sessions, compact witness storage, prefix kernels, source-specific optimizations
+--------------------------------------------------------------------------------
+Time-Optimal Interactive Proofs for Circuit Evaluation (https://arxiv.org/html/1304.3812v4)
+citeturn12view3 [wordlim: 200] Crawled: yesterday; Content type: text/html; Source: find({"ref_id":"turn11view0","pattern":"equality"}); Total lines: 1007
+L540: Here, the first equality holds by Equation (【120†8】). The third holds by definition of the function $\chi_{c}$. The fourth holds because for Boolean values $b_{k},c_{k}\in\{0,1\}$, $\chi_{c_{k}}(b_{k})=1$ if $c_{k}=b_{k}$, and $\chi_{c_{k}}(b_{k})=0$ otherwise. The final equality holds by definition of the array $V^{(j-1)}$.
+L541: Putting Things Together. In round $j$ of the sum-check protocol, $\mathcal{P}$ uses the array $V^{(j-1)}$ to evaluate $\tilde{V}_{i+1}(p)$ for all $O(2^{s_{i}-j})$ points $p\in S^{(j)}$. This requires constant time per point, and hence $O(2^{s_{i}-j})$ time across all points. At the end of round $j$, $\mathcal{V}$ sends $\mathcal{P}$ the value $r_{j}$, and $\mathcal{P}$ computes $V^{(j)}$ from $V^{(j-1)}$ in $O(2^{s_{i+1}-j})$ time.
+L943: Here, the first equality holds by Equation (【120†8】). The third holds by definition of the functions $\chi_{c}$ and $\tilde{\text{in}}_{1}$, as well as the assumption that $\tilde{b}_{\rho,1,k}(x_{q(\rho,1,k)})=x_{q(\rho,1,k)}$ for all $k\in[s_{i+1}]$. The fourth holds because for Boolean values $c_{k},p_{q(\rho,1,k)}\in\{0,1\}$, $\chi_{c_{k}}(p_{q(\rho,1,k)})=1$ if $c_{k}=p_{q(\rho,1,k)}$, and $\chi_{c_{k}}(p_{q(\rho,1,k)})=0$ otherwise. The final equality holds by definition of the array $V^{(j-1)}$.
+--------------------------------------------------------------------------------
+Time-Optimal Interactive Proofs for Circuit Evaluation (https://arxiv.org/html/1304.3812v4)
+citeturn12view4 [wordlim: 200] Crawled: yesterday; Content type: text/html; Source: find({"ref_id":"turn11view0","pattern":"reuse"}); Total lines: 1007
+L246: In each round $j$ of the sum-check protocol, our choice of polynomial allows $\mathcal{P}$ to reuse work from prior rounds in order to compute the prescribed message for round $j$, allowing us to shave a $\log S(n)$ factor from the runtime of $\mathcal{P}$ relative to the $O(S(n)\log S(n))$-time implementation due to Cormode et al. [【63†14】].
+L249: In contrast, we use a polynomial $g_{z}^{(i)}$ defined over only $\log S_{i}$ variables rather than $\log S_{i}+2\log S_{i+1}$ variables. Moreover, the truth table of $g_{z}^{(i)}$ is dense on the Boolean hypercube, in the sense that $g_{z}^{(i)}(x)$ may be non-zero for all of the $S_{i}$ Boolean inputs $x\in\{0,1\}^{\log S_{i}}$. This density allows $\mathcal{P}$ to reuse work from prior iterations in order to speed up her computation in round $i$ of the sum-check protocol.
+L250: In more detail, in each round $j$ of the sum-check protocol, the prover’s prescribed message is defined via a sum over a large number of terms, where the number of terms falls geometrically fast with the round number $j$. Moreover, it can be shown that in each round $j$, each gate at layer $i+1$ contributes to exactly one term of this sum. Essentially, what we do is group the gates at layer $i+1$ by the term of the sum to which they contribute.
+L251: Each such group can be treated as a single unit, ensuring that in any round of the sum-check protocol, the amount of work $\mathcal{P}$ needs to do is proportional to the number of terms in the sum rather than the number of gates $S_{i}$ at layer $i$.
+L252: We remark that a similar “reuse of work” technique was implicit in an analysis by Cormode, Thaler, and Yi [【66†15】, Appendix B] of an efficient protocol for a specific streaming problem known as the second frequency moment. This frequency moment protocol was the direct inspiration for our refinements, though we require additional insights to apply the reuse of work technique in the context of evaluating general arithmetic circuits.
+L253: It is worth clarifying why our methods do not yield savings when applied to the polynomial $f_{z}^{(i)}$ used in the basic GKR protocol. The reason is that, since $f_{z}^{(i)}$ is defined over $\log S_{i}+2\log S_{i+1}$ variables instead of just $\log S_{i}$ variables, the sum defining $\mathcal{P}$’s message in round $j$ is over a much larger number of terms when using $f_{z}^{(i)}$.
+L254: It is still the case that each gate contributes to only one term of the sum, but until the number of terms in the sum falls below $S_{i}$ (which does not happen until round $j=\log S_{i}+\log S_{i+1}$ of the sum-check protocol), it is possible for each gate to contribute to a different term. Before this point, grouping gates by the term of the sum to which they contribute is not useful, since each group can have size 1.
+L263: By using the reuse of work technique underlying Theorem 【89†1】, we are also able to bring $\mathcal{P}$’s runtime down from $\Theta\left(B\cdot S\cdot\log(B\cdot S)\right)$ to $\Theta\left(B\cdot S\cdot\log S\right)$, i.e., $\mathcal{P}$’s requires a factor of $O(\log S)$ more time to evaluate the circuit with a guarantee of correctness, compared to evaluating the circuit without such a guarantee. This $O(\log S)$ factor overhead does not depend on the batch size $B$.
+L393: Using $g_{z}^{(i)}$ in place of $f_{z}^{(i)}$ allows $\mathcal{P}$ to reuse work across iterations of the sum-check protocol, thereby reducing $\mathcal{P}$’s runtime by a logarithmic factor relative to [【63†14】], as formalized in Theorem 【89†1】 below.
+L394: The remainder of the presentation leading up to Theorem 【89†1】 proceeds as follows. After stating a preliminary lemma, we describe the polynomial $g_{z}^{(i)}$ that we use in the context of three specific circuits: a binary tree of addition or multiplication gates, and a circuit computing the number of non-zero entries of an $n$-dimensional vector $a$. The purpose of this exposition is to showcase the ideas underling Theorem 【89†1】 in concrete scenarios.
+L395: Second, we explain the algorithmic insights that allow $\mathcal{P}$ to reuse work across iterations of the sum-check protocol applied to $g_{z}^{(i)}$. Finally, we state and prove Theorem 【89†1】, which formalizes the class of circuits to which our methods apply.
+L396: ### 5.2 A Preliminary Lemma
+L397: 
+L398: We will repeatedly invoke the following lemma, which allows us to express the value $\tilde{V}_{i}(z)$ in a manner amenable to verification via the sum-check protocol. This is essentially a restatement of [【109†31】, Lemma 3.2.1].
+L399: ###### Lemma 4
+L400: 
+L401: Let $W$ be any polynomial $\mathbb{F}^{s_{i}}\rightarrow\mathbb{F}$ that extends $V_{i}$, in the sense that for all $p\in\{0,1\}^{s_{i}}$, $W(p)=V_{i}(p)$. Then for any $z\in\mathbb{F}^{s_{i}}$,
+L402: 
+L403:  | $$\tilde{V}_{i}(z)=\sum_{p\in\{0,1\}^{s_{i}}}\beta_{s_{i}}(z,p)W(p).$$  |  | (6)
+--------------------------------------------------------------------------------
+Time-Optimal Interactive Proofs for Circuit Evaluation (https://arxiv.org/html/1304.3812v4)
+citeturn12view5 [wordlim: 200] Crawled: yesterday; Content type: text/html; Source: find({"ref_id":"turn11view0","pattern":"regular"}); Total lines: 1007
+L80: We describe a refinement of a powerful interactive proof protocol due to Goldwasser, Kalai, and Rothblum [【62†21】]. Cormode, Mitzenmacher, and Thaler [【63†14】] show how to implement the prover in this protocol in time $O(S\log S)$, where $S$ is the size of an arithmetic circuit computing the function of interest. Our refinements apply to circuits with sufficiently “regular” wiring patterns; for these circuits, we bring the runtime of the prover down to $O(S)$.
+L153: We also make progress toward addressing another issue of existing interactive proof implementations: their applicability. The protocol of Goldwasser, Kalai, and Rothblum (henceforth the GKR protocol) applies in principle to any problem computed by a small-depth arithmetic circuit, but this is not the case when more fine-grained considerations of prover and verifier efficiency are taken into account.
+L154: In brief, existing implementations of interactive proof protocols for circuit evaluation all require that the circuit have a highly regular wiring pattern [【63†14】, 【64†40】].
+L155: If this is not the case, then these implementations require the verifier to perform an expensive (though data-independent) preprocessing phase to pull out information about the wiring of the circuit, and they require a substantial factor blowup (logarithmic in the circuit size) in runtime for the prover relative to evaluating the circuit without a guarantee of correctness. Developing a protocol that avoids these pitfalls and applies to more general computations remains an important open question.
+L183: We remove this logarithmic factor, bringing $\mathcal{P}$’s runtime down to $O(S(n))$ for a large class of circuits. Informally, our results apply to any circuit whose wiring pattern is sufficiently “regular”. We formalize the class of circuits to which our results apply in Theorem 【89†1】.
+L188: Note that Theorem 【91†3】 (which is specific to matrix multiplication) is much less general than Theorem 【89†1】 (which applies to any circuit with a sufficiently regular wiring pattern). However, Theorem 【91†3】 achieves optimal runtime and space usage for the prover up to leading constants, assuming there is no $O(n^{2})$ time algorithm for matrix multiplication.
+L242: ### 3.2 Achieving Optimal Prover Runtime for Regular Circuits
+L243: 
+L244: In Theorem 【89†1】, we describe an interactive proof protocol for circuit evaluation that brings $\mathcal{P}$’s runtime down to $O(S(n))$ for a large class of circuits, while maintaining the same verifier runtime as in prior implementations of the GKR protocol. Informally, Theorem 【89†1】 applies to any circuit whose wiring pattern is sufficiently “regular”.
+L254: It is still the case that each gate contributes to only one term of the sum, but until the number of terms in the sum falls below $S_{i}$ (which does not happen until round $j=\log S_{i}+\log S_{i+1}$ of the sum-check protocol), it is possible for each gate to contribute to a different term. Before this point, grouping gates by the term of the sum to which they contribute is not useful, since each group can have size 1.
+L255: ### 3.3 Verifying General Data Parallel Computations
+L256: Theorem 【89†1】 only applies to circuits with regular wiring patterns, as do other existing implementations of interactive proof protocols for circuit evaluation [【63†14】, 【64†40】].
+L257: For circuits with irregular wiring patterns, these implementations require the verifier to perform an expensive preprocessing phase (requiring time proportional to the size of the circuit) to pull out information about the wiring of the circuit, and they require a substantial factor blowup (logarithmic in the circuit size) in runtime for the prover relative to evaluating the circuit without a guarantee of correctness.
+L258: To address these bottlenecks, we do need to make an assumption about the structure of the circuit we are verifying. Ideally our assumption will be satisfied by many real-world computations. To this end, Theorem 【90†2】 will describe a protocol that is highly efficient for any data parallel computation, by which we mean any setting in which one applies the same computation independently to many pieces of data. See Figure 【98†2】 in Section 【46†7】 for a schematic of a data parallel computation.
+L261: In order to improve on this, the key observation is that although each sub-computation $C$ can have a very complicated wiring pattern, the circuit is “maximally regular” between sub-computations, as the sub-computations do not interact at all. Therefore, each time the basic GKR protocol would apply the sum-check protocol to a polynomial derived from the wiring predicate of $C^{*}$, we instead use a simpler polynomial derived only from the wiring predicate of $C$.
+L550: ###### Definition 3
+L551: 
+L552: Let $f$ be a function mapping $\{0,1\}^{v}$ to $\{0,1\}^{v^{\prime}}$. Number the $v$ input bits from $1$ to $v$, and the $v^{\prime}$ output bits from $1$ to $v^{\prime}$. Assume that one machine word contains $\Omega(v+v^{\prime})$ bits. We say that $f$ is regular if $f$ can be evaluated on any input in constant time, and there is a subset of input bits $\mathcal{S}\subseteq[v]$ with $|\mathcal{S}|=O(1)$ such that:
+L553: 
+L554:   1. 1.
+L561: For any layer $i$ of $C$ such that $\text{in}_{1}^{(i)},$ $\text{in}_{2}^{(i)}$ and $\text{type}^{(i)}$ are all regular, we can show that $\mathcal{P}$ can execute the sum-check protocol at iteration $i$ in $O(S_{i}+S_{i+1})$ time. To ensure that $\mathcal{P}$ can execute the “reducing to verification of a single point” phase in $O(S_{i+1})$ time, we need to place one additional condition on $\text{in}_{1}^{(i)}$ and $\text{in}_{2}^{(i)}$.
+L568: Let $C$ be an arithmetic circuit, and suppose that for all layers $i$ of $C$, $\text{in}_{1}^{(i)}$, $\text{in}_{2}^{(i)}$, and $\text{type}^{(i)}$ are regular. Suppose moreover that $\text{in}_{1}^{(i)}$ is similar to $\text{in}_{2}^{(i)}$ for all but $O(1)$ layers $i$ of $C$. Then there is a valid interactive proof protocol $(\mathcal{P},\mathcal{V})$ for the function computed by $C$, with the following costs.
+L574: matmult. Consider the following circuit $C$ of size $O(n^{3})$ for multiplying two $n\times n$ matrices $A$ and $B$. Let the input gate labelled $(0,i,j)$ correspond to $A_{ij}$, and the input labelled $(1,i,j)$ correspond to $B_{ij}$. The layer of $C$ adjacent to the input consists of $n^{3}$ gates, where the gate labeled $(i,j,k)\in(\{0,1\}^{\log n})^{3}$ computes $A_{ik}\cdot B_{kj}$.
+L575: All subsequent layers constitute a binary tree of addition gates summing up the results and thereby computing $\sum_{k}A_{ik}B_{kj}$ for all $(i,j)\in[n]\times[n]$.
+L576: For layers $i\in\{1,\dots,\log n\}$ of this circuit, $\text{in}_{1}^{(i)}$, $\text{in}_{2}^{(i)}$, and $\text{type}^{(i)}$ are all regular, and moreover $\text{in}_{1}^{(i)}$ is similar to $\text{in}_{2}^{(i)}$ (see Section 【34†5.3.1】 for a careful treatment of this wiring pattern). The remaining layer of the circuit, layer $i=\log n+1$, is regular, though $\text{in}_{1}^{(\log n+1)}$ and $\text{in}_{2}^{(\log n+1)}$ are not similar. We obtain the following immediate corollary.
+L577: ###### Corollary 1
+L578: 
+L579: There is a valid interactive proof protocol for $n\times n$ matmult with the following costs. The total communication cost is $n^{2}+O(d(n)\log n)$ field elements, where the $n^{2}$ term is required to specify the answer. The time cost to $\mathcal{V}$ is $O(n^{2}\log n)$, and $\mathcal{V}$ can make a single streaming pass over the input in time $O(n^{2}\log n)$ and storing $O(\log n)$ field elements. The time cost to $\mathcal{P}$ is $O(n^{3})$.
+L580: We note that the costs of Corollary 【121†1】 are subsumed by our special-purpose matrix multiplication protocol presented later in Theorem 【91†3】. We included Corollary 【121†1】 to demonstrate the applicability of Theorem 【89†1】.
+L581: distinct. Recall the circuit $C$ over field size $q=2^{k}-1$ described in Section 【35†5.3.2】 that takes a vector $a\in\mathbb{F}^{n}$ as input and outputs the number of non-zero entries of $a$. This circuit has $k+1$ relevant layers and consists entirely of multiplication gates.
+L582: For any layer $i\in[k-1]$, an even-numbered gate $p$ at layer $i$ has both in-wires connected to gate $p$ at layer $i+1$, while an odd-numbered gate $p$ at layer $i$ has one in-wire connected to gate $p$ at layer $i+1$ and another connected to gate $p-1$ (which has binary representation $(p_{-s_{i}},0)$, where $p_{-s_{i}}$ denotes the binary representation of $p$ with the coordinate $p_{s_{i}}$ removed).
+L583: For these layers, $\text{in}_{1}^{(i)}$, $\text{in}_{2}^{(i)}$, and $\text{type}^{(i)}$ are all regular, and $\text{in}_{1}^{(i)}$ is similar to $\text{in}_{2}^{(i)}$.
+L584: At layer $k$, an even-numbered gate $p$ is has both in-wires connected to gate $p/2$ at layer $k+1$, while an odd-numbered gate $p$ at layer $k$ has its unique in-wire connected to gate $(p-1)/2$ at layer $k+1$. In the former case, both in-neighbors of gate $p$ have binary representation $p_{-s_{i}}$. In the latter case the unique in-neighbor of gate $p$ has binary representation $p_{-s_{i}}$.
+L585: It is therefore easily seen that $\text{in}_{1}^{(k)}$, $\text{in}_{2}^{(k)}$, and $\text{type}^{(k)}$ are all regular, and $\text{in}_{1}^{(k)}$ is similar to $\text{in}_{2}^{(k)}$. Finally, at layer $k+1$, both in-wires for gate $p$ are connected to gate $p$ at layer $k+2$. It is easily seen that $\text{in}_{1}^{(k+1)},\text{in}_{2}^{(k+1)}$, and $\text{type}^{(k+1)}$ are all regular, and $\text{in}_{1}^{(k+1)}$ is similar to $\text{in}_{2}^{(k+1)}$.
+L586: With all layers of $C$ satisfying the requirements of Theorem 【89†1】, we obtain the following corollary.
+L587: ###### Corollary 2
+L588: 
+L589: Let $q>\max\{m,n\}$ be a Mersenne Prime. There is a valid interactive proof protocol over the field $\mathbb{F}_{q}$ for distinct with the following costs. The total communication cost is $O(\log n\log q)$ field elements. The time cost to $\mathcal{V}$ is $O(m\log n)$, and $\mathcal{V}$ can make a single streaming pass over the input, storing $O(\log n)$ field elements. The time cost to $\mathcal{P}$ is $O(n\log q)$.
+L590: To or knowledge, Corollary 【122†2】 yields the fastest known prover of any streaming interactive proof protocol for distinct that also has total communication and space usage for $\mathcal{V}$ that is sublinear in both $m$ and $n$. The fastest result previously was the $O\left(n\cdot\log(n)\cdot\log(p)\right)$-time prover obtained by the implementation of Cormode et al. [【63†14】].
+L606: This analysis highlights the following point: our refinements can be applied to a circuit on a layer-by-layer basis, so they can still yield speedups even if some but not all layers of a circuit are sufficiently “regular” for our refinements to apply.
+L607: 
+L608: A similar analysis applies to a closely related circuit that solves a more general problem known as Pattern Matching with Wildcards. We omit these details for brevity.
+L609: 
+L610:   * •
+L681: [【63†14】] required the programmer to express a program as an arithmetic circuit, and moreover this circuit needed to have a regular wiring pattern, in the sense that the verifier could efficiently evaluate the polynomials $\tilde{\text{add}}_{i}$ and $\tilde{\text{mult}}_{i}$ at a point. If this was not the case, the verifier would need to do an expensive (though data-independent) preprocessing phase to perform these evaluations.
+L682: Moreover, even for circuits with regular wiring patterns, this implementation caused the prover to suffer an $O(\log(S(n)))$ factor blowup in runtime relative to evaluating the circuit without a guarantee of correctness. The results of Sections 【30†5】 and 【52†8】 asymptotically eliminate the blowup in runtime for the prover, but they also only apply when the circuit has a very regular wiring pattern.
+L683: The implementation of Vu et al. [【64†40】] allows the programmer to express a program in a high-level language, but compiles these programs into potentially irregular circuits that require the verifier to incur the expensive preprocessing phase mentioned above, in order for the verifier to evaluate the polynomials $\tilde{\text{add}}_{i}$ and $\tilde{\text{mult}}_{i}$ at a point.
+L684: They therefore propose to apply their system in a “batching” model, where multiple instances of the same sub-computation are applied independently to different pieces of data.
+L688: ### 7.1 Motivation
+L689: 
+L690: As discussed above, existing interactive proof protocols for circuit evaluation either apply only to circuits with highly regular wiring patterns or incur large overheads for the prover and verifier. While we do not have a magic bullet for dealing with irregular wiring patterns, we do wish to mitigate the bottlenecks of existing protocols by leveraging some general structure underlying many real-world computations. Specifically, the structure we focus on exploiting is data-parallelism.
+L702: In contrast, our protocol achieves the best of both prior approaches. We observe that although each sub-computation $C$ can have a complicated wiring pattern, the circuit is maximally regular between sub-computations, as the sub-computations do not interact at all. Therefore, each time the basic GKR protocol would apply the sum-check protocol to a polynomial derived from the wiring predicate of $C^{*}$, we can instead use a simpler polynomial derived only from the wiring predicate of $C$.
+

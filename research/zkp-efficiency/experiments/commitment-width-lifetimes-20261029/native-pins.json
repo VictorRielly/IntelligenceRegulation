@@ -1,0 +1,72 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/zkp-core/src/field.rs",
+    "snapshot": "native/zkp-core__src__field.rs",
+    "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+    "bytes": 11065
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/zkp-core/src/ntt.rs",
+    "snapshot": "native/zkp-core__src__ntt.rs",
+    "sha256": "97572d4f242637d21a089388abad4b5b39136c62036faa17ae94b3ba6f170890",
+    "bytes": 5725
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/zkp-core/src/pcs/encode_buffer.rs",
+    "snapshot": "native/zkp-core__src__pcs__encode_buffer.rs",
+    "sha256": "3c01433d84507cddadcf5c1387c08948fd3efe853a066d74690c0a6e1ce3dd70",
+    "bytes": 3449
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/zkp-core/src/pcs/encode_buffer/tests.rs",
+    "snapshot": "native/zkp-core__src__pcs__encode_buffer__tests.rs",
+    "sha256": "41787bbc3896d7539e531beca3384555b0081153d6cb1cef1ace9adb4ca93bb2",
+    "bytes": 5493
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/zkp-core/src/pcs.rs",
+    "snapshot": "native/zkp-core__src__pcs.rs",
+    "sha256": "5c9cfc4e9c84283309f4c47f87d4a9146e2c9c9f5b52aa608b4ce6a7588cd495",
+    "bytes": 77003
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/hashline/src/gpu/cuda.rs",
+    "snapshot": "native/hashline__src__gpu__cuda.rs",
+    "sha256": "8fe2a2a39e0796254be37d0d7507d7fc22ea3af141d97d35cd93754d505072c9",
+    "bytes": 205193
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/hashline/src/gpu/mod.rs",
+    "snapshot": "native/hashline__src__gpu__mod.rs",
+    "sha256": "d651be2ccf8f19ff75fe6bca5ad42f4b773b569d0ae2017306f0bf819c51b283",
+    "bytes": 36959
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/s4-split-width/PAPER.json",
+    "snapshot": "native/owner-s4-PAPER.json",
+    "sha256": "bbd8b135a23dfdc46309edf1d23dab93d69f3bb57ad424d57bbb73c7b368599e",
+    "bytes": 13645,
+    "read_only_design_context": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/s4-split-width/COUNT.json",
+    "snapshot": "native/owner-s4-COUNT.json",
+    "sha256": "fc7dbbc9e4c5b46c2a96a0adafbecf64397fa90498f02b0a9e7151da276878e7",
+    "bytes": 9641,
+    "read_only_design_context": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/s4-split-width/ISOLATED_VALIDATION.json",
+    "snapshot": "native/owner-s4-ISOLATED_VALIDATION.json",
+    "sha256": "043466a6db94205c7257ac0338dde81b9da88ebc4b849b4f9c46a1e64e4209a6",
+    "bytes": 4487,
+    "read_only_design_context": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/s4-split-width/DESIGN_REVIEW_REQUEST.json",
+    "snapshot": "native/owner-s4-DESIGN_REVIEW_REQUEST.json",
+    "sha256": "73dcff1f7b04a25be038a94b691c22b63ad730ed6ecbfe00af51affe501fa33c",
+    "bytes": 9115,
+    "read_only_design_context": true
+  }
+]

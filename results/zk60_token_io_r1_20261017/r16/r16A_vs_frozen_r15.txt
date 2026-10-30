@@ -1,0 +1,78 @@
+r16A vs frozen-r15: 77 paths
+changed  +11    -3     hashline/examples/zk60_classify.rs
+changed  +63    -2     hashline/src/private_block.rs
+added    +84    -0     hashline/src/private_block/accuracy.rs
+added    +184   -0     hashline/src/private_block/accuracy_act.rs
+added    +164   -0     hashline/src/private_block/accuracy_aligned.rs
+added    +31    -0     hashline/src/private_block/accuracy_binding_tests.rs
+added    +128   -0     hashline/src/private_block/accuracy_fold.rs
+added    +128   -0     hashline/src/private_block/accuracy_groups.rs
+added    +175   -0     hashline/src/private_block/accuracy_layout.rs
+added    +79    -0     hashline/src/private_block/accuracy_layout_tests.rs
+added    +161   -0     hashline/src/private_block/accuracy_precision.rs
+added    +126   -0     hashline/src/private_block/accuracy_profile_tests.rs
+added    +260   -0     hashline/src/private_block/accuracy_proof_tests.rs
+added    +559   -0     hashline/src/private_block/accuracy_public.rs
+added    +122   -0     hashline/src/private_block/accuracy_tables.rs
+changed  +27    -2     hashline/src/private_block/argument.rs
+added    +639   -0     hashline/src/private_block/argument_accuracy.rs
+changed  +1     -1     hashline/src/private_block/grow_tests.rs
+changed  +13    -1     hashline/src/private_block/hash_domain_tests.rs
+changed  +32    -3     hashline/src/private_block/layout.rs
+changed  +1     -1     hashline/src/private_block/p2_tests.rs
+changed  +38    -15    hashline/src/private_block/protocol.rs
+added    +11359 -0     hashline/src/private_block/r13_vectors/block_fixture.json
+added    +12087 -0     hashline/src/private_block/r13_vectors/block_fixture_t32.json
+added    +21    -0     hashline/src/private_block/r13_vectors/block_fixture_t32.tsv
+added    +1706  -0     hashline/src/private_block/r13_vectors/block_trace_low.json
+added    +1706  -0     hashline/src/private_block/r13_vectors/block_trace_low_h24.json
+added    +20354 -0     hashline/src/private_block/r13_vectors/block_trace_low_h24_t32.json
+added    +19    -0     hashline/src/private_block/r13_vectors/block_trace_low_h24_t32.tsv
+added    +20354 -0     hashline/src/private_block/r13_vectors/block_trace_low_t32.json
+added    +19    -0     hashline/src/private_block/r13_vectors/block_trace_low_t32.tsv
+added    +216   -0     hashline/src/private_block/r13_vectors/r13_product_low_vectors.tsv
+added    +216   -0     hashline/src/private_block/r13_vectors/r13_product_vectors.tsv
+added    +324   -0     hashline/src/private_block/r13_vectors/r13_requant_vectors.tsv
+added    +76    -0     hashline/src/private_block/r13_vectors/roles.tsv
+added    +2016  -0     hashline/src/private_block/r13_vectors/shieldstral_product_vectors.tsv
+added    (binary) hashline/src/private_block/r13_vectors/silu_-1_-10.bin
+added    (binary) hashline/src/private_block/r13_vectors/silu_-1_-11.bin
+added    (binary) hashline/src/private_block/r13_vectors/silu_-1_-9.bin
+added    (binary) hashline/src/private_block/r13_vectors/silu_-2_-11.bin
+added    (binary) hashline/src/private_block/r13_vectors/silu_-3_-11.bin
+added    (binary) hashline/src/private_block/r13_vectors/silu_-3_-12.bin
+added    (binary) hashline/src/private_block/r13_vectors/silu_-4_-12.bin
+added    (binary) hashline/src/private_block/r13_vectors/silu_-4_-13.bin
+added    (binary) hashline/src/private_block/r13_vectors/silu_-5_-13.bin
+added    (binary) hashline/src/private_block/r13_vectors/silu_0_-8.bin
+changed  +1     -1     hashline/src/private_block/r4_tests.rs
+changed  +2     -2     hashline/src/private_block/review_d24_tests.rs
+changed  +1     -1     hashline/src/private_block/review_tests.rs
+changed  +134   -14    hashline/src/private_block/run.rs
+changed  +15    -1     hashline/src/private_block/run_capture.rs
+changed  +2     -2     hashline/src/private_block/s20_review_tests.rs
+changed  +17    -1     hashline/src/private_block/s24_tests.rs
+changed  +48    -5     hashline/src/private_block/s25_tests.rs
+changed  +2     -0     hashline/src/private_block/s33_tests.rs
+changed  +2     -2     hashline/src/private_block/s35_tests.rs
+changed  +123   -5     hashline/src/private_block/shape.rs
+changed  +4     -4     hashline/src/private_block/slot_ir_tests.rs
+changed  +8     -8     hashline/src/private_block/tamper.rs
+changed  +1     -1     hashline/src/private_block/tests.rs
+changed  +3     -1     hashline/src/private_block/tied_tables.rs
+changed  +10    -1     hashline/src/private_block/tied_tables/derive.rs
+changed  +3     -0     hashline/src/private_block/token_io.rs
+changed  +209   -15    hashline/src/private_block/token_io/classify.rs
+changed  +38    -20    hashline/src/private_block/token_io/classify_cli.rs
+changed  +3     -1     hashline/src/private_block/token_io/classify_r14_tests.rs
+added    +467   -0     hashline/src/private_block/token_io/classify_r16_tests.rs
+changed  +15    -1     hashline/src/private_block/token_io/classify_run.rs
+changed  +39    -3     hashline/src/private_block/token_io/classify_tied.rs
+changed  +13    -2     hashline/src/private_block/token_io/load.rs
+changed  +42    -3     hashline/src/private_block/token_io/run.rs
+added    +545   -0     hashline/src/private_block/trained_accuracy.rs
+changed  +169   -45    hashline/src/private_block/trained_block.rs
+changed  +3     -2     hashline/src/private_block/trained_calib_tests.rs
+changed  +123   -7     hashline/src/private_block/trained_statement.rs
+changed  +38    -8     hashline/src/private_block/witness.rs
+added    +955   -0     hashline/src/private_block/witness_accuracy.rs

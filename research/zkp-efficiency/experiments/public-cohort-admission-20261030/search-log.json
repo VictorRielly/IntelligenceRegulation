@@ -1,0 +1,13 @@
+{
+  "method": "Native LIVE tools.web__run",
+  "queries": [
+    "GPU zero knowledge sumcheck memory batching prover October 2026 repository",
+    "memory admission GPU asynchronous buffer lifetime cudaMallocAsync stream ordered allocator",
+    "MegaZK memory efficient GPU system June 2026 ICS Li Yu memory allocator",
+    "site:github.com GPU sumcheck October 2026 release memory",
+    "\"MegaZK\" \"2026\" \"June\"",
+    "\"STAlloc\" github"
+  ],
+  "raw_responses": "web-1.json through web-11.json; initial search response remains in tool conversation",
+  "rule": "Search snippets are discovery only; primary pages inspected. No downloaded scripts executed."
+}

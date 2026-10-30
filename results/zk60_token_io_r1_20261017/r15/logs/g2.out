@@ -1,0 +1,2 @@
+[zk60-guard 21:34:55] START tio15-g2 class=build need=3.9G cap=4.8G enforce=cgroup+watchdog waited=0s run=8a3045e917e5
+[zk60-guard 21:37:54] END tio15-g2 exit=0 child_wall=179s peak_rss=2.19G min_avail=11.85G

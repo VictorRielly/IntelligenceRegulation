@@ -1,0 +1,20 @@
+[zk60-guard 03:14:56] START tio16b-red class=build need=2.9G cap=4.2G enforce=cgroup+watchdog waited=0s run=41b8bd7e7fad
+[zk60-guard 03:19:03] END tio16b-red exit=101 child_wall=247s peak_rss=2.26G min_avail=11.75G
+bash: line 1: /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/r16b/tools/r16b_chain.sh: Permission denied
+[zk60-guard 03:21:52] START tio16b-green class=build need=5G cap=6G enforce=cgroup+watchdog waited=0s run=633b7975b7c3
+[zk60-guard 03:26:39] END tio16b-green exit=0 child_wall=287s peak_rss=5.20G min_avail=8.58G
+[zk60-guard 03:26:39] START tio16b-mut-bits-l class=build need=2.9G cap=4.2G enforce=cgroup+watchdog waited=0s run=01f2ded12523
+[zk60-guard 03:29:49] END tio16b-mut-bits-l exit=101 child_wall=191s peak_rss=2.31G min_avail=11.71G
+[zk60-guard 03:29:50] START tio16b-mut-card-back class=build need=2.9G cap=4.2G enforce=cgroup+watchdog waited=0s run=4ad21c04d277
+[zk60-guard 03:33:06] END tio16b-mut-card-back exit=101 child_wall=196s peak_rss=2.32G min_avail=11.71G
+[zk60-guard 03:33:06] START tio16b-s21-suite class=cpu need=8.5G cap=10G enforce=cgroup+watchdog waited=0s run=cda19945e042
+[zk60-guard 03:47:56] END tio16b-s21-suite exit=0 child_wall=890s peak_rss=7.89G min_avail=5.80G
+[zk60-guard 03:47:56] START tio16b-cli-build class=build need=2.5G cap=3.5G enforce=cgroup+watchdog waited=0s run=45e0c3190f7b
+[zk60-guard 03:48:11] END tio16b-cli-build exit=0 child_wall=15s peak_rss=0.43G min_avail=13.37G
+[zk60-guard 03:48:11] START tio16b-verify-violence class=cpu need=2.9G cap=4.5G enforce=cgroup+watchdog waited=0s run=df2af74f6dc6
+[zk60-guard 03:49:21] END tio16b-verify-violence exit=0 child_wall=70s peak_rss=2.29G min_avail=11.32G
+[zk60-guard 03:49:21] START tio16b-xbin class=cpu need=1G cap=2G enforce=cgroup+watchdog waited=0s run=276d166fef6b
+[zk60-guard 03:49:30] END tio16b-xbin exit=0 child_wall=9s peak_rss=0.21G min_avail=13.48G
+[zk60-guard 03:55:40] admission waiting: budget: 9.5+2.9 GiB > 11.9 GiB with live [sol-r13-matched-non-dd-1(cpu,9.5G)]; another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 03:55:55] START tio16b-show class=build need=2.9G cap=4.2G enforce=cgroup+watchdog waited=15s run=d2e2ee03ccf3
+[zk60-guard 03:57:00] END tio16b-show exit=0 child_wall=65s peak_rss=0.79G min_avail=12.98G

@@ -1,0 +1,73 @@
+{
+ "scope": "reviewer's independent transcription of the R12b quantizer contract; COUNTED digests; not a fidelity or privacy result",
+ "profile_source": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12b/tied-fixture",
+ "profile_sha256": "11bccfa20dc58684dab3ff0745945ef3255a0f20899dc6b0d3dcd845216bfa8b",
+ "embedding_scale": 0.0035486477726047977,
+ "checkpoint": {
+  "path": "/home/victor/models/shieldstral-1.0-3b/snapshot-003ec7e2/model.safetensors",
+  "bytes": 7698241104,
+  "sha256": "87753e30c8c321da478b83bbabebcd813cc9b3d0cee5c5b3d64349a8ee4172f7",
+  "pinned": true
+ },
+ "tensor_sha256": "67a138c1c483b89874526ef523f5f0c30f161808076561730193d1de2093dd19",
+ "tensor_pinned": true,
+ "embedding_sha256": "baff04d2385ad49dcf9704384de268ce5aa5e16749d2af62c2101676538b5afe",
+ "head_sha256": "786f02bc011e3f23c4e9ac480772a0413d39f8d10c7259000929ada771d0ce95",
+ "multipliers_sha256": "f43790f32bd4cf4b252aafaa08e9b788937a0878594d2756f73248b0dfdc0464",
+ "embedding_refused": 0,
+ "head_refused": 0,
+ "multiplier_min_max": [
+  434,
+  4096
+ ],
+ "zero_head_rows": 0,
+ "hadamard_order": {
+  "order_mismatch": 0,
+  "rotated_values": 805312512
+ },
+ "margins": {
+  "fixture": {
+   "yes": 1,
+   "no": 2,
+   "scale": 4.123279644327835e-06,
+   "refused_coordinates": 0,
+   "min": -32767,
+   "max": 28829,
+   "at_plus_minus_32767": 1,
+   "max_abs_over_scale": 32767.0,
+   "sha256": "b597f2543ab813248d6cfa26052daa94f9e3a889dcb515fca43985e2d35d643d",
+   "half_scale_refused_coordinates": 75
+  },
+  "policy": {
+   "yes": 13059,
+   "no": 2649,
+   "scale": 4.08288030735373e-06,
+   "refused_coordinates": 0,
+   "min": -32767,
+   "max": 31800,
+   "at_plus_minus_32767": 1,
+   "max_abs_over_scale": 32767.000000000004,
+   "sha256": "1f5cb3468ff4142fe5eee6afd989b2626afa9c12a2d49c877164a0ef7d7eb45f",
+   "half_scale_refused_coordinates": 232
+  }
+ },
+ "equal_to_sol_reference_tables": {
+  "embedding": true,
+  "head": true,
+  "multipliers": true,
+  "fixture_margin": true
+ },
+ "equal_to_sol_policy_margin": true,
+ "astra_dg_r12b_t256_declared": {
+  "embedding": "baff04d2385ad49dcf9704384de268ce5aa5e16749d2af62c2101676538b5afe",
+  "head": "786f02bc011e3f23c4e9ac480772a0413d39f8d10c7259000929ada771d0ce95",
+  "mult": "f43790f32bd4cf4b252aafaa08e9b788937a0878594d2756f73248b0dfdc0464",
+  "margin_file_sha256": "1f5cb3468ff4142fe5eee6afd989b2626afa9c12a2d49c877164a0ef7d7eb45f"
+ },
+ "equal_to_astra_declared": {
+  "embedding": true,
+  "head": true,
+  "mult": true,
+  "margin": true
+ }
+}

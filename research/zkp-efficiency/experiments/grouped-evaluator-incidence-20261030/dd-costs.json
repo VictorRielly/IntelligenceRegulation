@@ -1,0 +1,248 @@
+[
+  {
+    "n": 7,
+    "not_admitted_geometry": true,
+    "recovery": false,
+    "generic_scan_fold": {
+      "add": 24765,
+      "mul": 19050,
+      "sub": 12065,
+      "mul_base": 3175
+    },
+    "grouped_scan_fold": {
+      "add": 18796,
+      "mul": 14478,
+      "sub": 10160,
+      "mul_base": 2286
+    },
+    "generic_bracket_calls": [
+      635,
+      635,
+      635
+    ],
+    "grouped_bracket_calls": [
+      508,
+      254,
+      254
+    ],
+    "removed_scan_fold": {
+      "add": 5969,
+      "mul": 4572,
+      "sub": 1905,
+      "mul_base": 889
+    },
+    "excluded_added_costs": [
+      "group Eq prefix/suffix preparation",
+      "group inversions/recovery",
+      "degree completion",
+      "pending group values",
+      "unchanged whole-proof work"
+    ],
+    "warning": "Row scan plus original-table fold census includes weighting; round setup/recovery/degree completion and whole-proof costs remain unpriced. Not a runtime estimate."
+  },
+  {
+    "n": 7,
+    "not_admitted_geometry": true,
+    "recovery": true,
+    "generic_scan_fold": {
+      "add": 23253,
+      "mul": 17349,
+      "sub": 11246,
+      "mul_base": 2860
+    },
+    "grouped_scan_fold": {
+      "add": 17284,
+      "mul": 12777,
+      "sub": 9341,
+      "mul_base": 1971
+    },
+    "generic_bracket_calls": [
+      572,
+      572,
+      572
+    ],
+    "grouped_bracket_calls": [
+      445,
+      191,
+      191
+    ],
+    "removed_scan_fold": {
+      "add": 5969,
+      "mul": 4572,
+      "sub": 1905,
+      "mul_base": 889
+    },
+    "excluded_added_costs": [
+      "group Eq prefix/suffix preparation",
+      "group inversions/recovery",
+      "degree completion",
+      "pending group values",
+      "unchanged whole-proof work"
+    ],
+    "warning": "Row scan plus original-table fold census includes weighting; round setup/recovery/degree completion and whole-proof costs remain unpriced. Not a runtime estimate."
+  },
+  {
+    "n": 14,
+    "not_admitted_geometry": true,
+    "recovery": false,
+    "generic_scan_fold": {
+      "add": 3194685,
+      "mul": 2457450,
+      "sub": 1556385,
+      "mul_base": 409575
+    },
+    "grouped_scan_fold": {
+      "add": 2424684,
+      "mul": 1867662,
+      "sub": 1310640,
+      "mul_base": 294894
+    },
+    "generic_bracket_calls": [
+      81915,
+      81915,
+      81915
+    ],
+    "grouped_bracket_calls": [
+      65532,
+      32766,
+      32766
+    ],
+    "removed_scan_fold": {
+      "add": 770001,
+      "mul": 589788,
+      "sub": 245745,
+      "mul_base": 114681
+    },
+    "excluded_added_costs": [
+      "group Eq prefix/suffix preparation",
+      "group inversions/recovery",
+      "degree completion",
+      "pending group values",
+      "unchanged whole-proof work"
+    ],
+    "warning": "Row scan plus original-table fold census includes weighting; round setup/recovery/degree completion and whole-proof costs remain unpriced. Not a runtime estimate."
+  },
+  {
+    "n": 14,
+    "not_admitted_geometry": true,
+    "recovery": true,
+    "generic_scan_fold": {
+      "add": 2998101,
+      "mul": 2236293,
+      "sub": 1449902,
+      "mul_base": 368620
+    },
+    "grouped_scan_fold": {
+      "add": 2228100,
+      "mul": 1646505,
+      "sub": 1204157,
+      "mul_base": 253939
+    },
+    "generic_bracket_calls": [
+      73724,
+      73724,
+      73724
+    ],
+    "grouped_bracket_calls": [
+      57341,
+      24575,
+      24575
+    ],
+    "removed_scan_fold": {
+      "add": 770001,
+      "mul": 589788,
+      "sub": 245745,
+      "mul_base": 114681
+    },
+    "excluded_added_costs": [
+      "group Eq prefix/suffix preparation",
+      "group inversions/recovery",
+      "degree completion",
+      "pending group values",
+      "unchanged whole-proof work"
+    ],
+    "warning": "Row scan plus original-table fold census includes weighting; round setup/recovery/degree completion and whole-proof costs remain unpriced. Not a runtime estimate."
+  },
+  {
+    "n": 23,
+    "not_admitted_geometry": true,
+    "recovery": false,
+    "generic_scan_fold": {
+      "add": 1635778365,
+      "mul": 1258291050,
+      "sub": 796917665,
+      "mul_base": 209715175
+    },
+    "grouped_scan_fold": {
+      "add": 1241513836,
+      "mul": 956301198,
+      "sub": 671088560,
+      "mul_base": 150994926
+    },
+    "generic_bracket_calls": [
+      41943035,
+      41943035,
+      41943035
+    ],
+    "grouped_bracket_calls": [
+      33554428,
+      16777214,
+      16777214
+    ],
+    "removed_scan_fold": {
+      "add": 394264529,
+      "mul": 301989852,
+      "sub": 125829105,
+      "mul_base": 58720249
+    },
+    "excluded_added_costs": [
+      "group Eq prefix/suffix preparation",
+      "group inversions/recovery",
+      "degree completion",
+      "pending group values",
+      "unchanged whole-proof work"
+    ],
+    "warning": "Row scan plus original-table fold census includes weighting; round setup/recovery/degree completion and whole-proof costs remain unpriced. Not a runtime estimate."
+  },
+  {
+    "n": 23,
+    "not_admitted_geometry": true,
+    "recovery": true,
+    "generic_scan_fold": {
+      "add": 1535115093,
+      "mul": 1145044869,
+      "sub": 742391726,
+      "mul_base": 188743660
+    },
+    "grouped_scan_fold": {
+      "add": 1140850564,
+      "mul": 843055017,
+      "sub": 616562621,
+      "mul_base": 130023411
+    },
+    "generic_bracket_calls": [
+      37748732,
+      37748732,
+      37748732
+    ],
+    "grouped_bracket_calls": [
+      29360125,
+      12582911,
+      12582911
+    ],
+    "removed_scan_fold": {
+      "add": 394264529,
+      "mul": 301989852,
+      "sub": 125829105,
+      "mul_base": 58720249
+    },
+    "excluded_added_costs": [
+      "group Eq prefix/suffix preparation",
+      "group inversions/recovery",
+      "degree completion",
+      "pending group values",
+      "unchanged whole-proof work"
+    ],
+    "warning": "Row scan plus original-table fold census includes weighting; round setup/recovery/degree completion and whole-proof costs remain unpriced. Not a runtime estimate."
+  }
+]

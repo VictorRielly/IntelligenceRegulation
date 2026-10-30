@@ -1,0 +1,1 @@
+{"exit_code":1,"failure":"digest_differential","reason":"Exact-rational oracle differs from specified binary64 floor at a head-row rounding edge; diagnostic retained, investigated next."}

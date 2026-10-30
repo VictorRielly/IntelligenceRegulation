@@ -1,0 +1,9 @@
+{
+  "utc": "2026-10-30T15:08:08.277583+00:00",
+  "source": "27b2a427491912cd54969b66f1d6ace29740ba8923dce6ba5ac4e23cfd992191",
+  "case": "non-dd-foreign-boundary-root",
+  "native_exit": 101,
+  "controller_exit": 1,
+  "diagnosis": "Native verifier rejected slot0 round1 after replacing the prechallenge boundary root. Controller incorrectly demanded round0. This is a harness expectation error, not acceptance.",
+  "repair": "Version2 adopts independently checked retained results, requires native sumcheck inconsistency, and runs only remaining DD cases with a measured single-thread light1GiB admission."
+}

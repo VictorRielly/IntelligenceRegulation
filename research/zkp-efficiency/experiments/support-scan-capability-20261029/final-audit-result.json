@@ -1,0 +1,49 @@
+{
+  "status": "PASS_PROVENANCE_ACCOUNTING_ONLY",
+  "checks": 240,
+  "elapsed_s": 0.021491935000085505,
+  "peak_rss_kib": 18808,
+  "final_utc": "2026-10-29T03:12:53.012521+00:00",
+  "native_pins": 8,
+  "prior_sources_preserved": 865,
+  "sources_now": 873,
+  "prior_hypotheses_preserved": 49,
+  "hypotheses_now": 51,
+  "direction": [
+    {
+      "path": "/home/victor/IntelligenceRegulation/CLAUDE.md",
+      "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6",
+      "changed_since_start": false
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_THROUGHPUT_TARGET.md",
+      "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53",
+      "changed_since_start": false
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/MVP_STATUS.md",
+      "sha256": "1b7de29785acdab18a3692741d2fb75e5cf17c7d22a335b6d084b247bf3eaee1",
+      "changed_since_start": false
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_DECISIONS.md",
+      "sha256": "0543fff4dab090ce98700075731e55e8e311be87a90eadbbb5ac8759adc414de",
+      "changed_since_start": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_CODEX_FABLE_COORDINATION.md",
+      "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f",
+      "changed_since_start": false
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/START_HERE.md",
+      "sha256": "89f6732a39f4294f2f1b7b68add8fdcbb76b86006e21041f52c0f40d9e39df9d",
+      "changed_since_start": false
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_PRIVACY_REQUIREMENTS.md",
+      "sha256": "77037699ed0a89471d72795e112812276bdca1850078fbdd24abee26d7ff04a3",
+      "changed_since_start": false
+    }
+  ]
+}

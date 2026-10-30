@@ -1,0 +1,22 @@
+{
+  "tool": "tools.web__run LIVE",
+  "initial_queries": [
+    "site.eprint.iacr.org 2026 zero knowledge GPU memory commitment lookup October",
+    "site.github.com GPU zero knowledge lookup NTT releases 2026 Icicle"
+  ],
+  "followup_queries": [
+    "site.arxiv.org zkDuel October 26 2026",
+    "SAK Sparse Arguments github",
+    "icicle-blackwell-ntt commit",
+    "zkDuel GPU proving",
+    "SAK: Sparse Arguments of Knowledge implementation",
+    "Carter Gatlin Towards an optimal bit reversal permutation program COBRA 1998",
+    "site.arxiv.org zero knowledge GPU memory October 2026 proving",
+    "Checkmate breaking memory wall optimal tensor rematerialization 2019 2020 github license",
+    "site.github.com ingonyama icicle issue 1046 Blackwell",
+    "G10 Enabling Efficient Unified GPU Memory Storage Architecture Smart Tensor Migrations arxiv github"
+  ],
+  "retained_responses": "web-1.json through web-12.json; initial discovery responses not separately captured,exact selected pages reopened",
+  "primary_only_for_claims": true,
+  "foreign_code_executed": false
+}

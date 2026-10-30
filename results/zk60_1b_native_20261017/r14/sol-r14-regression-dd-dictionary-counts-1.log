@@ -1,0 +1,15 @@
+
+running 1 test
+test private_block::argument::split_attack_tests::split_run_t128_relation_regression_receipt_from_env ... 
+thread 'private_block::argument::split_attack_tests::split_run_t128_relation_regression_receipt_from_env' (744) panicked at src/private_block/split_attack_tests.rs:246:28:
+native verifier accepted complete malicious R14 receipt: ()
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    private_block::argument::split_attack_tests::split_run_t128_relation_regression_receipt_from_env
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 758 filtered out; finished in 13.22s
+

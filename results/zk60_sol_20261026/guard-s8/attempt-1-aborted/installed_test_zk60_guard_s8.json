@@ -1,0 +1,11 @@
+{
+  "utc": "2026-10-29T00:27:47.883762+00:00",
+  "pattern": "test_zk60_guard_s8.py",
+  "tests": 9,
+  "failures": 0,
+  "errors": 0,
+  "skipped": [],
+  "seconds": 0.005590086000665906,
+  "expected": 9,
+  "accepted": true
+}

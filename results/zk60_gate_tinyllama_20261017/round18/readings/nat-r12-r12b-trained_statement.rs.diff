@@ -1,0 +1,15 @@
+--- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12/frozen-tree/hashline/src/private_block/trained_statement.rs	2026-10-20 22:06:56.736487110 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12b/frozen-tree/hashline/src/private_block/trained_statement.rs	2026-10-28 15:30:02.119777037 -0700
+@@ -538,8 +538,10 @@
+ /// (`tie_word_embeddings`); the run's integer embedding table and integer head
+ /// may be different quantisations of it (the embedding int16 rows, the head
+ /// int8 rows with per-row multipliers), and BOTH are bound here to that one
+-/// tensor's digest. The token stages (the token-I/O lane) read these two
+-/// tables; this record is what ties them to the blocks' statement. Present
++/// tensor's digest. R12b's export loader recomputes their bytes from the
++/// authenticated checkpoint before constructing this record. The token
++/// stages require their own relations and checks; a declaration alone does
++/// not establish a tie. Present
+ /// exactly at a profile whose model is tied (Shieldstral), absent everywhere
+ /// else, so no statement before R12 moves.
+ #[derive(Clone, Debug, PartialEq, Eq)]

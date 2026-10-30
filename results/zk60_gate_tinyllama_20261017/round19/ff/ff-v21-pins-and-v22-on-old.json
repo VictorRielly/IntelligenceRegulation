@@ -1,0 +1,238 @@
+{
+ "v21_on_r19": {
+  "classify-r13-rung-L1-v1": {
+   "v21_pins_ok": false,
+   "v21_pin_refusals": 31,
+   "first_refusals": [
+    "src/private_block.rs: 2af1df7d5bc2 has no reading",
+    "src/private_block/accuracy.rs: 2996ff41016a has no reading",
+    "src/private_block/accuracy_act.rs: 7ef5fe26fc93 has no reading"
+   ],
+   "v21_integrity_ok": false,
+   "v21_other_findings": [
+    "the profile text's pad-id 2 is not the registered policy's None",
+    "the profile text does not carry 'chunk-size=23 chunk-overlap=None chunk-split=end-aligned sho'",
+    "D41: the chunk {'index': 0, 'count': 1, 'a': 0, 'b': 23, 'total': 23, 'size': 23, 'overlap': 4} is not the split's (plan size T - P0 - S = 23, n = b - a = 23, overlap None)"
+   ]
+  },
+  "classify-r13-rung-L2-v0": {
+   "v21_pins_ok": false,
+   "v21_pin_refusals": 31,
+   "first_refusals": [
+    "src/private_block.rs: 2af1df7d5bc2 has no reading",
+    "src/private_block/accuracy.rs: 2996ff41016a has no reading",
+    "src/private_block/accuracy_act.rs: 7ef5fe26fc93 has no reading"
+   ],
+   "v21_integrity_ok": false,
+   "v21_other_findings": [
+    "the profile text's pad-id 2 is not the registered policy's None",
+    "the profile text does not carry 'chunk-size=23 chunk-overlap=None chunk-split=end-aligned sho'",
+    "D41: the chunk {'index': 0, 'count': 1, 'a': 0, 'b': 23, 'total': 23, 'size': 23, 'overlap': 4} is not the split's (plan size T - P0 - S = 23, n = b - a = 23, overlap None)"
+   ]
+  },
+  "classify-r13-rung-L2-v0-short1": {
+   "v21_pins_ok": false,
+   "v21_pin_refusals": 31,
+   "first_refusals": [
+    "src/private_block.rs: 2af1df7d5bc2 has no reading",
+    "src/private_block/accuracy.rs: 2996ff41016a has no reading",
+    "src/private_block/accuracy_act.rs: 7ef5fe26fc93 has no reading"
+   ],
+   "v21_integrity_ok": false,
+   "v21_other_findings": [
+    "the profile text's pad-id 2 is not the registered policy's None",
+    "the profile text does not carry 'chunk-size=23 chunk-overlap=None chunk-split=end-aligned sho'",
+    "D41: the chunk {'index': 0, 'count': 1, 'a': 0, 'b': 1, 'total': 1, 'size': 23, 'overlap': 4} is not the split's (plan size T - P0 - S = 23, n = b - a = 1, overlap None)"
+   ]
+  },
+  "classify-r13-rung-L2-v0-short11": {
+   "v21_pins_ok": false,
+   "v21_pin_refusals": 31,
+   "first_refusals": [
+    "src/private_block.rs: 2af1df7d5bc2 has no reading",
+    "src/private_block/accuracy.rs: 2996ff41016a has no reading",
+    "src/private_block/accuracy_act.rs: 7ef5fe26fc93 has no reading"
+   ],
+   "v21_integrity_ok": false,
+   "v21_other_findings": [
+    "the profile text's pad-id 2 is not the registered policy's None",
+    "the profile text does not carry 'chunk-size=23 chunk-overlap=None chunk-split=end-aligned sho'",
+    "D41: the chunk {'index': 0, 'count': 1, 'a': 0, 'b': 11, 'total': 11, 'size': 23, 'overlap': 4} is not the split's (plan size T - P0 - S = 23, n = b - a = 11, overlap None)"
+   ]
+  },
+  "classify-r13-rung-L2-v1": {
+   "v21_pins_ok": false,
+   "v21_pin_refusals": 31,
+   "first_refusals": [
+    "src/private_block.rs: 2af1df7d5bc2 has no reading",
+    "src/private_block/accuracy.rs: 2996ff41016a has no reading",
+    "src/private_block/accuracy_act.rs: 7ef5fe26fc93 has no reading"
+   ],
+   "v21_integrity_ok": false,
+   "v21_other_findings": [
+    "the profile text's pad-id 2 is not the registered policy's None",
+    "the profile text does not carry 'chunk-size=23 chunk-overlap=None chunk-split=end-aligned sho'",
+    "D41: the chunk {'index': 0, 'count': 1, 'a': 0, 'b': 23, 'total': 23, 'size': 23, 'overlap': 4} is not the split's (plan size T - P0 - S = 23, n = b - a = 23, overlap None)"
+   ]
+  },
+  "classify-r13-rung-L2-v1-chunk0o27": {
+   "v21_pins_ok": false,
+   "v21_pin_refusals": 31,
+   "first_refusals": [
+    "src/private_block.rs: 2af1df7d5bc2 has no reading",
+    "src/private_block/accuracy.rs: 2996ff41016a has no reading",
+    "src/private_block/accuracy_act.rs: 7ef5fe26fc93 has no reading"
+   ],
+   "v21_integrity_ok": false,
+   "v21_other_findings": [
+    "the profile text's pad-id 2 is not the registered policy's None",
+    "the profile text does not carry 'chunk-size=23 chunk-overlap=None chunk-split=end-aligned sho'",
+    "D41: the chunk {'index': 0, 'count': 2, 'a': 0, 'b': 23, 'total': 27, 'size': 23, 'overlap': 4} is not the split's (plan size T - P0 - S = 23, n = b - a = 23, overlap None)"
+   ]
+  },
+  "classify-r13-rung-L2-v1-chunk1o27": {
+   "v21_pins_ok": false,
+   "v21_pin_refusals": 31,
+   "first_refusals": [
+    "src/private_block.rs: 2af1df7d5bc2 has no reading",
+    "src/private_block/accuracy.rs: 2996ff41016a has no reading",
+    "src/private_block/accuracy_act.rs: 7ef5fe26fc93 has no reading"
+   ],
+   "v21_integrity_ok": false,
+   "v21_other_findings": [
+    "the profile text's pad-id 2 is not the registered policy's None",
+    "the profile text does not carry 'chunk-size=23 chunk-overlap=None chunk-split=end-aligned sho'",
+    "D41: the chunk {'index': 1, 'count': 2, 'a': 4, 'b': 27, 'total': 27, 'size': 23, 'overlap': 4} is not the split's (plan size T - P0 - S = 23, n = b - a = 23, overlap None)"
+   ]
+  },
+  "classify-r13-rung-L2-v1-short1": {
+   "v21_pins_ok": false,
+   "v21_pin_refusals": 31,
+   "first_refusals": [
+    "src/private_block.rs: 2af1df7d5bc2 has no reading",
+    "src/private_block/accuracy.rs: 2996ff41016a has no reading",
+    "src/private_block/accuracy_act.rs: 7ef5fe26fc93 has no reading"
+   ],
+   "v21_integrity_ok": false,
+   "v21_other_findings": [
+    "the profile text's pad-id 2 is not the registered policy's None",
+    "the profile text does not carry 'chunk-size=23 chunk-overlap=None chunk-split=end-aligned sho'",
+    "D41: the chunk {'index': 0, 'count': 1, 'a': 0, 'b': 1, 'total': 1, 'size': 23, 'overlap': 4} is not the split's (plan size T - P0 - S = 23, n = b - a = 1, overlap None)"
+   ]
+  },
+  "classify-r13-rung-L2-v1-short11": {
+   "v21_pins_ok": false,
+   "v21_pin_refusals": 31,
+   "first_refusals": [
+    "src/private_block.rs: 2af1df7d5bc2 has no reading",
+    "src/private_block/accuracy.rs: 2996ff41016a has no reading",
+    "src/private_block/accuracy_act.rs: 7ef5fe26fc93 has no reading"
+   ],
+   "v21_integrity_ok": false,
+   "v21_other_findings": [
+    "the profile text's pad-id 2 is not the registered policy's None",
+    "the profile text does not carry 'chunk-size=23 chunk-overlap=None chunk-split=end-aligned sho'",
+    "D41: the chunk {'index': 0, 'count': 1, 'a': 0, 'b': 11, 'total': 11, 'size': 23, 'overlap': 4} is not the split's (plan size T - P0 - S = 23, n = b - a = 11, overlap None)"
+   ]
+  },
+  "classify-r13-rung-L2-v1-short22": {
+   "v21_pins_ok": false,
+   "v21_pin_refusals": 31,
+   "first_refusals": [
+    "src/private_block.rs: 2af1df7d5bc2 has no reading",
+    "src/private_block/accuracy.rs: 2996ff41016a has no reading",
+    "src/private_block/accuracy_act.rs: 7ef5fe26fc93 has no reading"
+   ],
+   "v21_integrity_ok": false,
+   "v21_other_findings": [
+    "the profile text's pad-id 2 is not the registered policy's None",
+    "the profile text does not carry 'chunk-size=23 chunk-overlap=None chunk-split=end-aligned sho'",
+    "D41: the chunk {'index': 0, 'count': 1, 'a': 0, 'b': 22, 'total': 22, 'size': 23, 'overlap': 4} is not the split's (plan size T - P0 - S = 23, n = b - a = 22, overlap None)"
+   ]
+  },
+  "classify-r13-rung-L2-vtie": {
+   "v21_pins_ok": false,
+   "v21_pin_refusals": 31,
+   "first_refusals": [
+    "src/private_block.rs: 2af1df7d5bc2 has no reading",
+    "src/private_block/accuracy.rs: 2996ff41016a has no reading",
+    "src/private_block/accuracy_act.rs: 7ef5fe26fc93 has no reading"
+   ],
+   "v21_integrity_ok": false,
+   "v21_other_findings": [
+    "the profile text's pad-id 2 is not the registered policy's None",
+    "the profile text does not carry 'chunk-size=23 chunk-overlap=None chunk-split=end-aligned sho'",
+    "D41: the chunk {'index': 0, 'count': 1, 'a': 0, 'b': 23, 'total': 23, 'size': 23, 'overlap': 4} is not the split's (plan size T - P0 - S = 23, n = b - a = 23, overlap None)"
+   ]
+  },
+  "classify-r13-rung-L2-vtie-short1": {
+   "v21_pins_ok": false,
+   "v21_pin_refusals": 31,
+   "first_refusals": [
+    "src/private_block.rs: 2af1df7d5bc2 has no reading",
+    "src/private_block/accuracy.rs: 2996ff41016a has no reading",
+    "src/private_block/accuracy_act.rs: 7ef5fe26fc93 has no reading"
+   ],
+   "v21_integrity_ok": false,
+   "v21_other_findings": [
+    "the profile text's pad-id 2 is not the registered policy's None",
+    "the profile text does not carry 'chunk-size=23 chunk-overlap=None chunk-split=end-aligned sho'",
+    "D41: the chunk {'index': 0, 'count': 1, 'a': 0, 'b': 1, 'total': 1, 'size': 23, 'overlap': 4} is not the split's (plan size T - P0 - S = 23, n = b - a = 1, overlap None)"
+   ]
+  },
+  "classify-r13-rung-L2-vtie-short11": {
+   "v21_pins_ok": false,
+   "v21_pin_refusals": 31,
+   "first_refusals": [
+    "src/private_block.rs: 2af1df7d5bc2 has no reading",
+    "src/private_block/accuracy.rs: 2996ff41016a has no reading",
+    "src/private_block/accuracy_act.rs: 7ef5fe26fc93 has no reading"
+   ],
+   "v21_integrity_ok": false,
+   "v21_other_findings": [
+    "the profile text's pad-id 2 is not the registered policy's None",
+    "the profile text does not carry 'chunk-size=23 chunk-overlap=None chunk-split=end-aligned sho'",
+    "D41: the chunk {'index': 0, 'count': 1, 'a': 0, 'b': 11, 'total': 11, 'size': 23, 'overlap': 4} is not the split's (plan size T - P0 - S = 23, n = b - a = 11, overlap None)"
+   ]
+  },
+  "classify-r13-shield-t128-cli-sexual-r16b": {
+   "v21_pins_ok": false,
+   "v21_pin_refusals": 31,
+   "first_refusals": [
+    "src/private_block.rs: 2af1df7d5bc2 has no reading",
+    "src/private_block/accuracy.rs: 2996ff41016a has no reading",
+    "src/private_block/accuracy_act.rs: 7ef5fe26fc93 has no reading"
+   ]
+  }
+ },
+ "v22_on_old": {
+  "classify-rc3-cli-p18-r14": {
+   "integrity_ok": false,
+   "pin_refusals": [
+    "src/private_block/token_io/classify.rs: 6c828db6673e, the v22 classifier port was read at c180c83fb50f",
+    "src/private_block/token_io/classify_run.rs: 5d1d077f5102, the v22 classifier port was read at 8abbf72f1c8e",
+    "src/private_block/token_io/classify_tied.rs: 401d38d444b6, the v22 classifier port was read at a89acfabc75c"
+   ]
+  },
+  "classify-rc3-rung-L2-v1-short20": {
+   "integrity_ok": false,
+   "pin_refusals": [
+    "src/private_block/token_io/classify.rs: 6c828db6673e, the v22 classifier port was read at c180c83fb50f",
+    "src/private_block/token_io/classify_run.rs: 5d1d077f5102, the v22 classifier port was read at 8abbf72f1c8e",
+    "src/private_block/token_io/classify_tied.rs: 401d38d444b6, the v22 classifier port was read at a89acfabc75c"
+   ]
+  },
+  "classify-rung-L1-v1": {
+   "integrity_ok": false,
+   "pin_refusals": [
+    "src/private_block/token_io/classify.rs: 5d2c642a60d1, the v22 classifier port was read at c180c83fb50f",
+    "src/private_block/token_io/classify_run.rs: be2ccd1c97f1, the v22 classifier port was read at 8abbf72f1c8e",
+    "src/private_block/token_io/stage_in_c.rs: 05c1aae26519, the v22 classifier port was read at 6a92da0ecfe7",
+    "src/private_block/token_io/stage_out_c.rs: ee1cd2374ef3, the v22 classifier port was read at 93a79a2b39ab",
+    "src/private_block/token_io/classify_tied.rs: not pinned (the v22 classifier port was read from it)"
+   ]
+  }
+ },
+ "all_v21_refuse": true,
+ "v22_refuses_old": true
+}

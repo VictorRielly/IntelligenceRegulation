@@ -1,0 +1,12 @@
+
+running 2 tests
+
+thread 'audit::test_attributes_and_public_children_are_enumerated_without_scanning_test_modules' (43) panicked at /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/compatibility-audit-v3/hashline/src/private_block/source_audit.rs:27:51:
+production inline modules need explicit audit support
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test audit::test_attributes_and_public_children_are_enumerated_without_scanning_test_modules ... ok
+S25 W-11: 37 hash call sites in 46 scanned lane sources, every one classified; 14 read-only sites listed with file:line
+test every_hash_call_site_in_the_lanes_own_sources_is_classified ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.17s
+

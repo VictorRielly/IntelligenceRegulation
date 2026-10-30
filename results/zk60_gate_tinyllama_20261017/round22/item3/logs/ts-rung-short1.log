@@ -1,0 +1,86 @@
+stage-00.json IN-C A-in: groups 3, surjective 3, disclosed 0 {}, joint [] (1.1 s)
+stage-00.json IN-C H-in: groups 4, surjective 3, disclosed 2 {'3': 2}, joint [([2, 3], 2)] (25.3 s)
+stage-00.json IN-C E-token-in: groups 1, surjective 1, disclosed 0 {}, joint [] (25.4 s)
+stage-03.json OUT-C A-out: groups 16, surjective 16, disclosed 0 {}, joint [] (31.1 s)
+stage-03.json OUT-C H-out: groups 5, surjective 4, disclosed 2 {'4': 2}, joint [([3, 4], 2)] (57.5 s)
+stage-03.json OUT-C B-out: groups 2, surjective 2, disclosed 0 {}, joint [] (59.6 s)
+TS-1: 6/6 fire (440.8 s)
+{
+ "0:IN-C:A-in": {
+  "width": 4096,
+  "rows": 10,
+  "groups": 3,
+  "surjective": 3,
+  "disclosed_Fp": 0,
+  "joint": [],
+  "census_identical_claims": [],
+  "census_equal_published_values": []
+ },
+ "0:IN-C:H-in": {
+  "width": 4096,
+  "rows": 14,
+  "groups": 4,
+  "surjective": 3,
+  "disclosed_Fp": 2,
+  "joint": [
+   [
+    [
+     2,
+     3
+    ],
+    2
+   ]
+  ],
+  "census_identical_claims": [],
+  "census_equal_published_values": []
+ },
+ "0:IN-C:E-token-in": {
+  "width": 256,
+  "rows": 6,
+  "groups": 1,
+  "surjective": 1,
+  "disclosed_Fp": 0,
+  "joint": [],
+  "census_identical_claims": [],
+  "census_equal_published_values": []
+ },
+ "3:OUT-C:A-out": {
+  "width": 4096,
+  "rows": 76,
+  "groups": 16,
+  "surjective": 16,
+  "disclosed_Fp": 0,
+  "joint": [],
+  "census_identical_claims": [],
+  "census_equal_published_values": []
+ },
+ "3:OUT-C:H-out": {
+  "width": 4096,
+  "rows": 38,
+  "groups": 5,
+  "surjective": 4,
+  "disclosed_Fp": 2,
+  "joint": [
+   [
+    [
+     3,
+     4
+    ],
+    2
+   ]
+  ],
+  "census_identical_claims": [],
+  "census_equal_published_values": []
+ },
+ "3:OUT-C:B-out": {
+  "width": 16384,
+  "rows": 7,
+  "groups": 2,
+  "surjective": 2,
+  "disclosed_Fp": 0,
+  "joint": [],
+  "census_identical_claims": [],
+  "census_equal_published_values": []
+ }
+}
+record: /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/round22/item3/ts-rung-L2-v1-short1.json  status PASS

@@ -1,0 +1,27 @@
+{
+  "cycle_focus": [
+    "memory traffic",
+    "batching/amortization",
+    "current-slot exact public preprocessing"
+  ],
+  "next": [
+    "lookup arguments/softmax",
+    "quantization/arithmetic",
+    "proof composition"
+  ],
+  "rotating_queue": [
+    "GPU NTT/commitments",
+    "sumcheck/GKR",
+    "lookup arguments/softmax",
+    "memory traffic",
+    "batching/amortization",
+    "quantization/arithmetic",
+    "proof composition"
+  ],
+  "top_three": [
+    "Owner whole-prover high-end GPU plus verified fixed-context resident1/2/4/8",
+    "REFINED owner DD larger-context scaling after measured T128 null result",
+    "REFINED tested public-role exclusive FZC clocks before allocator/capacity changes"
+  ],
+  "local_chosen": "All-slot private-tail incidence and single/two-entry memoization; supports owner phase choices without executing GPU/build work."
+}

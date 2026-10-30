@@ -1,0 +1,362 @@
+[
+  {
+    "path": "FINDINGS.md",
+    "sha256": "f51dbf4126ec4417bdf0da1ad82990b4c324022c7cc0658c512d3cae94f2a7ac",
+    "bytes": 982215
+  },
+  {
+    "path": "PROGRESS.md",
+    "sha256": "789e7878c4edf6f1c54a15082fce1b1e973b025adc9cb3e40f417d129fb827fb",
+    "bytes": 2531
+  },
+  {
+    "path": "STATE.md",
+    "sha256": "e8ece40f89a13c80dafbefed82b13f86008b80d1c70351866029d32de6e7e7fe",
+    "bytes": 5212
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/README.md",
+    "sha256": "c98d7326d4ef08ed270b1828d9fd04ad563db7bc2f2030137a6ca276d7dbce88",
+    "bytes": 9020
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/audit-result.json",
+    "sha256": "80abd99e88b81cebdb9f8ea4b3bd2f0b9f783f515f4de6fd26f6844a93cb14a4",
+    "bytes": 231
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/audit.py",
+    "sha256": "bfe242ec94482c3ecbdb026c40bfb1e06ab00663e5947c7dce3c7816ede229bc",
+    "bytes": 3631
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/audit.stderr.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/audit.stdout.log",
+    "sha256": "a10d3e65d6a2ba9d3d0b1a685514d9649bb4aa78ecdad4f50e84663fff098911",
+    "bytes": 215
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/candidate.py",
+    "sha256": "8d7c643d1da04af1acfe8f8a2d74faeccd960ef55193d6e9a817e0b032e456d0",
+    "bytes": 4797
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/checkpoint.py",
+    "sha256": "2b1d7e97b67798f00661ba33c47e1655ac966ca25f9c6781cb45afb75a42da33",
+    "bytes": 13064
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/commands.json",
+    "sha256": "b39434bffdf7c42a3ac1945e9fa29b4e7a65df5ea429cc9d1eb8fac25281a6f0",
+    "bytes": 870
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/completion.json",
+    "sha256": "03005656bf594ce2dc9b6da501ea791019593f7bbd95f672d97cbb98c9edc511",
+    "bytes": 395
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/environment.json",
+    "sha256": "f4c2607488c83474add20c2ee204e3b4d11e99169b83f7cc4c97da0ddb0c81e4",
+    "bytes": 221
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/final-audit-result.json",
+    "sha256": "8d9f4d1c6f0301f982df9421c8ce2e45a96e049cec49ea5981dbefdab4cc43cc",
+    "bytes": 412
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/final-direction-check.json",
+    "sha256": "0658878cc5cfa60bd2ac08c53d88f2382b75fb633d241aa2c06c229e9948714f",
+    "bytes": 1390
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/final_audit.py",
+    "sha256": "bb20d202aa7fd1aa15f0dbbbee93e04e5a4ce6ba5493efe9be210de4948cfdf4",
+    "bytes": 4542
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/fixtures.json",
+    "sha256": "a650444cca4c4cdc5beb035e16e2b88d4bd22c830073b730be12ffb4a87fdcd7",
+    "bytes": 30396
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/historical-measurements.json",
+    "sha256": "d5ccdc7929892206d566461ef7b9e1f124406a6e15cf27c82a3d7acdf3afaab2",
+    "bytes": 2807
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/hypotheses.json",
+    "sha256": "aeb9adc13e178a93b7b304ed98d8b3969edf950d2a4ed57b5271d153aa9d49af",
+    "bytes": 103614
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/interface.md",
+    "sha256": "e2edfae81deb017df6bbc86be89a090bf81194d9cf84bf1a792849972990c9d8",
+    "bytes": 3132
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/large-row-result.json",
+    "sha256": "c206c53a64507e963cf7af46d40d8ef3b165a9ae3e820d640a3a0fb3e89ac75a",
+    "bytes": 2605
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/large-rows.stderr.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/large-rows.stdout.log",
+    "sha256": "c206c53a64507e963cf7af46d40d8ef3b165a9ae3e820d640a3a0fb3e89ac75a",
+    "bytes": 2605
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/large_rows.py",
+    "sha256": "1ca59032073632943df585c69ac3042f17775d7fa0495c6bafa0741767451c84",
+    "bytes": 2268
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/native/full_rows.json",
+    "sha256": "37a12900ee1a06b750c85f06d53047c570861f088e4a02cde96e93d80a33b85c",
+    "bytes": 355722
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/native/hashline__src__gpu__cuda.rs",
+    "sha256": "8fe2a2a39e0796254be37d0d7507d7fc22ea3af141d97d35cd93754d505072c9",
+    "bytes": 205193
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/native/hashline__src__gpu__kernels.cu",
+    "sha256": "b59bc396fa955bbdbc8bf8bb7b047c37c7f8df1fed0992d7b15ef983e2fc3969",
+    "bytes": 78055
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/native/hashline__src__private_block__shape.rs",
+    "sha256": "9a87081897ff0ec716d7f27a2813cc32117683eb5b2f2082a248f479ef98c4c5",
+    "bytes": 139369
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/native/vectors.json",
+    "sha256": "409f419381b42a3d915cc77fecae01085f3a52f41bcc00a838ba9a8d7fcc2877",
+    "bytes": 186908
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/native/zkp-core__src__field.rs",
+    "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+    "bytes": 11065
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/native/zkp-core__src__ntt.rs",
+    "sha256": "97572d4f242637d21a089388abad4b5b39136c62036faa17ae94b3ba6f170890",
+    "bytes": 5725
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/native/zkp-core__src__pcs.rs",
+    "sha256": "5c9cfc4e9c84283309f4c47f87d4a9146e2c9c9f5b52aa608b4ce6a7588cd495",
+    "bytes": 77003
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/native-pins.json",
+    "sha256": "ab2968c7fa4bcb746c9ecc4c3d49da1de278c4585f751cf981812aaa3305483d",
+    "bytes": 2069
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/prior-sources-index.json",
+    "sha256": "5fdcf84cf63ef1497054f94b651f05098a592ecd791e7266c1eaf0708cbbb106",
+    "bytes": 164233
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/record_sources.py",
+    "sha256": "d815b95a130abb83c982a7f80ef7eec533f6f9cf7c096239846b55751a05e8c9",
+    "bytes": 8746
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/reference.py",
+    "sha256": "5f319a59ac8c1a954f4f39663beb05a8457b28823980388471ea08925b64a572",
+    "bytes": 1468
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/result.json",
+    "sha256": "1ff67219f94800d7e4d24ebe93b08c0976ee0c621916263af96b9f6d7238c788",
+    "bytes": 28684
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/rotation.json",
+    "sha256": "a1efb3cc8d05f3cac281aef4fcb09c6f04930c5f8203de3438f1fd42db3e5cb2",
+    "bytes": 422
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/run.py",
+    "sha256": "a45673995c72d02c2384d79b3172a06fd260c2299560fff1fa77fd26c8dd12d7",
+    "bytes": 6598
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/run.stderr.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/run.stdout.log",
+    "sha256": "15e0c095dd19f881113c4169454bac587c9c98770c6bce787ed5e7dea45513c3",
+    "bytes": 1401
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/search-queries.json",
+    "sha256": "628ace80f567d5aecd1ed6f1219b044b093efc0e173991fe93227719b31f76bd",
+    "bytes": 576
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/sources-cycle.json",
+    "sha256": "7136aedb298ade0e351f91c21a349f03533fe78bb587733ab575dd8e9e6ace9e",
+    "bytes": 11911
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/startup/AGENDA.md",
+    "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139",
+    "bytes": 5603
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/startup/CLAUDE.md",
+    "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6",
+    "bytes": 14089
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/startup/FINDINGS.md",
+    "sha256": "c00c56bc67df24881b4571060cfc51e4b9e1a9418505e86288433546ebded6e1",
+    "bytes": 975020
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/startup/MVP_STATUS.md",
+    "sha256": "8e648ca8f25f651860d3115872abb417964e6b531e4256319c4ca090967c3cd6",
+    "bytes": 94938
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/startup/PROGRESS.md",
+    "sha256": "05a1cb1cd8580bd0cef9015efc76c9794a0477057626829d8d176c803b1b875d",
+    "bytes": 2141
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/startup/START_HERE.md",
+    "sha256": "89f6732a39f4294f2f1b7b68add8fdcbb76b86006e21041f52c0f40d9e39df9d",
+    "bytes": 42025
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/startup/STATE.md",
+    "sha256": "6553da6874c093230244eb7b03438c767199ce4242e6d1eed04267a6960b115a",
+    "bytes": 4932
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/startup/ZK60_CODEX_FABLE_COORDINATION.md",
+    "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f",
+    "bytes": 64889
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/startup/ZK60_DECISIONS.md",
+    "sha256": "4c2061d3754dd5f17ded9e2adb6d133725dad3db652ea2dd80471798d630ee40",
+    "bytes": 132375
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/startup/ZK60_THROUGHPUT_TARGET.md",
+    "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53",
+    "bytes": 4941
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/startup/prior-audit-result.json",
+    "sha256": "37412c1d7fbdb65a364b815890ad44b14b8ddcd4d5ecd11534b06b9cf97fb5c5",
+    "bytes": 306
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/startup/prior-hypotheses.json",
+    "sha256": "0c43f9dfbc49a46d8337150e71e8100731aa765cf34c0fd83e153b0a3876b29f",
+    "bytes": 101361
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/startup/prior-native-pins.json",
+    "sha256": "f4ee04ed653551dc4946fb90265939f2b3c9b914a58323b9a0c5cd84dd6c1c92",
+    "bytes": 1044
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/startup/prior-result.json",
+    "sha256": "231c010e6368106cef163a87780dc4bda7b8cec75f72b679107c261af61b873b",
+    "bytes": 8576
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/startup/prior-target-accounting.json",
+    "sha256": "07b29bd7d80545ceff333b6d22892c9b536af6cc123b69d2125ca4c195ae5583",
+    "bytes": 1340
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/startup/sources.jsonl",
+    "sha256": "b8179f012dba36a2fd5e797959e1afa334cad638b0a7fd1ad9bf374d543ce3e3",
+    "bytes": 1085370
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/startup-manifest.json",
+    "sha256": "93bde6580b0b09f4c5d10ec3b5c5bfb6250c71d1d3b5d1cee5187b79066916a7",
+    "bytes": 3322
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/target-accounting.json",
+    "sha256": "8965827f96ae34dc2e098d2dbaa738a58d44dfdcdbdb4c7f7ba0b2c6a569b7fb",
+    "bytes": 1684
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/web-open1.json",
+    "sha256": "af72d917cf38053a7d43934ce50dae99f0b6ac808652064c7fbd75f3705e5b65",
+    "bytes": 28487
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/web-open2.json",
+    "sha256": "758b6429182bf14a70f67a4f209a5defa28b6decf825c8ebacbd914d995cf23c",
+    "bytes": 27270
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/web-open3.json",
+    "sha256": "a7a719625a65f7076671ab3072cd19217e9a7309a0304edfae4ac3b57a13b147",
+    "bytes": 29422
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/web-open4.json",
+    "sha256": "3a44f580206291ea928a8a3c1959fc5bbfb89745aebd99dce16bacabcd9e8e8f",
+    "bytes": 26042
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/web-open5.json",
+    "sha256": "09b4da3475fa9bc74013a4cb8af60ad1fcef8a617b20bc2953701d65b70e018c",
+    "bytes": 25964
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/web-open6.json",
+    "sha256": "9b3f8d71e8aeff1fdbc3afc1029a57f54ab5a36d81bebc51c82708613689567f",
+    "bytes": 653
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/web-search1.json",
+    "sha256": "a7135e54f42713f88dc2bf59650a4438aa3df11708e18f1ab24a8907b8dfad9d",
+    "bytes": 31866
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/web-search2.json",
+    "sha256": "6cb9ec0016cce1b6cc33f75f7984acfa5b9509546299f51caf89fe455b8808f4",
+    "bytes": 31330
+  },
+  {
+    "path": "experiments/ntt-coset-layout-20261029/web-search3.json",
+    "sha256": "e1e8b72f48733a10a80ac214461cf7ee0859c575b7099223f15457a17af79de3",
+    "bytes": 31418
+  },
+  {
+    "path": "handoffs/20261029-split-coset-hiding-rows.md",
+    "sha256": "72ed4dc471ef8abc98c0411d84a55bf7b3de8b4a38d068e3d2784460e6028b52",
+    "bytes": 4366
+  },
+  {
+    "path": "progress/20261029T045649Z-6e004a83.md",
+    "sha256": "dd8941a55f8ed6046e66c857288e1e4fa2fd89c990b4763cc8b151e7b3dc0dfa",
+    "bytes": 2540
+  }
+]

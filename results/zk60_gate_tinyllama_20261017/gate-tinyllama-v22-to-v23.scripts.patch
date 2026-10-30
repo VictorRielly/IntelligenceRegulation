@@ -1,0 +1,359 @@
+diff -ruN -x __pycache__ frozen_v22/scripts/zk60_native_rg_classgate.py frozen_v23/scripts/zk60_native_rg_classgate.py
+--- frozen_v22/scripts/zk60_native_rg_classgate.py	2026-10-29 05:20:30.730518729 -0700
++++ frozen_v23/scripts/zk60_native_rg_classgate.py	2026-10-29 09:43:14.154508243 -0700
+@@ -84,6 +84,18 @@
+   (the block-port sub-lane's module: the 23 slots at each stage's own gate
+   denominator and precision, R13's seven redefined slots, the R13 plane list).
+ 
++[v23, gate round 20, 2026-10-29] token frozen-r17 (the gate's H19-1..H19-4
++adopted; R13 captures WITH public-table values, the recorder's export replay):
++
++* the pins: `zk60_native_rg_classpins.classify_capture_pins_v23` (v22's rule
++  plus the reading of frozen-r17's run_capture.rs cce0fc2a..., test-only; its
++  plane_index.rs is the gate's H19-3 ce79803c... byte for byte);
++* F19-G2: a capture whose pins are refused is REFUSED BY NAME right after the
++  integrity check (status REFUSED, exit code 3, the refusals in the record);
++  nothing else runs, so no KeyError;
++* the file hash in `class_integrity` streams and is cached per process (a
++  values capture's arrays.bin is 2.25 GB; v22 held it whole six times).
++
+ NOTHING HERE IS A PRIVACY RESULT OR A PRIVACY ACCEPTANCE.
+ """
+ 
+@@ -125,6 +137,10 @@
+ RUNG_FIXTURE_CALIBRATION = {"norm_tn": 10, "norm_cn_a": 1336, "norm_cn_m": 2158, "norm_ceps": 33554467,
+                             "sh_ao": 6, "sh_qkv": 8, "sh_s": 5, "sh_o": 10, "sh_g": 8, "sh_h": 13, "sh_z": 5}
+ RUNG_BLOCK_PROFILE = "hashline-zk-mr1/private-block-rung-tc-t32-dev/1"
++# [v23] exit codes of `main`: 0 PASS / PASS-WITH-DECLARED-LIMITS, 1 NOT-OK (a
++# part false or a control not fired), 3 REFUSED by name before evaluation (the
++# capture's source pins have no reading in these tools: F19-G2)
++EXIT_REFUSED = 3
+ 
+ 
+ # ------------------------------------------------------------------ the loader
+@@ -396,9 +412,26 @@
+ 
+ 
+ # ------------------------------------------------------------------ integrity
++# [v23, gate round 20] the file hash STREAMS (1 MiB at a time) and is cached
++# per process on (path, size, mtime, inode): a capture WITH public-table
++# values carries a 2.25 GB arrays.bin, which v22's `fh.read()` held whole --
++# once per `class_integrity` call, and the controls call it five more times on
++# in-memory variants of run.json (no file on disk changes between the calls, so
++# the cached digest is the digest of the same bytes).
++_SHA_CACHE: dict = {}
++
++
+ def _sha(path):
+-    with open(path, "rb") as fh:
+-        return hashlib.sha256(fh.read()).hexdigest()
++    st = os.stat(path)
++    key = (os.path.abspath(path), st.st_size, st.st_mtime_ns, st.st_ino)
++    got = _SHA_CACHE.get(key)
++    if got is None:
++        h = hashlib.sha256()
++        with open(path, "rb") as fh:
++            for chunk in iter(lambda: fh.read(1 << 20), b""):
++                h.update(chunk)
++        got = _SHA_CACHE[key] = h.hexdigest()
++    return got
+ 
+ 
+ def class_integrity(b) -> dict:
+@@ -978,9 +1011,17 @@
+     pd_tabs = b.stages[-1].doc["arguments"][CL.SOC_PD]["tables"]
+     wi = next(i for i, t in enumerate(pd_tabs) if t["kind"] == "public")
+     t4 = CT.check_classify_terminals(b, rp, table_delta={("OUT-C", CL.SOC_PD): (wi, 0, (1, 0))}, check_digests=False)
+-    out["CC-4_margin_vector_entry_moved"] = {"B3_ok": t4["B3_margin_vector"]["ok"],
+-                                             "B3_findings": t4["B3_margin_vector"]["findings"][:2],
+-                                             "fires": not t4["B3_margin_vector"]["ok"]}
++    # [v23] F19-G2: a terminal record without a B-3 member (its slots were not
++    # evaluated) is a control that did NOT fire, never a KeyError
++    b3_4 = t4.get("B3_margin_vector")
++    if not isinstance(b3_4, dict):
++        out["CC-4_margin_vector_entry_moved"] = {"B3_ok": None, "fires": False,
++                                                 "why": "the terminal record has no B3_margin_vector (no slot evaluated: "
++                                                        f"{t4.get('findings')})"}
++    else:
++        out["CC-4_margin_vector_entry_moved"] = {"B3_ok": b3_4.get("ok"),
++                                                 "B3_findings": list(b3_4.get("findings") or [])[:2],
++                                                 "fires": b3_4.get("ok") is False}
+     # CC-5 a template id in the recorded kappa table: the rebuilt-vs-captured check refuses
+     q_tabs = b.stages[0].doc["arguments"][CL.SIC_QZC]["tables"]
+     pubs = [i for i, t in enumerate(q_tabs) if t["kind"] == "public"]
+@@ -1129,8 +1170,9 @@
+ # ------------------------------------------------------------------ the gate
+ def gate(directory: str, controls=True, full_preimage=True, calibration_export=None, preimage_names=None) -> dict:
+     t0 = time.time()
+-    rec = {"what": "the privacy gate on ONE classifier run capture (D38 / D40 / D41 / D45; gate round 19, tools v22: "
+-                   "token frozen-r16b on native R13, the R13 h24 rung and the real Shieldstral-1.0-3B); NOT a privacy result",
++    rec = {"what": "the privacy gate on ONE classifier run capture (D38 / D40 / D41 / D45; gate round 20, tools v23: "
++                   "token frozen-r17 / frozen-r16b on native R13, the R13 h24 rung and the real Shieldstral-1.0-3B); "
++                   "NOT a privacy result",
+            "privacy_acceptance": False, "privacy_property_established": False, "timings": {}}
+ 
+     def tick(name, t):
+@@ -1149,6 +1191,26 @@
+     rec["integrity"] = class_integrity(b)
+     rec["capture_format_notes"] = [x for x in (b.shape_slot_note,) if x]
+     tick("load_and_integrity", t)
++    # [v23, gate round 20] F19-G2: a capture whose source pins these tools have
++    # not read is REFUSED BY NAME here, before any part that relies on the
++    # port runs (v21 / v22 went on and ended in a KeyError in the controls:
++    # fail closed, but by a crash rather than a written refusal).  The record
++    # is written with status REFUSED and `main` exits with EXIT_REFUSED.
++    sp = rec["integrity"].get("source_pins") or {}
++    if not sp.get("ok"):
++        rec["refusal"] = {"by": "source pins", "refusals": list(sp.get("refusals") or []),
++                          "port": CP.classify_capture_pins(b.manifest).get("port"),
++                          "what": "the capture pins source files at digests these tools have no reading for; "
++                                  "nothing else was evaluated (fail closed by a written refusal, F19-G2)"}
++        rec["false_parts"] = ["integrity"]
++        rec["ok"] = False
++        rec["status"] = "REFUSED"
++        rec["declared_limits"] = []
++        rec["controls"] = {"skipped": "refused before evaluation", "ok": None}
++        rec["total_seconds"] = round(time.time() - t0, 1)
++        import zk60_native_run_gate as G
++        rec["tool_sha256"] = G.tool_hashes()
++        return rec
+     t = time.time()
+     rp = ClassRunReplay(b).run()
+     rec["replay"] = rp.summary()
+@@ -1313,6 +1375,10 @@
+     path = os.path.join(a.evidence, f"{a.name}.json")
+     with open(path, "w") as fh:
+         json.dump(rec, fh, indent=1, sort_keys=True, default=str)
++    if rec["status"] == "REFUSED":
++        print(f"{a.name}: status REFUSED by {rec['refusal']['by']}: {rec['refusal']['refusals']}; "
++              f"{rec['total_seconds']} s; record {path}")
++        return EXIT_REFUSED
+     print(f"{a.name}: status {rec['status']}; false parts {rec['false_parts']}; controls not fired "
+           f"{rec['controls'].get('not_fired')}; {rec['total_seconds']} s; record {path}")
+     return 0 if rec["status"] in ("PASS", "PASS-WITH-DECLARED-LIMITS") else 1
+diff -ruN -x __pycache__ frozen_v22/scripts/zk60_native_rg_classpins.py frozen_v23/scripts/zk60_native_rg_classpins.py
+--- frozen_v22/scripts/zk60_native_rg_classpins.py	2026-10-29 04:44:14.183537639 -0700
++++ frozen_v23/scripts/zk60_native_rg_classpins.py	2026-10-29 09:47:09.524580717 -0700
+@@ -565,10 +565,25 @@
+ }
+ 
+ 
++def _repo_root() -> str:
++    """[v23, gate round 20] F19-G1: the first directory ABOVE this file holding
++    both `results/` and `ops/zkp-mvp/` (v22 assumed a fixed depth of five parent
++    directories, so it ran from `frozen_v22/` only, not from the working copy)"""
++    import os
++    d = os.path.dirname(os.path.abspath(__file__))
++    while True:
++        if os.path.isdir(os.path.join(d, "results")) and os.path.isdir(os.path.join(d, "ops", "zkp-mvp")):
++            return d
++        parent = os.path.dirname(d)
++        if parent == d:
++            raise RuntimeError(f"F19-G1: no repository root (results/ and ops/zkp-mvp/) above {__file__}")
++        d = parent
++
++
+ def _full(prefix_map):
+     """expand the short digests above against the frozen-r16b manifest"""
+     import os
+-    root = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), *([os.pardir] * 5)))
++    root = _repo_root()          # [v23] F19-G1: searched upward, not a fixed depth of five
+     man = os.path.join(root, "results/zk60_token_io_r1_20261017/manifest_final_r16b.sha256")
+     full = {}
+     for line in open(man):
+@@ -604,7 +619,7 @@
+     return None
+ 
+ 
+-def classify_capture_pins_v22(manifest: dict) -> dict:
++def classify_capture_pins_v22(manifest: dict, reading=None, port=None) -> dict:
+     """[v22] every `source_pins` entry of a classifier capture of token
+     frozen-r16b on native R13 (made through the gate's H19 capture tree):
+     accepted when it is a ported classifier file at the v22 port's digest;
+@@ -613,7 +628,11 @@
+     r16b / R13 readings, then v21's tables) leads from it to such a digest or
+     to a NEW file's first reading, every step `moves_a_receipt_byte: False`;
+     refused by name otherwise.  Every v22-ported file must be pinned, so an
+-    r14 capture (classify.rs at 6c828db6) is refused by name."""
++    r14 capture (classify.rs at 6c828db6) is refused by name.
++
++    [v23] `reading` / `port`: the chain-of-readings lookup and the record's
++    port label (v23 passes `_reading_v23`); v22's own call is unchanged."""
++    reading = reading or _reading_v22
+     pins = {p["file"]: p["sha256"] for p in manifest.get("source_pins", [])}
+     per, refused = [], []
+     for f in sorted(pins):
+@@ -633,7 +652,7 @@
+             continue
+         chain, cur, ok = [], d, False
+         for _ in range(12):
+-            r = _reading_v22(f, cur)
++            r = reading(f, cur)
+             if r is None or r.get("moves_a_receipt_byte") is not False:
+                 break
+             base = r.get("base")
+@@ -653,10 +672,128 @@
+     missing = [f for f in CLASSIFY_PORTED_FROM_V22 if f not in pins]
+     refused += [f"{f}: not pinned (the v22 classifier port was read from it)" for f in missing]
+     return {"pins": len(pins), "per_file": per, "refusals": refused, "ok": not refused,
+-            "port": "v22 (token frozen-r16b on native R13, gate capture tree + H19)"}
++            "port": port or "v22 (token frozen-r16b on native R13, gate capture tree + H19)"}
++
+ 
++# =====================================================================
++# [v23, gate round 20, 2026-10-29] token frozen-r17 (the gate's H19-1..H19-4
++# adopted; public-table values in R13 captures with the recorder's export replay)
++# =====================================================================
++# frozen-r17 (manifest_final_r17, 303 files, list 23a95876...) moves exactly
++# TWO of an R13 classifier capture's 72 source pins against frozen-r16b, both
++# `#[cfg(test)]` recorder modules (private_block.rs:258-259 / :267-268 at r17):
++# plane_index.rs (= the gate's H19-3 byte for byte, already read above) and
++# run_capture.rs (H19-4 + the export replay, read here).  The five ported
++# classifier files, token_io.rs and every other pin do not move, so v22's
++# classifier port applies unchanged (`CLASSIFY_PORTED_FROM_V22`).
++TOKEN_R17_MANIFEST = "results/zk60_token_io_r1_20261017/manifest_final_r17.sha256"
++TOKEN_R16B_MANIFEST_PATH = "results/zk60_token_io_r1_20261017/manifest_final_r16b.sha256"
++TOKEN_R17_READINGS = {
++    "src/private_block/run_capture.rs": {
++        "cce0fc2a4062fcb4c92e771b8d7ac7f996c9ccfbc985bfb6decd79b29fba7ddf": {
++            "base": "8292b1c6856daa521439037570930827ecc3979bd64c279127a2b0f1b6014817",
++            "moves_a_receipt_byte": False, "moves_a_block_stage_byte": False,
++            "classification": "token frozen-r17: test-only (`#[cfg(test)] mod run_capture;`, private_block.rs:258-259)",
++            "diff": "results/zk60_gate_tinyllama_20261017/round20/readings/run_capture.H19-4_to_r17.diff "
++                    "(907727b9..., +436 / -9 against the gate's H19-4 8292b1c6)",
++            "reading": "[GATE ROUND 20, READ] the gate's H19-4 (`bundle_is_classify` = `is_classify_run_profile`) "
++                       "kept byte for byte, plus the token lane's EXPORT REPLAY: at an R13 BLOCK stage whose "
++                       "public-table values are recorded, each Tab::Pub table that `r13_statement_table` names "
++                       "(the seven folds, gamma_a / gamma_m, the RoPE pairs on Q / Kv, the group column, exp / "
++                       "ACT3, the ACT support) is pushed to `Rec.statement` with the SAME sha256 "
++                       "`write_public_table` writes (it now returns it; the bytes written are unchanged); an R13 "
++                       "DD block stage with values is refused by name; `export_replay` re-derives every listed "
++                       "table from an export layer and refuses on any digest or length difference or a missing "
++                       "required (slot, nth); `write_bundle` refuses a bundle that lists statement tables until "
++                       "the replay passed and appends the replay to the README note. No stage-file key, run.json "
++                       "key or value encoding moves; no prover, verifier or statement byte (the module is not "
++                       "compiled outside tests). The gate does not rely on the replay: it TAKES the statement "
++                       "tables and checks the terminal identity on them",
++        },
++    },
++    "src/private_block/plane_index.rs": {
++        "ce79803c86a80dde832dc92a262a023efdd52bb95b9a15f128791978c306ffac": {
++            "base": "13a7dd6ff1f9178dd640e3d38309a5581a39cf13c9c61238c41ceba83420afbf",
++            "moves_a_receipt_byte": False, "moves_a_block_stage_byte": False,
++            "classification": "token frozen-r17 adopted the gate's H19-3 byte for byte (cfg(test) recorder module)",
++            "reading": "[GATE ROUND 20, READ by digest] frozen-r17's plane_index.rs is ce79803c..., the digest of "
++                       "the gate's own H19-3 patch (GATE19_PATCH_READINGS); the same reading applies",
++        },
++    },
++}
++
++
++def _reading_v23(f, d):
++    r = TOKEN_R17_READINGS.get(f, {}).get(d)
++    return r if r is not None else _reading_v22(f, d)
++
++
++def r17_self_check() -> dict:
++    """[v23, COUNTED] the two moved pins against the token lane's manifests:
++    frozen-r17's run_capture.rs / plane_index.rs are the digests read above,
++    their bases the gate's H19 files / frozen-r16b's, and no other file an R13
++    classifier capture pins moves r16b -> r17 (the pinned set = round 19's 72)"""
++    import os
++    root = _repo_root()
+ 
+-def classify_capture_pins(manifest: dict) -> dict:  # noqa: F811  [v22] replaces v21's dispatcher
+-    """[v22] the classifier capture pin check is v22's (token frozen-r16b);
+-    v21's rule is kept as `classify_capture_pins_v21` for the record"""
+-    return classify_capture_pins_v22(manifest)
++    def man(p):
++        out = {}
++        with open(os.path.join(root, p)) as fh:
++            for line in fh:
++                d, q = line.rstrip("\n").split("  ", 1)
++                out[q[len("hashline/"):] if q.startswith("hashline/") else q] = d
++        return out
++    r16b, r17 = man(TOKEN_R16B_MANIFEST_PATH), man(TOKEN_R17_MANIFEST)
++    f = []
++    rc, pi = "src/private_block/run_capture.rs", "src/private_block/plane_index.rs"
++    if r17.get(rc) not in TOKEN_R17_READINGS[rc]:
++        f.append(f"{rc}: frozen-r17 has {str(r17.get(rc))[:12]}, not the digest read")
++    if r17.get(pi) not in TOKEN_R17_READINGS[pi] or r17.get(pi) not in GATE19_PATCH_READINGS[pi]:
++        f.append(f"{pi}: frozen-r17 has {str(r17.get(pi))[:12]}, not the gate's H19-3")
++    pi_read = TOKEN_R17_READINGS[pi].get(r17.get(pi, ""))
++    if pi_read is None or r16b.get(pi) != pi_read["base"]:
++        f.append(f"{pi}: the reading's base is not frozen-r16b's plane_index.rs")
++    if r16b.get(rc) != GATE19_PATCH_READINGS[rc]["8292b1c6856daa521439037570930827ecc3979bd64c279127a2b0f1b6014817"]["base"]:
++        f.append(f"{rc}: H19-4's base is not frozen-r16b's run_capture.rs")
++    for d, rd in TOKEN_R17_READINGS[rc].items():
++        if rd["base"] not in GATE19_PATCH_READINGS[rc]:
++            f.append(f"{rc}: the base {rd['base'][:12]} is not the gate's H19-4")
++    # the files themselves, re-hashed: frozen-r17's two, the gate's H19-4 copy
++    import hashlib
++    rehashed = {}
++    for label, rel, want in (("frozen-r17 " + rc, "results/zk60_token_io_r1_20261017/frozen-r17/hashline/" + rc,
++                              r17.get(rc)),
++                             ("frozen-r17 " + pi, "results/zk60_token_io_r1_20261017/frozen-r17/hashline/" + pi,
++                              r17.get(pi)),
++                             ("capture-tree-r16b (H19-4) " + rc,
++                              "ops/zkp-mvp/gate-tinyllama/capture-tree-r16b/hashline/" + rc,
++                              "8292b1c6856daa521439037570930827ecc3979bd64c279127a2b0f1b6014817")):
++        p = os.path.join(root, rel)
++        got = None
++        if os.path.exists(p):
++            with open(p, "rb") as fh:
++                got = hashlib.sha256(fh.read()).hexdigest()
++        rehashed[label] = got
++        if got != want:
++            f.append(f"{label}: re-hashed {str(got)[:12]}, expected {str(want)[:12]}")
++    moved = sorted(p for p in set(r16b) | set(r17) if r16b.get(p) != r17.get(p))
++    return {"r16b_files": len(r16b), "r17_files": len(r17), "moved_r16b_to_r17": moved, "rehashed": rehashed,
++            "run_capture_r17": r17.get(rc), "plane_index_r17": r17.get(pi), "findings": f, "ok": not f}
++
++
++def classify_capture_pins_v23(manifest: dict) -> dict:
++    """[v23] v22's rule (every pin at the v22 classifier port's digest, accepted
++    by the token or block gate, or by a chain of written readings) with the
++    frozen-r17 readings in front: an r17 capture (run_capture.rs cce0fc2a...)
++    is accepted, an r16b capture (8292b1c6, the gate's H19-4) still is, an r14
++    or R-C1 capture is still refused by name"""
++    return classify_capture_pins_v22(manifest, reading=_reading_v23,
++                                     port="v23 (token frozen-r17 / frozen-r16b on native R13: H19-1..H19-4 adopted, "
++                                          "the recorder's export replay)")
++
++
++def classify_capture_pins(manifest: dict) -> dict:  # noqa: F811  [v23] replaces v22's dispatcher
++    """[v23] the classifier capture pin check is v23's (token frozen-r17 and
++    frozen-r16b); v22's rule is kept as `classify_capture_pins_v22`, v21's as
++    `classify_capture_pins_v21`, for the record"""
++    return classify_capture_pins_v23(manifest)
+diff -ruN -x __pycache__ frozen_v22/scripts/zk60_native_rg_r13_pins.py frozen_v23/scripts/zk60_native_rg_r13_pins.py
+--- frozen_v22/scripts/zk60_native_rg_r13_pins.py	2026-10-29 04:25:53.271555123 -0700
++++ frozen_v23/scripts/zk60_native_rg_r13_pins.py	2026-10-29 09:43:50.073739094 -0700
+@@ -89,8 +89,25 @@
+ 
+ READ_AT_UTC = "2026-10-29T11:25:41Z"
+ 
+-# the repository root: <root>/ops/zkp-mvp/gate-tinyllama/<staging_v22|frozen_v22>/scripts/this file
+-_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), *([os.pardir] * 5)))
++def repo_root(start=None) -> str:
++    """[v23, gate round 20] F19-G1: the repository root is the first directory
++    ABOVE this file that holds both `results/` and `ops/zkp-mvp/` (v22 took a
++    fixed five parent directories, true in `frozen_v22/` / `staging_v22/` and
++    not in the working copy `ops/zkp-mvp/gate-tinyllama/scripts/`).  Refuses
++    by name when there is none."""
++    d = os.path.dirname(os.path.abspath(start or __file__))
++    while True:
++        if os.path.isdir(os.path.join(d, "results")) and os.path.isdir(os.path.join(d, "ops", "zkp-mvp")):
++            return d
++        parent = os.path.dirname(d)
++        if parent == d:
++            raise RuntimeError(f"F19-G1: no repository root (a directory with results/ and ops/zkp-mvp/) above "
++                               f"{os.path.abspath(start or __file__)}")
++        d = parent
++
++
++# the repository root, found by searching upward (v22: <root>/ops/zkp-mvp/gate-tinyllama/<dir>/scripts/this file)
++_ROOT = repo_root()
+ NATIVE_R12B_TREE = "results/zk60_1b_native_20261017/r12b/frozen-tree/hashline"
+ NATIVE_R13_TREE = "results/zk60_1b_native_20261017/r13/frozen-tree/hashline"
+ TOKEN_R14_TREE = "results/zk60_token_io_r1_20261017/frozen-r14/hashline"

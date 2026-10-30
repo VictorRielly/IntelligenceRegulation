@@ -1,0 +1,139 @@
+{
+ "utc": "2026-10-29T07:25:44.047080+00:00",
+ "mode": "apply",
+ "src": "/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r15",
+ "dest": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r16",
+ "src_equals_frozen_r15": true,
+ "src_files": 259,
+ "base_tree_r12b": "51de5b83bc0dcaeeeb430165081c47653ac012c462c09f3df4ce7f125faf904f",
+ "new_tree_r13": "bb9eb2123c9350c738dafd19fe3b0133d6e2e7ab93f1e765cac4f20ccaed69ec",
+ "native_changed_r12b_to_r13": 67,
+ "token_only_files": 30,
+ "counts": {
+  "copy_new": 17,
+  "add_new": 40,
+  "remove": 0,
+  "merge": 9,
+  "keep_token": 0,
+  "unchanged": 203,
+  "conflict_add": 0,
+  "conflict_remove": 0
+ },
+ "actions": {
+  "copy_new": [
+   "hashline/src/private_block/argument.rs",
+   "hashline/src/private_block/grow_tests.rs",
+   "hashline/src/private_block/layout.rs",
+   "hashline/src/private_block/p2_tests.rs",
+   "hashline/src/private_block/protocol.rs",
+   "hashline/src/private_block/r4_tests.rs",
+   "hashline/src/private_block/review_d24_tests.rs",
+   "hashline/src/private_block/review_tests.rs",
+   "hashline/src/private_block/s20_review_tests.rs",
+   "hashline/src/private_block/s35_tests.rs",
+   "hashline/src/private_block/shape.rs",
+   "hashline/src/private_block/slot_ir_tests.rs",
+   "hashline/src/private_block/tamper.rs",
+   "hashline/src/private_block/tests.rs",
+   "hashline/src/private_block/trained_calib_tests.rs",
+   "hashline/src/private_block/trained_statement.rs",
+   "hashline/src/private_block/witness.rs"
+  ],
+  "add_new": [
+   "hashline/src/private_block/accuracy.rs",
+   "hashline/src/private_block/accuracy_act.rs",
+   "hashline/src/private_block/accuracy_aligned.rs",
+   "hashline/src/private_block/accuracy_binding_tests.rs",
+   "hashline/src/private_block/accuracy_fold.rs",
+   "hashline/src/private_block/accuracy_groups.rs",
+   "hashline/src/private_block/accuracy_layout.rs",
+   "hashline/src/private_block/accuracy_layout_tests.rs",
+   "hashline/src/private_block/accuracy_precision.rs",
+   "hashline/src/private_block/accuracy_profile_tests.rs",
+   "hashline/src/private_block/accuracy_proof_tests.rs",
+   "hashline/src/private_block/accuracy_public.rs",
+   "hashline/src/private_block/accuracy_tables.rs",
+   "hashline/src/private_block/argument_accuracy.rs",
+   "hashline/src/private_block/r13_vectors/block_fixture.json",
+   "hashline/src/private_block/r13_vectors/block_fixture_t32.json",
+   "hashline/src/private_block/r13_vectors/block_fixture_t32.tsv",
+   "hashline/src/private_block/r13_vectors/block_trace_low.json",
+   "hashline/src/private_block/r13_vectors/block_trace_low_h24.json",
+   "hashline/src/private_block/r13_vectors/block_trace_low_h24_t32.json",
+   "hashline/src/private_block/r13_vectors/block_trace_low_h24_t32.tsv",
+   "hashline/src/private_block/r13_vectors/block_trace_low_t32.json",
+   "hashline/src/private_block/r13_vectors/block_trace_low_t32.tsv",
+   "hashline/src/private_block/r13_vectors/r13_product_low_vectors.tsv",
+   "hashline/src/private_block/r13_vectors/r13_product_vectors.tsv",
+   "hashline/src/private_block/r13_vectors/r13_requant_vectors.tsv",
+   "hashline/src/private_block/r13_vectors/roles.tsv",
+   "hashline/src/private_block/r13_vectors/shieldstral_product_vectors.tsv",
+   "hashline/src/private_block/r13_vectors/silu_-1_-10.bin",
+   "hashline/src/private_block/r13_vectors/silu_-1_-11.bin",
+   "hashline/src/private_block/r13_vectors/silu_-1_-9.bin",
+   "hashline/src/private_block/r13_vectors/silu_-2_-11.bin",
+   "hashline/src/private_block/r13_vectors/silu_-3_-11.bin",
+   "hashline/src/private_block/r13_vectors/silu_-3_-12.bin",
+   "hashline/src/private_block/r13_vectors/silu_-4_-12.bin",
+   "hashline/src/private_block/r13_vectors/silu_-4_-13.bin",
+   "hashline/src/private_block/r13_vectors/silu_-5_-13.bin",
+   "hashline/src/private_block/r13_vectors/silu_0_-8.bin",
+   "hashline/src/private_block/trained_accuracy.rs",
+   "hashline/src/private_block/witness_accuracy.rs"
+  ],
+  "remove": [],
+  "merge": [
+   "hashline/src/private_block.rs",
+   "hashline/src/private_block/hash_domain_tests.rs",
+   "hashline/src/private_block/run.rs",
+   "hashline/src/private_block/run_capture.rs",
+   "hashline/src/private_block/s24_tests.rs",
+   "hashline/src/private_block/s25_tests.rs",
+   "hashline/src/private_block/s33_tests.rs",
+   "hashline/src/private_block/tied_tables.rs",
+   "hashline/src/private_block/trained_block.rs"
+  ],
+  "keep_token": [],
+  "conflict_add": [],
+  "conflict_remove": []
+ },
+ "merged": {
+  "hashline/src/private_block.rs": {
+   "conflicts": 0,
+   "clean": true
+  },
+  "hashline/src/private_block/hash_domain_tests.rs": {
+   "conflicts": 1,
+   "clean": false
+  },
+  "hashline/src/private_block/run.rs": {
+   "conflicts": 0,
+   "clean": true
+  },
+  "hashline/src/private_block/run_capture.rs": {
+   "conflicts": 1,
+   "clean": false
+  },
+  "hashline/src/private_block/s24_tests.rs": {
+   "conflicts": 2,
+   "clean": false
+  },
+  "hashline/src/private_block/s25_tests.rs": {
+   "conflicts": 2,
+   "clean": false
+  },
+  "hashline/src/private_block/s33_tests.rs": {
+   "conflicts": 1,
+   "clean": false
+  },
+  "hashline/src/private_block/tied_tables.rs": {
+   "conflicts": 1,
+   "clean": false
+  },
+  "hashline/src/private_block/trained_block.rs": {
+   "conflicts": 0,
+   "clean": true
+  }
+ },
+ "dest_files": 299
+}

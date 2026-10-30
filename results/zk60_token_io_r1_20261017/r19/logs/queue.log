@@ -1,0 +1,40 @@
+2026-10-30T10:00:40Z red
+2026-10-30T10:21:19Z red end 101
+2026-10-30T10:22:55Z green
+2026-10-30T10:28:36Z rung-eq
+2026-10-30T10:28:44Z mutant fix1-revert
+2026-10-30T10:32:18Z mutant fix2-revert
+2026-10-30T10:35:47Z mutant rng-plant
+2026-10-30T10:39:16Z mutant label-plant
+2026-10-30T10:42:47Z mutant one-post-revert
+2026-10-30T10:46:23Z mutant e7-ignore-models
+2026-10-30T10:49:53Z mutant e7-empty-is-set
+2026-10-30T10:53:26Z mutant e7-precedence
+2026-10-30T10:56:53Z mutant hide-oneline-u
+2026-10-30T11:00:19Z mutant hide-oneline-l
+2026-10-30T11:03:45Z mutant hide-comment-u
+2026-10-30T11:07:17Z mutant hide-comment-l
+2026-10-30T11:10:44Z mutant hide-pubin-u
+2026-10-30T11:14:10Z mutant hide-pubin-l
+2026-10-30T11:17:37Z mutant hide-pubself-u
+2026-10-30T11:21:03Z mutant hide-pubself-l
+2026-10-30T11:24:33Z mutant hide-grandchild-u
+2026-10-30T11:28:02Z mutant hide-grandchild-l
+2026-10-30T11:31:31Z mutant job-order (build)
+2026-10-30T11:34:53Z mutant job-order (harness)
+2026-10-30T11:35:01Z mutant reused-draw (build)
+2026-10-30T11:38:08Z mutant reused-draw (harness)
+2026-10-30T11:38:15Z chain end mutations
+2026-10-30T11:39:07Z s24-suite
+2026-10-30T11:54:38Z b19-cli-build
+2026-10-30T11:56:47Z suite end 0
+2026-10-30T11:56:47Z xbin
+2026-10-30T11:56:57Z verify-hate-unset
+2026-10-30T12:00:52Z verify-hate-models
+2026-10-30T12:01:59Z verify-hate-nomodels
+2026-10-30T12:02:01Z prepare
+2026-10-30T12:02:02Z activations
+2026-10-30T12:03:11Z single-c0
+2026-10-30T12:10:41Z compare
+2026-10-30T12:10:42Z check end 0
+2026-10-30T12:10:42Z freeze end 0

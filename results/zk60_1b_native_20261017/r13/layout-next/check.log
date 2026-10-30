@@ -1,0 +1,31 @@
+
+running 9 tests
+test accuracy_precision::low_tests::exports_choose_an_explicit_stack_without_a_global_flag ... ok
+test accuracy_precision::low_tests::low_keeps_h16_and_its_downstream_scale ... ok
+test accuracy_precision::tests::invalid_base_or_derived_windows_are_refused ... ok
+test accuracy_precision::tests::legacy_shifts_and_widths_remain_unchanged ... ok
+test accuracy_precision::tests::low_h24_matches_the_received_build_spec ... ok
+test tests::every_allocated_role_and_lookup_count_matches_the_independent_inventory ... 
+thread 'tests::every_allocated_role_and_lookup_count_matches_the_independent_inventory' (10) panicked at results/zk60_1b_native_20261017/r13/layout-next/tests.rs:19:9:
+assertion `left == right` failed: low	0	2	Q	Q,QL0,QL1,RQL0,RQL1,QR,QRL0,QRL1,RQRL,O,OL0,OL1,RO0,RO1	14	43
+  left: "Q,QL0,QL1,RQL0,RQL1,QR,QRL0,QRL1,RQRL0,O,OL0,OL1,RO0,RO1"
+ right: "Q,QL0,QL1,RQL0,RQL1,QR,QRL0,QRL1,RQRL,O,OL0,OL1,RO0,RO1"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+test tests::every_remainder_top_pin_enforces_its_exact_window_including_full_bytes ... 
+thread 'tests::every_remainder_top_pin_enforces_its_exact_window_including_full_bytes' (11) panicked at results/zk60_1b_native_20261017/r13/layout-next/tests.rs:62:17:
+assertion `left == right` failed: Rv word 65536 bits 16
+  left: true
+ right: false
+FAILED
+test tests::malformed_lookup_context_is_refused_before_any_lookup_is_used ... ok
+test tests::removed_norm_limbs_are_absent_and_every_other_legacy_role_is_unique ... ok
+
+failures:
+
+failures:
+    tests::every_allocated_role_and_lookup_count_matches_the_independent_inventory
+    tests::every_remainder_top_pin_enforces_its_exact_window_including_full_bytes
+
+test result: FAILED. 7 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

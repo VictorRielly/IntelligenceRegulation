@@ -1,0 +1,3572 @@
+[
+  {
+    "dd": false,
+    "wrho_s": 16,
+    "v_bits": 10,
+    "pv_bits": 12,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 2,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 8388608,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 16,
+    "v_bits": 10,
+    "pv_bits": 13,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 2,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 8388608,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 16,
+    "v_bits": 10,
+    "pv_bits": 14,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 2,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 8388608,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 16,
+    "v_bits": 10,
+    "pv_bits": 15,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 2,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 8388608,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 16,
+    "v_bits": 10,
+    "pv_bits": 16,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 1,
+      "Kv": 0,
+      "S": 2,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 12582912,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 16,
+    "v_bits": 11,
+    "pv_bits": 12,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 2,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 8388608,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 16,
+    "v_bits": 11,
+    "pv_bits": 13,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 2,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 8388608,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 16,
+    "v_bits": 11,
+    "pv_bits": 14,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 2,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 8388608,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 16,
+    "v_bits": 11,
+    "pv_bits": 15,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 2,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 8388608,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 16,
+    "v_bits": 11,
+    "pv_bits": 16,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 1,
+      "Kv": 0,
+      "S": 2,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 12582912,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 16,
+    "v_bits": 12,
+    "pv_bits": 12,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 2,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 8388608,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 16,
+    "v_bits": 12,
+    "pv_bits": 13,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 2,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 8388608,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 16,
+    "v_bits": 12,
+    "pv_bits": 14,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 2,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 8388608,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 16,
+    "v_bits": 12,
+    "pv_bits": 15,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 2,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 8388608,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 16,
+    "v_bits": 12,
+    "pv_bits": 16,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 1,
+      "Kv": 0,
+      "S": 2,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 12582912,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 16,
+    "v_bits": 13,
+    "pv_bits": 12,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 2,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 8388608,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 16,
+    "v_bits": 13,
+    "pv_bits": 13,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 2,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 8388608,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 16,
+    "v_bits": 13,
+    "pv_bits": 14,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 2,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 8388608,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 16,
+    "v_bits": 13,
+    "pv_bits": 15,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 2,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 8388608,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 16,
+    "v_bits": 13,
+    "pv_bits": 16,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 1,
+      "Kv": 0,
+      "S": 2,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 12582912,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 16,
+    "v_bits": 14,
+    "pv_bits": 12,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 2,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 8388608,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 16,
+    "v_bits": 14,
+    "pv_bits": 13,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 2,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 8388608,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 16,
+    "v_bits": 14,
+    "pv_bits": 14,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 2,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 8388608,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 16,
+    "v_bits": 14,
+    "pv_bits": 15,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 2,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 8388608,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 16,
+    "v_bits": 14,
+    "pv_bits": 16,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 1,
+      "Kv": 0,
+      "S": 2,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 12582912,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 16,
+    "v_bits": 15,
+    "pv_bits": 12,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 2,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 8388608,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 16,
+    "v_bits": 15,
+    "pv_bits": 13,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 2,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 8388608,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 16,
+    "v_bits": 15,
+    "pv_bits": 14,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 2,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 8388608,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 16,
+    "v_bits": 15,
+    "pv_bits": 15,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 2,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 8388608,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 16,
+    "v_bits": 15,
+    "pv_bits": 16,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 1,
+      "Kv": 0,
+      "S": 2,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 12582912,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 16,
+    "v_bits": 16,
+    "pv_bits": 12,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 1,
+      "S": 2,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 9437184,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 16,
+    "v_bits": 16,
+    "pv_bits": 13,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 1,
+      "S": 2,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 9437184,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 16,
+    "v_bits": 16,
+    "pv_bits": 14,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 1,
+      "S": 2,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 9437184,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 16,
+    "v_bits": 16,
+    "pv_bits": 15,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 1,
+      "S": 2,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 9437184,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 16,
+    "v_bits": 16,
+    "pv_bits": 16,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 1,
+      "Kv": 1,
+      "S": 2,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 13631488,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 19,
+    "v_bits": 10,
+    "pv_bits": 12,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 19,
+    "v_bits": 10,
+    "pv_bits": 13,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 19,
+    "v_bits": 10,
+    "pv_bits": 14,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 19,
+    "v_bits": 10,
+    "pv_bits": 15,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 19,
+    "v_bits": 10,
+    "pv_bits": 16,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 1,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 4194304,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 19,
+    "v_bits": 11,
+    "pv_bits": 12,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 19,
+    "v_bits": 11,
+    "pv_bits": 13,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 19,
+    "v_bits": 11,
+    "pv_bits": 14,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 19,
+    "v_bits": 11,
+    "pv_bits": 15,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 19,
+    "v_bits": 11,
+    "pv_bits": 16,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 1,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 4194304,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 19,
+    "v_bits": 12,
+    "pv_bits": 12,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 19,
+    "v_bits": 12,
+    "pv_bits": 13,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 19,
+    "v_bits": 12,
+    "pv_bits": 14,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 19,
+    "v_bits": 12,
+    "pv_bits": 15,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 19,
+    "v_bits": 12,
+    "pv_bits": 16,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 1,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 4194304,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 19,
+    "v_bits": 13,
+    "pv_bits": 12,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 19,
+    "v_bits": 13,
+    "pv_bits": 13,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 19,
+    "v_bits": 13,
+    "pv_bits": 14,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 19,
+    "v_bits": 13,
+    "pv_bits": 15,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 19,
+    "v_bits": 13,
+    "pv_bits": 16,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 1,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 4194304,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 19,
+    "v_bits": 14,
+    "pv_bits": 12,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 19,
+    "v_bits": 14,
+    "pv_bits": 13,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 19,
+    "v_bits": 14,
+    "pv_bits": 14,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 19,
+    "v_bits": 14,
+    "pv_bits": 15,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 19,
+    "v_bits": 14,
+    "pv_bits": 16,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 1,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 4194304,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 19,
+    "v_bits": 15,
+    "pv_bits": 12,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 19,
+    "v_bits": 15,
+    "pv_bits": 13,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 19,
+    "v_bits": 15,
+    "pv_bits": 14,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 19,
+    "v_bits": 15,
+    "pv_bits": 15,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 19,
+    "v_bits": 15,
+    "pv_bits": 16,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 1,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 4194304,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 19,
+    "v_bits": 16,
+    "pv_bits": 12,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 1,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 1048576,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 19,
+    "v_bits": 16,
+    "pv_bits": 13,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 1,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 1048576,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 19,
+    "v_bits": 16,
+    "pv_bits": 14,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 1,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 1048576,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 19,
+    "v_bits": 16,
+    "pv_bits": 15,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 1,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 1048576,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 19,
+    "v_bits": 16,
+    "pv_bits": 16,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 1,
+      "Kv": 1,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 5242880,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 23,
+    "v_bits": 10,
+    "pv_bits": 12,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 23,
+    "v_bits": 10,
+    "pv_bits": 13,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 23,
+    "v_bits": 10,
+    "pv_bits": 14,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 23,
+    "v_bits": 10,
+    "pv_bits": 15,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 23,
+    "v_bits": 10,
+    "pv_bits": 16,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 1,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 4194304,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 23,
+    "v_bits": 11,
+    "pv_bits": 12,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 23,
+    "v_bits": 11,
+    "pv_bits": 13,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 23,
+    "v_bits": 11,
+    "pv_bits": 14,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 23,
+    "v_bits": 11,
+    "pv_bits": 15,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 23,
+    "v_bits": 11,
+    "pv_bits": 16,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 1,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 4194304,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 23,
+    "v_bits": 12,
+    "pv_bits": 12,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 23,
+    "v_bits": 12,
+    "pv_bits": 13,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 23,
+    "v_bits": 12,
+    "pv_bits": 14,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 23,
+    "v_bits": 12,
+    "pv_bits": 15,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 23,
+    "v_bits": 12,
+    "pv_bits": 16,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 1,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 4194304,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 23,
+    "v_bits": 13,
+    "pv_bits": 12,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 23,
+    "v_bits": 13,
+    "pv_bits": 13,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 23,
+    "v_bits": 13,
+    "pv_bits": 14,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 23,
+    "v_bits": 13,
+    "pv_bits": 15,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 23,
+    "v_bits": 13,
+    "pv_bits": 16,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 1,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 4194304,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 23,
+    "v_bits": 14,
+    "pv_bits": 12,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 23,
+    "v_bits": 14,
+    "pv_bits": 13,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 23,
+    "v_bits": 14,
+    "pv_bits": 14,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 23,
+    "v_bits": 14,
+    "pv_bits": 15,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 23,
+    "v_bits": 14,
+    "pv_bits": 16,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 1,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 4194304,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 23,
+    "v_bits": 15,
+    "pv_bits": 12,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 23,
+    "v_bits": 15,
+    "pv_bits": 13,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 23,
+    "v_bits": 15,
+    "pv_bits": 14,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 23,
+    "v_bits": 15,
+    "pv_bits": 15,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 23,
+    "v_bits": 15,
+    "pv_bits": 16,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 1,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 4194304,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 23,
+    "v_bits": 16,
+    "pv_bits": 12,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 1,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 1048576,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 23,
+    "v_bits": 16,
+    "pv_bits": 13,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 1,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 1048576,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 23,
+    "v_bits": 16,
+    "pv_bits": 14,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 1,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 1048576,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 23,
+    "v_bits": 16,
+    "pv_bits": 15,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 1,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 1048576,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": false,
+    "wrho_s": 23,
+    "v_bits": 16,
+    "pv_bits": 16,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 1,
+      "Kv": 1,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 5242880,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 16,
+    "v_bits": 10,
+    "pv_bits": 12,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 2
+    },
+    "avoided_materialized_bytes": 2097152,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 16,
+    "v_bits": 10,
+    "pv_bits": 13,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 2
+    },
+    "avoided_materialized_bytes": 2097152,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 16,
+    "v_bits": 10,
+    "pv_bits": 14,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 2
+    },
+    "avoided_materialized_bytes": 2097152,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 16,
+    "v_bits": 10,
+    "pv_bits": 15,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 2
+    },
+    "avoided_materialized_bytes": 2097152,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 16,
+    "v_bits": 10,
+    "pv_bits": 16,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 1,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 2
+    },
+    "avoided_materialized_bytes": 6291456,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 16,
+    "v_bits": 11,
+    "pv_bits": 12,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 2
+    },
+    "avoided_materialized_bytes": 2097152,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 16,
+    "v_bits": 11,
+    "pv_bits": 13,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 2
+    },
+    "avoided_materialized_bytes": 2097152,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 16,
+    "v_bits": 11,
+    "pv_bits": 14,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 2
+    },
+    "avoided_materialized_bytes": 2097152,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 16,
+    "v_bits": 11,
+    "pv_bits": 15,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 2
+    },
+    "avoided_materialized_bytes": 2097152,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 16,
+    "v_bits": 11,
+    "pv_bits": 16,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 1,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 2
+    },
+    "avoided_materialized_bytes": 6291456,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 16,
+    "v_bits": 12,
+    "pv_bits": 12,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 2
+    },
+    "avoided_materialized_bytes": 2097152,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 16,
+    "v_bits": 12,
+    "pv_bits": 13,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 2
+    },
+    "avoided_materialized_bytes": 2097152,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 16,
+    "v_bits": 12,
+    "pv_bits": 14,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 2
+    },
+    "avoided_materialized_bytes": 2097152,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 16,
+    "v_bits": 12,
+    "pv_bits": 15,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 2
+    },
+    "avoided_materialized_bytes": 2097152,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 16,
+    "v_bits": 12,
+    "pv_bits": 16,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 1,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 2
+    },
+    "avoided_materialized_bytes": 6291456,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 16,
+    "v_bits": 13,
+    "pv_bits": 12,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 2
+    },
+    "avoided_materialized_bytes": 2097152,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 16,
+    "v_bits": 13,
+    "pv_bits": 13,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 2
+    },
+    "avoided_materialized_bytes": 2097152,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 16,
+    "v_bits": 13,
+    "pv_bits": 14,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 2
+    },
+    "avoided_materialized_bytes": 2097152,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 16,
+    "v_bits": 13,
+    "pv_bits": 15,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 2
+    },
+    "avoided_materialized_bytes": 2097152,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 16,
+    "v_bits": 13,
+    "pv_bits": 16,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 1,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 2
+    },
+    "avoided_materialized_bytes": 6291456,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 16,
+    "v_bits": 14,
+    "pv_bits": 12,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 2
+    },
+    "avoided_materialized_bytes": 2097152,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 16,
+    "v_bits": 14,
+    "pv_bits": 13,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 2
+    },
+    "avoided_materialized_bytes": 2097152,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 16,
+    "v_bits": 14,
+    "pv_bits": 14,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 2
+    },
+    "avoided_materialized_bytes": 2097152,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 16,
+    "v_bits": 14,
+    "pv_bits": 15,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 2
+    },
+    "avoided_materialized_bytes": 2097152,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 16,
+    "v_bits": 14,
+    "pv_bits": 16,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 1,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 2
+    },
+    "avoided_materialized_bytes": 6291456,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 16,
+    "v_bits": 15,
+    "pv_bits": 12,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 2
+    },
+    "avoided_materialized_bytes": 2097152,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 16,
+    "v_bits": 15,
+    "pv_bits": 13,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 2
+    },
+    "avoided_materialized_bytes": 2097152,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 16,
+    "v_bits": 15,
+    "pv_bits": 14,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 2
+    },
+    "avoided_materialized_bytes": 2097152,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 16,
+    "v_bits": 15,
+    "pv_bits": 15,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 2
+    },
+    "avoided_materialized_bytes": 2097152,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 16,
+    "v_bits": 15,
+    "pv_bits": 16,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 1,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 2
+    },
+    "avoided_materialized_bytes": 6291456,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 16,
+    "v_bits": 16,
+    "pv_bits": 12,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 1,
+      "S": 0,
+      "F": 0,
+      "Dd": 2
+    },
+    "avoided_materialized_bytes": 3145728,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 16,
+    "v_bits": 16,
+    "pv_bits": 13,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 1,
+      "S": 0,
+      "F": 0,
+      "Dd": 2
+    },
+    "avoided_materialized_bytes": 3145728,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 16,
+    "v_bits": 16,
+    "pv_bits": 14,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 1,
+      "S": 0,
+      "F": 0,
+      "Dd": 2
+    },
+    "avoided_materialized_bytes": 3145728,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 16,
+    "v_bits": 16,
+    "pv_bits": 15,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 1,
+      "S": 0,
+      "F": 0,
+      "Dd": 2
+    },
+    "avoided_materialized_bytes": 3145728,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 16,
+    "v_bits": 16,
+    "pv_bits": 16,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 1,
+      "Kv": 1,
+      "S": 0,
+      "F": 0,
+      "Dd": 2
+    },
+    "avoided_materialized_bytes": 7340032,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 19,
+    "v_bits": 10,
+    "pv_bits": 12,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 19,
+    "v_bits": 10,
+    "pv_bits": 13,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 19,
+    "v_bits": 10,
+    "pv_bits": 14,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 19,
+    "v_bits": 10,
+    "pv_bits": 15,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 19,
+    "v_bits": 10,
+    "pv_bits": 16,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 1,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 4194304,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 19,
+    "v_bits": 11,
+    "pv_bits": 12,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 19,
+    "v_bits": 11,
+    "pv_bits": 13,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 19,
+    "v_bits": 11,
+    "pv_bits": 14,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 19,
+    "v_bits": 11,
+    "pv_bits": 15,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 19,
+    "v_bits": 11,
+    "pv_bits": 16,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 1,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 4194304,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 19,
+    "v_bits": 12,
+    "pv_bits": 12,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 19,
+    "v_bits": 12,
+    "pv_bits": 13,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 19,
+    "v_bits": 12,
+    "pv_bits": 14,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 19,
+    "v_bits": 12,
+    "pv_bits": 15,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 19,
+    "v_bits": 12,
+    "pv_bits": 16,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 1,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 4194304,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 19,
+    "v_bits": 13,
+    "pv_bits": 12,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 19,
+    "v_bits": 13,
+    "pv_bits": 13,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 19,
+    "v_bits": 13,
+    "pv_bits": 14,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 19,
+    "v_bits": 13,
+    "pv_bits": 15,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 19,
+    "v_bits": 13,
+    "pv_bits": 16,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 1,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 4194304,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 19,
+    "v_bits": 14,
+    "pv_bits": 12,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 19,
+    "v_bits": 14,
+    "pv_bits": 13,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 19,
+    "v_bits": 14,
+    "pv_bits": 14,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 19,
+    "v_bits": 14,
+    "pv_bits": 15,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 19,
+    "v_bits": 14,
+    "pv_bits": 16,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 1,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 4194304,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 19,
+    "v_bits": 15,
+    "pv_bits": 12,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 19,
+    "v_bits": 15,
+    "pv_bits": 13,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 19,
+    "v_bits": 15,
+    "pv_bits": 14,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 19,
+    "v_bits": 15,
+    "pv_bits": 15,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 19,
+    "v_bits": 15,
+    "pv_bits": 16,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 1,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 4194304,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 19,
+    "v_bits": 16,
+    "pv_bits": 12,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 1,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 1048576,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 19,
+    "v_bits": 16,
+    "pv_bits": 13,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 1,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 1048576,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 19,
+    "v_bits": 16,
+    "pv_bits": 14,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 1,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 1048576,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 19,
+    "v_bits": 16,
+    "pv_bits": 15,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 1,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 1048576,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 19,
+    "v_bits": 16,
+    "pv_bits": 16,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 1,
+      "Kv": 1,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 5242880,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 23,
+    "v_bits": 10,
+    "pv_bits": 12,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 23,
+    "v_bits": 10,
+    "pv_bits": 13,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 23,
+    "v_bits": 10,
+    "pv_bits": 14,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 23,
+    "v_bits": 10,
+    "pv_bits": 15,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 23,
+    "v_bits": 10,
+    "pv_bits": 16,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 1,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 4194304,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 23,
+    "v_bits": 11,
+    "pv_bits": 12,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 23,
+    "v_bits": 11,
+    "pv_bits": 13,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 23,
+    "v_bits": 11,
+    "pv_bits": 14,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 23,
+    "v_bits": 11,
+    "pv_bits": 15,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 23,
+    "v_bits": 11,
+    "pv_bits": 16,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 1,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 4194304,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 23,
+    "v_bits": 12,
+    "pv_bits": 12,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 23,
+    "v_bits": 12,
+    "pv_bits": 13,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 23,
+    "v_bits": 12,
+    "pv_bits": 14,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 23,
+    "v_bits": 12,
+    "pv_bits": 15,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 23,
+    "v_bits": 12,
+    "pv_bits": 16,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 1,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 4194304,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 23,
+    "v_bits": 13,
+    "pv_bits": 12,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 23,
+    "v_bits": 13,
+    "pv_bits": 13,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 23,
+    "v_bits": 13,
+    "pv_bits": 14,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 23,
+    "v_bits": 13,
+    "pv_bits": 15,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 23,
+    "v_bits": 13,
+    "pv_bits": 16,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 1,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 4194304,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 23,
+    "v_bits": 14,
+    "pv_bits": 12,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 23,
+    "v_bits": 14,
+    "pv_bits": 13,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 23,
+    "v_bits": 14,
+    "pv_bits": 14,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 23,
+    "v_bits": 14,
+    "pv_bits": 15,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 23,
+    "v_bits": 14,
+    "pv_bits": 16,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 1,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 4194304,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 23,
+    "v_bits": 15,
+    "pv_bits": 12,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 23,
+    "v_bits": 15,
+    "pv_bits": 13,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 23,
+    "v_bits": 15,
+    "pv_bits": 14,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 23,
+    "v_bits": 15,
+    "pv_bits": 15,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 0,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 23,
+    "v_bits": 15,
+    "pv_bits": 16,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 1,
+      "Kv": 0,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 4194304,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 23,
+    "v_bits": 16,
+    "pv_bits": 12,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 1,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 1048576,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 23,
+    "v_bits": 16,
+    "pv_bits": 13,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 1,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 1048576,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 23,
+    "v_bits": 16,
+    "pv_bits": 14,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 1,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 1048576,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 23,
+    "v_bits": 16,
+    "pv_bits": 15,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 0,
+      "Kv": 1,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 1048576,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  },
+  {
+    "dd": true,
+    "wrho_s": 23,
+    "v_bits": 16,
+    "pv_bits": 16,
+    "aliases": {
+      "L": 0,
+      "D": 0,
+      "Q": 1,
+      "Kv": 1,
+      "S": 0,
+      "F": 0,
+      "Dd": 0
+    },
+    "avoided_materialized_bytes": 5242880,
+    "scope": "source-level calibration sensitivity, not actual layer incidence"
+  }
+]

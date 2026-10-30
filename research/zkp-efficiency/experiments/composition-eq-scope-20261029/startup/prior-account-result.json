@@ -1,0 +1,19 @@
+{
+  "status": "PASS",
+  "checks": 344,
+  "geometries": 36,
+  "registry_rows": 144,
+  "operation_traces": 23,
+  "elapsed_s": 0.958972412001458,
+  "max_rss_kib": 16064,
+  "diagnostic_faster_rows": 5,
+  "diagnostic_rows": 6,
+  "end_to_end_ceiling": "N/(T-C_removed_exclusive+A_added); for exclusive phase fraction f and measured native phase ratio k: speedup=1/((1-f)+f/k). No f or k measured for native prover/GPU.",
+  "startup_fraction": null,
+  "steady_tokens_per_s": null,
+  "total_tokens_per_s": null,
+  "full_stack_proofs": 0,
+  "model_passes": 0,
+  "proved_positions": 0,
+  "gpu": false
+}

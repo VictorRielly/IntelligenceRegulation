@@ -1,0 +1,1 @@
+{"case": "fixed25", "bit_identical": true, "baseline_seconds": 1.1149991450001835, "gpu_setup_seconds": 0.20950404299946968, "gpu_seconds": 0.3974190089993499, "gpu_peak_reserved_bytes": 459276288}

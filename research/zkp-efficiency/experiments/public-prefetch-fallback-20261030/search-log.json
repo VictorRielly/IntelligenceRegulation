@@ -1,0 +1,25 @@
+{
+  "tool": "tools.web__run native LIVE",
+  "access_date": "2026-10-30",
+  "queries": [
+    "GPU zero knowledge proof asynchronous prefetch memory transfer GKR sumcheck 2026",
+    "site.github.com ingonyama-zk icicle releases 2026 sumcheck",
+    "LLM zero knowledge proof weight streaming prefetch memory 2026",
+    "GPU prefetch proof weight streaming PipeZK PipeGKR 2026",
+    "zero knowledge GPU pipeline shared bandwidth proof memory prefetch older PipeZK 2021",
+    "lookup softmax zero knowledge proof 2026 October exact softmax",
+    "site.arxiv.org 2026 October lookup argument softmax proof GPU LLM",
+    "site.github.com GPU NTT release October 2026 commitment"
+  ],
+  "artifacts": [
+    "web-2.json",
+    "web-3.json",
+    "web-4.json",
+    "web-5.json",
+    "web-6.json",
+    "web-7.json",
+    "web-8.json"
+  ],
+  "initial_search_results_retained_as": "exact queries and source records; initial two web call bodies were not saved",
+  "blocker_policy": "Cache misses retained,not bypassed; proceeded with independent local experiment."
+}

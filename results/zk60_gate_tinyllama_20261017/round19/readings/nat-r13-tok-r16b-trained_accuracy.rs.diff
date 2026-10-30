@@ -1,0 +1,12 @@
+--- zk60_1b_native_20261017/r13/frozen-tree/hashline/src/private_block/trained_accuracy.rs	2026-10-28 23:08:24.416344394 -0700
++++ zk60_token_io_r1_20261017/frozen-r16b/hashline/src/private_block/trained_accuracy.rs	2026-10-29 03:50:55.911306279 -0700
+@@ -418,7 +418,8 @@
+     use super::*;
+ 
+     fn fixture(name:&str)->PathBuf {
+-        Path::new(env!("CARGO_MANIFEST_DIR")).join("../../loader-fixtures").join(name)
++        // TOKEN ROUND 16: HL_R13_LOADER_FIXTURES overrides the native tree's sibling dir
++        std::env::var_os("HL_R13_LOADER_FIXTURES").map(std::path::PathBuf::from).unwrap_or_else(|| std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../loader-fixtures")).join(name)
+     }
+ 
+     #[test]

@@ -1,0 +1,155 @@
+Empty search results
+No results were found for the provided queries--------------------------------------------------------------------------------
+StateSync-GKR: Design and Evaluation of aReusable Sparse GKR Engine (https://arxiv.org/html/2610.14849v2)
+citeturn7view0 [wordlim: 200] Crawled: today; Content type: text/html; Source: open({"ref_id":"turn2view0","lineno":388}); Total lines: 508
+L347: At 1,150/s, full batches whose successor was ready have a median tail of 45.50 ms after the last write, of which releasing the batch’s typed witnesses and proofs on the dispatcher thread takes 45.27 ms; at 1,500/s the two values are 44.87 and 44.60 ms. The tail is therefore the release of intermediate data: when one thread frees a whole batch, it takes about 233 to 236 $\mu$s per job with the release 1.1 prover and 221 to 227 $\mu$s with the release 1.2 prover in the same loop.
+L348: In both release 1.2 modes, the worker that computed a job also frees it, for every job, in a median of 22.5 to 23.8 $\mu$s.
+L349: Per-job timers place nearly all remaining service time in proving. At 1,000/s on 192 cores, a job’s median proof stage is 17.8 ms of its 18.7 ms from dispatch to completion, and continuous mode finishes writing a reply a median of 0.05 ms after the job completes. Server pre-compute wait p99 at 1,150/s is 471.7 ms for same-day release 1.1, 62.9 ms in batch-fused mode and 0.03 ms in continuous mode.
+L350: Hashing, logging, scheduling and socket backpressure have not been ablated one by one, so their separate shares remain unknown. A44–A47 add the release 1.2 families on CPU contention, host size, frontend size and the same-day prover contrast.
+L351: Figure 12: Where serving time goes. In the release 1.1 loop, releasing a batch on one thread takes 45.3 ms of the 45.5-ms tail between batches; release 1.2 frees each job on its own worker in about 23 $\mu$s.
+L352: ## 7 What release 1.2 changes for an integrating service
+L353: 【74†Table 6】 collects the release 1.2 changes that an integrating service sees. Proof bytes, the verifier and the acceptance endpoint of the GKR proofs are those of release 1.1, so a service that already accepts release 1.1 GKR proofs needs no change on the verifying side; the RISC Zero integration of release 1.2 has a new program identity, described under Reproducibility.
+L354: Costs convert measured rates at the on-demand hourly price of the worker instance, USD 10.34592 for c8a.48xlarge in the us-east-1 region as checked on 25 October 2026, and assume continuous operation at that rate; they estimate worker compute only and exclude the frontend, storage and network charges.
+L355: Table 6: Product metrics before and after release 1.2. Operation triples are membership/non-membership/update.
+L356: Product metric  | Release 1.1  | Release 1.2  | Condition
+L357: --- | --- | --- | ---
+L358: Highest offered rate with every request within 1 s  | 1,000/s (7 Oct record); 1,150/s same day (one 60-s run), highest rate measured  | 3,300/s on one connection; $\geq$5,000/s on two connections (frontend-limited lower bound)  | one 192-core VM; one connection: three 60-s runs; two connections: 15-s screens
+L359: Same, 48-core VM  | 500/s  | 2,000/s  | same day, one 15-s screen per rate
+L360: Compute cost per million proofs at that rate, worker only  | USD 2.87 at 1,000/s; 2.50 at 1,150/s  | USD 0.87 at 3,300/s  | on-demand price, continuous operation; the same-day release 1.1 value is an upper bound, since its passing rate was not searched further
+L361: p99 at 1,000/s, 192-core VM  | 433.8–475.1 ms (same day)  | 33.7–33.9 ms (continuous)  | three 60-s runs
+L362: Long run at the confirmed rate  | n/a  | 5,940,000 requests in 30 min, all within 1 s, p99 35.3 ms  | 3,300/s, one connection
+L363: Overload at 1.5$\times$ the highest one-connection screen pass  | no admission limit in the library  | worker RSS at most 548,064 KiB sampled (402,948 KiB by GNU time) under a 2,760-MiB limit; return budget full, no server refusal  | 5,100/s, 60 s
+L364: Slow reader  | n/a  | worker RSS at most 505,232 KiB sampled (381,716 KiB by GNU time) while the return budget holds replies  | send limited to 400 Mbit/s; 3,400/s offered
+L365: Worker peak RSS  | 406.1 MiB (7 Oct record); 381.7 MiB same day  | 209.7–223.5 MiB batch-fused; 305.0–307.5 MiB continuous  | 1,150/s, 192-core VM; sampled /proc RSS; GNU time maxima on these hosts are 1.3 to 2.2 times lower and are not used as the peak
+L366: Service parts an integrator writes  | request IDs, queue cap and refusal, framing limits, logs and metrics, asynchronous isolation, witness parallelism, output parallelism  | library modules for request identity and framing limits, admission and refusal, return budgets, per-job completion and stage timing  | serving crate on the public API only
+L367: Misuse checks in release builds  | debug assertions only  | operation-kind mismatch rejected; leaf-hash input width enforced  | all builds
+L368: Allocations per proof  | 1,282  | 85, with process RSS within 0.4%  | instrumented mixed circuit, width 4,096, same day
+L369: Prepared request latency, p50  | 42.10/46.10/65.03 ms (same day)  | 16.95/18.22/24.62 ms  | one thread, depth 24
+L370: Build configuration  | native build recommended; no measured ratio  | default release build 1.66–1.71$\times$ native latency; x86-64-v3 build 0.90$\times$  | one process per build
+L371: Proof format and verifier acceptance  | reference  | unchanged; proof bytes identical  | all builds and modes
+L372: ## 8 Implications and validity
+L373: The nine mechanisms have related but separate payoffs. Sparse reduction gives circuit/job capacity within RAM. Derived wiring lowers prepared verification-call time. Cube/affine fusion and parallel path residuals give a compact schedule. Prepared material removes repeated setup. Independent jobs exploit workers and deployment choices while retaining result identity. Three-state leaves encode application lifecycle. Strict codec/request binding gives a meaningful delivery endpoint.
+L374: The generic core and formal model provide reusable interfaces and an inspectable assurance boundary. Release 1.2 builds service parts on these mechanisms. In the overload and slow-reader runs, worker memory stayed bounded while the return budget was full and producers waited for it; the frontend’s pending limit, equal to the server’s queue cap, also bounded outstanding requests, and no run without a return budget was made, so the budget’s share of the bound is not isolated.
+L375: Misuse checks hold in release builds, and the reorganized prover arithmetic lowers the cost of each proof while its bytes stay fixed. These benefits extend independent jobs, request binding and sparse reduction; they add no new mechanism.
+L376: The strongest memory claim is the same-driver Dense/Sparse ownership contrast, not the global superiority of this engine. The strongest serving claims name an actual host, mix, batch/wait policy, period and budget. Scale-limit results give tested support points and native failure dispositions. The fixed corpus, common host repeats, frequency/background placement, observation overhead and confirmation lengths restrict generalization.
+L377: Retaining full data prevents those limitations from being concealed by a representative median.
+L378: Release 1.2 ran on Amazon Linux 2023 with kernel 6.18, whereas the release 1.1 records used Ubuntu 22.04 with kernel 6.8; same-day release 1.1 runs on the new image separate the software change from the image change, and they reproduced the records within 1.1% for serving computation at 1,000/s and within 0.4% for proving; at 1,150/s same-day release 1.1 met one second, which the 60-second run of the record did not.
+L379: Measurement groups ran in parallel on separate instances, while the earlier campaign ran them in sequence. Network-bound and frontend-bound points describe this measurement topology, and the 15- and 30-minute runs are finite observations.
+L380: Cryptographic acceptance here is an inner-proof endpoint. Persistent database writes, sequential adoption of roots, consensus and settlement are not part of this profile. The companion formal composition and preservation results supply the semantic basis for these implementation choices; the Rust connection remains partial under explicit assumptions [【48†4】].
+L381: Neither differential observations nor successful encoded acceptance discharge the online challenge-distribution or multi-round Fiat–Shamir obligations. Release 1.2 leaves this boundary as it was, because its proof bytes and verifier are those of release 1.1.
+L382: ### 8.1 Application-facing meaning of the nine mechanisms
+L383: 
+L384: Figures 1–2 explain implementation structure; Figures 3–6 quantify selected resource and repeated-work effects. Figures 7–12 evaluate deployment behavior and its limits. These twelve figures therefore support a connected account of nine mechanisms, not nine new discoveries or nine independent causal ablations. 【75†Table 7】 identifies the measurement, control or formal basis of each application benefit; 【49†Table 1】 gives the main numbers.
+L385: Table 7: Implementation mechanisms translated into application decisions. Measured ratios apply to their stated internal references and workloads.
+L386: Mechanism  | Application benefit  | Evidence and condition
+L387: --- | --- | ---
+L388: Sparse reduction  | More room for a circuit or concurrent independent proofs within RAM  | Representation in 【57†Figure 1】; measured internal contrast in 【50†Figure 3】, with requested peak 3,242.41-fold lower in both releases and process RSS 89.46-fold (release 1.1) and 88.87-fold (release 1.2) lower at width 4,096.
+L389: Derived wiring  | Less repeated work to check a prepared circuit’s connections  | Measured same-proof prepared Table/Derived verification call in 【53†Figure 5】(a), 10.80–23.68-fold, unchanged in release 1.2; model equivalence in the companion formal study [【48†4】].
+L390: Cube/affine fusion  | A compact hash-round representation with fewer intermediate layers  | Source structure in 【5†Section 2】; compact schedule in 【51†Figure 6】(a), unchanged in release 1.2. No independent unfused-compiler timing ablation.
+L391: Parallel path constraints  | Deeper trees add modest proof-size growth in the tested range  | Structure and proof-size consequence in 【51†Figure 6】(a): 118 layers across nine profiles; membership bytes grow 2.93%, unchanged in release 1.2. No isolated causal ablation.
+L392: Prepared reuse  | Repeated requests avoid paying identical setup again  | Shared/private boundary in 【58†Figure 2】; direct fresh/prepared contrast in 【52†Figure 4】, 3.46–4.45-fold in release 1.1 and 7.19–10.13-fold in release 1.2.
+L393: Independent jobs  | Use parallel workers or multiple servers while keeping each result attached to its request  | One result per request in 【58†Figure 2】; measured worker/batch-pipeline and deployment contrasts in 【51†Figures 6】, 【53†5】 and 【69†8】; release 1.2 continuous serving returns replies in completion order, matched by job identifier (【12†Sections 2.7】 and 【28†6.5】).
+L394: Three-state leaves  | Distinguish never-used, active and retired ledger entries  | States in 【58†Figure 2】; eight lifecycle/payload/key controls, unchanged in release 1.2. Semantic evidence, not a database transaction benchmark.
+L395: Strict request binding  | Reject a proof for a different record, root or encoding  | Acceptance boundary in 【58†Figure 2】; byte and negative controls in 【13†Section 3】; operation-kind and leaf-width checks enforced in release builds of release 1.2 (【5†Section 2】). No empirical whole-system security claim.
+L396: Reusable core and models  | Adapt the engine to other arithmetic frontends with an inspectable reasoning basis  | Source interfaces in 【5†Section 2】 and formal composition [【48†4】]; the release 1.2 serving crate uses the public prover API only (【12†Section 2.7】). No additional frontend benchmark or complete Rust refinement claim.
+L397: #### Reproducibility.
+L398: Current source and bounded Linux replay are identified by the BSL 1.1 distribution at 【76†https://github.com/Oraclizer/statesync-gkr†github.com】 and the release 1.2.0 software coordinate 【77†doi:10.5281/zenodo.23643505†doi.org】. The replay builds separate callers, tests an isolated memory child, checks honest/tampered proofs and CLI rejection, and performs a small local complete-proof transfer.
+L399: Its source/binary/environment identities are separate from the historical measured binary; REPRODUCING.md separates source-level reproduction from release-asset verification. The serving crate builds with cargo build --release --locked --manifest-path benches/serving/Cargo.toml, and its service-checks.py runs real-TCP functional suites, including byte equality across serving modes; these checks are not capacity evidence. Measurements use native builds (-C target-cpu=native).
+L400: In one process per build, the default release build took 1.66 to 1.71 times the native latency of a prepared request and an x86-64-v3 build 0.90 times; these build comparisons were not repeated. The repository’s capacity reproduction job remains pinned to the release 1.1 measured source, because the archived memory observer accepts only that sparse oracle; the release 1.2 measurement harness, frozen cell plans and raw records are kept in the same companion package (Data availability).
+L401: The v1.1.0 DOI cited in this paper preserves historical provenance with source files now restricted. Replaying a tiny functional test does not reproduce an archived performance rate.
+L402: The RISC Zero [【78†9】] integration of release 1.2 has its own program identity, image ID beginning 1a8b55f4; a proof of that program’s fixed depth-24 membership relation was verified through the zkVerify [【79†16】] RISC0 verifier on the public Volta testnet, in submission block 7,775,413 with its aggregation receipt in block 7,775,436. This proof is not attached to the 1.2.0 release, whose attached proof belongs to the release 1.1 program; its bytes are the call argument of that public submission.
+L403: It adds no measurement to this report. Appendix A displays all 43 detailed scientific figure families with release 1.2 overlays and four new families on uniform A4 portrait pages, in addition to twelve main-text figures. Wide panels are reformatted or divided without dropping values, conditions or not-applicable cells; original exports remain in the archive. The companion archive preserves all observations, detailed tables and figure sources with exact normalization and file contracts.
+L404: The atlas retains process, family, host, workload and observation boundaries; none of the other experimental conditions is deemed meaningless simply because it shares a chart with several conditions.
+L405: #### Data availability.
+L406: 
+L407: The earlier two CPU datasets remain at their public benchmark paths. The release 1.1 raw counterparts and the release 1.2 raw records, kept in the same structure, together with detailed tables, figure sources and replay interfaces, are kept by the authors in a companion package with the same structure; the package has no public deposit or dataset DOI. The first version of this report is arXiv:2610.14849v1.
+L408: #### Assistance and responsibility.
+L409: 
+L410: LLM coding and writing tools assisted benchmark/analysis development and manuscript preparation. Recorded native execution, differential and negative controls, frozen source identities and machine-checking records provide inspectable evidence. The human author retains responsibility for the interpretation and final submitted text; tool assistance is not authorship.
+L411: ## 9 Conclusion
+L412: StateSync-GKR connects a reusable GKR/sumcheck core to an authenticated-state frontend with explicit preparation, independent job and encoded-acceptance boundaries.
+L413: Its nine mechanisms address different application costs: sparse reduction lowers prover ownership; regular wiring reduces repeated verification; fused cube/affine circuits and parallel path constraints keep the schedule and proof growth compact; preparation reuse and indexed jobs lower repeated work and expose CPU parallelism; three-state semantics and original-request binding preserve the meaning of each result; and the separate core/model interfaces support reuse with an inspectable assurance boundary.
+L414: Release 1.2 shows that the serving path and the arithmetic inside the prover’s rounds can change latency and capacity while proof bytes and verifier acceptance stay fixed.
+L415: The controlled evidence gives these mechanisms concrete scope. The largest internal memory contrast is a 3,242-fold requested-allocation and about 89-fold process-RSS reduction at mixed width 4,096, retained in release 1.2. Direct fresh/prepared request measurements show 7.19 to 10.13-fold lower proving-path latency in release 1.2, and 3.46 to 4.45-fold in release 1.1; prepared verification calls and complete local batches with parallel output handling show their own substantial reductions.
+L416: Release 1.2 proves 2.4 to 2.7 times faster than same-day release 1.1 on the same bare-metal workers. On a 192-core VM it keeps p99 at 34 ms at 1,000 offered requests/s, against 440 ms for same-day release 1.1, and meets a one-second budget for every request at 3,300 requests/s on one connection, including a 30-minute run of 5.94 million requests; two connections pass 5,000 requests/s in short screens, where the frontend becomes the bound.
+L417: On 48 cores, in single 15-second screens, the highest rate meeting that budget rises from 500 to 2,000 requests/s. These are measured offered loads under stated budgets, which differ from both a proving-only kernel rate and an indefinitely stable capacity.
+L418: The artifact therefore supplies a memory-efficient and reusable implementation, measured choices for repeated proof work, service components that kept worker memory bounded in the overload runs while the return budget was full, and explicit application acceptance semantics. Full conditions and outcomes preserve the limits of those results.
+L419: The 15- and 30-minute confirmations are finite observations; larger-scale external ranking and the remaining cryptographic and code-correspondence arguments stay outside the established claims.
+L420: ## References
+L421:   * [1] Amazon Web Services. Amazon EC2 instance network bandwidth. Amazon EC2 User Guide, 2026. URL 【80†https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-network-bandwidth.html†docs.aws.amazon.com】. Accessed 26 October 2026; single-flow traffic between instances outside a cluster placement group is limited to 5 Gbps.
+L422:   * [2] Shafi Goldwasser, Yael Tauman Kalai, and Guy N. Rothblum. Delegating computation: Interactive proofs for Muggles. Journal of the ACM, 62(4):27:1–27:64, 2015. doi: 10.1145/2699436.
+L423:   * [3] Lorenzo Grassi, Dmitry Khovratovich, and Markus Schofnegger. Poseidon2: A faster version of the Poseidon hash function. In Progress in Cryptology – AFRICACRYPT 2023, volume 14064 of LNCS, pages 177–203, 2023. doi: 10.1007/978-3-031-37679-5_8.
+L424:   * [4] Jinwook Kim. StateSync-GKR: Machine-checking the trust chain from sparse-Merkle state transitions to GKR verification. arXiv:2610.05335, 2026a. 【81†https://arxiv.org/abs/2610.05335】.
+L425:   * [5] Jinwook Kim. StateSync-GKR. Version 1.2.0, software archive, 2026b. URL 【77†https://doi.org/10.5281/zenodo.23643505†doi.org】. Signed tag v1.2.0, source commit 8b2908160f36adc233d7b869a403d2ee4d3502a5.
+L426:   * [6] Jinwook Kim. StateSync-GKR. Version 1.1.0, software archive, 2026c. URL 【82†https://doi.org/10.5281/zenodo.23136385†doi.org】. Signed source commit 1b8d2f829792172b347dedbfde969016c2c05789.
+L427:   * [7] LambdaClass. lambdaworks. GitHub repository, 2026. URL 【83†https://github.com/lambdaclass/lambdaworks†github.com】. Commit 3a87850dc405e12ab6c4bbaeba68d52815ab1158 tested.
+L428:   * [8] Plonky3 contributors. Plonky3: A toolkit for polynomial IOPs. 【84†https://github.com/Plonky3/Plonky3†github.com】, 2026. The evaluated source uses crates.io dependencies version 0.4.3 and their captured lock/checksums.
+L429:   * [9] RISC Zero. RISC Zero zkVM. GitHub repository, 2026. URL 【85†https://github.com/risc0/risc0†github.com】. Version 3.0.4 used for the release 1.2 integration.
+L430:   * [10] Gil Tene. wrk2: Constant-throughput load and intended-arrival latency measurement. URL 【86†https://github.com/giltene/wrk2†github.com】. Accessed 8 October 2026; methodological comparison, not the load caller used in this study.
+L431:   * [11] Justin Thaler. Time-optimal interactive proofs for circuit evaluation. In Advances in Cryptology – CRYPTO 2013, volume 8043 of LNCS, pages 71–89, 2013. doi: 10.1007/978-3-642-40084-1_5.
+L432:   * [12] Matt Welsh, David Culler, and Eric Brewer. SEDA: An architecture for well-conditioned, scalable internet services. In Proceedings of the 18th ACM Symposium on Operating Systems Principles (SOSP 2001), 2001. doi: 10.1145/502034.502057.
+L433:   * [13] Howard Wu, Wenting Zheng, Alessandro Chiesa, Raluca Ada Popa, and Ion Stoica. DIZK: A distributed zero knowledge proof system. In 27th USENIX Security Symposium, pages 675–692, 2018. URL 【87†https://www.usenix.org/conference/usenixsecurity18/presentation/wu†www.usenix.org】.
+L434:   * [14] Tiancheng Xie, Jiaheng Zhang, Yupeng Zhang, Charalampos Papamanthou, and Dawn Song. Libra: Succinct zero-knowledge proofs with optimal prover computation. In Advances in Cryptology – CRYPTO 2019, volume 11694 of LNCS, pages 733–764, 2019. doi: 10.1007/978-3-030-26954-8_24.
+L435:   * [15] Gyeong-In Yu, Joo Seong Jeong, Geon-Woo Kim, Soojeong Kim, and Byung-Gon Chun. Orca: A distributed serving system for Transformer-based generative models. In 16th USENIX Symposium on Operating Systems Design and Implementation (OSDI 22), pages 521–538, 2022. URL 【88†https://www.usenix.org/conference/osdi22/presentation/yu†www.usenix.org】.
+L436:   * [16] zkVerify. zkVerify documentation. Project documentation, 2026. URL 【89†https://docs.zkverify.io†docs.zkverify.io】. Volta public testnet.
+L437: ## Appendix A Complete detailed evidence atlas
+L438: The main figures connect implementation mechanisms to the most informative contrasts. This appendix retains all 43 detailed families of the release 1.1 report and all original conditions, overlays release 1.2 on the same axes, and adds four families. Release 1.1 series keep their original values. Panels whose measured code path release 1.2 did not change carry the note “Unchanged in v1.2” with its basis; they are the twelve Dense-only memory panels of A01–A03 and the proof-size panel of A36.
+L439: Continuous runs form no batches, so A12, A25, A28 and A36 add per-job panels for them. Four zero-refusal time-series panels in A31 are replaced by exact condition-specific statements, and release 1.2 also had no refusal in those conditions; the original graphs and CSV remain archived.
+L440: Each family is an independently addressable figure set: A01–A06 cover generic memory; A07–A10 cover memory guards and scale; A11–A16 cover arrivals and the longer baseline; A17–A25 cover equal-resource deployments; A26–A34 cover fine transitions; A35–A43 cover actual-machine scaling and confirmations; A44–A47 cover CPU contention, host size, frontend size and the same-day prover contrast.
+L441: All pages use A4 portrait paper with continuous manuscript page numbers. Many-panel figures continue across pages so their labels remain readable. Common headings, legends and original notes are repeated. Four wide families have their affected panels redrawn or divided at tick boundaries from the same frozen aggregate values; the original PDF/SVG and raw observations remain unchanged in the archive. The routing matrix retains both numeric and not-applicable cells.
+L442: Release 1.2 measurements are overlaid on the same axes with release 1.1 series unchanged; where a heat map, density or screening surface cannot hold two series (A20, A37, A42), release 1.2 occupies an adjacent panel with the same axes. No smoothed observations or omitted unsuccessful outcomes are introduced. The four A31 replacements concern explicit server refusals only; they do not assert that latency-budget misses or every failure type were zero.
+L443: Input-stop markers are derived from actual recorded events in the role’s own clock. A falling queue after input ends means that pending requests are being completed. It is not evidence of a crash. Different-duration or unsynchronized-clock cohorts remain separate. Release 1.2 runs used Amazon Linux 2023 with kernel 6.18 and the release 1.1 records Ubuntu 22.04 with kernel 6.8, on the same instance types; same-day release 1.1 anchors appear where measured.
+L444: Table 8: Detailed family index and first-page links. Each family may span several A4 pages.
+L445: Family  | Study  | Figure topic  | Pages
+L446: --- | --- | --- | ---
+L447: A01  | Memory  | actual RSS time series  |
+L448: A02  | Memory  | capacity retention by stage  |
+L449: A03  | Memory  | empirical time distributions  |
+L450: A04  | Memory  | memory growth all points  |
+L451: A05  | Memory  | telemetry coverage and cadence  |
+L452: A06  | Memory  | time and paired ratios  |
+L453: A07  | Limits  | independent job memory and time  |
+L454: A08  | Limits  | independent job observations  |
+L455: A09  | Limits  | limit policy disposition  |
+L456: A10  | Limits  | physical cap success observations  |
+L457: A11  | Arrival  | actual 20-ms zoom and cadence  |
+L458: A12  | Arrival  | FIFO batches, continuous job stages and stage distributions  |
+L459: A13  | Arrival  | latency budget success surface  |
+L460: A14  | Arrival  | screen latency CDF and quantiles  |
+L461: A15  | Arrival  | screen output and backlog  |
+L462: A16  | Arrival  | stability full 15-minute envelope  |
+L463: A17  | Horizontal  | backlog output 1,000  |
+L464: A18  | Horizontal  | backlog output 500  |
+L465: A19  | Horizontal  | CPU memory traces  |
+L466: A20  | Horizontal  | endpoint routing counts  |
+L467: A21  | Horizontal  | latency distributions  |
+L468: A22  | Horizontal  | process operating points  |
+L469: A23  | Horizontal  | request latency 1,000  |
+L470: A24  | Horizontal  | resources cost network  |
+L471: A25  | Horizontal  | service phases 1,000, continuous job-stage union  |
+L472: A26  | Fine  | accepted latency CDFs  |
+L473: A27  | Fine  | accepted tail timelines  |
+L474: A28  | Fine  | batch queue resource points, jobs computing at once  |
+L475: A29  | Fine  | condition deadline heatmaps  |
+L476: A30  | Fine  | CPU time galleries  |
+L477: A31  | Fine  | refusal backlog output  |
+L478: A32  | Fine  | RSS time galleries  |
+L479: A33  | Fine  | wait operation effects  |
+L480: A34  | Fine  | worker batch rate transitions  |
+L481: A35  | Hardware  | accepted latency distributions  |
+L482: A36  | Hardware  | batch, job and service phases  |
+L483: A37  | Hardware  | confirmation request density  |
+L484: A38  | Hardware  | CPU and RSS traces  |
+L485: A39  | Hardware  | hardware scaling  |
+L486: A40  | Hardware  | memory price and transport  |
+L487: A41  | Hardware  | overload and drain, memory and send limits  |
+L488: A42  | Hardware  | screening surfaces  |
+L489: A43  | Hardware  | selection and confirmation  |
+L490: A44  | CPU  | 192-thread contention, clock and placement  |
+L491: A45  | Hardware  | host-size ceilings at 48, 96 and 192 cores  |
+L492: A46  | Hardware  | frontend size alone  |
+L493: A47  | Memory  | same-day release 1.1 and 1.2 provers  |
+--------------------------------------------------------------------------------
+Internal Error ()
+citeturn7view1 [wordlim: 200] Source: click({"ref_id":"turn6view2","id":70}); 
+Failed to fetch https://github.com/LayerZero-Labs/akita/commit/4a6897c9b5156e98370d8a7e15cffc2ce4f9765e: Cache miss

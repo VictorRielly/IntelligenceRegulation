@@ -1,0 +1,9 @@
+R14-public-synthetic-stream-fixture/1
+dd=1
+stages=2
+context=6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b6b
+model_identity=2771835e24824e8dc99899264655cc60870bf2b70775182538b3190ad47b6b07
+input_root=12b5fa36bffad7f23891574997a1003900833dda89f77f2266eef770ee0729fd
+output_root=a815e84cfd2b601223c23dfc56ebe65f3f6d660e563b5ec57c70dc0528113840
+binding=49f21d6efc6b9631114ba6df6bedddc365c3390d0bf9e9a9d0de5a0c4206237a
+scope=public synthetic native test waiver, no trained-model or privacy acceptance

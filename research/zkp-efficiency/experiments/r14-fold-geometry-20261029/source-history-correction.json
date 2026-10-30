@@ -1,0 +1,7 @@
+{
+  "recorded_at_utc": "2026-10-30T00:10:38.964008+00:00",
+  "issue": "Power circuits incorrectly marked newly assessed; exact URL scan found cycles0069/0141.",
+  "resolution": "Corrected current-cycle record4; added first Sisu assessment as record5. Initial draft artifacts retained; earlier1022source records and all priorFINDINGS bytes unchanged.",
+  "prior_sources_prefix_sha256": "4f3099ccd8ef053fd0c7005721b6f35a5dbec43f27eacbac21b6c36f316d61ef",
+  "prior_findings_prefix_sha256": "6966f4126ee813e5c6227198d2ffa26d6c012b207225967ecbdfd6d0415aa3f5"
+}

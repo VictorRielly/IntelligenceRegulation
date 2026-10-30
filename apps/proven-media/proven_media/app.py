@@ -22,16 +22,18 @@ from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import FileResponse, JSONResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 
-from . import config, items, manifest, prompting, provers, records
+from . import auth, config, items, manifest, prompting, provers, records
 from .jobs import PER_JOB_S, Worker, chunks_of, item_progress, queue_view
 from .publisher import AnchorRef, LocalChainPublisher, PublishError, content_commitment, make_publisher
 from .store import Store, loads
+from .storage_policy import validate_storage
 
 log = logging.getLogger("proven_media")
 HANDLE_RE = re.compile(r"^@?[A-Za-z0-9_]{1,24}$")
 
 
 class State:
+    auth: auth.AuthorAuth
     store: Store
     prover: provers.ClassifierProver
     publisher: LocalChainPublisher
@@ -42,10 +44,13 @@ S = State()
 
 
 def init_state(start_worker: bool = True) -> None:
+    validate_storage()         # fail before creating a database, key, or worker
     records.categories()      # refuses to start if a registered category policy text changed (design rule 2)
-    manifest.public_key_hex()  # creates the local dev signing key (0600) on first start
     provers.ensure_private_roots()
+    manifest.public_key_hex()  # creates the local dev signing key (0600) on first start
+    S.auth = auth.AuthorAuth(config.PRIVATE_DIR / "auth.sqlite3")
     S.store = Store(config.DB_PATH)
+    validate_storage(S.store)  # do not revive saved jobs pointing into /tmp
     S.prover = provers.make_prover()
     S.publisher = make_publisher()
     w = Worker(S.store, S.prover, S.publisher)
@@ -67,6 +72,87 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Proven Media", lifespan=lifespan)
 app.mount("/static", StaticFiles(directory=str(config.STATIC_DIR)), name="static")
+
+
+@app.middleware("http")
+async def private_cache_policy(request: Request, call_next):
+    response = await call_next(request)
+    if request.url.path.startswith("/api/"):
+        response.headers["Cache-Control"] = "no-store"
+        response.headers["Vary"] = "Cookie"
+    return response
+
+
+def same_origin(req: Request):
+    origin = req.headers.get("origin")
+    if origin and origin.rstrip("/") != str(req.base_url).rstrip("/"):
+        raise HTTPException(403, "request origin refused")
+
+
+def current_session(req: Request) -> auth.Session | None:
+    return S.auth.session(req.cookies.get(auth.COOKIE))
+
+
+def require_session(req: Request, *, operator: bool = False) -> auth.Session:
+    session = current_session(req)
+    if session is None:
+        raise HTTPException(401, "sign in to continue")
+    if operator and not session.operator:
+        raise HTTPException(403, "operator access required")
+    if req.method not in ("GET", "HEAD", "OPTIONS"):
+        same_origin(req)
+        if not secrets.compare_digest(req.headers.get("x-pm-csrf", ""), session.csrf):
+            raise HTTPException(403, "request token refused")
+    return session
+
+
+def owns_post(req: Request, p: dict) -> bool:
+    session = current_session(req)
+    return session is not None and session.author == p["author"]
+
+
+@app.get("/api/session")
+def api_session(req: Request):
+    session = current_session(req)
+    return session.public() if session else {"author": None, "operator": False}
+
+
+@app.post("/api/session")
+async def api_login(req: Request):
+    same_origin(req)
+    if req.headers.get("content-type", "").split(";", 1)[0].strip().lower() != "application/json":
+        raise HTTPException(415, "JSON required")
+    # Bound the unauthenticated request before parsing or hashing credentials.
+    raw = bytearray()
+    async for chunk in req.stream():
+        raw.extend(chunk)
+        if len(raw) > 1024:
+            raise HTTPException(413, "request too large")
+    try:
+        body = json.loads(raw)
+    except (ValueError, UnicodeError):
+        raise HTTPException(400, "invalid request") from None
+    result = S.auth.login(body.get("access_key")) if isinstance(body, dict) else None
+    if result is None:
+        raise HTTPException(401, "invalid access key")
+    old = req.cookies.get(auth.COOKIE)
+    if old:
+        S.auth.logout(old)
+    token, session = result
+    response = JSONResponse(session.public())
+    response.set_cookie(auth.COOKIE, token, max_age=auth.SESSION_SECONDS, httponly=True,
+                        secure=req.url.scheme == "https", samesite="strict", path="/")
+    return response
+
+
+@app.delete("/api/session")
+def api_logout(req: Request):
+    require_session(req)
+    S.auth.logout(req.cookies[auth.COOKIE])
+    response = JSONResponse({"signed_out": True})
+    response.delete_cookie(auth.COOKIE, path="/", httponly=True,
+                           secure=req.url.scheme == "https", samesite="strict")
+    return response
 
 
 # ---------------------------------------------------------------- views
@@ -110,15 +196,15 @@ def chunks_view(p: dict) -> list[dict]:
     out = []
     for ch in plan:
         j, r = jobs.get(ch["index"]), rows.get(ch["index"])
-        st = {"index": ch["index"], "start": ch["start"], "end": ch["end"], "tokens": ch["end"] - ch["start"]}
+        st = {**ch, "tokens": ch["end"] - ch["start"]}
         if r:
             rec = loads(r["record"])
             st["status"] = "done" if r["status"] == "done" else "failed"
             st["labels"] = records.effective_labels(rec if r["status"] == "done" else None)
-            st["error"] = r["error"]
+            if 'category' in ch:
+                st['labels'] = {ch['category']: st['labels'][ch['category']]}
             if rec:
                 st["statement_sha256"] = rec.get("statement_sha256")
-                st["proved_at"] = rec.get("proved_at")
         elif j and j["status"] == "running":
             ps = S.prover.poll(Path(j["job_dir"])) if j["job_dir"] else {}
             st.update(status="running", step=ps.get("step"), step_label=provers.STEP_LABELS.get(ps.get("step"), ps.get("step")),
@@ -134,7 +220,7 @@ def labels_view(p: dict) -> dict:
     eff = loads(p["labels"]) or records.effective_labels(None)
     rec = loads(p["record"]) or {}
     out = []
-    for c in config.CATEGORIES:
+    for c in config.registered_categories():
         lab = (rec.get("labels") or {}).get(c["id"], {})
         out.append({"category": c["id"], "name": c["name"], "short": c["short"], "value": eff.get(c["id"], records.UNPROVED),
                     "proof": lab.get("proof", "none") if eff.get(c["id"]) != records.UNPROVED else "none",
@@ -145,6 +231,16 @@ def labels_view(p: dict) -> dict:
 def post_view(p: dict, show_text: bool, audience: dict | None = None) -> dict:
     """one item as served: its labels and signed manifest travel with it; an item hidden for the viewer's
     audience is served as a placeholder with the reason, never with its content"""
+    if p["status"] != "published":
+        # Only authenticated owners may reach this view. Never expose intermediate
+        # proof outcomes, failure diagnostics, attempt counts or timings here.
+        if p["status"] == "failed":
+            return {"id": p["id"], "status": "failed", "status_message": "Could not be verified."}
+        status = "pending" if p["status"] in ("queued", "screening") else p["status"]
+        return {"id": p["id"], "status": status, "author": p["author"], "kind": p["kind"],
+                "text": p["text"] if show_text and p["kind"] == "text" else None,
+                **({"media": loads(p["media_meta"]) or {}} if p["kind"] == "image" else {}),
+                "status_message": "Verification pending." if status == "pending" else None}
     meta = loads(p["media_meta"]) or {}
     v = {k: p[k] for k in ("id", "created_at", "author", "kind", "status", "status_message",
                            "prover_kind", "published_at")}
@@ -168,7 +264,8 @@ def post_view(p: dict, show_text: bool, audience: dict | None = None) -> dict:
     if p["status"] in ("queued", "screening"):
         v["job"] = _job_state(p["id"])
     v["chunks"] = chunks_view(p)
-    v["retry_allowed"] = p["status"] == "published" and not p.get("prove_attempted") and \
+    v["retry_allowed"] = p["status"] == "failed" and p.get("prove_attempted") == 0 and \
+        p.get('screening_context') == records.screening_context() and \
         all(c.get("status") == "failed" for c in v["chunks"])
     return v
 
@@ -178,7 +275,13 @@ def public_record(p: dict) -> dict | None:
     rec = loads(p["record"])
     if not rec:
         return None
-    rec = dict(rec)
+    def without_operational_fields(value):
+        if isinstance(value, dict):
+            return {k: without_operational_fields(v) for k, v in value.items() if k not in ("timings", "proved_at")}
+        if isinstance(value, list):
+            return [without_operational_fields(v) for v in value]
+        return value
+    rec = without_operational_fields(rec)
     first = next((c["record"] for c in rec.get("chunks", []) if c.get("record")), None)
     rec["verify_with"] = provers.verify_instructions(first or rec)
     return rec
@@ -196,8 +299,8 @@ def api_config():
     pub = manifest.public_key_hex()
     return {"prover": S.prover.describe(), "prover_mode": config.prover_mode(),
             "classifier": {"name": config.CLASSIFIER_NAME, "source": config.CLASSIFIER_SOURCE,
-                           "status": "classifier prover in development (other lanes); the app runs the stub"},
-            "categories": records.categories(), "category_set": {"id": config.CATEGORY_SET_ID,
+                           "status": S.prover.describe().get('privacy_status', 'classifier prover in development; the app runs the stub')},
+            "categories": records.categories(), "category_set": {"id": config.category_set_id(),
                                                                  "digest": records.category_set_digest()},
             "audiences": {k: {"name": a["name"], "restricted": a["restricted"], "custom": a.get("custom", False)}
                           for k, a in config.AUDIENCES.items()},
@@ -207,12 +310,12 @@ def api_config():
             "publisher": {"name": S.publisher.name, "description": S.publisher.description,
                           "key_id": manifest.key_id(pub), "public_key": pub},
             "deploy": config.deploy(),
-            "limits": {"max_content_tokens": config.deploy()["max_content_tokens"], "T": config.STUB_T,
+            "limits": {"max_content_tokens": config.deploy()["max_content_tokens"], "T": 128 if config.prover_mode() == "shieldstral" else config.STUB_T,
                        "stub_chunk_max": config.STUB_MAX_CONTENT_TOKENS, "max_image_bytes": config.MAX_IMAGE_BYTES},
             "expected": {"stub_work_s": "about 150 s of work on a quiet laptop (prepare ~15 s, prove ~85 s, "
                                         "verify + open + bind ~45 s), plus any wait for the shared machine",
-                         "shieldstral_est_s": "an estimated 3-5 min per category proof of a 64-token post on the laptop "
-                                              "[EST, survey], so about 3 x that per item"}}
+                         "shieldstral_est_s": "about 7.5 min proving plus preparation and three checks per category; "
+                                              "about 700 s total work per category, plus shared-machine wait"}}
 
 
 @app.get("/api/publisher-key")
@@ -223,29 +326,36 @@ def api_publisher_key():
 
 @app.post("/api/tokenize")
 async def api_tokenize(req: Request):
+    require_session(req)
+    from . import proof_plans
     body = await req.json()
     text = str(body.get("text", ""))[:4000]
-    n = prompting.content_length(S.prover.kind, text)
     d = config.deploy()
+    n = 0
     try:
-        plan = prompting.plan_for(S.prover.kind, text) if n else []
+        n = S.prover.content_length(text)
+        plan = S.prover.plan_text(text) if n else []
         fits = bool(plan)
-    except prompting.ContentRefused:
+    except (prompting.ContentRefused, provers.ProverError):
         plan, fits = [], False
-    return {"count": n, "max": d["max_content_tokens"], "fits": fits, "chunks": len(plan),
-            "chunk_tokens": d["effective_chunk_tokens"], "overlap_tokens": d["effective_overlap_tokens"],
-            "proofs": len(plan) * len(config.CATEGORIES), "profile": d["profile"]}
+    per_category = proof_plans.is_category_plan(plan)
+    return {"count": n, "max": None if per_category else d["max_content_tokens"], "fits": fits, "chunks": len(plan),
+            "chunk_tokens": None if per_category else d["effective_chunk_tokens"],
+            "overlap_tokens": None if per_category else d["effective_overlap_tokens"],
+            "proofs": proof_plans.proof_count(plan), "profile": 'per-category' if per_category else d["profile"],
+            "category_chunks": {c: sum(c in proof_plans.categories_for(ch) for ch in plan) for c in records.category_ids()}}
 
 
 @app.get("/api/status")
-def api_status():
+def api_status(req: Request):
     """the admin / status page: deployment profile (chunking), prover limits, queue, machine, ledger"""
+    require_session(req, operator=True)
     counts = {r["status"]: r["n"] for r in S.store.q("SELECT status, COUNT(*) AS n FROM posts GROUP BY status")}
     blocks = S.publisher.blocks_list()
     return {"deploy": config.deploy(), "prover": S.prover.describe(), "queue": queue_view(S.store, S.prover),
             "posts": counts, "ledger": {"blocks": len(blocks), "pending_leaves": len(S.publisher.pending_list()),
                                         "batch_secs": S.publisher.batch_secs},
-            "categories": [{"id": c["id"], "name": c["name"], "policy_id": c["policy_id"]} for c in config.CATEGORIES],
+            "categories": [{"id": c["id"], "name": c["name"], "policy_id": c["policy_id"]} for c in config.registered_categories()],
             "hold": config.HOLD_FILE.exists(), "server_time": records.now_iso()}
 
 
@@ -262,11 +372,14 @@ def _sniff(head: bytes) -> str | None:
 
 
 @app.post("/api/posts")
-async def api_create_post(author: str = Form(...), kind: str = Form("text"), text: str = Form(""),
+async def api_create_post(req: Request, author: str = Form(...), kind: str = Form("text"), text: str = Form(""),
                           file: UploadFile | None = File(None)):
+    from . import proof_plans
     if not HANDLE_RE.match(author.strip()):
         raise HTTPException(400, "a handle is 1-24 letters, digits or _")
     author = "@" + author.strip().lstrip("@")
+    if require_session(req).author != author:
+        raise HTTPException(403, "author does not match the signed-in account")
     pid = secrets.token_hex(16)        # 128-bit random post id (report §7: never a user id)
     if kind == "text":
         text = text.strip()
@@ -275,29 +388,20 @@ async def api_create_post(author: str = Form(...), kind: str = Form("text"), tex
         if len(text) > 1000:
             raise HTTPException(400, "the post is too long")
         try:
-            plan = prompting.plan_for(S.prover.kind, text)       # D41: chunks under the active deployment profile
-            for ch in plan:                                       # the same encoding the prover will use
-                prompting.build_prompt(S.prover.kind, text, start=ch["start"], end=ch["end"])
-        except prompting.ContentRefused as e:
+            plan = S.prover.plan_text(text)       # same pinned encoding and category geometry as the proof
+            proof_plans.check_plan(plan, plan)
+        except (prompting.ContentRefused, provers.ProverError) as e:
             raise HTTPException(400, str(e)[:1].upper() + str(e)[1:] + ".")
-        # design rule 2: the same item is screened ONCE under the registered policy and threshold;
-        # a second proof of the same content would only give an attacker more queries. A post whose
-        # screening could not be verified (no accepted proof, no bit disclosed) may be retried.
+        # D45: the private item reservation is independent of policy/threshold.
         key = records.content_key(text)
-        # D37: each item is proved ONCE, at creation. A repeat is refused unless nothing ever ran on the
-        # earlier submission (it failed while waiting for the shared machine).
-        prev = S.store.one("SELECT id, status FROM posts WHERE content_key=? AND NOT (record IS NULL AND status='published' "
-                           "AND COALESCE(prove_attempted,0)=0) AND status!='deleted' ORDER BY created_at LIMIT 1", (key,))
-        if prev:
-            raise HTTPException(409, f"This exact content was already submitted under {config.CATEGORY_SET_ID} "
-                                     f"(post {prev['id']}, {prev['status']}). Each item is proved once, at creation; "
-                                     f"it is not proved again.")
-        S.store.add_post(id=pid, author=author, kind="text", text=text, status="queued",
-                         prover_kind=S.prover.kind, content_key=key, salt_enc=records.new_salt_enc(pid),
-                         chunks=json.dumps(plan))
-        for ch in plan:
-            S.store.add_job(pid, "prove", ch["index"])
-        return {"post_id": pid, "status": "queued", "chunks": len(plan), "proofs": len(plan) * len(config.CATEGORIES)}
+        from .store import ScreeningConflict
+        try:
+            S.store.add_screened_post(text, plan, id=pid, author=author, kind="text", text=text, status="queued",
+                                     prover_kind=S.prover.kind, content_key=key, salt_enc=records.new_salt_enc(pid),
+                                     chunks=json.dumps(plan))
+        except ScreeningConflict as exc:
+            raise HTTPException(409, str(exc)) from None
+        return {"post_id": pid, "status": "queued", "chunks": len(plan), "proofs": proof_plans.proof_count(plan)}
     if kind != "image" or file is None:
         raise HTTPException(400, "a post is a text or one image (video and audio are deferred)")
     raw = bytearray()
@@ -341,9 +445,16 @@ async def api_create_post(author: str = Form(...), kind: str = Form("text"), tex
     ms = provers.media_status(it)
     meta = {"width": w, "height": h, "upload_mime": mime, "upload_bytes": upload_bytes, "spec": items.IMAGE_SPEC_ID,
             "canvas_px": items.CANVAS_PX, "tensor_bytes": len(tensor), "salted_commitment": commit, **ms}
-    S.store.add_post(id=pid, author=author, kind="image", media_name=f"{pid}.png", media_sha256=sha, media_mime="image/png",
-                     salt_enc=salt_enc, content_key=key, media_bytes=len(master), media_meta=json.dumps(meta),
-                     status="in-development", status_message=ms["message"], prover_kind=S.prover.kind)
+    from .store import ScreeningConflict
+    try:
+        S.store.add_screened_post(items.IMAGE_SPEC_ID + ':' + tsha,
+                         id=pid, author=author, kind="image", media_name=f"{pid}.png", media_sha256=sha, media_mime="image/png",
+                         salt_enc=salt_enc, content_key=key, media_bytes=len(master), media_meta=json.dumps(meta),
+                         status="in-development", status_message=ms["message"], prover_kind=S.prover.kind)
+    except ScreeningConflict as exc:
+        (config.MEDIA_DIR / f'{pid}.png').unlink()
+        (config.MEDIA_DIR / f'{pid}-canvas.png').unlink()
+        raise HTTPException(409, str(exc)) from None
     return {"post_id": pid, "status": "in-development", "message": ms["message"]}
 
 
@@ -357,18 +468,24 @@ def api_feed(audience: str = "adult", hide: str = ""):
 
 
 @app.get("/api/submissions")
-def api_submissions(author: str):
-    a = "@" + author.strip().lstrip("@")
+def api_submissions(req: Request, author: str = ""):
+    a = require_session(req).author
+    if author and ("@" + author.strip().lstrip("@")) != a:
+        raise HTTPException(403, "author does not match the signed-in account")
     rows = S.store.q("SELECT * FROM posts WHERE author=? ORDER BY created_at DESC LIMIT 50", (a,))
     return {"posts": [post_view(p, show_text=True) for p in rows]}
 
 
 @app.get("/api/posts/{pid}")
-def api_post(pid: str, author: str = "", audience: str = "adult", hide: str = ""):
+def api_post(pid: str, req: Request, audience: str = "adult", hide: str = ""):
     p = S.store.post(pid)
     if not p:
         raise HTTPException(404, "no such post")
-    is_author = bool(author) and ("@" + author.strip().lstrip("@")) == p["author"]
+    is_author = owns_post(req, p)
+    if p["status"] != "published":
+        if not is_author:
+            raise HTTPException(404, "no such post")
+        return post_view(p, show_text=True)
     show = p["status"] == "published" or is_author
     aud = None if is_author else records.audience_of(audience, hide)
     v = post_view(p, show_text=show, audience=aud)
@@ -423,12 +540,12 @@ def api_verify_publication(pid: str):
 
 
 @app.get("/api/posts/{pid}/manifest.json")
-def api_manifest(pid: str, author: str = "", audience: str = "adult", hide: str = ""):
+def api_manifest(pid: str, req: Request, audience: str = "adult", hide: str = ""):
     """the signed ProofManifest attached to the item (zk60.manifest/1)"""
     p = S.store.post(pid)
-    if not p or not p["manifest"]:
+    if not p or p["status"] != "published" or not p["manifest"]:
         raise HTTPException(404, "no manifest (labels not complete)")
-    is_author = bool(author) and ("@" + author.strip().lstrip("@")) == p["author"]
+    is_author = owns_post(req, p)
     if not is_author:
         ok, _ = records.visibility(loads(p["labels"]) or {}, records.audience_of(audience, hide))
         if not ok:
@@ -442,20 +559,19 @@ def api_verify_manifest(pid: str):
     """signature (against the publisher's key), then each entry's anchor and Merkle path in the local
     ledger; the proofs themselves are re-run by "Re-verify now" (or tools/verify_manifest.py --run-verifier)"""
     p = S.store.post(pid)
-    if not p or not p["manifest"]:
+    if not p or p["status"] != "published" or not p["manifest"]:
         raise HTTPException(404, "no manifest")
     return manifest.verify_manifest(loads(p["manifest"]), S.publisher, expected_public_key=manifest.public_key_hex())
 
 
 @app.delete("/api/posts/{pid}")
-def api_delete(pid: str, author: str):
-    """the author deletes a post: content and salt are erased (crypto-shredding: the anchored leaf and
-    the public commitment stay, now unlinkable), receipt segments and private job files are deleted"""
+def api_delete(pid: str, req: Request):
+    """Erase content, salt, receipts and openings. The private D45 reservation
+    remains to refuse another screening; it is not an opening of the commitment."""
+    session = require_session(req)
     p = S.store.post(pid)
-    if not p:
+    if not p or session.author != p["author"]:
         raise HTTPException(404, "no such post")
-    if ("@" + author.strip().lstrip("@")) != p["author"]:
-        raise HTTPException(403, "only the author can delete a post (demo: matched by handle)")
     if p["status"] in ("queued", "screening"):
         raise HTTPException(409, "the post is being screened; delete it when the screening has finished")
     removed = 0
@@ -484,15 +600,18 @@ def api_delete(pid: str, author: str):
         for t in (config.MEDIA_DIR / "thumbs").glob(f"{pid}-*"):
             t.unlink()
     S.store.update_post(pid, status="deleted", text=None, salt_enc=None, content_key=None, media_name=None,
-                        status_message="Deleted by the author: content and salt erased; receipt deleted; the anchored "
-                                       "leaf stays and is now unlinkable.")
-    return {"deleted": True, "receipt_files_removed": removed}
+                        status_message="Deleted by the author: content, salt and receipt erased. The anchored leaf "
+                                       "remains; a private reservation prevents screening the item again.")
+    return {"deleted": True}
 
 
 @app.post("/api/posts/{pid}/verify")
-def api_verify(pid: str):
+def api_verify(pid: str, req: Request):
     """re-verify every chunk's stored proof in a fresh process (one guarded job per chunk); never re-proves"""
+    session = require_session(req)
     p = S.store.post(pid)
+    if not p or (session.author != p["author"] and not session.operator):
+        raise HTTPException(404, "no such post")
     rows = S.store.q("SELECT chunk FROM chunk_proofs WHERE post_id=? AND status='done' ORDER BY chunk", (pid,)) if p else []
     if not p or p["status"] != "published" or not rows:
         raise HTTPException(400, "only a published item with accepted proofs can be re-checked")
@@ -528,14 +647,32 @@ def api_bundle(pid: str):
         raise HTTPException(404, "no published proof bundle")
     root = f"proven-media-{pid}"
     vw = rec["verify_with"]
-    readme = (f"# Proven Media proof bundle {pid}\n\n"
-              f"DEMO STUB: a next-token proof of {config.STUB_MODEL_NAME}, not yet a {config.CLASSIFIER_NAME} classifier proof.\n"
-              f"The category labels in record.json are NOT bound by this proof (placeholder); one stub run stands in "
-              f"for the three category proofs.\n\n"
-              f"One proof run per chunk (D41), under chunk-<i>/run/. Verify each (exit 0 = valid):\n\n    {vw.get('command')}\n\n"
-              f"with <unpacked-bundle-dir> = {root}/chunk-<i>, the binary {vw.get('binary')},\n"
-              f"and the public model files: {vw.get('public_model_files')}.\n"
-              f"The owners' openings (decommitments) are private and not in this bundle (D21).\n").encode()
+    if any(crec.get('prover', {}).get('kind') == 'shieldstral' for _, _, crec in chunk_runs):
+        instructions = []
+        for ci, _, crec in chunk_runs:
+            check = provers.verify_instructions(crec)
+            command = check['command'].replace('<run>', f'{root}/chunk-{ci}/run')
+            category = crec['chunk']['category']
+            instructions.append(f"Chunk {ci}, category {category}:\n\n    {command}\n")
+        readme = (f"# Proven Media proof bundle {pid}\n\n"
+                  "Shieldstral-1.0-3B text classifier proofs for the three registered moderate policies.\n"
+                  "The category verdicts are bound by their proofs. Privacy statement pending.\n\n"
+                  f"Use {vw.get('binary')} and {vw.get('public_model_files')}.\n"
+                  "Replace <public-export> with the public export directory. Verify every chunk with its own policy.\n"
+                  "Each command must exit 0 with a classified event matching that chunk's recorded verdict.\n\n"
+                  + '\n'.join(instructions)
+                  + "\nThese commands check individual proofs. The whole-post category label also requires complete "
+                    "chunk coverage and the native label --expect-total check used by the app.\n"
+                  "Owners' openings and input activations are private and are not in this bundle.\n").encode()
+    else:
+        readme = (f"# Proven Media proof bundle {pid}\n\n"
+                  f"DEMO STUB: a next-token proof of {config.STUB_MODEL_NAME}, not yet a {config.CLASSIFIER_NAME} classifier proof.\n"
+                  f"The category labels in record.json are NOT bound by this proof (placeholder); one stub run stands in "
+                  f"for the three category proofs.\n\n"
+                  f"One proof run per chunk (D41), under chunk-<i>/run/. Verify each (exit 0 = valid):\n\n    {vw.get('command')}\n\n"
+                  f"with <unpacked-bundle-dir> = {root}/chunk-<i>, the binary {vw.get('binary')},\n"
+                  f"and the public model files: {vw.get('public_model_files')}.\n"
+                  f"The owners' openings (decommitments) are private and not in this bundle (D21).\n").encode()
     members: list[tuple[str, object, int]] = [
         (f"{root}/VERIFY.md", readme, len(readme)),
         (f"{root}/record.json", (b := json.dumps(rec, indent=1, sort_keys=True).encode()), len(b)),
@@ -554,6 +691,8 @@ def api_bundle(pid: str):
             members.append((f"{root}/chunk-{ci}/run/{seg['file']}", f, f.stat().st_size))
         for rel in ("statement/statement.json", "statement/segments.json"):
             f = run / rel
+            if rel == "statement/segments.json" and not f.exists():
+                continue  # Classifier receipts keep their inventory in the app record.
             members.append((f"{root}/chunk-{ci}/run/{rel}", f, f.stat().st_size))
     mtime = int(time.time())
     total = sum(512 + -(-n // 512) * 512 for _, _, n in members) + 1024
@@ -577,7 +716,8 @@ def api_bundle(pid: str):
 
 
 @app.get("/api/queue")
-def api_queue():
+def api_queue(req: Request):
+    require_session(req, operator=True)
     return queue_view(S.store, S.prover)
 
 
@@ -590,17 +730,16 @@ def api_ledger():
 
 
 @app.post("/api/ledger/close-batch")
-def api_close_batch():
+def api_close_batch(req: Request):
     """presenter convenience: close the pending batch now instead of waiting for the 10-minute timer"""
+    require_session(req, operator=True)
     return {"batch_id": S.publisher.tick(force=True)}
 
 
 @app.get("/api/posts/{pid}/canvas.png")
-def api_canvas(pid: str, author: str = ""):
+def api_canvas(pid: str, req: Request):
     """the exact canonical canvas the classifier will see: shown to the AUTHOR only while unscreened"""
     p = S.store.post(pid)
-    if not p or p["kind"] != "image" or not p["media_name"]:
+    if not p or p["status"] == "failed" or p["kind"] != "image" or not p["media_name"] or not owns_post(req, p):
         raise HTTPException(404)
-    if ("@" + author.strip().lstrip("@")) != p["author"]:
-        raise HTTPException(403, "the unscreened canvas is shown to its author only")
     return FileResponse(config.MEDIA_DIR / f"{pid}-canvas.png", media_type="image/png", headers={"Cache-Control": "no-store"})

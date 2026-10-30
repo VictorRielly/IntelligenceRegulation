@@ -1,0 +1,467 @@
+{
+  "status": "PASS",
+  "checks": 91,
+  "static_anchor_mutations": 8,
+  "source_pins": 8,
+  "elapsed_s": 0.00831669800390955,
+  "max_rss_kib": 18088,
+  "source_derived_cost_rows": [
+    {
+      "geometry": {
+        "name": "TinyLlama1.1B",
+        "t": 32,
+        "d": 2048,
+        "f": 8192,
+        "h": 32,
+        "dh": 64,
+        "kv": 4,
+        "row": 12,
+        "endpoint": 12,
+        "ln": 4,
+        "ls": 3,
+        "lp": 2,
+        "full_norm": true,
+        "dd": 0
+      },
+      "baseline_public_additions": 609024,
+      "paired_variable_products_both": 1827072,
+      "private_word_reads_both": 1218048,
+      "eager": {
+        "eligible_groups": 33,
+        "eligible_pair_coefficients": 609024,
+        "prepared_coefficients": 123968,
+        "public_additions_removed": 485056,
+        "additional_source_read_words": 856960,
+        "additional_source_write_words": 123968,
+        "additional_source_access_bytes": 7847424,
+        "additional_sum_vec_allocations": 33,
+        "max_added_live_payload_bytes": 32768,
+        "note": "Source-level logical accesses, not DRAM bytes, time or allocator RSS."
+      },
+      "skip_single_use_analytical": {
+        "eligible_groups": 17,
+        "eligible_pair_coefficients": 543488,
+        "prepared_coefficients": 58432,
+        "public_additions_removed": 485056,
+        "additional_source_read_words": 660352,
+        "additional_source_write_words": 58432,
+        "additional_source_access_bytes": 5750272,
+        "additional_sum_vec_allocations": 17,
+        "max_added_live_payload_bytes": 32768,
+        "note": "Source-level logical accesses, not DRAM bytes, time or allocator RSS."
+      }
+    },
+    {
+      "geometry": {
+        "name": "TinyLlama1.1B",
+        "t": 64,
+        "d": 2048,
+        "f": 8192,
+        "h": 32,
+        "dh": 64,
+        "kv": 4,
+        "row": 13,
+        "endpoint": 13,
+        "ln": 4,
+        "ls": 3,
+        "lp": 2,
+        "full_norm": true,
+        "dd": 0
+      },
+      "baseline_public_additions": 1218048,
+      "paired_variable_products_both": 3654144,
+      "private_word_reads_both": 2436096,
+      "eager": {
+        "eligible_groups": 33,
+        "eligible_pair_coefficients": 1218048,
+        "prepared_coefficients": 247936,
+        "public_additions_removed": 970112,
+        "additional_source_read_words": 1713920,
+        "additional_source_write_words": 247936,
+        "additional_source_access_bytes": 15694848,
+        "additional_sum_vec_allocations": 33,
+        "max_added_live_payload_bytes": 65536,
+        "note": "Source-level logical accesses, not DRAM bytes, time or allocator RSS."
+      },
+      "skip_single_use_analytical": {
+        "eligible_groups": 17,
+        "eligible_pair_coefficients": 1086976,
+        "prepared_coefficients": 116864,
+        "public_additions_removed": 970112,
+        "additional_source_read_words": 1320704,
+        "additional_source_write_words": 116864,
+        "additional_source_access_bytes": 11500544,
+        "additional_sum_vec_allocations": 17,
+        "max_added_live_payload_bytes": 65536,
+        "note": "Source-level logical accesses, not DRAM bytes, time or allocator RSS."
+      }
+    },
+    {
+      "geometry": {
+        "name": "TinyLlama1.1B",
+        "t": 128,
+        "d": 2048,
+        "f": 8192,
+        "h": 32,
+        "dh": 64,
+        "kv": 4,
+        "row": 14,
+        "endpoint": 14,
+        "ln": 4,
+        "ls": 3,
+        "lp": 2,
+        "full_norm": true,
+        "dd": 0
+      },
+      "baseline_public_additions": 2436096,
+      "paired_variable_products_both": 7308288,
+      "private_word_reads_both": 4872192,
+      "eager": {
+        "eligible_groups": 33,
+        "eligible_pair_coefficients": 2436096,
+        "prepared_coefficients": 495872,
+        "public_additions_removed": 1940224,
+        "additional_source_read_words": 3427840,
+        "additional_source_write_words": 495872,
+        "additional_source_access_bytes": 31389696,
+        "additional_sum_vec_allocations": 33,
+        "max_added_live_payload_bytes": 131072,
+        "note": "Source-level logical accesses, not DRAM bytes, time or allocator RSS."
+      },
+      "skip_single_use_analytical": {
+        "eligible_groups": 17,
+        "eligible_pair_coefficients": 2173952,
+        "prepared_coefficients": 233728,
+        "public_additions_removed": 1940224,
+        "additional_source_read_words": 2641408,
+        "additional_source_write_words": 233728,
+        "additional_source_access_bytes": 23001088,
+        "additional_sum_vec_allocations": 17,
+        "max_added_live_payload_bytes": 131072,
+        "note": "Source-level logical accesses, not DRAM bytes, time or allocator RSS."
+      }
+    },
+    {
+      "geometry": {
+        "name": "Llama3-8B",
+        "t": 32,
+        "d": 4096,
+        "f": 16384,
+        "h": 32,
+        "dh": 128,
+        "kv": 8,
+        "row": 13,
+        "endpoint": 13,
+        "ln": 4,
+        "ls": 3,
+        "lp": 2,
+        "full_norm": true,
+        "dd": 0
+      },
+      "baseline_public_additions": 1215232,
+      "paired_variable_products_both": 3645696,
+      "private_word_reads_both": 2430464,
+      "eager": {
+        "eligible_groups": 33,
+        "eligible_pair_coefficients": 1215232,
+        "prepared_coefficients": 246848,
+        "public_additions_removed": 968384,
+        "additional_source_read_words": 1708928,
+        "additional_source_write_words": 246848,
+        "additional_source_access_bytes": 15646208,
+        "additional_sum_vec_allocations": 33,
+        "max_added_live_payload_bytes": 65536,
+        "note": "Source-level logical accesses, not DRAM bytes, time or allocator RSS."
+      },
+      "skip_single_use_analytical": {
+        "eligible_groups": 17,
+        "eligible_pair_coefficients": 1084160,
+        "prepared_coefficients": 115776,
+        "public_additions_removed": 968384,
+        "additional_source_read_words": 1315712,
+        "additional_source_write_words": 115776,
+        "additional_source_access_bytes": 11451904,
+        "additional_sum_vec_allocations": 17,
+        "max_added_live_payload_bytes": 65536,
+        "note": "Source-level logical accesses, not DRAM bytes, time or allocator RSS."
+      }
+    },
+    {
+      "geometry": {
+        "name": "Llama3-8B",
+        "t": 64,
+        "d": 4096,
+        "f": 16384,
+        "h": 32,
+        "dh": 128,
+        "kv": 8,
+        "row": 13,
+        "endpoint": 13,
+        "ln": 4,
+        "ls": 3,
+        "lp": 2,
+        "full_norm": true,
+        "dd": 0
+      },
+      "baseline_public_additions": 1218048,
+      "paired_variable_products_both": 3654144,
+      "private_word_reads_both": 2436096,
+      "eager": {
+        "eligible_groups": 33,
+        "eligible_pair_coefficients": 1218048,
+        "prepared_coefficients": 247936,
+        "public_additions_removed": 970112,
+        "additional_source_read_words": 1713920,
+        "additional_source_write_words": 247936,
+        "additional_source_access_bytes": 15694848,
+        "additional_sum_vec_allocations": 33,
+        "max_added_live_payload_bytes": 65536,
+        "note": "Source-level logical accesses, not DRAM bytes, time or allocator RSS."
+      },
+      "skip_single_use_analytical": {
+        "eligible_groups": 17,
+        "eligible_pair_coefficients": 1086976,
+        "prepared_coefficients": 116864,
+        "public_additions_removed": 970112,
+        "additional_source_read_words": 1320704,
+        "additional_source_write_words": 116864,
+        "additional_source_access_bytes": 11500544,
+        "additional_sum_vec_allocations": 17,
+        "max_added_live_payload_bytes": 65536,
+        "note": "Source-level logical accesses, not DRAM bytes, time or allocator RSS."
+      }
+    },
+    {
+      "geometry": {
+        "name": "Llama3-8B",
+        "t": 128,
+        "d": 4096,
+        "f": 16384,
+        "h": 32,
+        "dh": 128,
+        "kv": 8,
+        "row": 14,
+        "endpoint": 14,
+        "ln": 4,
+        "ls": 3,
+        "lp": 2,
+        "full_norm": true,
+        "dd": 0
+      },
+      "baseline_public_additions": 2436096,
+      "paired_variable_products_both": 7308288,
+      "private_word_reads_both": 4872192,
+      "eager": {
+        "eligible_groups": 33,
+        "eligible_pair_coefficients": 2436096,
+        "prepared_coefficients": 495872,
+        "public_additions_removed": 1940224,
+        "additional_source_read_words": 3427840,
+        "additional_source_write_words": 495872,
+        "additional_source_access_bytes": 31389696,
+        "additional_sum_vec_allocations": 33,
+        "max_added_live_payload_bytes": 131072,
+        "note": "Source-level logical accesses, not DRAM bytes, time or allocator RSS."
+      },
+      "skip_single_use_analytical": {
+        "eligible_groups": 17,
+        "eligible_pair_coefficients": 2173952,
+        "prepared_coefficients": 233728,
+        "public_additions_removed": 1940224,
+        "additional_source_read_words": 2641408,
+        "additional_source_write_words": 233728,
+        "additional_source_access_bytes": 23001088,
+        "additional_sum_vec_allocations": 17,
+        "max_added_live_payload_bytes": 131072,
+        "note": "Source-level logical accesses, not DRAM bytes, time or allocator RSS."
+      }
+    },
+    {
+      "geometry": {
+        "name": "TinyLlama1.1B-DD32",
+        "t": 128,
+        "d": 2048,
+        "f": 8192,
+        "h": 32,
+        "dh": 64,
+        "kv": 4,
+        "row": 14,
+        "endpoint": 14,
+        "ln": 4,
+        "ls": 3,
+        "lp": 2,
+        "full_norm": true,
+        "dd": 32
+      },
+      "baseline_public_additions": 2505728,
+      "paired_variable_products_both": 7517184,
+      "private_word_reads_both": 5011456,
+      "eager": {
+        "eligible_groups": 36,
+        "eligible_pair_coefficients": 2505728,
+        "prepared_coefficients": 532736,
+        "public_additions_removed": 1972992,
+        "additional_source_read_words": 3571200,
+        "additional_source_write_words": 532736,
+        "additional_source_access_bytes": 32831488,
+        "additional_sum_vec_allocations": 36,
+        "max_added_live_payload_bytes": 131072,
+        "note": "Source-level logical accesses, not DRAM bytes, time or allocator RSS."
+      },
+      "skip_single_use_analytical": {
+        "eligible_groups": 19,
+        "eligible_pair_coefficients": 2239488,
+        "prepared_coefficients": 266496,
+        "public_additions_removed": 1972992,
+        "additional_source_read_words": 2772480,
+        "additional_source_write_words": 266496,
+        "additional_source_access_bytes": 24311808,
+        "additional_sum_vec_allocations": 19,
+        "max_added_live_payload_bytes": 131072,
+        "note": "Source-level logical accesses, not DRAM bytes, time or allocator RSS."
+      }
+    },
+    {
+      "geometry": {
+        "name": "Llama3-8B-DD32",
+        "t": 128,
+        "d": 4096,
+        "f": 16384,
+        "h": 32,
+        "dh": 128,
+        "kv": 8,
+        "row": 14,
+        "endpoint": 14,
+        "ln": 4,
+        "ls": 3,
+        "lp": 2,
+        "full_norm": true,
+        "dd": 32
+      },
+      "baseline_public_additions": 2505728,
+      "paired_variable_products_both": 7517184,
+      "private_word_reads_both": 5011456,
+      "eager": {
+        "eligible_groups": 36,
+        "eligible_pair_coefficients": 2505728,
+        "prepared_coefficients": 532736,
+        "public_additions_removed": 1972992,
+        "additional_source_read_words": 3571200,
+        "additional_source_write_words": 532736,
+        "additional_source_access_bytes": 32831488,
+        "additional_sum_vec_allocations": 36,
+        "max_added_live_payload_bytes": 131072,
+        "note": "Source-level logical accesses, not DRAM bytes, time or allocator RSS."
+      },
+      "skip_single_use_analytical": {
+        "eligible_groups": 19,
+        "eligible_pair_coefficients": 2239488,
+        "prepared_coefficients": 266496,
+        "public_additions_removed": 1972992,
+        "additional_source_read_words": 2772480,
+        "additional_source_write_words": 266496,
+        "additional_source_access_bytes": 24311808,
+        "additional_sum_vec_allocations": 19,
+        "max_added_live_payload_bytes": 131072,
+        "note": "Source-level logical accesses, not DRAM bytes, time or allocator RSS."
+      }
+    }
+  ],
+  "older_technique_size_bound": {
+    "canonical_max_product": "340282366762482138453292676318389862400",
+    "max_safe_maximal_products_in_u128": 1,
+    "bits_for_16384_maximal_products": 142,
+    "status": "Small-prime single-word packing does not transfer to full canonical Goldilocks operands; wider carry/reduction required.",
+    "prior_negative": "wide-fp2-accumulation-20261004; paired-mask-three-product-20261029 unsafe-u128 premise retained"
+  },
+  "component_diagnostics": [
+    {
+      "row_log": 8,
+      "pairs": 1,
+      "cached_median_ns": 4135,
+      "prepared_median_ns": 4205,
+      "diagnostic_ratio": 0.9833531510107015
+    },
+    {
+      "row_log": 8,
+      "pairs": 2,
+      "cached_median_ns": 5394,
+      "prepared_median_ns": 5416,
+      "diagnostic_ratio": 0.9959379615952733
+    },
+    {
+      "row_log": 8,
+      "pairs": 6,
+      "cached_median_ns": 9927,
+      "prepared_median_ns": 9952,
+      "diagnostic_ratio": 0.9974879421221865
+    },
+    {
+      "row_log": 8,
+      "pairs": 17,
+      "cached_median_ns": 23670,
+      "prepared_median_ns": 22560,
+      "diagnostic_ratio": 1.0492021276595744
+    },
+    {
+      "row_log": 13,
+      "pairs": 1,
+      "cached_median_ns": 136118,
+      "prepared_median_ns": 132930,
+      "diagnostic_ratio": 1.023982547205296
+    },
+    {
+      "row_log": 13,
+      "pairs": 2,
+      "cached_median_ns": 173554,
+      "prepared_median_ns": 179748,
+      "diagnostic_ratio": 0.9655406457929991
+    },
+    {
+      "row_log": 13,
+      "pairs": 6,
+      "cached_median_ns": 352040,
+      "prepared_median_ns": 342652,
+      "diagnostic_ratio": 1.027398059839137
+    },
+    {
+      "row_log": 13,
+      "pairs": 17,
+      "cached_median_ns": 813591,
+      "prepared_median_ns": 789576,
+      "diagnostic_ratio": 1.0304150582084561
+    },
+    {
+      "row_log": 14,
+      "pairs": 1,
+      "cached_median_ns": 256393,
+      "prepared_median_ns": 266347,
+      "diagnostic_ratio": 0.9626276999553215
+    },
+    {
+      "row_log": 14,
+      "pairs": 2,
+      "cached_median_ns": 339968,
+      "prepared_median_ns": 351447,
+      "diagnostic_ratio": 0.967337891630886
+    },
+    {
+      "row_log": 14,
+      "pairs": 6,
+      "cached_median_ns": 685453,
+      "prepared_median_ns": 671824,
+      "diagnostic_ratio": 1.020286563147491
+    },
+    {
+      "row_log": 14,
+      "pairs": 17,
+      "cached_median_ns": 1629195,
+      "prepared_median_ns": 1578954,
+      "diagnostic_ratio": 1.0318191663595013
+    }
+  ],
+  "native_source_executed": "Extracted mask_eval with stub metadata; frozen Fp/Fp2; extracted serial Eq constructor",
+  "full_native_define_or_proof": false,
+  "model_passes": 0,
+  "proved_positions": 0
+}

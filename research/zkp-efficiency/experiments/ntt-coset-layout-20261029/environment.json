@@ -1,0 +1,7 @@
+{
+  "cpu_model": "Intel(R) Core(TM) Ultra 9 185H",
+  "python": "3.10.12",
+  "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "device": "CPU only; no model accelerator used",
+  "threads": 1
+}

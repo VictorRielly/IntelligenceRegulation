@@ -1,0 +1,186 @@
+{
+ "low": {
+  "y": {
+   "n": 512,
+   "differ": 0,
+   "nonzero": 504
+  },
+  "q": {
+   "n": 512,
+   "differ": 0,
+   "nonzero": 492
+  },
+  "k": {
+   "n": 256,
+   "differ": 0,
+   "nonzero": 245
+  },
+  "v": {
+   "n": 256,
+   "differ": 0,
+   "nonzero": 249
+  },
+  "qr": {
+   "n": 512,
+   "differ": 0,
+   "nonzero": 501
+  },
+  "kr": {
+   "n": 256,
+   "differ": 0,
+   "nonzero": 250
+  },
+  "s": {
+   "n": 4096,
+   "differ": 0,
+   "nonzero": 0
+  },
+  "p": {
+   "n": 4096,
+   "differ": 0,
+   "nonzero": 2112
+  },
+  "o8": {
+   "n": 512,
+   "differ": 0,
+   "nonzero": 370
+  },
+  "ao": {
+   "n": 512,
+   "differ": 0,
+   "nonzero": 0
+  },
+  "x1": {
+   "n": 512,
+   "differ": 0,
+   "nonzero": 504
+  },
+  "nm": {
+   "n": 512,
+   "differ": 0,
+   "nonzero": 504
+  },
+  "gate": {
+   "n": 1024,
+   "differ": 0,
+   "nonzero": 754
+  },
+  "a_group": {
+   "n": 1024,
+   "differ": 0,
+   "nonzero": 754
+  },
+  "u16": {
+   "n": 1024,
+   "differ": 0,
+   "nonzero": 1015
+  },
+  "h16": {
+   "n": 1024,
+   "differ": 0,
+   "nonzero": 89
+  },
+  "z16": {
+   "n": 512,
+   "differ": 0,
+   "nonzero": 3
+  },
+  "x2": {
+   "n": 512,
+   "differ": 0,
+   "nonzero": 504
+  }
+ },
+ "h24": {
+  "y": {
+   "n": 512,
+   "differ": 0,
+   "nonzero": 504
+  },
+  "q": {
+   "n": 512,
+   "differ": 0,
+   "nonzero": 492
+  },
+  "k": {
+   "n": 256,
+   "differ": 0,
+   "nonzero": 245
+  },
+  "v": {
+   "n": 256,
+   "differ": 0,
+   "nonzero": 249
+  },
+  "qr": {
+   "n": 512,
+   "differ": 0,
+   "nonzero": 501
+  },
+  "kr": {
+   "n": 256,
+   "differ": 0,
+   "nonzero": 250
+  },
+  "s": {
+   "n": 4096,
+   "differ": 0,
+   "nonzero": 0
+  },
+  "p": {
+   "n": 4096,
+   "differ": 0,
+   "nonzero": 2112
+  },
+  "o8": {
+   "n": 512,
+   "differ": 0,
+   "nonzero": 370
+  },
+  "ao": {
+   "n": 512,
+   "differ": 0,
+   "nonzero": 0
+  },
+  "x1": {
+   "n": 512,
+   "differ": 0,
+   "nonzero": 504
+  },
+  "nm": {
+   "n": 512,
+   "differ": 0,
+   "nonzero": 504
+  },
+  "gate": {
+   "n": 1024,
+   "differ": 0,
+   "nonzero": 754
+  },
+  "a_group": {
+   "n": 1024,
+   "differ": 0,
+   "nonzero": 754
+  },
+  "u16": {
+   "n": 1024,
+   "differ": 0,
+   "nonzero": 1015
+  },
+  "h16": {
+   "n": 1024,
+   "differ": 0,
+   "nonzero": 736
+  },
+  "z16": {
+   "n": 512,
+   "differ": 0,
+   "nonzero": 2
+  },
+  "x2": {
+   "n": 512,
+   "differ": 0,
+   "nonzero": 504
+  }
+ }
+}

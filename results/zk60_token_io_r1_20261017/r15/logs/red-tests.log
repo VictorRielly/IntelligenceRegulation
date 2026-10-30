@@ -1,0 +1,273 @@
+   Compiling version_check v0.9.5
+   Compiling crossbeam-utils v0.8.22
+   Compiling generic-array v0.14.7
+   Compiling typenum v1.20.1
+   Compiling crossbeam-epoch v0.9.20
+   Compiling shlex v2.0.1
+   Compiling crossbeam-deque v0.8.7
+   Compiling find-msvc-tools v0.1.11
+   Compiling cc v1.4.4
+   Compiling rayon-core v1.13.0
+   Compiling block-buffer v0.10.4
+   Compiling crypto-common v0.1.7
+   Compiling cfg-if v1.0.4
+   Compiling digest v0.10.7
+   Compiling blake3 v1.8.7
+   Compiling cpufeatures v0.2.17
+   Compiling constant_time_eq v0.4.2
+   Compiling cpufeatures v0.3.1
+   Compiling arrayvec v0.7.8
+   Compiling either v1.18.0
+   Compiling rayon v1.12.0
+   Compiling sha2 v0.10.9
+   Compiling private-block-kernel-shaped v0.1.0 (/home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r15/private-block-kernel-shaped)
+   Compiling private-block-kernel v0.1.0 (/home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r15/private-block-kernel)
+   Compiling zkp-core v0.1.0 (/home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r15/zkp-core)
+   Compiling hashline v0.1.0 (/home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r15/hashline)
+warning: unused doc comment
+   --> src/private_block/token_io/run.rs:698:1
+    |
+698 | / /// **THE TOKEN-I/O RUN PROVER.** One transcript, one OS stream, `L + 2`
+699 | | /// segments, each handed to `sink` and dropped (M-3); block `k` asked for
+700 | | /// at its own stage (R3 streaming).
+701 | | ///
+...   |
+710 | | /// it receives as UNPUBLISHED until this function returns `Ok` (the CLI's
+711 | | /// sink writes `<out>.incomplete/` and renames it only then).
+    | |_-------------------------------------------------------------^
+    |   |
+    |   rustdoc does not generate documentation for macro invocations
+    |
+    = help: to document an item produced by a macro, the macro must produce the documentation as part of its expansion
+    = note: `#[warn(unused_doc_comments)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Dom`
+  --> src/private_block/s28_review_tests.rs:19:21
+   |
+19 | use super::layout::{Dom, Layout, U8_LEN};
+   |                     ^^^
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: variable does not need to be mutable
+    --> src/private_block/run.rs:1188:13
+     |
+1188 |         let mut tr = st.transcript()?;
+     |             ----^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:302:18
+    |
+302 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: function `limbs` is never used
+   --> src/private_block/argument.rs:905:4
+    |
+905 | fn limbs(v: &[Fp2], ix: &[usize]) -> Fp2 {
+    |    ^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `slot` is never used
+   --> src/private_block/timing.rs:259:19
+    |
+216 | impl Phases {
+    | ----------- method in this implementation
+...
+259 |     pub(crate) fn slot(&mut self, s: usize, size: u64, unit: &'static str) {
+    |                   ^^^^
+
+warning: method `is_dd` is never used
+   --> src/private_block/trained_block.rs:709:19
+    |
+658 | impl Geometry {
+    | ------------- method in this implementation
+...
+709 |     pub(crate) fn is_dd(self) -> bool {
+    |                   ^^^^^
+
+warning: field `boundaries` is never read
+   --> src/private_block/run_capture.rs:823:5
+    |
+816 | struct Rec {
+    |        --- field in this struct
+...
+823 |     boundaries: Vec<Vec<u8>>,
+    |     ^^^^^^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib test) generated 17 warnings (run `cargo fix --lib -p hashline --tests` to apply 10 suggestions)
+    Finished `release` profile [optimized] target(s) in 2m 52s
+     Running unittests src/lib.rs (ops/zkp-mvp/token-io-r15/hashline/target/release/deps/hashline-c3627bbabf8140fe)
+
+running 4 tests
+test private_block::token_io::classify_r15_tests::r15_label_expect_total_through_the_named_binary_in_fresh_processes ... ignored, runs the named zk60_classify binary; set HL_PB_CLI_BIN
+test private_block::token_io::classify_capture_tests::r15_a_classify_run_files_slot_list_has_exactly_n_slots_triples ... FAILED
+test private_block::token_io::capture_tests::r15_a_token_run_files_slot_list_has_exactly_n_slots_triples ... FAILED
+test private_block::token_io::classify_r15_tests::r15_label_refuses_a_truncated_proof_set_against_the_posts_own_total ... FAILED
+
+failures:
+
+---- private_block::token_io::classify_capture_tests::r15_a_classify_run_files_slot_list_has_exactly_n_slots_triples stdout ----
+
+thread 'private_block::token_io::classify_capture_tests::r15_a_classify_run_files_slot_list_has_exactly_n_slots_triples' (224614) panicked at src/private_block/token_io/classify_capture_tests.rs:538:9:
+assertion `left == right` failed: F18-1: the classifier run file declares n_slots 23 but lists 24 slot triples (the last Some([0, 0, 0]))
+  left: 24
+ right: 23
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- private_block::token_io::capture_tests::r15_a_token_run_files_slot_list_has_exactly_n_slots_triples stdout ----
+
+thread 'private_block::token_io::capture_tests::r15_a_token_run_files_slot_list_has_exactly_n_slots_triples' (224613) panicked at src/private_block/token_io/capture_tests.rs:202:5:
+assertion `left == right` failed: F18-1: the token run file declares n_slots 23 but lists 24 slot triples (the last Some([0, 0, 0]))
+  left: 24
+ right: 23
+
+---- private_block::token_io::classify_r15_tests::r15_label_refuses_a_truncated_proof_set_against_the_posts_own_total stdout ----
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1","blocks":1,"trained_statement_identity":"061340df02f975c16fa1b3f9a2e1c8d582a54888a33edafab112426a69c5ae88","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"content_length_n":23}
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.236}
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":1.380}
+{"event":"segment","index":2,"bytes":2489016,"elapsed_seconds":1.535}
+{"event":"proved","run":"/home/victor/zk60-artifacts/token-io/tmp-r15/tio-cls-r15-trunc-224612/post23","owner_dir":"/home/victor/zk60-artifacts/token-io/tmp-r15/tio-cls-owners-r15-trunc-224612/post23.owner-private","verdict":"not-flagged","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"segments":3,"receipt_bytes":11134808,"prove_seconds":1.535,"whole_run_floor_bits":94,"total_seconds":1.703,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"}
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1","blocks":1,"trained_statement_identity":"061340df02f975c16fa1b3f9a2e1c8d582a54888a33edafab112426a69c5ae88","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"content_length_n":22}
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.161}
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":1.353}
+{"event":"segment","index":2,"bytes":2489016,"elapsed_seconds":1.474}
+{"event":"proved","run":"/home/victor/zk60-artifacts/token-io/tmp-r15/tio-cls-r15-trunc-224612/first22","owner_dir":"/home/victor/zk60-artifacts/token-io/tmp-r15/tio-cls-owners-r15-trunc-224612/first22.owner-private","verdict":"not-flagged","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"segments":3,"receipt_bytes":11134808,"prove_seconds":1.474,"whole_run_floor_bits":94,"total_seconds":1.598,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"}
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1","blocks":1,"trained_statement_identity":"061340df02f975c16fa1b3f9a2e1c8d582a54888a33edafab112426a69c5ae88","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":2,"content_length_n":23}
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.161}
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":1.439}
+{"event":"segment","index":2,"bytes":2489016,"elapsed_seconds":1.568}
+{"event":"proved","run":"/home/victor/zk60-artifacts/token-io/tmp-r15/tio-cls-r15-trunc-224612/post27-c0","owner_dir":"/home/victor/zk60-artifacts/token-io/tmp-r15/tio-cls-owners-r15-trunc-224612/post27-c0.owner-private","verdict":"not-flagged","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":2,"segments":3,"receipt_bytes":11134808,"prove_seconds":1.569,"whole_run_floor_bits":94,"total_seconds":1.698,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"}
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1","blocks":1,"trained_statement_identity":"061340df02f975c16fa1b3f9a2e1c8d582a54888a33edafab112426a69c5ae88","policy":"rung-tc-synthetic-policy-dev/1","chunk":1,"chunks":2,"content_length_n":23}
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.150}
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":1.333}
+{"event":"segment","index":2,"bytes":2489016,"elapsed_seconds":1.459}
+{"event":"proved","run":"/home/victor/zk60-artifacts/token-io/tmp-r15/tio-cls-r15-trunc-224612/post27-c1","owner_dir":"/home/victor/zk60-artifacts/token-io/tmp-r15/tio-cls-owners-r15-trunc-224612/post27-c1.owner-private","verdict":"not-flagged","policy":"rung-tc-synthetic-policy-dev/1","chunk":1,"chunks":2,"segments":3,"receipt_bytes":11134808,"prove_seconds":1.459,"whole_run_floor_bits":94,"total_seconds":1.587,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"}
+{"event":"classified","verdict":"not-flagged","chunk":0,"chunks":1,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"061340df02f975c16fa1b3f9a2e1c8d582a54888a33edafab112426a69c5ae88","input_token_endpoint_root":"928f3a405ba289d6319c5021c8c333b36fde862710b9ffcea7475f9c756cd8ce","verify_seconds":0.286,"whole_run_floor_bits":94,"published_by":"this verifier"}
+{"event":"classified","verdict":"not-flagged","chunk":0,"chunks":1,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"061340df02f975c16fa1b3f9a2e1c8d582a54888a33edafab112426a69c5ae88","input_token_endpoint_root":"3b12f0034ae5af90af0bfc8b7cf2a5221b99412cd3142ecfa4d9eba9f2eb2a74","verify_seconds":0.279,"whole_run_floor_bits":94,"published_by":"this verifier"}
+{"event":"classified","verdict":"not-flagged","chunk":0,"chunks":2,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"061340df02f975c16fa1b3f9a2e1c8d582a54888a33edafab112426a69c5ae88","input_token_endpoint_root":"497e741dc81a938e6d074a0b362bf3c2ae05f280341461bfc973f5c1b9afd4c7","verify_seconds":0.291,"whole_run_floor_bits":94,"published_by":"this verifier"}
+{"event":"classified","verdict":"not-flagged","chunk":1,"chunks":2,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"061340df02f975c16fa1b3f9a2e1c8d582a54888a33edafab112426a69c5ae88","input_token_endpoint_root":"0f2101ab9b57bb23dadc30c4ff7008da339a3723f6610be20a521d6ac66fcf69","verify_seconds":0.314,"whole_run_floor_bits":94,"published_by":"this verifier"}
+zk60_classify label: unknown argument `--expect-total`
+TOKEN-IO R15 | N-r14-1 | truncated: the first 22 ids of the 23-id post, --expect-total 23: exit 2 (want 1)
+zk60_classify label: unknown argument `--expect-total`
+TOKEN-IO R15 | N-r14-1 | truncated: the first 23 ids of the 27-id post, --expect-total 27: exit 2 (want 1)
+zk60_classify label: unknown argument `--expect-total`
+TOKEN-IO R15 | N-r14-1 | truncated: the first 22 ids of the 27-id post, --expect-total 27: exit 2 (want 1)
+zk60_classify label: unknown argument `--expect-total`
+TOKEN-IO R15 | N-r14-1 | truncated: chunk 0 of the 27-id post alone, --expect-total 27: exit 2 (want 1)
+{"event":"chunk-verified","run":"/home/victor/zk60-artifacts/token-io/tmp-r15/tio-cls-r15-trunc-224612/first22","chunk":0,"range":[0, 22],"verdict":"not-flagged"}
+{"event":"label","policy":"rung-tc-synthetic-policy-dev/1","label":"not-flagged","chunks":1,"content_total":22,"chunk_size":23,"overlap":4,"flagged_ranges":[],"note":"the per-chunk verdicts are public: a flagged label shows which ranges triggered it (DESIGN v2.2 13.4)"}
+TOKEN-IO R15 | N-r14-1 | truncated: the first 22 ids with no --expect-total: exit 0 (want 1)
+zk60_classify label: unknown argument `--expect-total`
+TOKEN-IO R15 | N-r14-1 | bad value: --expect-total 0: exit 2 (want 1)
+zk60_classify label: unknown argument `--expect-total`
+TOKEN-IO R15 | N-r14-1 | bad value: --expect-total x: exit 2 (want 1)
+zk60_classify label: unknown argument `--expect-total`
+TOKEN-IO R15 | N-r14-1 | honest: the 23-id post's one chunk, --expect-total 23: exit 2 (want 0)
+zk60_classify label: unknown argument `--expect-total`
+TOKEN-IO R15 | N-r14-1 | honest: the 27-id post's two chunks, --expect-total 27: exit 2 (want 0)
+zk60_classify label: unknown argument `--expect-total`
+TOKEN-IO R15 | N-r14-1 | honest: the 27-id post's two chunks in the other order: exit 2 (want 0)
+zk60_classify label: unknown argument `--expect-total`
+TOKEN-IO R15 | N-r14-1 | honest: the 22-id post's own one chunk, --expect-total 22: exit 2 (want 0)
+
+thread 'private_block::token_io::classify_r15_tests::r15_label_refuses_a_truncated_proof_set_against_the_posts_own_total' (224615) panicked at src/private_block/token_io/classify_r15_tests.rs:128:5:
+N-r14-1: THE LABEL ADMITTED A TRUNCATED PROOF SET OR REFUSED THE HONEST ONE (11 of 11 cases): [
+    "truncated: the first 22 ids of the 23-id post, --expect-total 23: exit 2, want 1",
+    "truncated: the first 23 ids of the 27-id post, --expect-total 27: exit 2, want 1",
+    "truncated: the first 22 ids of the 27-id post, --expect-total 27: exit 2, want 1",
+    "truncated: chunk 0 of the 27-id post alone, --expect-total 27: exit 2, want 1",
+    "truncated: the first 22 ids with no --expect-total: exit 0, want 1",
+    "bad value: --expect-total 0: exit 2, want 1",
+    "bad value: --expect-total x: exit 2, want 1",
+    "honest: the 23-id post's one chunk, --expect-total 23: exit 2, want 0",
+    "honest: the 27-id post's two chunks, --expect-total 27: exit 2, want 0",
+    "honest: the 27-id post's two chunks in the other order: exit 2, want 0",
+    "honest: the 22-id post's own one chunk, --expect-total 22: exit 2, want 0",
+]
+
+
+failures:
+    private_block::token_io::capture_tests::r15_a_token_run_files_slot_list_has_exactly_n_slots_triples
+    private_block::token_io::classify_capture_tests::r15_a_classify_run_files_slot_list_has_exactly_n_slots_triples
+    private_block::token_io::classify_r15_tests::r15_label_refuses_a_truncated_proof_set_against_the_posts_own_total
+
+test result: FAILED. 0 passed; 3 failed; 1 ignored; 0 measured; 756 filtered out; finished in 8.81s
+
+error: test failed, to rerun pass `--lib`

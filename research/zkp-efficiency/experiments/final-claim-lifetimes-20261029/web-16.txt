@@ -1,0 +1,374 @@
+Efficient Zero-Knowledge Proofs: Theory and Practice (https://escholarship.org/uc/item/5qm6n0s0)
+citeturn15search0 [wordlim: 200] Published: 3.5 years ago; Crawled: yesterday; 2.3.1 Linear-time sumcheck for a multilinear function [Tha13a] ... sumcheck in the original GKR paper with identity polynomials (see [GKR15]), and our new algorithms also ... By executing the sumcheck protocol on Equation 4.7, P and V reduce an evaluation of the multiliear extension
+2.3 GKR Protocol with Linear Prover Time
+In this section we present a new algorithm (see Algorithm 6) for the prover of the GKR protocol [GKR15]
+that runs in linear time for arbitrary layered circuits. Before that, we present some necessary building blocks.
+2.3.1 Linear-time sumcheck for a multilinear function [Tha13a]
+In [Tha13a], Thaler proposed a linear-time algorithm for the prover of the sumcheck protocol on a multilinear
+function f on ℓ variables (the algorithm runs in O(2 ℓ) time). We review this algorithm here. Recall that in
+the i-th round of the sumcheck protocol the prover sends the verifier the univariate polynomial on x i
+∑
+b i+1,...,b ℓ,∈{0,1}
+f (r 1, . . . , r i−1, x i, b i+1, . . . , b ℓ) ,
+where r 1, . . . , r i−1 are random values chosen by the verifier in previous rounds. Since f is multilinear, it
+suffices for the prover to send two evaluations of the polynomial at points t = 0 and t = 1, namely the
+evaluations ∑
+b i+1,...,b ℓ,∈{0,1}
+f (r 1, . . . , r i−1, 0, b i+1, . . . , b ℓ) (2.4)
+For every entry of A, the
+prover subsequently computes, as in Step 6 of Algorithm 8 FunctionEvaluations 2 two values
+f (r 1, . . . , r i−1, 0, b i+1, . . . , b ℓ) and f (r 1, . . . , r i−1, 1, b i+1, . . . , b ℓ) .
+Once these function evaluations are in place, the prover can easily sum over them and compute the required
+sumcheck messages as reguired by Relations 2.4 and 2.5. This is done in Algorithm 20 SumCheck 3.
+Complexity analysis. Both Algorithms 8 and 20 run in O(2 ℓ) time: The first iteration takes O(2 ℓ), the
+second O(2 ℓ−1) and so on, and therefore the bound holds.
+2.3.2 Linear-time sumcheck for products of multilinear functions [Tha13a]
+The linear-time sumcheck in the previous section can be generalized to a product of two multilinear functions.
+Let now f and g be two multilinear functions on ℓ variables each, we describe a linear-time algorithm to
+compute the messages of the prover for the sumcheck on the product f · g, as proposed in [Tha13a]. Note that
+we cannot use Algorithm 20 here since f · g is not multilinear. However, similarly with the single-function
+case, the prover must now send, at round i, the following evaluations at points t = 0, t = 1 and t = 2
+∑
+b i+1,...,b ℓ,∈{0,1}
+f (r 1, . . . , r i−1, t, b i+1, . . . , b ℓ) · g(r 1, . . . , r i−1, t, b i+1, . . . , b ℓ)
+2 To be compatible with other protocols later, we use three values t = 0, 1, 2 in our evaluations instead of just two.
+3 We note here that although these two steps can be performed together in a single algorithm and without the need
+to store function evaluations, we explicitly decouple them with two different algorithms (FunctionEvaluations and
+SumCheck) for facilitating the presentation of more advanced protocols later.
+
+2.3. GKR PROTOCOL WITH LINEAR PROVER TIME 25
+Algorithm 5 A f 1 ← Initialize_PhaseTwo(f 1, g, u)
+Input: Multilinear f 1, random g = g 1, . . . , g ℓ and u = u 1, . . . , u ℓ;
+Output: Bookkeeping table A f 1 ;
+1: G ← Precompute(g)
+2: U ← Precompute(u)
+3: ∀y ∈ {0, 1}ℓ, set A f 1 [y] = 0
+4: for every (z, x, y) such that f 1(z, x, y) is non-zero do
+5: A f 1 [y] = A f 1 [y] + G[z] · U[x] · f 1(z, x, y)
+6: end for
+7: return A f 1 ;
+Algorithm 6 {a 1, . . . , a 2 ℓ} ← SumCheckGKR(f 1, f 2, f 3, u 1 . . . , u ℓ, v 1, . . . , v ℓ, g)
+Input: Multilinear extensions f 1(z, x, y) (with O(2 ℓ) non-zero entries), f 2(x), f 3(y) and their
+bookkeeping tables A f 2 , A f 3 , randomness u = u 1, . . . , u ℓ and v = v 1, . . . , v ℓ and point g;
+Output: 2 ℓ sumcheck messages for ∑
+x,y∈{0,1}ℓ f 1(g, x, y)f 2(x)f 3(y);
+1: A h g ← Initialize_PhaseOne(f 1, f 3, A f 3 , g)
+2: {a 1, . . . , a ℓ} ← SumCheckProduct(∑
+y∈{0,1}ℓ f 1(g, x, y)f 3(y), A h g , f 2, A f 2 , u 1, . . . , u ℓ)
+3: A f 1 ← Initialize_PhaseTwo(f 1, g, u)
+4: {a ℓ+1, . . . , a 2 ℓ} ← SumCheckProduct(f 1(g, u, y), A f 1 , f 3(y) · f 2(u), A f 3 · f 2(u), v 1, . . . , v ℓ)
+5: return {a 1, . . . , a 2 ℓ}
+2.3.3.3 Generalizations of our technique.
+Our technique can be extended to sumchecks of the general type
+∑
+x 1,x 2,...,x c∈{0,1}c f 0(g, x 1, x 2, . . . , x c)f 1(x 1)f 2(x 2)...f c(x c) ,
+where c is a constant, functions f i are multilinear and f 0() is sparse and consists of linearly-many nonzero
+monomials. We divide the protocol into c phases similarly as above. This generalization captures the
+sumcheck in the original GKR paper with identity polynomials (see [GKR15]), and our new algorithms also
+improve the prover time of this to linear.
+
+3.1. INTRODUCTION 47
+3.1.1 Our Techniques
+Our main technical contribution in this paper is a new transparent zkVPD scheme with O(N log N ) prover
+time, O(log 2 N ) proof size and verification time, where N is the size of the polynomial. We summarize the
+key ideas behind our construction. We first model the polynomial evaluation as the inner product between two
+vectors of size N : one defined by the coefficients of the polynomial and the other defined by the evaluation
+point computed on each monomial of the polynomial. The former is committed by the prover (or delegated to
+the prover after preprocessing in the case of delegation of computation), and the later is publicly known to
+both the verifier and the prover. We then develop a protocol that allows the prover to convince the verifier the
+correctness of the inner product between a committed vector and a public vector with proof size O(log 2 N ),
+based on the univariate sumcheck protocol recently proposed by Ben-Sasson et al. in [BSCRSVW19] (See
+Section 3.2.4). 3.3. TRANSPARENT ZERO KNOWLEDGE POLYNOMIAL DELEGATION 58
+verifier. This is because as described in Section 3.2.4, at the end of the univariate sumcheck, due to the low
+degree test, the verifier needs oracle access to the evaluations of l(x) · q(x) at κ points on L, a superset of
+H. As l(x) is defined by c, i.e. the coefficients of f , the prover can commit to l|L at the beginning of the
+protocol, and opens to points the verifier queries with their Merkle tree proofs. q(x), however, is defined by
+the public vector T , and the verifier has to evaluate it locally, which takes linear time. This is the major reason
+why the verification time in the zero knowledge proof schemes for generic arithmetic circuits in [AHIV17;
+BSCRSVW19] is linear in the size of the circuits.
+Reducing the verification time. In this paper, we propose an approach to reduce the cost of the verifier to
+poly-logarithmic for VPD. We observe that in our construction, though the size of T and q(x) is linear in N ,
+it is defined by only ℓ = O(log N ) values of the evaluation point t. 
+75
+Chapter 4
+Doubly Efficient Interactive Proofs for
+General Arithmetic Circuits with Linear
+Prover Time
+We propose a new doubly efficient interactive proof protocol for general arithmetic circuits. The protocol
+generalizes the interactive proof for layered circuits proposed by Goldwasser, Kalai and Rothblum to arbitrary
+circuits, while preserving the optimal prover complexity that is strictly linear to the size of the circuits. The
+proof size remains succinct for low depth circuits and the verifier time is sublinear for structured circuits.
+We then construct a new zero knowledge argument scheme for general arithmetic circuits using our new
+interactive proof protocol together with polynomial commitments.
+Our key technique is a new sumcheck equation that reduces a claim about the output of one layer to
+claims about its input only, instead of claims about all the layers above which inevitably incurs an overhead
+proportional to the depth of the circuit. We developed efficient algorithms for the prover to run this sumcheck
+y 1, . . . , y s i,j , we multiply each term with y s i,j +1 · y s i,j +2 · . . . · y s i,i+1 . This guarantees that the term only
+appears once in the sum, when y s i,j +1 = y s i,j +2 = . . . = y s i,i+1 = 1, and thus Equation 4.7 holds. In fact,
+y s i,j +1 · y s i,j +2 · . . . · y s i,i+1 is exactly the identity polynomial ˜β((y s i,j +1, y s i,j +2, . . . , y s i,i+1 ),⃗ 1). In this way,
+we do not have to pad all the polynomials to the same size. We only pad the size of each subset to the nearest
+power of 2, which incurs at most an overhead of 2.
+Next, we present an algorithm for P to run the sumcheck protocol on Equation 4.7 in linear time. We start
+with an algorithm to run sumcheck for the product of two multilinear polynomials in the literature, which we
+will use as a major building block.
+Linear-time sumcheck for products of multilinear functions [Tha13b]. In [Tha13b], Thaler proposed a
+linear-time algorithm for the prover of the sumcheck protocol on the product of two multilinear polynomials
+f and g with ℓ variables (the algorithm runs in O(2 ℓ) time). We present the algorithm in Algorithm 9.
+Algorithm 9 invokes Algorithm 8 FunctionEvaluations() as a subroutine. The algorithms are exactly the
+same as Algorithm 1 and 3 in [XZZPS19b]. Both Algorithm 8 and Algorithm 9 run in time O(2 ℓ) and the
+formal proof can be found in [XZZPS19b; Tha13b]. We have a lemma as follows:
+Lemma 4.3.1. Given multilinear functions f and g on ℓ variables and a bookkeeping table A f for
+f and a bookkeeping table A g for g, the prover in Protocol 24 for f · g runs in O(2 ℓ) time. A f =
+(f (0, . . . , 0), . . . , f (1, . . . , 1)) and A g = (g(0, . . . , 0), . . . , g(1, . . . , 1)) are initialized with evaluations of f
+and g on the Boolean hypercube, respectively.
+Linear-time sumcheck for Equation 4.7. The idea of the prover algorithm is similar to that proposed
+in [XZZPS19b]. The algorithm proceeds in two phases, one summing x and the other summing
+
+
+4.3. GENERALIZING GKR TO ARBITRARY ARITHMETIC CIRCUITS 94
+The first sum is the same as Equation 4.8 with s i(x) = 1, and the second sum is the same as Equation 4.8
+with t(x) = 1. The complexity for both cases remains linear. Due to linearity of the sumcheck protocol, the
+prover can execute these 3 instances simultaneously in every round, sum up the individual messages and send
+them to the verifier.
+Verifier time and proof size for all sumcheck protocols on Equation 4.7. The verifier time for all sumcheck
+protocols on Equation 4.7 is the same as Protocol 9. V still runs in O(d log |C|) time to verify all sumcheck
+statements based on Equation 4.7. The proof size is also O(d log |C|). Note that this excludes the claims of
+˜V i,j at random points at the end of the sumcheck protocol in each layer, and we will count them in the next
+section combining these claims.
+4.3.3 Combining Multiple Claims in Linear Time
+By executing the sumcheck protocol on Equation 4.7, P and V reduce an evaluation of the multiliear extension
+of a layer to multiple evaluations of multilinear extensions defined by values in the layers above. As we
+explained in Section 4.3.1, when reaching layer i, V has received multiple evaluations about this layer and
+combining these evaluations using a random linear combination would introduce an overhead on the prover.
+Even worse, with the refined sumcheck on Equation 4.7 in Section 4.3.2, now the verifier has received multiple
+evaluations of different multilinear extensions defined by subsets of gates in layer i used by different layers
+below. Now even combining these evaluations becomes challenging, let alone reducing the overhead of the
+prover.
+In this section, we propose two different approaches that not only combine these evaluations to a single
+evaluation of the multilinear extension of the entire layer i, but also incur only a linear prover time in the size
+of the circuit.
+Combining multiple claims by an arithmetic circuit. The key idea of the first approach is that instead of
+trying to come up with a complicated protocol to do the combination, we simply model the computation as an
+--------------------------------------------------------------------------------
+Structured ("Sector") GKR - The Remainder Book (https://worldcoin.github.io/remainder-documentation/gkr_theory/structured_gkr.html)
+citeturn15search1 [wordlim: 200] Crawled: 8 months ago; # Structured ("Sector") GKR ... We first consider the binary string equality function eq:{0,1}2 n↦{0,1}, where
+
+# The Remainder Book
+
+# Structured ("Sector") GKR
+
+Source: Tha13, section 5 ("Time-Optimal Protocols for Circuit Evaluation").
+
+We begin by briefly recalling the eq​ MLE (see this section for more details). We first consider the binary string equality function eq:{0,1}2 n↦{0,1}, where
+
+eq(X 1​,...,X n​;Y 1​,...,Y n​)={1 0​if ∀i:X i​=Y i​otherwise​
+
+This function is 1 if and only if X and Y are equal as binary strings, and 0 otherwise. We can extend this to a multilinear extension via the following -- consider eq​:F 2 n↦F, where
+
+eq​(X 1​,...,X n​;Y 1​,...,Y n​)=i=1∏n​(1−X i​)(1−Y i​)+X i​Y i​
+
+## Structured Layerwise Relationship
+
+See Tha13, page 25 ("Theorem 1") for a more rigorous treatment. Note that Remainder does not implement Theorem 1 in its entirety, and that many circuits which do fulfill the criteria of Theorem 1 are currently not expressible within Remainder's circuit frontend.
+
+Structured layerwise relationships can loosely be thought of as data relationships where the bits of the index of the "destination" value in the i'th layer are a (optionally subset) permutation of the bits of the index of the "source" value in the j'th layer for j>i. As a concrete example, we consider a layerwise relationship where the destination layer is half the size, and its values are the element-wise products of the two halves of the source layer's values: Let V i​(Z 1​,Z 2​) represent the MLE of the destination layer, and let V j​(Z 1​,Z 2​,Z 3​) represent the MLE of the source layer.
+
+Let the evaluations of V j​ over the hypercube be [a,b,c,d,e,f,g,h]. Then we wish to create a layerwise relationship such that the evaluations of V i​ over the hypercube are [a e,b f,c g,d h]. We can actually write this as a simple rule in terms of the (integer) indices of V i​ as follows:
+
+--------------------------------------------------------------------------------
+i want to create lattice based zkvm. inspiration a... | Chat01 (https://openai01.net/en/chat/01M2QDK208QB3ZGBAJQNMDSN8S)
+citeturn15search2 [wordlim: 200] Published: last month; Crawled: today; The paper uses generalized sparse-dense sumcheck to handle tables much larger than the trace. (Twist and Shout; Faster memory checking arguments via one-hot addressing and increments..2025-105.pdf) ... The paper has several optimizations where randomness and precomputed arrays are shared across the core Shout proof and one-hot checking. ...   * structured-equality specialization,
+
+The paper uses generalized sparse-dense sumcheck to handle tables much larger than the trace. (Twist and Shout; Faster memory checking arguments via one-hot addressing and increments..2025-105.pdf)
+
+That includes the sparse-dense protocol itself, Booleanity extension when `K^(1/d) >> T`, structured read-checking, large-memory address evaluation, Hamming-one adaptations, and corresponding cost bounds.
+
+Without Section 7, Shout is not appropriate for the enormous structured Jolt lookup tables that motivated the construction.
+
+* * *
+
+# 24. Some Shout Section 6 optimizations are also not wired together
+
+The paper has several optimizations where randomness and precomputed arrays are shared across the core Shout proof and one-hot checking.
+
+The current code runs them as separate reference protocols:
+    
+    text
+    
+    `one_hot/cycle
+    shout/rcycle`
+
+So challenge sharing such as reusing `r_cycle` for the one-hot proof is not fully composed.
+
+This is not a correctness issue for the standalone relations, but it loses the paper's combined-prover efficiency.
+
+Section 6 is explicitly about the optimized small-memory prover. (Twist and Shout; Faster memory checking arguments via one-hot addressing and increments..2025-105.pdf)
+
+* * *
+
+# 25. Sumcheck is intentionally dense
+
+`lattice-sumcheck` is an excellent correctness oracle, but it clones and folds dense tables.
+
+Its cost profile is not what a production Jolt prover needs.
+
+Important simplifications include materializing every factor over the full hypercube, re-folding full vectors each round, generic interpolation over `0..degree` with nested loops, no zero-copy layer views, no rayon parallelism, no GPU backend, no structured polynomial evaluation, no streaming sumcheck, and no shared batch-sumcheck engine.
+
+This is one of the most important performance layers to optimize after protocol correctness is frozen.
+
+Keep the current implementation permanently as the reference backend.
+
+* * *
+
+--------------------------------------------------------------------------------
+Sailor: Sumcheck and GKR over (https://upcommons.upc.edu/server/api/core/bitstreams/67869c8c-2553-4528-bf9f-41b236c377c2/content)
+citeturn15search12 [wordlim: 200] Published: 2.5 years ago; into a polynomial vector equality ... using the precomputed images of the canonical basis to speed up the computation.
+Step 1 - Precomputing phase Given a polynomial vector ˜f, when computing ϕ( ˜f ) =
+ˆf we may need to compute many instances of the function ϕ (one for each coefficient).
+To speed up this process we can use the fact that ϕ is a linear function, and therefore if
+we find the image of the canonical basis, we can compute the image of any vector in
+Zpk by linearity.
+Therefore the precomputing phase will consider Zn
+pk to be a Zpk-module and
+compute the image of it’s canonical basis to be later used when computing multiple
+images of ϕ.
+This precomputing phase only depends on the chosen RMFE, and therefore can be
+reused in multiple separate instances of Sumcheck. That is why it is also interesting
+to point out that ψ is linear, and therefore we can use the same idea as before and
+compute the image of the canonical basis.
+Step 2 - Setup phase The setup phase will start the same way it did in the previous
+section, by batching the first log n summations together and have the sumcheck turn
+into a polynomial vector equality
+D
+∏
+i=1
+˜fi(blog n+1, · · · , bl)
+H =
+∑
+blog n+1,··· ,bl∈{0,1}
+where the product between vectors is the ⋆product.
+Both the prover and the verifier will now compute ˆfi = ϕ( ˜fi) ∈GR(pk, d)[X1, · · · , Xn]
+using the precomputed images of the canonical basis to speed up the computation.
+The prover will now send a value ˆH claimed to be equal to
+D
+∏
+i=1
+ϕ( ˜fi(b1, · · · , bl))
+∑
+blog n+1,··· ,bl∈{0,1}
+The verifier will check that
+H = ψ( ˆH)
+And reject if it’s not true.
+The only thing left for the prover to do is to prove that
+D
+∏
+i=1
+ˆfi(b1, · · · , bl)
+ˆH =
+∑
+b1∈{0,1}
+· · · ∑
+bl∈{0,1}
+which will be done in the interactive phase.
+Step 3 - Interactive phase This last step will the the same as the interactive phase in
+Protocol 3, as we are just proving a sumcheck equality in the Galois Ring.
+The whole protocol is shown in Protocol 4.
+4.2 Completeness and soundness analysis
+Lemma 4.1. Given D polynomials fi ∈Zpk[X1, · · · , Xl], if ˆH = ∑blog n+1,··· ,bl′∈{0,1} ∏D
+i=1 ˆfi(b1, · · · , bl′)
+and ψ( ˆH) = H, then H = ∑b1∈{0,1} · · · ∑bl∈{0,1} ∏D
+i=1 fi(b1, · · · , bl).
+20--------------------------------------------------------------------------------
+Security and Cryptography For Networks: Clemente Galdi Duong Hieu Phan | PDF | Cryptography | Computer Science (https://www.scribd.com/document/1054201369/978-3-031-71070-4)
+citeturn15search3 [wordlim: 200] Published: 2.2 years ago; Crawled: 3 months ago; from PCS for multilinear l-variate polynomials. ... soundness error of the evaluation of the employed PCS. ... ## 2.5 Sumcheck Protocol and Lookup Protocol from Sumcheck ... In the full version of this paper, we
+from PCS for multilinear l-variate polynomials. Moreover, eval (l) denotes the
+soundness error of the evaluation of the employed PCS.
+There are many PCSs [25,27,29] in the literature. Here, we focus on Sona
+(recalled in Table 1), a recent PCS introduced in [22].
+
+Table 1. For l ∈ Z+ , this table contains the costs of Sona [22] for committing and
+evaluating f (X ) ∈ F[l]. H is collision-resistance hash, F is a ﬁnite ﬁeld and G is
+cryptographic group. For commitment size, writing 1H means that the commitment
+size is 1 hash value. For running time, writing O(2l )F means that it requires O(2l )
+computations with operations in F.
+
+## PCS Setup cs(l) ps(l) eval (l) tp(l) tv(l)
+
+√ √
+Sona [22] transparent 1H O(1)G negl(l) O(2 )F, O( 2 )G O( 2l )G
+l l
+
+## 2.5 Sumcheck Protocol and Lookup Protocol from Sumcheck
+
+Sumcheck Protocol. The sumcheck protocol originally proposed in [17] is heav-
+ily studied to achieve SNARKs [6,21,22]. In a sumcheck protocol, given a poly-
+nomial f (X) ∈ F[l] of degree at most ρ, for a claimed S ∈ F, a prover P aims
+at proving S = i1 ∈{0,1} · · · il ∈{0,1} f (i1 , · · · , il ). Instead of sending f (X)
+directly, P executes an l-round interaction with the veriﬁer V. Let r = (r1 , . . . , rl )
+be the randomness that V chooses in the protocol. At the last step, P outputs
+fl (Xl ) and V accepts if f (r) = e where e = fl (rl ).
+When being instantiated to construct SNARKs, f is committed under some
+PCS to achieve commitment σ(f ). Then, the sumcheck f (r) = e is conducted
+through the evaluation protocol of the PCS. In the full version of this paper, we
+recall the sumcheck protocol Πsum for relation
+⎧ ⎫
+⎨ ⎬
+Rsum = (S ∈ F, σ(f ); f (X) ∈ F[l], aux) : S = f (i) , (5)
+⎩ l
+⎭
+i∈{0,1}
+
+where aux is the auxiliary input in the PCS. As discussed previously [17,21,22],
+the sumcheck protocol Πsum satisﬁes completeness and knowledge soundness.
+The soundness error and eﬃciency of Πsum are summarized in Table 2.
+Succinct Non-subsequence Arguments 33
+
+--------------------------------------------------------------------------------
+zk-knowledge/zk-knowledge.md at main · delendum-xyz/zk-knowledge · GitHub (https://github.com/delendum-xyz/zk-knowledge/blob/main/zk-knowledge.md)
+citeturn15search4 [wordlim: 200] Crawled: last month; Actually, this is not quite true; one of the nice facts about multilinear polynomials is that if we have the evaluations of $$\omega$$ over $${0,1}^{t}$$ we can use this to compute $$\omega(r_{1},...,r_{t})$$ for any random such point. ... It also ought to be mentioned that the use of the sumcheck protocol adds a logarithmic term to the proof, which is more annoying for KZG-based than FRI-based proofs, as the latter are already polylogarithmic (bigger than the sumcheck part) whereas the former are constant-sized (much smaller) by default.
+At the end of the protocol he sends a field element $$m_{final}$$ which should correspond to P($$r_{1},...,r_{t})$$ for random verifier challenges $$r_{i}$$.
+
+The issue here is that a Merkle commitment corresponding to the values of $$\omega$$ evaluated over, say, $${0,1}^{t}$$, cannot simply be opened at $$(r_{1},...,r_{t})$$. Actually, this is not quite true; one of the nice facts about multilinear polynomials is that if we have the evaluations of $$\omega$$ over $${0,1}^{t}$$ we can use this to compute $$\omega(r_{1},...,r_{t})$$ for any random such point. The drawback is that this takes $$O(2^{t})$$ time, so it's linear in the witness size. It also likely requires access to nearly all the leaves of the tree, which kind of defeats the point.
+
+This leaves us with a few open questions:
+
+  1. Is there an efficient way for the prover to prove that he has computed $$\omega(r_{1},...,r_{t})$$ correctly, for example using the formula mentioned? (see for details)
+
+  2. If not, is there some other recursion-friendly PCS which could be used?
+
+As it turns out, we have likely found a solution to 1 (see this video).
+
+This seems to be a promising direction, due to the linear proving time and the increased flexibility with respect to custom gates. It also ought to be mentioned that the use of the sumcheck protocol adds a logarithmic term to the proof, which is more annoying for KZG-based than FRI-based proofs, as the latter are already polylogarithmic (bigger than the sumcheck part) whereas the former are constant-sized (much smaller) by default.
+
+--------------------------------------------------------------------------------
+awesome-cryptographic-schemes/categories/04-zero-knowledge-proof-systems.md at main · Tolsi/awesome-cryptographic-schemes · GitHub (https://github.com/Tolsi/awesome-cryptographic-schemes/blob/main/categories/04-zero-knowledge-proof-systems.md)
+citeturn15search5 [wordlim: 200] Crawled: today; Lasso  | 2023  | Sumcheck + sparse polynomials  | Lookup from structured tables without committing to full table; sublinear prover [1]
+--------------------------------------------------------------------------------
+Barretenberg: bb Namespace Reference (https://barretenberg.aztec.network/api/namespacebb)
+citeturn15search6 [wordlim: 200] Crawled: yesterday; These are computed by Sumcheck Prover and need to be checked using Shplemini.
+--------------------------------------------------------------------------------
+Blog (https://www.zkm.io/blog)
+citeturn15search7 [wordlim: 200] Crawled: yesterday; Multivariate Sumcheck Protocol - Part 3 ... The main methods include: ZeroCheck: Using equality kernels to reduce the
+--------------------------------------------------------------------------------
+ECCC - Reports beginning with S (https://eccc.weizmann.ac.il/title/S)
+citeturn15search8 [wordlim: 200] Crawled: today; Eli Ben-Sasson, Alessandro Chiesa, Ariel Gabizon, Michael Riabzev, Nicholas Spooner Short Interactive Oracle Proofs with Constant Query Complexity, via Composition and Sumcheck Revisions: 2 ... We present an efficient proof system for Multipoint Arithmetic Circuit Evaluation: for every arithmetic circuit $C(x_1,\ldots,x_n)$ of size $s$ and degree $d$ over a field ${\mathbb F}$, and any inputs $a_1,\ldots,a_K \in {\mathbb F}^n$,
+--------------------------------------------------------------------------------
+Sailor: Sumcheck and GKR over Zpk (https://danivilardell.github.io/personal_website/pages/ZKP_over_Rings.pdf)
+citeturn15search13 [wordlim: 200] Published: 2.2 years ago; precomputed images ϕ and ψ of the canonical basis ... are just proving a sumcheck equality in the Galois ... Let F/Fq be a function field of genus g with
+--------------------------------------------------------------------------------
+(PDF) zkComposer: Decomposing Proof Construction to Scale zkML (https://www.researchgate.net/publication/408699459_zkComposer_Decomposing_Proof_Construction_to_Scale_zkML)
+citeturn15search9 [wordlim: 200] Published: 3 months ago; Crawled: 2 months ago; precisely recovers the arithmetic value computed by every ... GKR reduces ... If the equality
+--------------------------------------------------------------------------------
+Specifically, the commitments of the two vectors involved in (19) can be efficiently computed from the existing commitments that are known to both parties. In particular, we consider e := e(u_relu) ⊗ e(u_bit) and its elementwise inversion e^{-1}, such that H e^{-1} can also be directly computed by both the trainer and trusted verifier (since both e and H are known to both parties). Therefore, for the second vector in the inner product, (https://iacr.steepath.eu/2023/1174-zkDLEfficientZeroKnowledgeProofsofDeepLearningTraining.pdf)
+citeturn15search14 [wordlim: 200] Published: 3.2 years ago; Precomputed \(\mathbf{G}^{\mathrm{prod}}=\prod_{i=0}^{2^D-1}\mathbf{G}^{\mathrm{prod}}_i\) ... Therefore, after the transformation of the commitments using Algorithm 1, the equality (19) can be proven using the zero-knowledge inner-product argument with a logarithmic proof size [45]. ... However, a straightforward execution of the GKR protocol on the entire circuit does not produce these results unless additional expensive post-processings are performed.
+--------------------------------------------------------------------------------
+gnark-crypto/CHANGELOG.md at master · Consensys-Incorporated/gnark-crypto · GitHub (https://github.com/Consensys-Incorporated/gnark-crypto/blob/master/CHANGELOG.md)
+citeturn15search10 [wordlim: 200] Crawled: 5 days ago;   * pre-hashed message in eddsa ...   * gkr sumcheck combine and computeGJ
+--------------------------------------------------------------------------------
+Releases · Consensys-Incorporated/gnark · GitHub (https://github.com/Consensys-Incorporated/gnark/releases)
+citeturn15search11 [wordlim: 200] Crawled: 5 days ago;   * Feat: implement FixedLengthSum function for sha3 by @liyue201 in #1379
+  * Perf: Poseidon2 GKR circuit by @Tabaie in #1410 ...   * feat: add Pectra BLS12-381 elliptic curve precompiles by @yelhousni in #1447
+--------------------------------------------------------------------------------
+Automated Pipeline Design (https://citeseerx.ist.psu.edu/document?doi=b4b91726293f8c1f45c632c1041f570de71ed154&repid=rep1&type=pdf)
+citeturn15search15 [wordlim: 200] Published: 8 months ago; For comparison, the precomputed versions of the ... The address comparison is realized with an equality tester. ... Let gkR
+

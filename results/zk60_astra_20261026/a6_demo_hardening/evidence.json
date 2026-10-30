@@ -1,0 +1,92 @@
+{
+  "at": "2026-10-29T19:20:23.870392+00:00",
+  "status": "reset/profile code tested; no live reset; screenshots await real post",
+  "tests": 16,
+  "guard": "check-2/guard.json",
+  "native_computation": false,
+  "real_demo_reset_executed": false,
+  "first_demo_pinned_source_changes": [],
+  "real_demo_preview": {
+    "ready": false,
+    "blockers": [
+      "Queued or running proof/check jobs must finish before reset."
+    ],
+    "counts": {
+      "posts": 1,
+      "jobs": 3,
+      "checks": 0,
+      "chunk_proofs": 0,
+      "screenings": 1
+    },
+    "effect": "Archive the database and clear the feed; retain all screening reservations, keys, files and chain history."
+  },
+  "classifier_profile": {
+    "name": "shieldstral-laptop",
+    "label": "Current laptop: Shieldstral T128 on CPU",
+    "prover_mode": "shieldstral",
+    "device": "cpu",
+    "cpu_threads": 2,
+    "context_tokens": 128,
+    "max_content_tokens": 336,
+    "category_geometry": {
+      "sexual": {
+        "chunk_tokens": 55,
+        "overlap_tokens": 8,
+        "max_chunks": 8
+      },
+      "violence": {
+        "chunk_tokens": 55,
+        "overlap_tokens": 8,
+        "max_chunks": 8
+      },
+      "hate": {
+        "chunk_tokens": 49,
+        "overlap_tokens": 8,
+        "max_chunks": 8
+      }
+    },
+    "binary_sha256": "dfb8025eb903b203f4b50371fdd0dd00659d46a9dbaad9d121d6a68343ebc70c",
+    "statement_identity": "29aeba6c04a819cdbafde311f7c9d0c678d85aff22292ae6b9647761158a0bd1",
+    "profile_sha256": "2ba468f98085caf1136f27cf66220f93d8e316acb8dbae7e98f9eb68347f05a0",
+    "min_bits": 95,
+    "guard_resources": {
+      "seqgen": {
+        "need_gib": 1.5,
+        "cap_gib": 3,
+        "max_seconds": 600
+      },
+      "prove": {
+        "need_gib": 10.4,
+        "cap_gib": 11.5,
+        "max_seconds": 1200
+      },
+      "verify": {
+        "need_gib": 2.9,
+        "cap_gib": 7,
+        "max_seconds": 600
+      },
+      "inowner": {
+        "need_gib": 2.9,
+        "cap_gib": 7,
+        "max_seconds": 600
+      },
+      "label": {
+        "need_gib": 2.9,
+        "cap_gib": 7,
+        "max_seconds": 1800
+      }
+    },
+    "privacy_status": "privacy statement pending",
+    "measurement_note": "Native R16 runs, shared laptop n=1: prove peak RSS up to8.27GiB. Resource reservations include margin; T256 has no accepted measurement on this laptop.",
+    "validated_against_runtime": true,
+    "file": "/home/victor/IntelligenceRegulation/apps/proven-media/deploy.json"
+  },
+  "source_sha256": {
+    "apps/proven-media/proven_media/demo_reset.py": "b5095a58726e36bc1d50261f65d56319cde6711d3f5bf145ba7c151e6f377e9c",
+    "apps/proven-media/proven_media/hardware_profiles.py": "bbc4ca52aa0fba22b2333129d198dc6e774f0fd6923c29629c6c85312b616bfb",
+    "apps/proven-media/tools/reset_demo.py": "ad8ae678d8e616adda53a4d75628bdc837320aff505214e0ed27c06f5ccb34a9",
+    "apps/proven-media/tests/test_demo_reset.py": "edde0577c36411e34f165ed55953984aea12e43fb61f49b2e7c884cc2ff2f35a",
+    "apps/proven-media/deploy.json": "332eab87f416caf878367985d5d426052624e3c006531db33be7d007b695985c",
+    "apps/proven-media/README.md": "f97fdea2ca9ab53c15f6ff1758167ab2f15f16698b4990e8051e1a434c32ab38"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "leaf_exit": 0,
+  "wrapper_exit": 1,
+  "old_expected_minimum": 835,
+  "actual_passed": 834,
+  "actual_ignored": 71,
+  "diagnosis": "Author expectation overcounted split tests by one. All816baselinepassed outcomes and51ignored preserved;18newpass and20newignored. Test-only doctest source line locations normalized. No Rust test failed.",
+  "recovery": "Version4tail runner adopts validated existing suite3, no duplicate full-suite leaf. Originalwrapper source/trace retained."
+}

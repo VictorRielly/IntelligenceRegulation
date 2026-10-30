@@ -1,0 +1,54 @@
+{
+  "global_priority": [
+    {
+      "rank": 1,
+      "title": "Owner whole-prover high-end GPU plus verified fixed-context resident1/2/4/8",
+      "baseline": "Carried CPU8B T128 total478.737s; one-slot/device results do not cover the whole prover.",
+      "eliminated_work": "Recurring CPU proof work and genuinely once-per-workload model/device setup.",
+      "added_costs": "Transfers,witness,all fresh masking,serialization,pipeline drain,independent verify.",
+      "prerequisites": "Owner native device lane,complete phase clocks,actual fit,privacy/source pins,shared heavy/build locks. Latest LOW fidelity proposal increases R9 layout and needs separate review; benchmark actual admitted configuration. Current D32 amendment (2026-10-21): <=1.02x perplexity, coordinating reading >=98% LAMBADA, zero refusals; choose cheapest passing stack and re-review its profile. D33/D36 remain narrow CPU TinyLlama artifact acceptances; D37 classifier application does not change this8B research target. Checkpoint concurrent update: D33/D36 extended to frozen-r11 at02:27 in the register; still TinyLlamaCPU, no GPU/8B acceptance. D38 selects text safety classifier application; no change to this research target. D41 classifier chunking is a separate product direction, not acceptance of independent contexts as one decode stream or a change to the private8B throughput target. New owner status2026-10-26 18:05: R12 focused/golden/dense diagnostics passed; freeze/review ongoing. Chosen8B fidelityLOW+h24 costs+22.8%committed atT128;R13profileimplementation/review andconfirmation rerun owed. Neither is a private8BGPUthroughput result. CurrentD42guard replacement completed19:00:31UTC perregister; owner must usecurrentguard/pins/sharedlocks. Noheavyjoblaunchedhere. Cycle0128 owner update: R12 soundness accepted with tied-head binding fixes assigned R12b; full8BGPU throughput remains absent. D43 funding priority does not amend current research8B target. No owner work or new heavy job duplicated. Cycle0130 current R12b/RC2 soundness fix-scope freezes are not privacy8BGPU acceptance. D44 guard swap window is being arranged at23:50; owner rechecks current guard/locks before any heavy run. New public tied-table checkpoint authentication may recur per call; classify it as startup only if a measured resident session safely reuses authenticated public derivations. Cycle0131 re-read: D44 guard install completed00:33:31UTC, currentpins/locks apply. R-C2 accepted soundness fix-scope00:56; library/capture binding and recaptures still owed. These do not change private8B target. Final reread: D45 at01:04UTC fixes one policy/threshold per classifier item, makes classifier length public and binds proof to post with fail-closed publication. Does not amend generic8B research acceptance. Cycle0138 reread: owner R13 accepted soundness at twelve profiles; real Shieldstral registration underway. The 8B T512 soundness count below95 is still open in owner status. No complete private8B GPU rate or amendment of this research target.",
+      "integration_cost": "Large; owner work, no GPU authority here.",
+      "exactness": "Original full attention+FFN relation and refusals.",
+      "privacy_soundness": "No mask/opening reuse; every counted full receipt independently verifies and meets current scope.",
+      "compatibility": "Existing Rust/CUDA native lane.",
+      "end_to_end_ceiling": "Unknown until measured complete workload slope; no CPU/kernel projection to50/s.",
+      "falsification": "Recurring full-proof rate below50/s,failed coverage or fit,or backlog grows.",
+      "cycle0140_owner_update": "Current status R13 accepted on soundness only; classifier3B timings and unreviewed S4 split-width counts do not amend private8B high-endGPU target. CPU allocator candidate59 has zero direct incidence in an accepted CUDA commitment.",
+      "cycle0141_owner_update": "R13 soundness acceptance and classifier R16b fix-scope freeze are separate from the private8B high-endGPU throughput target. No device/workload test here. Public-sum component diagnostic is not a whole-prover gain.",
+      "cycle0142_status": "Priority unchanged: complete verified high-endGPU work and exclusive clocks remain above local metadata work. R13 soundness and classifierR16b are not8BGPU throughput/privacy acceptance."
+    },
+    {
+      "rank": 2,
+      "title": "REFINED owner DD larger-context scaling after measured T128 null result",
+      "baseline": "Owner R9 built/frozen 2026-10-20T04:52:07Z, tree af90c703...; 8B T128 total478.7 ->474.9s, shared box n=1, explicitly no measurable change. Not reproduced here; R9 soundness now accepted with binding conditions; At checkpoint D30 records DD gate13/13PASS,not a DD privacy statement or8B/GPU acceptance.",
+      "eliminated_work": "Counted T128 A/H3283/3634 (-3.86% committed words); no elapsed saving verified here.",
+      "added_costs": "Dictionary,additional bound slot/lookup terms and capacity/refusal checks.",
+      "prerequisites": "D24 reviewr9 now accepts three DD profiles on soundness (decisions register05:59UTC); obey N-r9-a row-Sum/slot17/Ht relation and N-r9-b M_dd inA/commit before challenges. Checkpoint2026-10-21 05:30UTC: D30 records13/13DD gatePASS,0unexplainedleaves,on devrung andTinyLlamaT128L1/2; evidenceonly,noDD privacy statementcoversprofile; complete workload/refusal/fidelity/receipt checks remain. D32 precision co-design: distinguish F_P12 (cap unchanged) from a finer exp-score table S12 (owner models DD infeasible). Reproduce public-table distinct outputs before carrying DD savings to a fidelity configuration. Cycle0112 confirms F_P-only unchanged cap; S12 cap32 fails, while larger caps can have counted T512 savings but T128 regressions; new profiles/review required. The prior first8-capture note is superseded by13/13 stagedrecords at05:30UTC (owner evidence,notreproduced). Do not infer DD privacy acceptance from that; keep all profile-specific obligations. Cheapest DD-compatible fidelity stack still being measured.",
+      "integration_cost": "Owner prototype exists: retained log has85 tests passing,1ignored,519filtered. Not rerun here.",
+      "exactness": "D30 exact arithmetic and every declared binding retained.",
+      "privacy_soundness": "D27 whole-run security,fresh masking,new-profile review; tests are not privacy acceptance.",
+      "compatibility": "Owner R9; this experiment pins R8 baseline and active GPU source separately.",
+      "end_to_end_ceiling": "Unknown. T128 measured null does not falsify the different T512 geometry; count reductions alone do not predict throughput.",
+      "falsification": "Over-cap/refusal/binding failure or full-workload overhead erases gain.",
+      "cycle0142_status": "Priority unchanged: complete verified high-endGPU work and exclusive clocks remain above local metadata work. R13 soundness and classifierR16b are not8BGPU throughput/privacy acceptance."
+    },
+    {
+      "rank": 3,
+      "title": "REFINED tested public-role exclusive FZC clocks before allocator/capacity changes",
+      "baseline": "72partial private owner+commit+slot18 schedules and independent interval controls now distinguish live/requested/idle/raw/cumulative; actualdeviceHWM stillunknown. Current source FzcStats body/total omit pre-body and post-report scopes, tail local drops and unreported failures; no timing magnitude established.",
+      "eliminated_work": "Only actual idle capacity or scratch overlap exposed by complete native phase evidence.",
+      "added_costs": "Public-role lifecycle telemetry,capacity rather than requested length,completion edges and local timing. Counter/range overhead and log buffering; any retained-fence time must stay charged. Sum of parallel thread-wall is not workload elapsed. Wrappers and nested driver APIs counted once.",
+      "prerequisites": "Instrument raw+pooled+idle+cache+driver capacity and transient commit/open/sumcheck phases. Source accounting alone cannot locate actual HWM. Theodosian adds an older methodological lead: separate L2/NoC from DRAM limits and batch only within measured working-set capacity; no FHE constants transferred. For the affine candidate, record actual raw eligibility, public nonzero pad coefficient count, exclusive raw-derived phase, registers and parameter staging. No private values in logs. Cycle0120 supplies integer-nanosecond per-thread nesting, independent tick replay, public role formulas and explicit cleanup/error roots. Add owner before-constructor/after-destruction scope; keep host API/device activity/critical path separate. No added synchronization for timing; compare instrumentation off/on.",
+      "integration_cost": "Small telemetry hook; broad enclosing measurement and owner locks required.",
+      "exactness": "No arithmetic/transcript/order changes.",
+      "privacy_soundness": "Log public role/stage/shape only; no addresses/values/private challenge material in public receipts.",
+      "compatibility": "prove_run_with/prove_core/Pooled and raw allocation seams in pinned sources.",
+      "end_to_end_ceiling": "Unknown; no native allocation fraction or complete GPU rate. Matched synthetic allocation fractions give different causal savings; only truly removable critical-path work supports an Amdahl bound.",
+      "falsification": "Native coverage already complete or no avoidable capacity in actual peak phase. Any unreconciled scope, missing failure/drop, leaked metadata, clock-domain mixing, material profiler perturbation or no material safe-removable critical-path time.",
+      "cycle0142_status": "Priority unchanged: complete verified high-endGPU work and exclusive clocks remain above local metadata work. R13 soundness and classifierR16b are not8BGPU throughput/privacy acceptance."
+    }
+  ],
+  "local_tested_rank": 81,
+  "local_next_rank": 82,
+  "not_a_gpu_or_proving_speed_claim": true
+}

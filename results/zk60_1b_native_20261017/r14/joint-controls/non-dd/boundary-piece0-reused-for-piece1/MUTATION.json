@@ -1,0 +1,10 @@
+{
+  "case": "boundary-piece0-reused-for-piece1",
+  "stage": 1,
+  "offset": 33134856,
+  "bytes_changed_region": 266240,
+  "same_frame_lengths": true,
+  "metadata_unchanged": true,
+  "expected_refusal": "pcs zk: group",
+  "source": "067ba4622a51fc62c320bfd01a96a04aa614a6f798ef46757669d4faa97404f7"
+}

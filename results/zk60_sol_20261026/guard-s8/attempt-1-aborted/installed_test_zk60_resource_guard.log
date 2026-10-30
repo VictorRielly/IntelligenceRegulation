@@ -1,0 +1,50 @@
+test_budget_counts_live_jobs (test_zk60_resource_guard.TestAdmission) ... ok
+test_heavy_lock_is_shared_with_old_style_flock_wrappers (test_zk60_resource_guard.TestAdmission) ... ok
+test_refusal_publishes_result_and_done (test_zk60_resource_guard.TestAdmission) ... ok
+test_refuses_a_job_that_can_never_fit (test_zk60_resource_guard.TestAdmission) ... ok
+test_refuses_nonfinite_or_negative_numbers (test_zk60_resource_guard.TestAdmission) ... ok
+test_refuses_swap_when_headroom_cannot_restore_all_pages (test_zk60_resource_guard.TestAdmission) ... ok
+test_refuses_when_live_memory_is_short (test_zk60_resource_guard.TestAdmission) ... ok
+test_stale_claim_does_not_skip_the_gpu_idle_check (test_zk60_resource_guard.TestAdmission) ... ok
+test_stale_environment_claims_do_not_bypass_admission (test_zk60_resource_guard.TestAdmission) ... ok
+test_stale_job_file_is_reaped (test_zk60_resource_guard.TestAdmission) ... ok
+test_a_build_never_overlaps_a_proof (test_zk60_resource_guard.TestExclusionAndTracking) ... ok
+test_a_proof_never_overlaps_a_build (test_zk60_resource_guard.TestExclusionAndTracking) ... ok
+test_child_sees_which_locks_it_already_holds (test_zk60_resource_guard.TestExclusionAndTracking) ... ok
+test_double_forked_straggler_is_killed_with_cgroups (test_zk60_resource_guard.TestExclusionAndTracking) ... ok
+test_light_jobs_run_beside_a_heavy_job (test_zk60_resource_guard.TestExclusionAndTracking) ... ok
+test_nested_guard_call_is_refused_not_deadlocked (test_zk60_resource_guard.TestExclusionAndTracking) ... ok
+test_setsid_child_is_counted_and_killed_without_cgroups (test_zk60_resource_guard.TestExclusionAndTracking) ... ok
+test_gpu_job_refused_when_card_is_busy (test_zk60_resource_guard.TestGpu) ... ok
+test_gpu_job_refused_when_card_unreadable (test_zk60_resource_guard.TestGpu) ... ok
+test_gpu_job_runs_on_an_idle_card_and_records_vram (test_zk60_resource_guard.TestGpu) ... ok
+test_losing_gpu_telemetry_mid_run_kills_the_job (test_zk60_resource_guard.TestGpu) ... ok
+test_stuck_vram_after_exit_is_a_recorded_failure (test_zk60_resource_guard.TestGpu) ... ok
+test_vram_over_cap_kills_the_job (test_zk60_resource_guard.TestGpu) ... ok
+test_done_marker_and_log (test_zk60_resource_guard.TestRun) ... ok
+test_exit_code_passes_through_and_history_is_written (test_zk60_resource_guard.TestRun) ... ok
+test_host_memory_floor_kills_the_job (test_zk60_resource_guard.TestRun) ... ok
+test_kernel_memory_cap_stops_a_runaway (test_zk60_resource_guard.TestRun) ... ok
+test_launch_failure_leaves_a_terminal_record_and_frees_the_lock (test_zk60_resource_guard.TestRun) ... ok
+test_max_secs_kills_the_job (test_zk60_resource_guard.TestRun) ... ok
+test_rss_cap_kills_the_job (test_zk60_resource_guard.TestRun) ... ok
+test_terminal_record_carries_identity_and_child_wall (test_zk60_resource_guard.TestRun) ... ok
+test_watchdog_failure_kills_the_job_and_says_so (test_zk60_resource_guard.TestRun) ... ok
+test_a_finished_command_is_noticed_immediately (test_zk60_resource_guard.TestScopeIdentity) ... ok
+test_a_guard_started_inside_a_scope_leaves_that_scope_alone (test_zk60_resource_guard.TestScopeIdentity) ... ok
+test_a_scope_with_a_different_unit_name_is_not_adopted (test_zk60_resource_guard.TestScopeIdentity) ... ok
+test_an_inherited_session_scope_is_never_adopted (test_zk60_resource_guard.TestScopeIdentity) ... ok
+test_the_exact_unit_is_adopted_and_guard_pids_stay_out_of_the_kill_set (test_zk60_resource_guard.TestScopeIdentity) ... ok
+test_the_right_name_is_refused_if_it_contains_the_guards_parent (test_zk60_resource_guard.TestScopeIdentity) ... ok
+test_the_right_name_is_still_refused_if_it_contains_the_guard (test_zk60_resource_guard.TestScopeIdentity) ... ok
+test_the_unit_is_resolved_by_identity_after_the_launcher_exited (test_zk60_resource_guard.TestScopeIdentity) ... ok
+test_locks_stay_held_if_the_guard_is_sigkilled_in_cgroup_mode (test_zk60_resource_guard.TestSignals) ... ok
+test_locks_stay_held_if_the_guard_itself_is_sigkilled (test_zk60_resource_guard.TestSignals) ... ok
+test_sigterm_kills_a_child_that_ignores_sigterm_then_releases_the_lock (test_zk60_resource_guard.TestSignals) ... ok
+test_sigterm_while_queued_publishes_a_refusal (test_zk60_resource_guard.TestSignals) ... ok
+test_status_reports_memory_and_locks (test_zk60_resource_guard.TestStatus) ... ok
+
+----------------------------------------------------------------------
+Ran 45 tests in 70.997s
+
+OK

@@ -1,0 +1,303 @@
+Internal Error ()
+citeturn9view0 [wordlim: 200] Source: open({"ref_id":"https://github.com/Oraclizer/statesync-gkr/releases/tag/v1.2.0","lineno":null}); 
+Failed to fetch https://github.com/Oraclizer/statesync-gkr/releases/tag/v1.2.0: Cache miss--------------------------------------------------------------------------------
+statesync-gkr/LICENSE at main · Oraclizer/statesync-gkr · GitHub (https://github.com/Oraclizer/statesync-gkr/blob/main/LICENSE)
+citeturn9view1 [wordlim: 200] Crawled: last week; Content type: text/html; Source: open({"ref_id":"https://github.com/Oraclizer/statesync-gkr/blob/main/LICENSE","lineno":null}); Total lines: 565
+L0: 【0†Skip to content】
+L1: ## Navigation Menu
+L2: 
+L3: 【1†Sign in】
+L4: 
+L5: Appearance settings
+L6: 
+L7:   * Platform
+L8: 
+L9:     * AI CODE CREATION
+L10:       * 【2†GitHub CopilotWrite better code with AI】
+L11:       * 【3†GitHub Copilot appDirect agents from issue to merge】
+L12:       * 【4†MCP RegistryIntegrate external tools】
+L13: 
+L14:     * DEVELOPER WORKFLOWS
+L15:       * 【5†ActionsAutomate any workflow】
+L16:       * 【6†CodespacesInstant dev environments】
+L17:       * 【7†IssuesPlan and track work】
+L18:       * 【8†Code ReviewManage code changes】
+L19:       * 【9†Code QualityEnforce quality at merge】
+L20:     * APPLICATION SECURITY
+L21:       * 【10†GitHub Advanced SecurityFind and fix vulnerabilities】
+L22:       * 【11†Code securitySecure your code as you build】
+L23:       * 【12†Secret protectionStop leaks before they start】
+L24: 
+L25:     * EXPLORE
+L26:       * 【13†Why GitHub】
+L27:       * 【14†Documentation†docs.github.com】
+L28:       * 【15†Blog†github.blog】
+L29:       * 【16†Changelog†github.blog】
+L30:       * 【17†Marketplace】
+L31: 
+L32: 【18†View all features】
+L33: 
+L34:   * Solutions
+L35:     * BY COMPANY SIZE
+L36:       * 【19†Enterprises】
+L37:       * 【20†Small and medium teams】
+L38:       * 【21†Startups】
+L39:       * 【22†Nonprofits】
+L40: 
+L41:     * BY USE CASE
+L42:       * 【23†App Modernization】
+L43:       * 【24†DevSecOps】
+L44:       * 【25†DevOps】
+L45:       * 【26†CI/CD】
+L46:       * 【27†View all use cases】
+L47: 
+--------------------------------------------------------------------------------
+GitHub - Oraclizer/statesync-gkr: Rust prover for sparse-Merkle state transitions, with GKR and sumcheck mechanized in Isabelle/HOL · GitHub (https://github.com/Oraclizer/statesync-gkr)
+citeturn9view2 [wordlim: 200] Crawled: today; Content type: text/html; Source: find({"ref_id":"turn8view0","pattern":"v1.2.0"}); Total lines: 523
+L240: 【117†Image: StateSync-GKR v1.2.0 in four measured cells, each with its own baseline: 89-fold less peak memory than the engine's own dense baseline on a width-4,096 test circuit (89.46-fold on v1.1.0, 88.87-fold on v1.2.0); 6,470-fold faster proving than that baseline on the same circuit, against 2,507-fold with v1.1.0; 3,300 requests a second on one 192-core server with every request accepted within one second, against 1,150 for v1.1.0 measured the same day; and a 99th-percentile latency of 34 ms at 1,000 requests a second on the same server, against 440 ms for v1.1.0 the same day.】
+L241: 【118†Image: StateSync-GKR v1.2.0 serving results against v1.1.0 measured the same day on the same VM types. On one 192-core VM at 1,000 requests per second, p99 latency from scheduled arrival to verified acceptance fell from 440 ms to 34 ms, medians of three 60-second runs. The highest offered rate with every timed request accepted within one second rose from 500 to 2,000 requests per second on 48 cores and from 500 to 3,000 on 96 cores, in short screens with one run per rate.
+L242: On 192 cores it reached 3,300 requests per second on one connection in three 60-second runs and a 30-minute run, against 1,000 for v1.1.0 in the earlier campaign and 1,150, the highest rate tried for it, on the same day. With two connections, 15-second screens passed every rate up to 5,000 requests per second, where the verifying frontend reached its own limit, so 5,000 is a lower bound.】
+L243: Version 1.2.0 keeps every proof byte and changes how proofs are computed and served. On one 192-core VM, the reference proof server in continuous mode had a p99 latency of 34 ms at 1,000 requests/s, against 440 ms for v1.1.0 measured the same day (medians of three 60-second runs), and accepted every request within one second at 3,300 requests/s on one connection in three 60-second confirmation runs.
+L244: In 15-second screens on 48-core and 96-core VMs, the highest offered rate with every request accepted within one second rose from 500 to 2,000 and to 3,000 requests/s. 【119†Performance and operating profiles】 gives each value with its server mode, host, offered rate, run length and connection count.
+L245: 【120†Image: Nine benefits in three groups. Use resources well: sparse reduction, cube and affine fusion, parallel Merkle constraints. Repeat efficiently: derived wiring, prepared reuse, independent jobs. Keep the meaning: three-state lifecycle, strict codec and request binding, reusable sumcheck/GKR core, selected Rust contracts and a conditional forward acceptance theorem.】
+L246:   * Use resources well: sparse reduction, cube/affine fusion and parallel Merkle constraints.
+L247:   * Repeat efficiently: derived wiring, prepared reuse and independent proof jobs.
+L248:   * Keep the meaning: three-state lifecycle, strict codec/request binding and a reusable core with traceable acceptance evidence.
+L249: 【121†See the implementation】 · 【122†Read the evidence conditions】 · 【115†Inspect the measurements】 · 【119†See the v1.2.0 serving results】 · 【123†Browse the performance overview†oraclizer.io】 · 【124†Read the design rationale†research.oraclizer.io】
+L250: 
+L251: Measurements, structure, controls and model results support different claims. The nine mechanisms are not nine independently isolated causal experiments.
+L252: 
+L253: Measurement conditions and the full implementation map
+L254: The engine combines sparse proving, a compact circuit schedule and reusable preparation. In separate controlled comparisons against its own references, StateSync-GKR used about 89 times less peak process RAM and achieved up to 23.68 times faster prepared verification.
+L268: Direct depth-24 fresh/prepared measurements of v1.2.0 show 7.19–10.13 times lower per-request proving-path latency, against 3.46–4.45 times in the earlier v1.1.0 campaign; the ratio grew because v1.2.0 proves a prepared request faster. Preparation reuses the circuit commitment as well as compilation: one membership profile spends 105.03 ms on commitment and 7.90 ms on compilation.
+L298: For proving speed, build with `RUSTFLAGS="-Ctarget-cpu=native"` on the machine that runs the prover. In the v1.2.0 one-thread measurements the default release build took 1.66–1.71 times as long per prepared proof; both builds produce the same proof bytes. 【137†Build for proving speed】 gives the measurements.
+L305: The facade consumes an operation, its private Merkle witness and the public inputs that the caller expects. A checked call handles both construction errors and a rejected verifier result:
+L306: 
+L307:     use statesync_gkr::{StateSyncProver, SyncRequest, SyncResult};
+L308: 
+L309:     pub fn prove_checked(
+L310:         prover: &StateSyncProver,
+L311:         request: &SyncRequest,
+L312:     ) -> Result<SyncResult, String> {
+L313:         let result = prover
+L314:             .prove_sync_op(request)
+L315:             .map_err(|error| format!("proving failed: {error:?}"))?;
+L316:         if !prover.verify_sync_op(request, &result) {
+L317:             return Err("the proof or its request binding was rejected".to_owned());
+L318:         }
+L319:         Ok(result)
+L320:     }
+L321: 【114†Usage and API boundary】 contains a complete application, dependency pin, supported input format, prepared execution and error handling. The 【138†API reference†oraclizer.io】 lists every public module. The caller obtains trusted roots and witnesses from its own state store; the library does not authenticate an external database or establish consensus. 【139†Trust boundaries†oraclizer.io】 separates what a successful verification establishes from the application's responsibilities.
+L322: The current verifier reconstructs the circuit input from that witness, including the leaf hash and the complete old/new Merkle paths.
+L323: ## CPU measurements
+L324: 
+L325: Self-measured on two AMD EPYC 9R45 sockets: 192 physical CPU cores, SMT off, 384 GiB installed RAM, Linux, Rust 1.96.1 with `-Ctarget-cpu=native`. Depth 24, batch 768, 192 workers, two-field occupied payloads. The v1.2.0 rows come from the same instance type as the v1.1.0 rows, running Amazon Linux 2023 with kernel 6.18 instead of the earlier kernel 6.8; a same-day v1.1.0 membership rerun came within 0.4% of its earlier rate.
+L326: All columns are inner proofs/s. The witness columns include proving; the last column parallelizes witness creation in the benchmark caller.
+L327: Operation  | Release  | Proving only  | Serial witness  | Parallel witness
+L328: --- | --- | --- | --- | ---
+L329: Membership  | v1.2.0  | 7,713.71  | 1,323.71  | 6,323.95
+L330:  | v1.1.0  | 3,207.74  | 1,060.35  | 2,881.55
+L331: Non-membership  | v1.2.0  | 7,220.36  | 1,313.25  | 5,899.04
+L332:  | v1.1.0  | 2,930.85  | 1,021.87  | 2,654.03
+L333: Update  | v1.2.0  | 5,390.07  | 716.64  | 4,782.21
+L334:  | v1.1.0  | 2,092.03  | 594.56  | 1,984.00
+L335: Against v1.1.0 measured on the same host the same day, v1.2.0 proving-only rates are 2.41–2.56 times higher at 192 workers and 2.53–2.71 times higher on one worker. Each value is the median of three process-level rates; each rate uses the median of three measured batch intervals. The parallel-witness column is benchmark-caller orchestration around the existing public APIs. Timers exclude encoding, hash/control checks and delivery.
+L336: Fixtures have independent roots; these are inner-job rates, not sustained service throughput or sequential state commits. The 【140†controlled CPU note】 provides run ranges, latency, RSS, direct-SMT predicate scope, raw samples and replay.
+L337: A separate five-process supplement measures the broader computation interval: parallel witness creation → proving → encoding → encoded-proof acceptance. At the same depth 24, batch 768 and 192 workers:
+L338: 
+L339: Both columns are inner proofs/s for the complete prepared local computation.
+L340: Operation  | Release  | Parallel output  | Serial output
+L341: --- | --- | --- | ---
+L342: Membership  | v1.2.0  | 2,264.06  | 153.81
+L343:  | v1.1.0  | 1,593.17  | 148.98
+L344: Nonmembership  | v1.2.0  | 2,107.57  | 149.30
+L345:  | v1.1.0  | 1,431.66  | 144.01
+L346: Update  | v1.2.0  | 1,815.31  | 125.59
+L347:  | v1.1.0  | 1,167.49  | 121.01
+L348: Both columns create witnesses and prove in parallel; only encoding and encoded verification change mode. Paired serial/parallel timings of that full interval yield 14.10–14.64 times lower local-batch time for v1.2.0 and 9.71–10.71 times for v1.1.0 across the three operations. This range summarizes paired ratios, not ratios of the throughput medians above. Preparation, transport, post-timer hashing/logging and state commits are outside this interval. These are computation rates, not service SPS.
+L349: See the 【141†supplemental study】 for five-process ranges, direct preparation costs, paired wiring, input types and raw data.
+L350: ## Measured serving and memory profiles
+L351: 
+L352: The serving experiments send complete encoded proofs over private TCP to a separate generator/verifier frontend. Their endpoint is cryptographic acceptance of the original request, including queueing and transport. The v1.2.0 runs use the reference proof server from `benches/serving` in continuous mode, with v1.1.0 run on the same day and VM types as the reference:
+L353:   * 192 cores / 384 GiB, one connection: every timed request was accepted within one second at 3,300 requests/s in three 60-second runs (p99 35.4–38.5 ms) and in a 30-minute run of 5,940,000 requests (p99 35.3 ms). v1.1.0 met one second at 1,000 requests/s in the earlier campaign and at 1,150 requests/s, the highest rate tried for it, on the same day.
+L354:   * Two connections to the same 192-core server: 15-second screens met one second at every rate from 3,400 to 5,000 requests/s. At 5,000/s the 48-core frontend reached its own limit, so 5,000/s is a lower bound for the server.
+L355:   * 192 cores, 1,000 requests/s: p99 33.7–33.9 ms in three 60-second runs, against 433.8–475.1 ms for v1.1.0 on the same day.
+L356:   * 48 and 96 cores: in screens with one 15-second run per rate, the highest offered rate with every timed request accepted within one second was 2,000 and 3,000 requests/s; these were not confirmed by longer runs. In same-day screens of 15 and 20 seconds, v1.1.0 passed 500/s and failed at its next measured rate of 1,000/s.
+L357:   * Above capacity: offered 5,100 requests/s under a 2,760-MiB memory limit, the 192-core server's sampled peak RSS was 548,064 KiB (535.2 MiB, about 19% of the limit; 402,948 KiB or 393.5 MiB by GNU time) and it exited normally; its return budget filled while the excess requests waited at the frontend.
+L358:   * Compute cost: about USD 0.87 per million requests at 3,300/s on the 192-core VM. For v1.1.0 it was USD 2.87 at 1,000/s in the earlier campaign and at most USD 2.50 at 1,150/s on the same day, the highest rate tried for it. The estimate divides the VM's on-demand hourly price by the measured rate for continuous operation and leaves out the frontend, storage and network.
+L359: Every compared v1.2.0 proof matched the v1.1.0 proof bytes. The earlier v1.1.0 batch caller results remain their own series:
+L360:   * 48 cores / 96 GiB, 500 requests/s: 450,000 timed requests over 15 minutes; every request accepted within 500 ms. p99 267.025 ms; maximum 307.096 ms.
+L361:   * Two 48-core / 96-GiB workers, 1,000 requests/s total: each receives 500/s. Three 20-second process runs accepted every timed request within 500 ms; process p99 282.108–329.785 ms.
+L362:   * 192 cores / 384 GiB, 1,000 requests/s: three 60-second process runs accepted every timed request within one second; process p99 426.032–443.471 ms and 99.62–99.92% within 500 ms.
+L363:   * 192 cores / 384 GiB, 1,150 requests/s: one 60-second run accepted all 69,000 timed requests within two seconds, with maximum latency 1,598.489 ms. Of those requests, 48,553 (70.3667%) met one second. Including the drain to final acceptance at 61.394 s, the finite-window rate was 1,123.89 accepted requests/s. The growing queue prevents a sustained 1,150/s capacity claim.
+L364: Both series use the membership/non-membership/update 1:1:1 mix at depth 24. In the v1.1.0 batch caller, worker count, batch cap and maximum wait are 48/48/5 ms per 48-core worker, and 192/192/5 ms on the 192-core VM. Repetitions use the same fixed corpus on each named host; different hosts, periods and profiles are kept separate. The two-worker result is a resource-equivalent deployment comparison against one 96-core worker with batch cap 96, not a topology-only causal experiment.
+L365: At 1,150/s, the one-second budget met in short screens did not hold for all requests in the 60-second confirmation; the two-second budget held for every request. Sixty seconds is the offered-load window, not a prover lifetime limit. Queues, late acceptances and explicit overload outcomes remain in the data.
+L366: Memory is measured independently on generic circuits. The same-driver Sparse path succeeded through tested width 65,536 under a 3-GiB cgroup with swap disabled, while the internal Dense reference reached a native OOM at width 8,192. This is a bounded tested scale, not the largest supported circuit. A v1.2.0 rerun of the same 17 limit attempts gave the same outcome for each. Requested allocation, owned Vec capacity and whole-process RSS have separate plots and definitions.
+L406:   * A secure succinct proof of the current v1.2 program identity was accepted by the zkVerify RISC0 pallet on the public Volta test chain and aggregated into an authenticated receipt. The exact statement, aggregation coordinates, and resulting receipt tuple are recorded in 【151†`release/v1.2/PUBLIC_INPUTS.json`】 and 【152†`release/v1.2/PROOF_MANIFEST.json`】.
+L407: The v1.1 program's submission stays recorded in 【153†`release/v1.1/PROOF_MANIFEST.json`】, the v1.0 program's submission stays frozen in 【154†`tests/vectors/risc0-route-b-volta-2.0.0-runtime-rebind-v1.json`】 with its transcript, and the codec is specified in 【155†`docs/encoding/risc0-route-b-manifest-v1.md`】.
+L408:   * Source reproduction is a first-class interface: 【156†`release/v1.2/SOURCE_RECIPE.md`】 separates anonymous source reproduction, which any machine can run against the pinned toolchain and the documented deterministic proof digest, from recorded exact-identity reproduction, and 【157†`release/v1.2/verify.py`】 replays the recorded hashes.
+L409: ## Proof-bound source
+L410: The current source has its own recorded program identity: two controlled clean builds of the identity source selection produced the same eight identity outputs, with image ID `1a8b55f4e1a5f703386dcfc07e5e8b2e42b5adade6be3d0057f2d565f75eb131`. The expected record is 【158†`risc0-route-b-guest-expected-v1.2.json`】, and 【159†IDENTITY_DISTRIBUTION.json】 states the source, identity and proof boundaries.
+L411: The attached external proof, `statesync-gkr-v1.2-proof.cbor`, is bound to this image ID; its size, digest, production run and public verifier receipt are recorded in 【152†`release/v1.2/PROOF_MANIFEST.json`】. The v1.1 proof remains a record of the v1.1 program identity, image ID `dc9a5f0da608178bbe56e98604cb895060c555c18329846b453f71d562d16530`, in 【153†`release/v1.1/PROOF_MANIFEST.json`】.
+L412: All 79 protected files are checked byte for byte, so comments, diagnostics, package descriptions, canonical vectors and field order stay checked. A different build result is a different identity and is never adopted by editing an expected hash. The frozen surface also retains a finite list of historical source annotations, which are not current workflows, approvals, runtime roles, or endorsements; every one of them is defined in 【160†docs/frozen-source-identifiers.md】.
+L423:   * `release/v1.2/` - public surface verifier, source recipe, manifests, and release evidence;
+L424:   * `release/v1.1/` and `release/v1.0/` - the frozen records of the previous identity cycles, kept byte for byte and never regenerated;
+L459: Production use that generates proofs, embeds or redistributes proving functionality in a product or service, or offers proof generation to third parties requires a commercial license from Oraclizer Labs, Inc.; see 【172†StateSync-GKR licensing†oraclizer.io】 for the licensing contact. Each version licensed under BSL converts to Apache-2.0 three years after it is first publicly distributed under BSL. The Business Source License is source-available and is not an Open Source license in the OSI sense.
+L460: Versions up to and including v1.1.0 were released under MIT OR Apache-2.0. 【103†NOTICE】 records the contribution notices, and dependency licenses are listed in the 【174†software bill of materials】.
+L461: To cite this software, use 【93†CITATION.cff】 or 【175†DOI 10.5281/zenodo.23655511†doi.org】 (v1.2.1). 【176†Citing StateSync-GKR†oraclizer.io】 gives BibTeX entries for the software and both papers. The earlier measurements refer to v1.1.0, archived as 【177†DOI 10.5281/zenodo.23136385†doi.org】. The v1.2.0 measurements and their same-day v1.1.0 references are described in 【115†Performance and operating profiles】.
+L462: The 【105†reproduction guidance】 separates current source checks from the checks of the release assets and the attached proof.
+--------------------------------------------------------------------------------
+GitHub - Oraclizer/statesync-gkr: Rust prover for sparse-Merkle state transitions, with GKR and sumcheck mechanized in Isabelle/HOL · GitHub (https://github.com/Oraclizer/statesync-gkr)
+citeturn9view3 [wordlim: 200] Crawled: today; Content type: text/html; Source: find({"ref_id":"turn8view0","pattern":"BSL"}); Total lines: 523
+L459: Production use that generates proofs, embeds or redistributes proving functionality in a product or service, or offers proof generation to third parties requires a commercial license from Oraclizer Labs, Inc.; see 【172†StateSync-GKR licensing†oraclizer.io】 for the licensing contact. Each version licensed under BSL converts to Apache-2.0 three years after it is first publicly distributed under BSL. The Business Source License is source-available and is not an Open Source license in the OSI sense.
+L460: Versions up to and including v1.1.0 were released under MIT OR Apache-2.0. 【103†NOTICE】 records the contribution notices, and dependency licenses are listed in the 【174†software bill of materials】.
+L461: To cite this software, use 【93†CITATION.cff】 or 【175†DOI 10.5281/zenodo.23655511†doi.org】 (v1.2.1). 【176†Citing StateSync-GKR†oraclizer.io】 gives BibTeX entries for the software and both papers. The earlier measurements refer to v1.1.0, archived as 【177†DOI 10.5281/zenodo.23136385†doi.org】. The v1.2.0 measurements and their same-day v1.1.0 references are described in 【115†Performance and operating profiles】.
+--------------------------------------------------------------------------------
+Tracking: consolidate Akita sumcheck into Jolt and complete native Spongefish integration · Issue #61 · LayerZero-Labs/akita · GitHub (https://github.com/LayerZero-Labs/akita/issues/61)
+citeturn9view4 [wordlim: 200] Crawled: 2 days ago; Content type: text/html; Source: find({"ref_id":"turn3view0","pattern":"terminal"}); Total lines: 299
+L176: `jolt-transcript` / Spongefish  | Typed native message codecs and prover/verifier operations; shared checked verifier-state behavior and reusable sampling primitives
+L177: Akita protocol crates  | PCS relations, stage order, setup/schedules, grinding plans, protocol/session/instance binding, terminal equations, diagnostics
+L178: `akita-cpu-backend`  | Specialized arithmetic, opaque sessions, compact witness storage, prefix kernels, source-specific optimizations
+L205:   * [Input] Use one canonical ordinary round engine; support a single instance without drawing extra batching coefficients or introducing extra transcript events.
+L206:   * [Input] Support both head- and tail-aligned members through explicit activation windows. Define exactly where input scaling, active-round scaling, dummy rounds, and terminal point slicing occur.
+L207:   * [Input] Preserve zero-round members and explicit terminal-oracle obligations, including entirely zero-variable reductions where supported.
+L208:   * [Input] Specify fixed public native shapes separately from algebraic polynomial degree and legacy variable-length containers. Honest low-degree rounds may need high-zero padding; Jolt's current unconditional trimming must not silently choose the proof grammar.
+L209:   * [Input] Add normalized equality-factored transitions: `q0 = claim - tau * sum(q_i, i >= 1)` and next normalized claim `q(r)`. Do not divide by equality factors or multiply the normalized claim by them accidentally.
+L210:   * [Input] Specify degree-zero inner-polynomial behavior explicitly. Legacy normalized messages allow an empty payload, whereas the inspected native shape constructor rejects a zero degree bound. Decide the supported native contract and test it; distinguish algebraic degree zero from a positive public bound with zero padding.
+L211:   * [Input] Preserve application-owned normalized activation/rescaling schedules. Ordinary `claim/2` padding is not a universal rule for normalized protocols.
+L212:   * [Input] Adapt immediate bind/finish backends to Jolt's fused round interface without double binding, skipped final binding, or swallowed session errors.
+L213:   * [Input] Keep fused/shared-table kernels and compact witness representations viable through scheduling or aggregate arithmetic boundaries; do not force one dense table scan per logical member.
+L214:   * [Input] Preserve rounds-only reduction APIs alongside complete verification paths, with explicit ownership of every final oracle check.
+L215: Gate: independent coverage exercises ordinary and normalized rounds, mixed dimensions, both alignments, zero-round members, backend failures, and terminal-claim rejection.
+L216: ### 5. Cut Akita over to landed shared packages
+L217:   * [Input] Pin all directly used Jolt packages to one immutable compatible revision.
+L218:   * [Input] Migrate live consumers in `akita-types`, `akita-prover`, `akita-verifier`, `akita-cpu-backend`, PCS integration, fuzzing, examples, and profiling workspaces.
+L219:   * [Input] Keep native proof streams canonical. Place any still-required Akita serialization-trait implementations for shared Jolt types in the trait-owning `akita-serialization` crate; do not reconstruct a retired structured proof pipeline.
+L220:   * [Input] Retain Akita's normalized stage equations, prefix protocols, EOR terminal checks, grinding-plan consumption, and verifier no-panic boundary.
+L221:   * [Input] Remove `akita-sumcheck`, its workspace member/features/dependencies, redundant exports, and obsolete tests only after all required replacement capabilities and downstream migration gates exist.
+L222:   * [Input] Update crate maps, dependency checks, book/spec references, and commands.
+L223: Gate: no duplicate sumcheck implementation or compatibility facade; the Akita proof/verifier closure uses shared packages and passes the native acceptance matrix.
+L224: ### 6. Complete Jolt–Akita integration
+L225:   * [Input] Update `jolt-akita` for the owning CPU backend and native PCS byte-proof API, including custom source contracts, proof envelopes, and error mapping.
+L226:   * [Input] Define and test the outer-Jolt-to-inner-Akita session binding at the correct protocol position. Sharing machinery does not merge the two protocol domains; a fixed session label is not a substitute for the required outer binding.
+L227:   * [Input] Preserve point orientation, any bit-reversal conventions, zero-extension padding, grouped claims, and terminal authentication exactly once at their documented boundaries.
+L228:   * [Input] Repin Jolt to the landed Akita cutover. Patch imported Git packages to workspace `jolt-field`, `jolt-poly`, `jolt-sumcheck`, and `jolt-transcript` wherever needed.
+L229:   * [Input] Extend structural package-identity checks to require one identity per shared package and no `akita-sumcheck`/`akita-field`; check root and isolated/fuzz/profile workspaces.
+L230:   * [Input] Exercise Jolt's ordinary clear path, committed/ZK path and BlindFold lowering, and Akita-backed path. Committed round consistency alone must not be presented as complete verification.
+L231: Gate: integrated proofs verify across the supported modes with no duplicated package identities or unintended feature/dependency expansion.
+L232: ## Validation and anticipated failure modes
+L233: Risk  | Required evidence
+L234: --- | ---
+L235: Transcript drift, changed sampling, or wrong ordering  | Post-native prover/verifier schedule fixtures, exact field challenge tests, protected draws after messages/nonces, backend-specific tests
+L236: Native truncation, malformed atom, ignored error, trailing bytes  | Canonical-decoding, poisoning, bounded-allocation, grinding exhaustion/order and EOF negative tests; no verifier panic
+--------------------------------------------------------------------------------
+Commits · LayerZero-Labs/akita · GitHub (https://github.com/LayerZero-Labs/akita/commits/main/)
+citeturn9view5 [wordlim: 200] Crawled: 2 months ago; Content type: text/html; Source: find({"ref_id":"turn6view2","pattern":"4a6897c"}); Total lines: 715
+L114: ### Uh oh!
+L115: 
+L116: There was an error while loading. Please reload this page.
+L117: 
+L118: 【61†LayerZero-Labs】 / 【62†akita】 Public
+L119: 
+L120: forked from 【63†a16z/hachi】
+L121: 
+L122:   * 【64†Notifications】 You must be signed in to change notification settings
+L123:   * 【64†Fork 8】
+L124:   * 【64†Star】
+L125: 
+L126:   * 【62†Code】
+L127:   * 【65†Pull requests 15】
+L128:   * 【66†Actions】
+L129:   * 【67†Projects】
+L130:   * 【68†Security and quality 0】
+L131:   * 【69†Insights】
+L132: 
+L133: Additional navigation options
+L134: 
+L135: # Commits
+L136: 
+L137: ## Branch selector
+L138: 
+L139: main
+L140: 
+L141: ## User selector
+L142: 
+L143: All users
+L144: 
+L145: ## Datepicker
+L146: 
+L147: All time
+L148: ## Commit history
+L149: 
+L150: ### Commits on Aug 28, 2026
+L151: 
+L152:   * #### 【70†refactor(prover): split commitment stages (#441)】
+L153: 
+L154: Show description for 4a6897c
+L155: 
+L156: 【71†Image: omibo†avatars.githubusercontent.com】【72†Image: cursoragent†avatars.githubusercontent.com】
+L157: 
+L158: 【73†omibo】
+L159: 
+L160: and
+L161: 
+L162: 【74†cursoragent】
+L163: 
+L164: authored
+L165: 
+L166: 【70†4a6897c】View commit details
+L167: 
+L168: Copy full SHA for 4a6897c
+L169: 
+L170: Browse repository at this point
+L171: ### Commits on Aug 27, 2026
+L172: 
+L173:   * #### 【75†Mirror Quang PR #440 tested revision (#446)】
+L174: 
+L175: Show description for 52108ef
+L176: 
+L177: 【71†Image: omibo†avatars.githubusercontent.com】【76†Image: quangvdao†avatars.githubusercontent.com】
+L178: 
+L179: 【73†omibo】
+L180: 
+L181: and
+L182: 
+L183: 【77†quangvdao】
+L184: 
+L185: authored
+L186: 
+L187: 【75†52108ef】View commit details
+L188: 
+L189: Copy full SHA for 52108ef
+L190: 
+L191: Browse repository at this point
+L192: ### Commits on Aug 26, 2026
+L193: 
+L194:   * #### 【78†perf(prover)!: pack recursive witnesses end to end (#437)】
+L195: 
+L196: Show description for 4eb6b01
+L197: 
+L198: 【77†quangvdao】
+L199: 
+L200: authored
+L201: 
+L202: 【78†4eb6b01】View commit details
+L203: 
+L204: Copy full SHA for 4eb6b01
+L205: 
+L206: Browse repository at this point
+L207: 
+L208:   * #### 【79†Mirror Quang PR #398 tested revision (#442)】
+L209: 
+L210: Show description for 2ef7da2
+L211: 
+L212: 【80†Image: RadNi†avatars.githubusercontent.com】【76†Image: quangvdao†avatars.githubusercontent.com】
+L213: 
+L214: 【81†RadNi】
+L215: 
+L216: and
+L217: 
+L218: 【77†quangvdao】
+L219: 
+L220: authored
+

@@ -1,0 +1,15 @@
+{
+  "utc": "2026-10-29T17:32:46.538415+00:00",
+  "source": "7152ef1a269b2aca5b0ec7ee507a8591db46225466653aaa3113789bfce24262",
+  "files": 284,
+  "actual_native_gate": "ActualS2 layer0 DD/nonDD19sites+proof+fresh+canonical corruption PASS6/0 source087016a3.",
+  "test_only_changes": "Stronger global-AO-c2 fixture;19-site generic dense/full-support matrices/varying inputs, both score signs, native proof and public trace dumps for independent reference.",
+  "main_build6_withdrawn": {
+    "tool_session": 44299,
+    "exit": 130,
+    "heavy_leaf_started": false,
+    "reason": "Consolidate correction into superset actual branch2; original handle Ctrl-C while queued behind gate20 CPU8.8GiB, no guard/foreign process signal."
+  },
+  "source_edits_held": true,
+  "pending": "Compile and complete emitted DD/nonDD malicious receipts plus generic dense native/reference gates; actual6gates unchanged native code. Captures/compatibility/trained CLI/independent bound/privacy review still owed."
+}

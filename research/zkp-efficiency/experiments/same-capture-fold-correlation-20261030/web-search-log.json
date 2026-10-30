@@ -1,0 +1,52 @@
+{
+  "method": "Native LIVE tools.web__run",
+  "primary_queries": [
+    "site.docs.nvidia.com CUPTI correlationId external correlation activity thread stream graph node timestamp",
+    "GPU proving sumcheck GKR 2026 October GitHub release zero knowledge",
+    "GPU NTT polynomial commitment 2026 arxiv Goldilocks memory traffic",
+    "site.arxiv.org zero knowledge lookup softmax 2026 amortized proof"
+  ],
+  "saved_batches": [
+    "web-1.json",
+    "web-2.json",
+    "web-3.json",
+    "web-4.json",
+    "web-5.json",
+    "web-6.json",
+    "web-7.json"
+  ],
+  "initial_search_result": "retained in tool transcript; exact queries and selected primary URL records retained here",
+  "fetch_blockers": [
+    [
+      "https://github.com/Consensys-Incorporated/gnark/releases/tag/v0.16.4",
+      [
+        "https://raw.githubusercontent.com/Consensys/gnark/master/LICENSE",
+        "https://raw.githubusercontent.com/Consensys/gnark/v0.16.4/LICENSE",
+        "https://raw.githubusercontent.com/Consensys/gnark/e974abb44722dd201a7f1949baeabca0fef5866e/LICENSE",
+        "https://github.com/Consensys-Incorporated/gnark/blob/master/LICENSE",
+        "https://github.com/Consensys-Incorporated/gnark/blob/master/LICENSE-APACHE",
+        "https://github.com/Consensys-Incorporated/gnark/pull/1828/files",
+        "https://github.com/Consensys-Incorporated/gnark/pull/1828/commits/e3c2b83773cb9ba345c15be3889b696be99c9a0e"
+      ]
+    ],
+    [
+      "https://github.com/THU-HAS/MegaZK",
+      [
+        "https://raw.githubusercontent.com/THU-HAS/MegaZK/main/LICENSE",
+        "https://github.com/THU-HAS/MegaZK/blob/main/LICENSE",
+        "https://github.com/THU-HAS/MegaZK/blob/main/LICENSE-APACHE",
+        "https://github.com/THU-HAS/MegaZK/blob/main/LICENSE-MIT",
+        "https://github.com/THU-HAS/MegaZK/commits/main/"
+      ]
+    ],
+    [
+      "https://eprint.iacr.org/2025/507",
+      [
+        "https://eprint.iacr.org/2025/507.pdf"
+      ]
+    ]
+  ],
+  "local_artifact_save_error": "One combined web-artifact shell command rejected before process creation: Argument list too long(os error7). Saved seven smaller artifacts with apply_patch; no network/sandbox bypass.",
+  "native_observer": "not implemented",
+  "external_execution": false
+}

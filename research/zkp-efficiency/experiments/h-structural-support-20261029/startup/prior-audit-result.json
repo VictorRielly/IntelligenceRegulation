@@ -1,0 +1,424 @@
+{
+  "status": "PASS",
+  "checks": 103,
+  "details": [
+    {
+      "name": "snapshot:native/zkp-core/src/pcs.rs",
+      "passed": true
+    },
+    {
+      "name": "immutable input:/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/zkp-core/src/pcs.rs",
+      "passed": true
+    },
+    {
+      "name": "snapshot:native/zkp-core/src/field.rs",
+      "passed": true
+    },
+    {
+      "name": "immutable input:/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/zkp-core/src/field.rs",
+      "passed": true
+    },
+    {
+      "name": "snapshot:native/zkp-core/src/mle.rs",
+      "passed": true
+    },
+    {
+      "name": "immutable input:/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/zkp-core/src/mle.rs",
+      "passed": true
+    },
+    {
+      "name": "snapshot:native/hashline/src/private_block/protocol.rs",
+      "passed": true
+    },
+    {
+      "name": "immutable input:/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/hashline/src/private_block/protocol.rs",
+      "passed": true
+    },
+    {
+      "name": "snapshot:native/hashline/src/private_block/argument.rs",
+      "passed": true
+    },
+    {
+      "name": "immutable input:/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/hashline/src/private_block/argument.rs",
+      "passed": true
+    },
+    {
+      "name": "snapshot:native/hashline/src/private_block/layout.rs",
+      "passed": true
+    },
+    {
+      "name": "immutable input:/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/hashline/src/private_block/layout.rs",
+      "passed": true
+    },
+    {
+      "name": "snapshot:native/hashline/src/private_block/shape.rs",
+      "passed": true
+    },
+    {
+      "name": "immutable input:/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/hashline/src/private_block/shape.rs",
+      "passed": true
+    },
+    {
+      "name": "snapshot:native/NATIVE_LAYOUT_CENSUS.json",
+      "passed": true
+    },
+    {
+      "name": "immutable input:/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/NATIVE_LAYOUT_CENSUS.json",
+      "passed": true
+    },
+    {
+      "name": "snapshot:model.py",
+      "passed": true
+    },
+    {
+      "name": "immutable input:/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/composition-eq-scope-20261029/model.py",
+      "passed": true
+    },
+    {
+      "name": "snapshot:legacy_catalog.py",
+      "passed": true
+    },
+    {
+      "name": "immutable input:/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/composition-eq-scope-20261029/legacy_catalog.py",
+      "passed": true
+    },
+    {
+      "name": "startup snapshot:STATE.md",
+      "passed": true
+    },
+    {
+      "name": "startup snapshot:FINDINGS.md",
+      "passed": true
+    },
+    {
+      "name": "startup snapshot:AGENDA.md",
+      "passed": true
+    },
+    {
+      "name": "startup snapshot:sources.jsonl",
+      "passed": true
+    },
+    {
+      "name": "startup snapshot:PROGRESS.md",
+      "passed": true
+    },
+    {
+      "name": "startup snapshot:CLAUDE.md",
+      "passed": true
+    },
+    {
+      "name": "startup snapshot:MVP_STATUS.md",
+      "passed": true
+    },
+    {
+      "name": "startup snapshot:ZK60_DECISIONS.md",
+      "passed": true
+    },
+    {
+      "name": "startup snapshot:ZK60_CODEX_FABLE_COORDINATION.md",
+      "passed": true
+    },
+    {
+      "name": "startup snapshot:ZK60_THROUGHPUT_TARGET.md",
+      "passed": true
+    },
+    {
+      "name": "all66priorhypotheses",
+      "passed": true
+    },
+    {
+      "name": "old findings preserved",
+      "passed": true
+    },
+    {
+      "name": "old source bytes preserved",
+      "passed": true
+    },
+    {
+      "name": "source count993",
+      "passed": true
+    },
+    {
+      "name": "six new sources",
+      "passed": true
+    },
+    {
+      "name": "source provenance:cycle0148-source-1",
+      "passed": true
+    },
+    {
+      "name": "source provenance:cycle0148-source-2",
+      "passed": true
+    },
+    {
+      "name": "source provenance:cycle0148-source-3",
+      "passed": true
+    },
+    {
+      "name": "source provenance:cycle0148-source-4",
+      "passed": true
+    },
+    {
+      "name": "source provenance:cycle0148-source-5",
+      "passed": true
+    },
+    {
+      "name": "source provenance:cycle0148-source-6",
+      "passed": true
+    },
+    {
+      "name": "exact audit functions",
+      "passed": true
+    },
+    {
+      "name": "exact group rho functions",
+      "passed": true
+    },
+    {
+      "name": "native batch4 remains",
+      "passed": true
+    },
+    {
+      "name": "native masks remain",
+      "passed": true
+    },
+    {
+      "name": "probe:status",
+      "passed": true
+    },
+    {
+      "name": "probe:fixtures",
+      "passed": true
+    },
+    {
+      "name": "probe:h_sum_fixtures",
+      "passed": true
+    },
+    {
+      "name": "probe:reserved_row_checks",
+      "passed": true
+    },
+    {
+      "name": "probe:independent_dense_coefficients",
+      "passed": true
+    },
+    {
+      "name": "probe:independent_message_plus_pad_fold_values",
+      "passed": true
+    },
+    {
+      "name": "probe:restored_order_values",
+      "passed": true
+    },
+    {
+      "name": "probe:dense_proximity_fixtures",
+      "passed": true
+    },
+    {
+      "name": "probe:audit_refusals",
+      "passed": true
+    },
+    {
+      "name": "probe:negative_controls",
+      "passed": true
+    },
+    {
+      "name": "four source geometry bounds",
+      "passed": true
+    },
+    {
+      "name": "bound:nonDD-A",
+      "passed": true
+    },
+    {
+      "name": "row geometry:nonDD-A",
+      "passed": true
+    },
+    {
+      "name": "bound:nonDD-H",
+      "passed": true
+    },
+    {
+      "name": "row geometry:nonDD-H",
+      "passed": true
+    },
+    {
+      "name": "bound:DD-A",
+      "passed": true
+    },
+    {
+      "name": "row geometry:DD-A",
+      "passed": true
+    },
+    {
+      "name": "bound:DD-H",
+      "passed": true
+    },
+    {
+      "name": "row geometry:DD-H",
+      "passed": true
+    },
+    {
+      "name": "packing negative",
+      "passed": true
+    },
+    {
+      "name": "bounded:prepare",
+      "passed": true
+    },
+    {
+      "name": "bounded:compile",
+      "passed": true
+    },
+    {
+      "name": "bounded:probe",
+      "passed": true
+    },
+    {
+      "name": "bounded:census",
+      "passed": true
+    },
+    {
+      "name": "zero new model work:new_independently_verified_full_stack_proofs",
+      "passed": true
+    },
+    {
+      "name": "zero new model work:completed_model_passes",
+      "passed": true
+    },
+    {
+      "name": "zero new model work:proved_positions",
+      "passed": true
+    },
+    {
+      "name": "unmeasured:witness_s",
+      "passed": true
+    },
+    {
+      "name": "unmeasured:proof_s",
+      "passed": true
+    },
+    {
+      "name": "unmeasured:serialization_s",
+      "passed": true
+    },
+    {
+      "name": "unmeasured:verification_s",
+      "passed": true
+    },
+    {
+      "name": "unmeasured:startup_prefill_s",
+      "passed": true
+    },
+    {
+      "name": "unmeasured:startup_fraction",
+      "passed": true
+    },
+    {
+      "name": "unmeasured:steady_state_proved_tokens_per_s",
+      "passed": true
+    },
+    {
+      "name": "unmeasured:total_workload_proved_tokens_per_s",
+      "passed": true
+    },
+    {
+      "name": "report exists:README.md",
+      "passed": true
+    },
+    {
+      "name": "report exists:progress/20261029T175649Z-b41890ba.md",
+      "passed": true
+    },
+    {
+      "name": "report exists:PROGRESS.md",
+      "passed": true
+    },
+    {
+      "name": "report exists:STATE.md",
+      "passed": true
+    },
+    {
+      "name": "report exists:handoffs/20261029-public-mask-row-bound.md",
+      "passed": true
+    },
+    {
+      "name": "current run:PROGRESS.md",
+      "passed": true
+    },
+    {
+      "name": "no acceptance:PROGRESS.md",
+      "passed": true
+    },
+    {
+      "name": "current run:STATE.md",
+      "passed": true
+    },
+    {
+      "name": "no acceptance:STATE.md",
+      "passed": true
+    },
+    {
+      "name": "current run:progress/20261029T175649Z-b41890ba.md",
+      "passed": true
+    },
+    {
+      "name": "no acceptance:progress/20261029T175649Z-b41890ba.md",
+      "passed": true
+    },
+    {
+      "name": "live web saved:1",
+      "passed": true
+    },
+    {
+      "name": "live web saved:2",
+      "passed": true
+    },
+    {
+      "name": "live web saved:3",
+      "passed": true
+    },
+    {
+      "name": "live web saved:4",
+      "passed": true
+    },
+    {
+      "name": "live web saved:5",
+      "passed": true
+    },
+    {
+      "name": "live web saved:6",
+      "passed": true
+    },
+    {
+      "name": "live web saved:7",
+      "passed": true
+    },
+    {
+      "name": "live web saved:8",
+      "passed": true
+    },
+    {
+      "name": "live web saved:9",
+      "passed": true
+    },
+    {
+      "name": "live web saved:10",
+      "passed": true
+    },
+    {
+      "name": "live web saved:11",
+      "passed": true
+    },
+    {
+      "name": "live web saved:12",
+      "passed": true
+    }
+  ],
+  "utc": "2026-10-29T18:10:50.661589+00:00",
+  "owner_documents_unchanged": true,
+  "native_inputs": 10,
+  "full_stack_proofs": 0,
+  "model_passes": 0,
+  "proved_positions": 0
+}

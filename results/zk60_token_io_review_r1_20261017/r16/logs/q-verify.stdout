@@ -1,0 +1,2 @@
+[zk60-guard 03:00:22] START rvtk16-verify-hate class=cpu need=3G cap=5G enforce=cgroup+watchdog waited=0s run=6bb04c2f7692
+[zk60-guard 03:01:33] END rvtk16-verify-hate exit=0 child_wall=71s peak_rss=2.25G min_avail=11.18G

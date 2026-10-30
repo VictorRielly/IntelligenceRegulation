@@ -1,0 +1,16 @@
+{
+  "command": [
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/probe"
+  ],
+  "exit_code": 101,
+  "wall_s": 0.0024538449943065643,
+  "max_rss_kib": 7796,
+  "one_cpu_affinity": true,
+  "nice": 19,
+  "cpu_limit_s": 40,
+  "alarm_s": 45,
+  "parent_timeout_s": 50,
+  "address_space_mib": 384,
+  "estimated_memory_mib": 96,
+  "gpu": false
+}

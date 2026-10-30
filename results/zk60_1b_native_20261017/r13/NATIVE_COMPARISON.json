@@ -1,0 +1,103 @@
+{
+  "scope": "COUNTED normal-release native layouts; FE9 admitted calibration, A+H convention",
+  "source_manifest_sha256": "bb9eb2123c9350c738dafd19fe3b0133d6e2e7ab93f1e765cac4f20ccaed69ec",
+  "source_log_sha256": "4d34dd89d204ed39b2df9f5423940fcfec709bcb2addd50ce562fdf350ede84d",
+  "rows": [
+    {
+      "profile": "hashline-zk-mr1/private-block-tinyllama-1.1b-t128-low-stack-v01/1",
+      "legacy_profile": "hashline-zk-mr1/private-block-tinyllama-1.1b-t128-trained-block/1",
+      "committed_a_h_words": 83836928,
+      "legacy_committed_a_h_words": 68403200,
+      "receipt_bytes": 24978872,
+      "legacy_receipt_bytes": 23049192,
+      "byte_queries": 35356672,
+      "legacy_byte_queries": 28999680,
+      "scope": "COUNTED native layouts; FE9 admitted calibration; A+H convention excludes endpoints and M",
+      "committed_increase_percent": 22.56287425149701
+    },
+    {
+      "profile": "hashline-zk-mr1/private-block-tinyllama-1.1b-t128-low-ddict-v01/1",
+      "legacy_profile": "hashline-zk-mr1/private-block-tinyllama-1.1b-t128-trained-ddict/1",
+      "committed_a_h_words": 79282176,
+      "legacy_committed_a_h_words": 63848448,
+      "receipt_bytes": 25213880,
+      "legacy_receipt_bytes": 23284200,
+      "byte_queries": 31817728,
+      "legacy_byte_queries": 25460736,
+      "scope": "COUNTED native layouts; FE9 admitted calibration; A+H convention excludes endpoints and M",
+      "committed_increase_percent": 24.1724403387221
+    },
+    {
+      "profile": "hashline-zk-mr1/private-block-llama-3-8b-t128-lh24-v1/1",
+      "legacy_profile": "hashline-zk-mr1/private-block-llama-3-8b-t128-trained/1",
+      "committed_a_h_words": 146915328,
+      "legacy_committed_a_h_words": 117882880,
+      "receipt_bytes": 32930392,
+      "legacy_receipt_bytes": 29300856,
+      "byte_queries": 64258048,
+      "legacy_byte_queries": 51937280,
+      "scope": "COUNTED native layouts; FE9 admitted calibration; A+H convention excludes endpoints and M",
+      "committed_increase_percent": 24.628214037526064
+    },
+    {
+      "profile": "hashline-zk-mr1/private-block-llama-3-8b-t128-lh24-dd/1",
+      "legacy_profile": "hashline-zk-mr1/private-block-llama-3-8b-t128-ddict32/1",
+      "committed_a_h_words": 142360576,
+      "legacy_committed_a_h_words": 113328128,
+      "receipt_bytes": 33165400,
+      "legacy_receipt_bytes": 29535864,
+      "byte_queries": 60719104,
+      "legacy_byte_queries": 48398336,
+      "scope": "COUNTED native layouts; FE9 admitted calibration; A+H convention excludes endpoints and M",
+      "committed_increase_percent": 25.6180425039757
+    },
+    {
+      "profile": "hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/1",
+      "legacy_profile": "hashline-zk-mr1/private-block-shieldstral-3b-t128-trained-block/1",
+      "committed_a_h_words": 146915328,
+      "legacy_committed_a_h_words": 120045568,
+      "receipt_bytes": 32931352,
+      "legacy_receipt_bytes": 29572184,
+      "byte_queries": 64258048,
+      "legacy_byte_queries": 54034432,
+      "scope": "COUNTED native layouts; FE9 admitted calibration; A+H convention excludes endpoints and M",
+      "committed_increase_percent": 22.382967107956866
+    },
+    {
+      "profile": "hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-ddict1/1",
+      "legacy_profile": "hashline-zk-mr1/private-block-shieldstral-3b-t128-trained-ddict/1",
+      "committed_a_h_words": 142360576,
+      "legacy_committed_a_h_words": 115490816,
+      "receipt_bytes": 33166360,
+      "legacy_receipt_bytes": 29807192,
+      "byte_queries": 60719104,
+      "legacy_byte_queries": 50495488,
+      "scope": "COUNTED native layouts; FE9 admitted calibration; A+H convention excludes endpoints and M",
+      "committed_increase_percent": 23.26571144843239
+    },
+    {
+      "profile": "hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-blocks/1",
+      "legacy_profile": "hashline-zk-mr1/private-block-shieldstral-3b-t256-trained-block/1",
+      "committed_a_h_words": 334921728,
+      "legacy_committed_a_h_words": 276987904,
+      "receipt_bytes": 48902920,
+      "legacy_receipt_bytes": 45281608,
+      "byte_queries": 148439040,
+      "legacy_byte_queries": 125894656,
+      "scope": "COUNTED native layouts; FE9 admitted calibration; A+H convention excludes endpoints and M",
+      "committed_increase_percent": 20.915651248077616
+    },
+    {
+      "profile": "hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-ddict1/1",
+      "legacy_profile": "hashline-zk-mr1/private-block-shieldstral-3b-t256-trained-ddict/1",
+      "committed_a_h_words": 303792128,
+      "legacy_committed_a_h_words": 245858304,
+      "receipt_bytes": 48548184,
+      "legacy_receipt_bytes": 44926872,
+      "byte_queries": 128253952,
+      "legacy_byte_queries": 105709568,
+      "scope": "COUNTED native layouts; FE9 admitted calibration; A+H convention excludes endpoints and M",
+      "committed_increase_percent": 23.563907770225235
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "cpu": "Intel(R) Core(TM) Ultra 9 185H",
+  "os": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "python": "3.10.12",
+  "cpu_affinity_min": 0,
+  "one_cpu_affinity": true,
+  "experiment_worker_threads": 1,
+  "compiler_auxiliary_threads": "unmeasured; one CPU affinity and one codegen unit",
+  "accelerator": null,
+  "actual_context": null,
+  "modeled_context": 128,
+  "proofs": 0,
+  "passes": 0,
+  "positions": 0
+}

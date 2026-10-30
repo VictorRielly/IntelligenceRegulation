@@ -1,0 +1,194 @@
+[
+  {
+    "rows": 1,
+    "n": 8,
+    "q": 1,
+    "model_payload_peak": 4648,
+    "observed_requested_peak": 4840,
+    "resident_payload": 3368
+  },
+  {
+    "rows": 1,
+    "n": 8,
+    "q": 4,
+    "model_payload_peak": 4672,
+    "observed_requested_peak": 4864,
+    "resident_payload": 3392
+  },
+  {
+    "rows": 1,
+    "n": 32,
+    "q": 1,
+    "model_payload_peak": 18664,
+    "observed_requested_peak": 18856,
+    "resident_payload": 13544
+  },
+  {
+    "rows": 1,
+    "n": 32,
+    "q": 4,
+    "model_payload_peak": 18688,
+    "observed_requested_peak": 18880,
+    "resident_payload": 13568
+  },
+  {
+    "rows": 1,
+    "n": 128,
+    "q": 1,
+    "model_payload_peak": 74728,
+    "observed_requested_peak": 75112,
+    "resident_payload": 54248
+  },
+  {
+    "rows": 1,
+    "n": 128,
+    "q": 4,
+    "model_payload_peak": 74752,
+    "observed_requested_peak": 75136,
+    "resident_payload": 54272
+  },
+  {
+    "rows": 3,
+    "n": 8,
+    "q": 1,
+    "model_payload_peak": 5304,
+    "observed_requested_peak": 5496,
+    "resident_payload": 4024
+  },
+  {
+    "rows": 3,
+    "n": 8,
+    "q": 4,
+    "model_payload_peak": 5376,
+    "observed_requested_peak": 5568,
+    "resident_payload": 4096
+  },
+  {
+    "rows": 3,
+    "n": 32,
+    "q": 1,
+    "model_payload_peak": 21240,
+    "observed_requested_peak": 21432,
+    "resident_payload": 16120
+  },
+  {
+    "rows": 3,
+    "n": 32,
+    "q": 4,
+    "model_payload_peak": 21312,
+    "observed_requested_peak": 21504,
+    "resident_payload": 16192
+  },
+  {
+    "rows": 3,
+    "n": 128,
+    "q": 1,
+    "model_payload_peak": 84984,
+    "observed_requested_peak": 85368,
+    "resident_payload": 64504
+  },
+  {
+    "rows": 3,
+    "n": 128,
+    "q": 4,
+    "model_payload_peak": 85056,
+    "observed_requested_peak": 85440,
+    "resident_payload": 64576
+  },
+  {
+    "rows": 31,
+    "n": 8,
+    "q": 1,
+    "model_payload_peak": 20408,
+    "observed_requested_peak": 21176,
+    "resident_payload": 13208
+  },
+  {
+    "rows": 31,
+    "n": 8,
+    "q": 4,
+    "model_payload_peak": 21152,
+    "observed_requested_peak": 21920,
+    "resident_payload": 13952
+  },
+  {
+    "rows": 31,
+    "n": 32,
+    "q": 1,
+    "model_payload_peak": 65016,
+    "observed_requested_peak": 66552,
+    "resident_payload": 52184
+  },
+  {
+    "rows": 31,
+    "n": 32,
+    "q": 4,
+    "model_payload_peak": 65760,
+    "observed_requested_peak": 67296,
+    "resident_payload": 52928
+  },
+  {
+    "rows": 31,
+    "n": 128,
+    "q": 1,
+    "model_payload_peak": 228568,
+    "observed_requested_peak": 228952,
+    "resident_payload": 208088
+  },
+  {
+    "rows": 31,
+    "n": 128,
+    "q": 4,
+    "model_payload_peak": 229312,
+    "observed_requested_peak": 229696,
+    "resident_payload": 208832
+  },
+  {
+    "rows": 65,
+    "n": 8,
+    "q": 1,
+    "model_payload_peak": 40264,
+    "observed_requested_peak": 41032,
+    "resident_payload": 24360
+  },
+  {
+    "rows": 65,
+    "n": 8,
+    "q": 4,
+    "model_payload_peak": 41824,
+    "observed_requested_peak": 42592,
+    "resident_payload": 25920
+  },
+  {
+    "rows": 65,
+    "n": 32,
+    "q": 1,
+    "model_payload_peak": 126216,
+    "observed_requested_peak": 127752,
+    "resident_payload": 95976
+  },
+  {
+    "rows": 65,
+    "n": 32,
+    "q": 4,
+    "model_payload_peak": 127776,
+    "observed_requested_peak": 129312,
+    "resident_payload": 97536
+  },
+  {
+    "rows": 65,
+    "n": 128,
+    "q": 1,
+    "model_payload_peak": 403464,
+    "observed_requested_peak": 405000,
+    "resident_payload": 382440
+  },
+  {
+    "rows": 65,
+    "n": 128,
+    "q": 4,
+    "model_payload_peak": 405024,
+    "observed_requested_peak": 406560,
+    "resident_payload": 384000
+  }
+]

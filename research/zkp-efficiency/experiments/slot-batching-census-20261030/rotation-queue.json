@@ -1,0 +1,35 @@
+{
+  "next_primary": "batching/amortization: separate-transcript synthetic Fp2 round batch and ownership controls, only if native materiality evidence remains unavailable",
+  "queue": [
+    {
+      "area": "GPU NTT/commitments",
+      "question": "Separate launches,queue,compute,transfer and retirement at real admitted geometry."
+    },
+    {
+      "area": "sumcheck/GKR",
+      "question": "StateSync1.2.1 release/BSL assessed; arithmetic result not native transformer performance."
+    },
+    {
+      "area": "lookup/softmax",
+      "question": "Rank from all-eleven native phase clocks; keep current tiny-table and privacy negatives."
+    },
+    {
+      "area": "memory traffic",
+      "question": "Requested length,live capacity and queued free retirement remain distinct."
+    },
+    {
+      "area": "batching/amortization",
+      "question": "Measure verified resident1/2/4/8passes with startup and drain; no mask reuse."
+    },
+    {
+      "area": "quantization/arithmetic",
+      "question": "Retain D32 fidelity and current admitted exact arithmetic."
+    },
+    {
+      "area": "proof composition",
+      "question": "Full run bindings and every complete verification remain counted-token prerequisites."
+    }
+  ],
+  "cycle0160": "CUPTI same-capture correlation/drop semantics tested on synthetic normalized metadata. No more trace-adapter/packing variants pending native materiality.",
+  "cycle0161": "Sumcheck/GKR slot dependency screen completed; na\u00efve same-proof merging parked. Preserve GPU/lookup/memory/quantization/composition queue."
+}

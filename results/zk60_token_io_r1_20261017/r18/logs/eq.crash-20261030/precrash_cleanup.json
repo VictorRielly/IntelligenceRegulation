@@ -1,0 +1,92 @@
+{
+ "when_utc": "2026-10-30T05:26:12Z",
+ "why": "pre-crash step E outputs: fixed-entropy test-only receipts (hide nothing; never published, never given to the app) + owner-side job dirs + a stale FIFO; removed so the rerun starts clean (prepare refuses an existing job dir or receipt path)",
+ "removed": [
+  {
+   "path": "/home/victor/zk60-artifacts/token-io/r18-a5-eq/batch",
+   "entries": [
+    "a5eq-c0",
+    "a5eq-c0.unverified-statement",
+    "a5eq-c1",
+    "a5eq-c1.unverified-statement",
+    "a5eq-c2.incomplete",
+    "a5eq-c2.unverified-statement"
+   ],
+   "files": 77,
+   "bytes": 2282353063
+  },
+  {
+   "path": "/home/victor/zk60-artifacts/token-io/r18-a5-eq/single",
+   "entries": [],
+   "files": 0,
+   "bytes": 0
+  },
+  {
+   "path": "/home/victor/zk60-artifacts/token-io/r18-a5-eq/r16b",
+   "entries": [],
+   "files": 0,
+   "bytes": 0
+  },
+  {
+   "path": "/home/victor/zk60-artifacts/token-io/r18-a5-eq/fail",
+   "entries": [],
+   "files": 0,
+   "bytes": 0
+  },
+  {
+   "path": "/home/victor/zk60-owner-private/token-io/r18-a5-eq/batch",
+   "entries": [
+    "activation-request.json",
+    "activations",
+    "batch-request.json",
+    "cleanup-scope.json",
+    "content.ids",
+    "owners",
+    "prepared.json"
+   ],
+   "files": 165,
+   "bytes": 122892747
+  },
+  {
+   "path": "/home/victor/zk60-owner-private/token-io/r18-a5-eq/fail",
+   "entries": [
+    "empty",
+    "owners"
+   ],
+   "files": 0,
+   "bytes": 0
+  },
+  {
+   "path": "/home/victor/zk60-owner-private/token-io/r18-a5-eq/single-owner",
+   "entries": [],
+   "files": 0,
+   "bytes": 0
+  },
+  {
+   "path": "/home/victor/zk60-owner-private/token-io/r18-a5-eq/r16b-owner",
+   "entries": [],
+   "files": 0,
+   "bytes": 0
+  },
+  {
+   "path": "/home/victor/zk60-artifacts/token-io/r18-a5-eq/ent/fifo.48fuWt",
+   "fifo": true,
+   "bytes": 0
+  }
+ ],
+ "total_bytes": 2405245810,
+ "left_in_eq": [
+  "bin",
+  "ent",
+  "logs"
+ ],
+ "left_in_ent": [
+  "batch.bin",
+  "job0.bin",
+  "job1.bin",
+  "job2.bin",
+  "rung8.bin",
+  "sanity.bin"
+ ],
+ "left_in_own": []
+}

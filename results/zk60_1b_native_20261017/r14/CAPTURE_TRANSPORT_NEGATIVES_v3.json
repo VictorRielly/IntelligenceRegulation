@@ -1,0 +1,42 @@
+{
+  "validator_sha256": "a092488c8816d4898e7515c1e02783c77cef60ca0d6dd3ba850fb22de6dac8f4",
+  "cases": [
+    {
+      "case": "unknown-key",
+      "exit": 1,
+      "result_emitted": false,
+      "stderr_sha256": "8c0d15fec21d78318f41d82bb37821e455b71c5b1d45b6e69c022a7e069f1225"
+    },
+    {
+      "case": "binding",
+      "exit": 1,
+      "result_emitted": false,
+      "stderr_sha256": "e7f9429050a631fc667bc9a0a0b7cbbdc76114871b9a8d1cf1ecd8625f2ae68b"
+    },
+    {
+      "case": "component-tag",
+      "exit": 1,
+      "result_emitted": false,
+      "stderr_sha256": "a49ebffe10515b7535cae6328a0ca8cf2ce4b8baf00693254ececc68a9775e3c"
+    },
+    {
+      "case": "logup-word",
+      "exit": 1,
+      "result_emitted": false,
+      "stderr_sha256": "7ac20011b3f53b8b810e1897fab05c55be35f9e30ffad0189cfc8fa29c9aa1fb"
+    },
+    {
+      "case": "source-pin",
+      "exit": 1,
+      "result_emitted": false,
+      "stderr_sha256": "cf42b40551a0f1f629d1ae7568fef9b44e5a46e1e2055b785f9ffca688bca73d"
+    },
+    {
+      "case": "receipt-middle",
+      "exit": 1,
+      "result_emitted": false,
+      "stderr_sha256": "6cb027530a90a46f0a2cbc89f10e30e7cf38247165754f59e94f1a2d238714ca"
+    }
+  ],
+  "scope": "Six transport controls on a copied native public synthetic bundle. Unknown keys, wire binding, invalid component tag, noncanonical public Fp2 limb, source pin and receipt middle-byte mutation all refuse. Not native mathematical forgery or privacy acceptance."
+}

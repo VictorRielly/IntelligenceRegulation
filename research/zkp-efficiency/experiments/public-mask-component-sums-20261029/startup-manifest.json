@@ -1,0 +1,96 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/AGENDA.md",
+    "snapshot": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-mask-component-sums-20261029/startup/AGENDA.md",
+    "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139",
+    "bytes": 5603
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/STATE.md",
+    "snapshot": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-mask-component-sums-20261029/startup/STATE.md",
+    "sha256": "b8e32cf869a8f63205c108d2d89db47b6c783fceca53a2a7905a0fed4fec8a45",
+    "bytes": 4130
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/PROGRESS.md",
+    "snapshot": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-mask-component-sums-20261029/startup/PROGRESS.md",
+    "sha256": "eabfd065365023a97633081ea84a44ea5b01b34ad1c5e85982185c32256f0138",
+    "bytes": 2100
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/FINDINGS.md",
+    "snapshot": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-mask-component-sums-20261029/startup/FINDINGS.md",
+    "sha256": "e9f7f209307c12bab824c6a29235d1692a0d1f07e5290682328b0c27af74b56f",
+    "bytes": 1016582
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/sources.jsonl",
+    "snapshot": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-mask-component-sums-20261029/startup/sources.jsonl",
+    "sha256": "c1fdfc6c9988b95dcb10e9f69d2ee1caa26ae7ee6f7f9e60baec0d2e3bcb9e03",
+    "bytes": 1149680
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/MVP_STATUS.md",
+    "snapshot": null,
+    "sha256": "743fd052b73c3a477f84a8985cfe7c3a6dea0e0957678d865d31c5770f42eaa0",
+    "bytes": 97322,
+    "retention": "Read/hash only. Full owner document excluded to avoid carrying real model IO examples into research artifacts."
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_DECISIONS.md",
+    "snapshot": null,
+    "sha256": "ff00263199e08a0a4bb4fc4937933b168da763fef8efe5ca10295da37e67a274",
+    "bytes": 138307,
+    "retention": "Read/hash only. Full owner document excluded to avoid carrying real model IO examples into research artifacts."
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_CODEX_FABLE_COORDINATION.md",
+    "snapshot": null,
+    "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f",
+    "bytes": 64889,
+    "retention": "Read/hash only. Full owner document excluded to avoid carrying real model IO examples into research artifacts."
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_THROUGHPUT_TARGET.md",
+    "snapshot": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-mask-component-sums-20261029/startup/ZK60_THROUGHPUT_TARGET.md",
+    "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53",
+    "bytes": 4941
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/START_HERE.md",
+    "snapshot": null,
+    "sha256": "89f6732a39f4294f2f1b7b68add8fdcbb76b86006e21041f52c0f40d9e39df9d",
+    "bytes": 42025,
+    "retention": "Read/hash only. Full owner document excluded to avoid carrying real model IO examples into research artifacts."
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/CLAUDE.md",
+    "snapshot": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-mask-component-sums-20261029/startup/CLAUDE.md",
+    "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6",
+    "bytes": 14089
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/commitment-width-lifetimes-20261029/result.json",
+    "snapshot": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-mask-component-sums-20261029/startup/prior-result.json",
+    "sha256": "fd4d0364b72ab5266ffd65ac48c03d1566fdccd856e5ac54b40b2c93bd0c03c7",
+    "bytes": 566
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/commitment-width-lifetimes-20261029/hypotheses.json",
+    "snapshot": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-mask-component-sums-20261029/startup/prior-hypotheses.json",
+    "sha256": "4dd584b316675e5b40dd5043b5e63719030cf33e40cd2f9b9464a79e29e73025",
+    "bytes": 120993
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/commitment-width-lifetimes-20261029/README.md",
+    "snapshot": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-mask-component-sums-20261029/startup/prior-README.md",
+    "sha256": "ab7ab4c4a553bc201483486c60c3b755c2ba9f32e5bb8a9e896ec0db44a33879",
+    "bytes": 8523
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/commitment-width-lifetimes-20261029/native-pins.json",
+    "snapshot": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-mask-component-sums-20261029/startup/prior-native-pins.json",
+    "sha256": "2c71f82723805fe06a62c341311825a9a541f8b5aec0c62bcbee4019eca37cba",
+    "bytes": 3304
+  }
+]

@@ -365,7 +365,19 @@ fn every_absorb_label_on_the_path_is_in_the_table() {
         assert!(!u.label.is_empty() && !u.site.is_empty() && !u.data.is_empty(), "the table entry for `{}` is incomplete", u.label);
     }
     let table: Vec<String> = entries.iter().map(|u| u.label.to_string()).collect();
-    let lane: [(&str, &str); 14] = [
+    let lane: [(&str, &str); 28] = [
+        ("argument_accuracy.rs", include_str!("argument_accuracy.rs")),
+        ("accuracy_act.rs", include_str!("accuracy_act.rs")),
+        ("accuracy_fold.rs", include_str!("accuracy_fold.rs")),
+        ("accuracy_layout.rs", include_str!("accuracy_layout.rs")),
+        ("accuracy.rs", include_str!("accuracy.rs")),
+        ("accuracy_aligned.rs", include_str!("accuracy_aligned.rs")),
+        ("accuracy_groups.rs", include_str!("accuracy_groups.rs")),
+        ("accuracy_precision.rs", include_str!("accuracy_precision.rs")),
+        ("accuracy_public.rs", include_str!("accuracy_public.rs")),
+        ("accuracy_tables.rs", include_str!("accuracy_tables.rs")),
+        ("trained_accuracy.rs", include_str!("trained_accuracy.rs")),
+        ("witness_accuracy.rs", include_str!("witness_accuracy.rs")),
         ("argument.rs", include_str!("argument.rs")),
         ("boundary.rs", include_str!("boundary.rs")),
         ("endpoint_g.rs", include_str!("endpoint_g.rs")),
@@ -377,6 +389,8 @@ fn every_absorb_label_on_the_path_is_in_the_table() {
         ("run_capture.rs", include_str!("run_capture.rs")),
         ("run_sink.rs", include_str!("run_sink.rs")),
         ("shape.rs", include_str!("shape.rs")),
+        ("tied_tables.rs", include_str!("tied_tables.rs")),
+        ("tied_tables/derive.rs", include_str!("tied_tables/derive.rs")),
         ("wire.rs", include_str!("wire.rs")),
         ("witness.rs", include_str!("witness.rs")),
         ("private_block.rs", include_str!("../private_block.rs")),

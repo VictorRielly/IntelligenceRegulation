@@ -1,0 +1,355 @@
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r13/hashline/src/private_block/token_io/classify.rs	2026-10-28 16:42:48.583953226 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r14/hashline/src/private_block/token_io/classify.rs	2026-10-28 19:12:07.680191689 -0700
+@@ -16,10 +16,21 @@
+ //!   - b`, and the **PUBLIC verdict bit** `b` (absorbed by the statement's
+ //!   transcript). No output endpoint.
+ //!
+-//! The parts that wait for Victor's rulings are the [`RULING_B4_FAIL_CLOSED`],
+-//! [`RULING_B5_N_PUBLIC`], [`RULING_B6_FIXED_POLICY_LIST`] and
+-//! [`RULING_B8_BINDING`] switches, set to the design's recommended defaults and
+-//! written into the profile's canonical text. Not a privacy claim; not a
++//! Victor's four classifier rulings (D45, 2026-10-29 01:04 UTC) are the
++//! [`RULING_B4_FAIL_CLOSED`], [`RULING_B5_N_PUBLIC`],
++//! [`RULING_B6_FIXED_POLICY_LIST`] and [`RULING_B8_BINDING`] switches, at the
++//! accepted settings and written into the profile's canonical text.
++//!
++//! **ROUND 14 (DESIGN v2.4 §15):** a SHORT item (fewer content ids than one
++//! chunk) is one chunk of its TRUE length `n`: positions `P0 + n .. P0 + n +
++//! S` hold the suffix, every later position up to `T` holds the policy's
++//! PUBLIC pad id (pinned by the template clause, as the prefix and suffix
++//! are), and stage OUT-C reads the public verdict row `P0 + n + S - 1`. The
++//! blocks' attention is causal, so the pad rows never reach that row. `n` is
++//! public (D45(1)); nothing else is revealed. And the tables every entry point
++//! takes are [`super::classify_tied::BoundClassifierTables`] (REVIEW_R13
++//! N-r13-1): derived from the pinned tensor for the trained statement the run
++//! names, never caller-supplied. Not a privacy claim; not a
+ //! registered production profile beyond the development rung; the frozen
+ //! next-token run (D36) is untouched: everything here is new code under new
+ //! profile strings.
+@@ -39,27 +50,28 @@
+ 
+ // ---------------------------------------------------------------- the ruling switches
+ 
+-/// **B-5 (Victor, pending): the exact content length `n` is public** (the
+-/// public-row variant: `T = P0 + n + S` is in the statement). The
++/// **B-5 = D45(1) (Victor, 2026-10-29): the exact content length `n` is
++/// public** (the public-row variant: `n`, `T` and the template lengths are in
++/// the statement; round 14: `P0 + n + S <= T`, the rest public pad). The
+ /// hidden-length variant (in-circuit length binding, design §3.4 option H) is
+ /// not built; `false` is refused by name.
+ pub(crate) const RULING_B5_N_PUBLIC: bool = true;
+-/// **B-6 (Victor, pending): policies come only from the fixed, pre-registered
++/// **B-6 = D45(2) (Victor, 2026-10-29): policies come only from the fixed, pre-registered
+ /// list** ([`registered_policies`]), one threshold `c` each (a profile
+ /// constant, never a per-run choice).
+ pub(crate) const RULING_B6_FIXED_POLICY_LIST: bool = true;
+-/// **B-8 (Victor, pending; the D23 amendment): the proof is bound to its item
++/// **B-8 = D45(3) (Victor, 2026-10-29; amends D23): the proof is bound to its item
+ /// through the input endpoint root** and the input owner's decommitment check
+ /// (design §6.1); option S (seeded endpoint randomness) is not built.
+ pub(crate) const RULING_B8_BINDING: &str = "input-endpoint-root";
+-/// **B-4 (Victor, pending): fail-closed** — an item without an accepted proof
++/// **B-4 = D45(4) (Victor, 2026-10-29): fail-closed** — an item without an accepted proof
+ /// is handled exactly as flagged; the CLI says so on every refusal.
+ pub(crate) const RULING_B4_FAIL_CLOSED: bool = true;
+ 
+ /// the switches' canonical text (bound through the profile text)
+ pub(crate) fn rulings_text() -> String {
+     format!(
+-        "rulings: B-5 n-public={} B-6 fixed-policy-list={} B-8 binding={} B-4 fail-closed={} (recommended defaults, pending Victor)",
++        "rulings: B-5 n-public={} B-6 fixed-policy-list={} B-8 binding={} B-4 fail-closed={} (accepted by Victor: D45, 2026-10-29)",
+         RULING_B5_N_PUBLIC, RULING_B6_FIXED_POLICY_LIST, RULING_B8_BINDING, RULING_B4_FAIL_CLOSED
+     )
+ }
+@@ -102,6 +114,9 @@
+     pub tokenizer: String,
+     /// the vocabulary the policy's ids are of
+     pub v: usize,
++    /// **ROUND 14 (DESIGN v2.4 §15): the PUBLIC pad id** every position after
++    /// a short item's suffix holds (up to `T`), pinned by the template clause
++    pub pad: u64,
+     /// **R-C2: the margin row's PUBLIC quantization scale** (f64 bits), a
+     /// registered policy constant: `w = floor((E[yes] - E[no]) * g / scale +
+     /// 0.5)` from the pinned tied tensor (never from a file; coordinator
+@@ -119,7 +134,7 @@
+ /// the development rung's synthetic policy (its ids are the CLI fixture's
+ /// prompt layout: positions 0..8 template, 8..31 content, 31 suffix)
+ pub(crate) fn policy_rung_dev() -> Policy {
+-    Policy { id: "rung-tc-synthetic-policy-dev/1".into(), prefix: (1..=8).collect(), suffix: vec![32], num_special: 5, yes: 40, no: 41, c: 0, tokenizer: "synthetic (ids only, no text)".into(), v: 300, margin_scale_bits: (1.0f64 / 256.0).to_bits() }
++    Policy { id: "rung-tc-synthetic-policy-dev/1".into(), prefix: (1..=8).collect(), suffix: vec![32], num_special: 5, yes: 40, no: 41, c: 0, tokenizer: "synthetic (ids only, no text)".into(), v: 300, pad: 2, margin_scale_bits: (1.0f64 / 256.0).to_bits() }
+ }
+ 
+ /// Shieldstral-1.0-3B with the card's 7-category template (R-C0's pinned ids,
+@@ -141,6 +156,10 @@
+         c: 0,
+         tokenizer: "tekken.json sha256 ceb11e85e44d7c91 (plain-text encoding, no special-token parsing)".into(),
+         v: 131_072,
++        // tekken.json's `<pad>` (rank 11, a control id) = generation_config.json's
++        // pad_token_id 11 (snapshot 003ec7e2); its pad rows' refusal behaviour is
++        // owed with the Shieldstral classifier run profile's registration
++        pad: 11,
+         // native R12b's chosen scale for 13059 / 2649 (SOL_REPORT_20261028: the
+         // 3,072 coordinates span -32767 .. 31800, zero refusals [COUNTED])
+         margin_scale_bits: 4.08288030735373e-6f64.to_bits(),
+@@ -194,13 +213,18 @@
+ /// **THE SPLIT (§13.1):** `total` content ids into chunks of exactly
+ /// `plan.size` ids at stride `size - overlap`, the last chunk END-ALIGNED
+ /// (`[total - size, total)`, its overlap with the previous one >= overlap).
+-/// Short content (`total < size`) is refused by name: not built in R-C1.
++/// **ROUND 14 (§15): short content** (`1 <= total < size`) is ONE chunk of
++/// its true length, `[0, total)`; its proof pins the trailing positions to
++/// the policy's public pad id. An empty content is refused.
+ pub(crate) fn chunk_ranges(total: usize, plan: ChunkPlan) -> Result<Vec<(usize, usize)>, String> {
+     if plan.size == 0 || plan.overlap >= plan.size {
+         return Err(format!("classifier chunks: the plan (size {}, overlap {}) needs 0 <= overlap < size", plan.size, plan.overlap));
+     }
++    if total == 0 {
++        return Err("classifier chunks: an empty content has no chunk (n >= 1)".into());
++    }
+     if total < plan.size {
+-        return Err(format!("classifier chunks: a content of {total} ids is shorter than one chunk of {} ids; short content is not built (DESIGN v2.2 §13.1: T < T_pad or the trailing-pad route)", plan.size));
++        return Ok(vec![(0, total)]);
+     }
+     let stride = plan.size - plan.overlap;
+     let k = 1 + (total - plan.size).div_ceil(stride);
+@@ -260,8 +284,10 @@
+     let digest = blk.digest();
+     drop(blk);
+     let n = sh.tokens - policy.prefix.len() - policy.suffix.len();
+-    let st = ClassifyRunStatement::new(RunShape::new(sh, l, profile).expect("the classifier run shape"), ctx(), vec![digest; l], &model, &tables, 1, norm(), &policy, n, Tier::R1_MVP, [7u8; 32], 1).expect("the census classifier statement");
+-    (st, model, tables)
++    // the census reads lengths only: the relation-test binding (test builds only)
++    let bound = super::classify_tied::BoundClassifierTables::synthetic_for_relation_tests(tables, 1, norm(), &sh, profile, &model, &policy).expect("the census tables");
++    let st = ClassifyRunStatement::new(RunShape::new(sh, l, profile).expect("the classifier run shape"), ctx(), vec![digest; l], &model, &bound, &policy, n, Tier::R1_MVP, [7u8; 32], 1).expect("the census classifier statement");
++    (st, model, bound.tables().clone())
+ }
+ 
+ // ---------------------------------------------------------------- the public tables
+@@ -383,6 +409,9 @@
+         if bos >= v as u64 || policy.prefix.first() != Some(&bos) {
+             return Err("classifier: the policy's first template id must be the profile's BOS, an id below V".into());
+         }
++        if policy.pad >= v as u64 {
++            return Err("classifier: the policy's public pad id is outside the vocabulary".into());
++        }
+         if policy.suffix.is_empty() {
+             return Err("classifier: the template has no suffix (the verdict row T - 1 is the suffix's last position)".into());
+         }
+@@ -397,8 +426,10 @@
+         if !(-C_MAX..=C_MAX).contains(&policy.c) {
+             return Err(format!("classifier: the threshold c = {} is outside its declared class [-2^33, 2^33]", policy.c));
+         }
+-        if n == 0 || policy.prefix.len() + n + policy.suffix.len() != sh.tokens {
+-            return Err(format!("classifier: P0 + n + S = {} + {n} + {} must equal the block's T = {} (public-row variant, n >= 1)", policy.prefix.len(), policy.suffix.len(), sh.tokens));
++        // ROUND 14 (§15): a short item fills the positions after its suffix with
++        // the public pad id, so P0 + n + S is at most T (n public: D45(1))
++        if n == 0 || policy.prefix.len() + n + policy.suffix.len() > sh.tokens {
++            return Err(format!("classifier: P0 + n + S = {} + {n} + {} must be at most the block's T = {} (public-row variant, n >= 1; the positions after the suffix hold the public pad id)", policy.prefix.len(), policy.suffix.len(), sh.tokens));
+         }
+         // the final norm: exactly the token profile's classes and window
+         if !(1..=127).contains(&norm.g0) || !(1..=CN_F_MAX).contains(&norm.cn) || !(1..=CEPS_F_MAX).contains(&norm.ceps) || !TN_F_RANGE.contains(&norm.tn) {
+@@ -458,20 +489,48 @@
+     pub(crate) fn p0(&self) -> usize {
+         self.policy.prefix.len()
+     }
+-    /// is position `t` a template position (prefix or suffix)?
++    /// ROUND 14: the item's own length `P0 + n + S` (at most `T`)
++    pub(crate) fn item_len(&self) -> usize {
++        self.p0() + self.n + self.policy.suffix.len()
++    }
++    /// ROUND 14: the trailing positions `P0 + n + S .. T`, each holding the
++    /// policy's public pad id (0 unless the item is short)
++    pub(crate) fn pad_positions(&self) -> usize {
++        self.tokens - self.item_len()
++    }
++    /// ROUND 14: **the public verdict row** stage OUT-C reads, the suffix's
++    /// last position `P0 + n + S - 1` (`T - 1` when there is no pad)
++    pub(crate) fn verdict_row(&self) -> usize {
++        self.item_len() - 1
++    }
++    /// is position `t` a template position (prefix, suffix or, round 14, a
++    /// trailing pad position)?
+     pub(crate) fn is_template(&self, t: usize) -> bool {
+         t < self.p0() || (t >= self.p0() + self.n && t < self.tokens)
+     }
+-    /// the public template id at `t` (0 at content and pad positions)
++    /// the public template id at `t`: the prefix's, the suffix's, the pad id
++    /// after the suffix (round 14); 0 at content positions and beyond `T`
+     pub(crate) fn kappa(&self, t: usize) -> u64 {
+         if t < self.p0() {
+             self.policy.prefix[t]
+-        } else if t >= self.p0() + self.n && t < self.tokens {
++        } else if t >= self.p0() + self.n && t < self.item_len() {
+             self.policy.suffix[t - self.p0() - self.n]
++        } else if t >= self.item_len() && t < self.tokens {
++            self.policy.pad
+         } else {
+             0
+         }
+     }
++    /// ROUND 14: the `T` ids of the item of `content` (`n` ids): the template
++    /// prefix, the content, the suffix, then the public pad id up to `T`
++    pub(crate) fn tokens_of(&self, content: &[u64]) -> Result<Vec<u64>, String> {
++        if content.len() != self.n {
++            return Err(format!("classifier: the content has {} ids; the profile's n is {}", content.len(), self.n));
++        }
++        let mut v = item_tokens(&self.policy, content);
++        v.resize(self.tokens, self.policy.pad);
++        Ok(v)
++    }
+     /// `ctl(v)`: a control id of the policy's tokenizer
+     pub(crate) fn ctl(&self, v: u64) -> bool {
+         v < self.policy.num_special
+@@ -518,7 +577,7 @@
+     /// calibration identity (the ruling switches included)
+     pub(crate) fn describe_under(&self, run_profile: &str) -> String {
+         format!(
+-            "classify (DESIGN_CLASSIFIER v2) under {run_profile}: V={} V_pad={} d={} d_pad={} T={} P0={} n={} S={} BOS={} final-norm g0={} cn={} tn={} ceps={} wrho={} dmax={} margin-vector=int16[-32767,32767] {} threshold c={} c-class=[-2^33,2^33] margin-window={} byte-limbs={} limbs-at-Lo-entry={} no-pin yes={} no={} ctl=ids<{} template={} policy={} tokenizer={} embedding={} variant=public-row mode=verdict-public-bit no-output-endpoint chunk-size={} chunk-overlap={} chunk-split=end-aligned margin-scale={:e} margin-scale-bits={:#018x} {} {} {}",
++            "classify (DESIGN_CLASSIFIER v2) under {run_profile}: V={} V_pad={} d={} d_pad={} T={} P0={} n={} S={} item-length={} pad-id={} pad-positions={} verdict-row={} BOS={} final-norm g0={} cn={} tn={} ceps={} wrho={} dmax={} margin-vector=int16[-32767,32767] {} threshold c={} c-class=[-2^33,2^33] margin-window={} byte-limbs={} limbs-at-Lo-entry={} no-pin yes={} no={} ctl=ids<{} template={} policy={} tokenizer={} embedding={} variant=public-row mode=verdict-public-bit no-output-endpoint chunk-size={} chunk-overlap={} chunk-split=end-aligned short-content=one-chunk-of-its-length-pad-pinned margin-scale={:e} margin-scale-bits={:#018x} {} {} {}",
+             self.v,
+             self.v_pad,
+             self.d,
+@@ -527,6 +586,10 @@
+             self.p0(),
+             self.n,
+             self.policy.suffix.len(),
++            self.item_len(),
++            self.policy.pad,
++            self.pad_positions(),
++            self.verdict_row(),
+             self.bos,
+             self.norm.g0,
+             self.norm.cn,
+@@ -546,7 +609,7 @@
+             self.policy.id,
+             self.policy.tokenizer,
+             hex(&self.emb_digest),
+-            self.n,
++            self.tokens - self.p0() - self.policy.suffix.len(),
+             chunk_overlap_of(run_profile).map(|o| o.to_string()).unwrap_or_else(|_| "unregistered".into()),
+             self.policy.margin_scale(),
+             self.policy.margin_scale_bits,
+@@ -621,6 +684,12 @@
+     verdict: u8,
+     /// D41: this proof's chunk of its item (one chunk: the whole content)
+     chunk: ChunkRef,
++    /// ROUND 14 (N-r13-1): the bound tables' trained-statement profile digest
++    /// (the prover's and the verifier's tables must be bound to the same)
++    tables_profile_sha256: [u8; 32],
++    /// test builds: whether the tables came from the tied derivation (the
++    /// relation tests' synthetic binding does not; the capture replay refuses it)
++    tables_derived: bool,
+ }
+ 
+ /// the derived whole-run figure of a classifier run (the token run's union
+@@ -663,37 +732,39 @@
+ impl ClassifyRunStatement {
+     /// The classifier door and the trained-model binding, in one constructor
+     /// (both sides; the verifier passes the PUBLISHED verdict): an item of
+-    /// ONE chunk (its whole content, `n` ids).
++    /// ONE chunk (its whole content, `n` ids; round 14: `n` may be shorter
++    /// than a chunk).
+     #[allow(clippy::too_many_arguments)]
+     pub(crate) fn new(
+         rs: RunShape,
+         context: Digest,
+         block_digests: Vec<Digest>,
+         model: &TrainedModelStatement,
+-        tables: &ClassifierTables,
+-        bos: u64,
+-        norm: FinalNorm,
++        tables: &super::classify_tied::BoundClassifierTables,
+         policy: &Policy,
+         n: usize,
+         tier: Tier,
+         in_root: Digest,
+         verdict: u8,
+     ) -> Result<ClassifyRunStatement, String> {
+-        ClassifyRunStatement::new_chunk(rs, context, block_digests, model, tables, bos, norm, policy, n, tier, in_root, verdict, n, 0)
++        ClassifyRunStatement::new_chunk(rs, context, block_digests, model, tables, policy, n, tier, in_root, verdict, n, 0)
+     }
+ 
+     /// **D41: chunk `chunk_index` of an item of `total` content ids.** The
+     /// chunk's range is DERIVED from (total, index, the profile's plan: size
+-    /// `n = T - P0 - S`, the registered overlap), never taken as given.
++    /// `T - P0 - S`, the registered overlap), never taken as given, and `n`
++    /// must be its length (round 14: a short item's one chunk is `[0, total)`).
++    /// **ROUND 14 (N-r13-1):** the tables are [`BoundClassifierTables`]
++    /// (`super::classify_tied`), and they must be bound to THIS trained
++    /// statement, this policy and this profile's tied source; BOS and the
++    /// final norm are theirs (no separate argument).
+     #[allow(clippy::too_many_arguments)]
+     pub(crate) fn new_chunk(
+         rs: RunShape,
+         context: Digest,
+         block_digests: Vec<Digest>,
+         model: &TrainedModelStatement,
+-        tables: &ClassifierTables,
+-        bos: u64,
+-        norm: FinalNorm,
++        tables: &super::classify_tied::BoundClassifierTables,
+         policy: &Policy,
+         n: usize,
+         tier: Tier,
+@@ -721,8 +792,14 @@
+             return Err("classifier run: a boundary has ONE scale (M-4)".into());
+         }
+         model.check_against(sh, rs.profile(), &block_digests, &vec![scales; l])?;
+-        let cp = ClassifierProfile::new(sh, tables, bos, norm, policy, n, tier)?;
+-        let chunk = ChunkRef::derive(total, chunk_index, ChunkPlan { size: n, overlap: chunk_overlap_of(rs.profile())? })?;
++        // N-r13-1: the tables are bound to this trained statement and policy
++        tables.check_for(sh, rs.profile(), model, policy)?;
++        let cp = ClassifierProfile::new(sh, tables.tables(), tables.bos(), tables.norm(), policy, n, tier)?;
++        let size = sh.tokens.checked_sub(policy.prefix.len() + policy.suffix.len()).filter(|x| *x > 0).ok_or("classifier run: the policy's template leaves no content position")?;
++        let chunk = ChunkRef::derive(total, chunk_index, ChunkPlan { size, overlap: chunk_overlap_of(rs.profile())? })?;
++        if chunk.b - chunk.a != n {
++            return Err(format!("classifier run: chunk {} of a {total}-id content holds {} ids; the statement's n is {n}", chunk.index, chunk.b - chunk.a));
++        }
+         let in_spec = input_endpoint_spec(sh, context, &cp)?;
+         let whole_run = whole_run_of_classifier(sh, l, &cp);
+         let base = sh.norm_calibration();
+@@ -737,7 +814,26 @@
+                 stage_cal[k] = cal;
+             }
+         }
+-        Ok(ClassifyRunStatement { rs, context, block_digests, model_identity: model.identity(), cp, in_spec, in_root, scale: scales.0, whole_run, stage_cal, verdict, chunk })
++        Ok(ClassifyRunStatement { rs, context, block_digests, model_identity: model.identity(), cp, in_spec, in_root, scale: scales.0, whole_run, stage_cal, verdict, chunk, tables_profile_sha256: tables.profile_sha256(), tables_derived: tables.is_derived() })
++    }
++
++    /// **ROUND 14 (N-r13-1): the prover's and the verifier's tables are the
++    /// statement's**: bound to its trained statement and profile digest, with
++    /// its embedding and margin digests, BOS and final norm
++    pub(crate) fn check_tables(&self, t: &super::classify_tied::BoundClassifierTables) -> Result<(), String> {
++        if t.model_identity() != self.model_identity || t.profile_sha256() != self.tables_profile_sha256 || t.is_derived() != self.tables_derived {
++            return Err("classifier run: the tables handed are bound to another trained statement than the statement's (N-r13-1)".into());
++        }
++        if t.tables().emb_digest() != self.cp.emb_digest || t.tables().w_digest() != self.cp.w_digest || t.bos() != self.cp.bos || t.norm() != self.cp.norm {
++            return Err("classifier run: the tables handed are not the ones the statement names".into());
++        }
++        Ok(())
++    }
++
++    /// test builds: whether the statement's tables came from the tied derivation
++    #[cfg(test)]
++    pub(crate) fn tables_derived(&self) -> bool {
++        self.tables_derived
+     }
+ 
+     pub(crate) fn sh(&self) -> &Shape {
+@@ -879,7 +975,7 @@
+             "stage {:02} (OUT-C): OUTC-00 claims boundary {} = B_out at the fixed public row {} at pair row {}; the verdict bit is public; opens M A H then B_out",
+             l + 1,
+             l + 1,
+-            self.cp.tokens - 1,
++            self.cp.verdict_row(),
+             bl.mask_row(1)?
+         ));
+         Ok(out)
+@@ -1037,6 +1133,7 @@
+             stage_layouts: [super::stage_in_c::layout(sh, cp).describe(), super::stage_out_c::layout(sh, cp).describe()],
+             verdict: self.verdict,
+             chunk: [ch.index, ch.count, ch.a, ch.b, ch.total, ch.size, ch.overlap],
++            tables_derived: self.tables_derived,
+         };
+         Ok(RunHeader {
+             profile: self.profile(),

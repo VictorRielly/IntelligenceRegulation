@@ -1,0 +1,31 @@
+--- a/zkp-core/src/pcs.rs
++++ b/zkp-core/src/pcs.rs
+@@ -908,6 +908,10 @@
+ 
+ /// Group ZK claims by identical column weights: (column weights, [(row weights, value)]).
+ fn group_zclaims(claims: &[ZClaim], rows: usize, log_cols: u32) -> Vec<(Vec<Fp2>, Vec<(Vec<Fp2>, Fp2)>)> {
++    group_zclaims_with_columns(claims, rows, log_cols, true)
++}
++
++fn group_zclaims_with_columns(claims: &[ZClaim], rows: usize, log_cols: u32, columns: bool) -> Vec<(Vec<Fp2>, Vec<(Vec<Fp2>, Fp2)>)> {
+     let mut keys: Vec<ZKey> = Vec::new();
+     let mut groups: Vec<(Vec<Fp2>, Vec<(Vec<Fp2>, Fp2)>)> = Vec::new();
+     for c in claims {
+@@ -923,7 +927,7 @@
+         if let Some(gi) = keys.iter().position(|k| *k == key) {
+             groups[gi].1.push((rw, c.value));
+         } else {
+-            let cw = zkey_weights(&key, log_cols);
++            let cw = if columns { zkey_weights(&key, log_cols) } else { Vec::new() };
+             keys.push(key);
+             groups.push((cw, vec![(rw, c.value)]));
+         }
+@@ -1016,7 +1020,7 @@
+ pub fn open_zk<E: EncodedStore>(cmz: &CommittedZk<E>, claims: &[ZClaim], tr: &mut Transcript) -> OpeningZk {
+     let cm = &cmz.cm;
+     let rows = cm.rows;
+-    let groups = group_zclaims(claims, rows, cm.params.log_cols);
++    let groups = group_zclaims_with_columns(claims, rows, cm.params.log_cols, false);
+     let (rhos, _wants) = zk_rhos(&groups, rows, tr);
+     let sites = assert_mask_sites(cmz, &rhos);
+     LAST_SITES.with(|s| *s.borrow_mut() = sites);

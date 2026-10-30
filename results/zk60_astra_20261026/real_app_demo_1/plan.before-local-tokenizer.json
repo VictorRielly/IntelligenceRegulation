@@ -1,0 +1,143 @@
+{
+  "schema": "pm-real-shieldstral-testnet-demo/1",
+  "at": "2026-10-29T17:46:24.326893+00:00",
+  "post_id": "d1800de17fffed4565733d12e5c30f52",
+  "submitted_via": "app.api_create_post handler; original app Store and Worker",
+  "post_text": "Today I planted basil and watered the garden. The afternoon was quiet and sunny.",
+  "content_tokens": 17,
+  "plan": [
+    {
+      "index": 0,
+      "start": 0,
+      "end": 17,
+      "category": "sexual",
+      "category_chunk_index": 0,
+      "category_chunks": 1,
+      "content_total": 17,
+      "policy_id": "shieldstral-1.0-3b-moderate-sexual/1",
+      "chunk_tokens": 55,
+      "overlap_tokens": 8,
+      "context_tokens": 128
+    },
+    {
+      "index": 1,
+      "start": 0,
+      "end": 17,
+      "category": "violence",
+      "category_chunk_index": 0,
+      "category_chunks": 1,
+      "content_total": 17,
+      "policy_id": "shieldstral-1.0-3b-moderate-violence/1",
+      "chunk_tokens": 55,
+      "overlap_tokens": 8,
+      "context_tokens": 128
+    },
+    {
+      "index": 2,
+      "start": 0,
+      "end": 17,
+      "category": "hate",
+      "category_chunk_index": 0,
+      "category_chunks": 1,
+      "content_total": 17,
+      "policy_id": "shieldstral-1.0-3b-moderate-hate/1",
+      "chunk_tokens": 49,
+      "overlap_tokens": 8,
+      "context_tokens": 128
+    }
+  ],
+  "prover": {
+    "kind": "shieldstral",
+    "label": "Shieldstral-1.0-3B classifier \u2014 privacy statement pending",
+    "supports": [
+      "text"
+    ],
+    "proves_verdict": true,
+    "model": "Shieldstral-1.0-3B",
+    "model_digest": "29aeba6c04a819cdbafde311f7c9d0c678d85aff22292ae6b9647761158a0bd1",
+    "token_profile_digest": "2ba468f98085caf1136f27cf66220f93d8e316acb8dbae7e98f9eb68347f05a0",
+    "binary_sha256": "dfb8025eb903b203f4b50371fdd0dd00659d46a9dbaad9d121d6a68343ebc70c",
+    "run_profile": "hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/1",
+    "cli": "zk60_classify r16b, native R13, T128",
+    "privacy_status": "privacy statement pending",
+    "policy_selection": "moderate testnet demo; product ruling pending",
+    "what_is_proved": "The pinned integer model verdict for each category, bound to the post by input-owner verification.",
+    "per_job_s": 700,
+    "category_geometry": {
+      "sexual": {
+        "chunk_tokens": 55,
+        "overlap_tokens": 8,
+        "max_chunks": 8
+      },
+      "violence": {
+        "chunk_tokens": 55,
+        "overlap_tokens": 8,
+        "max_chunks": 8
+      },
+      "hate": {
+        "chunk_tokens": 49,
+        "overlap_tokens": 8,
+        "max_chunks": 8
+      }
+    }
+  },
+  "source_sha256": {
+    "apps/proven-media/proven_media/shieldstral_prover.py": "f31d373368bff8ed7bb82abe2122df83eba7018c924854c01d3a373cc3acabb0",
+    "apps/proven-media/proven_media/shieldstral_runtime.py": "b0cbf83877d18e328b20eb5c26508cadc5e87e57d7bc66388399837e7e582f73",
+    "apps/proven-media/proven_media/classifier_cli.py": "78a12f75f95df6f3899b62207e3766ca489d991cc7007edfb6a51fbca7eebd79",
+    "apps/proven-media/proven_media/classifier_prover.py": "3b36969f3889f8bdb2c5b61edf0f96d73f6bf7d053e3f1979e4adec20be5cf48",
+    "apps/proven-media/proven_media/provers.py": "0d92039c97b2bb831aa336b7acb38d83758ae20a8f29184aa44f3216da673acd",
+    "apps/proven-media/proven_media/jobs.py": "27afa7d12c4b2bf19ab767669d168ee62809ad158b911a8b3d7b1f18e1d87e7a",
+    "apps/proven-media/proven_media/proof_plans.py": "2f586ccc429af60ae41ce87c89539bf2e1d685bbadf42ef7e428250a496ba71d",
+    "apps/proven-media/proven_media/records.py": "93d73246b84253bf79e30f0d0d95225b5246a3206330f00b5098a6806041c7d3",
+    "apps/proven-media/proven_media/config.py": "9de948a0e6e80747a595497033162b65c25ea357953519359fc6146fb74bf8df",
+    "apps/proven-media/proven_media/app.py": "e07d365987507a1f3f3c0fa5d36abe74fdbbc9b0fefe03045275cb49dc0d9d82",
+    "apps/proven-media/proven_media/manifest.py": "e8722a753c4156d54b532edcca70d00c399da2a276cb7191f9d095d9c267ef02",
+    "apps/proven-media/tools/classifier_pipeline.py": "dd2de31a5dee01b4780efec3b5a2865f803f6acdfc30dc919eb0d2963b8c5e0b",
+    "results/zk60_astra_20261026/run_real_app_demo.py": "e5b7d00b89c74e51e43fbea404fdcb62a766d02aab7f16e98d4707d24748345d"
+  },
+  "private_root": "/tmp/zk60-astra-real-app-demo-20261029-1",
+  "public_root": "/home/victor/IntelligenceRegulation/results/zk60_astra_20261026/real_app_demo_1/public",
+  "categories": {},
+  "prelaunch_revision": {
+    "at": "2026-10-29T17:48:28.439011+00:00",
+    "reason": "Before any proof job, allow native recheck to reject missing/tampered receipt bytes so the app withdraws the post; seven adapter controls pass."
+  },
+  "source_revisions": [
+    {
+      "at": "2026-10-29T18:28:08.478032+00:00",
+      "reason": "Original guard withdrawn before computation; tested metadata/download fixes applied. No proof rerun.",
+      "previous_plan": "plan.before-metadata-fix.json",
+      "previous_source_sha256": {
+        "apps/proven-media/proven_media/shieldstral_prover.py": "f31d373368bff8ed7bb82abe2122df83eba7018c924854c01d3a373cc3acabb0",
+        "apps/proven-media/proven_media/shieldstral_runtime.py": "b0cbf83877d18e328b20eb5c26508cadc5e87e57d7bc66388399837e7e582f73",
+        "apps/proven-media/proven_media/classifier_cli.py": "78a12f75f95df6f3899b62207e3766ca489d991cc7007edfb6a51fbca7eebd79",
+        "apps/proven-media/proven_media/classifier_prover.py": "3b36969f3889f8bdb2c5b61edf0f96d73f6bf7d053e3f1979e4adec20be5cf48",
+        "apps/proven-media/proven_media/provers.py": "6115464239e2106332877dc04f0269b39c6d4bac43b94d0b19a5dbab14999ce5",
+        "apps/proven-media/proven_media/jobs.py": "6ac060b1de108e276710aaba7713b5fca06ddd483737a9affca8604a970123df",
+        "apps/proven-media/proven_media/proof_plans.py": "2f586ccc429af60ae41ce87c89539bf2e1d685bbadf42ef7e428250a496ba71d",
+        "apps/proven-media/proven_media/records.py": "93d73246b84253bf79e30f0d0d95225b5246a3206330f00b5098a6806041c7d3",
+        "apps/proven-media/proven_media/config.py": "4e1a917ec22e4a5da6f0c25ce8230c9fb0d4153f2e532c0bc3a3095366bc65f3",
+        "apps/proven-media/proven_media/app.py": "15e045c11748fad72372990f3eccd80fa6ad622616b2de9e90985b255a558f26",
+        "apps/proven-media/tools/classifier_pipeline.py": "dd2de31a5dee01b4780efec3b5a2865f803f6acdfc30dc919eb0d2963b8c5e0b",
+        "results/zk60_astra_20261026/run_real_app_demo.py": "806e381781c1e585f15f895e8ef71c19e153be8330c4fc555660686a39d71fb1"
+      },
+      "source_sha256": {
+        "apps/proven-media/proven_media/shieldstral_prover.py": "f31d373368bff8ed7bb82abe2122df83eba7018c924854c01d3a373cc3acabb0",
+        "apps/proven-media/proven_media/shieldstral_runtime.py": "b0cbf83877d18e328b20eb5c26508cadc5e87e57d7bc66388399837e7e582f73",
+        "apps/proven-media/proven_media/classifier_cli.py": "78a12f75f95df6f3899b62207e3766ca489d991cc7007edfb6a51fbca7eebd79",
+        "apps/proven-media/proven_media/classifier_prover.py": "3b36969f3889f8bdb2c5b61edf0f96d73f6bf7d053e3f1979e4adec20be5cf48",
+        "apps/proven-media/proven_media/provers.py": "0d92039c97b2bb831aa336b7acb38d83758ae20a8f29184aa44f3216da673acd",
+        "apps/proven-media/proven_media/jobs.py": "27afa7d12c4b2bf19ab767669d168ee62809ad158b911a8b3d7b1f18e1d87e7a",
+        "apps/proven-media/proven_media/proof_plans.py": "2f586ccc429af60ae41ce87c89539bf2e1d685bbadf42ef7e428250a496ba71d",
+        "apps/proven-media/proven_media/records.py": "93d73246b84253bf79e30f0d0d95225b5246a3206330f00b5098a6806041c7d3",
+        "apps/proven-media/proven_media/config.py": "9de948a0e6e80747a595497033162b65c25ea357953519359fc6146fb74bf8df",
+        "apps/proven-media/proven_media/app.py": "e07d365987507a1f3f3c0fa5d36abe74fdbbc9b0fefe03045275cb49dc0d9d82",
+        "apps/proven-media/proven_media/manifest.py": "e8722a753c4156d54b532edcca70d00c399da2a276cb7191f9d095d9c267ef02",
+        "apps/proven-media/tools/classifier_pipeline.py": "dd2de31a5dee01b4780efec3b5a2865f803f6acdfc30dc919eb0d2963b8c5e0b",
+        "results/zk60_astra_20261026/run_real_app_demo.py": "e5b7d00b89c74e51e43fbea404fdcb62a766d02aab7f16e98d4707d24748345d"
+      },
+      "candidate_test_evidence": "../real_adapter_metadata_candidate/test_result.json"
+    }
+  ]
+}

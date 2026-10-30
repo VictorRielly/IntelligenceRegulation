@@ -1,0 +1,480 @@
+mle-pcs/final-report.md at main · sec-bit/mle-pcs · GitHub (https://github.com/sec-bit/mle-pcs/blob/main/final-report.md)
+citeturn14search0 [wordlim: 200] Crawled: last month; So we can prove that the above summation holds, thereby proving the correctness of the Multilinear Polynomial Evaluation. ... The Deepfold protocol and WHIR protocol also continue with the Sumcheck approach, with the difference being that Deepfold adopts the idea from DEEP-FRI, where the Prover predetermined the evaluation of a polynomial at some Out-of-domain random point as a form of Commitment, ensuring that the Prover always commits to the same polynomial even in the List-decoding Regime.
+#### Sumcheck Method
+
+Substituting $\tilde{f}(u_0, \ldots, u_{n - 1}) = v$ into the point-value form of the multilinear polynomial, we can transform it into proving the summation on $B_n = {0,1}^n$:
+
+$$ \sum_{\vec{b} = {0,1}^n}\tilde{f}(\vec{b}) \cdot \tilde{eq}(\vec{b}, \vec{u}) = v $$
+
+So we can prove that the above summation holds, thereby proving the correctness of the Multilinear Polynomial Evaluation. The challenge with using Sumcheck is that in the last step of the Sumcheck protocol, the Verifier needs to obtain the value of $\tilde{f}$ at a random point for final verification, completing the entire Sumcheck protocol. The significant contribution of the Basefold [ZCF23] protocol is discovering that if we synchronously use the FRI protocol on the univariate polynomial corresponding to $\tilde{f}$, and use the same random number as the Sumcheck protocol in each round of folding, then when folded to the last step, the resulting constant is exactly the value of $\tilde{f}$ at the random point that the Sumcheck protocol wants in the last step.
+--------------------------------------------------------------------------------
+SWIRL: Stacked WHIR with Interaction Reductions via LogUp (https://studylib.net/doc/28280553/swirl)
+citeturn14search1 [wordlim: 200] Published: 9 months ago; Crawled: last month;     We have reduced to proving the evaluation claims of multilinear polynomials q̂j,MLE at ũ.
+    This is now a classical batch polynomial opening problem. ...     Protocol 3.7.1 (Batch WHIR, single opening point).
+    , u1 , . . . , unstack ) ∈ Fnext
+    .
+    We have reduced to proving the evaluation claims of multilinear polynomials q̂j,MLE at ũ.
+    This is now a classical batch polynomial opening problem. We use WHIR ([ACFY24]) as a
+    multilinear polynomial commitment scheme (PCS) with algebraic batching to prove the claims.
+    Protocol 3.7.1 (Batch WHIR, single opening point). Sample a random &micro; ∈ Fext . Define the
+    algebraic batching
+    X
+    RS(q)&micro; =
+    &micro;j−1 RS(qj ).
+    j
+    ?
+    The evaluation claims q̂j (u) = vj can be proven by running the WHIR protocol to establish proximity of RS(q)&micro; to the constrained
+    Reed–Solomon code CRS[F, L, ℓ + nstack , ŵ, σ] with
+    P
+    ŵ(Z, X) = Z &middot; eq(X, ũ) and σ = j &micro;j−1 vj .
+    3.8. SWIRL protocol in full. We outline the full non-interactive STARK protocol here. We
+    recall (cf. &sect;2.6) this protocol is obtained by applying the BCS transform to an IOP. We state
+    the protocol in terms of the Fiat–Shamir transcript, and we leave it to the reader to infer the
+--------------------------------------------------------------------------------
+Releases · oumuamua-labs/hekate · GitHub (https://github.com/oumuamua-labs/hekate/releases)
+citeturn14search2 [wordlim: 200] Crawled: today; The commitment encoded every physical column twice, base and shifted by one row, because the evaluation argument had to open the next-row polynomial at the same point. ... The deleted copy was a second opening of data the first copy already committed, never an independent constraint, and the weights are evaluated from `r_final` and the verifier's own sumcheck challenges, leaving the prover nothing to choose.
+## Base-only commitment
+
+The commitment encoded every physical column twice, base and shifted by one row, because the evaluation argument had to open the next-row polynomial at the same point. The second copy is gone. Shifted claims now ride two transparent weights the verifier evaluates for itself in O(n): a carry-chain form of `eq(prev(·), P)` paired with the whole-column master, and its ring-switch counterpart paired with the bit-plane master. Same hash, same code, same Merkle structure, half the codeword.
+
+Binding does not move. The deleted copy was a second opening of data the first copy already committed, never an independent constraint, and the weights are evaluated from `r_final` and the verifier's own sumcheck challenges, leaving the prover nothing to choose. The wrap term must agree bit-exact with what the ZeroCheck consumes as the next row; a regression test pins that agreement directly.
+
+Geometry moves with it: the split is priced at the widths the opened leaf actually carries rather than raw byte size, and the per-table master-vector count is absorbed into the transcript, keeping that model on bound inputs. --------------------------------------------------------------------------------
+HyperPlonk: Efficient Proof System Upgrade | PDF | Applied Mathematics | Mathematics (https://www.scribd.com/document/818798787/HyperPlonk)
+citeturn14search3 [wordlim: 200] Published: 3.8 years ago; Crawled: 1.8 years ago; opening protocol (Section 3.8) that can batch many openings into one, significantly reducing the ... Table 2: Multi-linear polynomial commitment schemes for µ-variate linear polynomials and n = 2µ .
+The prover time measures the complexity of committing to a polynomial and evaluating it once. ... enable efficient batch evaluation openings.
+Batch openings and commit-and-prove SNARKs. The prover in HyperPlonk needs to open
+several multilinear polynomials at random points. We present a new sum-check-based batch-
+opening protocol (Section 3.8) that can batch many openings into one, significantly reducing the
+prover time, proof size, and verifier time. Our protocol takes O(k · 2µ ) field operations for the
+prover for batching k of µ-variate polynomials, compared to O(k 2 µ · 2µ ) for the previously best
+protocol [73]. Under certain conditions, we also obtain a more efficient batching scheme with
+complexity O(2µ ), which yields a very efficient commit-and-prove protocol.
+
+## h. The size of the witness is O(2 ).µ
+
+29
+3.8 Batch openings
+This section describes a batching protocol proving the correctness of multiple multivariate polyno-
+mial evaluations. Essentially, the protocol reduces multiple oracle queries to different polynomials
+into a single query to a multivariate oracle. The batching protocol is helpful for HyperPlonk to
+enable efficient batch evaluation openings. In particular, the SNARK prover only needs to compute
+a single multilinear PCS evaluation proof, even if there are multiple PCS evaluations.
+We note that Thaler [73, §4.5.2] shows how to batch two evaluations of a single multilinear
+polynomial. The algorithm can be generalized for multiple evaluations of different multilinear
+polynomials. However, the prover time complexity is O(k 2 µ · 2µ ) where k is the number of evalua-
+tions, and µ is the number of variables. In comparison, our algorithm achieves complexity O(k · 2µ )
+which is kµ-factor faster. Note that O(k ·2µ ) is already optimal as the prover needs to take O(k ·2µ )
+time to evaluate {fi (zi )}i∈[k] before batching.
+Definition 3.7 (BatchEval relation). The relation RkBATCH is the set of all tuples (x; w) =
+(≤d)
+(zi )i∈[k] , (yi )i∈[k] , [[fi ]] i∈[k] ; (fi )i∈[k] where zi ∈ Fµ , yi ∈ F, fi ∈ Fµ
+ 
+and fi (zi ) = yi for
+all i ∈ [k].
+Remark 3.1. The polynomials {fi }i∈[k] are not necessarily distinct. E.g., to evaluate a single
+polynomial f at k distinct points, we can set f1 = f2 = · · · = fk = f .
+Remark 3.2. The polynomials {fi }i∈[k] are all µ-variate. This is without loss of generality. E.g.,
+suppose one of the evaluated polynomial fj0 has only µ − 1 variables, we can define fj (Y, X) =
+Y · fj0 (X) + (1 − Y ) · fj0 (X) which is essentially fj0 but with µ variables. The same trick easily
+extends to fj0 with arbitrary µ0 < µ variables.
+
+Construction. For ease of exposition, we consider the case where f1 , . . . , fk are multilinear. We
+emphasize that the same techniques can be extended for multi-variate polynomials.
+Assume w.l.o.g that k = 2` is a power of 2. --------------------------------------------------------------------------------
+Improved Merlin–Arthur Protocols for Central Problems in Fine-Grained Complexity | Algorithmica | Springer Nature Link (https://link.springer.com/article/10.1007/s00453-023-01102-6)
+citeturn14search4 [wordlim: 200] Published: 3.7 years ago; Crawled: 2 weeks ago; ^{Footnote 3}
+
+The main technical component in Williams’ work is a “batch evaluation” protocol for low-degree arithmetic circuits, with which Merlin can quickly convince Arthur of the outputs of a circuit C on a set of points $a_1,\ldots ,a_K$, faster than evaluating C independently on each point {a}_{i}$a_i$. ... In [28, 29], doubly efficient proof systems for # k$k$-SUM, # k$k$-Clique, and APSP were constructed, in which the prover runs in polynomial time (for constant k) and the verifier runs in “almost linear” time (i.e., {N}^{1+o(1)}$N^{1+o(1)}$ time, where N is the input length).
+Recall that in a Merlin–Arthur proof system, the probabilistic verifier (Arthur) always accepts valid proofs (from the prover Merlin), and rejects invalid proofs with probability arbitrarily close to 1. Williams [58] shows (among other results) that the OV problem^{Footnote 1} for sets of n vectors with dimension d can be solved by a Merlin–Arthur protocol in near-optimal ${\tilde{O}}(nd)$ time,^{Footnote 2} achieving a nearly quadratic speedup compared to the fastest known algorithms for OV [7, 20]. One consequence of this result is the refutation of the Merlin–Arthur Strong Exponential-Time Hypothesis, which could be viewed as evidence against the Nondeterministic Strong Exponential-Time Hypothesis (NSETH) proposed by Carmosino et al. [16].^{Footnote 3}
+
+The main technical component in Williams’ work is a “batch evaluation” protocol for low-degree arithmetic circuits, with which Merlin can quickly convince Arthur of the outputs of a circuit C on a set of points $a_1,\ldots ,a_K$, faster than evaluating C independently on each point {a}_{i}$a_i$. This protocol can be used to obtain efficient Merlin–Arthur protocols for various other problems, such as # SAT, counting dominating pairs of vectors, and counting Hamiltonian cycles [58]. Building on Williams’ batch-evaluation protocol and employing additional algebraic techniques, Björklund and Kaski [11] obtained improved Merlin–Arthur protocols^{Footnote 4} for more problems, such as # k$k$-Clique, Graph Coloring, and Set Cover. For many of these problems, the obtained Merlin–Arthur protocols achieve quadratic speedup compared to the fastest known algorithms. Variants of these protocols have been used as Proofs of Work based on fine-grained hardness assumptions [14], which have led to further work in fine-grained cryptography and average-case fine-grained complexity [8, 13, 21, 27, 30, 33, 43]. In [28, 29], doubly efficient proof systems for # k$k$-SUM, # k$k$-Clique, and APSP were constructed, in which the prover runs in polynomial time (for constant k) and the verifier runs in “almost linear” time (i.e., {N}^{1+o(1)}$N^{1+o(1)}$ time, where N is the input length).^{Footnote 5} Efficient batch verification using interactive protocols with a constant (but greater than two) number of rounds has also been developed for problems with polynomial-time verifiable, unique witnesses [49] and problems which can be solved by algorithms with small space complexity [50]. A different line of work in the stream verification setting has developed sublinear space protocols for various graph problems [15, 17].
+
+Given the interest in fine-grained complexity and proof systems, a natural question is to understand the Merlin–Arthur time complexity of core problems in fine-grained complexity. How efficiently can solutions to these problems be verified, with a randomized verifier? As seen above, such questions may have cryptographic applications, and in general they may give insight into the structure of these problems. Williams [58] already showed that OV admits near-optimal Merlin–Arthur protocols. In this work, we present improved Merlin–Arthur protocols for 3-SUM, APSP, and many more core computational tasks. For several of these problems our protocols yield optimal running times (up to polylogarithmic factors) for the verifier.
+
+--------------------------------------------------------------------------------
+BrakingBase A Linear Prover Poly Logarithmic Verifier Field Agnostic Polynomial Commitment Scheme | PDF | Matrix (Mathematics) | Algebra (https://www.scribd.com/document/1043726731/BrakingBase-a-Linear-Prover-Poly-Logarithmic-Verifier-Field-Agnostic-Polynomial-Commitment-Scheme)
+citeturn14search5 [wordlim: 200] Crawled: 5 months ago; BrakingBase is a proposed Polynomial Commitment Scheme (PCS) that allows for efficient commitment and evaluation of multilinear polynomials with linear-time complexity for the prover and poly-logarithmic complexity for the verifier. ... ## 3.4 The Batch-Evaluate protocol ... Then from Theorem 7 of [ZCF24], there exists a multilinear polynomial f s ∈ F[ x0 , . . . , x`−1 ] such
+n o
+R2 = ({ct }t∈[k] , ω, y0t ; { f t }t∈[k] ) | ∀t ∈ [k ] f t (ω ) = y0t , ω ∈ F`
+
+t∈[k ]
+(9)
+
+7 Since all polynomials are in log cn or fewer variables, here we treat them as polynomials in exactly log cn
+` ` variables.
+
+19
+In the above equations, ct is the commitment to a multilinear polynomial f t in `t variables, and ωt
+is a point in F`t , and ` = max(`t | t ∈ [k]). We remark that Batch-Evaluate is crucially used in Step
+14 of the [Link] protocol to achieve such a reduction, and reduce the proof complexity
+of the [Link] protocol.
+
+Algorithm 5 Batch-Evaluate
+Public input: {ct }t∈[k] , {ωt }t∈[k] , {yt }t∈[k] .
+P ’s private input: The Lagrange coefficients of multilinear polynomial f t for t ∈ [k].
+Output: 1 if the V accepts and 0 otherwise.
+
+1. V sends r1 , . . . , rk ∈ R F to P .
+2. P and V engage in a sum-check protocol to verify that
+!
+∑ r t ωt = ∑ ∑ e (α̇t , ẋ) f t (ẋ) .
+rt eq
+t∈[k ] `0 t∈[k ]
+ẋ∈{0,1}
+
+At the end of the sum-check protocol, V needs to evaluate f 1 , . . . , f k at a certain point, say
+0
+ζ̇ ∈ F` .
+3. ∀t ∈ [k ], P sends θt : = f t (ζ̇ ) to V . V checks that these evaluations are consistent with the
+claims made by P in the sum-check protocol. Then it sends s1 , . . . , sk ∈r F to P .
+4. P proves to V that ∑t∈[k] st f t (ζ̇ ) = ∑t∈[k] st θt using the evaluation algorithm of BaseFold PCS.
+V simulates a commitment to this polynomial using c1 , . . . , ct .
+5. V returns 1 if and only if BaseFold’s verifier accepts.
+
+from which the Merkle tree was constructed. [BCS16] prove that any such IOPP can be compiled
+into a succinct argument using Merkle hashes. Our BrakingBase PCS can be thought of as having
+been obtained from its IOP version by using this compiler. Because of the knowledge soundness
+of this compiler, the knowledge soundness of the IOP version of BrakingBase implies the sound-
+ness of BrakingBase as a PCS.
+
+We first prove that the Batch-Evaluate protocol is knowledge sound. Since we are proving knowl-
+edge soundness for the IOP version of Batch-Evaluate, the public input now contains oracles {Ot }k
+instead of commitments {ct }k .
+Lemma A.1 (Knowledge Soundness of Batch Evaluate). Let k = poly(λ) and m = 2` . Suppose that
+Batch-Evaluate accepts with probability poly1(λ) on public input {Ot }t∈[k] , {ω̇t }t∈[k] , {yt }t∈[k] . Then there
+exists an extractor Ext running in time poly(n, λ) which outputs multilinear polynomials { f t }t∈[k] ∈
+F[ x0 , . . . , x`−1 ], such that ∆(Enc2 ( f t )8 , Ot ) ≤ δ2
+--------------------------------------------------------------------------------
+(PDF) Distributed Statistical Zero-Knowledge Proofs via Sumcheck (https://www.researchgate.net/publication/404891029_Distributed_Statistical_Zero-Knowledge_Proofs_via_Sumcheck)
+citeturn14search6 [wordlim: 200] Published: 5 months ago; Crawled: 2 months ago; veriﬁer to check in polynomial time an equality of the form P x∈A F(x)=a, where F is a ... In this paper, we adapt the Sumcheck protocol to the distributed setting and present ... in G, and let the network sum them along the spanning tree to compute g i(1) in the equality. ... reduces the computation of P i,j,k f(i, j, k) to a single evaluation of f, using O(log n)-rounds of
+This is an interactive protocol that allows the
+
+veriﬁer to check in polynomial time an equality of the form P x∈A F(x)=a, where F is a
+
+N-variate polynomial over a ﬁnite ﬁeld, and the set A has size exponential in N(typically, a
+
+boolean hypercube {0,1}N). This question arose in the context of placing #P within interactive
+
+proofs. The sumcheck protocol revealed that the power of interactive proofs is far greater than
+
+originally believed, ultimately leading to Shamir’s landmark result IP =PSPACE [Sha92]. Since
+
+its inception, Sumcheck has found a wide range of applications, from veriﬁable delegation of
+
+computation [GKR15, RRR16] to real-world blockchain systems [XZZ+19, BSCR+19].
+
+While interactive proofs allow one to convince the veriﬁer (with high probability) that a
+
+statement is true, they may also reveal why it is true, namely the witness or some information
+
+that may be impossible to obtain by the veriﬁer (in polynomial time) without the help of the
+
+prover. Goldwasser, Micali, and Rackoﬀ [GMR89] introduced zero-knowledge proofs to study
+standard random mask approach, where the authors show how the values involved in a single
+
+equality can remain hidden from the nodes while still allowing them to verify the equality, we
+
+address a more complex scenario. In our case, each coeﬃcient participates in multiple equalities,
+
+making the veriﬁcation process more intricate.
+
+To illustrate our approach, suppose the nodes of a graph need to verify
+
+g i(0) + g i(1) = g i−1(r i−1).
+
+Let us now focus on evaluating g i(1) where g i is an univariate polynomial of degree n−1.
+
+An easy protocol could be to ask the prover to provide a single coeﬃcient of g i to each node v
+
+in G, and let the network sum them along the spanning tree to compute g i(1) in the equality.
+
+But we want to keep the coeﬃcients hidden from the nodes. In this new scenario, we can use
+
+randomness in order to verify the equalities without revealing the values of the addition.
+
+Instead of directly evaluating g i, you can ask the prover to send evaluations disturbed by
+
+a random uniform value, namely, to send α v+r v for each v, where α v is a coeﬃcient of some
+
+the random values in such a way that no individual node can recover them without exchanging
+
+information with its neighbors—otherwise, a node could compute each random value committed
+
+by the prover on its own. Moreover, the nodes must ensure that if they want to verify another
+
+equality involving the same polynomial g i, then the prover is required to provide a consistent
+
+commitment for its coeﬃcient. We address all these issues in Section 3.2, and the solutions of
+
+these problems represent some of the most technical part of our zero-knowledge implementation.
+
+To summarize, the high-level idea behind our zero-knowledge implementation is to send each
+
+node the original value masked with a random value, in such a way that all the randomness
+
+involved in the equality cancels out (i.e., their sum equals zero). This is formalized through
+
+the conditions (RC)i,^
+
+(RC)i, and (0C)i described in Section 3.2.1.1. The goal is to ensure
+
+that these conditions hold without revealing the exact value of any random mask used, while
+
+guaranteeing that the same random value is applied consistently to each original value across
+
+all equalities in which it appears.
+
+In the applications to Non-k-Colorability and subgraph-counting(H), we need to
+
+replace oracle queries, which is not allowed in these problems, by something else. Intuitively,
+
+the random evaluations of the polynomials in the veriﬁcation algorithm can be done using one-
+
+round help of the prover. In our simulators, this evaluation is replaced by an uniformly random
+
+value, which is suﬃcient for our purposes, as we prove that, given an uniformly random input,
+
+the distributions of the target polynomials are statistically close to the uniform distribution. For
+
+the polynomial P G in Non-3-Colorability, the evaluation is essentially close to the product
+
+of uniform random variables, which itself follows a distribution that is statistically close to the
+
+uniform distribution. For the polynomial f in subgraph-counting(H), we can use the fact
+
+that f is a multilinear polynomial, for which we show that the distribution is almost uniform.
+
+Moreover, since the masks used for our statistical zero-knowledge protocols are component-wise,
+
+each oracle call to the intermediate polynomials used in our O(log log n)-round dIP protocol
+
+for subgraph-counting(H) does not leak any information other than its evaluation value.
+
+--------------------------------------------------------------------------------
+(PDF) Bolzano: Case Studies in LLM-Assisted Mathematical Research (https://www.researchgate.net/publication/404021342_Bolzano_Case_Studies_in_LLM-Assisted_Mathematical_Research)
+citeturn14search7 [wordlim: 200] Crawled: 2 months ago; T 3 ... on batching techniques that allow a prover to aggregate evaluations of multiple polynomials at ... ], an optimal pairing-based multilinear PCS, we re-
+
+quired a fully rigorous standard-model security proof for multi-polynomial, multi-point batching that ... for the batch evaluation protocol of Figure 7 of [
+
+batching evaluations of many polynomials at a single evaluation point [LPS25].
+
+In the development of CHOPIN [
+
+BHKM26
+
+], an optimal pairing-based multilinear PCS, we re-
+
+quired a fully rigorous standard-model security proof for multi-polynomial, multi-point batching that
+
+was not known. The human researchers proposed a variant of the KZG batch proof from [
+
+BDFG20
+
+]
+
+to simplify the task of proving its special soundness in the standard model, the core task towards a
+
+complete proof of knowledge soundness of the scheme. However, the human researchers did not
+
+have any rigorous proof.
+
+Together with Bolzano, we resolved this gap. To assist the system, the input also contained a
+
+proof of the more basic theorem establishing the special soundness for batching KZG evaluation
+
+proofs for many polynomials at a single evaluation point from [
+
+LPS25
+
+], streamlined by the human
+
+researchers. After being given the problem, Bolzano found the proof of special soundness for the
+
+proposed variant of univariate KZG batching in six rounds of interaction. --------------------------------------------------------------------------------
+(PDF) Improving logarithmic derivative lookups using GKR (https://www.researchgate.net/publication/373444175_Improving_logarithmic_derivative_lookups_using_GKR)
+citeturn14search8 [wordlim: 200] Published: 3.1 years ago; Crawled: 2 months ago; In order to carry over the GKR fractional sumcheck to the univariate setting, we furthermore introduce a simple, yet (as far as we now) novel transformation for turning a univariate polynomial commitment scheme into a multilinear one. ... 4 ... 5.1 A simple univariate IOP for multilinear evaluation . . . . . . . .
+Preprint PDF Available
+
+# Improving logarithmic derivative lookups using GKR
+
+  * August 2023
+
+Authors:
+
+Shahar Papini
+
+Shahar Papini
+
+  * This person is not on ResearchGate, or hasn't claimed this research yet.
+
+Ulrich Haböck
+
+  * Polygon Labs
+
+Image
+
+Download file PDFDownload file PDFRead file
+
+Preprints and early-stage research may not have been peer reviewed yet.
+
+## Abstract
+
+In this informal note, we instantiate the Goldwasser-Kalai-Rothblum (GKR) protocol to prove fractional sumchecks as present in lookup arguments based on logarithmic derivatives, with the following impact on the prover cost of [Hab22]: When looking up M ≥ 1 columns in a (for the sake of simplicity) single column table, the prover has to commit only to a single extra column, i.e. the multiplicities of the table entries. In order to carry over the GKR fractional sumcheck to the univariate setting, we furthermore introduce a simple, yet (as far as we now) novel transformation for turning a univariate polynomial commitment scheme into a multilinear one. easily extended to a batch evaluation proof, proving the values of several mul-
+
+tilinear polynomials f 1(
+
+X), . . . , f M(
+
+X) at given points 
+
+t 1,...,
+
+t M, respectively.
+
+We will provide a formal security analysis in another document.
+
+Remark 1. In a similar manner one can modify the transformation from
+
+[ZXZS20] into one with a succinct veriﬁer. Given a multilinear polynomial with
+
+respect to the monomial basis, f(
+
+X) = P c i 0,...,i n−1·X i 0
+
+0·. . . ·X i n−1
+
+i n−1, the prover
+
+simply provides the univariate oracle w(X) for the column w of the monomial
+
+values at 
+
+t,
+
+w i=t i 0
+
+1·. . . ·t i n−1
+
+n−1,
+
+for i= 0,...,2 n−1, again with (i 0, . . . , i n−1) being the bit representation of
+
+the index i. Correctness of w(X) is enforced by the periodic constraints w 0= 1,
+
+and
+
+w i+2 k−1=w i·t k, i ∈2 k·Z∩[0,2 n),
+
+for k= 1, . . . , n. The approach can be generalized to multivariate polynomial
+
+of larger individual degree, but at the cost of having non-periodic constraints
+--------------------------------------------------------------------------------
+Ziren Whitepaper (https://www.zkm.io/whitepaper/ziren)
+citeturn14search9 [wordlim: 200] Crawled: 2 days ago; Efficiency: the prover performs at most 5\cdot2^m+2^n+K multiplications; the verifier’s work is an arithmetic circuit determined by m and K alone, dominated by one evaluation of \widetilde W(\boldsymbol z^*).
+
+The protocol is the sumcheck for a product of two multilinears [HJR+25, Lemma 2.3] applied to Equation (1), the jagged sumcheck. ... Efficiency: the verifier evaluates \mathsf{BP} once, 48(m+1) multiplications, and the K equality factors \sum_k w_k\,\mathrm{eq}(\boldsymbol\rho,u_k) at the closing point \boldsymbol\rho, O(mK) operations; the prover’s cost is O(mw^2(K+w)) operations for a program of width w [HJR+25, Lemma 4.6].
+
+The second verifier term dominates: it is linear in the number of columns, about 2\cdot10^6 extension multiplications at the core shard’s m and K, against a few thousand for the branching program, consistent with the paper’s m\cdot2^k [HJR+25, p.
+
+\widetilde W agrees with the product of equality polynomials only on the cube [HJR+25, Rem. 3.1], so the verifier cannot evaluate it by formula; §6.3 supplies it.
+
+Theorem 6.1 (Basic jagged [HJR+25, Thm. 1.4]). There is an m-round protocol in which the prover holds \mathbf Q and the verifier holds only the prefix sums, (\boldsymbol z_{\mathrm{row}},\boldsymbol z_c) and T, and at whose end the verifier either rejects or outputs a point \boldsymbol z^*\in\mathbb{F}_{p^4}^m and a value v_Q. Completeness: if T=\widetilde p(\boldsymbol z_{\mathrm{row}},\boldsymbol z_c) then v_Q=\widetilde Q(\boldsymbol z^*). Soundness: if T\ne\widetilde p(\boldsymbol z_{\mathrm{row}},\boldsymbol z_c), then except with probability 2m/|\mathbb{F}_{p^4}| the verifier rejects or v_Q\ne\widetilde Q(\boldsymbol z^*). Efficiency: the prover performs at most 5\cdot2^m+2^n+K multiplications; the verifier’s work is an arithmetic circuit determined by m and K alone, dominated by one evaluation of \widetilde W(\boldsymbol z^*).
+
+The protocol is the sumcheck for a product of two multilinears [HJR+25, Lemma 2.3] applied to Equation (1), the jagged sumcheck. Each round polynomial has degree two and is sent as its values at 0, 1, 2, one value more than the paper’s accounting [HJR+25, App. A]. With challenges \boldsymbol z^*=(r_0,\ldots,r_{m-1}) in sampling order, least-significant variable first, the closing claim is
+
+T_{\mathrm{final}}=\widetilde Q(\boldsymbol z^*)\,\widetilde W(\boldsymbol z^*).\tag{2}
+
+The proof carries v_Q=\widetilde Q(\boldsymbol z^*), which the opening of §6.5 authenticates; the verifier obtains \widetilde W(\boldsymbol z^*) from the public prefix sums.
+
+--------------------------------------------------------------------------------
+EP4725156A2 - Delegation of proof computation - Google Patents (https://patents.google.com/patent/EP4725156A2/en)
+citeturn14search10 [wordlim: 200] Published: 6 months ago; Crawled: yesterday; [0094] g and h are polynomials that can be used to convert the sum check claim described above to a polynomial equality claim, which is an easier type of claim to check. ... [0099] At 1106, round 3 and round 4 of the zkp protocol are computed at the prover system.
+[0092] As shown in the mathematical description above, in round 2, the polynomials generated by round 1 are used to generate additional polynomials (e.g., g_{A} and /i_{x}) and set of challenges [0093] In particular, the set of challenges are derived by hashing the commitments generated from round 1 (e.g., cm_{m}). While the commitments are derived in part from the witness assignments to round 1, the commitments do not reveal any private/sensitive data from the witness assignments and therefore, the hashes that are derived from the commitments also do not reveal any private/sensitive data from the witness assignments. As such, the set of challenges can be shared/send with the prover system without any leakage of sensitive data that might have been included in the witness assignments.
+
+[0094] g and h are polynomials that can be used to convert the sum check claim described above to a polynomial equality claim, which is an easier type of claim to check.
+
+[0095] g and h can be derived by dividing m(X) + (shown above) by the vanishing polynomial v_{H}.
+--------------------------------------------------------------------------------
+(PDF) Anonymous Credentials from ECDSA (https://www.researchgate.net/publication/404582339_Anonymous_Credentials_from_ECDSA)
+citeturn14search11 [wordlim: 200] Crawled: 3 months ago; optimized veriﬁable computation protocol that is based on sumcheck, and the Ligero ZK
+more formal descriptions of the protocol and its performance.
+
+2.1 Verify Interactive Protocol
+
+We describe a veriﬁable computation (VC) protocol derived from a line of work based on
+
+the sumcheck protocol [GKR08,CMT12,Tha13,WJB+17,WTas+18].
+
+Sumcheck The sumcheck interactive protocol [
+
+LFKN92
+
+] allows a Prover to efﬁciently
+
+convince a Veriﬁer that a claimed value equals the sum of a polynomial evaluated at
+
+every point on the boolean hypercube. Here we quote a performance theorem taken from
+
+Thaler [Tha22] characterizing sumcheck.
+
+Theorem 1 ([
+
+Tha22
+
+, Proposition 4.1]).Let
+
+g
+
+be a
+
+v
+
+-variate polynomial of degree at most
+
+d
+
+in
+
+each variable, deﬁned over a ﬁnite ﬁeld
+
+F
+
+. For any speciﬁed
+
+H∈F
+
+, let
+
+L H
+
+be the language of
+
+polynomials g (given as an oracle) such that
+
+H=∑
+
+b 1∈{0,1}
+
+∑
+
+b 2∈{0,1}
+
+... ∑
+
+b v∈{0,1}
+
+g(b 1, ..., b v). (1)
+
+The sum-check protocol is an interactive proof system for
+
+L H
+
+with completeness error
+
+δ c=
+
+0 and
+
+soundness error δ s≤vd/|F|.
+

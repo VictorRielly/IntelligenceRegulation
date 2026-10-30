@@ -1,0 +1,28 @@
+{
+ "statement": "/home/victor/zk60-artifacts/token-io/r16-runs/sexual-run/statement/statement.json",
+ "statement_embedding_digest": "1cb276d1c83861e0b5e2860eb46c98b9991651ee3cf6f0eb77bdbe836af19b0a",
+ "derived_embedding_digest": "1cb276d1c83861e0b5e2860eb46c98b9991651ee3cf6f0eb77bdbe836af19b0a",
+ "embedding_equal": true,
+ "statement_margin_digest": "6429a242ca399fa22d7fd77136002da0e5be6d659a91733507e678f1c2a13c91",
+ "derived_margin_digest": "6429a242ca399fa22d7fd77136002da0e5be6d659a91733507e678f1c2a13c91",
+ "margin_equal": true,
+ "scale": 4.08288030735373e-06,
+ "scale_equal_statement": true,
+ "checkpoint_sha256": "87753e30c8c321da478b83bbabebcd813cc9b3d0cee5c5b3d64349a8ee4172f7",
+ "emb_sha256_int16": "baff04d2385ad49dcf9704384de268ce5aa5e16749d2af62c2101676538b5afe",
+ "w_sha256_int16": "1f5cb3468ff4142fe5eee6afd989b2626afa9c12a2d49c877164a0ef7d7eb45f",
+ "emb_min_max": [
+  -16,
+  16
+ ],
+ "w_min_max": [
+  -32767,
+  31800
+ ],
+ "derive_seconds": 35.5,
+ "fold_seconds": 1.2,
+ "fold_spot_rows": 64,
+ "fold_spot_differing": 0,
+ "peak_rss_mb": 2584,
+ "total_seconds": 36.9
+}

@@ -1,0 +1,15 @@
+{
+  "rank": 65,
+  "title": "NEW TESTED public-rho union/zero skipping in unchanged chunk4 device row fold",
+  "baseline": "R13 and inspected R14 checkpoint use chunks(4), FR_MAX_K4 and max4 adapter. Device kernel reads every matrix row and performs all group MACs; host already skips zero rho.",
+  "eliminated_work": "Conditional: one matrix load per row-column per all-zero public-rho batch row, and Fp2-base MACs at zero public rho. Dense support removes no matrix load or MAC. No native work removed.",
+  "added_costs": "One Fp2 rw[4] temporary array, zero tests, warp-uniform branch and live ranges. Source acc+rw payload128B/thread versus64B for acc alone; compiled registers/spills unknown. All rho uploads/output downloads,pads,mask checks and proof work remain.",
+  "prerequisites": "Owner actual public support union/nonzero counts plus exclusive upload/allocate/kernel/download/padfold/absorb/open/enclosing clocks. Use current native shape/profile and shared heavy/build locks; only if material compile CUDA and assess spill/occupancy/cache/DRAM.",
+  "integration_cost": "Small generated unapplied one-kernel patch. Exact original/candidate source bodies compiled in CPU C++ shim, not CUDA; same accepted kernel4 API. No native build.",
+  "exactness": "1120 Rust synthetic fixtures with extracted serial host and independent u128 modular reference;5,475,840 emulated values,697,500 message+pad values,8controls/4emulator panic pairs. 288 source-body C++ shim fixtures/19,680limb outputs/3controls incl imaginary-only/overlaunch. Same researcher,not external review.",
+  "privacy_soundness": "Branch only on verifier-reconstructible public rho; no branch on private data, no rho/result cache, no mask/pad/salt/challenge/opening reuse. Kernel-only patch leaves all native mask/refusal/FS/order/PCS/verifier gates unchanged; native privacy and independently verified full receipts still owed.",
+  "compatibility": "Actual fold_rows_multi_zk -> EncodedStore -> dev_fold_rows -> k_fold_rows, verified identical host/wrapper/adapter/kernel at inspected R14 checkpoint; split-width R14 geometry differs from R13 count examples.",
+  "end_to_end_ceiling": "N/(T-Cremoved_exclusive+Aadded), unknown native fraction f; free deletion <=1/(1-f). All-zero algebra fixture invalid as full masked opening; dense/proximity floors retained. No numeric8BGPU rate.",
+  "falsification": "Any value/limb/group/order/pad/refusal/RNG/transcript/PCS/privacy mismatch; no zero-support incidence; compiler already skips zeros; extra branches/register spills erase gain; no enclosing verified workload improvement.",
+  "disposition": "Conditional handoff only; unknown incidence/native gain; below globaltop3."
+}

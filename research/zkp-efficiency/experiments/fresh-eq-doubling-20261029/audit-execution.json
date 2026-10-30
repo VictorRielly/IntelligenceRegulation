@@ -1,0 +1,20 @@
+{
+  "command": [
+    "/usr/bin/python3",
+    "-B",
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/fresh-eq-doubling-20261029/audit.py"
+  ],
+  "exit_code": 0,
+  "elapsed_s": 0.03340722399298102,
+  "max_rss_kib": 18620,
+  "one_cpu_affinity": true,
+  "nice": 19,
+  "cpu_cap_s": 40,
+  "alarm_s": 45,
+  "parent_timeout_s": 50,
+  "address_space_limit_bytes": 402653184,
+  "estimated_memory_mib": 128,
+  "gpu": false,
+  "cargo": false,
+  "compiler_auxiliary_threads": "unmeasured; codegen-units1 and one CPU affinity"
+}

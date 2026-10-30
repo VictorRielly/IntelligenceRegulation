@@ -1,0 +1,438 @@
+diff -ruN -x target -x 'r12-tied-*' -x 'r12b-*' -x 'r13-*' /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r17/hashline/examples/zk60_classify.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r18/hashline/examples/zk60_classify.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r17/hashline/examples/zk60_classify.rs	2026-10-29 09:24:16.059127607 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r18/hashline/examples/zk60_classify.rs	2026-10-29 15:27:52.462213700 -0700
+@@ -52,12 +52,13 @@
+ fn main() {
+     let args: Vec<String> = std::env::args().skip(1).collect();
+     let code = match args.first().map(String::as_str) {
++        Some("prove-batch") => hashline::private_block::classify_prove_batch_command(&args[1..]),
+         Some("prove") => hashline::private_block::classify_prove_command(&args[1..]),
+         Some("verify") => hashline::private_block::classify_verify_command(&args[1..]),
+         Some("input-owner") => hashline::private_block::classify_input_owner_command(&args[1..]),
+         Some("label") => hashline::private_block::classify_label_command(&args[1..]),
+         _ => {
+-            eprintln!("usage: zk60_classify prove|verify|input-owner|label ... (see the header of examples/zk60_classify.rs)");
++            eprintln!("usage: zk60_classify prove|prove-batch|verify|input-owner|label ... (see the header of examples/zk60_classify.rs)");
+             2
+         }
+     };
+diff -ruN -x target -x 'r12-tied-*' -x 'r12b-*' -x 'r13-*' /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r17/hashline/src/private_block/token_io/classify_batch.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r18/hashline/src/private_block/token_io/classify_batch.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r17/hashline/src/private_block/token_io/classify_batch.rs	1969-12-31 16:00:00.000000000 -0800
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r18/hashline/src/private_block/token_io/classify_batch.rs	2026-10-29 15:27:52.462525194 -0700
+@@ -0,0 +1,136 @@
++//! A5 candidate: one public export/checkpoint load and one tied table value,
++//! followed by independent sequential proofs. This never verifies a receipt.
++use super::*;
++#[path = "classify_batch_plan.rs"]
++mod plan;
++use plan::{Row, POLICIES};
++
++const BATCH_SCHEMA: &str = "zk60-classify-prove-batch/1";
++const BATCH_PROFILE: &str = "hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/1";
++const MAX_BATCH_BYTES: u64 = 64 << 10;
++const MAX_CONTENT: usize = 336;
++
++fn exact_keys(j: &J, keys: &[&str]) -> Result<(), String> {
++    let entries = j.obj()?;
++    if entries.len() != keys.len() || entries.iter().any(|(k, _)| !keys.contains(&k.as_str())) {
++        return Err("batch: unexpected or missing fields".into());
++    }
++    Ok(())
++}
++
++fn uint(j: &J) -> Result<usize, String> {
++    usize::try_from(j.i64()?).map_err(|_| "batch: expected a nonnegative integer".into())
++}
++
++fn read_request(path: &Path) -> Result<J, String> {
++    use std::io::Read;
++    use std::os::unix::fs::{OpenOptionsExt, PermissionsExt};
++    // Linux O_NOFOLLOW | O_NONBLOCK: refuse symlinks and inspect a FIFO
++    // without blocking before its non-regular-file rejection.
++    let f = std::fs::OpenOptions::new().read(true).custom_flags(0x20800).open(path)
++        .map_err(|e| format!("batch request: {e}"))?;
++    let m = f.metadata().map_err(|e| format!("batch request metadata: {e}"))?;
++    if !m.is_file() || m.permissions().mode() & 0o077 != 0 || m.len() > MAX_BATCH_BYTES {
++        return Err("batch: request must be an owner-only regular file of at most 64 KiB".into());
++    }
++    let mut bytes = Vec::new();
++    f.take(MAX_BATCH_BYTES + 1).read_to_end(&mut bytes).map_err(|e| format!("batch request read: {e}"))?;
++    if bytes.len() as u64 > MAX_BATCH_BYTES { return Err("batch: request grew past 64 KiB".into()); }
++    parse_json(&bytes)
++}
++
++pub fn classify_prove_batch_command(args: &[String]) -> i32 {
++    if args.iter().any(|a| a == "--content") {
++        eprintln!("zk60_classify prove-batch: {CONTENT_ON_COMMAND_LINE}");
++        return 2;
++    }
++    let f = match flags(args, &["--export", "--tables", "--content-file", "--batch-file", "--label"], &[]) {
++        Ok(f) => f,
++        Err(e) => { eprintln!("zk60_classify prove-batch: {e}"); return 2; }
++    };
++    match batch_inner(&f) {
++        Ok(()) => 0,
++        Err(e) => refused("classify-prove-batch", &e),
++    }
++}
++
++fn batch_inner(f: &[(String, String)]) -> Result<(), String> {
++    let t_all = Instant::now();
++    let label = label_of(f)?;
++    let request = PathBuf::from(need(f, "--batch-file")?);
++    let content_path = PathBuf::from(need(f, "--content-file")?);
++    if !request.is_absolute() || !content_path.is_absolute() {
++        return Err("batch: request/content must be absolute file paths, never stdin".into());
++    }
++    let j = read_request(&request)?;
++    exact_keys(&j, &["schema", "expect_statement", "content_total", "jobs"])?;
++    if j.get("schema")?.str()? != BATCH_SCHEMA { return Err("batch: unsupported schema".into()); }
++    let expect = unhex32(j.get("expect_statement")?.str()?)?;
++    let total = uint(j.get("content_total")?)?;
++    if total == 0 || total > MAX_CONTENT { return Err("batch: content_total must be 1..336".into()); }
++    let whole = content_of(f)?;
++    if whole.len() != total { return Err("batch: whole content differs from the caller's expected total".into()); }
++    let jobs = j.get("jobs")?.arr()?;
++    if jobs.is_empty() || jobs.len() > plan::MAX_JOBS { return Err("batch: requires 1..24 jobs".into()); }
++    let mut rows = Vec::new();
++    for job in jobs {
++        exact_keys(job, &["name", "policy_id", "chunk_index", "sequence_dir", "out", "owner_dir"])?;
++        rows.push(Row {
++            name: job.get("name")?.str()?.into(), policy: job.get("policy_id")?.str()?.into(),
++            chunk: uint(job.get("chunk_index")?)?, sequence: PathBuf::from(job.get("sequence_dir")?.str()?),
++            out: PathBuf::from(job.get("out")?.str()?), owner: PathBuf::from(job.get("owner_dir")?.str()?),
++        });
++    }
++    let mut expected = Vec::new();
++    for id in POLICIES {
++        let policy = policy_by_id(id)?;
++        let size = 128usize.checked_sub(policy.prefix.len() + policy.suffix.len()).ok_or("batch: invalid template")?;
++        let ch = ChunkRef::derive(total, 0, ChunkPlan { size, overlap: 8 })?;
++        if ch.count > 8 { return Err("batch: at most eight chunks per category".into()); }
++        expected.extend((0..ch.count).map(|i| (id.to_string(), i)));
++    }
++    plan::check_coverage(&rows, &expected)?;
++    let export = PathBuf::from(need(f, "--export")?);
++    let tables_path = PathBuf::from(need(f, "--tables")?);
++    plan::check_paths(&mut rows, &[export.clone(), tables_path.clone(), request, content_path])?;
++    let mut job_flags = Vec::new();
++    for row in &rows {
++        let mut jf = f.iter().filter(|(k, _)| k != "--batch-file").cloned().collect::<Vec<_>>();
++        jf.extend([
++            ("--policy".into(), row.policy.clone()), ("--chunk".into(), row.chunk.to_string()),
++            ("--seq-dir".into(), row.sequence.to_str().ok_or("batch: non-UTF8 sequence path")?.into()),
++            ("--out".into(), row.out.to_str().ok_or("batch: non-UTF8 output path")?.into()),
++            ("--owner-dir".into(), row.owner.to_str().ok_or("batch: non-UTF8 owner path")?.into()),
++        ]);
++        // All owner checks before any model load or proof. Explicit owners
++        // make this check side-effect-free (no default directory creation).
++        owner_dir_at(&jf, &row.out, None)?;
++        job_flags.push(jf);
++    }
++    let t_load = Instant::now();
++    let p = load_export(&export)?;
++    if p.profile != BATCH_PROFILE || p.sh.tokens != 128 || p.model.identity() != expect {
++        return Err("batch: model identity or T128 classifier profile differs".into());
++    }
++    let first = policy_by_id(POLICIES[0])?;
++    let bound = super::super::classify_tied::load_tied_classifier_tables(&p, &export, &tables_path, &first)?;
++    // The same derived table value is reusable only when every registered
++    // policy agrees on its tied parameters. Do not clone the embedding.
++    for row in &rows {
++        let policy = policy_by_id(&row.policy)?;
++        bound.check_for(&p.sh, p.profile, &p.model, &policy)?;
++        let ch = ChunkRef::derive(total, row.chunk, chunk_plan(&p.sh, &policy, p.profile)?)?;
++        let cp = ClassifierProfile::new(&p.sh, bound.tables(), bound.bos(), bound.norm(), &policy, ch.b - ch.a, Tier::R1_MVP)?;
++        cp.tokens_of(&whole[ch.a..ch.b])?;
++    }
++    println!("{{\"event\":\"batch-loaded\",\"jobs\":{},\"model_loads\":1,\"table_loads\":1,\"load_seconds\":{:.3},\"trained_statement_identity\":{},\"context_label\":{}}}", rows.len(), t_load.elapsed().as_secs_f64(), js(&hex(&p.model.identity())), js(label));
++    for (index, (row, jf)) in rows.iter().zip(&job_flags).enumerate() {
++        println!("{{\"event\":\"batch-job-start\",\"index\":{index},\"name\":{},\"policy\":{},\"chunk\":{}}}", js(&row.name), js(&row.policy), row.chunk);
++        // Each call creates fresh seal/proof randomness and a fresh streamed
++        // block reader; every reload still checks its bound layer digest.
++        prove_with_public(jf, Some(SharedProve { p: &p, bound: &bound, whole: &whole }))?;
++        println!("{{\"event\":\"batch-job-proved\",\"index\":{index},\"name\":{}}}", js(&row.name));
++    }
++    println!("{{\"event\":\"batch-proved\",\"jobs\":{},\"total_seconds\":{:.3},\"verified\":false}}", rows.len(), t_all.elapsed().as_secs_f64());
++    Ok(())
++}
+diff -ruN -x target -x 'r12-tied-*' -x 'r12b-*' -x 'r13-*' /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r17/hashline/src/private_block/token_io/classify_batch_plan.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r18/hashline/src/private_block/token_io/classify_batch_plan.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r17/hashline/src/private_block/token_io/classify_batch_plan.rs	1969-12-31 16:00:00.000000000 -0800
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r18/hashline/src/private_block/token_io/classify_batch_plan.rs	2026-10-29 15:27:52.462575204 -0700
+@@ -0,0 +1,164 @@
++//! Transport preflight only. No proof, model, or acceptance cache.
++//! Standalone light tests: rustc --test classify_batch_plan.rs -o /tmp/a5-plan-tests
++use std::collections::BTreeSet;
++use std::path::{Component, Path, PathBuf};
++
++pub(super) const POLICIES: [&str; 3] = [
++    "shieldstral-1.0-3b-moderate-sexual/1",
++    "shieldstral-1.0-3b-moderate-violence/1",
++    "shieldstral-1.0-3b-moderate-hate/1",
++];
++pub(super) const MAX_JOBS: usize = 24;
++
++#[derive(Clone, Debug)]
++pub(super) struct Row {
++    pub name: String,
++    pub policy: String,
++    pub chunk: usize,
++    pub sequence: PathBuf,
++    pub out: PathBuf,
++    pub owner: PathBuf,
++}
++
++/// The caller derives expected from the WHOLE content and native ChunkRef.
++/// Canonical ordering also makes log routing independent of worker timing.
++pub(super) fn check_coverage(rows: &[Row], expected: &[(String, usize)]) -> Result<(), String> {
++    if rows.is_empty() || rows.len() > MAX_JOBS || rows.len() != expected.len() {
++        return Err("batch: requires the complete post plan (1..24 runs)".into());
++    }
++    let mut names = BTreeSet::new();
++    for (r, (policy, chunk)) in rows.iter().zip(expected) {
++        if r.name.is_empty() || r.name.len() > 48
++            || !r.name.bytes().all(|c| c.is_ascii_alphanumeric() || c == b'_' || c == b'-')
++            || !names.insert(&r.name)
++        {
++            return Err("batch: job names must be distinct simple names of at most 48 bytes".into());
++        }
++        if &r.policy != policy || r.chunk != *chunk || !POLICIES.contains(&r.policy.as_str()) {
++            return Err("batch: missing, repeated, reordered, or unexpected policy/chunk".into());
++        }
++    }
++    Ok(())
++}
++
++fn canonical(p: &Path) -> Result<PathBuf, String> {
++    if !p.is_absolute() || p.components().any(|c| matches!(c, Component::ParentDir | Component::CurDir)) {
++        return Err("batch: paths must be absolute and contain no dot components".into());
++    }
++    std::fs::canonicalize(p).map_err(|e| format!("batch: {}: {e}", p.display()))
++}
++
++fn new_path(p: &Path) -> Result<PathBuf, String> {
++    if !p.is_absolute() || p.components().any(|c| matches!(c, Component::ParentDir | Component::CurDir)) {
++        return Err("batch: output paths must be absolute and contain no dot components".into());
++    }
++    let name = p.file_name().ok_or("batch: output names no directory")?;
++    let parent = canonical(p.parent().ok_or("batch: output has no parent")?)?;
++    let result = parent.join(name);
++    match std::fs::symlink_metadata(&result) {
++        Ok(_) => Err(format!("batch: {} already exists; no overwrite or automatic retry", result.display())),
++        Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(result),
++        Err(e) => Err(format!("batch: {}: {e}", result.display())),
++    }
++}
++
++pub(super) fn sibling(p: &Path, suffix: &str) -> PathBuf {
++    let mut s = p.as_os_str().to_owned();
++    s.push(suffix);
++    PathBuf::from(s)
++}
++
++fn overlaps(a: &Path, b: &Path) -> bool {
++    a.starts_with(b) || b.starts_with(a)
++}
++
++/// Resolve existing parents before comparing: symlink aliases must not
++/// turn distinct-looking jobs into the same receipt or private directory.
++/// No files/directories are created here. The native owner_dir_at check
++/// additionally refuses owners inside a git tree.
++pub(super) fn check_paths(rows: &mut [Row], protected: &[PathBuf]) -> Result<(), String> {
++    let mut inputs = protected.iter().map(|p| canonical(p)).collect::<Result<Vec<_>, _>>()?;
++    let mut outputs = Vec::new();
++    for r in rows.iter_mut() {
++        r.sequence = canonical(&r.sequence)?;
++        if !r.sequence.is_dir() {
++            return Err("batch: sequence path is not a directory".into());
++        }
++        inputs.push(r.sequence.clone());
++        r.out = new_path(&r.out)?;
++        r.owner = new_path(&r.owner)?;
++        outputs.push(r.out.clone());
++        outputs.push(new_path(&sibling(&r.out, ".incomplete"))?);
++        outputs.push(new_path(&sibling(&r.out, ".unverified-statement"))?);
++        outputs.push(r.owner.clone());
++    }
++    for (i, a) in outputs.iter().enumerate() {
++        if outputs[..i].iter().any(|b| overlaps(a, b)) || inputs.iter().any(|b| overlaps(a, b)) {
++            return Err("batch: output/private paths overlap another job or an input".into());
++        }
++    }
++    for owner in rows.iter().map(|r| &r.owner) {
++        if rows.iter().any(|r| owner.starts_with(r.out.parent().expect("canonical output parent"))) {
++            return Err("batch: an owner directory lies inside a receipt parent".into());
++        }
++    }
++    Ok(())
++}
++
++#[cfg(test)]
++mod tests {
++    use super::*;
++    use std::sync::atomic::{AtomicUsize, Ordering};
++    static SERIAL: AtomicUsize = AtomicUsize::new(0);
++    struct Fixture { root: PathBuf, rows: Vec<Row>, expected: Vec<(String, usize)> }
++    impl Fixture {
++        fn new() -> Self {
++            let root = std::env::temp_dir().join(format!("a5-batch-plan-{}-{}", std::process::id(), SERIAL.fetch_add(1, Ordering::Relaxed)));
++            std::fs::create_dir(&root).unwrap();
++            for d in ["receipts", "private", "sequences", "export"] { std::fs::create_dir(root.join(d)).unwrap(); }
++            let rows = POLICIES.iter().enumerate().map(|(i, p)| {
++                let sequence = root.join(format!("sequences/c{i}")); std::fs::create_dir(&sequence).unwrap();
++                Row { name: format!("c{i}"), policy: p.to_string(), chunk: 0, sequence,
++                    out: root.join(format!("receipts/c{i}")), owner: root.join(format!("private/c{i}")) }
++            }).collect();
++            let expected = POLICIES.iter().map(|p| (p.to_string(), 0)).collect();
++            Self { root, rows, expected }
++        }
++        fn check(&mut self) -> Result<(), String> {
++            check_coverage(&self.rows, &self.expected)?;
++            check_paths(&mut self.rows, &[self.root.join("export")])
++        }
++    }
++    impl Drop for Fixture { fn drop(&mut self) { std::fs::remove_dir_all(&self.root).unwrap(); } }
++    #[test] fn complete_plan_creates_nothing() {
++        let mut f = Fixture::new(); f.check().unwrap();
++        assert!(f.rows.iter().all(|r| !r.out.exists() && !r.owner.exists()));
++    }
++    #[test] fn missing_category_refused() { let mut f = Fixture::new(); f.rows.pop(); assert!(f.check().is_err()); }
++    #[test] fn repeated_chunk_refused() { let mut f = Fixture::new(); f.rows[1].policy = POLICIES[0].into(); assert!(f.check().is_err()); }
++    #[test] fn reordered_plan_refused() { let mut f = Fixture::new(); f.rows.swap(0, 1); assert!(f.check().is_err()); }
++    #[test] fn prefix_subset_refused() {
++        let mut f = Fixture::new(); f.expected.insert(1, (POLICIES[0].into(), 1)); assert!(f.check().is_err());
++    }
++    #[test] fn distinct_names_required() { let mut f = Fixture::new(); f.rows[1].name = f.rows[0].name.clone(); assert!(f.check().is_err()); }
++    #[test] fn existing_receipt_and_sidecar_refused() {
++        for suffix in ["", ".incomplete", ".unverified-statement"] {
++            let mut f = Fixture::new(); std::fs::create_dir(sibling(&f.rows[0].out, suffix)).unwrap(); assert!(f.check().is_err());
++        }
++    }
++    #[test] fn owner_under_other_receipt_parent_refused() {
++        let mut f = Fixture::new(); f.rows[0].owner = f.root.join("receipts/secret"); assert!(f.check().is_err());
++    }
++    #[test] fn symlink_parent_alias_refused() {
++        let mut f = Fixture::new(); std::os::unix::fs::symlink(f.root.join("receipts"), f.root.join("alias")).unwrap();
++        f.rows[1].out = f.root.join("alias/c0"); assert!(f.check().is_err());
++    }
++    #[test] fn dangling_symlink_refused() {
++        let mut f = Fixture::new(); std::os::unix::fs::symlink(f.root.join("absent"), &f.rows[0].out).unwrap(); assert!(f.check().is_err());
++    }
++    #[test] fn output_in_model_refused() { let mut f = Fixture::new(); f.rows[0].out = f.root.join("export/run"); assert!(f.check().is_err()); }
++    #[test] fn output_sidecar_alias_refused() {
++        let mut f = Fixture::new(); f.rows[1].out = sibling(&f.rows[0].out, ".unverified-statement"); assert!(f.check().is_err());
++    }
++    #[test] fn dotdot_path_refused() { let mut f = Fixture::new(); f.rows[0].owner = f.root.join("private/../secret"); assert!(f.check().is_err()); }
++}
+diff -ruN -x target -x 'r12-tied-*' -x 'r12b-*' -x 'r13-*' /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r17/hashline/src/private_block/token_io/classify_cli.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r18/hashline/src/private_block/token_io/classify_cli.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r17/hashline/src/private_block/token_io/classify_cli.rs	2026-10-29 09:24:16.066076344 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r18/hashline/src/private_block/token_io/classify_cli.rs	2026-10-29 15:27:52.462650345 -0700
+@@ -519,7 +519,21 @@
+     }
+ }
+ 
++#[path = "classify_batch.rs"]
++mod batch;
++pub use batch::classify_prove_batch_command;
++
++struct SharedProve<'a> {
++    p: &'a ExportPublic,
++    bound: &'a super::classify_tied::BoundClassifierTables,
++    whole: &'a [u64],
++}
++
+ fn prove_inner(f: &[(String, String)]) -> Result<(), String> {
++    prove_with_public(f, None)
++}
++
++fn prove_with_public(f: &[(String, String)], shared: Option<SharedProve<'_>>) -> Result<(), String> {
+     let t_all = Instant::now();
+     let out = PathBuf::from(need(f, "--out")?);
+     let (incomplete, unverified) = (sibling(&out, ".incomplete"), sibling(&out, ".unverified-statement"));
+@@ -535,15 +549,31 @@
+     let label = label_of(f)?;
+     let seq = SeqIn::of(f)?;
+     let export = PathBuf::from(need(f, "--export")?);
+-    let p = load_export(&export)?;
++    let loaded_p;
++    let p = match shared.as_ref() {
++        Some(s) => s.p,
++        None => { loaded_p = load_export(&export)?; &loaded_p }
++    };
+     let sh = &p.sh;
+     // R-C2: the policy first (its yes / no ids and public margin scale), then
+     // the tables RE-DERIVED from the pinned tied tensor and compared with the
+     // files; the run's margin row is the recomputed one
+     let policy = policy_by_id(need(f, "--policy")?)?;
+-    let bound = super::classify_tied::load_tied_classifier_tables(&p, &export, Path::new(need(f, "--tables")?), &policy)?;
++    let loaded_bound;
++    let bound = match shared.as_ref() {
++        Some(s) => s.bound,
++        None => {
++            loaded_bound = super::classify_tied::load_tied_classifier_tables(p, &export, Path::new(need(f, "--tables")?), &policy)?;
++            &loaded_bound
++        }
++    };
++    bound.check_for(sh, p.profile, &p.model, &policy)?;
+     let tables = bound.tables();
+-    let whole = content_of(f)?;
++    let loaded_whole;
++    let whole: &[u64] = match shared.as_ref() {
++        Some(s) => s.whole,
++        None => { loaded_whole = content_of(f)?; &loaded_whole }
++    };
+     let index: usize = flag(f, "--chunk").unwrap_or("0").parse().map_err(|_| "--chunk: a chunk index (0, 1, ...)")?;
+     // round 14: a short content is one chunk of its true length
+     let ch = ChunkRef::derive(whole.len(), index, chunk_plan(sh, &policy, p.profile)?)?;
+@@ -558,8 +588,8 @@
+     if unpad(sh, &b_in) != x_in0 {
+         return Err("classifier run: the embedding table does not embed the item to the export's x_in_L00".into());
+     }
+-    let mut seal_blocks = ExportTokenBlocks::new(&p);
+-    let x_last = seal_chain(&p, &seq, &mut seal_blocks, x_in0.clone())?;
++    let mut seal_blocks = ExportTokenBlocks::new(p);
++    let x_last = seal_chain(p, &seq, &mut seal_blocks, x_in0.clone())?;
+     drop(seal_blocks);
+     // the public verdict row (T - 1, or P0 + n + S - 1 for a short item)
+     let vr = cp.verdict_row();
+@@ -572,15 +602,15 @@
+     let ctx = stack_context(&p.ex.variant, &p.layers, label)?;
+     let spec = input_endpoint_spec(sh, ctx, &cp)?;
+     let (root, owner) = seal_input(&spec, &in_plane, &sh.hash_tag())?;
+-    let st = ClassifyRunStatement::new_chunk(RunShape::new(sh.clone(), p.layers.len(), p.profile)?, ctx, p.digests.clone(), &p.model, &bound, &policy, content.len(), Tier::R1_MVP, root, ov.verdict, whole.len(), index)?;
++    let st = ClassifyRunStatement::new_chunk(RunShape::new(sh.clone(), p.layers.len(), p.profile)?, ctx, p.digests.clone(), &p.model, bound, &policy, content.len(), Tier::R1_MVP, root, ov.verdict, whole.len(), index)?;
+     if st.chunk() != ch {
+         return Err("classifier run: the statement's chunk is not the prover's slice".into());
+     }
+     let mut disk = run_sink::DirSink::create(&incomplete, p.layers.len() + 2)?;
+-    let mut src = CliSource { p: &p, seq: &seq, ids: Ids::new(sh)?, stage_in: Some((wit_in, b_in)), stage_out: Some(wout), x: x_in0, parity: 0, sealed: true };
+-    let mut blocks = ExportTokenBlocks::new(&p);
++    let mut src = CliSource { p, seq: &seq, ids: Ids::new(sh)?, stage_in: Some((wit_in, b_in)), stage_out: Some(wout), x: x_in0, parity: 0, sealed: true };
++    let mut blocks = ExportTokenBlocks::new(p);
+     let t = Instant::now();
+-    let (_, dec) = prove_classify_run_with(&st, &mut blocks, &bound, &mut src, owner, &mut |k, bytes| {
++    let (_, dec) = prove_classify_run_with(&st, &mut blocks, bound, &mut src, owner, &mut |k, bytes| {
+         let n = bytes.len();
+         SegmentSink::accept(&mut disk, k, bytes)?;
+         println!("{{\"event\":\"segment\",\"index\":{k},\"bytes\":{n},\"elapsed_seconds\":{:.3}}}", t.elapsed().as_secs_f64());
+@@ -594,7 +624,7 @@
+         return Err("classifier run: the written segments are not the counted lengths".into());
+     }
+     write_private(&owners_dir.join("input.dec"), &dec.to_bytes())?;
+-    write_new(&unverified.join("statement.json"), render(&p, &st, label, Writer::Prover)?.as_bytes())?;
++    write_new(&unverified.join("statement.json"), render(p, &st, label, Writer::Prover)?.as_bytes())?;
+     std::fs::rename(&incomplete, &out).map_err(|e| format!("{} -> {}: {e}", incomplete.display(), out.display()))?;
+     claimed.keep();
+     println!(
+diff -ruN -x target -x 'r12-tied-*' -x 'r12b-*' -x 'r13-*' /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r17/hashline/src/private_block.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r18/hashline/src/private_block.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r17/hashline/src/private_block.rs	2026-10-29 09:24:16.061242568 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r18/hashline/src/private_block.rs	2026-10-29 15:27:52.462361527 -0700
+@@ -139,7 +139,7 @@
+ // (`examples/zk60_token_io.rs`): a CALLER of the token run, like the above
+ pub use token_io::cli::{token_input_owner_command, token_owner_command, token_profile_command, token_prove_command, token_verify_command};
+ // TOKEN I/O ROUND 12 (R-C1): the classifier CLI bridge (`examples/zk60_classify.rs`)
+-pub use token_io::classify_cli::{classify_input_owner_command, classify_label_command, classify_prove_command, classify_verify_command};
++pub use token_io::classify_cli::{classify_input_owner_command, classify_label_command, classify_prove_batch_command, classify_prove_command, classify_verify_command};
+ // TOKEN I/O R1 LANE (2026-10-17): the token-in / token-out stages of a
+ // private run (DESIGN v3 rung R1, public-row variant) under a NEW run profile
+ // (D17). Additive: no existing profile, relation or byte moves.

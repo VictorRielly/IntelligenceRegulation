@@ -1,0 +1,1111 @@
+{
+ "derivation": {
+  "arrays_bin_sha256_ok": true,
+  "controls": {
+   "C21-1 one weight of w_q moved by 1": true,
+   "C21-2 one q multiplier + 1": true,
+   "C21-3 one folded gate coefficient + one unit": true,
+   "C21-4 fold(w_v) at slot 6's challenge point": true,
+   "C21-5 the RoPE sin sign convention flipped": true,
+   "C21-6 one raw SiLU word of group 0 + 1": true,
+   "C21-7 G_k + 1 (the gate fold's common denominator)": true,
+   "C21-8 the next layer's export (1) for stage 1": true
+  },
+  "distinct_silu_members": [
+   [
+    -5,
+    -13
+   ],
+   [
+    -4,
+    -12
+   ],
+   [
+    -3,
+    -11
+   ],
+   [
+    -2,
+    -11
+   ],
+   [
+    -1,
+    -10
+   ],
+   [
+    -1,
+    -9
+   ],
+   [
+    0,
+    -8
+   ]
+  ],
+  "exp_generators": [
+   {
+    "closest_approach_to_a_rounding_tie": 0.020512679198513274,
+    "e_s": 2,
+    "export_equals_exact": true,
+    "export_equals_float64_generator": true,
+    "f_e": 9,
+    "layers": [
+     0,
+     1,
+     2,
+     3,
+     5,
+     6,
+     9,
+     11,
+     13,
+     14,
+     15,
+     17,
+     18,
+     19
+    ]
+   },
+   {
+    "closest_approach_to_a_rounding_tie": 0.0011566955755530441,
+    "e_s": 1,
+    "export_equals_exact": true,
+    "export_equals_float64_generator": true,
+    "f_e": 9,
+    "layers": [
+     4,
+     7,
+     8,
+     10,
+     12,
+     16
+    ]
+   },
+   {
+    "closest_approach_to_a_rounding_tie": 0.024231969682324068,
+    "e_s": 3,
+    "export_equals_exact": true,
+    "export_equals_float64_generator": true,
+    "f_e": 9,
+    "layers": [
+     20,
+     21
+    ]
+   },
+   {
+    "closest_approach_to_a_rounding_tie": 0.024231969682324068,
+    "e_s": 4,
+    "export_equals_exact": true,
+    "export_equals_float64_generator": true,
+    "f_e": 9,
+    "layers": [
+     22,
+     23
+    ]
+   },
+   {
+    "closest_approach_to_a_rounding_tie": 0.28866650964285523,
+    "e_s": 6,
+    "export_equals_exact": true,
+    "export_equals_float64_generator": true,
+    "f_e": 9,
+    "layers": [
+     24,
+     25
+    ]
+   }
+  ],
+  "export_profile_is_the_runs": true,
+  "guard": {
+   "cap_gib": 1.0,
+   "child_wall_seconds": 22.879700899124146,
+   "class": "cpu",
+   "exit": 0,
+   "label": "gate21-derive-26",
+   "need_gib": 0.5,
+   "peak_rss_gib": 0.29,
+   "ts_end": "2026-10-29T22:45:37Z"
+  },
+  "min_tie_margin_all": 1.0172277695115431e-05,
+  "per_stage": [
+   {
+    "G": 19,
+    "G_line": 19,
+    "base_member": [
+     -4,
+     -13
+    ],
+    "equal": 17,
+    "groups": [
+     [
+      -5,
+      -13
+     ],
+     [
+      -4,
+      -12
+     ],
+     [
+      -3,
+      -11
+     ]
+    ],
+    "layer": 0,
+    "min_tie_margin": 1.0172277695115431e-05,
+    "of": 17,
+    "ok": true,
+    "seconds": 0.98,
+    "sh_h": 16,
+    "silu_ok": true,
+    "stage": 1
+   },
+   {
+    "G": 19,
+    "G_line": 19,
+    "base_member": [
+     -3,
+     -11
+    ],
+    "equal": 17,
+    "groups": [
+     [
+      -4,
+      -12
+     ],
+     [
+      -3,
+      -11
+     ],
+     [
+      -2,
+      -11
+     ]
+    ],
+    "layer": 1,
+    "min_tie_margin": 4.0686130916313526e-05,
+    "of": 17,
+    "ok": true,
+    "seconds": 0.6,
+    "sh_h": 14,
+    "silu_ok": true,
+    "stage": 2
+   },
+   {
+    "G": 18,
+    "G_line": 18,
+    "base_member": [
+     -1,
+     -9
+    ],
+    "equal": 17,
+    "groups": [
+     [
+      -4,
+      -12
+     ],
+     [
+      -3,
+      -11
+     ],
+     [
+      -2,
+      -11
+     ],
+     [
+      -1,
+      -9
+     ]
+    ],
+    "layer": 2,
+    "min_tie_margin": 4.0686130916313526e-05,
+    "of": 17,
+    "ok": true,
+    "seconds": 0.77,
+    "sh_h": 16,
+    "silu_ok": true,
+    "stage": 3
+   },
+   {
+    "G": 20,
+    "G_line": 20,
+    "base_member": [
+     -4,
+     -12
+    ],
+    "equal": 17,
+    "groups": [
+     [
+      -4,
+      -12
+     ],
+     [
+      -3,
+      -11
+     ],
+     [
+      -2,
+      -11
+     ]
+    ],
+    "layer": 3,
+    "min_tie_margin": 4.0686130916313526e-05,
+    "of": 17,
+    "ok": true,
+    "seconds": 0.64,
+    "sh_h": 15,
+    "silu_ok": true,
+    "stage": 4
+   },
+   {
+    "G": 20,
+    "G_line": 20,
+    "base_member": [
+     -4,
+     -12
+    ],
+    "equal": 17,
+    "groups": [
+     [
+      -4,
+      -12
+     ],
+     [
+      -3,
+      -11
+     ],
+     [
+      -2,
+      -11
+     ]
+    ],
+    "layer": 4,
+    "min_tie_margin": 4.0686130916313526e-05,
+    "of": 17,
+    "ok": true,
+    "seconds": 0.6,
+    "sh_h": 15,
+    "silu_ok": true,
+    "stage": 5
+   },
+   {
+    "G": 20,
+    "G_line": 20,
+    "base_member": [
+     -4,
+     -12
+    ],
+    "equal": 17,
+    "groups": [
+     [
+      -4,
+      -12
+     ],
+     [
+      -3,
+      -11
+     ],
+     [
+      -2,
+      -11
+     ]
+    ],
+    "layer": 5,
+    "min_tie_margin": 4.0686130916313526e-05,
+    "of": 17,
+    "ok": true,
+    "seconds": 0.66,
+    "sh_h": 15,
+    "silu_ok": true,
+    "stage": 6
+   },
+   {
+    "G": 20,
+    "G_line": 20,
+    "base_member": [
+     -4,
+     -12
+    ],
+    "equal": 17,
+    "groups": [
+     [
+      -4,
+      -12
+     ],
+     [
+      -3,
+      -11
+     ],
+     [
+      -2,
+      -11
+     ]
+    ],
+    "layer": 6,
+    "min_tie_margin": 4.0686130916313526e-05,
+    "of": 17,
+    "ok": true,
+    "seconds": 0.7,
+    "sh_h": 15,
+    "silu_ok": true,
+    "stage": 7
+   },
+   {
+    "G": 20,
+    "G_line": 20,
+    "base_member": [
+     -4,
+     -12
+    ],
+    "equal": 17,
+    "groups": [
+     [
+      -4,
+      -12
+     ],
+     [
+      -3,
+      -11
+     ],
+     [
+      -2,
+      -11
+     ]
+    ],
+    "layer": 7,
+    "min_tie_margin": 4.0686130916313526e-05,
+    "of": 17,
+    "ok": true,
+    "seconds": 0.65,
+    "sh_h": 15,
+    "silu_ok": true,
+    "stage": 8
+   },
+   {
+    "G": 20,
+    "G_line": 20,
+    "base_member": [
+     -4,
+     -12
+    ],
+    "equal": 17,
+    "groups": [
+     [
+      -4,
+      -12
+     ],
+     [
+      -3,
+      -11
+     ],
+     [
+      -2,
+      -11
+     ]
+    ],
+    "layer": 8,
+    "min_tie_margin": 4.0686130916313526e-05,
+    "of": 17,
+    "ok": true,
+    "seconds": 0.64,
+    "sh_h": 15,
+    "silu_ok": true,
+    "stage": 9
+   },
+   {
+    "G": 20,
+    "G_line": 20,
+    "base_member": [
+     -3,
+     -11
+    ],
+    "equal": 17,
+    "groups": [
+     [
+      -4,
+      -12
+     ],
+     [
+      -3,
+      -11
+     ],
+     [
+      -2,
+      -11
+     ],
+     [
+      -1,
+      -10
+     ]
+    ],
+    "layer": 9,
+    "min_tie_margin": 4.0686130916313526e-05,
+    "of": 17,
+    "ok": true,
+    "seconds": 0.69,
+    "sh_h": 14,
+    "silu_ok": true,
+    "stage": 10
+   },
+   {
+    "G": 19,
+    "G_line": 19,
+    "base_member": [
+     -3,
+     -11
+    ],
+    "equal": 17,
+    "groups": [
+     [
+      -4,
+      -12
+     ],
+     [
+      -3,
+      -11
+     ],
+     [
+      -2,
+      -11
+     ]
+    ],
+    "layer": 10,
+    "min_tie_margin": 4.0686130916313526e-05,
+    "of": 17,
+    "ok": true,
+    "seconds": 0.64,
+    "sh_h": 16,
+    "silu_ok": true,
+    "stage": 11
+   },
+   {
+    "G": 20,
+    "G_line": 20,
+    "base_member": [
+     -3,
+     -11
+    ],
+    "equal": 17,
+    "groups": [
+     [
+      -4,
+      -12
+     ],
+     [
+      -3,
+      -11
+     ],
+     [
+      -2,
+      -11
+     ],
+     [
+      -1,
+      -9
+     ]
+    ],
+    "layer": 11,
+    "min_tie_margin": 4.0686130916313526e-05,
+    "of": 17,
+    "ok": true,
+    "seconds": 0.62,
+    "sh_h": 15,
+    "silu_ok": true,
+    "stage": 12
+   },
+   {
+    "G": 20,
+    "G_line": 20,
+    "base_member": [
+     -3,
+     -11
+    ],
+    "equal": 17,
+    "groups": [
+     [
+      -4,
+      -12
+     ],
+     [
+      -3,
+      -11
+     ],
+     [
+      -2,
+      -11
+     ],
+     [
+      -1,
+      -9
+     ]
+    ],
+    "layer": 12,
+    "min_tie_margin": 4.0686130916313526e-05,
+    "of": 17,
+    "ok": true,
+    "seconds": 0.64,
+    "sh_h": 14,
+    "silu_ok": true,
+    "stage": 13
+   },
+   {
+    "G": 20,
+    "G_line": 20,
+    "base_member": [
+     -3,
+     -11
+    ],
+    "equal": 17,
+    "groups": [
+     [
+      -4,
+      -12
+     ],
+     [
+      -3,
+      -11
+     ],
+     [
+      -2,
+      -11
+     ],
+     [
+      -1,
+      -10
+     ]
+    ],
+    "layer": 13,
+    "min_tie_margin": 4.0686130916313526e-05,
+    "of": 17,
+    "ok": true,
+    "seconds": 0.64,
+    "sh_h": 13,
+    "silu_ok": true,
+    "stage": 14
+   },
+   {
+    "G": 19,
+    "G_line": 19,
+    "base_member": [
+     -3,
+     -11
+    ],
+    "equal": 17,
+    "groups": [
+     [
+      -4,
+      -12
+     ],
+     [
+      -3,
+      -11
+     ],
+     [
+      -2,
+      -11
+     ]
+    ],
+    "layer": 14,
+    "min_tie_margin": 4.0686130916313526e-05,
+    "of": 17,
+    "ok": true,
+    "seconds": 0.63,
+    "sh_h": 13,
+    "silu_ok": true,
+    "stage": 15
+   },
+   {
+    "G": 20,
+    "G_line": 20,
+    "base_member": [
+     -3,
+     -11
+    ],
+    "equal": 17,
+    "groups": [
+     [
+      -4,
+      -12
+     ],
+     [
+      -3,
+      -11
+     ],
+     [
+      -2,
+      -11
+     ],
+     [
+      -1,
+      -9
+     ]
+    ],
+    "layer": 15,
+    "min_tie_margin": 4.0686130916313526e-05,
+    "of": 17,
+    "ok": true,
+    "seconds": 0.64,
+    "sh_h": 13,
+    "silu_ok": true,
+    "stage": 16
+   },
+   {
+    "G": 20,
+    "G_line": 20,
+    "base_member": [
+     -3,
+     -11
+    ],
+    "equal": 17,
+    "groups": [
+     [
+      -4,
+      -12
+     ],
+     [
+      -3,
+      -11
+     ],
+     [
+      -2,
+      -11
+     ],
+     [
+      -1,
+      -10
+     ]
+    ],
+    "layer": 16,
+    "min_tie_margin": 4.0686130916313526e-05,
+    "of": 17,
+    "ok": true,
+    "seconds": 0.62,
+    "sh_h": 14,
+    "silu_ok": true,
+    "stage": 17
+   },
+   {
+    "G": 20,
+    "G_line": 20,
+    "base_member": [
+     -3,
+     -11
+    ],
+    "equal": 17,
+    "groups": [
+     [
+      -4,
+      -12
+     ],
+     [
+      -3,
+      -11
+     ],
+     [
+      -2,
+      -11
+     ],
+     [
+      -1,
+      -9
+     ]
+    ],
+    "layer": 17,
+    "min_tie_margin": 4.0686130916313526e-05,
+    "of": 17,
+    "ok": true,
+    "seconds": 0.64,
+    "sh_h": 14,
+    "silu_ok": true,
+    "stage": 18
+   },
+   {
+    "G": 20,
+    "G_line": 20,
+    "base_member": [
+     -3,
+     -11
+    ],
+    "equal": 17,
+    "groups": [
+     [
+      -4,
+      -12
+     ],
+     [
+      -3,
+      -11
+     ],
+     [
+      -2,
+      -11
+     ],
+     [
+      -1,
+      -9
+     ]
+    ],
+    "layer": 18,
+    "min_tie_margin": 4.0686130916313526e-05,
+    "of": 17,
+    "ok": true,
+    "seconds": 0.62,
+    "sh_h": 15,
+    "silu_ok": true,
+    "stage": 19
+   },
+   {
+    "G": 20,
+    "G_line": 20,
+    "base_member": [
+     -3,
+     -11
+    ],
+    "equal": 17,
+    "groups": [
+     [
+      -4,
+      -12
+     ],
+     [
+      -3,
+      -11
+     ],
+     [
+      -2,
+      -11
+     ],
+     [
+      -1,
+      -9
+     ]
+    ],
+    "layer": 19,
+    "min_tie_margin": 4.0686130916313526e-05,
+    "of": 17,
+    "ok": true,
+    "seconds": 0.62,
+    "sh_h": 15,
+    "silu_ok": true,
+    "stage": 20
+   },
+   {
+    "G": 20,
+    "G_line": 20,
+    "base_member": [
+     -3,
+     -11
+    ],
+    "equal": 17,
+    "groups": [
+     [
+      -4,
+      -12
+     ],
+     [
+      -3,
+      -11
+     ],
+     [
+      -2,
+      -11
+     ],
+     [
+      -1,
+      -9
+     ]
+    ],
+    "layer": 20,
+    "min_tie_margin": 4.0686130916313526e-05,
+    "of": 17,
+    "ok": true,
+    "seconds": 0.64,
+    "sh_h": 16,
+    "silu_ok": true,
+    "stage": 21
+   },
+   {
+    "G": 20,
+    "G_line": 20,
+    "base_member": [
+     -3,
+     -11
+    ],
+    "equal": 17,
+    "groups": [
+     [
+      -3,
+      -11
+     ],
+     [
+      -2,
+      -11
+     ],
+     [
+      -1,
+      -9
+     ]
+    ],
+    "layer": 21,
+    "min_tie_margin": 4.0686130916313526e-05,
+    "of": 17,
+    "ok": true,
+    "seconds": 0.64,
+    "sh_h": 14,
+    "silu_ok": true,
+    "stage": 22
+   },
+   {
+    "G": 20,
+    "G_line": 20,
+    "base_member": [
+     -3,
+     -11
+    ],
+    "equal": 17,
+    "groups": [
+     [
+      -3,
+      -11
+     ],
+     [
+      -2,
+      -11
+     ],
+     [
+      -1,
+      -9
+     ]
+    ],
+    "layer": 22,
+    "min_tie_margin": 4.0686130916313526e-05,
+    "of": 17,
+    "ok": true,
+    "seconds": 0.63,
+    "sh_h": 15,
+    "silu_ok": true,
+    "stage": 23
+   },
+   {
+    "G": 19,
+    "G_line": 19,
+    "base_member": [
+     -2,
+     -11
+    ],
+    "equal": 17,
+    "groups": [
+     [
+      -4,
+      -12
+     ],
+     [
+      -3,
+      -11
+     ],
+     [
+      -2,
+      -11
+     ],
+     [
+      -1,
+      -9
+     ]
+    ],
+    "layer": 23,
+    "min_tie_margin": 4.0686130916313526e-05,
+    "of": 17,
+    "ok": true,
+    "seconds": 0.64,
+    "sh_h": 16,
+    "silu_ok": true,
+    "stage": 24
+   },
+   {
+    "G": 19,
+    "G_line": 19,
+    "base_member": [
+     -2,
+     -11
+    ],
+    "equal": 17,
+    "groups": [
+     [
+      -4,
+      -12
+     ],
+     [
+      -3,
+      -11
+     ],
+     [
+      -2,
+      -11
+     ],
+     [
+      -1,
+      -9
+     ]
+    ],
+    "layer": 24,
+    "min_tie_margin": 4.0686130916313526e-05,
+    "of": 17,
+    "ok": true,
+    "seconds": 0.68,
+    "sh_h": 15,
+    "silu_ok": true,
+    "stage": 25
+   },
+   {
+    "G": 19,
+    "G_line": 19,
+    "base_member": [
+     -1,
+     -9
+    ],
+    "equal": 17,
+    "groups": [
+     [
+      -3,
+      -11
+     ],
+     [
+      -2,
+      -11
+     ],
+     [
+      -1,
+      -9
+     ],
+     [
+      0,
+      -8
+     ]
+    ],
+    "layer": 25,
+    "min_tie_margin": 4.0686130916313526e-05,
+    "of": 17,
+    "ok": true,
+    "seconds": 0.68,
+    "sh_h": 15,
+    "silu_ok": true,
+    "stage": 26
+   }
+  ],
+  "run_json_sha256_ok": true,
+  "summary": {
+   "G_all_equal_stage_lines": true,
+   "all_ok": true,
+   "arrays": 442,
+   "arrays_equal": 442,
+   "controls_fired": true,
+   "entries_compared": 118210560,
+   "mem_end": {
+    "RssAnon": 0.108,
+    "RssFile": 0.011,
+    "VmHWM": 0.295,
+    "VmRSS": 0.119,
+    "maxrss_gib": 0.295
+   },
+   "seconds": 22.4,
+   "silu_members_checked": [
+    [
+     -5,
+     -13
+    ],
+    [
+     -4,
+     -12
+    ],
+    [
+     -3,
+     -11
+    ],
+    [
+     -2,
+     -11
+    ],
+    [
+     -1,
+     -10
+    ],
+    [
+     -1,
+     -9
+    ],
+    [
+     0,
+     -8
+    ]
+   ],
+   "stages": 26,
+   "stages_ok": 26
+  }
+ },
+ "distance": {
+  "controls": {
+   "K-0 D36's L22 figure reproduced (2^-70.35)": {
+    "got": -70.35,
+    "ok": true,
+    "want": -70.35
+   },
+   "K-1 boundary 38/32/2^14 draws 108,032": true,
+   "K-1b every block stage has the same geometry": true
+  },
+  "counts": {
+   "draws": 235660902,
+   "draws_log2": 27.812,
+   "of_which": {
+    "IN-C": 110192,
+    "OUT-C": 373862,
+    "blocks (26)": 232257168,
+    "boundaries (27)": 2916864,
+    "input endpoint": 2816,
+    "per block (each)": [
+     8932968
+    ]
+   },
+   "openings": 84,
+   "refusal_count": 879360,
+   "salts_N_leaf": 5359616,
+   "transcript_queries_A_bound": 1048576
+  },
+  "residuals": {
+   "liveness_degenerate_challenges_log2 (not a distance)": -57.61,
+   "runs_10^6_linear_log2": -48.26,
+   "runs_10^9_linear_log2": -38.29,
+   "share_of_sampler_bias": 0.9999999999928,
+   "terms_log2": {
+    "constructor vs absorb (B10): (A + q) x 2^-256": -128.0,
+    "generator, in-model alternative: 6q x 2^-256 (ASSUMED)": -125.42,
+    "generator-key row: 3 x 4 x 2^-256": -252.42,
+    "input-dependent refusal, two-world (D34 / D40, R13 recount)": -108.25,
+    "leaf-input collision: C(N_leaf,2) x 2^-256": -212.29,
+    "salt guessing: q x N_leaf x 2^-256": -105.65,
+    "sampler bias (D9): draws x 2^-96": -68.19,
+    "transcript pre-query: q x A x 2^-256": -108.0,
+    "transcript-input collision: C(A,2) x 2^-256": -217.0
+   },
+   "total_distance": "29299910606039516757598161205598353680465714135740709214676847927426006552494721981706319939331/9850501544511622572691607278506282604286081916882033699385021821555686243125381743989439894479956863994338784313344",
+   "total_distance_log2": -68.1879
+  }
+ },
+ "files": {
+  "CLASSIFY_RUN_COUNTS.json": "513c376d3aa6e1d3c9dd41ff7f89fd4e0b26f6d96bb290e66c1ee81f1255b6eb",
+  "astra_wait.py": "cbf40a418d3fe28ad6adff1074d5dd4e3f5a9de4a260ceb970aa6dfcefc4bdae",
+  "classify_run_counts.py": "874923203e3c45a96d33e51d72701c3cc5f35cd263ea56b618053921c22859ec",
+  "derive/DERIVE_ALL.json": "5c2c71114d65ef00216388b2cd6b8d6781a60cf36bf3ae6469bbc955c2c42b15",
+  "derive_block_tables.py": "7eb5917ec7553e28a2f51e8b28f75628e18be3e5ee32e56e7366cbe4fafb6a8e",
+  "dev/dev_b1.json": "b2c92067f783c1d08389ca37778857511948e12847fdcbe173fab2dd97f85a35",
+  "docs/.../ZK60_PRIVACY_STATEMENT_CLASSIFIER_SHIELDSTRAL_T128_DRAFT.md": "db89f427dcd1258f78c631c15a8b0f65982edf2d9620e49109795cc86eec2ee1",
+  "owner/OWNER_RECORD.json": "09b824dff49ca399130cc569021b70a92277c6d6ccb358578cbe10da9acb9c39",
+  "owner_record.py": "46d810b10c404142f20844621ca9716675e92a7d3bd6e887d1e5d5f3da01ba75",
+  "r21_chain.sh": "671ca8bc460ce91a5d0fa7c38e5da7ed76f29aaf92f1af0875022c28a6493b50"
+ },
+ "owner": {
+  "gate_r19_owner_check_passed": true,
+  "hate_run_owner_check_passed": true,
+  "owner_checks_at_n_35_only_so_far": true,
+  "short_items_other_n_owner_record": "Astra n=17: not run yet (no inowner log): owed"
+ },
+ "privacy_acceptance": false,
+ "what": "gate round 21 summary [MEASURED / COUNTED / READ]; NOT a privacy acceptance"
+}

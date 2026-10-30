@@ -1,0 +1,9 @@
+[zk60-guard 15:43:46] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 15:44:46] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 15:45:46] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 15:46:46] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 15:47:46] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 15:48:46] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 15:49:46] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 15:50:01] START rv12b-cli-build class=build need=2.3G cap=4G enforce=cgroup+watchdog waited=376s run=cc18af56cf71
+[zk60-guard 15:51:11] END rv12b-cli-build exit=0 child_wall=70s peak_rss=1.08G min_avail=12.20G

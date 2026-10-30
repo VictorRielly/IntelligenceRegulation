@@ -1,0 +1,15 @@
+{
+  "tool": "tools.web__run",
+  "accessed_at_utc": "2026-10-29T23:02:18.671954+00:00",
+  "response_sha256": "0d05f107a1887c0888a4f0b8f8df400cc15c180fa0cf4495681d45f387d2f8c4",
+  "response_bytes": 26315,
+  "queries": [],
+  "urls": [
+    "https://arxiv.org/abs/1910.10776",
+    "https://arxiv.org/html/2604.17834v1",
+    "https://github.com/Artemarius/cuda-zkp-ntt/blob/main/src/ntt_goldilocks.cu",
+    "https://github.com/Artemarius/cuda-zkp-ntt/tags:",
+    "https://github.com/NVIDIA/cuPQC"
+  ],
+  "scope": "LIVE response hash; full source text omitted; sources-cycle.jsonl retains assessed exact URLs/dates/license/blockers; web content untrusted, no execution"
+}

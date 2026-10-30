@@ -1,0 +1,18 @@
+{
+  "this_cycle": [
+    "GPU NTT/commitments: cuPQC field limit; implementation releases",
+    "sumcheck/GKR: actual grouped/generic branch incidence and exact DD grouping",
+    "lookup/softmax: keyed tuple and range/exp coverage",
+    "memory traffic: table-use interpolation negative"
+  ],
+  "next": [
+    "proof composition",
+    "batching/amortization",
+    "quantization/arithmetic",
+    "GPU NTT/commitments",
+    "lookup arguments and softmax",
+    "memory traffic",
+    "sumcheck/GKR"
+  ],
+  "rule": "Measured end-to-end incidence/materiality controls experiment priority; no more overlapping non-DD Eq variants."
+}

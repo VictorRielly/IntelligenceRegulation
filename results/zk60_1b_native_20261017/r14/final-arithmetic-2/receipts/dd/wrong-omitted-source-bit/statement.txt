@@ -1,0 +1,8 @@
+R14-public-synthetic-malicious-fixture/1
+case=wrong-omitted-source-bit
+dd=1
+model_identity=56e1bbd2049d4c84dff8ddf0cd55bebc155f5a5072e0052b5ebf375851b0aaa3
+input_root=63d173110660937eeb19018499bedeb237b418ea417cfccbdba8db3b9dc1cc30
+output_root=471b2e5651364f7cb4b5eaf2022a60953ec3c1e66860d78b18e5c037a8e09f31
+binding=2d0af598316025578b1e0d23d6fce3cd3fcb432636647ca73b8698b95de612b0
+error=slot 20 [R14 04 Q zero-check (hosts 09Q, 11) Whole]: sumcheck round 0: s(0) + s(1) != claim

@@ -1,0 +1,1 @@
+{"status":"PASS","seed":202610300155,"fixtures":612,"scalar_limb_outputs_including_synthetic_pad":228780,"controls":141,"digest":"645682644ad115dd","scope":"Synthetic native-field/source-loop differential; not CUDA or full PCS/proofs","full_stack_proofs":0,"passes":0,"positions":0}

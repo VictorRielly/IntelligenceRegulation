@@ -1,0 +1,4 @@
+{
+  "issue": "One JS orchestration call failed parsing before execution; no command or writes ran.",
+  "impact": "No experiment data affected; split into a standalone reviewed Python metadata writer."
+}

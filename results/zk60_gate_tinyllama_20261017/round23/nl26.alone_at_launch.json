@@ -1,0 +1,1 @@
+{"live_guarded_jobs": [{"label": "gate23-c9b-real-block0-ts1", "class": "light", "need_gib": 1.0}], "fifo_tickets": [], "guard_processes": [{"pid": 94185, "label": "gate23-c9b-real-block0-ts1"}], "holds": [], "mem_available_gib": 13.89, "committed_gib": 1.0, "sol_or_astra": [], "alone": true}

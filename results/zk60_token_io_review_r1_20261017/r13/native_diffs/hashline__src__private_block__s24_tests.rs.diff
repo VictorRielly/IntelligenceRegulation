@@ -1,0 +1,29 @@
+--- r12b/hashline/src/private_block/s24_tests.rs
++++ token-r13/hashline/src/private_block/s24_tests.rs
+@@ -169,4 +169,8 @@
+     let mut runs = vec![RUN_PROFILE_RUNG_G, RUN_PROFILE_RUNG_K4, RUN_PROFILE_RUNG_P2, RUN_PROFILE_RUNG_C6, RUN_PROFILE_RUNG_W14, RUN_PROFILE_RUNG_E32, RUN_PROFILE_M125];
+     runs.extend(super::trained_calib_tests::registered_trained_runs().into_iter().map(|(p, _)| p));
++    // TOKEN I/O R1 LANE: the token-I/O run profile(s), one shared list
++    runs.extend(super::token_io::registered_token_runs().into_iter().map(|(p, _)| p));
++    // TOKEN I/O ROUND 12: the classifier run profile(s), their own list
++    runs.extend(super::token_io::classify::registered_classify_runs().into_iter().map(|(p, _)| p));
+     let mut covered: Vec<String> = shapes.iter().map(|s| s.profile.to_string()).collect();
+     covered.extend(runs.iter().map(|r| r.to_string()));
+@@ -220,4 +224,9 @@
+     ];
+     run_shapes.extend(super::trained_calib_tests::registered_trained_runs());
++    // TOKEN I/O R1 LANE: a token-I/O run is keyed by its BLOCK shape's key set
++    // too (the rule this item measures; review finding TR-7 recorded)
++    run_shapes.extend(super::token_io::registered_token_runs());
++    // TOKEN I/O ROUND 12: a classifier run is keyed by its BLOCK shape's key set too
++    run_shapes.extend(super::token_io::classify::registered_classify_runs());
+     for (rp, sh) in run_shapes {
+         let live = super::protocol::tagged_transcript(&sh, rp.as_bytes()).state();
+@@ -455,4 +464,7 @@
+             "src/private_block/tied_tables.rs",
+             "src/private_block/timing.rs",
++            // TOKEN I/O R1 LANE: the token-I/O run (stage IN, stage OUT, its
++            // statement, prover and verifier), pinned by the capture writer
++            "src/private_block/token_io.rs",
+             "src/private_block/trained_block.rs",
+             "src/private_block/trained_statement.rs",

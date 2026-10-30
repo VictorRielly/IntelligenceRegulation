@@ -1,0 +1,9 @@
+{
+  "sha256": "14d1f5ccc4bd31c43fcb16c52f85dce2bd24035033620068810450282cb6bdcc",
+  "shape": [
+    1,
+    256,
+    3072
+  ],
+  "rule": "existing dg calibration rotation/float32 boundary, floor(x/scale+0.5), refuse int16 overflow"
+}

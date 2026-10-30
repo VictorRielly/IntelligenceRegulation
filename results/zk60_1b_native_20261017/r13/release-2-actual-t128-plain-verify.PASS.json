@@ -1,0 +1,7 @@
+{
+  "mode": "verify",
+  "dd": false,
+  "passed": true,
+  "expected_child_exit": 0,
+  "scope": "actualL00 only/public synthetic input"
+}

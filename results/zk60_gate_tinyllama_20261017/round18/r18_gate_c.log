@@ -1,0 +1,20 @@
+[zk60-guard 20:12:51] START gate18-v21-classify-rc3-rung-L2-v0-short1 class=light need=0.8G cap=2G enforce=cgroup+watchdog waited=0s run=cf486a8d03b8
+[zk60-guard 20:19:37] END gate18-v21-classify-rc3-rung-L2-v0-short1 exit=0 child_wall=406s peak_rss=0.33G min_avail=11.09G
+[zk60-guard 20:19:37] START gate18-v21-classify-rc3-rung-L2-v1-short1 class=light need=0.8G cap=2G enforce=cgroup+watchdog waited=0s run=7afbaa3526b2
+[zk60-guard 20:26:23] END gate18-v21-classify-rc3-rung-L2-v1-short1 exit=0 child_wall=406s peak_rss=0.33G min_avail=13.20G
+[zk60-guard 20:26:23] START gate18-v21-classify-rc3-rung-L2-vtie-short1 class=light need=0.8G cap=2G enforce=cgroup+watchdog waited=0s run=fc9b48dc4178
+[zk60-guard 20:32:24] END gate18-v21-classify-rc3-rung-L2-vtie-short1 exit=0 child_wall=361s peak_rss=0.32G min_avail=13.22G
+[zk60-guard 20:32:24] START gate18-v21-classify-rc3-rung-L2-v0-short11 class=light need=0.8G cap=2G enforce=cgroup+watchdog waited=0s run=9560ff6345d5
+[zk60-guard 20:37:55] END gate18-v21-classify-rc3-rung-L2-v0-short11 exit=0 child_wall=331s peak_rss=0.33G min_avail=13.70G
+[zk60-guard 20:37:55] START gate18-v21-classify-rc3-rung-L2-v1-short11 class=light need=0.8G cap=2G enforce=cgroup+watchdog waited=0s run=65a82bbca6c9
+[zk60-guard 20:43:24] END gate18-v21-classify-rc3-rung-L2-v1-short11 exit=0 child_wall=329s peak_rss=0.32G min_avail=13.67G
+[zk60-guard 20:43:24] START gate18-v21-classify-rc3-rung-L2-vtie-short11 class=light need=0.8G cap=2G enforce=cgroup+watchdog waited=0s run=23f24a1da509
+[zk60-guard 20:48:54] END gate18-v21-classify-rc3-rung-L2-vtie-short11 exit=0 child_wall=330s peak_rss=0.33G min_avail=13.70G
+[zk60-guard 20:48:54] START gate18-v21-classify-rc3-rung-L2-v0-short22 class=light need=0.8G cap=2G enforce=cgroup+watchdog waited=0s run=118d60085770
+[zk60-guard 20:54:23] END gate18-v21-classify-rc3-rung-L2-v0-short22 exit=0 child_wall=329s peak_rss=0.33G min_avail=13.71G
+[zk60-guard 20:54:23] START gate18-v21-classify-rc3-rung-L2-v1-short22 class=light need=0.8G cap=2G enforce=cgroup+watchdog waited=0s run=e9e149df8d44
+[zk60-guard 20:59:51] END gate18-v21-classify-rc3-rung-L2-v1-short22 exit=0 child_wall=329s peak_rss=0.33G min_avail=13.51G
+[zk60-guard 20:59:51] START gate18-v21-classify-rc3-rung-L2-vtie-short22 class=light need=0.8G cap=2G enforce=cgroup+watchdog waited=0s run=9be3a6f1d74f
+[zk60-guard 21:05:23] END gate18-v21-classify-rc3-rung-L2-vtie-short22 exit=0 child_wall=331s peak_rss=0.33G min_avail=13.59G
+[zk60-guard 21:05:23] START gate18-v21-classify-rc3-cli-short11-r14 class=light need=0.8G cap=2G enforce=cgroup+watchdog waited=0s run=8c2bfa9ab29c
+[zk60-guard 21:10:13] END gate18-v21-classify-rc3-cli-short11-r14 exit=0 child_wall=290s peak_rss=0.29G min_avail=13.60G

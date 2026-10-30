@@ -1,0 +1,10 @@
+{
+  "native_device": "NoGPU/nativebuild authority in research lane; owner heavy/build locks and all review gates required.",
+  "current_groups": "Historical builder producer differs in endpoint/protocol/test/run files. Current groups and actual rho support not replayed.",
+  "timers": "secs_fold encloses flatten/H2D/allocation/kernel/D2H. Exclusive clocks, actual device residency/fallback and complete GPU8B workload unknown.",
+  "web": [
+    "https://github.com/Oraclizer/statesync-gkr/commit/54e76515bf53777836221b88d7404a1ef67bcdd3: Cache miss",
+    "https://github.com/trustless-ai/zkIE/blob/main/LICENSE: Cache miss",
+    "https://eprint.iacr.org/2023/1611.pdf:403 Forbidden"
+  ]
+}

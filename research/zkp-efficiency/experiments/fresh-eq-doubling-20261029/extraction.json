@@ -1,0 +1,6 @@
+{
+  "eq_adapter": "Only Rayon par_iter_mut -> iter_mut; branch and arithmetic unchanged",
+  "eq_native_sha256": "0a687f85349b1cb43de550d3ccefd54b9818bebed725584a882d70ba407ca2a6",
+  "changed_table_adapter": "Function name and one eq_table_msb call only",
+  "native_priv_table_sha256": "ae5579db56542334be6ef0e356067f27dd4af7d608cb1cf69e0ab04e0e6a01dd"
+}

@@ -1,0 +1,38 @@
+{
+  "T": 128,
+  "bos": 1,
+  "embedding_table": {
+    "bytes": 805306368,
+    "dtype": "int16",
+    "file": "embedding_int16.bin",
+    "sha256": "baff04d2385ad49dcf9704384de268ce5aa5e16749d2af62c2101676538b5afe",
+    "shape": [
+      131072,
+      3072
+    ],
+    "source_tensor": {
+      "name": "language_model.model.embed_tokens.weight",
+      "sha256": "67a138c1c483b89874526ef523f5f0c30f161808076561730193d1de2093dd19"
+    }
+  },
+  "kind": "token_io",
+  "model": {
+    "repo": "mistralai/Shieldstral-1.0-3B",
+    "revision": "003ec7e2b0bab5f0e6307edbaf186fa5822b76f5",
+    "sha256": "87753e30c8c321da478b83bbabebcd813cc9b3d0cee5c5b3d64349a8ee4172f7"
+  },
+  "rms_norm_eps": 1e-05,
+  "rotation": {
+    "block_width": 1024,
+    "blocks": 3,
+    "kind": "block-hadamard",
+    "rule": "R=blockdiag(H1024,H1024,H1024) diag(sign) / 32; x_rot=x R^T",
+    "seed": 1,
+    "sign_sha256": "d4e7754fdce9d3920d3b20660d76b58cf629359f7574e7329683031ba23cacf7",
+    "width": 3072
+  },
+  "s_x_in_layer0": 0.0035486477726047977,
+  "s_x_out_layer25": 0.0035486477726047977,
+  "schema": "zk60-trained-profile-export/1",
+  "scope": "candidate tied public tables with independent reference match; native loader, policy registration, fidelity and privacy acceptance still required"
+}

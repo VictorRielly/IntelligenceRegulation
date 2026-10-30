@@ -1,0 +1,33 @@
+[zk60-guard 15:55:41] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 15:56:37] START rv12b-test-build class=build need=2.3G cap=4G enforce=cgroup+watchdog waited=55s run=a8686613708e
+[zk60-guard 15:59:08] END rv12b-test-build exit=0 child_wall=151s peak_rss=1.87G min_avail=12.18G
+[zk60-guard 15:59:08] START rv12b-review-new class=cpu need=1G cap=3G enforce=cgroup+watchdog waited=0s run=027680e53b8c
+[zk60-guard 15:59:08] END rv12b-review-new exit=0 child_wall=0s peak_rss=0.00G min_avail=13.88G
+[zk60-guard 15:59:08] START rv12b-review-r12port class=cpu need=1G cap=3G enforce=cgroup+watchdog waited=0s run=7b775369e5b4
+[zk60-guard 15:59:10] END rv12b-review-r12port exit=101 child_wall=2s peak_rss=0.12G min_avail=13.80G
+[zk60-guard 15:59:10] START rv12b-f1 class=cpu need=0.6G cap=2G enforce=cgroup+watchdog waited=0s run=ed374321ff98
+[zk60-guard 16:01:33] END rv12b-f1 exit=0 child_wall=143s peak_rss=0.01G min_avail=13.82G
+[zk60-guard 16:01:33] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 16:02:33] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 16:02:58] START rv12b-sol-tied class=cpu need=0.6G cap=2G enforce=cgroup+watchdog waited=85s run=f30e7d377158
+[zk60-guard 16:03:45] END rv12b-sol-tied exit=0 child_wall=47s peak_rss=0.01G min_avail=13.89G
+[zk60-guard 16:03:48] START rv12b-author-subset class=cpu need=1.5G cap=4G enforce=cgroup+watchdog waited=0s run=fc126d815d3b
+[zk60-guard 16:04:12] END rv12b-author-subset exit=0 child_wall=25s peak_rss=0.91G min_avail=12.78G
+[zk60-guard 16:04:13] START rv12b-cli-real-load class=cpu need=1G cap=3G enforce=cgroup+watchdog waited=0s run=57f4d4df9ccb
+[zk60-guard 16:04:29] END rv12b-cli-real-load exit=1 child_wall=17s peak_rss=0.58G min_avail=13.31G
+[zk60-guard 16:04:30] START rv12b-cli-f3-verify class=cpu need=1G cap=3G enforce=cgroup+watchdog waited=0s run=539d79d493b6
+[zk60-guard 16:04:48] END rv12b-cli-f3-verify exit=1 child_wall=18s peak_rss=0.00G min_avail=13.38G
+[zk60-guard 16:04:48] START rv12b-cli-f3-verify-dd class=cpu need=1G cap=3G enforce=cgroup+watchdog waited=0s run=a9c30e94b23e
+[zk60-guard 16:05:06] END rv12b-cli-f3-verify-dd exit=1 child_wall=18s peak_rss=0.00G min_avail=13.22G
+[zk60-guard 16:05:06] START rv12b-cli-f3-stack class=cpu need=1G cap=3G enforce=cgroup+watchdog waited=0s run=4318600f4e0a
+[zk60-guard 16:05:23] END rv12b-cli-f3-stack exit=1 child_wall=17s peak_rss=0.01G min_avail=13.20G
+[zk60-guard 16:05:23] START rv12b-compat-tl-dd class=cpu need=1.2G cap=3G enforce=cgroup+watchdog waited=0s run=bb05029f1672
+[zk60-guard 16:05:37] END rv12b-compat-tl-dd exit=0 child_wall=14s peak_rss=0.79G min_avail=12.45G
+[zk60-guard 16:05:37] START rv12b-compat-8b-dd class=cpu need=2.5G cap=4G enforce=cgroup+watchdog waited=0s run=9043358f60b1
+[zk60-guard 16:06:24] END rv12b-compat-8b-dd exit=0 child_wall=47s peak_rss=2.05G min_avail=11.26G
+[zk60-guard 16:06:24] START rv12b-compat-tl class=cpu need=1G cap=3G enforce=cgroup+watchdog waited=0s run=070247898fce
+[zk60-guard 16:06:37] END rv12b-compat-tl exit=0 child_wall=13s peak_rss=0.72G min_avail=12.53G
+[zk60-guard 16:06:37] START rv12b-compat-8b class=cpu need=2.5G cap=4G enforce=cgroup+watchdog waited=0s run=d7def13b55aa
+[zk60-guard 16:07:23] END rv12b-compat-8b exit=0 child_wall=46s peak_rss=1.90G min_avail=11.43G
+[zk60-guard 16:07:23] START rv12b-compat-tl-t32 class=cpu need=1G cap=3G enforce=cgroup+watchdog waited=0s run=51a6781f52c8
+[zk60-guard 16:07:31] END rv12b-compat-tl-t32 exit=0 child_wall=8s peak_rss=0.74G min_avail=12.56G

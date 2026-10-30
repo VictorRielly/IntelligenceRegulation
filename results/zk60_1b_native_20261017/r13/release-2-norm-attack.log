@@ -1,0 +1,7 @@
+
+running 1 test
+test private_block::accuracy_proof_tests::accuracy_new_norm_high_byte_mutation_reaches_native_proof_and_is_rejected ... R13 scoped receipt r13-h24-wide DD=true attack=Some(Byte(Y, 1)): bytes16674904
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 721 filtered out; finished in 1.88s
+

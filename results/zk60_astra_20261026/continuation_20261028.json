@@ -1,0 +1,360 @@
+{
+  "at": "2026-10-30T20:34:20.324343+00:00",
+  "goal_status": "active",
+  "previous_goal_turn": "progress: recovered and anchored first real app post; applied/authenticated app verified; benchmark L06 checkpoint advanced",
+  "own_live_jobs": [
+    {
+      "kind": "durable-demo",
+      "category": "violence",
+      "pid": 365410,
+      "boot_id": "4f7dab84-38e2-4f1a-9518-e305e81ef580",
+      "worker_done": "/home/victor/IntelligenceRegulation/results/zk60_astra_20261026/real_app_demo_2/violence.supervisor.done"
+    },
+    {
+      "kind": "durable-demo-finalizer",
+      "state": "waiting for all three category terminal0 markers",
+      "pid": 371569,
+      "boot_id": "4f7dab84-38e2-4f1a-9518-e305e81ef580",
+      "worker_done": "/home/victor/IntelligenceRegulation/results/zk60_astra_20261026/real_app_demo_2/finalization/worker.done"
+    }
+  ],
+  "calibration": {
+    "complete_layers": 26,
+    "items": 192,
+    "tokens_per_layer": 49152,
+    "fully_hash_verified": true,
+    "stack_refusals": 0,
+    "both_heads_refusals": 0
+  },
+  "gpu_replay": {
+    "full_smoke_bit_identical": true,
+    "layers": 26,
+    "items": 8,
+    "tokens": 1028,
+    "parity_evidence": "results/zk60_shieldstral_export_20261026/gpu_smoke_parity.json"
+  },
+  "benchmark": {
+    "items_required": 4872,
+    "full_replay_started": true,
+    "embedding_items": 4872,
+    "complete_layers": 7,
+    "complete_layer_items": 4872,
+    "refusals_observed": 0,
+    "last_attempt": 1,
+    "last_exit": 3,
+    "next_layer": 7,
+    "next_attempt": 2,
+    "next_need_gib": 2.8,
+    "last_guard": "results/zk60_astra_20261026/gpu_replay_jobs/benchmark-l07-1/guard.json",
+    "partial_layer": 7,
+    "partial_items": 3209,
+    "running_layer": null,
+    "running_attempt": null
+  },
+  "next_command": "Supervise original violence365410 and finalizer371569 (waiting). After violence terminal0 launch only hate: run_durable_app_demo.py category --category hate --native-threads 8 --detach. Finalizer then automatically anchors, verifies stored receipts, checks app, captures headless screenshots and reports. Do not modify its five pinned helper sources or active app sources until terminal. Next GPU L07attempt2 after shared-slot fairness.",
+  "wallet": {
+    "chain_id": 84532,
+    "address": "0x775E8A2D741446d74E3f5a02244D1241eceB187d",
+    "balance_wei": 459998729693299927,
+    "config_exists": true,
+    "contract": "0x8432eba82b1a402f4da7680f6b8f9c9fae185cbe",
+    "deployment_tx": "0xfaa03b5a466ce3004f212025010e75cd902fa599c01b779d606a5524c4ac1559",
+    "funding_complete": true,
+    "further_user_funding_needed": false
+  },
+  "category_policy_candidates": {
+    "count": 6,
+    "rows_checked": 4872,
+    "registered": false,
+    "registered_moderate_by_token_lane": true,
+    "product_setting_selected": false
+  },
+  "outstanding": [
+    "full benchmark layers7-25, final heads, paired metrics and full hash audit",
+    "strict/moderate product ruling and real-classifier privacy gate",
+    "A5 native owner adoption/review then app integration/measurements",
+    "A6 browser screenshots",
+    "new public demo with retained private proof-to-post openings",
+    "R18-1 batch startup quarantine and publication exclusion before app adoption"
+  ],
+  "hold": {
+    "status": "S9 window closed; current coordinator holds honored before each launch",
+    "guard_sha256": "67e9478f55518c2808ff65e5f303f70e155a5f21c5987243a39cf579d1a9a6f3"
+  },
+  "c2_adapter": {
+    "binary_sha256": "e320c2379bf765226c73e17ad5fe59dbd812e00980861102a1b9f727655feebb",
+    "schema": "zk60-classify-run/2",
+    "focused_tests_last_passed": 19,
+    "extra_c2_orchestration_tests_added_not_yet_run": 0,
+    "native_integration_prepared": true,
+    "native_integration_run": true,
+    "fixture_search_bits": [
+      0
+    ],
+    "fixture_search_count": 327,
+    "candidate_margins": [
+      -213659,
+      -196944
+    ],
+    "native_integration_complete": true,
+    "retained_public_receipts": 3,
+    "guarded_steps": 20,
+    "expected_attack_refusals": 2,
+    "evidence": "results/zk60_astra_20261026/classifier_c2_integration_1/complete.json",
+    "native_review_status": "R-C2 soundness accepted by coordinator 2026-10-29T00:56:21Z; CLI-only until round14; no privacy acceptance",
+    "superseded_by": "c3_adapter: r15/schema3 migration and native synthetic integration complete; original C2 evidence retained"
+  },
+  "short_content_dependency": {
+    "native_support_pending": false,
+    "coverage_evidence": "results/zk60_shieldstral_export_20261026/category_chunk_coverage.json",
+    "T128_content_size_range": [
+      48,
+      55
+    ],
+    "T128_short_fraction_range": [
+      0.32516339869281047,
+      0.77
+    ],
+    "T256_short_fraction_range": [
+      0.9,
+      1.0
+    ],
+    "coordinator_next_round": 15,
+    "app_support_pending": false,
+    "required_adapter_check": "N-r14-1: each category content_total and D41 ranges equal post token count from pinned tokenizer; reject truncated proof sets",
+    "native_status": "r14 soundness accepted; r15 frozen and integrated through CLI in synthetic rung, separate review still applies",
+    "real_web_adapter_pending": false,
+    "coverage_helper": "proven_media.shieldstral_text.check_category_coverage"
+  },
+  "text_preparation": {
+    "evidence": "results/zk60_astra_20261026/shieldstral_text_check_r3.json",
+    "a1_input_matches": 4872,
+    "control_unicode_cases": 1006,
+    "category_prompt_checks": 14480,
+    "enabled_in_web_factory": true,
+    "short_items_supported": true
+  },
+  "d45_app": {
+    "implemented": [
+      "immutable per-item policy/threshold reservation",
+      "no publication on missing/rejected proof",
+      "queued and collected job context checks"
+    ],
+    "full_app_tests": 199,
+    "test_evidence": "storage-wallet-suite.log",
+    "real_classifier_publication_pending": false,
+    "live_database_migrated": false
+  },
+  "c3_adapter": {
+    "binary_sha256": "5edb7241f3c6b788289fca4a03f4fd40649355cf016663ec9dadbdaaa66c9a8e",
+    "schema": "zk60-classify-run/3",
+    "evidence": "results/zk60_astra_20261026/classifier_c3_integration_1/complete.json",
+    "native_cases": 5,
+    "retained_receipts": 6,
+    "guarded_steps": 29,
+    "expected_native_refusals": 4,
+    "app_truncated_prefix_refusals": 4,
+    "app_tests": 130,
+    "source_pins_revalidated": true,
+    "production_enabled": false,
+    "native_observed_floor_bits": 94,
+    "native_observed_verdict_bits": [
+      0
+    ]
+  },
+  "native_export": {
+    "equivalence": "results/zk60_shieldstral_export_20261026/native_export_equivalence.json",
+    "t256_profile_sha256": "1d50078243f13d58afa814a55c47c2df797e494d7f045941ea82fa142740498a",
+    "t128_profile_sha256": "2ba468f98085caf1136f27cf66220f93d8e316acb8dbae7e98f9eb68347f05a0",
+    "layers": 26,
+    "array_payloads_verified": 572,
+    "handoff": "results/zk60_shieldstral_export_20261026/native_integration_handoff.json",
+    "native_t128_check_pending": false,
+    "native_t128_evidence": "results/zk60_astra_20261026/native_t128_check_1/complete.json",
+    "native_t128_scope": "actual L00 only; public synthetic input",
+    "full26_t128_proof_pending": false,
+    "t128_payload_recheck": "results/zk60_shieldstral_export_20261026/native_t128_payload_audit.json",
+    "review_status": "R13 accepted on soundness by coordinator at07:21Z; no privacy acceptance",
+    "full26_t128_proof_evidence": "results/zk60_token_io_r1_20261017/r16/real_runs.json (token lane, three moderate categories, one35-token item)"
+  },
+  "category_queue": {
+    "implemented": true,
+    "tests": 154,
+    "evidence": "results/zk60_astra_20261026/app_real_adapter_tests.json",
+    "real_prover_enabled": true,
+    "real_mode": "explicit testnet only; default stub"
+  },
+  "classifier_r16b_intake": "results/zk60_astra_20261026/classifier_r16b_intake.json",
+  "item_activations": {
+    "evidence": "results/zk60_astra_20261026/item_activations_check_2/complete.json",
+    "writer": "results/zk60_shieldstral_export_20261026/write_item_activations.py",
+    "bit_identical": true,
+    "categories": 3,
+    "layers": 26,
+    "files_compared": 156,
+    "bytes_compared": 122683392,
+    "layer_continuity_checks": 75,
+    "input_matches_saved_a1": true,
+    "refusals": 0,
+    "unit_tests": 7,
+    "scope": "One35-token real A1 item, three moderate prompts; no new native proof or privacy acceptance",
+    "private_workspace": "/tmp/zk60-astra-item-activations-20261029-2"
+  },
+  "metadata_candidate": {
+    "path": "results/zk60_astra_20261026/real_adapter_metadata_candidate",
+    "tests": 154,
+    "exit": 0,
+    "applied": true,
+    "changes": [
+      "config category set and T128 geometry",
+      "manifest registered policy and verifier identities",
+      "signed profile/verifier comparison to publication",
+      "download commands per category and native file layout",
+      "real queue estimate and removal of placeholder class"
+    ],
+    "current_app_tests": 154
+  },
+  "real_app": {
+    "post_id": "d1800de17fffed4565733d12e5c30f52",
+    "queued_categories": [],
+    "computation_started": true,
+    "native_receipts_complete": 3,
+    "original_waiter_terminal": true,
+    "withdrawal": "real_app_demo_1/unstarted_waiter_withdrawal.json",
+    "retry_evidence": "real_app_demo_1/unstarted_retry_preparation.json",
+    "source_revision": "real_app_demo_1/plan.json",
+    "private_root": "/home/victor/zk60-owner-private/proven-media-astra-demo",
+    "dependencies_installed_in_app_venv": true,
+    "route_checks": 25,
+    "route_evidence": "real_app_demo_1/real_routes_check.json",
+    "runner_no_longer_borrows_package_paths": true,
+    "supervisor_session": null,
+    "running_category": null,
+    "sexual_prove": {
+      "exit": 0,
+      "threads": 2,
+      "wall_seconds": 1031.1587619781494,
+      "peak_rss_gib": 7.99,
+      "verified": true
+    },
+    "sexual_label": "no",
+    "hate_follow_on_session": null,
+    "anchored": true,
+    "anchor_transaction": "0x0f2dc9dd777d33a72a5930f169ea5ba49b485fc25010ebdaa0f536bd5a9ad01a",
+    "complete": "real_app_demo_1/complete.json",
+    "original_private_root_lost": true
+  },
+  "shared_resource_wait": {
+    "label": "gate22-item3-ts-real-block1",
+    "since": "2026-10-30T00:04:38Z",
+    "last_observed": "2026-10-30T00:47:13.153445+00:00",
+    "source": "guard status; sandbox kernel capability not authoritative",
+    "priority": "coordinator00:29 reserves Astra first after gate cutoff about00:50Z",
+    "do_not_stop_or_duplicate": true,
+    "released_at": "2026-10-30T00:54:49Z"
+  },
+  "blocking_audit": "blocked_audit_20261029_1842.json",
+  "goal_status_recorded_at": "2026-10-29T18:44:26.212897+00:00",
+  "work_status": "Durable storage accepted199tests; new19-token demo sexual accepted, violence original supervisor queued, hate unlaunched. Seven benchmark layers complete;L07checkpoint3209. StagedR18safety47tests; no adoption.",
+  "a5_batch": {
+    "at": "2026-10-30T00:22:54Z",
+    "status": "Native r18 frozen, review ACCEPTED WITH FIXES; app R18-1 gating fixes pending; production stays r16b per-category",
+    "path": "a5_batch_candidate",
+    "rust_light_tests": 13,
+    "python_light_tests": 30,
+    "peak_rss_gib": 0.15,
+    "wall_seconds": 2.1666862964630127,
+    "scope": "shared box n=1 light transport only",
+    "full_native_build": false,
+    "new_native_proofs": 0,
+    "measured_speedup": null,
+    "queue_adoption": false,
+    "evidence": "a5_batch_candidate/check-2/evidence.json",
+    "adoption": "Coordinator19:11:54 routes staged native delta to token lane next round and review; same-item/same-seed receipt/statement byte equivalence required",
+    "app_review_findings": {
+      "1": "terminal failure quarantines all requested outputs/sidecars/openings in trusted scope",
+      "11": "guard record required in terminal collector"
+    },
+    "queue_gate_candidate_tests": 47,
+    "queue_gate_evidence": "a5_batch_candidate/app-boundaries-evidence.json",
+    "publication_patch": "a5_batch_candidate/publication_exclusion.patch",
+    "integration_handoff": "a5_batch_candidate/QUEUE_GATE_HANDOFF.md",
+    "publication_patch_tests": 6
+  },
+  "a6_demo_hardening": {
+    "evidence": "a6_demo_hardening/evidence.json",
+    "tests": 16,
+    "real_reset_executed": false,
+    "screenshots_pending": true,
+    "browser_available": "Installed WindowsChrome at /mnt/c/Program Files/Google/Chrome/Application/chrome.exe; no Linux browser",
+    "screenshot_runner": "capture_durable_demo.py"
+  },
+  "privacy_app_candidate": {
+    "evidence": "privacy_app_candidate/integrated-evidence.json",
+    "full_tests": 183,
+    "applied": true,
+    "active_demo_pins_match": 13,
+    "non_public_inputs_submitted": false,
+    "integrated_app_tests": 188,
+    "frontend_checks": 5,
+    "real_routes": 10
+  },
+  "real_app_thread_candidate": {
+    "path": "real_app_thread_candidate",
+    "tested": true,
+    "applied": true,
+    "ruling": "coordinator2026-10-30T01:02Z; leave sexual run unchanged,8threads forremainingcategories,timeout>=1.5expected",
+    "tests": 5,
+    "evidence": "real_app_thread_candidate/evidence.json"
+  },
+  "reboot_recovery": {
+    "audit": "real_app_demo_1/recovery-20261030/audit.json",
+    "original_private_workspace_lost": true,
+    "new_proofs": 0
+  },
+  "durable_storage": {
+    "private_root": "/home/victor/zk60-owner-private/proven-media-astra-demo",
+    "wallet_moved_unchanged": true,
+    "startup_guard": true,
+    "focused_tests": 10,
+    "full_tests": 199,
+    "real_asgi_checks": 10,
+    "evidence": "real_app_demo_1/recovery-20261030/storage_move.json",
+    "evidence_final": "storage-final-suite.log"
+  },
+  "coordinator_storage_acceptance": "2026-10-30T15:20Z: accepted; retain float caches until DISKLOW or projected C: below60GiB; new durable demo go; retain r16b pin",
+  "new_real_app": {
+    "post_id": "61ac12af82b9e6c36d95075db3fc91b9",
+    "content_tokens": 19,
+    "private_root": "/home/victor/zk60-owner-private/proven-media-astra-demo-2",
+    "plan": "real_app_demo_2/plan.json",
+    "prepared_via_authenticated_ASGI": true,
+    "native_pin": "r16b",
+    "threads": 8,
+    "running_category": "violence",
+    "anchored": false,
+    "completed_categories": [
+      "sexual"
+    ],
+    "finalizer": "finish_durable_demo.py --detach (only after all three categories terminal0)",
+    "inspection": "inspect_durable_demo.py",
+    "stored_verifier": "verify_durable_app_store.py",
+    "route_checks": "check_durable_app_demo.py",
+    "report": "report_durable_demo.py",
+    "waiting_since": "2026-10-30T20:05:47Z",
+    "last_foreign_guard": "sol-r14-full26-dd-fresh-1",
+    "last_observed": "2026-10-30T20:32:38.609375+00:00",
+    "waiting_reason": "Violence seqgen complete; running pinned pipeline waits for ANY guarded job to clear before native prove (includes Sol0.7GiB reference chain). Asked for5\u201310second all-job admission gap; no source edits/relaunch.",
+    "finalizer_launched": {
+      "pid": 371569,
+      "boot_id": "4f7dab84-38e2-4f1a-9518-e305e81ef580",
+      "worker_done": "/home/victor/IntelligenceRegulation/results/zk60_astra_20261026/real_app_demo_2/finalization/worker.done"
+    }
+  },
+  "admission_candidate": {
+    "path": "admission_candidate",
+    "tests": 9,
+    "applied": false,
+    "why": "Permit active light<=1GiB under existing lean rule, preserving all guard/cap/thread controls; current running pipeline remains untouched."
+  }
+}

@@ -1,0 +1,80 @@
+--- apps/proven-media/tools/classifier_pipeline.py
++++ apps/proven-media/tools/classifier_pipeline.py
+@@ -27,6 +27,29 @@
+     temporary.write_text(data);os.replace(temporary,path)
+ 
+ 
++def execution_settings(native_threads):
++    require(type(native_threads) is int and native_threads in (2, 8), 'unsupported native thread count')
++    from proven_media import shieldstral_runtime as runtime
++    limits = {name: maximum for name, (_, _, maximum) in runtime.RESOURCES.items()}
++    # Coordinator 2026-10-30T01:02: >=1.5x expected work. At two threads
++    # current measured segment pace predicts ~18min; reserve at least27min.
++    limits['prove'] = max(limits['prove'], 1620 if native_threads == 2 else 900)
++    return {'schema': 'pm-classifier-execution/1', 'native_threads': native_threads,
++            'numpy_threads': 2, 'max_seconds': limits}
++
++
++def freeze_execution(job):
++    raw = os.environ.get('PM_CLASSIFIER_NATIVE_THREADS', '2')
++    require(raw in ('2', '8'), 'unsupported native thread count')
++    execution = execution_settings(int(raw))
++    path = job/'execution.json'
++    if path.exists():
++        require(json.loads(path.read_text()) == execution, 'job execution settings changed')
++    else:
++        atomic(path, json.dumps(execution, sort_keys=True)+'\n')
++    return execution
++
++
+ def run_step(job,name,command,cli):
+     logs=job/'logs';deadline=time.monotonic()+config.GUARD_WAIT_SECS
+     while True:
+@@ -51,7 +74,13 @@
+         from proven_media import shieldstral_runtime as runtime
+         runtime.validate(cli.deployment)
+         need, cap, maximum = runtime.RESOURCES[name]
+-        command = ['/usr/bin/env', 'RAYON_NUM_THREADS=2', 'OPENBLAS_NUM_THREADS=2', 'OMP_NUM_THREADS=2', *command]
++        execution = json.loads((job/'execution.json').read_text())
++        raw_threads = os.environ.get('PM_CLASSIFIER_NATIVE_THREADS', '2')
++        require(raw_threads in ('2', '8') and execution == execution_settings(int(raw_threads)),
++                'job execution settings differ from this process')
++        maximum = execution['max_seconds'][name]
++        threads = 2 if name == 'seqgen' else execution['native_threads']
++        command = ['/usr/bin/env', 'RAYON_NUM_THREADS='+str(threads), 'OPENBLAS_NUM_THREADS=2', 'OMP_NUM_THREADS=2', *command]
+     argv=['python3',str(config.GUARD),'run','--class','cpu','--need-gib',str(need),'--cap-gib',str(cap),
+           '--label','pm-classify-'+name,'--wait-secs',str(config.GUARD_WAIT_SECS),'--max-secs',str(maximum),'--log',str(logs/f'{name}.log'),
+           '--done',str(logs/f'{name}.guard.done'),'--result-json',str(logs/f'{name}.guard.json'),'--',*command]
+@@ -69,6 +98,7 @@
+     if real:
+         from proven_media import shieldstral_runtime as runtime
+         runtime.validate(cli.deployment)
++        freeze_execution(job)
+     require(spec['mode'] in ('prove','recheck','label'),'unknown worker mode')
+     if spec['mode']=='label':
+         cli.check_label_records(spec['records'],spec['total'])
+--- results/zk60_astra_20261026/run_real_app_demo.py
++++ results/zk60_astra_20261026/run_real_app_demo.py
+@@ -47,7 +47,9 @@
+     parser = argparse.ArgumentParser()
+     parser.add_argument('action', choices=('prepare', 'category', 'inspect', 'anchor'))
+     parser.add_argument('--category', choices=('sexual', 'violence', 'hate'))
++    parser.add_argument('--native-threads', type=int, choices=(2, 8), default=2)
+     args = parser.parse_args()
++    os.environ['PM_CLASSIFIER_NATIVE_THREADS'] = str(args.native_threads)
+     if args.action == 'prepare':
+         require(not (OUT/'plan.json').exists(), 'demo already prepared')
+         OUT.mkdir(exist_ok=True)
+@@ -105,8 +107,11 @@
+         row = store.one('SELECT * FROM chunk_proofs WHERE post_id=? AND chunk=?', (pid, ch['index']))
+         record = loads(row['record'])
+         require(row['status'] == 'done' and record is not None, 'accepted category record missing')
++        execution_file = Path(job['job_dir'])/'execution.json'
++        execution = json.loads(execution_file.read_text()) if execution_file.exists() else {'native_threads': 2,
++            'source': 'original pinned two-thread pipeline; retained guard argv is authoritative'}
+         result = {'category': args.category, 'finished_at': datetime.now(timezone.utc).isoformat(),
+-                  'record': record, 'source_sha256': sources()}
++                  'record': record, 'execution': execution, 'source_sha256': sources()}
+         save(OUT/(args.category+'.json'), result)
+         (OUT/(args.category+'.done')).write_text('0\n')
+         print(json.dumps({'category': args.category, 'verdict': record['labels'][args.category]['value'],

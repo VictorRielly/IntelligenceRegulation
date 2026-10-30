@@ -1,0 +1,6 @@
+{
+  "report_generation_error": "First checkpoint.py run failed before source/findings append: duplicate implementation_license keyword. Defaults now updated with source-specific fields;next run succeeded. Scientific outputs unchanged.",
+  "negative_control_label": "Initial positive empty-input edge counted with negatives;10 actual negatives plus1positive edge. Original results retained. First print-line patch failed without editing.",
+  "final_patch_error": "First combined delete/add PROGRESS patch rejected because it targeted the same file twice;no changes made. Saved summary copied by finish.py.",
+  "native_integration": "parked;no promising speed result or new handoff"
+}

@@ -1,0 +1,86 @@
+{
+  "schema": "pm-public-demo-owner-capture/1",
+  "at": "2026-10-30T01:48:09.634925+00:00",
+  "post_id": "d1800de17fffed4565733d12e5c30f52",
+  "content_tokens": 17,
+  "public_input": true,
+  "complete": true,
+  "categories": [
+    {
+      "category": "sexual",
+      "policy": "shieldstral-1.0-3b-moderate-sexual/1",
+      "input_owner": {
+        "event": "content-checked",
+        "chunk": 0,
+        "range": [
+          0,
+          17
+        ],
+        "content_total": 17,
+        "verdict": "not-flagged"
+      },
+      "statement_sha256": "55d944e78346fbe51ddf74519c9526bc35e4e014e55c73a2b31961bbb17d7bf7",
+      "trained_statement_identity": "29aeba6c04a819cdbafde311f7c9d0c678d85aff22292ae6b9647761158a0bd1",
+      "stdout_sha256": "b12113fc7d73845381a6b7356c9f4dc09d8c51bad4895987e18fa9885d5a7445",
+      "guard_sha256": "3a4279035ca45d8202cb4fe787d73b9e05b60c101df3fe5f1fe6207b27dc1878",
+      "guard": {
+        "exit": 0,
+        "child_rc": 0,
+        "child_wall_seconds": 81.3481297492981,
+        "peak_rss_gib": 2.12,
+        "enforcement": "cgroup+watchdog"
+      }
+    },
+    {
+      "category": "violence",
+      "policy": "shieldstral-1.0-3b-moderate-violence/1",
+      "input_owner": {
+        "event": "content-checked",
+        "chunk": 0,
+        "range": [
+          0,
+          17
+        ],
+        "content_total": 17,
+        "verdict": "not-flagged"
+      },
+      "statement_sha256": "3012cbce8092eab0c5abde8126f0aaa2c498c3489a5ef0615e69817372249277",
+      "trained_statement_identity": "29aeba6c04a819cdbafde311f7c9d0c678d85aff22292ae6b9647761158a0bd1",
+      "stdout_sha256": "b12113fc7d73845381a6b7356c9f4dc09d8c51bad4895987e18fa9885d5a7445",
+      "guard_sha256": "b153c7e936aa17533a9e5ac3c21c1f102d85808cbd31f403cf1715e539e18f42",
+      "guard": {
+        "exit": 0,
+        "child_rc": 0,
+        "child_wall_seconds": 66.96275901794434,
+        "peak_rss_gib": 2.32,
+        "enforcement": "cgroup+watchdog"
+      }
+    },
+    {
+      "category": "hate",
+      "policy": "shieldstral-1.0-3b-moderate-hate/1",
+      "input_owner": {
+        "event": "content-checked",
+        "chunk": 0,
+        "range": [
+          0,
+          17
+        ],
+        "content_total": 17,
+        "verdict": "not-flagged"
+      },
+      "statement_sha256": "5e68991ab1ff0202daf77ef8ffae4a0d98683b5fc966f51f3fdd880fdbd33ec2",
+      "trained_statement_identity": "29aeba6c04a819cdbafde311f7c9d0c678d85aff22292ae6b9647761158a0bd1",
+      "stdout_sha256": "b12113fc7d73845381a6b7356c9f4dc09d8c51bad4895987e18fa9885d5a7445",
+      "guard_sha256": "acb023608e4517831cb1753d5957477b955235e14507d7a0c8d11da3a96ba124",
+      "guard": {
+        "exit": 0,
+        "child_rc": 0,
+        "child_wall_seconds": 67.92077970504761,
+        "peak_rss_gib": 2.29,
+        "enforcement": "cgroup+watchdog"
+      }
+    }
+  ],
+  "scope": "Retained terminal input-owner events for the authorized public garden post; no new verification and no private opening or activation included."
+}

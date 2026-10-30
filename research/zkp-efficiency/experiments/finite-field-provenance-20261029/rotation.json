@@ -1,0 +1,19 @@
+{
+  "current": "quantization/arithmetic and proof-composition prerequisite",
+  "next": "GPU NTT/commitments: exact coset/ordering/batch-stride and hiding-pad lifetime oracle",
+  "queue": [
+    "GPU NTT/commitments",
+    "sumcheck/GKR",
+    "lookup arguments/softmax",
+    "memory traffic",
+    "batching/amortization",
+    "quantization/arithmetic",
+    "proof composition"
+  ],
+  "top_owner_priorities": [
+    "Owner whole-prover high-end GPU plus verified fixed-context resident1/2/4/8",
+    "REFINED owner DD larger-context scaling after measured T128 null result",
+    "REFINED tested public-role exclusive FZC clocks before allocator/capacity changes"
+  ],
+  "local_choice": "Top three need owner native measurements; this cycle tests the most useful bounded untested prerequisite from the previous checkpoint."
+}

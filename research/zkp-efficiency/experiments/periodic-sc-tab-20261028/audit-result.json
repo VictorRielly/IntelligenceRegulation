@@ -1,0 +1,192 @@
+{
+  "status": "PASS_SOURCE_AND_COST_ONLY",
+  "checks": 64,
+  "native_pins": 9,
+  "live_pins": [
+    {
+      "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/argument.rs",
+      "pinned": "c4f9f9f4cb477346b03e9f769d7c3141a8529f096d08da2be6c415d5160a5e66",
+      "current": "c4f9f9f4cb477346b03e9f769d7c3141a8529f096d08da2be6c415d5160a5e66",
+      "unchanged": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/layout.rs",
+      "pinned": "9332802e597beacab56cfa69cfe18325bc476d2ce6485f517051992b26d26efa",
+      "current": "9332802e597beacab56cfa69cfe18325bc476d2ce6485f517051992b26d26efa",
+      "unchanged": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/shape.rs",
+      "pinned": "9a87081897ff0ec716d7f27a2813cc32117683eb5b2f2082a248f479ef98c4c5",
+      "current": "9a87081897ff0ec716d7f27a2813cc32117683eb5b2f2082a248f479ef98c4c5",
+      "unchanged": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/pad.rs",
+      "pinned": "91141ea025d01257a5f0b5007e711d883af896b72d3c109badb6999f48d78967",
+      "current": "91141ea025d01257a5f0b5007e711d883af896b72d3c109badb6999f48d78967",
+      "unchanged": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/protocol.rs",
+      "pinned": "c482402329e4da32a70c780435b2077e8054d1805b1006289f571820017564a4",
+      "current": "c482402329e4da32a70c780435b2077e8054d1805b1006289f571820017564a4",
+      "unchanged": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/zk.rs",
+      "pinned": "66d1128675bea3b473abd4f2fe70d470b1abc19a7fe5a579a227616d76280e32",
+      "current": "66d1128675bea3b473abd4f2fe70d470b1abc19a7fe5a579a227616d76280e32",
+      "unchanged": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/zkp-core/src/field.rs",
+      "pinned": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+      "current": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+      "unchanged": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/zkp-core/src/mle.rs",
+      "pinned": "b20c8b75c9246471fe1cc395122558eba715f66d9efe1dc4cd5be1750f2e542e",
+      "current": "b20c8b75c9246471fe1cc395122558eba715f66d9efe1dc4cd5be1750f2e542e",
+      "unchanged": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/zkp-core/src/sumcheck/rounds.rs",
+      "pinned": "c60520596e6d855687e0a225850850c12bd15b8741522de69a624f0db8a003df",
+      "current": "c60520596e6d855687e0a225850850c12bd15b8741522de69a624f0db8a003df",
+      "unchanged": true
+    }
+  ],
+  "cost": [
+    {
+      "n": 8,
+      "rows": 256,
+      "scope": "R12 SC_TAB public factors only; synthetic n9/n10 are not admitted profiles",
+      "public_words_before": 768,
+      "public_words_after": 768,
+      "public_payload_before_bytes": 12288,
+      "public_payload_after_bytes": 12288,
+      "public_payload_saved_bytes": 0,
+      "public_fold_lerps_before": 765,
+      "public_fold_lerps_after": 765,
+      "public_fold_lerps_removed": 0,
+      "descriptor_noop_binds": 0,
+      "unchanged_logical_round_endpoint_calls": 1530,
+      "full_slot_initial_payload_before_bytes": 40960,
+      "full_slot_initial_payload_after_bytes": 40960,
+      "exp_act_source_products_before": 512,
+      "exp_act_source_products_after": 512,
+      "public_main_cube_reduction": 0,
+      "private_mask_opening_commitment_reduction": 0,
+      "per_32_block_argument_cumulative_removed_public_lerps": 0,
+      "per_32_block_argument_cumulative_removed_public_payload_bytes": 0
+    },
+    {
+      "n": 9,
+      "rows": 512,
+      "scope": "R12 SC_TAB public factors only; synthetic n9/n10 are not admitted profiles",
+      "public_words_before": 1536,
+      "public_words_after": 768,
+      "public_payload_before_bytes": 24576,
+      "public_payload_after_bytes": 12288,
+      "public_payload_saved_bytes": 12288,
+      "public_fold_lerps_before": 1533,
+      "public_fold_lerps_after": 765,
+      "public_fold_lerps_removed": 768,
+      "descriptor_noop_binds": 3,
+      "unchanged_logical_round_endpoint_calls": 3066,
+      "full_slot_initial_payload_before_bytes": 90112,
+      "full_slot_initial_payload_after_bytes": 77824,
+      "exp_act_source_products_before": 1024,
+      "exp_act_source_products_after": 512,
+      "public_main_cube_reduction": 0,
+      "private_mask_opening_commitment_reduction": 0,
+      "per_32_block_argument_cumulative_removed_public_lerps": 24576,
+      "per_32_block_argument_cumulative_removed_public_payload_bytes": 393216
+    },
+    {
+      "n": 10,
+      "rows": 1024,
+      "scope": "R12 SC_TAB public factors only; synthetic n9/n10 are not admitted profiles",
+      "public_words_before": 3072,
+      "public_words_after": 768,
+      "public_payload_before_bytes": 49152,
+      "public_payload_after_bytes": 12288,
+      "public_payload_saved_bytes": 36864,
+      "public_fold_lerps_before": 3069,
+      "public_fold_lerps_after": 765,
+      "public_fold_lerps_removed": 2304,
+      "descriptor_noop_binds": 6,
+      "unchanged_logical_round_endpoint_calls": 6138,
+      "full_slot_initial_payload_before_bytes": 180224,
+      "full_slot_initial_payload_after_bytes": 143360,
+      "exp_act_source_products_before": 2048,
+      "exp_act_source_products_after": 512,
+      "public_main_cube_reduction": 0,
+      "private_mask_opening_commitment_reduction": 0,
+      "per_32_block_argument_cumulative_removed_public_lerps": 73728,
+      "per_32_block_argument_cumulative_removed_public_payload_bytes": 1179648
+    },
+    {
+      "n": 13,
+      "rows": 8192,
+      "scope": "R12 SC_TAB public factors only; synthetic n9/n10 are not admitted profiles",
+      "public_words_before": 24576,
+      "public_words_after": 768,
+      "public_payload_before_bytes": 393216,
+      "public_payload_after_bytes": 12288,
+      "public_payload_saved_bytes": 380928,
+      "public_fold_lerps_before": 24573,
+      "public_fold_lerps_after": 765,
+      "public_fold_lerps_removed": 23808,
+      "descriptor_noop_binds": 15,
+      "unchanged_logical_round_endpoint_calls": 49146,
+      "full_slot_initial_payload_before_bytes": 1441792,
+      "full_slot_initial_payload_after_bytes": 1060864,
+      "exp_act_source_products_before": 16384,
+      "exp_act_source_products_after": 512,
+      "public_main_cube_reduction": 0,
+      "private_mask_opening_commitment_reduction": 0,
+      "per_32_block_argument_cumulative_removed_public_lerps": 761856,
+      "per_32_block_argument_cumulative_removed_public_payload_bytes": 12189696
+    },
+    {
+      "n": 14,
+      "rows": 16384,
+      "scope": "R12 SC_TAB public factors only; synthetic n9/n10 are not admitted profiles",
+      "public_words_before": 49152,
+      "public_words_after": 768,
+      "public_payload_before_bytes": 786432,
+      "public_payload_after_bytes": 12288,
+      "public_payload_saved_bytes": 774144,
+      "public_fold_lerps_before": 49149,
+      "public_fold_lerps_after": 765,
+      "public_fold_lerps_removed": 48384,
+      "descriptor_noop_binds": 18,
+      "unchanged_logical_round_endpoint_calls": 98298,
+      "full_slot_initial_payload_before_bytes": 2883584,
+      "full_slot_initial_payload_after_bytes": 2109440,
+      "exp_act_source_products_before": 32768,
+      "exp_act_source_products_after": 512,
+      "public_main_cube_reduction": 0,
+      "private_mask_opening_commitment_reduction": 0,
+      "per_32_block_argument_cumulative_removed_public_lerps": 1548288,
+      "per_32_block_argument_cumulative_removed_public_payload_bytes": 24772608
+    }
+  ],
+  "negative": "SC_TAB round cube, all private/equality/support tables and generic per-cell polynomial work remain. Existing public vector move already avoids clone. Adapter dispatch/indices and typed metadata added; no complete proof gain measured.",
+  "native_integration_owed": [
+    "Tab variant and fresh constructors",
+    "exact full-cube length validation on both sides",
+    "heterogeneous ClosureRounds explicit cube, n and table order",
+    "table build/move",
+    "census/capture labels and readers",
+    "public terminal evaluator with every zero-extension selector",
+    "six private terms/pad-zero group completeness",
+    "CFS RNG/transcript/claims/openings/refusals/golden/fresh verify/privacy gates"
+  ],
+  "ceiling": "Unknown exclusive critical-path fraction f: even free deletion <=1/(1-f); actual gain subtracts descriptor costs and only removes a subset. No 50/s projection.",
+  "elapsed_seconds": 0.011228544000005058,
+  "max_rss_kib": 15840
+}

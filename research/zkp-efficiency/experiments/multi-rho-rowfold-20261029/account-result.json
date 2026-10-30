@@ -1,0 +1,737 @@
+{
+  "status": "PASS",
+  "checks": 145,
+  "profile_accounting": [
+    {
+      "label": "nonDD-A",
+      "profile": "hashline-zk-mr1/private-block-llama-3-8b-t128-lh24-v1/1",
+      "rows": 4577,
+      "cols": 16384,
+      "groups_excluding_proximity": 36,
+      "rhos": 37,
+      "cases": [
+        {
+          "batch": 1,
+          "dispatch_supported": true,
+          "full_matrix_passes": 37,
+          "logical_base_matrix_bytes": 22196912128,
+          "rho_h2d_bytes": 2709584,
+          "output_d2h_bytes": 9699328,
+          "largest_device_rho_plus_output_bytes": 335376,
+          "fp2_base_macs": 2774614016,
+          "host_and_device_allocs_per_call_at_least": {
+            "flat_host": 1,
+            "rho_device": 1,
+            "out_device": 1,
+            "download_host": 1
+          }
+        },
+        {
+          "batch": 2,
+          "dispatch_supported": true,
+          "full_matrix_passes": 19,
+          "logical_base_matrix_bytes": 11398414336,
+          "rho_h2d_bytes": 2709584,
+          "output_d2h_bytes": 9699328,
+          "largest_device_rho_plus_output_bytes": 670752,
+          "fp2_base_macs": 2774614016,
+          "host_and_device_allocs_per_call_at_least": {
+            "flat_host": 1,
+            "rho_device": 1,
+            "out_device": 1,
+            "download_host": 1
+          }
+        },
+        {
+          "batch": 4,
+          "dispatch_supported": true,
+          "full_matrix_passes": 10,
+          "logical_base_matrix_bytes": 5999165440,
+          "rho_h2d_bytes": 2709584,
+          "output_d2h_bytes": 9699328,
+          "largest_device_rho_plus_output_bytes": 1341504,
+          "fp2_base_macs": 2774614016,
+          "host_and_device_allocs_per_call_at_least": {
+            "flat_host": 1,
+            "rho_device": 1,
+            "out_device": 1,
+            "download_host": 1
+          }
+        },
+        {
+          "batch": 8,
+          "dispatch_supported": false,
+          "full_matrix_passes": 5,
+          "logical_base_matrix_bytes": 2999582720,
+          "rho_h2d_bytes": 2709584,
+          "output_d2h_bytes": 9699328,
+          "largest_device_rho_plus_output_bytes": 2683008,
+          "fp2_base_macs": 2774614016,
+          "host_and_device_allocs_per_call_at_least": {
+            "flat_host": 1,
+            "rho_device": 1,
+            "out_device": 1,
+            "download_host": 1
+          }
+        }
+      ],
+      "scope": "Prior source-derived R13 8BT128 descriptor/row counts; support unknown; no private matrix allocated. R14 split-width geometry is distinct."
+    },
+    {
+      "label": "nonDD-H",
+      "profile": "hashline-zk-mr1/private-block-llama-3-8b-t128-lh24-v1/1",
+      "rows": 4390,
+      "cols": 16384,
+      "groups_excluding_proximity": 9,
+      "rhos": 10,
+      "cases": [
+        {
+          "batch": 1,
+          "dispatch_supported": true,
+          "full_matrix_passes": 10,
+          "logical_base_matrix_bytes": 5754060800,
+          "rho_h2d_bytes": 702400,
+          "output_d2h_bytes": 2621440,
+          "largest_device_rho_plus_output_bytes": 332384,
+          "fp2_base_macs": 719257600,
+          "host_and_device_allocs_per_call_at_least": {
+            "flat_host": 1,
+            "rho_device": 1,
+            "out_device": 1,
+            "download_host": 1
+          }
+        },
+        {
+          "batch": 2,
+          "dispatch_supported": true,
+          "full_matrix_passes": 5,
+          "logical_base_matrix_bytes": 2877030400,
+          "rho_h2d_bytes": 702400,
+          "output_d2h_bytes": 2621440,
+          "largest_device_rho_plus_output_bytes": 664768,
+          "fp2_base_macs": 719257600,
+          "host_and_device_allocs_per_call_at_least": {
+            "flat_host": 1,
+            "rho_device": 1,
+            "out_device": 1,
+            "download_host": 1
+          }
+        },
+        {
+          "batch": 4,
+          "dispatch_supported": true,
+          "full_matrix_passes": 3,
+          "logical_base_matrix_bytes": 1726218240,
+          "rho_h2d_bytes": 702400,
+          "output_d2h_bytes": 2621440,
+          "largest_device_rho_plus_output_bytes": 1329536,
+          "fp2_base_macs": 719257600,
+          "host_and_device_allocs_per_call_at_least": {
+            "flat_host": 1,
+            "rho_device": 1,
+            "out_device": 1,
+            "download_host": 1
+          }
+        },
+        {
+          "batch": 8,
+          "dispatch_supported": false,
+          "full_matrix_passes": 2,
+          "logical_base_matrix_bytes": 1150812160,
+          "rho_h2d_bytes": 702400,
+          "output_d2h_bytes": 2621440,
+          "largest_device_rho_plus_output_bytes": 2659072,
+          "fp2_base_macs": 719257600,
+          "host_and_device_allocs_per_call_at_least": {
+            "flat_host": 1,
+            "rho_device": 1,
+            "out_device": 1,
+            "download_host": 1
+          }
+        }
+      ],
+      "scope": "Prior source-derived R13 8BT128 descriptor/row counts; support unknown; no private matrix allocated. R14 split-width geometry is distinct."
+    },
+    {
+      "label": "DD-A",
+      "profile": "hashline-zk-mr1/private-block-llama-3-8b-t128-lh24-dd/1",
+      "rows": 4455,
+      "cols": 16384,
+      "groups_excluding_proximity": 38,
+      "rhos": 39,
+      "cases": [
+        {
+          "batch": 1,
+          "dispatch_supported": true,
+          "full_matrix_passes": 39,
+          "logical_base_matrix_bytes": 22773104640,
+          "rho_h2d_bytes": 2779920,
+          "output_d2h_bytes": 10223616,
+          "largest_device_rho_plus_output_bytes": 333424,
+          "fp2_base_macs": 2846638080,
+          "host_and_device_allocs_per_call_at_least": {
+            "flat_host": 1,
+            "rho_device": 1,
+            "out_device": 1,
+            "download_host": 1
+          }
+        },
+        {
+          "batch": 2,
+          "dispatch_supported": true,
+          "full_matrix_passes": 20,
+          "logical_base_matrix_bytes": 11678515200,
+          "rho_h2d_bytes": 2779920,
+          "output_d2h_bytes": 10223616,
+          "largest_device_rho_plus_output_bytes": 666848,
+          "fp2_base_macs": 2846638080,
+          "host_and_device_allocs_per_call_at_least": {
+            "flat_host": 1,
+            "rho_device": 1,
+            "out_device": 1,
+            "download_host": 1
+          }
+        },
+        {
+          "batch": 4,
+          "dispatch_supported": true,
+          "full_matrix_passes": 10,
+          "logical_base_matrix_bytes": 5839257600,
+          "rho_h2d_bytes": 2779920,
+          "output_d2h_bytes": 10223616,
+          "largest_device_rho_plus_output_bytes": 1333696,
+          "fp2_base_macs": 2846638080,
+          "host_and_device_allocs_per_call_at_least": {
+            "flat_host": 1,
+            "rho_device": 1,
+            "out_device": 1,
+            "download_host": 1
+          }
+        },
+        {
+          "batch": 8,
+          "dispatch_supported": false,
+          "full_matrix_passes": 5,
+          "logical_base_matrix_bytes": 2919628800,
+          "rho_h2d_bytes": 2779920,
+          "output_d2h_bytes": 10223616,
+          "largest_device_rho_plus_output_bytes": 2667392,
+          "fp2_base_macs": 2846638080,
+          "host_and_device_allocs_per_call_at_least": {
+            "flat_host": 1,
+            "rho_device": 1,
+            "out_device": 1,
+            "download_host": 1
+          }
+        }
+      ],
+      "scope": "Prior source-derived R13 8BT128 descriptor/row counts; support unknown; no private matrix allocated. R14 split-width geometry is distinct."
+    },
+    {
+      "label": "DD-H",
+      "profile": "hashline-zk-mr1/private-block-llama-3-8b-t128-lh24-dd/1",
+      "rows": 4234,
+      "cols": 16384,
+      "groups_excluding_proximity": 10,
+      "rhos": 11,
+      "cases": [
+        {
+          "batch": 1,
+          "dispatch_supported": true,
+          "full_matrix_passes": 11,
+          "logical_base_matrix_bytes": 6104547328,
+          "rho_h2d_bytes": 745184,
+          "output_d2h_bytes": 2883584,
+          "largest_device_rho_plus_output_bytes": 329888,
+          "fp2_base_macs": 763068416,
+          "host_and_device_allocs_per_call_at_least": {
+            "flat_host": 1,
+            "rho_device": 1,
+            "out_device": 1,
+            "download_host": 1
+          }
+        },
+        {
+          "batch": 2,
+          "dispatch_supported": true,
+          "full_matrix_passes": 6,
+          "logical_base_matrix_bytes": 3329753088,
+          "rho_h2d_bytes": 745184,
+          "output_d2h_bytes": 2883584,
+          "largest_device_rho_plus_output_bytes": 659776,
+          "fp2_base_macs": 763068416,
+          "host_and_device_allocs_per_call_at_least": {
+            "flat_host": 1,
+            "rho_device": 1,
+            "out_device": 1,
+            "download_host": 1
+          }
+        },
+        {
+          "batch": 4,
+          "dispatch_supported": true,
+          "full_matrix_passes": 3,
+          "logical_base_matrix_bytes": 1664876544,
+          "rho_h2d_bytes": 745184,
+          "output_d2h_bytes": 2883584,
+          "largest_device_rho_plus_output_bytes": 1319552,
+          "fp2_base_macs": 763068416,
+          "host_and_device_allocs_per_call_at_least": {
+            "flat_host": 1,
+            "rho_device": 1,
+            "out_device": 1,
+            "download_host": 1
+          }
+        },
+        {
+          "batch": 8,
+          "dispatch_supported": false,
+          "full_matrix_passes": 2,
+          "logical_base_matrix_bytes": 1109917696,
+          "rho_h2d_bytes": 745184,
+          "output_d2h_bytes": 2883584,
+          "largest_device_rho_plus_output_bytes": 2639104,
+          "fp2_base_macs": 763068416,
+          "host_and_device_allocs_per_call_at_least": {
+            "flat_host": 1,
+            "rho_device": 1,
+            "out_device": 1,
+            "download_host": 1
+          }
+        }
+      ],
+      "scope": "Prior source-derived R13 8BT128 descriptor/row counts; support unknown; no private matrix allocated. R14 split-width geometry is distinct."
+    }
+  ],
+  "synthetic_support_studies": [
+    {
+      "mode": 0,
+      "batch": 1,
+      "baseline_data_loads": 161653,
+      "candidate_data_loads": 161653,
+      "rho_loads_each": 161653,
+      "baseline_fp2_base_macs": 161653,
+      "candidate_fp2_base_macs": 161653,
+      "skipped_row_column_instances": 0,
+      "name": "dense",
+      "data_load_reduction": 0.0,
+      "mac_reduction": 0.0
+    },
+    {
+      "mode": 0,
+      "batch": 2,
+      "baseline_data_loads": 83011,
+      "candidate_data_loads": 83011,
+      "rho_loads_each": 161653,
+      "baseline_fp2_base_macs": 161653,
+      "candidate_fp2_base_macs": 161653,
+      "skipped_row_column_instances": 0,
+      "name": "dense",
+      "data_load_reduction": 0.0,
+      "mac_reduction": 0.0
+    },
+    {
+      "mode": 0,
+      "batch": 4,
+      "baseline_data_loads": 43690,
+      "candidate_data_loads": 43690,
+      "rho_loads_each": 161653,
+      "baseline_fp2_base_macs": 161653,
+      "candidate_fp2_base_macs": 161653,
+      "skipped_row_column_instances": 0,
+      "name": "dense",
+      "data_load_reduction": 0.0,
+      "mac_reduction": 0.0
+    },
+    {
+      "mode": 0,
+      "batch": 8,
+      "baseline_data_loads": 21845,
+      "candidate_data_loads": 21845,
+      "rho_loads_each": 161653,
+      "baseline_fp2_base_macs": 161653,
+      "candidate_fp2_base_macs": 161653,
+      "skipped_row_column_instances": 0,
+      "name": "dense",
+      "data_load_reduction": 0.0,
+      "mac_reduction": 0.0
+    },
+    {
+      "mode": 1,
+      "batch": 1,
+      "baseline_data_loads": 161653,
+      "candidate_data_loads": 0,
+      "rho_loads_each": 161653,
+      "baseline_fp2_base_macs": 161653,
+      "candidate_fp2_base_macs": 0,
+      "skipped_row_column_instances": 161653,
+      "name": "all-zero algebra-only",
+      "data_load_reduction": 1.0,
+      "mac_reduction": 1.0
+    },
+    {
+      "mode": 1,
+      "batch": 2,
+      "baseline_data_loads": 83011,
+      "candidate_data_loads": 0,
+      "rho_loads_each": 161653,
+      "baseline_fp2_base_macs": 161653,
+      "candidate_fp2_base_macs": 0,
+      "skipped_row_column_instances": 83011,
+      "name": "all-zero algebra-only",
+      "data_load_reduction": 1.0,
+      "mac_reduction": 1.0
+    },
+    {
+      "mode": 1,
+      "batch": 4,
+      "baseline_data_loads": 43690,
+      "candidate_data_loads": 0,
+      "rho_loads_each": 161653,
+      "baseline_fp2_base_macs": 161653,
+      "candidate_fp2_base_macs": 0,
+      "skipped_row_column_instances": 43690,
+      "name": "all-zero algebra-only",
+      "data_load_reduction": 1.0,
+      "mac_reduction": 1.0
+    },
+    {
+      "mode": 1,
+      "batch": 8,
+      "baseline_data_loads": 21845,
+      "candidate_data_loads": 0,
+      "rho_loads_each": 161653,
+      "baseline_fp2_base_macs": 161653,
+      "candidate_fp2_base_macs": 0,
+      "skipped_row_column_instances": 21845,
+      "name": "all-zero algebra-only",
+      "data_load_reduction": 1.0,
+      "mac_reduction": 1.0
+    },
+    {
+      "mode": 2,
+      "batch": 1,
+      "baseline_data_loads": 161653,
+      "candidate_data_loads": 4369,
+      "rho_loads_each": 161653,
+      "baseline_fp2_base_macs": 161653,
+      "candidate_fp2_base_macs": 4369,
+      "skipped_row_column_instances": 157284,
+      "name": "disjoint row supports",
+      "data_load_reduction": 0.972972972972973,
+      "mac_reduction": 0.972972972972973
+    },
+    {
+      "mode": 2,
+      "batch": 2,
+      "baseline_data_loads": 83011,
+      "candidate_data_loads": 4369,
+      "rho_loads_each": 161653,
+      "baseline_fp2_base_macs": 161653,
+      "candidate_fp2_base_macs": 4369,
+      "skipped_row_column_instances": 78642,
+      "name": "disjoint row supports",
+      "data_load_reduction": 0.9473684210526316,
+      "mac_reduction": 0.972972972972973
+    },
+    {
+      "mode": 2,
+      "batch": 4,
+      "baseline_data_loads": 43690,
+      "candidate_data_loads": 4369,
+      "rho_loads_each": 161653,
+      "baseline_fp2_base_macs": 161653,
+      "candidate_fp2_base_macs": 4369,
+      "skipped_row_column_instances": 39321,
+      "name": "disjoint row supports",
+      "data_load_reduction": 0.9,
+      "mac_reduction": 0.972972972972973
+    },
+    {
+      "mode": 2,
+      "batch": 8,
+      "baseline_data_loads": 21845,
+      "candidate_data_loads": 4369,
+      "rho_loads_each": 161653,
+      "baseline_fp2_base_macs": 161653,
+      "candidate_fp2_base_macs": 4369,
+      "skipped_row_column_instances": 17476,
+      "name": "disjoint row supports",
+      "data_load_reduction": 0.8,
+      "mac_reduction": 0.972972972972973
+    },
+    {
+      "mode": 3,
+      "batch": 1,
+      "baseline_data_loads": 161653,
+      "candidate_data_loads": 40426,
+      "rho_loads_each": 161653,
+      "baseline_fp2_base_macs": 161653,
+      "candidate_fp2_base_macs": 40426,
+      "skipped_row_column_instances": 121227,
+      "name": "interleaved25percent",
+      "data_load_reduction": 0.749921127353034,
+      "mac_reduction": 0.749921127353034
+    },
+    {
+      "mode": 3,
+      "batch": 2,
+      "baseline_data_loads": 83011,
+      "candidate_data_loads": 40426,
+      "rho_loads_each": 161653,
+      "baseline_fp2_base_macs": 161653,
+      "candidate_fp2_base_macs": 40426,
+      "skipped_row_column_instances": 42585,
+      "name": "interleaved25percent",
+      "data_load_reduction": 0.5130043006348557,
+      "mac_reduction": 0.749921127353034
+    },
+    {
+      "mode": 3,
+      "batch": 4,
+      "baseline_data_loads": 43690,
+      "candidate_data_loads": 40426,
+      "rho_loads_each": 161653,
+      "baseline_fp2_base_macs": 161653,
+      "candidate_fp2_base_macs": 40426,
+      "skipped_row_column_instances": 3264,
+      "name": "interleaved25percent",
+      "data_load_reduction": 0.07470817120622564,
+      "mac_reduction": 0.749921127353034
+    },
+    {
+      "mode": 3,
+      "batch": 8,
+      "baseline_data_loads": 21845,
+      "candidate_data_loads": 21845,
+      "rho_loads_each": 161653,
+      "baseline_fp2_base_macs": 161653,
+      "candidate_fp2_base_macs": 40426,
+      "skipped_row_column_instances": 0,
+      "name": "interleaved25percent",
+      "data_load_reduction": 0.0,
+      "mac_reduction": 0.749921127353034
+    },
+    {
+      "mode": 4,
+      "batch": 1,
+      "baseline_data_loads": 161653,
+      "candidate_data_loads": 8636,
+      "rho_loads_each": 161653,
+      "baseline_fp2_base_macs": 161653,
+      "candidate_fp2_base_macs": 8636,
+      "skipped_row_column_instances": 153017,
+      "name": "disjoint plus dense proximity",
+      "data_load_reduction": 0.9465769271216742,
+      "mac_reduction": 0.9465769271216742
+    },
+    {
+      "mode": 4,
+      "batch": 2,
+      "baseline_data_loads": 83011,
+      "candidate_data_loads": 8636,
+      "rho_loads_each": 161653,
+      "baseline_fp2_base_macs": 161653,
+      "candidate_fp2_base_macs": 8636,
+      "skipped_row_column_instances": 74375,
+      "name": "disjoint plus dense proximity",
+      "data_load_reduction": 0.895965594921155,
+      "mac_reduction": 0.9465769271216742
+    },
+    {
+      "mode": 4,
+      "batch": 4,
+      "baseline_data_loads": 43690,
+      "candidate_data_loads": 8636,
+      "rho_loads_each": 161653,
+      "baseline_fp2_base_macs": 161653,
+      "candidate_fp2_base_macs": 8636,
+      "skipped_row_column_instances": 35054,
+      "name": "disjoint plus dense proximity",
+      "data_load_reduction": 0.8023346303501946,
+      "mac_reduction": 0.9465769271216742
+    },
+    {
+      "mode": 4,
+      "batch": 8,
+      "baseline_data_loads": 21845,
+      "candidate_data_loads": 8177,
+      "rho_loads_each": 161653,
+      "baseline_fp2_base_macs": 161653,
+      "candidate_fp2_base_macs": 8636,
+      "skipped_row_column_instances": 13668,
+      "name": "disjoint plus dense proximity",
+      "data_load_reduction": 0.6256809338521401,
+      "mac_reduction": 0.9465769271216742
+    },
+    {
+      "mode": 5,
+      "batch": 1,
+      "baseline_data_loads": 161653,
+      "candidate_data_loads": 629,
+      "rho_loads_each": 161653,
+      "baseline_fp2_base_macs": 161653,
+      "candidate_fp2_base_macs": 629,
+      "skipped_row_column_instances": 161024,
+      "name": "last-row-only",
+      "data_load_reduction": 0.9961089494163424,
+      "mac_reduction": 0.9961089494163424
+    },
+    {
+      "mode": 5,
+      "batch": 2,
+      "baseline_data_loads": 83011,
+      "candidate_data_loads": 323,
+      "rho_loads_each": 161653,
+      "baseline_fp2_base_macs": 161653,
+      "candidate_fp2_base_macs": 629,
+      "skipped_row_column_instances": 82688,
+      "name": "last-row-only",
+      "data_load_reduction": 0.9961089494163424,
+      "mac_reduction": 0.9961089494163424
+    },
+    {
+      "mode": 5,
+      "batch": 4,
+      "baseline_data_loads": 43690,
+      "candidate_data_loads": 170,
+      "rho_loads_each": 161653,
+      "baseline_fp2_base_macs": 161653,
+      "candidate_fp2_base_macs": 629,
+      "skipped_row_column_instances": 43520,
+      "name": "last-row-only",
+      "data_load_reduction": 0.9961089494163424,
+      "mac_reduction": 0.9961089494163424
+    },
+    {
+      "mode": 5,
+      "batch": 8,
+      "baseline_data_loads": 21845,
+      "candidate_data_loads": 85,
+      "rho_loads_each": 161653,
+      "baseline_fp2_base_macs": 161653,
+      "candidate_fp2_base_macs": 629,
+      "skipped_row_column_instances": 21760,
+      "name": "last-row-only",
+      "data_load_reduction": 0.9961089494163424,
+      "mac_reduction": 0.9961089494163424
+    },
+    {
+      "mode": 6,
+      "batch": 1,
+      "baseline_data_loads": 161653,
+      "candidate_data_loads": 629,
+      "rho_loads_each": 161653,
+      "baseline_fp2_base_macs": 161653,
+      "candidate_fp2_base_macs": 629,
+      "skipped_row_column_instances": 161024,
+      "name": "first-row-only",
+      "data_load_reduction": 0.9961089494163424,
+      "mac_reduction": 0.9961089494163424
+    },
+    {
+      "mode": 6,
+      "batch": 2,
+      "baseline_data_loads": 83011,
+      "candidate_data_loads": 323,
+      "rho_loads_each": 161653,
+      "baseline_fp2_base_macs": 161653,
+      "candidate_fp2_base_macs": 629,
+      "skipped_row_column_instances": 82688,
+      "name": "first-row-only",
+      "data_load_reduction": 0.9961089494163424,
+      "mac_reduction": 0.9961089494163424
+    },
+    {
+      "mode": 6,
+      "batch": 4,
+      "baseline_data_loads": 43690,
+      "candidate_data_loads": 170,
+      "rho_loads_each": 161653,
+      "baseline_fp2_base_macs": 161653,
+      "candidate_fp2_base_macs": 629,
+      "skipped_row_column_instances": 43520,
+      "name": "first-row-only",
+      "data_load_reduction": 0.9961089494163424,
+      "mac_reduction": 0.9961089494163424
+    },
+    {
+      "mode": 6,
+      "batch": 8,
+      "baseline_data_loads": 21845,
+      "candidate_data_loads": 85,
+      "rho_loads_each": 161653,
+      "baseline_fp2_base_macs": 161653,
+      "candidate_fp2_base_macs": 629,
+      "skipped_row_column_instances": 21760,
+      "name": "first-row-only",
+      "data_load_reduction": 0.9961089494163424,
+      "mac_reduction": 0.9961089494163424
+    },
+    {
+      "mode": 7,
+      "batch": 1,
+      "baseline_data_loads": 161653,
+      "candidate_data_loads": 19261,
+      "rho_loads_each": 161653,
+      "baseline_fp2_base_macs": 161653,
+      "candidate_fp2_base_macs": 19261,
+      "skipped_row_column_instances": 142392,
+      "name": "random one-eighth",
+      "data_load_reduction": 0.8808497213166474,
+      "mac_reduction": 0.8808497213166474
+    },
+    {
+      "mode": 7,
+      "batch": 2,
+      "baseline_data_loads": 83011,
+      "candidate_data_loads": 18394,
+      "rho_loads_each": 161653,
+      "baseline_fp2_base_macs": 161653,
+      "candidate_fp2_base_macs": 19261,
+      "skipped_row_column_instances": 64617,
+      "name": "random one-eighth",
+      "data_load_reduction": 0.7784149088674994,
+      "mac_reduction": 0.8808497213166474
+    },
+    {
+      "mode": 7,
+      "batch": 4,
+      "baseline_data_loads": 43690,
+      "candidate_data_loads": 16507,
+      "rho_loads_each": 161653,
+      "baseline_fp2_base_macs": 161653,
+      "candidate_fp2_base_macs": 19261,
+      "skipped_row_column_instances": 27183,
+      "name": "random one-eighth",
+      "data_load_reduction": 0.6221789883268483,
+      "mac_reduction": 0.8808497213166474
+    },
+    {
+      "mode": 7,
+      "batch": 8,
+      "baseline_data_loads": 21845,
+      "candidate_data_loads": 13430,
+      "rho_loads_each": 161653,
+      "baseline_fp2_base_macs": 161653,
+      "candidate_fp2_base_macs": 19261,
+      "skipped_row_column_instances": 8415,
+      "name": "random one-eighth",
+      "data_load_reduction": 0.38521400778210113,
+      "mac_reduction": 0.8808497213166474
+    }
+  ],
+  "limits": [
+    "All counts are source logical loads/MACs, not physical DRAM,cache,warp-broadcast,compiled register,allocation peak or time measurements.",
+    "No support census from an actual native invocation exists here; no synthetic distribution is adopted as a real profile saving.",
+    "Host fold already skips zero row weights; candidate kernel directly affects device store only.",
+    "Pads are folded on host and every output vector/transfer/private mask retained.",
+    "Batch8 is counterfactual: chunks(4),FR_MAX_K4 and adaptermax4 must all change coherently; current adapter rejects5..8."
+  ],
+  "telemetry_finding": "dev_fold_rows explicitly uploads rho but adds only output bytes_d2h to aggregate GPU counters; rho_h2d is missing from that local stats update. secs_fold encloses upload/allocate/launch/download/conversion, not a kernel-only timer.",
+  "added_costs": "Public zero tests/warp-uniform control and FR_MAX_K temporary Fp2 row weights. AtB4 source live acc+rw payload128B/thread versus64B acc baseline; physical registers/spills unknown. No persistent cache. Batch8 doubles these payloads again.",
+  "ceiling": "Npositions/(Tworkload-Cremoved_exclusive+Aadded); exclusive native fold fraction f unknown. Free deletion bound1/(1-f). No whole8B tok/s forecast.",
+  "full_stack_proofs": 0,
+  "model_passes": 0,
+  "proved_positions": 0
+}

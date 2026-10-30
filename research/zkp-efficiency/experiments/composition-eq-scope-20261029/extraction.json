@@ -1,0 +1,12 @@
+{
+  "exact_functions": [
+    "zpart_weights",
+    "zkey_weights",
+    "group_zclaims",
+    "zk_rhos"
+  ],
+  "serial_eq_adapter": "par_iter_mut -> iter_mut only",
+  "original_group_sha256": "507afd37113375cad2638c1ff409ff4533f63be6cff354b19b3cdfa6a9e36286",
+  "candidate_sha256": "441bf1eaedadc40764cf5451f11cbe3032f6195e03a09d4e7b4aa7f88972b53a",
+  "patch_applied_to_production": false
+}

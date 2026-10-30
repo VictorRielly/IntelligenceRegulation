@@ -8,8 +8,8 @@ prover swaps in its encoding here and nowhere else:
                <Instruct>/<Query>, "\\n\\n<Document>:" — the prefix ENDS at the colon, B-1)
                + the content segment = tekken PLAIN-TEXT encoding of ' ' + content (mistral_common,
                no special-token parsing, B-2: "[/INST]", "<s>" ... typed by a user stay plain text)
-               + the fixed suffix "[/INST]". Not built here: mistral_common / tekken.json are not
-               installed; `build_prompt("shieldstral", ...)` raises until the classifier lane lands.
+               + the fixed suffix "[/INST]". Requires the pinned encoder and an explicitly supplied
+               category template; supplying them does not register a policy or enable the web prover.
   stub         today's next-token CLI on TinyLlama-1.1B at T = 32: BOS + the content encoded by the
                pinned TinyLlama SentencePiece model as plain text (its encoder parses no control
                strings) + "\\n" pads to T. No template (31 tokens leave no room for it).
@@ -72,6 +72,8 @@ def chunk_plan(n_tokens: int, chunk: int, overlap: int, max_chunks: int) -> list
 
 def plan_for(prover_kind: str, content: str) -> list[dict]:
     """the chunk plan of a post under the active deployment profile (config.deploy())"""
+    if prover_kind == "shieldstral":
+        raise ContentRefused("Shieldstral requires a separate native chunk plan for each category")
     d = config.deploy()
     ids = tokenizer.content_ids(content) if content.strip() else []
     tok = tokenizer._tok()
@@ -80,15 +82,43 @@ def plan_for(prover_kind: str, content: str) -> list[dict]:
     return chunk_plan(len(ids), d["effective_chunk_tokens"], d["effective_overlap_tokens"], d["max_chunks"])
 
 
+def plan_shieldstral(content: str, encoder, templates) -> dict[str, list[dict]]:
+    """Explicit category plans; no policy selection, registration or stub geometry."""
+    from .shieldstral_text import category_plans
+    return category_plans(len(encoder.content_ids(content)), templates)
+
+
 def build_prompt(prover_kind: str, content: str, category_id: str | None = None,
-                 start: int | None = None, end: int | None = None) -> PromptEncoding:
+                 start: int | None = None, end: int | None = None, *,
+                 shieldstral_encoder=None, shieldstral_template=None) -> PromptEncoding:
     """the prover input for one CHUNK (tokens [start, end) of the post's plain-text encoding; the
     whole post when no range is given) and, for the classifier, one category (the template differs
     per category; the stub's input is the same for every category)"""
     if not content or not content.strip():
         raise ContentRefused("the post is empty")
     if prover_kind == "shieldstral":
-        raise ContentRefused("the Shieldstral encoding (tekken plain text, mistral_common) is not installed in this app yet")
+        if shieldstral_encoder is None or shieldstral_template is None:
+            raise ContentRefused("Shieldstral requires its pinned encoder and an explicit category template")
+        template = shieldstral_template
+        if template.category != category_id:
+            raise ContentRefused("the template belongs to a different classifier category")
+        ids = shieldstral_encoder.content_ids(content)
+        plan = template.plan(len(ids))
+        if start is None and end is None:
+            if len(plan) != 1:
+                raise ContentRefused("an explicit category chunk is required for this post")
+            chunk = plan[0]
+        else:
+            if type(start) is not int or type(end) is not int:
+                raise ContentRefused("invalid classifier chunk bounds")
+            matching = [c for c in plan if (c['start'], c['end']) == (start, end)]
+            if len(matching) != 1:
+                raise ContentRefused("the chunk differs from this category's native plan")
+            chunk = matching[0]
+        return PromptEncoding(prover_kind=prover_kind, ids=list(template.prompt_ids(ids, chunk)),
+                              content_tokens=chunk['end'] - chunk['start'],
+                              tokenizer="Shieldstral pinned Tekken, plain text",
+                              template=template.policy_id)
     # the stub (and the fake prover, which shares its limits)
     ids = tokenizer.content_ids(content)
     if start is not None:
@@ -108,8 +138,12 @@ def build_prompt(prover_kind: str, content: str, category_id: str | None = None,
                           template="stub: none (BOS + chunk content + newline pads to T = 32)")
 
 
-def content_length(prover_kind: str, content: str) -> int:
+def content_length(prover_kind: str, content: str, *, shieldstral_encoder=None) -> int:
     """n for the compose counter: the same encoding the prover will use"""
     if not content.strip():
         return 0
+    if prover_kind == "shieldstral":
+        if shieldstral_encoder is None:
+            raise ContentRefused("Shieldstral requires its pinned text encoder")
+        return len(shieldstral_encoder.content_ids(content))
     return len(tokenizer.content_ids(content))

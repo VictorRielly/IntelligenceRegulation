@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "checks": 4856,
+  "source_anchor_mutations": 57,
+  "source_pins": 8,
+  "elapsed_s": 0.04133909600204788,
+  "max_rss_kib": 20596,
+  "patch_compiled": false,
+  "patch_applied": false,
+  "native_proofs": 0,
+  "limits": "Metadata model/source anchor audit. Native define/refusal/transcript/PCS/receipt/privacy gates remain."
+}

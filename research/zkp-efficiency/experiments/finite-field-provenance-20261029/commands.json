@@ -1,0 +1,27 @@
+[
+  {
+    "command": "python3 experiments/finite-field-provenance-20261029/run.py",
+    "result": "result.json",
+    "seed": 202610290134,
+    "limits": {
+      "cpu_s": 40,
+      "alarm_s": 45,
+      "address_space_bytes": 268435456,
+      "estimated_memory_bytes": 67108864
+    }
+  },
+  {
+    "command": "python3 experiments/finite-field-provenance-20261029/record_sources.py",
+    "result": "sources-cycle.json",
+    "repeat": false
+  },
+  {
+    "command": "python3 experiments/finite-field-provenance-20261029/audit.py",
+    "result": "audit-result.json",
+    "initial_failure": "audit-initial-failure.json"
+  },
+  {
+    "command": "python3 experiments/finite-field-provenance-20261029/checkpoint.py",
+    "result": "STATE.md;PROGRESS.md;FINDINGS.md;dated report;hypotheses;target accounting"
+  }
+]

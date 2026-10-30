@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/frozen_v22/scripts/zk60_native_rg_classgate.py", line 1322, in <module>
+    raise SystemExit(main())
+  File "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/frozen_v22/scripts/zk60_native_rg_classgate.py", line 1309, in main
+    rec = gate(a.bundle, controls=not a.no_controls, full_preimage=not a.no_full_preimage,
+  File "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/frozen_v22/scripts/zk60_native_rg_classgate.py", line 1248, in gate
+    rec["controls"] = class_controls(b, rp, tc)
+  File "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/frozen_v22/scripts/zk60_native_rg_classgate.py", line 981, in class_controls
+    out["CC-4_margin_vector_entry_moved"] = {"B3_ok": t4["B3_margin_vector"]["ok"],
+KeyError: 'B3_margin_vector'

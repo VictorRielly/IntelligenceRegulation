@@ -1,0 +1,391 @@
+{
+ "label": "[MEASURED, n=1, shared box]",
+ "batch": {
+  "guard": {
+   "exit": 0,
+   "child_rc": 0,
+   "child_wall_seconds": 1418.4470851421356,
+   "peak_rss_gib": 8.16,
+   "peak_cgroup_gib": 11.2,
+   "min_mem_available_gib": 5.3,
+   "enforcement": "cgroup+watchdog",
+   "guard_killed": null,
+   "hard_killed": 0,
+   "refused": null,
+   "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache",
+   "ts_end": "2026-10-30T06:15:50Z"
+  },
+  "loaded": {
+   "jobs": 3,
+   "model_loads": 1,
+   "table_loads": 1,
+   "load_seconds": 45.296
+  },
+  "jobs": [
+   {
+    "policy": "shieldstral-1.0-3b-moderate-sexual/1",
+    "chunk": 0,
+    "verdict": "not-flagged",
+    "segments": 28,
+    "receipt_bytes": 848412096,
+    "prove_seconds": 372.581,
+    "total_seconds": 460.905,
+    "whole_run_floor_bits": 96
+   },
+   {
+    "policy": "shieldstral-1.0-3b-moderate-violence/1",
+    "chunk": 0,
+    "verdict": "not-flagged",
+    "segments": 28,
+    "receipt_bytes": 848412096,
+    "prove_seconds": 373.025,
+    "total_seconds": 461.616,
+    "whole_run_floor_bits": 96
+   },
+   {
+    "policy": "shieldstral-1.0-3b-moderate-hate/1",
+    "chunk": 0,
+    "verdict": "not-flagged",
+    "segments": 28,
+    "receipt_bytes": 848412096,
+    "prove_seconds": 365.671,
+    "total_seconds": 450.493,
+    "whole_run_floor_bits": 96
+   }
+  ],
+  "job_reloads": [
+   {
+    "index": 0,
+    "seal_block_loads": 26,
+    "prove_block_loads": 52,
+    "blocks": 26
+   },
+   {
+    "index": 1,
+    "seal_block_loads": 26,
+    "prove_block_loads": 52,
+    "blocks": 26
+   },
+   {
+    "index": 2,
+    "seal_block_loads": 26,
+    "prove_block_loads": 52,
+    "blocks": 26
+   }
+  ],
+  "proved": {
+   "jobs": 3,
+   "total_seconds": 1418.343,
+   "verified": false
+  },
+  "fixed_entropy": {
+   "event": "fixed-entropy",
+   "block_bytes": 192,
+   "unread_bytes": 0,
+   "rc": 0
+  }
+ },
+ "single-c0": {
+  "guard": {
+   "exit": 0,
+   "child_rc": 0,
+   "child_wall_seconds": 483.76172375679016,
+   "peak_rss_gib": 8.21,
+   "peak_cgroup_gib": 8.77,
+   "min_mem_available_gib": 5.27,
+   "enforcement": "cgroup+watchdog",
+   "guard_killed": null,
+   "hard_killed": 0,
+   "refused": null,
+   "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache",
+   "ts_end": "2026-10-30T06:25:54Z"
+  },
+  "proved": {
+   "policy": "shieldstral-1.0-3b-moderate-sexual/1",
+   "chunk": 0,
+   "verdict": "not-flagged",
+   "segments": 28,
+   "receipt_bytes": 848412096,
+   "prove_seconds": 368.158,
+   "total_seconds": 483.613,
+   "whole_run_floor_bits": 96
+  },
+  "fixed_entropy": {
+   "event": "fixed-entropy",
+   "block_bytes": 64,
+   "unread_bytes": 0,
+   "rc": 0
+  }
+ },
+ "single-c1": {
+  "guard": {
+   "exit": 0,
+   "child_rc": 0,
+   "child_wall_seconds": 488.7940049171448,
+   "peak_rss_gib": 8.13,
+   "peak_cgroup_gib": 11.04,
+   "min_mem_available_gib": 5.5,
+   "enforcement": "cgroup+watchdog",
+   "guard_killed": null,
+   "hard_killed": 0,
+   "refused": null,
+   "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache",
+   "ts_end": "2026-10-30T08:33:11Z"
+  },
+  "proved": {
+   "policy": "shieldstral-1.0-3b-moderate-violence/1",
+   "chunk": 0,
+   "verdict": "not-flagged",
+   "segments": 28,
+   "receipt_bytes": 848412096,
+   "prove_seconds": 367.697,
+   "total_seconds": 488.689,
+   "whole_run_floor_bits": 96
+  },
+  "fixed_entropy": {
+   "event": "fixed-entropy",
+   "block_bytes": 64,
+   "unread_bytes": 0,
+   "rc": 0
+  }
+ },
+ "single-c2": {
+  "guard": {
+   "exit": 0,
+   "child_rc": 0,
+   "child_wall_seconds": 480.87868762016296,
+   "peak_rss_gib": 8.16,
+   "peak_cgroup_gib": 8.87,
+   "min_mem_available_gib": 5.45,
+   "enforcement": "cgroup+watchdog",
+   "guard_killed": null,
+   "hard_killed": 0,
+   "refused": null,
+   "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache",
+   "ts_end": "2026-10-30T08:41:12Z"
+  },
+  "proved": {
+   "policy": "shieldstral-1.0-3b-moderate-hate/1",
+   "chunk": 0,
+   "verdict": "not-flagged",
+   "segments": 28,
+   "receipt_bytes": 848412096,
+   "prove_seconds": 367.494,
+   "total_seconds": 480.779,
+   "whole_run_floor_bits": 96
+  },
+  "fixed_entropy": {
+   "event": "fixed-entropy",
+   "block_bytes": 64,
+   "unread_bytes": 0,
+   "rc": 0
+  }
+ },
+ "r16b-c0": {
+  "guard": {
+   "exit": 0,
+   "child_rc": 0,
+   "child_wall_seconds": 486.2295091152191,
+   "peak_rss_gib": 8.19,
+   "peak_cgroup_gib": 9.4,
+   "min_mem_available_gib": 5.35,
+   "enforcement": "cgroup+watchdog",
+   "guard_killed": null,
+   "hard_killed": 0,
+   "refused": null,
+   "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache",
+   "ts_end": "2026-10-30T08:49:18Z"
+  },
+  "proved": {
+   "policy": "shieldstral-1.0-3b-moderate-sexual/1",
+   "chunk": 0,
+   "verdict": "not-flagged",
+   "segments": 28,
+   "receipt_bytes": 848412096,
+   "prove_seconds": 370.51,
+   "total_seconds": 486.084,
+   "whole_run_floor_bits": 96
+  },
+  "fixed_entropy": {
+   "event": "fixed-entropy",
+   "block_bytes": 64,
+   "unread_bytes": 0,
+   "rc": 0
+  }
+ },
+ "activations": {
+  "exit": 0,
+  "child_rc": 0,
+  "child_wall_seconds": 59.369460582733154,
+  "peak_rss_gib": 0.71,
+  "peak_cgroup_gib": 3.0,
+  "min_mem_available_gib": 12.6,
+  "enforcement": "cgroup+watchdog",
+  "guard_killed": null,
+  "hard_killed": 0,
+  "refused": null,
+  "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache",
+  "ts_end": "2026-10-30T05:42:08Z"
+ },
+ "compare": {
+  "exit": 0,
+  "child_rc": 0,
+  "child_wall_seconds": 6.15462851524353,
+  "peak_rss_gib": 0.01,
+  "peak_cgroup_gib": 1.5,
+  "min_mem_available_gib": 13.17,
+  "enforcement": "cgroup+watchdog",
+  "guard_killed": null,
+  "hard_killed": 0,
+  "refused": null,
+  "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache",
+  "ts_end": "2026-10-30T08:49:25Z"
+ },
+ "fresh_checks": {
+  "c0-verify": {
+   "exit": 0,
+   "child_rc": 0,
+   "child_wall_seconds": 75.80736184120178,
+   "peak_rss_gib": 2.31,
+   "peak_cgroup_gib": 7.0,
+   "min_mem_available_gib": 11.19,
+   "enforcement": "cgroup+watchdog",
+   "guard_killed": null,
+   "hard_killed": 0,
+   "refused": null,
+   "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache",
+   "ts_end": "2026-10-30T08:54:51Z"
+  },
+  "c0-inowner": {
+   "exit": 0,
+   "child_rc": 0,
+   "child_wall_seconds": 73.99990320205688,
+   "peak_rss_gib": 2.26,
+   "peak_cgroup_gib": 7.0,
+   "min_mem_available_gib": 11.3,
+   "enforcement": "cgroup+watchdog",
+   "guard_killed": null,
+   "hard_killed": 0,
+   "refused": null,
+   "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache",
+   "ts_end": "2026-10-30T08:56:06Z"
+  },
+  "c1-verify": {
+   "exit": 0,
+   "child_rc": 0,
+   "child_wall_seconds": 73.60152292251587,
+   "peak_rss_gib": 2.3,
+   "peak_cgroup_gib": 4.96,
+   "min_mem_available_gib": 11.33,
+   "enforcement": "cgroup+watchdog",
+   "guard_killed": null,
+   "hard_killed": 0,
+   "refused": null,
+   "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache",
+   "ts_end": "2026-10-30T08:57:19Z"
+  },
+  "c1-inowner": {
+   "exit": 0,
+   "child_rc": 0,
+   "child_wall_seconds": 72.1755223274231,
+   "peak_rss_gib": 2.3,
+   "peak_cgroup_gib": 4.26,
+   "min_mem_available_gib": 11.3,
+   "enforcement": "cgroup+watchdog",
+   "guard_killed": null,
+   "hard_killed": 0,
+   "refused": null,
+   "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache",
+   "ts_end": "2026-10-30T08:58:32Z"
+  },
+  "c2-verify": {
+   "exit": 0,
+   "child_rc": 0,
+   "child_wall_seconds": 74.22645950317383,
+   "peak_rss_gib": 2.29,
+   "peak_cgroup_gib": 4.59,
+   "min_mem_available_gib": 11.22,
+   "enforcement": "cgroup+watchdog",
+   "guard_killed": null,
+   "hard_killed": 0,
+   "refused": null,
+   "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache",
+   "ts_end": "2026-10-30T08:59:46Z"
+  },
+  "c2-inowner": {
+   "exit": 0,
+   "child_rc": 0,
+   "child_wall_seconds": 73.78499388694763,
+   "peak_rss_gib": 2.26,
+   "peak_cgroup_gib": 4.1,
+   "min_mem_available_gib": 11.37,
+   "enforcement": "cgroup+watchdog",
+   "guard_killed": null,
+   "hard_killed": 0,
+   "refused": null,
+   "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache",
+   "ts_end": "2026-10-30T09:01:00Z"
+  },
+  "sexual-label": {
+   "exit": 0,
+   "child_rc": 0,
+   "child_wall_seconds": 73.67327427864075,
+   "peak_rss_gib": 2.31,
+   "peak_cgroup_gib": 3.76,
+   "min_mem_available_gib": 11.25,
+   "enforcement": "cgroup+watchdog",
+   "guard_killed": null,
+   "hard_killed": 0,
+   "refused": null,
+   "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache",
+   "ts_end": "2026-10-30T09:02:14Z"
+  },
+  "violence-label": {
+   "exit": 0,
+   "child_rc": 0,
+   "child_wall_seconds": 73.44105291366577,
+   "peak_rss_gib": 2.31,
+   "peak_cgroup_gib": 4.14,
+   "min_mem_available_gib": 11.36,
+   "enforcement": "cgroup+watchdog",
+   "guard_killed": null,
+   "hard_killed": 0,
+   "refused": null,
+   "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache",
+   "ts_end": "2026-10-30T09:03:27Z"
+  },
+  "hate-label": {
+   "exit": 0,
+   "child_rc": 0,
+   "child_wall_seconds": 73.5483136177063,
+   "peak_rss_gib": 2.25,
+   "peak_cgroup_gib": 5.1,
+   "min_mem_available_gib": 11.37,
+   "enforcement": "cgroup+watchdog",
+   "guard_killed": null,
+   "hard_killed": 0,
+   "refused": null,
+   "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache",
+   "ts_end": "2026-10-30T09:04:41Z"
+  }
+ },
+ "fail_control": {
+  "exit": 1,
+  "child_rc": 1,
+  "child_wall_seconds": 492.8008370399475,
+  "peak_rss_gib": 8.22,
+  "peak_cgroup_gib": 10.27,
+  "min_mem_available_gib": 5.38,
+  "enforcement": "cgroup+watchdog",
+  "guard_killed": null,
+  "hard_killed": 0,
+  "refused": null,
+  "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache",
+  "ts_end": "2026-10-30T09:12:54Z"
+ },
+ "wall_batch_vs_three_singles": {
+  "batch_s": 1418.4470851421356,
+  "three_singles_s": 1453.434416294098,
+  "saved_s": 34.98733115196228
+ }
+}

@@ -1,0 +1,96 @@
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r14/hashline/src/private_block/token_io/classify_capture_tests.rs	2026-10-28 19:12:07.680275874 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/capture-tree-r14/hashline/src/private_block/token_io/classify_capture_tests.rs	2026-10-28 20:12:16.988674470 -0700
+@@ -672,3 +672,93 @@
+         dir.display()
+     );
+ }
++
++// ---------------------------------------------------------------------------
++// [PRIVACY GATE ROUND 18, TEST-ONLY PATCH H18-1, the gate lane's copy
++// `ops/zkp-mvp/gate-tinyllama/capture-tree-r14` only; NOT in token frozen-r14]
++// REVIEW_R14 §10 item 4: the P-18 CLI path for ONE SHORT item. This file is
++// not a source pin of any capture; the named binary, the recorder
++// (`run_capture.rs`) and every pinned file are frozen-r14's bytes.
++
++/// **THE CLI PATH (P-18) FOR A SHORT ITEM**: as
++/// [`capture_the_classify_cli_verify_path`], with the content `9 .. 9 + n`
++/// (`HL_PB_CLI_SHORT_N`, default 22; `1 <= n < 23`), proved by the named
++/// binary from a seq dir of the padded item (prefix, content, suffix, the
++/// policy's public pad id up to T), as the r14 binary test does.
++#[test]
++#[ignore = "gate round 18 (H18-1): writes the classifier CLI-path capture of a SHORT item; set HL_PB_CAPTURE_DIR, HL_PB_CLI_BIN, HL_PB_CLI_BIN_SHA256, HL_RUN_CAPTURE_PUBLIC_TABLES and HL_PB_CLI_SHORT_N"]
++fn gate18_capture_a_short_item_through_the_cli() {
++    let dir = capture_dir();
++    let public_tables = public_tables_from_env();
++    let bin = PathBuf::from(std::env::var("HL_PB_CLI_BIN").expect("HL_PB_CLI_BIN is not set: the named zk60_classify binary"));
++    let bin_sha = std::env::var("HL_PB_CLI_BIN_SHA256").expect("HL_PB_CLI_BIN_SHA256 is not set");
++    assert!(bin.is_absolute() && bin.is_file(), "HL_PB_CLI_BIN must be an absolute path to the binary");
++    assert!(bin_sha.len() == 64 && bin_sha.bytes().all(|c| c.is_ascii_hexdigit()), "HL_PB_CLI_BIN_SHA256 must be the binary's SHA-256");
++    let n: usize = env_or("HL_PB_CLI_SHORT_N", "22").parse().expect("HL_PB_CLI_SHORT_N is a number");
++    assert!((1..23).contains(&n), "HL_PB_CLI_SHORT_N is a short item's length, 1 ..= 22 at the rung");
++    let cc = super::classify_cli_tests::Cc::new("g18");
++    let pol = policy_rung_dev();
++    let short: Vec<u64> = (9..9 + n as u64).collect();
++    let mut toks: Vec<u64> = pol.prefix.iter().chain(short.iter()).chain(pol.suffix.iter()).copied().collect();
++    while toks.len() < 32 {
++        toks.push(pol.pad);
++    }
++    let sd = cc.owners.join("seq-g18");
++    cc.write_seq_dir(&sd, &toks);
++    let run = cc.root.join("run-g18");
++    let od = cc.owner_dir(&run);
++    let text = short.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(",");
++    let cf = cc.content_file(&text);
++    let s = |v: &[&str]| -> Vec<String> { v.iter().map(|x| x.to_string()).collect() };
++    let policy = pol.id.clone();
++    let t0 = std::time::Instant::now();
++    let code = std::process::Command::new(&bin).arg("prove").args(s(&["--export", cc.export.to_str().unwrap(), "--tables", cc.tables.to_str().unwrap(), "--policy", &policy, "--content-file", cf.to_str().unwrap(), "--seq-dir", sd.to_str().unwrap(), "--out", run.to_str().unwrap(), "--owner-dir", od.to_str().unwrap()])).status().expect("the CLI binary runs").code();
++    assert_eq!(code, Some(0), "the named binary's prove of the short item");
++    let prove_s = t0.elapsed().as_secs_f64();
++    let pub_flags = s(&["--export", cc.verifier_copy.to_str().unwrap(), "--tables", cc.tables.to_str().unwrap(), "--policy", &policy, "--artifact", run.to_str().unwrap(), "--expect-statement", &cc.identity, "--min-bits", "93"]);
++    let t1 = std::time::Instant::now();
++    let code = std::process::Command::new(&bin).arg("verify").args(&pub_flags).status().expect("the CLI binary runs").code();
++    assert_eq!(code, Some(0), "the named binary's verify (it publishes <run>/statement/)");
++    let cli_verify_s = t1.elapsed().as_secs_f64();
++    let stmt = std::fs::read_to_string(run.join(super::super::run_sink::STATEMENT_DIR).join("statement.json")).unwrap();
++    assert!(stmt.contains(&format!("\"content_length_n\": {n},")) && stmt.contains(&format!("\"range\": [0, {n}]")), "{stmt}");
++    // the published /3 statement (public), for the gate's allow-list check, where the caller asks
++    if let Ok(out) = std::env::var("HL_GATE18_STATEMENT_OUT") {
++        std::fs::write(out, &stmt).expect("the statement copy");
++    }
++    let t2 = std::time::Instant::now();
++    let pairs: Vec<(String, String)> = pub_flags.chunks(2).map(|kv| (kv[0].clone(), kv[1].clone())).collect();
++    let d = super::classify_cli::door(&pairs, &run).expect("the CLI's door on the published run directory");
++    assert!(d.published, "the door read the verifier's published statement");
++    let mut blocks = super::load::ExportTokenBlocks::new(&d.p);
++    let guard = run_capture::Recorder::attach();
++    run_capture::begin_run_with(d.st.capture_header().unwrap(), d.st.binding().unwrap(), CaptureOpts { arrays: true, public_tables });
++    let bundle = match verify_classify_run_with(&d.st, &mut blocks, &d.tables, &d.segs, POLICY_93) {
++        Ok(()) => run_capture::take().expect("a bundle for the accepted verification"),
++        Err(e) => {
++            run_capture::discard();
++            panic!("the recorded verification of the CLI's run directory refused: {e}");
++        }
++    };
++    drop(guard);
++    drop(blocks);
++    let verify_s = t2.elapsed().as_secs_f64();
++    let dec = Decommitment::from_bytes(&std::fs::read(od.join("input.dec")).unwrap()).unwrap();
++    let l = d.st.l();
++    check_classify_bundle_parts(&bundle, &d.st, &d.segs, &dec, l);
++    let note = format!(
++        "Bundle: [privacy gate round 18, test-only patch H18-1 in the gate's copy] a capture through the CLASSIFIER CLI PATH (the native P-18 pattern) of a SHORT item: the named binary {} (sha256 {bin_sha}) ran `zk60_classify prove` (from a seq dir of the padded item) and `zk60_classify verify` as its own processes (verify from a verifier copy without seq_*, pinned by --expect-statement; it published the statement); then, with no CLI hook, the run directory was read through the CLI's own door and verified with the round-7 recorder attached, and this is that verification's bundle. The rung's tiny export, the synthetic policy `{policy}` (c = 0), a {n}-id item (one chunk [0, {n}) of a 23-id plan; {} pad positions), verdict {} ({}). The content, every activation and the owner's decommitment are prover-side and NOT here.",
++        bin.display(),
++        32 - 8 - n - 1,
++        d.st.verdict(),
++        if d.st.verdict() == 1 { "flagged" } else { "not flagged" }
++    );
++    run_capture::write_bundle(&dir, &bundle, &d.segs, &note, "HL_PB_CAPTURE_DIR=<dir> HL_PB_CLI_BIN=<zk60_classify binary> HL_PB_CLI_BIN_SHA256=<its sha256> HL_RUN_CAPTURE_PUBLIC_TABLES=<1|0> HL_PB_CLI_SHORT_N=<n> cargo test --release --lib private_block::token_io::classify_capture_tests::gate18_capture_a_short_item_through_the_cli -- --ignored --nocapture (gate patch H18-1)").unwrap();
++    eprintln!(
++        "GATE18 CLASSIFY CAPTURE THROUGH THE CLI, SHORT ITEM n={n} (the named binary, sha256 {}): rung L={l}, verdict {}, CLI prove {prove_s:.1} s, CLI verify {cli_verify_s:.1} s, recorded verify {verify_s:.1} s; segments {:?} B; bundle in {}",
++        &bin_sha[..12],
++        d.st.verdict(),
++        d.segs.iter().map(|s| s.len()).collect::<Vec<_>>(),
++        dir.display()
++    );
++}

@@ -1,0 +1,55 @@
+{
+  "status": "PASS_SOURCE_COST_PROVENANCE_ONLY",
+  "checks": 97,
+  "native_pins": 6,
+  "elapsed_s": 0.003938960999221308,
+  "peak_rss_kib": 18920,
+  "saved_bytes": 41953792,
+  "full_model_saved_bytes": 1342521344,
+  "parallel_task_countermodel": [
+    {
+      "workers": 1,
+      "baseline_byte_time_units": 243277824,
+      "candidate_byte_time_units": 201326592,
+      "ratio": 1.2083740234375,
+      "assumption": "independent equal byte-time workers; no shared bandwidth contention; LPT countermodel, not measured Rayon scheduling"
+    },
+    {
+      "workers": 2,
+      "baseline_byte_time_units": 134217728,
+      "candidate_byte_time_units": 134217728,
+      "ratio": 1.0,
+      "assumption": "independent equal byte-time workers; no shared bandwidth contention; LPT countermodel, not measured Rayon scheduling"
+    },
+    {
+      "workers": 3,
+      "baseline_byte_time_units": 83886080,
+      "candidate_byte_time_units": 67108864,
+      "ratio": 1.25,
+      "assumption": "independent equal byte-time workers; no shared bandwidth contention; LPT countermodel, not measured Rayon scheduling"
+    },
+    {
+      "workers": 4,
+      "baseline_byte_time_units": 67108864,
+      "candidate_byte_time_units": 67108864,
+      "ratio": 1.0,
+      "assumption": "independent equal byte-time workers; no shared bandwidth contention; LPT countermodel, not measured Rayon scheduling"
+    },
+    {
+      "workers": 8,
+      "baseline_byte_time_units": 67108864,
+      "candidate_byte_time_units": 67108864,
+      "ratio": 1.0,
+      "assumption": "independent equal byte-time workers; no shared bandwidth contention; LPT countermodel, not measured Rayon scheduling"
+    },
+    {
+      "workers": 16,
+      "baseline_byte_time_units": 67108864,
+      "candidate_byte_time_units": 67108864,
+      "ratio": 1.0,
+      "assumption": "independent equal byte-time workers; no shared bandwidth contention; LPT countermodel, not measured Rayon scheduling"
+    }
+  ],
+  "largest_remaining_cast_bytes": 67108864,
+  "scope": "source hashes and integer/countermodel checks; no native compilation, execution, proof, GPU or privacy gate"
+}

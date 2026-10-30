@@ -1,0 +1,17 @@
+{
+  "status": "PASS",
+  "utc": "2026-10-30T18:58:07.955058+00:00",
+  "checks": [
+    "FINDINGS.md original byte prefix preserved",
+    "sources.jsonl original byte prefix preserved",
+    "all experiment JSON parses",
+    "source ledger exactly1150/eight current sources",
+    "progress/datestamp content matches with appropriate links",
+    "all checkpoint/report/handoff relative links resolve"
+  ],
+  "artifacts": 64,
+  "new_proofs": 0,
+  "new_proved_positions": 0,
+  "scope": "Metadata/integrity audit, no additional experiment or native verification",
+  "earlier_failure_retained": "initial-integrity-failure.json"
+}

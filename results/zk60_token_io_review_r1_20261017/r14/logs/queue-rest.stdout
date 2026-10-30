@@ -1,0 +1,27 @@
+[zk60-guard 19:40:54] START rvtk14-detail class=cpu need=1.5G cap=2.5G enforce=cgroup+watchdog waited=0s run=19fcfc538a30
+[zk60-guard 19:41:36] END rvtk14-detail exit=0 child_wall=43s peak_rss=0.43G min_avail=13.23G
+[zk60-guard 19:41:37] START rvtk14-xbin class=cpu need=1.5G cap=2.5G enforce=cgroup+watchdog waited=0s run=c01570cb7084
+[zk60-guard 19:41:46] END rvtk14-xbin exit=0 child_wall=9s peak_rss=0.18G min_avail=13.50G
+[zk60-guard 19:41:46] START rvtk14-mut-n2 class=cpu need=1.5G cap=2.5G enforce=cgroup+watchdog waited=0s run=dfcf44724cbf
+[zk60-guard 19:42:46] END rvtk14-mut-n2 exit=101 child_wall=60s peak_rss=0.74G min_avail=12.88G
+[zk60-guard 19:42:47] START rvtk14-mut-pad class=cpu need=1.5G cap=2.5G enforce=cgroup+watchdog waited=0s run=55c839a906c6
+[zk60-guard 19:43:43] END rvtk14-mut-pad exit=101 child_wall=56s peak_rss=0.72G min_avail=12.88G
+[zk60-guard 19:43:43] START rvtk14-mut-bind class=cpu need=1.5G cap=2.5G enforce=cgroup+watchdog waited=0s run=8ab8d699d987
+[zk60-guard 19:44:44] END rvtk14-mut-bind exit=101 child_wall=61s peak_rss=0.77G min_avail=12.59G
+[zk60-guard 19:44:44] START rvtk14-mut-src class=cpu need=1.5G cap=2.5G enforce=cgroup+watchdog waited=0s run=b93807f6e0eb
+[zk60-guard 19:45:46] END rvtk14-mut-src exit=101 child_wall=61s peak_rss=0.79G min_avail=12.52G
+[zk60-guard 19:45:46] START rvtk14-mut-check-tables class=cpu need=1.5G cap=2.5G enforce=cgroup+watchdog waited=0s run=d8cb68a12ea4
+[zk60-guard 19:46:48] END rvtk14-mut-check-tables exit=101 child_wall=62s peak_rss=0.75G min_avail=12.32G
+[zk60-guard 19:46:48] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 19:47:48] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 19:48:48] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 19:49:49] START rvtk14-mut-n-free class=cpu need=1.5G cap=2.5G enforce=cgroup+watchdog waited=180s run=25f8253b24aa
+[zk60-guard 19:50:47] END rvtk14-mut-n-free exit=101 child_wall=59s peak_rss=0.81G min_avail=12.52G
+[zk60-guard 19:50:48] START rvtk14-mut-size-from-n class=cpu need=1.5G cap=2.5G enforce=cgroup+watchdog waited=0s run=79f0303a5543
+[zk60-guard 19:51:45] END rvtk14-mut-size-from-n exit=101 child_wall=57s peak_rss=0.79G min_avail=12.70G
+[zk60-guard 19:51:45] START rvtk14-mut-vr-last class=cpu need=1.5G cap=2.5G enforce=cgroup+watchdog waited=0s run=54fba528093d
+[zk60-guard 19:52:41] END rvtk14-mut-vr-last exit=101 child_wall=56s peak_rss=0.65G min_avail=12.87G
+[zk60-guard 19:52:42] START rvtk14-mut-replay class=cpu need=1.5G cap=2.5G enforce=cgroup+watchdog waited=0s run=bcc10a565eec
+[zk60-guard 19:53:41] END rvtk14-mut-replay exit=101 child_wall=60s peak_rss=0.74G min_avail=12.68G
+[zk60-guard 19:53:41] START rvtk14-mut-empty class=cpu need=1.5G cap=2.5G enforce=cgroup+watchdog waited=0s run=7a40b2de042c
+[zk60-guard 19:54:45] END rvtk14-mut-empty exit=101 child_wall=63s peak_rss=0.82G min_avail=12.48G

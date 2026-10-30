@@ -54,10 +54,14 @@ fn norm(value: &J, classifier: bool) -> Result<TiedFinalNorm, String> {
     let get = |key: &str| value.get(key).and_then(J::i64);
     let out = TiedFinalNorm { g0: get("g0")?, cn: get("cn")?,
         tn: u32::try_from(get("tn")?).map_err(|_| "final norm tn out of range")?, ceps: get("ceps")? };
-    if out.g0 != 127 || !(1..=1<<20).contains(&out.cn) || !(8..=22).contains(&out.tn) || !(0..1i64<<40).contains(&out.ceps) {
+    if out.g0 != 127 || !(1..=crate::private_block::shape::TRAINED_CN_MAX).contains(&out.cn)
+        || !crate::private_block::shape::TRAINED_TN_RANGE.contains(&out.tn)
+        || !(1..=crate::private_block::shape::TRAINED_CEPS_MAX).contains(&out.ceps) {
         return Err("token_io_parameters: final norm outside its declared class".into());
     }
-    if classifier && out.tn != 10 { return Err("classifier_final_norm.tn must be 10 at Shieldstral width".into()); }
+    if classifier && (out.tn != 10 || out.ceps >= crate::private_block::shape::TRAINED_CEPS_MAX) {
+        return Err("classifier_final_norm requires tn=10 and ceps<2^40 for its 32-bit norm window".into());
+    }
     Ok(out)
 }
 
@@ -312,6 +316,18 @@ mod tests {
             br#"{"g0":127,"cn":1024,"tn":10,"ceps":1099511627776}"#.as_slice()] {
             assert!(norm(&parse_json(bad).unwrap(),true).is_err());
         }
+        // The accessor must support the prover's declared head-norm class,
+        // rather than narrowing legal calibrations to tn>=8.
+        for tn in [1,7,16] {
+            let text=format!(r#"{{"g0":127,"cn":128,"tn":{tn},"ceps":2439}}"#);
+            assert_eq!(norm(&parse_json(text.as_bytes()).unwrap(),false).unwrap().tn,tn);
+        }
+        for text in [r#"{"g0":127,"cn":128,"tn":17,"ceps":2439}"#,
+                     r#"{"g0":127,"cn":128,"tn":7,"ceps":0}"#] {
+            assert!(norm(&parse_json(text.as_bytes()).unwrap(),false).is_err());
+        }
+        let endpoint=parse_json(br#"{"g0":127,"cn":128,"tn":7,"ceps":1099511627776}"#).unwrap();
+        assert!(norm(&endpoint,false).is_ok());
         let mut invalid=[1.,2.,3.,4.];
         assert!(rotate(&mut invalid,&[1.,1.,0.,1.],4).is_err());
     }

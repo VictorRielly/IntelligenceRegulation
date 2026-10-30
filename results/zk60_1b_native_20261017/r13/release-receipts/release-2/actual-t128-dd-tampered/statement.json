@@ -1,0 +1,20 @@
+{
+ "schema": "zk60-trained-block-run/2",
+ "scope": "ONE trained Shieldstral-1.0-3B text block (of 26; d 3072, a 4096-wide query axis, YaRN RoPE) at the export's T (128 or 256), CPU unless the run line says gpu; the integer model the calibration export names; NOT a model pass; NOT a soundness or privacy acceptance (the D24 review of the R12 profiles follows); float fidelity is the calibration lane's measurement",
+ "prover_reported": {"backend": "gpu: off (built without --features gpu-cuda)", "gpu_declines": 0, "what": "self-reports of the prover (privacy review P-7): a CPU proof and a GPU proof have the same form, so no verifier can check these fields"},
+ "block_profile": "hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-ddict1/1",
+ "run_profile": "hashline-zk-mr1/private-run-shieldstral-3b-t128-lowh24-ddict1-run/1",
+ "export_variant": "shieldstral-s2-L00-t128-public-smoke",
+ "export_profile_sha256": "04102cce64dea0cd45dee5caa62095da1cf33fcaabd5647554202b564e6e7e57",
+ "calibration_tool_sha256": "54c42949d3ad8cf26d616d095bd0402099e5c90bd6c568769f6ea77babaadb49",
+ "layer": 0,
+ "layer_manifest_sha256": "a783eeed5f0d7431b1c4c66f8cea9b94a6f0ba984b4d1993c03a9602e7360396",
+ "block_digest": "7c23cfb3947eeb3aafd38bf96027f4ca3b0df04c8f8e7d046f91a32d09f958a6",
+ "trained_statement_identity": "5af573e263178790f10b62e672d98c1d293e1d31e2384413848dd6e0c6ab9789",
+ "context_label": "zk60-trained-block",
+ "context": "4cd9a70e5fe507c1cde8eab0cec7141de009ca033d60049b0ddeb6b88606373c",
+ "expected_io": "48424c4b455850314cd9a70e5fe507c1cde8eab0cec7141de009ca033d60049b0ddeb6b88606373c0000000000000000cf12ec3aa5ec3bb788682edb16c0008d6889093eddcf06cceb66a9b8241a95e2973721c7b25032be4161fdbce954999357a19149652b4f7ecb8eee9da1d2c005",
+ "rope_tables": "native generator at theta 1000000, equal to the export's tables",
+ "constants_source": "this layer's manifest (the export marks [\"exp_e_s\", \"norm_cn_a\", \"norm_cn_m\", \"sh_ao\", \"sh_h\", \"sh_s\", \"sh_z\", \"silu_member\"] per-layer); one calibration for this one-block run",
+ "shape": {"tokens": 128, "width": 3072, "hidden": 9216, "q_heads": 32, "kv_heads": 8, "head_dim": 128, "log_cols": 14, "inv_rate": 4, "opened_cols": 256, "f_e": 9, "wrho_s": 16, "norm_wrho": 31, "norm_tn": 9, "norm_cn_a": 848, "norm_cn_m": 1716, "norm_ceps": 2439, "sh_ao": 8, "d_max": 1816186}
+}

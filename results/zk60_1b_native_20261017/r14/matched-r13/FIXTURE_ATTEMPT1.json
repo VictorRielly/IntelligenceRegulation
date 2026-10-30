@@ -1,0 +1,8 @@
+{
+  "utc": "2026-10-29T11:01:44.949817+00:00",
+  "status": "Test fixture failure before proof: R13 requests outgoing boundary at block index0; R14 fixture uses incoming stage index1.",
+  "original_source": "8a272e165a6778caffaa1bf51787f713f049434f03ca906a4335ba00699dc82d",
+  "original_binary": "bb66da9d4d5001a49227fcc2c33a48a15dbd036a6fff9467744f5370041c74a6",
+  "corrected_source": "222a775b21472f9ad99313c51940da8d7c2e2029d2dddd9d8b38fa45e4164b63",
+  "change": "Test-only boundary_plane expected index1 -> index0; accepted R13 protocol code unchanged."
+}

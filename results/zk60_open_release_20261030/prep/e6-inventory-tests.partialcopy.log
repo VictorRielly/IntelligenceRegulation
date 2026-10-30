@@ -1,0 +1,66 @@
+test_exit_nonzero_on_bad_hosts (tests.test_zk60_attention_cfs_slots.Cli) ... [attention CFS] REFUSED: host mapping refused: private-sum slot SC_ATTN_11 is not hosted: its claimed sum would have to be reconstructed in the clear
+ok
+test_exit_nonzero_on_oversize_inventory (tests.test_zk60_attention_cfs_slots.Cli) ... [attention CFS] REFUSED: SC_ATTN_05: refused, mask row L = 257 (n_vars 51, degree 5) + 256 pads > 512 message positions
+ok
+test_roundtrip_exit_zero_and_json (tests.test_zk60_attention_cfs_slots.Cli) ... ok
+test_default_and_smhost_groups (tests.test_zk60_attention_cfs_slots.HostGroups) ... ok
+test_system_hosted_direct (tests.test_zk60_attention_cfs_slots.HostGroups) ... ok
+test_round2_ffn_vocabulary_compatibility (tests.test_zk60_attention_cfs_slots.MLayout) ... skipped 'optional round-2 FFN review tool is on zk60-mvp-fable'
+test_rows_and_functionals (tests.test_zk60_attention_cfs_slots.MLayout) ... ok
+test_controls_direct_small (tests.test_zk60_attention_cfs_slots.NegativeControls) ... ok
+test_each_control (tests.test_zk60_attention_cfs_slots.NegativeControls) ... ok
+test_extension_round_check (tests.test_zk60_attention_cfs_slots.R7) ... ok
+test_eighteen_slots_in_transcript_order_P1_P3 (tests.test_zk60_attention_cfs_slots.SlotTables) ... ok
+test_host_mapping_validation (tests.test_zk60_attention_cfs_slots.SlotTables) ... ok
+test_row_budget_and_largest (tests.test_zk60_attention_cfs_slots.SlotTables) ... ok
+test_split_and_two_extension_shapes (tests.test_zk60_attention_cfs_slots.SlotTables) ... ok
+test_fa6_criterion_every_slot (tests.test_zk60_attention_cfs_slots.Standalone) ... ok
+test_cli_exit_zero_and_outputs (tests.test_zk60_attention_pair_schedule.CLI) ... ok
+test_other_seed_same_verdicts (tests.test_zk60_attention_pair_schedule.Determinism) ... ok
+test_same_seed_same_output (tests.test_zk60_attention_pair_schedule.Determinism) ... ok
+test_on_fa2_fixtures (tests.test_zk60_attention_pair_schedule.Engine) ... ok
+test_on_the_whole_attention_A_per_column (tests.test_zk60_attention_pair_schedule.Engine) ... ok
+test_block_profile_counts_and_members (tests.test_zk60_attention_pair_schedule.GroupReconstruction) ... ok
+test_receipt_profile_counts_and_members (tests.test_zk60_attention_pair_schedule.GroupReconstruction) ... ok
+test_seam_group_and_sum_group (tests.test_zk60_attention_pair_schedule.GroupReconstruction) ... ok
+test_every_control_verdict_passes (tests.test_zk60_attention_pair_schedule.NegativeControls) ... ok
+test_flipped_rope_claim_sharing_its_pair_leaks (tests.test_zk60_attention_pair_schedule.NegativeControls) ... ok
+test_legacy_no_mask_is_a_large_disclosure (tests.test_zk60_attention_pair_schedule.NegativeControls) ... ok
+test_nineteen_helper_sums_published_individually (tests.test_zk60_attention_pair_schedule.NegativeControls) ... ok
+test_one_seam_pair_dropped_leaks (tests.test_zk60_attention_pair_schedule.NegativeControls) ... ok
+test_single_base_row_on_a_singleton_leaks_the_whole_plane (tests.test_zk60_attention_pair_schedule.NegativeControls) ... ok
+test_single_prox_row_instead_of_a_pair (tests.test_zk60_attention_pair_schedule.NegativeControls) ... ok
+test_zero_sum_row_without_its_fresh_pair_leaks (tests.test_zk60_attention_pair_schedule.NegativeControls) ... ok
+test_every_group_alone_is_covered (tests.test_zk60_attention_pair_schedule.PositiveVerdicts) ... ok
+test_exempt_endpoints_disclose_only_the_public_boundary_rows (tests.test_zk60_attention_pair_schedule.PositiveVerdicts) ... ok
+test_forced_singleton_grouping_and_alternatives (tests.test_zk60_attention_pair_schedule.PositiveVerdicts) ... ok
+test_no_failures (tests.test_zk60_attention_pair_schedule.PositiveVerdicts) ... ok
+test_one_zero_sum_construction_covers_all_19_helper_sums (tests.test_zk60_attention_pair_schedule.PositiveVerdicts) ... ok
+test_whole_A_with_values (tests.test_zk60_attention_pair_schedule.PositiveVerdicts) ... ok
+test_whole_commitments_per_column (tests.test_zk60_attention_pair_schedule.PositiveVerdicts) ... ok
+test_added_sites_and_their_grouping (tests.test_zk60_attention_pair_schedule.Schedule) ... ok
+test_committed_schedule_record_is_this_tools_output (tests.test_zk60_attention_pair_schedule.Schedule)
+docs/zkmatrix-poc/zk60_private_attention_schedule.json is what the tool writes now. ... FAIL
+test_every_claim_covered_exactly_once_with_disjoint_mask_rows (tests.test_zk60_attention_pair_schedule.Schedule) ... ok
+test_every_plane_site_is_a_pair_and_prox_is_a_pair (tests.test_zk60_attention_pair_schedule.Schedule) ... ok
+test_histogram_slots_follow_the_block_or_pair_rule (tests.test_zk60_attention_pair_schedule.Schedule) ... ok
+test_row_cost (tests.test_zk60_attention_pair_schedule.Schedule) ... ok
+test_u_replaces_the_19_sum_claims (tests.test_zk60_attention_pair_schedule.Schedule) ... ok
+test_pair_is_a_one_time_pad (tests.test_zk60_attention_pair_schedule.TinyGeometryBruteForce) ... ok
+test_single_base_row_and_no_mask_are_distinguishable (tests.test_zk60_attention_pair_schedule.TinyGeometryBruteForce) ... ok
+test_two_base_members_leak_only_through_the_values (tests.test_zk60_attention_pair_schedule.TinyGeometryBruteForce) ... ok
+
+======================================================================
+FAIL: test_committed_schedule_record_is_this_tools_output (tests.test_zk60_attention_pair_schedule.Schedule)
+docs/zkmatrix-poc/zk60_private_attention_schedule.json is what the tool writes now.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/inv-check/tests/test_zk60_attention_pair_schedule.py", line 158, in test_committed_schedule_record_is_this_tools_output
+    self.assertTrue(SCHEDULE.exists(), "run the tool first")
+AssertionError: False is not true : run the tool first
+
+----------------------------------------------------------------------
+Ran 48 tests in 106.784s
+
+FAILED (failures=1, skipped=1)
+wrote /tmp/tmpf20v8jbw/hosts.json

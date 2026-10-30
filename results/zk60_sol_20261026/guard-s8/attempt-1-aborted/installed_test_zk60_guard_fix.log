@@ -1,0 +1,58 @@
+test_a_newer_tiny_job_waits_while_an_older_one_is_budget_blocked (test_zk60_guard_fix.TestFifo) ... ok
+test_a_non_reserving_ticket_never_blocks (test_zk60_guard_fix.TestFifo) ... ok
+test_a_reservation_is_released_after_its_time_cap (test_zk60_guard_fix.TestFifo) ... ok
+test_a_ticket_whose_holder_dies_stops_blocking_at_once (test_zk60_guard_fix.TestFifo) ... ok
+test_a_ticket_with_a_stale_heartbeat_is_ignored_but_kept (test_zk60_guard_fix.TestFifo) ... ok
+test_an_older_budget_blocked_job_starts_before_a_newer_smaller_one (test_zk60_guard_fix.TestFifo) ... ok
+test_an_unlocked_ticket_is_ignored_and_reaped (test_zk60_guard_fix.TestFifo) ... ok
+test_no_admission_past_the_budget_and_one_heavy_job_at_a_time (test_zk60_guard_fix.TestFifo) ... ok
+test_removing_the_switch_turns_fifo_off_at_the_next_poll (test_zk60_guard_fix.TestFifo) ... ok
+test_env_0_keeps_a_process_out_even_with_the_file (test_zk60_guard_fix.TestFifoSwitches) ... ok
+test_env_1_turns_fifo_on_for_that_process (test_zk60_guard_fix.TestFifoSwitches) ... ok
+test_fifo_is_off_by_default (test_zk60_guard_fix.TestFifoSwitches) ... ok
+test_an_old_guard_holding_the_lock_while_it_waits_does_not_deadlock_new_ones (test_zk60_guard_fix.TestMixedVersions) ... ok
+test_job_files_and_status_are_read_across_versions (test_zk60_guard_fix.TestMixedVersions) ... ok
+test_old_and_new_guards_share_the_budget_and_the_heavy_lock (test_zk60_guard_fix.TestMixedVersions) ... ok
+test_old_and_new_guards_share_the_budget_and_the_heavy_lock_fifo_on (test_zk60_guard_fix.TestMixedVersions) ... ok
+test_old_status_and_check_ignore_the_queue (test_zk60_guard_fix.TestMixedVersions) ... ok
+test_base_version_holds_the_heavy_lock_while_waiting (test_zk60_guard_fix.TestNoLockWhileWaiting)
+Evidence that gap (a) is real in the pre-fix guard (same scenario). ... ok
+test_fifo_on_small_heavy_job_runs_while_a_big_one_waits_for_live_memory (test_zk60_guard_fix.TestNoLockWhileWaiting)
+FIFO on: a waiter blocked only by live MemAvailable (unguarded processes) ... ok
+test_fifo_on_small_heavy_job_runs_while_a_gpu_job_waits_for_the_card (test_zk60_guard_fix.TestNoLockWhileWaiting) ... ok
+test_new_waiting_big_job_does_not_hold_the_heavy_lock (test_zk60_guard_fix.TestNoLockWhileWaiting) ... ok
+test_no_admission_past_the_budget_and_one_heavy_job_at_a_time (test_zk60_guard_fix.TestNoLockWhileWaiting) ... ok
+test_small_heavy_job_runs_while_a_big_one_waits (test_zk60_guard_fix.TestNoLockWhileWaiting) ... ok
+test_a_heavy_job_decides_twice_and_runs_registered (test_zk60_guard_fix.TestRecheckInProcess) ... [zk60-guard 17:27:33] START python3 class=cpu need=11G cap=11.5G enforce=watchdog-only waited=0s run=11d3afc0773a
+cpu
+[zk60-guard 17:27:33] END python3 exit=0 child_wall=0s peak_rss=0.00G min_avail=12.00G
+ok
+test_fifo_off_writes_no_ticket_and_env_0_beats_the_file (test_zk60_guard_fix.TestRecheckInProcess) ... [zk60-guard 17:27:33] admission waiting: budget: scripted
+[zk60-guard 17:27:34] REFUSED: after waiting: budget: scripted
+[zk60-guard 17:27:34] admission waiting: budget: scripted
+[zk60-guard 17:27:34] REFUSED: after waiting: budget: scripted
+ok
+test_reason_kinds_that_reserve (test_zk60_guard_fix.TestRecheckInProcess) ... ok
+test_recheck_runs_under_the_locks_and_releases_them_when_it_fails (test_zk60_guard_fix.TestRecheckInProcess) ... [zk60-guard 17:27:34] admission waiting: budget: scripted
+[zk60-guard 17:27:34] START B class=build need=4G cap=5.5G enforce=watchdog-only waited=0s run=d06205635cdd
+[zk60-guard 17:27:34] END B exit=0 child_wall=0s peak_rss=0.00G min_avail=12.00G
+ok
+test_termination_while_blocked_on_the_heavy_lock_is_a_refusal (test_zk60_guard_fix.TestRecheckInProcess) ... [zk60-guard 17:27:34] waiting for /tmp/guardfix-gig__sv9/heavy.lock (0s)
+[zk60-guard 17:27:36] REFUSED: terminated by signal 15 while waiting to start
+ok
+test_termination_while_waiting_for_memory_is_a_refusal_and_drops_the_ticket (test_zk60_guard_fix.TestRecheckInProcess) ... [zk60-guard 17:27:36] admission waiting: budget: scripted
+[zk60-guard 17:27:37] REFUSED: terminated by signal 15 while waiting to start
+ok
+test_wait_secs_still_bounds_the_memory_wait_and_the_lock_wait (test_zk60_guard_fix.TestRecheckInProcess) ... [zk60-guard 17:27:37] admission waiting: budget: scripted
+[zk60-guard 17:27:38] REFUSED: after waiting: budget: scripted
+[zk60-guard 17:27:38] waiting for /tmp/guardfix-en3bmomf/heavy.lock (0s)
+[zk60-guard 17:27:39] REFUSED: could not take /tmp/guardfix-en3bmomf/heavy.lock within 1s
+ok
+test_history_and_result_json_have_the_same_shape_in_both_versions (test_zk60_guard_fix.TestRecordShape) ... 
+scenario exit codes (old == new): {'light-ok': 0, 'cpu-ok': 0, 'gpu-ok': 0, 'refused-memory': 70, 'refused-lock': 70, 'refused-number': 70, 'launch-failed': 127, 'killed-max-secs': 75, 'rc-3': 3}
+ok
+
+----------------------------------------------------------------------
+Ran 31 tests in 117.412s
+
+OK

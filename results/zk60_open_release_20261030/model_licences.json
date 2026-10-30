@@ -1,0 +1,54 @@
+{
+ "generated_utc": "2026-10-30T06:10:00Z",
+ "method": "licence text / model-card front matter read locally (small text files only; no weight file opened or hashed); labels: READ = read in a local file, INFERRED = not found locally, from general knowledge or project notes",
+ "default_recommendation": "ship fetch-and-convert scripts pinned to repository + revision + sha256; ship no weights and no integer exports in the git tree",
+ "models": [
+  {
+   "model": "Shieldstral-1.0-3B (Mistral AI), the classifier of the first real post",
+   "local_copy": "~/models/shieldstral-1.0-3b/snapshot-003ec7e2 (about 14.7 GB on disk incl. a second consolidated copy)",
+   "licence": "Apache-2.0",
+   "evidence": "READ: ~/models/shieldstral-1.0-3b/README.md front matter `license: apache-2.0`; base model Ministral-3-3B-Base-2512; the card carries extra_gated_description (Mistral's Hugging Face access form, a data-collection gate, not a licence term). No separate LICENSE file in the local copy",
+   "weights_redistributable": "yes under Apache-2.0 (licence copy + attribution + notice of changes) [READ licence id; terms INFERRED from Apache-2.0]",
+   "derived_exports": "integer exports / calibration tables are derivative works; redistributable under Apache-2.0 with a statement that they were modified [INFERRED]",
+   "recommendation": "do not mirror the 7.7 GB weights (it would bypass Mistral's access form); ship the pinned fetch (revision 003ec7e2, results/zk60_shieldstral_prep_20261021/pins.json and WEIGHTS.sha256) and the export tools; small derived public tables may ship with an Apache NOTICE line",
+   "attribution": "\"Shieldstral-1.0-3B by Mistral AI, Apache-2.0; integer export derived by this project\""
+  },
+  {
+   "model": "Meta-Llama-3-8B (8B next-token proofs)",
+   "local_copy": "local-models/zk60-llama3-8b (15 GB), fetched from NousResearch/Meta-Llama-3-8B @ 315b20096dc7 (results/zk60_mvp_20260929/llama3-8b/source.json)",
+   "licence": "Meta Llama 3 Community License (custom, not open source)",
+   "evidence": "READ: local-models/zk60-llama3-8b/LICENSE and USE_POLICY.md; section 1.b: redistribution of Llama Materials or derivatives requires (A) a copy of the agreement, (B) \"Built with Meta Llama 3\" displayed prominently, a \"Notice\" file with Meta's attribution sentence, compliance with the Acceptable Use Policy, model names starting with \"Llama 3\" for models trained/fine-tuned from it, no use of outputs to improve other LLMs; section 2: 700M monthly-active-user threshold",
+   "weights_redistributable": "only under the Llama 3 licence's conditions; not under the project's licence",
+   "derived_exports": "integer exports and calibration tables are derivative works of the Llama Materials [INFERRED]: if any is shipped it must carry the agreement, the Notice file and the \"Built with Meta Llama 3\" line, and must stay outside the Apache/MIT licence grant",
+   "recommendation": "ship no Llama weights, exports or calibration tables; ship the fetch + export scripts only. Public digests (model identity hashes, statement JSON) are facts about the weights, not the weights [INFERRED]; keep them. Put \"Built with Meta Llama 3\" in the README section that shows the 8B results",
+   "attribution": "Meta Llama 3 is licensed under the Meta Llama 3 Community License, Copyright (c) Meta Platforms, Inc. All Rights Reserved."
+  },
+  {
+   "model": "TinyLlama-1.1B-Chat-v1.0 @ fe8a4ea1 (trained 1B checkpoint, D33/D36 statements)",
+   "local_copy": "~/models/tinyllama-1.1b-chat-fe8a4ea1 and local-models/zk60-tinyllama-1.1b-chat-v1.0 (2.1 GB each)",
+   "licence": "Apache-2.0 (declared in the model card metadata only)",
+   "evidence": "READ: results/zk60_1b_pins_20260929/license_note.md (card front matter of the pinned revision, blob hash matched; upstream repo LICENSE is Apache-2.0); caveat recorded there: the tokenizer derives from Llama 2's, which Meta distributes under its own terms",
+   "weights_redistributable": "yes under Apache-2.0 [READ licence id]",
+   "derived_exports": "redistributable under Apache-2.0 with notice of changes [INFERRED]; tokenizer caveat above",
+   "recommendation": "fetch script (scripts/zk60_checkpoint_fetch.py exists) pinned to fe8a4ea1; no weights in git",
+   "attribution": "\"TinyLlama-1.1B-Chat-v1.0 (TinyLlama project), Apache-2.0\""
+  },
+  {
+   "model": "frugal-lm 125M (AdamW, val CE 3.0816), the m125 FFN / block ladder",
+   "local_copy": "~/models/125m-best-adamw-val3.0816 (217 MB; EMAIL.txt and README.txt beside it)",
+   "licence": "none yet: Victor's own training run (frugal-lm, seed 1337, 2.5B tokens)",
+   "evidence": "READ: README.txt and provenance.json (tokenizer HuggingFaceTB/SmolLM2-1.7B; data FineWeb-Edu per ~/models/fineweb-edu); no licence file",
+   "weights_redistributable": "Victor's choice; the training data (FineWeb-Edu, ODC-By 1.0 [INFERRED, not found locally]) asks for attribution; the SmolLM2 tokenizer is Apache-2.0 [INFERRED]",
+   "derived_exports": "his own",
+   "recommendation": "optional: publish the 125M weights on Hugging Face under the project licence with FineWeb-Edu attribution, or keep them private; the release does not need them (synthetic fixtures cover the tests). Do not ship EMAIL.txt",
+   "attribution": "\"trained on FineWeb-Edu (HuggingFaceFW), ODC-By 1.0; tokenizer SmolLM2 (Hugging Face), Apache-2.0\""
+  },
+  {
+   "model": "earlier Gemma / Mistral FFN exports (August 2026)",
+   "local_copy": "deleted 2026-10-30 (D46: the August Gemma/Mistral exports were among the regenerable files removed)",
+   "licence": "Gemma: Gemma Terms of Use (custom, use restrictions) [INFERRED]; Mistral 7B: Apache-2.0 [INFERRED]",
+   "recommendation": "scripts that mention them (scripts/m8b_gemma4_*.py) may ship; no exports"
+  }
+ ],
+ "verifier_note": "the classifier verifier rebuilds its scoring tables from the pinned weights (P1: weights public), so a stranger who wants to check a published receipt must fetch the 7.7 GB Shieldstral weights and run the export; the README must say so [READ: MVP_STATUS.md]"
+}

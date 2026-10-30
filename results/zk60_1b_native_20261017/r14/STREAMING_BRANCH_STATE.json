@@ -1,0 +1,15 @@
+{
+  "utc": "2026-10-30T06:43:57.604841+00:00",
+  "source": "72ccc3ac292c6f0670a38d58557ae18ea5c74101005379bd4f77dc2e52fa0e3a",
+  "files": 288,
+  "changed": [
+    "hashline/src/private_block/split_attack_tests.rs",
+    "hashline/src/private_block/split_run.rs",
+    "hashline/src/private_block/argument.rs",
+    "hashline/src/private_block/split_streaming_tests.rs",
+    "hashline/src/private_block/split_run_tests.rs"
+  ],
+  "status": "source frozen for initial guarded compile; no native pass yet",
+  "coverage": "Record/eager Plan equivalence; source count/order/shape preheader failures; owned cache lifecycle and post-preflight digest replacement at both native stages. Two extra C3 definition controls and corrected group fixture included; original50relation tail retained.",
+  "scope": "New isolated native API and tests, no CLI or registry activation. Capture3c validation jobs keep original source."
+}

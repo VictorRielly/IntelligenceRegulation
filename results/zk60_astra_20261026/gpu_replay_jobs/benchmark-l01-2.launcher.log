@@ -1,0 +1,12 @@
+RAM   13.48 GiB available of 15.39; swap used 0.61 GiB
+BUDGET 2.0 of 11.89 GiB committed by guarded jobs
+  job  rvtk13-baseline2             cpu   need 2G since 2026-10-29T00:53:15Z
+LOCKS heavy HELD, build free
+GPU   57 of 8188 MiB used
+kernel memory cap available: True
+  rss    455 MiB  pid 2149    claude 
+  rss    397 MiB  pid 128974  /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-review-r13-scratch/hashline/target/release/deps/hashl
+[zk60-guard 17:53:50] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 17:54:50] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 17:55:36] START astra-gpu-benchmark-l01 class=gpu need=2.7G cap=4.5G enforce=cgroup+watchdog waited=106s run=09bb2caf8e66
+[zk60-guard 18:02:54] END astra-gpu-benchmark-l01 exit=0 child_wall=438s peak_rss=1.68G min_avail=12.01G peak_vram=647MiB

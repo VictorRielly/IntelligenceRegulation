@@ -1,0 +1,47 @@
+{
+  "exact_web_blockers": [
+    {
+      "url": "https://github.com/THU-HAS/MegaZK/releases",
+      "error": "Cache miss"
+    },
+    {
+      "url": "https://github.com/THU-HAS/MegaZK/commits/main/",
+      "error": "Cache miss"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/THU-HAS/MegaZK/main/LICENSE",
+      "error": "Cache miss"
+    },
+    {
+      "url": "https://github.com/THU-HAS/MegaZK/blob/main/LICENSE",
+      "error": "Cache miss"
+    },
+    {
+      "url": "https://github.com/nvidia/cudf/commits/main/cpp/src/utilities/cuda_memcpy.cu",
+      "error": "Cache miss"
+    },
+    {
+      "url": "https://api.github.com/repos/rapidsai/cudf/commits?path=cpp/src/utilities/cuda_memcpy.cu&per_page=1",
+      "error": "not accessible via this tool"
+    },
+    {
+      "url": "https://github.com/nvidia/cudf/blob/main/cpp/src/utilities/cuda_memcpy.cu",
+      "error": "UnexpectedStatusCode"
+    },
+    {
+      "url": "https://github.com/THU-HAS/MegaZK/blob/main/plonky2/plonky2/src/integration/gpu_prover.rs",
+      "error": "Cache miss; guessed path, not established to exist"
+    },
+    {
+      "url": "https://github.com/eyalroz/cuda-api-wrappers/commit/ae6dc76ed8c88abdd618f62a53737fab075ed27a",
+      "error": "Cache miss; link target resolved only"
+    }
+  ],
+  "local_obligations": [
+    "Exclusive native fold subphase times absent",
+    "No current full-run/8B group counts or allocator-rounded capacity",
+    "No native CUDA arithmetic/ABI/lifetime/error/refusal/receipt parity or privacy acceptance in this lane"
+  ],
+  "no_bypass": true,
+  "continued_independent_local_experiment": "PASS"
+}

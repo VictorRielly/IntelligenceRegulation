@@ -1,0 +1,25 @@
+{
+  "utc": "2026-10-29T00:16:24.920627+00:00",
+  "driver_unit_tests": {
+    "tests": 8,
+    "failures": 0,
+    "errors": 0,
+    "scope": "isolated fake root, mocked process/status/suite operations; includes rollback after primary and consumer failures",
+    "additional_control": "post-rename directory-fsync failure red captured, fixed by arming rollback before atomic replacement; all8 passed on isolated fake roots"
+  },
+  "candidate_policy_tests": {
+    "tests": 9,
+    "failures": 0
+  },
+  "installed_policy_red": {
+    "tests": 9,
+    "failures": 3,
+    "expected": true,
+    "report": "official-policy-red.json"
+  },
+  "script_sha256": "b3fce737e6924da6642259430cd52ccb5fa7b9a30c238d35032f1c387b219377",
+  "driver_test_sha256": "1877f441a0db70d161d7221e78d345352d5559a6b4ac8346dc1ce2063063cdcd",
+  "live_guard_sha256": "87138bda80ae4499a668e67a1c0e7706bb859eafb5e766020bcd59567c8ac59c",
+  "status": "prepared, not installed; awaiting coordinator window and host preflight",
+  "script_source": "swap_guard_s8.candidate.py"
+}

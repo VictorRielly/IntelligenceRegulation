@@ -1,0 +1,114 @@
+--- /home/victor/IntelligenceRegulation/results/zk60_sol_20261026/guard-s8/zk60_resource_guard.py.candidate	2026-10-28 15:10:49.577877120 -0700
++++ /home/victor/IntelligenceRegulation/scripts/zk60_resource_guard.py	2026-10-29 22:11:34.487831681 -0700
+@@ -21,8 +21,9 @@
+ What `run` does for one command:
+   1. admission: waits, HOLDING NO LOCK, until the declared memory of all live
+      guarded jobs plus this one fits the budget, live MemAvailable covers the
+-     job plus a margin, swap is unused, and (gpu) the card reads idle and
+-     readable.  Optional, OFF by default: first-come-first-served for the
++     job plus a margin, swap is unused, (gpu) the card reads idle and
++     readable, and (cpu/gpu/build) the host drive holding the VM disk and the
++     Windows page file has at least the disk floor free.  Optional, OFF by default: first-come-first-served for the
+      budget, switched on by `touch <state>/fifo.on` (every guard, next poll) or
+      ZK60_GUARD_FIFO=1 (one process; =0 keeps a process out).  With it on, an
+      older waiter that is blocked by the declared budget counts as if it were
+@@ -47,7 +48,8 @@
+      guard follows the parent chain plus process group instead;
+   4. watchdog (0.5 s): kills the whole job if host MemAvailable falls under the
+      floor, its RSS passes the cap, VRAM passes the cap or GPU telemetry is
+-     lost, or --max-secs passes.  A watchdog exception also kills the job;
++     lost, the host drive falls under the disk kill floor (checked every 5 s),
++     or --max-secs passes.  A watchdog exception also kills the job;
+   5. SIGTERM/SIGINT/SIGHUP to the guard = terminate the job (SIGTERM, grace,
+      then SIGKILL), publish the terminal record, then release the locks.  The
+      caller should send SIGTERM and WAIT, never SIGKILL the guard;
+@@ -150,6 +152,25 @@
+ # out of the queue even when the file exists.
+ FIFO_ENV = os.environ.get("ZK60_GUARD_FIFO", "")
+ 
++
++def _env_gib(name: str, default: float) -> float:
++    try:
++        v = float(os.environ.get(name, default))
++    except ValueError:
++        return default
++    return v if math.isfinite(v) and v >= 0 else default
++
++
++# Host drive (2026-10-30).  On the laptop C: holds the WSL disk file and Windows'
++# page file.  2026-10-29 it ran full and the laptop crashed: the page file could not
++# grow to back memory.  Heavy jobs wait while it is under DISK_FLOOR_GIB; a live job
++# of any class is killed under DISK_KILL_GIB.  A missing path (plain Linux box) or an
++# empty ZK60_GUARD_HOST_DRIVE switches both checks off.
++HOST_DRIVE = os.environ.get("ZK60_GUARD_HOST_DRIVE", "/mnt/c")
++DISK_FLOOR_GIB = _env_gib("ZK60_GUARD_DISK_FLOOR_GIB", 40.0)
++DISK_KILL_GIB = _env_gib("ZK60_GUARD_DISK_KILL_GIB", 8.0)
++DISK_POLL_SECS = 5.0
++
+ EXIT_REFUSED = 70
+ EXIT_GUARD_ERROR = 71
+ EXIT_KILLED = 75
+@@ -225,6 +246,17 @@
+     return out
+ 
+ 
++def host_drive_free_gib() -> float | None:
++    """Free GiB on HOST_DRIVE, or None when there is none to check on this box."""
++    if not HOST_DRIVE:
++        return None
++    try:
++        st = os.statvfs(HOST_DRIVE)
++    except OSError:
++        return None
++    return st.f_bavail * st.f_frsize / GIB
++
++
+ def gpu_used_mib() -> tuple[int, int] | None:
+     """(used, total) MiB from nvidia-smi, or None if it cannot be read."""
+     try:
+@@ -547,6 +579,11 @@
+         if any(j["class"] == "gpu" for j in live):
+             reasons.append(("gpu", "another guarded gpu job is live"))
+     if cls != "light":
++        free = host_drive_free_gib()
++        if free is not None and free < DISK_FLOOR_GIB:
++            reasons.append(("disk", f"host drive {HOST_DRIVE} has {free:.1f} GiB free < floor "
++                                    f"{DISK_FLOOR_GIB:g} GiB (it holds the VM disk and the "
++                                    "Windows page file: free space there first)"))
+         if any(j["class"] in HEAVY_CLASSES for j in live):
+             reasons.append(("heavy", "another heavy guarded job is live (one heavy job at a time)"))
+         elif any(t["class"] in HEAVY_CLASSES for t in ahead):
+@@ -949,6 +986,7 @@
+         gpu_lost = False
+         hard_killed = 0
+         last_gpu = 0.0
++        last_disk = 0.0
+         try:
+             while True:
+                 try:
+@@ -981,6 +1019,12 @@
+                         if gpu_blind >= GPU_BLIND_LIMIT and not reason:
+                             gpu_lost = True
+                             reason = f"GPU telemetry lost ({gpu_blind} unreadable samples)"
++                if now() - last_disk >= DISK_POLL_SECS:
++                    last_disk = now()
++                    free = host_drive_free_gib()
++                    if free is not None and free < DISK_KILL_GIB and not reason:
++                        reason = (f"host drive {HOST_DRIVE} free {free:.1f} GiB "
++                                  f"< kill floor {DISK_KILL_GIB:g} GiB")
+                 if not reason and args.max_secs and now() - t0 > args.max_secs:
+                     reason = f"exceeded --max-secs {args.max_secs:g}"
+                 if reason:
+@@ -1138,6 +1182,12 @@
+           f"build {'free' if s['build_lock_free'] else 'HELD'}")
+     print(f"GPU   {s['gpu_used_mib']} of {s['gpu_total_mib']} MiB used"
+           if s["gpu_used_mib"] is not None else "GPU   unreadable")
++    free = host_drive_free_gib()  # text only: the JSON keeps the S3 status shape
++    if free is not None:
++        print(f"DISK  {HOST_DRIVE} {free:.1f} GiB free (heavy jobs wait under "
++              f"{DISK_FLOOR_GIB:g}, any job is killed under {DISK_KILL_GIB:g})")
++    else:
++        print("DISK  no host drive to check")
+     print(f"kernel memory cap available: {s['kernel_memory_cap_available']}")
+     for p in s["top_processes"]:
+         print(f"  rss {p['rss_mib']:>6} MiB  pid {p['pid']:<7} {p['cmd']}")

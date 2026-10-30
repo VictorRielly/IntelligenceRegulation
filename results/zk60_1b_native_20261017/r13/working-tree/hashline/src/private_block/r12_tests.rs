@@ -453,7 +453,7 @@ fn f3_a_tied_statement_binds_both_tables_to_the_one_tensor() {
 fn f3_the_loader_reads_a_tied_export() {
     use super::trained_block::{hex, parse_json, sha256, tied_of, Geometry};
     let (name, digest) = tied_tensor_for_profile(SHIELDSTRAL_T128_TRAINED_PROFILE).unwrap();
-    let root = std::env::temp_dir().join(format!("r12-tied-{}", std::process::id()));
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../results").join(format!("r12-tied-{}", std::process::id()));
     let td = root.join("token_io");
     std::fs::create_dir_all(&td).unwrap();
     let files = [("embedding_int16.bin", vec![1u8; 4096]), ("head_int8_perrow.bin", vec![2u8; 2048]), ("head_mult12.bin", vec![3u8; 64])];
@@ -462,16 +462,15 @@ fn f3_the_loader_reads_a_tied_export() {
     }
     let h = |i: usize| hex(&sha256(&files[i].1));
     let write = |tensor: &str, dg: &str, head_src: &str| {
-        std::fs::write(td.join("token_io.json"), format!(r#"{{"embedding_table": {{"file": "embedding_int16.bin", "sha256": "{}", "source_tensor": {{"name": "{tensor}", "sha256": "{dg}"}}}}}}"#, h(0))).unwrap();
-        std::fs::write(td.join("head_manifest.json"), format!(r#"{{"head_int8_perrow.bin": {{"sha256": "{}"}}, "head_mult12.bin": {{"sha256": "{}"}}, "source_tensor": {{"name": "{name}", "sha256": "{head_src}"}}}}"#, h(1), h(2))).unwrap();
+        std::fs::write(td.join("token_io.json"), format!(r#"{{"embedding_table": {{"file": "embedding_int16.bin", "dtype": "int16", "shape": [131072,3072], "sha256": "{}", "source_tensor": {{"name": "{tensor}", "sha256": "{dg}"}}}}}}"#, h(0))).unwrap();
+        std::fs::write(td.join("head_manifest.json"), format!(r#"{{"head_int8_perrow.bin": {{"dtype": "int8", "shape": [131072,3072], "sha256": "{}"}}, "head_mult12.bin": {{"dtype": "int64", "shape": [131072], "sha256": "{}"}}, "source_tensor": {{"name": "{name}", "sha256": "{head_src}"}}}}"#, h(1), h(2))).unwrap();
     };
     let dg = hex(&digest);
     let profile = parse_json(format!(r#"{{"tied_embeddings": {{"tensor": "{name}", "sha256": "{dg}"}}}}"#).as_bytes()).unwrap();
     let src = ModelSource::shieldstral_1_0_3b();
     write(name, &dg, &dg);
-    let t = tied_of(&root, &profile, Geometry::Shieldstral(128), &src).expect("a consistent tied export").expect("a record");
-    assert_eq!((t.tensor.as_str(), t.tensor_sha256), (name, digest));
-    assert_eq!((t.embedding_table_sha256, t.head_table_sha256, t.head_mult_sha256), (sha256(&files[0].1), sha256(&files[1].1), sha256(&files[2].1)));
+    let e = tied_of(&root, &profile, Geometry::Shieldstral(128), &src).expect_err("short tables must be refused even with consistent manifests");
+    assert!(e.contains("expected exactly 805306368"), "{e}");
     // the head names another digest
     write(name, &dg, &"ab".repeat(32));
     let e = tied_of(&root, &profile, Geometry::Shieldstral(128), &src).expect_err("the head's source differs");
@@ -480,7 +479,7 @@ fn f3_the_loader_reads_a_tied_export() {
     write(name, &dg, &dg);
     std::fs::write(td.join("head_mult12.bin"), [9u8; 64]).unwrap();
     let e = tied_of(&root, &profile, Geometry::Shieldstral(128), &src).expect_err("a modified multiplier file");
-    assert!(e.contains("is not its manifest's"), "{e}");
+    assert!(e.contains("expected exactly"), "{e}");
     std::fs::write(td.join("head_mult12.bin"), &files[2].1).unwrap();
     // a declared digest that is not the pinned checkpoint's
     let p2 = parse_json(format!(r#"{{"tied_embeddings": {{"tensor": "{name}", "sha256": "{}"}}}}"#, "cd".repeat(32)).as_bytes()).unwrap();
@@ -491,7 +490,7 @@ fn f3_the_loader_reads_a_tied_export() {
     assert!(tied_of(&root, &empty, Geometry::Shieldstral(128), &src).unwrap_err().contains("must name the tied tensor"));
     assert!(tied_of(&root, &profile, Geometry::TinyLlama(128), &ModelSource::tinyllama_chat_v1_0()).unwrap_err().contains("untied"));
     assert_eq!(tied_of(&root, &empty, Geometry::TinyLlama(128), &ModelSource::tinyllama_chat_v1_0()), Ok(None));
-    let _ = std::fs::remove_dir_all(&root);
+    // Retain the refusal fixture as durable evidence under the native results directory.
 }
 
 // ------------------------------------------------------------- the profiles

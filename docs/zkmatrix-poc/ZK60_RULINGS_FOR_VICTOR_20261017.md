@@ -253,6 +253,8 @@ boundary, control-token injection) have binding fixes. Four product rulings:
 
 **Suggested answer (console): "yes to the four classifier rulings".**
 
+**ANSWERED 2026-10-29 01:04 UTC (console): "1) yes, 2) yes, 3) yes, 4) yes"** — recorded as D45.
+
 ## Open 2026-10-21 03:15 UTC — two rulings for publishing proofs (D39 feasibility)
 
 Feasibility report: `results/zk60_chain_publication_20261021/REPORT.md`. The
@@ -338,3 +340,76 @@ Platform), pick Base Sepolia, and send to the throwaway testnet address
 or logins with a lane. Alternatives checked by Astra: Alchemy's faucet needs
 mainnet history and 0.001 real ETH (unsuitable); thirdweb needs a wallet
 connection (not used).
+
+**Done 2026-10-28 21:34 UTC:** Victor mined 0.505 Sepolia ETH with the
+no-account PoW faucet; Astra bridges it to Base Sepolia (coordinator note
+21:37 in the todo file).
+
+## Open 2026-10-28 23:15 UTC — five items for Victor
+
+1. **Strict or moderate policy wording** for the three categories (Astra's
+   A1 report, `results/zk60_shieldstral_prep_20261021/REPORT.md`). The two
+   are nearly tied: F1 differs by at most 0.012. Moderate has equal or higher
+   recall in every category. **Recommend: moderate for all three.**
+2. **Install the S8 guard swap-rule fix?** — ANSWERED 2026-10-28 23:50 UTC: yes (D44, installed 2026-10-29 00:33). Today the guard refuses every job
+   whenever swap use is over 1 GiB, even with 13–14 GiB free; this stalled
+   every lane on 10-26 and 10-28. With the fix, it refuses only if free
+   memory can't cover the job plus a margin plus paging all swapped memory
+   back in. The coordinator's review accepts it
+   (`results/zk60_guard_fix_20261021/S8_REVIEW.md`); installing needs a
+   short quiet window, like D42. **Recommend: yes, at the next quiet moment.**
+3. **Anthropic Fellows (deadline Oct 30):** 4 months full-time from January
+   at $3,850 a week plus compute. Apply? It fits only if the company pauses.
+4. **Company:** form the Delaware C-corp now? It's needed before any funding
+   money arrives, and SAM.gov registration takes up to 3 weeks after it.
+5. **Disk / memory (actions, not rulings):** remove the Windows-side AI image
+   tools if unused (about 135 GB). Then compact the WSL disk file (about
+   105 GB) at a quiet moment; it requires `wsl --shutdown`.
+
+## Open 2026-10-29 07:25 UTC — 8B at 512 tokens is just under the soundness target (not urgent)
+
+The R13 review counts **94.48 bits without DD and 94.80 with DD** for the
+8B model at 512 tokens, the workload D27 names, against a target of about
+95 (D27 had accepted a 94.73 projection). That profile is **not registered**
+and is **not needed for the Shieldstral MVP**: Shieldstral is 97.3 bits at
+T128 and 96.1–96.3 at T256. Sol is costing the cheapest lever that reaches
+95 (more queries, rate or extension). **Question, once that cost is known:**
+accept about 94.5–94.8 bits for 8B T512, or pay the lever's cost? No action
+needed now.
+
+**Update 2026-10-29 08:25 UTC: Sol's cost count**
+(`results/zk60_sol_20261026/r13-security-levers/`). More queries or a lower
+rate cannot get past 94.48 / 94.80: the lookup argument caps the figure. The
+only lever found (a paired-byte repetition of the lookup) reaches 95 at a
+cost:
+- without DD: **+14.7%** proof data for 95.0004 bits;
+- with DD: **+6.3%** for 95.0002, or **+7.7%** for 95.05 with a simpler
+  variant.
+
+These are counted, not built, and would need their own independent review.
+**Recommendation: accept 94.8 bits (with DD) for 8B at 512 tokens.** It is
+within D27's "~95", D27 also says throughput is not traded for bits, and
+the MVP (Shieldstral, 96–97 bits) is unaffected. Revisit for the 100-bit
+"next" tier. Reply "accept 94.8" or "pay the lever".
+
+## Open 2026-10-30 11:50 UTC: accept the classifier privacy statement?
+
+1. **Accept the Shieldstral classifier privacy statement (draft v3)?**
+   `docs/zkmatrix-poc/ZK60_PRIVACY_STATEMENT_CLASSIFIER_SHIELDSTRAL_T128_DRAFT_v3.md`, sha256 6356e35b….
+   - **What it says:** someone who sees a post's proofs learns the verdict for each category (flagged or not), the
+     post's length in tokens, the policy and the model. Nothing more about the post's text or the model's
+     internal values is revealed, beyond a statistical distance of about 2^-66.6 for a 3-proof post (2^-63.7
+     for 22 proofs).
+   - **Scope:** the named r16b and r17 binaries on CPU.
+   - **Evidence:**
+     - two independent privacy reviews, the second ACCEPTABLE WITH CHANGES, with every change now made;
+     - gate rounds 20 to 23 (C-9 on a real block, NL-1 on all 26 blocks);
+     - a final check of v3 against the review.
+   - **Conditions** before posts that are not public:
+     - **C-7:** failures are shown only to the signed-in author;
+     - **C-8:** the real model's refusal rate is measured (Astra's benchmark, running).
+   - It works like D33 and D36, the two accepted TinyLlama statements.
+   - **Recommend: accept, with C-7 and C-8 standing.**
+2. **Strict or moderate policy wording** (open since 2026-10-28, item 1 above). The app already runs the three
+   moderate policies. **Recommend: confirm moderate.**
+

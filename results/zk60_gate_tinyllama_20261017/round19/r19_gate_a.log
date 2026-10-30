@@ -1,0 +1,20 @@
+[zk60-guard 06:25:14] START gate19-v22-classify-r13-rung-L2-v1 class=light need=1.3G cap=2G enforce=cgroup+watchdog waited=0s run=cf6fdec85904
+[zk60-guard 06:40:29] END gate19-v22-classify-r13-rung-L2-v1 exit=0 child_wall=916s peak_rss=1.01G min_avail=11.15G
+[zk60-guard 06:40:29] START gate19-v22-classify-r13-rung-L2-v0 class=light need=1.3G cap=2G enforce=cgroup+watchdog waited=0s run=0c98260f16ed
+[zk60-guard 06:55:35] END gate19-v22-classify-r13-rung-L2-v0 exit=0 child_wall=906s peak_rss=1.01G min_avail=11.99G
+[zk60-guard 06:55:35] START gate19-v22-classify-r13-rung-L2-vtie class=light need=1.3G cap=2G enforce=cgroup+watchdog waited=0s run=55590df4aa7c
+[zk60-guard 07:10:43] END gate19-v22-classify-r13-rung-L2-vtie exit=0 child_wall=908s peak_rss=1.01G min_avail=11.91G
+[zk60-guard 07:10:43] START gate19-v22-classify-r13-rung-L1-v1 class=light need=1.3G cap=2G enforce=cgroup+watchdog waited=0s run=a1c06d9d59d7
+[zk60-guard 07:21:15] END gate19-v22-classify-r13-rung-L1-v1 exit=0 child_wall=632s peak_rss=0.97G min_avail=12.06G
+[zk60-guard 07:21:15] START gate19-v22-classify-r13-rung-L2-v1-chunk0o27 class=light need=1.3G cap=2G enforce=cgroup+watchdog waited=0s run=a89b698d1409
+[zk60-guard 07:36:17] END gate19-v22-classify-r13-rung-L2-v1-chunk0o27 exit=0 child_wall=902s peak_rss=1.01G min_avail=12.05G
+[zk60-guard 07:36:17] START gate19-v22-classify-r13-rung-L2-v1-chunk1o27 class=light need=1.3G cap=2G enforce=cgroup+watchdog waited=0s run=4701eb180364
+[zk60-guard 07:51:22] END gate19-v22-classify-r13-rung-L2-v1-chunk1o27 exit=0 child_wall=905s peak_rss=1.01G min_avail=12.05G
+[zk60-guard 07:51:22] START gate19-ff-v21-gate-r13-short11 class=light need=1.3G cap=2G enforce=cgroup+watchdog waited=0s run=2d84b553c770
+[zk60-guard 08:02:55] END gate19-ff-v21-gate-r13-short11 exit=1 child_wall=693s peak_rss=1.01G min_avail=11.97G
+[zk60-guard 08:02:55] START gate19-ff-v21-pins-and-v22-on-old class=light need=0.8G cap=1.5G enforce=cgroup+watchdog waited=0s run=3ce86bb5e767
+[zk60-guard 08:03:07] END gate19-ff-v21-pins-and-v22-on-old exit=0 child_wall=12s peak_rss=0.20G min_avail=12.81G
+[zk60-guard 08:03:07] START gate19-d41-item-27-r13 class=light need=0.8G cap=1.5G enforce=cgroup+watchdog waited=0s run=e891c4b08183
+[zk60-guard 08:03:10] END gate19-d41-item-27-r13 exit=0 child_wall=3s peak_rss=0.28G min_avail=12.80G
+[zk60-guard 08:03:10] START gate19-unittests-v22 class=light need=0.8G cap=1.5G enforce=cgroup+watchdog waited=0s run=4c2a67bfb46e
+[zk60-guard 08:04:09] END gate19-unittests-v22 exit=0 child_wall=59s peak_rss=0.44G min_avail=12.52G

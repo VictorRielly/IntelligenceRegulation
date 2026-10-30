@@ -1,0 +1,13 @@
+{
+  "status": "PASS_FINAL_PROVENANCE_ONLY",
+  "checks": 181,
+  "checked_at_utc": "2026-10-29T02:14:02.362608+00:00",
+  "elapsed_s": 0.020344132000900572,
+  "peak_rss_kib": 22220,
+  "sources": 865,
+  "prior_hypotheses_preserved": 48,
+  "hypotheses": 49,
+  "native_pins_unchanged": 6,
+  "direction_documents_unchanged": 7,
+  "no_native_or_GPU_execution": true
+}

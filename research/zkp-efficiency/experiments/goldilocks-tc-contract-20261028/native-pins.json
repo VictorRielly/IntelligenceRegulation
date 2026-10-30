@@ -1,0 +1,44 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/gpu/kernels.cu",
+    "snapshot": "native/hashline__src__gpu__kernels.cu",
+    "sha256": "b59bc396fa955bbdbc8bf8bb7b047c37c7f8df1fed0992d7b15ef983e2fc3969",
+    "bytes": 78055
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/gpu/cuda.rs",
+    "snapshot": "native/hashline__src__gpu__cuda.rs",
+    "sha256": "8fe2a2a39e0796254be37d0d7507d7fc22ea3af141d97d35cd93754d505072c9",
+    "bytes": 205193
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/zkp-core/src/field.rs",
+    "snapshot": "native/zkp-core__src__field.rs",
+    "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+    "bytes": 11065
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/zkp-core/src/ntt.rs",
+    "snapshot": "native/zkp-core__src__ntt.rs",
+    "sha256": "97572d4f242637d21a089388abad4b5b39136c62036faa17ae94b3ba6f170890",
+    "bytes": 5725
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/zkp-core/src/pcs.rs",
+    "snapshot": "native/zkp-core__src__pcs.rs",
+    "sha256": "5c9cfc4e9c84283309f4c47f87d4a9146e2c9c9f5b52aa608b4ce6a7588cd495",
+    "bytes": 77003
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/tied_tables.rs",
+    "snapshot": "native/hashline__src__private_block__tied_tables.rs",
+    "sha256": "901fa1e4f4a1c4c5070665fc1f81534142038e362408bff4dbcb5fca1e57c8b2",
+    "bytes": 4561
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/tied_tables/derive.rs",
+    "snapshot": "native/hashline__src__private_block__tied_tables__derive.rs",
+    "sha256": "e2b76895fae1ee04a469f095153d8451969c637ca4dd5939dd937c159d749adf",
+    "bytes": 19894
+  }
+]

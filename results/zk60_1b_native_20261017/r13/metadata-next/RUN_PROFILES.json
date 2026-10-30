@@ -1,0 +1,86 @@
+[
+  {
+    "symbol": "RUN_PROFILE_R13_TINY_T128_LOW",
+    "block_symbol": "R13_TINY_T128_LOW",
+    "block": "hashline-zk-mr1/private-block-tinyllama-1.1b-t128-low-stack-v01/1",
+    "run": "hashline-zk-mr1/private-run-tinyllama-1.1b-t128-low-stack-v01-run/1",
+    "length": 67
+  },
+  {
+    "symbol": "RUN_PROFILE_R13_TINY_T128_LOW_DD",
+    "block_symbol": "R13_TINY_T128_LOW_DD",
+    "block": "hashline-zk-mr1/private-block-tinyllama-1.1b-t128-low-ddict-v01/1",
+    "run": "hashline-zk-mr1/private-run-tinyllama-1.1b-t128-low-ddict-v01-run/1",
+    "length": 67
+  },
+  {
+    "symbol": "RUN_PROFILE_R13_8B_T128_H24",
+    "block_symbol": "R13_8B_T128_H24",
+    "block": "hashline-zk-mr1/private-block-llama-3-8b-t128-lh24-v1/1",
+    "run": "hashline-zk-mr1/private-run-llama-3-8b-t128-lh24-v1-statement/1",
+    "length": 63
+  },
+  {
+    "symbol": "RUN_PROFILE_R13_8B_T128_H24_DD",
+    "block_symbol": "R13_8B_T128_H24_DD",
+    "block": "hashline-zk-mr1/private-block-llama-3-8b-t128-lh24-dd/1",
+    "run": "hashline-zk-mr1/private-run-llama-3-8b-t128-lh24-dd-statement/1",
+    "length": 63
+  },
+  {
+    "symbol": "RUN_PROFILE_R13_SHIELD_T128_H24",
+    "block_symbol": "R13_SHIELD_T128_H24",
+    "block": "hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/1",
+    "run": "hashline-zk-mr1/private-run-shieldstral-3b-t128-lowh24-blocks-run/1",
+    "length": 67
+  },
+  {
+    "symbol": "RUN_PROFILE_R13_SHIELD_T128_H24_DD",
+    "block_symbol": "R13_SHIELD_T128_H24_DD",
+    "block": "hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-ddict1/1",
+    "run": "hashline-zk-mr1/private-run-shieldstral-3b-t128-lowh24-ddict1-run/1",
+    "length": 67
+  },
+  {
+    "symbol": "RUN_PROFILE_R13_SHIELD_T256_H24",
+    "block_symbol": "R13_SHIELD_T256_H24",
+    "block": "hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-blocks/1",
+    "run": "hashline-zk-mr1/private-run-shieldstral-3b-t256-lowh24-blocks-run/1",
+    "length": 67
+  },
+  {
+    "symbol": "RUN_PROFILE_R13_SHIELD_T256_H24_DD",
+    "block_symbol": "R13_SHIELD_T256_H24_DD",
+    "block": "hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-ddict1/1",
+    "run": "hashline-zk-mr1/private-run-shieldstral-3b-t256-lowh24-ddict1-run/1",
+    "length": 67
+  },
+  {
+    "symbol": "RUN_PROFILE_R13_RUNG_LOW",
+    "block_symbol": "R13_RUNG_LOW",
+    "block": "hashline-zk-mr1/private-block-rung-lo-t32-dev/1",
+    "run": "hashline-zk-mr1/private-run-rung-lo-t32-dev/1",
+    "length": 45
+  },
+  {
+    "symbol": "RUN_PROFILE_R13_RUNG_H24",
+    "block_symbol": "R13_RUNG_H24",
+    "block": "hashline-zk-mr1/private-block-rung-lh-t32-dev/1",
+    "run": "hashline-zk-mr1/private-run-rung-lh-t32-dev/1",
+    "length": 45
+  },
+  {
+    "symbol": "RUN_PROFILE_R13_RUNG_LOW_DD",
+    "block_symbol": "R13_RUNG_LOW_DD",
+    "block": "hashline-zk-mr1/private-block-rung-ld-t32-dev/1",
+    "run": "hashline-zk-mr1/private-run-rung-ld-t32-dev/1",
+    "length": 45
+  },
+  {
+    "symbol": "RUN_PROFILE_R13_RUNG_H24_DD",
+    "block_symbol": "R13_RUNG_H24_DD",
+    "block": "hashline-zk-mr1/private-block-rung-hh-t32-dev/1",
+    "run": "hashline-zk-mr1/private-run-rung-hh-t32-dev/1",
+    "length": 45
+  }
+]

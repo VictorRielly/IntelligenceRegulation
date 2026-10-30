@@ -1,0 +1,10 @@
+{
+  "at": "2026-10-30T15:07:15.303521+00:00",
+  "source": "/home/victor/IntelligenceRegulation/apps/proven-media/.testnet-private/throwaway.sepolia-key.json",
+  "destination": "/home/victor/zk60-owner-private/proven-media-astra-demo/testnet/throwaway.sepolia-key.json",
+  "address": "0x775E8A2D741446d74E3f5a02244D1241eceB187d",
+  "same_key": true,
+  "new_transactions": 0,
+  "mode": "0600",
+  "parent_mode": "0700"
+}

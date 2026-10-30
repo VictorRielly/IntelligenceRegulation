@@ -1,0 +1,11 @@
+{
+ "src": "/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r19b",
+ "dst": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/capture-tree-r19b",
+ "manifest": "/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/manifest_final_r19b.sha256",
+ "manifest_list_sha256": "cfae2d1e3c9f662b477bc7ba7ee418ed74c8732d0717732a74385cd8430b67b9",
+ "listed": 306,
+ "moved_or_missing": [],
+ "unlisted": [],
+ "ok": true,
+ "bytes": 20640589
+}

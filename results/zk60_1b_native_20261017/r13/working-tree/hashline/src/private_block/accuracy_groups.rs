@@ -1,6 +1,6 @@
 //! R13 group input/output scaling in public common denominators.
 //! Not yet imported into the prover.
-use super::accuracy_tables::SILU_MEMBERS;
+use super::accuracy_tables::Registry;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) struct Group {
@@ -24,13 +24,20 @@ pub(crate) fn group_folds(
     groups: &[Group], ids: &[usize], gate_multipliers: &[u64],
     base_e_in: i32, base_e_out: i32, base_sh_g: u32, base_sh_h: u32,
 ) -> Result<GroupFolds, String> {
+    group_folds_for(Registry::Standard, groups, ids, gate_multipliers, base_e_in, base_e_out, base_sh_g, base_sh_h)
+}
+
+pub(crate) fn group_folds_for(
+    registry: Registry, groups: &[Group], ids: &[usize], gate_multipliers: &[u64],
+    base_e_in: i32, base_e_out: i32, base_sh_g: u32, base_sh_h: u32,
+) -> Result<GroupFolds, String> {
     if groups.is_empty() || groups.len() > 4 || ids.is_empty() || ids.len() != gate_multipliers.len() {
         return Err("R13 groups: one to four groups and matching nonempty channel arrays required".into());
     }
-    if !SILU_MEMBERS.contains(&(base_e_in, base_e_out)) || !(1..=8).contains(&base_sh_g) || !(13..=16).contains(&base_sh_h) {
+    if !registry.permits((base_e_in, base_e_out)) || !(1..=8).contains(&base_sh_g) || !(13..=16).contains(&base_sh_h) {
         return Err("R13 groups: base member or shift is outside the declared class".into());
     }
-    if groups.iter().any(|g| !SILU_MEMBERS.contains(&(g.e_in, g.e_out)))
+    if groups.iter().any(|g| !registry.permits((g.e_in, g.e_out)))
         || groups.windows(2).any(|pair| (pair[0].e_in, pair[0].e_out) >= (pair[1].e_in, pair[1].e_out)) {
         return Err("R13 groups: registry members must be unique and in canonical order".into());
     }
@@ -41,9 +48,10 @@ pub(crate) fn group_folds(
     let gate_shifts: Vec<i64> = ids.iter().map(|&id| base_sh_g as i64 + 10 + (groups[id].e_in - base_e_in) as i64).collect();
     let product_shifts: Vec<i64> = ids.iter().map(|&id| base_sh_h as i64 - 8 - (groups[id].e_out - base_e_out) as i64).collect();
     let gate_shift = (*gate_shifts.iter().max().unwrap()).max(17);
-    let product_shift = *product_shifts.iter().max().unwrap();
+    // A zero direct shift is represented exactly by multiplier 2 / 2.
+    let product_shift = (*product_shifts.iter().max().unwrap()).max(1);
     if gate_shifts.iter().any(|&s| !(1..=24).contains(&s)) || gate_shift > 24
-        || product_shifts.iter().any(|&s| !(1..=12).contains(&s)) {
+        || product_shifts.iter().any(|&s| !registry.product_shifts().contains(&s)) {
         return Err("R13 groups: effective shift is outside the counted window".into());
     }
     let mut gate = Vec::with_capacity(ids.len());

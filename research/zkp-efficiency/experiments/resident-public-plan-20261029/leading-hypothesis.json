@@ -1,0 +1,14 @@
+{
+  "rank": 61,
+  "title": "NEW TESTED values-free priv_table half-map reuse across fresh resident-pass inputs; profile exclusive clocks before integration",
+  "baseline": "Pinned R13 argument.rs::priv_table computes hi_map/lo_map on every call. Layout already retains slots/Ids. Source-derived 8B T128201..209sites/block; current exclusive map wall time unknown.",
+  "eliminated_work": "Conditional per-geometry memoization removes repeated public coordinate-to-address map construction and two map Vec allocations per later call. No field/witness/mask/commitment/proof work eliminated.",
+  "added_costs": "Persistent public map tuples/signatures/identity keys; O(log) signature validation and one temporary signature Vec each execution; fresh fixed Eq and every private read/output retained. Capacity/eviction/thread safety remain owner work.",
+  "prerequisites": "Native exclusive map versus fresh Eq/table materialization/witness/enclosing clocks; full shape/profile/source identity binding; cache cap/lifetime policy and Rust integration review.",
+  "expected_end_to_end_impact": "Unknown and likely small unless map construction has a material exclusive phase fraction. At best free removal of fraction f gives1/(1-f); use actual N/(T-C_removed_exclusive+A_added). No GPU/8B throughput prediction.",
+  "exactness": "9450 comparisons incl unchanged extracted native table and same-researcher independent u128 direct coordinate walk;3150 fresh native mask/reference checks; all synthetic.",
+  "privacy_soundness": "Plan holds integer indices, Fixed markers and public identity only. Eq/Fixed values, slices/coefs,private tables,masks and outputs borrowed/rebuilt each call. No RNG/transcript/commitment change; native refusals and privacy gates still required. Synthetic PRNG is not a privacy proof.",
+  "compatibility": "CPU materialization seam argument.rs::priv_table via build_tables_at; no CUDA code or native patch installed. Actual profile digest replaces research u64 identity before integration.",
+  "falsification": "Any native/reference mismatch, stale Fixed/Eq/private/mask value, changed identity/coordinate mismatch accepted, refusal/draw/transcript/PCS/privacy change, or added lookup/memory costs canceling enclosing wall-time gain.",
+  "status": "bounded component validated; mixed shared CPU helper timings; native gain unmeasured; conditional profiling handoff only"
+}

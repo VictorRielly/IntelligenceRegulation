@@ -1,0 +1,21 @@
+{
+ "edited": {
+  "hashline/src/private_block/token_io/classify_cli.rs": {
+   "orig": "hashline__src__private_block__token_io__classify_cli.rs.orig",
+   "sha256": "6e93e5d714cec7bfec3c65d7add62c33711caa9381521f10f191529944ac3370",
+   "mutant_sha256": "bc37b5a343c08c5a61101bf237434f39a32e23d4092d26a438f4d30935a61312"
+  },
+  "hashline/src/private_block/s25_tests.rs": {
+   "orig": "hashline__src__private_block__s25_tests.rs.orig",
+   "sha256": "4849de14b3404ee2c0a32017f9ba224b8c03d0f00ce8a0a1e2ca3125553cf719",
+   "mutant_sha256": "f6cf13ed4135349505625b0d445249f744034ec3e8ca7091678bb410bd7620a0"
+  }
+ },
+ "created": [
+  {
+   "file": "hashline/src/private_block/token_io/r19_plant.rs",
+   "sha256": "1b0e1055409cbadcf9f84fb6bbe7b4991a2754a079d34e3342a64ed2f918b9d6"
+  }
+ ],
+ "dirs": []
+}

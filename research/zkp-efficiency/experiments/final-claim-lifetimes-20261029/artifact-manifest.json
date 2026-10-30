@@ -1,0 +1,415 @@
+{
+  "recorded_at_utc": "2026-10-29T06:11:42.053861+00:00",
+  "files": [
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/README.md",
+      "sha256": "028c7f6adb3e83757835742d539d11265fb02189237115cdbd4b78c5eff7c6db",
+      "bytes": 7891
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/adapter-manifest.json",
+      "sha256": "7b19dc00593774151247b3de1277c1367e579ff10ed0bfe1f909e09c2b4c9276",
+      "bytes": 413
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/audit-execution.json",
+      "sha256": "b758c4ef1bb6782c3a0e61f6748427b07c2c54f2b5dd583679439c90d487f64f",
+      "bytes": 364
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/audit-result.json",
+      "sha256": "e897ab6fe6a93537329cd06f4293b9224f1f52e4b323c9bc88c1eba5955964bf",
+      "bytes": 196
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/audit.py",
+      "sha256": "756a393d518f99d1fffe9187e52f78c3c4a1561eb62c079ef422139020cb88f6",
+      "bytes": 5800
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/audit.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/audit.stdout.log",
+      "sha256": "1a0d03a0e29d19c0822399c7dcb7c3b810d7a7492cc1c3ea1ff786c218a21022",
+      "bytes": 178
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/candidate-argument.rs",
+      "sha256": "4031889c1b07a895ac0b3b44e6020af652580ce778c2a9dba91a3608c736350f",
+      "bytes": 113013
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/candidate.py",
+      "sha256": "d04c233e79355645fc595c4fbe054e0f0e2c03aab972f3a7385c1f8e17103e4a",
+      "bytes": 2702
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/checkpoint.py",
+      "sha256": "dc48791e75646db4f4d5502dc97414ba162986a05b341b31d99fdf3af3169ac6",
+      "bytes": 15588
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/commands.json",
+      "sha256": "6114076522f4d1ea75941dd603a269a00613b0b16270c7ed996fc07ae75d4c7e",
+      "bytes": 521
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/completion.json",
+      "sha256": "c4fbe5cf7e663803becc9045355b4fefc6dca75745c9b4d8a9f167b9d9b89071",
+      "bytes": 304
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/counts.json",
+      "sha256": "86fecc15b7955bc039bb3df262e11583c714f2827d07d96007b79aefc0bc2116",
+      "bytes": 2018
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/historical-extension-clocks.json",
+      "sha256": "2b066efe9dfafe7baeed5d8ddf6c42975d9a4cd33e77cd7d7eecbcd89aa024ee",
+      "bytes": 823
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/hypotheses.json",
+      "sha256": "8e17f3acd17ec4a44fffb7a7715257076e0f4c7b0e3ebe1a3f2dd86b79774ef3",
+      "bytes": 107946
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/mask-tail-weights.unapplied.patch",
+      "sha256": "48942c0a3c5aed1b66c2fbea125263feae81b0c40863dca2eae4bdc9c482d6a5",
+      "bytes": 2905
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/native/hashline__src__private_block__argument.rs",
+      "sha256": "c4f9f9f4cb477346b03e9f769d7c3141a8529f096d08da2be6c415d5160a5e66",
+      "bytes": 111325
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/native/hashline__src__private_block__layout.rs",
+      "sha256": "9332802e597beacab56cfa69cfe18325bc476d2ce6485f517051992b26d26efa",
+      "bytes": 74733
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/native/hashline__src__private_block__protocol.rs",
+      "sha256": "c482402329e4da32a70c780435b2077e8054d1805b1006289f571820017564a4",
+      "bytes": 77946
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/native/hashline__src__private_block__shape.rs",
+      "sha256": "9a87081897ff0ec716d7f27a2813cc32117683eb5b2f2082a248f479ef98c4c5",
+      "bytes": 139369
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/native/hashline__src__sumcheck.rs",
+      "sha256": "f097dd71fab7888e95e61a29ab035b13153313d068e7547d91acbfd20c7bc566",
+      "bytes": 102
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/native/hashline__src__zk.rs",
+      "sha256": "66d1128675bea3b473abd4f2fe70d470b1abc19a7fe5a579a227616d76280e32",
+      "bytes": 254060
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/native/zkp-core__src__field.rs",
+      "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+      "bytes": 11065
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/native/zkp-core__src__mle.rs",
+      "sha256": "b20c8b75c9246471fe1cc395122558eba715f66d9efe1dc4cd5be1750f2e542e",
+      "bytes": 15255
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/native-pins.json",
+      "sha256": "a5a59b8eaf4eb27c37bcebbf292900c6dcaa28bb687fc1e6f23452585b89e312",
+      "bytes": 2178
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/prepare_adapter.py",
+      "sha256": "fd7dfcac58cdf8fcf70a9a603282f25ba9d8b44e79da3219140ef71b16374d8f",
+      "bytes": 3271
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/prior-hypotheses.json",
+      "sha256": "aeb9adc13e178a93b7b304ed98d8b3969edf950d2a4ed57b5271d153aa9d49af",
+      "bytes": 103614
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/prior-sources-index.json",
+      "sha256": "c236e4b969ecf1d46890e3b1935c3591913c3038825964ed6b1968441ffc53ae",
+      "bytes": 142657
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/probe-execution.json",
+      "sha256": "339747f69bb19df7e2358c66cab0d87bfd6b59480400dcda55e5c536edabd627",
+      "bytes": 363
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/probe.py",
+      "sha256": "b02f625bbe22c74280f39f257c98a0cbf6eb99bd78df15f114f10fa042bdf067",
+      "bytes": 7443
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/probe.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/probe.stdout.log",
+      "sha256": "c12771459f09a27d4f71364aa7b7b74943eb89ca29d772eb570b3a65dab78de4",
+      "bytes": 1961
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/reference.py",
+      "sha256": "cfda22078ccedf91c46232fdd2cb7716b3b5cfd2b04d0e97a6bd7af67dfe59ff",
+      "bytes": 2283
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/result.json",
+      "sha256": "d4f4e7666b8a5dbd180310e47b9c6abdd54a5b862fb412c89c6421baf522a75e",
+      "bytes": 39123
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/rotation.json",
+      "sha256": "c5d3fef84dc8491ad65a737061961364517f59456cb5e8b2a0b7efb230840d33",
+      "bytes": 459
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/run_bounded.py",
+      "sha256": "85bc2b7248720e44185024c2cbde62c15ee25ea73350a1bea4320e2325e21cd5",
+      "bytes": 1541
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/search-queries.json",
+      "sha256": "1ab79fe2be93902aedd67853abf4cd11c3554bb1a331babe1589b3241578a346",
+      "bytes": 7536
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/source-notes.json",
+      "sha256": "a282f40bde10eb614b109b7ac3c8608c150ee2455c05213aa887b2a4a5ca9f73",
+      "bytes": 9249
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/sources-cycle.json",
+      "sha256": "4ff608c0b67568bd119833852dad6b1e6bf4ee12fa4c3436834f1b5afb6d56f5",
+      "bytes": 14142
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/startup/CLAUDE.md",
+      "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6",
+      "bytes": 14089
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/startup/docs__zkmatrix-poc__MVP_STATUS.md",
+      "sha256": "8e648ca8f25f651860d3115872abb417964e6b531e4256319c4ca090967c3cd6",
+      "bytes": 94938
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/startup/docs__zkmatrix-poc__ZK60_CODEX_FABLE_COORDINATION.md",
+      "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f",
+      "bytes": 64889
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/startup/docs__zkmatrix-poc__ZK60_DECISIONS.md",
+      "sha256": "4c2061d3754dd5f17ded9e2adb6d133725dad3db652ea2dd80471798d630ee40",
+      "bytes": 132375
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/startup/docs__zkmatrix-poc__ZK60_THROUGHPUT_TARGET.md",
+      "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53",
+      "bytes": 4941
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/startup/prior-historical-measurements.json",
+      "sha256": "d5ccdc7929892206d566461ef7b9e1f124406a6e15cf27c82a3d7acdf3afaab2",
+      "bytes": 2807
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/startup/prior-hypotheses.json",
+      "sha256": "aeb9adc13e178a93b7b304ed98d8b3969edf950d2a4ed57b5271d153aa9d49af",
+      "bytes": 103614
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/startup/prior-large-row-result.json",
+      "sha256": "c206c53a64507e963cf7af46d40d8ef3b165a9ae3e820d640a3a0fb3e89ac75a",
+      "bytes": 2605
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/startup/prior-result.json",
+      "sha256": "1ff67219f94800d7e4d24ebe93b08c0976ee0c621916263af96b9f6d7238c788",
+      "bytes": 28684
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/startup/prior-rotation.json",
+      "sha256": "a1efb3cc8d05f3cac281aef4fcb09c6f04930c5f8203de3438f1fd42db3e5cb2",
+      "bytes": 422
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/startup/research__zkp-efficiency__AGENDA.md",
+      "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139",
+      "bytes": 5603
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/startup/research__zkp-efficiency__FINDINGS.md",
+      "sha256": "f51dbf4126ec4417bdf0da1ad82990b4c324022c7cc0658c512d3cae94f2a7ac",
+      "bytes": 982215
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/startup/research__zkp-efficiency__PROGRESS.md",
+      "sha256": "789e7878c4edf6f1c54a15082fce1b1e973b025adc9cb3e40f417d129fb827fb",
+      "bytes": 2531
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/startup/research__zkp-efficiency__STATE.md",
+      "sha256": "e8ece40f89a13c80dafbefed82b13f86008b80d1c70351866029d32de6e7e7fe",
+      "bytes": 5212
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/startup/research__zkp-efficiency__sources.jsonl",
+      "sha256": "1dfab906997174980dd6b53ea0133c08c1ec78129b06ef8611e681b81447b0f7",
+      "bytes": 1096395
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/startup-manifest.json",
+      "sha256": "48e922cab5c10aa5b9f59a87b2fcd091a1ecdaaaada98c68ea45fd21aa1797c1",
+      "bytes": 1963
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/target-accounting.json",
+      "sha256": "6f267081189207b1447a4c93446d19bfaa1f7f8fab9cf1b358072990c1b51b86",
+      "bytes": 823
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/web-01.txt",
+      "sha256": "812bff6cd37b9be781cdf3863ac5fc5e6d32aee4d4ecdeca6ca54fdfa02021c8",
+      "bytes": 28818
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/web-02.txt",
+      "sha256": "a1333ff55e103017df64123e1cdf29f9f367fec8ed4ef9c58718de3c7d2202c9",
+      "bytes": 27715
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/web-03.txt",
+      "sha256": "de59e8aa9af38d9b57e99d0909a744df0555ee8c3f14b523b52312cb520446bd",
+      "bytes": 35387
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/web-04.txt",
+      "sha256": "ada4b34e01c4e19ece0da31217801cc0af0e77d3d177633c6527e6e20de6264f",
+      "bytes": 29727
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/web-05.txt",
+      "sha256": "54e7844be57d49b13886d0b5b6ad07c5530dad465b8df49fed0436eff0c46e5b",
+      "bytes": 31250
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/web-06.txt",
+      "sha256": "72dd465df2ac8507cde789acc8c58c087915e7f5bd4fc591b0c0a95191021718",
+      "bytes": 25128
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/web-07.txt",
+      "sha256": "15e64208b9af038fffcc55faf96d5fdad866236396ca9b646e9d956d3fc7bab5",
+      "bytes": 20746
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/web-08.txt",
+      "sha256": "0d6daebb57cdd286d9f7d480fa4c9e50a0e4b42b176fca5e0b0ac387cb8b913f",
+      "bytes": 28239
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/web-09.txt",
+      "sha256": "49adc08a78b907d83cb8e7c3361a4915949a51c57dadb96de29050a302600e7c",
+      "bytes": 29450
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/web-10.txt",
+      "sha256": "fc73ee937f758abbcf59108d6ff427dc113717a119d1ed1e0a8d6420c90a32b8",
+      "bytes": 30873
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/web-11.txt",
+      "sha256": "9e73876e6182de87e486558a4ac22a908bf74baf1f7abc64194cadb36344f531",
+      "bytes": 25371
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/web-12.txt",
+      "sha256": "ebc1c1697410f5283a1f44975c763cb94a2bb0a533e26bd2a00c92485f736abf",
+      "bytes": 32054
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/web-13.txt",
+      "sha256": "1803d3b9e043c5801f226ace0bf02d3d675309ba5fd908af0428e7ba228f0be1",
+      "bytes": 27250
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/web-14.txt",
+      "sha256": "2750fbb3b017bfd8a390b9a465689a6de2d38008ec644fe20f2c859ad4a7a668",
+      "bytes": 13132
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/web-15.txt",
+      "sha256": "b57c76061273ed81c3af5381c07a3caab9c37dda3903a47fdead544b11e7fa53",
+      "bytes": 31729
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/web-16.txt",
+      "sha256": "c544699a5f65ab918d29a975a0f5f82c568977d3959b121f105eae5b63c073d5",
+      "bytes": 29841
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/web-17.txt",
+      "sha256": "4f80e7cc8d90acbd2654363131b49bcf045a23dc3f9de3f381e41babbb83ae92",
+      "bytes": 32951
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/web-18.txt",
+      "sha256": "cfddda34948727a078dc551eb3cda918acad2b67657164b1f2176ada7757d095",
+      "bytes": 4317
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/web-19.txt",
+      "sha256": "25d082532d95603826f4be7edeb12fab6556d75c37c0612e243f62421625db3a",
+      "bytes": 26407
+    },
+    {
+      "path": "experiments/final-claim-lifetimes-20261029/web-20.txt",
+      "sha256": "4dd0f9b18bb3a5158a1a83c45f70f7943bf82e0965222f4ef177779e2705e79d",
+      "bytes": 20180
+    },
+    {
+      "path": "STATE.md",
+      "sha256": "f30bfbd445985807fed4a1faee653af5aeac80d93c3ac1134fe8a885e10fc2ce",
+      "bytes": 4060
+    },
+    {
+      "path": "PROGRESS.md",
+      "sha256": "304237b83b8c327260c710f06e19a321f906d4bd460a13f68a8caa85a762292c",
+      "bytes": 2072
+    },
+    {
+      "path": "FINDINGS.md",
+      "sha256": "6a403770afd44bd5ab5609c08267fd6fe8fc6daf49c44140250382d3702f1ff0",
+      "bytes": 989239
+    },
+    {
+      "path": "sources.jsonl",
+      "sha256": "a07d0feb0000145263b5657299157a39530d7d7879d4d6070ea06f17e5be71c0",
+      "bytes": 1109558
+    },
+    {
+      "path": "progress/20261029T055649Z-74b83633.md",
+      "sha256": "878b0f270582f85aa54f49ef262e2c1ee464e5b5d28d597d786caf1eb0b98f4d",
+      "bytes": 7008
+    },
+    {
+      "path": "handoffs/20261029-sc-tab-mask-tail-weights.md",
+      "sha256": "fbbf96c860ced2e3ffe74d1b2fb01bdbaa9ee03878491dfcdf59bc59bac7fe80",
+      "bytes": 3343
+    }
+  ]
+}

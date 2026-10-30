@@ -1,0 +1,8 @@
+R14-public-synthetic-malicious-fixture/1
+case=wrong-feature-axis
+dd=1
+model_identity=56e1bbd2049d4c84dff8ddf0cd55bebc155f5a5072e0052b5ebf375851b0aaa3
+input_root=5d98cfc1bec200dad77af257dc6e22ed7ea83d82a224db0958a6ceca0082455e
+output_root=decad0b09c14ac9a2ed96a80c44fb832e7bd21f3cfc15718d176831ddc582347
+binding=7dc6ee3056a90ebb5a518a9b1fcebdc3b83bf5f7b0a3b0decb72570737255bac
+error=slot 20 [R14 04 Q zero-check (hosts 09Q, 11) Whole]: sumcheck round 0: s(0) + s(1) != claim

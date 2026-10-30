@@ -1,0 +1,522 @@
+[
+  {
+    "t": 128,
+    "dd": false,
+    "fe": 9,
+    "scope": "historical generic groups in standalone core with two external endpoints; not current grouping or full run",
+    "parts": [
+      {
+        "role": "A",
+        "rows": 3517,
+        "n": 16384,
+        "rho_count": 57,
+        "baseline_widths": [
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          1
+        ],
+        "candidate_widths": [
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          5
+        ],
+        "baseline_matrix_source_B": 6914703360,
+        "candidate_matrix_source_B": 6453723136,
+        "avoided_matrix_source_B": 460980224,
+        "unchanged_rho_source_B": 52551745536,
+        "unchanged_base_multiplies": 6568968192,
+        "unchanged_rho_h2d_B": 3207504,
+        "unchanged_output_d2h_B": 14942208,
+        "baseline_largest_rho_output_device_B": 1273664,
+        "candidate_largest_rho_output_device_B": 1592080
+      },
+      {
+        "role": "H",
+        "rows": 3272,
+        "n": 16384,
+        "rho_count": 12,
+        "baseline_widths": [
+          4,
+          4,
+          4
+        ],
+        "candidate_widths": [
+          4,
+          4,
+          4
+        ],
+        "baseline_matrix_source_B": 1286602752,
+        "candidate_matrix_source_B": 1286602752,
+        "avoided_matrix_source_B": 0,
+        "unchanged_rho_source_B": 10292822016,
+        "unchanged_base_multiplies": 1286602752,
+        "unchanged_rho_h2d_B": 628224,
+        "unchanged_output_d2h_B": 3145728,
+        "baseline_largest_rho_output_device_B": 1257984,
+        "candidate_largest_rho_output_device_B": 1257984
+      },
+      {
+        "role": "Input",
+        "rows": 31,
+        "n": 16384,
+        "rho_count": 3,
+        "baseline_widths": [
+          3
+        ],
+        "candidate_widths": [
+          3
+        ],
+        "baseline_matrix_source_B": 4063232,
+        "candidate_matrix_source_B": 4063232,
+        "avoided_matrix_source_B": 0,
+        "unchanged_rho_source_B": 24379392,
+        "unchanged_base_multiplies": 3047424,
+        "unchanged_rho_h2d_B": 1488,
+        "unchanged_output_d2h_B": 786432,
+        "baseline_largest_rho_output_device_B": 787920,
+        "candidate_largest_rho_output_device_B": 787920
+      },
+      {
+        "role": "Output",
+        "rows": 31,
+        "n": 16384,
+        "rho_count": 3,
+        "baseline_widths": [
+          3
+        ],
+        "candidate_widths": [
+          3
+        ],
+        "baseline_matrix_source_B": 4063232,
+        "candidate_matrix_source_B": 4063232,
+        "avoided_matrix_source_B": 0,
+        "unchanged_rho_source_B": 24379392,
+        "unchanged_base_multiplies": 3047424,
+        "unchanged_rho_h2d_B": 1488,
+        "unchanged_output_d2h_B": 786432,
+        "baseline_largest_rho_output_device_B": 787920,
+        "candidate_largest_rho_output_device_B": 787920
+      }
+    ],
+    "baseline_matrix_source_B": 8209432576,
+    "candidate_matrix_source_B": 7748452352,
+    "avoided_matrix_source_B": 460980224,
+    "matrix_source_reduction": 0.05615250746411636,
+    "all_matrix_source_only_speedup_bound": 1.059493199810542,
+    "warning": "source operands, not DRAM traffic or runtime; rho accesses are warp broadcasts/cache candidates; all other work remains"
+  },
+  {
+    "t": 128,
+    "dd": true,
+    "fe": 9,
+    "scope": "historical generic groups in standalone core with two external endpoints; not current grouping or full run",
+    "parts": [
+      {
+        "role": "A",
+        "rows": 3395,
+        "n": 16384,
+        "rho_count": 59,
+        "baseline_widths": [
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          3
+        ],
+        "candidate_widths": [
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          3
+        ],
+        "baseline_matrix_source_B": 6674841600,
+        "candidate_matrix_source_B": 6674841600,
+        "avoided_matrix_source_B": 0,
+        "unchanged_rho_source_B": 52508753920,
+        "unchanged_base_multiplies": 6563594240,
+        "unchanged_rho_h2d_B": 3204880,
+        "unchanged_output_d2h_B": 15466496,
+        "baseline_largest_rho_output_device_B": 1265856,
+        "candidate_largest_rho_output_device_B": 1265856
+      },
+      {
+        "role": "H",
+        "rows": 3116,
+        "n": 16384,
+        "rho_count": 13,
+        "baseline_widths": [
+          4,
+          4,
+          4,
+          1
+        ],
+        "candidate_widths": [
+          4,
+          4,
+          5
+        ],
+        "baseline_matrix_source_B": 1633681408,
+        "candidate_matrix_source_B": 1225261056,
+        "avoided_matrix_source_B": 408420352,
+        "unchanged_rho_source_B": 10618929152,
+        "unchanged_base_multiplies": 1327366144,
+        "unchanged_rho_h2d_B": 648128,
+        "unchanged_output_d2h_B": 3407872,
+        "baseline_largest_rho_output_device_B": 1248000,
+        "candidate_largest_rho_output_device_B": 1560000
+      },
+      {
+        "role": "Input",
+        "rows": 31,
+        "n": 16384,
+        "rho_count": 3,
+        "baseline_widths": [
+          3
+        ],
+        "candidate_widths": [
+          3
+        ],
+        "baseline_matrix_source_B": 4063232,
+        "candidate_matrix_source_B": 4063232,
+        "avoided_matrix_source_B": 0,
+        "unchanged_rho_source_B": 24379392,
+        "unchanged_base_multiplies": 3047424,
+        "unchanged_rho_h2d_B": 1488,
+        "unchanged_output_d2h_B": 786432,
+        "baseline_largest_rho_output_device_B": 787920,
+        "candidate_largest_rho_output_device_B": 787920
+      },
+      {
+        "role": "Output",
+        "rows": 31,
+        "n": 16384,
+        "rho_count": 3,
+        "baseline_widths": [
+          3
+        ],
+        "candidate_widths": [
+          3
+        ],
+        "baseline_matrix_source_B": 4063232,
+        "candidate_matrix_source_B": 4063232,
+        "avoided_matrix_source_B": 0,
+        "unchanged_rho_source_B": 24379392,
+        "unchanged_base_multiplies": 3047424,
+        "unchanged_rho_h2d_B": 1488,
+        "unchanged_output_d2h_B": 786432,
+        "baseline_largest_rho_output_device_B": 787920,
+        "candidate_largest_rho_output_device_B": 787920
+      }
+    ],
+    "baseline_matrix_source_B": 8316649472,
+    "candidate_matrix_source_B": 7908229120,
+    "avoided_matrix_source_B": 408420352,
+    "matrix_source_reduction": 0.049108761091235756,
+    "all_matrix_source_only_speedup_bound": 1.0516449821828127,
+    "warning": "source operands, not DRAM traffic or runtime; rho accesses are warp broadcasts/cache candidates; all other work remains"
+  },
+  {
+    "t": 256,
+    "dd": false,
+    "fe": 9,
+    "scope": "historical generic groups in standalone core with two external endpoints; not current grouping or full run",
+    "parts": [
+      {
+        "role": "A",
+        "rows": 4065,
+        "n": 32768,
+        "rho_count": 57,
+        "baseline_widths": [
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          1
+        ],
+        "candidate_widths": [
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          5
+        ],
+        "baseline_matrix_source_B": 15984230400,
+        "candidate_matrix_source_B": 14918615040,
+        "avoided_matrix_source_B": 1065615360,
+        "unchanged_rho_source_B": 121480151040,
+        "unchanged_base_multiplies": 15185018880,
+        "unchanged_rho_h2d_B": 3707280,
+        "unchanged_output_d2h_B": 29884416,
+        "baseline_largest_rho_output_device_B": 2357312,
+        "candidate_largest_rho_output_device_B": 2946640
+      },
+      {
+        "role": "H",
+        "rows": 3978,
+        "n": 32768,
+        "rho_count": 12,
+        "baseline_widths": [
+          4,
+          4,
+          4
+        ],
+        "candidate_widths": [
+          4,
+          4,
+          4
+        ],
+        "baseline_matrix_source_B": 3128426496,
+        "candidate_matrix_source_B": 3128426496,
+        "avoided_matrix_source_B": 0,
+        "unchanged_rho_source_B": 25027411968,
+        "unchanged_base_multiplies": 3128426496,
+        "unchanged_rho_h2d_B": 763776,
+        "unchanged_output_d2h_B": 6291456,
+        "baseline_largest_rho_output_device_B": 2351744,
+        "candidate_largest_rho_output_device_B": 2351744
+      },
+      {
+        "role": "Input",
+        "rows": 31,
+        "n": 32768,
+        "rho_count": 3,
+        "baseline_widths": [
+          3
+        ],
+        "candidate_widths": [
+          3
+        ],
+        "baseline_matrix_source_B": 8126464,
+        "candidate_matrix_source_B": 8126464,
+        "avoided_matrix_source_B": 0,
+        "unchanged_rho_source_B": 48758784,
+        "unchanged_base_multiplies": 6094848,
+        "unchanged_rho_h2d_B": 1488,
+        "unchanged_output_d2h_B": 1572864,
+        "baseline_largest_rho_output_device_B": 1574352,
+        "candidate_largest_rho_output_device_B": 1574352
+      },
+      {
+        "role": "Output",
+        "rows": 31,
+        "n": 32768,
+        "rho_count": 3,
+        "baseline_widths": [
+          3
+        ],
+        "candidate_widths": [
+          3
+        ],
+        "baseline_matrix_source_B": 8126464,
+        "candidate_matrix_source_B": 8126464,
+        "avoided_matrix_source_B": 0,
+        "unchanged_rho_source_B": 48758784,
+        "unchanged_base_multiplies": 6094848,
+        "unchanged_rho_h2d_B": 1488,
+        "unchanged_output_d2h_B": 1572864,
+        "baseline_largest_rho_output_device_B": 1574352,
+        "candidate_largest_rho_output_device_B": 1574352
+      }
+    ],
+    "baseline_matrix_source_B": 19128909824,
+    "candidate_matrix_source_B": 18063294464,
+    "avoided_matrix_source_B": 1065615360,
+    "matrix_source_reduction": 0.05570706170944622,
+    "all_matrix_source_only_speedup_bound": 1.0589934113139639,
+    "warning": "source operands, not DRAM traffic or runtime; rho accesses are warp broadcasts/cache candidates; all other work remains"
+  },
+  {
+    "t": 256,
+    "dd": true,
+    "fe": 9,
+    "scope": "historical generic groups in standalone core with two external endpoints; not current grouping or full run",
+    "parts": [
+      {
+        "role": "A",
+        "rows": 3639,
+        "n": 32768,
+        "rho_count": 59,
+        "baseline_widths": [
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          3
+        ],
+        "candidate_widths": [
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          4,
+          3
+        ],
+        "baseline_matrix_source_B": 14309130240,
+        "candidate_matrix_source_B": 14309130240,
+        "avoided_matrix_source_B": 0,
+        "unchanged_rho_source_B": 112565157888,
+        "unchanged_base_multiplies": 14070644736,
+        "unchanged_rho_h2d_B": 3435216,
+        "unchanged_output_d2h_B": 30932992,
+        "baseline_largest_rho_output_device_B": 2330048,
+        "candidate_largest_rho_output_device_B": 2330048
+      },
+      {
+        "role": "H",
+        "rows": 3454,
+        "n": 32768,
+        "rho_count": 13,
+        "baseline_widths": [
+          4,
+          4,
+          4,
+          1
+        ],
+        "candidate_widths": [
+          4,
+          4,
+          5
+        ],
+        "baseline_matrix_source_B": 3621781504,
+        "candidate_matrix_source_B": 2716336128,
+        "avoided_matrix_source_B": 905445376,
+        "unchanged_rho_source_B": 23541579776,
+        "unchanged_base_multiplies": 2942697472,
+        "unchanged_rho_h2d_B": 718432,
+        "unchanged_output_d2h_B": 6815744,
+        "baseline_largest_rho_output_device_B": 2318208,
+        "candidate_largest_rho_output_device_B": 2897760
+      },
+      {
+        "role": "Input",
+        "rows": 31,
+        "n": 32768,
+        "rho_count": 3,
+        "baseline_widths": [
+          3
+        ],
+        "candidate_widths": [
+          3
+        ],
+        "baseline_matrix_source_B": 8126464,
+        "candidate_matrix_source_B": 8126464,
+        "avoided_matrix_source_B": 0,
+        "unchanged_rho_source_B": 48758784,
+        "unchanged_base_multiplies": 6094848,
+        "unchanged_rho_h2d_B": 1488,
+        "unchanged_output_d2h_B": 1572864,
+        "baseline_largest_rho_output_device_B": 1574352,
+        "candidate_largest_rho_output_device_B": 1574352
+      },
+      {
+        "role": "Output",
+        "rows": 31,
+        "n": 32768,
+        "rho_count": 3,
+        "baseline_widths": [
+          3
+        ],
+        "candidate_widths": [
+          3
+        ],
+        "baseline_matrix_source_B": 8126464,
+        "candidate_matrix_source_B": 8126464,
+        "avoided_matrix_source_B": 0,
+        "unchanged_rho_source_B": 48758784,
+        "unchanged_base_multiplies": 6094848,
+        "unchanged_rho_h2d_B": 1488,
+        "unchanged_output_d2h_B": 1572864,
+        "baseline_largest_rho_output_device_B": 1574352,
+        "candidate_largest_rho_output_device_B": 1574352
+      }
+    ],
+    "baseline_matrix_source_B": 17947164672,
+    "candidate_matrix_source_B": 17041719296,
+    "avoided_matrix_source_B": 905445376,
+    "matrix_source_reduction": 0.050450608357799104,
+    "all_matrix_source_only_speedup_bound": 1.0531311049239336,
+    "warning": "source operands, not DRAM traffic or runtime; rho accesses are warp broadcasts/cache candidates; all other work remains"
+  }
+]

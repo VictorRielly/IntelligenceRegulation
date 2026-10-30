@@ -1,0 +1,80 @@
+Token-I/O lane round-19b tree frozen at 2026-10-30T15:03:30Z: REVIEW_R19's fixes R19-1 (required: a wrong checkpoint is
+shown to be refused), R19-2 (low: every census scan reads a file's whole production text; `include!` refused; every file
+under src/private_block/ accounted for) and R19-3 (doc), on frozen-r19 (REVIEW_R19: ACCEPTED WITH FIXES). NO PRODUCTION
+CODE LINE MOVED: two production files changed in doc comments only (tied_tables/derive.rs, token_io/classify_cli.rs),
+derive.rs also in its test module. **UNREVIEWED.**
+copy:     /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r19b/ (306 files, 20,800,333 B)
+source:   /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r19b/ (r19b/tools/freeze19b.py init = exactly frozen-r19's
+          306 files, no target/; then the RED state, then the GREEN state). target/ and the native tests' evidence dirs
+          excluded; the tree's target/ was deleted after this freeze (D46; 306,615,386 B, 732 files).
+manifest: /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/manifest_final_r19b.sha256
+          (= r19b/manifest_r19bA.sha256: 306 files, list sha256 cfae2d1e3c9f662b477bc7ba7ee418ed74c8732d0717732a74385cd8430b67b9);
+          all 306 re-hashed in the copy: match, none missing, none extra. The green-source, dry-run, post-mutation (both),
+          post-suite and final-check manifests equal it.
+vs r19:   5 changed paths, 0 added, 0 removed (r19b/r19bA_vs_frozen_r19.txt / .diff):
+          doc only (production files): hashline/src/private_block/tied_tables/derive.rs (R19-3 at `default_checkpoint`: a
+          symlinked model FILE is refused, so the Hugging Face cache's snapshot links must be copied or a real-file layout
+          named; symlinked directories are followed; a relative ZK60_MODELS resolves against the working directory; HOME
+          unset or empty with no ZK60_MODELS is refused; a set ZK60_MODELS naming a missing file is refused, never replaced
+          by $HOME/models), hashline/src/private_block/token_io/classify_cli.rs (REVIEW_R19 N-5: a refusal once the
+          arguments are read prints `refused` and the fail-closed line, exit 1; an argument refusal prints neither, exit 2);
+          tests: derive.rs's test module (R19-1: a sparse same-size wrong checkpoint refused by the whole-file SHA-256 pin,
+          one byte short by the size check; a symlinked checkpoint file refused as "not a regular file", a symlinked
+          models directory followed), private_block/s25_tests.rs (R19-2: `production_text_checked` = the text above the
+          first `#[cfg(test)] mod tests {` plus every later top-level item that is not `#[cfg(test)]`, line numbers kept,
+          fail-closed on a cut it cannot place; `rust_tokens_spanned`; every scan and the module follower over it;
+          `mod_items` refuses `include!` outside `#[cfg(test)]` modules; three tests incl. the directory check over
+          `TEST_ONLY_FILES` (76)), private_block/hash_domain_tests.rs (the label scan over the whole production text;
+          NOT_ON_THE_BLOCK_PATH + `zk-mask-profile`), private_block/s26_tests.rs (its cut delegates to s25's).
+finding:  hashline/src/zk.rs (a foreign file of the label scan; not edited) has ~2,600 lines of production code AFTER its
+          tests module (lines 2037-4673, the v3 / mr1 feed-forward provers), which the label scan never read. Read now:
+          its labels are in the table or on NOT_ON_THE_BLOCK_PATH except `zk-mask-profile` (zk.rs:2662, :3937), absorbed
+          only by prove_layer_zk_v3_mr1 / verify_layer_zk_v3_mr1, which no file of the private block's path names; it is
+          listed with that reason. This is why R19-2 takes the review's first form (read the whole file) rather than
+          "fail on a non-test item after the tests block", which would fail on zk.rs.
+tests:    failing-first: on the RED tree (round 19's cut and mod_items behind the new interfaces) exactly the two predicted
+          tests failed (r19b/logs/red.log): 7 of 7 production items after the tests module NOT READ, 5 of 5 unplaceable cuts
+          NOT REFUSED, a module after the tests module not followed; 8 of 8 production `include!` forms NOT REFUSED; the
+          directory check and the two derive tests passed (true already; their mutants below).
+          Mutants: 29 of 29 killed as named (compiled, exit 101, the named test FAILED for the named reason;
+          r19b/logs/mut-*.log, r19b_mut.done, rejudge-after-tests-label.json, mut-after-tests-label-2.verdict.json):
+          round 19's 20 on this tree, and nine new ones: e7-no-pin-compare (derive.rs's whole-file SHA-256 comparison
+          deleted: "Checkpoint::open ACCEPTED a same-size file that is not the pinned checkpoint"), e7-follow-symlink
+          (`regular` follows a final symlink: the link is refused by the pin instead of as "not a regular file"),
+          after-tests-rng / after-tests-label / after-tests-label-2 / after-tests-mod-u / after-tests-mod-l (a generator,
+          a label, a module written after derive.rs's tests module: the census and the label scan read them), include-u
+          (`include!` in classify_cli.rs: both scans refuse it, naming the line), macro-mod (a #[macro_export] macro in
+          lib.rs expanding to `mod x;`, invoked in classify_cli.rs; it compiled; only the directory check sees the new
+          file). after-tests-label was killed by its named test, but the scan names the label `, b` (its line extractor
+          takes the first `b"` after the word `absorb`, and `("absorb", b"…")` has one in `absorb"`); it was re-judged
+          with round 18's reason form ("tied_tables/derive.rs absorbs") and after-tests-label-2 plants the label so the
+          extractor reads it exactly ("tied_tables/derive.rs absorbs `r19b-planted-label`").
+suite:    s24 (r19b/logs/s24-suite.log; guard cpu 11 / 12): exit 0, 971 passed, 0 failed, 71 ignored, 29 test binaries [867 s,
+          peak RSS 7.73 GiB / cgroup 9.3 incl. the sparse read's page cache, shared box n=1]. r19: 966 / 0 / 71.
+binary:   cli/zk60_classify.r19b.release.bin 6d65d32ea783e36db2458ccce2d459cb29a91bcb45a89c4e23e484914126d609 (built from this tree
+          after the suite): cli/binaries_r19b.sha256, build note cli/zk60_classify.r19b.BUILD.txt. Not byte-equal to
+          r19's 841ba983… (the tree path is baked in).
+checked:  rung receipts cross-verify with the r19 binary both ways (r19b/logs/xbin-r19b-r19.log). The REAL moderate-hate
+          receipt (r16-runs/hate-run, made by e94cecf9…) re-verified by the r19b binary in four fresh processes:
+          ZK60_MODELS unset (exit 0) and =/home/victor/models (exit 0), both identity 29aeba6c…, not-flagged, floor 96;
+          ZK60_MODELS naming a dir whose model.safetensors is a SPARSE same-size wrong file (the real 61,008-byte header,
+          then `truncate` to 7,698,241,104 B; 61,440 B on disk): exit 1, "checkpoint SHA-256 differs from the pinned
+          model", then the fail-closed app-outcome line (flagged); ZK60_MODELS naming a dir whose model.safetensors is a
+          SYMLINK to the real checkpoint: exit 1, "…/model.safetensors: not a regular file", then the fail-closed line.
+          Both scratch dirs were deleted right after. The receipt's 29 files hash to 8a990fde… before and after each of
+          the four (r19b/logs/hate-tree-*.json).
+bytes:    RECEIPT BYTES UNCHANGED at real scale (r19b/logs/bytes/): the r19b binary's single prove of job 0 (moderate sexual,
+          Astra's public 17-id sentence, ZK60_MODELS unset) under round 18's FIXED PUBLIC entropy job0.bin equals round
+          18's recorded single, batch and r16b job-0 digests on all 30 files (bytes.json ok true; unread entropy 0). The
+          test receipt (29 files, 848,417,277 B) and the owner tree (164 files, 122,802,518 B) were deleted after the
+          record. Limits as rounds 18 / 19: one input point, one chunk, a not-flagged verdict, n = 1.
+gate:     pins that move r19 -> r19b (r19b/logs/pins_r19_r19b.json): of the capture writer's 72 source pins exactly one,
+          src/private_block/tied_tables/derive.rs 4b53222b… -> 1d6150100abb051d08e77d6c86e2cafed0915342203480ce73c8583170810fb7
+          (doc + tests; production code unchanged); in the gate, DERIVE_T16 (zk60_native_rg_r13_pins.py line 195, used at
+          230 and 482, still at r18's c5bec3c6…) and the derive.rs line ranges classtied.py's reading cites (+22 after
+          line 24 vs r19; the pin comparison is now :216); the CLI binary a capture records, 841ba983… -> 6d65d32e….
+          classify_cli.rs (6e93e5d7… -> 616e33b9…) is NOT a capture pin; the gate names it only in its historical classpins
+          tables (round 12-14 digests) and in r13_pins.py's "not pinned, for context" notes. s25 / hash_domain / s26 test
+          files are not pins. The gate's re-pin of rounds 18 + 19 + 19b is the gate lane's; no gate file was edited.
+Not a privacy acceptance and not a classifier-fidelity claim. Unreviewed. The lane's working copy may move on; this copy
+does not change.

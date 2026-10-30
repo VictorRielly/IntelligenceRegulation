@@ -29,6 +29,26 @@ JOBS={
                    'python3',str(EXPORT/'probe_layer25.py'),'integer','--max-minutes','0.25']),
  'layer25-integer-continue1':('light',1.3,3.0,1800,['/usr/bin/env','OPENBLAS_NUM_THREADS=2','OMP_NUM_THREADS=2',
                    'python3',str(EXPORT/'probe_layer25.py'),'integer']),
+ 'layer25-fix':('light',2.0,4.0,1800,['/usr/bin/env','OPENBLAS_NUM_THREADS=2','OMP_NUM_THREADS=2',
+                   'python3',str(EXPORT/'fix_layer25.py')]),
+ 'token-io-r12b':('light',1.4,3.0,1800,['/usr/bin/env','OPENBLAS_NUM_THREADS=2','OMP_NUM_THREADS=2',
+                   'python3',str(EXPORT/'build_token_io_r12b.py')]),
+ 'fidelity-smoke8-fix1':('light',1.4,3.0,1800,['/usr/bin/env','OPENBLAS_NUM_THREADS=2','OMP_NUM_THREADS=2',
+                   'python3',str(EXPORT/'evaluate_verdicts.py'),
+                   '--token-io',str(EXPORT/'dg_r12b_t256/token_io'),
+                   '--layer25-fix',str(EXPORT/'layer25_fix_candidate'),
+                   '--limit','8','--out',str(EXPORT/'fidelity_smoke8_fix1'),'--max-minutes','25']),
+ # Cache probe peak1.41GiB atT256;2.3GiB covers the longerT367 smoke item
+ # and the retained float64 blocks, with cap4.5GiB. No frozen sources change.
+ 'fidelity-smoke8-cached':('light',2.3,4.5,600,['/usr/bin/env','OPENBLAS_NUM_THREADS=2','OMP_NUM_THREADS=2',
+                   'python3',str(EXPORT/'evaluate_verdicts_cached.py'),
+                   '--token-io',str(EXPORT/'dg_r12b_t256/token_io'),
+                   '--layer25-fix',str(EXPORT/'layer25_fix_candidate'),
+                   '--limit','8','--out',str(EXPORT/'fidelity_smoke8_cached'),'--max-minutes','8']),
+ 'fidelity-audit-checkpoint1':('light',.6,1.5,600,
+                   ['python3',str(EXPORT/'report_fidelity.py'),'--verify-residuals']),
+ 'native-candidate-audit1':('light',.6,1.5,600,
+                   ['python3',str(EXPORT/'audit_native_candidate.py')]),
 }
 # Continuation1 measured peak RSS1.86 GiB; 2.4 GiB includes29% margin.
 # Each continuation resumes hash-checked completed layers, exits3 at its timebox.

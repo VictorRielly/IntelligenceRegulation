@@ -1,0 +1,93 @@
+{
+  "schema": "zk60-shieldstral-native-layer25-crosscheck/1",
+  "scope": "Exact public-array and independent table-fixture parity; not native weight import, proof or review acceptance",
+  "bit_identical": true,
+  "candidate": {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_shieldstral_export_20261026/layer25_fix_candidate",
+    "complete_sha256": "6e540249aa2513234ccd33c639afcfb98caf37c3a6111a6f4c84f382f710d3ce",
+    "loader_sha256": "1ad05f13eadfe6bd1a52e192b300d082b8cb0b59e5c623ed1d42528d07049306"
+  },
+  "groups": [
+    {
+      "member": [
+        -3,
+        -11
+      ],
+      "sha256": "d9bbe45ad9e8fc68f4e56aaa8d0d255bf33a8dbac2b4f373685478bce18fca53",
+      "words": 4096,
+      "minimum": -570,
+      "maximum": 32752
+    },
+    {
+      "member": [
+        -2,
+        -11
+      ],
+      "sha256": "af09df195722879c4a339576ddefe0ca444158e8c57a2446abfb74995086b7d3",
+      "words": 4096,
+      "minimum": -570,
+      "maximum": 32767
+    },
+    {
+      "member": [
+        -1,
+        -9
+      ],
+      "sha256": "a86689aff2d6cd18c1c14ef13448cbbfb309f07f4c4b3570fe46bbbedc45471b",
+      "words": 4096,
+      "minimum": -143,
+      "maximum": 32752
+    },
+    {
+      "member": [
+        0,
+        -8
+      ],
+      "sha256": "88d900f65ea5dbb7064d8139380897e925a7633f58c2f33a8879646d9d914c25",
+      "words": 4096,
+      "minimum": -71,
+      "maximum": 32752
+    }
+  ],
+  "native_intake_arrays": {
+    "m_u": {
+      "file": "m_u.bin",
+      "dtype": "int64",
+      "shape": [
+        9216
+      ],
+      "sha256": "0de034cc0a70e50f77c278cc9818ad20abac89710de160144e9911469f002839"
+    },
+    "silu_group_ids": {
+      "file": "silu_group_ids.bin",
+      "dtype": "int64",
+      "shape": [
+        9216
+      ],
+      "sha256": "5dd0561956e2df978340276a9ae12c17f8e64bbc272dda7bc54830ce88858be0"
+    },
+    "silu_groups": {
+      "file": "silu_groups.bin",
+      "dtype": "int64",
+      "shape": [
+        4,
+        2
+      ],
+      "sha256": "5d4eba498c8dc27a84130a69f660bc0f2d12cbaad516c31ca2ad890d9766e9dc"
+    },
+    "act": {
+      "file": "act.bin",
+      "dtype": "int16",
+      "shape": [
+        4,
+        4096
+      ],
+      "sha256": "1e2d7cbe48e3fc1b60410badaec4a73186c89c6da2c7fd572f2586bbb0ba8344"
+    }
+  },
+  "native_intake_sha256": "b6670f4ab945d27c95cd3737a903086058aec2f04a289e9d6a2dd89f0773c637",
+  "native_registry_test_log_sha256": "8ce3f38fdad1bfa9e4431c794d438e72d39199e827cd9e5c6788bec682cd872f",
+  "native_registry_guard_sha256": "3dd07905e9a35e2d9696ee9674bf456774903f2a2976f94b3e82c8c516884f6b",
+  "native_table_source_sha256": "0a92b7fff83a460b2f79560b195ed65c4a7024b80108631b3741bfbaba5511e8",
+  "crosscheck_source_sha256": "5b1ba5d65039e63bad6343143fe89fa4f038aca1bf25dae1834b2178c26bb56e"
+}

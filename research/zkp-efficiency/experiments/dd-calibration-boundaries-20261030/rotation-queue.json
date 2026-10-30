@@ -1,0 +1,22 @@
+{
+  "this_cycle": [
+    "proof composition",
+    "batching/amortization",
+    "quantization/arithmetic",
+    "lookup/softmax calibration"
+  ],
+  "next": [
+    "GPU NTT/commitments",
+    "memory traffic",
+    "sumcheck/GKR"
+  ],
+  "all": [
+    "GPU NTT/commitments",
+    "sumcheck/GKR",
+    "lookup arguments and softmax",
+    "memory traffic",
+    "batching/amortization",
+    "quantization/arithmetic",
+    "proof composition"
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "unchanged_top3": [
+    {
+      "priority": 1,
+      "hypothesis": 1,
+      "question": "Complete independently verified high-end GPU fixed-context resident1/2/4/8 with exact admitted profile?"
+    },
+    {
+      "priority": 2,
+      "hypothesis": 2,
+      "question": "Admitted context/DD/fidelity scaling without interpreting repeated passes as decode?"
+    },
+    {
+      "priority": 3,
+      "hypothesis": 3,
+      "question": "Which exclusive native phases and actual capacities dominate?"
+    }
+  ],
+  "new_hypothesis": 101,
+  "local_test_priority": "Cheap incidence screen plus exact arithmetic prerequisite; zero current direct slot incidence demotes native integration.",
+  "preserved_prior_hypotheses": 100
+}

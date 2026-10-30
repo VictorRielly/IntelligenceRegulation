@@ -1,0 +1,62 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/hashline/src/private_block/shape.rs",
+    "snapshot": "native/hashline__src__private_block__shape.rs",
+    "bytes": 149746,
+    "sha256": "8e00a144bd194fd5a3dd30c9aaece2869d43d461df623cdcfc5a9da59e51436b"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/hashline/src/private_block/layout.rs",
+    "snapshot": "native/hashline__src__private_block__layout.rs",
+    "bytes": 76914,
+    "sha256": "8519a514b8d1f43ab51c86b0a8af955230a2eab4fff4fc4c594733c59dcfd0bf"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/hashline/src/private_block/protocol.rs",
+    "snapshot": "native/hashline__src__private_block__protocol.rs",
+    "bytes": 79043,
+    "sha256": "1011441431a37f735999405986af6c9f11c2d303b48aa6d9cefae55b0311718d"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/hashline/src/zk.rs",
+    "snapshot": "native/hashline__src__zk.rs",
+    "bytes": 254060,
+    "sha256": "66d1128675bea3b473abd4f2fe70d470b1abc19a7fe5a579a227616d76280e32"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/zkp-core/src/pcs.rs",
+    "snapshot": "native/zkp-core__src__pcs.rs",
+    "bytes": 77003,
+    "sha256": "5c9cfc4e9c84283309f4c47f87d4a9146e2c9c9f5b52aa608b4ce6a7588cd495"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/zkp-core/src/merkle.rs",
+    "snapshot": "native/zkp-core__src__merkle.rs",
+    "bytes": 6487,
+    "sha256": "6e7817bd767a883985bfcd62b7a387d0c5f4c361010c4c5db37f5087d965744a"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/zkp-core/src/pcs/encode_buffer.rs",
+    "snapshot": "native/zkp-core__src__pcs__encode_buffer.rs",
+    "bytes": 3449,
+    "sha256": "3c01433d84507cddadcf5c1387c08948fd3efe853a066d74690c0a6e1ce3dd70"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/zkp-core/src/ntt.rs",
+    "snapshot": "native/zkp-core__src__ntt.rs",
+    "bytes": 5725,
+    "sha256": "97572d4f242637d21a089388abad4b5b39136c62036faa17ae94b3ba6f170890"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/zkp-core/src/field.rs",
+    "snapshot": "native/zkp-core__src__field.rs",
+    "bytes": 11065,
+    "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/zkp-core/src/sumcheck.rs",
+    "snapshot": "native/zkp-core__src__sumcheck.rs",
+    "bytes": 22023,
+    "sha256": "fc7374bbd5e5cc4ede62e8a21d325eb62acff9b9dcc786d12eae39efbdfdbb95"
+  }
+]

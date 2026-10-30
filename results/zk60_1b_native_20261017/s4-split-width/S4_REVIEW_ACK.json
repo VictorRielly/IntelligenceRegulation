@@ -1,0 +1,16 @@
+{
+  "utc": "2026-10-29T08:19:26.190910+00:00",
+  "supersedes": "S4 original whole-functional lift and two-commitment endpoint proposal",
+  "review_sha256": "a1c521ca7eeb3af4bea264b4e4c3dfdb9707bb19d8d53083ec94d0a03c7f3ac5",
+  "coordinator_adoption": "2026-10-29T07:43:13Z",
+  "construction": "B-gate, existing public factor only; private source table broadcasts omitted bits with native masks",
+  "boundaries": "one joint commitment, ordered row blocks; endpoint31/internal34 rows, preserving external spare",
+  "old_two_commitment_counts_correction": {
+    "external": 34,
+    "internal": 36,
+    "extra_PCS_openings_per_run": "L+1; not used in adopted joint design"
+  },
+  "privacy_acceptance": false,
+  "native_phase_path": "results/zk60_1b_native_20261017/r14",
+  "limitations": "Independent design review is conditional; native proofs/census/captures not implemented or accepted yet."
+}

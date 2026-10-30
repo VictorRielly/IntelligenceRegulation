@@ -1,0 +1,468 @@
+{
+ "blocks": 2,
+ "blocks_evaluated": [
+  0,
+  1
+ ],
+ "blocks_not_evaluated": [],
+ "controls": {
+  "NC-1_R13_score_precision_moved": {
+   "failing": [
+    17
+   ],
+   "fires": true,
+   "perturbation": "precision.score + 1 (SC_SZC's host and Rs pin)",
+   "predicted": [
+    17
+   ]
+  },
+  "R13-ACT_act3_table_doctored": {
+   "failing": [
+    19
+   ],
+   "fires": true,
+   "perturbation": "ACT3 compressed table entry 100 + 1 (digest recomputed)",
+   "predicted": [
+    19
+   ]
+  },
+  "R13-GC_group_column_doctored": {
+   "failing": [
+    18
+   ],
+   "fires": true,
+   "perturbation": "one channel's group id + 1 on every token (digest recomputed)",
+   "predicted": [
+    18
+   ]
+  },
+  "R13-G_gate_denominator_moved": {
+   "failing": [
+    18
+   ],
+   "fires": true,
+   "perturbation": "stage 1: G 20 -> 21",
+   "predicted": [
+    18
+   ]
+  },
+  "R13-L_legacy_fzc_on_r13_bytes": {
+   "failing": [
+    18
+   ],
+   "fires": true,
+   "perturbation": "SC_FZC evaluated with the legacy body (refused, not silently passed)",
+   "predicted": [
+    18
+   ]
+  },
+  "R13-N_norm_tn_moved": {
+   "failing": [
+    14
+   ],
+   "fires": true,
+   "perturbation": "precision.norm_tn + 1 (SC_DZC's two norm clauses)",
+   "predicted": [
+    14
+   ]
+  },
+  "R13-W_gate_weight_fold_doctored": {
+   "failing": [
+    11
+   ],
+   "fires": true,
+   "perturbation": "fold(w_g) entry 3 + 1 (digest recomputed; the multipliers' fold)",
+   "predicted": [
+    11
+   ]
+  }
+ },
+ "dev_seconds": 9.6,
+ "io_wiring": {
+  "findings": [],
+  "mapping": {
+   "block k": "token stage k + 1",
+   "block k's Input (slot 21's IO table)": "token boundary k (B_in at k = 0)",
+   "block k's Output (slot 22's IO table)": "token boundary k + 1 (B_out at k = L - 1)",
+   "external endpoints": "none in a block stage (the token endpoints are opened at stages IN and OUT, which no shim exposes)",
+   "native internal boundary j": "token boundary j + 1"
+  },
+  "ok": true,
+  "per_stage": [
+   {
+    "block": 0,
+    "commits_token_boundary": 1,
+    "opened_commitment_kind": "B-in",
+    "opens_token_boundary": 0,
+    "slot21_private_roles": [
+     "A",
+     "Input"
+    ],
+    "slot22_private_roles": [
+     "A",
+     "Output"
+    ],
+    "token_stage": 1
+   },
+   {
+    "block": 1,
+    "commits_token_boundary": 2,
+    "opened_commitment_kind": "internal-boundary",
+    "opens_token_boundary": 1,
+    "slot21_private_roles": [
+     "A",
+     "Input"
+    ],
+    "slot22_private_roles": [
+     "A",
+     "Output"
+    ],
+    "token_stage": 2
+   }
+  ]
+ },
+ "ok": true,
+ "ok_on_the_covered_slots": true,
+ "per_stage": [
+  {
+   "block": 0,
+   "captured_tables": [
+    "fold_cols_i8 of the public down weight matrix (argument.rs:1110)",
+    "fold_cols_i8 of the public gate weight matrix (argument.rs:1110)",
+    "fold_cols_i8 of the public up weight matrix (argument.rs:1110)",
+    "fold_rows_i8 of the public key weight matrix (argument.rs:1048)",
+    "fold_rows_i8 of the public output-projection matrix (argument.rs:1048)",
+    "fold_rows_i8 of the public query weight matrix at the round's point (argument.rs:1048)",
+    "fold_rows_i8 of the public value weight matrix (argument.rs:1048)",
+    "the ACT3 table's support indicator, 1 on its 4096 G rows (accuracy_act.rs:13-31)",
+    "the FFN group-id column, gid(j) at (t < T, j < hidden), 0 elsewhere (accuracy_act::group_column, accuracy_act.rs:33-41)",
+    "the RoPE cos table at this domain (rope_tables_at, argument.rs:790)",
+    "the RoPE sin table at this domain (rope_tables_at, argument.rs:790)",
+    "the derived ACT3 table i + beta T_g[i] + beta^2 g + g_act on 4096 G rows, the zero row 2048 + g_act elsewhere (accuracy_act::table, accuracy_act.rs:13-31)",
+    "the exp lookup table's public rows i + beta*exp[i] + g_exp (table_values_exp_at, argument.rs:843)",
+    "the padded attention norm gain vector (argument.rs:1132)",
+    "the padded feed-forward norm gain vector (argument.rs:1133)"
+   ],
+   "checked_not_equal": [],
+   "gate_shift": 20,
+   "group_factor_ok": true,
+   "ok": true,
+   "open_by_capture_option": [],
+   "r13_ported_slots": [
+    14,
+    15,
+    16,
+    17,
+    18,
+    19
+   ],
+   "refused_or_open": [],
+   "seconds": 0.8,
+   "slot_checks_equal": 23,
+   "slot_checks_expected": 23,
+   "stage": 1,
+   "structure_detail_r13": {
+    "act3_values": [
+     {
+      "entries": 16384,
+      "groups": 4,
+      "word_min_max": [
+       [
+        -583936,
+        8388352
+       ],
+       [
+        -584192,
+        16776704
+       ],
+       [
+        -583680,
+        33553408
+       ],
+       [
+        -585728,
+        134152192
+       ]
+      ],
+      "word_sha256_per_group": [
+       "752b5fba4f96058429ff8f06def5302e3fbb75327d2e318c1164f2e61ad9dd57",
+       "c9293e7e35f2f60e3e1d0c3e51fc909af0939936ccce702381592610ded0a413",
+       "2dc26d56c170ac99b18a7e7ca9003418f41767d714f4138e8e2a50bd939ada08",
+       "26c423fa538971ace71c308964f0f778fc55af5a6593062e09d0ba3cf75e9b59"
+      ]
+     }
+    ],
+    "act_support": [
+     {
+      "groups": 4
+     }
+    ],
+    "group_column": [
+     {
+      "channels": 768,
+      "groups_used": [
+       0,
+       1,
+       2,
+       3
+      ],
+      "per_group_channels": {
+       "0": 192,
+       "1": 192,
+       "2": 192,
+       "3": 192
+      }
+     }
+    ]
+   },
+   "structure_failures": []
+  },
+  {
+   "block": 1,
+   "captured_tables": [
+    "fold_cols_i8 of the public down weight matrix (argument.rs:1110)",
+    "fold_cols_i8 of the public gate weight matrix (argument.rs:1110)",
+    "fold_cols_i8 of the public up weight matrix (argument.rs:1110)",
+    "fold_rows_i8 of the public key weight matrix (argument.rs:1048)",
+    "fold_rows_i8 of the public output-projection matrix (argument.rs:1048)",
+    "fold_rows_i8 of the public query weight matrix at the round's point (argument.rs:1048)",
+    "fold_rows_i8 of the public value weight matrix (argument.rs:1048)",
+    "the ACT3 table's support indicator, 1 on its 4096 G rows (accuracy_act.rs:13-31)",
+    "the FFN group-id column, gid(j) at (t < T, j < hidden), 0 elsewhere (accuracy_act::group_column, accuracy_act.rs:33-41)",
+    "the RoPE cos table at this domain (rope_tables_at, argument.rs:790)",
+    "the RoPE sin table at this domain (rope_tables_at, argument.rs:790)",
+    "the derived ACT3 table i + beta T_g[i] + beta^2 g + g_act on 4096 G rows, the zero row 2048 + g_act elsewhere (accuracy_act::table, accuracy_act.rs:13-31)",
+    "the exp lookup table's public rows i + beta*exp[i] + g_exp (table_values_exp_at, argument.rs:843)",
+    "the padded attention norm gain vector (argument.rs:1132)",
+    "the padded feed-forward norm gain vector (argument.rs:1133)"
+   ],
+   "checked_not_equal": [],
+   "gate_shift": 21,
+   "group_factor_ok": true,
+   "ok": true,
+   "open_by_capture_option": [],
+   "r13_ported_slots": [
+    14,
+    15,
+    16,
+    17,
+    18,
+    19
+   ],
+   "refused_or_open": [],
+   "seconds": 0.9,
+   "slot_checks_equal": 23,
+   "slot_checks_expected": 23,
+   "stage": 2,
+   "structure_detail_r13": {
+    "act3_values": [
+     {
+      "entries": 16384,
+      "groups": 4,
+      "word_min_max": [
+       [
+        -2335744,
+        33553408
+       ],
+       [
+        -2336768,
+        67106816
+       ],
+       [
+        -2334720,
+        134213632
+       ],
+       [
+        -2342912,
+        536608768
+       ]
+      ],
+      "word_sha256_per_group": [
+       "bc0d4107338abc485400324298ddc0710c0935e60bdbc398c981f78d8f4ad2dd",
+       "bab4ce17eaa1289b4048d6a90ea13eacec533f0a1c02db01c516a9dbaecbac89",
+       "b0e2d82e8616790bf76957912974fe07596484358214a1d884b18f9767d7806f",
+       "1f58122cdc25b4b2d1ea869c64fe7f8e35511583cd54a810721e301c7c5a47d8"
+      ]
+     }
+    ],
+    "act_support": [
+     {
+      "groups": 4
+     }
+    ],
+    "group_column": [
+     {
+      "channels": 768,
+      "groups_used": [
+       0,
+       1,
+       2,
+       3
+      ],
+      "per_group_channels": {
+       "0": 192,
+       "1": 192,
+       "2": 192,
+       "3": 192
+      }
+     }
+    ]
+   },
+   "structure_failures": []
+  }
+ ],
+ "plane_index": {
+  "a_data_rows": 139,
+  "a_planes": 109,
+  "findings": [],
+  "h_data_rows": 138,
+  "h_planes": 54,
+  "ok": true,
+  "slots": 23
+ },
+ "plane_index_r13": {
+  "a_planes": 109,
+  "a_planes_ported": 109,
+  "dd": false,
+  "findings": [],
+  "names_and_domains_equal": true,
+  "ok": true,
+  "sigma_limbs": 3,
+  "stack": "LowH24"
+ },
+ "privacy_acceptance": false,
+ "r13": true,
+ "replay_ok": true,
+ "seconds": 7.6,
+ "slots_covered_without_tables": [
+  0,
+  1,
+  2,
+  3,
+  4,
+  8,
+  9,
+  17,
+  20,
+  21,
+  22
+ ],
+ "slots_open_without_tables": {},
+ "source_pins": {
+  "also_read_not_pinned_by_a_bundle": {
+   "src/private_block/pad.rs": "7b6a990be900ad56e890660e9e3587c19fefc69f434a9bb3d4eab817f603d1ff",
+   "src/private_block/shape.rs": "144012d5d960446784a64a451b01ada2d4d6bdd9493ede51e4142e90d28942e0",
+   "src/private_block/witness.rs": "b9b66c024e7ca68d2a0ae4ba46241eb2abbccc8c8d94fe828041abbc710850ad"
+  },
+  "argument_definitions_this_port_implements": {
+   "02df55ebec4d": "repaired",
+   "112352bc35c8": "repaired",
+   "2cee0a2253d6": "repaired",
+   "909670c96562": "pre-repair",
+   "9b26bda8105c": "repaired",
+   "bc0332e39904": "repaired",
+   "c4f9f9f4cb47": "repaired",
+   "dd8469cb0279": "repaired",
+   "ec3f97443245": "repaired",
+   "f7fa2ad4213d": "repaired"
+  },
+  "bilinear_definition_reason": "[v22, native R13 / r16b] read against c4f9f9f4: the R13 dispatch and the multiplier folds; the bilinear arms SC_SCORE / SC_PV unchanged (the repaired definition)",
+  "bilinear_definition_selected_by_the_argument_pin": "repaired",
+  "ok": true,
+  "pins_at_an_accepted_second_digest": [
+   "src/private_block/argument.rs: bc0332e39904 -- [v22, native R13 / r16b] read against c4f9f9f4: the R13 dispatch and the multiplier folds; the bilinear arms SC_SCORE / SC_PV unchanged (the repaired definition)",
+   "src/private_block/layout.rs: 8519a514b8d1 -- [v22, native R13 / r16b, READ vs 9332802e: +32 / -3] `Ids` takes `AccuracyIds` first at a non-legacy stack (checked against `Shape::a_plane_doms`), `domain_range`, limb-role asserts, `lookups_at` dispatches to `AccuracyIds::lookups` at R13, and the R13 calibration line of the layout description; the legacy construction, lookups and lines are byte-identical",
+   "src/private_block/protocol.rs: 1011441431a3 -- [v22, native R13 / r16b, READ vs c4824023: +38 / -15] `blk.accuracy()` selects the ACT3 histogram, helper denominators and table column (accuracy_act); `Ctx.accuracy`; the legacy arms (None at every legacy block) are the R9 code, and no draw order moved",
+   "src/private_block/plane_index.rs: ce79803c86a8 -- [v22, the GATE's test-only patch H19-3 in capture-tree-r16b, READ (written by the gate lane) vs 13a7dd6f: at an accuracy shape the A names are AccuracyIds' (prefix A_), and SC_DZC / SC_QZC / SC_KVZC / SC_FZC sweep the whole domain range, mirroring argument_accuracy.rs; legacy shapes are unchanged; the recorder still cross-checks every slot's actual push order]",
+   "src/private_block/shape.rs: 8e00a144bd19 -- [v22, native R13 / r16b, READ vs 9a870818: +123 / -5] the twelve R13 profiles APPENDED to the registries, ACCURACY_PROFILES, `accuracy_gate_shift` (0 on legacy shapes), the R13 plane / lookup / helper counts behind `accuracy_stack() != Legacy`; every legacy geometry function this port reads is unchanged",
+   "src/private_block/pad.rs: 91141ea025d0 -- [GATE ROUND 18, native R12b] read against `20afa04f` (R9): +3 / -2, 2 hunks.  Dom::Q's row stride `q_pad()` in the test-only `head_indicator` and in `closed_form_indicator`'s bit form; the identity at q_pad == d_pad, so every indicator and pad term of an old profile is R9's"
+  ],
+  "pins_missing_from_the_bundle": [],
+  "pins_that_moved": [],
+  "ported_from": {
+   "src/private_block/argument.rs": "909670c96562e7ff99b7ad37f6c3aae027574f3c0e9ab74f01a27e45058bf675",
+   "src/private_block/layout.rs": "fec2e6476f165e1e3be7871a3dfbdef56a4619f5b2e7560eb98ff2c97587a99f",
+   "src/private_block/plane_index.rs": "9de8320a84770560d2b998c514b0e9745a8f6c9f0c1d0cdefda8164137107611",
+   "src/private_block/protocol.rs": "4e916c693ad8e6c62e8774ddb3d829f5e1c116932e74bb1c6088d62ab4aee449"
+  }
+ },
+ "stage_facts": {
+  "base": {
+   "ao": 7,
+   "ceps": 1,
+   "cn_a": 4000,
+   "cn_m": 4000,
+   "down": 6,
+   "gate": 8,
+   "o": 9,
+   "product": 14,
+   "qkv": 8,
+   "score": 6,
+   "tn": 10
+  },
+  "gate_common_seed": 17,
+  "per_stage": [
+   {
+    "base": {
+     "ao": 7,
+     "ceps": 1,
+     "cn_a": 4000,
+     "cn_m": 4000,
+     "down": 6,
+     "gate": 8,
+     "o": 9,
+     "product": 14,
+     "qkv": 8,
+     "score": 6,
+     "tn": 10
+    },
+    "block": 0,
+    "gate_shift": 20,
+    "own_clauses": [],
+    "stage": 1
+   },
+   {
+    "base": {
+     "ao": 7,
+     "ceps": 1,
+     "cn_a": 4000,
+     "cn_m": 4000,
+     "down": 6,
+     "gate": 8,
+     "o": 9,
+     "product": 14,
+     "qkv": 8,
+     "score": 6,
+     "tn": 10
+    },
+    "block": 1,
+    "gate_shift": 21,
+    "own_clauses": [],
+    "stage": 2
+   }
+  ],
+  "precision": {
+   "ao": 21,
+   "attention_bits": 16,
+   "down": 20,
+   "f_p": 12,
+   "gate": 18,
+   "gate_bits": 12,
+   "k": 15,
+   "norm_bits": 16,
+   "norm_tn": 2,
+   "product": 6,
+   "product_bits": 24,
+   "pv": 12,
+   "q": 15,
+   "score": 18,
+   "up": 12,
+   "v": 16
+  },
+  "registry": "standard-int12-v1",
+  "schedule_digest_recomputed_equal": true,
+  "stack": "LowH24"
+ },
+ "tables_absent_by_capture_option": false,
+ "what": "the block-stage terminal identity of ONE classifier capture at an R13 accuracy shape (all 23 slots per stage at its own G and calibration; seven R13-ported)"
+}

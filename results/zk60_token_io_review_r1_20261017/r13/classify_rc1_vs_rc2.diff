@@ -1,0 +1,57 @@
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io/hashline/src/private_block/token_io/classify.rs	2026-10-26 11:33:12.597643290 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-review-r13-scratch/hashline/src/private_block/token_io/classify.rs	2026-10-28 16:42:48.583953226 -0700
+@@ -102,12 +102,24 @@
+     pub tokenizer: String,
+     /// the vocabulary the policy's ids are of
+     pub v: usize,
++    /// **R-C2: the margin row's PUBLIC quantization scale** (f64 bits), a
++    /// registered policy constant: `w = floor((E[yes] - E[no]) * g / scale +
++    /// 0.5)` from the pinned tied tensor (never from a file; coordinator
++    /// 2026-10-28 21:35, condition 1)
++    pub margin_scale_bits: u64,
++}
++
++impl Policy {
++    /// the margin row's public scale
++    pub(crate) fn margin_scale(&self) -> f64 {
++        f64::from_bits(self.margin_scale_bits)
++    }
+ }
+ 
+ /// the development rung's synthetic policy (its ids are the CLI fixture's
+ /// prompt layout: positions 0..8 template, 8..31 content, 31 suffix)
+ pub(crate) fn policy_rung_dev() -> Policy {
+-    Policy { id: "rung-tc-synthetic-policy-dev/1".into(), prefix: (1..=8).collect(), suffix: vec![32], num_special: 5, yes: 40, no: 41, c: 0, tokenizer: "synthetic (ids only, no text)".into(), v: 300 }
++    Policy { id: "rung-tc-synthetic-policy-dev/1".into(), prefix: (1..=8).collect(), suffix: vec![32], num_special: 5, yes: 40, no: 41, c: 0, tokenizer: "synthetic (ids only, no text)".into(), v: 300, margin_scale_bits: (1.0f64 / 256.0).to_bits() }
+ }
+ 
+ /// Shieldstral-1.0-3B with the card's 7-category template (R-C0's pinned ids,
+@@ -129,6 +141,9 @@
+         c: 0,
+         tokenizer: "tekken.json sha256 ceb11e85e44d7c91 (plain-text encoding, no special-token parsing)".into(),
+         v: 131_072,
++        // native R12b's chosen scale for 13059 / 2649 (SOL_REPORT_20261028: the
++        // 3,072 coordinates span -32767 .. 31800, zero refusals [COUNTED])
++        margin_scale_bits: 4.08288030735373e-6f64.to_bits(),
+     }
+ }
+ 
+@@ -503,7 +518,7 @@
+     /// calibration identity (the ruling switches included)
+     pub(crate) fn describe_under(&self, run_profile: &str) -> String {
+         format!(
+-            "classify (DESIGN_CLASSIFIER v2) under {run_profile}: V={} V_pad={} d={} d_pad={} T={} P0={} n={} S={} BOS={} final-norm g0={} cn={} tn={} ceps={} wrho={} dmax={} margin-vector=int16[-32767,32767] {} threshold c={} c-class=[-2^33,2^33] margin-window={} byte-limbs={} limbs-at-Lo-entry={} no-pin yes={} no={} ctl=ids<{} template={} policy={} tokenizer={} embedding={} variant=public-row mode=verdict-public-bit no-output-endpoint chunk-size={} chunk-overlap={} chunk-split=end-aligned {} {}",
++            "classify (DESIGN_CLASSIFIER v2) under {run_profile}: V={} V_pad={} d={} d_pad={} T={} P0={} n={} S={} BOS={} final-norm g0={} cn={} tn={} ceps={} wrho={} dmax={} margin-vector=int16[-32767,32767] {} threshold c={} c-class=[-2^33,2^33] margin-window={} byte-limbs={} limbs-at-Lo-entry={} no-pin yes={} no={} ctl=ids<{} template={} policy={} tokenizer={} embedding={} variant=public-row mode=verdict-public-bit no-output-endpoint chunk-size={} chunk-overlap={} chunk-split=end-aligned margin-scale={:e} margin-scale-bits={:#018x} {} {} {}",
+             self.v,
+             self.v_pad,
+             self.d,
+@@ -533,6 +548,9 @@
+             hex(&self.emb_digest),
+             self.n,
+             chunk_overlap_of(run_profile).map(|o| o.to_string()).unwrap_or_else(|_| "unregistered".into()),
++            self.policy.margin_scale(),
++            self.policy.margin_scale_bits,
++            super::classify_tied::TiedSource::of_run_profile(run_profile).map(|t| t.describe()).unwrap_or_else(|_| "tied-source=unregistered".into()),
+             rulings_text(),
+             self.tier.describe()
+         )

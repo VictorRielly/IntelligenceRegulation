@@ -1,0 +1,14 @@
+[
+  {
+    "path": "FINDINGS.md",
+    "prefix_bytes": 1142923,
+    "prefix_sha256": "30639856cc2c20288e7683fd4ab361286706dbdd01cff3be5a26bb9cc5685286",
+    "lines": 14434
+  },
+  {
+    "path": "sources.jsonl",
+    "prefix_bytes": 1278603,
+    "prefix_sha256": "765b0ddd94ba73cb89e60507b2e107c6f6d2394ae6f637bb91cc5212da9f8f0c",
+    "lines": 1032
+  }
+]

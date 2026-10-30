@@ -1,0 +1,84 @@
+{
+  "utc": "2026-10-29T16:53:19.846083+00:00",
+  "rows": [
+    {
+      "mode": "non-dd",
+      "same_model_identity": "2e6c6caac2ba301224181362559d042a3f620fe291693344024b6834a05d92a2",
+      "same_block_digest": "70c065a71fefa6f8caeaef95d66f739cc6137def79f75235c433645f6e7bf6a9",
+      "same_fixture_helpers_sha256": "9bce20f3bc9f97592db66bbbef9a307529604dbf46980bac9dce43c3a1ad8c96",
+      "r13": {
+        "prove_seconds": 49.22540287,
+        "verify_seconds": 1.3097519979999999,
+        "guard_sampled_peak_rss_gib": 7.49,
+        "process_hwm_mib": 7671.29296875,
+        "segment_bytes": [
+          32181896,
+          33199720
+        ],
+        "total_segment_bytes": 65381616
+      },
+      "r14": {
+        "prove_seconds": 35.049780802,
+        "verify_seconds": 1.6280700289999999,
+        "guard_sampled_peak_rss_gib": 5.56,
+        "prove_process_hwm_mib": 5693.484375,
+        "segment_bytes": [
+          33872200,
+          35414312
+        ],
+        "total_segment_bytes": 69286512
+      },
+      "prove_time_reduction_percent": 28.79737136014221,
+      "sampled_peak_reduction_percent": 25.76769025367157,
+      "receipt_increase_percent": 5.972467857019614,
+      "evidence_sha256": {
+        "results/zk60_1b_native_20261017/r14/matched-r13/sol-r13-matched-non-dd-2.result.json": "60cb3737159eee9fd3eef0346b2391ee21cd6cbf341c3c6280401cb0dc2f9b49",
+        "results/zk60_1b_native_20261017/r14/sol-r14-matched-non-dd-1.result.json": "de7300e5c2250fa5f72cdccbf7b3be1571cf4548c49b638a8e189e5c7a226cca"
+      }
+    },
+    {
+      "mode": "dd",
+      "same_model_identity": "2771835e24824e8dc99899264655cc60870bf2b70775182538b3190ad47b6b07",
+      "same_block_digest": "70c065a71fefa6f8caeaef95d66f739cc6137def79f75235c433645f6e7bf6a9",
+      "same_fixture_helpers_sha256": "9bce20f3bc9f97592db66bbbef9a307529604dbf46980bac9dce43c3a1ad8c96",
+      "r13": {
+        "prove_seconds": 48.65727558,
+        "verify_seconds": 1.369657555,
+        "guard_sampled_peak_rss_gib": 7.75,
+        "process_hwm_mib": 7936.6484375,
+        "segment_bytes": [
+          32416904,
+          33434728
+        ],
+        "total_segment_bytes": 65851632
+      },
+      "r14": {
+        "prove_seconds": 33.845201312,
+        "verify_seconds": 1.672533869,
+        "guard_sampled_peak_rss_gib": 5.78,
+        "prove_process_hwm_mib": 5921.0234375,
+        "segment_bytes": [
+          34107208,
+          35649320
+        ],
+        "total_segment_bytes": 69756528
+      },
+      "prove_time_reduction_percent": 30.441643292680208,
+      "sampled_peak_reduction_percent": 25.419354838709673,
+      "receipt_increase_percent": 5.92983936981244,
+      "evidence_sha256": {
+        "results/zk60_1b_native_20261017/r14/matched-r13/sol-r13-matched-dd-2.result.json": "864dd6168864f2aa3665b05abad3279f53114fb0c69f4aec4558c8df6fc4fbef",
+        "results/zk60_1b_native_20261017/r14/sol-r14-matched-dd-1.result.json": "36804df62736d57de30a1119ce2f447348cc203528bb657527059ff369cedf2b"
+      }
+    }
+  ],
+  "scope": "MEASURED n=1 per variant on shared host, native T128 two-block public sparse synthetic fixture; exact same helper functions, input, public matrices/gains, model identity and two layer calibrations. No approved trained model or 26-block throughput claim.",
+  "timers": "Around prove_run / split_run::prove only; excludes initial fixture/witness/endpoint preparation and later verification/controls, includes on-demand second witness. Verify timer measures first full verification only.",
+  "memory": "Guard RSS sampled at0.5s across process tree, may miss spikes; process HWM also retained. Watchdog-only sandbox, no kernel cap. Shared heavy lock held and guard status checked; not a quiesced production benchmark.",
+  "sources": {
+    "r13_base": "bb9eb2123c9350c738dafd19fe3b0133d6e2e7ab93f1e765cac4f20ccaed69ec",
+    "r13_test_only_source": "222a775b21472f9ad99313c51940da8d7c2e2029d2dddd9d8b38fa45e4164b63",
+    "r14": "067ba4622a51fc62c320bfd01a96a04aa614a6f798ef46757669d4faa97404f7"
+  },
+  "status": "Native correctness and matched diagnostic measurement; independent R14 soundness/privacy reviews still required before activation."
+}

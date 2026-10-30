@@ -1,0 +1,98 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/AGENDA.md",
+    "snapshot": "startup/00-AGENDA.md",
+    "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139",
+    "bytes": 5603
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/STATE.md",
+    "snapshot": "startup/01-STATE.md",
+    "sha256": "77db0c6953c65180ebc6a0cb20e1b10f3dff0818da0f5d7d25fe6c09bbc4a9bb",
+    "bytes": 5104
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/FINDINGS.md",
+    "snapshot": "startup/02-FINDINGS.md",
+    "sha256": "479f0421b4b68864316a44fc00a7fe049c199a2bc18fc6cb81753782bd99a5a4",
+    "bytes": 959258
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/sources.jsonl",
+    "snapshot": "startup/03-sources.jsonl",
+    "sha256": "64f4d46ed430d93b6655693404584c89af94bd3259ae94c4ed44ea3c3b8b6c51",
+    "bytes": 1052980
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/PROGRESS.md",
+    "snapshot": "startup/04-PROGRESS.md",
+    "sha256": "a531029663dde738c56e8aa365d6723d2602cdbd64a5e7e6124aaedb366ae823",
+    "bytes": 2842
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/CLAUDE.md",
+    "snapshot": "startup/05-CLAUDE.md",
+    "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6",
+    "bytes": 14089
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_THROUGHPUT_TARGET.md",
+    "snapshot": "startup/06-ZK60_THROUGHPUT_TARGET.md",
+    "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53",
+    "bytes": 4941
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/MVP_STATUS.md",
+    "snapshot": "startup/07-MVP_STATUS.md",
+    "sha256": "cc792757796505a2ecd820d45e781331c4399a4f966cc385605c8f16fa6418f8",
+    "bytes": 93820
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_DECISIONS.md",
+    "snapshot": "startup/08-ZK60_DECISIONS.md",
+    "sha256": "51df069fffccc6748fb32eb5a455f649e03cefd8d0ffad46e300669be4fd0bde",
+    "bytes": 128540
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_CODEX_FABLE_COORDINATION.md",
+    "snapshot": "startup/09-ZK60_CODEX_FABLE_COORDINATION.md",
+    "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f",
+    "bytes": 64889
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/START_HERE.md",
+    "snapshot": "startup/10-START_HERE.md",
+    "sha256": "89f6732a39f4294f2f1b7b68add8fdcbb76b86006e21041f52c0f40d9e39df9d",
+    "bytes": 42025
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-derived-cache-20261029/result.json",
+    "snapshot": "startup/11-result.json",
+    "sha256": "af94e2a52025a5ad9195b69c06bccefe5186e30233802572df542f6ef7965926",
+    "bytes": 112378
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-derived-cache-20261029/audit-result.json",
+    "snapshot": "startup/12-audit-result.json",
+    "sha256": "6c3e40f1161e1240ed73c436264a98c6d6ec032c57965116fe5a339846329c89",
+    "bytes": 2131
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-derived-cache-20261029/hypotheses.json",
+    "snapshot": "startup/13-hypotheses.json",
+    "sha256": "8e347b7f5a1b2ee429c925b349fa410bc2d119fdc6a15c60f8ce7bc39e69705a",
+    "bytes": 93640
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-derived-cache-20261029/README.md",
+    "snapshot": "startup/14-README.md",
+    "sha256": "ca003a0e749d33e9a88a9fb5aa17a4b933029979c74de8d5f0de0090eb78bcc9",
+    "bytes": 9597
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-derived-cache-20261029/source-facts.json",
+    "snapshot": "startup/15-source-facts.json",
+    "sha256": "29d18c489b1801da4a741b63f3d31c5033b24fee790e67aaa212035c11641eaa",
+    "bytes": 397
+  }
+]

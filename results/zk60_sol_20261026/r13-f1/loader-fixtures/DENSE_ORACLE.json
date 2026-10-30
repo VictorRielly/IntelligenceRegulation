@@ -1,0 +1,198 @@
+[
+  {
+    "variant": "r13-low-dense",
+    "scope": "independent exact public synthetic integer reference; native comparison/proof pending",
+    "script_sha256": "a30fe734730d1448cd912df56eaa3db025f1ed45748e39a59e64e41898aff03c",
+    "profile_sha256": "31ac461a2d380ef6ce2b4f559a7a5b34d6cf25bfa86d0f828dfca70680f8298b",
+    "input_sha256": "71d6daa1abe0380957d25694ddf9ae4cfe3ae392a270970f97359065590dc4fa",
+    "output_sha256": "1b8f1df0189298b19d0e53d5371074b0c3fe1820fae30bbdf50d8c8c5cd69bc8",
+    "trace_sha256": "3dbedc947aa1cb62f214edbdda67d2bd087611aefb05bdd580ef0736eb75a080",
+    "ranges": {
+      "input": [
+        -100,
+        100
+      ],
+      "y": [
+        -5649,
+        5649
+      ],
+      "q": [
+        -314,
+        302
+      ],
+      "k": [
+        -416,
+        302
+      ],
+      "v": [
+        -302,
+        301
+      ],
+      "qr": [
+        -314,
+        302
+      ],
+      "kr": [
+        -416,
+        302
+      ],
+      "s": [
+        -1,
+        1
+      ],
+      "p": [
+        0,
+        4096
+      ],
+      "o": [
+        -208,
+        224
+      ],
+      "ao": [
+        -1,
+        1
+      ],
+      "x1": [
+        -100,
+        101
+      ],
+      "nm": [
+        -5649,
+        5690
+      ],
+      "gate": [
+        -152,
+        183
+      ],
+      "a_group": [
+        -1730,
+        3932
+      ],
+      "a_scaled": [
+        -442880,
+        1006592
+      ],
+      "up": [
+        -1493,
+        1540
+      ],
+      "h": [
+        -19,
+        27
+      ],
+      "z": [
+        -5,
+        4
+      ],
+      "x2": [
+        -102,
+        102
+      ]
+    },
+    "decoupled_axes": {
+      "model_width": 384,
+      "query_width": 1024,
+      "kv_width": 512,
+      "hidden": 768
+    },
+    "violations": 0
+  },
+  {
+    "variant": "r13-h24-dense",
+    "scope": "independent exact public synthetic integer reference; native comparison/proof pending",
+    "script_sha256": "a30fe734730d1448cd912df56eaa3db025f1ed45748e39a59e64e41898aff03c",
+    "profile_sha256": "ed7e292cf448949d8a358395266d68b25e2f0804e2a47fae1996ff1d7026cec1",
+    "input_sha256": "71d6daa1abe0380957d25694ddf9ae4cfe3ae392a270970f97359065590dc4fa",
+    "output_sha256": "ae5740cad162c94ac9e768333fe5b96f2d9f7bbf1705d2e49b58bce9d8cc3760",
+    "trace_sha256": "03c708bfeeb29e76b7a5ba4a2bac794ae09cab308fd6191370abba1c5029695b",
+    "ranges": {
+      "input": [
+        -100,
+        100
+      ],
+      "y": [
+        -5649,
+        5649
+      ],
+      "q": [
+        -314,
+        302
+      ],
+      "k": [
+        -416,
+        302
+      ],
+      "v": [
+        -302,
+        301
+      ],
+      "qr": [
+        -314,
+        302
+      ],
+      "kr": [
+        -416,
+        302
+      ],
+      "s": [
+        -1,
+        1
+      ],
+      "p": [
+        0,
+        4096
+      ],
+      "o": [
+        -208,
+        224
+      ],
+      "ao": [
+        -1,
+        1
+      ],
+      "x1": [
+        -100,
+        101
+      ],
+      "nm": [
+        -5649,
+        5690
+      ],
+      "gate": [
+        -151,
+        183
+      ],
+      "a_group": [
+        -1723,
+        3932
+      ],
+      "a_scaled": [
+        -443392,
+        1006592
+      ],
+      "up": [
+        -1493,
+        1540
+      ],
+      "h": [
+        -4779,
+        6760
+      ],
+      "z": [
+        -5,
+        3
+      ],
+      "x2": [
+        -101,
+        102
+      ]
+    },
+    "decoupled_axes": {
+      "model_width": 384,
+      "query_width": 1024,
+      "kv_width": 512,
+      "hidden": 768
+    },
+    "violations": 0
+  }
+]

@@ -1,0 +1,22 @@
+[
+  {
+    "tokens": 128,
+    "dd": false,
+    "savings_percent": 24.289059886249586
+  },
+  {
+    "tokens": 128,
+    "dd": true,
+    "savings_percent": 25.066175624352628
+  },
+  {
+    "tokens": 256,
+    "dd": false,
+    "savings_percent": 21.309069562665105
+  },
+  {
+    "tokens": 256,
+    "dd": true,
+    "savings_percent": 23.492611368784377
+  }
+]

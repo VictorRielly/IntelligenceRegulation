@@ -1,0 +1,10 @@
+{
+  "case": "cross-run-next-frame",
+  "stage": 1,
+  "offset": 0,
+  "bytes_changed_region": 35414312,
+  "same_frame_lengths": true,
+  "metadata_unchanged": true,
+  "expected_refusal": "another run binding",
+  "source": "067ba4622a51fc62c320bfd01a96a04aa614a6f798ef46757669d4faa97404f7"
+}

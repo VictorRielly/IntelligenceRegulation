@@ -1,0 +1,16 @@
+{
+  "status": "PASS",
+  "timestamp_utc": "2026-10-30T05:52:22.964925+00:00",
+  "prior_findings_and_sources_prefixes_preserved": true,
+  "all84_prior_hypotheses_exactly_preserved": true,
+  "new_sources": 7,
+  "source_records": 1045,
+  "source_pins_match": true,
+  "concurrent_decisions_read_and_recorded": [
+    "D47",
+    "D48"
+  ],
+  "full_stack_proofs": 0,
+  "steady_and_total_rates_measured": false,
+  "no_production_writes": true
+}

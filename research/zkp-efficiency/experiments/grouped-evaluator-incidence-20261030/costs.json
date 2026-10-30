@@ -1,0 +1,1986 @@
+[
+  {
+    "n": 1,
+    "limbs_sigma_s": 2,
+    "limbs_p": 2,
+    "padded": false,
+    "k": 25,
+    "degrees": [
+      3,
+      1,
+      1
+    ],
+    "count_only": true,
+    "not_admitted_geometry": true,
+    "recovery_assumption": "explicit/debug/fallback",
+    "baseline": {
+      "mul_base": 70,
+      "add": 284,
+      "mul": 184,
+      "sub": 164,
+      "distinct_endpoint_reads": 100,
+      "table_fold_writes": 25
+    },
+    "candidate": {
+      "mul_base": 70,
+      "add": 275,
+      "mul": 184,
+      "sub": 161,
+      "distinct_endpoint_reads": 94,
+      "table_fold_writes": 25
+    },
+    "removed": {
+      "mul_base": 0,
+      "add": 9,
+      "mul": 0,
+      "sub": 3,
+      "distinct_endpoint_reads": 6,
+      "table_fold_writes": 0
+    },
+    "bracket_calls": [
+      4,
+      2,
+      2
+    ],
+    "fraction_of_counted_api_calls_removed": 0.017094017094017096,
+    "logical_round_plus_fold_distinct_endpoint_read_fraction_removed": 0.06,
+    "extra_scratch_payload": "k public last-sample indices; cur/dif dense allocations unchanged",
+    "excluded": [
+      "table building",
+      "Eq split/factor setup",
+      "inversions",
+      "degree completion",
+      "group recovery/reduction",
+      "masks",
+      "extensions",
+      "transcript/RNG",
+      "witness",
+      "PCS/commitments",
+      "transfers",
+      "serialization",
+      "verification"
+    ]
+  },
+  {
+    "n": 1,
+    "limbs_sigma_s": 2,
+    "limbs_p": 2,
+    "padded": false,
+    "k": 25,
+    "degrees": [
+      3,
+      1,
+      1
+    ],
+    "count_only": true,
+    "not_admitted_geometry": true,
+    "recovery_assumption": "nonzero subsequent factors",
+    "baseline": {
+      "mul_base": 70,
+      "add": 284,
+      "mul": 184,
+      "sub": 164,
+      "distinct_endpoint_reads": 100,
+      "table_fold_writes": 25
+    },
+    "candidate": {
+      "mul_base": 70,
+      "add": 275,
+      "mul": 184,
+      "sub": 161,
+      "distinct_endpoint_reads": 94,
+      "table_fold_writes": 25
+    },
+    "removed": {
+      "mul_base": 0,
+      "add": 9,
+      "mul": 0,
+      "sub": 3,
+      "distinct_endpoint_reads": 6,
+      "table_fold_writes": 0
+    },
+    "bracket_calls": [
+      4,
+      2,
+      2
+    ],
+    "fraction_of_counted_api_calls_removed": 0.017094017094017096,
+    "logical_round_plus_fold_distinct_endpoint_read_fraction_removed": 0.06,
+    "extra_scratch_payload": "k public last-sample indices; cur/dif dense allocations unchanged",
+    "excluded": [
+      "table building",
+      "Eq split/factor setup",
+      "inversions",
+      "degree completion",
+      "group recovery/reduction",
+      "masks",
+      "extensions",
+      "transcript/RNG",
+      "witness",
+      "PCS/commitments",
+      "transfers",
+      "serialization",
+      "verification"
+    ]
+  },
+  {
+    "n": 1,
+    "limbs_sigma_s": 2,
+    "limbs_p": 2,
+    "padded": true,
+    "k": 27,
+    "degrees": [
+      4,
+      2,
+      2
+    ],
+    "count_only": true,
+    "not_admitted_geometry": true,
+    "recovery_assumption": "explicit/debug/fallback",
+    "baseline": {
+      "mul_base": 88,
+      "add": 437,
+      "mul": 298,
+      "sub": 207,
+      "distinct_endpoint_reads": 108,
+      "table_fold_writes": 27
+    },
+    "candidate": {
+      "mul_base": 88,
+      "add": 425,
+      "mul": 298,
+      "sub": 204,
+      "distinct_endpoint_reads": 102,
+      "table_fold_writes": 27
+    },
+    "removed": {
+      "mul_base": 0,
+      "add": 12,
+      "mul": 0,
+      "sub": 3,
+      "distinct_endpoint_reads": 6,
+      "table_fold_writes": 0
+    },
+    "bracket_calls": [
+      5,
+      3,
+      3
+    ],
+    "fraction_of_counted_api_calls_removed": 0.014563106796116505,
+    "logical_round_plus_fold_distinct_endpoint_read_fraction_removed": 0.05555555555555555,
+    "extra_scratch_payload": "k public last-sample indices; cur/dif dense allocations unchanged",
+    "excluded": [
+      "table building",
+      "Eq split/factor setup",
+      "inversions",
+      "degree completion",
+      "group recovery/reduction",
+      "masks",
+      "extensions",
+      "transcript/RNG",
+      "witness",
+      "PCS/commitments",
+      "transfers",
+      "serialization",
+      "verification"
+    ]
+  },
+  {
+    "n": 1,
+    "limbs_sigma_s": 2,
+    "limbs_p": 2,
+    "padded": true,
+    "k": 27,
+    "degrees": [
+      4,
+      2,
+      2
+    ],
+    "count_only": true,
+    "not_admitted_geometry": true,
+    "recovery_assumption": "nonzero subsequent factors",
+    "baseline": {
+      "mul_base": 88,
+      "add": 437,
+      "mul": 298,
+      "sub": 207,
+      "distinct_endpoint_reads": 108,
+      "table_fold_writes": 27
+    },
+    "candidate": {
+      "mul_base": 88,
+      "add": 425,
+      "mul": 298,
+      "sub": 204,
+      "distinct_endpoint_reads": 102,
+      "table_fold_writes": 27
+    },
+    "removed": {
+      "mul_base": 0,
+      "add": 12,
+      "mul": 0,
+      "sub": 3,
+      "distinct_endpoint_reads": 6,
+      "table_fold_writes": 0
+    },
+    "bracket_calls": [
+      5,
+      3,
+      3
+    ],
+    "fraction_of_counted_api_calls_removed": 0.014563106796116505,
+    "logical_round_plus_fold_distinct_endpoint_read_fraction_removed": 0.05555555555555555,
+    "extra_scratch_payload": "k public last-sample indices; cur/dif dense allocations unchanged",
+    "excluded": [
+      "table building",
+      "Eq split/factor setup",
+      "inversions",
+      "degree completion",
+      "group recovery/reduction",
+      "masks",
+      "extensions",
+      "transcript/RNG",
+      "witness",
+      "PCS/commitments",
+      "transfers",
+      "serialization",
+      "verification"
+    ]
+  },
+  {
+    "n": 1,
+    "limbs_sigma_s": 3,
+    "limbs_p": 2,
+    "padded": false,
+    "k": 28,
+    "degrees": [
+      3,
+      1,
+      1
+    ],
+    "count_only": true,
+    "not_admitted_geometry": true,
+    "recovery_assumption": "explicit/debug/fallback",
+    "baseline": {
+      "mul_base": 86,
+      "add": 320,
+      "mul": 199,
+      "sub": 182,
+      "distinct_endpoint_reads": 112,
+      "table_fold_writes": 28
+    },
+    "candidate": {
+      "mul_base": 86,
+      "add": 311,
+      "mul": 199,
+      "sub": 179,
+      "distinct_endpoint_reads": 106,
+      "table_fold_writes": 28
+    },
+    "removed": {
+      "mul_base": 0,
+      "add": 9,
+      "mul": 0,
+      "sub": 3,
+      "distinct_endpoint_reads": 6,
+      "table_fold_writes": 0
+    },
+    "bracket_calls": [
+      4,
+      2,
+      2
+    ],
+    "fraction_of_counted_api_calls_removed": 0.015247776365946633,
+    "logical_round_plus_fold_distinct_endpoint_read_fraction_removed": 0.05357142857142857,
+    "extra_scratch_payload": "k public last-sample indices; cur/dif dense allocations unchanged",
+    "excluded": [
+      "table building",
+      "Eq split/factor setup",
+      "inversions",
+      "degree completion",
+      "group recovery/reduction",
+      "masks",
+      "extensions",
+      "transcript/RNG",
+      "witness",
+      "PCS/commitments",
+      "transfers",
+      "serialization",
+      "verification"
+    ]
+  },
+  {
+    "n": 1,
+    "limbs_sigma_s": 3,
+    "limbs_p": 2,
+    "padded": false,
+    "k": 28,
+    "degrees": [
+      3,
+      1,
+      1
+    ],
+    "count_only": true,
+    "not_admitted_geometry": true,
+    "recovery_assumption": "nonzero subsequent factors",
+    "baseline": {
+      "mul_base": 86,
+      "add": 320,
+      "mul": 199,
+      "sub": 182,
+      "distinct_endpoint_reads": 112,
+      "table_fold_writes": 28
+    },
+    "candidate": {
+      "mul_base": 86,
+      "add": 311,
+      "mul": 199,
+      "sub": 179,
+      "distinct_endpoint_reads": 106,
+      "table_fold_writes": 28
+    },
+    "removed": {
+      "mul_base": 0,
+      "add": 9,
+      "mul": 0,
+      "sub": 3,
+      "distinct_endpoint_reads": 6,
+      "table_fold_writes": 0
+    },
+    "bracket_calls": [
+      4,
+      2,
+      2
+    ],
+    "fraction_of_counted_api_calls_removed": 0.015247776365946633,
+    "logical_round_plus_fold_distinct_endpoint_read_fraction_removed": 0.05357142857142857,
+    "extra_scratch_payload": "k public last-sample indices; cur/dif dense allocations unchanged",
+    "excluded": [
+      "table building",
+      "Eq split/factor setup",
+      "inversions",
+      "degree completion",
+      "group recovery/reduction",
+      "masks",
+      "extensions",
+      "transcript/RNG",
+      "witness",
+      "PCS/commitments",
+      "transfers",
+      "serialization",
+      "verification"
+    ]
+  },
+  {
+    "n": 1,
+    "limbs_sigma_s": 3,
+    "limbs_p": 2,
+    "padded": true,
+    "k": 30,
+    "degrees": [
+      4,
+      2,
+      2
+    ],
+    "count_only": true,
+    "not_admitted_geometry": true,
+    "recovery_assumption": "explicit/debug/fallback",
+    "baseline": {
+      "mul_base": 108,
+      "add": 492,
+      "mul": 326,
+      "sub": 228,
+      "distinct_endpoint_reads": 120,
+      "table_fold_writes": 30
+    },
+    "candidate": {
+      "mul_base": 108,
+      "add": 480,
+      "mul": 326,
+      "sub": 225,
+      "distinct_endpoint_reads": 114,
+      "table_fold_writes": 30
+    },
+    "removed": {
+      "mul_base": 0,
+      "add": 12,
+      "mul": 0,
+      "sub": 3,
+      "distinct_endpoint_reads": 6,
+      "table_fold_writes": 0
+    },
+    "bracket_calls": [
+      5,
+      3,
+      3
+    ],
+    "fraction_of_counted_api_calls_removed": 0.012998266897746967,
+    "logical_round_plus_fold_distinct_endpoint_read_fraction_removed": 0.05,
+    "extra_scratch_payload": "k public last-sample indices; cur/dif dense allocations unchanged",
+    "excluded": [
+      "table building",
+      "Eq split/factor setup",
+      "inversions",
+      "degree completion",
+      "group recovery/reduction",
+      "masks",
+      "extensions",
+      "transcript/RNG",
+      "witness",
+      "PCS/commitments",
+      "transfers",
+      "serialization",
+      "verification"
+    ]
+  },
+  {
+    "n": 1,
+    "limbs_sigma_s": 3,
+    "limbs_p": 2,
+    "padded": true,
+    "k": 30,
+    "degrees": [
+      4,
+      2,
+      2
+    ],
+    "count_only": true,
+    "not_admitted_geometry": true,
+    "recovery_assumption": "nonzero subsequent factors",
+    "baseline": {
+      "mul_base": 108,
+      "add": 492,
+      "mul": 326,
+      "sub": 228,
+      "distinct_endpoint_reads": 120,
+      "table_fold_writes": 30
+    },
+    "candidate": {
+      "mul_base": 108,
+      "add": 480,
+      "mul": 326,
+      "sub": 225,
+      "distinct_endpoint_reads": 114,
+      "table_fold_writes": 30
+    },
+    "removed": {
+      "mul_base": 0,
+      "add": 12,
+      "mul": 0,
+      "sub": 3,
+      "distinct_endpoint_reads": 6,
+      "table_fold_writes": 0
+    },
+    "bracket_calls": [
+      5,
+      3,
+      3
+    ],
+    "fraction_of_counted_api_calls_removed": 0.012998266897746967,
+    "logical_round_plus_fold_distinct_endpoint_read_fraction_removed": 0.05,
+    "extra_scratch_payload": "k public last-sample indices; cur/dif dense allocations unchanged",
+    "excluded": [
+      "table building",
+      "Eq split/factor setup",
+      "inversions",
+      "degree completion",
+      "group recovery/reduction",
+      "masks",
+      "extensions",
+      "transcript/RNG",
+      "witness",
+      "PCS/commitments",
+      "transfers",
+      "serialization",
+      "verification"
+    ]
+  },
+  {
+    "n": 7,
+    "limbs_sigma_s": 2,
+    "limbs_p": 2,
+    "padded": false,
+    "k": 25,
+    "degrees": [
+      3,
+      1,
+      1
+    ],
+    "count_only": true,
+    "not_admitted_geometry": true,
+    "recovery_assumption": "explicit/debug/fallback",
+    "baseline": {
+      "mul_base": 8890,
+      "add": 36068,
+      "mul": 23368,
+      "sub": 20828,
+      "distinct_endpoint_reads": 12700,
+      "table_fold_writes": 3175
+    },
+    "candidate": {
+      "mul_base": 8890,
+      "add": 34925,
+      "mul": 23368,
+      "sub": 20447,
+      "distinct_endpoint_reads": 11938,
+      "table_fold_writes": 3175
+    },
+    "removed": {
+      "mul_base": 0,
+      "add": 1143,
+      "mul": 0,
+      "sub": 381,
+      "distinct_endpoint_reads": 762,
+      "table_fold_writes": 0
+    },
+    "bracket_calls": [
+      508,
+      254,
+      254
+    ],
+    "fraction_of_counted_api_calls_removed": 0.017094017094017096,
+    "logical_round_plus_fold_distinct_endpoint_read_fraction_removed": 0.06,
+    "extra_scratch_payload": "k public last-sample indices; cur/dif dense allocations unchanged",
+    "excluded": [
+      "table building",
+      "Eq split/factor setup",
+      "inversions",
+      "degree completion",
+      "group recovery/reduction",
+      "masks",
+      "extensions",
+      "transcript/RNG",
+      "witness",
+      "PCS/commitments",
+      "transfers",
+      "serialization",
+      "verification"
+    ]
+  },
+  {
+    "n": 7,
+    "limbs_sigma_s": 2,
+    "limbs_p": 2,
+    "padded": false,
+    "k": 25,
+    "degrees": [
+      3,
+      1,
+      1
+    ],
+    "count_only": true,
+    "not_admitted_geometry": true,
+    "recovery_assumption": "nonzero subsequent factors",
+    "baseline": {
+      "mul_base": 7756,
+      "add": 33044,
+      "mul": 20722,
+      "sub": 19001,
+      "distinct_endpoint_reads": 12700,
+      "table_fold_writes": 3175
+    },
+    "candidate": {
+      "mul_base": 7756,
+      "add": 31901,
+      "mul": 20722,
+      "sub": 18620,
+      "distinct_endpoint_reads": 11938,
+      "table_fold_writes": 3175
+    },
+    "removed": {
+      "mul_base": 0,
+      "add": 1143,
+      "mul": 0,
+      "sub": 381,
+      "distinct_endpoint_reads": 762,
+      "table_fold_writes": 0
+    },
+    "bracket_calls": [
+      445,
+      191,
+      191
+    ],
+    "fraction_of_counted_api_calls_removed": 0.01892626951305838,
+    "logical_round_plus_fold_distinct_endpoint_read_fraction_removed": 0.06,
+    "extra_scratch_payload": "k public last-sample indices; cur/dif dense allocations unchanged",
+    "excluded": [
+      "table building",
+      "Eq split/factor setup",
+      "inversions",
+      "degree completion",
+      "group recovery/reduction",
+      "masks",
+      "extensions",
+      "transcript/RNG",
+      "witness",
+      "PCS/commitments",
+      "transfers",
+      "serialization",
+      "verification"
+    ]
+  },
+  {
+    "n": 7,
+    "limbs_sigma_s": 2,
+    "limbs_p": 2,
+    "padded": true,
+    "k": 27,
+    "degrees": [
+      4,
+      2,
+      2
+    ],
+    "count_only": true,
+    "not_admitted_geometry": true,
+    "recovery_assumption": "explicit/debug/fallback",
+    "baseline": {
+      "mul_base": 11176,
+      "add": 55499,
+      "mul": 37846,
+      "sub": 26289,
+      "distinct_endpoint_reads": 13716,
+      "table_fold_writes": 3429
+    },
+    "candidate": {
+      "mul_base": 11176,
+      "add": 53975,
+      "mul": 37846,
+      "sub": 25908,
+      "distinct_endpoint_reads": 12954,
+      "table_fold_writes": 3429
+    },
+    "removed": {
+      "mul_base": 0,
+      "add": 1524,
+      "mul": 0,
+      "sub": 381,
+      "distinct_endpoint_reads": 762,
+      "table_fold_writes": 0
+    },
+    "bracket_calls": [
+      635,
+      381,
+      381
+    ],
+    "fraction_of_counted_api_calls_removed": 0.014563106796116505,
+    "logical_round_plus_fold_distinct_endpoint_read_fraction_removed": 0.05555555555555555,
+    "extra_scratch_payload": "k public last-sample indices; cur/dif dense allocations unchanged",
+    "excluded": [
+      "table building",
+      "Eq split/factor setup",
+      "inversions",
+      "degree completion",
+      "group recovery/reduction",
+      "masks",
+      "extensions",
+      "transcript/RNG",
+      "witness",
+      "PCS/commitments",
+      "transfers",
+      "serialization",
+      "verification"
+    ]
+  },
+  {
+    "n": 7,
+    "limbs_sigma_s": 2,
+    "limbs_p": 2,
+    "padded": true,
+    "k": 27,
+    "degrees": [
+      4,
+      2,
+      2
+    ],
+    "count_only": true,
+    "not_admitted_geometry": true,
+    "recovery_assumption": "nonzero subsequent factors",
+    "baseline": {
+      "mul_base": 10042,
+      "add": 51593,
+      "mul": 34318,
+      "sub": 24336,
+      "distinct_endpoint_reads": 13716,
+      "table_fold_writes": 3429
+    },
+    "candidate": {
+      "mul_base": 10042,
+      "add": 50069,
+      "mul": 34318,
+      "sub": 23955,
+      "distinct_endpoint_reads": 12954,
+      "table_fold_writes": 3429
+    },
+    "removed": {
+      "mul_base": 0,
+      "add": 1524,
+      "mul": 0,
+      "sub": 381,
+      "distinct_endpoint_reads": 762,
+      "table_fold_writes": 0
+    },
+    "bracket_calls": [
+      572,
+      318,
+      318
+    ],
+    "fraction_of_counted_api_calls_removed": 0.01583685956321858,
+    "logical_round_plus_fold_distinct_endpoint_read_fraction_removed": 0.05555555555555555,
+    "extra_scratch_payload": "k public last-sample indices; cur/dif dense allocations unchanged",
+    "excluded": [
+      "table building",
+      "Eq split/factor setup",
+      "inversions",
+      "degree completion",
+      "group recovery/reduction",
+      "masks",
+      "extensions",
+      "transcript/RNG",
+      "witness",
+      "PCS/commitments",
+      "transfers",
+      "serialization",
+      "verification"
+    ]
+  },
+  {
+    "n": 7,
+    "limbs_sigma_s": 3,
+    "limbs_p": 2,
+    "padded": false,
+    "k": 28,
+    "degrees": [
+      3,
+      1,
+      1
+    ],
+    "count_only": true,
+    "not_admitted_geometry": true,
+    "recovery_assumption": "explicit/debug/fallback",
+    "baseline": {
+      "mul_base": 10922,
+      "add": 40640,
+      "mul": 25273,
+      "sub": 23114,
+      "distinct_endpoint_reads": 14224,
+      "table_fold_writes": 3556
+    },
+    "candidate": {
+      "mul_base": 10922,
+      "add": 39497,
+      "mul": 25273,
+      "sub": 22733,
+      "distinct_endpoint_reads": 13462,
+      "table_fold_writes": 3556
+    },
+    "removed": {
+      "mul_base": 0,
+      "add": 1143,
+      "mul": 0,
+      "sub": 381,
+      "distinct_endpoint_reads": 762,
+      "table_fold_writes": 0
+    },
+    "bracket_calls": [
+      508,
+      254,
+      254
+    ],
+    "fraction_of_counted_api_calls_removed": 0.015247776365946633,
+    "logical_round_plus_fold_distinct_endpoint_read_fraction_removed": 0.05357142857142857,
+    "extra_scratch_payload": "k public last-sample indices; cur/dif dense allocations unchanged",
+    "excluded": [
+      "table building",
+      "Eq split/factor setup",
+      "inversions",
+      "degree completion",
+      "group recovery/reduction",
+      "masks",
+      "extensions",
+      "transcript/RNG",
+      "witness",
+      "PCS/commitments",
+      "transfers",
+      "serialization",
+      "verification"
+    ]
+  },
+  {
+    "n": 7,
+    "limbs_sigma_s": 3,
+    "limbs_p": 2,
+    "padded": false,
+    "k": 28,
+    "degrees": [
+      3,
+      1,
+      1
+    ],
+    "count_only": true,
+    "not_admitted_geometry": true,
+    "recovery_assumption": "nonzero subsequent factors",
+    "baseline": {
+      "mul_base": 9536,
+      "add": 37238,
+      "mul": 22438,
+      "sub": 21098,
+      "distinct_endpoint_reads": 14224,
+      "table_fold_writes": 3556
+    },
+    "candidate": {
+      "mul_base": 9536,
+      "add": 36095,
+      "mul": 22438,
+      "sub": 20717,
+      "distinct_endpoint_reads": 13462,
+      "table_fold_writes": 3556
+    },
+    "removed": {
+      "mul_base": 0,
+      "add": 1143,
+      "mul": 0,
+      "sub": 381,
+      "distinct_endpoint_reads": 762,
+      "table_fold_writes": 0
+    },
+    "bracket_calls": [
+      445,
+      191,
+      191
+    ],
+    "fraction_of_counted_api_calls_removed": 0.016875207618203963,
+    "logical_round_plus_fold_distinct_endpoint_read_fraction_removed": 0.05357142857142857,
+    "extra_scratch_payload": "k public last-sample indices; cur/dif dense allocations unchanged",
+    "excluded": [
+      "table building",
+      "Eq split/factor setup",
+      "inversions",
+      "degree completion",
+      "group recovery/reduction",
+      "masks",
+      "extensions",
+      "transcript/RNG",
+      "witness",
+      "PCS/commitments",
+      "transfers",
+      "serialization",
+      "verification"
+    ]
+  },
+  {
+    "n": 7,
+    "limbs_sigma_s": 3,
+    "limbs_p": 2,
+    "padded": true,
+    "k": 30,
+    "degrees": [
+      4,
+      2,
+      2
+    ],
+    "count_only": true,
+    "not_admitted_geometry": true,
+    "recovery_assumption": "explicit/debug/fallback",
+    "baseline": {
+      "mul_base": 13716,
+      "add": 62484,
+      "mul": 41402,
+      "sub": 28956,
+      "distinct_endpoint_reads": 15240,
+      "table_fold_writes": 3810
+    },
+    "candidate": {
+      "mul_base": 13716,
+      "add": 60960,
+      "mul": 41402,
+      "sub": 28575,
+      "distinct_endpoint_reads": 14478,
+      "table_fold_writes": 3810
+    },
+    "removed": {
+      "mul_base": 0,
+      "add": 1524,
+      "mul": 0,
+      "sub": 381,
+      "distinct_endpoint_reads": 762,
+      "table_fold_writes": 0
+    },
+    "bracket_calls": [
+      635,
+      381,
+      381
+    ],
+    "fraction_of_counted_api_calls_removed": 0.012998266897746967,
+    "logical_round_plus_fold_distinct_endpoint_read_fraction_removed": 0.05,
+    "extra_scratch_payload": "k public last-sample indices; cur/dif dense allocations unchanged",
+    "excluded": [
+      "table building",
+      "Eq split/factor setup",
+      "inversions",
+      "degree completion",
+      "group recovery/reduction",
+      "masks",
+      "extensions",
+      "transcript/RNG",
+      "witness",
+      "PCS/commitments",
+      "transfers",
+      "serialization",
+      "verification"
+    ]
+  },
+  {
+    "n": 7,
+    "limbs_sigma_s": 3,
+    "limbs_p": 2,
+    "padded": true,
+    "k": 30,
+    "degrees": [
+      4,
+      2,
+      2
+    ],
+    "count_only": true,
+    "not_admitted_geometry": true,
+    "recovery_assumption": "nonzero subsequent factors",
+    "baseline": {
+      "mul_base": 12330,
+      "add": 58074,
+      "mul": 37559,
+      "sub": 26814,
+      "distinct_endpoint_reads": 15240,
+      "table_fold_writes": 3810
+    },
+    "candidate": {
+      "mul_base": 12330,
+      "add": 56550,
+      "mul": 37559,
+      "sub": 26433,
+      "distinct_endpoint_reads": 14478,
+      "table_fold_writes": 3810
+    },
+    "removed": {
+      "mul_base": 0,
+      "add": 1524,
+      "mul": 0,
+      "sub": 381,
+      "distinct_endpoint_reads": 762,
+      "table_fold_writes": 0
+    },
+    "bracket_calls": [
+      572,
+      318,
+      318
+    ],
+    "fraction_of_counted_api_calls_removed": 0.014134459143622428,
+    "logical_round_plus_fold_distinct_endpoint_read_fraction_removed": 0.05,
+    "extra_scratch_payload": "k public last-sample indices; cur/dif dense allocations unchanged",
+    "excluded": [
+      "table building",
+      "Eq split/factor setup",
+      "inversions",
+      "degree completion",
+      "group recovery/reduction",
+      "masks",
+      "extensions",
+      "transcript/RNG",
+      "witness",
+      "PCS/commitments",
+      "transfers",
+      "serialization",
+      "verification"
+    ]
+  },
+  {
+    "n": 14,
+    "limbs_sigma_s": 2,
+    "limbs_p": 2,
+    "padded": false,
+    "k": 25,
+    "degrees": [
+      3,
+      1,
+      1
+    ],
+    "count_only": true,
+    "not_admitted_geometry": true,
+    "recovery_assumption": "explicit/debug/fallback",
+    "baseline": {
+      "mul_base": 1146810,
+      "add": 4652772,
+      "mul": 3014472,
+      "sub": 2686812,
+      "distinct_endpoint_reads": 1638300,
+      "table_fold_writes": 409575
+    },
+    "candidate": {
+      "mul_base": 1146810,
+      "add": 4505325,
+      "mul": 3014472,
+      "sub": 2637663,
+      "distinct_endpoint_reads": 1540002,
+      "table_fold_writes": 409575
+    },
+    "removed": {
+      "mul_base": 0,
+      "add": 147447,
+      "mul": 0,
+      "sub": 49149,
+      "distinct_endpoint_reads": 98298,
+      "table_fold_writes": 0
+    },
+    "bracket_calls": [
+      65532,
+      32766,
+      32766
+    ],
+    "fraction_of_counted_api_calls_removed": 0.017094017094017096,
+    "logical_round_plus_fold_distinct_endpoint_read_fraction_removed": 0.06,
+    "extra_scratch_payload": "k public last-sample indices; cur/dif dense allocations unchanged",
+    "excluded": [
+      "table building",
+      "Eq split/factor setup",
+      "inversions",
+      "degree completion",
+      "group recovery/reduction",
+      "masks",
+      "extensions",
+      "transcript/RNG",
+      "witness",
+      "PCS/commitments",
+      "transfers",
+      "serialization",
+      "verification"
+    ]
+  },
+  {
+    "n": 14,
+    "limbs_sigma_s": 2,
+    "limbs_p": 2,
+    "padded": false,
+    "k": 25,
+    "degrees": [
+      3,
+      1,
+      1
+    ],
+    "count_only": true,
+    "not_admitted_geometry": true,
+    "recovery_assumption": "nonzero subsequent factors",
+    "baseline": {
+      "mul_base": 999372,
+      "add": 4259604,
+      "mul": 2670450,
+      "sub": 2449273,
+      "distinct_endpoint_reads": 1638300,
+      "table_fold_writes": 409575
+    },
+    "candidate": {
+      "mul_base": 999372,
+      "add": 4112157,
+      "mul": 2670450,
+      "sub": 2400124,
+      "distinct_endpoint_reads": 1540002,
+      "table_fold_writes": 409575
+    },
+    "removed": {
+      "mul_base": 0,
+      "add": 147447,
+      "mul": 0,
+      "sub": 49149,
+      "distinct_endpoint_reads": 98298,
+      "table_fold_writes": 0
+    },
+    "bracket_calls": [
+      57341,
+      24575,
+      24575
+    ],
+    "fraction_of_counted_api_calls_removed": 0.018942258562465297,
+    "logical_round_plus_fold_distinct_endpoint_read_fraction_removed": 0.06,
+    "extra_scratch_payload": "k public last-sample indices; cur/dif dense allocations unchanged",
+    "excluded": [
+      "table building",
+      "Eq split/factor setup",
+      "inversions",
+      "degree completion",
+      "group recovery/reduction",
+      "masks",
+      "extensions",
+      "transcript/RNG",
+      "witness",
+      "PCS/commitments",
+      "transfers",
+      "serialization",
+      "verification"
+    ]
+  },
+  {
+    "n": 14,
+    "limbs_sigma_s": 2,
+    "limbs_p": 2,
+    "padded": true,
+    "k": 27,
+    "degrees": [
+      4,
+      2,
+      2
+    ],
+    "count_only": true,
+    "not_admitted_geometry": true,
+    "recovery_assumption": "explicit/debug/fallback",
+    "baseline": {
+      "mul_base": 1441704,
+      "add": 7159371,
+      "mul": 4882134,
+      "sub": 3391281,
+      "distinct_endpoint_reads": 1769364,
+      "table_fold_writes": 442341
+    },
+    "candidate": {
+      "mul_base": 1441704,
+      "add": 6962775,
+      "mul": 4882134,
+      "sub": 3342132,
+      "distinct_endpoint_reads": 1671066,
+      "table_fold_writes": 442341
+    },
+    "removed": {
+      "mul_base": 0,
+      "add": 196596,
+      "mul": 0,
+      "sub": 49149,
+      "distinct_endpoint_reads": 98298,
+      "table_fold_writes": 0
+    },
+    "bracket_calls": [
+      81915,
+      49149,
+      49149
+    ],
+    "fraction_of_counted_api_calls_removed": 0.014563106796116505,
+    "logical_round_plus_fold_distinct_endpoint_read_fraction_removed": 0.05555555555555555,
+    "extra_scratch_payload": "k public last-sample indices; cur/dif dense allocations unchanged",
+    "excluded": [
+      "table building",
+      "Eq split/factor setup",
+      "inversions",
+      "degree completion",
+      "group recovery/reduction",
+      "masks",
+      "extensions",
+      "transcript/RNG",
+      "witness",
+      "PCS/commitments",
+      "transfers",
+      "serialization",
+      "verification"
+    ]
+  },
+  {
+    "n": 14,
+    "limbs_sigma_s": 2,
+    "limbs_p": 2,
+    "padded": true,
+    "k": 27,
+    "degrees": [
+      4,
+      2,
+      2
+    ],
+    "count_only": true,
+    "not_admitted_geometry": true,
+    "recovery_assumption": "nonzero subsequent factors",
+    "baseline": {
+      "mul_base": 1294266,
+      "add": 6651529,
+      "mul": 4423438,
+      "sub": 3137360,
+      "distinct_endpoint_reads": 1769364,
+      "table_fold_writes": 442341
+    },
+    "candidate": {
+      "mul_base": 1294266,
+      "add": 6454933,
+      "mul": 4423438,
+      "sub": 3088211,
+      "distinct_endpoint_reads": 1671066,
+      "table_fold_writes": 442341
+    },
+    "removed": {
+      "mul_base": 0,
+      "add": 196596,
+      "mul": 0,
+      "sub": 49149,
+      "distinct_endpoint_reads": 98298,
+      "table_fold_writes": 0
+    },
+    "bracket_calls": [
+      73724,
+      40958,
+      40958
+    ],
+    "fraction_of_counted_api_calls_removed": 0.015847775201167657,
+    "logical_round_plus_fold_distinct_endpoint_read_fraction_removed": 0.05555555555555555,
+    "extra_scratch_payload": "k public last-sample indices; cur/dif dense allocations unchanged",
+    "excluded": [
+      "table building",
+      "Eq split/factor setup",
+      "inversions",
+      "degree completion",
+      "group recovery/reduction",
+      "masks",
+      "extensions",
+      "transcript/RNG",
+      "witness",
+      "PCS/commitments",
+      "transfers",
+      "serialization",
+      "verification"
+    ]
+  },
+  {
+    "n": 14,
+    "limbs_sigma_s": 3,
+    "limbs_p": 2,
+    "padded": false,
+    "k": 28,
+    "degrees": [
+      3,
+      1,
+      1
+    ],
+    "count_only": true,
+    "not_admitted_geometry": true,
+    "recovery_assumption": "explicit/debug/fallback",
+    "baseline": {
+      "mul_base": 1408938,
+      "add": 5242560,
+      "mul": 3260217,
+      "sub": 2981706,
+      "distinct_endpoint_reads": 1834896,
+      "table_fold_writes": 458724
+    },
+    "candidate": {
+      "mul_base": 1408938,
+      "add": 5095113,
+      "mul": 3260217,
+      "sub": 2932557,
+      "distinct_endpoint_reads": 1736598,
+      "table_fold_writes": 458724
+    },
+    "removed": {
+      "mul_base": 0,
+      "add": 147447,
+      "mul": 0,
+      "sub": 49149,
+      "distinct_endpoint_reads": 98298,
+      "table_fold_writes": 0
+    },
+    "bracket_calls": [
+      65532,
+      32766,
+      32766
+    ],
+    "fraction_of_counted_api_calls_removed": 0.015247776365946633,
+    "logical_round_plus_fold_distinct_endpoint_read_fraction_removed": 0.05357142857142857,
+    "extra_scratch_payload": "k public last-sample indices; cur/dif dense allocations unchanged",
+    "excluded": [
+      "table building",
+      "Eq split/factor setup",
+      "inversions",
+      "degree completion",
+      "group recovery/reduction",
+      "masks",
+      "extensions",
+      "transcript/RNG",
+      "witness",
+      "PCS/commitments",
+      "transfers",
+      "serialization",
+      "verification"
+    ]
+  },
+  {
+    "n": 14,
+    "limbs_sigma_s": 3,
+    "limbs_p": 2,
+    "padded": false,
+    "k": 28,
+    "degrees": [
+      3,
+      1,
+      1
+    ],
+    "count_only": true,
+    "not_admitted_geometry": true,
+    "recovery_assumption": "nonzero subsequent factors",
+    "baseline": {
+      "mul_base": 1228736,
+      "add": 4800246,
+      "mul": 2891622,
+      "sub": 2719594,
+      "distinct_endpoint_reads": 1834896,
+      "table_fold_writes": 458724
+    },
+    "candidate": {
+      "mul_base": 1228736,
+      "add": 4652799,
+      "mul": 2891622,
+      "sub": 2670445,
+      "distinct_endpoint_reads": 1736598,
+      "table_fold_writes": 458724
+    },
+    "removed": {
+      "mul_base": 0,
+      "add": 147447,
+      "mul": 0,
+      "sub": 49149,
+      "distinct_endpoint_reads": 98298,
+      "table_fold_writes": 0
+    },
+    "bracket_calls": [
+      57341,
+      24575,
+      24575
+    ],
+    "fraction_of_counted_api_calls_removed": 0.016889403427673654,
+    "logical_round_plus_fold_distinct_endpoint_read_fraction_removed": 0.05357142857142857,
+    "extra_scratch_payload": "k public last-sample indices; cur/dif dense allocations unchanged",
+    "excluded": [
+      "table building",
+      "Eq split/factor setup",
+      "inversions",
+      "degree completion",
+      "group recovery/reduction",
+      "masks",
+      "extensions",
+      "transcript/RNG",
+      "witness",
+      "PCS/commitments",
+      "transfers",
+      "serialization",
+      "verification"
+    ]
+  },
+  {
+    "n": 14,
+    "limbs_sigma_s": 3,
+    "limbs_p": 2,
+    "padded": true,
+    "k": 30,
+    "degrees": [
+      4,
+      2,
+      2
+    ],
+    "count_only": true,
+    "not_admitted_geometry": true,
+    "recovery_assumption": "explicit/debug/fallback",
+    "baseline": {
+      "mul_base": 1769364,
+      "add": 8060436,
+      "mul": 5340858,
+      "sub": 3735324,
+      "distinct_endpoint_reads": 1965960,
+      "table_fold_writes": 491490
+    },
+    "candidate": {
+      "mul_base": 1769364,
+      "add": 7863840,
+      "mul": 5340858,
+      "sub": 3686175,
+      "distinct_endpoint_reads": 1867662,
+      "table_fold_writes": 491490
+    },
+    "removed": {
+      "mul_base": 0,
+      "add": 196596,
+      "mul": 0,
+      "sub": 49149,
+      "distinct_endpoint_reads": 98298,
+      "table_fold_writes": 0
+    },
+    "bracket_calls": [
+      81915,
+      49149,
+      49149
+    ],
+    "fraction_of_counted_api_calls_removed": 0.012998266897746967,
+    "logical_round_plus_fold_distinct_endpoint_read_fraction_removed": 0.05,
+    "extra_scratch_payload": "k public last-sample indices; cur/dif dense allocations unchanged",
+    "excluded": [
+      "table building",
+      "Eq split/factor setup",
+      "inversions",
+      "degree completion",
+      "group recovery/reduction",
+      "masks",
+      "extensions",
+      "transcript/RNG",
+      "witness",
+      "PCS/commitments",
+      "transfers",
+      "serialization",
+      "verification"
+    ]
+  },
+  {
+    "n": 14,
+    "limbs_sigma_s": 3,
+    "limbs_p": 2,
+    "padded": true,
+    "k": 30,
+    "degrees": [
+      4,
+      2,
+      2
+    ],
+    "count_only": true,
+    "not_admitted_geometry": true,
+    "recovery_assumption": "nonzero subsequent factors",
+    "baseline": {
+      "mul_base": 1589162,
+      "add": 7487066,
+      "mul": 4841207,
+      "sub": 3456830,
+      "distinct_endpoint_reads": 1965960,
+      "table_fold_writes": 491490
+    },
+    "candidate": {
+      "mul_base": 1589162,
+      "add": 7290470,
+      "mul": 4841207,
+      "sub": 3407681,
+      "distinct_endpoint_reads": 1867662,
+      "table_fold_writes": 491490
+    },
+    "removed": {
+      "mul_base": 0,
+      "add": 196596,
+      "mul": 0,
+      "sub": 49149,
+      "distinct_endpoint_reads": 98298,
+      "table_fold_writes": 0
+    },
+    "bracket_calls": [
+      73724,
+      40958,
+      40958
+    ],
+    "fraction_of_counted_api_calls_removed": 0.01414419545229683,
+    "logical_round_plus_fold_distinct_endpoint_read_fraction_removed": 0.05,
+    "extra_scratch_payload": "k public last-sample indices; cur/dif dense allocations unchanged",
+    "excluded": [
+      "table building",
+      "Eq split/factor setup",
+      "inversions",
+      "degree completion",
+      "group recovery/reduction",
+      "masks",
+      "extensions",
+      "transcript/RNG",
+      "witness",
+      "PCS/commitments",
+      "transfers",
+      "serialization",
+      "verification"
+    ]
+  },
+  {
+    "n": 23,
+    "limbs_sigma_s": 2,
+    "limbs_p": 2,
+    "padded": false,
+    "k": 25,
+    "degrees": [
+      3,
+      1,
+      1
+    ],
+    "count_only": true,
+    "not_admitted_geometry": true,
+    "recovery_assumption": "explicit/debug/fallback",
+    "baseline": {
+      "mul_base": 587202490,
+      "add": 2382364388,
+      "mul": 1543503688,
+      "sub": 1375731548,
+      "distinct_endpoint_reads": 838860700,
+      "table_fold_writes": 209715175
+    },
+    "candidate": {
+      "mul_base": 587202490,
+      "add": 2306866925,
+      "mul": 1543503688,
+      "sub": 1350565727,
+      "distinct_endpoint_reads": 788529058,
+      "table_fold_writes": 209715175
+    },
+    "removed": {
+      "mul_base": 0,
+      "add": 75497463,
+      "mul": 0,
+      "sub": 25165821,
+      "distinct_endpoint_reads": 50331642,
+      "table_fold_writes": 0
+    },
+    "bracket_calls": [
+      33554428,
+      16777214,
+      16777214
+    ],
+    "fraction_of_counted_api_calls_removed": 0.017094017094017096,
+    "logical_round_plus_fold_distinct_endpoint_read_fraction_removed": 0.06,
+    "extra_scratch_payload": "k public last-sample indices; cur/dif dense allocations unchanged",
+    "excluded": [
+      "table building",
+      "Eq split/factor setup",
+      "inversions",
+      "degree completion",
+      "group recovery/reduction",
+      "masks",
+      "extensions",
+      "transcript/RNG",
+      "witness",
+      "PCS/commitments",
+      "transfers",
+      "serialization",
+      "verification"
+    ]
+  },
+  {
+    "n": 23,
+    "limbs_sigma_s": 2,
+    "limbs_p": 2,
+    "padded": false,
+    "k": 25,
+    "degrees": [
+      3,
+      1,
+      1
+    ],
+    "count_only": true,
+    "not_admitted_geometry": true,
+    "recovery_assumption": "nonzero subsequent factors",
+    "baseline": {
+      "mul_base": 511705036,
+      "add": 2181037844,
+      "mul": 1367342962,
+      "sub": 1254096761,
+      "distinct_endpoint_reads": 838860700,
+      "table_fold_writes": 209715175
+    },
+    "candidate": {
+      "mul_base": 511705036,
+      "add": 2105540381,
+      "mul": 1367342962,
+      "sub": 1228930940,
+      "distinct_endpoint_reads": 788529058,
+      "table_fold_writes": 209715175
+    },
+    "removed": {
+      "mul_base": 0,
+      "add": 75497463,
+      "mul": 0,
+      "sub": 25165821,
+      "distinct_endpoint_reads": 50331642,
+      "table_fold_writes": 0
+    },
+    "bracket_calls": [
+      29360125,
+      12582911,
+      12582911
+    ],
+    "fraction_of_counted_api_calls_removed": 0.01894238333909957,
+    "logical_round_plus_fold_distinct_endpoint_read_fraction_removed": 0.06,
+    "extra_scratch_payload": "k public last-sample indices; cur/dif dense allocations unchanged",
+    "excluded": [
+      "table building",
+      "Eq split/factor setup",
+      "inversions",
+      "degree completion",
+      "group recovery/reduction",
+      "masks",
+      "extensions",
+      "transcript/RNG",
+      "witness",
+      "PCS/commitments",
+      "transfers",
+      "serialization",
+      "verification"
+    ]
+  },
+  {
+    "n": 23,
+    "limbs_sigma_s": 2,
+    "limbs_p": 2,
+    "padded": true,
+    "k": 27,
+    "degrees": [
+      4,
+      2,
+      2
+    ],
+    "count_only": true,
+    "not_admitted_geometry": true,
+    "recovery_assumption": "explicit/debug/fallback",
+    "baseline": {
+      "mul_base": 738197416,
+      "add": 3665821259,
+      "mul": 2499804886,
+      "sub": 1736441649,
+      "distinct_endpoint_reads": 905969556,
+      "table_fold_writes": 226492389
+    },
+    "candidate": {
+      "mul_base": 738197416,
+      "add": 3565157975,
+      "mul": 2499804886,
+      "sub": 1711275828,
+      "distinct_endpoint_reads": 855637914,
+      "table_fold_writes": 226492389
+    },
+    "removed": {
+      "mul_base": 0,
+      "add": 100663284,
+      "mul": 0,
+      "sub": 25165821,
+      "distinct_endpoint_reads": 50331642,
+      "table_fold_writes": 0
+    },
+    "bracket_calls": [
+      41943035,
+      25165821,
+      25165821
+    ],
+    "fraction_of_counted_api_calls_removed": 0.014563106796116505,
+    "logical_round_plus_fold_distinct_endpoint_read_fraction_removed": 0.05555555555555555,
+    "extra_scratch_payload": "k public last-sample indices; cur/dif dense allocations unchanged",
+    "excluded": [
+      "table building",
+      "Eq split/factor setup",
+      "inversions",
+      "degree completion",
+      "group recovery/reduction",
+      "masks",
+      "extensions",
+      "transcript/RNG",
+      "witness",
+      "PCS/commitments",
+      "transfers",
+      "serialization",
+      "verification"
+    ]
+  },
+  {
+    "n": 23,
+    "limbs_sigma_s": 2,
+    "limbs_p": 2,
+    "padded": true,
+    "k": 27,
+    "degrees": [
+      4,
+      2,
+      2
+    ],
+    "count_only": true,
+    "not_admitted_geometry": true,
+    "recovery_assumption": "nonzero subsequent factors",
+    "baseline": {
+      "mul_base": 662699962,
+      "add": 3405774473,
+      "mul": 2264923918,
+      "sub": 1606418256,
+      "distinct_endpoint_reads": 905969556,
+      "table_fold_writes": 226492389
+    },
+    "candidate": {
+      "mul_base": 662699962,
+      "add": 3305111189,
+      "mul": 2264923918,
+      "sub": 1581252435,
+      "distinct_endpoint_reads": 855637914,
+      "table_fold_writes": 226492389
+    },
+    "removed": {
+      "mul_base": 0,
+      "add": 100663284,
+      "mul": 0,
+      "sub": 25165821,
+      "distinct_endpoint_reads": 50331642,
+      "table_fold_writes": 0
+    },
+    "bracket_calls": [
+      37748732,
+      20971518,
+      20971518
+    ],
+    "fraction_of_counted_api_calls_removed": 0.0158478603721614,
+    "logical_round_plus_fold_distinct_endpoint_read_fraction_removed": 0.05555555555555555,
+    "extra_scratch_payload": "k public last-sample indices; cur/dif dense allocations unchanged",
+    "excluded": [
+      "table building",
+      "Eq split/factor setup",
+      "inversions",
+      "degree completion",
+      "group recovery/reduction",
+      "masks",
+      "extensions",
+      "transcript/RNG",
+      "witness",
+      "PCS/commitments",
+      "transfers",
+      "serialization",
+      "verification"
+    ]
+  },
+  {
+    "n": 23,
+    "limbs_sigma_s": 3,
+    "limbs_p": 2,
+    "padded": false,
+    "k": 28,
+    "degrees": [
+      3,
+      1,
+      1
+    ],
+    "count_only": true,
+    "not_admitted_geometry": true,
+    "recovery_assumption": "explicit/debug/fallback",
+    "baseline": {
+      "mul_base": 721420202,
+      "add": 2684354240,
+      "mul": 1669332793,
+      "sub": 1526726474,
+      "distinct_endpoint_reads": 939523984,
+      "table_fold_writes": 234880996
+    },
+    "candidate": {
+      "mul_base": 721420202,
+      "add": 2608856777,
+      "mul": 1669332793,
+      "sub": 1501560653,
+      "distinct_endpoint_reads": 889192342,
+      "table_fold_writes": 234880996
+    },
+    "removed": {
+      "mul_base": 0,
+      "add": 75497463,
+      "mul": 0,
+      "sub": 25165821,
+      "distinct_endpoint_reads": 50331642,
+      "table_fold_writes": 0
+    },
+    "bracket_calls": [
+      33554428,
+      16777214,
+      16777214
+    ],
+    "fraction_of_counted_api_calls_removed": 0.015247776365946633,
+    "logical_round_plus_fold_distinct_endpoint_read_fraction_removed": 0.05357142857142857,
+    "extra_scratch_payload": "k public last-sample indices; cur/dif dense allocations unchanged",
+    "excluded": [
+      "table building",
+      "Eq split/factor setup",
+      "inversions",
+      "degree completion",
+      "group recovery/reduction",
+      "masks",
+      "extensions",
+      "transcript/RNG",
+      "witness",
+      "PCS/commitments",
+      "transfers",
+      "serialization",
+      "verification"
+    ]
+  },
+  {
+    "n": 23,
+    "limbs_sigma_s": 3,
+    "limbs_p": 2,
+    "padded": false,
+    "k": 28,
+    "degrees": [
+      3,
+      1,
+      1
+    ],
+    "count_only": true,
+    "not_admitted_geometry": true,
+    "recovery_assumption": "nonzero subsequent factors",
+    "baseline": {
+      "mul_base": 629145536,
+      "add": 2457861878,
+      "mul": 1480589158,
+      "sub": 1392508778,
+      "distinct_endpoint_reads": 939523984,
+      "table_fold_writes": 234880996
+    },
+    "candidate": {
+      "mul_base": 629145536,
+      "add": 2382364415,
+      "mul": 1480589158,
+      "sub": 1367342957,
+      "distinct_endpoint_reads": 889192342,
+      "table_fold_writes": 234880996
+    },
+    "removed": {
+      "mul_base": 0,
+      "add": 75497463,
+      "mul": 0,
+      "sub": 25165821,
+      "distinct_endpoint_reads": 50331642,
+      "table_fold_writes": 0
+    },
+    "bracket_calls": [
+      29360125,
+      12582911,
+      12582911
+    ],
+    "fraction_of_counted_api_calls_removed": 0.01688951420967752,
+    "logical_round_plus_fold_distinct_endpoint_read_fraction_removed": 0.05357142857142857,
+    "extra_scratch_payload": "k public last-sample indices; cur/dif dense allocations unchanged",
+    "excluded": [
+      "table building",
+      "Eq split/factor setup",
+      "inversions",
+      "degree completion",
+      "group recovery/reduction",
+      "masks",
+      "extensions",
+      "transcript/RNG",
+      "witness",
+      "PCS/commitments",
+      "transfers",
+      "serialization",
+      "verification"
+    ]
+  },
+  {
+    "n": 23,
+    "limbs_sigma_s": 3,
+    "limbs_p": 2,
+    "padded": true,
+    "k": 30,
+    "degrees": [
+      4,
+      2,
+      2
+    ],
+    "count_only": true,
+    "not_admitted_geometry": true,
+    "recovery_assumption": "explicit/debug/fallback",
+    "baseline": {
+      "mul_base": 905969556,
+      "add": 4127194644,
+      "mul": 2734685882,
+      "sub": 1912602396,
+      "distinct_endpoint_reads": 1006632840,
+      "table_fold_writes": 251658210
+    },
+    "candidate": {
+      "mul_base": 905969556,
+      "add": 4026531360,
+      "mul": 2734685882,
+      "sub": 1887436575,
+      "distinct_endpoint_reads": 956301198,
+      "table_fold_writes": 251658210
+    },
+    "removed": {
+      "mul_base": 0,
+      "add": 100663284,
+      "mul": 0,
+      "sub": 25165821,
+      "distinct_endpoint_reads": 50331642,
+      "table_fold_writes": 0
+    },
+    "bracket_calls": [
+      41943035,
+      25165821,
+      25165821
+    ],
+    "fraction_of_counted_api_calls_removed": 0.012998266897746967,
+    "logical_round_plus_fold_distinct_endpoint_read_fraction_removed": 0.05,
+    "extra_scratch_payload": "k public last-sample indices; cur/dif dense allocations unchanged",
+    "excluded": [
+      "table building",
+      "Eq split/factor setup",
+      "inversions",
+      "degree completion",
+      "group recovery/reduction",
+      "masks",
+      "extensions",
+      "transcript/RNG",
+      "witness",
+      "PCS/commitments",
+      "transfers",
+      "serialization",
+      "verification"
+    ]
+  },
+  {
+    "n": 23,
+    "limbs_sigma_s": 3,
+    "limbs_p": 2,
+    "padded": true,
+    "k": 30,
+    "degrees": [
+      4,
+      2,
+      2
+    ],
+    "count_only": true,
+    "not_admitted_geometry": true,
+    "recovery_assumption": "nonzero subsequent factors",
+    "baseline": {
+      "mul_base": 813694890,
+      "add": 3833593434,
+      "mul": 2478833399,
+      "sub": 1769996094,
+      "distinct_endpoint_reads": 1006632840,
+      "table_fold_writes": 251658210
+    },
+    "candidate": {
+      "mul_base": 813694890,
+      "add": 3732930150,
+      "mul": 2478833399,
+      "sub": 1744830273,
+      "distinct_endpoint_reads": 956301198,
+      "table_fold_writes": 251658210
+    },
+    "removed": {
+      "mul_base": 0,
+      "add": 100663284,
+      "mul": 0,
+      "sub": 25165821,
+      "distinct_endpoint_reads": 50331642,
+      "table_fold_writes": 0
+    },
+    "bracket_calls": [
+      37748732,
+      20971518,
+      20971518
+    ],
+    "fraction_of_counted_api_calls_removed": 0.014144271421354986,
+    "logical_round_plus_fold_distinct_endpoint_read_fraction_removed": 0.05,
+    "extra_scratch_payload": "k public last-sample indices; cur/dif dense allocations unchanged",
+    "excluded": [
+      "table building",
+      "Eq split/factor setup",
+      "inversions",
+      "degree completion",
+      "group recovery/reduction",
+      "masks",
+      "extensions",
+      "transcript/RNG",
+      "witness",
+      "PCS/commitments",
+      "transfers",
+      "serialization",
+      "verification"
+    ]
+  }
+]

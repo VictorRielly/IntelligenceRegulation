@@ -1,0 +1,13 @@
+{
+  "current": "sumcheck/GKR public support + batching/memory incidence",
+  "next": "lookup/softmax exact public descriptor support if no newer owner measured bottleneck",
+  "queue": [
+    "GPU NTT/commitments",
+    "sumcheck/GKR",
+    "lookup arguments and softmax",
+    "memory traffic",
+    "batching/amortization",
+    "quantization/arithmetic",
+    "proof composition"
+  ]
+}

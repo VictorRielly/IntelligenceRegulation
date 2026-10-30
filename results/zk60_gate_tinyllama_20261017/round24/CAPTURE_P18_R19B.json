@@ -1,0 +1,64 @@
+{
+ "capture": "/home/victor/zk60-artifacts/token-io/captures/classify-rc3-cli-p18-r19b-gate24",
+ "schema": "hashline-native-capture/7-classify-run",
+ "profile": "hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1",
+ "blocks": 1,
+ "source_commit": "token-frozen-r19b-cfae2d1e-gate-capture-tree-r19b",
+ "source_pins": 72,
+ "manifest_sha256": "55c49aaaf2ca28411ffc22b83be74b560ebc9ef734e7fba610634837a872b32c",
+ "readme_sha256": "f1cea5de0e0831699a2f3b8969b414b5a44118149fb130a6e29d7ce8e367968a",
+ "files": [
+  {
+   "file": "run.json",
+   "bytes": 44345,
+   "sha256": "3706e654e2ba63790356dde9d0c0b596d7e05951fbca5b2056b467ec2475dea7",
+   "manifest_sha256": "3706e654e2ba63790356dde9d0c0b596d7e05951fbca5b2056b467ec2475dea7",
+   "equal": true
+  },
+  {
+   "file": "stage-00.json",
+   "bytes": 2434990,
+   "sha256": "31b17c4516374c9c6feb6853a1a41aabfd6401b6e14a9d715dbc14b77ae4dce1",
+   "manifest_sha256": "31b17c4516374c9c6feb6853a1a41aabfd6401b6e14a9d715dbc14b77ae4dce1",
+   "equal": true
+  },
+  {
+   "file": "stage-01.json",
+   "bytes": 3297209,
+   "sha256": "7c2cd0cd62fd12a4129d4747924bde774351343bbf1df46d57a62aa01f552e48",
+   "manifest_sha256": "7c2cd0cd62fd12a4129d4747924bde774351343bbf1df46d57a62aa01f552e48",
+   "equal": true
+  },
+  {
+   "file": "stage-02.json",
+   "bytes": 3210802,
+   "sha256": "64b76d93d558c8dddcadef396e7d03d312ea580891109796da54cafae7acf83d",
+   "manifest_sha256": "64b76d93d558c8dddcadef396e7d03d312ea580891109796da54cafae7acf83d",
+   "equal": true
+  },
+  {
+   "file": "arrays.bin",
+   "bytes": 12294008,
+   "sha256": "5d3c20ced23e0bd5e55ff77ce2131cc9520b530f09f853059ff393c218a1de58",
+   "manifest_sha256": "5d3c20ced23e0bd5e55ff77ce2131cc9520b530f09f853059ff393c218a1de58",
+   "equal": true
+  },
+  {
+   "file": "README.md",
+   "bytes": 3445,
+   "sha256": "f1cea5de0e0831699a2f3b8969b414b5a44118149fb130a6e29d7ce8e367968a",
+   "manifest_sha256": "f1cea5de0e0831699a2f3b8969b414b5a44118149fb130a6e29d7ce8e367968a",
+   "equal": true
+  }
+ ],
+ "all_equal": true,
+ "total_bytes": 21284799,
+ "readme_names_r19b_binary": true,
+ "v24_gate_record": "round24/v24/v24-classify-rc3-cli-p18-r19b-gate24.json",
+ "v24_gate_record_sha256": "274c8a373d470bb3d3755e20d4e3acca532f2c376c4805ac3f1594e78a1e172a",
+ "v24_status": "PASS",
+ "copies": [
+  "round24/capture_p18_r19b/manifest.json",
+  "round24/capture_p18_r19b/README.md"
+ ]
+}

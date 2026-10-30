@@ -1,0 +1,16 @@
+{
+  "status": "PASS",
+  "reference_sha256": "9786feccb50f3346f0844e18dfec5ce24361f29d49971804ca85c537f93496a5",
+  "actual": {
+    "embedding_sha256": "baff04d2385ad49dcf9704384de268ce5aa5e16749d2af62c2101676538b5afe",
+    "head_sha256": "786f02bc011e3f23c4e9ac480772a0413d39f8d10c7259000929ada771d0ce95",
+    "multipliers_sha256": "f43790f32bd4cf4b252aafaa08e9b788937a0878594d2756f73248b0dfdc0464",
+    "margin_sha256": "b597f2543ab813248d6cfa26052daa94f9e3a889dcb515fca43985e2d35d643d"
+  },
+  "rows": 131072,
+  "width": 3072,
+  "reference_ids": [
+    1,
+    2
+  ]
+}

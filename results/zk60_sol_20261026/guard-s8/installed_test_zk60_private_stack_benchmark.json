@@ -1,0 +1,11 @@
+{
+  "utc": "2026-10-29T00:33:31.600662+00:00",
+  "pattern": "test_zk60_private_stack_benchmark.py",
+  "tests": 14,
+  "failures": 0,
+  "errors": 0,
+  "skipped": [],
+  "seconds": 0.48789571599991177,
+  "expected": null,
+  "accepted": true
+}

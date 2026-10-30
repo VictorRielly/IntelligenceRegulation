@@ -1,0 +1,11 @@
+{
+  "utc": "2026-10-30T05:58:59.874366+00:00",
+  "based_on": "validate_capture_v2.py, same strict public keys/source/profile/role/transport constraints",
+  "change": "Remove whole-file mmap residency and full receipt read allocations. Hash every array and receipt byte in64KiB chunks; check EVERY canonical array limb; retain only248B header/32B trailer for wire comparisons. Scope unchanged.",
+  "capacity": "Native blob162676808B and two simultaneous35MB frames removed from resident working set. Largest stage JSON5574857B; parser needs one old+new decoded stage during assignment, bounded stream scratch64KiB, small metadata maps. Need.4GiB/cap1GiB estimated conservatively for streaming reader, actual measured peak still to be recorded.",
+  "tests": "4 independent bounded controls PASS: bothFp2limbs and arrays crossing chunks, middle-chunk tamper, noncanonical limb in second chunk with otherwise matching hash, short/unaligned reads, full-frame header/footer/digest including1B final chunk and middle-byte mutation.",
+  "old_v2_queue": "Original28102 intentionally withdrew by tool Ctrl-C while guard was awaiting admission; no validator leaf or output existed. Heavy batch+light1GiB filled11.4GiB. Old command/queue evidence retained; native proof was not rerun.",
+  "validator_sha256": "a092488c8816d4898e7515c1e02783c77cef60ca0d6dd3ba850fb22de6dac8f4",
+  "test_sha256": "cde0de3d3b5832177ad96d398e41a566d94bda9d68b8cd3958593d9241a13e3b",
+  "native_producer_changed": false
+}

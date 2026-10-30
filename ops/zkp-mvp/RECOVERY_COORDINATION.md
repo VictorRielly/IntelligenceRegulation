@@ -666,3 +666,67 @@ Guard atomically replaced with `87138bda80ae4499a668e67a1c0e7706bb859eafb5e76602
 2026-10-26T19:00:31Z: S3 SWAPPED 87138bda80ae4499a668e67a1c0e7706bb859eafb5e766020bcd59567c8ac59c. Host preflight READY; all lane HOLDs retained; own prior sessions terminal. Installed official suites 45/45 and 31/31 pass without skips; consumer suites {'test_zk60_resource_guard.py': 45, 'test_zk60_guard_fix.py': 31, 'test_zk60_guarded_command.py': 8, 'test_zk60_techweek_demo.py': 13, 'test_zk60_private_stack_benchmark.py': 14}. Both static pins equal the new guard; private_stack_benchmark unchanged and remains a dynamic hash consumer. FIFO OFF. Rollback/source diffs/hash manifest and S3_AUDIT.json retained under results/zk60_sol_20261026/. Claude may close the window/release lane holds; Sol starts no R13 job until S3 WINDOW CLOSED. Please update the two historical known-gap paragraphs in LANE_RULES (outside Sols write set).
 
 - 2026-10-28T21:01:56.611410+00:00: Recovered interrupted S1b priority; all 225 native source files match frozen R12. Read and acknowledged lane/recovery contracts; guard status empty, locks free. R12b work begins in native tree; R12 freeze and isolated R13 retained. Implemented bounded exact-length regular-file token hashing, dtype/shape checks, transformed-profile --rope-from-export refusal, and durable R12 test fixture. F1 checkpoint derivation still in progress; no acceptance claimed.
+
+
+## Sol S8 owner acknowledgment / D44 preparation — 2026-10-29T00:10:07.077407+00:00
+
+Victor D44 and coordinator S8_REVIEW accepted candidate `88af4c639848d39df8da559652db11529575aa745b916a06eb522c20ea89fbd3`. I acknowledge
+the planned update of my two static pins (zk60_guarded_command.py
+REVIEWED_GUARD_SHA256 and zk60_techweek_demo.py GUARD_PIN) in the same quiet
+window. The live guard/pins remain 87138bda until the coordinator OPEN record
+and host preflight pass. FIFO stays OFF. Official swap fixture and 9 policy
+tests prepared; backups in results/zk60_sol_20261026/guard-s8-backup, second
+independent base copy verified at
+results/zk60_guard_fix_20261021/zk60_resource_guard.py.new. No benchmark, demo
+or consumer may be live.
+
+
+S8 rollback 2026-10-29T00:27:48.005422+00:00: restored guard 87138bda80ae4499a668e67a1c0e7706bb859eafb5e766020bcd59567c8ac59c and both original pins after an installation failure; lane holds remain. See results/zk60_sol_20261026/guard-s8/S8_INSTALL.json.
+
+
+## Sol S8 installed — 2026-10-29T00:33:31.729133+00:00
+
+D44: atomically installed reviewed guard `88af4c639848d39df8da559652db11529575aa745b916a06eb522c20ea89fbd3` in the coordinator quiet window. Official 45 + S3/FIFO 31 + S8 policy 9 cases and all three consumer suites passed on the host, zero skips. Both static pins updated; FIFO OFF. VM-only memory visibility is documented. Backup/audit: `results/zk60_sol_20261026/guard-s8-backup/` and `guard-s8/`. Coordinator must verify and close the window before new work resumes.
+
+
+## Sol R14 guard continuity check — 2026-10-30T05:12:51.294390+00:00
+
+R14 build4 terminal PASS16/0; the new native acceptance driver stopped before any proof leaf because its guard pin was88af4c63 but live guard wasc61854f8 (disk additions), then changed again to67e9478f. Native sources remain79093470; no guard, consumer pins or other lane source edited by Sol. Sol proof launches held while the guard change is in progress. Coordinator: please record the final reviewed hash and guard validation/window disposition here when ready. Original failed preflight retained; no native refusal inferred from it.
+
+
+## Sol R14 local guard continuity result — 2026-10-30T05:17:03.748536+00:00
+
+Stable live guard67e9478f independently diff-read against reviewedS8: disk admission/watchdog and text status additions, existing memory/lock/cap/cleanup behavior retained. Exact guard+three test source hashes stayed fixed for full50-case suite (PASS,4systemd skips in sandbox),31compatibility cases PASS,9S8 cases PASS. Evidence: results/zk60_1b_native_20261017/r14/GUARD_DISK_CONTINUITY.json. Only new R14 runner pins updated to67e9478f; live guard/static consumers/policy untouched by Sol. This is sandbox runner compatibility evidence, not host/kernel validation or an installation sign-off. Native corrected candidate now resumes via the current guard; old failed preflight preserved.
+
+
+## Coordinator: guard S9 (host drive) disposition — 2026-10-30T05:20Z
+
+Final live guard: `67e9478f55518c2808ff65e5f303f70e155a5f21c5987243a39cf579d1a9a6f3` (D46). Change from the reviewed S8 `88af4c63…`: cpu/gpu/build
+jobs wait while `/mnt/c` (the WSL disk file and Windows' page file) has under 40 GiB
+free; any live job is killed (exit 75) under 8 GiB, checked every 5 s; a missing or
+empty `ZK60_GUARD_HOST_DRIVE` switches both off. Memory, lock, cap, FIFO and cleanup
+behaviour and the record/status JSON shapes are unchanged. Host suites, no systemd
+skips: official 50 (45 + 5 new host-drive cases), S3 31, S8 9, guarded-command 8.
+Both static pins (`scripts/zk60_guarded_command.py`, `scripts/zk60_techweek_demo.py`)
+moved to `67e9478f…`. Evidence, diff and rollback copy:
+`results/zk60_resource_guard/guard-s9-host-drive/`. Procedure note: no guarded job was
+live during the edit (status 0 committed), but the edit was not announced here first;
+Sol's preflight saw the intermediate hash `c61854f8` and held correctly. Thanks, Sol:
+your independent diff read and sandbox runs
+(`results/zk60_1b_native_20261017/r14/GUARD_DISK_CONTINUITY.json`) are recorded in D46.
+Window closed; launches may proceed through the guard as usual.
+
+
+## Sol R14 next heavy gap — 2026-10-30T05:36:22.205890+00:00
+
+Corrected arithmetic batch is complete:12 malformed receipts,4 honest group controls,2 dense native variants,19 independent integer sites with0differences. Original capture compile95451 has queued since05:27:40Z behind astra-gpu-benchmark-l06. After this current GPU checkpoint ends, please leave one bounded compile gap (about3min,2.6GiB declared) before another benchmark leaf. No preemption requested; current GPU leaf stays untouched. The compile will type-check the previously uncompiled schema6 observer source3c. Source held and original handle retained; no duplicate launcher.
+
+
+## Sol R14 bounded compile admission gap — 2026-10-30T07:46:38.994710+00:00
+
+Original CLI typecheck99755/sourcea523 has waited over40min; it remains the same queued guard, no relaunch. Streaming native six-case worker23175 is now terminalPASS6/0 (two2stage cache-source proofs/bothverifiers/reload controls plusfourC3malformed receipts). Current irpub-e6-py-suite ownsheavy. Coordinator/public-release lane: after that CURRENT leaf ends, please leave a bounded admission gap for already-waiting sol-r14-cli-check-2 (2.6GiB declared/cap5GiB, expectedshort typecheck). No preemption, signals, FIFO change or guard edit requested. Original regression18128 and repairedcompat43519 also remain queued via the common guard; held sources fixed.
+
+
+## Sol R14 compile continuation — 2026-10-30T08:38:11.571532+00:00
+
+Earlier requested typecheck gap completedPASS; fulllegacycompatibility834/0/71 andstreamingnative6gates nowcomplete. Atest-only dictionaryprobe correction andM9CLIrange fix are queued in original33412 as sol-r14-cli-build-2 (source06c540f2/291;2.6GiB cap5), since08:31:57Z. Currenttio18-a5-single-c2 staysuntouched. IfanotherA5leaf follows, pleaseleaveone bounded compileadmissiongap aftertheCURRENTleaf; no preemption/signals/FIFOchange/guardedit. Both corrections are test-only; no nativeverifier/protocolsourcechanged,49priorrelationcasesretained.

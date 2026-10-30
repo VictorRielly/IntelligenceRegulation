@@ -1,0 +1,39 @@
+REVIEW DESIGN ONLY — UNCOMPILED, UNAPPLIED, NOT AN ACCEPTED API
+
+Seam: trained_block.rs::TrainedExport::load_layer_mode's full branch,
+immediately before LayerRecord::of_block. Keep reload's unhashed record and
+BlockCache / ExportTokenBlocks's ACTUAL BlockPublic::digest comparisons.
+
+Proposed internal operation:
+  full_loaded_record(index, same_constructed_block, same_verified_arrays,
+                     checked_shape, source_tensors)
+
+The helper must be confined to the loader's construction scope. It must not
+be an externally callable `set_digest`, serialized-cache importer, or a
+caller-supplied hash override to LayerRecord::of_block. Keep the ordinary
+of_block path for synthetic/other callers. Rust module privacy and ownership
+need review; the Python byte dictionaries are not security capabilities.
+
+For each of the nine word hashes, reuse raw SHA only if:
+  * this invocation performed the full raw byte SHA check;
+  * expected dtype and true shape were checked before the bounded read;
+  * output and input padded extents equal the true extents;
+  * both actual index maps are identity;
+  * this constructor copied those exact loaded bytes into this block.
+
+Otherwise compute the original SHA of the actual padded block words.
+Keep array order wq,wk,wv,wo,gamma_a,gamma_m,wg_t,wu_t,wd_t.
+For exp/act, source little-endian signed decoding and re-encoding are identity
+and constructors copy the words; full verified same-call SHA may be reused.
+RoPE remains SHA256(cos_bytes || sin_bytes), never a combination of finalized
+hashes. Keep all generator checks, metadata, source sorting, own calibration,
+support, CS/H-1/DD checks, and the original actual block BLAKE3.
+
+`check_sha=false` sets got=want in the source reader. It supplies NO verified
+digest authority. Do not use it to populate this helper; no reload SHA work
+is removed because native reload already skips record hashes.
+
+Implementation requires native full/reload record and source-refusal tests,
+original RNG/transcript/frozen receipts, independently verified complete
+workloads, and applicable privacy review. Measure exclusive and enclosing
+clocks first; three64MiB FFN hash tasks remain and may determine phase wall.

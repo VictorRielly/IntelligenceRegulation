@@ -1,0 +1,38 @@
+{
+  "status": "PASS",
+  "checks": 107,
+  "utc": "2026-10-29T23:07:59.811223+00:00",
+  "manifest_files": 87,
+  "sources": 1022,
+  "new_sources": 6,
+  "owner_documents": [
+    {
+      "path": "/home/victor/IntelligenceRegulation/CLAUDE.md",
+      "unchanged": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/START_HERE.md",
+      "unchanged": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/MVP_STATUS.md",
+      "unchanged": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_DECISIONS.md",
+      "unchanged": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_CODEX_FABLE_COORDINATION.md",
+      "unchanged": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_THROUGHPUT_TARGET.md",
+      "unchanged": true
+    }
+  ],
+  "research_only": true,
+  "full_stack_proofs": 0,
+  "passes": 0,
+  "positions": 0
+}

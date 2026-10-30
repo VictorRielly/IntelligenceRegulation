@@ -1,0 +1,27 @@
+{
+  "utc": "2026-10-30T19:50:26.665718+00:00",
+  "source_sha256": {
+    "scripts/zk60_resource_guard.py": "67e9478f55518c2808ff65e5f303f70e155a5f21c5987243a39cf579d1a9a6f3",
+    "results/zk60_1b_native_20261017/r14/reference_sequence_step_v3.py": "2e491befb3277b2e04ecbe69566cd8d58c50d223783c26894b803def9fe2bbea",
+    "results/zk60_d24_review_20261017/r13/reviewer_export_reference.py": "d7c175e154cef761e7e574e417c6979634e05243e6abf0357fb3cb2c7cdfe4ac",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/profile.json": "2ba468f98085caf1136f27cf66220f93d8e316acb8dbae7e98f9eb68347f05a0",
+    "results/zk60_1b_native_20261017/r14/ACTUAL_S2_NATIVE_ACCEPTANCE.json": "e9d89adf20676eb3f7c7254d9d026c5d9d78863b18e4855e05f051107b4dddd3",
+    "results/zk60_d24_review_20261017/r13/shield_input_L00.bin": "47cb8709c55ac1aa7cefa207a34a7a3c500cfb7b8601d08438d065895534bc39",
+    "results/zk60_d24_review_20261017/r13/ref_shield_L00.json.npz": "b4f52992865c7f1b1eb6d8ec87d9bbf8af74458da2465325c05cfbf19efe9b1a",
+    "results/zk60_1b_native_20261017/r14/reference_stack_v3.py": "db96164d038051ed55048e217d38da70e29e84a97225fe7b00838eef5e17332d"
+  },
+  "geometry": {
+    "tokens": 128,
+    "width": 3072,
+    "hidden": 9216,
+    "layers": 26
+  },
+  "resource": {
+    "first_layer_class": "cpu",
+    "first_layer_need_gib": 2.6,
+    "first_layer_cap_gib": 5,
+    "later_policy": "ceil((measured L00 peak +0.15GiB)*10)/10; light only ifneed<=1GiB, all numerical threads1; otherwisecpu",
+    "max_secs_per_layer": 1800
+  },
+  "scope": "Actual public S2 weights; retained reviewer real L00 activation causal prefix; unchanged independent reviewer int64 reference. No native full26 proof, classifier, or privacy acceptance."
+}

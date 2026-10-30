@@ -1,0 +1,56 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/zkp-core/src/field.rs",
+    "snapshot": "native/zkp-core/src/field.rs",
+    "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+    "bytes": 11065
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/zkp-core/src/pcs.rs",
+    "snapshot": "native/zkp-core/src/pcs.rs",
+    "sha256": "5c9cfc4e9c84283309f4c47f87d4a9146e2c9c9f5b52aa608b4ce6a7588cd495",
+    "bytes": 77003
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/zkp-core/src/mle.rs",
+    "snapshot": "native/zkp-core/src/mle.rs",
+    "sha256": "b20c8b75c9246471fe1cc395122558eba715f66d9efe1dc4cd5be1750f2e542e",
+    "bytes": 15255
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/hashline/src/private_block/protocol.rs",
+    "snapshot": "native/hashline/src/private_block/protocol.rs",
+    "sha256": "1011441431a37f735999405986af6c9f11c2d303b48aa6d9cefae55b0311718d",
+    "bytes": 79043
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/hashline/src/private_block/layout.rs",
+    "snapshot": "native/hashline/src/private_block/layout.rs",
+    "sha256": "8519a514b8d1f43ab51c86b0a8af955230a2eab4fff4fc4c594733c59dcfd0bf",
+    "bytes": 76914
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/hashline/src/private_block/shape.rs",
+    "snapshot": "native/hashline/src/private_block/shape.rs",
+    "sha256": "8e00a144bd194fd5a3dd30c9aaece2869d43d461df623cdcfc5a9da59e51436b",
+    "bytes": 149746
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/hashline/src/private_block/argument.rs",
+    "snapshot": "native/hashline/src/private_block/argument.rs",
+    "sha256": "bc0332e39904ca881d26c255581aa1ab6a0e73899141689960ec2262f8561830",
+    "bytes": 112753
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/hashline/src/private_block/argument_accuracy.rs",
+    "snapshot": "native/hashline/src/private_block/argument_accuracy.rs",
+    "sha256": "a5e02391b61577c7041efc41c04cd2564610e3fbb26b188b66b1623a5b7940d9",
+    "bytes": 41213
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/NATIVE_LAYOUT_CENSUS.json",
+    "snapshot": "native/NATIVE_LAYOUT_CENSUS.json",
+    "sha256": "36caa5bb71da50a3be89570eeaa8c533f3cab8291cea45816f1b8b6e13edb21a",
+    "bytes": 154939
+  }
+]

@@ -65,3 +65,39 @@ gate and up shifts. Profile-gating only the witness would be insufficient.
 Cost figures in the incoming spec are COUNTED replicas and MODEL times.
 Recount from the final native layout, including any corrected group-product
 window; no R13 speed or fidelity measurement is claimed by this design.
+
+## Shieldstral extension corner (2026-10-28)
+
+The approved (0,-8) member adds a real endpoint to the group-fold audit. At
+base output exponent -13 and base product shift13, its effective direct
+product shift is13-8-((-8)-(-13))=0. The exact result is the integer product
+(no rounding ambiguity). At aligned remainder shift16, coefficient2^16
+gives the same result, including negative values: floor((z*65536+32768)/65536)=z.
+The current draft group_folds rejects effective shift0 before the aligned
+helper is called. Resolve this explicitly when implementing the Shieldstral
+registry; do not silently widen TinyLlama/8B's registry or move a rounding.
+One valid positive-denominator representation uses common shift>=1 and
+multiplier2 for an otherwise zero-shift clause, then the aligned helper
+replaces it by its fixed16/24 denominator. Add independent integer endpoint
+vectors for both stacks and recheck every resulting coefficient bound.
+This is a construction finding; the new member is not yet enabled natively.
+
+## Lookup census and integration gates
+
+The int12 activation lookup has THREE coordinates (signed gate index,
+verifier-derived scaled output, public group id), whereas the legacy ACT
+lookup has two. Its padding query must represent the real zero-gate row of
+group0; the table padding repeats a valid row and the ACT histogram/helper
+support ends at ngroups*4096. Byte/EXP supports remain256.
+
+Do not inherit R12's N+2303 lookup numerator without re-deriving it. The
+activation table's true extent and the compression polynomial's group
+coordinate affect collision-degree/table terms even when no committed plane
+or private claim is added. Derive the actual query/table census from the
+built declarations and send its error term to D24 with the freeze.
+
+Before an expensive full native suite after adding modules: run the source
+pin partition, hash-call classification and absorb-label census first. R12b
+resumption exposed that the older scanners did not automatically include a
+public child module or its nested implementation. New R13 modules must be
+explicitly classified and scanned; reducing scanner coverage is not a fix.

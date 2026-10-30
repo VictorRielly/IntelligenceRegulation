@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "checks": 200,
+  "manifest_entries": 71,
+  "prior_research_prefixes_unchanged": true,
+  "owner_decisions_concurrent_update": "R16b fix-scope only; source hashes and safe status note retained",
+  "full_stack_proofs": 0,
+  "model_passes": 0,
+  "proved_positions": 0,
+  "elapsed_s": 0.07740111999737564,
+  "max_rss_kib": 36116,
+  "completed_at_utc": "2026-10-29T11:13:38.394591+00:00"
+}

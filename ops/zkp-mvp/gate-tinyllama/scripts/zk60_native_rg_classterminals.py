@@ -46,6 +46,16 @@ same transcriptions at the replayed challenges against the recorded
 terminals (the token port's `check_token_terminals` method; see the hook
 request for the fields it reads).
 
+[v21, gate round 18] RE-READ on token frozen-r14 (stage_in_c.rs 6a92da0e,
+stage_out_c.rs 93a79a2b, classify.rs 6c828db6): the slot polynomials are
+unchanged; what moved is (1) the template (`ClassCtx.kappa`): the suffix on
+P0 + n .. P0 + n + S and the policy's PUBLIC pad id after it up to T, with n
+the statement's content length (a SHORT item, D45(1)); (2) OUTC-00's B_out
+row: the verdict row P0 + n + S - 1 (stage_out_c.rs:302); (3) tau and
+w_Delta are no longer taken from the capture: both are REBUILT from the
+tables derived from the pinned tied tensor (`zk60_native_rg_classtied`, B-3),
+so every IN-C / OUT-C public table is rebuilt.
+
 NOTHING HERE IS A PRIVACY RESULT OR A PRIVACY ACCEPTANCE.
 """
 
@@ -96,6 +106,18 @@ class ClassCtx:
         self.g0, self.cn, self.tn, self.ceps = (facts["final_norm"][x] for x in ("g0", "cn", "tn", "ceps"))
         self.prefix, self.suffix = list(facts["prefix"]), list(facts["suffix"])
         self.num_special, self.c = facts["num_special"], facts["c"]
+        # [v21, R-C3] the content length n (public, D45(1)), the policy's
+        # PUBLIC pad id and the verdict row; a full-length item has no pad and
+        # its verdict row is T - 1 (classify.rs:489-524 at r14)
+        self.n_content = facts.get("n", self.tokens - len(self.prefix) - len(self.suffix))
+        self.pad_id = facts.get("pad", 0)
+        self.verdict_row = facts.get("verdict_row", len(self.prefix) + self.n_content + len(self.suffix) - 1)
+        # [v21, R-C2] the tables DERIVED from the pinned tensor (B-3): the
+        # embedding (for tau) and the margin row, when the caller derived them
+        self.emb = facts.get("emb")
+        # [v21] C-13 control only: positions the PORT treats as pad positions
+        # inside the content range (never set on an honest check)
+        self.extra_pad = set(facts.get("extra_pad_positions") or ())
         self.verdict = facts.get("verdict")
         self.w_delta = facts.get("w_delta")
         self.lay = geom.stage_in_c() if kind == "IN-C" else geom.stage_out_c()
@@ -127,20 +149,27 @@ class ClassCtx:
     def pad(self, x):
         return R_ZERO if self.drop_pad else x
 
-    # classify.rs:411-437
+    # classify.rs:489-532 at r14 [v21: n is the facts' content length; the
+    # suffix spans P0 + n .. P0 + n + S, the pad id fills the rest up to T]
     def p0(self):
         return len(self.prefix)
 
+    def item_len(self):
+        return self.p0() + self.n_content + len(self.suffix)
+
     def is_template(self, t):
-        n = self.tokens - self.p0() - len(self.suffix)
-        return t < self.p0() or (self.p0() + n <= t < self.tokens)
+        return t < self.p0() or (self.p0() + self.n_content <= t < self.tokens) or t in self.extra_pad
 
     def kappa(self, t):
-        n = self.tokens - self.p0() - len(self.suffix)
+        n = self.n_content
+        if t in self.extra_pad:
+            return self.pad_id
         if t < self.p0():
             return self.prefix[t]
-        if self.p0() + n <= t < self.tokens:
+        if self.p0() + n <= t < self.item_len():
             return self.suffix[t - self.p0() - n]
+        if self.item_len() <= t < self.tokens:
+            return self.pad_id
         return 0
 
     def ctl(self, v):
@@ -276,9 +305,11 @@ def define_out_c(slot, cx: ClassCtx, dr: Draws) -> SlotDef:
         tau, _ = dr.take(d_bits, "tau")
         i_eq = b.eq(tau, 0)
         i_x = b.a_at(CL.C_X, fixed_c([ZERO] * lift) + rho_c(range(d_bits)))
-        cb = fixed_bits_c(cx.tokens - 1, t_bits) + rho_c(range(d_bits))
+        # [v21, R-C3] stage_out_c.rs:302 at r14: the PUBLIC verdict row
+        # P0 + n + S - 1 (T - 1 without pad)
+        cb = fixed_bits_c(cx.verdict_row, t_bits) + rho_c(range(d_bits))
         i_b = b.io("In", cx.b_log, cb, cx.b_out_row)
-        return b.finish(lambda v: v[i_eq] * (v[i_x] - v[i_b]), [], ["eq(tau)", "x - B_out(T-1, .)"], dr)
+        return b.finish(lambda v: v[i_eq] * (v[i_x] - v[i_b]), [], ["eq(tau)", "x - B_out(verdict row, .)"], dr)
     if slot == CL.SOC_SS:                                      # :308-312
         i_s = b.public(("supp", cx.d, do_n))
         i_x = b.a(CL.C_X)
@@ -437,6 +468,30 @@ def rebuild_public_c(desc, cx: ClassCtx):
         if cx.w_delta is None:
             return None
         return [k(cx.w_delta[i]) if i < desc[1] else ZERO for i in range(desc[2])]
+    # [v21, R-C2] tau is REBUILT from the embedding DERIVED from the pinned
+    # tied tensor (zk60_native_rg_classtied; stage_in_c.rs:158-164 at r14),
+    # folded at the replayed r_emb with the replayed beta and g_emb
+    if kind == "captured" and desc[1] == "tau_tab_c" and cx.emb is not None and cx.kind == "IN-C":
+        import zk60_native_rg_classtied as TD
+        key = ("tau", tuple(map(tuple, cx.r_emb)), tuple(cx.beta_num), tuple(cx.g_emb_num), cx.num_special,
+               id(cx.emb))
+        hit = TD._CACHE.get(key)
+        if hit is None:
+            if isinstance(cx.emb, list):
+                hit = TD.tau_table(cx.emb, cx.v, cx.d, cx.geom.voc_log(), cx.num_special, cx.r_emb,
+                                   cx.beta_num, cx.g_emb_num)
+            elif hasattr(cx.emb, "fold"):
+                # [v22] the Shieldstral embedding as a lazy handle: the fold
+                # streams the pinned checkpoint (no 805 MB table held)
+                ef = cx.emb.fold(cx.r_emb, cx.d)
+                hit = TD.tau_table_from_fold(ef, cx.v, cx.geom.voc_log(), cx.num_special, cx.beta_num, cx.g_emb_num)
+            else:
+                # [v22] the Shieldstral embedding (a V x d int16 numpy array): the
+                # exact numpy fold (zk60_native_rg_classtied.emb_fold_np)
+                ef = TD.emb_fold_np(cx.emb, cx.d, cx.r_emb)
+                hit = TD.tau_table_from_fold(ef, cx.v, cx.geom.voc_log(), cx.num_special, cx.beta_num, cx.g_emb_num)
+            TD._CACHE[key] = hit
+        return list(hit)
     return None
 
 
@@ -1100,11 +1155,29 @@ def facts_from_bundle(b) -> dict:
     row; `stage_in_c.rs:423`, `stage_out_c.rs:681`)"""
     cf = b.run["classify"]
     tb = b.run["token_boundaries"]
-    return {"bos": cf["bos"], "final_norm": dict(cf["final_norm"]),
-            "prefix": list(cf["policy"]["prefix_ids"]), "suffix": list(cf["policy"]["suffix_ids"]),
-            "num_special": cf["policy"]["num_special"], "c": cf["policy"]["c"], "verdict": cf["verdict"],
-            "w_delta": None, "b_in_row": tb[0]["facts"]["site_rows"][0],
-            "b_out_row": tb[b.l]["facts"]["site_rows"][2], "ep_mask_row": cf["input_endpoint"]["data_rows"]}
+    out = {"bos": cf["bos"], "final_norm": dict(cf["final_norm"]),
+           "prefix": list(cf["policy"]["prefix_ids"]), "suffix": list(cf["policy"]["suffix_ids"]),
+           "num_special": cf["policy"]["num_special"], "c": cf["policy"]["c"], "verdict": cf["verdict"],
+           "w_delta": None, "b_in_row": tb[0]["facts"]["site_rows"][0],
+           "b_out_row": tb[b.l]["facts"]["site_rows"][2], "ep_mask_row": cf["input_endpoint"]["data_rows"]}
+    # [v21, R-C3] the content length n (public: D45(1)), the policy's pad id
+    # and the verdict row, from the absorbed profile text, each RE-DERIVED from
+    # (T, P0, n, S) and compared (`zk60_native_rg_classgate.class_integrity`)
+    import zk60_native_rg_classtied as TD
+    pf = TD.profile_fields(cf.get("profile_text", ""))
+    out["n"] = cf["n"]
+    out["pad"] = pf["pad_id"] if pf["pad_id"] is not None else 0
+    out["verdict_row"] = cf["P0"] + cf["n"] + cf["S"] - 1
+    # [v21, R-C2] B-3: the tables DERIVED from the pinned tensor (the margin row
+    # and the embedding), when the profile names the development rung's source
+    # [v22] or the REAL Shieldstral checkpoint's (TD.derive_for_profile)
+    if pf["margin_scale"] is not None:
+        try:
+            dv = TD.derive_for_profile(cf, pf)
+            out["w_delta"], out["emb"] = list(dv["w"]), dv["emb"]
+        except ValueError:
+            pass
+    return out
 
 
 def _int16_of(v):
@@ -1118,6 +1191,7 @@ def check_captured_structure_c(label, vals, cx: ClassCtx, b) -> list:
     """the structure each TAKEN classifier table's builder gives it"""
     out = []
     if label == "tau_tab_c":
+        # [v21] reached only when tau could not be rebuilt (no derived embedding)
         # stage_in_c.rs:158-162: padded rows repeat row 0's whole tuple
         n = 1 << cx.geom.voc_log()
         if len(vals) != n:
@@ -1134,9 +1208,12 @@ def check_captured_structure_c(label, vals, cx: ClassCtx, b) -> list:
 
 def b3_margin_vector(vals, cx: ClassCtx, b) -> dict:
     """B-3 on a capture: the PD slot's recorded margin vector, as int16 words
-    in [-32767, 32767] with zero padding, hashes (classify.rs:250-258) to the
-    statement's `margin_vector.digest`; the export's tied-matrix artifact is
-    the second comparison once F3 lands (not at the synthetic rung)"""
+    in [-32767, 32767] with zero padding, hashes (classify.rs:323-331) to the
+    statement's `margin_vector.digest`; [v21, R-C2] AND equals, entry for
+    entry, the row DERIVED from the pinned tied tensor
+    (`zk60_native_rg_classtied.derived_tables_check`), whose digest and the
+    derived embedding's must be the statement's"""
+    import zk60_native_rg_classtied as TD
     f = []
     try:
         words = [_int16_of(v) for v in vals]
@@ -1152,7 +1229,9 @@ def b3_margin_vector(vals, cx: ClassCtx, b) -> dict:
     want = bytes(b.run["classify"]["margin_vector"]["digest"]).hex()
     if got != want:
         f.append(f"B-3: the recorded margin vector hashes to {got[:12]}, the statement's digest is {want[:12]}")
-    return {"recomputed_digest": got, "statement_digest": want, "findings": f, "ok": not f}
+    derived = TD.derived_tables_check(b, words_captured=words)
+    f += derived["findings"]
+    return {"recomputed_digest": got, "statement_digest": want, "derived": derived, "findings": f, "ok": not f}
 
 
 def _structure_c(sd: SlotDef, arg, kind, slot, cx: ClassCtx, claim_counter: dict, spi) -> list:
@@ -1253,10 +1332,13 @@ def check_classify_terminals(bundle, replay=None, *, stage_docs=None, terminal_d
     facts = facts_from_bundle(bundle)
     if facts_override:
         facts.update(facts_override)
-    out["statement_facts_read"] = {k: v for k, v in facts.items() if k != "w_delta"}
+    out["statement_facts_read"] = {k: v for k, v in facts.items() if k not in ("w_delta", "emb")}
+    out["statement_facts_read"]["tables_derived_from_the_pinned_tensor"] = facts.get("emb") is not None
     g = bundle.geom
     docs = stage_docs if stage_docs is not None else [st.doc for st in bundle.stages]
     b3 = None
+    # [v22] a capture written with HL_RUN_CAPTURE_PUBLIC_TABLES=0 declares it; only then may a table carry no values
+    public_values_optional = (getattr(bundle, "run", None) or {}).get("public_tables_included") is False
     for st in (bundle.stages[0], bundle.stages[-1]):
         kind = st.kind
         doc = docs[st.index]
@@ -1307,8 +1389,41 @@ def check_classify_terminals(bundle, replay=None, *, stage_docs=None, terminal_d
                             capv = list(capv)
                             capv[tdl[1]] = add(capv[tdl[1]], tdl[2])
                         prow = {"table": i, "what": describe_c(desc), "len": cap["len"], "class": table_class_c(desc)}
-                        if capv is None:
+                        if capv is None and not public_values_optional:
                             raise ValueError(f"public table {i} ({describe_c(desc)}): the capture carries no values")
+                        if capv is None:
+                            # [v22] a capture recorded with public tables as LENGTH + DIGEST only (the real
+                            # Shieldstral capture): every classifier table is REBUILT from public data and
+                            # compared with the capture's length and SHA-256; nothing is taken
+                            rb = rebuild_public_c(desc, cx)
+                            if rb is None:
+                                raise ValueError(f"public table {i} ({describe_c(desc)}): the capture carries no "
+                                                 "values and the port cannot rebuild it")
+                            if len(rb) != cap["len"]:
+                                raise ValueError(f"public table {i}: rebuilt {len(rb)} values for len {cap['len']}")
+                            if tdl is not None and tdl[0] == i:
+                                # a CONTROL's moved entry (CC-4 / CC-5) applies to the table the port
+                                # would use in place of the captured values
+                                rb = list(rb)
+                                rb[tdl[1]] = add(rb[tdl[1]], tdl[2])
+                            prow.update({"values": "length + digest only (capture option); the REBUILT table is "
+                                                   "compared with the capture's digest",
+                                         "captured_values_match_own_digest": None, "rebuilt": True,
+                                         "rebuilt_digest_matches_capture": table_digest(rb) == cap["sha256"],
+                                         "evaluations_agree": None})
+                            if desc[0] == "captured":
+                                prow["rebuilt_from"] = "the embedding derived from the pinned tied tensor (B-3, v22)"
+                            if desc[0] == "w_delta":
+                                # B-3: the rebuilt row IS the derived row; its digest equal to the capture's
+                                # table digest means the receipt's margin vector is exactly the derived row
+                                b3 = b3_margin_vector(rb, cx, bundle)
+                                if not b3["ok"]:
+                                    pf += b3["findings"]
+                            if check_digests and not prow["rebuilt_digest_matches_capture"]:
+                                pf.append(f"public table {i} ({describe_c(desc)}): digest mismatch")
+                            vals.append(F2(mul(sel, TT.mle(rb, eqt))))
+                            pub_rows.append(prow)
+                            continue
                         if len(capv) != cap["len"]:
                             raise ValueError(f"public table {i}: {len(capv)} values for len {cap['len']}")
                         prow["captured_values_match_own_digest"] = table_digest(capv) == cap["sha256"]
@@ -1320,6 +1435,13 @@ def check_classify_terminals(bundle, replay=None, *, stage_docs=None, terminal_d
                             ev_rb = TT.mle(rb, eqt)
                             prow["evaluations_agree"] = ev_rb == ev_cap
                             use = ev_rb
+                            # [v21] B-3 on the recorded margin vector, now that it is rebuilt
+                            if desc[0] == "w_delta":
+                                b3 = b3_margin_vector(capv, cx, bundle)
+                                if not b3["ok"]:
+                                    pf += b3["findings"]
+                            if desc[0] == "captured":
+                                prow["rebuilt_from"] = "the embedding derived from the pinned tied tensor (B-3, v21)"
                         else:
                             prow["rebuilt"] = False
                             label = desc[1] if desc[0] == "captured" else desc[0]
@@ -1399,9 +1521,11 @@ def check_classify_terminals(bundle, replay=None, *, stage_docs=None, terminal_d
             if pp.get("rebuilt")),
         "taken_tables": sorted({pp["what"] for r in out["slots"] for pp in r.get("public_tables", []) if pp.get("rebuilt") is False}),
         "what": "every IN-C / OUT-C public table the port rebuilds from the geometry, the profile, the re-derived "
-                "challenges and the PUBLIC verdict equals the capture's, digest for digest; the two taken tables "
-                "are tau (the embedding fold; structure) and w_Delta (B-3). So no public value of the classifier "
-                "stages depends on the hidden data except through b"}
+                "challenges and the PUBLIC verdict equals the capture's, digest for digest; [v21] tau and w_Delta "
+                "are REBUILT too, from the tables derived from the pinned tied tensor (B-3), so no table is "
+                "taken from the capture when the profile names the development rung's source. So no public "
+                "value of the classifier stages depends on the hidden data except through b (and, D45(1), the "
+                "public length n through the template tables and the verdict row)"}
     out["seconds"] = round(time.time() - t0, 2)
     out["ok"] = (out["slots_equal"] == n == 12 and not out["findings"] and out["B3_margin_vector"]["ok"]
                  and out["one_public_bit"]["rebuilt_public_tables_all_equal_the_capture"]

@@ -1,0 +1,18 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/zkp-core/src/field.rs",
+    "unchanged": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/zkp-core/src/pcs.rs",
+    "unchanged": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/hashline/src/gpu/cuda.rs",
+    "unchanged": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/hashline/src/gpu/kernels.cu",
+    "unchanged": true
+  }
+]

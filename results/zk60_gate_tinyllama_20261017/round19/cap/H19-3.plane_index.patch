@@ -1,0 +1,62 @@
+--- results/zk60_token_io_r1_20261017/frozen-r16b/hashline/src/private_block/plane_index.rs	2026-10-29 03:50:55.904279865 -0700
++++ ops/zkp-mvp/gate-tinyllama/capture-tree-r16b/hashline/src/private_block/plane_index.rs	2026-10-29 04:30:36.245668656 -0700
+@@ -238,7 +238,15 @@
+     let (ids, hids) = (lay.ids(), lay.hids());
+     let n = lay.n();
+     // ---- the A planes
+-    let a_names = expand(&a_segments(sh));
++    // PRIVACY GATE ROUND 19 (test-only patch H19-3, the gate's capture tree
++    // only): at an R13 accuracy shape the A planes are `AccuracyIds`' own list
++    // (accuracy_layout.rs), whose domains `Ids::new` has already matched against
++    // the independently counted `Shape::a_plane_doms`; the names are its names
++    // with the `A_` prefix of the legacy table. Legacy shapes are unchanged.
++    let a_names = match ids.accuracy() {
++        Ok(low) => low.names.iter().zip(low.doms.iter()).map(|(nm, d)| (format!("A_{nm}"), *d)).collect::<Vec<_>>(),
++        Err(_) => expand(&a_segments(sh)),
++    };
+     if a_names.len() != ids.n_a() {
+         return Err(format!("private block: the A plane name table has {} names for {} planes", a_names.len(), ids.n_a()));
+     }
+@@ -333,6 +341,10 @@
+ fn slot_planes(lay: &Layout, slot: usize) -> Result<Vec<Ref>, String> {
+     let (sh, ids, hids) = (lay.shape(), lay.ids(), lay.hids());
+     let ls = sh.limbs_sigma_s();
++    // H19-3: the R13 accuracy slots sweep their WHOLE domain range
++    // (argument_accuracy.rs `b.a_range(range.start, range.end - 1)` with
++    // `range = ids.domain_range(dom)`); every other slot keeps the legacy body
++    let r13 = ids.accuracy().is_ok();
+     let mut v: Vec<Ref> = Vec::new();
+     // `toy` is a toy plane constant, mapped to this shape by `Ids::at`
+     let a = |v: &mut Vec<Ref>, toy: usize| v.push(Ref::A(ids.at(toy)));
+@@ -383,6 +395,31 @@
+         }
+         SC_GMM | SC_UMM => a(&mut v, A_YM),
+         SC_DMM => a(&mut v, A_H16),
++        SC_DZC if r13 => {
++            let r = ids.domain_range(Dom::D)?;
++            range(&mut v, r.start, r.end - 1);
++            a(&mut v, A_D);
++            a(&mut v, A_DM);
++            helpers(&mut v, Dom::D);
++        }
++        SC_QZC if r13 => {
++            let r = ids.domain_range(Dom::Q)?;
++            range(&mut v, r.start, r.end - 1);
++            a(&mut v, A_Q8);
++            helpers(&mut v, Dom::Q);
++        }
++        SC_KVZC if r13 => {
++            let r = ids.domain_range(Dom::Kv)?;
++            range(&mut v, r.start, r.end - 1);
++            a(&mut v, A_K8);
++            helpers(&mut v, Dom::Kv);
++        }
++        SC_FZC if r13 => {
++            let r = ids.domain_range(Dom::F)?;
++            range(&mut v, r.start, r.end - 1);
++            helpers(&mut v, Dom::F);
++            v.push(Ref::H(hids.fact()));
++        }
+         SC_DZC => {
+             range(&mut v, ids.at(A_X), ids.at(A_RDL));
+             a(&mut v, A_D);

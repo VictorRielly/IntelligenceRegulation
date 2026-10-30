@@ -1,0 +1,61 @@
+{
+  "at": "2026-10-29T16:58:02.157030+00:00",
+  "schema": "zk60-astra-classifier-r16b-intake/1",
+  "binary": "/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/cli/zk60_classify.r16b.release.bin",
+  "binary_sha256": "dfb8025eb903b203f4b50371fdd0dd00659d46a9dbaad9d121d6a68343ebc70c",
+  "identity": "29aeba6c04a819cdbafde311f7c9d0c678d85aff22292ae6b9647761158a0bd1",
+  "run_profile": "hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/1",
+  "statement_schema": "zk60-classify-run/3",
+  "min_bits": 95,
+  "policies": [
+    "shieldstral-1.0-3b-moderate-sexual/1",
+    "shieldstral-1.0-3b-moderate-violence/1",
+    "shieldstral-1.0-3b-moderate-hate/1"
+  ],
+  "product_policy_selected": false,
+  "production_enabled": false,
+  "sequence_format": {
+    "files": "x_in_LXX.bin / x_out_LXX.bin for XX=00..25",
+    "dtype": "little-endian signed int16",
+    "shape": [
+      128,
+      3072
+    ],
+    "privacy": "prover-private, never in public receipt bundle"
+  },
+  "next": "Finish the authorized new 17-token real app post: three guarded categories, fresh verification/input-owner/native aggregate, stored receipt checks and Base Sepolia batch anchoring. Keep privacy statement pending.",
+  "evidence_sha256": {
+    "results/zk60_token_io_r1_20261017/r16/real_runs.json": "da12fd16cb253a5149d963930601dc5dbba9ce104c68617b09f2829d26d055e8",
+    "results/zk60_token_io_r1_20261017/cli/README.md": "45366a8bd893f7212037401c6d2041946e576176a3d3f40e150875b11508c1fb",
+    "results/zk60_token_io_r1_20261017/frozen-r16b/hashline/src/private_block/token_io/classify_r16_tests.rs": "d022e7120051e23d3992e01a61a3f8d6fde3d8dff95edfd9bb8b41a515309a30",
+    "results/zk60_d24_review_20261017/REVIEW_R13.md": "7ea6d302b2def094d5853910111c3b2cbfc802355b4af75198e5f349b7e8d13e"
+  },
+  "native_status": "R13 soundness accepted; token round16 accepted with fixes, coordinator directs r16b. New r17 is recorder/test-only and not adopted here. Privacy gate separate.",
+  "item_activations": {
+    "evidence": "results/zk60_astra_20261026/item_activations_check_2/complete.json",
+    "writer": "results/zk60_shieldstral_export_20261026/write_item_activations.py",
+    "bit_identical": true,
+    "categories": 3,
+    "layers": 26,
+    "files_compared": 156,
+    "bytes_compared": 122683392,
+    "layer_continuity_checks": 75,
+    "input_matches_saved_a1": true,
+    "refusals": 0,
+    "unit_tests": 7,
+    "scope": "One35-token real A1 item, three moderate prompts; no new native proof or privacy acceptance",
+    "private_workspace": "/tmp/zk60-astra-item-activations-20261029-2"
+  },
+  "followup_at": "2026-10-29T18:30:24.876388+00:00",
+  "real_app": {
+    "implemented": true,
+    "mode": "explicit PM_PROVER=shieldstral testnet demo",
+    "authorization": "coordinator 2026-10-29T17:16:59Z",
+    "plan": "results/zk60_astra_20261026/real_app_demo_1/plan.json",
+    "first_category": "sexual queued, no active process; previous waiter withdrawn before computation",
+    "metadata_candidate_tests": 154,
+    "candidate_applied": true,
+    "real_app_receipts_complete": 0,
+    "current_app_tests": 154
+  }
+}

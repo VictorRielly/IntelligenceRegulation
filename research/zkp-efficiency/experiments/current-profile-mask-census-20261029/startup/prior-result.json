@@ -1,0 +1,233 @@
+{
+  "status": "PASS",
+  "seed": 202610290141,
+  "fixtures": 792,
+  "terminal_comparisons": 3168,
+  "direct_eq_values": 9216,
+  "negative_controls": 10,
+  "diagnostic_digest": "0dd2d8e8951318bb",
+  "elapsed_s": 0.199780382,
+  "bench_scope": "synthetic component; fresh Eq preparation and drop included; shared box; not native timing",
+  "bench": [
+    {
+      "row_log": 8,
+      "pairs": 1,
+      "cached_paired3_group_ns": [
+        4498,
+        4139,
+        4095,
+        4107,
+        4135
+      ],
+      "prepared_group_ns": [
+        5119,
+        4289,
+        4182,
+        4194,
+        4205
+      ]
+    },
+    {
+      "row_log": 8,
+      "pairs": 2,
+      "cached_paired3_group_ns": [
+        5492,
+        5454,
+        5394,
+        5358,
+        5371
+      ],
+      "prepared_group_ns": [
+        5633,
+        5402,
+        5416,
+        5371,
+        5462
+      ]
+    },
+    {
+      "row_log": 8,
+      "pairs": 6,
+      "cached_paired3_group_ns": [
+        10750,
+        10694,
+        9927,
+        9927,
+        9926
+      ],
+      "prepared_group_ns": [
+        10284,
+        19228,
+        9701,
+        9952,
+        9664
+      ]
+    },
+    {
+      "row_log": 8,
+      "pairs": 17,
+      "cached_paired3_group_ns": [
+        23474,
+        23670,
+        23414,
+        24890,
+        34939
+      ],
+      "prepared_group_ns": [
+        22286,
+        22391,
+        22560,
+        23661,
+        23620
+      ]
+    },
+    {
+      "row_log": 13,
+      "pairs": 1,
+      "cached_paired3_group_ns": [
+        136118,
+        127308,
+        226072,
+        130446,
+        140617
+      ],
+      "prepared_group_ns": [
+        136158,
+        129238,
+        131845,
+        138891,
+        132930
+      ]
+    },
+    {
+      "row_log": 13,
+      "pairs": 2,
+      "cached_paired3_group_ns": [
+        172025,
+        181418,
+        180032,
+        173554,
+        172028
+      ],
+      "prepared_group_ns": [
+        215659,
+        174392,
+        173372,
+        186204,
+        179748
+      ]
+    },
+    {
+      "row_log": 13,
+      "pairs": 6,
+      "cached_paired3_group_ns": [
+        347729,
+        352040,
+        354150,
+        388311,
+        326517
+      ],
+      "prepared_group_ns": [
+        339843,
+        367792,
+        342652,
+        346189,
+        318445
+      ]
+    },
+    {
+      "row_log": 13,
+      "pairs": 17,
+      "cached_paired3_group_ns": [
+        824367,
+        830362,
+        809218,
+        813591,
+        796313
+      ],
+      "prepared_group_ns": [
+        787544,
+        793321,
+        802146,
+        789576,
+        785213
+      ]
+    },
+    {
+      "row_log": 14,
+      "pairs": 1,
+      "cached_paired3_group_ns": [
+        263355,
+        256393,
+        255429,
+        256705,
+        254156
+      ],
+      "prepared_group_ns": [
+        298839,
+        264790,
+        266782,
+        261268,
+        266347
+      ]
+    },
+    {
+      "row_log": 14,
+      "pairs": 2,
+      "cached_paired3_group_ns": [
+        401302,
+        339643,
+        345814,
+        339968,
+        335910
+      ],
+      "prepared_group_ns": [
+        339809,
+        350821,
+        351447,
+        353704,
+        427973
+      ]
+    },
+    {
+      "row_log": 14,
+      "pairs": 6,
+      "cached_paired3_group_ns": [
+        747038,
+        690946,
+        685453,
+        683146,
+        682059
+      ],
+      "prepared_group_ns": [
+        683911,
+        688140,
+        665206,
+        671824,
+        663734
+      ]
+    },
+    {
+      "row_log": 14,
+      "pairs": 17,
+      "cached_paired3_group_ns": [
+        1650309,
+        1578352,
+        1660266,
+        1629195,
+        1606886
+      ],
+      "prepared_group_ns": [
+        1578954,
+        1641078,
+        2070596,
+        1562759,
+        1569268
+      ]
+    }
+  ],
+  "full_stack_proofs": 0,
+  "model_passes": 0,
+  "proved_positions": 0,
+  "max_rss_kib": 8684
+}

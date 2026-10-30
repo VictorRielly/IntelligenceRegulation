@@ -1,0 +1,7 @@
+{
+  "command": "python3 -I -B /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-derived-cache-20261029/run.py",
+  "exit_code": 1,
+  "failure": "AssertionError: did not refuse stale block",
+  "reason": "Test changed block to width, a no-op for width=block=4. Candidate correctly reused identical bytes; not a stale-cache defect.",
+  "no_result_written": true
+}

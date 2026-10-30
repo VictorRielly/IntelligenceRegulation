@@ -1,0 +1,38 @@
+{
+  "at": "2026-10-29T00:01:55.728042+00:00",
+  "schema": "proven-media/testnet-funding-evidence/1",
+  "base_chain_id": 84532,
+  "l1_chain_id": 11155111,
+  "deposits": [
+    {
+      "status": "credited",
+      "stage": "canary",
+      "tx_hash": "0xf118f6f6980a083f703eb58d84650c1faad8648764d07ea7758b2f484f2367c1",
+      "nonce": 0,
+      "value_wei": 10000000000000000,
+      "l1_block": 12015664,
+      "l1_block_hash": "0x1b50de8c79292378683909883dc7c0b78ef0aba0676ef7ca4ea1c25efa245dd7",
+      "l1_confirmations": 50,
+      "base_credit_block": 51547365,
+      "base_credit_block_hash": "0xed36e89ea51582c7ca1a57ac8951d13758b8385ac8415f4104f2002be36260e4",
+      "base_balance_wei": 10000000000000000,
+      "address": "0x775E8A2D741446d74E3f5a02244D1241eceB187d",
+      "note": "L1 canonical receipt and bridge event; Base account balance observed through public RPC."
+    },
+    {
+      "status": "credited",
+      "stage": "bulk",
+      "tx_hash": "0x385672480d95e7f2f24f59d173197c576e4df27621f118be519d4d81a0e55373",
+      "nonce": 1,
+      "value_wei": 450000000000000000,
+      "l1_block": 12015731,
+      "l1_block_hash": "0x97ebd35a98dd868acc57f9510e662ad03a491aac25432e4c0f49b67290b2da13",
+      "l1_confirmations": 26,
+      "base_credit_block": 51550000,
+      "base_credit_block_hash": "0x9571cfe698470df3a971325ecd6f89985c3ea489fc25a1d2d042c63fafdd0e29",
+      "base_balance_wei": 460000000000000000,
+      "address": "0x775E8A2D741446d74E3f5a02244D1241eceB187d",
+      "note": "L1 canonical receipt and bridge event; Base account balance observed through public RPC."
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "external_fetches": [
+    "https://github.com/hummingtree/cuda-graph-with-dynamic-parameters/commits/release/: Cache miss",
+    "https://github.com/hummingtree/cuda-graph-with-dynamic-parameters/releases: Cache miss",
+    "https://github.com/hummingtree/cuda-graph-with-dynamic-parameters/blob/release/LICENSE: Cache miss",
+    "https://raw.githubusercontent.com/hummingtree/cuda-graph-with-dynamic-parameters/release/LICENSE: Cache miss",
+    "https://github.com/THU-HAS/MegaZK/commits/main/: Cache miss",
+    "https://github.com/THU-HAS/MegaZK/releases: Cache miss",
+    "https://github.com/THU-HAS/MegaZK/blob/main/LICENSE: Cache miss",
+    "https://github.com/THU-HAS/MegaZK/blob/main/LICENSE-MIT: Cache miss",
+    "https://dl.acm.org/doi/10.1145/3797905.3807842: 403 Forbidden",
+    "https://github.com/THU-HAS/MegaZK/blob/main/plonky2-gpu-bench/src/lib.rs: Cache miss",
+    "https://developer.nvidia.com/blog/employing-cuda-graphs-in-a-dynamic-environment/: Timeout fetching (three opens; separate2022 article inspected instead)"
+  ],
+  "native_performance": "No exclusive map,table-build and enclosing current R13 clocks. GPU/heavy/native integration out of this research authorization. No such job queued.",
+  "approval_requested": false,
+  "approval_bypass": false
+}

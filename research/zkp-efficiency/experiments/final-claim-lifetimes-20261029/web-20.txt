@@ -1,0 +1,399 @@
+ (https://escholarship.org/content/qt5qm6n0s0/qt5qm6n0s0.pdf)
+citeturn19view0 [wordlim: 200] Crawled: 2 days ago; Content type: application/pdf; Number of pages: 219; Source: find({"ref_id":"turn18view0","pattern":"4.3.3 Combining Multiple Claims"}); Total lines: 13716
+L1474@P33: Lemma 2.3.3. The bookkeeping table Ahg
+L1475@P33: can be initialized in time O(2ℓ).
+L1476@P33: Proof. As f1
+L1477@P33: is sparse, P
+L1478@P33: x∈{0,1}
+L1479@P33: ℓ |Nx| = O(2ℓ
+L1480@P33: ). From Lemma 4.3.2, given the evaluations of I(g, z) for all
+L1481@P33: z ∈ {0, 1}
+L1482@P33: ℓ
+L1483@P33: , the prover can iterate all (z, y) ∈ Nx for all x to compute Ahg. The full algorithm is presented in
+L1484@P33: Algorithm 10.
+L1485@P33: Procedure Precompute(g) is to evaluate G[z] = I(g, z) = Qℓ
+L1486@P33: i=1((1−gi
+L1487@P33: )(1−zi)+gizi)) for z ∈ {0, 1}
+L1488@P33: ℓ
+L1489@P33: .
+L5899@P89: Figure 4.1 and Section 4.3.3 for the design of the circuit and the details of the protocol.
+L5900@P89: Furthermore, inspired by the structure of this circuit, we are able to design a single sumcheck protocol to
+L5901@P89: combine multiple claims on the subsets to a single evaluation of V˜
+L5902@P89: i at a random point. This second approach
+L5903@P89: further improves the prover time, the proof size and the verifier time. Putting the two steps together, we are
+L6746@P100: and therefore the evaluations on the hypercube are known. Initializing the bookkeeping table for hgin O(2ℓ)
+L6747@P100: time is more challenging, but we can take advantage of the sparsity of fi.
+L6748@P100: Lemma 4.3.2. Let Nx be the set of (z, y) ∈ {0, 1}
+L6749@P100: 2ℓ
+L6750@P100: such that f
+L6751@P100: ′
+L6752@P100: i
+L6753@P100: (z, x, y) = yki+1 . . . yℓ fi(z, x, y1, . . . , yki)
+L6754@P100: is non-zero for some 1 ≤ i ≤ m. Then for all x ∈ {0, 1}
+L6755@P100: ℓ
+L6756@P100: , it is hg(x) = P
+L6757@P100: (z,y)∈Nx
+L6758@P100: β˜(g, z)·(
+L6759@P100: Pm
+L6760@P100: i=1 f
+L6761@P100: ′
+L6762@P100: i
+L6763@P100: (z, x, y)·
+L6764@P100: si(y1, . . . , yki)).
+L6765@P100: Proof. Since fiis a multilinear extension, as shown in [Tha13b], we have f
+L6766@P100: ′
+L6767@P100: i
+L6768@P100: (g, x, y) = P
+L6769@P100: z∈{0,1}
+L6770@P100: ℓ β˜(g, z)
+L6771@P100: f
+L6772@P100: ′
+L6773@P100: i
+L6774@P100: (z, x, y). Therefore,
+L6775@P100: hg(x) =X
+L6776@P100: z∈{0,1}
+L6777@P100: ℓ β˜(g, z) · (
+L6778@P100: Xm
+L6779@P100: i=1
+L6780@P100: f
+L6781@P100: ′
+L6782@P100: i
+L6783@P100: (z, x, y) · si(y1, . . . , yki))
+L6784@P100: =
+L6785@P100: X
+L6786@P100: (z,y)∈Nx
+L6787@P100: β˜(g, z) · (
+L6788@P100: Xm
+L6789@P100: i=1
+L6790@P100: f
+L6791@P100: ′
+L6792@P100: i
+L6793@P100-101: (z, x, y) · si(y1, . . . , yki))4.3. GENERALIZING GKR TO ARBITRARY ARITHMETIC CIRCUITS 91
+L6794@P101: Lemma 4.3.3. The bookkeeping table Ahgcan be initialized in time O(2ℓ).
+L6795@P101: Proof. As fiis sparse, P
+L6796@P101: x∈{0,1}
+L6797@P101: ℓ |Nx| = O(2ℓ
+L6798@P101: ). From Lemma 4.3.2, given the evaluations of β˜(g, z) for all
+L6799@P101: z ∈ {0, 1}
+L6800@P101: ℓ
+L6801@P101: , the prover can iterate through all (z, y) ∈ Nx for all x to compute Ahg. The full algorithm is
+L6802@P101: presented in Algorithm 10. Since each siis the multilinear extension of an array, its evaluations on the Boolean
+L6803@P101: hypercube are known. Therefore, we use As1, . . . , Asmas the input of Algorithm 10. |As1|+. . .+|Asm| = 2ℓ
+L6804@P101: as 2
+L6805@P101: k1 + 2k2 + . . . + 2km = 2ℓ
+L6806@P101: .
+L6807@P101: Procedure Precompute(g) is to evaluate G[z] = β˜(g, z) = Qℓ
+L6808@P101: i=1((1−gi
+L6809@P101: )(1−zi)+gizi)) for z ∈ {0, 1}
+L6810@P101: ℓ
+L6811@P101: .
+L6812@P101: By the closed-form of β˜(g, z), the procedure iterates each bit of z, and multiples 1 − gifor zi = 0 and
+L6813@P101: multiples gifor zi = 1. In this way, the size of G doubles in each iteration, and the total complexity is O(2ℓ).
+L6814@P101: Step 8-9 computes hg(x) using Lemma 4.3.2. When f
+L6815@P101: ′
+L6816@P101: i
+L6817@P101: is represented as a map of ((z, x, y), f′
+L6818@P101: i
+L6819@P101: (z, x, y))
+L6820@P101: for non-zero values, the complexity of these steps is O(2ℓ) since P
+L6821@P101: x∈{0,1}
+L6822@P101: ℓ |Nx| = O(2ℓ
+L6823@P101: ).
+L6920@P102: sparsity of fi and we have the lemma as follows:
+L6921@P102: Lemma 4.3.5. Let Ny be the set of(z, x) ∈ {0, 1}
+L6922@P102: 2ℓ
+L6923@P102: such that f
+L6924@P102: ′
+L6925@P102: i
+L6926@P102: (z, x, y) = yki+1 . . . yℓ fi(z, x, y1, . . . , yki)is
+L6927@P102: non-zero for some 1 ≤ i ≤ m. Then for all y ∈ {0, 1}
+L6928@P102: ℓ
+L6929@P102: , it is f
+L6930@P102: ′
+L6931@P102: i
+L6932@P102: (g, u, y) = P
+L6933@P102: (z,x)∈Ny
+L6934@P102: β˜(g, z)β˜(u, x)f
+L6935@P102: ′
+L6936@P102: (z, x, y)
+L6937@P102: Lemma 4.3.5 is a generalization of Lemma 4.3.2 and we omit the proof.
+L6938@P102: Lemma 4.3.6. The bookkeeping table Af1, . . . , Afmcan be initialized in time O(2ℓ).
+L6939@P102: Proof. As fiis sparse, P
+L6940@P102: y∈{0,1}
+L6941@P102: ℓ |Ny
+L6942@P102: | = O(2ℓ). From Lemma 4.3.2, given the evaluations of β˜(g, z) and
+L6943@P102: β˜(u, x) for all z, x ∈ {0, 1}
+L6944@P102: ℓ
+L6945@P102-103: , the prover can iterate all (z, x) ∈ Nx for all y to compute Af1, . . . , Afm. The4.3. GENERALIZING GKR TO ARBITRARY ARITHMETIC CIRCUITS 93
+L6946@P103: Algorithm 12 Af1, . . . , Afm ← Initialize_PhaseTwo(f1, . . . , fm, g, u)
+L6947@P103: Input: Multilinear f1, . . . , fm, random g = g1, . . . , gm and u = u1, . . . , uℓ;
+L6948@P103: Output: Bookkeeping tables Af1, . . . , Afm;
+L6949@P103: 1: G ← Precompute(g)
+L6950@P103: 2: U ← Precompute(u)
+L6951@P103: 3: ∀y ∈ {0, 1}
+L6952@P103: ℓ
+L6953@P103: , set Afi[y1, . . . , yki] = 0 for all i
+L6954@P103: 4: for every (z, x, y) such that fi(z, x, y1, . . . , yki) is non-zero do
+L6955@P103: 5: Afi[y1, . . . , yki] = Afi[y1, . . . , yki] + G[z] · U[x] · fi(z, x, y1, . . . , yki)
+L6956@P103: 6: end for
+L6957@P103: 7: return Af1, Af2, . . . , Afm;
+L6958@P103: full algorithm is presented in Algorithm 12.
+L6959@P103: P runs procedure Precompute(g) and Precompute(u) in O(2ℓ
+L6960@P103: ) time as we have shown in the proof of
+L6961@P103: Lemma 4.3.3. Step 4-5 computes fi(y1, . . . , yki) using Lemma 4.3.5. It takes O(2ℓ)time as P
+L6962@P103: y∈{0,1}
+L6963@P103: ℓ |Ny
+L6971@P103: several instances that have the form of Equation 4.8. The term
+L6972@P103: X
+L6973@P103: x,y∈{0,1}
+L6974@P103: si,i+1 (mult ˜
+L6975@P103: i+1,i+1(z, x, y)(V˜i,i+1(x)V˜i,i+1(y)) + . . .
+L6976@P103: +ysi,d+1 . . . ysi,i+1mult ˜
+L6977@P103: i+1,d(z, x, y1
+L6978@P103: , y2, . . . , ysi,d)(V˜
+L6979@P103: i,i+1(x)V˜i,d(y1
+L6980@P103: , y2, . . . , ysi,d))
+L6981@P103: is exactly the same as Equation 4.8. The term
+L6982@P103: X
+L6983@P103: x,y∈{0,1}
+L6984@P103: si,i+1 add˜
+L6985@P103: i+1,i+1(z, x, y)(V˜
+L6986@P103: i,i+1(x) + V˜i,i+1(y)) + . . .
+L6992@P103: can be rewritten as the sum of
+L6993@P103: X
+L6994@P103: x,y∈{0,1}
+L6995@P103: si,i+1 add˜
+L6996@P103: i+1,i+1(z, x, y)V˜i,i+1(x) + . . .
+L6997@P103: + ysi,d+1 . . . ysi,i+1add˜
+L6998@P103: i+1,d(z, x, y1
+L6999@P103: , . . . , ysi,d
+L7000@P103: )V˜
+L7001@P103: i,i+1(x)
+L7002@P103: and
+L7003@P103: X
+L7004@P103: x,y∈{0,1}
+L7005@P103: si,i+1 add˜
+L7006@P103: i+1,i+1(z, x, y)V˜i,i+1(y) + . . .
+L7007@P103: + ysi,d+1 . . . ysi,i+1add˜
+L7008@P103: i+1,d(z, x, y1
+L7009@P103: , . . . , ysi,d
+L7010@P103: )V˜
+L7011@P103: i,d(y1
+L7012@P103-104: , . . . , ysi,d).4.3. GENERALIZING GKR TO ARBITRARY ARITHMETIC CIRCUITS 94
+L7013@P104: The first sum is the same as Equation 4.8 with si(x) = 1, and the second sum is the same as Equation 4.8
+L7014@P104: with t(x) = 1. The complexity for both cases remains linear. Due to linearity of the sumcheck protocol, the
+L7015@P104: prover can execute these 3 instances simultaneously in every round, sum up the individual messages and send
+L7016@P104: them to the verifier.
+L7017@P104: Verifier time and proof size for all sumcheck protocols on Equation 4.7. The verifier time for all sumcheck
+L7018@P104: protocols on Equation 4.7 is the same as Protocol 9. V still runs in O(d log |C|) time to verify all sumcheck
+L7019@P104: statements based on Equation 4.7. The proof size is also O(d log |C|). Note that this excludes the claims of
+L7020@P104: V˜
+L7021@P104: i,j at random points at the end of the sumcheck protocol in each layer, and we will count them in the next
+L7022@P104: section combining these claims.
+L7023@P104: 4.3.3 Combining Multiple Claims in Linear Time
+L7024@P104: By executing the sumcheck protocol on Equation 4.7, P and V reduce an evaluation of the multiliear extension
+L7025@P104: of a layer to multiple evaluations of multilinear extensions defined by values in the layers above. As we
+L7026@P104: explained in Section 4.3.1, when reaching layer i, V has received multiple evaluations about this layer and
+L7027@P104: combining these evaluations using a random linear combination would introduce an overhead on the prover.
+L7028@P104: Even worse, with the refined sumcheck on Equation 4.7 in Section 4.3.2, now the verifier has received multiple
+L7029@P104: evaluations of different multilinear extensions defined by subsets of gates in layer i used by different layers
+L7030@P104: below. Now even combining these evaluations becomes challenging, let alone reducing the overhead of the
+L7031@P104: prover.
+L7032@P104: In this section, we propose two different approaches that not only combine these evaluations to a single
+L7033@P104: evaluation of the multilinear extension of the entire layer i, but also incur only a linear prover time in the size
+L7034@P104: of the circuit.
+L7035@P104: Combining multiple claims by an arithmetic circuit. The key idea of the first approach is that instead of
+L7036@P104: trying to come up with a complicated protocol to do the combination, we simply model the computation as an
+L7037@P104: arithmetic circuit! The circuit takes the values Vi of the entire layer i as the input. In addition, it also takes
+L7038@P104: the randomness to compute these evaluations of subsets from the verifier. At this point, these randomness are
+L7039@P104: already chosen by the verifier and can merely be viewed as constants known both to V and P. The circuit
+L7040@P104: then selects multiple subsets from Vi according to the wiring of the circuit (i.e., gates used by layer j < i
+L7041@P104: from layer i), arrange them in the pre-defined order. The circuit then computes the multilinear extensions of
+L7042@P104: these subsets, and evaluates them on the corresponding points from the input. The structure of the circuit Ci
+L7043@P104: is given in Figure 4.1.
+L7048@P104: extension of all the randomnesses used to compute the output. As the latter is known to V, V can compute it
+L7049@P104: locally. In this way, using the circuit, P and V reduce multiple claims about subsets of layer i to one claim
+L7050@P104: about V˜
+L7051@P104: i
+L7052@P104: .
+L7053@P104: Another tricky part is that the size of the circuit is not optimal if implemented naively. As shown in
+L7054@P104: Figure 4.1, the circuit expands the randomness to the bookkeeping tables exactly as described in Algorithm 8,
+L7169@P106: Combining multiple claims by a sumcheck protocol. Though the prover time of the first method is optimal
+L7170@P106: asymptotically, the overhead in practice is still relatively high. As we will show in Section 7.5, the cost per
+L7171@P106: gate is around 5× slower than that of the original GKR protocol on layered circuits. In addition, it introduces
+L7172@P106: an overhead of O(log |C|) on the proof size and the verifier time. Therefore, inspired by the design of the
+L7354@P107: Efficiency. Next we analyze the efficiency of the second scheme to combine multiple claims to one claim.
+L7355@P107: The prover costs O(S1 + . . . + Sd) = O(|C|) to compute all bookkeeping tables of AV˜
+L7356@P107: i
+L7357@P107: . By Lemma 4.3.7,
+L7358@P107: the prover runs Algorithm 13 to compute all bookkeeping tables of Agiin O(
+L7359@P107: Pd
+L7360@P107: i=1
+L7361@P107: Pi−1
+L7362@P107: k=0 Sk,i) = O(|C|)
+L7363@P107: time. By Lemma 4.3.1, the prover runs the sumcheck protocol on Equation 4.10 for layer 1 to layer d in
+L7364@P107: O(
+L7365@P107: Pd
+L7366@P107: i=1 Si
+L7621@P109: Pr[C(in) ̸= out ∧ V outputs 1] ≤ Pr[∃i, Ei]
+L7622@P109: ≤ Pr[E0] + Pr[E1] + . . . + Pr[Ed−1]
+L7623@P109: ≤ O(
+L7624@P109: log |C|
+L7625@P109: |F|
+L7626@P109: ) + O(
+L7627@P109: log |C|
+L7628@P109: |F|
+L7629@P109: ) + . . . + O(
+L7630@P109: log |C|
+L7631@P109: |F|
+L7632@P109: )
+L7633@P109: ≤ O(
+L7634@P109: d log |C|
+L7635@P109: |F|
+L7636@P109: )
+L7637@P109: The efficiency follows the efficiency analysis of Section 4.3.2 and Section 4.3.3.
+L7638@P109: 4.4 Zero Knowledge Arguments from Generalized GKR
+L7639@P109: In this section, we build a new zero knowledge argument protocol for general arithmetic circuits based on
+L8200@P115: As the second approach to combine multiple claims in Section 4.3.3 is better on all aspects, we focus on
+L8201@P115: building zero knowledge arguments using the second approach. The first approach can also be lifted to a
+L8202@P115: zero knowledge argument with similar ideas by applying a zero knowledge GKR protocol on circuit Ciin
+L8203@P115: Figure 4.1.
+L8204@P115: 4.4.4 Putting Everything Together
+L8205@P115: Combining the zero knowledge variants of step 3(a) and 3(b) in Protocol 11 with the zkVPD scheme, we get a
+L8256@P116: of combining multiple claims to one claim in step 3(b) of Protocol 11 as described in Section 4.3.3. One
+L8257@P116: is building the arithmetic circuit to make the reduction as shown in Figure 4.1 and the other is running the
+L8258@P116: sumcheck protocol on Equation 4.10. Our protocols work on any finite field, and we choose the extension
+L8259@P116: field F
+L8260@P116: p
+L8261@P116: 2 for the Mersenne prime p = 261 − 1. This is the same as in [ZXZS], and we choose it so that our
+--------------------------------------------------------------------------------
+ (https://escholarship.org/content/qt5qm6n0s0/qt5qm6n0s0.pdf)
+citeturn19view1 [wordlim: 200] Crawled: 2 days ago; Content type: application/pdf; Number of pages: 219; Source: find({"ref_id":"turn18view0","pattern":"Precompute"}); Total lines: 13716
+L1511@P33: It now remains to initialize the bookkeeping table for f1(g, u, y) efficiently. Similar to phase one, we have the
+L1512@P33-34: following lemma:2.3. GKR PROTOCOL WITH LINEAR PROVER TIME 24
+L1513@P34: Algorithm 4 Ahg ← Initialize_PhaseOne(f1, f3, Af3, g)
+L1514@P34: Input: Multilinear f1 and f3, initial bookkeeping tables Af3, random g = g1, . . . , gℓ;
+L1515@P34: Output: Bookkeeping table Ahg;
+L1516@P34: 1: procedure G ← Precompute(g) ▷ G is an array of size 2
+L1517@P34: ℓ
+L1518@P34: .
+L1519@P34: 2: Set G[0] = 1
+L1520@P34: 3: for i = 0, . . . , ℓ − 1 do
+L1521@P34: 4: for b ∈ {0, 1}
+L1522@P34: i
+L1523@P34: do
+L1555@P34: We now summarize the final linear-time algorithm for computing the prover messages for the sumcheck
+L1556@P34: protocol on GKR functions. See Algorithm 6 SumCheckGKR.
+L1557@P34: Theorem 2.3.6. Algorithm SumCheckGKR runs in O(2ℓ) time.
+L1558@P34-35: Proof. Follows from Lemma 2.3.1, 2.3.3 and 2.3.5.2.3. GKR PROTOCOL WITH LINEAR PROVER TIME 25
+L1559@P35: Algorithm 5 Af1 ← Initialize_PhaseTwo(f1, g, u)
+L1560@P35: Input: Multilinear f1, random g = g1, . . . , gℓ and u = u1, . . . , uℓ;
+L1561@P35: Output: Bookkeeping table Af1;
+L1562@P35: 1: G ← Precompute(g)
+L1563@P35: 2: U ← Precompute(u)
+L6942@P102: | = O(2ℓ). From Lemma 4.3.2, given the evaluations of β˜(g, z) and
+L6943@P102: β˜(u, x) for all z, x ∈ {0, 1}
+L6944@P102: ℓ
+L6945@P102-103: , the prover can iterate all (z, x) ∈ Nx for all y to compute Af1, . . . , Afm. The4.3. GENERALIZING GKR TO ARBITRARY ARITHMETIC CIRCUITS 93
+L6946@P103: Algorithm 12 Af1, . . . , Afm ← Initialize_PhaseTwo(f1, . . . , fm, g, u)
+L6947@P103: Input: Multilinear f1, . . . , fm, random g = g1, . . . , gm and u = u1, . . . , uℓ;
+L6948@P103: Output: Bookkeeping tables Af1, . . . , Afm;
+L6949@P103: 1: G ← Precompute(g)
+L6950@P103: 2: U ← Precompute(u)
+L6951@P103: 3: ∀y ∈ {0, 1}
+L6952@P103: ℓ
+L6953@P103: , set Afi[y1, . . . , yki] = 0 for all i
+L6954@P103: 4: for every (z, x, y) such that fi(z, x, y1, . . . , yki) is non-zero do
+L6955@P103: 5: Afi[y1, . . . , yki] = Afi[y1, . . . , yki] + G[z] · U[x] · fi(z, x, y1, . . . , yki)
+L6956@P103: 6: end for
+L6957@P103: 7: return Af1, Af2, . . . , Afm;
+L6958@P103: full algorithm is presented in Algorithm 12.
+L6959@P103: P runs procedure Precompute(g) and Precompute(u) in O(2ℓ
+L6960@P103: ) time as we have shown in the proof of
+L6961@P103: Lemma 4.3.3. Step 4-5 computes fi(y1, . . . , yki) using Lemma 4.3.5. It takes O(2ℓ)time as P
+L6962@P103: y∈{0,1}
+L6963@P103: ℓ |Ny
+L7303@P106-107: Lemma 4.3.7. The bookkeeping table Agican be initialized in O(S0,i + · · · + Si−1,i) time.4.3. GENERALIZING GKR TO ARBITRARY ARITHMETIC CIRCUITS 97
+L7304@P107: Algorithm 13 Agi ← Initialize(r
+L7305@P107: (0,i)
+L7306@P107: , . . . , r
+L7307@P107: (i−1,i)
+L7308@P107: , r
+L7309@P107: (i−1,i)
+L7310@P107: ′
+L7311@P107: )
+L7312@P107: Input: r
+L7313@P107: (0,i)
+L7314@P107: , . . . , r
+L7315@P107: (i−1,i)
+L7316@P107: , r
+L7317@P107: (i−1,i)
+L7318@P107: ′
+L7319@P107: ;
+L7320@P107: Output: Agi;
+L7321@P107: 1: ∀x ∈ {0, 1}
+L7322@P107: si
+L7323@P107: , set Agi[x] = 0
+L7324@P107: 2: for k = 0, · · · , i − 1 do
+L7325@P107: 3: G ← Precompute(r
+L7326@P107: (k,i)
+L7327@P107: )
+L7328@P107: 4: for t ∈ {0, 1}
+L7329@P107: sk,i such that Ck,i(t, x) = 1 do
+L7330@P107: 5: Agi[x] = Agi[x] + αk,i · G[t]
+L7331@P107: 6: end for
+L7332@P107: 7: end for
+L7333@P107: 8: G ← Precompute(r
+L7334@P107: (i−1,i)
+L7335@P107: ′
+L7336@P107: )
+L7337@P107: 9: for t ∈ {0, 1}
+L7338@P107: si−1,i such that Ci−1,i(t, x) = 1 do
+L7339@P107: 10: Agi[x] = Agi[x] + α
+L7340@P107: ′
+L7341@P107: i−1,i · G[t]
+L7342@P107: 11: end for
+L7343@P107: 12: return Agi;
+L7344@P107: Proof. It takesO(S0,i+. . .+Si−1,i+Si−1,i)time to run procedure Precompute(r
+L7345@P107: (0,i)
+L7346@P107: ), . . ., Precompute(r
+L7347@P107: (i−1,i)
+L7348@P107: )
+L7349@P107: and Precompute(r
+L7350@P107: (i−1,i)
+L7351@P107: ′
+L7352@P107: ). There are at most S0,i + . . . + Si−1,i + Si−1,i entries such that Ck,i(t, x) = 1.
+L7353@P107: Therefore, the running time of Algorithm 13 is O(S0,i + . . . + Si−1,i).
+L7354@P107: Efficiency. Next we analyze the efficiency of the second scheme to combine multiple claims to one claim.
+L7355@P107: The prover costs O(S1 + . . . + Sd) = O(|C|) to compute all bookkeeping tables of AV˜
+L7356@P107: i
+L7357@P107: . By Lemma 4.3.7,
+L7358@P107: the prover runs Algorithm 13 to compute all bookkeeping tables of Agiin O(
+L7359@P107: Pd
+L7360@P107: i=1
+L7361@P107: Pi−1
+L7362@P107: k=0 Sk,i) = O(|C|)
+L7363@P107: time. By Lemma 4.3.1, the prover runs the sumcheck protocol on Equation 4.10 for layer 1 to layer d in
+L7364@P107: O(
+L7365@P107: Pd
+L7366@P107: i=1 Si
+L13101@P203: is defined to be nonzero for j ∈ [k, k + t − 1]. Therefore,
+L13102@P203: H[ℓ] = Pk+t−1
+L13103@P203: j=1 cjτ
+L13104@P203: j−k =
+L13105@P203: Pt
+L13106@P203: j=k
+L13107@P203: cjτ
+L13108@P203: j−k = hk
+L13109@P203: . Thus, the dealer can precompute all g
+L13110@P203: hk
+L13111@P203: for k = 1, . . . , t
+L13112@P203: using FFT and IFFT on g
+L13113@P203: T
+L13114@P203: and C in O(tlog t) time without knowing τ .
+L13115@P203: Complexity analysis. We present the formal algorithm in Algorithm 21. Combining the two steps, the overall
+L13116@P203: complexity of the dealer is O(N log N) modular exponentiations. The proof size and the verifier time remain
+--------------------------------------------------------------------------------
+ (https://escholarship.org/content/qt5qm6n0s0/qt5qm6n0s0.pdf)
+citeturn19view2 [wordlim: 200] Crawled: 2 days ago; Content type: application/pdf; Number of pages: 219; Source: find({"ref_id":"turn18view0","pattern":"simple batch"}); Total lines: 13716
+No matching text found for "simple batch"

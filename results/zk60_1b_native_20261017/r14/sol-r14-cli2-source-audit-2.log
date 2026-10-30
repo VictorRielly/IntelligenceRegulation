@@ -1,0 +1,7 @@
+
+running 1 test
+test private_block::s24_tests::the_capture_writer_pins_every_run_layer_source_it_depends_on ... S24 run-gate §10: 72 source pins (40 production modules, the parent, and 2 test-only writers), 2 excused by name
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 766 filtered out; finished in 0.00s
+

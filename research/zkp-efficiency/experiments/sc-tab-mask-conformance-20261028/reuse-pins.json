@@ -1,0 +1,22 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/periodic-sc-tab-20261028/field.py",
+    "snapshot": "field.py",
+    "sha256": "7c96b879d97197cb09180d5e2a0f2fc62287e1ff500b8e8694aa0eb4592508e9"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/periodic-sc-tab-20261028/driver.py",
+    "snapshot": "driver.py",
+    "sha256": "bab4e9bed35338aebc4c1fa2837109879c1b73c19f939d844bdbd8c9a72c8042"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/periodic-sc-tab-20261028/periodic.py",
+    "snapshot": "periodic.py",
+    "sha256": "5c4cdb032af96c8ecf4cbeb9805a607f9205b70d7c0772fc9ca9ba45a0b6fce7"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/periodic-sc-tab-20261028/reference.py",
+    "snapshot": "reference.py",
+    "sha256": "c8daf1ee432cb26f3deae5ec0f1c215868a74ec873ab3c01efc842a68cfd07ea"
+  }
+]

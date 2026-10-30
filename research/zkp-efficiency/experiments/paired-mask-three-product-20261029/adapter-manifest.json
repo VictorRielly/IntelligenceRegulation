@@ -1,0 +1,10 @@
+{
+  "original_function": "fn mask_eval(sh: &Shape, p: &Priv, data: &[Fp], point: &[Fp2]) -> Fp2 {\n    let (log_n, n) = (row_log(sh, p.cm), 1usize << row_log(sh, p.cm));\n    let logm = p.log.min(log_n);\n    let c0 = if p.log < log_n { p.slices[0].0 % n } else { 0 };\n    let eq = eq_table_msb(&point[p.log - logm..]);\n    let row = |r: usize| {\n        data[r * n + c0..r * n + c0 + eq.len()].iter().zip(eq.iter()).fold(Fp2::ZERO, |a, (x, e)| a.add(e.mul_base(*x)))\n    };\n    row(p.mask_row).add(Fp2::U.mul(row(p.mask_row + 1)))\n}",
+  "candidate_function": "fn mask_eval(sh: &Shape, p: &Priv, data: &[Fp], point: &[Fp2]) -> Fp2 {\n    let (log_n, n) = (row_log(sh, p.cm), 1usize << row_log(sh, p.cm));\n    let logm = p.log.min(log_n);\n    let c0 = if p.log < log_n { p.slices[0].0 % n } else { 0 };\n    let eq = eq_table_msb(&point[p.log - logm..]);\n    let re = &data[p.mask_row * n + c0..p.mask_row * n + c0 + eq.len()];\n    let im = &data[(p.mask_row + 1) * n + c0..(p.mask_row + 1) * n + c0 + eq.len()];\n    // Only the current site's fresh reserved pair is read. No cached private result.\n    let (mut a, mut b, mut cross) = (Fp::ZERO, Fp::ZERO, Fp::ZERO);\n    for ((e, x), y) in eq.iter().zip(re.iter()).zip(im.iter()) {\n        a = a.add(e.c0.mul(*x));\n        b = b.add(e.c1.mul(*y));\n        cross = cross.add(e.c0.add(e.c1).mul(x.add(*y)));\n    }\n    Fp2::new(a.add(b.mul(Fp(7))), cross.sub(a).sub(b))\n}",
+  "source_sha256": "c4f9f9f4cb477346b03e9f769d7c3141a8529f096d08da2be6c415d5160a5e66",
+  "candidate_sha256": "af851d61a77d60c8c0dabc459651c9bf8db53610cb576c84941b2628b3ad81bc",
+  "patch_sha256": "3e9e962b5684d903a04a687128a155eedf29da7d84e342fcd7d3a22d68a21d47",
+  "compiled": false,
+  "applied_to_production": false,
+  "scope": "all existing mask_eval callers; not stacked with prior tail-weight patch"
+}

@@ -1,0 +1,51 @@
+[
+  {
+    "action": "Native LIVE primary fetch",
+    "url": "https://github.com/Plonky3/Plonky3/blob/main/sumcheck/src/layout.rs",
+    "error": "Cache miss",
+    "response": "Recorded and continued local bounded experiment; no bypass or foreign execution"
+  },
+  {
+    "action": "Native LIVE primary fetch",
+    "url": "https://github.com/Plonky3/Plonky3/pull/2305/files",
+    "error": "Cache miss",
+    "response": "Recorded and continued local bounded experiment; no bypass or foreign execution"
+  },
+  {
+    "action": "Native LIVE primary fetch",
+    "url": "https://github.com/Plonky3/Plonky3/pull/2305/commits",
+    "error": "Cache miss",
+    "response": "Recorded and continued local bounded experiment; no bypass or foreign execution"
+  },
+  {
+    "action": "Native LIVE primary fetch",
+    "url": "https://github.com/Plonky3/Plonky3/pull/2305/commits/8e0f9f055dfb82df9704fde9d7add558342e4d3a",
+    "error": "Cache miss",
+    "response": "Recorded and continued local bounded experiment; no bypass or foreign execution"
+  },
+  {
+    "action": "Native LIVE primary fetch",
+    "url": "https://github.com/Plonky3/Plonky3/commit/fe5e46d",
+    "error": "Cache miss",
+    "response": "Recorded and continued local bounded experiment; no bypass or foreign execution"
+  },
+  {
+    "action": "Native LIVE primary fetch",
+    "url": "https://github.com/arkworks-rs/poly-commit/commits/master/poly-commit/src/hyrax/mod.rs",
+    "error": "Cache miss",
+    "response": "Recorded and continued local bounded experiment; no bypass or foreign execution"
+  },
+  {
+    "action": "Native LIVE primary fetch",
+    "url": "https://github.com/hyraxZK/fennel/blob/master/LICENSE",
+    "error": "Cache miss",
+    "response": "Recorded and continued local bounded experiment; no bypass or foreign execution"
+  },
+  {
+    "action": "Expanded unrolled synthetic fixture compile",
+    "error": "memory allocation of 2097152 bytes failed",
+    "exit_code": -6,
+    "address_space_cap_bytes": 402653184,
+    "response": "Failure/code retained; compact parsed descriptor representation compiled with identical cap; no escalation or cap increase."
+  }
+]

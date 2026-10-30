@@ -1,0 +1,14 @@
+[zk60-guard 21:38:35] START tio15-s19-suite class=cpu need=8.5G cap=10G enforce=cgroup+watchdog waited=0s run=ebe1f26497dc
+[zk60-guard 21:49:41] END tio15-s19-suite exit=0 child_wall=666s peak_rss=6.87G min_avail=6.90G
+[zk60-guard 21:49:41] START tio15-b15-cli-build class=build need=1.5G cap=3G enforce=cgroup+watchdog waited=0s run=0d35c3dcb78b
+[zk60-guard 21:49:54] END tio15-b15-cli-build exit=0 child_wall=12s peak_rss=0.42G min_avail=13.46G
+[zk60-guard 21:49:54] START tio15-bin-label class=cpu need=1G cap=2G enforce=cgroup+watchdog waited=0s run=1f8a4d546bae
+[zk60-guard 21:50:05] END tio15-bin-label exit=0 child_wall=11s peak_rss=0.20G min_avail=13.77G
+[zk60-guard 21:50:05] START tio15-bin-short class=cpu need=1G cap=2G enforce=cgroup+watchdog waited=0s run=db52a6019480
+[zk60-guard 21:50:08] END tio15-bin-short exit=0 child_wall=3s peak_rss=0.21G min_avail=13.78G
+[zk60-guard 21:50:08] START tio15-xbin class=cpu need=1G cap=2G enforce=cgroup+watchdog waited=0s run=2dd77afa756b
+[zk60-guard 21:50:17] END tio15-xbin exit=0 child_wall=9s peak_rss=0.21G min_avail=13.77G
+[zk60-guard 21:50:17] START tio15-p18-cli class=cpu need=1G cap=2G enforce=cgroup+watchdog waited=0s run=4639336be7a8
+[zk60-guard 21:50:20] END tio15-p18-cli exit=0 child_wall=3s peak_rss=0.21G min_avail=13.75G
+[zk60-guard 21:50:20] START tio15-h18-short-cli class=cpu need=1G cap=2G enforce=cgroup+watchdog waited=0s run=28a52bb09718
+[zk60-guard 21:50:23] END tio15-h18-short-cli exit=0 child_wall=3s peak_rss=0.21G min_avail=13.75G

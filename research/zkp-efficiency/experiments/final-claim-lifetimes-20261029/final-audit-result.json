@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "checks": 375,
+  "elapsed_s": 0.027431726004579104,
+  "peak_rss_kib": 23424,
+  "audited_artifact_pins": 82,
+  "native_pins": 8,
+  "prior_sources_preserved": 891,
+  "prior_hypotheses_preserved": 52,
+  "prior_findings_preserved_bytes": 982215,
+  "checkpoint_utc": "2026-10-29T06:12:24.251692+00:00",
+  "proving_gain_measured": false,
+  "new_full_stack_proofs": 0
+}

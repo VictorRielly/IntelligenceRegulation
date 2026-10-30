@@ -1,0 +1,10 @@
+{
+  "cpu": "Intel(R) Core(TM) Ultra 9 185H",
+  "worker_threads": 1,
+  "os": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "python": "3.10.12",
+  "rustc": "rustc 1.75.0 (82e1608df 2023-12-21) (built from a source tarball)",
+  "gpu_jobs": false,
+  "actual_model_context": null,
+  "model_passes": 0
+}

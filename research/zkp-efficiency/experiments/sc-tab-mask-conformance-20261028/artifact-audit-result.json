@@ -1,0 +1,13 @@
+{
+  "status": "PASS_FINAL_EVIDENCE_AUDIT",
+  "checks": 742,
+  "immutable_artifacts": 69,
+  "native_pins_unchanged": 9,
+  "prior_sources_preserved": 830,
+  "current_sources": 840,
+  "prior_hypotheses_preserved": 42,
+  "current_hypotheses": 44,
+  "elapsed_seconds": 0.03291047000038816,
+  "max_rss_kib": 21764,
+  "native_proofs": 0
+}

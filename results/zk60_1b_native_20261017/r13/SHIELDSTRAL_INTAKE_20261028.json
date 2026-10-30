@@ -1,0 +1,48 @@
+{
+  "utc": "2026-10-28T21:34:34.923736+00:00",
+  "scope": "COUNTED intake; native Shieldstral extension still disabled pending R12b completion and implementation checks",
+  "candidate_source_sha256": "6e540249aa2513234ccd33c639afcfb98caf37c3a6111a6f4c84f382f710d3ce",
+  "candidate_sha256": "0e90d5d0e6b3f85387a2828f52ac385588bc1af777045855205d16c6d567ceda",
+  "base_member": [
+    -1,
+    -9
+  ],
+  "groups": [
+    [
+      -3,
+      -11
+    ],
+    [
+      -2,
+      -11
+    ],
+    [
+      -1,
+      -9
+    ],
+    [
+      0,
+      -8
+    ]
+  ],
+  "group_counts": [
+    1669,
+    1685,
+    4784,
+    1078
+  ],
+  "group_table_entries": 16384,
+  "fits_T128_Tab_2_14": true,
+  "fits_T256_Tab_2_15": true,
+  "sh_u": 0,
+  "sh_h": 15,
+  "up_fix_uses_existing_relation": true,
+  "derived_abs_bound": 2147418112,
+  "product_clause_bits": 48,
+  "maximum_clause_bits": 51,
+  "requirements": [
+    "Native profile-specific member registry; TinyLlama/8B must refuse (0,-8)",
+    "Verifier-generated raw/derived table; exponent<=16 and signed32 bound only for Shieldstral",
+    "Native plane/lookup recount and actual dense proof; full-set fidelity remains Astra dependency"
+  ]
+}

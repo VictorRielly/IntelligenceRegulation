@@ -1,0 +1,10 @@
+
+running 1 test
+test private_block::accuracy_proof_tests::accuracy_dense_low_and_h24_dd_and_non_dd_prove_and_verify ... R13 scoped receipt r13-low-dense DD=false attack=None: bytes15831864
+R13 scoped receipt r13-low-dense DD=true attack=None: bytes16668744
+R13 scoped receipt r13-h24-wide DD=false attack=None: bytes15838024
+R13 scoped receipt r13-h24-wide DD=true attack=None: bytes16674904
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 721 filtered out; finished in 7.77s
+

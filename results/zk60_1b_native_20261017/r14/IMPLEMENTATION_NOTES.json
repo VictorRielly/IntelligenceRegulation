@@ -1,0 +1,32 @@
+{
+  "utc": "2026-10-29T08:31:13.731169+00:00",
+  "status": "Implementation notes while inventory source is fixed; no changes applied",
+  "current_source": "sol-r14-inventory-1.source.json; original tool session67527",
+  "adopted": "B-gate and one joint root with ordered piece row blocks; external31rows preserves1spare, internal34rows atShieldT/N geometry",
+  "next_sequence": [
+    "Finish native inventory declaration gate and record its12rows; compare FE9 to independent S4counts. Do not edit current source before original67527 is terminal.",
+    "Add actual typed logical->physical role maps for A/H with per-plane logs/offsets, preserving every old branch. Keep native Shape public matrix d_pad/f_pad for full public validation; physical private pieces have their own dimensions.",
+    "Wire split argument builders: combined norm sums,11matrixslots, two D/F zero checks,4IOslots; leave score/PV/DD/tables global. Each builder must match the native declaration and public-gate extension degree.",
+    "Add new explicit profiles/metadata/codec/hash domains only after builders/layout gates; disabled production proof availability until scoped attacks/parity pass.",
+    "Single joint endpoint/boundary owner holds ordered D0/D1 rows,2external sites/4internal sites; open once. Update claim audits/group counts/wire geometry in the new branch, not by weakening global assertions.",
+    "Repack unchanged exact integer witness into typed pieces, compare all19 trace sites with R13 and independent scalar oracle; no partial accumulator/rounding changes.",
+    "Normal release/fresh/tamper, generic dense and malicious receipt gates, old goldens/receipts, whole-run bits, freeze/D24/privacy before use; actualT128 only onlaptop with resource guard, T256desktop."
+  ],
+  "source_mapping_notes": [
+    "Current inventory interleaves each parent role Wide/Narrow. A future two-level map can keep AccuracyIds group starts logical while limb()/at() resolve physical Wide/Whole by default; explicit piece lookup resolves Narrow. Never assume numeric adjacency is a limb/piece index.",
+    "Existing unchanged Q/Kv/S/Tab/T/L slots may reuse old polynomials via explicit physical maps. D/F slots need a piece view: own cube/log, global gain/group coefficient offsets, per-piece host points, and no D/F pad terms.",
+    "For matmuls use canonical global output/input spans, apply output c2 at Boolean channels BEFORE folding, then zero-pad the smaller input fold. Smaller private table broadcasts omitted inner bits; native mask coefficients stay untouched.",
+    "Norms: eq(r_token,t)*X0^2 + eq((r_token,0^k),(t,b))*X1^2. Fold the zero selector into this existing equality factor; a separate public gate raises extension degree to4.",
+    "Points need per-output-piece AO/down and gate/up host points. Q/K/V share their existing fixed token point; gate/up can share their token point across pieces. Never drop fixed token coordinates.",
+    "Hosted logical slot indices must map to physical slot indices: DZCpiece hosts WOpiece/DMMpiece, FZCpiece hosts GMMpiece/UMMpiece; TZC,QZC,KVZC,SZC retain their original logical dependencies.",
+    "Global byte/ACT histograms aggregate both pieces. All H data must remain at least N and row-aligned; one H sum identity remains. ACT3 group column uses globalFoffset8192 for F1.",
+    "Shape method recursion must be avoided: use a padded/reference metadata view when deriving old role lists/slot parameters for a split profile. Legacy arrays/MAX_SLOTS changes must not affect any old serialized identity.",
+    "Actual SlotDef/claim grouping and degree census is still owed. Current native declaration count is not a completed profile census or proof path."
+  ],
+  "baseline": "acceptedR13bb9eb212 + isolatedCLI-onlyF1b4f7d795; both frozen trees retained",
+  "parked": "S6 explicitly parked by coordinator07:33, no microprotocol/measurement. N-r13-1 conditional lever count delivered for later ruling; do not change current tiers.",
+  "preferred_runtime_boundary": "Keep original padded/reference Shape and Ids as logical numerical/function keys. SplitLayout resolves physical parent+piece to offsets/logs at the builder boundary. Avoid mutating old global Ids/MAX_SLOTS merely to support the new schedule.",
+  "native_cfs_reuse": "Factor existing run_slot into the identical old wrapper plus a run_slot_scheduled entry point taking explicit per-slot metadata (dimensions, degree, terminal count, kind, label). This supports31/32 physical slots without changing old schedule arrays. Hosted M sum weights must use the full explicit schedule, not parent Shape.slots().",
+  "zero_check_reuse": "Use a typed SplitView for existing R13 D/F zero-check builders: crop public gain/group columns by global piece extent, use own private source logs/offsets, suppress D/F pad indicators, remap hosted matrix slots. Keep original role IDs logical and original polynomials. Other unchanged logical slots can translate old whole-domain Priv slices/pairs into new physical offsets after definition.",
+  "capture_obligation": "A scheduled R14 proof must not fabricate legacy capture metadata. Until new source/plane/schedule captures are wired, explicitly refuse an attached recorder for a nonlegacy schedule; no privacy/profile activation before that gate."
+}

@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "assertions": 140,
+  "artifact_count": 84,
+  "wall_s": 0.034093388996552676,
+  "max_rss_kib": 34324,
+  "source_pins": 27,
+  "all_prior_source_and_findings_bytes_preserved": true,
+  "all_prior_hypotheses_preserved": true,
+  "completed_at_utc": "2026-10-30T00:11:43.843541+00:00",
+  "note": "Report/source correction retained. No re-run of native proofs or new performance claim."
+}

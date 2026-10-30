@@ -1,0 +1,21 @@
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r18/hashline/src/private_block/token_io/classify_cli.rs	2026-10-30 02:17:26.299804685 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r19b/hashline/src/private_block/token_io/classify_cli.rs	2026-10-30 08:03:30.783940886 -0700
+@@ -81,9 +81,15 @@
+ //!   `--expect-statement`), re-renders the canonical statement and refuses
+ //!   unless the found statement is that text byte for byte, BEFORE any segment
+ //!   is read; then verifies every segment and writes `<artifact>/statement/`.
+-//! * **Fail-closed (ruling B-4 = D45(4), Victor 2026-10-29):** every refusal prints
+-//!   `{"event":"app-outcome","outcome":"flagged",...}`: an item without an
+-//!   accepted proof is handled as flagged.
++//! * **Fail-closed (ruling B-4 = D45(4), Victor 2026-10-29):** a refusal once
++//!   the arguments are read prints `refused`, then
++//!   `{"event":"app-outcome","outcome":"flagged",...}`, and exits 1: an item
++//!   without an accepted proof is handled as flagged. An ARGUMENT refusal
++//!   prints neither (TOKEN ROUND 19b, REVIEW_R19 N-5; this text said "every
++//!   refusal prints" the line, as `classify_batch.rs` did before round 19):
++//!   `--content` on the command line, an unknown flag or a flag without its
++//!   value exits 2 with one line on stderr. The router fails closed on any
++//!   non-zero exit, so neither kind leaves an accepted result.
+ //!
+ //! * **Round 16 (native R13, REVIEW_R13 §10):** the R13 Shieldstral T128 /
+ //!   T256 LOW + h24 exports load under their classifier run profiles; the

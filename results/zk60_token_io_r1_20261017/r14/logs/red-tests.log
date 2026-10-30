@@ -1,0 +1,219 @@
+   Compiling version_check v0.9.5
+   Compiling crossbeam-utils v0.8.22
+   Compiling generic-array v0.14.7
+   Compiling typenum v1.20.1
+   Compiling crossbeam-epoch v0.9.20
+   Compiling shlex v2.0.1
+   Compiling find-msvc-tools v0.1.11
+   Compiling crossbeam-deque v0.8.7
+   Compiling cc v1.4.4
+   Compiling rayon-core v1.13.0
+   Compiling crypto-common v0.1.7
+   Compiling block-buffer v0.10.4
+   Compiling cfg-if v1.0.4
+   Compiling digest v0.10.7
+   Compiling blake3 v1.8.7
+   Compiling either v1.18.0
+   Compiling constant_time_eq v0.4.2
+   Compiling arrayvec v0.7.8
+   Compiling cpufeatures v0.2.17
+   Compiling cpufeatures v0.3.1
+   Compiling sha2 v0.10.9
+   Compiling rayon v1.12.0
+   Compiling private-block-kernel-shaped v0.1.0 (/home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r14/private-block-kernel-shaped)
+   Compiling private-block-kernel v0.1.0 (/home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r14/private-block-kernel)
+   Compiling zkp-core v0.1.0 (/home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r14/zkp-core)
+   Compiling hashline v0.1.0 (/home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r14/hashline)
+warning: unused doc comment
+   --> src/private_block/token_io/run.rs:698:1
+    |
+698 | / /// **THE TOKEN-I/O RUN PROVER.** One transcript, one OS stream, `L + 2`
+699 | | /// segments, each handed to `sink` and dropped (M-3); block `k` asked for
+700 | | /// at its own stage (R3 streaming).
+701 | | ///
+...   |
+710 | | /// it receives as UNPUBLISHED until this function returns `Ok` (the CLI's
+711 | | /// sink writes `<out>.incomplete/` and renames it only then).
+    | |_-------------------------------------------------------------^
+    |   |
+    |   rustdoc does not generate documentation for macro invocations
+    |
+    = help: to document an item produced by a macro, the macro must produce the documentation as part of its expansion
+    = note: `#[warn(unused_doc_comments)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Dom`
+  --> src/private_block/s28_review_tests.rs:19:21
+   |
+19 | use super::layout::{Dom, Layout, U8_LEN};
+   |                     ^^^
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: variable does not need to be mutable
+    --> src/private_block/run.rs:1188:13
+     |
+1188 |         let mut tr = st.transcript()?;
+     |             ----^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:302:18
+    |
+302 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: function `limbs` is never used
+   --> src/private_block/argument.rs:905:4
+    |
+905 | fn limbs(v: &[Fp2], ix: &[usize]) -> Fp2 {
+    |    ^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `slot` is never used
+   --> src/private_block/timing.rs:259:19
+    |
+216 | impl Phases {
+    | ----------- method in this implementation
+...
+259 |     pub(crate) fn slot(&mut self, s: usize, size: u64, unit: &'static str) {
+    |                   ^^^^
+
+warning: method `is_dd` is never used
+   --> src/private_block/trained_block.rs:709:19
+    |
+658 | impl Geometry {
+    | ------------- method in this implementation
+...
+709 |     pub(crate) fn is_dd(self) -> bool {
+    |                   ^^^^^
+
+warning: field `boundaries` is never read
+   --> src/private_block/run_capture.rs:818:5
+    |
+811 | struct Rec {
+    |        --- field in this struct
+...
+818 |     boundaries: Vec<Vec<u8>>,
+    |     ^^^^^^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib test) generated 17 warnings (run `cargo fix --lib -p hashline --tests` to apply 10 suggestions)
+    Finished `release` profile [optimized] target(s) in 2m 59s
+     Running unittests src/lib.rs (ops/zkp-mvp/token-io-r14/hashline/target/release/deps/hashline-ab5fdacc792e44ed)
+
+running 4 tests
+test private_block::token_io::classify_r14_tests::r14_a_short_item_proves_and_verifies_through_the_named_binary_in_fresh_processes ... ignored, runs the named zk60_classify binary; set HL_PB_CLI_BIN
+test private_block::token_io::classify_capture_tests::r14_the_gate_capture_fixture_proves_with_the_tables_derived_from_the_pinned_tensor ... FAILED
+test private_block::token_io::classify_r14_tests::r14_a_short_dev_rung_item_is_one_chunk_of_its_true_length ... FAILED
+test private_block::token_io::classify_r14_tests::r14_a_library_call_with_doctored_tables_and_a_consistent_manifest_is_refused ... FAILED
+
+failures:
+
+---- private_block::token_io::classify_capture_tests::r14_the_gate_capture_fixture_proves_with_the_tables_derived_from_the_pinned_tensor stdout ----
+
+thread 'private_block::token_io::classify_capture_tests::r14_the_gate_capture_fixture_proves_with_the_tables_derived_from_the_pinned_tensor' (142683) panicked at src/private_block/token_io/classify_capture_tests.rs:370:9:
+assertion `left == right` failed: L = 1: the capture fixture's margin row is not the one derived from the pinned tensor (N-r13-1)
+  left: [15888, -8838, -31076, 19543, -32664, 11230, 17440, -5557, -8427, -14421, -11110, -22424, -24413, 604, 11601, 10816, 23146, -14229, 29687, -3301, -10814, -31077, 22468, 24892, 8180, -25512, -30777, 23155, -19612, 10368, -19586, 29486, 12247, 2309, -16796, 26822, 18935, -18677, -17792, 971, -13303, 30597, 22391, 13456, 18014, -18990, -13318, -20133, -22791, -26874, -14864, 577, 20116, 25724, -23710, -16529, -24682, 19662, -14615, -5691, 5170, 29856, -9980, -24980, 15603, -4612, 6769, 176, -17752, 6639, 32417, -6592, 2762, -9711, -23980, 234, -5969, 10358, -6498, -4990, -31164, -14876, -53, 22165, -13580, 30515, -19930, -23806, 26824, -10220, 8166, 30158, -9301, -31054, -8559, 5131, -32028, -16293, 18160, -25097, -4780, -3191, -14940, -15991, -5177, 5261, -9775, -14454, 23082, 26816, -23152, 4654, -13081, -32548, -8722, 20335, 22874, 27354, -25170, -9510, 2910, 3975, 6451, -12636, -13301, -1935, -27717, 26224, -1814, -3773, 32326, -15516, -30642, 23179, 9072, 21744, -9611, -29518, -24138, 5327, -19080, 17603, -24128, -15024, -15178, 9974, 29265, -28524, -17515, -17653, -6980, 8365, -12785, -1706, -28899, -3565, -18729, 31020, 32429, -8165, -19050, 31325, 25189, 18799, 21678, -5410, -5469, -22747, -18585, -11592, 31565, 31140, 27849, 15556, -13331, 420, -10347, -5095, 21363, -17162, -18825, -14401, -19677, -9203, 3176, 8567, 9766, -10859, -26863, 27612, 11768, -14904, 13040, 27466, -11250, -29973, -22692, -702, 23890, -8229, -25698, -6629, -11510, -22994, 16863, 20392, 29713, 4443, -28837, -1919, -25334, -8284, -24407, -8149, -22022, -3390, 32243, 15437, -25565, 24996, -25560, -29138, -30517, -9622, 1992, -1198, -32375, -9232, -30041, -31788, -4630, 9373, 3011, -14727, 13124, -25187, -10224, 11111, -7440, 30803, 3711, 28556, 18883, 23267, -32326, -18851, -3581, -24967, 21635, 25948, -31297, 11985, 4964, 31926, 1154, 18890, -25832, -11301, -10777, 17605, -12284, -9671, 30905, 2915, -23445, -26634, 5541, 14104, 32382, 17380, -2709, -18854, 7153, -32452, -31483, -17216, 13128, 19055, -19522, 30958, 2596, -7547, 12754, -24590, -3487, -22318, -13343, -25667, 13646, -13795, 12704, 2389, -17917, -17305, -10088, 30381, 6976, 2245, -24477, 12966, -29345, 23205, 30445, 18136, 8987, 29707, 31539, 28462, -6476, 2153, 12881, 14581, -3607, -32123, 26497, 4119, 27052, 9372, -9714, 24322, 431, -12068, 25822, -23254, -14523, 2841, -32121, 2, 5016, -25716, 16416, -13238, 15771, -26106, 5544, -9792, 8098, 28403, 26308, -7850, -19849, -28703, -18412, 29609, 10562, 27506, -85, 30174, 23349, 2501, -12033, -10214, -28467, 3287, -15491, 4819, 20442, 2354, -4620, 30402, 14198, -32661, 712, -5493, -16658, -29030, 14653, -6586, 21307, 13654, -24613, -414, -9531, 26783, -15084, 7790, 25189, 31770, -2560, 6408, -11002, 12285, 26784, 11571]
+ right: [740, -6269, -463, 1445, -12, 36, -43, -2606, -341, 453, 8201, -3574, -13, 2066, -537, 1297, -606, 317, 779, -2241, 5179, 1, -121, -87, 2075, 785, 701, 48, 4046, 153, -2845, 7184, 2201, -1374, -236, -14, 226, 3052, 5234, -35, -5894, -2637, 825, -167, -30, 303, 4487, 2076, 5806, -37, 900, -12567, -6112, -461, -584, 137, -707, 32, 0, 244, 103, 42, -132, -5479, 1296, 168, 25, 3436, -1008, 22, -1504, 6324, -191, 50, 733, -124, 70, 206, 554, 2880, 2993, -3311, -275, 7077, -80, -11, -1863, -236, -5709, -897, 1087, 382, 123, -605, -1877, 871, -1437, 979, -2406, -2010, -3079, 3848, -6361, 4359, -364, 1376, 8, 60, 3790, -2637, 107, -2817, 3499, 2924, 212, -1031, 1390, 5, -6704, 4407, -793, -167, -2522, -1247, 18, 5546, -2498, 6, 1095, -17, -625, -988, 87, -32, -3826, 305, 342, 386, -713, 2270, 173, 8213, 769, 810, 2460, -1506, 4930, 1574, 2700, -1706, 1790, -64, -2617, 1581, 183, -1334, -467, 97, 392, -1710, 256, -873, 2599, -197, -3611, -2252, -7976, -3504, 1234, -9538, -334, 2159, -4448, -141, 2, -53, -4283, -9788, 818, -505, -7627, -124, -71, 3529, -6089, -4373, -4519, -1626, 6158, 9706, -45, 4541, 154, 9223, 6928, 43, 4211, 817, 1518, -48, -266, -2457, 1657, 12476, -92, -2152, 7, 9972, -4372, -784, -5816, -375, 351, 61, -88, 1048, -51, -208, 108, -24, 814, 7549, 554, 265, 6513, 128, -6425, 215, 5280, -98, 379, 403, 6853, -12, 279, -29, 5473, 699, 1626, -58, -794, -509, -2604, -449, -2286, -335, 144, -6857, -471, 5512, 481, -400, -2399, -895, 1320, -374, 0, -5881, -570, 15305, -5531, 3898, -706, 120, -357, -321, 199, 613, -6, -19, -3705, -608, 10796, -871, -706, 4518, 267, 1189, -40, 4604, 2148, 3080, 1132, 5261, -7648, -2869, 4926, 150, -1243, 18, -1640, 62, -365, 70, -2563, -2282, -44, 950, 408, -2441, 65, -289, 1804, 1, 49, -83, 156, -1789, 9386, -591, -153, 30, 3785, -984, -3, 354, 613, 3428, 6336, 6583, -111, 851, -120, -10, -69, 513, 125, 1423, -176, 887, 6947, -3712, 13, -106, -4104, -451, 278, -8921, -11158, 91, -557, 92, -43, 1, 193, -482, 48, -1634, 3862, -2233, -112, 788, -4692, -3478, 4198, -1350, 9465, 98, 2127, -1483, -2, -5002, 5680, -2, -207, 3318, -90, 339, 56, -932, 1463, -3596, 3138, 93, 29, -638, -152, 997, -3264, 251, -1134, 111, 1006, -240]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- private_block::token_io::classify_r14_tests::r14_a_short_dev_rung_item_is_one_chunk_of_its_true_length stdout ----
+{"event":"removed","path":"/home/victor/zk60-artifacts/token-io/tmp-r14/tio-cls-owners-r14-short-142682/short-22.owner-private","why":"the prove was refused; this directory was created by this prove and is removed with everything in it"}
+{"event":"removed","path":"/home/victor/zk60-artifacts/token-io/tmp-r14/tio-cls-r14-short-142682/short-22.unverified-statement","why":"the prove was refused; this directory was created by this prove and is removed with everything in it"}
+{"event":"removed","path":"/home/victor/zk60-artifacts/token-io/tmp-r14/tio-cls-r14-short-142682/short-22.incomplete","why":"the prove was refused; this directory was created by this prove and is removed with everything in it"}
+{"event":"refused","command":"classify-prove","error":"classifier chunks: a content of 22 ids is shorter than one chunk of 23 ids; short content is not built (DESIGN v2.2 §13.1: T < T_pad or the trailing-pad route)"}
+{"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling B-4, the recommended default; Victor's ruling pending)"}
+
+thread 'private_block::token_io::classify_r14_tests::r14_a_short_dev_rung_item_is_one_chunk_of_its_true_length' (142685) panicked at src/private_block/token_io/classify_r14_tests.rs:142:9:
+assertion `left == right` failed: short-22: a short item proves as one chunk of its true length
+  left: 1
+ right: 0
+
+---- private_block::token_io::classify_r14_tests::r14_a_library_call_with_doctored_tables_and_a_consistent_manifest_is_refused stdout ----
+
+thread 'private_block::token_io::classify_r14_tests::r14_a_library_call_with_doctored_tables_and_a_consistent_manifest_is_refused' (142684) panicked at src/private_block/token_io/classify_r14_tests.rs:104:78:
+THE LIBRARY PROVED AND VERIFIED A DOCTORED MARGIN ROW (N-r13-1)
+
+
+failures:
+    private_block::token_io::classify_capture_tests::r14_the_gate_capture_fixture_proves_with_the_tables_derived_from_the_pinned_tensor
+    private_block::token_io::classify_r14_tests::r14_a_library_call_with_doctored_tables_and_a_consistent_manifest_is_refused
+    private_block::token_io::classify_r14_tests::r14_a_short_dev_rung_item_is_one_chunk_of_its_true_length
+
+test result: FAILED. 0 passed; 3 failed; 1 ignored; 0 measured; 742 filtered out; finished in 4.31s
+
+error: test failed, to rerun pass `--lib`

@@ -1,0 +1,8 @@
+{
+  "utc": "2026-10-29T17:31:07.504144+00:00",
+  "original_source": "5f8147ccc376a7d697854997745a116251749dbdef46fe79f58095efa0edde45",
+  "corrected_source": "06134db94e8a782e34abe9fb5c0bc5b20768e78100f16d4bd2e7e0b6e759b6d1",
+  "failure": "No global-c2 rounded-output counterexample: selected sparse V/O lanes all rounded to zero; no malicious receipt emitted for this case.",
+  "fix": "Test-only live KV lane (m_v64, W_v=-127) and narrow WO row127 over four corresponding query-head copies; global AO c2=1 vs incorrect local256 now differs. Native proof/verifier source unchanged.",
+  "retained": "Failed log/guard/command and full source+binary checkpoint; earlier Q per-piece full malicious receipt passed separately."
+}

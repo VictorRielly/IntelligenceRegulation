@@ -1,0 +1,30 @@
+{
+  "timings": {
+    "baseline": {
+      "setup_seconds": 1.7119996300607454e-06,
+      "samples_seconds": [
+        1.355985378999776,
+        1.1260511249997762,
+        0.9979285429999436
+      ]
+    },
+    "cached": {
+      "setup_seconds": 0.1730131489998712,
+      "samples_seconds": [
+        1.1760132560002603,
+        0.9187873770001715,
+        0.9410004970000045
+      ]
+    }
+  },
+  "bit_identical": true,
+  "diagnostics": {
+    "refused": false,
+    "first_site": null,
+    "violations": {}
+  },
+  "source_residual_sha256": "a13653877fb3d7da924b37c126311ebb13ecbb5cdff24b7c33675ab5fae3ac06",
+  "cache_source_sha256": "2df91b1dda7233731e37bcd7b2253e3bc43483d5e69f748faf400bd794dbb767",
+  "probe_source_sha256": "821363c02891182eb28bef697513834fefc070ae16624d9bd8406f803734a113",
+  "scope": "MEASURED n=1 shared box; one actual calibration sequence at layer0; broader parity still required"
+}

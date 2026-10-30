@@ -1,0 +1,33 @@
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r17/hashline/examples/zk60_classify.rs	2026-10-29 09:24:16.059127607 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r18/hashline/examples/zk60_classify.rs	2026-10-30 02:17:26.291944787 -0700
+@@ -12,6 +12,15 @@
+ //!   zk60_classify input-owner  (verify's arguments) --decommitment FILE --content-file FILE|-
+ //!   zk60_classify label        --export DIR --tables DIR --policy ID --runs DIR,DIR,...
+ //!                              --expect-statement HEX --expect-total N [--label L] [--min-bits N]
++//!   zk60_classify prove-batch  --export DIR --tables DIR --content-file FILE --batch-file FILE
++//!                              [--label L]
++//!
++//! TOKEN ROUND 18 (A5): `prove-batch` proves one post's whole plan (the three
++//! moderate categories, every chunk once) after ONE model / table load; each
++//! job is a `prove` with its own fresh randomness; one post per process; a
++//! refused batch leaves no receipt, statement or owner file of any job. It
++//! never verifies (`verify` / `input-owner` / `label` decide, in fresh
++//! processes). See `src/private_block/token_io/classify_batch.rs`.
+ //!
+ //! `--tables` holds `token_io.json` + `embedding_int16.bin` and
+ //! `classifier.json` + `margin_int16.bin` (and, at the development rung, the
+@@ -52,12 +61,13 @@
+ fn main() {
+     let args: Vec<String> = std::env::args().skip(1).collect();
+     let code = match args.first().map(String::as_str) {
++        Some("prove-batch") => hashline::private_block::classify_prove_batch_command(&args[1..]),
+         Some("prove") => hashline::private_block::classify_prove_command(&args[1..]),
+         Some("verify") => hashline::private_block::classify_verify_command(&args[1..]),
+         Some("input-owner") => hashline::private_block::classify_input_owner_command(&args[1..]),
+         Some("label") => hashline::private_block::classify_label_command(&args[1..]),
+         _ => {
+-            eprintln!("usage: zk60_classify prove|verify|input-owner|label ... (see the header of examples/zk60_classify.rs)");
++            eprintln!("usage: zk60_classify prove|prove-batch|verify|input-owner|label ... (see the header of examples/zk60_classify.rs)");
+             2
+         }
+     };

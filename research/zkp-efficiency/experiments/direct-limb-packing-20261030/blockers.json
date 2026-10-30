@@ -1,0 +1,37 @@
+[
+  {
+    "url": "https://github.com/rust-lang/rust/blob/1.85.0/library/alloc/src/vec/spec_extend.rs",
+    "blocker": "Failed to fetch: Cache miss",
+    "workaround": "No bypass,installation or external code execution; independent local packing experiment completed."
+  },
+  {
+    "url": "https://raw.githubusercontent.com/rust-lang/rust/1.85.0/library/alloc/src/vec/spec_extend.rs",
+    "blocker": "Failed to fetch: Cache miss",
+    "workaround": "No bypass,installation or external code execution; independent local packing experiment completed."
+  },
+  {
+    "url": "https://doc.rust-lang.org/1.85.0/src/alloc/vec/spec_extend.rs.html",
+    "blocker": "URL not accessible via this tool",
+    "workaround": "No bypass,installation or external code execution; independent local packing experiment completed."
+  },
+  {
+    "url": "https://api.github.com/repos/ingonyama-zk/icicle/releases/tags/v4.0.0",
+    "blocker": "URL not accessible via this tool",
+    "workaround": "No bypass,installation or external code execution; independent local packing experiment completed."
+  },
+  {
+    "url": "https://raw.githubusercontent.com/ingonyama-zk/icicle/main/wrappers/rust/icicle-core/src/sumcheck/mod.rs",
+    "blocker": "Failed to fetch: Cache miss",
+    "workaround": "No bypass,installation or external code execution; independent local packing experiment completed."
+  },
+  {
+    "url": "https://github.com/ingonyama-zk/icicle/blob/v4.0.0/wrappers/rust/icicle-core/src/sumcheck/mod.rs",
+    "blocker": "Failed to fetch: Cache miss",
+    "workaround": "No bypass,installation or external code execution; independent local packing experiment completed."
+  },
+  {
+    "url": "https://github.com/ingonyama-zk/icicle/blob/v4.0.0/wrappers/rust/icicle-core/src/sumcheck/config.rs",
+    "blocker": "Failed to fetch: Cache miss",
+    "workaround": "No bypass,installation or external code execution; independent local packing experiment completed."
+  }
+]

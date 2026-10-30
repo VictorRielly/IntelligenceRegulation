@@ -1,0 +1,78 @@
+{
+ "what": "the D34 / D40 input-dependent LogUp refusal term at the R13 stack [COUNTED]; not a privacy acceptance",
+ "formula": "2 * (sum over blocks of T_d + T + 256) / p^2, T_d = 256 (U8) + 256 (EXP) + 4096 * groups (ACT3); legacy T_d = 768 (three 256-row tables)",
+ "shieldstral_groups_per_layer_READ": [
+  3,
+  3,
+  4,
+  3,
+  3,
+  3,
+  3,
+  3,
+  3,
+  4,
+  3,
+  4,
+  4,
+  4,
+  3,
+  4,
+  4,
+  4,
+  4,
+  4,
+  4,
+  3,
+  3,
+  4,
+  4,
+  4
+ ],
+ "rows": {
+  "shieldstral-3b-t128-r13 (L 26)": {
+   "class_max_4_groups": {
+    "count": 879360,
+    "log2": -108.254
+   },
+   "actual_groups_of_the_T128_export": {
+    "count": 781056,
+    "log2": -108.425
+   },
+   "legacy_768_per_block_for_comparison": {
+    "count": 40704,
+    "log2": -112.687
+   }
+  },
+  "shieldstral-3b-t256-r13 (L 26)": {
+   "class_max_4_groups": {
+    "count": 879616,
+    "log2": -108.253
+   },
+   "actual_groups_of_the_T128_export": {
+    "count": 781312,
+    "log2": -108.424
+   },
+   "legacy_768_per_block_for_comparison": {
+    "count": 40960,
+    "log2": -112.678
+   }
+  },
+  "D40 as accepted (legacy shape, L 26, T <= 512)": {
+   "count": 41472,
+   "log2": -112.66
+  },
+  "R13 h24 dev rung (L 1, T 32, 4 groups)": {
+   "count": 34368,
+   "log2": -112.931
+  },
+  "R13 h24 dev rung (L 2, T 32, 4 groups)": {
+   "count": 68160,
+   "log2": -111.943
+  }
+ },
+ "statement_figure": {
+  "count": 879360,
+  "log2": -108.254
+ }
+}

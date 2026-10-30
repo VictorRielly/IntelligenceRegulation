@@ -1,0 +1,317 @@
+--- apps/proven-media/proven_media/provers.py
++++ staged/proven_media/provers.py
+@@ -13,7 +13,7 @@
+                     that the approved public model ran on the hidden post; it does NOT prove a
+                     classifier verdict (the verdict comes from an unproved placeholder and is
+                     labelled so everywhere). Images: "proof path in development".
+-  ShieldstralProver placeholder for the classifier prover the other lanes are building (D38).
++  ShieldstralProver reviewed R16b/T128 text classifier in shieldstral_prover.py (explicit testnet mode).
+   FakeProver        tests / UI development only: no proof at all, shown in red in the UI.
+ """
+ from __future__ import annotations
+@@ -472,41 +472,6 @@
+                                 "waited_for_machine_s": {s: guard_json(job, s).get("waited_s") for s in ("verify", "inowner")}})
+ 
+ 
+-# ---------------------------------------------------------------- the classifier (placeholder)
+-
+-class ShieldstralProver(ClassifierProver):
+-    """Placeholder for the classifier prover (D38). Expected shape, once the other lanes land it:
+-
+-        zk60_classifier prove  --model-export DIR --policy FILE --content-file FILE(0600) --out DIR --owner-dir DIR
+-        zk60_classifier verify --model-export DIR --artifact DIR --expect-statement HEX --expect-policy HEX
+-
+-    with the statement carrying the verdict bit (z_yes - z_no > c at the public threshold), the model
+-    identity, the policy digest and the hidden-content commitment. Images: one proof per image over
+-    its canonical 224-px canvas through the Pixtral encoder, bound through the run's hidden input
+-    endpoint (results/zk60_multimodal_design_20261021/ §2-§3). Video and audio: deferred.
+-    """
+-    kind = "shieldstral"
+-    label = "Shieldstral-1.0-3B classifier proof (not landed yet)"
+-    supports = frozenset()
+-    proves_verdict = True
+-    separate_categories = True
+-
+-    def _nope(self):
+-        raise NotSupported("the Shieldstral classifier prover has not landed yet; the app runs the demo stub")
+-
+-    def start(self, post_id, item, job, chunk=None):
+-        self._nope()
+-
+-    def collect(self, post_id, item, job, chunk=None):
+-        self._nope()
+-
+-    def start_recheck(self, record, prove_job, job):
+-        self._nope()
+-
+-    def collect_recheck(self, record, job):
+-        self._nope()
+-
+-
+ # ---------------------------------------------------------------- fake (tests / UI only)
+ 
+ class FakeProver(ClassifierProver):
+--- apps/proven-media/proven_media/config.py
++++ staged/proven_media/config.py
+@@ -104,7 +104,7 @@
+ 
+ 
+ def prover_mode() -> str:
+-    """PM_PROVER=stub (default) | fake (tests / UI work only: NO proof, shown in red in the UI)."""
++    """PM_PROVER=stub (default) | shieldstral (reviewed testnet demo) | fake (no proof)."""
+     return os.environ.get("PM_PROVER", "stub")
+ 
+ 
+@@ -128,6 +128,21 @@
+     most STUB_MAX_CONTENT_TOKENS content tokens per run, so the configured size is capped there)"""
+     import json
+ 
++    if prover_mode() == 'shieldstral':
++        from .shieldstral_runtime import templates
++        ts = templates()
++        geometry = {t.category: {'chunk_tokens': t.chunk_size, 'overlap_tokens': t.overlap,
++                                'max_chunks': t.max_chunks} for t in ts}
++        chunk = min(t.chunk_size for t in ts)
++        overlap = ts[0].overlap
++        maximum = min(t.chunk_size + (t.max_chunks - 1) * (t.chunk_size - t.overlap) for t in ts)
++        return {'profile': 'shieldstral-t128', 'label': 'Shieldstral T128 testnet demo',
++                'note': 'Each category uses its registered template; privacy statement pending.',
++                'chunk_tokens': chunk, 'overlap_tokens': overlap, 'max_chunks': min(t.max_chunks for t in ts),
++                'effective_chunk_tokens': chunk, 'effective_overlap_tokens': overlap,
++                'category_geometry': geometry, 'capped_by_prover': False,
++                'max_content_tokens': maximum, 'profiles': {}, 'file': None}
++
+     d = json.loads(DEPLOY_FILE.read_text())
+     name = os.environ.get("PM_PROFILE", d["active_profile"])
+     p = d["profiles"][name]
+--- apps/proven-media/proven_media/app.py
++++ staged/proven_media/app.py
+@@ -136,7 +136,7 @@
+     eff = loads(p["labels"]) or records.effective_labels(None)
+     rec = loads(p["record"]) or {}
+     out = []
+-    for c in config.CATEGORIES:
++    for c in config.registered_categories():
+         lab = (rec.get("labels") or {}).get(c["id"], {})
+         out.append({"category": c["id"], "name": c["name"], "short": c["short"], "value": eff.get(c["id"], records.UNPROVED),
+                     "proof": lab.get("proof", "none") if eff.get(c["id"]) != records.UNPROVED else "none",
+@@ -200,7 +200,7 @@
+     return {"prover": S.prover.describe(), "prover_mode": config.prover_mode(),
+             "classifier": {"name": config.CLASSIFIER_NAME, "source": config.CLASSIFIER_SOURCE,
+                            "status": S.prover.describe().get('privacy_status', 'classifier prover in development; the app runs the stub')},
+-            "categories": records.categories(), "category_set": {"id": config.CATEGORY_SET_ID,
++            "categories": records.categories(), "category_set": {"id": config.category_set_id(),
+                                                                  "digest": records.category_set_digest()},
+             "audiences": {k: {"name": a["name"], "restricted": a["restricted"], "custom": a.get("custom", False)}
+                           for k, a in config.AUDIENCES.items()},
+@@ -210,12 +210,12 @@
+             "publisher": {"name": S.publisher.name, "description": S.publisher.description,
+                           "key_id": manifest.key_id(pub), "public_key": pub},
+             "deploy": config.deploy(),
+-            "limits": {"max_content_tokens": config.deploy()["max_content_tokens"], "T": config.STUB_T,
++            "limits": {"max_content_tokens": config.deploy()["max_content_tokens"], "T": 128 if config.prover_mode() == "shieldstral" else config.STUB_T,
+                        "stub_chunk_max": config.STUB_MAX_CONTENT_TOKENS, "max_image_bytes": config.MAX_IMAGE_BYTES},
+             "expected": {"stub_work_s": "about 150 s of work on a quiet laptop (prepare ~15 s, prove ~85 s, "
+                                         "verify + open + bind ~45 s), plus any wait for the shared machine",
+-                         "shieldstral_est_s": "an estimated 3-5 min per category proof of a 64-token post on the laptop "
+-                                              "[EST, survey], so about 3 x that per item"}}
++                         "shieldstral_est_s": "about 7.5 min proving plus preparation and three checks per category; "
++                                              "about 700 s total work per category, plus shared-machine wait"}}
+ 
+ 
+ @app.get("/api/publisher-key")
+@@ -253,7 +253,7 @@
+     return {"deploy": config.deploy(), "prover": S.prover.describe(), "queue": queue_view(S.store, S.prover),
+             "posts": counts, "ledger": {"blocks": len(blocks), "pending_leaves": len(S.publisher.pending_list()),
+                                         "batch_secs": S.publisher.batch_secs},
+-            "categories": [{"id": c["id"], "name": c["name"], "policy_id": c["policy_id"]} for c in config.CATEGORIES],
++            "categories": [{"id": c["id"], "name": c["name"], "policy_id": c["policy_id"]} for c in config.registered_categories()],
+             "hold": config.HOLD_FILE.exists(), "server_time": records.now_iso()}
+ 
+ 
+@@ -535,14 +535,32 @@
+         raise HTTPException(404, "no published proof bundle")
+     root = f"proven-media-{pid}"
+     vw = rec["verify_with"]
+-    readme = (f"# Proven Media proof bundle {pid}\n\n"
+-              f"DEMO STUB: a next-token proof of {config.STUB_MODEL_NAME}, not yet a {config.CLASSIFIER_NAME} classifier proof.\n"
+-              f"The category labels in record.json are NOT bound by this proof (placeholder); one stub run stands in "
+-              f"for the three category proofs.\n\n"
+-              f"One proof run per chunk (D41), under chunk-<i>/run/. Verify each (exit 0 = valid):\n\n    {vw.get('command')}\n\n"
+-              f"with <unpacked-bundle-dir> = {root}/chunk-<i>, the binary {vw.get('binary')},\n"
+-              f"and the public model files: {vw.get('public_model_files')}.\n"
+-              f"The owners' openings (decommitments) are private and not in this bundle (D21).\n").encode()
++    if any(crec.get('prover', {}).get('kind') == 'shieldstral' for _, _, crec in chunk_runs):
++        instructions = []
++        for ci, _, crec in chunk_runs:
++            check = provers.verify_instructions(crec)
++            command = check['command'].replace('<run>', f'{root}/chunk-{ci}/run')
++            category = crec['chunk']['category']
++            instructions.append(f"Chunk {ci}, category {category}:\n\n    {command}\n")
++        readme = (f"# Proven Media proof bundle {pid}\n\n"
++                  "Shieldstral-1.0-3B text classifier proofs for the three registered moderate policies.\n"
++                  "The category verdicts are bound by their proofs. Privacy statement pending.\n\n"
++                  f"Use {vw.get('binary')} and {vw.get('public_model_files')}.\n"
++                  "Replace <public-export> with the public export directory. Verify every chunk with its own policy.\n"
++                  "Each command must exit 0 with a classified event matching that chunk's recorded verdict.\n\n"
++                  + '\n'.join(instructions)
++                  + "\nThese commands check individual proofs. The whole-post category label also requires complete "
++                    "chunk coverage and the native label --expect-total check used by the app.\n"
++                  "Owners' openings and input activations are private and are not in this bundle.\n").encode()
++    else:
++        readme = (f"# Proven Media proof bundle {pid}\n\n"
++                  f"DEMO STUB: a next-token proof of {config.STUB_MODEL_NAME}, not yet a {config.CLASSIFIER_NAME} classifier proof.\n"
++                  f"The category labels in record.json are NOT bound by this proof (placeholder); one stub run stands in "
++                  f"for the three category proofs.\n\n"
++                  f"One proof run per chunk (D41), under chunk-<i>/run/. Verify each (exit 0 = valid):\n\n    {vw.get('command')}\n\n"
++                  f"with <unpacked-bundle-dir> = {root}/chunk-<i>, the binary {vw.get('binary')},\n"
++                  f"and the public model files: {vw.get('public_model_files')}.\n"
++                  f"The owners' openings (decommitments) are private and not in this bundle (D21).\n").encode()
+     members: list[tuple[str, object, int]] = [
+         (f"{root}/VERIFY.md", readme, len(readme)),
+         (f"{root}/record.json", (b := json.dumps(rec, indent=1, sort_keys=True).encode()), len(b)),
+@@ -561,6 +579,8 @@
+             members.append((f"{root}/chunk-{ci}/run/{seg['file']}", f, f.stat().st_size))
+         for rel in ("statement/statement.json", "statement/segments.json"):
+             f = run / rel
++            if rel == "statement/segments.json" and not f.exists():
++                continue  # Classifier receipts keep their inventory in the app record.
+             members.append((f"{root}/chunk-{ci}/run/{rel}", f, f.stat().st_size))
+     mtime = int(time.time())
+     total = sum(512 + -(-n // 512) * 512 for _, _, n in members) + 1024
+--- apps/proven-media/proven_media/jobs.py
++++ staged/proven_media/jobs.py
+@@ -32,7 +32,8 @@
+ from .store import Store, loads
+ 
+ log = logging.getLogger("proven_media.jobs")
+-PER_JOB_S = 150.0          # about 150 s of work per stub run on a quiet laptop [MEASURED, see PROGRESS.md]
++# Includes preparation, proving and the three native checks; shared-machine wait is extra.
++PER_JOB_S = 700.0 if config.prover_mode() == 'shieldstral' else 150.0
+ 
+ 
+ def prove_job_dir(post_id: str, chunk: int = 0) -> Path:
+--- apps/proven-media/proven_media/manifest.py
++++ staged/proven_media/manifest.py
+@@ -84,7 +84,7 @@
+         rec = ch.get("record") or {}
+         prover = prover or rec.get("prover", {})
+         eff = records.effective_labels(rec if rec else None)
+-        for c in config.CATEGORIES:
++        for c in config.registered_categories():
+             if ch.get('category', c['id']) != c['id']:
+                 continue
+             key = f"c{ch['index']}.{c['id']}"
+@@ -99,7 +99,7 @@
+                               else config.CLASSIFIER_NAME,
+                 "model_id": pb.model_id if pb else pr.get("model_digest"),
+                 "profile_id": pb.profile_id if pb else pr.get("token_profile_digest"),
+-                "verifier_id": config.STUB_BIN_SHA256 if pr.get("kind") == "stub-next-token" else None,
++                "verifier_id": config.STUB_BIN_SHA256 if pr.get("kind") == "stub-next-token" else pr.get("binary_sha256"),
+                 "policy_id": c["policy_id"], "policy_sha256": c["sha256"],
+                 "threshold": {"tau": th["tau"], "c": th["c"]},
+                 "verdict": eff[c["id"]],
+@@ -118,7 +118,7 @@
+                                     "content_commitment": content_commitment,
+                                     "content_commitment_rule": "SHA-256(\"zk60/proven-media/content/v1\" || salt_32 || u64-be len || UTF-8 content)",
+                                     "content_length_tokens": item.get("content_length")},
+-         "category_set": {"id": config.CATEGORY_SET_ID, "digest": records.category_set_digest()},
++         "category_set": {"id": config.category_set_id(), "digest": records.category_set_digest()},
+          "chunking": item.get("chunking"),
+          "labels": labels,
+          "label_rule": "per category: yes if any chunk is proved yes; not proved if any chunk lacks an accepted proof (fail closed); else no",
+@@ -126,6 +126,8 @@
+          "entries": entries, "issued_at": records.now_iso(),
+          "notes": (["DEMO STUB: one next-token proof per chunk stands in for that chunk's three category proofs; labels come "
+                     "from a placeholder and are not bound by the proof."] if prover.get("kind") == "stub-next-token" else [])
++                  + (["Privacy statement pending; moderate policies selected for this testnet demo."]
++                     if prover.get("kind") == "shieldstral" else [])
+                   + ([f"{failure}"] if failure else [])}
+     return sign(m)
+ 
+@@ -168,9 +170,12 @@
+         man = r.get("manifest") or {}
+         same = (man.get("verdict") == e.get("verdict") and man.get("statement_sha256") == e.get("statement_sha256")
+                 and man.get("policy_id") == e.get("policy_sha256") and man.get("model_id") == e.get("model_id")
++                and man.get("profile_id") == e.get("profile_id")
++                and (man.get("verifier_id") == e.get("verifier_id")
++                     or (man.get("verifier_id") == "00" * 32 and e.get("verifier_id") is None))
+                 and man.get("content_commitment") == e.get("content_commitment")
+                 and list(man.get("token_range", [])) == list(e.get("token_range", [])))
+-        chk(f"{tag}.publication_matches", same, "the published label, statement, policy, model or commitment differs")
++        chk(f"{tag}.publication_matches", same, "the published label, statement, policy, model, profile, verifier or commitment differs")
+         if r.get("pending"):
+             pending.append(tag)
+             checks[f"{tag}.anchored"] = False
+--- apps/proven-media/tests/test_real_manifest.py
++++ staged/tests/test_real_manifest.py
+@@ -1,5 +1,11 @@
+ """Real-mode metadata must identify the reviewed category, model and verifier."""
+ import os
++import asyncio
++import io
++import json
++from pathlib import Path
++import tarfile
++import tempfile
+ from types import SimpleNamespace
+ import unittest
+ from unittest.mock import patch
+@@ -43,5 +49,57 @@
+         self.assertEqual(cfg['deploy']['category_geometry']['hate']['chunk_tokens'], 49)
+         self.assertFalse(cfg['deploy']['capped_by_prover'])
+ 
++    def test_bundle_instructions_match_every_category_and_native_file_layout(self):
++        from proven_media import app
++        with tempfile.TemporaryDirectory() as tmp:
++            chunks = []
++            for i, category in enumerate(runtime.categories()):
++                run = Path(tmp)/f'run-{i}'; (run/'statement').mkdir(parents=True)
++                (run/'segment-000.bin').write_bytes(b'UNIT FIXTURE, NOT A PROOF')
++                (run/'statement/statement.json').write_text('{}')
++                rec = {**self.chunks[i]['record'], 'chunk': {'category': category['id']},
++                       'statement': {'policy': category['policy_id']},
++                       'receipt': {'run_dir': str(run), 'files': [{'file': 'segment-000.bin'}]}}
++                chunks.append({'index': i, 'record': rec})
++            record = {'chunks': chunks, 'verify_with': app.provers.verify_instructions(chunks[0]['record'])}
++            post = {'status': 'published', 'manifest': None}
++            with patch.object(app.S, 'store', SimpleNamespace(post=lambda _: post), create=True), \
++                 patch.object(app.S, 'publisher', SimpleNamespace(anchors_of=lambda _: {}), create=True), \
++                 patch.object(app, 'public_record', return_value=record):
++                response = app.api_bundle('fixture')
++                async def consume():
++                    return b''.join([part async for part in response.body_iterator])
++                raw = asyncio.run(consume())
++            self.assertEqual(len(raw), int(response.headers['content-length']))
++            with tarfile.open(fileobj=io.BytesIO(raw)) as archive:
++                readme = archive.extractfile('proven-media-fixture/VERIFY.md').read().decode()
++                self.assertIn('Privacy statement pending', readme)
++                self.assertNotIn('DEMO STUB', readme)
++                for i, category in enumerate(runtime.categories()):
++                    command = next(line for line in readme.splitlines() if '--policy '+category['policy_id'] in line)
++                    self.assertIn(f'--artifact proven-media-fixture/chunk-{i}/run', command)
++                    self.assertIn('--min-bits 95', command)
++                self.assertEqual(len(archive.getnames()), 8)
++
++    def test_signed_metadata_must_match_publication_profile_and_verifier(self):
++        with tempfile.TemporaryDirectory() as tmp, patch.object(config, 'SIGNING_KEY', Path(tmp)/'key'):
++            entry = {'category': 'sexual', 'chunk': 0, 'verdict': 'no', 'statement_sha256': '11'*32,
++                     'policy_sha256': runtime.POLICY_SHAS['sexual'], 'model_id': runtime.IDENTITY,
++                     'profile_id': runtime.PROFILE_SHA, 'verifier_id': runtime.BINARY_SHA,
++                     'content_commitment': '22'*32, 'token_range': [0,17], 'anchor': {'leaf_hash': '33'*32}}
++            publication = {**entry, 'policy_id': entry['policy_sha256']}
++            publisher = SimpleNamespace(anchor_of=lambda *_: SimpleNamespace(leaf_hash='33'*32),
++                verify_publication=lambda *a, **kw: {'accepted': True, 'manifest': publication})
++            def checked(e):
++                m = manifest.sign({'schema': manifest.SCHEMA, 'item': {'post_id': 'fixture'}, 'entries': [e]})
++                return manifest.verify_manifest(m, publisher)
++            self.assertTrue(checked(entry)['accepted'])
++            for field in ('profile_id', 'verifier_id'):
++                for value in ('00'*32, None):
++                    with self.subTest(field=field, value=value):
++                        result = checked({**entry, field: value})
++                        self.assertFalse(result['accepted'])
++                        self.assertTrue(result['checks']['signature'])
++
+ 
+ if __name__ == '__main__': unittest.main()

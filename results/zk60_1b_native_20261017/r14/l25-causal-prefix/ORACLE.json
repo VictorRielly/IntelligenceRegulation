@@ -1,0 +1,290 @@
+{
+  "utc": "2026-10-29T18:48:45.718974+00:00",
+  "scope": "Prepared T128 arithmetic oracle prefix from reviewer-validated actual ShieldstralL25/T256 residual reference. Causal prefix property, same weights/calibration and exact first128RoPE rows. No T256 proof, no native R14 L25 result yet, no app private item data or privacy acceptance.",
+  "prefix_argument": "Norm, FFN and residual are token-local; causal attention for t<128 only consumes keys/values j<=t<128. Public RoPE rows/weights/calibration match exactly. Thus every listed T128 trace equals the selected causal prefix of the accepted T256 arithmetic oracle.",
+  "layer": 25,
+  "tokens": 128,
+  "groups": [
+    [
+      -3,
+      -11
+    ],
+    [
+      -2,
+      -11
+    ],
+    [
+      -1,
+      -9
+    ],
+    [
+      0,
+      -8
+    ]
+  ],
+  "coarse_member_channels": 1078,
+  "coarse_member_gate_words_below_minus1024": 176,
+  "trace_sites": [
+    {
+      "site": "input",
+      "shape": [
+        128,
+        3072
+      ],
+      "words": 393216,
+      "sha256": "f2cf0593048fbe1506312675394e97e665b40c533195769c1948b4a5d82f85c3",
+      "range": [
+        -6336,
+        2057
+      ]
+    },
+    {
+      "site": "y",
+      "shape": [
+        128,
+        3072
+      ],
+      "words": 393216,
+      "sha256": "8c1bc7dfe96371c7381cf4a60f7a99090fc621a623e7f30650cd3bf3a54efef0",
+      "range": [
+        -5296,
+        5369
+      ]
+    },
+    {
+      "site": "q",
+      "shape": [
+        128,
+        4096
+      ],
+      "words": 524288,
+      "sha256": "482d1798482499cead622d83cfbedc8c403e1065e9073894bdfc59f358b5d9f1",
+      "range": [
+        -3588,
+        3306
+      ]
+    },
+    {
+      "site": "k",
+      "shape": [
+        128,
+        1024
+      ],
+      "words": 131072,
+      "sha256": "9e017ead8c0c3475f05bc5643fa44872fa29546546fe2aecfd87f00c697e4cd4",
+      "range": [
+        -2355,
+        2683
+      ]
+    },
+    {
+      "site": "v",
+      "shape": [
+        128,
+        1024
+      ],
+      "words": 131072,
+      "sha256": "97de303048743627d1d1e448d59f20999c36f79e25dfc290b805585e6d7cb662",
+      "range": [
+        -4224,
+        3220
+      ]
+    },
+    {
+      "site": "qr",
+      "shape": [
+        128,
+        4096
+      ],
+      "words": 524288,
+      "sha256": "c9f3669618aa8eefd14cdc5db02ac50bd70704d99a8d403c8b0a8ce714b1b64e",
+      "range": [
+        -3566,
+        3398
+      ]
+    },
+    {
+      "site": "kr",
+      "shape": [
+        128,
+        1024
+      ],
+      "words": 131072,
+      "sha256": "5c5494b97b7d52220cd242245603a979ffcf2dc3ddf46131e7e223155f74b9a3",
+      "range": [
+        -2852,
+        2906
+      ]
+    },
+    {
+      "site": "s",
+      "shape": [
+        32,
+        128,
+        128
+      ],
+      "words": 524288,
+      "sha256": "1f1ea848fba7ac122ed9015bdf27fa20837ff5b1aa94d94fd033d2c7b97ffd43",
+      "range": [
+        -42,
+        50
+      ]
+    },
+    {
+      "site": "p",
+      "shape": [
+        32,
+        128,
+        128
+      ],
+      "words": 524288,
+      "sha256": "5218292cf60841e256bf4758bab1cd25d391a3caed2da66af4116224c665a9ff",
+      "range": [
+        0,
+        4096
+      ]
+    },
+    {
+      "site": "o",
+      "shape": [
+        128,
+        4096
+      ],
+      "words": 524288,
+      "sha256": "f19994e4f6aad515c1e190c96785d98a86f28e7620d428a22f081c4582d07ea4",
+      "range": [
+        -4085,
+        3213
+      ]
+    },
+    {
+      "site": "ao",
+      "shape": [
+        128,
+        3072
+      ],
+      "words": 393216,
+      "sha256": "3d25f3bd6791ff42df5ebd4f2e0364e5775b3ee2ee6ec0a200ec97da2acfdb0d",
+      "range": [
+        -503,
+        448
+      ]
+    },
+    {
+      "site": "x1",
+      "shape": [
+        128,
+        3072
+      ],
+      "words": 393216,
+      "sha256": "6c1407e2a02387b7e74f20e34c9413df79b360e9a400b630083a4e9abc49e5d1",
+      "range": [
+        -6516,
+        2374
+      ]
+    },
+    {
+      "site": "nm",
+      "shape": [
+        128,
+        3072
+      ],
+      "words": 393216,
+      "sha256": "eb4d3b94ddf1bf88da93ef540747e6bd7a8faddc0d7888c49153f140090d20fe",
+      "range": [
+        -4479,
+        5094
+      ]
+    },
+    {
+      "site": "gate",
+      "shape": [
+        128,
+        9216
+      ],
+      "words": 1179648,
+      "sha256": "db11d47d7296f1caf8e76a4fe9573067510110171b03de51615377a8cf6149da",
+      "range": [
+        -1459,
+        600
+      ]
+    },
+    {
+      "site": "a_scaled",
+      "shape": [
+        128,
+        9216
+      ],
+      "words": 1179648,
+      "sha256": "c75d3b7bf74ec5e2b07d37aeb5dd884796eca05acb475c523ac96b18c0898d14",
+      "range": [
+        -73216,
+        9830400
+      ]
+    },
+    {
+      "site": "up",
+      "shape": [
+        128,
+        9216
+      ],
+      "words": 1179648,
+      "sha256": "b2a508276bd4a90ebb8b2a710b407df5ce4c65376351f8c32f9376a9ae404b1e",
+      "range": [
+        -28567,
+        10531
+      ]
+    },
+    {
+      "site": "h",
+      "shape": [
+        128,
+        9216
+      ],
+      "words": 1179648,
+      "sha256": "d033f3649b815155a9b41651023dc4e5309955e2f0f3ea3ebd8b250a63eea484",
+      "range": [
+        -441300,
+        418865
+      ]
+    },
+    {
+      "site": "z",
+      "shape": [
+        128,
+        3072
+      ],
+      "words": 393216,
+      "sha256": "dd3c8c9b1de86c3fe565eddc6938dc7c637d6ed64114f551e0fb5b0a31e7570f",
+      "range": [
+        -18168,
+        20028
+      ]
+    },
+    {
+      "site": "x2",
+      "shape": [
+        128,
+        3072
+      ],
+      "words": 393216,
+      "sha256": "d16c6a96749fd7e05a2e8abb8d5f964cd4fdb7bd5b27b07a440cc5b1a48c33a7",
+      "range": [
+        -18794,
+        20404
+      ]
+    }
+  ],
+  "input_sha256": "e97c32bf6df17902d7383f7d585aa31582037da1ccebb02ef1e9547528d25ffa",
+  "input_bytes": 786432,
+  "source_sha256": {
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/profile.json": "2ba468f98085caf1136f27cf66220f93d8e316acb8dbae7e98f9eb68347f05a0",
+    "results/zk60_1b_native_20261017/r13/shieldstral-export-v2/profile.json": "1d50078243f13d58afa814a55c47c2df797e494d7f045941ea82fa142740498a",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_25/manifest.json": "b1298a85c72415a0e09a8a08a1aa7edb3a1b8efe1a98f8c700b32f59720be954",
+    "results/zk60_1b_native_20261017/r13/shieldstral-export-v2/layer_25/manifest.json": "7e7bf0bb8d86df7098c691aece458aaef65c6eb781e92d570d10d1e96cf2f3c6",
+    "results/zk60_d24_review_20261017/r13/compare_shield_L25.json": "31755bbf094bd5f8fd39c37508e9a2c0fff7d5e6a04e47b535ef0cd21c4c19a6",
+    "results/zk60_d24_review_20261017/r13/ref_shield_L25.json.npz": "487c530766b2b250d474ccd2f6dfadb1207355affb69ae473ccc5bbe34f54444",
+    "results/zk60_d24_review_20261017/r13/shield_input_L25.bin": "e66a9bf7ccfed4532ff6b77f7db86019d340545005f39b207a8882b0f94be818",
+    "results/zk60_1b_native_20261017/r14/prepare_l25_prefix.py": "560624180f2db87fc975f097deba6889a70abc1ca5ef90646df1b7a27bda99a4"
+  }
+}

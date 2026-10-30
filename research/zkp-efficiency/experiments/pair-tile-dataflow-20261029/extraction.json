@@ -1,0 +1,6 @@
+{
+  "native_file": "native/argument.rs",
+  "original": "fn mask_eval(sh: &Shape, p: &Priv, data: &[Fp], point: &[Fp2]) -> Fp2 {\n    let (log_n, n) = (row_log(sh, p.cm), 1usize << row_log(sh, p.cm));\n    let logm = p.log.min(log_n);\n    let c0 = if p.log < log_n { p.slices[0].0 % n } else { 0 };\n    let eq = eq_table_msb(&point[p.log - logm..]);\n    let row = |r: usize| {\n        data[r * n + c0..r * n + c0 + eq.len()].iter().zip(eq.iter()).fold(Fp2::ZERO, |a, (x, e)| a.add(e.mul_base(*x)))\n    };\n    row(p.mask_row).add(Fp2::U.mul(row(p.mask_row + 1)))\n}",
+  "original_sha256": "95eaf80fc895582bcb6499d1b2fd7e049b6861b5fedf4bfc565427035d195f79",
+  "adaptation": "Only rename mask_eval to baseline_mask_eval; Shape/Priv metadata accessors are harness stubs. No native define/constructor/prover."
+}

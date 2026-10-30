@@ -1,0 +1,11 @@
+{
+  "owner_documents_hash_only": [
+    "MVP_STATUS.md",
+    "ZK60_DECISIONS.md",
+    "ZK60_CODEX_FABLE_COORDINATION.md",
+    "START_HERE.md"
+  ],
+  "broad_old-technique_search_raw_retained": false,
+  "reason": "Raw broad search included irrelevant signed URLs; retain exact queries and assessed public primary URLs/metadata only.",
+  "prior_research_prefixes_unchanged": true
+}

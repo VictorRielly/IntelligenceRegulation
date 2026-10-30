@@ -1,0 +1,14 @@
+{
+  "files": {
+    "classifier.json": "1091b0a21b9aa94b86738ee6891d2fb0e29e7955a8290fda33b659305e7844e5",
+    "embedding_int16.bin": "baff04d2385ad49dcf9704384de268ce5aa5e16749d2af62c2101676538b5afe",
+    "head_int8_perrow.bin": "786f02bc011e3f23c4e9ac480772a0413d39f8d10c7259000929ada771d0ce95",
+    "head_manifest.json": "bad5986ce3dfdc6eaa9dbae8d92820a77b02a9509835e106ca08a5c9b2fcada4",
+    "head_mult12.bin": "f43790f32bd4cf4b252aafaa08e9b788937a0878594d2756f73248b0dfdc0464",
+    "head_row_scales_f64.bin": "923f67d3c89b235ce7bf07dd1be4d0db2d97695d69cbd69b8170d2eb73b13a83",
+    "margin_int16.bin": "1f5cb3468ff4142fe5eee6afd989b2626afa9c12a2d49c877164a0ef7d7eb45f",
+    "token_io.json": "5f7178800ad9bba7dbf762f3775638f39cb24ec5d2f0e7ce1eb6076d5cefd038"
+  },
+  "profile_sha256": "2ba468f98085caf1136f27cf66220f93d8e316acb8dbae7e98f9eb68347f05a0",
+  "scope": "unchanged public tied arrays, T128 metadata; no native classifier registration"
+}

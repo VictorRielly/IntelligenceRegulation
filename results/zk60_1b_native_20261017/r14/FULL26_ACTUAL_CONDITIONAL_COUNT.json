@@ -1,0 +1,1252 @@
+{
+  "utc": "2026-10-30T20:27:56.993067+00:00",
+  "source": "27b2a427491912cd54969b66f1d6ace29740ba8923dce6ba5ac4e23cfd992191",
+  "variants": [
+    {
+      "dd": false,
+      "layers": [
+        {
+          "layer": 0,
+          "groups": 3,
+          "f_e": 9,
+          "populations": [
+            8,
+            6023,
+            3185
+          ],
+          "narrow_populations": [
+            3,
+            714,
+            307
+          ],
+          "bytes": 33872200,
+          "N": 48660480,
+          "T_d": 12800,
+          "lookup_field_numerator": 48711679,
+          "sc_round_degree_numerator": 1365
+        },
+        {
+          "layer": 1,
+          "groups": 3,
+          "f_e": 9,
+          "populations": [
+            2946,
+            5801,
+            469
+          ],
+          "narrow_populations": [
+            258,
+            700,
+            66
+          ],
+          "bytes": 34410824,
+          "N": 48660480,
+          "T_d": 12800,
+          "lookup_field_numerator": 48711679,
+          "sc_round_degree_numerator": 1365
+        },
+        {
+          "layer": 2,
+          "groups": 4,
+          "f_e": 9,
+          "populations": [
+            525,
+            8081,
+            602,
+            8
+          ],
+          "narrow_populations": [
+            67,
+            916,
+            41,
+            0
+          ],
+          "bytes": 34410824,
+          "N": 48660480,
+          "T_d": 16896,
+          "lookup_field_numerator": 48728063,
+          "sc_round_degree_numerator": 1365
+        },
+        {
+          "layer": 3,
+          "groups": 3,
+          "f_e": 9,
+          "populations": [
+            109,
+            8080,
+            1027
+          ],
+          "narrow_populations": [
+            8,
+            940,
+            76
+          ],
+          "bytes": 34410824,
+          "N": 48660480,
+          "T_d": 12800,
+          "lookup_field_numerator": 48711679,
+          "sc_round_degree_numerator": 1365
+        },
+        {
+          "layer": 4,
+          "groups": 3,
+          "f_e": 9,
+          "populations": [
+            44,
+            7265,
+            1907
+          ],
+          "narrow_populations": [
+            5,
+            838,
+            181
+          ],
+          "bytes": 34410824,
+          "N": 48660480,
+          "T_d": 12800,
+          "lookup_field_numerator": 48711679,
+          "sc_round_degree_numerator": 1365
+        },
+        {
+          "layer": 5,
+          "groups": 3,
+          "f_e": 9,
+          "populations": [
+            20,
+            6842,
+            2354
+          ],
+          "narrow_populations": [
+            2,
+            819,
+            203
+          ],
+          "bytes": 34410824,
+          "N": 48660480,
+          "T_d": 12800,
+          "lookup_field_numerator": 48711679,
+          "sc_round_degree_numerator": 1365
+        },
+        {
+          "layer": 6,
+          "groups": 3,
+          "f_e": 9,
+          "populations": [
+            19,
+            6076,
+            3121
+          ],
+          "narrow_populations": [
+            2,
+            761,
+            261
+          ],
+          "bytes": 34410824,
+          "N": 48660480,
+          "T_d": 12800,
+          "lookup_field_numerator": 48711679,
+          "sc_round_degree_numerator": 1365
+        },
+        {
+          "layer": 7,
+          "groups": 3,
+          "f_e": 9,
+          "populations": [
+            10,
+            4233,
+            4973
+          ],
+          "narrow_populations": [
+            4,
+            721,
+            299
+          ],
+          "bytes": 34410824,
+          "N": 48660480,
+          "T_d": 12800,
+          "lookup_field_numerator": 48711679,
+          "sc_round_degree_numerator": 1365
+        },
+        {
+          "layer": 8,
+          "groups": 3,
+          "f_e": 9,
+          "populations": [
+            13,
+            5757,
+            3446
+          ],
+          "narrow_populations": [
+            1,
+            705,
+            318
+          ],
+          "bytes": 34410824,
+          "N": 48660480,
+          "T_d": 12800,
+          "lookup_field_numerator": 48711679,
+          "sc_round_degree_numerator": 1365
+        },
+        {
+          "layer": 9,
+          "groups": 4,
+          "f_e": 9,
+          "populations": [
+            8,
+            5277,
+            3911,
+            20
+          ],
+          "narrow_populations": [
+            0,
+            677,
+            346,
+            1
+          ],
+          "bytes": 34410824,
+          "N": 48660480,
+          "T_d": 16896,
+          "lookup_field_numerator": 48728063,
+          "sc_round_degree_numerator": 1365
+        },
+        {
+          "layer": 10,
+          "groups": 3,
+          "f_e": 9,
+          "populations": [
+            12,
+            5960,
+            3244
+          ],
+          "narrow_populations": [
+            2,
+            746,
+            276
+          ],
+          "bytes": 34410824,
+          "N": 48660480,
+          "T_d": 12800,
+          "lookup_field_numerator": 48711679,
+          "sc_round_degree_numerator": 1365
+        },
+        {
+          "layer": 11,
+          "groups": 4,
+          "f_e": 9,
+          "populations": [
+            8,
+            6810,
+            2379,
+            19
+          ],
+          "narrow_populations": [
+            0,
+            856,
+            168,
+            0
+          ],
+          "bytes": 34410824,
+          "N": 48660480,
+          "T_d": 16896,
+          "lookup_field_numerator": 48728063,
+          "sc_round_degree_numerator": 1365
+        },
+        {
+          "layer": 12,
+          "groups": 4,
+          "f_e": 9,
+          "populations": [
+            60,
+            7352,
+            1786,
+            18
+          ],
+          "narrow_populations": [
+            5,
+            863,
+            155,
+            1
+          ],
+          "bytes": 34410824,
+          "N": 48660480,
+          "T_d": 16896,
+          "lookup_field_numerator": 48728063,
+          "sc_round_degree_numerator": 1365
+        },
+        {
+          "layer": 13,
+          "groups": 4,
+          "f_e": 9,
+          "populations": [
+            21,
+            7317,
+            1861,
+            17
+          ],
+          "narrow_populations": [
+            1,
+            848,
+            175,
+            0
+          ],
+          "bytes": 34410824,
+          "N": 48660480,
+          "T_d": 16896,
+          "lookup_field_numerator": 48728063,
+          "sc_round_degree_numerator": 1365
+        },
+        {
+          "layer": 14,
+          "groups": 3,
+          "f_e": 9,
+          "populations": [
+            12,
+            7053,
+            2151
+          ],
+          "narrow_populations": [
+            2,
+            843,
+            179
+          ],
+          "bytes": 34410824,
+          "N": 48660480,
+          "T_d": 12800,
+          "lookup_field_numerator": 48711679,
+          "sc_round_degree_numerator": 1365
+        },
+        {
+          "layer": 15,
+          "groups": 4,
+          "f_e": 9,
+          "populations": [
+            45,
+            7030,
+            2110,
+            31
+          ],
+          "narrow_populations": [
+            6,
+            855,
+            162,
+            1
+          ],
+          "bytes": 34410824,
+          "N": 48660480,
+          "T_d": 16896,
+          "lookup_field_numerator": 48728063,
+          "sc_round_degree_numerator": 1365
+        },
+        {
+          "layer": 16,
+          "groups": 4,
+          "f_e": 9,
+          "populations": [
+            11,
+            5943,
+            3190,
+            72
+          ],
+          "narrow_populations": [
+            1,
+            791,
+            230,
+            2
+          ],
+          "bytes": 34410824,
+          "N": 48660480,
+          "T_d": 16896,
+          "lookup_field_numerator": 48728063,
+          "sc_round_degree_numerator": 1365
+        },
+        {
+          "layer": 17,
+          "groups": 4,
+          "f_e": 9,
+          "populations": [
+            1,
+            5141,
+            3987,
+            87
+          ],
+          "narrow_populations": [
+            0,
+            666,
+            356,
+            2
+          ],
+          "bytes": 34410824,
+          "N": 48660480,
+          "T_d": 16896,
+          "lookup_field_numerator": 48728063,
+          "sc_round_degree_numerator": 1365
+        },
+        {
+          "layer": 18,
+          "groups": 4,
+          "f_e": 9,
+          "populations": [
+            2,
+            4586,
+            4532,
+            96
+          ],
+          "narrow_populations": [
+            0,
+            602,
+            416,
+            6
+          ],
+          "bytes": 34410824,
+          "N": 48660480,
+          "T_d": 16896,
+          "lookup_field_numerator": 48728063,
+          "sc_round_degree_numerator": 1365
+        },
+        {
+          "layer": 19,
+          "groups": 4,
+          "f_e": 9,
+          "populations": [
+            1,
+            3752,
+            5359,
+            104
+          ],
+          "narrow_populations": [
+            0,
+            544,
+            477,
+            3
+          ],
+          "bytes": 34410824,
+          "N": 48660480,
+          "T_d": 16896,
+          "lookup_field_numerator": 48728063,
+          "sc_round_degree_numerator": 1365
+        },
+        {
+          "layer": 20,
+          "groups": 4,
+          "f_e": 9,
+          "populations": [
+            3,
+            3408,
+            5652,
+            153
+          ],
+          "narrow_populations": [
+            0,
+            442,
+            576,
+            6
+          ],
+          "bytes": 34410824,
+          "N": 48660480,
+          "T_d": 16896,
+          "lookup_field_numerator": 48728063,
+          "sc_round_degree_numerator": 1365
+        },
+        {
+          "layer": 21,
+          "groups": 3,
+          "f_e": 9,
+          "populations": [
+            2767,
+            5553,
+            896
+          ],
+          "narrow_populations": [
+            461,
+            552,
+            11
+          ],
+          "bytes": 34410824,
+          "N": 48660480,
+          "T_d": 12800,
+          "lookup_field_numerator": 48711679,
+          "sc_round_degree_numerator": 1365
+        },
+        {
+          "layer": 22,
+          "groups": 3,
+          "f_e": 9,
+          "populations": [
+            2938,
+            4902,
+            1376
+          ],
+          "narrow_populations": [
+            413,
+            571,
+            40
+          ],
+          "bytes": 34410824,
+          "N": 48660480,
+          "T_d": 12800,
+          "lookup_field_numerator": 48711679,
+          "sc_round_degree_numerator": 1365
+        },
+        {
+          "layer": 23,
+          "groups": 4,
+          "f_e": 9,
+          "populations": [
+            11,
+            3313,
+            4002,
+            1890
+          ],
+          "narrow_populations": [
+            0,
+            441,
+            519,
+            64
+          ],
+          "bytes": 34410824,
+          "N": 48660480,
+          "T_d": 16896,
+          "lookup_field_numerator": 48728063,
+          "sc_round_degree_numerator": 1365
+        },
+        {
+          "layer": 24,
+          "groups": 4,
+          "f_e": 9,
+          "populations": [
+            56,
+            3543,
+            3229,
+            2388
+          ],
+          "narrow_populations": [
+            7,
+            501,
+            430,
+            86
+          ],
+          "bytes": 34410824,
+          "N": 48660480,
+          "T_d": 16896,
+          "lookup_field_numerator": 48728063,
+          "sc_round_degree_numerator": 1365
+        },
+        {
+          "layer": 25,
+          "groups": 4,
+          "f_e": 9,
+          "populations": [
+            1669,
+            1685,
+            4784,
+            1078
+          ],
+          "narrow_populations": [
+            275,
+            204,
+            426,
+            119
+          ],
+          "bytes": 35414312,
+          "N": 48660480,
+          "T_d": 16896,
+          "lookup_field_numerator": 48728063,
+          "sc_round_degree_numerator": 1365
+        }
+      ],
+      "bytes": 895146288,
+      "all_segment_lengths_match_native": true,
+      "regular_openings": 79,
+      "mask_openings": 26,
+      "total_commitments": 105,
+      "lookup_field_numerator": 1266733030,
+      "pcs_field_numerator_ceiling": 1744351,
+      "sumcheck_field_numerator": 35490,
+      "field_denominator": 340282366762482138490186164457219031041,
+      "column_term": {
+        "regular_base": [
+          577,
+          768
+        ],
+        "regular_multiplicity": 79,
+        "mask_base": [
+          3,
+          4
+        ],
+        "mask_multiplicity": 26,
+        "exponent": 256
+      },
+      "conditional_backend_bits": 97.25886242493702
+    },
+    {
+      "dd": true,
+      "layers": [
+        {
+          "layer": 0,
+          "groups": 3,
+          "f_e": 9,
+          "populations": [
+            8,
+            6023,
+            3185
+          ],
+          "narrow_populations": [
+            3,
+            714,
+            307
+          ],
+          "bytes": 34107208,
+          "N": 45645824,
+          "T_d": 143872,
+          "lookup_field_numerator": 46221311,
+          "sc_round_degree_numerator": 1437
+        },
+        {
+          "layer": 1,
+          "groups": 3,
+          "f_e": 9,
+          "populations": [
+            2946,
+            5801,
+            469
+          ],
+          "narrow_populations": [
+            258,
+            700,
+            66
+          ],
+          "bytes": 34645832,
+          "N": 45645824,
+          "T_d": 143872,
+          "lookup_field_numerator": 46221311,
+          "sc_round_degree_numerator": 1437
+        },
+        {
+          "layer": 2,
+          "groups": 4,
+          "f_e": 9,
+          "populations": [
+            525,
+            8081,
+            602,
+            8
+          ],
+          "narrow_populations": [
+            67,
+            916,
+            41,
+            0
+          ],
+          "bytes": 34645832,
+          "N": 45645824,
+          "T_d": 147968,
+          "lookup_field_numerator": 46237695,
+          "sc_round_degree_numerator": 1437
+        },
+        {
+          "layer": 3,
+          "groups": 3,
+          "f_e": 9,
+          "populations": [
+            109,
+            8080,
+            1027
+          ],
+          "narrow_populations": [
+            8,
+            940,
+            76
+          ],
+          "bytes": 34645832,
+          "N": 45645824,
+          "T_d": 143872,
+          "lookup_field_numerator": 46221311,
+          "sc_round_degree_numerator": 1437
+        },
+        {
+          "layer": 4,
+          "groups": 3,
+          "f_e": 9,
+          "populations": [
+            44,
+            7265,
+            1907
+          ],
+          "narrow_populations": [
+            5,
+            838,
+            181
+          ],
+          "bytes": 34645832,
+          "N": 45645824,
+          "T_d": 143872,
+          "lookup_field_numerator": 46221311,
+          "sc_round_degree_numerator": 1437
+        },
+        {
+          "layer": 5,
+          "groups": 3,
+          "f_e": 9,
+          "populations": [
+            20,
+            6842,
+            2354
+          ],
+          "narrow_populations": [
+            2,
+            819,
+            203
+          ],
+          "bytes": 34645832,
+          "N": 45645824,
+          "T_d": 143872,
+          "lookup_field_numerator": 46221311,
+          "sc_round_degree_numerator": 1437
+        },
+        {
+          "layer": 6,
+          "groups": 3,
+          "f_e": 9,
+          "populations": [
+            19,
+            6076,
+            3121
+          ],
+          "narrow_populations": [
+            2,
+            761,
+            261
+          ],
+          "bytes": 34645832,
+          "N": 45645824,
+          "T_d": 143872,
+          "lookup_field_numerator": 46221311,
+          "sc_round_degree_numerator": 1437
+        },
+        {
+          "layer": 7,
+          "groups": 3,
+          "f_e": 9,
+          "populations": [
+            10,
+            4233,
+            4973
+          ],
+          "narrow_populations": [
+            4,
+            721,
+            299
+          ],
+          "bytes": 34645832,
+          "N": 45645824,
+          "T_d": 143872,
+          "lookup_field_numerator": 46221311,
+          "sc_round_degree_numerator": 1437
+        },
+        {
+          "layer": 8,
+          "groups": 3,
+          "f_e": 9,
+          "populations": [
+            13,
+            5757,
+            3446
+          ],
+          "narrow_populations": [
+            1,
+            705,
+            318
+          ],
+          "bytes": 34645832,
+          "N": 45645824,
+          "T_d": 143872,
+          "lookup_field_numerator": 46221311,
+          "sc_round_degree_numerator": 1437
+        },
+        {
+          "layer": 9,
+          "groups": 4,
+          "f_e": 9,
+          "populations": [
+            8,
+            5277,
+            3911,
+            20
+          ],
+          "narrow_populations": [
+            0,
+            677,
+            346,
+            1
+          ],
+          "bytes": 34645832,
+          "N": 45645824,
+          "T_d": 147968,
+          "lookup_field_numerator": 46237695,
+          "sc_round_degree_numerator": 1437
+        },
+        {
+          "layer": 10,
+          "groups": 3,
+          "f_e": 9,
+          "populations": [
+            12,
+            5960,
+            3244
+          ],
+          "narrow_populations": [
+            2,
+            746,
+            276
+          ],
+          "bytes": 34645832,
+          "N": 45645824,
+          "T_d": 143872,
+          "lookup_field_numerator": 46221311,
+          "sc_round_degree_numerator": 1437
+        },
+        {
+          "layer": 11,
+          "groups": 4,
+          "f_e": 9,
+          "populations": [
+            8,
+            6810,
+            2379,
+            19
+          ],
+          "narrow_populations": [
+            0,
+            856,
+            168,
+            0
+          ],
+          "bytes": 34645832,
+          "N": 45645824,
+          "T_d": 147968,
+          "lookup_field_numerator": 46237695,
+          "sc_round_degree_numerator": 1437
+        },
+        {
+          "layer": 12,
+          "groups": 4,
+          "f_e": 9,
+          "populations": [
+            60,
+            7352,
+            1786,
+            18
+          ],
+          "narrow_populations": [
+            5,
+            863,
+            155,
+            1
+          ],
+          "bytes": 34645832,
+          "N": 45645824,
+          "T_d": 147968,
+          "lookup_field_numerator": 46237695,
+          "sc_round_degree_numerator": 1437
+        },
+        {
+          "layer": 13,
+          "groups": 4,
+          "f_e": 9,
+          "populations": [
+            21,
+            7317,
+            1861,
+            17
+          ],
+          "narrow_populations": [
+            1,
+            848,
+            175,
+            0
+          ],
+          "bytes": 34645832,
+          "N": 45645824,
+          "T_d": 147968,
+          "lookup_field_numerator": 46237695,
+          "sc_round_degree_numerator": 1437
+        },
+        {
+          "layer": 14,
+          "groups": 3,
+          "f_e": 9,
+          "populations": [
+            12,
+            7053,
+            2151
+          ],
+          "narrow_populations": [
+            2,
+            843,
+            179
+          ],
+          "bytes": 34645832,
+          "N": 45645824,
+          "T_d": 143872,
+          "lookup_field_numerator": 46221311,
+          "sc_round_degree_numerator": 1437
+        },
+        {
+          "layer": 15,
+          "groups": 4,
+          "f_e": 9,
+          "populations": [
+            45,
+            7030,
+            2110,
+            31
+          ],
+          "narrow_populations": [
+            6,
+            855,
+            162,
+            1
+          ],
+          "bytes": 34645832,
+          "N": 45645824,
+          "T_d": 147968,
+          "lookup_field_numerator": 46237695,
+          "sc_round_degree_numerator": 1437
+        },
+        {
+          "layer": 16,
+          "groups": 4,
+          "f_e": 9,
+          "populations": [
+            11,
+            5943,
+            3190,
+            72
+          ],
+          "narrow_populations": [
+            1,
+            791,
+            230,
+            2
+          ],
+          "bytes": 34645832,
+          "N": 45645824,
+          "T_d": 147968,
+          "lookup_field_numerator": 46237695,
+          "sc_round_degree_numerator": 1437
+        },
+        {
+          "layer": 17,
+          "groups": 4,
+          "f_e": 9,
+          "populations": [
+            1,
+            5141,
+            3987,
+            87
+          ],
+          "narrow_populations": [
+            0,
+            666,
+            356,
+            2
+          ],
+          "bytes": 34645832,
+          "N": 45645824,
+          "T_d": 147968,
+          "lookup_field_numerator": 46237695,
+          "sc_round_degree_numerator": 1437
+        },
+        {
+          "layer": 18,
+          "groups": 4,
+          "f_e": 9,
+          "populations": [
+            2,
+            4586,
+            4532,
+            96
+          ],
+          "narrow_populations": [
+            0,
+            602,
+            416,
+            6
+          ],
+          "bytes": 34645832,
+          "N": 45645824,
+          "T_d": 147968,
+          "lookup_field_numerator": 46237695,
+          "sc_round_degree_numerator": 1437
+        },
+        {
+          "layer": 19,
+          "groups": 4,
+          "f_e": 9,
+          "populations": [
+            1,
+            3752,
+            5359,
+            104
+          ],
+          "narrow_populations": [
+            0,
+            544,
+            477,
+            3
+          ],
+          "bytes": 34645832,
+          "N": 45645824,
+          "T_d": 147968,
+          "lookup_field_numerator": 46237695,
+          "sc_round_degree_numerator": 1437
+        },
+        {
+          "layer": 20,
+          "groups": 4,
+          "f_e": 9,
+          "populations": [
+            3,
+            3408,
+            5652,
+            153
+          ],
+          "narrow_populations": [
+            0,
+            442,
+            576,
+            6
+          ],
+          "bytes": 34645832,
+          "N": 45645824,
+          "T_d": 147968,
+          "lookup_field_numerator": 46237695,
+          "sc_round_degree_numerator": 1437
+        },
+        {
+          "layer": 21,
+          "groups": 3,
+          "f_e": 9,
+          "populations": [
+            2767,
+            5553,
+            896
+          ],
+          "narrow_populations": [
+            461,
+            552,
+            11
+          ],
+          "bytes": 34645832,
+          "N": 45645824,
+          "T_d": 143872,
+          "lookup_field_numerator": 46221311,
+          "sc_round_degree_numerator": 1437
+        },
+        {
+          "layer": 22,
+          "groups": 3,
+          "f_e": 9,
+          "populations": [
+            2938,
+            4902,
+            1376
+          ],
+          "narrow_populations": [
+            413,
+            571,
+            40
+          ],
+          "bytes": 34645832,
+          "N": 45645824,
+          "T_d": 143872,
+          "lookup_field_numerator": 46221311,
+          "sc_round_degree_numerator": 1437
+        },
+        {
+          "layer": 23,
+          "groups": 4,
+          "f_e": 9,
+          "populations": [
+            11,
+            3313,
+            4002,
+            1890
+          ],
+          "narrow_populations": [
+            0,
+            441,
+            519,
+            64
+          ],
+          "bytes": 34645832,
+          "N": 45645824,
+          "T_d": 147968,
+          "lookup_field_numerator": 46237695,
+          "sc_round_degree_numerator": 1437
+        },
+        {
+          "layer": 24,
+          "groups": 4,
+          "f_e": 9,
+          "populations": [
+            56,
+            3543,
+            3229,
+            2388
+          ],
+          "narrow_populations": [
+            7,
+            501,
+            430,
+            86
+          ],
+          "bytes": 34645832,
+          "N": 45645824,
+          "T_d": 147968,
+          "lookup_field_numerator": 46237695,
+          "sc_round_degree_numerator": 1437
+        },
+        {
+          "layer": 25,
+          "groups": 4,
+          "f_e": 9,
+          "populations": [
+            1669,
+            1685,
+            4784,
+            1078
+          ],
+          "narrow_populations": [
+            275,
+            204,
+            426,
+            119
+          ],
+          "bytes": 35649320,
+          "N": 45645824,
+          "T_d": 147968,
+          "lookup_field_numerator": 46237695,
+          "sc_round_degree_numerator": 1437
+        }
+      ],
+      "bytes": 901256496,
+      "all_segment_lengths_match_native": true,
+      "regular_openings": 79,
+      "mask_openings": 26,
+      "total_commitments": 105,
+      "lookup_field_numerator": 1201983462,
+      "pcs_field_numerator_ceiling": 1744351,
+      "sumcheck_field_numerator": 37362,
+      "field_denominator": 340282366762482138490186164457219031041,
+      "column_term": {
+        "regular_base": [
+          577,
+          768
+        ],
+        "regular_multiplicity": 79,
+        "mask_base": [
+          3,
+          4
+        ],
+        "mask_multiplicity": 26,
+        "exponent": 256
+      },
+      "conditional_backend_bits": 97.31187129508328
+    }
+  ],
+  "source_sha256": {
+    "results/zk60_1b_native_20261017/r14/full26-native-1/ACCEPTANCE.json": "da5996b4002e642b03fdfeb64657bb485daa44ef561ee8fad2b03fe14fe7ea0a",
+    "results/zk60_1b_native_20261017/r14/final-census-1/ACCEPTANCE.json": "cc30e1a075359584188d528847c5b41488f69628cc1d8aa9670586bf06bee424",
+    "results/zk60_1b_native_20261017/r14/full26_count.py": "3506b2b698d5b1ad878a2c22cd4d56ce6ab17c2a4ea65a115a9c72c2b9419992",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/profile.json": "2ba468f98085caf1136f27cf66220f93d8e316acb8dbae7e98f9eb68347f05a0",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_00/manifest.json": "b9bf814c731856c2fc55bac592c412fa44089ef7d3d84cdcb7f0f0fdddaa9eaa",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_00/silu_groups.bin": "a8b1cd649e5da59046b179134984fba0745d0710262eb4146053fc5b2841da9f",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_00/silu_group_ids.bin": "019790dc3d706b35674e08fceaa1fc77c015acb4c199aa3e564c2c51d8870f0d",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_01/manifest.json": "dae4cb181d42abd2f1e3c5714a1cb053d32b3ae725d60641990d6ffc4c5909c1",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_01/silu_groups.bin": "916df398b8135360fba4896c8fad92e09b08df9945b729d78202fd55755fd7e3",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_01/silu_group_ids.bin": "a38a414eaefc5edf96d60484992351ba7df86cf36b378123c81351675c47546b",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_02/manifest.json": "1f614b8d60c4b727e3964d9d7ea60eee8e73a950d23ae3ef01c71b21afdf78b3",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_02/silu_groups.bin": "81fadaf59673288cf78de21cda934690d718bd978aafb33bec725ab506ccb719",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_02/silu_group_ids.bin": "29abd9e92042d1ed0d72055851baf30188922481ee0314e9a98468e8f3bdd8bf",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_03/manifest.json": "1a988bc97aff99aed319486326a702c6c54a6a7cb55b218f189045305305faaa",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_03/silu_groups.bin": "916df398b8135360fba4896c8fad92e09b08df9945b729d78202fd55755fd7e3",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_03/silu_group_ids.bin": "2f1a09c1ea389cf13e6b7e8daba275562d6d0fdd1ab831f624b0a8b6f972b62e",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_04/manifest.json": "e2e498da2fbe50299ce9f7eaf5b5f82ddf85eae157442e7b223372faf9dd6397",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_04/silu_groups.bin": "916df398b8135360fba4896c8fad92e09b08df9945b729d78202fd55755fd7e3",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_04/silu_group_ids.bin": "ec52f5c5e10e0eddd23328f7aed1c72ea978f355c4d28bc4f8b9aa6fc2202ff3",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_05/manifest.json": "713ded528882adbedf5ac86fad88b07825259e4831431d910c858138e46aa450",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_05/silu_groups.bin": "916df398b8135360fba4896c8fad92e09b08df9945b729d78202fd55755fd7e3",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_05/silu_group_ids.bin": "101d40075ccac85b1aec748f55f4771b84eb00558e6d2003c1143572aec29834",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_06/manifest.json": "0d842d89229cada99fb2407c6bcdcff0b0102d66546a9d9cff0377970ae60330",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_06/silu_groups.bin": "916df398b8135360fba4896c8fad92e09b08df9945b729d78202fd55755fd7e3",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_06/silu_group_ids.bin": "7a62bca0311759ef9e10d8f5948d06df5e2b60cd443a45b46f180460a200608c",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_07/manifest.json": "ed398889a435149ee28d38b3f8662d0e015a102ffc283e35187540cf1d4e3a51",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_07/silu_groups.bin": "916df398b8135360fba4896c8fad92e09b08df9945b729d78202fd55755fd7e3",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_07/silu_group_ids.bin": "5063a2ec9f7cd3f63e3daa92346adde233acb09aa7294516897400777b260b05",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_08/manifest.json": "2ddb5b0fc6a1e0b0c6b1cd9345c886a4047abe3f9a8d18e60df484e69fb98ff4",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_08/silu_groups.bin": "916df398b8135360fba4896c8fad92e09b08df9945b729d78202fd55755fd7e3",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_08/silu_group_ids.bin": "246d9a87001e321940bdecb444328bf1c5b5d8c5179d62f4556bb36288c482b1",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_09/manifest.json": "d5ba9e0b8be8c46c1cffc64938566e915fab8881bda72ce1cace4f6a12ffea07",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_09/silu_groups.bin": "3d14384857baf5469f3d15e63e70d0df558e296394d78c84815721fbeb19cccd",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_09/silu_group_ids.bin": "e0b74ae7406bb9b7792805a0cda3ce4fa52eddf4836c284219c82f3ba9cb80de",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_10/manifest.json": "19de1e0f1768f29f1f213ec48653d57916271497e1978362018486d9fc142f8b",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_10/silu_groups.bin": "916df398b8135360fba4896c8fad92e09b08df9945b729d78202fd55755fd7e3",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_10/silu_group_ids.bin": "c3fd0a155d656206edf86a31feb53a98a275a7cc7625472e88420eb5d4b75733",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_11/manifest.json": "7cb90d75a1aff50f647de9aad2322177b8b69f2f71a28a063ac54233a1ecad78",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_11/silu_groups.bin": "81fadaf59673288cf78de21cda934690d718bd978aafb33bec725ab506ccb719",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_11/silu_group_ids.bin": "461aa5fa06e5def1d5aa3e684147ccbe8c7fd4e2ae3fb036beef442bef1bcf0c",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_12/manifest.json": "dfb312c64bf8fdf77031a10cbda46e548bd093b1108b52fa6b75bc558f0d4218",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_12/silu_groups.bin": "81fadaf59673288cf78de21cda934690d718bd978aafb33bec725ab506ccb719",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_12/silu_group_ids.bin": "1393b8a44abdbfa3317ba7d387f0f5a5bca601487fb01cd4a5789b98be1f782d",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_13/manifest.json": "9df4985d765be816c45f98e7e658f4b8390b55ec8cc39f10c01a889b603fba50",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_13/silu_groups.bin": "3d14384857baf5469f3d15e63e70d0df558e296394d78c84815721fbeb19cccd",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_13/silu_group_ids.bin": "db6db34d27f174cbe2c8734fda8b6ab95a2e8acfb5eb4843bbd68b9190af4083",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_14/manifest.json": "1f86891201541e74889cbe0fb565b36fccd589c9dbb70001bce74cbc65367d68",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_14/silu_groups.bin": "916df398b8135360fba4896c8fad92e09b08df9945b729d78202fd55755fd7e3",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_14/silu_group_ids.bin": "0e8d248afa3b62b837d1cb1a76e679ba1c8da9ea7148e6ce9bcd6e55b2a20722",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_15/manifest.json": "b5442891d65610da13a2fc217df485d3452437850c99fa8114e18a8568112072",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_15/silu_groups.bin": "81fadaf59673288cf78de21cda934690d718bd978aafb33bec725ab506ccb719",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_15/silu_group_ids.bin": "4799acf6078992454f1ab11c7a382ff93b7ad27cc0995f2c8585ada50aaeecfa",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_16/manifest.json": "dd8534d5ca4ad170421b0811f0862e53896a01d579f98f2d1850921dd7a25e01",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_16/silu_groups.bin": "3d14384857baf5469f3d15e63e70d0df558e296394d78c84815721fbeb19cccd",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_16/silu_group_ids.bin": "36959350e3651941f0804e0b975e0f9630a71e98708adf719320afe3742dabfb",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_17/manifest.json": "7ce986f17eeddca623b347362b9708ac0d8abe4ce2f0321a17c564cd2df5cece",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_17/silu_groups.bin": "81fadaf59673288cf78de21cda934690d718bd978aafb33bec725ab506ccb719",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_17/silu_group_ids.bin": "ebe62a454ab7e1cd8732d6d15ef6cfe7932f87c63e63e6d491b6be44636fa98b",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_18/manifest.json": "ceca1f480a076f3d41c847b8cd3846769c34b51b872391be1026e0f708757396",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_18/silu_groups.bin": "81fadaf59673288cf78de21cda934690d718bd978aafb33bec725ab506ccb719",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_18/silu_group_ids.bin": "2f7a8330353e2a928947050f3440b11ab3d446fe42bac90c713301942a7ef566",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_19/manifest.json": "3fd3edaa0cadc47d9cc262c3a04352a6a5dade9e77970cd77189da3d9f8f534e",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_19/silu_groups.bin": "81fadaf59673288cf78de21cda934690d718bd978aafb33bec725ab506ccb719",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_19/silu_group_ids.bin": "43ff460a33d48a546588a490164a2d6598de2c64125bf93271dbffd10ab0ede1",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_20/manifest.json": "2246beb03fa0954dce65c2925b7a17505e31735c65efea0d75b87b6b3678acd8",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_20/silu_groups.bin": "81fadaf59673288cf78de21cda934690d718bd978aafb33bec725ab506ccb719",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_20/silu_group_ids.bin": "f1db6ada5e1aa32aa4d8781b740d0f4d08bfbc42e24803241f5120c8063c1f33",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_21/manifest.json": "81d5f95ee3f4ac0c1cb1e83e4ee85e300c93da8849ba1815c4aff1c6393cbc19",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_21/silu_groups.bin": "26053e738e2f10353de32e3c0eb9b59a7e6f8b48916c50beb67ae95095c47f45",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_21/silu_group_ids.bin": "684f6d56e311676baa3ad35d1137d73e391e588881528924ec6c5f5d1b4e7aba",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_22/manifest.json": "f42dce17cea4b5d20f8fd2d86256e57bf8d9aa1101d653ffc68ae069b4665a5d",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_22/silu_groups.bin": "26053e738e2f10353de32e3c0eb9b59a7e6f8b48916c50beb67ae95095c47f45",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_22/silu_group_ids.bin": "6f963aedeb2eb3e55f53b51b5b61fc0e23a5bece13a703929c7633d8beb3c2b5",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_23/manifest.json": "a8eba7d990cf752dc7373f89caeee63cd6bcd5b1537d1e6ba958c2f3b6d18cc5",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_23/silu_groups.bin": "81fadaf59673288cf78de21cda934690d718bd978aafb33bec725ab506ccb719",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_23/silu_group_ids.bin": "52deb9355c9efb1affa6bcdda0d10f25d37c8d6a4ba59c6341a20f136ddaed3b",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_24/manifest.json": "b32c2017e7348ae3c38f744edebc992234ed8f3a125dad9c42de6142da90b9e2",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_24/silu_groups.bin": "81fadaf59673288cf78de21cda934690d718bd978aafb33bec725ab506ccb719",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_24/silu_group_ids.bin": "09ee7fe4a06658767bf87a5cdbf92897a45e28852599c8f188be7ba98ee86c43",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_25/manifest.json": "b1298a85c72415a0e09a8a08a1aa7edb3a1b8efe1a98f8c700b32f59720be954",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_25/silu_groups.bin": "5d4eba498c8dc27a84130a69f660bc0f2d12cbaad516c31ca2ad890d9766e9dc",
+    "results/zk60_shieldstral_export_20261026/native_low_h24_t128/layer_25/silu_group_ids.bin": "5dd0561956e2df978340276a9ae12c17f8e64bbc272dda7bc54830ce88858be0"
+  },
+  "privacy_accepted": false,
+  "security_tier_assigned": false,
+  "assumptions": "Conditional on the pinned tagged hash/Fiat-Shamir/CFS model and retained PCS ceilings. Hash-collision, RNG-failure and grinding budgets are not independently assigned by this author count.",
+  "scope": "COUNTED actual26 T128 S2 backend, all52 native segment lengths exactly match final compiled census/codec formulas; authenticated per-layer3/4 ACT groups. Conditional lookup/PCS/sumcheck/column union bound only, no classifier/token composition or registration.",
+  "pending": [
+    "Independent transfer of lookup nonzero-residue and degree2 collision lemma to final split H supports",
+    "Independent PCS/CFS field ceiling transfer (4096 retained conservative ceiling)",
+    "Whole classifier/token composition before any security tier assignment",
+    "Global H/column/joint rank, complete host polynomial, NL1 and privacy gates"
+  ]
+}

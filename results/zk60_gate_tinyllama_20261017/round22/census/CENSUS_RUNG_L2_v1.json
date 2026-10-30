@@ -1,0 +1,72 @@
+{
+ "C-R1_no_40_byte_F_U_input_in_the_gate_recomputations": true,
+ "C-R2_constructor_not_47": true,
+ "F_T": {
+  "absorb_lengths": {
+   "103": 3,
+   "104": 280,
+   "118": 1,
+   "120": 138,
+   "136": 234,
+   "143": 1,
+   "145": 1,
+   "151": 2,
+   "152": 75,
+   "16438": 4,
+   "16441": 4,
+   "1967": 1,
+   "231": 1,
+   "266295": 96,
+   "266296": 7,
+   "359": 1,
+   "407": 6,
+   "439": 2,
+   "487": 2,
+   "60": 11,
+   "63": 58,
+   "64": 11,
+   "65": 1,
+   "68": 4,
+   "69687": 28,
+   "69688": 4,
+   "71": 24,
+   "73": 58,
+   "81": 15,
+   "8247": 1,
+   "8248": 1,
+   "87": 15,
+   "88": 1,
+   "91": 1,
+   "92": 4,
+   "96": 1,
+   "983": 2
+  },
+  "absorbs": 1099,
+  "calls_keyed": 6251,
+  "calls_unkeyed": 0,
+  "constructor_lengths": {
+   "77": 1
+  },
+  "squeezes": 5152
+ },
+ "F_U_gate_recomputations": {
+  "during_load": {},
+  "lengths": {}
+ },
+ "W-2_constructor_lengths_and_their_neighbours_within_1": {
+  "77": []
+ },
+ "W-2_holds": true,
+ "capture": "/home/victor/zk60-artifacts/token-io/captures/classify-r13-rung-L2-v1",
+ "challenges_checked": 3786,
+ "hash_rule": "blake3-keyed/1",
+ "lazy_store": false,
+ "positions_checked": 327,
+ "profile": "hashline-zk-mr1/private-classify-run-rung-lh-t32-public-row-tst/1",
+ "profile_len": 65,
+ "replay_ok": true,
+ "run_binding_reproduced": true,
+ "seconds": 1.9,
+ "transcript_query_count_A_measured": 6252,
+ "what": "gate round 22 item 4: the C-R1 / C-R2 / W-2 hash-input census of one classifier capture [MEASURED by the frozen v23 replay, lengths only]; NOT a privacy result"
+}

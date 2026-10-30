@@ -1,0 +1,22 @@
+zk60_classify round-16b CPU binary (round 16 + REVIEW_R16's F-1: round 12's card policy shieldstral-1.0-3b-card-unsafe/1
+is test-only, so each R13 Shieldstral classifier run profile admits exactly the three moderate D37 category policies
+(D45(2)); N-r16-1 is test-only). The three moderate policies' bytes, every receipt and statement byte of theirs, the
+trained statement identity 29aeba6c… and the rung's receipts / statements / schema `/3` are unchanged. UNREVIEWED.
+
+file:      /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/cli/zk60_classify.r16b.release.bin
+sha256:    dfb8025eb903b203f4b50371fdd0dd00659d46a9dbaad9d121d6a68343ebc70c
+built:     2026-10-29T10:47:56Z on MSI by r16b/tools/r16b_chain.sh after the full suite s21 (log r16b/logs/b16b-cli-build.log)
+source:    frozen-r16b exactly (manifest_final_r16b.sha256 = r16b/manifest_r16bA.sha256: 301 files, list sha256
+           04d94bc0904ccaeb621d001b72be51b54034bfb5f7135a543e872a36a834c549); vs frozen-r16: classify.rs (production change:
+           the card policy #[cfg(test)], out of registered_policies(); doc comments), and test files only
+           (classify_r16_tests.rs: one #[path] module line; classify_r16b_tests.rs new; classify_tied_tests.rs: one comment)
+checked:   re-verifies the REAL moderate-violence receipt made by e94cecf9… in a fresh process (r16b/logs/verify-violence.log:
+           the published statement re-checked byte for byte, identity 29aeba6c…, not-flagged, floor 96, input root
+           96ad1af1… = round 16's), and cross-verifies rung receipts with the frozen-r16 binary dae5abd7… both ways
+           (r16b/logs/xbin-r16b-r16.log)
+command:   /home/victor/.cargo/bin/cargo build --release --offline --locked -j2 --manifest-path /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r16b/hashline/Cargo.toml --example zk60_classify
+toolchain: rustc 1.97.1 (8bab26f4f 2026-07-14); cargo 1.97.1 (c980f4866 2026-06-30)
+features:  the crate's defaults only; gpu-cuda NOT enabled (cudarc is not compiled in): CPU backend only.
+profile:   [profile.release] opt-level 3, codegen-units 1, lto fat, panic abort, debug false (hashline/Cargo.toml)
+rustflags: none (no RUSTFLAGS, no .cargo/config in the tree or $HOME); default target, no target-cpu
+scope:     a build record, not a privacy acceptance and not a classifier-quality claim; unreviewed

@@ -1,0 +1,114 @@
+[
+  {
+    "source": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-interval-fold-20261029/claim_point.rs",
+    "target": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-gap-coalescing-20261029/claim_point.rs",
+    "prior_sha256": "2f8fc512b715646ef35c4355f8139ca76de3e74da5abd2894eaaf285a0f0f8bc",
+    "sha256": "2f8fc512b715646ef35c4355f8139ca76de3e74da5abd2894eaaf285a0f0f8bc",
+    "modified": false
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-interval-fold-20261029/packing_plans.rs",
+    "target": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-gap-coalescing-20261029/packing_plans.rs",
+    "prior_sha256": "3e3c45f5f5a9ff348c8e8f2897f92aa04c905d049a61e22e22f14c8de4465c61",
+    "sha256": "3e3c45f5f5a9ff348c8e8f2897f92aa04c905d049a61e22e22f14c8de4465c61",
+    "modified": false
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-interval-fold-20261029/a_constants.rs",
+    "target": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-gap-coalescing-20261029/a_constants.rs",
+    "prior_sha256": "208f48ad7d97219d1d2639bda728c9a18e9366625650e64482385fe92d54a1e9",
+    "sha256": "208f48ad7d97219d1d2639bda728c9a18e9366625650e64482385fe92d54a1e9",
+    "modified": false
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-interval-fold-20261029/serial_eq.rs",
+    "target": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-gap-coalescing-20261029/serial_eq.rs",
+    "prior_sha256": "2224d6650569ee8c764959acdb87c32313a19bc01be3756ac71337f69afdc808",
+    "sha256": "2224d6650569ee8c764959acdb87c32313a19bc01be3756ac71337f69afdc808",
+    "modified": false
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-interval-fold-20261029/cases.rs",
+    "target": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-gap-coalescing-20261029/cases.rs",
+    "prior_sha256": "7d9a1a846936d498b4c8d2aba5f48efa59db9a8029f9dfe1e4be2f1d6c7e1ee4",
+    "sha256": "7d9a1a846936d498b4c8d2aba5f48efa59db9a8029f9dfe1e4be2f1d6c7e1ee4",
+    "modified": false
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-interval-fold-20261029/a_domains.rs",
+    "target": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-gap-coalescing-20261029/a_domains.rs",
+    "prior_sha256": "1204d9ed6e637221e927838df98f121d10e4bdc7c1daa7011c62d7de2ef1f1ff",
+    "sha256": "1204d9ed6e637221e927838df98f121d10e4bdc7c1daa7011c62d7de2ef1f1ff",
+    "modified": false
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-interval-fold-20261029/a_ids.rs",
+    "target": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-gap-coalescing-20261029/a_ids.rs",
+    "prior_sha256": "62e6873551fd42b065f196f2941cee5cb6a10985506c657a608324198ae8993b",
+    "sha256": "62e6873551fd42b065f196f2941cee5cb6a10985506c657a608324198ae8993b",
+    "modified": false
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-interval-fold-20261029/a_offsets.rs",
+    "target": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-gap-coalescing-20261029/a_offsets.rs",
+    "prior_sha256": "b1875399618b6ea59d42e6eb01b2889366c39c921a5c24e25756ce768199ea39",
+    "sha256": "b1875399618b6ea59d42e6eb01b2889366c39c921a5c24e25756ce768199ea39",
+    "modified": false
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-interval-fold-20261029/native_audit.rs",
+    "target": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-gap-coalescing-20261029/native_audit.rs",
+    "prior_sha256": "8b1795992b919822529b610777bfb4430c4a78f3d6f83707a3d4bab39930c663",
+    "sha256": "8b1795992b919822529b610777bfb4430c4a78f3d6f83707a3d4bab39930c663",
+    "modified": false
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-interval-fold-20261029/interval.rs",
+    "target": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-gap-coalescing-20261029/interval.rs",
+    "prior_sha256": "1b944784d5cdf13f24bef53e315f2e906ddb5986191872b55738a8dc48a0f676",
+    "sha256": "1b944784d5cdf13f24bef53e315f2e906ddb5986191872b55738a8dc48a0f676",
+    "modified": false
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-interval-fold-20261029/indexed.rs",
+    "target": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-gap-coalescing-20261029/indexed.rs",
+    "prior_sha256": "182de0b5911f37a4b7168ae09b3c517bc55d18198194daa07dad27d49fd1bdb5",
+    "sha256": "182de0b5911f37a4b7168ae09b3c517bc55d18198194daa07dad27d49fd1bdb5",
+    "modified": false
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-interval-fold-20261029/native_groups.rs",
+    "target": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-gap-coalescing-20261029/native_groups.rs",
+    "prior_sha256": "54c0c1d6d7cdaa4fbea7448dd7448990f1a94e6234634ea24f71c030a4ef9ce9",
+    "sha256": "54c0c1d6d7cdaa4fbea7448dd7448990f1a94e6234634ea24f71c030a4ef9ce9",
+    "modified": false
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-interval-fold-20261029/builder.rs",
+    "target": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-gap-coalescing-20261029/builder.rs",
+    "prior_sha256": "16ab91fb910e2d63bf339808260397addfe2688103654b27853be87f6ad1e7b9",
+    "sha256": "16ab91fb910e2d63bf339808260397addfe2688103654b27853be87f6ad1e7b9",
+    "modified": false
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-interval-fold-20261029/a_builder.rs",
+    "target": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-gap-coalescing-20261029/a_builder.rs",
+    "prior_sha256": "e5030179c03abb32d2156bdae225460914400c6e454ca84c84fc6ecd5f946418",
+    "sha256": "e5030179c03abb32d2156bdae225460914400c6e454ca84c84fc6ecd5f946418",
+    "modified": false
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-interval-fold-20261029/harness.rs",
+    "target": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-gap-coalescing-20261029/harness.rs",
+    "prior_sha256": "7bf2485041b9063b403374e3a2c256285e2f89fc2cd79ed0acdf1b97bd7d79d0",
+    "sha256": "453b1aa846d1f6afee2f8cab9fb1fb30ce4e9e10db8332137b4d3b4d618f0b14",
+    "modified": true
+  },
+  {
+    "source": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-interval-fold-20261029/run_bounded.py",
+    "target": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-gap-coalescing-20261029/run_bounded.py",
+    "prior_sha256": "aa89d16e864782ee2cfca640c3bace39f4ec889dbee48a5d03e60ee3511faf44",
+    "sha256": "aa89d16e864782ee2cfca640c3bace39f4ec889dbee48a5d03e60ee3511faf44",
+    "modified": false
+  }
+]

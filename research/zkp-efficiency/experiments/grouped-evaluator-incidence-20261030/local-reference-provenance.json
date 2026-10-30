@@ -1,0 +1,26 @@
+[
+  {
+    "origin": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/sc-szc-clause-census-20261004/field_support.py",
+    "copy": "field_support.py",
+    "sha256": "8359ca44d70211cea90e9e251faadd10c4c953ced212cff3014ec3b839c59fc4",
+    "bytes": 2104
+  },
+  {
+    "origin": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/sc-szc-clause-census-20261004/source_port.py",
+    "copy": "source_port.py",
+    "sha256": "e4b7b3b9adb28fcb73ce629415791adc112f688cd02b4da98f379f963fbf7ed5",
+    "bytes": 5904
+  },
+  {
+    "origin": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/sc-szc-clause-census-20261004/polynomial_ir.py",
+    "copy": "polynomial_ir.py",
+    "sha256": "cab140011a769df7044aea83c38c37dd3caa9c94a5541047904b3c570385bda8",
+    "bytes": 3356
+  },
+  {
+    "origin": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/sc-szc-clause-census-20261004/oracle.py",
+    "copy": "oracle.py",
+    "sha256": "a1c639a63dcc7175b9567dcc4e52ae71bb66a5c5e88ae18f77682adc335f2d58",
+    "bytes": 2382
+  }
+]

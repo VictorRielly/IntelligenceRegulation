@@ -1,0 +1,30 @@
+{
+  "command": [
+    "/usr/bin/python3",
+    "-B",
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/dd-calibration-boundaries-20261030/audit.py"
+  ],
+  "utc": "2026-10-30T17:47:57.049270+00:00",
+  "returncode": 0,
+  "wall_s": 1.123707099002786,
+  "child_maxrss_kib": 17984,
+  "source_sha256": {
+    "polynomial_ir.py": "cab140011a769df7044aea83c38c37dd3caa9c94a5541047904b3c570385bda8",
+    "field_support.py": "8359ca44d70211cea90e9e251faadd10c4c953ced212cff3014ec3b839c59fc4",
+    "oracle.py": "a1c639a63dcc7175b9567dcc4e52ae71bb66a5c5e88ae18f77682adc335f2d58",
+    "run_bounded.py": "e860b400754f2a430aab0c71cbbac25ab693e97ed65af360a9a70e6b67d5a273",
+    "audit.py": "6986bb4fd4daf1e444d847832dfe825b90496e0c0bce0a46e1b874870a99140a",
+    "source_port.py": "e4b7b3b9adb28fcb73ce629415791adc112f688cd02b4da98f379f963fbf7ed5",
+    "candidate.py": "a5d6041dd936210ad868fa320891a77a5438d962727548a7997879168a940ee8",
+    "dd_projection.py": "433b771a032146cd4bdc360da2230d4b05818bbd93cfdecb0f626c5063bbc4b3",
+    "experiment.py": "c15dd552140b6d0d9a32e287cd34188a897f390cc18a9c31c64d9b8a0397ec03"
+  },
+  "limits": {
+    "threads": 1,
+    "cpu_s": 30,
+    "wall_alarm_s": 40,
+    "parent_timeout_s": 45,
+    "address_space_mib": 256,
+    "estimated_memory_mib": 64
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "rank": 91,
+  "title": "TESTED normalized same-capture DRIVER attribution; refines hypothesis 90",
+  "baseline": "Cycle0159 source-boundary timing model has no native GPU trace. Names/counts/order alone cannot identify the originating fold phase. No observed complete high-end-GPU8B slope exists.",
+  "eliminated_work": "No proof computation eliminated. Prevents several unsupported phase assignments and overlap double counting before choosing optimizations.",
+  "added_costs": "Native call-site observer,external-correlation push/pop,metadata buffers/drop census/export and offline joins. All native overhead and trace completeness remain unmeasured.",
+  "prerequisites": "Independent successful-call roster,source/profile/build pins,same-capture canonical driver records,stable IDs and clock conventions,natural completion/delivery,full error/exclusion accounting and independently verified enclosing workload.",
+  "integration_cost": "Small standalone Rust metadata adapter; native collector/enrichment and owner validation are separate work. No production patch.",
+  "exactness": "225 fixtures:182 ordinary accepted,42 malformed rejected,1 coherent-loss limitation accepted as expected. Independent Python list-scan joins/endpoint-cell unions compare37238 numeric fields and6495 assigned activities. Synthetic records only; no field arithmetic or transcript test.",
+  "privacy_soundness": "No mask/pad/opening/RNG/FS/profile changes. No private values in fixtures. Timing/role/failure metadata remains private diagnostics unless separately admitted. Adapter consistency establishes no cryptographic coverage/privacy property.",
+  "compatibility": "Existing dev_fold_rows Rust/CUDA observer seam and installed cudarc0.13.9 pins. Mode is normalized driver-only,successful nonempty ordinary launches/copies; graphs/runtime nesting/errors unsupported and retained unassigned.",
+  "end_to_end_ceiling": "N/(T-C_critical+A_added),unknown; no measurable saved work or complete GPU timing. Activity unions are not critical-path/removable fractions.",
+  "falsification": "Missing or inconsistent mapping rejects. If native capture overhead perturbs the workload or independently declared roster is absent,do not use attribution for optimization. Coherent collector loss disproves any unconditional completeness claim.",
+  "disposition": "Measurement-only handoff; no measured proving improvement. No more packing/staging or adapter variants without real phase evidence."
+}

@@ -24,6 +24,8 @@
 use super::layout::*;
 use super::shape::Shape;
 use super::{AttentionPublic, FeedForwardPublic};
+#[path = "argument_accuracy.rs"]
+mod accuracy;
 use crate::field::{Fp, Fp2};
 // `fold_cols_i8` folds an (input, output) matrix over its SECOND index, which
 // is what the three feed-forward matrices need: the kernel stores them
@@ -161,6 +163,7 @@ pub(crate) struct Acc {
 }
 
 pub(crate) struct Ctx<'a> {
+    pub accuracy:Option<&'a crate::private_block::accuracy_public::AccuracyPublic>,
     pub lay: &'a Layout,
     pub public: &'a AttentionPublic,
     pub ff: &'a FeedForwardPublic,
@@ -1176,6 +1179,10 @@ pub(crate) fn table_values_act_at(len: usize, ff: &FeedForwardPublic, beta: Fp2,
 /// still speak on padded positions. Until the support indicator lands, a
 /// definition built at the rung is a DEFINITION, not a sound argument.
 pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcript) -> Result<SlotDef, String> {
+    if ctx.lay.shape().accuracy_stack()!=crate::private_block::accuracy_precision::Stack::Legacy {
+        if let Some(def)=accuracy::define_changed(slot,ctx,pts,tr)? {return Ok(def)}
+    }
+
     let lay = ctx.lay;
     let (sh, ids, hids) = (lay.shape(), lay.ids(), lay.hids());
     let (alpha, beta, g_u8, g_exp, g_act) = (ctx.alpha, ctx.beta, ctx.g_u8, ctx.g_exp, ctx.g_act);
@@ -1344,7 +1351,16 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             coords.extend(rho(0..lg(inner)));
             b.a_at(plane, coords, 0)?;
             // w is (output j, input i): sum_j eq(r_j, j) w[j, i]
-            b.public(fold_rows_i8(w, outer, inner, &eq_table_msb(&r_j)));
+            let weights=eq_table_msb(&r_j);
+            let folded=if sh.accuracy_stack()==crate::private_block::accuracy_precision::Stack::Legacy {
+                fold_rows_i8(w,outer,inner,&weights)
+            } else {
+                use crate::private_block::accuracy_fold::{Site,Axis,coefficients,fold};
+                let data=ctx.accuracy.ok_or("R13 matmul requires bound accuracy data")?;
+                let site=match slot {SC_QMM=>Site::Q,SC_KMM=>Site::K,SC_VMM=>Site::V,_=>Site::O};
+                fold(w,outer,inner,Axis::Rows,&coefficients(sh,data,site)?,&weights)?
+            };
+            b.public(folded);
             match slot {
                 SC_QMM => pts.pq = point,
                 SC_KMM => pts.pk = point,
@@ -1476,7 +1492,16 @@ pub(crate) fn define(slot: usize, ctx: &Ctx, pts: &mut Points, tr: &mut Transcri
             coords.extend(rho(0..if slot == SC_DMM { lf } else { ld }));
             b.a_at(plane, coords, 0)?;
             // w is (input i, output j): sum_j eq(r_j, j) w[i, j]
-            b.public(fold_cols_i8(w, rows, cols, &eq_table_msb(&r_j)));
+            let weights=eq_table_msb(&r_j);
+            let folded=if sh.accuracy_stack()==crate::private_block::accuracy_precision::Stack::Legacy {
+                fold_cols_i8(w,rows,cols,&weights)
+            } else {
+                use crate::private_block::accuracy_fold::{Site,Axis,coefficients,fold};
+                let data=ctx.accuracy.ok_or("R13 FFN matmul requires bound accuracy data")?;
+                let site=match slot {SC_GMM=>Site::Gate,SC_UMM=>Site::Up,_=>Site::Down};
+                fold(w,rows,cols,Axis::Columns,&coefficients(sh,data,site)?,&weights)?
+            };
+            b.public(folded);
             let point = cat(&[&r_row, &r_j]);
             match slot {
                 SC_GMM => pts.p_g = point,

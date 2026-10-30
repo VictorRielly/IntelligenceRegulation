@@ -1,0 +1,12 @@
+[
+  {
+    "source": "experiments/mask-tail-incidence-20261029/catalog.py",
+    "snapshot": "catalog.py",
+    "sha256": "4a730b4c4da652b9f5838e69c67c26977f07e1ee060a02012cf2f348ee5dc7e9"
+  },
+  {
+    "source": "experiments/mask-tail-incidence-20261029/counts.json",
+    "snapshot": "prior-counts.json",
+    "sha256": "40680087ef300b33607e0dd968658b37d49194f4878feb04138eb06c8f214a57"
+  }
+]

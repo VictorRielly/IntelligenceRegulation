@@ -1,0 +1,42 @@
+{
+  "at": "2026-10-29T18:41:36.473431+00:00",
+  "guard_pid": 443106,
+  "child_pid": 443108,
+  "samples": [
+    {
+      "at": "2026-10-29T18:41:36.473448+00:00",
+      "guard": {
+        "exists": true,
+        "identity_matches": true,
+        "state": "S",
+        "start_ticks": 7400324,
+        "cpu_ticks": 3143
+      },
+      "child": {
+        "exists": true,
+        "identity_matches": true,
+        "state": "R",
+        "start_ticks": 7400328,
+        "cpu_ticks": 451876
+      }
+    },
+    {
+      "at": "2026-10-29T18:42:21.481647+00:00",
+      "guard": {
+        "exists": true,
+        "identity_matches": true,
+        "state": "S",
+        "start_ticks": 7400324,
+        "cpu_ticks": 3177
+      },
+      "child": {
+        "exists": true,
+        "identity_matches": true,
+        "state": "R",
+        "start_ticks": 7400328,
+        "cpu_ticks": 456377
+      }
+    }
+  ],
+  "child_cpu_ticks_advanced": true
+}

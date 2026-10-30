@@ -1,0 +1,36 @@
+
+running 6 tests
+test private_block::accuracy_proof_tests::accuracy_all_new_limb_and_unused_dictionary_mutations_reach_verification ... R13 scoped receipt r13-h24-wide DD=true attack=Some(Byte(Ym, 1)): bytes16674904
+R13 scoped receipt r13-h24-wide DD=true attack=Some(Byte(Q, 1)): bytes16674904
+R13 scoped receipt r13-h24-wide DD=true attack=Some(Byte(K, 1)): bytes16674904
+R13 scoped receipt r13-h24-wide DD=true attack=Some(Byte(V, 1)): bytes16674904
+R13 scoped receipt r13-h24-wide DD=true attack=Some(Byte(O, 1)): bytes16674904
+R13 scoped receipt r13-h24-wide DD=true attack=Some(Byte(Rao, 2)): bytes16674904
+R13 scoped receipt r13-h24-wide DD=true attack=Some(Byte(Rs, 2)): bytes16674904
+R13 scoped receipt r13-h24-wide DD=true attack=Some(Byte(Rg, 2)): bytes16674904
+R13 scoped receipt r13-h24-wide DD=true attack=Some(Byte(Up, 1)): bytes16674904
+R13 scoped receipt r13-h24-wide DD=true attack=Some(Byte(H, 2)): bytes16674904
+R13 scoped receipt r13-h24-wide DD=true attack=Some(Byte(Rh, 1)): bytes16674904
+R13 scoped receipt r13-h24-wide DD=true attack=Some(Byte(Rd, 2)): bytes16674904
+R13 scoped receipt r13-h24-wide DD=true attack=Some(DdUnused): bytes16674904
+R13 scoped receipt r13-h24-wide DD=true attack=Some(DdCounts): bytes16674904
+ok
+test private_block::accuracy_proof_tests::accuracy_dense_low_and_h24_dd_and_non_dd_prove_and_verify ... R13 scoped receipt r13-low-dense DD=false attack=None: bytes15831864
+R13 scoped receipt r13-low-dense DD=true attack=None: bytes16668744
+R13 scoped receipt r13-h24-wide DD=false attack=None: bytes15838024
+R13 scoped receipt r13-h24-wide DD=true attack=None: bytes16674904
+ok
+test private_block::accuracy_proof_tests::accuracy_every_table_support_tail_rejects_a_moved_multiplicity ... R13 scoped receipt r13-low-dense DD=false attack=Some(TablePad(0)): bytes15831864
+R13 scoped receipt r13-low-dense DD=false attack=Some(TablePad(1)): bytes15831864
+R13 scoped receipt r13-low-dense DD=false attack=Some(TablePad(2)): bytes15831864
+ok
+test private_block::accuracy_proof_tests::accuracy_new_norm_high_byte_mutation_reaches_native_proof_and_is_rejected ... R13 scoped receipt r13-h24-wide DD=true attack=Some(Byte(Y, 1)): bytes16674904
+ok
+test private_block::accuracy_proof_tests::accuracy_two_stage_private_boundary_with_different_gate_shifts_verifies ... R13 two-stage private boundary DD=false: G20 -> G21
+R13 two-stage private boundary DD=true: G20 -> G21
+ok
+test private_block::accuracy_proof_tests::accuracy_wrong_group_table_is_rejected_after_both_honest_contexts_verify ... R13 ACT3 wrong-group: both honest contexts verify; self-consistent wrong-group witness rejected under the original statement
+ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 721 filtered out; finished in 35.06s
+

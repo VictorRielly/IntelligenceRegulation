@@ -52,7 +52,7 @@ def main():
         recheck=PRIVATE/(post+'-recheck');run(prover.prepare_recheck(record,job,recheck))
         checked=prover.collect_recheck(record,recheck)
         require(checked.proof_valid and checked.bound_by_proof,'fresh app recheck did not verify')
-        label=PRIVATE/(post+'-label');run(prover.prepare_label([record],label))
+        label=PRIVATE/(post+'-label');run(prover.prepare_label([record],label,item=item))
         aggregate=prover.collect_label(label)
         case={'name':name,'record':asdict(record),'recheck':asdict(checked),'aggregate':aggregate,
               'seconds':time.monotonic()-tick,'guard':{}}
@@ -88,7 +88,7 @@ def main():
         run(prover.prepare('retained-multi',item,job,chunk))
         records.append(prover.collect('retained-multi',item,job,chunk))
     require([r.statement['verdict_bit'] for r in records]==mixed['expected_chunk_verdict_bits'],'expected mixed verdicts differ')
-    label=PRIVATE/'retained-multi-label';run(prover.prepare_label(records[::-1],label))
+    label=PRIVATE/'retained-multi-label';run(prover.prepare_label(records[::-1],label,item=item))
     aggregate=prover.collect_label(label)
     require((aggregate['value']=='yes')==any(r.labels['synthetic']['value']=='yes' for r in records),'aggregate OR differs')
     evidence['multi_chunk']={'records':[asdict(r) for r in records],'aggregate':aggregate,

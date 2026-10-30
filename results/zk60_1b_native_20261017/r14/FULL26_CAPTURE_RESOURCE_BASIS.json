@@ -1,0 +1,11 @@
+{
+  "utc": "2026-10-30T20:15:27.018989+00:00",
+  "measured_full26_fresh_rss_gib": 1.41,
+  "retained_three_stage_array_bytes": 162676808,
+  "estimated_26stage_array_bytes": 1409865669.3333333,
+  "conservative_vec_reallocation_peak_gib": 3.0,
+  "stage_json_and_margin_gib": 0.65,
+  "declared_need_gib": 5.1,
+  "cap_gib": 7,
+  "scope": "Prelaunch declaration updated from fresh26 measurement plus observer array-growth estimate. No capture timing or measured capture peak claimed."
+}

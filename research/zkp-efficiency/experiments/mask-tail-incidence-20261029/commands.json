@@ -1,0 +1,19 @@
+[
+  {
+    "command": "python3 experiments/mask-tail-incidence-20261029/prepare_adapter.py",
+    "purpose": "Research source adapter generation; no native build"
+  },
+  {
+    "command": "python3 experiments/mask-tail-incidence-20261029/run_bounded.py probe.py",
+    "seed": 202610290138,
+    "execution": "probe-execution.json"
+  },
+  {
+    "command": "python3 experiments/mask-tail-incidence-20261029/run_bounded.py audit.py",
+    "execution": "audit-execution.json"
+  },
+  {
+    "command": "python3 experiments/mask-tail-incidence-20261029/checkpoint.py",
+    "purpose": "Research-only durable reporting"
+  }
+]

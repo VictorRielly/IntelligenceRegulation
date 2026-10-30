@@ -1,0 +1,2 @@
+[zk60-guard 02:54:47] START rvtk16-tests class=cpu need=2.4G cap=3.5G enforce=cgroup+watchdog waited=0s run=d0a45ae07dc3
+[zk60-guard 02:56:36] END rvtk16-tests exit=0 child_wall=109s peak_rss=1.65G min_avail=12.29G

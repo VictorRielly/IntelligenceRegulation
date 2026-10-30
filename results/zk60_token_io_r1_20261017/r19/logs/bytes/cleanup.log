@@ -1,0 +1,1 @@
+{"removed": [{"path": "/home/victor/zk60-artifacts/token-io/r19/single", "files": 29, "bytes": 848417277}, {"path": "/home/victor/zk60-artifacts/token-io/r19/batch", "files": 0, "bytes": 0}, {"path": "/home/victor/zk60-owner-private/token-io/r19", "files": 164, "bytes": 122802501}], "left_in_eq": ["bin", "ent"]}

@@ -1,0 +1,8 @@
+R14-public-synthetic-malicious-fixture/1
+case=limb-k-whole
+dd=1
+model_identity=d363a0f78f4b673e86b8ac1e930c63c068b7048578ee6142adde04d1d615fde4
+input_root=4ba50690b41be1aa7be576cb47fdb553cbad5bfca81388707c4b3f6745045f26
+output_root=7fd4b41dfd06c277f02fb2859bbbfbaeeffae9a06675e7bc7e9cab6d483ce42d
+binding=205d10047e939b29f5baec362c189c09feaf060c3d557d74614837bf093ebac2
+error=slot 21 [R14 05 KV zero-check (hosts 09K, 09V) Whole]: sumcheck round 0: s(0) + s(1) != claim

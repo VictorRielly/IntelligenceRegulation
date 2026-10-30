@@ -1,0 +1,10 @@
+{
+  "run_id": "20261029T075649Z-ff4ec0d7",
+  "status": "COMPLETE",
+  "checkpoint": "2026-10-29T08:13:03.841881+00:00",
+  "deadline": "2026-10-29T08:16:49Z",
+  "source_ledger_before": 909,
+  "source_ledger_after": 916,
+  "hypotheses": 57,
+  "new_full_stack_proofs": 0
+}

@@ -1,0 +1,457 @@
+[
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/README.md",
+    "bytes": 9294,
+    "sha256": "2147048c5e08357435b9632ac79af4d1d2cab42a73fb3bab37a35597e0706412"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/accuracy_dd_groups.uncompiled.diff",
+    "bytes": 3569,
+    "sha256": "639944a4fe1b68a23a1dc6d8b1477d28d496f97c5676b11938a69f3eee5274c7"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/argument_accuracy.candidate.rs",
+    "bytes": 44882,
+    "sha256": "2b455703d4fcf4246dfd3d6e34e54fdc17ab527cdf6b996c7f43e35df59f1ca3"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/audit-execution.json",
+    "bytes": 996,
+    "sha256": "16928f5565f2406afdeb3c6aeb45d5e73eec1ee312e5b0e6ddb2ec4f5688fb59"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/audit-result.json",
+    "bytes": 579,
+    "sha256": "b1da89b3c6dfeba287514b15e7eb83d10247f5b1d41e6b4f95fcfdda29390092"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/audit.py",
+    "bytes": 6534,
+    "sha256": "75c814ece7850c51ce6514d2db07428e3473ae9d90a8dd75c393d8c47bcf18b8"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/audit.stderr.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/audit.stdout.log",
+    "bytes": 513,
+    "sha256": "79c2b44828bbca896c5d05ea1627deaeb13e27a0f7c9b79a69a308de3d1d8a99"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/before-all-fold-checks/audit-execution.json",
+    "bytes": 905,
+    "sha256": "6b488e72798cd5dc555f28abdcc4aa00ee52ee241a561a163a36e7006dc2fac8"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/before-all-fold-checks/audit-result.json",
+    "bytes": 553,
+    "sha256": "511f03a4afbcfbe9d05d54975c123d7348c7b4d393ba6f336e36372b62400149"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/before-all-fold-checks/experiment-execution.json",
+    "bytes": 827,
+    "sha256": "9fec147ca6d271b95e55d3d0e27e529a2ba34f0636a364d5d54172d2689d99d7"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/before-all-fold-checks/experiment.py",
+    "bytes": 9300,
+    "sha256": "9b84be0c08aed7dd07e59d85af8618fe02c7956bd64a2fb406e37298ba1498b3"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/before-all-fold-checks/result.json",
+    "bytes": 552,
+    "sha256": "63b8224e422b6c8c3ad2279011cba36d55115f51617a2cf9c4ed31ecafe934f3"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/closing-documents.json",
+    "bytes": 1628,
+    "sha256": "2e570834c215725cf4091aacdb6d0fe1fd8fc88018fd74ffd1d172debb50d9c9"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/commands.jsonl",
+    "bytes": 4958,
+    "sha256": "de9973bcdc8807c934fa474c7065f02ee97212d217dccdd0439edff3a9464d28"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/completion.json",
+    "bytes": 345,
+    "sha256": "8a4e6a468ab06532505e4124eb9f3dbba8879765c5c1179e607ab83599f5680a"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/cost-census.json",
+    "bytes": 11806,
+    "sha256": "2db070f82c6a2986645dbdaf817ce57e098d15ccd36939ff312e74ffd29aedde"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/engine.py",
+    "bytes": 9417,
+    "sha256": "adc6af6c7181a4de8266379aa371f1fab1e755ea4157cae0e687e1cc73640223"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/experiment-execution.json",
+    "bytes": 1001,
+    "sha256": "3dd7c4e08682cfa2a9bceb3b954f18c6c2900db0c3acb86122734af39f4c4128"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/experiment.py",
+    "bytes": 9759,
+    "sha256": "4709ec28b20a29e787bf096530ed009ed9a81624c3298dc16bf8e03faf114564"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/experiment.stderr.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/experiment.stdout.log",
+    "bytes": 561,
+    "sha256": "45568afbd66ab78b7d0f6bab021836ab6dca8f8a7df90267172a3fdee4bfda49"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/finish_cycle.py",
+    "bytes": 11297,
+    "sha256": "4508441e7ee197518463b1221ed5f6ea0b1996735e3072469a54d6bcc961a9e6"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/fixtures.json",
+    "bytes": 855279,
+    "sha256": "d1ea982cbec5458e327c013a66f2674d3d334fe2d9281be3e7978c785846210d"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/hardware.json",
+    "bytes": 133,
+    "sha256": "58843ac4e89fb27ee34ac9c7144c2af264d05c18c6a5d63606c45be7f4d4cac9"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/hypotheses.json",
+    "bytes": 239485,
+    "sha256": "b7b2f7395264635d051a7aae0ccd939ca57c67c78b41bab370e6767bbdb94f3e"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/initial-control-coverage-failure/experiment-execution.json",
+    "bytes": 827,
+    "sha256": "5602454c9d3ccc75ccca78072025464b42418f6e0eb09734f510f177445eab17"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/initial-control-coverage-failure/experiment.py",
+    "bytes": 9152,
+    "sha256": "4a7dfdd61f1c533be920e7e7bd0b0abac6143039157805d0de75f110852fa06f"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/initial-control-coverage-failure/experiment.stderr.log",
+    "bytes": 421,
+    "sha256": "5733063975919392b88348025e58706d6ecdfc97cbb2db9f3addd6b476741b12"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/initial-control-coverage-failure/experiment.stdout.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/initial-control-coverage-failure/reason.json",
+    "bytes": 266,
+    "sha256": "67bdd69331077296381903a0f099c1ea5c3be4dd1564535595da340d69036043"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/integrity.py",
+    "bytes": 3707,
+    "sha256": "d03ea20dc39798c1de778dbbe7bb47b21a92b1549719717d148b15393670eeed"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/native/0-grouped.rs",
+    "bytes": 7903,
+    "sha256": "7777a19c8db97694c51e66c78d1a7688573158bddaa7fcb370345ebd14ab669b"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/native/1-rounds.rs",
+    "bytes": 7092,
+    "sha256": "c60520596e6d855687e0a225850850c12bd15b8741522de69a624f0db8a003df"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/native/10-argument_accuracy.rs",
+    "bytes": 42609,
+    "sha256": "76243d8562f55e281603f62530a3a9172a11c6f37ca4ba1cb6066811daa2883a"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/native/11-accuracy_precision.rs",
+    "bytes": 6302,
+    "sha256": "145c1e0f66ea5aad558148aa7885b4fcaaf74c6145893cc1efd10f7a77eee56b"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/native/12-accuracy_layout.rs",
+    "bytes": 9081,
+    "sha256": "37a3e3458e4961ddaab98440de114e575da3af21f7d872b532cb71a04ac788d3"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/native/13-argument_split.rs",
+    "bytes": 18152,
+    "sha256": "50bcc0b870817f1961b497699d3d161eff6e031e7a4e10225a481eea3e719fb6"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/native/14-split_definition_tests.rs",
+    "bytes": 22445,
+    "sha256": "e11fe92e79f3dd470b522af2d24f0a23ddced981fe08dc89ae840c8c88f3e0c8"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/native/15-kernels.cu",
+    "bytes": 78055,
+    "sha256": "b59bc396fa955bbdbc8bf8bb7b047c37c7f8df1fed0992d7b15ef983e2fc3969"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/native/2-mle.rs",
+    "bytes": 15255,
+    "sha256": "b20c8b75c9246471fe1cc395122558eba715f66d9efe1dc4cd5be1750f2e542e"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/native/3-field.rs",
+    "bytes": 11065,
+    "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/native/4-argument.rs",
+    "bytes": 111325,
+    "sha256": "c4f9f9f4cb477346b03e9f769d7c3141a8529f096d08da2be6c415d5160a5e66"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/native/5-shape.rs",
+    "bytes": 139369,
+    "sha256": "9a87081897ff0ec716d7f27a2813cc32117683eb5b2f2082a248f479ef98c4c5"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/native/6-layout.rs",
+    "bytes": 74733,
+    "sha256": "9332802e597beacab56cfa69cfe18325bc476d2ce6485f517051992b26d26efa"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/native/7-ACCEPTANCE.json",
+    "bytes": 57359,
+    "sha256": "cc30e1a075359584188d528847c5b41488f69628cc1d8aa9670586bf06bee424"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/native/8-argument.rs",
+    "bytes": 116652,
+    "sha256": "d0b93cd99c0706fb44caa86d0083aa1b27d01de68f3019c08b7649f245d85cf8"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/native/9-grouped.rs",
+    "bytes": 7903,
+    "sha256": "7777a19c8db97694c51e66c78d1a7688573158bddaa7fcb370345ebd14ab669b"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/negative-controls.json",
+    "bytes": 4635,
+    "sha256": "bcb64a446c6bd61d38f551e3973989b501bafc4b63b88a69c862ccc9a6952750"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/orchestration-note.json",
+    "bytes": 203,
+    "sha256": "f0974091e1ff18477e8b45de665a444c87c6f0022546373bae5ad2ebfe6b7940"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/patch-contract.json",
+    "bytes": 586,
+    "sha256": "6ff1764204375e7fa6c3267cc9d61d03b7a152f355c2b4eb56f4ff1939d6df89"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/prior-STATE.md",
+    "bytes": 4637,
+    "sha256": "a8e4eb4722bf8b311eea0173b821c578b9a5420d0ed27ff3585ff4ffa53f759e"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/ranking-current.json",
+    "bytes": 220,
+    "sha256": "a713c1282e1f1c7476ad570d9ccd24c2f2f3dd91bb5dc97fff1171ca73ae2355"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/reference.py",
+    "bytes": 3700,
+    "sha256": "0b94ffb356b8ca1e394cda650b71261c548d95e68a7e7f8648c6967428ac36dc"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/result.json",
+    "bytes": 621,
+    "sha256": "12e92269c5f18fb16604082fba30a8501925e9aa21387162348ebc7de5a65ea6"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/rotation-queue.json",
+    "bytes": 1175,
+    "sha256": "47d1c7c842ba068d603305c476d01f62c14c2fd0c1cd6eb65beb1dd906503c1e"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/run_bounded.py",
+    "bytes": 1539,
+    "sha256": "c1684de2c321ec9469bc777ebb9904f0c74a58d2f248e932d12911f1c631a47c"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/source-pins.json",
+    "bytes": 5170,
+    "sha256": "a043e8c83e6b7c9a2c8083bbbaa5f0069ad84c6eec4377db11fcf837bc9fd81c"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/sources-cycle.json",
+    "bytes": 11125,
+    "sha256": "f943136707d184085502854d0762a47c5cd79e71e2755a07ed6d8429d1c0bd70"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/sources-prior-index.json",
+    "bytes": 78,
+    "sha256": "be503dc5ad2ac4b6f7fead2798b85fc9d71135b9bc61aa40d1a7249dd627545f"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/startup/AGENDA.md",
+    "bytes": 5603,
+    "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/startup/CLAUDE.md",
+    "bytes": 14089,
+    "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/startup/FINDINGS.md",
+    "bytes": 1262232,
+    "sha256": "6e36ab47fd21cb6b804bf71d60284a6debd2290f64259a708cc4a7d704dbfc1d"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/startup/MVP_STATUS.md",
+    "bytes": 106429,
+    "sha256": "f75da8ddcf7edefaf3f367ecd6ac63b07ab17f418cae4a3a0c9e9a1c9c09e28b"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/startup/PROGRESS.md",
+    "bytes": 3004,
+    "sha256": "aeb24704f126856d5ce289adb8a328c18ae48a50c5ffadd3e23ad345a9841569"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/startup/START_HERE.md",
+    "bytes": 42025,
+    "sha256": "89f6732a39f4294f2f1b7b68add8fdcbb76b86006e21041f52c0f40d9e39df9d"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/startup/STATE.md",
+    "bytes": 4637,
+    "sha256": "a8e4eb4722bf8b311eea0173b821c578b9a5420d0ed27ff3585ff4ffa53f759e"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/startup/ZK60_CODEX_FABLE_COORDINATION.md",
+    "bytes": 64889,
+    "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/startup/ZK60_DECISIONS.md",
+    "bytes": 172286,
+    "sha256": "2291d58ed74a042d3b50f88a400a77ffa69d6cb2d8166a96703a2a74f9122411"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/startup/ZK60_THROUGHPUT_TARGET.md",
+    "bytes": 4941,
+    "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/startup/sources.jsonl",
+    "bytes": 1422915,
+    "sha256": "33c3bb8c607ed594d2ea0597bc1193965bf39f37ff229fbc631344c394cec8e3"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/startup-manifest.json",
+    "bytes": 37162,
+    "sha256": "c4c25cbddb73c75f9877dba095dc1269934a222e97231148b76f279c428a9ca7"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/target-accounting.json",
+    "bytes": 2030,
+    "sha256": "c08642add727b4a1a17822b9230c8126f61bf5d378e80c49404fd0e86dce721a"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/web-fftw-search.json",
+    "bytes": 16022,
+    "sha256": "45fd8ef60ea1eab049cd95cdcdcd2272911bf8a941a255dc44f86bb8239b46c8"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/web-final-screen.json",
+    "bytes": 14247,
+    "sha256": "9ace60a9f8dd69e09549abdc8f01fd66d53b3526c14f84c53d17bf7c2885e6e6"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/web-longfellow.json",
+    "bytes": 14813,
+    "sha256": "d53a9978b8c596521100380282b6b5ed68b0fca3ae9b7ee617f01cb42d54eaf5"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/web-new-cache.json",
+    "bytes": 14294,
+    "sha256": "57430c2724124fa744319a444c25faa96be03f5b8fcfcbcb1455d800b06a0657"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/web-new-older.json",
+    "bytes": 35725,
+    "sha256": "52fce0a34f0482e5225be1092d59fc2584cbd6b6b89d1399a32fda48747228ea"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/web-older-query.json",
+    "bytes": 12380,
+    "sha256": "2b02e9175349436512fb5638d548f1f688ee547ae481f821ac5ec209dafee091"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/web-older.json",
+    "bytes": 13635,
+    "sha256": "e28ba7316468e065570c33b363a3ed308dbf7820d3bb28f020fffce0a3107a0a"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/web-primary.json",
+    "bytes": 26713,
+    "sha256": "83781277c38c4824e30aa49d8d783caa551de5216397157c7fc4139670113e25"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/web-rotation.json",
+    "bytes": 36638,
+    "sha256": "4d469401eeddf81a1f76143cd8df00ff468bec3c7d92ce964a945947edb01443"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/web-screen.json",
+    "bytes": 31758,
+    "sha256": "449cd23231425a0043fcc74090c1eaa38ee53cab391765992f0d47907f271a82"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/web-sparrow-section.json",
+    "bytes": 11591,
+    "sha256": "c95b642f099444841fd04f9138a5d8c6d10f2558e50d614d81964692a1625931"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/write_reports.py",
+    "bytes": 17646,
+    "sha256": "bf139bcd92771f4fd824843b5bf420c875d4a8d502ecb7f1efdbec9e189f1f8a"
+  },
+  {
+    "path": "STATE.md",
+    "bytes": 4586,
+    "sha256": "b4491f9d8a3cae7c9369a1d6e4e3c1b747c6a3e8586f9efaef76b8e179ed8c37"
+  },
+  {
+    "path": "PROGRESS.md",
+    "bytes": 2468,
+    "sha256": "192d26eee51661676a7bc9f86a2b239842078d1451568dba7b34d66619c910e6"
+  },
+  {
+    "path": "progress/20261030T194123Z-776cb104.md",
+    "bytes": 9333,
+    "sha256": "c6be3289d8c97bb4e8279adc50ee13499ece9d56987ce72c6e72a6b64c738a56"
+  },
+  {
+    "path": "experiments/accuracy-dd-groups-20261030/README.md",
+    "bytes": 9294,
+    "sha256": "2147048c5e08357435b9632ac79af4d1d2cab42a73fb3bab37a35597e0706412"
+  },
+  {
+    "path": "handoffs/20261030-accuracy-dd-groups.md",
+    "bytes": 7687,
+    "sha256": "c2266e269a778e5fd46289067158c323177304dcbfb69b8cbb007bee759b1b41"
+  },
+  {
+    "path": "FINDINGS.md",
+    "bytes": 1271654,
+    "sha256": "805d80e53fd86247acda176cc7671efbaec082302d2447f8f4be355aa9729244"
+  }
+]

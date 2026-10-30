@@ -1,0 +1,37 @@
+Token-I/O lane round-13 tree frozen at 2026-10-28T23:42:48Z (rung R-C2: the classifier's tables re-derived from the
+pinned tied tensor; the R-C1 classifier + capture hooks + registry fixes rebased from native R8 onto native R12b).
+copy:     /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r13/
+source:   /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r12b/ (target/ excluded, BASELINE.sha256 excluded, and the
+          native tests' pid-named evidence dirs results/r12b-tests|r12b-rope|r12b-profile-fields excluded: r13/tools/freeze13.py)
+manifest: /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/manifest_final_r13.sha256
+          (= r13/manifest_r13A.sha256: 257 files, list sha256 6edb1ce682e2f68970169c6f66b0e058d5506a1ed636f7f328b6f9d1cad96215);
+          all 257 re-hashed in the copy: match, none missing, none extra. Post-suite manifest r13B: 0 sources changed
+          (5 test-output files under results/r12-tied-<pid>/ added by a native test, not frozen).
+binary:   cli/zk60_classify.r13.release.bin (e320c2379bf765226c73e17ad5fe59dbd812e00980861102a1b9f727655feebb,
+          cli/binaries_r13.sha256; build note cli/zk60_classify.r13.BUILD.txt), built from this tree. Fresh-process
+          prove -> verify through it PASS (r13/logs/p18-cli-r13.log; capture outside the repo,
+          ~/zk60-artifacts/token-io/captures/classify-rc2-cli-p18-r13). The next-token binary is not rebuilt.
+suite:    s17 (r13/logs/s17-suite.log) on this tree: exit 0, 832 passed, 0 failed, 55 ignored, 29 test binaries
+          [883 s, peak RSS 7.12 GiB / cgroup 7.26 GiB, shared box n=1]. Ignored, run separately and PASS: the Shieldstral
+          R12b-path test on Astra's actual export dg_r12b_t256 (r13/logs/shieldstral-r12b.log), the P-18 CLI-path capture.
+native:   the base is NATIVE R12b (results/zk60_1b_native_20261017/r12b/frozen-tree, tree 51de5b83...; D24 fix check
+          ACCEPTED, REVIEW_R12B.md). Rebase record: r13/rebase_plan.json, r13/rebase_applied.json (42 native files changed or
+          added R8 -> R12b: 26 copied as frozen, 9 added, 7 merged with diff3; 4 adjacency conflicts resolved keep-both with
+          summed array lengths, each counted; 1 semantic conflict in s25 (derive.rs scanned twice) resolved by a dedup);
+          plus the R12 probe's Provenance.rope_scaling fix in 3 token files.
+          Native files the token tree differs in: 10 (r13/token_vs_native_r12b.diff). Round 13's own edits to native files:
+          tied_tables/derive.rs (3 x `fn` -> `pub(crate) fn`: quantize, bf16, norm), tied_tables.rs (+1 re-export line +1
+          comment), the merged array lengths, the s25 dedup (+6), run_capture.rs's classifier pin list (+1 entry); the rest
+          are the token lane's earlier, reviewed rounds.
+vs frozen-r12: 45 changed, 12 added, 0 removed (r13/r13A_vs_frozen_r12.txt): the native R8 -> R12b move, the capture hooks
+          and registry fixes of 10-26, and R-C2 (token_io/classify_tied.rs and classify_tied_tests.rs new; classify.rs,
+          classify_cli.rs, classify_cli_tests.rs, token_io.rs, examples/zk60_classify.rs changed).
+R-C2:     prove and verify re-derive the margin row and the embedding digest from the pinned tied tensor; ids, public scale
+          and threshold only from the bound export profile's classifier_margin_parameters (registered policy and
+          classifier.json copies must agree); profile digest == the statement's export_profile_sha256; the recomputed row,
+          never the file; |m| > 32767 refused; g / rotation folded once (REVIEW_R12B §5 requirements 1-5; failing-first
+          run r13/logs/b1-redfirst.log, 4 red against R-C1's CLI). --min-bits below 93 refused at the dev rung, below 95
+          elsewhere (D27). Statement schema zk60-classify-run/2. Only the development rung is a registered classifier run
+          profile; Shieldstral's tied path is wired and tested, its classifier run profile is not registered.
+Not a privacy acceptance and not a classifier-fidelity claim. R-C2 has had no independent review yet. The lane's working
+copy may move on; this copy does not change.

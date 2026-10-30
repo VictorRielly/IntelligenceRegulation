@@ -1,0 +1,45 @@
+{
+  "schema": "zk60-shieldstral-eval-run/1",
+  "input_sha256": "0b9deb7b6f494c922aff2a6f0cc0b7f855f061094194922c98b56aa9b952dbc2",
+  "evaluation_export_sha256": "0818a06c74176921a406a1582231f82bee4247a4131f07438c3b955f5868197b",
+  "token_io_sha256": "32d3d10c01a4d60e1936d336b01304922aeb48e024ef16a39f9edfbf2b9031cd",
+  "tool_sha256": "e3406719b9a78ae20a3924a13438f2ed5167f5b39b3dadd51ff5df35eca77a37",
+  "indexes": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "items": 8,
+  "tokens": 1028,
+  "word_domain_amendment": {
+    "sites": [
+      "K",
+      "KR",
+      "O",
+      "Q",
+      "QR",
+      "V",
+      "norm_a quotient/remainder",
+      "norm_m quotient/remainder"
+    ],
+    "range": [
+      -32768,
+      32767
+    ],
+    "authority": "ZK60_SOL_ASTRA_TODOS_20261026 coordinator note2026-10-26T19:50:00Z; fidelity REPORT.md amendment",
+    "unchanged": "int8 score and weights symmetric; pinned S2_BUILD_SPEC.json bytes unchanged",
+    "scope": "numerical evaluator only; native proof, no-wrap and privacy acceptance are separate"
+  },
+  "word_domain_source_sha256": "2ff6c9d43d9b1dfee08e3512fe95a828c0a41505a64303bf286db2fb7ba893eb",
+  "layer25_calibration_candidate": {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_shieldstral_export_20261026/layer25_fix_candidate",
+    "complete_sha256": "6e540249aa2513234ccd33c639afcfb98caf37c3a6111a6f4c84f382f710d3ce",
+    "loader_sha256": "1ad05f13eadfe6bd1a52e192b300d082b8cb0b59e5c623ed1d42528d07049306"
+  },
+  "scope": "smoke subset"
+}

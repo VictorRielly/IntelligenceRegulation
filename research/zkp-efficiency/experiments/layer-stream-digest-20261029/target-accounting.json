@@ -1,0 +1,104 @@
+{
+  "this_cycle": {
+    "independently_verified_full_stack_proofs": 0,
+    "passes": 0,
+    "countable_positions": 0,
+    "context_length": null,
+    "device": "CPU checking only; no model or GPU",
+    "startup_s": null,
+    "prefill_s": null,
+    "startup_fraction": null,
+    "witness_s": null,
+    "proof_s": null,
+    "serialization_s": null,
+    "verification_s": null,
+    "steady_state_positions_s": null,
+    "total_workload_positions_s": null,
+    "proof_latency_s": null,
+    "proof_bytes": null,
+    "prefill": "none",
+    "resident_model_passes": "none",
+    "decode": "none"
+  },
+  "historical_diagnostic_NOT_RERUN": {
+    "model": "Llama-3-8B non-DD R8",
+    "context_length": 128,
+    "layers": 32,
+    "passes": 1,
+    "CPU_threads": 16,
+    "GPU": false,
+    "total_wall_s": 478.737,
+    "diagnostic_positions_s": 0.267370184464539,
+    "prove_run_s": 393.785,
+    "witness_handover_s_INCLUDED_IN_prove": 98.348,
+    "load_s_INCLUDED_IN_witness": 17.595,
+    "seal_s": 84.824,
+    "seal_load_task_s_OVERLAPPING": 27.151,
+    "fresh_verify_s": 42.709,
+    "fresh_verify_initial_load_s": 13.681,
+    "receipt_bytes": 922711264,
+    "startup_fraction": null,
+    "serialization_s": null,
+    "steady_state_rate": null,
+    "researcher_independent_reverification": false
+  },
+  "synthetic_dimensions": {
+    "geometry": [
+      4096,
+      14336,
+      32,
+      8,
+      128,
+      4096,
+      16384,
+      32,
+      128
+    ],
+    "eligible_i8_bytes": {
+      "wq": 16777216,
+      "wk": 4194304,
+      "wv": 4194304,
+      "wo": 16777216,
+      "gamma_a": 4096,
+      "gamma_m": 4096
+    },
+    "reused_exp_act_bytes": 2560,
+    "reused_record_sha_bytes_per_full_layer": 41953792,
+    "reused_record_sha_bytes_per_32_layer_full_scan": 1342521344,
+    "baseline_record_sha_bytes_per_full_layer": 243411456,
+    "fraction_of_record_sha_input_removed": 0.17235750810348055,
+    "reload_saved_sha_bytes": 0,
+    "blk_digest_saved_bytes": 0,
+    "largest_eligible_i8_cast_temporary_bytes": 16777216,
+    "largest_remaining_i8_cast_temporary_bytes": 67108864,
+    "raw_bytes_per_layer": 218245632,
+    "passes": [
+      {
+        "passes": 1,
+        "full_scan_savings_if_full_load_each_pass_bytes": 1342521344,
+        "full_scan_savings_if_setup_once_bytes": 1342521344,
+        "proof_positions": 0
+      },
+      {
+        "passes": 2,
+        "full_scan_savings_if_full_load_each_pass_bytes": 2685042688,
+        "full_scan_savings_if_setup_once_bytes": 1342521344,
+        "proof_positions": 0
+      },
+      {
+        "passes": 4,
+        "full_scan_savings_if_full_load_each_pass_bytes": 5370085376,
+        "full_scan_savings_if_setup_once_bytes": 1342521344,
+        "proof_positions": 0
+      },
+      {
+        "passes": 8,
+        "full_scan_savings_if_full_load_each_pass_bytes": 10740170752,
+        "full_scan_savings_if_setup_once_bytes": 1342521344,
+        "proof_positions": 0
+      }
+    ],
+    "scope": "logical SHA input/cast sizes, not DRAM, peak RSS, elapsed, VRAM or proof throughput"
+  },
+  "limits": "No historical count is new independently verified target credit. Native cost phase clocks nest and overlap."
+}

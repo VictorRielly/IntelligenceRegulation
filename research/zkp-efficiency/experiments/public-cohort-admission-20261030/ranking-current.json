@@ -1,0 +1,27 @@
+{
+  "owner_priorities": [
+    {
+      "rank": 1,
+      "title": "Independently verified complete high-end-GPU fixed-context resident1/2/4/8 workloads",
+      "expected_impact": "Highest: measure recurring full prover cost and startup amortization.",
+      "prerequisites": "Actual admitted8B path/device,source/profile/calibration pins,all proofs independently verified; fresh masks.",
+      "integration_cost": "Native owner heavy/GPU locks; not launched here."
+    },
+    {
+      "rank": 2,
+      "title": "Admitted context/DD/fidelity scaling",
+      "expected_impact": "Potential attention/commitment reduction; larger context may increaseT-squared work.",
+      "prerequisites": "Exact relation and refusal/calibration review,full-stack receipts,peak capacity.",
+      "integration_cost": "Owner profile/security validation; no new profile admitted."
+    },
+    {
+      "rank": 3,
+      "title": "Exclusive phase and capacity evidence",
+      "expected_impact": "Resolve whether launch,transfer,commitment or witness dominates.",
+      "prerequisites": "Complete source/call roster,actual live+idle+quarantined bytes,nested-clock reconciliation.",
+      "integration_cost": "Small owner observer plus controlled full workloads; no instrumentation applied."
+    }
+  ],
+  "tested_local_hypothesis": 95,
+  "next_local_hypothesis": 96
+}

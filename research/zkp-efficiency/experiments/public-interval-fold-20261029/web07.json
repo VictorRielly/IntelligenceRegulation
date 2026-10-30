@@ -1,0 +1,17 @@
+{
+  "tool": "tools.web__run",
+  "access_date": "2026-10-29",
+  "access_timezone": "UTC",
+  "commands": {
+    "open": [
+      "https://github.com/RuokaiYin/Celty/tree/main/celty",
+      "https://github.com/RuokaiYin/Celty/commits/main/",
+      "https://github.com/cslab-ntua/SpMV-Research/blob/main/LICENSE",
+      "https://github.com/cslab-ntua/SpMV-Research/tree/main/benchmark_code/CPU/AMD/spmv_code_bench/DIV"
+    ]
+  },
+  "raw_response_sha256": "803bd8bc45d8c1b0dbc50c8b097fbb8d7cbdbc909b663c8c514d5b0a8d2b1bb9",
+  "raw_response_bytes": 20885,
+  "retention": "Provenance and source assessments retained; full webpage/paper text not redistributed. Exact source dates/licenses/limits in sources-cycle.jsonl.",
+  "external_execution": false
+}

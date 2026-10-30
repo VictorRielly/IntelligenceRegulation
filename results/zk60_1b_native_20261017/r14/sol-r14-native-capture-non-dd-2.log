@@ -1,0 +1,7 @@
+
+running 1 test
+test private_block::argument::split_capture_tests::split_capture_t128_three_stage_native_verifier_view_and_rejected_bundle_suppression ... R14_NATIVE_CAPTURE {"dd":false,"stages":3,"schema":"hashline-native-capture/6-split-run","status":"native accepted view replayed; same receipt accepted without recorder; rejected scalar forgery produced no bundle","scope":"public synthetic native capture only; no rank/NL1/privacy acceptance"}
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 758 filtered out; finished in 103.02s
+

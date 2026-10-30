@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "checks": 78,
+  "artifact_count": 109,
+  "checkpoint_utc": "2026-10-29T22:08:30.895296+00:00",
+  "new_full_stack_proofs": 0,
+  "passes": 0,
+  "positions": 0,
+  "owner_documents_unchanged": 6,
+  "source_records": 1016,
+  "hypotheses": 76
+}

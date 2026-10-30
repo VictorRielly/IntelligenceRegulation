@@ -1,0 +1,253 @@
+   Compiling hashline v0.1.0 (/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/working-tree/hashline)
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Dom`
+  --> src/private_block/s28_review_tests.rs:19:21
+   |
+19 | use super::layout::{Dom, Layout, U8_LEN};
+   |                     ^^^
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: variable does not need to be mutable
+    --> src/private_block/run.rs:1126:13
+     |
+1126 |         let mut tr = st.transcript()?;
+     |             ----^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:302:18
+    |
+302 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: function `limbs` is never used
+   --> src/private_block/argument.rs:905:4
+    |
+905 | fn limbs(v: &[Fp2], ix: &[usize]) -> Fp2 {
+    |    ^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `base` is never used
+   --> src/private_block/accuracy_public.rs:298:19
+    |
+ 83 | impl AccuracyPublic {
+    | ------------------- method in this implementation
+...
+298 |     pub(crate) fn base(&self) -> BaseShifts {
+    |                   ^^^^
+
+warning: method `slot` is never used
+   --> src/private_block/timing.rs:259:19
+    |
+216 | impl Phases {
+    | ----------- method in this implementation
+...
+259 |     pub(crate) fn slot(&mut self, s: usize, size: u64, unit: &'static str) {
+    |                   ^^^^
+
+warning: method `is_dd` is never used
+   --> src/private_block/trained_block.rs:712:19
+    |
+661 | impl Geometry {
+    | ------------- method in this implementation
+...
+712 |     pub(crate) fn is_dd(self) -> bool {
+    |                   ^^^^^
+
+warning: field `boundaries` is never read
+   --> src/private_block/run_capture.rs:521:5
+    |
+514 | struct Rec {
+    |        --- field in this struct
+...
+521 |     boundaries: Vec<Vec<u8>>,
+    |     ^^^^^^^^^^
+
+warning: function `active` is never used
+   --> src/private_block/run_capture.rs:623:15
+    |
+623 | pub(super) fn active() -> bool {
+    |               ^^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib test) generated 18 warnings (run `cargo fix --lib -p hashline --tests` to apply 10 suggestions)
+    Finished `release` profile [optimized] target(s) in 1m 27s
+     Running unittests src/lib.rs (results/zk60_1b_native_20261017/r13/working-tree/hashline/target/release/deps/hashline-9fb4e6d6ef34bc25)
+
+running 62 tests
+test private_block::accuracy::tests::group_scale_precedes_product_rounding ... ok
+test private_block::accuracy::tests::grouped_products_match_independent_rational_vectors ... ok
+test private_block::accuracy::tests::invalid_shifts_multipliers_and_overflow_are_refused ... ok
+test private_block::accuracy::tests::negative_half_ties_round_toward_positive_infinity ... ok
+test private_block::accuracy::tests::requantization_matches_independent_rational_vectors ... ok
+test private_block::accuracy_act::tests::every_three_coordinate_row_matches_its_generated_scaled_table ... ok
+test private_block::accuracy_act::tests::group_coordinate_separates_colliding_gate_zero_outputs ... ok
+test private_block::accuracy_act::tests::query_group_padding_is_the_valid_zero_gate_zero_output_group_zero_row ... ok
+test private_block::accuracy_aligned::shieldstral_tests::both_shieldstral_stacks_match_2016_independent_fraction_vectors ... ok
+test private_block::accuracy_aligned::shieldstral_tests::shieldstral_actual_l25_four_groups_fit_and_standard_refuses_them ... ok
+test private_block::accuracy_aligned::shieldstral_tests::zero_direct_shift_preserves_negative_values_exactly ... ok
+test private_block::accuracy_aligned::tests::both_stacks_match_every_independent_rational_product_vector ... ok
+test private_block::accuracy_aligned::tests::every_registry_combination_respects_the_derived_31_bit_bound ... ok
+test private_block::accuracy_aligned::tests::tables_scale_the_quantized_words_without_another_rounding ... ok
+test private_block::accuracy_aligned::tests::the_legacy_profile_cannot_select_this_construction ... ok
+test private_block::accuracy_binding_tests::a_legacy_profile_refuses_accuracy_data_instead_of_ignoring_it ... ok
+test private_block::accuracy_binding_tests::the_accuracy_data_is_attached_and_changes_the_actual_block_digest ... ok
+test private_block::accuracy_fold::tests::all_seven_native_matrix_folds_equal_an_independent_scaled_coefficient_sum ... ok
+test private_block::accuracy_fold::tests::every_axis_uses_exact_channel_coefficients_and_query_head_permutation ... ok
+test private_block::accuracy_fold::tests::multiplying_interpolants_after_folding_is_rejected_by_the_differential_case ... ok
+test private_block::accuracy_groups::tests::common_denominators_preserve_every_rounding_and_remainder ... ok
+test private_block::accuracy_groups::tests::folding_matches_the_independent_block_fixture_constants ... ok
+test private_block::accuracy_groups::tests::malformed_and_noncanonical_group_data_is_refused ... ok
+test private_block::accuracy_groups::tests::the_product_window_grows_when_exact_group_scaling_needs_it ... ok
+test private_block::accuracy_layout::tests::every_allocated_role_and_lookup_count_matches_the_independent_inventory ... ok
+test private_block::accuracy_layout::tests::every_remainder_top_pin_enforces_its_exact_window_including_full_bytes ... ok
+test private_block::accuracy_layout::tests::malformed_lookup_context_is_refused_before_any_lookup_is_used ... ok
+test private_block::accuracy_layout::tests::removed_norm_limbs_are_absent_and_every_other_legacy_role_is_unique ... ok
+test private_block::accuracy_precision::low_tests::exports_choose_an_explicit_stack_without_a_global_flag ... ok
+test private_block::accuracy_precision::low_tests::low_keeps_h16_and_its_downstream_scale ... ok
+test private_block::accuracy_precision::tests::invalid_base_or_derived_windows_are_refused ... ok
+test private_block::accuracy_precision::tests::legacy_shifts_and_widths_remain_unchanged ... ok
+test private_block::accuracy_precision::tests::low_h24_matches_the_received_build_spec ... ok
+test private_block::accuracy_profile_tests::every_r13_profile_builds_exact_role_lookup_helper_and_claim_counts ... 
+thread 'private_block::accuracy_profile_tests::every_r13_profile_builds_exact_role_lookup_helper_and_claim_counts' (111) panicked at src/private_block/layout.rs:475:9:
+absent limb role nr
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+thread 'private_block::accuracy_profile_tests::every_r13_profile_builds_exact_role_lookup_helper_and_claim_counts' (111) panicked at src/private_block/layout.rs:475:9:
+absent limb role nr
+
+thread 'private_block::accuracy_profile_tests::every_r13_profile_builds_exact_role_lookup_helper_and_claim_counts' (111) panicked at src/private_block/layout.rs:475:9:
+absent limb role nr
+
+thread 'private_block::accuracy_profile_tests::every_r13_profile_builds_exact_role_lookup_helper_and_claim_counts' (111) panicked at src/private_block/layout.rs:475:9:
+absent limb role nr
+
+thread 'private_block::accuracy_profile_tests::every_r13_profile_builds_exact_role_lookup_helper_and_claim_counts' (111) panicked at src/private_block/layout.rs:475:9:
+absent limb role nr
+
+thread 'private_block::accuracy_profile_tests::every_r13_profile_builds_exact_role_lookup_helper_and_claim_counts' (111) panicked at src/private_block/layout.rs:475:9:
+absent limb role nr
+
+thread 'private_block::accuracy_profile_tests::every_r13_profile_builds_exact_role_lookup_helper_and_claim_counts' (111) panicked at src/private_block/layout.rs:475:9:
+absent limb role nr
+
+thread 'private_block::accuracy_profile_tests::every_r13_profile_builds_exact_role_lookup_helper_and_claim_counts' (111) panicked at src/private_block/layout.rs:475:9:
+absent limb role nr
+
+thread 'private_block::accuracy_profile_tests::every_r13_profile_builds_exact_role_lookup_helper_and_claim_counts' (111) panicked at src/private_block/layout.rs:475:9:
+absent limb role nr
+
+thread 'private_block::accuracy_profile_tests::every_r13_profile_builds_exact_role_lookup_helper_and_claim_counts' (111) panicked at src/private_block/layout.rs:475:9:
+absent limb role nr
+
+thread 'private_block::accuracy_profile_tests::every_r13_profile_builds_exact_role_lookup_helper_and_claim_counts' (111) panicked at src/private_block/layout.rs:475:9:
+absent limb role nr
+
+thread 'private_block::accuracy_profile_tests::every_r13_profile_builds_exact_role_lookup_helper_and_claim_counts' (111) panicked at src/private_block/layout.rs:475:9:
+absent limb role nr
+ok
+test private_block::accuracy_profile_tests::the_common_gate_shift_is_constructor_checked_reconstructed_and_schedule_bound ... ok
+test private_block::accuracy_public::tests::a_tampered_table_or_derived_cache_is_refused_on_recheck ... ok
+test private_block::accuracy_public::tests::each_public_change_moves_the_binding ... ok
+test private_block::accuracy_public::tests::every_multiplier_axis_has_its_exact_shape_and_narrow_class ... ok
+test private_block::accuracy_public::tests::every_stack_registry_and_group_count_matches_its_actual_encoded_length ... ok
+test private_block::accuracy_public::tests::honest_data_has_a_canonical_binding_and_exact_context ... ok
+test private_block::accuracy_public::tests::registry_is_bound_even_when_every_public_table_word_is_identical ... ok
+test private_block::accuracy_public::tests::the_coarse_member_requires_the_shieldstral_registry_and_exact_geometry ... ok
+test private_block::accuracy_public::tests::the_export_stack_changes_the_binding_and_is_rechecked ... ok
+test private_block::accuracy_tables::shieldstral_tests::every_existing_member_is_byte_identical_in_both_registries ... ok
+test private_block::accuracy_tables::shieldstral_tests::shieldstral_member_matches_all_4096_independent_words_without_clipping ... ok
+test private_block::accuracy_tables::shieldstral_tests::standard_registry_and_unknown_members_remain_refused ... ok
+test private_block::accuracy_tables::tests::every_int12_silu_word_matches_the_independent_reference ... ok
+test private_block::accuracy_tables::tests::unsupported_members_and_precisions_are_refused ... ok
+test private_block::accuracy_tables::tests::zero_and_signed_index_are_unambiguous ... ok
+test private_block::trained_block::accuracy::tests::all_26_actual_shieldstral_layers_pass_the_native_public_array_loader ... ignored, requires the authenticated 26-layer public-array adapter via HL_R13_SHIELDSTRAL_ARRAYS
+test private_block::trained_block::accuracy::tests::bad_table_shape_is_refused_before_the_missing_payload_is_read ... ok
+test private_block::trained_block::accuracy::tests::both_export_stacks_load_verified_arrays_and_recompute_their_tables ... ok
+test private_block::trained_block::accuracy::tests::changed_payloads_fail_hash_checks_and_narrow_ranges_fail_after_rehash ... ok
+test private_block::trained_block::accuracy::tests::rehashed_fake_tables_and_supplied_derived_arrays_are_refused ... ok
+test private_block::trained_block::accuracy::tests::shieldstral_four_group_arrays_are_verified_and_cannot_enter_the_standard_registry ... ok
+test private_block::trained_block::accuracy::tests::the_shieldstral_geometry_gate_runs_before_any_array_file_is_opened ... ok
+test private_block::witness::accuracy::tests::amended_int16_endpoints_and_rope_accumulators_do_not_wrap ... ok
+test private_block::witness::accuracy::tests::both_accuracy_stacks_assign_all_words_to_distinct_native_planes_and_recover_the_output ... ok
+test private_block::witness::accuracy::tests::both_export_stacks_match_the_independent_full_block_oracle ... ok
+test private_block::witness::accuracy::tests::dictionary_assignment_uses_fp12_on_every_slot_including_repeated_padding_zeros ... ok
+test private_block::witness::accuracy::tests::future_scores_are_range_checked_before_the_causal_mask ... ok
+test private_block::witness::accuracy::tests::new_execution_rejects_public_negative_128_weights ... ok
+
+test result: ok. 61 passed; 0 failed; 1 ignored; 0 measured; 637 filtered out; finished in 0.24s
+

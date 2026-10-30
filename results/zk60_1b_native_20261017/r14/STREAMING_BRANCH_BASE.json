@@ -1,0 +1,11 @@
+{
+  "utc": "2026-10-30T06:38:38.644333+00:00",
+  "base": "3c7b1dcfd47ba8cb257c6f734348f25fb960af3f25f8b1b14ea4e262ff8defda",
+  "files": 287,
+  "tree": "results/zk60_1b_native_20261017/r14/streaming-working-tree",
+  "changes": [
+    "staged strict record-derived Plan and public block source API",
+    "corrected group fixture and two additional C3 modes, plus unchanged original50relation-test tail"
+  ],
+  "state": "Implementation in progress; no compile or native acceptance yet. Capture3c source/checkpoint and its running regression/compatibility jobs untouched."
+}

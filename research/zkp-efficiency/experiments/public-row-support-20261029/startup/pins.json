@@ -1,0 +1,42 @@
+{
+  "/home/victor/IntelligenceRegulation/research/zkp-efficiency/STATE.md": {
+    "sha256": "845d56bb700a5edb53c8ac3a08cfc425234afe0f6e00f7e930489e973322efdc",
+    "bytes": 6077
+  },
+  "/home/victor/IntelligenceRegulation/research/zkp-efficiency/FINDINGS.md": {
+    "sha256": "cb14b52f5a51e29c1677ab539adf6f1b6f2fc4f2b59f911c975300b0e3cd28cf",
+    "bytes": 1077070
+  },
+  "/home/victor/IntelligenceRegulation/research/zkp-efficiency/AGENDA.md": {
+    "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139",
+    "bytes": 5603
+  },
+  "/home/victor/IntelligenceRegulation/research/zkp-efficiency/sources.jsonl": {
+    "sha256": "24c51d84b047afa74762516bdc219b2c2daf8e88c249f77215653aed6d737626",
+    "bytes": 1217723
+  },
+  "/home/victor/IntelligenceRegulation/research/zkp-efficiency/PROGRESS.md": {
+    "sha256": "8d7872b5ee139ec87d32425fc9c93a30362288b0e9b4fadaabf9ae2e0341b575",
+    "bytes": 1950
+  },
+  "/home/victor/IntelligenceRegulation/CLAUDE.md": {
+    "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6",
+    "bytes": 14089
+  },
+  "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/MVP_STATUS.md": {
+    "sha256": "20c64a4899ee8aed287c80c8b1d3e712be8129f12f07b436c9a9e7c39522e522",
+    "bytes": 99732
+  },
+  "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_DECISIONS.md": {
+    "sha256": "c44dee3a37007bc561a89818e0e43e96cf0fd7852ecbbf117cb9ef2952d1a0f5",
+    "bytes": 141426
+  },
+  "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_CODEX_FABLE_COORDINATION.md": {
+    "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f",
+    "bytes": 64889
+  },
+  "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_THROUGHPUT_TARGET.md": {
+    "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53",
+    "bytes": 4941
+  }
+}

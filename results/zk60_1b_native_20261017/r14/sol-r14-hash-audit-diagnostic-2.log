@@ -1,0 +1,17 @@
+
+running 1 test
+
+thread 'private_block::s25_tests::every_hash_call_site_in_the_lanes_own_sources_is_classified' (6) panicked at src/private_block/s25_tests.rs:1711:13:
+assertion `left == right` failed: src/private_block.rs: 0 call(s) of `blake3::hash(` and the stage-25 call-kind table declares 1. A new hash call site must be classified in CALL_SITES with its kind from the memo's §5 before this test passes.
+  left: 0
+ right: 1
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test private_block::s25_tests::every_hash_call_site_in_the_lanes_own_sources_is_classified ... FAILED
+
+failures:
+
+failures:
+    private_block::s25_tests::every_hash_call_site_in_the_lanes_own_sources_is_classified
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 759 filtered out; finished in 0.00s
+

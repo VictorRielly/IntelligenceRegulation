@@ -1,0 +1,60 @@
+{
+  "label": "sol-r14-legacy-r12-shield-4",
+  "guard": {
+    "ts_end": "2026-10-30T08:17:14Z",
+    "run_id": "bb12683f98ae",
+    "label": "sol-r14-legacy-r12-shield-4",
+    "class": "light",
+    "cmd": [
+      "/usr/bin/env",
+      "RAYON_NUM_THREADS=2",
+      "ZK60_R12_EVIDENCE_DIR=/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12b/dense-receipts",
+      "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/checkpoints/compatibility-suite-3/hashline.test.bin",
+      "f2_saved_shieldstral",
+      "--ignored",
+      "--test-threads=1",
+      "--nocapture"
+    ],
+    "need_gib": 1.0,
+    "cap_gib": 2.0,
+    "exit": 0,
+    "child_rc": 0,
+    "guard_killed": null,
+    "child_wall_seconds": 8.82618761062622,
+    "refused": null,
+    "guard_error": null,
+    "guard_pid": 142,
+    "boot_id": "4f7dab84-38e2-4f1a-9518-e305e81ef580",
+    "pid_ns": "pid:[4026532299]",
+    "guard_starttime_ticks": 1301283,
+    "lock_ids": {
+      "heavy": "2096:715313",
+      "build": "2096:715314"
+    },
+    "enforcement": "watchdog-only",
+    "waited_s": 0.0,
+    "guard_wall_s": 8.8,
+    "stragglers_killed": 0,
+    "hard_killed": 0,
+    "scope_unit": null,
+    "scope_adopted": null,
+    "foreign_cgroups_refused": [],
+    "peak_rss_gib": 0.71,
+    "peak_cgroup_gib": null,
+    "peak_vram_mib": null,
+    "min_mem_available_gib": 12.57,
+    "vram_drain_s": null,
+    "gpu_drain_failed": false,
+    "gpu_telemetry_lost": false,
+    "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache"
+  },
+  "retained_R12_Shieldstral_variants": [
+    "DD",
+    "non-DD"
+  ],
+  "tests": [
+    "f2_saved_shieldstral_t128_dd_receipt_verifies_in_a_fresh_process",
+    "f2_saved_shieldstral_t128_receipt_verifies_in_a_fresh_process"
+  ],
+  "log_sha256": "fe454d84d04895f114809e6d34aa5f8372ba66b41c92d659b1bd089a35d53dc8"
+}

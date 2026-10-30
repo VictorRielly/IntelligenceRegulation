@@ -1,0 +1,12 @@
+{
+  "blocked_fetches": [
+    "https://github.com/compsec-epfl/efficient-sumcheck/blob/main/LICENSE-MIT",
+    "https://raw.githubusercontent.com/compsec-epfl/efficient-sumcheck/main/LICENSE-MIT",
+    "https://github.com/compsec-epfl/efficient-sumcheck/blob/main/LICENSE-APACHE",
+    "https://github.com/THU-HAS/MegaZK/blob/main/LICENSE",
+    "https://github.com/THU-HAS/MegaZK/blob/main/NOTICE",
+    "https://github.com/THU-HAS/MegaZK/commits/main/"
+  ],
+  "owner_device_job_not_launched": "GPU/native/heavy work excluded by research scope; no approval requested and no bypass.",
+  "independent_local_experiment_completed": true
+}

@@ -1,0 +1,15 @@
+{
+  "status": "Prepared only; no native CLI/full26 result; CLIcandidatepreparer waits originalcheck2terminal0",
+  "files": {
+    "prepare_cli_candidate.py": "4c7a1d4e51d7d58f676edb7880b57abb3c7d253b4eb5d704ea4a9d51586611c7",
+    "build_cli_candidate.py": "46f2ef9943d1bef23b48f60b38178c1ee6c2da14ff7b02eb3a72fe903efeca87",
+    "cli_native_checks.py": "ed960f3189ece79585b94329a44a1ee88466995f8784613ca90b501c7b53b1e4",
+    "reference_sequence_step.py": "fd799c138078551306e6285cf45b1d6793477d1dc7d7c379f0f26314eb0c486d",
+    "staged/split_cli_m9_test.rs": "95c7aa6e5e1315f4c937bd911f29e563d388ba19ddefcfdb2cc5e9243cd54ea2"
+  },
+  "references": [
+    "CLI_BUILD_ACCEPTANCE.json (future)",
+    "cli-native-<attempt>/ACCEPTANCE.json (future)",
+    "cli-l25-sequence/PROVENANCE.json (ready)"
+  ]
+}

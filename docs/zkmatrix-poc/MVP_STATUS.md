@@ -1,6 +1,193 @@
 # Where the MVP stands, in plain words
 
-**2026-10-28 21:25 UTC — back after a two-day stop; the classifier proof
+**2026-10-30 11:35 UTC: work interrupted by the crash is caught up.**
+- **The one-load batch (token round 18)** is frozen and passed its independent review, with one fix required on
+  the app side (R18-1). One process now proves all the categories of a post after loading the model once. Each
+  category's proof comes out byte for byte the same as a separate run [MEASURED: the public 17-token post, three
+  categories]. It saves little time (2.4 %); the gain is a single model load. The app stays on the per-category
+  path until Astra's fix for crashed batches is in and reviewed.
+- **The classifier privacy statement, draft v3,** is complete. Both checks the review asked for passed on the
+  real model:
+  - C-9 on a real block: TS-1 fires on every role, with no identical claims and no equal published values.
+  - NL-1 on all 26 blocks: 182 of 182.
+  A short check that v3 contains the review's text fixes is running. After that, Victor decides whether to
+  accept the statement. It is not accepted yet.
+- **Token round 19** is running: the review's three small fixes, plus a setting for the model's location, so
+  that anyone can verify a receipt (needed for the open-source release, D48).
+- **Sol (R14)** is close to a freeze; its independent soundness review follows.
+
+**2026-10-30 05:30 UTC: the laptop crashed at about 02:50 UTC and work has resumed; safeguards added (D46).**
+- **Why it crashed:** the Windows drive C: was full (about 5 GB free). It holds the
+  Linux disk file and Windows' page file, so neither could grow while a
+  full-size test proof was writing. Linux itself still had 5 GiB of memory free.
+- **Fixed:** about 135 GB of unused Windows AI tools removed, with Victor's yes, so
+  C: now has about 135 GB free. The resource guard now holds heavy jobs while C: has
+  under 40 GiB free, and stops any job under 8 GiB. The box watch now reports
+  low C: space and low Windows memory. When Windows runs short of memory it
+  releases Linux's cached copies of large files; the first run released 5.5 GiB
+  and the Linux VM's share of Windows memory fell from 14.9 to 10.5 GiB. Still
+  for Victor: the 5-minute cron entry for the watch, which the session's safety
+  check blocked, and the Linux disk compaction (about 45 GB) at a quiet moment.
+- **Lost in the crash:** token round 18's full-size byte-identity test, which is
+  being rerun; the gate's C-9 and NL-1 checks, also rerunning. The first post's
+  proofs and public segments survived and still verify, but the app had kept
+  its database, key and openings in /tmp, so the openings that link the proofs
+  to the post's text are gone. Astra moved the app's state to durable storage
+  (05:23 UTC).
+- **The first real post is now published and anchored on testnet** (05:23 UTC,
+  Astra): Base Sepolia transaction `0x0f2dc9dd…ad01a`, block 52,075,726. All three
+  publication checks pass. All 84 public segments (2.55 GB) were re-hashed, and the
+  three receipts verified again from the public store, in 79–82 s each
+  [MEASURED, n=1, the box shared]. The proofs were not redone. Still open: the
+  classifier privacy acceptance (draft v3, after gate round 23), the benchmark
+  verdict metrics and the one-load batch adoption (token round 18).
+- **Unchanged:** the results below, including the first real post's three
+  accepted proofs.
+
+**2026-10-30 01:54 UTC: the first real post went through the app, and all three classifier
+proofs passed.**
+- **The post:** a public 17-token garden text (Astra's demo), proved on the
+  real Shieldstral-1.0-3B classifier with the pinned r16b binary (dfb8025e).
+- **Verdicts:** sexual, violence and hate all *not flagged*. Each receipt was
+  verified in a fresh process, and its input-owner and label checks passed
+  [MEASURED].
+- **Numbers** [MEASURED, n=1, this laptop, alone]:
+  - proving time per category: 456 s with 8 threads (violence, hate); 1,031 s
+    for the first (sexual), which used 2 threads;
+  - total work per category with the checks: 688 s (8 threads);
+  - receipt 848 MB; peak memory 8.0 to 8.2 GiB; 96-bit floor.
+- **Not yet:** the publication and testnet anchor (Astra's next step); the
+  privacy statement (draft under review; gate round 22 is closing the
+  review's two blocking checks); private posts through the app (blocked until
+  the app shows failures only to the authenticated author; Astra's fix is
+  staged).
+
+**2026-10-29 22:50 UTC: the classifier privacy statement exists as a draft and
+is under independent review.**
+- **The draft** (then `…_DRAFT.md`, now kept as `ZK60_PRIVACY_STATEMENT_CLASSIFIER_SHIELDSTRAL_T128_DRAFT_v1.md`; current: `_DRAFT_v3.md`)
+  says what is public (the verdict bit, the post's length, the policy), what
+  stays hidden (the post's tokens and every intermediate value), and how a
+  refusal ("could not be verified") is reported.
+- **The tables check:** the gate re-derived all 442 public tables of the real
+  model itself (118 million entries), and every one matched the proof's
+  [MEASURED].
+- **Per-run distance:** about 2^-68 [COUNTED]. This bounds how far a real
+  proof's view can be from one that reveals nothing. The TinyLlama statement
+  had about 2^-70.
+- **Next:**
+  1. The independent privacy review (running).
+  2. Gate round 22: three remaining checks (a draw replay by value, a
+     surjection check, a hash-input census).
+  3. Victor's acceptance and his strict / moderate wording.
+- **The one-load batch** (all three categories after loading the model once)
+  passed its code review with two fixes. Token round 18 is now adopting it,
+  with a byte-for-byte equality test.
+- **Correction to the 21:37 note:** Astra's first real post has not started
+  yet. The Sol and Astra sessions are idle and wait for Victor's "continue".
+
+**2026-10-29 21:37 UTC — the real classifier proof passed the full privacy
+gate with no limits; the privacy statement draft has started.**
+- **Gate round 20** closed both of round 19's limits on a real Shieldstral
+  proof:
+  - all 23 checks per block on all 26 real blocks;
+  - the complete input-reconstruction check: **81.7 million entries compared,
+    0 differing**;
+  - nothing disclosed on hidden data, and every tamper check fires.
+
+  4.06 h on this laptop, alone, with one read of the model.
+- **Next:**
+  1. The classifier privacy statement **draft** (running): what is public,
+     what stays hidden, the per-run distance figure, and the refusal channel
+     stated plainly. An independent derivation of the 15 tables the gate
+     takes from the capture runs alongside it.
+  2. An independent privacy review.
+  3. Victor's acceptance, and his strict / moderate wording ruling.
+- **The first real post through the app** (Astra) runs now that the box is
+  free.
+
+**2026-10-29 15:13 UTC — the privacy gate passed the real Shieldstral
+classifier proof (with two stated limits); work continues to close them.**
+- **The gate checks** that a proof reveals nothing about the hidden post
+  beyond the public verdict and length. On the real classifier proof:
+  - nothing is disclosed on any of the 84 hidden-data commitments;
+  - all 15 tamper checks fire;
+  - the yes / no / tie verdicts look identical apart from the verdict bit.
+
+  13 small-model captures also pass.
+- **Two limits to close** before a privacy statement:
+  1. 12 of 23 per-block checks need the capture to record its public tables
+     (token round 17, running);
+  2. the full input reconstruction was checked on a sample of commitments.
+     The complete check is a 3-hour job (gate round 20).
+- **One thing the statement must say plainly:** whether an honest post gets
+  *refused* (shown as "could not be verified") can depend on its hidden
+  content. That is a small side channel, inherent to fail-closed.
+- **Also today:** the proof anchor contract is live on the Base Sepolia
+  testnet.
+- **Speed (Sol's split-width round, S4 / R14), 16:53 UTC:** on a matched
+  2-block, 128-token comparison (same inputs and model identity), proving
+  dropped **49.2 s → 35.1 s (−28.8%)** and peak memory **7.49 → 5.56 GiB
+  (−25.8%)**, with receipts about 6% larger [MEASURED, n=1, shared box].
+  This is not yet frozen or reviewed. Next: freeze, soundness review, then a
+  privacy-gate round.
+
+**2026-10-29 12:09 UTC — the proof anchor contract is live on a public
+testnet; both Codex lanes need a restart.**
+- **Base Sepolia (testnet) anchor contract deployed** by Astra. Contract
+  `0x8432eba82b1a402f4da7680f6b8f9c9fae185cbe`, deployment transaction
+  `0xfaa03b5a…` (status success; code confirmed on-chain by the coordinator,
+  read-only). It was funded from the ETH Victor mined, bridged from Sepolia.
+  No proof batch has been anchored yet; that comes once the app makes real
+  proofs.
+- **Sol stopped at 11:12 UTC on an OpenAI content filter** ("flagged for
+  possible cybersecurity risk", `cyber_policy`). The ZK work's routine
+  attack / forgery testing probably triggered it. **Astra's turn ended at
+  06:44 UTC.** Both need a "continue" from Victor.
+- Claude lanes: token round 16b frozen (the real classifier, exactly three
+  policies); privacy gate round 19 on the real classifier is running.
+
+**2026-10-29 08:47 UTC — the first real proof of a safety-classifier verdict
+on a real post.** Mistral's Shieldstral-1.0-3B judged a 35-token ToxicChat
+post under the moderate "sexual" policy. The proof shows the public verdict,
+"not flagged", while the post's text stays hidden [MEASURED, n=1, this laptop,
+nothing else running]:
+- **prove:** 328 s (439 s including model load); receipt 848 MB in 28
+  segments; soundness floor 96 bits; peak memory 8.15 GiB;
+- **verify** in a fresh process: 36 s (68 s including model load), 2.3 GiB;
+- the **owner check** (the proof matches the actual post) and the **label**
+  step (whole post covered) both pass.
+
+Category 1 of 3 has been through the app's whole flow. Violence and hate are
+proving now. Not yet a privacy acceptance: the privacy gate on the real
+classifier and the policy wording (strict vs moderate, Victor) come next.
+**Update 09:31 UTC: all three categories passed the whole flow** (each
+proof about 7.5 minutes, 848 MB). The round is frozen: 934 tests passed,
+96.9 bits per whole run. Next:
+- an independent review (running);
+- the privacy gate on the real classifier;
+- Astra making the app produce each post's activations from its own integer
+  model.
+
+Then the app switches from the stand-in to real proofs.
+
+**2026-10-29 07:21 UTC — the accuracy round (R13) passed its soundness
+review; the real Shieldstral classifier is being registered now.**
+- **R13 accepted** at all twelve registered profiles. The reviewer's own
+  integer model matches the prover exactly, including the real Shieldstral
+  layers. Shieldstral proofs carry **97.3 bits at 128 tokens** and **96.1–96.3
+  at 256**, over the ~95 floor.
+- **Next (token round 16, running):** register the Shieldstral classifier on
+  R13, then prove and verify real posts for all three categories on this
+  laptop, with timings. After that comes the privacy gate on the real
+  classifier, and then the app switches off its stand-in prover.
+- **One open question for Victor (not urgent, not blocking the MVP):** the
+  8B model at 512 tokens counts 94.5 bits (94.8 with DD), just under the ~95
+  target. Sol is costing the cheapest way to reach 95.
+- Astra: the full benchmark on the integer model continues (zero refusals so
+  far). Sol: the split-width design (about 24% less proof data) is under an
+  independent design check; then the verifier-commitment paper.
+
+**2026-10-28 21:05 UTC — back after a two-day stop; the classifier proof
 passes the privacy gate on all seven test captures; funding is now the top
 priority (D43).**
 - **The stop:** the coordinator session stopped answering on 10-26 at about
@@ -14,11 +201,60 @@ priority (D43).**
   bit [MEASURED, n=1, shared box]. These are small test models, and this is not
   a privacy acceptance.
 - **Classifier verdict stage on the new prover (token lane):** rebased onto
-  native R12 and the full suite is green (819 passed, 0 failed). It now waits
-  for Sol's R12b, the fix that makes the prover check that the classifier's
-  tables really come from the model's pinned weights.
+  native R12 and the full suite is green (819 passed, 0 failed). **Update
+  23:11 UTC:** Sol froze R12b at 22:33. It is the fix that makes the prover
+  recompute the classifier's tables from the model's pinned weights instead
+  of trusting the files. The independent review accepted it on soundness with
+  no fixes: 27 forgery attempts were refused, and an independent
+  recomputation matches bit for bit. The token lane is now rebasing onto R12b
+  and building R-C2, in which the classifier's verifier derives its scoring
+  row itself. Not a privacy acceptance. **Update 23:45 UTC:** token round 13
+  (R-C2) is frozen on R12b. The classifier verifier now rebuilds its scoring
+  row, embedding, start token and final normalization from the model's
+  pinned weights and the bound profile. Doctored tables are refused even when
+  their fingerprints were updated to match: 4 tests failed first against the
+  old stage and pass now. Full suite 832 passed, 0 failed [MEASURED]. On
+  Astra's real Shieldstral export, the rebuilt tables match the native
+  reference exactly. An independent review is running, and the privacy gate
+  re-captures afterwards. **Update 00:56 UTC: R-C2 is accepted on soundness**
+  with no required fixes: 51 forgery attempts were refused, and the old stage's
+  flipped-verdict gap is shown closed. Next, token round 14 (running):
+  - bind the tables inside the library functions too, not only the
+    command-line tool;
+  - fix the gate's capture tool;
+  - support posts shorter than one chunk (today they are refused: 32–77% of
+    short posts at the laptop setting).
+
+  Then the privacy gate re-captures. **Update 02:14 UTC: round 14 is done**
+  (frozen, under independent review):
+  - the tie to the real weights is now enforced in the library too;
+  - short posts are proved as one chunk with public padding, so by length
+    every one of the 4,872 benchmark items is now admissible at both laptop
+    settings (it was 0–67%);
+  - full suite 845 passed, 0 failed.
+
+  The privacy gate (round 18) is re-capturing the new classifier stage now.
+  **Update 04:14 UTC: round 14 accepted on soundness; gate round 18 passed
+  all 21 captures** on the new classifier stage:
+  - covered: both test models, all three verdicts, a 2-chunk post, short
+    posts of 1–22 tokens, and two runs through the command-line tool;
+  - the verdict changes nothing but its public bit;
+  - a short post discloses nothing beyond its public length;
+  - every tamper check fires.
+
+  Still owed before a classifier privacy statement: the Shieldstral profile
+  (waits on Sol's R13), the statement text, an independent privacy review and
+  the sign-offs. Sol and Astra (Codex) are idle since 03:09 and 01:29 UTC and
+  need a "continue" from Victor.
 - **Now running:** Sol on R12b, Astra on the Shieldstral benchmark report and
   the integer export (the one open range question: two layer-25 channels).
+  **Update 23:39 UTC:** layer 25 is fixed, with one extra Shieldstral-only
+  SiLU table and a re-quantized up-projection. The integer Shieldstral now
+  runs all 192 calibration inputs through all 26 layers with **zero
+  refusals** [MEASURED, n=1]. Still to come: whether the integer model gives
+  the same verdicts as the float model on the 4,872 benchmark items.
+  Separately, Astra's float benchmark report is done (strict vs. moderate
+  policy wording: nearly tied; the choice is Victor's).
 - **New direction (D43):** finding funding as fast as possible comes first. A
   paper with the demo follows once the PoC works. Three research agents are
   surveying government grants, philanthropic and ZK-ecosystem grants, and

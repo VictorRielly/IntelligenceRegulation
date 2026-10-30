@@ -1,0 +1,139 @@
+# Pair-tile dataflow and accumulator budget
+
+Cycle0143 — pair-tile dataflow (checkpoint 2026-10-29T13:07:22.573272+00:00)
+
+Run `20261029T125649Z-54c94436`;started12:56:49UTC,deadline13:16:49UTC.
+**No native proving improvement found.** K2/4 pair tiling is exact in the
+bounded synthetic component but is parked: final tiny CPU medians are slower
+in39/42 arm/shape comparisons;initial42/42. The three contrary final rows
+show noisy mixed evidence,not a reproducible benefit. All raw5-sample arrays
+are retained;no confidence interval,native CPU speed or GPU rate is claimed.
+
+The installed R13 baseline computes two original Fp2 mask-row dots and a fresh
+Eq per call. The control here is conditional current-call public-tail caching
+plus prior paired3 arithmetic;it is not installed. The candidate loops over
+two/four independent private pairs at each public equality coefficient.
+It forms canonical a+b once per tile,accumulating A+=a*x,B+=b*y,C+=(a+b)*(x+y)
+and returning(A+7B,C-A-B) for every pair in original order. No prepared sum
+vector,no private-result cache and no cross-proof challenge/mask reuse.
+This does not add a further multiplication saving to paired3.
+
+CurrentR13 source-derived8BT128 logical read counts per block:
+
+|f_E|DD|Pairs|K2 public bytes removed|K4 public bytes removed|K2 dot read ceiling|K4 dot read ceiling|
+|---:|:---:|---:|---:|---:|---:|---:|
+|9|False|201|20013056|29722624|1.27758|1.47641|
+|12|False|204|20537344|30509056|1.28077|1.48293|
+|16|False|204|20537344|30509056|1.28077|1.48293|
+|9|True|206|20537344|30509056|1.27828|1.47797|
+|12|True|209|20799488|31033344|1.27691|1.47833|
+|16|True|209|20799488|31033344|1.27691|1.47833|
+
+These ceilings divide source-level dot traversal bytes;they exclude Eq builds,
+cache hits,descriptor/output overhead,all spills and all other proof phases.
+They are not physical traffic,time speedups or end-to-end forecasts. All
+5,756,928..5,994,496 fresh private-word reads remain. PublicEq grouping uses
+33/36 consecutive groups,full ordered actual tails and one extension phase.
+Every supplied pair has distinct reserved-row metadata in the source model;
+grouping never merges its private evaluation. Registry census144rows and
+36 context/precision classes agree with the prior retained counts.
+
+Added persistent accumulator payload is48B/96B atK2/4,versus24B serial;
+extra24B/72B,with4/8private streams. This is a lower bound of12/24 32-bit
+accumulator scalars only,not measured GPU registers or total register use.
+Under a per-coefficient read+write spill model,one extra uint64 accumulator
+spilling per added pair costs16B and cancels the16B publicEq saving. Spilling
+all extra accumulators costs3x the saved public bytes. Actual cache/spill
+behavior requires compiled-device evidence;no GPU code or job was launched.
+
+Differential validation:720fixtures,36,000 terminal comparisons across
+unchanged extracted native mask_eval,serial paired3,K1,K2,K4;5,040 direct
+Boolean-cube checks;28,800 later-zero extension recurrence checks. Independent
+references use MSB folding and schoolbookFp2 withu128 modulo. Logs0..7,13,14;
+private log below/equal/above row width;nonzero subslices;A/H/unequal endpoints;
+fresh changed private data;extension/base/Boolean/zero/maximal/zero-first points;
+ragged5-pair groups and empty edge. Ten negative controls cover pair order,
+zeroed imag,freshness,changed/reversed points,shortx/y,pair alias,wrapping
+public addition and omitted later zero-extension. No native constructor,
+define,full sumcheck/transcript,PCS,refusal or privacy gate was run.
+
+Probe1.222150s /21,116KiB RSS;compile1.073542s /163,784KiB. Seed202610290143;
+Rust1.75.0 opt1/Python3.10.12;oneCPU0,nice19,one numeric worker. Per-experiment
+40sCPU/45salarm/50sparent and384MiBAS caps;96MiB probe/320MiB compile estimates.
+Compiler auxiliary OS threads unmeasured;one codegen unit and CPU affinity.
+Accounting passes414checks/96literal address traces,0.038042s/16,092KiB.
+Separate source/count audit passes1,072checks,nine native pins and nine static
+anchor mutations;not executed arithmetic mutants or external review.
+Initial arithmetic passed;a positive empty edge had been labelled a negative
+control. Corrected count11->10,original raw output retained,identical value
+digest on rerun. A failed print-line patch had no filesystem effect.
+
+Hypothesis60 is materially refined;all60 prior hypotheses and negatives remain.
+Global top3:owner whole-prover named high-endGPU plus independently verified
+resident1/2/4/8 workloads;admitted context/DD/fidelity scaling;exclusive phase
+and capacity clocks. Baseline/eliminated work/new costs/prerequisites/exactness/
+privacy/compatibility/falsification are in leading-hypothesis.json. Total-rate
+ceiling remains N/(T-Cexclusive_removed+Aadded);free deletion offractionf gives
+at most1/(1-f). No current exclusive dot fraction is known. Any algebra,
+order,offset,phase,refusal,RNG,transcript,PCS,privacy or enclosing-workload
+regression falsifies promotion. OldR4 inclusive extension-phase ceilings are
+not R13/8B/high-endGPU rates.
+
+Seven LIVE primary sources appended948->955. The new older
+[block-Krylov study](https://arxiv.org/abs/1710.09745) motivates tile-size and
+cache/register gates;its solver/float speed does not transfer. The
+[Blackwell guide](https://docs.nvidia.com/cuda/blackwell-tuning-guide/index.html)
+supports measuring compiled register/occupancy effects. Known SumCATS,
+zkDuel,CUDA13.3 and extended sumcheck leads were refreshed for field,small-value
+and methodology boundaries. October
+[zkLLMPoT](https://arxiv.org/abs/2610.08258) remains covered-operator author
+evidence,not independently verified complete-stack performance. Current
+repository/release/license/code fetches hit exact Cache-miss blockers retained
+in sources-cycle.jsonl. No commit body was successfully inspected;IDs remain
+null. DATE presentation dateApril22 is distinguished from unknown publication
+date. No crawl date became a publication date,no foreign code executed.
+
+Integration seam: research candidate.rs Weights::tiled<K> with public point
+and borrowed fresh pair slices,atR13 argument.rs::mask_eval/run_slot's
+extension-map loop. Native integration remains parked;owner must first measure
+exclusive Eq/dot/extension/enclosing clocks,then compiled-device register/cache
+evidence and all native correctness/privacy/independent-receipt gates if useful.
+No production patch/handoff recommendation is made for this negative result.
+Next local rotation:public geometry-only resident-pass plan audit/replay2/4/8
+with fresh per-pass challenges and changed-profile/freshness controls,unless
+new native phase evidence redirects it. Do not retain challenge Eq tables,
+masks,private views or results across passes. No heavy job queued.
+
+New independently verified full-stack proofs / model passes / proved positions: **0 / 0 / 0**.
+Actual model context / accelerator: **none**. Research used one pinned Intel
+Core Ultra 9 185H CPU worker, no GPU. Witness, proof, serialization,
+verification, startup and initial-prefill clocks, startup fraction, proof
+latency/bytes, steady-state and total-workload rates: **unmeasured**.
+Metadata T32/T128/T256 and synthetic rows are not model workloads. No long
+prefill, resident-model proof series or decode ran. Longer workloads remain
+allowed; dense-attention context can increase attention work quadratically.
+Complete private8B >=50 proved-token/s on5090/named high-endGPU remains unachieved.
+
+Carried older-profile CPU8B baseline: T128/L32,one16-thread pass,GPU off.
+Total478.737s=0.267370positions/s;prove_run393.785s includes witness98.348s
+and blockload17.595s. Sealing84.824s precedes prove_run;its internal load27.151s
+and witness80.897s overlap. Receipt922,711,264B;verification42.709s plus
+load13.681s. Not rerun/reverified or newly counted;isolated serialization,
+startup fraction and steady-state slope remain unknown. Newer owner status
+contains other profile/fidelity/quiet/shared measurements;they are not mixed
+into this old paired baseline or transferred to R13 GPU throughput.
+
+Only research outside runtime written. Production,Git metadata,receipts,
+calibration,instructions,safety/reviewer files untouched. No GPU,Cargo,large
+build,install,external write/message,purchase,Git operation,escalation or merge.
+Main/Claude owns review/integration. Saved reports do not imply delivery or
+supervisor liveness. Owner-document hashes are rechecked before completion.
+
+Reproduce from research root, sequentially:
+
+```text
+python3 -B experiments/pair-tile-dataflow-20261029/run_bounded.py compile
+python3 -B experiments/pair-tile-dataflow-20261029/run_bounded.py probe
+python3 -B experiments/pair-tile-dataflow-20261029/run_bounded.py account
+python3 -B experiments/pair-tile-dataflow-20261029/run_bounded.py audit
+```

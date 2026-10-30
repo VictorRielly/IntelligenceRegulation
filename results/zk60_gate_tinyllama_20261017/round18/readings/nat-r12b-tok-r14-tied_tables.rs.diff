@@ -1,0 +1,11 @@
+--- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12b/frozen-tree/hashline/src/private_block/tied_tables.rs	2026-10-28 15:30:02.119129022 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r14/hashline/src/private_block/tied_tables.rs	2026-10-28 19:12:07.679832398 -0700
+@@ -11,6 +11,8 @@
+ mod derive;
+ pub use derive::{recompute_tied_tables, tied_token_calibration, RecomputedTiedTables, TiedFinalNorm, TiedTokenCalibration};
+ pub(crate) use derive::recompute_declared_tied_tables;
++/// TOKEN I/O R-C2: the quantizer's own functions, for the classifier's development-rung tied source
++pub(crate) use derive::{bf16, norm, quantize};
+ 
+ /// Open without following a final symlink or blocking on a raced-in FIFO.
+ /// Recheck the opened descriptor, including its identity on Unix.

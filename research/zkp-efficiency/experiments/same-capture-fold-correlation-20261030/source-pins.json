@@ -1,0 +1,56 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/hashline/src/gpu/cuda.rs",
+    "snapshot": "native/project/hashline/src/gpu/cuda.rs",
+    "sha256": "a0ed0b3af7e38bd9a842cc0c024f9c12cc988c81fa586d2e4a67d5c7c5c11e9d",
+    "matches_prior_cycle": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/hashline/Cargo.toml",
+    "snapshot": "native/project/hashline/Cargo.toml",
+    "sha256": "eaba50ecf1434ad8514feb83c6e610b0d662b8fd6d512f26bacdde69163b860a",
+    "matches_prior_cycle": true
+  },
+  {
+    "path": "/home/victor/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cudarc-0.13.9/src/driver/safe/alloc.rs",
+    "snapshot": "native/cudarc/src/driver/safe/alloc.rs",
+    "sha256": "47876a4ff5a5dc96395f5034e73131a03c49be8d7c3c9cd5878c76f51eb06bc6",
+    "matches_prior_cycle": true
+  },
+  {
+    "path": "/home/victor/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cudarc-0.13.9/src/driver/safe/core.rs",
+    "snapshot": "native/cudarc/src/driver/safe/core.rs",
+    "sha256": "02a01e0271a7e7f08ca5aac2f1cac727d457f0c321e37a2322b6727119976251",
+    "matches_prior_cycle": true
+  },
+  {
+    "path": "/home/victor/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cudarc-0.13.9/Cargo.toml",
+    "snapshot": "native/cudarc/Cargo.toml",
+    "sha256": "566378d5e2009a2eb0e14f2b4913fe652f613860687cfa069db5c82e66901705",
+    "matches_prior_cycle": true
+  },
+  {
+    "path": "/home/victor/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cudarc-0.13.9/LICENSE-MIT",
+    "snapshot": "native/cudarc/LICENSE-MIT",
+    "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3",
+    "matches_prior_cycle": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/zkp-core/src/sumcheck.rs",
+    "snapshot": "native/project/zkp-core/src/sumcheck.rs",
+    "sha256": "56dbb8c742d970d3ffd851dd052fbfd4cc4a0a1ab0630258955ffd250e007d19",
+    "purpose": "next sumcheck compatibility screen; not executed"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/hashline/src/private_block/argument.rs",
+    "snapshot": "native/project/hashline/src/private_block/argument.rs",
+    "sha256": "e62f46c29fe41848737e157b65c16d11d2c2c9501722b88660420a7a21a642ab",
+    "purpose": "next sumcheck compatibility screen; not executed"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/hashline/src/private_block/protocol.rs",
+    "snapshot": "native/project/hashline/src/private_block/protocol.rs",
+    "sha256": "d9455a1054aab7e18e1cba0194416a83847e862db26d8b4f5b9cf982ba082d65",
+    "purpose": "next sumcheck compatibility screen; not executed"
+  }
+]

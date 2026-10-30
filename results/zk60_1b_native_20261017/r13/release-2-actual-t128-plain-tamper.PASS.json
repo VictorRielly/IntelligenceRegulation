@@ -1,0 +1,7 @@
+{
+  "mode": "tamper",
+  "dd": false,
+  "passed": true,
+  "expected_child_exit": 1,
+  "scope": "actualL00 only/public synthetic input"
+}

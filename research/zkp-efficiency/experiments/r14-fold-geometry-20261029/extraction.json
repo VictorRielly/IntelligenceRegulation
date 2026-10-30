@@ -1,0 +1,24 @@
+{
+  "exact_native": [
+    "SplitLayout structs/new/audit",
+    "Shape::a_plane_doms",
+    "Shape::h_plane_doms",
+    "Shape::helpers",
+    "Shape::lookups_per_position",
+    "Shape::a_planes_on",
+    "Shape::claim_sites",
+    "Shape::slots",
+    "Shape::natural_log",
+    "Shape::true_size",
+    "Shape::log",
+    "Shape::size",
+    "Shape::pads",
+    "Shape::n_slots"
+  ],
+  "adapters": [
+    "minimal public Shape with fixed LOWH24 class; no loader/calibration admission",
+    "limb counts and row width from public fixture only",
+    "native constructor executed; native define/group construction/FS/PCS/CUDA not executed",
+    "recorded native generic-point groups only as separate historical evidence, not replayed"
+  ]
+}

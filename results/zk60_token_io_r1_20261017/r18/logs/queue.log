@@ -1,0 +1,99 @@
+2026-10-29T22:46:57Z red
+2026-10-29T22:50:14Z red end 101
+2026-10-29T22:56:47Z green
+2026-10-29T23:02:07Z chain end green
+2026-10-29T23:02:49Z green
+2026-10-29T23:08:19Z rung-eq
+2026-10-29T23:08:27Z mutant fix1-revert
+2026-10-29T23:11:56Z mutant fix2-revert
+2026-10-29T23:15:24Z mutant rng-plant
+2026-10-29T23:18:43Z mutant label-plant
+2026-10-29T23:21:57Z wait: other lane gate22-item3-ts-rung-values(light,1.1)
+2026-10-29T23:26:58Z wait: other lane gate22-item3-ts-rung-values(light,1.1); other lane gate22-gr4-build(build,2.7); other lane gate22-item3-ts-real-classifier(cpu,1.5)
+2026-10-29T23:31:58Z wait: other lane gate22-item3-ts-rung-values(light,1.1); other lane gate22-gr4-build(build,2.7); other lane gate22-item3-ts-real-classifier(cpu,1.5)
+2026-10-29T23:36:59Z wait: other lane gate22-item3-ts-rung-values(light,1.1); other lane gate22-gr4-build(build,2.7); other lane gate22-item3-ts-real-classifier(cpu,1.5)
+2026-10-29T23:41:59Z wait: other lane gate22-item3-ts-rung-values(light,1.1); other lane gate22-gr4-build(build,2.7); other lane gate22-item3-ts-real-classifier(cpu,1.5)
+2026-10-29T23:46:59Z wait: other lane gate22-item3-ts-rung-values(light,1.1); other lane gate22-gr4-build(build,2.7); other lane gate22-item3-ts-real-classifier(cpu,1.5)
+2026-10-29T23:52:00Z wait: other lane gate22-item3-ts-rung-values(light,1.1); other lane gate22-gr4-build(build,2.7); other lane gate22-item3-ts-real-classifier(cpu,1.5)
+2026-10-29T23:57:00Z wait: other lane gate22-item3-ts-rung-values(light,1.1); other lane gate22-gr4-build(build,2.7); other lane gate22-item3-ts-real-classifier(cpu,1.5)
+2026-10-30T00:02:00Z wait: other lane gate22-item3-ts-rung-values(light,1.1); other lane gate22-gr4-build(build,2.7); other lane gate22-item3-ts-real-classifier(cpu,1.5)
+2026-10-30T00:07:01Z wait: other lane gate22-item3-ts-rung-values(light,1.1); other lane gate22-gr4-build(build,2.7); other lane gate22-item3-ts-real-block1(cpu,2.0)
+2026-10-30T00:12:01Z wait: other lane gate22-item3-ts-rung-values(light,1.1); other lane gate22-gr4-build(build,2.7); other lane gate22-item3-ts-real-block1(cpu,2.0)
+2026-10-30T00:17:01Z wait: other lane gate22-item3-ts-rung-values(light,1.1); other lane gate22-gr4-build(build,2.7); other lane gate22-item3-ts-real-block1(cpu,2.0)
+2026-10-30T00:22:02Z wait: other lane gate22-item3-ts-rung-values(light,1.1); other lane gate22-gr4-build(build,2.7); other lane gate22-item3-ts-real-block1(cpu,2.0); other lane pm-classify-seqgen(cpu,1.5); other lane sol-r14-actual-build-2-recovery-1(build,2.6)
+2026-10-30T00:27:02Z wait: other lane gate22-item3-ts-real-block1(cpu,2.0); other lane pm-classify-seqgen(cpu,1.5); other lane sol-r14-actual-build-2-recovery-1(build,2.6); other lane gate22-item3-ts-rung-short1(light,1.1)
+2026-10-30T00:32:02Z wait: hold /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/r18/HOLD; other lane gate22-item3-ts-real-block1(cpu,2.0); other lane pm-classify-seqgen(cpu,1.5); other lane sol-r14-actual-build-2-recovery-1(build,2.6); other lane (astra|pm-)";(?,11.0)
+2026-10-30T00:37:03Z wait: hold /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/r18/HOLD; other lane gate22-item3-ts-real-block1(cpu,2.0); other lane pm-classify-seqgen(cpu,1.5); other lane sol-r14-actual-build-2-recovery-1(build,2.6); other lane (astra|pm-)";(?,11.0)
+2026-10-30T00:42:03Z wait: hold /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/r18/HOLD; other lane gate22-item3-ts-real-block1(cpu,2.0); other lane pm-classify-seqgen(cpu,1.5); other lane sol-r14-actual-build-2-recovery-1(build,2.6); other lane (astra|pm-)";(?,11.0)
+2026-10-30T00:47:03Z wait: hold /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/r18/HOLD; other lane gate22-item3-ts-real-block1(cpu,2.0); other lane pm-classify-seqgen(cpu,1.5); other lane sol-r14-actual-build-2-recovery-1(build,2.6); other lane (astra|pm-)";(?,11.0)
+2026-10-30T00:52:03Z wait: hold /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/r18/HOLD; other lane gate22-item3-ts-real-block1(cpu,2.0); other lane pm-classify-seqgen(cpu,1.5); other lane sol-r14-actual-build-2-recovery-1(build,2.6); other lane (astra|pm-)";(?,11.0)
+2026-10-30T00:57:04Z wait: hold /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/r18/HOLD; other lane sol-r14-actual-build-2-recovery-1(build,2.6); other lane (astra|pm-)";(?,11.0); other lane pm-classify-prove(cpu,10.4)
+2026-10-30T01:02:04Z wait: hold /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/r18/HOLD; other lane sol-r14-actual-build-2-recovery-1(build,2.6); other lane (astra|pm-)";(?,11.0); other lane pm-classify-prove(cpu,10.4)
+2026-10-30T01:07:04Z wait: hold /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/r18/HOLD; other lane sol-r14-actual-build-2-recovery-1(build,2.6); other lane (astra|pm-)";(?,11.0); other lane pm-classify-prove(cpu,10.4)
+2026-10-30T01:12:05Z wait: hold /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/r18/HOLD; other lane sol-r14-actual-build-2-recovery-1(build,2.6); other lane (astra|pm-)";(?,11.0); other lane pm-classify-prove(cpu,10.4)
+2026-10-30T01:17:05Z wait: hold /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/r18/HOLD; other lane sol-r14-actual-build-2-recovery-1(build,2.6); other lane (astra|pm-)";(?,11.0)
+2026-10-30T01:22:05Z wait: hold /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/r18/HOLD; other lane (astra|pm-)";(?,11.0); other lane pm-classify-prove(cpu,10.4)
+2026-10-30T01:27:06Z wait: hold /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/r18/HOLD; other lane (astra|pm-)";(?,11.0); other lane pm-classify-prove(cpu,10.4)
+2026-10-30T01:32:06Z wait: hold /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/r18/HOLD; other lane (astra|pm-)";(?,11.0); other lane pm-classify-label(cpu,2.9)
+2026-10-30T01:37:06Z wait: hold /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/r18/HOLD; other lane (astra|pm-)";(?,11.0); other lane pm-classify-prove(cpu,10.4)
+2026-10-30T01:42:07Z wait: hold /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/r18/HOLD; other lane (astra|pm-)";(?,11.0); other lane pm-classify-inowner(cpu,2.9)
+2026-10-30T01:47:07Z wait: hold /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/r18/HOLD; other lane (astra|pm-)";(?,11.0); other lane gate22-gr4-build(build,2.7)
+2026-10-30T01:52:07Z wait: hold /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/r18/HOLD; other lane (astra|pm-)";(?,11.0)
+2026-10-30T01:57:08Z wait: other lane gate22-ts2-real-classifier(cpu,1.0)
+2026-10-30T02:00:38Z mutant one-post-revert
+2026-10-30T02:03:49Z mutant job-order (build)
+2026-10-30T02:06:58Z mutant job-order (harness)
+2026-10-30T02:07:05Z mutant reused-draw (build)
+2026-10-30T02:10:17Z mutant reused-draw (harness)
+2026-10-30T02:10:24Z chain end 0
+2026-10-30T02:10:51Z s23-suite
+2026-10-30T02:26:32Z b18-cli-build
+2026-10-30T02:26:49Z suite end 0
+2026-10-30T02:26:49Z prepare
+2026-10-30T02:26:51Z activations
+2026-10-30T02:27:52Z batch
+2026-10-30T05:26:37Z prepare
+2026-10-30T05:26:38Z wait: other lane astra-gpu-benchmark-l06(gpu,2.8); other lane sol-r14-corrected-dense-reference-1(cpu,1.4)
+2026-10-30T05:31:38Z wait: other lane astra-gpu-benchmark-l06(gpu,2.8); other lane sol-r14-capture-build-1(build,2.6)
+2026-10-30T05:36:39Z wait: other lane astra-gpu-benchmark-l06(gpu,2.8); other lane sol-r14-capture-build-1(build,2.6)
+2026-10-30T05:41:09Z activations
+2026-10-30T05:42:08Z wait: other lane astra-gpu-benchmark-l06(gpu,2.8)
+2026-10-30T05:47:10Z wait: other lane astra-gpu-benchmark-l06(gpu,2.8); live astra-gpu-benchmark-l06(2.8)
+2026-10-30T05:52:11Z batch
+2026-10-30T06:15:50Z wait: other lane sol-r14-native-capture-dd-3(cpu,8.0)
+2026-10-30T06:17:50Z single-c0
+2026-10-30T06:25:54Z wait: other lane sol-r14-l25-non-dd-prove-2(cpu,9.6)
+2026-10-30T06:30:56Z wait: other lane irpub-e5-suite(cpu,9.0); live irpub-e5-suite(9.0)
+2026-10-30T06:35:57Z wait: other lane irpub-e5-suite(cpu,9.0); other lane sol-r14-regression-non-dd-limb-y-wide-1(cpu,7.5); other lane irpub-e5-py-baseline(cpu,3.0); live irpub-e5-suite(9.0)
+2026-10-30T06:40:59Z wait: other lane irpub-e5-suite(cpu,9.0); other lane sol-r14-regression-non-dd-limb-y-wide-1(cpu,7.5); other lane irpub-e5-py-baseline(cpu,3.0); other lane sol-r14-legacy-full-suite-1(cpu,4.2); live irpub-e5-suite(9.0)
+2026-10-30T06:46:01Z wait: other lane irpub-e5-py-baseline(cpu,3.0); other lane sol-r14-legacy-full-suite-1(cpu,4.2); other lane sol-r14-streaming-build-1(build,2.6); other lane sol-r14-regression-non-dd-limb-ym-wide-1(cpu,7.5); live sol-r14-streaming-build-1(2.6)
+2026-10-30T06:51:03Z wait: other lane irpub-e5-py-baseline(cpu,3.0); other lane sol-r14-legacy-full-suite-1(cpu,4.2); other lane sol-r14-streaming-non-dd-wrong-feature-axis-1(cpu,8.0); other lane sol-r14-regression-non-dd-limb-o-whole-1(cpu,7.5); live sol-r14-regression-non-dd-limb-o-whole-1(7.5)
+2026-10-30T06:56:04Z wait: other lane irpub-e5-py-baseline(cpu,3.0); other lane sol-r14-legacy-full-suite-1(cpu,4.2); other lane sol-r14-streaming-non-dd-wrong-feature-axis-1(cpu,8.0); other lane sol-r14-regression-dd-limb-rg-wide-1(cpu,7.5); live sol-r14-legacy-full-suite-1(4.2)
+2026-10-30T07:01:06Z wait: other lane irpub-e5-py-baseline(cpu,3.0); other lane sol-r14-legacy-full-suite-1(cpu,4.2); other lane sol-r14-streaming-non-dd-wrong-feature-axis-1(cpu,8.0); other lane sol-r14-regression-dd-limb-rg-wide-1(cpu,7.5); live sol-r14-legacy-full-suite-1(4.2)
+2026-10-30T07:06:07Z wait: other lane irpub-e5-py-baseline(cpu,3.0); other lane sol-r14-streaming-non-dd-wrong-feature-axis-1(cpu,8.0); other lane sol-r14-regression-dd-limb-rg-wide-1(cpu,7.5); other lane sol-r14-cli-check-2(build,2.6); other lane irpub-e5-py-suite(cpu,5.0); live irpub-e5-py-baseline(3.0)
+2026-10-30T07:11:09Z wait: other lane sol-r14-streaming-non-dd-wrong-feature-axis-1(cpu,8.0); other lane sol-r14-regression-dd-limb-rg-wide-1(cpu,7.5); other lane sol-r14-cli-check-2(build,2.6); other lane irpub-e5-py-suite(cpu,5.0); live irpub-e5-py-suite(5.0)
+2026-10-30T07:16:10Z wait: other lane sol-r14-streaming-non-dd-wrong-feature-axis-1(cpu,8.0); other lane sol-r14-regression-dd-limb-rg-wide-1(cpu,7.5); other lane sol-r14-cli-check-2(build,2.6); other lane irpub-e5-py-suite(cpu,5.0); other lane sol-r14-legacy-full-suite-2(cpu,4.2); live irpub-e5-py-suite(5.0)
+2026-10-30T07:21:12Z wait: other lane sol-r14-streaming-non-dd-wrong-feature-axis-1(cpu,8.0); other lane sol-r14-regression-dd-limb-rg-wide-1(cpu,7.5); other lane sol-r14-cli-check-2(build,2.6); other lane irpub-e5-py-suite(cpu,5.0); other lane sol-r14-legacy-full-suite-2(cpu,4.2); live irpub-e5-py-suite(5.0)
+2026-10-30T07:26:14Z wait: other lane sol-r14-streaming-non-dd-wrong-feature-axis-1(cpu,8.0); other lane sol-r14-regression-dd-limb-rg-wide-1(cpu,7.5); other lane sol-r14-cli-check-2(build,2.6); other lane sol-r14-legacy-full-suite-2(cpu,4.2); other lane irpub-e5-classify-build(build,3.5); live irpub-e5-classify-build(3.5)
+2026-10-30T07:31:15Z wait: other lane sol-r14-streaming-non-dd-wrong-feature-axis-1(cpu,8.0); other lane sol-r14-regression-dd-limb-rg-wide-1(cpu,7.5); other lane sol-r14-cli-check-2(build,2.6); other lane sol-r14-legacy-full-suite-2(cpu,4.2); live sol-r14-legacy-full-suite-2(4.2)
+2026-10-30T07:36:17Z wait: other lane sol-r14-streaming-non-dd-wrong-feature-axis-1(cpu,8.0); other lane sol-r14-regression-dd-limb-rg-wide-1(cpu,7.5); other lane sol-r14-cli-check-2(build,2.6); other lane sol-r14-legacy-full-suite-2(cpu,4.2); live sol-r14-legacy-full-suite-2(4.2)
+2026-10-30T07:41:18Z wait: other lane sol-r14-streaming-non-dd-wrong-feature-axis-1(cpu,8.0); other lane sol-r14-regression-dd-limb-rg-wide-1(cpu,7.5); other lane sol-r14-cli-check-2(build,2.6); other lane irpub-e6-py-suite(cpu,5.0); other lane irpub-e6-inv-tests(cpu,2.0); live irpub-e6-inv-tests(2.0)
+2026-10-30T07:46:20Z wait: other lane sol-r14-cli-check-2(build,2.6); other lane irpub-e6-py-suite(cpu,5.0); other lane sol-r14-regression-dd-limb-up-wide-1(cpu,7.5); other lane irpub-e6-inv-tests(cpu,2.0); other lane sol-r14-legacy-full-suite-3(cpu,4.2); live irpub-e6-py-suite(5.0)
+2026-10-30T07:51:21Z wait: other lane sol-r14-cli-check-2(build,2.6); other lane irpub-e6-py-suite(cpu,5.0); other lane sol-r14-regression-dd-limb-up-wide-1(cpu,7.5); other lane irpub-e6-inv-tests(cpu,2.0); other lane sol-r14-legacy-full-suite-3(cpu,4.2); live irpub-e6-py-suite(5.0)
+2026-10-30T07:56:24Z wait: other lane sol-r14-cli-check-2(build,2.6); other lane irpub-e6-py-suite(cpu,5.0); other lane sol-r14-regression-dd-limb-up-wide-1(cpu,7.5); other lane irpub-e6-inv-tests(cpu,2.0); other lane sol-r14-legacy-full-suite-3(cpu,4.2); live irpub-e6-py-suite(5.0)
+2026-10-30T08:01:25Z wait: other lane sol-r14-regression-dd-limb-up-wide-1(cpu,7.5); other lane irpub-e6-inv-tests(cpu,2.0); other lane sol-r14-legacy-full-suite-3(cpu,4.2); live sol-r14-legacy-full-suite-3(4.2)
+2026-10-30T08:06:26Z wait: other lane sol-r14-regression-dd-limb-up-wide-1(cpu,7.5); other lane irpub-e6-inv-tests(cpu,2.0); other lane sol-r14-legacy-full-suite-3(cpu,4.2); other lane sol-r14-cli-build-1(build,2.6); live sol-r14-legacy-full-suite-3(4.2)
+2026-10-30T08:11:28Z wait: other lane sol-r14-regression-dd-limb-up-wide-1(cpu,7.5); other lane irpub-e6-inv-tests(cpu,2.0); other lane sol-r14-cli-build-1(build,2.6); live sol-r14-cli-build-1(2.6)
+2026-10-30T08:16:30Z wait: other lane sol-r14-regression-dd-limb-up-wide-1(cpu,7.5); other lane irpub-e6-inv-tests(cpu,2.0); other lane sol-r14-cli-example-build-1(build,2.6); other lane sol-r14-legacy-compat-8b-dd-4(cpu,2.5); live sol-r14-legacy-compat-8b-dd-4(2.5)
+2026-10-30T08:21:31Z wait: other lane sol-r14-cli-1-non-dd-prove(cpu,8.0); other lane sol-r14-regression-dd-limb-q-whole-1(cpu,7.5); live sol-r14-regression-dd-limb-q-whole-1(7.5)
+2026-10-30T08:25:02Z single-c1
+2026-10-30T08:33:11Z single-c2
+2026-10-30T08:41:12Z r16b-c0
+2026-10-30T08:49:18Z compare
+2026-10-30T08:49:25Z router
+2026-10-30T08:49:25Z fresh-checks
+2026-10-30T09:04:41Z failclosed
+2026-10-30T09:12:54Z eq end 0
+2026-10-30T09:13:51Z xbin
+2026-10-30T09:16:11Z real-verify-hate
+2026-10-30T09:17:26Z freeze end 0

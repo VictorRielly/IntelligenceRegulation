@@ -1,0 +1,66 @@
+{
+  "at": "2026-10-30T19:57:10.738313+00:00",
+  "tests": 199,
+  "focused_storage_tests": 10,
+  "actual_recovered_post_asgi_checks": 10,
+  "guard": {
+    "ts_end": "2026-10-30T15:11:14Z",
+    "run_id": "e6194f972989",
+    "label": "astra-storage-final-suite",
+    "class": "light",
+    "cmd": [
+      "apps/proven-media/.venv/bin/python",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "/home/victor/IntelligenceRegulation/apps/proven-media/tests"
+    ],
+    "need_gib": 0.4,
+    "cap_gib": 1.0,
+    "exit": 0,
+    "child_rc": 0,
+    "guard_killed": null,
+    "child_wall_seconds": 5.840790510177612,
+    "refused": null,
+    "guard_error": null,
+    "guard_pid": 281750,
+    "boot_id": "4f7dab84-38e2-4f1a-9518-e305e81ef580",
+    "pid_ns": "pid:[4026532216]",
+    "guard_starttime_ticks": 3785505,
+    "lock_ids": {
+      "heavy": "2096:715313",
+      "build": "2096:715314"
+    },
+    "enforcement": "cgroup+watchdog",
+    "waited_s": 0.0,
+    "guard_wall_s": 5.8,
+    "stragglers_killed": 0,
+    "hard_killed": 0,
+    "scope_unit": "zk60-e6194f972989.scope",
+    "scope_adopted": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/zk60.slice/zk60-e6194f972989.scope",
+    "foreign_cgroups_refused": [],
+    "peak_rss_gib": 0.09,
+    "peak_cgroup_gib": 0.09,
+    "peak_vram_mib": null,
+    "min_mem_available_gib": 12.8,
+    "vram_drain_s": null,
+    "gpu_drain_failed": false,
+    "gpu_telemetry_lost": false,
+    "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache"
+  },
+  "private_path_modes": {
+    "/home/victor/zk60-owner-private/proven-media-astra-demo": "0o700",
+    "/home/victor/zk60-owner-private/proven-media-astra-demo/testnet": "0o700",
+    "/home/victor/zk60-owner-private/proven-media-astra-demo/testnet/throwaway.sepolia-key.json": "0o600"
+  },
+  "source_sha256": {
+    "apps/proven-media/proven_media/storage_policy.py": "28d647ea16e87d98f4c021285d8ca45ffd62dad645af7c9c0234822340670a52",
+    "apps/proven-media/tools/sepolia_setup.py": "594e572c6938ac083d33f84f067509b65c67b3c09dc3ca08adc1236fb28937d8",
+    "apps/proven-media/tests/test_storage_policy.py": "30e2c0234b6a5e8f864f562a2f36fdb740683aa62a182984a2501d482c7e8b29",
+    "apps/proven-media/tests/test_sepolia_setup.py": "92da17fe27ab97a5af9a9f125e855bd0cb8ee592f5bdab75f8a1aed2a87f5695"
+  },
+  "old_post_opening_lost": true,
+  "key_rotation_during_move": false,
+  "coordinator_accepted": "2026-10-30T15:20Z"
+}

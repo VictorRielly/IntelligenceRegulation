@@ -1,0 +1,19 @@
+{
+  "baseline": "results/zk60_token_io_r1_20261017/frozen-r16b/hashline",
+  "baseline_sha256": {
+    "src/private_block/token_io/classify_cli.rs": "b3b661b5f609ac4195cbbbc0f56d7191458986baf7af0006c63c5aaa3d8a6e17",
+    "src/private_block.rs": "2af1df7d5bc222695c1d233050ff87a5f0981a26a5df1828678b67a6fe0a1cb3",
+    "examples/zk60_classify.rs": "af8cfd0e919d6cce4a6dcb20e67f27eac390d1d0e9b4a7a34435efd1408a1282"
+  },
+  "staged_sha256": {
+    "examples/zk60_classify.rs": "35824dcfd39f36e300ad1ff394e9b8f28f184ca6c594ee57584e546fe3d09b2e",
+    "src/private_block.rs": "96c1cd16270b087ab56d8fd4cf3777009e5000800ab2d65afc1342ae555c6ac4",
+    "src/private_block/token_io/classify_batch.rs": "ed1d14beb5d2af0908f4d2d6582c95b5cd2f5c5ee0bfb22d6b31926d9721578f",
+    "src/private_block/token_io/classify_batch_plan.rs": "8ddd7e58723aa0caf6c16590d67666da80b2ee677b26c67317880db67aec591f",
+    "src/private_block/token_io/classify_cli.rs": "41511d40828135052eba67117bf70471cc0fe7c4ee7c847d47dc97d1144b1d92"
+  },
+  "status": "candidate only; full native build and integration tests pending",
+  "changes_receipt_format": false,
+  "changes_verification": false,
+  "changes_production_binary": false
+}

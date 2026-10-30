@@ -1,0 +1,4 @@
+[zk60-guard 02:57:09] START rvtk16-mut-bits-l class=cpu need=2.4G cap=3.5G enforce=cgroup+watchdog waited=0s run=5a116ca72309
+[zk60-guard 02:58:32] END rvtk16-mut-bits-l exit=101 child_wall=82s peak_rss=1.65G min_avail=12.11G
+[zk60-guard 02:58:32] START rvtk16-mut-prehdr-cs6 class=cpu need=2.4G cap=3.5G enforce=cgroup+watchdog waited=0s run=0aa759993551
+[zk60-guard 03:00:21] END rvtk16-mut-prehdr-cs6 exit=0 child_wall=109s peak_rss=1.65G min_avail=12.17G

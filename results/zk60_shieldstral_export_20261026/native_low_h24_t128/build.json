@@ -1,0 +1,6 @@
+{
+  "audit_sha256": "241f17aaf3468bb02866b5f99994542114db335314adb45ae3bebe79266280d6",
+  "builder_sha256": "48e2b9c64bb9c4c0ff89efea788f7d77b65fe6e0e40ecd867a83013ad536ef86",
+  "change": "T256 to T128, first128 YaRN rows, no requantization or calibration change",
+  "source_profile_sha256": "1d50078243f13d58afa814a55c47c2df797e494d7f045941ea82fa142740498a"
+}

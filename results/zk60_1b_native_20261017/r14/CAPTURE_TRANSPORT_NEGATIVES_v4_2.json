@@ -1,0 +1,67 @@
+{
+  "validator_sha256": "7c502930964ae16917f31795683a4b0095c35d48c3e928b0cdea8b2339f65b6c",
+  "cases": [
+    {
+      "case": "unknown-key",
+      "exit": 1,
+      "result_emitted": false,
+      "stderr_sha256": "e1ab299db471827993cb9225f6295323f0a00880239e9ba837453a5a1c51042d"
+    },
+    {
+      "case": "binding",
+      "exit": 1,
+      "result_emitted": false,
+      "stderr_sha256": "a429a4c63b4486b431a0f8478580fed4c604aec162e6402c4c7c56312e772af3"
+    },
+    {
+      "case": "component-tag",
+      "exit": 1,
+      "result_emitted": false,
+      "stderr_sha256": "351c302a90e3d3881181c1a216bea7d06a89b4b9b295e69ea9dd8f42d92753e8"
+    },
+    {
+      "case": "logup-word",
+      "exit": 1,
+      "result_emitted": false,
+      "stderr_sha256": "506fd88233643d1077d53a459520c90ef2d6a0877a898c6836a007269c13a352"
+    },
+    {
+      "case": "source-pin",
+      "exit": 1,
+      "result_emitted": false,
+      "stderr_sha256": "77e06bf1534d060d72b52bef59e25b902990d7b944e36e9216eec6ac17a75382"
+    },
+    {
+      "case": "receipt-middle",
+      "exit": 1,
+      "result_emitted": false,
+      "stderr_sha256": "86071cc98b2a5c01150d2bcd642581d489a06f47734c9184cf8c433c85b46f8b"
+    },
+    {
+      "case": "duplicate-source-pin",
+      "exit": 1,
+      "result_emitted": false,
+      "stderr_sha256": "ef061f11c21ddc5932b543836a1b18f0e3af291d174dce736fce77fd02b16279"
+    },
+    {
+      "case": "missing-source-pin",
+      "exit": 1,
+      "result_emitted": false,
+      "stderr_sha256": "77e06bf1534d060d72b52bef59e25b902990d7b944e36e9216eec6ac17a75382"
+    },
+    {
+      "case": "wrong-stage-count",
+      "exit": 1,
+      "result_emitted": false,
+      "stderr_sha256": "7ad95ab9f4c4c11f5c370b4c460f1bfdf7a39f766a789146a0a12120f5e83912"
+    },
+    {
+      "case": "wrong-trusted-source",
+      "exit": 1,
+      "result_emitted": false,
+      "stderr_sha256": "77e06bf1534d060d72b52bef59e25b902990d7b944e36e9216eec6ac17a75382"
+    }
+  ],
+  "scope": "Ten transport/source/stage-contract controls reject without emitting acceptance. Public synthetic retained3stage bundle. Not native mathematical forgery or privacy acceptance.",
+  "privacy_accepted": false
+}

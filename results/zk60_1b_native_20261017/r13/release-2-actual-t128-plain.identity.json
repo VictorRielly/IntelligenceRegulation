@@ -1,0 +1,6 @@
+{
+  "statement_identity": "4e7b4762a9c5f179e5f15d10af9da4acbc22b11d8f814124c11595eaae8b91c2",
+  "cli_sha256": "899d7c01a1abc8839156d29d4667536a9eb43cb3b5285ff6f698c6b2cf549cf1",
+  "profile_sha256": "04102cce64dea0cd45dee5caa62095da1cf33fcaabd5647554202b564e6e7e57",
+  "scope": "one actual S2 layer at T128 on public synthetic input; no full26 proof or fidelity/privacy acceptance"
+}

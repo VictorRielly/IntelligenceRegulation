@@ -1,5 +1,5 @@
 {
-  "_doc": "Proven Media deployment settings (D41): long content is split into chunks, each proved separately per category. Chunk size and overlap are chosen per HARDWARE PROFILE so the demo runs on different machines. Edit active_profile (or a profile) and restart the server. The effective chunk size is also capped by the prover's own maximum (the demo stub proves at most 31 content tokens per run).",
+  "_doc": "Stub hardware settings remain under profiles (effective content size capped at31). The real classifier profile is separately pinned under classifier_profiles: its category geometry comes from the registered model/templates and cannot be changed by choosing an arbitrary chunk size. shieldstral_runtime remains the execution authority; hardware_profiles validates this operator profile against it.",
   "active_profile": "laptop",
   "profiles": {
     "laptop": {"label": "Laptop (8 GB GPU / CPU only)", "chunk_tokens": 40, "overlap_tokens": 8, "max_chunks": 4,
@@ -8,5 +8,34 @@
                     "note": "168 content tokens per chunk"},
     "server": {"label": "Server (80 GB GPU class)", "chunk_tokens": 424, "overlap_tokens": 32, "max_chunks": 16,
                "note": "424 content tokens per chunk"}
+  },
+  "active_classifier_profile": "shieldstral-laptop",
+  "classifier_profiles": {
+    "shieldstral-laptop": {
+      "label": "Current laptop: Shieldstral T128 on CPU",
+      "prover_mode": "shieldstral",
+      "device": "cpu",
+      "cpu_threads": 2,
+      "context_tokens": 128,
+      "max_content_tokens": 336,
+      "category_geometry": {
+        "sexual": {"chunk_tokens": 55, "overlap_tokens": 8, "max_chunks": 8},
+        "violence": {"chunk_tokens": 55, "overlap_tokens": 8, "max_chunks": 8},
+        "hate": {"chunk_tokens": 49, "overlap_tokens": 8, "max_chunks": 8}
+      },
+      "binary_sha256": "dfb8025eb903b203f4b50371fdd0dd00659d46a9dbaad9d121d6a68343ebc70c",
+      "statement_identity": "29aeba6c04a819cdbafde311f7c9d0c678d85aff22292ae6b9647761158a0bd1",
+      "profile_sha256": "2ba468f98085caf1136f27cf66220f93d8e316acb8dbae7e98f9eb68347f05a0",
+      "min_bits": 95,
+      "guard_resources": {
+        "seqgen": {"need_gib": 1.5, "cap_gib": 3, "max_seconds": 600},
+        "prove": {"need_gib": 10.4, "cap_gib": 11.5, "max_seconds": 1200},
+        "verify": {"need_gib": 2.9, "cap_gib": 7, "max_seconds": 600},
+        "inowner": {"need_gib": 2.9, "cap_gib": 7, "max_seconds": 600},
+        "label": {"need_gib": 2.9, "cap_gib": 7, "max_seconds": 1800}
+      },
+      "privacy_status": "privacy statement pending",
+      "measurement_note": "Native R16 runs, shared laptop n=1: prove peak RSS up to8.27GiB. Resource reservations include margin; T256 has no accepted measurement on this laptop."
+    }
   }
 }

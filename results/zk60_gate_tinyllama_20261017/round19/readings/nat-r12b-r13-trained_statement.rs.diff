@@ -1,0 +1,220 @@
+--- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12b/frozen-tree/hashline/src/private_block/trained_statement.rs	2026-10-28 15:30:02.119777037 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/hashline/src/private_block/trained_statement.rs	2026-10-28 23:08:24.417061122 -0700
+@@ -168,6 +168,7 @@
+ 
+     /// the pinned source a trained-model profile carries, if it has one
+     pub(crate) fn pinned_for_profile(profile: &str) -> Option<ModelSource> {
++    let profile=super::shape::accuracy_spec(profile).map(|spec|spec.legacy).unwrap_or(profile);
+         if super::shape::TINYLLAMA_TRAINED_PROFILES.contains(&profile) || super::shape::TINYLLAMA_DD_PROFILES.contains(&profile) {
+             Some(ModelSource::tinyllama_chat_v1_0())
+         } else if super::shape::LLAMA3_8B_TRAINED_PROFILES.contains(&profile) || super::shape::LLAMA3_8B_DD_PROFILES.contains(&profile) {
+@@ -298,19 +299,19 @@
+             norm_cn_a: sh.norm_cn_a,
+             norm_cn_m: sh.norm_cn_m,
+             norm_ceps: sh.norm_ceps,
+-            norm_wrho: sh.norm_wrho,
++            norm_wrho: if sh.accuracy_stack()==super::accuracy_precision::Stack::Legacy {sh.norm_wrho} else {24},
+             sh_qkv: sh.sh_qkv,
+             sh_rope: SH_ROPE,
+             sh_s: sh.sh_s,
+             sh_o: sh.sh_o,
+             sh_ao: sh.sh_ao,
+             sh_g: sh.sh_g,
+-            sh_u: 0,
++            sh_u: if sh.accuracy_stack()==super::accuracy_precision::Stack::Legacy {0} else {12},
+             sh_h: sh.sh_h,
+             sh_z: sh.sh_z,
+             residual_shifts: [0; 6],
+             f_e: sh.f_e,
+-            f_p: F_P,
++            f_p: sh.f_p(),
+             f_ro: F_RO,
+             wrho_s: sh.wrho_s,
+             mask_score: MASK_SCORE,
+@@ -411,6 +412,9 @@
+     /// (`Shape::with_layer_calibration`). The run proves that block's stage at
+     /// that shape.
+     pub own: [Option<i64>; 11],
++    /// R13's verifier-derived common gate denominator. Always present for
++    /// R13 and absent for legacy; its scalar also determines the stage shape.
++    pub accuracy_gate_shift:Option<u32>,
+ }
+ 
+ /// **NATIVE R8: the eleven export-chosen calibration constants a layer may
+@@ -504,12 +508,29 @@
+ }
+ 
+ impl LayerRecord {
++    /// Reconstruct the trusted layer's entire stage context, including the
++    /// R13 denominator that is not a base calibration shift.
++    pub(crate) fn shape_at(&self,base:&Shape)->Result<Shape,String> {
++        self.check_accuracy_gate(base)?;
++        let shape=if has_own(&self.own) {base.with_layer_calibration(&apply_own(&base.norm_calibration(),&self.own)?)?} else {base.clone()};
++        match self.accuracy_gate_shift {Some(g)=>shape.with_accuracy_gate_shift(g),None=>Ok(shape)}
++    }
++
++    pub(crate) fn check_accuracy_gate(&self,sh:&Shape)->Result<(),String> {
++        match (sh.accuracy_stack(),self.accuracy_gate_shift) {
++            (super::accuracy_precision::Stack::Legacy,None)=>Ok(()),
++            (super::accuracy_precision::Stack::Legacy,Some(_))=>Err("trained statement: legacy layer carries an R13 gate denominator".into()),
++            (_,None)=>Err("trained statement: R13 layer is missing its common gate denominator".into()),
++            (_,Some(g))=>sh.clone().with_accuracy_gate_shift(g).map(|_|()),
++        }
++    }
++
+     /// The record of one block's PUBLIC statement, computed from the words
+     /// the prover and the verifier actually use.
+     /// ROUND 5 (R5-2): the record of a proving-pass RELOAD, which keeps only
+     /// the block (its digest is compared with the digest pass's record)
+     pub(crate) fn unhashed(index: u32) -> LayerRecord {
+-        LayerRecord { index, block_digest: [0; 32], word_sha256: [[0; 32]; 9], table_sha256: [[0; 32]; 3], source_tensors: vec![], manifest_sha256: [0; 32], silu_member: (0, 0), exp_e_s: 0, own: [None; 11] }
++        LayerRecord { index, block_digest: [0; 32], word_sha256: [[0; 32]; 9], table_sha256: [[0; 32]; 3], source_tensors: vec![], manifest_sha256: [0; 32], silu_member: (0, 0), exp_e_s: 0, own: [None; 11], accuracy_gate_shift:None }
+     }
+ 
+     pub(crate) fn of_block(index: u32, blk: &BlockPublic, source_tensors: Vec<(String, [u8; 32])>) -> LayerRecord {
+@@ -522,14 +543,19 @@
+             words.par_iter().map(|w| sha(&i8_bytes(w))).collect()
+         };
+         let word_sha256: [[u8; 32]; 9] = hashed.try_into().expect("nine digests");
+-        let act: Vec<u8> = f.act.iter().flat_map(|v| v.to_le_bytes()).collect();
++        let act:Vec<u8>=match blk.accuracy() {
++            Some(data)=>data.raw_tables().iter().flatten().flat_map(|v|v.to_le_bytes()).collect(),
++            None=>f.act.iter().flat_map(|v|v.to_le_bytes()).collect(),
++        };
+         let table_sha256 = [sha(&i64_bytes(&[&a.rope_cos, &a.rope_sin])), sha(&i64_bytes(&[&a.exp])), sha(&act)];
+         let mut source_tensors = source_tensors;
+         source_tensors.sort();
+         // a recipe block's tables are the frozen SiLU member (-3, -11) and
+         // `exp_member(0, ..)` (`dense_tests::statement_of_words`); the export
+         // loader overwrites both with the manifest's members
+-        LayerRecord { index, block_digest: blk.digest(), word_sha256, table_sha256, source_tensors, manifest_sha256: [0; 32], silu_member: (-3, -11), exp_e_s: 0, own: [None; 11] }
++        LayerRecord { index, block_digest: blk.digest(), word_sha256, table_sha256, source_tensors, manifest_sha256: [0; 32],
++            silu_member:blk.accuracy().map(|a|a.member()).unwrap_or((-3,-11)),exp_e_s:0,own:[None;11],
++            accuracy_gate_shift:blk.accuracy().map(|a|a.folds().gate.shift) }
+     }
+ }
+ 
+@@ -564,6 +590,7 @@
+ /// revision, digested on 2026-10-21 by streaming exactly that range); `None`
+ /// for an untied model.
+ pub(crate) fn tied_tensor_for_profile(profile: &str) -> Option<(&'static str, [u8; 32])> {
++    let profile=super::shape::accuracy_spec(profile).map(|spec|spec.legacy).unwrap_or(profile);
+     if super::shape::SHIELDSTRAL_PROFILES.contains(&profile) {
+         Some((SHIELDSTRAL_TIED_TENSOR, hex32(SHIELDSTRAL_TIED_TENSOR_SHA256)))
+     } else {
+@@ -729,6 +756,7 @@
+         // value through each block digest, and the loader checks them against
+         // these generator members)
+         for r in &self.layers {
++            r.check_accuracy_gate(sh)?;
+             // NATIVE R8 (R6 for sh_s): a layer's own constants are canonical
+             // (never equal to the run's, which would be a second encoding of
+             // one statement) and its whole calibration passes the trained
+@@ -749,7 +777,10 @@
+             if !super::shape::TRAINED_EXP_E_S_RANGE.contains(&r.exp_e_s) {
+                 return Err(format!("trained statement: layer {}'s exp e_s {} is outside its declared class {:?}", r.index, r.exp_e_s, super::shape::TRAINED_EXP_E_S_RANGE));
+             }
+-            if crate::tables_v3::int16out_member(crate::tables_v3::Act16Fn::Silu, r.silu_member.0, r.silu_member.1).is_none() {
++            let member_ok=if sh.accuracy_stack()==super::accuracy_precision::Stack::Legacy {
++                crate::tables_v3::int16out_member(crate::tables_v3::Act16Fn::Silu,r.silu_member.0,r.silu_member.1).is_some()
++            } else {sh.accuracy_registry().permits(r.silu_member)};
++            if !member_ok {
+                 return Err(format!("trained statement: layer {}'s SiLU member {:?} is not in the frozen registry", r.index, r.silu_member));
+             }
+         }
+@@ -861,6 +892,7 @@
+                     e.u64(OWN_FIELDS[i].1, u64::try_from(*v).unwrap_or(u64::MAX));
+                 }
+             }
++            if let Some(g)=r.accuracy_gate_shift {e.u64("accuracy-gate-layer",u64::from(g));}
+             for (k, d) in r.word_sha256.iter().enumerate() {
+                 e.field(&format!("word-{k}-sha256"), d);
+             }
+@@ -913,3 +945,87 @@
+         Ok(())
+     }
+ }
++
++#[cfg(test)]
++pub(super) fn accuracy_hash_model(sh:&Shape,l:usize)->TrainedModelStatement {
++    accuracy_metadata_tests::hash_census_model(sh,l)
++}
++
++#[cfg(test)]
++mod accuracy_metadata_tests {
++    use super::*;
++
++    fn provenance(sh:&Shape)->Provenance {
++        let mut p=Provenance::recipe("R13 metadata fixture",1.0,[3;32],[4;32]);
++        p.rope_theta=super::super::shape::trained_rope_theta(sh.profile).unwrap();
++        p.rope_scaling=super::super::shape::trained_rope_scaling(sh.profile).unwrap();p
++    }
++
++    #[test]
++    fn accuracy_calibration_describes_fp12_three_byte_norm_remainders_and_up_shift12() {
++        for sh in super::super::accuracy_profile_tests::registered_shapes() {
++            let p=provenance(&sh);let c=IntegerCalibration::as_the_code_proves(&sh,&p);
++            assert_eq!((c.f_p,c.norm_wrho,c.sh_u),(12,24,12));
++            assert_eq!(c.norm_tn,sh.norm_tn,"base calibration remains the source of effective precision");
++            c.check_honoured_by_code(&sh).unwrap();
++            for field in 0..3 {
++                let mut forged=c.clone();match field {0=>forged.f_p=9,1=>forged.norm_wrho=32,_=>forged.sh_u=0};
++                assert!(forged.check_honoured_by_code(&sh).is_err());
++            }
++        }
++        let sh=Shape::toy();let c=IntegerCalibration::as_the_code_proves(&sh,&Provenance::recipe("legacy",1.0,[3;32],[4;32]));
++        assert_eq!((c.f_p,c.norm_wrho,c.sh_u),(9,sh.norm_wrho,0));
++    }
++
++    #[test]
++    fn accuracy_layer_records_require_exactly_one_class_checked_gate_scalar() {
++        let mut r=LayerRecord::unhashed(0);
++        r.check_accuracy_gate(&Shape::toy()).unwrap();r.accuracy_gate_shift=Some(17);
++        assert!(r.check_accuracy_gate(&Shape::toy()).is_err());
++        for sh in super::super::accuracy_profile_tests::registered_shapes() {
++            r.accuracy_gate_shift=None;assert!(r.check_accuracy_gate(&sh).is_err());
++            for g in 17..=24 {r.accuracy_gate_shift=Some(g);r.check_accuracy_gate(&sh).unwrap();}
++            for g in [0,16,25,u32::MAX] {r.accuracy_gate_shift=Some(g);assert!(r.check_accuracy_gate(&sh).is_err());}
++        }
++    }
++
++    fn model(sh:&Shape,gates:&[u32])->TrainedModelStatement {
++        let source=ModelSource{kind:SourceKind::PublicSyntheticRecipe,repo:"synthetic/r13-metadata".into(),revision:"r13-test".into(),
++            weights_sha256:[0;32],config_sha256:[0;32],checkpoint_parameters:0,checkpoint_layers:gates.len() as u32};
++        let layers=gates.iter().enumerate().map(|(k,&g)| {
++            let mut r=LayerRecord::unhashed(k as u32);r.accuracy_gate_shift=Some(g);r.block_digest=[k as u8+1;32];
++            r.silu_member=(-3,-11);r
++        }).collect();
++        TrainedModelStatement::new_synthetic_at_trained_profile_for_tests(sh,super::super::run::accuracy_run_profile(sh.profile).unwrap(),
++            source,IntegerCalibration::as_the_code_proves(sh,&provenance(sh)),layers).unwrap()
++    }
++
++    pub(super) fn hash_census_model(sh:&Shape,l:usize)->TrainedModelStatement {model(sh,&vec![sh.accuracy_gate_shift;l])}
++
++    #[test]
++    fn accuracy_same_calibration_layers_reconstruct_distinct_bound_stage_denominators() {
++        use super::super::{run,IoSpec,ExpectedIo,layout::Layout};
++        for sh in super::super::accuracy_profile_tests::registered_shapes().into_iter().filter(|s|s.tokens==32) {
++            let m=model(&sh,&[17,24]);let rs=run::RunShape::accuracy(sh.clone(),2).unwrap();let context=[7;32];
++            let spec=IoSpec::new_shaped(&sh,context,0,0).unwrap();let expected=ExpectedIo::from_roots(spec,[1;32],[2;32]);
++            let digests=m.layers.iter().map(|r|r.block_digest).collect::<Vec<_>>();
++            let st=run::RunStatement::new_bound_from_digests(rs,context,expected,digests,&[super::super::ENDPOINT_SCALES;2],&m).unwrap();
++            let(a,b)=(st.stage_shape(0).unwrap(),st.stage_shape(1).unwrap());
++            assert_eq!(a.norm_calibration(),b.norm_calibration());
++            assert_eq!((a.accuracy_gate_shift,b.accuracy_gate_shift),(17,24));
++            assert_ne!(Layout::for_shape(&a).unwrap().schedule_digest(),Layout::for_shape(&b).unwrap().schedule_digest());
++            let mut changed=m.clone();changed.layers[1].accuracy_gate_shift=Some(23);
++            changed.check_self_with(&sh,true).unwrap();assert_ne!(changed.identity(),m.identity());
++            assert_eq!(String::from_utf8_lossy(&m.encode()).matches("accuracy-gate-layer").count(),2);
++            changed.layers[1].accuracy_gate_shift=None;assert!(changed.check_self_with(&sh,true).is_err());
++        }
++    }
++
++    #[test]
++    fn accuracy_profiles_keep_their_legacy_model_and_tied_tensor_pins() {
++        for spec in &super::super::shape::ACCURACY_PROFILES {
++            assert_eq!(ModelSource::pinned_for_profile(spec.profile),ModelSource::pinned_for_profile(spec.legacy));
++            assert_eq!(tied_tensor_for_profile(spec.profile),tied_tensor_for_profile(spec.legacy));
++        }
++    }
++}

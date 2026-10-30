@@ -1,0 +1,17 @@
+{
+  "status": "PASS",
+  "seed": 2026103016801,
+  "checks": {
+    "independent_clause_values": 144,
+    "ordered_final_values": 480,
+    "fixtures": 16,
+    "round_values": 480,
+    "folded_table_values": 660
+  },
+  "negative_controls": 2,
+  "wall_s": 0.1419910000040545,
+  "native_execution": false,
+  "proofs": 0,
+  "proved_positions": 0,
+  "verdict": "Equality factoring is exact for tested dictionary SC_SZC projection; native masked/receipt/refusal gates and complete cost remain untested."
+}

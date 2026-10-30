@@ -1,0 +1,11 @@
+{
+ "edited": {
+  "hashline/src/private_block/s25_tests.rs": {
+   "orig": "hashline__src__private_block__s25_tests.rs.orig",
+   "sha256": "9e205e41f952cb0faa178641d523f7fdf108d92ff88f4e0a43135aab82456b0f",
+   "mutant_sha256": "f02c473db66e188fefa43b3642ef1b5a52ac8b277ab8139ff36a27eb3db752a7"
+  }
+ },
+ "created": [],
+ "dirs": []
+}

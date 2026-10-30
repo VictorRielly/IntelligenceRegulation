@@ -1,0 +1,215 @@
+> **SUPERSEDED IN ONE POINT (note added by the gate lane, 2026-10-30 ~02:20 UTC, re-review N-4).** This report was
+> written at 00:57 UTC and says TS-1 at the REAL classifier stages "did not land". It landed later: the parent ran
+> the v2 wrapper at 01:54-02:00 UTC, `ts2-real-hate-classifier-stages.json` (`6da6296a…`): six roles, TS-1 6 / 6,
+> status PASS. The report as handed back is kept byte for byte as `ITEM3_REPORT.md.as-handed-back-0057`
+> (`3be42c0a…`). TS-1 on a real R13 block is condition C-9 (gate round 23).
+
+# Gate round 22, item 3: NL-1 S1–S5 and the terminal surjection (TS-1) on the classifier slots and the R13 block slots
+
+Privacy gate lane, fork for item 3, 2026-10-29 22:57 – 2026-10-30 UTC. **This is NOT a privacy acceptance.** Labels:
+[MEASURED] a run happened (laptop, shared box, n = 1); [COUNTED] exact arithmetic; [READ] read from code or a record;
+[MINE] my own reading, checked by nobody yet.
+
+## 1. In plain words
+
+The review's blocking finding P-1 asked for two checks that the classifier draft rested on only by analogy:
+
+- **NL-1** (the non-linear channel lemma's machine check): for every non-linear sumcheck slot, every monomial of the
+  slot polynomial has a public factor, the degree fits, the masks are long enough (S1, S2), Fact 2.1 holds at every
+  (rounds, degree) pair (S3), a miniature honest masked run accepts and its terminals map onto the full space (S4), and
+  the controls that should break it do (S5).
+- **The terminal surjection with TS-1** (G-7's per-commitment computation): every commitment's claimed terminals are
+  onto with exactly the declared disclosure, and removing one claim's reserved pair makes that group disclose (TS-1).
+
+**Result so far:** both pass on everything that ran.
+
+- **NL-1 S1–S5 PASS on all 12 classifier slots and on the 7 R13-changed block slots**, on three rung captures and on the
+  REAL Shieldstral hate capture (2 real blocks at G 19 / 18), in four challenge modes each (the run's re-derived
+  challenges and three random seeds); S3 also at every (N, d) of the real shape (55 / 55). Before any stage, the
+  gate's transcriptions were tied to the receipt: the port equals the recorded terminal polynomial (T-0) and its
+  Poly expansion equals the port (E-0) on every R13 slot instance, and a perturbed IR fails (F-1).
+- **The terminal surjection PASSES on the rung** (IN-C, OUT-C and both R13 blocks: every A, endpoint, boundary and
+  Input commitment discloses 0, every H exactly its declared 2), **TS-1 fires on all 12 roles**, and the review's
+  controls fire as predicted. On the **real** capture the six classifier-stage roles and one block's A are analysed
+  with the same figures, and so are one real block's A, H and Input; TS-1 at the real shape did not land (the jobs were
+  stopped by their time limit and by the coordinator for the app's post), and those real records exist as logs only
+  (§4, §5).
+
+## 2. Which slots, and why these seven
+
+| part | slots | why |
+|---|---|---|
+| classifier | IN-C 0–3, OUT-C 0–7 (12) | every slot of the two classifier stages (`stage_in_c.rs` / `stage_out_c.rs` `define`, the gate's transcription `zk60_native_rg_classterminals.define`) |
+| R13 block | **SC_LZC 3, SC_DZC 14, SC_QZC 15, SC_KVZC 16, SC_SZC 17, SC_FZC 18, SC_TAB 19** | the six bodies `argument_accuracy.rs::define_changed` redefines at a non-DD R13 profile (`zk60_native_rg_r13slots.R13_PORTS`), plus SC_LZC 3, the one legacy body whose POLYNOMIAL changes at R13 (its Dom::L lookups are `AccuracyIds::lookups(Dom::L)`, with the R13 limb counts and top-bit pins; the gate's `check_stage` sets them in `_lk_cache["L"]`) |
+| not applicable | SC_DD 23 and the DD softmax twin | DD-profile only; no classifier profile is DD (a DD bundle is refused by name) |
+
+The other 16 block slots keep D33's argument of record (NL-1 and the surjection passed on the legacy bodies at the
+trained TinyLlama export, D33's G-7); at R13 their polynomials are unchanged (only the matmul folds' public table
+values carry the multipliers) [READ, r13slots docstring].
+
+## 3. NL-1 S1–S5 [MEASURED]
+
+Tool: `ops/zkp-mvp/gate-tinyllama/r22-item3/zk60_r22_classnl.py` (sha256 `4f0c2061…`), importing frozen v23 read-only
+(`zk60_native_rg_tokennl`'s S1 / S3 / S4 / S5 / F-0 routines unchanged, the frozen `nl_check.py` with its pinned
+digests). The R13 ports are evaluated over the `Poly` ring by rebinding `add / sub / mul / mulb` in the terminals and
+r13slots module namespaces of this process to type-dispatching versions (Fp2 tuples still go to the frozen field
+functions, so every numeric path is unchanged).
+
+| record | capture | parts | status | T-0 | E-0 | S1 premise / public factor / degree / budget, S4 miniature + map (each of 4 modes) | S3 | S5 (N5-1, N5-2, N5-3, N5-4, F-1) | cost |
+|---|---|---|---|---|---|---|---|---|---|
+| `nl-rung-L2-v1-r17-values.json` (`0e2e2c7a…`) | R13 rung, L 2 (G 20 / 21), values | classifier 12 + R13 7 × 2 blocks | PASS | 12 / 12; 14 / 14 (+ control 14 / 14) | 14 / 14 | 12 / 12 and 14 / 14 in every mode | 35 / 35; 25 / 25 | 12/12, 7/7 (5 slack>0), yes, yes, 12/12; 14/14, 10/10 (4), yes, yes, 14/14 | 13.5 s, light, 0.14 GiB |
+| `nl-rung-L2-v1-short1.json` (`b681bf93…`) | rung short item n = 1 | classifier 12 | PASS | 12 / 12 | — | 12 / 12 | 35 / 35 | all fire | 4.3 s |
+| `nl-rung-L2-vtie.json` (`9df89d54…`) | rung, verdict tie | classifier 12 | PASS | 12 / 12 | — | 12 / 12 | 35 / 35 | all fire | 4.3 s |
+| `nl-real-hate-blocks0-2.json` (`ab078cf3…`) | **REAL** hate values, blocks 0 (G 19) and 2 (G 18) | classifier 12 + R13 7 × 2 | PASS | classifier skipped (needs B-3 = a checkpoint stream; round 20 measured 12 / 12); R13 14 / 14 (+ control 14 / 14) | 14 / 14 | 12 / 12 and 14 / 14 in every mode | 35 / 35; 30 / 30; **real-shape pairs 55 / 55** | all fire | 100 s, cpu 2.1 / 3.1, 1.53 GiB |
+
+- **T-0** = the port's numeric value at the capture's terminals, the rebuilt public tables and the re-derived
+  challenges equals the recorded terminal polynomial; its control (one private terminal + 1) moves it, 14 / 14.
+  **E-0** = the Poly expansion evaluated at the same values equals the port. **F-0** (each mode) = the IR evaluated by
+  `nl_check.Slot` at random values equals the port; **F-1** (S5) = one perturbed IR coefficient fails F-0.
+- **Real-shape geometry [MEASURED]:** R13 slot (main + ext, degree) pairs (15, 3), (15, 4), (18, 4), (20, 4), (20, 5),
+  (22, 5); classifier (2, 3), (9, 3), (13, 2..5), (18, 4). Max product degree ≤ declared everywhere (slack 1 at
+  SC_DZC and SC_FZC, 0 elsewhere). S2 at the real shape: IN-C ΣL 185, OUT-C ΣL 308 (equal to the mask specs the §4
+  count used [COUNTED]); the 7 R13 slots ΣL 561 per block, worst L 112, every L + 256 ≤ 512.
+- **Expansion sizes [MEASURED]:** SC_DZC 162 monomials, SC_FZC 75, SC_SZC 57–64, SC_QZC 52, SC_KVZC 51, SC_TAB 15,
+  SC_LZC 9.
+- **No checkpoint stream:** at the real capture B-3's derivation is refused in-process (`--no-b3`); the IR's public
+  tables are variables, so the expansion needs no table value. The store is read lazily (round-22 census trick).
+
+## 4. The terminal surjection with TS-1 [MEASURED]
+
+Tool: frozen v23 `zk60_native_rg_tokents` (its loader reads the classifier schema `/7` unchanged; row width per role
+from each role's own `params`) through `zk60_r22_classts.py` (`fb886564…`: TS-1 on every role, the review controls on a
+block A, `ts_trained.Arrays` given an mmap instead of reading the 2.25 GB store). `zk60_r22_classts2.py` (`7a8e2649…`)
+is v2: incremental records, the cheapest singleton group for TS-1.
+
+**Rung, official** (`ts-rung-L2-v1-r17-values.json`; light 1.1 / 1.5, 3,864 s, 1.14 GiB): PASS.
+
+| stage | role | width | groups surjective | disclosed (Fp) | TS-1 (honest → pair removed) |
+|---|---|---|---|---|---|
+| IN-C | A-in | 2^12 | 3 / 3 | 0 | 0 → 4,096 fires |
+| IN-C | H-in | 2^12 | 3 / 4 | 2 (joint {2, 3}) | 0 → 8,192 fires |
+| IN-C | E-token-in | 2^8 (2^11 enc.) | 1 / 1 | 0 | 0 → 256 fires |
+| OUT-C | A-out | 2^12 | 16 / 16 | 0 | 0 → 4,096 fires |
+| OUT-C | H-out | 2^12 | 4 / 5 | 2 (joint {3, 4}) | 0 → 8,192 fires |
+| OUT-C | B-out | 2^14 | 2 / 2 | 0 | 0 → 16,384 fires |
+| block 1 (G 20) | A / H / Input | 2^14 | 36/36, 8/9, 2/2 | 0, 2 (joint {7, 8}), 0 | fires, fires, fires |
+| block 2 (G 21) | A / H / Input | 2^14 | 36/36, 8/9, 2/2 | 0, 2 (joint {7, 8}), 0 | fires, fires, fires |
+
+Review controls on block A: C1 (shared reserved pair), C2 (cm = 0) and G7-D3 fire; C3, C6, C8, G7-D1, G7-D2 do not
+— the review's prediction.
+
+**Short item, n = 1** (`ts-rung-L2-v1-short1.json`, `bd22065b…`; light 1.1 / 1.5, 441 s, 0.12 GiB): PASS — the six
+classifier roles exactly as above (A-in, E-token-in, A-out, B-out 0; H-in, H-out 2), TS-1 6 / 6 fire.
+
+Official rung record: `ts-rung-L2-v1-r17-values.json` (`2cbcbe39…`).
+
+**Real hate capture** (cpu, mmap store, no checkpoint):
+
+| what | result | evidence |
+|---|---|---|
+| the six classifier-stage roles (IN-C A-in / H-in / E-token-in at 2^12 / 2^8; OUT-C A-out / H-out at 2^12, B-out at 2^14) | **A-in 3/3 surjective, 0 disclosed; H-in 3/4, 2 (joint {2, 3}); E-token-in 1/1, 0; A-out 16/16, 0; H-out 4/5, 2 (joint {3, 4}); B-out 2/2, 0** — the same figures as the rung [MEASURED, 65 s] | `logs/ts-real-classifier.log` (lines printed as each role finished). The job (`ts-real-classifier`, v1 wrapper, cpu 1.5 / 2.5, peak 0.11 GiB) then spent the rest of its 2,400 s max-secs in TS-1 and was stopped by the guard (exit 75), so **no JSON record was written and TS-1 at the real shape did not land** |
+| one real block (block 0, stage 1, G 19): A | **36 / 36 groups surjective, 0 disclosed** [MEASURED, 818 s] | `logs/ts-real-block1.log` (`ts-real-block1`, cpu 2.0 / 3.0, launched 00:04:38 UTC) |
+| the same block's H and Input | **H 8 / 9 groups surjective, disclosed exactly 2 (joint {7, 8}); Input 2 / 2, 0** [MEASURED, H 1,755 s, Input 6 s] | `logs/ts-real-block1.log`; the parent's copy `round22/ITEM3_REAL_BLOCK1_PARTIAL.json` (`565be37a…`) |
+| the same block's TS-1 | **not landed**: the coordinator ordered the job stopped at 00:54 UTC (past the 00:50 cut-off, Astra's post and Sol's R14 build waiting); the parent sent SIGTERM to its guard (guard exit 75, child 143) after saving the partial result | guard record `logs/ts-real-block1.guard.json` (3,011 s, peak 0.85 GiB) |
+
+So on the real capture: **one block partial (three roles analysed, no TS-1); the classifier stages' six roles analysed
+(record lost, TS-1 not landed); the rest named in §5.**
+
+## 5. Not covered, and why (with the commands that would close it)
+
+1. **TS-1 at the real shape, and a written real classifier-stage surjection record.** The v1 wrapper's TS-1 took the
+   first singleton group and did not finish in 2,335 s at the real capture; the v2 wrapper takes the cheapest group and
+   writes its record incrementally. At the rung, TS-1 costs 15–40 s per 2^12 role and ~300 s per 2^14 role, so the real
+   classifier stages should take ~7–10 min at ~0.2 GiB [MODEL from MEASURED: the real roles' analysis took 65 s at a
+   0.11 GiB peak; v1's TS-1 there did not finish in 2,335 s]. Not run in this fork's budget: it must
+   wait for Astra's three categories and the parent's GR4 chain (`round22/gr4/r22_gr4b.done`). Command:
+
+       python3 /home/victor/IntelligenceRegulation/scripts/zk60_resource_guard.py run --class cpu --need-gib 1.0 \
+         --cap-gib 2.0 --label gate22-item3-ts2-real-classifier --wait-secs 7200 --max-secs 2400 \
+         --log <EV>/round22/item3/logs/ts2-real-classifier.log --done <...>.guard.done --result-json <...>.guard.json -- \
+         /usr/bin/env OPENBLAS_NUM_THREADS=1 python3 -B \
+         /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/r22-item3/zk60_r22_classts2.py \
+         --bundle ~/zk60-artifacts/token-io/captures/classify-r13-shield-t128-cli-hate-r17-values \
+         --evidence <EV>/round22/item3 --name ts2-real-hate-classifier-stages
+
+2. **TS-1 on the real block, and the surjection on more real blocks.** One real block's three roles took 2,580 s
+   (A 818 s, H 1,755 s, Input 6 s) at a 0.85 GiB peak [MEASURED]; TS-1 adds at least ~3 × 300 s at 2^14 (the rung's
+   per-role cost) and probably more at the real H [MODEL from MEASURED], so one whole real block is ~1 h of a cpu slot
+   and all 26 would be about a day.
+   The R13 block commitments' structure (rows, groups, claims) is the same in every real block (round 20: the per-
+   commitment table equal per kind), so the rung's two blocks at two G plus one real block is what this round offers;
+   the review decides whether more is needed. Command per block k: the v2 wrapper with `--block-stages k
+   --skip-classifier` (cpu 2.0 / 3.0, max-secs ≥ 5,400).
+3. **The classifier T-0 at the real capture** (the transcription against the recorded terminal polynomial) needs B-3,
+   i.e. one 7.7 GB checkpoint stream; gate round 20 measured it 12 / 12 on this capture, so it was not repeated.
+4. **NL-1 on the other 24 real blocks.** The R13 slot polynomials depend on the block only through its own G and
+   calibration constants, which are public coefficients; blocks 0 (G 19) and 2 (G 18) at the real shape plus the rung's
+   G 20 / 21 cover every G of the real model ({18, 19, 20}), G 20 only at the rung shape. Running all 26 real blocks is ~26 × 25 s at ~1.6 GiB (cpu) [MODEL from MEASURED]: command
+   `zk60_r22_classnl.py --bundle <real> --parts r13 --lazy-store --no-b3 --skip-classifier-t0` (no `--r13-blocks`).
+
+## 6. Proposed draft changes (§3 Step 4, §10 item 3) — for the coordinator to merge after the review
+
+**§3 Step 4, "G-R2, the slots"** — replace the three bullets (the classifier premise checks, the R13 terminal identity,
+"Not run on these slots") by:
+
+> - **NL-1 S1–S5 on the 12 classifier slots and the 7 R13-changed block slots** (SC_DZC, SC_QZC, SC_KVZC, SC_SZC,
+>   SC_FZC, SC_TAB, which R13 redefines, and SC_LZC, whose Dom::L lookups R13 changes; SC_DD is DD-only and no
+>   classifier profile is DD) [MEASURED, gate round 22, `EV/round22/item3/`]. Through the frozen `nl_check` with a slot
+>   IR built from the gate's own transcriptions, in four challenge modes (the run's re-derived challenges and three
+>   random seeds), on three rung captures (L 2 at G 20 / 21, a short item n = 1, a tie) and on the real hate capture
+>   (classifier slots, and blocks 0 and 2 at G 19 / 18):
+>   - fidelity first: the transcription equals the recorded terminal polynomial (T-0: classifier 12 / 12 on the rung,
+>     round 20's 12 / 12 on the real capture; R13 28 / 28 slot instances), its expansion equals it (E-0, 28 / 28), and
+>     a perturbed IR is caught (F-1);
+>   - S1: every monomial has a public factor, the degree fits (slack 0, or 1 at SC_DZC / SC_FZC), every mask fits
+>     (worst L 112 + 256 ≤ 512), all private factors in extension round 0 — on every slot;
+>   - S2: the stage sums (IN-C ΣL 185, OUT-C 308 at the real shape, equal to the mask specs §4 counts);
+>   - S3: Fact 2.1 tight at every (N, d) of the classifier and R13 slots, the real shape's included (55 / 55);
+>   - S4: every miniature masked run accepts and every terminal map is onto F_p²^m;
+>   - S5: N5-1 (a public factor stripped), N5-2 (one degree short, at zero slack), N5-3, N5-4 and F-1 all fire.
+> - **The terminal surjection with TS-1** [MEASURED, gate round 22]: on the rung (IN-C, OUT-C and both R13 blocks) and
+>   the n = 1 short item every A, endpoint, boundary and Input commitment is onto with 0 disclosed and every H discloses
+>   exactly its declared zero-sum relation (2); TS-1 (one claim's reserved pair removed) makes that group disclose on
+>   all 12 roles; the review's block-A controls fire as predicted. On the real capture the six classifier-stage roles
+>   and block 0's A, H and Input give the same figures (one real block, partial: TS-1 at the real shape not run).
+> - The other 16 block slots keep D33's argument of record (NL-1 and the surjection on the legacy bodies at the
+>   trained TinyLlama export, G-7); R13 changes only their matmul folds' public values, not their polynomials.
+
+**§10 item 3** — replace "NL-1 S3–S5 and the terminal surjection … today the premise checks and the terminal identity
+are measured" by: "**Closed on the rung and on the real capture's classifier stages and two real blocks (gate round 22,
+item 3).** Remaining by measurement: TS-1 at the real shape (one cpu job of ~10 min, after the app's post); the
+surjection on further real blocks (~1 h of a cpu slot each), if the review asks for it."
+
+**§0 "What is still open"** — drop "NL-1's full battery on the R13 and classifier slots".
+
+## 7. Failing-first, in one place
+
+- F-1: one perturbed IR coefficient fails F-0 on every slot (12 / 12 classifier, 14 / 14 R13, each capture).
+- T-0 control: one private terminal + 1 moves the R13 port off the recorded terminal polynomial (28 / 28 instances).
+- N5-1 (public factor stripped) and N5-2 (degree one short, zero-slack slots) fire on every applicable slot; N5-3
+  and N5-4 fire.
+- TS-1 fires on all 12 rung roles and the 6 short-item roles; the review's C1 / C2 / G7-D3 fire and the five others
+  do not, as predicted.
+- Dev runs first: `dev/nl-dev-rung-L2-v1-r17-values.json`, `dev/nl-real-dev-block0.json` (`905d28c8…`),
+  `dev/ts-dev-rung-L2-v1.json` (`1637cd39…`, the frozen tokents unmodified on the /7 schema).
+
+## 8. Evidence (sha256, first 16 hex)
+
+| file | sha256 |
+|---|---|
+| `round22/item3/nl-rung-L2-v1-r17-values.json` | `0e2e2c7a3e45832a…` |
+| `round22/item3/nl-rung-L2-v1-short1.json` | `b681bf93c06b9d95…` |
+| `round22/item3/nl-rung-L2-vtie.json` | `9df89d544599e7ae…` |
+| `round22/item3/nl-real-hate-blocks0-2.json` | `ab078cf31e223db7…` |
+| `round22/item3/ts-rung-L2-v1-r17-values.json` | `2cbcbe3949ffe097…` |
+| `round22/item3/ts-rung-L2-v1-short1.json` | `bd22065b8a0fc1eb…` |
+| `round22/item3/logs/ts-real-classifier.log` (real classifier roles, no record) | `da825f2e358b37da…` |
+| `round22/item3/logs/ts-real-block1.log` (real block 0 partial) | `28d986c399c0ccb8…` |
+| `round22/ITEM3_REAL_BLOCK1_PARTIAL.json` (the parent's save) | `565be37a64eb59b3…` |
+| `ops/zkp-mvp/gate-tinyllama/r22-item3/zk60_r22_classnl.py` | `4f0c2061b89ded2d…` |
+| `ops/zkp-mvp/gate-tinyllama/r22-item3/zk60_r22_classts.py` | `fb886564d90a5520…` |
+| `ops/zkp-mvp/gate-tinyllama/r22-item3/zk60_r22_classts2.py` | `7a8e2649ce7a12c2…` |
+| chains `r22_item3_rung.sh` / `r22_item3_real.sh` | `93ef4faa85cd4519…` / `1ceb8f00ca33390f…` |
+
+Every job ran through the guard (`round22/item3/logs/*.guard.json`); no checkpoint stream, no prove, no capture. No job
+of this fork is pending. Not a privacy acceptance.

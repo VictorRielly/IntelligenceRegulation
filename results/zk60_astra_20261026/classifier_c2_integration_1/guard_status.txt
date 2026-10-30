@@ -1,0 +1,6 @@
+RAM   13.49 GiB available of 15.39; swap used 0.61 GiB
+BUDGET 2.0 of 11.89 GiB committed by guarded jobs
+  job  rvtk13-mut-g-twice           cpu   need 2G since 2026-10-29T00:34:44Z
+LOCKS heavy HELD, build free
+GPU   unreadable
+kernel memory cap available: False

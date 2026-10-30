@@ -1,0 +1,8 @@
+R14-public-synthetic-malicious-fixture/1
+case=dictionary-unused
+dd=1
+model_identity=d363a0f78f4b673e86b8ac1e930c63c068b7048578ee6142adde04d1d615fde4
+input_root=c844b4406ac75ef427f0553f78562876bf9c9f08c176209c59fe5d2912000a52
+output_root=f12cd6a5ba3a4f2059fda09c3a47043aa5128e58340b68c8d8e67b6011e71c2d
+binding=073341830f5ddcabb05f20a22bd08b36cf0de3725d7cf4228d21e7da5b19c4e2
+error=slot 31 [R14 DD dictionary zero-check (division at every slot, byte helpers, table helper) Whole]: sumcheck round 0: s(0) + s(1) != claim

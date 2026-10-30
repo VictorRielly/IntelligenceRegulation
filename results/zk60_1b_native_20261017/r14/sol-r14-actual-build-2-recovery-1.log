@@ -1,0 +1,396 @@
+   Compiling hashline v0.1.0 (/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/actual-working-tree/hashline)
+warning: unused import: `split_layout::Part`
+  --> src/private_block/split_attack_tests.rs:13:5
+   |
+13 |     split_layout::Part,
+   |     ^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused imports: `bf16`, `norm`, and `quantize`
+  --> src/private_block/tied_tables.rs:15:25
+   |
+15 | pub(crate) use derive::{bf16, norm, quantize};
+   |                         ^^^^  ^^^^  ^^^^^^^^
+
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+
+warning: unused import: `Dom`
+  --> src/private_block/s28_review_tests.rs:19:21
+   |
+19 | use super::layout::{Dom, Layout, U8_LEN};
+   |                     ^^^
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: unused variable: `ls`
+   --> src/private_block/argument_accuracy.rs:164:9
+    |
+164 |     let(ls,lp)=(sh.limbs_sigma_s(),sh.limbs_p());
+    |         ^^ help: if this is intentional, prefix it with an underscore: `_ls`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `lp`
+   --> src/private_block/argument_accuracy.rs:164:12
+    |
+164 |     let(ls,lp)=(sh.limbs_sigma_s(),sh.limbs_p());
+    |            ^^ help: if this is intentional, prefix it with an underscore: `_lp`
+
+warning: unused variable: `n_pad`
+   --> src/private_block/argument_accuracy.rs:167:9
+    |
+167 |     let n_pad=usize::from(pad_on);let cube=1usize<<sh.slots()[SC_SZC].0;
+    |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_n_pad`
+
+warning: unused variable: `low`
+   --> src/private_block/argument_accuracy.rs:347:9
+    |
+347 |     let low=ids.accuracy()?;let precision=sh.accuracy_precision()?;
+    |         ^^^ help: if this is intentional, prefix it with an underscore: `_low`
+
+warning: unused variable: `precision`
+   --> src/private_block/argument_accuracy.rs:347:33
+    |
+347 |     let low=ids.accuracy()?;let precision=sh.accuracy_precision()?;
+    |                                 ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_precision`
+
+warning: unused variable: `g_exp`
+   --> src/private_block/argument_accuracy.rs:348:25
+    |
+348 |     let(alpha,beta,g_u8,g_exp)=(ctx.alpha,ctx.beta,ctx.g_u8,ctx.g_exp);
+    |                         ^^^^^ help: if this is intentional, prefix it with an underscore: `_g_exp`
+
+warning: unused variable: `n_pad`
+   --> src/private_block/argument_accuracy.rs:352:9
+    |
+352 |     let n_pad=usize::from(pad_on);let cube=1usize<<sh.slots()[SC_DD].0;
+    |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_n_pad`
+
+warning: unused variable: `cube`
+   --> src/private_block/argument_accuracy.rs:352:39
+    |
+352 |     let n_pad=usize::from(pad_on);let cube=1usize<<sh.slots()[SC_DD].0;
+    |                                       ^^^^ help: if this is intentional, prefix it with an underscore: `_cube`
+
+warning: variable does not need to be mutable
+    --> src/private_block/run.rs:1185:13
+     |
+1185 |         let mut tr = st.transcript()?;
+     |             ----^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:302:18
+    |
+302 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: methods `input` and `output` are never used
+   --> src/private_block/split_run.rs:168:19
+    |
+161 | impl Statement {
+    | -------------- methods in this implementation
+...
+168 |     pub(crate) fn input(&self) -> Digest {
+    |                   ^^^^^
+...
+171 |     pub(crate) fn output(&self) -> Digest {
+    |                   ^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `slot` is never used
+   --> src/private_block/timing.rs:259:19
+    |
+216 | impl Phases {
+    | ----------- method in this implementation
+...
+259 |     pub(crate) fn slot(&mut self, s: usize, size: u64, unit: &'static str) {
+    |                   ^^^^
+
+warning: function `constants_of` is never used
+   --> src/private_block/trained_block.rs:454:4
+    |
+454 | fn constants_of(c:&J,what:&str,rope_pin:f64)->Result<Constants,String> {
+    |    ^^^^^^^^^^^^
+
+warning: function `table_keys_of` is never used
+   --> src/private_block/trained_block.rs:619:4
+    |
+619 | fn table_keys_of(c:&J,what:&str)->Result<TableKeys,String> {
+    |    ^^^^^^^^^^^^^
+
+warning: method `is_dd` is never used
+   --> src/private_block/trained_block.rs:726:19
+    |
+675 | impl Geometry {
+    | ------------- method in this implementation
+...
+726 |     pub(crate) fn is_dd(self) -> bool {
+    |                   ^^^^^
+
+warning: field `boundaries` is never read
+   --> src/private_block/run_capture.rs:522:5
+    |
+515 | struct Rec {
+    |        --- field in this struct
+...
+522 |     boundaries: Vec<Vec<u8>>,
+    |     ^^^^^^^^^^
+
+warning: function `active` is never used
+   --> src/private_block/run_capture.rs:624:15
+    |
+624 | pub(super) fn active() -> bool {
+    |               ^^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib test) generated 29 warnings (run `cargo fix --lib -p hashline --tests` to apply 20 suggestions)
+    Finished `release` profile [optimized] target(s) in 2m 40s
+     Running unittests src/lib.rs (results/zk60_1b_native_20261017/r14/actual-working-tree/hashline/target/release/deps/hashline-9454ad87483b3fd9)
+
+running 31 tests
+test private_block::argument::split_actual_tests::split_actual_s2_t128_all19_sites_and_optional_native_proof ... ignored, guarded actual-weight T128 R14 parity/proof; explicit export/DD and optional output
+test private_block::argument::split_actual_tests::split_actual_s2_t128_fresh_native_corruption_refusal ... ignored, guarded fresh actual S2 R14 canonical scalar corruption refusal
+test private_block::argument::split_actual_tests::split_actual_s2_t128_fresh_native_verifier ... ignored, guarded fresh actual S2 R14 native verifier; explicit export/DD/input
+test private_block::argument::split_attack_tests::split_run_t128_malicious_arithmetic_receipt_from_env ... ignored, separate guarded native R14 malicious receipt; explicit HL_R14_ATTACK / HL_R14_DD
+test private_block::argument::split_cfs_tests::split_scheduled_native_cfs_emitted_gate_forgeries_reach_m_and_refuse ... ok
+test private_block::argument::split_cfs_tests::split_scheduled_native_cfs_pcs_m_accepts_public_factor_lift_at_slot30 ... ok
+test private_block::argument::split_definition_tests::split_actual_definitions_match_all_physical_sites_sources_hosts_and_degrees ... R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/1","physical":0,"logical":0,"part":"Whole","main":18,"ext":1,"degree":3,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/1","physical":1,"logical":1,"part":"Whole","main":18,"ext":1,"degree":3,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/1","physical":2,"logical":2,"part":"Whole","main":7,"ext":1,"degree":3,"terminals":22,"hosted":2,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/1","physical":3,"logical":3,"part":"Whole","main":14,"ext":1,"degree":4,"terminals":3,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/1","physical":4,"logical":4,"part":"Whole","main":19,"ext":1,"degree":3,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/1","physical":5,"logical":5,"part":"Whole","main":11,"ext":1,"degree":2,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/1","physical":6,"logical":6,"part":"Whole","main":11,"ext":1,"degree":2,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/1","physical":7,"logical":7,"part":"Whole","main":11,"ext":1,"degree":2,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/1","physical":8,"logical":8,"part":"Whole","main":10,"ext":2,"degree":3,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/1","physical":9,"logical":9,"part":"Whole","main":10,"ext":2,"degree":3,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/1","physical":10,"logical":10,"part":"Wide","main":12,"ext":1,"degree":2,"terminals":1,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/1","physical":11,"logical":10,"part":"Narrow","main":12,"ext":1,"degree":2,"terminals":1,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/1","physical":12,"logical":11,"part":"Wide","main":11,"ext":1,"degree":2,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/1","physical":13,"logical":11,"part":"Narrow","main":11,"ext":1,"degree":2,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/1","physical":14,"logical":12,"part":"Wide","main":11,"ext":1,"degree":2,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/1","physical":15,"logical":12,"part":"Narrow","main":11,"ext":1,"degree":2,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/1","physical":16,"logical":13,"part":"Wide","main":13,"ext":1,"degree":2,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/1","physical":17,"logical":13,"part":"Narrow","main":13,"ext":1,"degree":2,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/1","physical":18,"logical":14,"part":"Wide","main":18,"ext":1,"degree":4,"terminals":58,"hosted":2,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/1","physical":19,"logical":14,"part":"Narrow","main":17,"ext":1,"degree":4,"terminals":58,"hosted":2,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/1","physical":20,"logical":15,"part":"Whole","main":19,"ext":1,"degree":4,"terminals":22,"hosted":2,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/1","physical":21,"logical":16,"part":"Whole","main":17,"ext":1,"degree":4,"terminals":22,"hosted":2,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/1","physical":22,"logical":17,"part":"Whole","main":19,"ext":1,"degree":4,"terminals":24,"hosted":2,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/1","physical":23,"logical":18,"part":"Wide","main":20,"ext":1,"degree":4,"terminals":24,"hosted":2,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/1","physical":24,"logical":18,"part":"Narrow","main":17,"ext":1,"degree":4,"terminals":24,"hosted":2,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/1","physical":25,"logical":19,"part":"Whole","main":14,"ext":1,"degree":3,"terminals":6,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/1","physical":26,"logical":20,"part":"Whole","main":14,"ext":1,"degree":2,"terminals":1,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/1","physical":27,"logical":21,"part":"Wide","main":18,"ext":1,"degree":2,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/1","physical":28,"logical":21,"part":"Narrow","main":17,"ext":1,"degree":2,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/1","physical":29,"logical":22,"part":"Wide","main":18,"ext":1,"degree":2,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/1","physical":30,"logical":22,"part":"Narrow","main":17,"ext":1,"degree":2,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_NATIVE_GROUPS {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/1","f_e":9,"a_groups":56,"h_groups":11,"input_groups":2,"output_groups":2,"functionals":46,"sc_round_degree_sum":1365,"scope":"native claim construction at public generic points; fixed geometry census, not a proof"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-ddict1/1","physical":0,"logical":0,"part":"Whole","main":18,"ext":1,"degree":3,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-ddict1/1","physical":1,"logical":1,"part":"Whole","main":18,"ext":1,"degree":3,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-ddict1/1","physical":2,"logical":2,"part":"Whole","main":7,"ext":1,"degree":3,"terminals":22,"hosted":2,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-ddict1/1","physical":3,"logical":3,"part":"Whole","main":14,"ext":1,"degree":4,"terminals":3,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-ddict1/1","physical":4,"logical":4,"part":"Whole","main":19,"ext":1,"degree":3,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-ddict1/1","physical":5,"logical":5,"part":"Whole","main":11,"ext":1,"degree":2,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-ddict1/1","physical":6,"logical":6,"part":"Whole","main":11,"ext":1,"degree":2,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-ddict1/1","physical":7,"logical":7,"part":"Whole","main":11,"ext":1,"degree":2,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-ddict1/1","physical":8,"logical":8,"part":"Whole","main":10,"ext":2,"degree":3,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-ddict1/1","physical":9,"logical":9,"part":"Whole","main":10,"ext":2,"degree":3,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-ddict1/1","physical":10,"logical":10,"part":"Wide","main":12,"ext":1,"degree":2,"terminals":1,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-ddict1/1","physical":11,"logical":10,"part":"Narrow","main":12,"ext":1,"degree":2,"terminals":1,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-ddict1/1","physical":12,"logical":11,"part":"Wide","main":11,"ext":1,"degree":2,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-ddict1/1","physical":13,"logical":11,"part":"Narrow","main":11,"ext":1,"degree":2,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-ddict1/1","physical":14,"logical":12,"part":"Wide","main":11,"ext":1,"degree":2,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-ddict1/1","physical":15,"logical":12,"part":"Narrow","main":11,"ext":1,"degree":2,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-ddict1/1","physical":16,"logical":13,"part":"Wide","main":13,"ext":1,"degree":2,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-ddict1/1","physical":17,"logical":13,"part":"Narrow","main":13,"ext":1,"degree":2,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-ddict1/1","physical":18,"logical":14,"part":"Wide","main":18,"ext":1,"degree":4,"terminals":58,"hosted":2,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-ddict1/1","physical":19,"logical":14,"part":"Narrow","main":17,"ext":1,"degree":4,"terminals":58,"hosted":2,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-ddict1/1","physical":20,"logical":15,"part":"Whole","main":19,"ext":1,"degree":4,"terminals":22,"hosted":2,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-ddict1/1","physical":21,"logical":16,"part":"Whole","main":17,"ext":1,"degree":4,"terminals":22,"hosted":2,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-ddict1/1","physical":22,"logical":17,"part":"Whole","main":19,"ext":1,"degree":4,"terminals":14,"hosted":2,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-ddict1/1","physical":23,"logical":18,"part":"Wide","main":20,"ext":1,"degree":4,"terminals":24,"hosted":2,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-ddict1/1","physical":24,"logical":18,"part":"Narrow","main":17,"ext":1,"degree":4,"terminals":24,"hosted":2,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-ddict1/1","physical":25,"logical":19,"part":"Whole","main":14,"ext":1,"degree":3,"terminals":6,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-ddict1/1","physical":26,"logical":20,"part":"Whole","main":14,"ext":1,"degree":2,"terminals":1,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-ddict1/1","physical":27,"logical":21,"part":"Wide","main":18,"ext":1,"degree":2,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-ddict1/1","physical":28,"logical":21,"part":"Narrow","main":17,"ext":1,"degree":2,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-ddict1/1","physical":29,"logical":22,"part":"Wide","main":18,"ext":1,"degree":2,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-ddict1/1","physical":30,"logical":22,"part":"Narrow","main":17,"ext":1,"degree":2,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-ddict1/1","physical":31,"logical":23,"part":"Whole","main":17,"ext":1,"degree":4,"terminals":15,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_NATIVE_GROUPS {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-ddict1/1","f_e":9,"a_groups":58,"h_groups":12,"input_groups":2,"output_groups":2,"functionals":48,"sc_round_degree_sum":1437,"scope":"native claim construction at public generic points; fixed geometry census, not a proof"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-blocks/1","physical":0,"logical":0,"part":"Whole","main":19,"ext":1,"degree":3,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-blocks/1","physical":1,"logical":1,"part":"Whole","main":19,"ext":1,"degree":3,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-blocks/1","physical":2,"logical":2,"part":"Whole","main":8,"ext":1,"degree":3,"terminals":22,"hosted":2,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-blocks/1","physical":3,"logical":3,"part":"Whole","main":15,"ext":1,"degree":4,"terminals":3,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-blocks/1","physical":4,"logical":4,"part":"Whole","main":21,"ext":1,"degree":3,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-blocks/1","physical":5,"logical":5,"part":"Whole","main":11,"ext":1,"degree":2,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-blocks/1","physical":6,"logical":6,"part":"Whole","main":11,"ext":1,"degree":2,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-blocks/1","physical":7,"logical":7,"part":"Whole","main":11,"ext":1,"degree":2,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-blocks/1","physical":8,"logical":8,"part":"Whole","main":10,"ext":2,"degree":3,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-blocks/1","physical":9,"logical":9,"part":"Whole","main":11,"ext":2,"degree":3,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-blocks/1","physical":10,"logical":10,"part":"Wide","main":12,"ext":1,"degree":2,"terminals":1,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-blocks/1","physical":11,"logical":10,"part":"Narrow","main":12,"ext":1,"degree":2,"terminals":1,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-blocks/1","physical":12,"logical":11,"part":"Wide","main":11,"ext":1,"degree":2,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-blocks/1","physical":13,"logical":11,"part":"Narrow","main":11,"ext":1,"degree":2,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-blocks/1","physical":14,"logical":12,"part":"Wide","main":11,"ext":1,"degree":2,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-blocks/1","physical":15,"logical":12,"part":"Narrow","main":11,"ext":1,"degree":2,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-blocks/1","physical":16,"logical":13,"part":"Wide","main":13,"ext":1,"degree":2,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-blocks/1","physical":17,"logical":13,"part":"Narrow","main":13,"ext":1,"degree":2,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-blocks/1","physical":18,"logical":14,"part":"Wide","main":19,"ext":1,"degree":4,"terminals":58,"hosted":2,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-blocks/1","physical":19,"logical":14,"part":"Narrow","main":18,"ext":1,"degree":4,"terminals":58,"hosted":2,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-blocks/1","physical":20,"logical":15,"part":"Whole","main":20,"ext":1,"degree":4,"terminals":22,"hosted":2,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-blocks/1","physical":21,"logical":16,"part":"Whole","main":18,"ext":1,"degree":4,"terminals":22,"hosted":2,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-blocks/1","physical":22,"logical":17,"part":"Whole","main":21,"ext":1,"degree":4,"terminals":27,"hosted":2,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-blocks/1","physical":23,"logical":18,"part":"Wide","main":21,"ext":1,"degree":4,"terminals":24,"hosted":2,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-blocks/1","physical":24,"logical":18,"part":"Narrow","main":18,"ext":1,"degree":4,"terminals":24,"hosted":2,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-blocks/1","physical":25,"logical":19,"part":"Whole","main":15,"ext":1,"degree":3,"terminals":6,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-blocks/1","physical":26,"logical":20,"part":"Whole","main":15,"ext":1,"degree":2,"terminals":1,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-blocks/1","physical":27,"logical":21,"part":"Wide","main":19,"ext":1,"degree":2,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-blocks/1","physical":28,"logical":21,"part":"Narrow","main":18,"ext":1,"degree":2,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-blocks/1","physical":29,"logical":22,"part":"Wide","main":19,"ext":1,"degree":2,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-blocks/1","physical":30,"logical":22,"part":"Narrow","main":18,"ext":1,"degree":2,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_NATIVE_GROUPS {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-blocks/1","f_e":9,"a_groups":56,"h_groups":11,"input_groups":2,"output_groups":2,"functionals":46,"sc_round_degree_sum":1432,"scope":"native claim construction at public generic points; fixed geometry census, not a proof"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-ddict1/1","physical":0,"logical":0,"part":"Whole","main":19,"ext":1,"degree":3,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-ddict1/1","physical":1,"logical":1,"part":"Whole","main":19,"ext":1,"degree":3,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-ddict1/1","physical":2,"logical":2,"part":"Whole","main":8,"ext":1,"degree":3,"terminals":22,"hosted":2,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-ddict1/1","physical":3,"logical":3,"part":"Whole","main":15,"ext":1,"degree":4,"terminals":3,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-ddict1/1","physical":4,"logical":4,"part":"Whole","main":21,"ext":1,"degree":3,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-ddict1/1","physical":5,"logical":5,"part":"Whole","main":11,"ext":1,"degree":2,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-ddict1/1","physical":6,"logical":6,"part":"Whole","main":11,"ext":1,"degree":2,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-ddict1/1","physical":7,"logical":7,"part":"Whole","main":11,"ext":1,"degree":2,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-ddict1/1","physical":8,"logical":8,"part":"Whole","main":10,"ext":2,"degree":3,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-ddict1/1","physical":9,"logical":9,"part":"Whole","main":11,"ext":2,"degree":3,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-ddict1/1","physical":10,"logical":10,"part":"Wide","main":12,"ext":1,"degree":2,"terminals":1,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-ddict1/1","physical":11,"logical":10,"part":"Narrow","main":12,"ext":1,"degree":2,"terminals":1,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-ddict1/1","physical":12,"logical":11,"part":"Wide","main":11,"ext":1,"degree":2,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-ddict1/1","physical":13,"logical":11,"part":"Narrow","main":11,"ext":1,"degree":2,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-ddict1/1","physical":14,"logical":12,"part":"Wide","main":11,"ext":1,"degree":2,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-ddict1/1","physical":15,"logical":12,"part":"Narrow","main":11,"ext":1,"degree":2,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-ddict1/1","physical":16,"logical":13,"part":"Wide","main":13,"ext":1,"degree":2,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-ddict1/1","physical":17,"logical":13,"part":"Narrow","main":13,"ext":1,"degree":2,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-ddict1/1","physical":18,"logical":14,"part":"Wide","main":19,"ext":1,"degree":4,"terminals":58,"hosted":2,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-ddict1/1","physical":19,"logical":14,"part":"Narrow","main":18,"ext":1,"degree":4,"terminals":58,"hosted":2,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-ddict1/1","physical":20,"logical":15,"part":"Whole","main":20,"ext":1,"degree":4,"terminals":22,"hosted":2,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-ddict1/1","physical":21,"logical":16,"part":"Whole","main":18,"ext":1,"degree":4,"terminals":22,"hosted":2,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-ddict1/1","physical":22,"logical":17,"part":"Whole","main":21,"ext":1,"degree":4,"terminals":14,"hosted":2,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-ddict1/1","physical":23,"logical":18,"part":"Wide","main":21,"ext":1,"degree":4,"terminals":24,"hosted":2,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-ddict1/1","physical":24,"logical":18,"part":"Narrow","main":18,"ext":1,"degree":4,"terminals":24,"hosted":2,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-ddict1/1","physical":25,"logical":19,"part":"Whole","main":15,"ext":1,"degree":3,"terminals":6,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-ddict1/1","physical":26,"logical":20,"part":"Whole","main":15,"ext":1,"degree":2,"terminals":1,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-ddict1/1","physical":27,"logical":21,"part":"Wide","main":19,"ext":1,"degree":2,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-ddict1/1","physical":28,"logical":21,"part":"Narrow","main":18,"ext":1,"degree":2,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-ddict1/1","physical":29,"logical":22,"part":"Wide","main":19,"ext":1,"degree":2,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-ddict1/1","physical":30,"logical":22,"part":"Narrow","main":18,"ext":1,"degree":2,"terminals":2,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_ACTUAL_SLOT {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-ddict1/1","physical":31,"logical":23,"part":"Whole","main":18,"ext":1,"degree":4,"terminals":18,"hosted":0,"scope":"native SlotDef source/site/degree census; not a full proof or privacy gate"}
+R14_NATIVE_GROUPS {"base":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-ddict1/1","f_e":9,"a_groups":58,"h_groups":12,"input_groups":2,"output_groups":2,"functionals":48,"sc_round_degree_sum":1508,"scope":"native claim construction at public generic points; fixed geometry census, not a proof"}
+ok
+test private_block::argument::split_definition_tests::split_native_core_t128_dd_proves_verifies_and_tamper_refuses ... ignored, separate guarded T128 native R14 core, need9.5GiB; no T256 laptop proof
+test private_block::argument::split_definition_tests::split_native_core_t128_non_dd_proves_verifies_and_tamper_refuses ... ignored, separate guarded T128 native R14 core, need9.5GiB; no T256 laptop proof
+test private_block::argument::split_definition_tests::split_run_plan_binds_trained_context_layer_calibrations_scales_and_joint_geometry ... ok
+test private_block::argument::split_definition_tests::split_witness_global_histograms_remove_only_the_old_padding_queries ... ok
+test private_block::argument::split_dense_tests::split_generic_dense_t128_native_receipt_and_physical_trace ... ignored, guarded generic dense true-support Shieldstral R14 proof, explicit HL_R14_DD
+test private_block::argument::split_run_tests::split_run_t128_dd_fresh_rejects_corrupt_stream ... ignored, separate guarded fresh-process corrupt canonical R14 stream refusal
+test private_block::argument::split_run_tests::split_run_t128_dd_fresh_verify_from_dir ... ignored, separate guarded fresh-process R14 verifier; explicit HL_R14_RUN_INPUT
+test private_block::argument::split_run_tests::split_run_t128_dd_narrow_boundary_forgery_emits_and_refuses ... ignored, guarded emitted R14 narrow-boundary malicious receipt,9.5GiB
+test private_block::argument::split_run_tests::split_run_t128_dd_serialized_two_blocks_with_own_calibration_verify ... ignored, guarded R14 T1282block streaming proof,9.5GiB; public synthetic only
+test private_block::argument::split_run_tests::split_run_t128_non_dd_fresh_rejects_corrupt_stream ... ignored, separate guarded fresh-process corrupt canonical R14 stream refusal
+test private_block::argument::split_run_tests::split_run_t128_non_dd_fresh_verify_from_dir ... ignored, separate guarded fresh-process R14 verifier; explicit HL_R14_RUN_INPUT
+test private_block::argument::split_run_tests::split_run_t128_non_dd_narrow_boundary_forgery_emits_and_refuses ... ignored, guarded emitted R14 narrow-boundary malicious receipt,9.5GiB
+test private_block::argument::split_run_tests::split_run_t128_non_dd_serialized_two_blocks_with_own_calibration_verify ... ignored, guarded R14 T1282block streaming proof,9.5GiB; public synthetic only
+test private_block::grow_tests::the_byte_table_length_is_split_from_the_row_width ... ok
+test private_block::split_endpoint::tests::split_joint_descriptor_and_source_roles_refuse_foreign_geometry ... ok
+test private_block::split_endpoint::tests::split_joint_one_opening_accepts_two_and_four_piece_claims_and_rejects_mutations ... ok
+test private_block::split_geometry::tests::both_matrix_orientations_use_global_coefficients_and_one_public_gate ... ok
+test private_block::split_geometry::tests::gather_all_true_numeric_roles_preserves_global_token_feature_indices ... ok
+test private_block::split_geometry::tests::native_private_broadcast_maps_keep_fixed_and_moving_tokens ... ok
+test private_block::split_layout::tests::native_split_inventory_census ... R14_SPLIT_CENSUS {"base_profile":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/1","f_e":9,"tokens":128,"dd":false,"n":16384,"a_planes":162,"h_planes":78,"a_rows":3517,"h_rows":3272,"a_sites":220,"h_sites":78,"slots":31,"m_rows":66,"joint_external_rows":31,"joint_internal_rows":34,"a_h_words":111230976,"base_a_h_words":146915328,"byte_queries":46956544,"act_queries":1179648,"scope":"COUNTED native typed inventory and slot declaration only; polynomial/claim builders and new profile not wired"}
+R14_SPLIT_CENSUS {"base_profile":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/1","f_e":12,"tokens":128,"dd":false,"n":16384,"a_planes":164,"h_planes":79,"a_rows":3585,"h_rows":3338,"a_sites":222,"h_sites":79,"slots":31,"m_rows":66,"joint_external_rows":31,"joint_internal_rows":34,"a_h_words":113426432,"base_a_h_words":149110784,"byte_queries":48005120,"act_queries":1179648,"scope":"COUNTED native typed inventory and slot declaration only; polynomial/claim builders and new profile not wired"}
+R14_SPLIT_CENSUS {"base_profile":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/1","f_e":16,"tokens":128,"dd":false,"n":16384,"a_planes":164,"h_planes":79,"a_rows":3585,"h_rows":3338,"a_sites":222,"h_sites":79,"slots":31,"m_rows":66,"joint_external_rows":31,"joint_internal_rows":34,"a_h_words":113426432,"base_a_h_words":149110784,"byte_queries":48005120,"act_queries":1179648,"scope":"COUNTED native typed inventory and slot declaration only; polynomial/claim builders and new profile not wired"}
+R14_SPLIT_CENSUS {"base_profile":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-ddict1/1","f_e":9,"tokens":128,"dd":true,"n":16384,"a_planes":164,"h_planes":80,"a_rows":3395,"h_rows":3116,"a_sites":223,"h_sites":80,"slots":32,"m_rows":68,"joint_external_rows":31,"joint_internal_rows":34,"a_h_words":106676224,"base_a_h_words":142360576,"byte_queries":43417600,"act_queries":1179648,"scope":"COUNTED native typed inventory and slot declaration only; polynomial/claim builders and new profile not wired"}
+R14_SPLIT_CENSUS {"base_profile":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-ddict1/1","f_e":12,"tokens":128,"dd":true,"n":16384,"a_planes":166,"h_planes":81,"a_rows":3415,"h_rows":3134,"a_sites":225,"h_sites":81,"slots":32,"m_rows":68,"joint_external_rows":31,"joint_internal_rows":34,"a_h_words":107298816,"base_a_h_words":142983168,"byte_queries":43679744,"act_queries":1179648,"scope":"COUNTED native typed inventory and slot declaration only; polynomial/claim builders and new profile not wired"}
+R14_SPLIT_CENSUS {"base_profile":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-ddict1/1","f_e":16,"tokens":128,"dd":true,"n":16384,"a_planes":166,"h_planes":81,"a_rows":3415,"h_rows":3134,"a_sites":225,"h_sites":81,"slots":32,"m_rows":68,"joint_external_rows":31,"joint_internal_rows":34,"a_h_words":107298816,"base_a_h_words":142983168,"byte_queries":43679744,"act_queries":1179648,"scope":"COUNTED native typed inventory and slot declaration only; polynomial/claim builders and new profile not wired"}
+R14_SPLIT_CENSUS {"base_profile":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-blocks/1","f_e":9,"tokens":256,"dd":false,"n":32768,"a_planes":164,"h_planes":79,"a_rows":4065,"h_rows":3978,"a_sites":222,"h_sites":79,"slots":31,"m_rows":66,"joint_external_rows":31,"joint_internal_rows":34,"a_h_words":263553024,"base_a_h_words":334921728,"byte_queries":113836032,"act_queries":2359296,"scope":"COUNTED native typed inventory and slot declaration only; polynomial/claim builders and new profile not wired"}
+R14_SPLIT_CENSUS {"base_profile":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-blocks/1","f_e":12,"tokens":256,"dd":false,"n":32768,"a_planes":164,"h_planes":79,"a_rows":4065,"h_rows":3978,"a_sites":222,"h_sites":79,"slots":31,"m_rows":66,"joint_external_rows":31,"joint_internal_rows":34,"a_h_words":263553024,"base_a_h_words":334921728,"byte_queries":113836032,"act_queries":2359296,"scope":"COUNTED native typed inventory and slot declaration only; polynomial/claim builders and new profile not wired"}
+R14_SPLIT_CENSUS {"base_profile":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-blocks/1","f_e":16,"tokens":256,"dd":false,"n":32768,"a_planes":164,"h_planes":79,"a_rows":4065,"h_rows":3978,"a_sites":222,"h_sites":79,"slots":31,"m_rows":66,"joint_external_rows":31,"joint_internal_rows":34,"a_h_words":263553024,"base_a_h_words":334921728,"byte_queries":113836032,"act_queries":2359296,"scope":"COUNTED native typed inventory and slot declaration only; polynomial/claim builders and new profile not wired"}
+R14_SPLIT_CENSUS {"base_profile":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-ddict1/1","f_e":9,"tokens":256,"dd":true,"n":32768,"a_planes":166,"h_planes":81,"a_rows":3639,"h_rows":3454,"a_sites":225,"h_sites":81,"slots":32,"m_rows":68,"joint_external_rows":31,"joint_internal_rows":34,"a_h_words":232423424,"base_a_h_words":303792128,"byte_queries":93650944,"act_queries":2359296,"scope":"COUNTED native typed inventory and slot declaration only; polynomial/claim builders and new profile not wired"}
+R14_SPLIT_CENSUS {"base_profile":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-ddict1/1","f_e":12,"tokens":256,"dd":true,"n":32768,"a_planes":166,"h_planes":81,"a_rows":3639,"h_rows":3454,"a_sites":225,"h_sites":81,"slots":32,"m_rows":68,"joint_external_rows":31,"joint_internal_rows":34,"a_h_words":232423424,"base_a_h_words":303792128,"byte_queries":93650944,"act_queries":2359296,"scope":"COUNTED native typed inventory and slot declaration only; polynomial/claim builders and new profile not wired"}
+R14_SPLIT_CENSUS {"base_profile":"hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-ddict1/1","f_e":16,"tokens":256,"dd":true,"n":32768,"a_planes":166,"h_planes":81,"a_rows":3639,"h_rows":3454,"a_sites":225,"h_sites":81,"slots":32,"m_rows":68,"joint_external_rows":31,"joint_internal_rows":34,"a_h_words":232423424,"base_a_h_words":303792128,"byte_queries":93650944,"act_queries":2359296,"scope":"COUNTED native typed inventory and slot declaration only; polynomial/claim builders and new profile not wired"}
+ok
+test private_block::split_layout::tests::split_inventory_refuses_missing_extent_and_short_h_piece ... ok
+test private_block::split_profile::tests::split_descriptors_bind_geometry_calibration_and_new_hash_domains ... ok
+test private_block::split_run::root_tests::split_run_repeated_root_audit_covers_endpoint_block_mask_and_boundary_roles ... ok
+test private_block::wire::split::tests::split_wire_exact_shapes_roundtrip_and_hostile_headers_words_and_counts_refuse ... ok
+
+test result: ok. 16 passed; 0 failed; 15 ignored; 0 measured; 721 filtered out; finished in 4.58s
+

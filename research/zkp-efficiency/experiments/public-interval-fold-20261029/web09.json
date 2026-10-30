@@ -1,0 +1,18 @@
+{
+  "tool": "tools.web__run",
+  "access_date": "2026-10-29",
+  "access_timezone": "UTC",
+  "commands": {
+    "open": [
+      "https://github.com/RuokaiYin/Celty/blob/main/celty/KERNELs.cuh"
+    ],
+    "search_query": [
+      "2026 zero knowledge \"lookup\" \"GPU\" \"October\" sumcheck release",
+      "2026 amortized commitment folding sumcheck \"zero-knowledge\" eprint GPU"
+    ]
+  },
+  "raw_response_sha256": "a5e6e4538fffed48be71d0a30ad4ef066266bd6f5d03be14fbba2cc5537bf05c",
+  "raw_response_bytes": 16076,
+  "retention": "Provenance and source assessments retained; full webpage/paper text not redistributed. Exact source dates/licenses/limits in sources-cycle.jsonl.",
+  "external_execution": false
+}

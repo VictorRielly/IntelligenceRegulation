@@ -1,0 +1,63 @@
+{
+  "status": "PASS",
+  "profiles": [
+    {
+      "dd": false,
+      "rho_logical_operand_bytes": 44393824256,
+      "rho_reads_retained": true,
+      "baseline_matrix_plus_rho_operand_bytes": 50392989696,
+      "zero_skip_matrix_plus_rho_operand_bytes_upper": 45659193344,
+      "logical_operand_reduction": 0.09393759688712715,
+      "baseline_group_row_products": 169349,
+      "structural_group_row_products_upper": 9804,
+      "fp2_base_MAC_structural_reduction": 0.9421077183803861,
+      "baseline_all_row_iterations_per_outputcolumn": 45770,
+      "zero_skip_all_row_iterations_per_outputcolumn": 45770,
+      "unpacked_public_union_u32_index_bytes": 38616,
+      "packed_public_union_u32_index_bytes": 22632,
+      "packed_index_max_active_payload_bytes": 18308,
+      "source_acc_plus_weight_temporary_B_per_thread": 128,
+      "baseline_acc_temporary_B_per_thread": 64,
+      "registers_spills_occupancy": "unmeasured",
+      "scope": "Source logical operand accounting before compiler/cache/warp broadcast, not physical memory or timing. Index-list loop is a next hypothesis, not tested native code."
+    },
+    {
+      "dd": true,
+      "rho_logical_operand_bytes": 45546209280,
+      "rho_reads_retained": true,
+      "baseline_matrix_plus_rho_operand_bytes": 51385466880,
+      "zero_skip_matrix_plus_rho_operand_bytes_upper": 46768848896,
+      "logical_operand_reduction": 0.08984287317620651,
+      "baseline_group_row_products": 173745,
+      "structural_group_row_products_upper": 9561,
+      "fp2_base_MAC_structural_reduction": 0.9449710783044116,
+      "baseline_all_row_iterations_per_outputcolumn": 44550,
+      "zero_skip_all_row_iterations_per_outputcolumn": 44550,
+      "unpacked_public_union_u32_index_bytes": 37312,
+      "packed_public_union_u32_index_bytes": 23176,
+      "packed_index_max_active_payload_bytes": 17820,
+      "source_acc_plus_weight_temporary_B_per_thread": 128,
+      "baseline_acc_temporary_B_per_thread": 64,
+      "registers_spills_occupancy": "unmeasured",
+      "scope": "Source logical operand accounting before compiler/cache/warp broadcast, not physical memory or timing. Index-list loop is a next hypothesis, not tested native code."
+    }
+  ],
+  "end_to_end_ceiling": "N/(T-C_removed_exclusive+A_added); native exclusive fraction unknown; free deletion <=1/(1-f). No numerical speed/rate forecast.",
+  "proof_clocks": {
+    "witness_s": null,
+    "proof_s": null,
+    "serialization_s": null,
+    "verification_s": null,
+    "startup_s": null,
+    "startup_fraction": null,
+    "steady_rate": null,
+    "total_rate": null
+  },
+  "new_verified_full_stack_proofs": 0,
+  "new_model_passes": 0,
+  "new_proved_positions": 0,
+  "actual_context": null,
+  "modeled_context": 128,
+  "accelerator": null,
+  "workload_kind": "public-shape component differential, no prefill/resident-pass/decode"
+}

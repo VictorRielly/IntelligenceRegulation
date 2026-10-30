@@ -1,0 +1,38 @@
+{
+  "utc": "2026-10-30T08:08:21.781545+00:00",
+  "failed_attempts": [
+    {
+      "label": "sol-r14-legacy-full-suite-1",
+      "exit": 101,
+      "source": "3c7b1dcfd47ba8cb257c6f734348f25fb960af3f25f8b1b14ea4e262ff8defda",
+      "failures": "3 legacy source audits omitted new split modules/child attributes;3 isolated loader-fixture paths missing",
+      "action": "new audit-only revision and restored read-only fixture link; old source/binary/checkpoint retained"
+    },
+    {
+      "label": "sol-r14-legacy-full-suite-2",
+      "exit": 101,
+      "source": "ff4117e0b6f01948a6689afee9f5d67c04d111eba7adbb41c8cfce8cb4f65dfb",
+      "library": "688pass/1fail/71ignored",
+      "failures": "author source scanner cut at external cfg(test) module declaration before production hash calls",
+      "snapshot": "checkpoints/compatibility-suite-2-failed",
+      "action": "only inline test bodies terminate production_text; extracted exact hash classifier passes37sites/46sources, fullsuitev3 running"
+    },
+    {
+      "label": "sol-r14-hash-audit-diagnostic-1",
+      "exit": 2,
+      "scope": "No test ran; helper creation stopped on ambiguous executable glob, so leaf script was absent",
+      "action": "next diagnostic uses exact cargo-named src/lib.rs executable; original empty-helper failure retained"
+    },
+    {
+      "label": "sol-r14-hash-audit-diagnostic-2",
+      "exit": 101,
+      "scope": "Expected reproduction of v2 hash audit failure against library executable; not a native receipt rejection"
+    }
+  ],
+  "running_repair": {
+    "label": "sol-r14-legacy-full-suite-3",
+    "source": "8630154267232d1abbd73658ba95d923e6982c7f126c341fc0933b49a0e25f2d",
+    "status": "all three previously failing source audits nowpass in fullrun; suite stillrunning"
+  },
+  "scope": "Failure history, no acceptance marker manufactured; no protocol/math/codec changes for these repairs."
+}

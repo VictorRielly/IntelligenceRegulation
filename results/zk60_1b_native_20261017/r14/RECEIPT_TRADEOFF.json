@@ -1,0 +1,202 @@
+{
+  "scope": "Native compiled role/slot/group census plus accepted native R13 receipt lengths. Exact codec formulas; all stages share census calibration. Token/classifier stages and statement sidecars excluded.",
+  "rows": [
+    {
+      "base_profile": "hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/1",
+      "tokens": 128,
+      "dd": false,
+      "blocks": 2,
+      "n": 16384,
+      "pcs_queries": 256,
+      "inv_rate": 4,
+      "a_groups": 56,
+      "h_groups": 11,
+      "r13_segment_total_bytes": 65381616,
+      "r14_segment_total_bytes": 69286512,
+      "increase_bytes": 3904896,
+      "increase_percent": 5.972467857019614,
+      "r14_first_segment_bytes": 33872200,
+      "r14_last_segment_bytes": 35414312,
+      "r14_interior_segment_bytes": 34410824,
+      "a_h_saving_percent": 24.289059886249586,
+      "scope": "COUNTED exact codec formula, constant admitted FE9/G20 calibration example; no actual26layer export/throughput/privacy claim"
+    },
+    {
+      "base_profile": "hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/1",
+      "tokens": 128,
+      "dd": false,
+      "blocks": 26,
+      "n": 16384,
+      "pcs_queries": 256,
+      "inv_rate": 4,
+      "a_groups": 56,
+      "h_groups": 11,
+      "r13_segment_total_bytes": 844186032,
+      "r14_segment_total_bytes": 895146288,
+      "increase_bytes": 50960256,
+      "increase_percent": 6.036614450877331,
+      "r14_first_segment_bytes": 33872200,
+      "r14_last_segment_bytes": 35414312,
+      "r14_interior_segment_bytes": 34410824,
+      "a_h_saving_percent": 24.289059886249586,
+      "scope": "COUNTED exact codec formula, constant admitted FE9/G20 calibration example; no actual26layer export/throughput/privacy claim"
+    },
+    {
+      "base_profile": "hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-ddict1/1",
+      "tokens": 128,
+      "dd": true,
+      "blocks": 2,
+      "n": 16384,
+      "pcs_queries": 256,
+      "inv_rate": 4,
+      "a_groups": 58,
+      "h_groups": 12,
+      "r13_segment_total_bytes": 65851632,
+      "r14_segment_total_bytes": 69756528,
+      "increase_bytes": 3904896,
+      "increase_percent": 5.92983936981244,
+      "r14_first_segment_bytes": 34107208,
+      "r14_last_segment_bytes": 35649320,
+      "r14_interior_segment_bytes": 34645832,
+      "a_h_saving_percent": 25.066175624352628,
+      "scope": "COUNTED exact codec formula, constant admitted FE9/G20 calibration example; no actual26layer export/throughput/privacy claim"
+    },
+    {
+      "base_profile": "hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-ddict1/1",
+      "tokens": 128,
+      "dd": true,
+      "blocks": 26,
+      "n": 16384,
+      "pcs_queries": 256,
+      "inv_rate": 4,
+      "a_groups": 58,
+      "h_groups": 12,
+      "r13_segment_total_bytes": 850296240,
+      "r14_segment_total_bytes": 901256496,
+      "increase_bytes": 50960256,
+      "increase_percent": 5.993235486963933,
+      "r14_first_segment_bytes": 34107208,
+      "r14_last_segment_bytes": 35649320,
+      "r14_interior_segment_bytes": 34645832,
+      "a_h_saving_percent": 25.066175624352628,
+      "scope": "COUNTED exact codec formula, constant admitted FE9/G20 calibration example; no actual26layer export/throughput/privacy claim"
+    },
+    {
+      "base_profile": "hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-blocks/1",
+      "tokens": 256,
+      "dd": false,
+      "blocks": 2,
+      "n": 32768,
+      "pcs_queries": 256,
+      "inv_rate": 4,
+      "a_groups": 56,
+      "h_groups": 11,
+      "r13_segment_total_bytes": 97054416,
+      "r14_segment_total_bytes": 113542608,
+      "increase_bytes": 16488192,
+      "increase_percent": 16.988605649844924,
+      "r14_first_segment_bytes": 55340792,
+      "r14_last_segment_bytes": 58201816,
+      "r14_interior_segment_bytes": 56403704,
+      "a_h_saving_percent": 21.309069562665105,
+      "scope": "COUNTED exact codec formula, constant admitted FE9/G20 calibration example; no actual26layer export/throughput/privacy claim"
+    },
+    {
+      "base_profile": "hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-blocks/1",
+      "tokens": 256,
+      "dd": false,
+      "blocks": 26,
+      "n": 32768,
+      "pcs_queries": 256,
+      "inv_rate": 4,
+      "a_groups": 56,
+      "h_groups": 11,
+      "r13_segment_total_bytes": 1252688400,
+      "r14_segment_total_bytes": 1467231504,
+      "increase_bytes": 214543104,
+      "increase_percent": 17.126613769234233,
+      "r14_first_segment_bytes": 55340792,
+      "r14_last_segment_bytes": 58201816,
+      "r14_interior_segment_bytes": 56403704,
+      "a_h_saving_percent": 21.309069562665105,
+      "scope": "COUNTED exact codec formula, constant admitted FE9/G20 calibration example; no actual26layer export/throughput/privacy claim"
+    },
+    {
+      "base_profile": "hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-ddict1/1",
+      "tokens": 256,
+      "dd": true,
+      "blocks": 2,
+      "n": 32768,
+      "pcs_queries": 256,
+      "inv_rate": 4,
+      "a_groups": 58,
+      "h_groups": 12,
+      "r13_segment_total_bytes": 96344944,
+      "r14_segment_total_bytes": 112833136,
+      "increase_bytes": 16488192,
+      "increase_percent": 17.113707596321824,
+      "r14_first_segment_bytes": 54986056,
+      "r14_last_segment_bytes": 57847080,
+      "r14_interior_segment_bytes": 56048968,
+      "a_h_saving_percent": 23.492611368784377,
+      "scope": "COUNTED exact codec formula, constant admitted FE9/G20 calibration example; no actual26layer export/throughput/privacy claim"
+    },
+    {
+      "base_profile": "hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-ddict1/1",
+      "tokens": 256,
+      "dd": true,
+      "blocks": 26,
+      "n": 32768,
+      "pcs_queries": 256,
+      "inv_rate": 4,
+      "a_groups": 58,
+      "h_groups": 12,
+      "r13_segment_total_bytes": 1243465264,
+      "r14_segment_total_bytes": 1458008368,
+      "increase_bytes": 214543104,
+      "increase_percent": 17.253646741192764,
+      "r14_first_segment_bytes": 54986056,
+      "r14_last_segment_bytes": 57847080,
+      "r14_interior_segment_bytes": 56048968,
+      "a_h_saving_percent": 23.492611368784377,
+      "scope": "COUNTED exact codec formula, constant admitted FE9/G20 calibration example; no actual26layer export/throughput/privacy claim"
+    }
+  ],
+  "source_sha256": {
+    "results/zk60_1b_native_20261017/r14/NATIVE_BUILDERS_CENSUS.json": "cdf31b42c5d0b9e3daf2c2332c7df473b02f2b9252652ee559384643fb890b2e",
+    "results/zk60_1b_native_20261017/r13/NATIVE_COMPARISON.json": "59e66eb1de1bfd2b9ff51c99e0bb04816e0f791b12c08a18a3afb1244b59c220",
+    "results/zk60_1b_native_20261017/r13/frozen-tree/hashline/src/private_block/shape.rs": "8e00a144bd194fd5a3dd30c9aaece2869d43d461df623cdcfc5a9da59e51436b",
+    "results/zk60_1b_native_20261017/r13/frozen-tree/hashline/src/private_block/wire.rs": "f312067871bb87dc93436263b5820e5f3fb9a9623f190efc924023a28c5d41d0",
+    "results/zk60_1b_native_20261017/r14/working-tree/hashline/src/private_block/split_wire.rs": "b07ee9effd7ec1f4ee916151e8e6b505fae24acccaf1d70476a64656b6e6da8e"
+  },
+  "finding": "Fewer A/H committed words do not imply smaller proof bytes. More independent column-key groups add Fp2 vectors; one joint commitment still opens each piece claim group.",
+  "native_serialized_length_check": {
+    "status": "PASS DD/nonDD2stage native files equal first/last codec formula exactly",
+    "cases": [
+      {
+        "mode": "non-dd",
+        "observed_bytes": [
+          33872200,
+          35414312
+        ],
+        "counted_bytes": [
+          33872200,
+          35414312
+        ],
+        "sum_bytes": 69286512
+      },
+      {
+        "mode": "dd",
+        "observed_bytes": [
+          34107208,
+          35649320
+        ],
+        "counted_bytes": [
+          34107208,
+          35649320
+        ],
+        "sum_bytes": 69756528
+      }
+    ]
+  }
+}

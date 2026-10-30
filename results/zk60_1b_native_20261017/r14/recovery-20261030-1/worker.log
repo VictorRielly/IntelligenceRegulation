@@ -1,0 +1,3 @@
+2026-10-30T00:18:59.083413+00:00 candidate-build
+2026-10-30T01:19:18.075719+00:00 candidate-arithmetic
+candidate-arithmetic failed (101); inspect retained logs; no retry

@@ -1,0 +1,108 @@
+{
+ "utc": "2026-10-28T22:37:45.951459+00:00",
+ "mode": "apply",
+ "src": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io",
+ "dest": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r12b",
+ "r8_tree": "7f64276a\u2026 (r8/manifest_frozen.json)",
+ "r12b_tree": "51de5b83bc0dcaeeeb430165081c47653ac012c462c09f3df4ce7f125faf904f",
+ "native_changed_r8_to_r12b": 42,
+ "token_files": 247,
+ "token_only_files": 27,
+ "counts": {
+  "copy_r12b": 26,
+  "add_r12b": 9,
+  "remove": 0,
+  "merge": 7,
+  "keep_token": 1,
+  "unchanged": 186,
+  "conflict_add": 0,
+  "conflict_remove": 0
+ },
+ "actions": {
+  "copy_r12b": [
+   "hashline/src/private_block/argument.rs",
+   "hashline/src/private_block/dense_tests.rs",
+   "hashline/src/private_block/grow_tests.rs",
+   "hashline/src/private_block/hash_domain.rs",
+   "hashline/src/private_block/layout.rs",
+   "hashline/src/private_block/mvp_driver.rs",
+   "hashline/src/private_block/p2_tests.rs",
+   "hashline/src/private_block/pad.rs",
+   "hashline/src/private_block/parity.rs",
+   "hashline/src/private_block/protocol.rs",
+   "hashline/src/private_block/rung_tests.rs",
+   "hashline/src/private_block/s20_review_tests.rs",
+   "hashline/src/private_block/s28_review_tests.rs",
+   "hashline/src/private_block/s28_tests.rs",
+   "hashline/src/private_block/s29_tests.rs",
+   "hashline/src/private_block/s35_tests.rs",
+   "hashline/src/private_block/shape.rs",
+   "hashline/src/private_block/slot_ir_tests.rs",
+   "hashline/src/private_block/tests.rs",
+   "hashline/src/private_block/timing.rs",
+   "hashline/src/private_block/trained_calib_tests.rs",
+   "hashline/src/private_block/trained_statement.rs",
+   "hashline/src/private_block/wire.rs",
+   "hashline/src/private_block/witness.rs",
+   "private-block-kernel-shaped/src/lib.rs",
+   "private-block-kernel-shaped/src/tests.rs"
+  ],
+  "add_r12b": [
+   "hashline/examples/zk60_tied_tables.rs",
+   "hashline/src/private_block/r12_golden_tests.rs",
+   "hashline/src/private_block/r12_tests.rs",
+   "hashline/src/private_block/r12b_tests.rs",
+   "hashline/src/private_block/r9_golden_tests.rs",
+   "hashline/src/private_block/r9_tests.rs",
+   "hashline/src/private_block/rope.rs",
+   "hashline/src/private_block/tied_tables.rs",
+   "hashline/src/private_block/tied_tables/derive.rs"
+  ],
+  "remove": [],
+  "merge": [
+   "hashline/src/private_block.rs",
+   "hashline/src/private_block/hash_domain_tests.rs",
+   "hashline/src/private_block/run.rs",
+   "hashline/src/private_block/run_capture.rs",
+   "hashline/src/private_block/s24_tests.rs",
+   "hashline/src/private_block/s25_tests.rs",
+   "hashline/src/private_block/trained_block.rs"
+  ],
+  "keep_token": [
+   "hashline/src/private_block/s33_tests.rs"
+  ],
+  "conflict_add": [],
+  "conflict_remove": []
+ },
+ "merged": {
+  "hashline/src/private_block.rs": {
+   "conflicts": 0,
+   "clean": true
+  },
+  "hashline/src/private_block/hash_domain_tests.rs": {
+   "conflicts": 1,
+   "clean": false
+  },
+  "hashline/src/private_block/run.rs": {
+   "conflicts": 1,
+   "clean": false
+  },
+  "hashline/src/private_block/run_capture.rs": {
+   "conflicts": 1,
+   "clean": false
+  },
+  "hashline/src/private_block/s24_tests.rs": {
+   "conflicts": 0,
+   "clean": true
+  },
+  "hashline/src/private_block/s25_tests.rs": {
+   "conflicts": 1,
+   "clean": false
+  },
+  "hashline/src/private_block/trained_block.rs": {
+   "conflicts": 0,
+   "clean": true
+  }
+ },
+ "dest_files": 256
+}

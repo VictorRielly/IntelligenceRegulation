@@ -1,0 +1,25 @@
+zk60_classify round-17 CPU binary (round 16b + gate round 19's capture fixes H19-1..4 and the recorder's export replay; every
+changed file is a #[cfg(test)] module, so the production sources are byte-identical to frozen-r16b's). Receipts, statements,
+the three moderate policies, the trained statement identity 29aeba6c… and the rung's receipts / statements / schema `/3` are
+unchanged. UNREVIEWED.
+
+file:      /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/cli/zk60_classify.r17.release.bin
+sha256:    81bd86248e9f42393c9fe739e6794b7af155ad9a0a06874c89efb7a7bba18317
+built:     2026-10-29T16:18:43Z on MSI by r17/tools/r17_chain.sh after the full suite s22 (log r17/logs/b17-cli-build.log)
+source:    frozen-r17 exactly (manifest_final_r17.sha256 = r17/manifest_r17A.sha256: 303 files, list sha256
+           23a958766cf946d07b35e93e1f82685c3f952e5526a99f4d389be766881dd9a2); vs frozen-r16b: 4 changed + 2 added paths, all
+           #[cfg(test)] (plane_index.rs, run_capture.rs, s25_tests.rs, token_io/classify_capture_tests.rs; new
+           token_io/gate19_capture_tests.rs, token_io/classify_r17_tests.rs)
+vs r16b:   NOT byte-equal to dfb8025eb903…: the tree path is baked in (12 absolute zkp-core source paths now `token-io-r17`,
+           .rodata 64 B shorter, .text the same 1,900,839 B moved by 0x40; the crates' metadata hashes in mangled symbols,
+           which Cargo derives from the package path); every ELF section has the same size except .rodata, .strtab and
+           .relro_padding (r17/logs/b17-vs-r16b.sha256, .cmp)
+checked:   re-verifies the REAL moderate-hate receipt made by e94cecf9… in a fresh process (r17/logs/verify-hate.log: the
+           published statement re-checked byte for byte, identity 29aeba6c…, not-flagged, floor 96, input root 4cf9e8ae… =
+           round 16's), and cross-verifies rung receipts with the r16b binary dfb8025e… both ways (r17/logs/xbin-r17-r16b.log)
+command:   /home/victor/.cargo/bin/cargo build --release --offline --locked -j2 --manifest-path /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r17/hashline/Cargo.toml --example zk60_classify
+toolchain: rustc 1.97.1 (8bab26f4f 2026-07-14); cargo 1.97.1 (c980f4866 2026-06-30)
+features:  the crate's defaults only; gpu-cuda NOT enabled (cudarc is not compiled in): CPU backend only.
+profile:   [profile.release] opt-level 3, codegen-units 1, lto fat, panic abort, debug false (hashline/Cargo.toml)
+rustflags: none (no RUSTFLAGS, no .cargo/config in the tree or $HOME); default target, no target-cpu
+scope:     a build record, not a privacy acceptance and not a classifier-quality claim; unreviewed

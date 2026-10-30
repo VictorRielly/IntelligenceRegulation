@@ -1,0 +1,11 @@
+{"category": "violence", "pipeline": {"done": false, "exit": null, "step": "queued", "step_since": null, "waiting_for_machine": false, "guard_line": "", "alive": null}}
+{"category": "violence", "pipeline": {"done": false, "exit": null, "step": "seqgen", "step_since": 1793390747.228144, "waiting_for_machine": true, "guard_line": "[zk60-guard 13:05:47] admission waiting: another heavy guarded job is live (one heavy job at a time)", "alive": true}}
+{"category": "violence", "pipeline": {"done": false, "exit": null, "step": "held", "step_since": 1793391844.0575716, "waiting_for_machine": false, "guard_line": "", "alive": true}}
+{"category": "violence", "pipeline": {"done": false, "exit": null, "step": "prove", "step_since": 1793391998.223417, "waiting_for_machine": false, "guard_line": "", "alive": true}}
+{"category": "violence", "pipeline": {"done": false, "exit": null, "step": "held", "step_since": 1793391998.402476, "waiting_for_machine": false, "guard_line": "", "alive": true}}
+{"category": "violence", "pipeline": {"done": false, "exit": null, "step": "prove", "step_since": 1793392223.5645754, "waiting_for_machine": false, "guard_line": "", "alive": true}}
+{"category": "violence", "pipeline": {"done": false, "exit": null, "step": "held", "step_since": 1793392223.6719708, "waiting_for_machine": false, "guard_line": "", "alive": true}}
+{"category": "violence", "pipeline": {"done": false, "exit": null, "step": "prove", "step_since": 1793392438.7937062, "waiting_for_machine": false, "guard_line": "", "alive": true}}
+{"category": "violence", "pipeline": {"done": false, "exit": null, "step": "held", "step_since": 1793392438.919467, "waiting_for_machine": false, "guard_line": "", "alive": true}}
+{"category": "violence", "pipeline": {"done": false, "exit": null, "step": "prove", "step_since": 1793392643.9462814, "waiting_for_machine": false, "guard_line": "", "alive": true}}
+{"category": "violence", "pipeline": {"done": false, "exit": null, "step": "held", "step_since": 1793392644.0850325, "waiting_for_machine": false, "guard_line": "", "alive": true}}

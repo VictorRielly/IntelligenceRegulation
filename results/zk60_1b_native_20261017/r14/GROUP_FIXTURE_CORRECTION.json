@@ -1,0 +1,12 @@
+{
+  "utc": "2026-10-30T05:01:02.383126+00:00",
+  "old_source": "7152ef1a269b2aca5b0ec7ee507a8591db46225466653aaa3113789bfce24262",
+  "new_source": "fdeff6d0f411e79d34e66a7665e9209ad8173516747c7cc6dd62afa6eed8a10b",
+  "changed": [
+    "hashline/src/private_block/split_attack_tests.rs"
+  ],
+  "failure": "local-group-reset attempt3 stopped before proof; all gate values rounded to zero and SiLU outputs agreed; guard terminal101, recovery worker terminal",
+  "fix": "Test-only channel8192 gate made1 with WG=-127 and m_g64; require correct global group2 and incorrect local group0 generated table values differ before emitting both honest controls and one malformed receipt. Verifier/protocol/constraints untouched.",
+  "retained": "checkpoints/actual-build-2; original failed command/log/guard; prior five checks retained",
+  "pending": "compile, bounded witness preflight, full DD/nonDD malformed receipts then generic/capture chain"
+}

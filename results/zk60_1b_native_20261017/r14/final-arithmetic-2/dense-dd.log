@@ -1,0 +1,26 @@
+
+running 1 test
+test private_block::argument::split_dense_tests::split_generic_dense_t128_native_receipt_and_physical_trace ... R14_GENERIC_TRACE {"dd":true,"site":"input","words":393216,"sha256":"3e7be9f9430bee2bc584ae72f5a3c65f874b1a453319be22762b9d3b46ddf233"}
+R14_GENERIC_TRACE {"dd":true,"site":"y","words":393216,"sha256":"7d3718122b43c7cdd705a4415bf133cba447b874b7e6b1d35bdf663bb16fb7e1"}
+R14_GENERIC_TRACE {"dd":true,"site":"q","words":524288,"sha256":"faae2f3abd0a1a2378ecb13526ad74ad1949fa82c54ed9e639f4d03b6c48acd7"}
+R14_GENERIC_TRACE {"dd":true,"site":"k","words":131072,"sha256":"4f85eca0105d9c71031b1f3074593dce3714b709f87ed79d056959c3b32579af"}
+R14_GENERIC_TRACE {"dd":true,"site":"v","words":131072,"sha256":"c4a8e660524d61616aa205c637bb50526f07932c69c209fc02ac9353dd5f9da0"}
+R14_GENERIC_TRACE {"dd":true,"site":"qr","words":524288,"sha256":"a08a8150ae4386f0ec7d4d2a53fe90912156ea23da97729702387106bec11e16"}
+R14_GENERIC_TRACE {"dd":true,"site":"kr","words":131072,"sha256":"e5bc29f0a06962edf1d9f06f5b37d8c919cff28d291a507d39e25f10ae4589b8"}
+R14_GENERIC_TRACE {"dd":true,"site":"s","words":524288,"sha256":"c03ed0c7acf063ea86acf4483b0b223eeb4f65d594541891c1d3e1598ba5dc03"}
+R14_GENERIC_TRACE {"dd":true,"site":"p","words":524288,"sha256":"9aaf50a31aeb13887f0ea3565a4bd2fd9092e723ccee275decfe68e3f59b1c52"}
+R14_GENERIC_TRACE {"dd":true,"site":"o","words":524288,"sha256":"08b7b0b870ebbff33567e53721c72199dcef2b11414625206fef48ade2080e2a"}
+R14_GENERIC_TRACE {"dd":true,"site":"ao","words":393216,"sha256":"293510e2a48649bf182f555e22331f23cb58874b5c7ba4407a56157acee97352"}
+R14_GENERIC_TRACE {"dd":true,"site":"x1","words":393216,"sha256":"06cc13b38b258bc629ac57b3248151807f33a709103cbb3dab30b92deb778bd4"}
+R14_GENERIC_TRACE {"dd":true,"site":"nm","words":393216,"sha256":"6562add87881c45cb098e315b6a16dab8150a6e1cf29db3df485978c97af6015"}
+R14_GENERIC_TRACE {"dd":true,"site":"gate","words":1179648,"sha256":"e713ebaeb94b2ba69e1ff764a6a7edbf7c63df3ae0d8bc4555e71cb6a7c0df3f"}
+R14_GENERIC_TRACE {"dd":true,"site":"a_scaled","words":1179648,"sha256":"393baac774bf52a420bce14edbc8a4aab30ac526651b5f24e3bdcee7d4ce5db6"}
+R14_GENERIC_TRACE {"dd":true,"site":"up","words":1179648,"sha256":"11e824d8f707a0f7f75d2413df75c33f3f54086339e4abdc6833e726b2293abd"}
+R14_GENERIC_TRACE {"dd":true,"site":"h","words":1179648,"sha256":"0b726b29408252694a2f908d435b58d573b788e9bc3c2501ee77c701adde3e36"}
+R14_GENERIC_TRACE {"dd":true,"site":"z","words":393216,"sha256":"bbd05cf6097ac9b1f89ea29d2542c1b7b67ee46848393895f5a9e43fa1f621e5"}
+R14_GENERIC_TRACE {"dd":true,"site":"x2","words":393216,"sha256":"06cc13b38b258bc629ac57b3248151807f33a709103cbb3dab30b92deb778bd4"}
+R14_MALICIOUS_RECEIPT {"case":"generic-dense","dd":true,"bytes":35110696,"expected_accept":true,"canonical_frame_decoded":true,"native_verifier_used":true}
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 767 filtered out; finished in 17.57s
+

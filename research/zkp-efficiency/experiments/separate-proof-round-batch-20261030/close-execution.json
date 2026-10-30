@@ -1,0 +1,19 @@
+{
+  "stage": "close",
+  "command": [
+    "/usr/bin/python3",
+    "-B",
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/separate-proof-round-batch-20261030/close.py"
+  ],
+  "exit_code": 0,
+  "wall_s": 0.06611925600009272,
+  "max_rss_kib": 28792,
+  "cpu_affinity_count": 1,
+  "nice": 19,
+  "cpu_limit_s": 30,
+  "alarm_s": 40,
+  "parent_timeout_s": 45,
+  "address_space_mib": 384,
+  "estimated_memory_mib": 64,
+  "gpu": false
+}

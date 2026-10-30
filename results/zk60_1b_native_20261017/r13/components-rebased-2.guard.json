@@ -1,0 +1,32 @@
+{
+ "ts_end": "2026-10-28T22:50:38Z",
+ "run_id": "e15a9b639626",
+ "label": "sol-r13-components-rebased-2",
+ "class": "build",
+ "cmd": [
+  "/usr/bin/env",
+  "CARGO_PROFILE_RELEASE_LTO=false",
+  "CARGO_PROFILE_RELEASE_CODEGEN_UNITS=16",
+  "RAYON_NUM_THREADS=16",
+  "/home/victor/.cargo/bin/cargo",
+  "test",
+  "--release",
+  "--offline"
+ ],
+ "need_gib": 2.2,
+ "cap_gib": 5.0,
+ "exit": 70,
+ "child_rc": null,
+ "guard_killed": null,
+ "child_wall_seconds": null,
+ "refused": "after waiting: another heavy guarded job is live (one heavy job at a time)",
+ "guard_error": null,
+ "guard_pid": 2,
+ "boot_id": "9ecf0dc6-8b67-411a-8ac8-042f41dfd9d5",
+ "pid_ns": "pid:[4026532396]",
+ "guard_starttime_ticks": 623194,
+ "lock_ids": {
+  "heavy": "2096:1134228",
+  "build": "2096:1134231"
+ }
+}

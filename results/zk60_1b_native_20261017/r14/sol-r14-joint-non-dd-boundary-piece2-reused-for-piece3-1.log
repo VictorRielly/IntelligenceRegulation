@@ -1,0 +1,15 @@
+
+running 1 test
+test private_block::argument::split_run_tests::split_run_t128_non_dd_fresh_verify_from_dir ... 
+thread 'private_block::argument::split_run_tests::split_run_t128_non_dd_fresh_verify_from_dir' (48) panicked at src/private_block/split_run_tests.rs:294:25:
+called `Result::unwrap()` on an `Err` value: "pcs zk: group 3: <v, c> != combined claim"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    private_block::argument::split_run_tests::split_run_t128_non_dd_fresh_verify_from_dir
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 746 filtered out; finished in 2.74s
+

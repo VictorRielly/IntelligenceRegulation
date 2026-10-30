@@ -1,0 +1,22 @@
+--- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/hashline/src/private_block/tied_tables/derive.rs	2026-10-28 23:08:24.416223975 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r16b/hashline/src/private_block/tied_tables/derive.rs	2026-10-29 03:50:55.909143822 -0700
+@@ -210,9 +210,18 @@
+ /// replacement between that read and derivation; use the same parsed object
+ /// for every quantization parameter within this pass.
+ pub(crate) fn recompute_declared_tied_tables(export: &Path, expected: &J) -> Result<RecomputedTiedTables,String> {
++    recompute_declared_tied_tables_with_margin(export, expected, None)
++}
++
++/// TOKEN ROUND 16 (token review N-r13-5): the loader's SAME pass, optionally
++/// with the classifier difference row for `(yes, no, scale)` (the bound
++/// profile's own `classifier_margin_parameters`), so a classifier prove or
++/// verify streams the pinned checkpoint once instead of twice. `None` is
++/// exactly [`recompute_declared_tied_tables`].
++pub(crate) fn recompute_declared_tied_tables_with_margin(export: &Path, expected: &J, margin: Option<(u32,u32,f64)>) -> Result<RecomputedTiedTables,String> {
+     let (bytes,profile)=json(&export.join("profile.json"))?;
+     if &profile != expected { return Err("profile.json changed before tied-table derivation".into()); }
+-    recompute_profile(export,&bytes,&profile,None)
++    recompute_profile(export,&bytes,&profile,margin)
+ }
+ 
+ fn recompute_profile(export: &Path, bytes: &[u8], profile: &J, margin: Option<(u32,u32,f64)>) -> Result<RecomputedTiedTables,String> {

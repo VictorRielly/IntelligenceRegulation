@@ -1,0 +1,241 @@
+{
+  "schema": "zk60-shieldstral-native-integration-handoff/1",
+  "at": "2026-10-29T16:58:02.157030+00:00",
+  "scope": "Public native artifacts; token lane has real T128 classifier receipts. App integration, policy selection and privacy acceptance remain separate.",
+  "accuracy_stack": "low-h24-v1",
+  "contexts": {
+    "256": {
+      "export": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/shieldstral-export-v2",
+      "profile_sha256": "1d50078243f13d58afa814a55c47c2df797e494d7f045941ea82fa142740498a",
+      "layers": 26,
+      "exact_payload_equivalence": "/home/victor/IntelligenceRegulation/results/zk60_shieldstral_export_20261026/native_export_equivalence.json",
+      "full_native_public_import_passed": true
+    },
+    "128": {
+      "export": "/home/victor/IntelligenceRegulation/results/zk60_shieldstral_export_20261026/native_low_h24_t128",
+      "profile_sha256": "2ba468f98085caf1136f27cf66220f93d8e316acb8dbae7e98f9eb68347f05a0",
+      "layers": 26,
+      "derivation": "/home/victor/IntelligenceRegulation/results/zk60_shieldstral_export_20261026/native_low_h24_t128/complete.json",
+      "changed_payloads": "Only first128 YaRN rows; weights and calibration preserved",
+      "native_acceptance_check": {
+        "evidence": "/home/victor/IntelligenceRegulation/results/zk60_astra_20261026/native_t128_check_1/complete.json",
+        "scope": "actual L00 only, public synthetic input",
+        "proved": true,
+        "fresh_verified": true,
+        "receipt_tamper_refused": true,
+        "statement_identity": "5f4d39f71c3268025d2c898152e3abde7fe1e47a0714c7890e550bcdd1c93061",
+        "full26_native_import_and_proof_pending": true
+      },
+      "payload_recheck": {
+        "evidence": "results/zk60_shieldstral_export_20261026/native_t128_payload_audit.json",
+        "layer_arrays": 572,
+        "public_token_files": 8,
+        "all_hashes_match": true
+      }
+    }
+  },
+  "token_io_parameters": {
+    "bos": 1,
+    "classifier_final_norm": {
+      "ceps": 2439,
+      "cn": 1024,
+      "g0": 127,
+      "tn": 10
+    },
+    "head_final_norm": {
+      "ceps": 2439,
+      "cn": 3504,
+      "g0": 127,
+      "tn": 9
+    }
+  },
+  "classifier_margin_parameters": {
+    "no_id": 2649,
+    "public_scale": 4.08288030735373e-06,
+    "status": "candidate profile values; native R-C2 policy registration and fidelity required",
+    "threshold_c": 0,
+    "yes_id": 13059
+  },
+  "native_release": {
+    "source_sha256": "bb9eb2123c9350c738dafd19fe3b0133d6e2e7ab93f1e765cac4f20ccaed69ec",
+    "status": "R13 accepted on soundness at twelve registered profiles; privacy separate",
+    "token_lane_base": "r16b integrates R13 and the three moderate classifier categories; coordinator directs r16b CLI"
+  },
+  "policy_candidates": {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_shieldstral_export_20261026/category_policy_candidates.json",
+    "sha256": "b1cfcda9ea4f48ce3b95d871b81f77c6cd27f94daa85fc618ec8e54222b44314",
+    "count": 6,
+    "selection": "strict versus moderate remains a product ruling; do not register a choice silently",
+    "templates": {
+      "cat_hate": {
+        "proposed_policy_id": "shieldstral-1.0-3b-strict-hate/1",
+        "category": "hate",
+        "strictness": "strict",
+        "content_tokens_by_T": {
+          "128": 48,
+          "256": 176
+        },
+        "yes_id": 13059,
+        "no_id": 2649,
+        "threshold_c": 0,
+        "margin_scale_bits_hex": "0x3ed11ff597db2fb6"
+      },
+      "cat_sexual": {
+        "proposed_policy_id": "shieldstral-1.0-3b-strict-sexual/1",
+        "category": "sexual",
+        "strictness": "strict",
+        "content_tokens_by_T": {
+          "128": 54,
+          "256": 182
+        },
+        "yes_id": 13059,
+        "no_id": 2649,
+        "threshold_c": 0,
+        "margin_scale_bits_hex": "0x3ed11ff597db2fb6"
+      },
+      "cat_violence": {
+        "proposed_policy_id": "shieldstral-1.0-3b-strict-violence/1",
+        "category": "violence",
+        "strictness": "strict",
+        "content_tokens_by_T": {
+          "128": 54,
+          "256": 182
+        },
+        "yes_id": 13059,
+        "no_id": 2649,
+        "threshold_c": 0,
+        "margin_scale_bits_hex": "0x3ed11ff597db2fb6"
+      },
+      "mod_hate": {
+        "proposed_policy_id": "shieldstral-1.0-3b-moderate-hate/1",
+        "category": "hate",
+        "strictness": "moderate",
+        "content_tokens_by_T": {
+          "128": 49,
+          "256": 177
+        },
+        "yes_id": 13059,
+        "no_id": 2649,
+        "threshold_c": 0,
+        "margin_scale_bits_hex": "0x3ed11ff597db2fb6"
+      },
+      "mod_sexual": {
+        "proposed_policy_id": "shieldstral-1.0-3b-moderate-sexual/1",
+        "category": "sexual",
+        "strictness": "moderate",
+        "content_tokens_by_T": {
+          "128": 55,
+          "256": 183
+        },
+        "yes_id": 13059,
+        "no_id": 2649,
+        "threshold_c": 0,
+        "margin_scale_bits_hex": "0x3ed11ff597db2fb6"
+      },
+      "mod_violence": {
+        "proposed_policy_id": "shieldstral-1.0-3b-moderate-violence/1",
+        "category": "violence",
+        "strictness": "moderate",
+        "content_tokens_by_T": {
+          "128": 55,
+          "256": 183
+        },
+        "yes_id": 13059,
+        "no_id": 2649,
+        "threshold_c": 0,
+        "margin_scale_bits_hex": "0x3ed11ff597db2fb6"
+      }
+    }
+  },
+  "app_contract": {
+    "statement_schema": "zk60-classify-run/3",
+    "pad_id": 11,
+    "public_length": true,
+    "whole_post_coverage": "App recounts original text using pinned Tekken, validates each category total and exact D41 ranges, and passes label --expect-total",
+    "proof_to_post": "Input-owner opening against sealed input root; statement hash committed in anchor leaf",
+    "publication": "D45 fail closed; missing/rejected proof is never published",
+    "production_floor_bits": 95
+  },
+  "remaining": [
+    "full benchmark layers5-25 and final fidelity metrics",
+    "r16b real ShieldstralProver integration and CLI aggregate",
+    "strict/moderate product ruling and real-classifier privacy gate",
+    "real classifier demo and publication"
+  ],
+  "token_lane_followup": {
+    "at": "2026-10-29T16:58:02.157030+00:00",
+    "schema": "zk60-astra-classifier-r16b-intake/1",
+    "binary": "/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/cli/zk60_classify.r16b.release.bin",
+    "binary_sha256": "dfb8025eb903b203f4b50371fdd0dd00659d46a9dbaad9d121d6a68343ebc70c",
+    "identity": "29aeba6c04a819cdbafde311f7c9d0c678d85aff22292ae6b9647761158a0bd1",
+    "run_profile": "hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/1",
+    "statement_schema": "zk60-classify-run/3",
+    "min_bits": 95,
+    "policies": [
+      "shieldstral-1.0-3b-moderate-sexual/1",
+      "shieldstral-1.0-3b-moderate-violence/1",
+      "shieldstral-1.0-3b-moderate-hate/1"
+    ],
+    "product_policy_selected": false,
+    "production_enabled": false,
+    "sequence_format": {
+      "files": "x_in_LXX.bin / x_out_LXX.bin for XX=00..25",
+      "dtype": "little-endian signed int16",
+      "shape": [
+        128,
+        3072
+      ],
+      "privacy": "prover-private, never in public receipt bundle"
+    },
+    "next": "Integrate the parity-checked item activation writer with the r16b real adapter, using native label --expect-total and independent whole-post/input-owner checks; keep CLI-only.",
+    "evidence_sha256": {
+      "results/zk60_token_io_r1_20261017/r16/real_runs.json": "da12fd16cb253a5149d963930601dc5dbba9ce104c68617b09f2829d26d055e8",
+      "results/zk60_token_io_r1_20261017/cli/README.md": "45366a8bd893f7212037401c6d2041946e576176a3d3f40e150875b11508c1fb",
+      "results/zk60_token_io_r1_20261017/frozen-r16b/hashline/src/private_block/token_io/classify_r16_tests.rs": "d022e7120051e23d3992e01a61a3f8d6fde3d8dff95edfd9bb8b41a515309a30",
+      "results/zk60_d24_review_20261017/REVIEW_R13.md": "7ea6d302b2def094d5853910111c3b2cbfc802355b4af75198e5f349b7e8d13e"
+    },
+    "native_status": "R13 soundness accepted; token round16 accepted with fixes, coordinator directs r16b. New r17 is recorder/test-only and not adopted here. Privacy gate separate.",
+    "item_activations": {
+      "evidence": "results/zk60_astra_20261026/item_activations_check_2/complete.json",
+      "writer": "results/zk60_shieldstral_export_20261026/write_item_activations.py",
+      "bit_identical": true,
+      "categories": 3,
+      "layers": 26,
+      "files_compared": 156,
+      "bytes_compared": 122683392,
+      "layer_continuity_checks": 75,
+      "input_matches_saved_a1": true,
+      "refusals": 0,
+      "unit_tests": 7,
+      "scope": "One35-token real A1 item, three moderate prompts; no new native proof or privacy acceptance",
+      "private_workspace": "/tmp/zk60-astra-item-activations-20261029-2"
+    },
+    "followup_at": "2026-10-29T17:16:36.595959+00:00"
+  },
+  "item_activations": {
+    "evidence": "results/zk60_astra_20261026/item_activations_check_2/complete.json",
+    "writer": "results/zk60_shieldstral_export_20261026/write_item_activations.py",
+    "bit_identical": true,
+    "categories": 3,
+    "layers": 26,
+    "files_compared": 156,
+    "bytes_compared": 122683392,
+    "layer_continuity_checks": 75,
+    "input_matches_saved_a1": true,
+    "refusals": 0,
+    "unit_tests": 7,
+    "scope": "One35-token real A1 item, three moderate prompts; no new native proof or privacy acceptance",
+    "private_workspace": "/tmp/zk60-astra-item-activations-20261029-2"
+  },
+  "app_demo": {
+    "at": "2026-10-29T18:30:24.876388+00:00",
+    "adapter_implemented": true,
+    "mode": "explicit r16b moderate testnet demo",
+    "current_app_tests": 154,
+    "plan": "results/zk60_astra_20261026/real_app_demo_1/plan.json",
+    "native_app_proofs_completed": 0,
+    "queued_no_active_worker": true,
+    "privacy_status": "privacy statement pending",
+    "further_funding_needed": false
+  }
+}

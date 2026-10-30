@@ -1,0 +1,15 @@
+{
+  "status": "PASS",
+  "checks": {
+    "init_before_clock": true,
+    "lock_before_clock": true,
+    "sample_before_conversion": true,
+    "sample_after_download": true,
+    "error_before_counter": true,
+    "stats_lock_before_callback": true,
+    "copy_wrapper_synchronizes": true,
+    "slice_drop_can_enqueue_free": true
+  },
+  "exact_fold_body": true,
+  "helper_only_symbol_renamed": true
+}

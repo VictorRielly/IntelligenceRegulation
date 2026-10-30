@@ -1,0 +1,123 @@
+{
+  "utc": "2026-10-30T17:42:17.865524+00:00",
+  "read": [
+    {
+      "path": "/home/victor/IntelligenceRegulation/CLAUDE.md",
+      "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6",
+      "bytes": 14089,
+      "lines": 235
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/START_HERE.md",
+      "sha256": "89f6732a39f4294f2f1b7b68add8fdcbb76b86006e21041f52c0f40d9e39df9d",
+      "bytes": 42025,
+      "lines": 588
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/MVP_STATUS.md",
+      "sha256": "f75da8ddcf7edefaf3f367ecd6ac63b07ab17f418cae4a3a0c9e9a1c9c09e28b",
+      "bytes": 106429,
+      "lines": 1543
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_DECISIONS.md",
+      "sha256": "2291d58ed74a042d3b50f88a400a77ffa69d6cb2d8166a96703a2a74f9122411",
+      "bytes": 172286,
+      "lines": 1722
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_CODEX_FABLE_COORDINATION.md",
+      "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f",
+      "bytes": 64889,
+      "lines": 995
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_THROUGHPUT_TARGET.md",
+      "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53",
+      "bytes": 4941,
+      "lines": 90
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/TASK_BOARD.md",
+      "sha256": "d96f67dd1d199ffc31672974dad5bd8c8d6453f2f7bab6a4849d229a91bef953",
+      "bytes": 186876,
+      "lines": 2943
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/AGENDA.md",
+      "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139",
+      "bytes": 5603,
+      "lines": 85
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/STATE.md",
+      "sha256": "8b7f29892cec99544eb9cf2daccaf6c0207bf9019d6c1d96c7047b1808efe00c",
+      "bytes": 4101,
+      "lines": 63
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/FINDINGS.md",
+      "sha256": "832aedcae16a53bd23128499c082415eeab8f64c91a303ac00150b16f7f4a906",
+      "bytes": 1247860,
+      "lines": 16064
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/sources.jsonl",
+      "sha256": "792c30272991643256a441d0f03fa526f4b13b8fe698f4217734708cee89032f",
+      "bytes": 1398712,
+      "lines": 1132
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/PROGRESS.md",
+      "sha256": "fdf91965e810ce051483a9bd9fee57c172896cde62eece2685ba1d74e5886580",
+      "bytes": 3666,
+      "lines": 56
+    },
+    {
+      "path": "experiments/grouped-evaluator-incidence-20261030/result.json",
+      "sha256": "1c7cdfc1d9bd3af7d6a20af6e5111d3864091bf70955961ea2fa851172e0babc",
+      "bytes": 810
+    },
+    {
+      "path": "experiments/grouped-evaluator-incidence-20261030/dd-result.json",
+      "sha256": "3ac74f9a9501e2cbb7cbc11f6ba1c73a0b4a5ffffd016056eb10ec9fd536d179",
+      "bytes": 497
+    },
+    {
+      "path": "experiments/grouped-evaluator-incidence-20261030/dd-costs.json",
+      "sha256": "3be8d7e3fe024dea9fbf9467b197733a05b95fa3d287b4f2f779c0ac86170aaf",
+      "bytes": 5975
+    },
+    {
+      "path": "experiments/grouped-evaluator-incidence-20261030/audit-result.json",
+      "sha256": "dba7827bd5a007d8bd9f4e1724480a45bb220aaa0a170d000fd7e37b0bfc9c76",
+      "bytes": 827
+    },
+    {
+      "path": "experiments/grouped-evaluator-incidence-20261030/final-audit-result.json",
+      "sha256": "2739741f5a08dbb712cdcbf23087def0b0b7182c36eae7b75a7f0a948089812b",
+      "bytes": 320
+    },
+    {
+      "path": "experiments/grouped-evaluator-incidence-20261030/hypotheses.json",
+      "sha256": "a82b8cf2a39ea4dad17e4b28836458b12c716aa89ba5010518a851e2b48370c4",
+      "bytes": 229846
+    },
+    {
+      "path": "experiments/grouped-evaluator-incidence-20261030/ranking-current.json",
+      "sha256": "579e0464bdf938a5d11a0126becc558d59edb33fe3496679b18a506f66a804cd",
+      "bytes": 292
+    },
+    {
+      "path": "experiments/grouped-evaluator-incidence-20261030/target-accounting.json",
+      "sha256": "3c133392466de0b71aee92bf5373ceca43b22663c30cade86ea3e91c6bce187e",
+      "bytes": 836
+    },
+    {
+      "path": "experiments/grouped-evaluator-incidence-20261030/hardware.json",
+      "sha256": "fc1a42468a7d89b4790dae427cedbbfcff787f3022473419d7c57a0eff5e724a",
+      "bytes": 409
+    }
+  ],
+  "sources_parsed": 1132
+}

@@ -1,0 +1,17 @@
+{
+  "utc": "2026-10-30T05:53:24.368424+00:00",
+  "native_source": "3c7b1dcfd47ba8cb257c6f734348f25fb960af3f25f8b1b14ea4e262ff8defda",
+  "native_capture_nonDD": "Original native3stage test passed,103s/6.25GiB, accepted with/without recorder; scalar rejection bundle suppressed. Original transport validator then stopped on binding allow-list omission. Native proof/capture is retained and will not be regenerated for this fix.",
+  "added_exact_public_keys": {
+    "binding": "32 canonical bytes; already compared to every canonical receipt frame header",
+    "cm": "base/extension component tag, now explicit int0/1 check, physical map already verifies correct offsets/rows",
+    "logup": "Exactly3 canonical Fp2 native public FS challenges, recorded by independent native transcript replay"
+  },
+  "native_writer_references": [
+    "split_capture.rs::stage_begin challenge_fp2_vec(3)",
+    "split_capture.rs::write_stage logup",
+    "split_capture.rs::write_run binding / physical cm"
+  ],
+  "validator_sha256": "dcc95e6a6bb883f987aefa97a09d93263c1aaa96289460970e9e137c6af6a16c",
+  "limits": "Transport/public-key/source validation only, not privacy/rank/NL1 acceptance. Original pinned validator and its failed log unchanged."
+}

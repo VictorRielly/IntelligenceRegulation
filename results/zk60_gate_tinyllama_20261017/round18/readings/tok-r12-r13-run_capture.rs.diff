@@ -1,0 +1,684 @@
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r12/hashline/src/private_block/run_capture.rs	2026-10-19 09:53:24.445396105 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r13/hashline/src/private_block/run_capture.rs	2026-10-28 16:42:48.582640703 -0700
+@@ -216,7 +216,7 @@
+     "../zkp-core/src/tables.rs",
+ ];
+ 
+-pub(super) const OWN_SOURCE_FILES: [&str; 23] = [
++pub(super) const OWN_SOURCE_FILES: [&str; 26] = [
+     "src/private_block/run_capture.rs",
+     "src/private_block/run.rs",
+     "src/private_block/boundary.rs",
+@@ -276,6 +276,13 @@
+     // context label and the statement files), so a trained capture pins it.
+     // It was excused in `NOT_ON_THE_RUNS_PATH` until R5b.
+     "src/private_block/trained_block.rs",
++    // NATIVE R12 (F1): the RoPE frequency transforms, which decide the public
++    // cos / sin tables a trained run binds (the loader's generator)
++    "src/private_block/rope.rs",
++    // R12b: these decide whether the token tables are derived from the
++    // authenticated model before their digests enter a trained statement.
++    "src/private_block/tied_tables.rs",
++    "src/private_block/tied_tables/derive.rs",
+ ];
+ 
+ /// **The production modules of `private_block` that are NOT source pins, with
+@@ -355,6 +362,11 @@
+     /// the words above exactly as for a block run (the token run absorbs
+     /// the same six header words, with `run-shape` eight u64 long).
+     pub token: Option<TokenFacts>,
++    /// **ROUND 12 (gate round 16, capture request 2.1(a)).** `None` for a
++    /// block run and a token run (their bundles are byte for byte what they
++    /// were); `Some` for a classifier run, whose header absorbs the same six
++    /// words and then `classify-verdict` and `classify-chunk`.
++    pub classify: Option<ClassifyFacts>,
+ }
+ 
+ /// **TOKEN I/O (round 7): one token endpoint's PUBLIC facts** (its spec:
+@@ -425,6 +437,78 @@
+     pub stage_layouts: [Vec<String>; 2],
+ }
+ 
++/// **ROUND 12 (rung R-C1; the gate's round-16 capture request 2.1(a)):
++/// every public word of a CLASSIFIER run that a block run's statement does
++/// not carry**, copied out of `ClassifyRunStatement::capture_header`, in the
++/// header's absorb order. The parameter line and schedule already bind all
++/// of them; this states them as data. Nothing here is private: no content
++/// id, no activation, no margin, no limb, no owner decommitment. The verdict
++/// is the one data-dependent public value.
++#[derive(Clone)]
++pub(super) struct ClassifyFacts {
++    pub run_profile: &'static str,
++    pub v: usize,
++    pub v_pad: usize,
++    pub tokens: usize,
++    pub t_pad: usize,
++    pub d: usize,
++    pub d_pad: usize,
++    /// the template prefix length, the content length (public: B-5), the suffix length
++    pub p0: usize,
++    pub n: usize,
++    pub s: usize,
++    /// the classifier profile's canonical text (`describe_under`) and its digest
++    pub profile_text: String,
++    pub profile_digest: Digest,
++    pub policy_id: String,
++    pub prefix: Vec<u64>,
++    pub suffix: Vec<u64>,
++    pub num_special: u64,
++    pub yes: u64,
++    pub no: u64,
++    pub c: i64,
++    pub tokenizer: String,
++    pub template_digest: Digest,
++    /// the margin vector's digest (the vector itself is a public table of
++    /// slot OUTC-03, recorded with its values under public tables)
++    pub w_digest: Digest,
++    pub emb_digest: Digest,
++    pub bos: u64,
++    /// `(g0, Cn, tn, Ceps)`
++    pub final_norm: (i64, i64, u32, i64),
++    pub wrho: u32,
++    pub d_max: i128,
++    pub window_bits: u32,
++    pub limbs: usize,
++    /// the limbs' first entry of the `Lo` plane
++    pub lam_base: usize,
++    /// the tier: name, opened columns, stage `log_n` and inverse rate,
++    /// endpoint `log_n` and inverse rate
++    pub tier: (&'static str, usize, usize, usize, usize, usize),
++    pub scale: i32,
++    /// the ONE external endpoint (the input token plane)
++    pub input_endpoint: TokenEndpointFacts,
++    pub input_root: Digest,
++    /// every boundary in token numbering: `0` = `B_in`, `L` = `B_out`
++    pub boundaries: Vec<BoundaryFacts>,
++    /// how many `r_emb` coordinates stage IN-C draws after its three LogUp challenges
++    pub r_emb_len: usize,
++    /// stage IN-C's and OUT-C's layout descriptions
++    pub stage_layouts: [Vec<String>; 2],
++    /// **THE PUBLIC VERDICT** (absorbed as `classify-verdict`)
++    pub verdict: u8,
++    /// **D41's chunk** `[index, count, a, b, total, size, overlap]`
++    /// (absorbed as `classify-chunk`, seven u64 little-endian)
++    pub chunk: [usize; 7],
++}
++
++impl ClassifyFacts {
++    /// the `classify-chunk` word, as `ChunkRef::bytes` writes it
++    pub(super) fn chunk_bytes(&self) -> Vec<u8> {
++        self.chunk.iter().flat_map(|v| (*v as u64).to_le_bytes()).collect()
++    }
++}
++
+ /// **TOKEN I/O (round 7): which plane table a stage of a token run reads.**
+ /// A block stage's is the block `Layout`'s (the run's one `plane_index`);
+ /// stage IN's and OUT's are built from their `StageLayout` with the plane
+@@ -825,6 +909,13 @@
+         tr.absorb(b"parameters", header.parameter_line.as_bytes());
+         tr.absorb(b"calibration", &header.calibration);
+         tr.absorb(b"schedule", &header.schedule_digest);
++        // ROUND 12: a classifier run's header absorbs its public verdict and
++        // its chunk last (`ClassifyRunStatement::transcript`); the binding
++        // comparison below then re-checks the whole classifier header
++        if let Some(cf) = &header.classify {
++            tr.absorb(b"classify-verdict", &[cf.verdict]);
++            tr.absorb(b"classify-chunk", &cf.chunk_bytes());
++        }
+         let mut r = Rec { header, binding, own: tr, stages: Vec::new(), boundaries: Vec::new(), cur: None, closed: 0, failure: None, index: None, index_json: Vec::new(), store: ArrayStore::new(opts.arrays), public_tables: opts.public_tables };
+         if r.own.state() != r.binding {
+             fail(&mut r, "replay: the rebuilt run header is not the verifier's binding".into());
+@@ -938,6 +1029,10 @@
+ /// **TOKEN I/O (round 7): how many stages a run's bundle closes** — `L` for a
+ /// block run, `L + 2` (stage IN, the blocks, stage OUT) for a token-I/O run.
+ fn stages_total(h: &RunHeader) -> usize {
++    // ROUND 12: a classifier run closes IN-C, the blocks and OUT-C
++    if h.classify.is_some() {
++        return h.l + 2;
++    }
+     if h.token.is_some() {
+         h.l + 2
+     } else {
+@@ -970,6 +1065,11 @@
+         if r.failure.is_some() {
+             return;
+         }
++        // ROUND 12: a classifier run's stages (IN-C, the blocks, OUT-C)
++        if r.header.classify.is_some() {
++            classify_stage_begin(r, k, kind, bytes, start_tag, b_root, a_root, h_root, mask_root, &planes, tr);
++            return;
++        }
+         let Some(tf) = r.header.token.clone() else {
+             fail(r, format!("replay: stage {k} ({kind}) was offered as a token-run stage, but the header is a block run's"));
+             return;
+@@ -1096,6 +1196,145 @@
+     });
+ }
+ 
++/// **ROUND 12 (gate round 16, capture request 2.1(b)): a stage of a
++/// CLASSIFIER run opens** — stage IN-C (`k = 0`), block `k - 1`'s stage or
++/// stage OUT-C (`k = L + 1`), where the token run opens its stages. The
++/// recorder replays the stage prefix from its OWN transcript (the orders are
++/// `stage_in_c::verify`, `verify_classify_run_with`'s block loop and
++/// `stage_out_c::verify`):
++///
++/// * IN-C: `pb-run-stage 0`, `pb-run-block` = the embedding digest, `B_in`,
++///   `A`, `M`, three LogUp challenges and `clog2(d_pad)` `r_emb`, `H`;
++/// * BLOCK: as in a token run;
++/// * OUT-C: `pb-run-stage L + 1`, `pb-run-block` = the MARGIN VECTOR's
++///   digest, `A`, `M`, two challenges, `H` (no boundary commitment).
++#[allow(clippy::too_many_arguments)]
++fn classify_stage_begin(r: &mut Rec, k: usize, kind: &'static str, bytes: &[u8], start_tag: [u8; 32], b_root: Option<Digest>, a_root: Digest, h_root: Digest, mask_root: Digest, planes: &StagePlanes<'_>, tr: &Transcript) {
++    let Some(cf) = r.header.classify.clone() else {
++        fail(r, format!("replay: stage {k} ({kind}) was offered as a classifier-run stage, but the header is not a classifier run's"));
++        return;
++    };
++    if r.cur.is_some() {
++        fail(r, format!("replay: stage {k} opened while another stage is open"));
++        return;
++    }
++    if k != r.closed {
++        fail(r, format!("replay: stage {k} was offered after {} closed stages", r.closed));
++        return;
++    }
++    let l = r.header.l;
++    let want_kind = if k == 0 {
++        "IN-C"
++    } else if k == l + 1 {
++        "OUT-C"
++    } else {
++        "BLOCK"
++    };
++    if kind != want_kind || k > l + 1 {
++        fail(r, format!("replay: stage {k} was offered as {kind}; a classifier run's stage {k} is {want_kind}"));
++        return;
++    }
++    at(r, &format!("the start of stage {k} ({kind})"), tr);
++    if r.failure.is_some() {
++        return;
++    }
++    let (digest, b_facts) = match kind {
++        "IN-C" => (cf.emb_digest, Some(cf.boundaries[0].clone())),
++        "OUT-C" => (cf.w_digest, None),
++        _ => (r.header.block_digests[k - 1], Some(cf.boundaries[k].clone())),
++    };
++    if b_facts.is_some() != b_root.is_some() {
++        fail(r, format!("replay: stage {k} ({kind})'s boundary root is not what the classifier run schedule declares"));
++        return;
++    }
++    let (a_rows, h_rows, log_cols, want_slots, layout_digest, token_planes) = match planes {
++        StagePlanes::Block(lay) => {
++            match plane_index::build(lay) {
++                Ok(idx) => {
++                    let json = idx.render();
++                    if r.index.is_none() {
++                        r.index = Some(idx);
++                        r.index_json = json;
++                    } else if json != r.index_json {
++                        fail(r, format!("replay: stage {k}'s plane index is not the run's"));
++                        return;
++                    }
++                }
++                Err(e) => {
++                    fail(r, format!("replay: the plane index does not build at stage {k}: {e}"));
++                    return;
++                }
++            }
++            (lay.a_rows, lay.h_rows, r.header.sh.log_cols, N_SLOTS, lay.schedule_digest(), None)
++        }
++        StagePlanes::Stage { lay, a_names, h_names, roles } => {
++            let tp = match TokenPlanes::build(lay, a_names, h_names, *roles) {
++                Ok(t) => t,
++                Err(e) => {
++                    fail(r, format!("replay: stage {k}'s plane table does not build: {e}"));
++                    return;
++                }
++            };
++            let digest: Digest = {
++                use sha2::Digest as _;
++                sha2::Sha256::digest(lay.describe().join("\n").as_bytes()).into()
++            };
++            (lay.a_rows, lay.h_rows, lay.log_n, lay.sched.slots.len(), digest, Some(tp))
++        }
++    };
++    r.cur = Some(StageRec {
++        k,
++        segment_bytes: bytes.len(),
++        segment_sha256: crate::export_v3::sha256_hex(bytes),
++        start_tag,
++        end_tag: None,
++        b_root,
++        a_root,
++        h_root,
++        mask_root,
++        logup: Vec::new(),
++        begin: Transcript::clone_state(tr),
++        definition: None,
++        arguments: Vec::new(),
++        mask: None,
++        roles: Vec::new(),
++        role_names: Vec::new(),
++        sites: Vec::new(),
++        layout_digest,
++        a_rows,
++        h_rows,
++        kind,
++        want_slots,
++        planes: token_planes,
++        public_digest: digest,
++        b_facts: b_facts.clone(),
++        log_cols,
++    });
++    r.own.absorb_u64(b"pb-run-stage", k as u64);
++    r.own.absorb(b"pb-run-block", &digest);
++    if let (Some(root), Some(facts)) = (b_root, b_facts.as_ref()) {
++        r.own.absorb(b"B", &root);
++        r.own.absorb_u64(b"rows", facts.rows as u64);
++        r.own.absorb_u64(b"log-cols", facts.log_n as u64);
++    }
++    r.own.absorb(b"A", &a_root);
++    r.own.absorb_u64(b"rows", a_rows as u64);
++    r.own.absorb_u64(b"log-cols", log_cols as u64);
++    r.own.absorb(b"M", &mask_root);
++    let draws = match kind {
++        "IN-C" => 3 + cf.r_emb_len,
++        "OUT-C" => 2,
++        _ => 3,
++    };
++    let logup = r.own.challenge_fp2_vec(draws);
++    r.own.absorb(b"H", &h_root);
++    r.own.absorb_u64(b"rows", h_rows as u64);
++    r.own.absorb_u64(b"log-cols", log_cols as u64);
++    if let Some(c) = r.cur.as_mut() {
++        c.logup = logup;
++    }
++}
++
+ /// **TOKEN I/O (round 7): one slot of stage IN or OUT** (capture request
+ /// 2.1(c)), replayed and recorded exactly as [`slot`] does a block slot —
+ /// the definition's draws to the verifier's position, `pb-slot`, the CFS
+@@ -1587,6 +1826,13 @@
+             return;
+         }
+         cur.end_tag = Some(end_tag);
++        // ROUND 12: a classifier run's stage file
++        if r.header.classify.is_some() {
++            let blob = write_stage_classify(r, &cur);
++            r.stages.push(blob);
++            r.closed += 1;
++            return;
++        }
+         let blob = if r.header.token.is_some() { write_stage_token(r, &cur) } else { write_stage(r, &cur) };
+         r.stages.push(blob);
+         r.closed += 1;
+@@ -1632,6 +1878,12 @@
+     if r.index.is_none() || r.index_json.is_empty() {
+         return Err("run capture: no plane index table was built; no bundle is written without one".into());
+     }
++    // ROUND 12: a classifier run's bundle (`L + 2` stage files like a token
++    // run's, its own run file and schema)
++    if r.header.classify.is_some() {
++        let run_json = write_run_classify(&r);
++        return Ok(Bundle { run_json, stages: r.stages, profile: r.header.profile.to_string(), l: r.header.l, arrays: r.store, token: true });
++    }
+     let run_json = if r.header.token.is_some() { write_run_token(&r) } else { write_run(&r) };
+     let token = r.header.token.is_some();
+     Ok(Bundle { run_json, stages: r.stages, profile: r.header.profile.to_string(), l: r.header.l, arrays: r.store, token })
+@@ -1963,7 +2215,7 @@
+         sh.endpoint_general,
+         sh.norm_wrho,
+         sh.wrho_s,
+-        sh.slots().iter().map(|&(n, e, d)| [n, e, d]).collect::<Vec<_>>(),
++        sh.slots().iter().take(sh.n_slots()).map(|&(n, e, d)| [n, e, d]).collect::<Vec<_>>(),
+         sh.a_groups(),
+         sh.h_groups()
+     )
+@@ -2332,6 +2584,290 @@
+     out
+ }
+ 
++// ---------------------------------------------------------------- ROUND 12: classifier runs
++
++/// **ROUND 12 (gate round 16, capture request 2.1(e)): the schema a
++/// classifier run's bundle declares**, beside `/6-token-run`: a loader that
++/// knows only token runs refuses it by version. Every member a token bundle
++/// has keeps its name and meaning; `"classify"` replaces `"token_io"`, there
++/// is no output endpoint, and the new keys are on [`ALLOWED_KEYS`].
++pub(super) const SCHEMA_CLASSIFY: &str = "hashline-native-capture/7-classify-run";
++
++/// the classifier sources a classifier bundle pins in addition to the
++/// shared list (appended to `source_pins`, for classifier bundles only)
++const CLASSIFY_SOURCE_FILES: [&str; 5] = ["src/private_block/token_io/classify.rs", "src/private_block/token_io/classify_tied.rs", "src/private_block/token_io/classify_run.rs", "src/private_block/token_io/stage_in_c.rs", "src/private_block/token_io/stage_out_c.rs"];
++
++/// a bundle of a classifier run (its run profile is a classifier run profile)
++pub(super) fn bundle_is_classify(b: &Bundle) -> bool {
++    super::run::CLASSIFY_RUN_PROFILES.contains(&b.profile.as_str())
++}
++
++fn classify_source_pins(mut pins: Vec<(String, String)>) -> Result<Vec<(String, String)>, String> {
++    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
++    for name in CLASSIFY_SOURCE_FILES {
++        let path = root.join(name);
++        let bytes = std::fs::read(&path).map_err(|e| format!("run capture: source pin {}: {e}", path.display()))?;
++        pins.push((name.to_string(), crate::export_v3::sha256_hex(&bytes)));
++    }
++    Ok(pins)
++}
++
++/// a stage file of a classifier run: the token stage file's members, the
++/// stage kinds IN-C / BLOCK / OUT-C, its own schema
++fn write_stage_classify(r: &Rec, cur: &StageRec) -> Vec<u8> {
++    let mut out = Vec::new();
++    let (named, extra): (usize, &str) = match cur.kind {
++        "IN-C" => (3, "r_emb"),
++        "OUT-C" => (2, ""),
++        _ => (3, ""),
++    };
++    write!(
++        out,
++        "{{\"schema\":{SCHEMA_CLASSIFY:?},\"kind\":\"zk60-run-stage-observations\",\"stage\":{},\"stage_kind\":{:?},\"blocks\":{},\"stages\":{},\"block_digest\":{:?},\"segment_bytes\":{},\"segment_sha256\":{:?},\"start_tag\":{:?},\"end_tag\":{:?},\"boundary_committed\":{},\"a_root\":{:?},\"a_rows\":{},\"h_root\":{:?},\"h_rows\":{},\"mask_root\":{:?},\"log_cols\":{},\"logup_challenges\":{:?},\"r_emb\":{:?},\"layout_digest\":{:?},\"opening_order\":{},",
++        cur.k,
++        cur.kind,
++        r.header.l,
++        stages_total(&r.header),
++        cur.public_digest,
++        cur.segment_bytes,
++        cur.segment_sha256,
++        cur.start_tag,
++        cur.end_tag.expect("a closed stage has a trailer"),
++        match (&cur.b_facts, cur.b_root) {
++            (Some(f), Some(root)) => format!("{{\"boundary\":{},\"root\":{root:?},\"rows\":{},\"log_cols\":{}}}", f.index, f.rows, f.log_n),
++            _ => "null".into(),
++        },
++        cur.a_root,
++        cur.a_rows,
++        cur.h_root,
++        cur.h_rows,
++        cur.mask_root,
++        cur.log_cols,
++        fp2s(&cur.logup[..named.min(cur.logup.len())]),
++        if extra.is_empty() { Vec::new() } else { fp2s(&cur.logup[named.min(cur.logup.len())..]) },
++        cur.layout_digest,
++        {
++            let mut order: Vec<String> = vec!["M".into()];
++            order.extend(cur.role_names.iter().map(|s| s.to_string()));
++            format!("{order:?}")
++        }
++    )
++    .expect("write to a Vec");
++    state(&mut out, "header", &cur.begin);
++    write!(out, ",\"arguments\":").expect("write to a Vec");
++    array(&mut out, &cur.arguments);
++    write!(out, ",\"mask\":").expect("write to a Vec");
++    out.write_all(cur.mask.as_ref().expect("a closed stage has an M opening")).expect("write to a Vec");
++    write!(out, ",\"roles\":").expect("write to a Vec");
++    array(&mut out, &cur.roles);
++    write!(out, ",\"transcript_sites\":").expect("write to a Vec");
++    array(&mut out, &cur.sites);
++    if let Some(p) = &cur.planes {
++        write!(out, ",").expect("write to a Vec");
++        out.write_all(&p.render()).expect("write to a Vec");
++    }
++    writeln!(out, "}}").expect("write to a Vec");
++    out
++}
++
++/// the classifier header's two labels after `schedule` (its last absorbs)
++const TRANSCRIPT_LABELS_CLASSIFY: [(&str, &str); 2] = [
++    ("classify-verdict", "run header: the PUBLIC verdict bit b (1 = flagged: margin > c), one byte; absorbed after schedule"),
++    ("classify-chunk", "run header: D41's chunk, seven u64 little-endian (index, count, a, b, total, size, overlap); the header's last absorb"),
++];
++
++/// the transcript of a classifier run, in words
++const TRANSCRIPT_PROGRAM_CLASSIFY: [&str; 12] = [
++    "STAGE 17 (D19): every hash below is BLAKE3 under the rule named in hash_tag (the classifier profiles are tagged).",
++    "Transcript::new_tagged(classifier run profile bytes), then absorb run-shape (ELEVEN u64: L, T, width, hidden, q_heads, kv_heads, head_dim, V, P0, n, S), expected-IO (the ONE input token endpoint spec and root), public-statement, parameters (the classifier profile line), calibration, schedule, classify-verdict (the public verdict bit), classify-chunk (D41's chunk). The state here is run_binding.",
++    "Stage 0 (IN-C): absorb pb-run-stage(0), pb-run-block(the embedding digest), B(B_in root), rows, log-cols; A(root), rows, log-cols at the stage row width; M(mask root); draw 3 Fp2 (beta, gamma, alpha) and clog2(d_pad) Fp2 (r_emb); absorb H(root), rows, log-cols.",
++    "  Its slots INC-00 .. INC-03 (the query zero-check batches the LogUp, BOS, TEMPLATE and pad clauses, each with a fresh mu); then the M opening, the A-in and H-in openings, and the input token endpoint (E-token-in).",
++    "Stage k = 1 .. L (block k-1): absorb pb-run-stage(k), pb-run-block(block_digests[k-1]), B(root of boundary k), rows, log-cols; then exactly a block run's stage (A, M, 3 challenges, H, 23 slots, M, A, H).",
++    "  Then the Input role: boundary k-1 in token numbering (B_in at k = 1), whose claim list is complete only now.",
++    "Stage L+1 (OUT-C): absorb pb-run-stage(L+1), pb-run-block(the margin vector's digest); A, rows, log-cols; M; draw 2 Fp2 (gamma, alpha); H, rows, log-cols.",
++    "  Its slots OUTC-00 .. OUTC-07 (the margin slot PD hosted by LZC with the host term sigma g limb + u0 (sigma b + c)); then the M opening, A-out, H-out and B-out (the last block's outgoing claims, then OUTC-00's). NO output endpoint.",
++    "The M opening and every PCS opening are a block run's (mask-q, mask-prox; per group lambdas, proximity coefficients, pcs-vec, pcs-prox, column indices).",
++    "The segment header and trailer tags are COMPARED against the verifier's own transcript position and are outside the Fiat-Shamir chain.",
++    "The owner's decommitment (the input token plane, its pads and salts) is never read by a verifier and is never in a capture.",
++    "The hidden-length variant and the P / F selector variants are not built.",
++];
++
++/// **ROUND 12 (gate round 16, capture request 2.1(a)): the run file of a
++/// classifier run.** The token run file's header members, `"classify"` (the
++/// classifier facts), the boundaries in token numbering, `L + 2` stage files,
++/// the labels with the classifier's two and its transcript program.
++fn write_run_classify(r: &Rec) -> Vec<u8> {
++    let h = &r.header;
++    let sh = &h.sh;
++    let cf = h.classify.as_ref().expect("a classifier header");
++    let mut out = Vec::new();
++    write!(
++        out,
++        "{{\"schema\":{SCHEMA_CLASSIFY:?},\"kind\":\"zk60-run-verifier-observations\",\"coverage\":\"classify-run-all-stages-v1\",\"array_store\":{},\"profile\":{:?},\"transcript_domain\":{:?},\"block_profile\":{:?},\"blocks\":{},\"stages\":{},\"boundaries\":{},\"fully_verified\":true,\"privacy\":\"P1\",\"privacy_review_complete\":false,\"weight_policy\":\"public-statement\",\"field_modulus\":{},\"extension_nonresidue\":{},\"public_tables_included\":{},\"source_commit\":{:?},\"run_binding\":{:?},\"context\":{:?},\"calibration\":{:?},\"public_statement_digest\":{:?},\"parameter_line\":{:?},\"schedule_digest\":{:?},\"expected_policy\":{:?},\"expected_policy_sha256\":{:?},\"run_shape_words\":{:?},\"shape\":{{\"name\":{:?},\"profile\":{:?},\"tokens\":{},\"width\":{},\"hidden\":{},\"q_heads\":{},\"kv_heads\":{},\"head_dim\":{},\"t_pad\":{},\"d_pad\":{},\"h_pad\":{},\"f_pad\":{},\"log_cols\":{},\"cols\":{},\"inv_rate\":{},\"opened_cols\":{},\"f_e\":{},\"endpoint_rows\":{},\"endpoint_log_n\":{},\"endpoint_inv_rate\":{},\"endpoint_general\":{},\"norm_wrho\":{},\"wrho_s\":{},\"slots\":{:?},\"a_groups\":{},\"h_groups\":{},\"n_slots\":{N_SLOTS}}},",
++        r.store.is_on(),
++        h.profile,
++        h.profile,
++        sh.profile,
++        h.l,
++        stages_total(h),
++        cf.boundaries.len(),
++        crate::field::P,
++        crate::field::NONRESIDUE,
++        r.public_tables,
++        std::env::var("HL_TEST_SOURCE_COMMIT").unwrap_or_else(|_| "uncommitted-test".into()),
++        r.binding,
++        h.context,
++        h.calibration,
++        h.public_statement,
++        h.parameter_line,
++        h.schedule_digest,
++        h.expected_bytes,
++        crate::export_v3::sha256_hex(&h.expected_bytes),
++        h.run_shape_words,
++        sh.name,
++        sh.profile,
++        sh.tokens,
++        sh.width,
++        sh.hidden,
++        sh.q_heads,
++        sh.kv_heads,
++        sh.head_dim,
++        sh.t_pad,
++        sh.d_pad,
++        sh.h_pad,
++        sh.f_pad,
++        sh.log_cols,
++        1usize << sh.log_cols,
++        sh.inv_rate,
++        sh.opened_cols,
++        sh.f_e,
++        sh.endpoint_rows,
++        sh.endpoint_log_n,
++        sh.endpoint_inv_rate,
++        sh.endpoint_general,
++        sh.norm_wrho,
++        sh.wrho_s,
++        sh.slots().iter().map(|&(n, e, d)| [n, e, d]).collect::<Vec<_>>(),
++        sh.a_groups(),
++        sh.h_groups()
++    )
++    .expect("write to a Vec");
++    let (g0, cn, tn, ceps) = cf.final_norm;
++    let (tname, tq, tsl, tsr, tel, ter) = cf.tier;
++    let [ci, cc, ca, cb, ct, cs, co] = cf.chunk;
++    write!(
++        out,
++        "\"classify\":{{\"run_profile\":{:?},\"V\":{},\"V_pad\":{},\"T\":{},\"t_pad\":{},\"d\":{},\"d_pad\":{},\"P0\":{},\"n\":{},\"S\":{},\"profile_text\":{:?},\"profile_digest\":{:?},\"policy\":{{\"id\":{:?},\"prefix_ids\":{:?},\"suffix_ids\":{:?},\"num_special\":{},\"yes\":{},\"no\":{},\"c\":{},\"tokenizer\":{:?},\"template_digest\":{:?}}},\"margin_vector\":{{\"digest\":{:?},\"d\":{}}},\"embedding_digest\":{:?},\"bos\":{},\"final_norm\":{{\"g0\":{g0},\"cn\":{cn},\"tn\":{tn},\"ceps\":{ceps}}},\"wrho\":{},\"d_max\":{},\"margin_window_bits\":{},\"limbs\":{},\"limbs_at_lo_entry\":{},\"s_in\":{},\"tier\":{{\"name\":{tname:?},\"opened_cols\":{tq},\"stage_log_n\":{tsl},\"stage_inv_rate\":{tsr},\"ep_log_n\":{tel},\"ep_inv_rate\":{ter}}},\"r_emb_len\":{},\"verdict\":{},\"chunk\":{{\"index\":{ci},\"count\":{cc},\"a\":{ca},\"b\":{cb},\"total\":{ct},\"size\":{cs},\"overlap\":{co}}},\"input_endpoint\":",
++        cf.run_profile,
++        cf.v,
++        cf.v_pad,
++        cf.tokens,
++        cf.t_pad,
++        cf.d,
++        cf.d_pad,
++        cf.p0,
++        cf.n,
++        cf.s,
++        cf.profile_text,
++        cf.profile_digest,
++        cf.policy_id,
++        cf.prefix,
++        cf.suffix,
++        cf.num_special,
++        cf.yes,
++        cf.no,
++        cf.c,
++        cf.tokenizer,
++        cf.template_digest,
++        cf.w_digest,
++        cf.d,
++        cf.emb_digest,
++        cf.bos,
++        cf.wrho,
++        cf.d_max,
++        cf.window_bits,
++        cf.limbs,
++        cf.lam_base,
++        cf.scale,
++        cf.r_emb_len,
++        cf.verdict
++    )
++    .expect("write to a Vec");
++    write_endpoint_facts(&mut out, &cf.input_endpoint);
++    write!(out, ",\"output_endpoint\":null,\"input_root\":{:?},\"b_in\":", cf.input_root).expect("write to a Vec");
++    write_boundary_facts(&mut out, &cf.boundaries[0]);
++    write!(out, ",\"b_out\":").expect("write to a Vec");
++    write_boundary_facts(&mut out, &cf.boundaries[cf.boundaries.len() - 1]);
++    write!(out, ",\"input_endpoint_opened_at_stage\":0,\"stage_in_c_layout\":").expect("write to a Vec");
++    strings(&mut out, &cf.stage_layouts[0]);
++    write!(out, ",\"stage_out_c_layout\":").expect("write to a Vec");
++    strings(&mut out, &cf.stage_layouts[1]);
++    write!(out, "}},\"block_digests\":[").expect("write to a Vec");
++    for (i, d) in h.block_digests.iter().enumerate() {
++        if i > 0 {
++            write!(out, ",").expect("write to a Vec");
++        }
++        write!(out, "{d:?}").expect("write to a Vec");
++    }
++    write!(out, "],\"token_boundaries\":[").expect("write to a Vec");
++    for (i, b) in cf.boundaries.iter().enumerate() {
++        if i > 0 {
++            write!(out, ",").expect("write to a Vec");
++        }
++        let name = if i == 0 {
++            "B_in".to_string()
++        } else if i + 1 == cf.boundaries.len() {
++            "B_out".to_string()
++        } else {
++            format!("B_{i}")
++        };
++        write!(out, "{{\"boundary\":{i},\"name\":{name:?},\"committed_at_stage\":{i},\"opened_at_stage\":{},\"facts\":", i + 1).expect("write to a Vec");
++        write_boundary_facts(&mut out, b);
++        write!(out, "}}").expect("write to a Vec");
++    }
++    write!(out, "],\"boundary_scales\":{:?},\"stage_lines\":", h.boundary_scales).expect("write to a Vec");
++    strings(&mut out, &h.stage_lines);
++    write!(out, ",\"layout_description\":").expect("write to a Vec");
++    strings(&mut out, &h.layout_description);
++    write!(out, ",\"stage_files\":[").expect("write to a Vec");
++    for k in 0..stages_total(h) {
++        if k > 0 {
++            write!(out, ",").expect("write to a Vec");
++        }
++        write!(out, "{:?}", stage_file(k)).expect("write to a Vec");
++    }
++    write!(out, "],\"transcript_domain_bytes\":{:?},", h.profile.as_bytes()).expect("write to a Vec");
++    write_hash_tag(&mut out, sh);
++    write!(out, ",\"transcript_labels\":[").expect("write to a Vec");
++    // the six header labels, the classifier's two (the header's last
++    // absorbs), then the stage labels
++    let labels: Vec<(&str, &str)> = TRANSCRIPT_LABELS[..6].iter().chain(TRANSCRIPT_LABELS_CLASSIFY.iter()).chain(TRANSCRIPT_LABELS[6..].iter()).copied().collect();
++    for (i, (label, what)) in labels.iter().enumerate() {
++        if i > 0 {
++            write!(out, ",").expect("write to a Vec");
++        }
++        write!(out, "{{\"label\":{label:?},\"what\":{what:?}}}").expect("write to a Vec");
++    }
++    write!(out, "],\"transcript_program\":").expect("write to a Vec");
++    strings(&mut out, &TRANSCRIPT_PROGRAM_CLASSIFY.iter().map(|s| s.to_string()).collect::<Vec<_>>());
++    write!(out, ",\"mask_domain\":{{\"log_dom\":{},\"columns\":{}}},", crate::zk::MASK_LOG_DOM, sh.opened_cols).expect("write to a Vec");
++    out.write_all(&r.index_json).expect("write to a Vec");
++    write!(out, ",\"not_in_a_capture\":[\"witness values\",\"pad values\",\"mask coefficients\",\"unopened columns\",\"unpublished salts\",\"unmasked sumcheck rounds\",\"hidden inputs, outputs and boundary planes\",\"prover randomness\",\"the content's token ids\",\"the margin, its limbs and the final-norm values\",\"owner decommitments\"]").expect("write to a Vec");
++    writeln!(out, "}}").expect("write to a Vec");
++    out
++}
++
++/// a classifier bundle's README
++fn classify_readme(b: &Bundle, note: &str, command: &str, arrays_note: &str, payload: usize) -> String {
++    format!(
++        "# ZK60 classifier run capture bundle\n\n{note}\n\nWhat this is: the VERIFIER'S VIEW of one private CLASSIFIER run (stage IN-C, {} blocks,\nstage OUT-C) under one transcript, profile `{}`, written by\n`hashline/src/private_block/run_capture.rs` (schema `{SCHEMA_CLASSIFY}`). It is the INPUT to the\nprivacy gate's classifier items (gate round 16) and it is NOT a privacy result: no gate has read it.\n\nWhat made it:\n\n    {command}\n\nFiles: `run.json` (the run header, the shape, `classify` with the classifier facts: the policy,\nc, the margin vector's digest, the PUBLIC verdict and D41's chunk; the boundaries in token\nnumbering: 0 = B_in, L = B_out) and `stage-NN.json` for the {} stages: stage-00 is stage IN-C\n(its slots, M, A-in, H-in and the input token endpoint, and its plane table), stage-01 ..\nstage-{:02} the blocks (each with the Input opening of the boundary before it, B_in at stage-01),\nand the last is stage OUT-C (its slots, M, A-out, H-out and B-out, and its plane table; NO output\nendpoint). Each stage file carries its segment's length and SHA-256. `manifest.json` lists every\nfile with its SHA-256 and pins the source files (the classifier's five included).\n\n{arrays_note}\n\nNOT in this bundle: any prover-side value, the content's token ids, the margin and its limbs,\nand the owner's decommitment (`not_in_a_capture` in `run.json`); every key is on the allow-list.\n\n{payload} bytes of run file, stage files and segments.\n",
++        b.l,
++        b.profile,
++        b.stages.len(),
++        b.l
++    )
++}
++
+ pub(super) fn stage_file(k: usize) -> String {
+     format!("stage-{k:02}.json")
+ }
+@@ -2739,6 +3275,37 @@
+     "h_sites",
+     "io_sites",
+     "slot_planes_source",
++    // ROUND 12 (gate round 16, capture request 2.1(e)): the classifier run file's new keys
++    "classify",
++    "P0",
++    "n",
++    "S",
++    "profile_text",
++    "profile_digest",
++    "policy",
++    "prefix_ids",
++    "suffix_ids",
++    "num_special",
++    "yes",
++    "no",
++    "tokenizer",
++    "template_digest",
++    "margin_vector",
++    "digest",
++    "wrho",
++    "d_max",
++    "margin_window_bits",
++    "limbs_at_lo_entry",
++    "verdict",
++    "chunk",
++    "count",
++    "a",
++    "b",
++    "total",
++    "size",
++    "overlap",
++    "stage_in_c_layout",
++    "stage_out_c_layout",
+ ];
+ 
+ /// Every JSON object key in `bytes`, in order of appearance. The writer emits
+@@ -2792,6 +3359,8 @@
+         Ok(())
+     };
+     let schema = if b.token { SCHEMA_TOKEN } else { schema_of(b.arrays.is_on()) };
++    // ROUND 12: a classifier run's bundle declares its own schema
++    let schema = if bundle_is_classify(b) { SCHEMA_CLASSIFY } else { schema };
+     put("run.json".into(), &b.run_json, &mut files)?;
+     for (k, s) in b.stages.iter().enumerate() {
+         put(stage_file(k), s, &mut files)?;
+@@ -2841,8 +3410,10 @@
+     } else {
+         readme
+     };
++    let readme = if bundle_is_classify(b) { classify_readme(b, note, command, &arrays_note, payload) } else { readme };
+     put("README.md".into(), readme.as_bytes(), &mut files)?;
+     let pins = source_pins()?;
++    let pins = if bundle_is_classify(b) { classify_source_pins(pins)? } else { pins };
+     let mut manifest = Vec::new();
+     write!(manifest, "{{\"schema\":{schema:?},\"kind\":\"zk60-run-capture-manifest\",\"profile\":{:?},\"blocks\":{},\"source_commit\":{:?},\"source_pins\":[", b.profile, b.l, std::env::var("HL_TEST_SOURCE_COMMIT").unwrap_or_else(|_| "uncommitted-test".into())).expect("write to a Vec");
+     for (i, (name, sha)) in pins.iter().enumerate() {

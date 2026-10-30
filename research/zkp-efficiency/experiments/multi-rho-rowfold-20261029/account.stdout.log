@@ -1,0 +1,3 @@
+{"status": "PASS", "checks": 145, "modeled_core_blocks": 2, "explicit_rho_h2d_missing_in_local_stats": true}
+nonDD {1: 27950972928, 2: 14275444736, 4: 7725383680, 8: 4150394880}
+DD {1: 28877651968, 2: 15008268288, 4: 7504134144, 8: 4029546496}

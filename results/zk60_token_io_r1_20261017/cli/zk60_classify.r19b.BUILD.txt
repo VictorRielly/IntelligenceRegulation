@@ -1,0 +1,26 @@
+zk60_classify round-19b CPU binary (frozen-r19 + REVIEW_R19 R19-1 / R19-2 / R19-3). No production code line moved: the two
+production files that changed (tied_tables/derive.rs, token_io/classify_cli.rs) changed in doc comments (and derive.rs in
+its test module). The single `prove` path gives round 18's (and the reviewed r16b binary's) bytes exactly for one real
+moderate job under fixed public entropy (r19b/logs/bytes/bytes.json). UNREVIEWED.
+
+file:      /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/cli/zk60_classify.r19b.release.bin
+sha256:    6d65d32ea783e36db2458ccce2d459cb29a91bcb45a89c4e23e484914126d609
+built:     2026-10-30T14:52:17Z on MSI by r19b/tools/r19b_suite.sh after the full suite s24 (log r19b/logs/b19b-cli-build.log;
+           14 s, 0.43 GiB); copied unchanged to cli/ by r19b/tools/r19b_freeze.sh (cmp equal; r19b/logs/freeze-bin.cmp)
+source:    frozen-r19b exactly (manifest_final_r19b.sha256 = r19b/manifest_r19bA.sha256: 306 files, list sha256
+           cfae2d1e3c9f662b477bc7ba7ee418ed74c8732d0717732a74385cd8430b67b9); vs frozen-r19: 5 changed paths
+           (r19b/r19bA_vs_frozen_r19.txt)
+vs r19:    NOT byte-equal to 841ba983cebaae… (r19b/logs/b19b-vs-r19.cmp): the tree path is baked in
+checked:   the job-0 receipt bytes at real scale = round 18's recorded digests (r19b/logs/bytes/); the real moderate-hate
+           receipt re-verified in four fresh processes (ZK60_MODELS unset / =/home/victor/models: exit 0; a same-size
+           sparse wrong checkpoint: exit 1 "checkpoint SHA-256 differs from the pinned model"; a symlinked checkpoint:
+           exit 1 "not a regular file"; r19b/logs/verify-hate*.log; its bytes unchanged, r19b/logs/hate-tree-*.json); rung
+           receipts cross-verified with r19 841ba983… both ways (r19b/logs/xbin-r19b-r19.log)
+command:   /home/victor/.cargo/bin/cargo build --release --offline --locked -j2 --manifest-path /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r19b/hashline/Cargo.toml --example zk60_classify
+toolchain: rustc 1.97.1 (8bab26f4f 2026-07-14); cargo 1.97.1 (c980f4866 2026-06-30)
+features:  the crate's defaults only; gpu-cuda NOT enabled: CPU backend only.
+profile:   [profile.release] as frozen-r19 (hashline/Cargo.toml unchanged since r17)
+runtime:   reads ZK60_MODELS and HOME only when the export declares no tied_embeddings.checkpoint_file (the Shieldstral T128
+           export declares none); with neither set it refuses; the model file must be a regular file (a symlink is refused)
+rustflags: none set by the lane
+scope:     a build record, not a privacy acceptance and not a classifier-quality claim; unreviewed

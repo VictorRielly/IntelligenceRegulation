@@ -1,0 +1,33 @@
+/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/r19b/manifest_r19b_dryrun.sha256: 306 files, list sha256 cfae2d1e3c9f662b477bc7ba7ee418ed74c8732d0717732a74385cd8430b67b9
+changed 0: []
+added 0: []
+removed 0: []
+fix1-revert ok
+fix2-revert ok
+rng-plant ok
+label-plant ok
+one-post-revert ok
+job-order ok
+reused-draw ok
+e7-ignore-models ok
+e7-empty-is-set ok
+e7-precedence ok
+hide-oneline-u ok
+hide-oneline-l ok
+hide-comment-u ok
+hide-comment-l ok
+hide-pubin-u ok
+hide-pubin-l ok
+hide-pubself-u ok
+hide-pubself-l ok
+hide-grandchild-u ok
+hide-grandchild-l ok
+e7-no-pin-compare ok
+e7-follow-symlink ok
+after-tests-rng ok
+after-tests-label ok
+after-tests-mod-u ok
+after-tests-mod-l ok
+include-u ok
+macro-mod ok
+28 mutants; bad: []

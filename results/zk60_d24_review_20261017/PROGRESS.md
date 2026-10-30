@@ -1075,3 +1075,109 @@ No git. Heavy jobs through scripts/zk60_resource_guard.py.
   (medium: the tied record binds declarations, not derivation), R12-F2
   (low: unbounded token-table reads), R12-F3 (low: --rope-from-export vs the
   pinned record); notes N-1..N-7. Nothing of mine is running.
+
+## ROUND 11 (short fix check of the native R12b tree: R12-F1/F2/F3/N-7 fixes, frozen by Sol 2026-10-28T22:33Z)
+
+- 22:36 UTC (2026-10-28): opened on the coordinator's brief. Read lane rules,
+  REVIEW_R12.md, coordinator notes 21:35Z (three F1 conditions) and 22:58Z
+  (lean memory: one >=3 GiB job box-wide), Sol's SOL_REPORT_20261028.md and
+  DESIGN.md. Frozen tree copied to my scratch
+  ops/zkp-mvp/trained-1b-review-r12b-scratch/ (cp -a). Evidence dir
+  results/zk60_d24_review_20261017/r12b/.
+- 22:38 UTC: scratch copy verified: 229/229 files equal manifest_frozen.json,
+  tree hash 51de5b83... recomputes (r12b/tree_check.py). diff -rq of my R12
+  copy vs the R12b scratch = the patch's file list (4 new, 8 changed).
+  Read the whole r12b-vs-r12.patch (861 lines).
+- 22:43 UTC: launched r12b/r12b_cli.sh (guarded build of my CLI + derivation
+  example from the pristine scratch); waiting on the heavy lock (token lane's
+  tio-r13-a1-build live).
+- 22:47 UTC: [COUNTED] r12b/r12b_tied_reference.py (my own transcription of
+  the quantizer contract, light guard, 100 s, RSS 0.59 GiB): checkpoint and
+  tensor pins re-hashed; embedding baff04d2, head 786f02bc, multipliers
+  f43790f3, fixture margin b597f254, policy margin (13059/2649/4.08288e-6)
+  1f5cb346: all equal Sol's reference_tables.json / policy_margin_reference
+  and Astra's dg_r12b_t256 declared digests (+ its margin file). Hadamard run
+  in DECREASING strides and cross-checked against increasing: 0 mismatches over
+  805,312,512 rotated values (rotation exact; contract order-independent).
+  0 refusals in tables; policy margin 0 refused, min -32767 max 31800; half
+  scale refuses 232 coordinates. My honest fixture written to
+  ops/zkp-mvp/trained-1b-review-r12b-scratch/fixture/ (profile = Sol's
+  fixture profile byte copy, 11bccfa2...).
+- 22:51 UTC: [MEASURED] my CLI + derivation example built from the pristine
+  scratch (rv12b-cli-build): zk60_trained_block 6704f90e..., zk60_tied_tables
+  c028a50b... (Sol's d9106df6 / 1d6396ba; build paths differ).
+- 22:53 UTC: Sol's working tree ops/zkp-mvp/trained-1b equals the frozen
+  manifest on all 229 paths (hashed by path only; a first whole-tree walk was
+  stopped at once, it reached the big results/ subtree), so Sol's binary
+  hashline-a876d33e (built there) ran the frozen source.
+- 22:55 UTC: my review modules registered in MY scratch only:
+  review_r12_tests.rs (R12 round's module, verbatim) + review_r12b_tests.rs
+  (D' short/mis-declared tables, D2' links/FIFO/device/escaping name, C' rope
+  opt-in at all Shieldstral geometries on both load paths, F1 ignored fixture
+  test: honest + 4 rehashed forgeries + zero embedding + moved scale + 7
+  token_io_parameters attacks + TOCTOU + 4 checkpoint-path attacks + API
+  margin / half-scale / argument refusals). Queue r12b/r12b_queue.sh launched
+  detached (test build, new tests, R12 port [D, D2 expected to FAIL now],
+  F1, Sol's tied test on my fixture, author subset, CLI F3 / real-export
+  checks on Astra's dg_r12b_t256, five retained receipts). No golden/dense
+  rerun (lean-memory rule; no reason to doubt).
+- 22:59 UTC: [MEASURED] test build hashline-34a4a057 (151 s, 1.87 GiB).
+  rv12b-review-new 3/0 (+F1 ignored): D' 12 short / mis-declared cases
+  refused at Shieldstral T128 and T256-DD (R12's attack D verbatim: "missing
+  key dtype"; declared right but 7/5/3 B: "expected exactly 805306368";
+  wrong shape/dtype: "dtype/shape"), R12's swapped head refused; D2' link to a
+  file elsewhere, link to /dev/zero, FIFO: "not a regular file" in 0.02 s (no
+  block), "../escape.bin" refused by plain_name; C' opt-in refused at all four
+  Shieldstral geometries on load_layer AND reload_block. R12 port: A B C E F
+  G H pass (identical numbers to round 10), D and D2 FAIL as intended (the
+  R12 attacks are refused: "missing key dtype").
+- 23:01 UTC: rv12b-f1 PASS, 27 checks, 143 s, RSS 0.01 GiB (kernel cap
+  active): my honest tables accepted (baff04d2/786f02bc/f43790f3); rehashed
+  one-byte embedding / head / multiplier forgeries, a uniform 4096
+  multiplier table, an all-zero exact-size embedding and a moved embedding
+  scale all refused "not derived from the pinned tensor"; 7 token_io_parameters
+  attacks, the TOCTOU profile swap and 4 checkpoint_file attacks refused by
+  name; API margin = my transcription 1f5cb346, half scale refused "no
+  clipping", 6 argument refusals; fixture restored (hashes rechecked).
+- 23:03 UTC: Sol's own ignored tied test passes against MY fixture (47 s).
+- 23:04 UTC: author subset on my binary 119/0/6 (25 s, 0.91 GiB). My CLI on
+  Astra's real dg_r12b_t256: verify without the flag loads the export through
+  the full loader incl. tied derivation and rebuilds layer-0 statement
+  be827c17... (rejected against a zero pin, as intended); verify, verify --dd
+  and stack-verify with --rope-from-export rejected "refused at a profile
+  with a pinned RoPE transform"; each load 16.9-18.3 s (derivation first);
+  no output dir created.
+- 23:07 UTC: five retained receipts verify under my R12b CLI with
+  byte-identical statements (d5721276, 4da580bd, caf6ced2, 5585f5ee,
+  9b71dfb0). Sol's golden-final-r2 digests + identities = my R12 golden run
+  (9/9 lines), so goldens/dense not rerun (lean-memory rule). Frozen tree
+  re-hashed: 229/229, no extras. Fixture hashes in r12b/fixture.sha256 after
+  F1 restored it (honest digests); its three large tables (1.2 GB, identical to
+  Sol's tied-fixture) deleted; reproducible with r12b_tied_reference.py.
+  No /tmp leftovers of mine.
+- 23:10 UTC: REVIEW_R12B.md written. VERDICT: R12b ACCEPTED on soundness for
+  the fix scope (F1 FIXED incl. conditions a [native; R-C2 obligation] / b / c,
+  F2 FIXED WITH NOTES, F3 FIXED, N-7 FIXED WITH NOTES, regression PASS,
+  evidence hygiene PASS WITH NOTES; the 0 s stages ran 1-4 real tests each).
+  Notes N-r12b-1..7 (none soundness). Not a privacy acceptance. Nothing of
+  mine is running.
+
+## Round R13 (S2 accuracy stack, frozen bb9eb212..., Sol 2026-10-29T06:12Z)
+
+- 06:15 UTC (2026-10-29): started. Scratch copy ops/zkp-mvp/trained-1b-review-r13-scratch/ = frozen manifest 269/269, tree bb9eb212... recomputes; the frozen tree itself also 269/269, no extras. Evidence dir results/zk60_d24_review_20261017/r13/.
+- 06:53 UTC: independent references: my T32 reference (reviewer_block_reference.py, written from S2 spec + coordinator notes) = Sol T32 traces 18/18 sites both stacks (fixture degenerate: s=0, ao=0); my export reference (reviewer_export_reference.py) reproduces x2 of r13-h24-wide and r13-low-dense (0/12288 differ) and actual Shieldstral smoke L00 T128 (0/393216, 130 s, 1.03 GiB guarded); all export ACT tables = my SiLU generator. Bits recount (reviewer_bits_r13.py) matches all 144 native census rows. Own generic fixtures (rv13_make_fixtures.py: random int8 over [-127,127] incl. +-127, signed gains, scores [-49,44], y=-32768 row) + 10 doctored variants under scratch loader-fixtures-rv/. Review test module review_r13_tests.rs registered in my scratch copy only. Queue stage A launched (r13/r13_queue.sh a): test+CLI build, my tests, Sol attack set, components, 4 Sol CLI receipts, 4 retained R8/R9 receipts. Python refs on Shieldstral L00/L25 (real residual rows) queued (light).
+- 07:00 UTC: queue A: test build 175 s / 1.99 GiB (binary hashline-c24e3b74), CLI build 61 s. rv13-review running: alternative-remainder witnesses (gate 2^20, up 2^12, down 2^20, masked score 2^18) all REJECTED at the H LogUp sum; ACT3 pad-position witness REJECTED by the F zero-check pad term; two-channel group-id swap (witness side) REJECTED; swapped statement verifies its own receipt and cross-verification refused both ways (rv-generic-h24 DD and non-DD).
+- 07:00 UTC: rv13-review PASS 4/4 (36 s): generic honest witnesses H24/LOW x DD/non-DD prove+verify (15.8-16.7 MB), tampered refused, y=-32768 present, scores [-49,44]; native dump = my reference on ALL 19 sites, 0 differences (compare_rv-generic-*.json); 18 alternative/pad/group-swap witnesses rejected; 9 doctored exports refused by name at the door (-128 weight, -128 gain, prover-supplied scaled_act, doctored act, five groups, (0,-8) at Standard, m_g 0, m_o 257, legacy schema naming R13); remainder windows exact (Rg 2^20, Ru 2^12, Rd 2^20/2^12, Rs 2^18, Rao 2^21, Rq/Rk 2^15, Rv 2^16, Ro 2^12); widened words = two plain bytes; score admits exactly [-127,127]. My reference on actual Shieldstral L00/L25 (real residual rows, T256): no refusal, L25 groups incl (0,-8), ACT tables = my generator.
+- 07:09 UTC: stage A complete: Sol attack set on my binary 6/6 tests (19 receipt-emitting attacks rejected, 4 dense receipts, two-stage G20->G21, wrong-group); components 77/0/8; my CLI verifies Sol 4 R13 CLI receipts (copies) with 19/19 controls refused each; 4 retained R8/R9 TL/8B (DD and non-DD) stack receipts verify, statements byte-checked. FINDING: 11/19 CLI controls (all calibration nudges) are refused at R13 by the gate-denominator door (legacy shape_at), not at the receipt -> added rv13_calibration_controls_reach_the_receipt; stage B launched (rebuild, controls, goldens 7.5 GiB declared after lean-memory check, Shieldstral L00/L25 native dump = the one checkpoint stream).
+- 07:13 UTC: rebuilt test binary (same cargo name hashline-c24e3b74, new content; binaries.sha256). rv13-controls PASS: all 11 calibration nudges rebuilt at the R13 shape (block R13 data re-derived for the moved base) reach the receipt and are refused ("this segment belongs to another run"), both stacks -> R13-F1 is a test defect only. Goldens (7.5 GiB declared, lean-memory check) and the Shieldstral L00/L25 native dump queued.
+- 07:15 UTC: rv13-goldens PASS 5/0 (52 s, 5.91 GiB, cgroup cap): 4 digests + 5 identities = my R12 round-10 golden run, 9/9 lines identical.
+
+## S4 design check (split-width construction B, Sol packet 73dcff1f..., 2026-10-29)
+
+- 07:17 UTC (2026-10-29): started. Packet DESIGN_REVIEW_REQUEST.json sha256 73dcff1f... recomputed (match). Read PAPER/COUNT/STATE/ISOLATED_VALIDATION, coordinator 06:35:14Z conditions, lane rules (guard 88af4c63, lean-memory rule). Scratch: ops/zkp-mvp/s4-design-check-scratch/. Output: S4_DESIGN_CHECK.md. Not duplicating the R13 D24 review running in parallel.
+- 07:18 UTC: rv13-shield (first launch had a wrong export path in my queue: failed in 0.0 s before any read, kept as rv13-shield.wrongpath.*; rerun with the fixed path): export loaded with checkpoint authentication + tied derivation in 16.6 s (the ONE stream), L00 groups [(-5,-13),(-4,-12),(-3,-11)] G19, L25 groups [(-3,-11),(-2,-11),(-1,-9),(0,-8)] G19 multipliers {128,512,1024}; 36.8 s, 1.69 GiB. Native L00 and L25 T256 witnesses on real residual rows = my reference at all 19 sites, 0 differences (compare_shield_L*.json).
+- 07:20 UTC: REVIEW_R13.md written. VERDICT: R13 ACCEPTED on soundness at the 12 registered profiles; no soundness finding. R13-F1 (low, test defect): 11/19 CLI calibration controls vacuous at R13 (legacy shape_at) - property shown to hold by rv13-controls. Notes N-r13-1..9: 8B T512 (unregistered) counts 94.48/94.80 < 95 (flag for the security owner); lookup accounting (N+4T_d-1)/p^2 (Sol 2(pos-1) ~1 bit looser); CLI hash labels; Sol fixtures non-generic; schedule line drops f_e/wrhoS (bound via statement); OWN_SOURCE_FILES prepended; libm portability; RoPE c=-128 completeness; privacy bookkeeping. Token-lane requirements for Shieldstral on R13 in section 10. Frozen tree re-hashed 269/269 after all runs. Two read-only working-tree hash checks of mine stopped (not needed: Sol release-2.source.json = bb9eb212). Nothing of mine is running. Not a privacy acceptance.
+- 07:29 UTC (S4 design check; corrected from a mistyped "07:40" by date -u; the R13 reviewer's 07:18/07:20 lines above belong to the R13 round): read native run_slot/build_claim/priv_table/open_zk/assert_mask_sites, endpoint_g/boundary geometry (external data+5, internal data+2*sites+2), rank-lemma disposition. Sol's sources/binaries hash = evidence.sha256.json; pinned rlib bdb08e43... matches. Count spot-check: 4 native baselines (A+H)*N = census rows; split words and 24.29/25.07/21.31/23.49% recomputed from count.py inputs (match). Writing own rank model (python, exact Fp2) and a public-gate variant microproof (rust, pinned rlib) in ops/zkp-mvp/s4-design-check-scratch/.
+- 07:35 UTC (S4): rank_model.py (exact Fp2, T128 rows N=2^14) -> rank_model.json: A-like commitment with batched norm + Q/K/V lifted claims, per-piece ZC/IO claims: disclosed 0 for whole-lift, independent and public-gate styles (also at sigma=0: whole-lift claim omitted / independent pure-mask claim); NEG mask-only scaling at sigma=0 discloses 2; endpoint pieces external (data+5, 1 site) and internal (data+6, 2 sites) disclose 0; NEG single prox row 1, two sites on a data+5 piece 1, piece opened twice 1. sigma=0 union bound 390/p^2 = 2^-119.4 per 26-block run. Guarded light job s4dc-checks-1 (0.48 GiB peak): Sol's algebra/scalar_split/pcs_lift/cfs_lift rebuilt from source against the pinned rlib reproduce their logs exactly (summaries + all 192 rejection lines). Own harness s4_gate_check.rs: attempt 1 WrongPoint control vacuous under public gate (moved the omitted bit; fixed to a retained bit + non-vacuity assert); attempt 2 honest public-gate NORM refused at M: a separate public gate table makes eq*gate*Y1^2 degree 4 in the extension variable (declared 3) -> design condition: fold the zero lift into the monomial's existing public factor. Attempts retained in out/.
+- 07:40 UTC (S4): harness attempt 3 (s4dc-gate-3, light 0.49 GiB): gate folded into the monomial's single public factor (eq((r_t,0^k),.) for the norm; zero-padded fold for matmuls). 45 honest microproofs pass (5 geometries x {moving dot, fixed-token matmul, moving norm} x {whole-lift, independent, public-gate}); 405 forgeries rejected (135 per style; OmitGate under public-gate caught at M = a commitment-consistent forgery); 90 zero-edge checks; 5 degree-trap refusals (separate gate table, honest prover). Native audit_claims refuses a zero site coefficient ("discard attempt") and any unused pair -> whole-lift's sigma=0 normalization needs an audit change; independent and public-gate need none. Joint single-commitment boundary option (rank model): external 30 rows / internal 34 rows, disclosed 0, no extra PCS openings. Two-piece boundaries add L+1 openings per run (105 -> 132 at L=26; commitment term -0.33 bit); lookup positions fall 24-28% (+0.39..0.48 bit on the lookup term).
+- 07:42 UTC (S4): S4_DESIGN_CHECK.md written. VERDICT: PROCEED WITH CONDITIONS. Construction B SOUND; recommended placement B-gate (zero lift only in each monomial's single public factor; private claims stay native, no sigma in any private functional, no audit/open_zk/wire change); whole-lift SOUND WITH CONDITIONS (sigma=0: challenge-only discard or checked-zero normalization with audit exemption); independent SOUND. Conditions C-1..C-11, privacy-gate items P-1..P-6, register ruling owed on D12/D12a two-commitment boundaries (joint single-commitment option: 30/34 rows, no extra openings). Counts reproduced (24.29/25.07/21.31/23.49%); corrections: internal boundary 36 rows (not 34), +L+1 PCS openings per run (-0.33 bit commitment term), lookup positions -23.5..-28.5% (+0.39..0.48 bit lookup term; the 24-28% above is rounded). Not a privacy acceptance. Nothing of mine running (the live cpu job is Sol's).

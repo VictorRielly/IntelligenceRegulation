@@ -1,0 +1,23 @@
+[22:43:45Z] cli start
+[22:47:08Z] rv12b-tied-reference exit 0
+[22:51:11Z] rv12b-cli-build exit 0
+[22:51:11Z] cli end
+[22:55:41Z] queue start
+[22:59:08Z] rv12b-test-build exit 0
+[22:59:08Z] lib test binary: /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r12b-scratch/hashline/target/release/deps/hashline-34a4a0575f56730e
+[22:59:08Z] rv12b-review-new exit 0
+[22:59:10Z] rv12b-review-r12port exit 101
+[23:01:33Z] rv12b-f1 exit 0
+[23:03:45Z] rv12b-sol-tied exit 0
+[23:04:12Z] rv12b-author-subset exit 0
+[23:04:29Z] rv12b-cli-real-load exit 1
+[23:04:48Z] rv12b-cli-f3-verify exit 1
+[23:05:06Z] rv12b-cli-f3-verify-dd exit 1
+[23:05:23Z] rv12b-cli-f3-stack exit 1
+[23:05:23Z] review_out after CLI checks: 
+[23:05:37Z] rv12b-compat-tl-dd exit 0
+[23:06:24Z] rv12b-compat-8b-dd exit 0
+[23:06:37Z] rv12b-compat-tl exit 0
+[23:07:23Z] rv12b-compat-8b exit 0
+[23:07:31Z] rv12b-compat-tl-t32 exit 0
+[23:07:31Z] queue end

@@ -1,0 +1,17 @@
+{
+  "open": [
+    {
+      "ref_id": "https://arxiv.org/abs/2608.13696"
+    },
+    {
+      "ref_id": "https://github.com/THU-HAS/MegaZK"
+    },
+    {
+      "ref_id": "https://plv.mpi-sws.org/refinedrust/"
+    },
+    {
+      "ref_id": "https://arxiv.org/abs/2507.16793"
+    }
+  ],
+  "response_length": "long"
+}

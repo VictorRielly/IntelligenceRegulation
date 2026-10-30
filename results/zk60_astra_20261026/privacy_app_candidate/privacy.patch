@@ -1,0 +1,1482 @@
+--- apps/proven-media/DESIGN.md
++++ candidate/DESIGN.md
+@@ -67,14 +67,16 @@
+ 4. **A "yes" label** (for example `violence: yes`) is published like any other label. Adults
+    receive the item. Minors receive a placeholder: **"Hidden for this audience (Minor): violence:
+    proved yes"**. The content itself is never served to that audience.
+-5. **No accepted proof** (refused, failed, timed out). The item page reads **"Labels not
+-   proved"**, with the reason. Fail closed **per category**: every category without an accepted
+-   proof counts as the most restrictive label (`not proved`, treated as yes), so restricted
+-   audiences never receive the item. The manifest is still issued and signed, with "unproved"
+-   entries.
+-
+-   The item is never re-proved. The same text may be submitted again only if nothing ever ran on
+-   the first submission, that is, it only waited for the shared machine.
++5. **No accepted proof** (refused, failed, timed out). Publication is all or nothing:
++   no text, labels, record, manifest or proof bundle is served for a failed item.
++   Only its authenticated author can see the per-post result **"Could not be verified."**
++   It contains no chunk, category, reason, layer, timing or attempt count. Unpublished
++   content is accessible only to the authenticated author. Query parameters do not
++   establish authorship; the operator provisions random access keys, exchanged for
++   revocable browser sessions. Failure diagnostics remain in private operator storage.
++
++   The item is never re-proved. Existing D45 reservation and retry rules remain:
++   a retry is eligible only if no proof ever started and the reserved context matches.
+ 6. **Viewer audience.** A pill in the top bar ("Viewing as Adult / Minor") and the "Your audience"
+    panel select the profile:
+    - **Adult** receives every labelled item and may additionally hide any category.
+@@ -133,7 +135,7 @@
+     │  labels per category (stub: one run for all three; placeholder values, not bound)
+     ├─ per category with an accepted proof → Publisher.publish(PublicationRecord) → AnchorRef
+     ├─ manifest.build_manifest(...) → zk60.manifest/1, Ed25519-signed (dev key)
+-    └─ failure → every label "unproved" (fail closed), manifest still signed
++    └─ failure → entire item withheld; authenticated author sees one generic failure result
+ ```
+ 
+ * **Two data roots, both outside the repository.** The prover refuses owner files inside a git
+--- apps/proven-media/README.md
++++ candidate/README.md
+@@ -191,6 +191,57 @@
+ The wallet received 0.46 free test ETH and needs no further funding for this demo.
+ No real classifier batch has been anchored yet.
+ 
++## Per-job native execution settings
++
++The real classifier pipeline accepts `PM_CLASSIFIER_NATIVE_THREADS=2` (default)
++or `8`. It records the choice in the private job's `execution.json`; a changed
++record is refused. The activation writer and NumPy/OpenBLAS remain at two threads.
++Memory reservations and caps, model pins, policies and statements are unchanged.
++At two native threads, the effective prove time cap is at least 1,620 seconds
++(27 minutes); at eight it is 1,200 seconds. These caps include margin over the
++observed/expected work. The hardware profile records the base runtime declarations;
++`execution.json` records each job's effective thread count and time cap.
++
++The first public garden post retained two threads for sexual (1,031.16 seconds
++proving) and used eight for violence (456.30 seconds). These are separate
++categories, shared-box n=1 measurements, not a controlled speedup experiment.
++The first post and its source history are retained under
++`results/zk60_astra_20261026/real_app_demo_1/`.
++
++## Author access and private failure results
++
++The operator provisions identities locally. No public endpoint can claim an
++existing handle. Before running the demo, use the same `PM_PRIVATE_DIR` as the
++server, and run:
++
++```bash
++apps/proven-media/.venv/bin/python apps/proven-media/tools/create_author.py victor --operator
++```
++
++The command prints only the path of a new 0600 credential file outside the
++repository. Read that file privately and enter its `access_key` in **Sign in**.
++Omit `--operator` for ordinary authors. `--rotate` explicitly replaces an
++existing key and revokes that author's sessions. Do not put access keys in
++URLs, command arguments, browser storage, logs or shared screenshots. The auth
++store contains only key and cookie hashes; the private credential file itself
++contains the bearer key. The default session expires after 12 hours. Cookies
++are HttpOnly and SameSite Strict, and Secure when served over HTTPS. Serve over
++HTTPS for remote access; plain HTTP is intended only for the localhost demo.
++Mutation routes also require the session's CSRF token and reject foreign origins.
++
++A handle in `?author=` or `?as=` grants no access. Existing authors must be
++provisioned by the operator; there is no automatic legacy-account claim.
++Unpublished posts and submissions are served only to their authenticated owner.
++A failed post returns only its id and **Could not be verified.**, with no text,
++chunk results, reasons, timings or attempt count. Publication remains all or
++nothing and the existing D45 reservation/retry rules remain in force. Operators
++can view the queue and status; only operators can close a pending batch.
++
++Public records omit `timings` and `proved_at`, including nested chunk records;
++private operator records retain them. Signed manifests are unchanged and retain
++their documented timestamps. This is not a claim of timing-side-channel privacy
++or acceptance of the classifier privacy statement.
++
+ ## Run it
+ 
+ ```bash
+@@ -204,8 +255,8 @@
+     /home/victor/IntelligenceRegulation/apps/proven-media/serve.py --port 8765 \
+     >> /home/victor/zk60-owner-private/proven-media/server.log 2>&1 < /dev/null &
+ 
+-# open http://localhost:8765/?as=victor            (from Windows too: WSL forwards localhost)
+-#      http://localhost:8765/?as=victor&audience=minor   to start as a minor viewer
++# open http://localhost:8765/ (from Windows too: WSL forwards localhost)
++# use ?audience=minor to select a viewer filter; sign in separately
+ 
+ # stop it (no signals needed; running proof jobs are detached and are not affected)
+ touch /home/victor/zk60-owner-private/proven-media/STOP-SERVER
+@@ -248,7 +299,7 @@
+ - the "movie night" post (violence yes);
+ - the two-chunk "weekend plan" post.
+ 
+-Open `http://localhost:8765/?as=victor`.
++Open `http://localhost:8765/` and sign in with the operator-issued access key.
+ 
+ 1. **(0:00) The feed.** "Each item carries labels for explicit content, violence and
+    hate, with a signed manifest. This legacy demonstration uses unproved placeholder labels.
+@@ -309,5 +360,5 @@
+   texts land; each new text gets a new registered id.
+ * **Privacy, audit and fidelity.** No privacy acceptance and no external audit. Soundness is
+   about 2^-95 per run, and the integer model's fidelity is below the D32 bar.
+-* **Accounts.** None: authors are matched by handle, and "minor" is a viewer toggle, not an
+-  age check.
++* **Accounts.** Author access uses operator-issued keys and revocable browser sessions.
++  The "minor" selector remains a viewer filter, not an age check.
+--- apps/proven-media/proven_media/app.py
++++ candidate/proven_media/app.py
+@@ -22,7 +22,7 @@
+ from fastapi.responses import FileResponse, JSONResponse, Response, StreamingResponse
+ from fastapi.staticfiles import StaticFiles
+ 
+-from . import config, items, manifest, prompting, provers, records
++from . import auth, config, items, manifest, prompting, provers, records
+ from .jobs import PER_JOB_S, Worker, chunks_of, item_progress, queue_view
+ from .publisher import AnchorRef, LocalChainPublisher, PublishError, content_commitment, make_publisher
+ from .store import Store, loads
+@@ -32,6 +32,7 @@
+ 
+ 
+ class State:
++    auth: auth.AuthorAuth
+     store: Store
+     prover: provers.ClassifierProver
+     publisher: LocalChainPublisher
+@@ -45,6 +46,7 @@
+     records.categories()      # refuses to start if a registered category policy text changed (design rule 2)
+     manifest.public_key_hex()  # creates the local dev signing key (0600) on first start
+     provers.ensure_private_roots()
++    S.auth = auth.AuthorAuth(config.PRIVATE_DIR / "auth.sqlite3")
+     S.store = Store(config.DB_PATH)
+     S.prover = provers.make_prover()
+     S.publisher = make_publisher()
+@@ -67,6 +69,87 @@
+ 
+ app = FastAPI(title="Proven Media", lifespan=lifespan)
+ app.mount("/static", StaticFiles(directory=str(config.STATIC_DIR)), name="static")
++
++
++@app.middleware("http")
++async def private_cache_policy(request: Request, call_next):
++    response = await call_next(request)
++    if request.url.path.startswith("/api/"):
++        response.headers["Cache-Control"] = "no-store"
++        response.headers["Vary"] = "Cookie"
++    return response
++
++
++def same_origin(req: Request):
++    origin = req.headers.get("origin")
++    if origin and origin.rstrip("/") != str(req.base_url).rstrip("/"):
++        raise HTTPException(403, "request origin refused")
++
++
++def current_session(req: Request) -> auth.Session | None:
++    return S.auth.session(req.cookies.get(auth.COOKIE))
++
++
++def require_session(req: Request, *, operator: bool = False) -> auth.Session:
++    session = current_session(req)
++    if session is None:
++        raise HTTPException(401, "sign in to continue")
++    if operator and not session.operator:
++        raise HTTPException(403, "operator access required")
++    if req.method not in ("GET", "HEAD", "OPTIONS"):
++        same_origin(req)
++        if not secrets.compare_digest(req.headers.get("x-pm-csrf", ""), session.csrf):
++            raise HTTPException(403, "request token refused")
++    return session
++
++
++def owns_post(req: Request, p: dict) -> bool:
++    session = current_session(req)
++    return session is not None and session.author == p["author"]
++
++
++@app.get("/api/session")
++def api_session(req: Request):
++    session = current_session(req)
++    return session.public() if session else {"author": None, "operator": False}
++
++
++@app.post("/api/session")
++async def api_login(req: Request):
++    same_origin(req)
++    if req.headers.get("content-type", "").split(";", 1)[0].strip().lower() != "application/json":
++        raise HTTPException(415, "JSON required")
++    # Bound the unauthenticated request before parsing or hashing credentials.
++    raw = bytearray()
++    async for chunk in req.stream():
++        raw.extend(chunk)
++        if len(raw) > 1024:
++            raise HTTPException(413, "request too large")
++    try:
++        body = json.loads(raw)
++    except (ValueError, UnicodeError):
++        raise HTTPException(400, "invalid request") from None
++    result = S.auth.login(body.get("access_key")) if isinstance(body, dict) else None
++    if result is None:
++        raise HTTPException(401, "invalid access key")
++    old = req.cookies.get(auth.COOKIE)
++    if old:
++        S.auth.logout(old)
++    token, session = result
++    response = JSONResponse(session.public())
++    response.set_cookie(auth.COOKIE, token, max_age=auth.SESSION_SECONDS, httponly=True,
++                        secure=req.url.scheme == "https", samesite="strict", path="/")
++    return response
++
++
++@app.delete("/api/session")
++def api_logout(req: Request):
++    require_session(req)
++    S.auth.logout(req.cookies[auth.COOKIE])
++    response = JSONResponse({"signed_out": True})
++    response.delete_cookie(auth.COOKIE, path="/", httponly=True,
++                           secure=req.url.scheme == "https", samesite="strict")
++    return response
+ 
+ 
+ # ---------------------------------------------------------------- views
+@@ -117,10 +200,8 @@
+             st["labels"] = records.effective_labels(rec if r["status"] == "done" else None)
+             if 'category' in ch:
+                 st['labels'] = {ch['category']: st['labels'][ch['category']]}
+-            st["error"] = r["error"]
+             if rec:
+                 st["statement_sha256"] = rec.get("statement_sha256")
+-                st["proved_at"] = rec.get("proved_at")
+         elif j and j["status"] == "running":
+             ps = S.prover.poll(Path(j["job_dir"])) if j["job_dir"] else {}
+             st.update(status="running", step=ps.get("step"), step_label=provers.STEP_LABELS.get(ps.get("step"), ps.get("step")),
+@@ -147,6 +228,16 @@
+ def post_view(p: dict, show_text: bool, audience: dict | None = None) -> dict:
+     """one item as served: its labels and signed manifest travel with it; an item hidden for the viewer's
+     audience is served as a placeholder with the reason, never with its content"""
++    if p["status"] != "published":
++        # Only authenticated owners may reach this view. Never expose intermediate
++        # proof outcomes, failure diagnostics, attempt counts or timings here.
++        if p["status"] == "failed":
++            return {"id": p["id"], "status": "failed", "status_message": "Could not be verified."}
++        status = "pending" if p["status"] in ("queued", "screening") else p["status"]
++        return {"id": p["id"], "status": status, "author": p["author"], "kind": p["kind"],
++                "text": p["text"] if show_text and p["kind"] == "text" else None,
++                **({"media": loads(p["media_meta"]) or {}} if p["kind"] == "image" else {}),
++                "status_message": "Verification pending." if status == "pending" else None}
+     meta = loads(p["media_meta"]) or {}
+     v = {k: p[k] for k in ("id", "created_at", "author", "kind", "status", "status_message",
+                            "prover_kind", "published_at")}
+@@ -181,7 +272,13 @@
+     rec = loads(p["record"])
+     if not rec:
+         return None
+-    rec = dict(rec)
++    def without_operational_fields(value):
++        if isinstance(value, dict):
++            return {k: without_operational_fields(v) for k, v in value.items() if k not in ("timings", "proved_at")}
++        if isinstance(value, list):
++            return [without_operational_fields(v) for v in value]
++        return value
++    rec = without_operational_fields(rec)
+     first = next((c["record"] for c in rec.get("chunks", []) if c.get("record")), None)
+     rec["verify_with"] = provers.verify_instructions(first or rec)
+     return rec
+@@ -226,6 +323,7 @@
+ 
+ @app.post("/api/tokenize")
+ async def api_tokenize(req: Request):
++    require_session(req)
+     from . import proof_plans
+     body = await req.json()
+     text = str(body.get("text", ""))[:4000]
+@@ -246,8 +344,9 @@
+ 
+ 
+ @app.get("/api/status")
+-def api_status():
++def api_status(req: Request):
+     """the admin / status page: deployment profile (chunking), prover limits, queue, machine, ledger"""
++    require_session(req, operator=True)
+     counts = {r["status"]: r["n"] for r in S.store.q("SELECT status, COUNT(*) AS n FROM posts GROUP BY status")}
+     blocks = S.publisher.blocks_list()
+     return {"deploy": config.deploy(), "prover": S.prover.describe(), "queue": queue_view(S.store, S.prover),
+@@ -270,12 +369,14 @@
+ 
+ 
+ @app.post("/api/posts")
+-async def api_create_post(author: str = Form(...), kind: str = Form("text"), text: str = Form(""),
++async def api_create_post(req: Request, author: str = Form(...), kind: str = Form("text"), text: str = Form(""),
+                           file: UploadFile | None = File(None)):
+     from . import proof_plans
+     if not HANDLE_RE.match(author.strip()):
+         raise HTTPException(400, "a handle is 1-24 letters, digits or _")
+     author = "@" + author.strip().lstrip("@")
++    if require_session(req).author != author:
++        raise HTTPException(403, "author does not match the signed-in account")
+     pid = secrets.token_hex(16)        # 128-bit random post id (report §7: never a user id)
+     if kind == "text":
+         text = text.strip()
+@@ -364,18 +465,24 @@
+ 
+ 
+ @app.get("/api/submissions")
+-def api_submissions(author: str):
+-    a = "@" + author.strip().lstrip("@")
++def api_submissions(req: Request, author: str = ""):
++    a = require_session(req).author
++    if author and ("@" + author.strip().lstrip("@")) != a:
++        raise HTTPException(403, "author does not match the signed-in account")
+     rows = S.store.q("SELECT * FROM posts WHERE author=? ORDER BY created_at DESC LIMIT 50", (a,))
+     return {"posts": [post_view(p, show_text=True) for p in rows]}
+ 
+ 
+ @app.get("/api/posts/{pid}")
+-def api_post(pid: str, author: str = "", audience: str = "adult", hide: str = ""):
++def api_post(pid: str, req: Request, audience: str = "adult", hide: str = ""):
+     p = S.store.post(pid)
+     if not p:
+         raise HTTPException(404, "no such post")
+-    is_author = bool(author) and ("@" + author.strip().lstrip("@")) == p["author"]
++    is_author = owns_post(req, p)
++    if p["status"] != "published":
++        if not is_author:
++            raise HTTPException(404, "no such post")
++        return post_view(p, show_text=True)
+     show = p["status"] == "published" or is_author
+     aud = None if is_author else records.audience_of(audience, hide)
+     v = post_view(p, show_text=show, audience=aud)
+@@ -430,12 +537,12 @@
+ 
+ 
+ @app.get("/api/posts/{pid}/manifest.json")
+-def api_manifest(pid: str, author: str = "", audience: str = "adult", hide: str = ""):
++def api_manifest(pid: str, req: Request, audience: str = "adult", hide: str = ""):
+     """the signed ProofManifest attached to the item (zk60.manifest/1)"""
+     p = S.store.post(pid)
+-    if not p or not p["manifest"]:
++    if not p or p["status"] != "published" or not p["manifest"]:
+         raise HTTPException(404, "no manifest (labels not complete)")
+-    is_author = bool(author) and ("@" + author.strip().lstrip("@")) == p["author"]
++    is_author = owns_post(req, p)
+     if not is_author:
+         ok, _ = records.visibility(loads(p["labels"]) or {}, records.audience_of(audience, hide))
+         if not ok:
+@@ -449,20 +556,19 @@
+     """signature (against the publisher's key), then each entry's anchor and Merkle path in the local
+     ledger; the proofs themselves are re-run by "Re-verify now" (or tools/verify_manifest.py --run-verifier)"""
+     p = S.store.post(pid)
+-    if not p or not p["manifest"]:
++    if not p or p["status"] != "published" or not p["manifest"]:
+         raise HTTPException(404, "no manifest")
+     return manifest.verify_manifest(loads(p["manifest"]), S.publisher, expected_public_key=manifest.public_key_hex())
+ 
+ 
+ @app.delete("/api/posts/{pid}")
+-def api_delete(pid: str, author: str):
++def api_delete(pid: str, req: Request):
+     """Erase content, salt, receipts and openings. The private D45 reservation
+     remains to refuse another screening; it is not an opening of the commitment."""
+-    p = S.store.post(pid)
+-    if not p:
++    session = require_session(req)
++    p = S.store.post(pid)
++    if not p or session.author != p["author"]:
+         raise HTTPException(404, "no such post")
+-    if ("@" + author.strip().lstrip("@")) != p["author"]:
+-        raise HTTPException(403, "only the author can delete a post (demo: matched by handle)")
+     if p["status"] in ("queued", "screening"):
+         raise HTTPException(409, "the post is being screened; delete it when the screening has finished")
+     removed = 0
+@@ -493,13 +599,16 @@
+     S.store.update_post(pid, status="deleted", text=None, salt_enc=None, content_key=None, media_name=None,
+                         status_message="Deleted by the author: content, salt and receipt erased. The anchored leaf "
+                                        "remains; a private reservation prevents screening the item again.")
+-    return {"deleted": True, "receipt_files_removed": removed}
++    return {"deleted": True}
+ 
+ 
+ @app.post("/api/posts/{pid}/verify")
+-def api_verify(pid: str):
++def api_verify(pid: str, req: Request):
+     """re-verify every chunk's stored proof in a fresh process (one guarded job per chunk); never re-proves"""
+-    p = S.store.post(pid)
++    session = require_session(req)
++    p = S.store.post(pid)
++    if not p or (session.author != p["author"] and not session.operator):
++        raise HTTPException(404, "no such post")
+     rows = S.store.q("SELECT chunk FROM chunk_proofs WHERE post_id=? AND status='done' ORDER BY chunk", (pid,)) if p else []
+     if not p or p["status"] != "published" or not rows:
+         raise HTTPException(400, "only a published item with accepted proofs can be re-checked")
+@@ -604,7 +713,8 @@
+ 
+ 
+ @app.get("/api/queue")
+-def api_queue():
++def api_queue(req: Request):
++    require_session(req, operator=True)
+     return queue_view(S.store, S.prover)
+ 
+ 
+@@ -617,17 +727,16 @@
+ 
+ 
+ @app.post("/api/ledger/close-batch")
+-def api_close_batch():
++def api_close_batch(req: Request):
+     """presenter convenience: close the pending batch now instead of waiting for the 10-minute timer"""
++    require_session(req, operator=True)
+     return {"batch_id": S.publisher.tick(force=True)}
+ 
+ 
+ @app.get("/api/posts/{pid}/canvas.png")
+-def api_canvas(pid: str, author: str = ""):
++def api_canvas(pid: str, req: Request):
+     """the exact canonical canvas the classifier will see: shown to the AUTHOR only while unscreened"""
+     p = S.store.post(pid)
+-    if not p or p["kind"] != "image" or not p["media_name"]:
++    if not p or p["status"] == "failed" or p["kind"] != "image" or not p["media_name"] or not owns_post(req, p):
+         raise HTTPException(404)
+-    if ("@" + author.strip().lstrip("@")) != p["author"]:
+-        raise HTTPException(403, "the unscreened canvas is shown to its author only")
+     return FileResponse(config.MEDIA_DIR / f"{pid}-canvas.png", media_type="image/png", headers={"Cache-Control": "no-store"})
+--- apps/proven-media/proven_media/auth.py
++++ candidate/proven_media/auth.py
+@@ -0,0 +1,110 @@
++"""Operator-provisioned author credentials and revocable browser sessions.
++
++Only random access keys are accepted, never a claimed handle or query parameter.
++The private database stores hashes of keys and cookies, not their bearer values.
++"""
++from __future__ import annotations
++
++from dataclasses import dataclass
++from contextlib import contextmanager
++import hashlib
++import os
++from pathlib import Path
++import re
++import secrets
++import sqlite3
++import time
++
++COOKIE = "pm_session"
++SESSION_SECONDS = 12 * 3600
++HANDLE = re.compile(r"^@?[A-Za-z0-9_]{1,24}$")
++
++
++def handle(value: str) -> str:
++    if not isinstance(value, str) or not HANDLE.fullmatch(value.strip()):
++        raise ValueError("a handle is 1-24 letters, digits or _")
++    return "@" + value.strip().lstrip("@")
++
++
++def digest(value: str) -> str:
++    return hashlib.sha256(value.encode()).hexdigest()
++
++
++@dataclass(frozen=True)
++class Session:
++    author: str
++    operator: bool
++    csrf: str
++
++    def public(self):
++        return {"author": self.author, "operator": self.operator, "csrf": self.csrf}
++
++
++class AuthorAuth:
++    def __init__(self, path: Path):
++        self.path = Path(path)
++        self.path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
++        if self.path.parent.is_symlink():
++            raise ValueError("auth root must not be a symlink")
++        os.chmod(self.path.parent, 0o700)
++        fd = os.open(self.path, os.O_CREAT | os.O_RDWR | os.O_NOFOLLOW, 0o600)
++        os.fchmod(fd, 0o600)
++        os.close(fd)
++        with self._db() as db:
++            db.executescript("""
++                CREATE TABLE IF NOT EXISTS authors (
++                    author TEXT PRIMARY KEY, key_hash TEXT UNIQUE NOT NULL,
++                    operator INTEGER NOT NULL);
++                CREATE TABLE IF NOT EXISTS sessions (
++                    token_hash TEXT PRIMARY KEY, author TEXT NOT NULL,
++                    csrf TEXT NOT NULL, expires REAL NOT NULL);
++            """)
++
++    @contextmanager
++    def _db(self):
++        db = sqlite3.connect(self.path, timeout=10)
++        try:
++            with db:
++                yield db
++        finally:
++            db.close()
++
++    def provision(self, author: str, *, operator: bool = False, rotate: bool = False) -> str:
++        """Local operator action. Existing identities require explicit rotation."""
++        author = handle(author)
++        key = secrets.token_urlsafe(32)
++        with self._db() as db:
++            exists = db.execute("SELECT 1 FROM authors WHERE author=?", (author,)).fetchone()
++            if exists and not rotate:
++                raise ValueError("author already exists; use explicit key rotation")
++            db.execute("INSERT INTO authors VALUES (?,?,?) ON CONFLICT(author) DO UPDATE SET "
++                       "key_hash=excluded.key_hash, operator=excluded.operator",
++                       (author, digest(key), int(operator)))
++            db.execute("DELETE FROM sessions WHERE author=?", (author,))
++        return key
++
++    def login(self, key: str) -> tuple[str, Session] | None:
++        if not isinstance(key, str) or not 40 <= len(key) <= 128:
++            return None
++        with self._db() as db:
++            row = db.execute("SELECT author,operator FROM authors WHERE key_hash=?", (digest(key),)).fetchone()
++            if row is None:
++                return None
++            token, csrf = secrets.token_urlsafe(32), secrets.token_urlsafe(32)
++            db.execute("DELETE FROM sessions WHERE expires<=?", (time.time(),))
++            db.execute("INSERT INTO sessions VALUES (?,?,?,?)",
++                       (digest(token), row[0], csrf, time.time() + SESSION_SECONDS))
++        return token, Session(row[0], bool(row[1]), csrf)
++
++    def session(self, token: str | None) -> Session | None:
++        if not isinstance(token, str) or not 40 <= len(token) <= 128:
++            return None
++        with self._db() as db:
++            row = db.execute("SELECT a.author,a.operator,s.csrf FROM sessions s "
++                             "JOIN authors a ON a.author=s.author "
++                             "WHERE s.token_hash=? AND s.expires>?", (digest(token), time.time())).fetchone()
++        return Session(row[0], bool(row[1]), row[2]) if row else None
++
++    def logout(self, token: str):
++        with self._db() as db:
++            db.execute("DELETE FROM sessions WHERE token_hash=?", (digest(token),))
+--- apps/proven-media/proven_media/config.py
++++ candidate/proven_media/config.py
+@@ -13,7 +13,7 @@
+ from pathlib import Path
+ 
+ REPO = Path("/home/victor/IntelligenceRegulation")
+-APP_DIR = REPO / "apps" / "proven-media"
++APP_DIR = Path(__file__).resolve().parents[1]
+ STATIC_DIR = APP_DIR / "static"
+ TOOLS_DIR = APP_DIR / "tools"
+ POLICY_DIR = APP_DIR / "policy"
+--- apps/proven-media/static/app.css
++++ candidate/static/app.css
+@@ -51,6 +51,7 @@
+ }
+ 
+ * { box-sizing: border-box; }
++[hidden] { display: none !important; }
+ html { -webkit-text-size-adjust: 100%; }
+ body {
+   margin: 0; background: var(--bg); color: var(--ink);
+@@ -82,8 +83,13 @@
+ .nav a.on, .nav a:hover { background: var(--surface-2); color: var(--ink); text-decoration: none; }
+ .who { display: flex; align-items: center; background: var(--surface-2); border: 1px solid var(--line);
+   border-radius: 999px; padding: 3px 10px; }
+-.who .at { color: var(--ink-3); }
+-.who input { border: 0; background: transparent; color: var(--ink); width: 110px; font: inherit; outline: none; }
++.who { gap: 8px; }
++dialog { max-width: min(430px, 90vw); padding: 24px; border: 1px solid var(--line);
++  border-radius: var(--radius); background: var(--surface); color: var(--ink); }
++dialog::backdrop { background: #0008; }
++#access-key { display: block; width: 100%; padding: 10px; border: 1px solid var(--line);
++  border-radius: 6px; background: var(--surface-2); color: var(--ink); font: inherit; }
++#signin-error { color: var(--unsafe); }
+ .modebar { border-top: 1px solid var(--stub-line); background: var(--stub-bg); color: var(--stub); font-size: 13px; }
+ .modebar > div { max-width: 1120px; margin: 0 auto; padding: 6px 16px; }
+ .modebar.fake { background: var(--fake-bg); color: var(--fake); border-top-color: var(--fake-bg); font-weight: 700; }
+@@ -95,7 +101,6 @@
+   .grid { grid-template-columns: minmax(0, 1fr); }
+   .side { position: static; }
+   .nav a { padding: 6px 7px; }
+-  .who input { width: 80px; }
+ }
+ @media (max-width: 560px) {
+   .topbar-inner { flex-wrap: wrap; gap: 8px 12px; }
+--- apps/proven-media/static/app.js
++++ candidate/static/app.js
+@@ -4,7 +4,7 @@
+ "use strict";
+ 
+ const $ = (sel, el = document) => el.querySelector(sel);
+-const S = { cfg: null, handle: "", audience: "adult", hide: [], timer: null, composeKind: "text", lastPostJSON: "" };
++const S = { cfg: null, handle: "", csrf: "", operator: false, sessionEpoch: 0, audience: "adult", hide: [], timer: null, composeKind: "text", lastPostJSON: "" };
+ 
+ function esc(s) {
+   return String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+@@ -39,11 +39,31 @@
+ const CRED = `<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M7 9h6M7 13h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="16.5" cy="14.5" r="2.5" fill="currentColor"/></svg>`;
+ 
+ async function api(path, opts = {}) {
+-  const r = await fetch(path, opts);
++  const sessionEpoch = S.sessionEpoch;
++  const headers = new Headers(opts.headers || {});
++  if (opts.method && !["GET", "HEAD"].includes(opts.method.toUpperCase()) && S.csrf) headers.set("X-PM-CSRF", S.csrf);
++  const r = await fetch(path, { ...opts, headers, credentials: "same-origin" });
+   const ct = r.headers.get("content-type") || "";
+   const body = ct.includes("json") ? await r.json() : await r.text();
+-  if (!r.ok) throw new Error((body && body.detail) || (body && body.error) || r.statusText);
++  if (sessionEpoch !== S.sessionEpoch) throw new Error("Session changed.");
++  if (!r.ok) {
++    if (r.status === 401 && path !== "/api/session") {
++      setSession({});
++      $("#app").innerHTML = '<div class="card empty">Sign in to view your submissions.</div>';
++    }
++    throw new Error((body && body.detail) || (body && body.error) || r.statusText);
++  }
+   return body;
++}
++
++function setSession(session) {
++  S.sessionEpoch++;
++  S.handle = (session.author || "").replace(/^@/, "");
++  S.csrf = session.csrf || ""; S.operator = !!session.operator;
++  $("#handle").textContent = session.author || "Signed out";
++  $("#signin").hidden = !!S.handle; $("#signout").hidden = !S.handle;
++  $('[data-nav="status"]').hidden = !S.operator;
++  S.lastPostJSON = "";
+ }
+ function toast(msg, ms = 3800) {
+   const t = document.createElement("div"); t.className = "toast"; t.textContent = msg; document.body.appendChild(t);
+@@ -156,6 +176,7 @@
+ }
+ function postCard(p) {
+   if (p.hidden) return hiddenCard(p);
++  if (p.status === "failed") return '<article class="card pad">Could not be verified.</article>';
+   const body = p.kind === "text"
+     ? (p.text_hidden ? `<p class="post-text muted"><i>Text not shown.</i></p>` : `<p class="post-text">${esc(p.text)}</p>`)
+     : mediaBlock(p);
+@@ -165,6 +186,7 @@
+ }
+ 
+ function composeHTML() {
++  if (!S.handle) return '<section class="card pad" id="compose">Sign in to write a post and view your submissions.</section>';
+   const k = S.composeKind, max = S.cfg.limits.max_content_tokens;
+   const tab = (id, label, dev) => `<button class="tab ${k === id ? "on" : ""}" data-kind="${id}">${label}${dev ? ` <span class="pill">in dev</span>` : ""}</button>`;
+   let inner;
+@@ -192,6 +214,7 @@
+ function bindCompose() {
+   document.querySelectorAll("#compose .tab").forEach(b => b.onclick = () => { S.composeKind = b.dataset.kind; $("#compose").outerHTML = composeHTML(); bindCompose(); });
+   const btn = $("#postbtn");
++  if (!btn) return;
+   if (S.composeKind === "text") {
+     const ta = $("#ctext"), ctr = $("#counter"); let tmr = null;
+     ta.oninput = () => {
+@@ -247,7 +270,7 @@
+ }
+ function requireHandle() {
+   if (S.handle) return true;
+-  toast("Choose a handle first (top right)."); $("#handle").focus(); return false;
++  $("#signin-dialog").showModal(); return false;
+ }
+ 
+ function audiencePanel() {
+@@ -284,6 +307,8 @@
+ }
+ async function refreshQueue() {
+   const el = $("#queue"); if (!el) return;
++  if (!S.operator) { el.hidden = true; return; }
++  el.hidden = false;
+   const q = await api("/api/queue");
+   el.innerHTML = queueHTML(q, true);
+ }
+@@ -309,14 +334,15 @@
+ }
+ async function refreshSubs() {
+   const el = $("#subs"); if (!el) return;
+-  if (!S.handle) { el.innerHTML = `<h3>Your submissions</h3><p class="small muted">Choose a handle (top right) to post and follow your submissions.</p>`; return; }
+-  const r = await api(`/api/submissions?author=${encodeURIComponent(S.handle)}`);
++  if (!S.handle) { el.innerHTML = `<h3>Your submissions</h3><p class="small muted">Sign in to view your submissions.</p>`; return; }
++  const r = await api('/api/submissions');
+   const items = r.posts.map(p => {
++    if (p.status === "failed") return `<li><a href="#/post/${esc(p.id)}">Could not be verified.</a></li>`;
+     const snip = p.kind === "text" ? esc(p.text) : `<i>${esc(p.kind)} post</i>`;
+     let prog = "";
+     if (p.job && (p.job.status === "running" || p.job.status === "queued")) prog = `<div class="muted">${p.job.status === "running" ? `chunk ${(p.job.chunk || 0) + 1}: ${esc(p.job.step_label || "")}` : "queued"}${p.job.eta_s != null ? ` · ~${Math.max(1, Math.round(p.job.eta_s / 60))} min left` : ""}</div>${progressBar(p.job.progress)}`;
+     else if (p.status === "published") prog = `<div>${chips(p.labels)}</div>`;
+-    const label = { "in-development": "pending verification", queued: "pending verification", screening: "pending verification", published: "labelled" }[p.status] || p.status;
++    const label = { "in-development": "pending verification", pending: "pending verification", published: "labelled" }[p.status] || p.status;
+     return `<li><span class="status ${esc(p.status)}">${esc(label)}</span> · <a href="#/post/${esc(p.id)}">${esc(p.id.slice(0, 12))}…</a>
+       <div class="snip">${snip}</div>${prog}</li>`;
+   }).join("");
+@@ -429,7 +455,7 @@
+   return `<section class="card pad stack" id="manifest"><h2>Proof manifest <span class="muted small">zk60.manifest/1 · content credentials</span></h2>
+     <p class="small">Attached to this item whenever it is served: one entry per category (model, policy, label, statement hash, bundle and anchor references,
+     salted content commitment), signed with the app's publisher key (Ed25519, key id <span class="hash">${esc(m.issuer && m.issuer.key_id)}</span>, <b>local development key</b>).</p>
+-    <div><button class="btn ghost small" id="vmanbtn">Verify manifest</button> <a class="btn ghost small" href="/api/posts/${esc(p.id)}/manifest.json?${S.handle ? "author=" + encodeURIComponent(S.handle) + "&" : ""}${audQuery()}">Download ${esc(p.id.slice(0, 8))}….manifest.json</a>
++    <div><button class="btn ghost small" id="vmanbtn">Verify manifest</button> <a class="btn ghost small" href="/api/posts/${esc(p.id)}/manifest.json?${audQuery()}">Download ${esc(p.id.slice(0, 8))}….manifest.json</a>
+       <span class="small muted">signature, then each entry's anchor and Merkle path in the ledger</span></div>
+     <div id="vmanout" class="small"></div>
+     <details><summary class="small">Manifest JSON</summary><pre class="code">${esc(JSON.stringify(m, null, 1))}</pre></details></section>`;
+@@ -532,36 +558,12 @@
+     <li>The content itself from any audience its labels exclude: hidden items are served as placeholders only.</li></ul></section>`;
+ }
+ 
+-function timingStats(rec) {
+-  const recs = chunkRecords(rec);
+-  if (!recs.length) return "";
+-  const timings = r => {
+-    const t = r.timings || {}, s = t.steps;
+-    if (!s) return t;
+-    return { ...t, seqgen_s: s.seqgen?.child_wall_seconds, prove_s: s.prove?.child_wall_seconds,
+-      prove_with_loading_s: s.prove?.child_wall_seconds, verify_s: s.verify?.child_wall_seconds,
+-      waited_for_machine_s: Object.fromEntries(Object.entries(s).map(([k,v]) => [k,v.waited_s])),
+-      peak_rss_gib: Object.fromEntries(Object.entries(s).map(([k,v]) => [k,v.peak_rss_gib])) };
+-  };
+-  const sum = (f) => recs.reduce((a, r) => a + (f(r) || 0), 0);
+-  const waited = sum(r => Object.values(timings(r).waited_for_machine_s || {}).reduce((a, b) => a + (b || 0), 0));
+-  const peak = Math.max(...recs.flatMap(r => Object.values(timings(r).peak_rss_gib || {}).filter(x => x != null)), 0);
+-  const rows = recs.map(r => { const t = timings(r), c = r.chunk || {};
+-    return `<tr><td>${esc((c.index || 0) + 1)}</td><td>${fmtS(t.seqgen_s)}</td><td>${fmtS(t.prove_s)} <span class="muted">(${fmtS(t.prove_with_loading_s)})</span></td><td>${fmtS(t.verify_s)}</td><td>${fmtBytes(r.receipt.bytes)}</td><td class="small">${esc(r.proved_at || "")}</td></tr>`; }).join("");
+-  return `<section class="card pad"><h2>Timings and sizes</h2><div class="stats">
+-    <div class="stat"><b>${fmtS(sum(r => timings(r).prove_s))}</b><span>proving, all chunks${isShieldstral() ? " (loading included)" : ""}</span></div>
+-    <div class="stat"><b>${fmtS(sum(r => timings(r).verify_s))}</b><span>verifying, all chunks</span></div>
+-    <div class="stat"><b>${fmtBytes(rec.receipt.bytes)}</b><span>proof size, ${esc(rec.receipt.segments)} segments</span></div>
+-    <div class="stat"><b>${fmtS(rec.timings && rec.timings.work_s)}</b><span>all steps (work); ${fmtS(waited)} waiting for the machine</span></div></div>
+-    <div style="overflow-x:auto"><table class="table" style="margin-top:12px"><tr><th>chunk</th><th>prepare</th><th>prove (with loading)</th><th>verify</th><th>proof</th><th>proved at</th></tr>${rows}</table></div>
+-    <p class="small muted">Peak memory (largest step) ${peak ? peak.toFixed(2) + " GiB" : "—"} · laptop CPU (Intel Core Ultra 9 185H), no GPU; shared box, n = 1 · ${esc((recs[0].prover || {}).cli || "")}</p></section>`;
+-}
+ 
+ function imagePlan(p) {
+   const m = p.media || {}, px = m.canvas_px || S.cfg.image_spec.canvas_px;
+   const mine = S.handle && ("@" + S.handle) === p.author;
+   return `<section class="card pad"><h2>Planned proofs</h2>
+-    ${mine ? `<div class="imgprev"><figure><img src="/api/posts/${esc(p.id)}/canvas.png?author=${encodeURIComponent(S.handle)}" alt="canonical canvas" width="${px}" height="${px}">
++    ${mine ? `<div class="imgprev"><figure><img src="/api/posts/${esc(p.id)}/canvas.png" alt="canonical canvas" width="${px}" height="${px}">
+       <figcaption>The exact canonical canvas the classifier will see (shown to you, the author, only)</figcaption></figure></div>` : ""}
+     <table class="table">
+     ${row("Proofs needed", `3 (one per category), over the canonical ${px} × ${px} canvas`)}
+@@ -585,11 +587,26 @@
+ }
+ 
+ async function viewPost(id) {
+-  const q = `?${S.handle ? "author=" + encodeURIComponent(S.handle) + "&" : ""}${audQuery()}`;
++  const q = `?${audQuery()}`;
+   let p;
+   try { p = await api(`/api/posts/${encodeURIComponent(id)}${q}`); }
+   catch (e) { $("#app").innerHTML = `<div class="card empty" style="margin-top:20px">${esc(e.message)}</div>`; return; }
+-  const live = p.status === "queued" || p.status === "screening" || p.recheck;
++  if (p.status === "failed") {
++    $("#app").innerHTML = '<div id="postpage" class="card pad" style="margin-top:20px"><a href="#/">← Feed</a><h1>Could not be verified.</h1><button id="delete-failed" class="btn ghost small">Delete this post</button></div>';
++    $("#delete-failed").onclick = async () => {
++      if (!confirm("Delete this post and its private files?")) return;
++      try { await api(`/api/posts/${encodeURIComponent(id)}`, { method: 'DELETE' }); await viewPost(id); }
++      catch (error) { toast(error.message); }
++    };
++    return;
++  }
++  if (p.status !== "published") {
++    $("#app").innerHTML = `<div id="postpage" class="card pad" style="margin-top:20px"><a href="#/">← Feed</a>
++      <h1>${p.status === "deleted" ? "Post deleted" : "Verification pending"}</h1>
++      <p class="post-text">${esc(p.text || "")}</p>${p.kind === "image" && p.status !== "deleted" ? imagePlan(p) : ""}</div>`;
++    return;
++  }
++  const live = !!p.recheck;
+   const anc = p.publication ? Object.values(p.publication.anchors).map(a => a.status).join() : "";
+   const sig = JSON.stringify([p.hidden, p.status, p.job, p.recheck, (p.checks || []).length, anc, (p.labels || []).map(l => l.value),
+     (p.chunks || []).map(c => c.status + (c.step || "") + (c.waiting_for_machine ? "w" : "")), live ? Math.floor(Date.now() / 5000) : 0]);
+@@ -610,7 +627,7 @@
+     if (rec) html += verifySection(p, rec);
+     html += `<div class="cols">${anchorSection(p)}<div class="stack">${commitmentSection(p)}${privateList()}</div></div>`;
+     if (rec) {
+-      html += publicTable(rec) + timingStats(rec);
++      html += publicTable(rec);
+       const sts = chunkRecords(rec).filter(r => r.statement);
+       if (sts.length) html += `<section class="card pad"><details><summary>The published statements (statement.json, one per chunk)</summary>${sts.map(r => `<p class="small"><b>chunk ${(r.chunk || {}).index + 1}</b></p><pre class="code">${esc(JSON.stringify(r.statement, null, 1))}</pre>`).join("")}</details></section>`;
+     }
+@@ -622,6 +639,7 @@
+   html += `<section class="card pad"><h2>Honest limits</h2>${honestLimits()}</section></div>`;
+   $("#app").innerHTML = html;
+   const vb = $("#verifybtn");
++  if (vb) vb.hidden = !S.operator && ("@" + S.handle) !== p.author;
+   if (vb) vb.onclick = async () => { vb.disabled = true; try { await api(`/api/posts/${p.id}/verify`, { method: "POST" }); toast("Re-verification queued."); S.lastPostJSON = ""; viewPost(id); } catch (e) { toast(e.message); vb.disabled = false; } };
+   const checkList = (checks) => Object.entries(checks).map(([k, v]) => `<li>${v ? `<span class="ok-t">✓</span>` : `<span class="bad-t">✗</span>`} ${esc(k.replace(/_/g, " "))}</li>`).join("");
+   const pb = $("#vpubbtn");
+@@ -655,13 +673,14 @@
+   const db = $("#delbtn");
+   if (db) db.onclick = async () => {
+     if (!confirm("Delete this post? Its text and salt are erased and its receipt deleted. The anchored leaves stay (now unlinkable).")) return;
+-    try { await api(`/api/posts/${p.id}?author=${encodeURIComponent(S.handle)}`, { method: "DELETE" }); toast("Deleted."); S.lastPostJSON = ""; viewPost(id); }
++    try { await api(`/api/posts/${p.id}`, { method: "DELETE" }); toast("Deleted."); S.lastPostJSON = ""; viewPost(id); }
+     catch (e) { toast(e.message); }
+   };
+ }
+ 
+ /* ---------------------------------------------------------------- status (admin) */
+ async function viewStatus() {
++  if (!S.operator) { $("#app").innerHTML = '<div class="card empty">Operator sign-in required.</div>'; return; }
+   const st = await api("/api/status");
+   const d = st.deploy;
+   const prof = Object.entries(d.profiles).map(([k, v]) => `<tr class="${k === d.profile ? "active" : ""}"><td><b>${esc(k)}</b>${k === d.profile ? ` <span class="tag">active</span>` : ""}</td><td>${esc(v.label || "")}</td>
+@@ -702,6 +721,7 @@
+     <section class="card pad" style="overflow-x:auto"><table class="table"><tr><th>block</th><th>time</th><th>batch</th><th>leaves</th><th>Merkle root</th><th>tx</th><th>block hash</th><th>prev</th></tr>
+     ${rows || `<tr><td colspan="8" class="muted">No blocks yet.</td></tr>`}</table></section></div>`;
+   const cb = $("#closebtn");
++  if (cb) cb.hidden = !S.operator;
+   if (cb) cb.onclick = async () => { cb.disabled = true; const x = await api("/api/ledger/close-batch", { method: "POST" }); toast(x.batch_id ? `Closed ${x.batch_id}.` : "Nothing to close."); viewLedger(); };
+ }
+ 
+@@ -749,15 +769,27 @@
+ }
+ 
+ async function boot() {
+-  try { S.handle = localStorage.getItem("pm-handle") || ""; } catch (e) { S.handle = ""; }
++  try { localStorage.removeItem("pm-handle"); } catch (e) {}
+   try { const a = JSON.parse(localStorage.getItem("pm-audience") || "null"); if (a) { S.audience = a.a || "adult"; S.hide = a.hide || []; } } catch (e) {}
+   const qs = new URLSearchParams(location.search);
+-  const as = qs.get("as");                                  // presenter convenience: /?as=victor&audience=minor
+-  if (as) { S.handle = as.replace(/^@/, "").replace(/[^A-Za-z0-9_]/g, "").slice(0, 24); try { localStorage.setItem("pm-handle", S.handle); } catch (e) {} }
+   if (qs.get("audience")) S.audience = qs.get("audience") === "minor" ? "minor" : "adult";
+-  const hi = $("#handle"); hi.value = S.handle;
+-  hi.onchange = () => { S.handle = hi.value.trim().replace(/^@/, "").replace(/[^A-Za-z0-9_]/g, "").slice(0, 24); hi.value = S.handle;
+-    try { localStorage.setItem("pm-handle", S.handle); } catch (e) {} refreshSubs().catch(() => {}); };
++  setSession(await api('/api/session'));
++  const dialog = $("#signin-dialog"), form = $("#signin-form");
++  $("#signin").onclick = () => { $("#signin-error").textContent = ""; dialog.showModal(); };
++  $("#signin-cancel").onclick = () => { form.reset(); dialog.close(); };
++  dialog.addEventListener('close', () => form.reset());
++  form.onsubmit = async e => {
++    e.preventDefault();
++    try {
++      const session = await api('/api/session', { method: 'POST', headers: { 'Content-Type': 'application/json' },
++        body: JSON.stringify({ access_key: $("#access-key").value }) });
++      form.reset(); setSession(session); dialog.close(); await router();
++    } catch (error) { $("#signin-error").textContent = error.message; }
++  };
++  $("#signout").onclick = async () => {
++    try { await api('/api/session', { method: 'DELETE' }); setSession({}); await router(); }
++    catch (error) { toast(error.message); }
++  };
+   S.cfg = await api("/api/config");
+   renderModebar(); renderAudiencePill();
+   $("#audpill").onclick = () => setAudience(S.audience === "minor" ? "adult" : "minor");
+--- apps/proven-media/static/index.html
++++ candidate/static/index.html
+@@ -19,16 +19,28 @@
+       <a href="#/" data-nav="feed">Feed</a>
+       <a href="#/ledger" data-nav="ledger">Ledger</a>
+       <a href="#/about" data-nav="about">How it works</a>
+-      <a href="#/status" data-nav="status">Status</a>
++      <a href="#/status" data-nav="status" hidden>Status</a>
+     </nav>
+     <button id="audpill" class="audpill" title="Switch the viewer's audience (Adult / Minor)">Viewing as Adult</button>
+     <div class="who">
+-      <label for="handle" class="sr">Your handle</label>
+-      <span class="at">@</span><input id="handle" maxlength="24" placeholder="handle" autocomplete="off" spellcheck="false">
++      <span id="handle">Signed out</span>
++      <button id="signin" class="btn ghost small">Sign in</button>
++      <button id="signout" class="btn ghost small" hidden>Sign out</button>
+     </div>
+   </div>
+   <div id="modebar" class="modebar"></div>
+ </header>
++<dialog id="signin-dialog">
++  <form id="signin-form" class="stack">
++    <h2>Sign in</h2>
++    <p>Use the access key supplied by the demo operator.</p>
++    <label for="access-key">Access key</label>
++    <input id="access-key" type="password" autocomplete="current-password" required>
++    <p id="signin-error" role="alert"></p>
++    <button class="btn" type="submit">Sign in</button>
++    <button id="signin-cancel" class="btn ghost" type="button">Cancel</button>
++  </form>
++</dialog>
+ <main id="app" class="wrap" aria-live="polite"></main>
+ <footer class="foot wrap">
+   <p>Research prototype. Proofs run on a laptop CPU through the project's resource guard; minutes per chunk.
+--- apps/proven-media/tests/test_app.py
++++ candidate/tests/test_app.py
+@@ -309,6 +309,24 @@
+         cls.client = TestClient(appmod.app).__enter__()
+         cls.worker = Worker(appmod.S.store, appmod.S.prover, appmod.S.publisher)
+ 
++    @classmethod
++    def tearDownClass(cls):
++        cls.client.__exit__(None, None, None)
++
++    def setUp(self):
++        self.login_as('fixture_operator')
++
++    def login_as(self, author):
++        key = self.appmod.S.auth.provision(author, operator=True, rotate=True)
++        response = self.client.post('/api/session', json={'access_key': key})
++        self.assertEqual(response.status_code, 200, response.text)
++        self.client.headers['X-PM-CSRF'] = response.json()['csrf']
++
++    def submit_as(self, *, data, **kwargs):
++        # Explicit fixture credential provisioning; no production test bypass.
++        self.login_as(data['author'])
++        return self.client.post('/api/posts', data=data, **kwargs)
++
+     def drain(self):
+         for _ in range(10):
+             self.worker.tick()
+@@ -325,11 +343,11 @@
+     def test_changed_threshold_cannot_reprove_or_start_an_old_queued_item(self):
+         from unittest.mock import patch
+         text = 'A queued item keeps its original screening threshold'
+-        response = self.client.post('/api/posts', data={'author': 'ruling', 'text': text})
++        response = self.submit_as(data={'author': 'ruling', 'text': text})
+         self.assertEqual(response.status_code, 200, response.text)
+         pid = response.json()['post_id']
+         with patch.object(config, 'TAU', 0.75):
+-            repeat = self.client.post('/api/posts', data={'author': 'someone_else', 'text': text})
++            repeat = self.submit_as(data={'author': 'someone_else', 'text': text})
+             self.assertEqual(repeat.status_code, 409, repeat.text)
+             self.drain()
+             post = self.appmod.S.store.post(pid)
+@@ -340,7 +358,7 @@
+ 
+     def test_labelled_post_published_anchored_manifest_and_rechecked(self):
+         c = self.client
+-        r = c.post("/api/posts", data={"author": "alice", "kind": "text", "text": "Hello sunny world"})
++        r = self.submit_as(data={"author": "alice", "kind": "text", "text": "Hello sunny world"})
+         self.assertEqual(r.status_code, 200, r.text)
+         pid = r.json()["post_id"]
+         self.drain()
+@@ -377,11 +395,12 @@
+ 
+     def test_yes_label_published_but_hidden_from_minors(self):
+         c = self.client
+-        pid = c.post("/api/posts", data={"author": "bob", "kind": "text", "text": "Graphic story: they will bomb it"}).json()["post_id"]
++        pid = self.submit_as(data={"author": "bob", "kind": "text", "text": "Graphic story: they will bomb it"}).json()["post_id"]
+         self.drain()
+         p = c.get(f"/api/posts/{pid}").json()
+         self.assertEqual(p["status"], "published")                          # not rejected for a yes label
+         self.assertEqual({x["category"]: x["value"] for x in p["labels"]}["violence"], "yes")
++        c.cookies.clear()  # View audience restrictions as an unrelated reader.
+         adult = [x for x in c.get("/api/feed?audience=adult").json()["posts"] if x["id"] == pid][0]
+         self.assertFalse(adult.get("hidden", False))
+         self.assertIn("manifest", adult)                                    # the manifest travels with the item
+@@ -395,41 +414,35 @@
+ 
+     def test_fail_closed_per_category(self):
+         c = self.client
+-        pid = c.post("/api/posts", data={"author": "fay", "kind": "text",
++        pid = self.submit_as(data={"author": "fay", "kind": "text",
+                                          "text": "please refuse " + provers.FakeProver.REFUSE_MARK}).json()["post_id"]
+         self.drain()
+         p = c.get(f"/api/posts/{pid}").json()
+         self.assertEqual(p["status"], "failed")
+         self.assertIn("Could not be verified", p["status_message"])
+-        self.assertEqual({x["value"] for x in p["labels"]}, {"unproved"})
+-        self.assertIsNone(p['record'])
+-        self.assertIsNone(p['text'])
+-        p = c.get(f"/api/posts/{pid}?author=fay").json()
+-        self.assertIsNone(p["record"]["chunks"][0]["record"])
+-        self.assertIn("Could not be verified", p["record"]["chunks"][0]["error"])
+-        self.assertEqual({e["verdict"] for e in p["manifest"]["entries"]}, {"unproved"})
+-        self.assertTrue(c.post(f"/api/posts/{pid}/verify-manifest").json()["accepted"])
++        self.assertEqual(p, {'id': pid, 'status': 'failed', 'status_message': 'Could not be verified.'})
++        self.assertEqual(c.post(f"/api/posts/{pid}/verify-manifest").status_code, 404)
+         for audience in ('adult', 'minor'):
+             self.assertNotIn(pid, [x['id'] for x in c.get(f'/api/feed?audience={audience}').json()['posts']])
+-        self.assertIsNone(p['publication'])
++        self.assertNotIn('publication', p)
+         self.assertFalse(self.appmod.S.publisher.anchors_of(pid))
+-        self.assertFalse(p["retry_allowed"])          # the fake prover "ran": proved once, no re-proving
+-        r = c.post("/api/posts", data={"author": "fay", "kind": "text",
++        self.assertTrue(self.appmod.S.store.post(pid)['prove_attempted'])          # the fake prover "ran": proved once, no re-proving
++        r = self.submit_as(data={"author": "fay", "kind": "text",
+                                        "text": "please refuse " + provers.FakeProver.REFUSE_MARK})
+         self.assertEqual(r.status_code, 409)
+ 
+     def test_same_content_screened_once(self):
+         c = self.client
+-        r1 = c.post("/api/posts", data={"author": "gus", "kind": "text", "text": "Dedupe me please"})
++        r1 = self.submit_as(data={"author": "gus", "kind": "text", "text": "Dedupe me please"})
+         self.assertEqual(r1.status_code, 200)
+         self.drain()
+-        r2 = c.post("/api/posts", data={"author": "hal", "kind": "text", "text": "Dedupe me please"})
++        r2 = self.submit_as(data={"author": "hal", "kind": "text", "text": "Dedupe me please"})
+         self.assertEqual(r2.status_code, 409)
+         self.assertIn("proved once", r2.json()["detail"])
+ 
+     def test_recheck_rejection_makes_labels_unproved(self):
+         c = self.client
+-        pid = c.post("/api/posts", data={"author": "ivy", "kind": "text", "text": "Will be withdrawn later"}).json()["post_id"]
++        pid = self.submit_as(data={"author": "ivy", "kind": "text", "text": "Will be withdrawn later"}).json()["post_id"]
+         self.drain()
+         self.assertEqual(c.get(f"/api/posts/{pid}").json()["status"], "published")
+         self.appmod.S.prover.reject_rechecks = True
+@@ -439,19 +452,20 @@
+         finally:
+             self.appmod.S.prover.reject_rechecks = False
+         p = c.get(f"/api/posts/{pid}").json()
+-        self.assertEqual({x["value"] for x in p["labels"]}, {"unproved"})
+-        self.assertIn("re-verification rejected", p["status_message"])
++        self.assertEqual(p, {'id': pid, 'status': 'failed', 'status_message': 'Could not be verified.'})
+         self.assertEqual(p['status'], 'failed')
+         for audience in ('adult', 'minor'):
+             self.assertNotIn(pid, [x['id'] for x in c.get(f'/api/feed?audience={audience}').json()['posts']])
+ 
+     def test_delete_crypto_shreds(self):
+         c = self.client
+-        pid = c.post("/api/posts", data={"author": "jo", "kind": "text", "text": "Delete me afterwards"}).json()["post_id"]
++        pid = self.submit_as(data={"author": "jo", "kind": "text", "text": "Delete me afterwards"}).json()["post_id"]
+         self.drain()
+         c.post("/api/ledger/close-batch")
+-        self.assertEqual(c.delete(f"/api/posts/{pid}?author=someone").status_code, 403)
+-        self.assertEqual(c.delete(f"/api/posts/{pid}?author=jo").status_code, 200)
++        self.login_as('someone')
++        self.assertEqual(c.delete(f"/api/posts/{pid}?author=jo").status_code, 404)
++        self.login_as('jo')
++        self.assertEqual(c.delete(f"/api/posts/{pid}").status_code, 200)
+         row = self.appmod.S.store.post(pid)
+         self.assertIsNone(row["text"])
+         self.assertIsNone(row["salt_enc"])
+@@ -460,7 +474,7 @@
+         self.assertEqual(self.appmod.S.publisher.anchor_of(pid, "sexual").status, "anchored")    # the leaf stays
+ 
+     def test_too_long_refused(self):
+-        r = self.client.post("/api/posts", data={"author": "carol", "kind": "text", "text": "word " * 150})
++        r = self.submit_as(data={"author": "carol", "kind": "text", "text": "word " * 150})
+         self.assertEqual(r.status_code, 400)
+         self.assertIn("chunks", r.json()["detail"])
+ 
+@@ -472,12 +486,13 @@
+         t = c.post("/api/tokenize", json={"text": text}).json()
+         self.assertGreaterEqual(t["chunks"], 2)
+         self.assertEqual(t["proofs"], 3 * t["chunks"])
+-        r = c.post("/api/posts", data={"author": "kai", "kind": "text", "text": text}).json()
++        r = self.submit_as(data={"author": "kai", "kind": "text", "text": text}).json()
+         pid = r["post_id"]
+         self.assertEqual(r["chunks"], t["chunks"])
+         p = c.get(f"/api/posts/{pid}").json()
+-        self.assertEqual(len(p["chunks"]), t["chunks"])
+-        self.assertTrue(all(ch["status"] == "queued" for ch in p["chunks"]))
++        self.assertEqual(p['status'], 'pending')
++        self.assertNotIn('chunks', p)
++        self.assertEqual(len(self.appmod.S.store.q('SELECT * FROM jobs WHERE post_id=?', (pid,))), t['chunks'])
+         self.drain()
+         p = c.get(f"/api/posts/{pid}").json()
+         self.assertEqual(p["status"], "published")
+@@ -499,15 +514,13 @@
+         safe = ("We walked along the quiet harbour at dawn and watched the fishing boats come home with the morning catch. "
+                 "The cafe on the corner opened early, and the bakery smelled of fresh bread and cinnamon rolls. ")
+         text = safe + "Then " + provers.FakeProver.REFUSE_MARK
+-        pid = c.post("/api/posts", data={"author": "lea", "kind": "text", "text": text}).json()["post_id"]
+-        self.drain()
+-        p = c.get(f"/api/posts/{pid}").json()
+-        self.assertEqual(p["chunks"][0]["status"], "done")
+-        self.assertEqual(p["chunks"][-1]["status"], "failed")
+-        self.assertEqual({x["value"] for x in p["labels"]}, {"unproved"})   # any chunk unproved -> not proved
+-        self.assertIn("without an accepted proof", p["status_message"])
+-        self.assertEqual(p['status'], 'failed')
+-        self.assertIsNone(p['publication'])
++        pid = self.submit_as(data={"author": "lea", "kind": "text", "text": text}).json()["post_id"]
++        self.drain()
++        p = c.get(f"/api/posts/{pid}").json()
++        private_chunks = self.appmod.S.store.q('SELECT * FROM chunk_proofs WHERE post_id=? ORDER BY chunk', (pid,))
++        self.assertEqual(private_chunks[0]['status'], 'done')
++        self.assertEqual(private_chunks[-1]['status'], 'failed')
++        self.assertEqual(p, {'id': pid, 'status': 'failed', 'status_message': 'Could not be verified.'})
+         self.assertFalse(self.appmod.S.publisher.anchors_of(pid))
+         for audience in ('adult', 'minor'):
+             self.assertNotIn(pid, [x['id'] for x in c.get(f'/api/feed?audience={audience}').json()['posts']])
+@@ -518,7 +531,7 @@
+         from PIL import Image
+         buf = io.BytesIO()
+         Image.new("RGB", (64, 48), (200, 30, 30)).save(buf, "PNG")
+-        r = self.client.post("/api/posts", data={"author": "dana", "kind": "image"},
++        r = self.submit_as(data={"author": "dana", "kind": "image"},
+                              files={"file": ("a.png", buf.getvalue(), "image/png")})
+         self.assertEqual(r.status_code, 200, r.text)
+         pid = r.json()["post_id"]
+@@ -528,17 +541,18 @@
+         self.assertEqual(p["media"]["canvas_px"], 224)
+         self.assertEqual(len(p["media"]["salted_commitment"]), 64)
+         self.assertNotIn(pid, [x["id"] for x in self.client.get("/api/feed").json()["posts"]])   # clean content only
+-        self.assertEqual(self.client.get(f"/api/posts/{pid}/canvas.png").status_code, 403)
+-        self.assertEqual(self.client.get(f"/api/posts/{pid}/canvas.png?author=dana").status_code, 200)
+-        r2 = self.client.post("/api/posts", data={"author": "eve", "kind": "image"},
++        self.assertEqual(self.client.get(f"/api/posts/{pid}/canvas.png").status_code, 200)
++        self.login_as('eve')
++        self.assertEqual(self.client.get(f"/api/posts/{pid}/canvas.png?author=dana").status_code, 404)
++        r2 = self.submit_as(data={"author": "eve", "kind": "image"},
+                               files={"file": ("b.png", buf.getvalue(), "image/png")})
+         self.assertEqual(r2.status_code, 409)                              # proved once: no repeat
+-        r3 = self.client.post("/api/posts", data={"author": "dana", "kind": "video"},
++        r3 = self.submit_as(data={"author": "dana", "kind": "video"},
+                               files={"file": ("v.mp4", b"\x00\x00\x00\x14ftypisom", "video/mp4")})
+         self.assertEqual(r3.status_code, 400)                              # video deferred
+ 
+     def test_bad_upload_type(self):
+-        r = self.client.post("/api/posts", data={"author": "erin", "kind": "image"},
++        r = self.submit_as(data={"author": "erin", "kind": "image"},
+                              files={"file": ("x.png", b"not an image at all", "image/png")})
+         self.assertEqual(r.status_code, 400)
+ 
+--- apps/proven-media/tests/test_category_queue.py
++++ candidate/tests/test_category_queue.py
+@@ -11,7 +11,7 @@
+ import unittest
+ from unittest.mock import patch
+ 
+-from proven_media import config, proof_plans, records
++from proven_media import auth, config, proof_plans, records
+ from proven_media.items import TextItem
+ from proven_media.jobs import Worker
+ from proven_media.provers import ClassifierProver
+@@ -215,11 +215,11 @@
+         from proven_media import app
+         class Request:
+             async def json(_self): return {'text': self.text}
+-        with patch.object(app.S, 'store', self.store, create=True), patch.object(app.S, 'prover', self.prover, create=True):
++        with patch.object(app.S, 'store', self.store, create=True), patch.object(app.S, 'prover', self.prover, create=True), patch.object(app, 'require_session', return_value=auth.Session('@test', False, 'test-only')):
+             count = asyncio.run(app.api_tokenize(Request()))
+             self.assertEqual((count['count'], count['proofs'], count['category_chunks']),
+                              (20, 7, {'sexual': 3, 'violence': 2, 'hate': 2}))
+-            response = asyncio.run(app.api_create_post(author='test', kind='text', text=self.text, file=None))
++            response = asyncio.run(app.api_create_post(req=Request(), author='test', kind='text', text=self.text, file=None))
+             self.assertEqual((response['chunks'], response['proofs']), (7, 7))
+             self.assertEqual(len(self.store.q('SELECT * FROM jobs')), 7)
+ 
+--- apps/proven-media/tests/test_frontend_auth.js
++++ candidate/tests/test_frontend_auth.js
+@@ -0,0 +1,63 @@
++// Behavioral tests for session changes while private HTTP responses are in flight.
++// A small DOM fixture is sufficient for these races; this is not a browser render test.
++const assert = require('node:assert/strict');
++const fs = require('node:fs');
++const path = require('node:path');
++const vm = require('node:vm');
++
++async function main() {
++  const elements = new Map();
++  const document = {
++    querySelector(selector) {
++      if (!elements.has(selector)) elements.set(selector, { innerHTML: '', textContent: '', hidden: false });
++      return elements.get(selector);
++    }
++  };
++  let fetchImpl;
++  const context = vm.createContext({ document, Headers, fetch: (...args) => fetchImpl(...args) });
++  const source = fs.readFileSync(path.join(__dirname, '../static/app.js'), 'utf8').replace(/boot\(\);\s*$/, '');
++  vm.runInContext(source, context);
++  const run = code => vm.runInContext(code, context);
++  const response = (body, status = 200) => ({ ok: status === 200, status,
++    headers: new Headers({ 'Content-Type': 'application/json' }), json: async () => body });
++
++  run("setSession({author:'@alice', csrf:'csrf-alice', operator:false})");
++  let request;
++  fetchImpl = async (url, options) => { request = { url, options }; return response({}); };
++  await run("api('/api/posts', {method:'POST', body:'fixture'})");
++  assert.equal(request.options.credentials, 'same-origin');
++  assert.equal(request.options.headers.get('X-PM-CSRF'), 'csrf-alice');
++  assert.equal(document.querySelector('[data-nav="status"]').hidden, true);
++
++  let resolve;
++  fetchImpl = () => new Promise(r => { resolve = r; });
++  const stale = run("api('/api/posts/private-id')");
++  run('setSession({})');
++  resolve(response({ text: 'old private text' }));
++  await assert.rejects(stale, /Session changed/);
++
++  run("setSession({author:'@alice', csrf:'csrf-alice'})");
++  const oldUnauthorized = run("api('/api/submissions')");
++  run("setSession({author:'@bob', csrf:'csrf-bob'})");
++  resolve(response({ detail: 'expired' }, 401));
++  await assert.rejects(oldUnauthorized, /Session changed/);
++  assert.equal(document.querySelector('#handle').textContent, '@bob');
++
++  document.querySelector('#app').innerHTML = 'private text currently displayed';
++  fetchImpl = async () => response({ detail: 'expired' }, 401);
++  await assert.rejects(run("api('/api/submissions')"), /expired/);
++  assert.equal(document.querySelector('#handle').textContent, 'Signed out');
++  assert.ok(!document.querySelector('#app').innerHTML.includes('private text'));
++
++  run("setSession({author:'@alice', csrf:'csrf-alice'})");
++  fetchImpl = async () => response({ id: 'failed-id', status: 'failed', status_message: 'Could not be verified.' });
++  await run("viewPost('failed-id')");
++  const page = document.querySelector('#app').innerHTML;
++  assert.ok(page.includes('Could not be verified.'));
++  assert.ok(!page.includes('chunk'));
++  assert.ok(!page.includes('undefined'));
++  assert.equal(typeof document.querySelector('#delete-failed').onclick, 'function');
++  console.log('PASS: mutation CSRF, sign-out race, account-switch race, expiry clears private view, generic failure page');
++}
++
++main().catch(error => { console.error(error); process.exitCode = 1; });
+--- apps/proven-media/tests/test_privacy_auth.py
++++ candidate/tests/test_privacy_auth.py
+@@ -0,0 +1,234 @@
++"""P7/P8 authorization and disclosure regression tests. Fake prover only."""
++import json
++from pathlib import Path
++import secrets
++import sqlite3
++import stat
++import tempfile
++import unittest
++from unittest.mock import patch
++
++import test_app  # shared isolated fake-prover configuration, before app imports
++from fastapi.testclient import TestClient
++from proven_media import app, auth, config
++from proven_media.jobs import Worker
++
++
++class CredentialTests(unittest.TestCase):
++    def setUp(self):
++        self.temp = tempfile.TemporaryDirectory()
++        self.addCleanup(self.temp.cleanup)
++        self.path = Path(self.temp.name) / 'private' / 'auth.sqlite3'
++        self.auth = auth.AuthorAuth(self.path)
++
++    def test_only_hashes_stored_and_private_permissions(self):
++        key = self.auth.provision('alice')
++        token, session = self.auth.login(key)
++        self.assertEqual(session.author, '@alice')
++        self.assertFalse(session.operator)
++        self.assertEqual(stat.S_IMODE(self.path.stat().st_mode), 0o600)
++        self.assertEqual(stat.S_IMODE(self.path.parent.stat().st_mode), 0o700)
++        data = self.path.read_bytes()
++        self.assertNotIn(key.encode(), data)
++        self.assertNotIn(token.encode(), data)
++        self.assertIsNone(self.auth.login('alice'))
++        self.assertIsNone(self.auth.login(secrets.token_urlsafe(32)))
++        self.assertIsNone(self.auth.session(secrets.token_urlsafe(32)))
++
++    def test_rotation_revokes_old_key_and_sessions(self):
++        key = self.auth.provision('alice', operator=True)
++        token, session = self.auth.login(key)
++        self.assertTrue(session.operator)
++        with self.assertRaises(ValueError): self.auth.provision('alice')
++        new = self.auth.provision('alice', rotate=True)
++        self.assertIsNone(self.auth.login(key))
++        self.assertIsNone(self.auth.session(token))
++        self.assertIsNotNone(self.auth.login(new))
++
++    def test_expiry_logout_and_unique_sessions(self):
++        key = self.auth.provision('alice')
++        token, session = self.auth.login(key)
++        other, second = self.auth.login(key)
++        self.assertNotEqual(token, other)
++        self.assertNotEqual(session.csrf, second.csrf)
++        self.auth.logout(token)
++        self.assertIsNone(self.auth.session(token))
++        self.assertIsNotNone(self.auth.session(other))
++        with patch('proven_media.auth.time.time', return_value=10**12):
++            self.assertIsNone(self.auth.session(other))
++
++    def test_symlink_db_refused_without_touching_target(self):
++        target = self.path.parent / 'target'
++        target.write_text('do not change')
++        link = self.path.parent / 'link'
++        link.symlink_to(target)
++        with self.assertRaises(OSError): auth.AuthorAuth(link)
++        self.assertEqual(target.read_text(), 'do not change')
++
++
++class PrivacyRoutes(unittest.TestCase):
++    @classmethod
++    def setUpClass(cls):
++        cls.context = TestClient(app.app)
++        cls.context.__enter__()
++        cls.keys = {name: app.S.auth.provision(name, operator=name == 'auth_operator', rotate=True)
++                    for name in ('auth_alice', 'auth_bob', 'auth_operator')}
++
++    @classmethod
++    def tearDownClass(cls):
++        cls.context.__exit__(None, None, None)
++
++    def setUp(self):
++        self.client = TestClient(app.app)
++        self.guest = TestClient(app.app)
++        self.addCleanup(self.client.close)
++        self.addCleanup(self.guest.close)
++
++    def sign_in(self, name='auth_alice', client=None):
++        client = client or self.client
++        r = client.post('/api/session', json={'access_key': self.keys[name]})
++        self.assertEqual(r.status_code, 200, r.text)
++        client.headers['X-PM-CSRF'] = r.json()['csrf']
++        return r
++
++    def submit(self):
++        self.sign_in()
++        secret = 'Private fixture ' + secrets.token_hex(12)
++        r = self.client.post('/api/posts', data={'author': 'auth_alice', 'text': secret})
++        self.assertEqual(r.status_code, 200, r.text)
++        return r.json()['post_id'], secret
++
++    def drain(self):
++        worker = Worker(app.S.store, app.S.prover, app.S.publisher)
++        for _ in range(15): worker.tick()
++
++    def test_handle_query_and_forged_cookie_cannot_read_unpublished(self):
++        pid, secret = self.submit()
++        self.sign_in('auth_bob', self.guest)
++        for status in ('queued', 'screening', 'failed', 'in-development', 'deleted'):
++            app.S.store.update_post(pid, status=status, status_message='layer 7 chunk 3 input overflow')
++            anon = TestClient(app.app)
++            self.addCleanup(anon.close)
++            for client in (self.guest, anon):
++                for query in ('', '?author=auth_alice', '?author=@auth_alice'):
++                    r = client.get('/api/posts/' + pid + query)
++                    self.assertEqual(r.status_code, 404, r.text)
++                    self.assertNotIn(secret, r.text)
++                    self.assertEqual(r.json(), {'detail': 'no such post'})
++        self.guest.cookies.clear()
++        self.guest.cookies.set(auth.COOKIE, '@auth_alice')
++        self.assertEqual(self.guest.get('/api/posts/' + pid).status_code, 404)
++
++    def test_submissions_require_real_author_and_ignore_claims(self):
++        pid, secret = self.submit()
++        self.assertEqual(self.guest.get('/api/submissions?author=auth_alice').status_code, 401)
++        self.sign_in('auth_bob', self.guest)
++        self.assertEqual(self.guest.get('/api/submissions?author=auth_alice').status_code, 403)
++        self.assertNotIn(secret, self.guest.get('/api/submissions').text)
++        own = self.client.get('/api/submissions').json()['posts']
++        self.assertEqual(next(p['text'] for p in own if p['id'] == pid), secret)
++
++    def test_failure_exact_one_bit_even_with_stale_manifest_and_record(self):
++        pid, secret = self.submit()
++        app.S.store.update_post(pid, status='failed', status_message='chunk 2 category hate layer 17 attempt 3',
++            record=json.dumps({'timings': {'work_s': 123}, 'chunks': [{'error': 'overflow'}]}),
++            manifest=json.dumps({'private': secret}))
++        expected = {'id': pid, 'status': 'failed', 'status_message': 'Could not be verified.'}
++        self.assertEqual(self.client.get('/api/posts/' + pid).json(), expected)
++        own = self.client.get('/api/submissions').json()['posts']
++        self.assertEqual(next(p for p in own if p['id'] == pid), expected)
++        for client in (self.client, self.guest):
++            for suffix in ('manifest.json', 'record.json', 'bundle.tar', 'canvas.png'):
++                self.assertEqual(client.get(f'/api/posts/{pid}/{suffix}?author=auth_alice').status_code, 404)
++            for suffix in ('verify-manifest', 'verify-publication'):
++                self.assertEqual(client.post(f'/api/posts/{pid}/{suffix}').status_code, 404)
++        for audience in ('minor', 'adult'):
++            self.assertNotIn(pid, [p['id'] for p in self.guest.get('/api/feed?audience=' + audience).json()['posts']])
++
++    def test_pending_owner_has_text_without_partial_results(self):
++        pid, secret = self.submit()
++        for status in ('queued', 'screening'):
++            app.S.store.update_post(pid, status=status)
++            p = self.client.get('/api/posts/' + pid).json()
++            self.assertEqual(p, {'id': pid, 'status': 'pending', 'author': '@auth_alice', 'kind': 'text',
++                                 'text': secret, 'status_message': 'Verification pending.'})
++
++    def test_submission_requires_session_matching_author_and_csrf(self):
++        data = {'author': 'auth_alice', 'text': 'never submitted ' + secrets.token_hex(6)}
++        self.assertEqual(self.client.post('/api/posts', data=data).status_code, 401)
++        self.sign_in('auth_bob')
++        self.assertEqual(self.client.post('/api/posts', data=data).status_code, 403)
++        self.sign_in()
++        self.client.headers.pop('X-PM-CSRF')
++        self.assertEqual(self.client.post('/api/posts', data=data).status_code, 403)
++        self.assertEqual(self.client.post('/api/tokenize', json={'text': 'private'}).status_code, 403)
++        self.assertFalse(app.S.store.q('SELECT id FROM posts WHERE text=?', (data['text'],)))
++
++    def test_foreign_origin_and_non_json_login_refused(self):
++        self.assertEqual(self.client.post('/api/session', data={'access_key': self.keys['auth_alice']}).status_code, 415)
++        self.assertEqual(self.client.post('/api/session', json={'access_key': self.keys['auth_alice']},
++            headers={'Origin': 'https://foreign.invalid'}).status_code, 403)
++        self.assertEqual(self.client.post('/api/session', json={'access_key': 'x' * 2000}).status_code, 413)
++        self.sign_in()
++        self.assertEqual(self.client.delete('/api/session', headers={'Origin': 'https://foreign.invalid'}).status_code, 403)
++
++    def test_session_cookie_and_cache_policy(self):
++        r = self.sign_in()
++        cookie = r.headers['set-cookie'].lower()
++        self.assertIn('httponly', cookie)
++        self.assertIn('samesite=strict', cookie)
++        self.assertIn('path=/', cookie)
++        self.assertEqual(r.headers['cache-control'], 'no-store')
++        self.assertEqual(r.headers['vary'], 'Cookie')
++        self.assertEqual(self.client.get('/api/session').json()['author'], '@auth_alice')
++        token = self.client.cookies.get(auth.COOKIE)
++        self.assertEqual(self.client.delete('/api/session').status_code, 200)
++        self.client.cookies.set(auth.COOKIE, token)
++        self.assertIsNone(self.client.get('/api/session').json()['author'])
++        secure = TestClient(app.app, base_url='https://testserver')
++        self.addCleanup(secure.close)
++        r = self.sign_in(client=secure)
++        self.assertIn('secure', r.headers['set-cookie'].lower())
++
++    def test_queue_status_and_batch_close_are_operator_only(self):
++        for path in ('/api/queue', '/api/status'):
++            self.assertEqual(self.client.get(path).status_code, 401)
++        self.sign_in()
++        for path in ('/api/queue', '/api/status'):
++            self.assertEqual(self.client.get(path).status_code, 403)
++        self.assertEqual(self.client.post('/api/ledger/close-batch').status_code, 403)
++        self.sign_in('auth_operator')
++        self.assertEqual(self.client.get('/api/status').status_code, 200)
++
++    def test_other_author_cannot_delete_or_recheck(self):
++        pid, secret = self.submit()
++        self.sign_in('auth_bob', self.guest)
++        self.assertEqual(self.guest.delete('/api/posts/' + pid + '?author=auth_alice').status_code, 404)
++        self.assertEqual(self.guest.post('/api/posts/' + pid + '/verify').status_code, 404)
++        self.assertEqual(app.S.store.post(pid)['text'], secret)
++
++    def test_public_records_strip_timings_recursively_without_mutating_operator_record(self):
++        pid, _ = self.submit()
++        self.drain()
++        p = app.S.store.post(pid)
++        self.assertEqual(p['status'], 'published')
++        private = json.loads(p['record'])
++        private['timings'] = {'work_s': 999}
++        private['proved_at'] = 'sensitive-time'
++        private['chunks'][0]['record']['timings'] = {'work_s': 111}
++        private['chunks'][0]['record']['proved_at'] = 'another-time'
++        app.S.store.update_post(pid, record=json.dumps(private))
++        for suffix in ('', '/record.json'):
++            r = self.guest.get('/api/posts/' + pid + suffix)
++            self.assertEqual(r.status_code, 200)
++            # The already signed manifest has its own documented timestamp fields.
++            record = r.json().get('record') if not suffix else r.json()
++            text = json.dumps(record)
++            self.assertNotIn('timings', text)
++            self.assertNotIn('proved_at', text)
++        self.assertEqual(json.loads(app.S.store.post(pid)['record']), private)
++        self.assertTrue(self.guest.post(f'/api/posts/{pid}/verify-manifest').json()['accepted'])
++
++
++if __name__ == '__main__':
++    unittest.main()
+--- apps/proven-media/tools/create_author.py
++++ candidate/tools/create_author.py
+@@ -0,0 +1,39 @@
++#!/usr/bin/env python3
++"""Provision or rotate an author key locally; write the key to a private file."""
++import argparse
++import json
++import os
++from pathlib import Path
++import sys
++
++sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
++from proven_media import config
++from proven_media.auth import AuthorAuth, handle
++
++
++def main():
++    p = argparse.ArgumentParser(description=__doc__)
++    p.add_argument("author")
++    p.add_argument("--operator", action="store_true")
++    p.add_argument("--rotate", action="store_true", help="Replace the existing key and revoke all its sessions.")
++    args = p.parse_args()
++    name = handle(args.author)
++    root = config.PRIVATE_DIR.resolve()
++    if root == config.REPO or config.REPO in root.parents:
++        p.error("credentials must be outside the repository")
++    auth = AuthorAuth(root / "auth.sqlite3")
++    dest = root / (name[1:] + "-access-" + __import__('secrets').token_hex(6) + ".json")
++    fd = os.open(dest, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
++    try:
++        with os.fdopen(fd, "w") as f:
++            key = auth.provision(name, operator=args.operator, rotate=args.rotate)
++            json.dump({"author": name, "access_key": key}, f)
++            f.write("\n")
++    except Exception:
++        dest.unlink(missing_ok=True)
++        raise
++    print(f"Credential written to {dest}; share it privately with its author.")
++
++
++if __name__ == "__main__":
++    main()

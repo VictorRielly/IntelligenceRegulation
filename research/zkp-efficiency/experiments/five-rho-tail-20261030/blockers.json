@@ -1,0 +1,15 @@
+{
+  "web": [
+    "https://github.com/snarang181/zk-duel/commits/main/: Cache miss (initial wrong branch; corrected to master)",
+    "https://github.com/snarang181/zk-duel/commits/master/: Cache miss",
+    "https://raw.githubusercontent.com/snarang181/zk-duel/master/LICENSE: Cache miss"
+  ],
+  "device": "GPU/native build not authorized in this lane; no attempt",
+  "measurements": "current native groups,rho density,exclusive fold phases,registers/spills and full8BGPU workloads absent",
+  "owner_status": "00:28:47UTC recovery intent snapshot; no liveness established",
+  "corrected_local_audit_errors": [
+    "First audit assumed every fe profile had a historical group census; restricted cost table to the four fe9 profiles that actually have one.",
+    "Second audit incorrectly chose P-1 as a binary64 nonrepresentability control; P-1 is exactly representable. Corrected to P-2 and the full product; both initial failed logs retained."
+  ],
+  "tool_output_note": "A metadata diagnostic called Object.keys on a returned string and printed character indices; no experiment data or limits changed."
+}

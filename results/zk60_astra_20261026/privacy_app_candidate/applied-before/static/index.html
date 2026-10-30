@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Proven Media</title>
+<meta name="description" content="A media feed whose posts carry public proofs that they passed a harmful-content classifier.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%2316a34a' d='M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3z'/%3E%3Cpath fill='white' d='m10.5 15.5-3-3 1.4-1.4 1.6 1.6 4.6-4.6 1.4 1.4z'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="#/">
+      <svg class="brand-mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 4 5v6c0 5 3.4 9.4 8 11 4.6-1.6 8-6 8-11V5l-8-3z"/><path class="tick" d="m10.5 15.5-3-3 1.4-1.4 1.6 1.6 4.6-4.6 1.4 1.4z"/></svg>
+      <span>Proven&nbsp;Media</span>
+    </a>
+    <nav class="nav">
+      <a href="#/" data-nav="feed">Feed</a>
+      <a href="#/ledger" data-nav="ledger">Ledger</a>
+      <a href="#/about" data-nav="about">How it works</a>
+      <a href="#/status" data-nav="status">Status</a>
+    </nav>
+    <button id="audpill" class="audpill" title="Switch the viewer's audience (Adult / Minor)">Viewing as Adult</button>
+    <div class="who">
+      <label for="handle" class="sr">Your handle</label>
+      <span class="at">@</span><input id="handle" maxlength="24" placeholder="handle" autocomplete="off" spellcheck="false">
+    </div>
+  </div>
+  <div id="modebar" class="modebar"></div>
+</header>
+<main id="app" class="wrap" aria-live="polite"></main>
+<footer class="foot wrap">
+  <p>Research prototype. Proofs run on a laptop CPU through the project's resource guard; minutes per chunk.
+  No privacy acceptance and no external audit cover this demo. <a href="#/about">Limits</a>.</p>
+</footer>
+<script src="/static/app.js"></script>
+</body>
+</html>

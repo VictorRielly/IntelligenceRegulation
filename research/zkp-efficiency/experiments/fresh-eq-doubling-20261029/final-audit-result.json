@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "checks": 188,
+  "checkpoint_utc": "2026-10-29T15:11:46.506218+00:00",
+  "native_pins": 14,
+  "owner_documents_unchanged": true,
+  "prior_findings_and_sources_preserved": true,
+  "prior_hypotheses_preserved": 61,
+  "source_records": 971,
+  "full_stack_proofs": 0
+}

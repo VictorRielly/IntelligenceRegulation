@@ -1,0 +1,50 @@
+{
+  "owner_priorities": [
+    {
+      "rank": 1,
+      "hypothesis_rank": 1,
+      "title": "Owner whole-prover high-end GPU plus verified fixed-context resident1/2/4/8"
+    },
+    {
+      "rank": 2,
+      "hypothesis_rank": 2,
+      "title": "REFINED owner DD larger-context scaling after measured T128 null result"
+    },
+    {
+      "rank": 3,
+      "hypothesis_rank": 3,
+      "title": "REFINED tested public-role exclusive FZC clocks before allocator/capacity changes"
+    }
+  ],
+  "highest_feasible_local": {
+    "rank": 75,
+    "title": "TESTED public consecutive-row/membership intervals with list/dense fallback",
+    "baseline": "Frozen R13 A core 8B/T128, N16384, original order noDD/DD: indexed membership logical operands 4.468113408/4.340318208 GB; plan upload 38616/37312 B. Native exclusive rowfold time unknown.",
+    "eliminated_work": "Replace one packed index per visited row by one 8-byte equal-membership consecutive interval; choose old list for fragmented batches and old dense for the dense proximity-only batch. Matrix/rho values, output order and all fresh masks/pads/proximity retained.",
+    "added_costs": "Prior public list construction plus conversion/validation, mode dispatch, nested loops, new metadata allocation/upload, device code/register/occupancy/cache costs. Conversion 10.634/11.060 us, validation286.722/292.304us n=1 sharedCPU; prior list construction remains unmeasured here. Payload584/648B; all rho uploads2.710/2.780MB remain. Actual GPU/compiler costs unknown.",
+    "prerequisites": "Current public rho provenance and owner materiality, current R14 repin/census, shared native build/heavy locks, exact native gates and independently verified enclosing A/B.",
+    "integration_cost": "Moderate local dev_fold_rows adapter plus separate registered run kernel and host per-batch selector; new trait unnecessary for numeric-public-rho scan. interval.rs tested CPU, candidate-kernel.cuh uncompiled.",
+    "exactness": "184770 exact independent schoolbook modular fold comparisons across14 native-helper fixtures plus45 additional support patterns,462 controls,102314 independent Python assertions. Source-row/narrow8 comparisons27360. Native define, actualFS, PCS pad generation, CUDA, receipts and privacy acceptance untested.",
+    "privacy_soundness": "Only verifier-public descriptors/rho choose plan. No private sparsity or mask/opening reuse. Native assert_mask_sites/refusals, fresh masking/proximity/PCS/FS/RNG unchanged; structural masks retained even if numeric zero. Linear-algebra controls are not admitted proof instances.",
+    "compatibility": "Current max4 dev_fold_rows/k_fold_rows. Rust repr(C)8-byteRun{word:u32,len:u32},word=row<<4|flags; row<2^28,positive length,canonical nonoverlap/exact coverage; otherwise fallback.",
+    "end_to_end_ceiling": "Original order source operands3.844997120/3.739615232GB,13.9458/13.8401% below prior list;92.3700/92.7224% below dense. These are not physical traffic or runtime. N/(T-C_removed_exclusive+A_added), free deletion<=1/(1-f), exclusive f unknown. No numerical GPU8B forecast.",
+    "falsification": "Any native value/limb/order/refusal/mask/RNG/FS/PCS/privacy mismatch, changed current support, or plan/upload/nested-loop/register/cache overhead erasing verified enclosing gain.",
+    "disposition": "Promising CPU algebra/encoding only. Numerical-zero fragmentation enlarges metadata; automatic choice must cost full operands rather than compressed bytes only.",
+    "selection": "Highest useful permitted local continuation of prior#74; owner GPU/admission/current phase work remains higher priority."
+  },
+  "next_local": {
+    "rank": 76,
+    "title": "NEW public zero-gap interval coalescing versus exact sparse lists",
+    "baseline": "Tested public zero-every-third-row rho control creates3242/3134 spans vs74/81 and hybrid metadata25728/24856B vs584/648B at source original order, while its full source operand counts still fall22.60/22.71%. Metadata size alone does not decide cost.",
+    "eliminated_work": "Ask whether merging same-flag intervals across verifier-public all-zero gaps removes metadata and nested-loop starts at lower complete cost than visiting those zero rows.",
+    "added_costs": "Extra matrix/rho loads and modular MACs over gaps, public planner/superset support audit and register/lifetime costs; no value reuse.",
+    "prerequisites": "Owner exclusive rowfold materiality first; reviewed public coefficient provenance. Current native mask/refusal checks stay intact. No private value-based gaps.",
+    "integration_cost": "Low CPU prototype, moderate adapter integration if measured material; compare exact point-list and structural envelope using a public weighted objective.",
+    "exactness": "Untested follow-up. Require independent dense reference, wrong-gap nonzero and imaginary-limb controls, no missing masks/proximity; extra zero visits algebraically safe but minimal-support validator needs an explicit superset audit.",
+    "privacy_soundness": "Public rho only; never inspect hidden matrix to select schedule; no fresh randomness/mask/opening reuse, no changed relation.",
+    "compatibility": "Same max4 current fold adapter, no transcript or commitment changes; source/profile repin required.",
+    "end_to_end_ceiling": "Unknown native f; memory operands bound is not runtime. N/(T-C_removed_exclusive+A_added).",
+    "falsification": "Any skipped nonzero including imaginary limb or unsafe support envelope; construction/decode/extra-MAC costs exceed saved exclusive work; native verified enclosing time unchanged.",
+    "disposition": "Concrete bounded next local experiment only if owner counters still indicate rowfold materiality; otherwise rotate to new bottleneck."
+  }
+}

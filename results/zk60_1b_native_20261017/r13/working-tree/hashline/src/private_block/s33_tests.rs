@@ -145,7 +145,9 @@ fn every_registered_profile_context_and_label_is_printable_ascii_with_no_nul() {
     built.extend(every_run_profile().iter().map(|p| p.to_string()));
     // NATIVE LANE: the trained-calibration profiles
     built.extend(super::trained_calib_tests::registered_trained_shapes().iter().map(|sh| sh.profile.to_string()));
+    built.extend(super::accuracy_profile_tests::registered_shapes().iter().map(|sh|sh.profile.to_string()));
     built.extend(super::trained_calib_tests::registered_trained_runs().iter().map(|(p, _)| p.to_string()));
+    built.extend(super::accuracy_profile_tests::registered_runs().iter().map(|(p,_)|p.to_string()));
     built.sort();
     built.dedup();
     assert_eq!(built, registry_profiles(), "the registry read from the source and the registry built here disagree");

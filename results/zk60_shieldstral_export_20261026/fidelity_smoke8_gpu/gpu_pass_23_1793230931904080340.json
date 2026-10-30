@@ -1,0 +1,9 @@
+{
+  "layer": 23,
+  "stage_complete": true,
+  "seconds": 1.2972727840005973,
+  "gpu_peak_allocated_bytes": 399753728,
+  "gpu_peak_reserved_bytes": 459276288,
+  "device": "NVIDIA GeForce RTX 4070 Laptop GPU",
+  "run_sha256": "db266716edab754a744d8304e6ed49c8faa568339f4ebf771ed8fc9534c1ad67"
+}

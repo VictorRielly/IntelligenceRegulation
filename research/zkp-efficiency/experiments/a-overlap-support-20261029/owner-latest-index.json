@@ -1,0 +1,62 @@
+[
+  {
+    "path": "results/zk60_1b_native_20261017/r14/CURRENT_DEV_STATE.json",
+    "sha256": "d3e2b63bde604af0ad622cc33874e1e69ee8a083ef050238b1bf8cef42c11799",
+    "keys": [
+      "utc",
+      "phase",
+      "live_tool_sessions",
+      "source_base_sha256",
+      "s4_design_review_path",
+      "s4_review_sha256",
+      "adopted_rules",
+      "endpoint_plan",
+      "next",
+      "source_edits_held",
+      "live_stage",
+      "live_tool_session",
+      "source_pin",
+      "source_sha256",
+      "staged_modules",
+      "receipt_tradeoff",
+      "matched_report",
+      "source_tree",
+      "independent_uncompiled_branch"
+    ]
+  },
+  {
+    "path": "results/zk60_1b_native_20261017/r14/MATCHED_R13_R14_COMPARISON.json",
+    "sha256": "a8c494d42fc45d00542bf19be99cf6f28a094e0453a20ec74e242e5630ad2159",
+    "keys": [
+      "utc",
+      "rows",
+      "scope",
+      "timers",
+      "memory",
+      "sources",
+      "status"
+    ]
+  },
+  {
+    "path": "results/zk60_1b_native_20261017/r14/CONDITIONS_TRACKER.json",
+    "sha256": "b1808d434f9b98ec6df44e897f4a979e7a4723f716de58152c1a9d4a65ab66fe",
+    "keys": [
+      "utc",
+      "scope",
+      "review",
+      "C1",
+      "C2",
+      "C3",
+      "C4",
+      "C5",
+      "C6",
+      "C7",
+      "C8",
+      "C9",
+      "C10",
+      "C11",
+      "P1_P6",
+      "source_edits"
+    ]
+  }
+]

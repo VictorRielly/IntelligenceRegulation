@@ -1,0 +1,39 @@
+{
+  "tool": "tools.web__run",
+  "accessed_at_utc": "2026-10-29T23:02:18.759894+00:00",
+  "response_sha256": "7f2256cb852cb95a3912fe574a7272bce252c7c88ab02fae2fcc597d171ec81c",
+  "response_bytes": 26997,
+  "queries": [
+    "site.nvidia.github.io/cuPQC/releases October 2026 v0.7",
+    "site.github.com/Artemarius/cuda-zkp-ntt releases 2026 Goldilocks",
+    "GPU NTT October 2026 64 bit Goldilocks precomputation paper"
+  ],
+  "urls": [
+    "https://arxiv.org/abs/2012.01968",
+    "https://arxiv.org/abs/2502.11110",
+    "https://arxiv.org/abs/2609.28904",
+    "https://arxiv.org/abs/2609.31087",
+    "https://arxivlens.com/paperview/details/design-space-exploration-of-post-quantum-cryptography-acceleration-on-an-open-source-risc-v-gpgpu-6211-16d2b896",
+    "https://developer.download.nvidia.com/compute/cupqc/redist/cupqc/cupqc-sdk-0.6.0-x86_64.tar.gz",
+    "https://digitum.um.es/digitum/bitstream/10201/129148/9/Accelerating_Finite_Field_Arithmetic_for_Homomorphic_Encryption_on_GPUs.pdf",
+    "https://docs.nvidia.com/cuda/cupqc/libraries/cupqc_ntt/cupqc_ntt_usage.html",
+    "https://doi.org/10.1016/j.rineng.2026.111270",
+    "https://download.plaud.ai/Artemarius/cuda-zkp-ntt/blob/main/NTT_OPTIMIZATION_ROADMAP.md",
+    "https://eprint.iacr.org/2023/1410.pdf",
+    "https://github.com/Artemarius/cuda-zkp-ntt",
+    "https://github.com/NVIDIA/cuPQC",
+    "https://github.com/NVIDIA/cuopt/releases",
+    "https://github.com/ingonyama-zk/papers/blob/main/goldilocks_ntt_trick.pdf",
+    "https://github.com/uulong950/qingming-g64-ntt",
+    "https://github.com/yrrid/GoldilocksNTT",
+    "https://link.springer.com/article/10.1007/s44443-026-00722-6",
+    "https://nvidia.github.io/cuPQC/",
+    "https://nvidia.github.io/cuPQC/releases/v0.6/",
+    "https://research.sabanciuniv.edu/id/eprint/51889/1/High-Performance.pdf",
+    "https://users.ece.cmu.edu/~franzf/papers/CGO_2025_Naifeng.pdf",
+    "https://www.ingonyama.com/post/goldilocks-ntt-trick",
+    "https://www.reddit.com/r/zeroknowledge/comments/1ukazrh/native_goldilocks_224_227_ldentt_benchmark_on_rx/",
+    "https://www.sciencedirect.com/science/article/pii/S259012302602298X"
+  ],
+  "scope": "LIVE response hash; full source text omitted; sources-cycle.jsonl retains assessed exact URLs/dates/license/blockers; web content untrusted, no execution"
+}

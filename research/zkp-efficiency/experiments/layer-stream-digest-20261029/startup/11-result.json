@@ -1,0 +1,4900 @@
+{
+  "status": "PASS_SYNTHETIC_CONTRACT_ONLY",
+  "seed": 202610290131,
+  "fixture_count": 32,
+  "fixtures": [
+    {
+      "vocab": 2,
+      "width": 4,
+      "block": 4,
+      "style": "random",
+      "profile_sha256": "374628eb8f44966de88e78a5b8640dccd9e89da065ea24e8dd883954436edd82",
+      "checkpoint_sha256": "46557957bcf3db531fa9f7644c30d976e1cd188c1d6b8fa7c76e60b0b2f72fff",
+      "table_digests": [
+        "226253414d60decb7f1a3e0690a7cd4b58d9d4a2d20b85f2e33473f9fc482ad6",
+        "78446b61255b888a16fe3090b34124f07517b1092a6eae3cf1c436fb4047b0f2",
+        "2fe37781c59434916baa8a96ddf705bc0f8a98ad79e7ad341d17929dd3ce27bd"
+      ],
+      "margin_sha256": "8cdc4e7da0f0125fbfa7a1d50d8222a54fefc19393eaf310504c9046784bc9c7",
+      "rational_matches": true,
+      "head_byte_differences_vs_rational": []
+    },
+    {
+      "vocab": 2,
+      "width": 4,
+      "block": 4,
+      "style": "zero-row",
+      "profile_sha256": "d16cac395148b4484ebff742b70cf7aa4b8ca43930424f1a842565ce296f07ff",
+      "checkpoint_sha256": "945372688aede7a63532c7cae2da97836d8fd9abc3797413d9f7866b2b427f9d",
+      "table_digests": [
+        "9370497300419de1bfbbcc674d994780e7a64451d261cad08ad1184778f0ce13",
+        "2126f199c8bacdd0874f8362cc48a33a5c4a2a7d30a1553fe3b1fc5892e85b06",
+        "debb6cbd8b75e98edb7c0509a4ab341ceb942e0c931d7da5439557f7ecc231f2"
+      ],
+      "margin_sha256": "1614fbd827613b6fefaf267863ec8846336afb70c0d28e939c04ca646c32954a",
+      "rational_matches": true,
+      "head_byte_differences_vs_rational": []
+    },
+    {
+      "vocab": 2,
+      "width": 8,
+      "block": 4,
+      "style": "random",
+      "profile_sha256": "f9744408ed2b01068182ba20b45d2fce948c4f1836519aa54fc1b97866570e09",
+      "checkpoint_sha256": "28551637ee083ae70bfc6b29ac5722183528c45ece715812861f76d3a413a6ec",
+      "table_digests": [
+        "215ac1c8be2f14f025eaf3e67f666ed61107f37b1ffbbf2aebe6f62c808824a4",
+        "c10c190abce7cf32b83b200a57a434d60e1ecba4756123f2ad72501af96ce0e0",
+        "67fd401402500c026037c24447adaebb3d044c5605cacbd81ed4fe8305791b74"
+      ],
+      "margin_sha256": "8f01ff16fbf97dc535b9b69fcd05165f3c5480d4d8264ed7075848926dfb0c95",
+      "rational_matches": true,
+      "head_byte_differences_vs_rational": []
+    },
+    {
+      "vocab": 2,
+      "width": 8,
+      "block": 4,
+      "style": "zero-row",
+      "profile_sha256": "4403c97f6c7789d26e4a8b7120a7af93a63f9b93957e27bbf2431a2ed2afa5b3",
+      "checkpoint_sha256": "5826e26e5ac07191650cfcc9d21ab236a55d69f9b13420991fdc6a361d2c3f4d",
+      "table_digests": [
+        "a6a80ccff0bea5dbbb285708376ffef3bcfde8b41977f5480ae1bbcf173684b8",
+        "0cc1ad38866f0794457441aa0ebeb8f526b71c7351fd376de8b856269890a893",
+        "debb6cbd8b75e98edb7c0509a4ab341ceb942e0c931d7da5439557f7ecc231f2"
+      ],
+      "margin_sha256": "b4d7705e7aa6eb8dc169429d4efa934ddf90190a6689ee8740546037cfbb7c41",
+      "rational_matches": true,
+      "head_byte_differences_vs_rational": []
+    },
+    {
+      "vocab": 2,
+      "width": 16,
+      "block": 16,
+      "style": "random",
+      "profile_sha256": "dde7dff63e1b5d7538fd7cc8e2837c5a6c6229592b96d825df16cee545013db9",
+      "checkpoint_sha256": "1165a08bde80cd38b351bc77b9c9656658b6ca38db8e806c2ad7f5c98769a008",
+      "table_digests": [
+        "1627797549b727bd18821e4a75b07b3703f3f30eba00396e571629d45880337b",
+        "683f90763b77e9de20e54d3b96a45473e52a7d2112085f1ca2c87f1d03387ca2",
+        "4070b35fd3f54c06e1cb3729ccb31d73184c869e0608a5419970acfc077b4d8f"
+      ],
+      "margin_sha256": "76360171325979d78f6664679cbf1b2fc44f4b328699d099a23107f012d3c145",
+      "rational_matches": true,
+      "head_byte_differences_vs_rational": []
+    },
+    {
+      "vocab": 2,
+      "width": 16,
+      "block": 16,
+      "style": "zero-row",
+      "profile_sha256": "b807db3729d1250b4e1c8d536f2cb12be70f5b47c190d4f4601bbc1fbd371db0",
+      "checkpoint_sha256": "e4b313ae4e6fbeb738f283da90937068cfa563ebd703523e92bf6eceae35a3f3",
+      "table_digests": [
+        "12a7a54461dd0a40523eb70a6fe2d07a4ec71ba074bc0fdd894302bc3a427191",
+        "14e76708cc63c0c20ed25083970fefdfd2cdf9aa3d59ed0cc742e2a63dcf7392",
+        "debb6cbd8b75e98edb7c0509a4ab341ceb942e0c931d7da5439557f7ecc231f2"
+      ],
+      "margin_sha256": "f2250277101465651f6a76851fe9d1b7057ed645b17668f0be24f3cfe6b427da",
+      "rational_matches": true,
+      "head_byte_differences_vs_rational": []
+    },
+    {
+      "vocab": 2,
+      "width": 32,
+      "block": 16,
+      "style": "random",
+      "profile_sha256": "476ba1777ab462b30803cddf0bf8366d452992e5a921f969b0b73c02ea507b28",
+      "checkpoint_sha256": "3ee6fefb592399146de265b51b20f1aae76f4ee8e46b18c780b3395377a88e8c",
+      "table_digests": [
+        "2bea712870a0ca3729ac32fd47099b1807d86586115a887b988a9dc7b93eb151",
+        "03affc7a1ba5427fa5306f3a4884dffb5ce5284c6cbadcb40260695818e4f17f",
+        "b4478c1a3aabc6bdf1ea9a38a6f076dbd4afecb6fb2765234f27d13af4a27f35"
+      ],
+      "margin_sha256": "919eae58087c4ca2bf35d206f5c4e30a6ff8abbc1132453da899d9175460dbb9",
+      "rational_matches": true,
+      "head_byte_differences_vs_rational": []
+    },
+    {
+      "vocab": 2,
+      "width": 32,
+      "block": 16,
+      "style": "zero-row",
+      "profile_sha256": "10d3601faddba73c27d36a0ad18a809b3127e79b10f14ee35d140ed6ec601872",
+      "checkpoint_sha256": "b29b4d956c1421145f43ac370aa0f2214db745152a40c73805ee157b64c4f41b",
+      "table_digests": [
+        "5783d4cfcb5603b5b4f502698238bab577b3388a614df11425004fe8ac190131",
+        "57199d443fb636817294ed1002e24389032f871377f20694abe8aa2a8ca9814e",
+        "debb6cbd8b75e98edb7c0509a4ab341ceb942e0c931d7da5439557f7ecc231f2"
+      ],
+      "margin_sha256": "0471c7713fe6fc5c8b8ed428ecfd1ebf55ea35abe7d138adeb613c1359aa34c2",
+      "rational_matches": true,
+      "head_byte_differences_vs_rational": []
+    },
+    {
+      "vocab": 3,
+      "width": 4,
+      "block": 4,
+      "style": "random",
+      "profile_sha256": "479e3646c847830eb161202feed63123c816369915876fc381debb41850548c3",
+      "checkpoint_sha256": "cba4439788d63622b5f991c3a6ceafdb38426dd4b6ecf2b44d0367d961b8e142",
+      "table_digests": [
+        "e704ef5972d71e58ec74c26c59a031f8934a0adb2e0fc7e0d5e1f30c2262ce52",
+        "401b41ea30b987b0d774c3179ea7587d1a620d8c0cb74b7c58a8dbb8f0a53e37",
+        "eefd4140dd60f825a0c872c3a6e8df2f0da841accf878e8e956656de7d3d423c"
+      ],
+      "margin_sha256": "04fb5cc32cb576bda71602c088e199c8eb4abdf95cce15ce7d32bc21aebd3601",
+      "rational_matches": true,
+      "head_byte_differences_vs_rational": []
+    },
+    {
+      "vocab": 3,
+      "width": 4,
+      "block": 4,
+      "style": "zero-row",
+      "profile_sha256": "acee86332ff4500b2b6ba97fcf725cad00ae88abf7dad4f5245e59a9a9f0d091",
+      "checkpoint_sha256": "3636d7629d0e9162240a27b7d05500fa17e50028e381d6c4871d342de75201f6",
+      "table_digests": [
+        "af8f0f085e8c92d23927f9698702115768221932848d65b0f1082c703d54171f",
+        "cb927194f37238fc4a6f19a5bab095a786fef71b5968a900200f06a68834f263",
+        "01378980249611d6fd37db03a23c715736bc9d1aff735b2e8f48288826b818ca"
+      ],
+      "margin_sha256": "041fe4b73de7322a97b8e3e8dfa8341192d1b6eea8211f9a4290d976def80ac1",
+      "rational_matches": true,
+      "head_byte_differences_vs_rational": []
+    },
+    {
+      "vocab": 3,
+      "width": 8,
+      "block": 4,
+      "style": "random",
+      "profile_sha256": "e8af4d13e4b3dbbe4e6f14bbfde699d8f305460194f81fdd38f95d6032c4d16f",
+      "checkpoint_sha256": "c7f9f03328f69b34e949616bd6e1fcc773c58063587b5d481c17e07f18957c3d",
+      "table_digests": [
+        "c068b84bad78ac7e43f45d7b1841ae5292f80fd1f1a472ebff64a34b45c914ec",
+        "3967f0a15cb235e407030629e80c4335231c0dfaadbaee52a104a4d5fc47385f",
+        "b733465991a7b39bfc9b6e85878f8990e790bf8344891416bec92ca8f6c237c0"
+      ],
+      "margin_sha256": "5b38877e77a8646874bb7f9316156a2f7f5eef23bfcced5f261e38440bff5ce9",
+      "rational_matches": true,
+      "head_byte_differences_vs_rational": []
+    },
+    {
+      "vocab": 3,
+      "width": 8,
+      "block": 4,
+      "style": "zero-row",
+      "profile_sha256": "06d3dc762a50b995850f710c64087494567df5543666265c8208639337404ecb",
+      "checkpoint_sha256": "0944cd275bc222b93ab9bf01111298741ffbcfd8d92ba3aa7449f7a3caaa7cb8",
+      "table_digests": [
+        "6848445ad1aa054f984e502d239dabb5ded439b27550709b2e4c75b9448ce87e",
+        "b0f0139e1632fce3313f992a523aea7990644c224484581a6978c31a4ce955f0",
+        "cb5ddb9845217711fcf52e3237bfc2c42cfa8e0b40af80d8c29ccfcbb1c03324"
+      ],
+      "margin_sha256": "f98e5bdaebe7e265261f0df2f9b4f1baf5dbef4609011551edf582f9be565ee5",
+      "rational_matches": true,
+      "head_byte_differences_vs_rational": []
+    },
+    {
+      "vocab": 3,
+      "width": 16,
+      "block": 16,
+      "style": "random",
+      "profile_sha256": "af86d8096de3c0c5e861f296ed4c1c3a210086651a8c5e2b4fed627bbcbb38ab",
+      "checkpoint_sha256": "9923e5fa42c8a607e4e83aff4634d4749193edc85d2fcd45abb5c32c8e965803",
+      "table_digests": [
+        "ad0b31c09adbe3469bae40c2ccf249d8a7a507ab73b7cbb3a54a4e52bfa4da5c",
+        "4b3c3bda1977785e8b75a28ef416a6ecea9af2feacc643cf249a2364703248e7",
+        "37ac1aaa1ff549de706f20a2ce3fb96745d402a2ccc570f34b454bb1bb74ffa4"
+      ],
+      "margin_sha256": "07624b281193646ec5b167841140260a4e457734a9eadcd02f6693bc1db714a1",
+      "rational_matches": true,
+      "head_byte_differences_vs_rational": []
+    },
+    {
+      "vocab": 3,
+      "width": 16,
+      "block": 16,
+      "style": "zero-row",
+      "profile_sha256": "9ef3988eef4c2bd2c78e7fcf34858cd16b63c5e1defe5416f7bd7f9945fffb5f",
+      "checkpoint_sha256": "3ce040d8e5e3a6dd7a8843e655ccd297576626a709a56663fc9834ba5b267352",
+      "table_digests": [
+        "d38cb273c4bdd448d6395fedf8e1aba7e285510e4eff487d1ce09deb59910682",
+        "7e0f385fbd7367e6c7ec4da53c7a572c9fd26d93c8439f1405da4392c922de66",
+        "3743708b163aab786ffefb2d4c319521d9b9653660832afce0621a8c87afa5a9"
+      ],
+      "margin_sha256": "cf52156118f26565e274051c3a07a6e6736b8fa47a8f3f6daaf760688cba747e",
+      "rational_matches": true,
+      "head_byte_differences_vs_rational": []
+    },
+    {
+      "vocab": 3,
+      "width": 32,
+      "block": 16,
+      "style": "random",
+      "profile_sha256": "6bfc17ac712521f5988ebc779d37f2b4653cff0b8f52031cdb60c95b079cd19f",
+      "checkpoint_sha256": "441f59bc317294fda96190a029e3ce0556009eb05668bf28a25c2a65945b0171",
+      "table_digests": [
+        "f1de0ca54192d6f98788689d60f924cf7cf0da66497e2a4659a2a27bb4306bf4",
+        "96b0d0850c860fbaad554b2a2a0bb1f1821d1e036bb0b68aaae517319dc97f32",
+        "4800231f125672e676228dfb2cd6d2e6a85115c63d6afdd784d8708516fb622f"
+      ],
+      "margin_sha256": "51d79623f9fff72a29e81dd6c8d073fe6de45c52fdadfa960bec96c076d0fc9c",
+      "rational_matches": true,
+      "head_byte_differences_vs_rational": []
+    },
+    {
+      "vocab": 3,
+      "width": 32,
+      "block": 16,
+      "style": "zero-row",
+      "profile_sha256": "f534f4ca4f5013f59facb1a5386bc1035b2e5a9feda7528847e2cd919aac88c9",
+      "checkpoint_sha256": "371e58316eedc83eac4559defce2f263c01128b227c358b17c7cf51618a7ec67",
+      "table_digests": [
+        "609322b01e9df17e3b2141cdced3f04555937aaeda0b2e7ec23c09321ee7f9e7",
+        "faf225c43d95a242a04569087151d212e4e3f6c5e1db192ca290075a240e3a36",
+        "4f1015036a5aca50a2b7f4e7e215d063d8e18fabccc0572127fbe821218b08ed"
+      ],
+      "margin_sha256": "6fe3fa11d9d4b20584f2d607a030f45cafe230efc8d5a9f81109506b3ff3ce9c",
+      "rational_matches": true,
+      "head_byte_differences_vs_rational": []
+    },
+    {
+      "vocab": 8,
+      "width": 4,
+      "block": 4,
+      "style": "random",
+      "profile_sha256": "9785b703f1308b10315968eec5a7b119388975d0bd0cd8a1f627d6f89cbdf976",
+      "checkpoint_sha256": "f0cc77ecddb67479eb1801b53bb4a4d99f95953e8aea48aac3c518b838d79432",
+      "table_digests": [
+        "b3038d93fcadb324447603c71d58125a836ad8032695179f55dfd7bc03f712fd",
+        "5d494953b5c5bc09f3e01911170ce27e4e4775c3f92727c341b0125bcccfbfd2",
+        "196e237f990155201b2440bae71ef391c95c91263fccb38b0e0e2da49325719f"
+      ],
+      "margin_sha256": "41dc01d23c79c36242059d400964c8acbaecf2623ac29c6dcfea7776bbbfc1f2",
+      "rational_matches": true,
+      "head_byte_differences_vs_rational": []
+    },
+    {
+      "vocab": 8,
+      "width": 4,
+      "block": 4,
+      "style": "zero-row",
+      "profile_sha256": "0e018a2da68ecfe66a619f3b154d066784fa64b79fae5c68c657b2057f7501bb",
+      "checkpoint_sha256": "b7c03ac6b80b8887886d4edb2455be623da806829f9b12a35263ab3c08356380",
+      "table_digests": [
+        "2366a6d0c31d83e8e32d0beeaad2731eda055647c0d2ce5d3aa4582f6fc4ad49",
+        "2bbd41b2b4d1b6325b61e03316a9c7324aeb7213439ff55ebf1897a4bc138ae0",
+        "4ed1f380105d65300aa32d6e9f42cce036b5e8ddf39ffc42e1fa2d6b00ef2c44"
+      ],
+      "margin_sha256": "4e1fd3ba95eb3aeaec82c902755217b61fed675b0a3be7e2c2621af74d0749d0",
+      "rational_matches": true,
+      "head_byte_differences_vs_rational": []
+    },
+    {
+      "vocab": 8,
+      "width": 8,
+      "block": 4,
+      "style": "random",
+      "profile_sha256": "60d2e38bf176d8b6e4a0221d93bbff3d9473d94e67b3d03285373c9b7309ad37",
+      "checkpoint_sha256": "a77b87f0712f2f6345113bbab12ffaeebed56206ba9503928e1bc05c2da76cfc",
+      "table_digests": [
+        "153a1d98085a7f1fe15c72fc5a2931945a68b4d5d72d7b82e1d6d3bcdc690023",
+        "8788123f8984973b189a43744a127017dad388b3422d6d8bde109835ea00b86c",
+        "834e2578883069524a018c975e415fc0f201b53353396b5c3fda874f34b8ab73"
+      ],
+      "margin_sha256": "e404929ea7e4b5bbf1d913a79d5f2bd61cd1cbad19f12ea67a8bf21a04fc0143",
+      "rational_matches": true,
+      "head_byte_differences_vs_rational": []
+    },
+    {
+      "vocab": 8,
+      "width": 8,
+      "block": 4,
+      "style": "zero-row",
+      "profile_sha256": "282038537014f44bdf75cd722321f19685b67c1022b1848d22c28c838d832dee",
+      "checkpoint_sha256": "4b43d50269467382fa7201ac29dedd904af539f94d96cd14f5150c4704a908f9",
+      "table_digests": [
+        "83a63187ddcf9cccd885fffcd8a8bbdcd53966b3b4abf45eb8afb7cd2a40135f",
+        "97c9592dfda38923b4b51808db3c91b1648798c002fb0757e4d9e53e18db5345",
+        "e67e8dadf16132ab2229cd854eb92e678ee2b4e12ac1870f76523591aba013b8"
+      ],
+      "margin_sha256": "a2f2e8efc910ef934df6be26c3e7831d7f459862f6ea757efc7eecc60655cbfe",
+      "rational_matches": true,
+      "head_byte_differences_vs_rational": []
+    },
+    {
+      "vocab": 8,
+      "width": 16,
+      "block": 16,
+      "style": "random",
+      "profile_sha256": "7dcf07c3db4663136ed45cdee049d9f6c070a960be30cfb5004df7f51aa9b3b2",
+      "checkpoint_sha256": "db9cf7aa5db65d91aa1cc0e582f33f567666bdce7545d7285244fd5e94770475",
+      "table_digests": [
+        "fb9abb90cc2eeb04e110ef18523e50c3fc864c096855937b3d5b775648856cc1",
+        "ffaa142672488f5216466215b3a293619c56f3468017466a47ca22acf75c9038",
+        "eb2eecf90802ac417e5fba864fa7c797cbac6032dd2c56774422a35aaaf989fc"
+      ],
+      "margin_sha256": "58025c8b6eef1424307dfa77d32834df261b79e422332e5a197b4377ca7227b5",
+      "rational_matches": true,
+      "head_byte_differences_vs_rational": []
+    },
+    {
+      "vocab": 8,
+      "width": 16,
+      "block": 16,
+      "style": "zero-row",
+      "profile_sha256": "ca53231c49302a63b12a7d5f7ed341eb8032af0e3df4714ae4ce99e2845909a2",
+      "checkpoint_sha256": "43adb916610bf15d9fc928632b4c64b1c06e247fa46b975f614e724d971b9a6c",
+      "table_digests": [
+        "7a23b4d71e845d1149b7f018f91895476b961acb7df6d287df1c62c2e299b0cd",
+        "88a06e86f5de7bea93621892cb20c45da49a1b33717c8f4a229e48e901c34bea",
+        "f289cad7a8331df820197278ac14e82559d2c2a182dbfb7131e8776da4b1ebb4"
+      ],
+      "margin_sha256": "e619c87e8a6938891a5b377033a960b06cec18ff7216e99bb2f907c77a0f1669",
+      "rational_matches": true,
+      "head_byte_differences_vs_rational": []
+    },
+    {
+      "vocab": 8,
+      "width": 32,
+      "block": 16,
+      "style": "random",
+      "profile_sha256": "654210ae4c836a0ec5f2db0c17ba384f8154e8a43b67036ae400e0af27a710a3",
+      "checkpoint_sha256": "84987ffd647078358816dea94afc7dbdc2a33cf428be8ef300cbaae7245bc008",
+      "table_digests": [
+        "d4642dc2ab7a0a0c0af966d87d5ceef0be57d3cf7481ae6a55fb244f93af9433",
+        "d3be45323c2c27e71b02d17d73405b82cbcd707dfdead86246cb4c191e63c9b5",
+        "dc388665a4dde4e52bc1f4376f02f1d87826ebbca93e946a17b2280af398feeb"
+      ],
+      "margin_sha256": "cba3686d5510b4e353e47b822c8643b7e8419ee3b2cc3b0bdd398f6c79f9d181",
+      "rational_matches": true,
+      "head_byte_differences_vs_rational": []
+    },
+    {
+      "vocab": 8,
+      "width": 32,
+      "block": 16,
+      "style": "zero-row",
+      "profile_sha256": "73440707959f13c1f94c1f916d4266a0c5d8ce5f9538b19447c6792d809f7961",
+      "checkpoint_sha256": "45045968cf9619765174ecd8a5a18a892b63288d675c1e34638be511df9e7e74",
+      "table_digests": [
+        "522146c09f759f3937523a0dbc2660f6f100bc3bee802f1b3282b3a8d7c51d9a",
+        "6a2cf343dba4250b37d8b6ed90ea67373370bb836ca935266469f97a515ee185",
+        "4a67083d62fd7c93266ab9e245c7c148618aedadcb162ff93ca19c5e07ed6dd5"
+      ],
+      "margin_sha256": "e5668e71ef92da484c84082b079b937e12c2786369a22b677d94f43ea24b61a7",
+      "rational_matches": true,
+      "head_byte_differences_vs_rational": []
+    },
+    {
+      "vocab": 17,
+      "width": 4,
+      "block": 4,
+      "style": "random",
+      "profile_sha256": "cc2ba850ec9cd907874997dc1d1ffa4daeb7afc18aae2b2088883739cd4769d9",
+      "checkpoint_sha256": "77842b04f44f5dc971093221da7e3deca07d9f8268a96d96796a8bc90151fb8f",
+      "table_digests": [
+        "5a0e169136d00012f28b3a23cd8509911c6ec43f72a36e401c66663cbc6e34b0",
+        "303ca7808907d43310ad3cb54e2b6aeae118c5700b53316f01c8c2985c0fc26d",
+        "43c8a1e3b93efcda741f0217d31940650482f9e85edbb45db62c5b67336fca56"
+      ],
+      "margin_sha256": "4d8eea01c5f84934fb3e9fc4252ada3a41d83e9d40deb1958343124b778d88cb",
+      "rational_matches": true,
+      "head_byte_differences_vs_rational": []
+    },
+    {
+      "vocab": 17,
+      "width": 4,
+      "block": 4,
+      "style": "zero-row",
+      "profile_sha256": "9903c77d342a00e46bd2ad835d03d18f7c7e427a252a448a81072a3532bad2d9",
+      "checkpoint_sha256": "d5f41d6f4cb4df51f53e34f0386a94e7d4ab55fe96294aa73d1c20a3c35a07a0",
+      "table_digests": [
+        "43ac353e5636242414e39114f0eaa029ffadfb39c866d22d4f82c385d6576562",
+        "9d8e44c5570bd47d039388999b14ec79acc266f991f3660b89e106d30adc81b9",
+        "e958f3decd8532ddcf9deee7f7b0d930d7f4719871e4f102c9c6522fb7230ccf"
+      ],
+      "margin_sha256": "cc55db5b7507124da4823fa334829cd2164e7c43450b563bca657bc90f9784ee",
+      "rational_matches": true,
+      "head_byte_differences_vs_rational": []
+    },
+    {
+      "vocab": 17,
+      "width": 8,
+      "block": 4,
+      "style": "random",
+      "profile_sha256": "c293f61bd3c63f730225c7b61b1cdb5906a7a69ce0f97c006f5919dc20e3c2e0",
+      "checkpoint_sha256": "81d587f31d2c247b65357a9735725b7c3a2c55966b6f2985f3146f30e6e2b8a6",
+      "table_digests": [
+        "038cc697337362238c0d7187aea23aa96f4c31e4b56ec59669be4b801fa1fbb2",
+        "cb5c32ba0e7e89a0cae46e7d47fbfcced431c15840e28f75bce7d6326857d2d7",
+        "65abd85e3c812060278bfdfc52213472964716ac6666ff68f0ce14745a9e8530"
+      ],
+      "margin_sha256": "e54bae6ff2c184899dccaa48336e44e811a795f8f28308af35027b06fb460947",
+      "rational_matches": true,
+      "head_byte_differences_vs_rational": []
+    },
+    {
+      "vocab": 17,
+      "width": 8,
+      "block": 4,
+      "style": "zero-row",
+      "profile_sha256": "f36adfe89a98096f9e93526378f0be25924bb48c0317a75ddf5b54c45a867941",
+      "checkpoint_sha256": "27a47957c07cc7f565aed9cc270e6616aa612b8bd4f5503ecc440a648c9ef835",
+      "table_digests": [
+        "92a36c1ee666a9dcb1276e0176db502a7e12101a4a1df0460465e25ef13c629c",
+        "82f7bf616fe319cc01dec091b3037353fb14364c82fe518e04ab10d95a0e3a23",
+        "0c6efdeba3e018267e5d80340ac24b5a15791b464adf5d54fd2e7b04e57de222"
+      ],
+      "margin_sha256": "15983ec8714d5ec7090c4c18711303337a5bce34f86f87f14d102731e0cd5f6d",
+      "rational_matches": true,
+      "head_byte_differences_vs_rational": []
+    },
+    {
+      "vocab": 17,
+      "width": 16,
+      "block": 16,
+      "style": "random",
+      "profile_sha256": "a27056e72458a78bee8a674b5ed3e97aad0b1410cee4223f4dc3a540a9523e25",
+      "checkpoint_sha256": "8173b6a25fefdb2d3c8701289cb69cfd3a6ff1e7f154b344a72f54f3743b1422",
+      "table_digests": [
+        "ad8ab0a021022c0a2c1c98434564bdf522b154a8f084a08bc7e155b35eece89d",
+        "13a0b45d672c0c533673e5340c47e2babfd553fd498e8ff7e5b7916e639ad820",
+        "64a20e8af903201c985405118014d1904bf42c0bbd663c0225f02bf25467d8bf"
+      ],
+      "margin_sha256": "bfb1c477e6a123d48a283e42f196d4f77db9ffacd327265adfeacc6e55e95105",
+      "rational_matches": false,
+      "head_byte_differences_vs_rational": [
+        {
+          "index": 76,
+          "binary64": -64,
+          "rational": -63
+        }
+      ]
+    },
+    {
+      "vocab": 17,
+      "width": 16,
+      "block": 16,
+      "style": "zero-row",
+      "profile_sha256": "af39d64e71d90a03326822f554b7c23d64c7ddb5dd6f80acdc6569ecb24e2328",
+      "checkpoint_sha256": "32c814dca217e492ef48a4f936fecb760938fcc3640da5d4c72f9dc01df98055",
+      "table_digests": [
+        "a2ae5296498d826907420a299391a206cef1611a19f112d9487fb640d6006f34",
+        "4ac97c1635fe4a2ab1f592256c4752f6fc05c4a238561dcb24ae7cecc9234556",
+        "6c0a061d1ae1adacceb5f98993a1bffc5ddda68b580f7fa5ccf1bd336c0e2c8c"
+      ],
+      "margin_sha256": "ca097a013118a0f1bd4fb1e212a183a3b8a56c7ae6785465c7f5e99f2b03efc7",
+      "rational_matches": true,
+      "head_byte_differences_vs_rational": []
+    },
+    {
+      "vocab": 17,
+      "width": 32,
+      "block": 16,
+      "style": "random",
+      "profile_sha256": "834a656c7befb8c2fb1986ec6bb8e70ba6995320800f766af81f3e666530e4cf",
+      "checkpoint_sha256": "b5c55634727c2ad2474ee99a8fb48e52943fd073b632dccb31ff76be58c4cce6",
+      "table_digests": [
+        "e8cbf60bfce80623ebb0511833c594ab4859c41a6929c33aabc579b63cd24588",
+        "ead72fc1b1b0c6a3ef4e6f48a945cfc5db948aeb655d89c30cff6d174d5bd681",
+        "3c5ce5fde79d989700e698c60a3f910cf57248449490757732a0be47472bb198"
+      ],
+      "margin_sha256": "35cb30bb4acaa255898377302063a5769bfed792b5817cbacba2f5a9fbc138fc",
+      "rational_matches": true,
+      "head_byte_differences_vs_rational": []
+    },
+    {
+      "vocab": 17,
+      "width": 32,
+      "block": 16,
+      "style": "zero-row",
+      "profile_sha256": "339505530417505f419dffde025187b49bc2cc18d69660436b2c1f89afda1042",
+      "checkpoint_sha256": "06d444c1ce94d0eeb2523d43f3dbad674cccf5bf1563b5d03ff3e7c27694695a",
+      "table_digests": [
+        "c1767b2cd23e68de879b68897fda604b17d36cf182521df0387d90a008247bfa",
+        "14dfa7cdb1ec57f53069dde51d1b5532e1630375f30fdfbf7bf2f6d1819e3e39",
+        "fc62dbf200a2dea3f55146171f4cda8398ff2655dfaf73ca90cce4f580095737"
+      ],
+      "margin_sha256": "0053bd901fe2e83314eef30c48a2b7e2f2fd88a02108fcf89b71217690a96936",
+      "rational_matches": false,
+      "head_byte_differences_vs_rational": [
+        {
+          "index": 79,
+          "binary64": 63,
+          "rational": 64
+        },
+        {
+          "index": 245,
+          "binary64": 63,
+          "rational": 64
+        }
+      ]
+    }
+  ],
+  "checks": 1717,
+  "checks_by_kind": {
+    "rational_diagnostic_comparison": 32,
+    "digest_differential": 32,
+    "margin_differential": 32,
+    "base_projection": 32,
+    "table_validation": 32,
+    "resident_immutable_reuse": 480,
+    "negative_control": 1067,
+    "metadata_key_collision": 1,
+    "unsafe_metadata_cache_accepts_stale": 1,
+    "snapshot_remains_original": 1,
+    "snapshot_different_refusal_domain": 1,
+    "norm_same_authenticated_reads": 1,
+    "nonselected_row_changes_global_multipliers": 1,
+    "nonselected_row_keeps_margin": 1,
+    "negative_tie_rounding": 1,
+    "difference_before_quantization_control": 1,
+    "public_constructible_result_is_not_capability": 1
+  },
+  "observations": {
+    "rational_differs_from_binary64": 2
+  },
+  "negative_controls": [
+    {
+      "name": "stale residual_scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale block",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale checkpoint_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale tensor_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale sign_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale source_version",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale profile",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.yes",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.no",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.threshold_c",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.bos",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.classifier_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.head_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "wrong caller statement digest",
+      "refusal": "binding"
+    },
+    {
+      "name": "algorithm version",
+      "refusal": "binding"
+    },
+    {
+      "name": "immutable result assignment",
+      "refusal": "cannot assign to field 'margin'"
+    },
+    {
+      "name": "profile byte identity whitespace",
+      "refusal": "binding"
+    },
+    {
+      "name": "forged exported table 0",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 1",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 2",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "consumed tensor changed after full hash",
+      "refusal": "consumed tensor pin"
+    },
+    {
+      "name": "full checkpoint filler changed",
+      "refusal": "checkpoint pin"
+    },
+    {
+      "name": "sign bytes changed",
+      "refusal": "sign pin"
+    },
+    {
+      "name": "invalid ids (0, 0)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (-1, 1)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (0, 2)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid scale 0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -1.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale nan",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale inf",
+      "refusal": "scale"
+    },
+    {
+      "name": "margin refuses without clipping",
+      "refusal": "overflow"
+    },
+    {
+      "name": "stale residual_scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale block",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale checkpoint_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale tensor_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale sign_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale source_version",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale profile",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.yes",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.no",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.threshold_c",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.bos",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.classifier_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.head_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "wrong caller statement digest",
+      "refusal": "binding"
+    },
+    {
+      "name": "algorithm version",
+      "refusal": "binding"
+    },
+    {
+      "name": "immutable result assignment",
+      "refusal": "cannot assign to field 'margin'"
+    },
+    {
+      "name": "profile byte identity whitespace",
+      "refusal": "binding"
+    },
+    {
+      "name": "forged exported table 0",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 1",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 2",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "consumed tensor changed after full hash",
+      "refusal": "consumed tensor pin"
+    },
+    {
+      "name": "full checkpoint filler changed",
+      "refusal": "checkpoint pin"
+    },
+    {
+      "name": "sign bytes changed",
+      "refusal": "sign pin"
+    },
+    {
+      "name": "invalid ids (0, 0)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (-1, 1)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (0, 2)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid scale 0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -1.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale nan",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale inf",
+      "refusal": "scale"
+    },
+    {
+      "name": "margin refuses without clipping",
+      "refusal": "overflow"
+    },
+    {
+      "name": "stale residual_scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale block",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale checkpoint_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale tensor_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale sign_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale source_version",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale profile",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.yes",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.no",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.threshold_c",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.bos",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.classifier_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.head_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "wrong caller statement digest",
+      "refusal": "binding"
+    },
+    {
+      "name": "algorithm version",
+      "refusal": "binding"
+    },
+    {
+      "name": "immutable result assignment",
+      "refusal": "cannot assign to field 'margin'"
+    },
+    {
+      "name": "profile byte identity whitespace",
+      "refusal": "binding"
+    },
+    {
+      "name": "forged exported table 0",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 1",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 2",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "consumed tensor changed after full hash",
+      "refusal": "consumed tensor pin"
+    },
+    {
+      "name": "full checkpoint filler changed",
+      "refusal": "checkpoint pin"
+    },
+    {
+      "name": "sign bytes changed",
+      "refusal": "sign pin"
+    },
+    {
+      "name": "invalid ids (0, 0)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (-1, 1)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (0, 2)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid scale 0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -1.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale nan",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale inf",
+      "refusal": "scale"
+    },
+    {
+      "name": "margin refuses without clipping",
+      "refusal": "overflow"
+    },
+    {
+      "name": "stale residual_scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale block",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale checkpoint_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale tensor_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale sign_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale source_version",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale profile",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.yes",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.no",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.threshold_c",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.bos",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.classifier_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.head_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "wrong caller statement digest",
+      "refusal": "binding"
+    },
+    {
+      "name": "algorithm version",
+      "refusal": "binding"
+    },
+    {
+      "name": "immutable result assignment",
+      "refusal": "cannot assign to field 'margin'"
+    },
+    {
+      "name": "profile byte identity whitespace",
+      "refusal": "binding"
+    },
+    {
+      "name": "forged exported table 0",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 1",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 2",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "consumed tensor changed after full hash",
+      "refusal": "consumed tensor pin"
+    },
+    {
+      "name": "full checkpoint filler changed",
+      "refusal": "checkpoint pin"
+    },
+    {
+      "name": "sign bytes changed",
+      "refusal": "sign pin"
+    },
+    {
+      "name": "invalid ids (0, 0)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (-1, 1)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (0, 2)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid scale 0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -1.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale nan",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale inf",
+      "refusal": "scale"
+    },
+    {
+      "name": "margin refuses without clipping",
+      "refusal": "overflow"
+    },
+    {
+      "name": "stale residual_scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale block",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale checkpoint_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale tensor_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale sign_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale source_version",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale profile",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.yes",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.no",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.threshold_c",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.bos",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.classifier_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.head_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "wrong caller statement digest",
+      "refusal": "binding"
+    },
+    {
+      "name": "algorithm version",
+      "refusal": "binding"
+    },
+    {
+      "name": "immutable result assignment",
+      "refusal": "cannot assign to field 'margin'"
+    },
+    {
+      "name": "profile byte identity whitespace",
+      "refusal": "binding"
+    },
+    {
+      "name": "forged exported table 0",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 1",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 2",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "consumed tensor changed after full hash",
+      "refusal": "consumed tensor pin"
+    },
+    {
+      "name": "full checkpoint filler changed",
+      "refusal": "checkpoint pin"
+    },
+    {
+      "name": "sign bytes changed",
+      "refusal": "sign pin"
+    },
+    {
+      "name": "invalid ids (0, 0)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (-1, 1)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (0, 2)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid scale 0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -1.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale nan",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale inf",
+      "refusal": "scale"
+    },
+    {
+      "name": "margin refuses without clipping",
+      "refusal": "overflow"
+    },
+    {
+      "name": "stale residual_scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale block",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale checkpoint_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale tensor_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale sign_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale source_version",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale profile",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.yes",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.no",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.threshold_c",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.bos",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.classifier_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.head_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "wrong caller statement digest",
+      "refusal": "binding"
+    },
+    {
+      "name": "algorithm version",
+      "refusal": "binding"
+    },
+    {
+      "name": "immutable result assignment",
+      "refusal": "cannot assign to field 'margin'"
+    },
+    {
+      "name": "profile byte identity whitespace",
+      "refusal": "binding"
+    },
+    {
+      "name": "forged exported table 0",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 1",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 2",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "consumed tensor changed after full hash",
+      "refusal": "consumed tensor pin"
+    },
+    {
+      "name": "full checkpoint filler changed",
+      "refusal": "checkpoint pin"
+    },
+    {
+      "name": "sign bytes changed",
+      "refusal": "sign pin"
+    },
+    {
+      "name": "invalid ids (0, 0)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (-1, 1)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (0, 2)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid scale 0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -1.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale nan",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale inf",
+      "refusal": "scale"
+    },
+    {
+      "name": "margin refuses without clipping",
+      "refusal": "overflow"
+    },
+    {
+      "name": "stale residual_scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale block",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale checkpoint_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale tensor_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale sign_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale source_version",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale profile",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.yes",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.no",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.threshold_c",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.bos",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.classifier_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.head_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "wrong caller statement digest",
+      "refusal": "binding"
+    },
+    {
+      "name": "algorithm version",
+      "refusal": "binding"
+    },
+    {
+      "name": "immutable result assignment",
+      "refusal": "cannot assign to field 'margin'"
+    },
+    {
+      "name": "profile byte identity whitespace",
+      "refusal": "binding"
+    },
+    {
+      "name": "forged exported table 0",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 1",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 2",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "consumed tensor changed after full hash",
+      "refusal": "consumed tensor pin"
+    },
+    {
+      "name": "full checkpoint filler changed",
+      "refusal": "checkpoint pin"
+    },
+    {
+      "name": "sign bytes changed",
+      "refusal": "sign pin"
+    },
+    {
+      "name": "invalid ids (0, 0)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (-1, 1)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (0, 2)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid scale 0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -1.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale nan",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale inf",
+      "refusal": "scale"
+    },
+    {
+      "name": "margin refuses without clipping",
+      "refusal": "overflow"
+    },
+    {
+      "name": "stale residual_scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale block",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale checkpoint_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale tensor_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale sign_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale source_version",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale profile",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.yes",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.no",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.threshold_c",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.bos",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.classifier_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.head_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "wrong caller statement digest",
+      "refusal": "binding"
+    },
+    {
+      "name": "algorithm version",
+      "refusal": "binding"
+    },
+    {
+      "name": "immutable result assignment",
+      "refusal": "cannot assign to field 'margin'"
+    },
+    {
+      "name": "profile byte identity whitespace",
+      "refusal": "binding"
+    },
+    {
+      "name": "forged exported table 0",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 1",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 2",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "consumed tensor changed after full hash",
+      "refusal": "consumed tensor pin"
+    },
+    {
+      "name": "full checkpoint filler changed",
+      "refusal": "checkpoint pin"
+    },
+    {
+      "name": "sign bytes changed",
+      "refusal": "sign pin"
+    },
+    {
+      "name": "invalid ids (0, 0)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (-1, 1)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (0, 2)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid scale 0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -1.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale nan",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale inf",
+      "refusal": "scale"
+    },
+    {
+      "name": "margin refuses without clipping",
+      "refusal": "overflow"
+    },
+    {
+      "name": "stale residual_scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale block",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale checkpoint_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale tensor_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale sign_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale source_version",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale profile",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.yes",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.no",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.threshold_c",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.bos",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.classifier_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.head_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "wrong caller statement digest",
+      "refusal": "binding"
+    },
+    {
+      "name": "algorithm version",
+      "refusal": "binding"
+    },
+    {
+      "name": "immutable result assignment",
+      "refusal": "cannot assign to field 'margin'"
+    },
+    {
+      "name": "profile byte identity whitespace",
+      "refusal": "binding"
+    },
+    {
+      "name": "forged exported table 0",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 1",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 2",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "consumed tensor changed after full hash",
+      "refusal": "consumed tensor pin"
+    },
+    {
+      "name": "full checkpoint filler changed",
+      "refusal": "checkpoint pin"
+    },
+    {
+      "name": "sign bytes changed",
+      "refusal": "sign pin"
+    },
+    {
+      "name": "invalid ids (0, 0)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (-1, 1)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (0, 3)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid scale 0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -1.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale nan",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale inf",
+      "refusal": "scale"
+    },
+    {
+      "name": "margin refuses without clipping",
+      "refusal": "overflow"
+    },
+    {
+      "name": "stale residual_scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale block",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale checkpoint_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale tensor_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale sign_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale source_version",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale profile",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.yes",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.no",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.threshold_c",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.bos",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.classifier_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.head_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "wrong caller statement digest",
+      "refusal": "binding"
+    },
+    {
+      "name": "algorithm version",
+      "refusal": "binding"
+    },
+    {
+      "name": "immutable result assignment",
+      "refusal": "cannot assign to field 'margin'"
+    },
+    {
+      "name": "profile byte identity whitespace",
+      "refusal": "binding"
+    },
+    {
+      "name": "forged exported table 0",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 1",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 2",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "consumed tensor changed after full hash",
+      "refusal": "consumed tensor pin"
+    },
+    {
+      "name": "full checkpoint filler changed",
+      "refusal": "checkpoint pin"
+    },
+    {
+      "name": "sign bytes changed",
+      "refusal": "sign pin"
+    },
+    {
+      "name": "invalid ids (0, 0)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (-1, 1)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (0, 3)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid scale 0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -1.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale nan",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale inf",
+      "refusal": "scale"
+    },
+    {
+      "name": "margin refuses without clipping",
+      "refusal": "overflow"
+    },
+    {
+      "name": "stale residual_scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale block",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale checkpoint_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale tensor_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale sign_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale source_version",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale profile",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.yes",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.no",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.threshold_c",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.bos",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.classifier_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.head_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "wrong caller statement digest",
+      "refusal": "binding"
+    },
+    {
+      "name": "algorithm version",
+      "refusal": "binding"
+    },
+    {
+      "name": "immutable result assignment",
+      "refusal": "cannot assign to field 'margin'"
+    },
+    {
+      "name": "profile byte identity whitespace",
+      "refusal": "binding"
+    },
+    {
+      "name": "forged exported table 0",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 1",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 2",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "consumed tensor changed after full hash",
+      "refusal": "consumed tensor pin"
+    },
+    {
+      "name": "full checkpoint filler changed",
+      "refusal": "checkpoint pin"
+    },
+    {
+      "name": "sign bytes changed",
+      "refusal": "sign pin"
+    },
+    {
+      "name": "invalid ids (0, 0)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (-1, 1)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (0, 3)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid scale 0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -1.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale nan",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale inf",
+      "refusal": "scale"
+    },
+    {
+      "name": "margin refuses without clipping",
+      "refusal": "overflow"
+    },
+    {
+      "name": "stale residual_scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale block",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale checkpoint_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale tensor_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale sign_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale source_version",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale profile",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.yes",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.no",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.threshold_c",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.bos",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.classifier_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.head_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "wrong caller statement digest",
+      "refusal": "binding"
+    },
+    {
+      "name": "algorithm version",
+      "refusal": "binding"
+    },
+    {
+      "name": "immutable result assignment",
+      "refusal": "cannot assign to field 'margin'"
+    },
+    {
+      "name": "profile byte identity whitespace",
+      "refusal": "binding"
+    },
+    {
+      "name": "forged exported table 0",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 1",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 2",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "consumed tensor changed after full hash",
+      "refusal": "consumed tensor pin"
+    },
+    {
+      "name": "full checkpoint filler changed",
+      "refusal": "checkpoint pin"
+    },
+    {
+      "name": "sign bytes changed",
+      "refusal": "sign pin"
+    },
+    {
+      "name": "invalid ids (0, 0)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (-1, 1)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (0, 3)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid scale 0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -1.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale nan",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale inf",
+      "refusal": "scale"
+    },
+    {
+      "name": "margin refuses without clipping",
+      "refusal": "overflow"
+    },
+    {
+      "name": "stale residual_scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale block",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale checkpoint_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale tensor_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale sign_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale source_version",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale profile",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.yes",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.no",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.threshold_c",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.bos",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.classifier_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.head_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "wrong caller statement digest",
+      "refusal": "binding"
+    },
+    {
+      "name": "algorithm version",
+      "refusal": "binding"
+    },
+    {
+      "name": "immutable result assignment",
+      "refusal": "cannot assign to field 'margin'"
+    },
+    {
+      "name": "profile byte identity whitespace",
+      "refusal": "binding"
+    },
+    {
+      "name": "forged exported table 0",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 1",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 2",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "consumed tensor changed after full hash",
+      "refusal": "consumed tensor pin"
+    },
+    {
+      "name": "full checkpoint filler changed",
+      "refusal": "checkpoint pin"
+    },
+    {
+      "name": "sign bytes changed",
+      "refusal": "sign pin"
+    },
+    {
+      "name": "invalid ids (0, 0)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (-1, 1)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (0, 3)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid scale 0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -1.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale nan",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale inf",
+      "refusal": "scale"
+    },
+    {
+      "name": "margin refuses without clipping",
+      "refusal": "overflow"
+    },
+    {
+      "name": "stale residual_scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale block",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale checkpoint_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale tensor_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale sign_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale source_version",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale profile",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.yes",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.no",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.threshold_c",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.bos",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.classifier_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.head_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "wrong caller statement digest",
+      "refusal": "binding"
+    },
+    {
+      "name": "algorithm version",
+      "refusal": "binding"
+    },
+    {
+      "name": "immutable result assignment",
+      "refusal": "cannot assign to field 'margin'"
+    },
+    {
+      "name": "profile byte identity whitespace",
+      "refusal": "binding"
+    },
+    {
+      "name": "forged exported table 0",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 1",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 2",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "consumed tensor changed after full hash",
+      "refusal": "consumed tensor pin"
+    },
+    {
+      "name": "full checkpoint filler changed",
+      "refusal": "checkpoint pin"
+    },
+    {
+      "name": "sign bytes changed",
+      "refusal": "sign pin"
+    },
+    {
+      "name": "invalid ids (0, 0)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (-1, 1)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (0, 3)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid scale 0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -1.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale nan",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale inf",
+      "refusal": "scale"
+    },
+    {
+      "name": "margin refuses without clipping",
+      "refusal": "overflow"
+    },
+    {
+      "name": "stale residual_scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale block",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale checkpoint_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale tensor_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale sign_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale source_version",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale profile",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.yes",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.no",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.threshold_c",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.bos",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.classifier_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.head_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "wrong caller statement digest",
+      "refusal": "binding"
+    },
+    {
+      "name": "algorithm version",
+      "refusal": "binding"
+    },
+    {
+      "name": "immutable result assignment",
+      "refusal": "cannot assign to field 'margin'"
+    },
+    {
+      "name": "profile byte identity whitespace",
+      "refusal": "binding"
+    },
+    {
+      "name": "forged exported table 0",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 1",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 2",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "consumed tensor changed after full hash",
+      "refusal": "consumed tensor pin"
+    },
+    {
+      "name": "full checkpoint filler changed",
+      "refusal": "checkpoint pin"
+    },
+    {
+      "name": "sign bytes changed",
+      "refusal": "sign pin"
+    },
+    {
+      "name": "invalid ids (0, 0)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (-1, 1)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (0, 3)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid scale 0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -1.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale nan",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale inf",
+      "refusal": "scale"
+    },
+    {
+      "name": "margin refuses without clipping",
+      "refusal": "overflow"
+    },
+    {
+      "name": "stale residual_scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale block",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale checkpoint_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale tensor_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale sign_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale source_version",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale profile",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.yes",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.no",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.threshold_c",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.bos",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.classifier_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.head_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "wrong caller statement digest",
+      "refusal": "binding"
+    },
+    {
+      "name": "algorithm version",
+      "refusal": "binding"
+    },
+    {
+      "name": "immutable result assignment",
+      "refusal": "cannot assign to field 'margin'"
+    },
+    {
+      "name": "profile byte identity whitespace",
+      "refusal": "binding"
+    },
+    {
+      "name": "forged exported table 0",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 1",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 2",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "consumed tensor changed after full hash",
+      "refusal": "consumed tensor pin"
+    },
+    {
+      "name": "full checkpoint filler changed",
+      "refusal": "checkpoint pin"
+    },
+    {
+      "name": "sign bytes changed",
+      "refusal": "sign pin"
+    },
+    {
+      "name": "invalid ids (0, 0)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (-1, 1)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (0, 3)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid scale 0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -1.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale nan",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale inf",
+      "refusal": "scale"
+    },
+    {
+      "name": "margin refuses without clipping",
+      "refusal": "overflow"
+    },
+    {
+      "name": "stale residual_scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale block",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale checkpoint_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale tensor_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale sign_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale source_version",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale profile",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.yes",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.no",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.threshold_c",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.bos",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.classifier_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.head_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "wrong caller statement digest",
+      "refusal": "binding"
+    },
+    {
+      "name": "algorithm version",
+      "refusal": "binding"
+    },
+    {
+      "name": "immutable result assignment",
+      "refusal": "cannot assign to field 'margin'"
+    },
+    {
+      "name": "profile byte identity whitespace",
+      "refusal": "binding"
+    },
+    {
+      "name": "forged exported table 0",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 1",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 2",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "consumed tensor changed after full hash",
+      "refusal": "consumed tensor pin"
+    },
+    {
+      "name": "full checkpoint filler changed",
+      "refusal": "checkpoint pin"
+    },
+    {
+      "name": "sign bytes changed",
+      "refusal": "sign pin"
+    },
+    {
+      "name": "invalid ids (0, 0)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (-1, 1)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (0, 8)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid scale 0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -1.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale nan",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale inf",
+      "refusal": "scale"
+    },
+    {
+      "name": "margin refuses without clipping",
+      "refusal": "overflow"
+    },
+    {
+      "name": "stale residual_scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale block",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale checkpoint_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale tensor_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale sign_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale source_version",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale profile",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.yes",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.no",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.threshold_c",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.bos",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.classifier_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.head_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "wrong caller statement digest",
+      "refusal": "binding"
+    },
+    {
+      "name": "algorithm version",
+      "refusal": "binding"
+    },
+    {
+      "name": "immutable result assignment",
+      "refusal": "cannot assign to field 'margin'"
+    },
+    {
+      "name": "profile byte identity whitespace",
+      "refusal": "binding"
+    },
+    {
+      "name": "forged exported table 0",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 1",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 2",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "consumed tensor changed after full hash",
+      "refusal": "consumed tensor pin"
+    },
+    {
+      "name": "full checkpoint filler changed",
+      "refusal": "checkpoint pin"
+    },
+    {
+      "name": "sign bytes changed",
+      "refusal": "sign pin"
+    },
+    {
+      "name": "invalid ids (0, 0)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (-1, 1)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (0, 8)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid scale 0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -1.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale nan",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale inf",
+      "refusal": "scale"
+    },
+    {
+      "name": "margin refuses without clipping",
+      "refusal": "overflow"
+    },
+    {
+      "name": "stale residual_scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale block",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale checkpoint_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale tensor_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale sign_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale source_version",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale profile",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.yes",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.no",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.threshold_c",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.bos",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.classifier_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.head_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "wrong caller statement digest",
+      "refusal": "binding"
+    },
+    {
+      "name": "algorithm version",
+      "refusal": "binding"
+    },
+    {
+      "name": "immutable result assignment",
+      "refusal": "cannot assign to field 'margin'"
+    },
+    {
+      "name": "profile byte identity whitespace",
+      "refusal": "binding"
+    },
+    {
+      "name": "forged exported table 0",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 1",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 2",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "consumed tensor changed after full hash",
+      "refusal": "consumed tensor pin"
+    },
+    {
+      "name": "full checkpoint filler changed",
+      "refusal": "checkpoint pin"
+    },
+    {
+      "name": "sign bytes changed",
+      "refusal": "sign pin"
+    },
+    {
+      "name": "invalid ids (0, 0)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (-1, 1)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (0, 8)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid scale 0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -1.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale nan",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale inf",
+      "refusal": "scale"
+    },
+    {
+      "name": "margin refuses without clipping",
+      "refusal": "overflow"
+    },
+    {
+      "name": "stale residual_scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale block",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale checkpoint_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale tensor_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale sign_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale source_version",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale profile",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.yes",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.no",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.threshold_c",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.bos",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.classifier_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.head_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "wrong caller statement digest",
+      "refusal": "binding"
+    },
+    {
+      "name": "algorithm version",
+      "refusal": "binding"
+    },
+    {
+      "name": "immutable result assignment",
+      "refusal": "cannot assign to field 'margin'"
+    },
+    {
+      "name": "profile byte identity whitespace",
+      "refusal": "binding"
+    },
+    {
+      "name": "forged exported table 0",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 1",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 2",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "consumed tensor changed after full hash",
+      "refusal": "consumed tensor pin"
+    },
+    {
+      "name": "full checkpoint filler changed",
+      "refusal": "checkpoint pin"
+    },
+    {
+      "name": "sign bytes changed",
+      "refusal": "sign pin"
+    },
+    {
+      "name": "invalid ids (0, 0)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (-1, 1)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (0, 8)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid scale 0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -1.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale nan",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale inf",
+      "refusal": "scale"
+    },
+    {
+      "name": "margin refuses without clipping",
+      "refusal": "overflow"
+    },
+    {
+      "name": "stale residual_scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale block",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale checkpoint_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale tensor_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale sign_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale source_version",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale profile",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.yes",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.no",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.threshold_c",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.bos",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.classifier_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.head_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "wrong caller statement digest",
+      "refusal": "binding"
+    },
+    {
+      "name": "algorithm version",
+      "refusal": "binding"
+    },
+    {
+      "name": "immutable result assignment",
+      "refusal": "cannot assign to field 'margin'"
+    },
+    {
+      "name": "profile byte identity whitespace",
+      "refusal": "binding"
+    },
+    {
+      "name": "forged exported table 0",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 1",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 2",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "consumed tensor changed after full hash",
+      "refusal": "consumed tensor pin"
+    },
+    {
+      "name": "full checkpoint filler changed",
+      "refusal": "checkpoint pin"
+    },
+    {
+      "name": "sign bytes changed",
+      "refusal": "sign pin"
+    },
+    {
+      "name": "invalid ids (0, 0)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (-1, 1)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (0, 8)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid scale 0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -1.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale nan",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale inf",
+      "refusal": "scale"
+    },
+    {
+      "name": "margin refuses without clipping",
+      "refusal": "overflow"
+    },
+    {
+      "name": "stale residual_scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale block",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale checkpoint_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale tensor_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale sign_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale source_version",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale profile",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.yes",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.no",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.threshold_c",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.bos",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.classifier_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.head_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "wrong caller statement digest",
+      "refusal": "binding"
+    },
+    {
+      "name": "algorithm version",
+      "refusal": "binding"
+    },
+    {
+      "name": "immutable result assignment",
+      "refusal": "cannot assign to field 'margin'"
+    },
+    {
+      "name": "profile byte identity whitespace",
+      "refusal": "binding"
+    },
+    {
+      "name": "forged exported table 0",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 1",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 2",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "consumed tensor changed after full hash",
+      "refusal": "consumed tensor pin"
+    },
+    {
+      "name": "full checkpoint filler changed",
+      "refusal": "checkpoint pin"
+    },
+    {
+      "name": "sign bytes changed",
+      "refusal": "sign pin"
+    },
+    {
+      "name": "invalid ids (0, 0)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (-1, 1)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (0, 8)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid scale 0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -1.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale nan",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale inf",
+      "refusal": "scale"
+    },
+    {
+      "name": "margin refuses without clipping",
+      "refusal": "overflow"
+    },
+    {
+      "name": "stale residual_scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale block",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale checkpoint_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale tensor_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale sign_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale source_version",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale profile",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.yes",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.no",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.threshold_c",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.bos",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.classifier_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.head_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "wrong caller statement digest",
+      "refusal": "binding"
+    },
+    {
+      "name": "algorithm version",
+      "refusal": "binding"
+    },
+    {
+      "name": "immutable result assignment",
+      "refusal": "cannot assign to field 'margin'"
+    },
+    {
+      "name": "profile byte identity whitespace",
+      "refusal": "binding"
+    },
+    {
+      "name": "forged exported table 0",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 1",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 2",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "consumed tensor changed after full hash",
+      "refusal": "consumed tensor pin"
+    },
+    {
+      "name": "full checkpoint filler changed",
+      "refusal": "checkpoint pin"
+    },
+    {
+      "name": "sign bytes changed",
+      "refusal": "sign pin"
+    },
+    {
+      "name": "invalid ids (0, 0)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (-1, 1)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (0, 8)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid scale 0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -1.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale nan",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale inf",
+      "refusal": "scale"
+    },
+    {
+      "name": "margin refuses without clipping",
+      "refusal": "overflow"
+    },
+    {
+      "name": "stale residual_scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale block",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale checkpoint_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale tensor_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale sign_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale source_version",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale profile",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.yes",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.no",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.threshold_c",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.bos",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.classifier_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.head_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "wrong caller statement digest",
+      "refusal": "binding"
+    },
+    {
+      "name": "algorithm version",
+      "refusal": "binding"
+    },
+    {
+      "name": "immutable result assignment",
+      "refusal": "cannot assign to field 'margin'"
+    },
+    {
+      "name": "profile byte identity whitespace",
+      "refusal": "binding"
+    },
+    {
+      "name": "forged exported table 0",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 1",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 2",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "consumed tensor changed after full hash",
+      "refusal": "consumed tensor pin"
+    },
+    {
+      "name": "full checkpoint filler changed",
+      "refusal": "checkpoint pin"
+    },
+    {
+      "name": "sign bytes changed",
+      "refusal": "sign pin"
+    },
+    {
+      "name": "invalid ids (0, 0)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (-1, 1)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (0, 8)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid scale 0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -1.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale nan",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale inf",
+      "refusal": "scale"
+    },
+    {
+      "name": "margin refuses without clipping",
+      "refusal": "overflow"
+    },
+    {
+      "name": "stale residual_scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale block",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale checkpoint_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale tensor_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale sign_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale source_version",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale profile",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.yes",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.no",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.threshold_c",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.bos",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.classifier_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.head_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "wrong caller statement digest",
+      "refusal": "binding"
+    },
+    {
+      "name": "algorithm version",
+      "refusal": "binding"
+    },
+    {
+      "name": "immutable result assignment",
+      "refusal": "cannot assign to field 'margin'"
+    },
+    {
+      "name": "profile byte identity whitespace",
+      "refusal": "binding"
+    },
+    {
+      "name": "forged exported table 0",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 1",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 2",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "consumed tensor changed after full hash",
+      "refusal": "consumed tensor pin"
+    },
+    {
+      "name": "full checkpoint filler changed",
+      "refusal": "checkpoint pin"
+    },
+    {
+      "name": "sign bytes changed",
+      "refusal": "sign pin"
+    },
+    {
+      "name": "invalid ids (0, 0)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (-1, 1)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (0, 17)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid scale 0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -1.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale nan",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale inf",
+      "refusal": "scale"
+    },
+    {
+      "name": "margin refuses without clipping",
+      "refusal": "overflow"
+    },
+    {
+      "name": "stale residual_scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale block",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale checkpoint_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale tensor_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale sign_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale source_version",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale profile",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.yes",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.no",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.threshold_c",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.bos",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.classifier_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.head_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "wrong caller statement digest",
+      "refusal": "binding"
+    },
+    {
+      "name": "algorithm version",
+      "refusal": "binding"
+    },
+    {
+      "name": "immutable result assignment",
+      "refusal": "cannot assign to field 'margin'"
+    },
+    {
+      "name": "profile byte identity whitespace",
+      "refusal": "binding"
+    },
+    {
+      "name": "forged exported table 0",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 1",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 2",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "consumed tensor changed after full hash",
+      "refusal": "consumed tensor pin"
+    },
+    {
+      "name": "full checkpoint filler changed",
+      "refusal": "checkpoint pin"
+    },
+    {
+      "name": "sign bytes changed",
+      "refusal": "sign pin"
+    },
+    {
+      "name": "invalid ids (0, 0)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (-1, 1)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (0, 17)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid scale 0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -1.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale nan",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale inf",
+      "refusal": "scale"
+    },
+    {
+      "name": "margin refuses without clipping",
+      "refusal": "overflow"
+    },
+    {
+      "name": "stale residual_scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale block",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale checkpoint_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale tensor_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale sign_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale source_version",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale profile",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.yes",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.no",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.threshold_c",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.bos",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.classifier_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.head_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "wrong caller statement digest",
+      "refusal": "binding"
+    },
+    {
+      "name": "algorithm version",
+      "refusal": "binding"
+    },
+    {
+      "name": "immutable result assignment",
+      "refusal": "cannot assign to field 'margin'"
+    },
+    {
+      "name": "profile byte identity whitespace",
+      "refusal": "binding"
+    },
+    {
+      "name": "forged exported table 0",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 1",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 2",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "consumed tensor changed after full hash",
+      "refusal": "consumed tensor pin"
+    },
+    {
+      "name": "full checkpoint filler changed",
+      "refusal": "checkpoint pin"
+    },
+    {
+      "name": "sign bytes changed",
+      "refusal": "sign pin"
+    },
+    {
+      "name": "invalid ids (0, 0)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (-1, 1)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (0, 17)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid scale 0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -1.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale nan",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale inf",
+      "refusal": "scale"
+    },
+    {
+      "name": "margin refuses without clipping",
+      "refusal": "overflow"
+    },
+    {
+      "name": "stale residual_scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale block",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale checkpoint_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale tensor_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale sign_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale source_version",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale profile",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.yes",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.no",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.threshold_c",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.bos",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.classifier_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.head_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "wrong caller statement digest",
+      "refusal": "binding"
+    },
+    {
+      "name": "algorithm version",
+      "refusal": "binding"
+    },
+    {
+      "name": "immutable result assignment",
+      "refusal": "cannot assign to field 'margin'"
+    },
+    {
+      "name": "profile byte identity whitespace",
+      "refusal": "binding"
+    },
+    {
+      "name": "forged exported table 0",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 1",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 2",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "consumed tensor changed after full hash",
+      "refusal": "consumed tensor pin"
+    },
+    {
+      "name": "full checkpoint filler changed",
+      "refusal": "checkpoint pin"
+    },
+    {
+      "name": "sign bytes changed",
+      "refusal": "sign pin"
+    },
+    {
+      "name": "invalid ids (0, 0)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (-1, 1)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (0, 17)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid scale 0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -1.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale nan",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale inf",
+      "refusal": "scale"
+    },
+    {
+      "name": "margin refuses without clipping",
+      "refusal": "overflow"
+    },
+    {
+      "name": "stale residual_scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale block",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale checkpoint_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale tensor_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale sign_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale source_version",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale profile",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.yes",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.no",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.threshold_c",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.bos",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.classifier_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.head_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "wrong caller statement digest",
+      "refusal": "binding"
+    },
+    {
+      "name": "algorithm version",
+      "refusal": "binding"
+    },
+    {
+      "name": "immutable result assignment",
+      "refusal": "cannot assign to field 'margin'"
+    },
+    {
+      "name": "profile byte identity whitespace",
+      "refusal": "binding"
+    },
+    {
+      "name": "forged exported table 0",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 1",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 2",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "consumed tensor changed after full hash",
+      "refusal": "consumed tensor pin"
+    },
+    {
+      "name": "full checkpoint filler changed",
+      "refusal": "checkpoint pin"
+    },
+    {
+      "name": "sign bytes changed",
+      "refusal": "sign pin"
+    },
+    {
+      "name": "invalid ids (0, 0)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (-1, 1)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (0, 17)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid scale 0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -1.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale nan",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale inf",
+      "refusal": "scale"
+    },
+    {
+      "name": "margin refuses without clipping",
+      "refusal": "overflow"
+    },
+    {
+      "name": "stale residual_scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale block",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale checkpoint_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale tensor_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale sign_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale source_version",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale profile",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.yes",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.no",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.threshold_c",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.bos",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.classifier_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.head_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "wrong caller statement digest",
+      "refusal": "binding"
+    },
+    {
+      "name": "algorithm version",
+      "refusal": "binding"
+    },
+    {
+      "name": "immutable result assignment",
+      "refusal": "cannot assign to field 'margin'"
+    },
+    {
+      "name": "profile byte identity whitespace",
+      "refusal": "binding"
+    },
+    {
+      "name": "forged exported table 0",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 1",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 2",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "consumed tensor changed after full hash",
+      "refusal": "consumed tensor pin"
+    },
+    {
+      "name": "full checkpoint filler changed",
+      "refusal": "checkpoint pin"
+    },
+    {
+      "name": "sign bytes changed",
+      "refusal": "sign pin"
+    },
+    {
+      "name": "invalid ids (0, 0)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (-1, 1)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (0, 17)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid scale 0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -1.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale nan",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale inf",
+      "refusal": "scale"
+    },
+    {
+      "name": "margin refuses without clipping",
+      "refusal": "overflow"
+    },
+    {
+      "name": "stale residual_scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale block",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale checkpoint_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale tensor_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale sign_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale source_version",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale profile",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.yes",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.no",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.threshold_c",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.bos",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.classifier_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.head_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "wrong caller statement digest",
+      "refusal": "binding"
+    },
+    {
+      "name": "algorithm version",
+      "refusal": "binding"
+    },
+    {
+      "name": "immutable result assignment",
+      "refusal": "cannot assign to field 'margin'"
+    },
+    {
+      "name": "profile byte identity whitespace",
+      "refusal": "binding"
+    },
+    {
+      "name": "forged exported table 0",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 1",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 2",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "consumed tensor changed after full hash",
+      "refusal": "consumed tensor pin"
+    },
+    {
+      "name": "full checkpoint filler changed",
+      "refusal": "checkpoint pin"
+    },
+    {
+      "name": "sign bytes changed",
+      "refusal": "sign pin"
+    },
+    {
+      "name": "invalid ids (0, 0)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (-1, 1)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (0, 17)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid scale 0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -1.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale nan",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale inf",
+      "refusal": "scale"
+    },
+    {
+      "name": "margin refuses without clipping",
+      "refusal": "overflow"
+    },
+    {
+      "name": "stale residual_scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale block",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale checkpoint_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale tensor_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale sign_sha256",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale source_version",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale profile",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.yes",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.no",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.scale",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale margin.threshold_c",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.bos",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.classifier_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "stale calibration.head_norm",
+      "refusal": "binding"
+    },
+    {
+      "name": "wrong caller statement digest",
+      "refusal": "binding"
+    },
+    {
+      "name": "algorithm version",
+      "refusal": "binding"
+    },
+    {
+      "name": "immutable result assignment",
+      "refusal": "cannot assign to field 'margin'"
+    },
+    {
+      "name": "profile byte identity whitespace",
+      "refusal": "binding"
+    },
+    {
+      "name": "forged exported table 0",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 1",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "forged exported table 2",
+      "refusal": "table mismatch"
+    },
+    {
+      "name": "consumed tensor changed after full hash",
+      "refusal": "consumed tensor pin"
+    },
+    {
+      "name": "full checkpoint filler changed",
+      "refusal": "checkpoint pin"
+    },
+    {
+      "name": "sign bytes changed",
+      "refusal": "sign pin"
+    },
+    {
+      "name": "invalid ids (0, 0)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (-1, 1)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid ids (0, 17)",
+      "refusal": "ids"
+    },
+    {
+      "name": "invalid scale 0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -0.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale -1.0",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale nan",
+      "refusal": "scale"
+    },
+    {
+      "name": "invalid scale inf",
+      "refusal": "scale"
+    },
+    {
+      "name": "margin refuses without clipping",
+      "refusal": "overflow"
+    },
+    {
+      "name": "live file mutation",
+      "refusal": "checkpoint pin"
+    },
+    {
+      "name": "live missing file",
+      "refusal": "[Errno 2] No such file or directory: '/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-derived-cache-20261029/fixtures/synthetic-checkpoint.bin'"
+    },
+    {
+      "name": "symlink",
+      "refusal": "regular"
+    },
+    {
+      "name": "fifo without blocking",
+      "refusal": "regular"
+    },
+    {
+      "name": "wrong file extent",
+      "refusal": "size"
+    },
+    {
+      "name": "malformed dtype",
+      "refusal": "extent"
+    },
+    {
+      "name": "malformed shape",
+      "refusal": "extent"
+    },
+    {
+      "name": "malformed offset",
+      "refusal": "extent"
+    },
+    {
+      "name": "malformed independent head",
+      "refusal": "untied"
+    },
+    {
+      "name": "zero rotation sign",
+      "refusal": "rotation"
+    },
+    {
+      "name": "nonfinite BF16",
+      "refusal": "bf16"
+    }
+  ],
+  "count_only_schedules": [
+    {
+      "passes": 1,
+      "baseline_two_sites_derivations": 2,
+      "shared_per_request_derivations": 1,
+      "explicit_resident_session_derivations": 1,
+      "immutable_inputs_required": true
+    },
+    {
+      "passes": 2,
+      "baseline_two_sites_derivations": 4,
+      "shared_per_request_derivations": 2,
+      "explicit_resident_session_derivations": 1,
+      "immutable_inputs_required": true
+    },
+    {
+      "passes": 4,
+      "baseline_two_sites_derivations": 8,
+      "shared_per_request_derivations": 4,
+      "explicit_resident_session_derivations": 1,
+      "immutable_inputs_required": true
+    },
+    {
+      "passes": 8,
+      "baseline_two_sites_derivations": 16,
+      "shared_per_request_derivations": 8,
+      "explicit_resident_session_derivations": 1,
+      "immutable_inputs_required": true
+    }
+  ],
+  "elapsed_s": 0.6487499220002064,
+  "peak_rss_kib": 18856,
+  "hardware": {
+    "cpu": "Intel(R) Core(TM) Ultra 9 185H",
+    "affinity": [
+      0
+    ],
+    "threads": 1,
+    "device": "CPU only; no GPU"
+  },
+  "limits": {
+    "CPU_s": 40,
+    "alarm_s": 45,
+    "address_space_MiB": 256,
+    "estimated_memory_MiB": 64
+  },
+  "code_hashes": {
+    "model.py": "60440ec37d9b9cb4d1f36d9dce8cf57b4cdafba1bab005e91f7e0c8fe491f3dc",
+    "reference.py": "2a33da78eb531d00ece7cc4083851cbbf96cb1dd82f9aaab042356882052defb",
+    "run.py": "35dd0f0f70b46e2c9118b58f49b7ec26f139de2d88263360f988ef35ad0a792e"
+  },
+  "proof_accounting": {
+    "independently_verified_full_stack_proofs": 0,
+    "passes": 0,
+    "countable_positions": 0,
+    "context_length": null,
+    "startup_s": null,
+    "prefill_s": null,
+    "startup_fraction": null,
+    "witness_s": null,
+    "proof_s": null,
+    "serialization_s": null,
+    "verification_s": null,
+    "steady_state_positions_s": null,
+    "total_workload_positions_s": null,
+    "latency_s": null,
+    "proof_bytes": null,
+    "prefill": "none",
+    "resident_model_passes": "none",
+    "decode": "none"
+  }
+}

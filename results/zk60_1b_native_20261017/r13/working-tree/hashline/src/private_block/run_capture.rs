@@ -216,7 +216,11 @@ pub(super) const SHARED_SOURCE_FILES: [&str; 29] = [
     "../zkp-core/src/tables.rs",
 ];
 
-pub(super) const OWN_SOURCE_FILES: [&str; 18] = [
+pub(super) const OWN_SOURCE_FILES: [&str; 32] = [
+    "src/private_block/argument_accuracy.rs",
+    "src/private_block/accuracy_act.rs",
+    "src/private_block/accuracy_fold.rs",
+    "src/private_block/accuracy_layout.rs",
     "src/private_block/run_capture.rs",
     "src/private_block/run.rs",
     "src/private_block/boundary.rs",
@@ -265,6 +269,20 @@ pub(super) const OWN_SOURCE_FILES: [&str; 18] = [
     // NATIVE R12 (F1): the RoPE frequency transforms, which decide the public
     // cos / sin tables a trained run binds (the loader's generator)
     "src/private_block/rope.rs",
+    // R12b: these decide whether the token tables are derived from the
+    // authenticated model before their digests enter a trained statement.
+    "src/private_block/tied_tables.rs",
+    "src/private_block/tied_tables/derive.rs",
+    // R13 accuracy arithmetic/public data, export reader and trace builder.
+    "src/private_block/accuracy.rs",
+    "src/private_block/accuracy_aligned.rs",
+    "src/private_block/accuracy_groups.rs",
+    "src/private_block/accuracy_precision.rs",
+    "src/private_block/accuracy_public.rs",
+    "src/private_block/accuracy_tables.rs",
+    "src/private_block/trained_accuracy.rs",
+    "src/private_block/witness_accuracy.rs",
+
 ];
 
 /// **The production modules of `private_block` that are NOT source pins, with

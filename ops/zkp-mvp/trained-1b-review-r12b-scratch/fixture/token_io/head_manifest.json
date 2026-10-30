@@ -1,0 +1,25 @@
+{
+  "source_tensor": {
+    "name": "language_model.model.embed_tokens.weight",
+    "sha256": "67a138c1c483b89874526ef523f5f0c30f161808076561730193d1de2093dd19"
+  },
+  "head_int8_perrow.bin": {
+    "file": "head_int8_perrow.bin",
+    "dtype": "int8",
+    "shape": [
+      131072,
+      3072
+    ],
+    "bytes": 402653184,
+    "sha256": "786f02bc011e3f23c4e9ac480772a0413d39f8d10c7259000929ada771d0ce95"
+  },
+  "head_mult12.bin": {
+    "file": "head_mult12.bin",
+    "dtype": "int64",
+    "shape": [
+      131072
+    ],
+    "bytes": 1048576,
+    "sha256": "f43790f32bd4cf4b252aafaa08e9b788937a0878594d2756f73248b0dfdc0464"
+  }
+}

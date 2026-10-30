@@ -1,0 +1,23 @@
+{
+  "schema": "zk60-app-test-result/1",
+  "command": "apps/proven-media/.venv/bin/python -m unittest discover -s apps/proven-media/tests",
+  "scope": "All app tests including HTTP flows on host; no real native proof or chain transaction executed",
+  "chunk_id": "25de1c",
+  "wall_time_seconds": 3.915720621,
+  "exit_code": 0,
+  "original_token_count": 134,
+  "output": "......................../home/victor/IntelligenceRegulation/apps/proven-media/.venv/lib/python3.10/site-packages/starlette/testclient.py:40: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.\n  _PortalFactoryType = typing.Callable[[], typing.ContextManager[anyio.abc.BlockingPortal]]\n.....................................................................................\n----------------------------------------------------------------------\nRan 109 tests in 3.658s\n\nOK\n",
+  "recorded_at": "2026-10-29T01:24:13.122482+00:00",
+  "source_snapshot_after_tests": {
+    "proven_media/shieldstral_text.py": "c5476b5384571599a8bf6e12cbdf399d237012399b99373ac54040cc6faee96b",
+    "proven_media/prompting.py": "77dc8c08e45d0a677e691de80a8487672648ffbc1d6d85e43fc2bf7c3d49826e",
+    "proven_media/records.py": "3a5c3255cd19cfe7cfb29de0b282283b8f1df39be100e42cf649d62dfc380cd9",
+    "proven_media/store.py": "47ca250eecbdb0f285514f13bef874a73f49396cf93520135b3bc1b8294daeaa",
+    "proven_media/app.py": "bbc3e2313140691557c661545c0e467f604d7b94cded3bf8c3c3317e302bf5ff",
+    "proven_media/jobs.py": "83deaf1d8e31a5cbc906d9dbdbc16578dcb8d9634811b7d3a1a130f3c1fba099",
+    "tests/test_shieldstral_text.py": "e3870c140160508f26451f93685c87e928b9649c835ae3b492716c7033fdf726",
+    "tests/test_screening_rules.py": "e22b6e71f49a9c6f587b189073d73006049c48c660764da5071397b726a9166f",
+    "tests/test_app.py": "113589b3b6aeb38ff51f80f83cddb02aa6851ebf2d3b000a1065484bb41d70bf"
+  },
+  "snapshot_note": "Source snapshot immediately after the successful suite; no source edits between run and snapshot."
+}

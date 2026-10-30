@@ -1,0 +1,14 @@
+test_budget_and_exclusive_heavy_admission_remain_load_bearing (test_zk60_guard_s8.SwapAdmission) ... ok
+test_exact_full_swap_headroom_is_admitted (test_zk60_guard_s8.SwapAdmission) ... ok
+test_fifo_budget_reservations_are_still_enforced (test_zk60_guard_s8.SwapAdmission) ... ok
+test_gpu_telemetry_and_idle_vram_checks_are_unchanged (test_zk60_guard_s8.SwapAdmission) ... ok
+test_large_swap_is_still_refused_when_total_reserve_cannot_fit (test_zk60_guard_s8.SwapAdmission) ... ok
+test_missing_swap_counters_do_not_disable_the_memory_floor (test_zk60_guard_s8.SwapAdmission) ... ok
+test_normal_memory_floor_is_unchanged_below_swap_threshold (test_zk60_guard_s8.SwapAdmission) ... ok
+test_observed_stale_swap_allows_both_waiting_jobs (test_zk60_guard_s8.SwapAdmission) ... ok
+test_swap_requires_room_to_restore_all_swapped_pages (test_zk60_guard_s8.SwapAdmission) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.004s
+
+OK

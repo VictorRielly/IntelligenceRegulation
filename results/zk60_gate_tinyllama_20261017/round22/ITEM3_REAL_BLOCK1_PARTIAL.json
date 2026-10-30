@@ -1,0 +1,40 @@
+{
+ "what": "gate round 22 item 3: the terminal surjection on ONE real block (stage-01 = block 0 of classify-r13-shield-t128-cli-hate-r17-values), PARTIAL: the three roles' analysis landed, TS-1 not; the job stopped on the coordinator's 00:54 UTC instruction [MEASURED, the job's own log lines, copied]; NOT a privacy result",
+ "saved_at_utc": "2026-10-30T00:54:31Z",
+ "source_log": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/round22/item3/logs/ts-real-block1.log",
+ "source_log_sha256": "28d986c399c0ccb82b417a815664005adeed91d7b55d4e747954487f6366bf33",
+ "lines": [
+  "stage-01.json BLOCK A: groups 36, surjective 36, disclosed 0 {}, joint [] (818.0 s)",
+  "stage-01.json BLOCK H: groups 9, surjective 8, disclosed 2 {'8': 2}, joint [([7, 8], 2)] (2573.4 s)",
+  "stage-01.json BLOCK Input: groups 2, surjective 2, disclosed 0 {}, joint [] (2579.6 s)"
+ ],
+ "roles": {
+  "A": {
+   "groups": 36,
+   "surjective": 36,
+   "disclosed": 0,
+   "seconds_cum": 818.0
+  },
+  "H": {
+   "groups": 9,
+   "surjective": 8,
+   "disclosed": 2,
+   "joint": [
+    [
+     7,
+     8
+    ],
+    2
+   ],
+   "seconds_cum": 2573.4
+  },
+  "Input": {
+   "groups": 2,
+   "surjective": 2,
+   "disclosed": 0,
+   "seconds_cum": 2579.6
+  }
+ },
+ "not_landed": "TS-1 on the real block (the analysis was in its TS-1 step when stopped); the other 25 real blocks never run",
+ "named_rest": "the rest is named in R22_SUMMARY.md (command and measured cost: ~2,580 s per real block for the three roles, plus TS-1)"
+}

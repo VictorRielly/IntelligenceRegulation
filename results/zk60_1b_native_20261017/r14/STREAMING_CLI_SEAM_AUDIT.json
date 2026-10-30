@@ -1,0 +1,24 @@
+{
+  "utc": "2026-10-30T05:32:38.204579+00:00",
+  "source": "79093470047464587140fc63d4ca84b95c11c090bd32d4cbd1057503969d6db5",
+  "files": {
+    "hashline/src/private_block/split_run.rs": "40b37c0e70487d38d6c852988c0f0288b91c868b46bf3080232c52d2f2d6ad63",
+    "hashline/src/private_block/run.rs": "66f0ac950f7ddff23fa89e2788b70fed9785c846cbc8beeb3612c1527566b156",
+    "hashline/src/private_block/trained_block.rs": "e09269762ad36375c89185ab04580146ec8de2c6350232151bb76ea5a4c55dfd",
+    "hashline/examples/zk60_trained_block.rs": "54067edf4184effaffbb79896e47b992c9e547c87a59f88cf8e28223f22b2da2"
+  },
+  "verified_gap": "R14 Plan::new, prove and Verifier::new currently require all BlockPublic values resident. Existing trained CLI dispatches only R13/legacy run APIs. R14 two-block results do not prove a lean26block CLI exists.",
+  "existing_reusable_seams": {
+    "public_blocks": "run.rs::BlockSource / BlockRef, trained_block.rs::BlockCache / SharedCache enforce one public block resident and authenticated reloads",
+    "preheader_sealing": "trained_block.rs::seal_and_record and SealedChain enforce H-1, parity before header, bounded witness retention, deterministic rebuild from sealed inputs",
+    "artifact_promotion": "Existing stack CLI publication only after full verification (M-9); fresh verifier public export rejects seq_* private content."
+  },
+  "required_implementation": [
+    "R14 record-derived Plan using strict independently rebuilt TrainedModelStatement and all layer calibration/scales; retain per-stage block shape/digest checks",
+    "R14 source-based prover/verifier using one-block cache and count/stage/digest preflight; preserve source provenance in native observers",
+    "Versioned experimental CLI/artifact format, fixed context/label and expected statement identity, native joint endpoints, canonical segment paths and no old profile registration",
+    "Adversarial loader shape/digest/order/count controls, eager/lazy native equivalence with controlled test-only randomness, full trained chain prove/fresh verify and old compatibility",
+    "H-1 sealing before any run artifact, M-9 publish-after-verify, exact actual bounds and independent review/privacy before production use"
+  ],
+  "scope": "Read-only seam audit for next implementation; no new streaming code, CLI, full26block memory-fit or release/privacy acceptance."
+}

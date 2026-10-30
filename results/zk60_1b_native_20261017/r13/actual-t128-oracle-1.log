@@ -1,0 +1,1 @@
+{"profile_sha256": "04102cce64dea0cd45dee5caa62095da1cf33fcaabd5647554202b564e6e7e57", "oracle_sha256": "9fe10a9c257bd18baf1dd00d752ddfa4e46ef0db914027fcc715d26f2d8e59b2", "violations": 0, "trace_sites": 19, "scope": "one actual S2 public layer, public synthetic input, T128; no model fidelity or full-stack proof claim"}

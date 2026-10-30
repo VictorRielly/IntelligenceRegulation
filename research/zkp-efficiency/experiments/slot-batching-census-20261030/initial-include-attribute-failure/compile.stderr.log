@@ -1,0 +1,17 @@
+error: an inner attribute is not permitted in this context
+ --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/slot-batching-census-20261030/native_metadata.rs:1:1
+  |
+1 | #![allow(dead_code)]
+  | ^^^^^^^^^^^^^^^^^^^^
+2 | #[derive(Clone,Copy,Debug)] enum Dom {T,Ht,L,D,Q,Kv,S,F,Tab,Dd}
+  |                             ----------------------------------- the inner attribute doesn't annotate this enum
+  |
+  = note: inner attributes, like `#![no_std]`, annotate the item enclosing them, and are usually found at the beginning of source files
+help: to annotate the enum, change the attribute from inner to outer style
+  |
+1 - #![allow(dead_code)]
+1 + #[allow(dead_code)]
+  |
+
+error: aborting due to previous error
+

@@ -1,0 +1,8 @@
+[zk60-guard 19:59:05] START rvtk14-build2 class=build need=2.7G cap=3.5G enforce=cgroup+watchdog waited=0s run=e480d2abc6a9
+[zk60-guard 20:02:24] END rvtk14-build2 exit=0 child_wall=200s peak_rss=2.15G min_avail=11.37G
+[zk60-guard 20:02:24] START rvtk14-s5b class=cpu need=1.5G cap=2.5G enforce=cgroup+watchdog waited=0s run=87bf1e412eb6
+[zk60-guard 20:02:38] END rvtk14-s5b exit=0 child_wall=14s peak_rss=0.22G min_avail=13.01G
+[zk60-guard 20:02:39] START rvtk14-xbin2 class=cpu need=1.5G cap=2.5G enforce=cgroup+watchdog waited=0s run=7ec472125e1d
+[zk60-guard 20:02:49] END rvtk14-xbin2 exit=0 child_wall=10s peak_rss=0.19G min_avail=13.03G
+[zk60-guard 20:02:49] START rvtk14-baseline2 class=cpu need=1.5G cap=2.5G enforce=cgroup+watchdog waited=0s run=fcb8e50f5578
+[zk60-guard 20:03:51] END rvtk14-baseline2 exit=0 child_wall=62s peak_rss=0.76G min_avail=12.28G

@@ -1,0 +1,23 @@
+{
+  "command": [
+    "/usr/bin/python3",
+    "-B",
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/current-profile-mask-census-20261029/probe.py"
+  ],
+  "exit_code": 0,
+  "elapsed_s": 2.2351974900011555,
+  "max_rss_kib": 26492,
+  "threads": 1,
+  "affinity": [
+    0
+  ],
+  "nice": 19,
+  "cpu_limit_s": 40,
+  "alarm_s": 45,
+  "parent_timeout_s": 50,
+  "address_space_limit_bytes": 402653184,
+  "estimated_memory_bytes": 100663296,
+  "gpu": false,
+  "cargo": false,
+  "compiler_auxiliary_os_threads": "not measured; one codegen unit and one CPU affinity"
+}

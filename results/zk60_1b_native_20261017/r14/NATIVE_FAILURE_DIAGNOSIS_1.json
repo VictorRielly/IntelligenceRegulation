@@ -1,0 +1,27 @@
+{
+  "dictionary": {
+    "failed_label": "sol-r14-regression-dd-dictionary-counts-1",
+    "native_result": "complete canonical proof was accepted, testexpectedrejection",
+    "cause": "fixture chose firstpositivecount at E=0 maskedfuture, destination was duplicate zero padding in same row; (row,E,P) tuple unchanged",
+    "fix": "testonly distinct E/P tuple mutation plus explicit accepted alias control; native verifier/protocol unchanged",
+    "failed_source": "sol-r14-capture-build-1.source.json"
+  },
+  "cli": {
+    "failed_attempt": "cli-native-1/non-dd-prove",
+    "result": "CLI rejected invalid --layers25 before runcreation",
+    "cause": "CLI parser requires A..B range, B exclusive",
+    "fix": "versioned harness and M9 test use25..26; productionCLI unchanged"
+  },
+  "new_source": "06c540f2a7616e052540ce8dae44f043403ed8974b510f34c47623e54e48856a",
+  "changed_files": [
+    "hashline/src/private_block/split_attack_tests.rs",
+    "hashline/src/private_block/trained_split.rs"
+  ],
+  "status": "Resolved by corrected test-only native controls and range invocation; all source snapshots/failures retained",
+  "resolution": {
+    "dictionary": "dictionary-corrected-2/ACCEPTANCE.json",
+    "actualL25CLI": "cli-native-2/ACCEPTANCE.json",
+    "publication": "cli-native-2/M9_ACCEPTANCE.json",
+    "no_verifier_change": true
+  }
+}

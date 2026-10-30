@@ -1,0 +1,12 @@
+{
+  "prototype_source": "a523345ad1d54b787e9c4b1e0e7bb2c28d0bbb949d3bf37362298e9872eeeef2",
+  "prototype_typecheck": "PASS22sec;1.04GiB;watchdog",
+  "source": "06c540f2a7616e052540ce8dae44f043403ed8974b510f34c47623e54e48856a",
+  "files": 291,
+  "tree": "cli-candidate-working-tree",
+  "status": "BUILD2/actualL25CLI9/M9bothvariants COMPLETE; authorcheckpointonly",
+  "reference": "cli-l25-sequence/PROVENANCE.json",
+  "build_acceptance": "CLI_BUILD_ACCEPTANCE_2.json",
+  "native_acceptance": "cli-native-2/ACCEPTANCE.json",
+  "publication_acceptance": "cli-native-2/M9_ACCEPTANCE.json"
+}

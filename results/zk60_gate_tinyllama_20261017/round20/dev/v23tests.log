@@ -1,0 +1,63 @@
+test_v4_status_g10 (unittest.loader._FailedTest) ... ERROR
+
+======================================================================
+ERROR: test_v4_status_g10 (unittest.loader._FailedTest)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_v4_status_g10
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/unittest/loader.py", line 154, in loadTestsFromName
+    module = __import__(module_name)
+ModuleNotFoundError: No module named 'test_v4_status_g10'
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+FAILED (errors=1)
+test_f19_g1_repository_root_searched_upward (test_v4_status_g10.ClassifierV23) ... /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/staging_v23/scripts/zk60_native_rg_classpins.py:589: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/manifest_final_r16b.sha256' mode='r' encoding='UTF-8'>
+  for line in open(man):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_f19_g2_refused_pins_are_a_written_refusal (test_v4_status_g10.ClassifierV23) ... /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/staging_v23/tests/test_v4_status_g10.py:1808: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/gate-v23-f19g2-do4q1bzo/refused.json' mode='r' encoding='UTF-8'>
+  rec = json.load(open(os.path.join(d, "refused.json")))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_r17_pin_reading_and_self_check (test_v4_status_g10.ClassifierV23) ... /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/staging_v23/scripts/zk60_native_rg_classpins.py:741: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/manifest_final_r16b.sha256' mode='r' encoding='UTF-8'>
+  for line in open(os.path.join(root, p)):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/staging_v23/scripts/zk60_native_rg_classpins.py:741: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/manifest_final_r17.sha256' mode='r' encoding='UTF-8'>
+  for line in open(os.path.join(root, p)):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/staging_v23/scripts/zk60_native_rg_classpins.py:771: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r17/hashline/src/private_block/run_capture.rs'>
+  got = hashlib.sha256(open(p, "rb").read()).hexdigest() if os.path.exists(p) else None
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/staging_v23/scripts/zk60_native_rg_classpins.py:771: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r17/hashline/src/private_block/plane_index.rs'>
+  got = hashlib.sha256(open(p, "rb").read()).hexdigest() if os.path.exists(p) else None
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/staging_v23/scripts/zk60_native_rg_classpins.py:771: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/capture-tree-r16b/hashline/src/private_block/run_capture.rs'>
+  got = hashlib.sha256(open(p, "rb").read()).hexdigest() if os.path.exists(p) else None
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/staging_v23/tests/test_v4_status_g10.py:1763: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/zk60-artifacts/token-io/captures/classify-r13-shield-t128-cli-hate-r17-values/manifest.json' mode='r' encoding='UTF-8'>
+  man = json.load(open(p))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/staging_v23/tests/test_v4_status_g10.py:1763: ResourceWarning: unclosed file <_io.TextIOWrapper name='/home/victor/zk60-artifacts/token-io/captures/classify-r13-rung-L2-v1-r17-values/manifest.json' mode='r' encoding='UTF-8'>
+  man = json.load(open(p))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_r17_rung_values_capture_closes_all_23_block_slots (test_v4_status_g10.ClassifierV23) ... /usr/lib/python3.10/json/decoder.py:353: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/zk60-artifacts/token-io/captures/classify-rc3-rung-L2-v1-short20/arrays.bin'>
+  obj, end = self.scan_once(s, idx)
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/usr/lib/python3.10/unittest/case.py:549: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/zk60-artifacts/token-io/captures/classify-r13-rung-L2-v1-r17-values/arrays.bin'>
+  method()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_streamed_file_hash (test_v4_status_g10.ClassifierV23) ... /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/staging_v23/tests/test_v4_status_g10.py:1795: ResourceWarning: unclosed file <_io.BufferedReader name='/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/staging_v23/scripts/zk60_native_rg_classgate.py'>
+  want = hashlib.sha256(open(p, "rb").read()).hexdigest()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 8.532s
+
+OK
+refused: status REFUSED by source pins: ['src/private_block/token_io/classify.rs: 6c828db6673e, the v22 classifier port was read at c180c83fb50f', 'src/private_block/token_io/classify_run.rs: 5d1d077f5102, the v22 classifier port was read at 8abbf72f1c8e', 'src/private_block/token_io/classify_tied.rs: 401d38d444b6, the v22 classifier port was read at a89acfabc75c']; 0.6 s; record /tmp/gate-v23-f19g2-do4q1bzo/refused.json

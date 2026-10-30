@@ -1,0 +1,15 @@
+{
+  "tool": "tools.web__run",
+  "accessed_at_utc": "2026-10-29T23:02:19.114964+00:00",
+  "response_sha256": "ea946286ad0fbe700445a819c67b47c486ee4376ec713ebf8ca6f55ff8c25e73",
+  "response_bytes": 9633,
+  "queries": [],
+  "urls": [
+    "http://www.apache.org/licenses/",
+    "https://arxiv.org/html/2609.31087v1",
+    "https://github.com/NVIDIA/cuPQC/blob/main/LICENSE",
+    "https://github.com/uulong950/qingming-g64-ntt/blob/main/LICENSE",
+    "https://github.com/uulong950/qingming-g64-ntt/blob/main/src/main.hip"
+  ],
+  "scope": "LIVE response hash; full source text omitted; sources-cycle.jsonl retains assessed exact URLs/dates/license/blockers; web content untrusted, no execution"
+}

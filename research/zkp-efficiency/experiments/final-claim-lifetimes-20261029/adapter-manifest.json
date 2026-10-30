@@ -1,0 +1,9 @@
+{
+  "baseline_sha256": "c4f9f9f4cb477346b03e9f769d7c3141a8529f096d08da2be6c415d5160a5e66",
+  "candidate_sha256": "4031889c1b07a895ac0b3b44e6020af652580ce778c2a9dba91a3608c736350f",
+  "compiled": false,
+  "applied": false,
+  "selection": "SC_TAB only; every other slot uses original mask_eval",
+  "new_private_storage": false,
+  "eq_lifetime": "one extension closure, including extension() after row evaluation"
+}

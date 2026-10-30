@@ -1,0 +1,179 @@
+{
+ "v20_on_r14": {
+  "classify-rc3-rung-L1-v0": {
+   "v20_pins_ok": false,
+   "v20_pin_refusals": 23,
+   "first_refusals": [
+    "src/private_block.rs: 295409589f53 has no reading",
+    "src/private_block/argument.rs: c4f9f9f4cb47 has no reading",
+    "src/private_block/hash_domain.rs: 201214219430 has no reading"
+   ],
+   "v20_terminals_ok": false,
+   "v20_slots_checked": 0,
+   "v20_findings": [
+    "source pins without a reading; no slot evaluated"
+   ]
+  },
+  "classify-rc3-rung-L1-v1": {
+   "v20_pins_ok": false,
+   "v20_pin_refusals": 23,
+   "first_refusals": [
+    "src/private_block.rs: 295409589f53 has no reading",
+    "src/private_block/argument.rs: c4f9f9f4cb47 has no reading",
+    "src/private_block/hash_domain.rs: 201214219430 has no reading"
+   ],
+   "v20_terminals_ok": false,
+   "v20_slots_checked": 0,
+   "v20_findings": [
+    "source pins without a reading; no slot evaluated"
+   ]
+  },
+  "classify-rc3-rung-L1-vtie": {
+   "v20_pins_ok": false,
+   "v20_pin_refusals": 23,
+   "first_refusals": [
+    "src/private_block.rs: 295409589f53 has no reading",
+    "src/private_block/argument.rs: c4f9f9f4cb47 has no reading",
+    "src/private_block/hash_domain.rs: 201214219430 has no reading"
+   ],
+   "v20_terminals_ok": false,
+   "v20_slots_checked": 0,
+   "v20_findings": [
+    "source pins without a reading; no slot evaluated"
+   ]
+  },
+  "classify-rc3-rung-L2-v0": {
+   "v20_pins_ok": false,
+   "v20_pin_refusals": 23,
+   "first_refusals": [
+    "src/private_block.rs: 295409589f53 has no reading",
+    "src/private_block/argument.rs: c4f9f9f4cb47 has no reading",
+    "src/private_block/hash_domain.rs: 201214219430 has no reading"
+   ],
+   "v20_terminals_ok": false,
+   "v20_slots_checked": 0,
+   "v20_findings": [
+    "source pins without a reading; no slot evaluated"
+   ]
+  },
+  "classify-rc3-rung-L2-v1": {
+   "v20_pins_ok": false,
+   "v20_pin_refusals": 23,
+   "first_refusals": [
+    "src/private_block.rs: 295409589f53 has no reading",
+    "src/private_block/argument.rs: c4f9f9f4cb47 has no reading",
+    "src/private_block/hash_domain.rs: 201214219430 has no reading"
+   ],
+   "v20_terminals_ok": false,
+   "v20_slots_checked": 0,
+   "v20_findings": [
+    "source pins without a reading; no slot evaluated"
+   ]
+  },
+  "classify-rc3-rung-L2-vtie": {
+   "v20_pins_ok": false,
+   "v20_pin_refusals": 23,
+   "first_refusals": [
+    "src/private_block.rs: 295409589f53 has no reading",
+    "src/private_block/argument.rs: c4f9f9f4cb47 has no reading",
+    "src/private_block/hash_domain.rs: 201214219430 has no reading"
+   ],
+   "v20_terminals_ok": false,
+   "v20_slots_checked": 0,
+   "v20_findings": [
+    "source pins without a reading; no slot evaluated"
+   ]
+  },
+  "classify-rc3-rung-L2-v1-chunk0o27": {
+   "v20_pins_ok": false,
+   "v20_pin_refusals": 23,
+   "first_refusals": [
+    "src/private_block.rs: 295409589f53 has no reading",
+    "src/private_block/argument.rs: c4f9f9f4cb47 has no reading",
+    "src/private_block/hash_domain.rs: 201214219430 has no reading"
+   ],
+   "v20_terminals_ok": false,
+   "v20_slots_checked": 0,
+   "v20_findings": [
+    "source pins without a reading; no slot evaluated"
+   ]
+  },
+  "classify-rc3-rung-L2-v1-chunk1o27": {
+   "v20_pins_ok": false,
+   "v20_pin_refusals": 23,
+   "first_refusals": [
+    "src/private_block.rs: 295409589f53 has no reading",
+    "src/private_block/argument.rs: c4f9f9f4cb47 has no reading",
+    "src/private_block/hash_domain.rs: 201214219430 has no reading"
+   ],
+   "v20_terminals_ok": false,
+   "v20_slots_checked": 0,
+   "v20_findings": [
+    "source pins without a reading; no slot evaluated"
+   ]
+  },
+  "classify-rc3-rung-L2-v1-short20": {
+   "v20_pins_ok": false,
+   "v20_pin_refusals": 23,
+   "first_refusals": [
+    "src/private_block.rs: 295409589f53 has no reading",
+    "src/private_block/argument.rs: c4f9f9f4cb47 has no reading",
+    "src/private_block/hash_domain.rs: 201214219430 has no reading"
+   ],
+   "v20_terminals_ok": false,
+   "v20_slots_checked": 0,
+   "v20_findings": [
+    "source pins without a reading; no slot evaluated"
+   ]
+  },
+  "classify-rc3-rung-L1-vtie-short20": {
+   "v20_pins_ok": false,
+   "v20_pin_refusals": 23,
+   "first_refusals": [
+    "src/private_block.rs: 295409589f53 has no reading",
+    "src/private_block/argument.rs: c4f9f9f4cb47 has no reading",
+    "src/private_block/hash_domain.rs: 201214219430 has no reading"
+   ],
+   "v20_terminals_ok": false,
+   "v20_slots_checked": 0,
+   "v20_findings": [
+    "source pins without a reading; no slot evaluated"
+   ]
+  },
+  "classify-rc3-cli-p18-r14": {
+   "v20_pins_ok": false,
+   "v20_pin_refusals": 23,
+   "first_refusals": [
+    "src/private_block.rs: 295409589f53 has no reading",
+    "src/private_block/argument.rs: c4f9f9f4cb47 has no reading",
+    "src/private_block/hash_domain.rs: 201214219430 has no reading"
+   ],
+   "v20_terminals_ok": false,
+   "v20_slots_checked": 0,
+   "v20_findings": [
+    "source pins without a reading; no slot evaluated"
+   ]
+  }
+ },
+ "v21_on_rc1": {
+  "capture": "classify-rung-L1-v1 (R-C1, token frozen-r12 hooked)",
+  "integrity_ok": false,
+  "pin_refusals": [
+   "src/private_block/token_io/classify.rs: 5d2c642a60d1, the classifier port was read at 6c828db6673e",
+   "src/private_block/token_io/classify_run.rs: be2ccd1c97f1, the classifier port was read at 5d1d077f5102",
+   "src/private_block/token_io/stage_in_c.rs: 05c1aae26519, the classifier port was read at 6a92da0ecfe7",
+   "src/private_block/token_io/stage_out_c.rs: ee1cd2374ef3, the classifier port was read at 93a79a2b39ab",
+   "src/private_block/token_io/classify_tied.rs: not pinned (the v21 classifier port was read from it)"
+  ],
+  "other_findings": [
+   "door: the public pad id -1 is outside the vocabulary",
+   "the profile text's item_length is None, re-derived 32",
+   "the profile text's pad_positions is None, re-derived 0",
+   "the profile text's verdict_row is None, re-derived 31",
+   "the profile text's pad-id None is not an id below V",
+   "the profile text does not carry 'item-length=32 pad-id=None pad-positions=0 verdict-row=31'"
+  ]
+ },
+ "all_v20_refuse": true,
+ "v21_refuses_rc1": true
+}

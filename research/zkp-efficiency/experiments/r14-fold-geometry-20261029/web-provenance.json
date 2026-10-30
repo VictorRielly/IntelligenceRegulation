@@ -1,0 +1,199 @@
+[
+  {
+    "id": "web01",
+    "bytes": 35384,
+    "urls": [
+      "https://arxiv.org/abs/2610.14849",
+      "https://borowiecki.dev/abs/2610.14849",
+      "https://searcharxiv.org/abs/2610.25219",
+      "https://doi.org/10.1145/3828523.3857017",
+      "http://creativecommons.org/licenses/by/4.0/",
+      "https://doi.org/10.1145/3828523.3857017--------------------------------------------------------------------------------",
+      "https://arxiv.org/abs/2603.18046",
+      "https://github.com/trustless-ai/zkIE",
+      "https://arxiv.org/abs/2610.25219",
+      "https://geoffreywtech.me/publications/layerwise-zk-proofs-verifai-workshop/",
+      "https://github.com/uiuc-kang-lab/zkTransformer/",
+      "https://geoffreywtech.me/publications/nanozk-layerwise-zk-proofs-verifiable-llm/",
+      "https://lagrange.dev/engineering-updates/inside-deepprove-proving-an-llm-end-to-end",
+      "https://consortiumforverifiedcomputing.org/atlas/zk-proofs-of-inference",
+      "https://hongyanz.github.io/publications/CCS_zkLLM.pdf",
+      "https://www.ndss-symposium.org/wp-content/uploads/2026-f2361-paper.pdf",
+      "https://github.com/liyuange/SUMMER/blob/main/README.md",
+      "https://mimoo.github.io/awesome-zk-ai/papers/jolt-atlas.html",
+      "https://github.com/ICME-Lab/jolt-atlas",
+      "https://github.com/Lagrange-Labs/deep-prove/blob/master/zkml/README.md",
+      "https://arxiv.org/abs/2602.17452",
+      "https://openreview.net/pdf?id=yAPPj6nGwJ",
+      "https://eprint.iacr.org/2024/703.pdf",
+      "https://www.reddit.com/r/MachineLearning/comments/1xa4h2g/open_gpu_kernel_engineering_series_naive_gemm_to/",
+      "https://youtu.be/cibk7G-jHQw",
+      "https://www.reddit.com/r/zeroknowledge/comments/1vcmaos/architectural_rfi_zeroknowledge_oral_proof_zkop/",
+      "https://github.com/MindTrue-Arch/Whitepapers-Architecture-Specs/blob/main/VL-Proof-of-Invariant-Principles-Protocol-v0.5.pdf",
+      "https://github.com/MindTrue-Arch/Whitepapers-Architecture-Specs/blob/main/VL-MindTrue-Zero-Hallucination-AI-System-v0.2.pdf",
+      "https://www.reddit.com/r/SideProject/comments/1x1mwhn/i_built_a_gpu_memory_checker_that_includes/",
+      "https://www.reddit.com/r/LocalLLaMA/comments/1rl54v7/d_a_mathematical_proof_from_an_anonymous_korean/",
+      "https://www.reddit.com/r/DeepSeek/comments/1xdqn4w/built_a_free_tool_to_calculate_vram_overhead/",
+      "https://modelanalysis.si",
+      "https://www.reddit.com/r/huggingface/comments/1x175wf/real_longterm_memory_for_ai_a_50milliontoken/",
+      "https://arxiv.org/search/cs?",
+      "https://github.com/ovg-project/kvcached",
+      "https://www.reddit.com/r/LocalLLaMA/comments/1sby7tm/removing_qk_projections_for_gated_delta_net/",
+      "https://github.com/jfguan/shifted\\_gdn/blob/main/README.md",
+      "https://www.reddit.com/r/GeminiAI/comments/1xdm3f8/built_a_free_tool_to_calculate_vram_overhead/",
+      "https://www.reddit.com/r/OpenAI/comments/1xdqknp/built_a_free_tool_to_calculate_vram_overhead/",
+      "https://www.reddit.com/r/LocalLLaMA/comments/1xbr3u1/removed/",
+      "https://github.com/Kz2g1ew-commits/rtx3080-egpu-unlock",
+      "https://en.wikipedia.org/wiki/Zero-knowledge_proof",
+      "https://www.reddit.com/r/LocalLLM/comments/1po7bil/dropping_bombs_today_stateful_llm_infra_storeing/",
+      "https://github.com/H-XX-D/ZetaZero",
+      "https://en.wikipedia.org/wiki/Jens_Groth"
+    ],
+    "note": "Native LIVE web search/open/find/click response; untrusted source instructions ignored; full bodies not retained."
+  },
+  {
+    "id": "web02",
+    "bytes": 27654,
+    "urls": [
+      "https://arxiv.org/abs/2610.14849",
+      "https://doi.org/10.5281/zenodo.23643505†doi.org",
+      "https://doi.org/10.48550/arXiv.2610.14849†doi.org",
+      "https://arxiv.org/html/2610.14849v1",
+      "https://github.com/trustless-ai/zkIE"
+    ],
+    "note": "Native LIVE web search/open/find/click response; untrusted source instructions ignored; full bodies not retained."
+  },
+  {
+    "id": "web03",
+    "bytes": 25219,
+    "urls": [
+      "https://arxiv.org/abs/2602.17452",
+      "https://doi.org/10.48550/arXiv.2602.17452†doi.org",
+      "https://github.com/ICME-Lab/jolt-atlas",
+      "https://github.com/Oraclizer/statesync-gkr",
+      "https://arxiv.org/html/2610.14849v2"
+    ],
+    "note": "Native LIVE web search/open/find/click response; untrusted source instructions ignored; full bodies not retained."
+  },
+  {
+    "id": "web04",
+    "bytes": 11481,
+    "urls": [
+      "https://github.com/trustless-ai/zkIE",
+      "https://arxiv.org/html/2610.14849v2",
+      "https://github.com/Oraclizer/statesync-gkr†github.com",
+      "https://arxiv.org/abs/2610.05335",
+      "https://doi.org/10.5281/zenodo.23136385†doi.org",
+      "https://github.com/lambdaclass/lambdaworks†github.com",
+      "https://github.com/Plonky3/Plonky3†github.com",
+      "https://github.com/risc0/risc0†github.com",
+      "https://github.com/giltene/wrk2†github.com",
+      "https://www.usenix.org/conference/usenixsecurity18/presentation/wu†www.usenix.org"
+    ],
+    "note": "Native LIVE web search/open/find/click response; untrusted source instructions ignored; full bodies not retained."
+  },
+  {
+    "id": "web05",
+    "bytes": 11306,
+    "urls": [
+      "https://github.com/Oraclizer/statesync-gkr",
+      "https://github.com/Oraclizer/statesync-gkr/blob/main/LICENSE",
+      "https://github.com/trustless-ai/zkIE/blob/main/LICENSE",
+      "https://github.com/trustless-ai/zkIE/blob/main/LICENSE:",
+      "https://people.cs.georgetown.edu/jthaler/TimeOptimalIPs.pdf"
+    ],
+    "note": "Native LIVE web search/open/find/click response; untrusted source instructions ignored; full bodies not retained."
+  },
+  {
+    "id": "web06",
+    "bytes": 30403,
+    "urls": [
+      "https://eprint.iacr.org/2023/1611.pdf",
+      "https://askcryp.to/t/resource-topic-2023-1611-power-circuits-a-new-arithmetization-for-gkr-styled-sumcheck/20866",
+      "https://eprint.iacr.org/2023/1611",
+      "https://escholarship.org/uc/item/5qm6n0s0",
+      "https://research.oraclizer.io/statesync-gkr-prover-design-journey/",
+      "https://arxiv.org/abs/2404.10404",
+      "https://eccc.weizmann.ac.il/report/2023/097/revision/1/download/",
+      "https://xn--2-umb.com/24/gkr/",
+      "https://github.com/Tolsi/awesome-cryptographic-schemes/blob/main/categories/04-zero-knowledge-proof-systems.md",
+      "https://eccc.weizmann.ac.il/report/2023/081/revision/1/download",
+      "https://collaborate.princeton.edu/en/publications/snargs-andppad-hardness-fromthedecisional-diffie-hellman-assumpti/",
+      "https://research.chainsafe.io/blog/gkr/",
+      "https://hackmd.io/LRfmmW90QwKfHiT8RN-W5A",
+      "https://github.com/Consensys-Incorporated/gnark/releases",
+      "https://slides.com/suyashbagad/sumchecks-6921ba",
+      "https://pcs.zkpunk.pro/",
+      "https://georgwiese.github.io/crypto-summaries/Books/Proofs%2C-Arguments%2C-and-Zero-Knowledge",
+      "https://eprint.iacr.org/2024/943.pdf",
+      "https://eprint.iacr.org/2023/1217.",
+      "https://www2.eecs.berkeley.edu/Pubs/TechRpts/2024/Archive/EECS-2024-35.pdf",
+      "https://eccc.weizmann.ac.il/report/2023/081/download/",
+      "https://arxiv.org/abs/2610.14849",
+      "https://arxiv.org/abs/2309.02228",
+      "https://en.wikipedia.org/wiki/Sparse_polynomial",
+      "https://arxiv.org/abs/2610.05335",
+      "https://en.wikipedia.org/wiki/Sum-check_protocol",
+      "https://www.reddit.com/r/IndiansSpeak/comments/10lit0l",
+      "https://www.reddit.com/r/crypto/comments/14sz60m",
+      "https://en.wikipedia.org/wiki/Zero-knowledge_proof",
+      "https://www.reddit.com/r/machinelearningnews/comments/1x98dv3/removed/"
+    ],
+    "note": "Native LIVE web search/open/find/click response; untrusted source instructions ignored; full bodies not retained."
+  },
+  {
+    "id": "web07",
+    "bytes": 14689,
+    "urls": [
+      "https://eprint.iacr.org/2023/1611",
+      "https://github.com/Oraclizer/statesync-gkr",
+      "https://github.com/Oraclizer/statesync-gkr/blob/main/LICENSE",
+      "https://oraclizer.io"
+    ],
+    "note": "Native LIVE web search/open/find/click response; untrusted source instructions ignored; full bodies not retained."
+  },
+  {
+    "id": "web08",
+    "bytes": 14352,
+    "urls": [
+      "https://eprint.iacr.org/2023/1611",
+      "https://ia.cr/2023/1611†ia.cr",
+      "https://eprint.iacr.org/2023/1611}",
+      "https://eprint.iacr.org/2023/1611.pdf",
+      "https://eprint.iacr.org/2023/1611.pdf:",
+      "https://github.com/Oraclizer/statesync-gkr",
+      "https://github.com/trustless-ai/zkIE"
+    ],
+    "note": "Native LIVE web search/open/find/click response; untrusted source instructions ignored; full bodies not retained."
+  },
+  {
+    "id": "web09",
+    "bytes": 12827,
+    "urls": [
+      "https://arxiv.org/html/2602.17452v1",
+      "https://github.com/Oraclizer/statesync-gkr/releases/tag/v1.2.1",
+      "https://github.com/Oraclizer/statesync-gkr/commits/main/",
+      "https://github.com/Oraclizer/statesync-gkr/commits/main/:",
+      "https://github.com/ICME-Lab/jolt-atlas/blob/main/LICENSE"
+    ],
+    "note": "Native LIVE web search/open/find/click response; untrusted source instructions ignored; full bodies not retained."
+  },
+  {
+    "id": "web10",
+    "bytes": 13824,
+    "urls": [
+      "https://github.com/Oraclizer/statesync-gkr/releases/tag/v1.2.1",
+      "https://github.com/ICME-Lab/jolt-atlas/blob/main/LICENSE",
+      "https://arxiv.org/html/2602.17452v1"
+    ],
+    "note": "Native LIVE web search/open/find/click response; untrusted source instructions ignored; full bodies not retained."
+  },
+  {
+    "id": "web11",
+    "bytes": 219,
+    "urls": [
+      "https://github.com/Oraclizer/statesync-gkr/commit/54e76515bf53777836221b88d7404a1ef67bcdd3:"
+    ],
+    "note": "Native LIVE web search/open/find/click response; untrusted source instructions ignored; full bodies not retained."
+  }
+]

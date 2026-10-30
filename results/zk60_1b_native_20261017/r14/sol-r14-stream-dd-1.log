@@ -1,0 +1,7 @@
+
+running 1 test
+test private_block::argument::split_run_tests::split_run_t128_dd_serialized_two_blocks_with_own_calibration_verify ... R14_NATIVE_STREAM {"tokens":128,"dd":true,"blocks":2,"narrow_boundary_forgery":false,"bytes":[34107208, 35649320],"scope":"new native run/segment path, public synthetic model with explicit native test waiver; no trained-model/privacy acceptance"}
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 745 filtered out; finished in 48.68s
+

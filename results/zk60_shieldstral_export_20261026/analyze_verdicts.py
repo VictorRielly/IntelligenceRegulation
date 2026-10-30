@@ -28,6 +28,11 @@ def paired(rows,float_rows,head):
         raise ValueError('nonfinite margins or invalid weights')
     if any(float_rows[r['id']]['n_content_tokens']!=r['content_tokens'] or float_rows[r['id']]['T']!=r['T'] for r in rows):
         raise ValueError('integer/float prompt lengths differ')
+    for row in rows:
+        reference=float_rows[row['id']]
+        if (row['weight']!=reference.get('weight',1.) or row.get('label')!=reference.get('label')
+                or row.get('cats',[])!=reference.get('cats',[]) or row.get('known',[])!=reference.get('known',[])):
+            raise ValueError('integer/float labels or sampling weights differ')
     category=rows[0]['template'].split('_',1)[1];keys=CATEGORIES[category]
     truth=np.array([r['label']==1 if r['dataset']=='toxicchat' else any(c in r['cats'] for c in keys) for r in rows])
     error=np.abs(im-fm);boundary=np.abs(fm)<=error
@@ -69,6 +74,7 @@ def main():
             'lengths':{'max_T':max(r['T'] for r in rows),'above_native_T256':sum(r['T']>256 for r in rows)}}
     result={'schema':'zk60-shieldstral-verdict-fidelity/1','sets':out,'float_source_sha256':sources,
             'integer_source_sha256':complete['verdicts_sha256'],
+            'analysis_source_sha256':sha(__file__),
             'all_12_A1_sets_complete':len(out)==12 and all(g['full_A1_set'] for g in out.values()),
             'scope':'paired numerical fidelity, no native proof or privacy acceptance; subset results are explicitly marked'}
     atomic_json(args.run/'fidelity.json',result)

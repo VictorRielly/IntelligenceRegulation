@@ -1,0 +1,41 @@
+Token-I/O lane round-16b tree frozen at 2026-10-29T10:50:55Z: REVIEW_R16's fixes F-1 and N-r16-1 on frozen-r16 (round 16:
+the real Shieldstral-1.0-3B classifier on native R13, ACCEPTED WITH FIXES on soundness 2026-10-29 10:06Z, REVIEW_R16).
+**UNREVIEWED**: a check of round 16b is to follow (routed by the coordinator).
+copy:     /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r16b/
+source:   /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r16b/ (a new durable tree: r16b/tools/freeze16b.py init = exactly
+          frozen-r16's 300 files, then the round's edits). target/ and the native tests' evidence dirs are excluded.
+manifest: /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/manifest_final_r16b.sha256
+          (= r16b/manifest_r16bA.sha256: 301 files, list sha256 04d94bc0904ccaeb621d001b72be51b54034bfb5f7135a543e872a36a834c549);
+          all 301 re-hashed in the copy: match, none missing, none extra. Pre/post-mutation and post-suite manifests equal it.
+vs r16:   4 paths (r16b/r16bA_vs_frozen_r16.txt / .diff):
+          * hashline/src/private_block/token_io/classify.rs (c23074e9… -> c180c83f…), THE ONLY PRODUCTION CHANGE:
+            `policy_shieldstral_card` (round 12's shieldstral-1.0-3b-card-unsafe/1) is #[cfg(test)] with a corrected doc
+            comment, and `registered_policies()` = [the synthetic rung's dev policy (V = 300)] + the D37 category list;
+          * classify_r16_tests.rs: one `#[path]` line registering the new test module (so token_io.rs, a capture
+            source pin of every token run, keeps its bytes 2aabe64f…);
+          * classify_r16b_tests.rs (new, e9de5748…): the F-1 and N-r16-1 tests;
+          * classify_tied_tests.rs: one comment.
+what:     F-1 (D45(2)): each R13 Shieldstral classifier run profile (T128, T256) admits EXACTLY the three moderate policies
+          shieldstral-1.0-3b-moderate-{sexual,violence,hate}/1 through the whole statement constructor (tables bound to the
+          real export's margin parameters), and the card policy is refused BY NAME at `policy_by_id` (the CLI's --policy),
+          the classifier door and the statement constructor. N-r16-1: the whole-run figures at L = 26 pinned exactly [COUNTED]:
+          floors T128 96 / T256 95; total 2^-96.86 / 2^-95.91, column, LogUp, PCS + sumcheck to 0.01 bit; per-block
+          (N + 4 T_d - 1)/p^2; stage OUT-C / IN-C terms; LogUp = the stages + 26 block terms (1e-9); --min-bits at the floor
+          passes the verifier's floor door, one more bit is refused.
+bytes:    **No receipt, statement or policy byte of the three moderate policies changes** (their constructor, constants and
+          ids are untouched; the policy list is not encoded in any statement). Shown: the new binary re-verifies the real
+          moderate-violence receipt made by e94cecf9… in a fresh process (r16b/logs/verify-violence.log: identity 29aeba6c…,
+          the published statement re-checked byte for byte, not-flagged, floor 96, input root 96ad1af1… = round 16's). No
+          re-prove was needed or run. Rung receipts cross-verify with the frozen-r16 binary both ways (identity 061340df…).
+binary:   cli/zk60_classify.r16b.release.bin dfb8025eb903… (built from this tree after the suite): cli/binaries_r16b.sha256,
+          build note cli/zk60_classify.r16b.BUILD.txt. Use it (or later) for the Shieldstral profiles: the r16 binaries still
+          admit the card policy.
+suite:    s21 (r16b/logs/s21-suite.log): exit 0, 936 passed, 0 failed, 68 ignored, 29 test binaries [890 s, peak RSS 7.89 GiB /
+          cgroup 8.22 GiB, shared box n=1, nothing else live; declared 8.5 / cap 10]. s20 (r16): 934 / 0 / 68.
+tests:    failing-first: the F-1 test FAILED on the unfixed tree ("T128 admits [card-unsafe/1, moderate-sexual/1, -violence/1,
+          -hate/1]", r16b/logs/red.log); mutants killed (r16b/logs/mut-*.log): `bits-l` (one block charged instead of 26:
+          T128 floor 98, the reviewer's mutant) by the N-r16-1 test, `card-back` (the card back in the list) by the F-1 test.
+gate:     capture source pins that move: classify.rs (CLASSIFY_SOURCE_FILES); token_io.rs and run_capture.rs's OWN_SOURCE_FILES
+          entries do not move.
+Not a privacy acceptance and not a classifier-fidelity claim. Unreviewed. The lane's working copy may move on; this copy does not
+change.

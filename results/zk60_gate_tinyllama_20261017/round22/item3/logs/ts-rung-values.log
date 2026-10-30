@@ -1,0 +1,177 @@
+stage-00.json IN-C A-in: groups 3, surjective 3, disclosed 0 {}, joint [] (3.2 s)
+stage-00.json IN-C H-in: groups 4, surjective 3, disclosed 2 {'3': 2}, joint [([2, 3], 2)] (24.7 s)
+stage-00.json IN-C E-token-in: groups 1, surjective 1, disclosed 0 {}, joint [] (24.7 s)
+stage-03.json OUT-C A-out: groups 16, surjective 16, disclosed 0 {}, joint [] (29.9 s)
+stage-03.json OUT-C H-out: groups 5, surjective 4, disclosed 2 {'4': 2}, joint [([3, 4], 2)] (51.5 s)
+stage-03.json OUT-C B-out: groups 2, surjective 2, disclosed 0 {}, joint [] (53.2 s)
+stage-01.json BLOCK A: groups 36, surjective 36, disclosed 0 {}, joint [] (195.0 s)
+stage-01.json BLOCK H: groups 9, surjective 8, disclosed 2 {'8': 2}, joint [([7, 8], 2)] (621.6 s)
+stage-01.json BLOCK Input: groups 2, surjective 2, disclosed 0 {}, joint [] (623.6 s)
+stage-02.json BLOCK A: groups 36, surjective 36, disclosed 0 {}, joint [] (766.0 s)
+stage-02.json BLOCK H: groups 9, surjective 8, disclosed 2 {'8': 2}, joint [([7, 8], 2)] (1177.8 s)
+stage-02.json BLOCK Input: groups 2, surjective 2, disclosed 0 {}, joint [] (1179.7 s)
+TS-1: 12/12 fire (3854.7 s)
+   control honest reference: rank 32770 / expected-honest 32770, disclosed 0 (original form 0), expect surjective, disclosed 0
+   control C1 shared reserved pair: rank 32768 / expected-honest 32770, disclosed 2 (original form 2), expect fires
+   control C2 cm = 0 (pair removed): rank 32768 / expected-honest 32770, disclosed 2 (original form 2), expect fires
+   control C3 lambda_c = 0: rank 32770 / expected-honest 32770, disclosed 0 (original form 0), expect does not fire (as in the review of record)
+   control C6 cw = delta (one nonzero entry): rank 32770 / expected-honest 32770, disclosed 0 (original form 0), expect does not fire
+   control C8 pair weights Fp-dependent: rank 32770 / expected-honest 32770, disclosed 0 (original form 0), expect does not fire at an Fp2 column key (as in the review of record)
+   control G7-D1 duplicate claim: same data weights, its OWN reserved pair (cm, cm U): rank 32772 / expected-honest 32772, disclosed 0 (original form 0), expect surjective, disclosed 0
+   control G7-D2 duplicate claim: an exact copy (two identical coordinates, shared pair): rank 32770 / expected-honest 32772, disclosed 0 (original form 0), expect rank short by 2 of the onto-lemma's 2(N+m)-2; disclosed 0 (the repeated coordinate's equality holds for data too)
+   control G7-D3 control: a copy sharing the pair whose DATA weights differ in one row: rank 32770 / expected-honest 32772, disclosed 2 (original form 2), expect fires
+{
+ "0:IN-C:A-in": {
+  "width": 4096,
+  "rows": 10,
+  "groups": 3,
+  "surjective": 3,
+  "disclosed_Fp": 0,
+  "joint": [],
+  "census_identical_claims": [],
+  "census_equal_published_values": []
+ },
+ "0:IN-C:H-in": {
+  "width": 4096,
+  "rows": 14,
+  "groups": 4,
+  "surjective": 3,
+  "disclosed_Fp": 2,
+  "joint": [
+   [
+    [
+     2,
+     3
+    ],
+    2
+   ]
+  ],
+  "census_identical_claims": [],
+  "census_equal_published_values": []
+ },
+ "0:IN-C:E-token-in": {
+  "width": 256,
+  "rows": 6,
+  "groups": 1,
+  "surjective": 1,
+  "disclosed_Fp": 0,
+  "joint": [],
+  "census_identical_claims": [],
+  "census_equal_published_values": []
+ },
+ "3:OUT-C:A-out": {
+  "width": 4096,
+  "rows": 76,
+  "groups": 16,
+  "surjective": 16,
+  "disclosed_Fp": 0,
+  "joint": [],
+  "census_identical_claims": [],
+  "census_equal_published_values": []
+ },
+ "3:OUT-C:H-out": {
+  "width": 4096,
+  "rows": 38,
+  "groups": 5,
+  "surjective": 4,
+  "disclosed_Fp": 2,
+  "joint": [
+   [
+    [
+     3,
+     4
+    ],
+    2
+   ]
+  ],
+  "census_identical_claims": [],
+  "census_equal_published_values": []
+ },
+ "3:OUT-C:B-out": {
+  "width": 16384,
+  "rows": 7,
+  "groups": 2,
+  "surjective": 2,
+  "disclosed_Fp": 0,
+  "joint": [],
+  "census_identical_claims": [],
+  "census_equal_published_values": []
+ },
+ "1:BLOCK:A": {
+  "width": 16384,
+  "rows": 437,
+  "groups": 36,
+  "surjective": 36,
+  "disclosed_Fp": 0,
+  "joint": [],
+  "census_identical_claims": [],
+  "census_equal_published_values": []
+ },
+ "1:BLOCK:H": {
+  "width": 16384,
+  "rows": 248,
+  "groups": 9,
+  "surjective": 8,
+  "disclosed_Fp": 2,
+  "joint": [
+   [
+    [
+     7,
+     8
+    ],
+    2
+   ]
+  ],
+  "census_identical_claims": [],
+  "census_equal_published_values": []
+ },
+ "1:BLOCK:Input": {
+  "width": 16384,
+  "rows": 7,
+  "groups": 2,
+  "surjective": 2,
+  "disclosed_Fp": 0,
+  "joint": [],
+  "census_identical_claims": [],
+  "census_equal_published_values": []
+ },
+ "2:BLOCK:A": {
+  "width": 16384,
+  "rows": 437,
+  "groups": 36,
+  "surjective": 36,
+  "disclosed_Fp": 0,
+  "joint": [],
+  "census_identical_claims": [],
+  "census_equal_published_values": []
+ },
+ "2:BLOCK:H": {
+  "width": 16384,
+  "rows": 248,
+  "groups": 9,
+  "surjective": 8,
+  "disclosed_Fp": 2,
+  "joint": [
+   [
+    [
+     7,
+     8
+    ],
+    2
+   ]
+  ],
+  "census_identical_claims": [],
+  "census_equal_published_values": []
+ },
+ "2:BLOCK:Input": {
+  "width": 16384,
+  "rows": 7,
+  "groups": 2,
+  "surjective": 2,
+  "disclosed_Fp": 0,
+  "joint": [],
+  "census_identical_claims": [],
+  "census_equal_published_values": []
+ }
+}
+record: /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/round22/item3/ts-rung-L2-v1-r17-values.json  status PASS

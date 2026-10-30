@@ -1,0 +1,61 @@
+Token-I/O lane round-18 tree frozen at 2026-10-30T09:17:26Z: Astra's A5 one-load batch (`zk60_classify prove-batch`)
+adopted onto frozen-r17 with the review's fixes 1 and 2 and notes 3, 7, 9, 14 (r18/A5_PATCH_REVIEW.md, READY WITH FIXES;
+register entry "A5 one-load batch": rule 3 accepted for ONE post in ONE process). PRODUCTION CODE MOVED. **UNREVIEWED**:
+a check of round 18 is to follow (routed by the coordinator).
+copy:     /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r18/ (306 files, 20,734,597 B)
+source:   /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r18/ (r18/tools/freeze18.py init = exactly frozen-r17's
+          303 files; `stage` = Astra's five staged files, each = native_sources.json staged_sha256; then the round's edits).
+          target/ and the native tests' evidence dirs are excluded.
+manifest: /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/manifest_final_r18.sha256
+          (= r18/manifest_r18A.sha256: 306 files, list sha256 1ca1b2d74bac0405ed125f8b20eede491141d41315a87c9a73b71fc668338d5b);
+          all 306 re-hashed in the copy: match, none missing, none extra. The post-mutation, post-suite, post-crash
+          (2026-10-30 05:22) and final-check manifests equal it.
+vs r17:   5 changed + 3 added paths (r18/r18A_vs_frozen_r17.txt / .diff):
+          production: hashline/examples/zk60_classify.rs, hashline/src/private_block.rs,
+          hashline/src/private_block/token_io/classify_cli.rs; new token_io/classify_batch.rs (BatchClaim: a failed batch
+          removes every earlier job's run, statement and owner dir; one post per process, a repeated batch flag refused
+          before anything is read; NOFOLLOW_NONBLOCK on x86-64 Linux only; counted model / table / block loads),
+          new token_io/classify_batch_plan.rs;
+          tests: private_block/hash_domain_tests.rs (label list 36 -> 39 + every production #[path] child listed),
+          private_block/s25_tests.rs (the census follows production #[path] children, fail-closed edge list),
+          new token_io/classify_r18_tests.rs (the round's tests).
+bytes:    BYTE-IDENTITY TEST AT REAL SCALE (review section 4.3; run 2026-10-30 05:26-09:12 after the crash; r18/logs/eq/):
+          under fixed PUBLIC entropy (bubblewrap FIFO on /dev/urandom), the batch's three jobs (moderate sexual / violence /
+          hate, Astra's 17-id test sentence) = three single proves byte for byte (28 receipt segments, the unverified
+          statement.json, the owner's input.dec; 30 files each; compare.log ok true; digests.json 2f173f1d…), every
+          entropy block read (192 B batch, 64 B per single, unread 0), and the REVIEWED r16b binary dfb8025e… gives the
+          candidate's job-0 bytes exactly. The pre-crash batch's c0 / c1 equal the rerun's (two processes, two boots).
+          Astra's router says `unverified`; the nine fresh r16b checks (3 verify, 3 input-owner, 3 label --expect-total 17)
+          exit 0; the fail-closed control (job 1's activations empty) exits 1, removes job 0's three dirs and job 1's, prints
+          refused + app-outcome flagged, no batch-proved, nothing left. Those test receipts were deleted after the record.
+          Batch wall 1418.4 s vs three singles 1453.4 s [MEASURED, n=1, shared box].
+limits:   (ADDED 2026-10-30 10:11 UTC by token round 19, REVIEW_R18 R18-3; the lines above are unchanged) The byte-identity
+          test is ONE measured input point, not a proof that a batch and single proves are the same function:
+          * one input: Astra's public 17-id sentence;
+          * one chunk per category (three jobs); multi-chunk posts (4 to 22 jobs) are untested at real scale (the rung
+            test covers 2 chunks of one policy at L = 1);
+          * not-flagged verdicts only;
+          * the reviewed r16b control covers job 0 only;
+          * nothing over 22 jobs (nor over 3 at real scale): allocator growth, time to the guard's limit and a 22-job
+            post's ~2.8 h / ~18.7 GB of receipts are unmeasured;
+          * n = 1 on a shared box (the timings);
+          * it shows the draw count and order, not the quality of production entropy (a FIFO cannot tell "open per
+            draw" from "one descriptor, 32 bytes per draw"; both are fresh).
+          Reload count (R18-3): each real job reloads 78 blocks, 26 in the CLI's sealing pass + 52 in the prover's two
+          passes on one reader; not "once in its proving pass" (true at L = 1 only) and not 52.
+binary:   cli/zk60_classify.r18.release.bin 110f0c53c56f… (built from this tree after the suite): cli/binaries_r18.sha256,
+          build note cli/zk60_classify.r18.BUILD.txt. Not byte-equal to r17's 81bd8624… (production code moved).
+checked:  re-verifies the REAL moderate-hate receipt made by e94cecf9… in a fresh process (r18/logs/verify-hate.log: the
+          published statement re-checked byte for byte, identity 29aeba6c…, not-flagged, floor 96, input root 4cf9e8ae… =
+          round 16's; 75 s, 2.3 GiB), and rung receipts cross-verify with the r16b binary both ways
+          (r18/logs/xbin-r18-r16b.log; identity 061340df…).
+suite:    s23 (r18/logs/s23-suite.log): exit 0, 961 passed, 0 failed, 71 ignored, 29 test binaries [941 s, peak RSS 7.76 GiB /
+          cgroup 7.89, shared box n=1]. s22 (r17): 940 / 0 / 70.
+tests:    failing-first: on Astra's staged files the RED run failed exactly the three predicted tests (r18/logs/red.log).
+          Mutants killed (r18/logs/mut-*.log, r18_mut.done): fix1-revert, fix2-revert, rng-plant, label-plant,
+          one-post-revert (101 each), job-order (101, the rung byte-identity test), reused-draw (97, the harness's unread
+          check).
+gate:     not assessed in this round: classify_cli.rs and private_block.rs moved; whether a gate capture pin moves is for the
+          gate lane to read.
+Not a privacy acceptance and not a classifier-fidelity claim. Unreviewed. The lane's working copy may move on; this copy does
+not change.

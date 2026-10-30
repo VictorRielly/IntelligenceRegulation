@@ -1,0 +1,46 @@
+{
+  "status": "PASS_SOURCE_SCOPE_AND_PROVENANCE_ONLY",
+  "checks": 724,
+  "elapsed_s": 0.0081304449995514,
+  "peak_rss_kib": 20908,
+  "native_pins": [
+    {
+      "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/tied_tables.rs",
+      "sha256": "901fa1e4f4a1c4c5070665fc1f81534142038e362408bff4dbcb5fca1e57c8b2",
+      "unchanged": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/tied_tables/derive.rs",
+      "sha256": "e2b76895fae1ee04a469f095153d8451969c637ca4dd5939dd937c159d749adf",
+      "unchanged": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/trained_block.rs",
+      "sha256": "e2551aa15fddc7cf43753ca0f5ef65fe813b1f7c279f4928fad1fd6b8c5d77a5",
+      "unchanged": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-review-r13-scratch/hashline/src/private_block/token_io/classify_tied.rs",
+      "sha256": "b8f68b04b51021997eb913c291ac8f8a5e68517db5ef238d985d5726206d0468",
+      "unchanged": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-review-r13-scratch/hashline/src/private_block/token_io/classify_cli.rs",
+      "sha256": "939490d63b176c0b8610320d75598cc77fdfcf1f7413e1a7aa27aef8d50e5017",
+      "unchanged": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-review-r13-scratch/hashline/src/private_block/token_io/load.rs",
+      "sha256": "a9b72811350e1042392b0a8b60bcffddcd01a6b8a39cfa32f97ce4f72cb030dc",
+      "unchanged": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/trained_statement.rs",
+      "sha256": "7908d827889d5bb424b51cb470313c666533577b29fd45c78957db00963e6a1d",
+      "unchanged": true
+    }
+  ],
+  "checked_utc": "2026-10-29T01:12:26.845542+00:00",
+  "native_build_or_proof": false,
+  "scope": "strings, hashes, arithmetic counts, preserved sources/hypotheses; no Rust/device/PCS/receipt/privacy validation"
+}

@@ -1,0 +1,8 @@
+{
+  "utc": "2026-10-29T08:10:45.073013+00:00",
+  "phase": "N-r13-1 lever design/count complete; conditional proposal for later ruling",
+  "proposal_sha256": "7390be22685f5215321b5bcde5f4459aa318a8e58c42a739e85765e907abfce8",
+  "next": "Coordinator/security owner reviews partitioned byte repetition. No implementation or profile registration. Proceed with authorized R14-split work, keeping the current MVP tier fixed.",
+  "retained_attempt": "count.attempt-1.py: margin selection mistakenly searched only lowest-data points per Q; no numerical output published, fixed by a separate margin search",
+  "limitations": "Partial byte repetition/partition bound is a proposed adaptation of the earlier G02 design, not accepted R13 security. Native census, privacy and soundness review remain mandatory."
+}

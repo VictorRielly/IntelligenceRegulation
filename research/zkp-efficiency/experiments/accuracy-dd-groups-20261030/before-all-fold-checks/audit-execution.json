@@ -1,0 +1,26 @@
+{
+  "command": [
+    "/usr/bin/python3",
+    "-B",
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/accuracy-dd-groups-20261030/audit.py"
+  ],
+  "utc": "2026-10-30T19:47:43.035448+00:00",
+  "returncode": 0,
+  "wall_s": 2.734190688999661,
+  "maxrss_kib": 18032,
+  "source_sha256": {
+    "run_bounded.py": "c1684de2c321ec9469bc777ebb9904f0c74a58d2f248e932d12911f1c631a47c",
+    "audit.py": "e777eba97995fa0188e4d150f941c5b9a85e62a83de0d555b1cb5747a225334f",
+    "experiment.py": "9b84be0c08aed7dd07e59d85af8618fe02c7956bd64a2fb406e37298ba1498b3",
+    "engine.py": "adc6af6c7181a4de8266379aa371f1fab1e755ea4157cae0e687e1cc73640223",
+    "reference.py": "0b94ffb356b8ca1e394cda650b71261c548d95e68a7e7f8648c6967428ac36dc"
+  },
+  "limits": {
+    "threads": 1,
+    "cpu_s": 30,
+    "alarm_s": 40,
+    "parent_s": 45,
+    "address_space_mib": 256,
+    "estimated_memory_mib": 64
+  }
+}

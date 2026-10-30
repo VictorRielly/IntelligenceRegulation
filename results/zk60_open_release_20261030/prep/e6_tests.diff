@@ -1,0 +1,665 @@
+diff -ru /tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/tests-pre-e6/test_hashline_cl_gpu_gates.py /home/victor/ir-public/tests/test_hashline_cl_gpu_gates.py
+--- /tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/tests-pre-e6/test_hashline_cl_gpu_gates.py	2026-10-29 23:43:45.799240510 -0700
++++ /home/victor/ir-public/tests/test_hashline_cl_gpu_gates.py	2026-10-30 00:35:35.889593122 -0700
+@@ -929,345 +929,5 @@
+         self.assertEqual(rec["artifact"]["size"], 14)
+ 
+ 
+-class FloorsRunner(unittest.TestCase):
+-    """results/cl1_floors.sh under `bash -n` and `--dry-run` only."""
+-
+-    @classmethod
+-    def setUpClass(cls):
+-        cls.tmp = tempfile.TemporaryDirectory()
+-        cls.repo = os.path.join(cls.tmp.name, "repo with space")
+-        cls.export = os.path.join(cls.tmp.name, "export dir")
+-        cls.scratch = os.path.join(cls.tmp.name, "scratch dir")
+-        os.makedirs(cls.repo)
+-        os.makedirs(cls.export)
+-        cls.plan = os.path.join(cls.tmp.name, "plan.txt")
+-        cls.result = cls.dry_run(cls, "--plan", cls.plan)
+-        cls.lines = [l[2:] for l in cls.result.stdout.splitlines() if l.startswith("+ ")]
+-
+-    @classmethod
+-    def tearDownClass(cls):
+-        cls.tmp.cleanup()
+-
+-    def dry_run(self, *extra, env=None, scratch=None):
+-        e = dict(os.environ)
+-        for k in ("HL_FLOORS_GATES", "HL_FLOORS_THREADS", "CARGO_BUILD_JOBS", "RAYON_NUM_THREADS", "HL_FLOORS_LAYERS", "HL_FLOORS_TOKENS",
+-                  "CUDA_VISIBLE_DEVICES", "HL_FLOORS_REPO"):
+-            e.pop(k, None)
+-        e.update(env or {})
+-        argv = ["bash", _FLOORS, "--dry-run", "--repo", self.repo, "--gates", _SRC, "--v3-export", self.export, *extra,
+-                scratch or self.scratch]
+-        return subprocess.run(argv, capture_output=True, text=True, env=e)
+-
+-    def first(self, predicate):
+-        return next(i for i, l in enumerate(self.lines) if predicate(l))
+-
+-    def test_bash_syntax(self):
+-        self.assertEqual(subprocess.run(["bash", "-n", _FLOORS], capture_output=True).returncode, 0)
+-
+-    def test_dry_run_exits_zero_and_writes_nothing_under_scratch(self):
+-        self.assertEqual(self.result.returncode, 0, self.result.stdout + self.result.stderr)
+-        self.assertFalse(os.path.exists(self.scratch), "the dry run must not create the scratch dir")
+-        self.assertIn("DRY RUN COMPLETE", self.result.stdout)
+-        self.assertIn("nothing built, nothing launched", self.result.stdout)
+-        self.assertTrue(os.path.isfile(self.plan))
+-        with open(self.plan, encoding="utf-8") as fh:
+-            self.assertEqual(fh.read().splitlines(), [l for l in self.lines])
+-
+-    def test_every_emitted_command_survives_shell_splitting_with_spaced_paths(self):
+-        self.assertGreater(len(self.lines), 80)
+-        provers = 0
+-        for line in self.lines:
+-            toks = shlex.split(line.split(" > ")[0])
+-            for t in toks:
+-                self.assertNotIn("\\", t, line)
+-            if "pass" in toks:
+-                provers += 1
+-                b = toks[toks.index("pass") - 1]
+-                self.assertTrue(b.startswith(self.repo + "/hashline/target"), b)
+-                if "--export" in toks:
+-                    self.assertEqual(toks[toks.index("--export") + 1], self.export if "--p3" not in toks else "/nonexistent/zk60-cl13-export")
+-                self.assertEqual(toks[toks.index("--threads") + 1], "2")
+-                self.assertEqual(toks[toks.index("pass") + 1:toks.index("pass") + 3], ["12", "512"])
+-                self.assertIn("CARGO_BUILD_JOBS=2", toks)
+-                self.assertIn("RAYON_NUM_THREADS=2", toks)
+-            if "cargo" in toks:
+-                self.assertIn("CARGO_BUILD_JOBS=2", toks)
+-                self.assertIn("/tmp/zk-build.lock", toks)
+-                # [CL21] the two core steps name the core's manifest; everything else hashline's
+-                want = self.repo + ("/zkp-core/Cargo.toml" if "--locked" in toks and "stable-weight-storage" not in toks else "/hashline/Cargo.toml")
+-                self.assertEqual(toks[toks.index("--manifest-path") + 1], want)
+-        # 12 byte gates + cold + warm + the P3 refusal, each emitted once as a run and once inside its `record`
+-        self.assertEqual(provers, 15 * 2)
+-        self.assertNotIn("--threads 8", self.result.stdout)
+-        # nothing repo-derived points at the archived checkout (the helper path is the test's own --gates)
+-        for needle in ("wt-zk60-cl1/hashline", "wt-zk60-cl1/results"):
+-            self.assertNotIn(needle, self.result.stdout)
+-
+-    def test_required_order_self_test_before_build_before_hardware(self):
+-        selftest = self.first(lambda l: l.endswith("self-test"))
+-        build_cpu = self.first(lambda l: "cargo build --release --manifest-path" in l and "gpu-cuda" not in l)
+-        build_gpu = self.first(lambda l: "cargo build --release --features gpu-cuda" in l)
+-        tests = self.first(lambda l: "cargo test --release" in l and "--test-threads=2" in l and "zkp-core" not in l)
+-        core_tests = self.first(lambda l: "cargo test --release --locked --offline" in l and "zkp-core/Cargo.toml" in l)
+-        core_example = self.first(lambda l: "cargo run --release --locked --offline" in l and "--example public_sumcheck" in l)
+-        oracle = self.first(lambda l: "HL_GPU_REQUIRED=1" in l and "--features gpu-cuda" in l and "zk60_gpu_commit" in l)
+-        refusal = self.first(lambda l: "HL_GPU_REQUIRED=1" in l and "--features gpu-cuda" not in l and "zk60_gpu_commit" in l)
+-        gate = self.first(lambda l: " pass 12 512 " in l and "--proof-out" in l)
+-        cache = self.first(lambda l: "--wcache" in l)
+-        p3 = self.first(lambda l: "--p3 --wcache" in l)
+-        manifest = os.path.join(self.scratch, "manifest.json")
+-        finalize = self.first(lambda l: " finalize --manifest " in l and shlex.split(l)[shlex.split(l).index("--manifest") + 1] == manifest)
+-        self.assertLess(selftest, build_cpu)
+-        self.assertLess(build_cpu, build_gpu)
+-        self.assertLess(build_gpu, tests)
+-        self.assertLess(tests, core_tests)          # [CL21] the core after the hashline crate tests, before the device
+-        self.assertLess(core_tests, core_example)
+-        self.assertLess(core_example, oracle)
+-        self.assertLess(oracle, refusal)
+-        self.assertLess(refusal, gate)
+-        self.assertLess(gate, cache)
+-        self.assertLess(cache, p3)
+-        self.assertLess(p3, finalize)
+-        self.assertEqual(finalize, len(self.lines) - 1)
+-        # the self-test actually RAN in the dry run (it is CPU-only) and passed
+-        self.assertIn("gates self-test OK", self.result.stdout)
+-        # [CL13 follow-up] the runner announces the DEFAULT suite's expectation (v2: CL15's 141)
+-        expected = gg.case_definition(gg.DEFAULT_SUITE, "oracle_gpu")["expect"]["executed_cases"]
+-        self.assertIn(f"suite version {gg.DEFAULT_SUITE} expects {expected} executed oracle cases", self.result.stdout)
+-
+-    def test_gpu_gates_carry_the_device_env_and_the_cpu_gates_do_not(self):
+-        gpu = [l for l in self.lines if " pass 12 512 " in l and "HL_GPU=1" in l and "record" not in l]
+-        cpu = [l for l in self.lines if " pass 12 512 " in l and "HL_GPU=1" not in l and "record" not in l]
+-        self.assertEqual(len(gpu), 8)
+-        self.assertEqual(len(cpu), 7)      # 4 CPU gates + cold + warm + the P3 refusal
+-        self.assertEqual(sum("HL_ZK_CHUNK=1" in l for l in gpu), 4)
+-        for l in gpu:
+-            self.assertIn("LD_LIBRARY_PATH=", l)
+-            self.assertIn("target-gpu/release/hashline", l)
+-        for l in cpu:
+-            self.assertNotIn("LD_LIBRARY_PATH=", l)
+-            self.assertIn("target/release/hashline", l)
+-        self.assertEqual(sum("HL_WCACHE_VERBOSE=1" in l and "--wcache" in l and "--zk" in l and "record" not in l for l in self.lines), 2)
+-
+-    def test_manifest_lifecycle_is_emitted_for_every_case(self):
+-        starts = [shlex.split(l)[-1] for l in self.lines if " start --manifest " in l]
+-        records = [shlex.split(l.split(" -- ")[0])[shlex.split(l.split(" -- ")[0]).index("--case") + 1] for l in self.lines if " record --manifest " in l]
+-        self.assertEqual(starts, EXPECTED_V5)        # [CL21] the default suite is v7
+-        self.assertEqual(records, EXPECTED_V5)
+-        init = self.first(lambda l: " init --out " in l)
+-        self.assertLess(init, self.first(lambda l: "cargo build" in l))
+-        self.assertIn("--layers 12 --tokens 512", self.lines[init])
+-        self.assertIn("--prover-threads 2 --build-jobs 2 --rayon-threads 2", self.lines[init])
+-        # [CL21] init records both crates from the checkout; finalize re-binds to it
+-        toks = shlex.split(self.lines[init])
+-        self.assertEqual(toks[toks.index("--repo") + 1], self.repo)
+-        fin = shlex.split(self.lines[-1])
+-        self.assertEqual(fin[fin.index("--repo") + 1], self.repo)
+-        self.assertIn("finalize", fin)
+-        binaries = self.first(lambda l: " binaries --manifest " in l)
+-        self.assertLess(self.first(lambda l: "--features gpu-cuda" in l and "cargo build" in l), binaries)
+-        self.assertLess(binaries, self.first(lambda l: "cargo test" in l))
+-
+-    def test_missing_helper_fails_before_any_build(self):
+-        r = self.dry_run(env={"HL_FLOORS_GATES": "/nonexistent/gates.py"}, scratch=os.path.join(self.tmp.name, "s2"))
+-        # env override loses to --gates on the command line; use --gates explicitly
+-        r = subprocess.run(["bash", _FLOORS, "--dry-run", "--repo", self.repo, "--gates", "/nonexistent/gates.py",
+-                            os.path.join(self.tmp.name, "s2")], capture_output=True, text=True)
+-        self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+-        self.assertIn("FAILURE: the gates helper does not run", r.stdout)
+-        self.assertNotIn("cargo build", r.stdout)
+-        self.assertNotIn("cargo test", r.stdout)
+-        self.assertFalse(os.path.exists(os.path.join(self.tmp.name, "s2")))
+-
+-    def test_broken_parser_fails_before_any_build(self):
+-        # a Python that refuses everything stands in for a helper that does not parse
+-        r = subprocess.run(["bash", _FLOORS, "--dry-run", "--repo", self.repo, "--python", "/bin/false",
+-                            os.path.join(self.tmp.name, "s3")], capture_output=True, text=True)
+-        self.assertEqual(r.returncode, 1)
+-        self.assertIn("FAILURE", r.stdout)
+-        self.assertNotIn("cargo", r.stdout.split("FAILURE")[1])
+-        self.assertEqual(sum("cargo build" in l for l in r.stdout.splitlines()), 0)
+-
+-    def test_threads_and_shape_overrides_reach_every_prover_command(self):
+-        r = self.dry_run("--threads", "3", "--build-jobs", "1", "--rayon-threads", "4", "--layers", "4", "--tokens", "256",
+-                         "--device", "1", scratch=os.path.join(self.tmp.name, "s4"))
+-        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+-        lines = [l for l in r.stdout.splitlines() if l.startswith("+ ") and " pass " in l and "record" not in l]
+-        self.assertEqual(len(lines), 15)
+-        for l in lines:
+-            toks = shlex.split(l.split(" > ")[0])
+-            self.assertEqual(toks[toks.index("pass") + 1:toks.index("pass") + 3], ["4", "256"])
+-            self.assertEqual(toks[toks.index("--threads") + 1], "3")
+-            self.assertIn("CARGO_BUILD_JOBS=1", toks)
+-            self.assertIn("RAYON_NUM_THREADS=4", toks)
+-        self.assertIn("NOT the frozen shape", r.stdout)
+-        gpu = [l for l in lines if "HL_GPU=1" in l]
+-        self.assertEqual(len(gpu), 8)
+-        for l in gpu:
+-            self.assertIn("CUDA_VISIBLE_DEVICES=1", l)
+-        self.assertIn("--layers 4 --tokens 256", r.stdout)
+-
+-    def test_env_defaults_are_honoured(self):
+-        r = self.dry_run(env={"HL_FLOORS_THREADS": "5", "CUDA_VISIBLE_DEVICES": "0"}, scratch=os.path.join(self.tmp.name, "s5"))
+-        self.assertEqual(r.returncode, 0)
+-        self.assertIn("--threads 5", r.stdout)
+-        self.assertIn("CUDA_VISIBLE_DEVICES=0", r.stdout)
+-
+-    def test_usage_states_the_shape_rule(self):
+-        r = subprocess.run(["bash", _FLOORS, "--help"], capture_output=True, text=True)
+-        self.assertEqual(r.returncode, 0)
+-        self.assertIn("no_frozen_expectation", r.stdout)
+-        self.assertIn("CANNOT be green", r.stdout)
+-        r = subprocess.run(["bash", _FLOORS], capture_output=True, text=True)
+-        self.assertEqual(r.returncode, 2)
+-
+-    def test_header_documents_the_lock_ownership(self):
+-        with open(_FLOORS, encoding="utf-8") as fh:
+-            text = fh.read()
+-        self.assertIn("OUTER heavy lock (/tmp/zk-heavy.lock) is the LAUNCHER's job", text)
+-        self.assertIn("NEVER wrap this script in the build lock", text)
+-        # both builds, the crate tests, [CL21] the two core steps, the oracle and the two controls take the build lock INSIDE
+-        self.assertEqual(text.count("flock /tmp/zk-build.lock"), 9)
+-        self.assertEqual(sum("/tmp/zk-build.lock" in l for l in self.lines if "cargo" in l and " record " not in l), 9)
+-        self.assertNotIn("zk-heavy.lock", " ".join(self.lines))   # the heavy lock is never taken here
+-        # `--threads 8` survives only in the history comment that says it was removed
+-        self.assertEqual([l for l in text.splitlines() if "--threads 8" in l and not l.lstrip().startswith("#")], [])
+-        self.assertNotIn("ORACLE_MIN_CASES", text)
+-        self.assertIn('"${SUMMARY:-"{}"}"', text)
+-        self.assertIn('"${SELFTEST:-"{}"}"', text)
+-
+-    # ------------------------------------------------------------- [CL21]
+-    def test_core_commands_are_emitted_with_quoted_paths_locked_and_offline(self):
+-        core = [l for l in self.lines if "zkp-core/Cargo.toml" in l and " record " not in l]
+-        self.assertEqual(len(core), 2)
+-        test_toks = shlex.split(core[0].split(" > ")[0])
+-        run_toks = shlex.split(core[1].split(" > ")[0])
+-        for toks in (test_toks, run_toks):
+-            self.assertEqual(toks[toks.index("--manifest-path") + 1], self.repo + "/zkp-core/Cargo.toml")
+-            self.assertIn("--locked", toks)
+-            self.assertIn("--offline", toks)
+-            self.assertIn("--release", toks)
+-            self.assertEqual(toks[:5], ["env", "CARGO_BUILD_JOBS=2", "RAYON_NUM_THREADS=2", "flock", "/tmp/zk-build.lock"])
+-        self.assertEqual(test_toks[test_toks.index("cargo") + 1], "test")
+-        self.assertEqual(test_toks[-2:], ["--", "--test-threads=2"])
+-        self.assertEqual(run_toks[run_toks.index("cargo") + 1], "run")
+-        self.assertEqual(run_toks[run_toks.index("--example") + 1], "public_sumcheck")
+-        # the retained per-case logs, `printf %q`-quoted (a space survives the shell split)
+-        self.assertEqual(shlex.split(core[0].split(" > ")[1]), [os.path.join(self.scratch, "core_tests.out"), "2>&1"])
+-        self.assertEqual(shlex.split(core[1].split(" > ")[1]), [os.path.join(self.scratch, "core_example.out"), "2>&1"])
+-        # the records carry the same argv and the example's artifact path
+-        rec = next(l for l in self.lines if " record --manifest " in l and "--case core_example" in l)
+-        toks = shlex.split(rec)
+-        self.assertEqual(toks[toks.index("--artifact") + 1], self.repo + "/zkp-core/target/release/examples/public_sumcheck")
+-        self.assertEqual(toks[toks.index("--") + 1:], run_toks)
+-        self.assertIn("zkp-core cases: core_tests + core_example", self.result.stdout)
+-
+-    def test_dry_run_reports_both_crates_identity(self):
+-        # read-only in the dry run; on a non-checkout every fact is absent and said so
+-        out = self.result.stdout
+-        self.assertIn("hashline/  tree <none>", out)
+-        self.assertIn("zkp-core/  tree <none>", out)
+-        self.assertIn("present 0 (Cargo.toml + src/ + examples/public_sumcheck.rs)", out)
+-        self.assertIn("Cargo.lock sha256 <missing>", out)
+-        self.assertIn("identity -> builds -> tests -> zkp-core -> oracle", out)
+-        self.assertNotIn("FAILURE", out)
+-
+-    def test_suite_v3_dry_run_has_no_core_cases_but_records_the_identity(self):
+-        r = self.dry_run("--suite-version", "3", scratch=os.path.join(self.tmp.name, "s6"))
+-        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+-        lines = [l[2:] for l in r.stdout.splitlines() if l.startswith("+ ")]
+-        self.assertEqual([shlex.split(l)[-1] for l in lines if " start --manifest " in l], EXPECTED_V1)
+-        self.assertEqual([l for l in lines if "zkp-core/Cargo.toml" in l], [])
+-        self.assertIn("zkp-core cases: none (v1-v3)", r.stdout)
+-        self.assertIn("none in suite version 3", r.stdout)
+-        init = next(l for l in lines if " init --out " in l)
+-        self.assertIn("--suite-version 3", init)
+-        self.assertIn("--repo", init)
+-
+-    def test_usage_and_success_line_name_the_core(self):
+-        r = subprocess.run(["bash", _FLOORS, "--help"], capture_output=True, text=True)
+-        self.assertIn(f"default {gg.DEFAULT_SUITE} =", r.stdout)
+-        self.assertIn("zkp-core tests/example", r.stdout)
+-        with open(_FLOORS, encoding="utf-8") as fh:
+-            text = fh.read()
+-        self.assertIn("+ zkp-core tests + zkp-core example", text)
+-        self.assertIn("identity: hashline + zkp-core trees, both lockfiles", text)
+-
+-    def test_storage_tests_cannot_overwrite_the_recorded_cpu_or_gpu_binary(self):
+-        line = next(l for l in self.lines if "cargo test" in l and "stable-weight-storage" in l and " record " not in l)
+-        argv = shlex.split(line.split(" > ")[0])
+-        target = next((v.split("=", 1)[1] for v in argv if v.startswith("CARGO_TARGET_DIR=")), None)
+-        self.assertIsNotNone(target, "feature tests must not overwrite the default CPU artifact")
+-        target = os.path.realpath(target)
+-        for base in ("hashline/target", "hashline/target-gpu"):
+-            self.assertNotEqual(target, os.path.realpath(os.path.join(self.repo, base)))
+-
+-    def test_missing_or_dirty_core_refuses_to_start_before_any_build(self):
+-        # NOT a dry run: a real temp checkout, the self-test runs, the identity is
+-        # read, and the run stops with FAILURE before any cargo command; the
+-        # scratch dir holds no manifest. Nothing here builds anything.
+-        def real_run(repo, scratch):
+-            e = {k: v for k, v in os.environ.items() if k not in ("HL_FLOORS_GATES", "HL_FLOORS_REPO", "HL_FLOORS_SUITE_VERSION")}
+-            return subprocess.run(["bash", _FLOORS, "--repo", repo, "--gates", _SRC, "--v3-export", self.export, scratch],
+-                                  capture_output=True, text=True, env=e, timeout=120)
+-        cases = {}
+-        cases["missing core"] = (make_checkout(os.path.join(self.tmp.name, "nc repo"), core=False), "the extracted core is missing or incomplete")
+-        dirty = make_checkout(os.path.join(self.tmp.name, "dc repo"))
+-        with open(os.path.join(dirty, "zkp-core", "src", "lib.rs"), "a", encoding="utf-8") as fh:
+-            fh.write("// edited\n")
+-        cases["dirty core"] = (dirty, "uncommitted changes under zkp-core/")
+-        dirty_hl = make_checkout(os.path.join(self.tmp.name, "dh repo"))
+-        with open(os.path.join(dirty_hl, "hashline", "src", "main.rs"), "a", encoding="utf-8") as fh:
+-            fh.write("// edited\n")
+-        cases["dirty hashline"] = (dirty_hl, "uncommitted changes under hashline/")
+-        cases["not a checkout"] = (os.path.join(self.tmp.name, "plain dir"), "is not a git checkout")
+-        os.makedirs(cases["not a checkout"][0])
+-        for name, (repo, needle) in cases.items():
+-            scratch = os.path.join(self.tmp.name, "real " + name)
+-            r = real_run(repo, scratch)
+-            self.assertEqual(r.returncode, 1, f"{name}: {r.stdout}{r.stderr}")
+-            self.assertIn("FAILURE: " if name == "not a checkout" else "FAILURE: " + needle[:20], r.stdout, name)
+-            self.assertIn(needle, r.stdout, name)
+-            self.assertIn("gates self-test OK", r.stdout, name)
+-            self.assertNotIn("cargo", r.stdout.split("=== source identity ===")[1], name)
+-            self.assertFalse(os.path.exists(os.path.join(scratch, "manifest.json")), name)
+-            if name != "not a checkout":
+-                self.assertIn("nothing was built", r.stdout, name)
+-        # a clean two-crate checkout passes the identity gate: the FIRST command after it is the manifest init
+-        # (the init runs for real — it only reads the checkout — and then cargo build would follow; we stop
+-        # the run there by pointing cargo at nothing: PATH without cargo makes build_cpu fail, after init)
+-        clean = make_checkout(os.path.join(self.tmp.name, "ok repo"))
+-        scratch = os.path.join(self.tmp.name, "real ok")
+-        e = {k: v for k, v in os.environ.items() if k not in ("HL_FLOORS_GATES", "HL_FLOORS_REPO", "HL_FLOORS_SUITE_VERSION")}
+-        e["PATH"] = os.pathsep.join(p for p in e.get("PATH", "").split(os.pathsep) if not os.path.isfile(os.path.join(p, "cargo")))
+-        # This leg tests source identity and manifest creation, then the
+-        # missing-cargo failure. It must not wait behind unrelated builds
+-        # (or deadlock if its parent suite holds the global build lock).
+-        # Forward only the expected first build command without locking;
+-        # cargo is absent from PATH, so no actual build can occur here.
+-        no_cargo_bin = os.path.join(self.tmp.name, "missing cargo bin")
+-        os.makedirs(no_cargo_bin)
+-        no_cargo_flock = os.path.join(no_cargo_bin, "flock")
+-        with open(no_cargo_flock, "w", encoding="utf-8") as fh:
+-            fh.write('#!/bin/bash\n'
+-                     '[[ "$1" == /tmp/zk-build.lock && "$2" == cargo && "$3" == build ]] || exit 98\n'
+-                     'shift\n'
+-                     'exec "$@"\n')
+-        os.chmod(no_cargo_flock, 0o755)
+-        e["PATH"] = no_cargo_bin + os.pathsep + e["PATH"]
+-        r = subprocess.run(["bash", _FLOORS, "--repo", clean, "--gates", _SRC, "--v3-export", self.export, scratch],
+-                           capture_output=True, text=True, env=e, timeout=120)
+-        self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+-        self.assertIn("present 1", r.stdout)
+-        self.assertNotIn("nothing was built", r.stdout)
+-        self.assertIn("FAILURE: build_cpu", r.stdout)
+-        with open(os.path.join(scratch, "build_cpu.out"), encoding="utf-8") as fh:
+-            self.assertIn("cargo: not found", fh.read())
+-        m = gg.load_manifest(os.path.join(scratch, "manifest.json"))
+-        self.assertEqual(m["source"]["crates"]["zkp_core"]["tree"], git(clean, "rev-parse", "HEAD:zkp-core"))
+-        self.assertEqual(m["source"]["head"], git(clean, "rev-parse", "HEAD"))
+-        self.assertEqual(m["suite_version"], gg.DEFAULT_SUITE)
+-
+-
+ if __name__ == "__main__":
+     unittest.main()
+diff -ru /tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/tests-pre-e6/test_hashline_cl_profile.py /home/victor/ir-public/tests/test_hashline_cl_profile.py
+--- /tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/tests-pre-e6/test_hashline_cl_profile.py	2026-09-08 09:05:57.474910285 -0700
++++ /home/victor/ir-public/tests/test_hashline_cl_profile.py	2026-10-30 00:35:35.889687100 -0700
+@@ -343,29 +343,6 @@
+         self.assertFalse(r["eligible"])
+         self.assertTrue(any("the log records CMD" in x for x in r["ineligible_reasons"]), r["ineligible_reasons"])
+ 
+-    def test_the_archived_sample_parses_as_eligible(self):
+-        """results/cl5_sample_p1cold.log: a real p1cold rep 1 from the 2026-09-04
+-        matrix, with the runner's `exit 0` line. It was recorded WITHOUT
+-        HL_WCACHE_VERBOSE, and the ZK pass prints no wcache summary, so its
+-        cache state is honestly `unknown` (the command says --wcache; the log
+-        cannot say whether it hit). Eligibility does not depend on that."""
+-        with open(_SAMPLE, encoding="utf-8", errors="replace") as fh:
+-            text = fh.read()
+-        r = prof.attribute(prof.parse_log(text, command=CMD_WC))
+-        self.assertTrue(r["eligible"], r["ineligible_reasons"])
+-        self.assertEqual(r["exit_code"], 0)
+-        self.assertEqual(r["exit_code_source"], "log")
+-        self.assertEqual(r["privacy"], "P1")
+-        self.assertEqual(r["proof_sha256"], "40eb54795e023c77382a31020aac728485daaae2e1b5ec58c3c82d04f94aac17")
+-        self.assertEqual(r["proof_bytes"], 87697008)
+-        self.assertEqual(r["cache_state"], "unknown")
+-        self.assertTrue(any("HL_WCACHE_VERBOSE unset" in n for n in r["notes"]))
+-        self.assertEqual(r["cpu_fallback_count"], 0)
+-        out = prof.rank([r], top_n=3)
+-        self.assertEqual(out["ranked"][0]["phase"], "commit A (zk)")
+-        self.assertAlmostEqual(out["proof_ready_s"], 7.345753530)
+-        for item in out["ranked"]:
+-            self.assertGreater(item["bounded_speedup_if_removed_entirely"], 1.0)
+ 
+ 
+ class Cache(unittest.TestCase):
+diff -ru /tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/tests-pre-e6/test_zk60_attention_cfs_slots.py /home/victor/ir-public/tests/test_zk60_attention_cfs_slots.py
+--- /tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/tests-pre-e6/test_zk60_attention_cfs_slots.py	2026-09-19 01:14:04.787912772 -0700
++++ /home/victor/ir-public/tests/test_zk60_attention_cfs_slots.py	2026-10-30 00:35:35.889247351 -0700
+@@ -29,6 +29,8 @@
+ 
+ 
+ def setUpModule():
++    if not INVENTORY.is_file():
++        raise unittest.SkipTest('needs results/zk60_opus_attention_inventory.json (a development record, not shipped). Produce it from this tree: python3 scripts/zk60_opus_attention_inventory.py --out results/zk60_opus_attention_inventory.json (its source pin, hashline/src/attention.rs sha256 c5ae80dd..., is the shipped file)')
+     global REPORT, INV
+     with open(INVENTORY) as f:
+         INV = json.load(f)
+diff -ru /tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/tests-pre-e6/test_zk60_attention_pair_schedule.py /home/victor/ir-public/tests/test_zk60_attention_pair_schedule.py
+--- /tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/tests-pre-e6/test_zk60_attention_pair_schedule.py	2026-09-19 01:14:04.719913378 -0700
++++ /home/victor/ir-public/tests/test_zk60_attention_pair_schedule.py	2026-10-30 00:35:35.889333910 -0700
+@@ -24,6 +24,7 @@
+ ROOT = Path(__file__).resolve().parent.parent
+ TOOL = ROOT / "scripts" / "zk60_attention_pair_schedule.py"
+ INVENTORY = ROOT / "results" / "zk60_opus_attention_inventory.json"
++_NO_INVENTORY = 'needs results/zk60_opus_attention_inventory.json (a development record, not shipped). Produce it from this tree: python3 scripts/zk60_opus_attention_inventory.py --out results/zk60_opus_attention_inventory.json (its source pin, hashline/src/attention.rs sha256 c5ae80dd..., is the shipped file)'
+ SCHEDULE = ROOT / "docs" / "zkmatrix-poc" / "zk60_private_attention_schedule.json"
+ SEED = 2026
+ 
+@@ -48,6 +49,7 @@
+     return _CACHE["inv"]
+ 
+ 
++@unittest.skipUnless(INVENTORY.is_file(), _NO_INVENTORY)
+ class GroupReconstruction(unittest.TestCase):
+     """The opening groups rebuilt by pcs::group_claims' rule equal the inventory."""
+ 
+@@ -84,6 +86,7 @@
+         self.assertTrue(seam_rows <= rho_d_rows)
+ 
+ 
++@unittest.skipUnless(INVENTORY.is_file(), _NO_INVENTORY)
+ class Schedule(unittest.TestCase):
+ 
+     @classmethod
+@@ -162,6 +165,7 @@
+         self.assertEqual(json.dumps(on_disk, sort_keys=True), json.dumps(record, sort_keys=True))
+ 
+ 
++@unittest.skipUnless(INVENTORY.is_file(), _NO_INVENTORY)
+ class Engine(unittest.TestCase):
+     """The sparse engine equals FA2's dense `analyze` (ranks and functional space)."""
+ 
+@@ -178,6 +182,7 @@
+             self.assertTrue(T.engines_agree(model)["agree"], kind)
+ 
+ 
++@unittest.skipUnless(INVENTORY.is_file(), _NO_INVENTORY)
+ class PositiveVerdicts(unittest.TestCase):
+ 
+     @classmethod
+@@ -243,6 +248,7 @@
+         self.assertEqual(self.res["summary"]["groups_with_nonzero_disclosure"], {})
+ 
+ 
++@unittest.skipUnless(INVENTORY.is_file(), _NO_INVENTORY)
+ class NegativeControls(unittest.TestCase):
+ 
+     @classmethod
+@@ -319,6 +325,7 @@
+         self.check(["base1", "base1"], 1, True, 2)
+ 
+ 
++@unittest.skipUnless(INVENTORY.is_file(), _NO_INVENTORY)
+ class Determinism(unittest.TestCase):
+ 
+     def test_same_seed_same_output(self):
+@@ -337,6 +344,7 @@
+         self.assertEqual({k: v["disclosed_dim"] for k, v in na.items()}, {k: v["disclosed_dim"] for k, v in nb.items()})
+ 
+ 
++@unittest.skipUnless(INVENTORY.is_file(), _NO_INVENTORY)
+ class CLI(unittest.TestCase):
+ 
+     def test_cli_exit_zero_and_outputs(self):
+Only in /tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/tests-pre-e6: test_zk60_budgeted_endpoint_boundary.py
+diff -ru /tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/tests-pre-e6/test_zk60_endpoint_view.py /home/victor/ir-public/tests/test_zk60_endpoint_view.py
+--- /tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/tests-pre-e6/test_zk60_endpoint_view.py	2026-09-09 21:48:58.789812161 -0700
++++ /home/victor/ir-public/tests/test_zk60_endpoint_view.py	2026-10-30 00:35:35.889372131 -0700
+@@ -87,6 +87,10 @@
+         with self.assertRaisesRegex(ValueError, "random field"):
+             V.generate(self.plan(), lambda _: True)
+ 
++    @unittest.skipUnless(len(list((V.ROOT/"results/zk60_round22_captures").glob("*.json"))) == 4,
++                         "needs the 4 retained round-22 IO validation captures in results/zk60_round22_captures/ "
++                         "(development captures, not shipped; made by the round-22 capture run, "
++                         "docs/zkmatrix-poc/ZK60_ROUND22.md)")
+     def test_plan_does_not_read_captured_output_values(self):
+         paths = sorted((V.ROOT/"results/zk60_round22_captures").glob("*.json"))
+         self.assertEqual(len(paths), 4, "mandatory retained captures absent")
+diff -ru /tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/tests-pre-e6/test_zk60_fable_transcript_sim.py /home/victor/ir-public/tests/test_zk60_fable_transcript_sim.py
+--- /tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/tests-pre-e6/test_zk60_fable_transcript_sim.py	2026-09-08 18:52:43.295500235 -0700
++++ /home/victor/ir-public/tests/test_zk60_fable_transcript_sim.py	2026-10-30 00:35:35.889400689 -0700
+@@ -127,6 +127,10 @@
+ 
+ 
+ class Records(unittest.TestCase):
++    @unittest.skipUnless((ROOT / "results/zk60_fable_fa8_disposition.json").exists(),
++                         "needs the archived record results/zk60_fable_fa8_disposition.json (not shipped); "
++                         "write it with: python3 scripts/zk60_fable_transcript_sim.py disposition "
++                         "-o results/zk60_fable_fa8_disposition.json")
+     def test_disposition_record_matches_generator(self):
+         path = ROOT / "results/zk60_fable_fa8_disposition.json"
+         self.assertTrue(path.exists(), "run: python3 scripts/zk60_fable_transcript_sim.py disposition -o results/zk60_fable_fa8_disposition.json")
+diff -ru /tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/tests-pre-e6/test_zk60_guarded_command.py /home/victor/ir-public/tests/test_zk60_guarded_command.py
+--- /tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/tests-pre-e6/test_zk60_guarded_command.py	2026-09-29 18:28:30.279488550 -0700
++++ /home/victor/ir-public/tests/test_zk60_guarded_command.py	2026-10-30 00:35:35.889768976 -0700
+@@ -90,35 +90,5 @@
+     return module
+ 
+ 
+-class LegacyLauncherTests(unittest.TestCase):
+-    def test_native_refusal_retains_original_evidence_and_writes_terminal_attempt(self):
+-        launcher = load_launcher(ROOT / 'ops/zkp-mvp/build_native.py', 'legacy_native_build')
+-        with tempfile.TemporaryDirectory() as tmp:
+-            output = Path(tmp)
+-            original = output / 'stack-cli.json'
+-            original.write_text('original interrupted report\n')
+-            step = {'exit_code': 70, 'guard_result': {'exit': 70, 'child_rc': None}}
+-            with patch.object(launcher, 'OUT', output), patch.object(sys, 'argv', ['build', 'stack-cli']):
+-                with patch.object(launcher.guarded, 'run', return_value=step) as run, patch('builtins.print'):
+-                    self.assertEqual(launcher.main(), 70)
+-            run.assert_called_once()
+-            self.assertEqual(original.read_text(), 'original interrupted report\n')
+-            attempt = next(p for p in output.iterdir() if p.is_dir())
+-            self.assertEqual((attempt / 'run.done').read_text(), '70\n')
+-            self.assertEqual(json.loads((attempt / 'report.json').read_text())['state'], 'failed')
+-
+-    def test_hardening_stops_after_guard_refusal(self):
+-        launcher = load_launcher(ROOT / 'ops/zkp-mvp/sonnet-hardening/build_check.py', 'legacy_hardening_build')
+-        with tempfile.TemporaryDirectory() as tmp:
+-            step = {'exit_code': 70, 'guard_result': {'exit': 70, 'child_rc': None}}
+-            with patch.object(launcher, 'EVIDENCE', Path(tmp)):
+-                with patch.object(launcher.guarded, 'run', return_value=step) as run, patch('builtins.print'):
+-                    self.assertEqual(launcher.main(), 70)
+-            run.assert_called_once()
+-            attempt = next(Path(tmp).iterdir())
+-            self.assertEqual((attempt / 'run.done').read_text(), '70\n')
+-            self.assertEqual(json.loads((attempt / 'report.json').read_text())['state'], 'failed')
+-
+-
+ if __name__ == '__main__':
+     unittest.main()
+diff -ru /tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/tests-pre-e6/test_zk60_io_review_gate.py /home/victor/ir-public/tests/test_zk60_io_review_gate.py
+--- /tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/tests-pre-e6/test_zk60_io_review_gate.py	2026-09-09 09:12:51.688884399 -0700
++++ /home/victor/ir-public/tests/test_zk60_io_review_gate.py	2026-10-30 00:35:35.889431965 -0700
+@@ -10,6 +10,12 @@
+ import zk60_io_review_gate as gate
+ 
+ 
++@unittest.skipUnless((gate.ROOT / "results/zk60_opus_io_capture_analysis.json").is_file()
++                     and (gate.ROOT / "results/zk60_round19_validation.json").is_file(),
++                     "needs results/zk60_opus_io_capture_analysis.json and results/zk60_round19_validation.json "
++                     "(development records, not shipped). Produce the analysis with "
++                     "python3 scripts/zk60_opus_io_capture.py analyze --captures-dir <round-19 native captures> "
++                     "--manifest results/zk60_round19_validation.json -o results/zk60_opus_io_capture_analysis.json")
+ class ReviewAcceptance(unittest.TestCase):
+     @classmethod
+     def setUpClass(cls):
+Only in /tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/tests-pre-e6: test_zk60_mvp_baseline.py
+diff -ru /tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/tests-pre-e6/test_zk60_mvp_security_probe.py /home/victor/ir-public/tests/test_zk60_mvp_security_probe.py
+--- /tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/tests-pre-e6/test_zk60_mvp_security_probe.py	2026-09-22 07:15:02.190040460 -0700
++++ /home/victor/ir-public/tests/test_zk60_mvp_security_probe.py	2026-10-30 00:35:35.889812820 -0700
+@@ -36,40 +36,6 @@
+ 
+ 
+ class SourceBound(unittest.TestCase):
+-    def test_pins_match_round22_manifest(self):
+-        r = probe.check_source_pins()
+-        self.assertEqual(len(r["pinned"]), 10)
+-        self.assertTrue(r["all_pinned_match"], [x for x in r["pinned"] if not x["match"]])
+-        self.assertEqual(r["manifest_source_commit"], "1f0ff3680c4cda88f1744343e24eb93cdddfcba4")
+-
+-    def test_reviewed_source_keeps_the_archived_producer_identity(self):
+-        rows = probe.check_source_pins()["pinned"]
+-        moved = [r for r in rows if r["reviewed_update"]]
+-        self.assertEqual([r["path"] for r in moved], ["hashline/src/zk.rs"])
+-        row = moved[0]
+-        self.assertNotEqual(row["manifest"], row["head"])
+-        self.assertEqual(row["manifest"], row["reviewed_update"]["producer_sha256"])
+-        self.assertEqual(row["head"], row["expected_current"])
+-        self.assertTrue(row["match"])
+-
+-    def test_unknown_source_drift_still_refuses_with_a_reviewed_update(self):
+-        original = probe.sha256
+-        def changed(path):
+-            return "ab" * 32 if Path(path) == ROOT / "hashline/src/zk.rs" else original(path)
+-        with mock.patch.object(probe, "sha256", side_effect=changed):
+-            self.assertFalse(probe.check_source_pins()["all_pinned_match"])
+-            with self.assertRaises(probe.ProbeError):
+-                probe.run(None)
+-
+-    def test_rewriting_the_capture_pin_cannot_masquerade_as_review(self):
+-        manifest = json.loads(probe.MANIFEST.read_text())
+-        manifest["source_sha256"]["hashline/src/zk.rs"] = probe.REVIEWED_SOURCE_UPDATES["hashline/src/zk.rs"]["current_sha256"]
+-        with mock.patch.object(probe.json, "loads", return_value=manifest):
+-            result = probe.check_source_pins()
+-        self.assertFalse(result["all_pinned_match"])
+-        row = next(r for r in result["pinned"] if r["path"] == "hashline/src/zk.rs")
+-        self.assertFalse(row["producer_pin_matches"])
+-
+     def test_every_challenge_follows_fresh_a_root(self):
+         r = probe.check_schedule_order()
+         zk = r["zk_rs"]
+@@ -203,14 +169,5 @@
+             with self.assertRaisesRegex(probe.ProbeError, "producer source"):
+                 probe.run(None)
+ 
+-    def test_diagnostic_does_not_close_security_requirements(self):
+-        result = probe.run(None)
+-        self.assertTrue(result["synthetic"]["honest_equal_planes"]["preimage_exists"])
+-        self.assertFalse(result["synthetic"]["unequal_planes"]["zero_witness_preimage_exists"])
+-        self.assertFalse(result["decision"]["whole_proof_privacy_accepted"])
+-        self.assertIn("required and unresolved", result["decision"]["external_root_game"])
+-        self.assertIn("unresolved", result["decision"]["adaptive_lift"])
+-
+-
+ if __name__ == "__main__":
+     unittest.main()
+Only in /tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/tests-pre-e6: test_zk60_private_block_inventory.py
+diff -ru /tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/tests-pre-e6/test_zk60_techweek_demo.py /home/victor/ir-public/tests/test_zk60_techweek_demo.py
+--- /tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/tests-pre-e6/test_zk60_techweek_demo.py	2026-09-29 18:15:18.963579249 -0700
++++ /home/victor/ir-public/tests/test_zk60_techweek_demo.py	2026-10-30 00:35:35.889458582 -0700
+@@ -29,6 +29,11 @@
+             command.assert_not_called()
+             self.assertEqual(result['status'], 'failed')
+ 
++    @unittest.skipUnless(all((demo.ROOT / 'results/zk60_loop_20260918/token-integration/token_public' / f).is_file()
++                             for f in ('receipt.bin', 'policy.bin')),
++                         'needs the retained Groth16 public artifacts results/zk60_loop_20260918/'
++                         'token-integration/token_public/{receipt.bin,policy.bin} (development evidence, not '
++                         'shipped; intended as release assets)')
+     def test_verifier_crash_is_not_rejection(self):
+         responses = [(0, False, demo.SAVED['token'][2]),
+                      (0, False, '{"verified":true,"kind":"groth16"}'),
+@@ -128,6 +133,11 @@
+                 with self.assertRaisesRegex(demo.zkvm.RunnerError, 'native child outcome'):
+                     demo._command(['native', 'verify'], log)
+ 
++    @unittest.skipUnless(all((demo.ROOT / 'results/zk60_loop_20260918/token-integration/token_public' / f).is_file()
++                             for f in ('receipt.bin', 'policy.bin')),
++                         'needs the retained Groth16 public artifacts results/zk60_loop_20260918/'
++                         'token-integration/token_public/{receipt.bin,policy.bin} (development evidence, not '
++                         'shipped; intended as release assets)')
+     def test_exit_one_with_success_json_is_not_rejection(self):
+         responses = [(0, False, demo.SAVED['token'][2]),
+                      (0, False, '{"verified":true,"kind":"groth16"}'),
+diff -ru /tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/tests-pre-e6/test_zkmatrix_native_backends.py /home/victor/ir-public/tests/test_zkmatrix_native_backends.py
+--- /tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/tests-pre-e6/test_zkmatrix_native_backends.py	2026-09-04 22:31:06.487521328 -0700
++++ /home/victor/ir-public/tests/test_zkmatrix_native_backends.py	2026-10-30 00:35:35.889495253 -0700
+@@ -2,7 +2,7 @@
+ import subprocess
+ import unittest
+ from pathlib import Path
+-from regression_fixtures import m125_environment
++from regression_fixtures import FixtureConfigurationError, m125_environment
+ 
+ from zk_matrix import (
+     commit_matmul,
+@@ -114,12 +114,18 @@
+     def test_ring_freeze_check(self):
+         # Every derive-time budget of the frozen Route R operating point in
+         # one gate (the F3 guard): any parameter move must keep this green.
++        try:
++            env = m125_environment(ROOT)
++        except FixtureConfigurationError as missing:
++            self.skipTest("needs a complete local 125M FFN export (development input, not shipped; "
++                          "set M125_EXPORT_DIR, or build one with scripts/m8b_export_ffn.py --arch frugal "
++                          f"from the frugal-lm 125M checkpoint): {missing}")
+         result = subprocess.run(
+             [str(RING_MATMUL_BINARY), "freeze-check"],
+             check=True,
+             text=True,
+             stdout=subprocess.PIPE,
+-            env=m125_environment(ROOT),
++            env=env,
+         )
+         self.assertIn("freeze-check passed", result.stdout)
+ 

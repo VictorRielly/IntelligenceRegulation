@@ -1,0 +1,15 @@
+{
+  "rank": 87,
+  "title": "TESTED direct explicit-limb packing removes instrumented temporary allocations",
+  "baseline": "Current root dev_fold_rows holds the GPU mutex, reserves k*rows*2 limbs and extends one newly allocated as_u64s_f2 temporary per rho, k=1..4. Baseline extracted verbatim; /usr/bin/rustc1.75.0 opt-level2, counted System allocator.",
+  "eliminated_work": "Nonempty pack-stage allocation requests k+1 -> 1; cumulative requested bytes32*k*rows ->16*k*rows; requested packing peak16*rows*(k+1) ->16*k*rows. No GPU allocations, transfers, launches, arithmetic, sync or proof serialization changed. Logical temporary stores/copy removed, hardware memory traffic unmeasured.",
+  "added_costs": "Direct scalar limb stores and existing push capacity checks. Destination staging length/capacity and original shape assertions retained. No new persistent cache, preflight reordering, ABI change or runtime dependency.",
+  "prerequisites": "Owner native GPU/CPU byte gates plus actual current group census, exclusive packing and enclosing complete independently verified workload clocks. Optimized instrumented helper evidence is not production allocation/performance evidence.",
+  "integration_cost": "Small review-only single-hunk direct-pack-review-only.patch in hashline/src/gpu/cuda.rs::dev_fold_rows. No production patch applied, no GPU/native build run.",
+  "exactness": "168Rust fixtures,458160compared limbs,120 exact serial native-host-fold cases,11Rust negative controls.40 exported fixtures match4000Python serialization limbs and1600Python bigint fold-output limbs;49 overflow/capacity plans. Canonical and raw noncanonical representation-preservation cases are distinct; invalid field elements are not admitted by this test.",
+  "privacy_soundness": "Explicit c0.0 then c1.0 preserving ordered supplied vectors. Fresh call-local buffer; no data-dependent dispatch, mask/pad/proximity/opening reuse or FS/RNG change. Three synthetic tail columns are stand-ins only. Pack-stage shape panics tested, not whole native refusal/initialization/poison/error/receipt/privacy behavior.",
+  "compatibility": "Root field and extracted pack/host bodies pinned. Fp2 has no repr(C); no struct-byte cast. Candidate retains native unchecked shape multiplication; separate checked length oracle does not repair/admit native launch dimensions.",
+  "end_to_end_ceiling": "N/(T-C_pack_exclusive+A_added); perfect removal of exclusive fraction f <=1/(1-f). f unknown. Historical A57 T128 grouping:72 ->15 host pack allocation requests,not a GPU/private8B rate.",
+  "falsification": "Production optimizer/toolchain removes allocations already, exclusive packing negligible, direct stores slow more than removed copy/allocation, or any native byte/order/refusal/receipt/privacy mismatch.",
+  "disposition": "Correctness and instrumented allocation candidate; no measured proving gain. Owner review only; park further packing/staging variations pending measured exclusive bottleneck."
+}

@@ -1,0 +1,766 @@
+[
+  {
+    "name": "non-dd-prove",
+    "events": [
+      {
+        "event": "sealed",
+        "experimental": true,
+        "privacy_accepted": false,
+        "blocks": 26,
+        "parity": "bit-exact at every layer",
+        "checked_before_run_header": true,
+        "seconds": 76.274,
+        "of_which_load_seconds": 14.288,
+        "of_which_witness_seconds": 73.034,
+        "kept_witness_bytes": 0
+      },
+      {
+        "event": "segment",
+        "index": 0,
+        "layer": 0,
+        "bytes": 33872200,
+        "elapsed_seconds": 24.46
+      },
+      {
+        "event": "segment",
+        "index": 1,
+        "layer": 1,
+        "bytes": 34410824,
+        "elapsed_seconds": 37.471
+      },
+      {
+        "event": "segment",
+        "index": 2,
+        "layer": 2,
+        "bytes": 34410824,
+        "elapsed_seconds": 50.359
+      },
+      {
+        "event": "segment",
+        "index": 3,
+        "layer": 3,
+        "bytes": 34410824,
+        "elapsed_seconds": 63.413
+      },
+      {
+        "event": "segment",
+        "index": 4,
+        "layer": 4,
+        "bytes": 34410824,
+        "elapsed_seconds": 76.228
+      },
+      {
+        "event": "segment",
+        "index": 5,
+        "layer": 5,
+        "bytes": 34410824,
+        "elapsed_seconds": 89.096
+      },
+      {
+        "event": "segment",
+        "index": 6,
+        "layer": 6,
+        "bytes": 34410824,
+        "elapsed_seconds": 102.558
+      },
+      {
+        "event": "segment",
+        "index": 7,
+        "layer": 7,
+        "bytes": 34410824,
+        "elapsed_seconds": 115.477
+      },
+      {
+        "event": "segment",
+        "index": 8,
+        "layer": 8,
+        "bytes": 34410824,
+        "elapsed_seconds": 128.351
+      },
+      {
+        "event": "segment",
+        "index": 9,
+        "layer": 9,
+        "bytes": 34410824,
+        "elapsed_seconds": 141.313
+      },
+      {
+        "event": "segment",
+        "index": 10,
+        "layer": 10,
+        "bytes": 34410824,
+        "elapsed_seconds": 154.347
+      },
+      {
+        "event": "segment",
+        "index": 11,
+        "layer": 11,
+        "bytes": 34410824,
+        "elapsed_seconds": 167.879
+      },
+      {
+        "event": "segment",
+        "index": 12,
+        "layer": 12,
+        "bytes": 34410824,
+        "elapsed_seconds": 180.995
+      },
+      {
+        "event": "segment",
+        "index": 13,
+        "layer": 13,
+        "bytes": 34410824,
+        "elapsed_seconds": 194.14
+      },
+      {
+        "event": "segment",
+        "index": 14,
+        "layer": 14,
+        "bytes": 34410824,
+        "elapsed_seconds": 207.289
+      },
+      {
+        "event": "segment",
+        "index": 15,
+        "layer": 15,
+        "bytes": 34410824,
+        "elapsed_seconds": 220.191
+      },
+      {
+        "event": "segment",
+        "index": 16,
+        "layer": 16,
+        "bytes": 34410824,
+        "elapsed_seconds": 233.45
+      },
+      {
+        "event": "segment",
+        "index": 17,
+        "layer": 17,
+        "bytes": 34410824,
+        "elapsed_seconds": 246.256
+      },
+      {
+        "event": "segment",
+        "index": 18,
+        "layer": 18,
+        "bytes": 34410824,
+        "elapsed_seconds": 259.489
+      },
+      {
+        "event": "segment",
+        "index": 19,
+        "layer": 19,
+        "bytes": 34410824,
+        "elapsed_seconds": 272.771
+      },
+      {
+        "event": "segment",
+        "index": 20,
+        "layer": 20,
+        "bytes": 34410824,
+        "elapsed_seconds": 285.606
+      },
+      {
+        "event": "segment",
+        "index": 21,
+        "layer": 21,
+        "bytes": 34410824,
+        "elapsed_seconds": 298.52
+      },
+      {
+        "event": "segment",
+        "index": 22,
+        "layer": 22,
+        "bytes": 34410824,
+        "elapsed_seconds": 311.277
+      },
+      {
+        "event": "segment",
+        "index": 23,
+        "layer": 23,
+        "bytes": 34410824,
+        "elapsed_seconds": 324.502
+      },
+      {
+        "event": "segment",
+        "index": 24,
+        "layer": 24,
+        "bytes": 34410824,
+        "elapsed_seconds": 337.779
+      },
+      {
+        "event": "segment",
+        "index": 25,
+        "layer": 25,
+        "bytes": 35414312,
+        "elapsed_seconds": 350.719
+      },
+      {
+        "event": "proven",
+        "experimental": true,
+        "privacy_accepted": false,
+        "verified_in_process": false,
+        "blocks": 26,
+        "statement_identity": "b7c7f557e3e4d58bdb1dcf51e9835082f74e4ffd9bde299d369c1c48b7f75fda",
+        "binding": "adca67d37691d21bcb9307d072280c8020bc5834ebe30e4319e639c25ac7dc48",
+        "prove_seconds": 350.719,
+        "total_seconds": 442.934,
+        "vmhwm_mib": 5721,
+        "scope": "R14 split trained backend; no classifier or privacy acceptance"
+      }
+    ],
+    "guard": {
+      "ts_end": "2026-10-30T20:11:05Z",
+      "run_id": "2a376fed503b",
+      "label": "sol-r14-full26-non-dd-prove-1",
+      "class": "cpu",
+      "cmd": [
+        "/usr/bin/env",
+        "RAYON_NUM_THREADS=8",
+        "OPENBLAS_NUM_THREADS=1",
+        "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/checkpoints/final-build-1/zk60_split_stack.bin",
+        "stack-prove",
+        "--experimental-r14",
+        "--export",
+        "/home/victor/IntelligenceRegulation/results/zk60_shieldstral_export_20261026/native_low_h24_t128"
+      ],
+      "need_gib": 8.0,
+      "cap_gib": 10.5,
+      "exit": 0,
+      "child_rc": 0,
+      "guard_killed": null,
+      "child_wall_seconds": 442.9837679862976,
+      "refused": null,
+      "guard_error": null,
+      "guard_pid": 5,
+      "boot_id": "4f7dab84-38e2-4f1a-9518-e305e81ef580",
+      "pid_ns": "pid:[4026532427]",
+      "guard_starttime_ticks": 5540966,
+      "lock_ids": {
+        "heavy": "2096:715313",
+        "build": "2096:715314"
+      },
+      "enforcement": "watchdog-only",
+      "waited_s": 0.0,
+      "guard_wall_s": 443.0,
+      "stragglers_killed": 0,
+      "hard_killed": 0,
+      "scope_unit": null,
+      "scope_adopted": null,
+      "foreign_cgroups_refused": [],
+      "peak_rss_gib": 5.59,
+      "peak_cgroup_gib": null,
+      "peak_vram_mib": null,
+      "min_mem_available_gib": 7.8,
+      "vram_drain_s": null,
+      "gpu_drain_failed": false,
+      "gpu_telemetry_lost": false,
+      "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache"
+    },
+    "log_sha256": "de57378821a90c3f88cc3eb630dd13cb286294c239565e12e090538a18514126"
+  },
+  {
+    "name": "non-dd-fresh",
+    "events": [
+      {
+        "event": "verified",
+        "experimental": true,
+        "privacy_accepted": false,
+        "blocks": 26,
+        "statement_identity": "b7c7f557e3e4d58bdb1dcf51e9835082f74e4ffd9bde299d369c1c48b7f75fda",
+        "binding": "adca67d37691d21bcb9307d072280c8020bc5834ebe30e4319e639c25ac7dc48",
+        "statement_promoted": true
+      }
+    ],
+    "guard": {
+      "ts_end": "2026-10-30T20:12:31Z",
+      "run_id": "985ae3cae027",
+      "label": "sol-r14-full26-non-dd-fresh-1",
+      "class": "cpu",
+      "cmd": [
+        "/usr/bin/env",
+        "RAYON_NUM_THREADS=8",
+        "OPENBLAS_NUM_THREADS=1",
+        "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/checkpoints/final-build-1/zk60_split_stack.bin",
+        "stack-verify",
+        "--experimental-r14",
+        "--export",
+        "/home/victor/IntelligenceRegulation/results/zk60_shieldstral_export_20261026/native_low_h24_t128"
+      ],
+      "need_gib": 2.5,
+      "cap_gib": 5.0,
+      "exit": 0,
+      "child_rc": 0,
+      "guard_killed": null,
+      "child_wall_seconds": 85.09612369537354,
+      "refused": null,
+      "guard_error": null,
+      "guard_pid": 16,
+      "boot_id": "4f7dab84-38e2-4f1a-9518-e305e81ef580",
+      "pid_ns": "pid:[4026532427]",
+      "guard_starttime_ticks": 5585272,
+      "lock_ids": {
+        "heavy": "2096:715313",
+        "build": "2096:715314"
+      },
+      "enforcement": "watchdog-only",
+      "waited_s": 0.0,
+      "guard_wall_s": 85.1,
+      "stragglers_killed": 0,
+      "hard_killed": 0,
+      "scope_unit": null,
+      "scope_adopted": null,
+      "foreign_cgroups_refused": [],
+      "peak_rss_gib": 1.41,
+      "peak_cgroup_gib": null,
+      "peak_vram_mib": null,
+      "min_mem_available_gib": 11.93,
+      "vram_drain_s": null,
+      "gpu_drain_failed": false,
+      "gpu_telemetry_lost": false,
+      "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache"
+    },
+    "log_sha256": "8950c7e50f68a8d48b579e34981b7d05875ce7f85d45058c9ab28b03afd84536"
+  },
+  {
+    "name": "non-dd-scalar-corrupt",
+    "events": [
+      {
+        "event": "rejected",
+        "error": "slot 0 [R14 01 SS row sums norm_a (private) Whole]: sumcheck round 0: s(0) + s(1) != claim"
+      }
+    ],
+    "guard": {
+      "ts_end": "2026-10-30T20:14:39Z",
+      "run_id": "ea3362c96ad1",
+      "label": "sol-r14-full26-non-dd-scalar-corrupt-1",
+      "class": "cpu",
+      "cmd": [
+        "/usr/bin/env",
+        "RAYON_NUM_THREADS=8",
+        "OPENBLAS_NUM_THREADS=1",
+        "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/checkpoints/final-build-1/zk60_split_stack.bin",
+        "stack-verify",
+        "--experimental-r14",
+        "--export",
+        "/home/victor/IntelligenceRegulation/results/zk60_shieldstral_export_20261026/native_low_h24_t128"
+      ],
+      "need_gib": 2.5,
+      "cap_gib": 5.0,
+      "exit": 1,
+      "child_rc": 1,
+      "guard_killed": null,
+      "child_wall_seconds": 37.82483696937561,
+      "refused": null,
+      "guard_error": null,
+      "guard_pid": 27,
+      "boot_id": "4f7dab84-38e2-4f1a-9518-e305e81ef580",
+      "pid_ns": "pid:[4026532427]",
+      "guard_starttime_ticks": 5593857,
+      "lock_ids": {
+        "heavy": "2096:715313",
+        "build": "2096:715314"
+      },
+      "enforcement": "watchdog-only",
+      "waited_s": 90.2,
+      "guard_wall_s": 37.8,
+      "stragglers_killed": 0,
+      "hard_killed": 0,
+      "scope_unit": null,
+      "scope_adopted": null,
+      "foreign_cgroups_refused": [],
+      "peak_rss_gib": 1.49,
+      "peak_cgroup_gib": null,
+      "peak_vram_mib": null,
+      "min_mem_available_gib": 12.07,
+      "vram_drain_s": null,
+      "gpu_drain_failed": false,
+      "gpu_telemetry_lost": false,
+      "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache"
+    },
+    "log_sha256": "1f6cd136cfd7ce970cbfbcc6801fd55044a9d490cbc3cfcb56e854d9ff3fa8cc"
+  },
+  {
+    "name": "dd-prove",
+    "events": [
+      {
+        "event": "sealed",
+        "experimental": true,
+        "privacy_accepted": false,
+        "blocks": 26,
+        "parity": "bit-exact at every layer",
+        "checked_before_run_header": true,
+        "seconds": 75.465,
+        "of_which_load_seconds": 14.223,
+        "of_which_witness_seconds": 71.885,
+        "kept_witness_bytes": 0
+      },
+      {
+        "event": "segment",
+        "index": 0,
+        "layer": 0,
+        "bytes": 34107208,
+        "elapsed_seconds": 25.15
+      },
+      {
+        "event": "segment",
+        "index": 1,
+        "layer": 1,
+        "bytes": 34645832,
+        "elapsed_seconds": 37.727
+      },
+      {
+        "event": "segment",
+        "index": 2,
+        "layer": 2,
+        "bytes": 34645832,
+        "elapsed_seconds": 50.337
+      },
+      {
+        "event": "segment",
+        "index": 3,
+        "layer": 3,
+        "bytes": 34645832,
+        "elapsed_seconds": 62.866
+      },
+      {
+        "event": "segment",
+        "index": 4,
+        "layer": 4,
+        "bytes": 34645832,
+        "elapsed_seconds": 75.786
+      },
+      {
+        "event": "segment",
+        "index": 5,
+        "layer": 5,
+        "bytes": 34645832,
+        "elapsed_seconds": 88.219
+      },
+      {
+        "event": "segment",
+        "index": 6,
+        "layer": 6,
+        "bytes": 34645832,
+        "elapsed_seconds": 101.006
+      },
+      {
+        "event": "segment",
+        "index": 7,
+        "layer": 7,
+        "bytes": 34645832,
+        "elapsed_seconds": 114.139
+      },
+      {
+        "event": "segment",
+        "index": 8,
+        "layer": 8,
+        "bytes": 34645832,
+        "elapsed_seconds": 127.083
+      },
+      {
+        "event": "segment",
+        "index": 9,
+        "layer": 9,
+        "bytes": 34645832,
+        "elapsed_seconds": 139.766
+      },
+      {
+        "event": "segment",
+        "index": 10,
+        "layer": 10,
+        "bytes": 34645832,
+        "elapsed_seconds": 152.148
+      },
+      {
+        "event": "segment",
+        "index": 11,
+        "layer": 11,
+        "bytes": 34645832,
+        "elapsed_seconds": 165.672
+      },
+      {
+        "event": "segment",
+        "index": 12,
+        "layer": 12,
+        "bytes": 34645832,
+        "elapsed_seconds": 178.417
+      },
+      {
+        "event": "segment",
+        "index": 13,
+        "layer": 13,
+        "bytes": 34645832,
+        "elapsed_seconds": 190.893
+      },
+      {
+        "event": "segment",
+        "index": 14,
+        "layer": 14,
+        "bytes": 34645832,
+        "elapsed_seconds": 203.878
+      },
+      {
+        "event": "segment",
+        "index": 15,
+        "layer": 15,
+        "bytes": 34645832,
+        "elapsed_seconds": 216.322
+      },
+      {
+        "event": "segment",
+        "index": 16,
+        "layer": 16,
+        "bytes": 34645832,
+        "elapsed_seconds": 229.067
+      },
+      {
+        "event": "segment",
+        "index": 17,
+        "layer": 17,
+        "bytes": 34645832,
+        "elapsed_seconds": 241.873
+      },
+      {
+        "event": "segment",
+        "index": 18,
+        "layer": 18,
+        "bytes": 34645832,
+        "elapsed_seconds": 255.263
+      },
+      {
+        "event": "segment",
+        "index": 19,
+        "layer": 19,
+        "bytes": 34645832,
+        "elapsed_seconds": 268.004
+      },
+      {
+        "event": "segment",
+        "index": 20,
+        "layer": 20,
+        "bytes": 34645832,
+        "elapsed_seconds": 280.646
+      },
+      {
+        "event": "segment",
+        "index": 21,
+        "layer": 21,
+        "bytes": 34645832,
+        "elapsed_seconds": 293.373
+      },
+      {
+        "event": "segment",
+        "index": 22,
+        "layer": 22,
+        "bytes": 34645832,
+        "elapsed_seconds": 305.878
+      },
+      {
+        "event": "segment",
+        "index": 23,
+        "layer": 23,
+        "bytes": 34645832,
+        "elapsed_seconds": 319.369
+      },
+      {
+        "event": "segment",
+        "index": 24,
+        "layer": 24,
+        "bytes": 34645832,
+        "elapsed_seconds": 332.177
+      },
+      {
+        "event": "segment",
+        "index": 25,
+        "layer": 25,
+        "bytes": 35649320,
+        "elapsed_seconds": 345.038
+      },
+      {
+        "event": "proven",
+        "experimental": true,
+        "privacy_accepted": false,
+        "verified_in_process": false,
+        "blocks": 26,
+        "statement_identity": "3160d6ba66c13eb3d4a829647775f342be1951169c1edef8bd2f44a58a79778f",
+        "binding": "e53a727ead571b57f6b2536b90c0efa98434b6630722c52e76d13f93b8aee259",
+        "prove_seconds": 345.039,
+        "total_seconds": 436.132,
+        "vmhwm_mib": 5820,
+        "scope": "R14 split trained backend; no classifier or privacy acceptance"
+      }
+    ],
+    "guard": {
+      "ts_end": "2026-10-30T20:21:56Z",
+      "run_id": "03051949f6cf",
+      "label": "sol-r14-full26-dd-prove-1",
+      "class": "cpu",
+      "cmd": [
+        "/usr/bin/env",
+        "RAYON_NUM_THREADS=8",
+        "OPENBLAS_NUM_THREADS=1",
+        "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/checkpoints/final-build-1/zk60_split_stack.bin",
+        "stack-prove",
+        "--experimental-r14",
+        "--export",
+        "/home/victor/IntelligenceRegulation/results/zk60_shieldstral_export_20261026/native_low_h24_t128"
+      ],
+      "need_gib": 8.0,
+      "cap_gib": 10.5,
+      "exit": 0,
+      "child_rc": 0,
+      "guard_killed": null,
+      "child_wall_seconds": 436.19345903396606,
+      "refused": null,
+      "guard_error": null,
+      "guard_pid": 38,
+      "boot_id": "4f7dab84-38e2-4f1a-9518-e305e81ef580",
+      "pid_ns": "pid:[4026532427]",
+      "guard_starttime_ticks": 5606673,
+      "lock_ids": {
+        "heavy": "2096:715313",
+        "build": "2096:715314"
+      },
+      "enforcement": "watchdog-only",
+      "waited_s": 0.0,
+      "guard_wall_s": 436.2,
+      "stragglers_killed": 0,
+      "hard_killed": 0,
+      "scope_unit": null,
+      "scope_adopted": null,
+      "foreign_cgroups_refused": [],
+      "peak_rss_gib": 5.69,
+      "peak_cgroup_gib": null,
+      "peak_vram_mib": null,
+      "min_mem_available_gib": 7.96,
+      "vram_drain_s": null,
+      "gpu_drain_failed": false,
+      "gpu_telemetry_lost": false,
+      "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache"
+    },
+    "log_sha256": "65f6efba5490824ac8835b55f1ed553c85dc0f015dc56367d0ff1f2a799f0d0b"
+  },
+  {
+    "name": "dd-fresh",
+    "events": [
+      {
+        "event": "verified",
+        "experimental": true,
+        "privacy_accepted": false,
+        "blocks": 26,
+        "statement_identity": "3160d6ba66c13eb3d4a829647775f342be1951169c1edef8bd2f44a58a79778f",
+        "binding": "e53a727ead571b57f6b2536b90c0efa98434b6630722c52e76d13f93b8aee259",
+        "statement_promoted": true
+      }
+    ],
+    "guard": {
+      "ts_end": "2026-10-30T20:23:24Z",
+      "run_id": "82f55b95fe65",
+      "label": "sol-r14-full26-dd-fresh-1",
+      "class": "cpu",
+      "cmd": [
+        "/usr/bin/env",
+        "RAYON_NUM_THREADS=8",
+        "OPENBLAS_NUM_THREADS=1",
+        "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/checkpoints/final-build-1/zk60_split_stack.bin",
+        "stack-verify",
+        "--experimental-r14",
+        "--export",
+        "/home/victor/IntelligenceRegulation/results/zk60_shieldstral_export_20261026/native_low_h24_t128"
+      ],
+      "need_gib": 2.5,
+      "cap_gib": 5.0,
+      "exit": 0,
+      "child_rc": 0,
+      "guard_killed": null,
+      "child_wall_seconds": 87.94544267654419,
+      "refused": null,
+      "guard_error": null,
+      "guard_pid": 49,
+      "boot_id": "4f7dab84-38e2-4f1a-9518-e305e81ef580",
+      "pid_ns": "pid:[4026532427]",
+      "guard_starttime_ticks": 5650300,
+      "lock_ids": {
+        "heavy": "2096:715313",
+        "build": "2096:715314"
+      },
+      "enforcement": "watchdog-only",
+      "waited_s": 0.0,
+      "guard_wall_s": 87.9,
+      "stragglers_killed": 0,
+      "hard_killed": 0,
+      "scope_unit": null,
+      "scope_adopted": null,
+      "foreign_cgroups_refused": [],
+      "peak_rss_gib": 1.38,
+      "peak_cgroup_gib": null,
+      "peak_vram_mib": null,
+      "min_mem_available_gib": 12.23,
+      "vram_drain_s": null,
+      "gpu_drain_failed": false,
+      "gpu_telemetry_lost": false,
+      "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache"
+    },
+    "log_sha256": "5f61e9447f594f7538db902b3195305b33b623dfe7187a70ff15d767e09c1ddc"
+  },
+  {
+    "name": "dd-scalar-corrupt",
+    "events": [
+      {
+        "event": "rejected",
+        "error": "slot 0 [R14 01 SS row sums norm_a (private) Whole]: sumcheck round 0: s(0) + s(1) != claim"
+      }
+    ],
+    "guard": {
+      "ts_end": "2026-10-30T20:24:41Z",
+      "run_id": "8636dfec3506",
+      "label": "sol-r14-full26-dd-scalar-corrupt-1",
+      "class": "cpu",
+      "cmd": [
+        "/usr/bin/env",
+        "RAYON_NUM_THREADS=8",
+        "OPENBLAS_NUM_THREADS=1",
+        "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/checkpoints/final-build-1/zk60_split_stack.bin",
+        "stack-verify",
+        "--experimental-r14",
+        "--export",
+        "/home/victor/IntelligenceRegulation/results/zk60_shieldstral_export_20261026/native_low_h24_t128"
+      ],
+      "need_gib": 2.5,
+      "cap_gib": 5.0,
+      "exit": 1,
+      "child_rc": 1,
+      "guard_killed": null,
+      "child_wall_seconds": 36.77221727371216,
+      "refused": null,
+      "guard_error": null,
+      "guard_pid": 60,
+      "boot_id": "4f7dab84-38e2-4f1a-9518-e305e81ef580",
+      "pid_ns": "pid:[4026532427]",
+      "guard_starttime_ticks": 5659174,
+      "lock_ids": {
+        "heavy": "2096:715313",
+        "build": "2096:715314"
+      },
+      "enforcement": "watchdog-only",
+      "waited_s": 40.1,
+      "guard_wall_s": 36.8,
+      "stragglers_killed": 0,
+      "hard_killed": 0,
+      "scope_unit": null,
+      "scope_adopted": null,
+      "foreign_cgroups_refused": [],
+      "peak_rss_gib": 1.45,
+      "peak_cgroup_gib": null,
+      "peak_vram_mib": null,
+      "min_mem_available_gib": 12.44,
+      "vram_drain_s": null,
+      "gpu_drain_failed": false,
+      "gpu_telemetry_lost": false,
+      "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache"
+    },
+    "log_sha256": "1f6cd136cfd7ce970cbfbcc6801fd55044a9d490cbc3cfcb56e854d9ff3fa8cc"
+  }
+]

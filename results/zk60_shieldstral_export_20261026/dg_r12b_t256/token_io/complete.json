@@ -1,0 +1,17 @@
+{
+  "files": {
+    "calib_final_xhat_rot_absmax.bin": "f635ade0f20644f1c4e72bebcbf22bbf10a351d7b9651a0142c60ac1a7658caa",
+    "classifier.json": "1091b0a21b9aa94b86738ee6891d2fb0e29e7955a8290fda33b659305e7844e5",
+    "embedding_int16.bin": "baff04d2385ad49dcf9704384de268ce5aa5e16749d2af62c2101676538b5afe",
+    "head_int8_perrow.bin": "786f02bc011e3f23c4e9ac480772a0413d39f8d10c7259000929ada771d0ce95",
+    "head_manifest.json": "bad5986ce3dfdc6eaa9dbae8d92820a77b02a9509835e106ca08a5c9b2fcada4",
+    "head_mult12.bin": "f43790f32bd4cf4b252aafaa08e9b788937a0878594d2756f73248b0dfdc0464",
+    "head_row_scales_f64.bin": "923f67d3c89b235ce7bf07dd1be4d0db2d97695d69cbd69b8170d2eb73b13a83",
+    "margin_int16.bin": "1f5cb3468ff4142fe5eee6afd989b2626afa9c12a2d49c877164a0ef7d7eb45f",
+    "token_io.json": "572390a04b883f4c5ab331b43379e3c332ef59fbf6a7428d7e3169e2da8b2b34"
+  },
+  "profile_sha256": "212244e40393a34ceb16943694384c1950b933e4f8f2e7a02634e2d5983f260e",
+  "reference_crosscheck_sha256": "b61b97d255a700d9223a06ae75efed1c5ce73d373a4dc9c6d5cee6c962ff74ff",
+  "scope": "candidate tied public tables with independent reference match; native loader, policy registration, fidelity and privacy acceptance still required",
+  "quantization_refusals": 0
+}

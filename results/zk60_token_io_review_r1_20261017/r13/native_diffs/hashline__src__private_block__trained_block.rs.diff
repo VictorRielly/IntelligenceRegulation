@@ -1,0 +1,68 @@
+--- r12b/hashline/src/private_block/trained_block.rs
++++ token-r13/hashline/src/private_block/trained_block.rs
+@@ -1508,5 +1508,5 @@
+ }
+ 
+-fn flags(args: &[String], allowed: &[&str], switches: &[&str]) -> Result<Vec<(String, String)>, String> {
++pub(crate) fn flags(args: &[String], allowed: &[&str], switches: &[&str]) -> Result<Vec<(String, String)>, String> {
+     let mut out = Vec::new();
+     let mut i = 0;
+@@ -1527,13 +1527,13 @@
+ }
+ 
+-fn flag<'a>(f: &'a [(String, String)], k: &str) -> Option<&'a str> {
++pub(crate) fn flag<'a>(f: &'a [(String, String)], k: &str) -> Option<&'a str> {
+     f.iter().find(|(x, _)| x == k).map(|(_, v)| v.as_str())
+ }
+ 
+-fn need<'a>(f: &'a [(String, String)], k: &str) -> Result<&'a str, String> {
++pub(crate) fn need<'a>(f: &'a [(String, String)], k: &str) -> Result<&'a str, String> {
+     flag(f, k).ok_or_else(|| format!("{k} is required"))
+ }
+ 
+-fn js(s: &str) -> String {
++pub(crate) fn js(s: &str) -> String {
+     let mut o = String::from("\"");
+     for c in s.chars() {
+@@ -1628,5 +1628,5 @@
+ /// verifier can never carry the hidden input and its per-layer activations.
+ /// (The verifier never opened them; this makes shipping them a refusal.)
+-fn refuse_prover_private_entries(export: &Path) -> Result<(), String> {
++pub(crate) fn refuse_prover_private_entries(export: &Path) -> Result<(), String> {
+     let rd = std::fs::read_dir(export).map_err(|e| format!("{}: {e}", export.display()))?;
+     for e in rd {
+@@ -1643,5 +1643,5 @@
+ }
+ 
+-fn write_new(path: &Path, bytes: &[u8]) -> Result<(), String> {
++pub(crate) fn write_new(path: &Path, bytes: &[u8]) -> Result<(), String> {
+     use std::io::Write;
+     let mut f = std::fs::OpenOptions::new().write(true).create_new(true).open(path).map_err(|e| format!("{}: {e}", path.display()))?;
+@@ -2233,5 +2233,5 @@
+ }
+ 
+-fn stack_context(variant: &str, layers: &[u32], label: &str) -> Result<Digest, String> {
++pub(crate) fn stack_context(variant: &str, layers: &[u32], label: &str) -> Result<Digest, String> {
+     let mut b = Vec::new();
+     for s in ["hashline/zk60-trained-stack-context/1", variant, label] {
+@@ -2538,5 +2538,5 @@
+ /// and SHA-256 (from the prover's sink, or from the bytes a verification
+ /// consumed)
+-fn render_segments_json(seen: &[(u64, String)]) -> String {
++pub(crate) fn render_segments_json(seen: &[(u64, String)]) -> String {
+     let segs: Vec<String> = seen.iter().enumerate().map(|(k, (n, h))| format!("{{\"file\":{},\"bytes\":{n},\"sha256\":{}}}", js(&super::run_sink::segment_file_name(k)), js(h))).collect();
+     format!("[\n {}\n]\n", segs.join(",\n "))
+@@ -2550,5 +2550,5 @@
+ /// followed) holding exactly `names`, each a regular file. Anything else —
+ /// an extra file, a link, a FIFO, a subdirectory — is refused.
+-fn check_statement_dir(dir: &Path, names: &[&str]) -> Result<(), String> {
++pub(crate) fn check_statement_dir(dir: &Path, names: &[&str]) -> Result<(), String> {
+     let m = std::fs::symlink_metadata(dir).map_err(|e| format!("{}: {e}", dir.display()))?;
+     if m.file_type().is_symlink() {
+@@ -2644,5 +2644,5 @@
+ /// nothing of theirs is published.) On any failure the new directory is
+ /// removed.
+-fn publish_statement_dir(art: &Path, files: &[(&str, &[u8])]) -> Result<PathBuf, String> {
++pub(crate) fn publish_statement_dir(art: &Path, files: &[(&str, &[u8])]) -> Result<PathBuf, String> {
+     let target = art.join(super::run_sink::STATEMENT_DIR);
+     let tmp = art.join(format!("{}.writing-{}", super::run_sink::STATEMENT_DIR, std::process::id()));

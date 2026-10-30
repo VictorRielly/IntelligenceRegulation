@@ -1,0 +1,19 @@
+{
+  "command": [
+    "/usr/bin/python3",
+    "-B",
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/arithmetic-intensity-screen-20261030/experiment.py"
+  ],
+  "utc": "2026-10-30T15:57:49.377265+00:00",
+  "returncode": 0,
+  "wall_s": 0.8717737550032325,
+  "child_maxrss_kib": 20308,
+  "limits": {
+    "threads": 1,
+    "cpu_s": 30,
+    "alarm_s": 40,
+    "parent_s": 45,
+    "address_space_mib": 256,
+    "estimated_memory_mib": 64
+  }
+}

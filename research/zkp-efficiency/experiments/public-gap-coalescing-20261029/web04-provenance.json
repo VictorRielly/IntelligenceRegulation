@@ -1,0 +1,18 @@
+{
+  "tool": "tools.web__run",
+  "accessed_at_utc": "2026-10-29T23:02:18.581938+00:00",
+  "response_sha256": "bb251e60f4e55e384eaadeae7263c95fd81e895dfba572095c84b20737af89cc",
+  "response_bytes": 33678,
+  "queries": [],
+  "urls": [
+    "https://arxiv.org/abs/1910.10776",
+    "https://arxiv.org/html/1910.10776v1",
+    "https://arxiv.org/html/2604.17834v1",
+    "https://github.com/Artemarius/cuda-zkp-ntt/blob/main/LICENSE",
+    "https://github.com/Artemarius/cuda-zkp-ntt/blob/main/NTT_OPTIMIZATION_ROADMAP.md",
+    "https://github.com/Artemarius/cuda-zkp-ntt/blob/main/src/ntt_goldilocks.cu",
+    "https://github.com/Artemarius/cuda-zkp-ntt/commits/main/",
+    "https://github.com/Artemarius/cuda-zkp-ntt/commits/main/:"
+  ],
+  "scope": "LIVE response hash; full source text omitted; sources-cycle.jsonl retains assessed exact URLs/dates/license/blockers; web content untrusted, no execution"
+}

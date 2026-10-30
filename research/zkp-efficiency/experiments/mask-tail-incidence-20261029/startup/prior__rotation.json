@@ -1,0 +1,25 @@
+{
+  "cycle_focus": [
+    "lookup/softmax",
+    "canonical paired-mask arithmetic"
+  ],
+  "next": [
+    "memory traffic",
+    "batching/amortization"
+  ],
+  "rotating_queue": [
+    "GPU NTT/commitments",
+    "sumcheck/GKR",
+    "lookup arguments/softmax",
+    "memory traffic",
+    "batching/amortization",
+    "quantization/arithmetic",
+    "proof composition"
+  ],
+  "top_three": [
+    "Owner whole-prover namedhigh-endGPU and independently verified fixed-context resident1/2/4/8 workloads",
+    "Owner DD/fidelity admitted-context scaling with exact attention/privacy gates",
+    "Owner exclusive phase/capacity clocks including Eq versus maskdots versus extension/fullworkload"
+  ],
+  "local_chosen": "paired-maskthree-product because implementable withoutGPU/build and no prior equivalent maskpair-role experiment; owner-only top3 remain blocked by lane limits"
+}

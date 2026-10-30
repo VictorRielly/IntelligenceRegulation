@@ -1,0 +1,638 @@
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r12/hashline/src/private_block/trained_block.rs	2026-10-19 09:05:14.218567644 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r13/hashline/src/private_block/trained_block.rs	2026-10-28 16:42:48.584963186 -0700
+@@ -39,10 +39,11 @@
+ //! (D22 covers only the toy), and the float fidelity of the integer model is
+ //! the calibration lane's measurement, not this proof's.
+ 
+-use super::layout::{Ids, A_X, A_X2, F_RO};
++use super::layout::{Ids, A_X, A_X2};
+ use super::run::{self, RunShape, RunStatement, RunWitnessSource, RUN_PROFILE_RUNG_TC, RUN_PROFILE_TINYLLAMA_T32_TRAINED};
++use super::rope::RopeScaling;
+ use super::shape::{NormCalibration, Shape};
+-use super::trained_statement::{apply_own, cal_field, has_own, own_of, IntegerCalibration, LayerRecord, ModelSource, Provenance, SourceKind, TrainedModelStatement, OWN_FIELDS};
++use super::trained_statement::{apply_own, cal_field, has_own, own_of, tied_tensor_for_profile, IntegerCalibration, LayerRecord, ModelSource, Provenance, SourceKind, TiedEmbedding, TrainedModelStatement, OWN_FIELDS};
+ use super::witness::{self, Witness};
+ use super::{prepare_endpoints, AttentionPublic, BlockPublic, ExpectedIo, FeedForwardPublic, IoSpec};
+ use crate::merkle::Digest;
+@@ -57,6 +58,12 @@
+ const SCOPE_8B: &str = "ONE trained Llama-3-8B block (of 32) at T=32, CPU unless the run line says gpu; the integer model the calibration export names; NOT a model pass; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement";
+ const SCOPE_8B_LONGER: &str = "ONE trained Llama-3-8B block (of 32) at the export's T (64 or 128; both profiles accepted by the independent review, round 5), CPU unless the run line says gpu; the integer model the calibration export names; NOT a model pass; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement";
+ const SCOPE_RUNG: &str = "SYNTHETIC development export at the trained-calibration rung (rung-TC, width 384): NOT a trained model, NOT TinyLlama; a test of the export reader and the driver only; no privacy acceptance";
++/// NATIVE R12 (D38): the single-block scope at a Shieldstral profile
++const SCOPE_SHIELDSTRAL: &str = "ONE trained Shieldstral-1.0-3B text block (of 26; d 3072, a 4096-wide query axis, YaRN RoPE) at the export's T (128 or 256), CPU unless the run line says gpu; the integer model the calibration export names; NOT a model pass; NOT a soundness or privacy acceptance (the D24 review of the R12 profiles follows); float fidelity is the calibration lane's measurement";
++/// NATIVE R12 (F2): the decoupled-head development rung's
++const SCOPE_RUNG_HD: &str = "SYNTHETIC development export at the decoupled-head rung (rung-HD, width 192, query axis 512): NOT a trained model; a test of the export reader and the driver only; no privacy acceptance";
++/// NATIVE R9: the single-block scope at a DD profile (D30)
++const SCOPE_DD: &str = "ONE trained block under DD, the per-row division dictionary (D30; TinyLlama-1.1B or Llama-3-8B at T128, or the synthetic DD rung): the integer model the calibration export names; NOT a model pass; NOT a soundness or privacy acceptance (D30 requires an independent soundness review and the gate first); float fidelity is the calibration lane's measurement";
+ 
+ // ------------------------------------------------------------------ JSON
+ 
+@@ -481,6 +488,124 @@
+     })
+ }
+ 
++/// **NATIVE R12 (F1): the export's declared RoPE transform** — `profile.
++/// json`'s `rope_scaling` object in transformers' own keys (`rope_type`
++/// `"yarn"`: `factor`, `original_max_position_embeddings`, `beta_fast`,
++/// `beta_slow`, `mscale`, `mscale_all_dim`, optional `truncate`; `"llama3"`:
++/// `factor`, `low_freq_factor`, `high_freq_factor`,
++/// `original_max_position_embeddings`). Absent, `null` or `rope_type
++/// "default"` is no transform.
++pub(super) fn rope_scaling_of(v: Option<&J>) -> Result<RopeScaling, String> {
++    let v = match v {
++        None | Some(J::Null) => return Ok(RopeScaling::None),
++        Some(v) => v,
++    };
++    let f = |k: &str| v.get(k).and_then(J::f64).map_err(|e| format!("rope_scaling.{k}: {e}"));
++    let u = |k: &str| v.get(k).and_then(J::i64).and_then(|x| u64::try_from(x).map_err(|_| "negative".to_string())).map_err(|e| format!("rope_scaling.{k}: {e}"));
++    let out = match v.get("rope_type").and_then(J::str).map_err(|e| format!("rope_scaling.rope_type: {e}"))? {
++        "default" => RopeScaling::None,
++        "yarn" => RopeScaling::Yarn {
++            factor: f("factor")?,
++            original_max: u("original_max_position_embeddings")?,
++            beta_fast: f("beta_fast")?,
++            beta_slow: f("beta_slow")?,
++            mscale: f("mscale")?,
++            mscale_all_dim: f("mscale_all_dim")?,
++            truncate: match v.opt("truncate") {
++                None | Some(J::Null) => true,
++                Some(J::Bool(b)) => *b,
++                Some(_) => return Err("rope_scaling.truncate is not a boolean".into()),
++            },
++        },
++        "llama3" => RopeScaling::Llama3 { factor: f("factor")?, low_freq_factor: f("low_freq_factor")?, high_freq_factor: f("high_freq_factor")?, original_max: u("original_max_position_embeddings")? },
++        t => return Err(format!("rope_scaling.rope_type {t:?} is not one of default / yarn / llama3")),
++    };
++    out.check()?;
++    Ok(out)
++}
++
++/// **NATIVE R12 (F3): a tied model's embedding / head record.** At a
++/// geometry whose model ties its embedding and head, `profile.json` names the
++/// tied tensor (`tied_embeddings: {tensor, sha256}`), and BOTH integer tables
++/// of `token_io/` name that same tensor as their source
++/// (`token_io.json` `embedding_table.source_tensor` and `head_manifest.json`
++/// `source_tensor`, each `{name, sha256}`); the name is the profile's pin and,
++/// for the pinned checkpoint, so is the digest. R12b checks the three table
++/// files' dtype, shape, exact length and SHA-256, then recomputes their
++/// digests from the authenticated BF16 checkpoint and profile quantizer.
++/// Manifest consistency alone is insufficient. An untied geometry's export
++/// may not declare a tie.
++pub(super) fn tied_of(dir: &Path, p: &J, geometry: Geometry, source: &ModelSource) -> Result<Option<TiedEmbedding>, String> {
++    let profile = geometry.shape_profile();
++    let decl = p.opt("tied_embeddings").filter(|v| **v != J::Null);
++    let pin = tied_tensor_for_profile(profile);
++    let (name, digest) = match (pin, decl) {
++        (None, None) => return Ok(None),
++        (None, Some(_)) => return Err(format!("the export declares tied_embeddings, but its geometry's model ({profile}) is untied")),
++        (Some((n, _)), None) => return Err(format!("the geometry's model ties its embedding and head ({n}); profile.json must name the tied tensor (tied_embeddings)")),
++        (Some((pn, pd)), Some(d)) => {
++            let n = d.get("tensor").and_then(J::str).map_err(|e| format!("tied_embeddings.tensor: {e}"))?;
++            let h = unhex32(d.get("sha256").and_then(J::str).map_err(|e| format!("tied_embeddings.sha256: {e}"))?)?;
++            if n != pn {
++                return Err(format!("tied_embeddings names tensor {n:?}, not the profile's {pn:?}"));
++            }
++            if source.kind == SourceKind::HfCheckpoint && h != pd {
++                return Err(format!("tied_embeddings' SHA-256 {} is not the pinned checkpoint's {pn} ({})", hex(&h), hex(&pd)));
++            }
++            (pn, h)
++        }
++    };
++    let td = dir.join("token_io");
++    let read = |f: &str| -> Result<J, String> {
++        let path = td.join(f);
++        parse_json(&read_bounded(&path, MAX_JSON_BYTES)?).map_err(|e| format!("{}: {e}", path.display()))
++    };
++    let (tio, hm) = (read("token_io.json")?, read("head_manifest.json")?);
++    let same_source = |what: &str, st: Option<&J>| -> Result<(), String> {
++        let st = st.ok_or_else(|| format!("{what} names no source_tensor (a tied model's tables must name the tied tensor)"))?;
++        let n = st.get("name").and_then(J::str).map_err(|e| format!("{what}.source_tensor.name: {e}"))?;
++        let h = unhex32(st.get("sha256").and_then(J::str).map_err(|e| format!("{what}.source_tensor.sha256: {e}"))?)?;
++        if n != name || h != digest {
++            return Err(format!("{what}'s source tensor ({n}, {}) is not the tied tensor ({name}, {})", hex(&h), hex(&digest)));
++        }
++        Ok(())
++    };
++    let et = tio.get("embedding_table").map_err(|e| format!("token_io.json: {e}"))?;
++    same_source("token_io.json embedding_table", et.opt("source_tensor"))?;
++    same_source("head_manifest.json", hm.opt("source_tensor"))?;
++    let digest_of = |j: &J, what: &str| -> Result<[u8; 32], String> { unhex32(j.get("sha256").and_then(J::str).map_err(|e| format!("{what}.sha256: {e}"))?) };
++    let emb = digest_of(et, "token_io.json embedding_table")?;
++    let head = digest_of(hm.get("head_int8_perrow.bin").map_err(|e| format!("head_manifest.json: {e}"))?, "head_manifest.json head_int8_perrow.bin")?;
++    let mult = digest_of(hm.get("head_mult12.bin").map_err(|e| format!("head_manifest.json: {e}"))?, "head_manifest.json head_mult12.bin")?;
++    let he = hm.get("head_int8_perrow.bin")?;
++    let mu = hm.get("head_mult12.bin")?;
++    let checked_length = |j: &J, kind: Dtype, shape: &[usize], what: &str| -> Result<u64, String> {
++        let got_kind = Dtype::parse(j.get("dtype").and_then(J::str)?)?;
++        let got_shape = j.get("shape").and_then(J::arr)?.iter().map(|x| x.i64().and_then(|n| usize::try_from(n).map_err(|_| "negative shape".into()))).collect::<Result<Vec<_>, _>>()?;
++        if got_kind != kind || got_shape != shape {
++            return Err(format!("{what}: dtype/shape {:?} {got_shape:?}, expected {kind:?} {shape:?}", got_kind));
++        }
++        Ok(shape.iter().product::<usize>() as u64 * kind.size() as u64)
++    };
++    let emb_len = checked_length(et, Dtype::I16, &[131072, 3072], "embedding_table")?;
++    let head_len = checked_length(he, Dtype::I8, &[131072, 3072], "head_int8_perrow.bin")?;
++    let mult_len = checked_length(mu, Dtype::I64, &[131072], "head_mult12.bin")?;
++    for (file, want, length) in [(et.get("file").and_then(J::str).unwrap_or("embedding_int16.bin"), emb, emb_len), ("head_int8_perrow.bin", head, head_len), ("head_mult12.bin", mult, mult_len)] {
++        plain_name(file)?;
++        let got = super::tied_tables::hash_regular_exact(&td.join(file), length)?;
++        if got != want {
++            return Err(format!("token_io/{file}: SHA-256 {} is not its manifest's {}", hex(&got), hex(&want)));
++        }
++    }
++    let derived = super::tied_tables::recompute_declared_tied_tables(dir, p)?;
++    for (what, actual, expected) in [("embedding", emb, derived.embedding_sha256), ("head", head, derived.head_sha256), ("head multipliers", mult, derived.multipliers_sha256)] {
++        if actual != expected {
++            return Err(format!("tied {what}: integer table is not derived from the pinned tensor under the export's quantizer"));
++        }
++    }
++    Ok(Some(TiedEmbedding { tensor: name.into(), tensor_sha256: digest, embedding_table_sha256: emb, head_table_sha256: head, head_mult_sha256: mult }))
++}
++
+ fn table_keys_of(c: &J, what: &str) -> Result<TableKeys, String> {
+     let ctx = |e: String| format!("{what}: {e}");
+     let silu = c.get("silu_member").and_then(J::arr).map_err(ctx)?;
+@@ -515,6 +640,19 @@
+     /// also T = 64 and 128 (PENDING REVIEW), each its own profile
+     Llama3_8B(usize),
+     RungTcDev,
++    /// **NATIVE R9 (D30): the DD profiles' geometries** — chosen by the CLI's
++    /// `--dd` (an export names its model and T, not the relation it is
++    /// proved under); the DD rung is a DD-only development geometry
++    /// (`rung-dd-t32-dev`)
++    TinyLlamaDd,
++    Llama3_8BDd,
++    RungDdDev,
++    /// **NATIVE R12 (D38): Shieldstral-1.0-3B's text decoder** at T128 or
++    /// T256, without and with DD (`--dd`), and the decoupled-head development
++    /// rung (`rung-hd-t32-dev`, F2)
++    Shieldstral(usize),
++    ShieldstralDd(usize),
++    RungHdDev,
+ }
+ 
+ impl Geometry {
+@@ -527,23 +665,78 @@
+             "llama-3-8b-t64" => Ok(Geometry::Llama3_8B(64)),
+             "llama-3-8b-t128" => Ok(Geometry::Llama3_8B(128)),
+             "rung-tc-t32-dev" => Ok(Geometry::RungTcDev),
+-            _ => Err(format!("geometry `{s}` is not one of tinyllama-1.1b-t32 / -t64 / -t128 / llama-3-8b-t32 / -t64 / -t128 / rung-tc-t32-dev")),
++            "rung-dd-t32-dev" => Ok(Geometry::RungDdDev),
++            "shieldstral-3b-t128" => Ok(Geometry::Shieldstral(128)),
++            "shieldstral-3b-t256" => Ok(Geometry::Shieldstral(256)),
++            "rung-hd-t32-dev" => Ok(Geometry::RungHdDev),
++            _ => Err(format!("geometry `{s}` is not one of tinyllama-1.1b-t32 / -t64 / -t128 / llama-3-8b-t32 / -t64 / -t128 / shieldstral-3b-t128 / -t256 / rung-tc-t32-dev / rung-dd-t32-dev / rung-hd-t32-dev")),
++        }
++    }
++    /// **NATIVE R9: the same model and T under DD (D30)**, refused by name at
++    /// a geometry with no DD profile
++    pub(crate) fn dd(self) -> Result<Geometry, String> {
++        match self {
++            Geometry::TinyLlama(128) | Geometry::TinyLlamaDd => Ok(Geometry::TinyLlamaDd),
++            Geometry::Llama3_8B(128) | Geometry::Llama3_8BDd => Ok(Geometry::Llama3_8BDd),
++            Geometry::RungDdDev => Ok(Geometry::RungDdDev),
++            Geometry::Shieldstral(t) | Geometry::ShieldstralDd(t) => Ok(Geometry::ShieldstralDd(t)),
++            g => Err(format!("trained export: DD (D30) is registered only at TinyLlama T128, Llama-3-8B T128, Shieldstral T128 / T256 and the DD development rung, not at {g:?}")),
+         }
+     }
++    /// NATIVE R12: the block profile string of the geometry (its registry
++    /// entry; the shape itself is built at the run's calibration)
++    pub(crate) fn shape_profile(self) -> &'static str {
++        use super::shape::*;
++        match self {
++            Geometry::TinyLlama(64) => TINYLLAMA_T64_TRAINED_PROFILE,
++            Geometry::TinyLlama(128) => TINYLLAMA_T128_TRAINED_PROFILE,
++            Geometry::TinyLlama(_) => TINYLLAMA_T32_TRAINED_PROFILE,
++            Geometry::Llama3_8B(64) => LLAMA3_8B_T64_TRAINED_PROFILE,
++            Geometry::Llama3_8B(128) => LLAMA3_8B_T128_TRAINED_PROFILE,
++            Geometry::Llama3_8B(_) => LLAMA3_8B_T32_TRAINED_PROFILE,
++            Geometry::RungTcDev => TRAINED_CALIB_RUNG_PROFILE,
++            Geometry::TinyLlamaDd => TINYLLAMA_T128_DD_TRAINED_PROFILE,
++            Geometry::Llama3_8BDd => LLAMA3_8B_T128_DD_TRAINED_PROFILE,
++            Geometry::RungDdDev => TRAINED_DD_RUNG_PROFILE,
++            Geometry::Shieldstral(256) => SHIELDSTRAL_T256_TRAINED_PROFILE,
++            Geometry::Shieldstral(_) => SHIELDSTRAL_T128_TRAINED_PROFILE,
++            Geometry::ShieldstralDd(256) => SHIELDSTRAL_T256_DD_TRAINED_PROFILE,
++            Geometry::ShieldstralDd(_) => SHIELDSTRAL_T128_DD_TRAINED_PROFILE,
++            Geometry::RungHdDev => TRAINED_HD_RUNG_PROFILE,
++        }
++    }
++    /// whether this geometry proves under DD
++    pub(crate) fn is_dd(self) -> bool {
++        matches!(self, Geometry::TinyLlamaDd | Geometry::Llama3_8BDd | Geometry::RungDdDev | Geometry::ShieldstralDd(_))
++    }
++    /// NATIVE R12: whether the geometry's model is Shieldstral
++    pub(crate) fn is_shieldstral(self) -> bool {
++        matches!(self, Geometry::Shieldstral(_) | Geometry::ShieldstralDd(_))
++    }
+     /// the context length the geometry fixes
+     pub(crate) fn tokens(self) -> usize {
+         match self {
+-            Geometry::TinyLlama(t) | Geometry::Llama3_8B(t) => t,
+-            Geometry::RungTcDev => 32,
++            Geometry::TinyLlama(t) | Geometry::Llama3_8B(t) | Geometry::Shieldstral(t) | Geometry::ShieldstralDd(t) => t,
++            Geometry::RungTcDev | Geometry::RungDdDev | Geometry::RungHdDev => 32,
++            Geometry::TinyLlamaDd | Geometry::Llama3_8BDd => 128,
+         }
+     }
+     /// the RoPE base the geometry's model fixes (pinned per profile)
+     pub(crate) fn rope_theta(self) -> f64 {
+         match self {
+-            Geometry::Llama3_8B(_) => super::shape::LLAMA3_8B_ROPE_THETA,
++            Geometry::Llama3_8B(_) | Geometry::Llama3_8BDd => super::shape::LLAMA3_8B_ROPE_THETA,
++            Geometry::Shieldstral(_) | Geometry::ShieldstralDd(_) => super::shape::SHIELDSTRAL_ROPE_THETA,
+             _ => super::shape::TRAINED_ROPE_THETA,
+         }
+     }
++    /// NATIVE R12 (F1): the RoPE transform the geometry's model fixes
++    pub(crate) fn rope_scaling(self) -> RopeScaling {
++        if self.is_shieldstral() {
++            RopeScaling::shieldstral()
++        } else {
++            RopeScaling::None
++        }
++    }
+     pub(crate) fn run_profile(self) -> &'static str {
+         match self {
+             Geometry::TinyLlama(64) => super::run::RUN_PROFILE_TINYLLAMA_T64_TRAINED,
+@@ -553,12 +746,22 @@
+             Geometry::Llama3_8B(128) => super::run::RUN_PROFILE_LLAMA3_8B_T128_TRAINED,
+             Geometry::Llama3_8B(_) => super::run::RUN_PROFILE_LLAMA3_8B_T32_TRAINED,
+             Geometry::RungTcDev => RUN_PROFILE_RUNG_TC,
++            Geometry::TinyLlamaDd => super::run::RUN_PROFILE_TINYLLAMA_T128_DD,
++            Geometry::Llama3_8BDd => super::run::RUN_PROFILE_LLAMA3_8B_T128_DD,
++            Geometry::RungDdDev => super::run::RUN_PROFILE_RUNG_DD,
++            Geometry::Shieldstral(256) => super::run::RUN_PROFILE_SHIELDSTRAL_T256_TRAINED,
++            Geometry::Shieldstral(_) => super::run::RUN_PROFILE_SHIELDSTRAL_T128_TRAINED,
++            Geometry::ShieldstralDd(256) => super::run::RUN_PROFILE_SHIELDSTRAL_T256_DD,
++            Geometry::ShieldstralDd(_) => super::run::RUN_PROFILE_SHIELDSTRAL_T128_DD,
++            Geometry::RungHdDev => super::run::RUN_PROFILE_RUNG_HD,
+         }
+     }
+     pub(crate) fn run_shape(self, sh: &Shape, l: usize) -> Result<RunShape, String> {
+         match self {
+-            Geometry::TinyLlama(_) | Geometry::Llama3_8B(_) => RunShape::tinyllama_trained(sh.clone(), l),
++            Geometry::TinyLlama(_) | Geometry::Llama3_8B(_) | Geometry::TinyLlamaDd | Geometry::Llama3_8BDd | Geometry::Shieldstral(_) | Geometry::ShieldstralDd(_) => RunShape::tinyllama_trained(sh.clone(), l),
+             Geometry::RungTcDev => RunShape::rung_tc(sh.clone(), l),
++            Geometry::RungDdDev => RunShape::rung_dd(sh.clone(), l),
++            Geometry::RungHdDev => RunShape::rung_hd(sh.clone(), l),
+         }
+     }
+     /// the shape at a calibration (the controls rebuild it at other ones)
+@@ -568,6 +771,9 @@
+             Geometry::Llama3_8B(32) => SCOPE_8B,
+             Geometry::Llama3_8B(_) => SCOPE_8B_LONGER,
+             Geometry::RungTcDev => SCOPE_RUNG,
++            Geometry::TinyLlamaDd | Geometry::Llama3_8BDd | Geometry::RungDdDev => SCOPE_DD,
++            Geometry::Shieldstral(_) | Geometry::ShieldstralDd(_) => SCOPE_SHIELDSTRAL,
++            Geometry::RungHdDev => SCOPE_RUNG_HD,
+         }
+     }
+     pub(crate) fn shape_at(self, cal: &NormCalibration, f_e: u32) -> Result<Shape, String> {
+@@ -580,6 +786,22 @@
+                 }
+                 Shape::rung_tc(cal)
+             }
++            Geometry::TinyLlamaDd => Shape::tinyllama_t128_trained_dd(cal, f_e),
++            Geometry::Llama3_8BDd => Shape::llama3_8b_t128_trained_dd(cal, f_e),
++            Geometry::RungDdDev => {
++                if f_e != 12 {
++                    return Err(format!("trained export: the DD rung geometry fixes f_e = 12, the export declares {f_e}"));
++                }
++                Shape::rung_dd(cal)
++            }
++            Geometry::Shieldstral(t) => Shape::shieldstral_trained(t, cal, f_e),
++            Geometry::ShieldstralDd(t) => Shape::shieldstral_trained_dd(t, cal, f_e),
++            Geometry::RungHdDev => {
++                if f_e != 12 {
++                    return Err(format!("trained export: the decoupled-head rung geometry fixes f_e = 12, the export declares {f_e}"));
++                }
++                Shape::rung_hd(cal)
++            }
+         }
+     }
+ }
+@@ -606,6 +828,12 @@
+     pub layer_manifest_sha256: Vec<(u32, [u8; 32])>,
+     pub residual_unit: f64,
+     pub calibration_set_sha256: [u8; 32],
++    /// NATIVE R12 (F1): the RoPE transform the export declares (checked equal
++    /// to its geometry's pin)
++    pub rope_scaling: RopeScaling,
++    /// NATIVE R12 (F3): a tied model's embedding / head record, read from the
++    /// export's `token_io/` manifests and checked against the pinned tensor
++    pub tied: Option<TiedEmbedding>,
+ }
+ 
+ /// One loaded layer: the padded public statement and its record.
+@@ -640,7 +868,12 @@
+         let m = p.get("model").map_err(ctx)?;
+         let repo = m.get("repo").and_then(J::str).map_err(ctx)?;
+         let llama_pin = ModelSource::llama3_8b();
++        let shield_pin = ModelSource::shieldstral_1_0_3b();
+         let geometry = match p.opt("geometry") {
++            None if repo == shield_pin.repo => match tokens {
++                128 | 256 => Geometry::Shieldstral(tokens),
++                _ => return Err(ctx(format!("T = {tokens}: no trained Shieldstral profile is registered at this context length (128 and 256 are)"))),
++            },
+             None if repo == llama_pin.repo => match tokens {
+                 32 | 64 | 128 => Geometry::Llama3_8B(tokens),
+                 _ => return Err(ctx(format!("T = {tokens}: no trained Llama-3-8B profile is registered at this context length (32, 64 and 128 are)"))),
+@@ -676,19 +909,25 @@
+             _ => return Err(ctx("model: exactly one of `sha256` / `shards_sha256` is required".into())),
+         };
+         let source = match geometry {
+-            Geometry::Llama3_8B(_) => {
++            Geometry::Llama3_8B(_) | Geometry::Llama3_8BDd => {
+                 if repo != llama_pin.repo || rev != llama_pin.revision || msha != llama_pin.weights_sha256 {
+                     return Err(ctx(format!("the model pin ({repo}, {rev}, {}) is not the pinned Llama-3-8B source ({}, {}, {})", hex(&msha), llama_pin.repo, llama_pin.revision, hex(&llama_pin.weights_sha256))));
+                 }
+                 llama_pin
+             }
+-            Geometry::TinyLlama(_) => {
++            Geometry::TinyLlama(_) | Geometry::TinyLlamaDd => {
+                 if repo != pin.repo || rev != pin.revision || msha != pin.weights_sha256 {
+                     return Err(ctx(format!("the model pin ({repo}, {rev}, {}) is not the pinned TinyLlama source ({}, {}, {})", hex(&msha), pin.repo, pin.revision, hex(&pin.weights_sha256))));
+                 }
+                 pin
+             }
+-            Geometry::RungTcDev => {
++            Geometry::Shieldstral(_) | Geometry::ShieldstralDd(_) => {
++                if repo != shield_pin.repo || rev != shield_pin.revision || msha != shield_pin.weights_sha256 {
++                    return Err(ctx(format!("the model pin ({repo}, {rev}, {}) is not the pinned Shieldstral source ({}, {}, {})", hex(&msha), shield_pin.repo, shield_pin.revision, hex(&shield_pin.weights_sha256))));
++                }
++                shield_pin
++            }
++            Geometry::RungTcDev | Geometry::RungDdDev | Geometry::RungHdDev => {
+                 if !repo.starts_with("synthetic/") || rev.is_empty() {
+                     return Err(ctx("a rung-TC export must name a synthetic source (`synthetic/...`) and a revision".into()));
+                 }
+@@ -780,9 +1019,17 @@
+         let variant = p.get("variant").and_then(J::str).map_err(ctx)?.to_string();
+         plain_name(&variant).map_err(|e| ctx(format!("variant: {e}")))?;
+         let mut source = source;
+-        if geometry == Geometry::RungTcDev {
++        if geometry == Geometry::RungTcDev || geometry == Geometry::RungDdDev || geometry == Geometry::RungHdDev {
+             source.checkpoint_layers = layers.iter().max().map(|m| m + 1).unwrap_or(0);
+         }
++        // NATIVE R12 (F1): the declared RoPE transform is the geometry's pin
++        // (an export of an unscaled model declares none, or `default`)
++        let rope_scaling = rope_scaling_of(p.opt("rope_scaling")).map_err(ctx)?;
++        if rope_scaling != geometry.rope_scaling() {
++            return Err(ctx(format!("the export declares the RoPE transform {}, but its geometry's model fixes {} (a model fact, pinned per profile)", rope_scaling.describe(), geometry.rope_scaling().describe())));
++        }
++        // NATIVE R12 (F3): a tied model's embedding / head record
++        let tied = tied_of(dir, &p, geometry, &source).map_err(ctx)?;
+         Ok(TrainedExport {
+             dir: dir.to_path_buf(),
+             geometry,
+@@ -797,6 +1044,8 @@
+             layer_manifest_sha256,
+             residual_unit,
+             calibration_set_sha256,
++            rope_scaling,
++            tied,
+         })
+     }
+ 
+@@ -919,6 +1168,9 @@
+     }
+ 
+     fn load_layer_mode(&self, sh: &Shape, c: &Constants, index: u32, rope_from_export: bool, full: bool) -> Result<TrainedLayer, String> {
++        if rope_from_export && self.rope_scaling != RopeScaling::None {
++            return Err("--rope-from-export is refused at a profile with a pinned RoPE transform".into());
++        }
+         let dir = self.layer_dir(index);
+         let (mpath, mbytes, m) = self.manifest(index)?;
+         let ctx = |e: String| format!("{}: {e}", mpath.display());
+@@ -948,15 +1200,18 @@
+         // ROUND 5 (R5-2): the eleven arrays read and hashed IN PARALLEL (the
+         // same bytes, the same digests, the same checks)
+         let (d, f, kvw, half) = (sh.width, sh.hidden, sh.kv_heads * sh.head_dim, sh.head_dim / 2);
++        // NATIVE R12 (F2): the TRUE query width `q_heads * head_dim` (4096 at
++        // Shieldstral's d 3072; `d` at every profile before R12)
++        let qw = sh.q_width();
+         // R5b (review r4_A): each array's expected dtype and shape, checked
+         // from the manifest BEFORE its bytes are read (and the read bounded
+         // by that exact length)
+-        let (dd, kd, dv, df, fd, t256) = ([d, d], [kvw, d], [d], [d, f], [f, d], [256usize]);
++        let (qd, dq, kd, dv, df, fd, t256) = ([qw, d], [d, qw], [kvw, d], [d], [d, f], [f, d], [256usize]);
+         let expect: [(&str, Dtype, &[usize]); 11] = [
+-            ("wq", Dtype::I8, &dd),
++            ("wq", Dtype::I8, &qd),
+             ("wk", Dtype::I8, &kd),
+             ("wv", Dtype::I8, &kd),
+-            ("wo", Dtype::I8, &dd),
++            ("wo", Dtype::I8, &dq),
+             ("gamma_a", Dtype::I8, &dv),
+             ("gamma_m", Dtype::I8, &dv),
+             ("wg_t", Dtype::I8, &df),
+@@ -973,13 +1228,13 @@
+         // `get` calls below
+         let mut get = |_name: &str| -> Result<Array, String> { loaded.pop_front().expect("one result per name") };
+         let wq = get("wq")?;
+-        wq.expect("wq", Dtype::I8, &[d, d])?;
++        wq.expect("wq", Dtype::I8, &[qw, d])?;
+         let wk = get("wk")?;
+         wk.expect("wk", Dtype::I8, &[kvw, d])?;
+         let wv = get("wv")?;
+         wv.expect("wv", Dtype::I8, &[kvw, d])?;
+         let wo = get("wo")?;
+-        wo.expect("wo", Dtype::I8, &[d, d])?;
++        wo.expect("wo", Dtype::I8, &[d, qw])?;
+         let ga = get("gamma_a")?;
+         ga.expect("gamma_a", Dtype::I8, &[d])?;
+         let gm = get("gamma_m")?;
+@@ -1003,7 +1258,9 @@
+         if act.i16s() != gact.to_vec() {
+             return Err(ctx(format!("the exported act table is not the frozen SiLU member {:?}", tk.silu)));
+         }
+-        let (gcos, gsin) = crate::tables_attn::rope_tables_generate(sh.tokens, sh.head_dim, c.rope_theta, F_RO);
++        // NATIVE R12 (F1): the generator at the profile's pinned transform
++        // (the frozen generator itself at every unscaled profile)
++        let (gcos, gsin) = super::shape::rope_tables_for(sh, c.rope_theta).map_err(ctx)?;
+         let exported = match (arrays.opt("rope_cos").or_else(|| arrays.opt("cos")), arrays.opt("rope_sin").or_else(|| arrays.opt("sin"))) {
+             (Some(cs), Some(ss)) => {
+                 let (r2, r1) = ([sh.tokens, half], [sh.tokens * half]);
+@@ -1031,20 +1288,27 @@
+         };
+         // pad per the shape (ruling P-2): Wq writes the head-permuted Q axis,
+         // Wo reads it; Wk / Wv do not pad on their width axis
+-        let (dp, fp) = (sh.d_pad, sh.f_pad);
++        let (dp, qp, fp) = (sh.d_pad, sh.q_pad(), sh.f_pad);
+         let id = |i: usize| i;
+         let q = |j: usize| sh.head_slot(j / sh.head_dim) * sh.head_dim + j % sh.head_dim;
+         let aw = [
+-            pad_matrix(&wq.i8s(), d, d, dp, dp, &q, &id),
++            pad_matrix(&wq.i8s(), qw, d, qp, dp, &q, &id),
+             pad_matrix(&wk.i8s(), kvw, d, kvw, dp, &id, &id),
+             pad_matrix(&wv.i8s(), kvw, d, kvw, dp, &id, &id),
+-            pad_matrix(&wo.i8s(), d, d, dp, dp, &id, &q),
++            pad_matrix(&wo.i8s(), d, qw, dp, qp, &id, &q),
+             pad_matrix(&ga.i8s(), 1, d, 1, dp, &id, &id),
+         ];
+         let fw = [pad_matrix(&gm.i8s(), 1, d, 1, dp, &id, &id), pad_matrix(&wg.i8s(), d, f, dp, fp, &id, &id), pad_matrix(&wu.i8s(), d, f, dp, fp, &id, &id), pad_matrix(&wd.i8s(), f, d, fp, dp, &id, &id)];
+         let public = AttentionPublic::new_shaped(sh, &aw[0], &aw[1], &aw[2], &aw[3], &aw[4], &cos, &sin, &exp.i64s()).map_err(ctx)?;
+         let ff = FeedForwardPublic::new_shaped(sh, &fw[0], &fw[1], &fw[2], &fw[3], &act.i16s()).map_err(ctx)?;
+         let blk = BlockPublic::new(public, ff);
++        // NATIVE R9 (D30 condition 6, CHECK.md B-8): at a DD profile the
++        // trained door refuses a layer whose exp table needs more than `cap`
++        // dictionary slots — by name (the layer and its table key), from the
++        // public table, before any header
++        if sh.dd_cap > 0 {
++            blk.attention().dd_e_column(sh.dd_cap).map_err(|e| ctx(format!("layer {index} (exp_e_s {}): {e}", tk.exp_e_s)))?;
++        }
+         // the source tensors the manifest names, if it names any
+         let mut source_tensors: Vec<(String, [u8; 32])> = Vec::new();
+         if let Some(st) = m.opt("source_tensors") {
+@@ -1120,9 +1384,10 @@
+             export_profile_sha256: self.profile_sha256,
+             calibration_tool_sha256: self.tool_sha256,
+             rope_theta: c.rope_theta,
++            rope_scaling: self.rope_scaling,
+         };
+         let cal = IntegerCalibration::as_the_code_proves(sh, &prov);
+-        TrainedModelStatement::new(sh, self.geometry.run_profile(), self.source.clone(), cal, records)
++        TrainedModelStatement::new_with_tied(sh, self.geometry.run_profile(), self.source.clone(), cal, records, self.tied.clone())
+     }
+ }
+ 
+@@ -1391,7 +1656,7 @@
+ /// `statement.json` into a NEW directory. JSON lines on stdout; exit 0 =
+ /// proved and verified, 1 = refused or failed, 2 = bad arguments.
+ pub fn trained_prove_command(args: &[String]) -> i32 {
+-    let f = match flags(args, &["--export", "--layer", "--seq", "--seq-dir", "--out", "--label"], &["--rope-from-export", "--controls"]) {
++    let f = match flags(args, &["--export", "--layer", "--seq", "--seq-dir", "--out", "--label"], &["--rope-from-export", "--controls", "--dd"]) {
+         Ok(f) => f,
+         Err(e) => {
+             eprintln!("zk60_trained_block prove: {e}");
+@@ -1418,7 +1683,12 @@
+         return Err(format!("{} exists; the output directory must be new", out.display()));
+     }
+     let t0 = Instant::now();
+-    let ex = TrainedExport::load(&export)?;
++    let mut ex = TrainedExport::load(&export)?;
++    // NATIVE R9 (D30): `--dd` proves / verifies under the DD profile of the
++    // export's model and T (refused by name where none is registered)
++    if flag(f, "--dd").is_some() {
++        ex.geometry = ex.geometry.dd()?;
++    }
+     let c = ex.run_constants(&[layer_ix])?;
+     let sh = ex.shape_for(&c)?;
+     let layer = ex.load_layer(&sh, &c, layer_ix, flag(f, "--rope-from-export").is_some())?;
+@@ -1537,7 +1807,7 @@
+ /// statement-mismatch and receipt-mutation controls, each of which must
+ /// REFUSE.
+ pub fn trained_verify_command(args: &[String]) -> i32 {
+-    let f = match flags(args, &["--export", "--layer", "--artifact", "--expect-statement", "--label"], &["--rope-from-export", "--controls"]) {
++    let f = match flags(args, &["--export", "--layer", "--artifact", "--expect-statement", "--label"], &["--rope-from-export", "--controls", "--dd"]) {
+         Ok(f) => f,
+         Err(e) => {
+             eprintln!("zk60_trained_block verify: {e}");
+@@ -1562,7 +1832,12 @@
+     let t0 = Instant::now();
+     // R5b (P-5): the verifier's export holds no prover-private seq_* entry
+     refuse_prover_private_entries(&export)?;
+-    let ex = TrainedExport::load(&export)?;
++    let mut ex = TrainedExport::load(&export)?;
++    // NATIVE R9 (D30): `--dd` proves / verifies under the DD profile of the
++    // export's model and T (refused by name where none is registered)
++    if flag(f, "--dd").is_some() {
++        ex.geometry = ex.geometry.dd()?;
++    }
+     let c = ex.run_constants(&[layer_ix])?;
+     let sh = ex.shape_for(&c)?;
+     let layer = ex.load_layer(&sh, &c, layer_ix, flag(f, "--rope-from-export").is_some())?;
+@@ -2429,7 +2704,7 @@
+     format!(
+         "{{\n \"schema\": \"{}\",\n \"scope\": {},\n \"statement_written_by\": {},\n \"prover_reported\": {{\"backend\": {}, \"gpu_declines\": {}, \"what\": {}}},\n \"block_profile\": {},\n \"run_profile\": {},\n \"blocks\": {},\n \"export_variant\": {},\n \"export_profile_sha256\": {},\n \"calibration_tool_sha256\": {},\n \"trained_statement_identity\": {},\n \"context_label\": {},\n \"context\": {},\n \"expected_io\": {},\n \"layers\": [\n  {}\n ],\n \"shape\": {{\"tokens\": {}, \"width\": {}, \"hidden\": {}, \"q_heads\": {}, \"kv_heads\": {}, \"head_dim\": {}, \"log_cols\": {}, \"inv_rate\": {}, \"opened_cols\": {}, \"f_e\": {}, \"wrho_s\": {}, \"norm_wrho\": {}, \"norm_tn\": {}, \"norm_cn_a\": {}, \"norm_cn_m\": {}, \"norm_ceps\": {}, \"sh_ao\": {}, \"sh_qkv\": {}, \"sh_s\": {}, \"sh_o\": {}, \"sh_g\": {}, \"sh_h\": {}, \"sh_z\": {}, \"d_max\": {}}}\n}}\n",
+         STACK_STATEMENT_SCHEMA,
+-        js(STACK_SCOPE),
++        js(stack_scope(ex.geometry)),
+         js(writer.text()),
+         js(&claims.backend),
+         claims.gpu_declines,
+@@ -2472,6 +2747,19 @@
+     )
+ }
+ 
++/// NATIVE R12 (D38): the stack scope of a Shieldstral run (every earlier
++/// model keeps [`STACK_SCOPE`] byte for byte)
++const STACK_SCOPE_SHIELDSTRAL: &str = "ALL the listed trained blocks of Shieldstral-1.0-3B's text decoder as ONE bound run at the export's T (one transcript, hidden internal boundaries); the image encoder, the embedding, final norm, LM head and the verdict are NOT covered (D13, D38: the loader checks tied-table derivation from the pinned tensor; token-stage relations require their own review); CPU unless the run line says gpu; NOT a soundness or privacy acceptance; float fidelity is the calibration lane's measurement";
++
++/// the stack scope of a geometry's run
++fn stack_scope(g: Geometry) -> &'static str {
++    if g.is_shieldstral() {
++        STACK_SCOPE_SHIELDSTRAL
++    } else {
++        STACK_SCOPE
++    }
++}
++
+ const STACK_SCOPE: &str = "ALL the listed trained blocks of the export's model (TinyLlama-1.1B-Chat or Llama-3-8B) as ONE bound run at the export's T (one transcript, hidden internal boundaries); embedding, final norm, LM head and token selection are NOT covered (D13); CPU unless the run line says gpu; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement";
+ 
+ /// `stack-prove --export DIR (--seq ID | --seq-dir DIR) --out DIR
+@@ -2501,7 +2789,7 @@
+ /// means the control behaved). stdout from a run on a hidden input is
+ /// prover-private (privacy review P-6).
+ pub fn trained_stack_prove_command(args: &[String]) -> i32 {
+-    let f = match flags(args, &["--export", "--seq", "--seq-dir", "--out", "--layers", "--label", "--lie-at-boundary", "--witness-cache-gib"], &["--rope-from-export", "--verify-in-process"]) {
++    let f = match flags(args, &["--export", "--seq", "--seq-dir", "--out", "--layers", "--label", "--lie-at-boundary", "--witness-cache-gib"], &["--rope-from-export", "--verify-in-process", "--dd"]) {
+         Ok(f) => f,
+         Err(e) => {
+             eprintln!("zk60_trained_block stack-prove: {e}");
+@@ -2546,7 +2834,12 @@
+     // called `run_header`, which is the transcript's name for something that
+     // happens only after the sealing pass
+     println!("{{\"event\":\"prover_start\",\"gpu\":{},\"hl_gpu_required\":{}}}", js(&crate::gpu::label()), crate::gpu::required());
+-    let ex = TrainedExport::load(&export)?;
++    let mut ex = TrainedExport::load(&export)?;
++    // NATIVE R9 (D30): `--dd` proves / verifies under the DD profile of the
++    // export's model and T (refused by name where none is registered)
++    if flag(f, "--dd").is_some() {
++        ex.geometry = ex.geometry.dd()?;
++    }
+     let layers = parse_layers(flag(f, "--layers"), &ex.layers)?;
+     let l = layers.len();
+     if let Some(k) = lie_at {
+@@ -2566,7 +2859,7 @@
+         js(&hex(&st.identity())),
+         seal.wall_s,
+         js(&std::env::var("HL_GPU").unwrap_or_else(|_| "unset".into())),
+-        js(STACK_SCOPE)
++        js(stack_scope(ex.geometry))
+     );
+     let (kept_n, kept_bytes) = (chain.kept.iter().filter(|w| w.is_some()).count(), chain.kept_bytes);
+     println!(
+@@ -2704,7 +2997,7 @@
+ /// renames to `<artifact>/statement/` (never over an existing one); an
+ /// existing `statement/` is only checked.
+ pub fn trained_stack_verify_command(args: &[String]) -> i32 {
+-    let f = match flags(args, &["--export", "--artifact", "--expect-statement", "--layers", "--label"], &["--rope-from-export", "--controls"]) {
++    let f = match flags(args, &["--export", "--artifact", "--expect-statement", "--layers", "--label"], &["--rope-from-export", "--controls", "--dd"]) {
+         Ok(f) => f,
+         Err(e) => {
+             eprintln!("zk60_trained_block stack-verify: {e}");
+@@ -2728,7 +3021,12 @@
+     let t = Instant::now();
+     // R5b (P-5): the verifier's export holds no prover-private seq_* entry
+     refuse_prover_private_entries(&export)?;
+-    let ex = TrainedExport::load(&export)?;
++    let mut ex = TrainedExport::load(&export)?;
++    // NATIVE R9 (D30): `--dd` proves / verifies under the DD profile of the
++    // export's model and T (refused by name where none is registered)
++    if flag(f, "--dd").is_some() {
++        ex.geometry = ex.geometry.dd()?;
++    }
+     let layers = parse_layers(flag(f, "--layers"), &ex.layers)?;
+     let l = layers.len();
+     let rope = flag(f, "--rope-from-export").is_some();
+@@ -2789,7 +3087,7 @@
+         "{{\"event\":\"verified\",\"blocks\":{l},\"receipt_bytes\":{total},\"load_seconds\":{load_s:.3},\"verify_seconds\":{verify_s:.3},\"of_which_block_load_seconds\":{block_load_s:.3},\"vmhwm_mib\":{:.0},\"statement_identity\":{},\"scope\":{}}}",
+         peak_rss_mib(),
+         js(&hex(&st.identity())),
+-        js(STACK_SCOPE)
++        js(stack_scope(ex.geometry))
+     );
+     if flag(f, "--controls").is_some() {
+         stack_controls(&ex, &c, &sh, &layers, &digests, rope, &loaded, &st, ctx, &expected, &art)?;

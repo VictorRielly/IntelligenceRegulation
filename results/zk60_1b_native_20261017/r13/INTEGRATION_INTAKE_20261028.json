@@ -1,0 +1,34 @@
+{
+  "utc": "2026-10-28T21:31:18.804628+00:00",
+  "scope": "prepare after R12b freezes; no native R13 build before that",
+  "tested_components": {
+    "precision-next/accuracy_precision.green.rs": {
+      "sha256": "145c1e0f66ea5aad558148aa7885b4fcaaf74c6145893cc1efd10f7a77eee56b",
+      "evidence": "r13-precision-low-green-tests.guard.json",
+      "child_exit": 0
+    },
+    "aligned-next/accuracy_aligned.green.rs": {
+      "sha256": "26eb2fb919de263227138282581022c4c687aac86330bf5a21e6e6d285cbd186",
+      "evidence": "r13-public-aligned-cpu.guard.json",
+      "child_exit": 0
+    },
+    "working-tree/hashline/src/private_block/accuracy_public.rs": {
+      "sha256": "55b5bd4f1e359bf19906e545df6f77b6dfcccf421dd029ffe973064bd26d2f5e",
+      "evidence": "r13-public-aligned-cpu.guard.json",
+      "child_exit": 0
+    }
+  },
+  "next_steps": [
+    "Freeze/deliver R12b and apply audited three-way rebase with pre-rebase backups",
+    "Install tested LOW precision and aligned helpers; repair fixture include paths after copying",
+    "Hook/check the integer executor and bounded array reader, test both stacks against independent 18-site traces",
+    "Shieldstral-only (0,-8) registry; signed32 scaled tables; <=4groups and unchanged TinyLlama/8B; no sh_u change needed for current Astra fix",
+    "Implement the independently enumerated roles/lookups, profile gates, all reconstruction and public matmul folds, ACT group column/padding",
+    "Dense native proofs/fresh verify/tamper, native counts, goldens/retained receipts/full suites, freeze and D24 review"
+  ],
+  "references": [
+    "plane_reference.json",
+    "nowrap_shieldstral_counted.json",
+    "../r12b/policy_margin_reference.json"
+  ]
+}

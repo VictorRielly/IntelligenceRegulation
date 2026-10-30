@@ -1,0 +1,14 @@
+{
+  "cycle": "0143",
+  "tested": "memory traffic: current-call K2/4 mask-pair tiles and accumulator/spill budget",
+  "next": "batching/amortization: first inspect new owner exclusive clocks; otherwise test a public geometry-only resident-pass plan with2/4/8 fresh-challenge synthetic replays and point/profile/freshness controls. Do not cache challenge-dependent Eq coefficients across passes.",
+  "queue": [
+    "GPU NTT/commitments",
+    "sumcheck/GKR",
+    "lookup arguments and softmax",
+    "memory traffic",
+    "batching/amortization",
+    "quantization/arithmetic",
+    "proof composition"
+  ]
+}

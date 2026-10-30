@@ -1,0 +1,26 @@
+{
+  "utc": "2026-10-29T19:13:18.245627+00:00",
+  "source": "3c7b1dcfd47ba8cb257c6f734348f25fb960af3f25f8b1b14ea4e262ff8defda",
+  "files": 287,
+  "guard_sha256": "88af4c639848d39df8da559652db11529575aa745b916a06eb522c20ea89fbd3",
+  "scripts": {
+    "capture_gate.py": "30965a3e637105c902ad3779e92971a20db3a92de67a1abfefaef58d61138314",
+    "capture_checks.py": "634c2ba72018699c4fdec8cbfb0390928a823c81feb835206c7661ffec913629",
+    "validate_capture.py": "7b44b65e0b83fffd78fb0d8e692519cc5884a6b09959ca704d96e6873a9b75a5",
+    "local_row_rank.py": "5b60eaa0f180e5391a108245cf1fcd8fe09c94d49f55e8ec061bd129529d5f88",
+    "actual_l25_checks.py": "601e509f101c46225ce7aeba7f93160605733c27319e45c9dca9116fbe83e267",
+    "regression_checks.py": "2b38919ac324aecd1c76db969f9409e7dff2cb4c059d92929d50029bc6dccefb",
+    "compatibility_checks.py": "4af7f69d077fb2fcf4efdd9090593121664ebc82c6c32e966b643a3a36c25b90"
+  },
+  "dependency": "CANDIDATE_ACCEPTANCE_BATCH.done=0 from existing original24662",
+  "order": [
+    "capture build",
+    "three-stage captures/transport validation",
+    "limited local row precheck",
+    "actualL25gates",
+    "50relation regressions",
+    "legacy compatibility"
+  ],
+  "source_edits_held": true,
+  "scope": "Uncompiled observer branch is now queued and held. No native capture/acceptance/privacy result follows from this plan."
+}

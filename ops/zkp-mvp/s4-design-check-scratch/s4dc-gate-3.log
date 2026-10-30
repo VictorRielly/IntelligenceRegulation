@@ -1,0 +1,4 @@
+rlib bdb08e434377a2ec0e4c34e6866228163d4e976e1b07b86d3dfe679ea6420569
+src 1c1b7f3045d903d05879fcab424be7f12913755e194110899e07d96301ea5b74
+run s4_gate_check exit 0
+{"honest_microproofs":45,"forgeries_rejected":405,"rejected_by_style":{"Independent": 135, "PublicGate": 135, "WholeLift": 135},"zero_edge_checks":90,"degree_trap_refusals":5,"scope":"reviewer harness: native CFS/sumcheck/PCS/M components, three mask styles incl. PublicGate; not the private-block wire/profile; not a privacy acceptance"}

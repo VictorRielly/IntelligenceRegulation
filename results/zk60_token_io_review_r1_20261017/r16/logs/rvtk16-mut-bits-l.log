@@ -1,0 +1,33 @@
+
+running 12 tests
+test private_block::token_io::classify_r16_tests::r16_a_block_at_another_stage_shape_and_the_run_seed_shape_are_refused ... ok
+test private_block::token_io::classify_r16_tests::r16_a_doctored_per_layer_gate_shift_is_refused_before_any_header ... ok
+test private_block::token_io::classify_r16_tests::r16_a_t256_export_statement_with_a_t128_profile_is_refused ... ok
+test private_block::token_io::classify_r16_tests::r16_an_r13_classifier_run_with_two_gate_denominators_proves_and_verifies ... ok
+test private_block::token_io::classify_r16_tests::r16_the_loaders_tied_derivation_is_reused_only_with_the_bound_margin_parameters ... ok
+test private_block::token_io::classify_r16_tests::r16_the_r13_shieldstral_classifier_profiles_are_registered_at_their_block_shapes ... ok
+test private_block::token_io::classify_r16_tests::r16_the_r13_whole_run_figure_charges_the_degree_two_tables_and_clears_95 ... ok
+test private_block::token_io::classify_r16_tests::r16_write_item_activations ... ignored, real Shieldstral export via HL_R16_EXPORT / HL_R16_ITEMS; streams the checkpoint once; guarded
+test private_block::token_io::review_r16_tests::rv16_s1_the_policies_the_r13_shieldstral_profiles_admit ... ok
+test private_block::token_io::review_r16_tests::rv16_s2_whole_run_terms_floors_and_min_bits ... FAILED
+test private_block::token_io::review_r16_tests::rv16_s3_a_wrong_activation_set_yields_no_accepting_receipt ... ok
+test private_block::token_io::review_r16_tests::rv16_s4_the_reused_derivation_needs_its_row_of_the_block_width ... ok
+
+failures:
+
+---- private_block::token_io::review_r16_tests::rv16_s2_whole_run_terms_floors_and_min_bits stdout ----
+RV16-S2-SHAPE {"profile":"hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/1","log_cols":14,"inv_rate":4,"opened_cols":256,"endpoint_log_n":14,"endpoint_inv_rate":4,"tokens":128,"t_pad":128,"d_pad":4096,"u8_lookups":64258048,"S":524288,"F":2097152,"r13_numerator":66947071,"mask_vec":1024,"mask_dom":4096,"mask_q":256,"tier_q":256,"tier_stage_log_n":12,"tier_stage_inv_rate":4,"tier_ep_log_n":8,"tier_ep_inv_rate":8,"pcs_field":-113,"sumcheck":-117.2}
+RV16-S2-TERMS {"profile":"hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/1","policy":"shieldstral-1.0-3b-moderate-sexual/1","p0":72,"n":55,"out_c_n":53248,"out_c_r":256,"in_c_n":4096,"in_c_r":131072,"cp_tokens":128,"cp_d_pad":4096,"openings":112,"column_log2":-98.792756,"logup_log2":-101.960476,"omitted_log2":-106.173153,"total_log2":-98.632762,"floor":98}
+
+thread 'private_block::token_io::review_r16_tests::rv16_s2_whole_run_terms_floors_and_min_bits' (363115) panicked at src/private_block/token_io/review_r16_tests.rs:140:13:
+assertion `left == right` failed: hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/1 / shieldstral-1.0-3b-moderate-sexual/1: floor 98
+  left: 98
+ right: 96
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    private_block::token_io::review_r16_tests::rv16_s2_whole_run_terms_floors_and_min_bits
+
+test result: FAILED. 10 passed; 1 failed; 1 ignored; 0 measured; 849 filtered out; finished in 82.36s
+

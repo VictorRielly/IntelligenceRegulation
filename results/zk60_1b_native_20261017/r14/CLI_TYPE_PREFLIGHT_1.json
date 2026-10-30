@@ -1,0 +1,7 @@
+{
+  "utc": "2026-10-30T07:04:37.989668+00:00",
+  "original_session": 91211,
+  "original_exit": 130,
+  "compiler_leaf_started": false,
+  "fix": "Static interface read found Shape::f_p is a method, not a field. Correct it and admit SplitProfile geometry before expensive layer/private loading. Original unstarted290file source retained; no native/compile failure or retry inferred."
+}

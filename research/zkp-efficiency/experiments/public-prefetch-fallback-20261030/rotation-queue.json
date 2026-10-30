@@ -1,0 +1,20 @@
+{
+  "searched_this_cycle": [
+    "memory traffic",
+    "batching/amortization",
+    "sumcheck/GKR",
+    "GPU NTT/commitments",
+    "lookup/softmax screen"
+  ],
+  "next": [
+    "lookup arguments and softmax",
+    "proof composition",
+    "quantization/arithmetic",
+    "GPU NTT/commitments",
+    "sumcheck/GKR",
+    "memory traffic",
+    "batching/amortization"
+  ],
+  "new_older_assessment": "ZeRO-Infinity2021 section6.2",
+  "no_foreign_execution": true
+}

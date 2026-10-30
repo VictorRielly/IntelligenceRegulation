@@ -1,0 +1,11 @@
+--- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/hashline/src/private_block/tied_tables.rs	2026-10-28 23:08:24.416031400 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r16b/hashline/src/private_block/tied_tables.rs	2026-10-29 03:50:55.908825381 -0700
+@@ -11,6 +11,8 @@
+ mod derive;
+ pub use derive::{recompute_tied_tables, tied_token_calibration, RecomputedTiedTables, TiedFinalNorm, TiedTokenCalibration};
+ pub(crate) use derive::recompute_declared_tied_tables;
++/// TOKEN ROUND 16 (N-r13-5): the loader's pass with the classifier row
++pub(crate) use derive::recompute_declared_tied_tables_with_margin;
+ /// Token R-C2 uses the same quantizer for its development tied source.
+ pub(crate) use derive::{bf16, norm, quantize};
+ 

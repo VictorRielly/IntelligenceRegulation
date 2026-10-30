@@ -1,0 +1,202 @@
+{
+  "T": 128,
+  "accuracy_stack": "low-h24-v1",
+  "calibration_tool": {
+    "path": "prepare_shieldstral_export_v2.py",
+    "sha256": "54c42949d3ad8cf26d616d095bd0402099e5c90bd6c568769f6ea77babaadb49"
+  },
+  "classifier_margin_parameters": {
+    "no_id": 2649,
+    "public_scale": 4.08288030735373e-06,
+    "status": "candidate profile values; native R-C2 policy registration and fidelity required",
+    "threshold_c": 0,
+    "yes_id": 13059
+  },
+  "geometry": "shieldstral-3b-t128",
+  "kind": "profile",
+  "layers": [
+    {
+      "dir": "layer_00",
+      "layer": 0,
+      "manifest_sha256": "a783eeed5f0d7431b1c4c66f8cea9b94a6f0ba984b4d1993c03a9602e7360396"
+    }
+  ],
+  "metadata_out_of_proof": {
+    "residual_scales_in": [
+      0.0035486477726047977,
+      0.0035486477726047977,
+      0.0035486477726047977,
+      0.0035486477726047977,
+      0.0035486477726047977,
+      0.0035486477726047977,
+      0.0035486477726047977,
+      0.0035486477726047977,
+      0.0035486477726047977,
+      0.0035486477726047977,
+      0.0035486477726047977,
+      0.0035486477726047977,
+      0.0035486477726047977,
+      0.0035486477726047977,
+      0.0035486477726047977,
+      0.0035486477726047977,
+      0.0035486477726047977,
+      0.0035486477726047977,
+      0.0035486477726047977,
+      0.0035486477726047977,
+      0.0035486477726047977,
+      0.0035486477726047977,
+      0.0035486477726047977,
+      0.0035486477726047977,
+      0.0035486477726047977,
+      0.0035486477726047977
+    ],
+    "residual_scales_out": [
+      0.0035486477726047977,
+      0.0035486477726047977,
+      0.0035486477726047977,
+      0.0035486477726047977,
+      0.0035486477726047977,
+      0.0035486477726047977,
+      0.0035486477726047977,
+      0.0035486477726047977,
+      0.0035486477726047977,
+      0.0035486477726047977,
+      0.0035486477726047977,
+      0.0035486477726047977,
+      0.0035486477726047977,
+      0.0035486477726047977,
+      0.0035486477726047977,
+      0.0035486477726047977,
+      0.0035486477726047977,
+      0.0035486477726047977,
+      0.0035486477726047977,
+      0.0035486477726047977,
+      0.0035486477726047977,
+      0.0035486477726047977,
+      0.0035486477726047977,
+      0.0035486477726047977,
+      0.0035486477726047977,
+      0.0035486477726047977
+    ],
+    "rotation": {
+      "block_width": 1024,
+      "blocks": 3,
+      "kind": "block-hadamard",
+      "rule": "R=blockdiag(H1024,H1024,H1024) diag(sign) / 32; x_rot=x R^T",
+      "seed": 1,
+      "sign_sha256": "d4e7754fdce9d3920d3b20660d76b58cf629359f7574e7329683031ba23cacf7",
+      "width": 3072
+    }
+  },
+  "model": {
+    "repo": "mistralai/Shieldstral-1.0-3B",
+    "revision": "003ec7e2b0bab5f0e6307edbaf186fa5822b76f5",
+    "sha256": "87753e30c8c321da478b83bbabebcd813cc9b3d0cee5c5b3d64349a8ee4172f7"
+  },
+  "per_layer_constants_differ": [
+    "exp_e_s",
+    "norm_cn_a",
+    "norm_cn_m",
+    "sh_ao",
+    "sh_h",
+    "sh_s",
+    "sh_z",
+    "silu_member"
+  ],
+  "profile_constants": {
+    "exp_e_s": null,
+    "f_e": 9,
+    "f_p": 12,
+    "f_ro": 7,
+    "norm_ceps": 2439,
+    "norm_cn_a": null,
+    "norm_cn_m": null,
+    "norm_tn": 9,
+    "rope_theta": 1000000.0,
+    "sh_ao": null,
+    "sh_g": 8,
+    "sh_h": null,
+    "sh_o": 9,
+    "sh_qkv": 8,
+    "sh_r2": 0,
+    "sh_rope": 7,
+    "sh_s": null,
+    "sh_u": 0,
+    "sh_z": null,
+    "silu_member": null
+  },
+  "r13_adapter_provenance": {
+    "audit_sha256": "a60edbc04fdc4ea1338a44698a8cf9628906fb9656042281ee77a37319200950",
+    "base_profile_sha256": "212244e40393a34ceb16943694384c1950b933e4f8f2e7a02634e2d5983f260e",
+    "evaluation_export_sha256": "0818a06c74176921a406a1582231f82bee4247a4131f07438c3b955f5868197b",
+    "layer25_candidate_sha256": "0e90d5d0e6b3f85387a2828f52ac385588bc1af777045855205d16c6d567ceda",
+    "normalization": "base f_p9 -> explicit effective f_p12; all base shifts and integer arrays unchanged; layer25 uses fixed up matrix/multiplier and sh_h15"
+  },
+  "r13_t128_smoke": {
+    "adapter_sha256": "77f6de30f741f07be08f276400236234c9c97c9f843cfaa37935c72720004c91",
+    "change": "T256 -> T128 and exact first128 YaRN rows; no weight/calibration requantization",
+    "source_profile_sha256": "1d50078243f13d58afa814a55c47c2df797e494d7f045941ea82fa142740498a"
+  },
+  "rope_scaling": {
+    "attention_factor": 1.0,
+    "beta_fast": 32.0,
+    "beta_slow": 1.0,
+    "factor": 16.0,
+    "mscale": 1.0,
+    "mscale_all_dim": 1.0,
+    "original_max_position_embeddings": 16384,
+    "rope_type": "yarn",
+    "truncate": true
+  },
+  "schema": "zk60-trained-profile-export/2",
+  "scope": "one actual S2 public layer, public synthetic input, T128; no model fidelity or full-stack proof claim",
+  "sequences": [],
+  "tied_embeddings": {
+    "sha256": "67a138c1c483b89874526ef523f5f0c30f161808076561730193d1de2093dd19",
+    "tensor": "language_model.model.embed_tokens.weight"
+  },
+  "token_io_derivation": {
+    "base_profile_sha256": "51725995fa95c6a18a99c2fc445a1af43e25c1913b64c283de6985119160cf30",
+    "quantizer_source_sha256": "ed5a5fc07483968172f17a844567596b84a610540ed2d3aeb35bb307125d0fa0",
+    "reference_sha256": "9786feccb50f3346f0844e18dfec5ce24361f29d49971804ca85c537f93496a5",
+    "source_sha256": "b9a213f6398bef543bf92c90384d831a57c44aae2f8c40be75b7ff11957b1256"
+  },
+  "token_io_parameters": {
+    "bos": 1,
+    "classifier_final_norm": {
+      "ceps": 2439,
+      "cn": 1024,
+      "g0": 127,
+      "tn": 10
+    },
+    "head_final_norm": {
+      "ceps": 2439,
+      "cn": 3504,
+      "g0": 127,
+      "tn": 9
+    }
+  },
+  "variant": "shieldstral-s2-L00-t128-public-smoke",
+  "variant_options": {
+    "cn_max": 1048576,
+    "f_e": 9,
+    "f_p": 12,
+    "margin": 0.5,
+    "margin_ch": 3.0,
+    "margin_pow2": 0.25,
+    "name": "dg",
+    "norm_cn": "layer",
+    "o16": false,
+    "residual": "global",
+    "rotate": 1,
+    "s16": false,
+    "shapes": [
+      "range",
+      "smooth",
+      "gamma"
+    ],
+    "shifts": "free",
+    "tables": "layer",
+    "tn": 9
+  }
+}

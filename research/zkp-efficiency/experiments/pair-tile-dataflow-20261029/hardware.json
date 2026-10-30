@@ -1,0 +1,13 @@
+{
+  "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "python": "3.10.12",
+  "rustc": "rustc 1.75.0 (82e1608df 2023-12-21) (built from a source tarball)",
+  "cpu_model": "Intel(R) Core(TM) Ultra 9 185H",
+  "research_affinity": [
+    0
+  ],
+  "research_numeric_workers": 1,
+  "accelerator": null,
+  "device_count": 0,
+  "model_context": null
+}

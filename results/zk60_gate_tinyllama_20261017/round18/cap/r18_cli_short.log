@@ -1,0 +1,4 @@
+[zk60-guard 20:12:39] START gate18-build-tests-h18 class=build need=2.7G cap=3.5G enforce=cgroup+watchdog waited=0s run=2a7aed90c33b
+[zk60-guard 20:16:00] END gate18-build-tests-h18 exit=0 child_wall=202s peak_rss=2.17G min_avail=11.09G
+[zk60-guard 20:16:00] START gate18-cap-classify-rc3-cli-short11-r14 class=cpu need=0.7G cap=1.5G enforce=cgroup+watchdog waited=0s run=ea8765407aaf
+[zk60-guard 20:16:04] END gate18-cap-classify-rc3-cli-short11-r14 exit=0 child_wall=3s peak_rss=0.21G min_avail=13.08G

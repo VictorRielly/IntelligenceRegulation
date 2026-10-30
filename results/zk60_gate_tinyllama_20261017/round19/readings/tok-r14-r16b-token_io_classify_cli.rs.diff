@@ -1,0 +1,247 @@
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r14/hashline/src/private_block/token_io/classify_cli.rs	2026-10-28 19:12:07.680339014 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r16b/hashline/src/private_block/token_io/classify_cli.rs	2026-10-29 03:50:55.909764597 -0700
+@@ -1,5 +1,6 @@
+ //! **THE CLASSIFIER CLI** (round 12, rung R-C1; round 13, rung R-C2; round 14,
+-//! rung R-C3: short items and the library binding; DESIGN_CLASSIFIER v2.4):
++//! rung R-C3: short items and the library binding; round 15: the label's
++//! whole-post check; DESIGN_CLASSIFIER v2.5):
+ //!
+ //! ```text
+ //! zk60_classify prove        --export DIR --tables DIR --policy ID --content-file FILE|-
+@@ -8,7 +9,7 @@
+ //!                            --expect-statement HEX [--label L] [--min-bits N]
+ //! zk60_classify input-owner  (verify's arguments) --decommitment FILE --content-file FILE|-
+ //! zk60_classify label        --export DIR --tables DIR --policy ID --runs DIR,DIR,...
+-//!                            --expect-statement HEX [--label L] [--min-bits N]
++//!                            --expect-statement HEX --expect-total N [--label L] [--min-bits N]
+ //! ```
+ //!
+ //! * **D41 (DESIGN v2.2 §13), chunks:** `--content-file` holds the WHOLE
+@@ -28,6 +29,14 @@
+ //!   up to T (pinned by the template clause), and stage OUT-C reads the public
+ //!   verdict row `P0 + N + S - 1`. The prover's activations (`--seq` /
+ //!   `--seq-dir`) are those of that padded item. N is public (D45(1)).
++//! * **Round 15 (REVIEW_R14 N-r14-1), the label's whole-post check:**
++//!   `label --expect-total N` is REQUIRED. N is the POST's own token count
++//!   (the caller's, from the policy's pinned tokenizer; public by D45(1)),
++//!   never a number taken from the proofs. The label is refused (fail-closed)
++//!   unless every chunk run's `content_total` is N and their D41 ranges are
++//!   exactly the split of `[0, N)`: a proof set of only the first k < N ids
++//!   of a post (since round 14 a short item of any k >= 1 is one chunk) is
++//!   refused, and so is a label call without the post's count.
+ //!
+ //! * `--tables DIR` holds the classifier's public tables: `token_io.json` +
+ //!   `embedding_int16.bin` (the token run's embedding format) and
+@@ -62,14 +71,21 @@
+ //!   `{"event":"app-outcome","outcome":"flagged",...}`: an item without an
+ //!   accepted proof is handled as flagged.
+ //!
+-//! SCOPE: the development rung (the classifier profile family registers more
+-//! shapes with the native F1-F3); public-row variant (n public, D45(1)); NO
+-//! privacy acceptance. JSON lines on stdout; exit 0 = done, 1 = refused, 2 =
++//! * **Round 16 (native R13, REVIEW_R13 §10):** the R13 Shieldstral T128 /
++//!   T256 LOW + h24 exports load under their classifier run profiles; the
++//!   sealing chain and the prover build each block with `build_for_block` at
++//!   its layer record's stage shape (`LayerRecord::shape_at`: its own
++//!   calibration and gate denominator); the verifier checks every block
++//!   against its own stage shape before its header; the loader's one
++//!   checkpoint pass also derives the margin row (N-r13-5).
++//!
++//! SCOPE: the development rung and the R13 Shieldstral classifier profiles;
++//! public-row variant (n public, D45(1)); NO privacy acceptance. JSON lines on stdout; exit 0 = done, 1 = refused, 2 =
+ //! bad arguments. The frozen next-token CLI (`zk60_token_io`) is untouched.
+ 
+ use super::classify::*;
+ use super::classify_run::*;
+-use super::cli::{cli_stage_shape, leftover_refusal, owner_dir_at, read_prompt_file};
++use super::cli::{leftover_refusal, owner_dir_at, read_prompt_file};
+ use super::load::{read_exact_streamed, ExportPublic, ExportTokenBlocks, MAX_MANIFEST_BYTES};
+ use super::stage_in::StageInWitness;
+ use super::stage_out_c::StageOutCWitness;
+@@ -79,7 +95,6 @@
+ use super::super::run::{read_regular_file_bounded, RunShape, RUN_PROFILE_CLASSIFY_RUNG_TC};
+ use super::super::run_sink::{self, SegmentSink};
+ use super::super::trained_block::{check_statement_dir, clear_stale_writing_dirs, flag, flags, js, need, parse_json, publish_statement_dir, refuse_prover_private_entries, stack_context, unhex32, write_new, TrainedExport, J};
+-use super::super::trained_statement::TrainedModelStatement;
+ use super::super::witness::Witness;
+ use super::super::BlockPublic;
+ use std::path::{Path, PathBuf};
+@@ -202,17 +217,18 @@
+     use super::super::shape::TRAINED_CALIB_RUNG_PROFILE;
+     match sh.profile {
+         p if p == TRAINED_CALIB_RUNG_PROFILE => Ok(RUN_PROFILE_CLASSIFY_RUNG_TC),
+-        p => Err(format!("classifier: no classifier run profile is registered for the block profile {p} (Shieldstral's lands with the native F1-F3 freeze, R-C2)")),
++        // ROUND 16: the native R13 Shieldstral LOW + h24 block profiles (T128,
++        // T256; non-DD), each its own classifier run profile (D17)
++        p => super::super::run::accuracy_classify_run_profile(p).ok_or_else(|| format!("classifier: no classifier run profile is registered for the block profile {p} (round 16 registers the R13 Shieldstral T128 / T256 non-DD profiles and the development rung)")),
+     }
+ }
+ 
+-/// the export's public side (the digest pass) with the trained statement under the CLASSIFIER run profile
++/// the export's public side (the digest pass) with the trained statement
++/// under the CLASSIFIER run profile (round 16: built under it directly, with
++/// the export's tied record at a tied model; the rung's statement is the one
++/// earlier rounds rebuilt)
+ pub(crate) fn load_export(path: &Path) -> Result<ExportPublic, String> {
+-    let mut p = ExportPublic::load(path)?;
+-    let profile = classify_run_profile_of(&p.sh)?;
+-    p.model = TrainedModelStatement::new(&p.sh, profile, p.model.source.clone(), p.model.calibration.clone(), p.model.layers.clone())?;
+-    p.profile = profile;
+-    Ok(p)
++    ExportPublic::load_with(path, classify_run_profile_of)
+ }
+ 
+ /// D41: the deployment profile's chunk plan for a policy (size `T - P0 - S`)
+@@ -424,8 +440,15 @@
+     }
+     fn witness(&mut self, k: usize, blk: &BlockPublic, ssh: &Shape) -> Result<Witness, String> {
+         let sh = &self.p.sh;
+-        let w = super::super::witness::build_shaped(ssh, blk.attention(), blk.feed_forward(), &self.x)?;
+-        let out: Vec<i16> = w.planes[self.ids.at(A_X2)].iter().map(|v| i16::try_from(*v).map_err(|_| "classifier run: a block output outside int16".to_string())).collect::<Result<_, _>>()?;
++        // ROUND 16: the block's own builder (R13 accuracy data at the stage's G)
++        let w = super::super::witness::build_for_block(ssh, blk, &self.x)?;
++        // ROUND 16: the stage shape's own plane ids (an R13 stage is the run
++        // seed at its layer's gate denominator; the plane list is the same)
++        let ids = Ids::new(ssh)?;
++        if ids.at(A_X2) != self.ids.at(A_X2) {
++            return Err(format!("classifier run: block {k}'s stage shape moves the output plane"));
++        }
++        let out: Vec<i16> = w.planes[ids.at(A_X2)].iter().map(|v| i16::try_from(*v).map_err(|_| "classifier run: a block output outside int16".to_string())).collect::<Result<_, _>>()?;
+         let next = unpad(sh, &out);
+         if next != self.seq.load(&self.p.ex, sh, self.p.layers[k])?.1 {
+             return Err(format!("classifier run: block {k}'s output is not the export's x_out_L{:02} (parity)", self.p.layers[k]));
+@@ -455,13 +478,17 @@
+ /// own chain, int16, parity, CS-3; the builder's last plane
+ fn seal_chain(p: &ExportPublic, seq: &SeqIn, blocks: &mut ExportTokenBlocks, x_in0: Vec<i16>) -> Result<Vec<i16>, String> {
+     let sh = &p.sh;
+-    let ids = Ids::new(sh)?;
+     let mut x = x_in0;
+     for (k, r) in p.model.layers.iter().enumerate() {
+-        let ssh = cli_stage_shape(sh, &r.own)?;
++        // ROUND 16 (REVIEW_R13 §10 item 3): the bound layer record's whole
++        // stage context — its own calibration and, at R13, its gate
++        // denominator (native `LayerRecord::shape_at`); at a legacy shape this
++        // is the token CLI's `cli_stage_shape`
++        let ssh = r.shape_at(sh).map_err(|e| format!("block {k}: {e} (the sealing pass, before any header)"))?;
++        let ids = Ids::new(&ssh)?;
+         let lay = super::super::layout::Layout::for_shape(&ssh)?;
+         let blk = blocks.block(k)?;
+-        let w = super::super::witness::build_shaped(&ssh, blk.attention(), blk.feed_forward(), &x).map_err(|e| format!("block {k}: the witness builder refuses: {e} (the sealing pass, before any header)"))?;
++        let w = super::super::witness::build_for_block(&ssh, &blk, &x).map_err(|e| format!("block {k}: the witness builder refuses: {e} (the sealing pass, before any header)"))?;
+         let out: Vec<i16> = w.planes[ids.at(A_X2)].iter().map(|v| i16::try_from(*v).map_err(|_| format!("block {k}: an output outside int16 (the sealing pass, before any header)"))).collect::<Result<_, _>>()?;
+         let next = unpad(sh, &out);
+         if next != seq.load(&p.ex, sh, p.layers[k])?.1 {
+@@ -758,9 +785,11 @@
+ /// door included), then the OR of the chunk verdicts. FAIL-CLOSED: a run
+ /// that does not verify, a chunk index missing or repeated, or chunks naming
+ /// different public fields (policy, model, N, plan) give `flagged` (exit 1,
+-/// with the reason).
++/// with the reason). **ROUND 15 (N-r14-1):** `--expect-total N`, the post's
++/// own token count, is required and is checked against the chunk runs
++/// ([`aggregate_label`]) before any label is printed.
+ pub fn classify_label_command(args: &[String]) -> i32 {
+-    let f = match flags(args, &["--export", "--tables", "--policy", "--runs", "--expect-statement", "--label", "--min-bits"], &[]) {
++    let f = match flags(args, &["--export", "--tables", "--policy", "--runs", "--expect-statement", "--expect-total", "--label", "--min-bits"], &[]) {
+         Ok(f) => f,
+         Err(e) => {
+             eprintln!("zk60_classify label: {e}");
+@@ -773,7 +802,20 @@
+     }
+ }
+ 
++/// **ROUND 15 (N-r14-1): `--expect-total`**, the post's own token count
++/// (required; at least 1)
++fn expect_total_of(f: &[(String, String)]) -> Result<usize, String> {
++    let raw = flag(f, "--expect-total").ok_or("--expect-total N is required: N is the post's own token count from the policy's pinned tokenizer, counted by the caller (REVIEW_R14 N-r14-1: the proofs cannot tell how long the post is, so a proof set of only its first ids would otherwise label)")?;
++    let n: usize = raw.parse().map_err(|_| format!("--expect-total: the post's token count, a positive integer, not {raw:?}"))?;
++    if n == 0 {
++        return Err("--expect-total 0: an empty content has no chunk and no label (n >= 1)".into());
++    }
++    Ok(n)
++}
++
+ fn label_inner(f: &[(String, String)]) -> Result<(), String> {
++    // the post's own count first: no run is read without it
++    let expect_total = expect_total_of(f)?;
+     let runs: Vec<PathBuf> = need(f, "--runs")?.split(',').filter(|x| !x.is_empty()).map(PathBuf::from).collect();
+     if runs.is_empty() {
+         return Err("--runs: no chunk run".into());
+@@ -784,15 +826,16 @@
+         println!("{{\"event\":\"chunk-verified\",\"run\":{},\"chunk\":{},\"range\":[{}, {}],\"verdict\":{}}}", js(&r.display().to_string()), c.st.chunk().index, c.st.chunk().a, c.st.chunk().b, js(verdict_text(c.st.verdict())));
+         seen.push((c.st.chunk(), c.st.verdict(), c.st.cp.policy.id.clone(), c.st.model_identity()));
+     }
+-    let label = aggregate_label(&seen)?;
++    let label = aggregate_label(&seen, expect_total)?;
+     let first = seen[0].0;
+     let flagged: Vec<String> = seen.iter().filter(|s| s.1 == 1).map(|s| format!("[{}, {}]", s.0.a, s.0.b)).collect();
+     println!(
+-        "{{\"event\":\"label\",\"policy\":{},\"label\":{},\"chunks\":{},\"content_total\":{},\"chunk_size\":{},\"overlap\":{},\"flagged_ranges\":[{}],\"note\":\"the per-chunk verdicts are public: a flagged label shows which ranges triggered it (DESIGN v2.2 13.4)\"}}",
++        "{{\"event\":\"label\",\"policy\":{},\"label\":{},\"chunks\":{},\"content_total\":{},\"expect_total\":{},\"chunk_size\":{},\"overlap\":{},\"flagged_ranges\":[{}],\"note\":\"the per-chunk verdicts are public: a flagged label shows which ranges triggered it (DESIGN v2.2 13.4); the chunks cover exactly [0, expect_total), the post's own count (round 15, N-r14-1)\"}}",
+         js(&seen[0].2),
+         js(verdict_text(label)),
+         first.count,
+         first.total,
++        expect_total,
+         first.size,
+         first.overlap,
+         flagged.join(", ")
+@@ -803,13 +846,39 @@
+ /// **THE AGGREGATION RULE (§13.4)** over verified chunk runs: the same
+ /// policy, model, N and plan in every run; every index of the split exactly
+ /// once; then the OR. Any other set is refused (the caller fails closed).
+-pub(crate) fn aggregate_label(seen: &[(ChunkRef, u8, String, Digest)]) -> Result<u8, String> {
++///
++/// **ROUND 15 (REVIEW_R14 N-r14-1): `expect_total` is the POST's own token
++/// count** (the caller's, from the pinned tokenizer; never taken from the
++/// runs). Refused unless every run's `content_total` is `expect_total`, each
++/// run's range is exactly its index's range in the split of
++/// `[0, expect_total)` under the runs' plan, and the ranges together cover
++/// `[0, expect_total)` with no gap and nothing beyond it. A proof set of only
++/// the first k < N ids of an N-id post (a short item of k ids, or a k-id
++/// item's full chunks) names `content_total` = k and is refused.
++pub(crate) fn aggregate_label(seen: &[(ChunkRef, u8, String, Digest)], expect_total: usize) -> Result<u8, String> {
+     let (c0, _, pol, model) = seen.first().ok_or("label: no chunk run")?;
+     for (c, _, p, m) in seen {
+         if p != pol || m != model || (c.total, c.count, c.size, c.overlap) != (c0.total, c0.count, c0.size, c0.overlap) {
+             return Err("label: the chunk runs name different policies, models, totals or plans; they are not one item's chunks".into());
+         }
+     }
++    // N-r14-1: the item is the post; its length is the caller's count
++    if c0.total != expect_total {
++        return Err(format!(
++            "label: the chunk runs cover a content of {} ids, but the post has {expect_total} (--expect-total): a proof set of another length (e.g. only the post's first {} ids) is not the post's label (N-r14-1; fail-closed: handled as flagged)",
++            c0.total, c0.total
++        ));
++    }
++    let split = chunk_ranges(expect_total, ChunkPlan { size: c0.size, overlap: c0.overlap }).map_err(|e| format!("label: {e}"))?;
++    if c0.count != split.len() {
++        return Err(format!("label: the chunk runs name {} chunks; the split of [0, {expect_total}) has {}", c0.count, split.len()));
++    }
++    for (c, _, _, _) in seen {
++        let want = *split.get(c.index).ok_or_else(|| format!("label: chunk {} of a {}-chunk split", c.index, split.len()))?;
++        if (c.a, c.b) != want {
++            return Err(format!("label: chunk {} names the range [{}, {}); the split of [0, {expect_total}) gives [{}, {})", c.index, c.a, c.b, want.0, want.1));
++        }
++    }
+     let mut have = vec![false; c0.count];
+     for (c, _, _, _) in seen {
+         if std::mem::replace(&mut have[c.index], true) {
+@@ -819,5 +888,18 @@
+     if let Some(j) = have.iter().position(|h| !h) {
+         return Err(format!("label: chunk {j} of {} has no accepted proof (fail-closed: handled as flagged)", c0.count));
+     }
++    // and the ranges together cover [0, expect_total) exactly (no gap, nothing beyond)
++    let mut ranges: Vec<(usize, usize)> = seen.iter().map(|s| (s.0.a, s.0.b)).collect();
++    ranges.sort_unstable();
++    let mut end = 0usize;
++    for (a, b) in ranges {
++        if a > end || b <= a || b > expect_total {
++            return Err(format!("label: the chunk ranges leave [{end}, {a}) of [0, {expect_total}) uncovered or reach beyond it"));
++        }
++        end = end.max(b);
++    }
++    if end != expect_total {
++        return Err(format!("label: the chunk ranges cover [0, {end}) of [0, {expect_total})"));
++    }
+     Ok(u8::from(seen.iter().any(|s| s.1 == 1)))
+ }

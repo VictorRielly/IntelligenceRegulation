@@ -1,0 +1,247 @@
+{
+  "schema": "zk60-shieldstral-full-replay-audit/1",
+  "calibration": {
+    "started": true,
+    "complete": true,
+    "fully_verified": true,
+    "model_artifact_hashes_verified": true,
+    "scope": "calibration including padded positions",
+    "expected_items": 192,
+    "expected_tokens_per_layer": 49152,
+    "run_sha256": "0a3dd52da2ab4b0d92093ae088defad5e279c94476837f12efcea9d19a007c70",
+    "stages": {
+      "input": {
+        "items": 192,
+        "refused_items": [],
+        "violations_by_site": {},
+        "incomplete_journal_tail": false,
+        "complete": true,
+        "residual_hash_verified": true
+      },
+      "layer_00": {
+        "items": 192,
+        "refused_items": [],
+        "violations_by_site": {},
+        "incomplete_journal_tail": false,
+        "complete": true,
+        "residual_hash_verified": true
+      },
+      "layer_01": {
+        "items": 192,
+        "refused_items": [],
+        "violations_by_site": {},
+        "incomplete_journal_tail": false,
+        "complete": true,
+        "residual_hash_verified": true
+      },
+      "layer_02": {
+        "items": 192,
+        "refused_items": [],
+        "violations_by_site": {},
+        "incomplete_journal_tail": false,
+        "complete": true,
+        "residual_hash_verified": true
+      },
+      "layer_03": {
+        "items": 192,
+        "refused_items": [],
+        "violations_by_site": {},
+        "incomplete_journal_tail": false,
+        "complete": true,
+        "residual_hash_verified": true
+      },
+      "layer_04": {
+        "items": 192,
+        "refused_items": [],
+        "violations_by_site": {},
+        "incomplete_journal_tail": false,
+        "complete": true,
+        "residual_hash_verified": true
+      },
+      "layer_05": {
+        "items": 192,
+        "refused_items": [],
+        "violations_by_site": {},
+        "incomplete_journal_tail": false,
+        "complete": true,
+        "residual_hash_verified": true
+      },
+      "layer_06": {
+        "items": 192,
+        "refused_items": [],
+        "violations_by_site": {},
+        "incomplete_journal_tail": false,
+        "complete": true,
+        "residual_hash_verified": true
+      },
+      "layer_07": {
+        "items": 192,
+        "refused_items": [],
+        "violations_by_site": {},
+        "incomplete_journal_tail": false,
+        "complete": true,
+        "residual_hash_verified": true
+      },
+      "layer_08": {
+        "items": 192,
+        "refused_items": [],
+        "violations_by_site": {},
+        "incomplete_journal_tail": false,
+        "complete": true,
+        "residual_hash_verified": true
+      },
+      "layer_09": {
+        "items": 192,
+        "refused_items": [],
+        "violations_by_site": {},
+        "incomplete_journal_tail": false,
+        "complete": true,
+        "residual_hash_verified": true
+      },
+      "layer_10": {
+        "items": 192,
+        "refused_items": [],
+        "violations_by_site": {},
+        "incomplete_journal_tail": false,
+        "complete": true,
+        "residual_hash_verified": true
+      },
+      "layer_11": {
+        "items": 192,
+        "refused_items": [],
+        "violations_by_site": {},
+        "incomplete_journal_tail": false,
+        "complete": true,
+        "residual_hash_verified": true
+      },
+      "layer_12": {
+        "items": 192,
+        "refused_items": [],
+        "violations_by_site": {},
+        "incomplete_journal_tail": false,
+        "complete": true,
+        "residual_hash_verified": true
+      },
+      "layer_13": {
+        "items": 192,
+        "refused_items": [],
+        "violations_by_site": {},
+        "incomplete_journal_tail": false,
+        "complete": true,
+        "residual_hash_verified": true
+      },
+      "layer_14": {
+        "items": 192,
+        "refused_items": [],
+        "violations_by_site": {},
+        "incomplete_journal_tail": false,
+        "complete": true,
+        "residual_hash_verified": true
+      },
+      "layer_15": {
+        "items": 192,
+        "refused_items": [],
+        "violations_by_site": {},
+        "incomplete_journal_tail": false,
+        "complete": true,
+        "residual_hash_verified": true
+      },
+      "layer_16": {
+        "items": 192,
+        "refused_items": [],
+        "violations_by_site": {},
+        "incomplete_journal_tail": false,
+        "complete": true,
+        "residual_hash_verified": true
+      },
+      "layer_17": {
+        "items": 192,
+        "refused_items": [],
+        "violations_by_site": {},
+        "incomplete_journal_tail": false,
+        "complete": true,
+        "residual_hash_verified": true
+      },
+      "layer_18": {
+        "items": 192,
+        "refused_items": [],
+        "violations_by_site": {},
+        "incomplete_journal_tail": false,
+        "complete": true,
+        "residual_hash_verified": true
+      },
+      "layer_19": {
+        "items": 192,
+        "refused_items": [],
+        "violations_by_site": {},
+        "incomplete_journal_tail": false,
+        "complete": true,
+        "residual_hash_verified": true
+      },
+      "layer_20": {
+        "items": 192,
+        "refused_items": [],
+        "violations_by_site": {},
+        "incomplete_journal_tail": false,
+        "complete": true,
+        "residual_hash_verified": true
+      },
+      "layer_21": {
+        "items": 192,
+        "refused_items": [],
+        "violations_by_site": {},
+        "incomplete_journal_tail": false,
+        "complete": true,
+        "residual_hash_verified": true
+      },
+      "layer_22": {
+        "items": 192,
+        "refused_items": [],
+        "violations_by_site": {},
+        "incomplete_journal_tail": false,
+        "complete": true,
+        "residual_hash_verified": true
+      },
+      "layer_23": {
+        "items": 192,
+        "refused_items": [],
+        "violations_by_site": {},
+        "incomplete_journal_tail": false,
+        "complete": true,
+        "residual_hash_verified": true
+      },
+      "layer_24": {
+        "items": 192,
+        "refused_items": [],
+        "violations_by_site": {},
+        "incomplete_journal_tail": false,
+        "complete": true,
+        "residual_hash_verified": true
+      },
+      "layer_25": {
+        "items": 192,
+        "refused_items": [],
+        "violations_by_site": {},
+        "incomplete_journal_tail": false,
+        "complete": true,
+        "residual_hash_verified": true
+      }
+    },
+    "stack_refused_items_so_far": [],
+    "head_refusals": {
+      "refusal_free": 0,
+      "calibrated": 0
+    },
+    "zero_refusals": true,
+    "note": "Numerical replay only. Native export, proof and privacy acceptance are separate."
+  },
+  "benchmark": {
+    "started": false,
+    "complete": false,
+    "fully_verified": false
+  },
+  "all_data_zero_refusals_verified": false,
+  "pairing": null,
+  "generated_at": "2026-10-28T23:22:56.735763+00:00",
+  "tool_sha256": "82ff26b9178c62055f1090025b7007de97147833669323e048741c498d482a63"
+}

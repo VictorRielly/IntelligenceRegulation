@@ -394,7 +394,7 @@ fn verifier_a_claims(blk: &BlockPublic, expected: &ExpectedIo, receipt: &Receipt
     let alpha = tr.challenge_fp2();
     let (g_u8, g_exp, g_act) = (gamma.mul_base(Fp::new(TAG_U8)), gamma.mul_base(Fp::new(TAG_EXP)), gamma.mul_base(Fp::new(TAG_ACT)));
     absorb_root(&mut tr, b"H", &receipt.h_root, lay.h_rows);
-    let ctx = Ctx { lay: &lay, public: blk.attention(), ff: blk.feed_forward(), alpha, beta, g_u8, g_exp, g_act, g_dd: crate::field::Fp2::ZERO };
+    let ctx = Ctx { accuracy:None, lay: &lay, public: blk.attention(), ff: blk.feed_forward(), alpha, beta, g_u8, g_exp, g_act, g_dd: crate::field::Fp2::ZERO };
     let mut side = Side::Verify { slots: &receipt.slots };
     let mut ph = super::timing::Phases::start();
     let acc = argument(&mut side, &ctx, &mut tr, &mut ph).expect("the honest receipt's slots verify");

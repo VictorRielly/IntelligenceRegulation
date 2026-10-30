@@ -1,0 +1,25 @@
+{
+  "global_ranks": [
+    {
+      "rank": 1,
+      "title": "Owner whole-prover high-end GPU plus verified fixed-context resident1/2/4/8"
+    },
+    {
+      "rank": 2,
+      "title": "REFINED owner DD larger-context scaling after measured T128 null result"
+    },
+    {
+      "rank": 3,
+      "title": "REFINED tested public-role exclusive FZC clocks before allocator/capacity changes"
+    }
+  ],
+  "leading_feasible_local": 53,
+  "refined": [
+    53,
+    55,
+    57,
+    60
+  ],
+  "prior_hypotheses_preserved": 60,
+  "new_hypotheses": 0
+}

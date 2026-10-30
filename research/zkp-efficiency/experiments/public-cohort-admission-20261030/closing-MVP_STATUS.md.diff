@@ -1,0 +1,11 @@
+--- startup
++++ current
+@@ -64,7 +64,7 @@
+ 
+ **2026-10-29 22:50 UTC: the classifier privacy statement exists as a draft and
+ is under independent review.**
+-- **The draft** (`ZK60_PRIVACY_STATEMENT_CLASSIFIER_SHIELDSTRAL_T128_DRAFT.md`)
++- **The draft** (then `…_DRAFT.md`, now kept as `ZK60_PRIVACY_STATEMENT_CLASSIFIER_SHIELDSTRAL_T128_DRAFT_v1.md`; current: `_DRAFT_v3.md`)
+   says what is public (the verdict bit, the post's length, the policy), what
+   stays hidden (the post's tokens and every intermediate value), and how a
+   refusal ("could not be verified") is reported.

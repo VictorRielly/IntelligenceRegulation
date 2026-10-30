@@ -1,0 +1,143 @@
+{
+  "utc": "2026-10-29T10:04:56.479543+00:00",
+  "source": "9eb4c739e338ba6a2523e8aca29e2543280a2e1acee4084417f2bfb1ac7076aa",
+  "files": 278,
+  "binary_sha256": "f76dc7b222e23ca2bb287cdce881065d0b99928063efdd1d4f36840f69e4d5dc",
+  "cases": [
+    {
+      "result": {
+        "tokens": 128,
+        "dd": false,
+        "slots": 31,
+        "a_rows": 3517,
+        "h_rows": 3272,
+        "joint_endpoint_rows": 31,
+        "lookups": [
+          46956544,
+          524288,
+          1179648
+        ],
+        "status": "native core and both joint endpoints prove/verify; scalar tamper refuses",
+        "scope": "public synthetic component, in-process only; no wire/CLI/trained-model/privacy acceptance"
+      },
+      "guard": {
+        "ts_end": "2026-10-29T09:57:03Z",
+        "run_id": "fb7ac310c93a",
+        "label": "sol-r14-native-core-non-dd-2",
+        "class": "cpu",
+        "cmd": [
+          "/usr/bin/env",
+          "RAYON_NUM_THREADS=2",
+          "OPENBLAS_NUM_THREADS=1",
+          "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/working-tree/hashline/target/release/deps/hashline-720315db14796e0c",
+          "private_block::argument::split_definition_tests::split_native_core_t128_non_dd_proves_verifies_and_tamper_refuses",
+          "--exact",
+          "--ignored",
+          "--nocapture"
+        ],
+        "need_gib": 9.5,
+        "cap_gib": 11.5,
+        "exit": 0,
+        "child_rc": 0,
+        "guard_killed": null,
+        "child_wall_seconds": 20.94162631034851,
+        "refused": null,
+        "guard_error": null,
+        "guard_pid": 15,
+        "boot_id": "9ecf0dc6-8b67-411a-8ac8-042f41dfd9d5",
+        "pid_ns": "pid:[4026532331]",
+        "guard_starttime_ticks": 4679608,
+        "lock_ids": {
+          "heavy": "2096:1134228",
+          "build": "2096:1134231"
+        },
+        "enforcement": "watchdog-only",
+        "waited_s": 0.0,
+        "guard_wall_s": 20.9,
+        "stragglers_killed": 0,
+        "hard_killed": 0,
+        "scope_unit": null,
+        "scope_adopted": null,
+        "foreign_cgroups_refused": [],
+        "peak_rss_gib": 5.21,
+        "peak_cgroup_gib": null,
+        "peak_vram_mib": null,
+        "min_mem_available_gib": 8.55,
+        "vram_drain_s": null,
+        "gpu_drain_failed": false,
+        "gpu_telemetry_lost": false,
+        "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache"
+      },
+      "command": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/sol-r14-native-core-non-dd-2.command.json"
+    },
+    {
+      "result": {
+        "tokens": 128,
+        "dd": true,
+        "slots": 32,
+        "a_rows": 3395,
+        "h_rows": 3116,
+        "joint_endpoint_rows": 31,
+        "lookups": [
+          43417600,
+          524288,
+          1179648
+        ],
+        "status": "native core and both joint endpoints prove/verify; scalar tamper refuses",
+        "scope": "public synthetic component, in-process only; no wire/CLI/trained-model/privacy acceptance"
+      },
+      "guard": {
+        "ts_end": "2026-10-29T10:02:03Z",
+        "run_id": "d8814492b6cc",
+        "label": "sol-r14-native-core-dd-2",
+        "class": "cpu",
+        "cmd": [
+          "/usr/bin/env",
+          "RAYON_NUM_THREADS=2",
+          "OPENBLAS_NUM_THREADS=1",
+          "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/working-tree/hashline/target/release/deps/hashline-720315db14796e0c",
+          "private_block::argument::split_definition_tests::split_native_core_t128_dd_proves_verifies_and_tamper_refuses",
+          "--exact",
+          "--ignored",
+          "--nocapture"
+        ],
+        "need_gib": 9.5,
+        "cap_gib": 11.5,
+        "exit": 0,
+        "child_rc": 0,
+        "guard_killed": null,
+        "child_wall_seconds": 20.088680267333984,
+        "refused": null,
+        "guard_error": null,
+        "guard_pid": 27,
+        "boot_id": "9ecf0dc6-8b67-411a-8ac8-042f41dfd9d5",
+        "pid_ns": "pid:[4026532297]",
+        "guard_starttime_ticks": 4709625,
+        "lock_ids": {
+          "heavy": "2096:1134228",
+          "build": "2096:1134231"
+        },
+        "enforcement": "watchdog-only",
+        "waited_s": 0.0,
+        "guard_wall_s": 20.1,
+        "stragglers_killed": 0,
+        "hard_killed": 0,
+        "scope_unit": null,
+        "scope_adopted": null,
+        "foreign_cgroups_refused": [],
+        "peak_rss_gib": 5.05,
+        "peak_cgroup_gib": null,
+        "peak_vram_mib": null,
+        "min_mem_available_gib": 8.73,
+        "vram_drain_s": null,
+        "gpu_drain_failed": false,
+        "gpu_telemetry_lost": false,
+        "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache"
+      },
+      "command": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/sol-r14-native-core-dd-2.command.json"
+    }
+  ],
+  "scope": "Native T128 DD/nonDD public synthetic core: all31/32scheduled CFS slots, A/H/M,2joint endpoint commitments, honest in-process verifier and scalar tamper refusal. Not wire/CLI/fresh-process/trained/full-stack/privacy acceptance.",
+  "failed_attempt": "Native nonDD attempt1 at a23c1406 emitted proof but honest verifier refused at D-wide gamma stride mismatch; checkpoint and report retained, corrected before these passes.",
+  "next": "Compile bounded new R14 segment transport and trained-model-backed streaming run binding; run admission/transport checks before serialized/fresh-process and multi-block receipt tests."
+}

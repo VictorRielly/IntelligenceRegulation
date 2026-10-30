@@ -1,0 +1,77 @@
+[
+  {
+    "dd": false,
+    "case": "per-piece-round-q",
+    "receipts": [
+      {
+        "case": "per-piece-round-q",
+        "dd": false,
+        "bytes": 34875688,
+        "expected_accept": false,
+        "canonical_frame_decoded": true,
+        "native_verifier_used": true
+      }
+    ],
+    "sha256": "1a267884ad817643b53d2e92608b7e9cb8592c6ec51e705e4498ac8788461f36"
+  },
+  {
+    "dd": false,
+    "case": "local-c2-ao",
+    "receipts": [
+      {
+        "case": "local-c2-ao",
+        "dd": false,
+        "bytes": 34875688,
+        "expected_accept": false,
+        "canonical_frame_decoded": true,
+        "native_verifier_used": true
+      }
+    ],
+    "sha256": "95842dfa09843ca6aa278fbc302ddf0ddc00decf9ce52783dfaad8e3d4e0a1fb"
+  },
+  {
+    "dd": false,
+    "case": "one-piece-norm",
+    "receipts": [
+      {
+        "case": "one-piece-norm",
+        "dd": false,
+        "bytes": 34875688,
+        "expected_accept": false,
+        "canonical_frame_decoded": true,
+        "native_verifier_used": true
+      }
+    ],
+    "sha256": "afded5a8bdcb6ecc7e2b5e4663851ecd077ef8d0cee2deff18a92f8041673f73"
+  },
+  {
+    "dd": false,
+    "case": "wrong-omitted-source-bit",
+    "receipts": [
+      {
+        "case": "wrong-omitted-source-bit",
+        "dd": false,
+        "bytes": 34875688,
+        "expected_accept": false,
+        "canonical_frame_decoded": true,
+        "native_verifier_used": true
+      }
+    ],
+    "sha256": "9ceab7873422519be159bf494d27f7e479fd707bce3f71715af32e9ad36fa30d"
+  },
+  {
+    "dd": false,
+    "case": "missing-public-lift-gate",
+    "receipts": [
+      {
+        "case": "missing-public-lift-gate",
+        "dd": false,
+        "bytes": 34875688,
+        "expected_accept": false,
+        "canonical_frame_decoded": true,
+        "native_verifier_used": true
+      }
+    ],
+    "sha256": "b01a230446a603d1759eefb3b5fcb5c9e7073a6320459d41775427e943925cb4"
+  }
+]

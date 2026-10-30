@@ -1,0 +1,529 @@
+{
+ "generated_utc": "2026-10-30T06:08:27Z",
+ "generator": "results/zk60_open_release_20261030/build_inventory.py",
+ "reference_prover": {
+  "tree": "results/zk60_token_io_r1_20261017/frozen-r16b",
+  "source_tree": "ops/zkp-mvp/token-io-r16b",
+  "manifest": "results/zk60_token_io_r1_20261017/manifest_final_r16b.sha256 (301 files)",
+  "binary": "results/zk60_token_io_r1_20261017/cli/zk60_classify.r16b.release.bin",
+  "binary_sha256_prefix": "dfb8025eb903",
+  "status": "frozen 2026-10-29T10:50:55Z; round 16 accepted with fixes (REVIEW_R16); 16b's own check was still owed at freeze; r17 (test-only) and r18 (in progress) sit on top"
+ },
+ "privacy_gate_reference": "ops/zkp-mvp/gate-tinyllama/frozen_v23",
+ "totals_all_listed": {
+  "files": 1316,
+  "bytes": 52044220
+ },
+ "totals_publishable": {
+  "files": 1297,
+  "bytes": 47268094,
+  "note": "include + redact + review (exclude left out)"
+ },
+ "by_decision": {
+  "exclude": {
+   "files": 19,
+   "bytes": 4776126
+  },
+  "include": {
+   "files": 1155,
+   "bytes": 45140788
+  },
+  "redact": {
+   "files": 8,
+   "bytes": 390097
+  },
+  "review": {
+   "files": 134,
+   "bytes": 1737209
+  }
+ },
+ "by_group": {
+  "app": {
+   "files": 77,
+   "bytes": 677484
+  },
+  "demo-web": {
+   "files": 1,
+   "bytes": 13588
+  },
+  "docs": {
+   "files": 370,
+   "bytes": 15956356
+  },
+  "evidence": {
+   "files": 33,
+   "bytes": 526356
+  },
+  "model-export-tools": {
+   "files": 93,
+   "bytes": 637207
+  },
+  "privacy-gate": {
+   "files": 122,
+   "bytes": 3665479
+  },
+  "prover-overlay": {
+   "files": 13,
+   "bytes": 287922
+  },
+  "prover-reference": {
+   "files": 281,
+   "bytes": 8195724
+  },
+  "research-lattice": {
+   "files": 50,
+   "bytes": 5263701
+  },
+  "research-python": {
+   "files": 13,
+   "bytes": 200656
+  },
+  "root": {
+   "files": 3,
+   "bytes": 28650
+  },
+  "test-fixtures": {
+   "files": 20,
+   "bytes": 12254880
+  },
+  "tests-python": {
+   "files": 72,
+   "bytes": 1030361
+  },
+  "tools-python": {
+   "files": 109,
+   "bytes": 2868055
+  },
+  "zkvm-route": {
+   "files": 59,
+   "bytes": 437801
+  }
+ },
+ "by_group_publishable": {
+  "_excluded": {
+   "files": 19,
+   "bytes": 4776126
+  },
+  "app": {
+   "files": 77,
+   "bytes": 677484
+  },
+  "demo-web": {
+   "files": 1,
+   "bytes": 13588
+  },
+  "docs": {
+   "files": 352,
+   "bytes": 11230502
+  },
+  "evidence": {
+   "files": 33,
+   "bytes": 526356
+  },
+  "model-export-tools": {
+   "files": 93,
+   "bytes": 637207
+  },
+  "privacy-gate": {
+   "files": 122,
+   "bytes": 3665479
+  },
+  "prover-overlay": {
+   "files": 13,
+   "bytes": 287922
+  },
+  "prover-reference": {
+   "files": 281,
+   "bytes": 8195724
+  },
+  "research-lattice": {
+   "files": 50,
+   "bytes": 5263701
+  },
+  "research-python": {
+   "files": 12,
+   "bytes": 150384
+  },
+  "root": {
+   "files": 3,
+   "bytes": 28650
+  },
+  "test-fixtures": {
+   "files": 20,
+   "bytes": 12254880
+  },
+  "tests-python": {
+   "files": 72,
+   "bytes": 1030361
+  },
+  "tools-python": {
+   "files": 109,
+   "bytes": 2868055
+  },
+  "zkvm-route": {
+   "files": 59,
+   "bytes": 437801
+  }
+ },
+ "largest_publishable": [
+  {
+   "pub": "results/zk60_attention_integration_20260919/block_public/block_receipt.bin",
+   "bytes": 2816472
+  },
+  {
+   "pub": "results/zk60_private_block_evidence/owner_run1/block_receipt.bin",
+   "bytes": 2816472
+  },
+  {
+   "pub": "results/zk60_rowfold_20260919/integration/native-block-0/block_receipt.bin",
+   "bytes": 2816472
+  },
+  {
+   "pub": "results/zk60_rowfold_20260919/integration/native-block-1/block_receipt.bin",
+   "bytes": 2816472
+  },
+  {
+   "pub": "zkmatrix-rs/src/bin/ring_matmul.rs",
+   "bytes": 2706356
+  },
+  {
+   "pub": "zkmatrix-rs/src/ring/eval_proof.rs",
+   "bytes": 276715
+  },
+  {
+   "pub": "hashline/src/private_block/r13_vectors/block_trace_low_h24_t32.json",
+   "bytes": 255844
+  },
+  {
+   "pub": "hashline/src/private_block/r13_vectors/block_trace_low_t32.json",
+   "bytes": 254724
+  },
+  {
+   "pub": "hashline/src/zk.rs",
+   "bytes": 254060
+  },
+  {
+   "pub": "docs/zkmatrix-poc/zk60_private_attention_schedule.json",
+   "bytes": 222159
+  },
+  {
+   "pub": "zkmatrix-rs/src/ring/kfield.rs",
+   "bytes": 220508
+  },
+  {
+   "pub": "hashline/src/gpu/cuda.rs",
+   "bytes": 205193
+  },
+  {
+   "pub": "docs/zkmatrix-poc/TASK_BOARD.md",
+   "bytes": 186876
+  },
+  {
+   "pub": "hashline/src/private_block/trained_block.rs",
+   "bytes": 180832
+  },
+  {
+   "pub": "zkmatrix-rs/src/bin/lattice_matmul.rs",
+   "bytes": 179882
+  },
+  {
+   "pub": "docs/zkmatrix-poc/ZK60_PRIVATE_BLOCK_125M_LAYOUT.md",
+   "bytes": 176611
+  },
+  {
+   "pub": "docs/zkmatrix-poc/ZK60_SEALED_HANDLE_SCOPING.md",
+   "bytes": 170119
+  },
+  {
+   "pub": "docs/zkmatrix-poc/ZK60_PRIVATE_BLOCK_FORM_E.md",
+   "bytes": 168157
+  },
+  {
+   "pub": "hashline/src/private_block/run_capture.rs",
+   "bytes": 163275
+  },
+  {
+   "pub": "zkmatrix-rs/src/ring/gpu/k9.rs",
+   "bytes": 162014
+  },
+  {
+   "pub": "docs/zkmatrix-poc/ZK60_DECISIONS.md",
+   "bytes": 157189
+  },
+  {
+   "pub": "docs/zkmatrix-poc/ZK60_JOINT_LAW_COMPOSITION.md",
+   "bytes": 154289
+  },
+  {
+   "pub": "docs/zkmatrix-poc/ZK60_PRIVACY_CASE_FIRST_MVP.md",
+   "bytes": 153990
+  },
+  {
+   "pub": "hashline/src/attention.rs",
+   "bytes": 151776
+  },
+  {
+   "pub": "zkmatrix-rs/src/manifest.rs",
+   "bytes": 151215
+  }
+ ],
+ "binary_files_publishable": [
+  "docs/zkmatrix-poc/results/track_comparison/batch_amortization.png",
+  "docs/zkmatrix-poc/results/track_comparison/proof_size_vs_n.png",
+  "docs/zkmatrix-poc/results/track_comparison/prove_vs_n.png",
+  "docs/zkmatrix-poc/results/track_comparison/verify_vs_n.png",
+  "hashline/src/private_block/r13_vectors/silu_-1_-10.bin",
+  "hashline/src/private_block/r13_vectors/silu_-1_-11.bin",
+  "hashline/src/private_block/r13_vectors/silu_-1_-9.bin",
+  "hashline/src/private_block/r13_vectors/silu_-2_-11.bin",
+  "hashline/src/private_block/r13_vectors/silu_-3_-11.bin",
+  "hashline/src/private_block/r13_vectors/silu_-3_-12.bin",
+  "hashline/src/private_block/r13_vectors/silu_-4_-12.bin",
+  "hashline/src/private_block/r13_vectors/silu_-4_-13.bin",
+  "hashline/src/private_block/r13_vectors/silu_-5_-13.bin",
+  "hashline/src/private_block/r13_vectors/silu_0_-8.bin",
+  "results/zk60_attention_integration_20260919/block_public/block_expected.bin",
+  "results/zk60_attention_integration_20260919/block_public/block_receipt.bin",
+  "results/zk60_private_block_evidence/owner_run1/block_expected.bin",
+  "results/zk60_private_block_evidence/owner_run1/block_receipt.bin",
+  "results/zk60_rowfold_20260919/integration/native-block-0/block_expected.bin",
+  "results/zk60_rowfold_20260919/integration/native-block-0/block_receipt.bin",
+  "results/zk60_rowfold_20260919/integration/native-block-1/block_expected.bin",
+  "results/zk60_rowfold_20260919/integration/native-block-1/block_receipt.bin",
+  "zkvm-block/fixtures/synthetic-model.bin"
+ ],
+ "spec": [
+  {
+   "public": "hashline",
+   "source": "results/zk60_token_io_r1_20261017/frozen-r16b/hashline",
+   "group": "prover-reference",
+   "overlay": false,
+   "note": "reference prover crate: token round 16b frozen copy (binary dfb8025e)"
+  },
+  {
+   "public": "zkp-core",
+   "source": "results/zk60_token_io_r1_20261017/frozen-r16b/zkp-core",
+   "group": "prover-reference",
+   "overlay": false,
+   "note": "reference zkp-core (round 16b)"
+  },
+  {
+   "public": "private-block-kernel",
+   "source": "results/zk60_token_io_r1_20261017/frozen-r16b/private-block-kernel",
+   "group": "prover-reference",
+   "overlay": false,
+   "note": "reference private-block-kernel (identical to main tree's sources)"
+  },
+  {
+   "public": "private-block-kernel-shaped",
+   "source": "results/zk60_token_io_r1_20261017/frozen-r16b/private-block-kernel-shaped",
+   "group": "prover-reference",
+   "overlay": false,
+   "note": "reference shaped kernel (round 16b)"
+  },
+  {
+   "public": "results",
+   "source": "results/zk60_token_io_r1_20261017/frozen-r16b/results",
+   "group": "test-fixtures",
+   "overlay": false,
+   "note": "receipts / statements that the reference tests read by relative path"
+  },
+  {
+   "public": "hashline",
+   "source": "hashline",
+   "group": "prover-overlay",
+   "overlay": true,
+   "note": "main-tree README / .gitignore"
+  },
+  {
+   "public": "zkp-core",
+   "source": "zkp-core",
+   "group": "prover-overlay",
+   "overlay": true,
+   "note": "main-tree design docs and migration maps"
+  },
+  {
+   "public": "private-block-kernel",
+   "source": "private-block-kernel",
+   "group": "prover-overlay",
+   "overlay": true,
+   "note": "main-tree README / lock"
+  },
+  {
+   "public": "privacy-gate",
+   "source": "ops/zkp-mvp/gate-tinyllama/frozen_v23",
+   "group": "privacy-gate",
+   "overlay": false,
+   "note": "privacy gate tools, frozen v23"
+  },
+  {
+   "public": "zkvm-block",
+   "source": "zkvm-block",
+   "group": "zkvm-route",
+   "overlay": false,
+   "note": "RISC Zero route: private block"
+  },
+  {
+   "public": "zkvm-model",
+   "source": "zkvm-model",
+   "group": "zkvm-route",
+   "overlay": false,
+   "note": "RISC Zero route: token model"
+  },
+  {
+   "public": "zkvm-native-tools",
+   "source": "zkvm-native-tools",
+   "group": "zkvm-route",
+   "overlay": false,
+   "note": "Groth16 / receipt tools"
+  },
+  {
+   "public": "private-model-kernel",
+   "source": "private-model-kernel",
+   "group": "zkvm-route",
+   "overlay": false,
+   "note": "kernel used by zkvm-model"
+  },
+  {
+   "public": "zkmatrix-rs",
+   "source": "zkmatrix-rs",
+   "group": "research-lattice",
+   "overlay": false,
+   "note": "earlier lattice / zkMatrix Rust line"
+  },
+  {
+   "public": "zk_matrix",
+   "source": "zk_matrix",
+   "group": "research-python",
+   "overlay": false,
+   "note": "zkMatrix Python reproduction"
+  },
+  {
+   "public": "zk_matrix_fast",
+   "source": "zk_matrix_fast",
+   "group": "research-python",
+   "overlay": false,
+   "note": "zkMatrix C version"
+  },
+  {
+   "public": "zk_lattice",
+   "source": "zk_lattice",
+   "group": "research-python",
+   "overlay": false,
+   "note": "Route Z lattice reference"
+  },
+  {
+   "public": "scripts",
+   "source": "scripts",
+   "group": "tools-python",
+   "overlay": false,
+   "note": "Python tools, demos, resource guard"
+  },
+  {
+   "public": "tests",
+   "source": "tests",
+   "group": "tests-python",
+   "overlay": false,
+   "note": "Python test suite"
+  },
+  {
+   "public": "apps/proven-media",
+   "source": "apps/proven-media",
+   "group": "app",
+   "overlay": false,
+   "note": "proven-media app (no venv, no private state)"
+  },
+  {
+   "public": "web/techweek",
+   "source": "web/techweek",
+   "group": "demo-web",
+   "overlay": false,
+   "note": "demo page"
+  },
+  {
+   "public": "docs/zkmatrix-poc",
+   "source": "docs/zkmatrix-poc",
+   "group": "docs",
+   "overlay": false,
+   "note": "design, checks, statements, status"
+  }
+ ],
+ "evidence": [
+  "results/zk60_token_io_r1_20261017/frozen-r16b.FROZEN.txt",
+  "results/zk60_token_io_r1_20261017/manifest_final_r16b.sha256",
+  "results/zk60_token_io_r1_20261017/cli/binaries_r16b.sha256",
+  "results/zk60_token_io_r1_20261017/cli/zk60_classify.r16b.BUILD.txt",
+  "results/zk60_token_io_r1_20261017/cli/README.md",
+  "results/zk60_token_io_r1_20261017/classifier/DESIGN_CLASSIFIER.md",
+  "results/zk60_token_io_r1_20261017/classifier/check/CHECK.md",
+  "results/zk60_token_io_review_r1_20261017/REVIEW_R13.md",
+  "results/zk60_token_io_review_r1_20261017/REVIEW_R14.md",
+  "results/zk60_token_io_review_r1_20261017/REVIEW_R16.md",
+  "results/zk60_d24_review_20261017/REVIEW_R13.md",
+  "results/zk60_privacy_review_20261029/CLASSIFIER_T128_PRIVACY_REVIEW.md",
+  "results/zk60_privacy_review_20261029/CLASSIFIER_T128_PRIVACY_REREVIEW_v2.md",
+  "results/zk60_privacy_review_trained_t32_20261017/REVIEW.md",
+  "results/zk60_privacy_review_trained_t32_20261017/REVIEW2.md",
+  "results/zk60_privacy_review_trained_t32_20261017/REVIEW3.md",
+  "results/zk60_privacy_review_trained_t32_20261017/REVIEW4.md",
+  "results/zk60_privacy_review_trained_t32_20261017/REVIEW5.md",
+  "results/zk60_privacy_review_trained_t32_20261017/REVIEW6.md",
+  "results/zk60_gate_tinyllama_20261017/gate-tinyllama.tools.frozen.v23.sha256",
+  "results/zk60_1b_pins_20260929/license_note.md",
+  "results/zk60_astra_20261026/real_app_demo_1/RECOVERY_REPORT.md",
+  "results/zk60_astra_20261026/real_app_demo_1/recovery-20261030/manifest.json",
+  "results/zk60_astra_20261026/real_app_demo_1/recovery-20261030/audit.json",
+  "results/zk60_astra_20261026/real_app_demo_1/recovery-20261030/stored_verify_hate.json",
+  "results/zk60_astra_20261026/real_app_demo_1/recovery-20261030/stored_verify_sexual.json",
+  "results/zk60_astra_20261026/real_app_demo_1/recovery-20261030/stored_verify_violence.json",
+  "results/zk60_astra_20261026/real_app_demo_1/recovery-20261030/stored_verify_complete.json",
+  "results/zk60_astra_20261026/real_app_demo_1/sepolia_public_config.json",
+  "results/zk60_astra_20261026/real_app_demo_1/publisher_public_key.json",
+  "results/zk60_shieldstral_prep_20261021/pins.json",
+  "results/zk60_shieldstral_prep_20261021/WEIGHTS.sha256",
+  "results/zk60_mvp_20260929/llama3-8b/source.json"
+ ],
+ "doc_exclude": {
+  "ZK60_FUNDING_PLAN.md": "funding strategy (D43/D47): personal / business",
+  "ZK60_REMOTE_ACCESS_SETUP.md": "SSH public key with user@host, Tailscale / home-network setup",
+  "ZK60_HARDWARE_SETUP.md": "owner's machines and home setup",
+  "ZK60_UNATTENDED_WORK.md": "agent sandbox / approval workflow on the owner's box",
+  "ZK60_SOL_ASTRA_TODOS_20261026.md": "agent-team todo chatter",
+  "ZK60_SOL_TEAM_20260927.md": "agent-team lane map",
+  "ZK60_TEAM_TECHWEEK_20260930.md": "agent-team lane map",
+  "ZK60_CODEX_FABLE_COORDINATION.md": "agent coordination log",
+  "ZK60_FABLE_LANE_HANDOFF.md": "agent handoff log (322 KB)",
+  "ZK60_CLAUDE_QUEUE.md": "agent queue",
+  "ZK60_FABLE_QUEUE.md": "agent queue",
+  "ZK60_OPUS_QUEUE.md": "agent queue",
+  "zk60_claude_tasks.json": "agent task list",
+  "zk60_fable_tasks.json": "agent task list"
+ },
+ "doc_redact": {
+  "ZK60_DECISIONS.md": "drop or reword the personal parts of D43 (funding), D46 (laptop / Windows details), D47 (new job, partner) before publishing; keep every technical ruling",
+  "MVP_STATUS.md": "remove the crash / Windows-drive notes and agent-session chatter; keep the numbers",
+  "START_HERE.md": "check for personal workflow notes (Telegram approvals, laptop specifics)",
+  "ZK60_RULINGS_FOR_VICTOR.md": "addressed to the owner; keep the technical content, drop personal asides",
+  "ZK60_RULINGS_FOR_VICTOR_20261017.md": "as above",
+  "ZK60_RULINGS_FOR_VICTOR_PRIVACY.md": "as above",
+  "ZK60_RESOURCE_PROTOCOL.md": "owner-box operations; fine to keep, drop Windows-host specifics"
+ },
+ "doc_exclude_dirs": {
+  "references": "third-party ePrint PDFs (link to eprint.iacr.org instead)"
+ },
+ "pruned_dir_names": [
+  ".git",
+  ".mypy_cache",
+  ".pytest_cache",
+  ".ruff_cache",
+  ".testnet-private",
+  ".venv",
+  "__pycache__",
+  "node_modules",
+  "target",
+  "venv",
+  "target-*",
+  "target_*"
+ ],
+ "elapsed_s": 32.1
+}

@@ -1,0 +1,42 @@
+{
+ "ts_end": "2026-10-30T07:41:39Z",
+ "run_id": "fe53718d0eb7",
+ "label": "sol-r14-hash-audit-component-3",
+ "class": "light",
+ "cmd": [
+  "python3",
+  "results/zk60_1b_native_20261017/r14/hash_audit_component_v3.py"
+ ],
+ "need_gib": 0.4,
+ "cap_gib": 1.0,
+ "exit": 0,
+ "child_rc": 0,
+ "guard_killed": null,
+ "child_wall_seconds": 0.5006093978881836,
+ "refused": null,
+ "guard_error": null,
+ "guard_pid": 2,
+ "boot_id": "4f7dab84-38e2-4f1a-9518-e305e81ef580",
+ "pid_ns": "pid:[4026532425]",
+ "guard_starttime_ticks": 1088535,
+ "lock_ids": {
+  "heavy": "2096:715313",
+  "build": "2096:715314"
+ },
+ "enforcement": "watchdog-only",
+ "waited_s": 0.0,
+ "guard_wall_s": 0.5,
+ "stragglers_killed": 0,
+ "hard_killed": 0,
+ "scope_unit": null,
+ "scope_adopted": null,
+ "foreign_cgroups_refused": [],
+ "peak_rss_gib": 0.0,
+ "peak_cgroup_gib": null,
+ "peak_vram_mib": null,
+ "min_mem_available_gib": 13.47,
+ "vram_drain_s": null,
+ "gpu_drain_failed": false,
+ "gpu_telemetry_lost": false,
+ "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache"
+}

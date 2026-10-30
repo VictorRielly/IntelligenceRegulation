@@ -1,0 +1,49 @@
+# Check of draft v3 against the re-review: Shieldstral-1.0-3B T128 classifier privacy statement
+
+Independent reader (Claude; not the author). Read-only. Written 2026-10-30 from 11:46 UTC (read from `date -u`).
+Nothing was built, proved or run beyond hashing files, comparing two files byte for byte and reading JSON records
+(seconds each, under 0.1 GiB). No git.
+
+Abbreviations: **v3** = `docs/zkmatrix-poc/ZK60_PRIVACY_STATEMENT_CLASSIFIER_SHIELDSTRAL_T128_DRAFT_v3.md`, sha256
+`c752abe6d8857df28c271e7d1fdfc84371f8a740dc8426d01fb08b8d449d46e4`. **This matches the hash I computed.** v1
+(`db89f427…`) and v2 (`cfbfeafe…`) are unchanged. **v2** = `…_DRAFT_v2.md`. **RR** =
+`results/zk60_privacy_review_20261029/CLASSIFIER_T128_PRIVACY_REREVIEW_v2.md`. **EV** =
+`results/zk60_gate_tinyllama_20261017/`.
+
+## Verdict: NEEDS FIXES (two text corrections, both in text v3 added; nothing else)
+
+- **Fix 1, v3:456–457.** v3 says "85 / 85 tight over the real capture's 12 block and classifier pairs". The record
+  (`EV/round23/S3_ALL_PAIRS_REAL.json`) checks **17** distinct (rounds, degree) pairs:
+  - 12 block pairs (`pairs_block_all_23`) and 7 classifier pairs (`pairs_classifier`), with (13, 2) and (18, 4) in
+    both;
+  - 17 pairs × 5 regimes = 85 checks. A count of 12 pairs would give 60.
+  - Say instead: "85 / 85 tight over the real capture's 17 distinct pairs (12 from the 23 block slots, 7 from the
+    12 classifier slots, 2 shared)".
+- **Fix 2, v3:759.** v3 says "182 / 182 in T-0, E-0, S1, S4 and S5 in all four modes". This overstates S5, and it puts
+  checks under "all four modes" that are not run per mode. What `EV/round23/nl-real-hate-all26.json` records:
+  - T-0 and E-0: 182 / 182, run once, not per mode.
+  - F-0, S1 and S4: 182 / 182 in each of the four modes.
+  - S5: N5-1 and F-1 182 / 182; **N5-2 130 / 130, with 52 not applicable**; N5-3 and N5-4 are single controls, and
+    both fire.
+  - Use the wording at v3:462–465, which is exact.
+
+Neither fix touches the sentence, the distance figures, the conditions or the lapse trigger. With both made, v3 is
+ready for the owner's ruling.
+
+## Items
+
+| # | Item | Finding | Where |
+|---|---|---|---|
+| 1 | R-1 (rung blocks vs real blocks) | **Yes.** The v2 sentence that invited the misreading is gone. v3 adds the rung-vs-real rows and claims: A 437 / 148 against 4,577 / 146, H 248 / 55 against 4,390 / 54, "two more A claims and one more H claim". I checked these against the round-20 `G1_per_commitment` records. Rung: A@1 and A@2 have 437 rows, 148 claims, 36 groups; H has 248, 55, 9. Real: all 26 A have 4,577, 146, 36; all 26 H have 4,390, 54, 9 [MEASURED]. The carry rests on the four things RR names, in RR's order, labelled. v3 adds C-9 itself as a fifth; that is supported (row 3). | v2:406–408 → v3:438–449; RR:144–151; `EV/round20/v23/v23-classify-r13-rung-L2-v1-r17-values.json`, `…-cli-hate-r17-values.json` |
+| 1 | R-2 (corollary hypothesis 1) | **Yes.** "Also when runs share a process" is gone. RR's wording is carried word for word. | v2:249–250 → v3:267–269; RR:152–156 |
+| 1 | R-3 ("16 cells") | **Yes.** RR's wording is carried word for word, plus RR's own reason: a published post has all three runs accepted. "Cells" appears nowhere else in v3 apart from the §12 row. | v2:95 → v3:100–102; RR:157–162 |
+| 1 | R-4 (real-block TS-1 as a limit, condition C-9) | **Yes**, in every place RR lists: §0 "measured" and "still open"; §3 Step 4; §5 the new C-9 with its lapse trigger; §9; §10 (the "Closed" row and "Still owed" item 1). v2's "if the re-review asks for it" is replaced by RR (b)'s ruling: not before the security owner's ruling, before the statement comes into force, one block. Note: v3's C-9 condition leaves out RR's "cpu 2.0 / 3.0". The coordinator directed the light class, the run used light 1.0 / 1.5 and peaked at 0.85 GiB with no kill, and the resource class does not enter the computation. No change needed. | v3:174–192, 425–437, 630, 743–744, 759, 766–769; v2:697; RR:117–120, 163–165; `EV/PROGRESS.md:4427–4428` |
+| 2 | N-1 (the 16 unchanged slots) | **Handled.** The claim is now labelled [READ] and cites both records RR named. I checked the round-20 record: `slot_checks_equal` is 23 / 23 in all 26 stages, and R13-L fires. The five legacy-only S3 pairs are present (all `true`) and 85 / 85 are tight, but the pair count is wrong (Fix 1). The mask budget is stated. NL-1 now covers all 26 real blocks, G = 20 included. | v3:450–467; RR:169–181 |
+| 2 | N-2 (the guard cap) | **Handled.** The numbers equal `results/zk60_token_io_r1_20261017/r16/logs/real-prove-{hate,sexual,violence}.guard.json`: peak RSS 8.27 / 8.15 / 8.08 GiB, peak cgroup 9.97 / 11.5 / 9.42 GiB, cap 11.5 GiB; 11.5 − 8.27 = 3.23 [COUNTED]. Optional citation: "the guard's watchdog kills on RSS" comes from the guard's source (`scripts/zk60_resource_guard.py:1007`, RSS above 1.02 × cap), not from the JSONs the label cites. The page-cache reading is supported: the sexual prove reached the cap in cgroup terms and finished, with `guard_killed` null. | v3:663–668; RR:182–187 |
+| 2 | N-3 (where the rung counts came from) | **Handled.** Both `COUNT_RUNG_L{1,2}_v1.rerun.json` files are byte-identical to round 22's `gr4/COUNT_RUNG_L{1,2}_v1.json` (cmp) [MEASURED]. The gate summary has the line, and the ledger explains the failed earlier log. | v3:792, 834; `EV/round23/R23_SUMMARY.md:8–9`; `EV/PROGRESS.md:4433–4437`; RR:188–192 |
+| 2 | N-4 (ITEM3_REPORT out of date) | **Handled.** `ITEM3_REPORT.md` is now `7e2d5d9c…`, with a superseded note at its lines 1–5. The bytes as handed back are kept in `ITEM3_REPORT.md.as-handed-back-0057`, hash `3be42c0a…` [MEASURED]. | v3:398, 790, 835; `EV/round22/item3/ITEM3_REPORT.md:1–5`; RR:193–195 |
+| 2 | N-5 (pointers to a file that no longer exists) | **Handled.** v3's header names v1 at `_DRAFT_v1.md` with the same hash. The register's round-22 entry says the earlier `_DRAFT.md` pointers mean v1, and its round-23 entry names v3 as current. | v3:5–7, 836; `docs/zkmatrix-poc/ZK60_DECISIONS.md:1488–1490, 1587–1590`; RR:196–197 |
+| 3 | C-9 and NL-1 numbers against the JSON | **C-9: every quoted number equals the record**, `EV/round23/c9b-real-block0-ts1-census.json` (`a2d2dea3…` ✓) and its guard JSON. Run figures: status PASS; 14,718 s (child_wall 14,717.6 s); 0.85 GiB (870 MB); 07:29–11:34 UTC (launched 07:28:56, ended 11:34:14). Roles: A 36 / 36 onto, disclosed 0; H 8 / 9, disclosed 2, joint {7, 8}; Input 2 / 2, disclosed 0. TS-1 3 / 3 on A group 17, H group 0, Input group 0, each going from 0 disclosed honestly to 32,768 with the pair removed; these are the cheapest singleton groups by the wrapper's rule (`zk60_r22_classts2.py:56–60`). Census over 146 / 54 / 2 claims: identical claims, equal published values and same data weights in one group are all empty. Review controls on block A, group 3, two members: C1, C2 and G7-D3 disclose 2; C3, C6, C8 and G7-D1 disclose 0; G7-D2 has rank 32,770 of 32,772 and discloses 0. Attempt 2 (`8db0818f…`, killed at 7,200 s) equals attempt 3 on the roles, census and TS-1 for A and H, seconds aside. Round 22's partial figures are repeated. The wrapper hash `7a8e2649…` equals round 22's. Every hash v3 cites matches: `c9b.sh` `eb031133…`, the log `ec11ebd9…`, `INTEGRITY_AFTER_CRASH.json` `d7afb3b4…` (120 / 120). **NL-1: every number at v3:184 and v3:458–465 equals** `EV/round23/nl-real-hate-all26.json` (`95fce6d5…` ✓) and its guard JSON. Run figures: PASS; 731 s; 2.60 GiB; flags r13, lazy store, no-b3, skip classifier T-0; the script hash `4f0c2061…` is unchanged from round 22. Counts: 182 = 7 slots × blocks 0–25; G = 20 in 18 blocks, 19 in 7, 18 in 1; T-0 182, its control 182, E-0 182; F-0, S1 and S4 182 in each mode; S3 30 / 30 at the six pairs; N5-1 182; N5-2 130 / 130, with 52 not applicable (SC_DZC and SC_FZC × 26); N5-3, N5-4 and F-1 fire. **v3:759 does not equal the record** (Fix 2). | v3:178–185, 426–437, 458–467, 630, 759, 766–769, 792 |
+| 4 | C-9's lapse trigger | **Yes, exact.** §5 is RR's wording word for word, plus "(D31's reopen check)". §9 says the same thing as "TS-1 not firing on A, H or Input, or the claim census finding identical claims or equal published values", which lapses if any one of the three fails to fire. v3 keeps the trigger for later captures. v3 never calls C-9 "met": it leaves that reading to the security owner. | v3:630, 743–744, 769, 190–191; RR:119–120 |
+| 5 | Is anything new stronger than the evidence? | **No widened scope, no new property claimed, and no "proved" where only "measured" holds.** The status still reads NOT accepted, NOT in force. The diff leaves §1, the sentence and its figures, §4 and §8 unchanged. Every new result is labelled [MEASURED] with a cited record. The exceptions are the two count slips, and Fix 2 slightly overstates S5. Optional wording: "TS-1 is now shown on the real block's own claim set" is accurate in RR's sense, but TS-1 ran on one singleton group per role, as at the rung, while the census covers every claim. "On the real block's own roles (one singleton group each), the census over every claim" would be exact. | v3:1, 20, 434–435, 456–457, 759 |
+| 6 | C-7, C-8 and the scope | **Yes.** C-7 and C-8 are unchanged and still stand before non-public posts, repeated in §0, §6 R2 and §10. The scope is still the named binaries: r16b `dfb8025e…` and r17 `81bd8624…`, CPU only. The round-16 binaries, `prove-batch` and r18, rebuilds and the GPU are excluded. P1 holds: the post's tokens and embedding rows, every activation, and the final-norm values and margin are hidden. The weights are public (the model is named by digest; hidden weights are P3, out of scope). The verdict is a public bit by D40, as in v2. The diff changes none of these lines. | v3:628–629, 130–131, 191–192, 650–652, 770–772; v3:140–143, 206, 218, 637–643, 715, 723, 730; v3:71–72, 81–86, 219; `docs/zkmatrix-poc/ZK60_DECISIONS.md:69` |

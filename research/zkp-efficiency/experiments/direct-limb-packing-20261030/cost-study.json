@@ -1,0 +1,70 @@
+{
+  "cases": [
+    {
+      "label": "A_nonDD",
+      "context": 128,
+      "rows": 3517,
+      "k": 57,
+      "chunks": 15,
+      "baseline_host_pack_alloc_requests": 72,
+      "direct_host_pack_alloc_requests": 15,
+      "baseline_host_pack_cumulative_requested_B": 6415008,
+      "direct_host_pack_cumulative_requested_B": 3207504,
+      "baseline_pack_peak_requested_B": 281360,
+      "direct_pack_peak_requested_B": 225088,
+      "unchanged_h2d_payload_B": 3207504,
+      "unchanged_d2h_payload_B": 14942208,
+      "scope": "Conditional historical T128 standalone R14f_e9 group; not current8B/full workload or GPU peak"
+    },
+    {
+      "label": "H_nonDD",
+      "context": 128,
+      "rows": 3272,
+      "k": 12,
+      "chunks": 3,
+      "baseline_host_pack_alloc_requests": 15,
+      "direct_host_pack_alloc_requests": 3,
+      "baseline_host_pack_cumulative_requested_B": 1256448,
+      "direct_host_pack_cumulative_requested_B": 628224,
+      "baseline_pack_peak_requested_B": 261760,
+      "direct_pack_peak_requested_B": 209408,
+      "unchanged_h2d_payload_B": 628224,
+      "unchanged_d2h_payload_B": 3145728,
+      "scope": "Conditional historical T128 standalone R14f_e9 group; not current8B/full workload or GPU peak"
+    },
+    {
+      "label": "A_DD",
+      "context": 128,
+      "rows": 3395,
+      "k": 59,
+      "chunks": 15,
+      "baseline_host_pack_alloc_requests": 74,
+      "direct_host_pack_alloc_requests": 15,
+      "baseline_host_pack_cumulative_requested_B": 6409760,
+      "direct_host_pack_cumulative_requested_B": 3204880,
+      "baseline_pack_peak_requested_B": 271600,
+      "direct_pack_peak_requested_B": 217280,
+      "unchanged_h2d_payload_B": 3204880,
+      "unchanged_d2h_payload_B": 15466496,
+      "scope": "Conditional historical T128 standalone R14f_e9 group; not current8B/full workload or GPU peak"
+    },
+    {
+      "label": "H_DD",
+      "context": 128,
+      "rows": 3116,
+      "k": 13,
+      "chunks": 4,
+      "baseline_host_pack_alloc_requests": 17,
+      "direct_host_pack_alloc_requests": 4,
+      "baseline_host_pack_cumulative_requested_B": 1296256,
+      "direct_host_pack_cumulative_requested_B": 648128,
+      "baseline_pack_peak_requested_B": 249280,
+      "direct_pack_peak_requested_B": 199424,
+      "unchanged_h2d_payload_B": 648128,
+      "unchanged_d2h_payload_B": 3407872,
+      "scope": "Conditional historical T128 standalone R14f_e9 group; not current8B/full workload or GPU peak"
+    }
+  ],
+  "excludes": "Input Fp2 vectors,output/download/device allocations,matrix,pads,allocator overhead and runtime. Requested packing scopes only; no measured transfer or elapsed saving.",
+  "ceiling": "N/(T-C_pack_exclusive+A_added);perfect removal f ->speedup<=1/(1-f),f unknown"
+}

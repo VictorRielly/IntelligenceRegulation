@@ -1,0 +1,9 @@
+
+running 1 test
+test private_block::argument::split_attack_tests::split_run_t128_malicious_arithmetic_receipt_from_env ... R14_ATTACK_WITNESS per-piece-round-q global_output=0 partial_sums=[-1980, 3675] multiplier=12 shift=15 correct=1 wrong=0
+R14_ATTACK_REFUSAL per-piece-round-q: slot 20 [R14 04 Q zero-check (hosts 09Q, 11) Whole]: sumcheck round 0: s(0) + s(1) != claim
+R14_MALICIOUS_RECEIPT {"case":"per-piece-round-q","dd":false,"bytes":34875688,"expected_accept":false,"canonical_frame_decoded":true,"native_verifier_used":true}
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 747 filtered out; finished in 24.61s
+

@@ -1,0 +1,15 @@
+RAM   12.55 GiB available of 15.39; swap used 0.63 GiB
+BUDGET 4.1 of 11.89 GiB committed by guarded jobs
+  job  rvtk13-build                 build need 4.1G since 2026-10-29T00:04:22Z
+LOCKS heavy HELD, build HELD
+GPU   57 of 8188 MiB used
+kernel memory cap available: True
+  rss   1386 MiB  pid 105549  /home/victor/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc --crate-name hashline --edition=2021
+  rss    441 MiB  pid 2149    claude 
+  rss    213 MiB  pid 101322  /home/victor/.nvm/versions/node/v22.22.3/lib/node_modules/@openai/codex/node_modules/@openai/codex-linux-x64/v
+[zk60-guard 17:07:25] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 17:08:25] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 17:09:26] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 17:10:27] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 17:10:47] START astra-gpu-benchmark-l00 class=gpu need=2.7G cap=4.5G enforce=cgroup+watchdog waited=202s run=dae24903f664
+[zk60-guard 17:19:12] END astra-gpu-benchmark-l00 exit=0 child_wall=505s peak_rss=1.66G min_avail=12.53G peak_vram=647MiB

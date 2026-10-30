@@ -1,0 +1,224 @@
+test_chunk_prompt (test_app.TestChunking) ... ok
+test_plan (test_app.TestChunking) ... ok
+test_profiles (test_app.TestChunking) ... ok
+test_canonical_canvas_letterbox (test_app.TestItems) ... ok
+test_exif_orientation_applied_and_garbage_refused (test_app.TestItems) ... ok
+test_image_commitment_salted (test_app.TestItems) ... ok
+test_patch_major_layout (test_app.TestItems) ... ok
+test_control_strings_stay_plain_text (test_app.TestPrompting) ... ok
+test_manifest_sign_and_tamper (test_app.TestPrompting) ... ok
+test_shieldstral_not_installed (test_app.TestPrompting) ... ok
+test_stub_prompt (test_app.TestPrompting) ... ok
+test_too_long_and_empty_refused (test_app.TestPrompting) ... ok
+test_batch_due_by_time (test_app.TestPublisher) ... ok
+test_labels_yes_and_no_published_unproved_refused_once_only (test_app.TestPublisher) ... ok
+test_merkle (test_app.TestPublisher) ... ok
+test_pending_then_anchored_then_verified (test_app.TestPublisher) ... ok
+test_salted_commitment (test_app.TestPublisher) ... ok
+test_tamper_detected (test_app.TestPublisher) ... ok
+test_categories_pinned_and_threshold (test_app.TestRecords) ... ok
+test_placeholder_labels (test_app.TestRecords) ... ok
+test_visibility_fail_closed (test_app.TestRecords) ... ok
+test_media_not_supported (test_app.TestStubJobLayout) ... ok
+test_poll_files (test_app.TestStubJobLayout) ... ok
+test_start_writes_private_files_and_no_content_in_env (test_app.TestStubJobLayout) ... ok
+test_bad_upload_type (test_app.TestWebFlowFake) ... ok
+test_changed_threshold_cannot_reprove_or_start_an_old_queued_item (test_app.TestWebFlowFake) ... ok
+test_delete_crypto_shreds (test_app.TestWebFlowFake) ... ok
+test_fail_closed_per_category (test_app.TestWebFlowFake) ... ok
+test_image_pending_verification_author_only (test_app.TestWebFlowFake) ... ok
+test_labelled_post_published_anchored_manifest_and_rechecked (test_app.TestWebFlowFake) ... ok
+test_long_post_chunked_labels_aggregate (test_app.TestWebFlowFake) ... ok
+test_one_chunk_without_proof_fails_closed (test_app.TestWebFlowFake) ... ok
+test_recheck_rejection_makes_labels_unproved (test_app.TestWebFlowFake) ... ok
+test_same_content_screened_once (test_app.TestWebFlowFake) ... ok
+test_too_long_refused (test_app.TestWebFlowFake) ... ok
+test_worker_thread_starts_and_stops (test_app.TestWebFlowFake) ... ok
+test_yes_label_published_but_hidden_from_minors (test_app.TestWebFlowFake) ... ok
+test_classifier_path_requires_real_verification_and_input_binding (test_category_queue.CategoryQueueTests) ... ok
+test_distinct_geometry_survives_worker_and_database_restart (test_category_queue.CategoryQueueTests) ... ok
+test_failed_final_native_aggregate_cannot_publish (test_category_queue.CategoryQueueTests) ... ok
+test_http_handlers_use_prover_encoder_and_exact_proof_count (test_category_queue.CategoryQueueTests) ... ok
+test_missing_category_proof_never_partially_publishes (test_category_queue.CategoryQueueTests) ... ok
+test_plan_changed_while_job_runs_terminates_without_relaunch (test_category_queue.CategoryQueueTests) ... ok
+test_recheck_withdraws_whole_item_and_retains_existing_anchors (test_category_queue.CategoryQueueTests) ... ok
+test_short_item_has_one_padded_proof_per_category (test_category_queue.CategoryQueueTests) ... ok
+test_truncated_or_downgraded_plan_never_launches (test_category_queue.CategoryQueueTests) ... ok
+test_wrong_receipt_range_policy_total_or_label_fails_closed (test_category_queue.CategoryQueueTests) ... ok
+test_binary_schema_pair_and_downgrade_fail_closed (test_classifier_cli.ClassifierC2ContractTests) ... ok
+test_bound_authorities_and_tied_source_cannot_be_changed (test_classifier_cli.ClassifierC2ContractTests) ... ok
+test_dev_floor_cannot_be_used_for_production (test_classifier_cli.ClassifierC2ContractTests) ... ok
+test_end_aligned_unordered_aggregation_missing_and_duplicate_refuse (test_classifier_cli.ClassifierC2ContractTests) ... ok
+test_native_inventory_and_commands_keep_private_ids_off_argv (test_classifier_cli.ClassifierC2ContractTests) ... ok
+test_pins_floor_owner_and_native_directory_fail_closed (test_classifier_cli.ClassifierC2ContractTests) ... ok
+test_prover_output_or_refusal_never_becomes_an_accepted_label (test_classifier_cli.ClassifierC2ContractTests) ... ok
+test_serialization_preserves_c2_and_retained_c1_jobs (test_classifier_cli.ClassifierC2ContractTests) ... ok
+test_binary_schema_pair_and_downgrade_fail_closed (test_classifier_cli.ClassifierC3ContractTests) ... ok
+test_bound_authorities_and_tied_source_cannot_be_changed (test_classifier_cli.ClassifierC3ContractTests) ... ok
+test_dev_floor_cannot_be_used_for_production (test_classifier_cli.ClassifierC3ContractTests) ... ok
+test_end_aligned_unordered_aggregation_missing_and_duplicate_refuse (test_classifier_cli.ClassifierC3ContractTests) ... ok
+test_full_chunk_prefix_set_and_statement_geometry_refuse (test_classifier_cli.ClassifierC3ContractTests) ... ok
+test_native_inventory_and_commands_keep_private_ids_off_argv (test_classifier_cli.ClassifierC3ContractTests) ... ok
+test_pins_floor_owner_and_native_directory_fail_closed (test_classifier_cli.ClassifierC3ContractTests) ... ok
+test_prover_output_or_refusal_never_becomes_an_accepted_label (test_classifier_cli.ClassifierC3ContractTests) ... ok
+test_serialization_preserves_c2_and_retained_c1_jobs (test_classifier_cli.ClassifierC3ContractTests) ... ok
+test_short_content_and_native_expected_total (test_classifier_cli.ClassifierC3ContractTests) ... ok
+test_short_padding_or_verdict_row_cannot_be_changed (test_classifier_cli.ClassifierC3ContractTests) ... ok
+test_short_prefix_proof_is_not_a_whole_post_proof (test_classifier_cli.ClassifierC3ContractTests) ... ok
+test_dev_floor_cannot_be_used_for_production (test_classifier_cli.ClassifierContractTests) ... ok
+test_end_aligned_unordered_aggregation_missing_and_duplicate_refuse (test_classifier_cli.ClassifierContractTests) ... ok
+test_native_inventory_and_commands_keep_private_ids_off_argv (test_classifier_cli.ClassifierContractTests) ... ok
+test_pins_floor_owner_and_native_directory_fail_closed (test_classifier_cli.ClassifierContractTests) ... ok
+test_prover_output_or_refusal_never_becomes_an_accepted_label (test_classifier_cli.ClassifierContractTests) ... ok
+test_changed_segment_or_content_does_not_reuse_worker_success (test_classifier_prover.ClassifierC2ProverTests) ... ok
+test_full_interface_requires_fresh_verifier_and_owner_then_keeps_synthetic_category (test_classifier_prover.ClassifierC2ProverTests) ... ok
+test_native_aggregate_is_a_separate_guarded_step_and_missing_chunk_refuses (test_classifier_prover.ClassifierC2ProverTests) ... ok
+test_prefix_receipts_refuse_against_original_item_before_launch (test_classifier_prover.ClassifierC2ProverTests) ... ok
+test_changed_segment_or_content_does_not_reuse_worker_success (test_classifier_prover.ClassifierC3ProverTests) ... ok
+test_full_interface_requires_fresh_verifier_and_owner_then_keeps_synthetic_category (test_classifier_prover.ClassifierC3ProverTests) ... ok
+test_native_aggregate_is_a_separate_guarded_step_and_missing_chunk_refuses (test_classifier_prover.ClassifierC3ProverTests) ... ok
+test_prefix_receipts_refuse_against_original_item_before_launch (test_classifier_prover.ClassifierC3ProverTests) ... ok
+test_changed_segment_or_content_does_not_reuse_worker_success (test_classifier_prover.ClassifierProverTests) ... ok
+test_full_interface_requires_fresh_verifier_and_owner_then_keeps_synthetic_category (test_classifier_prover.ClassifierProverTests) ... ok
+test_native_aggregate_is_a_separate_guarded_step_and_missing_chunk_refuses (test_classifier_prover.ClassifierProverTests) ... ok
+test_prefix_receipts_refuse_against_original_item_before_launch (test_classifier_prover.ClassifierProverTests) ... ok
+test_checked_laptop_profile (test_demo_reset.HardwareTests) ... ok
+test_geometry_resources_identity_and_boolean_floor_refused (test_demo_reset.HardwareTests) ... ok
+test_archive_symlink_refused (test_demo_reset.ResetTests) ... ok
+test_busy_database_refused (test_demo_reset.ResetTests) ... ok
+test_busy_publisher_refused (test_demo_reset.ResetTests) ... ok
+test_missing_detached_completion_refused (test_demo_reset.ResetTests) ... ok
+test_pending_jobs_refuse_without_archiving_or_withdrawing (test_demo_reset.ResetTests) ... ok
+test_preview_is_read_only (test_demo_reset.ResetTests) ... ok
+test_publisher_parent_symlink_escape_refused (test_demo_reset.ResetTests) ... ok
+test_reservation_trigger_rolls_back_reset (test_demo_reset.ResetTests) ... ok
+test_reset_archives_and_preserves_reservation_keys_and_files (test_demo_reset.ResetTests) ... ok
+test_reset_does_not_allow_second_screening (test_demo_reset.ResetTests) ... ok
+test_screening_post_refused_even_if_queue_is_terminal (test_demo_reset.ResetTests) ... ok
+test_second_reset_is_noop (test_demo_reset.ResetTests) ... ok
+test_unanchored_or_inflight_publisher_refused (test_demo_reset.ResetTests) ... ok
+test_all_patch_offsets (test_image_preprocess.TestIntegerImages) ... ok
+test_master_boundary_and_bad_inputs (test_image_preprocess.TestIntegerImages) ... ok
+test_nonintegral_scale_matches_rational_geometry (test_image_preprocess.TestIntegerImages) ... ok
+test_single_round_and_half_up (test_image_preprocess.TestIntegerImages) ... ok
+test_size_tie_and_odd_letterbox (test_image_preprocess.TestIntegerImages) ... ok
+test_vectors (test_image_preprocess.TestIntegerImages) ... ok
+test_expiry_logout_and_unique_sessions (test_privacy_auth.CredentialTests) ... ok
+test_only_hashes_stored_and_private_permissions (test_privacy_auth.CredentialTests) ... ok
+test_rotation_revokes_old_key_and_sessions (test_privacy_auth.CredentialTests) ... ok
+test_symlink_db_refused_without_touching_target (test_privacy_auth.CredentialTests) ... ok
+test_failure_exact_one_bit_even_with_stale_manifest_and_record (test_privacy_auth.PrivacyRoutes) ... ok
+test_foreign_origin_and_non_json_login_refused (test_privacy_auth.PrivacyRoutes) ... ok
+test_handle_query_and_forged_cookie_cannot_read_unpublished (test_privacy_auth.PrivacyRoutes) ... ok
+test_other_author_cannot_delete_or_recheck (test_privacy_auth.PrivacyRoutes) ... ok
+test_pending_owner_has_text_without_partial_results (test_privacy_auth.PrivacyRoutes) ... ok
+test_public_records_strip_timings_recursively_without_mutating_operator_record (test_privacy_auth.PrivacyRoutes) ... ok
+test_queue_status_and_batch_close_are_operator_only (test_privacy_auth.PrivacyRoutes) ... ok
+test_session_cookie_and_cache_policy (test_privacy_auth.PrivacyRoutes) ... ok
+test_submission_requires_session_matching_author_and_csrf (test_privacy_auth.PrivacyRoutes) ... ok
+test_submissions_require_real_author_and_ignore_claims (test_privacy_auth.PrivacyRoutes) ... ok
+test_absent_native_inventory_preserves_only_collector_inventory (test_publication_bundle.PublicationBundleTests) ... ok
+test_development_record_is_not_sent_to_publication (test_publication_bundle.PublicationBundleTests) ... ok
+test_segment_and_native_inventory_mutations_are_not_new_verified_data (test_publication_bundle.PublicationBundleTests) ... ok
+test_bundle_instructions_match_every_category_and_native_file_layout (test_real_manifest.RealManifestMetadata) ... ok
+test_config_endpoint_names_real_policy_set_and_context (test_real_manifest.RealManifestMetadata) ... ok
+test_signed_manifest_names_real_registered_policies_and_verifier (test_real_manifest.RealManifestMetadata) ... ok
+test_signed_metadata_must_match_publication_profile_and_verifier (test_real_manifest.RealManifestMetadata) ... ok
+test_real_verifier_uses_pinned_model_policy_floor_and_guard (test_real_publication_verifier.RealPublicationVerifierControls) ... ok
+test_success_line_cannot_mask_a_native_refusal (test_real_publication_verifier.RealPublicationVerifierControls) ... ok
+test_wrong_publication_pins_never_launch_a_verifier (test_real_publication_verifier.RealPublicationVerifierControls) ... ok
+test_changed_policy_or_threshold_never_creates_another_query (test_screening_rules.ScreeningRules) ... ok
+test_concurrent_submissions_reserve_once_across_connections (test_screening_rules.ScreeningRules) ... ok
+test_deleted_item_reservation_survives_restart (test_screening_rules.ScreeningRules) ... ok
+test_legacy_early_failure_does_not_hide_a_later_proof (test_screening_rules.ScreeningRules) ... ok
+test_retained_legacy_text_is_migrated_without_changing_its_policy (test_screening_rules.ScreeningRules) ... ok
+test_retry_only_before_work_under_same_context (test_screening_rules.ScreeningRules) ... ok
+test_unresolved_legacy_policy_is_not_rebound_to_current_settings (test_screening_rules.ScreeningRules) ... ok
+test_bulk_requires_confirmed_canary_credit (test_sepolia_bridge.BridgeTests) ... ok
+test_excessive_gas_estimate_never_creates_an_envelope (test_sepolia_bridge.BridgeTests) ... ok
+test_gas_reserve_is_preserved (test_sepolia_bridge.BridgeTests) ... ok
+test_lost_response_reuses_identical_envelope_without_another_send (test_sepolia_bridge.BridgeTests) ... ok
+test_receipt_event_and_actual_credit_are_required (test_sepolia_bridge.BridgeTests) ... ok
+test_signed_value_tamper_is_rejected_before_send (test_sepolia_bridge.BridgeTests) ... ok
+test_wrong_chain_or_counterpart_never_signs_or_broadcasts (test_sepolia_bridge.BridgeTests) ... ok
+test_permanent_error_is_not_retried (test_sepolia_bridge.PacedRPCTests) ... ok
+test_rate_limit_recovers_with_the_same_request (test_sepolia_bridge.PacedRPCTests) ... ok
+test_deployment_loss_recovery_and_runtime_pin (test_sepolia_setup.SepoliaSetupTests) ... ERROR
+test_immutable_offsets_and_runtime_mismatch (test_sepolia_setup.SepoliaSetupTests) ... ERROR
+test_no_funds_wrong_chain_and_modified_source_refuse (test_sepolia_setup.SepoliaSetupTests) ... ERROR
+test_multichunk_coverage_refuses_prefix_and_template_changes (test_shieldstral_prover.RealAdapterControls) ... ok
+test_native_aggregate_required_for_each_category_and_exact_proof_set (test_shieldstral_prover.RealAdapterControls) ... ok
+test_queue_slot_cannot_change_category_or_total_before_preparation (test_shieldstral_prover.RealAdapterControls) ... ok
+test_real_preparation_uses_whole_post_and_separate_category_jobs (test_shieldstral_prover.RealAdapterControls) ... ok
+test_recheck_reaches_native_verifier_even_if_receipt_is_missing (test_shieldstral_prover.RealAdapterControls) ... ok
+test_registered_threshold_change_refuses_before_any_job (test_shieldstral_prover.RealAdapterControls) ... ok
+test_runtime_refuses_unreviewed_binary_and_wrong_profile (test_shieldstral_prover.RealAdapterControls) ... ok
+test_categories_need_different_plans (test_shieldstral_text.CategoryPlans) ... ok
+test_empty_invalid_or_excessive_posts_refuse (test_shieldstral_text.CategoryPlans) ... ok
+test_every_category_and_exact_ranges_are_required (test_shieldstral_text.CategoryPlans) ... ok
+test_invalid_geometry_refuses (test_shieldstral_text.CategoryPlans) ... ok
+test_missing_duplicate_or_reused_policy_refuses (test_shieldstral_text.CategoryPlans) ... ok
+test_native_tail_and_all_tokens_covered (test_shieldstral_text.CategoryPlans) ... ok
+test_real_prompt_route_requires_matching_category_and_native_range (test_shieldstral_text.CategoryPlans) ... ok
+test_real_routes_never_fall_back_to_stub_tokenization (test_shieldstral_text.CategoryPlans) ... ok
+test_short_prompt_ends_with_public_pads_after_the_suffix (test_shieldstral_text.CategoryPlans) ... ok
+test_tokenizer_pin_checked_before_optional_import (test_shieldstral_text.CategoryPlans) ... ok
+test_whole_post_count_is_from_the_encoder_not_the_receipts (test_shieldstral_text.CategoryPlans) ... ok
+test_wrong_category_range_and_control_id_refuse (test_shieldstral_text.CategoryPlans) ... ok
+test_abi_matches_independent_encoder (test_testnet_publisher.TestBaseSepolia) ... ok
+test_app_inventory_does_not_invent_native_segments_json (test_testnet_publisher.TestBaseSepolia) ... ok
+test_batch_and_anchor_tampering_is_rejected (test_testnet_publisher.TestBaseSepolia) ... ok
+test_confirmations_and_reorg_fail_closed (test_testnet_publisher.TestBaseSepolia) ... ok
+test_finalization_crash_replays_without_duplicate_block_or_send (test_testnet_publisher.TestBaseSepolia) ... ok
+test_gas_bound_refuses_before_sign (test_testnet_publisher.TestBaseSepolia) ... ok
+test_key_0600_exclusive_and_no_symlink (test_testnet_publisher.TestBaseSepolia) ... ok
+test_lost_broadcast_response_reuses_exact_envelope (test_testnet_publisher.TestBaseSepolia) ... ok
+test_mainnet_wrong_contract_wrong_key_never_sign (test_testnet_publisher.TestBaseSepolia) ... ok
+test_new_pending_publication_survives_inflight_batch (test_testnet_publisher.TestBaseSepolia) ... ok
+test_readonly_factory_does_not_need_key_file (test_testnet_publisher.TestBaseSepolia) ... ok
+test_receipt_snapshot_survives_later_prover_file_edits (test_testnet_publisher.TestBaseSepolia) ... ok
+test_refuses_placeholder_unverified_or_changed_receipt (test_testnet_publisher.TestBaseSepolia) ... ok
+test_roundtrip_signing_batch_and_read_only_verify (test_testnet_publisher.TestBaseSepolia) ... ok
+test_source_change_between_precheck_and_copy_refuses_publication (test_testnet_publisher.TestBaseSepolia) ... ok
+test_tampered_transaction_or_event_is_rejected (test_testnet_publisher.TestBaseSepolia) ... ok
+
+======================================================================
+ERROR: test_deployment_loss_recovery_and_runtime_pin (test_sepolia_setup.SepoliaSetupTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/victor/IntelligenceRegulation/results/zk60_astra_20261026/privacy_app_candidate/tests/test_sepolia_setup.py", line 61, in setUp
+    'source_sha256':hashlib.sha256((APP/'contracts/ProvenMediaAnchor.sol').read_bytes()).hexdigest(),
+  File "/usr/lib/python3.10/pathlib.py", line 1126, in read_bytes
+    with self.open(mode='rb') as f:
+  File "/usr/lib/python3.10/pathlib.py", line 1119, in open
+    return self._accessor.open(self, mode, buffering, encoding, errors,
+FileNotFoundError: [Errno 2] No such file or directory: '/home/victor/IntelligenceRegulation/results/zk60_astra_20261026/privacy_app_candidate/contracts/ProvenMediaAnchor.sol'
+
+======================================================================
+ERROR: test_immutable_offsets_and_runtime_mismatch (test_sepolia_setup.SepoliaSetupTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/victor/IntelligenceRegulation/results/zk60_astra_20261026/privacy_app_candidate/tests/test_sepolia_setup.py", line 61, in setUp
+    'source_sha256':hashlib.sha256((APP/'contracts/ProvenMediaAnchor.sol').read_bytes()).hexdigest(),
+  File "/usr/lib/python3.10/pathlib.py", line 1126, in read_bytes
+    with self.open(mode='rb') as f:
+  File "/usr/lib/python3.10/pathlib.py", line 1119, in open
+    return self._accessor.open(self, mode, buffering, encoding, errors,
+FileNotFoundError: [Errno 2] No such file or directory: '/home/victor/IntelligenceRegulation/results/zk60_astra_20261026/privacy_app_candidate/contracts/ProvenMediaAnchor.sol'
+
+======================================================================
+ERROR: test_no_funds_wrong_chain_and_modified_source_refuse (test_sepolia_setup.SepoliaSetupTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/victor/IntelligenceRegulation/results/zk60_astra_20261026/privacy_app_candidate/tests/test_sepolia_setup.py", line 61, in setUp
+    'source_sha256':hashlib.sha256((APP/'contracts/ProvenMediaAnchor.sol').read_bytes()).hexdigest(),
+  File "/usr/lib/python3.10/pathlib.py", line 1126, in read_bytes
+    with self.open(mode='rb') as f:
+  File "/usr/lib/python3.10/pathlib.py", line 1119, in open
+    return self._accessor.open(self, mode, buffering, encoding, errors,
+FileNotFoundError: [Errno 2] No such file or directory: '/home/victor/IntelligenceRegulation/results/zk60_astra_20261026/privacy_app_candidate/contracts/ProvenMediaAnchor.sol'
+
+----------------------------------------------------------------------
+Ran 183 tests in 9.058s
+
+FAILED (errors=3)

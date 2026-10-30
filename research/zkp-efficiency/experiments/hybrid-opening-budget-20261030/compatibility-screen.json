@@ -1,0 +1,9 @@
+{
+  "root_native_files_match_previous_cycle": true,
+  "cudarc": "0.13.9",
+  "configured_cuda_bindings": "12.4",
+  "batch_copy_in_configured_bindings": false,
+  "fp2_layout": "Rust default repr; explicit c0/c1 packing required; no raw upload ABI established",
+  "sync_copy_wrapper": "htod_sync_copy_into and dtoh_sync_copy_into call self.synchronize; hybrid counts B+1 requests instead of baseline2B, not measured wait savings",
+  "scope": "source inspection only; no native crate/device/ABI execution"
+}

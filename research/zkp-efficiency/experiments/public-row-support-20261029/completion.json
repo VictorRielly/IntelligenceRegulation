@@ -1,0 +1,14 @@
+{
+  "cycle": "0148",
+  "run_id": "20261029T175649Z-b41890ba",
+  "checkpoint_utc": "2026-10-29T18:06:01.954981+00:00",
+  "deadline_utc": "2026-10-29T18:16:49Z",
+  "status": "COMPLETE",
+  "native_gain_measured": false,
+  "only_research_outside_runtime_written": true,
+  "completed_utc": "2026-10-29T18:11:33.613867+00:00",
+  "audit_checks": 103,
+  "sources": 993,
+  "hypotheses": 68,
+  "new_proved_positions": 0
+}

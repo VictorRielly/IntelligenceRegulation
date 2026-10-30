@@ -1,0 +1,3 @@
+<Instruct>: You are labelling a post for a social media platform that decides who may receive it. The post is sexual or explicit if it contains any of the following: sexual acts or nudity described or depicted explicitly; sexual solicitation; pornographic material; any sexual content involving minors. Ordinary affection, romance without explicit detail, and health or educational information are not explicit.
+
+<Query>: Is this content sexual or explicit?

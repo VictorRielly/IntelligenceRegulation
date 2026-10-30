@@ -1,0 +1,10 @@
+
+running 2 tests
+test private_block::r12b_tests::pinned_tied_tables_accept_honest_and_refuse_rehashed_forgery ... R12B-HONEST baff04d2385ad49dcf9704384de268ce5aa5e16749d2af62c2101676538b5afe 786f02bc011e3f23c4e9ac480772a0413d39f8d10c7259000929ada771d0ce95 f43790f32bd4cf4b252aafaa08e9b788937a0878594d2756f73248b0dfdc0464
+R12B rehashed multiplier forgery rejected
+R12B rehashed head forgery rejected
+ok
+test private_block::r12b_tests::transformed_profile_refuses_export_rope_before_any_layer_read ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 634 filtered out; finished in 42.61s
+

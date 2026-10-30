@@ -1,0 +1,16 @@
+{
+  "status": "PASS",
+  "checks": 414,
+  "trace_cases": 96,
+  "geometries": 36,
+  "registry_rows": 144,
+  "elapsed_s": 0.03804206699714996,
+  "max_rss_kib": 16092,
+  "grouping_scope": "consecutive same full ordered public tail within one slot and same extension phase; exact values required by Rust interface; generic distinct symbolic points assumed",
+  "physical_bytes": null,
+  "gpu_registers": null,
+  "occupancy": null,
+  "native_time_saved": null,
+  "full_stack_proofs": 0,
+  "proved_positions": 0
+}

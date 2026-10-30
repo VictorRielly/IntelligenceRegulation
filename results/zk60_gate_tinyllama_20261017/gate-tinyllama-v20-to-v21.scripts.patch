@@ -1,0 +1,1992 @@
+diff -ruN -x __pycache__ frozen_v20/scripts/zk60_native_rg_classgate.py frozen_v21/scripts/zk60_native_rg_classgate.py
+--- frozen_v20/scripts/zk60_native_rg_classgate.py	2026-10-26 12:44:03.517126613 -0700
++++ frozen_v21/scripts/zk60_native_rg_classgate.py	2026-10-28 19:47:34.705213115 -0700
+@@ -41,6 +41,27 @@
+ terminal identity at those constants is then their check (a wrong constant
+ fails its slots: TL-2 / NC-1).
+ 
++[v21, gate round 18, 2026-10-29] PORTED to token frozen-r14 (rungs R-C2 and
++R-C3; statement schema `zk60-classify-run/3`; the capture schema is still
++`7-classify-run`, its `classify` keys unchanged):
++
++* the pins: `zk60_native_rg_classpins.classify_capture_pins_v21` (the five
++  ported classifier files at r14, `classify_tied.rs` new; the native files the
++  rebase onto R12b moved, chained to the block gate's native R9 readings);
++* the profile text: every R-C2 / R-C3 field re-derived and checked
++  (`item-length`, `pad-id`, `pad-positions`, `verdict-row`, `chunk-size` = the
++  PLAN's size T - P0 - S, `short-content=...`, `margin-scale(-bits)`, the
++  tied source, the D45 rulings sentence);
++* D41 with the plan size (never n) and n == b - a; a SHORT item is ONE chunk
++  [0, n) (`zk60_native_rg_classify.chunk_ranges`);
++* B-3 with the tables DERIVED from the pinned tensor
++  (`zk60_native_rg_classtied`): w_Delta and tau are rebuilt, none taken;
++* OUTC-00 and the joint figure at the public verdict row P0 + n + S - 1, and
++  B_out's OUTC-00 claim decoded to that row;
++* gate item C-13 (short items): controls C13-1..C13-4 on the capture (a
++  doctored pad position, a pad inside the content range, a shifted verdict
++  row, a declared length that is not the actual one).
++
+ NOTHING HERE IS A PRIVACY RESULT OR A PRIVACY ACCEPTANCE.
+ """
+ 
+@@ -131,7 +152,26 @@
+         self.n_stages = d["stages"]
+         if self.n_stages != self.l + 2 or d["boundaries"] != self.l + 1:
+             raise ValueError("run.json: a classifier run has L + 2 stages and L + 1 boundaries")
+-        self.shape = Shape(d["shape"], d["mask_domain"])
++        # [v21] finding F18-1 (capture format, token frozen-r14): the classifier
++        # writer emits `sh.slots()` WHOLE (run_capture.rs:2717-2758 at ef9c54db;
++        # MAX_SLOTS = 24 since native R9) while declaring n_slots = 23; the block
++        # writer takes n_slots (:2229). Shape::slots is zero beyond n_slots
++        # (shape.rs:2286-2288), so the extra triple is the unused SC_DD slot's
++        # (0, 0, 0). Accepted only when EVERY extra triple is zero, recorded, and
++        # stripped in memory (the bytes on disk are hashed as they are).
++        sh_doc = d["shape"]
++        extra = sh_doc.get("slots", [])[sh_doc.get("n_slots", 0):]
++        self.shape_slot_note = None
++        if extra:
++            if any(list(x) != [0, 0, 0] for x in extra):
++                raise ValueError(f"shape: {len(extra)} slot triples beyond n_slots {sh_doc.get('n_slots')} and not all zero")
++            sh_doc = dict(sh_doc, slots=sh_doc["slots"][:sh_doc["n_slots"]])
++            d["shape"] = sh_doc
++            self.shape_slot_note = {"finding": "F18-1", "extra_zero_slot_triples_stripped": len(extra),
++                                    "declared_n_slots": sh_doc["n_slots"],
++                                    "why": "the classifier capture writer emits Shape::slots() (MAX_SLOTS) unclipped; "
++                                           "the triples beyond n_slots are (0, 0, 0)"}
++        self.shape = Shape(sh_doc, d["mask_domain"])
+         with open(os.path.join(self.dir, "manifest.json"), "rb") as fh:
+             self.manifest = json.loads(fh.read())
+         self.array_refusals: list[str] = []
+@@ -154,10 +194,13 @@
+         self.public_tables_included = bool(d.get("public_tables_included", False))
+         self.blocks = self.n_stages
+         cf = d["classify"]
++        import zk60_native_rg_classtied as TD
++        self.profile_fields = TD.profile_fields(cf.get("profile_text", ""))
++        pad = self.profile_fields["pad_id"]
+         self.geom = CL.ClassGeom(name=d["profile"], tokens=cf["T"], t_pad=cf["t_pad"], d=cf["d"], d_pad=cf["d_pad"],
+                                  v=cf["V"], p0=cf["P0"], n=cf["n"], s=cf["S"], c=cf["policy"]["c"],
+                                  num_special=cf["policy"]["num_special"], block_log_n=self.shape.endpoint_log_n,
+-                                 block_inv_rate=self.shape.endpoint_inv_rate)
++                                 block_inv_rate=self.shape.endpoint_inv_rate, pad=pad if pad is not None else -1)
+ 
+     @property
+     def name(self) -> str:
+@@ -381,25 +424,51 @@
+     if bytes(cf["policy"]["template_digest"]).hex() != td:
+         f.append("classify.policy.template_digest is not the template ids' digest")
+     pt = cf.get("profile_text", "")
++    pf = b.profile_fields
++    # [v21] the R-C2 / R-C3 profile text (classify.rs:578-622 at r14): every
++    # length field RE-DERIVED from (T, P0, n, S) and the pad id the policy's
++    rc3 = {"item_length": g.item_len(), "pad_positions": g.pad_positions(), "verdict_row": g.verdict_row(),
++           "chunk_size": g.plan_size(), "T": g.tokens, "P0": g.p0, "n": g.n, "S": g.s}
++    for key, want in rc3.items():
++        if pf.get(key) != want:
++            f.append(f"the profile text's {key} is {pf.get(key)!r}, re-derived {want}")
++    if pf.get("pad_id") is None or not (0 <= pf["pad_id"] < g.v):
++        f.append(f"the profile text's pad-id {pf.get('pad_id')!r} is not an id below V")
++    elif pf["pad_id"] != CL.PAD_IDS.get(b.profile):
++        f.append(f"the profile text's pad-id {pf['pad_id']} is not the registered policy's {CL.PAD_IDS.get(b.profile)!r}")
+     for frag in (f"threshold c={cf['policy']['c']} ", f"yes={cf['policy']['yes']} no={cf['policy']['no']}",
+                  f"ctl=ids<{cf['policy']['num_special']} ", f"template={td}",
+                  f"{bytes(cf['margin_vector']['digest']).hex()}", f"byte-limbs={g.limbs} ",
+-                 f"P0={g.p0} n={g.n} S={g.s} ", "no-output-endpoint"):
++                 f"P0={g.p0} n={g.n} S={g.s} ", "no-output-endpoint",
++                 # [v21] R-C2 / R-C3 / D45
++                 f"item-length={g.item_len()} pad-id={pf.get('pad_id')} pad-positions={g.pad_positions()} "
++                 f"verdict-row={g.verdict_row()} ",
++                 f"chunk-size={g.plan_size()} chunk-overlap={CL.CHUNK_OVERLAPS.get(b.profile)} chunk-split=end-aligned "
++                 "short-content=one-chunk-of-its-length-pad-pinned ",
++                 "margin-scale-bits=", "tied-source=",
++                 "rulings: B-5 n-public=true B-6 fixed-policy-list=true B-8 binding=input-endpoint-root "
++                 "B-4 fail-closed=true (accepted by Victor: D45, 2026-10-29)"):
+         if frag not in pt:
+-            f.append(f"the profile text does not carry {frag.strip()!r}")
++            f.append(f"the profile text does not carry {frag.strip()[:60]!r}")
+     if cf.get("profile_text", "") not in b.run["parameter_line"]:
+         f.append("the profile text is not inside the absorbed parameter line")
+-    # D41: the chunk the header absorbs, re-derived from (total, index, plan)
++    # [v21] the schedule's OUT-C stage line names the verdict row (classify.rs:974-979 at r14)
++    want_line = f"= B_out at the fixed public row {g.verdict_row()} at pair row"
++    if not any(want_line in ln for ln in b.run.get("stage_lines", [])):
++        f.append(f"no stage line names B_out at the verdict row {g.verdict_row()}")
++    # D41: the chunk the header absorbs, re-derived from (total, index, the
++    # PLAN: size T - P0 - S, the registered overlap); n == b - a [v21]
+     ch = cf["chunk"]
+-    d41 = {"recorded": ch}
++    d41 = {"recorded": ch, "plan_size": g.plan_size(), "short_item": g.is_short()}
+     try:
+         rng = CL.chunk_ranges(ch["total"], ch["size"], ch["overlap"])
+         d41["ranges"] = rng
+-        ok = (ch["size"] == g.n and ch["count"] == len(rng) and 0 <= ch["index"] < len(rng)
+-              and (ch["a"], ch["b"]) == rng[ch["index"]]
++        ok = (ch["size"] == g.plan_size() and ch["count"] == len(rng) and 0 <= ch["index"] < len(rng)
++              and (ch["a"], ch["b"]) == rng[ch["index"]] and ch["b"] - ch["a"] == g.n
+               and ch["overlap"] == CL.CHUNK_OVERLAPS.get(b.profile))
+         if not ok:
+-            f.append(f"D41: the chunk {ch} is not the split's (size = n = {g.n}, overlap {CL.CHUNK_OVERLAPS.get(b.profile)})")
++            f.append(f"D41: the chunk {ch} is not the split's (plan size T - P0 - S = {g.plan_size()}, n = b - a = {g.n}, "
++                     f"overlap {CL.CHUNK_OVERLAPS.get(b.profile)})")
+         d41["ok"] = ok
+     except ValueError as exc:
+         f.append(f"D41: {exc}")
+@@ -475,7 +544,13 @@
+                 f.append(f"boundary {k}: claim sources {src}, expected {want_src}")
+     if stz.doc["boundary_committed"] is not None:
+         f.append("stage OUT-C commits a boundary")
++    # [v21, R-C3] B_out's claim from OUTC-00 sits at the fixed public bits of
++    # the verdict row P0 + n + S - 1 (stage_out_c.rs:302 at r14)
++    vr = verdict_row_of_bout_claim(b)
++    if vr.get("row") != g.verdict_row():
++        f.append(f"B_out's OUTC-00 claim is at row {vr.get('row')!r}, the verdict row is {g.verdict_row()} ({vr.get('why')})")
+     return {"findings": f, "ok": not f, "stages": len(b.stages), "blocks": L,
++            "rc3_lengths_re_derived": rc3, "pad_id": pf.get("pad_id"), "bout_claim_row": vr,
+             "source_pins": {k: pins[k] for k in ("pins", "refusals", "ok")},
+             "source_pin_status": sorted({x["status"].split(":")[0] for x in pins["per_file"]}),
+             "D41_chunk": d41,
+@@ -484,6 +559,35 @@
+                            "input_endpoint": ep, "output_endpoint": None, "boundary": bf}}
+ 
+ 
++def verdict_row_of_bout_claim(b) -> dict:
++    """[v21] the row of B_out's claim from OUTC-00, decoded from the claim
++    point's leading (row) coordinates, which must be public bits (MSB
++    first, as `fixed_bits`): `stage_out_c.rs:302` puts
++    fixed_bits(verdict_row, t_bits) there"""
++    from zk60_native_jv_field import f2_from_list
++    L = b.l
++    op = next((r for r in b.stages[L + 1].roles if r.get("boundary") == L), None)
++    if op is None:
++        return {"row": None, "why": "no B_out opening in stage OUT-C"}
++    src = [(c["stage"], c["slot"]) for c in op["claim_sources"]]
++    if (L + 1, CL.SOC_IO) not in src:
++        return {"row": None, "why": f"B_out's claim sources {src} have no OUTC-00 claim"}
++    ci = src.index((L + 1, CL.SOC_IO))
++    c = op["claims"][ci]
++    p0 = c["parts"][0]
++    pt = [f2_from_list(x) for x in p0["point"]]
++    t_bits = CL.clog2(b.geom.t_pad)
++    # the B_out plane is (t_pad x d_pad) row-major: its leading t_bits
++    # variables are the token row (MSB first), then the d_pad column bits
++    bits = pt[:t_bits]
++    if any(x not in ((0, 0), (1, 0)) for x in bits):
++        return {"row": None, "why": "the claim's leading coordinates are not public bits"}
++    row = 0
++    for x in bits:
++        row = 2 * row + x[0]
++    return {"row": row, "claim_index": ci, "t_bits": t_bits, "why": "decoded"}
++
++
+ # ------------------------------------------------------------------ per commitment (G-1)
+ def role_view_c(b, st, role, replay, perturb=None):
+     from zk60_native_rg_pcs import RunRoleView
+@@ -589,7 +693,8 @@
+ def class_joint_figure(b, views) -> dict:
+     """`token_joint_figure` for a classifier run: the identifications tok
+     (input; INC-00), B_in (slot 21 of block 0), B_out (slot 22 of block L-1)
+-    and B_out row T-1 against A-out's x (OUTC-00); there is no output token."""
++    and B_out at the verdict row P0 + n + S - 1 (T - 1 without pad; v21)
++    against A-out's x (OUTC-00); there is no output token."""
+     from zk60_native_rg_joint import RunJointSystem, block_from_view
+     L, g = b.l, b.geom
+     st_in, st_out = b.stages[0], b.stages[-1]
+@@ -619,7 +724,8 @@
+             for w in range(1 << op["params"]["log_cols"]):
+                 edges.append(((akey, ar, w), (bkey, br, w)))
+     n_b = width["B_out"]
+-    base = (g.tokens - 1) * g.d_pad
++    # [v21, R-C3] A-out's x is B_out at the public verdict row P0 + n + S - 1
++    base = g.verdict_row() * g.d_pad
+     b_row, b_col = base // n_b, base % n_b
+     x_row = plane_row(spi_out, "A_X")
+     for w in range(g.d_pad):
+@@ -848,15 +954,133 @@
+     # CC-7 the template clause dropped from the port (an extra term cancels it): INC-01 refuses
+     # (the clause is load-bearing on the recorded terminals)
+     _ = f2_from_list
+-    out["not_fired"] = [k for k, v in out.items() if isinstance(v, dict) and not v.get("fires")]
++    out.update(c13_controls(b, rp))
++    out["not_fired"] = [k for k, v in out.items() if isinstance(v, dict) and v.get("fires") is False]
+     out["ok"] = not out["not_fired"]
+     return out
+ 
+ 
++def _failing(t):
++    return sorted({(r["stage"], r["slot"]) for r in t["slots"] if not r["equal"]})
++
++
++def c13_controls(b, rp) -> dict:
++    """[v21] GATE ITEM C-13 (short items, DESIGN v2.4 §15): negative controls
++    on the REAL capture, in memory, each predicted:
++
++    C13-1 a doctored PAD position (applicable when the item has pad
++          positions): (a) the port's pad id + 1, (b) the captured kappa
++          table's first pad entry + 1 -> exactly INC-01 refuses, both ways
++          (the template clause pins the pad positions);
++    C13-2 a pad INSIDE the content range: (a) the port pins the last content
++          position P0 + n - 1 to the pad id (pi = 1, kappa = pad there) ->
++          exactly INC-01 refuses; (b) the profile text claims one pad
++          position more -> the integrity check refuses (item-length +
++          pad-positions != T);
++    C13-3 a SHIFTED verdict row: the port's OUTC-00 at verdict_row - 1 (and
++          + 1 where it exists) -> exactly OUTC-00 refuses; and the integrity
++          check refuses a recorded B_out claim decoded at another row;
++    C13-4 a declared length that is not the actual one: (a) classify.n + 1
++          in the facts (chunk and absorbed text unchanged) -> the integrity
++          check refuses (n != b - a, the profile text's n / item-length) and
++          INC-01 refuses (pi, kappa move); (b) the chunk declares one id more
++          (b + 1, total + 1) -> the run binding and D41 refuse."""
++    import zk60_native_rg_classtied as TD
++    out = {}
++    g = b.geom
++    cf = b.run["classify"]
++    inc01, outc00 = [("IN-C", CL.SIC_QZC)], [("OUT-C", CL.SOC_IO)]
++
++    def replay_of(mutate):
++        b2 = copy.copy(b)
++        b2.run = copy.deepcopy(b.run)
++        mutate(b2.run)
++        return ClassRunReplay(b2).run().summary()
++
++    def integrity_of(mutate):
++        b2 = copy.copy(b)
++        b2.run = copy.deepcopy(b.run)
++        mutate(b2.run)
++        b2.profile_fields = TD.profile_fields(b2.run["classify"].get("profile_text", ""))
++        cf2 = b2.run["classify"]
++        b2.geom = CL.ClassGeom(name=b2.run["profile"], tokens=cf2["T"], t_pad=cf2["t_pad"], d=cf2["d"],
++                               d_pad=cf2["d_pad"], v=cf2["V"], p0=cf2["P0"], n=cf2["n"], s=cf2["S"],
++                               c=cf2["policy"]["c"], num_special=cf2["policy"]["num_special"],
++                               block_log_n=b.shape.endpoint_log_n, block_inv_rate=b.shape.endpoint_inv_rate,
++                               pad=b2.profile_fields["pad_id"] if b2.profile_fields["pad_id"] is not None else -1)
++        return class_integrity(b2), b2
++    # C13-1
++    if g.pad_positions() > 0:
++        pad = b.profile_fields["pad_id"]
++        ta = CT.check_classify_terminals(b, rp, facts_override={"pad": pad + 1})
++        q_tabs = b.stages[0].doc["arguments"][CL.SIC_QZC]["tables"]
++        ki = [i for i, t in enumerate(q_tabs) if t["kind"] == "public"][3]   # supp, u0, pi, KAPPA, ctl_q
++        tb = CT.check_classify_terminals(b, rp, table_delta={("IN-C", CL.SIC_QZC): (ki, g.item_len(), (1, 0))},
++                                         check_digests=False)
++        out["C13-1_doctored_pad_position"] = {
++            "pad_positions": g.pad_positions(), "first_pad_position": g.item_len(),
++            "a_port_pad_id_plus_1_failing": _failing(ta), "b_captured_kappa_at_first_pad_plus_1_failing": _failing(tb),
++            "fires": _failing(ta) == inc01 and _failing(tb) == inc01}
++    else:
++        out["C13-1_doctored_pad_position"] = {"applicable": False, "why": "a full-length item has no pad position",
++                                              "fires": None}
++    # C13-2
++    t_in = g.p0 + g.n - 1
++    tc = CT.check_classify_terminals(b, rp, facts_override={"extra_pad_positions": [t_in]})
++
++    def more_pad(r):
++        pt = r["classify"]["profile_text"]
++        r["classify"]["profile_text"] = pt.replace(f" pad-positions={g.pad_positions()} ", f" pad-positions={g.pad_positions() + 1} ", 1)
++        r["parameter_line"] = r["parameter_line"].replace(pt, r["classify"]["profile_text"], 1)
++    i2, _ = integrity_of(more_pad)
++    why2 = [x for x in i2["findings"] if "pad_positions" in x or "pad-positions" in x]
++    out["C13-2_pad_inside_the_content_range"] = {
++        "content_position_pinned_to_pad": t_in, "a_port_failing": _failing(tc),
++        "b_profile_text_one_pad_more_integrity_refused": bool(why2), "b_findings": why2[:3],
++        "fires": _failing(tc) == inc01 and bool(why2)}
++    # C13-3
++    vr = g.verdict_row()
++    shifts = [x for x in (vr - 1, vr + 1) if 0 <= x < g.tokens]
++    fails = {x: _failing(CT.check_classify_terminals(b, rp, facts_override={"verdict_row": x})) for x in shifts}
++
++    gs = copy.copy(g)
++    gs.verdict_row = lambda: vr - 1
++    bs = copy.copy(b)
++    bs.geom = gs
++    i3 = class_integrity(bs)
++    why3 = [x for x in i3["findings"] if x.startswith("B_out's OUTC-00 claim is at row")]
++    out["C13-3_shifted_verdict_row"] = {
++        "verdict_row": vr, "port_rows_tried": shifts, "failing_per_row": {str(k): v for k, v in fails.items()},
++        "integrity_with_the_expected_row_moved_refused": bool(why3), "integrity_findings": why3[:2],
++        "fires": all(v == outc00 for v in fails.values()) and bool(fails) and bool(why3)}
++    # C13-4
++    t4 = CT.check_classify_terminals(b, rp, facts_override={"n": g.n + 1})
++
++    def n_up(r):
++        r["classify"]["n"] = r["classify"]["n"] + 1
++    i4, _ = integrity_of(n_up)
++
++    def ch_up(r):
++        r["classify"]["chunk"]["b"] += 1
++        r["classify"]["chunk"]["total"] += 1
++    s4 = replay_of(ch_up)
++    i4b, _ = integrity_of(ch_up)
++    why4 = [x for x in i4["findings"] if "the profile text's n " in x or "D41" in x or "item_length" in x]
++    out["C13-4_declared_length_not_the_actual"] = {
++        "a_facts_n_plus_1_integrity_refused": bool(why4), "a_findings": why4[:3],
++        "a_port_failing": _failing(t4),
++        "b_chunk_one_id_more_binding_refused": not s4["run_binding_reproduced"],
++        "b_D41_refused": not i4b["D41_chunk"]["ok"],
++        "fires": bool(why4) and _failing(t4) == inc01 and (not s4["run_binding_reproduced"])
++        and not i4b["D41_chunk"]["ok"]}
++    return out
++
++
+ # ------------------------------------------------------------------ the gate
+ def gate(directory: str, controls=True, full_preimage=True, calibration_export=None) -> dict:
+     t0 = time.time()
+-    rec = {"what": "the privacy gate on ONE classifier run capture (D38 / D40 / D41; gate round 17); NOT a privacy result",
++    rec = {"what": "the privacy gate on ONE classifier run capture (D38 / D40 / D41 / D45; gate round 18, tools v21: "
++                   "R-C2 / R-C3, token frozen-r14); NOT a privacy result",
+            "privacy_acceptance": False, "privacy_property_established": False, "timings": {}}
+ 
+     def tick(name, t):
+@@ -867,8 +1091,13 @@
+     rec["blocks"], rec["stages"] = b.l, len(b.stages)
+     cf = b.run["classify"]
+     rec["public_outputs"] = {"verdict": cf["verdict"], "chunk": cf["chunk"], "policy": cf["policy"]["id"],
+-                             "c": cf["policy"]["c"]}
++                             "c": cf["policy"]["c"],
++                             # [v21] D45(1): the content length is public, and with it the pad layout
++                             "n": cf["n"], "item_length": b.geom.item_len(), "pad_positions": b.geom.pad_positions(),
++                             "verdict_row": b.geom.verdict_row(), "pad_id": b.profile_fields["pad_id"],
++                             "short_item": b.geom.is_short()}
+     rec["integrity"] = class_integrity(b)
++    rec["capture_format_notes"] = [x for x in (b.shape_slot_note,) if x]
+     tick("load_and_integrity", t)
+     t = time.time()
+     rp = ClassRunReplay(b).run()
+diff -ruN -x __pycache__ frozen_v20/scripts/zk60_native_rg_classify.py frozen_v21/scripts/zk60_native_rg_classify.py
+--- frozen_v20/scripts/zk60_native_rg_classify.py	2026-10-26 12:18:25.019509911 -0700
++++ frozen_v21/scripts/zk60_native_rg_classify.py	2026-10-28 19:47:34.704933473 -0700
+@@ -52,6 +52,38 @@
+ * **One external endpoint** (the input token endpoint); no output endpoint
+   (D40); B_in / B_out are the run's boundaries.
+ 
++[v21, gate round 18, 2026-10-29] RE-READ on token frozen-r14 (manifest
++`manifest_final_r14.sha256`, list 0b4c429b..., 258 files; rungs R-C2 + R-C3):
++
++    token_io/classify.rs     6c828db6673e...   (R-C2 margin scale + tied
++                                                source in the profile text;
++                                                R-C3 short items, pad id,
++                                                verdict row)
++    token_io/stage_in_c.rs   6a92da0ecfe7...   (INC-01's name; the template
++                                                clause covers the pad)
++    token_io/stage_out_c.rs  93a79a2b39ab...   (OUTC-00 reads the verdict row)
++    token_io/classify_run.rs 5d1d077f5102...   (BoundClassifierTables; the
++                                                verdict row in the pipeline)
++    token_io/classify_tied.rs 401d38d444b6...  (the tables derived from the
++                                                pinned tensor; NEW)
++
++What moved for this module [READ, classify.rs at 6c828db6]:
++* a SHORT item (DESIGN v2.4 §15): `1 <= n < T - P0 - S` content ids are ONE
++  chunk `[0, n)`; the item is `prefix || content || suffix || pad^(T - P0 -
++  n - S)`, the pad a PUBLIC policy id (rung: 2), every pad position a
++  template position (`is_template` unchanged: `t >= P0 + n`), `kappa` the
++  suffix id on `P0 + n .. P0 + n + S` and the pad id after it
++  (classify.rs:512-524); the door admits `P0 + n + S <= T` (:431-433);
++* the verdict row is `P0 + n + S - 1` (classify.rs:503-505; `T - 1` without
++  pad), read by OUTC-00 (stage_out_c.rs:302);
++* the chunk plan's size is `T - P0 - S` (never n; classify.rs:798) and
++  `chunk_ranges` returns `[(0, total)]` for `1 <= total < size`, refusing an
++  empty content (classify.rs:220-228);
++* the profile text adds `item-length= pad-id= pad-positions= verdict-row=`,
++  `chunk-size=` is the plan's size, `short-content=one-chunk-of-its-length-
++  pad-pinned`, `margin-scale= margin-scale-bits=`, the tied source and the
++  D45 rulings sentence (classify.rs:578-622).
++
+ NOTHING HERE IS A PRIVACY STATEMENT.
+ """
+ 
+@@ -86,6 +118,10 @@
+ RUN_PROFILE_CLASSIFY_RUNG_TC = "hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1"
+ # [READ] classify.rs:166
+ CHUNK_OVERLAPS = {RUN_PROFILE_CLASSIFY_RUNG_TC: 4}
++# [v21, READ classify.rs:137 at r14] the registered policy's PUBLIC pad id per
++# classifier run profile (the rung's synthetic policy and every test policy
++# cloned from it: 2)
++PAD_IDS = {RUN_PROFILE_CLASSIFY_RUNG_TC: 2}
+ 
+ # [READ] stage_in_c.rs:24-37
+ INC_A_TOK, INC_A_MULT = 0, 1
+@@ -96,7 +132,8 @@
+ INC_H_NAMES = ["H_Q", "H_TAB", "H_U"]
+ INC_NAMES = [
+     "INC-00 IO-in: token endpoint = supp_T tok (whole padded plane: template and content)",
+-    "INC-01 query zero-check: LogUp over (id, row, ctl) + BOS + TEMPLATE + pad, fresh mu each",
++    # [v21] r14's name (stage_in_c.rs:49): the template now names the trailing pad ids
++    "INC-01 query zero-check: LogUp over (id, row, ctl) + BOS + TEMPLATE (prefix, suffix, trailing pad ids) + pad, fresh mu each",
+     "INC-02 table zero-check: h_tab (alpha - tau(v, ctl)) = m + pad, fresh mu each",
+     "INC-03 ZS zero-sum row",
+ ]
+@@ -110,7 +147,8 @@
+                 + ["A_MU8"])
+ OUTC_H_NAMES = ["H_LO"] + [f"H_D{i}" for i in range(OC_H_DO_HELPERS)] + ["H_GU8", "H_U"]
+ OUTC_NAMES = [
+-    "OUTC-00 IO-in: x = B_out row T-1 (fixed public row bits)",
++    # [v21] r14's name (stage_out_c.rs:78): the public verdict row
++    "OUTC-00 IO-in: x = B_out at the public verdict row P0+n+S-1 (fixed public row bits; T-1 without pad)",
+     "OUTC-01 SS final-norm row sum (private, hosted by TZC)",
+     "OUTC-02 TZC isqrt (D, Dsq, 9 limb slices; hosts SS)",
+     "OUTC-03 PD margin sum_i y(i) w_Delta(i) (private, hosted by LZC)",
+@@ -144,13 +182,19 @@
+     block_log_n: int
+     block_inv_rate: int
+     tier: Tier = R1_MVP
++    # [v21, R-C3] the policy's PUBLIC pad id (classify.rs:119; the rung's 2)
++    pad: int = 2
+ 
+     def __post_init__(self):
+         f = []
+         if not (2 <= self.v <= TIO.V_MAX):
+             f.append(f"V = {self.v} outside 2..=2^17")
+-        if self.n < 1 or self.p0 + self.n + self.s != self.tokens:
+-            f.append(f"P0 + n + S = {self.p0} + {self.n} + {self.s} is not T = {self.tokens} (n >= 1)")
++        # [v21, R-C3] classify.rs:431-433: P0 + n + S <= T (a short item's
++        # trailing positions hold the public pad id)
++        if self.n < 1 or self.p0 + self.n + self.s > self.tokens:
++            f.append(f"P0 + n + S = {self.p0} + {self.n} + {self.s} is more than T = {self.tokens} (n >= 1)")
++        if not (0 <= self.pad < self.v):
++            f.append(f"the public pad id {self.pad} is outside the vocabulary")
+         if self.s < 1:
+             f.append("the template has no suffix")
+         if not (-C_MAX <= self.c <= C_MAX):
+@@ -183,9 +227,29 @@
+     def tab_log(self): return max(clog2(U8_LEN), self.tier.stage_log_n)
+     def in_ep_words(self): return max(self.t_pad, 1 << self.tier.ep_log_n)
+ 
+-    # the template (classify.rs:411-437)
++    # the template (classify.rs:489-524 at r14)
+     def is_template(self, t): return t < self.p0 or (self.p0 + self.n <= t < self.tokens)
+ 
++    # [v21, R-C3] the item's own length, the pad count, the verdict row, the
++    # chunk plan's size (classify.rs:493-505, 798)
++    def item_len(self): return self.p0 + self.n + self.s
++    def pad_positions(self): return self.tokens - self.item_len()
++    def verdict_row(self): return self.item_len() - 1
++    def plan_size(self): return self.tokens - self.p0 - self.s
++    def is_short(self): return self.n < self.plan_size()
++
++    def kappa(self, t, prefix, suffix):
++        """`ClassifierProfile::kappa` (classify.rs:512-524 at r14): the
++        prefix's id, the suffix's, then the PUBLIC pad id up to T; 0 at
++        content positions and beyond T"""
++        if t < self.p0:
++            return prefix[t]
++        if self.p0 + self.n <= t < self.item_len():
++            return suffix[t - self.p0 - self.n]
++        if self.item_len() <= t < self.tokens:
++            return self.pad
++        return 0
++
+     def stage_in_c(self) -> StageLayout:
+         """`stage_in_c.rs:39-55`: stage IN's layout under new slot names"""
+         lt = self.tier.stage_log_n
+@@ -230,7 +294,9 @@
+         return {"words": words, "row_width_log": self.tier.ep_log_n, "inv_rate": self.tier.ep_inv_rate,
+                 "data_rows": data, "commitment_rows": data + TIO.EP_MASK_ROWS,
+                 "true_words": self.tokens, "pad_words": words - self.tokens,
+-                "template_words": self.p0 + self.s, "content_words": self.n}
++                # [v21, R-C3] a short item's trailing pad ids are template words
++                "template_words": self.tokens - self.n, "content_words": self.n,
++                "pad_id_words": self.pad_positions()}
+ 
+     def boundary(self) -> dict:
+         words = self.t_pad * self.d_pad
+@@ -313,13 +379,16 @@
+ 
+ # ---------------------------------------------------------------- D41 chunks
+ def chunk_ranges(total: int, size: int, overlap: int) -> list:
+-    """`chunk_ranges` (classify.rs:183-193), transcribed: chunks of exactly
+-    `size` ids at stride `size - overlap`, the last END-ALIGNED; short
+-    content refused by name"""
++    """`chunk_ranges` (classify.rs:219-235 at r14), transcribed: chunks of
++    exactly `size` ids at stride `size - overlap`, the last END-ALIGNED;
++    [v21, R-C3] a SHORT content (`1 <= total < size`) is ONE chunk
++    `[0, total)`; an empty content is refused"""
+     if size <= 0 or overlap >= size or overlap < 0:
+         raise ValueError(f"the plan (size {size}, overlap {overlap}) needs 0 <= overlap < size")
++    if total <= 0:
++        raise ValueError("an empty content has no chunk (n >= 1)")
+     if total < size:
+-        raise ValueError(f"a content of {total} ids is shorter than one chunk of {size} ids (short content is not built)")
++        return [(0, total)]
+     stride = size - overlap
+     k = 1 + -(-(total - size) // stride)
+     return [(j * stride, j * stride + size) if j + 1 < k else (total - size, total) for j in range(k)]
+diff -ruN -x __pycache__ frozen_v20/scripts/zk60_native_rg_classpins.py frozen_v21/scripts/zk60_native_rg_classpins.py
+--- frozen_v20/scripts/zk60_native_rg_classpins.py	2026-10-26 12:16:56.812349145 -0700
++++ frozen_v21/scripts/zk60_native_rg_classpins.py	2026-10-28 19:35:14.951544583 -0700
+@@ -18,6 +18,14 @@
+ bundle pinning another digest of any of them is refused before any slot is
+ evaluated (the token port's rule).
+ 
++[v21, gate round 18] the R-C2 / R-C3 readings at token frozen-r14
++(`CLASSIFY_R14_READINGS`, `CLASSIFY_PORTED_FROM_V21`) and the v21 pin rule
++(`classify_capture_pins_v21`): the native files moved by the rebase onto R12b
++chain through `zk60_native_rg_tinyllama_r12b_pins.NATIVE_R12B_READINGS` to
++digests the BLOCK gate read (v17's native R9 readings); an R-C1 capture is
++refused by name (REVIEW_R13 N-r13-8: R-C1 receipts support no classifier
++claim).
++
+ NOTHING HERE IS A PRIVACY STATEMENT.
+ """
+ 
+@@ -191,6 +199,158 @@
+ }
+ 
+ 
++# [v21, gate round 18] TOKEN FROZEN-r14 (manifest_final_r14, list
++# 0b4c429b..., 258 files; rungs R-C2 + R-C3, rebased onto native R12b).  READ
++# 2026-10-29 02:30-03:00 UTC with `diff -u` between the frozen copies
++# frozen-r12 -> frozen-r13 -> frozen-r14 (saved under
++# results/zk60_gate_tinyllama_20261017/round18/readings/tok-*.diff).  The
++# native files the rebase moved are read in `zk60_native_rg_tinyllama_r12b_pins`
++# (NATIVE_R12B_READINGS: native R9 -> R12 -> R12b, and the token tree's own
++# hunks on top of R12b), whose chains end at native R9 digests the block gate
++# read in v17 (`zk60_native_rg_tinyllama_r9_pins`).
++FROZEN_R14_MANIFEST = "results/zk60_token_io_r1_20261017/manifest_final_r14.sha256"
++FROZEN_R14_LIST_SHA256 = "0b4c429b"
++CLASSIFY_R14_READINGS = {
++    # ---- the five PORTED classifier files: what moved, and where v21 ports it.
++    # They are accepted only at the v21 port's digests (CLASSIFY_PORTED_FROM_V21),
++    # never by a chain: R-C2 and R-C3 move receipt bytes at the classifier rung.
++    "src/private_block/token_io/classify.rs": {
++        "6c828db6673ec389eaa75eef7c543b378ce4f7693dbf70c0c999a6fe959a90ae": {
++            "base": "0937952f30a0f351a40f8a914dc87fe239d81e46091b6a47109fe8154a90d2f2",
++            "diff_stat": "+132 / -35, 15 hunks against 0937952f (frozen-r13)",
++            "moves_a_receipt_byte": True, "moves_a_block_stage_byte": False,
++            "reading": "R-C3 (DESIGN v2.4 §15): Policy.pad (rung 2, Shieldstral card 11) and the door's pad < V "
++                       "refusal; chunk_ranges returns [(0, total)] for 1 <= total < size and refuses total = 0; "
++                       "the door admits P0 + n + S <= T; item_len / pad_positions / verdict_row; kappa = suffix "
++                       "id on P0+n..P0+n+S, the PUBLIC pad id after it up to T (is_template unchanged: t >= P0+n); "
++                       "tokens_of pads the item; the profile text adds item-length= pad-id= pad-positions= "
++                       "verdict-row= and short-content=one-chunk-of-its-length-pad-pinned, and chunk-size is the "
++                       "PLAN's size T - P0 - S (was n); the stage line names the verdict row; the D45 rulings "
++                       "sentence. R-C3's N-r13-1: ClassifyRunStatement::new / new_chunk take "
++                       "BoundClassifierTables, check_for, the plan size from the shape and n == b - a, "
++                       "check_tables at prove / verify; ClassifyFacts.tables_derived (test-only capture header). "
++                       "Ported in v21: zk60_native_rg_classify (door, kappa, verdict row, chunk_ranges), "
++                       "zk60_native_rg_classterminals (ClassCtx, OUTC-00's row), zk60_native_rg_classgate "
++                       "(integrity: the new profile-text fields re-derived; D41 with the plan size)",
++        },
++        "0937952f30a0f351a40f8a914dc87fe239d81e46091b6a47109fe8154a90d2f2": {
++            "base": "fe1d9bd77e992ffa9c1af06e82c78dcaf95144bc8d25e7d627099fc65fc9bd10",
++            "diff_stat": "+128 / -2, 4 hunks against fe1d9bd7 (frozen-r12)",
++            "moves_a_receipt_byte": True, "moves_a_block_stage_byte": False,
++            "reading": "the round-12 capture hooks (`#[cfg(test)] capture_header()` / `binding()`, +108, the "
++                       "text v20 read at the hooked digest 5d2c642a) and R-C2: Policy.margin_scale_bits (rung "
++                       "2^-8; Shieldstral 4.08288030735373e-6) and the profile text's margin-scale= "
++                       "margin-scale-bits= and tied-source sentence (moves the classifier profile digest and the "
++                       "parameter line: a receipt byte at the classifier rung). Ported in v21: the profile-text "
++                       "fields and the tied source read by zk60_native_rg_classtied (B-3 derived)",
++        },
++    },
++    "src/private_block/token_io/classify_run.rs": {
++        "5d1d077f510202d17d76c7660a87a5cb6afd7254fc2fc450bf1a39577cb9ebd1": {
++            "base": "be2ccd1c97f1f5be48046dd6caf50441bfd37e8fc26f24db562b33a5011e450b",
++            "diff_stat": "+24 / -16, 7 hunks against be2ccd1c (frozen-r13 = the v20 hooked reading)",
++            "moves_a_receipt_byte": True, "moves_a_block_stage_byte": False,
++            "reading": "BoundClassifierTables at prove / verify (st.check_tables replaces the two-digest "
++                       "comparison); the owner's check rebuilds the item with tokens_of (pad up to T); the "
++                       "honest pipeline reads stage OUT-C's row at verdict_row(). The transcript, the stage "
++                       "order, every opening and the boundary wrapping are outside the hunks; the verdict row "
++                       "moves OUT-C's IO-in claim at a SHORT item only (T - 1 = verdict_row at full length)",
++        },
++    },
++    "src/private_block/token_io/stage_in_c.rs": {
++        "6a92da0ecfe736537f859bcde5eb3fb89c0852e8d06dfe7f21e0feb9c4bbe6ff": {
++            "base": "05c1aae265195c130f35a5cab358eb99ca16341e10708c70539761c110914707",
++            "diff_stat": "+4 / -2, 2 hunks against 05c1aae2 (frozen-r13 = the v20 hooked reading)",
++            "moves_a_receipt_byte": True, "moves_a_block_stage_byte": False,
++            "reading": "the module doc and INC-01's SlotSpec NAME ('TEMPLATE (prefix, suffix, trailing pad ids)'), "
++                       "which is in the schedule's stage line (a receipt byte); `define`, the template clause "
++                       "(its own fresh mu2 over pi * (tok - kappa)), tau_table and the challenge order are "
++                       "unchanged: the clause covers the pad positions through kappa / pi (classify.rs). Ported: "
++                       "CL.INC_NAMES[1]",
++        },
++    },
++    "src/private_block/token_io/stage_out_c.rs": {
++        "93a79a2b39ab1eb70442b6ee7f0d949cfbf20f7c84b660ec4aa4ebe2ef7a564a": {
++            "base": "ee1cd2374ef37dbce52b68267ba3b53518fa85c6d14b40940cb92892d5da80da",
++            "diff_stat": "+5 / -3, 3 hunks against ee1cd237 (frozen-r13 = the v20 hooked reading)",
++            "moves_a_receipt_byte": True, "moves_a_block_stage_byte": False,
++            "reading": "the module doc; OUTC-00's SlotSpec NAME (the verdict row); OUTC-00's B_out claim at "
++                       "fixed_bits(cp.verdict_row()) (was cp.tokens - 1; equal at full length). Ported: "
++                       "CL.OUTC_NAMES[0], classterminals SOC_IO, the classgate joint figure's B_out row",
++        },
++    },
++    "src/private_block/token_io/classify_tied.rs": {
++        "401d38d444b6ae2b69d19ab4b2e6a78996521e432303ea551d91889d43a6e76c": {
++            "base": "b0eb5047cafd81260fc9ab66cf2df5fe51cbf6e5605e57c5f9e053f1ae6558b0",
++            "diff_stat": "+200 / -12, 5 hunks against b0eb5047 (frozen-r13; new there, +332)",
++            "moves_a_receipt_byte": False, "moves_a_block_stage_byte": False,
++            "reading": "N-r13-1 / N-r13-2 / N-r13-6: BoundClassifierTables (private fields; load_bound_tables; "
++                       "check_for; the test-only synthetic_for_relation_tests marked not-derived), the "
++                       "Shieldstral recompute stub (cfg(test)), the post-derivation profile-digest check kept. "
++                       "derive_dev, dev_tied_tensor_bytes, TiedSource::describe and DEV_TIED_TENSOR_SHA256 are "
++                       "byte-identical to r13's [COUNTED: the four items' text compared]; they are what "
++                       "zk60_native_rg_classtied transcribes (the tensor regenerated: bba6d094...; the derived "
++                       "embedding / margin rows: REVIEW_R13's reference digests c0e816c9... / 24e6ff4c...)",
++        },
++    },
++    # ---- the token-I/O files that are NOT ported: chained, each step moving no receipt byte
++    "src/private_block/token_io.rs": {
++        "eda64c31babe2efabb47f4f843c8f9061506042d82d469309a2697987d5f5f11": {
++            "base": "4a1e967a8448d5ba44bbf680e613e68395b5f6a7322a949bc91d35d494ba0c8e",
++            "diff_stat": "+3 / -0, 1 hunk against 4a1e967a (frozen-r13)",
++            "moves_a_receipt_byte": False, "moves_a_block_stage_byte": False,
++            "reading": "TEST-ONLY: `#[cfg(test)] mod classify_r14_tests;` with its comment",
++        },
++        "4a1e967a8448d5ba44bbf680e613e68395b5f6a7322a949bc91d35d494ba0c8e": {
++            "base": "057137a2d308555ed5c6642ffc7d080847d8025d86afdaabfc6cb393d2350849",
++            "diff_stat": "+7 / -0, 2 hunks against 057137a2 (frozen-r12)",
++            "moves_a_receipt_byte": False, "moves_a_block_stage_byte": False,
++            "reading": "ADDITIVE: `pub(crate) mod classify_tied;` (R-C2) and the two test-only modules "
++                       "`classify_tied_tests`, `classify_capture_tests` (the latter the v20 hooked reading "
++                       "f6e56c81's +3). StageLayout, the slot builder, run_stage_slot, the verifier's slot "
++                       "loop, TokenProfile and every table are outside the hunks",
++        },
++    },
++    "src/private_block/token_io/load.rs": {
++        "a9b72811350e1042392b0a8b60bcffddcd01a6b8a39cfa32f97ce4f72cb030dc": {
++            "base": "8c0417214a15ed45afafe89a345609dedfd622fe45fb9b007a8782ed4344935e",
++            "diff_stat": "+2 / -0, 1 hunk against 8c041721 (frozen-r12 = frozen-r9)",
++            "moves_a_receipt_byte": False, "moves_a_block_stage_byte": False,
++            "reading": "the token loader's Provenance gains `rope_scaling: ex.rope_scaling` (native R12's F1 "
++                       "field, R12-F3: refused / encoded only when the export declares a RoPE transform; the "
++                       "trained-statement identity encodes it only when it is not `none`, per the native "
++                       "trained_statement.rs R12 reading in NATIVE_R12B_READINGS). No rung, TinyLlama or "
++                       "classifier export declares one, so no identity byte moves at those profiles",
++        },
++    },
++    "src/private_block/run_capture.rs": {
++        "ef9c54dbdf9588df381055b6f959ee8d7a9f8396075c59bf2b774115b76cb012": {
++            "base": "2329306125671947d877431b33636c6f2dcfbe9a73f89c9d5586e4087647712f",
++            "diff_stat": "+11 / -0, 2 hunks against 23293061 (frozen-r13)",
++            "moves_a_receipt_byte": False, "moves_a_block_stage_byte": False,
++            "reading": "CAPTURE WRITER, insert-only: ClassifyFacts.tables_derived (not serialized: run.json's "
++                       "`classify` keys are unchanged, checked on the r14 captures) and the replay's refusal of "
++                       "a classifier header whose tables are not derived (N-r13-1: no capture of the relation "
++                       "tests' synthetic tables is written). Every existing writer path and the allow-list are "
++                       "byte-identical",
++        },
++    },
++}
++
++# [v21] the files the v21 classifier port transcribes, at token frozen-r14
++CLASSIFY_PORTED_FROM_V21 = {
++    "src/private_block/token_io/classify.rs": "6c828db6673ec389eaa75eef7c543b378ce4f7693dbf70c0c999a6fe959a90ae",
++    "src/private_block/token_io/classify_run.rs": "5d1d077f510202d17d76c7660a87a5cb6afd7254fc2fc450bf1a39577cb9ebd1",
++    "src/private_block/token_io/stage_in_c.rs": "6a92da0ecfe736537f859bcde5eb3fb89c0852e8d06dfe7f21e0feb9c4bbe6ff",
++    "src/private_block/token_io/stage_out_c.rs": "93a79a2b39ab1eb70442b6ee7f0d949cfbf20f7c84b660ec4aa4ebe2ef7a564a",
++    "src/private_block/token_io/classify_tied.rs": "401d38d444b6ae2b69d19ab4b2e6a78996521e432303ea551d91889d43a6e76c",
++}
++# report-only at r14 (no gate port transcribes them; not pinned by a capture)
++CLASSIFY_REPORT_ONLY_V21 = {
++    "src/private_block/token_io/classify_cli.rs": "c1862e4b13f8ec3da3a931941ef6978c02ec7f12dbbe4b48653831a77c8abb68",
++}
++
++
+ def _token_accepts(f, d):
+     """does the token gate (v18) accept digest d of file f"""
+     import zk60_native_rg_tokenio_r7c_pins as TP
+@@ -200,8 +360,42 @@
+             or d in R11.TOKEN_R11_READINGS.get(f, {}) or TP.R7_PINS_READ_IN_V8.get(f) == d)
+ 
+ 
+-def classify_capture_pins(manifest: dict) -> dict:
+-    """[v20] every `source_pins` entry of a classifier capture: accepted when
++def _block_gate_accepts(f, d):
++    """[v21] does the block gate accept digest d of file f: a digest one of
++    its ports was read at (the terminals port's PORTED_FROM / ALSO_ACCEPTED /
++    PINNED_IF_PRESENT / ARGUMENT_DEFINITIONS, the run layer's RUN_LAYER_PINS),
++    or a report-only digest of the native R9 readings (v17)"""
++    import zk60_native_rg_runpins as RP
++    import zk60_native_rg_terminals as T
++    import zk60_native_rg_tinyllama_r9_pins as N9
++    if T.PORTED_FROM.get(f) == d or d in T.ALSO_ACCEPTED.get(f, {}) or d in T.PINNED_IF_PRESENT.get(f, {}):
++        return True
++    if f == T.ARGUMENT_FILE and d in T.ARGUMENT_DEFINITIONS:
++        return True
++    if d in RP.RUN_LAYER_PINS.get(f, {}):
++        return True
++    ro = N9.REPORT_ONLY.get(f)
++    return bool(ro) and ro[0] == d
++
++
++def _native_readings():
++    try:
++        import zk60_native_rg_tinyllama_r12b_pins as N12
++    except ImportError:
++        return {}
++    return getattr(N12, "NATIVE_R12B_READINGS", {})
++
++
++def _reading(f, d):
++    for table in (CLASSIFY_R14_READINGS, _native_readings(), HOOKED_READINGS, CLASSIFY_R12_READINGS):
++        r = table.get(f, {}).get(d)
++        if r is not None:
++            return r
++    return None
++
++
++def classify_capture_pins_v20(manifest: dict) -> dict:
++    """[v20, kept for the record; v21 does not call it] every `source_pins` entry of a classifier capture: accepted when
+     the token gate accepts it, or when it is a ported classifier file at
+     the digest the v20 port was read at, or when a chain of written readings
+     (HOOKED_READINGS, then CLASSIFY_R12_READINGS) leads from it to a digest
+@@ -241,6 +435,65 @@
+     return {"pins": len(pins), "per_file": per, "refusals": refused, "ok": not refused}
+ 
+ 
++def classify_capture_pins_v21(manifest: dict) -> dict:
++    """[v21] every `source_pins` entry of an R-C2 / R-C3 classifier capture
++    (token frozen-r14): accepted when it is a ported classifier file at the
++    v21 port's digest; when the token gate or the block gate accepts it; or
++    when a chain of written readings (CLASSIFY_R14_READINGS, the native
++    R9 -> R12b readings, v20's HOOKED_READINGS, v19's CLASSIFY_R12_READINGS)
++    leads from it to such a digest, or to a NEW file's first reading, every
++    step saying `moves_a_receipt_byte: False`; refused by name otherwise.
++    Every v21-ported file must be pinned, so an R-C1 capture (no
++    classify_tied.rs, the port's files at R-C1 digests) is refused by name."""
++    pins = {p["file"]: p["sha256"] for p in manifest.get("source_pins", [])}
++    per, refused = [], []
++    for f in sorted(pins):
++        d = pins[f]
++        if f in CLASSIFY_PORTED_FROM_V21:
++            if d == CLASSIFY_PORTED_FROM_V21[f]:
++                per.append({"file": f, "sha256": d, "status": "the v21 classifier port's digest"})
++            else:
++                refused.append(f"{f}: {d[:12]}, the classifier port was read at {CLASSIFY_PORTED_FROM_V21[f][:12]}")
++                per.append({"file": f, "sha256": d, "status": "REFUSED"})
++            continue
++        if _token_accepts(f, d):
++            per.append({"file": f, "sha256": d, "status": "read by the token gate (v18)"})
++            continue
++        if _block_gate_accepts(f, d):
++            per.append({"file": f, "sha256": d, "status": "read by the block gate (v17 native R9 readings and earlier)"})
++            continue
++        chain, cur, ok = [], d, False
++        for _ in range(10):
++            r = _reading(f, cur)
++            if r is None or r.get("moves_a_receipt_byte") is not False:
++                break
++            base = r.get("base")
++            chain.append(f"{cur[:12]} -> {(base or 'NEW FILE')[:12]}")
++            if base is None:
++                ok = True
++                break
++            cur = base
++            if _token_accepts(f, cur) or _block_gate_accepts(f, cur):
++                ok = True
++                break
++        if ok:
++            per.append({"file": f, "sha256": d, "status": "read by a chain of readings: " + "; ".join(chain)})
++        else:
++            refused.append(f"{f}: {d[:12]} has no reading" + (f" (chain {'; '.join(chain)} stops)" if chain else ""))
++            per.append({"file": f, "sha256": d, "status": "REFUSED"})
++    missing = [f for f in CLASSIFY_PORTED_FROM_V21 if f not in pins]
++    refused += [f"{f}: not pinned (the v21 classifier port was read from it)" for f in missing]
++    return {"pins": len(pins), "per_file": per, "refusals": refused, "ok": not refused,
++            "port": "v21 (token frozen-r14)"}
++
++
++def classify_capture_pins(manifest: dict) -> dict:
++    """[v21] the classifier capture pin check is v21's: R-C2 / R-C3
++    captures of token frozen-r14 only (`classify_capture_pins_v21`); v20's
++    R-C1 rule is kept as `classify_capture_pins_v20` for the record"""
++    return classify_capture_pins_v21(manifest)
++
++
+ def check_classify_pins(manifest: dict) -> dict:
+     """a classifier capture's `source_pins`: every ported file at its read
+     digest, every moved pinned file at a read digest; refusals by name"""
+diff -ruN -x __pycache__ frozen_v20/scripts/zk60_native_rg_classterminals.py frozen_v21/scripts/zk60_native_rg_classterminals.py
+--- frozen_v20/scripts/zk60_native_rg_classterminals.py	2026-10-26 12:18:13.751365798 -0700
++++ frozen_v21/scripts/zk60_native_rg_classterminals.py	2026-10-28 19:53:22.746065716 -0700
+@@ -46,6 +46,16 @@
+ terminals (the token port's `check_token_terminals` method; see the hook
+ request for the fields it reads).
+ 
++[v21, gate round 18] RE-READ on token frozen-r14 (stage_in_c.rs 6a92da0e,
++stage_out_c.rs 93a79a2b, classify.rs 6c828db6): the slot polynomials are
++unchanged; what moved is (1) the template (`ClassCtx.kappa`): the suffix on
++P0 + n .. P0 + n + S and the policy's PUBLIC pad id after it up to T, with n
++the statement's content length (a SHORT item, D45(1)); (2) OUTC-00's B_out
++row: the verdict row P0 + n + S - 1 (stage_out_c.rs:302); (3) tau and
++w_Delta are no longer taken from the capture: both are REBUILT from the
++tables derived from the pinned tied tensor (`zk60_native_rg_classtied`, B-3),
++so every IN-C / OUT-C public table is rebuilt.
++
+ NOTHING HERE IS A PRIVACY RESULT OR A PRIVACY ACCEPTANCE.
+ """
+ 
+@@ -96,6 +106,18 @@
+         self.g0, self.cn, self.tn, self.ceps = (facts["final_norm"][x] for x in ("g0", "cn", "tn", "ceps"))
+         self.prefix, self.suffix = list(facts["prefix"]), list(facts["suffix"])
+         self.num_special, self.c = facts["num_special"], facts["c"]
++        # [v21, R-C3] the content length n (public, D45(1)), the policy's
++        # PUBLIC pad id and the verdict row; a full-length item has no pad and
++        # its verdict row is T - 1 (classify.rs:489-524 at r14)
++        self.n_content = facts.get("n", self.tokens - len(self.prefix) - len(self.suffix))
++        self.pad_id = facts.get("pad", 0)
++        self.verdict_row = facts.get("verdict_row", len(self.prefix) + self.n_content + len(self.suffix) - 1)
++        # [v21, R-C2] the tables DERIVED from the pinned tensor (B-3): the
++        # embedding (for tau) and the margin row, when the caller derived them
++        self.emb = facts.get("emb")
++        # [v21] C-13 control only: positions the PORT treats as pad positions
++        # inside the content range (never set on an honest check)
++        self.extra_pad = set(facts.get("extra_pad_positions") or ())
+         self.verdict = facts.get("verdict")
+         self.w_delta = facts.get("w_delta")
+         self.lay = geom.stage_in_c() if kind == "IN-C" else geom.stage_out_c()
+@@ -127,20 +149,27 @@
+     def pad(self, x):
+         return R_ZERO if self.drop_pad else x
+ 
+-    # classify.rs:411-437
++    # classify.rs:489-532 at r14 [v21: n is the facts' content length; the
++    # suffix spans P0 + n .. P0 + n + S, the pad id fills the rest up to T]
+     def p0(self):
+         return len(self.prefix)
+ 
++    def item_len(self):
++        return self.p0() + self.n_content + len(self.suffix)
++
+     def is_template(self, t):
+-        n = self.tokens - self.p0() - len(self.suffix)
+-        return t < self.p0() or (self.p0() + n <= t < self.tokens)
++        return t < self.p0() or (self.p0() + self.n_content <= t < self.tokens) or t in self.extra_pad
+ 
+     def kappa(self, t):
+-        n = self.tokens - self.p0() - len(self.suffix)
++        n = self.n_content
++        if t in self.extra_pad:
++            return self.pad_id
+         if t < self.p0():
+             return self.prefix[t]
+-        if self.p0() + n <= t < self.tokens:
++        if self.p0() + n <= t < self.item_len():
+             return self.suffix[t - self.p0() - n]
++        if self.item_len() <= t < self.tokens:
++            return self.pad_id
+         return 0
+ 
+     def ctl(self, v):
+@@ -276,9 +305,11 @@
+         tau, _ = dr.take(d_bits, "tau")
+         i_eq = b.eq(tau, 0)
+         i_x = b.a_at(CL.C_X, fixed_c([ZERO] * lift) + rho_c(range(d_bits)))
+-        cb = fixed_bits_c(cx.tokens - 1, t_bits) + rho_c(range(d_bits))
++        # [v21, R-C3] stage_out_c.rs:302 at r14: the PUBLIC verdict row
++        # P0 + n + S - 1 (T - 1 without pad)
++        cb = fixed_bits_c(cx.verdict_row, t_bits) + rho_c(range(d_bits))
+         i_b = b.io("In", cx.b_log, cb, cx.b_out_row)
+-        return b.finish(lambda v: v[i_eq] * (v[i_x] - v[i_b]), [], ["eq(tau)", "x - B_out(T-1, .)"], dr)
++        return b.finish(lambda v: v[i_eq] * (v[i_x] - v[i_b]), [], ["eq(tau)", "x - B_out(verdict row, .)"], dr)
+     if slot == CL.SOC_SS:                                      # :308-312
+         i_s = b.public(("supp", cx.d, do_n))
+         i_x = b.a(CL.C_X)
+@@ -437,6 +468,19 @@
+         if cx.w_delta is None:
+             return None
+         return [k(cx.w_delta[i]) if i < desc[1] else ZERO for i in range(desc[2])]
++    # [v21, R-C2] tau is REBUILT from the embedding DERIVED from the pinned
++    # tied tensor (zk60_native_rg_classtied; stage_in_c.rs:158-164 at r14),
++    # folded at the replayed r_emb with the replayed beta and g_emb
++    if kind == "captured" and desc[1] == "tau_tab_c" and cx.emb is not None and cx.kind == "IN-C":
++        import zk60_native_rg_classtied as TD
++        key = ("tau", tuple(map(tuple, cx.r_emb)), tuple(cx.beta_num), tuple(cx.g_emb_num), cx.num_special,
++               id(cx.emb))
++        hit = TD._CACHE.get(key)
++        if hit is None:
++            hit = TD.tau_table(cx.emb, cx.v, cx.d, cx.geom.voc_log(), cx.num_special, cx.r_emb,
++                               cx.beta_num, cx.g_emb_num)
++            TD._CACHE[key] = hit
++        return list(hit)
+     return None
+ 
+ 
+@@ -1100,11 +1144,28 @@
+     row; `stage_in_c.rs:423`, `stage_out_c.rs:681`)"""
+     cf = b.run["classify"]
+     tb = b.run["token_boundaries"]
+-    return {"bos": cf["bos"], "final_norm": dict(cf["final_norm"]),
+-            "prefix": list(cf["policy"]["prefix_ids"]), "suffix": list(cf["policy"]["suffix_ids"]),
+-            "num_special": cf["policy"]["num_special"], "c": cf["policy"]["c"], "verdict": cf["verdict"],
+-            "w_delta": None, "b_in_row": tb[0]["facts"]["site_rows"][0],
+-            "b_out_row": tb[b.l]["facts"]["site_rows"][2], "ep_mask_row": cf["input_endpoint"]["data_rows"]}
++    out = {"bos": cf["bos"], "final_norm": dict(cf["final_norm"]),
++           "prefix": list(cf["policy"]["prefix_ids"]), "suffix": list(cf["policy"]["suffix_ids"]),
++           "num_special": cf["policy"]["num_special"], "c": cf["policy"]["c"], "verdict": cf["verdict"],
++           "w_delta": None, "b_in_row": tb[0]["facts"]["site_rows"][0],
++           "b_out_row": tb[b.l]["facts"]["site_rows"][2], "ep_mask_row": cf["input_endpoint"]["data_rows"]}
++    # [v21, R-C3] the content length n (public: D45(1)), the policy's pad id
++    # and the verdict row, from the absorbed profile text, each RE-DERIVED from
++    # (T, P0, n, S) and compared (`zk60_native_rg_classgate.class_integrity`)
++    import zk60_native_rg_classtied as TD
++    pf = TD.profile_fields(cf.get("profile_text", ""))
++    out["n"] = cf["n"]
++    out["pad"] = pf["pad_id"] if pf["pad_id"] is not None else 0
++    out["verdict_row"] = cf["P0"] + cf["n"] + cf["S"] - 1
++    # [v21, R-C2] B-3: the tables DERIVED from the pinned tensor (the margin row
++    # and the embedding), when the profile names the development rung's source
++    if pf["tied_source_sentence_is_the_dev_rung"] and pf["margin_scale"] is not None:
++        try:
++            dv = TD.derive_dev(cf["policy"]["yes"], cf["policy"]["no"], pf["margin_scale"])
++            out["w_delta"], out["emb"] = list(dv["w"]), dv["emb"]
++        except ValueError:
++            pass
++    return out
+ 
+ 
+ def _int16_of(v):
+@@ -1118,6 +1179,7 @@
+     """the structure each TAKEN classifier table's builder gives it"""
+     out = []
+     if label == "tau_tab_c":
++        # [v21] reached only when tau could not be rebuilt (no derived embedding)
+         # stage_in_c.rs:158-162: padded rows repeat row 0's whole tuple
+         n = 1 << cx.geom.voc_log()
+         if len(vals) != n:
+@@ -1134,9 +1196,12 @@
+ 
+ def b3_margin_vector(vals, cx: ClassCtx, b) -> dict:
+     """B-3 on a capture: the PD slot's recorded margin vector, as int16 words
+-    in [-32767, 32767] with zero padding, hashes (classify.rs:250-258) to the
+-    statement's `margin_vector.digest`; the export's tied-matrix artifact is
+-    the second comparison once F3 lands (not at the synthetic rung)"""
++    in [-32767, 32767] with zero padding, hashes (classify.rs:323-331) to the
++    statement's `margin_vector.digest`; [v21, R-C2] AND equals, entry for
++    entry, the row DERIVED from the pinned tied tensor
++    (`zk60_native_rg_classtied.derived_tables_check`), whose digest and the
++    derived embedding's must be the statement's"""
++    import zk60_native_rg_classtied as TD
+     f = []
+     try:
+         words = [_int16_of(v) for v in vals]
+@@ -1152,7 +1217,9 @@
+     want = bytes(b.run["classify"]["margin_vector"]["digest"]).hex()
+     if got != want:
+         f.append(f"B-3: the recorded margin vector hashes to {got[:12]}, the statement's digest is {want[:12]}")
+-    return {"recomputed_digest": got, "statement_digest": want, "findings": f, "ok": not f}
++    derived = TD.derived_tables_check(b, words_captured=words)
++    f += derived["findings"]
++    return {"recomputed_digest": got, "statement_digest": want, "derived": derived, "findings": f, "ok": not f}
+ 
+ 
+ def _structure_c(sd: SlotDef, arg, kind, slot, cx: ClassCtx, claim_counter: dict, spi) -> list:
+@@ -1253,7 +1320,8 @@
+     facts = facts_from_bundle(bundle)
+     if facts_override:
+         facts.update(facts_override)
+-    out["statement_facts_read"] = {k: v for k, v in facts.items() if k != "w_delta"}
++    out["statement_facts_read"] = {k: v for k, v in facts.items() if k not in ("w_delta", "emb")}
++    out["statement_facts_read"]["tables_derived_from_the_pinned_tensor"] = facts.get("emb") is not None
+     g = bundle.geom
+     docs = stage_docs if stage_docs is not None else [st.doc for st in bundle.stages]
+     b3 = None
+@@ -1320,6 +1388,13 @@
+                             ev_rb = TT.mle(rb, eqt)
+                             prow["evaluations_agree"] = ev_rb == ev_cap
+                             use = ev_rb
++                            # [v21] B-3 on the recorded margin vector, now that it is rebuilt
++                            if desc[0] == "w_delta":
++                                b3 = b3_margin_vector(capv, cx, bundle)
++                                if not b3["ok"]:
++                                    pf += b3["findings"]
++                            if desc[0] == "captured":
++                                prow["rebuilt_from"] = "the embedding derived from the pinned tied tensor (B-3, v21)"
+                         else:
+                             prow["rebuilt"] = False
+                             label = desc[1] if desc[0] == "captured" else desc[0]
+@@ -1399,9 +1474,11 @@
+             if pp.get("rebuilt")),
+         "taken_tables": sorted({pp["what"] for r in out["slots"] for pp in r.get("public_tables", []) if pp.get("rebuilt") is False}),
+         "what": "every IN-C / OUT-C public table the port rebuilds from the geometry, the profile, the re-derived "
+-                "challenges and the PUBLIC verdict equals the capture's, digest for digest; the two taken tables "
+-                "are tau (the embedding fold; structure) and w_Delta (B-3). So no public value of the classifier "
+-                "stages depends on the hidden data except through b"}
++                "challenges and the PUBLIC verdict equals the capture's, digest for digest; [v21] tau and w_Delta "
++                "are REBUILT too, from the tables derived from the pinned tied tensor (B-3), so no table is "
++                "taken from the capture when the profile names the development rung's source. So no public "
++                "value of the classifier stages depends on the hidden data except through b (and, D45(1), the "
++                "public length n through the template tables and the verdict row)"}
+     out["seconds"] = round(time.time() - t0, 2)
+     out["ok"] = (out["slots_equal"] == n == 12 and not out["findings"] and out["B3_margin_vector"]["ok"]
+                  and out["one_public_bit"]["rebuilt_public_tables_all_equal_the_capture"]
+diff -ruN -x __pycache__ frozen_v20/scripts/zk60_native_rg_classtied.py frozen_v21/scripts/zk60_native_rg_classtied.py
+--- frozen_v20/scripts/zk60_native_rg_classtied.py	1969-12-31 16:00:00.000000000 -0800
++++ frozen_v21/scripts/zk60_native_rg_classtied.py	2026-10-28 19:31:52.880378953 -0700
+@@ -0,0 +1,269 @@
++#!/usr/bin/env python3
++"""[GATE ROUND 18, tools v21, 2026-10-29] B-3 with the classifier's tables
++DERIVED, not taken (rung R-C2, token frozen-r14): the gate re-derives the
++development rung's embedding and margin row from the PINNED synthetic tied
++tensor, exactly as the token lane's `classify_tied.rs::derive_dev` does, and
++then (in `zk60_native_rg_classterminals`) rebuilds from them the two public
++tables v20 still took from the capture: the IN-C table column `tau` (the
++embedding folded at the replayed `r_emb`) and OUT-C's margin vector
++`w_Delta`.
++
++READ [token frozen-r14, list 0b4c429b...]:
++
++* `token_io/classify_tied.rs` (401d38d4): `DEV_TIED_TENSOR_SHA256 =
++  bba6d094...` (:72), `DEV_TIED_V = 300`, `DEV_TIED_D = 384` (:74-75); the
++  tensor is `V x d` BF16 rows then the `d` final-norm weights, little-endian;
++  its bytes are those of the pinned generator `dev_tied_tensor_bytes`
++  (:509-520, an LCG seeded 0x74696564_2d646576; the pin IS those bytes);
++  `derive_dev` (:292-324): `emb = q(f64(f32(x)) / residual_unit)` into
++  [-32768, 32767] per row value, `w_i = q((E[yes][i] - E[no][i]) * g[i] /
++  scale)` into [-32767, 32767], `q(x) = floor(x + 0.5)`, refusal (never a
++  clamp) outside the class; no rotation at the rung.
++* native R12b `tied_tables/derive.rs` (5cebeef0 in the token tree):
++  `bf16` (:113-117, `f32::from_bits(u16 << 16) as f64`), `quantize`
++  (:180-187, `(value / scale + 0.5).floor()`, refusal outside [low, high]).
++* `token_io/classify.rs` (6c828db6): `ClassifierTables::emb_digest`
++  (:313-322, BLAKE3 over "hashline/classify/embedding-int16/v1", V u64, d
++  u64, the int16 words LE) and `emb_fold` (:337-344, `E~(v, r) = sum_{i < d}
++  eq_msb(r)[i] E[v][i]`, exact field addition); `stage_in_c.rs::tau_table`
++  (6a92da0e :158-164): `tau(v) = v + beta E~(v, r_emb) + beta^2 ctl(v) +
++  g_emb` for v < V, padded rows repeat row 0's whole tuple.
++* The residual unit (the export's `residual_scale_s_x`) is not in a
++  capture: it is a constant of the rung's tiny export
++  (`trained_block_tests.rs:177` at frozen-r14, 0.0053663705198366135),
++  inside the profile digest the trained statement binds.  The gate takes it
++  as a READ constant and CONFIRMS it: the embedding derived with it must hash
++  to the statement's `embedding_digest`, and the IN-C tau rebuilt from that
++  embedding must equal the captured table digest for digest.
++
++The reviewer's independent reference (REVIEW_R13 §5,
++`results/zk60_token_io_review_r1_20261017/r13/rv13_dev_tied_reference.json`)
++gives the tensor sha256 bba6d094..., the int16 embedding's SHA-256
++c0e816c9... and the dev policy's margin row SHA-256 24e6ff4c... (exact vs
++binary64: 0 disagreements); `derive_dev` below reproduces all three (unit
++test `ClassifierV21`).
++
++NOTHING HERE IS A PRIVACY RESULT OR A PRIVACY ACCEPTANCE.
++"""
++
++from __future__ import annotations
++
++import hashlib
++import math
++import os
++import re
++import struct
++import sys
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++if HERE not in sys.path:
++    sys.path.insert(0, HERE)
++
++from zk60_native_jv_field import P, eq_table_msb, f2_add, f2_mul, f2_mul_base  # noqa: E402
++
++DEV_TIED_TENSOR_FILE = "dev_tied_tensor_bf16.bin"
++DEV_TIED_TENSOR_SHA256 = "bba6d094831861aa0b207ae5ca46938e2115e02c81215ba95e27e2bad1cc1dd6"
++DEV_TIED_V, DEV_TIED_D = 300, 384
++# [READ] frozen-r14 trained_block_tests.rs:177 (`write_export`'s
++# metadata_out_of_proof.residual_scale_s_x for the "tiny" rung export)
++DEV_RESIDUAL_UNIT = 0.0053663705198366135
++# [READ] REVIEW_R13 §5 reference digests (SHA-256 of the int16 LE tables)
++REF_EMB_SHA256 = "c0e816c9f41a251df8560c5532d3f24c3b753ceb6ad712adcc7a893f71bfa475"
++REF_DEV_MARGIN_SHA256 = "24e6ff4ca67bac45c810f78b72d967894b6806615206c5571842055ce20ef3c1"
++# [READ] stage_in_c.rs / token_io.rs:259 TAG_EMB
++TAG_EMB = 135
++# the profile text's tied-source sentence for the rung (classify_tied.rs:114-116)
++TIED_SOURCE_DEV = ("tied-source=dev-rung-synthetic-bf16 file=dev_tied_tensor_bf16.bin V=300 d=384 "
++                   f"sha256={DEV_TIED_TENSOR_SHA256} "
++                   "derivation=R12b-quantize(floor(x/scale+0.5),refuse-outside-int16,no-clip,no-rotation)")
++
++_CACHE = {}
++
++
++def dev_tied_tensor_bytes() -> bytes:
++    """`classify_tied.rs::dev_tied_tensor_bytes` (:509-520), transcribed"""
++    if "tensor" in _CACHE:
++        return _CACHE["tensor"]
++    s = 0x7469_6564_2D64_6576
++    n = DEV_TIED_V * DEV_TIED_D
++    out = bytearray()
++    m = 1 << 64
++    for kk in range(n + DEV_TIED_D):
++        s = (s * 6364136223846793005 + 1442695040888963407) % m
++        r = s >> 33
++        if kk < n:
++            bits = ((r & 1) << 15) | ((120 + (r >> 1) % 12) << 7) | ((r >> 5) & 0x7F)
++        else:
++            bits = ((126 + (r & 1)) << 7) | ((r >> 1) & 0x7F)
++        out += struct.pack("<H", bits & 0xFFFF)
++    _CACHE["tensor"] = bytes(out)
++    return _CACHE["tensor"]
++
++
++def bf16(raw: bytes) -> list:
++    """native R12b `tied_tables::bf16`: each BF16 word widened exactly"""
++    vals = [struct.unpack("<f", struct.pack("<I", w << 16))[0] for (w,) in struct.iter_unpack("<H", raw)]
++    if any(not math.isfinite(x) for x in vals):
++        raise ValueError("nonfinite BF16 tensor value")
++    return vals
++
++
++def quantize(values, scale: float, low: int, high: int) -> list:
++    """native R12b `tied_tables::quantize`: floor(x / scale + 0.5), refused
++    (never clipped) outside [low, high]"""
++    if not (scale > 0 and math.isfinite(scale)):
++        raise ValueError("the quantization scale is not a positive finite number")
++    out = []
++    for x in values:
++        q = math.floor(x / scale + 0.5)
++        if q < low or q > high:
++            raise ValueError(f"quantization overflow at {x!r} / {scale!r} (no clipping is permitted)")
++        out.append(int(q))
++    return out
++
++
++def derive_dev(yes: int, no: int, scale: float, residual_unit: float = DEV_RESIDUAL_UNIT) -> dict:
++    """`classify_tied.rs::derive_dev` (:292-324) on the pinned dev tensor"""
++    key = (yes, no, scale, residual_unit)
++    if key in _CACHE:
++        return _CACHE[key]
++    v, d = DEV_TIED_V, DEV_TIED_D
++    if yes == no or not (0 <= yes < v) or not (0 <= no < v):
++        raise ValueError("invalid yes / no ids for the tied tensor")
++    raw = dev_tied_tensor_bytes()
++    t_sha = hashlib.sha256(raw).hexdigest()
++    if t_sha != DEV_TIED_TENSOR_SHA256:
++        raise ValueError(f"the regenerated development tensor hashes to {t_sha[:12]}, not the pin {DEV_TIED_TENSOR_SHA256[:12]}")
++    vals = bf16(raw)
++    rows, g = vals[:v * d], vals[v * d:]
++    emb = quantize(rows, residual_unit, -32768, 32767)
++    diff = [(rows[yes * d + i] - rows[no * d + i]) * g[i] for i in range(d)]
++    w = quantize(diff, scale, -32767, 32767)
++    out = {"tensor_sha256": t_sha, "emb": emb, "w": w,
++           "emb_sha256": hashlib.sha256(struct.pack(f"<{len(emb)}h", *emb)).hexdigest(),
++           "w_sha256": hashlib.sha256(struct.pack(f"<{d}h", *w)).hexdigest(),
++           "yes": yes, "no": no, "scale": scale, "residual_unit": residual_unit}
++    _CACHE[key] = out
++    return out
++
++
++def emb_digest(v: int, d: int, emb) -> str:
++    """`ClassifierTables::emb_digest` (classify.rs:313-322)"""
++    import blake3
++    h = blake3.blake3()
++    h.update(b"hashline/classify/embedding-int16/v1")
++    h.update(int(v).to_bytes(8, "little"))
++    h.update(int(d).to_bytes(8, "little"))
++    h.update(struct.pack(f"<{len(emb)}h", *emb))
++    return h.hexdigest()
++
++
++def emb_fold(emb, v: int, d: int, r_emb) -> list:
++    """`ClassifierTables::emb_fold` (classify.rs:337-344): E~(v, r) for v < V"""
++    e = eq_table_msb([tuple(x) for x in r_emb])
++    out = []
++    for row in range(v):
++        acc = (0, 0)
++        base = row * d
++        for i in range(d):
++            w = emb[base + i]
++            if w:
++                acc = f2_add(acc, f2_mul_base(e[i], w % P))
++        out.append(acc)
++    return out
++
++
++def tau_table(emb, v: int, d: int, voc_log: int, num_special: int, r_emb, beta, g_emb) -> list:
++    """`stage_in_c.rs::tau_table` (:158-164): v + beta E~(v, r) + beta^2
++    ctl(v) + g_emb on the true rows; padded rows repeat row 0"""
++    ef = emb_fold(emb, v, d, r_emb)
++    b2 = f2_mul(beta, beta)
++
++    def row(x):
++        t = f2_add(((x % P), 0), f2_mul(beta, ef[x]))
++        if x < num_special:
++            t = f2_add(t, b2)
++        return f2_add(t, g_emb)
++    rows = [row(x) for x in range(v)]
++    return [rows[x] if x < v else rows[0] for x in range(1 << voc_log)]
++
++
++def profile_fields(text: str) -> dict:
++    """the classifier profile text's R-C2 / R-C3 fields (classify.rs:578-622)"""
++    out = {}
++    for key, pat in (("n", r" n=(\d+) "), ("S", r" S=(\d+) "), ("P0", r" P0=(\d+) "), ("T", r" T=(\d+) "),
++                     ("item_length", r" item-length=(\d+) "), ("pad_id", r" pad-id=(\d+) "),
++                     ("pad_positions", r" pad-positions=(\d+) "), ("verdict_row", r" verdict-row=(\d+) "),
++                     ("chunk_size", r" chunk-size=(\d+) "), ("chunk_overlap", r" chunk-overlap=(\d+) "),
++                     ("margin_scale_bits", r" margin-scale-bits=(0x[0-9a-f]{16}) "),
++                     ("yes", r" yes=(\d+) "), ("no", r" no=(\d+) ")):
++        m = re.search(pat, text)
++        out[key] = (m.group(1) if key == "margin_scale_bits" else int(m.group(1))) if m else None
++    if out["margin_scale_bits"] is not None:
++        out["margin_scale"] = struct.unpack("<d", struct.pack("<Q", int(out["margin_scale_bits"], 16)))[0]
++    else:
++        out["margin_scale"] = None
++    m = re.search(r"tied-source=(\S+)", text)
++    out["tied_source"] = m.group(1) if m else None
++    out["tied_source_sentence_is_the_dev_rung"] = TIED_SOURCE_DEV in text
++    return out
++
++
++def derived_tables_check(b, words_captured=None) -> dict:
++    """B-3 v21 on a capture: the tables DERIVED from the pinned tensor under
++    the profile's (yes, no, margin-scale) and the rung's residual unit, their
++    digests against the statement's (`margin_vector.digest`,
++    `embedding_digest`), and, when the PD slot's recorded margin vector is
++    given, entry for entry against it."""
++    from zk60_native_rg_classterminals import w_digest
++    cf = b.run["classify"]
++    pf = profile_fields(cf.get("profile_text", ""))
++    f = []
++    rec = {"what": "B-3 (v21): the margin row and the embedding DERIVED from the pinned tied tensor, not taken",
++           "profile_fields": {k: pf[k] for k in ("yes", "no", "margin_scale_bits", "margin_scale", "tied_source",
++                                                 "tied_source_sentence_is_the_dev_rung")}}
++    if not pf["tied_source_sentence_is_the_dev_rung"]:
++        f.append("B-3: the profile text does not name the development rung's tied source (bba6d094...); "
++                 "no other source is derived here")
++        rec.update({"findings": f, "ok": False})
++        return rec
++    pol = cf["policy"]
++    if (pf["yes"], pf["no"]) != (pol["yes"], pol["no"]):
++        f.append("B-3: the profile text's yes / no are not the policy's")
++    if pf["margin_scale"] is None:
++        f.append("B-3: no margin-scale-bits in the profile text")
++        rec.update({"findings": f, "ok": False})
++        return rec
++    try:
++        dv = derive_dev(pol["yes"], pol["no"], pf["margin_scale"])
++    except ValueError as exc:
++        rec.update({"findings": [f"B-3: {exc}"], "ok": False})
++        return rec
++    d, v = cf["d"], cf["V"]
++    if (v, d) != (DEV_TIED_V, DEV_TIED_D):
++        f.append(f"B-3: the classifier facts give V x d = {v} x {d}, the dev tensor is {DEV_TIED_V} x {DEV_TIED_D}")
++    w_dig = w_digest(d, dv["w"])
++    want_w = bytes(cf["margin_vector"]["digest"]).hex()
++    if w_dig != want_w:
++        f.append(f"B-3: the derived margin row hashes to {w_dig[:12]}, the statement's digest is {want_w[:12]}")
++    e_dig = emb_digest(v, d, dv["emb"])
++    want_e = bytes(cf["embedding_digest"]).hex()
++    if e_dig != want_e:
++        f.append(f"B-3: the derived embedding hashes to {e_dig[:12]}, the statement's embedding digest is {want_e[:12]}")
++    for frag in (f"margin-vector=int16[-32767,32767] {w_dig} ", f"embedding={e_dig} "):
++        if frag not in cf.get("profile_text", ""):
++            f.append(f"B-3: the profile text does not carry {frag.strip()[:40]!r}")
++    cmp_ = None
++    if words_captured is not None:
++        pad = list(dv["w"]) + [0] * (len(words_captured) - d)
++        diff = [i for i, (a, c) in enumerate(zip(pad, words_captured)) if a != c]
++        cmp_ = {"entries": len(words_captured), "differing": len(diff), "first_differing": diff[:4]}
++        if diff or len(words_captured) < d:
++            f.append(f"B-3: the recorded margin vector differs from the derived row at {len(diff)} entries")
++    rec.update({"tensor_sha256": dv["tensor_sha256"], "tensor_pin": DEV_TIED_TENSOR_SHA256,
++                "derived_margin_digest": w_dig, "statement_margin_digest": want_w,
++                "derived_margin_sha256_int16": dv["w_sha256"], "derived_embedding_digest": e_dig,
++                "statement_embedding_digest": want_e, "derived_embedding_sha256_int16": dv["emb_sha256"],
++                "residual_unit": dv["residual_unit"], "recorded_vs_derived": cmp_,
++                "findings": f, "ok": not f})
++    return rec
+diff -ruN -x __pycache__ frozen_v20/scripts/zk60_native_rg_gqa.py frozen_v21/scripts/zk60_native_rg_gqa.py
+--- frozen_v20/scripts/zk60_native_rg_gqa.py	2026-10-20 01:15:23.376590648 -0700
++++ frozen_v21/scripts/zk60_native_rg_gqa.py	2026-10-28 19:43:43.205088038 -0700
+@@ -209,6 +209,12 @@
+ from zk60_native_rg_tinyllama_r9_pins import (  # noqa: E402
+     ARGUMENT_DEFINITIONS as _R9_ARG)
+ _tl_merge1(ARGUMENT_DEFINITIONS, _R9_ARG, "ARGUMENT_DEFINITIONS")
++# [v21, gate round 18] native R12's argument.rs, READ
++# (`zk60_native_rg_tinyllama_r12b_pins`): the q-axis widths in the Q / K / V / O
++# matmul arm only (the identity where q_pad == d_pad); the repaired definition
++from zk60_native_rg_tinyllama_r12b_pins import (  # noqa: E402
++    ARGUMENT_DEFINITIONS as _R12B_ARG)
++_tl_merge1(ARGUMENT_DEFINITIONS, _R12B_ARG, "ARGUMENT_DEFINITIONS")
+ 
+ 
+ def clog2(v: int) -> int:
+diff -ruN -x __pycache__ frozen_v20/scripts/zk60_native_rg_mask.py frozen_v21/scripts/zk60_native_rg_mask.py
+--- frozen_v20/scripts/zk60_native_rg_mask.py	2026-10-20 01:15:23.338577685 -0700
++++ frozen_v21/scripts/zk60_native_rg_mask.py	2026-10-28 19:43:43.205376035 -0700
+@@ -567,6 +567,11 @@
+ from zk60_native_rg_tinyllama_r9_pins import (  # noqa: E402
+     MASK_LAYER_PINS as _R9_MLP)
+ _tl_merge2(MASK_LAYER_PINS, _R9_MLP, "MASK_LAYER_PINS")
++# [v21, gate round 18] native R12 / R12b: argument.rs, shape.rs
++# (`zk60_native_rg_tinyllama_r12b_pins`)
++from zk60_native_rg_tinyllama_r12b_pins import (  # noqa: E402
++    MASK_LAYER_PINS as _R12B_MLP)
++_tl_merge2(MASK_LAYER_PINS, _R12B_MLP, "MASK_LAYER_PINS")
+ 
+ # Files the mask port transcribes that NO bundle pins, so that nothing in
+ # this module can check them.  The digests were read at the capture commits
+diff -ruN -x __pycache__ frozen_v20/scripts/zk60_native_rg_terminals.py frozen_v21/scripts/zk60_native_rg_terminals.py
+--- frozen_v20/scripts/zk60_native_rg_terminals.py	2026-10-20 17:10:39.863483502 -0700
++++ frozen_v21/scripts/zk60_native_rg_terminals.py	2026-10-28 19:43:43.204804540 -0700
+@@ -596,6 +596,12 @@
+     TERMINALS_PINNED_IF_PRESENT as _R9_PIP)
+ _tl_merge2(ALSO_ACCEPTED, _R9_AA, "ALSO_ACCEPTED")
+ _tl_merge2(PINNED_IF_PRESENT, _R9_PIP, "PINNED_IF_PRESENT")
++# [v21, gate round 18] native R12 / R12b (the token frozen-r14 rebase):
++# shape.rs and pad.rs, READ (`zk60_native_rg_tinyllama_r12b_pins`); layout.rs,
++# protocol.rs and plane_index.rs are native R9's bytes
++from zk60_native_rg_tinyllama_r12b_pins import (  # noqa: E402
++    TERMINALS_PINNED_IF_PRESENT as _R12B_PIP)
++_tl_merge2(PINNED_IF_PRESENT, _R12B_PIP, "PINNED_IF_PRESENT")
+ 
+ # **ROUND 4 (2026-09-20), finding S19-F1.**  `argument.rs` is the file that
+ # decides what a slot's polynomial IS, and its stage-20 digest carries a
+diff -ruN -x __pycache__ frozen_v20/scripts/zk60_native_rg_tinyllama_r12b_pins.py frozen_v21/scripts/zk60_native_rg_tinyllama_r12b_pins.py
+--- frozen_v20/scripts/zk60_native_rg_tinyllama_r12b_pins.py	1969-12-31 16:00:00.000000000 -0800
++++ frozen_v21/scripts/zk60_native_rg_tinyllama_r12b_pins.py	2026-10-28 19:43:43.204048174 -0700
+@@ -0,0 +1,640 @@
++#!/usr/bin/env python3
++"""[TINYLLAMA PORT, tools v21 staging, gate round 18, 2026-10-29: native R9 ->
++R12 -> R12b, and the token tree frozen-r14 on top of R12b] The READINGS behind
++the source pins a capture from token frozen-r14 (or from native R12b) carries
++for the native files, read step by step from the last native digest the gate
++read (native R9, `zk60_native_rg_tinyllama_r9_pins`, tools v17) or, for
++`run_capture.rs`, from token frozen-r12's `aaff4e6e` (read in v20 together
++with the round-16 capture hooks, `zk60_native_rg_classpins.HOOKED_READINGS`).
++READ 2026-10-29 ~02:25-02:40 UTC by a reading sub-lane of the privacy-gate
++lane with `diff -u` over the frozen copies; nothing was built or run.  The
++parent merges these dicts; no existing digest or reading changes here.
++
++THE TREES.  Native R9 `results/zk60_1b_native_20261017/r9/frozen-tree/`
++(af90c703...); native R12 `.../r12/frozen-tree/` (tree 1e406781..., 225
++files, FROZEN 2026-10-26); native R12b `.../r12b/frozen-tree/` (tree
++51de5b83..., 229 files, `r12b/manifest_frozen.json`); token frozen-r12
++`results/zk60_token_io_r1_20261017/frozen-r12/` (native R8 based); token
++frozen-r13 / frozen-r14 (rebased onto native R12b; r14 manifest
++`manifest_final_r14.sha256`, 258 files, list sha256 0b4c429b..., every digest
++below re-hashed against it; frozen-r14 is UNREVIEWED by its own lane's
++statement, `frozen-r14.FROZEN.txt`).  The v20 capture tree (frozen-r12 plus
++the gate's round-16 hooks) is `ops/zkp-mvp/token-io/` (run.rs `ebc64fd1`,
++run_capture.rs `d1e25882`).
++
++R12 = R9 + D38 / F1-F3: four Shieldstral-1.0-3B profiles (T128 / T256, each
++with and without DD), the decoupled-head development rung
++(`hashline-zk-mr1/private-block-rung-hd-t32-dev/1`), YaRN / llama3 RoPE
++transforms as PUBLIC tables (`rope.rs`), the query axis `q_pad = h_pad *
++head_dim` given its own name, and an optional tied-embedding record in the
++trained statement.  R12b = R12 + the D24 review's fixes R12-F1..F3 (the tied
++tables recomputed from the authenticated checkpoint, `tied_tables.rs` /
++`tied_tables/derive.rs`; bounded regular-file hashing; `--rope-from-export`
++refused at a pinned transform).  D24 review round 10 ACCEPTED R12 WITH FIXES
++and round 11 ACCEPTED R12b for the fix scope, both saying "existing profiles
++byte-identical" (`results/zk60_d24_review_20261017/REVIEW_R12.md` section 1,
++`REVIEW_R12B.md` section 4); neither is a privacy review, and the reading here
++is the evidence, the reviews are cited.
++
++THE PROFILE GATES [READ].  Every R12 / R12b change is one of:
++* gated on a NEW profile by name: `SHIELDSTRAL_PROFILES` (shape.rs:122),
++  `TRAINED_HD_RUNG_PROFILE` (shape.rs:129), `Geometry::Shieldstral* /
++  RungHdDev` (trained_block.rs), the five new run profiles (run.rs:152-157);
++* the query axis renamed, `Shape::q_pad()` (shape.rs:1935) in place of
++  `d_pad` / `q_width()` in place of `width` at the Q / O sites: the identity
++  wherever `h_pad * head_dim == d_pad` and `q_heads * head_dim == width`.  R9's
++  `Shape::build` REFUSED `d_pad != h_pad * head_dim` (the refusal R12 removes,
++  shape.rs:724-729), so every shape R9 could build has q_pad == d_pad; the
++  registry arguments give both equalities at every pre-R12 shape (TinyLlama
++  32 x 64 = 2048, Llama-3-8B 32 x 128 = 4096, rung-TC 12 -> 16 x 32 = 512 =
++  pad(384), DD rung 8 x 32 = 256, the dev rungs g / k4 / p2 / c6 / w14 / e32 /
++  t24, the toy, 125M) [COUNTED]; only rung-HD differs (q 512, d_pad 256);
++* optional trained-statement fields emitted ONLY at a tied model (Shieldstral)
++  or a scaled RoPE (trained_statement.rs:801, 845);
++* the frozen RoPE generator itself at every unscaled profile (rope.rs:219-221);
++* `#[cfg(test)]` code (`run_capture.rs` is a test-only module,
++  private_block.rs:242-243 in frozen-r14).
++The token tree adds, on top of R12b, exactly the token lane's hunks the gate
++already read on native R8 (run.rs and private_block.rs byte-identical hunk
++for hunk; trained_block.rs the same ten `fn` -> `pub(crate) fn` words as
++frozen-r7's `0943bade`), two visibility / re-export changes in the R12b tied
++modules, and in run_capture.rs the v20 hooks plus one classifier pin
++(`classify_tied.rs`).
++
++At the profiles the gate captured before -- the TinyLlama T32 block and token
++profiles, the rung block profiles (`hashline-zk-mr1/private-block-rung-tc-
++t32-dev/1` and the other registered rungs), the token rung, the classifier
++rung run profile `hashline-zk-mr1/private-classify-run-rung-tc-t32-public-
++row-dev/1` -- no step read here moves a receipt byte or a block stage byte
++(slots, planes, the 50 mask rows / 34 functionals off DD, the schedule, the
++transcript), and no public statement byte (the trained-statement identity,
++the statement JSON's scope, the run header).  What moves is capture METADATA:
++every bundle's `source_pins` gains rope.rs, tied_tables.rs and derive.rs, a
++classifier bundle's also `classify_tied.rs`, and the classifier README says
++"five" for "four".  The classifier and token lane files themselves
++(classify*.rs, stage_*_c.rs, token_io*.rs, the r13 -> r14 step of
++run_capture.rs) are NOT read here.
++
++NOTHING HERE IS A PRIVACY STATEMENT.
++"""
++
++from __future__ import annotations
++
++READ_AT_UTC = "2026-10-29T02:38:21Z"
++
++TREE = ("results/zk60_token_io_r1_20261017/frozen-r14 (manifest_final_r14.sha256, 258 files, "
++        "list sha256 0b4c429bafadc5aa13c3d97634f648611ce8a76b0e27963ad6a41a2bdf630170), rebased on "
++        "results/zk60_1b_native_20261017/r12b/frozen-tree (tree "
++        "51de5b83bc0dcaeeeb430165081c47653ac012c462c09f3df4ce7f125faf904f, 229 files)",)
++# the round-18 bundles are not captured yet; the parent fills this tuple
++R18_BUNDLES: tuple = (  # [v21, filled by the gate lane 2026-10-29] the round-18 captures (token frozen-r14)
++    "classify-rc3-rung-L1-v0", "classify-rc3-rung-L1-v1", "classify-rc3-rung-L1-vtie",
++    "classify-rc3-rung-L2-v0", "classify-rc3-rung-L2-v1", "classify-rc3-rung-L2-vtie",
++    "classify-rc3-rung-L2-v1-chunk0o27", "classify-rc3-rung-L2-v1-chunk1o27",
++    "classify-rc3-rung-L2-v1-short20", "classify-rc3-rung-L1-vtie-short20", "classify-rc3-cli-p18-r14")
++
++# ---------------------------------------------------------------- the digests (full)
++# native R8 / R9 (read by earlier tools) and the token trees' bases
++ARGUMENT_R9 = "112352bc35c8b877cba50707a5ea64ea239ec6c684becb193ad981bd643ff4f5"
++SHAPE_R9 = "e214db86945e0b9df8336edc7974041ebcfe77f2f1884a565a77a0392fca1165"
++WITNESS_R9 = "d1a859187b58ac12c9bda0b0c98c25d85d24d87b6100724fd9d697f9b7fad607"
++PAD_R9 = "20afa04f6418b4f14050736f55e21d7cf15718e4632323b30427f1c21ec5b4a8"
++TRAINED_STATEMENT_R9 = "ac61bf90cc0d93da24c6049d6be61e7d7b9d75c662ca3817d855692de777cb52"
++TRAINED_BLOCK_R9 = "357e27974e4f3c8224cb0aca9e52a56d2e4ebef68b22e7e255febf2b3048628d"
++TRAINED_BLOCK_TOKEN_R7 = "0943baded99b1fb1a887a8a18d5d17d35b22a64a8f0b78f77e3062efa63d7846"
++PRIVATE_BLOCK_R8 = "08551c3d3526259aec5ee8619c9ab803677a0ae079428cb07c4254277cf1b67c"
++PRIVATE_BLOCK_R9 = "5e50acd54e7e3e4926b03e9e329073116f278ad203fdcd175e3230464041432c"
++PRIVATE_BLOCK_TOKEN_R12 = "a9727239c5669ae08481ab2fd2bd0f12479a63f10658501132fc306a305d3a9a"
++RUN_R8 = "d913a081b82d54b6a1a67cd938afe1700910e820d9b3a97019a398f8b61ea609"
++RUN_R9 = "cf80735dbea505fef939abb91ed23ed5d4b74d2a9a1464727f6f7058dfc11339"
++RUN_TOKEN_R12 = "10cfc2b1aa2fb2e288300aeb924a9f2c3ae012d1e975707eb15c66a4875c2e6d"
++RUN_TOKEN_R12_HOOKED = "ebc64fd159030036f126ad895e3d57442429ebe369c5b2d59f724ebd05e04fcd"
++RUN_CAPTURE_R8 = "1d43d68c5f48b203cc3001dd6accf5612713a3b4a0277166daeafe14f266a503"
++RUN_CAPTURE_R9 = "e1c87a07da1b59a734c99f60545ba2f6cde851215429956adf26b4340281d65a"
++RUN_CAPTURE_TOKEN_R12 = "aaff4e6e20c4deca7a0342f5b7dd2b9ac53a2837432af72f57c8a852e479db5e"
++RUN_CAPTURE_TOKEN_R12_HOOKED = "d1e25882ea0a74d15a70ed6982319f79883f24ac83f893c6a63b29ea288d81c5"
++
++# native R12 / R12b and token frozen-r13 / r14 (read here)
++ARGUMENT_R12 = "c4f9f9f4cb477346b03e9f769d7c3141a8529f096d08da2be6c415d5160a5e66"          # = R12b = t13 = t14
++SHAPE_R12 = "9a87081897ff0ec716d7f27a2813cc32117683eb5b2f2082a248f479ef98c4c5"             # = R12b = t13 = t14
++WITNESS_R12 = "a586b777c36c9fa5060d3dfa195a75ff0a2b7794a2521cad59aaf7f3f6144ec3"           # = R12b = t13 = t14
++PAD_R12 = "91141ea025d01257a5f0b5007e711d883af896b72d3c109badb6999f48d78967"               # = R12b = t13 = t14
++TRAINED_STATEMENT_R12 = "0fbf90ed39063532fd19c42f4d7e36b8a6a030c5cb4386c46ed4d7a393e88e5e"
++TRAINED_STATEMENT_R12B = "7908d827889d5bb424b51cb470313c666533577b29fd45c78957db00963e6a1d"  # = t13 = t14
++TRAINED_BLOCK_R12 = "c6d87b6e0b5d9744ecad8abe6eef922f7eaf03be5ea6c4fdf1fec98026551fa2"
++TRAINED_BLOCK_R12B = "e2551aa15fddc7cf43753ca0f5ef65fe813b1f7c279f4928fad1fd6b8c5d77a5"
++TRAINED_BLOCK_T14 = "f892dbc7d4de24d0a17945637107fb4e22a09d4e9a0bdc8520790352f121d06b"      # = t13
++PRIVATE_BLOCK_R12 = "3810bdabc8c0ee4877302aa6819793ce0ee7865badba7f9cc54872c7b404e779"
++PRIVATE_BLOCK_R12B = "b4f73a054afed47450ff846218a4453607281da16b8bc56dca904a6ee7447108"
++PRIVATE_BLOCK_T14 = "295409589f53c74144ce7fe8e9e4571f614660fe69b6f6f3cbd2e382b5940256"      # = t13
++RUN_R12 = "5c9f0ffc12a2a4bdc239799dde6e0c3eab3f316a7bcc6ca071719407b9e96a8d"               # = R12b
++RUN_T14 = "51e8aed2c52d21149618f0ba7f16c35774dd376c4bc0c557d6c2c7ef1e4ea6e9"               # = t13
++RUN_CAPTURE_R12 = "50221a02f873d98be98aaeb94b09ea5c86a6adafcfbc03160c118aa85a2a4927"
++RUN_CAPTURE_R12B = "8721e83d277f4ee853603bc8d5fe63f60b2b3917b9fbee7ed2123e25d0ec76db"
++RUN_CAPTURE_T13 = "2329306125671947d877431b33636c6f2dcfbe9a73f89c9d5586e4087647712f"
++RUN_CAPTURE_T14 = "ef9c54dbdf9588df381055b6f959ee8d7a9f8396075c59bf2b774115b76cb012"       # r13 -> r14: the parent reads it
++ROPE_R12 = "a2f34537ecebe4db8b477fca3a7bbd83ae7f62ae9ca042dc4dbe0031236b901f"              # NEW at R12; = R12b = t13 = t14
++TIED_TABLES_R12B = "901fa1e4f4a1c4c5070665fc1f81534142038e362408bff4dbcb5fca1e57c8b2"      # NEW at R12b
++TIED_TABLES_T14 = "049ddc181ca31435681e24199b80c03b4ffc494898be80f8515156652df1a7ce"       # = t13
++DERIVE_R12B = "e2b76895fae1ee04a469f095153d8451969c637ca4dd5939dd937c159d749adf"           # NEW at R12b
++DERIVE_T14 = "5cebeef0f0deea3973898648f87e1905ed87c76ddc6ceaf5a24ab742429a4f41"            # = t13
++
++ARG, SHP, WIT, PAD = ("src/private_block/argument.rs", "src/private_block/shape.rs",
++                      "src/private_block/witness.rs", "src/private_block/pad.rs")
++TST, TBK, PBR = ("src/private_block/trained_statement.rs", "src/private_block/trained_block.rs",
++                 "src/private_block.rs")
++RUN, RCP, ROPE = ("src/private_block/run.rs", "src/private_block/run_capture.rs", "src/private_block/rope.rs")
++TTB, DRV = ("src/private_block/tied_tables.rs", "src/private_block/tied_tables/derive.rs")
++
++# the digest every chain must end at (None: the file is new in the chain)
++CHAIN_ROOTS = {
++    ARG: ARGUMENT_R9, SHP: SHAPE_R9, WIT: WITNESS_R9, PAD: PAD_R9, TST: TRAINED_STATEMENT_R9,
++    TBK: TRAINED_BLOCK_R9, PBR: PRIVATE_BLOCK_R9, RUN: RUN_R9,
++    RCP: (RUN_CAPTURE_R9, RUN_CAPTURE_TOKEN_R12), ROPE: None, TTB: None, DRV: None,
++}
++
++# the terminal digests: the capture tree (token frozen-r14) and native R12b
++TOKEN_R14_DIGESTS = {
++    ARG: ARGUMENT_R12, SHP: SHAPE_R12, WIT: WITNESS_R12, PAD: PAD_R12, TST: TRAINED_STATEMENT_R12B,
++    TBK: TRAINED_BLOCK_T14, PBR: PRIVATE_BLOCK_T14, RUN: RUN_T14, RCP: RUN_CAPTURE_T14,
++    ROPE: ROPE_R12, TTB: TIED_TABLES_T14, DRV: DERIVE_T14,
++}
++NATIVE_R12B_DIGESTS = {
++    ARG: ARGUMENT_R12, SHP: SHAPE_R12, WIT: WITNESS_R12, PAD: PAD_R12, TST: TRAINED_STATEMENT_R12B,
++    TBK: TRAINED_BLOCK_R12B, PBR: PRIVATE_BLOCK_R12B, RUN: RUN_R12, RCP: RUN_CAPTURE_R12B,
++    ROPE: ROPE_R12, TTB: TIED_TABLES_R12B, DRV: DERIVE_R12B,
++}
++
++# git blob ids (sha1 of "blob <len>\0" + bytes, computed, no git write) and byte lengths
++FILE_FACTS = {
++    ARGUMENT_R12: ("a331c48906517a1f807b59262591520c27b0bbce", 111325),
++    SHAPE_R12: ("eb0a3d543996155fdc7111c92f3b7a146f16174c", 139369),
++    WITNESS_R12: ("ed412cbde8c7ad692e7c145ae925178776c6f237", 41694),
++    PAD_R12: ("a9800b19c4e799ab46c095a8d1a1591c5312a35a", 57259),
++    TRAINED_STATEMENT_R12: ("3d8d4f33fb4f224f0fc6d6a99ad35d1ba77610ec", 44908),
++    TRAINED_STATEMENT_R12B: ("e18b5f9cd56f202ac9d9ca291466e962814586e0", 45013),
++    TRAINED_BLOCK_R12: ("9a8e0b085bb34402133379bed45ed3303248d224", 172372),
++    TRAINED_BLOCK_R12B: ("f3b951265da0c7bd095e5ec97fde5856e1e53052", 173673),
++    TRAINED_BLOCK_T14: ("e062ea9e7151cec44e42b287b15f246a3e2e5cef", 173783),
++    PRIVATE_BLOCK_R12: ("6c611ac1ca9176ffb50a0b469e3b2f21243fd782", 63099),
++    PRIVATE_BLOCK_R12B: ("083e827bae23005521af90b7a1898191244a12fd", 63149),
++    PRIVATE_BLOCK_T14: ("67605232b1bb26e29f5de3bdaa7722e88cde28f9", 63900),
++    RUN_R12: ("c996bdea5d56be545a30f004a459948212d95667", 81309),
++    RUN_T14: ("f2d7d2762924baf048b08459657fc47913b5421b", 86231),
++    RUN_CAPTURE_R12: ("c902fa92fe0560d536de743cc491f19f7f34d722", 88191),
++    RUN_CAPTURE_R12B: ("d3ffee1cdc8260f97703a2a8dcab53edf0455648", 88425),
++    RUN_CAPTURE_T13: ("9f3746ff40ac8523ae5c618ddf6f7b1a1132ee01", 160977),
++    ROPE_R12: ("66e816e11df610781f4dbf7591b639b41a8ab000", 11904),
++    TIED_TABLES_R12B: ("e70eb4f4472323cf459c03f6e6c3dffe1f74300e", 4561),
++    TIED_TABLES_T14: ("dd73dcecf741ac95600e540488d5c70709f5867a", 4709),
++    DERIVE_R12B: ("1a4b45fe85ea030e3cfe1e17faaa90ba616c0927", 19894),
++    DERIVE_T14: ("271d7117c99616cfdc58105a82b024cb0668e94e", 19927),
++}
++
++_P = "[GATE ROUND 18, native R12b] "
++
++
++def _r(base, stat, reading, receipt=False, stage=False):
++    return {"base": base, "diff_stat": stat, "moves_a_receipt_byte": receipt,
++            "moves_a_block_stage_byte": stage, "reading": _P + reading}
++
++
++# file -> new digest -> its reading against `base`
++NATIVE_R12B_READINGS = {
++    ARG: {
++        ARGUMENT_R12: _r(ARGUMENT_R9, "+11 / -7, 1 hunk against 112352bc (native R9)",
++            "ONE hunk, unconditional (no profile gate), inside the `SC_QMM | SC_KMM | SC_VMM | SC_WO` "
++            "arm only (argument.rs:1323-1354 in the new tree).  The arm's tuple gains `inner`: SC_QMM "
++            "(A_Y, wq, outer `sh.q_pad()` [was `sh.d_pad`], inner `sh.d_pad`); SC_KMM / SC_VMM (A_Y, wk / "
++            "wv, `kvw`, `sh.d_pad`) as before; SC_WO (A_O8, wo, `sh.d_pad`, inner `sh.q_pad()` [was "
++            "`sh.d_pad`]).  The coordinate tail `rho(0..ld)` becomes `rho(0..lg(inner))` (`ld = "
++            "lg(sh.d_pad)`, argument.rs:1187) and the public fold `fold_rows_i8(w, outer, sh.d_pad, ..)` "
++            "becomes `fold_rows_i8(w, outer, inner, ..)`.  `q_pad() = h_pad * head_dim` (shape.rs:1935) "
++            "equals `d_pad` at every shape R9 could build (R9's `Shape::build` refused otherwise) and, by "
++            "the registry's arguments, at every pre-R12 profile [COUNTED]; so the challenge `r_j` of "
++            "length lg(outer), the coordinate list, the folded public row and the push order "
++            "(a_at(plane, coords), public(fold), finish v0*v1) are R9's byte for byte at the "
++            "TinyLlama T32 / token / classifier / rung-TC / registered-rung profiles, DD or not.  Only "
++            "rung-HD (q_pad 512 > d_pad 256) takes another length.  The bilinear arms SC_SCORE "
++            "(argument.rs:1395) and SC_PV (1431) with stage 20's repaired definition (1356), the DD arms "
++            "of SC_SZC / SC_DD, every other arm, `run_slot`'s M-functional block (488), `sum_weights` "
++            "(477), the slot loop over `n_slots` and the functional guard `n_functionals` are outside the "
++            "hunk.  Run transcript: no absorb, draw, label or order moves at those profiles; plane lists, "
++            "mask rows / functionals, schedule lines, profile texts, statement identity and capture "
++            "fields untouched.  The D24 review's seeded goldens (TinyLlama T128, 8B T128, both DD) match "
++            "R9 (REVIEW_R12.md section 1)"),
++    },
++    SHP: {
++        SHAPE_R12: _r(SHAPE_R9, "+147 / -8, 10 hunks against e214db86 (native R9)",
++            "Hunk 1 (+21/-1): the four Shieldstral profile strings, `SHIELDSTRAL_PROFILES` (shape.rs:122), "
++            "`TRAINED_HD_RUNG_PROFILE` (129); `DD_PROFILES` [3] -> [5] appending the two Shieldstral DD "
++            "strings (131; the three old entries in place, so `dd_cap` (791: membership) is unchanged at "
++            "every old profile).  Hunks 2-3: `TRAINED_CALIBRATION_PROFILES` [10] -> [15], the five new "
++            "profiles appended (143; used by membership only: shape.rs:1528/1575, protocol.rs:897, "
++            "layout.rs:1248).  Hunk 4: `trained_rope_theta` gains a Shieldstral arm before the "
++            "calibration-profile arm (an old profile gets the same base).  Hunk 5 (+41): "
++            "`SHIELDSTRAL_ROPE_THETA`, `trained_rope_scaling` (Shieldstral -> YaRN, every other "
++            "calibration profile -> `RopeScaling::None`, others None; 261), `rope_tables_for` (274: "
++            "`rope::rope_tables(tokens, head_dim, theta, &scaling, layout::F_RO)`, which for None IS "
++            "`tables_attn::rope_tables_generate` with R9's arguments, rope.rs:219-221), "
++            "`shieldstral_log_cols`.  Hunks 6-7: the `ss` closure and the five new `trained_geometry` "
++            "arms; every old arm is outside the hunks.  Hunk 8 (+6/-5): R9's refusal `d_pad != h_pad * "
++            "head_dim` REMOVED (comment at 724-729); every shape that passed it has q_pad == d_pad "
++            "(REVIEW_R12 N-1: geometry binding now rests on CS-7's registry comparison).  Hunk 9 (+54): "
++            "`shieldstral_trained` / `_dd`, the `#[cfg(test)]` `shieldstral_at`, `rung_hd`, "
++            "`q_width()` = q_heads*head_dim and `q_pad()` = h_pad*head_dim (1935).  Hunk 10 (+3/-1): "
++            "in `slots()`' `inner`, SC_WO's round count `clog2(d_pad)` -> `clog2(q_pad())` (2279): the "
++            "identity at q_pad == d_pad, so every (n, e, d) triple, `slot_terms`, `slot_lengths`, "
++            "`n_slots` (2482), `m_rows` (2486), `n_functionals` (2491), the plane-domain lists and "
++            "lookup domains are R9's at every old profile.  No profile text, transcript, slot, plane, "
++            "mask row / functional or schedule line of an old profile moves"),
++    },
++    WIT: {
++        WITNESS_R12: _r(WITNESS_R9, "+18 / -11, 8 hunks against d1a85918 (native R9)",
++            "All unconditional and the identity at q_pad == d_pad (Dom::Q's size t_pad*h_pad*head_dim "
++            "== Dom::D's t_pad*d_pad there).  Hunks 1-2: `Geom.q_pad` = `s.q_pad()` (witness.rs:249).  "
++            "Hunks 3 and 5: comments only.  Hunk 4: `qix` stride `d_pad` -> `q_pad` (278).  Hunk 6: `ql "
++            "= g.len(Dom::Q)` (688); the Q matmul writes width / stride `q_pad` and length `ql` (693), "
++            "the Q rotation stride `q_pad`, length `ql`.  Hunk 7: `oacc` of length `ql` (728).  Hunk 8: "
++            "the Wo matmul reads stride `q_pad` (866).  The quantize calls, shifts, supports, rounding "
++            "and every other plane are outside the hunks.  The witness decides private values only; at "
++            "the old profiles every plane value is R9's.  No transcript, slot, mask or statement "
++            "byte"),
++    },
++    PAD: {
++        PAD_R12: _r(PAD_R9, "+3 / -2, 2 hunks against 20afa04f (native R9)",
++            "Hunk 1: `head_indicator` (pad.rs:82, `#[cfg(test)]` at 81), the Dom::Q stride `d_pad` -> "
++            "`q_pad()` (94): TEST-ONLY.  Hunk 2: `closed_form_indicator` (production), Dom::Q's row "
++            "stride factor `(d_pad, ..)` -> `(s.q_pad(), ..)` plus a comment (173-174), unconditional, "
++            "the identity at q_pad == d_pad (local `d_pad = s.d_pad`).  Every indicator, support factor "
++            "and pad term at the old profiles is R9's"),
++    },
++    TST: {
++        TRAINED_STATEMENT_R12: _r(TRAINED_STATEMENT_R9, "+129 / -0, 16 hunks against ac61bf90 (native R9)",
++            "Insert-only.  (1) `ModelSource::shieldstral_1_0_3b()` and a Shieldstral arm in "
++            "`pinned_for_profile` (after the TinyLlama and 8B arms).  (2-6) `rope_scaling` in "
++            "`IntegerCalibration` (bytes, `b\"none\"` for no transform) and in `Provenance` (default "
++            "`RopeScaling::None`), carried through `as_the_code_proves` / `provenance()`.  (7) `check`: at "
++            "a trained shape the bytes must equal `trained_rope_scaling(profile).encode()` (369-374; "
++            "every trained shape is a calibration profile, so the pin exists and is `none` off "
++            "Shieldstral); off a trained shape a non-`none` transform is refused.  (8) `TiedEmbedding`, "
++            "`tied_tensor_for_profile` (566: Some only at SHIELDSTRAL_PROFILES) and the pinned tensor "
++            "constants.  (9-11, 13) the `tied` field, `new` = `new_with_tied(.., None)`.  (12) the "
++            "`#[cfg(test)]` synthetic constructors.  (14) `check_self`: (None, None) at an untied "
++            "profile; a tied record refused there, required at Shieldstral (760).  (15) `encode`: the "
++            "five tied fields ONLY `if let Some(t) = &self.tied` (801), after source-layers.  (16) "
++            "`encode`: `rope-scaling` ONLY when the bytes are not `none` (845).  The geometry words "
++            "(tokens..opened-cols), the schema, every other field and their order are outside the "
++            "hunks, so the canonical bytes and `identity()` are R9's at every old profile (tied None, "
++            "scaling none).  REVIEW_R12 section 1: the five synthetic statement identities match R9 "
++            "[MEASURED there]"),
++        TRAINED_STATEMENT_R12B: _r(TRAINED_STATEMENT_R12, "+4 / -2, 1 hunk against 0fbf90ed (native R12)",
++            "COMMENT ONLY: `TiedEmbedding`'s doc comment says R12b's loader recomputes the tables from "
++            "the authenticated checkpoint and that a declaration alone does not establish a tie.  No "
++            "code line"),
++    },
++    TBK: {
++        TRAINED_BLOCK_R12: _r(TRAINED_BLOCK_R9, "+248 / -23, 24 hunks against 357e2797 (native R9)",
++            "The export reader / CLI bridge (no protocol code).  (1) imports: `layout::F_RO` dropped, "
++            "`rope::RopeScaling`, `tied_tensor_for_profile`, `TiedEmbedding`.  (2) two new scope "
++            "strings (Shieldstral, rung-HD).  (3) +113: `rope_scaling_of` (absent / null / `default` -> "
++            "None, else yarn / llama3, `check()`), `tied_of` ((None, None) -> Ok(None) before reading "
++            "anything, 543), `sha256_file`.  (4-10) `Geometry`: variants Shieldstral(T), "
++            "ShieldstralDd(T), RungHdDev, their parse names, `dd()`, the new `shape_profile()`, "
++            "`is_dd` / `is_shieldstral`, `tokens`, `rope_theta`, `rope_scaling()` (None off "
++            "Shieldstral), `run_profile`, `run_shape`, `scope`, `shape_at` arms -- every old variant's "
++            "arm returns what it returned.  (11, 15) `TrainedExport.rope_scaling / tied`.  (12) "
++            "geometry inference: a Shieldstral-repo arm before the 8B arm (873; TinyLlama and 8B repos "
++            "fall through as before).  (13) the Shieldstral model-pin check; the rung arm admits "
++            "RungHdDev.  (14) `checkpoint_layers` for RungHdDev; the export's `rope_scaling` must equal "
++            "the geometry's (1027-1031) and `tied_of` (1032): the exports checked (TinyLlama, 8B, the "
++            "classifier fixture `rung-tc-t32-dev`) carry neither key [READ: profile.json keys], so None "
++            "/ None and no new refusal.  (16-17, 19) `qw = sh.q_width()` (1205): the expected wq / wo "
++            "shapes [qw, d] / [d, qw] and `pad_matrix(wq, qw, d, qp, dp)` / `pad_matrix(wo, d, qw, dp, "
++            "qp)` (1295, 1298) -- the identity where q_width == width and q_pad == d_pad, true at every "
++            "old trained geometry [COUNTED].  (18) the RoPE generator `rope_tables_for(sh, theta)` "
++            "(1263) = R9's `rope_tables_generate(tokens, head_dim, theta, F_RO)` at RopeScaling::None.  "
++            "(20) Provenance's `rope_scaling` and `new_with_tied(.., self.tied.clone())` (None off "
++            "Shieldstral).  (21-24) `stack_scope(ex.geometry)` = `STACK_SCOPE` byte for byte off "
++            "Shieldstral, in the statement JSON and the prove / verify event lines.  The padded words, "
++            "block digests, statement files, context label and every check of an old geometry are "
++            "R9's; no receipt, stage, statement-identity or capture byte moves"),
++        TRAINED_BLOCK_R12B: _r(TRAINED_BLOCK_R12, "+29 / -21, 4 hunks against c6d87b6e (native R12)",
++            "(1) `tied_of`'s doc comment.  (2) `tied_of` after the match (reached only at (Some, Some), "
++            "i.e. a Shieldstral geometry with a declaration: (None, None) returns at 543 first): exact "
++            "dtype / shape / length per table, `tied_tables::hash_regular_exact` in place of the "
++            "unbounded `sha256_file` (removed), then `recompute_declared_tied_tables` (600) and equality "
++            "of the three digests (R12-F1 / F2).  (3) `load_layer_mode`: `--rope-from-export` refused "
++            "when `self.rope_scaling != RopeScaling::None` (1171; None at every old geometry, so no "
++            "effect there; R12-F3).  (4) `STACK_SCOPE_SHIELDSTRAL`'s text (Shieldstral only).  Nothing "
++            "at an old geometry moves (REVIEW_R12B section 4)"),
++        TRAINED_BLOCK_T14: _r(TRAINED_BLOCK_R12B, "+10 / -10, 8 hunks against e2551aa1 (native R12b)",
++            "The token lane's ten visibility words, `fn` -> `pub(crate) fn` on flags, flag, need, js, "
++            "refuse_prover_private_entries, write_new, stack_context, render_segments_json, "
++            "check_statement_dir, publish_statement_dir -- the same ten frozen-r7 / frozen-r12 carry "
++            "on native R8 (`0943bade`, read for frozen-r7): applying exactly those ten replacements to "
++            "R12b's bytes gives f892dbc7, and to R8's `cc401eb4` gives 0943bade [COUNTED].  No body, "
++            "string or check changes"),
++    },
++    PBR: {
++        PRIVATE_BLOCK_R12: _r(PRIVATE_BLOCK_R9, "+16 / -3, 4 hunks against 5e50acd5 (native R9)",
++            "(1) `mod rope;` (production module, public tables only).  (2) `#[cfg(test)] mod "
++            "r12_tests; mod r12_golden_tests;`.  (3) `Axis::len`: `Axis::Q => sh.q_pad()` (was the "
++            "shared `Axis::D | Axis::Q => sh.d_pad`): the P-2 support check's axis length.  (4) "
++            "`check_words`: the wq / wo length check `q * d` with `q = sh.q_pad()` (was `d * d`).  "
++            "(3) and (4) are statement-shape refusals, unconditional, the identity at q_pad == d_pad.  "
++            "`ExpectedIo`, `IoSpec`, `calibration_identity`, `expected.to_bytes()` and every absorbed "
++            "word are outside the hunks"),
++        PRIVATE_BLOCK_R12B: _r(PRIVATE_BLOCK_R12, "+3 / -0, 2 hunks against 3810bdab (native R12)",
++            "`pub mod tied_tables;` (the R12b module, reached only from `tied_of` and the "
++            "`zk60_tied_tables` example) and `#[cfg(test)] mod r12b_tests;`.  No item moves"),
++        PRIVATE_BLOCK_T14: _r(PRIVATE_BLOCK_R12B, "+10 / -0, 1 hunk against b4f73a05 (native R12b)",
++            "The token lane's one hunk after the trained_block re-export: `pub use token_io::cli::{..5 "
++            "token commands}`, round 12's `pub use token_io::classify_cli::{classify_input_owner_command, "
++            "classify_label_command, classify_prove_command, classify_verify_command}`, and "
++            "`#[allow(dead_code)] mod token_io;` with comments (private_block.rs:122-131) -- "
++            "BYTE-IDENTICAL, line for line, to frozen-r12's single hunk against native R8 (`a9727239` "
++            "vs `08551c3d`, read in v19/v20) [COUNTED].  No block item moves"),
++    },
++    RUN: {
++        RUN_R12: _r(RUN_R9, "+31 / -2, 5 hunks against cf80735d (native R9)",
++            "(1) five run-profile constants (four Shieldstral, rung-HD; run.rs:152-157 in frozen-r14).  "
++            "(2) their `registered_block_shape` arms.  (3) the Shieldstral block profiles' run "
++            "profiles in `run_profile_of` and the refusal text widened.  (4) `RunShape::rung_hd` (324).  "
++            "(5) the unbound-run refusal also names the five new run profiles (392).  All gated by "
++            "profile name; the header, stage order, boundary absorb, position tags, opening order, "
++            "`stage_shape`, `capture_header` and the commitment row list are outside them"),
++        RUN_T14: _r(RUN_R12, "+62 / -0, 4 hunks against 5c9f0ffc (native R12 = R12b)",
++            "The token lane's hunks, insert-only: (1) the five TOKEN_IO run-profile constants, "
++            "`TOKEN_IO_RUN_PROFILES`, round 12's `RUN_PROFILE_CLASSIFY_RUNG_TC` and "
++            "`CLASSIFY_RUN_PROFILES` (run.rs:97-143); (2) six `registered_block_shape` arms (token "
++            "rung and classifier rung -> `Shape::rung_tc`, the four token trained shapes; 190-195); "
++            "(3) the blocks-only refusal of a token-I/O run profile (439); (4) `token: None` and "
++            "`classify: None` in `capture_header`'s RunHeader (756, 758; `capture_header` is "
++            "`#[cfg(test)]`, 711).  The 62 added lines are BYTE-IDENTICAL, hunk for hunk, to the "
++            "v20 capture tree's run.rs (`ebc64fd1` = frozen-r12 `10cfc2b1` + the gate's `classify: "
++            "None` hook) against native R8 `d913a081`; equivalently frozen-r14 = `ebc64fd1` plus "
++            "exactly native R8 -> R12b's five hunks (+50 / -3) [COUNTED].  So every block, token and "
++            "classifier profile builds what the captured trees built; the round-16 hook is now in the "
++            "frozen token tree, still test-only"),
++    },
++    RCP: {
++        RUN_CAPTURE_R12: _r(RUN_CAPTURE_R9, "+4 / -1, 2 hunks against e1c87a07 (native R9)",
++            "TEST-ONLY module (`#[cfg(test)] mod run_capture;`, private_block.rs:242-243).  "
++            "`OWN_SOURCE_FILES` [17] -> [18], appending `src/private_block/rope.rs` with a comment.  "
++            "Capture metadata only: a bundle's `source_pins` gains one entry (pure addition, as the "
++            "list's own doc says).  No run.json / stage key, allow-list entry, replay or writer path "
++            "moves"),
++        RUN_CAPTURE_R12B: _r(RUN_CAPTURE_R12, "+5 / -1, 2 hunks against 50221a02 (native R12)",
++            "TEST-ONLY.  `OWN_SOURCE_FILES` [18] -> [20], appending `tied_tables.rs` and "
++            "`tied_tables/derive.rs` with a comment.  Capture metadata only (two more `source_pins`)"),
++        RUN_CAPTURE_T13: _r(RUN_CAPTURE_TOKEN_R12, "+573 / -2, 15 hunks against aaff4e6e (token frozen-r12; "
++            "16 under diff -U0); against the v20 capture copy d1e25882: +11 / -4, 5 hunks",
++            "TEST-ONLY.  Every line accounted for [COUNTED]: (a) 562 of the 564 round-16 hook lines "
++            "(v20 HOOKED_READINGS `d1e25882` = aaff4e6e + 564 insert-only: RunHeader.classify / "
++            "ClassifyFacts and its header re-check, the classifier stage begin, write_stage_classify / "
++            "write_run_classify, schema hashline-native-capture/7-classify-run, the classifier pins, "
++            "the README) VERBATIM, in the same 12 hunks (13 under -U0, v20's count); (b) native R8 -> "
++            "R12b's three hunks carried by the rebase, +9 / -2: `OWN_SOURCE_FILES` [23] -> [26] (the "
++            "native 17 -> 20 plus the token lane's six), the seven lines pinning rope.rs, "
++            "tied_tables.rs and tied_tables/derive.rs, and R9's `sh.slots().iter().take(sh.n_slots())` "
++            "in run.json's slot list (with R12's `slots()` returning MAX_SLOTS = 24 entries, the take "
++            "keeps 23 off DD: R8's list, the R9 reading); (c) two hook lines changed, +2: "
++            "`CLASSIFY_SOURCE_FILES` [4] -> [5] inserting `src/private_block/token_io/classify_tied.rs` "
++            "second, and the classifier README's \"the classifier's four included\" -> \"five\".  562 + "
++            "9 + 2 = 573 added; removed: the [23] count line and R8's untaken slots line.  Effect: every "
++            "bundle's `source_pins` gains three entries, a classifier bundle's a fourth, and a "
++            "classifier README one word; no run.json / stage key, recorded value, allow-list entry, "
++            "replay check or block / token writer path moves.  The r13 -> r14 step (+11, ef9c54db) is "
++            "the parent's"),
++    },
++    ROPE: {
++        ROPE_R12: _r(None, "NEW at native R12 (239 lines, 11904 bytes), read in full; = R12b = t13 = t14",
++            "`RopeScaling` {None, Llama3{..}, Yarn{..}}: `shieldstral()` (YaRN factor 16, original "
++            "16384, beta 32 / 1, mscale 1 / 1, truncate), `llama3_1()` (no profile uses it), "
++            "`attention_factor`, `check` (finite ranges; an attention factor other than exactly 1 "
++            "refused by name), `encode` / `decode` (canonical bytes `none` | `llama3`+4 x 8 | `yarn`+6 "
++            "x 8+1, decode re-encodes and compares), `describe`, `inv_freq` (transformers' reference "
++            "formulas, binary64), and `rope_tables(t, head_dim, theta, s, f_ro)`: for `None` it RETURNS "
++            "`tables_attn::rope_tables_generate(t, head_dim, theta, f_ro)` before anything else "
++            "(219-221), else cos / sin rounded half up at 2^f_ro.  No transcript, hash, commitment or "
++            "relation: it decides PUBLIC tables only.  Reached from `shape::rope_tables_for` (the trained "
++            "loader, trained_block.rs:1263; parity.rs is test-only), `trained_statement` (the encoded "
++            "`none` bytes, never written into the identity) and trained_block's `rope_scaling_of` / "
++            "`Geometry::rope_scaling`.  At TinyLlama, 8B, rung-TC (hence the token rung and the "
++            "classifier rung, whose blocks are rung-TC) and the DD rung, `trained_rope_scaling` is "
++            "`None`, so the frozen generator's tables, byte for byte (REVIEW_R12 test A: 15 existing "
++            "shapes keep the frozen generator)"),
++    },
++    TTB: {
++        TIED_TABLES_R12B: _r(None, "NEW at native R12b (100 lines, 4561 bytes), read in full",
++            "Bounded public-file reads: `regular()` (symlink_metadata, size bound / exact, O_NOFOLLOW | "
++            "O_NONBLOCK on linux x86_64, descriptor re-check incl. dev / inode), `range_hash`, "
++            "`hash_regular_exact` (SHA-256 of exactly `length` bytes, refuses growth / truncation); "
++            "`mod derive` and its re-exports; a `#[cfg(test)]` test.  SHA-256 over public token-table "
++            "files only (outside the proof's BLAKE3 oracle classes, s25 census C1); no proof transcript, "
++            "absorb or commitment.  Called only from `trained_block::tied_of` after its (None, None) "
++            "early return, i.e. only at a Shieldstral geometry with a tie declared, and from the "
++            "`zk60_tied_tables` example"),
++        TIED_TABLES_T14: _r(TIED_TABLES_R12B, "+2 / -0, 1 hunk against 901fa1e4 (native R12b)",
++            "One re-export with its comment: `pub(crate) use derive::{bf16, norm, quantize};` \"for the "
++            "classifier's development-rung tied source\" (token lane R-C2).  No body changes.  The "
++            "caller is the token lane's `token_io/classify_tied.rs` (not read here)"),
++    },
++    DRV: {
++        DERIVE_R12B: _r(None, "NEW at native R12b (334 lines, 19894 bytes), read in full",
++            "The Shieldstral tied-table re-derivation (R12-F1): constants (width 3072, vocab 131072, "
++            "the tensor and norm names, checkpoint length 7,698,241,104, a default local checkpoint "
++            "path); `norm` (final-norm class, the classifier window tn = 10, ceps < 2^40); "
++            "`calibration` (profile model pin = Shieldstral, `token_io_parameters` bos = 1 and both "
++            "final norms equal to the export's constants); `tied_token_calibration`; `extent` "
++            "(safetensors BF16 extents); `Checkpoint::open` (bounded regular open, header length "
++            "bound, SHA-256 of the WHOLE file against the pinned weights digest while capturing the "
++            "norm bytes and re-checking the header, no independent lm_head); `rotate` (signed block "
++            "Hadamard), `quantize` (floor(x/scale + .5), refuse outside the range, no clip), "
++            "`head_row`; `recompute_tied_tables` / `recompute_declared_tied_tables` (the profile "
++            "re-read and compared) / `recompute_profile` (three 1024 blocks, rotation signs digest, "
++            "the tensor digest re-checked, embedding / head / multiplier SHA-256, an optional margin "
++            "row); `#[cfg(test)]` tests.  SHA-256 over model and table files only; no proof "
++            "transcript.  Reached only through `tied_of` at a Shieldstral geometry, the example, and "
++            "(in the token tree) the token lane's classify_tied.rs"),
++        DERIVE_T14: _r(DERIVE_R12B, "+3 / -3, 3 hunks against e2b76895 (native R12b)",
++            "Three visibility words, `fn` -> `pub(crate) fn` on `norm`, `bf16` and `quantize` "
++            "(REVIEW_R13's note); applying exactly those to R12b's bytes gives 5cebeef0 [COUNTED].  "
++            "No body changes"),
++    },
++}
++
++# ---------------------------------------------------------------- the per-port tables, R9 format
++
++REPORT_ONLY = {   # the token frozen-r14 digests (the capture tree)
++    WIT: (WITNESS_R12, NATIVE_R12B_READINGS[WIT][WITNESS_R12]["reading"]),
++    TST: (TRAINED_STATEMENT_R12B, _P + "read via 0fbf90ed against R9's ac61bf90 (NATIVE_R12B_READINGS): "
++          "insert-only; the five tied fields and the rope-scaling field enter `encode` only at a tied "
++          "model / a scaled RoPE, so the identity of every old profile's statement is R9's; R12b's step "
++          "is a comment"),
++    TBK: (TRAINED_BLOCK_T14, _P + "read via e2551aa1 (R12b) and c6d87b6e (R12) against R9's 357e2797: "
++          "Shieldstral / rung-HD geometries, the RoPE transform and tie declarations (None / None at "
++          "every old export), the q-axis identities, `stack_scope` = STACK_SCOPE off Shieldstral, "
++          "R12b's tie re-derivation behind `tied_of`'s early return, and the token lane's ten "
++          "visibility words"),
++    PBR: (PRIVATE_BLOCK_T14, _P + "read via b4f73a05 (R12b) and 3810bdab (R12) against R9's 5e50acd5: "
++          "`mod rope`, `pub mod tied_tables`, test modules, the q-axis weight-shape refusals (identity "
++          "at q_pad == d_pad), and the token lane's one hunk byte-identical to frozen-r12's"),
++    ROPE: (ROPE_R12, NATIVE_R12B_READINGS[ROPE][ROPE_R12]["reading"]),
++    TTB: (TIED_TABLES_T14, _P + "read in full at 901fa1e4 (R12b) plus the token lane's one re-export: "
++          "bounded SHA-256 of public files, reached only at a Shieldstral tie (and by classify_tied.rs)"),
++    DRV: (DERIVE_T14, _P + "read in full at e2b76895 (R12b) plus three visibility words: the "
++          "Shieldstral tied-table re-derivation, no proof transcript"),
++}
++REPORT_ONLY_NATIVE_R12B = {   # the same files at the native R12b digests, should a native capture pin them
++    TBK: (TRAINED_BLOCK_R12B, NATIVE_R12B_READINGS[TBK][TRAINED_BLOCK_R12B]["reading"]),
++    PBR: (PRIVATE_BLOCK_R12B, NATIVE_R12B_READINGS[PBR][PRIVATE_BLOCK_R12B]["reading"]),
++    TTB: (TIED_TABLES_R12B, NATIVE_R12B_READINGS[TTB][TIED_TABLES_R12B]["reading"]),
++    DRV: (DERIVE_R12B, NATIVE_R12B_READINGS[DRV][DERIVE_R12B]["reading"]),
++}
++
++# no block-stage byte moves at the captured profiles (readings above), so both terminals stay pinned
++TERMINALS_PINNED_IF_PRESENT = {
++    SHP: {
++        SHAPE_R12:
++            _P + "read against `e214db86` (R9): +147 / -8, 10 hunks.  The four Shieldstral profiles and "
++            "rung-HD (strings, DD / calibration-profile list membership appended, RoPE base / transform "
++            "pins, `ss` and the new `trained_geometry` arms, constructors), `q_width` / `q_pad`, R9's "
++            "`d_pad != h_pad * head_dim` refusal removed (every old shape keeps q_pad == d_pad "
++            "[COUNTED]), SC_WO's round count `clog2(q_pad())` (the identity there).  Off the new "
++            "profiles every value this port reads -- slots' (n, e, d), slot terms / lengths, n_slots, "
++            "m_rows, n_functionals, plane domains, lookups, claim sites -- is R9's",
++    },
++    PAD: {
++        PAD_R12:
++            _P + "read against `20afa04f` (R9): +3 / -2, 2 hunks.  Dom::Q's row stride `q_pad()` in the "
++            "test-only `head_indicator` and in `closed_form_indicator`'s bit form; the identity at "
++            "q_pad == d_pad, so every indicator and pad term of an old profile is R9's",
++    },
++}
++
++MASK_LAYER_PINS = {
++    ARG: {
++        ARGUMENT_R12: {
++            "commits": TREE,
++            "bundles": R18_BUNDLES,
++            "reading": _P + "read against `112352bc` (R9): +11 / -7, one hunk in the four matmul arms "
++            "(q-axis widths, the identity at q_pad == d_pad).  `run_slot`'s M-functional block, `fn "
++            "sum_weights`, the host order, the slot loop over `n_slots` and the functional guard "
++            "`n_functionals` are outside it, so the declared functional order is R9's (34 off DD, + "
++            "SC_DD's two at DD)",
++        },
++    },
++    SHP: {
++        SHAPE_R12: {
++            "commits": TREE,
++            "bundles": R18_BUNDLES,
++            "reading": _P + "`n_slots` (shape.rs:2482), `m_rows` = 2 n_slots + 4 (2486), "
++            "`n_functionals` (2491) and `slots()`' cube / extension / degree rules are outside the "
++            "R12 hunks; SC_WO's round count `clog2(q_pad())` equals R9's `clog2(d_pad)` at every old "
++            "profile, so the mask specs (n_slots entries) are R9's; ruling C-4's budget is unchanged",
++        },
++    },
++}
++
++ARGUMENT_DEFINITIONS = {
++    ARGUMENT_R12: (
++        "repaired",
++        _P + "read against `112352bc` (R9, itself R8's repaired definition plus DD arms): +11 / -7, ONE "
++        "hunk, in the SC_QMM / SC_KMM / SC_VMM / SC_WO arm (the query axis q_pad for Wq's output and "
++        "Wo's input; the identity at q_pad == d_pad, true at every pre-R12 profile).  The bilinear arms "
++        "SC_SCORE / SC_PV (stage 20's repaired definition, argument.rs:1356-1456), every other arm and "
++        "every push order, DD or not, are byte-identical to R9's",
++    ),
++}
++
++
++# ---------------------------------------------------------------- self-checks (cheap, no I/O)
++def chain(file: str, digest: str) -> list:
++    """the digests from `digest` back along `base` links through NATIVE_R12B_READINGS"""
++    out, cur = [digest], digest
++    for _ in range(8):
++        r = NATIVE_R12B_READINGS.get(file, {}).get(cur)
++        if r is None:
++            break
++        cur = r["base"]
++        out.append(cur)
++        if cur is None:
++            break
++    return out
++
++
++def self_check() -> dict:
++    """every terminal digest chains to its root; every digest is 64 hex; no reading moves a byte"""
++    bad = []
++    hexd = set("0123456789abcdef")
++    for f, table in NATIVE_R12B_READINGS.items():
++        for d, r in table.items():
++            for x in (d, r["base"]):
++                if x is not None and (len(x) != 64 or set(x) - hexd):
++                    bad.append(f"{f}: digest {x!r} is not 64 hex")
++            if r["moves_a_receipt_byte"] or r["moves_a_block_stage_byte"]:
++                bad.append(f"{f}: {d[:8]} moves a byte")
++    for name, terms in (("token r14", TOKEN_R14_DIGESTS), ("native r12b", NATIVE_R12B_DIGESTS)):
++        for f, d in terms.items():
++            if f == RCP and name == "token r14":
++                d = RUN_CAPTURE_T13   # r13 -> r14 is the parent's reading
++            c = chain(f, d)
++            roots = CHAIN_ROOTS[f] if isinstance(CHAIN_ROOTS[f], tuple) else (CHAIN_ROOTS[f],)
++            if c[-1] not in roots:
++                bad.append(f"{name} {f}: chain {[x[:8] if x else x for x in c]} does not reach {roots}")
++    return {"ok": not bad, "problems": bad}
++
++
++OPEN_QUESTIONS = [
++    "run_capture.rs frozen-r13 2329306c -> frozen-r14 ef9c54db (+11 / -0, 2 hunks) is not read here (the "
++    "parent's step); NATIVE_R12B_READINGS chains run_capture.rs only from 23293061.",
++    "token_io/classify_tied.rs (NEW classifier pin in frozen-r13, CLASSIFY_SOURCE_FILES [5]) calls "
++    "tied_tables::{norm, bf16, quantize} for the classifier's development-rung tied source (and "
++    "recompute_tied_tables on the Shieldstral path); whether that moves a classifier-rung capture byte "
++    "belongs to the parent's reading of classify_tied.rs / classify.rs, not to the native files here.",
++    "token_io/load.rs (token lane, not read here) now builds a Provenance with `rope_scaling: "
++    "ex.rope_scaling` (load.rs:230); at TinyLlama / rung-TC exports that is RopeScaling::None, so the "
++    "statement identity would be unchanged -- to be confirmed by the parent's load.rs reading.",
++    "Byte identity at the T32 TinyLlama, rung-TC, token-rung and classifier-rung profiles rests on this "
++    "reading (q_pad == d_pad and q_width == width at every pre-R12 shape [COUNTED from the registry "
++    "arguments]) plus REVIEW_R12's test A and its retained TinyLlama T32 receipt; the seeded R12 goldens "
++    "cover only TinyLlama T128, 8B T128 and their DD twins.  No seeded golden at rung-TC / the classifier "
++    "rung exists in the native evidence.",
++    "Not pinned, so not read for the gate but noted: mvp_driver.rs (NOT_ON_THE_RUNS_PATH) changed R9 -> "
++    "R12 at the same q-axis sites (`qw` / `qp` in public_words and block_of; the identity at q_width == "
++    "width); parity.rs, r12_tests.rs, r12b_tests.rs, r12_golden_tests.rs, dense / grow / s24 / s25 / s33 / "
++    "trained_calib / hash_domain tests are #[cfg(test)].",
++    "v20's HOOKED_READINGS counts the d1e25882 hooks as 13 hunks: that is the diff -U0 count; diff -u "
++    "gives 12.  The +564 / -0 count agrees.",
++    "REVIEW_R12 N-1: with R9's `d_pad != h_pad * head_dim` refusal removed, a consistently edited "
++    "geometry is caught by CS-7's registry comparison, not CS-8; every production entry point goes "
++    "through a run (CS-7).  Any future block-level entry point must compare with the registry.",
++    "frozen-r14 is UNREVIEWED by its lane's own statement (frozen-r14.FROZEN.txt); R18_BUNDLES is empty "
++    "until the parent captures.",
++]
++
++ANYTHING_THAT_MOVES_A_RECEIPT_BYTE: list = []   # none at the captured profiles
++
++MOVES_ONLY_OUTSIDE_THE_CAPTURED_PROFILES = [
++    "NEW profiles only (Shieldstral T128 / T256, each +/- DD, and rung-HD): new profile / run-profile "
++    "strings, their shapes (q_width 4096 vs width 3072 at Shieldstral; q_pad 512 vs d_pad 256 at "
++    "rung-HD, where the SC_QMM / SC_WO lengths, Dom::Q stride and the witness strides differ), YaRN "
++    "tables, the trained statement's tied-embedding fields and rope-scaling field, the Shieldstral "
++    "scope strings and the tied-table re-derivation.",
++]
++
++CAPTURE_METADATA_CHANGES = [
++    "every bundle's source_pins: + src/private_block/rope.rs, + src/private_block/tied_tables.rs, + "
++    "src/private_block/tied_tables/derive.rs (OWN_SOURCE_FILES 23 -> 26 in the token tree)",
++    "a classifier bundle's source_pins: + src/private_block/token_io/classify_tied.rs "
++    "(CLASSIFY_SOURCE_FILES 4 -> 5)",
++    "a classifier bundle's README: \"the classifier's four included\" -> \"five\"",
++    "run.json's slot list: `take(sh.n_slots())` (23 entries off DD, as R8 / R9 recorded)",
++]
++
++
++if __name__ == "__main__":
++    import json
++    print(json.dumps(self_check(), indent=1))
+diff -ruN -x __pycache__ frozen_v20/scripts/zk60_native_run_gate.py frozen_v21/scripts/zk60_native_run_gate.py
+--- frozen_v20/scripts/zk60_native_run_gate.py	2026-10-26 12:33:23.919120226 -0700
++++ frozen_v21/scripts/zk60_native_run_gate.py	2026-10-28 19:41:26.656280886 -0700
+@@ -229,6 +229,10 @@
+     "zk60_native_rg_classpins.py",
+     # [v20, gate round 17] the classifier capture reader and gate
+     "zk60_native_rg_classgate.py",
++    # [v21, gate round 18] B-3 with the tables derived from the pinned tensor,
++    # and the readings of native R9 -> R12 -> R12b (the token tree's rebase)
++    "zk60_native_rg_classtied.py",
++    "zk60_native_rg_tinyllama_r12b_pins.py",
+ ]
+ 
+ EXPECTED_DISCLOSED = {

@@ -1,0 +1,10 @@
+{
+  "run_id": "20261030T094123Z-ce04cf1a",
+  "cycle": "0161",
+  "completed_at_utc": "2026-10-30T09:55:42.646672+00:00",
+  "status": "COMPLETE",
+  "new_proofs": 0,
+  "new_positions": 0,
+  "sources_appended": 9,
+  "next_cycle_no_earlier_than": "2026-10-30T10:41:23Z"
+}

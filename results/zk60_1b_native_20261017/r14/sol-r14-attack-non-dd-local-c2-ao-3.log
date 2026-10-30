@@ -1,0 +1,9 @@
+
+running 1 test
+test private_block::argument::split_attack_tests::split_run_t128_malicious_arithmetic_receipt_from_env ... R14_ATTACK_WITNESS local-c2-ao token=0 global_output=3071 correct_c2=1 wrong_local_c2=256 correct=0 wrong=1
+R14_ATTACK_REFUSAL local-c2-ao: slot 19 [R14 03 D zero-check (hosts 12, 13D) Narrow]: sumcheck round 0: s(0) + s(1) != claim
+R14_MALICIOUS_RECEIPT {"case":"local-c2-ao","dd":false,"bytes":34875688,"expected_accept":false,"canonical_frame_decoded":true,"native_verifier_used":true}
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 751 filtered out; finished in 23.52s
+

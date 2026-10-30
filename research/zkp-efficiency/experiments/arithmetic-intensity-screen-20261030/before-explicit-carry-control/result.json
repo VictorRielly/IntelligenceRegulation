@@ -1,0 +1,19 @@
+{
+  "status": "PASS",
+  "seed": 20261030167,
+  "checks": 53030,
+  "warp_cases": 10530,
+  "block_cases": 96,
+  "polynomial_cases": 36,
+  "negative_controls": 29,
+  "saved_warps": 4,
+  "saved_blocks": 3,
+  "saved_polynomials": 2,
+  "native_execution": false,
+  "cuda_sketch_compiled": false,
+  "proofs": 0,
+  "complete_model_passes": 0,
+  "proved_positions": 0,
+  "measured_proving_speedup": null,
+  "wall_s": 0.8021865690025152
+}

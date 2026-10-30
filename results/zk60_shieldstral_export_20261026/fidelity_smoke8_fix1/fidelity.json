@@ -1,0 +1,148 @@
+{
+  "schema": "zk60-shieldstral-verdict-fidelity/1",
+  "sets": {
+    "toxicchat/cat_sexual": {
+      "full_A1_set": false,
+      "heads": {
+        "refusal_free": {
+          "n": 8,
+          "head": "refusal_free",
+          "refused": 0,
+          "zero_refusals": true,
+          "diagnostic_all": {
+            "n": 8,
+            "agreement": 1.0,
+            "agreement_weighted": 1.0,
+            "float": {
+              "precision": 1.0,
+              "recall": 0.5,
+              "f1": 0.6666666666666666,
+              "tp_weight": 1.0,
+              "fp_weight": 0.0,
+              "fn_weight": 1.0,
+              "n": 8
+            },
+            "integer": {
+              "precision": 1.0,
+              "recall": 0.5,
+              "f1": 0.6666666666666666,
+              "tp_weight": 1.0,
+              "fp_weight": 0.0,
+              "fn_weight": 1.0,
+              "n": 8
+            }
+          },
+          "accepted_only": {
+            "n": 8,
+            "agreement": 1.0,
+            "agreement_weighted": 1.0,
+            "float": {
+              "precision": 1.0,
+              "recall": 0.5,
+              "f1": 0.6666666666666666,
+              "tp_weight": 1.0,
+              "fp_weight": 0.0,
+              "fn_weight": 1.0,
+              "n": 8
+            },
+            "integer": {
+              "precision": 1.0,
+              "recall": 0.5,
+              "f1": 0.6666666666666666,
+              "tp_weight": 1.0,
+              "fp_weight": 0.0,
+              "fn_weight": 1.0,
+              "n": 8
+            }
+          },
+          "truth_scope": "broad toxicity proxy, not category ground truth",
+          "absolute_margin_error_quantiles": {
+            "0": 0.12134410477453539,
+            "0.5": 0.24241510682272738,
+            "0.9": 1.481474581221727,
+            "0.95": 2.358541024565005,
+            "0.99": 3.060194179239629,
+            "1": 3.2356074679082854
+          },
+          "margin_within_integer_error": 0,
+          "boundary_or_disagreement_items": [],
+          "diagnostic_note": "All-item metrics include diagnostic clamps for refused rows; only zero-refusal results meet the refusal criterion."
+        },
+        "calibrated": {
+          "n": 8,
+          "head": "calibrated",
+          "refused": 0,
+          "zero_refusals": true,
+          "diagnostic_all": {
+            "n": 8,
+            "agreement": 1.0,
+            "agreement_weighted": 1.0,
+            "float": {
+              "precision": 1.0,
+              "recall": 0.5,
+              "f1": 0.6666666666666666,
+              "tp_weight": 1.0,
+              "fp_weight": 0.0,
+              "fn_weight": 1.0,
+              "n": 8
+            },
+            "integer": {
+              "precision": 1.0,
+              "recall": 0.5,
+              "f1": 0.6666666666666666,
+              "tp_weight": 1.0,
+              "fp_weight": 0.0,
+              "fn_weight": 1.0,
+              "n": 8
+            }
+          },
+          "accepted_only": {
+            "n": 8,
+            "agreement": 1.0,
+            "agreement_weighted": 1.0,
+            "float": {
+              "precision": 1.0,
+              "recall": 0.5,
+              "f1": 0.6666666666666666,
+              "tp_weight": 1.0,
+              "fp_weight": 0.0,
+              "fn_weight": 1.0,
+              "n": 8
+            },
+            "integer": {
+              "precision": 1.0,
+              "recall": 0.5,
+              "f1": 0.6666666666666666,
+              "tp_weight": 1.0,
+              "fp_weight": 0.0,
+              "fn_weight": 1.0,
+              "n": 8
+            }
+          },
+          "truth_scope": "broad toxicity proxy, not category ground truth",
+          "absolute_margin_error_quantiles": {
+            "0": 0.05445864217105978,
+            "0.5": 0.4671505420111224,
+            "0.9": 1.634950462892337,
+            "0.95": 2.525840148802616,
+            "0.99": 3.2385518975308405,
+            "1": 3.416729834712897
+          },
+          "margin_within_integer_error": 0,
+          "boundary_or_disagreement_items": [],
+          "diagnostic_note": "All-item metrics include diagnostic clamps for refused rows; only zero-refusal results meet the refusal criterion."
+        }
+      },
+      "lengths": {
+        "max_T": 367,
+        "above_native_T256": 1
+      }
+    }
+  },
+  "float_source_sha256": {
+    "/home/victor/IntelligenceRegulation/results/zk60_shieldstral_prep_20261021/bench/toxicchat_cat_sexual.jsonl": "f85c3b01ab2046312576fa527baaa459fd08997fa2e27013b6a7594969effa85"
+  },
+  "integer_source_sha256": "1a05b42e26929a863d95e65b29a595acbe8b48ba1f03b9b871d3f9199dfb70c1",
+  "all_12_A1_sets_complete": false,
+  "scope": "paired numerical fidelity, no native proof or privacy acceptance; subset results are explicitly marked"
+}

@@ -1,0 +1,524 @@
+{
+  "status": "PASS_PREREQUISITE_AND_NEGATIVE_CONTROLS_ONLY",
+  "seed": 202610290134,
+  "checks": 135613,
+  "weak_singleton_cases": 1354,
+  "weak_unsound_cases": 972,
+  "weak_examples": [
+    {
+      "p": 7,
+      "a": -3,
+      "b": -3,
+      "c": -2,
+      "inferred": [
+        0,
+        -1
+      ],
+      "integer_product": 9
+    },
+    {
+      "p": 7,
+      "a": 2,
+      "b": -3,
+      "c": -1,
+      "inferred": [
+        0,
+        -1
+      ],
+      "integer_product": -6
+    },
+    {
+      "p": 7,
+      "a": -2,
+      "b": -3,
+      "c": 1,
+      "inferred": [
+        1,
+        0
+      ],
+      "integer_product": 6
+    },
+    {
+      "p": 7,
+      "a": 3,
+      "b": -3,
+      "c": 2,
+      "inferred": [
+        1,
+        0
+      ],
+      "integer_product": -9
+    },
+    {
+      "p": 7,
+      "a": 2,
+      "b": -2,
+      "c": -3,
+      "inferred": [
+        -1,
+        -2
+      ],
+      "integer_product": -4
+    },
+    {
+      "p": 7,
+      "a": 3,
+      "b": -2,
+      "c": -1,
+      "inferred": [
+        0,
+        -1
+      ],
+      "integer_product": -6
+    },
+    {
+      "p": 7,
+      "a": -3,
+      "b": -2,
+      "c": 1,
+      "inferred": [
+        1,
+        0
+      ],
+      "integer_product": 6
+    },
+    {
+      "p": 7,
+      "a": -2,
+      "b": -2,
+      "c": 3,
+      "inferred": [
+        2,
+        1
+      ],
+      "integer_product": 4
+    },
+    {
+      "p": 7,
+      "a": -2,
+      "b": 2,
+      "c": -3,
+      "inferred": [
+        2,
+        1
+      ],
+      "integer_product": -4
+    },
+    {
+      "p": 7,
+      "a": -3,
+      "b": 2,
+      "c": -1,
+      "inferred": [
+        1,
+        0
+      ],
+      "integer_product": -6
+    },
+    {
+      "p": 7,
+      "a": 3,
+      "b": 2,
+      "c": 1,
+      "inferred": [
+        0,
+        -1
+      ],
+      "integer_product": 6
+    },
+    {
+      "p": 7,
+      "a": 2,
+      "b": 2,
+      "c": 3,
+      "inferred": [
+        -1,
+        -2
+      ],
+      "integer_product": 4
+    }
+  ],
+  "goldilocks_counterexample": {
+    "p": 18446744069414584321,
+    "a": 9223372034707292160,
+    "b": 2,
+    "c": 1,
+    "c_premise": [
+      1,
+      2
+    ],
+    "ab_plus_c": 18446744069414584321,
+    "weak_conclusion": [
+      -1,
+      -1
+    ]
+  },
+  "guarded_cases": 1994,
+  "concrete_solutions_checked": 15845,
+  "strict_refinement_cases": 17,
+  "relation_cases": [
+    {
+      "p": 7,
+      "k": 0,
+      "order": [
+        "Rx",
+        "Ry"
+      ],
+      "kept": [
+        "Ry"
+      ],
+      "original_witnesses": 1,
+      "unsafe_new_witnesses": 6
+    },
+    {
+      "p": 7,
+      "k": 0,
+      "order": [
+        "Ry",
+        "Rx"
+      ],
+      "kept": [
+        "Rx"
+      ],
+      "original_witnesses": 1,
+      "unsafe_new_witnesses": 6
+    },
+    {
+      "p": 7,
+      "k": 1,
+      "order": [
+        "Rx",
+        "Ry"
+      ],
+      "kept": [
+        "Ry"
+      ],
+      "original_witnesses": 2,
+      "unsafe_new_witnesses": 5
+    },
+    {
+      "p": 7,
+      "k": 1,
+      "order": [
+        "Ry",
+        "Rx"
+      ],
+      "kept": [
+        "Rx"
+      ],
+      "original_witnesses": 2,
+      "unsafe_new_witnesses": 5
+    },
+    {
+      "p": 7,
+      "k": 2,
+      "order": [
+        "Rx",
+        "Ry"
+      ],
+      "kept": [
+        "Ry"
+      ],
+      "original_witnesses": 3,
+      "unsafe_new_witnesses": 4
+    },
+    {
+      "p": 7,
+      "k": 2,
+      "order": [
+        "Ry",
+        "Rx"
+      ],
+      "kept": [
+        "Rx"
+      ],
+      "original_witnesses": 3,
+      "unsafe_new_witnesses": 4
+    },
+    {
+      "p": 11,
+      "k": 0,
+      "order": [
+        "Rx",
+        "Ry"
+      ],
+      "kept": [
+        "Ry"
+      ],
+      "original_witnesses": 1,
+      "unsafe_new_witnesses": 10
+    },
+    {
+      "p": 11,
+      "k": 0,
+      "order": [
+        "Ry",
+        "Rx"
+      ],
+      "kept": [
+        "Rx"
+      ],
+      "original_witnesses": 1,
+      "unsafe_new_witnesses": 10
+    },
+    {
+      "p": 11,
+      "k": 1,
+      "order": [
+        "Rx",
+        "Ry"
+      ],
+      "kept": [
+        "Ry"
+      ],
+      "original_witnesses": 2,
+      "unsafe_new_witnesses": 9
+    },
+    {
+      "p": 11,
+      "k": 1,
+      "order": [
+        "Ry",
+        "Rx"
+      ],
+      "kept": [
+        "Rx"
+      ],
+      "original_witnesses": 2,
+      "unsafe_new_witnesses": 9
+    },
+    {
+      "p": 11,
+      "k": 2,
+      "order": [
+        "Rx",
+        "Ry"
+      ],
+      "kept": [
+        "Ry"
+      ],
+      "original_witnesses": 3,
+      "unsafe_new_witnesses": 8
+    },
+    {
+      "p": 11,
+      "k": 2,
+      "order": [
+        "Ry",
+        "Rx"
+      ],
+      "kept": [
+        "Rx"
+      ],
+      "original_witnesses": 3,
+      "unsafe_new_witnesses": 8
+    },
+    {
+      "p": 17,
+      "k": 0,
+      "order": [
+        "Rx",
+        "Ry"
+      ],
+      "kept": [
+        "Ry"
+      ],
+      "original_witnesses": 1,
+      "unsafe_new_witnesses": 16
+    },
+    {
+      "p": 17,
+      "k": 0,
+      "order": [
+        "Ry",
+        "Rx"
+      ],
+      "kept": [
+        "Rx"
+      ],
+      "original_witnesses": 1,
+      "unsafe_new_witnesses": 16
+    },
+    {
+      "p": 17,
+      "k": 1,
+      "order": [
+        "Rx",
+        "Ry"
+      ],
+      "kept": [
+        "Ry"
+      ],
+      "original_witnesses": 2,
+      "unsafe_new_witnesses": 15
+    },
+    {
+      "p": 17,
+      "k": 1,
+      "order": [
+        "Ry",
+        "Rx"
+      ],
+      "kept": [
+        "Rx"
+      ],
+      "original_witnesses": 2,
+      "unsafe_new_witnesses": 15
+    },
+    {
+      "p": 17,
+      "k": 2,
+      "order": [
+        "Rx",
+        "Ry"
+      ],
+      "kept": [
+        "Ry"
+      ],
+      "original_witnesses": 3,
+      "unsafe_new_witnesses": 14
+    },
+    {
+      "p": 17,
+      "k": 2,
+      "order": [
+        "Ry",
+        "Rx"
+      ],
+      "kept": [
+        "Rx"
+      ],
+      "original_witnesses": 3,
+      "unsafe_new_witnesses": 14
+    },
+    {
+      "p": 31,
+      "k": 0,
+      "order": [
+        "Rx",
+        "Ry"
+      ],
+      "kept": [
+        "Ry"
+      ],
+      "original_witnesses": 1,
+      "unsafe_new_witnesses": 30
+    },
+    {
+      "p": 31,
+      "k": 0,
+      "order": [
+        "Ry",
+        "Rx"
+      ],
+      "kept": [
+        "Rx"
+      ],
+      "original_witnesses": 1,
+      "unsafe_new_witnesses": 30
+    },
+    {
+      "p": 31,
+      "k": 1,
+      "order": [
+        "Rx",
+        "Ry"
+      ],
+      "kept": [
+        "Ry"
+      ],
+      "original_witnesses": 2,
+      "unsafe_new_witnesses": 29
+    },
+    {
+      "p": 31,
+      "k": 1,
+      "order": [
+        "Ry",
+        "Rx"
+      ],
+      "kept": [
+        "Rx"
+      ],
+      "original_witnesses": 2,
+      "unsafe_new_witnesses": 29
+    },
+    {
+      "p": 31,
+      "k": 2,
+      "order": [
+        "Rx",
+        "Ry"
+      ],
+      "kept": [
+        "Ry"
+      ],
+      "original_witnesses": 3,
+      "unsafe_new_witnesses": 28
+    },
+    {
+      "p": 31,
+      "k": 2,
+      "order": [
+        "Ry",
+        "Rx"
+      ],
+      "kept": [
+        "Rx"
+      ],
+      "original_witnesses": 3,
+      "unsafe_new_witnesses": 28
+    }
+  ],
+  "exhaustive_interval_cases": 25327,
+  "unsafe_extra_witness_instances": 348,
+  "graphs": 180,
+  "graph_queries": 3600,
+  "multi_cell_attack": {
+    "original": [
+      1,
+      1
+    ],
+    "attack": [
+      3,
+      3
+    ],
+    "p": 17,
+    "k": 2
+  },
+  "range_dominance_cases": 6056,
+  "range_weaker_only_negative_cases": 5809,
+  "elapsed_s": 0.2318622120001237,
+  "max_rss_kib": 16308,
+  "cpu_affinity": [
+    0
+  ],
+  "nice": 19,
+  "hardware": {
+    "system": "Linux",
+    "node": "MSI",
+    "release": "6.18.54.1-microsoft-standard-WSL2",
+    "version": "#1 SMP PREEMPT_DYNAMIC Tue Oct  6 19:13:07 UTC 2026",
+    "machine": "x86_64",
+    "processor": "x86_64"
+  },
+  "limits": {
+    "cpu_s": 40,
+    "alarm_s": 45,
+    "address_space_bytes": 268435456,
+    "estimated_memory_bytes": 67108864
+  },
+  "source_hashes": {
+    "candidate.py": "466e7ca3ef635a5992a24b9ddb2508fe3cf8b65936035de5948579757ec4be7e",
+    "reference.py": "de800a211f6fbd7bd80f1ef64406e865ca0e72fdb3c4e91e11c8a5e873e91c73",
+    "run.py": "4b81634bd7d706c3f0c5e3863b95357ccd603e3e3ee44836739ac5b939c25389"
+  },
+  "native_checks_removed": 0,
+  "verified_full_stack_proofs": 0,
+  "proved_positions": 0,
+  "limitations": [
+    "Not author implementation or theorem reproduction; weak rule is an explicit negative control.",
+    "Tiny scalar relations and symbolic fact graphs only, no native IR/LogUp/masks/receipt executed.",
+    "Whole native timing, redundancy fraction, privacy/soundness and GPU compatibility unmeasured."
+  ]
+}

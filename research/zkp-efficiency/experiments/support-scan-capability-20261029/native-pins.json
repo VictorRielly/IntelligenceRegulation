@@ -1,0 +1,42 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block.rs",
+    "snapshot": "native/private_block.rs",
+    "sha256": "b4f73a054afed47450ff846218a4453607281da16b8bc56dca904a6ee7447108"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/trained_block.rs",
+    "snapshot": "native/trained_block.rs",
+    "sha256": "e2551aa15fddc7cf43753ca0f5ef65fe813b1f7c279f4928fad1fd6b8c5d77a5"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/trained_statement.rs",
+    "snapshot": "native/trained_statement.rs",
+    "sha256": "7908d827889d5bb424b51cb470313c666533577b29fd45c78957db00963e6a1d"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/shape.rs",
+    "snapshot": "native/shape.rs",
+    "sha256": "9a87081897ff0ec716d7f27a2813cc32117683eb5b2f2082a248f479ef98c4c5"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/run.rs",
+    "snapshot": "native/run.rs",
+    "sha256": "5c9f0ffc12a2a4bdc239799dde6e0c3eab3f316a7bcc6ca071719407b9e96a8d"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/protocol.rs",
+    "snapshot": "native/protocol.rs",
+    "sha256": "c482402329e4da32a70c780435b2077e8054d1805b1006289f571820017564a4"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/witness.rs",
+    "snapshot": "native/witness.rs",
+    "sha256": "a586b777c36c9fa5060d3dfa195a75ff0a2b7794a2521cad59aaf7f3f6144ec3"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/cs_port_tests.rs",
+    "snapshot": "native/cs_port_tests.rs",
+    "sha256": "f98dd323ae273c007d205bc6d1ba081c3301c57d84c22ba639d245e4b57945bb"
+  }
+]

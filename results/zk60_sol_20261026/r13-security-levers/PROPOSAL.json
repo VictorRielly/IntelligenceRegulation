@@ -1,0 +1,70 @@
+{
+  "status": "N-r13-1 conditional design/count for a later security-owner ruling; no implementation or new accepted bit claim",
+  "workload": "Llama-3-8B T512,32blocks,LOW+h24,F_E9,4ACTgroups,main row width32768; not registered in R13",
+  "result": "Queries/rate alone cannot reach95. A second lookup check for a public, fixed subset of existing paired byte-helper columns, combined with a small query increase, is the lowest encoded-data candidate in this counted design family. No field extension is needed for this candidate.",
+  "baseline": {
+    "lookup_only_reviewed_bits": [94.47986477755519, 94.79725439688053],
+    "whole_with_column_and_conservative_other_terms": [94.41749708524702, 94.71994429095665],
+    "order": "non-DD,DD",
+    "distinction": "The review's94.48/94.80 values omit PCS and SC terms. Including them matters when a proposed option is only a few thousandths above95.",
+    "native_anchor": "Four native R13 Shieldstral FE9 baselines reproduce A/H rows/sites and lookup positions exactly. The padded axes and precision are identical to8B; T512 is a counted extrapolation, not a native registered shape."
+  },
+  "levers": {
+    "more_queries": "Reduces the PCS column term, not the lookup term. Even arbitrarily many queries cannot improve the run past the lookup-only94.48/94.80 ceiling. Q for A/H/boundaries/endpoints and MQ for M must be separate bound profile parameters; raising Q alone leaves M's old column term.",
+    "lower_rate": "Likewise leaves the lookup ceiling fixed. Rate1/8 or1/16 increases encoding work and does not win the encoded-volume search once repetition is allowed.",
+    "bigger_lookup_extension": "Fp4 lookup helpers need4 base components rather than2 (about doubling H data); Fp3 component constraints could use3 rather than2, but need a new component/rank/aggregation design. Both exceed the selected partial-repetition data overhead and require new arithmetic/review. Widening all protocol challenges also widens SC/PCS messages and masks.",
+    "targeted_repetition": "Keep the original global lookup protocol. Before ANY lookup challenge, commit one additional U8 histogram for a profile-fixed subset of paired byte query columns. Draw an independent second effective U8 alpha, add a second helper set for those columns and its U8 table helper, and prove its own zero identity with an independently reserved zero-sum mask and one new ZS slot. Native field remains Fp2. No data-dependent subset or retry."
+  },
+  "conditional_soundness_argument_for_review": {
+    "premise": "A binds all numerical witness values and BOTH histograms before either lookup challenge. Selected byte expressions are fixed by a public profile schedule. All counts are below p. The existing constraints and PCS bind every H helper/table/zero-sum row; new CFS/M/audit schedules are reviewed.",
+    "case_selected_valid": "Each selected query pole is in the existing public U8 table. Collapse those poles into its table coefficients. If an unselected query is invalid, the original rational numerator is still nonzero and has the R13 bound with at most N-K query positions plus the same public tables.",
+    "case_selected_invalid": "The original global lookup identity and the selected U8-only identity are both false unless a challenge check errs. Conditional on the fixed A witness, their challenge sets are independent. Thus the two error bounds multiply; do not merely halve the original N.",
+    "proposed_per_block_bound": "(N-K+4*T_d-1)/p^2 + ((N+4*T_d-1)/p^2)*(2*(K+256)/p^2)",
+    "second_factor": "A deliberately conservative univariate U8 numerator/pole bound for the second effective alpha; includes potential invalid-query poles. The first factor includes ACT3/DD tuple compression and poles exactly as the R13 review.",
+    "review_needed": "Independently validate the partition, fixed histogram timing, nonzero-residue argument, independence under the Fiat-Shamir lift, and union with new SC/PCS/CFS/hash terms. The earlier G02 memo considered domain repetition; it does not by itself approve this finer helper-column selection.",
+    "other_terms": "Count all4L+1 openings, including M and pad dilution. Use conservative ceilings4096 PCS claim/functionals per opening and8192 SC error units/block; final native census must certify those ceilings. The search requires at least95.0001 printed bits, but tiny-margin candidates should not be registered on this model alone."
+  },
+  "costed_candidates": {
+    "nonDD_lowest_encoded_data": {
+      "Q_and_MQ": 267, "inverse_rate": 4, "repeated_pair_helpers": 7,
+      "protected_byte_queries": 117440512,
+      "whole_bits_conditional": 95.0003577164957,
+      "extra_A_H_committed_and_encoded_percent": 14.734822194096273,
+      "extra_receipt_MiB_whole_model_upper_model": 319.97440338134766,
+      "same_cost_simple_selection": "All seven F byte-pair helper planes have this exact K and data cost. ACT3 itself is not repeated. COUNT.json's deterministic search selected seven equal-size S pairs instead."
+    },
+    "DD_lowest_encoded_data": {
+      "Q_and_MQ": 271, "inverse_rate": 4, "repeated_pair_helpers": 6,
+      "protected_byte_queries": 40894464,
+      "selection": "1 D pair,3 Kv pairs,2 S pairs (exact indices in COUNT.json)",
+      "whole_bits_conditional": 95.00019316014165,
+      "extra_A_H_committed_and_encoded_percent": 6.267567434291632,
+      "extra_receipt_MiB_whole_model_upper_model": 178.13990020751953
+    },
+    "DD_simple_margin_option": {
+      "Q_and_MQ": 268, "inverse_rate": 4, "repeated_pair_helpers": 3,
+      "selection": "Three whole F byte-pair helper planes are cost-equivalent to the search's three S pairs",
+      "whole_bits_conditional": 95.05008790661078,
+      "extra_A_H_committed_and_encoded_percent": 7.6581685487450075,
+      "extra_receipt_MiB_whole_model_upper_model": 180.20059204101562
+    },
+    "unchanged_queries": "At Q=MQ256, non-DD needs8 pairs (+16.83% A/H) and DD's least counted selection needs7 pairs (+8.80% A/H). Both barely clear95 after including column terms. Full details and margin alternatives are in COUNT.json.",
+    "objective_caveat": "Cheapest here means least expanded encoded word volume among the enumerated fixed paired-byte-column designs. It is not a measured throughput ranking or a proof of global optimality. Receipt bytes favour other Pareto points, and implementation simplicity may favour one domain over mixed selections."
+  },
+  "accounting_details": {
+    "new_data": "For K protected positions in k paired helper planes at row width n: extra A+H words=K+(2*k+11)*n. This includes one A histogram with its pair, repeated H query data, one new U8 table helper, one zero-sum mask, and fresh mask pairs at all k+2 new H sites. One new ZS slot adds2*512 M words.",
+    "histogram_and_tail": "The selected histogram is committed in A, not chosen after alpha2. It has exactly256 true entries and a constrained support tail. It does not replace or relax the existing global histograms.",
+    "sum_claims": "The profile must check the two identities separately, each with its own zero-sum mask; do not silently put every H plane into today's one global sum and allow cancellation. A random post-commitment combination is possible only with an additional reviewed field-error term.",
+    "queries": "Q changes pads and column checks of A/H/boundaries/endpoints. MQ changes M's pads/queries; the same512-word M message must still fit its coefficients+MQ. The searched MQ<=288 leaves224 coefficient positions; a conservative per-slot bound152 fits, subject to native census.",
+    "receipt_model": "Includes added A/H rows, one added H clear group, all increased Q column/vector costs, boundary/endpoint Q increments, added M rows and a generous new-slot allowance. It is not an implemented wire size.",
+    "no_timing_claim": "No CPU/GPU speedup or tokens/s model was fit. Additional H encoding and inversions will cost time; prototype measurements are needed after a ruling."
+  },
+  "recommended_disposition": "For the later95-bit ruling, review the partial-byte repetition argument and consider a simple DD-only margin profile (+7.66% A/H, Q=MQ268), rather than a barely passing mixed minimum. Keep the current Shieldstral MVP and frozen R13 unchanged. No8B T512 profile should be registered from this count alone.",
+  "implementation_stage_owed": [
+    "Independent soundness check of partitioned repetition, not just numerical recount",
+    "Native profile/schema and full census with query counts bound into identities",
+    "False lookup witnesses reaching fresh verification under both alpha checks; late histogram and cross-identity cancellation attacks",
+    "New H/U/M mask-rank and refusal-channel analysis, captures and privacy gate",
+    "Actual proof/verify/bytes/RSS/timing on an appropriate desktop after resource admission"
+  ]
+}

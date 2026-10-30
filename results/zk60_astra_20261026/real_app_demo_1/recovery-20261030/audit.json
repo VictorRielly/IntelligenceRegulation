@@ -1,0 +1,35 @@
+{
+  "at": "2026-10-30T05:09:51.776474+00:00",
+  "post_id": "d1800de17fffed4565733d12e5c30f52",
+  "accepted": true,
+  "current_boot_id": "4f7dab84-38e2-4f1a-9518-e305e81ef580",
+  "original_workspace_missing": true,
+  "receipt_segments": 84,
+  "receipt_bytes": 2545236288,
+  "source_sha256_revalidated": true,
+  "retained_records": {
+    "results/zk60_astra_20261026/real_app_demo_1/sexual.json": "76c5365c9f0b5c278a4905be1f30708616d09ed31ac107f9fff7d8b847dba8b8",
+    "results/zk60_astra_20261026/real_app_demo_1/violence.json": "16cc7cba9d694dfcc95d5240c51f51341f09413cf189f9a754f86e6d139cecca",
+    "results/zk60_astra_20261026/real_app_demo_1/hate.json": "fc10a22d26577f53cdef7fe32a6ae8ebb68a1f0e24d3db076a31ae2ab94c64c1"
+  },
+  "source_sha256": {
+    "results/zk60_astra_20261026/recover_real_app_demo.py": "8d04012d996d0305f8b51bd18f8dc18dc6449ed003db0299921e20ff6ad34c59",
+    "apps/proven-media/tools/verify_publication.py": "6bb6861b688794eba67bc778498f3d1ed5265be3b776f7aa769e52aafe87a20f",
+    "apps/proven-media/proven_media/shieldstral_runtime.py": "b0cbf83877d18e328b20eb5c26508cadc5e87e57d7bc66388399837e7e582f73"
+  },
+  "plan_sha256": "bc9b4736f6986fab92e3116ceddb893296176ef0c76b32663248d87f3209eb47",
+  "lost": [
+    "original app database",
+    "local development signing key",
+    "salt opening",
+    "owner openings and job logs"
+  ],
+  "preserved": [
+    "all public receipt bytes",
+    "publication manifests and pending leaves",
+    "checked records",
+    "public owner capture"
+  ],
+  "new_proofs": 0,
+  "original_manifest_signature_recovered": false
+}

@@ -1,0 +1,7 @@
+
+running 1 test
+test private_block::s25_tests::every_hash_call_site_in_the_lanes_own_sources_is_classified ... S25 W-11: 32 hash call sites in 35 scanned lane sources, every one classified; 14 read-only sites listed with file:line
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 695 filtered out; finished in 0.02s
+

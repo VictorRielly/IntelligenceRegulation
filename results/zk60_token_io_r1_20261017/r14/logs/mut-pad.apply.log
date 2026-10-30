@@ -1,0 +1,2 @@
+applied pad to stage_in_c.rs (original sha256 6a92da0ecfe73653)
+reverted pad: stage_in_c.rs is back to sha256 6a92da0ecfe73653

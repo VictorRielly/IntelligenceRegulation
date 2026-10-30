@@ -1,0 +1,118 @@
+--- /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io/hashline/src/private_block/token_io/classify_cli.rs	2026-10-26 12:35:18.647074165 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-review-r13-scratch/hashline/src/private_block/token_io/classify_cli.rs	2026-10-28 16:42:48.584068139 -0700
+@@ -1,4 +1,4 @@
+-//! **THE CLASSIFIER CLI** (round 12, rung R-C1; DESIGN_CLASSIFIER v2):
++//! **THE CLASSIFIER CLI** (round 12, rung R-C1; round 13, rung R-C2; DESIGN_CLASSIFIER v2.3):
+ //!
+ //! ```text
+ //! zk60_classify prove        --export DIR --tables DIR --policy ID --content-file FILE|-
+@@ -39,8 +39,14 @@
+ //!   decommitment (`input.dec`, 0600, in the owner directory). The verdict is
+ //!   PUBLIC: `flagged` (the model answered "yes" with margin above c) or
+ //!   `not-flagged`; both are normal results (D37 revised).
++//! * **R-C2 (round 13):** prove and verify RE-DERIVE the margin row `w` and the
++//!   embedding's digest from the pinned tied tensor (the registered policy's
++//!   yes / no ids and public scale; `classify_tied`), and BOS / the final norm
++//!   from the export's `profile.json.token_io_parameters`; a table file that
++//!   disagrees is refused, never trusted. `--min-bits` below the profile's
++//!   floor (D27: 93 only at the development rung, else 95) is refused.
+ //! * `verify` re-derives EVERYTHING from its own inputs (B-3: the margin
+-//!   vector from `--tables`, the yes / no ids, c and the template from the
++//!   vector from the pinned tensor, the yes / no ids, c and the template from the
+ //!   pre-registered `--policy`, the model from `--export` pinned by
+ //!   `--expect-statement`), re-renders the canonical statement and refuses
+ //!   unless the found statement is that text byte for byte, BEFORE any segment
+@@ -76,7 +82,7 @@
+ pub(crate) const CLASSIFY_LABELS: [&str; 1] = ["zk60-classify-verdict"];
+ const MAX_STATEMENT_BYTES: u64 = 1 << 20;
+ const MAX_DECOMMITMENT_BYTES: u64 = 16 << 20;
+-pub(crate) const CLASSIFY_STATEMENT_SCHEMA: &str = "zk60-classify-run/1";
++pub(crate) const CLASSIFY_STATEMENT_SCHEMA: &str = "zk60-classify-run/2";
+ const CONTENT_ON_COMMAND_LINE: &str = "--content is not accepted: the hidden content never goes on the command line (it shows in the process list and shell history); give --content-file FILE (mode 0600) or --content-file - (standard input) (PR4-17)";
+ const FAIL_CLOSED_LINE: &str = "{\"event\":\"app-outcome\",\"outcome\":\"flagged\",\"why\":\"no accepted proof: fail-closed (ruling B-4, the recommended default; Victor's ruling pending)\"}";
+ 
+@@ -221,6 +227,14 @@
+ /// margin vector, BOS and the final norm (classifier.json), each binary table
+ /// read with its length checked first and its SHA-256 streamed and compared
+ pub(crate) fn load_classifier_tables(dir: &Path, d: usize) -> Result<(ClassifierTables, u64, FinalNorm), String> {
++    read_classifier_files(dir, d).map(|(t, bos, norm, _)| (t, bos, norm))
++}
++
++/// the R-C1 file reader, also returning the embedding file's SHA-256 (the
++/// streamed digest, equal to its manifest's): R-C2's
++/// [`super::classify_tied::load_tied_classifier_tables`] compares it, the
++/// margin row, BOS and the final norm with the pinned tensor's re-derivation
++pub(crate) fn read_classifier_files(dir: &Path, d: usize) -> Result<(ClassifierTables, u64, FinalNorm, [u8; 32]), String> {
+     let tp = dir.join("token_io.json");
+     let cp = dir.join("classifier.json");
+     let tio = manifest(&tp)?;
+@@ -257,7 +271,7 @@
+     read_exact_streamed(&dir.join("embedding_int16.bin"), 2 * n, &emb_sha, |b| emb.extend(b.chunks_exact(2).map(|c| i16::from_le_bytes([c[0], c[1]]))))?;
+     let mut w: Vec<i16> = Vec::with_capacity(d);
+     read_exact_streamed(&dir.join("margin_int16.bin"), 2 * d, &w_sha, |b| w.extend(b.chunks_exact(2).map(|c| i16::from_le_bytes([c[0], c[1]]))))?;
+-    Ok((ClassifierTables::new(v, d, emb, w)?, bos, norm))
++    Ok((ClassifierTables::new(v, d, emb, w)?, bos, norm, unhex32(&emb_sha)?))
+ }
+ 
+ /// the content ids: a 0600 file or stdin (never the command line)
+@@ -297,9 +311,9 @@
+ fn render(p: &ExportPublic, st: &ClassifyRunStatement, label: &str, writer: Writer) -> Result<String, String> {
+     let cp = &st.cp;
+     Ok(format!(
+-        "{{\n \"schema\": {},\n \"scope\": {},\n \"statement_written_by\": {},\n \"run_profile\": {},\n \"block_profile\": {},\n \"blocks\": {},\n \"export_variant\": {},\n \"trained_statement_identity\": {},\n \"policy\": {},\n \"verdict\": {},\n \"verdict_bit\": {},\n \"threshold_c\": {},\n \"yes_id\": {},\n \"no_id\": {},\n \"template_prefix_ids\": {},\n \"template_suffix_ids\": {},\n \"content_length_n\": {},\n \"chunk\": {{\"index\": {}, \"count\": {}, \"range\": [{}, {}], \"content_total\": {}, \"chunk_size\": {}, \"overlap\": {}, \"split\": \"end-aligned (DESIGN v2.2 13.1)\"}},\n \"T\": {},\n \"control_ids_below\": {},\n \"tokenizer\": {},\n \"margin_vector_digest\": {},\n \"embedding_digest\": {},\n \"bos\": {},\n \"final_norm\": {{\"g0\": {}, \"cn\": {}, \"tn\": {}, \"ceps\": {}}},\n \"classifier_profile_digest\": {},\n \"rulings\": {},\n \"context_label\": {},\n \"context\": {},\n \"input_token_endpoint_root\": {},\n \"whole_run_floor_bits\": {},\n \"parameter_line\": {}\n}}\n",
++        "{{\n \"schema\": {},\n \"scope\": {},\n \"statement_written_by\": {},\n \"run_profile\": {},\n \"block_profile\": {},\n \"blocks\": {},\n \"export_variant\": {},\n \"trained_statement_identity\": {},\n \"policy\": {},\n \"verdict\": {},\n \"verdict_bit\": {},\n \"threshold_c\": {},\n \"yes_id\": {},\n \"no_id\": {},\n \"template_prefix_ids\": {},\n \"template_suffix_ids\": {},\n \"content_length_n\": {},\n \"chunk\": {{\"index\": {}, \"count\": {}, \"range\": [{}, {}], \"content_total\": {}, \"chunk_size\": {}, \"overlap\": {}, \"split\": \"end-aligned (DESIGN v2.2 13.1)\"}},\n \"T\": {},\n \"control_ids_below\": {},\n \"tokenizer\": {},\n \"margin_vector_digest\": {},\n \"margin_scale\": {:e},\n \"tied_source\": {},\n \"embedding_digest\": {},\n \"bos\": {},\n \"final_norm\": {{\"g0\": {}, \"cn\": {}, \"tn\": {}, \"ceps\": {}}},\n \"classifier_profile_digest\": {},\n \"rulings\": {},\n \"context_label\": {},\n \"context\": {},\n \"input_token_endpoint_root\": {},\n \"whole_run_floor_bits\": {},\n \"parameter_line\": {}\n}}\n",
+         js(CLASSIFY_STATEMENT_SCHEMA),
+-        js("a classifier proof (DESIGN_CLASSIFIER v2, rung R-C1): the approved integer model's verdict on hidden content under a pre-registered policy; one external endpoint; the verdict bit is public; NOT a privacy acceptance"),
++        js("a classifier proof (DESIGN_CLASSIFIER v2, rung R-C2): the approved integer model's verdict on hidden content under a pre-registered policy; the margin row and the embedding re-derived from the pinned tied tensor; one external endpoint; the verdict bit is public; NOT a privacy acceptance"),
+         js(writer.text()),
+         js(st.profile()),
+         js(st.sh().profile),
+@@ -326,6 +340,8 @@
+         cp.policy.num_special,
+         js(&cp.policy.tokenizer),
+         js(&hex(&cp.w_digest)),
++        cp.policy.margin_scale(),
++        js(&super::classify_tied::TiedSource::of_run_profile(st.profile())?.describe()),
+         js(&hex(&cp.emb_digest)),
+         cp.bos,
+         cp.norm.g0,
+@@ -474,10 +490,14 @@
+     claimed.dir(&owners_dir, true, "a run's owner directory")?;
+     let label = label_of(f)?;
+     let seq = SeqIn::of(f)?;
+-    let p = load_export(Path::new(need(f, "--export")?))?;
++    let export = PathBuf::from(need(f, "--export")?);
++    let p = load_export(&export)?;
+     let sh = &p.sh;
+-    let (tables, bos, norm) = load_classifier_tables(Path::new(need(f, "--tables")?), sh.width)?;
++    // R-C2: the policy first (its yes / no ids and public margin scale), then
++    // the tables RE-DERIVED from the pinned tied tensor and compared with the
++    // files; the run's margin row is the recomputed one
+     let policy = policy_by_id(need(f, "--policy")?)?;
++    let (tables, bos, norm) = super::classify_tied::load_tied_classifier_tables(&p, &export, Path::new(need(f, "--tables")?), &policy)?;
+     let whole = content_of(f)?;
+     let index: usize = flag(f, "--chunk").unwrap_or("0").parse().map_err(|_| "--chunk: a chunk index (0, 1, ...)")?;
+     let ch = ChunkRef::derive(whole.len(), index, chunk_plan(sh, &policy, p.profile)?)?;
+@@ -590,12 +610,21 @@
+     let min_bits: u32 = flag(f, "--min-bits").unwrap_or("95").parse().map_err(|_| "--min-bits: an integer")?;
+     let label = label_of(f)?;
+     let p = load_export(&export)?;
++    // D27: 93 bits only at the development rung; 95 at every other profile
++    let floor = super::classify_tied::min_bits_floor(p.profile);
++    if min_bits < floor {
++        return Err(format!("--min-bits {min_bits} is below the floor {floor} of the run profile {} (D27: production >= 95; 93 only at the development rung)", p.profile));
++    }
+     let want = unhex32(need(f, "--expect-statement")?)?;
+     if p.model.identity() != want {
+         return Err(format!("the export's trained statement identity (classifier run profile) is {}, not the pinned one", hex(&p.model.identity())));
+     }
+-    let (tables, bos, norm) = load_classifier_tables(Path::new(need(f, "--tables")?), p.sh.width)?;
++    // R-C2: the verifier re-derives the margin row and the embedding digest
++    // from the pinned tied tensor with the REGISTERED policy's ids and scale,
++    // and BOS / the final norm from the export's token_io_parameters; any
++    // table file that disagrees is refused (never trusted)
+     let policy = policy_by_id(need(f, "--policy")?)?;
++    let (tables, bos, norm) = super::classify_tied::load_tied_classifier_tables(&p, &export, Path::new(need(f, "--tables")?), &policy)?;
+     let published_dir = art.join(run_sink::STATEMENT_DIR);
+     let (sdir, writer) = if std::fs::symlink_metadata(&published_dir).is_ok() { (published_dir.clone(), Writer::Verifier) } else { (sibling(&art, ".unverified-statement"), Writer::Prover) };
+     check_statement_dir(&sdir, &["statement.json"])?;

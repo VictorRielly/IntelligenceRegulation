@@ -1,0 +1,195 @@
+{
+  "status": "PASS",
+  "checks": 517,
+  "profiles": [
+    {
+      "dd": false,
+      "context": 128,
+      "n": 16384,
+      "rows": 4577,
+      "data": 4283,
+      "sites": 146,
+      "groups": 36,
+      "baseline_visits": 45770,
+      "structural_visits": 9654,
+      "logical_matrix_read_reduction": 0.7890758138518681,
+      "baseline_bytes": 5999165440,
+      "structural_bytes_upper": 1265369088,
+      "multiply_claimed_data_rows": 508,
+      "packing_plan": [
+        [
+          25,
+          1,
+          2,
+          3
+        ],
+        [
+          4,
+          5,
+          6,
+          7
+        ],
+        [
+          8,
+          9,
+          10,
+          11
+        ],
+        [
+          31,
+          13,
+          14,
+          15
+        ],
+        [
+          29,
+          17,
+          28,
+          19
+        ],
+        [
+          20,
+          21,
+          22,
+          23
+        ],
+        [
+          34,
+          0,
+          35,
+          27
+        ],
+        [
+          18,
+          16,
+          30,
+          12
+        ],
+        [
+          32,
+          36,
+          24,
+          26
+        ],
+        [
+          33
+        ]
+      ],
+      "packed_visits": 5658,
+      "packed_bytes_upper": 741605376,
+      "packed_reduction_from_dense": 0.8763819095477386,
+      "planner_s": 0.01788249499804806,
+      "planner_swaps": 7,
+      "pair_swap_local_optimum": true,
+      "global_optimum_claim": false,
+      "rho_bytes_copied_if_clone": 2709584,
+      "max_streamed_clone_payload": 292928,
+      "combined_AH_baseline_bytes": 7725383680,
+      "combined_AH_original_order_upper_bytes": 2415919104,
+      "combined_AH_original_order_read_reduction": 0.6872751951136749,
+      "combined_AH_packed_upper_bytes": 1474560000,
+      "combined_AH_packed_read_reduction": 0.8091279267051239,
+      "native_define_executed": false,
+      "native_FS_executed": false,
+      "CUDA_executed": false
+    },
+    {
+      "dd": true,
+      "context": 128,
+      "n": 16384,
+      "rows": 4455,
+      "data": 4155,
+      "sites": 149,
+      "groups": 38,
+      "baseline_visits": 44550,
+      "structural_visits": 9328,
+      "logical_matrix_read_reduction": 0.7906172839506173,
+      "baseline_bytes": 5839257600,
+      "structural_bytes_upper": 1222639616,
+      "multiply_claimed_data_rows": 509,
+      "packing_plan": [
+        [
+          25,
+          1,
+          2,
+          3
+        ],
+        [
+          4,
+          5,
+          6,
+          7
+        ],
+        [
+          8,
+          9,
+          10,
+          11
+        ],
+        [
+          23,
+          13,
+          14,
+          15
+        ],
+        [
+          29,
+          17,
+          28,
+          19
+        ],
+        [
+          37,
+          21,
+          22,
+          31
+        ],
+        [
+          16,
+          20,
+          26,
+          27
+        ],
+        [
+          18,
+          36,
+          30,
+          12
+        ],
+        [
+          0,
+          33,
+          34,
+          35
+        ],
+        [
+          24,
+          32,
+          38
+        ]
+      ],
+      "packed_visits": 5794,
+      "packed_bytes_upper": 759431168,
+      "packed_reduction_from_dense": 0.8699438832772166,
+      "planner_s": 0.027336807994288392,
+      "planner_swaps": 10,
+      "pair_swap_local_optimum": true,
+      "global_optimum_claim": false,
+      "rho_bytes_copied_if_clone": 2779920,
+      "max_streamed_clone_payload": 285120,
+      "combined_AH_baseline_bytes": 7504134144,
+      "combined_AH_original_order_upper_bytes": 2318139392,
+      "combined_AH_original_order_read_reduction": 0.6910850275972892,
+      "combined_AH_packed_upper_bytes": 1451491328,
+      "combined_AH_packed_read_reduction": 0.8065744428142249,
+      "native_define_executed": false,
+      "native_FS_executed": false,
+      "CUDA_executed": false
+    }
+  ],
+  "seed": 202610290150,
+  "scope": "Exact source-derived frozenR13 A structural support; locally supplied public geometry/schedule and scripted challenges; no native define/FS/full proof. Pair-swap packing is bounded local optimum only.",
+  "full_stack_proofs": 0,
+  "model_passes": 0,
+  "proved_positions": 0
+}

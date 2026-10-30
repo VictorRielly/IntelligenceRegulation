@@ -1,0 +1,25 @@
+
+running 5 tests
+test private_block::r12_golden_tests::r12_golden_seeded_llama3_8b_t128_block_is_byte_identical ... R12-GOLDEN 8B bands Bands { attn: 6, gate: 8, down: 2, gains: (40, 127), xmag: 6000 }
+R12-GOLDEN hashline-zk-mr1/private-block-llama-3-8b-t128-trained/1: 23 slots, 69 absorbs, debug text 101397813 B
+R12-GOLDEN-DIGEST llama3-8b-t128 05a22d72a892aff5fb2e35da4d0ab0c894d696f2e6afa542b6ecece5aeb9f4db
+ok
+test private_block::r12_golden_tests::r12_golden_seeded_llama3_8b_t128_dd_block_is_byte_identical ... R12-GOLDEN 8B DD bands Bands { attn: 6, gate: 8, down: 2, gains: (40, 127), xmag: 6000 }
+R12-GOLDEN hashline-zk-mr1/private-block-llama-3-8b-t128-ddict32/1: 24 slots, 72 absorbs, debug text 102944941 B
+R12-GOLDEN-DIGEST llama3-8b-t128-dd 9c2572a3d5bc7b39374e39c3781d467f2c065279b23dd580bb0c9e02dd63c282
+ok
+test private_block::r12_golden_tests::r12_golden_seeded_tinyllama_t128_block_is_byte_identical ... R12-GOLDEN hashline-zk-mr1/private-block-tinyllama-1.1b-t128-trained-block/1: 23 slots, 69 absorbs, debug text 81760821 B
+R12-GOLDEN-DIGEST tinyllama-t128 782b64c97a88cba4c6c34a2fecb73132f26d5f54adc9bd159f3d6cf9df4205c0
+ok
+test private_block::r12_golden_tests::r12_golden_seeded_tinyllama_t128_dd_block_is_byte_identical ... R12-GOLDEN hashline-zk-mr1/private-block-tinyllama-1.1b-t128-trained-ddict/1: 24 slots, 72 absorbs, debug text 83300975 B
+R12-GOLDEN-DIGEST tinyllama-t128-dd e50e71f86ab64c6f4d69c6bee1ec7881feef75b1dc4c3972e20a6810c4428324
+ok
+test private_block::r12_golden_tests::r12_golden_statement_identities ... R12-GOLDEN-IDENTITY tinyllama-t128 f9b1e6c427637153ef7e40efd336952fb8d53b11e039f09031425d1e4cd8f22a encode-blake3 49cb306259b89be28b11627e907da628be9f8e44584a842d1c119040aea5c991
+R12-GOLDEN-IDENTITY llama3-8b-t128 3a1a4533863de5ca158418d2e2eef29c067395c3881ab8cfd4fd55c0afeb0548 encode-blake3 f289f47fad22ec792326797b891fb949fec3c4d24b99767b869857fef156f4e1
+R12-GOLDEN-IDENTITY tinyllama-t128-dd 0827ed029a86d3aa47679962dcb96ed752a79d59a2603dcc2a9374acd60f8505 encode-blake3 04b4d2ff946a39d25c2918caa7b765a3fb6cea937399ca994962a92d3bafd3d3
+R12-GOLDEN-IDENTITY llama3-8b-t128-dd a0354c192baaf7243f07e023865f003a67d9ef8b1da605186f3f9aeb17b708b7 encode-blake3 2c2b33298087b768c808dc74f0a4b082652b7f411b34b7ef0c27034975d8e0c2
+R12-GOLDEN-IDENTITY rung-dd 35ea356f20f3c001c069273461fb807d3ad28503a81af76cc03e717f0ccc8bcd encode-blake3 17d06db0332b4f7d14d780775736e2ec43e3e52e0547d02e3188072a8e2d65b7
+ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 755 filtered out; finished in 93.39s
+

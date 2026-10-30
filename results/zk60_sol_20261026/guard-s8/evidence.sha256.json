@@ -1,0 +1,13 @@
+{
+  "existing.json": "8cb41b7f22a27235b8bfcefd9794caace525d796b48a766997f8e2ad341ef53d",
+  "validate_existing.py": "d389f387516d60e932c3b51a85f8fd82fd5e0a8f674522eb673becbf612fa1a7",
+  "admission-only.patch": "8349c8de06480e10367a83b818c27b095a3637a3c0b82c02cd21267da18aead8",
+  "base.sha256.json": "d7f9dd94a20acf47ce0ed63bc1f8e28b0e4dd613c48ba3e6573b776a81257a80",
+  "s3.json": "fe3a935b8590ddf3fc3018a3e655128d310b0f779d3ff95cb79b86538b00f590",
+  "s3.done": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+  "zk60_resource_guard.py.candidate": "88af4c639848d39df8da559652db11529575aa745b916a06eb522c20ea89fbd3",
+  "S8_CANDIDATE_REPORT.json": "2f32808c0f662502364544bba99957666486caded9b3f199c1265b6bcc07d2ea",
+  "test_swap_admission.py": "f2a3b7175efe1373dc67333df1b79afbf88d636d59266b0349a43aa46b072c68",
+  "PROPOSAL.md": "9e56d536d8f3232682c3fa461406c16a8a59ee2211726f857578c0f71d313787",
+  "existing.done": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+}

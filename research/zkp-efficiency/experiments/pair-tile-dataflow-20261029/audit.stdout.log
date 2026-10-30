@@ -1,0 +1,1 @@
+{"status": "PASS", "checks": 1072, "native_pins": 9, "static_anchor_mutations": 9, "executed_arithmetic_mutants": 0, "source_identity_and_cost_audit_only": true, "external_review": false, "native_receipts_verified": false, "elapsed_s": 0.002234104002127424, "max_rss_kib": 14724}

@@ -1,0 +1,3009 @@
+diff -ruN -x __pycache__ frozen_v21/scripts/zk60_native_rg_classgate.py frozen_v22/scripts/zk60_native_rg_classgate.py
+--- frozen_v21/scripts/zk60_native_rg_classgate.py	2026-10-28 19:47:34.705213115 -0700
++++ frozen_v22/scripts/zk60_native_rg_classgate.py	2026-10-29 05:20:30.730518729 -0700
+@@ -62,6 +62,28 @@
+   doctored pad position, a pad inside the content range, a shifted verdict
+   row, a declared length that is not the actual one).
+ 
++[v22, gate round 19, 2026-10-29] PORTED to token frozen-r16b on native R13
++(the real Shieldstral-1.0-3B classifier; captures made through the gate's
++capture tree `capture-tree-r16b` + the test-only patches H19-1..H19-4):
++
++* the pins: `zk60_native_rg_classpins.classify_capture_pins_v22` (the five
++  classifier files at r16b, the native R12b -> R13 and token r14 -> r16b
++  readings of `zk60_native_rg_r13_pins`, the gate's own H19-3 / H19-4 patch
++  readings; 72 pins on an r16b classifier capture);
++* the R13 classifier run profiles (Shieldstral T128 / T256 and the test-only
++  R13 h24 rung): their pad ids (11 / 2), overlaps (8 / 4), block profiles, the
++  registered Shieldstral policy list (D45(2): the three moderate category
++  policies; the card policy refused by name), and EVERY block stage line's
++  R13 gate denominator (one per stage, in the class range [17, 24]; none at a
++  legacy profile);
++* B-3 at the real Shieldstral profile: the margin row and the embedding
++  DERIVED by the gate from the pinned checkpoint (`--tied-export`,
++  `zk60_native_rg_classtied.shieldstral_derive`) and tau rebuilt with the
++  exact numpy fold;
++* the block stages at an R13 shape: `zk60_native_rg_r13blocks.r13_block_terminals`
++  (the block-port sub-lane's module: the 23 slots at each stage's own gate
++  denominator and precision, R13's seven redefined slots, the R13 plane list).
++
+ NOTHING HERE IS A PRIVACY RESULT OR A PRIVACY ACCEPTANCE.
+ """
+ 
+@@ -456,6 +478,33 @@
+     want_line = f"= B_out at the fixed public row {g.verdict_row()} at pair row"
+     if not any(want_line in ln for ln in b.run.get("stage_lines", [])):
+         f.append(f"no stage line names B_out at the verdict row {g.verdict_row()}")
++    # [v22] the R13 classifier run profiles: the block profile, every block
++    # stage line's gate denominator (classify.rs `stage_lines` at r16b), the
++    # registered Shieldstral policy list (D45(2))
++    import re as _re
++    gates = []
++    for ln in b.run.get("stage_lines", []):
++        m = _re.search(r"^stage (\d+) \(block (\d+)\):", ln)
++        if not m:
++            continue
++        found = _re.findall(r"; R13 gate denominator (\d+) \(the layer record's accuracy-gate-layer\)", ln)
++        gates.append({"stage": int(m.group(1)), "block": int(m.group(2)),
++                      "gate": int(found[0]) if len(found) == 1 else None, "mentions": len(found)})
++    r13 = b.profile in CL.R13_CLASSIFY_RUN_PROFILES
++    if r13:
++        if b.run["shape"].get("profile") != CL.R13_BLOCK_PROFILE_OF[b.profile]:
++            f.append(f"the block profile {b.run['shape'].get('profile')!r} is not the R13 block profile "
++                     f"{CL.R13_BLOCK_PROFILE_OF[b.profile]!r} of {b.profile}")
++        if len(gates) != L or [g_["block"] for g_ in gates] != list(range(L)):
++            f.append(f"the stage lines name {len(gates)} block stages, the run has {L}")
++        for g_ in gates:
++            if g_["mentions"] != 1 or g_["gate"] is None or not (17 <= g_["gate"] <= 24):
++                f.append(f"stage {g_['stage']}: the stage line names {g_['mentions']} R13 gate denominator(s) "
++                         f"{g_['gate']!r}, one in [17, 24] is required at an R13 profile")
++        if b.profile != CL.RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST:
++            f += [f"policy: {x}" for x in CL.shieldstral_policy_check(cf["policy"])]
++    elif any(g_["mentions"] for g_ in gates):
++        f.append("a legacy classifier profile's stage line names an R13 gate denominator")
+     # D41: the chunk the header absorbs, re-derived from (total, index, the
+     # PLAN: size T - P0 - S, the registered overlap); n == b - a [v21]
+     ch = cf["chunk"]
+@@ -550,6 +599,7 @@
+     if vr.get("row") != g.verdict_row():
+         f.append(f"B_out's OUTC-00 claim is at row {vr.get('row')!r}, the verdict row is {g.verdict_row()} ({vr.get('why')})")
+     return {"findings": f, "ok": not f, "stages": len(b.stages), "blocks": L,
++            "r13_profile": r13, "r13_stage_gates": [g_["gate"] for g_ in gates],
+             "rc3_lengths_re_derived": rc3, "pad_id": pf.get("pad_id"), "bout_claim_row": vr,
+             "source_pins": {k: pins[k] for k in ("pins", "refusals", "ok")},
+             "source_pin_status": sorted({x["status"].split(":")[0] for x in pins["per_file"]}),
+@@ -1077,10 +1127,10 @@
+ 
+ 
+ # ------------------------------------------------------------------ the gate
+-def gate(directory: str, controls=True, full_preimage=True, calibration_export=None) -> dict:
++def gate(directory: str, controls=True, full_preimage=True, calibration_export=None, preimage_names=None) -> dict:
+     t0 = time.time()
+-    rec = {"what": "the privacy gate on ONE classifier run capture (D38 / D40 / D41 / D45; gate round 18, tools v21: "
+-                   "R-C2 / R-C3, token frozen-r14); NOT a privacy result",
++    rec = {"what": "the privacy gate on ONE classifier run capture (D38 / D40 / D41 / D45; gate round 19, tools v22: "
++                   "token frozen-r16b on native R13, the R13 h24 rung and the real Shieldstral-1.0-3B); NOT a privacy result",
+            "privacy_acceptance": False, "privacy_property_established": False, "timings": {}}
+ 
+     def tick(name, t):
+@@ -1132,7 +1182,7 @@
+     tick("terminals_and_NL1", t)
+     t = time.time()
+     cal, cal_src, stage_cals = None, None, None
+-    if calibration_export:
++    if calibration_export and b.profile not in CL.R13_CLASSIFY_RUN_PROFILES:
+         import zk60_native_rg_tokenblocks as TB
+         exp = TB.load_export(calibration_export)
+         ident = TB.identify_layers(b, exp, None)
+@@ -1141,20 +1191,49 @@
+             cals = TB.calibrations(exp, layers)
+             cal, stage_cals = cals["run_values"], cals["stage_values"]
+             cal_src = f"export {calibration_export}, layers {layers} (identified by their gains, X10)"
+-    rec["terminals_block_stages"] = class_block_terminals(b, rp, calibration=cal, calibration_source=cal_src,
+-                                                          controls=controls, stage_calibrations=stage_cals)
++    if b.profile in CL.R13_CLASSIFY_RUN_PROFILES:
++        # [v22] the block stages at an R13 shape: the block-port sub-lane's module
++        try:
++            import zk60_native_rg_r13blocks as RB
++        except ImportError as exc:
++            rec["terminals_block_stages"] = {"refused": f"no R13 block-stage port in these tools ({exc})", "ok": False}
++        else:
++            rec["terminals_block_stages"] = RB.r13_block_terminals(b, rp, calibration_export=calibration_export,
++                                                                   controls=controls)
++    else:
++        rec["terminals_block_stages"] = class_block_terminals(b, rp, calibration=cal, calibration_source=cal_src,
++                                                              controls=controls, stage_calibrations=stage_cals)
+     tick("terminals_block_stages", t)
++    # [v22] DECLARED LIMITS (never silent): a capture recorded with public tables as length + digest
++    # (the real Shieldstral capture) leaves the block slots that need a captured table OPEN, by the
++    # capture option (`zk60_native_rg_r13blocks`: `tables_absent_by_capture_option`); the block part
++    # then counts as passed only on the slots it covers without tables, and the run's status says so
++    tbs = rec["terminals_block_stages"]
++    blocks_tables_open = bool(tbs.get("tables_absent_by_capture_option"))
++    blocks_ok = tbs.get("ok") is True or (blocks_tables_open and tbs.get("ok_on_the_covered_slots") is True)
++    rec["declared_limits"] = []
++    if blocks_tables_open:
++        rec["declared_limits"].append(
++            f"block-stage terminals: slots {tbs.get('slots_open_without_tables')} open in every block stage (the "
++            "capture carries public tables as length + digest only); covered without tables: "
++            f"{tbs.get('slots_covered_without_tables')}, ok on them: {tbs.get('ok_on_the_covered_slots')}")
+     if full_preimage:
+         t = time.time()
+         from zk60_native_rg_ahpreimage import full_preimages
+-        s11 = full_preimages(b, views, names=list(views))
++        names = list(views) if preimage_names is None else [n for n in preimage_names if n in views]
++        s11 = full_preimages(b, views, names=names)
+         rec["full_preimage"] = {k: s11[k] for k in ("ok", "view_entries_compared", "view_entries_differing",
+                                                     "salted_leaves_authenticated", "commitments") if k in s11}
++        if preimage_names is not None:
++            rec["full_preimage"]["sampled_commitments"] = names
++            rec["full_preimage"]["not_evaluated"] = [n for n in views if n not in names]
++            rec["declared_limits"].append(f"full preimage on a declared SAMPLE of {len(names)} of {len(views)} "
++                                          f"commitments: {names}")
+         tick("full_preimage", t)
+         rec["joint_preimage"] = TG.token_joint_preimage(
+             b, views, s11, rec["G3_mask_cfs"], rec["G1_joint"],
+             {"classifier_slots": rec["terminals_classifier_slots"], "block_stages": rec["terminals_block_stages"],
+-             "ok": rec["terminals_classifier_slots"].get("ok") is True and rec["terminals_block_stages"].get("ok") is True})
++             "ok": rec["terminals_classifier_slots"].get("ok") is True and blocks_ok})
+     else:
+         rec["full_preimage"] = {"skipped": "not requested", "ok": None}
+         rec["joint_preimage"] = {"skipped": "needs the full preimage", "ok": None}
+@@ -1192,8 +1271,12 @@
+     rec["boundaries_ok"] = all(v["disclosed_on_the_reserved_block_fp"] == 0 and v["full_row_rank"]
+                                and v["determinant_nonzero"] and v["row_rule"] == "data + 2*sites + 2" for v in bres.values())
+     rec["false_parts"] = [p for p in parts if not (rec[p] or {}).get("ok")] + ([] if rec["boundaries_ok"] else ["boundaries"])
++    if blocks_tables_open and blocks_ok and "terminals_block_stages" in rec["false_parts"]:
++        rec["false_parts"].remove("terminals_block_stages")      # passed on its covered slots: a declared limit
+     rec["ok"] = not rec["false_parts"] and (rec["controls"].get("ok") is True if controls else True)
+     rec["status"] = "PASS" if rec["ok"] and controls else ("PASS-NO-CONTROLS" if rec["ok"] else "NOT-OK")
++    if rec["status"] == "PASS" and rec["declared_limits"]:
++        rec["status"] = "PASS-WITH-DECLARED-LIMITS"
+     rec["total_seconds"] = round(time.time() - t0, 1)
+     try:
+         import resource
+@@ -1214,16 +1297,25 @@
+     ap.add_argument("--no-controls", action="store_true")
+     ap.add_argument("--no-full-preimage", action="store_true")
+     ap.add_argument("--calibration-export", default=None)
++    # [v22] the export whose profile.json / rotation signs / checkpoint
++    # declaration B-3 derives the Shieldstral tables from
++    ap.add_argument("--tied-export", default=None)
++    # [v22] the full preimage on a declared sample of commitments (comma list of view names)
++    ap.add_argument("--preimage-names", default=None)
+     a = ap.parse_args(argv)
++    if a.tied_export:
++        import zk60_native_rg_classtied as TD
++        TD.SHIELD_EXPORT = a.tied_export
+     rec = gate(a.bundle, controls=not a.no_controls, full_preimage=not a.no_full_preimage,
+-               calibration_export=a.calibration_export)
++               calibration_export=a.calibration_export,
++               preimage_names=a.preimage_names.split(",") if a.preimage_names else None)
+     os.makedirs(a.evidence, exist_ok=True)
+     path = os.path.join(a.evidence, f"{a.name}.json")
+     with open(path, "w") as fh:
+         json.dump(rec, fh, indent=1, sort_keys=True, default=str)
+     print(f"{a.name}: status {rec['status']}; false parts {rec['false_parts']}; controls not fired "
+           f"{rec['controls'].get('not_fired')}; {rec['total_seconds']} s; record {path}")
+-    return 0 if rec["status"] == "PASS" else 1
++    return 0 if rec["status"] in ("PASS", "PASS-WITH-DECLARED-LIMITS") else 1
+ 
+ 
+ if __name__ == "__main__":
+diff -ruN -x __pycache__ frozen_v21/scripts/zk60_native_rg_classify.py frozen_v22/scripts/zk60_native_rg_classify.py
+--- frozen_v21/scripts/zk60_native_rg_classify.py	2026-10-28 19:47:34.704933473 -0700
++++ frozen_v22/scripts/zk60_native_rg_classify.py	2026-10-29 04:45:09.016921682 -0700
+@@ -123,6 +123,65 @@
+ # cloned from it: 2)
+ PAD_IDS = {RUN_PROFILE_CLASSIFY_RUNG_TC: 2}
+ 
++# [v22, gate round 19, READ token frozen-r16b] run.rs:153-154 / :173 (the R13
++# classifier run profiles: Shieldstral T128 / T256, and the TEST-ONLY R13 h24
++# development rung), classify.rs:280-292 (CHUNK_OVERLAPS 8 at Shieldstral; 4 at
++# the test rung, `#[cfg(test)]`), classify.rs:136-235 (the pad ids: the dev
++# policy's 2, every Shieldstral category policy's 11)
++RUN_PROFILE_CLASSIFY_R13_SHIELD_T128 = "hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/1"
++RUN_PROFILE_CLASSIFY_R13_SHIELD_T256 = "hashline-zk-mr1/private-classify-run-shieldstral-3b-t256-r13-public-row/1"
++RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST = "hashline-zk-mr1/private-classify-run-rung-lh-t32-public-row-tst/1"
++CHUNK_OVERLAPS.update({RUN_PROFILE_CLASSIFY_R13_SHIELD_T128: 8, RUN_PROFILE_CLASSIFY_R13_SHIELD_T256: 8,
++                       RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST: 4})
++PAD_IDS.update({RUN_PROFILE_CLASSIFY_R13_SHIELD_T128: 11, RUN_PROFILE_CLASSIFY_R13_SHIELD_T256: 11,
++                RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST: 2})
++# the R13 block profile each R13 classifier run profile names (run.rs:157-160,
++# shape.rs:188-193), and the R13 classifier run profiles (the stage lines
++# carry each block stage's gate denominator, classify.rs `stage_lines`)
++R13_BLOCK_PROFILE_OF = {RUN_PROFILE_CLASSIFY_R13_SHIELD_T128: "hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/1",
++                        RUN_PROFILE_CLASSIFY_R13_SHIELD_T256: "hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-blocks/1",
++                        RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST: "hashline-zk-mr1/private-block-rung-lh-t32-dev/1"}
++R13_CLASSIFY_RUN_PROFILES = tuple(R13_BLOCK_PROFILE_OF)
++# **THE PRE-REGISTERED SHIELDSTRAL POLICY LIST (D45(2))** at r16b
++# (classify.rs:145-235, `registered_policies()` = [dev] + these three; the card
++# policy is `#[cfg(test)]` since round 16b, REVIEW_R16 F-1). The prefix ids'
++# SHA-256 (u64 LE each) are the round-16 test's pins of Astra's moderate
++# templates (classify_r16_tests.rs:70-74); every other field is common.
++SHIELDSTRAL_POLICIES = {
++    "shieldstral-1.0-3b-moderate-sexual/1": {"p0": 72, "prefix_sha256": "eed4d4c58661672ee6ee9b2f30fe2bbc99282f875f8246dec0d9d2d26d8ab3fd"},
++    "shieldstral-1.0-3b-moderate-violence/1": {"p0": 72, "prefix_sha256": "96225c387d6c3d6ccf29827d5ea6889e0be13e68fa0788c9cc7a5edd3aedfba1"},
++    "shieldstral-1.0-3b-moderate-hate/1": {"p0": 78, "prefix_sha256": "83ac93e6a103a270205398d4c9bc341ac64b5f48021a963504ac270277329fee"},
++}
++SHIELDSTRAL_POLICY_COMMON = {"suffix": [4], "yes": 13059, "no": 2649, "c": 0, "pad": 11, "num_special": 1000,
++                             "v": 131072, "margin_scale_bits": "0x3ed11ff597db2fb6"}
++SHIELDSTRAL_CARD_POLICY = "shieldstral-1.0-3b-card-unsafe/1"   # test-only at r16b; refused here by name
++
++
++def shieldstral_policy_check(policy: dict) -> list:
++    """[v22] a Shieldstral capture's policy against the registered list:
++    the id one of the three, its P0 and prefix digest, every common field"""
++    import hashlib
++    import struct as _st
++    f = []
++    pid = policy.get("id")
++    if pid == SHIELDSTRAL_CARD_POLICY:
++        return [f"policy {pid} is round 12's card policy, test-only since r16b (REVIEW_R16 F-1): not registered"]
++    want = SHIELDSTRAL_POLICIES.get(pid)
++    if want is None:
++        return [f"policy {pid!r} is not one of the three registered Shieldstral category policies (D45(2))"]
++    pre = list(policy.get("prefix_ids") or [])
++    if len(pre) != want["p0"]:
++        f.append(f"policy {pid}: P0 {len(pre)}, registered {want['p0']}")
++    if hashlib.sha256(b"".join(_st.pack("<Q", int(x)) for x in pre)).hexdigest() != want["prefix_sha256"]:
++        f.append(f"policy {pid}: the prefix ids are not the registered template's")
++    c = SHIELDSTRAL_POLICY_COMMON
++    got = {"suffix": list(policy.get("suffix_ids") or []), "yes": policy.get("yes"), "no": policy.get("no"),
++           "c": policy.get("c"), "num_special": policy.get("num_special")}
++    for k_, v_ in got.items():
++        if v_ != c[k_]:
++            f.append(f"policy {pid}: {k_} {v_!r}, registered {c[k_]!r}")
++    return f
++
+ # [READ] stage_in_c.rs:24-37
+ INC_A_TOK, INC_A_MULT = 0, 1
+ INC_H_Q, INC_H_TAB, INC_H_U = 0, 1, 2
+diff -ruN -x __pycache__ frozen_v21/scripts/zk60_native_rg_classpins.py frozen_v22/scripts/zk60_native_rg_classpins.py
+--- frozen_v21/scripts/zk60_native_rg_classpins.py	2026-10-28 19:35:14.951544583 -0700
++++ frozen_v22/scripts/zk60_native_rg_classpins.py	2026-10-29 04:44:14.183537639 -0700
+@@ -512,3 +512,151 @@
+         if got is not None and got not in rd and got not in (r["base"] for r in rd.values()):
+             refused.append(f"{f}: {got[:12]} has no reading")
+     return {"read": read, "refusals": refused, "ok": not refused}
++
++
++# =====================================================================
++# [v22, gate round 19, 2026-10-29] token frozen-r16b on native R13
++# =====================================================================
++# The classifier port (`zk60_native_rg_classgate` / `_classify` /
++# `_classterminals` / `_classtied` at v22) was READ against these digests of
++# token frozen-r16b (manifest_final_r16b, list 04d94bc0...): classify.rs at
++# r16b (the R13 stage lines "R13 gate denominator G", `stage_shape` /
++# `stage_gate`, the Shieldstral moderate policy list, pad id 11, overlap 8,
++# the R13 whole-run term), classify_tied.rs (the Shieldstral tied source),
++# classify_run.rs (the pre-header stage check, no transcript byte), and the
++# two stage files, unchanged since r14 (the reading sub-lane,
++# `zk60_native_rg_r13_pins`).
++CLASSIFY_PORTED_FROM_V22 = {
++    "src/private_block/token_io/classify.rs": "c180c83fb50f624d15ef9d17dae4195b53161a1131892ea0bb15b0761da99b1d",
++    "src/private_block/token_io/classify_run.rs": "8abbf72f1c8e18bea1ac99e93a82562bca793afb4d94ed27dea24403850523f9",
++    "src/private_block/token_io/classify_tied.rs": "a89acfabc75c869c1f53d493a5caaa236af1a8df18ba6e30b1f3ab26167c4aaf",
++    "src/private_block/token_io/stage_in_c.rs": "6a92da0ecfe736537f859bcde5eb3fb89c0852e8d06dfe7f21e0feb9c4bbe6ff",
++    "src/private_block/token_io/stage_out_c.rs": "93a79a2b39ab1eb70442b6ee7f0d949cfbf20f7c84b660ec4aa4ebe2ef7a564a",
++}
++
++# the gate's OWN test-only patches in its capture tree (round 19), read here:
++# each moves only a `#[cfg(test)]` recorder module, never a prover or
++# verifier byte, and chains to the frozen-r16b digest it patched
++GATE19_PATCH_READINGS = {
++    "src/private_block/plane_index.rs": {
++        "ce79803c86a80dde832dc92a262a023efdd52bb95b9a15f128791978c306ffac": {
++            "base": "13a7dd6ff1f9178dd640e3d38309a5581a39cf13c9c61238c41ceba83420afbf", "moves_a_receipt_byte": False, "moves_a_block_stage_byte": False,
++            "classification": "gate test-only patch H19-3 (cfg(test) recorder module)",
++            "reading": "[GATE ROUND 19, H19-3] at an R13 accuracy shape `build` names the A planes from "
++                       "`AccuracyIds` (prefix A_, domains already matched by `Ids::new` against "
++                       "`Shape::a_plane_doms`) and SC_DZC / SC_QZC / SC_KVZC / SC_FZC sweep the whole "
++                       "domain range (argument_accuracy.rs `b.a_range(range.start, range.end - 1)`); every "
++                       "legacy branch is byte-identical (patch round19/cap/H19-3.plane_index.patch). The "
++                       "recorder still compares each slot's ACTUAL private-table order with this list and "
++                       "the counts with `Shape::claim_sites`, so a wrong list refuses the capture",
++        },
++    },
++    "src/private_block/run_capture.rs": {
++        "8292b1c6856daa521439037570930827ecc3979bd64c279127a2b0f1b6014817": {
++            "base": "cad25086949c34d5d338fd1522401486f8099448cce47551f5487d3a05fc0fd7", "moves_a_receipt_byte": False, "moves_a_block_stage_byte": False,
++            "classification": "gate test-only patch H19-4 (cfg(test) recorder module)",
++            "reading": "[GATE ROUND 19, H19-4] `bundle_is_classify` uses `run::is_classify_run_profile` "
++                       "(which admits the test-only R13 rung classifier profile) instead of the three "
++                       "production CLASSIFY_RUN_PROFILES: an R13-rung classifier bundle is written under "
++                       "`7-classify-run` with the five classifier pins (finding F19-1). Production "
++                       "profiles: identical (they are in both lists)",
++        },
++    },
++}
++
++
++def _full(prefix_map):
++    """expand the short digests above against the frozen-r16b manifest"""
++    import os
++    root = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), *([os.pardir] * 5)))
++    man = os.path.join(root, "results/zk60_token_io_r1_20261017/manifest_final_r16b.sha256")
++    full = {}
++    for line in open(man):
++        d, p = line.rstrip("\n").split("  ", 1)
++        full[p[len("hashline/"):] if p.startswith("hashline/") else p] = d
++    out = {}
++    for f, d in prefix_map.items():
++        want = full.get(f)
++        out[f] = want if want and want.startswith(d[:8]) else d
++    return out
++
++
++CLASSIFY_PORTED_FROM_V22 = _full(CLASSIFY_PORTED_FROM_V22)
++for _f, _tbl in GATE19_PATCH_READINGS.items():
++    for _d, _r in _tbl.items():
++        _r["base"] = _full({_f: _r["base"]})[_f]
++
++
++def _r13_tables():
++    try:
++        import zk60_native_rg_r13_pins as R13
++    except ImportError:
++        return []
++    return [getattr(R13, k, {}) for k in ("TOKEN_R16B_READINGS", "NATIVE_R13_READINGS", "NEW_R13_READINGS")]
++
++
++def _reading_v22(f, d):
++    for table in [GATE19_PATCH_READINGS] + _r13_tables() + [CLASSIFY_R14_READINGS, _native_readings(),
++                                                           HOOKED_READINGS, CLASSIFY_R12_READINGS]:
++        r = table.get(f, {}).get(d)
++        if r is not None:
++            return r
++    return None
++
++
++def classify_capture_pins_v22(manifest: dict) -> dict:
++    """[v22] every `source_pins` entry of a classifier capture of token
++    frozen-r16b on native R13 (made through the gate's H19 capture tree):
++    accepted when it is a ported classifier file at the v22 port's digest;
++    when the token gate or the block gate accepts it; or when a chain of
++    written readings (the gate's own H19 patch readings, the reading sub-lane's
++    r16b / R13 readings, then v21's tables) leads from it to such a digest or
++    to a NEW file's first reading, every step `moves_a_receipt_byte: False`;
++    refused by name otherwise.  Every v22-ported file must be pinned, so an
++    r14 capture (classify.rs at 6c828db6) is refused by name."""
++    pins = {p["file"]: p["sha256"] for p in manifest.get("source_pins", [])}
++    per, refused = [], []
++    for f in sorted(pins):
++        d = pins[f]
++        if f in CLASSIFY_PORTED_FROM_V22:
++            if d == CLASSIFY_PORTED_FROM_V22[f]:
++                per.append({"file": f, "sha256": d, "status": "the v22 classifier port's digest"})
++            else:
++                refused.append(f"{f}: {d[:12]}, the v22 classifier port was read at {CLASSIFY_PORTED_FROM_V22[f][:12]}")
++                per.append({"file": f, "sha256": d, "status": "REFUSED"})
++            continue
++        if _token_accepts(f, d):
++            per.append({"file": f, "sha256": d, "status": "read by the token gate (v18)"})
++            continue
++        if _block_gate_accepts(f, d):
++            per.append({"file": f, "sha256": d, "status": "read by the block gate"})
++            continue
++        chain, cur, ok = [], d, False
++        for _ in range(12):
++            r = _reading_v22(f, cur)
++            if r is None or r.get("moves_a_receipt_byte") is not False:
++                break
++            base = r.get("base")
++            chain.append(f"{cur[:12]} -> {(base or 'NEW FILE')[:12]}")
++            if base is None:
++                ok = True
++                break
++            cur = base
++            if _token_accepts(f, cur) or _block_gate_accepts(f, cur):
++                ok = True
++                break
++        if ok:
++            per.append({"file": f, "sha256": d, "status": "read by a chain of readings: " + "; ".join(chain)})
++        else:
++            refused.append(f"{f}: {d[:12]} has no reading" + (f" (chain {'; '.join(chain)} stops)" if chain else ""))
++            per.append({"file": f, "sha256": d, "status": "REFUSED"})
++    missing = [f for f in CLASSIFY_PORTED_FROM_V22 if f not in pins]
++    refused += [f"{f}: not pinned (the v22 classifier port was read from it)" for f in missing]
++    return {"pins": len(pins), "per_file": per, "refusals": refused, "ok": not refused,
++            "port": "v22 (token frozen-r16b on native R13, gate capture tree + H19)"}
++
++
++def classify_capture_pins(manifest: dict) -> dict:  # noqa: F811  [v22] replaces v21's dispatcher
++    """[v22] the classifier capture pin check is v22's (token frozen-r16b);
++    v21's rule is kept as `classify_capture_pins_v21` for the record"""
++    return classify_capture_pins_v22(manifest)
+diff -ruN -x __pycache__ frozen_v21/scripts/zk60_native_rg_classterminals.py frozen_v22/scripts/zk60_native_rg_classterminals.py
+--- frozen_v21/scripts/zk60_native_rg_classterminals.py	2026-10-28 19:53:22.746065716 -0700
++++ frozen_v22/scripts/zk60_native_rg_classterminals.py	2026-10-29 05:08:43.110733213 -0700
+@@ -477,8 +477,19 @@
+                id(cx.emb))
+         hit = TD._CACHE.get(key)
+         if hit is None:
+-            hit = TD.tau_table(cx.emb, cx.v, cx.d, cx.geom.voc_log(), cx.num_special, cx.r_emb,
+-                               cx.beta_num, cx.g_emb_num)
++            if isinstance(cx.emb, list):
++                hit = TD.tau_table(cx.emb, cx.v, cx.d, cx.geom.voc_log(), cx.num_special, cx.r_emb,
++                                   cx.beta_num, cx.g_emb_num)
++            elif hasattr(cx.emb, "fold"):
++                # [v22] the Shieldstral embedding as a lazy handle: the fold
++                # streams the pinned checkpoint (no 805 MB table held)
++                ef = cx.emb.fold(cx.r_emb, cx.d)
++                hit = TD.tau_table_from_fold(ef, cx.v, cx.geom.voc_log(), cx.num_special, cx.beta_num, cx.g_emb_num)
++            else:
++                # [v22] the Shieldstral embedding (a V x d int16 numpy array): the
++                # exact numpy fold (zk60_native_rg_classtied.emb_fold_np)
++                ef = TD.emb_fold_np(cx.emb, cx.d, cx.r_emb)
++                hit = TD.tau_table_from_fold(ef, cx.v, cx.geom.voc_log(), cx.num_special, cx.beta_num, cx.g_emb_num)
+             TD._CACHE[key] = hit
+         return list(hit)
+     return None
+@@ -1159,9 +1170,10 @@
+     out["verdict_row"] = cf["P0"] + cf["n"] + cf["S"] - 1
+     # [v21, R-C2] B-3: the tables DERIVED from the pinned tensor (the margin row
+     # and the embedding), when the profile names the development rung's source
+-    if pf["tied_source_sentence_is_the_dev_rung"] and pf["margin_scale"] is not None:
++    # [v22] or the REAL Shieldstral checkpoint's (TD.derive_for_profile)
++    if pf["margin_scale"] is not None:
+         try:
+-            dv = TD.derive_dev(cf["policy"]["yes"], cf["policy"]["no"], pf["margin_scale"])
++            dv = TD.derive_for_profile(cf, pf)
+             out["w_delta"], out["emb"] = list(dv["w"]), dv["emb"]
+         except ValueError:
+             pass
+@@ -1325,6 +1337,8 @@
+     g = bundle.geom
+     docs = stage_docs if stage_docs is not None else [st.doc for st in bundle.stages]
+     b3 = None
++    # [v22] a capture written with HL_RUN_CAPTURE_PUBLIC_TABLES=0 declares it; only then may a table carry no values
++    public_values_optional = (getattr(bundle, "run", None) or {}).get("public_tables_included") is False
+     for st in (bundle.stages[0], bundle.stages[-1]):
+         kind = st.kind
+         doc = docs[st.index]
+@@ -1375,8 +1389,41 @@
+                             capv = list(capv)
+                             capv[tdl[1]] = add(capv[tdl[1]], tdl[2])
+                         prow = {"table": i, "what": describe_c(desc), "len": cap["len"], "class": table_class_c(desc)}
+-                        if capv is None:
++                        if capv is None and not public_values_optional:
+                             raise ValueError(f"public table {i} ({describe_c(desc)}): the capture carries no values")
++                        if capv is None:
++                            # [v22] a capture recorded with public tables as LENGTH + DIGEST only (the real
++                            # Shieldstral capture): every classifier table is REBUILT from public data and
++                            # compared with the capture's length and SHA-256; nothing is taken
++                            rb = rebuild_public_c(desc, cx)
++                            if rb is None:
++                                raise ValueError(f"public table {i} ({describe_c(desc)}): the capture carries no "
++                                                 "values and the port cannot rebuild it")
++                            if len(rb) != cap["len"]:
++                                raise ValueError(f"public table {i}: rebuilt {len(rb)} values for len {cap['len']}")
++                            if tdl is not None and tdl[0] == i:
++                                # a CONTROL's moved entry (CC-4 / CC-5) applies to the table the port
++                                # would use in place of the captured values
++                                rb = list(rb)
++                                rb[tdl[1]] = add(rb[tdl[1]], tdl[2])
++                            prow.update({"values": "length + digest only (capture option); the REBUILT table is "
++                                                   "compared with the capture's digest",
++                                         "captured_values_match_own_digest": None, "rebuilt": True,
++                                         "rebuilt_digest_matches_capture": table_digest(rb) == cap["sha256"],
++                                         "evaluations_agree": None})
++                            if desc[0] == "captured":
++                                prow["rebuilt_from"] = "the embedding derived from the pinned tied tensor (B-3, v22)"
++                            if desc[0] == "w_delta":
++                                # B-3: the rebuilt row IS the derived row; its digest equal to the capture's
++                                # table digest means the receipt's margin vector is exactly the derived row
++                                b3 = b3_margin_vector(rb, cx, bundle)
++                                if not b3["ok"]:
++                                    pf += b3["findings"]
++                            if check_digests and not prow["rebuilt_digest_matches_capture"]:
++                                pf.append(f"public table {i} ({describe_c(desc)}): digest mismatch")
++                            vals.append(F2(mul(sel, TT.mle(rb, eqt))))
++                            pub_rows.append(prow)
++                            continue
+                         if len(capv) != cap["len"]:
+                             raise ValueError(f"public table {i}: {len(capv)} values for len {cap['len']}")
+                         prow["captured_values_match_own_digest"] = table_digest(capv) == cap["sha256"]
+diff -ruN -x __pycache__ frozen_v21/scripts/zk60_native_rg_classtied.py frozen_v22/scripts/zk60_native_rg_classtied.py
+--- frozen_v21/scripts/zk60_native_rg_classtied.py	2026-10-28 19:31:52.880378953 -0700
++++ frozen_v22/scripts/zk60_native_rg_classtied.py	2026-10-29 05:00:33.617094305 -0700
+@@ -206,9 +206,42 @@
+     m = re.search(r"tied-source=(\S+)", text)
+     out["tied_source"] = m.group(1) if m else None
+     out["tied_source_sentence_is_the_dev_rung"] = TIED_SOURCE_DEV in text
++    # [v22] the real Shieldstral source (classify_tied.rs:119-125 at r16b)
++    out["tied_source_sentence_is_shieldstral"] = TIED_SOURCE_SHIELDSTRAL in text
+     return out
+ 
+ 
++# [v22] the Shieldstral export the gate derives B-3 from (its profile.json,
++# rotation signs and checkpoint declaration); set by the classifier gate's
++# `--tied-export`.  Never a table file of the export is read.
++SHIELD_EXPORT = None
++
++
++def derive_for_profile(cf: dict, pf: dict) -> dict:
++    """[v22] the tables DERIVED from the pinned tensor the profile text names:
++    the development rung's (`derive_dev`) or the real Shieldstral checkpoint's
++    (`shieldstral_derive`, under `SHIELD_EXPORT`).  Raises ValueError when no
++    source can be derived (the caller records it as a B-3 finding)."""
++    pol = cf["policy"]
++    if pf["margin_scale"] is None:
++        raise ValueError("no margin-scale-bits in the profile text")
++    if pf.get("tied_source_sentence_is_the_dev_rung"):
++        dv = dict(derive_dev(pol["yes"], pol["no"], pf["margin_scale"]))
++        dv.setdefault("emb_digest", emb_digest(DEV_TIED_V, DEV_TIED_D, dv["emb"]))
++        dv["v"], dv["d"], dv["source"] = DEV_TIED_V, DEV_TIED_D, "dev-rung"
++        return dv
++    if pf.get("tied_source_sentence_is_shieldstral"):
++        if SHIELD_EXPORT is None:
++            raise ValueError("the profile names the Shieldstral checkpoint; give the gate --tied-export <export>")
++        key = ("shield", SHIELD_EXPORT, pol["yes"], pol["no"], pf["margin_scale"])
++        if key not in _CACHE:
++            _CACHE[key] = shieldstral_derive(SHIELD_EXPORT, pol["yes"], pol["no"], pf["margin_scale"])
++        dv = dict(_CACHE[key])
++        dv["v"], dv["d"] = SHIELD_V, SHIELD_D
++        return dv
++    raise ValueError("the profile text names no tied source this gate derives")
++
++
+ def derived_tables_check(b, words_captured=None) -> dict:
+     """B-3 v21 on a capture: the tables DERIVED from the pinned tensor under
+     the profile's (yes, no, margin-scale) and the rung's residual unit, their
+@@ -222,31 +255,23 @@
+     rec = {"what": "B-3 (v21): the margin row and the embedding DERIVED from the pinned tied tensor, not taken",
+            "profile_fields": {k: pf[k] for k in ("yes", "no", "margin_scale_bits", "margin_scale", "tied_source",
+                                                  "tied_source_sentence_is_the_dev_rung")}}
+-    if not pf["tied_source_sentence_is_the_dev_rung"]:
+-        f.append("B-3: the profile text does not name the development rung's tied source (bba6d094...); "
+-                 "no other source is derived here")
+-        rec.update({"findings": f, "ok": False})
+-        return rec
++    rec["profile_fields"]["tied_source_sentence_is_shieldstral"] = pf.get("tied_source_sentence_is_shieldstral")
+     pol = cf["policy"]
+     if (pf["yes"], pf["no"]) != (pol["yes"], pol["no"]):
+         f.append("B-3: the profile text's yes / no are not the policy's")
+-    if pf["margin_scale"] is None:
+-        f.append("B-3: no margin-scale-bits in the profile text")
+-        rec.update({"findings": f, "ok": False})
+-        return rec
+     try:
+-        dv = derive_dev(pol["yes"], pol["no"], pf["margin_scale"])
++        dv = derive_for_profile(cf, pf)   # [v22] the dev rung's or the real Shieldstral source
+     except ValueError as exc:
+-        rec.update({"findings": [f"B-3: {exc}"], "ok": False})
++        rec.update({"findings": f + [f"B-3: {exc}"], "ok": False})
+         return rec
+     d, v = cf["d"], cf["V"]
+-    if (v, d) != (DEV_TIED_V, DEV_TIED_D):
+-        f.append(f"B-3: the classifier facts give V x d = {v} x {d}, the dev tensor is {DEV_TIED_V} x {DEV_TIED_D}")
++    if (v, d) != (dv["v"], dv["d"]):
++        f.append(f"B-3: the classifier facts give V x d = {v} x {d}, the tied tensor is {dv['v']} x {dv['d']}")
+     w_dig = w_digest(d, dv["w"])
+     want_w = bytes(cf["margin_vector"]["digest"]).hex()
+     if w_dig != want_w:
+         f.append(f"B-3: the derived margin row hashes to {w_dig[:12]}, the statement's digest is {want_w[:12]}")
+-    e_dig = emb_digest(v, d, dv["emb"])
++    e_dig = dv["emb_digest"]
+     want_e = bytes(cf["embedding_digest"]).hex()
+     if e_dig != want_e:
+         f.append(f"B-3: the derived embedding hashes to {e_dig[:12]}, the statement's embedding digest is {want_e[:12]}")
+@@ -260,10 +285,289 @@
+         cmp_ = {"entries": len(words_captured), "differing": len(diff), "first_differing": diff[:4]}
+         if diff or len(words_captured) < d:
+             f.append(f"B-3: the recorded margin vector differs from the derived row at {len(diff)} entries")
+-    rec.update({"tensor_sha256": dv["tensor_sha256"], "tensor_pin": DEV_TIED_TENSOR_SHA256,
++    rec.update({"tied_source": dv.get("source"), "tensor_sha256": dv["tensor_sha256"],
++                "tensor_pin": DEV_TIED_TENSOR_SHA256 if dv.get("source") == "dev-rung" else SHIELD_TENSOR_SHA256,
++                "checkpoint_sha256_authenticated": dv.get("checkpoint_sha256"),
+                 "derived_margin_digest": w_dig, "statement_margin_digest": want_w,
+                 "derived_margin_sha256_int16": dv["w_sha256"], "derived_embedding_digest": e_dig,
+                 "statement_embedding_digest": want_e, "derived_embedding_sha256_int16": dv["emb_sha256"],
+-                "residual_unit": dv["residual_unit"], "recorded_vs_derived": cmp_,
++                "residual_unit": dv.get("residual_unit", dv.get("embedding_scale")), "recorded_vs_derived": cmp_,
+                 "findings": f, "ok": not f})
+     return rec
++
++
++# =====================================================================
++# [v22, gate round 19, 2026-10-29] B-3 at the REAL Shieldstral profile
++# =====================================================================
++# READ [token frozen-r16b, list 04d94bc0...]:
++# * `tied_tables/derive.rs` (c5bec3c6): WIDTH 3072, VOCAB 131072, TENSOR
++#   `language_model.model.embed_tokens.weight`, NORM
++#   `language_model.model.norm.weight`, CHECKPOINT_BYTES 7698241104,
++#   DEFAULT_CHECKPOINT (:5-10); `Checkpoint::open` (:121-160): the safetensors
++#   header, the tensor [V, D] and norm [D] extents, no `lm_head`, the WHOLE
++#   file's SHA-256 against `ModelSource::shieldstral_1_0_3b().weights_sha256`
++#   (trained_statement.rs:162, 87753e30...), the consumed tensor bytes against
++#   SHIELDSTRAL_TIED_TENSOR_SHA256 (67a138c1..., :601); `rotate` (:163-178):
++#   x *= sign, then per 1024-block the in-place butterfly (a + b, a - b) for
++#   step 1, 2, 4, ..., 512, then x /= sqrt(1024); `quantize` (:180-187);
++#   `recompute_profile` (:227-276): the embedding row = rotate(raw), rounded
++#   to f32, quantize(residual_scales_in[0], -32768, 32767); the margin row =
++#   rotate((yes - no) * norm), quantize(public_scale, -32767, 32767) (the
++#   difference BEFORE quantization); the rotation = block-hadamard, width
++#   3072, block 1024, 3 blocks, signs = `rotation_sign.bin` (f64 LE) whose
++#   SHA-256 is the profile's `sign_sha256`.
++# * `token_io/classify_tied.rs` (a89acfab) `TiedSource::describe` (:119-125):
++#   the profile text's Shieldstral sentence.
++# * `token_io/classify.rs` (c180c83f) `emb_digest` (:476-485), `emb_fold`
++#   (:500-507).
++# The arithmetic below is numpy over the same IEEE binary64 operations in the
++# same order per element (the butterfly is elementwise per step), so it is
++# bit-for-bit the native result; the int16 tables' digests are then compared
++# with the statement's (`embedding_digest`, `margin_vector.digest`).
++
++SHIELD_V, SHIELD_D = 131072, 3072
++SHIELD_TENSOR = "language_model.model.embed_tokens.weight"
++SHIELD_NORM = "language_model.model.norm.weight"
++SHIELD_TENSOR_SHA256 = "67a138c1c483b89874526ef523f5f0c30f161808076561730193d1de2093dd19"
++SHIELD_WEIGHTS_SHA256 = "87753e30c8c321da478b83bbabebcd813cc9b3d0cee5c5b3d64349a8ee4172f7"
++SHIELD_CHECKPOINT_BYTES = 7698241104
++SHIELD_DEFAULT_CHECKPOINT = "/home/victor/models/shieldstral-1.0-3b/snapshot-003ec7e2/model.safetensors"
++TIED_SOURCE_SHIELDSTRAL = ("tied-source=shieldstral-checkpoint tensor=language_model.model.embed_tokens.weight "
++                           f"sha256={SHIELD_TENSOR_SHA256} "
++                           "derivation=native-R12b-recompute_tied_tables(rotate-then-floor(x/scale+0.5),"
++                           "refuse-outside-int16,no-clip)")
++
++
++def _np():
++    import numpy as np
++    return np
++
++
++def _rotate_rows(x, signs, block=1024):
++    """`derive.rs::rotate` on every row of `x` (float64, rows x width):
++    x *= sign, then per block the butterfly, then / sqrt(block)"""
++    np = _np()
++    x = x * signs[None, :]
++    rows, width = x.shape
++    nb = width // block
++    v = x.reshape(rows, nb, block)
++    step = 1
++    while step < block:
++        w = v.reshape(rows, nb, block // (2 * step), 2, step)
++        a = w[:, :, :, 0, :].copy()
++        b = w[:, :, :, 1, :]
++        w[:, :, :, 0, :] = a + b
++        w[:, :, :, 1, :] = a - b
++        step *= 2
++    v = v / float(block) ** 0.5
++    out = v.reshape(rows, width)
++    if not np.all(np.isfinite(out)):
++        raise ValueError("nonfinite rotated weight")
++    return out
++
++
++def _bf16_to_f64(u16):
++    np = _np()
++    f = (u16.astype(np.uint32) << 16).view(np.float32).astype(np.float64)
++    if not np.all(np.isfinite(f)):
++        raise ValueError("nonfinite BF16 tensor value")
++    return f
++
++
++def _quantize_np(x, scale, low, high):
++    np = _np()
++    if not (scale > 0 and math.isfinite(scale)):
++        raise ValueError("the quantization scale is not a positive finite number")
++    q = np.floor(x / scale + 0.5)
++    if not np.all(np.isfinite(q)) or q.min() < low or q.max() > high:
++        raise ValueError("quantization overflow (no clipping is permitted)")
++    return q.astype(np.int64)
++
++
++def _shield_stream(export_dir: str, authenticate: bool, chunk_rows: int, rows_wanted, on_chunk):
++    """[v22] native R12b `recompute_profile` (derive.rs:227-276) as a STREAM over
++    the pinned checkpoint: the profile's rotation and scale, the safetensors
++    extents, the whole file's SHA-256 against the model pin (when
++    `authenticate`), the final norm, then the tensor in chunks of `chunk_rows`
++    rows: each chunk rotated, rounded to f32 and quantized to int16 and handed
++    to `on_chunk(r0, q)`; the consumed tensor bytes are always checked against
++    the tensor pin.  Returns the context and the raw rows in `rows_wanted`.
++    Memory: one chunk (no 805 MB table is ever held)."""
++    import json as _json
++    np = _np()
++    pbytes = open(os.path.join(export_dir, "profile.json"), "rb").read()
++    profile = _json.loads(pbytes)
++    meta = profile["metadata_out_of_proof"]
++    emb_scale = float(meta["residual_scales_in"][0])
++    rot = meta["rotation"]
++    if (rot.get("kind"), rot.get("width"), rot.get("block_width"), rot.get("blocks")) != ("block-hadamard", SHIELD_D, 1024, 3):
++        raise ValueError("tied tables: expected three 1024-wide Hadamard blocks")
++    sign_bytes = open(os.path.join(export_dir, "rotation_sign.bin"), "rb").read()
++    if hashlib.sha256(sign_bytes).hexdigest() != rot["sign_sha256"]:
++        raise ValueError("rotation signs SHA-256 differs from profile")
++    signs = np.frombuffer(sign_bytes, dtype="<f8").astype(np.float64)
++    if signs.shape != (SHIELD_D,) or not np.all((signs == 1.0) | (signs == -1.0)):
++        raise ValueError("rotation signs must be exactly +1 or -1, one per coordinate")
++    decl = profile["tied_embeddings"]
++    if decl.get("tensor") != SHIELD_TENSOR or decl.get("sha256") != SHIELD_TENSOR_SHA256:
++        raise ValueError("tied tensor declaration differs from pin")
++    path = decl.get("checkpoint_file") or SHIELD_DEFAULT_CHECKPOINT
++    size = os.path.getsize(path)
++    if size != SHIELD_CHECKPOINT_BYTES:
++        raise ValueError(f"the checkpoint is {size} B, the pinned file is {SHIELD_CHECKPOINT_BYTES} B")
++    with open(path, "rb") as fh:
++        hlen = struct.unpack("<Q", fh.read(8))[0]
++        if not (2 <= hlen <= 4 << 20):
++            raise ValueError("checkpoint safetensors header length out of bounds")
++        header = _json.loads(fh.read(hlen))
++    base = 8 + hlen
++    if "language_model.lm_head.weight" in header:
++        raise ValueError("checkpoint has an independent LM head instead of a tied tensor")
++
++    def extent(name, shape):
++        e = header[name]
++        if e.get("dtype") != "BF16" or list(e.get("shape")) != list(shape):
++            raise ValueError(f"{name}: dtype / shape is not BF16 {shape}")
++        a, b_ = e["data_offsets"]
++        if b_ - a != 2 * int(np.prod(shape)) or base + b_ > size:
++            raise ValueError(f"{name}: extent out of bounds")
++        return base + a, b_ - a
++    t_off, t_len = extent(SHIELD_TENSOR, [SHIELD_V, SHIELD_D])
++    n_off, n_len = extent(SHIELD_NORM, [SHIELD_D])
++    whole = None
++    if authenticate:
++        h = hashlib.sha256()
++        with open(path, "rb") as fh:
++            while True:
++                blk = fh.read(64 << 20)
++                if not blk:
++                    break
++                h.update(blk)
++        whole = h.hexdigest()
++        if whole != SHIELD_WEIGHTS_SHA256:
++            raise ValueError("checkpoint SHA-256 differs from the pinned model")
++    rows = {}
++    with open(path, "rb") as fh:
++        fh.seek(n_off)
++        norm = _bf16_to_f64(np.frombuffer(fh.read(n_len), dtype="<u2"))
++        fh.seek(t_off)
++        th = hashlib.sha256()
++        for r0 in range(0, SHIELD_V, chunk_rows):
++            r1 = min(SHIELD_V, r0 + chunk_rows)
++            raw_b = fh.read(2 * SHIELD_D * (r1 - r0))
++            th.update(raw_b)
++            raw = _bf16_to_f64(np.frombuffer(raw_b, dtype="<u2")).reshape(r1 - r0, SHIELD_D)
++            for r in rows_wanted:
++                if r0 <= r < r1:
++                    rows[r] = raw[r - r0].copy()
++            x = _rotate_rows(raw, signs).astype(np.float32).astype(np.float64)
++            on_chunk(r0, _quantize_np(x, emb_scale, -32768, 32767).astype(np.int16))
++    if th.hexdigest() != SHIELD_TENSOR_SHA256:
++        raise ValueError("consumed tied tensor SHA-256 differs from pin")
++    return {"path": path, "whole": whole, "pbytes": pbytes, "emb_scale": emb_scale, "signs": signs, "norm": norm,
++            "rows": rows}
++
++
++class ShieldEmb:
++    """[v22] the derived Shieldstral embedding as a LAZY handle: its fold at a
++    point is computed by streaming the pinned checkpoint again (the exact numpy
++    fold per chunk); the 805 MB int16 table is never held in memory"""
++
++    def __init__(self, export_dir: str, chunk_rows: int = 1024):
++        self.export_dir, self.chunk_rows = export_dir, chunk_rows
++        self.shape = (SHIELD_V, SHIELD_D)
++        self.folds = 0
++
++    def fold(self, r_emb, d: int) -> list:
++        np = _np()
++        lim = _limb_matrix(r_emb, d)
++        out = []
++
++        def on_chunk(r0, q):
++            s = np.rint(q[:, :d].astype(np.float64) @ lim).astype(np.int64)
++            for row in s.tolist():
++                out.append((sum(int(row[k]) << (16 * k) for k in range(4)) % P,
++                            sum(int(row[4 + k]) << (16 * k) for k in range(4)) % P))
++        _shield_stream(self.export_dir, False, self.chunk_rows, (), on_chunk)
++        self.folds += 1
++        return out
++
++
++def shieldstral_derive(export_dir: str, yes: int, no: int, margin_scale: float, authenticate: bool = True,
++                       chunk_rows: int = 1024, keep_emb: bool = False) -> dict:
++    """native R12b `recompute_profile` (derive.rs:227-276) on the pinned
++    Shieldstral checkpoint, for the classifier: the int16 embedding's digests
++    (SHA-256 of the LE table; the statement's BLAKE3 `emb_digest`) and the
++    margin row for (yes, no, margin_scale), in ONE stream (`_shield_stream`).
++    `emb` is a lazy `ShieldEmb` (its fold streams again), or the whole V x d
++    table when `keep_emb` (805 MB; tests and dev only)."""
++    np = _np()
++    import blake3
++    import time as _t
++    t0 = _t.time()
++    if yes == no or not (0 <= yes < SHIELD_V) or not (0 <= no < SHIELD_V):
++        raise ValueError("invalid classifier yes/no token IDs")
++    sh = hashlib.sha256()
++    bh = blake3.blake3()
++    bh.update(b"hashline/classify/embedding-int16/v1")
++    bh.update(SHIELD_V.to_bytes(8, "little"))
++    bh.update(SHIELD_D.to_bytes(8, "little"))
++    kept = np.empty((SHIELD_V, SHIELD_D), dtype=np.int16) if keep_emb else None
++    mm = {"min": 0, "max": 0}
++
++    def on_chunk(r0, q):
++        b_ = q.astype("<i2").tobytes()
++        sh.update(b_)
++        bh.update(b_)
++        mm["min"], mm["max"] = min(mm["min"], int(q.min())), max(mm["max"], int(q.max()))
++        if kept is not None:
++            kept[r0:r0 + q.shape[0]] = q
++    ctx = _shield_stream(export_dir, authenticate, chunk_rows, (yes, no), on_chunk)
++    diff = ((ctx["rows"][yes] - ctx["rows"][no]) * ctx["norm"])[None, :]
++    w = _quantize_np(_rotate_rows(diff, ctx["signs"]), margin_scale, -32767, 32767)[0]
++    return {"source": "shieldstral-checkpoint", "checkpoint": ctx["path"], "checkpoint_sha256": ctx["whole"],
++            "checkpoint_authenticated": authenticate, "tensor_sha256": SHIELD_TENSOR_SHA256,
++            "profile_sha256": hashlib.sha256(ctx["pbytes"]).hexdigest(), "embedding_scale": ctx["emb_scale"],
++            "emb": kept if keep_emb else ShieldEmb(export_dir, chunk_rows),
++            "emb_sha256": sh.hexdigest(), "emb_digest": bh.hexdigest(), "emb_min_max": [mm["min"], mm["max"]],
++            "w": [int(x) for x in w], "w_sha256": hashlib.sha256(np.asarray(w, dtype="<i2").tobytes()).hexdigest(),
++            "yes": yes, "no": no, "scale": margin_scale, "seconds": round(_t.time() - t0, 1)}
++
++
++def _limb_matrix(r_emb, d: int):
++    np = _np()
++    e = eq_table_msb([tuple(x) for x in r_emb])
++    return np.array([[(int(e[i][c]) >> (16 * k)) & 0xFFFF for c in (0, 1) for k in range(4)] for i in range(d)],
++                    dtype=np.float64)
++
++
++def emb_fold_np(emb, d: int, r_emb) -> list:
++    """`ClassifierTables::emb_fold` (classify.rs:500-507) with numpy:
++    E~(v, r) = sum_{i < d} eq_msb(r)[i] E[v][i], exact.  Each eq entry's two
++    base components are split into four 16-bit limbs; |E| <= 2^15, a limb <
++    2^16 and d <= 2^12 keep every partial sum below 2^43, so the float64
++    product is exact in any summation order."""
++    np = _np()
++    lim = _limb_matrix(r_emb, d)
++    v = emb.shape[0]
++    out = []
++    for r0 in range(0, v, 8192):
++        s = np.rint(emb[r0:r0 + 8192, :d].astype(np.float64) @ lim).astype(np.int64)
++        for row in s.tolist():
++            c0 = sum(int(row[k]) << (16 * k) for k in range(4)) % P
++            c1 = sum(int(row[4 + k]) << (16 * k) for k in range(4)) % P
++            out.append((c0, c1))
++    return out
++
++
++def tau_table_from_fold(ef: list, v: int, voc_log: int, num_special: int, beta, g_emb) -> list:
++    """`stage_in_c.rs::tau_table` from an already folded embedding"""
++    b2 = f2_mul(beta, beta)
++
++    def row(x):
++        t = f2_add(((x % P), 0), f2_mul(beta, ef[x]))
++        if x < num_special:
++            t = f2_add(t, b2)
++        return f2_add(t, g_emb)
++    rows = [row(x) for x in range(v)]
++    return [rows[x] if x < v else rows[0] for x in range(1 << voc_log)]
+diff -ruN -x __pycache__ frozen_v21/scripts/zk60_native_rg_gqa.py frozen_v22/scripts/zk60_native_rg_gqa.py
+--- frozen_v21/scripts/zk60_native_rg_gqa.py	2026-10-28 19:43:43.205088038 -0700
++++ frozen_v22/scripts/zk60_native_rg_gqa.py	2026-10-29 04:51:53.583145717 -0700
+@@ -215,6 +215,18 @@
+ from zk60_native_rg_tinyllama_r12b_pins import (  # noqa: E402
+     ARGUMENT_DEFINITIONS as _R12B_ARG)
+ _tl_merge1(ARGUMENT_DEFINITIONS, _R12B_ARG, "ARGUMENT_DEFINITIONS")
++# [v22, gate round 19] native R13's argument.rs (= token frozen-r16b), READ vs
++# c4f9f9f4 (round19/readings/nat-r12b-r13-argument.rs.diff, +27 / -2): `mod
++# accuracy` (argument_accuracy.rs), `Ctx.accuracy`, `define` dispatching FIRST
++# to `accuracy::define_changed` at a non-legacy stack (slots 14-19 / 23), and the
++# matmul folds through `accuracy_fold` at R13; the bilinear arms SC_SCORE / SC_PV
++# are byte-identical: the repaired definition
++_tl_merge1(ARGUMENT_DEFINITIONS, {
++    "bc0332e39904ca881d26c255581aa1ab6a0e73899141689960ec2262f8561830": (
++        REPAIRED,
++        "[v22, native R13 / r16b] read against c4f9f9f4: the R13 dispatch and the multiplier folds; the "
++        "bilinear arms SC_SCORE / SC_PV unchanged (the repaired definition)"),
++}, "ARGUMENT_DEFINITIONS")
+ 
+ 
+ def clog2(v: int) -> int:
+diff -ruN -x __pycache__ frozen_v21/scripts/zk60_native_rg_r13_pins.py frozen_v22/scripts/zk60_native_rg_r13_pins.py
+--- frozen_v21/scripts/zk60_native_rg_r13_pins.py	1969-12-31 16:00:00.000000000 -0800
++++ frozen_v22/scripts/zk60_native_rg_r13_pins.py	2026-10-29 04:25:53.271555123 -0700
+@@ -0,0 +1,753 @@
++#!/usr/bin/env python3
++"""[TOOLS v22 staging, gate round 19, 2026-10-29: native R12b -> R13, and the
++token tree frozen-r14 -> frozen-r15 -> frozen-r16 -> frozen-r16b on top of R13]
++The READINGS behind the source pins a capture from token frozen-r16b carries,
++read step by step from the last digests the gate read: native R12b and token
++frozen-r14 (tools v21: `zk60_native_rg_tinyllama_r12b_pins`, whose chains end
++at native R9 digests the block gate read in v17) and, for the classifier
++files, `zk60_native_rg_classpins.CLASSIFY_R14_READINGS` /
++`CLASSIFY_PORTED_FROM_V21`.  READ 2026-10-29 11:10-11:26 UTC by the reading
++sub-lane of the privacy-gate lane with `diff -u` / `diff -U0` over the frozen
++copies (saved under results/zk60_gate_tinyllama_20261017/round19/readings/);
++nothing was built or run.  The parent merges these dicts; no existing digest
++or reading changes here.
++
++THE TREES.  Native R12b `results/zk60_1b_native_20261017/r12b/frozen-tree/`
++(tree 51de5b83..., 229 files); native R13 `.../r13/frozen-tree/` (tree
++bb9eb212..., 269 files, `r13/manifest_frozen.json`; D24 review REVIEW_R13
++ACCEPTED on soundness, 2026-10-29 07:21 UTC); token frozen-r15 (259 files,
++manifest_final_r15.sha256), frozen-r16 (300 files, list f42f8c6e...; REVIEW_R16
++ACCEPTED WITH FIXES), frozen-r16b (301 files, manifest_final_r16b.sha256, list
++04d94bc0...; UNREVIEWED by its own freeze note).  Every digest below was
++re-hashed against the frozen copies (and the r13 / r16b manifests).
++
++R13 = R12b + the accuracy stack S2 (LOW and LOW + h24): twelve NEW block
++profiles (shape.rs `ACCURACY_PROFILES`) and twelve NEW run profiles (run.rs
++`ACCURACY_RUN_PROFILES`), twelve NEW production modules (accuracy*.rs,
++argument_accuracy.rs, trained_accuracy.rs, witness_accuracy.rs), export schema
++`zk60-trained-profile-export/2`, the per-layer common gate denominator G
++(`Shape::accuracy_gate_shift`, `LayerRecord::accuracy_gate_shift`), and
++`BlockPublic.accuracy`.  Token round 16 rebases the token tree onto R13 and
++registers the R13 Shieldstral classifier run profiles (T128 / T256 non-DD),
++the moderate D37 policies, `stage_shape` at the layer's G, the R13 whole-run
++LogUp term and N-r13-5 (one checkpoint stream); round 16b makes round 12's
++card policy test-only (REVIEW_R16 F-1).
++
++THE PROFILE GATES [READ].  Every R13 / round-16 / 16b change is one of:
++* gated on a NEW profile: `accuracy_spec(profile)` (shape.rs; the twelve
++  `R13_*` block profile strings) and its consequence `Shape::accuracy_stack()
++  != Stack::Legacy`, `blk.accuracy().is_some()` (set only through
++  `BlockPublic::with_accuracy`, called only by the R13 export loader and
++  tests; `check_for_shape` REFUSES accuracy data at a legacy shape),
++  `ACCURACY_RUN_PROFILES` / `ACCURACY_CLASSIFY_RUN_PROFILES`, the schema-/2
++  export reader, `LayerRecord.accuracy_gate_shift` (`None` at every legacy
++  record: `of_block` gives `blk.accuracy().map(..)`; the identity encodes
++  `accuracy-gate-layer` only when `Some`), the tied derivation's margin row
++  (`TiedDerivation`, only at a tied = Shieldstral export);
++* the identity at every legacy shape (`limbs_p()` uses `f_p()` = F_P there;
++  `Witness::output` reads `ids.at(A_X2)` = A_X2; the ACT multiplicity loop runs
++  over `act_histogram`'s 256 entries as before; `RunStatement::stage_shape`
++  and `fit_the_stages` reduce to the old code; the ff act table is `gact`,
++  which the old code checked equal to the exported `act`);
++* `#[cfg(test)]` code (run_capture.rs, plane_index.rs are test-only
++  modules; RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST; the census helpers);
++* new refusals that legacy inputs never meet (a legacy export naming
++  `accuracy_stack` or an R13 array; a legacy record carrying a G).
++
++At the profiles the gate captured before -- TinyLlama T32 block / token, the
++rung block profiles, the token rung, the classifier rung run profile
++`hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1` -- no step
++read here moves a receipt byte, a block-stage byte or a public-statement byte
++(slots, planes, mask rows / functionals, schedule, profile text, stage lines,
++trained-statement identity, transcript).  REVIEW_R13 section 1 (9 / 9 golden
++lines, retained stacks verify) and REVIEW_R16 section 7 / the r16b freeze
++note (rung receipts cross-verify r15 <-> r16 <-> r16b, identity 061340df...
++unchanged) say the same and are cited; the reading is the evidence.  What
++moves is capture METADATA: every bundle's `source_pins` gains the twelve R13
++accuracy modules (OWN_SOURCE_FILES 26 -> 38), and run.json's `shape.slots`
++lists exactly n_slots triples since r15 (F18-1).
++
++!! FINDING R19-PIN-1 (for the parent; capture-side, not a pin defect) !!
++`plane_index.rs` (13a7dd6f, unchanged R12b -> R13 -> r16b, `#[cfg(test)]`)
++names A planes only with the LEGACY segment table and pushes slots with the
++LEGACY push order.  At an R13 shape `Ids` comes from `AccuracyIds` (109 A
++planes at LOW+h24 non-DD with 3 sigma limbs, 107 with 2; the legacy table
++gives 79 / 77 names there [COUNTED]), so
++`plane_index::build` refuses ("the A plane name table has 79 names for 109
++planes") and run_capture's recorder FAILS every R13 block stage ("replay: the
++plane index does not build at stage k", run_capture.rs:981 / 1137 / 1277).
++No frozen-r16b hook can write an R13-stack bundle as the tree stands.  See
++OPEN_QUESTIONS and R13_READINGS.json `r13_block_changes_for_the_port`.
++
++NOTHING HERE IS A PRIVACY STATEMENT.
++"""
++
++from __future__ import annotations
++
++import hashlib
++import os
++
++READ_AT_UTC = "2026-10-29T11:25:41Z"
++
++# the repository root: <root>/ops/zkp-mvp/gate-tinyllama/<staging_v22|frozen_v22>/scripts/this file
++_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), *([os.pardir] * 5)))
++NATIVE_R12B_TREE = "results/zk60_1b_native_20261017/r12b/frozen-tree/hashline"
++NATIVE_R13_TREE = "results/zk60_1b_native_20261017/r13/frozen-tree/hashline"
++TOKEN_R14_TREE = "results/zk60_token_io_r1_20261017/frozen-r14/hashline"
++TOKEN_R15_TREE = "results/zk60_token_io_r1_20261017/frozen-r15/hashline"
++TOKEN_R16_TREE = "results/zk60_token_io_r1_20261017/frozen-r16/hashline"
++TOKEN_R16B_TREE = "results/zk60_token_io_r1_20261017/frozen-r16b/hashline"
++NATIVE_R13_TREE_SHA256 = "bb9eb2123c9350c738dafd19fe3b0133d6e2e7ab93f1e765cac4f20ccaed69ec"
++TOKEN_R16B_MANIFEST = "results/zk60_token_io_r1_20261017/manifest_final_r16b.sha256"
++TOKEN_R16B_LIST_SHA256 = "04d94bc0904ccaeb621d001b72be51b54034bfb5f7135a543e872a36a834c549"
++
++TREE = ("results/zk60_token_io_r1_20261017/frozen-r16b (manifest_final_r16b.sha256, 301 files, "
++        "list sha256 04d94bc0904ccaeb621d001b72be51b54034bfb5f7135a543e872a36a834c549), rebased on "
++        "results/zk60_1b_native_20261017/r13/frozen-tree (tree "
++        "bb9eb2123c9350c738dafd19fe3b0133d6e2e7ab93f1e765cac4f20ccaed69ec, 269 files)",)
++# the round-19 captures (token frozen-r16b); the parent fills this tuple
++R19_BUNDLES: tuple = ()
++
++# ---------------------------------------------------------------- the files
++ARG, SHP, WIT, PROT, LAY = ("src/private_block/argument.rs", "src/private_block/shape.rs",
++                            "src/private_block/witness.rs", "src/private_block/protocol.rs",
++                            "src/private_block/layout.rs")
++TST, TBK, PBR = ("src/private_block/trained_statement.rs", "src/private_block/trained_block.rs",
++                 "src/private_block.rs")
++RUN, RCP = "src/private_block/run.rs", "src/private_block/run_capture.rs"
++TTB, DRV = "src/private_block/tied_tables.rs", "src/private_block/tied_tables/derive.rs"
++TIO, TRUN, TLOAD = ("src/private_block/token_io.rs", "src/private_block/token_io/run.rs",
++                    "src/private_block/token_io/load.rs")
++CLS, CTD, CRN = ("src/private_block/token_io/classify.rs", "src/private_block/token_io/classify_tied.rs",
++                 "src/private_block/token_io/classify_run.rs")
++ACC = {n: f"src/private_block/{n}.rs" for n in (
++    "argument_accuracy", "accuracy_act", "accuracy_fold", "accuracy_layout",          # pinned FIRST in OWN_SOURCE_FILES
++    "accuracy", "accuracy_aligned", "accuracy_groups", "accuracy_precision",          # pinned at the END
++    "accuracy_public", "accuracy_tables", "trained_accuracy", "witness_accuracy")}
++
++# ---------------------------------------------------------------- the digests (full) [COUNTED, re-hashed]
++# the bases (read by tools v21)
++ARGUMENT_R12B = "c4f9f9f4cb477346b03e9f769d7c3141a8529f096d08da2be6c415d5160a5e66"     # = t14 = t15
++SHAPE_R12B = "9a87081897ff0ec716d7f27a2813cc32117683eb5b2f2082a248f479ef98c4c5"        # = t14 = t15
++WITNESS_R12B = "a586b777c36c9fa5060d3dfa195a75ff0a2b7794a2521cad59aaf7f3f6144ec3"      # = t14 = t15
++PROTOCOL_R12B = "c482402329e4da32a70c780435b2077e8054d1805b1006289f571820017564a4"     # = t14 = t15 (= R9 c4824023, block gate)
++LAYOUT_R12B = "9332802e597beacab56cfa69cfe18325bc476d2ce6485f517051992b26d26efa"       # = t14 = t15 (= R9, block gate)
++TRAINED_STATEMENT_R12B = "7908d827889d5bb424b51cb470313c666533577b29fd45c78957db00963e6a1d"  # = t14 = t15
++TRAINED_BLOCK_R12B = "e2551aa15fddc7cf43753ca0f5ef65fe813b1f7c279f4928fad1fd6b8c5d77a5"
++TRAINED_BLOCK_T14 = "f892dbc7d4de24d0a17945637107fb4e22a09d4e9a0bdc8520790352f121d06b"     # = t15
++PRIVATE_BLOCK_R12B = "b4f73a054afed47450ff846218a4453607281da16b8bc56dca904a6ee7447108"
++PRIVATE_BLOCK_T14 = "295409589f53c74144ce7fe8e9e4571f614660fe69b6f6f3cbd2e382b5940256"     # = t15
++RUN_R12B = "5c9f0ffc12a2a4bdc239799dde6e0c3eab3f316a7bcc6ca071719407b9e96a8d"
++RUN_T14 = "51e8aed2c52d21149618f0ba7f16c35774dd376c4bc0c557d6c2c7ef1e4ea6e9"               # = t15
++RUN_CAPTURE_R12B = "8721e83d277f4ee853603bc8d5fe63f60b2b3917b9fbee7ed2123e25d0ec76db"
++RUN_CAPTURE_T14 = "ef9c54dbdf9588df381055b6f959ee8d7a9f8396075c59bf2b774115b76cb012"
++TIED_TABLES_R12B = "901fa1e4f4a1c4c5070665fc1f81534142038e362408bff4dbcb5fca1e57c8b2"
++TIED_TABLES_T14 = "049ddc181ca31435681e24199b80c03b4ffc494898be80f8515156652df1a7ce"       # = t15
++DERIVE_R12B = "e2b76895fae1ee04a469f095153d8451969c637ca4dd5939dd937c159d749adf"
++DERIVE_T14 = "5cebeef0f0deea3973898648f87e1905ed87c76ddc6ceaf5a24ab742429a4f41"            # = t15 = NATIVE R13 (!)
++TOKEN_IO_T14 = "eda64c31babe2efabb47f4f843c8f9061506042d82d469309a2697987d5f5f11"
++TOKEN_RUN_T14 = "477cfc8ce45070ec44d846ff19e05045978d045396a1735aad0e5c56e3c1f439"         # = t15
++LOAD_T14 = "a9b72811350e1042392b0a8b60bcffddcd01a6b8a39cfa32f97ce4f72cb030dc"              # = t15
++CLASSIFY_T14 = "6c828db6673ec389eaa75eef7c543b378ce4f7693dbf70c0c999a6fe959a90ae"          # = t15 (v21 port digest)
++CLASSIFY_TIED_T14 = "401d38d444b6ae2b69d19ab4b2e6a78996521e432303ea551d91889d43a6e76c"     # = t15 (v21 port digest)
++CLASSIFY_RUN_T14 = "5d1d077f510202d17d76c7660a87a5cb6afd7254fc2fc450bf1a39577cb9ebd1"      # = t15 (v21 port digest)
++
++# native R13 (read here)
++ARGUMENT_R13 = "bc0332e39904ca881d26c255581aa1ab6a0e73899141689960ec2262f8561830"       # = t16 = t16b
++SHAPE_R13 = "8e00a144bd194fd5a3dd30c9aaece2869d43d461df623cdcfc5a9da59e51436b"          # = t16 = t16b
++WITNESS_R13 = "7620447c30ecf111f47f44cd3cd8d75152fda753802fb99c74a873bf7e8c9625"        # = t16 = t16b
++PROTOCOL_R13 = "1011441431a37f735999405986af6c9f11c2d303b48aa6d9cefae55b0311718d"       # = t16 = t16b
++LAYOUT_R13 = "8519a514b8d1f43ab51c86b0a8af955230a2eab4fff4fc4c594733c59dcfd0bf"         # = t16 = t16b
++TRAINED_STATEMENT_R13 = "f6be924c6b8625ae6a51649b843ab7d118f3925e248ee140d081b9e0bc23e9d4"  # = t16 = t16b
++TRAINED_BLOCK_R13 = "4ee6dccb5d788f4d99ad82ff7884ee4aa35d2b679d52a20f0cb3b72dd6d315ad"
++PRIVATE_BLOCK_R13 = "c55da6ade97d9e2864d0cad43fc330620b4929f86a7338ff5517163b1242e677"
++RUN_R13 = "66f0ac950f7ddff23fa89e2788b70fed9785c846cbc8beeb3612c1527566b156"
++RUN_CAPTURE_R13 = "affddeae00a953f745de172b7b9829770b53cf724f253cb61c857b17ee3e2cc2"
++TIED_TABLES_R13 = "1a321aff73517f94cb0311cd4bf2d7d243c063d442fc4c9aa27c3f92e2ada228"
++DERIVE_R13 = DERIVE_T14
++
++# token frozen-r15 / r16 / r16b (read here)
++RUN_CAPTURE_T15 = "527df40efb5e427bd779359be7a9699d3d0de93814cd020dec23d3aee8937ef0"
++RUN_CAPTURE_T16 = "cad25086949c34d5d338fd1522401486f8099448cce47551f5487d3a05fc0fd7"       # = t16b
++TOKEN_IO_T15 = "3808d844490c2653ce4e7232eede59e70ec1dfcf840ce77806cbb56ab0e009c0"
++TOKEN_IO_T16 = "2aabe64f8c9d4c9028f94af87d25dfddd44f0631ddb636616ec8679d09bed337"           # = t16b
++RUN_T16 = "3dc5393db188cdd92a775011318fc8d8031812ff7d8772d6528dbc3261efa99f"                # = t16b
++PRIVATE_BLOCK_T16 = "2af1df7d5bc222695c1d233050ff87a5f0981a26a5df1828678b67a6fe0a1cb3"      # = t16b
++TRAINED_BLOCK_T16 = "dc6e8772bf80ff3d16dff49b416667cf92bf58148da60d8695004df01900ca07"      # = t16b
++TIED_TABLES_T16 = "45fc3f0fe20c5d8b798f6bbc0fe3f1b7aa68f4427b0a3521c92ba83230b30e33"        # = t16b
++DERIVE_T16 = "c5bec3c676e635aab1c609fdf2f541d003e14d7a50efc36d0fed42fc85b7d981"             # = t16b
++TOKEN_RUN_T16 = "aae4b0ab9568f90150f78a1eaf68710c65b52e54ab2654e18452de279039117e"          # = t16b
++LOAD_T16 = "67307f096ca4ea9dd12e182a9b173436fd0015e7367a3b444e5733d188a4ce79"               # = t16b
++CLASSIFY_T16 = "c23074e9db87563d610ebd65a4083cdddeda07744f86a4c3ddf00fa94d5b82c7"
++CLASSIFY_T16B = "c180c83fb50f624d15ef9d17dae4195b53161a1131892ea0bb15b0761da99b1d"
++CLASSIFY_TIED_T16 = "a89acfabc75c869c1f53d493a5caaa236af1a8df18ba6e30b1f3ab26167c4aaf"     # = t16b
++CLASSIFY_RUN_T16 = "8abbf72f1c8e18bea1ac99e93a82562bca793afb4d94ed27dea24403850523f9"      # = t16b
++
++# the twelve NEW R13 modules: native R13 digest and the token frozen-r16b digest (equal except trained_accuracy.rs)
++NEW_R13_DIGESTS = {
++    ACC["argument_accuracy"]: ("a5e02391b61577c7041efc41c04cd2564610e3fbb26b188b66b1623a5b7940d9", None),
++    ACC["accuracy_act"]: ("7ef5fe26fc9395817436fc55851dc1f2ea066bc06b8a5eaaa3e2c39a8045eb4e", None),
++    ACC["accuracy_fold"]: ("53e2b5726440eb747f55d5d22bdd36929f8d17bba8b769d17162c0948890731a", None),
++    ACC["accuracy_layout"]: ("37a3e3458e4961ddaab98440de114e575da3af21f7d872b532cb71a04ac788d3", None),
++    ACC["accuracy"]: ("2996ff41016a65ac6b22db78768295879f4b37a48316267c655a410d667bc6af", None),
++    ACC["accuracy_aligned"]: ("396d0cf271b9ac401364e0c96a6c549eb4a31f91750a3072391d55ac8b9e9f8d", None),
++    ACC["accuracy_groups"]: ("63a87749a6e03e54104fdaa382d76421b0b984599fce7cca8714f348b7731731", None),
++    ACC["accuracy_precision"]: ("145c1e0f66ea5aad558148aa7885b4fcaaf74c6145893cc1efd10f7a77eee56b", None),
++    ACC["accuracy_public"]: ("0b44bf5424fed9ea9911e3b041c0977ea0727bb461b83be198a5d2210d73d660", None),
++    ACC["accuracy_tables"]: ("0a92b7fff83a460b2f79560b195ed65c4a7024b80108631b3741bfbaba5511e8", None),
++    ACC["trained_accuracy"]: ("20d44812a1d38a37a1ad20cd5378a921633d35b8c11031d0fea0918bf52e21fa",
++                              "f47b1084574a36a160db6d81fc1a25dd43f4547d438653d5de53ec86826c66d7"),
++    ACC["witness_accuracy"]: ("8b03abadc73db1d46be642e32c83312c87e34bfa4d560ab8d8e2675b14abcf2a", None),
++}
++
++
++def _r16b_digest_of_new(f):
++    nat, tok = NEW_R13_DIGESTS[f]
++    return tok or nat
++
++
++# the terminal digests: the capture tree (token frozen-r16b) and native R13
++TOKEN_R16B_DIGESTS = {
++    ARG: ARGUMENT_R13, SHP: SHAPE_R13, WIT: WITNESS_R13, PROT: PROTOCOL_R13, LAY: LAYOUT_R13,
++    TST: TRAINED_STATEMENT_R13, TBK: TRAINED_BLOCK_T16, PBR: PRIVATE_BLOCK_T16, RUN: RUN_T16,
++    RCP: RUN_CAPTURE_T16, TTB: TIED_TABLES_T16, DRV: DERIVE_T16, TIO: TOKEN_IO_T16, TRUN: TOKEN_RUN_T16,
++    TLOAD: LOAD_T16, CLS: CLASSIFY_T16B, CTD: CLASSIFY_TIED_T16, CRN: CLASSIFY_RUN_T16,
++    **{f: _r16b_digest_of_new(f) for f in NEW_R13_DIGESTS},
++}
++NATIVE_R13_DIGESTS = {
++    ARG: ARGUMENT_R13, SHP: SHAPE_R13, WIT: WITNESS_R13, PROT: PROTOCOL_R13, LAY: LAYOUT_R13,
++    TST: TRAINED_STATEMENT_R13, TBK: TRAINED_BLOCK_R13, PBR: PRIVATE_BLOCK_R13, RUN: RUN_R13,
++    RCP: RUN_CAPTURE_R13, TTB: TIED_TABLES_R13, DRV: DERIVE_R13,
++    **{f: d[0] for f, d in NEW_R13_DIGESTS.items()},
++}
++# the digest each chain must reach (read by tools v21; None: a NEW file's first reading)
++CHAIN_ROOTS = {
++    ARG: ARGUMENT_R12B, SHP: SHAPE_R12B, WIT: WITNESS_R12B, PROT: PROTOCOL_R12B, LAY: LAYOUT_R12B,
++    TST: TRAINED_STATEMENT_R12B, TBK: (TRAINED_BLOCK_T14, TRAINED_BLOCK_R12B), PBR: (PRIVATE_BLOCK_T14, PRIVATE_BLOCK_R12B),
++    RUN: (RUN_T14, RUN_R12B), RCP: (RUN_CAPTURE_T14, RUN_CAPTURE_R12B), TTB: (TIED_TABLES_T14, TIED_TABLES_R12B),
++    DRV: (DERIVE_T14, DERIVE_R12B), TIO: TOKEN_IO_T14, TRUN: TOKEN_RUN_T14, TLOAD: LOAD_T14,
++    CLS: CLASSIFY_T14, CTD: CLASSIFY_TIED_T14, CRN: CLASSIFY_RUN_T14,
++    **{f: None for f in NEW_R13_DIGESTS},
++}
++
++_P = "[GATE ROUND 19, native R13 / token frozen-r16b] "
++
++
++def _r(base, stat, reading, receipt=False, stage=False, cls="", diff=""):
++    return {"base": base, "diff_stat": stat, "moves_a_receipt_byte": receipt,
++            "moves_a_block_stage_byte": stage, "classification": cls, "diff_file": diff,
++            "reading": _P + reading}
++
++
++_D = "results/zk60_gate_tinyllama_20261017/round19/readings/"
++GATED, IDENT, TEST, NEWF = ("gated-on-new-profiles", "identity-at-captured-profiles", "test-only", "new-file")
++
++# file -> new digest -> its reading against `base` (native R12b -> native R13)
++NATIVE_R13_READINGS = {
++    ARG: {
++        ARGUMENT_R13: _r(ARGUMENT_R12B, "+27 / -2, 5 hunks against c4f9f9f4 (native R12b)",
++            "(1) `#[path = \"argument_accuracy.rs\"] mod accuracy;`.  (2) `Ctx` gains `accuracy: Option<&AccuracyPublic>` "
++            "(protocol.rs passes `blk.accuracy()`, None at every legacy block).  (3) `define`: FIRST `if "
++            "ctx.lay.shape().accuracy_stack() != Stack::Legacy { if let Some(def) = accuracy::define_changed(..)? { "
++            "return Ok(def) } }` -- at a legacy shape the branch is not taken and the legacy body runs byte for byte.  "
++            "(4) the Q / K / V / O matmul arm: `fold_rows_i8(w, outer, inner, &eq_table_msb(&r_j))` becomes `let "
++            "weights = eq_table_msb(&r_j); let folded = if Legacy { fold_rows_i8(w, outer, inner, &weights) } else { "
++            "accuracy_fold::fold(w, outer, inner, Axis::Rows, &coefficients(sh, data, site), &weights)? }` -- the same "
++            "value at Legacy.  (5) the GMM / UMM / DMM arm: the same with `fold_cols_i8` / Axis::Columns.  The push "
++            "order (a_at(plane, coords), public(fold)), the challenge r_j, the bilinear arms, every other arm, "
++            "`run_slot`'s M-functional block, `sum_weights` and the slot loop are outside the hunks",
++            cls=GATED, diff=_D + "nat-r12b-r13-argument.rs.diff"),
++    },
++    SHP: {
++        SHAPE_R13: _r(SHAPE_R12B, "+123 / -5, 17 hunks against 9a870818 (native R12b)",
++            "(1-2) `DD_PROFILES` [5] -> [11] and `TRAINED_CALIBRATION_PROFILES` [15] -> [27]: the twelve R13 strings "
++            "APPENDED (membership tests; every old entry in place, so `dd_cap` and the trained-calibration door are "
++            "unchanged at old profiles).  (3) the R13 registry: the twelve `R13_*` profile strings, `AccuracyProfile`, "
++            "`ACCURACY_PROFILES`, `accuracy_spec(profile)` (Some only for those twelve).  (4-5) `trained_rope_theta` / "
++            "`trained_rope_scaling` first map an R13 profile to its legacy twin (`accuracy_spec(..).map(|s| s.legacy)"
++            ".unwrap_or(profile)`: the identity at every other profile).  (6) `trained_geometry`: an R13 arm before the "
++            "old ones (only when `accuracy_spec` is Some).  (7) `Shape.accuracy_gate_shift: u32` (`17` at an R13 "
++            "profile, `0` elsewhere, set in `Shape::build`); `accuracy_stack()` = Legacy unless `accuracy_spec`; "
++            "`accuracy_registry`, `accuracy_base`, `accuracy_precision`, `f_p()` (= F_P at Legacy), "
++            "`with_accuracy_gate_shift` (refused at Legacy), `accuracy_trained`.  (8) `Shape::build`'s D / F "
++            "row-width refusal only when `accuracy_spec` is Some.  (9) `check_trained_class`: R13 checks only off "
++            "Legacy.  (10) CS-8's rebuild: `with_accuracy_gate_shift` only off Legacy; the field compared (0 == 0 at "
++            "Legacy).  (11) `limbs_norm` / `norm_top_is_full_byte`: 3 / true only off Legacy; `limbs_p` uses "
++            "`f_p()` (F_P at Legacy).  (12) `a_plane_doms` and `lookups_per_position`: the R13 lists only off "
++            "Legacy, returning early before the legacy bodies.  `slots()`, `claim_sites`, `slot_terms`, `n_slots`, "
++            "`m_rows`, `n_functionals`, `helpers` (= lookups_per_position.div_ceil(2)) and every legacy list are "
++            "outside the hunks, so at every old profile the (n, e, d) triples, plane lists, lookups, claim sites, "
++            "mask rows (2 n_slots + 4) and functionals (34, + 2 at DD) are R12b's",
++            cls=GATED, diff=_D + "nat-r12b-r13-shape.rs.diff"),
++    },
++    WIT: {
++        WITNESS_R13: _r(WITNESS_R12B, "+37 / -7, 2 hunks against a586b777 (native R12b)",
++            "(1) `#[path = \"witness_accuracy.rs\"] mod accuracy;`, `build_accuracy` (R13 component builder, refuses "
++            "a gate mismatch) and `build_for_block(sh, blk, input)` = at Legacy `blk.check_for_shape(sh)` then the "
++            "frozen `build_shaped` (an added refusal on the prover's side, the same planes), else the accuracy "
++            "builder; `Witness` gains `output_plane` and `#[derive(Clone)]`; `output()` reads "
++            "`planes[output_plane]`.  (2) `build_shaped` sets `output_plane: ids.at(A_X2)`, which is A_X2 at every "
++            "legacy shape (the old doc: A_X2 sits below every growing limb group and `build_shaped` refuses a fifth "
++            "norm limb), so `output()` reads the same plane.  The witness decides private values only; at the old "
++            "profiles every plane value is R12b's",
++            cls=IDENT, diff=_D + "nat-r12b-r13-witness.rs.diff"),
++    },
++    PROT: {
++        PROTOCOL_R13: _r(PROTOCOL_R12B, "+38 / -15, 10 hunks against c4824023 (native R12b = R9)",
++            "(1, 3, 6-7) the sealing pass, the ACT histogram, the ACT helper denominators and the ACT table column: "
++            "`match blk.accuracy() { Some(data) => accuracy_act::{histogram, query_values, table}(..), None => <the "
++            "legacy expression, byte for byte> }`.  (2) a comment rewritten.  (4) the multiplicity write: the old "
++            "loop `for i in 0..U8_LEN { .. MU8, MEXP, MACT .. }` is split: MU8 / MEXP keep the U8_LEN loop, MACT is "
++            "written `for (i, &count) in m_act.iter().enumerate()`; at Legacy `act_histogram` returns exactly "
++            "U8_LEN = 256 counts (protocol.rs:477-486), so the same 256 words are written.  (5) the F-4 "
++            "multiplicity hook's assert, `#[cfg(test)]`.  (8) the padded-row F-4 hook's table, `#[cfg(test)]` path "
++            "with the same match.  (9-10) `Ctx { accuracy: blk.accuracy(), .. }` on both sides.  No absorb, draw, "
++            "label, opening or order moves at a legacy block (blk.accuracy() is None there: BlockPublic::new sets "
++            "None, `with_accuracy` is called only by the R13 loader and tests, and `check_for_shape` refuses "
++            "accuracy data at a legacy shape)",
++            cls=GATED, diff=_D + "nat-r12b-r13-protocol.rs.diff"),
++    },
++    LAY: {
++        LAYOUT_R13: _r(LAYOUT_R12B, "+32 / -3, 7 hunks against 9332802e (native R12b = R9)",
++            "(1-3) `Ids.accuracy: Option<AccuracyIds>`; `Ids::new` returns the `AccuracyIds` map FIRST when "
++            "`accuracy_stack() != Legacy` (checked against the independently counted `a_plane_doms`), else the "
++            "legacy construction with `accuracy: None` -- the same map, doms and limb counts.  (4) `nr / ns / mr / "
++            "ms / pl / sr / sg` gain an `assert!(k < count)` (a panic where the old code read past a group: never "
++            "reached by the legacy callers, whose k is below the counts by construction); `accuracy()`, "
++            "`domain_range()` (new).  (5) `lookups_at`: the R13 lookup list only off Legacy, returning early.  "
++            "(6) the schedule's calibration description line: an R13 arm FIRST only off Legacy (`if "
++            "sh.accuracy_stack() != Legacy { R13 line } else if sh.trained_calibration { <old> } else { <old> }`), "
++            "so every legacy schedule line and `schedule_digest` is R12b's",
++            cls=GATED, diff=_D + "nat-r12b-r13-layout.rs.diff"),
++    },
++    TST: {
++        TRAINED_STATEMENT_R13: _r(TRAINED_STATEMENT_R12B, "+123 / -7, 10 hunks against 7908d827 (native R12b)",
++            "(1) `pinned_for_profile` and `tied_tensor_for_profile` map an R13 profile to its legacy twin first "
++            "(identity elsewhere).  (2) `as_the_code_proves`: `norm_wrho`, `sh_u`, `f_p` take R13 values only off "
++            "Legacy (`f_p: sh.f_p()` = F_P at Legacy).  (3) `LayerRecord.accuracy_gate_shift: Option<u32>`; "
++            "`shape_at` (the old has_own / with_layer_calibration expression, then the G only when Some) and "
++            "`check_accuracy_gate` (Legacy + None ok, Legacy + Some refused).  (4) `unhashed` / `of_block`: None at "
++            "a legacy block (`blk.accuracy().map(..)`); `of_block`'s act digest and silu member are the legacy "
++            "ones when `blk.accuracy()` is None.  (5) `check_self`: `check_accuracy_gate` per layer and the SiLU "
++            "member check unchanged at Legacy.  (6) `encode`: `accuracy-gate-layer` ONLY `if let Some(g)` -- absent "
++            "at every legacy record, so the canonical bytes and `identity()` of every old statement are R12b's.  "
++            "(7) a `#[cfg(test)]` module",
++            cls=GATED, diff=_D + "nat-r12b-r13-trained_statement.rs.diff"),
++    },
++    TBK: {
++        TRAINED_BLOCK_R13: _r(TRAINED_BLOCK_R12B, "+126 / -39, 35 hunks against e2551aa1 (native R12b)",
++            "The export reader / CLI bridge.  `ACCURACY_PROFILE_SCHEMA` (/2); `load` admits /1 (refusing an "
++            "`accuracy_stack` key) or /2; `TrainedExport.accuracy_stack` (Legacy at /1) and `accuracy_dd`; "
++            "`run_profile()` = `geometry.run_profile()` at Legacy (`trained_accuracy::profile_for` has no Legacy arm "
++            "and errs); `constants_for_stack` / `table_keys_for_registry` (Legacy: the old functions' checks); "
++            "`shape_for` (Legacy: the old `geometry.shape_at`); `load_layer`: a legacy export carrying an R13 array "
++            "is refused, the act table read and checked as before, `FeedForwardPublic` built from `gact` (checked "
++            "equal to the exported act above, so the same words), the accuracy data attached only off Legacy, "
++            "`record.accuracy_gate_shift` None at Legacy; `witness_for_block` (Legacy: `build_shaped`); the "
++            "stack's `ssh = cur.record.shape_at(&sh)` (Legacy: the old expression) and the layout cache keyed by "
++            "the whole shape (the same layouts); the statement JSON's layer line adds `accuracy_gate_shift` only "
++            "when Some; the CLI fresh-verifier control `a witness honest under norm_cn_m + 7` builds its "
++            "counterfactual via `sh.with_layer_calibration` instead of `geometry.shape_at` (a control's "
++            "counterfactual witness, never a receipt byte; REVIEW_R13 R13-F1 concerns these controls); `--dd` via "
++            "`enable_dd()` (Legacy: the old `geometry.dd()`).  No receipt, stage, statement-identity or capture "
++            "byte of an old geometry moves",
++            cls=GATED, diff=_D + "nat-r12b-r13-trained_block.rs.diff"),
++    },
++    PBR: {
++        PRIVATE_BLOCK_R13: _r(PRIVATE_BLOCK_R12B, "+62 / -1, 4 hunks against b4f73a05 (native R12b)",
++            "(1) the nine R13 modules and three `#[cfg(test)]` test modules declared.  (2) `BlockPublic.accuracy: "
++            "Option<AccuracyPublic>` (None from `new`), `with_accuracy`, `accuracy()`, `check_accuracy_for_shape` "
++            "(refuses at Legacy).  (3) `check_for_shape`: off Legacy the R13 check; at Legacy the old checks plus a "
++            "refusal of attached accuracy data.  (4) `digest()`: the R13 encoding absorbed ONLY `if let Some`, so "
++            "every legacy block digest is R12b's.  `ExpectedIo`, `IoSpec`, `calibration_identity` and every "
++            "absorbed word are outside the hunks",
++            cls=GATED, diff=_D + "nat-r12b-r13-_private_block.rs.diff"),
++    },
++    RUN: {
++        RUN_R13: _r(RUN_R12B, "+71 / -12, 11 hunks against 5c9f0ffc (native R12b)",
++            "(1) the twelve R13 run-profile strings, `ACCURACY_RUN_PROFILES`, `accuracy_run_profile`.  (2) "
++            "`registered_block_shape`: an R13 arm first (only for those strings).  (3) `RunShape::accuracy`.  (4) "
++            "`RunStatement.stage_accuracy_gate` (zeros, unused at Legacy).  (5) `new_bound`: `blocks_fit_the_shape` "
++            "only at Legacy (the old call), the per-stage `check_for_shape` only off Legacy.  (6) "
++            "`new_bound_from_digests`: `r.check_accuracy_gate` (None at every legacy record) and the G recorded "
++            "when Some.  (7) `stage_shape`: the old value at Legacy.  (8) the `fit_the_stages` default method "
++            "(Legacy: `self.fit_the_shape(&st.rs.sh)`, the old call), called by prove / verify in place of "
++            "`fit_the_shape(sh)`.  The header, stage order, boundary absorb, position tags, opening order, "
++            "`capture_header` and the commitment row list are outside the hunks",
++            cls=GATED, diff=_D + "nat-r12b-r13-run.rs.diff"),
++    },
++    RCP: {
++        RUN_CAPTURE_R13: _r(RUN_CAPTURE_R12B, "+15 / -1, 2 hunks against 8721e83d (native R12b)",
++            "TEST-ONLY module.  `OWN_SOURCE_FILES` [20] -> [32]: four R13 modules prepended (argument_accuracy, "
++            "accuracy_act, accuracy_fold, accuracy_layout) and eight appended (accuracy, accuracy_aligned, "
++            "accuracy_groups, accuracy_precision, accuracy_public, accuracy_tables, trained_accuracy, "
++            "witness_accuracy).  Capture metadata only.  NOTE (R19-PIN-1): no R13 support was added to the "
++            "recorder or to plane_index.rs",
++            cls=TEST, diff=_D + "nat-r12b-r13-run_capture.rs.diff"),
++    },
++    TTB: {
++        TIED_TABLES_R13: _r(TIED_TABLES_R12B, "+2 / -0, 1 hunk against 901fa1e4 (native R12b)",
++            "`pub(crate) use derive::{bf16, norm, quantize};` with a comment: native R13 carries the token lane's "
++            "R-C2 re-export (frozen-r14's 049ddc18 has the same line with another comment).  No body",
++            cls=IDENT, diff=_D + "nat-r12b-r13-tied_tables.rs.diff"),
++    },
++    # DRV: native R13's derive.rs IS token frozen-r14's 5cebeef0 (Sol carried the three visibility words),
++    # already read in tools v21 (zk60_native_rg_tinyllama_r12b_pins DERIVE_T14 against DERIVE_R12B)
++}
++
++# file -> new digest -> its reading (token frozen-r14 -> r15 -> r16 -> r16b; each against the previous digest)
++TOKEN_R16B_READINGS = {
++    RCP: {
++        RUN_CAPTURE_T15: _r(RUN_CAPTURE_T14, "+15 / -2, 3 hunks against ef9c54db (token frozen-r14)",
++            "TEST-ONLY.  F18-1 (gate round 18): the token-run and classifier-run writers list "
++            "`sh.slots().iter().take(N_SLOTS)` (23 triples; rounds 7-14 wrote MAX_SLOTS = 24 with an all-zero 24th), "
++            "with the reader contract's doc comment.  Capture metadata only (run.json's `shape.slots`); no "
++            "receipt byte, no allow-list entry, no replay check",
++            cls=TEST, diff=_D + "tok-r14-r15-run_capture.rs.diff"),
++        RUN_CAPTURE_T16: _r(RUN_CAPTURE_T15, "+15 / -1, 2 hunks against 527df40e (token frozen-r15)",
++            "TEST-ONLY.  The rebase's carry of native R12b -> R13's two hunks (the twelve accuracy modules in "
++            "`OWN_SOURCE_FILES`, [26] -> [38], R13's 32 in front order as native, N-r13-6) [COUNTED: the added "
++            "lines equal native's; ALLOWED_KEYS identical r14 -> r16b; `write_run_classify`, `ClassifyFacts` and "
++            "every writer path unchanged].  r16 -> r16b: the same bytes",
++            cls=TEST, diff=_D + "tok-r15-r16-run_capture.rs.diff"),
++    },
++    TIO: {
++        TOKEN_IO_T15: _r(TOKEN_IO_T14, "+3 / -0, 1 hunk against eda64c31 (token frozen-r14)",
++            "TEST-ONLY: `#[cfg(test)] mod classify_r15_tests;` with its comment",
++            cls=TEST, diff=_D + "tok-r14-r15-token_io.rs.diff"),
++        TOKEN_IO_T16: _r(TOKEN_IO_T15, "+3 / -0, 1 hunk against 3808d844 (token frozen-r15)",
++            "TEST-ONLY: `#[cfg(test)] mod classify_r16_tests;` with its comment (r16b registers its test module by "
++            "a #[path] line inside classify_r16_tests.rs, so token_io.rs keeps 2aabe64f)",
++            cls=TEST, diff=_D + "tok-r15-r16-token_io.rs.diff"),
++    },
++    RUN: {
++        RUN_T16: _r(RUN_T14, "+133 / -13, 13 hunks against 51e8aed2 (token frozen-r14); = native R13 66f0ac95 + the "
++                    "token lane's hunks (+123 / -0 against native R13)",
++            "[COUNTED with diff -U0] exactly (a) native R12b -> R13's eleven hunks (+71 / -12, NATIVE_R13_READINGS), "
++            "(b) the token lane's r14 hunks over R12b carried verbatim (61 of 62 lines; the 62nd, "
++            "`CLASSIFY_RUN_PROFILES: [&str; 1]`, replaced), and (c) round 16 (+62 / -1): "
++            "`RUN_PROFILE_CLASSIFY_R13_SHIELD_T128 / _T256`, `ACCURACY_CLASSIFY_RUN_PROFILES`, `CLASSIFY_RUN_PROFILES` "
++            "[1] -> [3], `accuracy_classify_run_profile`, the `#[cfg(test)]` "
++            "`RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST`, `is_classify_run_profile`, `is_r13_classify_run_profile`, two "
++            "`registered_block_shape` arms before the old match (the R13 classifier profiles; the test rung), and "
++            "the blocks-only refusal of an R13 classifier run profile.  Every arm of an old profile, the header, "
++            "stage order and capture header are unchanged: the legacy classifier rung, token and block profiles "
++            "build what they built",
++            cls=GATED, diff=_D + "tok-r14-r16b-run.rs.diff"),
++    },
++    PBR: {
++        PRIVATE_BLOCK_T16: _r(PRIVATE_BLOCK_T14, "+62 / -1, 4 hunks against 29540958 (token frozen-r14)",
++            "[COUNTED] exactly native R12b -> R13's four hunks (+62 / -1, NATIVE_R13_READINGS); the token lane's one "
++            "hunk (the token / classifier CLI bridges and `mod token_io`, +10) is byte-identical at r14 over R12b "
++            "and at r16b over R13",
++            cls=GATED, diff=_D + "tok-r14-r16b-_private_block.rs.diff"),
++    },
++    TBK: {
++        TRAINED_BLOCK_T16: _r(TRAINED_BLOCK_T14, "+167 / -43, 38 hunks against f892dbc7 (token frozen-r14); = native "
++                              "R13 4ee6dccb + the token lane's hunks (+51 / -14 against native R13)",
++            "[COUNTED] (a) native R12b -> R13's hunks (+126 / -39); (b) the token lane's ten visibility words carried "
++            "(+10 / -10, as at r14); (c) round 16's N-r13-5 (+41 / -4): `tied_of` delegates to "
++            "`tied_of_with_derivation` (its `(None, None)` early return first, so an untied export -- every legacy "
++            "export -- returns `(None, None)` before reading anything), `TiedDerivation`, "
++            "`declared_classifier_margin`, the derivation with the margin row only at a tied export naming "
++            "`classifier_margin_parameters` (the row-less pass decides on a refusal), "
++            "`TrainedExport.tied_derivation`.  No receipt, statement-identity or capture byte of an old geometry "
++            "moves",
++            cls=GATED, diff=_D + "tok-r14-r16b-trained_block.rs.diff"),
++    },
++    TTB: {
++        TIED_TABLES_T16: _r(TIED_TABLES_T14, "+3 / -1, 1 hunk against 049ddc18 (token frozen-r14)",
++            "The R-C2 re-export now native (another comment line), plus round 16's `pub(crate) use "
++            "derive::recompute_declared_tied_tables_with_margin;`.  No body",
++            cls=GATED, diff=_D + "tok-r14-r16b-tied_tables.rs.diff"),
++    },
++    DRV: {
++        DERIVE_T16: _r(DERIVE_T14, "+10 / -1, 1 hunk against 5cebeef0 (token frozen-r14 = native R13)",
++            "N-r13-5: `recompute_declared_tied_tables(export, expected)` becomes "
++            "`recompute_declared_tied_tables_with_margin(export, expected, None)`, the old body with `margin` passed "
++            "through (`None` = the old call `recompute_profile(.., None)`).  Reached only at a tied (Shieldstral) "
++            "export; SHA-256 over model / table files, no proof transcript",
++            cls=GATED, diff=_D + "tok-r14-r16b-tied_tables_derive.rs.diff"),
++    },
++    TRUN: {
++        TOKEN_RUN_T16: _r(TOKEN_RUN_T14, "+42 / -3, 2 hunks against 477cfc8c (token frozen-r14)",
++            "`R13_MAX_SILU_GROUPS` = 4 and `r13_block_logup_numerator(sh)` (None at Legacy: `N + 4 T_d - 1` with "
++            "T_d = 512 + 4096 G (+ |Dd|) off Legacy); `whole_run_of`: the legacy branch is the old code "
++            "(`lk.extend(vec![block_logup_size(sh); l])`, the same sum in the same order); no R13 token run "
++            "profile is registered",
++            cls=GATED, diff=_D + "tok-r14-r16b-token_io_run.rs.diff"),
++    },
++    TLOAD: {
++        LOAD_T16: _r(LOAD_T14, "+13 / -2, 2 hunks against a9b72811 (token frozen-r14)",
++            "`ExportPublic::load` = `load_with(export, token_run_profile_of)` (the old body); the trained statement "
++            "is built `new_with_tied(.., ex.tied.clone())` (None at every untied export = `new`, so no legacy "
++            "identity moves)",
++            cls=IDENT, diff=_D + "tok-r14-r16b-token_io_load.rs.diff"),
++    },
++    CLS: {
++        CLASSIFY_T16: _r(CLASSIFY_T14, "+208 / -14, 13 hunks against 6c828db6 (token frozen-r14 = r15)",
++            "Round 16.  NEW: the three D37 moderate category policies (`policy_shieldstral_moderate_{sexual, "
++            "violence,hate}`, ids `shieldstral-1.0-3b-moderate-*/1`, prefixes 72 / 72 / 78 ids = "
++            "CATEGORY_TEMPLATE_HEAD (58) + the query (7 / 7 / 13) + TAIL (7), suffix [4], num_special 1000, yes 13059, "
++            "no 2649, c 0, V 131072, pad 11, margin_scale_bits = 4.08288030735373e-6 = 0x3ed11ff597db2fb6) and "
++            "`shieldstral_category_policies()`; `registered_policies` = [rung dev, CARD, the three] (r16); "
++            "`CHUNK_OVERLAPS` [1] -> [3] (the rung's 4 kept; 8 at both R13 Shieldstral profiles); "
++            "`chunk_overlap_of` 4 at the test rung (cfg(test)); `ClassifyRunStatement.stage_gate` from "
++            "`LayerRecord::check_accuracy_gate` / `accuracy_gate_shift` (None at Legacy), every stage shape built "
++            "at construction, `stage_shape(k)` (Legacy: the old value, refusing a legacy stage carrying a G; R13: "
++            "`with_accuracy_gate_shift(G_k)`), `stage_gate(k)`; the stage line appends `; R13 gate denominator {g} "
++            "(the layer record's accuracy-gate-layer)` ONLY when Some (legacy stage lines byte for byte); "
++            "`whole_run_of_classifier` adds `r13_block_logup_numerator` off Legacy (the legacy branch is the old "
++            "code); `new_chunk` admits `is_classify_run_profile` (the old list + the R13 profiles + the test rung).  "
++            "TEST-ONLY: `registered_classify_runs` / `r13_census_calibration` / `r13_synthetic_model` / "
++            "`census_classify_statement`; `ctl_q`'s comment.  `describe_under` (the profile text), `kappa`, "
++            "`is_template`, `chunk_ranges`, the door, `parameter_line`, `schedule_digest` and the statement schema "
++            "(`zk60-classify-run/3`, classify_cli.rs) are outside the hunks.  The policy LIST is not encoded in any "
++            "statement (each statement names its own policy), so at the legacy classifier rung no receipt or "
++            "statement byte moves",
++            cls=GATED, diff=_D + "tok-r14-r16-token_io_classify.rs.diff"),
++        CLASSIFY_T16B: _r(CLASSIFY_T16, "+21 / -7, 2 hunks against c23074e9 (token frozen-r16)",
++            "Round 16b (REVIEW_R16 F-1): `policy_shieldstral_card` becomes `#[cfg(test)]` with a corrected doc "
++            "comment; `registered_policies()` = [policy_rung_dev()] + the D37 category list (+ test policies in test "
++            "builds).  The three moderate policies' constructor, constants and ids are untouched; no statement "
++            "byte moves (the r16b freeze note: the real violence receipt re-verifies, identity 29aeba6c...)",
++            cls=GATED, diff=_D + "tok-r16-r16b-token_io_classify.rs.diff"),
++    },
++    CTD: {
++        CLASSIFY_TIED_T16: _r(CLASSIFY_TIED_T14, "+39 / -3, 6 hunks against 401d38d4 (token frozen-r14 = r15)",
++            "`TiedSource::of` / `of_run_profile`: a `#[cfg(test)]` arm for the R13 rung (DevRung) and the R13 "
++            "Shieldstral classifier run profiles -> Shieldstral; N-r13-5: `recompute_tied_classifier` = "
++            "`recompute_tied_classifier_pre(.., None)` (the old body), the Shieldstral path reuses a `pre` derivation "
++            "only when its margin equals the bound profile's (yes, no, scale bits); `load_bound_tables` = "
++            "`load_bound_tables_pre(.., None)`; `load_tied_classifier_tables` passes the export's derivation.  "
++            "`derive_dev`, `dev_tied_tensor_bytes`, `DEV_TIED_TENSOR_SHA256` and `TiedSource::describe` are outside "
++            "the hunks (what zk60_native_rg_classtied transcribes)",
++            cls=GATED, diff=_D + "tok-r14-r16b-token_io_classify_tied.rs.diff"),
++    },
++    CRN: {
++        CLASSIFY_RUN_T16: _r(CLASSIFY_RUN_T14, "+15 / -1, 2 hunks against 5d1d077f (token frozen-r14 = r15)",
++            "(1) the verifier's pre-header stage pass: ONLY off Legacy, every block checked against its own stage "
++            "shape and digest (`stage_block_is_the_statements`) before the run header (native R13's "
++            "`fit_the_stages`); (2) the honest pipeline builds each block with `witness::build_for_block` (Legacy: "
++            "the block-shape check then the frozen `build_shaped`, the same planes; prover-side only).  The "
++            "transcript, stage order, openings and boundary wrapping are outside the hunks",
++            cls=GATED, diff=_D + "tok-r14-r16b-token_io_classify_run.rs.diff"),
++    },
++}
++
++# the twelve NEW R13 modules: first readings (base None), at the r16b digest
++_NEW_TEXT = {
++    "argument_accuracy": "the R13 relations of the SEVEN redefined slots (`define_changed`: SC_DZC, SC_FZC, "
++        "SC_QZC / SC_KVZC, SC_SZC (+ its DD twin), SC_DD, SC_TAB), each calling "
++        "`data.check_for_registry` and checking the common G first; reached ONLY from `argument::define` behind "
++        "`accuracy_stack() != Legacy`",
++    "accuracy_act": "ACT3: `table` (4096 G verifier-derived rows i + beta T_g[i] + beta^2 g + tag, pad rows = "
++        "the (2048 + tag) zero tuple with support 0), `group_column` (public gid per F position), `query_values`, "
++        "`histogram`; reached only under `blk.accuracy() = Some` (protocol.rs) and the R13 FZC / TAB relations",
++    "accuracy_fold": "the multiplier folds (`Site`, `Axis`, `coefficients`, `fold`: the multipliers folded at "
++        "Boolean output channels into the public matrix; refuses -128 weights); reached only off Legacy in the "
++        "matmul arms of argument.rs",
++    "accuracy_layout": "`Limbs`, `AccuracyIds` (the R13 A plane list, its NAMES, the limb groups) and `lookups` "
++        "(byte and exact top-bit pins per domain, the Rg top pin at the stage's G); reached only from "
++        "`Ids::new` / `lookups_at` off Legacy",
++    "accuracy": "R13 profile helpers (the module root of the accuracy family); no legacy caller",
++    "accuracy_aligned": "the aligned (group-scaled) product coefficients and `a_scaled`; called by the R13 "
++        "public data / witness only",
++    "accuracy_groups": "SiLU groups: the common denominator G = max(s_j, 17) <= 24, c_j = m_j 2^(G - s_j); R13 "
++        "only",
++    "accuracy_precision": "`Stack` {Legacy, Low, LowH24}, `BaseShifts`, `Precision`, `derive` (the R13 shifts "
++        "and windows); `Stack::Legacy` is what every legacy shape reports",
++    "accuracy_public": "`AccuracyPublic` (multipliers, groups, group ids, raw / scaled tables, folds, encode for "
++        "the block digest), `check_for_registry`; constructed only by the R13 export loader and tests",
++    "accuracy_tables": "`Registry` {Standard, Shieldstral} (the (0, -8) member only at Shieldstral), "
++        "`silu_table`; R13 only (`Registry::permits` is called at Legacy only through the R13 branches)",
++    "trained_accuracy": "the schema-/2 export reader (`profile_for` has NO Legacy arm, so a legacy export "
++        "falls back to the old run profile; `load_for_registry`); token r16b's copy differs from native R13's "
++        "only in the `#[cfg(test)]` fixture path (HL_R13_LOADER_FIXTURES), diff nat-r13-tok-r16b-trained_accuracy.rs.diff",
++    "witness_accuracy": "the R13 witness builder (`build`, `assign`), reached only from `witness::build_accuracy` "
++        "/ `build_for_block` off Legacy",
++}
++NEW_R13_READINGS = {
++    f: {_r16b_digest_of_new(f): _r(None, "NEW at native R13 (read in full for the gate's purpose: entry points and "
++                                       "their callers)", _NEW_TEXT[n], cls=NEWF,
++                                   diff=(_D + "nat-r13-tok-r16b-trained_accuracy.rs.diff") if n == "trained_accuracy" else "")}
++    for n, f in ACC.items()
++}
++# the native R13 digest of trained_accuracy.rs too (a native capture would pin it)
++NEW_R13_READINGS[ACC["trained_accuracy"]][NEW_R13_DIGESTS[ACC["trained_accuracy"]][0]] = _r(
++    None, "NEW at native R13", _NEW_TEXT["trained_accuracy"], cls=NEWF)
++
++# the classifier files a v22 port must transcribe (the v21 rule: accepted only at a port digest, never by chain)
++CLASSIFY_PORTED_FROM_V22_SUGGESTED = {
++    CLS: CLASSIFY_T16B, CRN: CLASSIFY_RUN_T16,
++    "src/private_block/token_io/stage_in_c.rs": "6a92da0ecfe736537f859bcde5eb3fb89c0852e8d06dfe7f21e0feb9c4bbe6ff",   # unchanged r14 -> r16b
++    "src/private_block/token_io/stage_out_c.rs": "93a79a2b39ab1eb70442b6ee7f0d949cfbf20f7c84b660ec4aa4ebe2ef7a564a",  # unchanged r14 -> r16b
++    CTD: CLASSIFY_TIED_T16,
++}
++
++CLASSIFIER_LEVEL_CHANGES = [
++    "policies (D45(2)): production list at r16b = [rung dev (V 300), moderate-sexual/1, moderate-violence/1, "
++    "moderate-hate/1]; the card policy is #[cfg(test)] (r16 admitted it at both R13 Shieldstral profiles: "
++    "REVIEW_R16 F-1); P0 72 / 72 / 78, suffix [4], num_special 1000, yes 13059, no 2649, c 0, pad 11, V 131072, "
++    "margin_scale_bits 0x3ed11ff597db2fb6 (4.08288030735373e-6); chunk size T - P0 - S = 55 / 55 / 49 at T128, "
++    "183 / 183 / 177 at T256; overlap 8 at both Shieldstral profiles, 4 at the rung and the test rung",
++    "run profiles: hashline-zk-mr1/private-classify-run-shieldstral-3b-t{128,256}-r13-public-row/1 (CS-7 over "
++    "R13_SHIELD_T{128,256}_H24), test-only hashline-zk-mr1/private-classify-run-rung-lh-t32-public-row-tst/1 "
++    "(over R13_RUNG_H24, tied source DevRung)",
++    "stage_shape(k): at R13 the seed shape (G 17) with_accuracy_gate_shift(G_k) from the layer record; the "
++    "stage line gains '; R13 gate denominator {G_k} (the layer record's accuracy-gate-layer)'; the model "
++    "identity encodes accuracy-gate-layer per R13 layer",
++    "the run header's layout_description and the schedule digest use Layout::for_shape(SEED shape): the "
++    "calibration line 'calibration: R13 stack=LowH24 registry=... gate-common=17 precision=...' names the "
++    "SEED's G, never a stage's; the per-stage G is visible only in the stage lines (and the identity)",
++    "the verifier's pre-header stage pass (R13 only): every block against its own stage shape before the "
++    "header (no transcript byte; one more block-load pass)",
++    "whole-run figure: off Legacy the block term is l * (N + 4 T_d - 1) with T_d = 512 + 4096 * 4 (+|Dd|), "
++    "stage OUT-C's legacy (N + 3R - 1); T128 floor 96, T256 floor 95 (r16b tests pin them); the parameter "
++    "line's whole-run-floor-{b}-bits-{openings} moves with it",
++    "N-r13-5: one checkpoint stream per command; the tied derivation reused only at the bound (yes, no, "
++    "scale bits)",
++    "NO change: the classify statement schema zk60-classify-run/3 (classify_cli.rs:110), the profile text "
++    "format (describe_under), kappa / is_template / chunk_ranges, stage_in_c.rs / stage_out_c.rs (6a92da0e / "
++    "93a79a2b), run_capture's ALLOWED_KEYS (identical r14 -> r16b), ClassifyFacts and write_run_classify "
++    "(run.json's `classify` keys), CLASSIFY_SOURCE_FILES [5] (classify.rs, classify_tied.rs, "
++    "classify_run.rs, stage_in_c.rs, stage_out_c.rs)",
++    "capture metadata: OWN_SOURCE_FILES 38 (twelve R13 modules: 4 first, 8 last), so an r16b bundle carries "
++    "60 + 12 = 72 source pins (CORE/SHARED unchanged); F18-1: run.json shape.slots has exactly 23 triples",
++    "run.json's `shape` object has NO accuracy field (no stack, registry or G: run_capture.rs:2743-2787); an "
++    "R13 capture shows R13 only through block_profile / shape.profile, layout_description, the stage lines and "
++    "the parameter line",
++]
++
++ANYTHING_THAT_MOVES_A_RECEIPT_BYTE: list = []   # none at the previously captured profiles
++
++OPEN_QUESTIONS = [
++    "R19-PIN-1 (capture blocker, [READ]): plane_index.rs (13a7dd6f, #[cfg(test)], unchanged since R12b) names "
++    "A planes with the LEGACY segment table (79 names at an R13 shape with limbs_norm forced to 3, limbs_p 2, "
++    "limbs_sigma_s 3; 77 at ls 2) while Ids at an R13 shape is AccuracyIds (109 A planes at LOW+h24 non-DD, ls 3, "
++    "107 at ls 2: T 4, Ht 2, "
++    "L 2, D 39, Q 14, Kv 14, S 15, F 16, Tab 3).  `plane_index::build` refuses on the count, and run_capture's "
++    "recorder fails every R13 block stage ('replay: the plane index does not build at stage k', "
++    "run_capture.rs:981 / 1137 / 1277).  Even with R13 names, its hand-written legacy push order differs from "
++    "the R13 definitions: SC_DZC (legacy range A_X..A_RDL; R13 pushes the whole D domain X..X2L1, whose order "
++    "is ...Z, ZL, RDL x3, X2, X2L), and SC_FZC at LOW (A_RH1 is not the last RH limb).  No R13-stack bundle can be "
++    "written by frozen-r16b's recorder; an R13 plane-index port (AccuracyIds.names exists, accuracy_layout.rs) "
++    "is needed in the gate's capture tree (a test-only module, but a SOURCE PIN) or by the token / native lane.",
++    "run.json carries no accuracy fields; the port must read each block stage's G from the stage lines "
++    "('R13 gate denominator G') or the trained statement, and the seed G (17) from layout_description.",
++    "The redefined R13 slots draw in a different ORDER from the legacy ports' assumption (tau first): SC_DZC, "
++    "SC_FZC, SC_QZC / SC_KVZC draw mu, nu, zeta and THEN tau (argument_accuracy.rs dzc / fzc / qzc); SC_SZC "
++    "(R13) draws tau, mu, nu, zeta; SC_TAB tau, mu, zeta; SC_DD tau, mu.",
++    "frozen-r16b is UNREVIEWED by its freeze note (the r16b check is to follow); R19_BUNDLES is empty until the "
++    "parent captures.",
++    "native R13's derive.rs (5cebeef0) equals token frozen-r14's, already read in v21 (DERIVE_T14).",
++    "Not pinned, so read only for context: classify_cli.rs t14 c1862e4b -> t15 8eddafc9 -> t16 = t16b b3b661b5 "
++    "(round 15's label --expect-total; round 16's R13 export loading, build_for_block and stage shapes); its "
++    "statement schema stays zk60-classify-run/3.",
++]
++
++MOVES_ONLY_OUTSIDE_THE_CAPTURED_PROFILES = [
++    "NEW profiles only: the twelve R13 block / run profiles, the two R13 Shieldstral classifier run profiles "
++    "and the test-only R13 rung classifier profile; their shapes (AccuracyIds plane lists, R13 lookups, the "
++    "seven redefined slot relations, multiplier folds in the matmul public tables, the group column, the ACT3 "
++    "table), the schema-/2 export, the per-layer G in records / identities / stage lines, the R13 whole-run "
++    "term, the moderate policies and the N-r13-5 derivation reuse.",
++]
++
++CAPTURE_METADATA_CHANGES = [
++    "every bundle's source_pins: + the twelve R13 accuracy modules (OWN_SOURCE_FILES 26 -> 38)",
++    "run.json's shape.slots: exactly n_slots = 23 triples (F18-1, token round 15)",
++]
++
++
++# ---------------------------------------------------------------- self-checks
++def _all_readings():
++    out = {}
++    for table in (NATIVE_R13_READINGS, TOKEN_R16B_READINGS, NEW_R13_READINGS):
++        for f, rd in table.items():
++            out.setdefault(f, {}).update(rd)
++    return out
++
++
++def chain(file: str, digest: str) -> list:
++    """the digests from `digest` back along `base` links through this module's readings"""
++    allr = _all_readings()
++    out, cur = [digest], digest
++    for _ in range(10):
++        r = allr.get(file, {}).get(cur)
++        if r is None:
++            break
++        cur = r["base"]
++        out.append(cur)
++        if cur is None:
++            break
++    return out
++
++
++def _sha(path):
++    try:
++        with open(path, "rb") as fh:
++            return hashlib.sha256(fh.read()).hexdigest()
++    except FileNotFoundError:
++        return None
++
++
++def self_check(rehash: bool = True) -> dict:
++    """every terminal digest chains to a v21-read digest (or to a NEW file's first reading); every digest is 64
++    hex; no reading moves a byte; and (rehash) every digest named re-hashes against its frozen copy"""
++    bad, hashed = [], 0
++    hexd = set("0123456789abcdef")
++    for f, table in _all_readings().items():
++        for d, r in table.items():
++            for x in (d, r["base"]):
++                if x is not None and (len(x) != 64 or set(x) - hexd):
++                    bad.append(f"{f}: digest {x!r} is not 64 hex")
++            if r["moves_a_receipt_byte"] or r["moves_a_block_stage_byte"]:
++                bad.append(f"{f}: {d[:8]} moves a byte")
++    for name, terms in (("token r16b", TOKEN_R16B_DIGESTS), ("native r13", NATIVE_R13_DIGESTS)):
++        for f, d in terms.items():
++            c = chain(f, d)
++            roots = CHAIN_ROOTS[f] if isinstance(CHAIN_ROOTS[f], tuple) else (CHAIN_ROOTS[f],)
++            if f == DRV and name == "native r13" and d == DERIVE_T14:
++                continue   # read in v21
++            if c[-1] not in roots:
++                bad.append(f"{name} {f}: chain {[x[:8] if x else x for x in c]} does not reach {roots}")
++    if rehash:
++        trees = {"t16b": TOKEN_R16B_TREE, "n13": NATIVE_R13_TREE}
++        for tag, terms in (("t16b", TOKEN_R16B_DIGESTS), ("n13", NATIVE_R13_DIGESTS)):
++            for f, d in terms.items():
++                got = _sha(os.path.join(_ROOT, trees[tag], f))
++                hashed += 1
++                if got != d:
++                    bad.append(f"{tag} {f}: re-hashed {str(got)[:12]}, the module says {d[:12]}")
++        for f, rd in _all_readings().items():
++            for d, r in rd.items():
++                for x in (d, r["base"]):
++                    if x is None:
++                        continue
++                    found = False
++                    for t in (NATIVE_R12B_TREE, NATIVE_R13_TREE, TOKEN_R14_TREE, TOKEN_R15_TREE, TOKEN_R16_TREE, TOKEN_R16B_TREE):
++                        if _sha(os.path.join(_ROOT, t, f)) == x:
++                            found = True
++                            break
++                    hashed += 1
++                    if not found:
++                        bad.append(f"{f}: {x[:12]} is in no frozen tree read here")
++        man = os.path.join(_ROOT, TOKEN_R16B_MANIFEST)
++        try:
++            with open(man, "rb") as fh:
++                mb = fh.read()
++            if hashlib.sha256(mb).hexdigest() != TOKEN_R16B_LIST_SHA256:
++                bad.append("manifest_final_r16b.sha256: list digest moved")
++            listed = dict((ln.split("  ", 1)[1], ln.split("  ", 1)[0]) for ln in mb.decode().splitlines() if "  " in ln)
++            for f, d in TOKEN_R16B_DIGESTS.items():
++                if listed.get("hashline/" + f) != d:
++                    bad.append(f"manifest_final_r16b: hashline/{f} is {str(listed.get('hashline/' + f))[:12]}")
++        except FileNotFoundError:
++            bad.append("manifest_final_r16b.sha256 missing")
++    return {"ok": not bad, "problems": bad, "digests_rehashed": hashed}
++
++
++if __name__ == "__main__":
++    import json
++    print(json.dumps(self_check(), indent=1))
+diff -ruN -x __pycache__ frozen_v21/scripts/zk60_native_rg_r13blocks.py frozen_v22/scripts/zk60_native_rg_r13blocks.py
+--- frozen_v21/scripts/zk60_native_rg_r13blocks.py	1969-12-31 16:00:00.000000000 -0800
++++ frozen_v22/scripts/zk60_native_rg_r13blocks.py	2026-10-29 05:03:50.591580914 -0700
+@@ -0,0 +1,513 @@
++#!/usr/bin/env python3
++"""[v22, gate round 19, 2026-10-29] THE BLOCK STAGES OF A CLASSIFIER CAPTURE AT
++AN R13 ACCURACY SHAPE: the per-slot terminal identity of all 23 slots at each
++stage's OWN shape (its R13 gate denominator G_k, its calibration), the R13
++plane list, and controls.
++
++    r13_block_terminals(b, rp, calibration_export=None, controls=True) -> dict
++
++`b` is a `zk60_native_rg_classgate.ClassRunBundle`, `rp` its replay.  At a
++legacy block shape this delegates to `classgate.class_block_terminals` (with
++the same calibration handling `classgate.gate` has), so the lane agent swaps
++one call.  The record has the shape of `class_block_terminals`' record.
++
++WHERE THE R13 FACTS COME FROM (run.json `shape` carries no accuracy field):
++
++* the stack and registry: the BLOCK PROFILE string, against `shape.rs`
++  ACCURACY_PROFILES (`zk60_native_rg_r13slots.ACCURACY_PROFILES`);
++* the base calibration and the precision: the seed layout's R13 calibration
++  line ("calibration: R13 stack=... base=tn=.. cn_a=.. ... gate-common=17
++  precision=Precision {...}", layout.rs R13 branch), which is a line of the
++  schedule digest the replayed header absorbs -- so the line is used ONLY after
++  `zk60_native_rg_stagecal.schedule_digest` recomputes run.json's digest from
++  run.json's own lines, and the printed precision must equal its derivation
++  (`accuracy_precision.rs::derive`, ported);
++* each stage's gate denominator G_k: its stage line's "R13 gate denominator G_k
++  (the layer record's accuracy-gate-layer)" (token classify.rs stage_lines),
++  in the same schedule digest; and each stage's own calibration clauses (a
++  Shieldstral layer's per-layer constants) in the legacy own-clause format;
++* `calibration_export` (optional): the export's profile constants and the
++  per-layer constants are COMPARED with the line's (they are never the
++  source).
++
++G_k is not taken on trust: it enters SC_FZC's host term and the Rg lookup's
++exact top-bit pin, so a wrong G fails exactly slot 18 (control R13-G).
++
++NOTHING HERE IS A PRIVACY STATEMENT.
++"""
++
++from __future__ import annotations
++
++import json
++import os
++import re
++import sys
++import time
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++if HERE not in sys.path:
++    sys.path.insert(0, HERE)
++
++import zk60_native_rg_r13slots as R  # noqa: E402
++import zk60_native_rg_stagecal as SCAL  # noqa: E402
++import zk60_native_rg_terminals as T  # noqa: E402
++from zk60_native_jv_field import f2_from_list  # noqa: E402
++from zk60_native_jv_cfs import sumcheck_final  # noqa: E402
++
++# the legacy shape keys the shim's Calibration reads, from the R13 base names
++SHAPE_KEY_OF_BASE = {"tn": "norm_tn", "cn_a": "norm_cn_a", "cn_m": "norm_cn_m", "ceps": "norm_ceps",
++                     "ao": "sh_ao", "qkv": "sh_qkv", "score": "sh_s", "o": "sh_o", "gate": "sh_g",
++                     "product": "sh_h", "down": "sh_z"}
++BASE_OF_SHAPE_KEY = {v: kk for kk, v in SHAPE_KEY_OF_BASE.items()}
++
++
++def _legacy(b, rp, calibration_export, controls):
++    import zk60_native_rg_classgate as CG
++    cal, cal_src, stage_cals = None, None, None
++    if calibration_export:
++        import zk60_native_rg_tokenblocks as TB
++        exp = TB.load_export(calibration_export)
++        ident = TB.identify_layers(b, exp, None)
++        layers = [r["layer"] for r in ident["per_stage"]]
++        if None not in layers:
++            cals = TB.calibrations(exp, layers)
++            cal, stage_cals = cals["run_values"], cals["stage_values"]
++            cal_src = f"export {calibration_export}, layers {layers} (identified by their gains, X10)"
++    return CG.class_block_terminals(b, rp, calibration=cal, calibration_source=cal_src,
++                                    controls=controls, stage_calibrations=stage_cals)
++
++
++def _stage_layout_lines(lay, tier) -> list:
++    """`StageLayout::describe` (token_io.rs:849-863), rendered from the gate's
++    own stage layout (`zk60_native_rg_classify.ClassGeom.stage_in_c / _out_c`)"""
++    def L(v):
++        return "[" + ", ".join(str(x) for x in v) + "]"
++    out = [f"{lay.label}: n={lay.n} inv_rate={tier.stage_inv_rate} Q={tier.opened_cols}",
++           f"A rows={lay.a_rows} data={lay.a_data_rows} site-pairs={sum(s.a_sites for s in lay.slots)} "
++           f"prox-pair=({lay.a_prox},{lay.a_prox + 1}) planes={L(lay.a_log)}",
++           f"H rows={lay.h_rows} data={lay.h_data_rows} site-pairs={sum(s.h_sites for s in lay.slots)} "
++           f"zero-sum-pair={L(lay.h_u_rows())} prox-pair=({lay.h_prox},{lay.h_prox + 1}) planes={L(lay.h_log)} "
++           f"signs={L(lay.h_sign)}",
++           f"M rows={lay.m_rows()} functionals={lay.n_functionals()} row-logs={L(lay.row_log)}"]
++    for i, s in enumerate(lay.slots):
++        out.append(f"slot {i:02} [{s.name}] main={s.main} ext={s.ext} degree={s.degree} kind={s.kind} "
++                   f"A-sites={s.a_sites} H-sites={s.h_sites} IO-sites={s.io_sites}")
++    for h, hs in lay.hosts:
++        out.append(f"host {h:02} <- {L(hs)}")
++    return out
++
++
++def classifier_schedule_digest(b) -> dict:
++    """token classify.rs `schedule_digest` (:1192-1214 at c180c83f):
++    blake3("hashline/classify-run-schedule/v1" + length-framed parameter_line,
++    the block layout's lines, stage IN-C's and stage OUT-C's layout lines,
++    stage_lines).  run.json carries all but the two stage layouts' lines; those
++    are DERIVED here from the gate's own ClassGeom, so the recompute binds
++    run.json's lines (the R13 calibration line, every stage's G_k) to the
++    digest the replayed header absorbs."""
++    import blake3
++    run = b.run
++    h = blake3.blake3()
++    h.update(b"hashline/classify-run-schedule/v1")
++    lines = ([run["parameter_line"]] + list(run["layout_description"])
++             + _stage_layout_lines(b.geom.stage_in_c(), b.geom.tier)
++             + _stage_layout_lines(b.geom.stage_out_c(), b.geom.tier) + list(run["stage_lines"]))
++    for s in lines:
++        bs = s.encode()
++        h.update(len(bs).to_bytes(8, "little"))
++        h.update(bs)
++    got, want = h.hexdigest(), bytes(run["schedule_digest"]).hex()
++    return {"recomputed": got, "run_json": want, "equal": got == want, "lines": len(lines)}
++
++
++def stage_facts(b) -> dict:
++    """the seed base, each block stage's base and G_k, bound to the schedule
++    digest; refusals are ValueErrors with their reason"""
++    run = b.run
++    dig = classifier_schedule_digest(b)
++    if not dig.get("equal"):
++        raise ValueError(f"R13-1: run.json's schedule digest does not recompute from its own lines ({dig})")
++    cal = R.parse_calibration_line(run["layout_description"])
++    stack = R.stack_of(run["shape"]["profile"])
++    if cal["stack"] != stack:
++        raise ValueError(f"R13-2: the calibration line's stack {cal['stack']} is not the profile's {stack}")
++    lines = list(run["stage_lines"])
++    blocks = [st for st in b.stages if st.kind == "BLOCK"]
++    if len(lines) != len(b.stages):
++        raise ValueError(f"R13-3: {len(lines)} stage lines for {len(b.stages)} stages")
++    per = []
++    for k, st in enumerate(blocks):
++        line = lines[st.index]
++        g = R.stage_gate_of(line)
++        if g is None or not (17 <= g <= 24):
++            raise ValueError(f"R13-4: stage {st.index}'s line names no R13 gate denominator in 17..=24: {line!r}")
++        own = SCAL.own_clauses(R.strip_gate(line))
++        base = dict(cal["base"])
++        for key, v, run_v in own:
++            bk = BASE_OF_SHAPE_KEY[key]
++            if base[bk] != run_v:
++                raise ValueError(f"R13-5: stage {st.index}'s own clause says the run's {key} is {run_v}, the line base {base[bk]}")
++            if v == run_v:
++                raise ValueError(f"R13-5: stage {st.index}'s own {key} equals the run's")
++            base[bk] = v
++        shifts = {"norm_tn": base["tn"], "qkv": base["qkv"], "score": base["score"], "pv": base["o"],
++                  "ao": base["ao"], "gate": base["gate"], "up": 0, "product": base["product"], "down": base["down"]}
++        per.append({"stage": st.index, "block": k, "gate_shift": g, "own_clauses": own, "base": base,
++                    "precision": R.derive_precision(stack, shifts)})
++    return {"schedule_digest_equal": True, "schedule_digest": dig, "calibration_line": cal, "stack": stack,
++            "per_stage": per}
++
++
++def export_crosscheck(calibration_export, facts) -> dict:
++    """the export's constants against the transcript-bound line (compare only)"""
++    prof = json.load(open(os.path.join(calibration_export, "profile.json")))
++    pc = prof.get("profile_constants") or {}
++    want = {"tn": pc.get("norm_tn"), "cn_a": pc.get("norm_cn_a"), "cn_m": pc.get("norm_cn_m"),
++            "ceps": pc.get("norm_ceps"), "ao": pc.get("sh_ao"), "qkv": pc.get("sh_qkv"), "score": pc.get("sh_s"),
++            "o": pc.get("sh_o"), "gate": pc.get("sh_g"), "product": pc.get("sh_h"), "down": pc.get("sh_z")}
++    got = facts["calibration_line"]["base"]
++    per_layer = list(prof.get("per_layer_constants_differ") or [])
++    diff = sorted(kk for kk in want if want[kk] != got[kk] and SHAPE_KEY_OF_BASE[kk] not in per_layer)
++    return {"export": calibration_export, "accuracy_stack": prof.get("accuracy_stack"),
++            "per_layer_constants_differ": per_layer, "differing_from_the_line": diff,
++            "ok": not diff and prof.get("accuracy_stack") in ("low-v1", "low-h24-v1")}
++
++
++# the slots whose public tables are functions of the public STATEMENT (weight
++# folds with the R13 multipliers, the norm gains, the RoPE pair, the group
++# column, the exp / ACT3 tables): evaluable only when the capture carries the
++# tables' values (HL_RUN_CAPTURE_PUBLIC_TABLES=1)
++NEEDS_CAPTURED_TABLES = {
++    5: "fold(w_q) with the R13 q multipliers (accuracy_fold, Site::Q)",
++    6: "fold(w_k) with the R13 k multipliers",
++    7: "fold(w_v) with the R13 v multipliers",
++    10: "fold(w_o) with the R13 o multipliers",
++    11: "fold(w_g) with the R13 gate coefficients c_j = m_j 2^(G - s_j)",
++    12: "fold(w_u) with the R13 up multipliers",
++    13: "fold(w_d) with the R13 down multipliers",
++    14: "the padded norm gains gamma_a, gamma_m",
++    15: "the RoPE (cos, sin) pair on Dom::Q",
++    16: "the RoPE (cos, sin) pair on Dom::Kv",
++    18: "the FFN group-id column (and hence G_k's arithmetic check)",
++    19: "the exp table and the derived ACT3 table with its support",
++}
++SLOTS_WITHOUT_TABLES = tuple(s for s in range(23) if s not in NEEDS_CAPTURED_TABLES)
++
++
++def check_stage(shim, index, view, rc: R.R13Ctx, structural=True, check_digests=True,
++                stage_doc=None, port_override=None) -> dict:
++    """all 23 slots of ONE block stage (shim = one block) at its own shape"""
++    import zk60_native_rg_gqa as GQ
++    gate = T.TerminalGate(shim, index)
++    gate.set_stage(0)
++    doc = stage_doc if stage_doc is not None else shim.stages[0].doc
++    gate.set_logup(doc["logup_challenges"])
++    # the legacy-body SC_LZC reads the Dom::L lookups through the gate's cache:
++    # at R13 they are AccuracyIds::lookups(Dom::L) = [LIMB, LIMBM] bytes
++    # (accuracy_layout.rs:133-136); the legacy `lookups_at` would derive the
++    # norm limbs' top pin from the legacy byte count and is not consulted
++    gate._lk_cache["L"] = R.r13_lookups("L", rc.prec, rc.gate_shift, rc.wrho_s, rc.counts)
++    lam_z = T.lam_z_of(doc)
++    planes = [[p.name for p in row] for row in index.slot_planes]
++    group = GQ.GroupFactors(shim, replay=view, stage_docs=[doc], definition=None)
++    row = {"checked": [], "equal": [], "not_checked": [], "r13_ported": list(R.R13_SLOTS)}
++    ports = {s: (nm, fn) for s, nm, fn, _r in T.PORTS}
++    tables = bool(getattr(shim, "public_tables_included", False))
++    row["open_by_capture_option"] = []
++    for s in range(shim.shape.n_slots):
++        arg = doc["arguments"][s]
++        if not tables and s in NEEDS_CAPTURED_TABLES:
++            row["not_checked"].append({"slot": s, "name": ports.get(s, (str(s),))[0],
++                                       "why": "OPEN (capture without public-table values): " + NEEDS_CAPTURED_TABLES[s]})
++            row["open_by_capture_option"].append(s)
++            continue
++        try:
++            dc = [f2_from_list(x) for x in arg["definition_challenges"]]
++            if s in R.R13_PORTS:
++                nm, fn = R.R13_PORTS[s]
++                names = planes[s]
++            else:
++                nm, fn = ports[s]
++                names = [R.LEGACY_NAME_OF_R13.get(n, n) for n in planes[s]]
++            if port_override and s in port_override:
++                fn = port_override[s]
++            cx = T.SlotCtx(gate, arg, names, dc, lam_z, structural=structural)
++            cx.bilinear_definition = group.definition
++            cx.group_table_required = group.group_table_required()
++            if s in T.BILINEAR_SLOTS:
++                pt = group.point(0, s)
++                if pt is not None:
++                    if not cx.eq_idx:
++                        raise ValueError(f"slot {s}: a group point was derived and the bundle declares no eq table")
++                    cx.derived_eq_points = {cx.eq_idx[0]: pt}
++            cx.rho_full = view.stages[0]["rho"][s]
++            c = view.stages[0]["slot_c"][s]
++            if s in R.R13_PORTS:
++                R.build_public_r13(gate, cx, check_digests=check_digests)
++                poly = fn(gate.vals(cx), cx, rc)
++            else:
++                gate.build_public(cx, check_digests=check_digests)
++                poly = fn(gate.vals(cx), cx)
++        except (ValueError, IndexError, KeyError) as exc:
++            row["not_checked"].append({"slot": s, "name": ports.get(s, (str(s),))[0], "why": str(exc)})
++            continue
++        row["checked"].append(s)
++        claimed = f2_from_list(arg["scalar"])
++        for h in arg["hosted"]:
++            claimed = T.add(claimed, T.mul(f2_from_list(h["coefficient"]), f2_from_list(doc["arguments"][h["slot"]]["scalar"])))
++        fin, _ok = sumcheck_final(arg["rounds"], arg["degree"], cx.rho_full, claimed)
++        if fin is not None and fin == T.add(T.mul(c, f2_from_list(arg["mask_eval"])), poly) \
++                and poly == f2_from_list(arg["terminal_polynomial"]):
++            row["equal"].append(s)
++    row["group_factor_ok"] = group.summary()["ok"]
++    row["captured_tables"] = sorted(set(gate.captured_tables.values()))
++    row["rebuilt_tables"] = sorted(set(gate.public_tables.values()))
++    row["structure_failures"] = list(gate.public_structure_failures)
++    row["digest_failures"] = list(gate.public_digest_failures)
++    row["structure_detail"] = gate.structure_detail
++    return row
++
++
++def _failing(row) -> set:
++    opened = set(row.get("open_by_capture_option", []))
++    return ((set(range(23)) - set(row["equal"]) - opened)
++            | {e["slot"] for e in row["not_checked"] if e["slot"] not in opened})
++
++
++def r13_block_terminals(b, rp, calibration_export=None, controls=True, blocks=None) -> dict:
++    """`blocks`: evaluate only these block indices (a bounded-cost run at a
++    large shape; the record says which were evaluated and the rest are NOT
++    reported as checked); controls run on the first evaluated block"""
++    sh = b.run["shape"]
++    if not R.is_r13_shape(sh):
++        return _legacy(b, rp, calibration_export, controls)
++    import zk60_native_rg_tokenblocks as TB
++    from zk60_native_rg_planes import PlaneIndex
++    t0 = time.time()
++    L = b.l
++    rec = {"what": "the block-stage terminal identity of ONE classifier capture at an R13 accuracy shape "
++                   "(all 23 slots per stage at its own G and calibration; seven R13-ported)",
++           "blocks": L, "privacy_acceptance": False, "r13": True}
++    try:
++        facts = stage_facts(b)
++    except ValueError as exc:
++        rec.update({"refused": str(exc), "ok": False})
++        return rec
++    rec["stage_facts"] = {"stack": facts["stack"], "registry": facts["calibration_line"]["registry"],
++                          "base": facts["calibration_line"]["base"], "gate_common_seed": facts["calibration_line"]["gate_common"],
++                          "precision": facts["calibration_line"]["precision"],
++                          "per_stage": [{kk: v for kk, v in p.items() if kk != "precision"} for p in facts["per_stage"]],
++                          "schedule_digest_recomputed_equal": True}
++    if calibration_export:
++        rec["calibration_export_crosscheck"] = export_crosscheck(calibration_export, facts)
++    h24 = facts["stack"] == "LowH24"
++    product_shift = 16 if h24 else 24          # accuracy_public.rs:488 folds().product.shift
++    full = TB.TokenBlockShim(b, None)
++    index = PlaneIndex(full)
++    pi = index.summary()
++    rec["plane_index"] = {kk: pi[kk] for kk in ("ok", "findings", "a_planes", "h_planes", "a_data_rows", "h_data_rows", "slots")}
++    rec["plane_index_r13"] = R.check_plane_index(index, sh)
++    ls = rec["plane_index_r13"].get("sigma_limbs", 0)
++    counts = {"ls": ls, "h24": h24, "dd": int(sh.get("dd_cap", 0)) > 0}
++    if counts["dd"]:
++        rec.update({"refused": "an R13 DD block profile: SC_DD and the DD softmax twin are not ported", "ok": False})
++        return rec
++    rec["source_pins"] = T.check_source_pins(full)
++    per_stage, shims, views, rcs = [], [], [], []
++    evaluated = [p for p in facts["per_stage"] if blocks is None or p["block"] in blocks]
++    rec["blocks_evaluated"] = [p["block"] for p in evaluated]
++    rec["blocks_not_evaluated"] = [p["block"] for p in facts["per_stage"] if p not in evaluated]
++    for p in evaluated:
++        k = p["block"]
++        base = p["base"]
++        cal_values = {SHAPE_KEY_OF_BASE[kk]: int(v) for kk, v in base.items()}
++        shim = TB.TokenBlockShim(b, cal_values, blocks=[k], extra={"norm_wrho": sh["norm_wrho"]})
++        view = TB._ReplayView(rp, [k])
++        rc = R.R13Ctx(facts["stack"], p["precision"], p["gate_shift"], sh["wrho_s"], counts, product_shift)
++        rc.base = base
++        ts = time.time()
++        if not rec["source_pins"]["ok"]:
++            row = {"checked": [], "equal": [], "not_checked": [{"slot": s, "why": "source pins"} for s in range(23)]}
++        else:
++            row = check_stage(shim, index, view, rc)
++        opened = row.get("open_by_capture_option", [])
++        expected = sh["n_slots"] - len(opened)
++        per_stage.append({"stage": p["stage"], "block": k, "gate_shift": p["gate_shift"],
++                          "ok": (len(row["equal"]) == expected and set(row["equal"]).isdisjoint(opened)
++                                 and all(e["slot"] in opened for e in row["not_checked"])),
++                          "slot_checks_equal": len(row["equal"]), "slot_checks_expected": expected,
++                          "open_by_capture_option": opened,
++                          "checked_not_equal": sorted(set(row["checked"]) - set(row["equal"])),
++                          "refused_or_open": [{"slot": e["slot"], "why": e["why"]} for e in row["not_checked"]],
++                          "r13_ported_slots": list(R.R13_SLOTS), "seconds": round(time.time() - ts, 1),
++                          "captured_tables": row.get("captured_tables"), "structure_failures": row.get("structure_failures"),
++                          "structure_detail_r13": {kk: row.get("structure_detail", {}).get(kk)
++                                                   for kk in ("group_column", "act_support", "act3_values")},
++                          "group_factor_ok": row.get("group_factor_ok")})
++        shims.append(shim)
++        views.append(view)
++        rcs.append(rc)
++    rec["per_stage"] = per_stage
++    tables = bool(getattr(b, "public_tables_included", False))
++    rec["tables_absent_by_capture_option"] = not tables
++    rec["slots_covered_without_tables"] = list(SLOTS_WITHOUT_TABLES)
++    rec["slots_open_without_tables"] = {str(kk): v for kk, v in NEEDS_CAPTURED_TABLES.items()} if not tables else {}
++    if not tables:
++        rec["what_is_not_checked_without_tables"] = (
++            "the twelve slots whose public tables are statement constants (weight folds, gains, RoPE, the "
++            "group column, exp / ACT3) are OPEN per slot; each stage's G_k is then bound only through the "
++            "classifier schedule digest the replayed header absorbs (its arithmetic check is SC_FZC's, open)")
++    rec["io_wiring"] = TB._io_wiring(b)
++    ctl = {}
++    if controls and rec["source_pins"]["ok"]:
++        ctl = r13_controls(b, shims, views, rcs, index)
++    rec["controls"] = ctl
++    rec["seconds"] = round(time.time() - t0, 1)
++    rec["ok_on_the_covered_slots"] = (not rec["blocks_not_evaluated"] and all(p["ok"] for p in per_stage)
++                                      and rec["plane_index"]["ok"] and rec["plane_index_r13"]["ok"]
++                                      and rec["io_wiring"]["ok"] and rec["source_pins"]["ok"]
++                                      and all(c["fires"] for c in ctl.values() if isinstance(c, dict)))
++    # a capture without public-table values is NEVER a full pass of the block
++    # stages: twelve slots per stage are open by the capture option
++    rec["ok"] = rec["ok_on_the_covered_slots"] and tables
++    return rec
++
++
++# =====================================================================
++#  controls: each perturbation PREDICTED, then shown to fail exactly there
++# =====================================================================
++def _doc_with_public(doc, slot, nth, fn):
++    """a deep-enough copy of the stage doc with public table `nth` of `slot`
++    rewritten by fn(values) and its digest recomputed (so the digest check
++    passes and the ARITHMETIC must catch it)"""
++    import copy
++    d = dict(doc)
++    d["arguments"] = list(doc["arguments"])
++    arg = copy.deepcopy(doc["arguments"][slot])
++    pubs = [i for i, t in enumerate(arg["tables"]) if t["kind"] == "public"]
++    tab = arg["tables"][pubs[nth]]
++    vals = [f2_from_list(x) for x in tab["values"]]
++    vals = fn(vals)
++    tab["values"] = [[int(a), int(b_)] for a, b_ in vals]
++    tab["sha256"] = T.table_digest(vals)
++    d["arguments"][slot] = arg
++    return d
++
++
++def r13_controls(b, shims, views, rcs, index) -> dict:
++    out = {}
++    k = 0
++    shim, view, rc = shims[k], views[k], rcs[k]
++    doc = shim.stages[0].doc
++
++    def run(**kw):
++        return _failing(check_stage(shim, index, view, kw.pop("rc", rc), **kw))
++    import copy
++    if not getattr(shim, "public_tables_included", False):
++        # without table values: the controls whose slot is evaluable
++        rc_s = copy.copy(rc)
++        p2 = dict(rc.prec)
++        p2["score"] += 1
++        rc_s.prec = p2
++        got = run(rc=rc_s)
++        out["NC-1_R13_score_precision_moved"] = {"perturbation": "precision.score + 1 (SC_SZC's host and Rs pin)",
++                                                 "predicted": [17], "failing": sorted(got), "fires": got == {17}}
++        rc_c = copy.copy(rc)
++        rc_c.base = dict(rc.base)
++        shim_c = shim.with_shape(dict(shim.run["shape"], norm_ceps=int(rc.base["ceps"]) + 1))
++        got = _failing(check_stage(shim_c, index, view, rc_c))
++        out["NC-2_R13_norm_ceps_moved"] = {"perturbation": "the norm ceps + 1 in the stage shape (SC_TZC's two host terms)",
++                                           "predicted": [2], "failing": sorted(got), "fires": got == {2}}
++        out["not_applicable_without_tables"] = ["R13-G", "R13-N", "R13-GC", "R13-ACT", "R13-W", "R13-L"]
++        return out
++    # R13-G: the stage's gate denominator moved by one -> exactly slot 18
++    rc_g = copy.copy(rc)
++    rc_g.gate_shift = rc.gate_shift + 1 if rc.gate_shift < 24 else rc.gate_shift - 1
++    got = run(rc=rc_g)
++    out["R13-G_gate_denominator_moved"] = {"perturbation": f"stage {k + 1}: G {rc.gate_shift} -> {rc_g.gate_shift}",
++                                           "predicted": [18], "failing": sorted(got), "fires": got == {18}}
++    # NC-1 (R13): the base score shift moved -> the precision's score moves -> exactly slot 17
++    rc_s = copy.copy(rc)
++    p2 = dict(rc.prec)
++    p2["score"] += 1
++    rc_s.prec = p2
++    got = run(rc=rc_s)
++    out["NC-1_R13_score_precision_moved"] = {"perturbation": "precision.score + 1 (SC_SZC's host and Rs pin)",
++                                             "predicted": [17], "failing": sorted(got), "fires": got == {17}}
++    # R13-N: the norm tn' moved -> exactly slot 14
++    rc_n = copy.copy(rc)
++    p3 = dict(rc.prec)
++    p3["norm_tn"] += 1
++    rc_n.prec = p3
++    got = run(rc=rc_n)
++    out["R13-N_norm_tn_moved"] = {"perturbation": "precision.norm_tn + 1 (SC_DZC's two norm clauses)",
++                                  "predicted": [14], "failing": sorted(got), "fires": got == {14}}
++    # R13-GC: one entry of the group column changed (digest recomputed) -> exactly slot 18
++    def bump_group(vals):
++        s = shim.run["shape"]
++        j = next(j for j in range(s["hidden"]) if vals[j][0] in (0, 1))
++        new = list(vals)
++        for t in range(s["tokens"]):
++            x = t * s["f_pad"] + j
++            new[x] = ((vals[x][0] + 1) % T.P, 0)
++        return new
++    got = _failing(check_stage(shim, index, view, rc, stage_doc=_doc_with_public(doc, 18, 0, bump_group)))
++    out["R13-GC_group_column_doctored"] = {"perturbation": "one channel's group id + 1 on every token (digest recomputed)",
++                                           "predicted": [18], "failing": sorted(got), "fires": got == {18}}
++    # R13-ACT: one ACT3 table entry changed (digest recomputed) -> exactly slot 19
++    def bump_act(vals):
++        new = list(vals)
++        new[100] = T.add(vals[100], T.ONE)
++        return new
++    got = _failing(check_stage(shim, index, view, rc, stage_doc=_doc_with_public(doc, 19, 2, bump_act)))
++    out["R13-ACT_act3_table_doctored"] = {"perturbation": "ACT3 compressed table entry 100 + 1 (digest recomputed)",
++                                          "predicted": [19], "failing": sorted(got), "fires": got == {19}}
++    # R13-W: one entry of the multiplier-folded gate weight fold changed -> exactly slot 11
++    def bump_fold(vals):
++        new = list(vals)
++        new[3] = T.add(vals[3], T.ONE)
++        return new
++    got = _failing(check_stage(shim, index, view, rc, stage_doc=_doc_with_public(doc, 11, 0, bump_fold)))
++    out["R13-W_gate_weight_fold_doctored"] = {"perturbation": "fold(w_g) entry 3 + 1 (digest recomputed; the multipliers' fold)",
++                                              "predicted": [11], "failing": sorted(got), "fires": got == {11}}
++    # R13-L: the legacy body of SC_FZC evaluated on the R13 bytes -> slot 18 fails (the port is not silently legacy)
++    def legacy_fzc(v, cx, _rc):
++        names = [R.LEGACY_NAME_OF_R13.get(n, n) for n in cx.names]
++        raise ValueError(f"legacy SC_FZC cannot read the R13 plane list ({len(names)} planes)")
++    got = _failing(check_stage(shim, index, view, rc, port_override={18: legacy_fzc}))
++    out["R13-L_legacy_fzc_on_r13_bytes"] = {"perturbation": "SC_FZC evaluated with the legacy body (refused, not silently passed)",
++                                            "predicted": [18], "failing": sorted(got), "fires": got == {18}}
++    return out
++
++
++def main(argv=None):
++    import argparse
++    ap = argparse.ArgumentParser()
++    ap.add_argument("--bundle", required=True)
++    ap.add_argument("--evidence", required=True)
++    ap.add_argument("--name", required=True)
++    ap.add_argument("--calibration-export", default=None)
++    ap.add_argument("--no-controls", action="store_true")
++    a = ap.parse_args(argv)
++    import zk60_native_rg_classgate as CG
++    t0 = time.time()
++    b = CG.load(a.bundle)
++    rp = CG.ClassRunReplay(b).run()
++    rec = r13_block_terminals(b, rp, calibration_export=a.calibration_export, controls=not a.no_controls)
++    rec["replay_ok"] = rp.summary().get("ok")
++    rec["total_seconds"] = round(time.time() - t0, 1)
++    try:
++        import resource
++        rec["peak_rss_mb"] = round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024)
++    except Exception:  # noqa: BLE001
++        pass
++    os.makedirs(a.evidence, exist_ok=True)
++    path = os.path.join(a.evidence, f"{a.name}.json")
++    with open(path, "w") as fh:
++        json.dump(rec, fh, indent=1, sort_keys=True, default=str)
++    print(f"{a.name}: ok {rec.get('ok')}; {rec.get('seconds')} s; record {path}")
++    return 0 if rec.get("ok") else 1
++
++
++if __name__ == "__main__":
++    raise SystemExit(main())
+diff -ruN -x __pycache__ frozen_v21/scripts/zk60_native_rg_r13slots.py frozen_v22/scripts/zk60_native_rg_r13slots.py
+--- frozen_v21/scripts/zk60_native_rg_r13slots.py	1969-12-31 16:00:00.000000000 -0800
++++ frozen_v22/scripts/zk60_native_rg_r13slots.py	2026-10-29 04:48:42.579180371 -0700
+@@ -0,0 +1,747 @@
++#!/usr/bin/env python3
++"""[v22, gate round 19, 2026-10-29] The R13 ACCURACY-STACK block slots for the
++privacy gate's terminal identity (native R13 / token frozen-r16b).
++
++At an R13 accuracy shape (`shape.rs` ACCURACY_PROFILES, stack LOW or LOW +
++h24) `argument.rs::define` first calls `argument_accuracy.rs::define_changed`,
++which REDEFINES seven slots -- SC_DZC 14, SC_QZC 15, SC_KVZC 16, SC_SZC 17 (and
++its DD twin), SC_FZC 18, SC_DD 23 (DD profiles only), SC_TAB 19 -- and leaves the
++other sixteen on their legacy bodies (whose matmul weight folds now carry the
++R13 multipliers, `accuracy_fold.rs`: a different public TABLE, the same
++polynomial).  This module ports the seven bodies, the R13 plane list and its
++names (`accuracy_layout.rs::AccuracyIds::new`), the R13 byte lookups with their
++exact top-bit pins (`AccuracyIds::lookups`), the precision derivation
++(`accuracy_precision.rs::derive`) and the public tables each R13 slot pushes.
++
++READ [token frozen-r16b, list 04d94bc0...; = native R13 bb9eb212... for every
++file below]:
++
++    argument_accuracy.rs  a5e02391b615...  (define_changed, dzc, fzc, qzc, szc, szc_dd, dd, tab)
++    accuracy_layout.rs    37a3e3456a17...  (AccuracyIds::new, lookups)
++    accuracy_precision.rs 145c1e0f....     (derive)
++    accuracy_act.rs       7ef5fe26....     (table, group_column, query_values)
++    accuracy_public.rs    0b44bf54....     (folds().product.shift = 24 LOW / 16 h24, :488)
++    shape.rs              8e00a144....     (ACCURACY_PROFILES :202-215, a_plane_doms :2204-2212,
++                                            accuracy_base :672-675, f_p :679-681)
++    layout.rs             8519a514....     (SH_ROPE = 7 :67; Ids at R13 :363-367; lookups dispatch;
++                                            the R13 calibration line of the layout description)
++    argument.rs           bc0332e3....     (define: R13 dispatch first; matmul folds via accuracy_fold)
++
++Line references below are to argument_accuracy.rs at a5e02391.
++
++WHAT IS NOT PORTED: SC_DD and the DD softmax twin (`szc_dd`): no R13 DD profile
++is captured (the classifier profiles are non-DD); a DD bundle is refused by
++name, never evaluated with a legacy body.
++
++NOTHING HERE IS A PRIVACY STATEMENT.
++"""
++
++from __future__ import annotations
++
++import os
++import re
++import sys
++
++HERE = os.path.dirname(os.path.abspath(__file__))
++if HERE not in sys.path:
++    sys.path.insert(0, HERE)
++
++import zk60_native_rg_terminals as T  # noqa: E402
++from zk60_native_jv_field import f2_from_list  # noqa: E402
++
++add, sub, mul, mulb, k = T.add, T.sub, T.mul, T.mulb, T.k
++ONE, ZERO, P = T.ONE, T.ZERO, T.P
++limbs, helper_sum, PadTerm, gate_at = T.limbs, T.helper_sum, T.PadTerm, T.gate_at
++
++SH_ROPE = 7          # layout.rs:67
++MASK_SCORE = -127    # layout.rs
++TAG_ACT = 134
++
++# shape.rs ACCURACY_PROFILES (:202-215): profile -> (name, stack, registry)
++ACCURACY_PROFILES = {
++    "hashline-zk-mr1/private-block-tinyllama-1.1b-t128-low-stack-v01/1": ("R13_TINY_T128_LOW", "Low", "standard"),
++    "hashline-zk-mr1/private-block-tinyllama-1.1b-t128-low-ddict-v01/1": ("R13_TINY_T128_LOW_DD", "Low", "standard"),
++    "hashline-zk-mr1/private-block-llama-3-8b-t128-lh24-v1/1": ("R13_8B_T128_H24", "LowH24", "standard"),
++    "hashline-zk-mr1/private-block-llama-3-8b-t128-lh24-dd/1": ("R13_8B_T128_H24_DD", "LowH24", "standard"),
++    "hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/1": ("R13_SHIELD_T128_H24", "LowH24", "shieldstral"),
++    "hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-ddict1/1": ("R13_SHIELD_T128_H24_DD", "LowH24", "shieldstral"),
++    "hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-blocks/1": ("R13_SHIELD_T256_H24", "LowH24", "shieldstral"),
++    "hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-ddict1/1": ("R13_SHIELD_T256_H24_DD", "LowH24", "shieldstral"),
++    "hashline-zk-mr1/private-block-rung-lo-t32-dev/1": ("R13_RUNG_LOW", "Low", "standard"),
++    "hashline-zk-mr1/private-block-rung-lh-t32-dev/1": ("R13_RUNG_H24", "LowH24", "standard"),
++    "hashline-zk-mr1/private-block-rung-ld-t32-dev/1": ("R13_RUNG_LOW_DD", "Low", "standard"),
++    "hashline-zk-mr1/private-block-rung-hh-t32-dev/1": ("R13_RUNG_H24_DD", "LowH24", "standard"),
++}
++R13_SLOTS = (14, 15, 16, 17, 18, 19)          # the redefined slots off DD (SC_DD 23 only at DD)
++
++# legacy plane NAME -> its R13 name (AccuracyIds names, prefix A_), for the
++# sixteen legacy-body slots whose ports address the legacy names
++R13_NAME_OF_LEGACY = {"A_Q8": "A_Q", "A_K8": "A_K", "A_V8": "A_V", "A_QR8": "A_QR", "A_KR8": "A_KR",
++                      "A_O8": "A_O", "A_S8": "A_S", "A_G8": "A_G", "A_A16": "A_A_SCALED",
++                      "A_U16": "A_U", "A_H16": "A_H", "A_Z16": "A_Z"}
++LEGACY_NAME_OF_R13 = {v: kk for kk, v in R13_NAME_OF_LEGACY.items()}
++
++
++def stack_of(profile: str):
++    s = ACCURACY_PROFILES.get(profile)
++    return s[1] if s else None
++
++
++def is_r13_shape(shape_raw: dict) -> bool:
++    return shape_raw.get("profile") in ACCURACY_PROFILES
++
++
++# =====================================================================
++#  the plane list (accuracy_layout.rs AccuracyIds::new) and its count
++# =====================================================================
++def accuracy_plane_list(stack: str, dd: bool, ls: int) -> list:
++    """`AccuracyIds::new` (accuracy_layout.rs:40-93): [(name, domain)] in
++    plane order, names prefixed `A_` (the gate's H19-3 plane_index.rs)."""
++    if stack not in ("Low", "LowH24") or not (2 <= ls <= 3):
++        raise ValueError("R13 planes require an explicit LOW stack and two/three softmax remainder limbs")
++    h24 = stack == "LowH24"
++    out = []
++
++    def word(dom, name):
++        out.append((f"A_{name}", dom))
++
++    def group(dom, name, count):
++        for kk in range(count):
++            word(dom, name if count == 1 else f"{name}{kk}")
++    for name in ("D", "DSQ", "DM", "DSQM"):
++        word("T", name)
++    word("Ht", "MX")
++    word("Ht", "SUM")
++    word("L", "LIMB")
++    word("L", "LIMBM")
++    word("D", "X"); group("D", "XL", 2)
++    word("D", "Y"); group("D", "YL", 2)
++    group("D", "NR", 3); group("D", "NS", 3)
++    word("D", "AO"); group("D", "AL", 2)
++    group("D", "RAL", 3)
++    word("D", "X1"); group("D", "X1L", 2)
++    word("D", "YM"); group("D", "YML", 2)
++    group("D", "MR", 3); group("D", "MS", 3)
++    word("D", "Z"); group("D", "ZL", 2)
++    group("D", "RDL", 3 if h24 else 2)
++    word("D", "X2"); group("D", "X2L", 2)
++    word("Q", "Q"); group("Q", "QL", 2)
++    group("Q", "RQL", 2)
++    word("Q", "QR"); group("Q", "QRL", 2)
++    group("Q", "RQRL", 1)
++    word("Q", "O"); group("Q", "OL", 2)
++    group("Q", "RO", 2)
++    word("Kv", "K"); group("Kv", "KL", 2)
++    group("Kv", "RKL", 2)
++    word("Kv", "V"); group("Kv", "VL", 2)
++    group("Kv", "RVL", 2)
++    word("Kv", "KR"); group("Kv", "KRL", 2)
++    group("Kv", "RKRL", 1)
++    word("S", "S"); group("S", "RSL", 3)
++    word("S", "ZSEL"); word("S", "E"); word("S", "P")
++
++    def division(dom):
++        group(dom, "PL", 2); group(dom, "SR", ls); group(dom, "SG", ls)
++    if not dd:
++        division("S")
++    word("F", "G"); group("F", "RGL", 3)
++    word("F", "A_SCALED"); word("F", "U"); group("F", "UL", 2)
++    group("F", "RU", 2)
++    word("F", "H"); group("F", "HL", 3 if h24 else 2)
++    group("F", "RH", 2 if h24 else 3)
++    if dd:
++        word("Dd", "PDICT"); division("Dd"); word("Dd", "MDD")
++    word("Tab", "MU8"); word("Tab", "MEXP"); word("Tab", "MACT")
++    return out
++
++
++def a_plane_doms_count(stack: str, dd: bool, ls: int) -> list:
++    """`Shape::a_plane_doms` at R13 (shape.rs:2204-2212), counted
++    independently of the name table"""
++    h24 = stack == "LowH24"
++    v = ["T"] * 4 + ["Ht"] * 2 + ["L"] * 2 + ["D"] * (39 if h24 else 38) + ["Q"] * 14 + ["Kv"] * 14
++    v += ["S"] * (7 if dd else 9 + 2 * ls) + ["F"] * 16
++    if dd:
++        v += ["Dd"] * (4 + 2 * ls)
++    return v + ["Tab"] * 3
++
++
++def check_plane_index(index, shape_raw: dict) -> dict:
++    """The capture's plane index (written by the gate's H19-3 plane_index.rs)
++    against the independent port above: names, domains, the count."""
++    stack = stack_of(shape_raw.get("profile"))
++    dd = int(shape_raw.get("dd_cap", 0)) > 0
++    ls = sum(1 for p in index.a_planes if re.fullmatch(r"A_SR\d+", p.name))
++    f = []
++    try:
++        want = accuracy_plane_list(stack, dd, ls)
++    except ValueError as exc:
++        return {"ok": False, "findings": [str(exc)]}
++    count = a_plane_doms_count(stack, dd, ls)
++    if [d for _n, d in want] != count:
++        f.append("the ported AccuracyIds domain list is not the independently counted a_plane_doms")
++    got = [(p.name, p.domain) for p in index.a_planes]
++    if got != want:
++        diff = [i for i, (a, b_) in enumerate(zip(got, want)) if a != b_]
++        f.append(f"the capture's A plane list differs from the port at {len(diff) or 'its length'} positions "
++                 f"(first {diff[:3]}; {len(got)} vs {len(want)} planes)")
++    return {"stack": stack, "dd": dd, "sigma_limbs": ls, "a_planes": len(got), "a_planes_ported": len(want),
++            "names_and_domains_equal": got == want, "findings": f, "ok": not f}
++
++
++# =====================================================================
++#  the precision (accuracy_precision.rs derive) and the calibration line
++# =====================================================================
++BASE_KEYS = ("tn", "cn_a", "cn_m", "ceps", "ao", "qkv", "score", "o", "gate", "product", "down")
++CAL_LINE = re.compile(r"^calibration: R13 stack=(\w+) registry=(\S+) base=(.*?) norm-window=24 fp=12 "
++                      r"gate-common=(\d+) precision=Precision \{ (.*?) \}; ")
++
++
++def derive_precision(stack: str, b: dict) -> dict:
++    """`accuracy_precision.rs::derive` (:55-98) from the base shifts"""
++    if not (1 <= b["norm_tn"] <= 16 and 1 <= b["qkv"] <= 8 and 1 <= b["score"] <= 8 and 9 <= b["pv"] <= 16
++            and b["ao"] <= 8 and 1 <= b["gate"] <= 8 and b["up"] == 0 and 9 <= b["product"] <= 16
++            and 1 <= b["down"] <= 8):
++        raise ValueError("precision: base calibration is outside the legacy class")
++    h24 = stack == "LowH24"
++    p = {"norm_tn": b["norm_tn"] - 8, "q": b["qkv"] + 7, "k": b["qkv"] + 7, "v": b["qkv"] + 8,
++         "score": b["score"] + 12, "pv": b["pv"] + 3, "ao": b["ao"] + 14, "gate": b["gate"] + 10,
++         "up": b["up"] + 12, "product": b["product"] - (8 if h24 else 0),
++         "down": b["down"] + 6 + (8 if h24 else 0), "f_p": 12, "norm_bits": 16, "attention_bits": 16,
++         "gate_bits": 12, "product_bits": 16 + (8 if h24 else 0)}
++    if p["norm_tn"] <= 0:
++        raise ValueError("precision: tn-8 must remain positive")
++    if not (all(9 <= p[x] <= 16 for x in ("q", "k", "v", "pv", "up")) and all(17 <= p[x] <= 24 for x in ("score", "ao"))
++            and 1 <= p["gate"] <= 24 and ((5 <= p["product"] <= 8) if h24 else (13 <= p["product"] <= 16))
++            and ((17 <= p["down"] <= 24) if h24 else (9 <= p["down"] <= 16))):
++        raise ValueError("precision: derived shift is outside the declared remainder window")
++    return p
++
++
++def parse_calibration_line(layout_description: list) -> dict:
++    """The R13 calibration line of the seed layout's description (layout.rs:
++    "calibration: R13 stack={:?} registry={} base={} norm-window=24 fp=12
++    gate-common={} precision={:?}; ..."), its base constants, and the printed
++    precision CHECKED against `derive_precision` of that base."""
++    lines = [s for s in layout_description if s.startswith("calibration: R13 ")]
++    if len(lines) != 1:
++        raise ValueError(f"the layout description carries {len(lines)} R13 calibration lines, not one")
++    m = CAL_LINE.match(lines[0])
++    if not m:
++        raise ValueError(f"the R13 calibration line does not parse: {lines[0][:160]!r}")
++    stack, registry, base_s, gate_common, prec_s = m.groups()
++    base = {}
++    for tok in base_s.split():
++        kk, _, v = tok.partition("=")
++        base[kk] = int(v)
++    if tuple(base) != BASE_KEYS:
++        raise ValueError(f"the R13 base calibration names {tuple(base)}, not {BASE_KEYS}")
++    printed = {}
++    for tok in prec_s.split(", "):
++        kk, _, v = tok.partition(": ")
++        printed[kk] = v
++    shifts = {"norm_tn": base["tn"], "qkv": base["qkv"], "score": base["score"], "pv": base["o"], "ao": base["ao"],
++              "gate": base["gate"], "up": 0, "product": base["product"], "down": base["down"]}
++    prec = derive_precision(stack, shifts)
++    diff = [kk for kk, v in prec.items() if printed.get(kk) != str(v)]
++    if printed.get("stack") != stack:
++        diff.append("stack")
++    if diff:
++        raise ValueError(f"the printed R13 precision differs from its derivation at {diff}")
++    return {"stack": stack, "registry": registry, "base": base, "base_shifts": shifts,
++            "gate_common": int(gate_common), "precision": prec, "line": lines[0]}
++
++
++R13_GATE = re.compile(r"; R13 gate denominator (\d+) \(the layer record's accuracy-gate-layer\)$")
++
++
++def stage_gate_of(line: str):
++    """the stage line's R13 gate denominator (token classify.rs `stage_lines`)"""
++    m = R13_GATE.search(line)
++    return int(m.group(1)) if m else None
++
++
++def strip_gate(line: str) -> str:
++    return R13_GATE.sub("", line)
++
++
++# =====================================================================
++#  the R13 lookups (accuracy_layout.rs AccuracyIds::lookups :110-170)
++# =====================================================================
++def r13_lookups(dom: str, prec: dict, gate_shift: int, wrho_s: int, counts: dict) -> list:
++    """[(terms [(plane name, coeff)], cst)] in the Rust order.  `counts` are
++    the limb counts read from the plane names (sigma limbs; h24 or LOW)."""
++    ls = counts["ls"]
++    h24 = counts["h24"]
++    if prec["f_p"] != 12 or prec["product_bits"] != (24 if h24 else 16) or not (9 <= wrho_s <= 24) \
++            or (wrho_s + 7) // 8 != ls:
++        raise ValueError("R13 lookups: precision or softmax context mismatch")
++    v = []
++    groups = {"X": ("XL", 2), "Y": ("YL", 2), "Nr": ("NR", 3), "Ns": ("NS", 3), "Ao": ("AL", 2),
++              "Rao": ("RAL", 3), "X1": ("X1L", 2), "Ym": ("YML", 2), "Mr": ("MR", 3), "Ms": ("MS", 3),
++              "Z": ("ZL", 2), "Rd": ("RDL", 3 if h24 else 2), "X2": ("X2L", 2), "Q": ("QL", 2), "Rq": ("RQL", 2),
++              "Qr": ("QRL", 2), "Rqr": ("RQRL", 1), "O": ("OL", 2), "Ro": ("RO", 2), "K": ("KL", 2),
++              "Rk": ("RKL", 2), "V": ("VL", 2), "Rv": ("RVL", 2), "Kr": ("KRL", 2), "Rkr": ("RKRL", 1),
++              "Rs": ("RSL", 3), "P": ("PL", 2), "Sr": ("SR", ls), "Sg": ("SG", ls), "Rg": ("RGL", 3),
++              "Up": ("UL", 2), "Ru": ("RU", 2), "H": ("HL", 3 if h24 else 2), "Rh": ("RH", 2 if h24 else 3)}
++
++    def name(g, kk):
++        base, count = groups[g]
++        return f"A_{base}" if count == 1 else f"A_{base}{kk}"
++
++    def byts(g, bits=None):
++        count = groups[g][1]
++        for kk in range(count):
++            v.append(([(name(g, kk), 1)], 0))
++        if bits is not None:
++            if bits == 0 or bits > 8 * count or bits <= 8 * (count - 1):
++                raise ValueError(f"R13 lookups: {g} shift does not fit its counted limb window")
++            v.append(([(name(g, count - 1), 1 << (8 * count - bits))], 0))
++    if dom == "L":
++        v += [([("A_LIMB", 1)], 0), ([("A_LIMBM", 1)], 0)]
++    elif dom == "D":
++        byts("X"); byts("Y"); byts("Nr"); byts("Ns"); byts("Ao"); byts("Rao", prec["ao"]); byts("X1")
++        byts("Ym"); byts("Mr"); byts("Ms"); byts("Z"); byts("Rd", prec["down"]); byts("X2")
++    elif dom == "Q":
++        byts("Q"); byts("Rq", prec["q"]); byts("Qr"); byts("Rqr", SH_ROPE); byts("O"); byts("Ro", prec["pv"])
++    elif dom == "Kv":
++        byts("K"); byts("Rk", prec["k"]); byts("V"); byts("Rv", prec["v"]); byts("Kr"); byts("Rkr", SH_ROPE)
++    elif dom == "F":
++        byts("Rg", gate_shift); byts("Up"); byts("Ru", prec["up"]); byts("H"); byts("Rh")
++    elif dom in ("S", "Dd"):
++        if counts["dd"]:
++            raise ValueError("R13 lookups: DD profiles are not ported")
++        if dom == "S":
++            byts("Rs", prec["score"])
++            byts("P", prec["f_p"] + 1); byts("Sr", wrho_s); byts("Sg", wrho_s)
++            v.insert(0, ([("A_S", -1)], 127))
++            v.insert(0, ([("A_S", 1)], 127))
++    return v
++
++
++def lk_tables_r13(cx, dom: str, prec: dict, gate_shift: int, wrho_s: int, counts: dict):
++    """`lk_tables` (argument.rs) at R13, in this slot's table-index space"""
++    return [([(cx.t(nm), c) for (nm, c) in terms], add(k(cst), cx.g_u8))
++            for (terms, cst) in r13_lookups(dom, prec, gate_shift, wrho_s, counts)]
++
++
++# =====================================================================
++#  the R13 slot context: draws in the R13 order
++# =====================================================================
++class R13Ctx:
++    """the stage's R13 facts a port reads: stack, precision, G, counts"""
++
++    def __init__(self, stack, prec, gate_shift, wrho_s, counts, product_shift):
++        self.stack, self.prec, self.gate_shift, self.wrho_s = stack, prec, gate_shift, wrho_s
++        self.counts, self.product_shift = counts, product_shift
++
++
++def draws_mu_first(cx, lt: int, n_mu: int, n_nu: int, *doms):
++    """DZC / FZC / QZC / KVZC (argument_accuracy.rs:33-35, :71-73, :110-112):
++    mu(n_mu + n_pad), nu(n_nu), zeta(1 if pad_on), THEN tau(lt)."""
++    on = cx.pad_on(*doms)
++    n_pad = 1 if on else 0
++    want = n_mu + n_pad + n_nu + n_pad + lt
++    if len(cx.dc) != want:
++        raise ValueError(f"slot {cx.slot}: this R13 slot consumes {want} definition draws (mu {n_mu}+{n_pad}, "
++                         f"nu {n_nu}, zeta {n_pad}, tau {lt}) and the capture declares {len(cx.dc)}")
++    mu = cx.dc[:n_mu + n_pad]
++    nu = cx.dc[n_mu + n_pad:n_mu + n_pad + n_nu]
++    zeta = cx.dc[n_mu + n_pad + n_nu] if on else None
++    return mu, nu, zeta, on
++
++
++def _names_of(prefix, n):
++    return [prefix if n == 1 else f"{prefix}{kk}" for kk in range(n)]
++
++
++def _lb(v, cx, prefix, n):
++    return limbs(v, [cx.t(nm) for nm in _names_of(prefix, n)])
++
++
++def domain_names(cx, dom):
++    return list(cx.g.a_plane_names_by_domain[dom])
++
++
++def zero_planes(cx, dom):
++    """`pad::zero_rule_a_planes` (pad.rs) at R13 names: every A plane of the
++    domain except A_E, empty when the domain does not pad"""
++    if not cx.g.geom.pads(dom):
++        return []
++    return [cx.t(nm) for nm in cx.g.a_plane_names_by_domain[dom] if nm != "A_E"]
++
++
++def r13_dzc(v, cx, rc: R13Ctx):
++    """argument_accuracy.rs:29-67"""
++    n_help = cx.g.n_helpers("D")
++    cx.expect(domain_names(cx, "D") + ["A_D", "A_DM"] + [f"H_D{j}" for j in range(n_help)])
++    mu, nu, zeta, pad_on = draws_mu_first(cx, cx.g.log("D"), 13 + n_help, 2, "D")
++    p = rc.prec
++    ig, igm = cx.c("gamma_a"), cx.c("gamma_m")
++    gi = cx.p("supp", "D")
++    h24 = rc.counts["h24"]
++
++    def at(nm):
++        return v[cx.t(nm)]
++    x, y, ao, x1, ym, z, x2 = at("A_X"), at("A_Y"), at("A_AO"), at("A_X1"), at("A_YM"), at("A_Z"), at("A_X2")
++    d, dm = at("A_D"), at("A_DM")
++    num, num_m = k(2 * rc.base["cn_a"]), k(2 * rc.base["cn_m"])
++    dv, den = k(1 << p["norm_tn"]), k(1 << (p["norm_tn"] + 1))
++    kd, kdm = mul(den, d), mul(den, dm)
++    nr, ns, mr, ms = (_lb(v, cx, "A_NR", 3), _lb(v, cx, "A_NS", 3), _lb(v, cx, "A_MR", 3), _lb(v, cx, "A_MS", 3))
++    c32 = k(32768)
++    clauses = [
++        sub(sub(add(mul(mul(v[ig], x), num), mul(d, dv)), mul(kd, y)), nr),
++        sub(add(add(nr, ns), ONE), kd),
++        sub(add(x, c32), _lb(v, cx, "A_XL", 2)),
++        sub(add(y, c32), _lb(v, cx, "A_YL", 2)),
++        sub(add(ao, c32), _lb(v, cx, "A_AL", 2)),
++        sub(add(x1, c32), _lb(v, cx, "A_X1L", 2)),
++        sub(sub(x1, x), ao),
++        sub(sub(add(mul(mul(v[igm], x1), num_m), mul(dm, dv)), mul(kdm, ym)), mr),
++        sub(add(add(mr, ms), ONE), kdm),
++        sub(add(ym, c32), _lb(v, cx, "A_YML", 2)),
++        sub(add(z, c32), _lb(v, cx, "A_ZL", 2)),
++        sub(add(x2, c32), _lb(v, cx, "A_X2L", 2)),
++        sub(sub(x2, x1), z),
++    ]
++    batch = ZERO
++    for m_, c_ in zip(mu, clauses):
++        batch = add(batch, mul(m_, c_))
++    pz = PadTerm()
++    if pad_on and gi is not None:
++        pz.mu = mu[13 + n_help]
++        pz.add(gi, zero_planes(cx, "D"), zeta)
++    lks = lk_tables_r13(cx, "D", p, rc.gate_shift, rc.wrho_s, rc.counts)
++    g = gate_at(gi, v)
++    zc = add(add(helper_sum(v, lks, cx.t("H_D0"), cx.alpha, mu[13:13 + n_help]), pz.eval(v)), mul(g, batch))
++    host_o = sub(add(mul(k(1 << p["ao"]), ao), _lb(v, cx, "A_RAL", 3)), k(1 << (p["ao"] - 1)))
++    host_d = sub(add(mul(k(1 << p["down"]), z), _lb(v, cx, "A_RDL", 3 if h24 else 2)), k(1 << (p["down"] - 1)))
++    return add(add(mul(v[cx.eq(0)], zc), mul(mul(mul(nu[0], v[cx.eq(1)]), g), host_o)),
++               mul(mul(mul(nu[1], v[cx.eq(2)]), g), host_d))
++
++
++def r13_fzc(v, cx, rc: R13Ctx):
++    """argument_accuracy.rs:69-104"""
++    n_help = cx.g.n_helpers("F")
++    cx.expect(domain_names(cx, "F") + [f"H_F{j}" for j in range(n_help)] + ["H_FACT"])
++    mu, nu, zeta, pad_on = draws_mu_first(cx, cx.g.log("F"), 4 + n_help, 2, "F")
++    p = rc.prec
++    group = cx.c("group_column")
++    gi = cx.p("supp", "F")
++    h24 = rc.counts["h24"]
++
++    def at(nm):
++        return v[cx.t(nm)]
++    g8, a, u, h = at("A_G"), at("A_A_SCALED"), at("A_U"), at("A_H")
++    r, gate = rc.product_shift, rc.gate_shift
++    f0 = add(sub(sub(mul(a, u), mul(k(1 << r), h)), _lb(v, cx, "A_RH", 2 if h24 else 3)), k(1 << (r - 1)))
++    f1 = sub(add(u, k(32768)), _lb(v, cx, "A_UL", 2))
++    f2 = sub(add(h, k(1 << (p["product_bits"] - 1))), _lb(v, cx, "A_HL", 3 if h24 else 2))
++    beta2 = mul(cx.beta, cx.beta)
++    query = add(add(add(add(g8, k(2048)), mul(cx.beta, a)), mul(beta2, v[group])), cx.g_act)
++    fa = sub(mul(v[cx.t("H_FACT")], sub(cx.alpha, query)), ONE)
++    arith = add(add(mul(mu[0], f0), mul(mu[1], f1)), mul(mu[2], f2))
++    pz = PadTerm()
++    if pad_on and gi is not None:
++        pz.mu = mu[4 + n_help]
++        pz.add(gi, zero_planes(cx, "F"), zeta)
++    lks = lk_tables_r13(cx, "F", p, rc.gate_shift, rc.wrho_s, rc.counts)
++    gf = gate_at(gi, v)
++    zc = add(add(add(helper_sum(v, lks, cx.t("H_F0"), cx.alpha, mu[4:4 + n_help]), mul(mu[3], fa)), pz.eval(v)),
++             mul(gf, arith))
++    host_g = sub(add(mul(k(1 << gate), g8), _lb(v, cx, "A_RGL", 3)), k(1 << (gate - 1)))
++    host_u = sub(add(mul(k(1 << p["up"]), u), _lb(v, cx, "A_RU", 2)), k(1 << (p["up"] - 1)))
++    return add(add(mul(v[cx.eq(0)], zc), mul(mul(mul(nu[0], v[cx.eq(1)]), gf), host_g)),
++               mul(mul(mul(nu[1], v[cx.eq(2)]), gf), host_u))
++
++
++def _r13_qzc(v, cx, rc: R13Ctx, q: bool):
++    """argument_accuracy.rs:106-138"""
++    dom = "Q" if q else "Kv"
++    n_help = cx.g.n_helpers(dom)
++    hp = "H_Q" if q else "H_KV"
++    if q:
++        source, rotated, rr, lword, lrword, other, lother, rsource, rother = (
++            "A_Q", "A_QR", ("A_RQRL", 1), ("A_QL", 2), ("A_QRL", 2), "A_O", ("A_OL", 2), ("A_RQL", 2), ("A_RO", 2))
++        s1, s2 = rc.prec["q"], rc.prec["pv"]
++    else:
++        source, rotated, rr, lword, lrword, other, lother, rsource, rother = (
++            "A_K", "A_KR", ("A_RKRL", 1), ("A_KL", 2), ("A_KRL", 2), "A_V", ("A_VL", 2), ("A_RKL", 2), ("A_RVL", 2))
++        s1, s2 = rc.prec["k"], rc.prec["v"]
++    cx.expect(domain_names(cx, dom) + [source] + [f"{hp}{j}" for j in range(n_help)])
++    mu, nu, zeta, pad_on = draws_mu_first(cx, cx.g.log(dom), 4 + n_help, 2, dom)
++    ic, isn = cx.c("rope_cos"), cx.c("rope_sin")
++    gi = cx.p("supp", dom)
++    src, flip = v[cx.t(source, 0)], v[cx.t(source, 1)]
++    rot, oth = v[cx.t(rotated)], v[cx.t(other)]
++    rope = add(sub(sub(add(mul(v[ic], src), mul(v[isn], flip)), mul(k(1 << SH_ROPE), rot)), _lb(v, cx, *rr)),
++               k(1 << (SH_ROPE - 1)))
++    c32 = k(32768)
++    clauses = [rope, sub(add(src, c32), _lb(v, cx, *lword)), sub(add(rot, c32), _lb(v, cx, *lrword)),
++               sub(add(oth, c32), _lb(v, cx, *lother))]
++    arith = ZERO
++    for m_, c_ in zip(mu, clauses):
++        arith = add(arith, mul(m_, c_))
++    pz = PadTerm()
++    if pad_on and gi is not None:
++        pz.mu = mu[4 + n_help]
++        pz.add(gi, zero_planes(cx, dom), zeta)
++    lks = lk_tables_r13(cx, dom, rc.prec, rc.gate_shift, rc.wrho_s, rc.counts)
++    g = gate_at(gi, v)
++    zc = add(add(helper_sum(v, lks, cx.t(f"{hp}0"), cx.alpha, mu[4:4 + n_help]), pz.eval(v)), mul(g, arith))
++    host1 = sub(add(mul(k(1 << s1), src), _lb(v, cx, *rsource)), k(1 << (s1 - 1)))
++    host2 = sub(add(mul(k(1 << s2), oth), _lb(v, cx, *rother)), k(1 << (s2 - 1)))
++    return add(add(mul(v[cx.eq(0)], zc), mul(mul(mul(nu[0], v[cx.eq(1)]), g), host1)),
++               mul(mul(mul(nu[1], v[cx.eq(2)]), g), host2))
++
++
++def r13_qzc(v, cx, rc):
++    return _r13_qzc(v, cx, rc, True)
++
++
++def r13_kvzc(v, cx, rc):
++    return _r13_qzc(v, cx, rc, False)
++
++
++def r13_szc(v, cx, rc: R13Ctx):
++    """argument_accuracy.rs:204-308 (non-DD)"""
++    ls = rc.counts["ls"]
++    n_help = cx.g.n_helpers("S")
++    cx.expect(["A_S", "A_RSL0", "A_RSL1", "A_RSL2", "A_ZSEL", "A_E", "A_P", "A_PL0", "A_PL1"]
++              + [f"A_SR{j}" for j in range(ls)] + [f"A_SG{j}" for j in range(ls)]
++              + ["A_MX", "A_SUM"] + [f"H_S{j}" for j in range(n_help)] + ["H_SEXP"])
++    lt = cx.g.log("S")
++    on = cx.pad_on("Ht", "S")
++    n_pad = 1 if on else 0
++    want = lt + 5 + n_help + 1 + n_pad + 2 + n_pad
++    if len(cx.dc) != want:
++        raise ValueError(f"slot 17: this R13 slot consumes {want} definition draws and the capture declares {len(cx.dc)}")
++    mu = cx.dc[lt:lt + 5 + n_help + 1 + n_pad]
++    nu = cx.dc[lt + 5 + n_help + 1 + n_pad:lt + 5 + n_help + 1 + n_pad + 2]
++    zeta = cx.dc[want - 1] if on else None
++    p = rc.prec
++    im = cx.p("causal", None)
++    ght, gs = cx.p("supp", "Ht"), cx.p("supp", "S")
++    imx, isum = cx.t("A_MX"), cx.t("A_SUM")
++    pz = PadTerm()
++    if on and gs is not None:
++        pz.mu = mu[5 + n_help + 1]
++        pz.add(ght, [imx, isum], zeta)
++        pz.add(gs, zero_planes(cx, "S"), zeta)
++    lks = lk_tables_r13(cx, "S", p, rc.gate_shift, rc.wrho_s, rc.counts)
++    mask, s8 = v[im], v[cx.t("A_S")]
++    zsel, e, pp, sm = v[cx.t("A_ZSEL")], v[cx.t("A_E")], v[cx.t("A_P")], v[isum]
++    sr = _lb(v, cx, "A_SR", ls)
++    delta = add(sub(v[imx], mul(mask, add(s8, k(-MASK_SCORE)))), k(-MASK_SCORE))
++    c0 = sub(mul(zsel, zsel), zsel)
++    c1 = mul(zsel, delta)
++    c2 = sub(sub(mul(mul(mask, e), k(1 << p["f_p"])), mul(pp, sm)), sr)
++    c3 = sub(add(add(_lb(v, cx, "A_SG", ls), sr), ONE), sm)
++    c4 = sub(pp, _lb(v, cx, "A_PL", 2))
++    cxx = sub(mul(v[cx.t("H_SEXP")], sub(cx.alpha, add(add(delta, mul(cx.beta, e)), cx.g_exp))), ONE)
++    g = gate_at(gs, v)
++    clauses = ZERO
++    for m_, c_ in zip(mu, [c0, c1, c2, c3, c4]):
++        clauses = add(clauses, mul(m_, c_))
++    zc = add(add(add(helper_sum(v, lks, cx.t("H_S0"), cx.alpha, mu[5:5 + n_help]), mul(mu[5 + n_help], cxx)),
++                 pz.eval(v)), mul(g, clauses))
++    half = 0 if p["score"] == 0 else 1 << (p["score"] - 1)
++    host_rs = mul(mul(nu[0], gate_at(ght, v)), add(sm, cx.lam_z))
++    host_s = mul(mul(nu[1], g), sub(add(mul(s8, k(1 << p["score"])), _lb(v, cx, "A_RSL", 3)), k(half)))
++    return add(add(mul(v[cx.eq(0)], zc), mul(v[cx.eq(1)], host_rs)), mul(v[cx.eq(2)], host_s))
++
++
++def r13_tab(v, cx, rc: R13Ctx):
++    """argument_accuracy.rs:382-412: three LogUp table arms, the third over
++    the derived ACT3 table, with its OWN support indicator in the pad term"""
++    cx.expect(["A_MU8", "H_GU8", "A_MEXP", "H_GEXP", "A_MACT", "H_GACT"])
++    lt = cx.g.log("Tab")
++    on = cx.pad_on("Tab")
++    n_pad = 1 if on else 0
++    want = lt + 3 + n_pad + n_pad
++    if len(cx.dc) != want:
++        raise ValueError(f"slot 19: this R13 slot consumes {want} definition draws and the capture declares {len(cx.dc)}")
++    mu = cx.dc[lt:lt + 3 + n_pad]
++    zeta = cx.dc[want - 1] if on else None
++    i_u8, i_exp, i_act = cx.p("u8", None), cx.c("exp_values"), cx.c("act3_values")
++    triples = [(cx.t("A_MU8"), cx.t("H_GU8"), i_u8), (cx.t("A_MEXP"), cx.t("H_GEXP"), i_exp),
++               (cx.t("A_MACT"), cx.t("H_GACT"), i_act)]
++    if cx.structural and [tuple(t) for t in triples] != [(1, 2, 3), (4, 5, 6), (7, 8, 9)]:
++        raise ValueError(f"slot 19: the (multiplicity, helper, values) indices are {triples}, not the R13 push order")
++    rel = [sub(mul(v[ih], sub(cx.alpha, v[iv])), v[im_]) for im_, ih, iv in triples]
++    pz = PadTerm()
++    si, sa = cx.p("supp", "Tab"), cx.c("act_support") if on else None
++    if on:
++        if si is None:
++            raise ValueError("slot 19: Dom::Tab pads and the slot carries no supp(Tab)")
++        pz.mu = mu[3]
++        pz.add(si, [1, 4], zeta)
++        pz.add(si, [2, 5], zeta)
++        pz.add(sa, [7], zeta)
++        pz.add(sa, [8], zeta)
++    inner = add(add(add(mul(mu[0], rel[0]), mul(mu[1], rel[1])), mul(mu[2], rel[2])), pz.eval(v))
++    return mul(v[cx.eq(0)], inner)
++
++
++R13_PORTS = {14: ("SC_DZC (R13)", r13_dzc), 15: ("SC_QZC (R13)", r13_qzc), 16: ("SC_KVZC (R13)", r13_kvzc),
++             17: ("SC_SZC (R13)", r13_szc), 18: ("SC_FZC (R13)", r13_fzc), 19: ("SC_TAB (R13)", r13_tab)}
++
++# the public tables each R13 slot pushes, in push order (the legacy
++# PUBLIC_SPEC's format); DZC / QZC / KVZC / SZC push the legacy set
++R13_PUBLIC_SPEC = {
++    14: [("captured", "gamma_a", "gain"), ("captured", "gamma_m", "gain"), ("supp", "D")],
++    15: [("captured", "rope_cos", "rope_cos@Q"), ("captured", "rope_sin", "rope_sin@Q"), ("supp", "Q")],
++    16: [("captured", "rope_cos", "rope_cos@Kv"), ("captured", "rope_sin", "rope_sin@Kv"), ("supp", "Kv")],
++    17: [("causal", None), ("supp", "Ht"), ("supp", "S")],
++    18: [("captured", "group_column", "group_column"), ("supp", "F")],
++    19: [("u8", None), ("captured", "exp_values", "lookup_values"), ("captured", "act3_values", "act3_values"),
++         ("supp", "Tab"), ("captured", "act_support", "act_support")],
++}
++R13_PUBLIC_WHAT = {
++    "group_column": "the FFN group-id column, gid(j) at (t < T, j < hidden), 0 elsewhere "
++                    "(accuracy_act::group_column, accuracy_act.rs:33-41)",
++    "act3_values": "the derived ACT3 table i + beta T_g[i] + beta^2 g + g_act on 4096 G rows, the zero row "
++                   "2048 + g_act elsewhere (accuracy_act::table, accuracy_act.rs:13-31)",
++    "act_support": "the ACT3 table's support indicator, 1 on its 4096 G rows (accuracy_act.rs:13-31)",
++}
++
++
++def check_r13_structure(gate, structure: str, label: str, vals) -> tuple:
++    """(findings, detail) for the R13-only captured tables."""
++    s = gate.shape_raw
++    out, det = [], {}
++    if structure == "group_column":
++        n = gate.geom.size("F")
++        f_pad, t_, hidden = s["f_pad"], s["tokens"], s["hidden"]
++        if len(vals) != n:
++            return [f"{label}: {len(vals)} entries, not |Dom::F| = {n}"], det
++        if any(x[1] != 0 for x in vals):
++            out.append(f"{label}: an entry with a nonzero extension coordinate")
++        ids = [vals[j][0] for j in range(hidden)]
++        if any(i >= 4 for i in ids):
++            out.append(f"{label}: a group id outside 0..3 (at most four groups)")
++        bad = 0
++        for x in range(n):
++            t, j = divmod(x, f_pad)
++            want = (ids[j] if (t < t_ and j < hidden) else 0)
++            if vals[x][0] != want:
++                bad += 1
++        if bad:
++            out.append(f"{label}: {bad} positions are not the token-constant group column (0 at pad positions)")
++        det = {"groups_used": sorted(set(ids)), "channels": hidden,
++               "per_group_channels": {str(g): ids.count(g) for g in sorted(set(ids))}}
++    elif structure == "act_support":
++        n = gate.geom.size("Tab")
++        if len(vals) != n:
++            return [f"{label}: {len(vals)} entries, not |Dom::Tab| = {n}"], det
++        ones = sum(1 for x in vals if x == ONE)
++        if any(x not in (ONE, ZERO) for x in vals) or any(vals[i] != ONE for i in range(ones)) or ones % 4096 \
++                or not (4096 <= ones <= 16384):
++            out.append(f"{label}: not a prefix of 4096 G ones (G <= 4)")
++        det = {"groups": ones // 4096}
++    elif structure == "act3_values":
++        n = gate.geom.size("Tab")
++        if len(vals) != n:
++            return [f"{label}: {len(vals)} entries, not |Dom::Tab| = {n}"], det
++        binv = T.f2_inv(gate.beta)
++        beta2 = mul(gate.beta, gate.beta)
++        zero_row = add(k(2048), gate.g_act)
++        entries = None
++        words = []
++        for g_ in range(4):
++            row = []
++            for i in range(4096):
++                x = g_ * 4096 + i
++                if x >= n:
++                    break
++                w = mul(sub(sub(sub(vals[x], k(i)), mul(beta2, k(g_))), gate.g_act), binv)
++                row.append(w)
++            if len(row) == 4096 and all(w[1] == 0 and (w[0] < (1 << 40) or w[0] > P - (1 << 40)) for w in row):
++                words.append([w[0] if w[0] < P // 2 else w[0] - P for w in row])
++            else:
++                break
++        entries = 4096 * len(words)
++        if not words:
++            out.append(f"{label}: no 4096-row group recovers small integer words")
++        tail = [x for x in range(entries, n) if vals[x] != zero_row]
++        if tail:
++            out.append(f"{label}: {len(tail)} positions past the 4096 G rows are not the zero row 2048 + g_act")
++        zero_ok = [ws[2048] == 0 for ws in words]
++        if not all(zero_ok):
++            out.append(f"{label}: a group's word at gate 0 (index 2048) is not 0")
++        import hashlib
++        det = {"groups": len(words), "entries": entries,
++               "word_sha256_per_group": [hashlib.sha256(b"".join(int(w).to_bytes(8, "little", signed=True) for w in ws)).hexdigest()
++                                         for ws in words],
++               "word_min_max": [[min(ws), max(ws)] for ws in words]}
++    else:
++        out.append(f"{label}: no R13 structure check is declared for it")
++    return out, det
++
++
++def build_public_r13(gate, cx, check_digests=True) -> None:
++    """`TerminalGate.build_public` with the R13 spec of this slot (same rules:
++    a shape table rebuilt and digest-compared, a statement table taken after
++    its length, digest and structure checks)."""
++    spec = R13_PUBLIC_SPEC[cx.slot]
++    built = []
++    for entry in spec:
++        kind, dom = entry[0], entry[1]
++        label = entry[1] if kind == "captured" else None
++        structure = entry[2] if kind == "captured" else None
++        if kind == "supp":
++            vals = gate.geom.supp(dom, cx.cube)
++            what = f"supp({dom})"
++        elif kind == "causal":
++            vals = gate.geom.causal_mask()
++            what = "causal_mask_at"
++        elif kind == "u8":
++            vals = [add(k(i % T.U8_LEN), gate.g_u8) for i in range(cx.cube)]
++            what = "table_values_u8_at"
++        else:
++            vals = None
++            what = R13_PUBLIC_WHAT.get(label) or T.PUBLIC_WHAT[label]
++        if kind != "captured" and vals is None:
++            continue
++        if kind == "captured" and label == "act_support" and not gate.geom.pads("Tab"):
++            continue
++        built.append((kind, dom, label, structure, what, vals))
++    if len(built) != len(cx.pub_idx):
++        raise ValueError(f"slot {cx.slot}: the R13 port declares {len(built)} public tables, the capture has {len(cx.pub_idx)}")
++    for (kind, dom, label, structure, what, vals), i in zip(built, cx.pub_idx):
++        tab = cx.arg["tables"][i]
++        if kind == "captured":
++            got = tab.get("values")
++            if got is None:
++                raise ValueError(f"slot {cx.slot} public table {i} ({what}): the capture carries no values for it")
++            vals = [f2_from_list(x) for x in got]
++            if tab["len"] != len(vals):
++                raise ValueError(f"slot {cx.slot} public table {i} ({what}): length mismatch")
++            if check_digests and T.table_digest(vals) != tab["sha256"]:
++                gate.public_digest_failures.append(f"slot {cx.slot} public table {i} ({what}): digest mismatch")
++                raise ValueError(f"slot {cx.slot} public table {i} ({what}): the carried values are not the ones the capture's digest names")
++            if structure in ("group_column", "act_support", "act3_values"):
++                bad, det = check_r13_structure(gate, structure, label, vals)
++                gate.structure_checks += 0 if bad else 1
++                gate.structure_detail.setdefault(label, []).append(det)
++            else:
++                bad = gate.check_structure(structure, label, vals)
++            if bad:
++                gate.public_structure_failures += bad
++                raise ValueError(f"slot {cx.slot} public table {i} ({what}): {bad[0]}")
++            gate.captured_tables[(cx.slot, i)] = what
++            cx.pub_of[("captured", label)] = i
++            cx.public_values[i] = vals
++            cx.public_is_base[i] = False
++            continue
++        if tab["len"] != len(vals):
++            raise ValueError(f"slot {cx.slot} public table {i} ({what}): the capture has {tab['len']} entries, the rebuilt one {len(vals)}")
++        d = T.table_digest(vals)
++        if check_digests and d != tab["sha256"]:
++            gate.public_digest_failures.append(f"slot {cx.slot} public table {i} ({what}): the rebuilt digest differs")
++            raise ValueError(f"slot {cx.slot} public table {i} ({what}): the rebuilt table is not the captured one")
++        gate.public_tables[(cx.slot, i)] = what
++        cx.pub_of[(kind, dom)] = i
++        cx.public_values[i] = vals
++        cx.public_is_base[i] = kind != "u8"
+diff -ruN -x __pycache__ frozen_v21/scripts/zk60_native_rg_terminals.py frozen_v22/scripts/zk60_native_rg_terminals.py
+--- frozen_v21/scripts/zk60_native_rg_terminals.py	2026-10-28 19:43:43.204804540 -0700
++++ frozen_v22/scripts/zk60_native_rg_terminals.py	2026-10-29 04:52:07.223143081 -0700
+@@ -602,6 +602,47 @@
+ from zk60_native_rg_tinyllama_r12b_pins import (  # noqa: E402
+     TERMINALS_PINNED_IF_PRESENT as _R12B_PIP)
+ _tl_merge2(PINNED_IF_PRESENT, _R12B_PIP, "PINNED_IF_PRESENT")
++# [v22, gate round 19] native R13 (= token frozen-r16b for these files) and the
++# gate's test-only H19-3 plane_index.rs, READ (readings in
++# `zk60_native_rg_r13_pins.NATIVE_R13_READINGS`, diffs in
++# results/.../round19/readings/nat-r12b-r13-*.diff).  At every LEGACY shape the
++# files are the identity (each R13 branch is gated on `accuracy_stack() !=
++# Legacy`); at an R13 shape the seven redefined slots are ported in
++# `zk60_native_rg_r13slots` and evaluated by `zk60_native_rg_r13blocks`, which
++# is the only caller that admits an R13 shape.
++_R13_AA = {
++    "src/private_block/layout.rs": {
++        "8519a514b8d1f43ab51c86b0a8af955230a2eab4fff4fc4c594733c59dcfd0bf":
++            "[v22, native R13 / r16b, READ vs 9332802e: +32 / -3] `Ids` takes `AccuracyIds` first at a "
++            "non-legacy stack (checked against `Shape::a_plane_doms`), `domain_range`, limb-role asserts, "
++            "`lookups_at` dispatches to `AccuracyIds::lookups` at R13, and the R13 calibration line of the "
++            "layout description; the legacy construction, lookups and lines are byte-identical",
++    },
++    "src/private_block/protocol.rs": {
++        "1011441431a37f735999405986af6c9f11c2d303b48aa6d9cefae55b0311718d":
++            "[v22, native R13 / r16b, READ vs c4824023: +38 / -15] `blk.accuracy()` selects the ACT3 "
++            "histogram, helper denominators and table column (accuracy_act); `Ctx.accuracy`; the legacy "
++            "arms (None at every legacy block) are the R9 code, and no draw order moved",
++    },
++    "src/private_block/plane_index.rs": {
++        "ce79803c86a80dde832dc92a262a023efdd52bb95b9a15f128791978c306ffac":
++            "[v22, the GATE's test-only patch H19-3 in capture-tree-r16b, READ (written by the gate lane) "
++            "vs 13a7dd6f: at an accuracy shape the A names are AccuracyIds' (prefix A_), and SC_DZC / "
++            "SC_QZC / SC_KVZC / SC_FZC sweep the whole domain range, mirroring argument_accuracy.rs; "
++            "legacy shapes are unchanged; the recorder still cross-checks every slot's actual push order]",
++    },
++}
++_R13_PIP = {
++    "src/private_block/shape.rs": {
++        "8e00a144bd194fd5a3dd30c9aaece2869d43d461df623cdcfc5a9da59e51436b":
++            "[v22, native R13 / r16b, READ vs 9a870818: +123 / -5] the twelve R13 profiles APPENDED to "
++            "the registries, ACCURACY_PROFILES, `accuracy_gate_shift` (0 on legacy shapes), the R13 "
++            "plane / lookup / helper counts behind `accuracy_stack() != Legacy`; every legacy geometry "
++            "function this port reads is unchanged",
++    },
++}
++_tl_merge2(ALSO_ACCEPTED, _R13_AA, "ALSO_ACCEPTED")
++_tl_merge2(PINNED_IF_PRESENT, _R13_PIP, "PINNED_IF_PRESENT")
+ 
+ # **ROUND 4 (2026-09-20), finding S19-F1.**  `argument.rs` is the file that
+ # decides what a slot's polynomial IS, and its stage-20 digest carries a
+@@ -2421,7 +2462,12 @@
+             # down projection by the HIDDEN dimension.
+             kind = structure.split("@")[1]
+             n, dh = len(vals), s["head_dim"]
+-            want_len = s["f_pad"] if kind == "hidden" else s["d_pad"]
++            # [v22, gate round 19] the output projection's input is the QUERY
++            # axis, q_pad = h_pad * head_dim (native R12 `Shape::q_pad`); the
++            # identity q_pad == d_pad holds at every pre-R12 shape, so no
++            # earlier figure moves (rung-HD / the R13 rung: 1024 vs d_pad 512)
++            want_len = (s["f_pad"] if kind == "hidden"
++                        else s["h_pad"] * dh if kind == "heads" else s["d_pad"])
+             if n != want_len:
+                 out.append(f"{label}: a fold of {n} entries, not {want_len}")
+             else:
+diff -ruN -x __pycache__ frozen_v21/scripts/zk60_native_run_gate.py frozen_v22/scripts/zk60_native_run_gate.py
+--- frozen_v21/scripts/zk60_native_run_gate.py	2026-10-28 19:41:26.656280886 -0700
++++ frozen_v22/scripts/zk60_native_run_gate.py	2026-10-29 05:20:40.902857599 -0700
+@@ -233,6 +233,11 @@
+     # and the readings of native R9 -> R12 -> R12b (the token tree's rebase)
+     "zk60_native_rg_classtied.py",
+     "zk60_native_rg_tinyllama_r12b_pins.py",
++    # [v22, gate round 19] the readings of native R12b -> R13 and token
++    # r14 -> r16b (the reading sub-lane), and the R13 block-stage port
++    "zk60_native_rg_r13_pins.py",
++    "zk60_native_rg_r13slots.py",
++    "zk60_native_rg_r13blocks.py",
+ ]
+ 
+ EXPECTED_DISCLOSED = {

@@ -1,0 +1,16 @@
+{
+  "current": [
+    "memory traffic",
+    "batching/amortization",
+    "sumcheck/GKR"
+  ],
+  "next": [
+    "lookup arguments and softmax",
+    "GPU NTT/commitments"
+  ],
+  "retained": [
+    "quantization/arithmetic",
+    "proof composition"
+  ],
+  "note": "Rotate by actual measured bottlenecks; no paper-list-only cycle."
+}

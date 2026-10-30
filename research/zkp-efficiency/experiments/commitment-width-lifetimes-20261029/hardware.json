@@ -1,0 +1,38 @@
+{
+  "cpu": "Intel(R) Core(TM) Ultra 9 185H",
+  "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "python": "3.10.12",
+  "affinity_available": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21
+  ],
+  "experiment_affinity": [
+    0
+  ],
+  "accelerator_used": null,
+  "model_context": null,
+  "model_passes": 0,
+  "rustc": "rustc 1.75.0 (82e1608df 2023-12-21) (built from a source tarball)\nbinary: rustc\ncommit-hash: 82e1608dfa6e0b5569232559e3d385fea5a93112\ncommit-date: 2023-12-21\nhost: x86_64-unknown-linux-gnu\nrelease: 1.75.0\nLLVM version: 17.0.6\n",
+  "compile_kind": "std-only copied local Fp/NTT and sequential adapter; not Cargo/full prover",
+  "startup_snapshot_mtime_utc": "2026-10-29T09:57:34.128101+00:00"
+}

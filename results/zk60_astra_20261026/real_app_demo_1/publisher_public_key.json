@@ -1,0 +1,5 @@
+{
+  "alg": "Ed25519",
+  "public_key": "dcc934a93fb6d3e89ca290350c71430e0992dfc0edd9677394ec2935f1de55ed",
+  "source": "public half of the existing demo signing key; pinned before first native proof completes"
+}

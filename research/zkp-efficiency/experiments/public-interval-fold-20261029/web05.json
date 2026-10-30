@@ -1,0 +1,34 @@
+{
+  "tool": "tools.web__run",
+  "access_date": "2026-10-29",
+  "access_timezone": "UTC",
+  "commands": {
+    "click": [
+      {
+        "ref_id": "turn3view0",
+        "id": 10
+      }
+    ],
+    "find": [
+      {
+        "ref_id": "turn3view1",
+        "pattern": "index reconstruction"
+      },
+      {
+        "ref_id": "turn3view3",
+        "pattern": "github"
+      },
+      {
+        "ref_id": "turn1view1",
+        "pattern": "memory"
+      }
+    ],
+    "open": [
+      "https://dl.acm.org/doi/10.1145/3828547"
+    ]
+  },
+  "raw_response_sha256": "5d40fbae9fef179dc906351e7afd2b28ba7ac84ea0700d8476de26918c924f82",
+  "raw_response_bytes": 30128,
+  "retention": "Provenance and source assessments retained; full webpage/paper text not redistributed. Exact source dates/licenses/limits in sources-cycle.jsonl.",
+  "external_execution": false
+}

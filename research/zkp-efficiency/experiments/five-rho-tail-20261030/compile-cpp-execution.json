@@ -1,0 +1,23 @@
+{
+  "stage": "compile-cpp",
+  "command": [
+    "/usr/bin/g++",
+    "-std=c++17",
+    "-O1",
+    "-Wno-unknown-pragmas",
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/five-rho-tail-20261030/kernel_host.cpp",
+    "-o",
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/five-rho-tail-20261030/probe-cpp"
+  ],
+  "exit_code": 0,
+  "wall_s": 0.6333706650038948,
+  "max_rss_kib": 76496,
+  "cpu_affinity": "one",
+  "nice": 19,
+  "cpu_limit_s": 40,
+  "alarm_s": 45,
+  "parent_timeout_s": 50,
+  "address_space_mib": 384,
+  "estimated_memory_mib": 128,
+  "gpu": false
+}

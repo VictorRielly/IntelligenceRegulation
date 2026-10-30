@@ -1,0 +1,20 @@
+{
+  "at": "2026-10-30T15:08:40.552085+00:00",
+  "passed": 10,
+  "checks": [
+    "public verified post restored",
+    "adult feed contains all-three-no post",
+    "minor feed contains all-three-no post",
+    "real record has three proved labels and no public runtime timing",
+    "explicit recovery key and all three confirmed publication references verify",
+    "publisher endpoint matches explicitly rotated development key",
+    "claimed author query grants no access",
+    "unauthenticated mutation refused",
+    "D45 original reservation refuses duplicate screening",
+    "no worker, proof, transaction, or retained post mutation"
+  ],
+  "post_id": "d1800de17fffed4565733d12e5c30f52",
+  "new_proofs": 0,
+  "new_transactions": 0,
+  "browser_visual_check": false
+}

@@ -1,0 +1,3 @@
+{"event":"sealed","experimental":true,"privacy_accepted":false,"blocks":1,"parity":"bit-exact at every layer","checked_before_run_header":true,"seconds":3.330,"of_which_load_seconds":0.489,"of_which_witness_seconds":2.708,"kept_witness_bytes":0}
+{"event":"segment","index":0,"layer":25,"bytes":35110696,"elapsed_seconds":12.003}
+{"event":"proven","experimental":true,"privacy_accepted":false,"verified_in_process":false,"blocks":1,"statement_identity":"59cef7c582345aa5ebba11f7716f3a27a663470d38b4adbe84039aaed7b7919b","binding":"a4d308a23d79e41c0ca2c899fa7860c76b5a778fc59a237fd0ac3932d120952a","prove_seconds":12.003,"total_seconds":30.105,"vmhwm_mib":5431,"scope":"R14 split trained backend; no classifier or privacy acceptance"}

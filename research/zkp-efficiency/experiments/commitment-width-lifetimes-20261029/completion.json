@@ -1,0 +1,17 @@
+{
+  "run_id": "20261029T095649Z-50135f2e",
+  "cycle": "0140",
+  "status": "COMPLETE_LOCAL_COMPONENT_ONLY",
+  "checkpoint_utc": "2026-10-29T10:10:51.585056+00:00",
+  "source_records_before": 924,
+  "source_records_after": 932,
+  "hypotheses": 59,
+  "production_modified": false,
+  "gpu": false,
+  "full_prover_build": false,
+  "local_std_only_compile": true,
+  "target_achieved": false,
+  "full_stack_proofs": 0,
+  "passes": 0,
+  "proved_positions": 0
+}

@@ -1,0 +1,177 @@
+diff -ruN -x __pycache__ frozen_v21/tests/test_v4_status_g10.py frozen_v22/tests/test_v4_status_g10.py
+--- frozen_v21/tests/test_v4_status_g10.py	2026-10-28 19:41:07.727380915 -0700
++++ frozen_v22/tests/test_v4_status_g10.py	2026-10-29 05:09:05.318934399 -0700
+@@ -1487,7 +1487,8 @@
+         i = CG.class_integrity(b)
+         self.assertFalse(i["ok"])
+         self.assertEqual(i["source_pins"]["pins"], 56)
+-        self.assertIn("src/private_block/token_io/classify_tied.rs: not pinned (the v21 classifier port was read from it)",
++        # [v22] the dispatcher is v22's; the R-C1 capture is refused by name there too
++        self.assertIn("src/private_block/token_io/classify_tied.rs: not pinned (the v22 classifier port was read from it)",
+                       i["source_pins"]["refusals"])
+         rp = CG.ClassRunReplay(b).run()
+         self.assertTrue(rp.summary()["ok"], rp.summary()["failures"][:3])
+@@ -1553,8 +1554,19 @@
+     def test_short_item_capture_end_to_end(self):
+         import zk60_native_rg_classgate as CG
+         import zk60_native_rg_classterminals as CT
++        import zk60_native_rg_classpins as CP
+         b = CG.load(os.path.join(self.CAP, "classify-rc3-rung-L2-v1-short20"))
+         self.assertEqual(b.shape_slot_note["extra_zero_slot_triples_stripped"], 1)   # F18-1
++        # [v22] an r14 capture is refused by name by v22's pin rule (the three
++        # ported classifier files moved); the rest of this test runs the v22
++        # tools on it under v21's rule, kept for the record
++        v22 = CP.classify_capture_pins(b.manifest)
++        self.assertFalse(v22["ok"])
++        self.assertTrue(all("the v22 classifier port was read at" in x for x in v22["refusals"]), v22["refusals"])
++        self.assertTrue(CP.classify_capture_pins_v21(b.manifest)["ok"])
++        _keep = CP.classify_capture_pins
++        CP.classify_capture_pins = CP.classify_capture_pins_v21
++        self.addCleanup(setattr, CP, "classify_capture_pins", _keep)
+         i = CG.class_integrity(b)
+         self.assertTrue(i["ok"], i["findings"][:4])
+         self.assertEqual(i["source_pins"]["pins"], 60)
+@@ -1577,6 +1589,10 @@
+         import zk60_native_rg_classgate as CG
+         import zk60_native_rg_classpins as CP
+         b = CG.load(os.path.join(self.CAP, "classify-rc3-cli-p18-r14"))
++        self.assertFalse(CP.classify_capture_pins(b.manifest)["ok"])   # [v22] refused by name
++        _keep = CP.classify_capture_pins
++        CP.classify_capture_pins = CP.classify_capture_pins_v21
++        self.addCleanup(setattr, CP, "classify_capture_pins", _keep)
+         r = CP.classify_capture_pins(b.manifest)
+         self.assertTrue(r["ok"], r["refusals"][:4])
+         ported = {x["file"] for x in r["per_file"] if x["status"] == "the v21 classifier port's digest"}
+@@ -1587,3 +1603,132 @@
+         c = CG.c13_controls(b, CG.ClassRunReplay(b).run())
+         self.assertIsNone(c["C13-1_doctored_pad_position"]["fires"])          # no pad position
+         self.assertTrue(c["C13-3_shifted_verdict_row"]["fires"])
++
++
++class ClassifierV22(unittest.TestCase):
++    """[v22, gate round 19] token frozen-r16b on native R13: the v22 pin rule
++    (72 pins, the gate's own H19 patch readings), the R13 integrity (one gate
++    denominator per block stage line), the registered Shieldstral policy list,
++    the Shieldstral B-3 arithmetic (the butterfly and the exact numpy fold), the
++    refusal-term recount, and on an R13 rung capture the replay, the 12
++    classifier slots, NL-1 and the C-13 controls"""
++
++    CAP = "/home/victor/zk60-artifacts/token-io/captures"
++    R13 = "classify-r13-rung-L2-v1-short11"
++
++    def test_shieldstral_policy_list(self):
++        import zk60_native_rg_classify as CL
++        import struct
++        self.assertEqual(sorted(CL.SHIELDSTRAL_POLICIES), ["shieldstral-1.0-3b-moderate-hate/1",
++                         "shieldstral-1.0-3b-moderate-sexual/1", "shieldstral-1.0-3b-moderate-violence/1"])
++        self.assertEqual(CL.PAD_IDS[CL.RUN_PROFILE_CLASSIFY_R13_SHIELD_T128], 11)
++        self.assertEqual(CL.CHUNK_OVERLAPS[CL.RUN_PROFILE_CLASSIFY_R13_SHIELD_T256], 8)
++        self.assertIn("card policy", CL.shieldstral_policy_check({"id": CL.SHIELDSTRAL_CARD_POLICY})[0])
++        self.assertTrue(CL.shieldstral_policy_check({"id": "shieldstral-1.0-3b-strict-hate/1"}))
++        bad = {"id": "shieldstral-1.0-3b-moderate-hate/1", "prefix_ids": [0] * 78, "suffix_ids": [4], "yes": 13059,
++               "no": 2649, "c": 0, "num_special": 1000}
++        self.assertEqual(CL.shieldstral_policy_check(bad), ["policy shieldstral-1.0-3b-moderate-hate/1: the prefix ids are not the registered template's"])
++        self.assertEqual(struct.unpack("<d", struct.pack("<Q", int(CL.SHIELDSTRAL_POLICY_COMMON["margin_scale_bits"], 16)))[0], 4.08288030735373e-06)
++
++    def test_shieldstral_derivation_arithmetic(self):
++        import random
++        import numpy as np
++        import zk60_native_rg_classtied as TD
++        from zk60_native_jv_field import eq_table_msb, f2_add, f2_mul_base, P
++        rng = random.Random(19)
++        row = [rng.uniform(-3, 3) for _ in range(3072)]
++        signs = [rng.choice((-1.0, 1.0)) for _ in range(3072)]
++        want = [x * s for x, s in zip(row, signs)]          # derive.rs::rotate, transcribed scalar
++        for b0 in range(0, 3072, 1024):
++            blk = want[b0:b0 + 1024]
++            step = 1
++            while step < 1024:
++                for c0 in range(0, 1024, 2 * step):
++                    for i in range(step):
++                        a, b = blk[c0 + i], blk[c0 + i + step]
++                        blk[c0 + i], blk[c0 + i + step] = a + b, a - b
++                step *= 2
++            want[b0:b0 + 1024] = [x / 32.0 for x in blk]
++        got = TD._rotate_rows(np.array([row]), np.array(signs))[0].tolist()
++        self.assertEqual(got, want)                           # bit for bit
++        emb = np.array([[rng.randint(-32768, 32767) for _ in range(40)] for _ in range(7)], dtype=np.int16)
++        r = [(rng.randrange(P), rng.randrange(P)) for _ in range(6)]
++        e = eq_table_msb(r)
++        exact = []
++        for v in range(7):
++            acc = (0, 0)
++            for i in range(40):
++                acc = f2_add(acc, f2_mul_base(e[i], int(emb[v, i]) % P))
++            exact.append(acc)
++        self.assertEqual(TD.emb_fold_np(emb, 40, r), exact)
++
++    def test_refusal_term_recount(self):
++        import math
++        P = (1 << 64) - (1 << 32) + 1
++        f = lambda tds, t: round(math.log2(2 * (sum(tds) + t + 256)) - 2 * math.log2(P), 2)
++        self.assertEqual(f([512 + 4096 * 4] * 26, 128), -108.25)   # R13 Shieldstral T128, groups at the class max
++        self.assertEqual(f([768] * 26, 512), -112.66)              # D40 as accepted (legacy shape)
++
++    @unittest.skipUnless(os.path.isdir(os.path.join(CAP, R13)), "the R13 rung capture is not on disk")
++    def test_r13_capture_pins_integrity_and_classifier_stages(self):
++        import zk60_native_rg_classgate as CG
++        import zk60_native_rg_classterminals as CT
++        b = CG.load(os.path.join(self.CAP, self.R13))
++        i = CG.class_integrity(b)
++        self.assertTrue(i["ok"], i["findings"][:4])
++        self.assertEqual(i["source_pins"]["pins"], 72)
++        self.assertEqual((i["r13_profile"], i["r13_stage_gates"]), (True, [20, 21]))
++        self.assertEqual((i["bout_claim_row"]["row"], i["rc3_lengths_re_derived"]["pad_positions"]), (19, 12))
++        import zk60_native_rg_classpins as CP
++        st = {x["status"].split(":")[0] for x in CP.classify_capture_pins(b.manifest)["per_file"]}
++        self.assertIn("the v22 classifier port's digest", st)
++        rp = CG.ClassRunReplay(b).run()
++        self.assertTrue(rp.summary()["ok"])
++        tc = CT.check_classify_terminals(b, rp)
++        self.assertTrue(tc["ok"], tc["findings"][:3])
++        self.assertEqual((tc["slots_equal"], tc["public_tables_taken"]), (12, 0))
++        self.assertTrue(CT.nl1_classify_slots(b, rp)["ok"])
++        c = CG.c13_controls(b, rp)
++        for k in ("C13-1_doctored_pad_position", "C13-2_pad_inside_the_content_range",
++                  "C13-3_shifted_verdict_row", "C13-4_declared_length_not_the_actual"):
++            self.assertTrue(c[k]["fires"], (k, c[k]))
++        # a stage line naming another denominator is refused
++        keep = list(b.run["stage_lines"])
++        b.run["stage_lines"] = [ln.replace("R13 gate denominator 21", "R13 gate denominator 25") for ln in keep]
++        bad = CG.class_integrity(b)
++        b.run["stage_lines"] = keep
++        self.assertFalse(bad["ok"])
++        self.assertTrue(any("R13 gate denominator" in x for x in bad["findings"]), bad["findings"][:3])
++
++    @unittest.skipUnless(os.path.isdir(os.path.join(CAP, R13)), "the R13 rung capture is not on disk")
++    def test_length_and_digest_only_capture_path(self):
++        """[v22] a capture written with public tables as length + digest only (the
++        real Shieldstral capture's option): the 12 classifier slots are checked on
++        the REBUILT tables against the capture's digests (19 rebuilt, 0 taken), B-3
++        holds, the controls fire, a doctored digest is refused; a capture that does
++        not declare the option still refuses a table without values"""
++        import zk60_native_rg_classgate as CG
++        import zk60_native_rg_classterminals as CT
++        b = CG.load(os.path.join(self.CAP, self.R13))
++        rp = CG.ClassRunReplay(b).run()
++        for st in (b.stages[0], b.stages[-1]):
++            for a in st.doc["arguments"]:
++                for t in a["tables"]:
++                    if t["kind"] == "public":
++                        t.pop("values", None)
++        undeclared = CT.check_classify_terminals(b, rp)
++        self.assertFalse(undeclared["ok"])
++        self.assertTrue(any("the capture carries no values" in x for x in undeclared["findings"]))
++        b.run["public_tables_included"] = False
++        tc = CT.check_classify_terminals(b, rp)
++        self.assertTrue(tc["ok"], tc["findings"][:3])
++        self.assertEqual((tc["slots_equal"], tc["public_tables_rebuilt"], tc["public_tables_taken"]), (12, 19, 0))
++        self.assertTrue(tc["B3_margin_vector"]["ok"])
++        c = CG.class_controls(b, rp, tc)
++        self.assertEqual(c["not_fired"], [])
++        for a in b.stages[-1].doc["arguments"]:
++            for t in a["tables"]:
++                if t["kind"] == "public" and t["len"] == 512:
++                    t["sha256"] = "00" * 32
++                    break
++        self.assertFalse(CT.check_classify_terminals(b, rp)["ok"])

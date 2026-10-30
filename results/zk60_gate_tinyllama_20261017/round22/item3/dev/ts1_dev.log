@@ -1,0 +1,7 @@
+TS-1 0:A-in: True honest 0 removed 4096 (15.5 s)
+TS-1 0:H-in: True honest 0 removed 8192 (37.8 s)
+TS-1 0:E-token-in: True honest 0 removed 256 (0.1 s)
+TS-1 3:A-out: True honest 0 removed 4096 (14.8 s)
+TS-1 3:H-out: True honest 0 removed 8192 (38.3 s)
+TS-1 3:B-out: True honest 0 removed 16384 (312.0 s)
+TS-1 1:A: True honest 0 removed 16384 (289.6 s)

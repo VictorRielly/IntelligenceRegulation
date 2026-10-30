@@ -1,0 +1,91 @@
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r14/hashline/src/private_block/token_io/classify_tied.rs	2026-10-28 19:12:07.680555629 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r16b/hashline/src/private_block/token_io/classify_tied.rs	2026-10-29 03:50:55.910197705 -0700
+@@ -88,6 +88,12 @@
+     /// the tied source of a BLOCK profile; anything unregistered is refused
+     pub(crate) fn of(block_profile: &str) -> Result<TiedSource, String> {
+         use super::super::shape::TRAINED_CALIB_RUNG_PROFILE;
++        #[cfg(test)]
++        if block_profile == super::super::shape::R13_RUNG_H24 {
++            // ROUND 16, test builds only: the R13 h24 rung (width 384) uses the
++            // development rung's tied source (its V 300 x d 384 tensor)
++            return Ok(TiedSource::DevRung);
++        }
+         if super::super::trained_statement::tied_tensor_for_profile(block_profile).is_some() {
+             Ok(TiedSource::Shieldstral)
+         } else if block_profile == TRAINED_CALIB_RUNG_PROFILE {
+@@ -98,8 +104,14 @@
+     }
+     /// the tied source of a CLASSIFIER RUN profile (its canonical text)
+     pub(crate) fn of_run_profile(run_profile: &str) -> Result<TiedSource, String> {
++        #[cfg(test)]
++        if run_profile == super::super::run::RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST {
++            return Ok(TiedSource::DevRung);
++        }
+         match run_profile {
+             super::super::run::RUN_PROFILE_CLASSIFY_RUNG_TC => Ok(TiedSource::DevRung),
++            // ROUND 16: the R13 Shieldstral classifier run profiles
++            super::super::run::RUN_PROFILE_CLASSIFY_R13_SHIELD_T128 | super::super::run::RUN_PROFILE_CLASSIFY_R13_SHIELD_T256 => Ok(TiedSource::Shieldstral),
+             p => Err(format!("classifier (R-C2): no tied source is registered for the classifier run profile {p}")),
+         }
+     }
+@@ -225,6 +237,19 @@
+ /// come from the bound profile; `policy` must agree with them. Reads no
+ /// exported integer table.
+ pub(crate) fn recompute_tied_classifier(source: TiedSource, export: &Path, tables: &Path, policy: &Policy, residual_unit: f64, d: usize, statement_profile_sha256: &[u8; 32]) -> Result<TiedClassifier, String> {
++    recompute_tied_classifier_pre(source, export, tables, policy, residual_unit, d, statement_profile_sha256, None)
++}
++
++/// **ROUND 16 (token review N-r13-5): the same, reusing the export loader's
++/// tied derivation** when it was made in the same authenticated pass with
++/// exactly the bound profile's `(yes, no, public_scale)`: no second 7.7 GB
++/// checkpoint stream. Every check is the same: the bound profile read and
++/// digest-checked here, the policy against its margin parameters, the row's
++/// width, and the derivation's own profile digest against the statement's
++/// (requirement 2, after the derivation). A derivation made with other
++/// parameters (or none) is not used: native R12b's recompute runs instead.
++#[allow(clippy::too_many_arguments)]
++pub(crate) fn recompute_tied_classifier_pre(source: TiedSource, export: &Path, tables: &Path, policy: &Policy, residual_unit: f64, d: usize, statement_profile_sha256: &[u8; 32], pre: Option<&super::super::trained_block::TiedDerivation>) -> Result<TiedClassifier, String> {
+     let (pbytes, profile) = bound_profile(export, statement_profile_sha256)?;
+     let mp = MarginParameters::of_profile(&profile)?;
+     mp.check_policy(policy)?;
+@@ -232,7 +257,11 @@
+     let tied = match source {
+         TiedSource::Shieldstral => {
+             // requirement 3 / 4: the native row (refusals propagate, never clamped)
+-            let r = shieldstral_recompute(export, (id(mp.yes)?, id(mp.no)?, mp.scale()))?;
++            let want = (id(mp.yes)?, id(mp.no)?, mp.scale_bits);
++            let r = match pre.filter(|p| p.margin == Some(want)) {
++                Some(p) => p.tables.clone(),
++                None => shieldstral_recompute(export, (want.0, want.1, mp.scale()))?,
++            };
+             let w = r.margin.ok_or("classifier (R-C2): the R12b recompute returned no margin row")?;
+             if w.len() != d {
+                 return Err(format!("classifier (R-C2): the recomputed margin row has {} words; the block width is {d}", w.len()));
+@@ -459,10 +488,16 @@
+ /// carry the RECOMPUTED margin row; BOS and the final norm are the export's;
+ /// they are bound to `model`.
+ pub(crate) fn load_bound_tables(sh: &Shape, model: &TrainedModelStatement, export: &Path, tables: &Path, policy: &Policy) -> Result<BoundClassifierTables, String> {
++    load_bound_tables_pre(sh, model, export, tables, policy, None)
++}
++
++/// ROUND 16 (N-r13-5): [`load_bound_tables`] reusing the export loader's tied
++/// derivation where [`recompute_tied_classifier_pre`] admits it
++pub(crate) fn load_bound_tables_pre(sh: &Shape, model: &TrainedModelStatement, export: &Path, tables: &Path, policy: &Policy, pre: Option<&super::super::trained_block::TiedDerivation>) -> Result<BoundClassifierTables, String> {
+     let source = TiedSource::of(sh.profile)?;
+     let bound = model.calibration.export_profile_sha256;
+     let residual_unit = f64::from_bits(model.calibration.residual_unit_f64_bits);
+-    let tied = recompute_tied_classifier(source, export, tables, policy, residual_unit, sh.width, &bound)?;
++    let tied = recompute_tied_classifier_pre(source, export, tables, policy, residual_unit, sh.width, &bound, pre)?;
+     let cp = tables.join("classifier.json");
+     let cj = parse_json(&read_regular_file_bounded(&cp, MAX_PROFILE_BYTES, false)?).map_err(|e| format!("{}: {e}", cp.display()))?;
+     tied.margin.check_copies(&cj)?;
+@@ -489,7 +524,8 @@
+     if p.ex.residual_unit.to_bits() != p.model.calibration.residual_unit_f64_bits {
+         return Err("classifier (R-C2): the export's residual unit is not the one its trained statement records".into());
+     }
+-    load_bound_tables(&p.sh, &p.model, export, tables, policy)
++    // ROUND 16 (N-r13-5): the export load's own pass, where it carries the row
++    load_bound_tables_pre(&p.sh, &p.model, export, tables, policy, p.ex.tied_derivation.as_ref())
+ }
+ 
+ /// D27: the verifier's lowest admissible `--min-bits` per classifier run

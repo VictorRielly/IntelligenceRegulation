@@ -1,0 +1,1 @@
+{"ok": true, "rows": [{"job": 0, "batch_equals_single": true, "files": 30}, {"job": 1, "batch_equals_single": true, "files": 30}, {"job": 2, "batch_equals_single": true, "files": 30}, {"job": 0, "r16b_equals_candidate_single": true}]}

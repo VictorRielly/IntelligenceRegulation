@@ -1,0 +1,125 @@
+{
+  "utc": "2026-10-30T00:30:13.817457+00:00",
+  "artifacts": [
+    {
+      "description": "accepted R13 review, separate privacy scope",
+      "path": "results/zk60_d24_review_20261017/REVIEW_R13.md",
+      "sha256": "7ea6d302b2def094d5853910111c3b2cbfc802355b4af75198e5f349b7e8d13e"
+    },
+    {
+      "description": "S4 design proceed with conditions",
+      "path": "results/zk60_d24_review_20261017/S4_DESIGN_CHECK.md",
+      "sha256": "a1c521ca7eeb3af4bea264b4e4c3dfdb9707bb19d8d53083ec94d0a03c7f3ac5"
+    },
+    {
+      "description": "native8stream gates, public synthetic",
+      "path": "results/zk60_1b_native_20261017/r14/NATIVE_STREAM_ACCEPTANCE.json",
+      "sha256": "75a7d89eafb54fb2992092c2cb323c4f182b5efe5ea89805a3f4e74d081a4eee"
+    },
+    {
+      "description": "root replay and matched measurements6gates",
+      "path": "results/zk60_1b_native_20261017/r14/ROOT_AUDIT_MATCHED_CHECKS.json",
+      "sha256": "4cea2ca91bc7d07653959b8481f5f6b4859f449e8b03880f442378fc20100546"
+    },
+    {
+      "description": "matched R13/R14 synthetic n1 diagnostic",
+      "path": "results/zk60_1b_native_20261017/r14/MATCHED_R13_R14_COMPARISON.json",
+      "sha256": "a8c494d42fc45d00542bf19be99cf6f28a094e0453a20ec74e242e5630ad2159"
+    },
+    {
+      "description": "exact receipt codec count with native serialized crosscheck",
+      "path": "results/zk60_1b_native_20261017/r14/RECEIPT_TRADEOFF.json",
+      "sha256": "4ff0733ae110184ce5ca899e5964822316e8207f34d0ca1d50d1556fb7a992f7"
+    },
+    {
+      "description": "fresh root/boundary controls20intended refusals",
+      "path": "results/zk60_1b_native_20261017/r14/NATIVE_JOINT_CONTROLS.json",
+      "sha256": "9ec5008b32b261d4ec83d8ce3e81ac30b25ec091e7f6ad74a9d179bed3314dd3"
+    },
+    {
+      "description": "actualS2L00 strict-model DD/nonDD19sites/proof/fresh/corruption6gates",
+      "path": "results/zk60_1b_native_20261017/r14/ACTUAL_S2_NATIVE_ACCEPTANCE.json",
+      "sha256": "e9d89adf20676eb3f7c7254d9d026c5d9d78863b18e4855e05f051107b4dddd3"
+    },
+    {
+      "description": "actual26headers conditional backend/no-wrap count, unreviewed",
+      "path": "results/zk60_1b_native_20261017/r14/ACTUAL_26_LAYER_CONDITIONAL_COUNT.json",
+      "sha256": "55eba8b7aa96356e7f45c559ac46a806aece51f6fa26dfbcad5412403e6331eb"
+    },
+    {
+      "description": "c2fixture failure diagnosis and correction, no failed proof acceptance",
+      "path": "results/zk60_1b_native_20261017/r14/C2_FIXTURE_ATTEMPT1.json",
+      "sha256": "77b56a824c470e1cefbb932c5e6be0b512f98bfb79e1c609064bd105d535c0ea"
+    },
+    {
+      "description": "consolidated candidate2source284pins",
+      "path": "results/zk60_1b_native_20261017/r14/sol-r14-actual-build-2.source.json",
+      "sha256": "1dc1f2fe1a15557c37385c403288c0913bea72a53a6f06080e1756406572e777"
+    },
+    {
+      "description": "native capture design contract, no privacy result",
+      "path": "results/zk60_1b_native_20261017/r14/NATIVE_CAPTURE_IMPLEMENTATION_CONTRACT.json",
+      "sha256": "05830bbee07751ac3aff8a674d2bc0939e2803b5255de5d61c080481062785f5"
+    },
+    {
+      "description": "independent uncompiled capture/L25/regression branch status",
+      "path": "results/zk60_1b_native_20261017/r14/CAPTURE_BRANCH_STATE.json",
+      "sha256": "864e6bfbafb0cc88f6b986fbcd5ab2e8bf995e11176baf2565d95abdabfe6e4b"
+    },
+    {
+      "description": "independent uncompiled observer branch287source pins",
+      "path": "results/zk60_1b_native_20261017/r14/sol-r14-capture-build-1.source.json",
+      "sha256": "5e66124455ef5a298cc4b595c48045dff614452ecc5f93eda2d8283426782406"
+    },
+    {
+      "description": "reviewer-derived actualL25T128 causal-prefix19site oracle",
+      "path": "results/zk60_1b_native_20261017/r14/l25-causal-prefix/ORACLE.json",
+      "sha256": "99885a3d1675ca62d2e00e0428e13ee0776f49b6833186bb08f3f079108a6252"
+    },
+    {
+      "description": "original observer pipeline source/script pins and held queue plan, not a result",
+      "path": "results/zk60_1b_native_20261017/r14/sol-r14-observer-pipeline-1.plan.json",
+      "sha256": "8f9f1645d5394837eb68e86b1296daa98e14b232012bed183d29022cae584e4a"
+    },
+    {
+      "description": "approved host recovery audit and held source/script contract",
+      "path": "results/zk60_1b_native_20261017/r14/recovery-20261030-1/contract.json",
+      "sha256": "0a9799b2d745e33c0a000f5bf2375d3ba60cf42d7db97180b3f86c03a33cfa30"
+    },
+    {
+      "description": "detached recovery process boot/PID/start identity, check heartbeat before liveness claim",
+      "path": "results/zk60_1b_native_20261017/r14/recovery-20261030-1/launch.json",
+      "sha256": "82d479eac7421beb851f319d4fb50dc2abcf64a6964b09b4f47600a107bf0461"
+    },
+    {
+      "description": "supplemental M/claim checker18small controls, not native/privacy acceptance",
+      "path": "results/zk60_1b_native_20261017/r14/SUPPLEMENTAL_CAPTURE_CHECKERS_PREFLIGHT.json",
+      "sha256": "f8c5e799e64727bfacdc75e5c80ad198fe046a650fec29bd2b69d0f4fe8137f8"
+    },
+    {
+      "description": "condition tracker, author status only",
+      "path": "results/zk60_1b_native_20261017/r14/CONDITIONS_TRACKER.json",
+      "sha256": "36151b9ec7a20ef20c28bd7e89fb9feb220bccb19d71bd7760ec5fc1d1dc2f38"
+    }
+  ],
+  "source_status": {
+    "last_actual_proof_source": "087016a359c1c0b096f3f131181583f568f7166a476bef3b7c484f181fde5bd9",
+    "next_consolidated_test_candidate": "7152ef1a269b2aca5b0ec7ee507a8591db46225466653aaa3113789bfce24262"
+  },
+  "retired_tool_handles": [
+    47150,
+    24662,
+    48014
+  ],
+  "execution_recovery": "Host audit00:18:58Z found original workers absent before heavy leaf. Detached recovery490564 has boot/start identity in recovery-20261030-1/launch.json and5second status heartbeat. Inspect actual evidence; do not relaunch from this index.",
+  "pending": [
+    "Finish candidate2compile and complete malicious/dense acceptance batch",
+    "Remaining old limb/dictionary/support and legacy suite/golden/receipt regressions",
+    "Compile/run independent observer branch, actualL25gates and50relation regressions",
+    "Exact perCMrank/CFSbudget/NL1/three-stage joint-view adapter; local row precheck is insufficient",
+    "Experimental release CLI and complete actual-model integration checks",
+    "Whole classifier/token composition and independent R14 bound transfer/review",
+    "Freeze then D24 then privacy gate before any profile activation/use"
+  ],
+  "scope": "Recovery/review index only. No R14 production registration, full26actual proof, classifier integration or privacy acceptance. T256 proof desktop-only. S6 parked."
+}

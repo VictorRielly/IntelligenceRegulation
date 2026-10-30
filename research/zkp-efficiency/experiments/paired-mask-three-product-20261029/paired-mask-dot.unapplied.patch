@@ -1,0 +1,23 @@
+--- a/hashline/src/private_block/argument.rs
++++ b/hashline/src/private_block/argument.rs
+@@ -407,10 +407,16 @@
+     let logm = p.log.min(log_n);
+     let c0 = if p.log < log_n { p.slices[0].0 % n } else { 0 };
+     let eq = eq_table_msb(&point[p.log - logm..]);
+-    let row = |r: usize| {
+-        data[r * n + c0..r * n + c0 + eq.len()].iter().zip(eq.iter()).fold(Fp2::ZERO, |a, (x, e)| a.add(e.mul_base(*x)))
+-    };
+-    row(p.mask_row).add(Fp2::U.mul(row(p.mask_row + 1)))
++    let re = &data[p.mask_row * n + c0..p.mask_row * n + c0 + eq.len()];
++    let im = &data[(p.mask_row + 1) * n + c0..(p.mask_row + 1) * n + c0 + eq.len()];
++    // Only the current site's fresh reserved pair is read. No cached private result.
++    let (mut a, mut b, mut cross) = (Fp::ZERO, Fp::ZERO, Fp::ZERO);
++    for ((e, x), y) in eq.iter().zip(re.iter()).zip(im.iter()) {
++        a = a.add(e.c0.mul(*x));
++        b = b.add(e.c1.mul(*y));
++        cross = cross.add(e.c0.add(e.c1).mul(x.add(*y)));
++    }
++    Fp2::new(a.add(b.mul(Fp(7))), cross.sub(a).sub(b))
+ }
+ 
+ /// `cd * plane~(point) + cm * (R_re + u R_im)(tail point)`: data parts then the reserved pair

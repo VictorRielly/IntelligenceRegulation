@@ -1,0 +1,2 @@
+{"event":"refused","command":"classify-prove","error":"--owner-dir /home/victor/zk60-artifacts/token-io/captures/gate19-real-run/owner-private: inside the run's parent directory /home/victor/zk60-artifacts/token-io/captures/gate19-real-run; the owners' decommitments are private (D21) and never sit where the run is published or snapshotted (review TR4-3)"}
+{"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling D45(4), Victor 2026-10-29)"}

@@ -102,7 +102,7 @@ fn profile_literals(text: &str) -> Vec<String> {
 fn walk_definitions(sh: &Shape, mut f: impl FnMut(&SlotDef)) {
     let lay = Layout::for_shape(sh).unwrap_or_else(|e| panic!("{}: layout: {e}", sh.name));
     let (public, ff, _) = super::grow_tests::tame_case(sh);
-    let ctx = Ctx {
+    let ctx = Ctx { accuracy:None,
         lay: &lay,
         public: &public,
         ff: &ff,
@@ -166,8 +166,10 @@ fn every_registered_profile_is_covered_and_every_tagged_ones_keys_are_pairwise_d
     // run profiles are in the registry too
     let mut shapes = every_shape();
     shapes.extend(super::trained_calib_tests::registered_trained_shapes());
+    shapes.extend(super::accuracy_profile_tests::registered_shapes());
     let mut runs = vec![RUN_PROFILE_RUNG_G, RUN_PROFILE_RUNG_K4, RUN_PROFILE_RUNG_P2, RUN_PROFILE_RUNG_C6, RUN_PROFILE_RUNG_W14, RUN_PROFILE_RUNG_E32, RUN_PROFILE_M125];
     runs.extend(super::trained_calib_tests::registered_trained_runs().into_iter().map(|(p, _)| p));
+    runs.extend(super::accuracy_profile_tests::registered_runs().into_iter().map(|(p,_)|p));
     let mut covered: Vec<String> = shapes.iter().map(|s| s.profile.to_string()).collect();
     covered.extend(runs.iter().map(|r| r.to_string()));
     covered.sort();
@@ -219,6 +221,7 @@ fn every_registered_profile_is_covered_and_every_tagged_ones_keys_are_pairwise_d
         (RUN_PROFILE_M125, Shape::m125()),
     ];
     run_shapes.extend(super::trained_calib_tests::registered_trained_runs());
+    run_shapes.extend(super::accuracy_profile_tests::registered_runs());
     for (rp, sh) in run_shapes {
         let live = super::protocol::tagged_transcript(&sh, rp.as_bytes()).state();
         let block_key = *sh.hash_tag().transcript_key().expect("a tagged block profile carries a transcript key");
@@ -369,6 +372,10 @@ fn no_registered_profiles_constructor_input_has_the_squeeze_length() {
     let shapes = every_shape();
     let mut profiles: Vec<&'static str> = shapes.iter().map(|s| s.profile).collect();
     profiles.extend([RUN_PROFILE_RUNG_G, RUN_PROFILE_RUNG_K4, RUN_PROFILE_M125]);
+    profiles.extend(super::trained_calib_tests::registered_trained_shapes().into_iter().map(|s|s.profile));
+    profiles.extend(super::accuracy_profile_tests::registered_shapes().into_iter().map(|s|s.profile));
+    profiles.extend(super::trained_calib_tests::registered_trained_runs().into_iter().map(|(p,_)|p));
+    profiles.extend(super::accuracy_profile_tests::registered_runs().into_iter().map(|(p,_)|p));
     let mut lens: Vec<(usize, &'static str)> = Vec::new();
     for p in &profiles {
         let ctor_len = PREFIX.len() + p.len();
@@ -427,7 +434,7 @@ fn the_capture_writer_pins_every_run_layer_source_it_depends_on() {
     let lines: Vec<&str> = parent.lines().collect();
     let mut production: Vec<String> = Vec::new();
     for (i, l) in lines.iter().enumerate() {
-        let Some(rest) = l.trim().strip_prefix("mod ") else { continue };
+        let Some(rest) = l.trim().strip_prefix("mod ").or_else(|| l.trim().strip_prefix("pub mod ")) else { continue };
         let Some(name) = rest.strip_suffix(';') else { continue };
         if i > 0 && lines[i - 1].trim() == "#[cfg(test)]" {
             continue;
@@ -440,6 +447,15 @@ fn the_capture_writer_pins_every_run_layer_source_it_depends_on() {
         production,
         [
             "src/private_block.rs",
+            "src/private_block/accuracy.rs",
+            "src/private_block/accuracy_act.rs",
+            "src/private_block/accuracy_aligned.rs",
+            "src/private_block/accuracy_fold.rs",
+            "src/private_block/accuracy_groups.rs",
+            "src/private_block/accuracy_layout.rs",
+            "src/private_block/accuracy_precision.rs",
+            "src/private_block/accuracy_public.rs",
+            "src/private_block/accuracy_tables.rs",
             "src/private_block/argument.rs",
             "src/private_block/boundary.rs",
             "src/private_block/endpoint_g.rs",
@@ -452,6 +468,7 @@ fn the_capture_writer_pins_every_run_layer_source_it_depends_on() {
             "src/private_block/run.rs",
             "src/private_block/run_sink.rs",
             "src/private_block/shape.rs",
+            "src/private_block/tied_tables.rs",
             "src/private_block/timing.rs",
             "src/private_block/trained_block.rs",
             "src/private_block/trained_statement.rs",
@@ -490,7 +507,7 @@ fn the_capture_writer_pins_every_run_layer_source_it_depends_on() {
     // trained loader and its table registries are pinned, and the GPU-only
     // and older-prover files are deliberately NOT, each with its reason in
     // the list's comment
-    for f in ["src/private_block/trained_block.rs", "src/gpu/mod.rs", "src/tables_v3.rs", "../zkp-core/src/tables.rs"] {
+    for f in ["src/private_block/trained_block.rs", "src/private_block/tied_tables.rs", "src/private_block/tied_tables/derive.rs", "src/gpu/mod.rs", "src/tables_v3.rs", "../zkp-core/src/tables.rs"] {
         assert!(pinned.contains(&f), "{f} — N-r4-d — is not a source pin");
     }
     let rc = source("src/private_block/run_capture.rs");

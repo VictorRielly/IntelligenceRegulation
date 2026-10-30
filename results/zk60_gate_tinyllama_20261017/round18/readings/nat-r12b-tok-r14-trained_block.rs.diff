@@ -1,0 +1,84 @@
+--- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12b/frozen-tree/hashline/src/private_block/trained_block.rs	2026-10-28 15:30:02.119506384 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r14/hashline/src/private_block/trained_block.rs	2026-10-28 19:12:07.681404357 -0700
+@@ -1507,7 +1507,7 @@
+     Ok(*blake3::hash(&b).as_bytes())
+ }
+ 
+-fn flags(args: &[String], allowed: &[&str], switches: &[&str]) -> Result<Vec<(String, String)>, String> {
++pub(crate) fn flags(args: &[String], allowed: &[&str], switches: &[&str]) -> Result<Vec<(String, String)>, String> {
+     let mut out = Vec::new();
+     let mut i = 0;
+     while i < args.len() {
+@@ -1526,15 +1526,15 @@
+     Ok(out)
+ }
+ 
+-fn flag<'a>(f: &'a [(String, String)], k: &str) -> Option<&'a str> {
++pub(crate) fn flag<'a>(f: &'a [(String, String)], k: &str) -> Option<&'a str> {
+     f.iter().find(|(x, _)| x == k).map(|(_, v)| v.as_str())
+ }
+ 
+-fn need<'a>(f: &'a [(String, String)], k: &str) -> Result<&'a str, String> {
++pub(crate) fn need<'a>(f: &'a [(String, String)], k: &str) -> Result<&'a str, String> {
+     flag(f, k).ok_or_else(|| format!("{k} is required"))
+ }
+ 
+-fn js(s: &str) -> String {
++pub(crate) fn js(s: &str) -> String {
+     let mut o = String::from("\"");
+     for c in s.chars() {
+         match c {
+@@ -1627,7 +1627,7 @@
+ /// holds a prover-private `seq_*` entry**, so that "the export" handed to a
+ /// verifier can never carry the hidden input and its per-layer activations.
+ /// (The verifier never opened them; this makes shipping them a refusal.)
+-fn refuse_prover_private_entries(export: &Path) -> Result<(), String> {
++pub(crate) fn refuse_prover_private_entries(export: &Path) -> Result<(), String> {
+     let rd = std::fs::read_dir(export).map_err(|e| format!("{}: {e}", export.display()))?;
+     for e in rd {
+         let e = e.map_err(|e| format!("{}: {e}", export.display()))?;
+@@ -1642,7 +1642,7 @@
+     Ok(())
+ }
+ 
+-fn write_new(path: &Path, bytes: &[u8]) -> Result<(), String> {
++pub(crate) fn write_new(path: &Path, bytes: &[u8]) -> Result<(), String> {
+     use std::io::Write;
+     let mut f = std::fs::OpenOptions::new().write(true).create_new(true).open(path).map_err(|e| format!("{}: {e}", path.display()))?;
+     f.write_all(bytes).and_then(|_| f.sync_all()).map_err(|e| format!("{}: {e}", path.display()))
+@@ -2232,7 +2232,7 @@
+     }
+ }
+ 
+-fn stack_context(variant: &str, layers: &[u32], label: &str) -> Result<Digest, String> {
++pub(crate) fn stack_context(variant: &str, layers: &[u32], label: &str) -> Result<Digest, String> {
+     let mut b = Vec::new();
+     for s in ["hashline/zk60-trained-stack-context/1", variant, label] {
+         b.extend_from_slice(&(s.len() as u64).to_le_bytes());
+@@ -2537,7 +2537,7 @@
+ /// the `segments.json` of a run: one entry per segment, its file name, length
+ /// and SHA-256 (from the prover's sink, or from the bytes a verification
+ /// consumed)
+-fn render_segments_json(seen: &[(u64, String)]) -> String {
++pub(crate) fn render_segments_json(seen: &[(u64, String)]) -> String {
+     let segs: Vec<String> = seen.iter().enumerate().map(|(k, (n, h))| format!("{{\"file\":{},\"bytes\":{n},\"sha256\":{}}}", js(&super::run_sink::segment_file_name(k)), js(h))).collect();
+     format!("[\n {}\n]\n", segs.join(",\n "))
+ }
+@@ -2549,7 +2549,7 @@
+ /// as found: a REAL directory (a symbolic link is refused by name, never
+ /// followed) holding exactly `names`, each a regular file. Anything else —
+ /// an extra file, a link, a FIFO, a subdirectory — is refused.
+-fn check_statement_dir(dir: &Path, names: &[&str]) -> Result<(), String> {
++pub(crate) fn check_statement_dir(dir: &Path, names: &[&str]) -> Result<(), String> {
+     let m = std::fs::symlink_metadata(dir).map_err(|e| format!("{}: {e}", dir.display()))?;
+     if m.file_type().is_symlink() {
+         return Err(format!("{} is a symbolic link; a statement directory is never followed (review r5_A)", dir.display()));
+@@ -2643,7 +2643,7 @@
+ /// only make the rename replace an EMPTY directory or a link entry, or fail:
+ /// nothing of theirs is published.) On any failure the new directory is
+ /// removed.
+-fn publish_statement_dir(art: &Path, files: &[(&str, &[u8])]) -> Result<PathBuf, String> {
++pub(crate) fn publish_statement_dir(art: &Path, files: &[(&str, &[u8])]) -> Result<PathBuf, String> {
+     let target = art.join(super::run_sink::STATEMENT_DIR);
+     let tmp = art.join(format!("{}.writing-{}", super::run_sink::STATEMENT_DIR, std::process::id()));
+     std::fs::create_dir(&tmp).map_err(|e| format!("{}: {e}", tmp.display()))?;

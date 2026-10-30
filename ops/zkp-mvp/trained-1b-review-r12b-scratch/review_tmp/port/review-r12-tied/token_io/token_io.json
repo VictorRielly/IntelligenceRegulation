@@ -1,0 +1,1 @@
+{"embedding_table": {"file": "embedding_int16.bin", "sha256": "468bbec647f0e130915430e2192be7c3136300655c8e26017eee32f2990c5f22", "source_tensor": {"name": "language_model.model.embed_tokens.weight", "sha256": "67a138c1c483b89874526ef523f5f0c30f161808076561730193d1de2093dd19"}}}

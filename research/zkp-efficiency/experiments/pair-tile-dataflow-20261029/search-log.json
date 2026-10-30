@@ -1,0 +1,14 @@
+{
+  "native_live": true,
+  "queries": [
+    "GPU sumcheck memory bandwidth register tiling batched multilinear evaluation2026",
+    "site.github.com sumcheck GPU tiled multilinear polynomial register",
+    "site.arxiv.org GPU sumcheck memory2026October",
+    "sum cats GPU Acceleration Sum Check Protocol Over Binary Fields2026DATE",
+    "site.arxiv.org sumcheck2026OctoberGPUmemory",
+    "zkDuel2026SumCheck",
+    "SumCATS DATE2026GPU"
+  ],
+  "web_result_files": 12,
+  "downloaded_code_executed": false
+}

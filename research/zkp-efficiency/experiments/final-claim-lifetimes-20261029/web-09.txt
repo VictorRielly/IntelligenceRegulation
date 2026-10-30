@@ -1,0 +1,376 @@
+GitHub - Oraclizer/statesync-gkr: Rust prover for sparse-Merkle state transitions, with GKR and sumcheck mechanized in Isabelle/HOL · GitHub (https://github.com/Oraclizer/statesync-gkr)
+citeturn8view0 [wordlim: 200] Crawled: today; Content type: text/html; Source: open({"ref_id":"https://github.com/Oraclizer/statesync-gkr","lineno":null}); Total lines: 523
+L0: 【0†Skip to content】
+L1: ## Navigation Menu
+L2: 
+L3:   * Products
+L4: 
+L5:     *       * 【1†GitHubRepository hosting, code review, and collaboration】
+L6:       * 【2†CopilotAI coding agent for tasks, projects and automated work】
+L7: 
+L8:     * Build & Ship
+L9:       * 【3†ActionsCI/CD and automation】
+L10:       * 【4†Code QualityQuality analysis, fixes, and enforcement】
+L11:       * 【5†CodespacesCloud development environments】
+L12: 
+L13:     * Secure
+L14:       * 【6†Code SecurityVulnerability detection and remediation】
+L15:       * 【7†Secret ProtectionSecret scanning and leak prevention】
+L16: 【8†All Features】
+L17: 
+L18:   * Developers
+L19: 
+L20:     * Learn
+L21:       * 【9†Documentation†docs.github.com】
+L22:       * 【10†Training†learn.github.com】
+L23:       * 【11†Certifications†learn.github.com】
+L24: 
+L25:     * Build
+L26:       * 【12†Build with Copilot】
+L27:       * 【13†Customize Copilot†docs.github.com】
+L28:       * 【14†Integrations】
+L29: 
+L30:     * Explore
+L31:       * 【15†Trending repos】
+L32:       * 【16†GitHub Sponsors】
+L33:       * 【17†Events】
+L34:     *       * 【18†ChangelogYour source for the latest features, improvements, and fixes across GitHub products, all in one place.†github.blog】
+L35: 
+L36:   * Businesses
+L37: 
+L38:     * By Stage
+L39:       * 【19†Enterprises】
+L40:       * 【20†Team】
+L41:       * 【21†Startups】
+L42:       * 【22†Nonprofits】
+L43: 
+L44:     * By Industry
+L45:       * 【23†Healthcare】
+L46:       * 【24†Financial services】
+L47:       * 【25†Manufacturing】
+L48:       * 【26†Government】
+L49:       * 【27†See all industries】
+L50:     * Evaluate GitHub
+L51:       * 【28†Why GitHub】
+L52:       * 【29†Customer Stories】
+L53:       * 【30†Business insights】
+L54:       * 【31†Trust Center】
+L55: 
+L56:     * Add-ons
+L57:       * 【32†GitHub Advanced SecurityEnterprise-grade code security】
+L58:       * 【33†Copilot for businessEnterprise-grade AI features】
+L59:       * 【34†Premium SupportEnterprise-grade 24/7 support】
+L60: 
+L61:   * Resources
+L62:     * Learn & Connect
+L63:       * 【9†Documentation†docs.github.com】
+L64:       * 【35†Resource center】
+L65:       * 【36†Blog†github.blog】
+L66:       * 【17†Events & webinars】
+L67:       * 【37†Community Forum】
+L68:       * 【29†Customer Stories】
+L69:       * 【14†Integrations】
+L70: 
+L71:     * Support
+L72:       * 【38†Customer support†help.github.com】
+L73:       * 【10†Training†learn.github.com】
+L74:       * 【39†GitHub Status†www.githubstatus.com】
+L75: 
+L76:     * Company
+L77:       * 【40†About】
+L78:       * 【41†Partners】
+L79:       * 【18†Changelog†github.blog】
+L80:     *       * 【42†GitHub UniverseThe event for developers, by developers — talks, workshops, and what’s next for GitHub.†githubuniverse.com】
+L81: 
+L82:   * 【43†Pricing】
+L83: 
+L84: Search`/`
+L85: 
+L86: 【44†Sign in】
+L87: 
+L88: 【45†Sign up】
+L89: 
+L90: Appearance settings
+L91: 
+L92: You signed in with another tab or window. Reload to refresh your session. You signed out in another tab or window. Reload to refresh your session. You switched accounts on another tab or window. Reload to refresh your session. Dismiss alert
+L93: 
+L94:   1. 【46†Oraclizer】
+L95:   2. 【47†statesync-gkr】
+L96: ## Repository navigation
+L97: 
+L98:   *   * 【47†Code】
+L99:   * 【48†Issues】
+L100:   * 【49†Pull requests1 (1)】
+L101:   * 【50†Actions】
+L102:   * 【51†Security and quality】
+L103:   * 【52†Insights】
+L104: 
+L105: More items
+L106: 
+L107: 【53†Image: Oraclizer†avatars.githubusercontent.com】
+L108: 
+L109: 【47†statesync-gkr】
+L110: 
+L111: Public
+L112: 
+L113:   * 【54†Notifications】You must be signed in to change notification settings
+L114:   * 【54†Fork0 (0)】
+L115:   * 【54†Star0 (0)】You must be signed in to star a repository
+L116: ## About
+L117: 
+L118: Rust prover for sparse-Merkle state transitions, with GKR and sumcheck mechanized in Isabelle/HOL
+L119: 
+L120: 【55†oraclizer.io/ss-gkr/†oraclizer.io】
+L121: 
+L122: ### Topics
+L123: 
+L124: 【56†arxiv】【57†cryptography】【58†formal-verification】【59†gkr】【60†merkle-tree】【61†rust】【62†sparse-merkle-tree】【63†sumcheck】【64†verifiable-computation】
+L125: 
+L126: ### Resources
+L127: 
+L128: 【65†Readme】
+L129: 
+L130: 【66†License】
+L131: 
+L132: ### Code of conduct
+L133: 
+L134: 【67†Code of conduct】
+L135: 
+L136: ### Contributing
+L137: 
+L138: 【68†Contributing】
+L139: ### Security policy
+L140: 
+L141: 【69†Security policy】
+L142: 
+L143: Cite this repository
+L144: 
+L145: 【70†Activity】
+L146: 
+L147: 【71†Custom properties】
+L148: 
+L149: ### Stars
+L150: 
+L151: 0 stars
+L152: 
+L153: ### Watchers
+L154: 
+L155: 0 watching
+L156: 
+L157: ### Forks
+L158: 
+L159: 【72†0 forks】
+L160: 
+L161: 【73†Report repository】
+L162: 
+L163: main
+L164: 
+L165: 【74†Branches】【75†Tags】
+L166: 
+L167: [Input: Go to file]
+L168: 
+L169: Go to file
+L170: 
+L171: Code
+L172: 
+L173: Open more actions menu
+L174: 
+L175: ## Latest commit
+L176: 
+L177: 
+L178: 
+L179: ## History
+L180: 
+L181: 60 Commits
+L182: ## Folders and files
+L183: Name  | Name  | Last commit message  | Last commit date
+L184: --- | --- | --- | ---
+L185: 【76†.github】  | 【76†.github】  |    |
+L186: 【77†LICENSES】  | 【77†LICENSES】  |    |
+L187: 【78†assets】  | 【78†assets】  |    |
+L188: 【79†benches】  | 【79†benches】  |    |
+L189: 【80†crates】  | 【80†crates】  |    |
+L190: 【81†docs】  | 【81†docs】  |    |
+L191: 【82†examples】  | 【82†examples】  |    |
+L192: 【83†formal/isabelle】  | 【83†formal/isabelle】  |    |
+L193: 【84†release】  | 【84†release】  |    |
+L194: 【85†spikes/zkvm-wrap】  | 【85†spikes/zkvm-wrap】  |    |
+L195: 【86†src】  | 【86†src】  |    |
+L196: 【87†tests】  | 【87†tests】  |    |
+L197: 【88†verif】  | 【88†verif】  |    |
+L198: 【89†.gitattributes】  | 【89†.gitattributes】  |    |
+L199: 【90†.gitignore】  | 【90†.gitignore】  |    |
+L200: 【91†ARCHITECTURE.md】  | 【91†ARCHITECTURE.md】  |    |
+L201: 【92†CHANGELOG.md】  | 【92†CHANGELOG.md】  |    |
+L202: 【93†CITATION.cff】  | 【93†CITATION.cff】  |    |
+L203: 【94†CODE_OF_CONDUCT.md】  | 【94†CODE_OF_CONDUCT.md】  |    |
+L204: 【95†CONTRIBUTING.md】  | 【95†CONTRIBUTING.md】  |    |
+L205: 【96†CONTRIBUTORS.md】  | 【96†CONTRIBUTORS.md】  |    |
+L206: 【97†Cargo.lock】  | 【97†Cargo.lock】  |    |
+L207: 【98†Cargo.toml】  | 【98†Cargo.toml】  |    |
+L208: 【99†DISCLAIMER.md】  | 【99†DISCLAIMER.md】  |    |
+L209: 【100†FORMAL_VERIFICATION.md】  | 【100†FORMAL_VERIFICATION.md】  |    |
+L210: 【101†GOVERNANCE.md】  | 【101†GOVERNANCE.md】  |    |
+L211: 【102†LICENSE】  | 【102†LICENSE】  |    |
+L212: 【103†NOTICE】  | 【103†NOTICE】  |    |
+L213: 【104†README.md】  | 【104†README.md】  |    |
+L214: 【105†REPRODUCING.md】  | 【105†REPRODUCING.md】  |    |
+L215: 【106†SECURITY.md】  | 【106†SECURITY.md】  |    |
+L216: 【107†SUPPORT.md】  | 【107†SUPPORT.md】  |    |
+L217: 【108†rust-toolchain.toml】  | 【108†rust-toolchain.toml】  |    |
+L218: 【109†why3find.json】  | 【109†why3find.json】  |    |
+L219: [Button: View all files]
+L220: ## Repository files navigation
+L221: 
+L222:   *   * 【110†README】
+L223:   * 【110†Code of conduct】
+L224:   * 【110†Contributing】
+L225:   * 【110†License】
+L226:   * 【110†Security】
+L227: 
+L228: More items
+L229: 
+L230: 【111†Image: StateSync-GKR: sparse GKR proof engine for state synchronization】
+L231: # StateSync-GKR
+L232: 
+L233: A Rust GKR and sumcheck engine for sparse-Merkle state transitions, with its protocol and compiler models machine-checked in Isabelle/HOL.
+L234: 
+L235: 【55†Website†oraclizer.io】 · 【112†Documentation†oraclizer.io】 · 【113†Quick start】 · 【114†API guide】 · 【115†Measured profiles】 · 【100†Formal verification】 · 【116†Refinement evidence】
+L236: Its SMT frontend proves membership, non-membership and single-leaf updates. Models of the SMT circuit compiler and of the GKR and sumcheck protocol, and their composition, are machine-checked in Isabelle/HOL, building on the Archive of Formal Proofs `Sumcheck_Protocol` entry and including the exact degree-four KoalaBear extension field that the implementation uses.
+L237: A conditional, mechanized forward acceptance theorem and recorded proofs for selected Rust contracts relate the model to the shipped verifier: the checks that turn a request into an acceptance verdict (public-input binding, sumcheck rounds, carry construction and final input evaluations) can be traced across model and code; see 【116†Refinement evidence and reuse】.
+L238: Prepare a circuit once, reuse its proving and verification material, and run independent CPU proving jobs in parallel. The protocol and sumcheck crates have no dependency on the SMT compiler, so other arithmetic-circuit frontends can build on the same engine and use its 【116†acceptance-check review map】 when reviewing an integration.
+L239: ## Implementation benefits
+L240: 【117†Image: StateSync-GKR v1.2.0 in four measured cells, each with its own baseline: 89-fold less peak memory than the engine's own dense baseline on a width-4,096 test circuit (89.46-fold on v1.1.0, 88.87-fold on v1.2.0); 6,470-fold faster proving than that baseline on the same circuit, against 2,507-fold with v1.1.0; 3,300 requests a second on one 192-core server with every request accepted within one second, against 1,150 for v1.1.0 measured the same day; and a 99th-percentile latency of 34 ms at 1,000 requests a second on the same server, against 440 ms for v1.1.0 the same day.】
+L241: 【118†Image: StateSync-GKR v1.2.0 serving results against v1.1.0 measured the same day on the same VM types. On one 192-core VM at 1,000 requests per second, p99 latency from scheduled arrival to verified acceptance fell from 440 ms to 34 ms, medians of three 60-second runs. The highest offered rate with every timed request accepted within one second rose from 500 to 2,000 requests per second on 48 cores and from 500 to 3,000 on 96 cores, in short screens with one run per rate.
+L242: On 192 cores it reached 3,300 requests per second on one connection in three 60-second runs and a 30-minute run, against 1,000 for v1.1.0 in the earlier campaign and 1,150, the highest rate tried for it, on the same day. With two connections, 15-second screens passed every rate up to 5,000 requests per second, where the verifying frontend reached its own limit, so 5,000 is a lower bound.】
+L243: Version 1.2.0 keeps every proof byte and changes how proofs are computed and served. On one 192-core VM, the reference proof server in continuous mode had a p99 latency of 34 ms at 1,000 requests/s, against 440 ms for v1.1.0 measured the same day (medians of three 60-second runs), and accepted every request within one second at 3,300 requests/s on one connection in three 60-second confirmation runs.
+L244: In 15-second screens on 48-core and 96-core VMs, the highest offered rate with every request accepted within one second rose from 500 to 2,000 and to 3,000 requests/s. 【119†Performance and operating profiles】 gives each value with its server mode, host, offered rate, run length and connection count.
+L245: 【120†Image: Nine benefits in three groups. Use resources well: sparse reduction, cube and affine fusion, parallel Merkle constraints. Repeat efficiently: derived wiring, prepared reuse, independent jobs. Keep the meaning: three-state lifecycle, strict codec and request binding, reusable sumcheck/GKR core, selected Rust contracts and a conditional forward acceptance theorem.】
+L246:   * Use resources well: sparse reduction, cube/affine fusion and parallel Merkle constraints.
+L247:   * Repeat efficiently: derived wiring, prepared reuse and independent proof jobs.
+L248:   * Keep the meaning: three-state lifecycle, strict codec/request binding and a reusable core with traceable acceptance evidence.
+L249: 【121†See the implementation】 · 【122†Read the evidence conditions】 · 【115†Inspect the measurements】 · 【119†See the v1.2.0 serving results】 · 【123†Browse the performance overview†oraclizer.io】 · 【124†Read the design rationale†research.oraclizer.io】
+L250: 
+L251: Measurements, structure, controls and model results support different claims. The nine mechanisms are not nine independently isolated causal experiments.
+L252: 
+L253: Measurement conditions and the full implementation map
+L254: The engine combines sparse proving, a compact circuit schedule and reusable preparation. In separate controlled comparisons against its own references, StateSync-GKR used about 89 times less peak process RAM and achieved up to 23.68 times faster prepared verification.
+L255: Mechanism  | Application benefit
+L256: --- | ---
+L257: Two-phase sparse proving  | More circuit or independent-job capacity within a RAM budget
+L258: Derived wiring  | Less repeated work in the prepared verifier
+L259: Cube gates and affine fusion  | A compact representation of Poseidon2 rounds
+L260: Parallel Merkle constraints  | Modest proof-size growth across measured tree depths
+L261: Circuit, commitment and wiring reuse  | Lower cost for repeated requests of the same kind and configuration
+L262: Independent proof jobs  | Parallel CPU work with one result per original request
+L263: Empty, occupied and tombstone leaves  | Distinct absence, insertion, update, deletion and restoration semantics
+L264: Strict encoding and request binding  | Rejection of malformed or mismatched proof material
+L265: Reusable core and refinement evidence  | Build another arithmetic frontend on the same engine and use the model and the acceptance-check review map
+L266: The RAM result is whole-process RSS for a two-layer mixed circuit of width 4,096: production Sparse versus this engine's test-only Dense reference. The separate additional-requested-allocation ratio is 3,242.41, with matching canonical proof observations. These two memory boundaries are not interchangeable. The verification result times the complete prepared typed verifier call on the same proof and request, changing only Table/Derived wiring; preparation is excluded.
+L267: Table is already sparse and is not the Dense prover reference.
+L268: Direct depth-24 fresh/prepared measurements of v1.2.0 show 7.19–10.13 times lower per-request proving-path latency, against 3.46–4.45 times in the earlier v1.1.0 campaign; the ratio grew because v1.2.0 proves a prepared request faster. Preparation reuses the circuit commitment as well as compilation: one membership profile spends 105.03 ms on commitment and 7.90 ms on compilation.
+L269: The compact schedule has 118 layers across the nine measured depth-24/28/32 profiles; membership proof bytes grow about 2.93% from depth 24 to 32. Cube/affine fusion is a structural benefit without a separately measured speed multiplier, and a cube gate is an IR operation, not a CPU instruction.
+L270: These mechanisms draw on measurements, source structure, rejection controls and formal models, rather than nine independently isolated causal experiments. The compiler-to-protocol model is mechanized. Selected Rust contract proofs and a conditional forward acceptance theorem provide a review map for the actual verifier checks; the Rust/model value relation remains a premise. 【116†Refinement evidence】 describes the reusable checks and remaining obligations.
+L271: Licensing is described under 【125†License and citation】.
+L272: The 【121†implementation architecture】 connects these mechanisms to their source and application conditions. 【115†Performance and operating profiles】 gives exact values, statistical units and the separate memory, computation and serving measurements. The 【126†controlled capacity replay】 provides the small Linux caller/memory check and the separate dataset layout.
+L273: ## What you can use
+L274:   * SMT operation: use `StateSyncProver` with `SyncRequest` for membership, absence or a single-leaf transition (【127†guide†oraclizer.io】).
+L275:   * Prepared requests: call `prepare` once for a kind and configuration, then `prove_sync_op_prepared` and `verify_sync_op_prepared` per request (【128†guide†oraclizer.io】).
+L276:   * CPU jobs: construct each witness with `make_job_prepared`, then run independent jobs through `prove_batch_parallel` (【129†guide†oraclizer.io】).
+L277:   * Encoded proof: use `encode_sync_result` and `verify_encoded_sync_op` (【130†guide†oraclizer.io】).
+L278:   * Proof service: use the serving components in 【131†`benches/serving`】 for bounded admission, framed replies bound to job identifiers, a return budget and continuous workers, or run their reference proof server.
+L279:   * Another circuit frontend: use the `sumcheck` and `gkr` modules and supply the frontend's statement and input binding (【132†guide†oraclizer.io】).
+L280:   * Model and implementation boundary: read 【100†Formal verification】 and the 【133†formal study†arxiv.org】.
+L281: For direct SMT checks and the GKR boundary, see 【134†Choosing a path】.
+L282: ## Quick start
+L283: 
+L284: Clone the repository for this local example. Research, development and other non-production use are permitted by 【102†LICENSE】. Pin a specific current commit when recording a replay.
+L285: 
+L286:     git clone --depth 1 https://github.com/Oraclizer/statesync-gkr.git
+L287:     cd statesync-gkr
+L288:     rustup show
+L289:     cargo run --release --locked --example state_sync_prove_verify
+L290: 
+L291: Expected output:
+L292: 
+L293:     `honest-proof=PASS
+L294:     tampered-proof=REJECTED
+L295:     secondary-finalized=false
+L296:     `
+L297: The example builds one synthetic membership request, proves it, verifies the honest result and rejects a modified proof. It uses the pinned Rust toolchain and the release lock file. The packages are distributed as source; pin a Git tag or commit when integrating them into another application. The online 【135†Quickstart†oraclizer.io】 reads through the example, and 【136†Installation†oraclizer.io】 shows how to add the packages as a dependency.
+L298: For proving speed, build with `RUSTFLAGS="-Ctarget-cpu=native"` on the machine that runs the prover. In the v1.2.0 one-thread measurements the default release build took 1.66–1.71 times as long per prepared proof; both builds produce the same proof bytes. 【137†Build for proving speed】 gives the measurements.
+L299: Requirement  | Version
+L300: --- | ---
+L301: Rust  | 1.96.1, pinned in `rust-toolchain.toml`; declared minimum 1.85 (`rust-version`)
+L302: Hosted CI  | Linux x86_64
+L303: Isabelle sessions  | Isabelle2025-2 with the AFP release `afp-2026-08-05`
+L304: ## Minimal Rust integration
+L305: The facade consumes an operation, its private Merkle witness and the public inputs that the caller expects. A checked call handles both construction errors and a rejected verifier result:
+L306: 
+L307:     use statesync_gkr::{StateSyncProver, SyncRequest, SyncResult};
+L308: 
+L309:     pub fn prove_checked(
+L310:         prover: &StateSyncProver,
+L311:         request: &SyncRequest,
+L312:     ) -> Result<SyncResult, String> {
+L313:         let result = prover
+L314:             .prove_sync_op(request)
+L315:             .map_err(|error| format!("proving failed: {error:?}"))?;
+L316:         if !prover.verify_sync_op(request, &result) {
+L317:             return Err("the proof or its request binding was rejected".to_owned());
+L318:         }
+L319:         Ok(result)
+L320:     }
+L321: 【114†Usage and API boundary】 contains a complete application, dependency pin, supported input format, prepared execution and error handling. The 【138†API reference†oraclizer.io】 lists every public module. The caller obtains trusted roots and witnesses from its own state store; the library does not authenticate an external database or establish consensus. 【139†Trust boundaries†oraclizer.io】 separates what a successful verification establishes from the application's responsibilities.
+L322: The current verifier reconstructs the circuit input from that witness, including the leaf hash and the complete old/new Merkle paths.
+L323: ## CPU measurements
+L324: 
+L325: Self-measured on two AMD EPYC 9R45 sockets: 192 physical CPU cores, SMT off, 384 GiB installed RAM, Linux, Rust 1.96.1 with `-Ctarget-cpu=native`. Depth 24, batch 768, 192 workers, two-field occupied payloads. The v1.2.0 rows come from the same instance type as the v1.1.0 rows, running Amazon Linux 2023 with kernel 6.18 instead of the earlier kernel 6.8; a same-day v1.1.0 membership rerun came within 0.4% of its earlier rate.
+L326: All columns are inner proofs/s. The witness columns include proving; the last column parallelizes witness creation in the benchmark caller.
+L327: Operation  | Release  | Proving only  | Serial witness  | Parallel witness
+L328: --- | --- | --- | --- | ---
+L329: Membership  | v1.2.0  | 7,713.71  | 1,323.71  | 6,323.95
+L330:  | v1.1.0  | 3,207.74  | 1,060.35  | 2,881.55
+L331: Non-membership  | v1.2.0  | 7,220.36  | 1,313.25  | 5,899.04
+L332:  | v1.1.0  | 2,930.85  | 1,021.87  | 2,654.03
+L333: Update  | v1.2.0  | 5,390.07  | 716.64  | 4,782.21
+L334:  | v1.1.0  | 2,092.03  | 594.56  | 1,984.00
+L335: Against v1.1.0 measured on the same host the same day, v1.2.0 proving-only rates are 2.41–2.56 times higher at 192 workers and 2.53–2.71 times higher on one worker. Each value is the median of three process-level rates; each rate uses the median of three measured batch intervals. The parallel-witness column is benchmark-caller orchestration around the existing public APIs. Timers exclude encoding, hash/control checks and delivery.
+L336: Fixtures have independent roots; these are inner-job rates, not sustained service throughput or sequential state commits. The 【140†controlled CPU note】 provides run ranges, latency, RSS, direct-SMT predicate scope, raw samples and replay.
+L337: A separate five-process supplement measures the broader computation interval: parallel witness creation → proving → encoding → encoded-proof acceptance. At the same depth 24, batch 768 and 192 workers:
+L338: 
+L339: Both columns are inner proofs/s for the complete prepared local computation.
+L340: Operation  | Release  | Parallel output  | Serial output
+L341: --- | --- | --- | ---
+L342: Membership  | v1.2.0  | 2,264.06  | 153.81
+L343:  | v1.1.0  | 1,593.17  | 148.98
+L344: Nonmembership  | v1.2.0  | 2,107.57  | 149.30
+L345:  | v1.1.0  | 1,431.66  | 144.01
+L346: Update  | v1.2.0  | 1,815.31  | 125.59
+L347:  | v1.1.0  | 1,167.49  | 121.01
+L348: Both columns create witnesses and prove in parallel; only encoding and encoded verification change mode. Paired serial/parallel timings of that full interval yield 14.10–14.64 times lower local-batch time for v1.2.0 and 9.71–10.71 times for v1.1.0 across the three operations. This range summarizes paired ratios, not ratios of the throughput medians above. Preparation, transport, post-timer hashing/logging and state commits are outside this interval. These are computation rates, not service SPS.
+L349: See the 【141†supplemental study】 for five-process ranges, direct preparation costs, paired wiring, input types and raw data.
+L350: ## Measured serving and memory profiles
+L351: 
+L352: The serving experiments send complete encoded proofs over private TCP to a separate generator/verifier frontend. Their endpoint is cryptographic acceptance of the original request, including queueing and transport. The v1.2.0 runs use the reference proof server from `benches/serving` in continuous mode, with v1.1.0 run on the same day and VM types as the reference:
+L353:   * 192 cores / 384 GiB, one connection: every timed request was accepted within one second at 3,300 requests/s in three 60-second runs (p99 35.4–38.5 ms) and in a 30-minute run of 5,940,000 requests (p99 35.3 ms). v1.1.0 met one second at 1,000 requests/s in the earlier campaign and at 1,150 requests/s, the highest rate tried for it, on the same day.
+L354:   * Two connections to the same 192-core server: 15-second screens met one second at every rate from 3,400 to 5,000 requests/s. At 5,000/s the 48-core frontend reached its own limit, so 5,000/s is a lower bound for the server.
+L355:   * 192 cores, 1,000 requests/s: p99 33.7–33.9 ms in three 60-second runs, against 433.8–475.1 ms for v1.1.0 on the same day.
+L356:   * 48 and 96 cores: in screens with one 15-second run per rate, the highest offered rate with every timed request accepted within one second was 2,000 and 3,000 requests/s; these were not confirmed by longer runs. In same-day screens of 15 and 20 seconds, v1.1.0 passed 500/s and failed at its next measured rate of 1,000/s.
+L357:   * Above capacity: offered 5,100 requests/s under a 2,760-MiB memory limit, the 192-core server's sampled peak RSS was 548,064 KiB (535.2 MiB, about 19% of the limit; 402,948 KiB or 393.5 MiB by GNU time) and it exited normally; its return budget filled while the excess requests waited at the frontend.
+L358:   * Compute cost: about USD 0.87 per million requests at 3,300/s on the 192-core VM. For v1.1.0 it was USD 2.87 at 1,000/s in the earlier campaign and at most USD 2.50 at 1,150/s on the same day, the highest rate tried for it. The estimate divides the VM's on-demand hourly price by the measured rate for continuous operation and leaves out the frontend, storage and network.
+L359: Every compared v1.2.0 proof matched the v1.1.0 proof bytes. The earlier v1.1.0 batch caller results remain their own series:
+L360:   * 48 cores / 96 GiB, 500 requests/s: 450,000 timed requests over 15 minutes; every request accepted within 500 ms. p99 267.025 ms; maximum 307.096 ms.
+L361:   * Two 48-core / 96-GiB workers, 1,000 requests/s total: each receives 500/s. Three 20-second process runs accepted every timed request within 500 ms; process p99 282.108–329.785 ms.
+L362:   * 192 cores / 384 GiB, 1,000 requests/s: three 60-second process runs accepted every timed request within one second; process p99 426.032–443.471 ms and 99.62–99.92% within 500 ms.
+L363:   * 192 cores / 384 GiB, 1,150 requests/s: one 60-second run accepted all 69,000 timed requests within two seconds, with maximum latency 1,598.489 ms. Of those requests, 48,553 (70.3667%) met one second. Including the drain to final acceptance at 61.394 s, the finite-window rate was 1,123.89 accepted requests/s. The growing queue prevents a sustained 1,150/s capacity claim.
+L364: Both series use the membership/non-membership/update 1:1:1 mix at depth 24. In the v1.1.0 batch caller, worker count, batch cap and maximum wait are 48/48/5 ms per 48-core worker, and 192/192/5 ms on the 192-core VM. Repetitions use the same fixed corpus on each named host; different hosts, periods and profiles are kept separate. The two-worker result is a resource-equivalent deployment comparison against one 96-core worker with batch cap 96, not a topology-only causal experiment.
+L365: At 1,150/s, the one-second budget met in short screens did not hold for all requests in the 60-second confirmation; the two-second budget held for every request. Sixty seconds is the offered-load window, not a prover lifetime limit. Queues, late acceptances and explicit overload outcomes remain in the data.
+L366: Memory is measured independently on generic circuits. The same-driver Sparse path succeeded through tested width 65,536 under a 3-GiB cgroup with swap disabled, while the internal Dense reference reached a native OOM at width 8,192. This is a bounded tested scale, not the largest supported circuit. A v1.2.0 rerun of the same 17 limit attempts gave the same outcome for each. Requested allocation, owned Vec capacity and whole-process RSS have separate plots and definitions.
+--------------------------------------------------------------------------------
+Internal Error ()
+citeturn8view1 [wordlim: 200] Source: open({"ref_id":"https://github.com/Oraclizer/statesync-gkr/releases/tag/v1.2.0","lineno":null}); 
+Failed to fetch https://github.com/Oraclizer/statesync-gkr/releases/tag/v1.2.0: Cache miss--------------------------------------------------------------------------------
+Internal Error ()
+citeturn8view2 [wordlim: 200] Source: open({"ref_id":"https://raw.githubusercontent.com/LayerZero-Labs/akita/main/LICENSE-MIT","lineno":null}); 
+Failed to fetch https://raw.githubusercontent.com/LayerZero-Labs/akita/main/LICENSE-MIT: Cache miss

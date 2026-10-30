@@ -1,0 +1,1 @@
+{"status": "PASS", "checks": 101, "native_pins": 8, "source_fragment_checks": 18, "elapsed_s": 0.00572082600046997, "peak_rss_kib": 18316, "scope": "source/provenance and claimed count checks, not native behavior"}

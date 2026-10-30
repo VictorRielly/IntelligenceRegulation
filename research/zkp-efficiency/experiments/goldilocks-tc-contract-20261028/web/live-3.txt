@@ -1,0 +1,1195 @@
+tensor-core-ntt/include/polyarith/modular.cuh at main · Terminus-IMRC/tensor-core-ntt · GitHub (https://github.com/Terminus-IMRC/tensor-core-ntt/blob/main/include/polyarith/modular.cuh)
+citeturn3view0 [wordlim: 200] Crawled: last month; Content type: text/html; Source: open({"ref_id":"turn1view1","lineno":330}); Total lines: 1775
+L128: ## Files Expand file tree
+L129: 
+L130: main
+L131: 
+L132: ## Breadcrumbs
+L133: 
+L134:   1. 【69†tensor-core-ntt】
+L135:   2. /【70†include】
+L136:   3. /【71†polyarith】
+L137: 
+L138: /
+L139: 
+L140: # modular.cuh
+L141: 
+L142: Copy path
+L143: 
+L144: [Input: Go to file]
+L145: 
+L146: Blame More file actions
+L147: 
+L148: Blame More file actions
+L149: 
+L150: ## Latest commit
+L151: 
+L152: 
+L153: 
+L154: ## History
+L155: 
+L156: History
+L157: 
+L158: main
+L159: 
+L160: ## Breadcrumbs
+L161: 
+L162:   1. 【69†tensor-core-ntt】
+L163:   2. /【70†include】
+L164:   3. /【71†polyarith】
+L165: 
+L166: /
+L167: 
+L168: # modular.cuh
+L169: 
+L170: Copy path
+L171: 
+L172: Top
+L173: ## File metadata and controls
+L174: 
+L175:   * Code
+L176: 
+L177:   * Blame
+L178: 
+L179: 439 lines (367 loc) · 13.1 KB
+L180: 
+L181: 【72†Raw】
+L182: 
+L183: Copy raw file
+L184: 
+L185: Download raw file
+L186: 
+L187: Open symbols panel
+L188: 
+L189: Edit and raw actions
+L190: 
+L191: 1
+L192: 
+L193: 2
+L194: 
+L195: 3
+L196: 
+L197: 4
+L198: 
+L199: 5
+L200: 
+L201: 6
+L202: 
+L203: 7
+L204: 
+L205: 8
+L206: 
+L207: 9
+L208: 
+L209: 10
+L210: 
+L211: 11
+L212: 
+L213: 12
+L214: 
+L215: 13
+L216: 
+L217: 14
+L218: 
+L219: 15
+L220: 
+L221: 16
+L222: 
+L223: 17
+L224: 
+L225: 18
+L226: 
+L227: 19
+L228: 
+L229: 20
+L230: 
+L231: 21
+L232: 
+L233: 22
+L234: 
+L235: 23
+L236: 
+L237: 24
+L238: 
+L239: 25
+L240: 
+L241: 26
+L242: 
+L243: 27
+L244: 
+L245: 28
+L246: 
+L247: 29
+L248: 
+L249: 30
+L250: 
+L251: 31
+L252: 
+L253: 32
+L254: 
+L255: 33
+L256: 
+L257: 34
+L258: 
+L259: 35
+L260: 
+L261: 36
+L262: 
+L263: 37
+L264: 
+L265: 38
+L266: 
+L267: 39
+L268: 
+L269: 40
+L270: 
+L271: 41
+L272: 
+L273: 42
+L274: 
+L275: 43
+L276: 
+L277: 44
+L278: 
+L279: 45
+L280: 
+L281: 46
+L282: 
+L283: 47
+L284: 
+L285: 48
+L286: 
+L287: 49
+L288: 
+L289: 50
+L290: 
+L291: 51
+L292: 
+L293: 52
+L294: 
+L295: 53
+L296: 
+L297: 54
+L298: 
+L299: 55
+L300: 
+L301: 56
+L302: 
+L303: 57
+L304: 
+L305: 58
+L306: 
+L307: 59
+L308: 
+L309: 60
+L310: 
+L311: 61
+L312: 
+L313: 62
+L314: 
+L315: 63
+L316: 
+L317: 64
+L318: 
+L319: 65
+L320: 
+L321: 66
+L322: 
+L323: 67
+L324: 
+L325: 68
+L326: 
+L327: 69
+L328: 
+L329: 70
+L330: 
+L331: 71
+L332: 
+L333: 72
+L334: 
+L335: 73
+L336: 
+L337: 74
+L338: 
+L339: 75
+L340: 
+L341: 76
+L342: 
+L343: 77
+L344: 
+L345: 78
+L346: 
+L347: 79
+L348: 
+L349: 80
+L350: 
+L351: 81
+L352: 
+L353: 82
+L354: 
+L355: 83
+L356: 
+L357: 84
+L358: 
+L359: 85
+L360: 
+L361: 86
+L362: 
+L363: 87
+L364: 
+L365: 88
+L366: 89
+L367: 
+L368: 90
+L369: 
+L370: 91
+L371: 
+L372: 92
+L373: 
+L374: 93
+L375: 
+L376: 94
+L377: 
+L378: 95
+L379: 
+L380: 96
+L381: 
+L382: 97
+L383: 
+L384: 98
+L385: 
+L386: 99
+L387: 
+L388: 100
+L389: 
+L390: 101
+L391: 
+L392: 102
+L393: 
+L394: 103
+L395: 
+L396: 104
+L397: 
+L398: 105
+L399: 
+L400: 106
+L401: 
+L402: 107
+L403: 
+L404: 108
+L405: 
+L406: 109
+L407: 
+L408: 110
+L409: 
+L410: 111
+L411: 
+L412: 112
+L413: 
+L414: 113
+L415: 
+L416: 114
+L417: 
+L418: 115
+L419: 
+L420: 116
+L421: 
+L422: 117
+L423: 
+L424: 118
+L425: 
+L426: 119
+L427: 
+L428: 120
+L429: 
+L430: 121
+L431: 
+L432: 122
+L433: 
+L434: 123
+L435: 
+L436: 124
+L437: 
+L438: 125
+L439: 
+L440: 126
+L441: 
+L442: 127
+L443: 
+L444: 128
+L445: 
+L446: 129
+L447: 
+L448: 130
+L449: 
+L450: 131
+L451: 
+L452: 132
+L453: 
+L454: 133
+L455: 
+L456: 134
+L457: 
+L458: 135
+L459: 
+L460: 136
+L461: 
+L462: 137
+L463: 
+L464: 138
+L465: 
+L466: 139
+L467: 
+L468: 140
+L469: 
+L470: 141
+L471: 
+L472: 142
+L473: 
+L474: 143
+L475: 
+L476: 144
+L477: 
+L478: 145
+L479: 
+L480: 146
+L481: 
+L482: 147
+L483: 
+L484: 148
+L485: 
+L486: 149
+L487: 
+L488: 150
+L489: 
+L490: 151
+L491: 
+L492: 152
+L493: 
+L494: 153
+L495: 
+L496: 154
+L497: 
+L498: 155
+L499: 
+L500: 156
+L501: 
+L502: 157
+L503: 
+L504: 158
+L505: 
+L506: 159
+L507: 
+L508: 160
+L509: 
+L510: 161
+L511: 
+L512: 162
+L513: 
+L514: 163
+L515: 
+L516: 164
+L517: 
+L518: 165
+L519: 
+L520: 166
+L521: 
+L522: 167
+L523: 
+L524: 168
+L525: 
+L526: 169
+L527: 
+L528: 170
+L529: 
+L530: 171
+L531: 
+L532: 172
+L533: 
+L534: 173
+L535: 
+L536: 174
+L537: 
+L538: 175
+L539: 
+L540: 176
+L541: 
+L542: 177
+L543: 
+L544: 178
+L545: 
+L546: 179
+L547: 
+L548: 180
+L549: 
+L550: 181
+L551: 
+L552: 182
+L553: 
+L554: 183
+L555: 
+L556: 184
+L557: 
+L558: 185
+L559: 
+L560: 186
+L561: 
+L562: 187
+L563: 
+L564: 188
+L565: 
+L566: 189
+L567: 
+L568: 190
+L569: 
+L570: 191
+L571: 
+L572: 192
+L573: 193
+L574: 
+L575: 194
+L576: 
+L577: 195
+L578: 
+L579: 196
+L580: 
+L581: 197
+L582: 
+L583: 198
+L584: 
+L585: 199
+L586: 
+L587: 200
+L588: 
+L589: 201
+L590: 
+L591: 202
+L592: 
+L593: 203
+L594: 
+L595: 204
+L596: 
+L597: 205
+L598: 
+L599: 206
+L600: 
+L601: 207
+L602: 
+L603: 208
+L604: 
+L605: 209
+L606: 
+L607: 210
+L608: 
+L609: 211
+L610: 
+L611: 212
+L612: 
+L613: 213
+L614: 
+L615: 214
+L616: 
+L617: 215
+L618: 
+L619: 216
+L620: 
+L621: 217
+L622: 
+L623: 218
+L624: 
+L625: 219
+L626: 
+L627: 220
+L628: 
+L629: 221
+L630: 
+L631: 222
+L632: 
+L633: 223
+L634: 
+L635: 224
+L636: 
+L637: 225
+L638: 
+L639: 226
+L640: 
+L641: 227
+L642: 
+L643: 228
+L644: 
+L645: 229
+L646: 
+L647: 230
+L648: 
+L649: 231
+L650: 
+L651: 232
+L652: 
+L653: 233
+L654: 
+L655: 234
+L656: 
+L657: 235
+L658: 
+L659: 236
+L660: 
+L661: 237
+L662: 
+L663: 238
+L664: 
+L665: 239
+L666: 
+L667: 240
+L668: 
+L669: 241
+L670: 
+L671: 242
+L672: 
+L673: 243
+L674: 
+L675: 244
+L676: 
+L677: 245
+L678: 
+L679: 246
+L680: 
+L681: 247
+L682: 
+L683: 248
+L684: 
+L685: 249
+L686: 
+L687: 250
+L688: 
+L689: 251
+L690: 
+L691: 252
+L692: 
+L693: 253
+L694: 
+L695: 254
+L696: 
+L697: 255
+L698: 
+L699: 256
+L700: 
+L701: 257
+L702: 
+L703: 258
+L704: 
+L705: 259
+L706: 
+L707: 260
+L708: 
+L709: 261
+L710: 
+L711: 262
+L712: 
+L713: 263
+L714: 
+L715: 264
+L716: 
+L717: 265
+L718: 
+L719: 266
+L720: 
+L721: 267
+L722: 
+L723: 268
+L724: 
+L725: 269
+L726: 
+L727: 270
+L728: 
+L729: 271
+L730: 
+L731: 272
+L732: 
+L733: 273
+L734: 
+L735: 274
+L736: 
+L737: 275
+L738: 
+L739: 276
+L740: 
+L741: 277
+L742: 
+L743: 278
+L744: 
+L745: 279
+L746: 
+L747: 280
+L748: 
+L749: 281
+L750: 
+L751: 282
+L752: 
+L753: 283
+L754: 
+L755: 284
+L756: 
+L757: 285
+L758: 
+L759: 286
+L760: 
+L761: 287
+L762: 
+L763: 288
+L764: 
+L765: 289
+L766: 
+L767: 290
+L768: 
+L769: 291
+L770: 
+L771: 292
+L772: 
+L773: 293
+L774: 
+L775: 294
+--------------------------------------------------------------------------------
+tensor-core-ntt/include/polyarith/modular.cuh at main · Terminus-IMRC/tensor-core-ntt · GitHub (https://github.com/Terminus-IMRC/tensor-core-ntt/blob/main/include/polyarith/modular.cuh)
+citeturn3view1 [wordlim: 200] Crawled: last month; Content type: text/html; Source: open({"ref_id":"turn1view1","lineno":1665}); Total lines: 1775
+L1638: reduce(const std::uint32_t t0, const std::uint32_t t1, const std::uint32_t t2,
+L1639: 
+L1640: const std::uint32_t t3, const std::uint32_t t4, const std::uint32_t t5,
+L1641: 
+L1642: const std::uint32_t t6, std::uint32_t t7,
+L1643: 
+L1644: const std::uint64_t modulus) const {
+L1645: 
+L1646: if constexpr (modulus_bits <= 40) {
+L1647: 
+L1648: return reduce_impl(t0, t1, t2, t3, t4, modulus);
+L1649: 
+L1650: } else if constexpr (modulus_bits <= 48) {
+L1651: 
+L1652: return reduce_impl(t0, t1, t2, t3, t4, t5, modulus);
+L1653: 
+L1654: } else if constexpr (modulus_bits <= 56) {
+L1655: return reduce_impl(t0, t1, t2, t3, t4, t5, t6, modulus);
+L1656: 
+L1657: }
+L1658: 
+L1659: return reduce_impl(t0, t1, t2, t3, t4, t5, t6, t7, modulus);
+L1660: 
+L1661: }
+L1662: 
+L1663: };
+L1664: 
+L1665: class MontgomeryMultiplier64 {
+L1666: 
+L1667: std::uint64_t b;
+L1668: 
+L1669: std::uint64_t bp;
+L1670: 
+L1671: public:
+L1672: 
+L1673: MontgomeryMultiplier64(void) = default;
+L1674: 
+L1675: MontgomeryMultiplier64(const std::uint64_t multiplier,
+L1676: 
+L1677: const std::uint64_t modulus) {
+L1678: 
+L1679: b = arithmetic::multiply_wide(multiplier, -modulus) % modulus;
+L1680: 
+L1681: bp = b * calculate_montgomery_inverse(modulus);
+L1682: 
+L1683: }
+L1684: __host__ __device__ std::uint64_t multiply(const std::uint64_t a,
+L1685: 
+L1686: const std::uint64_t N) const {
+L1687: 
+L1688: const std::uint64_t ab1 = arithmetic::multiply_high(a, b);
+L1689: 
+L1690: const std::uint64_t q = a * bp;
+L1691: 
+L1692: const std::uint64_t qN1 = arithmetic::multiply_high(q, N);
+L1693: 
+L1694: return arithmetic::subtract_and_add_if_borrows(ab1, qN1, N);
+L1695: 
+L1696: }
+L1697: 
+L1698: };
+L1699: 
+L1700: class MontgomeryFriendlyMultiplier64 {
+L1701: 
+L1702: std::uint64_t b;
+L1703: 
+L1704: public:
+L1705: 
+L1706: MontgomeryFriendlyMultiplier64(void) = default;
+L1707: 
+L1708: MontgomeryFriendlyMultiplier64(const std::uint64_t multiplier,
+L1709: const std::uint64_t modulus) {
+L1710: 
+L1711: if (std::bit_width(modulus) >= 63) {
+L1712: 
+L1713: throw std::runtime_error("modulus needs to be within 62 bits for now");
+L1714: 
+L1715: } else if (static_cast<std::uint32_t>(modulus) != 1) {
+L1716: 
+L1717: throw std::runtime_error("modulus needs to be Montgomery friendly");
+L1718: 
+L1719: }
+L1720: 
+L1721: b = arithmetic::multiply_wide(multiplier, -modulus) % modulus;
+L1722: 
+L1723: }
+L1724: 
+L1725: __host__ __device__ std::uint64_t get_b(void) const { return b; }
+L1726: 
+L1727: __host__ __device__ std::uint64_t multiply(const std::uint64_t a,
+L1728: 
+L1729: const std::uint64_t N) const {
+L1730: const std::uint32_t a0 = a;
+L1731: 
+L1732: const std::uint32_t a1 = a >> 32;
+L1733: 
+L1734: const std::uint32_t b0 = b;
+L1735: 
+--------------------------------------------------------------------------------
+tensor-core-ntt/include/polyarith/modulus.cuh at main · Terminus-IMRC/tensor-core-ntt · GitHub (https://github.com/Terminus-IMRC/tensor-core-ntt/blob/main/include/polyarith/modulus.cuh)
+citeturn3view2 [wordlim: 200] Crawled: 2 months ago; Content type: text/html; Source: open({"ref_id":"turn1view2","lineno":270}); Total lines: 432
+L129: ## Files Expand file tree
+L130: 
+L131: main
+L132: 
+L133: ## Breadcrumbs
+L134: 
+L135:   1. 【70†tensor-core-ntt】
+L136:   2. /【71†include】
+L137:   3. /【72†polyarith】
+L138: 
+L139: /
+L140: 
+L141: # modulus.cuh
+L142: 
+L143: Copy path
+L144: 
+L145: [Input: Go to file]
+L146: 
+L147: Blame More file actions
+L148: 
+L149: Blame More file actions
+L150: 
+L151: ## Latest commit
+L152: 
+L153: 
+L154: 
+L155: ## History
+L156: 
+L157: History
+L158: 
+L159: main
+L160: 
+L161: ## Breadcrumbs
+L162: 
+L163:   1. 【70†tensor-core-ntt】
+L164:   2. /【71†include】
+L165:   3. /【72†polyarith】
+L166: 
+L167: /
+L168: 
+L169: # modulus.cuh
+L170: 
+L171: Copy path
+L172: 
+L173: Top
+L174: ## File metadata and controls
+L175: 
+L176:   * Code
+L177: 
+L178:   * Blame
+L179: 
+L180: 71 lines (52 loc) · 1.83 KB
+L181: 
+L182: 【73†Raw】
+L183: 
+L184: Copy raw file
+L185: 
+L186: Download raw file
+L187: 
+L188: Open symbols panel
+L189: 
+L190: Edit and raw actions
+L191: 
+L192: 1
+L193: 
+L194: 2
+L195: 
+L196: 3
+L197: 
+L198: 4
+L199: 
+L200: 5
+L201: 
+L202: 6
+L203: 
+L204: 7
+L205: 
+L206: 8
+L207: 
+L208: 9
+L209: 
+L210: 10
+L211: 
+L212: 11
+L213: 
+L214: 12
+L215: 
+L216: 13
+L217: 
+L218: 14
+L219: 
+L220: 15
+L221: 
+L222: 16
+L223: 
+L224: 17
+L225: 
+L226: 18
+L227: 
+L228: 19
+L229: 
+L230: 20
+L231: 
+L232: 21
+L233: 
+L234: 22
+L235: 
+L236: 23
+L237: 
+L238: 24
+L239: 
+L240: 25
+L241: 
+L242: 26
+L243: 
+L244: 27
+L245: 
+L246: 28
+L247: 
+L248: 29
+L249: 
+L250: 30
+L251: 
+L252: 31
+L253: 
+L254: 32
+L255: 
+L256: 33
+L257: 
+L258: 34
+L259: 
+L260: 35
+L261: 
+L262: 36
+L263: 
+L264: 37
+L265: 
+L266: 38
+L267: 
+L268: 39
+L269: 
+L270: 40
+L271: 
+L272: 41
+L273: 
+L274: 42
+L275: 
+L276: 43
+L277: 
+L278: 44
+L279: 
+L280: 45
+L281: 
+L282: 46
+L283: 
+L284: 47
+L285: 
+L286: 48
+L287: 
+L288: 49
+L289: 
+L290: 50
+L291: 
+L292: 51
+L293: 
+L294: 52
+L295: 
+L296: 53
+L297: 
+L298: 54
+L299: 
+L300: 55
+L301: 
+L302: 56
+L303: 
+L304: 57
+L305: 
+L306: 58
+L307: 
+L308: 59
+L309: 
+L310: 60
+L311: 
+L312: 61
+L313: 
+L314: 62
+L315: 
+L316: 63
+L317: 
+L318: 64
+L319: 
+L320: 65
+L321: 
+L322: 66
+L323: 
+L324: 67
+L325: 
+L326: 68
+L327: 
+L328: 69
+L329: 
+L330: 70
+L331: 
+L332: 71
+L333: 
+L334: // SPDX-License-Identifier: Apache-2.0
+L335: // SPDX-FileCopyrightText: Copyright © 2026 Yukimasa Sugizaki
+L336: #ifndef POLYARITH_MODULUS_CUH_INCLUDED
+L337: 
+L338: #define POLYARITH_MODULUS_CUH_INCLUDED
+L339: #include <cstdint>
+L340: 
+L341: namespace polyarith {
+L342: 
+L343: class Modulus {
+L344: 
+L345: std::uint64_t modulus, generator;
+L346: 
+L347: public:
+L348: 
+L349: Modulus(void) = default;
+L350: 
+L351: Modulus(const std::uint64_t modulus, const std::uint64_t generator = {})
+L352: 
+L353: : modulus(modulus), generator(generator) {}
+L354: 
+L355: std::uint64_t get_modulus(void) const { return modulus; }
+L356: 
+L357: std::uint64_t get_generator(void) const { return generator; }
+L358: 
+L359: std::uint64_t add(const std::uint64_t a, const std::uint64_t b) const {
+L360: 
+L361: return (a < modulus - b) ? (a + b) : (a + b - modulus);
+L362: 
+L363: }
+L364: std::uint64_t subtract(const std::uint64_t a, const std::uint64_t b) const {
+L365: 
+L366: return (a >= b) ? (a - b) : (a - b + modulus);
+L367: 
+L368: }
+L369: 
+L370: std::uint64_t multiply(const std::uint64_t a, const std::uint64_t b) const {
+L371: 
+L372: return a * static_cast<unsigned __int128>(b) % modulus;
+L373: 
+L374: }
+L375: 
+L376: std::uint64_t power(std::uint64_t a, std::int64_t e) const {
+L377: 
+L378: if (e < 0) {
+L379: 
+L380: return power(a, Modulus(modulus - 1).multiply(modulus - 2, -e));
+L381: 
+L382: }
+L383: 
+L384: std::uint64_t b = 1;
+L385: 
+L386: for (; e; e >>= 1) {
+L387: 
+L388: if (e & 1) {
+L389: 
+L390: b = multiply(b, a);
+L391: 
+L392: }
+--------------------------------------------------------------------------------
+tensor-core-ntt/include/polyarith at main · Terminus-IMRC/tensor-core-ntt · GitHub (https://github.com/Terminus-IMRC/tensor-core-ntt/tree/main/include/polyarith)
+citeturn3view3 [wordlim: 200] Crawled: last month; Content type: text/html; Source: open({"ref_id":"turn2view0","lineno":145}); Total lines: 200
+L113: You signed in with another tab or window. Reload to refresh your session. You signed out in another tab or window. Reload to refresh your session. You switched accounts on another tab or window. Reload to refresh your session. Dismiss alert
+L114: 
+L115: 【61†Terminus-IMRC】 / 【62†tensor-core-ntt】 Public
+L116: 
+L117:   * 【63†Notifications】 You must be signed in to change notification settings
+L118:   * 【63†Fork 2】
+L119:   * 【63†Star】
+L120:   * 【62†Code】
+L121:   * 【64†Issues 0】
+L122:   * 【65†Pull requests 0】
+L123:   * 【66†Actions】
+L124:   * 【67†Security and quality 0】
+L125:   * 【68†Insights】
+L126: 
+L127: Additional navigation options
+L128: ## Files Expand file tree
+L129: 
+L130: main
+L131: 
+L132: ## Breadcrumbs
+L133: 
+L134:   1. 【69†tensor-core-ntt】
+L135:   2. /【70†include】
+L136: 
+L137: /
+L138: 
+L139: # polyarith
+L140: 
+L141: /
+L142: 
+L143: Copy path
+L144: 
+L145: ## Directory actions
+L146: 
+L147: [Input: Go to file]
+L148: 
+L149: ## More options
+L150: 
+L151: More options
+L152: 
+L153: ## Directory actions
+L154: 
+L155: ## More options
+L156: 
+L157: More options
+L158: 
+L159: ## Latest commit
+L160: 
+L161: 
+L162: 
+L163: ## History
+L164: 
+L165: History
+L166: 
+L167: main
+L168: 
+L169: ## Breadcrumbs
+L170: 
+L171:   1. 【69†tensor-core-ntt】
+L172:   2. /【70†include】
+L173: 
+L174: /
+L175: 
+L176: # polyarith
+L177: 
+L178: /
+L179: 
+L180: Copy path
+L181: 
+L182: Top
+L183: 
+L184: ## Folders and files
+L185: 
+L186: Name  | Name  | Last commit message  | Last commit date
+L187: --- | --- | --- | ---
+L188: ### parent directory
+L189: 
+L190: 【70†..】
+L191: 【71†cuda】  | 【71†cuda】  |    |
+L192: 【72†arithmetic.cuh】  | 【72†arithmetic.cuh】  |    |
+L193: 【73†matrix_view.cuh】  | 【73†matrix_view.cuh】  |    |
+L194: 【74†modular.cuh】  | 【74†modular.cuh】  |    |
+L195: 【75†modulus.cuh】  | 【75†modulus.cuh】  |    |
+L196: 【76†polyarith.cuh】  | 【76†polyarith.cuh】  |    |
+L197: 【77†unreduced_ratio.cuh】  | 【77†unreduced_ratio.cuh】  |    |
+L198: 
+L199: You can’t perform that action at this time.
+--------------------------------------------------------------------------------
+tensor-core-ntt/tests at main · Terminus-IMRC/tensor-core-ntt · GitHub (https://github.com/Terminus-IMRC/tensor-core-ntt/tree/main/tests)
+citeturn3view4 [wordlim: 200] Crawled: last month; Content type: text/html; Source: open({"ref_id":"turn2view1","lineno":145}); Total lines: 193
+L113: You signed in with another tab or window. Reload to refresh your session. You signed out in another tab or window. Reload to refresh your session. You switched accounts on another tab or window. Reload to refresh your session. Dismiss alert
+L114: 
+L115: 【61†Terminus-IMRC】 / 【62†tensor-core-ntt】 Public
+L116: 
+L117:   * 【63†Notifications】 You must be signed in to change notification settings
+L118:   * 【63†Fork 2】
+L119:   * 【63†Star】
+L120:   * 【62†Code】
+L121:   * 【64†Issues 0】
+L122:   * 【65†Pull requests 0】
+L123:   * 【66†Actions】
+L124:   * 【67†Security and quality 0】
+L125:   * 【68†Insights】
+L126: 
+L127: Additional navigation options
+L128: ## Files Expand file tree
+L129: 
+L130: main
+L131: 
+L132: ## Breadcrumbs
+L133: 
+L134:   1. 【69†tensor-core-ntt】
+L135: 
+L136: /
+L137: 
+L138: # tests
+L139: 
+L140: /
+L141: 
+L142: Copy path
+L143: 
+L144: ## Directory actions
+L145: 
+L146: [Input: Go to file]
+L147: 
+L148: ## More options
+L149: 
+L150: More options
+L151: 
+L152: ## Directory actions
+L153: 
+L154: ## More options
+L155: 
+L156: More options
+L157: 
+L158: ## Latest commit
+L159: 
+L160: 
+L161: 
+L162: ## History
+L163: 
+L164: History
+L165: 
+L166: main
+L167: 
+L168: ## Breadcrumbs
+L169: 
+L170:   1. 【69†tensor-core-ntt】
+L171: 
+L172: /
+L173: 
+L174: # tests
+L175: 
+L176: /
+L177: 
+L178: Copy path
+L179: 
+L180: Top
+L181: 
+L182: ## Folders and files
+L183: 
+L184: Name  | Name  | Last commit message  | Last commit date
+L185: --- | --- | --- | ---
+L186: ### parent directory
+L187: 
+L188: 【69†..】
+L189: 【70†ntt-reference.hpp】  | 【70†ntt-reference.hpp】  |    |
+L190: 【71†test-ntt.cu】  | 【71†test-ntt.cu】  |    |
+L191: 
+L192: You can’t perform that action at this time.
+--------------------------------------------------------------------------------
+Merge pull request #3 from Terminus-IMRC/feature/add-missing-license · Terminus-IMRC/tensor-core-ntt@6f407da · GitHub (https://github.com/Terminus-IMRC/tensor-core-ntt/commit/6f407daa8a4cef96331511ae86b922b520d7aa33)
+citeturn3view5 [wordlim: 200] Crawled: last month; Content type: text/html; Source: click({"ref_id":"turn1view0","id":69}); Total lines: 189
+

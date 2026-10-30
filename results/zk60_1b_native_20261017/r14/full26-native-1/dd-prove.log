@@ -1,0 +1,28 @@
+{"event":"sealed","experimental":true,"privacy_accepted":false,"blocks":26,"parity":"bit-exact at every layer","checked_before_run_header":true,"seconds":75.465,"of_which_load_seconds":14.223,"of_which_witness_seconds":71.885,"kept_witness_bytes":0}
+{"event":"segment","index":0,"layer":0,"bytes":34107208,"elapsed_seconds":25.150}
+{"event":"segment","index":1,"layer":1,"bytes":34645832,"elapsed_seconds":37.727}
+{"event":"segment","index":2,"layer":2,"bytes":34645832,"elapsed_seconds":50.337}
+{"event":"segment","index":3,"layer":3,"bytes":34645832,"elapsed_seconds":62.866}
+{"event":"segment","index":4,"layer":4,"bytes":34645832,"elapsed_seconds":75.786}
+{"event":"segment","index":5,"layer":5,"bytes":34645832,"elapsed_seconds":88.219}
+{"event":"segment","index":6,"layer":6,"bytes":34645832,"elapsed_seconds":101.006}
+{"event":"segment","index":7,"layer":7,"bytes":34645832,"elapsed_seconds":114.139}
+{"event":"segment","index":8,"layer":8,"bytes":34645832,"elapsed_seconds":127.083}
+{"event":"segment","index":9,"layer":9,"bytes":34645832,"elapsed_seconds":139.766}
+{"event":"segment","index":10,"layer":10,"bytes":34645832,"elapsed_seconds":152.148}
+{"event":"segment","index":11,"layer":11,"bytes":34645832,"elapsed_seconds":165.672}
+{"event":"segment","index":12,"layer":12,"bytes":34645832,"elapsed_seconds":178.417}
+{"event":"segment","index":13,"layer":13,"bytes":34645832,"elapsed_seconds":190.893}
+{"event":"segment","index":14,"layer":14,"bytes":34645832,"elapsed_seconds":203.878}
+{"event":"segment","index":15,"layer":15,"bytes":34645832,"elapsed_seconds":216.322}
+{"event":"segment","index":16,"layer":16,"bytes":34645832,"elapsed_seconds":229.067}
+{"event":"segment","index":17,"layer":17,"bytes":34645832,"elapsed_seconds":241.873}
+{"event":"segment","index":18,"layer":18,"bytes":34645832,"elapsed_seconds":255.263}
+{"event":"segment","index":19,"layer":19,"bytes":34645832,"elapsed_seconds":268.004}
+{"event":"segment","index":20,"layer":20,"bytes":34645832,"elapsed_seconds":280.646}
+{"event":"segment","index":21,"layer":21,"bytes":34645832,"elapsed_seconds":293.373}
+{"event":"segment","index":22,"layer":22,"bytes":34645832,"elapsed_seconds":305.878}
+{"event":"segment","index":23,"layer":23,"bytes":34645832,"elapsed_seconds":319.369}
+{"event":"segment","index":24,"layer":24,"bytes":34645832,"elapsed_seconds":332.177}
+{"event":"segment","index":25,"layer":25,"bytes":35649320,"elapsed_seconds":345.038}
+{"event":"proven","experimental":true,"privacy_accepted":false,"verified_in_process":false,"blocks":26,"statement_identity":"3160d6ba66c13eb3d4a829647775f342be1951169c1edef8bd2f44a58a79778f","binding":"e53a727ead571b57f6b2536b90c0efa98434b6630722c52e76d13f93b8aee259","prove_seconds":345.039,"total_seconds":436.132,"vmhwm_mib":5820,"scope":"R14 split trained backend; no classifier or privacy acceptance"}

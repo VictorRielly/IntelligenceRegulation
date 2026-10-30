@@ -1,0 +1,16 @@
+RAM   12.82 GiB available of 15.39; swap used 0.51 GiB
+BUDGET 2.5 of 11.89 GiB committed by guarded jobs
+  job  gate23-c9-real-block0-ts1    light need 1G since 2026-10-30T05:27:55Z
+  job  tio18-a5-act                 cpu   need 1.5G since 2026-10-30T05:41:09Z
+LOCKS heavy HELD, build free
+GPU   0 of 8188 MiB used
+DISK  /mnt/c 134.7 GiB free (heavy jobs wait under 40, any job is killed under 8)
+kernel memory cap available: True
+  rss    542 MiB  pid 24665   python3 -B /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/r22-item3/zk60_r22_classts2.py --bun
+  rss    520 MiB  pid 30171   /home/victor/IntelligenceRegulation/apps/proven-media/.venv/bin/python -B /home/victor/IntelligenceRegulation/
+  rss    391 MiB  pid 2294    claude 
+  rss    348 MiB  pid 6847    /home/victor/.codex/packages/app-server-daemon/releases/0.166.0-x86_64-unknown-linux-musl/bin/codex app-server
+  rss    242 MiB  pid 30235   /home/victor/.nvm/versions/node/v22.22.3/lib/node_modules/@openai/codex/node_modules/@openai/codex-linux-x64/v
+[zk60-guard 22:41:43] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 22:42:13] START astra-gpu-benchmark-l06 class=gpu need=2.8G cap=4.5G enforce=cgroup+watchdog waited=30s run=afddfc4bb639
+[zk60-guard 22:50:12] END astra-gpu-benchmark-l06 exit=0 child_wall=479s peak_rss=1.68G min_avail=11.85G peak_vram=591MiB

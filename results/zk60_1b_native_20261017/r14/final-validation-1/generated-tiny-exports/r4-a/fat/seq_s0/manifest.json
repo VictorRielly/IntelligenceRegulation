@@ -1,0 +1,1 @@
+{"kind": "sequence", "id": "s0", "T": 32, "arrays": {"x_in_L00": {"file": "x_in_L00.bin", "dtype": "int16", "shape": [32, 384], "sha256": "265540bc35bd630d02cf4bac36b6e55f44f5576b364b95262e2790e98fe23275"}, "x_out_L00": {"file": "x_out_L00.bin", "dtype": "int16", "shape": [32, 384], "sha256": "04194a8d1e83fef3b9a4261637d90c153af5958e6d5f82a9c756d34bd0a48af5"}}}

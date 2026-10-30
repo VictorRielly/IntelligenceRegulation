@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "checks": 76,
+  "utc": "2026-10-30T01:12:45.030728+00:00",
+  "history_prefixes_preserved": true,
+  "hypotheses_preserved": 80,
+  "source_records": 1032,
+  "new_full_stack_proofs": 0,
+  "target_reached": false,
+  "corrections": "Initial closing script printed three broken dated-report links without asserting failure. Links repaired; this audit asserts every local link. Initial result retained; no arithmetic result changed."
+}

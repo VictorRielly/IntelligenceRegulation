@@ -1,0 +1,173 @@
+{
+  "path": "docs/zkmatrix-poc/ZK60_DECISIONS.md",
+  "lines_read": 1722,
+  "sha256": "2291d58ed74a042d3b50f88a400a77ffa69d6cb2d8166a96703a2a74f9122411",
+  "headings": [
+    {
+      "line": 1,
+      "heading": "# ZK60 decisions register \u2014 the rulings that govern the proof project"
+    },
+    {
+      "line": 9,
+      "heading": "## At a glance"
+    },
+    {
+      "line": 86,
+      "heading": "## D1 \u2014 Privacy scope (standing since 2026-09-09)"
+    },
+    {
+      "line": 102,
+      "heading": "## D2 \u2014 Two lines (standing since 2026-09-17)"
+    },
+    {
+      "line": 125,
+      "heading": "## D3 \u2014 About 97 bits of conjectured soundness accepted for the zkVM intermediate (2026-09-18)"
+    },
+    {
+      "line": 177,
+      "heading": "## D4 \u2014 Groth16 trusted setup accepted for soundness (2026-09-18)"
+    },
+    {
+      "line": 232,
+      "heading": "## D5 \u2014 Receipt kind: Groth16 only (2026-09-18)"
+    },
+    {
+      "line": 251,
+      "heading": "## D6 \u2014 Groth16 proving path on this box (in progress)"
+    },
+    {
+      "line": 271,
+      "heading": "## D7 \u2014 New endpoint and weight identity profile (implemented, ruling pending)"
+    },
+    {
+      "line": 307,
+      "heading": "## D8 \u2014 Caller-fixed endpoint roots on the custom line (corrected 2026-09-18)"
+    },
+    {
+      "line": 332,
+      "heading": "## D11 \u2014 Technical correction to D8 and profile clarification (2026-09-18)"
+    },
+    {
+      "line": 355,
+      "heading": "## D12 \u2014 How a complete private block is composed on the custom line (construction rule, 2026-09-19)"
+    },
+    {
+      "line": 419,
+      "heading": "## D9 \u2014 `fp()` reduction bias (accepted as stated, 2026-09-19)"
+    },
+    {
+      "line": 459,
+      "heading": "## D10 \u2014 Compact-PCS proof-size lever (declined, 2026-09-19)"
+    },
+    {
+      "line": 487,
+      "heading": "## D15 \u2014 \"106 bits\" is per opening; the whole 8B proof is about 94 (technical clarification, 2026-09-19)"
+    },
+    {
+      "line": 569,
+      "heading": "## D16 \u2014 The private block's norm before it is widened (construction rule, 2026-09-19)"
+    },
+    {
+      "line": 618,
+      "heading": "## D17 \u2014 Hiding endpoints beyond the tiny shape (construction rule, 2026-09-19)"
+    },
+    {
+      "line": 659,
+      "heading": "## D8/D11 \u2014 note of 2026-09-19: a restatement was attempted and NOT accepted; the obligation stands"
+    },
+    {
+      "line": 682,
+      "heading": "## D18 \u2014 Who fixes the commitment to a hidden input (decided 2026-09-19: the prover, for the first MVP)"
+    },
+    {
+      "line": 739,
+      "heading": "## D13 \u2014 What the first MVP must prove (decided 2026-09-19)"
+    },
+    {
+      "line": 757,
+      "heading": "## D14 \u2014 A costed memo for the fewer-hashed-bytes speed lever (commissioned 2026-09-19)"
+    },
+    {
+      "line": 778,
+      "heading": "## D24 \u2014 Norm precision per profile instead of a fifth remainder limb (proposed 2026-10-17)"
+    }
+  ],
+  "current_mentions": [
+    {
+      "line": 13,
+      "text": "forward-pass proof at >=50 proved tokens/s on an RTX 5090 or another high-end"
+    },
+    {
+      "line": 75,
+      "text": "| D46 | **Keep the laptop's disk and memory from crashing it again.** The laptop crashed 2026-10-30 ~02:50 UTC (19:50 PDT) with C: at ~5 GB free: C: holds the WSL disk file and Windows' auto-managed page file, so neither could grow while a full-size batch proof (token round 18's A5 byte-identity run) was writing receipts. Done 2026-10-30 by the coordinator: (1) ~135 GB of Windows AI image tools deleted with Victor's yes (ComfyUI, MSI AI Artist except a locked `Tool` folder, Pinokio data, an ISO, `sd.webui`) and ~35 GB of regenerable Linux files"
+    },
+    {
+      "line": 76,
+      "text": "| D47 | **Funding applications on hold until Victor has a partner.** D43(a)'s \"funding first, as soon as possible\" is suspended: no application is pursued (Foresight, YC W27, NSF, EA Funds, Alliance, DARPA) until Victor finds a partner to work with him, and that partner is to receive the majority of any funding, because Victor is starting a new job soon. The drafts in `results/zk60_funding_20261028/` are kept unchanged for later. Unchanged: D43(b) (the paper with the demo once the PoC works), the provisional patent before any publication, and t"
+    },
+    {
+      "line": 77,
+      "text": "| D48 | **Proliferation over rights: open by default, as fast as possible.** Victor is not concerned about rights to the invention; the best case is that the technology spreads, and if that needs everything open source, everything is open-sourced; the aim is wide use as quickly as possible. This **replaces** D43's rulings (1) (a provisional patent before any publication: no longer required) and (2) (open-core: verifier + specification + benchmarks only: widened to the whole stack, prover included). D43(b), the paper with the demo, stands, and n"
+    },
+    {
+      "line": 532,
+      "text": "the R14 convention 4N/|F| (derived N/|F| in brackets): TinyLlama T32 2^-97.1"
+    },
+    {
+      "line": 543,
+      "text": "line only): TinyLlama T128 is below 97 under R14 with or without this"
+    },
+    {
+      "line": 557,
+      "text": "without it the bound would be (2N + 2303)/|F|. R14's 4N/|F| is a valid upper"
+    },
+    {
+      "line": 1332,
+      "text": "  (`results/zk60_token_io_review_r1_20261017/REVIEW_R14.md`)."
+    },
+    {
+      "line": 1358,
+      "text": "- All C-13 controls fire, and REVIEW_R14 \u00a710 (a)\u2013(f) is covered."
+    },
+    {
+      "line": 1484,
+      "text": "**Privacy gate round 22 (Claude gate lane, 2026-10-30, recorded 02:03 UTC): the"
+    },
+    {
+      "line": 1517,
+      "text": "**Classifier T128 privacy statement: re-review of draft v2 2026-10-30,"
+    },
+    {
+      "line": 1539,
+      "text": "**Token round 18 frozen 2026-10-30 (recorded 09:20 UTC; Claude token lane): Astra's one-load batch (A5)"
+    },
+    {
+      "line": 1560,
+      "text": "**Token round 18 review (2026-10-30, recorded 09:40 UTC): ACCEPTED WITH FIXES**"
+    },
+    {
+      "line": 1586,
+      "text": "**Privacy gate round 23 (Claude gate lane, 2026-10-30, recorded 11:30 UTC): C-9 and NL-1 measured; draft v3"
+    },
+    {
+      "line": 1615,
+      "text": "**Token round 19 frozen 2026-10-30 (recorded 12:25 UTC; Claude token lane): the round-18 review's three low"
+    },
+    {
+      "line": 1636,
+      "text": "**Token round 19 review (2026-10-30, recorded 13:05 UTC): ACCEPTED WITH FIXES**"
+    },
+    {
+      "line": 1656,
+      "text": "**Token round 19b frozen 2026-10-30 (recorded 15:15 UTC; Claude token lane): the round-19 review's R19-1..R19-3.**"
+    },
+    {
+      "line": 1678,
+      "text": "**Token round 19b review (2026-10-30, recorded 15:45 UTC): ACCEPTED WITH FIXES, all low, none in a pinned file**"
+    },
+    {
+      "line": 1697,
+      "text": "**Privacy gate round 24 (Claude gate lane, 2026-10-30, recorded 16:45 UTC): tools v24 re-pinned to token rounds 18,"
+    }
+  ]
+}

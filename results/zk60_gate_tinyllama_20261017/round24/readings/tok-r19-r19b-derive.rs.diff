@@ -1,0 +1,150 @@
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r19/hashline/src/private_block/tied_tables/derive.rs	2026-10-30 05:10:42.328961904 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r19b/hashline/src/private_block/tied_tables/derive.rs	2026-10-30 08:03:30.783468182 -0700
+@@ -22,6 +22,28 @@
+ /// `$HOME/models/`. On the development box (its HOME, the variable unset)
+ /// that is round 18's path byte for byte. With neither variable there is no
+ /// default: refused, never a guessed path.
++///
++/// TOKEN ROUND 19b (REVIEW_R19 R19-3), for a stranger setting up a verifier.
++/// Each of these fails closed; none can make a wrong file count as the model.
++/// * **The model file itself must be a regular file: a symlinked file is
++///   refused** ("not a regular file": [`Checkpoint::open`] opens it through
++///   `regular`, which reads the last component with `symlink_metadata` and
++///   opens with `O_NOFOLLOW`). The Hugging Face cache's snapshot layout is
++///   made of such links (`snapshots/<rev>/model.safetensors ->
++///   ../../blobs/<hash>`), so copy (or hard-link) the file into place, or
++///   point `ZK60_MODELS` at a directory where
++///   `shieldstral-1.0-3b/snapshot-003ec7e2/model.safetensors` is a real
++///   file. Symlinked DIRECTORIES on the way to it are followed.
++/// * **A relative `ZK60_MODELS` is resolved against the process's working
++///   directory**, as any relative path is; give an absolute one.
++/// * **With `HOME` unset (or empty) and no `ZK60_MODELS`, the verify is
++///   refused** (round 18 used its fixed path then).
++/// * **A set `ZK60_MODELS` that names a missing file is refused; it never
++///   falls back to `$HOME/models`** (the variable decides the place before
++///   anything is opened).
++/// Whatever file is opened, its bytes are then authenticated (exact size,
++/// whole-file SHA-256 pin, consumed-tensor digest), so a file that is not
++/// the pinned checkpoint is refused, never used.
+ fn default_checkpoint() -> Result<std::path::PathBuf, String> {
+     default_checkpoint_from(std::env::var_os("ZK60_MODELS"), std::env::var_os("HOME"))
+ }
+@@ -434,4 +456,118 @@
+             eprintln!("TOKEN-IO R19 | E7: not the development box's environment (ZK60_MODELS set or another HOME): round 18's path is checked by the pure test only");
+         }
+     }
++
++    /// TOKEN ROUND 19b (REVIEW_R19 R19-1): a models directory whose
++    /// `shieldstral-1.0-3b/snapshot-003ec7e2/model.safetensors` is a REGULAR
++    /// file of exactly the pinned checkpoint's size that is NOT the pinned
++    /// checkpoint: a well-formed safetensors header for the two tensors the
++    /// derivation reads, then holes. It is SPARSE (a few KB on disk; refused
++    /// if the filesystem allocates it). Under `HL_TIO_FIXTURE_DIR` when set
++    /// (absolute), else `$HOME/zk60-artifacts/token-io/test-fixtures/` (the
++    /// classifier fixtures' rule: never `/tmp`); removed when dropped. Reading
++    /// its 7.7 GB of holes fills page cache, which the guard's cap bounds and
++    /// the removal frees.
++    struct WrongCheckpoint {
++        dir: std::path::PathBuf,
++    }
++
++    impl WrongCheckpoint {
++        fn new(tag: &str) -> WrongCheckpoint {
++            let base = match std::env::var_os("HL_TIO_FIXTURE_DIR") {
++                Some(d) => {
++                    let d = std::path::PathBuf::from(d);
++                    assert!(d.is_absolute(), "HL_TIO_FIXTURE_DIR must be an absolute path");
++                    d
++                }
++                None => std::path::PathBuf::from(std::env::var_os("HOME").expect("HOME is not set: set HL_TIO_FIXTURE_DIR")).join("zk60-artifacts").join("token-io").join("test-fixtures"),
++            };
++            let dir = base.join(format!("r19b-checkpoint-{}-{tag}", std::process::id()));
++            let _ = std::fs::remove_dir_all(&dir);
++            let w = WrongCheckpoint { dir };
++            let file = w.file();
++            std::fs::create_dir_all(file.parent().unwrap()).unwrap();
++            let tensor = (VOCAB * WIDTH * 2) as u64;
++            let header = format!(
++                r#"{{"{TENSOR}":{{"dtype":"BF16","shape":[{VOCAB},{WIDTH}],"data_offsets":[0,{tensor}]}},"{NORM}":{{"dtype":"BF16","shape":[{WIDTH}],"data_offsets":[{tensor},{}]}}}}"#,
++                tensor + (WIDTH * 2) as u64
++            );
++            let mut bytes = (header.len() as u64).to_le_bytes().to_vec();
++            bytes.extend_from_slice(header.as_bytes());
++            std::fs::write(&file, &bytes).unwrap();
++            std::fs::OpenOptions::new().write(true).open(&file).unwrap().set_len(CHECKPOINT_BYTES).unwrap();
++            #[cfg(unix)]
++            {
++                use std::os::unix::fs::MetadataExt;
++                let on_disk = std::fs::metadata(&file).unwrap().blocks() * 512;
++                assert!(on_disk <= 1 << 20, "{}: the fixture directory's filesystem allocated {on_disk} bytes for a sparse file; set HL_TIO_FIXTURE_DIR to one that keeps holes", file.display());
++            }
++            w
++        }
++
++        fn models(&self) -> std::path::PathBuf {
++            self.dir.join("models")
++        }
++
++        fn file(&self) -> std::path::PathBuf {
++            self.models().join(CHECKPOINT_IN_MODELS)
++        }
++    }
++
++    impl Drop for WrongCheckpoint {
++        fn drop(&mut self) {
++            let _ = std::fs::remove_dir_all(&self.dir);
++        }
++    }
++
++    /// **TOKEN ROUND 19b (REVIEW_R19 R19-1): a same-size file that is not the
++    /// pinned checkpoint is refused by the whole-file SHA-256 pin.** The file
++    /// passes every check before the hash (a regular file of exactly
++    /// `CHECKPOINT_BYTES`, a header with both tensors in bounds, no LM head),
++    /// so only the comparison with `ModelSource::shieldstral_1_0_3b()`'s
++    /// `weights_sha256` can refuse it. It is reached as a verifier reaches it:
++    /// through the default a set `ZK60_MODELS` gives (E7). One byte short, the
++    /// same file is refused by the size check before anything is read.
++    #[test]
++    fn r19b_checkpoint_open_refuses_a_same_size_file_that_is_not_the_pinned_checkpoint() {
++        let w = WrongCheckpoint::new("wrong");
++        assert!(regular(&w.file(), CHECKPOINT_BYTES, true).is_ok(), "the fixture is not a regular file of the pinned size, so a refusal would prove nothing about the pin");
++        let path = default_checkpoint_from(Some(w.models().into_os_string()), Some("/home/someone".into())).unwrap();
++        assert_eq!(path, w.file(), "ZK60_MODELS names the fixture's models directory");
++        let started = std::time::Instant::now();
++        match Checkpoint::open(&path) {
++            Ok(_) => panic!("Checkpoint::open ACCEPTED a same-size file that is not the pinned checkpoint (REVIEW_R19 R19-1)"),
++            Err(e) => assert_eq!(e, "checkpoint SHA-256 differs from the pinned model", "the wrong file is refused, but not by the whole-file pin"),
++        }
++        let hashed = started.elapsed();
++        std::fs::OpenOptions::new().write(true).open(&path).unwrap().set_len(CHECKPOINT_BYTES - 1).unwrap();
++        match Checkpoint::open(&path) {
++            Ok(_) => panic!("Checkpoint::open accepted a file one byte short of the pinned size"),
++            Err(e) => assert!(e.contains("expected exactly 7698241104"), "one byte short is refused by the size check: {e}"),
++        }
++        eprintln!("TOKEN-IO R19b | R19-1: a same-size file that is not the pinned checkpoint is refused by the SHA-256 pin (whole-file hash {:.1} s); one byte short, by the size check", hashed.as_secs_f64());
++    }
++
++    /// **TOKEN ROUND 19b (REVIEW_R19 R19-1 / R19-3): a symlinked checkpoint
++    /// FILE is refused**, even when it points at a regular file of the pinned
++    /// size, because the last component must itself be a regular file; a
++    /// symlinked models DIRECTORY on the way is followed (only the file is
++    /// checked for being a link). Neither case reads the content: the link
++    /// is refused before the open.
++    #[cfg(unix)]
++    #[test]
++    fn r19b_checkpoint_open_refuses_a_symlinked_checkpoint_file() {
++        let w = WrongCheckpoint::new("link");
++        assert!(regular(&w.file(), CHECKPOINT_BYTES, true).is_ok(), "the link's target is not a regular file of the pinned size, so a refusal would prove nothing about the link");
++        let link = w.dir.join("linked-models").join(CHECKPOINT_IN_MODELS);
++        std::fs::create_dir_all(link.parent().unwrap()).unwrap();
++        std::os::unix::fs::symlink(w.file(), &link).unwrap();
++        match Checkpoint::open(&link) {
++            Ok(_) => panic!("Checkpoint::open ACCEPTED a symlinked checkpoint file (REVIEW_R19 R19-1)"),
++            Err(e) => assert_eq!(e, format!("{}: not a regular file", link.display()), "a symlink to a checkpoint-sized file is refused as not a regular file"),
++        }
++        let dir_link = w.dir.join("models-dir-link");
++        std::os::unix::fs::symlink(w.models(), &dir_link).unwrap();
++        assert!(regular(&dir_link.join(CHECKPOINT_IN_MODELS), CHECKPOINT_BYTES, true).is_ok(), "a symlinked models directory is followed (R19-3's documented rule)");
++        eprintln!("TOKEN-IO R19b | R19-1: a symlinked checkpoint file is refused as not a regular file; a symlinked models directory is followed");
++    }
+ }

@@ -1,0 +1,140 @@
+{
+ "native": "/home/victor/IntelligenceRegulation/results/zk60_d24_review_20261017/r13/rv-generic-h24.native.tsv",
+ "stack": "h24",
+ "sites": {
+  "x": {
+   "n": 12288,
+   "differ": 0,
+   "min": -29503,
+   "max": 28187,
+   "nonzero": 12151
+  },
+  "y": {
+   "n": 12288,
+   "differ": 0,
+   "min": -32768,
+   "max": 26831,
+   "nonzero": 12150
+  },
+  "q": {
+   "n": 32768,
+   "differ": 0,
+   "min": -4169,
+   "max": 3045,
+   "nonzero": 32707
+  },
+  "k": {
+   "n": 16384,
+   "differ": 0,
+   "min": -2718,
+   "max": 3097,
+   "nonzero": 16358
+  },
+  "v": {
+   "n": 16384,
+   "differ": 0,
+   "min": -4176,
+   "max": 4161,
+   "nonzero": 16360
+  },
+  "qr": {
+   "n": 32768,
+   "differ": 0,
+   "min": -4169,
+   "max": 3045,
+   "nonzero": 32697
+  },
+  "kr": {
+   "n": 16384,
+   "differ": 0,
+   "min": -2728,
+   "max": 3092,
+   "nonzero": 16351
+  },
+  "s": {
+   "n": 16384,
+   "differ": 0,
+   "min": -49,
+   "max": 44,
+   "nonzero": 15738
+  },
+  "p": {
+   "n": 16384,
+   "differ": 0,
+   "min": 0,
+   "max": 4096,
+   "nonzero": 846
+  },
+  "o": {
+   "n": 32768,
+   "differ": 0,
+   "min": -4176,
+   "max": 3929,
+   "nonzero": 32716
+  },
+  "ao": {
+   "n": 12288,
+   "differ": 0,
+   "min": -276,
+   "max": 254,
+   "nonzero": 11826
+  },
+  "x1": {
+   "n": 12288,
+   "differ": 0,
+   "min": -29501,
+   "max": 28187,
+   "nonzero": 12283
+  },
+  "nm": {
+   "n": 12288,
+   "differ": 0,
+   "min": -25756,
+   "max": 25206,
+   "nonzero": 12281
+  },
+  "gate": {
+   "n": 24576,
+   "differ": 0,
+   "min": -1289,
+   "max": 1228,
+   "nonzero": 24229
+  },
+  "a_scaled": {
+   "n": 24576,
+   "differ": 0,
+   "min": -585728,
+   "max": 12288000,
+   "nonzero": 24229
+  },
+  "u": {
+   "n": 24576,
+   "differ": 0,
+   "min": -11071,
+   "max": 12086,
+   "nonzero": 24569
+  },
+  "h": {
+   "n": 24576,
+   "differ": 0,
+   "min": -995318,
+   "max": 724391,
+   "nonzero": 24219
+  },
+  "z": {
+   "n": 12288,
+   "differ": 0,
+   "min": -4261,
+   "max": 2928,
+   "nonzero": 12255
+  },
+  "x2": {
+   "n": 12288,
+   "differ": 0,
+   "min": -29557,
+   "max": 28166,
+   "nonzero": 12285
+  }
+ },
+ "all_equal": true
+}

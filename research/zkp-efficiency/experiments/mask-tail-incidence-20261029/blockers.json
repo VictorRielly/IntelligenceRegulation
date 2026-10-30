@@ -1,0 +1,61 @@
+{
+  "heavy_work": "User scope forbids GPU/heavy builds; none attempted or queued. No approval needed for remaining local work.",
+  "fetch_failures": [
+    {
+      "url": "https://arxiv.org/html/2609.06022v1",
+      "reason": "400 content too large5522678; primary PDF opened instead"
+    },
+    {
+      "url": "https://upcommons.upc.edu/entities/publication/7d5f3945-e5ed-4354-abda-5b509ea8a854",
+      "reason": "403 Forbidden; only primary search metadata inspected"
+    },
+    {
+      "url": "https://danivilardell.github.io/personal_website/pages/ZKP_over_Rings.pdf",
+      "reason": "not accessible through web tool"
+    },
+    {
+      "url": "https://github.com/Plonky3/Plonky3/releases/tag/p3-sumcheck-v0.8.0",
+      "reason": "Cache miss"
+    },
+    {
+      "url": "https://github.com/Plonky3/Plonky3/commit/cdb48a06c1a8fe0b5622ccadebceffc7bba2a1c6",
+      "reason": "Cache miss; coordinate observed not code-inspected"
+    },
+    {
+      "url": "https://github.com/arkworks-rs/sumcheck/releases/tag/v0.3.0",
+      "reason": "Cache miss"
+    },
+    {
+      "url": "https://github.com/arkworks-rs/sumcheck/commit/ea56f3ae759f57f074d4e9213d30c07de48fdd21",
+      "reason": "Cache miss"
+    },
+    {
+      "url": "https://github.com/arkworks-rs/sumcheck/commit/6b8889662665e26c554e2db3f324b83a7a480716",
+      "reason": "Cache miss"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/arkworks-rs/sumcheck/d241e9b17f48989831534975eb8e43adc8ec71d3/LICENSE-MIT",
+      "reason": "Cache miss"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/arkworks-rs/sumcheck/d241e9b17f48989831534975eb8e43adc8ec71d3/src/ml_sumcheck/prover.rs",
+      "reason": "Cache miss"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/arkworks-rs/sumcheck/master/LICENSE-MIT",
+      "reason": "Cache miss"
+    },
+    {
+      "url": "https://eprint.iacr.org/2026/2668",
+      "reason": "not accessible; previous-cycle date evidence not reverified"
+    },
+    {
+      "url": "https://github.com/AbdelStark/tessera/issues/485",
+      "reason": "Cache miss; third-party lead not accepted as source evidence"
+    },
+    {
+      "url": "https://github.com/AbdelStark/tessera/issues/487",
+      "reason": "Cache miss; third-party lead not accepted as source evidence"
+    }
+  ]
+}

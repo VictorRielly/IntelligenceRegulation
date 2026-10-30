@@ -1,0 +1,30 @@
+[
+  {
+    "topic": "GPU NTT/commitments",
+    "status": "screened current cuPQC0.6 prime exclusion and binary field mismatch; actual device phase required"
+  },
+  {
+    "topic": "sumcheck/GKR",
+    "status": "Current accuracy-DD48fixture algebra/counts PASS; owner native masked/transcript/refusal/PCS and exclusive clocks NEXT."
+  },
+  {
+    "topic": "lookup arguments and softmax",
+    "status": "Six ordered lookups/three helpers and three Rs limbs checked in projection; native bindings/privacy owed."
+  },
+  {
+    "topic": "memory traffic",
+    "status": "H106new older cache-oblivious/public-shape planning screen; existing two-pass/fused gather overlap prevents free pass deletion. Next rotation if native clocks justify."
+  },
+  {
+    "topic": "batching/amortization",
+    "status": "zero-safe norm batching tiny; resident1/2/4/8 remains owner priority1"
+  },
+  {
+    "topic": "quantization/arithmetic",
+    "status": "Source range derived17..20 tested; arbitrary synthetic equations,not trained fidelity acceptance."
+  },
+  {
+    "topic": "proof composition",
+    "status": "native CFS/PCS/joint privacy/refusal review still owed; no new composition accepted"
+  }
+]

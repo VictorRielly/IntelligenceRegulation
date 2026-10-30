@@ -21,32 +21,76 @@ are included in the artifact. The existing offline npm cache is
 `/tmp/zk60-astra-npm-cache`.
 
 `tools/sepolia_setup.py key` creates one new throwaway key in
-`.testnet-private/throwaway.sepolia-key.json`, mode 0600, inside a 0700 directory.
+`$PM_PRIVATE_DIR/testnet/throwaway.sepolia-key.json` (default
+`~/zk60-owner-private/proven-media/testnet/`), mode 0600, inside a 0700 directory.
+`--private-dir` can select another durable directory outside the repository;
+temporary and repository paths are refused before key creation.
 It refuses to overwrite a key. Never supply a mainnet key. The key is not sent to
 RPC, included in manifests or placed on argv. All amounts are free test ETH;
 no real spending is authorized.
 
 The Oct 26 throwaway address is
-`0x775E8A2D741446d74E3f5a02244D1241eceB187d`. It had zero test ETH at the last
-successful status check. Fund it from a free Base Sepolia faucet. The official
-[Base funding guide](https://docs.base.org/get-started/get-funds) lists faucet
-options. No deployment or transaction has been sent yet.
+`0x775E8A2D741446d74E3f5a02244D1241eceB187d`. Funding and anchor deployment are
+complete. Victor obtained free Ethereum Sepolia test ETH without a Coinbase
+account. The authorized 0.01 then 0.45 test-ETH deposits through Base's official
+Sepolia L1StandardBridge both credited Base Sepolia, for 0.46 test ETH total.
+After deployment the read-only balance was 0.459998729693299927 test ETH.
+No further funding is needed for setup. The official
+[Base funding guide](https://docs.base.org/get-started/get-funds) lists faucets
+for future top-ups.
+
+Coinbase is not required. The [LearnWeb3 Base Sepolia faucet](https://learnweb3.io/faucets/base_sepolia/)
+lists a GitHub sign-in option and 0.01 test ETH per day. Sign in, link GitHub,
+paste the public address above, and request Base Sepolia test ETH. The wallet
+already exists; the faucet only needs its public address. On Oct 28 its page
+returned intermittent server errors during verification, so successful funding
+must be confirmed by the read-only status command below. This route was not used
+for the completed funding. Do not buy or transfer real ETH.
+
+An address-only alternative checked on Oct 28 is the
+[ZalalenA Base Sepolia faucet](https://faucet.zalalena.com/base). Its published
+instructions require only the public address and CAPTCHA, with no account or
+existing balance. Paste the address, complete CAPTCHA, and click **Claim Free
+Base Sepolia ETH**. The page loaded during our check; a successful payout has
+not been tested. Confirm any transfer on the
+[wallet's Base Sepolia explorer page](https://sepolia.basescan.org/address/0x775E8A2D741446d74E3f5a02244D1241eceB187d)
+and with the status command below. No wallet import or private key is needed.
 
 The default public RPC returned HTTP 403 from this host. The provider's documented
 [OnFinality Base Sepolia endpoint](https://onfinality.io/en/rpc-assistant/rpc-base-sepolia)
-responded with chain 84532 and the balance. Commands, from the repository root:
+responded with chain 84532 and the balance. Check the existing migrated wallet
+from the repository root:
 
 ```bash
-apps/proven-media/.venv/bin/python apps/proven-media/tools/sepolia_setup.py status --rpc-url https://base-sepolia.api.onfinality.io/public
-apps/proven-media/.venv/bin/python apps/proven-media/tools/sepolia_setup.py deploy --rpc-url https://base-sepolia.api.onfinality.io/public --artifact results/zk60_astra_20261026/testnet/anchor_contract.json
+apps/proven-media/.venv/bin/python apps/proven-media/tools/sepolia_setup.py status --private-dir /home/victor/zk60-owner-private/proven-media-astra-demo/testnet --rpc-url https://base-sepolia.api.onfinality.io/public
 ```
 
-Deployment persists its signed envelope before sending. Repeat `deploy` while it
+The existing app configuration remains at
+`apps/proven-media/.testnet-private/sepolia.json`; the status tool's
+`config_exists` field only describes the selected wallet directory. Its balance
+check uses the same deployed publisher address.
+
+For a new deployment, pass the chosen durable `--private-dir`, `deploy`, and
+`--artifact results/zk60_astra_20261026/testnet/anchor_contract.json` to the setup
+tool. Deployment persists its signed envelope before sending. Repeat `deploy` while it
 reports pending; it reuses that transaction. After a canonical successful receipt
 has three confirmations, it compares the entire runtime against the compiled
 artifact with the publisher immutable filled in, then writes `sepolia.json`.
 A revert, altered runtime, wrong chain, insufficient test ETH or excessive gas
 fails closed. No replacement transaction or extra funding is sent automatically.
+The setup and bridge tools pace RPC calls and retry HTTP 429 with bounded backoff.
+Once `sepolia.json` exists, use `status`; another `deploy` invocation refuses.
+
+Confirmed anchor: `0x8432eba82b1a402f4da7680f6b8f9c9fae185cbe`.
+[Deployment transaction](https://sepolia.basescan.org/tx/0xfaa03b5a466ce3004f212025010e75cd902fa599c01b779d606a5524c4ac1559)
+passed the canonical receipt, three-confirmation and exact runtime checks.
+Public evidence is retained in
+`results/zk60_astra_20261026/testnet/funding_evidence.json` and
+`results/zk60_astra_20261026/testnet/deployment_evidence.json` from the repository
+root. Keep the private key and deployment envelopes in the durable private directory.
+The existing Oct 26 wallet was moved unchanged on Oct 30 to
+`~/zk60-owner-private/proven-media-astra-demo/testnet/throwaway.sepolia-key.json`.
+Its existing `.testnet-private/sepolia.json` now points to that absolute path.
 
 ## App configuration and independent checks
 
@@ -72,5 +116,7 @@ present. RPC availability and trust remain operational dependencies.
 Transport/batcher tests use real local transaction signing and controlled RPC
 responses, including lost-send responses, reorgs, modified events, wrong chain,
 altered code and interrupted finalization. Deployment tests exercise recovery and
-runtime pinning with a fixture; they are not EVM execution tests. Live deployment,
-live anchoring and the real Shieldstral app demo are still pending.
+runtime pinning with a fixture; they are not EVM execution tests. The live testnet
+deployment is now confirmed. Live anchoring and the real Shieldstral app demo are
+still pending; deploying the digest anchor does not establish classifier proof
+acceptance.

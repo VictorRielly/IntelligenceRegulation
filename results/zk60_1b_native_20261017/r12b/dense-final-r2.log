@@ -1,0 +1,13 @@
+
+running 2 tests
+test private_block::r12_tests::f2_a_generic_dense_shieldstral_t128_block_proves_and_matches_the_kernel ... R12 hashline-zk-mr1/private-block-shieldstral-3b-t128-trained-block/1: bands Bands { attn: 8, gate: 12, down: 2, gains: (40, 127), xmag: 6000 } refused: fixed oracle range refusal: score
+R12 hashline-zk-mr1/private-block-shieldstral-3b-t128-trained-block/1: bands Bands { attn: 6, gate: 8, down: 2, gains: (40, 127), xmag: 6000 } admissible
+R12 F2 Shieldstral T128: one-block segment 29301896 B
+ok
+test private_block::r12_tests::f2_a_generic_dense_shieldstral_t128_dd_block_proves_and_matches_the_kernel ... R12 hashline-zk-mr1/private-block-shieldstral-3b-t128-trained-ddict/1: bands Bands { attn: 8, gate: 12, down: 2, gains: (40, 127), xmag: 6000 } refused: fixed oracle range refusal: score
+R12 hashline-zk-mr1/private-block-shieldstral-3b-t128-trained-ddict/1: bands Bands { attn: 6, gate: 8, down: 2, gains: (40, 127), xmag: 6000 } admissible
+R12 F2 Shieldstral T128 DD: one-block segment 29536904 B
+ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 635 filtered out; finished in 197.91s
+

@@ -1,0 +1,28 @@
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r13/hashline/src/private_block/token_io/stage_out_c.rs	2026-10-28 16:42:48.584832504 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r14/hashline/src/private_block/token_io/stage_out_c.rs	2026-10-28 19:12:07.681263962 -0700
+@@ -1,4 +1,6 @@
+-//! **STAGE OUT-C** (DESIGN_CLASSIFIER v2 §4): `x` = `B_out` row `T - 1`, the
++//! **STAGE OUT-C** (DESIGN_CLASSIFIER v2 §4): `x` = `B_out` row `T - 1` (round
++//! 14, DESIGN v2.4 §15: the public verdict row `P0 + n + S - 1`, which is
++//! `T - 1` unless the item is short and pad positions follow its suffix), the
+ //! final RMSNorm (stage OUT's relation, unchanged), and THE MARGIN SLOT in
+ //! place of the head, the argmax and the output endpoint:
+ //!
+@@ -73,7 +75,7 @@
+     let sched = StageSched {
+         label: "stage OUT-C",
+         slots: vec![
+-            SlotSpec { name: "OUTC-00 IO-in: x = B_out row T-1 (fixed public row bits)", main: d_bits, ext: 1, degree: 2, kind: SlotKind::Standalone, a_sites: 1, h_sites: 0, io_sites: 1 },
++            SlotSpec { name: "OUTC-00 IO-in: x = B_out at the public verdict row P0+n+S-1 (fixed public row bits; T-1 without pad)", main: d_bits, ext: 1, degree: 2, kind: SlotKind::Standalone, a_sites: 1, h_sites: 0, io_sites: 1 },
+             SlotSpec { name: "OUTC-01 SS final-norm row sum (private, hosted by TZC)", main: ldo, ext: 1, degree: 4, kind: SlotKind::Private, a_sites: 1, h_sites: 0, io_sites: 0 },
+             SlotSpec { name: "OUTC-02 TZC isqrt (D, Dsq, 9 limb slices; hosts SS)", main: TO_LOG, ext: 1, degree: 3, kind: SlotKind::Host, a_sites: 11, h_sites: 0, io_sites: 0 },
+             SlotSpec { name: "OUTC-03 PD margin sum_i y(i) w_Delta(i) (private, hosted by LZC)", main: d_bits, ext: 1, degree: 2, kind: SlotKind::Private, a_sites: 1, h_sites: 0, io_sites: 0 },
+@@ -297,7 +299,7 @@
+             let mut cx_ = fixed(&vec![Fp2::ZERO; lift]);
+             cx_.extend(rho(0..d_bits));
+             let i_x = b.a_at(C_X, cx_)?;
+-            let mut cb = fixed_bits(cp.tokens - 1, t_bits);
++            let mut cb = fixed_bits(cp.verdict_row(), t_bits);
+             cb.extend(rho(0..d_bits));
+             let i_b = b.io(Cm::In, cx.b_out_log, cb, cx.b_out_row);
+             b.finish(Box::new(move |v: &[Fp2]| v[i_eq].mul(v[i_x].sub(v[i_b]))), vec![])

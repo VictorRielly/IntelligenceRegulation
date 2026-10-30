@@ -1,0 +1,11 @@
+{
+ "edited": {
+  "zkp-core/src/rng.rs": {
+   "orig": "zkp-core__src__rng.rs.orig",
+   "sha256": "0d4a99abbc424286de60ec4bfbe1084dc2ccaa2db8c5380e5f4594157ccea9eb",
+   "mutant_sha256": "7ea21aa39e2e5637d89baada0dc4325271ee4089f41d524a79e94a71122e0ef0"
+  }
+ },
+ "created": [],
+ "dirs": []
+}

@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "checks": 120,
+  "exact_native_helpers": true,
+  "prior_hypotheses_preserved": 72,
+  "ranked_hypotheses": 74,
+  "owner_and_mandate_documents_unchanged": 6,
+  "new_verified_full_stack_proofs": 0,
+  "new_model_passes": 0,
+  "new_proved_positions": 0
+}

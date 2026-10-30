@@ -1,0 +1,10 @@
+{
+  "overlap_summed_activity_ticks": 42,
+  "overlap_device_union_ticks": 21,
+  "ticks_are": "arbitrary synthetic units, not latency",
+  "host_device_subtraction": "never performed",
+  "cross_thread_host_totals": "separate per pid/tid; not summed as elapsed",
+  "fanout_activities": 24,
+  "fanout_api_count": 12,
+  "whole_call_and_roster_and_manifest_coherent_deletion": "ACCEPTED by both adapters; requires independent source-derived invocation roster. Local consistency is not capture authenticity or complete workload coverage."
+}

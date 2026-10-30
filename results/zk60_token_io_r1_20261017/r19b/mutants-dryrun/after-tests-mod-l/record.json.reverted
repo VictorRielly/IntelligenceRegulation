@@ -1,0 +1,21 @@
+{
+ "edited": {
+  "hashline/src/private_block/tied_tables/derive.rs": {
+   "orig": "hashline__src__private_block__tied_tables__derive.rs.orig",
+   "sha256": "1d6150100abb051d08e77d6c86e2cafed0915342203480ce73c8583170810fb7",
+   "mutant_sha256": "5d21969094daaa0e3327269bcd172a5a25be91907ef0fbc9bf0c5d848c9afebf"
+  },
+  "hashline/src/private_block/s25_tests.rs": {
+   "orig": "hashline__src__private_block__s25_tests.rs.orig",
+   "sha256": "9e205e41f952cb0faa178641d523f7fdf108d92ff88f4e0a43135aab82456b0f",
+   "mutant_sha256": "793506924dc6059f5c34b1c2295abfe46683810ac7e7c20e9e5b57fe156c0439"
+  }
+ },
+ "created": [
+  {
+   "file": "hashline/src/private_block/tied_tables/r19b_plant.rs",
+   "sha256": "4f924411bd4b714a89492a322aa8d4abde09daaa0002e98e97b6fca01ee444bc"
+  }
+ ],
+ "dirs": []
+}

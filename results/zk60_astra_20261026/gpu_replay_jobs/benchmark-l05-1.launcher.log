@@ -1,0 +1,14 @@
+RAM   12.31 GiB available of 15.39; swap used 0.85 GiB
+BUDGET 3.8 of 11.89 GiB committed by guarded jobs
+  job  sol-r14-run-build-5          build need 2.5G since 2026-10-29T16:57:29Z
+  job  gate20-v23-classify-r13-rung-L2-v1-r17-values light need 1.3G since 2026-10-29T16:57:40Z
+LOCKS heavy HELD, build HELD
+GPU   51 of 8188 MiB used
+kernel memory cap available: True
+  rss   1327 MiB  pid 435367  /home/victor/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc --crate-name hashline --edition=2021
+  rss    520 MiB  pid 2149    claude 
+  rss    259 MiB  pid 435464  /usr/bin/python3 -B /home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/frozen_v23/scripts/zk60_nat
+  rss    226 MiB  pid 434855  /home/victor/.nvm/versions/node/v22.22.3/lib/node_modules/@openai/codex/node_modules/@openai/codex-linux-x64/v
+[zk60-guard 09:59:35] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 10:00:36] START astra-gpu-benchmark-l05 class=gpu need=2.8G cap=4.5G enforce=cgroup+watchdog waited=61s run=ddeda13536c9
+[zk60-guard 10:10:41] END astra-gpu-benchmark-l05 exit=3 child_wall=606s peak_rss=2.18G min_avail=10.82G peak_vram=642MiB

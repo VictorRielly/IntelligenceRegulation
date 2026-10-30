@@ -1,0 +1,1 @@
+{"status":"PASS","seed":202610300156,"fixtures":436,"modes_per_fixture":3,"scalar_limb_outputs_per_mode_including_synthetic_pads":175772,"injected_failures":42,"controls":143,"exported_public_vectors":16,"full_stack_proofs":0,"passes":0,"positions":0,"scope":"Synthetic synchronous CPU-buffer model plus native scalar fold; no CUDA/PCS/FS/receipts"}

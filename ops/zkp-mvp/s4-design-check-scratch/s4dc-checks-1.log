@@ -1,0 +1,11 @@
+rlib bdb08e434377a2ec0e4c34e6866228163d4e976e1b07b86d3dfe679ea6420569
+run algebra exit 0
+run scalar_split exit 0
+run pcs_lift exit 0
+run cfs_lift exit 0
+run s4_gate_check exit 101
+SAME summary algebra
+SAME summary scalar_split
+SAME summary pcs_lift
+SAME summary cfs_lift
+SAME cfs_lift rejection lines

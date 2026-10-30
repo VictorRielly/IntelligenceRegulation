@@ -1,0 +1,547 @@
+[
+  {
+    "path": "experiments/public-cohort-admission-20261030/INTEGRATION.md",
+    "bytes": 2419,
+    "sha256": "bc90bb4e88a736e83a436e19f27a737b1982a7caf946c2b7f7700f0ec44cda17"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/README.md",
+    "bytes": 9425,
+    "sha256": "26315cb9c8b808b01e69cb1626bd084042602be57f1466411a9c769fd9b8c43d"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/admission.py",
+    "bytes": 3693,
+    "sha256": "6fce512c13ed9b6e5566b383d6d474e4e5a36f412375212cf64bd3e5abce7ef2"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/audit-execution.json",
+    "bytes": 455,
+    "sha256": "0aa68d45b2292f9e3a30edf5391741281b02469402bc7d7baca3cd790e80231d"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/audit.stderr.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/audit.stdout.log",
+    "bytes": 1297,
+    "sha256": "2543df4862f712c90db6a7ef82552a87921eb1054cf28ad29d0347a66411dd56"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/capacity-projections.json",
+    "bytes": 194111,
+    "sha256": "aec4997e813482dba1b2e36ef4de0c0867e150843cf7cc17adfbd7288e1f1b0f"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/close-execution.json",
+    "bytes": 451,
+    "sha256": "e1f9f3b6d62acbe68551025b7291c330e187c21175bcbf06c44343a772f78adb"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/close.py",
+    "bytes": 33602,
+    "sha256": "156d0e7541f8d90faeff280e206729cea688fa6b07f85025a3a7c5ef792e570d"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/close.stderr.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/close.stdout.log",
+    "bytes": 134,
+    "sha256": "63df3fd8d96d51c9ec0bc318729b8f72a7777f2ebad90386173f41e463dc0972"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/closing-MVP_STATUS.md",
+    "bytes": 106429,
+    "sha256": "f75da8ddcf7edefaf3f367ecd6ac63b07ab17f418cae4a3a0c9e9a1c9c09e28b"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/closing-MVP_STATUS.md.diff",
+    "bytes": 583,
+    "sha256": "cf2d54c342724b659d2e2ca998c47e9394b868fa48de9aa090bd736ac46f4902"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/closing-ZK60_DECISIONS.md",
+    "bytes": 163352,
+    "sha256": "bc48e85e09798f8768a67c6c02c131c964259b20379ae209281df393a3ebf30c"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/closing-ZK60_DECISIONS.md.diff",
+    "bytes": 2095,
+    "sha256": "abbb77e41244e822f4329167159fdfaf828c0111abeeccc03c31eae0dc7bc67d"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/compile-execution.json",
+    "bytes": 681,
+    "sha256": "df0941db5de606cd6a365dc9d544d18d46d9eaba7eff83c180154b1119071072"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/compile.stderr.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/compile.stdout.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/completion.json",
+    "bytes": 568,
+    "sha256": "fe9780051a4973529355739757b817dccb998cbe18e2a5a913cce27621c29730"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/counterexample.json",
+    "bytes": 385,
+    "sha256": "6ccff199cfcb364a4287248541ba2642547bf6111463c488b7ee248b5e95230a"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/direction-drift-review.json",
+    "bytes": 875,
+    "sha256": "7b6e4fd6091f5096dfd70b38c9ed69f0d4ff059a1af7b0c75e281433224a9cab"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/events.json",
+    "bytes": 32461,
+    "sha256": "bb196bd019e9f3f14095125c5692eb82b5c357cc15273728426a0edfc42ba2bd"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/extraction.json",
+    "bytes": 2753,
+    "sha256": "77fb8f97e4a57b83ddf1f6794a8c1645af442b0e408bf6bb4d2c32976af3303a"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/final-audit-result.json",
+    "bytes": 314,
+    "sha256": "d4ad0a107aaee357516b70614c15f08282d712c8a840018963a1d327c13a032b"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/final_audit.py",
+    "bytes": 5952,
+    "sha256": "a5bf61a4d4e06978a8b4284ab65531863af116fc11b38280c988bf3c506bd3db"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/geometry.json",
+    "bytes": 82735,
+    "sha256": "39e3e1654736996bd6082fd4cd1b4356cb0e77fa18ef61143a2bd5cca6d5be05"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/hardware.json",
+    "bytes": 219,
+    "sha256": "d4d58b5a5a779ae39991a069fe91941d22e320e519ef43809c9acc3f7257c792"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/hypotheses.json",
+    "bytes": 215890,
+    "sha256": "82bd6000ebec4c4124f9ac7addf67c2ce0318f20ddd258448b46f186c54c11f2"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/initial-closing-legacy-source-schema/NOTE.md",
+    "bytes": 253,
+    "sha256": "2c1a236f2eeb59eb2a32bb5180c9da85180b675c1f404c57d2c7f2e9682ec3ac"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/initial-closing-legacy-source-schema/final_audit.py",
+    "bytes": 5952,
+    "sha256": "bc1aa758ea8674282ca669f44c35c05c1be1b58010a15ca8cdd9cc884301eb81"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/initial-closing-owner-doc-drift/final_audit.py",
+    "bytes": 5918,
+    "sha256": "57eabb0714e242ec3849d1cddf24ea03dd9ae11c67f0b2ee59c2b4373e90730e"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/initial-closing-owner-doc-drift/owner-document-recheck.json",
+    "bytes": 1356,
+    "sha256": "917cfdc4d541084d5ccdd1c57307bc51b45a7ff45e71e1fd72015f5d61fd446f"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/initial-closing-target-schema/NOTE.md",
+    "bytes": 235,
+    "sha256": "859d1c0180cbff1f3b6761e61c5ffc862407a027142774190135e9fd55883f3e"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/initial-closing-target-schema/final_audit.py",
+    "bytes": 5952,
+    "sha256": "a5bf61a4d4e06978a8b4284ab65531863af116fc11b38280c988bf3c506bd3db"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/initial-closing-target-schema/target-accounting.json",
+    "bytes": 1211,
+    "sha256": "977976dcf679a8dc14795a6271d6f5ff6e0657363e898d090bc570a9586dbdc8"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/initial-dd-reference-omission/NOTE.md",
+    "bytes": 247,
+    "sha256": "92cde4b347df8f1e1beb0990f8a8be1b38a6c8028a321b011c18309e15363a06"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/initial-dd-reference-omission/audit-execution.json",
+    "bytes": 455,
+    "sha256": "0f5fbe1d60368c7d11f17630568164008f1afd132a068c8a1689ccf4b2e3ee1a"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/initial-dd-reference-omission/audit.stderr.log",
+    "bytes": 787,
+    "sha256": "2e9b15146f6f2e66b64edccaca6b7c680cd66c8ea25d2ef09fd5783014f35bb8"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/initial-dd-reference-omission/audit.stdout.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/initial-dd-reference-omission/probe-input.txt",
+    "bytes": 4633,
+    "sha256": "3c5b05b8829ff8fc366ccdc227d7ab49d271e5e92f50311bce3b963291251583"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/initial-dd-reference-omission/probe-stderr.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/initial-dd-reference-omission/probe-stdout.log",
+    "bytes": 8032,
+    "sha256": "e072499917bc52c4187c7ce99afabb1b9370e4fb384ea9c822cf34378546633e"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/initial-dd-reference-omission/reference.py",
+    "bytes": 12533,
+    "sha256": "819e629929ebd77c3529322211ecbb5c42572ffff0bb3fbd9912ae920a8502a6"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/legacy-only-pass/audit-execution.json",
+    "bytes": 455,
+    "sha256": "858b6667d2350c4282ffee172fec20a728d94f44b409bf039e36d2030f5b3af3"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/legacy-only-pass/audit.stderr.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/legacy-only-pass/audit.stdout.log",
+    "bytes": 1279,
+    "sha256": "6676a8116747075346f8a27ce63d629ec8922c1645bde4846e9febcfcda49cc8"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/legacy-only-pass/capacity-projections.json",
+    "bytes": 94436,
+    "sha256": "09112c9994e820e3bf0dd40ff6641107e0683ff1e5c7fc000c3fc8bb46b0efbb"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/legacy-only-pass/counterexample.json",
+    "bytes": 382,
+    "sha256": "91432128ef57250e473e96c259cd01a0babfd26d5eaad5b0abf1bbe285bac55d"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/legacy-only-pass/events.json",
+    "bytes": 32433,
+    "sha256": "dfc02c8dcedb545419e59a036cb77c25488e98e2966c68377454029d23ebe04e"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/legacy-only-pass/geometry.json",
+    "bytes": 40315,
+    "sha256": "e3e57291ef0b36b4d93116ec9a9afa8d6841e752e67b5b8ddab6530be34fec91"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/legacy-only-pass/reference.py",
+    "bytes": 12615,
+    "sha256": "2ceccdab44f3e1d1da8fe3238d1c67e10593e4b98d89d87297d6e034abfe8b33"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/legacy-only-pass/result.json",
+    "bytes": 1501,
+    "sha256": "35930681d0fa944615d8e5c8968ed73b7327d31ac53c831b817918d18cc66d01"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/metadata.rs",
+    "bytes": 14778,
+    "sha256": "849dd228be1c660e2fc9571746af6c3e2666be7af84bae15af004a7440e0a660"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/native/hashline__src__private_block__argument.rs",
+    "bytes": 112753,
+    "sha256": "bc0332e39904ca881d26c255581aa1ab6a0e73899141689960ec2262f8561830"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/native/hashline__src__private_block__argument_accuracy.rs",
+    "bytes": 41213,
+    "sha256": "a5e02391b61577c7041efc41c04cd2564610e3fbb26b188b66b1623a5b7940d9"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/native/hashline__src__private_block__layout.rs",
+    "bytes": 76914,
+    "sha256": "8519a514b8d1f43ab51c86b0a8af955230a2eab4fff4fc4c594733c59dcfd0bf"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/native/hashline__src__private_block__protocol.rs",
+    "bytes": 79043,
+    "sha256": "1011441431a37f735999405986af6c9f11c2d303b48aa6d9cefae55b0311718d"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/native/hashline__src__private_block__shape.rs",
+    "bytes": 149746,
+    "sha256": "8e00a144bd194fd5a3dd30c9aaece2869d43d461df623cdcfc5a9da59e51436b"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/native/hashline__src__zk.rs",
+    "bytes": 254060,
+    "sha256": "66d1128675bea3b473abd4f2fe70d470b1abc19a7fe5a579a227616d76280e32"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/native/zkp-core__src__merkle.rs",
+    "bytes": 6487,
+    "sha256": "6e7817bd767a883985bfcd62b7a387d0c5f4c361010c4c5db37f5087d965744a"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/native/zkp-core__src__pcs.rs",
+    "bytes": 77003,
+    "sha256": "5c9cfc4e9c84283309f4c47f87d4a9146e2c9c9f5b52aa608b4ce6a7588cd495"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/native/zkp-core__src__sumcheck__grouped.rs",
+    "bytes": 7903,
+    "sha256": "7777a19c8db97694c51e66c78d1a7688573158bddaa7fcb370345ebd14ab669b"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/native/zkp-core__src__sumcheck__rounds.rs",
+    "bytes": 7092,
+    "sha256": "c60520596e6d855687e0a225850850c12bd15b8741522de69a624f0db8a003df"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/native-pins.json",
+    "bytes": 3032,
+    "sha256": "c6189b0463487f31841d84a0cbfb3108aa1b13108597306669b5d93f216b9418"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/owner-document-recheck.json",
+    "bytes": 1832,
+    "sha256": "b7f55f4eae9be1c2092cf3cac6dba5ca251ed3d799f00f4497e15d161df50984"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/prepare-execution.json",
+    "bytes": 455,
+    "sha256": "032ba8c5dc3386f51c83690f7bf0f176410fb80779adc0aec016783605bab0ee"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/prepare.py",
+    "bytes": 3984,
+    "sha256": "8d17a2fec6b8462d76090b654d233b46f60c4bd422a5ce550a8f10db3a4da484"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/prepare.stderr.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/prepare.stdout.log",
+    "bytes": 78,
+    "sha256": "59b6c3498260101a0e375b1250d3137daac9aa1e9260150dbad05df006ba507e"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/probe",
+    "bytes": 13298544,
+    "sha256": "32c5fccf546b66a2754f9ebfa59645626bb6cd1faad8250e543d9eeff3ea8eb8"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/probe-input.txt",
+    "bytes": 9601,
+    "sha256": "29adcc834737356cc873091f1202bff6476ca203ddb0fb9a0e69cab06870de03"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/probe-stderr.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/probe-stdout.log",
+    "bytes": 12760,
+    "sha256": "0251bb4e2e20563e22e9bc3bc16baac8bf3c26472729073614ed4a022495b516"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/probe.rs",
+    "bytes": 2134,
+    "sha256": "f249aa4d65112b0c76d6ad988ea3edfcc97c6a05aad0c1a249221c6c9b9c35a2"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/ranking-current.json",
+    "bytes": 1338,
+    "sha256": "14d1065469f6581258192a6096a934ae345640e73dd179a5ddf259d2e370ec42"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/reference.py",
+    "bytes": 13038,
+    "sha256": "fab2d02c5a0e24d730c30b6c00127427f06f233153cdbfa07303078e9ae54aa2"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/result.json",
+    "bytes": 1523,
+    "sha256": "362f35bae8cc9d6c09b648f63dfe8da7a03cfec08705b476f09878b8eea48da1"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/rotation-queue.json",
+    "bytes": 326,
+    "sha256": "49ff9eb9488681fe75b3ab52e50e29cf01b725e75ff0a5a2c146d51245fe5b38"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/run_bounded.py",
+    "bytes": 1640,
+    "sha256": "4a8be964fb0031da3ef833b629b19cfbc7d230071652e70a767f4462c7aa0489"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/search-log.json",
+    "bytes": 662,
+    "sha256": "74f833e6c2b04a009dfc39926720dded6a83d4ee2c7bca3ea0cb351076f4be50"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/source-facts.json",
+    "bytes": 3764,
+    "sha256": "e753a3f206e03ba718ac3fd01d2418c883ba6c783eccc048a572f2834c8d416c"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/source-records.jsonl",
+    "bytes": 10004,
+    "sha256": "d4d8ea15e3d2d000e4425457c6d0dbbd513998d99f20ff1224b2f9309d77cb44"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/startup/CLAUDE.md",
+    "bytes": 14089,
+    "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/startup/docs__zkmatrix-poc__MVP_STATUS.md",
+    "bytes": 106368,
+    "sha256": "6b2610666701449995b9b84648d041d6a45e45b618d9828bea751761793d07fb"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/startup/docs__zkmatrix-poc__ZK60_CODEX_FABLE_COORDINATION.md",
+    "bytes": 64889,
+    "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/startup/docs__zkmatrix-poc__ZK60_DECISIONS.md",
+    "bytes": 162861,
+    "sha256": "53da1418b1e2ccdf162c046eaf6c0c9ed4d4ac8c30877d812122965e13349853"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/startup/docs__zkmatrix-poc__ZK60_THROUGHPUT_TARGET.md",
+    "bytes": 4941,
+    "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/startup/research__zkp-efficiency__AGENDA.md",
+    "bytes": 5603,
+    "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/startup/research__zkp-efficiency__FINDINGS.md",
+    "bytes": 1201599,
+    "sha256": "afaaa3f3c52f9de411cff2eb65ce1c7e180c97e681c7ff72bbb3439ad7e6a2d8"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/startup/research__zkp-efficiency__PROGRESS.md",
+    "bytes": 1975,
+    "sha256": "ee7fdcf634278f951f48e6d9a7013a4d5cbdf557867770d2e4687203a4764915"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/startup/research__zkp-efficiency__STATE.md",
+    "bytes": 8572,
+    "sha256": "ad019ba5fdb290999003f2de45ae12ad35a938bfbf305d142a9c82fb1cba84c4"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/startup/research__zkp-efficiency__sources.jsonl",
+    "bytes": 1338235,
+    "sha256": "ab34d4c6ddc68921bf548b75447150f532bf67b71c1b7680cccf8dc15f645017"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/startup-manifest.json",
+    "bytes": 1965,
+    "sha256": "b74f1ca8ed5d93d4b2b74138d895225c28c350c47640548139e56c0ed308d3b7"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/target-accounting.json",
+    "bytes": 1138,
+    "sha256": "29a3cc04508d5e581e35023b53772e1ccc8262b53dd0643ac5d487693882f023"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/web-1.json",
+    "bytes": 28275,
+    "sha256": "ce0b69414dc461f470f5030ad906ffad8504731dacdc3a5cf578b123c6ef2ff3"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/web-10.json",
+    "bytes": 12634,
+    "sha256": "4c0de54c59d8fc7ee99d942aea9b8c9154a7fc77f7ebf2bd093a2dac425fe6e9"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/web-11.json",
+    "bytes": 12129,
+    "sha256": "fe751bb543a7fb49e863695795662af242ac68beb571f7e57fefeee38183c4cd"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/web-2.json",
+    "bytes": 32073,
+    "sha256": "f735434ed48da0b9f28b759b08c658b323de90306718ebe0dcf477b59ec96978"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/web-3.json",
+    "bytes": 12887,
+    "sha256": "00bbe7a07a37511ac84fbb21c2c1fbd8f7d8aa68c4e523a2df145f9d269dee62"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/web-4.json",
+    "bytes": 14006,
+    "sha256": "4100f3d21c0a5ed9e211a05dc4fb1271fe0e2d50c846a5b18641fa08d7762385"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/web-5.json",
+    "bytes": 14781,
+    "sha256": "42197b47cb98ef75203d9e18d8ae1c4e36f4c17dc2b776e870d8e312ba611f86"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/web-6.json",
+    "bytes": 13992,
+    "sha256": "a7833f90f815738ff26cad8ae6ec91e46f28d8d0a9b43f67de1f1ec312f62b84"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/web-7.json",
+    "bytes": 13828,
+    "sha256": "bdf443b6e00b8e09bb666262a8a3debd981952799c1c66c103709d5c878a672c"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/web-8.json",
+    "bytes": 16598,
+    "sha256": "f70271ad7f535e7ed5db4f31f4af339eca9e4375b4826be040434af721d01c23"
+  },
+  {
+    "path": "experiments/public-cohort-admission-20261030/web-9.json",
+    "bytes": 12392,
+    "sha256": "f522e6cd1155a979f86fc2c62d192da5301a8c736779c26146fd2686faa7bef9"
+  },
+  {
+    "path": "STATE.md",
+    "bytes": 6314,
+    "sha256": "646fa9322ffec5b123ee2f531af07164b786ad5349d606afdc12fe5330ae22a2"
+  },
+  {
+    "path": "PROGRESS.md",
+    "bytes": 2061,
+    "sha256": "211e5cd17160c20ccfba0f2a266fda13fdb87c52d5490d9cb608d392d5e998ee"
+  },
+  {
+    "path": "progress/20261030T114123Z-38ad9454.md",
+    "bytes": 8966,
+    "sha256": "4211d8ffe5140b7561c41eb32cb91c6c7e6243caefe93a54bf4dd0a059bea596"
+  },
+  {
+    "path": "handoffs/20261030-public-cohort-admission.md",
+    "bytes": 1263,
+    "sha256": "4b751870be5d18d709347241c7c3421445da08d1d2c1f20cb4b4638c36027621"
+  }
+]

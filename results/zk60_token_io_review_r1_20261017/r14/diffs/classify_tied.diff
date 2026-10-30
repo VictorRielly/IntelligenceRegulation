@@ -1,0 +1,259 @@
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r13/hashline/src/private_block/token_io/classify_tied.rs	2026-10-28 16:42:48.584219700 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r14/hashline/src/private_block/token_io/classify_tied.rs	2026-10-28 19:12:07.680555629 -0700
+@@ -37,11 +37,27 @@
+ //!   `floor(x / scale + 0.5)`, refusal outside the class, no clipping). The rung
+ //!   has no rotation; an export that declares one is refused here.
+ //!
++//! **ROUND 14 (REVIEW_R13 N-r13-1): the binding moves into the library.** The
++//! classifier run's entry points (`ClassifyRunStatement::new` / `new_chunk`,
++//! `prove_classify_run_with`, `verify_classify_run_with`, and through them the
++//! run capture's replay) take [`BoundClassifierTables`], whose fields are
++//! private to this module: outside it, a value exists only as
++//! [`load_bound_tables`] returns it, re-derived from the pinned tensor under
++//! the trained statement's own profile digest and residual unit and compared
++//! with the files. The statement constructor checks the tables are bound to
++//! ITS trained statement and policy and that the block and run profiles name
++//! the same tied source (N-r13-6); prove and verify check they are the
++//! statement's. Test builds alone carry a second constructor for the relation
++//! tests' synthetic fixtures, marked so, which the capture replay refuses.
++//!
+ //! No privacy claim and no classifier acceptance: this closes the
+ //! declared-not-checked gap of the classifier tables (R12-F1's classifier side)
+ //! and nothing else.
+ 
+ use super::classify::{ClassifierTables, Policy};
++use super::super::shape::Shape;
++use super::super::trained_statement::TrainedModelStatement;
++use super::Digest;
+ use super::super::run::read_regular_file_bounded;
+ use super::super::tied_tables;
+ use super::super::trained_block::{parse_json, sha256, J};
+@@ -119,7 +135,8 @@
+     /// `token_io_parameters.classifier_final_norm`
+     pub norm: FinalNorm,
+     /// SHA-256 of the `profile.json` bytes the derivation read (its authority)
+-    pub profile_sha256: [u8; 32],    /// the bound profile's margin parameters the row was derived with
++    pub profile_sha256: [u8; 32],
++    /// the bound profile's margin parameters the row was derived with
+     pub margin: MarginParameters,
+ }
+ 
+@@ -215,7 +232,7 @@
+     let tied = match source {
+         TiedSource::Shieldstral => {
+             // requirement 3 / 4: the native row (refusals propagate, never clamped)
+-            let r = tied_tables::recompute_tied_tables(export, Some((id(mp.yes)?, id(mp.no)?, mp.scale())))?;
++            let r = shieldstral_recompute(export, (id(mp.yes)?, id(mp.no)?, mp.scale()))?;
+             let w = r.margin.ok_or("classifier (R-C2): the R12b recompute returned no margin row")?;
+             if w.len() != d {
+                 return Err(format!("classifier (R-C2): the recomputed margin row has {} words; the block width is {d}", w.len()));
+@@ -231,6 +248,45 @@
+     Ok(tied)
+ }
+ 
++/// native R12b's recompute (it reads `profile.json` and streams the pinned
++/// checkpoint itself). Test builds may put a stub in its place
++/// ([`stub_shieldstral_recompute`]: REVIEW_R13 N-r13-2, so the
++/// post-derivation digest check above has a test that fails without it).
++fn shieldstral_recompute(export: &Path, m: (u32, u32, f64)) -> Result<tied_tables::RecomputedTiedTables, String> {
++    #[cfg(test)]
++    if let Some(r) = SHIELDSTRAL_STUB.with(|s| s.borrow().as_ref().map(|f| f(export, m))) {
++        return r;
++    }
++    tied_tables::recompute_tied_tables(export, Some(m))
++}
++
++#[cfg(test)]
++type ShieldstralStubFn = Box<dyn Fn(&Path, (u32, u32, f64)) -> Result<tied_tables::RecomputedTiedTables, String>>;
++
++#[cfg(test)]
++thread_local! {
++    /// test only: a stand-in for native R12b's recompute on this thread
++    static SHIELDSTRAL_STUB: std::cell::RefCell<Option<ShieldstralStubFn>> = const { std::cell::RefCell::new(None) };
++}
++
++/// test only: native R12b's recompute is replaced by `f` on this thread until
++/// the returned guard drops (no checkpoint is read)
++#[cfg(test)]
++pub(crate) fn stub_shieldstral_recompute(f: ShieldstralStubFn) -> ShieldstralStubGuard {
++    SHIELDSTRAL_STUB.with(|s| *s.borrow_mut() = Some(f));
++    ShieldstralStubGuard
++}
++
++#[cfg(test)]
++pub(crate) struct ShieldstralStubGuard;
++
++#[cfg(test)]
++impl Drop for ShieldstralStubGuard {
++    fn drop(&mut self) {
++        SHIELDSTRAL_STUB.with(|s| *s.borrow_mut() = None);
++    }
++}
++
+ /// the development rung's derivation (R12b's quantizer, no rotation; the
+ /// final-norm weights folded in ONCE, here, as at Shieldstral: requirement 5)
+ fn derive_dev(profile: &J, pbytes: &[u8], tables: &Path, v: usize, mp: MarginParameters, residual_unit: f64, d: usize) -> Result<TiedClassifier, String> {
+@@ -287,21 +343,153 @@
+     Ok(())
+ }
+ 
+-/// **THE R-C2 LOADER** (prove and verify): the re-derivation under the
+-/// statement's profile digest, the R-C1 file reader, the comparison (and
+-/// `classifier.json`'s parameter copies). The returned tables carry the
+-/// RECOMPUTED margin row; BOS and the final norm are the export's.
+-pub(crate) fn load_tied_classifier_tables(p: &super::load::ExportPublic, export: &Path, tables: &Path, policy: &Policy) -> Result<(ClassifierTables, u64, FinalNorm), String> {
+-    let source = TiedSource::of(p.sh.profile)?;
+-    let bound = p.model.calibration.export_profile_sha256;
+-    let tied = recompute_tied_classifier(source, export, tables, policy, p.ex.residual_unit, p.sh.width, &bound)?;
++/// **ROUND 14 (REVIEW_R13 N-r13-1): THE CLASSIFIER'S TABLES, BOUND.** The
++/// one form every classifier run entry point takes. The fields are private to
++/// this module, so outside it a value exists only as [`load_bound_tables`]
++/// returns it: the embedding and the margin row RE-DERIVED from the pinned
++/// tensor for one trained statement (its identity and its
++/// `export_profile_sha256`, the bound profile's margin parameters, BOS and the
++/// final norm), every table file compared with them.
++#[derive(Clone, Debug)]
++pub(crate) struct BoundClassifierTables {
++    tables: ClassifierTables,
++    bos: u64,
++    norm: FinalNorm,
++    source: TiedSource,
++    margin: MarginParameters,
++    /// the trained statement's `export_profile_sha256`, the profile the
++    /// derivation read
++    profile_sha256: [u8; 32],
++    /// the trained statement the tables were derived for
++    model_identity: Digest,
++    /// test builds: the relation tests' synthetic binding (not derived)
++    #[cfg(test)]
++    synthetic: bool,
++}
++
++impl BoundClassifierTables {
++    /// the tables (the RECOMPUTED margin row; the derived embedding)
++    pub(crate) fn tables(&self) -> &ClassifierTables {
++        &self.tables
++    }
++    /// BOS, the export's `token_io_parameters.bos`
++    pub(crate) fn bos(&self) -> u64 {
++        self.bos
++    }
++    /// the classifier final norm, the export's `token_io_parameters`'
++    pub(crate) fn norm(&self) -> FinalNorm {
++        self.norm
++    }
++    pub(crate) fn source(&self) -> TiedSource {
++        self.source
++    }
++    pub(crate) fn margin(&self) -> MarginParameters {
++        self.margin
++    }
++    pub(crate) fn profile_sha256(&self) -> [u8; 32] {
++        self.profile_sha256
++    }
++    pub(crate) fn model_identity(&self) -> Digest {
++        self.model_identity
++    }
++    /// derived from the pinned tensor (always, outside test builds)
++    pub(crate) fn is_derived(&self) -> bool {
++        #[cfg(test)]
++        {
++            !self.synthetic
++        }
++        #[cfg(not(test))]
++        {
++            true
++        }
++    }
++
++    /// **THE LIBRARY'S BINDING CHECK** (the classifier statement's
++    /// constructor, on both sides): the block profile and the run profile name
++    /// the same tied source (N-r13-6), the tables' source is it, they were
++    /// derived for THIS trained statement (identity and profile digest), the
++    /// policy names the bound profile's margin parameters, the width is the
++    /// block's.
++    pub(crate) fn check_for(&self, sh: &Shape, run_profile: &str, model: &TrainedModelStatement, policy: &Policy) -> Result<(), String> {
++        let (block_src, run_src) = (TiedSource::of(sh.profile)?, TiedSource::of_run_profile(run_profile)?);
++        if block_src != run_src {
++            return Err(format!("classifier (N-r13-6): the block profile {} has the tied source {:?}, the run profile {run_profile} names {:?}", sh.profile, block_src, run_src));
++        }
++        if self.source != block_src {
++            return Err(format!("classifier (N-r13-1): the tables come from the tied source {:?}; the block profile's is {:?}", self.source, block_src));
++        }
++        if self.model_identity != model.identity() || self.profile_sha256 != model.calibration.export_profile_sha256 {
++            return Err("classifier (N-r13-1): the classifier tables were derived for another trained statement (identity or export_profile_sha256), not this run's".into());
++        }
++        self.margin.check_policy(policy)?;
++        if self.tables.d != sh.width {
++            return Err(format!("classifier (N-r13-1): the tables are {} wide, the block width is {}", self.tables.d, sh.width));
++        }
++        Ok(())
++    }
++
++    /// **TEST BUILDS ONLY: the relation tests' synthetic binding** (R-C1's
++    /// forgery tests and the s25 census prove the stage relations on a generic
++    /// embedding and a random margin row). Marked as not derived: the capture
++    /// replay refuses such a run, and no production build has this function.
++    #[cfg(test)]
++    #[allow(clippy::too_many_arguments)]
++    pub(crate) fn synthetic_for_relation_tests(tables: ClassifierTables, bos: u64, norm: FinalNorm, sh: &Shape, run_profile: &str, model: &TrainedModelStatement, policy: &Policy) -> Result<BoundClassifierTables, String> {
++        let source = TiedSource::of_run_profile(run_profile)?;
++        if TiedSource::of(sh.profile)? != source {
++            return Err("synthetic binding: the block and run profiles name different tied sources".into());
++        }
++        Ok(BoundClassifierTables {
++            tables,
++            bos,
++            norm,
++            source,
++            margin: MarginParameters { yes: policy.yes, no: policy.no, scale_bits: policy.margin_scale_bits, c: policy.c },
++            profile_sha256: model.calibration.export_profile_sha256,
++            model_identity: model.identity(),
++            synthetic: true,
++        })
++    }
++}
++
++/// **THE R-C2 LOADER, BOUND (round 14: the library's only table
++/// constructor)**: the re-derivation under the trained statement `model`'s own
++/// `export_profile_sha256` and residual unit, the R-C1 file reader, the
++/// comparison (and `classifier.json`'s parameter copies). The returned tables
++/// carry the RECOMPUTED margin row; BOS and the final norm are the export's;
++/// they are bound to `model`.
++pub(crate) fn load_bound_tables(sh: &Shape, model: &TrainedModelStatement, export: &Path, tables: &Path, policy: &Policy) -> Result<BoundClassifierTables, String> {
++    let source = TiedSource::of(sh.profile)?;
++    let bound = model.calibration.export_profile_sha256;
++    let residual_unit = f64::from_bits(model.calibration.residual_unit_f64_bits);
++    let tied = recompute_tied_classifier(source, export, tables, policy, residual_unit, sh.width, &bound)?;
+     let cp = tables.join("classifier.json");
+     let cj = parse_json(&read_regular_file_bounded(&cp, MAX_PROFILE_BYTES, false)?).map_err(|e| format!("{}: {e}", cp.display()))?;
+     tied.margin.check_copies(&cj)?;
+-    let (files, bos, norm, emb_sha) = super::classify_cli::read_classifier_files(tables, p.sh.width)?;
++    let (files, bos, norm, emb_sha) = super::classify_cli::read_classifier_files(tables, sh.width)?;
+     check_files_against(&tied, &files.w_delta, &emb_sha, bos, norm)?;
+     let ClassifierTables { v, d, emb, .. } = files;
+-    Ok((ClassifierTables::new(v, d, emb, tied.w)?, tied.bos, tied.norm))
++    Ok(BoundClassifierTables {
++        tables: ClassifierTables::new(v, d, emb, tied.w)?,
++        bos: tied.bos,
++        norm: tied.norm,
++        source,
++        margin: tied.margin,
++        profile_sha256: tied.profile_sha256,
++        model_identity: model.identity(),
++        #[cfg(test)]
++        synthetic: false,
++    })
++}
++
++/// **THE R-C2 LOADER at the CLI** (prove and verify): [`load_bound_tables`]
++/// for an export loaded under its classifier run profile; the export's
++/// residual unit must be the one its trained statement records
++pub(crate) fn load_tied_classifier_tables(p: &super::load::ExportPublic, export: &Path, tables: &Path, policy: &Policy) -> Result<BoundClassifierTables, String> {
++    if p.ex.residual_unit.to_bits() != p.model.calibration.residual_unit_f64_bits {
++        return Err("classifier (R-C2): the export's residual unit is not the one its trained statement records".into());
++    }
++    load_bound_tables(&p.sh, &p.model, export, tables, policy)
+ }
+ 
+ /// D27: the verifier's lowest admissible `--min-bits` per classifier run

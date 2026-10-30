@@ -1,0 +1,20 @@
+{
+  "status": "PASS",
+  "checks": {
+    "source_pins": 21,
+    "actual_profile_source_facts": 10,
+    "actual_profile_host_negative": 3,
+    "independent_original_cube_finals": 4800,
+    "independent_closed_scalar_census": 160,
+    "independent_original_cube_round_values": 1600,
+    "saved_arm_round_values": 3200,
+    "recovery_eligibility": 960,
+    "inverse_values": 480,
+    "inverse_api_counts": 160,
+    "public_dimension_census": 20,
+    "saved_control_labels": 8
+  },
+  "total_checks": 11422,
+  "wall_s": 1.1144204490046832,
+  "scope": "Locally authored independent equations/count audit, not external/native/privacy verification; control labels not independently reexecuted."
+}

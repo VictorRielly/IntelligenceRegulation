@@ -1,0 +1,9 @@
+rejected Geo { t: 2, big: 8, small: 4 } Matmul RepeatSmall: pcs zk: group 1: <v, c> != combined claim
+rejected Geo { t: 2, big: 8, small: 4 } Matmul DropSmall: pcs zk: group 1: <v, c> != combined claim
+rejected Geo { t: 2, big: 8, small: 4 } Matmul DuplicateSmall: pcs zk: group 1: <v, c> != combined claim
+rejected Geo { t: 2, big: 8, small: 4 } Matmul WrongAxis: pcs zk: group 1: <v, c> != combined claim
+rejected Geo { t: 2, big: 8, small: 4 } Matmul ScaleMask: pcs zk: group 1: <v, c> != combined claim
+
+thread 'main' (4) panicked at results/zk60_1b_native_20261017/s4-split-width/cfs_lift.rs:222:44:
+forged microproof accepted: ()
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace

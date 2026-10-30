@@ -1,0 +1,8 @@
+{
+  "status": "FAILED_AUDIT_ASSUMPTION_CORRECTED",
+  "command": "python3 experiments/finite-field-provenance-20261029/audit.py",
+  "failure": "AssertionError: 24",
+  "cause": "Audit expected nonexistent SC_SZC_DD arm; source actually uses SC_SZC if sh.dd_cap > 0 and SC_DD.",
+  "correction": "Read source lines 1765-1795 and arm labels, then require actual guarded SC_SZC arm plus SC_DD.",
+  "native_or_candidate_failure": false
+}

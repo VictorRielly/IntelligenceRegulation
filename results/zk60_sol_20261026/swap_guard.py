@@ -1,165 +1,194 @@
 #!/usr/bin/env python3
-"""Prepared S3 swap. Defaults to read-only checks; --apply requires lane holds.
+"""D44/S8 swap; defaults to preflight. --apply requires a fresh OPEN record.
 
-Coordinator readiness: GUARD_SWAP_READY.json in this directory, with a
-nonempty `hold_files` list (absolute existing lane HOLD paths), current
-`boot_id`, and `sandbox_views_checked: true`. This records NOTES section 7's
-cross-lane checks without writing into another lane. Keep holds through tests.
+GUARD_SWAP_READY.json must name change=S8, ruling=D44, window=OPEN,
+candidate_sha256, current boot_id, written_utc, existing absolute hold_files
+and sandbox_views_checked=true. No live guard or consumer may remain.
 """
-import datetime
+import datetime as dt
+import fcntl
 import hashlib
 import json
 import os
 from pathlib import Path
+import signal
 import subprocess
 import sys
+import tempfile
 
-ROOT = Path('/home/victor/IntelligenceRegulation')
-OUT = ROOT / 'results/zk60_sol_20261026'
-STAGED = ROOT / 'results/zk60_guard_fix_20261021'
-GUARD = ROOT / 'scripts/zk60_resource_guard.py'
-OLD = 'f0b87668b9ad3bc42683d95a16314b54973b8e36be576b25183302287168e772'
-NEW = '87138bda80ae4499a668e67a1c0e7706bb859eafb5e766020bcd59567c8ac59c'
-PINS = [(ROOT / 'scripts/zk60_guarded_command.py', 'REVIEWED_GUARD_SHA256'),
-        (ROOT / 'scripts/zk60_techweek_demo.py', 'GUARD_PIN')]
+ROOT=Path('/home/victor/IntelligenceRegulation')
+OUT=ROOT/'results/zk60_sol_20261026'
+EVIDENCE=OUT/'guard-s8'
+BACKUP=OUT/'guard-s8-backup'
+GUARD=ROOT/'scripts/zk60_resource_guard.py'
+CANDIDATE=EVIDENCE/'zk60_resource_guard.py.candidate'
+OLD='87138bda80ae4499a668e67a1c0e7706bb859eafb5e766020bcd59567c8ac59c'
+NEW='88af4c639848d39df8da559652db11529575aa745b916a06eb522c20ea89fbd3'
+PINS=[(ROOT/'scripts/zk60_guarded_command.py','REVIEWED_GUARD_SHA256'),
+      (ROOT/'scripts/zk60_techweek_demo.py','GUARD_PIN')]
+PROTOCOL=ROOT/'docs/zkmatrix-poc/ZK60_RESOURCE_PROTOCOL.md'
+RECOVERY=ROOT/'ops/zkp-mvp/RECOVERY_COORDINATION.md'
+POLICY=ROOT/'tests/test_zk60_guard_s8.py'
+FIXTURE=ROOT/'tests/test_zk60_resource_guard.py'
 
+def utc():return dt.datetime.now(dt.timezone.utc).isoformat()
+def sha(path):return hashlib.sha256(path.read_bytes()).hexdigest()
+def record(path,value):path.write_text(json.dumps(value,indent=2)+'\n')
 
-def sha(path):
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+def atomic(path,data):
+    mode=path.stat().st_mode&0o777 if path.exists() else 0o644
+    with tempfile.NamedTemporaryFile(dir=path.parent,prefix='.'+path.name+'.s8-',delete=False) as f:
+        temp=Path(f.name);f.write(data);f.flush();os.fsync(f.fileno())
+    try:
+        temp.chmod(mode);os.replace(temp,path)
+        fd=os.open(path.parent,os.O_RDONLY|os.O_DIRECTORY)
+        try:os.fsync(fd)
+        finally:os.close(fd)
+    finally:
+        if temp.exists():temp.unlink()
 
+def payloads():
+    m=json.loads((BACKUP/'manifest.json').read_text())
+    if (m['old'],m['new'])!=(OLD,NEW):raise RuntimeError('backup manifest version mismatch')
+    if sha(CANDIDATE)!=NEW:raise RuntimeError('reviewed candidate changed')
+    for name,item in m['files'].items():
+        if sha(BACKUP/name)!=item['sha256']:raise RuntimeError('rollback copy changed: '+name)
+    if sha(Path(m['independent_old_copy']['path']))!=OLD:raise RuntimeError('independent rollback copy changed')
+    if sha(FIXTURE)!=m['official_fixture_sha256']:raise RuntimeError('official swap fixture changed after preparation')
+    if sha(POLICY)!=m['official_policy_sha256']:raise RuntimeError('official S8 policy tests changed after preparation')
+    return m
 
-def atomic(path, data):
-    temp = path.with_name('.' + path.name + '.sol-swap.tmp')
-    with temp.open('xb') as stream:
-        stream.write(data)
-        stream.flush()
-        os.fsync(stream.fileno())
-    temp.chmod(0o644)
-    os.replace(temp, path)
-
-
-def rollback(tests):
-    atomic(GUARD, (OUT / 'guard-backup/zk60_resource_guard.py').read_bytes())
-    for path, pin in PINS:
-        atomic(path, path.read_text().replace(f"{pin} = '{NEW}'", f"{pin} = '{OLD}'", 1).encode())
-    if tests.exists():
-        os.replace(tests, OUT / 'rolled_back_test_zk60_guard_fix.py')
-
+def processes():
+    live=[];unreadable=[]
+    consumers={'zk60_private_stack_benchmark.py','zk60_guarded_command.py','zk60_techweek_demo.py'}
+    for proc in Path('/proc').iterdir():
+        if not proc.name.isdecimal() or int(proc.name)==os.getpid():continue
+        try:
+            argv=(proc/'cmdline').read_bytes().decode(errors='replace').split('\0')
+            bases={Path(a).name for a in argv if a}
+            if any(b.startswith('zk60_resource_guard.py') for b in bases) or bases&consumers:
+                live.append({'pid':int(proc.name),'argv':argv})
+        except (FileNotFoundError,ProcessLookupError):continue
+        except PermissionError:
+            try:
+                if proc.stat().st_uid==os.getuid():unreadable.append(int(proc.name))
+            except (FileNotFoundError,ProcessLookupError):pass
+    return live,unreadable
 
 def preflight():
-    problems = []
-    status = json.loads(subprocess.check_output([sys.executable, str(GUARD), 'status', '--json'], cwd=ROOT))
-    if status['live_guarded_jobs']:
-        problems.append('live guarded jobs: ' + ', '.join(j['label'] for j in status['live_guarded_jobs']))
-    if not status['heavy_lock_free'] or not status['build_lock_free']:
-        problems.append('heavy/build lock is held')
-    if not status['kernel_memory_cap_available']:
-        problems.append('run from the host: systemd user scope unavailable here')
-    live = []
-    consumers = {'zk60_private_stack_benchmark.py', 'zk60_guarded_command.py', 'zk60_techweek_demo.py'}
-    for proc in Path('/proc').iterdir():
-        if not proc.name.isdecimal() or int(proc.name) == os.getpid():
-            continue
-        try:
-            argv = (proc / 'cmdline').read_bytes().decode(errors='replace').split('\0')
-            bases = {Path(a).name for a in argv if a}
-            guard_run = 'run' in argv and any(b.startswith('zk60_resource_guard.py') for b in bases)
-            if guard_run or bases & consumers:
-                live.append({'pid': int(proc.name), 'argv': argv})
-        except (FileNotFoundError, PermissionError, ProcessLookupError):
-            continue
-    if live:
-        problems.append('guard waiter or consumer process exists')
-    ready = OUT / 'GUARD_SWAP_READY.json'
-    if not ready.exists():
-        problems.append('coordinator lane HOLD/readiness record missing')
-    else:
-        data = json.loads(ready.read_text())
-        holds = data.get('hold_files', [])
-        if not holds or not all(Path(p).is_absolute() and Path(p).is_file() for p in holds):
-            problems.append('lane HOLD files are absent')
-        if data.get('boot_id') != Path('/proc/sys/kernel/random/boot_id').read_text().strip():
-            problems.append('readiness is from a different boot')
-        if data.get('sandbox_views_checked') is not True:
-            problems.append('other sandbox process views not acknowledged')
-    if sha(GUARD) != OLD:
-        problems.append('live guard differs from the reviewed diff base')
-    assert sha(STAGED / 'zk60_resource_guard.py.new') == NEW
-    assert sha(STAGED / 'tests/test_zk60_guard_fix.py') == '7814c8f43f8ab5fc337fbe1ffa1c1740f8eb812ca58e93bd90a59747cff512c9'
-    assert sha(OUT / 'guard-backup/zk60_resource_guard.py') == OLD
-    for path, pin in PINS:
-        assert f"{pin} = '{OLD}'" in path.read_text()
-    assert not (Path('/tmp/zk-guard') / 'fifo.on').exists(), 'FIFO must remain OFF'
-    assert os.environ.get('ZK60_GUARD_FIFO') != '1', 'FIFO must remain OFF in the launch environment'
-    result = dict(written_utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),
-                  problems=problems, live_processes=live, guard_status=status)
-    (OUT / 'guard_swap_preflight.json').write_text(json.dumps(result, indent=2) + '\n')
-    return problems
+    problems=[];ready=None;status={}
+    overrides=[k for k in ('ZK60_GUARD_DIR','ZK60_GUARD_HISTORY','ZK60_GUARD_MEMINFO',
+        'ZK60_GUARD_NVIDIA_SMI','ZK60_HEAVY_LOCK','ZK60_BUILD_LOCK','ZK60_GUARD_JOB',
+        'ZK60_GUARD_HELD_LOCKS','ZK60_GUARD_RUN_ID') if k in os.environ]
+    if overrides:problems.append('guard environment overrides are not allowed for installation: '+', '.join(overrides))
+    try:payloads()
+    except Exception as e:problems.append(str(e))
+    if sha(GUARD)!=OLD:problems.append('live guard differs from the reviewed S8 base')
+    for path,pin in PINS:
+        if path.read_text().count(f"{pin} = '{OLD}'")!=1:problems.append('consumer pin is not the exact S8 base: '+path.name)
+    try:
+        status=json.loads(subprocess.check_output([sys.executable,str(GUARD),'status','--json'],cwd=ROOT))
+        if status['live_guarded_jobs']:problems.append('live guarded jobs: '+', '.join(j['label'] for j in status['live_guarded_jobs']))
+        if not status['heavy_lock_free'] or not status['build_lock_free']:problems.append('heavy/build lock held')
+        if not status['kernel_memory_cap_available']:problems.append('host required: systemd user memory scope unavailable')
+    except Exception as e:problems.append('guard status unavailable: '+str(e))
+    live,unreadable=processes()
+    if live:problems.append('live guard, waiter or hash consumer exists')
+    if unreadable:problems.append('same-user process view incomplete')
+    try:
+        ready=json.loads((OUT/'GUARD_SWAP_READY.json').read_text())
+        if ready.get('change')!='S8' or 'D44' not in ready.get('ruling','') or ready.get('window')!='OPEN':
+            problems.append('fresh coordinator S8/D44 OPEN record required')
+        if ready.get('candidate_sha256')!=NEW:problems.append('window does not name the reviewed S8 candidate')
+        if ready.get('boot_id')!=Path('/proc/sys/kernel/random/boot_id').read_text().strip():problems.append('window boot differs')
+        if ready.get('sandbox_views_checked') is not True:problems.append('other namespace views not acknowledged')
+        holds=ready.get('hold_files',[])
+        if not holds or not all(Path(h).is_absolute() and Path(h).is_file() for h in holds):problems.append('lane HOLD files missing')
+        written=dt.datetime.fromisoformat(ready['written_utc'].replace('Z','+00:00'))
+        age=(dt.datetime.now(dt.timezone.utc)-written).total_seconds()
+        if not 0<=age<=1800:problems.append('coordinator window record is not fresh (30 minute limit)')
+    except Exception as e:problems.append('coordinator readiness unavailable: '+str(e))
+    if (Path('/tmp/zk-guard')/'fifo.on').exists() or os.environ.get('ZK60_GUARD_FIFO')=='1':problems.append('FIFO must remain OFF')
+    state={'utc':utc(),'problems':problems,'guard_status':status,'live_processes':live,'unreadable_same_user':unreadable,'ready':ready}
+    record(EVIDENCE/'install-preflight.json',state)
+    return state
 
+def suite(pattern,expected=None):
+    stem=EVIDENCE/('installed_'+pattern.removesuffix('.py'))
+    cmd=[sys.executable,'-B',str(EVIDENCE/'run_suite.py'),pattern,'--out',str(stem)+'.json']
+    if expected is not None:cmd+=['--expected',str(expected)]
+    print('TEST '+pattern,flush=True)
+    with Path(str(stem)+'.log').open('w') as log:
+        rc=subprocess.run(cmd,cwd=ROOT,stdout=log,stderr=subprocess.STDOUT).returncode
+    result=json.loads(Path(str(stem)+'.json').read_text()) if Path(str(stem)+'.json').exists() else {'accepted':False,'runner_exit':rc}
+    if rc or not result.get('accepted'):raise RuntimeError('host suite failed/incomplete: '+pattern)
+    return result
+
+def rollback(protocol_before,protocol_after):
+    atomic(GUARD,(BACKUP/'zk60_resource_guard.py.orig').read_bytes())
+    for path,_ in PINS:atomic(path,(BACKUP/path.name).read_bytes())
+    atomic(FIXTURE,(BACKUP/'test_zk60_resource_guard.py').read_bytes())
+    if POLICY.exists():os.replace(POLICY,EVIDENCE/'rolled_back_test_zk60_guard_s8.py')
+    if protocol_after is not None and PROTOCOL.read_bytes()==protocol_after:atomic(PROTOCOL,protocol_before)
+    if sha(GUARD)!=OLD:raise RuntimeError('rollback guard hash mismatch')
+    for path,pin in PINS:
+        if f"{pin} = '{OLD}'" not in path.read_text():raise RuntimeError('rollback pin mismatch')
+    with RECOVERY.open('a') as f:f.write('\n\nS8 rollback '+utc()+': restored guard '+OLD+' and both original pins after an installation failure; lane holds remain. See results/zk60_sol_20261026/guard-s8/S8_INSTALL.json.\n')
+
+def apply():
+    state=preflight();print(json.dumps({'preflight':'BLOCKED' if state['problems'] else 'READY','problems':state['problems']}),flush=True)
+    if state['problems']:return 70
+    protocol_before=PROTOCOL.read_bytes();protocol_after=None;changed=False;tests=[]
+    audit={'utc_start':utc(),'ruling':'D44','old':OLD,'new':NEW,'ready':state['ready'],'stage':'preflight-complete'}
+    record(EVIDENCE/'S8_INSTALL.json',audit)
+    try:
+        # Last check immediately before the atomic replacement.
+        again=preflight()
+        if again['problems']:raise RuntimeError('quiescence changed before swap: '+str(again['problems']))
+        # Treat the mutation as begun before replace/fsync: directory fsync
+        # can fail after rename has already changed the visible guard.
+        changed=True
+        atomic(GUARD,CANDIDATE.read_bytes())
+        if sha(GUARD)!=NEW:raise RuntimeError('installed guard hash mismatch')
+        audit['stage']='installed-testing';record(EVIDENCE/'S8_INSTALL.json',audit)
+        for pattern,n in [('test_zk60_resource_guard.py',45),('test_zk60_guard_fix.py',31),('test_zk60_guard_s8.py',9)]:
+            tests.append(suite(pattern,n));audit['tests']=tests;record(EVIDENCE/'S8_INSTALL.json',audit)
+        for path,pin in PINS:
+            s=path.read_text()
+            if s.count(f"{pin} = '{OLD}'")!=1:raise RuntimeError('pin changed during swap')
+            atomic(path,s.replace(f"{pin} = '{OLD}'",f"{pin} = '{NEW}'",1).encode())
+        for pattern in ('test_zk60_guarded_command.py','test_zk60_techweek_demo.py','test_zk60_private_stack_benchmark.py'):
+            tests.append(suite(pattern));audit['tests']=tests;record(EVIDENCE/'S8_INSTALL.json',audit)
+        live,unreadable=processes()
+        if live or unreadable:raise RuntimeError('guard/consumer process or unreadable same-user PID remains after tests')
+        final_status=json.loads(subprocess.check_output([sys.executable,str(GUARD),'status','--json'],cwd=ROOT))
+        if final_status['live_guarded_jobs'] or not final_status['heavy_lock_free'] or not final_status['build_lock_free']:
+            raise RuntimeError('live guarded job or shared lock remains after tests')
+        if sha(GUARD)!=NEW:raise RuntimeError('guard changed during validation')
+        for path,pin in PINS:
+            if path.read_text().count(f"{pin} = '{NEW}'")!=1:raise RuntimeError('final pin mismatch')
+        note=(EVIDENCE/'protocol_note.draft.md').read_text().replace('must all pass on the host without systemd skips before completion.','passed on the host without systemd skips.')
+        protocol_after=protocol_before+note.encode();atomic(PROTOCOL,protocol_after)
+        with RECOVERY.open('a') as f:f.write('\n\n## Sol S8 installed — '+utc()+'\n\nD44: atomically installed reviewed guard `'+NEW+'` in the coordinator quiet window. Official 45 + S3/FIFO 31 + S8 policy 9 cases and all three consumer suites passed on the host, zero skips. Both static pins updated; FIFO OFF. VM-only memory visibility is documented. Backup/audit: `results/zk60_sol_20261026/guard-s8-backup/` and `guard-s8/`. Coordinator must verify and close the window before new work resumes.\n')
+        audit.update(utc_end=utc(),stage='complete',tests=tests,guard_sha256=sha(GUARD),pins={p.name:sha(p) for p,_ in PINS},fifo_on=False,final_status=final_status)
+        record(EVIDENCE/'S8_INSTALL.json',audit);(EVIDENCE/'S8_INSTALL.done').write_text('0\n')
+        print('S8 SWAPPED '+NEW+'; tests passed without skips; holds retained for coordinator close.',flush=True)
+        return 0
+    except BaseException as e:
+        audit.update(utc_end=utc(),stage='aborted',error=str(e),tests=tests)
+        if changed:
+            try:rollback(protocol_before,protocol_after);audit['rollback']='complete'
+            except Exception as failure:audit['rollback']='FAILED: '+str(failure)
+        record(EVIDENCE/'S8_INSTALL.json',audit);(EVIDENCE/'S8_INSTALL.done').write_text('1\n')
+        print('S8 ABORTED '+str(e),flush=True);return 1
 
 def main():
-    problems = preflight()
-    print(json.dumps({'preflight': 'BLOCKED' if problems else 'READY', 'problems': problems}), flush=True)
     if '--apply' not in sys.argv:
-        return 0
-    if problems:
-        return 70
-    tests = ROOT / 'tests/test_zk60_guard_fix.py'
-    assert not tests.exists(), 'staged test already installed; inspect state before applying'
-    atomic(GUARD, (STAGED / 'zk60_resource_guard.py.new').read_bytes())
-    assert sha(GUARD) == NEW
-    atomic(tests, (STAGED / 'tests/test_zk60_guard_fix.py').read_bytes())
-    records = []
-    for pattern in ('test_zk60_resource_guard.py', 'test_zk60_guard_fix.py'):
-        log_path = OUT / f'installed_{pattern}.log'
-        with log_path.open('w') as log:
-            rc = subprocess.run([sys.executable, '-B', '-m', 'unittest', 'discover',
-                                 '-s', str(ROOT / 'tests'), '-p', pattern, '-v'],
-                                cwd=ROOT, stdout=log, stderr=subprocess.STDOUT).returncode
-        text = log_path.read_text()
-        expected = 45 if pattern == 'test_zk60_resource_guard.py' else 31
-        complete = f'Ran {expected} tests' in text and 'skipped=' not in text
-        records.append({'suite': pattern, 'exit': rc, 'all_cases_executed': complete})
-        (OUT / 'guard_swap_tests.json').write_text(json.dumps(records, indent=2) + '\n')
-        if rc or not complete:
-            rollback(tests)
-            print('Suite failed: base guard restored, pins unchanged, holds retained.', flush=True)
-            return rc or 1
-    for path, pin in PINS:
-        data = path.read_text().replace(f"{pin} = '{OLD}'", f"{pin} = '{NEW}'", 1)
-        atomic(path, data.encode())
-    for pattern in ('test_zk60_guarded_command.py', 'test_zk60_techweek_demo.py',
-                    'test_zk60_private_stack_benchmark.py'):
-        with (OUT / f'installed_{pattern}.log').open('w') as log:
-            rc = subprocess.run([sys.executable, '-B', '-m', 'unittest', 'discover',
-                                 '-s', str(ROOT / 'tests'), '-p', pattern, '-v'],
-                                cwd=ROOT, stdout=log, stderr=subprocess.STDOUT).returncode
-        records.append({'suite': pattern, 'exit': rc})
-        (OUT / 'guard_swap_tests.json').write_text(json.dumps(records, indent=2) + '\n')
-        if rc:
-            rollback(tests)
-            print('Consumer suite failed: base guard and pins restored; holds retained.', flush=True)
-            return rc
-    protocol = ROOT / 'docs/zkmatrix-poc/ZK60_RESOURCE_PROTOCOL.md'
-    text = protocol.read_text().replace('`tests/test_zk60_resource_guard.py` (45 pass).',
-        '`tests/test_zk60_resource_guard.py` (45 cases) and `tests/test_zk60_guard_fix.py` (31 cases).')
-    text = text.replace('already queues on the lock, so enqueue follow-ups immediately.',
-        'queues on admission before acquiring the heavy/build locks, then rechecks and registers under the locks. Failed rechecks release the locks before waiting again.')
-    text += '\n\n## Guard admission update, 2026-10-26 (S3)\n\nThe reviewed guard is SHA-256 `' + NEW + '`. Waiting jobs hold no heavy/build lock until the advisory admission check passes. Admission is rechecked and registration remains atomic under the admission lock. Both static Codex pins name this release; the private-stack benchmark still pins dynamically per run. FIFO is OFF by default; `/tmp/zk-guard/fifo.on` or `ZK60_GUARD_FIFO=1` enables it and requires a separate announced decision. A reboot clears the file. Evidence and rollback backup: `results/zk60_sol_20261026/`. The older lane-rule pre-check requirement can remain in callers; it is conservative.\n'
-    atomic(protocol, text.encode())
-    note = '\n\n## Codex Sol S3 installed — ' + datetime.datetime.now(datetime.timezone.utc).isoformat() + '\n\nGuard atomically replaced with `' + NEW + '` after quiescent host/process/HOLD checks. Official 45-case suite and staged 31-case suite passed against the installed guard; both static pins updated. The benchmark has no static third pin. FIFO remains OFF. Durable rollback and validation: `results/zk60_sol_20261026/`. Coordinator may release lane HOLDs after reviewing this terminal record. Lane-rule gap (a) is fixed; FIFO gap (b) remains opt-in.\n'
-    with (ROOT / 'ops/zkp-mvp/RECOVERY_COORDINATION.md').open('a') as stream:
-        stream.write(note)
-    (OUT / 'guard_swap.done').write_text('0\n')
-    print('S3 installed; both static pins updated; FIFO OFF.', flush=True)
-    return 0
+        s=preflight();print(json.dumps({'preflight':'BLOCKED' if s['problems'] else 'READY','problems':s['problems']}));return 0
+    with (EVIDENCE/'install.lock').open('a') as lock:
+        fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
+        return apply()
 
-
-if __name__ == '__main__':
-    result = 1
-    try:
-        result = main()
-    finally:
-        if '--apply' in sys.argv:
-            (OUT / 'guard_swap.done').write_text(f'{result}\n')
-    sys.exit(result)
+if __name__=='__main__':
+    signal.signal(signal.SIGTERM,lambda signum,frame:(_ for _ in ()).throw(InterruptedError('installation interrupted')))
+    sys.exit(main())

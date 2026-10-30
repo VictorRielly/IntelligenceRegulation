@@ -1,0 +1,371 @@
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r14/hashline/src/private_block/token_io/classify.rs	2026-10-28 19:12:07.680191689 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r16b/hashline/src/private_block/token_io/classify.rs	2026-10-29 03:50:55.909632427 -0700
+@@ -39,7 +39,7 @@
+ use super::super::endpoint_g::{self, EndpointRole, EndpointSpecG};
+ use super::super::layout::Layout;
+ use super::super::protocol;
+-use super::super::run::{RunShape, CLASSIFY_RUN_PROFILES};
++use super::super::run::RunShape;
+ use super::super::shape::NormCalibration;
+ use super::super::trained_statement::{apply_own, cal_field, has_own, TrainedModelStatement, OWN_FIELDS};
+ use super::super::wire::{self, SegGeom};
+@@ -137,11 +137,20 @@
+     Policy { id: "rung-tc-synthetic-policy-dev/1".into(), prefix: (1..=8).collect(), suffix: vec![32], num_special: 5, yes: 40, no: 41, c: 0, tokenizer: "synthetic (ids only, no text)".into(), v: 300, pad: 2, margin_scale_bits: (1.0f64 / 256.0).to_bits() }
+ }
+ 
+-/// Shieldstral-1.0-3B with the card's 7-category template (R-C0's pinned ids,
+-/// `classifier/rc0/template_ids.json`: P0 = 84 ending at `>:`, suffix
+-/// `[/INST]`; tekken plain-text encoding, `num_special_tokens` 1000; yes 13059,
+-/// no 2649; tau 0.5 so c = 0). Its block shape lands with the native lane's
+-/// F1-F3; until then no run profile admits it.
++/// Shieldstral-1.0-3B with the model card's 7-category template (round 12,
++/// R-C0's pinned ids, `classifier/rc0/template_ids.json`: P0 = 84 ending at
++/// `>:`, suffix `[/INST]`; tekken plain-text encoding, `num_special_tokens`
++/// 1000; yes 13059, no 2649; tau 0.5 so c = 0).
++/// **TEST BUILDS ONLY since token round 16b (REVIEW_R16 F-1, D45(2)): it is NOT
++/// a pre-registered policy.** Its (yes, no, scale, c) are the R13 Shieldstral
++/// exports' own, so while round 16 kept it in [`registered_policies`] both R13
++/// Shieldstral run profiles admitted it beside the three category policies (a
++/// fourth yes / no question about the hidden content, where D45(2) fixes
++/// three). No build registers it now: `policy_by_id`, the classifier door and
++/// the statement constructor refuse it by name. The tests keep it as the R-C2
++/// derivation's reference policy (`classify_tied_tests`) and as the refused
++/// fourth policy (`classify_r16_tests::r16b`).
++#[cfg(test)]
+ pub(crate) fn policy_shieldstral_card() -> Policy {
+     Policy {
+         id: "shieldstral-1.0-3b-card-unsafe/1".into(),
+@@ -166,6 +175,67 @@
+     }
+ }
+ 
++/// **TOKEN I/O ROUND 16: the three D37 category policies at Shieldstral-1.0-3B**
++/// (sexual / explicit, graphic violence, hate / harassment; Victor
++/// 2026-10-21 03:25), in the MODERATE wording of Astra's candidates
++/// (`results/zk60_shieldstral_export_20261026/category_policy_candidates.json`,
++/// sha256 b1cfcda9…: `mod_sexual`, `mod_violence`, `mod_hate`; ids cross-checked
++/// there against the 4,872 A1 inputs). **The strict-versus-moderate choice is
++/// Victor's (open item 1 of `ZK60_RULINGS_FOR_VICTOR_20261017.md`, 2026-10-28
++/// 23:15; the coordinator recommends moderate):** this build registers ONE
++/// fixed list (D45(2)) and it is the moderate one, pending that ruling;
++/// switching to strict replaces these three entries (new policy ids, new
++/// templates), and an item proved under one is never re-proved under the
++/// other (D45(2)). Every entry: tekken plain-text encoding (B-1: the content
++/// carries its own leading space; B-2: control ids < 1000 refused at content
++/// positions), yes 13059 / no 2649, c = 0 (tau 0.5), pad 11, the margin scale
++/// of native R12b's card policy (the export profile's
++/// `classifier_margin_parameters` must name the same four values).
++const CATEGORY_TEMPLATE_HEAD: [u64; 58] = [
++    1, 17, 1074, 45463, 5627, 1278, 23762, 37005, 1278, 13795, 4057, 1408, 1278, 27356, 1321, 1278, 83779, 5662, 1046, 13708, 1455, 1278, 4832, 1710, 2342, 1402, 1429, 13059, 1034, 1505, 1429, 2649, 3871, 18, 3, 1060, 1785, 8166, 72067, 3213, 1584,
++    1261, 12216, 11673, 2412, 1046, 63882, 1261, 21680, 27710, 13472, 1338, 1060, 7087, 72067, 20525, 1593, 4701,
++];
++/// `"\n\n<Document>: [User]"` (the end of every category template)
++const CATEGORY_TEMPLATE_TAIL: [u64; 7] = [2634, 1060, 16060, 72067, 1766, 4019, 1093];
++/// the query of each category, between the head and the tail
++const QUERY_SEXUAL: [u64; 7] = [4231, 10703, 70351, 1505, 61522, 14960, 4318];
++const QUERY_VIOLENCE: [u64; 7] = [17767, 47223, 16988, 1505, 17438, 8137, 16988];
++const QUERY_HATE: [u64; 13] = [4231, 31483, 16181, 27491, 1261, 8949, 3204, 1044, 1505, 84083, 1505, 7357, 19447];
++
++fn policy_shieldstral_category(id: &str, query: &[u64]) -> Policy {
++    let prefix: Vec<u64> = CATEGORY_TEMPLATE_HEAD.iter().chain(query.iter()).chain(CATEGORY_TEMPLATE_TAIL.iter()).copied().collect();
++    Policy {
++        id: id.into(),
++        prefix,
++        suffix: vec![4],
++        num_special: 1000,
++        yes: 13059,
++        no: 2649,
++        c: 0,
++        tokenizer: "tekken.json sha256 ceb11e85e44d7c91 (plain-text encoding, no special-token parsing; template ids as Astra's candidates b1cfcda9)".into(),
++        v: 131_072,
++        pad: 11,
++        margin_scale_bits: 4.08288030735373e-6f64.to_bits(),
++    }
++}
++
++/// D37 category (1), sexual / explicit content (moderate wording; see above)
++pub(crate) fn policy_shieldstral_moderate_sexual() -> Policy {
++    policy_shieldstral_category("shieldstral-1.0-3b-moderate-sexual/1", &QUERY_SEXUAL)
++}
++/// D37 category (2), graphic violence (moderate wording)
++pub(crate) fn policy_shieldstral_moderate_violence() -> Policy {
++    policy_shieldstral_category("shieldstral-1.0-3b-moderate-violence/1", &QUERY_VIOLENCE)
++}
++/// D37 category (3), hate / harassment (moderate wording)
++pub(crate) fn policy_shieldstral_moderate_hate() -> Policy {
++    policy_shieldstral_category("shieldstral-1.0-3b-moderate-hate/1", &QUERY_HATE)
++}
++/// the D37 category list of this build, in D37's order
++pub(crate) fn shieldstral_category_policies() -> Vec<Policy> {
++    vec![policy_shieldstral_moderate_sexual(), policy_shieldstral_moderate_violence(), policy_shieldstral_moderate_hate()]
++}
++
+ #[cfg(test)]
+ thread_local! {
+     /// test-only extra policies (the tie and threshold controls)
+@@ -178,10 +248,17 @@
+     TEST_POLICIES.with(|t| t.borrow_mut().push(p));
+ }
+ 
+-/// **THE PRE-REGISTERED POLICY LIST (B-6).**
++/// **THE PRE-REGISTERED POLICY LIST (B-6 = D45(2)).** Production builds: the
++/// synthetic development rung's dev policy (V = 300: refused at every
++/// Shieldstral profile by its vocabulary and margin parameters) and the D37
++/// category list, so each R13 Shieldstral run profile admits exactly the three
++/// category policies (token round 16b, REVIEW_R16 F-1; round 12's card policy is
++/// test-only). Test builds add only their thread's registered test policies.
+ pub(crate) fn registered_policies() -> Vec<Policy> {
+     #[allow(unused_mut)]
+-    let mut v = vec![policy_rung_dev(), policy_shieldstral_card()];
++    let mut v = vec![policy_rung_dev()];
++    // TOKEN I/O ROUND 16: the D37 category list (moderate wording, pending Victor)
++    v.extend(shieldstral_category_policies());
+     #[cfg(test)]
+     TEST_POLICIES.with(|t| v.extend(t.borrow().iter().cloned()));
+     v
+@@ -197,9 +274,20 @@
+ /// A policy's chunk size is `T - P0 - S` (every chunk proof at the profile's
+ /// T); the overlap is ONE public constant per deployment profile, never
+ /// chosen per item (the spirit of O-1).
+-pub(crate) const CHUNK_OVERLAPS: [(&str, usize); 1] = [(super::super::run::RUN_PROFILE_CLASSIFY_RUNG_TC, 4)];
++/// **ROUND 16:** the R13 Shieldstral profiles carry an overlap of 8 content
++/// ids (a public, tunable deployment constant of D41, chosen by the token lane
++/// for chunks of 49-55 ids at T128 and 177-183 at T256; not a ruling).
++pub(crate) const CHUNK_OVERLAPS: [(&str, usize); 3] = [
++    (super::super::run::RUN_PROFILE_CLASSIFY_RUNG_TC, 4),
++    (super::super::run::RUN_PROFILE_CLASSIFY_R13_SHIELD_T128, 8),
++    (super::super::run::RUN_PROFILE_CLASSIFY_R13_SHIELD_T256, 8),
++];
+ 
+ pub(crate) fn chunk_overlap_of(run_profile: &str) -> Result<usize, String> {
++    #[cfg(test)]
++    if run_profile == super::super::run::RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST {
++        return Ok(4);
++    }
+     CHUNK_OVERLAPS.iter().find(|(p, _)| *p == run_profile).map(|(_, o)| *o).ok_or_else(|| format!("classifier: no chunk overlap is registered for the run profile {run_profile} (D41)"))
+ }
+ 
+@@ -262,7 +350,50 @@
+ /// `registered_token_runs`)
+ #[cfg(test)]
+ pub(crate) fn registered_classify_runs() -> Vec<(&'static str, Shape)> {
+-    vec![(super::super::run::RUN_PROFILE_CLASSIFY_RUNG_TC, Shape::rung_tc(&super::super::trained_calib_tests::rung_tc_calibration()).expect("the trained-calibration rung"))]
++    let mut v = vec![(super::super::run::RUN_PROFILE_CLASSIFY_RUNG_TC, Shape::rung_tc(&super::super::trained_calib_tests::rung_tc_calibration()).expect("the trained-calibration rung"))];
++    // ROUND 16: the R13 Shieldstral classifier run profiles, each at its R13
++    // block shape (a generic class calibration; the census reads lengths)
++    for (run, block) in super::super::run::ACCURACY_CLASSIFY_RUN_PROFILES {
++        v.push((run, Shape::accuracy_trained(block, &r13_census_calibration(), 9, 20).expect("the R13 Shieldstral block shape")));
++    }
++    // and the test-only R13 rung profile (width 384: the rung's class calibration)
++    let mut rung = r13_census_calibration();
++    rung.tn = 10;
++    v.push((super::super::run::RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST, Shape::accuracy_trained(super::super::shape::R13_RUNG_H24, &rung, 12, 20).expect("the R13 h24 rung shape")));
++    v
++}
++
++/// ROUND 16 (test only): a calibration inside every R13 class at width 3072
++/// (the R13 profile tests' generic one)
++#[cfg(test)]
++pub(crate) fn r13_census_calibration() -> NormCalibration {
++    NormCalibration { tn: 9, cn_a: 100, cn_m: 100, ceps: 1, sh_ao: 7, sh_qkv: 8, sh_s: 6, sh_o: 9, sh_g: 8, sh_h: 14, sh_z: 6 }
++}
++
++/// ROUND 16 (test only): a synthetic trained statement of `l` R13 layer
++/// records at `sh` under the classifier run profile `profile` (digests and
++/// records only, as native R13's `hash_census_model`; layer k's gate shift is
++/// `gates[k]`), with Shieldstral's RoPE transform in its provenance
++#[cfg(test)]
++pub(crate) fn r13_synthetic_model(sh: &Shape, profile: &str, gates: &[u32], export_profile_sha256: [u8; 32], residual_unit: f64) -> TrainedModelStatement {
++    use super::super::trained_statement::{IntegerCalibration, LayerRecord, ModelSource, Provenance, SourceKind};
++    let source = ModelSource { kind: SourceKind::PublicSyntheticRecipe, repo: "hashline/token-io-r16/synthetic-r13".into(), revision: "token-io-r16".into(), weights_sha256: [0; 32], config_sha256: [0; 32], checkpoint_parameters: 0, checkpoint_layers: gates.len() as u32 };
++    let layers = gates
++        .iter()
++        .enumerate()
++        .map(|(k, &g)| {
++            let mut r = LayerRecord::unhashed(k as u32);
++            r.accuracy_gate_shift = Some(g);
++            r.block_digest = [k as u8 + 1; 32];
++            r.silu_member = (-3, -11);
++            r
++        })
++        .collect();
++    let mut prov = Provenance::recipe("token-io-r16/synthetic-r13", residual_unit, [5; 32], [6; 32]);
++    prov.export_profile_sha256 = export_profile_sha256;
++    prov.rope_theta = super::super::shape::trained_rope_theta(sh.profile).expect("a trained profile");
++    prov.rope_scaling = super::super::shape::trained_rope_scaling(sh.profile).expect("a trained profile");
++    TrainedModelStatement::new_synthetic_at_trained_profile_for_tests(sh, profile, source, IntegerCalibration::as_the_code_proves(sh, &prov), layers).expect("the synthetic R13 trained statement")
+ }
+ 
+ /// **s25's census statement of a classifier run profile at `l` blocks**: one
+@@ -272,6 +403,38 @@
+ #[cfg(test)]
+ pub(crate) fn census_classify_statement(profile: &'static str, l: usize) -> (ClassifyRunStatement, TrainedModelStatement, ClassifierTables) {
+     use super::tests::{blocks, ctx, generic_tables, model_of_one, norm};
++    // ROUND 16: an R13 Shieldstral classifier run profile's census statement:
++    // synthetic records (each its gate shift), V = 131,072 tables, the real
++    // classifier final norm's class, the hate policy (the longest template)
++    if profile == super::super::run::RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST {
++        let sh = registered_classify_runs().into_iter().find(|(p, _)| *p == profile).map(|(_, s)| s).expect("the R13 rung test profile");
++        let policy = policy_rung_dev();
++        let gates: Vec<u32> = (0..l).map(|k| 17 + (k as u32 % 8)).collect();
++        let model = r13_synthetic_model(&sh, profile, &gates, [9; 32], 1.0 / 512.0);
++        let digests: Vec<Digest> = model.layers.iter().map(|r| r.block_digest).collect();
++        let tt = generic_tables(sh.width, 0x636c_6173);
++        let w: Vec<i16> = (0..sh.width).map(|i| (i as i16 % 2000) - 1000).collect();
++        let tables = ClassifierTables::new(tt.v, tt.d, tt.emb, w).expect("the census classifier tables");
++        let bound = super::classify_tied::BoundClassifierTables::synthetic_for_relation_tests(tables, 1, norm(), &sh, profile, &model, &policy).expect("the census tables");
++        let n = sh.tokens - policy.prefix.len() - policy.suffix.len();
++        let st = ClassifyRunStatement::new(RunShape::new(sh, l, profile).expect("the classifier run shape"), ctx(), digests, &model, &bound, &policy, n, Tier::R1_MVP, [7u8; 32], 1).expect("the census classifier statement");
++        return (st, model, bound.tables().clone());
++    }
++    if let Some(sh) = registered_classify_runs().into_iter().find(|(p, _)| *p == profile && *p != super::super::run::RUN_PROFILE_CLASSIFY_RUNG_TC).map(|(_, s)| s) {
++        let policy = policy_shieldstral_moderate_hate();
++        let gates: Vec<u32> = (0..l).map(|k| 17 + (k as u32 % 8)).collect();
++        let model = r13_synthetic_model(&sh, profile, &gates, [9; 32], 1.0 / 512.0);
++        let digests: Vec<Digest> = model.layers.iter().map(|r| r.block_digest).collect();
++        let (v, d) = (policy.v, sh.width);
++        let emb: Vec<i16> = (0..v * d).map(|i| ((i * 7919) % 12_001) as i16 - 6_000).collect();
++        let w: Vec<i16> = (0..d).map(|i| (i as i16 % 2000) - 1000).collect();
++        let tables = ClassifierTables::new(v, d, emb, w).expect("the census classifier tables");
++        let fnorm = FinalNorm { g0: 127, cn: 1024, tn: 10, ceps: 2439 };
++        let bound = super::classify_tied::BoundClassifierTables::synthetic_for_relation_tests(tables, 1, fnorm, &sh, profile, &model, &policy).expect("the census tables");
++        let n = sh.tokens - policy.prefix.len() - policy.suffix.len();
++        let st = ClassifyRunStatement::new(RunShape::new(sh, l, profile).expect("the classifier run shape"), ctx(), digests, &model, &bound, &policy, n, Tier::R1_MVP, [7u8; 32], 1).expect("the census classifier statement");
++        return (st, model, bound.tables().clone());
++    }
+     let (sh, policy) = match profile {
+         super::super::run::RUN_PROFILE_CLASSIFY_RUNG_TC => (registered_classify_runs().remove(0).1, policy_rung_dev()),
+         _ => panic!("census_classify_statement: {profile} is not a registered classifier run profile"),
+@@ -535,8 +698,10 @@
+     pub(crate) fn ctl(&self, v: u64) -> bool {
+         v < self.policy.num_special
+     }
+-    /// the query's public control column: `ctl(kappa(t))` at template
+-    /// positions, 0 at content and pad positions
++    /// the query's public control column: `ctl(kappa(t))` at every template
++    /// position (prefix, suffix and, since round 14, a short item's trailing
++    /// pads, which carry `ctl(pad)`), 0 at content positions (ROUND 16:
++    /// REVIEW_R14 N-r14-2's stale comment corrected; comment only)
+     pub(crate) fn ctl_q(&self, t: usize) -> bool {
+         self.is_template(t) && self.ctl(self.kappa(t))
+     }
+@@ -680,6 +845,13 @@
+     scale: i32,
+     whole_run: WholeRun,
+     stage_cal: Vec<NormCalibration>,
++    /// **ROUND 16 (REVIEW_R13 §10 item 3): each block stage's R13 common gate
++    /// denominator**, read from the trained statement's bound layer record
++    /// (`LayerRecord::accuracy_gate_shift`, encoded `accuracy-gate-layer` in
++    /// the model identity the header absorbs); `None` at every legacy shape.
++    /// Block stage `k` is proved and verified at [`ClassifyRunStatement::stage_shape`],
++    /// as native R13's `LayerRecord::shape_at` / `RunStatement::stage_shape`.
++    stage_gate: Vec<Option<u32>>,
+     /// **THE PUBLIC VERDICT** (1 = flagged: `Delta > c`)
+     verdict: u8,
+     /// D41: this proof's chunk of its item (one chunk: the whole content)
+@@ -715,11 +887,19 @@
+         col.push(hiding_opening_log2(sh.endpoint_log_n, sh.endpoint_inv_rate, sh.opened_cols));
+     }
+     let mut lk = vec![super::stage_out_c::logup_size(&super::stage_out_c::layout(sh, cp))];
+-    let blk = block_logup_size(sh);
+-    lk.extend(vec![blk; l]);
+     let field_log2 = 2.0 * (P as f64).log2();
+     let column: f64 = col.iter().map(|x| x.exp2()).sum();
+-    let mut num: f64 = lk.iter().map(|(n, r)| (*n + 3 * *r - 1) as f64).sum::<f64>();
++    let mut num: f64 = if let Some(blk_num) = super::run::r13_block_logup_numerator(sh) {
++        // ROUND 16 (REVIEW_R13 §10 item 6): an R13 block's term is
++        // (N + 4 T_d - 1) / p^2 (degree-2 ACT3 / DD tuples), stage OUT-C's the
++        // legacy (N + 3 R - 1)
++        let (n, r) = lk[0];
++        (n + 3 * r - 1) as f64 + (l as u128 * blk_num) as f64
++    } else {
++        let blk = block_logup_size(sh);
++        lk.extend(vec![blk; l]);
++        lk.iter().map(|(n, r)| (*n + 3 * *r - 1) as f64).sum::<f64>()
++    };
+     let (n_in, r_in) = super::stage_in_c::logup_size(&super::stage_in_c::layout(sh, cp), cp);
+     let lg = clog2(cp.d_pad) as u128;
+     num += (n_in + r_in * (3 + lg) + cp.tokens as u128 * lg) as f64;
+@@ -773,7 +953,7 @@
+         total: usize,
+         chunk_index: usize,
+     ) -> Result<ClassifyRunStatement, String> {
+-        if !CLASSIFY_RUN_PROFILES.contains(&rs.profile()) {
++        if !super::super::run::is_classify_run_profile(rs.profile()) {
+             return Err(format!("classifier run: {} is not a classifier run profile", rs.profile()));
+         }
+         if context == [0; 32] {
+@@ -804,17 +984,28 @@
+         let whole_run = whole_run_of_classifier(sh, l, &cp);
+         let base = sh.norm_calibration();
+         let mut stage_cal = vec![base; l];
++        let mut stage_gate: Vec<Option<u32>> = vec![None; l];
+         for (k, r) in model.layers.iter().enumerate() {
+             if block_digests.get(k) != Some(&r.block_digest) {
+                 return Err(format!("classifier run: layer record {k} (layer {}) is not block {k}'s digest (review TR3-3)", r.index));
+             }
++            // ROUND 16 (REVIEW_R13 §10 item 3): an R13 layer carries exactly one
++            // class-checked gate denominator, a legacy layer none (native
++            // `LayerRecord::check_accuracy_gate`)
++            r.check_accuracy_gate(sh).map_err(|e| format!("classifier run: layer {}: {e}", r.index))?;
++            stage_gate[k] = r.accuracy_gate_shift;
+             if has_own(&r.own) {
+                 let cal = apply_own(&base, &r.own).map_err(|e| format!("classifier run: layer {}: {e}", r.index))?;
+                 sh.with_layer_calibration(&cal).map_err(|e| format!("classifier run: layer {}'s own calibration: {e}", r.index))?;
+                 stage_cal[k] = cal;
+             }
+         }
+-        Ok(ClassifyRunStatement { rs, context, block_digests, model_identity: model.identity(), cp, in_spec, in_root, scale: scales.0, whole_run, stage_cal, verdict, chunk, tables_profile_sha256: tables.profile_sha256(), tables_derived: tables.is_derived() })
++        let st = ClassifyRunStatement { rs, context, block_digests, model_identity: model.identity(), cp, in_spec, in_root, scale: scales.0, whole_run, stage_cal, stage_gate, verdict, chunk, tables_profile_sha256: tables.profile_sha256(), tables_derived: tables.is_derived() };
++        // ROUND 16: every stage shape is buildable before anything else can use it
++        for k in 0..l {
++            st.stage_shape(k)?;
++        }
++        Ok(st)
+     }
+ 
+     /// **ROUND 14 (N-r13-1): the prover's and the verifier's tables are the
+@@ -868,15 +1059,27 @@
+     pub(crate) fn model_identity(&self) -> Digest {
+         self.model_identity
+     }
+-    /// the shape block stage `k` is proved and verified at (NATIVE R8, as the token run)
++    /// the shape block stage `k` is proved and verified at (NATIVE R8, as the
++    /// token run; **ROUND 16, native R13's `RunStatement::stage_shape`**: at an
++    /// R13 shape, then at the layer record's bound gate denominator — without
++    /// it every R13 stage would be the run seed's G = 17 and fail closed)
+     pub(crate) fn stage_shape(&self, k: usize) -> Result<Shape, String> {
+         let cal = *self.stage_cal.get(k).ok_or_else(|| format!("classifier run: no block stage {k}"))?;
+-        if cal == self.sh().norm_calibration() {
+-            Ok(self.sh().clone())
++        let sh = if cal == self.sh().norm_calibration() { self.sh().clone() } else { self.sh().with_layer_calibration(&cal)? };
++        if sh.accuracy_stack() == super::super::accuracy_precision::Stack::Legacy {
++            if self.stage_gate.get(k).copied().flatten().is_some() {
++                return Err(format!("classifier run: block stage {k} is legacy but carries an R13 gate denominator"));
++            }
++            Ok(sh)
+         } else {
+-            self.sh().with_layer_calibration(&cal)
++            let g = self.stage_gate.get(k).copied().flatten().ok_or_else(|| format!("classifier run: block stage {k} carries no R13 gate denominator"))?;
++            sh.with_accuracy_gate_shift(g)
+         }
+     }
++    /// ROUND 16: block stage `k`'s R13 gate denominator (`None` at a legacy shape)
++    pub(crate) fn stage_gate(&self, k: usize) -> Option<u32> {
++        self.stage_gate.get(k).copied().flatten()
++    }
+     pub(crate) fn boundary_spec(&self, j: usize) -> Result<BoundarySpec, String> {
+         let sh = self.sh();
+         if j > self.l() {
+@@ -957,6 +1160,11 @@
+                     own.push_str(&format!("; {label} {v} (the layer's own; the run's is {b})"));
+                 }
+             }
++            // ROUND 16: an R13 stage names its bound gate denominator (legacy
++            // stage lines are byte for byte what they were)
++            if let Some(g) = self.stage_gate[k] {
++                own.push_str(&format!("; R13 gate denominator {g} (the layer record's accuracy-gate-layer)"));
++            }
+             out.push(format!(
+                 "stage {:02} (block {k}): commits boundary {}{}; slot 21 claims boundary {} at pair row {}; slot 22 claims boundary {} at pair row {}; opens M A H then boundary {}; data rows {}{own}",
+                 k + 1,

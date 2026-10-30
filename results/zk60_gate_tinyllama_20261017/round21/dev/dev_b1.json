@@ -1,0 +1,555 @@
+{
+ "blocks_evaluated": [
+  1
+ ],
+ "capture": "/home/victor/zk60-artifacts/token-io/captures/classify-r13-shield-t128-cli-hate-r17-values",
+ "capture_manifest_sha256": "840872c499dddfa947331554dcb978fecbb679f8e96c8b1ed0356fa463c9b814",
+ "controls": {
+  "C21-1 one weight of w_q moved by 1": {
+   "differing": [
+    "fold(w_q)"
+   ],
+   "expected": [
+    "fold(w_q)"
+   ],
+   "fired": true
+  },
+  "C21-2 one q multiplier + 1": {
+   "differing": [
+    "fold(w_q)"
+   ],
+   "expected": [
+    "fold(w_q)"
+   ],
+   "fired": true
+  },
+  "C21-3 one folded gate coefficient + one unit": {
+   "differing": [
+    "fold(w_g)"
+   ],
+   "expected": [
+    "fold(w_g)"
+   ],
+   "fired": true
+  },
+  "C21-4 fold(w_v) at slot 6's challenge point": {
+   "differing": [
+    "fold(w_v)"
+   ],
+   "expected": [
+    "fold(w_v)"
+   ],
+   "fired": true
+  },
+  "C21-5 the RoPE sin sign convention flipped": {
+   "differing": [
+    "rope_sin@Kv",
+    "rope_sin@Q"
+   ],
+   "expected": [
+    "rope_sin@Kv",
+    "rope_sin@Q"
+   ],
+   "fired": true
+  },
+  "C21-6 one raw SiLU word of group 0 + 1": {
+   "differing": [
+    "act3_values"
+   ],
+   "expected": [
+    "act3_values"
+   ],
+   "fired": true
+  },
+  "C21-7 G_k + 1 (the gate fold's common denominator)": {
+   "differing": [
+    "fold(w_g)"
+   ],
+   "expected": [
+    "fold(w_g)"
+   ],
+   "fired": true
+  },
+  "C21-8 the next layer's export (1) for stage 1": {
+   "differing": [
+    "act3_values",
+    "fold(w_d)",
+    "fold(w_g)",
+    "fold(w_k)",
+    "fold(w_o)",
+    "fold(w_q)",
+    "fold(w_u)",
+    "fold(w_v)",
+    "gamma_a",
+    "gamma_m",
+    "group_column"
+   ],
+   "expected_at_least": [
+    "fold(w_d)",
+    "fold(w_g)",
+    "fold(w_k)",
+    "fold(w_o)",
+    "fold(w_q)",
+    "fold(w_u)",
+    "fold(w_v)",
+    "gamma_a",
+    "gamma_m"
+   ],
+   "fired": true
+  }
+ },
+ "exp_generators": [
+  {
+   "closest_approach_to_a_rounding_tie": 0.020512679198513274,
+   "e_s": 2,
+   "export_equals_exact": true,
+   "export_equals_float64_generator": true,
+   "f_e": 9,
+   "layers": [
+    0
+   ]
+  }
+ ],
+ "export": "/home/victor/IntelligenceRegulation/results/zk60_shieldstral_export_20261026/native_low_h24_t128",
+ "export_profile_is_the_runs": true,
+ "export_profile_sha256": "2ba468f98085caf1136f27cf66220f93d8e316acb8dbae7e98f9eb68347f05a0",
+ "mem_start": {
+  "RssAnon": 0.026,
+  "RssFile": 0.017,
+  "VmHWM": 0.043,
+  "VmRSS": 0.043,
+  "maxrss_gib": 0.043
+ },
+ "privacy_acceptance": false,
+ "run_json_sha256_ok": true,
+ "script_sha256": "7eb5917ec7553e28a2f51e8b28f75628e18be3e5ee32e56e7366cbe4fafb6a8e",
+ "stages": [
+  {
+   "G_derived": 19,
+   "G_stage_line": 19,
+   "base_member": [
+    -4,
+    -13
+   ],
+   "entries": 4546560,
+   "equal": 17,
+   "findings": [],
+   "groups": [
+    [
+     -5,
+     -13
+    ],
+    [
+     -4,
+     -12
+    ],
+    [
+     -3,
+     -11
+    ]
+   ],
+   "layer": 0,
+   "layer_arrays_sha256_checked": 22,
+   "layer_manifest_sha256": "b9bf814c731856c2fc55bac592c412fa44089ef7d3d84cdcb7f0f0fdddaa9eaa",
+   "mem": {
+    "RssAnon": 0.183,
+    "RssFile": 0.018,
+    "VmHWM": 0.232,
+    "VmRSS": 0.2,
+    "maxrss_gib": 0.232
+   },
+   "of": 17,
+   "ok": true,
+   "product_shift_stage_line": 16,
+   "seconds": 0.94,
+   "sh_h_layer": 16,
+   "silu": [
+    {
+     "closest_approach_to_a_rounding_tie": 1.0172277695115431e-05,
+     "export_equals_exact_decimal": true,
+     "export_equals_float64_definition": true,
+     "export_equals_native_reference_vectors": true,
+     "export_equals_sol_formula": true,
+     "max": 32162,
+     "member": [
+      -5,
+      -13
+     ],
+     "min": -2281,
+     "zero_row_is_0": true
+    },
+    {
+     "closest_approach_to_a_rounding_tie": 0.0008421112542699706,
+     "export_equals_exact_decimal": true,
+     "export_equals_float64_definition": true,
+     "export_equals_native_reference_vectors": true,
+     "export_equals_sol_formula": true,
+     "max": 32741,
+     "member": [
+      -4,
+      -12
+     ],
+     "min": -1141,
+     "zero_row_is_0": true
+    },
+    {
+     "closest_approach_to_a_rounding_tie": 4.0686130916313526e-05,
+     "export_equals_exact_decimal": true,
+     "export_equals_float64_definition": true,
+     "export_equals_native_reference_vectors": true,
+     "export_equals_sol_formula": true,
+     "max": 32752,
+     "member": [
+      -3,
+      -11
+     ],
+     "min": -570,
+     "zero_row_is_0": true
+    }
+   ],
+   "stage": 1,
+   "stage_file_sha256_ok": true,
+   "tables": [
+    {
+     "array_key_equal": true,
+     "bytes_equal": true,
+     "digest_equal": true,
+     "equal": true,
+     "len": 4096,
+     "len_recorded": 4096,
+     "sha256_derived": "8eee52aaf91776b3afabf63386729f3b8a4a03fb2caf62331ebafce06484efd4",
+     "sha256_recorded": "8eee52aaf91776b3afabf63386729f3b8a4a03fb2caf62331ebafce06484efd4",
+     "slot": 5,
+     "store": {
+      "bytes": 65536,
+      "elem": "fp2",
+      "offset": 22306816
+     },
+     "table": "fold(w_q)",
+     "table_index": 1
+    },
+    {
+     "array_key_equal": true,
+     "bytes_equal": true,
+     "digest_equal": true,
+     "equal": true,
+     "len": 4096,
+     "len_recorded": 4096,
+     "sha256_derived": "651a23dcb5091638e9a9c4a1ebf69ef85281d8216677a005626e6c046e6c4f04",
+     "sha256_recorded": "651a23dcb5091638e9a9c4a1ebf69ef85281d8216677a005626e6c046e6c4f04",
+     "slot": 6,
+     "store": {
+      "bytes": 65536,
+      "elem": "fp2",
+      "offset": 22372352
+     },
+     "table": "fold(w_k)",
+     "table_index": 1
+    },
+    {
+     "array_key_equal": true,
+     "bytes_equal": true,
+     "digest_equal": true,
+     "equal": true,
+     "len": 4096,
+     "len_recorded": 4096,
+     "sha256_derived": "aa4433ce7819549d1530612e883ba95659f615e4c696dc0b15f98ffd879fc02a",
+     "sha256_recorded": "aa4433ce7819549d1530612e883ba95659f615e4c696dc0b15f98ffd879fc02a",
+     "slot": 7,
+     "store": {
+      "bytes": 65536,
+      "elem": "fp2",
+      "offset": 22437888
+     },
+     "table": "fold(w_v)",
+     "table_index": 1
+    },
+    {
+     "array_key_equal": true,
+     "bytes_equal": true,
+     "digest_equal": true,
+     "equal": true,
+     "len": 4096,
+     "len_recorded": 4096,
+     "sha256_derived": "f278fe053ec6b8eb835fd69939e2818c373e231d2f3eaff0301d552beddb8735",
+     "sha256_recorded": "f278fe053ec6b8eb835fd69939e2818c373e231d2f3eaff0301d552beddb8735",
+     "slot": 10,
+     "store": {
+      "bytes": 65536,
+      "elem": "fp2",
+      "offset": 22503424
+     },
+     "table": "fold(w_o)",
+     "table_index": 1
+    },
+    {
+     "array_key_equal": true,
+     "bytes_equal": true,
+     "digest_equal": true,
+     "equal": true,
+     "len": 4096,
+     "len_recorded": 4096,
+     "sha256_derived": "743c5eb2428da02af5de26e36f25ee3b77a37b99797085314dd9f9b3912eecc1",
+     "sha256_recorded": "743c5eb2428da02af5de26e36f25ee3b77a37b99797085314dd9f9b3912eecc1",
+     "slot": 11,
+     "store": {
+      "bytes": 65536,
+      "elem": "fp2",
+      "offset": 22568960
+     },
+     "table": "fold(w_g)",
+     "table_index": 1
+    },
+    {
+     "array_key_equal": true,
+     "bytes_equal": true,
+     "digest_equal": true,
+     "equal": true,
+     "len": 4096,
+     "len_recorded": 4096,
+     "sha256_derived": "d2b96f70449aa644e818791e730405684c3397ccfafaa176bcb5bf2f5a8744e2",
+     "sha256_recorded": "d2b96f70449aa644e818791e730405684c3397ccfafaa176bcb5bf2f5a8744e2",
+     "slot": 12,
+     "store": {
+      "bytes": 65536,
+      "elem": "fp2",
+      "offset": 22634496
+     },
+     "table": "fold(w_u)",
+     "table_index": 1
+    },
+    {
+     "array_key_equal": true,
+     "bytes_equal": true,
+     "digest_equal": true,
+     "equal": true,
+     "len": 16384,
+     "len_recorded": 16384,
+     "sha256_derived": "5c7706a9626e7890e3c556c08264a830694cc8c2de57309b5bae3b6c3970b6d8",
+     "sha256_recorded": "5c7706a9626e7890e3c556c08264a830694cc8c2de57309b5bae3b6c3970b6d8",
+     "slot": 13,
+     "store": {
+      "bytes": 262144,
+      "elem": "fp2",
+      "offset": 22700032
+     },
+     "table": "fold(w_d)",
+     "table_index": 1
+    },
+    {
+     "array_key_equal": true,
+     "bytes_equal": true,
+     "digest_equal": true,
+     "equal": true,
+     "len": 524288,
+     "len_recorded": 524288,
+     "sha256_derived": "47b0e75f48e479aac32092bbc673d98558bb67a5663aa59d169cf2712e48bfee",
+     "sha256_recorded": "47b0e75f48e479aac32092bbc673d98558bb67a5663aa59d169cf2712e48bfee",
+     "slot": 14,
+     "store": {
+      "bytes": 8388608,
+      "elem": "fp2",
+      "offset": 22962176
+     },
+     "table": "gamma_a",
+     "table_index": 3
+    },
+    {
+     "array_key_equal": true,
+     "bytes_equal": true,
+     "digest_equal": true,
+     "equal": true,
+     "len": 524288,
+     "len_recorded": 524288,
+     "sha256_derived": "6b113b17ee7d745c5c4d953f933eb4606cb032bf0f5d72a0db87e213d43ff942",
+     "sha256_recorded": "6b113b17ee7d745c5c4d953f933eb4606cb032bf0f5d72a0db87e213d43ff942",
+     "slot": 14,
+     "store": {
+      "bytes": 8388608,
+      "elem": "fp2",
+      "offset": 31350784
+     },
+     "table": "gamma_m",
+     "table_index": 4
+    },
+    {
+     "array_key_equal": true,
+     "bytes_equal": true,
+     "digest_equal": true,
+     "equal": true,
+     "len": 524288,
+     "len_recorded": 524288,
+     "sha256_derived": "11b8760e9d18a305ef23c02df8554c8c4c010c954d8af705fdcdff345b998472",
+     "sha256_recorded": "11b8760e9d18a305ef23c02df8554c8c4c010c954d8af705fdcdff345b998472",
+     "slot": 15,
+     "store": {
+      "bytes": 8388608,
+      "elem": "fp2",
+      "offset": 39739392
+     },
+     "table": "rope_cos@Q",
+     "table_index": 3
+    },
+    {
+     "array_key_equal": true,
+     "bytes_equal": true,
+     "digest_equal": true,
+     "equal": true,
+     "len": 524288,
+     "len_recorded": 524288,
+     "sha256_derived": "faf275b9d134b633c5f948c99875c5121d93704343c31305165410056deaa3da",
+     "sha256_recorded": "faf275b9d134b633c5f948c99875c5121d93704343c31305165410056deaa3da",
+     "slot": 15,
+     "store": {
+      "bytes": 8388608,
+      "elem": "fp2",
+      "offset": 48128000
+     },
+     "table": "rope_sin@Q",
+     "table_index": 4
+    },
+    {
+     "array_key_equal": true,
+     "bytes_equal": true,
+     "digest_equal": true,
+     "equal": true,
+     "len": 131072,
+     "len_recorded": 131072,
+     "sha256_derived": "8090dedc7126985bc0d079cb1600dc49797224c272f6d6cf0103141ca8d44f7a",
+     "sha256_recorded": "8090dedc7126985bc0d079cb1600dc49797224c272f6d6cf0103141ca8d44f7a",
+     "slot": 16,
+     "store": {
+      "bytes": 2097152,
+      "elem": "fp2",
+      "offset": 56516608
+     },
+     "table": "rope_cos@Kv",
+     "table_index": 3
+    },
+    {
+     "array_key_equal": true,
+     "bytes_equal": true,
+     "digest_equal": true,
+     "equal": true,
+     "len": 131072,
+     "len_recorded": 131072,
+     "sha256_derived": "6c17b21bfea7cafa3d5ba4563c46d7f27cbbb7b26662601155ec8ec763812e7e",
+     "sha256_recorded": "6c17b21bfea7cafa3d5ba4563c46d7f27cbbb7b26662601155ec8ec763812e7e",
+     "slot": 16,
+     "store": {
+      "bytes": 2097152,
+      "elem": "fp2",
+      "offset": 58613760
+     },
+     "table": "rope_sin@Kv",
+     "table_index": 4
+    },
+    {
+     "array_key_equal": true,
+     "bytes_equal": true,
+     "digest_equal": true,
+     "equal": true,
+     "len": 2097152,
+     "len_recorded": 2097152,
+     "sha256_derived": "b63ced91e9b7175b2c75d986069b905c833269e18a22332b916d4d03c6abaadd",
+     "sha256_recorded": "b63ced91e9b7175b2c75d986069b905c833269e18a22332b916d4d03c6abaadd",
+     "slot": 18,
+     "store": {
+      "bytes": 33554432,
+      "elem": "fp2",
+      "offset": 60710912
+     },
+     "table": "group_column",
+     "table_index": 27
+    },
+    {
+     "array_key_equal": true,
+     "bytes_equal": true,
+     "digest_equal": true,
+     "equal": true,
+     "len": 16384,
+     "len_recorded": 16384,
+     "sha256_derived": "7c5382bb5e642f7a1c35c879c8657fe9a88d24bf639ae1cda5f103dd40406954",
+     "sha256_recorded": "7c5382bb5e642f7a1c35c879c8657fe9a88d24bf639ae1cda5f103dd40406954",
+     "slot": 19,
+     "store": {
+      "bytes": 262144,
+      "elem": "fp2",
+      "offset": 128081920
+     },
+     "table": "exp_values",
+     "table_index": 6
+    },
+    {
+     "array_key_equal": true,
+     "bytes_equal": true,
+     "digest_equal": true,
+     "equal": true,
+     "len": 16384,
+     "len_recorded": 16384,
+     "sha256_derived": "2321ed8236e1bd9f456cf71877c595058f8368c0afc13c27d504e18f213f9501",
+     "sha256_recorded": "2321ed8236e1bd9f456cf71877c595058f8368c0afc13c27d504e18f213f9501",
+     "slot": 19,
+     "store": {
+      "bytes": 262144,
+      "elem": "fp2",
+      "offset": 128344064
+     },
+     "table": "act3_values",
+     "table_index": 9
+    },
+    {
+     "array_key_equal": true,
+     "bytes_equal": true,
+     "digest_equal": true,
+     "equal": true,
+     "len": 16384,
+     "len_recorded": 16384,
+     "sha256_derived": "13884e9ca797e363bfbe2966f507245aef9fc2e311cee39c61e72938504a0917",
+     "sha256_recorded": "13884e9ca797e363bfbe2966f507245aef9fc2e311cee39c61e72938504a0917",
+     "slot": 19,
+     "store": {
+      "bytes": 262144,
+      "elem": "fp2",
+      "offset": 128868352
+     },
+     "table": "act_support",
+     "table_index": 11
+    }
+   ]
+  }
+ ],
+ "summary": {
+  "G_all_equal_stage_lines": true,
+  "all_ok": true,
+  "arrays": 17,
+  "arrays_equal": 17,
+  "controls_fired": true,
+  "entries_compared": 4546560,
+  "mem_end": {
+   "RssAnon": 0.098,
+   "RssFile": 0.018,
+   "VmHWM": 0.328,
+   "VmRSS": 0.115,
+   "maxrss_gib": 0.328
+  },
+  "seconds": 4.8,
+  "silu_members_checked": [
+   [
+    -5,
+    -13
+   ],
+   [
+    -4,
+    -12
+   ],
+   [
+    -3,
+    -11
+   ]
+  ],
+  "stages": 1,
+  "stages_ok": 1
+ },
+ "what": "gate round 21: an independent gate-side derivation of the 17 public block-stage arrays from the T128 export, compared byte for byte with the capture [MEASURED]; NOT a privacy result"
+}

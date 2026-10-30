@@ -1,0 +1,77 @@
+
+running 1 test
+test private_block::s33_tests::no_transcript_constructor_input_can_equal_an_absorb_input_of_the_same_length ...       67 B  `hashline-zk-mr1/private-block-llama-3-8b-t128-ddict32/1` — 20 layouts, at least 14 separating positions each, the first at offset 33
+      67 B  `hashline-zk-mr1/private-block-llama-3-8b-t128-lh24-dd/1` — 20 layouts, at least 14 separating positions each, the first at offset 33
+      67 B  `hashline-zk-mr1/private-block-llama-3-8b-t128-lh24-v1/1` — 20 layouts, at least 14 separating positions each, the first at offset 33
+      67 B  `hashline-zk-mr1/private-block-llama-3-8b-t128-trained/1` — 20 layouts, at least 14 separating positions each, the first at offset 33
+      66 B  `hashline-zk-mr1/private-block-llama-3-8b-t32-trained/1` — 19 layouts, at least 14 separating positions each, the first at offset 33
+      66 B  `hashline-zk-mr1/private-block-llama-3-8b-t64-trained/1` — 19 layouts, at least 14 separating positions each, the first at offset 33
+      48 B  `hashline-zk-mr1/private-block-m125/1` — 1 layouts, at least 16 separating positions each, the first at offset 32
+      59 B  `hashline-zk-mr1/private-block-rung-c6-t32-dev/1` — 12 layouts, at least 14 separating positions each, the first at offset 33
+      59 B  `hashline-zk-mr1/private-block-rung-dd-t32-dev/1` — 12 layouts, at least 14 separating positions each, the first at offset 33
+      60 B  `hashline-zk-mr1/private-block-rung-e32-t32-dev/1` — 13 layouts, at least 14 separating positions each, the first at offset 33
+      58 B  `hashline-zk-mr1/private-block-rung-g-t24-dev/1` — 11 layouts, at least 14 separating positions each, the first at offset 33
+      59 B  `hashline-zk-mr1/private-block-rung-hd-t32-dev/1` — 12 layouts, at least 14 separating positions each, the first at offset 33
+      59 B  `hashline-zk-mr1/private-block-rung-hh-t32-dev/1` — 12 layouts, at least 14 separating positions each, the first at offset 33
+      59 B  `hashline-zk-mr1/private-block-rung-k4-t24-dev/1` — 12 layouts, at least 14 separating positions each, the first at offset 33
+      59 B  `hashline-zk-mr1/private-block-rung-ld-t32-dev/1` — 12 layouts, at least 14 separating positions each, the first at offset 33
+      59 B  `hashline-zk-mr1/private-block-rung-lh-t32-dev/1` — 12 layouts, at least 14 separating positions each, the first at offset 33
+      59 B  `hashline-zk-mr1/private-block-rung-lo-t32-dev/1` — 12 layouts, at least 14 separating positions each, the first at offset 33
+      59 B  `hashline-zk-mr1/private-block-rung-p2-t32-dev/1` — 12 layouts, at least 14 separating positions each, the first at offset 33
+      56 B  `hashline-zk-mr1/private-block-rung-t24-dev/1` — 9 layouts, at least 14 separating positions each, the first at offset 33
+      59 B  `hashline-zk-mr1/private-block-rung-tc-t32-dev/1` — 12 layouts, at least 14 separating positions each, the first at offset 33
+      60 B  `hashline-zk-mr1/private-block-rung-w14-t64-dev/1` — 13 layouts, at least 14 separating positions each, the first at offset 33
+      77 B  `hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/1` — 30 layouts, at least 14 separating positions each, the first at offset 33
+      77 B  `hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-ddict1/1` — 30 layouts, at least 14 separating positions each, the first at offset 33
+      77 B  `hashline-zk-mr1/private-block-shieldstral-3b-t128-trained-block/1` — 30 layouts, at least 14 separating positions each, the first at offset 33
+      77 B  `hashline-zk-mr1/private-block-shieldstral-3b-t128-trained-ddict/1` — 30 layouts, at least 14 separating positions each, the first at offset 33
+      77 B  `hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-blocks/1` — 30 layouts, at least 14 separating positions each, the first at offset 33
+      77 B  `hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-ddict1/1` — 30 layouts, at least 14 separating positions each, the first at offset 33
+      77 B  `hashline-zk-mr1/private-block-shieldstral-3b-t256-trained-block/1` — 30 layouts, at least 14 separating positions each, the first at offset 33
+      77 B  `hashline-zk-mr1/private-block-shieldstral-3b-t256-trained-ddict/1` — 30 layouts, at least 14 separating positions each, the first at offset 33
+      51 B  `hashline-zk-mr1/private-block-t32-poc/1` — 4 layouts, at least 14 separating positions each, the first at offset 33
+      77 B  `hashline-zk-mr1/private-block-tinyllama-1.1b-t128-low-ddict-v01/1` — 30 layouts, at least 14 separating positions each, the first at offset 33
+      77 B  `hashline-zk-mr1/private-block-tinyllama-1.1b-t128-low-stack-v01/1` — 30 layouts, at least 14 separating positions each, the first at offset 33
+      77 B  `hashline-zk-mr1/private-block-tinyllama-1.1b-t128-trained-block/1` — 30 layouts, at least 14 separating positions each, the first at offset 33
+      77 B  `hashline-zk-mr1/private-block-tinyllama-1.1b-t128-trained-ddict/1` — 30 layouts, at least 14 separating positions each, the first at offset 33
+      70 B  `hashline-zk-mr1/private-block-tinyllama-1.1b-t32-trained/1` — 23 layouts, at least 14 separating positions each, the first at offset 33
+      70 B  `hashline-zk-mr1/private-block-tinyllama-1.1b-t64-trained/1` — 23 layouts, at least 14 separating positions each, the first at offset 33
+      75 B  `hashline-zk-mr1/private-run-llama-3-8b-t128-ddict32-statement/1` — 28 layouts, at least 14 separating positions each, the first at offset 33
+      75 B  `hashline-zk-mr1/private-run-llama-3-8b-t128-lh24-dd-statement/1` — 28 layouts, at least 14 separating positions each, the first at offset 33
+      75 B  `hashline-zk-mr1/private-run-llama-3-8b-t128-lh24-v1-statement/1` — 28 layouts, at least 14 separating positions each, the first at offset 33
+      75 B  `hashline-zk-mr1/private-run-llama-3-8b-t128-trained-statement/1` — 28 layouts, at least 14 separating positions each, the first at offset 33
+      74 B  `hashline-zk-mr1/private-run-llama-3-8b-t32-trained-statement/1` — 27 layouts, at least 14 separating positions each, the first at offset 33
+      74 B  `hashline-zk-mr1/private-run-llama-3-8b-t64-trained-statement/1` — 27 layouts, at least 14 separating positions each, the first at offset 33
+      46 B  `hashline-zk-mr1/private-run-m125/1` — below the shortest absorb input (48 B): no layout of this length exists
+      57 B  `hashline-zk-mr1/private-run-rung-c6-t32-dev/1` — 10 layouts, at least 14 separating positions each, the first at offset 33
+      57 B  `hashline-zk-mr1/private-run-rung-dd-t32-dev/1` — 10 layouts, at least 14 separating positions each, the first at offset 33
+      58 B  `hashline-zk-mr1/private-run-rung-e32-t32-dev/1` — 11 layouts, at least 14 separating positions each, the first at offset 33
+      56 B  `hashline-zk-mr1/private-run-rung-g-t24-dev/1` — 9 layouts, at least 14 separating positions each, the first at offset 33
+      57 B  `hashline-zk-mr1/private-run-rung-hd-t32-dev/1` — 10 layouts, at least 14 separating positions each, the first at offset 33
+      57 B  `hashline-zk-mr1/private-run-rung-hh-t32-dev/1` — 10 layouts, at least 14 separating positions each, the first at offset 33
+      57 B  `hashline-zk-mr1/private-run-rung-k4-t24-dev/1` — 10 layouts, at least 14 separating positions each, the first at offset 33
+      57 B  `hashline-zk-mr1/private-run-rung-ld-t32-dev/1` — 10 layouts, at least 14 separating positions each, the first at offset 33
+      57 B  `hashline-zk-mr1/private-run-rung-lh-t32-dev/1` — 10 layouts, at least 14 separating positions each, the first at offset 33
+      57 B  `hashline-zk-mr1/private-run-rung-lo-t32-dev/1` — 10 layouts, at least 14 separating positions each, the first at offset 33
+      57 B  `hashline-zk-mr1/private-run-rung-p2-t32-dev/1` — 10 layouts, at least 14 separating positions each, the first at offset 33
+      57 B  `hashline-zk-mr1/private-run-rung-tc-t32-dev/1` — 10 layouts, at least 14 separating positions each, the first at offset 33
+      58 B  `hashline-zk-mr1/private-run-rung-w14-t64-dev/1` — 11 layouts, at least 14 separating positions each, the first at offset 33
+      79 B  `hashline-zk-mr1/private-run-shieldstral-3b-t128-ddict32-statement/1` — 32 layouts, at least 14 separating positions each, the first at offset 33
+      79 B  `hashline-zk-mr1/private-run-shieldstral-3b-t128-lowh24-blocks-run/1` — 32 layouts, at least 14 separating positions each, the first at offset 33
+      79 B  `hashline-zk-mr1/private-run-shieldstral-3b-t128-lowh24-ddict1-run/1` — 32 layouts, at least 14 separating positions each, the first at offset 33
+      79 B  `hashline-zk-mr1/private-run-shieldstral-3b-t128-trained-statement/1` — 32 layouts, at least 14 separating positions each, the first at offset 33
+      79 B  `hashline-zk-mr1/private-run-shieldstral-3b-t256-ddict32-statement/1` — 32 layouts, at least 14 separating positions each, the first at offset 33
+      79 B  `hashline-zk-mr1/private-run-shieldstral-3b-t256-lowh24-blocks-run/1` — 32 layouts, at least 14 separating positions each, the first at offset 33
+      79 B  `hashline-zk-mr1/private-run-shieldstral-3b-t256-lowh24-ddict1-run/1` — 32 layouts, at least 14 separating positions each, the first at offset 33
+      79 B  `hashline-zk-mr1/private-run-shieldstral-3b-t256-trained-statement/1` — 32 layouts, at least 14 separating positions each, the first at offset 33
+      79 B  `hashline-zk-mr1/private-run-tinyllama-1.1b-t128-ddict32-statement/1` — 32 layouts, at least 14 separating positions each, the first at offset 33
+      79 B  `hashline-zk-mr1/private-run-tinyllama-1.1b-t128-low-ddict-v01-run/1` — 32 layouts, at least 14 separating positions each, the first at offset 33
+      79 B  `hashline-zk-mr1/private-run-tinyllama-1.1b-t128-low-stack-v01-run/1` — 32 layouts, at least 14 separating positions each, the first at offset 33
+      79 B  `hashline-zk-mr1/private-run-tinyllama-1.1b-t128-trained-statement/1` — 32 layouts, at least 14 separating positions each, the first at offset 33
+      78 B  `hashline-zk-mr1/private-run-tinyllama-1.1b-t32-trained-statement/1` — 31 layouts, at least 14 separating positions each, the first at offset 33
+      78 B  `hashline-zk-mr1/private-run-tinyllama-1.1b-t64-trained-statement/1` — 31 layouts, at least 14 separating positions each, the first at offset 33
+S33 J-7a lemma: 70 registered profiles, 1438 absorb layouts, EVERY one separated; the thinnest is 14 forced-NUL positions at `hashline-zk-mr1/private-block-llama-3-8b-t128-ddict32/1`
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 715 filtered out; finished in 0.00s
+

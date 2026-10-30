@@ -1,0 +1,63 @@
+--- a/hashline/src/private_block/argument.rs
++++ b/hashline/src/private_block/argument.rs
+@@ -407,6 +407,38 @@
+     let logm = p.log.min(log_n);
+     let c0 = if p.log < log_n { p.slices[0].0 % n } else { 0 };
+     let eq = eq_table_msb(&point[p.log - logm..]);
++    let row = |r: usize| {
++        data[r * n + c0..r * n + c0 + eq.len()].iter().zip(eq.iter()).fold(Fp2::ZERO, |a, (x, e)| a.add(e.mul_base(*x)))
++    };
++    row(p.mask_row).add(Fp2::U.mul(row(p.mask_row + 1)))
++}
++
++// UNCOMPILED research proposal: current slot, public challenge weights only.
++#[derive(Default)]
++struct MaskTailWeights {
++    point: Vec<Fp2>,
++    eq: Vec<Fp2>,
++}
++
++impl MaskTailWeights {
++    fn at(&mut self, point: &[Fp2]) -> &[Fp2] {
++        if self.eq.is_empty() || self.point.as_slice() != point {
++            // Drop the old vector before allocating its replacement.
++            self.eq = Vec::new();
++            self.point.clear();
++            self.point.extend_from_slice(point);
++            self.eq = eq_table_msb(point);
++        }
++        &self.eq
++    }
++}
++
++/// the mask pair's value at the claim's column tail
++fn mask_eval_cached(sh: &Shape, p: &Priv, data: &[Fp], point: &[Fp2], weights: &mut MaskTailWeights) -> Fp2 {
++    let (log_n, n) = (row_log(sh, p.cm), 1usize << row_log(sh, p.cm));
++    let logm = p.log.min(log_n);
++    let c0 = if p.log < log_n { p.slices[0].0 % n } else { 0 };
++    let eq = weights.at(&point[p.log - logm..]);
+     let row = |r: usize| {
+         data[r * n + c0..r * n + c0 + eq.len()].iter().zip(eq.iter()).fold(Fp2::ZERO, |a, (x, e)| a.add(e.mul_base(*x)))
+     };
+@@ -610,12 +642,20 @@
+             let mut cur = finals;
+             let mut prev = rho.clone();
+             super::timing::slot_step(s, "extension rounds (mask_eval + zk.rs)", ext as u64, || {
++                // Public weights are owned by this slot; private rows remain per site.
++                let mut tail_weights = if n_priv > 1 { Some(MaskTailWeights::default()) } else { None };
+                 for m in 0..ext {
+                     let exts: Vec<Fp2> = def
+                         .tabs
+                         .iter()
+                         .map(|t| match t {
+-                            Tab::Priv(p) if p.ext_round == m => mask_eval(&sh, p, pd.data[p.cm as usize], &claim_point(p, &rho)),
++                            Tab::Priv(p) if p.ext_round == m => {
++                                let point = claim_point(p, &rho);
++                                match tail_weights.as_mut() {
++                                    Some(weights) => mask_eval_cached(&sh, p, pd.data[p.cm as usize], &point, weights),
++                                    None => mask_eval(&sh, p, pd.data[p.cm as usize], &point),
++                                }
++                            },
+                             _ => Fp2::ZERO,
+                         })
+                         .collect();

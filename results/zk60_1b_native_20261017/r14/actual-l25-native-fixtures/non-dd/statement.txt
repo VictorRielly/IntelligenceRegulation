@@ -1,0 +1,9 @@
+R14-actual-S2-L25-reviewer-prefix/1
+dd=0
+stages=1
+context=e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1e1
+model_identity=c6d324cc25d21db63d0097c81802664229416692e004a3ca7a2dc2d944f59d75
+input_root=00e74edfd1d4f1197a2285dcba0cf08eb9e947b82526ddd2068acee7b7fcd039
+output_root=949bf74be9c7dbbcae5d499ed092ae4ea1c29b8bdeaca33a25e0da170f161328
+binding=d93a7cdae0945c3f2ff7b751bb6c7bb72b61d23d747b92803ec49ce04aa0dd48
+scope=actual S2 public layer L25, reviewer residual causal prefix, native one-stage path; no full26/CLI/privacy acceptance

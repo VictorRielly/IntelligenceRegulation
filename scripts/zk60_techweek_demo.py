@@ -24,7 +24,7 @@ SOURCE_PIN = '8eee81aac94f1536cd0e15c9368817b98e268e0d699ea98db3ad4ab9c2192168'
 MAX_DIAGNOSTIC_BYTES = 1024 * 1024
 MAX_ARTIFACT_BYTES = 64 * 1024 * 1024
 GUARD = ROOT / 'scripts/zk60_resource_guard.py'
-GUARD_PIN = '87138bda80ae4499a668e67a1c0e7706bb859eafb5e766020bcd59567c8ac59c'
+GUARD_PIN = '67e9478f55518c2808ff65e5f303f70e155a5f21c5987243a39cf579d1a9a6f3'
 SAVED = {
  'token': ('token-integration/token_public', 'receipt.bin',
  '3c0631ee629a40a78421e03cd5c6ac9ffdafa026a1289aa9207fcce6c016430b',

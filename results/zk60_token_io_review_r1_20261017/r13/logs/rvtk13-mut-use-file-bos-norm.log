@@ -1,0 +1,107 @@
+
+running 25 tests
+test private_block::token_io::classify_cli_tests::r12_cli_the_classifier_tables_loader_refuses_a_changed_margin_vector ... ok
+test private_block::token_io::classify_cli_tests::r12_cli_the_label_is_the_or_over_every_chunk_exactly_once ... ok
+test private_block::token_io::classify_cli_tests::r12_cli_the_prover_refuses_content_on_the_command_line_an_unknown_policy_and_a_control_id ... ok
+test private_block::token_io::classify_cli_tests::r12_cli_other_tables_a_consistently_flipped_verdict_or_a_tampered_segment_are_refused ... ok
+test private_block::token_io::classify_tied_tests::rc2_a_doctored_final_norm_or_bos_is_refused ... FAILED
+test private_block::token_io::classify_tied_tests::rc2_a_doctored_embedding_with_a_consistent_manifest_is_refused ... ok
+test private_block::token_io::classify_tied_tests::rc2_a_doctored_margin_row_with_a_consistent_manifest_is_refused ... ok
+test private_block::token_io::classify_tied_tests::rc2_a_margin_word_beyond_int16_is_refused_never_clamped ... ok
+test private_block::token_io::classify_tied_tests::rc2_the_dev_tensor_is_pinned_and_the_tables_derive_with_r12bs_quantizer ... ok
+test private_block::token_io::classify_tied_tests::rc2_the_margin_parameters_come_only_from_the_bound_profile ... ok
+test private_block::token_io::classify_tied_tests::rc2_the_shieldstral_export_tables_are_recomputed_through_native_r12b ... ignored, streams the pinned 7.7 GB Shieldstral checkpoint through native R12b; run guarded with ZK60_RC2_SHIELDSTRAL_EXPORT
+test private_block::token_io::classify_cli_tests::r12_cli_the_classifier_proves_at_both_verdicts_the_verifier_publishes_and_the_owner_checks ... ok
+test private_block::token_io::classify_tied_tests::rc2_min_bits_below_the_profile_floor_is_refused ... ok
+test private_block::token_io::review_r13_tests::rv13_r1_doctored_margin_rows_with_rehashed_manifests_are_refused ... ok
+test private_block::token_io::classify_cli_tests::r12_cli_chunks_prove_verify_owner_check_and_label_fail_closed ... ok
+test private_block::token_io::review_r13_tests::rv13_r2_doctored_embeddings_with_rehashed_manifests_are_refused ... ok
+test private_block::token_io::review_r13_tests::rv13_r4_bos_and_final_norm_doctored_consistently_are_refused ... FAILED
+test private_block::token_io::review_r13_tests::rv13_r3_a_doctored_head_is_outside_the_classifier_statement ... ok
+test private_block::token_io::review_r13_tests::rv13_r5_yes_no_or_threshold_edited_in_classifier_json_only_are_refused ... ok
+test private_block::token_io::review_r13_tests::rv13_r7b_receipts_do_not_cross_between_the_r12_and_r13_binaries ... ignored, runs the lane's r12 and r13 release binaries; set RV13_R12_BIN and RV13_R13_BIN
+test private_block::token_io::review_r13_tests::rv13_r7_a_schema_1_statement_is_refused_by_the_r13_verifier ... ok
+test private_block::token_io::review_r13_tests::rv13_r9_the_dev_tensor_file_attacks_are_refused ... ok
+test private_block::token_io::review_r13_tests::rv13_r8_min_bits_edges_at_every_verifying_command ... ok
+test private_block::token_io::review_r13_tests::rv13_r6_another_exports_profile_and_edited_statement_fields_are_refused ... ok
+test private_block::token_io::review_r13_tests::rv13_r10_both_verdicts_are_reachable_under_the_production_dev_policy ... FAILED
+
+failures:
+
+---- private_block::token_io::classify_tied_tests::rc2_a_doctored_final_norm_or_bos_is_refused stdout ----
+
+thread 'private_block::token_io::classify_tied_tests::rc2_a_doctored_final_norm_or_bos_is_refused' (121753) panicked at src/private_block/token_io/classify_tied_tests.rs:53:18:
+R-C2's loader accepted doctored tables
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- private_block::token_io::review_r13_tests::rv13_r4_bos_and_final_norm_doctored_consistently_are_refused stdout ----
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1","blocks":1,"trained_statement_identity":"061340df02f975c16fa1b3f9a2e1c8d582a54888a33edafab112426a69c5ae88","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"content_length_n":23}
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.188}
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":1.368}
+{"event":"segment","index":2,"bytes":2489016,"elapsed_seconds":1.533}
+{"event":"proved","run":"/home/victor/zk60-artifacts/token-io-review-r13-tmp/tio-cls-rv13-r4-121711/run-honest","owner_dir":"/home/victor/zk60-artifacts/token-io-review-r13-tmp/tio-cls-owners-rv13-r4-121711/run-honest.owner-private","verdict":"not-flagged","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"segments":3,"receipt_bytes":11134808,"prove_seconds":1.533,"whole_run_floor_bits":94,"total_seconds":1.684,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"}
+
+thread 'private_block::token_io::review_r13_tests::rv13_r4_bos_and_final_norm_doctored_consistently_are_refused' (121802) panicked at src/private_block/token_io/review_r13_tests.rs:113:18:
+R-C2's loader accepted /home/victor/zk60-artifacts/token-io-review-r13-tmp/tio-cls-rv13-r4-121711/rv-tables-bos2
+
+---- private_block::token_io::review_r13_tests::rv13_r10_both_verdicts_are_reachable_under_the_production_dev_policy stdout ----
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1","blocks":1,"trained_statement_identity":"061340df02f975c16fa1b3f9a2e1c8d582a54888a33edafab112426a69c5ae88","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"content_length_n":23}
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.150}
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":1.268}
+{"event":"segment","index":2,"bytes":2489016,"elapsed_seconds":1.466}
+{"event":"proved","run":"/home/victor/zk60-artifacts/token-io-review-r13-tmp/tio-cls-rv13-r10-121711/run-9","owner_dir":"/home/victor/zk60-artifacts/token-io-review-r13-tmp/tio-cls-owners-rv13-r10-121711/run-9.owner-private","verdict":"not-flagged","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"segments":3,"receipt_bytes":11134808,"prove_seconds":1.466,"whole_run_floor_bits":94,"total_seconds":1.615,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"}
+{"event":"classified","verdict":"not-flagged","chunk":0,"chunks":1,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"061340df02f975c16fa1b3f9a2e1c8d582a54888a33edafab112426a69c5ae88","input_token_endpoint_root":"37872ad92db03fa213586e87e7276e1cb1020eeee7a610dc9719346e2beb48f5","verify_seconds":0.321,"whole_run_floor_bits":94,"published_by":"this verifier"}
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1","blocks":1,"trained_statement_identity":"061340df02f975c16fa1b3f9a2e1c8d582a54888a33edafab112426a69c5ae88","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"content_length_n":23}
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.121}
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":1.425}
+{"event":"segment","index":2,"bytes":2489016,"elapsed_seconds":1.602}
+{"event":"proved","run":"/home/victor/zk60-artifacts/token-io-review-r13-tmp/tio-cls-rv13-r10-121711/run-60","owner_dir":"/home/victor/zk60-artifacts/token-io-review-r13-tmp/tio-cls-owners-rv13-r10-121711/run-60.owner-private","verdict":"not-flagged","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"segments":3,"receipt_bytes":11134808,"prove_seconds":1.603,"whole_run_floor_bits":94,"total_seconds":1.775,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"}
+{"event":"classified","verdict":"not-flagged","chunk":0,"chunks":1,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"061340df02f975c16fa1b3f9a2e1c8d582a54888a33edafab112426a69c5ae88","input_token_endpoint_root":"1127605f5f64083004f58efc0ea23982d0fbd0dfc40233d61f18a2fcbfab3047","verify_seconds":0.283,"whole_run_floor_bits":94,"published_by":"this verifier"}
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1","blocks":1,"trained_statement_identity":"061340df02f975c16fa1b3f9a2e1c8d582a54888a33edafab112426a69c5ae88","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"content_length_n":23}
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.141}
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":1.302}
+{"event":"segment","index":2,"bytes":2489016,"elapsed_seconds":1.451}
+{"event":"proved","run":"/home/victor/zk60-artifacts/token-io-review-r13-tmp/tio-cls-rv13-r10-121711/run-120","owner_dir":"/home/victor/zk60-artifacts/token-io-review-r13-tmp/tio-cls-owners-rv13-r10-121711/run-120.owner-private","verdict":"not-flagged","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"segments":3,"receipt_bytes":11134808,"prove_seconds":1.452,"whole_run_floor_bits":94,"total_seconds":1.600,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"}
+{"event":"classified","verdict":"not-flagged","chunk":0,"chunks":1,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"061340df02f975c16fa1b3f9a2e1c8d582a54888a33edafab112426a69c5ae88","input_token_endpoint_root":"ed603dd396fb9e78fe4fa746306126265755f3105d9e6bd06385bca05bbbe4d2","verify_seconds":0.333,"whole_run_floor_bits":94,"published_by":"this verifier"}
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1","blocks":1,"trained_statement_identity":"061340df02f975c16fa1b3f9a2e1c8d582a54888a33edafab112426a69c5ae88","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"content_length_n":23}
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.165}
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":1.379}
+{"event":"segment","index":2,"bytes":2489016,"elapsed_seconds":1.565}
+{"event":"proved","run":"/home/victor/zk60-artifacts/token-io-review-r13-tmp/tio-cls-rv13-r10-121711/run-180","owner_dir":"/home/victor/zk60-artifacts/token-io-review-r13-tmp/tio-cls-owners-rv13-r10-121711/run-180.owner-private","verdict":"not-flagged","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"segments":3,"receipt_bytes":11134808,"prove_seconds":1.565,"whole_run_floor_bits":94,"total_seconds":1.701,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"}
+{"event":"classified","verdict":"not-flagged","chunk":0,"chunks":1,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"061340df02f975c16fa1b3f9a2e1c8d582a54888a33edafab112426a69c5ae88","input_token_endpoint_root":"d727fdcd15354d1dafeec9d12de307d5bd0d09846baed7501dcbbbbe8fe3e21a","verify_seconds":0.335,"whole_run_floor_bits":94,"published_by":"this verifier"}
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1","blocks":1,"trained_statement_identity":"061340df02f975c16fa1b3f9a2e1c8d582a54888a33edafab112426a69c5ae88","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"content_length_n":23}
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.152}
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":1.364}
+{"event":"segment","index":2,"bytes":2489016,"elapsed_seconds":1.489}
+{"event":"proved","run":"/home/victor/zk60-artifacts/token-io-review-r13-tmp/tio-cls-rv13-r10-121711/run-240","owner_dir":"/home/victor/zk60-artifacts/token-io-review-r13-tmp/tio-cls-owners-rv13-r10-121711/run-240.owner-private","verdict":"not-flagged","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"segments":3,"receipt_bytes":11134808,"prove_seconds":1.489,"whole_run_floor_bits":94,"total_seconds":1.641,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"}
+{"event":"classified","verdict":"not-flagged","chunk":0,"chunks":1,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"061340df02f975c16fa1b3f9a2e1c8d582a54888a33edafab112426a69c5ae88","input_token_endpoint_root":"c21931a9c38eca6f40a19690fa6e8c3152960c3faf8c4d745a2128d27344da44","verify_seconds":0.293,"whole_run_floor_bits":94,"published_by":"this verifier"}
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1","blocks":1,"trained_statement_identity":"061340df02f975c16fa1b3f9a2e1c8d582a54888a33edafab112426a69c5ae88","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"content_length_n":23}
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.155}
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":1.453}
+{"event":"segment","index":2,"bytes":2489016,"elapsed_seconds":1.585}
+{"event":"proved","run":"/home/victor/zk60-artifacts/token-io-review-r13-tmp/tio-cls-rv13-r10-121711/run-270","owner_dir":"/home/victor/zk60-artifacts/token-io-review-r13-tmp/tio-cls-owners-rv13-r10-121711/run-270.owner-private","verdict":"not-flagged","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"segments":3,"receipt_bytes":11134808,"prove_seconds":1.585,"whole_run_floor_bits":94,"total_seconds":1.719,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"}
+{"event":"classified","verdict":"not-flagged","chunk":0,"chunks":1,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"061340df02f975c16fa1b3f9a2e1c8d582a54888a33edafab112426a69c5ae88","input_token_endpoint_root":"711d371c60f766bf012a745dc9aec1c3edd040552d63c34caf9c915b3d15e177","verify_seconds":0.291,"whole_run_floor_bits":94,"published_by":"this verifier"}
+RV13 R10 | production dev policy, contents (start, verdict_bit): [(9, 0), (60, 0), (120, 0), (180, 0), (240, 0), (270, 0)]
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1","blocks":1,"trained_statement_identity":"061340df02f975c16fa1b3f9a2e1c8d582a54888a33edafab112426a69c5ae88","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"content_length_n":23}
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.159}
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":1.443}
+{"event":"segment","index":2,"bytes":2489016,"elapsed_seconds":1.574}
+{"event":"proved","run":"/home/victor/zk60-artifacts/token-io-review-r13-tmp/tio-cls-rv13-r10-121711/run-fixture","owner_dir":"/home/victor/zk60-artifacts/token-io-review-r13-tmp/tio-cls-owners-rv13-r10-121711/run-fixture.owner-private","verdict":"not-flagged","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"segments":3,"receipt_bytes":11134808,"prove_seconds":1.574,"whole_run_floor_bits":94,"total_seconds":1.699,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"}
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1","blocks":1,"trained_statement_identity":"392cc130369d0cb223f472e1fb6b195d7e1d7c52e687d2b389d0de60a07675e3","policy":"rung-tc-synthetic-policy-dev-swapped/1","chunk":0,"chunks":1,"content_length_n":23}
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.161}
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":1.494}
+{"event":"segment","index":2,"bytes":2489016,"elapsed_seconds":1.623}
+{"event":"proved","run":"/home/victor/zk60-artifacts/token-io-review-r13-tmp/tio-cls-rv13-r10-121711/run-fixture-swapped","owner_dir":"/home/victor/zk60-artifacts/token-io-review-r13-tmp/tio-cls-owners-rv13-r10-121711/run-fixture-swapped.owner-private","verdict":"flagged","policy":"rung-tc-synthetic-policy-dev-swapped/1","chunk":0,"chunks":1,"segments":3,"receipt_bytes":11134808,"prove_seconds":1.624,"whole_run_floor_bits":94,"total_seconds":1.758,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"}
+RV13 R10 | the fixture content: dev policy verdict 0, swapped policy verdict 1
+
+thread 'private_block::token_io::review_r13_tests::rv13_r10_both_verdicts_are_reachable_under_the_production_dev_policy' (121776) panicked at src/private_block/token_io/review_r13_tests.rs:601:5:
+both verdicts under the production policy: [(9, 0), (60, 0), (120, 0), (180, 0), (240, 0), (270, 0)]
+
+
+failures:
+    private_block::token_io::classify_tied_tests::rc2_a_doctored_final_norm_or_bos_is_refused
+    private_block::token_io::review_r13_tests::rv13_r10_both_verdicts_are_reachable_under_the_production_dev_policy
+    private_block::token_io::review_r13_tests::rv13_r4_bos_and_final_norm_doctored_consistently_are_refused
+
+test result: FAILED. 20 passed; 3 failed; 2 ignored; 0 measured; 728 filtered out; finished in 23.09s
+

@@ -1,0 +1,125 @@
+{
+  "status": "PASS",
+  "run_id": "20261019T111854Z-5ff11116",
+  "accounting": [
+    {
+      "owner_run": "r5b/stack-llama3_8b_pg_rot1_b6_T128-ho00-cpu",
+      "context_tokens": 128,
+      "blocks": 32,
+      "passes": 1,
+      "device": "Intel Core Ultra9 185H CPU,16Rayonthreads;GPUoff",
+      "evidence": "Carried owner clocks; no receipt reverified by researcher",
+      "D_phase_seconds": 61.164,
+      "D_phase_rows": 32,
+      "app_total_seconds": 606.598,
+      "proof_region_seconds": 501.126,
+      "nested_witness_seconds": 122.694,
+      "nested_block_load_seconds": 21.176,
+      "sealing_pass_seconds": 105.287,
+      "receipt_bytes": 922711264,
+      "serialization_seconds": null,
+      "startup_fraction": null,
+      "steady_state_proved_rate": null,
+      "diagnostic_positions_per_total_second": 0.21101289486612224,
+      "D_fraction_of_total": 0.10083119298118359,
+      "zero_cost_ALL_D_counterfactual_total_seconds": 545.434,
+      "zero_cost_ALL_D_counterfactual_speedup": 1.1121382238730992,
+      "zero_cost_ALL_D_counterfactual_diagnostic_positions_per_second": 0.23467550611073018,
+      "caveat": "Delete-ALL-D ceiling for this CPU diagnostic only; candidate changes a subset of D arithmetic. Not a prediction, target acceptance, GPU ceiling or resident/decode slope."
+    },
+    {
+      "owner_run": "r5b/stack-llama3_8b_pg_rot1_b6_T128-ho00-cpu-quiet",
+      "context_tokens": 128,
+      "blocks": 32,
+      "passes": 1,
+      "device": "Intel Core Ultra9 185H CPU,16Rayonthreads;GPUoff",
+      "evidence": "Carried owner clocks; no receipt reverified by researcher",
+      "D_phase_seconds": 43.29200000000001,
+      "D_phase_rows": 32,
+      "app_total_seconds": 432.539,
+      "proof_region_seconds": 358.26,
+      "nested_witness_seconds": 92.294,
+      "nested_block_load_seconds": 17.766,
+      "sealing_pass_seconds": 74.155,
+      "receipt_bytes": 922711264,
+      "serialization_seconds": null,
+      "startup_fraction": null,
+      "steady_state_proved_rate": null,
+      "diagnostic_positions_per_total_second": 0.29592707247207767,
+      "D_fraction_of_total": 0.10008808454266555,
+      "zero_cost_ALL_D_counterfactual_total_seconds": 389.24699999999996,
+      "zero_cost_ALL_D_counterfactual_speedup": 1.1112198681043144,
+      "zero_cost_ALL_D_counterfactual_diagnostic_positions_per_second": 0.328840042440918,
+      "caveat": "Delete-ALL-D ceiling for this CPU diagnostic only; candidate changes a subset of D arithmetic. Not a prediction, target acceptance, GPU ceiling or resident/decode slope."
+    },
+    {
+      "owner_run": "r6/stack-llama3_8b_pg_rot1_b7_T128-ho00-cpu",
+      "context_tokens": 128,
+      "blocks": 32,
+      "passes": 1,
+      "device": "Intel Core Ultra9 185H CPU,16Rayonthreads;GPUoff",
+      "evidence": "Carried owner clocks; no receipt reverified by researcher",
+      "D_phase_seconds": 44.833,
+      "D_phase_rows": 32,
+      "app_total_seconds": 471.58,
+      "proof_region_seconds": 370.137,
+      "nested_witness_seconds": 94.021,
+      "nested_block_load_seconds": 17.408,
+      "sealing_pass_seconds": 101.279,
+      "receipt_bytes": 922711264,
+      "serialization_seconds": null,
+      "startup_fraction": null,
+      "steady_state_proved_rate": null,
+      "diagnostic_positions_per_total_second": 0.27142796556257687,
+      "D_fraction_of_total": 0.09506976546927351,
+      "zero_cost_ALL_D_counterfactual_total_seconds": 426.74699999999996,
+      "zero_cost_ALL_D_counterfactual_speedup": 1.1050575633806448,
+      "zero_cost_ALL_D_counterfactual_diagnostic_positions_per_second": 0.2999435262579468,
+      "caveat": "Delete-ALL-D ceiling for this CPU diagnostic only; candidate changes a subset of D arithmetic. Not a prediction, target acceptance, GPU ceiling or resident/decode slope.",
+      "fresh_verify": {
+        "blocks": 32,
+        "receipt_bytes": 922711264,
+        "load_seconds": 11.599,
+        "verify_seconds": 34.587,
+        "vmhwm_mib": 2095,
+        "guard_wall_s": 146.47306156158447,
+        "exit": "0"
+      },
+      "fresh_recheck": {
+        "blocks": 32,
+        "receipt_bytes": 922711264,
+        "load_seconds": 9.903,
+        "verify_seconds": 32.311,
+        "vmhwm_mib": 2140,
+        "guard_wall_s": 42.27633547782898,
+        "exit": "0"
+      },
+      "source_review": "D24 independent R6 review accepts per-layer shift and re-verifies stack; no trained privacy acceptance."
+    }
+  ],
+  "source_pins": [
+    {
+      "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5b/stack-llama3_8b_pg_rot1_b6_T128-ho00-cpu/prove.log",
+      "sha256": "682575d9590c91936778e08eab33fad92a0317d63aa3ae445d32b0c88c98b288"
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r5b/stack-llama3_8b_pg_rot1_b6_T128-ho00-cpu-quiet/prove.log",
+      "sha256": "6771f9f0ecb3e6c5b8bcb86df946a1f26379a4624c8b2267dcfc4eab2a010550"
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r6/stack-llama3_8b_pg_rot1_b7_T128-ho00-cpu/prove.log",
+      "sha256": "3d372512ed7118aba8ca9f9095ae847b7b076b787955948a3c82083272bcf1f7"
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r6/stack-llama3_8b_pg_rot1_b7_T128-ho00-cpu/report.json",
+      "sha256": "66fcf3c24f68acfa83947e566381d4e635994be933e7ecc280786489e4e41d34"
+    }
+  ],
+  "threads": 1,
+  "cpu_affinity": [
+    0
+  ],
+  "wall_seconds": 0.02139847700163955,
+  "rss_kib": 21592,
+  "limits": "59sCPU/wall,512MiBAS,one nice19 thread;read-only owner clocks"
+}

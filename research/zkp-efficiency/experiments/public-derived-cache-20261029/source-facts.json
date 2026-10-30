@@ -1,0 +1,11 @@
+{
+  "source_site_incidence": "two source sites, not measured runtime calls",
+  "checkpoint_bytes": 7698241104,
+  "tensor_bytes": 805306368,
+  "logical_read_lower_bound_per_derivation": 8503547472,
+  "retained_margin_bytes": 6144,
+  "retained_digests_bytes": 96,
+  "existing_integer_table_bytes": 1209008128,
+  "direct_current_llama8b_removed_work": 0,
+  "native_proof_or_device_executed": false
+}

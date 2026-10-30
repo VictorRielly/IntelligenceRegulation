@@ -1,0 +1,11 @@
+{
+  "native_runtime": "No native build or proof authorized in this bounded lane; owner gates/timings absent.",
+  "actual_calibration": "Only representative public R13 precision and admitted calibration census were modeled; actual layer incidence unknown.",
+  "access_failures": [
+    "TenseUp ePrint2435 landing/PDF inaccessible",
+    "Gryphes proceedings primary landing timeout400",
+    "Halo2-PSEcq history/license/example Cache miss",
+    "Plonky3PR2292/2293 commitdiff Cache miss"
+  ],
+  "permission_escalation": false
+}

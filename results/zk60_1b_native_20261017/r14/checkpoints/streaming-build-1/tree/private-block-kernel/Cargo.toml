@@ -1,0 +1,15 @@
+[package]
+name = "private-block-kernel"
+version = "0.1.0"
+edition = "2021"
+publish = false
+description = "Portable exact-integer ZK60 T32 block kernel (computation only, not a proof)"
+
+# Standalone: not a member of any parent workspace, no dependencies.
+[workspace]
+
+[lib]
+name = "private_block_kernel"
+path = "src/lib.rs"
+
+[dependencies]

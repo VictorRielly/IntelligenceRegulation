@@ -1,0 +1,100 @@
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r12/hashline/src/private_block/token_io/stage_out_c.rs	2026-10-20 20:21:15.846365376 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r13/hashline/src/private_block/token_io/stage_out_c.rs	2026-10-28 16:42:48.584832504 -0700
+@@ -429,6 +429,11 @@
+ fn run_slots(side: &mut Side, cx: &OutCCtx, tr: &mut Transcript) -> Result<Acc, String> {
+     let mut acc = Acc::default();
+     for slot in 0..cx.lay.sched.slots.len() {
++        // ROUND 12 (gate round 16 capture request 2.2): the run capture's
++        // definition checkpoint (verify side only; a no-op unless a recorder
++        // is attached; test builds only)
++        #[cfg(test)]
++        super::super::run_capture::start_slot(side, tr);
+         let def = define(slot, cx, tr)?;
+         run_stage_slot(side, &mut acc, def, &cx.lay.sched, tr)?;
+     }
+@@ -676,20 +681,85 @@
+     let cx = OutCCtx { lay, cp, tables, verdict, alpha, g_u8, b_out_row: b_spec.mask_row(1)?, b_out_log: (cp.t_pad * cp.d_pad).trailing_zeros() as usize };
+     let mut side = Side::Verify { slots: &seg.slots };
+     let acc = run_slots(&mut side, &cx, tr)?;
++    // ROUND 12 (gate round 16 capture request 2.2): the openings wrapped as
++    // stage OUT wraps its own (no-ops unless a recorder is attached; test
++    // builds only)
++    #[cfg(test)]
++    let rc_before = super::super::run_capture::checkpoint(tr);
+     crate::zk::mask_verify_tagged(&seg.mask_root, &lay.mask_specs(), &acc.fs, &seg.mask_open, ntt, tr, tag).map_err(|e| format!("stage OUT-C M: {e}"))?;
++    #[cfg(test)]
++    super::super::run_capture::mask(&lay.mask_specs(), &seg.mask_root, &acc.fs, &seg.mask_open, ntt, rc_before, tr);
+     let [ac, mut hc, ic, oc] = acc.claims;
+     if !oc.is_empty() {
+         return Err("classifier stage OUT-C: a claim on an output endpoint (there is none)".into());
+     }
+     hc.push(lay.logup_sum_claim());
+     protocol::check_opening(&ac, lay.log_n, lay.a_rows, &lay.a_site_rows(), None, lay.a_prox, A_GROUPS, tr)?;
++    #[cfg(test)]
++    let rc_before = super::super::run_capture::checkpoint(tr);
+     pcs::verify_zk_tagged(&params, &zko, &protocol::commitment(seg.a_root, lay.a_rows, lay.log_n), &ac, &seg.a_open, ntt, tr, tag).map_err(|e| format!("stage OUT-C A: {e}"))?;
++    #[cfg(test)]
++    super::super::run_capture::pcs(capture_a_geom("A-out", "stage-out-c", lay, seg.a_root), &ac, &seg.a_open, ntt, rc_before, tr);
+     protocol::check_opening(&hc, lay.log_n, lay.h_rows, &lay.h_site_rows(), Some(lay.h_u_rows()), lay.h_prox, H_GROUPS, tr)?;
++    #[cfg(test)]
++    let rc_before = super::super::run_capture::checkpoint(tr);
+     pcs::verify_zk_tagged(&params, &zko, &protocol::commitment(seg.h_root, lay.h_rows, lay.log_n), &hc, &seg.h_open, ntt, tr, tag).map_err(|e| format!("stage OUT-C H (the LogUp sum claim is part of this opening): {e}"))?;
++    #[cfg(test)]
++    super::super::run_capture::pcs(capture_h_geom("H-out", "stage-out-c", lay, seg.h_root), &hc, &seg.h_open, ntt, rc_before, tr);
+     let mut claims = pending_b;
++    #[cfg(test)]
++    let (pending_n, incoming_n) = (claims.len(), ic.len());
+     claims.extend(ic);
+     super::super::boundary::check_opening(b_spec, &claims, tr)?;
+     let bp = b_spec.params();
++    #[cfg(test)]
++    let rc_before = super::super::run_capture::checkpoint(tr);
+     pcs::verify_zk_tagged(&bp, &ZkOpts::standard(&bp), &protocol::commitment(*b_root, b_spec.commitment_rows(), b_spec.log_n()), &claims, &seg.closes[0], ntt, tr, tag).map_err(|e| format!("B_out: {e}"))?;
++    // B_out: the last block's outgoing equality slot's claims, then OUTC-00's
++    #[cfg(test)]
++    super::super::run_capture::pcs(
++        super::super::run_capture::Geom {
++            role: "B-out",
++            commitment_kind: "B-out",
++            params: bp,
++            root: *b_root,
++            rows: b_spec.commitment_rows(),
++            data_rows: b_spec.data_rows(),
++            site_rows: b_spec.site_rows(),
++            sum_rows: None,
++            prox_row: b_spec.prox_row(),
++            boundary: Some(stage_index as usize - 1),
++            claim_sources: vec![(stage_index as usize - 1, super::super::layout::SC_IO_OUT, pending_n), (stage_index as usize, SOC_IO, incoming_n)],
++        },
++        &claims,
++        &seg.closes[0],
++        ntt,
++        rc_before,
++        tr,
++    );
+     Ok(())
+ }
++
++/// ROUND 12 (gate round 16 capture request 2.1(b)): stage OUT-C's plane table
++/// for the run capture (the plane names in plane order: the `To` planes D,
++/// DSQ, the limb plane, the twelve `Do` planes, the byte histogram; H: the
++/// `Lo` helper, six `Do` helpers, the byte-table helper, the zero-sum pair).
++/// No output endpoint: its fourth role is never on a terminal ("none").
++#[cfg(test)]
++pub(crate) fn capture_planes(lay: &StageLayout) -> super::super::run_capture::StagePlanes<'_> {
++    let mut a: Vec<String> = ["A_D", "A_DSQ", "A_LIMB", "A_X", "A_XL0", "A_XL1", "A_Y"].iter().map(|s| s.to_string()).collect();
++    a.extend((0..4).map(|i| format!("A_RHO{i}")));
++    a.extend((0..4).map(|i| format!("A_SIG{i}")));
++    a.push("A_MU8".into());
++    let mut h: Vec<String> = vec!["H_LO".into()];
++    h.extend((0..H_DO_HELPERS).map(|i| format!("H_D{i}")));
++    h.push("H_GU8".into());
++    h.push("H_U".into());
++    super::super::run_capture::StagePlanes::Stage {
++        lay,
++        a_names: a,
++        h_names: h,
++        // [A, H, In = B_out, Out = none (a classifier run has no output endpoint)]
++        roles: ["A-out", "H-out", "B-out", "none"],
++    }
++}

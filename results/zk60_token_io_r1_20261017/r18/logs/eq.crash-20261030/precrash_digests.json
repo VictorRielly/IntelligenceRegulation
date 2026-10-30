@@ -1,0 +1,81 @@
+{
+ "note": "SHA-256 of the two batch jobs finished before the 2026-10-30 crash (fixed PUBLIC entropy, test only; deleted right after this record)",
+ "trees": {
+  "batch-c0": {
+   "owner": {
+    "input.dec": "bea8e58dd943c80f7449c549367b8f675824eddfa9e241d56f0256fd09602dce"
+   },
+   "receipt": {
+    "segment-000.bin": "e24e8dfa6a84e3a5ee53ee7ef8c6368de05c8b7075e45705193ee520ca45700e",
+    "segment-001.bin": "e2675b8bedfffbb787cecad4da989ace04eb24a1c2a471612930e08084d23e18",
+    "segment-002.bin": "c1caffaebb6744248176a942b7004ab3d25e87778724bc378b5958152d42c898",
+    "segment-003.bin": "e959949637e374f62db1c48b1677a61b34549204977f3e5e57e328fc72ab10c6",
+    "segment-004.bin": "4ebcefa9e8447f822dffcb8321bedfe6edb1244a1b07aee88d6c383c89c1ade5",
+    "segment-005.bin": "d71c58915e242d6d4367bead4d7c257dc0662dccde3dd9c6265d309acbab1b24",
+    "segment-006.bin": "dee64594f69b091e42774a42d3e9974fbc608eec82b69cd349e8f5e317519610",
+    "segment-007.bin": "ec0969471e94370c8b2e84a59f7bfd1fc8e4155834f5172206c09389a9baeba3",
+    "segment-008.bin": "7daf61a2c82f95c8d0dc0004130dab5ff3658b1c6bc4305b9362300f9ccdbfe7",
+    "segment-009.bin": "f880cf7bacd0cb3c34c0d2577c7701b09f958aed97eb8c413924f015f1a40fd1",
+    "segment-010.bin": "0c4932d5cf4bd6887dba97b581e1b01512208fdc66d0fd515e8d7f01d32b141c",
+    "segment-011.bin": "dde5a88eced6479091ad5a24ec1e47eb264e20691db8092c12193b4e20661cdf",
+    "segment-012.bin": "0fdf4cf2b46b9e7d24b4c4209c6feaf91878c7c4216d0d5731716529dc83c983",
+    "segment-013.bin": "4036faee79238fa31466df3b7e08ef932ff3e4e56590f727b73e895ab5159a7e",
+    "segment-014.bin": "9f3077a5a22c3e4afbab989dd9feb04f0862fc59378cf62e97f4fc9c8a2ae73a",
+    "segment-015.bin": "3679edcb0036821956edbf383036428fb5ebdca243181305af51fc9dcd49d292",
+    "segment-016.bin": "e3447201b8e51925bf0c6f1c1fd5195855cb00c961e6765d027948ee5efca78f",
+    "segment-017.bin": "891a659af8654963ebc134f39b55471ff4c71997cbd7844bba4bec6eb575596b",
+    "segment-018.bin": "d948f935955a9035d54624d9ce64af0802a34ea67e15697b72ddf42fa73acc4a",
+    "segment-019.bin": "6e0a0b33674c7450aeb8835ee96efe757b5c8ca82bb98343235f90f156cbdf9e",
+    "segment-020.bin": "4d969ff5af73e09e2f413c1204157dc693845517693476f89e6892628be55dfb",
+    "segment-021.bin": "5e12fa85095949669d401e31a8b4f97817f79db68a9241473ca4862b2384e3e8",
+    "segment-022.bin": "6d466834283b25b61d15e800a53bfdf87109d7e4f4f719e5a47fb92ad7023160",
+    "segment-023.bin": "21940b287f58c5ac5fcc91131a37b6d7af1aa3b83adc25a262417549ba115476",
+    "segment-024.bin": "75db6fe81489abf9db9d0ec0ab3b8bb1e73d5f5397157272c8f1754f7c2ac3db",
+    "segment-025.bin": "3afa0b0c4883a36c539b356484c0565886d242fbb5e790683ff7b9d0cd42a514",
+    "segment-026.bin": "a3f8064ea9eacab187aebb45a9a2c80f784fd7f0e015edd17267ee5520285598",
+    "segment-027.bin": "4be4957d24a9aa48f95b0c081064f819c5098b86c12f00ae7e3ca0ae6959ffd7"
+   },
+   "statement": {
+    "statement.json": "e61cf348fa5eb600c75fe59d6f37c904922191af5003d99dff37336c6721019b"
+   }
+  },
+  "batch-c1": {
+   "owner": {
+    "input.dec": "8be7af370377e568ccbe321914a5ee22074c2a0c1a1e7d31329ad2a2f92339ce"
+   },
+   "receipt": {
+    "segment-000.bin": "20f058bdd5fd27dbc18da9f1742ce46bbad9e35dcfcc86afda7b53a0c87363b2",
+    "segment-001.bin": "b6128568f598d97c182924325c6e6bf59877e5e1fbe2bbfb774c140e0ad1bc09",
+    "segment-002.bin": "f34078f01da38e6fcbe0f491f1956fbeb46f15321f8a6832df25310cd8640ac2",
+    "segment-003.bin": "7b40174af37acfd47c5acf62f3b79d4a769b08d3e829db810157654e2784a739",
+    "segment-004.bin": "ec181eb59c9da5985f426a9a3d1241346e3c809acd0801d0340991e249e8e057",
+    "segment-005.bin": "5aca1efbc6561eb4d281095c174268e6dcef01f86419a1dd32665a4509603faf",
+    "segment-006.bin": "17892d5e011829bad9eccddbb0f199dd83688005b186b49bb8e0d9b824c046e5",
+    "segment-007.bin": "bb461a78595e115991524b29059076d5b8f9dba20f0175933ba885984eb2e15c",
+    "segment-008.bin": "88009484f80dd2a66239290efcc9847591934aabb3e9901ba7b20e46a8e3aee6",
+    "segment-009.bin": "2f2a395782d55bd5d0dff01eba11d5c0c75fd24913180c70887f8c62b6fcb160",
+    "segment-010.bin": "e7edb6e6bd5b983944b01d421c117403fe99bf73c2200f561d084b28377d6f8a",
+    "segment-011.bin": "4e698d3a7a5ef1937d423248b135864b9480faeb996070ea8eb7b34b9b436a24",
+    "segment-012.bin": "332e54abccfdc037049a97141289295cf3d4bdd43204bfa1b47dd58f745e9090",
+    "segment-013.bin": "6b6d42ec6ac2f8140639ac74e1b66e6d925e8bf6dea35428590416d499d4c6a8",
+    "segment-014.bin": "d8934c5ecc1ea981e3503966ff41a78a5394664836c404403f7f2f5ff1bcbf8b",
+    "segment-015.bin": "bcb4928bbeca73ac7de91b0d5463da27e1449f53f1926b875eb982adb35f8369",
+    "segment-016.bin": "cfb5d20ecf6812abca8c82f3b6433d4b5f5d5a370713cc262b70f246c1b71077",
+    "segment-017.bin": "ca780717c2337bb9160b55d62d96337f8f89bed628d3a47d99b96825165e5042",
+    "segment-018.bin": "d5e3918a31fbb55d7fa237ae06dced79f376cd2dde01ba5239da78446a0b1bb7",
+    "segment-019.bin": "4efb60d2b20eaa6301bb8e5b0aae9d56dbf27e28b740ca7f6844f8ea2337e16e",
+    "segment-020.bin": "d8956806125f234159a0384fd0182a8b796e7f775507feee67c0b3904934f87a",
+    "segment-021.bin": "6cf99293aed2362c75813d8cb65cd9f98964b47f58a3a84333ed9d3dc19be784",
+    "segment-022.bin": "a38baf47c3b42a938e7147d93f55374925c43c53cf9b279f868b49d486042185",
+    "segment-023.bin": "b7645634f3593f73bbd4b136774cbb11012afc89f25f2ac2d8fa9861e1a2b352",
+    "segment-024.bin": "86592365beae0a775bbe50fcf5bd2ca4816e29ecb855187235720052f4cc2b7a",
+    "segment-025.bin": "675769287107cbdd50d3227144f1235833ac28fab6e36c3fbade89d3861abc3b",
+    "segment-026.bin": "1f2e6fb384cbd0467a2332b6f8d0f4fa5b93eb57bfe0e5a1d1263e0eb5004e5e",
+    "segment-027.bin": "71b1d40d29ade4f962aca1a74512dc5988825e8be8a18578a6d907d9afd5a5e6"
+   },
+   "statement": {
+    "statement.json": "3d6708673fdd3d308060414417b5dc4cca2f3f7c33a34dd885332d1bc21ae007"
+   }
+  }
+ }
+}

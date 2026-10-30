@@ -1,0 +1,222 @@
+{
+  "scope": "Conditional historical R14 T128 standalone fe9 groups; not current full run or 8B; requested bytes exclude allocator rounding and matrix/host output coexistence",
+  "cases": [
+    {
+      "label": "A_nonDD",
+      "rows": 3517,
+      "columns": 16384,
+      "rhos_including_proximity": 57,
+      "context": 128,
+      "historical_standalone_fe9_only": true,
+      "modes": {
+        "baseline": {
+          "kernel_launches": 15,
+          "h2d_payload_bytes": 3207504,
+          "d2h_payload_bytes": 14942208,
+          "matrix_operand_bytes": 6914703360,
+          "device_scratch_requested_bytes": 1273664,
+          "rho_host_flat_requested_bytes": 225088,
+          "allocation_submissions": 30,
+          "h2d_submissions": 15,
+          "d2h_submissions": 15
+        },
+        "serial": {
+          "kernel_launches": 15,
+          "h2d_payload_bytes": 3207504,
+          "d2h_payload_bytes": 14942208,
+          "matrix_operand_bytes": 6914703360,
+          "device_scratch_requested_bytes": 1273664,
+          "rho_host_flat_requested_bytes": 225088,
+          "allocation_submissions": 2,
+          "h2d_submissions": 15,
+          "d2h_submissions": 15
+        },
+        "hybrid": {
+          "kernel_launches": 15,
+          "h2d_payload_bytes": 3207504,
+          "d2h_payload_bytes": 14942208,
+          "matrix_operand_bytes": 6914703360,
+          "device_scratch_requested_bytes": 4256080,
+          "rho_host_flat_requested_bytes": 3207504,
+          "allocation_submissions": 2,
+          "h2d_submissions": 1,
+          "d2h_submissions": 15
+        },
+        "full": {
+          "kernel_launches": 15,
+          "h2d_payload_bytes": 3207504,
+          "d2h_payload_bytes": 14942208,
+          "matrix_operand_bytes": 6914703360,
+          "device_scratch_requested_bytes": 18149712,
+          "rho_host_flat_requested_bytes": 3207504,
+          "allocation_submissions": 2,
+          "h2d_submissions": 1,
+          "d2h_submissions": 1
+        }
+      }
+    },
+    {
+      "label": "H_nonDD",
+      "rows": 3272,
+      "columns": 16384,
+      "rhos_including_proximity": 12,
+      "context": 128,
+      "historical_standalone_fe9_only": true,
+      "modes": {
+        "baseline": {
+          "kernel_launches": 3,
+          "h2d_payload_bytes": 628224,
+          "d2h_payload_bytes": 3145728,
+          "matrix_operand_bytes": 1286602752,
+          "device_scratch_requested_bytes": 1257984,
+          "rho_host_flat_requested_bytes": 209408,
+          "allocation_submissions": 6,
+          "h2d_submissions": 3,
+          "d2h_submissions": 3
+        },
+        "serial": {
+          "kernel_launches": 3,
+          "h2d_payload_bytes": 628224,
+          "d2h_payload_bytes": 3145728,
+          "matrix_operand_bytes": 1286602752,
+          "device_scratch_requested_bytes": 1257984,
+          "rho_host_flat_requested_bytes": 209408,
+          "allocation_submissions": 2,
+          "h2d_submissions": 3,
+          "d2h_submissions": 3
+        },
+        "hybrid": {
+          "kernel_launches": 3,
+          "h2d_payload_bytes": 628224,
+          "d2h_payload_bytes": 3145728,
+          "matrix_operand_bytes": 1286602752,
+          "device_scratch_requested_bytes": 1676800,
+          "rho_host_flat_requested_bytes": 628224,
+          "allocation_submissions": 2,
+          "h2d_submissions": 1,
+          "d2h_submissions": 3
+        },
+        "full": {
+          "kernel_launches": 3,
+          "h2d_payload_bytes": 628224,
+          "d2h_payload_bytes": 3145728,
+          "matrix_operand_bytes": 1286602752,
+          "device_scratch_requested_bytes": 3773952,
+          "rho_host_flat_requested_bytes": 628224,
+          "allocation_submissions": 2,
+          "h2d_submissions": 1,
+          "d2h_submissions": 1
+        }
+      }
+    },
+    {
+      "label": "A_DD",
+      "rows": 3395,
+      "columns": 16384,
+      "rhos_including_proximity": 59,
+      "context": 128,
+      "historical_standalone_fe9_only": true,
+      "modes": {
+        "baseline": {
+          "kernel_launches": 15,
+          "h2d_payload_bytes": 3204880,
+          "d2h_payload_bytes": 15466496,
+          "matrix_operand_bytes": 6674841600,
+          "device_scratch_requested_bytes": 1265856,
+          "rho_host_flat_requested_bytes": 217280,
+          "allocation_submissions": 30,
+          "h2d_submissions": 15,
+          "d2h_submissions": 15
+        },
+        "serial": {
+          "kernel_launches": 15,
+          "h2d_payload_bytes": 3204880,
+          "d2h_payload_bytes": 15466496,
+          "matrix_operand_bytes": 6674841600,
+          "device_scratch_requested_bytes": 1265856,
+          "rho_host_flat_requested_bytes": 217280,
+          "allocation_submissions": 2,
+          "h2d_submissions": 15,
+          "d2h_submissions": 15
+        },
+        "hybrid": {
+          "kernel_launches": 15,
+          "h2d_payload_bytes": 3204880,
+          "d2h_payload_bytes": 15466496,
+          "matrix_operand_bytes": 6674841600,
+          "device_scratch_requested_bytes": 4253456,
+          "rho_host_flat_requested_bytes": 3204880,
+          "allocation_submissions": 2,
+          "h2d_submissions": 1,
+          "d2h_submissions": 15
+        },
+        "full": {
+          "kernel_launches": 15,
+          "h2d_payload_bytes": 3204880,
+          "d2h_payload_bytes": 15466496,
+          "matrix_operand_bytes": 6674841600,
+          "device_scratch_requested_bytes": 18671376,
+          "rho_host_flat_requested_bytes": 3204880,
+          "allocation_submissions": 2,
+          "h2d_submissions": 1,
+          "d2h_submissions": 1
+        }
+      }
+    },
+    {
+      "label": "H_DD",
+      "rows": 3116,
+      "columns": 16384,
+      "rhos_including_proximity": 13,
+      "context": 128,
+      "historical_standalone_fe9_only": true,
+      "modes": {
+        "baseline": {
+          "kernel_launches": 4,
+          "h2d_payload_bytes": 648128,
+          "d2h_payload_bytes": 3407872,
+          "matrix_operand_bytes": 1633681408,
+          "device_scratch_requested_bytes": 1248000,
+          "rho_host_flat_requested_bytes": 199424,
+          "allocation_submissions": 8,
+          "h2d_submissions": 4,
+          "d2h_submissions": 4
+        },
+        "serial": {
+          "kernel_launches": 4,
+          "h2d_payload_bytes": 648128,
+          "d2h_payload_bytes": 3407872,
+          "matrix_operand_bytes": 1633681408,
+          "device_scratch_requested_bytes": 1248000,
+          "rho_host_flat_requested_bytes": 199424,
+          "allocation_submissions": 2,
+          "h2d_submissions": 4,
+          "d2h_submissions": 4
+        },
+        "hybrid": {
+          "kernel_launches": 4,
+          "h2d_payload_bytes": 648128,
+          "d2h_payload_bytes": 3407872,
+          "matrix_operand_bytes": 1633681408,
+          "device_scratch_requested_bytes": 1696704,
+          "rho_host_flat_requested_bytes": 648128,
+          "allocation_submissions": 2,
+          "h2d_submissions": 1,
+          "d2h_submissions": 4
+        },
+        "full": {
+          "kernel_launches": 4,
+          "h2d_payload_bytes": 648128,
+          "d2h_payload_bytes": 3407872,
+          "matrix_operand_bytes": 1633681408,
+          "device_scratch_requested_bytes": 4056000,
+          "rho_host_flat_requested_bytes": 648128,
+          "allocation_submissions": 2,
+          "h2d_submissions": 1,
+          "d2h_submissions": 1
+        }
+      }
+    }
+  ],
+  "ceiling": "N/(T-C_removed_exclusive+A_added), exclusive costs unknown"
+}

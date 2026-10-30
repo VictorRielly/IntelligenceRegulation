@@ -302,12 +302,37 @@ class TestWebFlowFake(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         from fastapi.testclient import TestClient
+        from unittest.mock import patch
         from proven_media import app as appmod
         from proven_media.jobs import Worker
 
         cls.appmod = appmod
+        assert os.environ['PM_PROVER'] == 'fake'
+        # This class exercises only synthetic temporary fixtures. Production
+        # startup has no switch that disables the durability policy.
+        cls.storage_patch = patch.object(appmod, 'validate_storage')
+        cls.storage_patch.start()
+        cls.addClassCleanup(cls.storage_patch.stop)
         cls.client = TestClient(appmod.app).__enter__()
         cls.worker = Worker(appmod.S.store, appmod.S.prover, appmod.S.publisher)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.client.__exit__(None, None, None)
+
+    def setUp(self):
+        self.login_as('fixture_operator')
+
+    def login_as(self, author):
+        key = self.appmod.S.auth.provision(author, operator=True, rotate=True)
+        response = self.client.post('/api/session', json={'access_key': key})
+        self.assertEqual(response.status_code, 200, response.text)
+        self.client.headers['X-PM-CSRF'] = response.json()['csrf']
+
+    def submit_as(self, *, data, **kwargs):
+        # Explicit fixture credential provisioning; no production test bypass.
+        self.login_as(data['author'])
+        return self.client.post('/api/posts', data=data, **kwargs)
 
     def drain(self):
         for _ in range(10):
@@ -322,9 +347,25 @@ class TestWebFlowFake(unittest.TestCase):
         w.join(5)
         self.assertFalse(w.is_alive())
 
+    def test_changed_threshold_cannot_reprove_or_start_an_old_queued_item(self):
+        from unittest.mock import patch
+        text = 'A queued item keeps its original screening threshold'
+        response = self.submit_as(data={'author': 'ruling', 'text': text})
+        self.assertEqual(response.status_code, 200, response.text)
+        pid = response.json()['post_id']
+        with patch.object(config, 'TAU', 0.75):
+            repeat = self.submit_as(data={'author': 'someone_else', 'text': text})
+            self.assertEqual(repeat.status_code, 409, repeat.text)
+            self.drain()
+            post = self.appmod.S.store.post(pid)
+            self.assertEqual(post['status'], 'failed')
+            self.assertEqual(post['prove_attempted'], 0)
+            self.assertNotIn(pid, [p['id'] for p in self.client.get('/api/feed').json()['posts']])
+            self.assertFalse(self.appmod.S.publisher.anchors_of(pid))
+
     def test_labelled_post_published_anchored_manifest_and_rechecked(self):
         c = self.client
-        r = c.post("/api/posts", data={"author": "alice", "kind": "text", "text": "Hello sunny world"})
+        r = self.submit_as(data={"author": "alice", "kind": "text", "text": "Hello sunny world"})
         self.assertEqual(r.status_code, 200, r.text)
         pid = r.json()["post_id"]
         self.drain()
@@ -361,11 +402,12 @@ class TestWebFlowFake(unittest.TestCase):
 
     def test_yes_label_published_but_hidden_from_minors(self):
         c = self.client
-        pid = c.post("/api/posts", data={"author": "bob", "kind": "text", "text": "Graphic story: they will bomb it"}).json()["post_id"]
+        pid = self.submit_as(data={"author": "bob", "kind": "text", "text": "Graphic story: they will bomb it"}).json()["post_id"]
         self.drain()
         p = c.get(f"/api/posts/{pid}").json()
         self.assertEqual(p["status"], "published")                          # not rejected for a yes label
         self.assertEqual({x["category"]: x["value"] for x in p["labels"]}["violence"], "yes")
+        c.cookies.clear()  # View audience restrictions as an unrelated reader.
         adult = [x for x in c.get("/api/feed?audience=adult").json()["posts"] if x["id"] == pid][0]
         self.assertFalse(adult.get("hidden", False))
         self.assertIn("manifest", adult)                                    # the manifest travels with the item
@@ -379,37 +421,35 @@ class TestWebFlowFake(unittest.TestCase):
 
     def test_fail_closed_per_category(self):
         c = self.client
-        pid = c.post("/api/posts", data={"author": "fay", "kind": "text",
+        pid = self.submit_as(data={"author": "fay", "kind": "text",
                                          "text": "please refuse " + provers.FakeProver.REFUSE_MARK}).json()["post_id"]
         self.drain()
         p = c.get(f"/api/posts/{pid}").json()
-        self.assertEqual(p["status"], "published")
+        self.assertEqual(p["status"], "failed")
         self.assertIn("Could not be verified", p["status_message"])
-        self.assertEqual({x["value"] for x in p["labels"]}, {"unproved"})
-        self.assertIsNone(p["record"]["chunks"][0]["record"])
-        self.assertIn("Could not be verified", p["record"]["chunks"][0]["error"])
-        self.assertEqual({e["verdict"] for e in p["manifest"]["entries"]}, {"unproved"})
-        self.assertTrue(c.post(f"/api/posts/{pid}/verify-manifest").json()["accepted"])
-        minor = [x for x in c.get("/api/feed?audience=minor").json()["posts"] if x["id"] == pid][0]
-        self.assertTrue(minor["hidden"])
-        self.assertEqual(len(minor["reasons"]), 3)
-        self.assertFalse(p["retry_allowed"])          # the fake prover "ran": proved once, no re-proving
-        r = c.post("/api/posts", data={"author": "fay", "kind": "text",
+        self.assertEqual(p, {'id': pid, 'status': 'failed', 'status_message': 'Could not be verified.'})
+        self.assertEqual(c.post(f"/api/posts/{pid}/verify-manifest").status_code, 404)
+        for audience in ('adult', 'minor'):
+            self.assertNotIn(pid, [x['id'] for x in c.get(f'/api/feed?audience={audience}').json()['posts']])
+        self.assertNotIn('publication', p)
+        self.assertFalse(self.appmod.S.publisher.anchors_of(pid))
+        self.assertTrue(self.appmod.S.store.post(pid)['prove_attempted'])          # the fake prover "ran": proved once, no re-proving
+        r = self.submit_as(data={"author": "fay", "kind": "text",
                                        "text": "please refuse " + provers.FakeProver.REFUSE_MARK})
         self.assertEqual(r.status_code, 409)
 
     def test_same_content_screened_once(self):
         c = self.client
-        r1 = c.post("/api/posts", data={"author": "gus", "kind": "text", "text": "Dedupe me please"})
+        r1 = self.submit_as(data={"author": "gus", "kind": "text", "text": "Dedupe me please"})
         self.assertEqual(r1.status_code, 200)
         self.drain()
-        r2 = c.post("/api/posts", data={"author": "hal", "kind": "text", "text": "Dedupe me please"})
+        r2 = self.submit_as(data={"author": "hal", "kind": "text", "text": "Dedupe me please"})
         self.assertEqual(r2.status_code, 409)
         self.assertIn("proved once", r2.json()["detail"])
 
     def test_recheck_rejection_makes_labels_unproved(self):
         c = self.client
-        pid = c.post("/api/posts", data={"author": "ivy", "kind": "text", "text": "Will be withdrawn later"}).json()["post_id"]
+        pid = self.submit_as(data={"author": "ivy", "kind": "text", "text": "Will be withdrawn later"}).json()["post_id"]
         self.drain()
         self.assertEqual(c.get(f"/api/posts/{pid}").json()["status"], "published")
         self.appmod.S.prover.reject_rechecks = True
@@ -419,18 +459,20 @@ class TestWebFlowFake(unittest.TestCase):
         finally:
             self.appmod.S.prover.reject_rechecks = False
         p = c.get(f"/api/posts/{pid}").json()
-        self.assertEqual({x["value"] for x in p["labels"]}, {"unproved"})
-        self.assertIn("re-verification rejected", p["status_message"])
-        minor = [x for x in c.get("/api/feed?audience=minor").json()["posts"] if x["id"] == pid][0]
-        self.assertTrue(minor["hidden"])
+        self.assertEqual(p, {'id': pid, 'status': 'failed', 'status_message': 'Could not be verified.'})
+        self.assertEqual(p['status'], 'failed')
+        for audience in ('adult', 'minor'):
+            self.assertNotIn(pid, [x['id'] for x in c.get(f'/api/feed?audience={audience}').json()['posts']])
 
     def test_delete_crypto_shreds(self):
         c = self.client
-        pid = c.post("/api/posts", data={"author": "jo", "kind": "text", "text": "Delete me afterwards"}).json()["post_id"]
+        pid = self.submit_as(data={"author": "jo", "kind": "text", "text": "Delete me afterwards"}).json()["post_id"]
         self.drain()
         c.post("/api/ledger/close-batch")
-        self.assertEqual(c.delete(f"/api/posts/{pid}?author=someone").status_code, 403)
-        self.assertEqual(c.delete(f"/api/posts/{pid}?author=jo").status_code, 200)
+        self.login_as('someone')
+        self.assertEqual(c.delete(f"/api/posts/{pid}?author=jo").status_code, 404)
+        self.login_as('jo')
+        self.assertEqual(c.delete(f"/api/posts/{pid}").status_code, 200)
         row = self.appmod.S.store.post(pid)
         self.assertIsNone(row["text"])
         self.assertIsNone(row["salt_enc"])
@@ -439,7 +481,7 @@ class TestWebFlowFake(unittest.TestCase):
         self.assertEqual(self.appmod.S.publisher.anchor_of(pid, "sexual").status, "anchored")    # the leaf stays
 
     def test_too_long_refused(self):
-        r = self.client.post("/api/posts", data={"author": "carol", "kind": "text", "text": "word " * 150})
+        r = self.submit_as(data={"author": "carol", "kind": "text", "text": "word " * 150})
         self.assertEqual(r.status_code, 400)
         self.assertIn("chunks", r.json()["detail"])
 
@@ -451,12 +493,13 @@ class TestWebFlowFake(unittest.TestCase):
         t = c.post("/api/tokenize", json={"text": text}).json()
         self.assertGreaterEqual(t["chunks"], 2)
         self.assertEqual(t["proofs"], 3 * t["chunks"])
-        r = c.post("/api/posts", data={"author": "kai", "kind": "text", "text": text}).json()
+        r = self.submit_as(data={"author": "kai", "kind": "text", "text": text}).json()
         pid = r["post_id"]
         self.assertEqual(r["chunks"], t["chunks"])
         p = c.get(f"/api/posts/{pid}").json()
-        self.assertEqual(len(p["chunks"]), t["chunks"])
-        self.assertTrue(all(ch["status"] == "queued" for ch in p["chunks"]))
+        self.assertEqual(p['status'], 'pending')
+        self.assertNotIn('chunks', p)
+        self.assertEqual(len(self.appmod.S.store.q('SELECT * FROM jobs WHERE post_id=?', (pid,))), t['chunks'])
         self.drain()
         p = c.get(f"/api/posts/{pid}").json()
         self.assertEqual(p["status"], "published")
@@ -478,15 +521,16 @@ class TestWebFlowFake(unittest.TestCase):
         safe = ("We walked along the quiet harbour at dawn and watched the fishing boats come home with the morning catch. "
                 "The cafe on the corner opened early, and the bakery smelled of fresh bread and cinnamon rolls. ")
         text = safe + "Then " + provers.FakeProver.REFUSE_MARK
-        pid = c.post("/api/posts", data={"author": "lea", "kind": "text", "text": text}).json()["post_id"]
+        pid = self.submit_as(data={"author": "lea", "kind": "text", "text": text}).json()["post_id"]
         self.drain()
         p = c.get(f"/api/posts/{pid}").json()
-        self.assertEqual(p["chunks"][0]["status"], "done")
-        self.assertEqual(p["chunks"][-1]["status"], "failed")
-        self.assertEqual({x["value"] for x in p["labels"]}, {"unproved"})   # any chunk unproved -> not proved
-        self.assertIn("without an accepted proof", p["status_message"])
-        minor = [x for x in c.get("/api/feed?audience=minor").json()["posts"] if x["id"] == pid][0]
-        self.assertTrue(minor["hidden"])
+        private_chunks = self.appmod.S.store.q('SELECT * FROM chunk_proofs WHERE post_id=? ORDER BY chunk', (pid,))
+        self.assertEqual(private_chunks[0]['status'], 'done')
+        self.assertEqual(private_chunks[-1]['status'], 'failed')
+        self.assertEqual(p, {'id': pid, 'status': 'failed', 'status_message': 'Could not be verified.'})
+        self.assertFalse(self.appmod.S.publisher.anchors_of(pid))
+        for audience in ('adult', 'minor'):
+            self.assertNotIn(pid, [x['id'] for x in c.get(f'/api/feed?audience={audience}').json()['posts']])
 
     def test_image_pending_verification_author_only(self):
         import io
@@ -494,7 +538,7 @@ class TestWebFlowFake(unittest.TestCase):
         from PIL import Image
         buf = io.BytesIO()
         Image.new("RGB", (64, 48), (200, 30, 30)).save(buf, "PNG")
-        r = self.client.post("/api/posts", data={"author": "dana", "kind": "image"},
+        r = self.submit_as(data={"author": "dana", "kind": "image"},
                              files={"file": ("a.png", buf.getvalue(), "image/png")})
         self.assertEqual(r.status_code, 200, r.text)
         pid = r.json()["post_id"]
@@ -504,17 +548,18 @@ class TestWebFlowFake(unittest.TestCase):
         self.assertEqual(p["media"]["canvas_px"], 224)
         self.assertEqual(len(p["media"]["salted_commitment"]), 64)
         self.assertNotIn(pid, [x["id"] for x in self.client.get("/api/feed").json()["posts"]])   # clean content only
-        self.assertEqual(self.client.get(f"/api/posts/{pid}/canvas.png").status_code, 403)
-        self.assertEqual(self.client.get(f"/api/posts/{pid}/canvas.png?author=dana").status_code, 200)
-        r2 = self.client.post("/api/posts", data={"author": "eve", "kind": "image"},
+        self.assertEqual(self.client.get(f"/api/posts/{pid}/canvas.png").status_code, 200)
+        self.login_as('eve')
+        self.assertEqual(self.client.get(f"/api/posts/{pid}/canvas.png?author=dana").status_code, 404)
+        r2 = self.submit_as(data={"author": "eve", "kind": "image"},
                               files={"file": ("b.png", buf.getvalue(), "image/png")})
         self.assertEqual(r2.status_code, 409)                              # proved once: no repeat
-        r3 = self.client.post("/api/posts", data={"author": "dana", "kind": "video"},
+        r3 = self.submit_as(data={"author": "dana", "kind": "video"},
                               files={"file": ("v.mp4", b"\x00\x00\x00\x14ftypisom", "video/mp4")})
         self.assertEqual(r3.status_code, 400)                              # video deferred
 
     def test_bad_upload_type(self):
-        r = self.client.post("/api/posts", data={"author": "erin", "kind": "image"},
+        r = self.submit_as(data={"author": "erin", "kind": "image"},
                              files={"file": ("x.png", b"not an image at all", "image/png")})
         self.assertEqual(r.status_code, 400)
 

@@ -1,0 +1,382 @@
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r16/hashline/src/private_block/token_io.rs	2026-10-29 02:29:32.233715878 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-review-r16-scratch/hashline/src/private_block/token_io.rs	2026-10-29 02:46:56.120265557 -0700
+@@ -93,6 +93,9 @@
+ // TOKEN I/O (round 16): the Shieldstral classifier on native R13 (REVIEW_R13 §10)
+ #[cfg(test)]
+ mod classify_r16_tests;
++// REVIEWER r16 (scratch only): the independent review's tests
++#[cfg(test)]
++mod review_r16_tests;
+ 
+ /// **THE TOKEN-I/O RUN PROFILES THIS BUILD REGISTERS, with their block shape**
+ /// (test only): the one list the profile-registry censuses (s24 / s25 / s33)
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r16/hashline/src/private_block/token_io/classify.rs	2026-10-29 02:29:32.233882646 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-review-r16-scratch/hashline/src/private_block/token_io/classify.rs	2026-10-29 02:46:48.712275405 -0700
+@@ -850,6 +850,16 @@
+     tables_derived: bool,
+ }
+ 
++/// REVIEWER r16 (scratch only): an env-selected mutant (`RV16_MUT=<name>`), test builds only
++#[cfg(test)]
++pub(crate) fn rv16_mut(name: &str) -> bool {
++    std::env::var("RV16_MUT").map(|v| v == name).unwrap_or(false)
++}
++#[cfg(not(test))]
++pub(crate) fn rv16_mut(_name: &str) -> bool {
++    false
++}
++
+ /// the derived whole-run figure of a classifier run (the token run's union
+ /// bound, D27): stage IN-C and stage OUT-C (A, H, M), ONE token endpoint, the
+ /// `L` blocks, the `L + 1` boundaries; LogUp: stage OUT-C's byte lookups
+@@ -880,7 +890,9 @@
+         // (N + 4 T_d - 1) / p^2 (degree-2 ACT3 / DD tuples), stage OUT-C's the
+         // legacy (N + 3 R - 1)
+         let (n, r) = lk[0];
+-        (n + 3 * r - 1) as f64 + (l as u128 * blk_num) as f64
++        // REVIEWER r16 (scratch only): mutant `bits-l` charges one block instead of L
++        let lmul: u128 = if rv16_mut("bits-l") { 1 } else { l as u128 };
++        (n + 3 * r - 1) as f64 + (lmul * blk_num) as f64
+     } else {
+         let blk = block_logup_size(sh);
+         lk.extend(vec![blk; l]);
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r16/hashline/src/private_block/token_io/classify_run.rs	2026-10-29 02:29:32.234246828 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-review-r16-scratch/hashline/src/private_block/token_io/classify_run.rs	2026-10-29 02:46:56.088265594 -0700
+@@ -250,7 +250,8 @@
+     if sh.accuracy_stack() != super::super::accuracy_precision::Stack::Legacy {
+         for k in 0..l {
+             let blk = blocks.block(k)?;
+-            stage_block_is_the_statements(st, k, &blk, true)?;
++            // REVIEWER r16 (scratch only): mutant `prehdr-cs6` drops CS-6 from the pre-header pass
++            stage_block_is_the_statements(st, k, &blk, !super::classify::rv16_mut("prehdr-cs6"))?;
+         }
+     }
+     let tables = tables.tables();
+--- /dev/null	2026-10-28 13:56:48.989250820 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-review-r16-scratch/hashline/src/private_block/token_io/review_r16_tests.rs	2026-10-29 02:46:08.424341991 -0700
+@@ -0,0 +1,325 @@
++//! **REVIEWER'S TESTS, token round 16** (independent soundness review; this
++//! file lives only in the reviewer's scratch copy
++//! `ops/zkp-mvp/token-io-review-r16-scratch/`, never in a lane tree).
++//!
++//! * S1 (item 3, D45(2)): which registered policies the R13 Shieldstral
++//!   classifier profiles admit, against the brief's "fixed three-policy list";
++//! * S2 (item 2): every term of the R13 whole-run figure printed for the
++//!   reviewer's independent recompute (`r16/bits_r16.py`), the exact floors
++//!   per policy, and `--min-bits` enforced at both profiles (95 passes the
++//!   floor door, one more is refused);
++//! * S3 (item 7): a cheating prover with a WRONG activation set (the role of
++//!   the CLI's `--seq-dir`) cannot make an accepting receipt for the sealed
++//!   input — three ways, on native R13's h24 rung with two gate denominators;
++//! * S4 (item 4): the N-r13-5 reuse refuses a derivation without a row or of
++//!   the wrong width, and never streams again when it has the row.
++
++use super::classify::*;
++use super::classify_run::*;
++use super::classify_tied::{BoundClassifierTables, TiedSource};
++use super::run::VerifierPolicy;
++use super::*;
++use super::super::protocol::CheatingProver;
++use super::super::run::{RunShape, RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST, RUN_PROFILE_CLASSIFY_R13_SHIELD_T128, RUN_PROFILE_CLASSIFY_R13_SHIELD_T256};
++use super::super::shape::{Shape, R13_RUNG_H24, R13_SHIELD_T128_H24, R13_SHIELD_T256_H24};
++use super::super::trained_block::{Constants, TrainedExport};
++use super::super::trained_statement::{IntegerCalibration, LayerRecord, Provenance, TrainedModelStatement};
++use super::super::BlockPublic;
++use std::path::PathBuf;
++
++const SH_NORM: FinalNorm = FinalNorm { g0: 127, cn: 1024, tn: 10, ceps: 2439 };
++
++fn shield_shape(block: &str) -> Shape {
++    Shape::accuracy_trained(block, &r13_census_calibration(), 9, 20).unwrap()
++}
++
++/// one V = 131,072 x d = 3,072 synthetic table set (805 MB; built once per test)
++fn shield_tables() -> ClassifierTables {
++    let (v, d) = (131_072usize, 3_072usize);
++    let emb: Vec<i16> = (0..v * d).map(|i| ((i * 7919) % 12_001) as i16 - 6_000).collect();
++    let w: Vec<i16> = (0..d).map(|i| (i as i16 % 2000) - 1000).collect();
++    ClassifierTables::new(v, d, emb, w).unwrap()
++}
++
++/// a classifier run statement at an R13 Shieldstral profile under `policy`
++/// (synthetic records, each its gate shift; the census's construction with
++/// the policy as a parameter). Clones the tables once (dropped on return).
++fn shield_statement(profile: &'static str, sh: &Shape, tables: &ClassifierTables, policy: &Policy, l: usize) -> Result<(ClassifyRunStatement, BoundClassifierTables), String> {
++    let gates: Vec<u32> = (0..l).map(|k| 17 + (k as u32 % 8)).collect();
++    let model = r13_synthetic_model(sh, profile, &gates, [9; 32], 1.0 / 512.0);
++    let digests: Vec<Digest> = model.layers.iter().map(|r| r.block_digest).collect();
++    let bound = BoundClassifierTables::synthetic_for_relation_tests(tables.clone(), 1, SH_NORM, sh, profile, &model, policy)?;
++    let n = sh.tokens - policy.prefix.len() - policy.suffix.len();
++    let st = ClassifyRunStatement::new(RunShape::new(sh.clone(), l, profile)?, super::tests::ctx(), digests, &model, &bound, policy, n, Tier::R1_MVP, [7u8; 32], 1)?;
++    Ok((st, bound))
++}
++
++// ------------------------------------------------------------------ S1
++
++#[test]
++fn rv16_s1_the_policies_the_r13_shieldstral_profiles_admit() {
++    let reg: Vec<String> = registered_policies().into_iter().map(|p| p.id).collect();
++    eprintln!("RV16-S1 | registered policies (production list + none test-only): {reg:?}");
++    let t128 = shield_shape(R13_SHIELD_T128_H24);
++    let tables = shield_tables();
++    let mut admitted = Vec::new();
++    for p in registered_policies() {
++        let n = t128.tokens.saturating_sub(p.prefix.len() + p.suffix.len()).max(1);
++        match ClassifierProfile::new(&t128, &tables, 1, SH_NORM, &p, n, Tier::R1_MVP) {
++            Ok(cp) => {
++                eprintln!("RV16-S1 | T128 profile door ADMITS {} (P0 {}, chunk {})", p.id, p.prefix.len(), n);
++                admitted.push((p.id.clone(), cp.p0()));
++            }
++            Err(e) => eprintln!("RV16-S1 | T128 profile door refuses {}: {e}", p.id),
++        }
++    }
++    // the card policy through the whole statement constructor (check_policy,
++    // check_for, the chunk plan): it is admitted at the R13 T128 profile
++    let card = policy_shieldstral_card();
++    let r = shield_statement(RUN_PROFILE_CLASSIFY_R13_SHIELD_T128, &t128, &tables, &card, 26);
++    eprintln!("RV16-S1 | T128 statement under {}: {}", card.id, match &r { Ok(_) => "CONSTRUCTS (admitted)".to_string(), Err(e) => format!("refused: {e}") });
++    drop(r);
++    // the real export's margin parameters (if given) are the card policy's too
++    if let Some(path) = std::env::var_os("RV16_T128_PROFILE") {
++        let j: serde_like::J = serde_like::parse(&std::fs::read(&path).unwrap());
++        let m = j.get("classifier_margin_parameters").unwrap();
++        let (yes, no, scale, c) = (m.get("yes_id").unwrap().i64().unwrap(), m.get("no_id").unwrap().i64().unwrap(), m.get("public_scale").unwrap().f64().unwrap(), m.get("threshold_c").unwrap().i64().unwrap());
++        let same = (yes as u64, no as u64, scale.to_bits(), c) == (card.yes, card.no, card.margin_scale_bits, card.c);
++        eprintln!("RV16-S1 | the real T128 export's classifier_margin_parameters (yes {yes}, no {no}, scale {scale:e}, c {c}) equal the card policy's: {same}");
++        assert!(same);
++    }
++    // ids outside the list are refused by name
++    for id in ["shieldstral-1.0-3b-strict-sexual/1", "shieldstral-1.0-3b-moderate-sexual/2", "shieldstral-1.0-3b-moderate-self-harm/1", "shieldstral-1.0-3b-card-unsafe/2"] {
++        let e = policy_by_id(id).err().expect("AN UNREGISTERED POLICY ID WAS FOUND");
++        assert!(e.contains("not a pre-registered policy"), "{e}");
++    }
++    eprintln!("RV16-S1 | admitted at the R13 Shieldstral T128 profile: {admitted:?}");
++    // the reviewer's finding, pinned: four Shieldstral policies, not three
++    assert_eq!(admitted.len(), 4, "the admitted list changed: {admitted:?}");
++    assert!(admitted.iter().any(|(id, _)| id == "shieldstral-1.0-3b-card-unsafe/1"));
++}
++
++/// a tiny JSON reader over the crate's own parser (the trained loader's `J`)
++mod serde_like {
++    pub(super) type J = super::super::super::trained_block::J;
++    pub(super) fn parse(b: &[u8]) -> J {
++        super::super::super::trained_block::parse_json(b).unwrap()
++    }
++}
++
++// ------------------------------------------------------------------ S2
++
++#[test]
++fn rv16_s2_whole_run_terms_floors_and_min_bits() {
++    use super::super::layout::{Dom, LOOKUP_DOMS};
++    let tables = shield_tables();
++    let policies = [policy_shieldstral_moderate_sexual(), policy_shieldstral_moderate_violence(), policy_shieldstral_moderate_hate(), policy_shieldstral_card()];
++    for (profile, block, want_floor) in [(RUN_PROFILE_CLASSIFY_R13_SHIELD_T128, R13_SHIELD_T128_H24, 96u32), (RUN_PROFILE_CLASSIFY_R13_SHIELD_T256, R13_SHIELD_T256_H24, 95)] {
++        let sh = shield_shape(block);
++        let u8n: u128 = LOOKUP_DOMS.iter().map(|d| sh.lookups_per_position(*d) as u128 * sh.size(*d) as u128).sum();
++        eprintln!(
++            "RV16-S2-SHAPE {{\"profile\":\"{profile}\",\"log_cols\":{},\"inv_rate\":{},\"opened_cols\":{},\"endpoint_log_n\":{},\"endpoint_inv_rate\":{},\"tokens\":{},\"t_pad\":{},\"d_pad\":{},\"u8_lookups\":{u8n},\"S\":{},\"F\":{},\"r13_numerator\":{},\"mask_vec\":{},\"mask_dom\":{},\"mask_q\":{},\"tier_q\":{},\"tier_stage_log_n\":{},\"tier_stage_inv_rate\":{},\"tier_ep_log_n\":{},\"tier_ep_inv_rate\":{},\"pcs_field\":{},\"sumcheck\":{}}}",
++            sh.log_cols, sh.inv_rate, sh.opened_cols, sh.endpoint_log_n, sh.endpoint_inv_rate, sh.tokens, sh.t_pad, sh.d_pad,
++            sh.size(Dom::S), sh.size(Dom::F),
++            super::run::r13_block_logup_numerator(&sh).unwrap(),
++            MASK_VEC, MASK_DOM, crate::zk::MASK_Q,
++            Tier::R1_MVP.opened_cols, Tier::R1_MVP.stage_log_n, Tier::R1_MVP.stage_inv_rate, Tier::R1_MVP.ep_log_n, Tier::R1_MVP.ep_inv_rate,
++            super::run::PCS_FIELD_PER_OPENING_LOG2, super::run::SUMCHECK_PER_STAGE_LOG2
++        );
++        for p in &policies {
++            let n = sh.tokens - p.prefix.len() - p.suffix.len();
++            let cp = ClassifierProfile::new(&sh, &tables, 1, SH_NORM, p, n, Tier::R1_MVP).unwrap();
++            let (on, or) = super::stage_out_c::logup_size(&super::stage_out_c::layout(&sh, &cp));
++            let (inn, inr) = super::stage_in_c::logup_size(&super::stage_in_c::layout(&sh, &cp), &cp);
++            let w = whole_run_of_classifier(&sh, 26, &cp);
++            eprintln!(
++                "RV16-S2-TERMS {{\"profile\":\"{profile}\",\"policy\":\"{}\",\"p0\":{},\"n\":{n},\"out_c_n\":{on},\"out_c_r\":{or},\"in_c_n\":{inn},\"in_c_r\":{inr},\"cp_tokens\":{},\"cp_d_pad\":{},\"openings\":{},\"column_log2\":{:.6},\"logup_log2\":{:.6},\"omitted_log2\":{:.6},\"total_log2\":{:.6},\"floor\":{}}}",
++                p.id, p.prefix.len(), cp.tokens, cp.d_pad, w.openings, w.column_log2, w.logup_log2, w.omitted_log2, w.total_log2, w.floor_bits
++            );
++            assert_eq!(w.openings, 4 * 26 + 8);
++            assert_eq!(w.floor_bits, want_floor, "{profile} / {}: floor {}", p.id, w.floor_bits);
++        }
++        // --min-bits at the floor passes the floor door; one more bit is refused
++        let (st, bound) = shield_statement(profile, &sh, &tables, &policy_shieldstral_moderate_hate(), 26).unwrap();
++        let at = verify_classify_run(&st, &[], &bound, &[], VerifierPolicy { min_whole_run_bits: want_floor }).err().unwrap();
++        assert!(!at.contains("below the verifier's minimum"), "{profile}: --min-bits {want_floor} was refused at the floor door: {at}");
++        assert!(at.contains("blocks and") && at.contains("segments were offered"), "{at}");
++        let above = verify_classify_run(&st, &[], &bound, &[], VerifierPolicy { min_whole_run_bits: want_floor + 1 }).err().unwrap();
++        assert!(above.contains("below the verifier's minimum"), "{profile}: --min-bits {} not refused at the floor door: {above}", want_floor + 1);
++        assert_eq!(super::classify_tied::min_bits_floor(profile), 95);
++        eprintln!("RV16-S2 | {profile}: floor {want_floor}; --min-bits {want_floor} passes the floor door ({at}); --min-bits {} refused ({above})", want_floor + 1);
++        drop((st, bound));
++    }
++}
++
++// ------------------------------------------------------------------ S3 (item 7)
++
++fn fixtures() -> PathBuf {
++    std::env::var_os("HL_R13_LOADER_FIXTURES").map(PathBuf::from).unwrap_or_else(|| std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../loader-fixtures"))
++}
++
++/// the lane's two-stage R13 rung fixture (copied: layer 1 = layer 0 with
++/// another SiLU member, so the two layers carry different gate denominators)
++fn two_stage() -> (TrainedExport, Constants, Shape, Vec<BlockPublic>, Vec<LayerRecord>) {
++    use super::super::accuracy_public::AccuracyPublic;
++    let mut ex = TrainedExport::load(&fixtures().join("r13-h24-wide")).unwrap();
++    ex.source.checkpoint_layers = 2;
++    let c = ex.run_constants(&[0]).unwrap();
++    let seed = ex.shape_for(&c).unwrap();
++    assert_eq!(seed.profile, R13_RUNG_H24);
++    let first = ex.load_layer(&seed, &c, 0, false).unwrap();
++    let a = first.blk.accuracy().unwrap();
++    let changed = AccuracyPublic::new(a.stack(), a.geometry(), a.base(), (-4, -13), a.multipliers().clone(), a.groups().to_vec(), a.group_ids().to_vec(), a.raw_tables().to_vec()).unwrap();
++    let second = first.blk.clone().with_accuracy(changed);
++    let mut r2 = LayerRecord::of_block(1, &second, vec![]);
++    r2.manifest_sha256 = [53; 32];
++    let r1 = first.record.clone();
++    assert_ne!(r1.accuracy_gate_shift, r2.accuracy_gate_shift);
++    (ex, c, seed, vec![first.blk, second], vec![r1, r2])
++}
++
++fn model_of(ex: &TrainedExport, c: &Constants, seed: &Shape, records: Vec<LayerRecord>) -> TrainedModelStatement {
++    let prov = Provenance {
++        label: format!("export:{}", ex.variant),
++        residual_unit: ex.residual_unit,
++        quantizer_sha256: ex.tool_sha256,
++        calibration_set_sha256: ex.calibration_set_sha256,
++        export_profile_sha256: ex.profile_sha256,
++        calibration_tool_sha256: ex.tool_sha256,
++        rope_theta: c.rope_theta,
++        rope_scaling: ex.rope_scaling,
++    };
++    TrainedModelStatement::new_with_tied(seed, RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST, ex.source.clone(), IntegerCalibration::as_the_code_proves(seed, &prov), records, None).unwrap()
++}
++
++fn bound_of(seed: &Shape, model: &TrainedModelStatement) -> BoundClassifierTables {
++    let tt = super::tests::generic_tables(seed.width, 0x7276_3136);
++    let mut s = 0x7276_6d61_7267u64;
++    let w: Vec<i16> = (0..seed.width).map(|_| (super::tests::lcg(&mut s) % 20_001) as i16 - 10_000).collect();
++    let tables = ClassifierTables::new(tt.v, tt.d, tt.emb, w).unwrap();
++    BoundClassifierTables::synthetic_for_relation_tests(tables, 1, super::tests::norm(), seed, RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST, model, &policy_rung_dev()).unwrap()
++}
++
++fn statement_of(seed: &Shape, model: &TrainedModelStatement, bound: &BoundClassifierTables, n: usize, root: Digest, verdict: u8) -> ClassifyRunStatement {
++    let digests: Vec<Digest> = model.layers.iter().map(|r| r.block_digest).collect();
++    ClassifyRunStatement::new(RunShape::new(seed.clone(), model.layers.len(), RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST).unwrap(), super::tests::ctx(), digests, model, bound, &policy_rung_dev(), n, Tier::R1_MVP, root, verdict).unwrap()
++}
++
++fn bump(v: &mut [i16], at: usize) {
++    v[at] = if v[at] < i16::MAX - 4 { v[at] + 3 } else { v[at] - 3 };
++}
++
++/// **item 7: the activation set is not trusted.** The prover's per-layer
++/// activations (`--seq-dir` at the CLI) are witness data. With the prover's
++/// own checks OFF (a cheating prover), a wrong set — a wrong boundary, a
++/// self-consistent chain from a wrong layer-1 input, a chain from a wrong
++/// `B_in` — must not give an accepting receipt for the SEALED input (the
++/// input root of the honest content). The control (honest values, cheating
++/// guard on) verifies.
++#[test]
++fn rv16_s3_a_wrong_activation_set_yields_no_accepting_receipt() {
++    let (ex, c, seed, blocks, records) = two_stage();
++    let model = model_of(&ex, &c, &seed, records);
++    let bound = bound_of(&seed, &model);
++    let mut s = 0x7276_3136_6974_656du64;
++    let item: Vec<u64> = (0..20).map(|_| 5 + super::tests::lcg(&mut s) % 295).collect();
++    let cp = ClassifierProfile::new(&seed, bound.tables(), bound.bos(), bound.norm(), &policy_rung_dev(), item.len(), Tier::R1_MVP).unwrap();
++    let tokens = cp.tokens_of(&item).unwrap();
++    let shapes: Vec<Shape> = model.layers.iter().map(|r| r.shape_at(&seed).unwrap()).collect();
++    let spec = input_endpoint_spec(&seed, super::tests::ctx(), &cp).unwrap();
++    let honest0 = honest_classify(&shapes, &cp, bound.tables(), &blocks, &tokens).unwrap();
++    let at = cp.p0() * seed.d_pad; // the first content row, word 0
++    let mut outcomes = Vec::new();
++    for case in ["control-honest", "wrong-boundary-1", "chain-from-wrong-layer1-input", "chain-from-wrong-B_in"] {
++        let _cheat = CheatingProver::on();
++        let mut h = honest_classify(&shapes, &cp, bound.tables(), &blocks, &tokens).unwrap();
++        let mut verdict = honest0.out_values.verdict;
++        match case {
++            "control-honest" => {}
++            "wrong-boundary-1" => bump(&mut h.planes[0], at),
++            "chain-from-wrong-layer1-input" => {
++                let mut b1 = h.planes[0].clone();
++                bump(&mut b1, at);
++                let (mut ws, ps, ov, wout) = downstream(&shapes[1..], &cp, bound.tables(), &blocks[1..], &b1, false).unwrap();
++                h.witnesses[1] = ws.remove(0);
++                h.planes[0] = b1;
++                h.planes[1] = ps[0].clone();
++                h.stage_out = wout;
++                verdict = ov.verdict;
++            }
++            "chain-from-wrong-B_in" => {
++                let mut b_in = h.b_in.clone();
++                bump(&mut b_in, at);
++                let (ws, ps, ov, wout) = downstream(&shapes, &cp, bound.tables(), &blocks, &b_in, false).unwrap();
++                h.b_in = b_in;
++                h.witnesses = ws;
++                h.planes = ps;
++                h.stage_out = wout;
++                verdict = ov.verdict;
++            }
++            _ => unreachable!(),
++        }
++        // the sealed input is ALWAYS the honest content's
++        let (root, owner) = seal_input(&spec, &honest0.in_plane, &seed.hash_tag()).unwrap();
++        let st = statement_of(&seed, &model, &bound, item.len(), root, verdict);
++        let mut segments = Vec::new();
++        let proved = prove_classify_run(&st, &blocks, &bound, &mut ClassifySource(&mut h), owner, &mut |_, b| {
++            segments.push(b);
++            Ok(())
++        });
++        drop(_cheat);
++        let outcome = match proved {
++            Err(e) => format!("the prover itself refused: {e}"),
++            Ok(_) => {
++                let fresh_model = model_of(&ex, &c, &seed, model.layers.clone());
++                let fresh_bound = bound_of(&seed, &fresh_model);
++                let fresh = statement_of(&seed, &fresh_model, &fresh_bound, item.len(), root, verdict);
++                match verify_classify_run(&fresh, &blocks, &fresh_bound, &segments, VerifierPolicy { min_whole_run_bits: 95 }) {
++                    Ok(()) => "VERIFIED".to_string(),
++                    Err(e) => format!("receipt of {} segments REFUSED by the verifier: {e}", segments.len()),
++                }
++            }
++        };
++        eprintln!("RV16-S3 | {case} (verdict {verdict}): {outcome}");
++        outcomes.push((case, outcome));
++    }
++    assert_eq!(outcomes[0].1, "VERIFIED", "the control did not verify");
++    for (case, o) in &outcomes[1..] {
++        assert!(o.contains("REFUSED by the verifier"), "{case}: {o}");
++    }
++}
++
++// ------------------------------------------------------------------ S4 (item 4)
++
++#[test]
++fn rv16_s4_the_reused_derivation_needs_its_row_of_the_block_width() {
++    use super::super::tied_tables::{RecomputedTiedTables, TiedTokenCalibration};
++    use super::super::trained_block::{sha256, TiedDerivation};
++    use super::classify_tied::{recompute_tied_classifier_pre, stub_shieldstral_recompute};
++    let root = super::classify_cli_tests::fixture_root().join(format!("rv16-s4-{}", std::process::id()));
++    let _ = std::fs::remove_dir_all(&root);
++    let (export, tables) = (root.join("export"), root.join("tables"));
++    std::fs::create_dir_all(&export).unwrap();
++    std::fs::create_dir_all(&tables).unwrap();
++    let policy = policy_shieldstral_moderate_sexual();
++    let profile = format!("{{\"kind\": \"rv16-s4\", \"classifier_margin_parameters\": {{\"yes_id\": {}, \"no_id\": {}, \"public_scale\": {:?}, \"threshold_c\": {}}}}}\n", policy.yes, policy.no, policy.margin_scale(), policy.c);
++    std::fs::write(export.join("profile.json"), &profile).unwrap();
++    let bound = sha256(profile.as_bytes());
++    let want = (13059u32, 2649u32, policy.margin_scale_bits);
++    let fnm = super::super::tied_tables::TiedFinalNorm { g0: 127, cn: 1024, tn: 10, ceps: 2439 };
++    let t = |margin: Option<Vec<i16>>| RecomputedTiedTables { embedding_sha256: [3; 32], head_sha256: [4; 32], multipliers_sha256: [5; 32], margin, calibration: TiedTokenCalibration { bos: 1, classifier_final_norm: fnm.clone(), head_final_norm: fnm.clone(), profile_sha256: bound } };
++    let _g = stub_shieldstral_recompute(Box::new(|_: &std::path::Path, _: (u32, u32, f64)| panic!("THE CHECKPOINT WAS STREAMED A SECOND TIME")));
++    for (what, margin) in [("no row", None), ("row 3071 wide", Some(vec![1i16; 3071])), ("row 3073 wide", Some(vec![1i16; 3073]))] {
++        let pre = TiedDerivation { margin: Some(want), tables: t(margin) };
++        let e = recompute_tied_classifier_pre(TiedSource::Shieldstral, &export, &tables, &policy, 0.0, 3072, &bound, Some(&pre)).err().expect("A REUSED DERIVATION WITHOUT A BLOCK-WIDTH ROW WAS ACCEPTED");
++        eprintln!("RV16-S4 | reused derivation with {what}: refused ({e})");
++    }
++    // a statement digest other than the profile's: refused before any derivation is consulted
++    let mut other = bound;
++    other[31] ^= 0x80;
++    let pre = TiedDerivation { margin: Some(want), tables: t(Some(vec![1; 3072])) };
++    let e = recompute_tied_classifier_pre(TiedSource::Shieldstral, &export, &tables, &policy, 0.0, 3072, &other, Some(&pre)).err().unwrap();
++    assert!(e.contains("is not the profile the trained statement binds"), "{e}");
++    eprintln!("RV16-S4 | a reused derivation under another statement digest: refused at the bound-profile read ({e})");
++    let _ = std::fs::remove_dir_all(&root);
++}

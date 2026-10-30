@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "assertions": 185031,
+  "fixtures": 14,
+  "exact_comparisons": 231200,
+  "source_row_narrow_comparisons": 24320,
+  "controls": 365,
+  "exhaustive_partition_candidates": 33362,
+  "exhaustive_objectives": 840,
+  "interpretation": "negative for logical operand objective; device time unknown"
+}

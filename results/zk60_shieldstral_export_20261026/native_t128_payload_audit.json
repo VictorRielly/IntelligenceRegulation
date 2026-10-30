@@ -1,0 +1,12 @@
+{
+  "at": "2026-10-29T06:37:54.614751+00:00",
+  "scope": "Fresh reread of every generated T128 native payload and manifest, no new proof claim",
+  "profile_sha256": "2ba468f98085caf1136f27cf66220f93d8e316acb8dbae7e98f9eb68347f05a0",
+  "complete_sha256": "76ac4e698ba85f8c3e7bb19296b74f489923fc4876bd106e72193eda13364348",
+  "layer_payload_count": 572,
+  "layer_payload_bytes": 3038873024,
+  "token_io_file_count": 8,
+  "all_hashes_match": true,
+  "elapsed_seconds": 3.6761926609979128,
+  "measurement": "n=1 shared box"
+}

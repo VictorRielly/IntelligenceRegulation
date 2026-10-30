@@ -1,0 +1,8 @@
+{
+  "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "python": "3.10.12",
+  "cpu": "model name\t: Intel(R) Core(TM) Ultra 9 185H",
+  "gpu_used": false,
+  "threads": 1,
+  "estimated_memory_mib": 96
+}

@@ -1,0 +1,8 @@
+{
+  "utc": "2026-10-30T06:19:56.458074+00:00",
+  "original_session": 9825,
+  "exit": 130,
+  "native_leaf_started": false,
+  "reason": "Withdraw unstarted ten-second precheck before source-held native acceptance. Use reviewed guard direct admission as already validated for captures; no duplicate or failed native retry.",
+  "new_runner_sha256": "0328bf85be20a8e55eeec8a962cdb4fa3c554901f76eb441a7ae88d854d11bb8"
+}

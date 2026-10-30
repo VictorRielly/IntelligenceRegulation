@@ -1,0 +1,34 @@
+{
+ "generated_utc": "2026-10-30T16:20:22Z",
+ "sensitive_names_in_candidate_tree": [],
+ "around_candidate_tree": {
+  "apps/proven-media/.testnet-private": [
+   "bridge-bulk.complete.json",
+   "bridge-bulk.pending.json",
+   "bridge-canary.complete.json",
+   "bridge-canary.pending.json",
+   "bridge.lock",
+   "deployment.pending.json",
+   "sepolia.json"
+  ],
+  "~/zk60-owner-private": {
+   "exists": true,
+   "entries": 5,
+   "inside_candidate_tree": false
+  }
+ },
+ "sensitive_names_outside_candidate_depth5": {
+  "count": 8,
+  "paths": [
+   "results/zk60_astra_20261026/move_testnet_wallet.py",
+   "results/zk60_astra_20261026/storage-wallet-suite.done",
+   "results/zk60_astra_20261026/storage-wallet-suite.guard.json",
+   "results/zk60_astra_20261026/storage-wallet-suite.log",
+   "results/zk60_open_release_20261030/prep/inventory_r19b/secret_scan_hits.tsv",
+   "results/zk60_open_release_20261030/prep/inventory_r19b/secret_scan_summary.json",
+   "results/zk60_open_release_20261030/secret_scan_hits.tsv",
+   "results/zk60_open_release_20261030/secret_scan_summary.json"
+  ]
+ },
+ "rule": "(?i)(^\\.env$|\\.env\\.|\\.pem$|\\.key$|id_rsa|id_ed25519|\\.p12$|\\.pfx$|\\.sqlite3?$|\\.db$|sepolia-key|owner-private|\\.dec$|secret|credential|wallet|keystore|\\.npmrc$|\\.pypirc$|netrc)"
+}

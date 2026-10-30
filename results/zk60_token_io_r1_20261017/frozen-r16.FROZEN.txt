@@ -1,0 +1,35 @@
+Token-I/O lane round-16 tree frozen at 2026-10-29T09:29:32Z: the REAL Shieldstral-1.0-3B classifier registered on NATIVE R13
+(REVIEW_R13 §10). **UNREVIEWED**: an independent review of round 16 is to follow (routed by the coordinator). Basis: frozen-r15
+(unreviewed) rebased onto native R13 bb9eb212… (ACCEPTED on soundness 2026-10-29 07:21Z, REVIEW_R13).
+copy:     /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r16/
+source:   /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r16/ (a new durable tree: r16/tools/r16_rebase.py apply = the
+          frozen-r15 copy + native R12b -> R13 (17 copied, 40 added, 9 merged, 8 conflict blocks resolved by r16/tools/r16_resolve.py;
+          reports r16/rebase_applied.json, r16/conflicts_resolved.json), then the round's edits). target/, BASELINE.sha256 and the
+          native tests' evidence dirs (results/r12b-*, results/r12-tied-<pid>/, results/r13-array-tests) are excluded.
+manifest: /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/manifest_final_r16.sha256
+          (= r16/manifest_r16A.sha256: 300 files, list sha256 f42f8c6e2643f4390427d5e57a68f0a39ba3a51721b9efb27e288198612b5404);
+          all 300 re-hashed in the copy: match, none missing, none extra. Pre/post-mutation and post-suite manifests equal it.
+binaries: cli/zk60_classify.r16.release.bin e94cecf99f82… (made every real receipt; source = this tree but for N-r14-2's two
+          comment lines in classify.rs) and cli/zk60_classify.r16-frozen.release.bin dae5abd78954… (built from this tree after the
+          suite; verifies the real receipts of the first and cross-verifies rung receipts with it): cli/binaries_r16.sha256,
+          build note cli/zk60_classify.r16.BUILD.txt.
+suite:    s20 (r16/logs/s20-suite.log): exit 0, 934 passed, 0 failed, 68 ignored, 29 test binaries [875 s, peak RSS 6.80 GiB / cgroup
+          7.09 GiB, shared box n=1, nothing else live; declared 9.5 / cap 11]. Native R13 alone: 816 / 0 / 51; s19 (r15): 850 / 0 / 59.
+what:     run profiles hashline-zk-mr1/private-classify-run-shieldstral-3b-t{128,256}-r13-public-row/1 over R13_SHIELD_T{128,256}_H24
+          (non-DD); stage shapes = native LayerRecord::shape_at (own calibration, then the layer's bound gate denominator); blocks
+          built with native build_for_block; the verifier checks each block against its own stage shape before its header; the R13
+          whole-run term (N + 4 T_d - 1)/p^2 per block; policies shieldstral-1.0-3b-moderate-{sexual,violence,hate}/1 (the strict /
+          moderate wording is Victor's open ruling; this list is the moderate one, flagged); overlap 8; one checkpoint stream per
+          command (N-r13-5: the loader's pass also derives the margin row; reused only with the bound margin parameters).
+bits:     [COUNTED] whole run at 26 blocks: T128 2^-96.86 -> floor 96; T256 2^-95.91 -> floor 95 (both pass --min-bits 95).
+real:     [MEASURED, laptop, shared box n=1] one 35-id ToxicChat post, T128, each of the three categories: prove 439-456 s (328-349 s
+          proving), 848,412,096 B in 28 segments, peak RSS 8.08-8.27 GiB; fresh-process verify / input-owner / label 66-71 s each,
+          peak RSS 2.24-2.32 GiB; all not-flagged; floors 96 (r16/real_runs.json). T256 registered, NOT proved on the laptop.
+tests:    failing-first: the frozen r15 binary refuses the real R13 export (schema /2 unreadable) — r16/logs/red-r15-binary.log; four
+          test-killing mutants (gate, prehdr, bits, reuse) killed — r16/logs/mut-*.log.
+native:   files the token tree differs in from native R13: 12 (r16/token_vs_native_r13.txt / .diff); the round's own native edits:
+          run.rs (the classifier profiles + CS-7 + the blocks-only refusal), trained_block.rs + tied_tables(.rs, /derive.rs) (N-r13-5),
+          trained_accuracy.rs + accuracy_proof_tests.rs (HL_R13_LOADER_FIXTURES), the merged registries (hash_domain_tests, s24, s25,
+          s33, run_capture OWN_SOURCE_FILES 38).
+Not a privacy acceptance and not a classifier-fidelity claim. Unreviewed. The lane's working copy may move on; this copy does not
+change.

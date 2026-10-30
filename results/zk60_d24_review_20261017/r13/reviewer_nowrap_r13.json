@@ -1,0 +1,584 @@
+{
+ "class (validator maxima: width/q/kv<=4096, hidden<=16384, head_dim 128, T 512)": {
+  "standard/low": {
+   "q/k requant (m<=32, s<=16)": {
+    "abs_bound": 547608428544,
+    "bits": 38.99,
+    "below_p": true
+   },
+   "v requant (m<=64, s<=16)": {
+    "abs_bound": 1093069275136,
+    "bits": 39.99,
+    "below_p": true
+   },
+   "rope (|c|,|s|<=128, sh 7)": {
+    "abs_bound": 12583104,
+    "bits": 23.58,
+    "below_p": true
+   },
+   "score host (sum over head_dim, s<=24, int8 word)": {
+    "abs_bound": 139594825728,
+    "bits": 37.02,
+    "below_p": true
+   },
+   "pv host (P<2^13, T rows, s<=16)": {
+    "abs_bound": 139586535424,
+    "bits": 37.02,
+    "below_p": true
+   },
+   "ao host (m<=256, s<=24)": {
+    "abs_bound": 4913467752448,
+    "bits": 42.16,
+    "below_p": true
+   },
+   "gate host (folded c<=2^14, G<=24, |g|<=2048)": {
+    "abs_bound": 279310338359296,
+    "bits": 47.99,
+    "below_p": true
+   },
+   "up host (m<=16, s=12)": {
+    "abs_bound": 272864647168,
+    "bits": 37.99,
+    "below_p": true
+   },
+   "product (|a_scaled|<=1073709056, R=24)": {
+    "abs_bound": 35733079326720,
+    "bits": 45.02,
+    "below_p": true
+   },
+   "down host (m<=64, s<=24, |h| class)": {
+    "abs_bound": 4913467752448,
+    "bits": 42.16,
+    "below_p": true
+   },
+   "norm quotient (Cn<=2^20, tn'<=8, D<2^24)": {
+    "abs_bound": 290206662000640,
+    "bits": 48.04,
+    "below_p": true
+   },
+   "norm complement": {
+    "abs_bound": 8623489025,
+    "bits": 33.01,
+    "below_p": true
+   },
+   "residual adds": {
+    "abs_bound": 98304,
+    "bits": 16.58,
+    "below_p": true
+   },
+   "byte reconstructions (<=3 limbs, bias 2^23)": {
+    "abs_bound": 41943040,
+    "bits": 25.32,
+    "below_p": true
+   },
+   "softmax / DD quotient (e<=2^24 at F_P 12, P<2^13, Sum<2^24)": {
+    "abs_bound": 206175207424,
+    "bits": 37.59,
+    "below_p": true
+   },
+   "softmax / DD complement": {
+    "abs_bound": 50331648,
+    "bits": 25.58,
+    "below_p": true
+   }
+  },
+  "standard/h24": {
+   "q/k requant (m<=32, s<=16)": {
+    "abs_bound": 547608428544,
+    "bits": 38.99,
+    "below_p": true
+   },
+   "v requant (m<=64, s<=16)": {
+    "abs_bound": 1093069275136,
+    "bits": 39.99,
+    "below_p": true
+   },
+   "rope (|c|,|s|<=128, sh 7)": {
+    "abs_bound": 12583104,
+    "bits": 23.58,
+    "below_p": true
+   },
+   "score host (sum over head_dim, s<=24, int8 word)": {
+    "abs_bound": 139594825728,
+    "bits": 37.02,
+    "below_p": true
+   },
+   "pv host (P<2^13, T rows, s<=16)": {
+    "abs_bound": 139586535424,
+    "bits": 37.02,
+    "below_p": true
+   },
+   "ao host (m<=256, s<=24)": {
+    "abs_bound": 4913467752448,
+    "bits": 42.16,
+    "below_p": true
+   },
+   "gate host (folded c<=2^14, G<=24, |g|<=2048)": {
+    "abs_bound": 279310338359296,
+    "bits": 47.99,
+    "below_p": true
+   },
+   "up host (m<=16, s=12)": {
+    "abs_bound": 272864647168,
+    "bits": 37.99,
+    "below_p": true
+   },
+   "product (|a_scaled|<=1073709056, R=16)": {
+    "abs_bound": 35733054259200,
+    "bits": 45.02,
+    "below_p": true
+   },
+   "down host (m<=64, s<=24, |h| class)": {
+    "abs_bound": 1117653594800128,
+    "bits": 49.99,
+    "below_p": true
+   },
+   "norm quotient (Cn<=2^20, tn'<=8, D<2^24)": {
+    "abs_bound": 290206662000640,
+    "bits": 48.04,
+    "below_p": true
+   },
+   "norm complement": {
+    "abs_bound": 8623489025,
+    "bits": 33.01,
+    "below_p": true
+   },
+   "residual adds": {
+    "abs_bound": 98304,
+    "bits": 16.58,
+    "below_p": true
+   },
+   "byte reconstructions (<=3 limbs, bias 2^23)": {
+    "abs_bound": 41943040,
+    "bits": 25.32,
+    "below_p": true
+   },
+   "softmax / DD quotient (e<=2^24 at F_P 12, P<2^13, Sum<2^24)": {
+    "abs_bound": 206175207424,
+    "bits": 37.59,
+    "below_p": true
+   },
+   "softmax / DD complement": {
+    "abs_bound": 50331648,
+    "bits": 25.58,
+    "below_p": true
+   }
+  },
+  "shieldstral/low": {
+   "q/k requant (m<=32, s<=16)": {
+    "abs_bound": 547608428544,
+    "bits": 38.99,
+    "below_p": true
+   },
+   "v requant (m<=64, s<=16)": {
+    "abs_bound": 1093069275136,
+    "bits": 39.99,
+    "below_p": true
+   },
+   "rope (|c|,|s|<=128, sh 7)": {
+    "abs_bound": 12583104,
+    "bits": 23.58,
+    "below_p": true
+   },
+   "score host (sum over head_dim, s<=24, int8 word)": {
+    "abs_bound": 139594825728,
+    "bits": 37.02,
+    "below_p": true
+   },
+   "pv host (P<2^13, T rows, s<=16)": {
+    "abs_bound": 139586535424,
+    "bits": 37.02,
+    "below_p": true
+   },
+   "ao host (m<=256, s<=24)": {
+    "abs_bound": 4913467752448,
+    "bits": 42.16,
+    "below_p": true
+   },
+   "gate host (folded c<=2^14, G<=24, |g|<=2048)": {
+    "abs_bound": 279310338359296,
+    "bits": 47.99,
+    "below_p": true
+   },
+   "up host (m<=16, s=12)": {
+    "abs_bound": 272864647168,
+    "bits": 37.99,
+    "below_p": true
+   },
+   "product (|a_scaled|<=2147418112, R=24)": {
+    "abs_bound": 70916377673728,
+    "bits": 46.01,
+    "below_p": true
+   },
+   "down host (m<=64, s<=24, |h| class)": {
+    "abs_bound": 4913467752448,
+    "bits": 42.16,
+    "below_p": true
+   },
+   "norm quotient (Cn<=2^20, tn'<=8, D<2^24)": {
+    "abs_bound": 290206662000640,
+    "bits": 48.04,
+    "below_p": true
+   },
+   "norm complement": {
+    "abs_bound": 8623489025,
+    "bits": 33.01,
+    "below_p": true
+   },
+   "residual adds": {
+    "abs_bound": 98304,
+    "bits": 16.58,
+    "below_p": true
+   },
+   "byte reconstructions (<=3 limbs, bias 2^23)": {
+    "abs_bound": 41943040,
+    "bits": 25.32,
+    "below_p": true
+   },
+   "softmax / DD quotient (e<=2^24 at F_P 12, P<2^13, Sum<2^24)": {
+    "abs_bound": 206175207424,
+    "bits": 37.59,
+    "below_p": true
+   },
+   "softmax / DD complement": {
+    "abs_bound": 50331648,
+    "bits": 25.58,
+    "below_p": true
+   }
+  },
+  "shieldstral/h24": {
+   "q/k requant (m<=32, s<=16)": {
+    "abs_bound": 547608428544,
+    "bits": 38.99,
+    "below_p": true
+   },
+   "v requant (m<=64, s<=16)": {
+    "abs_bound": 1093069275136,
+    "bits": 39.99,
+    "below_p": true
+   },
+   "rope (|c|,|s|<=128, sh 7)": {
+    "abs_bound": 12583104,
+    "bits": 23.58,
+    "below_p": true
+   },
+   "score host (sum over head_dim, s<=24, int8 word)": {
+    "abs_bound": 139594825728,
+    "bits": 37.02,
+    "below_p": true
+   },
+   "pv host (P<2^13, T rows, s<=16)": {
+    "abs_bound": 139586535424,
+    "bits": 37.02,
+    "below_p": true
+   },
+   "ao host (m<=256, s<=24)": {
+    "abs_bound": 4913467752448,
+    "bits": 42.16,
+    "below_p": true
+   },
+   "gate host (folded c<=2^14, G<=24, |g|<=2048)": {
+    "abs_bound": 279310338359296,
+    "bits": 47.99,
+    "below_p": true
+   },
+   "up host (m<=16, s=12)": {
+    "abs_bound": 272864647168,
+    "bits": 37.99,
+    "below_p": true
+   },
+   "product (|a_scaled|<=2147418112, R=16)": {
+    "abs_bound": 70916352606208,
+    "bits": 46.01,
+    "below_p": true
+   },
+   "down host (m<=64, s<=24, |h| class)": {
+    "abs_bound": 1117653594800128,
+    "bits": 49.99,
+    "below_p": true
+   },
+   "norm quotient (Cn<=2^20, tn'<=8, D<2^24)": {
+    "abs_bound": 290206662000640,
+    "bits": 48.04,
+    "below_p": true
+   },
+   "norm complement": {
+    "abs_bound": 8623489025,
+    "bits": 33.01,
+    "below_p": true
+   },
+   "residual adds": {
+    "abs_bound": 98304,
+    "bits": 16.58,
+    "below_p": true
+   },
+   "byte reconstructions (<=3 limbs, bias 2^23)": {
+    "abs_bound": 41943040,
+    "bits": 25.32,
+    "below_p": true
+   },
+   "softmax / DD quotient (e<=2^24 at F_P 12, P<2^13, Sum<2^24)": {
+    "abs_bound": 206175207424,
+    "bits": 37.59,
+    "below_p": true
+   },
+   "softmax / DD complement": {
+    "abs_bound": 50331648,
+    "bits": 25.58,
+    "below_p": true
+   }
+  }
+ },
+ "llama3-8b T512 h24 (registered geometry)": {
+  "q/k requant (m<=32, s<=16)": {
+   "abs_bound": 547608428544,
+   "bits": 38.99,
+   "below_p": true
+  },
+  "v requant (m<=64, s<=16)": {
+   "abs_bound": 1093069275136,
+   "bits": 39.99,
+   "below_p": true
+  },
+  "rope (|c|,|s|<=128, sh 7)": {
+   "abs_bound": 12583104,
+   "bits": 23.58,
+   "below_p": true
+  },
+  "score host (sum over head_dim, s<=24, int8 word)": {
+   "abs_bound": 139594825728,
+   "bits": 37.02,
+   "below_p": true
+  },
+  "pv host (P<2^13, T rows, s<=16)": {
+   "abs_bound": 139586535424,
+   "bits": 37.02,
+   "below_p": true
+  },
+  "ao host (m<=256, s<=24)": {
+   "abs_bound": 4913467752448,
+   "bits": 42.16,
+   "below_p": true
+  },
+  "gate host (folded c<=2^14, G<=24, |g|<=2048)": {
+   "abs_bound": 279310338359296,
+   "bits": 47.99,
+   "below_p": true
+  },
+  "up host (m<=16, s=12)": {
+   "abs_bound": 272864647168,
+   "bits": 37.99,
+   "below_p": true
+  },
+  "product (|a_scaled|<=1073709056, R=16)": {
+   "abs_bound": 35733054259200,
+   "bits": 45.02,
+   "below_p": true
+  },
+  "down host (m<=64, s<=24, |h| class)": {
+   "abs_bound": 978015618072576,
+   "bits": 49.8,
+   "below_p": true
+  },
+  "norm quotient (Cn<=2^20, tn'<=8, D<2^24)": {
+   "abs_bound": 9034717826526,
+   "bits": 43.04,
+   "below_p": true
+  },
+  "norm complement": {
+   "abs_bound": 42933181,
+   "bits": 25.36,
+   "below_p": true
+  },
+  "residual adds": {
+   "abs_bound": 98304,
+   "bits": 16.58,
+   "below_p": true
+  },
+  "byte reconstructions (<=3 limbs, bias 2^23)": {
+   "abs_bound": 41943040,
+   "bits": 25.32,
+   "below_p": true
+  },
+  "softmax / DD quotient (e<=2^24 at F_P 12, P<2^13, Sum<2^24)": {
+   "abs_bound": 206175207424,
+   "bits": 37.59,
+   "below_p": true
+  },
+  "softmax / DD complement": {
+   "abs_bound": 50331648,
+   "bits": 25.58,
+   "below_p": true
+  }
+ },
+ "shieldstral T256 h24 (registered geometry)": {
+  "q/k requant (m<=32, s<=16)": {
+   "abs_bound": 411243216896,
+   "bits": 38.58,
+   "below_p": true
+  },
+  "v requant (m<=64, s<=16)": {
+   "abs_bound": 820338851840,
+   "bits": 39.58,
+   "below_p": true
+  },
+  "rope (|c|,|s|<=128, sh 7)": {
+   "abs_bound": 12583104,
+   "bits": 23.58,
+   "below_p": true
+  },
+  "score host (sum over head_dim, s<=24, int8 word)": {
+   "abs_bound": 139594825728,
+   "bits": 37.02,
+   "below_p": true
+  },
+  "pv host (P<2^13, T rows, s<=16)": {
+   "abs_bound": 70867058688,
+   "bits": 36.04,
+   "below_p": true
+  },
+  "ao host (m<=256, s<=24)": {
+   "abs_bound": 4913467752448,
+   "bits": 42.16,
+   "below_p": true
+  },
+  "gate host (folded c<=2^14, G<=24, |g|<=2048)": {
+   "abs_bound": 209491349995520,
+   "bits": 47.57,
+   "below_p": true
+  },
+  "up host (m<=16, s=12)": {
+   "abs_bound": 204682041344,
+   "bits": 37.57,
+   "below_p": true
+  },
+  "product (|a_scaled|<=2147418112, R=16)": {
+   "abs_bound": 70916352606208,
+   "bits": 46.01,
+   "below_p": true
+  },
+  "down host (m<=64, s<=24, |h| class)": {
+   "abs_bound": 628920676253696,
+   "bits": 49.16,
+   "below_p": true
+  },
+  "norm quotient (Cn<=2^20, tn'<=8, D<2^24)": {
+   "abs_bound": 9002272423936,
+   "bits": 43.03,
+   "below_p": true
+  },
+  "norm complement": {
+   "abs_bound": 41943041,
+   "bits": 25.32,
+   "below_p": true
+  },
+  "residual adds": {
+   "abs_bound": 98304,
+   "bits": 16.58,
+   "below_p": true
+  },
+  "byte reconstructions (<=3 limbs, bias 2^23)": {
+   "abs_bound": 41943040,
+   "bits": 25.32,
+   "below_p": true
+  },
+  "softmax / DD quotient (e<=2^24 at F_P 12, P<2^13, Sum<2^24)": {
+   "abs_bound": 206175207424,
+   "bits": 37.59,
+   "below_p": true
+  },
+  "softmax / DD complement": {
+   "abs_bound": 50331648,
+   "bits": 25.58,
+   "below_p": true
+  }
+ },
+ "tinyllama T128 low (registered geometry)": {
+  "q/k requant (m<=32, s<=16)": {
+   "abs_bound": 274878005248,
+   "bits": 38.0,
+   "below_p": true
+  },
+  "v requant (m<=64, s<=16)": {
+   "abs_bound": 547608428544,
+   "bits": 38.99,
+   "below_p": true
+  },
+  "rope (|c|,|s|<=128, sh 7)": {
+   "abs_bound": 12583104,
+   "bits": 23.58,
+   "below_p": true
+  },
+  "score host (sum over head_dim, s<=24, int8 word)": {
+   "abs_bound": 70875348992,
+   "bits": 36.04,
+   "below_p": true
+  },
+  "pv host (P<2^13, T rows, s<=16)": {
+   "abs_bound": 36507320320,
+   "bits": 35.09,
+   "below_p": true
+  },
+  "ao host (m<=256, s<=24)": {
+   "abs_bound": 2731624366080,
+   "bits": 41.31,
+   "below_p": true
+  },
+  "gate host (folded c<=2^14, G<=24, |g|<=2048)": {
+   "abs_bound": 139672361631744,
+   "bits": 46.99,
+   "below_p": true
+  },
+  "up host (m<=16, s=12)": {
+   "abs_bound": 136499435520,
+   "bits": 36.99,
+   "below_p": true
+  },
+  "product (|a_scaled|<=1073709056, R=24)": {
+   "abs_bound": 35733079326720,
+   "bits": 45.02,
+   "below_p": true
+  },
+  "down host (m<=64, s<=24, |h| class)": {
+   "abs_bound": 2049798307840,
+   "bits": 40.9,
+   "below_p": true
+  },
+  "norm quotient (Cn<=2^20, tn'<=8, D<2^24)": {
+   "abs_bound": 9203499850216,
+   "bits": 43.07,
+   "below_p": true
+  },
+  "norm complement": {
+   "abs_bound": 48083921,
+   "bits": 25.52,
+   "below_p": true
+  },
+  "residual adds": {
+   "abs_bound": 98304,
+   "bits": 16.58,
+   "below_p": true
+  },
+  "byte reconstructions (<=3 limbs, bias 2^23)": {
+   "abs_bound": 41943040,
+   "bits": 25.32,
+   "below_p": true
+  },
+  "softmax / DD quotient (e<=2^24 at F_P 12, P<2^13, Sum<2^24)": {
+   "abs_bound": 206175207424,
+   "bits": 37.59,
+   "below_p": true
+  },
+  "softmax / DD complement": {
+   "abs_bound": 50331648,
+   "bits": 25.58,
+   "below_p": true
+  }
+ },
+ "worst": {
+  "clause": "down host (m<=64, s<=24, |h| class)",
+  "where": "class (validator maxima: width/q/kv<=4096, hidden<=16384, head_dim 128, T 512)",
+  "bits": 49.99,
+  "margin_bits_below_p": 14.01
+ }
+}

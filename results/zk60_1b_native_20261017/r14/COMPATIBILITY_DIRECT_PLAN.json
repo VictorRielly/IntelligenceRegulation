@@ -1,0 +1,10 @@
+{
+  "utc": "2026-10-30T06:36:30.118251+00:00",
+  "runner_sha256": "fb2d684cfe87e8b3583416b4e4488080231411a16ce8570961866d19d6159827",
+  "source": "3c7b1dcfd47ba8cb257c6f734348f25fb960af3f25f8b1b14ea4e262ff8defda",
+  "guard_sha256": "67e9478f55518c2808ff65e5f303f70e155a5f21c5987243a39cf579d1a9a6f3",
+  "baseline_full_suite_passed": 816,
+  "required_with18new_components": 834,
+  "rayon_threads": 2,
+  "scope": "Full Rust target suite,5goldens,legacyCLIbuild,8retained fresh-verifier commands,R12Shieldstral receipt. Native source and original pinned scripts unchanged; no automatic failed-stage retry."
+}

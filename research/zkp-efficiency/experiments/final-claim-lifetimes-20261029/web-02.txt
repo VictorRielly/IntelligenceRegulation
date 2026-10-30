@@ -1,0 +1,458 @@
+[2610.14849] StateSync-GKR: Design and Evaluation of a Reusable Sparse GKR Engine (https://arxiv.org/abs/2610.14849)
+citeturn1view0 [wordlim: 200] Crawled: today; Content type: text/html; Source: open({"ref_id":"https://arxiv.org/abs/2610.14849","lineno":null}); Total lines: 166
+L0: 【0†Search】 【1†Submit】 【2†Donate†info.arxiv.org】 【3†Log in】
+L1: 
+L2: Search arXiv [Input: Search papers by title, author, abstract, or ID...] [Input] [Input]
+L3: 
+L4: Press Enter to search · 【4†Advanced search】
+L5: 
+L6: # Computer Science > Cryptography and Security
+L7: 
+L8: [Submitted on 10 Oct 2026 (【5†v1】), last revised 26 Oct 2026 (this version, v2)]
+L9: # Title:StateSync-GKR: Design and Evaluation of a Reusable Sparse GKR Engine
+L10: 
+L11: Authors:【6†Jinwook Kim】
+L12: 
+L13: View a PDF of the paper titled StateSync-GKR: Design and Evaluation of a Reusable Sparse GKR Engine, by Jinwook Kim
+L14: 
+L15: 【7†View PDF】 【8†HTML (experimental)】
+L16: > Abstract:Authenticated state transitions need proof engines that conserve memory, avoid repeated setup, keep every result bound to its request under parallel execution and return complete proofs at service rates. We present StateSync-GKR, a reusable Rust sumcheck/GKR core with a sparse-Merkle frontend, and evaluate release 1.2.0 against release 1.1 measured on the same day on the same instance types, request corpus and latency budgets.
+L17: Sparse layer reduction keeps additional requested allocation 3,242-fold and peak process memory about 89-fold below the engine's dense reference at width 4,096.
+L18: Release 1.2 changes two parts of the software while proof bytes and verifier acceptance stay fixed: reorganized round arithmetic raises prepared proving throughput 2.4 to 2.7-fold on a 192-core bare-metal host, and a new serving path starts each job as soon as a worker is free, bounds queued work and buffered replies, and returns proofs in completion order bound to request identifiers. On a 192-core VM at 1,000 requests/s, 99th-percentile latency to verified acceptance falls from 440 to 34 ms.
+L19: One connection carries 3,300 requests/s with every request inside one second, confirmed in three 60-second runs and a 30-minute run of 5.94 million requests without a latency or queue trend; at 3,400 requests/s reply traffic reaches the provider's documented 5-Gbit/s single-flow limit, and two connections passed 5,000 requests/s in 15-second screens. In single 15-second screens on 48 cores, the highest passing rate rose from 500 to 2,000/s.
+L20: Offered 1.5 times its highest screened one-connection rate under a memory limit, with excess offers held back by the client, the worker held its resident memory near a fifth of that limit and left no submitted request unresolved. For an integrating service, fewer servers deliver the same proof rate with bounded tail latency, and existing verifiers accept the GKR proofs unchanged.
+L21: Comments:  | 167 pages; 12 main figures and a detailed experimental atlas appendix. v2 evaluates release 1.2.0 (new serving path; reorganized prover arithmetic, byte-identical proofs) against same-day release 1.1 runs on the same instance types. v1 (【5†arXiv:2610.14849v1】) evaluates release 1.1.0. Software: 【9†this https URL†github.com】 (doi:【10†https://doi.org/10.5281/zenodo.23643505†doi.org】)
+L22: Subjects:  | Cryptography and Security (cs.CR); Performance (cs.PF)
+L23: Cite as:  | 【11†arXiv:2610.14849】 [cs.CR]
+L24:    | (or 【12†arXiv:2610.14849v2】 [cs.CR] for this version)
+L25:    | 【13†https://doi.org/10.48550/arXiv.2610.14849†doi.org】 arXiv-issued DOI via DataCite
+L26: ## Submission history
+L27: 
+L28: From: Jinwook Kim [【14†view email】]
+L29: 【5†[v1]】 Sat, 10 Oct 2026 12:06:57 UTC (16,958 KB)
+L30: [v2] Mon, 26 Oct 2026 07:25:00 UTC (10,045 KB)
+L31: 
+L32: Full-text links:
+L33: 
+L34: ## Access Paper:
+L35: 
+L36: View a PDF of the paper titled StateSync-GKR: Design and Evaluation of a Reusable Sparse GKR Engine, by Jinwook Kim
+L37: 
+L38:   * 【7†View PDF】
+L39:   * 【8†HTML (experimental)】
+L40:   * 【15†TeX Source】
+L41: 
+L42: 【16†view license】
+L43: 
+L44: ### Additional Features
+L45: 
+L46:   * 【17†Audio Summary】
+L47: ### Current browse context:
+L48: 
+L49: cs.CR
+L50: 
+L51: 【18†< prev】   |   【19†next >】
+L52: 
+L53: 【20†new】 | 【21†recent】 | 【22†2026-10】
+L54: 
+L55: Change to browse by:
+L56: 
+L57: 【23†cs】
+L58: 【24†cs.PF】
+L59: 
+L60: ### References & Citations
+L61: 
+L62:   * 【25†SciX†scixplorer.org】
+L63:   * 【26†Google Scholar†scholar.google.com】
+L64:   * 【27†Semantic Scholar†api.semanticscholar.org】
+L65: 
+L66: [Button: export BibTeX citation] Loading...
+L67: 
+L68: ## BibTeX formatted citation
+L69: 
+L70: [Button: ×]
+L71: 
+L72: loading...
+L73: 
+L74: Data provided by:
+L75: 
+L76: ### Bookmark
+L77: 
+L78: [Input] Bibliographic Tools
+L79: # Bibliographic and Citation Tools
+L80: 
+L81: [Input] Bibliographic Explorer Toggle
+L82: 
+L83: Bibliographic Explorer (【28†What is the Explorer?†info.arxiv.org】)
+L84: 
+L85: [Input] Connected Papers Toggle
+L86: 
+L87: Connected Papers (【29†What is Connected Papers?†www.connectedpapers.com】)
+L88: 
+L89: [Input] Litmaps Toggle
+L90: 
+L91: Litmaps (【30†What is Litmaps?†www.litmaps.co】)
+L92: 
+L93: [Input] scite.ai Toggle
+L94: 
+L95: scite Smart Citations (【31†What are Smart Citations?†www.scite.ai】)
+L96: 
+L97: [Input] Code, Data, Media
+L98: # Code, Data and Media Associated with this Article
+L99: 
+L100: [Input] alphaXiv Toggle
+L101: 
+L102: alphaXiv (【32†What is alphaXiv?†alphaxiv.org】)
+L103: 
+L104: [Input] Links to Code Toggle
+L105: 
+L106: CatalyzeX Code Finder for Papers (【33†What is CatalyzeX?†www.catalyzex.com】)
+L107: 
+L108: [Input] DagsHub Toggle
+L109: 
+L110: DagsHub (【34†What is DagsHub?†dagshub.com】)
+L111: 
+L112: [Input] GotitPub Toggle
+L113: 
+L114: Gotit.pub (【35†What is GotitPub?†gotit.pub】)
+L115: 
+L116: [Input] Huggingface Toggle
+L117: 
+L118: Hugging Face (【36†What is Huggingface?†huggingface.co】)
+L119: 
+L120: [Input] ScienceCast Toggle
+L121: ScienceCast (【37†What is ScienceCast?†sciencecast.org】)
+L122: 
+L123: [Input] Demos
+L124: # Demos
+L125: 
+L126: [Input] Replicate Toggle
+L127: 
+L128: Replicate (【38†What is Replicate?†replicate.com】)
+L129: 
+L130: [Input] Spaces Toggle
+L131: 
+L132: Hugging Face Spaces (【39†What is Spaces?†huggingface.co】)
+L133: 
+L134: [Input] Spaces Toggle
+L135: 
+L136: TXYZ.AI (【40†What is TXYZ.AI?†txyz.ai】)
+L137: 
+L138: [Input] Related Papers
+L139: # Recommenders and Search Tools
+L140: 
+L141: [Input] Link to Influence Flower
+L142: 
+L143: Influence Flower (【41†What are Influence Flowers?†influencemap.cmlab.dev】)
+L144: 
+L145: [Input] Core recommender toggle
+L146: 
+L147: CORE Recommender (【42†What is CORE?†core.ac.uk】)
+L148: 
+L149:   * Author
+L150:   * Venue
+L151:   * Institution
+L152:   * Topic
+L153: 
+L154: [Input] About arXivLabs
+L155: # arXivLabs: experimental projects with community collaborators
+L156: 
+L157: arXivLabs is a framework that allows collaborators to develop and share new arXiv features directly on our website.
+L158: 
+L159: Both individuals and organizations that work with arXivLabs have embraced and accepted our values of openness, community, excellence, and user data privacy. arXiv is committed to these values and only works with partners that adhere to them.
+L160: Have an idea for a project that will add value for arXiv's community? 【43†Learn more about arXivLabs†info.arxiv.org】.
+L161: 
+L162: 【44†Which authors of this paper are endorsers?】 | Disable MathJax (【45†What is MathJax?†info.arxiv.org】)
+L163: 
+L164: We gratefully acknowledge support from our 【46†major funders†info.arxiv.org】, 【47†member institutions†info.arxiv.org】, , and all contributors.
+L165: 【48†About†info.arxiv.org】 · 【49†Help†info.arxiv.org】 · 【50†Contact†info.arxiv.org】 · 【51†Subscribe†info.arxiv.org】 · 【52†Copyright†info.arxiv.org】 · 【53†Privacy†info.arxiv.org】 · 【54†Accessibility†info.arxiv.org】 · 【55†Operational Status (opens in new tab)†status.arxiv.org】
+--------------------------------------------------------------------------------
+Multilinear extensions and sum-check - Akita Book (https://layerzero-labs.github.io/akita/foundations/multilinear-sumcheck.html)
+citeturn1view1 [wordlim: 200] Crawled: yesterday; Content type: text/html; Source: open({"ref_id":"https://layerzero-labs.github.io/akita/foundations/multilinear-sumcheck.html","lineno":null}); Total lines: 154
+L0: ## Keyboard shortcuts
+L1: 
+L2: Press `←` or `→` to navigate between chapters
+L3: 
+L4: Press `S` or `/` to search in the book
+L5: 
+L6: Press `?` to show this help
+L7: 
+L8: Press `Esc` to hide this help
+L9: 
+L10: 【0†iframe】
+L11: 
+L12: # Akita Book
+L13: # 【1†Multilinear extensions and sum-check】
+L14: 
+L15: Sum-check lets Akita prove a sum over an exponentially large table without putting that table in the proof. It replaces one claim about all 2 n table entries with n short polynomial messages and one final evaluation claim.
+L16: 
+L17: This chapter builds the protocol from a four-entry example. It then explains the compressed messages and unequal-size batching used by the implementation.
+L18: ## 【2†A table is also a polynomial】
+L19: 
+L20: Consider a table indexed by two bits:
+L21: 
+L22: x 0​  | x 1​  | f(x 0​,x 1​)
+L23: --- | --- | ---
+L24: 0  | 0  | 2
+L25: 1  | 0  | 5
+L26: 0  | 1  | 7
+L27: 1  | 1  | 11
+L28: 
+L29: There is exactly one polynomial that agrees with this table on the four Boolean points and has degree at most one in each variable. It is the multilinear extension of the table:
+L30: 
+L31: f​(X 0​,X 1​)=2(1−X 0​)(1−X 1​)+5 X 0​(1−X 1​)+7(1−X 0​)X 1​+11 X 0​X 1​.
+L32: The four terms are selectors. At (X 0​,X 1​)=(1,0), for example, only the second selector is one, so the polynomial returns 5.
+L33: 
+L34: The general selector for two Boolean vectors a,x∈{0,1}n is
+L35: 
+L36: eq(a,x)=i=0∏n−1​(a i​x i​+(1−a i​)(1−x i​)).
+L37: 
+L38: It is one when a=x and zero at every other Boolean point. For a table f:{0,1}n→F, its multilinear extension is therefore
+L39: 
+L40: f​(X)=a∈{0,1}n∑​f(a)eq(a,X).
+L41: The polynomial also accepts field values that are not bits. This is what makes it useful in a proof. The verifier can derive a random field point from the transcript and ask for one value there.
+L42: ### 【3†Table order in Akita】
+L43: 
+L44: Akita stores Boolean tables in little-endian order. Coordinate x 0​ is the least significant index bit, so adjacent entries differ in x 0​. The example above is stored as `[2, 5, 7, 11]`.
+L45: 
+L46: Binding x 0​=r replaces each adjacent pair (a,b) with
+L47: 
+L48: (1−r)a+r b=a+r(b−a).
+L49: 
+L50: The four-entry table becomes a two-entry table. Binding the next coordinate leaves one value, which is f​(r 0​,r 1​). The implementation calls this operation a fold.
+L51: `multilinear_eval` in `akita-algebra/src/poly.rs` evaluates a table this way. `fold_evals_in_place` provides the mutable fold used throughout prover code. `EqPolynomial` in `akita-algebra/src/eq_poly.rs` builds the equality selectors in the same index order.
+L52: ## 【4†What sum-check proves】
+L53: 
+L54: Suppose the prover claims
+L55: 
+L56: T=x∈{0,1}n∑​g(x),
+L57: 
+L58: where g has degree at most d in each variable. Directly checking the claim would take 2 n evaluations. Sum-check reduces it one variable at a time.
+L59: 
+L60: In round zero, the prover sends the univariate polynomial
+L61: 
+L62: s 0​(X)=x 1​,…,x n−1​∈{0,1}∑​g(X,x 1​,…,x n−1​).
+L63: 
+L64: The verifier checks
+L65: 
+L66: T=s 0​(0)+s 0​(1).
+L67: It then samples a challenge r 0​ from the transcript and replaces the claim with T 1​=s 0​(r 0​). Round one does the same for the next variable:
+L68: 
+L69: s 1​(X)=x 2​,…,x n−1​∈{0,1}∑​g(r 0​,X,x 2​,…,x n−1​).
+L70: 
+L71: After n rounds, every variable has been bound. The verifier checks the final claim against g(r 0​,…,r n−1​), computed from the protocol's final oracle values. The large Boolean sum has become one evaluation at a random point.
+L72: ## 【5†A complete two-round example】
+L73: 
+L74: Return to the table `[2, 5, 7, 11]`. Its claimed Boolean sum is
+L75: 
+L76: T=2+5+7+11=25.
+L77: 
+L78: The first round polynomial sums over x 1​:
+L79: 
+L80: s 0​(X)​=f​(X,0)+f​(X,1)=(2+3 X)+(7+4 X)=9+7 X.​
+L81: 
+L82: The verifier checks s 0​(0)+s 0​(1)=9+16=25. Suppose its first challenge is r 0​=3. The new claim is T 1​=s 0​(3)=30.
+L83: 
+L84: The second round polynomial is
+L85: 
+L86: s 1​(X)=f​(3,X)=11+8 X.
+L87: Again, s 1​(0)+s 1​(1)=11+19=30. If the next challenge is r 1​=4, the final claim is s 1​(4)=43. Evaluating the original multilinear extension at (3,4) also gives 43.
+L88: 
+L89: Real challenges are unpredictable field elements derived from the transcript. Small integers are used here only to make every step visible.
+L90: ## 【6†Why a false claim is caught】
+L91: 
+L92: At the start of a round, the previous claim fixes the sum s j​(0)+s j​(1). The prover may try to send a different degree-d polynomial that has the same sum. Two distinct degree-d polynomials agree at no more than d field points. A fresh random challenge therefore exposes that substitution except with probability at most d/∣F∣ in that round.
+L93: 
+L94: Across n rounds, the usual bound is
+L95: 
+L96: Pr[accept a false claim]≤∣F∣n d​.
+L97: Akita chooses large challenge fields, so this algebraic error is small. The complete security argument also accounts for transcript challenges, commitment binding, and every other reduction. Those pieces are assembled in 【7†Security model and parameters】.
+L98: The extraction argument uses a related fact. A degree-d round polynomial is determined by d+1 distinct evaluations. If an extractor can obtain d+1 accepting continuations from the same transcript prefix, it can reconstruct that round polynomial. This is the special-soundness property used when sum-check is connected to commitment binding.
+L99: ## 【8†Akita sends one fewer coefficient】
+L100: 
+L101: Write a round polynomial as
+L102: 
+L103: s(X)=c 0​+c 1​X+c 2​X 2+⋯+c d​X d.
+L104: 
+L105: The verifier already knows the current claim T j​=s(0)+s(1). Since
+L106: 
+L107: s(0)+s(1)=2 c 0​+c 1​+i=2∑d​c i​,
+L108: 
+L109: the linear coefficient is determined by
+L110: 
+L111: c 1​=T j​−2 c 0​−i=2∑d​c i​.
+L112: 
+L113: The proof sends only `[c0, c2, ..., cd]`. The verifier recovers the missing linear contribution while evaluating the message at the next challenge. This saves one field element in every round without changing the protocol.
+L114: The types `UnivariatePoly` and `CompressedPoly` in `jolt-poly` own this rule. `akita-serialization` preserves Akita's wire encoding. Proof decoding is headerless: the verifier derives each expected coefficient count from the proof shape rather than trusting a length supplied by the proof.
+L115: Every ordinary round message must retain at least its constant coefficient. The prover compresses the zero polynomial to `[0]`, including when its full coefficient vector is empty. An empty compressed message is malformed: the verifier cannot use it to reconstruct the linear coefficient from the incoming claim. Both ordinary sum-check drivers check the round count, nonempty messages, and degree bounds before absorbing any data in their own replay.
+L116: A caller may already have absorbed the public statement or batching data before entering a driver.
+L117: A single stored coefficient can still represent a linear polynomial, so its degree estimate is one. Ordinary rounds require a degree bound of at least one, even for constant polynomials. A zero-round proof instead has no messages and leaves the input claim for the final oracle check. These rules differ from 【9†equality-factored sum-check】, where a valid constant inner polynomial has an empty message and its constant term is recovered from the normalized claim.
+L118: ## 【10†Batching several claims】
+L119: 
+L120: Akita often needs several sum-checks at the same point in the protocol. Running them separately would repeat challenges and round messages. Instead, the transcript derives one random coefficient ρ i​ for each instance and the prover sends the linear combination of their round polynomials.
+L121: 
+L122: If all instances have the same number of variables, their initial claims T i​ combine as
+L123: 
+L124: T batch​=i∑​ρ i​T i​.
+L125: The same coefficients combine every round polynomial and the final oracle values. A false component is therefore hidden only if the random linear combination happens to cancel it.
+L126: ### 【11†Instances with different numbers of variables】
+L127: 
+L128: The current implementation right-aligns every instance in the longest challenge vector. If the longest instance has N variables and one shorter instance has n variables, the shorter instance receives N−n constant dummy rounds before its first real round.
+L129: A dummy polynomial for running claim C is the constant C/2. Its two Boolean evaluations sum to C, and evaluating it at any challenge returns C/2. After all N−n dummy rounds, the claim has been divided by 2 N−n. Therefore the batch starts that instance at
+L130: 
+L131: 2 N−n T i​.
+L132: 
+L133: The dummy rounds reduce it back to T i​ exactly when the instance becomes active. Its real variables then use the suffix
+L134: 
+L135: (r N−n​,…,r N−1​)
+--------------------------------------------------------------------------------
+Multilinear polynomials - The Vega Prover Book (https://microsoft.github.io/vega-prover/building-blocks/multilinear.html)
+citeturn1view2 [wordlim: 200] Crawled: 2 weeks ago; Content type: text/html; Source: open({"ref_id":"https://microsoft.github.io/vega-prover/building-blocks/multilinear.html","lineno":null}); Total lines: 62
+L0: ## Keyboard shortcuts
+L1: 
+L2: Press `←` or `→` to navigate between chapters
+L3: 
+L4: Press `S` or `/` to search in the book
+L5: 
+L6: Press `?` to show this help
+L7: 
+L8: Press `Esc` to hide this help
+L9: 
+L10: 【0†iframe】
+L11: 
+L12: # The Vega Prover Book
+L13: 
+L14: # 【1†Multilinear polynomials】
+L15: 
+L16: This chapter describes Vega’s concrete representation of multilinear polynomials. The general existence, uniqueness, and Lagrange-basis formulas for multilinear extensions are reviewed in the 【2†multilinear extensions primer】.
+L17: ## 【3†Evaluation tables as polynomials】
+L18: 
+L19: A length-\(2^\ell\) vector is viewed as the evaluation table of a function
+L20: 
+L21: \[ f : \{0,1\}^\ell \to \mathbb{F}. \]
+L22: 
+L23: By the convention in 【4†Notation and conventions】, an index \(i\) corresponds to bits \((i_0, \dots,i_{\ell-1})\) satisfying
+L24: 
+L25: \[ i = \sum_{k=0}^{\ell-1} i_k 2^k. \]
+L26: The table entry \(v_i\) is therefore the value at the Boolean point \((i_0, \dots,i_{\ell-1})\). Vega’s `MultilinearPolynomial` stores this table directly as the vector \(Z\), and the polynomial it represents is the MLE \(\widetilde{Z}\).
+L27: 
+L28: This representation is dense: all \(2^\ell\) Boolean evaluations are present. It is the natural form for sum-check rounds, because fixing one variable halves the table while preserving the remaining evaluation table.
+L29: ## 【5†Evaluation by equality weights】
+L30: 
+L31: For a point \(\mathbf{r} \in \mathbb{F}^\ell\), Vega evaluates an MLE by weighting the Boolean table with the equality polynomial
+L32: 
+L33: \[ \widetilde{\mathrm{eq}}(\mathbf{r}, \mathbf{x}) = \prod_{k=0}^{\ell-1}\bigl(r_k x_k + (1-r_k)(1-x_k)\bigr). \]
+L34: 
+L35: Conceptually,
+L36: 
+L37: \[ \widetilde{Z}(\mathbf{r}) = \sum_{\mathbf{x} \in \{0,1\}^\ell} \widetilde{\mathrm{eq}}(\mathbf{r}, \mathbf{x})\; Z(\mathbf{x}). \]
+L38: The reusable `EqPolynomial` type stores the point and can evaluate a single equality polynomial or materialize the full vector of \(2^\ell\) equality weights. Polynomial commitments also reuse these weights when reducing an opening claim to inner products.
+L39: Vega also uses a powers polynomial as another reusable family of weights. For a challenge \(\tau\), the Boolean point with index \(i\) receives weight \(\tau^i\), so the weight vector is \(1, \tau, \tau^2, \dots, \tau^{2^\ell - 1}\); it is assembled from the per-variable factors \(\tau^{2^0}, \tau^{2^1}, \dots, \tau^{2^{\ell-1}}\). These weights batch constraint terms in sum-check. The concrete role belongs to 【6†The sum-check protocol】.
+L40: ## 【7†Binding the top variable】
+L41: 
+L42: Vega’s table-halving operation binds the top variable first. For a table \(Z\) of length \(2^\ell\), the top variable is the bit with index \(\ell-1\), the most-significant bit in the LSB-first integer labeling. The low half of the table contains entries with that bit equal to \(0\); the high half contains the corresponding entries with that bit equal to \(1\).
+L43: 
+L44: Given a challenge \(r \in \mathbb{F}\), `bind_poly_var_top` splits
+L45: \[ Z = (Z_{\mathrm{lo}} \;\|\; Z_{\mathrm{hi}}) \]
+L46: 
+L47: into two equal halves. For each position in the low half, let
+L48: 
+L49: \[ a = Z_{\mathrm{lo}}[j], \qquad b = Z_{\mathrm{hi}}[j]. \]
+L50: 
+L51: The bound table replaces \(a\) by
+L52: 
+L53: \[ (1-r)a + rb, \]
+L54: 
+L55: then discards the high half. The result has length \(2^{\ell-1}\) and is the evaluation table obtained by fixing the variable \(x_{\ell-1}=r\).
+L56: This is consistent with 0-based LSB-first indexing: bit \(0\) is the lowest-index variable, but the table operation starts from bit \(\ell-1\). After one binding, the next top variable is bit \(\ell-2\), and so on. Consequently, Vega’s sum-check challenge sequence binds variables high-to-low.
+L57: ## 【8†Interaction with sum-check】
+L58: 
+L59: A sum-check prover repeatedly sends a univariate round polynomial, receives a verifier challenge, and restricts the remaining multilinear tables to that challenge. In Vega, that restriction is exactly the table-halving step above. Each round halves the live tables for the participating MLEs, so after \(j\) rounds a table that began with \(2^\ell\) entries has \(2^{\ell-j}\) entries.
+L60: The same high-to-low order is used for the tables that represent witness-derived values and for the auxiliary weights that participate in batching. Equality weights and powers weights are therefore not separate conventions; they are reusable polynomial families arranged to agree with the table order used by the sum-check implementation.
+L61: When these evaluations are checked inside a circuit, the same algebraic objects become circuit variables and constraints. That use is described in 【9†The in-circuit verifier】. Exact serialized representations of tables, points, and proofs are specified in 【10†Serialization and encodings】.
+--------------------------------------------------------------------------------
+Speeding Up Sum-Check Proving (Extended Version) (https://eprint.iacr.org/2026/587)
+citeturn1view3 [wordlim: 200] Crawled: today; Content type: text/html; Source: open({"ref_id":"https://eprint.iacr.org/2026/587","lineno":null}); Total lines: 82
+L0: # What a lovely hat
+L1: #### Is it made out of 【0†tin foil†iacr.org】?
+L2: 
+L3: 【1†Cryptology ePrint Archive】
+L4: 
+L5:   * 【2†Papers】 Updates from the last:
+L6:     * 【3†7 days】
+L7:     * 【4†31 days】
+L8:     * 【5†6 months】
+L9:     * 【6†365 days】
+L10:     * * * *
+L11: 
+L12:     * 【7†Listing by year】
+L13:     * 【8†All papers】
+L14:     * 【9†Compact view】
+L15:     * 【10†Subscribe†www.iacr.org】
+L16:     * * * *
+L17: 
+L18:     * 【11†How to cite】
+L19:     * * * *
+L20:     * 【12†Harvesting metadata】
+L21:   * 【2†Submissions】
+L22:     * 【13†Submit a paper】
+L23:     * 【14†Revise or withdraw a paper】
+L24:     * 【15†Acceptance and publishing conditions】
+L25: 
+L26: 【16†Image: Search Button】
+L27: 
+L28: [Input] [Button: Search ]
+L29: #### Paper 2026/587
+L30: 
+L31: ### 【17†Speeding Up Sum-Check Proving (Extended Version)】
+L32: 
+L33: Quang Dao, Carnegie Mellon University
+L34: 
+L35: Zachary DeStefano, New York University
+L36: 
+L37: Suyash Bagad, Ingonyama
+L38: 
+L39: Yuval Domb, Ingonyama
+L40: 
+L41: Justin Thaler, Georgetown University, a16z crypto research
+L42: ##### Abstract
+L43: The sum-check protocol is a foundational primitive in modern cryptographic proof systems, but its prover-side cost has emerged as a concrete bottleneck. This paper introduces three complementary techniques that significantly reduce sum-check proving time and memory, especially in the context of zero-knowledge virtual machines (zkVMs).
+L44: First, for applications involving products of many multilinear polynomials, we develop a new algorithm that significantly reduces the number of field multiplications required for proving. Second, we develop a "small-value sum-check prover" algorithm. This significantly speeds up the prover in the common setting where the polynomials being summed evaluate to 64 or 32-bit integers, or to elements of a small sub-field within a larger extension field.
+L45: Even outside of the small-value setting, this algorithm yields a faster "streaming prover", by which we mean a small-space algorithm that applies whenever the terms being summed can be enumerated in small space (as arises, for example, in zkVM applications). Third, we nearly eliminate prover overhead in the ubiquitous case where one factor is an equality polynomial by exploiting its decomposable tensor structure.
+L46: We implement these techniques in Jolt, a state-of-the-art zkVM, and evaluate their performance. In Jolt, we observe over an order of magnitude runtime speedup and memory reduction on the Spartan sub-protocol, and $1.7\times$ to $2.2\times$ speedups for a key high-degree sum-check sub-protocol in the Shout batch-evaluation argument.
+L47: Note: This manuscript directly combines and improves upon results from prior works: 2025/1117, 2024/1046, and 2024/1210
+L48: ##### Metadata
+L49: Available format(s)
+L50:     【17†PDF】
+L51: Category
+L52:     【18†Applications】
+L53: Publication info
+L54:     Preprint.
+L55: Keywords
+L56:     【19†sum-check】【20†snark】【21†zkvm】【22†delayed-reduction】【23†jolt】【24†spartan】【25†twist-shout】
+L57: Contact author(s)
+L58:     qvd @ andrew cmu edu
+L59: zd2131 @ nyu edu
+L60: suyash @ ingonyama com
+L61: yuval domb @ gmail com
+L62: justin r thaler @ gmail com
+L63: History
+L64:     2026-03-25: approved
+L65:     2026-03-24: received
+L66:     【26†See all versions】
+L67: Short URL
+L68:     【27†https://ia.cr/2026/587†ia.cr】
+L69: License
+L70: 
+L71: 【28†CC BY†creativecommons.org】
+L72: BibTeX 【29†Image】Copy to clipboard
+L73: 
+L74:     @misc{cryptoeprint:2026/587,
+L75:           author = {Quang Dao and Zachary DeStefano and Suyash Bagad and Yuval Domb and Justin Thaler},
+L76:           title = {Speeding Up Sum-Check Proving (Extended Version)},
+L77:           howpublished = {Cryptology {ePrint} Archive, Paper 2026/587},
+L78:           year = {2026},
+L79:           url = {https://eprint.iacr.org/2026/587}
+L80:     }
+L81: Note: In order to protect the privacy of readers, eprint.iacr.org does not use cookies or embedded third party content.
+

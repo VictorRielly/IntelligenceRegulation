@@ -1,0 +1,17 @@
+{
+  "stage": "probe",
+  "command": [
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/opening-staging-20261030/probe"
+  ],
+  "exit_code": 0,
+  "wall_s": 0.11598337200121023,
+  "max_rss_kib": 8908,
+  "one_cpu_affinity": true,
+  "nice": 19,
+  "cpu_limit_s": 40,
+  "alarm_s": 45,
+  "parent_timeout_s": 50,
+  "address_space_mib": 384,
+  "estimated_memory_mib": 96,
+  "gpu": false
+}

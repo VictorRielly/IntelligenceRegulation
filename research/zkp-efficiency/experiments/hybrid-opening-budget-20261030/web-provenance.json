@@ -1,0 +1,14 @@
+{
+  "native_live_search": true,
+  "batches": 8,
+  "saved_responses": [
+    "web-03.json",
+    "web-04.json",
+    "web-05.json",
+    "web-06.json",
+    "web-07.json",
+    "web-08.json"
+  ],
+  "unsaved_responses": "Batches1-2 remain in native tool history, not reconstructed here",
+  "no_foreign_execution": true
+}

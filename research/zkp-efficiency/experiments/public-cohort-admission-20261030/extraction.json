@@ -1,0 +1,89 @@
+{
+  "methods": [
+    {
+      "name": "f_p",
+      "sha256": "474d4db075d36d55e77dec2d35ce8a3e1e7b69bb069a6f3c02a2baf22593ed7e"
+    },
+    {
+      "name": "limbs_norm",
+      "sha256": "ba3fe4adc523a33b6aa14fd197febc97bb1b304ad027f3388aabd83634309192"
+    },
+    {
+      "name": "norm_top_is_full_byte",
+      "sha256": "bf39d3e79a8f979b3c55603ea7a69446d6c5449fc89fb4971bb92267da7f12a9"
+    },
+    {
+      "name": "limbs_sigma_s",
+      "sha256": "9dae63ff723bb528cdd379163ba0aeab28e8feaf1d225b52e5f1ae15575319a2"
+    },
+    {
+      "name": "limbs_p",
+      "sha256": "b34f2a0ccb9a13f6122539a0c2d002099db1f97637d03785270e30ebab1a3765"
+    },
+    {
+      "name": "q_pad",
+      "sha256": "b470ff422c5885638cfd8a9f649ec059bf802e5e4d3db3d5a69861c4506708af"
+    },
+    {
+      "name": "natural_log",
+      "sha256": "e81b7e529b16a1ea5e3e9bcf2740073165d4e86abc724cf661b982afbf34a5cb"
+    },
+    {
+      "name": "true_size",
+      "sha256": "fa20f159fabd402291e0183b3b808fd6c959069ac554898f561ccac92ce68797"
+    },
+    {
+      "name": "log",
+      "sha256": "4623d8daf724109d62979d6be4cceccecb86e27169af09f91ec2999e6370f180"
+    },
+    {
+      "name": "size",
+      "sha256": "9e3b7da81393fd7431fcef41240e95889c995cb2b3f7fb50b67c256fd9bb1e5d"
+    },
+    {
+      "name": "rows_of",
+      "sha256": "a55e66621eeee26a3fd29d7d4f4aa136ae7da150c9bb369a34174a9eb62065bc"
+    },
+    {
+      "name": "pads",
+      "sha256": "86617098f9f63145ef6a16813c423e84486e6bff62654f6b7a4b55b06ec2022d"
+    },
+    {
+      "name": "a_plane_doms",
+      "sha256": "fc8e8c364c929ecf6f5803bf56af134aeee8569087c60b45b0c1e993b25895fb"
+    },
+    {
+      "name": "lookups_per_position",
+      "sha256": "b5d1e2daa7ea3731dd54154e7d459dadd84f8db5e8e2e2642c19681a8f226d3f"
+    },
+    {
+      "name": "helpers",
+      "sha256": "c20b8a5879641ab32e0e8bd994e0abdfb3dc03d49b0f5b1e6b78f11b5c9a5148"
+    },
+    {
+      "name": "h_plane_doms",
+      "sha256": "5546b20f66cf67743954a60452a923a7e3485415bdab800b6ae0c5f46fd84358"
+    },
+    {
+      "name": "a_planes_on",
+      "sha256": "f855b890470ced048c4aca1e23c78d8ce8269b49555e05468a9d3169984e756e"
+    },
+    {
+      "name": "claim_sites",
+      "sha256": "e5879c37424d7562422644312052bc5ca263c50f3de47deb067114e56534b45b"
+    },
+    {
+      "name": "n_slots",
+      "sha256": "2d56dd0beb7dec189f45d4b6bb03075f48644ccd613d9014c3eda6b1bc6f1c61"
+    },
+    {
+      "name": "m_rows",
+      "sha256": "0c1c218614ec2c8b5ea4d8db036174740066bde5f249d3da7d00a065e9247fab"
+    },
+    {
+      "name": "slots",
+      "sha256": "66f9de19c12dc771980f48ece019268f7a4d77a13f8043d6498b91c535573f95"
+    }
+  ],
+  "scope": "21 unchanged shape metadata methods and domain_log_at; minimal Shape/accuracy-stack field stubs. Not native constructor/define/prover."
+}

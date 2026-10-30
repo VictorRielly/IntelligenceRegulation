@@ -1,0 +1,8 @@
+R14-public-synthetic-malicious-fixture/1
+case=local-group-reset
+dd=0
+model_identity=69d6bdf7e8b8cce63836aa82e47d115b6e55f1b256a4c4f8f27f671b947d8f93
+input_root=fd46c638c835c09f89934d600e56e5264cca54fc7267631cd3f776dbd5f27c42
+output_root=e3f727c27f8e4503f72132a25145cb83e6305ad90250d5aca3d827292c54787d
+binding=90e88e1cc64f9454e9d07071eeb3e9c9a4470f11336b7579d408d3f8b4bcfdf0
+error=R14 H: pcs zk: group 10: <v, c> != combined claim

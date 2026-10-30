@@ -1,0 +1,5 @@
+/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/zkp-core/src/sumcheck/grouped.rs:59:impl<F: Fn(usize, &[Fp2]) -> Fp2 + Sync> SumcheckRounds for GroupedEqRounds<'_, F> {
+/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/zkp-core/src/sumcheck/rounds.rs:33:pub fn prove_rounds<R: SumcheckRounds + ?Sized>(ev: &mut R, tr: &mut Transcript) -> ProverOutput {
+/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/zkp-core/src/sumcheck/rounds.rs:90:impl<F: Fn(&[Fp2]) -> Fp2 + Sync> SumcheckRounds for ClosureRounds<'_, F> {
+/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/zkp-core/src/sumcheck/rounds/tests.rs:187:    impl SumcheckRounds for NonSync {
+/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/zkp-core/src/sumcheck/rounds/tests.rs:205:    impl SumcheckRounds for Bad {

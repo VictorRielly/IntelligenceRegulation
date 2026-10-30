@@ -1,0 +1,8 @@
+R14-public-synthetic-malicious-fixture/1
+case=local-c2-ao
+dd=1
+model_identity=56e1bbd2049d4c84dff8ddf0cd55bebc155f5a5072e0052b5ebf375851b0aaa3
+input_root=a5731b41e96d0868c8b91ee5db5776bc27003a7ea606a9a5d445f03be39cae79
+output_root=73af1c150ddf9f4fc184c31e5d2691cc8a1160465d13243e7d9c201344f21d82
+binding=c97faf133adfa32847b62d7479f7c20a25a4b1d698097107a9f34f78cd32df65
+error=slot 19 [R14 03 D zero-check (hosts 12, 13D) Narrow]: sumcheck round 0: s(0) + s(1) != claim

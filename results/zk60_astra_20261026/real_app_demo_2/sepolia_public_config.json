@@ -1,0 +1,11 @@
+{
+  "chain_id": 84532,
+  "confirmations": 3,
+  "contract": "0x8432eba82b1a402f4da7680f6b8f9c9fae185cbe",
+  "deployment_tx": "0xfaa03b5a466ce3004f212025010e75cd902fa599c01b779d606a5524c4ac1559",
+  "publisher_address": "0x775E8A2D741446d74E3f5a02244D1241eceB187d",
+  "rpc_url": "https://base-sepolia.api.onfinality.io/public",
+  "runtime_code_hash": "4789b56a2fc73ec8957e27576323180add6814ba9be2c1e4d762bb460a3a3e6b",
+  "schema": "proven-media/base-sepolia/1",
+  "source_sha256": "98340d67038f8c79745add909387297821d685926b82cfa0b4b0c4f9e3c7fb75"
+}

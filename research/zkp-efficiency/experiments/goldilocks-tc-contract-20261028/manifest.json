@@ -1,0 +1,332 @@
+[
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/README.md",
+    "sha256": "5d9757e2066e1da10ba6ad6b86c6664e69d25b088ea499f1577420bad9e365b8",
+    "bytes": 8447
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/audit-result.json",
+    "sha256": "983ba79f258373294cd97931ef4312f33505b3b3ad98bf6a957853e5e942bc9a",
+    "bytes": 1934
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/audit.py",
+    "sha256": "beb8a38f439816b66350264c87c3ce4db0279d4cf66623323a58af9604a50c9a",
+    "bytes": 6542
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/before-explicit-carry/candidate.py",
+    "sha256": "b1e08513354fdccffd62154e03b0d4e88896faea72f7b8631aeec23a5e7573b3",
+    "bytes": 3805
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/before-explicit-carry/reference.py",
+    "sha256": "eeb3ee402060b44c0851b732a36e67567f4de473de988a8bf875c696dd46f86d",
+    "bytes": 611
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/before-explicit-carry/result.json",
+    "sha256": "95589cdcab98b5e1704a9b75f1d8a0e36521a31fa95c82d42fc906c080996fe5",
+    "bytes": 36140
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/before-explicit-carry/run.py",
+    "sha256": "b0d6e83a26c124f505095f3b7aca90c3f40c02cf840665bac87fafb7a55c8a77",
+    "bytes": 8622
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/before-top-fold/candidate.py",
+    "sha256": "77c2c6b381baff7a209b67f4a851f7ffc9bdb9880c20fe30a545eb9f1d0d2bdc",
+    "bytes": 4395
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/before-top-fold/reference.py",
+    "sha256": "eeb3ee402060b44c0851b732a36e67567f4de473de988a8bf875c696dd46f86d",
+    "bytes": 611
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/before-top-fold/result.json",
+    "sha256": "02ac4b13ca1e73ab26b359b2c0572239ce18f7e3f3697d7bfe0c8f73ee8c1d74",
+    "bytes": 36391
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/before-top-fold/run.py",
+    "sha256": "5f39a1e6b50c3f15119153f8944ad03be6330d16ddce22e8742818b94563e77a",
+    "bytes": 8968
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/candidate-reducer.cuh.txt",
+    "sha256": "a8409f0659063bd9122cdc5acdd0d8c17d55f7e1b71573fd990f5376c6a9aaba",
+    "bytes": 1687
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/candidate.py",
+    "sha256": "d95ea980bc8d9176577e48ea92e0924b3aafd73b28a32a851411ee99c2c8d5e2",
+    "bytes": 4465
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/checkpoint.py",
+    "sha256": "6a8136346cfff88ab486d7f42196c8eb19271fb2db1200725b52943b1f6f5f37",
+    "bytes": 18973
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/commands.json",
+    "sha256": "489816c1de93591a5ece29bad4e26d954d8621f51f7b3cfb60d252535950481d",
+    "bytes": 1122
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/final_audit.py",
+    "sha256": "5c0cd79f6376215690aad2d9f199dbcfcdd0b9cce55ce6681b6a382bbdc3a2b3",
+    "bytes": 4381
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/hypotheses.json",
+    "sha256": "c89a713e668aa51a84e9c807bff868555245a2b741c04bb837bb2492a5f7ba18",
+    "bytes": 89344
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/initial-before-scaled-matrix/NOTE.txt",
+    "sha256": "dac06009750df02930de4dc0b4de966175eba4f14dbaf5760648888665645b81",
+    "bytes": 231
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/initial-before-scaled-matrix/candidate.py",
+    "sha256": "b1e08513354fdccffd62154e03b0d4e88896faea72f7b8631aeec23a5e7573b3",
+    "bytes": 3805
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/initial-before-scaled-matrix/reference.py",
+    "sha256": "eeb3ee402060b44c0851b732a36e67567f4de473de988a8bf875c696dd46f86d",
+    "bytes": 611
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/initial-before-scaled-matrix/result.json",
+    "sha256": "aa7e266264aa79c099b1b5a878f8ef89a57534e2fd25339bf1e655b90f48ea6c",
+    "bytes": 30950
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/initial-before-scaled-matrix/run.py",
+    "sha256": "2666ffef3cc7716b23814c469545cd5909d856d2e49844626d89d360a0d14040",
+    "bytes": 7115
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/native/hashline__src__gpu__cuda.rs",
+    "sha256": "8fe2a2a39e0796254be37d0d7507d7fc22ea3af141d97d35cd93754d505072c9",
+    "bytes": 205193
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/native/hashline__src__gpu__kernels.cu",
+    "sha256": "b59bc396fa955bbdbc8bf8bb7b047c37c7f8df1fed0992d7b15ef983e2fc3969",
+    "bytes": 78055
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/native/hashline__src__private_block__tied_tables.rs",
+    "sha256": "901fa1e4f4a1c4c5070665fc1f81534142038e362408bff4dbcb5fca1e57c8b2",
+    "bytes": 4561
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/native/hashline__src__private_block__tied_tables__derive.rs",
+    "sha256": "e2b76895fae1ee04a469f095153d8451969c637ca4dd5939dd937c159d749adf",
+    "bytes": 19894
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/native/zkp-core__src__field.rs",
+    "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+    "bytes": 11065
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/native/zkp-core__src__ntt.rs",
+    "sha256": "97572d4f242637d21a089388abad4b5b39136c62036faa17ae94b3ba6f170890",
+    "bytes": 5725
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/native/zkp-core__src__pcs.rs",
+    "sha256": "5c9cfc4e9c84283309f4c47f87d4a9146e2c9c9f5b52aa608b4ce6a7588cd495",
+    "bytes": 77003
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/native-pins.json",
+    "sha256": "ed001c4d4410dd9e62a05ef9833fde3b276c939106b5462ed4597946c2ad16a0",
+    "bytes": 1903
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/prepare.py",
+    "sha256": "7b3f24bc932917a8a7ff97b249dc2396604d63a484c4055a8cfa2598b7859206",
+    "bytes": 16048
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/reference.py",
+    "sha256": "eeb3ee402060b44c0851b732a36e67567f4de473de988a8bf875c696dd46f86d",
+    "bytes": 611
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/result.json",
+    "sha256": "3405dccf2bd4e46f54b43acadd953e221baae3a0784cf91b370074bdecc7d0b0",
+    "bytes": 36460
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/run.py",
+    "sha256": "db8f8ea9b1560875fedc86d3b13d78467a1379c56d08cd56335315fe2882d0b8",
+    "bytes": 9088
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/sources-cycle.json",
+    "sha256": "e2f7d73e6b723305330d6c9a6df9bcbacba6ee7dfee13c861bcf1ace7d8a8e28",
+    "bytes": 12199
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/startup/AGENDA.md",
+    "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139",
+    "bytes": 5603
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/startup/CLAUDE.md",
+    "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6",
+    "bytes": 14089
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/startup/FINDINGS.md",
+    "sha256": "e9a4a99c61de89613a7d6c8bf7d74de492107bd15a7611ce21e2064f817aeebf",
+    "bytes": 949604
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/startup/MVP_STATUS.md",
+    "sha256": "25b380cf9236c736974ada2179d478bafb8b88786e6320a062cd840d02fcde88",
+    "bytes": 93338
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/startup/PROGRESS.md",
+    "sha256": "8fadd68b34792c195a586e0971ad954a2b3a20b033d261485e614f50e41cd22a",
+    "bytes": 2854
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/startup/START_HERE.md",
+    "sha256": "89f6732a39f4294f2f1b7b68add8fdcbb76b86006e21041f52c0f40d9e39df9d",
+    "bytes": 42025
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/startup/STATE.md",
+    "sha256": "a8033ac53883d2479929bcfab21e8148bacc310dd8832daff5c39f68585fbc11",
+    "bytes": 4933
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/startup/ZK60_CODEX_FABLE_COORDINATION.md",
+    "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f",
+    "bytes": 64889
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/startup/ZK60_DECISIONS.md",
+    "sha256": "e8cfe436564f517d64b275655261b278c0d9cd9ba775fc9a79fe9324e5167256",
+    "bytes": 125894
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/startup/ZK60_THROUGHPUT_TARGET.md",
+    "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53",
+    "bytes": 4941
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/startup/prior-audit-result.json",
+    "sha256": "8de82f77f6820f504babf24d461393e52e7a524b79f61fae0ab73cb3981954a6",
+    "bytes": 4248
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/startup/prior-hypotheses.json",
+    "sha256": "398d36b13b676175a5addb3b2f97db182267baf345ec71152d01f52fdec05380",
+    "bytes": 84229
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/startup/prior-result.json",
+    "sha256": "ccde0a5cbf30905f6ae8d8e7d817e08b920c6255d70048e01836ed9ed8898593",
+    "bytes": 4733
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/startup/read-index.json",
+    "sha256": "60fada8c4cf4d7d2538836de6438a99ee27a4f5566d4d474d9b019cbf35f579e",
+    "bytes": 32561
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/startup/sources.jsonl",
+    "sha256": "3fdd5baca94cafb655fa73afe598f76352b85f36d0675a8d7d5344892d395f8f",
+    "bytes": 1031661
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/web/live-1.txt",
+    "sha256": "618c2bb1dc2d9853c06b4151b9322095e5192602b09ad31804dddc83bf2f000f",
+    "bytes": 13524
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/web/live-10.txt",
+    "sha256": "8234c7929a532909007a363cdbf4703d885794439f8647a5bd2caa89d927fc4c",
+    "bytes": 34369
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/web/live-11.txt",
+    "sha256": "edac8e1b3e3c913e3e389626457d08eb208d8b0db53dc4b2a0962c3bc6c4d304",
+    "bytes": 13359
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/web/live-12.txt",
+    "sha256": "9cbcfc5d9a8c81603eba7ebcaeb217184f3a6bf865c2043778e358b7b05a3fbe",
+    "bytes": 11843
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/web/live-13.txt",
+    "sha256": "3a4b4ee0b8934e37b7cce11855b678237883d1d55b6a8b8585f7a66ca523288b",
+    "bytes": 13009
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/web/live-14.txt",
+    "sha256": "09a8c5ba8b48d04bb28f3c873657e9ea2d3133c36d95351bba8443826a679cc6",
+    "bytes": 11250
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/web/live-2.txt",
+    "sha256": "6e9fe42a4d9d406245a8807d268bf12b624ef5337d72c6dbb1ee81fcddd978ed",
+    "bytes": 23167
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/web/live-3.txt",
+    "sha256": "6ccf02a03ca11933e96d853ef230015fbf9d56075ccb8a5a6f6b325a18aec996",
+    "bytes": 18522
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/web/live-4.txt",
+    "sha256": "110fe0e1c061ededd554012bec3c962c51afc6aeb8f49c24ccd72f4f02ae3b24",
+    "bytes": 21860
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/web/live-5.txt",
+    "sha256": "6b0025ffee5d1e5c822e22bc693ee0a5fa075e8d6afcf3b6f5a630ae6be51395",
+    "bytes": 26671
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/web/live-6.txt",
+    "sha256": "e700b913c3c089454f3214394e46882498f39388047b5b8ba6ac937dbdb15759",
+    "bytes": 24793
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/web/live-7.txt",
+    "sha256": "a9516abf992e72dbcc9c926c32f5a00c8dbd5416f3859c0c1def8c35dc3a505f",
+    "bytes": 13621
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/web/live-8.txt",
+    "sha256": "4d2d623c44b27b3ac105c8aacf4825e2712e030251e4d3e6f152144996db9001",
+    "bytes": 21203
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/web/live-9.txt",
+    "sha256": "21e082f71bb31d9e2604215f39638f8ab40ee298cc4544a953b83d2dcb38aebf",
+    "bytes": 11312
+  },
+  {
+    "path": "experiments/goldilocks-tc-contract-20261028/web-source-lines.json",
+    "sha256": "18f0bf6f548fe3affd6cc42f627bd20ae1a0249239f2b6a0311c1a6c89055a58",
+    "bytes": 38348
+  },
+  {
+    "path": "handoffs/20261028-goldilocks-tc-contract.md",
+    "sha256": "60ce65882270c617391498facdf9a4f2398f82f2b17ef557e92001eabf9a9f3d",
+    "bytes": 3886
+  }
+]

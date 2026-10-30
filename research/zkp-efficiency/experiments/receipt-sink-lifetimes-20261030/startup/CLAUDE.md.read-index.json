@@ -1,0 +1,36 @@
+{
+  "path": "/home/victor/IntelligenceRegulation/CLAUDE.md",
+  "headings": [
+    {
+      "line": 1,
+      "text": "# IntelligenceRegulation \u2014 project instructions"
+    },
+    {
+      "line": 77,
+      "text": "## Command style (prompt hygiene)"
+    },
+    {
+      "line": 103,
+      "text": "## Heavy runs: detach, queue, marker (the no-hangup protocol, 2026-08-26)"
+    },
+    {
+      "line": 136,
+      "text": "## Protocol invariants (from the PROGRESS ledgers \u2014 verify there before acting)"
+    },
+    {
+      "line": 153,
+      "text": "## Approval etiquette"
+    },
+    {
+      "line": 160,
+      "text": "## Codex unattended workflow \u2014 Victor's direction, 2026-09-22"
+    },
+    {
+      "line": 198,
+      "text": "## Persistent efficiency research lane (Victor, 2026-09-22)"
+    }
+  ],
+  "bytes": 14089,
+  "lines": 235,
+  "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6"
+}

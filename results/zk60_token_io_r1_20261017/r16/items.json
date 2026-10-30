@@ -1,0 +1,32 @@
+{
+ "source_input_json_sha256": "0b9deb7b6f494c922aff2a6f0cc0b7f855f061094194922c98b56aa9b952dbc2",
+ "items": [
+  {
+   "template": "mod_sexual",
+   "policy": "shieldstral-1.0-3b-moderate-sexual/1",
+   "row_index": 206,
+   "dataset": "toxicchat",
+   "row_id_sha256": "1aace33610f0eedefc2186a36a14bb0e996aff3973774164e3723b9c1b985205",
+   "content_tokens": 35,
+   "content_file": "/home/victor/zk60-artifacts/token-io/r16-items/mod_sexual/content.ids"
+  },
+  {
+   "template": "mod_violence",
+   "policy": "shieldstral-1.0-3b-moderate-violence/1",
+   "row_index": 606,
+   "dataset": "toxicchat",
+   "row_id_sha256": "1aace33610f0eedefc2186a36a14bb0e996aff3973774164e3723b9c1b985205",
+   "content_tokens": 35,
+   "content_file": "/home/victor/zk60-artifacts/token-io/r16-items/mod_violence/content.ids"
+  },
+  {
+   "template": "mod_hate",
+   "policy": "shieldstral-1.0-3b-moderate-hate/1",
+   "row_index": 1006,
+   "dataset": "toxicchat",
+   "row_id_sha256": "1aace33610f0eedefc2186a36a14bb0e996aff3973774164e3723b9c1b985205",
+   "content_tokens": 35,
+   "content_file": "/home/victor/zk60-artifacts/token-io/r16-items/mod_hate/content.ids"
+  }
+ ]
+}

@@ -1,0 +1,80 @@
+--- build2/hashline/src/private_block/split_attack_tests.rs
++++ build4/hashline/src/private_block/split_attack_tests.rs
+@@ -260,9 +260,20 @@
+     }
+     eprintln!("R14_MALICIOUS_RECEIPT {{\"case\":{:?},\"dd\":{},\"bytes\":{},\"expected_accept\":{},\"canonical_frame_decoded\":true,\"native_verifier_used\":true}}",name,sh.dd_cap>0,frames[0].len(),expect);
+ }
+-fn local_group_case(dd: bool) {
++fn local_group_contexts(dd: bool) -> (Shape, BlockPublic, BlockPublic, Witness, Witness) {
+     let (seed, base) = ordinary_fixture(dd);
+     let a = base.accuracy().unwrap();
++    // Give narrow channel 8192 a live gate of 2 in both contexts. The old
++    // sparse weights rounded every gate to zero, where all SiLU members agree.
++    // Group 8192 % 3 = 2 differs from the incorrectly reset local group 0.
++    let mut multipliers = a.multipliers().clone();
++    multipliers.g[8192] = 64;
++    let mut ff = base.feed_forward().clone();
++    for j in 0..seed.d_pad {
++        ff.wg_t[j * seed.f_pad + 8192] = 0;
++    }
++    ff.wg_t[8192] = -127;
++    ff.wg_t[2 * seed.f_pad + 8192] = -127;
+     let groups = vec![
+         Group {
+             e_in: -1,
+@@ -288,7 +299,7 @@
+             a.geometry(),
+             a.base(),
+             a.member(),
+-            a.multipliers().clone(),
++            multipliers.clone(),
+             groups.clone(),
+             (0..seed.hidden)
+                 .map(|j| {
+@@ -303,8 +314,8 @@
+         )
+         .unwrap()
+     };
+-    let correct = base.clone().with_accuracy(make(false));
+-    let changed = base.clone().with_accuracy(make(true));
++    let correct = BlockPublic::new(base.attention().clone(), ff.clone()).with_accuracy(make(false));
++    let changed = BlockPublic::new(base.attention().clone(), ff).with_accuracy(make(true));
+     assert_eq!(
+         correct.accuracy().unwrap().folds().gate,
+         changed.accuracy().unwrap().folds().gate
+@@ -320,7 +331,34 @@
+     let wrong = witness::build_for_block(&sh, &changed, &input(&sh)).unwrap();
+     let ids = Ids::new(&sh).unwrap();
+     assert_eq!(honest.planes[ids.at(A_G8)], wrong.planes[ids.at(A_G8)]);
+-    assert_ne!(honest.planes[ids.at(A_A16)], wrong.planes[ids.at(A_A16)]);
++    assert_eq!(honest.planes[ids.at(A_G8)][8192], 2);
++    let good = correct.accuracy().unwrap().scaled_tables()[2][2050];
++    let bad = changed.accuracy().unwrap().scaled_tables()[0][2050];
++    // Independently retained rational table vectors give 16 * 4096 and
++    // 66 * 1024 here. Gate 1 would cancel after output-unit alignment.
++    assert_eq!((good, bad), (65536, 67584));
++    assert_ne!(good, bad, "the selected generated table words must differ");
++    assert_eq!(honest.planes[ids.at(A_A16)][8192], good);
++    assert_eq!(wrong.planes[ids.at(A_A16)][8192], bad);
++    assert!(honest.planes[ids.at(A_A16)] != wrong.planes[ids.at(A_A16)],
++        "the group-index fixture must change the activation witness");
++    eprintln!("R14_GROUP_FIXTURE dd={dd} global_channel=8192 gate=2 global_group=2 local_group=0 correct={good} wrong={bad}");
++    (sh, correct, changed, honest, wrong)
++}
++
++#[test]
++#[ignore = "guarded bounded witness-only group fixture check, explicit HL_R14_DD"]
++fn split_local_group_fixture_has_distinct_outputs() {
++    let dd = match std::env::var("HL_R14_DD").unwrap().as_str() {
++        "0" => false,
++        "1" => true,
++        _ => panic!("explicit DD0/1"),
++    };
++    let _ = local_group_contexts(dd);
++}
++
++fn local_group_case(dd: bool) {
++    let (sh, correct, changed, honest, wrong) = local_group_contexts(dd);
+     // Both arithmetic contexts must succeed before the cross-context attack.
+     emit(
+         sh.clone(),

@@ -1,0 +1,23 @@
+{
+ "edited": {
+  "hashline/src/private_block/token_io/classify_cli.rs": {
+   "orig": "hashline__src__private_block__token_io__classify_cli.rs.orig",
+   "sha256": "6e93e5d714cec7bfec3c65d7add62c33711caa9381521f10f191529944ac3370",
+   "mutant_sha256": "a74eca6fc6b85414f279bdedfd0baaf1e74de9cc47f3b74c08ed2ad875ab62a0"
+  },
+  "hashline/src/private_block/s25_tests.rs": {
+   "orig": "hashline__src__private_block__s25_tests.rs.orig",
+   "sha256": "4849de14b3404ee2c0a32017f9ba224b8c03d0f00ce8a0a1e2ca3125553cf719",
+   "mutant_sha256": "db9bbe09e4c71bfa37fc94644d3b99d131c51dcc53335ce29a236ccc0939407e"
+  }
+ },
+ "created": [
+  {
+   "file": "hashline/src/private_block/token_io/classify_cli/r19_plant.rs",
+   "sha256": "1b0e1055409cbadcf9f84fb6bbe7b4991a2754a079d34e3342a64ed2f918b9d6"
+  }
+ ],
+ "dirs": [
+  "/home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r19/hashline/src/private_block/token_io/classify_cli"
+ ]
+}

@@ -1,0 +1,10 @@
+{
+  "cpu": "Intel(R) Core(TM) Ultra 9 185H",
+  "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "python": "3.10.12",
+  "experiment_threads": 1,
+  "affinity": "first permitted CPU",
+  "nice": 19,
+  "gpu_used": false,
+  "model_data_used": false
+}

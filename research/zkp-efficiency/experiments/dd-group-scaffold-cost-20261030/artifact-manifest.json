@@ -1,0 +1,322 @@
+[
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/CLAUDE-read-index.json",
+    "bytes": 1167,
+    "sha256": "3e0ae671908a58c40d9a3aab6c15ebb23bb62190ed03bf3aa01629e3f345819a"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/MVP_STATUS-read-index.json",
+    "bytes": 1825,
+    "sha256": "f0d0fbc3eccb7ed0d5bac828ccb409e0b89c448e7707091c7b089478c2236cc5"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/README.md",
+    "bytes": 6657,
+    "sha256": "9570b853fe4ba4f345a3b834aa35bba3bb3b5b67b2878765c847fd4eb863ef8c"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/ZK60_CODEX_FABLE_COORDINATION-read-index.json",
+    "bytes": 935,
+    "sha256": "003b52cdcde61480a29967791ac1a8476753649aa83c02150ca03fab7dfb14c2"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/ZK60_DECISIONS-read-index.json",
+    "bytes": 7033,
+    "sha256": "25992620d458831b12d05c3392b019e7d6cb64f349324a38a34dabbbf5c8c10e"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/audit-execution.json",
+    "bytes": 824,
+    "sha256": "09abef2956ef261f50984fd224d69ccfbd07bd16a4fb43532dfa00c1e35f1e13"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/audit-result.json",
+    "bytes": 688,
+    "sha256": "b6b852aa726424830a60ab964efa86d7342741a89357700e7ff122027a55d17d"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/audit.py",
+    "bytes": 9687,
+    "sha256": "2af65a8daae0db9b1e4790fef1ce4f8c88287865c93a4fde6a0bcdc942bb250d"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/audit.stderr.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/audit.stdout.log",
+    "bytes": 624,
+    "sha256": "d9b93b1370d380c36397123eff8bb24cf124e77cedb362e085d95f35296d055f"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/before-current-profile-incidence/audit-execution.json",
+    "bytes": 824,
+    "sha256": "5a9e269a29f7425e8591c5e4a7173ffff94870efaa559c2aac2b27bbb82efc06"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/before-current-profile-incidence/audit-result.json",
+    "bytes": 609,
+    "sha256": "af4ad57a527bc23148b7db36f25b350d12cabd308fbed945508baa2dc97b687b"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/before-current-profile-incidence/audit.py",
+    "bytes": 7187,
+    "sha256": "4e2204bd4a0a390d65b4cb4646308856328187167ce804ed40af407bedd3eaa6"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/before-current-profile-incidence/audit.stderr.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/before-current-profile-incidence/audit.stdout.log",
+    "bytes": 553,
+    "sha256": "29bbdee819ed3c05605e69891a74034bae28b3bbd2330e85786bb94429436477"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/commands.jsonl",
+    "bytes": 2906,
+    "sha256": "3a48e63291ad503ccb39ee78fb46807ba676cb88c838031375070c46b5bcf5b4"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/completion.json",
+    "bytes": 273,
+    "sha256": "92b71176d065778f3e04c9354948ff800d32736b9c67cb4d9a2bbc8c94787d88"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/cost-census.json",
+    "bytes": 8933,
+    "sha256": "0582f59476a6b0ce740b8f80486afe2de1763e598ff5e4f26da62367b6d85aea"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/early-STATE.md",
+    "bytes": 4801,
+    "sha256": "1192c976f3526bdf6b6100194126883606ad8c50bc73b3798c061cdec65d588b"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/experiment-execution.json",
+    "bytes": 829,
+    "sha256": "a58aea666aca6de470c4bbb02fe5cc1d3eb95d59bc1115cb4e17f4545aec3720"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/experiment.py",
+    "bytes": 9098,
+    "sha256": "265344b8597787c37b14512cc304aa21d4fbdf9142554b9325f32e74f6587960"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/experiment.stderr.log",
+    "bytes": 0,
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/experiment.stdout.log",
+    "bytes": 539,
+    "sha256": "e5f96a242495ff24f079e44d34a827c0b0433714c37f1e4847d3e759ac7da810"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/finish_cycle.py",
+    "bytes": 25341,
+    "sha256": "5e774a8a95b79e15b9163e37163ac99f1396debfe81f242505473fb34788a64c"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/hardware.json",
+    "bytes": 133,
+    "sha256": "58843ac4e89fb27ee34ac9c7144c2af264d05c18c6a5d63606c45be7f4d4cac9"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/hypotheses.json",
+    "bytes": 236408,
+    "sha256": "aaed417456ad55f4651997cd584a996071e307d11c046fe6cd62fda3e3f4e11b"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/initial-integrity-failure.json",
+    "bytes": 392,
+    "sha256": "bfdd90560469698cb0475b446464f0e7b504dcb4e9d6369e1bbea4f1e385e6b7"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/inverse-fixtures.json",
+    "bytes": 45993,
+    "sha256": "2e52eb84268ea6f6dd7894be8a82c12d676270cd000624925997edb4ff603a5a"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/inverse_three_factors.rs",
+    "bytes": 1421,
+    "sha256": "520dda3b50d719d152b4ae2e5e53c0e96057b8ab01a9acee462e1fa1b2b7c1d4"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/native/0-grouped.rs",
+    "bytes": 7903,
+    "sha256": "7777a19c8db97694c51e66c78d1a7688573158bddaa7fcb370345ebd14ab669b"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/native/1-rounds.rs",
+    "bytes": 7092,
+    "sha256": "c60520596e6d855687e0a225850850c12bd15b8741522de69a624f0db8a003df"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/native/2-mle.rs",
+    "bytes": 15255,
+    "sha256": "b20c8b75c9246471fe1cc395122558eba715f66d9efe1dc4cd5be1750f2e542e"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/native/3-field.rs",
+    "bytes": 11065,
+    "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/native/4-argument.rs",
+    "bytes": 111325,
+    "sha256": "c4f9f9f4cb477346b03e9f769d7c3141a8529f096d08da2be6c415d5160a5e66"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/native/5-shape.rs",
+    "bytes": 139369,
+    "sha256": "9a87081897ff0ec716d7f27a2813cc32117683eb5b2f2082a248f479ef98c4c5"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/native/6-layout.rs",
+    "bytes": 74733,
+    "sha256": "9332802e597beacab56cfa69cfe18325bc476d2ce6485f517051992b26d26efa"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/native/7-ACCEPTANCE.json",
+    "bytes": 57359,
+    "sha256": "cc30e1a075359584188d528847c5b41488f69628cc1d8aa9670586bf06bee424"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/native/8-argument.rs",
+    "bytes": 116652,
+    "sha256": "d0b93cd99c0706fb44caa86d0083aa1b27d01de68f3019c08b7649f245d85cf8"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/native/9-grouped.rs",
+    "bytes": 7903,
+    "sha256": "7777a19c8db97694c51e66c78d1a7688573158bddaa7fcb370345ebd14ab669b"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/native/r14-accuracy_layout.rs",
+    "bytes": 9081,
+    "sha256": "37a3e3458e4961ddaab98440de114e575da3af21f7d872b532cb71a04ac788d3"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/native/r14-accuracy_precision.rs",
+    "bytes": 6302,
+    "sha256": "145c1e0f66ea5aad558148aa7885b4fcaaf74c6145893cc1efd10f7a77eee56b"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/native/r14-argument_accuracy.rs",
+    "bytes": 42609,
+    "sha256": "76243d8562f55e281603f62530a3a9172a11c6f37ca4ba1cb6066811daa2883a"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/native/r14-argument_split.rs",
+    "bytes": 18152,
+    "sha256": "50bcc0b870817f1961b497699d3d161eff6e031e7a4e10225a481eea3e719fb6"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/native/r14-split_definition_tests.rs",
+    "bytes": 22445,
+    "sha256": "e11fe92e79f3dd470b522af2d24f0a23ddced981fe08dc89ae840c8c88f3e0c8"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/native-dimension-evidence.json",
+    "bytes": 1332,
+    "sha256": "6830e95e319d7c37326959cfa74c9bb76659074c70df9ca4feb6149afc3dc5b7"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/negative-controls.json",
+    "bytes": 218,
+    "sha256": "d83bad5fd9b05bbcb707c89c7d15f9f34d96190e279cf5312b94cf1a2d2d65e8"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/ranking-current.json",
+    "bytes": 290,
+    "sha256": "d17ab42c25ef61cd35cafd4920198e1513d5d84908529e83b6f9e45cd131abb5"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/result.json",
+    "bytes": 509,
+    "sha256": "3f42f854e5b8f25c45ede0acf4cae4fe399d616f7d61d23c7334e541c292e32c"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/rotation-queue.json",
+    "bytes": 1010,
+    "sha256": "c2b5325b3847c62b59617846c7f28d74435d7c3b6e2cf7b5bcdd33c5834ffdfe"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/run_bounded.py",
+    "bytes": 1539,
+    "sha256": "c1684de2c321ec9469bc777ebb9904f0c74a58d2f248e932d12911f1c631a47c"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/scaffold-evidence.json",
+    "bytes": 339586,
+    "sha256": "ee659ae3263d5ac8b68abb9479c9595627e9924196dabf93f1e208d94b5b7836"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/scaffold.py",
+    "bytes": 9077,
+    "sha256": "cf5781baefea9b92ec39008b25660074e719440d3a25c407f6f2ced4035f3e75"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/small-crossing.json",
+    "bytes": 12284,
+    "sha256": "62521323cedecbdc19d626112975561eff008e050a8e83756d1dd850d21e33cc"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/source-compatibility.json",
+    "bytes": 755,
+    "sha256": "95b87eeb09a892ef04a54d0c9a815aab8e1aa075c65b243bcb1e4e2b1dda4786"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/source-pins.json",
+    "bytes": 6320,
+    "sha256": "99777a9ab40f64875f879bf930ec7b4978a2d2ca3a74a496381855e9cb70a32d"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/sources-cycle.json",
+    "bytes": 12069,
+    "sha256": "afd69d7f74096ab0320ebae93e9fb697c5b31df8f8afdb77a27067838dcee67a"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/startup-manifest.json",
+    "bytes": 1965,
+    "sha256": "9eaa64a15b95a2af06304ec7bbcc99183b243ab6a06532fc75c4edecbc6b5536"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/target-accounting.json",
+    "bytes": 825,
+    "sha256": "650ac001e18dd1a2eb4def188af42188a3e711ca933861538466a973032fa2a3"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/web2.json",
+    "bytes": 27290,
+    "sha256": "46328251f358c1e697643481d1aed987206be6a3273f9e973233c7246d38ea8a"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/web3.json",
+    "bytes": 29649,
+    "sha256": "a37c630678ffe56ad66c1fa623fa0fb60c9cbf20164ad7db4181335b9ce54133"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/web4.json",
+    "bytes": 30306,
+    "sha256": "56c63437b18ba9f1850a377021534d3a05d84548ac3fde60007efc433743e6c6"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/web5.json",
+    "bytes": 29949,
+    "sha256": "7ee63723d55b5e609d06d39056a1426795015e518306da5968bfdd3055f27a1b"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/web6.json",
+    "bytes": 33300,
+    "sha256": "b3e105436d7767766c958877a41719b6f61d160d75239d1c228dd7df17be364f"
+  },
+  {
+    "path": "experiments/dd-group-scaffold-cost-20261030/web7.json",
+    "bytes": 26858,
+    "sha256": "833a314a2a0db9a5de5239084e94328d93ea2c79dfe82e4808c8dfd7b32400c4"
+  }
+]

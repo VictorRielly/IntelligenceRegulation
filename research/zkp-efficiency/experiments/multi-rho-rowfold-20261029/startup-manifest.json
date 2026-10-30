@@ -1,0 +1,107 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/AGENDA.md",
+    "snapshot": "startup/00-AGENDA.md",
+    "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139",
+    "bytes": 5603,
+    "lines": 85
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/STATE.md",
+    "snapshot": "startup/01-STATE.md",
+    "sha256": "85409d90835a67ca7745d2738415cef0efd528b1be8bd2d71504eace92e02166",
+    "bytes": 5312,
+    "lines": 81
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/FINDINGS.md",
+    "snapshot": "startup/02-FINDINGS.md",
+    "sha256": "ccb065822d584fa7cd4e29ed6c17a0b8df9125e6cc33690bc212dd547a11d1aa",
+    "bytes": 1068759,
+    "lines": 13234
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/sources.jsonl",
+    "snapshot": "startup/03-sources.jsonl",
+    "sha256": "f3b7aa1e6498fc8388157929c2ea01687400565434246e01b017b9e4d26aaccb",
+    "bytes": 1206516,
+    "lines": 978
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/PROGRESS.md",
+    "snapshot": "startup/04-PROGRESS.md",
+    "sha256": "f5a165265549218ff786e002ef6fe01082a668c8ee6115ed5cbfb7961e0c32c1",
+    "bytes": 2408,
+    "lines": 40
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/composition-eq-scope-20261029/hypotheses.json",
+    "snapshot": "startup/05-hypotheses.json",
+    "sha256": "e855049ffd41327b6ebe32c5fb1a8b86640714605774a115ac759ca3d146ba46",
+    "bytes": 137910,
+    "lines": 935
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/composition-eq-scope-20261029/result.json",
+    "snapshot": "startup/06-result.json",
+    "sha256": "106510e89d9658c52d17af1b2c0e0781cc574cbac5199fbf9f3dae8ac53b4ae1",
+    "bytes": 2379,
+    "lines": 1
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/composition-eq-scope-20261029/account-result.json",
+    "snapshot": "startup/07-account-result.json",
+    "sha256": "15678206afdbd7ef2c8e166130cd4769ee939dc62758a12a352cd552bb9e9f07",
+    "bytes": 3030,
+    "lines": 71
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/composition-eq-scope-20261029/audit-result.json",
+    "snapshot": "startup/08-audit-result.json",
+    "sha256": "ee776c15db4651329e88d2e0981e0e44e9bc52225b18b514da173e7b1251c9a7",
+    "bytes": 297,
+    "lines": 12
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/CLAUDE.md",
+    "snapshot": "startup/09-CLAUDE.md",
+    "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6",
+    "bytes": 14089,
+    "lines": 235
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/MVP_STATUS.md",
+    "snapshot": "startup/10-MVP_STATUS.md",
+    "sha256": "20c64a4899ee8aed287c80c8b1d3e712be8129f12f07b436c9a9e7c39522e522",
+    "bytes": 99732,
+    "lines": 1438
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_DECISIONS.md",
+    "snapshot": "startup/11-ZK60_DECISIONS.md",
+    "sha256": "c44dee3a37007bc561a89818e0e43e96cf0fd7852ecbbf117cb9ef2952d1a0f5",
+    "bytes": 141426,
+    "lines": 1358
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_CODEX_FABLE_COORDINATION.md",
+    "snapshot": "startup/12-ZK60_CODEX_FABLE_COORDINATION.md",
+    "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f",
+    "bytes": 64889,
+    "lines": 995
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_THROUGHPUT_TARGET.md",
+    "snapshot": "startup/13-ZK60_THROUGHPUT_TARGET.md",
+    "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53",
+    "bytes": 4941,
+    "lines": 90
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/START_HERE.md",
+    "snapshot": "startup/14-START_HERE.md",
+    "sha256": "89f6732a39f4294f2f1b7b68add8fdcbb76b86006e21041f52c0f40d9e39df9d",
+    "bytes": 42025,
+    "lines": 588
+  }
+]

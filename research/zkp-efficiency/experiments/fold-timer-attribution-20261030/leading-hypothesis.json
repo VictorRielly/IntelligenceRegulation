@@ -1,0 +1,15 @@
+{
+  "rank": 89,
+  "title": "TESTED exact fold counter boundaries and queued-work attribution negative",
+  "baseline": "Current dev_fold_rows starts t0 after GPU lookup,mutex acquisition and dev clone; samples within STATS callback before output conversion/local drops. Success-only aggregation; installed cudarc sync wrappers cover preceding stream work.",
+  "eliminated_work": "No required work eliminated. Measurement prerequisite prevents treating inherited queue wait or incomplete counter fraction as removable fold/packing cost. Hypothetical packing removal can save zero with a busy stream.",
+  "added_costs": "Owner instrumentation,capture correlation,private diagnostic buffering and off/on overhead. No added synchronization is authorized by this measurement proposal.",
+  "prerequisites": "Native exclusive phases and call scope through drop; causal API/device correlation and actual completion edges; reconcile independently verified enclosing workload. Keep current source/profile/build/privacy and common heavy locks.",
+  "integration_cost": "Small owner observer at existing dev_fold_rows seam; only research mock and MEASUREMENT.md provided. No native adapter or production patch.",
+  "exactness": "326 exact-body Rust mock executions including110successes,216errors/panics,20malformed shapes;2934independent Python clock/payload checks and2154bigint limbs;8corruption controls. Mock clocks/types/API outcomes are synthetic,not native error/privacy equivalence.",
+  "privacy_soundness": "No arithmetic/profile,FS/RNG,mask,pad,opening or blinding changes. All fixtures synthetic. Private diagnostic failure identity must not enter public artifacts. Current native privacy/receipt gates remain owner obligations.",
+  "compatibility": "Pinned root function and cudarc0.13.9. No dependency upgrade; Drop may queue frees,not certify device retirement. Source body is extracted verbatim,with fake surrounding identifiers.",
+  "end_to_end_ceiling": "N/(T-C_critical+A_added),unknown. Only overlap-adjusted safely removable critical-path time supports a bound. Legacy secs_fold fraction is insufficient.",
+  "falsification": "If current source clock already covers all phases,source observation fails and must be repinned. If measured omitted/queued/packing costs negligible or observer perturbs behavior,do not promote. Any output/order/refusal/privacy mismatch blocks integration.",
+  "disposition": "Measurement handoff only; no measured proving improvement. Refines88; park more packing/staging variants pending materiality evidence."
+}

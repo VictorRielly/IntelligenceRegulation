@@ -1,0 +1,2 @@
+[zk60-guard 15:45:14] START gate21-derive-26 class=cpu need=0.5G cap=1G enforce=cgroup+watchdog waited=0s run=80bec264680a
+[zk60-guard 15:45:37] END gate21-derive-26 exit=0 child_wall=23s peak_rss=0.29G min_avail=13.47G

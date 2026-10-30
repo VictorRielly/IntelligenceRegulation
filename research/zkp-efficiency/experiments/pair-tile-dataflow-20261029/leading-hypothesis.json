@@ -1,0 +1,32 @@
+{
+  "rank": 60,
+  "title": "TESTED paired-mask K2/4 tiles: exact, mostly slower CPU diagnostics; spill gate before native integration",
+  "baseline": "Native R13 still two original Fp2 row dots and fresh Eq each call. Conditional cached-paired3 serial control has same public Eq preparation as this tiled candidate; neither candidate is installed.",
+  "eliminated_work": "Within consecutive same-slot/same-extension equal ordered tails, K2/4 share Eq loads and a+b. At8BT128:20.01..20.80MB or29.72..31.03MB logical Eq reads removed per block. No native work removed.",
+  "added_costs": "3K uint64 accumulators:48/96B atK2/4,extra24/72B,4/8private streams,grouping/views/dispatch; no separate public-sum buffer. All5.76..5.99M private reads remain. One extra uint64 accumulator spill per added pair cancels full-tile public-byte saving in the stated per-update load/store model.",
+  "prerequisites": "Exclusive native Eq/dot/extension/enclosing clocks first. Owner compiled register/local-memory/cache/occupancy evidence and native golden,refusal,RNG,transcript,PCS,capture/privacy and independent full-receipt gates if material.",
+  "integration_cost": "Small research API Weights::tiled<K>(point,pairs); plugging into R13 run_slot extension loop requires full metadata grouping and original terminal ordering. No production patch.",
+  "exactness": "720 synthetic fixtures;36000 baseline/serial/K1/K2/K4 terminal comparisons;5040 direct cube checks;28800 extension checks;10 negative controls plus positive empty edge. Independent schoolbook/MSB fold reference by same researcher,not external review.",
+  "privacy_soundness": "Cache only exact current-call public ordered tails. Private row ownership,distinct reserved mask pairs,fresh draws,extension phases,zero injection,claim slots and opening count unchanged. No reuse across proof/pass.",
+  "compatibility": "R13 argument.rs mask_eval and run_slot extension-map seam,with existing FieldFp/Fp2. GPU adapter not built.",
+  "end_to_end_ceiling": "Unknown native fraction. N/(T-Cexclusive_removed+Aadded); free deletion offractionf<=1/(1-f). Read-only dot ceilings1.2769..1.2808 K2 and1.4764..1.4829 K4 exclude Eq construction,all spills,cache effects andother proof phases;not elapsed gains.",
+  "falsification": "Any value/tail/order/offset/width/phase/refusal/RNG/transcript/PCS/privacy mismatch; spilling or cache eliminates reuse; no enclosing independently verified workload gain.",
+  "disposition": "PARKED: final CPU synthetic medians slower39/42 arm-shape comparisons,initial42/42;shared/noisy opt1 diagnostics,not confidence intervals or native/GPU performance.",
+  "cycle0142_refinement": "Actual R13 LOW+h24/DD incidence prerequisite now resolved at metadata level. Conditional K2/4 register tiles still need exclusive native dot materiality; do not build/queue native heavy work or claim a gain from the census. More accumulators/streams/register spills and terminal order remain costs/risks.",
+  "prior_cycle0142": {
+    "rank": 60,
+    "title": "NEW bounded multi-pair register tiles instead of materialized public sums",
+    "baseline": "Hypothesis57 exact component trades additions for31.4MB logical added accesses per old T128 block; small extension seam with no exclusive native cost.",
+    "eliminated_work": "Potentially share a+b in a register across two or four fresh private pairs at one public coefficient, avoiding the sum Vec/preparation scan while retaining every private word.",
+    "added_costs": "3*K live field accumulators,changed loop order,independent source streams,register pressure/spills and extra chunk dispatch; no measured gain or implementation.",
+    "prerequisites": "First exclusive native dot/extension/enclosing clocks and actual LOW+h24/DD site counts. If material, differential K=1/2/4 against scalar paired3 with unequal widths/offsets/tails,all terminal order and fresh-private-data controls.",
+    "integration_cost": "Moderate batched evaluator seam in argument.rs; existing mapper order and extension absorption cannot change.",
+    "exactness": "Count-only new research question,not implemented/tested. Arithmetic sum remains canonical.",
+    "privacy_soundness": "Public grouping only; distinct fresh pairs and original logical order preserved; no masks/openings/results reused.",
+    "compatibility": "Per-slot current-call mask-evaluation batch only; do not alter frozen R13 or owner S4 profile.",
+    "end_to_end_ceiling": "Unknown and limited to measured exclusive dot fraction; do not transfer synthetic ratios.",
+    "falsification": "No material native dot fraction,changed terminal/order/refusal/privacy,or spills/traffic remove enclosing gain.",
+    "disposition": "Conditional follow-up only, behind owner top3 and actual profile census.",
+    "cycle0142_refinement": "Actual R13 LOW+h24/DD incidence prerequisite now resolved at metadata level. Conditional K2/4 register tiles still need exclusive native dot materiality; do not build/queue native heavy work or claim a gain from the census. More accumulators/streams/register spills and terminal order remain costs/risks."
+  }
+}

@@ -6,6 +6,7 @@ from pathlib import Path
 import tempfile
 import unittest
 import sys
+from unittest.mock import patch
 
 APP = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(APP))
@@ -53,6 +54,14 @@ class FakeDeployRPC:
 
 @unittest.skipIf(Account is None,'optional requirements-testnet.txt not installed')
 class SepoliaSetupTests(unittest.TestCase):
+    def test_setup_refuses_volatile_and_repository_keys_before_creation(self):
+        for directory in ('/tmp/unsafe-testnet', str(APP/'.testnet-private')):
+            with self.subTest(directory=directory), patch.object(sys, 'argv',
+                    ['sepolia_setup.py', 'key', '--private-dir', directory]), \
+                 patch.object(setup, 'create_throwaway_key') as create:
+                with self.assertRaises(PublishError):setup.main()
+                create.assert_not_called()
+
     def setUp(self):
         self.tmp=tempfile.TemporaryDirectory();self.addCleanup(self.tmp.cleanup)
         self.dir=Path(self.tmp.name);self.account=Account.create();self.rpc=FakeDeployRPC()

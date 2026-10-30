@@ -1,0 +1,27 @@
+{
+  "status": "PASS",
+  "fixtures": 326,
+  "successful": 110,
+  "errors_or_panics": 216,
+  "reference_checks": 2934,
+  "payload_limbs": 2154,
+  "malformed_shape_fixtures": 20,
+  "negative_controls": {
+    "counter_called_whole_function": "rejected",
+    "conversion_omitted_from_scope": "rejected",
+    "init_wait_counted_as_fold": "rejected",
+    "failed_call_counted_success": "rejected",
+    "missing_failure_cleanup": "rejected",
+    "swapped_output_limbs": "rejected",
+    "double_count_kernel_wait": "rejected",
+    "sample_timestamp_changed": "rejected"
+  },
+  "counterexamples": 9,
+  "explicit_rust_counterexample_fixtures": 6,
+  "source_checks": 8,
+  "large_timestamp_scope": "Python integer-reference-only; native floating seconds and device clock alignment not tested",
+  "scope": "Extracted native function with synthetic deterministic Rust device/clock; independent Python closed-form timing and bigint fold oracle. No physical timings, native device or proof.",
+  "full_stack_proofs": 0,
+  "passes": 0,
+  "positions": 0
+}

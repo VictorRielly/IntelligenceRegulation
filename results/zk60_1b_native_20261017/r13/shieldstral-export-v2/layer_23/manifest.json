@@ -1,0 +1,306 @@
+{
+  "arrays": {
+    "act": {
+      "dtype": "int16",
+      "file": "act.bin",
+      "sha256": "db56d8ebdfff45ebcd8aef15e412c7ba0c6fa6ec8949d779b8bcbf1b75802919",
+      "shape": [
+        4,
+        4096
+      ]
+    },
+    "exp": {
+      "dtype": "int64",
+      "file": "exp.bin",
+      "sha256": "9d94a4adac1119c927e60ba17379a7c821b171db147623cf99c5d1beace7460f",
+      "shape": [
+        256
+      ]
+    },
+    "gamma_a": {
+      "dtype": "int8",
+      "file": "gamma_a.bin",
+      "sha256": "2149ef0229d089a5c22242875c67d647079f394c21e9fdf34b7656e665b381fc",
+      "shape": [
+        3072
+      ]
+    },
+    "gamma_m": {
+      "dtype": "int8",
+      "file": "gamma_m.bin",
+      "sha256": "97f9a1cfd496c7afcf68bdede67c220a9c57516aed55305d1d26f87ec7b9d2ba",
+      "shape": [
+        3072
+      ]
+    },
+    "m_d": {
+      "dtype": "int64",
+      "file": "m_d.bin",
+      "sha256": "452b110844e3e3ce52c00cfd0016e024e8c2aa0e11f2b1d555c57ccd51cda679",
+      "shape": [
+        3072
+      ]
+    },
+    "m_g": {
+      "dtype": "int64",
+      "file": "m_g.bin",
+      "sha256": "6a872ea6acb3d9fadab384e4181133f110273b60389a5d60a61e202e4ccca09f",
+      "shape": [
+        9216
+      ]
+    },
+    "m_k": {
+      "dtype": "int64",
+      "file": "m_k.bin",
+      "sha256": "7588e131543574bbdd9a3ee08e1d5faf11c2d11046859b7a0adf9721a6b941bb",
+      "shape": [
+        1024
+      ]
+    },
+    "m_o": {
+      "dtype": "int64",
+      "file": "m_o.bin",
+      "sha256": "e6b0e7b4901df822f72bc1770add36a8df3bcf1106fe9f562bbd8370d109c49b",
+      "shape": [
+        3072
+      ]
+    },
+    "m_q": {
+      "dtype": "int64",
+      "file": "m_q.bin",
+      "sha256": "f7272f7a62882752d5155774fd10a59eeff84681005d9b60f13c930faf9a88d1",
+      "shape": [
+        4096
+      ]
+    },
+    "m_u": {
+      "dtype": "int64",
+      "file": "m_u.bin",
+      "sha256": "ac59dcdd46f5fd2564aa49a5edb797e49e4c32e199c36829f89df404a12169a8",
+      "shape": [
+        9216
+      ]
+    },
+    "m_v": {
+      "dtype": "int64",
+      "file": "m_v.bin",
+      "sha256": "b442e0a69ebc1e8cd34f2df7a9ff51f95922d8b2925cf2f88b41f3b6e8501f69",
+      "shape": [
+        1024
+      ]
+    },
+    "rope_cos": {
+      "dtype": "int64",
+      "file": "rope_cos.bin",
+      "sha256": "a65d4aa210b95f4a557b88d9f6cd5e987d6db05170ade2c38a3573f504466ae0",
+      "shape": [
+        256,
+        64
+      ]
+    },
+    "rope_sin": {
+      "dtype": "int64",
+      "file": "rope_sin.bin",
+      "sha256": "f0cbf9bba2aee8689463f233527b6448187082f43c176e6bdc440c32227be8b1",
+      "shape": [
+        256,
+        64
+      ]
+    },
+    "silu_group_ids": {
+      "dtype": "int64",
+      "file": "silu_group_ids.bin",
+      "sha256": "52deb9355c9efb1affa6bcdda0d10f25d37c8d6a4ba59c6341a20f136ddaed3b",
+      "shape": [
+        9216
+      ]
+    },
+    "silu_groups": {
+      "dtype": "int64",
+      "file": "silu_groups.bin",
+      "sha256": "81fadaf59673288cf78de21cda934690d718bd978aafb33bec725ab506ccb719",
+      "shape": [
+        4,
+        2
+      ]
+    },
+    "wd_t": {
+      "dtype": "int8",
+      "file": "wd_t.bin",
+      "sha256": "14062005ea7a34af84f5b27e2cfbbe855efba1221c4ef9b1931a8fde9b00f487",
+      "shape": [
+        9216,
+        3072
+      ]
+    },
+    "wg_t": {
+      "dtype": "int8",
+      "file": "wg_t.bin",
+      "sha256": "2ccd99c41f4e2d9cf8a1bc289d959330d06f99d94c02a789bdd005d8d9c5c7b8",
+      "shape": [
+        3072,
+        9216
+      ]
+    },
+    "wk": {
+      "dtype": "int8",
+      "file": "wk.bin",
+      "sha256": "fc18dfc565c859a3e487d546faa8287173fc3c060a335f54d60ccd35b1ea67ce",
+      "shape": [
+        1024,
+        3072
+      ]
+    },
+    "wo": {
+      "dtype": "int8",
+      "file": "wo.bin",
+      "sha256": "91979a80ec9726edd496f6399717ebbf660eb0153a5cfc521f5d3b9a7a8d9ec7",
+      "shape": [
+        3072,
+        4096
+      ]
+    },
+    "wq": {
+      "dtype": "int8",
+      "file": "wq.bin",
+      "sha256": "8181bdc7c0ca578b33b53b14d1d5e84382b98995508e72ce424b41a3f0bd9e8d",
+      "shape": [
+        4096,
+        3072
+      ]
+    },
+    "wu_t": {
+      "dtype": "int8",
+      "file": "wu_t.bin",
+      "sha256": "29c682bc6d3b9efc6f9f825cb0e343746200b7e044c831c4136b12b744a3bad0",
+      "shape": [
+        3072,
+        9216
+      ]
+    },
+    "wv": {
+      "dtype": "int8",
+      "file": "wv.bin",
+      "sha256": "e81b2c23a25f9ef0464b60172c0c73846cce27d26838884b13a3dab8f15f0f2c",
+      "shape": [
+        1024,
+        3072
+      ]
+    }
+  },
+  "constants": {
+    "exp_e_s": 4,
+    "f_e": 9,
+    "f_p": 12,
+    "f_ro": 7,
+    "norm_ceps": 2439,
+    "norm_cn_a": 3854,
+    "norm_cn_m": 2062,
+    "norm_tn": 9,
+    "rope_theta": 1000000.0,
+    "sh_ao": 7,
+    "sh_g": 8,
+    "sh_h": 16,
+    "sh_o": 9,
+    "sh_qkv": 8,
+    "sh_r2": 0,
+    "sh_rope": 7,
+    "sh_s": 8,
+    "sh_u": 0,
+    "sh_z": 8,
+    "silu_member": [
+      -2,
+      -11
+    ]
+  },
+  "kind": "layer",
+  "layer": 23,
+  "metadata_out_of_proof": {
+    "norm_consts": {
+      "K_a": 7.363238305970027,
+      "K_m": 13.762328046172883,
+      "ceps": 2439,
+      "ceps_exact": 2439.469663568048,
+      "cn_a": 3854,
+      "cn_m": 2062
+    },
+    "scales": {
+      "act_scale": 0.00048828125,
+      "gate_scale": 0.25,
+      "s_h": [
+        0.005127289459128861,
+        0.05194173609136888
+      ],
+      "s_k": [
+        0.10790433592315984,
+        0.301381616796585
+      ],
+      "s_q": [
+        0.20737827563710978,
+        0.5792167614516168
+      ],
+      "s_u": [
+        0.0001602277955977769,
+        0.0016231792528552775
+      ],
+      "s_v": [
+        0.027655253260154423,
+        0.06706778349321858
+      ],
+      "s_x_in": 0.0035486477726047977,
+      "s_x_out": 0.0035486477726047977,
+      "score_scale": 16.0
+    },
+    "weights_clipped": {
+      "wd": 0,
+      "wg": 0,
+      "wk": 0,
+      "wo": 0,
+      "wq": 0,
+      "wu": 0,
+      "wv": 0
+    }
+  },
+  "orientation": {
+    "padding": "none (true extents)",
+    "wd_t": "(input f, output d) row-major",
+    "wg_t/wu_t": "(input d, output f) row-major",
+    "wq/wk/wv/wo": "(output, input) row-major"
+  },
+  "schema": "zk60-trained-profile-export/2",
+  "tables": {
+    "act": {
+      "generator": "R13 registry int12 input, raw signed16 output, per public group",
+      "group_members": [
+        [
+          -4,
+          -12
+        ],
+        [
+          -3,
+          -11
+        ],
+        [
+          -2,
+          -11
+        ],
+        [
+          -1,
+          -9
+        ]
+      ],
+      "sha256": "db56d8ebdfff45ebcd8aef15e412c7ba0c6fa6ec8949d779b8bcbf1b75802919"
+    },
+    "exp": {
+      "e_s": 4,
+      "generator": "hashline tables_attn.rs exp_member(e_s, head_dim 128, f_e)",
+      "spec_digest": "70c80b39b2a1743798a70cd5bca3e85dd49855dab1aae826271389de92904b1c"
+    },
+    "rope": {
+      "generator": "Shieldstral YaRN float64, factor16/original16384/beta32,1/mscale1,1; same native digest framing",
+      "spec_digest": "1bac594fed92bb79c12275ece2f33f93ac624fd3f9400788f8cc336098a797be",
+      "t_max": 256
+    }
+  },
+  "variant": "shieldstral-s2-fixed-low-h24-v2"
+}

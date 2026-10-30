@@ -1,0 +1,12 @@
+{
+  "status": "PASS_SOURCE_COST_AND_PATCH_AUDIT",
+  "checks": 74,
+  "mutations": 4,
+  "pins": 11,
+  "elapsed_s": 0.0020979510009055957,
+  "max_rss_kib": 15244,
+  "rust_aliasing_proof": false,
+  "miri_run": false,
+  "rayon_tested": false,
+  "full_prover_tested": false
+}

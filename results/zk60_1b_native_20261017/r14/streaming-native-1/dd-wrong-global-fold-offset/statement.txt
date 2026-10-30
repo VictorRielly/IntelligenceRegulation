@@ -1,0 +1,8 @@
+R14-public-synthetic-malicious-fixture/1
+case=wrong-global-fold-offset
+dd=1
+model_identity=56e1bbd2049d4c84dff8ddf0cd55bebc155f5a5072e0052b5ebf375851b0aaa3
+input_root=d7ba88f81b10ead77303d955ea961fc3f5649031d8f35552d9124664b9491d6e
+output_root=dbe59381e150a8aa75507bf75c581dcdd43c28673cd3e3f6ff66bcdf56b4a64b
+binding=004774d585a4a24e6c449e6ed7a83eefb0ddb5af784c52802e0d632f030c3cef
+error=slot 20 [R14 04 Q zero-check (hosts 09Q, 11) Whole]: sumcheck round 0: s(0) + s(1) != claim

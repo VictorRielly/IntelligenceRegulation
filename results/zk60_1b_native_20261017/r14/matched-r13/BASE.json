@@ -1,0 +1,8 @@
+{
+  "accepted_r13_source": "bb9eb2123c9350c738dafd19fe3b0133d6e2e7ab93f1e765cac4f20ccaed69ec",
+  "test_only_existing_file_change": "hashline/src/private_block.rs: append cfg(test) module declaration",
+  "new_test_file": "matched_r14_benchmark.rs",
+  "fixture_helpers_sha256": "9bce20f3bc9f97592db66bbbef9a307529604dbf46980bac9dce43c3a1ad8c96",
+  "fixture_source_r14": "sol-r14-run-build-3.source.json",
+  "scope": "No R13 proving/verification source edited; independent baseline copy only. Exact R14 fixture helper and public model construction text shared. Native prove-only clock and guard RSS/HWM, n1 shared host."
+}

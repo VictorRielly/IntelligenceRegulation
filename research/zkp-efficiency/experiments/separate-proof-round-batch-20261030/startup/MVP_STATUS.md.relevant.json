@@ -1,0 +1,38 @@
+[
+  {
+    "line": 3,
+    "context": "# Where the MVP stands, in plain words\n\n**2026-10-30 05:30 UTC: the laptop crashed at about 02:50 UTC and work has resumed; safeguards added (D46).**\n- **Why it crashed:** the Windows drive C: was full (about 5 GB free). It holds the\n  Linux disk file and Windows' page file, so neither could grow while a\n  full-size test proof was writing. Linux itself still had 5 GiB of memory free.\n- **Fixed:** about 135 GB of unused Windows AI tools removed, with Victor's yes, so\n  C: now has about 135 GB free. The resource guard now holds heavy jobs while C: has\n  under 40 GiB free, and stops any job under 8 GiB. The box watch now reports\n  low C: space and low Windows memory. When Windows runs short of memory it\n  releases Linux's cached copies of large files; the first run released 5.5 GiB\n  and the Linux VM's share of Windows memory fell from 14.9 to 10.5 GiB. Still"
+  },
+  {
+    "line": 15,
+    "context": "  for Victor: the 5-minute cron entry for the watch, which the session's safety\n  check blocked, and the Linux disk compaction (about 45 GB) at a quiet moment.\n- **Lost in the crash:** token round 18's full-size byte-identity test, which is\n  being rerun; the gate's C-9 and NL-1 checks, also rerunning. The first post's\n  proofs and public segments survived and still verify, but the app had kept\n  its database, key and openings in /tmp, so the openings that link the proofs\n  to the post's text are gone. Astra moved the app's state to durable storage\n  (05:23 UTC).\n- **The first real post is now published and anchored on testnet** (05:23 UTC,\n  Astra): Base Sepolia transaction `0x0f2dc9dd\u2026ad01a`, block 52,075,726. All three\n  publication checks pass. All 84 public segments (2.55 GB) were re-hashed, and the\n  three receipts verified again from the public store, in 79\u201382 s each"
+  },
+  {
+    "line": 27,
+    "context": "  [MEASURED, n=1, the box shared]. The proofs were not redone. Still open: the\n  classifier privacy acceptance (draft v3, after gate round 23), the benchmark\n  verdict metrics and the one-load batch adoption (token round 18).\n- **Unchanged:** the results below, including the first real post's three\n  accepted proofs.\n\n**2026-10-30 01:54 UTC: the first real post went through the app, and all three classifier\nproofs passed.**\n- **The post:** a public 17-token garden text (Astra's demo), proved on the\n  real Shieldstral-1.0-3B classifier with the pinned r16b binary (dfb8025e).\n- **Verdicts:** sexual, violence and hate all *not flagged*. Each receipt was\n  verified in a fresh process, and its input-owner and label checks passed"
+  },
+  {
+    "line": 67,
+    "context": "  3. Victor's acceptance and his strict / moderate wording.\n- **The one-load batch** (all three categories after loading the model once)\n  passed its code review with two fixes. Token round 18 is now adopting it,\n  with a byte-for-byte equality test.\n- **Correction to the 21:37 note:** Astra's first real post has not started\n  yet. The Sol and Astra sessions are idle and wait for Victor's \"continue\".\n\n**2026-10-29 21:37 UTC \u2014 the real classifier proof passed the full privacy\ngate with no limits; the privacy statement draft has started.**\n- **Gate round 20** closed both of round 19's limits on a real Shieldstral\n  proof:\n  - all 23 checks per block on all 26 real blocks;"
+  },
+  {
+    "line": 111,
+    "context": "- **Also today:** the proof anchor contract is live on the Base Sepolia\n  testnet.\n- **Speed (Sol's split-width round, S4 / R14), 16:53 UTC:** on a matched\n  2-block, 128-token comparison (same inputs and model identity), proving\n  dropped **49.2 s \u2192 35.1 s (\u221228.8%)** and peak memory **7.49 \u2192 5.56 GiB\n  (\u221225.8%)**, with receipts about 6% larger [MEASURED, n=1, shared box].\n  This is not yet frozen or reviewed. Next: freeze, soundness review, then a\n  privacy-gate round.\n\n**2026-10-29 12:09 UTC \u2014 the proof anchor contract is live on a public\ntestnet; both Codex lanes need a restart.**\n- **Base Sepolia (testnet) anchor contract deployed** by Astra. Contract"
+  },
+  {
+    "line": 220,
+    "context": "  - full suite 845 passed, 0 failed.\n\n  The privacy gate (round 18) is re-capturing the new classifier stage now.\n  **Update 04:14 UTC: round 14 accepted on soundness; gate round 18 passed\n  all 21 captures** on the new classifier stage:\n  - covered: both test models, all three verdicts, a 2-chunk post, short\n    posts of 1\u201322 tokens, and two runs through the command-line tool;\n  - the verdict changes nothing but its public bit;\n  - a short post discloses nothing beyond its public length;\n  - every tamper check fires.\n\n  Still owed before a classifier privacy statement: the Shieldstral profile"
+  },
+  {
+    "line": 221,
+    "context": "\n  The privacy gate (round 18) is re-capturing the new classifier stage now.\n  **Update 04:14 UTC: round 14 accepted on soundness; gate round 18 passed\n  all 21 captures** on the new classifier stage:\n  - covered: both test models, all three verdicts, a 2-chunk post, short\n    posts of 1\u201322 tokens, and two runs through the command-line tool;\n  - the verdict changes nothing but its public bit;\n  - a short post discloses nothing beyond its public length;\n  - every tamper check fires.\n\n  Still owed before a classifier privacy statement: the Shieldstral profile\n  (waits on Sol's R13), the statement text, an independent privacy review and"
+  },
+  {
+    "line": 614,
+    "context": "for proving embedding, head and token choice (D13's next milestone).\n\n**2026-10-17 14:00 UTC \u2014 how far from 50 proved tokens/s, measured-model\nanswer.** The costed speed plan ([ZK60_SPEED_PLAN_20261017.md](ZK60_SPEED_PLAN_20261017.md))\nfits a per-phase cost model to today's TinyLlama ladder and predicts the\nmeasured 8B T32 stack within 3.1%. Its projection for private Llama-3-8B at\nT=512 on one RTX 5090 [MODEL]: today's code ~0.55 positions/s; the whole prover\non the GPU at this project's measured GPU efficiency ~7\u20139; with commitment\nkernel and attention layout improvements ~11 (high end 22). **50 is reachable\nonly if every GPU kernel moves its counted bytes at about 23\u201334% of the 5090's\nbandwidth** (today's commitment kernel: ~13% on the laptop). The plan's\ngo/no-go experiment \u2014 the FFN zero-check (slot 18) on the laptop GPU, with"
+  },
+  {
+    "line": 754,
+    "context": "\n**Latest direction, 2026-09-26.** Target a complete private **8B-parameter\nforward-pass proof at >=50 proved tokens/s on an RTX 5090 or another high-end\nGPU**. Victor explicitly permits more tokens to amortize initialization and\ninitial prefill. The old 512-token / 10.24-second window is a reference, not\na mandatory latency limit. Measure larger workloads, report both sustained\nand total-workload throughput, and retain setup, witness, proof and verification\nclocks. [Current target and workload accounting](ZK60_THROUGHPUT_TARGET.md).\nD13's first MVP still covers the hidden transformer blocks; token generation\nis the following milestone. No complete private 8B timing exists yet.\n\n**2026-09-27 UTC, Sol team checkpoint.** Three GPT-6 Sol agents completed"
+  }
+]

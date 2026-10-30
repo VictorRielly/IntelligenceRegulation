@@ -1,0 +1,6 @@
+[zk60-guard 16:26:36] START tio-s17-suite class=cpu need=7.5G cap=9.5G enforce=cgroup+watchdog waited=0s run=acf1876e20ac
+[zk60-guard 16:41:19] END tio-s17-suite exit=0 child_wall=883s peak_rss=7.12G min_avail=6.95G
+[zk60-guard 16:41:19] START tio-r13-shieldstral-r12b class=cpu need=1.5G cap=2.5G enforce=cgroup+watchdog waited=0s run=a6d713291be3
+[zk60-guard 16:41:38] END tio-r13-shieldstral-r12b exit=0 child_wall=19s peak_rss=0.71G min_avail=13.22G
+[zk60-guard 16:41:38] START tio-b13-cli-build class=build need=1.5G cap=3G enforce=cgroup+watchdog waited=0s run=2fdce4b77087
+[zk60-guard 16:41:51] END tio-b13-cli-build exit=0 child_wall=13s peak_rss=0.42G min_avail=13.58G

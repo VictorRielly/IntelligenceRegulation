@@ -1,0 +1,9 @@
+{
+  "anchor": "R13 bb9eb212",
+  "scope": "read-only native AccuracyIds/lookup census, standalone stubs only supply unchanged legacy scalar constants and domain enum",
+  "sources": {
+    "r13/frozen-tree/hashline/src/private_block/layout.rs": "8519a514b8d1f43ab51c86b0a8af955230a2eab4fff4fc4c594733c59dcfd0bf",
+    "r13/frozen-tree/hashline/src/private_block/accuracy_layout.rs": "37a3e3458e4961ddaab98440de114e575da3af21f7d872b532cb71a04ac788d3",
+    "r13/frozen-tree/hashline/src/private_block/accuracy_precision.rs": "145c1e0f66ea5aad558148aa7885b4fcaaf74c6145893cc1efd10f7a77eee56b"
+  }
+}

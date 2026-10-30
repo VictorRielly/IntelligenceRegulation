@@ -1,0 +1,22 @@
+[zk60-guard 13:03:42] START sol-r14-full26-non-dd-prove-1 class=cpu need=8G cap=10.5G enforce=watchdog-only waited=0s run=2a376fed503b
+[zk60-guard 13:11:05] END sol-r14-full26-non-dd-prove-1 exit=0 child_wall=443s peak_rss=5.59G min_avail=7.80G
+non-dd-prove PASS
+[zk60-guard 13:11:05] START sol-r14-full26-non-dd-fresh-1 class=cpu need=2.5G cap=5G enforce=watchdog-only waited=0s run=985ae3cae027
+[zk60-guard 13:12:31] END sol-r14-full26-non-dd-fresh-1 exit=0 child_wall=85s peak_rss=1.41G min_avail=11.93G
+non-dd-fresh PASS
+[zk60-guard 13:12:31] admission waiting: budget: 9.7+2.5 GiB > 11.9 GiB with live [sol-r14-final-arithmetic2-non-dd-local-group-reset-1(cpu,9G), sol-r14-reference3-L04-1(light,0.7G)]; another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 13:13:31] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 13:14:02] START sol-r14-full26-non-dd-scalar-corrupt-1 class=cpu need=2.5G cap=5G enforce=watchdog-only waited=90s run=ea3362c96ad1
+[zk60-guard 13:14:39] END sol-r14-full26-non-dd-scalar-corrupt-1 exit=1 child_wall=38s peak_rss=1.49G min_avail=12.07G
+non-dd-scalar-corrupt PASS
+[zk60-guard 13:14:39] START sol-r14-full26-dd-prove-1 class=cpu need=8G cap=10.5G enforce=watchdog-only waited=0s run=03051949f6cf
+[zk60-guard 13:21:56] END sol-r14-full26-dd-prove-1 exit=0 child_wall=436s peak_rss=5.69G min_avail=7.96G
+dd-prove PASS
+[zk60-guard 13:21:56] START sol-r14-full26-dd-fresh-1 class=cpu need=2.5G cap=5G enforce=watchdog-only waited=0s run=82f55b95fe65
+[zk60-guard 13:23:24] END sol-r14-full26-dd-fresh-1 exit=0 child_wall=88s peak_rss=1.38G min_avail=12.23G
+dd-fresh PASS
+[zk60-guard 13:23:24] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 13:24:05] START sol-r14-full26-dd-scalar-corrupt-1 class=cpu need=2.5G cap=5G enforce=watchdog-only waited=40s run=8636dfec3506
+[zk60-guard 13:24:41] END sol-r14-full26-dd-scalar-corrupt-1 exit=1 child_wall=37s peak_rss=1.45G min_avail=12.44G
+dd-scalar-corrupt PASS
+Full26 actual S2 native proof/fresh/tamper PASS both variants

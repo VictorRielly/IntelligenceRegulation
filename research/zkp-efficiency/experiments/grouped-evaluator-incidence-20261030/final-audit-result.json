@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "checks": 169,
+  "utc": "2026-10-30T16:58:45.418923+00:00",
+  "artifact_hashes": 120,
+  "old_findings_bytes_preserved": 1241564,
+  "prior_source_records_preserved": 1122,
+  "prior_hypothesis_dictionaries_preserved": 101,
+  "source_code_drift": [],
+  "native_proofs": 0,
+  "proved_positions": 0
+}

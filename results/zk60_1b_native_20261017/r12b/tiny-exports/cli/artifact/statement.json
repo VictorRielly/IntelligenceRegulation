@@ -1,0 +1,20 @@
+{
+ "schema": "zk60-trained-block-run/2",
+ "scope": "SYNTHETIC development export at the trained-calibration rung (rung-TC, width 384): NOT a trained model, NOT TinyLlama; a test of the export reader and the driver only; no privacy acceptance",
+ "prover_reported": {"backend": "gpu: off (built without --features gpu-cuda)", "gpu_declines": 0, "what": "self-reports of the prover (privacy review P-7): a CPU proof and a GPU proof have the same form, so no verifier can check these fields"},
+ "block_profile": "hashline-zk-mr1/private-block-rung-tc-t32-dev/1",
+ "run_profile": "hashline-zk-mr1/private-run-rung-tc-t32-dev/1",
+ "export_variant": "tiny-v1",
+ "export_profile_sha256": "f728ab8a78e561951750033c8366d04b86b7f104f36388b8015acf992cd59b90",
+ "calibration_tool_sha256": "dec3f62b3c6679438542fd8a654108d0177d3af7907b21d8d01d4254080f5518",
+ "layer": 0,
+ "layer_manifest_sha256": "89ffc1fa37b1248c03ee1d926836d073d4a2a303e6630129907b856bef94ab55",
+ "block_digest": "731a722a776216a17173effbdd2767a432b44d8c19b2708d4142075295062879",
+ "trained_statement_identity": "9d034e3c9e60c92173ddac07233b6dc284e4064bface0247c818a13f584928cd",
+ "context_label": "zk60-trained-block",
+ "context": "0b9994e6d29b50d034748d5acba884d4920d73a9645d3ac8f4643f60004cf5dc",
+ "expected_io": "48424c4b455850310b9994e6d29b50d034748d5acba884d4920d73a9645d3ac8f4643f60004cf5dc000000000000000066a3c5dea360c0bdc5da40de9afee97697c3727ea80d787f018d1177ee72b47c26f642befa0209338aebb661ece268d318c56675c22d3faa2514a064bf716ac8",
+ "rope_tables": "native generator at theta 10000, equal to the export's tables",
+ "constants_source": "profile.json (uniform across the export's layers)",
+ "shape": {"tokens": 32, "width": 384, "hidden": 512, "q_heads": 12, "kv_heads": 4, "head_dim": 32, "log_cols": 10, "inv_rate": 4, "opened_cols": 256, "f_e": 12, "wrho_s": 17, "norm_wrho": 31, "norm_tn": 10, "norm_cn_a": 1336, "norm_cn_m": 2158, "norm_ceps": 33554467, "sh_ao": 6, "d_max": 642145}
+}

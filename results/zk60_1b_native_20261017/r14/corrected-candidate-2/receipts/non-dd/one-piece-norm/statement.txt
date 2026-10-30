@@ -1,0 +1,8 @@
+R14-public-synthetic-malicious-fixture/1
+case=one-piece-norm
+dd=0
+model_identity=c938cee189603756466ff5648f8677a97254d1831c38c599dd16b3ed66bd608b
+input_root=d36a7667ddfe5955eeea7bd75f0b51f4115c663565542caf628ca269c8a1b85a
+output_root=932af8bd95e8468a3e953845ef86aea1f8fc04be88b879c8b2c258125f1fc710
+binding=c07349fe040cddd0788eaa4b952ce5e8b5fd1753f93036b656b0ed02c648569d
+error=slot 2 [R14 02 norm squares zero-check (hosts 01, 01m) Whole]: sumcheck round 0: s(0) + s(1) != claim

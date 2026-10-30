@@ -1,0 +1,696 @@
+{
+  "all_bytes_processed": 954392,
+  "lines": 11464,
+  "sha256": "6b3d3ddb8fe20997422727d7be03d79455a9b96b2b17ebd526261db04573618c",
+  "headings": [
+    {
+      "line": 1,
+      "text": "# ZKP efficiency findings"
+    },
+    {
+      "line": 3,
+      "text": "## Cycle 0001 \u2014 2026-09-22"
+    },
+    {
+      "line": 25,
+      "text": "### Executed experiment"
+    },
+    {
+      "line": 41,
+      "text": "### Negative findings / limits that change the next action"
+    },
+    {
+      "line": 66,
+      "text": "## Cycle 0002 \u2014 2026-09-24 \u2014 SC_SZC groups and GPU-memory triage"
+    },
+    {
+      "line": 73,
+      "text": "### Current bottleneck and ranking"
+    },
+    {
+      "line": 103,
+      "text": "### Experiment and interpretation"
+    },
+    {
+      "line": 138,
+      "text": "### Source/access corrections and next action"
+    },
+    {
+      "line": 158,
+      "text": "## Cycle 0003 \u2014 2026-09-26 \u2014 hiding-row NTT layout and pad overlap"
+    },
+    {
+      "line": 167,
+      "text": "### Current evidence and ranked choices"
+    },
+    {
+      "line": 195,
+      "text": "### Reproduced result and negative findings"
+    },
+    {
+      "line": 228,
+      "text": "### Durable follow-up and access"
+    },
+    {
+      "line": 251,
+      "text": "## Cycle 0004 \u2014 2026-09-26 \u2014 exact pair-table inverse cache"
+    },
+    {
+      "line": 262,
+      "text": "### Current bottleneck and ranked candidates"
+    },
+    {
+      "line": 290,
+      "text": "### Experiment and negative findings"
+    },
+    {
+      "line": 333,
+      "text": "### Access and next experiment"
+    },
+    {
+      "line": 356,
+      "text": "## Cycle 0005 \u2014 2026-09-26 \u2014 fuse fold and next-round sampling"
+    },
+    {
+      "line": 368,
+      "text": "### Current bottleneck and ranked hypotheses"
+    },
+    {
+      "line": 390,
+      "text": "### Reproduced experiment"
+    },
+    {
+      "line": 428,
+      "text": "### Primary-source assessment and next action"
+    },
+    {
+      "line": 456,
+      "text": "## Cycle 0006 \u2014 2026-09-26 \u2014 public-weight batching has a tiny phase ceiling"
+    },
+    {
+      "line": 472,
+      "text": "### Updated bottleneck evidence and ranking"
+    },
+    {
+      "line": 507,
+      "text": "### Experiment and decisive negatives"
+    },
+    {
+      "line": 540,
+      "text": "### Primary sources and next action"
+    },
+    {
+      "line": 574,
+      "text": "## Cycle 0007 \u2014 2026-09-26 \u2014 exact Fp2 multiplication and squaring"
+    },
+    {
+      "line": 585,
+      "text": "### Bottleneck, ranking and falsification"
+    },
+    {
+      "line": 609,
+      "text": "### Reproduced experiment and negative controls"
+    },
+    {
+      "line": 652,
+      "text": "### Sources and concrete next action"
+    },
+    {
+      "line": 684,
+      "text": "## Cycle 0008 \u2014 2026-09-26 \u2014 fractional LogUp tree and private binding"
+    },
+    {
+      "line": 695,
+      "text": "### Cost and ranking"
+    },
+    {
+      "line": 717,
+      "text": "### Experiment and falsification"
+    },
+    {
+      "line": 767,
+      "text": "### Primary sources and next experiment"
+    },
+    {
+      "line": 806,
+      "text": "## Cycle 0009 \u2014 2026-09-27 \u2014 grouped fold / next-round fusion"
+    },
+    {
+      "line": 818,
+      "text": "### Measured bottleneck and ranked hypotheses"
+    },
+    {
+      "line": 840,
+      "text": "### Reproduced experiment and meaningful negative"
+    },
+    {
+      "line": 880,
+      "text": "### Source findings and next action"
+    },
+    {
+      "line": 916,
+      "text": "## Cycle 0010 \u2014 2026-09-27 \u2014 NTT pad-load fusion loses locality"
+    },
+    {
+      "line": 929,
+      "text": "### Bottleneck and ranked hypotheses"
+    },
+    {
+      "line": 952,
+      "text": "### Experiment and decisive qualification"
+    },
+    {
+      "line": 998,
+      "text": "### Sources and next action"
+    },
+    {
+      "line": 1028,
+      "text": "## Cycle 0011 \u2014 2026-09-27 \u2014 Direct U8 helper planes: exact, small ceiling"
+    },
+    {
+      "line": 1050,
+      "text": "### Tested hypothesis and falsification"
+    },
+    {
+      "line": 1090,
+      "text": "### Ranked hypotheses after this cycle"
+    },
+    {
+      "line": 1114,
+      "text": "## Cycle 0012 \u2014 2026-09-27 \u2014 Inverse-store hiding fusion, then a new GPU bottleneck"
+    },
+    {
+      "line": 1125,
+      "text": "### What the experiment established"
+    },
+    {
+      "line": 1164,
+      "text": "### New owner measurement and rank change"
+    },
+    {
+      "line": 1229,
+      "text": "## Cycle 0013 \u2014 2026-09-27 \u2014 attention SC_SZC device-round boundary"
+    },
+    {
+      "line": 1233,
+      "text": "### Tested hypothesis and bounded result"
+    },
+    {
+      "line": 1241,
+      "text": "### Primary search and ranking"
+    },
+    {
+      "line": 1252,
+      "text": "## Cycle 0015 \u2014 2026-09-30 \u2014 bounded full-validation tile batches"
+    },
+    {
+      "line": 1261,
+      "text": "### Tested question and evidence"
+    },
+    {
+      "line": 1320,
+      "text": "### New owner evidence and missing clocks"
+    },
+    {
+      "line": 1347,
+      "text": "### Ranked hypotheses and next experiment"
+    },
+    {
+      "line": 1369,
+      "text": "## Cycle 0016 \u2014 2026-10-03 \u2014 bounded lossless suffix witness replay"
+    },
+    {
+      "line": 1456,
+      "text": "## Cycle 0017 \u2014 2026-10-03 \u2014 typed readers and lazy lookup preparation"
+    },
+    {
+      "line": 1550,
+      "text": "## Cycle0018 \u2014 public last-read witness release (2026-10-04)"
+    },
+    {
+      "line": 1570,
+      "text": "## Cycle0019 \u2014 chunk-local opening gather ownership (2026-10-04)"
+    },
+    {
+      "line": 1599,
+      "text": "## Cycle 0020 \u2014 public A-row write coverage (2026-10-04)"
+    },
+    {
+      "line": 1626,
+      "text": "## Cycle 0021 \u2014 exact signed-i64 conversion and a compiled negative (2026-10-04)"
+    },
+    {
+      "line": 1659,
+      "text": "## Cycle 0022 \u2014 exact int16 FFN-down and corrected run clock attribution (2026-10-04)"
+    },
+    {
+      "line": 1690,
+      "text": "## Cycle 0023 \u2014 exact row-tiled down/requant (2026-10-04)"
+    },
+    {
+      "line": 1718,
+      "text": "## Cycle 0024 \u2014 public integer batch scheduling and a grouped-API negative (2026-10-04)"
+    },
+    {
+      "line": 1748,
+      "text": "## Cycle 0025 \u2014 TN weight preprocessing and separated-scan residency (2026-10-04)"
+    },
+    {
+      "line": 1775,
+      "text": "## Cycle 0026 \u2014 canonical TN readers and bounded digest transpose (2026-10-04)"
+    },
+    {
+      "line": 1805,
+      "text": "## Cycle 0027 \u2014 complete public digest cache and scan attribution (2026-10-04)"
+    },
+    {
+      "line": 1825,
+      "text": "## Cycle 0028 \u2014 public hash prefix reuse has a large remaining suffix (2026-10-04)"
+    },
+    {
+      "line": 1844,
+      "text": "## Cycle 0029 \u2014 reconstruction tradeoff and symbolic equality storage (2026-10-04)"
+    },
+    {
+      "line": 1873,
+      "text": "## Cycle0030 \u2014 tagged equality storage and cubic contraction filter (2026-10-04)"
+    },
+    {
+      "line": 1903,
+      "text": "## Cycle 0031 \u2014 adaptive two-layer equality accumulation (2026-10-04)"
+    },
+    {
+      "line": 1926,
+      "text": "## Cycle0032 \u2014 actual SC_SZC clauses and weighting ceiling (2026-10-04)"
+    },
+    {
+      "line": 1960,
+      "text": "## Cycle0033 \u2014 compiled lookup denominators and explicit dispatch costs (2026-10-04)"
+    },
+    {
+      "line": 1997,
+      "text": "## Cycle0034 \u2014 row-local denominators pass algebra but worsen API count (2026-10-04)"
+    },
+    {
+      "line": 2022,
+      "text": "## Cycle0035 \u2014 recovered exact wide-accumulation result (reported 2026-10-12)"
+    },
+    {
+      "line": 2053,
+      "text": "## Cycle0036 \u2014 four-reduction Fp2 arithmetic and CUDA carry model (2026-10-12)"
+    },
+    {
+      "line": 2163,
+      "text": "## Cycle 0037 \u2014 public causal-mask descriptor (2026-10-12)"
+    },
+    {
+      "line": 2194,
+      "text": "## Cycle 0038 \u2014 compact public support descriptors (2026-10-12)"
+    },
+    {
+      "line": 2227,
+      "text": "## Cycle 0039 \u2014 heterogeneous public/dense driver (2026-10-12)"
+    },
+    {
+      "line": 2338,
+      "text": "## Cycle 0040 \u2014 heterogeneous grouped public-table driver (2026-10-12)"
+    },
+    {
+      "line": 2443,
+      "text": "## Cycle 0041 \u2014 per-proof split equality suffix cache (2026-10-12)"
+    },
+    {
+      "line": 2542,
+      "text": "## Cycle 0042 \u2014 2026-10-12 \u2014 lifted Ht host multiplicity"
+    },
+    {
+      "line": 2638,
+      "text": "## Cycle 0043 \u2014 2026-10-13 \u2014 compact private leading planes through grouped softmax"
+    },
+    {
+      "line": 2758,
+      "text": "## Cycle0044 \u2014 2026-10-13 \u2014 symbolic equality in current mixed grouped SC_SZC"
+    },
+    {
+      "line": 2850,
+      "text": "## Cycle0045 \u2014 2026-10-13 \u2014 actual native-root shift twiddles"
+    },
+    {
+      "line": 2913,
+      "text": "## Cycle0046 \u2014 2026-10-13 \u2014 bounded exact-pair fallback and denominator census"
+    },
+    {
+      "line": 3020,
+      "text": "## Cycle 0047 \u2014 2026-10-13 \u2014 selective SC_SZC row coefficients"
+    },
+    {
+      "line": 3133,
+      "text": "## Cycle0048 \u2014 2026-10-13 \u2014 suffix-weighted coefficients before samples"
+    },
+    {
+      "line": 3231,
+      "text": "## Cycle0049 \u2014 recovered public-axis result, reported2026-10-14"
+    },
+    {
+      "line": 3259,
+      "text": "## Cycle0050 \u2014 2026-10-14 \u2014 fixed affine Karatsuba and an API-cost negative"
+    },
+    {
+      "line": 3357,
+      "text": "## Cycle0051 \u2014 2026-10-17 \u2014 public static plans and blocked3x2 cost tradeoff"
+    },
+    {
+      "line": 3479,
+      "text": "## Cycle 0052 \u2014 2026-10-17 \u2014 public row CSE: no multiplication saving"
+    },
+    {
+      "line": 3604,
+      "text": "## Cycle 0053 \u2014 2026-10-17 \u2014 correct optional supports before estimating gains"
+    },
+    {
+      "line": 3727,
+      "text": "## Cycle0054 \u2014 2026-10-17 \u2014 only round0 repays unpadded cubic construction"
+    },
+    {
+      "line": 3855,
+      "text": "## Cycle 0055 \u2014 2026-10-17 \u2014 fixed unpadded round0 arithmetic and lifetimes"
+    },
+    {
+      "line": 3895,
+      "text": "## Cycle 0056 \u2014 2026-10-17 \u2014 exact public DAG order reduces logical retention"
+    },
+    {
+      "line": 3936,
+      "text": "## Cycle0057 \u2014 2026-10-17 \u2014 native capture mapping without a per-row gather"
+    },
+    {
+      "line": 3966,
+      "text": "## Cycle 0058 \u2014 2026-10-17 \u2014 native public-axis selector prerequisite"
+    },
+    {
+      "line": 3994,
+      "text": "## Cycle 0059 \u2014 2026-10-17 \u2014 trained witness and inclusive-clock audit"
+    },
+    {
+      "line": 4091,
+      "text": "## Cycle0060 \u2014 exact witness projection census and new linked-stack accounting (20261017T102624Z-c13de864)"
+    },
+    {
+      "line": 4245,
+      "text": "## Cycle0061 \u2014 deferred witness planes after R3 moves the bottleneck (20261017T112624Z-88d6b64e)"
+    },
+    {
+      "line": 4353,
+      "text": "## Cycle 0062 \u2014 2026-10-17 \u2014 borrowed lookup catalog; trained GPU phase correction"
+    },
+    {
+      "line": 4426,
+      "text": "## Cycle 0063 \u2014 2026-10-17 \u2014 F constants/support factoring; new 8B clocks"
+    },
+    {
+      "line": 4499,
+      "text": "## Cycle0064 \u2014 current F three-bracket grouped arithmetic, 2026-10-17"
+    },
+    {
+      "line": 4554,
+      "text": "## Cycle 0065 \u2014 F-device source traffic, 2026-10-17"
+    },
+    {
+      "line": 4596,
+      "text": "## Cycle 0066 \u2014 resident helper integer/field boundary, 2026-10-17"
+    },
+    {
+      "line": 4667,
+      "text": "## Cycle 0067 \u2014 private LogUp* pushforward boundary, 2026-10-17"
+    },
+    {
+      "line": 4743,
+      "text": "## Cycle 0068 \u2014 lookup batching domains, 2026-10-17"
+    },
+    {
+      "line": 4807,
+      "text": "## Cycle 0069 \u2014 public padding and native MSB bit placement, 2026-10-17"
+    },
+    {
+      "line": 4908,
+      "text": "## Cycle 0070 \u2014 factorized distinct-column public equality, 2026-10-17"
+    },
+    {
+      "line": 4999,
+      "text": "## Cycle 0071 \u2014 pending previous fold plus next weighted round, 2026-10-18"
+    },
+    {
+      "line": 5082,
+      "text": "## Cycle 0072 \u2014 native order-64 late-root compression, 2026-10-18"
+    },
+    {
+      "line": 5181,
+      "text": "## Cycle0073 \u2014 base-aware derived construction, 2026-10-18"
+    },
+    {
+      "line": 5255,
+      "text": "## Final owner-source movement checkpoint"
+    },
+    {
+      "line": 5277,
+      "text": "## Cycle0074 \u2014 D affine aggregate, 2026-10-18"
+    },
+    {
+      "line": 5440,
+      "text": "## Cycle0075 \u2014 actual D catalog and a memory negative, 2026-10-18"
+    },
+    {
+      "line": 5556,
+      "text": "## Cycle0076 \u2014 D endpoint coefficient schedule, 2026-10-18"
+    },
+    {
+      "line": 5681,
+      "text": "## Cycle0077 \u2014 D helper streaming: complete-lifetime negative, 2026-10-19"
+    },
+    {
+      "line": 5783,
+      "text": "## Cycle 0078 \u2014 Lazy D endpoint construction, 2026-10-19"
+    },
+    {
+      "line": 5911,
+      "text": "## Cycle0079 \u2014 use-driven D affine lifetimes and actual8B ceiling, 2026-10-19"
+    },
+    {
+      "line": 6034,
+      "text": "## Cycle0080 \u2014 2026-10-19: static D runtime parameters and compiler boundaries"
+    },
+    {
+      "line": 6120,
+      "text": "## Cycle 0081 \u2014 2026-10-19 \u2014 generic helper grouping is a negative result"
+    },
+    {
+      "line": 6204,
+      "text": "## Cycle 0082 \u2014 2026-10-19 \u2014 shared helper code shrinks; no speed gain"
+    },
+    {
+      "line": 6285,
+      "text": "## Cycle 0083 \u2014 2026-10-19 \u2014 single raw-pointer translation falsified"
+    },
+    {
+      "line": 6367,
+      "text": "## Cycle0084 \u2014 2026-10-19 \u2014 public setup lifetime and partial-LRU negatives"
+    },
+    {
+      "line": 6463,
+      "text": "## Cycle0085 \u2014 2026-10-19: public owner freshness and live leases"
+    },
+    {
+      "line": 6585,
+      "text": "## Cycle0086 \u2014 2026-10-19: checked public constructor transfer"
+    },
+    {
+      "line": 6691,
+      "text": "## Cycle0087 \u2014 2026-10-19: direct signed-byte padding"
+    },
+    {
+      "line": 6805,
+      "text": "## Cycle0088 \u2014 2026-10-19: public raw-array last use"
+    },
+    {
+      "line": 6930,
+      "text": "## Cycle0089 \u2014 split public matrix release"
+    },
+    {
+      "line": 6961,
+      "text": "## Cycle0090 \u2014 separate public decode statement scopes"
+    },
+    {
+      "line": 7089,
+      "text": "## Cycle0091 \u2014 original Vec allocation-scope evidence"
+    },
+    {
+      "line": 7240,
+      "text": "## Cycle0092 \u2014 public request pool retention, 2026-10-20"
+    },
+    {
+      "line": 7328,
+      "text": "## Cycle0093 \u2014 allocation coverage and host-backed staging,2026-10-20"
+    },
+    {
+      "line": 7463,
+      "text": "# Cycle0094 \u2014 private-stage commitment lifetimes"
+    },
+    {
+      "line": 7585,
+      "text": "# Cycle0095 \u2014 private transients and mixed FZC arena"
+    },
+    {
+      "line": 7701,
+      "text": "## Cycle 0096 \u2014 FZC arena algebra and implicit affine tables (2026-10-20T04:33:40.848204+00:00)"
+    },
+    {
+      "line": 7807,
+      "text": "## Cycle 0097 \u2014 paired affine derivation and rematerialization cost"
+    },
+    {
+      "line": 7961,
+      "text": "## Cycle 0098 \u2014 BASE paired affine derivation and an upstream negative"
+    },
+    {
+      "line": 8057,
+      "text": "## Cycle 0099 \u2014 host-free BASE GL-only derivation (2026-10-20)"
+    },
+    {
+      "line": 8144,
+      "text": "## Cycle 0100 \u2014 reachable public pad weights and affine dispatch (2026-10-20)"
+    },
+    {
+      "line": 8236,
+      "text": "## Cycle 0101 \u2014 fused NTT sector requests and ownership limit (2026-10-20)"
+    },
+    {
+      "line": 8348,
+      "text": "## Cycle 0102 \u2014 private PCS small-transform incidence (2026-10-20)"
+    },
+    {
+      "line": 8429,
+      "text": "## Cycle 0103 \u2014 recurring private U8 helpers versus fraction-tree storage (2026-10-20)"
+    },
+    {
+      "line": 8520,
+      "text": "## Cycle 0104 \u2014 private fraction-forest lifetime and recomputation (2026-10-20)"
+    },
+    {
+      "line": 8610,
+      "text": "## Cycle 0105 \u2014 explicit lookup layer-consumer capacity (2026-10-20)"
+    },
+    {
+      "line": 8766,
+      "text": "## Cycle 0106 \u2014 owned lookup-layer buffers and factorized equality (2026-10-20)"
+    },
+    {
+      "line": 8909,
+      "text": "## Cycle 0107 \u2014 budget-adaptive tiled lookup prefix (2026-10-20)"
+    },
+    {
+      "line": 9075,
+      "text": "## Cycle 0108 \u2014 native Fp2 ordered U8 consumer prerequisite (2026-10-20)"
+    },
+    {
+      "line": 9165,
+      "text": "## Cycle 0109 \u2014 ordered fraction-tree sites and native point mapping (2026-10-20)"
+    },
+    {
+      "line": 9306,
+      "text": "## Cycle0110 \u2014 reversible fraction tree: exact, full-column capacity negative (2026-10-20)"
+    },
+    {
+      "line": 9415,
+      "text": "## Cycle0111 \u2014 disposable reversible tiles: matched-budget cost negative (2026-10-20)"
+    },
+    {
+      "line": 9584,
+      "text": "## Cycle 0112 \u2014 2026-10-20 \u2014 exact S12/DD cardinality and larger public caps"
+    },
+    {
+      "line": 9618,
+      "text": "## Cycle0113 \u2014 2026-10-20 \u2014 public per-layer dictionary caps: limited diversity and unchanged peak"
+    },
+    {
+      "line": 9658,
+      "text": "# Cycle0114 \u2014 public dyadic dictionary union feasibility"
+    },
+    {
+      "line": 9703,
+      "text": "## Cycle 0115 \u2014 public coset leases after the NTT cache negative (2026-10-20)"
+    },
+    {
+      "line": 9809,
+      "text": "## Cycle0116 \u2014 2026-10-21 \u2014 inverse-length scaling: exact small cleanup, GPU fusion already present"
+    },
+    {
+      "line": 9894,
+      "text": "## Cycle0117 \u2014 FZC CPU-tail boundary: exact small launch/traffic candidate"
+    },
+    {
+      "line": 9896,
+      "text": "# Cycle 0117 \u2014 FZC tail boundary \u2014 2026-10-21"
+    },
+    {
+      "line": 9997,
+      "text": "## Cycle 0118 \u2014 FZC scratch reuse: allocation counts and lifecycle gates"
+    },
+    {
+      "line": 9999,
+      "text": "# FZC scratch storage study \u2014 cycle 0118"
+    },
+    {
+      "line": 10071,
+      "text": "## Reproduce and scope"
+    },
+    {
+      "line": 10126,
+      "text": "## Cycle 0119 \u2014 FZC error retirement and recorded completion, 2026-10-21"
+    },
+    {
+      "line": 10221,
+      "text": "## Cycle 0120 \u2014 FZC exclusive phase and role accounting, 2026-10-21"
+    },
+    {
+      "line": 10322,
+      "text": "## Cycle 0121 \u2014 ordered U8 one-hot contracts and dense PCS negative, 2026-10-21"
+    },
+    {
+      "line": 10449,
+      "text": "## Cycle 0122 \u2014 2026-10-21 \u2014 affine U8 source sharing and exact aliases"
+    },
+    {
+      "line": 10564,
+      "text": "## Cycle 0123 \u2014 streaming BLAKE3 state: exact CPU model, native benefit unknown"
+    },
+    {
+      "line": 10658,
+      "text": "## Cycle0124 \u2014 public frontier removes stored count; native benefit unknown"
+    },
+    {
+      "line": 10757,
+      "text": "## Cycle0125 \u2014 salted Merkle fusion: exact model, small counts and transfer negative"
+    },
+    {
+      "line": 10880,
+      "text": "## Cycle 0126 \u2014 exact interpolation, scalar incidence and stale public encodings"
+    },
+    {
+      "line": 11040,
+      "text": "## Cycle0127 \u2014 fresh periodic lookup encoding: exact model, extra-read tradeoff"
+    },
+    {
+      "line": 11171,
+      "text": "## Cycle 0128 \u2014 periodic public SC_TAB descriptor"
+    },
+    {
+      "line": 11300,
+      "text": "## Cycle 0129 \u2014 masked SC_TAB conformance; no proving gain"
+    },
+    {
+      "line": 11391,
+      "text": "## Cycle 0130 \u2014 Goldilocks Tensor NTT port boundary; no proving gain"
+    }
+  ],
+  "focus_excerpt": "rotation covered sumcheck/GKR,lookup/softmax,publicmemoryandamortization;\nnext rotation includes GPU NTT/commitments,quantization/arithmetic and\ncomposition, guided by actual measured bottlenecks.\n\nNew independently verified full-stack proofs/passes/positions0/0/0. Actual\nmodel context/device none. Witness/proof/serialization/verification,startup,\nprefill,startupfraction,prooflatency/bytes,steady/totalworkloadrates unmeasured.\nNo longcontextprefill,residentproofseriesordecode. Larger workloads remain\nallowed; dense attention may grow quadratically. Private8B/highendGPU\n>=50provedtokens/s remains unachieved.\n\nHistorical carried diagnostic only, not rerun/reverified: nonDD8BT128/L32,\none16threadCPUpass,GPUoff,total478.737s =0.267370positions/s.\nprove_run393.785s includeswitness98.348s/load17.595s;seal84.824s overlaps.\nReceipt922711264B;freshverify42.709s+load13.681s. Isolated serialization,\nstartupfraction and steadyslope unknown. It is not this cycle's counted proof\nwork or GPU/private8B acceptance.\n\nNext OWNER: exclusive fresh constructors/public folds/SC_TAB and enclosing\nverified workload clocks; if material, native integration/golden/next-draw/\nrefusal/privacy gates under current shared build/heavy locks, then resident\n1/2/4/8 workloads with startup and drain. No heavy job queued here.\nNext LOCAL: inspect actualCFS/extension source and previous masked-driver work;\nif coverage absent, test originalmaskbasis/terminal/privateclaimorder and\npubliczeroextension/refusals at this slot. Keep byte-identical relation.\nHandoff: handoffs/20261028-periodic-sc-tab.md; Rustsketch uncompiled/unapplied.\n\nOnlyresearchoutside runtime written. No production/Git metadata,receipts,\ncalibration,gates,instructionsorreviewerfileschanged; no GPU/build/install,\nexternalmessage/write,purchaseorescalation. Main/Claude reviews/integrates;\nno merge. Saved reports are not delivery or liveness evidence.\n\nFinal evidence audit: 334 checks PASS; 63 immutable artifacts and nine native pins match. All prior sources/findings and 41 hypotheses preserved. Final checkpoint UTC: 2026-10-28T22:10:28.423971+00:00.\n\n\n## Cycle 0129 \u2014 masked SC_TAB conformance; no proving gain\n\nRun `20261028T225649Z-6db80b72`, 2026-10-28 UTC. Required durable memory,\nproject documents, 830 prior source records and the latest results were read\nand preserved. No duplicate researcher or native job launched.\n\nThe source-derived masked model passes 817 checks across six synthetic\nn=8/9/10 fixtures, 60 main/extension rounds, 36 reserved-pair claims and 57\ncontrol instances. Explicit dense rounds, recovered public descriptors and\nseparately authored original-cube/Boolean-suffix references agree. Independent\nbyte framing checks keyed/unkeyed challenges, terminal order and next squeeze.\nThere are 216 main-polynomial, 240 mask and 332 mask-basis sample coordinates.\nThe product coefficient and all n+1 mask variables remain.\n\nUseful negative: four lifted fixtures change the mask total when it is\nshortened to nine variables. Public repetition does not justify this shortcut.\nInconsistent standalone witnesses retain their actual first-round sum and\nfail the asserted scalar relation, with no invented initial zero claim.\nWire/count/degree/scalar/terminal mutations are detected. Native zero-CFS and\ne=0/1 refusal order was source-audited; local guard checks are not native\nrefusal evidence. Native dense masked-driver tests already exist and were\nread; earlier descriptor cycles were unmasked.\n\nBoth algorithms are locally authored and use the same installed BLAKE3\nlibrary. Domain, prelude, arbitrary keys, Python RNG and row-width-eight\nreserved pairs are synthetic; current R12 widths are 13/14. Direct mask\nfunctional equality is not a committed opening. No native executable, profile\ntranscript, RNG, mask commitment, PCS, capture, receipt, independent full-proof\nverification or privacy acceptance occurred. No full n=13/14 slot was run.\n\nChecking clocks: model 6.526771 seconds / 21,588 KiB RSS; source audit 83\nchecks, 0.002809 seconds / 15,552 KiB; nine native pins unchanged. One pinned\nnice-19 Core Ultra 9 185H worker, 45-second CPU/alarm, 50-second parent,\n256 MiB address space, 96 MiB estimate. Seed 202610280129, exact commands,\nhardware, source hashes and six synthetic round-wire hashes are retained.\nThese are checking clocks, with no native performance A/B or GPU work.\n\nPrior source counts remain: at R12 T128 public payload 786,432 -> 12,288\nbytes, public fold lerps 49,149 -> 765. The full 16,384-row cube, six private\nclaims and 47 CFS coefficients on 15 variables remain. T32/T64 retain 44\ncoefficients. Tiling constructor savings overlap. Fresh rows, metadata,\ndispatch, indexing, state and native adapters add costs. Exclusive fraction f\nis unknown; free deletion is bounded by 1/(1-f) before costs. Any correctness,\ntranscript, claim, refusal, receipt or privacy mismatch, negligible affected\nshare, or enclosing/capacity regression rejects usefulness. No numeric 8B GPU\nceiling follows.\n\nAll 42 prior hypotheses remain, with rank 41 refined and ranks 43/44 added\nfor the rejected mask shortcut and conditional Tensor Core NTT lead. Top\nthree remain owner whole-prover GPU/resident workloads, DD-context/fidelity\nscaling after T128's measured null result, and complete phase/capacity clocks.\nFull costs, prerequisites, exactness, privacy, seams and falsification remain\nin experiment/hypotheses.json and the dated report.\n\nPrimary LIVE rotation covered original CFS (newly inspected source, already\nreferenced in native code), known Libra, current Plonky3/IOPP, GPU-NTT,\nICICLE, known quantization research and a new Tensor Core NTT implementation.\nIts inspected friendly reduction/multiplier constructors cap moduli at 62\nbits, excluding Goldilocks there; the general 64-bit branch is not audited.\nThis is not a whole-library rejection. Ten source records appended, 840 total;\n13 LIVE batches retained. Dates, licenses and exposed/inspected commit scopes\nare explicit. Cache misses, GPU-NTT history UnexpectedStatusCode and the\ninaccessible LightZK DOI are retained; no bypass or author timing reproduction.\n\nIntegration seam: Tab/build/run_slot/public terminal handling and ClosureRounds.\nThe prior Rust sketch remains uncompiled/unapplied. Preserve full mask basis,\ndegree, standalone initial None, ordered private claims, zero public extension,\nmask functionals and refusal/absorption order. Owner first measures exclusive\nconstructor/public-fold/SC_TAB/enclosing clocks, then runs native golden,\nnext-RNG, refusal, capture, privacy, PCS and independent receipt gates under\nshared locks. No heavy job queued. Handoff:\n`handoffs/20261028-sc-tab-mask-conformance.md`.\n\nNext local experiment: inspect the general 64-bit NTT reduction/parameter\ncontract; test a researcher-authored carry/reduction model against Python big\nintegers at Goldilocks edge values. If unsupported, retain that negative and\nreturn to the measured native bottleneck. Owner workload clocks take priority.\n\nNew independently verified full-stack proofs / passes / positions: 0 / 0 / 0.\nActual model context/accelerator: none. Witness, proof, serialization,\nverification, startup/prefill, startup fraction, latency/bytes and steady/total\nrates are unmeasured. No long prefill, resident series or decode. Larger\nworkloads remain allowed; attention can grow quadratically. Private 8B at\n>=50 proved tokens/s remains unachieved. Historical CPU diagnostics are\ncarried only, with full scope in the dated report. Only research outside\nruntime was written; no production/Git/reviewer/instruction/receipt/calibration/\ngate mutation. Reports do not establish message delivery or liveness.\n\nFinal evidence audit: 742 checks PASS, 69 immutable artifacts, nine native pins unchanged; all 830 prior sources and 42 hypotheses preserved. Supplemental final read checks also confirm the five required project documents and all nine prior-cycle native pins unchanged. Final checkpoint UTC: 2026-10-28T23:11:59.118540+00:00.\n\n\n## Cycle 0130 \u2014 Goldilocks Tensor NTT port boundary; no proving gain\n\nRun `20261028T235649Z-d1bc0725`; checkpoint 2026-10-29T00:13:21.141827+00:00.\nRequired memory/project/latest-result reads and early STATE retained in\n`experiments/goldilocks-tc-contract-20261028/startup/`. No owner lane duplicated.\n\nStock supplied Tensor Core NTT driver selects a friendly <=62bit reducer;\ntemplate64 does not mean a64bit prime (its test modulus is61bits). Immutable\ncommit6f407daa8a4cef96331511ae86b922b520d7aa33 inspected. General multiplier\narithmetic passes12441pairs; swapping it into lazy2N butterfly still fails.\nCanonical P-1 dot16 requires132bits/top15; truncating128 or intermediate\ncarries fails. Unsupported-port negatives, not upstream defect claims.\n\nNew authored carry/scaling contract: eight overlappingu32words pack by\nexplicitcarry into lo/hi/top, reduce128, subtract top<<32 (2^128=-2^32),\nthen multiplyEPS to remove matrix2^128factor. Fourmatrix16 fixtures explicitly\nmap bit-reversed row exponents to natural outputs. Dot16 combinedword bound\n2138022000<2^31; sameformulaat32overflows signed32, so no casualradix doubling.\nNo GPU M M A/WMMA/lane/transposition/compiler evidence.\n\nModel 39179synthetic checks,18n2..64radix2fixtures,35dot16,4matrix16,\n54controlinstances plus5guards. Independent bigint/original-input DFT/dot\nreferences; bothauthoredlocally. Seed202610280130; final 0.093988s /\n15608KiBRSS ononepinnednice19CoreUltra9 185Hworker,40sCPU/45salarm,\n256MiBAS/64MiBestimate. Fouradaptiveversionsretained,no benchmark repetitions.\nSeparate source/provenance audit 774checks/0.006968s/\n16648KiB; sevennativepinsunchanged. No nativebuild/execution/proof.\n\nBaseline specialized nativeGoldilocksNTT. Nativeworkremoved:none. Research\ntopcarry product simplification only. Addedcarry/pack/reduction/scaling,\n8digits/64MMApermatrix/transposes/precompute/register/shared/scratch costs\nunknown. Generalhelperaddsonehighproduct/doublestwiddleparameterbytes versus\nnative; no substitutionrecommendation. IfexclusiveNTTfunknown,freedeletion\nceiling<=1/(1-f)beforecosts. Falsifyonanyfield/carry/layout/root/inverse/coset/\nq>n/pad/refusal/RNG/transcript/PCS/receipt/privacy mismatch,absentincidence or\nenclosingverifiedworkload/capacityregression. No numeric8BGPUforecast.\n\nAll44priorhypotheses retained;1/44refined,45/46added. Top3unchanged:\nwholeproverGPU/verifiedfixedcontextresident1/2/4/8; DD/fidelitycontextscaling;\ncompleteexclusivephase/capacityclocks. NewR12bpublicderivedtable residency\nlead followsowner17-18s/load7.7GBShieldstral3Bnote,not8Bmeasurement. Inspect\npriorloaderworkthen testfullyboundimmutablepublicobject against mutation/\nstaleparameter controls; path/size/mtime/inode cachealone insufficient.\nCurrentR12b/RC2fixscopeandD44guardwindowdo notamendresearchtarget.\n\nNineprimaryrecordsappended840->849;2LIVEsearchbatches+14retainedfollowups.\nImmutablemodular/NTT406/339numberedrenderedlines,notrawGitblobhashes;\nApache2.0SPDXinspected. GeneralhelperdependencyimmutableCachemiss retained;\ncurrentmainhelperunpin,DOIinaccessible. NewlyreadolderBos/Montgomery2017\nabstract/searchexcerpt; PDF403/CambridgeCachemiss limits. CurrentICICLE,\nGPU-NTTnoreleases,Plonky3release,familiar2026sumcheck/olderroottrickrefreshes\nqualified; omittedreleaseyearsunknown. Noauthorperformancereproduced.\n\nSeam: separateGoldilocksreduction_type andnativekernels.cu k_ntt_p1/p2 via\ncuda.rs::encode_rows_view_zk[_gather]. Researchcandidate-reducer.cuh.txt\nuncompiled/unapplied. OwnerexclusiveNTT/enclosingclocksfirst; ifmaterial,\nnative/devicegolden/masked/nextRNG/refusal/PCS/privacy andindependentfull\nreceiptgatesundersharedlocks. Noheavyjobqueued. Handoff:\n`handoffs/20261028-goldilocks-tc-contract.md`.\n\nNew independently verified full-stack proofs / passes / positions: **0 / 0 / 0**.\nActual model context / accelerator: **none**. Witness, proof, serialization,\nverification, startup/initial-prefill clocks, startup fraction, proof latency\nand bytes, steady-state and total-workload rates: **unmeasured**. No long\nprefill, resident-model proof series or decode ran. Larger workloads remain\nallowed; attention can grow quadratically. Private 8B at >=50 proved tokens/s\non RTX 5090 or a named high-end GPU remains unachieved.\n\nHistoricalCPUdiagnosticcarriedonlywithscopeindatedreport. Onlyresearch\noutsideruntimewritten; no production/Git/reviewer/instruction/receipt/\ncalibration/gatemutation,build/GPU/install/externalmessagesorwrites/purchase/\nescalation. Main/Claude reviewsandintegrates,no merge. Savedreportsnotdelivery.\n\nFinal evidence audit: 272 checks PASS; 66 immutable artifacts, seven native pins and six required project documents unchanged. All840 prior sources,44 prior hypotheses and prior findings retained. Final checkpoint UTC: 2026-10-29T00:14:29.651392+00:00."
+}

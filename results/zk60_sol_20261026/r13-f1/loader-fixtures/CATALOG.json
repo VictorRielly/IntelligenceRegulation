@@ -1,0 +1,18 @@
+[
+  {
+    "groups": 1,
+    "layer_manifest_sha256": "bbc80aa67d9ed8ed2e11fad59f58ce8ce56ecc7cf3b19447d02c99a412b8e6c9",
+    "profile_sha256": "7df95b08a3e6379b21591cf15fbcd58c63d23eabb7a3280b9882007cc2e09afa",
+    "scope": "public synthetic import fixture; no trained model or proof",
+    "stack": "low-v1",
+    "variant": "r13-low-1g"
+  },
+  {
+    "groups": 4,
+    "layer_manifest_sha256": "2ccb17f3838e051fde45b908c2fa456b239964326a63f8e392edd3b1a5c09309",
+    "profile_sha256": "cb57566b35b14162c62d92ee2bab529de6b1f59a9a3a9327d30e2260ecf7ee33",
+    "scope": "public synthetic import fixture; no trained model or proof",
+    "stack": "low-h24-v1",
+    "variant": "r13-h24-4g"
+  }
+]

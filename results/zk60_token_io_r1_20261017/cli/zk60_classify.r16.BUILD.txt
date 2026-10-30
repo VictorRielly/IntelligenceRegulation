@@ -1,0 +1,26 @@
+zk60_classify round-16 CPU binaries (native R13 base: the REAL Shieldstral-1.0-3B classifier registered — R13 LOW + h24
+exports, schema zk60-trained-profile-export/2, T128 / T256 non-DD classifier run profiles, per-layer gate denominators in
+every stage shape; the moderate D37 category policies (pending Victor's strict / moderate ruling); one checkpoint stream
+per command; statement schema zk60-classify-run/3 unchanged). UNREVIEWED.
+
+1) file:    /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/cli/zk60_classify.r16.release.bin
+   sha256:  e94cecf99f82e047de73cd668345496d9e679e370769bd2cddd2dc1ddb5b8b24
+   built:   2026-10-29T08:07:16Z on MSI, by r16/tools/r16_real.sh cli (log r16/logs/real-cli.log)
+   source:  ops/zkp-mvp/token-io-r16 at 08:07Z = frozen-r16 (r16/manifest_r16A.sha256) EXCEPT
+            hashline/src/private_block/token_io/classify.rs, whose N-r14-2 comment (two lines, ctl_q) was corrected at
+            about 08:38Z (comment only; it shifts the line numbers in panic locations)
+   ran:     every real receipt of round 16 (r16/real_runs.json: prove / verify / input-owner / label x 3 categories),
+            and the rung checks of chain 3 (bin-label, bin-short, r16 <-> r15 cross-verify, P-18 capture)
+2) file:    /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/cli/zk60_classify.r16-frozen.release.bin
+   sha256:  dae5abd78954138c58b2d32b2bc47ed873dceb66a5c22b4384266410f0849d78
+   built:   2026-10-29T09:24:33Z by r16/tools/r16_chain3.sh after the full suite s20 (log r16/logs/b16-cli-build.log)
+   source:  frozen-r16 exactly (r16/manifest_r16A.sha256, list sha256 f42f8c6e2643f4390427d5e57a68f0a39ba3a51721b9efb27e288198612b5404)
+   checked: verifies the real moderate-sexual receipt made by (1) in a fresh process (r16/logs/frozen-verify-sexual.log,
+            the published statement re-checked byte for byte) and cross-verifies rung receipts with (1) both ways
+            (r16/logs/xbin-frozen-r16.log)
+command:   /home/victor/.cargo/bin/cargo build --release --offline --locked -j2 --manifest-path /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r16/hashline/Cargo.toml --example zk60_classify
+toolchain: rustc 1.97.1 (8bab26f4f 2026-07-14); cargo 1.97.1 (c980f4866 2026-06-30)
+features:  the crate's defaults only; gpu-cuda NOT enabled (cudarc is not compiled in): CPU backend only.
+profile:   [profile.release] opt-level 3, codegen-units 1, lto fat, panic abort, debug false (hashline/Cargo.toml)
+rustflags: none (no RUSTFLAGS, no .cargo/config in the tree or $HOME); default target, no target-cpu
+scope:     a build record, not a privacy acceptance and not a classifier-quality claim; unreviewed

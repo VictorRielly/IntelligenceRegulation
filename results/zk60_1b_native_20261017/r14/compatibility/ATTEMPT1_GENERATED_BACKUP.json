@@ -1,0 +1,14 @@
+{
+  "utc": "2026-10-30T07:33:40.480644+00:00",
+  "backups": [
+    {
+      "original": "results/zk60_1b_native_20261017/r14/compatibility/generated-tiny-exports",
+      "backup": "results/zk60_1b_native_20261017/r14/compatibility/attempt1-generated-tiny-exports"
+    },
+    {
+      "original": "results/zk60_1b_native_20261017/r14/compatibility/generated-r12-receipts",
+      "backup": "results/zk60_1b_native_20261017/r14/compatibility/attempt1-generated-r12-receipts"
+    }
+  ],
+  "scope": "Previous public generated test directories preserved before attempt2 launched any test process. Attempt2 uses fresh empty directories at the same configured output roots. No source/command edited."
+}

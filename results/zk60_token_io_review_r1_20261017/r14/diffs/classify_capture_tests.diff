@@ -1,0 +1,375 @@
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r13/hashline/src/private_block/token_io/classify_capture_tests.rs	2026-10-28 16:42:48.584025013 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r14/hashline/src/private_block/token_io/classify_capture_tests.rs	2026-10-28 19:12:07.680275874 -0700
+@@ -18,12 +18,24 @@
+ //! records nothing with a recorder attached; a tampered run writes no
+ //! bundle. And the `#[ignore]`d, environment-driven capture the gate reads:
+ //! the rung at `L` = 1 / 2, verdict 0 / 1 / tie, the whole content or a D41
+-//! chunk.
++//! chunk (round 14: or a SHORT item, one chunk of fewer ids than the plan's).
++//!
++//! **ROUND 14 (REVIEW_R13 N-r13-1, §10 item 1): the fixture's tables are
++//! R-C2's**, derived from the development rung's pinned tensor through the
++//! CLI's own tied loader under a tiny dev export's profile (each policy with
++//! its c placed gets its own export profile: one parameter set per export,
++//! N-r13-3). The replay refuses a run whose tables are the relation tests'
++//! synthetic binding.
+ 
+ use super::classify::*;
++use super::classify_cli_tests::{add_classifier_parameters, fixture_root, write_classifier_tables};
+ use super::classify_run::*;
++use super::classify_tied::{dev_tied_tensor_bytes, load_bound_tables, recompute_tied_classifier, BoundClassifierTables, TiedSource, DEV_TIED_TENSOR_FILE};
+ use super::run::VerifierPolicy;
+-use super::tests::{blocks, ctx, generic_tables, lcg, model_at, norm, rung};
++use super::tests::{blocks, ctx, generic_tables, lcg, model_at, model_with_records_prov, norm, rung};
++use super::super::trained_block::TrainedExport;
++use super::super::trained_block_tests::{write_export, Fault};
++use super::super::trained_statement::LayerRecord;
+ use super::*;
+ use super::super::run::{RunShape, RUN_PROFILE_CLASSIFY_RUNG_TC};
+ use super::super::run_capture::{self, Bundle, CaptureOpts};
+@@ -42,25 +54,61 @@
+     hay.windows(needle.len()).filter(|w| *w == needle.as_bytes()).count()
+ }
+ 
+-/// the rung fixture: `l` generic dense blocks, the trained-model statement
+-/// under the classifier run profile, a generic embedding and a random int16
+-/// margin vector
++/// the rung fixture: `l` generic dense blocks under the classifier run
++/// profile and (ROUND 14) the rung policy's R-C2 tables: its trained
++/// statement names a tiny dev export's profile (with the classifier's
++/// authorities) and residual unit, and the tables are derived from the pinned
++/// tensor under it through the tied loader
+ struct Fx {
+     sh: Shape,
+     blocks: Vec<BlockPublic>,
+     model: TrainedModelStatement,
+-    tables: ClassifierTables,
++    bound: BoundClassifierTables,
++    dir: FxDir,
++}
++
++/// the fixture's directory under the fixture root, removed on drop
++struct FxDir(PathBuf);
++
++impl Drop for FxDir {
++    fn drop(&mut self) {
++        let _ = std::fs::remove_dir_all(&self.0);
++    }
++}
++
++static FX_SEQ: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0);
++
++/// **one export profile for `policy`** (a tiny dev export carrying the
++/// classifier's authorities: BOS, the final norm, and `policy`'s yes / no /
++/// scale / c), the synthetic trained statement of `blocks` naming that
++/// profile, and its tables derived from the pinned tensor and loaded through
++/// the tied loader
++fn bind_policy(dir: &Path, sh: &Shape, blocks: &[BlockPublic], policy: &Policy) -> (TrainedModelStatement, BoundClassifierTables) {
++    let tag: String = policy.id.chars().map(|c| if c.is_ascii_alphanumeric() { c } else { '_' }).collect();
++    let (export, _) = write_export(&dir.join(format!("x-{tag}")), "tiny", &Fault::default());
++    add_classifier_parameters(&export, 1, norm(), policy);
++    let x = TrainedExport::load(&export).unwrap();
++    let recs: Vec<LayerRecord> = blocks.iter().enumerate().map(|(k, b)| LayerRecord::of_block(k as u32, b, vec![])).collect();
++    let model = model_with_records_prov(sh, recs, RUN_PROFILE_CLASSIFY_RUNG_TC, x.residual_unit, x.profile_sha256);
++    let tables = dir.join(format!("t-{tag}"));
++    std::fs::create_dir_all(&tables).unwrap();
++    std::fs::write(tables.join(DEV_TIED_TENSOR_FILE), dev_tied_tensor_bytes()).unwrap();
++    let tied = recompute_tied_classifier(TiedSource::DevRung, &export, &tables, policy, x.residual_unit, sh.width, &x.profile_sha256).expect("the dev derivation");
++    let g = generic_tables(sh.width, 0x636c_6363);
++    let t = TokenTables::new(g.v, g.d, tied.emb.clone().expect("the dev embedding"), g.head, g.mult).unwrap();
++    write_classifier_tables(&tables, &t, &tied.w, tied.bos, tied.norm, policy);
++    let bound = load_bound_tables(sh, &model, &export, &tables, policy).expect("the derived tables load through the tied loader");
++    (model, bound)
+ }
+ 
+ fn fx(l: usize) -> Fx {
+     let sh = rung();
+     let blocks = blocks(&sh, l);
+-    let model = model_at(&sh, &blocks, RUN_PROFILE_CLASSIFY_RUNG_TC);
+-    let tt = generic_tables(sh.width, 0x636c_6173);
+-    let mut s = 0x6d61_7267u64;
+-    let w: Vec<i16> = (0..sh.width).map(|_| ((lcg(&mut s) % 65_535) as i64 - 32_767) as i16).collect();
+-    let tables = ClassifierTables::new(tt.v, tt.d, tt.emb.clone(), w).expect("the classifier tables");
+-    Fx { sh, blocks, model, tables }
++    let dir = FxDir(fixture_root().join(format!("cls-capture-fx-{}-{}", std::process::id(), FX_SEQ.fetch_add(1, std::sync::atomic::Ordering::SeqCst))));
++    let _ = std::fs::remove_dir_all(&dir.0);
++    std::fs::create_dir_all(&dir.0).unwrap();
++    let (model, bound) = bind_policy(&dir.0, &sh, &blocks, &policy_rung_dev());
++    Fx { sh, blocks, model, bound, dir }
+ }
+ 
+ /// `n` content ids in `[num_special, V)` from a seed
+@@ -70,7 +118,8 @@
+ }
+ 
+ /// One honest classifier run, proved: the statement, the receipt, the
+-/// owner's decommitment.
++/// owner's decommitment (round 14: and the policy's own trained statement
++/// and bound tables).
+ struct Run {
+     st: ClassifyRunStatement,
+     segs: Vec<Vec<u8>>,
+@@ -78,28 +127,32 @@
+     margin: i64,
+     policy: Policy,
+     chunk: ChunkRef,
++    model: TrainedModelStatement,
++    bound: BoundClassifierTables,
+ }
+ 
+ /// **An honest run at a wanted verdict** (`"0"`, `"1"` or `"tie"`) of the
+ /// whole content (`chunk = None`) or of chunk `j` of a `total`-id content
+-/// (D41). The margin of the item is taken first under the rung policy;
+-/// then c is placed as `classify_tests` places it (a registered test
+-/// policy): `margin - 1` for verdict 1, `margin` for the tie (verdict 0,
+-/// delta 0), `margin + 1` for verdict 0.
++/// (D41; round 14: `total` below the plan's size is a SHORT item, one chunk
++/// of its length). The margin of the item is taken first under the rung
++/// policy; then c is placed as `classify_tests` places it (a registered test
++/// policy with ITS OWN export profile, N-r13-3): `margin - 1` for verdict 1,
++/// `margin` for the tie (verdict 0, delta 0), `margin + 1` for verdict 0.
+ fn honest_run(f: &Fx, want: &str, chunk: Option<(usize, usize)>) -> Run {
+     let base = policy_rung_dev();
+-    let n = f.sh.tokens - base.prefix.len() - base.suffix.len();
+-    let (total, index) = chunk.unwrap_or((n, 0));
+-    let mut whole = content(&base, n, 0x6361_7031);
+-    if total > n {
+-        whole.extend(content(&base, total - n, 0x6361_7032));
++    let size = f.sh.tokens - base.prefix.len() - base.suffix.len();
++    let (total, index) = chunk.unwrap_or((size, 0));
++    let mut whole = content(&base, total.min(size), 0x6361_7031);
++    if total > size {
++        whole.extend(content(&base, total - size, 0x6361_7032));
+     }
+     assert_eq!(whole.len(), total);
+-    let ch = ChunkRef::derive(total, index, ChunkPlan { size: n, overlap: chunk_overlap_of(RUN_PROFILE_CLASSIFY_RUNG_TC).unwrap() }).expect("the chunk");
+-    let tokens = item_tokens(&base, &whole[ch.a..ch.b]);
++    let ch = ChunkRef::derive(total, index, ChunkPlan { size, overlap: chunk_overlap_of(RUN_PROFILE_CLASSIFY_RUNG_TC).unwrap() }).expect("the chunk");
++    let n = ch.b - ch.a;
+     let shapes = vec![f.sh.clone(); f.blocks.len()];
+-    let cp0 = ClassifierProfile::new(&f.sh, &f.tables, 1, norm(), &base, n, Tier::R1_MVP).unwrap();
+-    let margin = honest_classify(&shapes, &cp0, &f.tables, &f.blocks, &tokens).expect("the honest pipeline").out_values.margin;
++    let cp0 = ClassifierProfile::new(&f.sh, f.bound.tables(), f.bound.bos(), f.bound.norm(), &base, n, Tier::R1_MVP).unwrap();
++    let tokens = cp0.tokens_of(&whole[ch.a..ch.b]).unwrap();
++    let margin = honest_classify(&shapes, &cp0, f.bound.tables(), &f.blocks, &tokens).expect("the honest pipeline").out_values.margin;
+     let c = match want {
+         "1" => margin - 1,
+         "tie" => margin,
+@@ -110,20 +163,22 @@
+     policy.id = format!("rung-tc-capture-test-policy/{c}");
+     policy.c = c;
+     register_test_policy(policy.clone());
+-    let cp = ClassifierProfile::new(&f.sh, &f.tables, 1, norm(), &policy, n, Tier::R1_MVP).unwrap();
+-    let mut p = honest_classify(&shapes, &cp, &f.tables, &f.blocks, &tokens).expect("the honest pipeline under the placed c");
++    let (model, bound) = bind_policy(&f.dir.0, &f.sh, &f.blocks, &policy);
++    let cp = ClassifierProfile::new(&f.sh, bound.tables(), bound.bos(), bound.norm(), &policy, n, Tier::R1_MVP).unwrap();
++    let mut p = honest_classify(&shapes, &cp, bound.tables(), &f.blocks, &tokens).expect("the honest pipeline under the placed c");
+     let verdict = p.out_values.verdict;
+     assert_eq!(verdict, u8::from(want == "1"), "the placed c gives the wanted verdict");
+     let spec = input_endpoint_spec(&f.sh, ctx(), &cp).unwrap();
+     let (root, owner) = seal_input(&spec, &p.in_plane, &f.sh.hash_tag()).unwrap();
+-    let st = ClassifyRunStatement::new_chunk(RunShape::new(f.sh.clone(), f.blocks.len(), RUN_PROFILE_CLASSIFY_RUNG_TC).unwrap(), ctx(), f.blocks.iter().map(|b| b.digest()).collect(), &f.model, &f.tables, 1, norm(), &policy, n, Tier::R1_MVP, root, verdict, total, index).expect("the statement");
++    let st = ClassifyRunStatement::new_chunk(RunShape::new(f.sh.clone(), f.blocks.len(), RUN_PROFILE_CLASSIFY_RUNG_TC).unwrap(), ctx(), f.blocks.iter().map(|b| b.digest()).collect(), &model, &bound, &policy, n, Tier::R1_MVP, root, verdict, total, index).expect("the statement");
+     let mut segs = Vec::new();
+-    let (_, dec) = prove_classify_run(&st, &f.blocks, &f.tables, &mut ClassifySource(&mut p), owner, &mut |_, b| {
++    let (_, dec) = prove_classify_run(&st, &f.blocks, &bound, &mut ClassifySource(&mut p), owner, &mut |_, b| {
+         segs.push(b);
+         Ok(())
+     })
+     .expect("the honest classifier run proves");
+-    Run { st, segs, dec, margin, policy, chunk: ch }
++    assert!(st.tables_derived(), "the capture fixture's tables are derived");
++    Run { st, segs, dec, margin, policy, chunk: ch, model, bound }
+ }
+ 
+ /// what the bundle checks read (a proved [`Run`] or a CLI run directory)
+@@ -136,7 +191,7 @@
+ }
+ 
+ /// verify `segs` with a recorder attached; the bundle only for an accepted run
+-fn capture(st: &ClassifyRunStatement, blocks: &[BlockPublic], tables: &ClassifierTables, segs: &[Vec<u8>], opts: CaptureOpts) -> Result<Bundle, String> {
++fn capture(st: &ClassifyRunStatement, blocks: &[BlockPublic], tables: &BoundClassifierTables, segs: &[Vec<u8>], opts: CaptureOpts) -> Result<Bundle, String> {
+     let guard = run_capture::Recorder::attach();
+     run_capture::begin_run_with(st.capture_header()?, st.binding()?, opts);
+     let out = match verify_classify_run(st, blocks, tables, segs, POLICY_93) {
+@@ -279,7 +334,7 @@
+ fn r12_a_classify_run_is_captured_and_its_bundle_is_self_consistent() {
+     let f = fx(2);
+     let r = honest_run(&f, "1", None);
+-    let b = capture(&r.st, &f.blocks, &f.tables, &r.segs, CaptureOpts { arrays: false, public_tables: true }).expect("a bundle for an accepted classifier run");
++    let b = capture(&r.st, &f.blocks, &r.bound, &r.segs, CaptureOpts { arrays: false, public_tables: true }).expect("a bundle for an accepted classifier run");
+     check_classify_bundle(&b, &r, 2);
+     assert!(run_capture::bundle_is_classify(&b));
+     eprintln!("CLASSIFY CAPTURE rung L=2 verdict 1 (margin {}): run.json {} B, stage files {:?} B", r.margin, b.run_json.len(), b.stages.iter().map(|s| s.len()).collect::<Vec<_>>());
+@@ -293,7 +348,7 @@
+     let f = fx(1);
+     let r = honest_run(&f, "tie", Some((27, 1)));
+     assert_eq!((r.chunk.a, r.chunk.b, r.st.verdict()), (4, 27, 0));
+-    let b = capture(&r.st, &f.blocks, &f.tables, &r.segs, CaptureOpts { arrays: true, public_tables: false }).expect("a bundle for the chunk");
++    let b = capture(&r.st, &f.blocks, &r.bound, &r.segs, CaptureOpts { arrays: true, public_tables: false }).expect("a bundle for the chunk");
+     check_classify_bundle(&b, &r, 1);
+     eprintln!("CLASSIFY CAPTURE rung L=1 chunk 1 of 2 [4, 27) at the tie: run.json {} B, arrays.bin {} B", b.run_json.len(), b.arrays.blob().len());
+ }
+@@ -308,15 +363,15 @@
+     let r0 = honest_run(&f, "0", None);
+     // re-prove the same item with a recorder attached and seeded
+     let cp = r0.st.cp.clone();
+-    let tokens = item_tokens(&r0.policy, &content(&r0.policy, cp.n, 0x6361_7031));
+-    let mut p = honest_classify(&[f.sh.clone()], &cp, &f.tables, &f.blocks, &tokens).unwrap();
++    let tokens = cp.tokens_of(&content(&r0.policy, cp.n, 0x6361_7031)).unwrap();
++    let mut p = honest_classify(&[f.sh.clone()], &cp, r0.bound.tables(), &f.blocks, &tokens).unwrap();
+     let spec = input_endpoint_spec(&f.sh, ctx(), &cp).unwrap();
+     let (root, owner) = seal_input(&spec, &p.in_plane, &f.sh.hash_tag()).unwrap();
+-    let st = ClassifyRunStatement::new(RunShape::new(f.sh.clone(), 1, RUN_PROFILE_CLASSIFY_RUNG_TC).unwrap(), ctx(), f.blocks.iter().map(|b| b.digest()).collect(), &f.model, &f.tables, 1, norm(), &r0.policy, cp.n, Tier::R1_MVP, root, p.out_values.verdict).unwrap();
++    let st = ClassifyRunStatement::new(RunShape::new(f.sh.clone(), 1, RUN_PROFILE_CLASSIFY_RUNG_TC).unwrap(), ctx(), f.blocks.iter().map(|b| b.digest()).collect(), &r0.model, &r0.bound, &r0.policy, cp.n, Tier::R1_MVP, root, p.out_values.verdict).unwrap();
+     let guard = run_capture::Recorder::attach();
+     run_capture::begin_run_with(st.capture_header().unwrap(), st.binding().unwrap(), CaptureOpts { arrays: false, public_tables: false });
+     let mut segs = Vec::new();
+-    prove_classify_run(&st, &f.blocks, &f.tables, &mut ClassifySource(&mut p), owner, &mut |_, b| {
++    prove_classify_run(&st, &f.blocks, &r0.bound, &mut ClassifySource(&mut p), owner, &mut |_, b| {
+         segs.push(b);
+         Ok(())
+     })
+@@ -325,10 +380,10 @@
+     run_capture::discard();
+     drop(guard);
+     assert_eq!(segs.iter().map(|s| s.len()).collect::<Vec<_>>(), st.segment_lens().unwrap(), "the receipt's segments are not the counted lengths");
+-    verify_classify_run(&st, &f.blocks, &f.tables, &segs, POLICY_93).expect("verifies without a recorder");
+-    let b = capture(&st, &f.blocks, &f.tables, &segs, CaptureOpts { arrays: false, public_tables: false }).expect("verifies with a recorder");
++    verify_classify_run(&st, &f.blocks, &r0.bound, &segs, POLICY_93).expect("verifies without a recorder");
++    let b = capture(&st, &f.blocks, &r0.bound, &segs, CaptureOpts { arrays: false, public_tables: false }).expect("verifies with a recorder");
+     assert_eq!(b.stages.len(), 3);
+-    verify_classify_run(&st, &f.blocks, &f.tables, &segs, POLICY_93).expect("and again without");
++    verify_classify_run(&st, &f.blocks, &r0.bound, &segs, POLICY_93).expect("and again without");
+     eprintln!("CLASSIFY CAPTURE | the prover records nothing with a recorder attached; the receipt verifies with and without one");
+ }
+ 
+@@ -341,14 +396,86 @@
+     let mut segs = r.segs.clone();
+     let mid = segs[1].len() / 2;
+     segs[1][mid] ^= 1;
+-    let e = capture(&r.st, &f.blocks, &f.tables, &segs, CaptureOpts { arrays: false, public_tables: false }).err().expect("A TAMPERED CLASSIFIER RUN WAS CAPTURED");
++    let e = capture(&r.st, &f.blocks, &r.bound, &segs, CaptureOpts { arrays: false, public_tables: false }).err().expect("A TAMPERED CLASSIFIER RUN WAS CAPTURED");
+     assert!(!run_capture::active(), "a recorder was left attached");
+-    let other = ClassifyRunStatement::new(RunShape::new(f.sh.clone(), 1, RUN_PROFILE_CLASSIFY_RUNG_TC).unwrap(), ctx(), f.blocks.iter().map(|b| b.digest()).collect(), &f.model, &f.tables, 1, norm(), &r.policy, r.st.cp.n, Tier::R1_MVP, r.st.in_root(), 0).unwrap();
+-    let e2 = capture(&other, &f.blocks, &f.tables, &r.segs, CaptureOpts { arrays: false, public_tables: false }).err().expect("A RE-VERDICTED CLASSIFIER RUN WAS CAPTURED");
++    let other = ClassifyRunStatement::new(RunShape::new(f.sh.clone(), 1, RUN_PROFILE_CLASSIFY_RUNG_TC).unwrap(), ctx(), f.blocks.iter().map(|b| b.digest()).collect(), &r.model, &r.bound, &r.policy, r.st.cp.n, Tier::R1_MVP, r.st.in_root(), 0).unwrap();
++    let e2 = capture(&other, &f.blocks, &r.bound, &r.segs, CaptureOpts { arrays: false, public_tables: false }).err().expect("A RE-VERDICTED CLASSIFIER RUN WAS CAPTURED");
+     assert!(!run_capture::active());
+     eprintln!("CLASSIFY CAPTURE | a tampered run refused ({e}); read as verdict 0 refused ({e2}); no bundle");
+ }
+ 
++/// the public tables the capture fixture proves with
++fn fx_tables(f: &Fx) -> &ClassifierTables {
++    f.bound.tables()
++}
++
++/// **ROUND 14 (N-r13-1): the replay refuses a run on the relation tests'
++/// synthetic binding** (a generic embedding and a random margin row, test
++/// builds only): the run verifies (it is a relation test), but no bundle is
++/// written for it.
++#[test]
++fn r14_a_capture_of_relation_test_tables_is_refused_by_the_replay() {
++    let sh = rung();
++    let blks = blocks(&sh, 1);
++    let model = model_at(&sh, &blks, RUN_PROFILE_CLASSIFY_RUNG_TC);
++    let tt = generic_tables(sh.width, 0x636c_6173);
++    let mut s = 0x6d61_7267u64;
++    let w: Vec<i16> = (0..sh.width).map(|_| ((lcg(&mut s) % 65_535) as i64 - 32_767) as i16).collect();
++    let dev = policy_rung_dev();
++    let bound = BoundClassifierTables::synthetic_for_relation_tests(ClassifierTables::new(tt.v, tt.d, tt.emb.clone(), w).unwrap(), 1, norm(), &sh, RUN_PROFILE_CLASSIFY_RUNG_TC, &model, &dev).unwrap();
++    assert!(!bound.is_derived());
++    let n = sh.tokens - dev.prefix.len() - dev.suffix.len();
++    let cp = ClassifierProfile::new(&sh, bound.tables(), 1, norm(), &dev, n, Tier::R1_MVP).unwrap();
++    let mut p = honest_classify(&[sh.clone()], &cp, bound.tables(), &blks, &cp.tokens_of(&content(&dev, n, 0x7273)).unwrap()).unwrap();
++    let (root, owner) = seal_input(&input_endpoint_spec(&sh, ctx(), &cp).unwrap(), &p.in_plane, &sh.hash_tag()).unwrap();
++    let st = ClassifyRunStatement::new(RunShape::new(sh.clone(), 1, RUN_PROFILE_CLASSIFY_RUNG_TC).unwrap(), ctx(), blks.iter().map(|b| b.digest()).collect(), &model, &bound, &dev, n, Tier::R1_MVP, root, p.out_values.verdict).unwrap();
++    let mut segs = Vec::new();
++    prove_classify_run(&st, &blks, &bound, &mut ClassifySource(&mut p), owner, &mut |_, b| {
++        segs.push(b);
++        Ok(())
++    })
++    .unwrap();
++    verify_classify_run(&st, &blks, &bound, &segs, POLICY_93).expect("the relation-test run verifies (test builds)");
++    let e = capture(&st, &blks, &bound, &segs, CaptureOpts { arrays: false, public_tables: false }).err().expect("A CAPTURE OF NON-DERIVED TABLES WAS WRITTEN (N-r13-1)");
++    assert!(e.contains("not derived from the pinned tied tensor"), "{e}");
++    assert!(!run_capture::active());
++    eprintln!("TOKEN-IO R14 | N-r13-1 | the replay refuses a run on the relation tests' synthetic tables: {e}");
++}
++
++/// **ROUND 14 (DESIGN v2.4 §15): a SHORT item is captured** (`L = 1`, 20
++/// ids, one chunk of a 23-id plan, at the tie): the chunk `[0, 20)` of 20 in
++/// run.json, the profile text naming the item length, the pad id, the three
++/// pad positions and the verdict row 28; the same bundle checks.
++#[test]
++fn r14_a_short_item_is_captured() {
++    let f = fx(1);
++    let r = honest_run(&f, "tie", Some((20, 0)));
++    assert_eq!((r.chunk.count, r.chunk.a, r.chunk.b, r.chunk.size, r.st.verdict()), (1, 0, 20, 23, 0));
++    let b = capture(&r.st, &f.blocks, &r.bound, &r.segs, CaptureOpts { arrays: false, public_tables: false }).expect("a bundle for the short item");
++    check_classify_bundle(&b, &r, 1);
++    assert!(contains(&b.run_json, "n=20 S=1 item-length=29 pad-id=2 pad-positions=3 verdict-row=28"), "run.json's profile text does not name the short item's layout");
++    eprintln!("CLASSIFY CAPTURE rung L=1 short item (20 ids, chunk [0, 20) of a 23-id plan) at the tie: run.json {} B", b.run_json.len());
++}
++
++/// **ROUND 14 (REVIEW_R13 N-r13-1, §10 item 1): the gate's capture fixture
++/// proves with the R-C2 tables**, i.e. the embedding and margin row DERIVED
++/// from the development rung's pinned tensor (`bba6d094…`) under the rung's
++/// registered policy, exactly the tables the CLI's tied loader admits; not a
++/// generic embedding and a random margin row (round 13's fixture).
++#[test]
++fn r14_the_gate_capture_fixture_proves_with_the_tables_derived_from_the_pinned_tensor() {
++    let cc = super::classify_cli_tests::Cc::new("r14-fx");
++    let x = super::super::trained_block::TrainedExport::load(&cc.export).unwrap();
++    let tied = super::classify_tied::recompute_tied_classifier(super::classify_tied::TiedSource::DevRung, &cc.export, &cc.tables, &policy_rung_dev(), x.residual_unit, 384, &x.profile_sha256).unwrap();
++    for l in [1, 2] {
++        let f = fx(l);
++        let t = fx_tables(&f);
++        assert_eq!(t.w_delta, tied.w, "L = {l}: the capture fixture's margin row is not the one derived from the pinned tensor (N-r13-1)");
++        assert_eq!(Some(&t.emb), tied.emb.as_ref(), "L = {l}: the capture fixture's embedding is not the one derived from the pinned tensor");
++    }
++    eprintln!("TOKEN-IO R14 | the gate's capture fixture (L = 1, 2) proves with the dev rung's derived tables (embedding c0e816c9…, margin 24e6ff4c…)");
++}
++
+ // -------------------------------------------------- the gate's captures (environment-driven)
+ 
+ fn env_or(k: &str, default: &str) -> String {
+@@ -375,16 +502,18 @@
+     }
+ }
+ 
+-/// **CAPTURE A CLASSIFIER RUN AT THE RUNG** (R-C1's rung: T32, d384, the
+-/// synthetic policy with c placed per verdict). `#[ignore]`d: launched under
+-/// the guard by whoever wants a bundle.
++/// **CAPTURE A CLASSIFIER RUN AT THE RUNG** (T32, d384, the synthetic policy
++/// with c placed per verdict; round 14: the R-C2 tables, derived from the
++/// pinned dev tensor through the tied loader, each placed policy with its own
++/// export profile). `#[ignore]`d: launched under the guard by whoever wants a
++/// bundle.
+ ///
+ /// | variable | what | default |
+ /// |---|---|---|
+ /// | `HL_PB_CAPTURE_DIR` | where the bundle goes | **required**, absolute, outside the repository |
+ /// | `HL_PB_CAPTURE_BLOCKS` | `L` (1 or 2) | 2 |
+ /// | `HL_PB_CLASSIFY_VERDICT` | `0`, `1` or `tie` (c placed as in `classify_tests`) | **required** |
+-/// | `HL_PB_CLASSIFY_CHUNK` | `whole`, or `<j>/<total>` (D41; e.g. `1/27` = `[4, 27)`) | `whole` |
++/// | `HL_PB_CLASSIFY_CHUNK` | `whole`, or `<j>/<total>` (D41; e.g. `1/27` = `[4, 27)`; round 14: `0/20` = a short item of 20 ids) | `whole` |
+ /// | `HL_RUN_CAPTURE_PUBLIC_TABLES` | `1` the public tables' values, `0` length + digest | **required** |
+ /// | `HL_TEST_SOURCE_COMMIT` | the commit the bundle records | `uncommitted-test` |
+ #[test]
+@@ -407,13 +536,13 @@
+     let r = honest_run(&f, &want, chunk);
+     let prove_s = t0.elapsed().as_secs_f64();
+     let t1 = std::time::Instant::now();
+-    let bundle = capture(&r.st, &f.blocks, &f.tables, &r.segs, CaptureOpts { arrays: true, public_tables }).unwrap_or_else(|e| panic!("the capture: {e}"));
++    let bundle = capture(&r.st, &f.blocks, &r.bound, &r.segs, CaptureOpts { arrays: true, public_tables }).unwrap_or_else(|e| panic!("the capture: {e}"));
+     let verify_s = t1.elapsed().as_secs_f64();
+     check_classify_bundle(&bundle, &r, l);
+     let c = r.chunk;
+     let command = "HL_PB_CAPTURE_DIR=<dir> HL_PB_CAPTURE_BLOCKS=<1|2> HL_PB_CLASSIFY_VERDICT=<0|1|tie> HL_PB_CLASSIFY_CHUNK=<whole|j/total> HL_RUN_CAPTURE_PUBLIC_TABLES=<1|0> cargo test --release --lib private_block::token_io::classify_capture_tests::capture_a_classify_rung_run -- --ignored --nocapture";
+     let note = format!(
+-        "Bundle: one honest CLASSIFIER run at R-C1's rung (T = 32, d = 384, generic dense blocks, a generic embedding and a random int16 margin vector), {l} block(s), profile `{RUN_PROFILE_CLASSIFY_RUNG_TC}`, tier `{}`. Policy `{}` (the rung's synthetic template, c = {} placed {} the item's margin), verdict {} ({}). Chunk {} of {} (`[{}, {})` of a {}-id content; size {}, overlap {}). Context: the rung's test context.\n\nPublic weights and tables (synthetic); the content, the margin, its limbs and every activation are prover-side and NOT here; neither is the owner's decommitment.",
++        "Bundle: one honest CLASSIFIER run at the development rung (T = 32, d = 384, generic dense blocks) with R-C2's TABLES (token round 14): the embedding and the int16 margin row derived from the pinned development tensor (bba6d094…) through the tied loader, under the export profile its policy names. {l} block(s), profile `{RUN_PROFILE_CLASSIFY_RUNG_TC}`, tier `{}`. Policy `{}` (the rung's synthetic template, c = {} placed {} the item's margin; a test-registered policy with its own export profile, N-r13-3), verdict {} ({}). Chunk {} of {} (`[{}, {})` of a {}-id content; size {}, overlap {}; a chunk shorter than its size is a short item whose trailing positions hold the public pad id). Context: the rung's test context.\n\nPublic weights and tables (synthetic); the content, the margin, its limbs and every activation are prover-side and NOT here; neither is the owner's decommitment.",
+         Tier::R1_MVP.name,
+         r.policy.id,
+         r.policy.c,

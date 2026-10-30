@@ -1,0 +1,90 @@
+
+running 85 tests
+test private_block::accuracy::tests::group_scale_precedes_product_rounding ... ok
+test private_block::accuracy::tests::invalid_shifts_multipliers_and_overflow_are_refused ... ok
+test private_block::accuracy::tests::grouped_products_match_independent_rational_vectors ... ok
+test private_block::accuracy::tests::requantization_matches_independent_rational_vectors ... ok
+test private_block::accuracy::tests::negative_half_ties_round_toward_positive_infinity ... ok
+test private_block::accuracy_act::tests::query_group_padding_is_the_valid_zero_gate_zero_output_group_zero_row ... ok
+test private_block::accuracy_act::tests::group_coordinate_separates_colliding_gate_zero_outputs ... ok
+test private_block::accuracy_act::tests::every_three_coordinate_row_matches_its_generated_scaled_table ... ok
+test private_block::accuracy_aligned::shieldstral_tests::shieldstral_actual_l25_four_groups_fit_and_standard_refuses_them ... ok
+test private_block::accuracy_aligned::shieldstral_tests::zero_direct_shift_preserves_negative_values_exactly ... ok
+test private_block::accuracy_act::tests::histogram_and_compressed_queries_count_real_and_padded_groups_without_aliasing ... ok
+test private_block::accuracy_act::tests::signed_endpoints_are_exact_and_invalid_queries_are_counted_without_panics ... ok
+test private_block::accuracy_aligned::tests::tables_scale_the_quantized_words_without_another_rounding ... ok
+test private_block::accuracy_aligned::tests::the_legacy_profile_cannot_select_this_construction ... ok
+test private_block::accuracy_aligned::tests::every_registry_combination_respects_the_derived_31_bit_bound ... ok
+test private_block::accuracy_aligned::tests::both_stacks_match_every_independent_rational_product_vector ... ok
+test private_block::accuracy_fold::tests::all_seven_native_matrix_folds_equal_an_independent_scaled_coefficient_sum ... ok
+test private_block::accuracy_fold::tests::every_axis_uses_exact_channel_coefficients_and_query_head_permutation ... ok
+test private_block::accuracy_fold::tests::multiplying_interpolants_after_folding_is_rejected_by_the_differential_case ... ok
+test private_block::accuracy_groups::tests::common_denominators_preserve_every_rounding_and_remainder ... ok
+test private_block::accuracy_groups::tests::folding_matches_the_independent_block_fixture_constants ... ok
+test private_block::accuracy_groups::tests::malformed_and_noncanonical_group_data_is_refused ... ok
+test private_block::accuracy_groups::tests::the_product_window_grows_when_exact_group_scaling_needs_it ... ok
+test private_block::accuracy_layout::tests::every_allocated_role_and_lookup_count_matches_the_independent_inventory ... ok
+test private_block::accuracy_binding_tests::a_legacy_profile_refuses_accuracy_data_instead_of_ignoring_it ... ok
+test private_block::accuracy_layout::tests::every_remainder_top_pin_enforces_its_exact_window_including_full_bytes ... ok
+test private_block::accuracy_layout::tests::malformed_lookup_context_is_refused_before_any_lookup_is_used ... ok
+test private_block::accuracy_precision::low_tests::exports_choose_an_explicit_stack_without_a_global_flag ... ok
+test private_block::accuracy_layout::tests::removed_norm_limbs_are_absent_and_every_other_legacy_role_is_unique ... ok
+test private_block::accuracy_precision::low_tests::low_keeps_h16_and_its_downstream_scale ... ok
+test private_block::accuracy_precision::tests::invalid_base_or_derived_windows_are_refused ... ok
+test private_block::accuracy_precision::tests::legacy_shifts_and_widths_remain_unchanged ... ok
+test private_block::accuracy_precision::tests::low_h24_matches_the_received_build_spec ... ok
+test private_block::accuracy_profile_tests::accuracy_native_legacy_comparison_census ... ok
+test private_block::accuracy_profile_tests::accuracy_native_layout_census_for_review ... ok
+test private_block::accuracy_profile_tests::every_r13_profile_builds_exact_role_lookup_helper_and_claim_counts ... ok
+test private_block::accuracy_proof_tests::accuracy_actual_shieldstral_v2_all_public_weights_and_layer_contexts_import ... ignored, authenticated full Shieldstral public export via HL_R13_SHIELDSTRAL_EXPORT; guarded separately
+test private_block::accuracy_proof_tests::accuracy_all_new_limb_and_unused_dictionary_mutations_reach_verification ... ignored, separate guarded R13 new limb and FP12 dictionary attacks
+test private_block::accuracy_proof_tests::accuracy_dense_low_and_h24_dd_and_non_dd_prove_and_verify ... ignored, separate guarded full R13 proof gate; public synthetic only
+test private_block::accuracy_proof_tests::accuracy_every_table_support_tail_rejects_a_moved_multiplicity ... ignored, separate guarded R13 byte/exp/ACT3 support-tail attacks
+test private_block::accuracy_proof_tests::accuracy_new_norm_high_byte_mutation_reaches_native_proof_and_is_rejected ... ignored, separate guarded native relation mutation; no builder-only refusal
+test private_block::accuracy_proof_tests::accuracy_two_stage_private_boundary_with_different_gate_shifts_verifies ... ignored, guarded two-stage R13 private boundary with distinct public gate denominators
+test private_block::accuracy_proof_tests::accuracy_wrong_group_table_is_rejected_after_both_honest_contexts_verify ... ignored, guarded ACT3 wrong-group witness with otherwise self-consistent arithmetic
+test private_block::accuracy_public::tests::a_tampered_table_or_derived_cache_is_refused_on_recheck ... ok
+test private_block::accuracy_public::tests::each_public_change_moves_the_binding ... ok
+test private_block::accuracy_binding_tests::the_accuracy_data_is_attached_and_changes_the_actual_block_digest ... ok
+test private_block::accuracy_public::tests::every_multiplier_axis_has_its_exact_shape_and_narrow_class ... ok
+test private_block::accuracy_public::tests::honest_data_has_a_canonical_binding_and_exact_context ... ok
+test private_block::accuracy_public::tests::registry_is_bound_even_when_every_public_table_word_is_identical ... ok
+test private_block::accuracy_public::tests::the_coarse_member_requires_the_shieldstral_registry_and_exact_geometry ... ok
+test private_block::accuracy_public::tests::every_stack_registry_and_group_count_matches_its_actual_encoded_length ... ok
+test private_block::accuracy_public::tests::the_export_stack_changes_the_binding_and_is_rechecked ... ok
+test private_block::accuracy_tables::shieldstral_tests::shieldstral_member_matches_all_4096_independent_words_without_clipping ... ok
+test private_block::accuracy_tables::shieldstral_tests::standard_registry_and_unknown_members_remain_refused ... ok
+test private_block::accuracy_tables::shieldstral_tests::every_existing_member_is_byte_identical_in_both_registries ... ok
+test private_block::accuracy_tables::tests::unsupported_members_and_precisions_are_refused ... ok
+test private_block::accuracy_tables::tests::every_int12_silu_word_matches_the_independent_reference ... ok
+test private_block::accuracy_tables::tests::zero_and_signed_index_are_unambiguous ... ok
+test private_block::accuracy_aligned::shieldstral_tests::both_shieldstral_stacks_match_2016_independent_fraction_vectors ... ok
+test private_block::argument::accuracy::tests::accuracy_native_polynomials_obey_declared_degree_and_extension_zero_property ... ok
+test private_block::accuracy_profile_tests::the_common_gate_shift_is_constructor_checked_reconstructed_and_schedule_bound ... ok
+test private_block::argument::accuracy::tests::accuracy_public_context_checks_stack_denominator_presence_and_symmetric_words ... ok
+test private_block::trained_block::accuracy::profile_tests::accuracy_v2_loader_imports_both_stacks_and_reconstructs_dd_records ... ok
+test private_block::trained_block::accuracy::profile_tests::accuracy_v2_model_stack_selection_has_no_global_fallback ... ok
+test private_block::trained_block::accuracy::profile_tests::accuracy_v2_schema_stack_and_fp12_are_checked_before_layer_payloads ... ok
+test private_block::trained_block::accuracy::tests::all_26_actual_shieldstral_layers_pass_the_native_public_array_loader ... ignored, requires the authenticated 26-layer public-array adapter via HL_R13_SHIELDSTRAL_ARRAYS
+test private_block::trained_block::accuracy::tests::bad_table_shape_is_refused_before_the_missing_payload_is_read ... ok
+test private_block::trained_block::accuracy::tests::both_export_stacks_load_verified_arrays_and_recompute_their_tables ... ok
+test private_block::trained_block::accuracy::tests::changed_payloads_fail_hash_checks_and_narrow_ranges_fail_after_rehash ... ok
+test private_block::trained_block::accuracy::tests::rehashed_fake_tables_and_supplied_derived_arrays_are_refused ... ok
+test private_block::trained_block::accuracy::tests::shieldstral_four_group_arrays_are_verified_and_cannot_enter_the_standard_registry ... ok
+test private_block::trained_block::accuracy::tests::the_shieldstral_geometry_gate_runs_before_any_array_file_is_opened ... ok
+test private_block::trained_statement::accuracy_metadata_tests::accuracy_calibration_describes_fp12_three_byte_norm_remainders_and_up_shift12 ... ok
+test private_block::trained_statement::accuracy_metadata_tests::accuracy_layer_records_require_exactly_one_class_checked_gate_scalar ... ok
+test private_block::trained_statement::accuracy_metadata_tests::accuracy_profiles_keep_their_legacy_model_and_tied_tensor_pins ... ok
+test private_block::trained_statement::accuracy_metadata_tests::accuracy_same_calibration_layers_reconstruct_distinct_bound_stage_denominators ... ok
+test private_block::witness::accuracy::tests::amended_int16_endpoints_and_rope_accumulators_do_not_wrap ... ok
+test private_block::witness::accuracy::tests::both_accuracy_stacks_assign_all_words_to_distinct_native_planes_and_recover_the_output ... ok
+test private_block::witness::accuracy::tests::both_export_stacks_match_the_independent_full_block_oracle ... ok
+test private_block::argument::accuracy::tests::accuracy_native_definitions_match_claim_schedules_for_both_stacks_dd_and_all_group_counts ... ok
+test private_block::witness::accuracy::tests::dictionary_assignment_uses_fp12_on_every_slot_including_repeated_padding_zeros ... ok
+test private_block::witness::accuracy::tests::future_scores_are_range_checked_before_the_causal_mask ... ok
+test private_block::witness::accuracy::tests::new_execution_rejects_public_negative_128_weights ... ok
+test private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces ... ok
+test private_block::argument::accuracy::tests::accuracy_honest_full_word_witness_satisfies_native_host_relations_and_new_limb_mutation_fails ... ok
+
+test result: ok. 77 passed; 0 failed; 8 ignored; 0 measured; 642 filtered out; finished in 0.80s
+

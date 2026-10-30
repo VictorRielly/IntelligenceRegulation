@@ -1,0 +1,46 @@
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r16/hashline/src/private_block/token_io/classify.rs	2026-10-29 02:29:32.233882646 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r16b/hashline/src/private_block/token_io/classify.rs	2026-10-29 03:50:55.909632427 -0700
+@@ -137,11 +137,20 @@
+     Policy { id: "rung-tc-synthetic-policy-dev/1".into(), prefix: (1..=8).collect(), suffix: vec![32], num_special: 5, yes: 40, no: 41, c: 0, tokenizer: "synthetic (ids only, no text)".into(), v: 300, pad: 2, margin_scale_bits: (1.0f64 / 256.0).to_bits() }
+ }
+ 
+-/// Shieldstral-1.0-3B with the card's 7-category template (R-C0's pinned ids,
+-/// `classifier/rc0/template_ids.json`: P0 = 84 ending at `>:`, suffix
+-/// `[/INST]`; tekken plain-text encoding, `num_special_tokens` 1000; yes 13059,
+-/// no 2649; tau 0.5 so c = 0). Its block shape lands with the native lane's
+-/// F1-F3; until then no run profile admits it.
++/// Shieldstral-1.0-3B with the model card's 7-category template (round 12,
++/// R-C0's pinned ids, `classifier/rc0/template_ids.json`: P0 = 84 ending at
++/// `>:`, suffix `[/INST]`; tekken plain-text encoding, `num_special_tokens`
++/// 1000; yes 13059, no 2649; tau 0.5 so c = 0).
++/// **TEST BUILDS ONLY since token round 16b (REVIEW_R16 F-1, D45(2)): it is NOT
++/// a pre-registered policy.** Its (yes, no, scale, c) are the R13 Shieldstral
++/// exports' own, so while round 16 kept it in [`registered_policies`] both R13
++/// Shieldstral run profiles admitted it beside the three category policies (a
++/// fourth yes / no question about the hidden content, where D45(2) fixes
++/// three). No build registers it now: `policy_by_id`, the classifier door and
++/// the statement constructor refuse it by name. The tests keep it as the R-C2
++/// derivation's reference policy (`classify_tied_tests`) and as the refused
++/// fourth policy (`classify_r16_tests::r16b`).
++#[cfg(test)]
+ pub(crate) fn policy_shieldstral_card() -> Policy {
+     Policy {
+         id: "shieldstral-1.0-3b-card-unsafe/1".into(),
+@@ -239,10 +248,15 @@
+     TEST_POLICIES.with(|t| t.borrow_mut().push(p));
+ }
+ 
+-/// **THE PRE-REGISTERED POLICY LIST (B-6).**
++/// **THE PRE-REGISTERED POLICY LIST (B-6 = D45(2)).** Production builds: the
++/// synthetic development rung's dev policy (V = 300: refused at every
++/// Shieldstral profile by its vocabulary and margin parameters) and the D37
++/// category list, so each R13 Shieldstral run profile admits exactly the three
++/// category policies (token round 16b, REVIEW_R16 F-1; round 12's card policy is
++/// test-only). Test builds add only their thread's registered test policies.
+ pub(crate) fn registered_policies() -> Vec<Policy> {
+     #[allow(unused_mut)]
+-    let mut v = vec![policy_rung_dev(), policy_shieldstral_card()];
++    let mut v = vec![policy_rung_dev()];
+     // TOKEN I/O ROUND 16: the D37 category list (moderate wording, pending Victor)
+     v.extend(shieldstral_category_policies());
+     #[cfg(test)]

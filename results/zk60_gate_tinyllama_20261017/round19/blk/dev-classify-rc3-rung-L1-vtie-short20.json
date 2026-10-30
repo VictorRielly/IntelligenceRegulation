@@ -1,0 +1,108 @@
+{
+ "blocks": 1,
+ "calibration": {
+  "derived_norm_wrho_equals_the_shape": true,
+  "per_stage": [
+   {
+    "differs_from_the_run_on": [],
+    "stage": 1
+   }
+  ],
+  "source": "the rung fixture: frozen-r12 trained_calib_tests.rs:55-58 rung_tc_calibration (the classifier capture test's rung())",
+  "values": {
+   "norm_ceps": 33554467,
+   "norm_cn_a": 1336,
+   "norm_cn_m": 2158,
+   "norm_tn": 10,
+   "sh_ao": 6,
+   "sh_g": 8,
+   "sh_h": 13,
+   "sh_o": 10,
+   "sh_qkv": 8,
+   "sh_s": 5,
+   "sh_z": 5
+  }
+ },
+ "controls": {
+  "NC-1_constant_moved": {
+   "failing": [
+    [
+     1,
+     17
+    ]
+   ],
+   "fires": true,
+   "perturbation": "sh_s moved by one in every block stage's shim",
+   "predicted": [
+    [
+     1,
+     17
+    ]
+   ]
+  }
+ },
+ "dev_seconds": 1.6,
+ "io_wiring": {
+  "findings": [],
+  "mapping": {
+   "block k": "token stage k + 1",
+   "block k's Input (slot 21's IO table)": "token boundary k (B_in at k = 0)",
+   "block k's Output (slot 22's IO table)": "token boundary k + 1 (B_out at k = L - 1)",
+   "external endpoints": "none in a block stage (the token endpoints are opened at stages IN and OUT, which no shim exposes)",
+   "native internal boundary j": "token boundary j + 1"
+  },
+  "ok": true,
+  "per_stage": [
+   {
+    "block": 0,
+    "commits_token_boundary": 1,
+    "opened_commitment_kind": "B-in",
+    "opens_token_boundary": 0,
+    "slot21_private_roles": [
+     "A",
+     "Input"
+    ],
+    "slot22_private_roles": [
+     "A",
+     "Output"
+    ],
+    "token_stage": 1
+   }
+  ]
+ },
+ "ok": true,
+ "per_stage": [
+  {
+   "bilinear_group_factor_ok": true,
+   "block": 0,
+   "checked_not_equal": [],
+   "ok": true,
+   "port_findings": [],
+   "refused_or_open": [],
+   "slot_checks_equal": 23,
+   "slot_checks_expected": 23,
+   "source_pins_ok": true,
+   "stage": 1
+  }
+ ],
+ "plane_index": {
+  "a_data_rows": 1091,
+  "a_planes": 83,
+  "findings": [],
+  "h_data_rows": 1370,
+  "h_planes": 52,
+  "ok": true,
+  "slots": 23
+ },
+ "privacy_acceptance": false,
+ "replay_ok": true,
+ "seconds": 0.9,
+ "source_pin_adaptation": {
+  "added_in_memory": null,
+  "already_accepted_by_the_port": true,
+  "bundle_pins": "9a87081897ff0ec716d7f27a2813cc32117683eb5b2f2082a248f479ef98c4c5",
+  "file": "src/private_block/shape.rs",
+  "removed_after": false
+ },
+ "what": "the frozen block-stage terminal identity on each block stage of ONE classifier capture"
+}

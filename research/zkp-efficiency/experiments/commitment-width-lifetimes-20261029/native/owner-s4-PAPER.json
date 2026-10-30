@@ -1,0 +1,167 @@
+{
+  "status": "S4 construction/count and isolated validation complete; independent design check required before native layout work",
+  "anchor": "frozen native R13 bb9eb2123c9350c738dafd19fe3b0133d6e2e7ab93f1e765cac4f20ccaed69ec",
+  "objective": "Preserve the exact approved Shieldstral integer function while replacing padded model/FFN axes with public power-of-two pieces.",
+  "geometry": {
+    "model": [
+      [
+        0,
+        2048
+      ],
+      [
+        2048,
+        3072
+      ]
+    ],
+    "ffn": [
+      [
+        0,
+        8192
+      ],
+      [
+        8192,
+        9216
+      ]
+    ],
+    "unchanged": "T128/T256, Q4096, KV1024, head dimension128, 32query/8KVheads, FP12, H24 and per-layer G",
+    "commitments": "A and H remain single ordered row matrices containing all typed pieces. Each endpoint/internal boundary uses two separate piece commitments in the conservative construction; their ordered root pair is bound in the new profile policy."
+  },
+  "construction_A_explicit": {
+    "description": "Prove each matrix subproduct separately and hide its partial result in committed A planes. Never send unmasked partial dot products.",
+    "matmul_subproducts": {
+      "Q": 2,
+      "K": 2,
+      "V": 2,
+      "O": 2,
+      "gate": 4,
+      "up": 4,
+      "down": 4
+    },
+    "partial_planes": "One field-valued partial per inner-split output piece: Q1, K1, V1, gate1 and up1 per Fpiece, down1 per Dpiece, plus two T-valued partial square sums. The complementary partial is total minus committed partial, at a shared output point.",
+    "binding": "Host both subproduct equations with independent random batch coefficients at the same output point. One partial is committed before challenges; the other is the original quantized host expression minus that partial.",
+    "range_argument": "Partial values need no standalone integer limb class if both field matmul equations and the existing total-host integer bounds are proved. Eliminating the partial recovers the original no-wrap equation. This elimination and the shared-point mask coupling require review.",
+    "overhead": "19 additional CFS slots,85 additional A sites,25 additional H sites; partial data T*27648 +2*N base-field words. See COUNT.json for the per-family derivation."
+  },
+  "construction_B_batched_zero_lift": {
+    "description": "Use one sumcheck for the sum of the two inner-piece products. It has one combined initial claim and does not publish separate partial results.",
+    "identity": "For ratio2^k, lift the smaller piece by sigma=product(1-b_j) over the k missing leading FEATURE bits, after token coordinates. D1->D0 has k1;F1->F0 has k3. Lift BOTH factors; on the Boolean cube sigma^2=sigma, so the summed product equals the true smaller dot product.",
+    "terminal_opening": "At a challenge point remove exactly those k feature coordinates, multiply the complete masked functional by product(1-r_bj), and never divide. Keep token and CFS extension coordinates in their original order. Zero sigma is a zero functional, not a retry.",
+    "degree_obligation": "The lifted polynomial is multilinear in the larger cube. Certify native declared degree and the extension-zero property on the actual typed source-to-cube map. Treating an arbitrary repeated table as a lift is invalid.",
+    "mask_obligation": "Scale the complete masked functional, not only its data value. Allocate an independent reserved pair for every new physical claim and re-prove CFS coupling; existing rank/privacy approval does not transfer automatically.",
+    "matmul_slots": {
+      "Q": 1,
+      "K": 1,
+      "V": 1,
+      "O": 2,
+      "gate": 2,
+      "up": 2,
+      "down": 2
+    },
+    "other_slots": "One combined row-square sum per norm; duplicate D/F zero checks and both IO equality slots. Score, PV, row-exp sum, DD and table checks remain one family each.",
+    "overhead": "8 additional CFS slots,74 additional A sites,25 additional H sites; no private partial planes. These are a proposed schedule, not a measured native layout.",
+    "zero_functional_adapter": "sigma=0 implies the entire functional and terminal are zero. Shared trusted claim assembly MUST check terminal==0 before removing that functional. Keep the fixed terminal in the CFS transcript. Do not call native open_zk on an all-zero group and do not weaken its mask assertion. No division or retry."
+  },
+  "relations_touched": [
+    "Both norm square sums must add D0 and D1 before the integer square root. Both pieces share the same denominator, Cn, ceps and norm_tn. Never normalize pieces independently.",
+    "All D-domain residual, word/limb, norm remainder and AO/down host equations run on each Dpiece. F-domain gate, up, scaled ACT, product H24 and remainders run on each Fpiece.",
+    "Q/K/V sum over both Dinputs; O has two Doutputs; gate/up have two Foutputs and two Dinputs; down has two Doutputs and two Finputs. Do not round subproducts separately: round once after the full sum.",
+    "Per-output c2 multipliers and gate folds retain global channel indices. F1 index j means global channel8192+j; D1 index i means global channel2048+i. Canonical group IDs and table scaling remain exactly R13.",
+    "All existing true words must map bijectively to piece/offset. Weight tensor orientation, source hashes and the public model identity use true global axes, not an ambiguous concatenated local index.",
+    "A/H row placement, claim sites, mask pairs, source-coordinate maps, functional grouping, slot IDs and wire ceilings change. Introduce a new versioned layout profile; keep all R13/legacy branches and bytes fixed.",
+    "IO policies and hidden internal boundaries bind ordered piece roots and exact extents. Prove both pieces against the same logical endpoint; reject piece swaps, duplication, dropped tails and cross-run root substitution.",
+    "Byte and ACT histograms sum all pieces into the existing single global families. True Fqueries shrink to T*9216; do not double-count tables or retain the old padded ACTqueries.",
+    "D/F padding constraints become unnecessary on the true piece cubes. T/L padding and table-family support tails remain required. Every H-bearing piece is at least N for T128/T256, preserving the one column-weight key for the LogUp zero-sum claim; prove this using the final layout.",
+    "DD score geometry, Sum key, cap32 and all-slot FP12 quotient constraints remain unchanged. Only the aggregate lookup numerator/count changes. Re-derive the ACT3/DD rational-identity term from the new position count.",
+    "PCS column-weight keys change when D/F coordinates are removed. Keep distinct physical claims in separate ZClaims unless their projected tails/ranges coincide; do not combine unequal column weights. The global all-ones H sum remains a separate case."
+  ],
+  "counting": {
+    "exact_anchor": "A roles and lookup lists are executed directly from the frozen accuracy_layout.rs/accuracy_precision.rs with unchanged legacy scalar constants. Python reproduces all four native Shieldstral FE9 A/H data rows, total rows and byte counts before applying any model.",
+    "new_schedule": "Both alternatives include dedicated two-row mask pairs for the additional claim sites. M remains two rows per CFS slot plus four only if every new message still fits the existing 256-word mask-message budget. Verify this with the final degree/slot census.",
+    "endpoints": "Two independent piece commitments each retain five mask rows: total34 rows per logical endpoint versus37 at the current T/N ratio. A joint commitment might save masks but requires another joint-functional rank analysis and is not charged here.",
+    "exclusions": "A/H percentage comparisons follow the existing native convention; endpoint and M row counts are reported separately. Receipt size, hash work and exact prover scratch allocations are not yet counted."
+  },
+  "memory_conclusion": "Old R12 fit estimates are not R13 fit evidence. Calibrating on measured R13 actual-L00/T128 peaks gives batched T256 models12.17-13.76GiB nonDD and11.04-12.31GiB DD as fixed scratch varies0-2GiB. The guard budget is11.89GiB, and declaration margin is additional. No T256 fit claim is justified yet.",
+  "soundness_and_privacy_reread": [
+    "D24: exact source-coordinate maps, public matrix subproduct algebra, single rounding, no-wrap elimination, output and remainder linkage, adaptive partial-result claims, native degree checks and extension-zero property.",
+    "D12/D12a: ordered endpoint/boundary root pairs, ownership, no missing piece, fresh independent mask allocation and one logical cross-layer equality.",
+    "CFS/PCS: every physical claim has its own reserved mask pair; weighted/lifted opening coefficients and shared points are authenticated; no mask reuse across pieces; one opening per A/H/M commitment remains justified.",
+    "D30 and lookup: every DD slot remains constrained and inverted; ACT3 group coordinate remains public and bound; one global zero-sum claim; recompute N, table supports and the formal nonzero numerator premise.",
+    "Hash domains/wire: new profile and slot identities, whole-registry key distinctness, constructor/absorb separation, source-pin and SHA-call coverage, canonical layout digest and fail-closed old/new schema handling.",
+    "Privacy: new rank lemma and NL-1/joint-view captures; public coefficient zero cases; two-piece endpoint openings; no exposure of partial matmul values; refusal-channel analysis. No inherited privacy approval is assumed."
+  ],
+  "next_validation": [
+    "Coordinator routes the independent soundness/privacy design check requested in DESIGN_REVIEW_REQUEST.json; native layout implementation remains held under the explicit 06:35 coordination instruction.",
+    "After resolving the design check, replace proposed slot/claim counts with a native census; validate all M coefficient budgets, physical terminals, hash/domain and wire registrations before relying on a new profile.",
+    "After an explicit new profile, compare all19 native trace sites/output with R13, then full T128 native prove/verify/fresh/tamper and endpoint-piece attacks. Microproofs do not establish those gates.",
+    "Measure split live buffers/RSS; plan T256 proofs for the 5090 desktop under appropriate admission, not by reducing laptop declarations."
+  ],
+  "isolated_algebra_evidence": {
+    "native_field": "frozen Goldilocks Fp/Fp2",
+    "identities": 148,
+    "coordinate_degree_checks": 22,
+    "zero_coefficient_cases": 6,
+    "large_axes_checked": [
+      [
+        2048,
+        1024
+      ],
+      [
+        8192,
+        1024
+      ]
+    ],
+    "negative_controls": [
+      "repeated smaller cube multiplies the sum",
+      "dropping token instead of feature coordinate",
+      "scaling data but not the mask",
+      "rounding subproducts separately"
+    ],
+    "scope": "pure algebra/linear-functionals only; no native PCS/CFS/private-layout or privacy acceptance",
+    "initial_attempt": "wrong-axis negative control accidentally used an all-equal point after degree loop; failed non-vacuity, retained attempt1 source/binary/log; distinct point corrected in attempt2"
+  },
+  "native_pcs_microtest": {
+    "result": {
+      "honest_weighted_openings": 3,
+      "rejected_bad_claims": 5,
+      "zero_group_guard_retained": true,
+      "checked_zero_normalization": true,
+      "scope": "native PCS microtest only; CFS/wire/rank/privacy integration not established"
+    },
+    "library_pin": "PCS_LIBRARY_PIN.json",
+    "finding": "open_zk asserts that each clear group touches a nonzero mask row; an all-zero scaled group is refused. A top-level zero-functional normalization can work only if claimed value is explicitly checked0 before omitting it.",
+    "integration_obligations": [
+      "preserve the mask assertion",
+      "normalize identically in prover/verifier and count challenge-dependent groups/transcript draws",
+      "bind the scalar to the correct omitted feature coordinates",
+      "scale mask terms as well as data terms",
+      "revalidate CFS/rank/zero-coefficient privacy; microtest is not privacy acceptance"
+    ],
+    "fixture_scope": "public seeded test data, not a production RNG path"
+  },
+  "native_cfs_component_evidence": {
+    "honest_cfs_pcs_microproofs": 24,
+    "emitted_bad_microproofs_rejected": 192,
+    "zero_lift_honest_functionals": 24,
+    "zero_lift_bad_functionals_rejected": 48,
+    "mask_styles": [
+      "whole-lift: primary coordinated design, checked zero normalization",
+      "independent: experimental alternative requiring separate design review"
+    ],
+    "scope": "native CFS/sumcheck/PCS/M components with experimental adapter; no private-block wire/profile or privacy acceptance"
+  },
+  "native_scalar_piece_evidence": {
+    "native_scalar_piece_equivalences": 104,
+    "true_axis_words_mapped_bijectively": 12288,
+    "wrong_global_c2_counterexamples": 48,
+    "wrong_global_group_counterexamples": 779,
+    "per_piece_rounding_counterexamples": 6,
+    "shared_norm_denominator_counterexamples": 3,
+    "scope": "isolated native scalar arithmetic and global-index checks, not a full split block or proof"
+  },
+  "design_review_packet": "DESIGN_REVIEW_REQUEST.json",
+  "experimental_independent_mask_alternative": {
+    "status": "isolated experiment only; differs from coordinated whole-functional scaling condition; independent design/privacy review required",
+    "formula": "Z(t,b,j,e)=(1-e)*sigma(b)*Y(t,j)+e*(R_re+u*R_im)(tail(t,j))",
+    "finding": "At sigma=0 the terminal is a pure reserved-mask evaluation; the native mask-site assertion remains satisfied without zero-functional normalization. No extra retry or division."
+  }
+}

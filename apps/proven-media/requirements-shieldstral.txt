@@ -1,0 +1,4 @@
+# Optional text preparation, matching the retained calibration environment.
+# Select PM_PROVER=shieldstral explicitly for the reviewed testnet demo.
+mistral-common==1.11.7
+tiktoken==0.14.0

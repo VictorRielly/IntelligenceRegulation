@@ -1,0 +1,371 @@
+[
+  {
+    "batch": 1,
+    "search_query": [
+      {
+        "q": "sumcheck multilinear evaluation final claims table reuse GPU GKR 2026 October GitHub"
+      },
+      {
+        "q": "sumcheck prover multilinear extension evaluation equality table batching 2026 paper final evaluation"
+      },
+      {
+        "q": "site:github.com sumcheck terminal evaluations cache immutable polynomial 2026"
+      }
+    ],
+    "response_length": "long"
+  },
+  {
+    "batch": 2,
+    "open": [
+      {
+        "ref_id": "https://arxiv.org/abs/2610.14849"
+      },
+      {
+        "ref_id": "https://layerzero-labs.github.io/akita/foundations/multilinear-sumcheck.html"
+      },
+      {
+        "ref_id": "https://microsoft.github.io/vega-prover/building-blocks/multilinear.html"
+      },
+      {
+        "ref_id": "https://eprint.iacr.org/2026/587"
+      }
+    ],
+    "response_length": "long"
+  },
+  {
+    "batch": 3,
+    "open": [
+      {
+        "ref_id": "https://arxiv.org/html/2610.14849v2"
+      }
+    ],
+    "search_query": [
+      {
+        "q": "site:github.com \"StateSync-GKR\" \"1.2\""
+      },
+      {
+        "q": "site:github.com \"LayerZero-Labs/akita\" releases sumcheck"
+      },
+      {
+        "q": "site:github.com \"multilinear\" \"batch_evaluate\" sumcheck eq_table 2026"
+      }
+    ],
+    "response_length": "long"
+  },
+  {
+    "batch": 4,
+    "find": [
+      {
+        "ref_id": "turn2view0",
+        "pattern": "github"
+      },
+      {
+        "ref_id": "turn2view0",
+        "pattern": "1.2.0"
+      },
+      {
+        "ref_id": "turn1view0",
+        "pattern": "Submission history"
+      }
+    ],
+    "open": [
+      {
+        "ref_id": "https://github.com/LayerZero-Labs/akita/issues/61"
+      },
+      {
+        "ref_id": "https://eprint.iacr.org/2026/587/20260325:105231"
+      }
+    ],
+    "response_length": "long"
+  },
+  {
+    "batch": 5,
+    "open": [
+      {
+        "ref_id": "turn2view0",
+        "lineno": 105
+      },
+      {
+        "ref_id": "turn2view0",
+        "lineno": 413
+      },
+      {
+        "ref_id": "https://arxiv.org/abs/1304.3812"
+      }
+    ],
+    "response_length": "long"
+  },
+  {
+    "batch": 6,
+    "open": [
+      {
+        "ref_id": "https://arxiv.org/abs/1304.3812"
+      },
+      {
+        "ref_id": "https://github.com/LayerZero-Labs/akita"
+      },
+      {
+        "ref_id": "https://github.com/LayerZero-Labs/akita/blob/main/LICENSE-MIT"
+      },
+      {
+        "ref_id": "https://github.com/oraclizer/ss-gkr"
+      }
+    ],
+    "response_length": "long"
+  },
+  {
+    "batch": 7,
+    "open": [
+      {
+        "ref_id": "https://github.com/oraclizer/ss-gkr"
+      },
+      {
+        "ref_id": "https://github.com/LayerZero-Labs/akita/blob/main/LICENSE-MIT"
+      },
+      {
+        "ref_id": "https://github.com/LayerZero-Labs/akita/commits/main/"
+      }
+    ],
+    "response_length": "long"
+  },
+  {
+    "batch": 8,
+    "open": [
+      {
+        "ref_id": "turn2view0",
+        "lineno": 388
+      }
+    ],
+    "click": [
+      {
+        "ref_id": "turn6view2",
+        "id": 70
+      }
+    ],
+    "search_query": [
+      {
+        "q": "site:github.com \"StateSync-GKR\" \"BSL\""
+      },
+      {
+        "q": "site:github.com \"StateSync-GKR\" \"1.2.0\""
+      }
+    ],
+    "response_length": "long"
+  },
+  {
+    "batch": 9,
+    "open": [
+      {
+        "ref_id": "https://github.com/Oraclizer/statesync-gkr"
+      },
+      {
+        "ref_id": "https://github.com/Oraclizer/statesync-gkr/releases/tag/v1.2.0"
+      },
+      {
+        "ref_id": "https://raw.githubusercontent.com/LayerZero-Labs/akita/main/LICENSE-MIT"
+      }
+    ],
+    "response_length": "long"
+  },
+  {
+    "batch": 10,
+    "find": [
+      {
+        "ref_id": "turn8view0",
+        "pattern": "v1.2.0"
+      },
+      {
+        "ref_id": "turn8view0",
+        "pattern": "BSL"
+      },
+      {
+        "ref_id": "turn3view0",
+        "pattern": "terminal"
+      },
+      {
+        "ref_id": "turn6view2",
+        "pattern": "4a6897c"
+      }
+    ],
+    "open": [
+      {
+        "ref_id": "https://github.com/Oraclizer/statesync-gkr/releases/tag/v1.2.0"
+      },
+      {
+        "ref_id": "https://github.com/Oraclizer/statesync-gkr/blob/main/LICENSE"
+      }
+    ],
+    "response_length": "long"
+  },
+  {
+    "batch": 11,
+    "find": [
+      {
+        "ref_id": "turn9view1",
+        "pattern": "Business Source"
+      },
+      {
+        "ref_id": "turn8view0",
+        "pattern": "Releases"
+      },
+      {
+        "ref_id": "turn7view1",
+        "pattern": "4a6897c"
+      }
+    ],
+    "open": [
+      {
+        "ref_id": "https://github.com/Oraclizer/statesync-gkr/releases"
+      }
+    ],
+    "response_length": "long"
+  },
+  {
+    "batch": 12,
+    "click": [
+      {
+        "ref_id": "turn10view0",
+        "id": 64
+      },
+      {
+        "ref_id": "turn10view0",
+        "id": 58
+      }
+    ],
+    "open": [
+      {
+        "ref_id": "https://arxiv.org/html/1304.3812v4"
+      }
+    ],
+    "response_length": "long"
+  },
+  {
+    "batch": 13,
+    "open": [
+      {
+        "ref_id": "turn9view1",
+        "lineno": 210
+      },
+      {
+        "ref_id": "turn11view2",
+        "lineno": 120
+      },
+      {
+        "ref_id": "turn3view0",
+        "lineno": 170
+      }
+    ],
+    "find": [
+      {
+        "ref_id": "turn11view0",
+        "pattern": "equality"
+      },
+      {
+        "ref_id": "turn11view0",
+        "pattern": "reuse"
+      },
+      {
+        "ref_id": "turn11view0",
+        "pattern": "regular"
+      }
+    ],
+    "response_length": "long"
+  },
+  {
+    "batch": 14,
+    "open": [
+      {
+        "ref_id": "turn9view1",
+        "lineno": 410
+      }
+    ],
+    "response_length": "long"
+  },
+  {
+    "batch": 15,
+    "search_query": [
+      {
+        "q": "\"multilinear\" \"batch evaluation\" \"2023\" polynomial prover"
+      },
+      {
+        "q": "\"sumcheck\" \"equality\" \"precomputation\" \"2019\""
+      },
+      {
+        "q": "\"multilinear\" \"evaluation\" \"same point\" \"2024\" sumcheck cache"
+      }
+    ],
+    "response_length": "long"
+  },
+  {
+    "batch": 16,
+    "search_query": [
+      {
+        "q": "\"multilinear\" \"multipoint evaluation\" \"sumcheck\" paper"
+      },
+      {
+        "q": "\"sumcheck\" \"precomputed\" \"equality tables\" 2025"
+      },
+      {
+        "q": "\"GKR\" \"precomputed\" \"equality\" 2019 Virgo"
+      }
+    ],
+    "response_length": "long"
+  },
+  {
+    "batch": 17,
+    "open": [
+      {
+        "ref_id": "https://escholarship.org/uc/item/5qm6n0s0"
+      }
+    ],
+    "search_query": [
+      {
+        "q": "\"Doubly Efficient Interactive Proofs\" \"General Arithmetic Circuits\" linear prover 2020"
+      },
+      {
+        "q": "\"Efficient Zero-Knowledge Proofs: Theory and Practice\" 2023"
+      }
+    ],
+    "response_length": "long"
+  },
+  {
+    "batch": 18,
+    "open": [
+      {
+        "ref_id": "https://escholarship.org/uc/item/5qm6n0s0",
+        "lineno": 40
+      },
+      {
+        "ref_id": "https://eprint.iacr.org/2020/1247"
+      }
+    ],
+    "response_length": "long"
+  },
+  {
+    "batch": 19,
+    "open": [
+      {
+        "ref_id": "https://escholarship.org/content/qt5qm6n0s0/qt5qm6n0s0.pdf"
+      }
+    ],
+    "response_length": "long"
+  },
+  {
+    "batch": 20,
+    "find": [
+      {
+        "ref_id": "turn18view0",
+        "pattern": "4.3.3 Combining Multiple Claims"
+      },
+      {
+        "ref_id": "turn18view0",
+        "pattern": "Precompute"
+      },
+      {
+        "ref_id": "turn18view0",
+        "pattern": "simple batch"
+      }
+    ],
+    "response_length": "long"
+  }
+]

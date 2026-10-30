@@ -1,0 +1,14 @@
+RAM   12.52 GiB available of 15.39; swap used 0.6 GiB
+BUDGET 2.7 of 11.89 GiB committed by guarded jobs
+  job  tio14-g2                     build need 2.7G since 2026-10-29T01:28:58Z
+LOCKS heavy HELD, build HELD
+GPU   57 of 8188 MiB used
+kernel memory cap available: True
+  rss   1396 MiB  pid 147055  /home/victor/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rustc --crate-name hashline --edition=2021
+  rss    453 MiB  pid 2149    claude 
+[zk60-guard 18:29:29] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 18:30:30] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 18:31:30] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 18:32:31] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 18:32:51] START astra-gpu-benchmark-l03 class=gpu need=2.8G cap=4.5G enforce=cgroup+watchdog waited=202s run=b587b4867db7
+[zk60-guard 18:42:54] END astra-gpu-benchmark-l03 exit=3 child_wall=603s peak_rss=2.09G min_avail=11.89G peak_vram=647MiB

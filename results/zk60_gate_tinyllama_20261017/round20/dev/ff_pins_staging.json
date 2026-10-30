@@ -1,0 +1,172 @@
+{
+ "ok": true,
+ "v22": {
+  "r16b": {
+   "classify-r13-rung-L2-v1-short11": {
+    "ok": true,
+    "pins": 72,
+    "port": "v22 (token frozen-r16b on native R13, gate capture tree + H19)",
+    "refusals": [],
+    "statuses": [
+     "read by a chain of readings",
+     "read by the block gate",
+     "read by the token gate (v18)",
+     "the v22 classifier port's digest"
+    ]
+   },
+   "classify-r13-shield-t128-cli-sexual-r16b": {
+    "ok": true,
+    "pins": 72,
+    "port": "v22 (token frozen-r16b on native R13, gate capture tree + H19)",
+    "refusals": [],
+    "statuses": [
+     "read by a chain of readings",
+     "read by the block gate",
+     "read by the token gate (v18)",
+     "the v22 classifier port's digest"
+    ]
+   }
+  },
+  "r17": {
+   "classify-r13-rung-L2-v1-r17-values": {
+    "ok": false,
+    "pins": 72,
+    "port": "v22 (token frozen-r16b on native R13, gate capture tree + H19)",
+    "refusals": [
+     "src/private_block/run_capture.rs: cce0fc2a4062 has no reading"
+    ],
+    "statuses": [
+     "REFUSED",
+     "read by a chain of readings",
+     "read by the block gate",
+     "read by the token gate (v18)",
+     "the v22 classifier port's digest"
+    ]
+   },
+   "classify-r13-shield-t128-cli-hate-r17-values": {
+    "ok": false,
+    "pins": 72,
+    "port": "v22 (token frozen-r16b on native R13, gate capture tree + H19)",
+    "refusals": [
+     "src/private_block/run_capture.rs: cce0fc2a4062 has no reading"
+    ],
+    "statuses": [
+     "REFUSED",
+     "read by a chain of readings",
+     "read by the block gate",
+     "read by the token gate (v18)",
+     "the v22 classifier port's digest"
+    ]
+   }
+  },
+  "scripts": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/frozen_v22/scripts"
+ },
+ "v23": {
+  "old": {
+   "classify-rc3-rung-L2-v1-short20": {
+    "ok": false,
+    "pins": 60,
+    "port": "v23 (token frozen-r17 / frozen-r16b on native R13: H19-1..H19-4 adopted, the recorder's export replay)",
+    "refusals": [
+     "src/private_block/token_io/classify.rs: 6c828db6673e, the v22 classifier port was read at c180c83fb50f",
+     "src/private_block/token_io/classify_run.rs: 5d1d077f5102, the v22 classifier port was read at 8abbf72f1c8e",
+     "src/private_block/token_io/classify_tied.rs: 401d38d444b6, the v22 classifier port was read at a89acfabc75c"
+    ],
+    "statuses": [
+     "REFUSED",
+     "read by a chain of readings",
+     "read by the block gate",
+     "read by the token gate (v18)",
+     "the v22 classifier port's digest"
+    ]
+   },
+   "classify-rung-L2-v1": {
+    "ok": false,
+    "pins": 56,
+    "port": "v23 (token frozen-r17 / frozen-r16b on native R13: H19-1..H19-4 adopted, the recorder's export replay)",
+    "refusals": [
+     "src/private_block/token_io/classify.rs: 5d2c642a60d1, the v22 classifier port was read at c180c83fb50f",
+     "src/private_block/token_io/classify_run.rs: be2ccd1c97f1, the v22 classifier port was read at 8abbf72f1c8e",
+     "src/private_block/token_io/stage_in_c.rs: 05c1aae26519, the v22 classifier port was read at 6a92da0ecfe7",
+     "src/private_block/token_io/stage_out_c.rs: ee1cd2374ef3, the v22 classifier port was read at 93a79a2b39ab",
+     "src/private_block/token_io/classify_tied.rs: not pinned (the v22 classifier port was read from it)"
+    ],
+    "statuses": [
+     "REFUSED",
+     "read by a chain of readings",
+     "read by the token gate (v18)"
+    ]
+   }
+  },
+  "r16b": {
+   "classify-r13-rung-L2-v1-short11": {
+    "ok": true,
+    "pins": 72,
+    "port": "v23 (token frozen-r17 / frozen-r16b on native R13: H19-1..H19-4 adopted, the recorder's export replay)",
+    "refusals": [],
+    "statuses": [
+     "read by a chain of readings",
+     "read by the block gate",
+     "read by the token gate (v18)",
+     "the v22 classifier port's digest"
+    ]
+   },
+   "classify-r13-shield-t128-cli-sexual-r16b": {
+    "ok": true,
+    "pins": 72,
+    "port": "v23 (token frozen-r17 / frozen-r16b on native R13: H19-1..H19-4 adopted, the recorder's export replay)",
+    "refusals": [],
+    "statuses": [
+     "read by a chain of readings",
+     "read by the block gate",
+     "read by the token gate (v18)",
+     "the v22 classifier port's digest"
+    ]
+   }
+  },
+  "r17": {
+   "classify-r13-rung-L2-v1-r17-values": {
+    "ok": true,
+    "pins": 72,
+    "port": "v23 (token frozen-r17 / frozen-r16b on native R13: H19-1..H19-4 adopted, the recorder's export replay)",
+    "refusals": [],
+    "statuses": [
+     "read by a chain of readings",
+     "read by the block gate",
+     "read by the token gate (v18)",
+     "the v22 classifier port's digest"
+    ]
+   },
+   "classify-r13-shield-t128-cli-hate-r17-values": {
+    "ok": true,
+    "pins": 72,
+    "port": "v23 (token frozen-r17 / frozen-r16b on native R13: H19-1..H19-4 adopted, the recorder's export replay)",
+    "refusals": [],
+    "statuses": [
+     "read by a chain of readings",
+     "read by the block gate",
+     "read by the token gate (v18)",
+     "the v22 classifier port's digest"
+    ]
+   }
+  },
+  "r17_self_check": {
+   "findings": [],
+   "moved_r16b_to_r17": [
+    "src/private_block/plane_index.rs",
+    "src/private_block/run_capture.rs",
+    "src/private_block/s25_tests.rs",
+    "src/private_block/token_io/classify_capture_tests.rs",
+    "src/private_block/token_io/classify_r17_tests.rs",
+    "src/private_block/token_io/gate19_capture_tests.rs"
+   ],
+   "ok": true,
+   "plane_index_r17": "ce79803c86a80dde832dc92a262a023efdd52bb95b9a15f128791978c306ffac",
+   "r16b_files": 301,
+   "r17_files": 303,
+   "run_capture_r17": "cce0fc2a4062fcb4c92e771b8d7ac7f996c9ccfbc985bfb6decd79b29fba7ddf"
+  },
+  "scripts": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/staging_v23/scripts"
+ },
+ "what": "gate round 20 failing-first on the pin rule (manifest only); not a privacy result"
+}

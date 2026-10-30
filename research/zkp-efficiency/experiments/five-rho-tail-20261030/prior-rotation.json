@@ -1,0 +1,25 @@
+{
+  "current": [
+    "sumcheck/GKR",
+    "lookup arguments and softmax",
+    "batching/amortization",
+    "proof composition"
+  ],
+  "next": [
+    "memory traffic",
+    "GPU NTT/commitments",
+    "quantization/arithmetic"
+  ],
+  "queue": [
+    "GPU NTT/commitments",
+    "sumcheck/GKR",
+    "lookup arguments and softmax",
+    "memory traffic",
+    "batching/amortization",
+    "quantization/arithmetic",
+    "proof composition"
+  ],
+  "tested": "TESTED current R14 public layout repin; historical group provenance and fresh-proximity max4 boundary",
+  "local_next": "NEW five-vector final fold batch to absorb fresh proximity at a max4 batch boundary",
+  "owner_precedence": "Verified complete workloads and exclusive phase clocks first"
+}

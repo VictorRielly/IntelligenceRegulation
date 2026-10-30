@@ -1,0 +1,49 @@
+[
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "experiments/layer-stream-digest-20261029/run.py"
+    ],
+    "cwd": "/home/victor/IntelligenceRegulation/research/zkp-efficiency",
+    "exit_code": 0,
+    "result_artifact": "result.json",
+    "script_sha256": "3802510ef15ab577ec8e5db72cbe5e27794df6e53ef18a6b1598879bf38e2f79",
+    "measured_internal_elapsed_s": 0.19303989699983504,
+    "peak_rss_kib": 20280,
+    "original_stdout_capture": "Returned by exec tool; raw shell stdout not separately captured to a file. Structured result is authoritative. No timing repetition run.",
+    "start_utc": null,
+    "note": "Exact start timestamp not captured; commands occurred during this bounded cycle. Source and result hashes retained."
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "experiments/layer-stream-digest-20261029/audit.py"
+    ],
+    "cwd": "/home/victor/IntelligenceRegulation/research/zkp-efficiency",
+    "exit_code": 0,
+    "result_artifact": "audit-result.json",
+    "script_sha256": "b92ab49c8ad943e2907c4281e63d21f54097c0b4ef4d9126138c93fcbdc9de20",
+    "measured_internal_elapsed_s": 0.003938960999221308,
+    "peak_rss_kib": 18920,
+    "original_stdout_capture": "Returned by exec tool; raw shell stdout not separately captured to a file. Structured result is authoritative. No timing repetition run.",
+    "start_utc": null,
+    "note": "Exact start timestamp not captured; commands occurred during this bounded cycle. Source and result hashes retained."
+  },
+  {
+    "argv": [
+      "python3",
+      "-B",
+      "experiments/layer-stream-digest-20261029/final-audit.py"
+    ],
+    "cwd": "/home/victor/IntelligenceRegulation/research/zkp-efficiency",
+    "exit_code": 0,
+    "script_sha256": "3ad467a950c2d4f1ab30fa7edec95a97fa016ca1a7872b0d628e74ec1f1b1cde",
+    "result_artifact": "final-audit-result.json",
+    "measured_internal_elapsed_s": 0.020344132000900572,
+    "peak_rss_kib": 22220,
+    "original_stdout_capture": "Returned by exec tool; structured result retained. No benchmark repetition.",
+    "start_utc": null
+  }
+]

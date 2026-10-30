@@ -1,0 +1,45 @@
+{
+  "path": "CLAUDE.md",
+  "lines_read": 235,
+  "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6",
+  "headings": [
+    {
+      "line": 1,
+      "heading": "# IntelligenceRegulation \u2014 project instructions"
+    },
+    {
+      "line": 77,
+      "heading": "## Command style (prompt hygiene)"
+    },
+    {
+      "line": 103,
+      "heading": "## Heavy runs: detach, queue, marker (the no-hangup protocol, 2026-08-26)"
+    },
+    {
+      "line": 136,
+      "heading": "## Protocol invariants (from the PROGRESS ledgers \u2014 verify there before acting)"
+    },
+    {
+      "line": 153,
+      "heading": "## Approval etiquette"
+    },
+    {
+      "line": 160,
+      "heading": "## Codex unattended workflow \u2014 Victor's direction, 2026-09-22"
+    },
+    {
+      "line": 198,
+      "heading": "## Persistent efficiency research lane (Victor, 2026-09-22)"
+    }
+  ],
+  "current_mentions": [
+    {
+      "line": 36,
+      "text": "with measured scaling, while retaining the final private 8B / >=50 proved"
+    },
+    {
+      "line": 225,
+      "text": "Its current >=50 proved-token/s target permits longer workloads on an RTX"
+    }
+  ]
+}

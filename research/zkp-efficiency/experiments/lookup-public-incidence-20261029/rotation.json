@@ -1,0 +1,21 @@
+{
+  "cycle_focus": [
+    "lookup arguments/softmax",
+    "batching/amortization",
+    "public descriptor preparation"
+  ],
+  "next": [
+    "GPU NTT/commitments",
+    "memory traffic",
+    "proof composition"
+  ],
+  "rotating_queue": [
+    "GPU NTT/commitments",
+    "sumcheck/GKR",
+    "lookup arguments/softmax",
+    "memory traffic",
+    "batching/amortization",
+    "quantization/arithmetic",
+    "proof composition"
+  ]
+}

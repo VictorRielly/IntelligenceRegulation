@@ -1,43 +1,42 @@
 # ZKP efficiency progress
 
-Cycle 0127 complete — `20261026T192925Z-2a61ec3c` — 2026-10-26 UTC.
+Cycle 0171 complete — 20261030T194123Z-776cb104.
 
-**No proving speedup measured.** A synthetic experiment builds the 256 distinct
-exp/activation rows with fresh proof challenges, then copies them into the
-longer public table. It passes 3,353 checks across 204 cases and 2,264,184
-output entries. A separate source/cost audit passes 158 checks.
+**No measured proving improvement.** The current R14 DD algebra projection
+passed 48 synthetic fixtures, including all three score limbs and six lookups.
+Each evaluator matched 840 round values, 9,504 intermediate folded values and
+864 ordered finals against an independent reference. All ten negative controls
+fired. The first mask control missed a distinguishing case; that failure is
+retained and corrected. The independent local audit passed 11,337 checks.
 
-At current R12 T128, the pair's source-level Fp2 products fall from 32,768
-to 512. Its 524,288-byte output stays the same, and copying adds 354,816 net
-logical read bytes per pair. Native timing is needed to resolve this tradeoff.
-The research patch is uncompiled and unapplied; R13 LOW+h24 is excluded.
+At public T128-sized dimensions, grouping removes 28.78% of counted expanded
+field products, or 18.78% with all recovery disabled by zero factors. These are
+arithmetic counts, not speed measurements. Small cases can regress. The saved
+Rust diff is uncompiled and unapplied; native setup and enclosing costs remain
+unknown. Main experiment: 5.461 s / 24,592 KiB; audit: 5.263 s / 20,364 KiB,
+one low-priority CPU thread.
 
-Checking clocks: model 9.169534 s / 56,076 KiB RSS; source audit 0.010463 s /
-16,976 KiB RSS. One Intel Core Ultra 9 185H worker, nice 19, 30-second CPU/alarm
-cap, 256 MiB address-space cap and 96 MiB memory estimate. No GPU use.
+New independently verified full-stack proofs / model passes / proved positions:
+**0 / 0 / 0**. Model context: **none**; passes: **0**. Device: Intel Core Ultra 9
+185H, one CPU affinity; no GPU. Witness, proof, serialization, verification,
+startup and initial-prefill clocks, startup fraction, proof latency/bytes and
+both steady-state and total-workload token rates: **unmeasured**. No prefill,
+resident-model proof series or decode ran. The private 8B / 50 proved-token/s
+high-end GPU target remains unachieved. Larger workloads remain allowed;
+attention can grow quadratically. No mask or private-opening reuse.
 
-Seven primary-source records append the ledger to 821. LIVE search covered
-Celer, current SP1 releases/GPU LogUp-GKR, Logup*, Rust's copy API and a blocked
-TenseUp refresh. Celer's prototype explicitly omits blinding, so it fails the
-privacy compatibility filter. No author benchmark was reproduced. All 39
-prior hypotheses remain; two were refined and two added.
+Eight LIVE primary-source records were added, including current sumcheck work,
+recent October revisions and newly assessed older FFT planning. The native NTT
+already uses two passes and fused gather; no extra pass deletion is established.
+The queue retains verified GPU resident workloads, admitted context/fidelity
+scaling and exclusive native clocks as its top three priorities.
 
-New independently verified full-stack proofs / passes / positions: **0 / 0 / 0**.
-Actual model context / accelerator: **none**. Witness, proof, serialization,
-verification, startup and prefill clocks; startup fraction; proof latency/bytes;
-steady-state and total-workload rates: **unmeasured**. No long prefill, resident
-proof series or decode ran. Longer workloads remain allowed; attention can
-grow quadratically. The private 8B / >=50 proved tokens/s target is unachieved.
+Next local: test the source-derived CFS masking and extension wrapper on
+synthetic data. Next owner: review the diff, run native masked-byte, randomness,
+transcript, refusal and opening checks, then measure exclusive phase times under
+the shared locks. Main/Claude owns integration.
 
-Next owner action: native constructor, SC_TAB and enclosing proof clocks;
-correctness/privacy gates if material; then verified resident 1/2/4/8 workloads
-under shared locks. Next local test: actual periodic SC_TAB descriptors,
-including full Fp2 points, extension, terminal and refusal controls.
-
-[Experiment](experiments/lookup-row-tiling-20261026/README.md),
-[handoff](handoffs/20261026-fresh-lookup-row-tiling.md),
-[dated report](progress/20261026T192925Z-2a61ec3c.md).
-Only research outside runtime written. Saved reports do not establish user
-notification or supervisor liveness. Checkpoint UTC: 2026-10-26T19:43:01.123699+00:00.
-
-Final evidence audit: 731 checks PASS; 50 immutable artifacts and 9 tested current native pins match. Two patch hunks apply in memory only. All 814 prior sources, 39 prior hypotheses and prior findings preserved. Final checkpoint UTC: 2026-10-26T19:44:02.280925+00:00.
+[Experiment](experiments/accuracy-dd-groups-20261030/README.md) ·
+[Handoff](handoffs/20261030-accuracy-dd-groups.md) ·
+[Dated report](progress/20261030T194123Z-776cb104.md).
+Saved reports do not establish message delivery.

@@ -1,0 +1,35 @@
+{
+ "removed": [
+  {
+   "path": "/home/victor/zk60-artifacts/token-io/r18-a5-eq/batch",
+   "files": 87,
+   "bytes": 2545251995
+  },
+  {
+   "path": "/home/victor/zk60-artifacts/token-io/r18-a5-eq/single",
+   "files": 87,
+   "bytes": 2545251869
+  },
+  {
+   "path": "/home/victor/zk60-artifacts/token-io/r18-a5-eq/r16b",
+   "files": 29,
+   "bytes": 848417277
+  },
+  {
+   "path": "/home/victor/zk60-artifacts/token-io/r18-a5-eq/fail",
+   "files": 0,
+   "bytes": 0
+  },
+  {
+   "path": "/home/victor/zk60-owner-private/token-io/r18-a5-eq",
+   "files": 171,
+   "bytes": 123344592
+  }
+ ],
+ "left_in_eq": [
+  "bin",
+  "ent",
+  "logs"
+ ],
+ "own_exists": false
+}

@@ -1,0 +1,365 @@
+{
+ "hashline/src/private_block.rs": {
+  "r15_delta": [
+   10,
+   0
+  ],
+  "r16_delta": [
+   10,
+   0
+  ],
+  "new_plus": [],
+  "lost_plus": [],
+  "new_minus": [],
+  "lost_minus": [],
+  "r13_additions_missing_in_token": []
+ },
+ "hashline/src/private_block/accuracy_proof_tests.rs": {
+  "r15_delta": [
+   0,
+   0
+  ],
+  "r16_delta": [
+   3,
+   3
+  ],
+  "new_plus": [
+   "let path=/* TOKEN ROUND 16: HL_R13_LOADER_FIXTURES */ std::env::var_os(\"HL_R13_LOADER_FIXTURES\").map(std::path::PathBuf::from).unwrap_or_else(|| std::path::Path::new(env!(\"CARGO_MANIFEST_DIR\")).join(\"../../loader-fixtures\")).join(\"r13-h24-wide\");",
+   "let path=/* TOKEN ROUND 16: HL_R13_LOADER_FIXTURES */ std::env::var_os(\"HL_R13_LOADER_FIXTURES\").map(std::path::PathBuf::from).unwrap_or_else(|| std::path::Path::new(env!(\"CARGO_MANIFEST_DIR\")).join(\"../../loader-fixtures\")).join(\"r13-h24-wide\");",
+   "let path=/* TOKEN ROUND 16: HL_R13_LOADER_FIXTURES overrides the native tree's sibling dir */ std::env::var_os(\"HL_R13_LOADER_FIXTURES\").map(std::path::PathBuf::from).unwrap_or_else(|| std::path::Path::new(env!(\"CARGO_MANIFEST_DIR\")).join(\"../../loader-fixtures\")).join(name);"
+  ],
+  "lost_plus": [],
+  "new_minus": [
+   "let path=std::path::Path::new(env!(\"CARGO_MANIFEST_DIR\")).join(\"../../loader-fixtures\").join(name);",
+   "let path=std::path::Path::new(env!(\"CARGO_MANIFEST_DIR\")).join(\"../../loader-fixtures/r13-h24-wide\");",
+   "let path=std::path::Path::new(env!(\"CARGO_MANIFEST_DIR\")).join(\"../../loader-fixtures/r13-h24-wide\");"
+  ],
+  "lost_minus": [],
+  "r13_additions_missing_in_token": [
+   "let path=std::path::Path::new(env!(\"CARGO_MANIFEST_DIR\")).join(\"../../loader-fixtures\").join(name);",
+   "let path=std::path::Path::new(env!(\"CARGO_MANIFEST_DIR\")).join(\"../../loader-fixtures/r13-h24-wide\");"
+  ]
+ },
+ "hashline/src/private_block/hash_domain_tests.rs": {
+  "r15_delta": [
+   20,
+   2
+  ],
+  "r16_delta": [
+   20,
+   2
+  ],
+  "new_plus": [
+   "let lane: [(&str, &str); 36] = ["
+  ],
+  "lost_plus": [
+   "let lane: [(&str, &str); 24] = ["
+  ],
+  "new_minus": [
+   "let lane: [(&str, &str); 28] = ["
+  ],
+  "lost_minus": [
+   "let lane: [(&str, &str); 16] = ["
+  ],
+  "r13_additions_missing_in_token": [
+   "let lane: [(&str, &str); 28] = ["
+  ]
+ },
+ "hashline/src/private_block/run.rs": {
+  "r15_delta": [
+   62,
+   0
+  ],
+  "r16_delta": [
+   123,
+   0
+  ],
+  "new_plus": [
+   "#[cfg(test)]",
+   "#[cfg(test)]",
+   "#[cfg(test)]",
+   "#[cfg(test)]",
+   "(RUN_PROFILE_CLASSIFY_R13_SHIELD_T128, super::shape::R13_SHIELD_T128_H24),",
+   "(RUN_PROFILE_CLASSIFY_R13_SHIELD_T256, super::shape::R13_SHIELD_T256_H24),",
+   "// TOKEN I/O ROUND 16: nor an R13 classifier run profile (built by",
+   "// TOKEN I/O ROUND 16: the R13 classifier run profiles, rebuilt through the",
+   "// `token_io::classify_run` only; the rung's profile keeps its old rule)",
+   "// same R13 door as native's (the handed shape's calibration, f_e and gate)",
+   "/// **TOKEN I/O ROUND 16 (2026-10-29): the CLASSIFIER run over the native R13",
+   "/// **TOKEN I/O ROUND 16, TEST BUILDS ONLY:** a classifier run over native",
+   "/// 88 bytes equal the `schedule` absorb). Non-DD only (the classifier CLI",
+   "/// D17 (their own transcripts; D17's one-run-profile-per-block-shape rule),",
+   "/// R13 classifier path (per-layer gate denominators, the pre-header stage",
+   "/// R13's LOW + h24 development rung (`R13_RUNG_H24`, T32, width 384), so the",
+   "/// Shieldstral-1.0-3B LOW + h24 blocks** (REVIEW_R13 \u00a710: block profiles",
+   "/// TOKEN I/O ROUND 16: each R13 classifier run profile and the ONE R13 block",
+   "/// TOKEN I/O ROUND 16: the classifier run profile of an R13 block profile",
+   "/// `R13_SHIELD_T128_H24` / `R13_SHIELD_T256_H24`, export schema v2, each",
+   "/// admit [`RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST`])",
+   "/// built by `token_io::classify_run` only (73 characters: an 85-byte transcript",
+   "/// byte from none; s25's W-2 census refused the first 76-character choice, whose",
+   "/// carries no `--dd` switch); T256 is registered for larger hosts and is not",
+   "/// check) proves and verifies in seconds on public synthetic fixtures. No",
+   "/// constructor, the length of no other hash-input kind of these runs and one",
+   "/// production build has it.",
+   "/// profile it names (CS-7), as native R13's `ACCURACY_RUN_PROFILES`",
+   "/// proved on the 8 GB laptop (its modelled peak exceeds the budget).",
+   "/// stage at its layer's bound gate denominator). NEW profile strings under",
+   "/// whether `p` is a classifier run profile of this build (test builds also",
+   "/// whether `p` is an R13 classifier run profile (the blocks-only refusal)",
+   "ACCURACY_CLASSIFY_RUN_PROFILES.iter().any(|(r, _)| *r == p)",
+   "ACCURACY_CLASSIFY_RUN_PROFILES.iter().find(|(_, b)| *b == block).map(|(r, _)| *r)",
+   "CLASSIFY_RUN_PROFILES.contains(&p)",
+   "];",
+   "fn is_r13_classify_run_profile(p: &str) -> bool {",
+   "if is_r13_classify_run_profile(rs.profile) {",
+   "if let Some((_, block)) = ACCURACY_CLASSIFY_RUN_PROFILES.iter().find(|(run, _)| *run == profile) {",
+   "if p == RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST {",
+   "if p == RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST {",
+   "if profile == RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST {",
+   "pub(crate) const ACCURACY_CLASSIFY_RUN_PROFILES: [(&str, &str); 2] = [",
+   "pub(crate) const CLASSIFY_RUN_PROFILES: [&str; 3] = [RUN_PROFILE_CLASSIFY_RUNG_TC, RUN_PROFILE_CLASSIFY_R13_SHIELD_T128, RUN_PROFILE_CLASSIFY_R13_SHIELD_T256];",
+   "pub(crate) const RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST: &str = \"hashline-zk-mr1/private-classify-run-rung-lh-t32-public-row-tst/1\";",
+   "pub(crate) const RUN_PROFILE_CLASSIFY_R13_SHIELD_T128: &str = \"hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/1\";",
+   "pub(crate) const RUN_PROFILE_CLASSIFY_R13_SHIELD_T256: &str = \"hashline-zk-mr1/private-classify-run-shieldstral-3b-t256-r13-public-row/1\";",
+   "pub(crate) fn accuracy_classify_run_profile(block: &str) -> Option<&'static str> {",
+   "pub(crate) fn is_classify_run_profile(p: &str) -> bool {",
+   "return Err(format!(\"private run: {} is a classifier run profile; a blocks-only run statement may not carry it\", rs.profile));",
+   "return Some(Shape::accuracy_trained(block, &cal, sh.f_e, sh.accuracy_gate_shift));",
+   "return Some(Shape::accuracy_trained(super::shape::R13_RUNG_H24, &cal, sh.f_e, sh.accuracy_gate_shift));",
+   "return true;",
+   "return true;",
+   "}",
+   "}",
+   "}",
+   "}",
+   "}",
+   "}",
+   "}",
+   "}"
+  ],
+  "lost_plus": [
+   "pub(crate) const CLASSIFY_RUN_PROFILES: [&str; 1] = [RUN_PROFILE_CLASSIFY_RUNG_TC];"
+  ],
+  "new_minus": [],
+  "lost_minus": [],
+  "r13_additions_missing_in_token": []
+ },
+ "hashline/src/private_block/run_capture.rs": {
+  "r15_delta": [
+   1497,
+   12
+  ],
+  "r16_delta": [
+   1497,
+   12
+  ],
+  "new_plus": [
+   "pub(super) const OWN_SOURCE_FILES: [&str; 38] = ["
+  ],
+  "lost_plus": [
+   "pub(super) const OWN_SOURCE_FILES: [&str; 26] = ["
+  ],
+  "new_minus": [
+   "pub(super) const OWN_SOURCE_FILES: [&str; 32] = ["
+  ],
+  "lost_minus": [
+   "pub(super) const OWN_SOURCE_FILES: [&str; 20] = ["
+  ],
+  "r13_additions_missing_in_token": [
+   "pub(super) const OWN_SOURCE_FILES: [&str; 32] = ["
+  ]
+ },
+ "hashline/src/private_block/s24_tests.rs": {
+  "r15_delta": [
+   12,
+   0
+  ],
+  "r16_delta": [
+   12,
+   0
+  ],
+  "new_plus": [],
+  "lost_plus": [],
+  "new_minus": [],
+  "lost_minus": [],
+  "r13_additions_missing_in_token": []
+ },
+ "hashline/src/private_block/s25_tests.rs": {
+  "r15_delta": [
+   341,
+   15
+  ],
+  "r16_delta": [
+   341,
+   15
+  ],
+  "new_plus": [
+   "all_shapes.len() + every_run().len() + super::trained_calib_tests::registered_trained_runs().len() + super::token_io::registered_token_runs().len() + super::token_io::classify::registered_classify_runs().len() + super::accuracy_profile_tests::registered_runs().len(),"
+  ],
+  "lost_plus": [
+   "all_shapes.len() + every_run().len() + super::trained_calib_tests::registered_trained_runs().len() + super::token_io::registered_token_runs().len() + super::token_io::classify::registered_classify_runs().len(),"
+  ],
+  "new_minus": [
+   "assert_eq!(in_source.len(), all_shapes.len() + every_run().len() + super::trained_calib_tests::registered_trained_runs().len() + super::accuracy_profile_tests::registered_runs().len(), \"the source registry holds a profile this test does not measure (or vice versa)\");"
+  ],
+  "lost_minus": [
+   "assert_eq!(in_source.len(), all_shapes.len() + every_run().len() + super::trained_calib_tests::registered_trained_runs().len(), \"the source registry holds a profile this test does not measure (or vice versa)\");"
+  ],
+  "r13_additions_missing_in_token": [
+   "assert_eq!(in_source.len(), all_shapes.len() + every_run().len() + super::trained_calib_tests::registered_trained_runs().len() + super::accuracy_profile_tests::registered_runs().len(), \"the source registry holds a profile this test does not measure (or vice versa)\");"
+  ]
+ },
+ "hashline/src/private_block/s33_tests.rs": {
+  "r15_delta": [
+   4,
+   0
+  ],
+  "r16_delta": [
+   4,
+   0
+  ],
+  "new_plus": [],
+  "lost_plus": [],
+  "new_minus": [],
+  "lost_minus": [],
+  "r13_additions_missing_in_token": []
+ },
+ "hashline/src/private_block/tied_tables.rs": {
+  "r15_delta": [
+   2,
+   0
+  ],
+  "r16_delta": [
+   2,
+   0
+  ],
+  "new_plus": [
+   "/// TOKEN ROUND 16 (N-r13-5): the loader's pass with the classifier row",
+   "pub(crate) use derive::recompute_declared_tied_tables_with_margin;"
+  ],
+  "lost_plus": [
+   "/// TOKEN I/O R-C2: the quantizer's own functions, for the classifier's development-rung tied source",
+   "pub(crate) use derive::{bf16, norm, quantize};"
+  ],
+  "new_minus": [],
+  "lost_minus": [],
+  "r13_additions_missing_in_token": []
+ },
+ "hashline/src/private_block/tied_tables/derive.rs": {
+  "r15_delta": [
+   3,
+   3
+  ],
+  "r16_delta": [
+   10,
+   1
+  ],
+  "new_plus": [
+   "/// TOKEN ROUND 16 (token review N-r13-5): the loader's SAME pass, optionally",
+   "/// exactly [`recompute_declared_tied_tables`].",
+   "/// profile's own `classifier_margin_parameters`), so a classifier prove or",
+   "/// verify streams the pinned checkpoint once instead of twice. `None` is",
+   "/// with the classifier difference row for `(yes, no, scale)` (the bound",
+   "pub(crate) fn recompute_declared_tied_tables_with_margin(export: &Path, expected: &J, margin: Option<(u32,u32,f64)>) -> Result<RecomputedTiedTables,String> {",
+   "recompute_declared_tied_tables_with_margin(export, expected, None)",
+   "recompute_profile(export,&bytes,&profile,margin)",
+   "}"
+  ],
+  "lost_plus": [
+   "pub(crate) fn bf16(bytes: &[u8]) -> Result<Vec<f64>, String> {",
+   "pub(crate) fn norm(value: &J, classifier: bool) -> Result<TiedFinalNorm, String> {",
+   "pub(crate) fn quantize(values: &[f64], scale: f64, low: i64, high: i64) -> Result<Vec<i64>, String> {"
+  ],
+  "new_minus": [
+   "recompute_profile(export,&bytes,&profile,None)"
+  ],
+  "lost_minus": [
+   "fn bf16(bytes: &[u8]) -> Result<Vec<f64>, String> {",
+   "fn norm(value: &J, classifier: bool) -> Result<TiedFinalNorm, String> {",
+   "fn quantize(values: &[f64], scale: f64, low: i64, high: i64) -> Result<Vec<i64>, String> {"
+  ],
+  "r13_additions_missing_in_token": []
+ },
+ "hashline/src/private_block/trained_accuracy.rs": {
+  "r15_delta": [
+   0,
+   0
+  ],
+  "r16_delta": [
+   2,
+   1
+  ],
+  "new_plus": [
+   "// TOKEN ROUND 16: HL_R13_LOADER_FIXTURES overrides the native tree's sibling dir",
+   "std::env::var_os(\"HL_R13_LOADER_FIXTURES\").map(std::path::PathBuf::from).unwrap_or_else(|| std::path::Path::new(env!(\"CARGO_MANIFEST_DIR\")).join(\"../../loader-fixtures\")).join(name)"
+  ],
+  "lost_plus": [],
+  "new_minus": [
+   "Path::new(env!(\"CARGO_MANIFEST_DIR\")).join(\"../../loader-fixtures\").join(name)"
+  ],
+  "lost_minus": [],
+  "r13_additions_missing_in_token": [
+   "Path::new(env!(\"CARGO_MANIFEST_DIR\")).join(\"../../loader-fixtures\").join(name)"
+  ]
+ },
+ "hashline/src/private_block/trained_block.rs": {
+  "r15_delta": [
+   10,
+   10
+  ],
+  "r16_delta": [
+   51,
+   14
+  ],
+  "new_plus": [
+   "(None, None) => return Ok((None, None)),",
+   "(yes != no && (yes as usize) < 131_072 && (no as usize) < 131_072 && scale.is_finite() && scale > 0.0).then_some((yes, no, scale))",
+   "// TOKEN ROUND 16 (N-r13-5): with the classifier row when the profile",
+   "// names its parameters; the pass without it decides when that is refused",
+   "/// **TOKEN ROUND 16 (token review N-r13-5): the loader's tied-table",
+   "/// 7.7 GB checkpoint a second time. The admission rule of the load is",
+   "/// TOKEN ROUND 16 (N-r13-5): the load's tied derivation (tied models",
+   "/// `classifier_margin_parameters` (`yes_id`, `no_id` below the vocabulary and",
+   "/// decides (the classifier's own derivation then refuses the row by name).",
+   "/// derivation, kept.** A tied export whose `profile.json` names well-formed",
+   "/// distinct, a finite positive `public_scale`) has the classifier difference",
+   "/// only), reused by the classifier loader",
+   "/// reuses it (after every one of its own checks) instead of streaming the",
+   "/// row derived in the SAME authenticated pass; the classifier loader then",
+   "/// the `(yes, no, public_scale bits)` the row was derived with, if any",
+   "/// unchanged: if the pass with the row is refused, the pass without it",
+   "Ok((Some(TiedEmbedding { tensor: name.into(), tensor_sha256: digest, embedding_table_sha256: emb, head_table_sha256: head, head_mult_sha256: mult }), Some(TiedDerivation { margin: kept_margin, tables: derived })))",
+   "Some(Ok(d)) => (d, margin.map(|(y, n, s)| (y, n, s.to_bits()))),",
+   "_ => (super::tied_tables::recompute_declared_tied_tables(dir, p)?, None),",
+   "fn declared_classifier_margin(p: &J) -> Option<(u32, u32, f64)> {",
+   "let (derived, kept_margin) = match margin.map(|m| super::tied_tables::recompute_declared_tied_tables_with_margin(dir, p, Some(m))) {",
+   "let (tied, tied_derivation) = tied_of_with_derivation(dir, &p, geometry, &source).map_err(ctx)?;",
+   "let (yes, no) = (id(\"yes_id\")?, id(\"no_id\")?);",
+   "let id = |k: &str| m.opt(k).and_then(|v| v.i64().ok()).and_then(|v| u32::try_from(v).ok());",
+   "let m = p.opt(\"classifier_margin_parameters\")?;",
+   "let margin = declared_classifier_margin(p);",
+   "let scale = m.opt(\"public_scale\").and_then(|v| v.f64().ok())?;",
+   "pub margin: Option<(u32, u32, u64)>,",
+   "pub tables: super::tied_tables::RecomputedTiedTables,",
+   "pub tied_derivation: Option<TiedDerivation>,",
+   "pub(crate) fn tied_of_with_derivation(dir: &Path, p: &J, geometry: Geometry, source: &ModelSource) -> Result<(Option<TiedEmbedding>, Option<TiedDerivation>), String> {",
+   "pub(crate) struct TiedDerivation {",
+   "tied_derivation,",
+   "tied_of_with_derivation(dir, p, geometry, source).map(|(t, _)| t)",
+   "}",
+   "}",
+   "}",
+   "};"
+  ],
+  "lost_plus": [],
+  "new_minus": [
+   "(None, None) => return Ok(None),",
+   "Ok(Some(TiedEmbedding { tensor: name.into(), tensor_sha256: digest, embedding_table_sha256: emb, head_table_sha256: head, head_mult_sha256: mult }))",
+   "let derived = super::tied_tables::recompute_declared_tied_tables(dir, p)?;",
+   "let tied = tied_of(dir, &p, geometry, &source).map_err(ctx)?;"
+  ],
+  "lost_minus": [],
+  "r13_additions_missing_in_token": []
+ }
+}

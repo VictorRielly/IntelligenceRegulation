@@ -1,0 +1,8 @@
+R14-public-synthetic-malicious-fixture/1
+case=dictionary-counts
+dd=1
+model_identity=d363a0f78f4b673e86b8ac1e930c63c068b7048578ee6142adde04d1d615fde4
+input_root=ac5edd58bfcaeccf92fcb23f662b89ca2308fa925b78f6396ffe0e0d9c35f55e
+output_root=2e9ba5cf9d3ff4b00808758b20a782688953c38b9fa1dffecb965b78fdccfdfe
+binding=08e50353edd7b2b87927533535c48cf05a5900e098efff0d59083574d77e9e42
+error=R14 H: pcs zk: group 11: <v, c> != combined claim

@@ -1,0 +1,21 @@
+{
+  "searched": [
+    "lookup/softmax",
+    "proof composition",
+    "memory traffic",
+    "batching/amortization",
+    "sumcheck/GKR",
+    "recent release refresh"
+  ],
+  "next": [
+    "quantization/arithmetic",
+    "GPU NTT/commitments",
+    "sumcheck/GKR",
+    "lookup/softmax",
+    "memory traffic",
+    "batching/amortization",
+    "proof composition"
+  ],
+  "new_older": "Gemini2022 elastic time/space configurations; primary abstract only,PDF403",
+  "no_foreign_execution": true
+}

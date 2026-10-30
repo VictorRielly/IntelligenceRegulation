@@ -1,0 +1,1 @@
+Initial arithmetic passed. Initial output counted the positive empty-input edge among negative controls: 11 should be 10 negative plus one positive edge. Source corrected only this counter before rerun. Initial harness copy was taken after the one-line counter fix. First apply_patch to change the print line failed without editing a file.

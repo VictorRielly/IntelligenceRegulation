@@ -1,0 +1,2 @@
+applied fix1-revert to hashline/src/private_block/token_io/classify_batch.rs (original sha256 9efc66e7fb6726de, mutant b52e1f81a1dc5c0c)
+reverted fix1-revert: hashline/src/private_block/token_io/classify_batch.rs back to 9efc66e7fb6726de

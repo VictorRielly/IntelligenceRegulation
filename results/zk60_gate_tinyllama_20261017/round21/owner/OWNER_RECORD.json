@@ -1,0 +1,163 @@
+{
+ "astra_app_post_n17": {
+  "found": [],
+  "plan": "/home/victor/IntelligenceRegulation/results/zk60_astra_20261026/real_app_demo_1/plan.json",
+  "state": "not run yet (no inowner log): owed"
+ },
+ "cases": [
+  {
+   "binary": {
+    "note": "the token lane's working-copy build at the time (real_runs.json binary_sha256); the path was rebuilt later (now dae5abd7..., the frozen-r16 tree's), so the bytes that ran are named by the token lane's record, not re-hashed here",
+    "reported_sha256": "e94cecf99f82e047de73cd668345496d9e679e370769bd2cddd2dc1ddb5b8b24"
+   },
+   "capture_input_root": "4cf9e8aea0fe0f238fd86bbabec6c9b67fc9d6a07c94bb557959083c78450957",
+   "capture_is_this_run": true,
+   "case": "hate run, token round 16 (moderate-hate, n 35)",
+   "done": "0",
+   "events": [
+    {
+     "checked_against": "the verified statement's input root, re-verified against every segment in this process",
+     "chunk": 0,
+     "content_total": 35,
+     "event": "content-checked",
+     "range": [
+      0,
+      35
+     ],
+     "verdict": "not-flagged"
+    }
+   ],
+   "guard": {
+    "cap_gib": 7.0,
+    "child_rc": 0,
+    "child_wall_seconds": 68.19791173934937,
+    "cmd_head": [
+     "/usr/bin/env",
+     "RAYON_NUM_THREADS=8",
+     "/home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r16/hashline/target/release/examples/zk60_classify",
+     "input-owner"
+    ],
+    "enforcement": "cgroup+watchdog",
+    "exit": 0,
+    "label": "tio16-owner-hate",
+    "need_gib": 4.5,
+    "peak_rss_gib": 2.27,
+    "ts_end": "2026-10-29T08:53:07Z"
+   },
+   "owner_log": "/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/r16/logs/real-owner-hate.log",
+   "owner_log_sha256": "d1d25fd20af96b3ab1d4c5a7b0d47d094cc450d4126cd74b957973b1ae015554",
+   "passed": true,
+   "round20_record": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/round20/v23/v23-classify-r13-shield-t128-cli-hate-r17-values.json",
+   "round20_record_sha256": "e94d6e7b23e64905b06774c5b2b8da2ab47122fc44aeb86fb54bd6aef46dd42f",
+   "statement": "/home/victor/zk60-artifacts/token-io/r16-runs/hate-run/statement/statement.json",
+   "statement_identity": "29aeba6c04a819cdbafde311f7c9d0c678d85aff22292ae6b9647761158a0bd1",
+   "statement_input_root": "4cf9e8aea0fe0f238fd86bbabec6c9b67fc9d6a07c94bb557959083c78450957",
+   "statement_n": 35,
+   "statement_policy": "shieldstral-1.0-3b-moderate-hate/1",
+   "statement_sha256": "c70026423f59d80f22b577677e3b480ab04582604a305b02439c7f3d4d92f0bd",
+   "statement_verdict": "not-flagged",
+   "token_lane_real_runs_row": [
+    {
+     "cap_gib": 7.0,
+     "category": "hate",
+     "content_total": 35,
+     "enforcement": "cgroup+watchdog",
+     "exit": 0,
+     "need_gib": 4.5,
+     "owner": "content-checked",
+     "peak_cgroup_gib": 4.75,
+     "peak_rss_gib": 2.27,
+     "step": "owner",
+     "waited_s": 0.0,
+     "wall_s": 68.2
+    }
+   ]
+  },
+  {
+   "binary": {
+    "equal": true,
+    "named": "dfb8025eb903b203f4b50371fdd0dd00659d46a9dbaad9d121d6a68343ebc70c",
+    "sha256_now": "dfb8025eb903b203f4b50371fdd0dd00659d46a9dbaad9d121d6a68343ebc70c"
+   },
+   "case": "the gate's real re-prove, gate round 19 (moderate-sexual, n 35)",
+   "done": "0",
+   "events": [
+    {
+     "checked_against": "the verified statement's input root, re-verified against every segment in this process",
+     "chunk": 0,
+     "content_total": 35,
+     "event": "content-checked",
+     "range": [
+      0,
+      35
+     ],
+     "verdict": "not-flagged"
+    }
+   ],
+   "guard": {
+    "cap_gib": 4.5,
+    "child_rc": 0,
+    "child_wall_seconds": 77.58918595314026,
+    "cmd_head": [
+     "/usr/bin/env",
+     "RAYON_NUM_THREADS=8",
+     "/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/cli/zk60_classify.r16b.release.bin",
+     "input-owner"
+    ],
+    "enforcement": "cgroup+watchdog",
+    "exit": 0,
+    "label": "gate19-real-owner",
+    "need_gib": 2.9,
+    "peak_rss_gib": 2.29,
+    "ts_end": "2026-10-29T13:26:44Z"
+   },
+   "owner_log": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/round19/cap/real/owner.log",
+   "owner_log_sha256": "d1d25fd20af96b3ab1d4c5a7b0d47d094cc450d4126cd74b957973b1ae015554",
+   "passed": true,
+   "statement": "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/round19/cap/real/classify-r13-shield-t128-cli-sexual-r16b.statement.json",
+   "statement_identity": "29aeba6c04a819cdbafde311f7c9d0c678d85aff22292ae6b9647761158a0bd1",
+   "statement_input_root": "c8027b13d5a4303f51a3c20b801e83f58fc5dbec3a8c1b5c9f713cdc154be9cc",
+   "statement_n": 35,
+   "statement_policy": "shieldstral-1.0-3b-moderate-sexual/1",
+   "statement_sha256": "c28e07f49b62f19a6551aafa14daa25e09fb1c535e3708ba1ddf9b232e41edb0",
+   "statement_verdict": "not-flagged"
+  }
+ ],
+ "privacy_acceptance": false,
+ "short_items_round19": {
+  "c13_keys": [
+   "all_ok",
+   "block_shape_identical_at_every_n",
+   "block_shapes",
+   "captures_per_n",
+   "joint_over_hidden_words_zero_at_every_n",
+   "n_values",
+   "privacy_acceptance",
+   "receipt_segment_bytes_independent_of_n",
+   "rows",
+   "segment_bytes_per_L",
+   "verdict_row_moves_with_n",
+   "what"
+  ],
+  "c13_per_n_sha256": "65bcae83a6938662f7919fb6084c3adcd5d4c9df9a1b28b045a4ef167337e340",
+  "captures": [
+   "classify-r13-rung-L2-v0-short1",
+   "classify-r13-rung-L2-v0-short11",
+   "classify-r13-rung-L2-v1-short1",
+   "classify-r13-rung-L2-v1-short11",
+   "classify-r13-rung-L2-v1-short22",
+   "classify-r13-rung-L2-vtie-short1",
+   "classify-r13-rung-L2-vtie-short11"
+  ],
+  "owner_check_possible": false,
+  "what_the_gate_checked_instead": "C-13 per n (round19/C13_PER_N.json): the input endpoint's known words (template + pads) and the public pad layout, C13-1..C13-4 firing at pad id 2, the verdict row; a statement about the PUBLIC side only",
+  "why": "made in-process by the gate's H19-1 hook (round19/cap/H19-1-2.gate19_capture_tests.patch: `seal_input` then `prove_classify_run` return the owner's Decommitment `dec` to the test, which only checks that the bundle holds none of its salts / pad words and then drops it); no input.dec and no run directory exist for them, so no input-owner check can be run or recorded"
+ },
+ "summary": {
+  "gate_r19_owner_check_passed": true,
+  "hate_run_owner_check_passed": true,
+  "owner_checks_at_n_35_only_so_far": true,
+  "short_items_other_n_owner_record": "Astra n=17: not run yet (no inowner log): owed"
+ },
+ "what": "gate round 21: the gate-side record of the input-owner checks, by reading [READ]; NOT a privacy result"
+}

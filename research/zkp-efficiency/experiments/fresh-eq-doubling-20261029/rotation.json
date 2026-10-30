@@ -1,0 +1,14 @@
+{
+  "cycle": "0145",
+  "tested": "quantization/arithmetic: all-field fresh Eq complement doubling and incidence",
+  "next": "proof composition: audit actual R13 group_zclaims/n_groups_zk/open_zk call graph for repeated same-call public Eq preparation; distinguish fresh masks and prior tail-cache work; prefer new exclusive native clocks if available",
+  "queue": [
+    "GPU NTT/commitments",
+    "sumcheck/GKR",
+    "lookup arguments and softmax",
+    "memory traffic",
+    "batching/amortization",
+    "quantization/arithmetic",
+    "proof composition"
+  ]
+}

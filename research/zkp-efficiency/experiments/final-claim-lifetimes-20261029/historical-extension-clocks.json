@@ -1,0 +1,17 @@
+{
+  "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r4/PHASES_T128.md",
+  "sha256": "5f4b2b1e4aff5ab4cd6d7454d91a159124a2638ed91db7ce79346e4be5b5e98f",
+  "scope": "historical R4 TinyLlama T128 L22, n=1 shared-box; not 8B; not rerun or reverified",
+  "CPU": {
+    "prove_run_s": 153.072,
+    "SC_TAB_extension_inclusive_s": 0.69,
+    "unphysical_free_whole_extension_speedup_ceiling": 1.0045280938693546
+  },
+  "GPU_assisted": {
+    "device": "RTX4070 Laptop",
+    "prove_run_s": 135.809,
+    "SC_TAB_extension_inclusive_s": 0.55,
+    "unphysical_free_whole_extension_speedup_ceiling": 1.0040662728543017
+  },
+  "limitations": "Extension includes all mask-row dots, extension polynomials and CFS work. Only equality preparation is removed; exclusive share unknown. No cross-profile transfer."
+}

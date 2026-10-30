@@ -1,0 +1,19 @@
+{
+  "status": "PASS",
+  "seed": 20261030171,
+  "fixtures": 48,
+  "checks": {
+    "degree_checks": 192,
+    "generic_round_values": 840,
+    "generic_final_values": 864,
+    "literal_count_matches": 96,
+    "grouped_round_values": 840,
+    "grouped_final_values": 864,
+    "negative_controls": 10
+  },
+  "wall_s": 3.091570385993691,
+  "native_execution": false,
+  "proofs": 0,
+  "proved_positions": 0,
+  "scope": "Current unpadded R14 LOW/LOW+h24 DD18-table polynomial algebra. Small synthetic cubes, no native cryptographic or privacy verification."
+}

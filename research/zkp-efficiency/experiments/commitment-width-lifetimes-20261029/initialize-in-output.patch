@@ -1,0 +1,60 @@
+--- a/zkp-core/src/pcs/encode_buffer.rs
++++ b/zkp-core/src/pcs/encode_buffer.rs
+@@ -1,5 +1,5 @@
+-//! R2a: initialize each encoded row once, directly in its final allocation.
+-//! No `Fp` reference is formed until every element of that row was written.
++//! Encode directly in the final allocation, using its prefix as coefficient scratch.
++//! An `Fp` slice spans only elements that have already been initialized.
+ 
+ use super::{Fp, NttTables};
+ use rayon::prelude::*;
+@@ -48,27 +48,33 @@
+     let q = pads.len();
+     assert_eq!(out.len(), pows.len());
+     assert!(n.checked_add(q).is_some_and(|end| end <= out.len()));
+-    let mut coeffs = data.to_vec();
+-    ntt.inverse(&mut coeffs);
+     let (message, tail) = out.split_at_mut(n);
++    // Only form an Fp slice over the initialized prefix; tail is still uninitialized.
++    for (dst, src) in message.iter_mut().zip(data) { dst.write(*src); }
++    {
++        // SAFETY: the loop wrote all n Fp values, with their original alignment.
++        // The exclusive borrow ends before the enclosing output slice is formed.
++        let coeffs = unsafe {
++            std::slice::from_raw_parts_mut(message.as_mut_ptr().cast::<Fp>(), n)
++        };
++        ntt.inverse(coeffs);
++        for (i, value) in coeffs.iter_mut().enumerate() {
++            let x = if i < q { value.sub(pads[i]) } else { *value };
++            *value = x.mul(pows[i]);
++        }
++    }
+     let (pad, zeros) = tail.split_at_mut(q);
+-    // These disjoint slices cover ALL of out, including the padding tail.
+-    // Preserve the existing encoder's interleaved pad addition/subtraction
+-    // even when q > n: coefficient j then contains pad[j-n] - pad[j].
+-    for (i, v) in message.iter_mut().enumerate() {
+-        let x = if i < q { coeffs[i].sub(pads[i]) } else { coeffs[i] };
+-        v.write(x.mul(pows[i]));
++    for (i, dst) in pad.iter_mut().enumerate() {
++        // q > n retains both overlapping pad contributions.
++        let x = if n + i < q { pads[i].sub(pads[n + i]) } else { pads[i] };
++        dst.write(x.mul(pows[n + i]));
+     }
+-    for (i, v) in pad.iter_mut().enumerate() {
+-        let x = if n + i < q { pads[i].sub(pads[n + i]) } else { pads[i] };
+-        v.write(x.mul(pows[n + i]));
+-    }
+-    for v in zeros { v.write(Fp::ZERO); }
+-    // SAFETY: the three loops above initialized every element. MaybeUninit<T>
+-    // has the same size/alignment as T. The returned slice borrows exactly
+-    // this initialized, exclusive row, not any other worker's storage.
++    for dst in zeros { dst.write(Fp::ZERO); }
++    // SAFETY: prefix, pad and zero tail have all been initialized, disjointly.
++    // Fp is Copy with no destructor; an earlier panic leaves the owner's length zero.
+     unsafe { std::slice::from_raw_parts_mut(out.as_mut_ptr().cast::<Fp>(), out.len()) }
+ }
+ 
++
+ #[cfg(test)]
+ mod tests;

@@ -1,0 +1,36 @@
+{
+ "removed": [
+  {
+   "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r19b/hashline/target",
+   "files": 732,
+   "bytes_apparent": 306615386,
+   "bytes_on_disk": 308908032
+  },
+  {
+   "path": "/home/victor/zk60-artifacts/token-io/r19b/tmp",
+   "files": 611,
+   "bytes_apparent": 1937115220,
+   "bytes_on_disk": 66285568
+  },
+  {
+   "path": "/home/victor/zk60-artifacts/token-io/r19b/bin",
+   "files": 1,
+   "bytes_apparent": 2731264,
+   "bytes_on_disk": 2732032
+  },
+  {
+   "path": "/home/victor/zk60-artifacts/token-io/r19b/ent",
+   "files": 2,
+   "bytes_apparent": 320,
+   "bytes_on_disk": 8192
+  },
+  {
+   "path": "/tmp/claude-1000/-home-victor-IntelligenceRegulation/bcfb5879-8e60-469d-8a11-08d61fb61e65/scratchpad/macro_probe",
+   "files": 5,
+   "bytes_apparent": 9260,
+   "bytes_on_disk": 24576
+  }
+ ],
+ "left_in_r19b_scratch": [],
+ "owner_dir_exists": false
+}

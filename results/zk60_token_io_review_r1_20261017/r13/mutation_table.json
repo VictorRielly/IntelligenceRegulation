@@ -1,0 +1,243 @@
+{
+ "_baseline_failures_excluded": [
+  "rv13_r10_both_verdicts_are_reachable_under_the_production_dev_policy"
+ ],
+ "mut-clamp": {
+  "exit": "101",
+  "passed_failed_ignored": [
+   [
+    21,
+    2,
+    2
+   ]
+  ],
+  "killed": true,
+  "lane_tests_failing": [
+   "rc2_a_margin_word_beyond_int16_is_refused_never_clamped"
+  ],
+  "reviewer_tests_failing": []
+ },
+ "mut-floor-off": {
+  "exit": "101",
+  "passed_failed_ignored": [
+   [
+    20,
+    3,
+    2
+   ]
+  ],
+  "killed": true,
+  "lane_tests_failing": [
+   "rc2_min_bits_below_the_profile_floor_is_refused"
+  ],
+  "reviewer_tests_failing": [
+   "rv13_r8_min_bits_edges_at_every_verifying_command"
+  ]
+ },
+ "mut-g-twice": {
+  "exit": "101",
+  "passed_failed_ignored": [
+   [
+    20,
+    3,
+    2
+   ]
+  ],
+  "killed": true,
+  "lane_tests_failing": [
+   "rc2_the_dev_tensor_is_pinned_and_the_tables_derive_with_r12bs_quantizer"
+  ],
+  "reviewer_tests_failing": [
+   "rv13_r1_doctored_margin_rows_with_rehashed_manifests_are_refused"
+  ]
+ },
+ "mut-no-g": {
+  "exit": "101",
+  "passed_failed_ignored": [
+   [
+    20,
+    3,
+    2
+   ]
+  ],
+  "killed": true,
+  "lane_tests_failing": [
+   "rc2_the_dev_tensor_is_pinned_and_the_tables_derive_with_r12bs_quantizer"
+  ],
+  "reviewer_tests_failing": [
+   "rv13_r1_doctored_margin_rows_with_rehashed_manifests_are_refused"
+  ]
+ },
+ "mut-rc1": {
+  "exit": "101",
+  "passed_failed_ignored": [
+   [
+    14,
+    9,
+    2
+   ]
+  ],
+  "killed": true,
+  "lane_tests_failing": [
+   "rc2_a_doctored_embedding_with_a_consistent_manifest_is_refused",
+   "rc2_a_doctored_final_norm_or_bos_is_refused",
+   "rc2_a_doctored_margin_row_with_a_consistent_manifest_is_refused",
+   "rc2_the_margin_parameters_come_only_from_the_bound_profile"
+  ],
+  "reviewer_tests_failing": [
+   "rv13_r1_doctored_margin_rows_with_rehashed_manifests_are_refused",
+   "rv13_r2_doctored_embeddings_with_rehashed_manifests_are_refused",
+   "rv13_r4_bos_and_final_norm_doctored_consistently_are_refused",
+   "rv13_r5_yes_no_or_threshold_edited_in_classifier_json_only_are_refused"
+  ]
+ },
+ "mut-skip-bos-norm": {
+  "exit": "101",
+  "passed_failed_ignored": [
+   [
+    20,
+    3,
+    2
+   ]
+  ],
+  "killed": true,
+  "lane_tests_failing": [
+   "rc2_a_doctored_final_norm_or_bos_is_refused"
+  ],
+  "reviewer_tests_failing": [
+   "rv13_r4_bos_and_final_norm_doctored_consistently_are_refused"
+  ]
+ },
+ "mut-skip-bound": {
+  "exit": "101",
+  "passed_failed_ignored": [
+   [
+    20,
+    3,
+    2
+   ]
+  ],
+  "killed": true,
+  "lane_tests_failing": [
+   "rc2_the_dev_tensor_is_pinned_and_the_tables_derive_with_r12bs_quantizer"
+  ],
+  "reviewer_tests_failing": [
+   "rv13_r6_another_exports_profile_and_edited_statement_fields_are_refused"
+  ]
+ },
+ "mut-skip-copies": {
+  "exit": "101",
+  "passed_failed_ignored": [
+   [
+    20,
+    3,
+    2
+   ]
+  ],
+  "killed": true,
+  "lane_tests_failing": [
+   "rc2_the_margin_parameters_come_only_from_the_bound_profile"
+  ],
+  "reviewer_tests_failing": [
+   "rv13_r5_yes_no_or_threshold_edited_in_classifier_json_only_are_refused"
+  ]
+ },
+ "mut-skip-emb-cmp": {
+  "exit": "101",
+  "passed_failed_ignored": [
+   [
+    20,
+    3,
+    2
+   ]
+  ],
+  "killed": true,
+  "lane_tests_failing": [
+   "rc2_a_doctored_embedding_with_a_consistent_manifest_is_refused"
+  ],
+  "reviewer_tests_failing": [
+   "rv13_r2_doctored_embeddings_with_rehashed_manifests_are_refused"
+  ]
+ },
+ "mut-skip-policy": {
+  "exit": "101",
+  "passed_failed_ignored": [
+   [
+    21,
+    2,
+    2
+   ]
+  ],
+  "killed": true,
+  "lane_tests_failing": [
+   "rc2_the_margin_parameters_come_only_from_the_bound_profile"
+  ],
+  "reviewer_tests_failing": []
+ },
+ "mut-skip-second-digest": {
+  "exit": "101",
+  "passed_failed_ignored": [
+   [
+    22,
+    1,
+    2
+   ]
+  ],
+  "killed": false,
+  "lane_tests_failing": [],
+  "reviewer_tests_failing": []
+ },
+ "mut-skip-w-cmp": {
+  "exit": "101",
+  "passed_failed_ignored": [
+   [
+    19,
+    4,
+    2
+   ]
+  ],
+  "killed": true,
+  "lane_tests_failing": [
+   "rc2_a_doctored_margin_row_with_a_consistent_manifest_is_refused"
+  ],
+  "reviewer_tests_failing": [
+   "rv13_r1_doctored_margin_rows_with_rehashed_manifests_are_refused",
+   "rv13_r5_yes_no_or_threshold_edited_in_classifier_json_only_are_refused"
+  ]
+ },
+ "mut-use-file-bos-norm": {
+  "exit": "101",
+  "passed_failed_ignored": [
+   [
+    20,
+    3,
+    2
+   ]
+  ],
+  "killed": true,
+  "lane_tests_failing": [
+   "rc2_a_doctored_final_norm_or_bos_is_refused"
+  ],
+  "reviewer_tests_failing": [
+   "rv13_r4_bos_and_final_norm_doctored_consistently_are_refused"
+  ]
+ },
+ "mut-use-file-w": {
+  "exit": "101",
+  "passed_failed_ignored": [
+   [
+    19,
+    4,
+    2
+   ]
+  ],
+  "killed": true,
+  "lane_tests_failing": [
+   "rc2_a_doctored_margin_row_with_a_consistent_manifest_is_refused"
+  ],
+  "reviewer_tests_failing": [
+   "rv13_r1_doctored_margin_rows_with_rehashed_manifests_are_refused",
+   "rv13_r5_yes_no_or_threshold_edited_in_classifier_json_only_are_refused"
+  ]
+ }
+}

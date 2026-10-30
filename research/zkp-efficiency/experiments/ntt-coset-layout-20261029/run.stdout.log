@@ -1,0 +1,62 @@
+{
+  "status": "PASS_EXACT_SYNTHETIC_ONLY_NO_NATIVE_GAIN",
+  "seed": 202610290135,
+  "checks": 21424,
+  "fixtures": 186,
+  "encoded_points": 20104,
+  "lagrange_checks": 744,
+  "conformance_vectors": [
+    "w3r4-zero",
+    "w3r4-zero_msg_seeded_pad",
+    "w3r4-delta0",
+    "w3r4-delta_last",
+    "w3r4-seeded",
+    "w4r4-zero",
+    "w4r4-zero_msg_seeded_pad",
+    "w4r4-delta0",
+    "w4r4-delta_last",
+    "w4r4-seeded",
+    "w6r4-zero",
+    "w6r4-zero_msg_seeded_pad",
+    "w6r4-delta0",
+    "w6r4-delta_last",
+    "w6r4-seeded"
+  ],
+  "chunk_column_checks": 256,
+  "rejected_controls": [
+    "inverse_scale",
+    "coset",
+    "wrong_root",
+    "fold_power",
+    "pad_sign",
+    "output_order",
+    "truncate_q",
+    "minimal_high_pad_ignored",
+    "lost_duplicate_requests",
+    "reversed_rows",
+    "stale_cross_proof_private_result",
+    "wrong_row_stride",
+    "stale_chunk_pad_offset"
+  ],
+  "fixture_refusals": 6,
+  "elapsed_s": 0.6104836740014434,
+  "peak_rss_kib": 17308,
+  "cpu_affinity": [
+    0
+  ],
+  "python": "3.10.12",
+  "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "limits": {
+    "cpu_s": 40,
+    "alarm_s": 45,
+    "address_space_mib": 256,
+    "estimated_memory_mib": 64,
+    "threads": 1,
+    "nice": 19
+  },
+  "native_execution": false,
+  "gpu_execution": false,
+  "complete_verified_proofs": 0,
+  "complete_passes": 0,
+  "proved_positions": 0
+}

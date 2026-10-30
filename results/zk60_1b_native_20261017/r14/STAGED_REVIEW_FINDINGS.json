@@ -1,0 +1,7 @@
+{
+  "utc": "2026-10-29T09:30:51.004695+00:00",
+  "scope": "staged correction, not applied to running builders1",
+  "finding": "Joint endpoint must accept both adjacent layer calibrations when stable profile geometry matches. Full stage descriptor binds calibration; shared endpoint descriptor must bind stable geometry plus enclosing run context and one scale.",
+  "fix": "SplitProfile joint_geometry_digest binds profile, true ordered pieces, row geometry and PCS parameters, excluding per-layer calibration. JointSpec uses this digest plus run context, logical role/index and scale. Added different-cn adjacent-stage source test.",
+  "pending": "Native protocol/statement must bind the entire ordered layer calibration/context list before endpoints and challenges. No new profile activated."
+}

@@ -1,0 +1,12 @@
+{
+  "utc": "2026-10-30T05:48:59.348457+00:00",
+  "original_tool_session": 48328,
+  "original_exit": 130,
+  "original_native_leaf_started": false,
+  "original_guard_result_present": false,
+  "original_source": "3c7b1dcfd47ba8cb257c6f734348f25fb960af3f25f8b1b14ea4e262ff8defda",
+  "original_runner_sha256": "634c2ba72018699c4fdec8cbfb0390928a823c81feb835206c7661ffec913629",
+  "new_runner_sha256": "30eee45069c6eeedc74ee3c4d75c059adf3bfeac00171e0c817d966f55fabf61",
+  "reason": "Intentionally withdrew original unstarted precheck wrapper via its tool Ctrl-C after shared registry confirmed only foreign GPU/light jobs. Ten-second heavy-free polling missed successive GPU gaps. New runner uses reviewed admission-before-lock guard directly, while retaining the <=1GiB light-job rule. New attempt2 labels; existing command/source/binary retained. No foreign job/guard signalled and no failed native stage retried.",
+  "policy": "Existing memory/disk/cap/shared heavy lock unchanged; no FIFO switch or guard edit."
+}

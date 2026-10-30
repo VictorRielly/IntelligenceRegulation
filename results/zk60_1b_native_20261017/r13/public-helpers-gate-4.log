@@ -1,0 +1,7 @@
+
+running 2 tests
+test private_attention::tests::honest_receipt_verifies_in_typed_and_wire_form_with_the_declared_transcript_order ... ok
+test private_block::tests::honest_receipt_verifies_in_typed_and_wire_form_with_the_declared_transcript_order ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 694 filtered out; finished in 0.19s
+

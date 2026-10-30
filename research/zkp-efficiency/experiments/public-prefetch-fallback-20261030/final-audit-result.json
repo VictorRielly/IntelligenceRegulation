@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "checks": 175,
+  "artifacts": 279,
+  "prior_findings_prefix_bytes": 1219177,
+  "prior_sources": 1095,
+  "new_sources": 9,
+  "all_prior_hypotheses_preserved": true,
+  "active_native_pins": 10,
+  "compatibility_pins": 2,
+  "owner_document_drift": false
+}

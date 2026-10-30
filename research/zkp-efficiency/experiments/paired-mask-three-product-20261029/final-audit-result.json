@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "checks": 45,
+  "artifact_files": 63,
+  "finished_utc": "2026-10-29T07:12:32.273036+00:00",
+  "within_20_minute_deadline": true,
+  "sources": 909,
+  "hypotheses": 56,
+  "new_verified_full_stack_proofs": 0,
+  "production_changed": false,
+  "native_build": false,
+  "gpu": false
+}

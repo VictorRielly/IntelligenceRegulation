@@ -1,0 +1,27 @@
+{
+ "removed": [
+  {
+   "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r19/hashline/target",
+   "bytes": 306627341,
+   "files": 732,
+   "why": "D46: build output of the r19 tree, not needed after the freeze (the release binary is cli/zk60_classify.r19.release.bin, cmp-equal)",
+   "exists_after": false
+  },
+  {
+   "path": "/home/victor/zk60-artifacts/token-io/tmp-r19",
+   "bytes": 1937115220,
+   "files": 611,
+   "why": "D46: the round's test fixtures (TMPDIR / HL_TIO_FIXTURE_DIR of the green, mutant, suite and xbin runs): test-only outputs",
+   "exists_after": false
+  },
+  {
+   "path": "/home/victor/zk60-artifacts/token-io/r19/bin",
+   "bytes": 2732520,
+   "files": 1,
+   "why": "the candidate copy, after cmp = cli/zk60_classify.r19.release.bin",
+   "exists_after": false
+  }
+ ],
+ "total_bytes": 2246475081,
+ "kept": "/home/victor/zk60-artifacts/token-io/r19/ent (two public entropy files, 320 B)"
+}

@@ -19,16 +19,28 @@
       <a href="#/" data-nav="feed">Feed</a>
       <a href="#/ledger" data-nav="ledger">Ledger</a>
       <a href="#/about" data-nav="about">How it works</a>
-      <a href="#/status" data-nav="status">Status</a>
+      <a href="#/status" data-nav="status" hidden>Status</a>
     </nav>
     <button id="audpill" class="audpill" title="Switch the viewer's audience (Adult / Minor)">Viewing as Adult</button>
     <div class="who">
-      <label for="handle" class="sr">Your handle</label>
-      <span class="at">@</span><input id="handle" maxlength="24" placeholder="handle" autocomplete="off" spellcheck="false">
+      <span id="handle">Signed out</span>
+      <button id="signin" class="btn ghost small">Sign in</button>
+      <button id="signout" class="btn ghost small" hidden>Sign out</button>
     </div>
   </div>
   <div id="modebar" class="modebar"></div>
 </header>
+<dialog id="signin-dialog">
+  <form id="signin-form" class="stack">
+    <h2>Sign in</h2>
+    <p>Use the access key supplied by the demo operator.</p>
+    <label for="access-key">Access key</label>
+    <input id="access-key" type="password" autocomplete="current-password" required>
+    <p id="signin-error" role="alert"></p>
+    <button class="btn" type="submit">Sign in</button>
+    <button id="signin-cancel" class="btn ghost" type="button">Cancel</button>
+  </form>
+</dialog>
 <main id="app" class="wrap" aria-live="polite"></main>
 <footer class="foot wrap">
   <p>Research prototype. Proofs run on a laptop CPU through the project's resource guard; minutes per chunk.

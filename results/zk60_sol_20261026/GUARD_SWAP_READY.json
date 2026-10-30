@@ -1,17 +1,25 @@
 {
- "written_utc": "2026-10-26T18:51:21Z",
+ "written_utc": "2026-10-29T00:29:59Z",
  "written_by": "Claude (coordinator)",
- "ruling": "D42 (Victor, console, 2026-10-26 18:22 UTC: swap yes)",
- "boot_id": "9d3a66e4-7664-4344-a046-38a0c53a53f3",
+ "change": "S8",
+ "ruling": "D44 (Victor, console, 2026-10-28 23:50 UTC: \"Go ahead and install the guard swap-rule fix\"); procedure per D42/S3",
+ "window": "OPEN",
+ "candidate_sha256": "88af4c639848d39df8da559652db11529575aa745b916a06eb522c20ea89fbd3",
+ "installed_sha256_before": "87138bda80ae4499a668e67a1c0e7706bb859eafb5e766020bcd59567c8ac59c",
+ "review": "results/zk60_guard_fix_20261021/S8_REVIEW.md (accept with conditions)",
+ "boot_id": "9ecf0dc6-8b67-411a-8ac8-042f41dfd9d5",
  "hold_files": [
   "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/HOLD",
   "/home/victor/IntelligenceRegulation/results/zk60_shieldstral_prep_20261021/HOLD",
-  "/home/victor/IntelligenceRegulation/results/zk60_shieldstral_export_20261026/HOLD"
+  "/home/victor/IntelligenceRegulation/results/zk60_shieldstral_export_20261026/HOLD",
+  "/home/victor/IntelligenceRegulation/results/zk60_guard_fix_20261021/WINDOW_HOLD"
  ],
  "sandbox_views_checked": true,
  "views": {
-  "astra": "ASTRA VIEW CLEAR 2026-10-26T18:38:33Z (todo-file Astra log): host queue PID 868177 parked at prep/HOLD, no guard/leaf/compiler; sandbox view empty",
-  "claude_namespace": "2026-10-26T18:51:08Z: the only zk60_resource_guard.py run process is Sol's own r13-binding-red-build (PID 890306); token chain done 18:32 (logs/r12_chain2.done = 0); gate lane idle; D24 reviewer stopped its own queue before any guard and launches nothing until S3 WINDOW CLOSED",
-  "sol": "Sol checks its own view and holds its own launches before applying (swap_guard.py refuses any live or waiting guard or consumer)"
- }
+  "astra": "ASTRA VIEW CLEAR 2026-10-29T00:20:05Z (todo-file Astra log): launcher 107126 and guard 107148 terminal (exit 0 at 00:19:12Z), no worker/guard/consumer live; evidence astra/s8_gpu_waiter_drain.json",
+  "claude_namespace": "2026-10-29T00:29:59Z re-check (3 samples, 5 s apart, own ancestry excluded): no zk60_resource_guard.py run process live; status: RAM   14.02 GiB available of 15.39; swap used 0.61 GiB | BUDGET 0 of 11.89 GiB committed by guarded jobs | LOCKS heavy free, build free; holds retained since 00:10Z; R-C2 reviewer gated by WINDOW_HOLD. The 'live' PIDs 117413/117565 seen at 00:29 were the coordinator's own shell wrappers (self-match), not guard processes",
+  "sol": "S8 READY FOR WINDOW 2026-10-29T00:10:07Z and 00:19:03Z: no Sol guarded job; swap driver b3fce737\u2026 refuses any live/waiting guard or consumer"
+ },
+ "attempt": 2,
+ "note": "attempt 1 aborted 00:28:29Z (consumer runner sys.path; candidate unchanged); rollback verified by coordinator 00:28:55Z (guard + both pins 87138bda); Sol S8 RETRY READY 00:29:14Z (consumer suites 8+13+14, 0 skips)"
 }

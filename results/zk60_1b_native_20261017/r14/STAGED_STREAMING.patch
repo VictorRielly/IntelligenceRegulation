@@ -1,0 +1,210 @@
+--- capture3c/hashline/src/private_block/split_run.rs
++++ staged/hashline/src/private_block/split_run.rs
+@@ -29,20 +29,51 @@
+         blocks: &[BlockPublic],
+         scales: &[(i32, i32)],
+     ) -> Result<Self, String> {
++        let digests = blocks.iter().map(BlockPublic::digest).collect::<Vec<_>>();
++        let plan = Self::from_digests(base, context, model, digests, scales)?;
++        for (k, block) in blocks.iter().enumerate() {
++            block.check_for_shape(plan.stage(k)?.base())?;
++        }
++        Ok(plan)
++    }
++
++    /// The CLI must rebuild/authenticate the model independently from its
++    /// public export. PublicBlockSource preflights and checks every reload.
++    /// This constructor does not replace H-1 witness sealing or M-9 promotion.
++    pub(crate) fn from_records(
++        base: Shape,
++        context: Digest,
++        model: &TrainedModelStatement,
++        scales: &[(i32, i32)],
++    ) -> Result<Self, String> {
++        let digests = model
++            .layers
++            .iter()
++            .map(|record| record.block_digest)
++            .collect();
++        Self::from_digests(base, context, model, digests, scales)
++    }
++
++    fn from_digests(
++        base: Shape,
++        context: Digest,
++        model: &TrainedModelStatement,
++        digests: Vec<Digest>,
++        scales: &[(i32, i32)],
++    ) -> Result<Self, String> {
+         if context == [0; 32]
+-            || blocks.is_empty()
+-            || blocks.len() > 128
+-            || blocks.len() != scales.len()
++            || digests.is_empty()
++            || digests.len() > 128
++            || digests.len() != scales.len()
+         {
+             return Err("R14 run: context or block/scale count differs".into());
+         }
+         // Reuse the accepted trained-shape and model admission rules. No
+         // synthetic waiver exists here; test-only statements keep the native
+         // checker's existing explicit test waiver.
+-        RunShape::accuracy(base.clone(), blocks.len())?;
++        RunShape::accuracy(base.clone(), digests.len())?;
+         let arithmetic_run = super::run::accuracy_run_profile(base.profile)
+             .ok_or("R14 run: no registered arithmetic reference")?;
+-        let digests = blocks.iter().map(BlockPublic::digest).collect::<Vec<_>>();
+         model.check_against(&base, arithmetic_run, &digests, scales)?;
+         if scales
+             .iter()
+@@ -51,10 +82,9 @@
+         {
+             return Err("R14 run: one shared logical boundary scale is required".into());
+         }
+-        let mut stages = Vec::with_capacity(blocks.len());
+-        for (record, block) in model.layers.iter().zip(blocks) {
++        let mut stages = Vec::with_capacity(digests.len());
++        for record in &model.layers {
+             let stage = SplitProfile::new(record.shape_at(&base)?)?;
+-            block.check_for_shape(stage.base())?;
+             if stages.first().is_some_and(|first: &SplitProfile| {
+                 first.joint_geometry_digest() != stage.joint_geometry_digest()
+             }) {
+@@ -284,6 +314,38 @@
+     );
+ }
+ 
++/// R14 public blocks, resident or loaded one at a time. Reuse the native
++/// borrowed/Arc block handle so a cache need not clone all public weights.
++pub(crate) trait PublicBlockSource {
++    fn count(&self) -> usize;
++    fn block(&mut self, k: usize) -> Result<super::run::BlockRef<'_>, String>;
++}
++
++// This check belongs to the protocol, so a source cannot override it.
++fn preflight_blocks(blocks: &mut dyn PublicBlockSource, plan: &Plan) -> Result<(), String> {
++    if blocks.count() != plan.len() {
++        return Err("R14 run: public block count differs".into());
++    }
++    for k in 0..plan.len() {
++        let block = blocks.block(k)?;
++        plan.check_block(k, &block)?;
++    }
++    Ok(())
++}
++
++struct ResidentBlocks<'a>(&'a [BlockPublic]);
++impl PublicBlockSource for ResidentBlocks<'_> {
++    fn count(&self) -> usize {
++        self.0.len()
++    }
++    fn block(&mut self, k: usize) -> Result<super::run::BlockRef<'_>, String> {
++        self.0
++            .get(k)
++            .map(super::run::BlockRef::Borrowed)
++            .ok_or_else(|| "R14 run: public block source index differs".into())
++    }
++}
++
+ pub(crate) fn prove(
+     st: &Statement,
+     blocks: &[BlockPublic],
+@@ -291,10 +353,19 @@
+     owners: [JointOwner; 2],
+     emit: &mut dyn FnMut(usize, Vec<u8>) -> Result<(), String>,
+ ) -> Result<(), String> {
++    let mut blocks = ResidentBlocks(blocks);
++    prove_with_source(st, &mut blocks, source, owners, emit)
++}
++
++pub(crate) fn prove_with_source(
++    st: &Statement,
++    blocks: &mut dyn PublicBlockSource,
++    source: &mut dyn WitnessSource,
++    owners: [JointOwner; 2],
++    emit: &mut dyn FnMut(usize, Vec<u8>) -> Result<(), String>,
++) -> Result<(), String> {
+     let plan = st.plan();
+-    if blocks.len() != plan.len() {
+-        return Err("R14 run: public block count differs".into());
+-    }
++    preflight_blocks(blocks, plan)?;
+     let [ein, eout] = owners;
+     let in_spec = plan.endpoint(false)?;
+     let out_spec = plan.endpoint(true)?;
+@@ -316,10 +387,11 @@
+         claims: vec![],
+     });
+     let mut output = Some(eout);
+-    for (k, block) in blocks.iter().enumerate() {
++    for k in 0..plan.len() {
++        let block = blocks.block(k)?;
+         let p = plan.stage(k)?;
+         let start = position_tag(&tr);
+-        st.begin_stage(k, block, &mut tr)?;
++        st.begin_stage(k, &block, &mut tr)?;
+         let outgoing = if k + 1 < plan.len() {
+             let spec = plan.boundary(k + 1)?;
+             let values = source.boundary_pieces(k + 1)?;
+@@ -349,7 +421,7 @@
+         };
+         let core = split_protocol::prove_core(
+             p,
+-            block,
++            &block,
+             source.witness(k)?,
+             &sources,
+             [previous.owner.data(), out_data],
+@@ -412,7 +484,7 @@
+ 
+ pub(crate) struct Verifier<'a> {
+     st: &'a Statement,
+-    blocks: &'a [BlockPublic],
++    blocks: Box<dyn PublicBlockSource + 'a>,
+     tr: Transcript,
+     ntt: NttTables,
+     k: usize,
+@@ -422,9 +494,13 @@
+ }
+ impl<'a> Verifier<'a> {
+     pub(crate) fn new(st: &'a Statement, blocks: &'a [BlockPublic]) -> Result<Self, String> {
+-        if blocks.len() != st.plan.len() {
+-            return Err("R14 run: verifier public block count differs".into());
+-        }
++        Self::with_source(st, Box::new(ResidentBlocks(blocks)))
++    }
++    pub(crate) fn with_source(
++        st: &'a Statement,
++        mut blocks: Box<dyn PublicBlockSource + 'a>,
++    ) -> Result<Self, String> {
++        preflight_blocks(blocks.as_mut(), st.plan())?;
+         let spec = st.plan.endpoint(false)?;
+         let mut roots = Roots::default();
+         roots.reserve(&[st.input, st.output])?;
+@@ -467,7 +543,8 @@
+         }
+         #[cfg(test)]
+         super::run_capture::split::stage_begin(k, seg.b_root, &self.tr);
+-        self.st.begin_stage(k, &self.blocks[k], &mut self.tr)?;
++        let block = self.blocks.block(k)?;
++        self.st.begin_stage(k, &block, &mut self.tr)?;
+         let outgoing = if let Some(digest) = seg.b_root {
+             let spec = plan.boundary(k + 1)?;
+             absorb_boundary(&mut self.tr, k + 1, &spec, &digest);
+@@ -501,14 +578,8 @@
+             a_open: &seg.a_open,
+             h_open: &seg.h_open,
+         };
+-        let [ic, oc] = split_protocol::verify_core(
+-            p,
+-            &self.blocks[k],
+-            &sources,
+-            view,
+-            &self.ntt,
+-            &mut self.tr,
+-        )?;
++        let [ic, oc] =
++            split_protocol::verify_core(p, &block, &sources, view, &self.ntt, &mut self.tr)?;
+         let mut incoming = previous.claims;
+         incoming.extend(ic);
+         split_endpoint::verify(

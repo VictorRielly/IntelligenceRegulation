@@ -1,0 +1,673 @@
+{
+  "status": "PASS_SOURCE_COST_AUDIT_ONLY",
+  "checks": 201,
+  "native_pins": 8,
+  "elapsed_s": 0.008457735999400029,
+  "peak_rss_kib": 15236,
+  "roles": [
+    [
+      "wq",
+      "Q",
+      "",
+      "D",
+      ""
+    ],
+    [
+      "wk",
+      "Full",
+      "kv",
+      "D",
+      ""
+    ],
+    [
+      "wv",
+      "Full",
+      "kv",
+      "D",
+      ""
+    ],
+    [
+      "wo",
+      "D",
+      "",
+      "Q",
+      ""
+    ],
+    [
+      "gamma_a",
+      "Full",
+      "1",
+      "D",
+      ""
+    ],
+    [
+      "gamma_m",
+      "Full",
+      "1",
+      "D",
+      ""
+    ],
+    [
+      "wg_t",
+      "D",
+      "",
+      "F",
+      ""
+    ],
+    [
+      "wu_t",
+      "D",
+      "",
+      "F",
+      ""
+    ],
+    [
+      "wd_t",
+      "F",
+      "",
+      "D",
+      ""
+    ]
+  ],
+  "sites": {
+    "native/private_block.rs": [
+      {
+        "line": 552,
+        "text": "Self::check_words(sh, wq, wk, wv, wo, gamma_a, rope_cos, rope_sin, exp)?;"
+      },
+      {
+        "line": 585,
+        "text": "weights_vanish_off_support(sh, wq, Axis::Q, Axis::D)?;"
+      },
+      {
+        "line": 586,
+        "text": "weights_vanish_off_support(sh, wk, Axis::Full(kv), Axis::D)?;"
+      },
+      {
+        "line": 587,
+        "text": "weights_vanish_off_support(sh, wv, Axis::Full(kv), Axis::D)?;"
+      },
+      {
+        "line": 588,
+        "text": "weights_vanish_off_support(sh, wo, Axis::D, Axis::Q)?;"
+      },
+      {
+        "line": 589,
+        "text": "weights_vanish_off_support(sh, gamma_a, Axis::Full(1), Axis::D)?;"
+      },
+      {
+        "line": 611,
+        "text": "Self::check_words(sh, &self.wq, &self.wk, &self.wv, &self.wo, &self.gamma_a, &self.rope_cos, &self.rope_sin, &self.exp).map_err(|e| format!(\"{CS4_ATTENTION_REFUSAL}: {e}\"))"
+      },
+      {
+        "line": 709,
+        "text": "Self::check_words(sh, gamma_m, wg_t, wu_t, wd_t, act)?;"
+      },
+      {
+        "line": 725,
+        "text": "weights_vanish_off_support(sh, gamma_m, Axis::Full(1), Axis::D)?;"
+      },
+      {
+        "line": 726,
+        "text": "weights_vanish_off_support(sh, wg_t, Axis::D, Axis::F)?;"
+      },
+      {
+        "line": 727,
+        "text": "weights_vanish_off_support(sh, wu_t, Axis::D, Axis::F)?;"
+      },
+      {
+        "line": 728,
+        "text": "weights_vanish_off_support(sh, wd_t, Axis::F, Axis::D)?;"
+      },
+      {
+        "line": 747,
+        "text": "Self::check_words(sh, &self.gamma_m, &self.wg_t, &self.wu_t, &self.wd_t, &self.act).map_err(|e| format!(\"{CS1_REFUSAL}: {e}\"))"
+      },
+      {
+        "line": 803,
+        "text": "self.attention.check_for_shape(sh)?;"
+      },
+      {
+        "line": 804,
+        "text": "self.feed_forward.check_for_shape(sh)?;"
+      },
+      {
+        "line": 901,
+        "text": "spec.check_for_shape(sh)?;"
+      },
+      {
+        "line": 1238,
+        "text": "public.check_for_shape(sh)?;"
+      },
+      {
+        "line": 1239,
+        "text": "expected.spec.check_for_shape(sh)?;"
+      },
+      {
+        "line": 1249,
+        "text": "public.check_for_shape(&toy)?;"
+      },
+      {
+        "line": 1250,
+        "text": "expected.spec.check_for_shape(&toy)?;"
+      }
+    ],
+    "native/trained_block.rs": [],
+    "native/trained_statement.rs": [],
+    "native/shape.rs": [],
+    "native/run.rs": [
+      {
+        "line": 875,
+        "text": "b.check_for_shape(sh).map_err(|e| format!(\"private run: block {k}: {e}\"))?;"
+      },
+      {
+        "line": 883,
+        "text": "expected.spec.check_for_shape(sh).map_err(|e| format!(\"private run: {e}\"))"
+      }
+    ],
+    "native/protocol.rs": [
+      {
+        "line": 578,
+        "text": "blk.check_for_shape(sh)?;"
+      },
+      {
+        "line": 920,
+        "text": "blk.check_for_shape(sh)?;"
+      },
+      {
+        "line": 921,
+        "text": "expected.spec.check_for_shape(sh)?;"
+      },
+      {
+        "line": 1040,
+        "text": "blk.check_for_shape(sh)?;"
+      },
+      {
+        "line": 1345,
+        "text": "blk.check_for_shape(sh)?;"
+      },
+      {
+        "line": 1474,
+        "text": "blk.check_for_shape(sh)?;"
+      },
+      {
+        "line": 1475,
+        "text": "expected.spec.check_for_shape(sh)?;"
+      }
+    ],
+    "native/witness.rs": [
+      {
+        "line": 643,
+        "text": "public.check_for_shape(shape)?;"
+      },
+      {
+        "line": 644,
+        "text": "ff.check_for_shape(shape)?;"
+      }
+    ],
+    "native/cs_port_tests.rs": [
+      {
+        "line": 64,
+        "text": "let e = blk.check_for_shape(&k4).err().expect(\"a rung-P2 feed-forward half fits rung-K4\");"
+      },
+      {
+        "line": 77,
+        "text": "honest.check_for_shape(&k4).expect(\"the control fits\");"
+      },
+      {
+        "line": 127,
+        "text": "let e = blk.check_for_shape(&k4).err().expect(\"a rung-G attention half fits rung-K4\");"
+      },
+      {
+        "line": 133,
+        "text": "let e = spec_g.check_for_shape(&k4).err().expect(\"rung-G's policy fits rung-K4\");"
+      },
+      {
+        "line": 307,
+        "text": "assert!(spec.check_for_shape(&g).err().unwrap().contains(\"ruling CS-8\"));"
+      }
+    ]
+  },
+  "lifetime_countermodel": [
+    {
+      "passes": 1,
+      "checks_per_pass": 1,
+      "owner_lifetime": "new owner each check",
+      "total_checks": 1,
+      "first_scans_retained": 1,
+      "synthetic_logical_bytes_saved": 0,
+      "proof_positions": 0
+    },
+    {
+      "passes": 1,
+      "checks_per_pass": 1,
+      "owner_lifetime": "one owner per pass",
+      "total_checks": 1,
+      "first_scans_retained": 1,
+      "synthetic_logical_bytes_saved": 0,
+      "proof_positions": 0
+    },
+    {
+      "passes": 1,
+      "checks_per_pass": 1,
+      "owner_lifetime": "one resident owner",
+      "total_checks": 1,
+      "first_scans_retained": 1,
+      "synthetic_logical_bytes_saved": 0,
+      "proof_positions": 0
+    },
+    {
+      "passes": 1,
+      "checks_per_pass": 2,
+      "owner_lifetime": "new owner each check",
+      "total_checks": 2,
+      "first_scans_retained": 2,
+      "synthetic_logical_bytes_saved": 0,
+      "proof_positions": 0
+    },
+    {
+      "passes": 1,
+      "checks_per_pass": 2,
+      "owner_lifetime": "one owner per pass",
+      "total_checks": 2,
+      "first_scans_retained": 1,
+      "synthetic_logical_bytes_saved": 25165824,
+      "proof_positions": 0
+    },
+    {
+      "passes": 1,
+      "checks_per_pass": 2,
+      "owner_lifetime": "one resident owner",
+      "total_checks": 2,
+      "first_scans_retained": 1,
+      "synthetic_logical_bytes_saved": 25165824,
+      "proof_positions": 0
+    },
+    {
+      "passes": 1,
+      "checks_per_pass": 4,
+      "owner_lifetime": "new owner each check",
+      "total_checks": 4,
+      "first_scans_retained": 4,
+      "synthetic_logical_bytes_saved": 0,
+      "proof_positions": 0
+    },
+    {
+      "passes": 1,
+      "checks_per_pass": 4,
+      "owner_lifetime": "one owner per pass",
+      "total_checks": 4,
+      "first_scans_retained": 1,
+      "synthetic_logical_bytes_saved": 75497472,
+      "proof_positions": 0
+    },
+    {
+      "passes": 1,
+      "checks_per_pass": 4,
+      "owner_lifetime": "one resident owner",
+      "total_checks": 4,
+      "first_scans_retained": 1,
+      "synthetic_logical_bytes_saved": 75497472,
+      "proof_positions": 0
+    },
+    {
+      "passes": 1,
+      "checks_per_pass": 8,
+      "owner_lifetime": "new owner each check",
+      "total_checks": 8,
+      "first_scans_retained": 8,
+      "synthetic_logical_bytes_saved": 0,
+      "proof_positions": 0
+    },
+    {
+      "passes": 1,
+      "checks_per_pass": 8,
+      "owner_lifetime": "one owner per pass",
+      "total_checks": 8,
+      "first_scans_retained": 1,
+      "synthetic_logical_bytes_saved": 176160768,
+      "proof_positions": 0
+    },
+    {
+      "passes": 1,
+      "checks_per_pass": 8,
+      "owner_lifetime": "one resident owner",
+      "total_checks": 8,
+      "first_scans_retained": 1,
+      "synthetic_logical_bytes_saved": 176160768,
+      "proof_positions": 0
+    },
+    {
+      "passes": 2,
+      "checks_per_pass": 1,
+      "owner_lifetime": "new owner each check",
+      "total_checks": 2,
+      "first_scans_retained": 2,
+      "synthetic_logical_bytes_saved": 0,
+      "proof_positions": 0
+    },
+    {
+      "passes": 2,
+      "checks_per_pass": 1,
+      "owner_lifetime": "one owner per pass",
+      "total_checks": 2,
+      "first_scans_retained": 2,
+      "synthetic_logical_bytes_saved": 0,
+      "proof_positions": 0
+    },
+    {
+      "passes": 2,
+      "checks_per_pass": 1,
+      "owner_lifetime": "one resident owner",
+      "total_checks": 2,
+      "first_scans_retained": 1,
+      "synthetic_logical_bytes_saved": 25165824,
+      "proof_positions": 0
+    },
+    {
+      "passes": 2,
+      "checks_per_pass": 2,
+      "owner_lifetime": "new owner each check",
+      "total_checks": 4,
+      "first_scans_retained": 4,
+      "synthetic_logical_bytes_saved": 0,
+      "proof_positions": 0
+    },
+    {
+      "passes": 2,
+      "checks_per_pass": 2,
+      "owner_lifetime": "one owner per pass",
+      "total_checks": 4,
+      "first_scans_retained": 2,
+      "synthetic_logical_bytes_saved": 50331648,
+      "proof_positions": 0
+    },
+    {
+      "passes": 2,
+      "checks_per_pass": 2,
+      "owner_lifetime": "one resident owner",
+      "total_checks": 4,
+      "first_scans_retained": 1,
+      "synthetic_logical_bytes_saved": 75497472,
+      "proof_positions": 0
+    },
+    {
+      "passes": 2,
+      "checks_per_pass": 4,
+      "owner_lifetime": "new owner each check",
+      "total_checks": 8,
+      "first_scans_retained": 8,
+      "synthetic_logical_bytes_saved": 0,
+      "proof_positions": 0
+    },
+    {
+      "passes": 2,
+      "checks_per_pass": 4,
+      "owner_lifetime": "one owner per pass",
+      "total_checks": 8,
+      "first_scans_retained": 2,
+      "synthetic_logical_bytes_saved": 150994944,
+      "proof_positions": 0
+    },
+    {
+      "passes": 2,
+      "checks_per_pass": 4,
+      "owner_lifetime": "one resident owner",
+      "total_checks": 8,
+      "first_scans_retained": 1,
+      "synthetic_logical_bytes_saved": 176160768,
+      "proof_positions": 0
+    },
+    {
+      "passes": 2,
+      "checks_per_pass": 8,
+      "owner_lifetime": "new owner each check",
+      "total_checks": 16,
+      "first_scans_retained": 16,
+      "synthetic_logical_bytes_saved": 0,
+      "proof_positions": 0
+    },
+    {
+      "passes": 2,
+      "checks_per_pass": 8,
+      "owner_lifetime": "one owner per pass",
+      "total_checks": 16,
+      "first_scans_retained": 2,
+      "synthetic_logical_bytes_saved": 352321536,
+      "proof_positions": 0
+    },
+    {
+      "passes": 2,
+      "checks_per_pass": 8,
+      "owner_lifetime": "one resident owner",
+      "total_checks": 16,
+      "first_scans_retained": 1,
+      "synthetic_logical_bytes_saved": 377487360,
+      "proof_positions": 0
+    },
+    {
+      "passes": 4,
+      "checks_per_pass": 1,
+      "owner_lifetime": "new owner each check",
+      "total_checks": 4,
+      "first_scans_retained": 4,
+      "synthetic_logical_bytes_saved": 0,
+      "proof_positions": 0
+    },
+    {
+      "passes": 4,
+      "checks_per_pass": 1,
+      "owner_lifetime": "one owner per pass",
+      "total_checks": 4,
+      "first_scans_retained": 4,
+      "synthetic_logical_bytes_saved": 0,
+      "proof_positions": 0
+    },
+    {
+      "passes": 4,
+      "checks_per_pass": 1,
+      "owner_lifetime": "one resident owner",
+      "total_checks": 4,
+      "first_scans_retained": 1,
+      "synthetic_logical_bytes_saved": 75497472,
+      "proof_positions": 0
+    },
+    {
+      "passes": 4,
+      "checks_per_pass": 2,
+      "owner_lifetime": "new owner each check",
+      "total_checks": 8,
+      "first_scans_retained": 8,
+      "synthetic_logical_bytes_saved": 0,
+      "proof_positions": 0
+    },
+    {
+      "passes": 4,
+      "checks_per_pass": 2,
+      "owner_lifetime": "one owner per pass",
+      "total_checks": 8,
+      "first_scans_retained": 4,
+      "synthetic_logical_bytes_saved": 100663296,
+      "proof_positions": 0
+    },
+    {
+      "passes": 4,
+      "checks_per_pass": 2,
+      "owner_lifetime": "one resident owner",
+      "total_checks": 8,
+      "first_scans_retained": 1,
+      "synthetic_logical_bytes_saved": 176160768,
+      "proof_positions": 0
+    },
+    {
+      "passes": 4,
+      "checks_per_pass": 4,
+      "owner_lifetime": "new owner each check",
+      "total_checks": 16,
+      "first_scans_retained": 16,
+      "synthetic_logical_bytes_saved": 0,
+      "proof_positions": 0
+    },
+    {
+      "passes": 4,
+      "checks_per_pass": 4,
+      "owner_lifetime": "one owner per pass",
+      "total_checks": 16,
+      "first_scans_retained": 4,
+      "synthetic_logical_bytes_saved": 301989888,
+      "proof_positions": 0
+    },
+    {
+      "passes": 4,
+      "checks_per_pass": 4,
+      "owner_lifetime": "one resident owner",
+      "total_checks": 16,
+      "first_scans_retained": 1,
+      "synthetic_logical_bytes_saved": 377487360,
+      "proof_positions": 0
+    },
+    {
+      "passes": 4,
+      "checks_per_pass": 8,
+      "owner_lifetime": "new owner each check",
+      "total_checks": 32,
+      "first_scans_retained": 32,
+      "synthetic_logical_bytes_saved": 0,
+      "proof_positions": 0
+    },
+    {
+      "passes": 4,
+      "checks_per_pass": 8,
+      "owner_lifetime": "one owner per pass",
+      "total_checks": 32,
+      "first_scans_retained": 4,
+      "synthetic_logical_bytes_saved": 704643072,
+      "proof_positions": 0
+    },
+    {
+      "passes": 4,
+      "checks_per_pass": 8,
+      "owner_lifetime": "one resident owner",
+      "total_checks": 32,
+      "first_scans_retained": 1,
+      "synthetic_logical_bytes_saved": 780140544,
+      "proof_positions": 0
+    },
+    {
+      "passes": 8,
+      "checks_per_pass": 1,
+      "owner_lifetime": "new owner each check",
+      "total_checks": 8,
+      "first_scans_retained": 8,
+      "synthetic_logical_bytes_saved": 0,
+      "proof_positions": 0
+    },
+    {
+      "passes": 8,
+      "checks_per_pass": 1,
+      "owner_lifetime": "one owner per pass",
+      "total_checks": 8,
+      "first_scans_retained": 8,
+      "synthetic_logical_bytes_saved": 0,
+      "proof_positions": 0
+    },
+    {
+      "passes": 8,
+      "checks_per_pass": 1,
+      "owner_lifetime": "one resident owner",
+      "total_checks": 8,
+      "first_scans_retained": 1,
+      "synthetic_logical_bytes_saved": 176160768,
+      "proof_positions": 0
+    },
+    {
+      "passes": 8,
+      "checks_per_pass": 2,
+      "owner_lifetime": "new owner each check",
+      "total_checks": 16,
+      "first_scans_retained": 16,
+      "synthetic_logical_bytes_saved": 0,
+      "proof_positions": 0
+    },
+    {
+      "passes": 8,
+      "checks_per_pass": 2,
+      "owner_lifetime": "one owner per pass",
+      "total_checks": 16,
+      "first_scans_retained": 8,
+      "synthetic_logical_bytes_saved": 201326592,
+      "proof_positions": 0
+    },
+    {
+      "passes": 8,
+      "checks_per_pass": 2,
+      "owner_lifetime": "one resident owner",
+      "total_checks": 16,
+      "first_scans_retained": 1,
+      "synthetic_logical_bytes_saved": 377487360,
+      "proof_positions": 0
+    },
+    {
+      "passes": 8,
+      "checks_per_pass": 4,
+      "owner_lifetime": "new owner each check",
+      "total_checks": 32,
+      "first_scans_retained": 32,
+      "synthetic_logical_bytes_saved": 0,
+      "proof_positions": 0
+    },
+    {
+      "passes": 8,
+      "checks_per_pass": 4,
+      "owner_lifetime": "one owner per pass",
+      "total_checks": 32,
+      "first_scans_retained": 8,
+      "synthetic_logical_bytes_saved": 603979776,
+      "proof_positions": 0
+    },
+    {
+      "passes": 8,
+      "checks_per_pass": 4,
+      "owner_lifetime": "one resident owner",
+      "total_checks": 32,
+      "first_scans_retained": 1,
+      "synthetic_logical_bytes_saved": 780140544,
+      "proof_positions": 0
+    },
+    {
+      "passes": 8,
+      "checks_per_pass": 8,
+      "owner_lifetime": "new owner each check",
+      "total_checks": 64,
+      "first_scans_retained": 64,
+      "synthetic_logical_bytes_saved": 0,
+      "proof_positions": 0
+    },
+    {
+      "passes": 8,
+      "checks_per_pass": 8,
+      "owner_lifetime": "one owner per pass",
+      "total_checks": 64,
+      "first_scans_retained": 8,
+      "synthetic_logical_bytes_saved": 1409286144,
+      "proof_positions": 0
+    },
+    {
+      "passes": 8,
+      "checks_per_pass": 8,
+      "owner_lifetime": "one resident owner",
+      "total_checks": 64,
+      "first_scans_retained": 1,
+      "synthetic_logical_bytes_saved": 1585446912,
+      "proof_positions": 0
+    }
+  ],
+  "limitations": [
+    "Static sites are alternatives and nested; not actual call frequencies.",
+    "Current off-support optimization already avoids 89.66% of padded payload reads.",
+    "Streaming CacheBlocks fit_the_shape checks geometry, not full block scans.",
+    "Original first validation of each owner, metadata/table/DD/order/provenance checks retained.",
+    "One wrapper rebuilt per check saves zero; detached/caller asserted support certificate is unsafe.",
+    "No native compilation, execution, complete proof, GPU or privacy acceptance."
+  ]
+}

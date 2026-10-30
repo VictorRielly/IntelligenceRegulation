@@ -1,0 +1,274 @@
+StateSync-GKR: Design and Evaluation of aReusable Sparse GKR Engine (https://arxiv.org/html/2610.14849v2)
+citeturn4view0 [wordlim: 200] Crawled: today; Content type: text/html; Source: open({"ref_id":"turn2view0","lineno":105}); Total lines: 508
+L84: Allocations per proof  | instrumented mixed circuit, width 4,096, same day  | 85  | 1,282  | §【21†4】
+L85: Prover time  | same pair as above, width 4,096  | 6,470$\times$ faster than Dense (1.80 ms vs 11.63 s)  | 2,507$\times$ (4.63 ms vs 11.61 s; 7 Oct record)  | §【21†4】
+L86: Prepared proving  | depth 24, batch 768, 192 workers, bare metal, same day  | 7,713.71/7,220.36/5,390.07 proofs/s  | 3,195.50/2,947.08/2,102.02 (same day)  | Fig. 【51†6】
+L87: Prepared requests  | one thread, depth 24, p50; fresh/prepared ratio in the same run  | 16.95/18.22/24.62 ms; 7.66/7.19/10.13$\times$  | 42.10/46.10/65.03 ms (same day); 3.69/3.46/4.45$\times$ (6 Oct record)  | Fig. 【52†4】
+L88: Structured wiring verification  | Derived vs Table wiring, same proof, prepared verification call, nine profiles  | unchanged in release 1.2  | 10.80–23.68$\times$  | Fig. 【53†5】
+L89: Parallel output policy  | complete local batch, depth 24, batch 768, 192 workers  | 14.10–14.64$\times$ (higher because proving is faster)  | 9.71–10.71$\times$ (6 Oct record)  | Fig. 【53†5】
+L90: Compact proofs  | depths 24–32, nine profiles  | unchanged in release 1.2  | 118 layers; +2.93% membership bytes  | Fig. 【51†6】
+L91: Deterministic proof bytes  | release 1.2 vs release 1.1, native and default builds, every serving mode  | 13,824 hash comparisons equal; every accepted reply in 187 replay-audited processes equals one of 576 reference proofs  | reference  | §【22†5】, §【23†6】
+L92: Tail latency  | 1,000 offered requests/s, same 192-core VM and day, three 60-s runs  | p99 33.7–33.9 ms (continuous)  | p99 433.8–475.1 ms  | Tab. 【54†4】
+L93: One 192-core VM  | every timed request within 1 s; one connection: three 60-s runs; two connections: 15-s screens  | 3,300/s on one connection, also for 30 min (5.94 million); $\geq$5,000/s on two connections (frontend-limited lower bound)  | 1,000/s (7 Oct record); 1,150/s same day (one 60-s run), highest rate measured  | Fig. 【55†11】
+L94: One 48-core VM  | same budget, one 15-s screen per rate, same day  | 2,000/s, bound by worker CPU  | 500/s; 1,000/s fails  | Tab. 【56†5】
+L95: Overload memory  | 5,100 offered requests/s (1.5$\times$ the highest one-connection screen pass), 2,760-MiB limit  | worker RSS at most 548,064 KiB sampled (402,948 KiB by GNU time); return budget full, no server refusal  | no admission limit in the library  | §【29†6.6】
+L96: Reusable core  | serving crate built on the public prover API only  | provided  | n/a  | §【12†2.7】
+L97: ## 2 Engine and application boundaries
+L98: 
+L99: 【57†Figure 1】 contrasts the actual layer-oracle representations; 【58†Figure 2】 then separates shared preparation from request-specific proof state and original-request acceptance.
+L100: 
+L101: Figure 1: SS-GKR layer reduction: six dense input-pair tables versus two-phase sparse booking. The representation explains the memory contrast; differential controls preserve round polynomials and proof results. The structure is unchanged in release 1.2.
+L102: ### 2.1 Layer reduction and structured wiring
+L103: Linear-time and structured GKR techniques already establish the algorithmic foundation [【43†11】, 【44†14】]. The production oracle uses a Libra-style two-phase sparse booking construction. Weighted linear and cube terms depend on the first input block. Multiplication supplies a sparse list of weighted input pairs. Summing the second block first produces a booking table; binding the first block then produces the remaining second-block coefficients.
+L104: This implementation avoids materializing the full input-pair hypercube.
+L105: For a layer with $n_{i}$ input wires, $n_{o}$ output wires and $m$ multiplication gates, the sparse auxiliary ownership is $O(n_{o}+n_{i}+m)$. The comparison baseline is StateSync-GKR’s own DenseLayerOracle, a test-only reference retaining the initial dense design. It constructs six $n_{i}^{2}$ factor tables and constructor temporaries. The production SparseLayerOracle implements Libra-style sparse reduction. Both use StateSync-GKR’s prove_impl driver and transcript order.
+L106: Thus Dense and Sparse name two representations within this implementation.
+L107: StateSync-GKR implements the sumcheck and GKR assembly from their published constructions; it uses Plonky3 0.4.3 for field arithmetic, hash and challenger primitives. The Dense reference is neither a Plonky3 GKR implementation nor the independently probed Lambdaworks GKR engine. The measured ratios isolate an internal representation change, not an external product comparison.
+L108: Verification has a separate optimization. TableWiring already iterates a sparse gate list. DerivedRegularWiring evaluates regular progression families in closed form and retains an exact sparse residue. Derivation checks each member’s progression, kind and coefficient; unsupported gates stay on the sparse path. Audit tests re-expand the representation and compare weighted gate multisets. This reduces repeated wiring work without changing the proof object.
+L109: It is distinct from replacing the quadratic prover oracle.
+L110: Release 1.2 reorganizes the arithmetic of the production oracle inside the same two phases. Output-wire weights come from scaled equality tables built once per layer instead of a product chain per output wire. Each phase computes the node values of a round polynomial in one pass over its table, taking two nodes from the table halves and the others by difference additions.
+L111: Round polynomials are interpolated with a constant inverse-Vandermonde matrix built once per layer, which removes the per-round inversions and small allocations of Lagrange interpolation.
+L112: Each change computes the same field values by an algebraically equivalent route, and field arithmetic is exact, so round polynomials and proofs are byte-identical to release 1.1: the committed test vectors match, the Dense and Sparse oracles still agree, and all 6,912 reference proof hashes of the benchmark corpus match in both the native and the default build (【22†Section 5】). Additional requested allocation at width 4,096 stays at 579,584 bytes.
+L113: Verification, the wiring oracles and the Dense reference are unchanged in release 1.2.
+L114: ### 2.2 Cube gates and path constraints
+L115: 
+L116: The circuit intermediate representation supports weighted linear, product and cube gates. A Pow3 gate is an algebraic operation, not a processor instruction. The builder combines cube/linear taps and constants into one round layer. The Poseidon2 cube and matrix step are thereby represented without separate layers for every arithmetic subexpression [【59†3】]. The shipped primitives use the pinned Plonky3 0.4.3 registry dependencies [【45†8】].
+L117: The witness computes authentication-path accumulators in order. Compilation checks each compression transition against those supplied intermediate values as parallel residual constraints. More tree levels therefore increase width and work while preserving the hash-template round schedule in the measured profiles. This is a structural benefit; there is no measured unfused-compiler ablation or claim of constant total cost with path depth.
+L118: ### 2.3 Preparation and independent requests
+L119: 
+L120: PreparedSync owns the operation-kind circuit, full circuit commitment and derived wiring. Reuse requires the same kind, sparse Merkle tree (SMT) parameters, strategy/configuration and circuit. Every request keeps its own public inputs, witness, transcript and proof. Preparation reuse saves commitment work as well as compilation; it does not share challenge-dependent proof state.
+L121: The indexed parallel batch API returns one proof per input job in input order. Witness construction and output encoding/verification can also be parallelized by the caller. This is independent job processing, not proof aggregation. Remote replies can complete out of order; explicit request IDs bind them to the corresponding original requests.
+L122: The continuous serving mode of release 1.2 relies on this property: replies leave in completion order, and the frontend, the client process that sends requests and verifies the returned proofs, matches each reply to its original request by job identifier. Each proof transcript starts from its own job’s public inputs, so proof bytes do not depend on serving mode, thread or order.
+L123: The reference server checks this at startup, before it listens: the sequential and parallel batch APIs must return the same proofs in input order, the per-job completion function must reproduce their encoded bytes, and a tampered control proof must be rejected.
+L124: ### 2.4 Semantics, transport and reuse
+L125: 
+L126: 【58†Figure 2】 shows what preparation reuse shares and what remains private, including the original request checked at acceptance.
+L127: The SMT frontend distinguishes Empty, Occupied(payload) and Tombstone. A never-used and a deleted slot remain semantically different, while either can satisfy non-membership. The general single-leaf update accepts old and new leaf states under the same sibling path and respective root conditions. Insertion, replacement, deletion and restoration are application uses of that operation, rather than an exclusive four-transition policy.
+L128: The earlier input-variant study exercises eight lifecycle and payload/key cases.
+L129: The encoded verifier consumes the complete received inner-proof encoding, checks circuit/configuration identity and verifies against the original request. Roots, value digest and input claims remain required. Malformed trailing bytes and mismatched requests reject. The current SMT verifier also recomputes native leaf/path hashes from the private witness; faster wiring evaluation does not offload that hashing.
+L130: Release 1.2 enforces in every build two misuse checks that release 1.1 performed only in debug builds: a request whose operation kind differs from the prepared circuit returns an error, and a leaf-hash input of the wrong width stops execution.
+L131: The sumcheck/protocol crates have no dependency on the SMT compiler. Another arithmetic frontend supplies its own circuit, witness, output claim and transcript conventions and must consume both residual input multilinear-extension (MLE) claims. The shipped entry points use KoalaBear values, a degree-four extension and the fixed hash primitives. Arbitrary Rust-program compilation and runtime field/hash selection are not bundled services.
+L132: The current official distribution is release 1.2.0, source-available under BSL 1.1, which permits non-production research and reproduction. Previously granted MIT or Apache-2.0 rights and required third-party notices remain valid; they do not provide an alternative current official distribution. Data and figure rights are recorded separately. A separate serving crate (【12†Section 2.7】) builds its service components on the public prover API alone, which exercises the reuse boundary from outside the core.
+L133: ### 2.5 Formal results as a design basis
+--------------------------------------------------------------------------------
+StateSync-GKR: Design and Evaluation of aReusable Sparse GKR Engine (https://arxiv.org/html/2610.14849v2)
+citeturn4view1 [wordlim: 200] Crawled: today; Content type: text/html; Source: open({"ref_id":"turn2view0","lineno":413}); Total lines: 508
+L399: Its source/binary/environment identities are separate from the historical measured binary; REPRODUCING.md separates source-level reproduction from release-asset verification. The serving crate builds with cargo build --release --locked --manifest-path benches/serving/Cargo.toml, and its service-checks.py runs real-TCP functional suites, including byte equality across serving modes; these checks are not capacity evidence. Measurements use native builds (-C target-cpu=native).
+L400: In one process per build, the default release build took 1.66 to 1.71 times the native latency of a prepared request and an x86-64-v3 build 0.90 times; these build comparisons were not repeated. The repository’s capacity reproduction job remains pinned to the release 1.1 measured source, because the archived memory observer accepts only that sparse oracle; the release 1.2 measurement harness, frozen cell plans and raw records are kept in the same companion package (Data availability).
+L401: The v1.1.0 DOI cited in this paper preserves historical provenance with source files now restricted. Replaying a tiny functional test does not reproduce an archived performance rate.
+L402: The RISC Zero [【78†9】] integration of release 1.2 has its own program identity, image ID beginning 1a8b55f4; a proof of that program’s fixed depth-24 membership relation was verified through the zkVerify [【79†16】] RISC0 verifier on the public Volta testnet, in submission block 7,775,413 with its aggregation receipt in block 7,775,436. This proof is not attached to the 1.2.0 release, whose attached proof belongs to the release 1.1 program; its bytes are the call argument of that public submission.
+L403: It adds no measurement to this report. Appendix A displays all 43 detailed scientific figure families with release 1.2 overlays and four new families on uniform A4 portrait pages, in addition to twelve main-text figures. Wide panels are reformatted or divided without dropping values, conditions or not-applicable cells; original exports remain in the archive. The companion archive preserves all observations, detailed tables and figure sources with exact normalization and file contracts.
+L404: The atlas retains process, family, host, workload and observation boundaries; none of the other experimental conditions is deemed meaningless simply because it shares a chart with several conditions.
+L405: #### Data availability.
+L406: 
+L407: The earlier two CPU datasets remain at their public benchmark paths. The release 1.1 raw counterparts and the release 1.2 raw records, kept in the same structure, together with detailed tables, figure sources and replay interfaces, are kept by the authors in a companion package with the same structure; the package has no public deposit or dataset DOI. The first version of this report is arXiv:2610.14849v1.
+L408: #### Assistance and responsibility.
+L409: 
+L410: LLM coding and writing tools assisted benchmark/analysis development and manuscript preparation. Recorded native execution, differential and negative controls, frozen source identities and machine-checking records provide inspectable evidence. The human author retains responsibility for the interpretation and final submitted text; tool assistance is not authorship.
+L411: ## 9 Conclusion
+L412: StateSync-GKR connects a reusable GKR/sumcheck core to an authenticated-state frontend with explicit preparation, independent job and encoded-acceptance boundaries.
+L413: Its nine mechanisms address different application costs: sparse reduction lowers prover ownership; regular wiring reduces repeated verification; fused cube/affine circuits and parallel path constraints keep the schedule and proof growth compact; preparation reuse and indexed jobs lower repeated work and expose CPU parallelism; three-state semantics and original-request binding preserve the meaning of each result; and the separate core/model interfaces support reuse with an inspectable assurance boundary.
+L414: Release 1.2 shows that the serving path and the arithmetic inside the prover’s rounds can change latency and capacity while proof bytes and verifier acceptance stay fixed.
+L415: The controlled evidence gives these mechanisms concrete scope. The largest internal memory contrast is a 3,242-fold requested-allocation and about 89-fold process-RSS reduction at mixed width 4,096, retained in release 1.2. Direct fresh/prepared request measurements show 7.19 to 10.13-fold lower proving-path latency in release 1.2, and 3.46 to 4.45-fold in release 1.1; prepared verification calls and complete local batches with parallel output handling show their own substantial reductions.
+L416: Release 1.2 proves 2.4 to 2.7 times faster than same-day release 1.1 on the same bare-metal workers. On a 192-core VM it keeps p99 at 34 ms at 1,000 offered requests/s, against 440 ms for same-day release 1.1, and meets a one-second budget for every request at 3,300 requests/s on one connection, including a 30-minute run of 5.94 million requests; two connections pass 5,000 requests/s in short screens, where the frontend becomes the bound.
+L417: On 48 cores, in single 15-second screens, the highest rate meeting that budget rises from 500 to 2,000 requests/s. These are measured offered loads under stated budgets, which differ from both a proving-only kernel rate and an indefinitely stable capacity.
+L418: The artifact therefore supplies a memory-efficient and reusable implementation, measured choices for repeated proof work, service components that kept worker memory bounded in the overload runs while the return budget was full, and explicit application acceptance semantics. Full conditions and outcomes preserve the limits of those results.
+L419: The 15- and 30-minute confirmations are finite observations; larger-scale external ranking and the remaining cryptographic and code-correspondence arguments stay outside the established claims.
+L420: ## References
+L421:   * [1] Amazon Web Services. Amazon EC2 instance network bandwidth. Amazon EC2 User Guide, 2026. URL 【80†https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-network-bandwidth.html†docs.aws.amazon.com】. Accessed 26 October 2026; single-flow traffic between instances outside a cluster placement group is limited to 5 Gbps.
+L422:   * [2] Shafi Goldwasser, Yael Tauman Kalai, and Guy N. Rothblum. Delegating computation: Interactive proofs for Muggles. Journal of the ACM, 62(4):27:1–27:64, 2015. doi: 10.1145/2699436.
+L423:   * [3] Lorenzo Grassi, Dmitry Khovratovich, and Markus Schofnegger. Poseidon2: A faster version of the Poseidon hash function. In Progress in Cryptology – AFRICACRYPT 2023, volume 14064 of LNCS, pages 177–203, 2023. doi: 10.1007/978-3-031-37679-5_8.
+L424:   * [4] Jinwook Kim. StateSync-GKR: Machine-checking the trust chain from sparse-Merkle state transitions to GKR verification. arXiv:2610.05335, 2026a. 【81†https://arxiv.org/abs/2610.05335】.
+L425:   * [5] Jinwook Kim. StateSync-GKR. Version 1.2.0, software archive, 2026b. URL 【77†https://doi.org/10.5281/zenodo.23643505†doi.org】. Signed tag v1.2.0, source commit 8b2908160f36adc233d7b869a403d2ee4d3502a5.
+L426:   * [6] Jinwook Kim. StateSync-GKR. Version 1.1.0, software archive, 2026c. URL 【82†https://doi.org/10.5281/zenodo.23136385†doi.org】. Signed source commit 1b8d2f829792172b347dedbfde969016c2c05789.
+L427:   * [7] LambdaClass. lambdaworks. GitHub repository, 2026. URL 【83†https://github.com/lambdaclass/lambdaworks†github.com】. Commit 3a87850dc405e12ab6c4bbaeba68d52815ab1158 tested.
+L428:   * [8] Plonky3 contributors. Plonky3: A toolkit for polynomial IOPs. 【84†https://github.com/Plonky3/Plonky3†github.com】, 2026. The evaluated source uses crates.io dependencies version 0.4.3 and their captured lock/checksums.
+L429:   * [9] RISC Zero. RISC Zero zkVM. GitHub repository, 2026. URL 【85†https://github.com/risc0/risc0†github.com】. Version 3.0.4 used for the release 1.2 integration.
+L430:   * [10] Gil Tene. wrk2: Constant-throughput load and intended-arrival latency measurement. URL 【86†https://github.com/giltene/wrk2†github.com】. Accessed 8 October 2026; methodological comparison, not the load caller used in this study.
+L431:   * [11] Justin Thaler. Time-optimal interactive proofs for circuit evaluation. In Advances in Cryptology – CRYPTO 2013, volume 8043 of LNCS, pages 71–89, 2013. doi: 10.1007/978-3-642-40084-1_5.
+L432:   * [12] Matt Welsh, David Culler, and Eric Brewer. SEDA: An architecture for well-conditioned, scalable internet services. In Proceedings of the 18th ACM Symposium on Operating Systems Principles (SOSP 2001), 2001. doi: 10.1145/502034.502057.
+L433:   * [13] Howard Wu, Wenting Zheng, Alessandro Chiesa, Raluca Ada Popa, and Ion Stoica. DIZK: A distributed zero knowledge proof system. In 27th USENIX Security Symposium, pages 675–692, 2018. URL 【87†https://www.usenix.org/conference/usenixsecurity18/presentation/wu†www.usenix.org】.
+L434:   * [14] Tiancheng Xie, Jiaheng Zhang, Yupeng Zhang, Charalampos Papamanthou, and Dawn Song. Libra: Succinct zero-knowledge proofs with optimal prover computation. In Advances in Cryptology – CRYPTO 2019, volume 11694 of LNCS, pages 733–764, 2019. doi: 10.1007/978-3-030-26954-8_24.
+L435:   * [15] Gyeong-In Yu, Joo Seong Jeong, Geon-Woo Kim, Soojeong Kim, and Byung-Gon Chun. Orca: A distributed serving system for Transformer-based generative models. In 16th USENIX Symposium on Operating Systems Design and Implementation (OSDI 22), pages 521–538, 2022. URL 【88†https://www.usenix.org/conference/osdi22/presentation/yu†www.usenix.org】.
+L436:   * [16] zkVerify. zkVerify documentation. Project documentation, 2026. URL 【89†https://docs.zkverify.io†docs.zkverify.io】. Volta public testnet.
+L437: ## Appendix A Complete detailed evidence atlas
+L438: The main figures connect implementation mechanisms to the most informative contrasts. This appendix retains all 43 detailed families of the release 1.1 report and all original conditions, overlays release 1.2 on the same axes, and adds four families. Release 1.1 series keep their original values. Panels whose measured code path release 1.2 did not change carry the note “Unchanged in v1.2” with its basis; they are the twelve Dense-only memory panels of A01–A03 and the proof-size panel of A36.
+L439: Continuous runs form no batches, so A12, A25, A28 and A36 add per-job panels for them. Four zero-refusal time-series panels in A31 are replaced by exact condition-specific statements, and release 1.2 also had no refusal in those conditions; the original graphs and CSV remain archived.
+L440: Each family is an independently addressable figure set: A01–A06 cover generic memory; A07–A10 cover memory guards and scale; A11–A16 cover arrivals and the longer baseline; A17–A25 cover equal-resource deployments; A26–A34 cover fine transitions; A35–A43 cover actual-machine scaling and confirmations; A44–A47 cover CPU contention, host size, frontend size and the same-day prover contrast.
+--------------------------------------------------------------------------------
+[1304.3812] Time-Optimal Interactive Proofs for Circuit Evaluation (https://arxiv.org/abs/1304.3812)
+citeturn4view2 [wordlim: 200] Crawled: today; Content type: text/html; Source: open({"ref_id":"https://arxiv.org/abs/1304.3812","lineno":null}); Total lines: 173
+L0: 【0†Search】 【1†Submit】 【2†Donate†info.arxiv.org】 【3†Log in】
+L1: 
+L2: Search arXiv [Input: Search papers by title, author, abstract, or ID...] [Input] [Input]
+L3: 
+L4: Press Enter to search · 【4†Advanced search】
+L5: 
+L6: # Computer Science > Cryptography and Security
+L7: 
+L8: [Submitted on 13 Apr 2013 (【5†v1】), last revised 8 Feb 2017 (this version, v4)]
+L9: # Title:Time-Optimal Interactive Proofs for Circuit Evaluation
+L10: 
+L11: Authors:【6†Justin Thaler】
+L12: 
+L13: View a PDF of the paper titled Time-Optimal Interactive Proofs for Circuit Evaluation, by Justin Thaler
+L14: 
+L15: 【7†View PDF】 【8†HTML (experimental)】
+L16: > Abstract:Recently, researchers have been working toward the development of practical general-purpose protocols for verifiable computation. These protocols enable a computationally weak verifier to offload computations to a powerful but untrusted prover, while providing the verifier with a guarantee that the prover performed the computations correctly. Despite substantial progress, existing implementations are not yet practical.
+L17: The main bottleneck is typically the extra effort required by the prover to return an answer with a guarantee of correctness, compared to returning an answer with no guarantee.
+L18: > We describe a refinement of a powerful interactive proof protocol originally due to Goldwasser, Kalai, and Rothblum. Cormode, Mitzenmacher, and Thaler show how to implement the prover in this protocol in time O(S log S), where S is the size of an arithmetic circuit computing the function of interest. Our refinements apply to circuits whose wiring pattern is sufficiently "regular"; for these circuits, we bring the runtime of the prover down to O(S).
+L19: That is, our prover can evaluate the circuit with a guarantee of correctness, with only a constant-factor blowup in work compared to evaluating the circuit with no guarantee.
+L20: > We argue that our refinements capture a large class of circuits, and prove some theorems formalizing this. Experimentally, our refinements yield a 200x speedup for the prover over the implementation of Cormode et al., and our prover is less than 10x slower than a C++ program that simply evaluates the circuit. Along the way, we describe a special-purpose protocol for matrix multiplication that is of interest in its own right.
+L21: > Our final contribution is a protocol targeted at general data parallel computation. Compared to prior work, this protocol can more efficiently verify complicated computations as long as that computation is applied independently to many pieces of data.
+L22: Comments:  | This version corrects a confusing typographical error in Section 7. We are grateful to Michael Walfish for identifying the error
+L23: Subjects:  | Cryptography and Security (cs.CR); Computational Complexity (cs.CC); Data Structures and Algorithms (cs.DS)
+L24: Cite as:  | 【9†arXiv:1304.3812】 [cs.CR]
+L25:    | (or 【10†arXiv:1304.3812v4】 [cs.CR] for this version)
+L26:    | 【11†https://doi.org/10.48550/arXiv.1304.3812†doi.org】 arXiv-issued DOI via DataCite
+L27: ## Submission history
+L28: 
+L29: From: Justin Thaler [【12†view email】]
+L30: 【5†[v1]】 Sat, 13 Apr 2013 14:47:09 UTC (776 KB)
+L31: 【13†[v2]】 Thu, 6 Jun 2013 20:30:31 UTC (777 KB)
+L32: 【14†[v3]】 Sat, 27 Jul 2013 18:23:12 UTC (777 KB)
+L33: [v4] Wed, 8 Feb 2017 18:57:37 UTC (777 KB)
+L34: 
+L35: Full-text links:
+L36: 
+L37: ## Access Paper:
+L38: 
+L39: View a PDF of the paper titled Time-Optimal Interactive Proofs for Circuit Evaluation, by Justin Thaler
+L40: 
+L41:   * 【7†View PDF】
+L42:   * 【8†HTML (experimental)】
+L43:   * 【15†TeX Source】
+L44: 
+L45: 【16†view license】
+L46: ### Current browse context:
+L47: 
+L48: cs.CR
+L49: 
+L50: 【17†< prev】   |   【18†next >】
+L51: 
+L52: 【19†new】 | 【20†recent】 | 【21†2013-04】
+L53: 
+L54: Change to browse by:
+L55: 
+L56: 【22†cs】
+L57: 【23†cs.CC】
+L58: 【24†cs.DS】
+L59: 
+L60: ### References & Citations
+L61: 
+L62:   * 【25†NASA ADS†ui.adsabs.harvard.edu】
+L63:   * 【26†Google Scholar†scholar.google.com】
+L64:   * 【27†Semantic Scholar†api.semanticscholar.org】
+L65: ### 【28†DBLP†dblp.uni-trier.de】 - CS Bibliography
+L66: 
+L67: 【29†listing†dblp.uni-trier.de】 | 【30†bibtex†dblp.uni-trier.de】
+L68: 
+L69: 【31†Justin Thaler†dblp.uni-trier.de】
+L70: 
+L71: [Button: export BibTeX citation] Loading...
+L72: 
+L73: ## BibTeX formatted citation
+L74: 
+L75: [Button: ×]
+L76: 
+L77: loading...
+L78: 
+L79: Data provided by:
+L80: 
+L81: ### Bookmark
+L82: 
+L83: [Input] Bibliographic Tools
+L84: # Bibliographic and Citation Tools
+L85: 
+L86: [Input] Bibliographic Explorer Toggle
+L87: 
+L88: Bibliographic Explorer (【32†What is the Explorer?†info.arxiv.org】)
+L89: 
+L90: [Input] Connected Papers Toggle
+L91: 
+L92: Connected Papers (【33†What is Connected Papers?†www.connectedpapers.com】)
+L93: 
+L94: [Input] Litmaps Toggle
+L95: 
+L96: Litmaps (【34†What is Litmaps?†www.litmaps.co】)
+L97: 
+L98: [Input] scite.ai Toggle
+L99: 
+L100: scite Smart Citations (【35†What are Smart Citations?†www.scite.ai】)
+L101: 
+L102: [Input] Code, Data, Media
+L103: # Code, Data and Media Associated with this Article
+L104: 
+L105: [Input] alphaXiv Toggle
+L106: 
+L107: alphaXiv (【36†What is alphaXiv?†alphaxiv.org】)
+L108: 
+L109: [Input] Links to Code Toggle
+L110: 
+L111: CatalyzeX Code Finder for Papers (【37†What is CatalyzeX?†www.catalyzex.com】)
+L112: 
+L113: [Input] DagsHub Toggle
+L114: 
+L115: DagsHub (【38†What is DagsHub?†dagshub.com】)
+L116: 
+L117: [Input] GotitPub Toggle
+L118: 
+L119: Gotit.pub (【39†What is GotitPub?†gotit.pub】)
+L120: 
+L121: [Input] Huggingface Toggle
+L122: 
+L123: Hugging Face (【40†What is Huggingface?†huggingface.co】)
+L124: 
+L125: [Input] ScienceCast Toggle
+L126: ScienceCast (【41†What is ScienceCast?†sciencecast.org】)
+L127: 
+L128: [Input] Demos
+L129: # Demos
+L130: 
+L131: [Input] Replicate Toggle
+L132: 
+L133: Replicate (【42†What is Replicate?†replicate.com】)
+L134: 
+L135: [Input] Spaces Toggle
+L136: 
+L137: Hugging Face Spaces (【43†What is Spaces?†huggingface.co】)
+L138: 
+L139: [Input] Spaces Toggle
+L140: 
+L141: TXYZ.AI (【44†What is TXYZ.AI?†txyz.ai】)
+L142: 
+L143: [Input] Related Papers
+L144: # Recommenders and Search Tools
+L145: 
+L146: [Input] Link to Influence Flower
+L147: 
+L148: Influence Flower (【45†What are Influence Flowers?†influencemap.cmlab.dev】)
+L149: 
+L150: [Input] Core recommender toggle
+L151: 
+L152: CORE Recommender (【46†What is CORE?†core.ac.uk】)
+L153: 
+L154:   * Author
+L155:   * Venue
+L156:   * Institution
+L157:   * Topic
+L158: 
+L159: [Input] About arXivLabs
+L160: # arXivLabs: experimental projects with community collaborators
+L161: 
+L162: arXivLabs is a framework that allows collaborators to develop and share new arXiv features directly on our website.
+L163: 
+L164: Both individuals and organizations that work with arXivLabs have embraced and accepted our values of openness, community, excellence, and user data privacy. arXiv is committed to these values and only works with partners that adhere to them.
+L165: Have an idea for a project that will add value for arXiv's community? 【47†Learn more about arXivLabs†info.arxiv.org】.
+L166: 
+L167: 【48†Which authors of this paper are endorsers?】 | Disable MathJax (【49†What is MathJax?†info.arxiv.org】)
+L168: 
+L169: We gratefully acknowledge support from our major funders, 【50†member institutions†info.arxiv.org】, , and all contributors.
+L170: 【51†About†info.arxiv.org】 · 【52†Help†info.arxiv.org】 · 【53†Contact†info.arxiv.org】 · 【54†Subscribe†info.arxiv.org】 · 【55†Copyright†info.arxiv.org】 · 【56†Privacy†info.arxiv.org】 · 【57†Accessibility†info.arxiv.org】 · 【58†Operational Status (opens in new tab)†status.arxiv.org】
+L171: 
+L172: Major funding support from
+

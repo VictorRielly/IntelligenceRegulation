@@ -1,0 +1,1 @@
+{"status":"PASS","fixtures":375,"scalar_limb_outputs":30750,"python_vector_fixtures":25,"overlaunch_and_guard_checks":375,"digest":"94987b4cb6f88a24","scope":"Exact extracted kernel max4/max5 bodies in CPU shim; no CUDA compilation or timing"}

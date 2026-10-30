@@ -1,0 +1,33 @@
+--- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r9/frozen-tree/hashline/src/private_block/argument.rs	2026-10-19 09:43:52.719119676 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12/frozen-tree/hashline/src/private_block/argument.rs	2026-10-20 19:53:45.652479842 -0700
+@@ -1328,19 +1328,23 @@
+             // the output projection write the full width; the key and value
+             // projections write `kv_heads * head_dim`.
+             let kvw = sh.kv_heads * sh.head_dim;
+-            let (plane, w, outer): (usize, &[i8], usize) = match slot {
+-                SC_QMM => (ids.at(A_Y), ctx.public.wq.as_slice(), sh.d_pad),
+-                SC_KMM => (ids.at(A_Y), ctx.public.wk.as_slice(), kvw),
+-                SC_VMM => (ids.at(A_Y), ctx.public.wv.as_slice(), kvw),
+-                _ => (ids.at(A_O8), ctx.public.wo.as_slice(), sh.d_pad),
++            // NATIVE R12 (F2): `Wq` writes the QUERY axis (`q_pad`) and reads
++            // the model axis; `Wo` reads the query axis and writes the model
++            // axis. At every profile before R12 `q_pad == d_pad`, so no
++            // challenge length, coordinate or fold moves.
++            let (plane, w, outer, inner): (usize, &[i8], usize, usize) = match slot {
++                SC_QMM => (ids.at(A_Y), ctx.public.wq.as_slice(), sh.q_pad(), sh.d_pad),
++                SC_KMM => (ids.at(A_Y), ctx.public.wk.as_slice(), kvw, sh.d_pad),
++                SC_VMM => (ids.at(A_Y), ctx.public.wv.as_slice(), kvw, sh.d_pad),
++                _ => (ids.at(A_O8), ctx.public.wo.as_slice(), sh.d_pad, sh.q_pad()),
+             };
+             let r_j = tr.challenge_fp2_vec(lg(outer));
+             let point = cat(&[&pts.r_q, &r_j]);
+             let mut coords = fixed(&pts.r_q);
+-            coords.extend(rho(0..ld));
++            coords.extend(rho(0..lg(inner)));
+             b.a_at(plane, coords, 0)?;
+             // w is (output j, input i): sum_j eq(r_j, j) w[j, i]
+-            b.public(fold_rows_i8(w, outer, sh.d_pad, &eq_table_msb(&r_j)));
++            b.public(fold_rows_i8(w, outer, inner, &eq_table_msb(&r_j)));
+             match slot {
+                 SC_QMM => pts.pq = point,
+                 SC_KMM => pts.pk = point,

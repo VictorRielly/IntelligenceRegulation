@@ -1,0 +1,9 @@
+R14-actual-S2-L00-public-input/1
+dd=1
+stages=1
+context=c9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c9c9
+model_identity=5af573e263178790f10b62e672d98c1d293e1d31e2384413848dd6e0c6ab9789
+input_root=837b1618f5296e53a2ae154c0e4ac1a3aeb80c7d0807f2aceeac2f92ab06f746
+output_root=e3511b332d620a3ba46e270f1096f238fb83f4d5622272041352aef239918a16
+binding=e5d4dd5a6c6ac61ae14436726067b5081780ce4fed503aa64cfdcc7b7f71089d
+scope=actual S2 public layer L00, public synthetic input, native one-stage path; no full26/CLI/privacy acceptance

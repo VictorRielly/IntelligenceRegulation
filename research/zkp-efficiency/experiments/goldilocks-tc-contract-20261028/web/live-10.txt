@@ -1,0 +1,318 @@
+Montgomery Arithmetic from a Software Perspective* (https://eprint.iacr.org/2017/1057.pdf)
+citeturn10search12 [wordlim: 200] Published: 2.2 years ago; modular reduction techniques. ... the structure of the algorithm (especially if its single branch, the notorious conditional “subtraction ... Finally, we show how to implement Montgomery arithmetic in software.
+Let N be the positive modulus consisting of n digits while the input values to the modular multi-
+plication method (A and B) are non-negative integers smaller than N and consist of up to n digits.
+When computing modular multiplication C = AB mod N, the deﬁnitional approach is ﬁrst to compute
+the product P = AB. Next, a division is computed to obtain P = NQ + C such that both C and Q
+are non-negative integers less than N. Knuth studies such algorithms for multi-precision non-negative
+integers [48, Alg. 4.3.1.D]. Counting word-by-word instructions, the method described by Knuth re-
+quires O(n2) multiplications and O(n) divisions when implemented on a computer platform. However,
+on almost all computer platforms divisions are expensive (relative to the cost of a multiplication). Is
+it possible to perform modular multiplication without using any division instructions?
+If one is allowed to perform some precomputation which only depends on the modulus N, then
+this question can be answered aﬃrmatively. When computing the division step, the idea is to use
+only “cheap” divisions and “cheap” modular reductions when computing the modular multiplication
+in combination with a precomputed constant (the computation of which may require “expensive” di-
+visions). These “cheap” operations are computations which either come for free or at a low cost on
+computer platforms. Virtually all modern computer architectures internally store and compute on data
+in binary format using some ﬁxed word-size r = 2w as above. In practice, this means that all arith-
+metic operations are implicitly computed modulo 2w (i.e., for free) and divisions or multiplications by
+(powers of) 2 can be computed by simply shifting the content of the register which holds this value.
+Barrett introduced a modular multiplication approach (known as Barrett multiplication [6]) using
+this idea. This approach can be seen as a Newton method which uses a precomputed scaled variant
+of the modulus’ reciprocal in order to use only such “cheap” divisions when computing (estimating
+and adjusting) the division step. After precomputing a single (multi-precision) value, an implement-
+ation of Barrett multiplication does not use any division instructions and requires O(n2) multiplication
+instructions.
+Another and earlier approach based on precomputation is the main topic of this chapter: Mont-
+gomery multiplication. This method is the preferred choice in cryptographic applications when the
+modulus has no “special” form (besides being an odd positive integer) that would allow more eﬃcient
+modular reduction techniques. See Section 3 on page 11 for applications of Montgomery multipli-
+cation in the “special” setting. In practice, Montgomery multiplication is the most eﬃcient method
+when a generic modulus is used (see e.g., the comparison performed by Bosselaers, Govaerts, and
+Vandewalle [19]) and has a very regular structure which speeds up the implementation. Moreover,
+the structure of the algorithm (especially if its single branch, the notorious conditional “subtraction
+step”, can be avoided, cf. page 9 in Section 2.4) has advantages when guarding against certain types
+of cryptographic attacks (for more information on diﬀerential power analysis attacks see the seminal
+paper by Kocher, Jaﬀe, and Jun [51]). In the next chapter, Montgomery’s method is compared with
+a version of Barrett multiplication in order to be more precise about the computational advantages of
+the former technique.
+As observed by Shand and Vuillemin in [66], Montgomery multiplication can be seen as a gener-
+alization of Hensel’s odd division [40] for 2-adic numbers. In this chapter we explain the motivation
+behind Montgomery arithmetic. More speciﬁcally, we show how a change of the residue class rep-
+resentatives used improves the performance of modular multiplication. Next, we summarize some of
+the proposed modiﬁcations to Montgomery multiplication which can further speed up the algorithm
+in certain settings. Finally, we show how to implement Montgomery arithmetic in software. We es-
+pecially study how to compute a single Montgomery multiplication concurrently using either vector
+instructions or when many computational units are available which can compute in parallel.
+2--------------------------------------------------------------------------------
+tensor-core-ntt/README.md at main · Terminus-IMRC/tensor-core-ntt · GitHub (https://github.com/Terminus-IMRC/tensor-core-ntt/blob/main/README.md)
+citeturn10search0 [wordlim: 200] Crawled: 2 weeks ago; Through careful analysis, we successfully removed the redundant operations in the previous Tensor Core-based NTT implementations. Along with efficient modular reduction algorithm, we achieved higher performance than the previous work in most settings.
+
+See the paper by Y. ... Takahashi titled "Improved Implementation of Number Theoretic Transform on NVIDIA GPU with Tensor Cores" (doi:10.1145/3773656.3773673), which was accepted to SupercomputingAsia 2026 / International Conference on High Performance Computing in Asia-Pacific Region 2026 (SCA/HPCAsia 2026), for more details.
+
+# README.md
+
+# `tensor-core-ntt`
+
+This repository provides an improved implementation of the number theoretic transform (NTT) that leverages Tensor Cores on NVIDIA GPUs.
+
+NTT is a generalization of the fast Fourier transform (FFT) over modular integers, and it is used to perform convolutions and polynomial/multiple-precision arithmetic exactly, in contrast to FFT, which uses floating-point arithmetic and thus suffers from rounding errors.
+
+Through careful analysis, we successfully removed the redundant operations in the previous Tensor Core-based NTT implementations. Along with efficient modular reduction algorithm, we achieved higher performance than the previous work in most settings.
+
+See the paper by Y. Sugizaki and D. Takahashi titled "Improved Implementation of Number Theoretic Transform on NVIDIA GPU with Tensor Cores" (doi:10.1145/3773656.3773673), which was accepted to SupercomputingAsia 2026 / International Conference on High Performance Computing in Asia-Pacific Region 2026 (SCA/HPCAsia 2026), for more details.
+
+## License and contribution
+
+For license and copyright notices, see the SPDX file tags in each file. Unless otherwise noted, files in this project are licensed under the Apache License, Version 2.0 (SPDX short-form identifier: Apache-2.0) and copyrighted by the contributors.
+
+Everyone is encouraged to contribute to this project. See the CONTRIBUTING.md file for instructions.--------------------------------------------------------------------------------
+Optimizing arithmetic resource allocation in configurable NTT hardware for area-constrained homomorphic encryption - ScienceDirect (https://www.sciencedirect.com/science/article/pii/S259012302602298X)
+citeturn10search1 [wordlim: 200] Crawled: 2 months ago; https://doi.org/10.1016/j.rineng.2026.111270 Get rights and content ... Area-efficient modular multiplier: A new modular multiplier combines a parallel integer polynomial multiplier with an optimized Montgomery reduction. ... In this paper, we optimize arithmetic resource allocation in configurable NTT hardware to address the structural heterogeneity of FNTT, INTT, and inverse-scaling operations.
+
+Research paper
+
+Optimizing arithmetic resource allocation in configurable NTT hardware for area-constrained homomorphic encryption☆
+
+https://doi.org/10.1016/j.rineng.2026.111270Get rights and content
+
+Under a Creative Commons license
+
+Open access
+
+## Highlights
+
+  * •
+
+Structurally aware NTT architecture: Dedicated multipliers are assigned to CT, GS, and INTT-scaling paths to address the structural heterogeneity of NTT operations.
+
+  * •
+
+Compile-time configurable design: A unified NTT architecture supports polynomial sizes from 2^{12} to 2^{16} and modulus sizes up to 64 bits with low area overhead.
+
+  * •
+
+Area-efficient modular multiplier: A new modular multiplier combines a parallel integer polynomial multiplier with an optimized Montgomery reduction.
+
+  * •
+
+Significant area savings: FPGA results show substantially lower area than state-of-the-art configurable NTT accelerators, making the design suitable for area-constrained HE systems.
+In this paper, we optimize arithmetic resource allocation in configurable NTT hardware to address the structural heterogeneity of FNTT, INTT, and inverse-scaling operations. To realize this approach, we have proposed a configurable NTT hardware architecture that supports multiple polynomial degrees ranging from 2^{12} to 2^{16} and modulus sizes of up to 64 bits through a structurally aware butterfly datapath. The proposed datapath employs three modular multipliers (one dedicated to each CT butterfly, GS butterfly, and INTT scaling operation) together with lightweight routing multiplexers and arithmetic units. Furthermore, we have presented an area-delay-efficient modular multiplier consisting of a novel integer polynomial multiplier and an optimized Montgomery-based modular reduction architecture. The integer multiplier uses parallel partial-product generation, tree-based accumulation, and shifting techniques, while the Montgomery reduction employs operand digitization and a single instance of the integer multiplier for internal multiplication with the modulus q. Finally, we have proposed benchmarking metrics based on the area-delay product for modular multipliers and the logic-normalized coefficient throughput for the NTT accelerator. The NTT architecture is implemented in Verilog HDL using the Vivado design environment and evaluated up to the post-place-and-route stage on an Artix-7 field-programmable gate array device. Comprehensive performance results and comparisons with state-of-the-art designs confirm that the proposed architecture achieves a significantly lower area with clock cycle overhead, demonstrating its suitability for area-constrained applications.
+
+## Keywords
+
+Post–quantum cryptography
+
+Number theoretic transform
+
+Homomorphic encryption
+
+FPGA
+
+## Data availability
+
+No data was used for the research described in the article.
+
+
+This research was funded by Umm Al-Qura University, Saudi Arabia under grant number: 26UQU4320199GSSR01.
+
+© 2026 The Author(s). Published by Elsevier B.V.--------------------------------------------------------------------------------
+Faster Implementation of Ideal Lattice-Based Cryptography Using AVX512 | ACM Transactions on Embedded Computing Systems (https://doi.org/10.1145/3609223)
+citeturn10search2 [wordlim: 200] Published: 3.1 years ago; Crawled: 2 weeks ago; Seiler et al. [31] used the lazy reduction on polynomial arithmetic and presented a efficient implementation with AVX2. ... Seiler et al. [31] used Barrett reduction in INTT, but its efficiency is worse than Montgomery reduction. ... But the traditional Montgomery Reduction algorithm needs a bounds checking operation at the end to decide whether a subtraction operation is needed.
+### 4.2 Lazy Reduction
+
+Seiler et al. [31] used the lazy reduction on polynomial arithmetic and presented a efficient implementation with AVX2. We extend this technique to the more general case and present an implementation with AVX512. Seiler et al. [31] used Barrett reduction in INTT, but its efficiency is worse than Montgomery reduction. So we optimize it with the Montgomery reduction and process the introduced \(\beta ^{-1}\) in the last iteration of INTT according to its particular structure.
+
+#### 4.2.1 Modular Operations with Lazy Reduction.
+
+The \(\mathbf {R}_{q}\) is quotient \(\mathbb {Z}_{q}[X] /\left(X^{n}+1\right)\), on \(\mathbb {Z}_{q}\), general modular addition (subtraction) requires checking whether the result after addition (subtraction) is out of range, and if so, additional subtraction (addition) is required to reduce the result. When implemented with AVX512, the bounds checking operation will introduce additional instructions, so we remove it and carry out direct addition (subtraction) called DirAdd (DirSub). --------------------------------------------------------------------------------
+Goldilocks NTT Trick (https://www.ingonyama.com/post/goldilocks-ntt-trick)
+citeturn10search3 [wordlim: 200] Published: 3.9 years ago; Crawled: 3 weeks ago; Following the simple observation that 2⁴⁸ is a root of unity, we show that expressing the first few roots of unity in terms of powers of 2, allows modular multiplications to be replaced with simple bit-shift operations, resulting in a significant cost saving for NTT.
+
+Read the Paper on our Github here: https://github.com/ingonyama-zk/papers/blob/main/goldilocks_ntt_trick.pdf
+
+# Goldilocks NTT Trick
+
+December 13, 2022
+
+Image
+
+Polynomial arithmetic is at the heart of modern Zero Knowledge Proving (ZKP) systems. The Number Theoretic Transform (NTT) is a crucial tool in facilitating efficient computational complexity over large polynomials encountered in ZKPs. NTTs are dominated by the number of field multiplications.
+
+In this short note we focus on the specific case of NTT in the 64 bit Goldilocks field. Following the simple observation that 2⁴⁸ is a root of unity, we show that expressing the first few roots of unity in terms of powers of 2, allows modular multiplications to be replaced with simple bit-shift operations, resulting in a significant cost saving for NTT.
+
+Read the Paper on our Github here: https://github.com/ingonyama-zk/papers/blob/main/goldilocks_ntt_trick.pdf--------------------------------------------------------------------------------
+Montgomery Arithmetic from a Software Perspective (Chapter 2) - Topics in Computational Number Theory Inspired by Peter L. Montgomery (https://www.cambridge.org/core/books/abs/topics-in-computational-number-theory-inspired-by-peter-l-montgomery/montgomery-arithmetic-from-a-software-perspective/EAD141BA84887C799DDB375A72B0D2A2)
+citeturn10search4 [wordlim: 200] Published: 9.0 years ago; Crawled: last month; # 2 - Montgomery Arithmetic from a Software Perspective ...   * 2 Montgomery Arithmetic from a Software Perspective ...   * 8 FFT Extension for Algebraic-Group Factorization Algorithms
+
+# 2 - Montgomery Arithmetic from a Software Perspective
+
+Published online by Cambridge University Press:  25 October 2017
+
+By
+
+Joppe W. Bos  and
+
+Peter L. Montgomery
+
+Edited by
+
+Joppe W. Bos  and
+
+Arjen K. Lenstra
+
+Show author details
+
+Book contents
+
+  * Frontmatter
+  * Contents
+  * List of Contributors
+  * Preface
+  * 1 Introduction
+  * 2 Montgomery Arithmetic from a Software Perspective
+  * 3 Hardware Aspects of Montgomery Modular Multiplication
+  * 4 Montgomery Curves and the Montgomery Ladder
+  * 5 General Purpose Integer Factoring
+  * 6 Polynomial Selection for the Number Field Sieve
+  * 7 The Block Lanczos Algorithm
+  * 8 FFT Extension for Algebraic-Group Factorization Algorithms
+  * 9 Cryptographic Pairings
+  * Bibliography
+  * Subject Index
+
+Get access
+
+## Summary
+
+A summary is not available for this content so a preview has been provided. Please use the Get access link above for information on how to access this content.
+
+Type
+    Chapter
+
+Information
+    
+
+Topics in Computational Number Theory Inspired by Peter L. Montgomery , pp. 10 - 39
+
+DOI: https://doi.org/10.1017/9781316271575.003 [Opens in a new window]
+
+Publisher: Cambridge University Press
+
+Print publication year: 2017
+
+## Accessibility standard: Unknown
+
+### Why this information is here
+
+This section outlines the accessibility features of this content - including support for screen readers, full keyboard navigation and high-contrast display options. This may not be relevant for you.
+
+### Accessibility Information
+
+Accessibility compliance for the PDF of this chapter is currently unknown and may be updated in the future.--------------------------------------------------------------------------------
+Montgomery multiplication - clientside (https://weijiekoh.github.io/clientside/montgomery_multiplication.html)
+citeturn10search5 [wordlim: 200] Crawled: 1.9 years ago; In practice, these algorithms are merged, but to gain intuition about how it works, it is key to first understand how Montgomery reduction works at a high level. ... | Must fit within a single CPU-native data type, such as a 32 or 64-bit unsigned integer. ... A fuller description of the above steps can be found in Montgomery Arithmetic from a Software Perspective by Joppe Bos (section 2), including a proof that (x+pq)/R≤2 p, so only one conditional subtraction is needed (p4).
+| Must be odd.
+x  | The value to reduce.  | 0≤x≤p 2
+w  | The number of bits in a word.  | Must fit within a single CPU-native data type, such as a 32 or 64-bit unsigned integer.
+n  | The number of words.  | Must be large enough such that w n is equal to or larger than the bit-length of p.
+R  | The Montgomery radix.  | Coprime to and greater than p. Must be a power of 2, usually 2 w n.
+μ  | The precomputed Montgomery constant.  | −p−1 mod R, computed using the extended Euclidean algorithm.
+
+The steps of the reduction algorithm are:
+
+  1. q←μx mod R
+  2. c←(x+pq)/R
+  3. If c≥p then c←c−p.
+  4. Return c.
+
+The output is c≡x R−1 mod p. As long as the input x is equivalent to some a R⋅b R, Montgomery reduction computes ab R mod p as desired.
+
+Essentially, this algorithm adds a multiple of p to x so that the result is a multiple of R and yet equivalent to x mod p. Since dividing by R is efficient, one can thereby arrive at x R−1.
+
+Crucially, we assume that division by R is efficient. In computer processors, this is true as long as R is a power of 2, since said division can be done simply via bitshifts.
+
+Let us break the algorithm down step-by-step.
+
+Substituting μ in step 1, we know that:
+
+  1. q≡−p−1 x mod R
+
+When we multiply q by p in step 2, the −p−1 and p terms cancel each other out, leaving us with −x mod R in the integer domain. Therefore, x+pq≡x−x is divisible by R and equivalent to x mod p.
+
+  2. c≡(x−p p−1 x)/R≡0/R mod R. Note that x+p μx, is nonzero mod p, but is a multiple of R as intended.
+
+A final subtraction (step 3) may be applied to bring c to the desired range 0≤c<p.
+
+A fuller description of the above steps can be found in Montgomery Arithmetic from a Software Perspective by Joppe Bos (section 2), including a proof that (x+pq)/R≤2 p, so only one conditional subtraction is needed (p4).
+
+Finally, addition and subtraction algorithms work for values in Montgomery form as per usual due to the distributive law, and no special algorithms are needed for them:
+
+a R+b R=(a+b)R a R−b R=(a−b)R
+
+--------------------------------------------------------------------------------
+A Low-overhead Dilithium-NTT Architecture using Accelerated K-RED Modular Reduction Unit | IEEE Conference Publication | IEEE Xplore (https://ieeexplore.ieee.org/document/11534654/)
+citeturn10search6 [wordlim: 200] Published: 6 months ago; Crawled: last month; # A Low-overhead Dilithium-NTT Architecture using Accelerated K-RED Modular Reduction Unit ... Published in: 2026 27th International Symposium on Quality Electronic Design (ISQED)
+--------------------------------------------------------------------------------
+Optimized FPGA Architecture for Modular Reduction in NTT (https://eurekamag.com/research/103/455/103455494.php)
+citeturn10search7 [wordlim: 200] Crawled: last month; # Optimized FPGA Architecture for Modular Reduction in NTT ... In this paper, we present a comprehensive analysis of various modular multiplication methods for Number Theoretic Transform (NTT) on FPGA. ... 2021: FPGA-Based Optimized Design of Montgomery Modular Multiplier IEEE Transactions on Circuits and Systems II: Express Briefs 68(6): 2137-2141 ... 2020: Towards a Modular RISC-V Based Many-Core Architecture for FPGA Accelerators IEEE Access 8: 148812-148826
+--------------------------------------------------------------------------------
+AT-NTT: Area-time efficient polynomial multiplication architecture for CRYSTALS-Kyber - ScienceDirect (https://www.sciencedirect.com/science/article/pii/S0045790626001412)
+citeturn10search8 [wordlim: 200] Published: 6 months ago; Crawled: 2 months ago; Volume 133, May 2026, 111069 ... Number Theoretic Transform (NTT) is used to accelerate its computation, where modular reduction in a modular multiplier is the most demanding primitive, limiting the performance of the overall scheme. ... In the majority of these designs, efforts were made to optimize the reduction module, resulting in an optimized associated NTT design. ... This unit is a core computational engine that performs the NTT and INTT primitives based on decimation-in-time (DIT) and decimation-in-frequency (DIF) strategies. ... The rest of the paper is organized as follows: Section 2 provides the background knowledge.
+--------------------------------------------------------------------------------
+A Throughput-Optimized FPGA Architecture for Goldilocks NTT - Irreducible (https://www.irreducible.com/posts/fpga-architecture-for-goldilocks-ntt)
+citeturn10search9 [wordlim: 200] Published: 3.6 years ago; Crawled: last year; We present a modular, fully-pipelined FPGA architecture for large NTT computations in the 64-bit Goldilocks finite field ... We can then complete the modular reduction with no further multiplications using the identities from Equation (2). ... The 2¹⁸ NTT module consists of: ... Total of 6x U55C FPGA boards are hosted inside our Gen1 server, and has the following specifications:
+--------------------------------------------------------------------------------
+ (https://en.algorithmica.org/hpc/number-theory/montgomery/)
+citeturn10search10 [wordlim: 200] Crawled: 3 weeks ago; Assume that $r=2^{32}$, the modulo $n$ is 32-bit, and the number $x$ we need to reduce is 64-bit (the product of two 32-bit numbers). ... One of the main advantages of Montgomery multiplication over other modular reduction methods is that it doesn’t require very large data types: it only needs a $r \times r$ multiplication that extracts the lower and higher $r$ bits of the result, which has special support on most hardware also makes it easily generalizable to SIMD and larger data types: ... Note that a 128-by-64 modulo is not possible with general integer division tricks: the compiler falls back to calling a slow long arithmetic library function to support it.
+--------------------------------------------------------------------------------
+PRPLL NTT now supports both CUDA and OpenCL - CUDA Programming and Performance - NVIDIA Developer Forums (https://forums.developer.nvidia.com/t/prpll-ntt-now-supports-both-cuda-and-opencl/367918)
+citeturn10search11 [wordlim: 200] Published: 6 months ago; Crawled: last week; RTX_PRO_6000_CUDA_NTT_gpuowl-0.log (10.6 KB) ... RTX_PRO_6000_FP64_CUDA_gpuowl-0.log (8.3 KB) ... wfgarnett3 October 15, 2026, 7:51am 5
+--------------------------------------------------------------------------------
+ISSCC 2024 - Digest of Technical Papers 1-28-2024 (https://iccircle.com/static/upload/img20240529102022.pdf)
+citeturn10search13 [wordlim: 200] Published: 2.4 years ago; For the unlimited FHE operations, however, the bootstrapping step on RNS-CKKS polynomials requires significant computing costs, mainly caused by key-switch (KS) functions, including NTT/iNTT, base conversion (BConv) and other modular operators [4-6]. ... This paper presents an integrated high-efficiency FHE processor to meet all the RNS-CKKS demands. ... Managed by a top-level controller for instruction fetching-decoding-caching, three major computing engines (CEs) are deployed: 1) NTT/iNTT accelerator with the on-the-fly twiddle factor (TF) generator followed by 16 butterfly units (BUs), 2) BConv module using 16 unified conversion units (CUs), and 3) arithmetic core including 8 modular units (MUs) and one automorphism unit. ... 16.1.4, however, note that the cost reduction by removing one mMAC through the unified design is critical to relax the overall BConv complexity by 34%.
+--------------------------------------------------------------------------------
+A Novel High-performance Implementation of (https://eprint.iacr.org/2022/881.pdf)
+citeturn10search14 [wordlim: 200] Published: 2.2 years ago; we make Tensor Core play the role of the NTT box as an individual module. ... The results will be performed modular re- ... (high 6 bits) ... reduction
+--------------------------------------------------------------------------------
+| YATA: Yet Another TFHE Accelerator with Key Compression and Radix-8 NTT Kotaro Matsuoka Takashi Sato Kyoto University, Japan matsuoka.kotaro@gmail.com takashi@i.kyoto-u.ac.jp TCHES 2026 Paper --- | ---Chip Photo & Floorplan (https://fhe.org/conferences/conference-2026/resources/posters/%5B10%5D%20-%20YATA_%20Yet%20Another%20TFHE%20Accelerator%20with%20Key%20Compression%20and%20Radix-8%20NTT.pdf)
+citeturn10search15 [wordlim: 200] Published: 6 months ago; | YATA: Yet Another TFHE Accelerator with Key Compression and Radix-8 NTT Kotaro Matsuoka Takashi Sato Kyoto University, Japan matsuoka.kotaro@gmail.com takashi@i.kyoto-u.ac.jp TCHES 2026 Paper --- | ---Chip Photo & Floorplan ... Module ... cheaper modular reduction.
+--------------------------------------------------------------------------------
+Code Generation for Cryptographic Kernels using  Multi-word Modular Arithmetic on GPU (https://users.ece.cmu.edu/~franzf/papers/CGO_2025_Naifeng.pdf)
+citeturn10search16 [wordlim: 200] Published: 1.7 years ago; Performance of NTT with various input bit-widths on CPUs, GPUs, and ASICs. ... modular addition, one modular subtraction, and one modular ... kernel that serves as a core component in both FHE and ... ploy any specialized primes (e.g., Goldilocks primes [26]
+--------------------------------------------------------------------------------
+High-Performance NTT Accelerators for PQC leveraging Unified Redundant Arithmetic and Fine-Tuned Microarchitecture (https://arxiv.org/abs/2607.00621)
+citeturn10academia17 [wordlim: 200] Published: 3 months ago; Date: Wed Jul  1 08:41:11 2026 ... Lattice-based PQC schemes such as ML-KEM (CRYSTALS-Kyber) and ML-DSA (CRYSTALS-Dilithium) rely heavily on large-degree polynomial arithmetic, making the Number Theoretic Transform (NTT) a key computational primitive. Although existing hardware accelerators exploit parallelism and pipelining to support both NTT and INTT, their efficiency is often limited by the overhead of modular reduction and correction steps, inverse-transform scaling operations, and suboptimal FPGA implementations.
+--------------------------------------------------------------------------------
+Two Algorithms for Fast GPU Implementation of (https://eprint.iacr.org/2023/1410.pdf)
+citeturn10search18 [wordlim: 200] Published: 2.2 years ago; time, 11.48 µs when Merge-NTT is used. ... the 64-bit goldilocks primes, for which the modular reduc- ... Plantard Reduction and the 64-bit goldilocks prime imple-
+--------------------------------------------------------------------------------
+Implementation and Evaluation of NTT Arithmetic for ML-KEM on a CGLA (https://arxiv.org/abs/2609.28904)
+citeturn10academia19 [wordlim: 200] Published: last month; Date: Thu Sep 24 01:33:47 2026 ... We implement an eight-stage cyclic radix-2 driver over the ML-KEM modulus by splitting each twiddle into 8-bit and 4-bit parts before modular reduction. ... At batch size 64, measured FPGA end-to-end latency is 27.5 us per NTT, and the ASIC projection is 6.74 us.
+--------------------------------------------------------------------------------
+@NTT: Algorithm-Targeted NTT hardware acceleration via Design-Time Constant Optimization (https://arxiv.org/abs/2601.17806)
+citeturn10academia20 [wordlim: 200] Published: 9 months ago; Date: Sun Jan 25 11:48:24 2026 ... Hardware implementation of NTT is generally preferred over software ones, as the latter are significantly slower due to complex memory access patterns and modular arithmetic operations. ... Our case study on the Dilithium NTT, implemented using the TSMC 28 nm library, operates at a clock frequency of 1.0 GHz with an area of 1.45 mm^2.
+--------------------------------------------------------------------------------
+Windows Oct 2026 update breaks GPU partition (https://www.reddit.com/r/WindowsUpdate/comments/1xajrbk/windows_oct_2026_update_breaks_gpu_partition/)
+citeturn10reddit21 [wordlim: 200] Published: last week; [Tuesday October 20 2026] [+13 votes] ... [Tuesday October 20 2026] [+1 votes] ... So wow looks like all GPU patitioning broken at least with nVidia cards. 2 host systems, 7 VM's - none can now boot with GPU patitioning enabled, it was nice to be able to do video editing and playback at least in a VM even if not full CUDA partitioning.
+--------------------------------------------------------------------------------
+Montgomery modular multiplication (https://en.wikipedia.org/wiki/Montgomery_modular_multiplication)
+citeturn10search22 [wordlim: 200] Crawled: 2 months ago; In modular arithmetic computation, Montgomery modular multiplication, more commonly referred to as Montgomery multiplication, is a method for performing fast modular multiplication. ... Montgomery reduction, also known as REDC, is an algorithm that simultaneously computes the product by R′ and reduces modulo N more quickly than the naïve method. ... Addition, subtraction, negation, comparison for equality, multiplication by an integer not in Montgomery form, and greatest common divisors with N may all be done with the standard algorithms. ... The base B is typically 2 for microelectronic applications, 2^{8} for 8-bit firmware, or 2^{32} or 2^{64} for software applications. ... Efficient and Side-Channel Resistant RSA Implementation for 8-bit AVR Microcontrollers (PDF). 1st International Workshop on the Security of the Internet of Things.
+--------------------------------------------------------------------------------
+Accelerating Polynomial Multiplication for Homomorphic Encryption on GPUs (https://arxiv.org/abs/2209.01290)
+citeturn10academia23 [wordlim: 200] Published: 4.2 years ago; Authors: Kaustubh Shivdikar, Gilbert Jonatan, Evelio Mora, Neal Livesay, Rashmi Agrawal, Ajay Joshi, Jose Abellan, John Kim, David Kaeli ... In this paper, we present a characterization of GPU-based implementations of polynomial multiplication. We begin with a survey of modular reduction techniques and analyze several variants of the widely-used Barrett modular reduction algorithm. ... Next, we explore the following GPU-specific improvements for polynomial multiplication targeted at optimizing latency and throughput: 1) We present a 2D mixed-radix, multi-block implementation of NTT that results in a 1.85x average speedup over the previous state-of-the-art.
+--------------------------------------------------------------------------------
+Tech Support and Question Megathread - October 2026 Edition (https://www.reddit.com/r/nvidia/comments/1wuqnld/tech_support_and_question_megathread_october_2026/)
+citeturn10reddit24 [wordlim: 200] Published: 3 weeks ago; Windows 10 build 1607 64bit, upgrade from Windows 8.1 ... [Tuesday October 06 2026] [+1 votes] ... As you can see there is a rhythmic dip for some reason. when it dips i loose a frame or two its very annoying the cpu is at about 32-40 % and memory is 14 gb so i dont think its throttled. iv clean installed my drivers (gpu & chipset) cleared my cache, disabled game bar and HAGS. disabled all non windows services turned off all startup apps. ... * Changing "Nvidia Overlay > Microphone > Always on" to "Push-to-talk" (tested microphone push-to-talk hotkeys were grave accent <\`> and CAPSLOCK). ... RTX 5080 on most recent driver + windows updates for Oct 2026, now GPU usage in all games is stuck to 75-80%.
+--------------------------------------------------------------------------------
+Native Goldilocks 2^24 → 2^27 LDE/NTT benchmark on RX 7900 XTX — looking for methodology feedback (https://www.reddit.com/r/zeroknowledge/comments/1ukazrh/native_goldilocks_224_227_ldentt_benchmark_on_rx/)
+citeturn10reddit25 [wordlim: 200] Published: 3 months ago; [Wednesday July 01 2026] [+1 votes]
+I am the author of Qingming G64 NTT, an open-source HIP/ROCm implementation of a native Goldilocks-field NTT for a STARK-style LDE workload. ... I especially want to avoid comparing incompatible “64-bit NTT” results when the field, modulus, layout contract, batch size, and timing scope are not the same.
+--------------------------------------------------------------------------------
+Division algorithm (https://en.wikipedia.org/wiki/Division_algorithm)
+citeturn10search26 [wordlim: 200] Crawled: last month; Examples include reduction to multiplication by Newton's method as described above, as well as the slightly faster Burnikel-Ziegler division, Barrett reduction and Montgomery reduction algorithms. ... In floating-point arithmetic, the quotient ${\displaystyle q}$ is represented as ${\displaystyle {\tilde {q}}}$ and the remainder ${\displaystyle r}$ as ${\displaystyle {\tilde {r}}}$, introducing rounding errors ${\displaystyle \epsilon _{q}}$ and ${\displaystyle \epsilon _{r}}$: ... *  Despite how "little" problem the optimization causes, this reciprocal optimization is still usually hidden behind a "fast math" flag in modern compilers as it is inexact. ... (2018) [2006].
+--------------------------------------------------------------------------------
+Subtraction (https://en.wikipedia.org/wiki/Subtraction)
+citeturn10search27 [wordlim: 200] Crawled: 3 weeks ago; Subtraction ... Almost all American schools currently teach a method of subtraction using borrowing or regrouping (the decomposition algorithm) and a system of markings called crutches.
+

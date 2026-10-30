@@ -9,7 +9,7 @@ is proved "no" in all three categories. Long items are split into **chunks**, an
 proved separately per category. The chunk size depends on the hardware profile. (D37, D38, D39,
 D41.)
 
-**What runs today: a demo stub.**
+**Default mode: a demo stub.**
 - Each chunk gets a real zero-knowledge proof that the approved TinyLlama-1.1B integer model ran
   on the hidden text (today's next-token CLI).
 - That proof is verified in a fresh process, published to a local content-addressed store,
@@ -22,10 +22,232 @@ D41.)
 
 Design: `DESIGN.md`. Ledger: `PROGRESS.md`.
 
-The optional [Base Sepolia publisher](TESTNET.md) is implemented and tested with
-controlled RPC responses. Deployment and real classifier integration are pending.
+The optional [Base Sepolia publisher](TESTNET.md) is implemented, tested and
+deployed with free test ETH. The first real app post completed all three
+Shieldstral category proofs and was anchored on Base Sepolia on 2026-10-30.
+All three labels are "no"; the app still displays **privacy statement pending**.
+The [run and reboot recovery report](../../results/zk60_astra_20261026/real_app_demo_1/RECOVERY_REPORT.md)
+records the proofs, testnet transaction, fresh public-store verification and
+the explicitly replaced local development signing key. The original owner
+openings and salt were lost with the temporary workspace: its proof-to-post link
+cannot be rechecked from an opening. The public receipts and segments still
+verify. No proof was repeated during recovery.
 It refuses the demo stub's unbound labels. The image path now uses the versioned
 integer-only `pm-img-area-v1` preprocessing library; image proofs remain in development.
+
+## Screening rules (D45)
+
+An item is reserved under its original policy list and threshold before proof jobs
+are queued. This private reservation uses a keyed item fingerprint independent of
+the author, policy and threshold; competing submissions are serialized in one
+SQLite transaction. Changed settings cannot create a second query or start an
+old queued job. A retry is allowed only under the original settings when the
+earlier job failed before any proof work ran.
+
+Deletion erases the content, commitment salt, receipts and private openings. The
+keyed reservation remains so deletion cannot enable another screening. It is
+not published and cannot open the on-chain commitment. Existing retained text
+posts are migrated; an unresolved historic policy is refused rather than rebound
+to current settings. Content erased before this migration cannot be recovered or
+retrospectively reserved.
+
+An item with a missing or rejected category/chunk proof is marked **could not be
+verified**, withheld from every feed, and creates no new publication. A fresh
+verifier rejection withdraws an already published item; historical chain entries
+remain. The stub and fake modes retain their explicit development labels.
+
+The classifier's sealed input root is part of its verifier-published statement;
+the statement hash enters the publication leaf and therefore the anchored Merkle
+root. The app retains the input-owner opening privately. The R-C3 development
+integration exercises this binding. Native R13 and the three moderate category
+profiles now exist; the per-item activation writer matches the native writer on
+the retained three-category item. The r16b app adapter now uses that writer.
+The coordinator authorized a testnet demonstration with the three moderate
+policies; the product policy ruling and classifier privacy statement remain pending.
+
+## Shieldstral text preparation
+
+`proven_media/shieldstral_text.py` loads the pinned Tekken bytes and encodes user
+content as plain text, including strings such as `[/INST]`. The leading space is
+part of the content. `prompting.build_prompt` accepts an explicit encoder and
+category template; `plan_shieldstral` uses a separate native chunk plan for each
+category. A short input uses its true length and public pad id 11 after the suffix,
+matching native schema/3. The verdict is taken at the suffix, before the pads.
+There is no fallback to the stub tokenizer or silent truncation.
+
+`check_category_coverage` recounts the original post with the pinned encoder and
+requires every category's proved total and exact D41 ranges to cover that post.
+The resulting count is passed to the pinned CLI
+`label --expect-total` (r16b in real mode); fresh verification
+and the input-owner check are still required. A proof set for only a prefix of
+the post is refused, even when it has the expected number of chunks.
+
+Install the optional tokenizer dependencies from `requirements-shieldstral.txt`
+into this app's own virtual environment before selecting real mode:
+
+```bash
+/home/victor/.local/bin/uv pip install --python apps/proven-media/.venv/bin/python -r apps/proven-media/requirements-shieldstral.txt
+```
+
+They are installed on this host: mistral-common 1.11.7, tiktoken 0.14.0 and
+NumPy 2.2.6. The runner no longer borrows another environment's package paths.
+Installing dependencies alone does not select a prover mode or settle the
+strict-versus-moderate product ruling.
+The retained check at `results/zk60_astra_20261026/shieldstral_text_check_r3.json`
+(repository root) matches all 4,872 A1 inputs, checks 1,006 control-string/Unicode
+cases and 14,480 category prompts, including short inputs at T128 and T256.
+These are input preparation checks, not proofs. The per-item activation writer
+in `results/zk60_shieldstral_export_20261026/write_item_activations.py` matches
+all 156 native layer input/output files for the retained three-category item.
+The real adapter integrates that writer and the registered r16b profiles.
+Set `PM_PROVER=shieldstral` explicitly to select the testnet demonstration;
+default mode remains the stub.
+
+The queue supports different chunk ranges per category. Each job keeps a unique
+post-wide index plus the native chunk index within its category. The prover's
+`content_length` and `plan_text` methods supply the encoder and complete plan;
+the queue rechecks that plan on start, collection and finalization. A missing
+category, truncated plan, misplaced receipt or missing input binding prevents
+publication. Manifests contain one entry per actual category proof, and recheck
+rejection withdraws the whole item while retaining existing chain history.
+
+## Demo operator tools
+
+The current laptop's real classifier profile is recorded separately from the
+stub profiles in `deploy.json`, under `classifier_profiles.shieldstral-laptop`.
+It specifies CPU execution, two threads, T128, category content capacities
+55/55/49, overlap8, at most8 chunks per category and a336-token whole-post limit.
+The prover reservation is10.4GiB with an11.5GiB cap. `shieldstral_runtime.py`
+remains authoritative; the profile checker refuses changed geometry, model
+pins, verification floors or resource declarations. Choosing a hardware label
+does not enable an unreviewed T256 model or change the existing queue.
+
+From the repository root, inspect the validated operator profile:
+
+```bash
+/usr/bin/env PYTHONPATH=apps/proven-media apps/proven-media/.venv/bin/python -m proven_media.hardware_profiles
+```
+
+Preview a reset of the configured private/public roots:
+
+```bash
+apps/proven-media/.venv/bin/python apps/proven-media/tools/reset_demo.py
+```
+
+After the demo's proof jobs and anchor transactions have finished, reset its
+feed in one command:
+
+```bash
+apps/proven-media/.venv/bin/python apps/proven-media/tools/reset_demo.py --apply
+```
+
+The tool honors `PM_PRIVATE_DIR`/`PM_PUBLIC_DIR`, or explicit `--private-root`
+and `--public-root`. It takes publisher locks and a SQLite write transaction,
+creates an owner-only database archive in `<private>/demo-archives/`, then
+clears posts, jobs, checks and chunk-proof rows. Screening reservations remain,
+so resetting never permits the same content to be proved again. Keys, private
+job files, receipts, wallet settings and chain history remain in place.
+Archives retain post content; use the app's author-deletion flow when content
+must be erased. Reset refuses queued/running jobs, missing pipeline completion
+markers and pending/in-flight anchors. It starts no worker and sends no RPC.
+
+The pending first real post has only been inspected with the read-only preview;
+it has not been reset. Investor screenshots await the completed real post and
+retain the **privacy statement pending** label until acceptance.
+The first new real post is retained in
+`results/zk60_astra_20261026/real_app_demo_1/plan.json` (repository root):
+17 Tekken tokens and one proof job per category. The original waiter was
+withdrawn before any computation while the privacy gate occupied the shared
+machine. Its private logs and terminal guard record are preserved; the same
+reserved post and policies are queued, with no active worker. Metadata and
+download fixes are applied, and all 154 current app tests pass on the host
+(6.014 s, n=1 shared box). These fixture checks do not establish a completed
+real app proof. Evidence and source pins are in
+`results/zk60_astra_20261026/app_real_adapter_tests.json`. The installed
+local environment also passes 25 real ASGI route checks using the pinned
+Shieldstral tokenizer and the actual queued demo database, with no proof
+worker or chain transaction. They cover token counts, category jobs, metadata,
+duplicate refusal and withholding unproved content from both feeds.
+`real_app_demo_1/real_routes_check.json` records those checks; browser layout
+and completed native proofs remain separate.
+
+## Real classifier testnet mode
+
+`proven_media/shieldstral_prover.py` pins r16b, the R13 T128 model identity and
+at least 95 bits. It runs preparation → prove → fresh verify → input-owner,
+then native `label --expect-total` for each complete category. Finalization
+independently recounts the original post and checks all category ranges and
+native aggregates before any proof is published. Every accepted label must be
+bound by its proof. There is no automatic retry after proof work has started.
+
+The three moderate policies use content chunks of 55, 55 and 49 tokens, with
+8-token overlap and at most 8 chunks per category. Their differing prefixes
+fill a 128-token context; short posts retain their actual suffix position.
+The private activation files and owner openings remain outside the public
+bundle. The interface explicitly says **privacy statement pending**.
+
+Native-lane measurements on one retained item were about 7.5 minutes proving
+per category, 8.3 GiB peak RSS, and about a minute for each verification/owner/
+aggregate check. The app's 700-second work estimate excludes shared-machine
+waits. These are single shared-host observations, not a throughput guarantee.
+The full held-out numerical benchmark is still incomplete.
+
+The deployment is testnet-only: contract
+`0x8432eba82b1a402f4da7680f6b8f9c9fae185cbe` on Base Sepolia. Receipts remain
+in the public content-addressed store; only a batch digest is anchored.
+The wallet received 0.46 free test ETH and needs no further funding for this demo.
+No real classifier batch has been anchored yet.
+
+## Per-job native execution settings
+
+The real classifier pipeline accepts `PM_CLASSIFIER_NATIVE_THREADS=2` (default)
+or `8`. It records the choice in the private job's `execution.json`; a changed
+record is refused. The activation writer and NumPy/OpenBLAS remain at two threads.
+Memory reservations and caps, model pins, policies and statements are unchanged.
+At two native threads, the effective prove time cap is at least 1,620 seconds
+(27 minutes); at eight it is 1,200 seconds. These caps include margin over the
+observed/expected work. The hardware profile records the base runtime declarations;
+`execution.json` records each job's effective thread count and time cap.
+
+The first public garden post retained two threads for sexual (1,031.16 seconds
+proving) and used eight for violence (456.30 seconds). These are separate
+categories, shared-box n=1 measurements, not a controlled speedup experiment.
+The first post and its source history are retained under
+`results/zk60_astra_20261026/real_app_demo_1/`.
+
+## Author access and private failure results
+
+The operator provisions identities locally. No public endpoint can claim an
+existing handle. Before running the demo, use the same `PM_PRIVATE_DIR` as the
+server, and run:
+
+```bash
+apps/proven-media/.venv/bin/python apps/proven-media/tools/create_author.py victor --operator
+```
+
+The command prints only the path of a new 0600 credential file outside the
+repository. Read that file privately and enter its `access_key` in **Sign in**.
+Omit `--operator` for ordinary authors. `--rotate` explicitly replaces an
+existing key and revokes that author's sessions. Do not put access keys in
+URLs, command arguments, browser storage, logs or shared screenshots. The auth
+store contains only key and cookie hashes; the private credential file itself
+contains the bearer key. The default session expires after 12 hours. Cookies
+are HttpOnly and SameSite Strict, and Secure when served over HTTPS. Serve over
+HTTPS for remote access; plain HTTP is intended only for the localhost demo.
+Mutation routes also require the session's CSRF token and reject foreign origins.
+
+A handle in `?author=` or `?as=` grants no access. Existing authors must be
+provisioned by the operator; there is no automatic legacy-account claim.
+Unpublished posts and submissions are served only to their authenticated owner.
+A failed post returns only its id and **Could not be verified.**, with no text,
+chunk results, reasons, timings or attempt count. Publication remains all or
+nothing and the existing D45 reservation/retry rules remain in force. Operators
+can view the queue and status; only operators can close a pending batch.
+
+Public records omit `timings` and `proved_at`, including nested chunk records;
+private operator records retain them. Signed manifests are unchanged and retain
+their documented timestamps. This is not a claim of timing-side-channel privacy
+or acceptance of the classifier privacy statement.
 
 ## Run it
 
@@ -40,8 +262,8 @@ setsid nohup /home/victor/IntelligenceRegulation/apps/proven-media/.venv/bin/pyt
     /home/victor/IntelligenceRegulation/apps/proven-media/serve.py --port 8765 \
     >> /home/victor/zk60-owner-private/proven-media/server.log 2>&1 < /dev/null &
 
-# open http://localhost:8765/?as=victor            (from Windows too: WSL forwards localhost)
-#      http://localhost:8765/?as=victor&audience=minor   to start as a minor viewer
+# open http://localhost:8765/ (from Windows too: WSL forwards localhost)
+# use ?audience=minor to select a viewer filter; sign in separately
 
 # stop it (no signals needed; running proof jobs are detached and are not affected)
 touch /home/victor/zk60-owner-private/proven-media/STOP-SERVER
@@ -70,26 +292,35 @@ touch /home/victor/zk60-owner-private/proven-media/STOP-SERVER
     proof's verifier through the guard;
   - `tools/verify_publication.py --post-id ID --category CAT --chunk N` checks one proof.
 
-Data lives outside the repository:
+Default storage locations:
 - `~/zk60-owner-private/proven-media/` is private (0700): the database, the salts, the signing dev
   key, the prompt files and the openings.
 - `~/zk60-artifacts/proven-media/` is public: the proofs, the bundle store and the local chain.
 
+Startup rejects volatile paths (`/tmp`, `/var/tmp`, `/dev/shm`, `/run`), including
+symlink aliases, before creating keys or starting the worker. Private state must
+stay outside the repository in its mode-700 root, including saved job and owner
+directories. Public proof evidence may use a durable `results/` directory and
+must not overlap private storage. Testnet keys must also be durable and outside
+the repository. Fake mode follows the same startup rules.
+
+The recovered garden demo uses `~/zk60-owner-private/proven-media-astra-demo/`;
+its public store remains under `results/zk60_astra_20261026/real_app_demo_1/public/`.
+
 Post text never appears on a command line: the prover reads it from a 0600 file.
 
-## Demo script (3 minutes)
+## Legacy stub demonstration (3 minutes)
 
 **Setup.** The server is running and the box is quiet. Three items are already labelled:
 - the "sunrise run" post (all three labels no);
 - the "movie night" post (violence yes);
 - the two-chunk "weekend plan" post.
 
-Open `http://localhost:8765/?as=victor`.
+Open `http://localhost:8765/` and sign in with the operator-issued access key.
 
-1. **(0:00) The feed.** "Every item here carries proved content labels: explicit, violence and
-   hate. Each label, yes or no, comes with a zero-knowledge proof made once, when the item was
-   posted. Anyone can check it, and the proof never reveals the item. The labels travel with the
-   item in a signed manifest, like content credentials." Click the small **credentials** icon on
+1. **(0:00) The feed.** "Each item carries labels for explicit content, violence and
+   hate, with a signed manifest. This legacy demonstration uses unproved placeholder labels.
+   The separate classifier testnet path proves those verdicts and still has a pending privacy statement." Click the small **credentials** icon on
    a card to show the manifest entries. Point at the amber bar: "The proof machinery is real; the
    classifier inside it is still a stub. I'll show you exactly where the line is."
 2. **(0:30) Distribution.** Click **Viewing as Adult** to switch to **Minor**. The movie-night post
@@ -115,8 +346,8 @@ Open `http://localhost:8765/?as=victor`.
    - **Check it in my browser**: the salted content commitment matches the text.
 
    "Anyone can download the bundle and the manifest and run the same checks."
-6. **(2:40) Honest numbers.** "Minutes per chunk on a laptop CPU today. The classifier proof is
-   estimated at 3–5 minutes per category of a 64-token chunk. The product target is 50 proved
+6. **(2:40) Honest numbers.** "Minutes per chunk on a laptop CPU today. The retained real classifier proof
+   took about 7.5 minutes per category at T128, before the additional checks. The product target is 50 proved
    tokens per second on a high-end GPU, and we are far from that. The fail-closed rule means an
    item whose proof fails is treated as yes in every category, so it never reaches restricted
    audiences."
@@ -128,7 +359,7 @@ Open `http://localhost:8765/?as=victor`.
 * that it is on a blockchain (the ledger and the signing key are local stubs);
 * that images, video or audio are covered.
 
-## Known limits
+## Limits of the legacy stub mode
 
 * **Stub.** One TinyLlama-1.1B next-token proof per chunk stands in for the three Shieldstral
   category proofs. The labels come from a placeholder keyword list and are not bound by the proof.
@@ -146,5 +377,5 @@ Open `http://localhost:8765/?as=victor`.
   texts land; each new text gets a new registered id.
 * **Privacy, audit and fidelity.** No privacy acceptance and no external audit. Soundness is
   about 2^-95 per run, and the integer model's fidelity is below the D32 bar.
-* **Accounts.** None: authors are matched by handle, and "minor" is a viewer toggle, not an
-  age check.
+* **Accounts.** Author access uses operator-issued keys and revocable browser sessions.
+  The "minor" selector remains a viewer filter, not an age check.

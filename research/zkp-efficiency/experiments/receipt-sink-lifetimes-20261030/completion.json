@@ -1,0 +1,14 @@
+{
+  "status": "COMPLETE",
+  "run_id": "20261030T144123Z-85c19624",
+  "checkpoint_utc": "2026-10-30T14:54:54.800412+00:00",
+  "new_source_records": 9,
+  "source_records_before": 1104,
+  "source_records_after": 1113,
+  "new_hypotheses": 2,
+  "all_prior_hypotheses_preserved": 98,
+  "production_modified": false,
+  "runtime_modified": false,
+  "gpu": false,
+  "new_verified_full_stack_proofs": 0
+}

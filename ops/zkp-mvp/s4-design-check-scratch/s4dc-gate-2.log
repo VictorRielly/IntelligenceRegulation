@@ -1,0 +1,4 @@
+rlib bdb08e434377a2ec0e4c34e6866228163d4e976e1b07b86d3dfe679ea6420569
+src 0310f71c89876e7cd7b644a2f6e6e3c2ae40bbe129bceba1cb6718cfb086c83b
+run s4_gate_check exit 101
+rejected Geo { t: 2, big: 8, small: 4 } Norm fixed_tokens=false Independent OmitGate: pcs zk: group 1: <v, c> != combined claim

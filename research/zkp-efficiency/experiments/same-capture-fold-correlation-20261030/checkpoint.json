@@ -1,0 +1,11 @@
+{
+  "cycle": 160,
+  "run_id": "20261030T084123Z-931751cb",
+  "checkpoint_utc": "2026-10-30T08:53:09.164593+00:00",
+  "prior_hypotheses": 90,
+  "hypotheses": 93,
+  "sources_before": 1055,
+  "sources_after": 1061,
+  "target_achieved": false,
+  "new_verified_positions": 0
+}

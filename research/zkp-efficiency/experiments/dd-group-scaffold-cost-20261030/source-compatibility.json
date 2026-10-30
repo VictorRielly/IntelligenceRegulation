@@ -1,0 +1,23 @@
+{
+  "status": "PASS",
+  "legacy_branch_identity_is_not_dispatch_identity": true,
+  "selected_relation": "argument_accuracy.rs::szc_dd for non-Legacy DD",
+  "current_accuracy_tables_counted": 18,
+  "current_private_terminals_counted": 14,
+  "legacy_projection_tables": 15,
+  "legacy_projection_scope_only": true,
+  "synthetic_host_control": {
+    "base_score_shift": 6,
+    "derived_score_shift": 18,
+    "score": 2,
+    "remainder_limbs": [
+      3,
+      4,
+      1
+    ],
+    "remainder": 66563,
+    "actual_host": 459779,
+    "stale_host": 99
+  },
+  "implication": "Legacy160-fixture grouping and scan counts cannot be promoted to LOW/LOW+h24. Actual three-limb/six-lookup/three-helper polynomial differential is next. No admission or native proof."
+}

@@ -1,0 +1,21 @@
+zk60_classify round-18 CPU binary (frozen-r17 + Astra's A5 one-load batch `prove-batch` with the review's fixes 1 and 2 and
+notes 3, 7, 9, 14). Production sources moved (classify_cli.rs, private_block.rs, examples/zk60_classify.rs; new
+classify_batch.rs, classify_batch_plan.rs). The single `prove` path gives the reviewed r16b binary's bytes exactly for one
+real moderate job under fixed public entropy (r18/logs/eq/compare.log). UNREVIEWED.
+
+file:      /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/cli/zk60_classify.r18.release.bin
+sha256:    110f0c53c56f691c301fe4f47d13afc1ccc9898efbaaf8506f1e0d5cde5f4496
+built:     2026-10-30T02:26:49Z on MSI by r18/tools/r18_suite.sh after the full suite s23 (log r18/logs/b18-cli-build.log; 17 s,
+           0.44 GiB); copied unchanged to cli/ by r18/tools/r18_freeze.sh (cmp equal; r18/logs/freeze-bin.cmp)
+source:    frozen-r18 exactly (manifest_final_r18.sha256 = r18/manifest_r18A.sha256: 306 files, list sha256
+           1ca1b2d74bac0405ed125f8b20eede491141d41315a87c9a73b71fc668338d5b); vs frozen-r17: 5 changed + 3 added paths
+           (r18/r18A_vs_frozen_r17.txt)
+vs r17:    NOT byte-equal to 81bd86248e9f… (r18/logs/b18-vs-r17.cmp): production code moved, and the tree path is baked in
+checked:   step E byte-identity at real scale (r18/logs/eq/), the real moderate-hate receipt re-verified in a fresh process
+           (r18/logs/verify-hate.log), rung receipts cross-verified with r16b dfb8025e… both ways (r18/logs/xbin-r18-r16b.log)
+command:   /home/victor/.cargo/bin/cargo build --release --offline --locked -j2 --manifest-path /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r18/hashline/Cargo.toml --example zk60_classify
+toolchain: rustc 1.97.1 (8bab26f4f 2026-07-14); cargo 1.97.1 (c980f4866 2026-06-30)
+features:  the crate's defaults only; gpu-cuda NOT enabled: CPU backend only.
+profile:   [profile.release] as frozen-r17 (hashline/Cargo.toml unchanged since r17)
+rustflags: none set by the lane
+scope:     a build record, not a privacy acceptance and not a classifier-quality claim; unreviewed

@@ -1,0 +1,42 @@
+{
+  "schema": "zk60-classifier-tables/1",
+  "bos": 1,
+  "final_norm": {
+    "g0": 127,
+    "tn": 10,
+    "ceps": 2439,
+    "cn": 1024
+  },
+  "margin_vector": {
+    "file": "margin_int16.bin",
+    "sha256": "1f5cb3468ff4142fe5eee6afd989b2626afa9c12a2d49c877164a0ef7d7eb45f",
+    "bytes": 6144,
+    "dtype": "int16",
+    "shape": [
+      3072
+    ],
+    "d": 3072,
+    "scale": 4.08288030735373e-06,
+    "source_tensor": {
+      "name": "language_model.model.embed_tokens.weight",
+      "sha256": "67a138c1c483b89874526ef523f5f0c30f161808076561730193d1de2093dd19"
+    }
+  },
+  "yes_id": 13059,
+  "no_id": 2649,
+  "threshold_c": 0,
+  "tau": 0.5,
+  "real_margin_scale": 1.781859813180244e-06,
+  "final_norm_candidates": {
+    "g0": 127,
+    "tn": 10,
+    "ceps": 2439,
+    "cn_calibrated": 7009,
+    "cn_refusal_free": 1024,
+    "window_bits": 32,
+    "calibrated_output_scale": 0.06376036306797556,
+    "rule": "own final float calibration maxima, margin 0.5"
+  },
+  "choice": "refusal-free pending A1 fidelity comparison",
+  "scope": "candidate tied public tables with independent reference match; native loader, policy registration, fidelity and privacy acceptance still required"
+}

@@ -1,0 +1,26 @@
+--- startup
++++ current
+@@ -1594,7 +1594,8 @@
+   - **TS-1 fires on all three roles** (honest 0 → 32,768 with a reserved pair removed);
+   - **claim census:** identical claims 0 and equal published values 0 (A 146, H 54, Input 2 claims);
+   - review controls on block A: C1, C2 and G7-D3 fire; C3, C6, C8, G7-D1 and G7-D2 stay silent, as predicted.
+-  - **Condition C-9 is met and its lapse trigger did not fire.**
++  - **Security owner's reading (the coordinating session, as in D35): condition C-9 is met; its lapse trigger did
++    not fire.** v3 itself leaves that reading to the security owner.
+   - Attempt 2 (cap 7,200 s) was stopped by the guard. Attempt 3 ran the same wrapper with the cap sized to the job
+     (25,200 s, per the re-review's N22-1); its figures equal attempt 2's wherever attempt 2 got. **Coordinator:
+     the cap change is accepted.**
+@@ -1602,8 +1603,11 @@
+   instances; T-0, E-0, F-0, S1 and S4 182 / 182 in all four challenge modes; S3 30 / 30; S5 all fire. It used
+   2.96 GiB by cgroup against 2.5 declared, so a re-run declares ≥ 3.3.
+ - Not re-run: the classifier slots' T-0, which needs the checkpoint stream (round 20's 12 / 12 stands).
+-- Next: a short check that v3 takes in the re-review's R-1..R-4. Then Victor's acceptance, with the strict /
+-  moderate wording ruling. C-7 (failures shown only to the authenticated author) and C-8 (the real model's
++- Next: a short check that v3 takes in the re-review's R-1..R-4. Done 11:45 UTC: `results/zk60_privacy_review_20261029/CLASSIFIER_T128_V3_CHECK.md`
++  found R-1..R-4 and N-1..N-5 taken in, every quoted number equal to its record, and two text errors in added
++  text: the S3 pair count (17, not 12) and the NL-1 S5 summary. The coordinator corrected both; v3 is now
++  sha256 6356e35b…. Then the security owner's reading, and Victor's acceptance with the strict / moderate
++  wording ruling (as for D33 / D36). C-7 (failures shown only to the authenticated author) and C-8 (the real model's
+   refusal rate; Astra's benchmark, running) stand before non-public posts.
+ 
+ Not a privacy acceptance.

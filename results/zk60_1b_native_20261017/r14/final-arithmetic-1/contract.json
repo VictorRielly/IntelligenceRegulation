@@ -1,0 +1,9 @@
+{
+  "source": "27b2a427491912cd54969b66f1d6ace29740ba8923dce6ba5ac4e23cfd992191",
+  "files": 291,
+  "binary_sha256": "29a8be1d08ad537b88db6261663e7af6f34adf004d9e7691e4fb71ff6cc28a1d",
+  "script_sha256": "e831962a215ee86a7aa82111275962dcb9fc99a42779008c8ccdb1969c69c87f",
+  "reference_sha256": "4fdc7d0c447c4a7fd155cee14d9806e5438bb04ba88da2e90530f8469e08c639",
+  "guard_sha256": "67e9478f55518c2808ff65e5f303f70e155a5f21c5987243a39cf579d1a9a6f3",
+  "scope": "Final-source native malformed arithmetic/C3 receipts and dense19site/reference acceptance; no privacy or release acceptance"
+}

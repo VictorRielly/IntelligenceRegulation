@@ -1,0 +1,1 @@
+{"status": "PASS", "checks": 183, "native_pins": 10, "source_records": 1087, "cycle_sources": 8, "historical_prefixes_preserved": true, "checked_at_utc": "2026-10-30T11:56:04.542252+00:00", "scope": "Evidence/provenance consistency only; no new proof,CPU/GPU performance,fit or security claim."}

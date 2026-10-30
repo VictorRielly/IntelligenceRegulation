@@ -1,0 +1,26 @@
+--- my-diff3-merge/hashline/src/private_block/s25_tests.rs
++++ t13/hashline/src/private_block/s25_tests.rs
+@@ -1601,3 +1601,8 @@
+     assert_eq!(children,vec!["derive;"],"the tied-table production module enumeration moved");
+-    out.push(("src/private_block/tied_tables/derive.rs".to_string(),source("src/private_block/tied_tables/derive.rs")));
++    // TOKEN ROUND 13 (rebase onto R12b): the token lane's submodule scan above
++    // already reaches `tied_tables/derive.rs`; push it only once, so its sites
++    // are not counted twice (the merged scan found 59 against the table's 54)
++    if !out.iter().any(|(p, _)| p == "src/private_block/tied_tables/derive.rs") {
++        out.push(("src/private_block/tied_tables/derive.rs".to_string(),source("src/private_block/tied_tables/derive.rs")));
++    }
+     // the frozen seam is the toy's and the frozen-seam rung's endpoint and is
+@@ -1841,4 +1846,3 @@
+ /// like any other.
+-<<<<<<< /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io/hashline/src/private_block/s25_tests.rs
+-const CALL_SITES: [(&str, &str, usize, &str); 21] = [
++const CALL_SITES: [(&str, &str, usize, &str); 23] = [
+     // TOKEN I/O ROUND 12 (rung R-C1): the classifier run's statement digests,
+@@ -1866,7 +1870,2 @@
+     ("src/private_block/token_io/load.rs", "Sha256::new(", 1, "TK7 — the SHA-256 of each public token-table file (embedding, head, multipliers), streamed in chunks and compared with the calibration lane's manifest, outside the proof; file integrity only"),
+-||||||| /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r8/frozen-tree/hashline/src/private_block/s25_tests.rs
+-const CALL_SITES: [(&str, &str, usize, &str); 14] = [
+-=======
+-const CALL_SITES: [(&str, &str, usize, &str); 16] = [
+->>>>>>> /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12b/frozen-tree/hashline/src/private_block/s25_tests.rs
+     // NATIVE LANE: the trained-block CLI's request context, an unkeyed hash of

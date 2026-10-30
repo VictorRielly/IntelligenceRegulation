@@ -1,0 +1,76 @@
+{
+  "status": "PASS",
+  "seed": 202610290138,
+  "checks": 22307,
+  "fixtures": 423,
+  "synthetic_site_comparisons": 6270,
+  "independent_extension_terminals": 6270,
+  "geometries": 8,
+  "large_synthetic_rows": [
+    {
+      "row_log": 8,
+      "words_per_row": 256
+    },
+    {
+      "row_log": 13,
+      "words_per_row": 8192
+    },
+    {
+      "row_log": 14,
+      "words_per_row": 16384
+    }
+  ],
+  "negative_controls": [
+    "wrong-rho-tail",
+    "wrong-flip",
+    "swap-private-real-imag",
+    "fresh-private-data-must-reread",
+    "length-only-cache-rejected",
+    "stale-private-result-rejected",
+    "wrong-tail-order",
+    "wrong-commitment-width",
+    "dropping-short-c0",
+    "same-tail-new-pair-is-distinct",
+    "source-site-count-SS",
+    "source-site-count-SSM",
+    "source-site-count-TZC",
+    "source-site-count-LZC",
+    "source-site-count-RS",
+    "source-site-count-SCORE",
+    "source-site-count-PV",
+    "source-site-count-DZC",
+    "source-site-count-QZC",
+    "source-site-count-KVZC",
+    "source-site-count-SZC",
+    "source-site-count-FZC",
+    "source-site-count-TAB",
+    "source-site-count-ZS",
+    "source-site-count-IO_IN",
+    "source-site-count-IO_OUT",
+    "source-site-count-DD",
+    "source-matmul-site-QMM",
+    "source-matmul-site-KMM",
+    "source-matmul-site-VMM",
+    "source-matmul-site-WO",
+    "source-matmul-site-GMM",
+    "source-matmul-site-UMM",
+    "source-matmul-site-DMM",
+    "dropping-later-zero-extension"
+  ],
+  "ordered_synthetic_values_sha256": "7c819d859ed142ffa455167e118a0642cf93ce60fa6bddd1ed4e5b57dad4c3e8",
+  "elapsed_s": 2.8180025670008035,
+  "max_rss_kib": 26300,
+  "full_stack_proofs": 0,
+  "model_passes": 0,
+  "proved_positions": 0,
+  "native_define_executed": false,
+  "native_transcripts_verified": false
+}
+TinyLlama1.1B 1 {'sites': 174, 'builds': 33, 'hits': 141, 'baseline_eq_mul': 4871844, 'candidate_eq_mul': 991678, 'removed_eq_mul': 3880166, 'private_base_word_reads': 4872192, 'paired3_saved_variable_products': 2436096, 'paired3_public_sum_additions_baseline': 2436096, 'prepared_public_sum_additions': 495872}
+TinyLlama1.1B 2 {'sites': 174, 'builds': 29, 'hits': 145, 'baseline_eq_mul': 4871844, 'candidate_eq_mul': 860614, 'removed_eq_mul': 4011230, 'private_base_word_reads': 4872192, 'paired3_saved_variable_products': 2436096, 'paired3_public_sum_additions_baseline': 2436096, 'prepared_public_sum_additions': 430336}
+Llama3-8B 1 {'sites': 174, 'builds': 33, 'hits': 141, 'baseline_eq_mul': 4871844, 'candidate_eq_mul': 991678, 'removed_eq_mul': 3880166, 'private_base_word_reads': 4872192, 'paired3_saved_variable_products': 2436096, 'paired3_public_sum_additions_baseline': 2436096, 'prepared_public_sum_additions': 495872}
+Llama3-8B 2 {'sites': 174, 'builds': 29, 'hits': 145, 'baseline_eq_mul': 4871844, 'candidate_eq_mul': 860614, 'removed_eq_mul': 4011230, 'private_base_word_reads': 4872192, 'paired3_saved_variable_products': 2436096, 'paired3_public_sum_additions_baseline': 2436096, 'prepared_public_sum_additions': 430336}
+TinyLlama1.1B-DD32 1 {'sites': 179, 'builds': 36, 'hits': 143, 'baseline_eq_mul': 5011098, 'candidate_eq_mul': 1065400, 'removed_eq_mul': 3945698, 'private_base_word_reads': 5011456, 'paired3_saved_variable_products': 2505728, 'paired3_public_sum_additions_baseline': 2505728, 'prepared_public_sum_additions': 532736}
+TinyLlama1.1B-DD32 2 {'sites': 179, 'builds': 31, 'hits': 148, 'baseline_eq_mul': 5011098, 'candidate_eq_mul': 901570, 'removed_eq_mul': 4109528, 'private_base_word_reads': 5011456, 'paired3_saved_variable_products': 2505728, 'paired3_public_sum_additions_baseline': 2505728, 'prepared_public_sum_additions': 450816}
+Llama3-8B-DD32 1 {'sites': 179, 'builds': 36, 'hits': 143, 'baseline_eq_mul': 5011098, 'candidate_eq_mul': 1065400, 'removed_eq_mul': 3945698, 'private_base_word_reads': 5011456, 'paired3_saved_variable_products': 2505728, 'paired3_public_sum_additions_baseline': 2505728, 'prepared_public_sum_additions': 532736}
+Llama3-8B-DD32 2 {'sites': 179, 'builds': 31, 'hits': 148, 'baseline_eq_mul': 5011098, 'candidate_eq_mul': 901570, 'removed_eq_mul': 4109528, 'private_base_word_reads': 5011456, 'paired3_saved_variable_products': 2505728, 'paired3_public_sum_additions_baseline': 2505728, 'prepared_public_sum_additions': 450816}

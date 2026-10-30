@@ -1,0 +1,512 @@
+{
+ "stages": [
+  {
+   "stage": "build-7-r2",
+   "class": "build",
+   "exit": 0,
+   "child_rc": 0,
+   "wall_s": 151.8786497116089,
+   "peak_rss_gib": 1.87,
+   "test_binary": true,
+   "filters": [],
+   "log_bytes": 4591,
+   "running": [],
+   "results_lines": 0,
+   "passed": 0,
+   "failed": 0,
+   "ignored": 0,
+   "named_ok": 0,
+   "flag_zero_tests": true,
+   "log_tail": "^\n\nwarning: `hashline` (lib test) generated 17 warnings (run `cargo fix --lib -p hashline --tests` to apply 10 suggestions)\n    Finished `release` profile [optimized] target(s) in 2m 31s\n  Executable unittests src/lib.rs (ops/zkp-mvp/trained-1b/hashline/target/release/deps/hashline-a876d33e95d2a941)"
+  },
+  {
+   "stage": "focused-final-r2",
+   "class": "cpu",
+   "exit": 0,
+   "child_rc": 0,
+   "wall_s": 7.272620916366577,
+   "peak_rss_gib": 0.58,
+   "test_binary": true,
+   "filters": [
+    "private_block::r12"
+   ],
+   "log_bytes": 7118,
+   "running": [
+    28
+   ],
+   "results_lines": 1,
+   "passed": 18,
+   "failed": 0,
+   "ignored": 10,
+   "named_ok": 13,
+   "flag_zero_tests": false,
+   "log_tail": "hed_forgery ... ignored, full pinned checkpoint/table reads; run guarded with ZK60_R12B_TIED_FIXTURE\ntest private_block::r12b_tests::transformed_profile_refuses_export_rope_before_any_layer_read ... ok\n\ntest result: ok. 18 passed; 0 failed; 10 ignored; 0 measured; 609 filtered out; finished in 7.25s"
+  },
+  {
+   "stage": "source-pins-final-r2",
+   "class": "cpu",
+   "exit": 0,
+   "child_rc": 0,
+   "wall_s": 0.00773930549621582,
+   "peak_rss_gib": 0.0,
+   "test_binary": true,
+   "filters": [
+    "the_capture_writer_pins_every_run_layer_source_it_depends_on"
+   ],
+   "log_bytes": 326,
+   "running": [
+    1
+   ],
+   "results_lines": 1,
+   "passed": 1,
+   "failed": 0,
+   "ignored": 0,
+   "named_ok": 0,
+   "flag_zero_tests": false,
+   "log_tail": "vate_block::s24_tests::the_capture_writer_pins_every_run_layer_source_it_depends_on ... S24 run-gate \u00a710: 49 source pins (17 production modules, the parent, and 2 test-only writers), 2 excused by name\nok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 636 filtered out; finished in 0.00s"
+  },
+  {
+   "stage": "components-final-r2",
+   "class": "cpu",
+   "exit": 0,
+   "child_rc": 0,
+   "wall_s": 0.007638692855834961,
+   "peak_rss_gib": 0.0,
+   "test_binary": true,
+   "filters": [
+    "tied_tables"
+   ],
+   "log_bytes": 729,
+   "running": [
+    5
+   ],
+   "results_lines": 1,
+   "passed": 4,
+   "failed": 0,
+   "ignored": 1,
+   "named_ok": 4,
+   "flag_zero_tests": false,
+   "log_tail": "private_block::tied_tables::derive::tests::safetensors_extents_refuse_wrong_dtype_shape_and_bounds ... ok\ntest private_block::tied_tables::tests::bounded_hash_rejects_wrong_sizes_and_special_files ... ok\n\ntest result: ok. 4 passed; 0 failed; 1 ignored; 0 measured; 632 filtered out; finished in 0.00s"
+  },
+  {
+   "stage": "hash-census-final-r2",
+   "class": "cpu",
+   "exit": 0,
+   "child_rc": 0,
+   "wall_s": 0.031965017318725586,
+   "peak_rss_gib": 0.0,
+   "test_binary": true,
+   "filters": [
+    "every_hash_call_site_in_the_lanes_own_sources_is_classified"
+   ],
+   "log_bytes": 332,
+   "running": [
+    1
+   ],
+   "results_lines": 1,
+   "passed": 1,
+   "failed": 0,
+   "ignored": 0,
+   "named_ok": 0,
+   "flag_zero_tests": false,
+   "log_tail": "lock::s25_tests::every_hash_call_site_in_the_lanes_own_sources_is_classified ... S25 W-11: 32 hash call sites in 24 scanned lane sources, every one classified; 14 read-only sites listed with file:line\nok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 636 filtered out; finished in 0.03s"
+  },
+  {
+   "stage": "tied-final-r2",
+   "class": "cpu",
+   "exit": 0,
+   "child_rc": 0,
+   "wall_s": 54.97738552093506,
+   "peak_rss_gib": 0.01,
+   "test_binary": true,
+   "filters": [
+    "pinned_tied_tables_accept_honest_and_refuse_rehashed_forgery"
+   ],
+   "log_bytes": 500,
+   "running": [
+    1
+   ],
+   "results_lines": 1,
+   "passed": 1,
+   "failed": 0,
+   "ignored": 0,
+   "named_ok": 0,
+   "flag_zero_tests": false,
+   "log_tail": "011e3f23c4e9ac480772a0413d39f8d10c7259000929ada771d0ce95 f43790f32bd4cf4b252aafaa08e9b788937a0878594d2756f73248b0dfdc0464\nR12B rehashed multiplier forgery rejected\nR12B rehashed head forgery rejected\nok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 636 filtered out; finished in 54.95s"
+  },
+  {
+   "stage": "cli-build-final-r2",
+   "class": "build",
+   "exit": 0,
+   "child_rc": 0,
+   "wall_s": 63.794673204422,
+   "peak_rss_gib": 1.09,
+   "test_binary": false,
+   "filters": [],
+   "log_bytes": 16582,
+   "running": [],
+   "results_lines": 0,
+   "passed": 0,
+   "failed": 0,
+   "ignored": 0,
+   "named_ok": 0,
+   "flag_zero_tests": false,
+   "log_tail": "'a> {\n     | ----------------- method in this implementation\n1932 |     fn pd(&self) -> Option<&ProvData<'a>> {\n     |        ^^\n\nwarning: `hashline` (lib) generated 64 warnings (run `cargo fix --lib -p hashline` to apply 10 suggestions)\n    Finished `release` profile [optimized] target(s) in 1m 03s"
+  },
+  {
+   "stage": "margin-fixture-final-r2",
+   "class": "cpu",
+   "exit": 0,
+   "child_rc": 0,
+   "wall_s": 14.780569791793823,
+   "peak_rss_gib": 0.0,
+   "test_binary": false,
+   "filters": [],
+   "log_bytes": 432,
+   "running": [],
+   "results_lines": 0,
+   "passed": 0,
+   "failed": 0,
+   "ignored": 0,
+   "named_ok": 0,
+   "flag_zero_tests": false,
+   "log_tail": "0413d39f8d10c7259000929ada771d0ce95\",\"multipliers_sha256\":\"f43790f32bd4cf4b252aafaa08e9b788937a0878594d2756f73248b0dfdc0464\",\"margin_sha256\":\"b597f2543ab813248d6cfa26052daa94f9e3a889dcb515fca43985e2d35d643d\",\"bos\":1,\"profile_sha256\":\"11bccfa20dc58684dab3ff0745945ef3255a0f20899dc6b0d3dcd845216bfa8b\"}"
+  },
+  {
+   "stage": "margin-policy-final-r2",
+   "class": "cpu",
+   "exit": 0,
+   "child_rc": 0,
+   "wall_s": 14.68169617652893,
+   "peak_rss_gib": 0.0,
+   "test_binary": false,
+   "filters": [],
+   "log_bytes": 432,
+   "running": [],
+   "results_lines": 0,
+   "passed": 0,
+   "failed": 0,
+   "ignored": 0,
+   "named_ok": 0,
+   "flag_zero_tests": false,
+   "log_tail": "0413d39f8d10c7259000929ada771d0ce95\",\"multipliers_sha256\":\"f43790f32bd4cf4b252aafaa08e9b788937a0878594d2756f73248b0dfdc0464\",\"margin_sha256\":\"1f5cb3468ff4142fe5eee6afd989b2626afa9c12a2d49c877164a0ef7d7eb45f\",\"bos\":1,\"profile_sha256\":\"11bccfa20dc58684dab3ff0745945ef3255a0f20899dc6b0d3dcd845216bfa8b\"}"
+  },
+  {
+   "stage": "astra-tables-final-r2",
+   "class": "cpu",
+   "exit": 0,
+   "child_rc": 0,
+   "wall_s": 14.480020761489868,
+   "peak_rss_gib": 0.0,
+   "test_binary": false,
+   "filters": [],
+   "log_bytes": 432,
+   "running": [],
+   "results_lines": 0,
+   "passed": 0,
+   "failed": 0,
+   "ignored": 0,
+   "named_ok": 0,
+   "flag_zero_tests": false,
+   "log_tail": "0413d39f8d10c7259000929ada771d0ce95\",\"multipliers_sha256\":\"f43790f32bd4cf4b252aafaa08e9b788937a0878594d2756f73248b0dfdc0464\",\"margin_sha256\":\"1f5cb3468ff4142fe5eee6afd989b2626afa9c12a2d49c877164a0ef7d7eb45f\",\"bos\":1,\"profile_sha256\":\"212244e40393a34ceb16943694384c1950b933e4f8f2e7a02634e2d5983f260e\"}"
+  },
+  {
+   "stage": "astra-table-bytes-final-r2",
+   "class": "light",
+   "exit": 0,
+   "child_rc": 0,
+   "wall_s": 1.0332813262939453,
+   "peak_rss_gib": 0.02,
+   "test_binary": false,
+   "filters": [],
+   "log_bytes": 671,
+   "running": [],
+   "results_lines": 0,
+   "passed": 0,
+   "failed": 0,
+   "ignored": 0,
+   "named_ok": 0,
+   "flag_zero_tests": false,
+   "log_tail": "row.bin\": \"786f02bc011e3f23c4e9ac480772a0413d39f8d10c7259000929ada771d0ce95\", \"head_mult12.bin\": \"f43790f32bd4cf4b252aafaa08e9b788937a0878594d2756f73248b0dfdc0464\", \"margin_int16.bin\": \"1f5cb3468ff4142fe5eee6afd989b2626afa9c12a2d49c877164a0ef7d7eb45f\"}, \"bos_and_classifier_norm_match_profile\": true}"
+  },
+  {
+   "stage": "norm-tn7-green-r2",
+   "class": "cpu",
+   "exit": 0,
+   "child_rc": 0,
+   "wall_s": 14.730592250823975,
+   "peak_rss_gib": 0.0,
+   "test_binary": false,
+   "filters": [],
+   "log_bytes": 370,
+   "running": [],
+   "results_lines": 0,
+   "passed": 0,
+   "failed": 0,
+   "ignored": 0,
+   "named_ok": 0,
+   "flag_zero_tests": false,
+   "log_tail": "c2101676538b5afe\",\"head_sha256\":\"786f02bc011e3f23c4e9ac480772a0413d39f8d10c7259000929ada771d0ce95\",\"multipliers_sha256\":\"f43790f32bd4cf4b252aafaa08e9b788937a0878594d2756f73248b0dfdc0464\",\"margin_sha256\":null,\"bos\":1,\"profile_sha256\":\"074225d8b794f088ef0a13f416d95c554952b8bd5993c14943c7880824bcf8f9\"}"
+  },
+  {
+   "stage": "golden-final-r2",
+   "class": "cpu",
+   "exit": 0,
+   "child_rc": 0,
+   "wall_s": 52.95350885391235,
+   "peak_rss_gib": 6.06,
+   "test_binary": true,
+   "filters": [
+    "r12_golden_tests"
+   ],
+   "log_bytes": 2544,
+   "running": [
+    5
+   ],
+   "results_lines": 1,
+   "passed": 5,
+   "failed": 0,
+   "ignored": 0,
+   "named_ok": 0,
+   "flag_zero_tests": false,
+   "log_tail": "f411b34b7ef0c27034975d8e0c2\nR12-GOLDEN-IDENTITY rung-dd 35ea356f20f3c001c069273461fb807d3ad28503a81af76cc03e717f0ccc8bcd encode-blake3 17d06db0332b4f7d14d780775736e2ec43e3e52e0547d02e3188072a8e2d65b7\nok\n\ntest result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 632 filtered out; finished in 52.88s"
+  },
+  {
+   "stage": "dense-final-r2",
+   "class": "cpu",
+   "exit": 0,
+   "child_rc": 0,
+   "wall_s": 197.9655783176422,
+   "peak_rss_gib": 6.52,
+   "test_binary": true,
+   "filters": [
+    "f2_a_generic_dense_shieldstral"
+   ],
+   "log_bytes": 1133,
+   "running": [
+    2
+   ],
+   "results_lines": 1,
+   "passed": 2,
+   "failed": 0,
+   "ignored": 0,
+   "named_ok": 0,
+   "flag_zero_tests": false,
+   "log_tail": "-zk-mr1/private-block-shieldstral-3b-t128-trained-ddict/1: bands Bands { attn: 6, gate: 8, down: 2, gains: (40, 127), xmag: 6000 } admissible\nR12 F2 Shieldstral T128 DD: one-block segment 29536904 B\nok\n\ntest result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 635 filtered out; finished in 197.91s"
+  },
+  {
+   "stage": "fresh-final-r2",
+   "class": "cpu",
+   "exit": 0,
+   "child_rc": 0,
+   "wall_s": 9.513120174407959,
+   "peak_rss_gib": 0.78,
+   "test_binary": true,
+   "filters": [
+    "f2_saved_shieldstral"
+   ],
+   "log_bytes": 509,
+   "running": [
+    2
+   ],
+   "results_lines": 1,
+   "passed": 2,
+   "failed": 0,
+   "ignored": 0,
+   "named_ok": 0,
+   "flag_zero_tests": false,
+   "log_tail": "cted\nok\ntest private_block::r12_tests::f2_saved_shieldstral_t128_receipt_verifies_in_a_fresh_process ... R12 fresh-process Shieldstral T128 DD=false: 29301896 bytes verified; modified segment rejected\nok\n\ntest result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 635 filtered out; finished in 9.47s"
+  },
+  {
+   "stage": "compat-tl-final-r2",
+   "class": "cpu",
+   "exit": 0,
+   "child_rc": 0,
+   "wall_s": 14.835525751113892,
+   "peak_rss_gib": 0.67,
+   "test_binary": false,
+   "filters": [],
+   "log_bytes": 1021,
+   "running": [],
+   "results_lines": 0,
+   "passed": 0,
+   "failed": 0,
+   "ignored": 0,
+   "named_ok": 0,
+   "flag_zero_tests": false,
+   "log_tail": "esults/zk60_1b_native_20261017/r8/stack-tinyllama_dg_rot1_T128-ho00-cpu/run/statement\",\"writer\":\"stack-verify, after its fresh-process verification of the run directory, from its own data and the hashes of the bytes it verified\",\"result\":\"byte for byte this verifier's rendering of the verified run\"}"
+  },
+  {
+   "stage": "compat-8b-final-r2",
+   "class": "cpu",
+   "exit": 0,
+   "child_rc": 0,
+   "wall_s": 48.53658199310303,
+   "peak_rss_gib": 1.95,
+   "test_binary": false,
+   "filters": [],
+   "log_bytes": 1031,
+   "running": [],
+   "results_lines": 0,
+   "passed": 0,
+   "failed": 0,
+   "ignored": 0,
+   "named_ok": 0,
+   "flag_zero_tests": false,
+   "log_tail": "zk60_1b_native_20261017/r8/stack-llama3_8b_pg_rot1_b7voc0_T128-ho00-cpu/run/statement\",\"writer\":\"stack-verify, after its fresh-process verification of the run directory, from its own data and the hashes of the bytes it verified\",\"result\":\"byte for byte this verifier's rendering of the verified run\"}"
+  },
+  {
+   "stage": "compat-tl-dd-final-r2",
+   "class": "cpu",
+   "exit": 0,
+   "child_rc": 0,
+   "wall_s": 13.832022666931152,
+   "peak_rss_gib": 0.88,
+   "test_binary": false,
+   "filters": [],
+   "log_bytes": 1024,
+   "running": [],
+   "results_lines": 0,
+   "passed": 0,
+   "failed": 0,
+   "ignored": 0,
+   "named_ok": 0,
+   "flag_zero_tests": false,
+   "log_tail": "lts/zk60_1b_native_20261017/r9/stack-tinyllama_dg_rot1_T128-ho00-cpu-dd/run/statement\",\"writer\":\"stack-verify, after its fresh-process verification of the run directory, from its own data and the hashes of the bytes it verified\",\"result\":\"byte for byte this verifier's rendering of the verified run\"}"
+  },
+  {
+   "stage": "compat-8b-dd-final-r2",
+   "class": "cpu",
+   "exit": 0,
+   "child_rc": 0,
+   "wall_s": 47.68354606628418,
+   "peak_rss_gib": 1.94,
+   "test_binary": false,
+   "filters": [],
+   "log_bytes": 1034,
+   "running": [],
+   "results_lines": 0,
+   "passed": 0,
+   "failed": 0,
+   "ignored": 0,
+   "named_ok": 0,
+   "flag_zero_tests": false,
+   "log_tail": "0_1b_native_20261017/r9/stack-llama3_8b_pg_rot1_b7voc0_T128-ho00-cpu-dd/run/statement\",\"writer\":\"stack-verify, after its fresh-process verification of the run directory, from its own data and the hashes of the bytes it verified\",\"result\":\"byte for byte this verifier's rendering of the verified run\"}"
+  },
+  {
+   "stage": "suite-final-r2",
+   "class": "cpu",
+   "exit": 0,
+   "child_rc": 0,
+   "wall_s": 699.8272228240967,
+   "peak_rss_gib": 3.3,
+   "test_binary": true,
+   "filters": [],
+   "log_bytes": 119749,
+   "running": [
+    637,
+    0,
+    3,
+    4,
+    9,
+    6,
+    2,
+    6,
+    2,
+    12,
+    9,
+    5,
+    2,
+    1,
+    5,
+    4,
+    3,
+    4,
+    4,
+    9,
+    5,
+    7,
+    12,
+    8,
+    8,
+    7,
+    3,
+    0,
+    5
+   ],
+   "results_lines": 29,
+   "passed": 739,
+   "failed": 0,
+   "ignored": 43,
+   "named_ok": 729,
+   "flag_zero_tests": false,
+   "log_tail": "il ... ok\ntest src/zk_ffn_fresh_io.rs - zk::fresh_poc::io::PendingProof (line 125) - compile fail ... ok\ntest src/stable_weight_slots.rs - stable_weight_slots::ReservedSlot (line 182) - compile fail ... ok\n\ntest result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s"
+  },
+  {
+   "stage": "gpu-cli-final-r2",
+   "class": "build",
+   "exit": 0,
+   "child_rc": 0,
+   "wall_s": 72.4948034286499,
+   "peak_rss_gib": 1.16,
+   "test_binary": false,
+   "filters": [],
+   "log_bytes": 17482,
+   "running": [],
+   "results_lines": 0,
+   "passed": 0,
+   "failed": 0,
+   "ignored": 0,
+   "named_ok": 0,
+   "flag_zero_tests": false,
+   "log_tail": "r result\n     |\n1101 -         drop(d_pack.0.take().map(pool_put));\n1101 +         let _ = d_pack.0.take().map(pool_put);\n     |\n\nwarning: `hashline` (lib) generated 66 warnings (run `cargo fix --lib -p hashline` to apply 11 suggestions)\n    Finished `release` profile [optimized] target(s) in 1m 12s"
+  }
+ ],
+ "test_counts": {
+  "focused-final": {
+   "passed": 18,
+   "ignored": 10,
+   "targets": 1
+  },
+  "source-pins-final": {
+   "passed": 1,
+   "ignored": 0,
+   "targets": 1
+  },
+  "components-final": {
+   "passed": 4,
+   "ignored": 1,
+   "targets": 1
+  },
+  "hash-census-final": {
+   "passed": 1,
+   "ignored": 0,
+   "targets": 1
+  },
+  "tied-final": {
+   "passed": 1,
+   "ignored": 0,
+   "targets": 1
+  },
+  "golden-final": {
+   "passed": 5,
+   "ignored": 0,
+   "targets": 1
+  },
+  "dense-final": {
+   "passed": 2,
+   "ignored": 0,
+   "targets": 1
+  },
+  "fresh-final": {
+   "passed": 2,
+   "ignored": 0,
+   "targets": 1
+  },
+  "suite-final": {
+   "passed": 739,
+   "ignored": 43,
+   "targets": 29
+  }
+ }
+}

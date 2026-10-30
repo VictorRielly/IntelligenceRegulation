@@ -1,0 +1,73 @@
+{
+  "status": "Isolated validation complete; request independent soundness/privacy design check before native layout work",
+  "authorization": "Coordinator 2026-10-29T06:35:14Z: construction B to isolated-validation stage only; no frozen-tree change; independent design check and native census before native layout work",
+  "anchor": "R13 bb9eb2123c9350c738dafd19fe3b0133d6e2e7ab93f1e765cac4f20ccaed69ec",
+  "primary_design": {
+    "name": "B: whole-functional zero lift, preserving coordinated conditions",
+    "pieces": {"D0": [0, 2048], "D1": [2048, 3072], "F0": [0, 8192], "F1": [8192, 9216]},
+    "data_lift": "Y_up(t,b,j)=sigma(b)*Y(t,j), sigma=product_j(1-b_j); D needs one omitted feature bit, F needs three",
+    "masked_extension": "Z(t,b,j,e)=sigma(b)*((1-e)*Y(t,j)+e*(R_re+u*R_im)(tail(t,j)))",
+    "pcs_coefficients": "data=(1-e)*sigma; mask_re=e*sigma; mask_im=u*e*sigma. Each physical terminal reserves an independent mask pair. The source point contains token coordinates and retained feature coordinates; its mask point is its own column tail/range.",
+    "zero_case": "sigma=0 implies the entire functional and terminal are zero. Shared trusted claim assembly MUST check terminal==0 before removing that functional. Keep the fixed terminal in the CFS transcript. Do not call native open_zk on an all-zero group and do not weaken its mask assertion. No division or retry.",
+    "zero_group_schedule": "Both sides derive the same normalized claim list from public challenges; native PCS groups and subsequent challenge draws follow that list. The final profile/wire count must handle public challenge-dependent group counts. Direct zero-functional tests establish the local adapter behavior, not full private-block wire handling.",
+    "initial_identity": "At extension e=0, sum over the Boolean feature cube of W0*Y0+W1_up*Y1_up equals the sum of the true two piece dot products because sigma^2=sigma. The initial scalar hosts the combined sum; never publish separate inner-piece sums.",
+    "norm_identity": "Use eq(r_t,t)*(Y0^2+Y1_up^2) in one sumcheck and add both square sums before deriving the single integer denominator. Every piece uses that shared denominator.",
+    "extension_zero": "Each affected matmul monomial contains its public folded weight; each norm monomial contains public token equality. These public tables extend to zero, so the polynomial at e=1 is zero. This obligation must be rechecked for the complete final SlotDef, including hosted terms.",
+    "degrees": "Lifted tables are affine in each feature variable. Dot-product coordinate degree <=2; equality times squared norm degree <=3. The one extension round has the same degree bounds. No reciprocal of sigma appears. These component bounds do not certify all future native zero-check degrees.",
+    "point_maps": {
+      "moving_token_norm": "source=(rho_token || retained rho_feature); remove only missing leading FEATURE coordinates after the token coordinates",
+      "fixed_token_matmul": "sumcheck runs only on feature bits; source=(fixed token point || retained rho_feature); sigma uses the missing leading feature challenges, never the fixed token coordinates",
+      "pcs_grouping": "Keep physical terminals in separate ZClaims when their source column tails/ranges differ. Sub-row sources retain their nonzero column offset in both data and mask slices. Removing feature coordinates can change which token coordinates lie in the column tail."
+    }
+  },
+  "alternative_for_review_only": {
+    "name": "B-independent: data-only lift with independently extended site mask",
+    "coordinator_condition": "This changes the coordinated whole-functional scaling condition. It is an experiment, not an adopted design or authorization for native work.",
+    "masked_extension": "Z(t,b,j,e)=(1-e)*sigma(b)*Y(t,j)+e*(R_re+u*R_im)(tail(t,j))",
+    "pcs_coefficients": "data=(1-e)*sigma; mask_re=e; mask_im=u*e",
+    "zero_case": "At sigma=0 the terminal is a pure reserved-mask evaluation; the native mask-site assertion remains satisfied without zero-functional normalization. No extra retry or division.",
+    "algebra": "The initial Boolean identity and degree bounds match the primary construction. The public weight/equality factor still kills each relevant monomial at extension e=1 even when the private mask is not lifted.",
+    "review_needed": "Re-derive the CFS terminal/round coupling and joint mask rank for this extension choice. Passing component proofs does not establish privacy or extend existing approvals."
+  },
+  "isolated_evidence": {
+    "algebra": {"identities": 148, "coordinate_degree_checks": 22, "zero_cases": 6, "actual_axes": [[2048, 1024], [8192, 1024]], "source": "algebra.rs", "log": "s4-algebra-run-2.log"},
+    "native_components": {
+      "source": "cfs_lift.rs",
+      "library_pin": "PCS_LIBRARY_PIN.json",
+      "log": "s4-cfs-lift-run-4.log",
+      "honest_microproofs": 24,
+      "emitted_forged_microproofs_rejected": 192,
+      "zero_honest_functionals": 24,
+      "zero_bad_functionals_rejected": 48,
+      "coverage": "Four geometries, each at width ratio2 and8, sub-row and multi-row sources; moving-token dot sum, fixed-token matmul fold, moving-token norm; both mask styles. Fresh independent site/proximity masks, commitment pads/salts and CFS coefficients per attempt. All fixtures use public deterministic seeds.",
+      "forgeries": ["repeat smaller source cube", "drop smaller contribution", "duplicate smaller contribution", "drop token axis or use wrong fixed token point", "use the other mask extension rule", "send terminal evaluated at wrong source point", "reuse other piece mask row", "swap cross-piece private values"],
+      "native_paths": "Native CfsMasker, sumcheck prover/verifier and extension-round primitive, hiding PCS commit/open/verify, and M mask commit/open/verify. Experimental adapter builds typed points/claims; private-block run_slot and its wire/profile are not integrated.",
+      "zero_scope": "Direct functional edge cases use an explicit omitted feature challenge equal to1. Full CFS microproofs derive their challenges normally. No forced Fiat-Shamir claim.",
+      "initial_failed_control": "Attempt1 changed only the PCS opening point while retaining the correct terminal. A short-slice opening row combination can be point-independent; this did not forge a claim and was accepted. Retained log/source/binary. Corrected control emits a terminal from the wrong point and is rejected. No native source or PCS bug was inferred."
+    },
+    "native_scalars": {
+      "source": "scalar_split.rs", "log": "s4-scalar-run-1.log",
+      "split_unsplit_equivalences": 104,
+      "bijective_true_axis_words": 12288,
+      "wrong_global_c2_counterexamples": 48,
+      "wrong_global_group_counterexamples": 779,
+      "per_piece_rounding_counterexamples": 6,
+      "shared_norm_denominator_counterexamples": 3,
+      "scope": "Direct frozen scalar/group/aligned-table modules, seven matrix sites and true D/F boundary channels; isolated scalar/index tests, not a full split trace or proof"
+    }
+  },
+  "requested_review": [
+    "D24: Boolean lift identity, fixed/moving token maps, native polynomial/extension-zero and degree obligations, combined host scalar binding, single rounding, no-wrap and global multiplier/group offsets.",
+    "CFS/PCS privacy: joint row-functional rank and NL-1 view for every new physical terminal; primary zero branch and publicly varying group count; compare independent-mask alternative without inheriting approval.",
+    "D12 endpoints: ordered two-piece root policy, scales/geometry binding, same logical boundary across layers, fresh masks and no omitted or swapped piece. Endpoints were not built by the microprototype.",
+    "Layout/wire/hash: new versioned profile only; exact new slot/claim census, M message capacity, source/domain registrations, canonical framing, zero-functional count handling. R13/legacy bytes remain fixed.",
+    "Lookup/DD: new true query counts and global histograms, unchanged ACT tables and score geometry, every DD slot still checked/inverted; revised rational-identity term and PCS all-ones key premise."
+  ],
+  "entry_conditions_for_native_work": [
+    "Coordinator routes and resolves independent design soundness/privacy check, including any explicit choice of mask style.",
+    "Replace proposed slot/claim schedule with native census before profile/layout implementation is relied upon; validate M coefficient capacity and every declared physical terminal.",
+    "Build only an isolated new revision/profile, keep R13 and legacy bytes fixed; compare all19 trace sites and output bit-for-bit before any acceptance claim.",
+    "T256 proof work targets the 5090 desktop after appropriate resource admission. R13-calibrated modeled memory is at or over the laptop budget; do not reduce declarations."
+  ],
+  "limitations": "No native split profile, endpoint/wire integration, full-block split receipt, full-model proof, measured split RSS, or soundness/privacy/fidelity acceptance. New schedule counts and memory remain COUNTED/MODEL. R13 review is separate and pending."
+}

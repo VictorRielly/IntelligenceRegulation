@@ -1,0 +1,11 @@
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r12/hashline/src/private_block/token_io/load.rs	2026-10-19 12:29:10.315894452 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r13/hashline/src/private_block/token_io/load.rs	2026-10-28 16:42:48.584380369 -0700
+@@ -226,6 +226,8 @@
+             export_profile_sha256: ex.profile_sha256,
+             calibration_tool_sha256: ex.tool_sha256,
+             rope_theta: c.rope_theta,
++            // native R12 (F1): the export's RoPE transform (encoded only when not `none`)
++            rope_scaling: ex.rope_scaling,
+         };
+         let cal = IntegerCalibration::as_the_code_proves(&sh, &prov);
+         let model = TrainedModelStatement::new(&sh, profile, ex.source.clone(), cal, records)?;

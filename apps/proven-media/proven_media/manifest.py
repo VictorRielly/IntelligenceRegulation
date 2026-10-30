@@ -84,19 +84,22 @@ def build_manifest(post: dict, item: dict, anchors: dict, pubs: dict, content_co
         rec = ch.get("record") or {}
         prover = prover or rec.get("prover", {})
         eff = records.effective_labels(rec if rec else None)
-        for c in config.CATEGORIES:
+        for c in config.registered_categories():
+            if ch.get('category', c['id']) != c['id']:
+                continue
             key = f"c{ch['index']}.{c['id']}"
             a, pb = anchors.get(key), pubs.get(key)
             accepted = eff[c["id"]] != records.UNPROVED
             pr = rec.get("prover", {})
             entries.append({
                 "chunk": ch["index"], "token_range": [ch["start"], ch["end"]],
+                **({'category_chunk_index': ch['category_chunk_index']} if 'category' in ch else {}),
                 "category": c["id"], "category_name": c["name"],
                 "classifier": f"{config.CLASSIFIER_NAME} (demo stub: {pr.get('model', 'no proof')})" if pr.get("kind") == "stub-next-token"
                               else config.CLASSIFIER_NAME,
                 "model_id": pb.model_id if pb else pr.get("model_digest"),
                 "profile_id": pb.profile_id if pb else pr.get("token_profile_digest"),
-                "verifier_id": config.STUB_BIN_SHA256 if pr.get("kind") == "stub-next-token" else None,
+                "verifier_id": config.STUB_BIN_SHA256 if pr.get("kind") == "stub-next-token" else pr.get("binary_sha256"),
                 "policy_id": c["policy_id"], "policy_sha256": c["sha256"],
                 "threshold": {"tau": th["tau"], "c": th["c"]},
                 "verdict": eff[c["id"]],
@@ -115,7 +118,7 @@ def build_manifest(post: dict, item: dict, anchors: dict, pubs: dict, content_co
                                     "content_commitment": content_commitment,
                                     "content_commitment_rule": "SHA-256(\"zk60/proven-media/content/v1\" || salt_32 || u64-be len || UTF-8 content)",
                                     "content_length_tokens": item.get("content_length")},
-         "category_set": {"id": config.CATEGORY_SET_ID, "digest": records.category_set_digest()},
+         "category_set": {"id": config.category_set_id(), "digest": records.category_set_digest()},
          "chunking": item.get("chunking"),
          "labels": labels,
          "label_rule": "per category: yes if any chunk is proved yes; not proved if any chunk lacks an accepted proof (fail closed); else no",
@@ -123,6 +126,8 @@ def build_manifest(post: dict, item: dict, anchors: dict, pubs: dict, content_co
          "entries": entries, "issued_at": records.now_iso(),
          "notes": (["DEMO STUB: one next-token proof per chunk stands in for that chunk's three category proofs; labels come "
                     "from a placeholder and are not bound by the proof."] if prover.get("kind") == "stub-next-token" else [])
+                  + (["Privacy statement pending; moderate policies selected for this testnet demo."]
+                     if prover.get("kind") == "shieldstral" else [])
                   + ([f"{failure}"] if failure else [])}
     return sign(m)
 
@@ -165,9 +170,12 @@ def verify_manifest(m: dict, publisher, expected_public_key: str | None = None, 
         man = r.get("manifest") or {}
         same = (man.get("verdict") == e.get("verdict") and man.get("statement_sha256") == e.get("statement_sha256")
                 and man.get("policy_id") == e.get("policy_sha256") and man.get("model_id") == e.get("model_id")
+                and man.get("profile_id") == e.get("profile_id")
+                and (man.get("verifier_id") == e.get("verifier_id")
+                     or (man.get("verifier_id") == "00" * 32 and e.get("verifier_id") is None))
                 and man.get("content_commitment") == e.get("content_commitment")
                 and list(man.get("token_range", [])) == list(e.get("token_range", [])))
-        chk(f"{tag}.publication_matches", same, "the published label, statement, policy, model or commitment differs")
+        chk(f"{tag}.publication_matches", same, "the published label, statement, policy, model, profile, verifier or commitment differs")
         if r.get("pending"):
             pending.append(tag)
             checks[f"{tag}.anchored"] = False

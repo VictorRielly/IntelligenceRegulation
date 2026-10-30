@@ -1,0 +1,25 @@
+{
+  "native_exclusive_phase_clocks": "R13 Eq/dot isolated clocks absent;inclusive extension phase includesother work",
+  "gpu_and_full_proof": "outside CPU-light research authorization;owner under shared heavy/build locks",
+  "web": [
+    {
+      "url": "https://tanvirarafin.github.io/assets/pdf/DATE_2026.pdf",
+      "blockers": [
+        "https://github.com/SPIRE-GMU/sum_cats/commits/main/: Cache miss",
+        "https://github.com/SPIRE-GMU/sum_cats/releases: Cache miss",
+        "https://github.com/SPIRE-GMU/sum_cats/blob/main/sumcheck/binius-gpu/LICENSE.txt: Cache miss"
+      ]
+    },
+    {
+      "url": "https://github.com/snarang181/zk-duel",
+      "blockers": [
+        "https://github.com/snarang181/zk-duel/commits/master/: Cache miss",
+        "https://github.com/snarang181/zk-duel/releases: Cache miss",
+        "https://github.com/snarang181/zk-duel/blob/master/LICENSE: Cache miss",
+        "https://raw.githubusercontent.com/snarang181/zk-duel/master/LICENSE: Cache miss",
+        "https://github.com/snarang181/zk-duel/blob/master/cuda/src/field_sumcheck.cu: Cache miss",
+        "https://github.com/snarang181/zk-duel/blob/master/experiments/h100/FINDINGS.md: Cache miss"
+      ]
+    }
+  ]
+}

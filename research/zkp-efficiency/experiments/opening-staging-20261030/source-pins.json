@@ -1,0 +1,278 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/zkp-core/src/field.rs",
+    "snapshot": "context/native/zkp-core/src/field.rs",
+    "bytes": 11065,
+    "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+    "matches_previous": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/zkp-core/src/pcs.rs",
+    "snapshot": "context/native/zkp-core/src/pcs.rs",
+    "bytes": 54858,
+    "sha256": "2d9149564ff7f77482bcc314ad1949eef4e183d2a6c9b6b3f8ac7ac4cc72b24d",
+    "matches_previous": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/zkp-core/src/pcs/backend.rs",
+    "snapshot": "context/native/zkp-core/src/pcs/backend.rs",
+    "bytes": 3479,
+    "sha256": "1734c03ce6897e784e8ac443581190a00f30f6a91c16479aa7a7a65e00617499",
+    "matches_previous": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/hashline/src/gpu/cuda.rs",
+    "snapshot": "context/native/hashline/src/gpu/cuda.rs",
+    "bytes": 202179,
+    "sha256": "a0ed0b3af7e38bd9a842cc0c024f9c12cc988c81fa586d2e4a67d5c7c5c11e9d",
+    "matches_previous": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/hashline/src/gpu/kernels.cu",
+    "snapshot": "context/native/hashline/src/gpu/kernels.cu",
+    "bytes": 74107,
+    "sha256": "bd00229fd61e86ae2bc0e037d5fa9cd90acc8a8a0f0fbf5583d501d2caf7b6aa",
+    "matches_previous": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/hashline/src/gpu/mod.rs",
+    "snapshot": "context/native/hashline/src/gpu/mod.rs",
+    "bytes": 34739,
+    "sha256": "706ca7fafb3e54114ca7c7241541a52ed6238764314f2877585071a1be37a31c",
+    "matches_previous": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/actual-working-tree/hashline/src/private_block/split_layout.rs",
+    "snapshot": "context/context/snapshots/native/split_layout.rs",
+    "bytes": 12384,
+    "sha256": "5d69b977791cbbea0611cd443b4a7f59c60e4584a3203f065bde6410b6722773",
+    "matches_previous": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/actual-working-tree/hashline/src/private_block/split_profile.rs",
+    "snapshot": "context/context/snapshots/native/split_profile.rs",
+    "bytes": 8008,
+    "sha256": "1d652b61918f9fb8a820f3da87a3918bff178e9769c6a82367fca73e3d71588f",
+    "matches_previous": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/actual-working-tree/hashline/src/private_block/split_geometry.rs",
+    "snapshot": "context/context/snapshots/native/split_geometry.rs",
+    "bytes": 11853,
+    "sha256": "c506d1dabb69484ab52f69533d9b9a69d8b1bb9d9c4bdc83aa97b103c5163beb",
+    "matches_previous": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/actual-working-tree/hashline/src/private_block/split_endpoint.rs",
+    "snapshot": "context/context/snapshots/native/split_endpoint.rs",
+    "bytes": 15390,
+    "sha256": "1e48366146b01d5eeb866aa013cf964eed1c0e85f9a453c80a036a5d78104468",
+    "matches_previous": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/actual-working-tree/hashline/src/private_block/argument_split.rs",
+    "snapshot": "context/context/snapshots/native/argument_split.rs",
+    "bytes": 18152,
+    "sha256": "50bcc0b870817f1961b497699d3d161eff6e031e7a4e10225a481eea3e719fb6",
+    "matches_previous": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/actual-working-tree/hashline/src/private_block/split_protocol.rs",
+    "snapshot": "context/context/snapshots/native/split_protocol.rs",
+    "bytes": 17302,
+    "sha256": "5a63d798d33838eca2eb422c5c289a383470928d3f8c5c8dd0debd5f4464cf32",
+    "matches_previous": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/actual-working-tree/hashline/src/private_block/split_definition_tests.rs",
+    "snapshot": "context/context/snapshots/native/split_definition_tests.rs",
+    "bytes": 22445,
+    "sha256": "e11fe92e79f3dd470b522af2d24f0a23ddced981fe08dc89ae840c8c88f3e0c8",
+    "matches_previous": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/actual-working-tree/hashline/src/private_block/split_run.rs",
+    "snapshot": "context/context/snapshots/native/split_run.rs",
+    "bytes": 18456,
+    "sha256": "40b37c0e70487d38d6c852988c0f0288b91c868b46bf3080232c52d2f2d6ad63",
+    "matches_previous": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/actual-working-tree/hashline/src/private_block/protocol.rs",
+    "snapshot": "context/context/snapshots/native/protocol.rs",
+    "bytes": 79043,
+    "sha256": "1011441431a37f735999405986af6c9f11c2d303b48aa6d9cefae55b0311718d",
+    "matches_previous": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/actual-working-tree/hashline/src/private_block/shape.rs",
+    "snapshot": "context/context/snapshots/native/shape.rs",
+    "bytes": 149746,
+    "sha256": "8e00a144bd194fd5a3dd30c9aaece2869d43d461df623cdcfc5a9da59e51436b",
+    "matches_previous": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/actual-working-tree/hashline/src/private_block/layout.rs",
+    "snapshot": "context/context/snapshots/native/layout.rs",
+    "bytes": 76914,
+    "sha256": "8519a514b8d1f43ab51c86b0a8af955230a2eab4fff4fc4c594733c59dcfd0bf",
+    "matches_previous": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/NATIVE_INVENTORY_CENSUS.json",
+    "snapshot": "context/context/snapshots/owner/NATIVE_INVENTORY_CENSUS.json",
+    "bytes": 8247,
+    "sha256": "c5154c2b7cdc0596954b67562c9a47ee77be3fe0c508bf81f51875ae4ed85a29",
+    "matches_previous": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/NATIVE_BUILDERS_CENSUS.json",
+    "snapshot": "context/context/snapshots/owner/NATIVE_BUILDERS_CENSUS.json",
+    "bytes": 55734,
+    "sha256": "cdf31b42c5d0b9e3daf2c2332c7df473b02f2b9252652ee559384643fb890b2e",
+    "matches_previous": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/CURRENT_DEV_STATE.json",
+    "snapshot": "context/context/snapshots/owner/CURRENT_DEV_STATE.json",
+    "bytes": 4561,
+    "sha256": "59dccd925059b1a2a3344efb947ee5b3400694da8418c4f83eb69bd14057f334",
+    "matches_previous": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/MATCHED_R13_R14_COMPARISON.json",
+    "snapshot": "context/context/snapshots/owner/MATCHED_R13_R14_COMPARISON.json",
+    "bytes": 4151,
+    "sha256": "a8c494d42fc45d00542bf19be99cf6f28a094e0453a20ec74e242e5630ad2159",
+    "matches_previous": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/sol-r14-builders-2.source.json",
+    "snapshot": "context/context/snapshots/owner/sol-r14-builders-2.source.json",
+    "bytes": 32301,
+    "sha256": "ca2308e8068da55020059447e10635c5bb5514f41b5e53799506fa6c86f862b4",
+    "matches_previous": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/sol-r14-actual-build-2.source.json",
+    "snapshot": "context/context/snapshots/owner/sol-r14-actual-build-2.source.json",
+    "bytes": 33144,
+    "sha256": "1dc1f2fe1a15557c37385c403288c0913bea72a53a6f06080e1756406572e777",
+    "matches_previous": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/CLAUDE.md",
+    "snapshot": "context/context/snapshots/documents/CLAUDE.md",
+    "bytes": 14089,
+    "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6",
+    "matches_previous": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/START_HERE.md",
+    "snapshot": "context/context/snapshots/documents/docs__zkmatrix-poc__START_HERE.md",
+    "bytes": 42025,
+    "sha256": "89f6732a39f4294f2f1b7b68add8fdcbb76b86006e21041f52c0f40d9e39df9d",
+    "matches_previous": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/MVP_STATUS.md",
+    "snapshot": "context/context/snapshots/documents/docs__zkmatrix-poc__MVP_STATUS.md",
+    "bytes": 103052,
+    "sha256": "4a9c9bfffddc58586deff7212a308a95cf9d96dc3a92fc2e8f2df15c38f6f1d1",
+    "matches_previous": false
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_DECISIONS.md",
+    "snapshot": "context/context/snapshots/documents/docs__zkmatrix-poc__ZK60_DECISIONS.md",
+    "bytes": 148385,
+    "sha256": "581e59de4e349d6e44547070c2deea4a91b2a57b5e54e169fc863d69307b0c29",
+    "matches_previous": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_CODEX_FABLE_COORDINATION.md",
+    "snapshot": "context/context/snapshots/documents/docs__zkmatrix-poc__ZK60_CODEX_FABLE_COORDINATION.md",
+    "bytes": 64889,
+    "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f",
+    "matches_previous": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_THROUGHPUT_TARGET.md",
+    "snapshot": "context/context/snapshots/documents/docs__zkmatrix-poc__ZK60_THROUGHPUT_TARGET.md",
+    "bytes": 4941,
+    "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53",
+    "matches_previous": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/NATIVE_LAYOUT_CENSUS.json",
+    "snapshot": "context/context/snapshots/owner/R13_NATIVE_LAYOUT_CENSUS.json",
+    "bytes": 154939,
+    "sha256": "36caa5bb71da50a3be89570eeaa8c533f3cab8291cea45816f1b8b6e13edb21a",
+    "matches_previous": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/CLAUDE.md",
+    "snapshot": "documents/CLAUDE.md",
+    "bytes": 14089,
+    "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/START_HERE.md",
+    "snapshot": "documents/START_HERE.md",
+    "bytes": 42025,
+    "sha256": "89f6732a39f4294f2f1b7b68add8fdcbb76b86006e21041f52c0f40d9e39df9d"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/MVP_STATUS.md",
+    "snapshot": "documents/MVP_STATUS.md",
+    "bytes": 103052,
+    "sha256": "4a9c9bfffddc58586deff7212a308a95cf9d96dc3a92fc2e8f2df15c38f6f1d1"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_DECISIONS.md",
+    "snapshot": "documents/ZK60_DECISIONS.md",
+    "bytes": 148385,
+    "sha256": "581e59de4e349d6e44547070c2deea4a91b2a57b5e54e169fc863d69307b0c29"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_CODEX_FABLE_COORDINATION.md",
+    "snapshot": "documents/ZK60_CODEX_FABLE_COORDINATION.md",
+    "bytes": 64889,
+    "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_THROUGHPUT_TARGET.md",
+    "snapshot": "documents/ZK60_THROUGHPUT_TARGET.md",
+    "bytes": 4941,
+    "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/actual-working-tree/zkp-core/src/field.rs",
+    "snapshot": "held-source/zkp-core/src/field.rs",
+    "bytes": 11065,
+    "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/actual-working-tree/zkp-core/src/pcs.rs",
+    "snapshot": "held-source/zkp-core/src/pcs.rs",
+    "bytes": 77003,
+    "sha256": "5c9cfc4e9c84283309f4c47f87d4a9146e2c9c9f5b52aa608b4ce6a7588cd495"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/actual-working-tree/zkp-core/src/pcs/backend.rs",
+    "snapshot": "held-source/zkp-core/src/pcs/backend.rs",
+    "bytes": 3946,
+    "sha256": "ff2cb5c1806b34653f8a44ad82f54201fb5d9f6ba2602afe5efeae4d104e0103"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/actual-working-tree/hashline/src/gpu/cuda.rs",
+    "snapshot": "held-source/hashline/src/gpu/cuda.rs",
+    "bytes": 205193,
+    "sha256": "8fe2a2a39e0796254be37d0d7507d7fc22ea3af141d97d35cd93754d505072c9"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/actual-working-tree/hashline/src/gpu/kernels.cu",
+    "snapshot": "held-source/hashline/src/gpu/kernels.cu",
+    "bytes": 78055,
+    "sha256": "b59bc396fa955bbdbc8bf8bb7b047c37c7f8df1fed0992d7b15ef983e2fc3969"
+  }
+]

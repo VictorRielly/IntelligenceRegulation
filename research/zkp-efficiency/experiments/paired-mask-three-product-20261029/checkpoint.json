@@ -1,0 +1,14 @@
+{
+  "run_id": "20261029T065649Z-ae3c483b",
+  "checkpoint_utc": "2026-10-29T07:11:42.610314+00:00",
+  "deadline_utc": "2026-10-29T07:16:49+00:00",
+  "proofs": 0,
+  "passes": 0,
+  "positions": 0,
+  "sources_before": 901,
+  "sources_after": 909,
+  "hypotheses": 56,
+  "production_changed": false,
+  "gpu": false,
+  "native_build": false
+}

@@ -15,8 +15,10 @@ worker=importlib.util.module_from_spec(spec);spec.loader.exec_module(worker)
 
 
 class ClassifierProverTests(unittest.TestCase):
+    contract_class=contract.ClassifierContractTests
+
     def setUp(self):
-        self.fixture=contract.ClassifierContractTests();self.fixture.setUp();self.addCleanup(self.fixture.doCleanups)
+        self.fixture=self.contract_class();self.fixture.setUp();self.addCleanup(self.fixture.doCleanups)
         self.root=self.fixture.root;self.prover=RungClassifierProver(self.fixture.d,self.root/'public-runs')
         self.seq=self.root/'seq';self.seq.mkdir()
         self.item=RungTokenItem(tuple(range(9,32)),(self.seq,))
@@ -63,9 +65,9 @@ class ClassifierProverTests(unittest.TestCase):
         job,_=self.make_job();rec=self.prover.collect('fixture',self.item,job)
         aggregate=self.root/'private/aggregate'
         with patch('proven_media.classifier_prover.launch_pipeline'):
-            self.prover.start_label([rec],aggregate)
+            self.prover.start_label([rec],aggregate,item=self.item)
         (aggregate/'logs').mkdir()
-        events=contract.line('label',policy=self.fixture.d.policy,label='not-flagged',chunks=1,content_total=23,
+        events=contract.line('label',policy=self.fixture.d.policy,label='not-flagged',chunks=1,content_total=23,expect_total=23,
                     chunk_size=23,overlap=4,flagged_ranges=[])
         def leaf(job,name,command,cli):
             self.assertEqual(name,'label');self.assertEqual(command[1],'label')
@@ -74,7 +76,24 @@ class ClassifierProverTests(unittest.TestCase):
         with patch.object(worker,'run_step',side_effect=leaf):worker.worker(aggregate)
         (aggregate/'pipeline.done').write_text('0\n')
         self.assertEqual(self.prover.collect_label(aggregate)['value'],'no')
-        with self.assertRaises(ProverError):self.prover.start_label([rec,rec],self.root/'private/repeated')
+        with self.assertRaises(ProverError):self.prover.start_label([rec,rec],self.root/'private/repeated',item=self.item)
+
+    def test_prefix_receipts_refuse_against_original_item_before_launch(self):
+        job,_=self.make_job();rec=self.prover.collect('fixture',self.item,job)
+        longer=RungTokenItem(self.item.ids+(99,),(self.seq,))
+        target=self.root/'private/truncated'
+        with patch('proven_media.classifier_prover.launch_pipeline') as launch:
+            with self.assertRaises(ProverError):self.prover.start_label([rec],target,item=longer)
+            launch.assert_not_called()
+        self.assertFalse(target.exists())
+
+
+class ClassifierC2ProverTests(ClassifierProverTests):
+    contract_class=contract.ClassifierC2ContractTests
+
+
+class ClassifierC3ProverTests(ClassifierProverTests):
+    contract_class=contract.ClassifierC3ContractTests
 
 
 if __name__=='__main__':unittest.main()

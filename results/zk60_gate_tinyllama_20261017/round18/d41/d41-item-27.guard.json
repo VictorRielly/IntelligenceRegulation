@@ -1,0 +1,43 @@
+{
+ "ts_end": "2026-10-29T03:29:31Z",
+ "run_id": "b577c0ee3ca1",
+ "label": "gate18-d41-item-27",
+ "class": "light",
+ "cmd": [
+  "python3",
+  "-c",
+  "\nimport json, os, sys\nsys.path.insert(0, '/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/frozen_v21/scripts')\nimport zk60_native_rg_classgate as CG\nC = '/home/victor/zk60-artifacts/token-io/captures'\nb0 = CG.load(os.path.join(C, 'classify-rc3-rung-L2-v1-chunk0o27'))\nb1 = CG.load(os.path.join(C, 'classify-rc3-rung-L2-v1-chunk1o27'))\nbs = CG.load(os.path.join(C, 'classify-rc3-rung-L2-v1-short20'))\nout = {'item_27_two_chunks': CG.d41_item_check([b0, b1]), 'item_27_chunk1_only': CG.d41_item_check([b1]),\n       'item_27_chunk1_twice': CG.d41_item_check([b0, b1, b1]), 'item_20_short': CG.d41_item_check([bs]),\n       'integrity_D41': {n: CG.class_integrity(b)['D41_chunk'] for n, b in (('chunk0o27', b0), ('chunk1o27', b1), ('short20', bs))}}\njson.dump(out, open('/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/round18/d41/d41-item-27.json', 'w'), indent=1, default=str)\nprint(out['item_27_two_chunks']['label'], out['item_27_two_chunks']['fail_closed_reasons'], out['item_27_chunk1_only']['label'], out['item_20_short']['label'])\n"
+ ],
+ "need_gib": 0.5,
+ "cap_gib": 1.0,
+ "exit": 0,
+ "child_rc": 0,
+ "guard_killed": null,
+ "child_wall_seconds": 2.177971363067627,
+ "refused": null,
+ "guard_error": null,
+ "guard_pid": 205586,
+ "boot_id": "9ecf0dc6-8b67-411a-8ac8-042f41dfd9d5",
+ "pid_ns": "pid:[4026532216]",
+ "guard_starttime_ticks": 2356204,
+ "lock_ids": {
+  "heavy": "2096:1134228",
+  "build": "2096:1134231"
+ },
+ "enforcement": "cgroup+watchdog",
+ "waited_s": 0.0,
+ "guard_wall_s": 2.2,
+ "stragglers_killed": 0,
+ "hard_killed": 0,
+ "scope_unit": "zk60-b577c0ee3ca1.scope",
+ "scope_adopted": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/zk60.slice/zk60-b577c0ee3ca1.scope",
+ "foreign_cgroups_refused": [],
+ "peak_rss_gib": 0.21,
+ "peak_cgroup_gib": 0.16,
+ "peak_vram_mib": null,
+ "min_mem_available_gib": 13.59,
+ "vram_drain_s": null,
+ "gpu_drain_failed": false,
+ "gpu_telemetry_lost": false,
+ "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache"
+}

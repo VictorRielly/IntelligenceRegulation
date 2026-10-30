@@ -1,0 +1,53 @@
+{
+  "label": "sol-r14-actual-dd-fresh-1",
+  "source": "087016a359c1c0b096f3f131181583f568f7166a476bef3b7c484f181fde5bd9",
+  "binary_sha256": "ea8ec6e3adbea8adfb092f1e8d2174404dd6172f004008b5939feac077090d5a",
+  "guard": {
+    "ts_end": "2026-10-29T17:29:18Z",
+    "run_id": "ff8031a211ae",
+    "label": "sol-r14-actual-dd-fresh-1",
+    "class": "cpu",
+    "cmd": [
+      "/usr/bin/env",
+      "RAYON_NUM_THREADS=2",
+      "OPENBLAS_NUM_THREADS=1",
+      "HL_R14_DD=1",
+      "HL_R14_ACTUAL_EXPORT=/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/actual-t128-smoke-export",
+      "HL_R14_ACTUAL_INPUT=/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/actual-native-fixtures/dd",
+      "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/checkpoints/actual-build-1/hashline.test.bin",
+      "private_block::argument::split_actual_tests::split_actual_s2_t128_fresh_native_verifier"
+    ],
+    "need_gib": 2.5,
+    "cap_gib": 5.0,
+    "exit": 0,
+    "child_rc": 0,
+    "guard_killed": null,
+    "child_wall_seconds": 17.023634433746338,
+    "refused": null,
+    "guard_error": null,
+    "guard_pid": 327,
+    "boot_id": "9ecf0dc6-8b67-411a-8ac8-042f41dfd9d5",
+    "pid_ns": "pid:[4026532417]",
+    "guard_starttime_ticks": 7393436,
+    "lock_ids": {
+      "heavy": "2096:1134228",
+      "build": "2096:1134231"
+    },
+    "enforcement": "watchdog-only",
+    "waited_s": 0.0,
+    "guard_wall_s": 17.0,
+    "stragglers_killed": 0,
+    "hard_killed": 0,
+    "scope_unit": null,
+    "scope_adopted": null,
+    "foreign_cgroups_refused": [],
+    "peak_rss_gib": 0.56,
+    "peak_cgroup_gib": null,
+    "peak_vram_mib": null,
+    "min_mem_available_gib": 13.13,
+    "vram_drain_s": null,
+    "gpu_drain_failed": false,
+    "gpu_telemetry_lost": false,
+    "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache"
+  }
+}

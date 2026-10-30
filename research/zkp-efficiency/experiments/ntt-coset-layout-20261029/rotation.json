@@ -1,0 +1,16 @@
+{
+  "this_cycle": [
+    "GPU NTT/commitments",
+    "memory traffic",
+    "batching/amortization"
+  ],
+  "next_cycle": [
+    "sumcheck/GKR",
+    "proof composition"
+  ],
+  "retained": [
+    "lookup arguments/softmax",
+    "quantization/arithmetic"
+  ],
+  "selection": "Most useful new locally feasible prerequisite; top owner GPU/heavy/profile lanes remain higher expected end-to-end impact and are not authorized here."
+}

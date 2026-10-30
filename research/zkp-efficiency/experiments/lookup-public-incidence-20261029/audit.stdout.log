@@ -1,0 +1,1 @@
+{"status": "PASS", "checks": 237, "source_pins": 12, "count_preserving_source_mutations": 4, "elapsed_s": 0.0031042290065670386, "max_rss_kib": 15176, "native_code_executed": false, "external_review": false, "limits": "Source reader, synthetic algebra, public geometry accounting only; not native constructor, RNG, transcript, PCS, receipt or privacy validation."}

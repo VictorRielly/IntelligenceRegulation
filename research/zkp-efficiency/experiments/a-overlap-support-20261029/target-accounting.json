@@ -1,0 +1,21 @@
+{
+  "status": "PASS",
+  "end_to_end_ceiling": "N/(T-C_removed_exclusive+A_added); native exclusive fraction unknown; free deletion <=1/(1-f). No numerical speed/rate forecast.",
+  "proof_clocks": {
+    "witness_s": null,
+    "proof_s": null,
+    "serialization_s": null,
+    "verification_s": null,
+    "startup_s": null,
+    "startup_fraction": null,
+    "steady_rate": null,
+    "total_rate": null
+  },
+  "new_verified_full_stack_proofs": 0,
+  "new_model_passes": 0,
+  "new_proved_positions": 0,
+  "actual_context": null,
+  "modeled_context": 128,
+  "accelerator": null,
+  "workload_kind": "public-shape component differential, no prefill/resident-pass/decode"
+}

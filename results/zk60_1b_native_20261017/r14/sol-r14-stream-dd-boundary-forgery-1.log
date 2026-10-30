@@ -1,0 +1,7 @@
+
+running 1 test
+test private_block::argument::split_run_tests::split_run_t128_dd_narrow_boundary_forgery_emits_and_refuses ... R14_NATIVE_STREAM {"tokens":128,"dd":true,"blocks":2,"narrow_boundary_forgery":true,"bytes":[34107208, 35649320],"scope":"new native run/segment path, public synthetic model with explicit native test waiver; no trained-model/privacy acceptance"}
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 745 filtered out; finished in 46.71s
+

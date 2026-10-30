@@ -1,0 +1,9 @@
+
+running 2 tests
+test private_block::r12_tests::f2_saved_shieldstral_t128_dd_receipt_verifies_in_a_fresh_process ... R12 fresh-process Shieldstral T128 DD=true: 29536904 bytes verified; modified segment rejected
+ok
+test private_block::r12_tests::f2_saved_shieldstral_t128_receipt_verifies_in_a_fresh_process ... R12 fresh-process Shieldstral T128 DD=false: 29301896 bytes verified; modified segment rejected
+ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 635 filtered out; finished in 8.33s
+

@@ -1,0 +1,64 @@
+{
+ "manifest_files": 258,
+ "manifest_list_sha256": "0b4c429bafadc5aa13c3d97634f648611ce8a76b0e27963ad6a41a2bdf630170",
+ "frozen_r14_vs_manifest": {
+  "changed": [],
+  "missing": [],
+  "extra": []
+ },
+ "scratch_vs_manifest": {
+  "changed": [
+   "hashline/src/private_block/review_d24_tests.rs",
+   "hashline/src/private_block/run_capture.rs",
+   "hashline/src/private_block/token_io.rs",
+   "hashline/src/private_block/token_io/classify.rs",
+   "hashline/src/private_block/token_io/classify_tied.rs",
+   "hashline/src/private_block/token_io/stage_in_c.rs",
+   "hashline/src/private_block/witness.rs"
+  ],
+  "missing": [],
+  "extra": [
+   "hashline/src/private_block/token_io/review_r14_tests.rs"
+  ]
+ },
+ "r13_manifest_list_sha256": "6edb1ce682e2f68970169c6f66b0e058d5506a1ed636f7f328b6f9d1cad96215",
+ "r14_vs_r13": {
+  "changed": [
+   "hashline/examples/zk60_classify.rs",
+   "hashline/src/private_block/run_capture.rs",
+   "hashline/src/private_block/token_io.rs",
+   "hashline/src/private_block/token_io/classify.rs",
+   "hashline/src/private_block/token_io/classify_capture_tests.rs",
+   "hashline/src/private_block/token_io/classify_cli.rs",
+   "hashline/src/private_block/token_io/classify_cli_tests.rs",
+   "hashline/src/private_block/token_io/classify_run.rs",
+   "hashline/src/private_block/token_io/classify_tests.rs",
+   "hashline/src/private_block/token_io/classify_tied.rs",
+   "hashline/src/private_block/token_io/classify_tied_tests.rs",
+   "hashline/src/private_block/token_io/stage_in_c.rs",
+   "hashline/src/private_block/token_io/stage_out_c.rs",
+   "hashline/src/private_block/token_io/tests.rs"
+  ],
+  "added": [
+   "hashline/src/private_block/token_io/classify_r14_tests.rs"
+  ],
+  "removed": []
+ },
+ "native_r12b_files": 229,
+ "token_files_in_native_equal": 219,
+ "token_files_in_native_differ": [
+  "hashline/src/private_block.rs",
+  "hashline/src/private_block/hash_domain_tests.rs",
+  "hashline/src/private_block/run.rs",
+  "hashline/src/private_block/run_capture.rs",
+  "hashline/src/private_block/s24_tests.rs",
+  "hashline/src/private_block/s25_tests.rs",
+  "hashline/src/private_block/s33_tests.rs",
+  "hashline/src/private_block/tied_tables.rs",
+  "hashline/src/private_block/tied_tables/derive.rs",
+  "hashline/src/private_block/trained_block.rs"
+ ],
+ "native_differ_changed_in_r14": [
+  "hashline/src/private_block/run_capture.rs"
+ ]
+}

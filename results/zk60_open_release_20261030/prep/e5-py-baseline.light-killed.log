@@ -1,0 +1,69 @@
+.......hashline benchmark: duplicate log contents cannot count as independent samples
+...{"summary": "/tmp/tmpt10e3o_b/report/summary.json", "measurement_eligible": false, "goal_met": false}
+cold sample 0/2: /tmp/tmpc6fwaud3/report/cold-000.log
+warm sample 1/2: /tmp/tmpc6fwaud3/report/warm-001.log
+Stopping after ineligible sample: nonzero process exit; failure diagnostic present; expected exactly one pass header and one pass summary; positive layers required; positive tokens required; positive d required; positive f required; missing or mixed proof parameters; privacy declaration mismatch; GPU execution declaration mismatch; missing or ambiguous serialized proof digest; one HASHLINE_TIMING record required for measured proof readiness; observed layers differs from requested manifest; observed tokens differs from requested manifest; observed d differs from requested manifest; observed f differs from requested manifest; written proof missing or length mismatch
+..hashline benchmark: requested shape exceeds export or has zero rows/layers
+hashline benchmark: requested shape exceeds export or has zero rows/layers
+hashline benchmark: tokens must be a power of two
+hashline benchmark: requested shape exceeds export or has zero rows/layers
+hashline benchmark: requested shape exceeds export or has zero rows/layers
+hashline benchmark: seed must be in 0..2^64-1
+hashline benchmark: seed must be in 0..2^64-1
+hashline benchmark: all export dimensions must be positive
+.............{"summary": "/tmp/tmpc6fwaud3/report/summary.json", "measurement_eligible": false, "goal_met": false}
+cold sample 0/0: /tmp/tmpf05gczlw/report/cold-000.log
+.{"summary": "/tmp/tmpf05gczlw/report/summary.json", "measurement_eligible": false, "goal_met": false}
+cold sample 0/20: /tmp/tmp4c3tm50b/report/cold-000.log
+Stopping after ineligible sample: nonzero process exit; failure diagnostic present; expected exactly one pass header and one pass summary; positive layers required; positive tokens required; positive d required; positive f required; missing or mixed proof parameters; privacy declaration mismatch; GPU execution declaration mismatch; missing or ambiguous serialized proof digest; one HASHLINE_TIMING record required for measured proof readiness; observed layers differs from requested manifest; observed tokens differs from requested manifest; observed d differs from requested manifest; observed f differs from requested manifest; written proof missing or length mismatch
+.{"summary": "/tmp/tmp4c3tm50b/report/summary.json", "measurement_eligible": false, "goal_met": false}
+Waiting for /tmp/zk-heavy.lock
+.cold sample 0/0: /tmp/tmpa9yfqig4/report/cold-000.log
+Stopping after ineligible sample: observed layers differs from requested manifest
+................................................................................................sss....s......................................................................................................................FFFFFFFFEFFFEEFFFF..........s.....................................................s....................................................................................E................................................{"summary": "/tmp/tmpa9yfqig4/report/summary.json", "measurement_eligible": false, "goal_met": false}
+{"summary": "/tmp/tmptg79x624/out/summary.json", "samples": 3, "goal_met": false}
+Private diagnostic: P0, one 125M layer, 16 rows
+........{"summary": "/tmp/tmplw7e3fae/out/summary.json", "samples": 1, "goal_met": false}
+Private diagnostic: P0, one 125M layer, 16 rows
+hashline profile: one-layer diagnostic exceeded 120 seconds; process terminated
+..............................ssssssssssssssssssssss......E.......................................FEE.EEEEEEE...E..VERIFIED weights.safetensors SHA256=41c7760c50efde99bf574ed8fffc7a6dd3405d546d3da929b214c8945acf8a97
+..VERIFIED weights.safetensors SHA256=dc4b6e1c042d1bd554483784087e8df85a64bcf27ceb097933e4b3dfa5799dbf
+VERIFIED cached weights.safetensors
+....................F......................................................sssss....................................................F..................ssssss.....[zk60-guard 23:32:39] START python3 class=cpu need=11G cap=11.5G enforce=watchdog-only waited=0s run=b35e35fd09c8
+cpu
+[zk60-guard 23:32:39] END python3 exit=0 child_wall=0s peak_rss=0.00G min_avail=12.00G
+.[zk60-guard 23:32:39] admission waiting: budget: scripted
+[zk60-guard 23:32:39] REFUSED: after waiting: budget: scripted
+[zk60-guard 23:32:39] admission waiting: budget: scripted
+[zk60-guard 23:32:40] REFUSED: after waiting: budget: scripted
+..[zk60-guard 23:32:40] admission waiting: budget: scripted
+[zk60-guard 23:32:40] START B class=build need=4G cap=5.5G enforce=watchdog-only waited=0s run=9311188cfb3b
+[zk60-guard 23:32:40] END B exit=0 child_wall=0s peak_rss=0.00G min_avail=12.00G
+.[zk60-guard 23:32:40] waiting for /tmp/guardfix-kaypj031/heavy.lock (0s)
+[zk60-guard 23:32:42] REFUSED: terminated by signal 15 while waiting to start
+.[zk60-guard 23:32:42] admission waiting: budget: scripted
+[zk60-guard 23:32:42] REFUSED: terminated by signal 15 while waiting to start
+.[zk60-guard 23:32:42] admission waiting: budget: scripted
+[zk60-guard 23:32:43] REFUSED: after waiting: budget: scripted
+[zk60-guard 23:32:43] waiting for /tmp/guardfix-6mw_i6yl/heavy.lock (0s)
+[zk60-guard 23:32:44] REFUSED: could not take /tmp/guardfix-6mw_i6yl/heavy.lock within 1s
+.s...............EE.....................sssssE..E..sE....E.EEE......s...................s.s............ssssssssssssssssssssssss........ssss..........................ssssssssssssssss.......ssssssssssss........sss...................................................EEEEEE.{"paused": true, "signalled_supervisor": null}
+Explorer is paused; watchdog will not start it.
+wrote /tmp/tmpbqgfqsm4/r.json
+wrote /tmp/tmp7eohbhvm/repair.json
+fibre all_ok=True k_slots all_ok=True pad_budget all_ok=True
+fp bias log2 = -96.000
+  PASS: one proof, one slot (FA3 whole_W_p3 shape): disclosed 0 (expected 0)
+  PASS: two proofs, distinct slots: disclosed 0 (expected 0)
+  PASS: three proofs, distinct slots, prox over all 3 slot sets: disclosed 0 (expected 0)
+  PASS: three slots, slot 1 burned (proofs on 0 and 2): disclosed 0 (expected 0)
+  PASS: NEGATIVE: two proofs declare the same slot: disclosed 12 (expected > 0)
+  PASS: NEGATIVE: three proofs, slot 1 reused twice: disclosed 12 (expected > 0)
+  PASS: NEGATIVE: slot 1's pair rows are copies of slot 0's (AM4 across slots): disclosed 20 (expected > 0)
+  PASS: one proof, one slot, n = 8: disclosed 0 (expected 0)
+  PASS: two proofs, distinct slots, n = 8, single-row blocks: disclosed 0 (expected 0)
+self-check (accepted attention, committed tool unmodified): 29/29 cross-checks, failures none, reproduced=True
+EEE......probe: exit 0, native wall 0.01s
+...probe: exit 70, native wall Nones
+..probe: exit 7, native wall 0.011540316999344213s
+...................

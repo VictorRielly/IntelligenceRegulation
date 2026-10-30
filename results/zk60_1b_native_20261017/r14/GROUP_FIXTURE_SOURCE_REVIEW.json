@@ -1,0 +1,40 @@
+{
+  "utc": "2026-10-30T05:08:40.365044+00:00",
+  "source_before": "7152ef1a269b2aca5b0ec7ee507a8591db46225466653aaa3113789bfce24262",
+  "source_after": "79093470047464587140fc63d4ca84b95c11c090bd32d4cbd1057503969d6db5",
+  "changed_files": [
+    "hashline/src/private_block/split_attack_tests.rs"
+  ],
+  "native_protocol_and_verifier_changed": false,
+  "patch_sha256": "1d2c9c73e342e946e7f674eda62b02782205ed81000ccb70f6b1fd5feafb05a5",
+  "independent_gate_prediction": {
+    "norm_denominator": 55,
+    "norm_words": [
+      -115,
+      -114
+    ],
+    "wg_weights": [
+      -127,
+      -127
+    ],
+    "multiplier": 64,
+    "shift": 20,
+    "accumulator": 29083,
+    "gate": 2
+  },
+  "independent_retained_vectors": {
+    "2": {
+      "raw": 16,
+      "scale": 4096,
+      "scaled": 65536,
+      "vector_sha256": "a86689aff2d6cd18c1c14ef13448cbbfb309f07f4c4b3570fe46bbbedc45471b"
+    },
+    "0": {
+      "raw": 66,
+      "scale": 1024,
+      "scaled": 67584,
+      "vector_sha256": "62a1b8599d1a2a0bcf2fafe1c0a63b2607fa31ff70953f9a829a1c7c6e0468ad"
+    }
+  },
+  "scope": "Fixture preflight using exact integer arithmetic and retained rational-table vectors; native runtime acceptance is still pending."
+}

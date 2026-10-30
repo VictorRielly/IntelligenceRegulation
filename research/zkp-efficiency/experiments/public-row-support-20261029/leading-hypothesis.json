@@ -1,0 +1,15 @@
+{
+  "rank": 67,
+  "title": "TESTED guaranteed public mask-row support bound before dispatch changes",
+  "baseline": "R13 8BT128 A/H source geometries; unchanged chunk4 device fold reads every row for every chunk. Dense nonsite support retained as conservative envelope; host already skips zeros.",
+  "eliminated_work": "Prior conditional zero-skip kernel would avoid at least 4.1805% noDD / 4.3946% DD of logical A/H matrix word reads from mask/proximity exclusivity alone. Symbolic source ordering DD bound is 4.4470%. These are source work bounds, not measured CUDA or proving savings.",
+  "added_costs": "Prior kernel checks both rho limbs and retains rw[4], branches and longer live ranges; source accumulator+temporary payload128B/thread vs64B baseline, actual registers/spills unknown. No mask work, upload, output vector, pad fold or proof omitted. A full support planner adds scan/bitsets/scatter and is not justified by mask counts.",
+  "prerequisites": "Owner public support cardinalities/unions from current accepted native opening, exclusive phase/enclosing clocks, current profile metadata, memory/traffic/register counters and shared locks for eventual device work.",
+  "integration_cost": "Small research source-bound census at existing fold_rows_multi_zk -> device fold seam; prior kernel patch remains unapplied. No production patch or native scheduling change this cycle.",
+  "exactness": "81 extracted-native audit/group/rho fixtures, 3 H-sum fixtures; independent u128 modular complete-cube reference405216coefficients and5049message+pad folds. Seven audit refusals,4 distinct algebra/order control classes repeated164times. Public-source envelope bitsets agree with closed formula in38accounting checks.",
+  "privacy_soundness": "Only public claim/rho structure and synthetic data inspected. All site/proximity masks and H sum retained; no private sparsity or mask/opening reuse. Scripted transcript is not native FS; no full native proof or privacy review.",
+  "compatibility": "Pinned frozen R13 metadata/PCS/audit. Symbolic group ordering uses previously validated local catalog, not execution of the native constructor. R14 split layout differs and is not assigned these numbers.",
+  "end_to_end_ceiling": "N/(T-Cremoved_exclusive+Aadded); exclusive native fold fraction unknown; even free deletion is bounded by1/(1-f). No numerical8B or high-endGPU forecast.",
+  "falsification": "Any source contract, row/group count, value, limb, mask, order, refusal, RNG/FS/PCS mismatch; actual extra overhead/spills erase benefit; no enclosing independently verified workload gain.",
+  "disposition": "Partial incidence prerequisite established, actual full native support and exclusive cost still unknown; below globaltop3."
+}

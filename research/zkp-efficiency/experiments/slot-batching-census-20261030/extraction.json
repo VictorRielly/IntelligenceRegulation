@@ -1,0 +1,37 @@
+{
+  "methods": [
+    {
+      "name": "q_pad",
+      "sha256": "b470ff422c5885638cfd8a9f649ec059bf802e5e4d3db3d5a69861c4506708af"
+    },
+    {
+      "name": "natural_log",
+      "sha256": "e81b7e529b16a1ea5e3e9bcf2740073165d4e86abc724cf661b982afbf34a5cb"
+    },
+    {
+      "name": "true_size",
+      "sha256": "fa20f159fabd402291e0183b3b808fd6c959069ac554898f561ccac92ce68797"
+    },
+    {
+      "name": "log",
+      "sha256": "4623d8daf724109d62979d6be4cceccecb86e27169af09f91ec2999e6370f180"
+    },
+    {
+      "name": "size",
+      "sha256": "9e3b7da81393fd7431fcef41240e95889c995cb2b3f7fb50b67c256fd9bb1e5d"
+    },
+    {
+      "name": "pads",
+      "sha256": "86617098f9f63145ef6a16813c423e84486e6bff62654f6b7a4b55b06ec2022d"
+    },
+    {
+      "name": "slots",
+      "sha256": "66f9de19c12dc771980f48ece019268f7a4d77a13f8043d6498b91c535573f95"
+    },
+    {
+      "name": "n_slots",
+      "sha256": "2d56dd0beb7dec189f45d4b6bb03075f48644ccd613d9014c3eda6b1bc6f1c61"
+    }
+  ],
+  "scope": "Eight unchanged native metadata methods; stub Shape fields/profile gate and Dom. No native constructor/define/prover run."
+}

@@ -1,0 +1,16 @@
+vs frozen-r13 (manifest_final_r13): 14 changed, 1 added, 0 removed
+changed  +6     -3     hashline/examples/zk60_classify.rs
+changed  +11    -0     hashline/src/private_block/run_capture.rs
+changed  +3     -0     hashline/src/private_block/token_io.rs
+changed  +132   -35    hashline/src/private_block/token_io/classify.rs
+changed  +179   -50    hashline/src/private_block/token_io/classify_capture_tests.rs
+changed  +45    -23    hashline/src/private_block/token_io/classify_cli.rs
+changed  +30    -7     hashline/src/private_block/token_io/classify_cli_tests.rs
+changed  +24    -16    hashline/src/private_block/token_io/classify_run.rs
+changed  +192   -10    hashline/src/private_block/token_io/classify_tests.rs
+changed  +200   -12    hashline/src/private_block/token_io/classify_tied.rs
+changed  +48    -2     hashline/src/private_block/token_io/classify_tied_tests.rs
+changed  +4     -2     hashline/src/private_block/token_io/stage_in_c.rs
+changed  +5     -3     hashline/src/private_block/token_io/stage_out_c.rs
+changed  +9     -1     hashline/src/private_block/token_io/tests.rs
+added    +371   -0     hashline/src/private_block/token_io/classify_r14_tests.rs

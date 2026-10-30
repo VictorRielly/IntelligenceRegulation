@@ -1,0 +1,41 @@
+{
+  "status": "PASS",
+  "checks": 117,
+  "registry_rows": 144,
+  "distinct_profile_precision_rows": 36,
+  "bench": [
+    {
+      "log_cols": 4,
+      "ratio_of_helper_medians": 1.349779086892489,
+      "allocations_removed": 11,
+      "requested_bytes_removed": 1952
+    },
+    {
+      "log_cols": 8,
+      "ratio_of_helper_medians": 7.136133236784938,
+      "allocations_removed": 11,
+      "requested_bytes_removed": 29024
+    },
+    {
+      "log_cols": 14,
+      "ratio_of_helper_medians": 340.13497240341195,
+      "allocations_removed": 11,
+      "requested_bytes_removed": 1835648
+    }
+  ],
+  "eliminated": "Only unused dense column weights in prover grouping, their Eq/reversal temporaries and copies. Row weights, full key validation/group order, masks/pads/salts, all commitment reads/NTT/hash/folds/transfers/openings remain.",
+  "added_costs": "One bool branch per new group and empty Vec header in existing tuple; verifier path retains true columns. Native compiler optimization/allocator/parallel behavior and retained cache capacity unmeasured.",
+  "ceiling": "N/(T-C_exclusive_removed+A_added); speedup=1/((1-f)+f/k); f and native k unknown. Free deletion of exclusive fraction f <=1/(1-f). No numeric native/GPU/token forecast.",
+  "elapsed_s": 0.03884359300718643,
+  "max_rss_kib": 15936,
+  "full_stack_proofs": 0,
+  "model_passes": 0,
+  "proved_positions": 0,
+  "startup_fraction": null,
+  "witness_s": null,
+  "proof_s": null,
+  "serialization_s": null,
+  "verification_s": null,
+  "steady_tokens_per_s": null,
+  "total_tokens_per_s": null
+}

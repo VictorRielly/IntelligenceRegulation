@@ -1,0 +1,2618 @@
+{
+ "what": "[gate round 20] One summary of the round's records (frozen tools v23 on token frozen-r17's",
+ "privacy_acceptance": false,
+ "records": [
+  {
+   "record": "round20/v23/v23-classify-r13-rung-L2-v1-r17-values.json",
+   "bundle": "classify-r13-rung-L2-v1-r17-values",
+   "status": "PASS",
+   "false_parts": [],
+   "declared_limits": [],
+   "tools_equal_v23": true,
+   "blocks": 2,
+   "policy": "r13-rung-capture-test-policy/-228713",
+   "verdict": 1,
+   "c": -228713,
+   "chunk": {
+    "a": 0,
+    "b": 23,
+    "count": 1,
+    "index": 0,
+    "overlap": 4,
+    "size": 23,
+    "total": 23
+   },
+   "n": 23,
+   "item_length": 32,
+   "pad_positions": 0,
+   "verdict_row": 31,
+   "pad_id": 2,
+   "short_item": false,
+   "source_pins": {
+    "ok": true,
+    "pins": 72,
+    "refusals": []
+   },
+   "source_pin_status": [
+    "read by a chain of readings",
+    "read by the block gate",
+    "read by the token gate (v18)",
+    "the v22 classifier port's digest"
+   ],
+   "replay": [
+    3786,
+    327,
+    true
+   ],
+   "hash_layer": {
+    "bytes_hashed": 3414016,
+    "columns_authenticated": 4096,
+    "columns_checked": 4096,
+    "findings": [],
+    "ok": true
+   },
+   "classifier_slots": [
+    12,
+    12
+   ],
+   "public_tables_rebuilt_taken": [
+    19,
+    0
+   ],
+   "block_stage_gates": [
+    20,
+    21
+   ],
+   "block_tables_absent_by_capture_option": false,
+   "block_stage_slots": [
+    [
+     23,
+     23
+    ],
+    [
+     23,
+     23
+    ]
+   ],
+   "block_stages_all_23": true,
+   "block_stages_evaluated": 2,
+   "blocks_not_evaluated": [],
+   "captured_tables_per_stage": [
+    15
+   ],
+   "structure_failures": [],
+   "group_factor_ok_all": true,
+   "group_column_groups_per_stage": [
+    [
+     [
+      0,
+      1,
+      2,
+      3
+     ]
+    ],
+    [
+     [
+      0,
+      1,
+      2,
+      3
+     ]
+    ]
+   ],
+   "act3_groups_per_stage": [
+    [
+     4
+    ],
+    [
+     4
+    ]
+   ],
+   "block_controls": {
+    "NC-1_R13_score_precision_moved": true,
+    "R13-ACT_act3_table_doctored": true,
+    "R13-GC_group_column_doctored": true,
+    "R13-G_gate_denominator_moved": true,
+    "R13-L_legacy_fzc_on_r13_bytes": true,
+    "R13-N_norm_tn_moved": true,
+    "R13-W_gate_weight_fold_doctored": true
+   },
+   "per_commitment": [
+    [
+     "A-in@0",
+     10,
+     3,
+     3,
+     0,
+     0
+    ],
+    [
+     "H-in@0",
+     14,
+     4,
+     4,
+     2,
+     2
+    ],
+    [
+     "E-token-in",
+     6,
+     1,
+     1,
+     0,
+     0
+    ],
+    [
+     "A@1",
+     437,
+     148,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@1",
+     248,
+     55,
+     9,
+     2,
+     2
+    ],
+    [
+     "B0",
+     7,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@2",
+     437,
+     148,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@2",
+     248,
+     55,
+     9,
+     2,
+     2
+    ],
+    [
+     "B1",
+     7,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A-out@3",
+     76,
+     29,
+     16,
+     0,
+     0
+    ],
+    [
+     "H-out@3",
+     38,
+     10,
+     5,
+     2,
+     2
+    ],
+    [
+     "B2",
+     7,
+     2,
+     2,
+     0,
+     0
+    ]
+   ],
+   "commitments": 12,
+   "cfs": [
+    [
+     "IN-C",
+     5337,
+     0
+    ],
+    [
+     "BLOCK",
+     16125,
+     0
+    ],
+    [
+     "BLOCK",
+     16125,
+     0
+    ],
+    [
+     "OUT-C",
+     7557,
+     0
+    ]
+   ],
+   "joint": [
+    33312,
+    0,
+    true
+   ],
+   "full_preimage": {
+    "commitments": 12,
+    "entries_compared": 2247034,
+    "entries_differing": 0,
+    "salted_leaves_authenticated": 3072,
+    "sampled": null,
+    "not_evaluated": null,
+    "ok": true
+   },
+   "joint_preimage": true,
+   "joint_preimage_c4": {
+    "respected": true,
+    "terminal_records": {
+     "block_stages": true,
+     "classifier_slots": true
+    },
+    "what": "the terminal identity on the captured terminals at every new slot and every block slot"
+   },
+   "B3": true,
+   "B3_derived": {
+    "recorded_vs_derived": {
+     "differing": 0,
+     "entries": 512,
+     "first_differing": []
+    },
+    "checkpoint_sha256": null,
+    "emb_digest": null,
+    "w_sha256": null,
+    "seconds": null
+   },
+   "one_public_bit": true,
+   "D41": true,
+   "NL1": [
+    12,
+    12
+   ],
+   "bout_claim_row": 31,
+   "controls_fired": [
+    "C13-2_pad_inside_the_content_range",
+    "C13-3_shifted_verdict_row",
+    "C13-4_declared_length_not_the_actual",
+    "CC-1_verdict_flipped",
+    "CC-2_threshold_moved",
+    "CC-3_margin_terminal_moved",
+    "CC-4_margin_vector_entry_moved",
+    "CC-5_template_id_in_the_captured_kappa",
+    "CC-6_chunk_range_moved",
+    "CC-8_preimage_controls_on_stage_IN_C",
+    "CC-9_preimage_controls_on_stage_OUT_C",
+    "J-1_endpoint_reserved_row_identified_with_tok",
+    "J-2_B_in_reserved_row_identified_with_block_0_input",
+    "J-3_shared_proximity_row"
+   ],
+   "controls_not_applicable": [
+    "C13-1_doctored_pad_position"
+   ],
+   "controls_not_fired": [],
+   "timings": {
+    "G1_joint": 0.2,
+    "G3": 17.4,
+    "boundaries_and_G2": 0.0,
+    "controls": 204.1,
+    "full_preimage": 628.6,
+    "hash_layer": 0.1,
+    "load_and_integrity": 0.8,
+    "per_commitment": 64.6,
+    "replay": 1.2,
+    "terminals_and_NL1": 0.3,
+    "terminals_block_stages": 7.1
+   },
+   "seconds": 926.2,
+   "peak_rss_mb": 1032
+  },
+  {
+   "record": "round20/v23/v23-classify-r13-shield-t128-cli-hate-r17-values.json",
+   "bundle": "classify-r13-shield-t128-cli-hate-r17-values",
+   "status": "PASS",
+   "false_parts": [],
+   "declared_limits": [],
+   "tools_equal_v23": true,
+   "blocks": 26,
+   "policy": "shieldstral-1.0-3b-moderate-hate/1",
+   "verdict": 0,
+   "c": 0,
+   "chunk": {
+    "a": 0,
+    "b": 35,
+    "count": 1,
+    "index": 0,
+    "overlap": 8,
+    "size": 49,
+    "total": 35
+   },
+   "n": 35,
+   "item_length": 114,
+   "pad_positions": 14,
+   "verdict_row": 113,
+   "pad_id": 11,
+   "short_item": true,
+   "source_pins": {
+    "ok": true,
+    "pins": 72,
+    "refusals": []
+   },
+   "source_pin_status": [
+    "read by a chain of readings",
+    "read by the block gate",
+    "read by the token gate (v18)",
+    "the v22 classifier port's digest"
+   ],
+   "replay": [
+    263324,
+    3303,
+    true
+   ],
+   "hash_layer": {
+    "bytes_hashed": 482789376,
+    "columns_authenticated": 28672,
+    "columns_checked": 28672,
+    "findings": [],
+    "ok": true
+   },
+   "classifier_slots": [
+    12,
+    12
+   ],
+   "public_tables_rebuilt_taken": [
+    19,
+    0
+   ],
+   "block_stage_gates": [
+    19,
+    19,
+    18,
+    20,
+    20,
+    20,
+    20,
+    20,
+    20,
+    20,
+    19,
+    20,
+    20,
+    20,
+    19,
+    20,
+    20,
+    20,
+    20,
+    20,
+    20,
+    20,
+    20,
+    19,
+    19,
+    19
+   ],
+   "block_tables_absent_by_capture_option": false,
+   "block_stage_slots": [
+    [
+     23,
+     23
+    ],
+    [
+     23,
+     23
+    ],
+    [
+     23,
+     23
+    ],
+    [
+     23,
+     23
+    ],
+    [
+     23,
+     23
+    ],
+    [
+     23,
+     23
+    ],
+    [
+     23,
+     23
+    ],
+    [
+     23,
+     23
+    ],
+    [
+     23,
+     23
+    ],
+    [
+     23,
+     23
+    ],
+    [
+     23,
+     23
+    ],
+    [
+     23,
+     23
+    ],
+    [
+     23,
+     23
+    ],
+    [
+     23,
+     23
+    ],
+    [
+     23,
+     23
+    ],
+    [
+     23,
+     23
+    ],
+    [
+     23,
+     23
+    ],
+    [
+     23,
+     23
+    ],
+    [
+     23,
+     23
+    ],
+    [
+     23,
+     23
+    ],
+    [
+     23,
+     23
+    ],
+    [
+     23,
+     23
+    ],
+    [
+     23,
+     23
+    ],
+    [
+     23,
+     23
+    ],
+    [
+     23,
+     23
+    ],
+    [
+     23,
+     23
+    ]
+   ],
+   "block_stages_all_23": true,
+   "block_stages_evaluated": 26,
+   "blocks_not_evaluated": [],
+   "captured_tables_per_stage": [
+    15
+   ],
+   "structure_failures": [],
+   "group_factor_ok_all": true,
+   "group_column_groups_per_stage": [
+    [
+     [
+      0,
+      1,
+      2
+     ]
+    ],
+    [
+     [
+      0,
+      1,
+      2
+     ]
+    ],
+    [
+     [
+      0,
+      1,
+      2,
+      3
+     ]
+    ],
+    [
+     [
+      0,
+      1,
+      2
+     ]
+    ],
+    [
+     [
+      0,
+      1,
+      2
+     ]
+    ],
+    [
+     [
+      0,
+      1,
+      2
+     ]
+    ],
+    [
+     [
+      0,
+      1,
+      2
+     ]
+    ],
+    [
+     [
+      0,
+      1,
+      2
+     ]
+    ],
+    [
+     [
+      0,
+      1,
+      2
+     ]
+    ],
+    [
+     [
+      0,
+      1,
+      2,
+      3
+     ]
+    ],
+    [
+     [
+      0,
+      1,
+      2
+     ]
+    ],
+    [
+     [
+      0,
+      1,
+      2,
+      3
+     ]
+    ],
+    [
+     [
+      0,
+      1,
+      2,
+      3
+     ]
+    ],
+    [
+     [
+      0,
+      1,
+      2,
+      3
+     ]
+    ],
+    [
+     [
+      0,
+      1,
+      2
+     ]
+    ],
+    [
+     [
+      0,
+      1,
+      2,
+      3
+     ]
+    ],
+    [
+     [
+      0,
+      1,
+      2,
+      3
+     ]
+    ],
+    [
+     [
+      0,
+      1,
+      2,
+      3
+     ]
+    ],
+    [
+     [
+      0,
+      1,
+      2,
+      3
+     ]
+    ],
+    [
+     [
+      0,
+      1,
+      2,
+      3
+     ]
+    ],
+    [
+     [
+      0,
+      1,
+      2,
+      3
+     ]
+    ],
+    [
+     [
+      0,
+      1,
+      2
+     ]
+    ],
+    [
+     [
+      0,
+      1,
+      2
+     ]
+    ],
+    [
+     [
+      0,
+      1,
+      2,
+      3
+     ]
+    ],
+    [
+     [
+      0,
+      1,
+      2,
+      3
+     ]
+    ],
+    [
+     [
+      0,
+      1,
+      2,
+      3
+     ]
+    ]
+   ],
+   "act3_groups_per_stage": [
+    [
+     3
+    ],
+    [
+     3
+    ],
+    [
+     4
+    ],
+    [
+     3
+    ],
+    [
+     3
+    ],
+    [
+     3
+    ],
+    [
+     3
+    ],
+    [
+     3
+    ],
+    [
+     3
+    ],
+    [
+     4
+    ],
+    [
+     3
+    ],
+    [
+     4
+    ],
+    [
+     4
+    ],
+    [
+     4
+    ],
+    [
+     3
+    ],
+    [
+     4
+    ],
+    [
+     4
+    ],
+    [
+     4
+    ],
+    [
+     4
+    ],
+    [
+     4
+    ],
+    [
+     4
+    ],
+    [
+     3
+    ],
+    [
+     3
+    ],
+    [
+     4
+    ],
+    [
+     4
+    ],
+    [
+     4
+    ]
+   ],
+   "block_controls": {
+    "NC-1_R13_score_precision_moved": true,
+    "R13-ACT_act3_table_doctored": true,
+    "R13-GC_group_column_doctored": true,
+    "R13-G_gate_denominator_moved": true,
+    "R13-L_legacy_fzc_on_r13_bytes": true,
+    "R13-N_norm_tn_moved": true,
+    "R13-W_gate_weight_fold_doctored": true
+   },
+   "per_commitment": [
+    [
+     "A-in@0",
+     41,
+     3,
+     3,
+     0,
+     0
+    ],
+    [
+     "H-in@0",
+     76,
+     4,
+     4,
+     2,
+     2
+    ],
+    [
+     "E-token-in",
+     6,
+     1,
+     1,
+     0,
+     0
+    ],
+    [
+     "A@1",
+     4577,
+     146,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@1",
+     4390,
+     54,
+     9,
+     2,
+     2
+    ],
+    [
+     "B0",
+     38,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@2",
+     4577,
+     146,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@2",
+     4390,
+     54,
+     9,
+     2,
+     2
+    ],
+    [
+     "B1",
+     38,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@3",
+     4577,
+     146,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@3",
+     4390,
+     54,
+     9,
+     2,
+     2
+    ],
+    [
+     "B2",
+     38,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@4",
+     4577,
+     146,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@4",
+     4390,
+     54,
+     9,
+     2,
+     2
+    ],
+    [
+     "B3",
+     38,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@5",
+     4577,
+     146,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@5",
+     4390,
+     54,
+     9,
+     2,
+     2
+    ],
+    [
+     "B4",
+     38,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@6",
+     4577,
+     146,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@6",
+     4390,
+     54,
+     9,
+     2,
+     2
+    ],
+    [
+     "B5",
+     38,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@7",
+     4577,
+     146,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@7",
+     4390,
+     54,
+     9,
+     2,
+     2
+    ],
+    [
+     "B6",
+     38,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@8",
+     4577,
+     146,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@8",
+     4390,
+     54,
+     9,
+     2,
+     2
+    ],
+    [
+     "B7",
+     38,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@9",
+     4577,
+     146,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@9",
+     4390,
+     54,
+     9,
+     2,
+     2
+    ],
+    [
+     "B8",
+     38,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@10",
+     4577,
+     146,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@10",
+     4390,
+     54,
+     9,
+     2,
+     2
+    ],
+    [
+     "B9",
+     38,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@11",
+     4577,
+     146,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@11",
+     4390,
+     54,
+     9,
+     2,
+     2
+    ],
+    [
+     "B10",
+     38,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@12",
+     4577,
+     146,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@12",
+     4390,
+     54,
+     9,
+     2,
+     2
+    ],
+    [
+     "B11",
+     38,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@13",
+     4577,
+     146,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@13",
+     4390,
+     54,
+     9,
+     2,
+     2
+    ],
+    [
+     "B12",
+     38,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@14",
+     4577,
+     146,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@14",
+     4390,
+     54,
+     9,
+     2,
+     2
+    ],
+    [
+     "B13",
+     38,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@15",
+     4577,
+     146,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@15",
+     4390,
+     54,
+     9,
+     2,
+     2
+    ],
+    [
+     "B14",
+     38,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@16",
+     4577,
+     146,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@16",
+     4390,
+     54,
+     9,
+     2,
+     2
+    ],
+    [
+     "B15",
+     38,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@17",
+     4577,
+     146,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@17",
+     4390,
+     54,
+     9,
+     2,
+     2
+    ],
+    [
+     "B16",
+     38,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@18",
+     4577,
+     146,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@18",
+     4390,
+     54,
+     9,
+     2,
+     2
+    ],
+    [
+     "B17",
+     38,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@19",
+     4577,
+     146,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@19",
+     4390,
+     54,
+     9,
+     2,
+     2
+    ],
+    [
+     "B18",
+     38,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@20",
+     4577,
+     146,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@20",
+     4390,
+     54,
+     9,
+     2,
+     2
+    ],
+    [
+     "B19",
+     38,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@21",
+     4577,
+     146,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@21",
+     4390,
+     54,
+     9,
+     2,
+     2
+    ],
+    [
+     "B20",
+     38,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@22",
+     4577,
+     146,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@22",
+     4390,
+     54,
+     9,
+     2,
+     2
+    ],
+    [
+     "B21",
+     38,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@23",
+     4577,
+     146,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@23",
+     4390,
+     54,
+     9,
+     2,
+     2
+    ],
+    [
+     "B22",
+     38,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@24",
+     4577,
+     146,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@24",
+     4390,
+     54,
+     9,
+     2,
+     2
+    ],
+    [
+     "B23",
+     38,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@25",
+     4577,
+     146,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@25",
+     4390,
+     54,
+     9,
+     2,
+     2
+    ],
+    [
+     "B24",
+     38,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A@26",
+     4577,
+     146,
+     36,
+     0,
+     0
+    ],
+    [
+     "H@26",
+     4390,
+     54,
+     9,
+     2,
+     2
+    ],
+    [
+     "B25",
+     38,
+     2,
+     2,
+     0,
+     0
+    ],
+    [
+     "A-out@27",
+     76,
+     29,
+     16,
+     0,
+     0
+    ],
+    [
+     "H-out@27",
+     38,
+     10,
+     5,
+     2,
+     2
+    ],
+    [
+     "B26",
+     38,
+     2,
+     2,
+     0,
+     0
+    ]
+   ],
+   "commitments": 84,
+   "cfs": [
+    [
+     "IN-C",
+     5362,
+     0
+    ],
+    [
+     "BLOCK",
+     16434,
+     0
+    ],
+    [
+     "BLOCK",
+     16434,
+     0
+    ],
+    [
+     "BLOCK",
+     16434,
+     0
+    ],
+    [
+     "BLOCK",
+     16434,
+     0
+    ],
+    [
+     "BLOCK",
+     16434,
+     0
+    ],
+    [
+     "BLOCK",
+     16434,
+     0
+    ],
+    [
+     "BLOCK",
+     16434,
+     0
+    ],
+    [
+     "BLOCK",
+     16434,
+     0
+    ],
+    [
+     "BLOCK",
+     16434,
+     0
+    ],
+    [
+     "BLOCK",
+     16434,
+     0
+    ],
+    [
+     "BLOCK",
+     16434,
+     0
+    ],
+    [
+     "BLOCK",
+     16434,
+     0
+    ],
+    [
+     "BLOCK",
+     16434,
+     0
+    ],
+    [
+     "BLOCK",
+     16434,
+     0
+    ],
+    [
+     "BLOCK",
+     16434,
+     0
+    ],
+    [
+     "BLOCK",
+     16434,
+     0
+    ],
+    [
+     "BLOCK",
+     16434,
+     0
+    ],
+    [
+     "BLOCK",
+     16434,
+     0
+    ],
+    [
+     "BLOCK",
+     16434,
+     0
+    ],
+    [
+     "BLOCK",
+     16434,
+     0
+    ],
+    [
+     "BLOCK",
+     16434,
+     0
+    ],
+    [
+     "BLOCK",
+     16434,
+     0
+    ],
+    [
+     "BLOCK",
+     16434,
+     0
+    ],
+    [
+     "BLOCK",
+     16434,
+     0
+    ],
+    [
+     "BLOCK",
+     16434,
+     0
+    ],
+    [
+     "BLOCK",
+     16434,
+     0
+    ],
+    [
+     "OUT-C",
+     7575,
+     0
+    ]
+   ],
+   "joint": [
+    1052800,
+    0,
+    true
+   ],
+   "full_preimage": {
+    "commitments": 84,
+    "entries_compared": 81731058,
+    "entries_differing": 0,
+    "salted_leaves_authenticated": 21504,
+    "sampled": null,
+    "not_evaluated": null,
+    "ok": true
+   },
+   "joint_preimage": true,
+   "joint_preimage_c4": {
+    "respected": true,
+    "terminal_records": {
+     "block_stages": true,
+     "classifier_slots": true
+    },
+    "what": "the terminal identity on the captured terminals at every new slot and every block slot"
+   },
+   "B3": true,
+   "B3_derived": {
+    "recorded_vs_derived": {
+     "differing": 0,
+     "entries": 4096,
+     "first_differing": []
+    },
+    "checkpoint_sha256": null,
+    "emb_digest": null,
+    "w_sha256": null,
+    "seconds": null
+   },
+   "one_public_bit": true,
+   "D41": true,
+   "NL1": [
+    12,
+    12
+   ],
+   "bout_claim_row": 113,
+   "controls_fired": [
+    "C13-1_doctored_pad_position",
+    "C13-2_pad_inside_the_content_range",
+    "C13-3_shifted_verdict_row",
+    "C13-4_declared_length_not_the_actual",
+    "CC-1_verdict_flipped",
+    "CC-2_threshold_moved",
+    "CC-3_margin_terminal_moved",
+    "CC-4_margin_vector_entry_moved",
+    "CC-5_template_id_in_the_captured_kappa",
+    "CC-6_chunk_range_moved",
+    "CC-8_preimage_controls_on_stage_IN_C",
+    "CC-9_preimage_controls_on_stage_OUT_C",
+    "J-1_endpoint_reserved_row_identified_with_tok",
+    "J-2_B_in_reserved_row_identified_with_block_0_input",
+    "J-3_shared_proximity_row"
+   ],
+   "controls_not_applicable": [],
+   "controls_not_fired": [],
+   "timings": {
+    "G1_joint": 1.9,
+    "G3": 191.9,
+    "boundaries_and_G2": 0.0,
+    "controls": 234.8,
+    "full_preimage": 13380.8,
+    "hash_layer": 5.5,
+    "load_and_integrity": 9.2,
+    "per_commitment": 221.0,
+    "replay": 12.3,
+    "terminals_and_NL1": 57.7,
+    "terminals_block_stages": 489.0
+   },
+   "seconds": 14605.5,
+   "peak_rss_mb": 6627
+  }
+ ],
+ "tools_v23_manifest_sha256": "64f4b7572674caef31d21da014869b119a58b186418174ad97d21400f7440230",
+ "limit_1_closed": true,
+ "limit_2_closed": true,
+ "real_status_without_declared_limits": true,
+ "real_vs_round19_real": {
+  "round19": {
+   "bundle": "classify-r13-shield-t128-cli-sexual-r16b",
+   "status": "PASS-WITH-DECLARED-LIMITS",
+   "block_stage_slots": [
+    [
+     11,
+     11
+    ]
+   ],
+   "full_preimage": [
+    15,
+    9668010,
+    0
+   ]
+  },
+  "round20": {
+   "bundle": "classify-r13-shield-t128-cli-hate-r17-values",
+   "status": "PASS",
+   "block_stage_slots": [
+    [
+     23,
+     23
+    ]
+   ],
+   "full_preimage": {
+    "commitments": 84,
+    "entries_compared": 81731058,
+    "entries_differing": 0,
+    "salted_leaves_authenticated": 21504,
+    "sampled": null,
+    "not_evaluated": null,
+    "ok": true
+   }
+  },
+  "disclosed_per_kind_round19": {
+   "A-in@k": [
+    [
+     0,
+     0
+    ]
+   ],
+   "A-out@k": [
+    [
+     0,
+     0
+    ]
+   ],
+   "A@k": [
+    [
+     0,
+     0
+    ]
+   ],
+   "Bk": [
+    [
+     0,
+     0
+    ]
+   ],
+   "E-token-in": [
+    [
+     0,
+     0
+    ]
+   ],
+   "H-in@k": [
+    [
+     2,
+     2
+    ]
+   ],
+   "H-out@k": [
+    [
+     2,
+     2
+    ]
+   ],
+   "H@k": [
+    [
+     2,
+     2
+    ]
+   ]
+  },
+  "disclosed_per_kind_round20": {
+   "A-in@k": [
+    [
+     0,
+     0
+    ]
+   ],
+   "A-out@k": [
+    [
+     0,
+     0
+    ]
+   ],
+   "A@k": [
+    [
+     0,
+     0
+    ]
+   ],
+   "Bk": [
+    [
+     0,
+     0
+    ]
+   ],
+   "E-token-in": [
+    [
+     0,
+     0
+    ]
+   ],
+   "H-in@k": [
+    [
+     2,
+     2
+    ]
+   ],
+   "H-out@k": [
+    [
+     2,
+     2
+    ]
+   ],
+   "H@k": [
+    [
+     2,
+     2
+    ]
+   ]
+  },
+  "disclosed_per_kind_equal": true,
+  "commitments": [
+   84,
+   84
+  ],
+  "rows_claims_groups_equal_per_block_commitment": true,
+  "why_stage_commitments_may_differ": "the policies' templates differ (P0 72 sexual / 78 hate), so stage IN-C's and OUT-C's row positions differ; the block stages are the same shape"
+ },
+ "statement_v3_check_real_hate": {
+  "statement": "/home/victor/zk60-artifacts/token-io/r16-runs/hate-run/statement/statement.json",
+  "schema": "zk60-classify-run/3",
+  "keys": 38,
+  "keys_not_classified": [],
+  "policy": "shieldstral-1.0-3b-moderate-hate/1",
+  "P0": 78,
+  "n": 35,
+  "S": 1,
+  "T": 128,
+  "item_length_is_P0_n_S": true,
+  "pad_positions_is_T_minus_item": true,
+  "verdict_row_is_item_minus_1": true,
+  "pad_id_is_the_registered_policy_s": true,
+  "input_root_equals_the_capture_s": true,
+  "identity": "29aeba6c04a819cdbafde311f7c9d0c678d85aff22292ae6b9647761158a0bd1",
+  "verdict": "not-flagged",
+  "ok": true
+ },
+ "ff/ff-pins-v22-v23.json": {
+  "ok": true,
+  "v22": {
+   "r16b": {
+    "classify-r13-rung-L2-v1-short11": {
+     "ok": true,
+     "pins": 72,
+     "port": "v22 (token frozen-r16b on native R13, gate capture tree + H19)",
+     "refusals": [],
+     "statuses": [
+      "read by a chain of readings",
+      "read by the block gate",
+      "read by the token gate (v18)",
+      "the v22 classifier port's digest"
+     ]
+    },
+    "classify-r13-shield-t128-cli-sexual-r16b": {
+     "ok": true,
+     "pins": 72,
+     "port": "v22 (token frozen-r16b on native R13, gate capture tree + H19)",
+     "refusals": [],
+     "statuses": [
+      "read by a chain of readings",
+      "read by the block gate",
+      "read by the token gate (v18)",
+      "the v22 classifier port's digest"
+     ]
+    }
+   },
+   "r17": {
+    "classify-r13-rung-L2-v1-r17-values": {
+     "ok": false,
+     "pins": 72,
+     "port": "v22 (token frozen-r16b on native R13, gate capture tree + H19)",
+     "refusals": [
+      "src/private_block/run_capture.rs: cce0fc2a4062 has no reading"
+     ],
+     "statuses": [
+      "REFUSED",
+      "read by a chain of readings",
+      "read by the block gate",
+      "read by the token gate (v18)",
+      "the v22 classifier port's digest"
+     ]
+    },
+    "classify-r13-shield-t128-cli-hate-r17-values": {
+     "ok": false,
+     "pins": 72,
+     "port": "v22 (token frozen-r16b on native R13, gate capture tree + H19)",
+     "refusals": [
+      "src/private_block/run_capture.rs: cce0fc2a4062 has no reading"
+     ],
+     "statuses": [
+      "REFUSED",
+      "read by a chain of readings",
+      "read by the block gate",
+      "read by the token gate (v18)",
+      "the v22 classifier port's digest"
+     ]
+    }
+   },
+   "scripts": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/frozen_v22/scripts"
+  },
+  "v23": {
+   "old": {
+    "classify-rc3-rung-L2-v1-short20": {
+     "ok": false,
+     "pins": 60,
+     "port": "v23 (token frozen-r17 / frozen-r16b on native R13: H19-1..H19-4 adopted, the recorder's export replay)",
+     "refusals": [
+      "src/private_block/token_io/classify.rs: 6c828db6673e, the v22 classifier port was read at c180c83fb50f",
+      "src/private_block/token_io/classify_run.rs: 5d1d077f5102, the v22 classifier port was read at 8abbf72f1c8e",
+      "src/private_block/token_io/classify_tied.rs: 401d38d444b6, the v22 classifier port was read at a89acfabc75c"
+     ],
+     "statuses": [
+      "REFUSED",
+      "read by a chain of readings",
+      "read by the block gate",
+      "read by the token gate (v18)",
+      "the v22 classifier port's digest"
+     ]
+    },
+    "classify-rung-L2-v1": {
+     "ok": false,
+     "pins": 56,
+     "port": "v23 (token frozen-r17 / frozen-r16b on native R13: H19-1..H19-4 adopted, the recorder's export replay)",
+     "refusals": [
+      "src/private_block/token_io/classify.rs: 5d2c642a60d1, the v22 classifier port was read at c180c83fb50f",
+      "src/private_block/token_io/classify_run.rs: be2ccd1c97f1, the v22 classifier port was read at 8abbf72f1c8e",
+      "src/private_block/token_io/stage_in_c.rs: 05c1aae26519, the v22 classifier port was read at 6a92da0ecfe7",
+      "src/private_block/token_io/stage_out_c.rs: ee1cd2374ef3, the v22 classifier port was read at 93a79a2b39ab",
+      "src/private_block/token_io/classify_tied.rs: not pinned (the v22 classifier port was read from it)"
+     ],
+     "statuses": [
+      "REFUSED",
+      "read by a chain of readings",
+      "read by the token gate (v18)"
+     ]
+    }
+   },
+   "r16b": {
+    "classify-r13-rung-L2-v1-short11": {
+     "ok": true,
+     "pins": 72,
+     "port": "v23 (token frozen-r17 / frozen-r16b on native R13: H19-1..H19-4 adopted, the recorder's export replay)",
+     "refusals": [],
+     "statuses": [
+      "read by a chain of readings",
+      "read by the block gate",
+      "read by the token gate (v18)",
+      "the v22 classifier port's digest"
+     ]
+    },
+    "classify-r13-shield-t128-cli-sexual-r16b": {
+     "ok": true,
+     "pins": 72,
+     "port": "v23 (token frozen-r17 / frozen-r16b on native R13: H19-1..H19-4 adopted, the recorder's export replay)",
+     "refusals": [],
+     "statuses": [
+      "read by a chain of readings",
+      "read by the block gate",
+      "read by the token gate (v18)",
+      "the v22 classifier port's digest"
+     ]
+    }
+   },
+   "r17": {
+    "classify-r13-rung-L2-v1-r17-values": {
+     "ok": true,
+     "pins": 72,
+     "port": "v23 (token frozen-r17 / frozen-r16b on native R13: H19-1..H19-4 adopted, the recorder's export replay)",
+     "refusals": [],
+     "statuses": [
+      "read by a chain of readings",
+      "read by the block gate",
+      "read by the token gate (v18)",
+      "the v22 classifier port's digest"
+     ]
+    },
+    "classify-r13-shield-t128-cli-hate-r17-values": {
+     "ok": true,
+     "pins": 72,
+     "port": "v23 (token frozen-r17 / frozen-r16b on native R13: H19-1..H19-4 adopted, the recorder's export replay)",
+     "refusals": [],
+     "statuses": [
+      "read by a chain of readings",
+      "read by the block gate",
+      "read by the token gate (v18)",
+      "the v22 classifier port's digest"
+     ]
+    }
+   },
+   "r17_self_check": {
+    "findings": [],
+    "moved_r16b_to_r17": [
+     "src/private_block/plane_index.rs",
+     "src/private_block/run_capture.rs",
+     "src/private_block/s25_tests.rs",
+     "src/private_block/token_io/classify_capture_tests.rs",
+     "src/private_block/token_io/classify_r17_tests.rs",
+     "src/private_block/token_io/gate19_capture_tests.rs"
+    ],
+    "ok": true,
+    "plane_index_r17": "ce79803c86a80dde832dc92a262a023efdd52bb95b9a15f128791978c306ffac",
+    "r16b_files": 301,
+    "r17_files": 303,
+    "rehashed": {
+     "capture-tree-r16b (H19-4) src/private_block/run_capture.rs": "8292b1c6856daa521439037570930827ecc3979bd64c279127a2b0f1b6014817",
+     "frozen-r17 src/private_block/plane_index.rs": "ce79803c86a80dde832dc92a262a023efdd52bb95b9a15f128791978c306ffac",
+     "frozen-r17 src/private_block/run_capture.rs": "cce0fc2a4062fcb4c92e771b8d7ac7f996c9ccfbc985bfb6decd79b29fba7ddf"
+    },
+    "run_capture_r17": "cce0fc2a4062fcb4c92e771b8d7ac7f996c9ccfbc985bfb6decd79b29fba7ddf"
+   },
+   "scripts": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/frozen_v23/scripts"
+  },
+  "what": "gate round 20 failing-first on the pin rule (manifest only); not a privacy result"
+ },
+ "ff/ff-v23-refuses-r14.json": {
+  "blocks": 2,
+  "bundle": "classify-rc3-rung-L2-v1-short20",
+  "bundle_dir": "/home/victor/zk60-artifacts/token-io/captures/classify-rc3-rung-L2-v1-short20",
+  "capture_format_notes": [
+   {
+    "declared_n_slots": 23,
+    "extra_zero_slot_triples_stripped": 1,
+    "finding": "F18-1",
+    "why": "the classifier capture writer emits Shape::slots() (MAX_SLOTS) unclipped; the triples beyond n_slots are (0, 0, 0)"
+   }
+  ],
+  "controls": {
+   "ok": null,
+   "skipped": "refused before evaluation"
+  },
+  "declared_limits": [],
+  "false_parts": [
+   "integrity"
+  ],
+  "integrity": {
+   "D41_chunk": {
+    "ok": true,
+    "plan_size": 23,
+    "ranges": [
+     [
+      0,
+      20
+     ]
+    ],
+    "recorded": {
+     "a": 0,
+     "b": 20,
+     "count": 1,
+     "index": 0,
+     "overlap": 4,
+     "size": 23,
+     "total": 20
+    },
+    "short_item": true
+   },
+   "blocks": 2,
+   "bout_claim_row": {
+    "claim_index": 1,
+    "row": 28,
+    "t_bits": 5,
+    "why": "decoded"
+   },
+   "findings": [
+    "source pin: src/private_block/token_io/classify.rs: 6c828db6673e, the v22 classifier port was read at c180c83fb50f",
+    "source pin: src/private_block/token_io/classify_run.rs: 5d1d077f5102, the v22 classifier port was read at 8abbf72f1c8e",
+    "source pin: src/private_block/token_io/classify_tied.rs: 401d38d444b6, the v22 classifier port was read at a89acfabc75c"
+   ],
+   "ok": false,
+   "pad_id": 2,
+   "r13_profile": false,
+   "r13_stage_gates": [
+    null,
+    null
+   ],
+   "rc3_lengths_re_derived": {
+    "P0": 8,
+    "S": 1,
+    "T": 32,
+    "chunk_size": 23,
+    "item_length": 29,
+    "n": 20,
+    "pad_positions": 3,
+    "verdict_row": 28
+   },
+   "re_derived": {
+    "boundary": {
+     "data_rows": 16,
+     "inv_rate": 4,
+     "plane": [
+      32,
+      512
+     ],
+     "row_width_log": 10,
+     "rows": 22,
+     "sites": 2
+    },
+    "input_endpoint": {
+     "commitment_rows": 6,
+     "content_words": 20,
+     "data_rows": 1,
+     "inv_rate": 8,
+     "pad_id_words": 3,
+     "pad_words": 224,
+     "row_width_log": 8,
+     "template_words": 12,
+     "true_words": 32,
+     "words": 256
+    },
+    "output_endpoint": null,
+    "stage_in_c": {
+     "A": {
+      "data_rows": 2,
+      "plane_logs": [
+       12,
+       12
+      ],
+      "prox_pair": [
+       8,
+       9
+      ],
+      "rows": 10,
+      "site_pairs": 3
+     },
+     "H": {
+      "data_rows": 6,
+      "plane_logs": [
+       12,
+       12,
+       12
+      ],
+      "prox_pair": [
+       12,
+       13
+      ],
+      "rows": 14,
+      "signs": [
+       1,
+       -1,
+       1
+      ],
+      "site_pairs": 3,
+      "zero_sum_pair": [
+       4,
+       5
+      ]
+     },
+     "M": {
+      "functionals": 8,
+      "mask_specs": [
+       [
+        9,
+        3
+       ],
+       [
+        13,
+        4
+       ],
+       [
+        13,
+        4
+       ],
+       [
+        13,
+        2
+       ]
+      ],
+      "rows": 12
+     },
+     "committed_elements": 98304,
+     "hosts": [],
+     "label": "stage IN-C",
+     "row_log_A_H_In_Out": [
+      12,
+      12,
+      8,
+      10
+     ],
+     "row_width_log": 12,
+     "slots": [
+      {
+       "a_sites": 1,
+       "degree": 3,
+       "ext": 1,
+       "h_sites": 0,
+       "io_sites": 1,
+       "kind": "Standalone",
+       "main": 8,
+       "name": "INC-00 IO-in: token endpoint = supp_T tok (whole padded plane: template and content)"
+      },
+      {
+       "a_sites": 1,
+       "degree": 4,
+       "ext": 1,
+       "h_sites": 1,
+       "io_sites": 1,
+       "kind": "Standalone",
+       "main": 12,
+       "name": "INC-01 query zero-check: LogUp over (id, row, ctl) + BOS + TEMPLATE (prefix, suffix, trailing pad ids) + pad, fresh mu each"
+      },
+      {
+       "a_sites": 1,
+       "degree": 4,
+       "ext": 1,
+       "h_sites": 1,
+       "io_sites": 0,
+       "kind": "Standalone",
+       "main": 12,
+       "name": "INC-02 table zero-check: h_tab (alpha - tau(v, ctl)) = m + pad, fresh mu each"
+      },
+      {
+       "a_sites": 0,
+       "degree": 2,
+       "ext": 1,
+       "h_sites": 1,
+       "io_sites": 0,
+       "kind": "Standalone",
+       "main": 12,
+       "name": "INC-03 ZS zero-sum row"
+      }
+     ]
+    },
+    "stage_out_c": {
+     "A": {
+      "data_rows": 16,
+      "plane_logs": [
+       1,
+       1,
+       12,
+       12,
+       12,
+       12,
+       12,
+       12,
+       12,
+       12,
+       12,
+       12,
+       12,
+       12,
+       12,
+       12
+      ],
+      "prox_pair": [
+       74,
+       75
+      ],
+      "rows": 76,
+      "site_pairs": 29
+     },
+     "H": {
+      "data_rows": 18,
+      "plane_logs": [
+       12,
+       12,
+       12,
+       12,
+       12,
+       12,
+       12,
+       12,
+       12
+      ],
+      "prox_pair": [
+       36,
+       37
+      ],
+      "rows": 38,
+      "signs": [
+       1,
+       1,
+       1,
+       1,
+       1,
+       1,
+       1,
+       -1,
+       1
+      ],
+      "site_pairs": 9,
+      "zero_sum_pair": [
+       16,
+       17
+      ]
+     },
+     "M": {
+      "functionals": 14,
+      "mask_specs": [
+       [
+        10,
+        2
+       ],
+       [
+        13,
+        4
+       ],
+       [
+        2,
+        3
+       ],
+       [
+        10,
+        2
+       ],
+       [
+        13,
+        4
+       ],
+       [
+        13,
+        5
+       ],
+       [
+        13,
+        3
+       ],
+       [
+        13,
+        2
+       ]
+      ],
+      "rows": 20
+     },
+     "committed_elements": 466944,
+     "hosts": [
+      [
+       2,
+       [
+        1
+       ]
+      ],
+      [
+       4,
+       [
+        3
+       ]
+      ]
+     ],
+     "label": "stage OUT-C",
+     "row_log_A_H_In_Out": [
+      12,
+      12,
+      10,
+      12
+     ],
+     "row_width_log": 12,
+     "slots": [
+      {
+       "a_sites": 1,
+       "degree": 2,
+       "ext": 1,
+       "h_sites": 0,
+       "io_sites": 1,
+       "kind": "Standalone",
+       "main": 9,
+       "name": "OUTC-00 IO-in: x = B_out at the public verdict row P0+n+S-1 (fixed public row bits; T-1 without pad)"
+      },
+      {
+       "a_sites": 1,
+       "degree": 4,
+       "ext": 1,
+       "h_sites": 0,
+       "io_sites": 0,
+       "kind": "Private",
+       "main": 12,
+       "name": "OUTC-01 SS final-norm row sum (private, hosted by TZC)"
+      },
+      {
+       "a_sites": 11,
+       "degree": 3,
+       "ext": 1,
+       "h_sites": 0,
+       "io_sites": 0,
+       "kind": "Host",
+       "main": 1,
+       "name": "OUTC-02 TZC isqrt (D, Dsq, 9 limb slices; hosts SS)"
+      },
+      {
+       "a_sites": 1,
+       "degree": 2,
+       "ext": 1,
+       "h_sites": 0,
+       "io_sites": 0,
+       "kind": "Private",
+       "main": 9,
+       "name": "OUTC-03 PD margin sum_i y(i) w_Delta(i) (private, hosted by LZC)"
+      },
+      {
+       "a_sites": 1,
+       "degree": 4,
+       "ext": 1,
+       "h_sites": 1,
+       "io_sites": 0,
+       "kind": "Host",
+       "main": 12,
+       "name": "OUTC-04 LZC limb lookups (+pad; isqrt and margin limbs) + host term sigma g limb + u0 (sigma b + c)"
+      },
+      {
+       "a_sites": 13,
+       "degree": 5,
+       "ext": 1,
+       "h_sites": 6,
+       "io_sites": 0,
+       "kind": "Standalone",
+       "main": 12,
+       "name": "OUTC-05 DZC final-norm quotient + x limbs + helpers (+pad)"
+      },
+      {
+       "a_sites": 1,
+       "degree": 3,
+       "ext": 1,
+       "h_sites": 1,
+       "io_sites": 0,
+       "kind": "Standalone",
+       "main": 12,
+       "name": "OUTC-06 TAB byte-table helper (+pad)"
+      },
+      {
+       "a_sites": 0,
+       "degree": 2,
+       "ext": 1,
+       "h_sites": 1,
+       "io_sites": 0,
+       "kind": "Standalone",
+       "main": 12,
+       "name": "OUTC-07 ZS zero-sum row"
+      }
+     ]
+    }
+   },
+   "source_pin_status": [
+    "REFUSED",
+    "read by a chain of readings",
+    "read by the block gate",
+    "read by the token gate (v18)",
+    "the v22 classifier port's digest"
+   ],
+   "source_pins": {
+    "ok": false,
+    "pins": 60,
+    "refusals": [
+     "src/private_block/token_io/classify.rs: 6c828db6673e, the v22 classifier port was read at c180c83fb50f",
+     "src/private_block/token_io/classify_run.rs: 5d1d077f5102, the v22 classifier port was read at 8abbf72f1c8e",
+     "src/private_block/token_io/classify_tied.rs: 401d38d444b6, the v22 classifier port was read at a89acfabc75c"
+    ]
+   },
+   "stages": 4
+  },
+  "ok": false,
+  "privacy_acceptance": false,
+  "privacy_property_established": false,
+  "profile": "hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1",
+  "public_outputs": {
+   "c": -190167,
+   "chunk": {
+    "a": 0,
+    "b": 20,
+    "count": 1,
+    "index": 0,
+    "overlap": 4,
+    "size": 23,
+    "total": 20
+   },
+   "item_length": 29,
+   "n": 20,
+   "pad_id": 2,
+   "pad_positions": 3,
+   "policy": "rung-tc-capture-test-policy/-190167",
+   "short_item": true,
+   "verdict": 1,
+   "verdict_row": 28
+  },
+  "refusal": {
+   "by": "source pins",
+   "port": "v23 (token frozen-r17 / frozen-r16b on native R13: H19-1..H19-4 adopted, the recorder's export replay)",
+   "refusals": [
+    "src/private_block/token_io/classify.rs: 6c828db6673e, the v22 classifier port was read at c180c83fb50f",
+    "src/private_block/token_io/classify_run.rs: 5d1d077f5102, the v22 classifier port was read at 8abbf72f1c8e",
+    "src/private_block/token_io/classify_tied.rs: 401d38d444b6, the v22 classifier port was read at a89acfabc75c"
+   ],
+   "what": "the capture pins source files at digests these tools have no reading for; nothing else was evaluated (fail closed by a written refusal, F19-G2)"
+  },
+  "stages": 4,
+  "status": "REFUSED",
+  "timings": {
+   "load_and_integrity": 0.7
+  },
+  "tool_sha256": {
+   "zk60_native_jv_capture.py": "11f598d1472eac3cdffd69555452ae112c9c9841e8cd74bed97e2165f2e6e904",
+   "zk60_native_jv_cfs.py": "2338e6a7966793c0c5ee69d4e4c2bbed08ca739ee583985799b1c0023b0ea2cb",
+   "zk60_native_jv_field.py": "ecd5ad199d31b55f88e0728368d7df1ae313c022d1b723b49a34ee9c9140b2bf",
+   "zk60_native_jv_joint.py": "544bfcc6412a861993091fb4c7b54345ac1612a20069acf991ac37549d52b907",
+   "zk60_native_jv_pcs.py": "cdaeebe7df60de0eba22136186c36df20bba9a66e7dfd32fe33043594acda89a",
+   "zk60_native_jv_replay.py": "7f69839b5e72344447ee516564e0472a329dd5bae996f7f995eb4ff8b01b3d70",
+   "zk60_native_manifest_pins.py": "1b08589ae22b842f09fc6e600d4710c6cd760cd278908ee5ffa778a73ca2d9e6",
+   "zk60_native_mask_commit.py": "fae15b4927b76f47a380050a66acdce245746db779b03b7f96d66061920334f1",
+   "zk60_native_pg_cfs.py": "4ee924228f3248f965dc8dce5c5f88fac0131b11ee4ede5ec72b2c3dac7d8302",
+   "zk60_native_pg_pcs.py": "9d37dd078bbbcf50d82a08db4b44d9556798ddd7371240e9cb457712f5d91c50",
+   "zk60_native_privacy_gate.py": "040891a757fc6efb991a57a02d4c713a31059ff0dcbe70b754df2ce4b31a7f98",
+   "zk60_native_profile_pins.py": "3689bbb3c6e4f55bb14260282124ef4bd73250107825c9cfba6dedd41de2c6ec",
+   "zk60_native_rg_ahcontrols.py": "d10e5168bd383a38edd86bf88140a2e9141db470d4b5bf004cd69b734e7468c2",
+   "zk60_native_rg_ahpreimage.py": "7113266cf720f16da95bf0ca46af272f9dc641ee59d025d46292fbd9b545eef2",
+   "zk60_native_rg_arrays.py": "0f0d167d4c4e0089b8c3687c73433b55a8ad9ccc2e6bdcfb7e252cbcf05aa63f",
+   "zk60_native_rg_block.py": "89fdfd8519563f6da928b90f00d2130759b3b5d728ecb8641f34cd4ba60b689b",
+   "zk60_native_rg_bundle.py": "1bb93a90dde772cd6314317b7c746269cb8fe4a4e0e664709aa834564f4d454c",
+   "zk60_native_rg_classgate.py": "c4db808e24b62220bb4c64075af6deb8c216dafe8500461ecd34249703e13c4a",
+   "zk60_native_rg_classify.py": "068d50f01ce6dcc1edc272b26a033943b7bed031a06fb7a47bec9949982b32b6",
+   "zk60_native_rg_classpins.py": "f0e862b66c54a18d0b9e3bc7d73bf79aec9f938ff779820c32b14ab8b3561ae7",
+   "zk60_native_rg_classterminals.py": "91cfafeeec7b36ee63676a2bc20e649e4fa42f7f218cd1f10785f5e5085f24cf",
+   "zk60_native_rg_classtied.py": "bf929b44824b004a914bfe0794ef9662e5c547a79746b96396cb38869139c94b",
+   "zk60_native_rg_controls.py": "9a7197350109d8bfef6b13f32d40ccbfa7f196cbb1785c4af1a6d3cd19a10f9d",
+   "zk60_native_rg_exclusivity.py": "caf3e1fd17aff4a04deca5f6ff5c35841c3031daa7458e04bc0b8b4f9cd3d070",
+   "zk60_native_rg_exportcheck.py": "f825be16db7a50c7b96103c1be5acc0ba79f646cdf3096837c99ba7bb7162314",
+   "zk60_native_rg_g10controls.py": "81727bbd674ebd533af7d7142735e1433a5d7d30c1ad3f90bbb447273bcf2f80",
+   "zk60_native_rg_gcontrols.py": "419154b4226f98b55d9de2e9cb9c2d911f531ea6da4f09fae67cb1af6bfe8933",
+   "zk60_native_rg_gqa.py": "1d540c5355afdf5334a6826d54d7487c3c0b07d33b7636ada464e35c21b04419",
+   "zk60_native_rg_hashlayer.py": "c9ceb75dbad369f0142e13714fc06f3fc60ff304b83419039a6acb80e479e572",
+   "zk60_native_rg_hashrule.py": "1dd46effc79ec22ec7471ba67e1fbfbc19bff7c3d5078051b868571af49b2233",
+   "zk60_native_rg_hcontrols.py": "0ca766b561707eeca44f424a2fef628cd7a22da4fd4e756dad92cfaae5d3f048",
+   "zk60_native_rg_joint.py": "d8007a395094fde7d0a02eee163e0edc2cf91e610e2c23f2a01ad64186a02e1a",
+   "zk60_native_rg_m125.py": "b64799b32e8d5fc3a3fea0d67ab28e49bfc167439d96fd8d561d12ad644f3ce9",
+   "zk60_native_rg_m125controls.py": "843f42d387823547cd6a4c0a51ce31180fc4f3e57817fafded7366120b4d9125",
+   "zk60_native_rg_mask.py": "3ff2930d8863da603b725eb7627fb02330be75d8a677349991f8fbf4891cb20d",
+   "zk60_native_rg_mcontrols.py": "a555fca540b5f12e43906ff5d9d52a8184d522646c8c61b6acaf579589af96cd",
+   "zk60_native_rg_mjoint.py": "9a22097d89358c63faa0adeb07c8a263292d6d3fa7acb9ef53cfeb37652bf19c",
+   "zk60_native_rg_pcs.py": "b51ae706e42ab2d0e69517a7f39f808dcfcf5b065addfef4f7d750707c3f51ab",
+   "zk60_native_rg_pincontrols.py": "63902d150f3a8ff8ee295e34e27db2ef850c13d344108b79d444e10080608def",
+   "zk60_native_rg_planes.py": "b8c39921dd599efff4e5daa93e21488d98c2c2e5851f447447716ddb3c669fd8",
+   "zk60_native_rg_predict.py": "a1ae9cae1f93c11b68f8d07e672de2139a27775fc2d3fa354573af2f49210b9a",
+   "zk60_native_rg_preimage.py": "48bdd7c48a8c85f0ac1839704e1eaf78cc1f3a523436e208b563ff2917a804f6",
+   "zk60_native_rg_r13_pins.py": "99418fb36258291a9f600832bc020f9677c737df61c5377a2a2b85d53b5a1bf9",
+   "zk60_native_rg_r13blocks.py": "f4ef6373667f7efd0154ffc3773d726c383a4a3b49651157dd452493f79ccb42",
+   "zk60_native_rg_r13slots.py": "09878d5e444dfec142898e2eae875498b93e38cbda709b5ead06b78cb0ca1fd7",
+   "zk60_native_rg_replay.py": "6852cd94ab0fcaa7780ce5f92ad3d9ebdb20614d43787e629015eeb97e141360",
+   "zk60_native_rg_runpins.py": "32f5c052be091a863644e207bd24e96ae95ddcd5d1c62e719ac419f44f2b4af2",
+   "zk60_native_rg_schema.py": "07e83172a006c5d7c6bbcb8763561d4026b01b3442288453a8b6b20176525970",
+   "zk60_native_rg_stagecal.py": "a47b9a982368d6db7ccff14fe5e41ef1a2a08031048ba65e1292dd9196ed731a",
+   "zk60_native_rg_status.py": "0578430f50f03020db26cc7c27b66fcc8b501e602cfec7ad4c9f8ec612376992",
+   "zk60_native_rg_tcontrols.py": "9e87d34feb0b10f19fc4c54d91f0f186228a698ec6f5dd987b555f86aa6c861b",
+   "zk60_native_rg_terminals.py": "094029b73e082b85410c6aff44dae665e0500c19597e340b7128857681c5c630",
+   "zk60_native_rg_tinyllama_pins.py": "f26085d5c5b3abe1a06ffa5cf7426d365e58203d2c2341f3b4ffa8f8bc25ef78",
+   "zk60_native_rg_tinyllama_r12b_pins.py": "e859a5306cfd966436bed7b52f924c9ad921f404a0d66ba36855cab87549ae63",
+   "zk60_native_rg_tinyllama_r5_pins.py": "f49a85a1dd3ac8e0fd67c9a5adda7a63caeea6dfc0187ea97ee28dde46f6d3c8",
+   "zk60_native_rg_tinyllama_r5b_pins.py": "4f88125aa6a8948fc2cf69dde585e576045cc6bc29e5d232191185521401a37c",
+   "zk60_native_rg_tinyllama_r7_pins.py": "bf18e73efb16e4d068ec78451f8c8ea4540b44b1698038cdf1aeb7109e4ae197",
+   "zk60_native_rg_tinyllama_r9_pins.py": "bf7254678eed8d220f7bd646b356afa9e6c03680b5f34f7f6f94cc1a023c072d",
+   "zk60_native_rg_tinyllama_tk7_pins.py": "0ac3ae3b86ae7a3350e4c1d002af249e7d27422f04da7d58c0337d523ae75d57",
+   "zk60_native_rg_tinyllama_tk9_pins.py": "4122cd42ab2eaba3f074760f1e6f29527ae597b7997a7b5506db639524bfc17a",
+   "zk60_native_rg_tlcontrols.py": "ef0147978d51517243638237051d45558ff8121ed0fd1e1a96a4b8d08c55aa22",
+   "zk60_native_rg_tokenblocks.py": "b5fdee30032498a57335521f57b284c5600222785f3c87f910a14aa92fb4096e",
+   "zk60_native_rg_tokencal.py": "d6fb455407e9f5c283eb2def5e922f0fb3783c31a3daee750de5ebead72cdf71",
+   "zk60_native_rg_tokengate.py": "385d03739ab027c1d883e713d24d1fa8b67306b98771c499b4028db5e657655b",
+   "zk60_native_rg_tokenio.py": "89927d28a6eb01c4ffd132f188e6f71d3d45d18c549b0f76ecf247461c4e44e4",
+   "zk60_native_rg_tokenio_r11_pins.py": "07353455b5fbe00ab5b9b47d18403ef6055b172546427cef377ee29ef900e78f",
+   "zk60_native_rg_tokenio_r7c_pins.py": "f6c2cc546052faba9d100cc286fa5c01a19ddb601ecffd33e6a733048b2162ed",
+   "zk60_native_rg_tokenio_r9_pins.py": "5aaf61c5e381d46187c5ff9e384f7e2b8cf24cacdcd3b26348b277966f3aa4e9",
+   "zk60_native_rg_tokennl.py": "c5047cf0eec180a067435de2f76b5ab714dce5eae90fd1ee3174d18407f52f21",
+   "zk60_native_rg_tokenterminals.py": "23c5c72f0fb3cb0e6a62a5e55e4abcb55da47d8351c47019456d55823785490c",
+   "zk60_native_rg_tokents.py": "16cbc5d072c55043292262fc83ca80bc3f21bad51792abd7fe1f8f705df026fc",
+   "zk60_native_run_gate.py": "da5c16874d0f19688418b41eb9d1fbdd475ca5479fccff4cf673cc724319c372"
+  },
+  "total_seconds": 0.7,
+  "what": "the privacy gate on ONE classifier run capture (D38 / D40 / D41 / D45; gate round 20, tools v23: token frozen-r17 / frozen-r16b on native R13, the R13 h24 rung and the real Shieldstral-1.0-3B); NOT a privacy result"
+ },
+ "ff_v22_whole_gate_on_r17_log": {
+  "keyerror": true,
+  "traceback": true,
+  "tail": [
+   "    rec[\"controls\"] = class_controls(b, rp, tc)",
+   "  File \"/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/frozen_v22/scripts/zk60_native_rg_classgate.py\", line 981, in class_controls",
+   "    out[\"CC-4_margin_vector_entry_moved\"] = {\"B3_ok\": t4[\"B3_margin_vector\"][\"ok\"],",
+   "KeyError: 'B3_margin_vector'"
+  ]
+ },
+ "suites": {
+  "frozen": {
+   "log": "round20/suite/unittests-v23-frozen.log",
+   "ran": 103,
+   "seconds": 70.136,
+   "ok": true
+  },
+  "working_copy": {
+   "log": "round20/suite/unittests-v23-working-copy.log",
+   "ran": 103,
+   "seconds": 68.122,
+   "ok": true
+  }
+ },
+ "all_pass": true
+}

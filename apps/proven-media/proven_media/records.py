@@ -49,23 +49,42 @@ def category_policy(cat: dict) -> dict:
 def categories() -> list[dict]:
     """the fixed category list with each policy verified against its pin (no file paths)"""
     out = []
-    for c in config.CATEGORIES:
+    for c in config.registered_categories():
         out.append({"id": c["id"], "name": c["name"], "short": c["short"], "policy": category_policy(c)})
     return out
 
 
 def category_ids() -> list[str]:
-    return [c["id"] for c in config.CATEGORIES]
+    return [c["id"] for c in config.registered_categories()]
 
 
 def category_set_digest() -> str:
     """digest of the registered set: ids and policy digests, in order"""
-    return hashlib.sha256(canonical([[c["id"], c["sha256"]] for c in config.CATEGORIES])).hexdigest()
+    return hashlib.sha256(canonical([[c["id"], c["sha256"]] for c in config.registered_categories()])).hexdigest()
 
 
 def content_key(text: str) -> str:
-    """private dedupe key: each item is proved once (per registered category set and threshold)"""
-    return hashlib.sha256(f"pm-content-key-v2|{config.CATEGORY_SET_ID}|{config.TAU}|{text}".encode()).hexdigest()
+    """Legacy key, retained only for migration and old submission metadata."""
+    return hashlib.sha256(f"pm-content-key-v2|{config.category_set_id()}|{config.TAU}|{text}".encode()).hexdigest()
+
+
+def screening_context() -> str:
+    """Immutable policy/threshold snapshot for one screening (D45)."""
+    th = threshold()
+    return canonical({'schema': 'proven-media-screening/1', 'policy_set': config.category_set_id(),
+                      'policies': [{'category': c['id'], 'policy_id': c['policy']['id'],
+                                    'sha256': c['policy']['sha256']} for c in categories()],
+                      'threshold': {'tau': th['tau'], 'c': th['c']}}).decode()
+
+
+def screening_key(kind: str, identity: str) -> str:
+    """Private, keyed item identity independent of policy, threshold and author.
+
+    Its reservation survives deletion; it contains neither the text nor an
+    opening of the public content commitment.
+    """
+    import hmac
+    return hmac.new(_app_key(), b'pm-screening-item-v1|' + canonical([kind, identity]), hashlib.sha256).hexdigest()
 
 
 def threshold() -> dict:
@@ -110,7 +129,7 @@ def effective_labels(record: dict | None) -> dict:
     return out
 
 
-def aggregate_labels(chunk_records: list[dict | None], n_chunks: int) -> dict:
+def aggregate_labels(chunk_records: list[dict | None], n_chunks: int, plan: list[dict] | None = None) -> dict:
     """D41: an item's label per category from its chunks' proofs: 'yes' if any chunk is proved yes;
     else 'unproved' if any chunk lacks an accepted proof (fail closed); else 'no'. Returns
     {category: {value, proof, bound_by_proof, chunks: [{index, value}]}}."""
@@ -118,6 +137,8 @@ def aggregate_labels(chunk_records: list[dict | None], n_chunks: int) -> dict:
     for c in category_ids():
         per = []
         for i in range(n_chunks):
+            if plan is not None and plan[i].get('category', c) != c:
+                continue
             rec = chunk_records[i] if i < len(chunk_records) else None
             per.append({"index": i, "value": effective_labels(rec)[c],
                         "bound_by_proof": bool(((rec or {}).get("labels") or {}).get(c, {}).get("bound_by_proof"))})

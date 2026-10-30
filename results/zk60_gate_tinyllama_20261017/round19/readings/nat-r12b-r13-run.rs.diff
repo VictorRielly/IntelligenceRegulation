@@ -1,0 +1,163 @@
+--- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12b/frozen-tree/hashline/src/private_block/run.rs	2026-10-28 15:30:02.117656024 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/hashline/src/private_block/run.rs	2026-10-28 23:08:24.413653933 -0700
+@@ -108,6 +108,38 @@
+ pub(crate) const RUN_PROFILE_SHIELDSTRAL_T256_DD: &str = "hashline-zk-mr1/private-run-shieldstral-3b-t256-ddict32-statement/1";
+ pub(crate) const RUN_PROFILE_RUNG_HD: &str = "hashline-zk-mr1/private-run-rung-hd-t32-dev/1";
+ 
++
++// R13: one new run identity for each new arithmetic/geometry profile.
++pub(crate) const RUN_PROFILE_R13_TINY_T128_LOW: &str = "hashline-zk-mr1/private-run-tinyllama-1.1b-t128-low-stack-v01-run/1";
++pub(crate) const RUN_PROFILE_R13_TINY_T128_LOW_DD: &str = "hashline-zk-mr1/private-run-tinyllama-1.1b-t128-low-ddict-v01-run/1";
++pub(crate) const RUN_PROFILE_R13_8B_T128_H24: &str = "hashline-zk-mr1/private-run-llama-3-8b-t128-lh24-v1-statement/1";
++pub(crate) const RUN_PROFILE_R13_8B_T128_H24_DD: &str = "hashline-zk-mr1/private-run-llama-3-8b-t128-lh24-dd-statement/1";
++pub(crate) const RUN_PROFILE_R13_SHIELD_T128_H24: &str = "hashline-zk-mr1/private-run-shieldstral-3b-t128-lowh24-blocks-run/1";
++pub(crate) const RUN_PROFILE_R13_SHIELD_T128_H24_DD: &str = "hashline-zk-mr1/private-run-shieldstral-3b-t128-lowh24-ddict1-run/1";
++pub(crate) const RUN_PROFILE_R13_SHIELD_T256_H24: &str = "hashline-zk-mr1/private-run-shieldstral-3b-t256-lowh24-blocks-run/1";
++pub(crate) const RUN_PROFILE_R13_SHIELD_T256_H24_DD: &str = "hashline-zk-mr1/private-run-shieldstral-3b-t256-lowh24-ddict1-run/1";
++pub(crate) const RUN_PROFILE_R13_RUNG_LOW: &str = "hashline-zk-mr1/private-run-rung-lo-t32-dev/1";
++pub(crate) const RUN_PROFILE_R13_RUNG_H24: &str = "hashline-zk-mr1/private-run-rung-lh-t32-dev/1";
++pub(crate) const RUN_PROFILE_R13_RUNG_LOW_DD: &str = "hashline-zk-mr1/private-run-rung-ld-t32-dev/1";
++pub(crate) const RUN_PROFILE_R13_RUNG_H24_DD: &str = "hashline-zk-mr1/private-run-rung-hh-t32-dev/1";
++pub(crate) const ACCURACY_RUN_PROFILES:[(&str,&str);12]=[
++    (RUN_PROFILE_R13_TINY_T128_LOW,super::shape::R13_TINY_T128_LOW),
++    (RUN_PROFILE_R13_TINY_T128_LOW_DD,super::shape::R13_TINY_T128_LOW_DD),
++    (RUN_PROFILE_R13_8B_T128_H24,super::shape::R13_8B_T128_H24),
++    (RUN_PROFILE_R13_8B_T128_H24_DD,super::shape::R13_8B_T128_H24_DD),
++    (RUN_PROFILE_R13_SHIELD_T128_H24,super::shape::R13_SHIELD_T128_H24),
++    (RUN_PROFILE_R13_SHIELD_T128_H24_DD,super::shape::R13_SHIELD_T128_H24_DD),
++    (RUN_PROFILE_R13_SHIELD_T256_H24,super::shape::R13_SHIELD_T256_H24),
++    (RUN_PROFILE_R13_SHIELD_T256_H24_DD,super::shape::R13_SHIELD_T256_H24_DD),
++    (RUN_PROFILE_R13_RUNG_LOW,super::shape::R13_RUNG_LOW),
++    (RUN_PROFILE_R13_RUNG_H24,super::shape::R13_RUNG_H24),
++    (RUN_PROFILE_R13_RUNG_LOW_DD,super::shape::R13_RUNG_LOW_DD),
++    (RUN_PROFILE_R13_RUNG_H24_DD,super::shape::R13_RUNG_H24_DD),
++];
++pub(crate) fn accuracy_run_profile(block:&str)->Option<&'static str> {
++    ACCURACY_RUN_PROFILES.iter().find(|(_,b)|*b==block).map(|(r,_)|*r)
++}
++
+ /// One run's geometry: the per-block shape, how many blocks, and the run's own
+ /// profile id. A run is a NEW profile under D17 — its own transcript, its own
+ /// digests — so no byte of any single-block profile moves.
+@@ -131,6 +163,9 @@
+ /// `None` for a run profile this build does not register.
+ fn registered_block_shape(profile: &str, sh: &Shape) -> Option<Result<Shape, String>> {
+     let cal = sh.norm_calibration();
++    if let Some((_,block))=ACCURACY_RUN_PROFILES.iter().find(|(run,_)|*run==profile) {
++        return Some(Shape::accuracy_trained(block,&cal,sh.f_e,sh.accuracy_gate_shift));
++    }
+     Some(match profile {
+         RUN_PROFILE_RUNG_G => Ok(Shape::rung_g()),
+         RUN_PROFILE_RUNG_K4 => Ok(Shape::rung_k4()),
+@@ -162,6 +197,11 @@
+ }
+ 
+ impl RunShape {
++    pub(crate) fn accuracy(sh:Shape,l:usize)->Result<RunShape,String> {
++        let profile=accuracy_run_profile(sh.profile).ok_or("private run: no R13 run profile for this block")?;
++        Self::new(sh,l,profile)
++    }
++
+     /// **RULING CS-7 (finding S41-N1 of the 125M lane).** A run profile names
+     /// exactly one block shape: it is admitted only over the shape it is
+     /// registered for, compared field by field, and a profile this build does
+@@ -316,6 +356,7 @@
+     /// absorbs). Stage `k` is proved and verified at
+     /// [`RunStatement::stage_shape`]`(k)`.
+     stage_cal: Vec<super::shape::NormCalibration>,
++    stage_accuracy_gate:Vec<u32>,
+ }
+ 
+ impl RunStatement {
+@@ -362,11 +403,15 @@
+     /// never called, so none of their bytes moves.
+     pub(crate) fn new_bound(rs: RunShape, context: Digest, expected: ExpectedIo, blocks: &[BlockPublic], block_scales: &[(i32, i32)], model: &super::trained_statement::TrainedModelStatement) -> Result<RunStatement, String> {
+         // RULINGS CS-1 and CS-4 on the blocks handed, before they are digested
+-        if blocks.len() == rs.l {
+-            blocks_fit_the_shape(blocks, &rs.sh)?;
++        if blocks.len()==rs.l && rs.sh.accuracy_stack()==super::accuracy_precision::Stack::Legacy {
++            blocks_fit_the_shape(blocks,&rs.sh)?;
+         }
+-        let digests: Vec<Digest> = blocks.iter().map(|b| b.digest()).collect();
+-        Self::new_bound_from_digests(rs, context, expected, digests, block_scales, model)
++        let digests:Vec<Digest>=blocks.iter().map(|b|b.digest()).collect();
++        let st=Self::new_bound_from_digests(rs,context,expected,digests,block_scales,model)?;
++        if st.rs.sh.accuracy_stack()!=super::accuracy_precision::Stack::Legacy {
++            for (k,block) in blocks.iter().enumerate() {block.check_for_shape(&st.stage_shape(k)?).map_err(|e|format!("private run: block{k}: {e}"))?;}
++        }
++        Ok(st)
+     }
+ 
+     /// **ROUND 4: the same statement from the blocks' DIGESTS** (what the
+@@ -393,6 +438,8 @@
+         // unmoved, CS-8's rebuild, the trained class)
+         let base = st.rs.sh.norm_calibration();
+         for (k, r) in model.layers.iter().enumerate() {
++            r.check_accuracy_gate(&st.rs.sh)?;
++            if let Some(g)=r.accuracy_gate_shift {st.stage_accuracy_gate[k]=g;}
+             if super::trained_statement::has_own(&r.own) {
+                 let cal = super::trained_statement::apply_own(&base, &r.own).map_err(|e| format!("private run: layer {}: {e}", r.index))?;
+                 st.rs.sh.with_layer_calibration(&cal).map_err(|e| format!("private run: layer {}'s own calibration: {e}", r.index))?;
+@@ -453,7 +500,8 @@
+         }
+         let boundary_scales: Vec<i32> = (0..rs.l - 1).map(|k| block_scales[k].1).collect();
+         let stage_cal = vec![rs.sh.norm_calibration(); rs.l];
+-        let st = RunStatement { rs, expected, block_digests, context, boundary_scales, calibration, stage_cal };
++        let stage_accuracy_gate=vec![rs.sh.accuracy_gate_shift;rs.l];
++        let st = RunStatement { rs, expected, block_digests, context, boundary_scales, calibration, stage_cal,stage_accuracy_gate };
+         // **STAGE 16, ruling T-3.** `Layout::for_shape` has already checked
+         // `A`, `H`, `M` and the external endpoint against the BLOCK's set of
+         // hash-input lengths. A run absorbs one word no block does — its own
+@@ -574,11 +622,9 @@
+     /// shape with that layer's calibration, rebuilt through the trained door
+     pub(crate) fn stage_shape(&self, k: usize) -> Result<Shape, String> {
+         let cal = *self.stage_cal.get(k).ok_or_else(|| format!("private run: no stage {k}"))?;
+-        if cal == self.rs.sh.norm_calibration() {
+-            Ok(self.rs.sh.clone())
+-        } else {
+-            self.rs.sh.with_layer_calibration(&cal)
+-        }
++        let sh=if cal==self.rs.sh.norm_calibration() {self.rs.sh.clone()} else {self.rs.sh.with_layer_calibration(&cal)?};
++        if sh.accuracy_stack()==super::accuracy_precision::Stack::Legacy {Ok(sh)}
++        else {sh.with_accuracy_gate_shift(*self.stage_accuracy_gate.get(k).ok_or("private run: missing R13 stage denominator")?)}
+     }
+ 
+     /// the reserved pair slot 21 (the INCOMING claim) uses in stage `k`
+@@ -827,6 +873,19 @@
+     /// shape when it loads it, and `prove_core` / `verify_core` re-run the
+     /// check on it before its stage commits or absorbs anything of it.
+     fn fit_the_shape(&mut self, sh: &Shape) -> Result<(), String>;
++    /// R13 checks the actual stage context before the run header. A
++    /// streaming source may reload public blocks here; it still retains at
++    /// most one. Legacy sources keep their original preflight path.
++    fn fit_the_stages(&mut self,st:&RunStatement)->Result<(),String> {
++        if st.rs.sh.accuracy_stack()==super::accuracy_precision::Stack::Legacy {return self.fit_the_shape(&st.rs.sh);}
++        if self.count()!=st.rs.l {return Err("private run: public block count differs from the stage count".into());}
++        for k in 0..st.rs.l {
++            let sh=st.stage_shape(k)?;
++            self.block(k)?.check_for_shape(&sh).map_err(|e|format!("private run: block{k}: {e}"))?;
++        }
++        Ok(())
++    }
++
+     /// **RULING CS-6** before anything is absorbed: the blocks are the ones
+     /// the statement names. A resident slice compares every block's digest;
+     /// a streaming source compares the digest list it enforces on every load.
+@@ -947,7 +1006,7 @@
+     // RULINGS CS-1 and CS-4: the blocks and the endpoint policy, before the
+     // endpoint owners are opened, the run's randomness is seeded or its
+     // header is absorbed
+-    blocks.fit_the_shape(sh)?;
++    blocks.fit_the_stages(st)?;
+     policy_fits_the_shape(&st.expected, sh)?;
+     // RULING CS-6: the blocks handed are the ones the statement names, at
+     // the same point. A CHEATING prover runs none of the honest prover's own
+@@ -1113,7 +1172,7 @@
+         protocol::fits_the_ntt_tables(sh)?;
+         // RULINGS CS-1 and CS-4: the blocks and the endpoint policy, before
+         // the run header is absorbed
+-        blocks.fit_the_shape(sh)?;
++        blocks.fit_the_stages(st)?;
+         policy_fits_the_shape(&st.expected, sh)?;
+         // RULING CS-6: every block is the one the statement names, before the
+         // header that absorbs the statement's digests exists. Never consults

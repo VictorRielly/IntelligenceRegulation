@@ -1,0 +1,9 @@
+
+running 1 test
+test private_block::token_io::review_r14_tests::rv14_s5b_a_consistent_pad_row_influence_is_refused_at_the_softmax_division ... RV14 S5b | P[h 0, t 28, j 29] = 64 with PV over every position: margin 5269429 (honest 5269429); refused (block 0: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim)
+RV14 S5b | P[h 3, t 28, j 31] = 64 with PV over every position: margin 5214444 (honest 5269429); refused (block 0: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim)
+RV14 S5b | P[h 1, t 25, j 30] = 64 with PV over every position: margin 5269429 (honest 5269429); refused (block 0: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim)
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 764 filtered out; finished in 13.82s
+

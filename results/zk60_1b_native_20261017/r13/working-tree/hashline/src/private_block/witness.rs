@@ -42,24 +42,50 @@ use super::{AttentionPublic, FeedForwardPublic};
 #[path = "witness_accuracy.rs"]
 mod accuracy;
 
+/// R13 component construction. The shared prover/verifier validation still
+/// controls whether a profile can produce or accept a proof.
+pub(crate) fn build_accuracy(sh:&Shape,public:&AttentionPublic,ff:&FeedForwardPublic,
+    data:&super::accuracy_public::AccuracyPublic,input:&[i16])->Result<Witness,String> {
+    sh.check_constructed()?;
+    let geometry=super::accuracy_public::Geometry{width:sh.width,query_width:sh.q_width(),kv_width:sh.kv_heads*sh.head_dim,hidden:sh.hidden};
+    data.check_for_registry(sh.accuracy_registry(),geometry,sh.accuracy_base(),sh.accuracy_stack())?;
+    if data.folds().gate.shift!=sh.accuracy_gate_shift {
+        return Err("R13 witness: folded gate shift differs from the shape".into());
+    }
+    accuracy::assign(sh,public,data,accuracy::build(sh,public,ff,data,input)?)
+}
+
+/// The block-aware component builder validates the complete public
+/// context independently of proof availability.
+pub(crate) fn build_for_block(sh:&Shape,blk:&super::BlockPublic,input:&[i16])->Result<Witness,String> {
+    if sh.accuracy_stack()!=super::accuracy_precision::Stack::Legacy {
+        // Component construction is valid independently of proof availability,
+        // including when Rayon builds it off the invoking test's thread.
+        blk.check_accuracy_for_shape(sh)?;
+        build_accuracy(sh,blk.attention(),blk.feed_forward(),blk.accuracy().expect("validated public data"),input)
+    } else {
+        blk.check_for_shape(sh)?;
+        build_shaped(sh,blk.attention(),blk.feed_forward(),input)
+    }
+}
+
+#[derive(Clone)]
 pub(crate) struct Witness {
     /// one vector per A plane, `N_A` of them, indexed by the `A_*` ids. A
     /// lookup histogram (which the prover derives, not this builder) is an
     /// EMPTY vector, never a zero plane.
     pub planes: Vec<Vec<i64>>,
+    pub(crate) output_plane: usize,
 }
 
 impl Witness {
     /// The block's output plane `xres2` (secret): what `SC_IO_OUT` binds and
     /// what an honest endpoint owner commits.
     ///
-    /// `A_X2` is the ONE plane id read here as a literal. It sits below the
-    /// `Dom::S` limb groups that step S8 made variable, so it is the same id
-    /// at the toy, the rung and 125M; it would move only if a norm remainder
-    /// needed a fifth byte limb, which `build_shaped` refuses by name (see
-    /// `norm_limbs_are_the_pinned_count`).
+    /// The builder records the profile-derived output plane; norm limb
+    /// changes must never silently move the endpoint onto another role.
     pub(crate) fn output(&self) -> Result<Vec<i16>, String> {
-        self.planes[A_X2].iter().map(|v| i16::try_from(*v).map_err(|_| "fixed oracle range refusal: residual 2".to_string())).collect()
+        self.planes.get(self.output_plane).ok_or("private block: output plane is absent")?.iter().map(|v| i16::try_from(*v).map_err(|_| "fixed oracle range refusal: residual 2".to_string())).collect()
     }
 }
 
@@ -994,5 +1020,5 @@ pub(crate) fn build_shaped(shape: &Shape, public: &AttentionPublic, ff: &FeedFor
     pl[ap(A_Z16)] = z16;
     pl[ap(A_RDL)] = rdl;
 
-    Ok(Witness { planes: pl })
+    Ok(Witness { planes: pl, output_plane: ids.at(A_X2) })
 }

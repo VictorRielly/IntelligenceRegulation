@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12b/policy_margin_reference.py", line 43, in <module>
+    if __name__=='__main__':main()
+  File "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12b/policy_margin_reference.py", line 13, in main
+    ids=json.loads(policy.read_text());yes,no=ids['yes_id'],ids['no_id']
+KeyError: 'yes_id'

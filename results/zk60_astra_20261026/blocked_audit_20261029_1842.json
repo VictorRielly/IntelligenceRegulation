@@ -1,0 +1,65 @@
+{
+  "at": "2026-10-29T18:44:01.009465+00:00",
+  "previous_goal_turn": "progress",
+  "current_turn": "verified wait",
+  "same_condition_goal_turns": 3,
+  "condition": "Shared heavy slot occupied by the other lane privacy gate; next app category and full benchmark pass require exclusive admission.",
+  "turn_evidence": [
+    {
+      "turn": "metadata fixes",
+      "record": "PROGRESS.md 2026-10-29T18:31:36.217675+00:00",
+      "classification": "progress",
+      "blocker_present": true
+    },
+    {
+      "turn": "local tokenizer and real route checks",
+      "record": "shared_gate_live_check.json",
+      "classification": "progress",
+      "blocker_present": true
+    },
+    {
+      "turn": "current",
+      "record": "shared_gate_wait_20261029_1841.json",
+      "classification": "verified wait",
+      "blocker_present": true
+    }
+  ],
+  "remaining_requirements": {
+    "A1": "float benchmark reports and exact text preparation complete; no pending compute identified",
+    "A2": "full benchmark has only layers00-05; layers06-25 and final heads/metrics require compute",
+    "A3": "real adapter and testnet publisher implemented; actual three-category app proof, stored native verification and anchor still pending",
+    "A3b": "canonical image preprocessing implemented and covered by current test suite; image proofs remain out of scope for this demo"
+  },
+  "independent_work_completed": [
+    "metadata/download corrections and 154 app tests",
+    "app-local pinned tokenizer dependencies and import-origin checks",
+    "25 real ASGI checks with worker off",
+    "review manifests, recovery plan and source history preserved"
+  ],
+  "why_impasse": "No remaining independent implementation or check can substitute for the required native proofs and full model replay. Shared-machine rules prohibit their overlap with this live job.",
+  "external_change_required": "privacy gate releases shared heavy slot; honor any new coordinator HOLD or review ruling before resuming",
+  "owned_running_jobs": 0,
+  "queued_original_jobs": [
+    {
+      "id": 1,
+      "chunk": 0,
+      "status": "queued",
+      "job_dir": null
+    },
+    {
+      "id": 2,
+      "chunk": 1,
+      "status": "queued",
+      "job_dir": null
+    },
+    {
+      "id": 3,
+      "chunk": 2,
+      "status": "queued",
+      "job_dir": null
+    }
+  ],
+  "next_command": "apps/proven-media/.venv/bin/python results/zk60_astra_20261026/run_real_app_demo.py category --category sexual",
+  "proofs_completed": false,
+  "goal_achieved": false
+}

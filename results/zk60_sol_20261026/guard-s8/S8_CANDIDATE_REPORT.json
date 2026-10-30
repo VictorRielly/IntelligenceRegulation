@@ -1,0 +1,32 @@
+{
+  "utc": "2026-10-28T22:18:11.051336+00:00",
+  "base": {
+    "utc": "2026-10-28T22:10:49.577923+00:00",
+    "installed_sha256": "87138bda80ae4499a668e67a1c0e7706bb859eafb5e766020bcd59567c8ac59c",
+    "candidate_sha256": "88af4c639848d39df8da559652db11529575aa745b916a06eb522c20ea89fbd3",
+    "status": "PROPOSED ONLY; no live swap/pin/test changes; independent review and quiescent window required"
+  },
+  "regressions": {
+    "existing": {
+      "utc": "2026-10-28T22:13:37.105544+00:00",
+      "suite": "existing",
+      "tests": 45,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 4,
+      "scope": "private candidate only; live guard unchanged"
+    },
+    "s3": {
+      "utc": "2026-10-28T22:16:04.926342+00:00",
+      "suite": "s3",
+      "tests": 31,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "scope": "private candidate only; live guard unchanged"
+    }
+  },
+  "policy_tests": 9,
+  "installed_guard_unchanged": true,
+  "status": "PROPOSED, NOT INSTALLED; independent review/window/host-scope checks required"
+}

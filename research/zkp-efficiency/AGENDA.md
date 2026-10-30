@@ -78,6 +78,30 @@ blockers, and after reviewing new background reports when the session resumes.
   state binding, fresh randomness, verifier work and integration cost. Sampling
   or an inference cache is not a complete private forward-pass proof.
 
+## Standing question, Victor, 2026-10-30: close the gap to DeepProve-class provers
+
+Victor (console, 2026-10-30): "Make sure there is always a researcher digging into the efficiency side of
+things. Could our proofs use some of the techniques employed by DeepProve to catch that 100x speedup?"
+Public-IO zkML provers (DeepProve, IACR ePrint 2026/1112 and CCS 2026; Attestable, which claims 53–77 proved
+tokens/s on ~31B on one H100 with 4–8 MB proofs; zkLLM; EZKL) report one to two orders of magnitude more
+throughput and much smaller proofs than our hidden-IO prover. Our figures: about 452–456 s per Shieldstral-3B T128
+category proof on 8 CPU threads, 848 MB receipts.
+- **Decompose the gap before chasing it.** Attribute the factor to:
+  - hardware (H100 or CPU against our laptop CPU / 4070);
+  - the cost of hiding IO (masking, zero-knowledge sumcheck, extra commitments);
+  - committing every intermediate against GKR-style layer chaining that commits only inputs and outputs;
+  - the PCS and hash choice;
+  - lookup and nonlinearity handling;
+  - batching and amortization.
+  Use measured phase profiles where they exist and say "unknown" where they do not.
+- **For each DeepProve technique,** say whether we already use it, whether it transfers under P1 (hidden inputs,
+  outputs and activations), what it would cost in privacy obligations, and what speedup it could plausibly buy
+  end to end. Rank the techniques, then run the bounded experiment the top one needs.
+- The focused study `results/zk60_deepprove_gap_20261030/` (coordinator, 2026-10-30) is the starting point. Read
+  its GAP_ANALYSIS.md once it lands and keep the ranking current every cycle.
+- The same rules apply as above: no production change without review, and the decided privacy requirements are
+  never traded for speed.
+
 These are a starting queue, not an exhaustive list or a mandate to rediscover
 existing caches. Prioritize by evidence. Do not abandon a nearly complete
 bounded experiment just because the rotation changes; checkpoint and rerank.

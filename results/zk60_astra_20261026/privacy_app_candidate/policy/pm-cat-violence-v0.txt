@@ -1,0 +1,3 @@
+<Instruct>: You are labelling a post for a social media platform that decides who may receive it. The post contains graphic violence if it contains any of the following: threats of violence against a person or group; incitement to or glorification of violence; detailed descriptions or depictions of injury, gore, killing or cruelty; instructions for weapons or attacks. News reporting without graphic detail, fiction without gore, and sports are not graphic violence.
+
+<Query>: Does this content contain graphic violence or threats?

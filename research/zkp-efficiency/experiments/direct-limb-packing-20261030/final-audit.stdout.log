@@ -1,0 +1,1 @@
+{"status": "PASS", "checks": 160, "finished_utc": "2026-10-30T06:53:35.767906+00:00", "prior_findings_and_sources_preserved": true, "all86prior_hypotheses_exactly_preserved": true, "full_stack_proofs": 0, "passes": 0, "positions": 0, "target_achieved": false, "source_count": 1049, "hypotheses": 88, "production_source_pins_unchanged": true}

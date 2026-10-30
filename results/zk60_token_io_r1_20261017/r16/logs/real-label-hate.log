@@ -1,0 +1,2 @@
+{"event":"chunk-verified","run":"/home/victor/zk60-artifacts/token-io/r16-runs/hate-run","chunk":0,"range":[0, 35],"verdict":"not-flagged"}
+{"event":"label","policy":"shieldstral-1.0-3b-moderate-hate/1","label":"not-flagged","chunks":1,"content_total":35,"expect_total":35,"chunk_size":49,"overlap":8,"flagged_ranges":[],"note":"the per-chunk verdicts are public: a flagged label shows which ranges triggered it (DESIGN v2.2 13.4); the chunks cover exactly [0, expect_total), the post's own count (round 15, N-r14-1)"}

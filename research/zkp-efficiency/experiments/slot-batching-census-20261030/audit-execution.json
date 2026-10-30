@@ -1,0 +1,19 @@
+{
+  "stage": "audit",
+  "command": [
+    "/usr/bin/python3",
+    "-B",
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/slot-batching-census-20261030/reference.py"
+  ],
+  "exit_code": 0,
+  "wall_s": 0.41820075000214274,
+  "max_rss_kib": 31164,
+  "cpu_affinity_count": 1,
+  "nice": 19,
+  "cpu_limit_s": 30,
+  "alarm_s": 40,
+  "parent_timeout_s": 45,
+  "address_space_mib": 384,
+  "estimated_memory_mib": 64,
+  "gpu": false
+}

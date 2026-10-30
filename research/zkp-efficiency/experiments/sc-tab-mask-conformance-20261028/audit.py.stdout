@@ -1,0 +1,1 @@
+{"status": "PASS_SOURCE_AND_SCOPE_AUDIT", "checks": 83, "elapsed_seconds": 0.0028088179997212137, "max_rss_kib": 15552, "limits": "String/extent/source-count audit only; no native executable. Key/domain/prelude/rows are synthetic. Reserved mask row width8 fixtures are not current R12 widths13/14. No actual source mutation, capture, PCS, RNG or privacy acceptance."}

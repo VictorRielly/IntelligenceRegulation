@@ -1,0 +1,31 @@
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r13/hashline/src/private_block/run_capture.rs	2026-10-28 16:42:48.582640703 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r14/hashline/src/private_block/run_capture.rs	2026-10-28 19:12:07.678707172 -0700
+@@ -500,6 +500,11 @@
+     /// **D41's chunk** `[index, count, a, b, total, size, overlap]`
+     /// (absorbed as `classify-chunk`, seven u64 little-endian)
+     pub chunk: [usize; 7],
++    /// **TOKEN ROUND 14 (REVIEW_R13 N-r13-1):** whether the run's tables came
++    /// from the tied derivation (the pinned tensor under the trained
++    /// statement's profile). The replay refuses a header whose tables did not
++    /// (the relation tests' synthetic binding): a capture is of R-C2 tables only.
++    pub tables_derived: bool,
+ }
+ 
+ impl ClassifyFacts {
+@@ -916,10 +921,16 @@
+             tr.absorb(b"classify-verdict", &[cf.verdict]);
+             tr.absorb(b"classify-chunk", &cf.chunk_bytes());
+         }
++        let derived = header.classify.as_ref().map(|cf| cf.tables_derived);
+         let mut r = Rec { header, binding, own: tr, stages: Vec::new(), boundaries: Vec::new(), cur: None, closed: 0, failure: None, index: None, index_json: Vec::new(), store: ArrayStore::new(opts.arrays), public_tables: opts.public_tables };
+         if r.own.state() != r.binding {
+             fail(&mut r, "replay: the rebuilt run header is not the verifier's binding".into());
+         }
++        // TOKEN ROUND 14 (N-r13-1): a classifier capture is of tables derived
++        // from the pinned tensor only, never of caller-made ones
++        if derived == Some(false) {
++            fail(&mut r, "replay: the classifier run's tables are not derived from the pinned tied tensor (N-r13-1); no capture of them is written".into());
++        }
+         *cell = Some(r);
+     });
+ }

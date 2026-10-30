@@ -1,0 +1,15 @@
+{
+  "rank": 81,
+  "title": "TESTED dedicated five-vector tail fold: exact host/kernel-shim algebra; conditional small scan ceiling",
+  "baseline": "Current CUDA k_fold_rows FR_MAX_K4 and dev_fold_rows<=4. Historical R14 generic groups56/11(nonDD),58/12(DD), so rhos57/12 and59/13. Current full-run group distributions unknown.",
+  "eliminated_work": "Conditional last4+1 ->5 removes one matrix sweep/launch and one rho/output allocation/upload submission pair; same total rho coefficients,MACs,outputs,pad fold. At R14 T128/fe9 A460980224B nonDD or H408420352B DD source operands. No native work removed.",
+  "added_costs": "Separate max5 kernel source with80B Fp2 accumulator payload versus64B max4; compiler registers/spills/occupancy unknown. Largest per-call rho+output scratch +25% for affected tail. Backend API must preserve existing max4 contract and implement optional larger-tail routing explicitly.",
+  "prerequisites": "First bounded host differential of exact Goldilocks Fp2 folds with independent dot-product oracle; include full mask/proximity rows and odd widths. Owner actual group counters and exclusive fold clocks precede any native/GPU integration.",
+  "integration_cost": "Small research-only tail planner/reference next cycle; moderate explicit CUDA max5-tail route and native byte/refusal/privacy gates later. Never change held owner sources.",
+  "exactness": "612 Rust fixtures,228780 scalar limbs including synthetic pad columns;375 exact extracted kernel-loop CPU-shim fixtures,30750 limbs;1050 independent Python bigint limbs;1817 Python assertions.141 Rust controls=130planner+3shape+8fault checks. Not native CUDA/FS/PCS/receipts/privacy.",
+  "privacy_soundness": "Public shape/count scheduling only. All fresh per-proof randomness and proximity maintained. No reordering challenge draws, claims, pads or outputs; no adaptive scheduling on private values.",
+  "compatibility": "fold_rows_multi_zk chunks4 -> EncodedStore::fold_rows -> dev_fold_rows -> k_fold_rows; currently rejects5. New research sketch only; acceptance requires explicit owner review.",
+  "end_to_end_ceiling": "Conditional standalone generic-core matrix-source-only ceiling1.059493x nonDD/1.051645x DD atT128; not a runtime ceiling unless ALLtime is proportional to those source reads. Actual complete bound N/(T-C_removed_exclusive+A_added), exclusive f unknown, no numerical GPU8B forecast.",
+  "falsification": "Current native groups have no4m+1tail; GPU/register/spill/peak-memory or enclosing-time regression; any value/limb/output/order/shape/native refusal/RNG/FS/PCS/privacy mismatch. CPU shim cannot establish device benefit.",
+  "disposition": "Algebraic candidate ready for owner review/measurement only. Dedicated max5 body is research-only; no production patch applied. Preserve current max4 symbol and all mask/proximity/pad/RNG/transcript/refusal checks."
+}

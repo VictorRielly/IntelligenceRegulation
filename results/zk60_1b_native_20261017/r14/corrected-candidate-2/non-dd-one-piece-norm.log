@@ -1,0 +1,8 @@
+
+running 1 test
+test private_block::argument::split_attack_tests::split_run_t128_malicious_arithmetic_receipt_from_env ... R14_ATTACK_REFUSAL one-piece-norm: slot 2 [R14 02 norm squares zero-check (hosts 01, 01m) Whole]: sumcheck round 0: s(0) + s(1) != claim
+R14_MALICIOUS_RECEIPT {"case":"one-piece-norm","dd":false,"bytes":34875688,"expected_accept":false,"canonical_frame_decoded":true,"native_verifier_used":true}
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 752 filtered out; finished in 22.75s
+

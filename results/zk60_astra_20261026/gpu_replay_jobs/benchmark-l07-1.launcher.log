@@ -1,0 +1,10 @@
+RAM   14.12 GiB available of 15.39; swap used 0.74 GiB
+BUDGET 0 of 11.89 GiB committed by guarded jobs
+LOCKS heavy free, build free
+GPU   0 of 8188 MiB used
+DISK  /mnt/c 134.1 GiB free (heavy jobs wait under 40, any job is killed under 8)
+kernel memory cap available: True
+  rss    425 MiB  pid 2294    claude 
+  rss    297 MiB  pid 6847    /home/victor/.codex/packages/app-server-daemon/releases/0.166.0-x86_64-unknown-linux-musl/bin/codex app-server
+[zk60-guard 08:10:46] START astra-gpu-benchmark-l07 class=gpu need=2.8G cap=4.5G enforce=cgroup+watchdog waited=0s run=7040827461cd
+[zk60-guard 08:20:51] END astra-gpu-benchmark-l07 exit=3 child_wall=604s peak_rss=2.13G min_avail=12.01G peak_vram=591MiB

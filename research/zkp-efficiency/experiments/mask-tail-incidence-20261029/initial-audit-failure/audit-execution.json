@@ -1,0 +1,16 @@
+{
+  "command": [
+    "experiments/mask-tail-incidence-20261029/run_bounded.py",
+    "audit.py"
+  ],
+  "exit_code": 1,
+  "elapsed_s": 0.06560086800163845,
+  "cpu_seconds_limit": 40,
+  "wall_alarm_s": 45,
+  "parent_timeout_s": 50,
+  "address_space_bytes": 268435456,
+  "estimated_memory_bytes": 100663296,
+  "threads": 1,
+  "native_build": false,
+  "gpu": false
+}

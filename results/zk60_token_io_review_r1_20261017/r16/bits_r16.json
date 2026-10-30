@@ -1,0 +1,341 @@
+{
+ "log": "/home/victor/IntelligenceRegulation/results/zk60_token_io_review_r1_20261017/r16/logs/rvtk16-tests.log",
+ "rows": [
+  {
+   "profile": "hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/1",
+   "policy": "shieldstral-1.0-3b-moderate-sexual/1",
+   "openings": 112,
+   "per_opening": {
+    "stage": -103.6937,
+    "token_endpoint": -106.2496,
+    "mask": -106.2496,
+    "block": -105.609,
+    "boundary": -105.609
+   },
+   "N_review_r13": 66879488,
+   "N_from_code_counts": 66879488,
+   "N_equal": true,
+   "code_r13_numerator": 66947071,
+   "numerator_equal": true,
+   "per_block_bits": 102.003,
+   "stage_terms_log2": {
+    "out_c": -112.28,
+    "in_c": -107.09
+   },
+   "column_log2": -98.7928,
+   "logup_log2": -97.3014,
+   "omitted_log2": -106.1732,
+   "whole_run_bits": 96.8601,
+   "floor": 96,
+   "lane_printed": {
+    "column": -98.792756,
+    "logup": -97.301365,
+    "omitted": -106.173153,
+    "total": -96.860089,
+    "floor": 96
+   },
+   "agrees_with_code": true,
+   "lane_claim": [
+    96.86,
+    96
+   ],
+   "agrees_with_claim": true,
+   "passes_min_bits_95": true,
+   "margin_over_95": 1.86
+  },
+  {
+   "profile": "hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/1",
+   "policy": "shieldstral-1.0-3b-moderate-violence/1",
+   "openings": 112,
+   "per_opening": {
+    "stage": -103.6937,
+    "token_endpoint": -106.2496,
+    "mask": -106.2496,
+    "block": -105.609,
+    "boundary": -105.609
+   },
+   "N_review_r13": 66879488,
+   "N_from_code_counts": 66879488,
+   "N_equal": true,
+   "code_r13_numerator": 66947071,
+   "numerator_equal": true,
+   "per_block_bits": 102.003,
+   "stage_terms_log2": {
+    "out_c": -112.28,
+    "in_c": -107.09
+   },
+   "column_log2": -98.7928,
+   "logup_log2": -97.3014,
+   "omitted_log2": -106.1732,
+   "whole_run_bits": 96.8601,
+   "floor": 96,
+   "lane_printed": {
+    "column": -98.792756,
+    "logup": -97.301365,
+    "omitted": -106.173153,
+    "total": -96.860089,
+    "floor": 96
+   },
+   "agrees_with_code": true,
+   "lane_claim": [
+    96.86,
+    96
+   ],
+   "agrees_with_claim": true,
+   "passes_min_bits_95": true,
+   "margin_over_95": 1.86
+  },
+  {
+   "profile": "hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/1",
+   "policy": "shieldstral-1.0-3b-moderate-hate/1",
+   "openings": 112,
+   "per_opening": {
+    "stage": -103.6937,
+    "token_endpoint": -106.2496,
+    "mask": -106.2496,
+    "block": -105.609,
+    "boundary": -105.609
+   },
+   "N_review_r13": 66879488,
+   "N_from_code_counts": 66879488,
+   "N_equal": true,
+   "code_r13_numerator": 66947071,
+   "numerator_equal": true,
+   "per_block_bits": 102.003,
+   "stage_terms_log2": {
+    "out_c": -112.28,
+    "in_c": -107.09
+   },
+   "column_log2": -98.7928,
+   "logup_log2": -97.3014,
+   "omitted_log2": -106.1732,
+   "whole_run_bits": 96.8601,
+   "floor": 96,
+   "lane_printed": {
+    "column": -98.792756,
+    "logup": -97.301365,
+    "omitted": -106.173153,
+    "total": -96.860089,
+    "floor": 96
+   },
+   "agrees_with_code": true,
+   "lane_claim": [
+    96.86,
+    96
+   ],
+   "agrees_with_claim": true,
+   "passes_min_bits_95": true,
+   "margin_over_95": 1.86
+  },
+  {
+   "profile": "hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/1",
+   "policy": "shieldstral-1.0-3b-card-unsafe/1",
+   "openings": 112,
+   "per_opening": {
+    "stage": -103.6937,
+    "token_endpoint": -106.2496,
+    "mask": -106.2496,
+    "block": -105.609,
+    "boundary": -105.609
+   },
+   "N_review_r13": 66879488,
+   "N_from_code_counts": 66879488,
+   "N_equal": true,
+   "code_r13_numerator": 66947071,
+   "numerator_equal": true,
+   "per_block_bits": 102.003,
+   "stage_terms_log2": {
+    "out_c": -112.28,
+    "in_c": -107.09
+   },
+   "column_log2": -98.7928,
+   "logup_log2": -97.3014,
+   "omitted_log2": -106.1732,
+   "whole_run_bits": 96.8601,
+   "floor": 96,
+   "lane_printed": {
+    "column": -98.792756,
+    "logup": -97.301365,
+    "omitted": -106.173153,
+    "total": -96.860089,
+    "floor": 96
+   },
+   "agrees_with_code": true,
+   "lane_claim": [
+    96.86,
+    96
+   ],
+   "agrees_with_claim": true,
+   "passes_min_bits_95": true,
+   "margin_over_95": 1.86
+  },
+  {
+   "profile": "hashline-zk-mr1/private-classify-run-shieldstral-3b-t256-r13-public-row/1",
+   "policy": "shieldstral-1.0-3b-moderate-sexual/1",
+   "openings": 112,
+   "per_opening": {
+    "stage": -103.6937,
+    "token_endpoint": -106.2496,
+    "mask": -106.2496,
+    "block": -105.9291,
+    "boundary": -105.9291
+   },
+   "N_review_r13": 154730496,
+   "N_from_code_counts": 154730496,
+   "N_equal": true,
+   "code_r13_numerator": 154798079,
+   "numerator_equal": true,
+   "per_block_bits": 100.794,
+   "stage_terms_log2": {
+    "out_c": -112.28,
+    "in_c": -107.09
+   },
+   "column_log2": -99.0096,
+   "logup_log2": -96.093,
+   "omitted_log2": -106.1732,
+   "whole_run_bits": 95.9124,
+   "floor": 95,
+   "lane_printed": {
+    "column": -99.009559,
+    "logup": -96.093021,
+    "omitted": -106.173153,
+    "total": -95.912404,
+    "floor": 95
+   },
+   "agrees_with_code": true,
+   "lane_claim": [
+    95.91,
+    95
+   ],
+   "agrees_with_claim": true,
+   "passes_min_bits_95": true,
+   "margin_over_95": 0.912
+  },
+  {
+   "profile": "hashline-zk-mr1/private-classify-run-shieldstral-3b-t256-r13-public-row/1",
+   "policy": "shieldstral-1.0-3b-moderate-violence/1",
+   "openings": 112,
+   "per_opening": {
+    "stage": -103.6937,
+    "token_endpoint": -106.2496,
+    "mask": -106.2496,
+    "block": -105.9291,
+    "boundary": -105.9291
+   },
+   "N_review_r13": 154730496,
+   "N_from_code_counts": 154730496,
+   "N_equal": true,
+   "code_r13_numerator": 154798079,
+   "numerator_equal": true,
+   "per_block_bits": 100.794,
+   "stage_terms_log2": {
+    "out_c": -112.28,
+    "in_c": -107.09
+   },
+   "column_log2": -99.0096,
+   "logup_log2": -96.093,
+   "omitted_log2": -106.1732,
+   "whole_run_bits": 95.9124,
+   "floor": 95,
+   "lane_printed": {
+    "column": -99.009559,
+    "logup": -96.093021,
+    "omitted": -106.173153,
+    "total": -95.912404,
+    "floor": 95
+   },
+   "agrees_with_code": true,
+   "lane_claim": [
+    95.91,
+    95
+   ],
+   "agrees_with_claim": true,
+   "passes_min_bits_95": true,
+   "margin_over_95": 0.912
+  },
+  {
+   "profile": "hashline-zk-mr1/private-classify-run-shieldstral-3b-t256-r13-public-row/1",
+   "policy": "shieldstral-1.0-3b-moderate-hate/1",
+   "openings": 112,
+   "per_opening": {
+    "stage": -103.6937,
+    "token_endpoint": -106.2496,
+    "mask": -106.2496,
+    "block": -105.9291,
+    "boundary": -105.9291
+   },
+   "N_review_r13": 154730496,
+   "N_from_code_counts": 154730496,
+   "N_equal": true,
+   "code_r13_numerator": 154798079,
+   "numerator_equal": true,
+   "per_block_bits": 100.794,
+   "stage_terms_log2": {
+    "out_c": -112.28,
+    "in_c": -107.09
+   },
+   "column_log2": -99.0096,
+   "logup_log2": -96.093,
+   "omitted_log2": -106.1732,
+   "whole_run_bits": 95.9124,
+   "floor": 95,
+   "lane_printed": {
+    "column": -99.009559,
+    "logup": -96.093021,
+    "omitted": -106.173153,
+    "total": -95.912404,
+    "floor": 95
+   },
+   "agrees_with_code": true,
+   "lane_claim": [
+    95.91,
+    95
+   ],
+   "agrees_with_claim": true,
+   "passes_min_bits_95": true,
+   "margin_over_95": 0.912
+  },
+  {
+   "profile": "hashline-zk-mr1/private-classify-run-shieldstral-3b-t256-r13-public-row/1",
+   "policy": "shieldstral-1.0-3b-card-unsafe/1",
+   "openings": 112,
+   "per_opening": {
+    "stage": -103.6937,
+    "token_endpoint": -106.2496,
+    "mask": -106.2496,
+    "block": -105.9291,
+    "boundary": -105.9291
+   },
+   "N_review_r13": 154730496,
+   "N_from_code_counts": 154730496,
+   "N_equal": true,
+   "code_r13_numerator": 154798079,
+   "numerator_equal": true,
+   "per_block_bits": 100.794,
+   "stage_terms_log2": {
+    "out_c": -112.28,
+    "in_c": -107.09
+   },
+   "column_log2": -99.0096,
+   "logup_log2": -96.093,
+   "omitted_log2": -106.1732,
+   "whole_run_bits": 95.9124,
+   "floor": 95,
+   "lane_printed": {
+    "column": -99.009559,
+    "logup": -96.093021,
+    "omitted": -106.173153,
+    "total": -95.912404,
+    "floor": 95
+   },
+   "agrees_with_code": true,
+   "lane_claim": [
+    95.91,
+    95
+   ],
+   "agrees_with_claim": true,
+   "passes_min_bits_95": true,
+   "margin_over_95": 0.912
+  }
+ ]
+}

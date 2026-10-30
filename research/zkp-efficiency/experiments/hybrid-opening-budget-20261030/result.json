@@ -1,0 +1,41 @@
+{
+  "status": "PASS",
+  "rust": {
+    "status": "PASS",
+    "seed": 202610300541,
+    "fixtures": 388,
+    "budget_checks_and_controls": 1567,
+    "scalar_limbs_per_budget_including_synthetic_pads": 146652,
+    "injected_failures": 25,
+    "exported_public_vectors": 16,
+    "full_stack_proofs": 0,
+    "passes": 0,
+    "positions": 0
+  },
+  "python_assertions": 8261,
+  "python_bigint_vectors": 16,
+  "python_bigint_limbs": 3648,
+  "rust_plans_checked_by_bigint_reference": 1764,
+  "batched_copy_negative_control": {
+    "nonoverlapping_permutations": 2,
+    "aliasing_permutations": 2,
+    "alias_results": [
+      [
+        20,
+        21,
+        null,
+        null
+      ],
+      [
+        10,
+        11,
+        null,
+        null
+      ]
+    ]
+  },
+  "scope": "Synthetic synchronous CPU-buffer model and exact native scalar host body; no CUDA/PCS/transcript/receipt/privacy acceptance",
+  "full_stack_proofs": 0,
+  "passes": 0,
+  "positions": 0
+}

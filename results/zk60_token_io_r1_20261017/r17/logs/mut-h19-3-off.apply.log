@@ -1,0 +1,2 @@
+applied h19-3-off to plane_index.rs (original sha256 ce79803c86a80dde, mutant 7b3ede4c0372526d)
+reverted h19-3-off: plane_index.rs back to ce79803c86a80dde

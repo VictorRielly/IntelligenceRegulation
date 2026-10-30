@@ -1,0 +1,52 @@
+
+running 28 tests
+test private_block::r12_golden_tests::r12_golden_seeded_llama3_8b_t128_block_is_byte_identical ... ignored, native lane heavy: seeded Llama-3-8B T128 block proof (byte identity across R9 -> R12)
+test private_block::r12_golden_tests::r12_golden_seeded_llama3_8b_t128_dd_block_is_byte_identical ... ignored, native lane heavy: seeded Llama-3-8B T128 DD block proof (byte identity across R9 -> R12)
+test private_block::r12_golden_tests::r12_golden_seeded_tinyllama_t128_block_is_byte_identical ... ignored, native lane heavy: seeded TinyLlama T128 block proof (byte identity across R9 -> R12)
+test private_block::r12_golden_tests::r12_golden_seeded_tinyllama_t128_dd_block_is_byte_identical ... ignored, native lane heavy: seeded TinyLlama T128 DD block proof (byte identity across R9 -> R12)
+test private_block::r12_golden_tests::r12_golden_statement_identities ... ignored, native lane: run with the goldens (cheap)
+test private_block::r12_tests::counted_soundness_floors ... R12 FLOOR Shieldstral T128 (L = 26): whole run 2^-97.14 -> floor 97 bits
+R12 FLOOR Shieldstral T256 (L = 26): whole run 2^-96.19 -> floor 96 bits
+R12 FLOOR Shieldstral T128 DD (L = 26): whole run 2^-97.19 -> floor 97 bits
+R12 FLOOR Shieldstral T256 DD (L = 26): whole run 2^-96.37 -> floor 96 bits
+R12 FLOOR Llama-3-8B T128 (reference) (L = 32): whole run 2^-96.84 -> floor 96 bits
+ok
+test private_block::r12_tests::f1_an_attention_factor_other_than_one_is_refused_by_name ... ok
+test private_block::r12_tests::f1_llama3_tables_equal_the_transformers_reference ... ok
+test private_block::r12_tests::f1_the_profiles_pin_their_transforms ... ok
+test private_block::r12_tests::f1_the_statement_binds_the_transform ... ok
+test private_block::r12_tests::f1_the_unscaled_case_is_the_frozen_generator ... ok
+test private_block::r12_tests::f1_yarn_tables_equal_the_prep_lanes_reference_to_2048_positions ... ok
+test private_block::r12_tests::f1_yarn_tables_equal_the_transformers_reference ... ok
+test private_block::r12_tests::f2_a_generic_dense_shieldstral_t128_block_proves_and_matches_the_kernel ... ignored, native lane heavy: a Shieldstral T128 block (width 3072, query 4096) proves and verifies, witness == kernel
+test private_block::r12_tests::f2_a_generic_dense_shieldstral_t128_dd_block_proves_and_matches_the_kernel ... ignored, native lane heavy: a Shieldstral T128 DD block proves and verifies, witness == kernel
+test private_block::r12_tests::f2_saved_shieldstral_t128_dd_receipt_verifies_in_a_fresh_process ... ignored, native lane: fresh-process verification of the saved Shieldstral T128 DD dense receipt
+test private_block::r12_tests::f2_saved_shieldstral_t128_receipt_verifies_in_a_fresh_process ... ignored, native lane: fresh-process verification of the saved Shieldstral T128 dense receipt
+test private_block::r12_tests::f2_the_decoupled_rung_proves_and_matches_the_kernel ... R12 hashline-zk-mr1/private-block-rung-hd-t32-dev/1: bands Bands { attn: 8, gate: 12, down: 2, gains: (40, 127), xmag: 6000 } admissible
+R12 F2 rung-HD: one-block segment 5853432 B
+ok
+test private_block::r12_tests::f2_the_shieldstral_shapes_build_and_lay_out ... R12 SHIELDSTRAL hashline-zk-mr1/private-block-shieldstral-3b-t128-trained-block/1 | log_cols 14 | A rows 3405 H rows 3790 | committed 117882880 | U8 51937280 | slots 23 | receipt (counted, per block) 29301816 B | norm window 32 limbs 4
+R12 SHIELDSTRAL hashline-zk-mr1/private-block-shieldstral-3b-t128-trained-ddict/1 | log_cols 14 | A rows 3283 H rows 3634 | committed 113328128 | U8 48398336 | slots 24 | receipt (counted, per block) 29536824 B | norm window 32 limbs 4
+R12 SHIELDSTRAL hashline-zk-mr1/private-block-shieldstral-3b-t256-trained-block/1 | log_cols 15 | A rows 3889 H rows 4432 | committed 272662528 | U8 121700352 | slots 23 | receipt (counted, per block) 45011240 B | norm window 32 limbs 4
+R12 SHIELDSTRAL hashline-zk-mr1/private-block-shieldstral-3b-t256-trained-ddict/1 | log_cols 15 | A rows 3463 H rows 3908 | committed 241532928 | U8 101515264 | slots 24 | receipt (counted, per block) 44656504 B | norm window 32 limbs 4
+ok
+test private_block::r12_tests::f2_the_true_weight_shapes ... ok
+test private_block::r12_tests::f3_a_tied_statement_binds_both_tables_to_the_one_tensor ... ok
+test private_block::r12_tests::f3_the_loader_reads_a_tied_export ... ok
+test private_block::r12_tests::n_col_against_the_dd_cap_at_head_dim_128 ... R12 N_COL hd128 f_e 9: e_s -8: 45 (over cap), e_s -7: 85 (over cap), e_s -6: 154 (over cap), e_s -5: 237 (over cap), e_s -4: 246 (over cap), e_s -3: 218 (over cap), e_s -2: 155 (over cap), e_s -1: 94 (over cap), e_s 0: 55 (over cap), e_s 1: 32, e_s 2: 19, e_s 3: 11, e_s 4: 6, e_s 5: 4, e_s 6: 3, e_s 7: 2, e_s 8: 2
+R12 N_COL hd128 f_e 10: e_s -8: 88 (over cap), e_s -7: 167 (over cap), e_s -6: 257 (over cap), e_s -5: 257 (over cap), e_s -4: 257 (over cap), e_s -3: 251 (over cap), e_s -2: 184 (over cap), e_s -1: 110 (over cap), e_s 0: 63 (over cap), e_s 1: 36 (over cap), e_s 2: 21, e_s 3: 12, e_s 4: 7, e_s 5: 4, e_s 6: 3, e_s 7: 2, e_s 8: 2
+R12 N_COL hd128 f_e 11: e_s -8: 175 (over cap), e_s -7: 257 (over cap), e_s -6: 257 (over cap), e_s -5: 257 (over cap), e_s -4: 257 (over cap), e_s -3: 257 (over cap), e_s -2: 213 (over cap), e_s -1: 126 (over cap), e_s 0: 71 (over cap), e_s 1: 40 (over cap), e_s 2: 22, e_s 3: 13, e_s 4: 7, e_s 5: 4, e_s 6: 3, e_s 7: 2, e_s 8: 2
+R12 N_COL hd128 f_e 12: e_s -8: 257 (over cap), e_s -7: 257 (over cap), e_s -6: 257 (over cap), e_s -5: 257 (over cap), e_s -4: 257 (over cap), e_s -3: 257 (over cap), e_s -2: 236 (over cap), e_s -1: 141 (over cap), e_s 0: 79 (over cap), e_s 1: 44 (over cap), e_s 2: 24, e_s 3: 14, e_s 4: 8, e_s 5: 5, e_s 6: 3, e_s 7: 2, e_s 8: 2
+ok
+test private_block::r12_tests::the_shieldstral_profiles_carry_their_pins ... ok
+test private_block::r12_tests::the_shieldstral_row_widths_are_the_smallest_counted_receipts ... R12 ROW WIDTH Shieldstral T128 dd false: [(12, 61577912, 113422336), (13, 36707192, 114909184), (14, 29301816, 117882880), (15, 35642616, 123830272), (16, 58883512, 135725056)] -> 2^14
+R12 ROW WIDTH Shieldstral T128 dd true: [(12, 59453624, 108744704), (13, 35959160, 110272512), (14, 29536824, 113328128), (15, 36958968, 119439360), (16, 61920184, 131661824)] -> 2^14
+R12 ROW WIDTH Shieldstral T256 dd false: [(12, 136437480, 262090752), (13, 74141608, 263593984), (14, 48025704, 266616832), (15, 45011240, 272662528), (16, 63574504, 284753920)] -> 2^15
+R12 ROW WIDTH Shieldstral T256 dd true: [(12, 120943928, 230674432), (13, 66708984, 232218624), (14, 44918456, 235323392), (15, 44656504, 241532928), (16, 65775672, 253952000)] -> 2^15
+ok
+test private_block::r12b_tests::every_token_calibration_field_is_bound_by_the_trained_statement ... ok
+test private_block::r12b_tests::pinned_tied_tables_accept_honest_and_refuse_rehashed_forgery ... ignored, full pinned checkpoint/table reads; run guarded with ZK60_R12B_TIED_FIXTURE
+test private_block::r12b_tests::transformed_profile_refuses_export_rope_before_any_layer_read ... ok
+
+test result: ok. 18 passed; 0 failed; 10 ignored; 0 measured; 609 filtered out; finished in 7.93s
+

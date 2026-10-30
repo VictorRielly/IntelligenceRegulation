@@ -1,0 +1,46 @@
+{
+ "blocks": 2,
+ "blocks_evaluated": [
+  0,
+  1
+ ],
+ "schema_ok": false,
+ "schema_findings": [
+  "S1: run.json carries field(s) not on the capture allow-list: ['P0', 'S', 'T', 'V', 'V_pad']",
+  "S1: stage-00.json carries field(s) not on the capture allow-list: ['a_mask_base', 'a_prox', 'a_sites', 'h_mask_base', 'h_prox']",
+  "S1: stage-01.json carries field(s) not on the capture allow-list: ['r_emb', 'stage_kind', 'stages']",
+  "S1: stage-02.json carries field(s) not on the capture allow-list: ['r_emb', 'stage_kind', 'stages']",
+  "S1: stage-03.json carries field(s) not on the capture allow-list: ['a_mask_base', 'a_prox', 'a_sites', 'h_mask_base', 'h_prox']"
+ ],
+ "ok": true,
+ "ok_on_the_covered_slots": true,
+ "tables_absent_by_capture_option": false,
+ "slots_equal_per_stage": [
+  23,
+  23
+ ],
+ "slots_expected_per_stage": [
+  23,
+  23
+ ],
+ "open_by_capture_option_per_stage": [
+  [],
+  []
+ ],
+ "captured_tables_per_stage": [
+  15,
+  15
+ ],
+ "controls": {
+  "R13-G_gate_denominator_moved": true,
+  "NC-1_R13_score_precision_moved": true,
+  "R13-N_norm_tn_moved": true,
+  "R13-GC_group_column_doctored": true,
+  "R13-ACT_act3_table_doctored": true,
+  "R13-W_gate_weight_fold_doctored": true,
+  "R13-L_legacy_fzc_on_r13_bytes": true
+ },
+ "replay_ok": true,
+ "seconds": 9.1,
+ "peak_rss_mb": 139
+}

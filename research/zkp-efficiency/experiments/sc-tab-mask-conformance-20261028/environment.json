@@ -1,0 +1,12 @@
+{
+  "blake3_version": "1.0.9",
+  "external_code_executed": "Preinstalled blake3 hash implementation only; no fetched code executed",
+  "seed": 202610280129,
+  "synthetic_only": true,
+  "one_thread": true,
+  "cpu_time_cap_s": 45,
+  "alarm_cap_s": 45,
+  "parent_timeout_s": 50,
+  "address_space_mib": 256,
+  "estimated_memory_mib": 96
+}

@@ -1,0 +1,57 @@
+stage-01.json BLOCK A: groups 36, surjective 36, disclosed 0 {}, joint [] (764.3 s)
+stage-01.json BLOCK H: groups 9, surjective 8, disclosed 2 {'8': 2}, joint [([7, 8], 2)] (2667.4 s)
+stage-01.json BLOCK Input: groups 2, surjective 2, disclosed 0 {}, joint [] (2674.9 s)
+TS-1 1:A: True honest 0 removed 32768 (2658.4 s)
+TS-1 1:H: True honest 0 removed 32768 (599.1 s)
+TS-1 1:Input: True honest 0 removed 32768 (8776.5 s)
+TS-1: 3/3 fire (14709.0 s)
+   control honest reference: rank 32770 / expected-honest 32770, disclosed 0 (original form 0), expect surjective, disclosed 0
+   control C1 shared reserved pair: rank 32768 / expected-honest 32770, disclosed 2 (original form 2), expect fires
+   control C2 cm = 0 (pair removed): rank 32768 / expected-honest 32770, disclosed 2 (original form 2), expect fires
+   control C3 lambda_c = 0: rank 32770 / expected-honest 32770, disclosed 0 (original form 0), expect does not fire (as in the review of record)
+   control C6 cw = delta (one nonzero entry): rank 32770 / expected-honest 32770, disclosed 0 (original form 0), expect does not fire
+   control C8 pair weights Fp-dependent: rank 32770 / expected-honest 32770, disclosed 0 (original form 0), expect does not fire at an Fp2 column key (as in the review of record)
+   control G7-D1 duplicate claim: same data weights, its OWN reserved pair (cm, cm U): rank 32772 / expected-honest 32772, disclosed 0 (original form 0), expect surjective, disclosed 0
+   control G7-D2 duplicate claim: an exact copy (two identical coordinates, shared pair): rank 32770 / expected-honest 32772, disclosed 0 (original form 0), expect rank short by 2 of the onto-lemma's 2(N+m)-2; disclosed 0 (the repeated coordinate's equality holds for data too)
+   control G7-D3 control: a copy sharing the pair whose DATA weights differ in one row: rank 32770 / expected-honest 32772, disclosed 2 (original form 2), expect fires
+{
+ "1:BLOCK:A": {
+  "width": 16384,
+  "rows": 4577,
+  "groups": 36,
+  "surjective": 36,
+  "disclosed_Fp": 0,
+  "joint": [],
+  "census_identical_claims": [],
+  "census_equal_published_values": []
+ },
+ "1:BLOCK:H": {
+  "width": 16384,
+  "rows": 4390,
+  "groups": 9,
+  "surjective": 8,
+  "disclosed_Fp": 2,
+  "joint": [
+   [
+    [
+     7,
+     8
+    ],
+    2
+   ]
+  ],
+  "census_identical_claims": [],
+  "census_equal_published_values": []
+ },
+ "1:BLOCK:Input": {
+  "width": 16384,
+  "rows": 38,
+  "groups": 2,
+  "surjective": 2,
+  "disclosed_Fp": 0,
+  "joint": [],
+  "census_identical_claims": [],
+  "census_equal_published_values": []
+ }
+}
+record: /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/round23/c9b-real-block0-ts1-census.json  status PASS

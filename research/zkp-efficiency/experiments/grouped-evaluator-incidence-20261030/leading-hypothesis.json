@@ -1,0 +1,15 @@
+{
+  "rank": 103,
+  "title": "NEW TESTED dictionary SC_SZC equality grouping through existing evaluator",
+  "baseline": "Active/R14 DD softmax branch returns groups None and selects ClosureRounds; degree4,15-table score-shift6 projection.",
+  "eliminated_work": "One expensive group0 bracket sample and three host samples per row pair,plus one interpolation step per original column. Row scan/fold projection removes36 Fp2mul,7mul_base,47add,15sub per row pair including weighting.",
+  "added_costs": "Three group Eq prefix/suffix setup,pair weights,weighted accumulators,inversions/recovery,degree completion,pending vectors,parallel reduction and dispatch; row weighting charged,round and enclosing costs unpriced.",
+  "prerequisites": "Actual DD incidence/exclusive clocks,source-derived current calibration/degree/lookup checks,native masked/transcript/RNG/extension/PCS/frozen-byte/refusal parity,fresh full-stack verification and current privacy gate.",
+  "integration_cost": "Moderate extraction of existing DD bracket into3groups through SlotDef.groups; existing GroupedEqRounds and slot dispatch reused. Research Python only,no Rust patch/build.",
+  "exactness": "16 synthetic n0..3 base/full/zero/Boolean fixtures;144 independent clause values,480 round comparisons,660 folded values,480 ordered finals;2 key/mask negatives. Separate saved-evidence audit2347checks covers both arms.",
+  "privacy_soundness": "Retain keyed sum,beta*mask*e,beta2*p,all range/exp/tuple helpers and dictionary obligations,all future-score/domain checks,degree4 masked messages,fresh randomness; no published subgroup messages or merged distinct equality factors.",
+  "compatibility": "argument.rs SC_SZC if sh.dd_cap>0 -> SlotDef.groups -> GroupedEqRounds. Active/R14 branch bodies identical. Only score-shift6 projection tested; other calibrations and native host offsets owed.",
+  "end_to_end_ceiling": "N/(T-Cremoved+Aadded),unknown. Free whole-slot deletion N/(T-Tslot) requires measured Tslot. No kernel/count result establishes50/s.",
+  "falsification": "No real DD incidence,any native value/byte/refusal/privacy/degree/key mismatch or additional critical costs>=removed cost; retain fallback for zero factors without resampling.",
+  "disposition": "Conditional handoff priority4 after whole-GPU/workload/phase priorities; owner reviews and integrates."
+}

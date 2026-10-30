@@ -1,0 +1,5 @@
+thread 'main' panicked at /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/harness.rs:81:86:
+assertion `left == right` failed
+  left: 21
+ right: 18
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace

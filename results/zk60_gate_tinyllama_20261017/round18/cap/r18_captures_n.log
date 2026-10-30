@@ -1,0 +1,20 @@
+[zk60-guard 20:09:15] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 20:10:16] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 20:10:26] START gate18-cap-classify-rc3-rung-L2-v0-short1 class=cpu need=0.7G cap=1.5G enforce=cgroup+watchdog waited=70s run=2fb68f9bf707
+[zk60-guard 20:10:30] END gate18-cap-classify-rc3-rung-L2-v0-short1 exit=0 child_wall=4s peak_rss=0.22G min_avail=7.84G
+[zk60-guard 20:10:30] START gate18-cap-classify-rc3-rung-L2-v1-short1 class=cpu need=0.7G cap=1.5G enforce=cgroup+watchdog waited=0s run=fe5b54e12a02
+[zk60-guard 20:10:34] END gate18-cap-classify-rc3-rung-L2-v1-short1 exit=0 child_wall=4s peak_rss=0.22G min_avail=13.20G
+[zk60-guard 20:10:34] START gate18-cap-classify-rc3-rung-L2-vtie-short1 class=cpu need=0.7G cap=1.5G enforce=cgroup+watchdog waited=0s run=46fb146e570e
+[zk60-guard 20:10:38] END gate18-cap-classify-rc3-rung-L2-vtie-short1 exit=0 child_wall=4s peak_rss=0.22G min_avail=13.19G
+[zk60-guard 20:10:38] START gate18-cap-classify-rc3-rung-L2-v0-short11 class=cpu need=0.7G cap=1.5G enforce=cgroup+watchdog waited=0s run=716c8e2dfd8d
+[zk60-guard 20:10:43] END gate18-cap-classify-rc3-rung-L2-v0-short11 exit=0 child_wall=4s peak_rss=0.22G min_avail=13.22G
+[zk60-guard 20:10:43] START gate18-cap-classify-rc3-rung-L2-v1-short11 class=cpu need=0.7G cap=1.5G enforce=cgroup+watchdog waited=0s run=684b8a8693ac
+[zk60-guard 20:10:47] END gate18-cap-classify-rc3-rung-L2-v1-short11 exit=0 child_wall=4s peak_rss=0.22G min_avail=13.18G
+[zk60-guard 20:10:47] START gate18-cap-classify-rc3-rung-L2-vtie-short11 class=cpu need=0.7G cap=1.5G enforce=cgroup+watchdog waited=0s run=78486cdd0db4
+[zk60-guard 20:10:51] END gate18-cap-classify-rc3-rung-L2-vtie-short11 exit=0 child_wall=4s peak_rss=0.22G min_avail=13.17G
+[zk60-guard 20:10:51] START gate18-cap-classify-rc3-rung-L2-v0-short22 class=cpu need=0.7G cap=1.5G enforce=cgroup+watchdog waited=0s run=6c49ba8acaf9
+[zk60-guard 20:10:56] END gate18-cap-classify-rc3-rung-L2-v0-short22 exit=0 child_wall=4s peak_rss=0.22G min_avail=13.15G
+[zk60-guard 20:10:56] START gate18-cap-classify-rc3-rung-L2-v1-short22 class=cpu need=0.7G cap=1.5G enforce=cgroup+watchdog waited=0s run=f975344476ed
+[zk60-guard 20:11:00] END gate18-cap-classify-rc3-rung-L2-v1-short22 exit=0 child_wall=4s peak_rss=0.22G min_avail=13.13G
+[zk60-guard 20:11:00] START gate18-cap-classify-rc3-rung-L2-vtie-short22 class=cpu need=0.7G cap=1.5G enforce=cgroup+watchdog waited=0s run=5b3fe97d5f12
+[zk60-guard 20:11:04] END gate18-cap-classify-rc3-rung-L2-vtie-short22 exit=0 child_wall=4s peak_rss=0.22G min_avail=13.21G

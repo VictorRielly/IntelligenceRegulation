@@ -1,0 +1,9 @@
+{
+  "case": "r13-low-dense-plain",
+  "utc_before_prove": "2026-10-29T07:41:56.038337+00:00",
+  "cli_sha256": "5ff7e86beb2cd71d8824a6d526383654e121edbb63a536434a69bd3d47f3cf47",
+  "cli_path": "/home/victor/IntelligenceRegulation/results/zk60_sol_20261026/r13-f1/zk60_trained_block.r13-f1.release.bin",
+  "source_tree_sha256": "b4f7d795c23eef05676dc5fafbc91f7d70391f972ec5d6b46ca9116720a55f9f",
+  "profile_sha256": "31ac461a2d380ef6ce2b4f559a7a5b34d6cf25bfa86d0f828dfca70680f8298b",
+  "scope": "public synthetic fixture"
+}

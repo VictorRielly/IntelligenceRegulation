@@ -1,0 +1,33 @@
+{
+  "utc": "2026-10-29T00:04:57.022540+00:00",
+  "old": "87138bda80ae4499a668e67a1c0e7706bb859eafb5e766020bcd59567c8ac59c",
+  "new": "88af4c639848d39df8da559652db11529575aa745b916a06eb522c20ea89fbd3",
+  "independent_old_copy": {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_guard_fix_20261021/zk60_resource_guard.py.new",
+    "sha256": "87138bda80ae4499a668e67a1c0e7706bb859eafb5e766020bcd59567c8ac59c"
+  },
+  "files": {
+    "zk60_resource_guard.py.orig": {
+      "path": "/home/victor/IntelligenceRegulation/scripts/zk60_resource_guard.py",
+      "sha256": "87138bda80ae4499a668e67a1c0e7706bb859eafb5e766020bcd59567c8ac59c"
+    },
+    "zk60_guarded_command.py": {
+      "path": "/home/victor/IntelligenceRegulation/scripts/zk60_guarded_command.py",
+      "sha256": "5506541c04691fb091d27d9668f86fe97e355b3b00e07daf3f609bd6532f1e47"
+    },
+    "zk60_techweek_demo.py": {
+      "path": "/home/victor/IntelligenceRegulation/scripts/zk60_techweek_demo.py",
+      "sha256": "00da932f4028d673b8c45a15fbc32739cc3cb96257b825ace96e282a98cda63d"
+    },
+    "test_zk60_resource_guard.py": {
+      "path": "/home/victor/IntelligenceRegulation/tests/test_zk60_resource_guard.py",
+      "sha256": "8f854a2d2786d18b7c7596e57d2efca4b917bdd95f9c42bd91e6e4b3ff91c9dc"
+    },
+    "swap_guard.s3.py": {
+      "path": "/home/victor/IntelligenceRegulation/results/zk60_sol_20261026/swap_guard.py",
+      "sha256": "62e6bb5843d0c35f95c205241589004d56fbfb7b230ea4f689a00319accf0e77"
+    }
+  },
+  "official_fixture_sha256": "8ca39642a77819ee6d4f84a539158bbe2aaae24ea08a2dacaa55fe8ae26d29f6",
+  "official_policy_sha256": "ce7c1694e9c3906a4c4e2c5d13631f8a180bb175a97dfbedefbb5602cd244c9e"
+}

@@ -1,0 +1,16 @@
+{
+  "status": "PASS",
+  "checks": 187,
+  "utc": "2026-10-29T14:13:51.499930+00:00",
+  "elapsed_s": 0.031536608999886084,
+  "max_rss_kib": 32328,
+  "native_pins": 9,
+  "owner_documents": 6,
+  "prior_source_records": 955,
+  "final_source_records": 964,
+  "hypotheses": 61,
+  "independently_verified_full_stack_proofs": 0,
+  "model_passes": 0,
+  "proved_positions": 0,
+  "external_review": false
+}

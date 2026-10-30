@@ -1,0 +1,21 @@
+{
+  "find": [
+    {
+      "ref_id": "turn4view1",
+      "pattern": "github"
+    },
+    {
+      "ref_id": "turn4view1",
+      "pattern": "prime"
+    },
+    {
+      "ref_id": "turn4view1",
+      "pattern": "interval"
+    },
+    {
+      "ref_id": "turn4view1",
+      "pattern": "Open Science"
+    }
+  ],
+  "response_length": "long"
+}

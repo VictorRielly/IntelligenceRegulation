@@ -1,0 +1,19 @@
+{
+  "run_id": "20261029T135649Z-1526011b",
+  "checkpoint_utc": "2026-10-29T14:11:21.548673+00:00",
+  "deadline_utc": "2026-10-29T14:16:49Z",
+  "prior_sources": 955,
+  "final_sources": 964,
+  "prior_hypotheses": 60,
+  "final_hypotheses": 61,
+  "native_gain": null,
+  "full_stack_proofs": 0,
+  "model_passes": 0,
+  "proved_positions": 0,
+  "pending_heavy_jobs": 0,
+  "message_delivery": "files only; chat delivery is separate",
+  "owner_documents_unchanged": true,
+  "final_audit_utc": "2026-10-29T14:13:51.499930+00:00",
+  "final_audit_checks": 187,
+  "final_audit_status": "PASS"
+}

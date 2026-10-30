@@ -1,4 +1,4 @@
-"""R-C1 development implementation of the app's ClassifierProver interface.
+"""Version-pinned development implementation of the ClassifierProver interface.
 
 Only explicitly supplied synthetic token fixtures are admitted. This class is
 not registered in the web app's prover factory and does not label real text.
@@ -15,7 +15,7 @@ import subprocess
 import sys
 
 from . import config, records
-from .classifier_cli import ClassifierCLI, Deployment, chunk_plan, require
+from .classifier_cli import ClassifierCLI, Deployment, R_C1_SCHEMA, R_C2_SCHEMA, R_C3_SCHEMA, chunk_plan, require
 from .provers import ClassifierProver, NotSupported, ProverError, boot_id, poll, write_private
 
 PIPELINE=config.TOOLS_DIR/'classifier_pipeline.py'
@@ -25,6 +25,8 @@ PATH_FIELDS=('binary','prover_export','verifier_export','tables')
 def deployment_json(deployment):
     obj=asdict(deployment)
     for key in PATH_FIELDS:obj[key]=str(obj[key])
+    # Preserve retained R-C1 private job descriptions byte-for-byte in meaning.
+    if deployment.statement_schema==R_C1_SCHEMA:obj.pop('statement_schema')
     return obj
 
 
@@ -57,6 +59,8 @@ class RungClassifierProver(ClassifierProver):
     def __init__(self,deployment:Deployment,public_runs:Path):
         require(deployment.development,'RungClassifierProver requires the development deployment')
         self.cli=ClassifierCLI(deployment)
+        self.protocol={R_C1_SCHEMA:'R-C1',R_C2_SCHEMA:'R-C2',R_C3_SCHEMA:'R-C3'}[deployment.statement_schema]
+        self.label=f'Synthetic {self.protocol} classifier development fixture'
         self.public_runs=Path(public_runs).resolve()
 
     def describe(self):
@@ -78,10 +82,10 @@ class RungClassifierProver(ClassifierProver):
 
     def prepare(self,post_id,item,job,chunk=None):
         """Write a concrete private job without launching it (bounded CLI runner)."""
-        if not isinstance(item,RungTokenItem):raise NotSupported('R-C1 development accepts synthetic token fixtures only')
+        if not isinstance(item,RungTokenItem):raise NotSupported(f'{self.protocol} development accepts synthetic token fixtures only')
         require(re.fullmatch(r'[A-Za-z0-9_-]{1,80}',post_id) is not None,'invalid development run identifier')
         require(all(type(x) is int and 5<=x<300 for x in item.ids),'invalid synthetic content token')
-        d=self.cli.deployment;plan=chunk_plan(len(item.ids),d.chunk_size,d.overlap)
+        d=self.cli.deployment;plan=chunk_plan(len(item.ids),d.chunk_size,d.overlap,allow_short=d.statement_schema==R_C3_SCHEMA)
         require(len(item.sequence_dirs)==len(plan) and all(Path(p).is_dir() for p in item.sequence_dirs),
                 'one private sequence directory is required per chunk')
         if chunk is None:
@@ -142,11 +146,11 @@ class RungClassifierProver(ClassifierProver):
             content_commitment={'kind':'synthetic fixture input endpoint','value':statement['input_token_endpoint_root']},
             statement=statement,statement_sha256=r['statement_sha256'],
             receipt={'run_dir':r['run_dir'],'files':r['files'],'segments':len(r['files']),
-                     'bytes':sum(f['bytes'] for f in r['files']),'inventory_source':'app record; native R-C1 has no segments.json'},
+                     'bytes':sum(f['bytes'] for f in r['files']),'inventory_source':f'app record; native {self.protocol} has no segments.json'},
             timings={},security={'whole_run_floor_bits':statement['whole_run_floor_bits'],'min_bits_required':d.min_bits,
                                  'note':'Development floor only; no production or privacy acceptance.'},
-            checks={'verify':{'ok':True,'by':'pinned R-C1 fresh process'},'content_binding':{'ok':True}},
-            content_length={'tokens':d.chunk_size,'total_tokens':spec['total'],'tokenizer':'synthetic IDs, not text'},
+            checks={'verify':{'ok':True,'by':f'pinned {self.protocol} fresh process'},'content_binding':{'ok':True}},
+            content_length={'tokens':r['chunk']['end']-r['chunk']['start'],'total_tokens':spec['total'],'tokenizer':'synthetic IDs, not text'},
             chunk=r['chunk'],created_at=records.now_iso(),proved_at=records.now_iso(),
             notes=['Development fixture only; never use these labels for media categories or testnet publication.'])
 
@@ -171,28 +175,29 @@ class RungClassifierProver(ClassifierProver):
         except (ProverError,OSError,ValueError,KeyError) as exc:
             return records.Verdict('re-check',False,False,'classifier recheck failed',records.now_iso(),
                                    {'development_only':True,'message':str(exc)})
-        return records.Verdict(r['value'],True,True,'fresh R-C1 verifier and input-owner',records.now_iso(),
+        return records.Verdict(r['value'],True,True,f'fresh {self.protocol} verifier and input-owner',records.now_iso(),
                                {'development_only':True,'content_binding':True})
 
-    def start_label(self,chunk_records,job):
-        launch_pipeline(self.prepare_label(chunk_records,job))
+    def start_label(self,chunk_records,job,*,item):
+        launch_pipeline(self.prepare_label(chunk_records,job,item=item))
 
-    def prepare_label(self,chunk_records,job):
+    def prepare_label(self,chunk_records,job,*,item):
         """Fresh native verification and OR for every chunk of ONE synthetic item."""
+        require(isinstance(item,RungTokenItem) and item.ids and
+                all(type(x) is int and 5<=x<300 for x in item.ids),'original synthetic item required for whole-post count')
+        total=len(item.ids)
         require(bool(chunk_records),'no chunks to aggregate')
         first=chunk_records[0];normalized=[]
         for rec in chunk_records:
             require(rec.post_id==first.post_id and rec.prover==self.describe() and
-                    rec.content_length['total_tokens']==first.content_length['total_tokens'],
+                    rec.content_length['total_tokens']==total,
                     'aggregate mixes items or deployments')
             normalized.append({**rec.labels['synthetic'],'chunk':rec.chunk,'statement':rec.statement})
         # Structural checks happen before any native launch; native label still
         # verifies all segments afresh and supplies the final aggregate event.
-        d=self.cli.deployment;plan=chunk_plan(first.content_length['total_tokens'],d.chunk_size,d.overlap)
-        require(len(chunk_records)==len(plan) and {r.chunk['index'] for r in chunk_records}==set(range(len(plan))),
-                'aggregate is missing a chunk or has a duplicate')
-        runs=[r.receipt['run_dir'] for r in chunk_records];self.cli.label_command(runs)
-        return self._job(job,{'mode':'label','post_id':first.post_id,'total':first.content_length['total_tokens'],
+        self.cli.check_label_records(normalized,total)
+        runs=[r.receipt['run_dir'] for r in chunk_records];self.cli.label_command(runs,total)
+        return self._job(job,{'mode':'label','post_id':first.post_id,'total':total,
                        'records':normalized,'runs':runs})
 
     def collect_label(self,job):

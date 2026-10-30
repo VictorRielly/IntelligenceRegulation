@@ -70,8 +70,10 @@ class GuardCase(unittest.TestCase):
                         ZK60_GUARD_DIR=str(t / "state"), ZK60_GUARD_HISTORY=str(self.history),
                         ZK60_HEAVY_LOCK=str(self.heavy), ZK60_BUILD_LOCK=str(t / "build.lock"),
                         ZK60_GUARD_MEMINFO=str(self.meminfo), ZK60_GUARD_NVIDIA_SMI=str(self.smi),
-                        ZK60_GUARD_DRAIN_SECS="3", ZK60_GUARD_TERM_GRACE_SECS="2")
-        for k in ("ZK60_GUARD_JOB", "ZK60_GUARD_HELD_LOCKS", "ZK60_GUARD_RUN_ID"):
+                        ZK60_GUARD_DRAIN_SECS="3", ZK60_GUARD_TERM_GRACE_SECS="2",
+                        ZK60_GUARD_HOST_DRIVE=str(t))  # never the real C:, whose free space varies
+        for k in ("ZK60_GUARD_JOB", "ZK60_GUARD_HELD_LOCKS", "ZK60_GUARD_RUN_ID",
+                  "ZK60_GUARD_DISK_FLOOR_GIB", "ZK60_GUARD_DISK_KILL_GIB"):
             self.env.pop(k, None)  # never inherit a guard from the environment running the tests
 
     def tearDown(self):
@@ -284,8 +286,8 @@ class TestAdmission(GuardCase):
         self.assertEqual(r.returncode, 70)
         self.assertIn("below", r.stderr)
 
-    def test_refuses_when_swap_is_already_in_use(self):
-        self.meminfo.write_text(meminfo_text(swap_used_gib=2))
+    def test_refuses_swap_when_headroom_cannot_restore_all_pages(self):
+        self.meminfo.write_text(meminfo_text(avail_gib=2.5, swap_used_gib=2))
         r = self.guard("run", "--class", "light", "--wait-secs", "1", "--no-cgroup", "--", "true")
         self.assertEqual(r.returncode, 70)
         self.assertIn("swap", r.stderr)
@@ -589,6 +591,50 @@ class TestGpu(GuardCase):
         self.assertTrue(gone(job))
 
 
+class TestHostDrive(GuardCase):
+    """The drive holding the VM disk and the Windows page file (C:, 2026-10-29 crash)."""
+
+    def test_heavy_jobs_wait_and_refuse_under_the_disk_floor(self):
+        env = dict(self.env, ZK60_GUARD_DISK_FLOOR_GIB="1e9")  # far above any real free space
+        for cls in ("cpu", "gpu", "build"):
+            r = self.guard("run", "--class", cls, "--wait-secs", "1", "--no-cgroup", "--", "true",
+                           env=env)
+            self.assertEqual(r.returncode, 70, f"{cls}: {r.stderr}")
+            self.assertIn("host drive", r.stderr)
+        c = self.guard("check", "--class", "cpu", env=env)
+        self.assertEqual(c.returncode, 1)
+        self.assertIn("host drive", c.stdout)
+
+    def test_light_jobs_still_start_under_the_disk_floor(self):
+        env = dict(self.env, ZK60_GUARD_DISK_FLOOR_GIB="1e9")
+        r = self.guard("run", "--class", "light", "--no-cgroup", "--", "true", env=env)
+        self.assertEqual(r.returncode, 0, r.stderr)
+
+    def test_live_job_is_killed_under_the_kill_floor(self):
+        env = dict(self.env, ZK60_GUARD_DISK_KILL_GIB="1e9")
+        res = Path(self.tmp.name) / "r.json"
+        t = time.time()
+        r = self.guard("run", "--class", "light", "--no-cgroup", "--result-json", str(res),
+                       "--", sys.executable, "-c", "import time; time.sleep(30)", env=env)
+        self.assertEqual(r.returncode, 75, r.stderr)
+        self.assertLess(time.time() - t, 25)  # first check comes at once, not after the sleep
+        self.assertIn("host drive", json.loads(res.read_text())["guard_killed"])
+
+    def test_missing_or_empty_drive_switches_the_checks_off(self):
+        for drive in ("/nonexistent/zk60-drive", ""):
+            env = dict(self.env, ZK60_GUARD_HOST_DRIVE=drive, ZK60_GUARD_DISK_FLOOR_GIB="1e9",
+                       ZK60_GUARD_DISK_KILL_GIB="1e9")
+            r = self.guard("run", "--class", "cpu", "--no-cgroup", "--", "true", env=env)
+            self.assertEqual(r.returncode, 0, f"{drive!r}: {r.stderr}")
+            self.assertIn("DISK  no host drive to check", self.guard("status", env=env).stdout)
+
+    def test_bad_floor_values_fall_back_to_the_defaults(self):
+        for bad in ("nan", "-5", "inf", "x"):
+            env = dict(self.env, ZK60_GUARD_DISK_FLOOR_GIB=bad, ZK60_GUARD_DISK_KILL_GIB=bad)
+            out = self.guard("status", env=env).stdout
+            self.assertIn("heavy jobs wait under 40, any job is killed under 8", out, bad)
+
+
 class TestStatus(GuardCase):
     def test_status_reports_memory_and_locks(self):
         s = json.loads(self.guard("status", "--json").stdout)
@@ -596,6 +642,7 @@ class TestStatus(GuardCase):
         self.assertEqual(s["job_budget_gib"], 12.5)
         self.assertTrue(s["heavy_lock_free"])
         self.assertEqual(s["gpu_total_mib"], 8188)
+        self.assertIn("GiB free (heavy jobs wait under", self.guard("status").stdout)
 
 
 if __name__ == "__main__":

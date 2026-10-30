@@ -1,0 +1,6 @@
+stage-00.json IN-C A-in: groups 3, surjective 3, disclosed 0 {}, joint [] (1.7 s)
+stage-00.json IN-C H-in: groups 4, surjective 3, disclosed 2 {'3': 2}, joint [([2, 3], 2)] (30.6 s)
+stage-00.json IN-C E-token-in: groups 1, surjective 1, disclosed 0 {}, joint [] (30.6 s)
+stage-27.json OUT-C A-out: groups 16, surjective 16, disclosed 0 {}, joint [] (36.0 s)
+stage-27.json OUT-C H-out: groups 5, surjective 4, disclosed 2 {'4': 2}, joint [([3, 4], 2)] (60.2 s)
+stage-27.json OUT-C B-out: groups 2, surjective 2, disclosed 0 {}, joint [] (64.7 s)

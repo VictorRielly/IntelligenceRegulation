@@ -1,0 +1,1 @@
+{"status": "PASS", "checks": 218, "utc": "2026-10-29T12:12:04.435028+00:00", "elapsed_s": 0.03346713500650367, "max_rss_kib": 33028, "source_records": 948, "new_source_records": 8, "prior_hypotheses_preserved": 60, "native_pins": 7, "owner_documents_unchanged": 4, "owner_documents_changed_and_reread": 1, "artifacts_hashed": 69}

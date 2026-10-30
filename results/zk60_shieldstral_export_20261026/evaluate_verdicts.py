@@ -143,6 +143,8 @@ def score_final(root,rows,offsets,token_io):
 def main():
     parser=argparse.ArgumentParser();parser.add_argument('--export',type=Path,default=HERE/'s2_evaluation_t256')
     parser.add_argument('--input',type=Path,default=HERE/'evaluation_inputs');parser.add_argument('--out',type=Path,required=True)
+    parser.add_argument('--token-io',type=Path,help='separate R12b public table directory; original base remains immutable')
+    parser.add_argument('--layer25-fix',type=Path,help='explicit numerical calibration candidate, not a native profile')
     parser.add_argument('--dataset',choices=['toxicchat','openai_mod']);parser.add_argument('--template')
     selection=parser.add_mutually_exclusive_group();selection.add_argument('--limit',type=int,default=8);selection.add_argument('--all',action='store_true')
     parser.add_argument('--max-minutes',type=float,default=25);args=parser.parse_args()
@@ -158,15 +160,28 @@ def main():
     rows=[data['rows'][i] for i in indexes]
     lengths=np.array([r['T'] for r in rows]);offsets=np.concatenate(([0],lengths.cumsum()))
     ids=np.concatenate([original_ids[original_offsets[i]:original_offsets[i+1]] for i in indexes])
-    export=EvaluationExport(args.export);token_io=export.base/'token_io'
+    export=EvaluationExport(args.export);token_io=args.token_io or export.base/'token_io'
     token_done=json.loads((token_io/'complete.json').read_text())
     for name,digest in token_done['files'].items():
         if sha(token_io/name)!=digest:raise ValueError('tied token tables changed')
+    if 'profile_sha256' in token_done:
+        if sha(token_io.parent/'profile.json')!=token_done['profile_sha256']:
+            raise ValueError('public table profile changed')
+        profile=json.loads((token_io.parent/'profile.json').read_text())
+        table=json.loads((token_io/'classifier.json').read_text())
+        if table['final_norm']!=profile['token_io_parameters']['classifier_final_norm'] or table['bos']!=profile['token_io_parameters']['bos']:
+            raise ValueError('classifier constants differ from bound profile')
+    amendment=None
+    if args.layer25_fix:
+        from amended_evaluator import candidate_pin,apply_candidate
+        amendment=candidate_pin(args.layer25_fix)
     plan={'schema':'zk60-shieldstral-eval-run/1','input_sha256':sha(args.input/'input.json'),
           'evaluation_export_sha256':sha(args.export/'complete.json'),'token_io_sha256':sha(token_io/'complete.json'),
           'tool_sha256':sha(__file__),'indexes':indexes,'items':len(rows),'tokens':int(offsets[-1]),
           'word_domain_amendment':DOMAIN,'word_domain_source_sha256':sha(HERE/'signed_word_domain.py'),
-          'scope':'smoke subset' if not args.all else 'selected full A1 item sets'}
+          'layer25_calibration_candidate':amendment,
+          'input_scope':data.get('scope'),
+          'scope':'smoke subset' if not args.all else ('full calibration replay' if all(r['dataset']=='calibration' for r in rows) else 'selected full A1 item sets')}
     args.out.mkdir(parents=True,exist_ok=True)
     if (args.out/'run.json').exists():
         if json.loads((args.out/'run.json').read_text())!=plan:raise ValueError('evaluation resume plan changed')
@@ -177,6 +192,8 @@ def main():
     for layer in range(LAYERS):
         stage=args.out/f'layer_{layer:02d}'
         model=None if (stage/'ready.json').exists() else export.layer(layer,export.profile['T'])
+        if model is not None and layer==25 and args.layer25_fix:
+            model=apply_candidate(model,args.layer25_fix)
         if not execute_layer(stage,source,rows,offsets,ids,model,None,deadline):return 3
         source=stage/'residual.bin';del model
         print(json.dumps({'layer':layer,'items':len(rows),'status':'complete'}),flush=True)

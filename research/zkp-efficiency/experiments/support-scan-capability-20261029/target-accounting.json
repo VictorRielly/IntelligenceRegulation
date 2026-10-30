@@ -1,0 +1,21 @@
+{
+  "independently_verified_full_stack_proofs": 0,
+  "passes": 0,
+  "countable_positions": 0,
+  "context_length": null,
+  "device": "CPU contract checking only; no model/GPU",
+  "startup_s": null,
+  "prefill_s": null,
+  "startup_fraction": null,
+  "witness_s": null,
+  "proof_s": null,
+  "serialization_s": null,
+  "verification_s": null,
+  "proof_latency_s": null,
+  "proof_bytes": null,
+  "steady_state_positions_s": null,
+  "total_workload_positions_s": null,
+  "long_prefill": "none",
+  "resident_passes": "none",
+  "decode": "none"
+}

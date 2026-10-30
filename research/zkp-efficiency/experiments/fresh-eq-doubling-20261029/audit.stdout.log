@@ -1,0 +1,1 @@
+{"status": "PASS", "checks": 566, "native_pins": 14, "extracted_native_functions": 3, "source_records": 971, "all_prior_hypotheses_preserved": true, "elapsed_s": 0.0055574430007254705, "max_rss_kib": 18620, "external_review": false, "full_stack_proofs": 0}

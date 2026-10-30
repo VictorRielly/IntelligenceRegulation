@@ -1,11 +1,12 @@
 """Paths and constants of the Proven Media demo app (one place; nothing else hard-codes a path).
 
-Two data roots, both OUTSIDE the repository (the prover refuses owner files inside a git tree):
+Two durable data roots (private state must be outside the repository):
   PRIVATE  ~/zk60-owner-private/proven-media   0700: the database (post text), 0600 prompt
            files, the prover-private sequence directories, the owners' decommitments, job logs
   PUBLIC   ~/zk60-artifacts/proven-media       the proofs (run directories), the verifier copy of
            the public model files, the local bundle store and ledger (the Publisher stub)
-Both can be moved with PM_PRIVATE_DIR / PM_PUBLIC_DIR (the tests use temporary directories).
+Both can be moved with PM_PRIVATE_DIR / PM_PUBLIC_DIR. Startup rejects volatile
+paths and overlapping roots; public evidence may live under repository results/.
 """
 from __future__ import annotations
 
@@ -13,7 +14,7 @@ import os
 from pathlib import Path
 
 REPO = Path("/home/victor/IntelligenceRegulation")
-APP_DIR = REPO / "apps" / "proven-media"
+APP_DIR = Path(__file__).resolve().parents[1]
 STATIC_DIR = APP_DIR / "static"
 TOOLS_DIR = APP_DIR / "tools"
 POLICY_DIR = APP_DIR / "policy"
@@ -104,8 +105,19 @@ IMAGE_MIME = {"image/png": "png", "image/jpeg": "jpg", "image/webp": "webp", "im
 
 
 def prover_mode() -> str:
-    """PM_PROVER=stub (default) | fake (tests / UI work only: NO proof, shown in red in the UI)."""
+    """PM_PROVER=stub (default) | shieldstral (reviewed testnet demo) | fake (no proof)."""
     return os.environ.get("PM_PROVER", "stub")
+
+
+def registered_categories():
+    if prover_mode() == 'shieldstral':
+        from .shieldstral_runtime import categories
+        return categories()
+    return CATEGORIES
+
+
+def category_set_id():
+    return 'shieldstral-moderate-testnet-v1' if prover_mode() == 'shieldstral' else CATEGORY_SET_ID
 
 
 # ---- chunking (D41): chunk size and overlap per hardware profile, in deploy.json
@@ -116,6 +128,21 @@ def deploy() -> dict:
     """the active hardware profile, with the effective chunking for the stub prover (its model proves at
     most STUB_MAX_CONTENT_TOKENS content tokens per run, so the configured size is capped there)"""
     import json
+
+    if prover_mode() == 'shieldstral':
+        from .shieldstral_runtime import templates
+        ts = templates()
+        geometry = {t.category: {'chunk_tokens': t.chunk_size, 'overlap_tokens': t.overlap,
+                                'max_chunks': t.max_chunks} for t in ts}
+        chunk = min(t.chunk_size for t in ts)
+        overlap = ts[0].overlap
+        maximum = min(t.chunk_size + (t.max_chunks - 1) * (t.chunk_size - t.overlap) for t in ts)
+        return {'profile': 'shieldstral-t128', 'label': 'Shieldstral T128 testnet demo',
+                'note': 'Each category uses its registered template; privacy statement pending.',
+                'chunk_tokens': chunk, 'overlap_tokens': overlap, 'max_chunks': min(t.max_chunks for t in ts),
+                'effective_chunk_tokens': chunk, 'effective_overlap_tokens': overlap,
+                'category_geometry': geometry, 'capped_by_prover': False,
+                'max_content_tokens': maximum, 'profiles': {}, 'file': None}
 
     d = json.loads(DEPLOY_FILE.read_text())
     name = os.environ.get("PM_PROFILE", d["active_profile"])

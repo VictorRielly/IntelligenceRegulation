@@ -1,0 +1,1 @@
+{"status": "PASS", "checks": 7503, "source_pins": 7, "unchanged_extracted_methods": 6, "source_anchor_mutations": 9, "exact_source_method_mutations": 6, "registry_geometries": 12, "census_geometries": 36, "elapsed_s": 0.016098606000014115, "max_rss_kib": 16732, "native_constructor_or_define_executed": false, "native_receipts_verified": false, "external_review": false}

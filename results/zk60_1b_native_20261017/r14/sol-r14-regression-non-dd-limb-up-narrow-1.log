@@ -1,0 +1,9 @@
+
+running 1 test
+test private_block::argument::split_attack_tests::split_run_t128_relation_regression_receipt_from_env ... R14_RELATION_MUTATION case=limb-up-narrow parent=95 domain=F global_index=8192 old=128 new=129
+R14_ATTACK_REFUSAL limb-up-narrow: slot 24 [R14 14 F zero-check (hosts 13G, 13U) Narrow]: sumcheck round 0: s(0) + s(1) != claim
+R14_MALICIOUS_RECEIPT {"case":"limb-up-narrow","dd":false,"bytes":34875688,"expected_accept":false,"canonical_frame_decoded":true,"native_verifier_used":true}
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 758 filtered out; finished in 12.70s
+

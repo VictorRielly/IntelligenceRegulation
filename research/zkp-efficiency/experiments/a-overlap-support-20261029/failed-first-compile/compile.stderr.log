@@ -1,0 +1,760 @@
+error[E0412]: cannot find type `Dom` in this scope
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:14:26
+   |
+14 |     pub(crate) doms: Vec<Dom>,
+   |                          ^^^ not found in this scope
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0412]: cannot find type `Dom` in this scope
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:22:29
+   |
+22 |     fn word(&mut self, dom: Dom, old: usize, name: &str) -> usize {
+   |                             ^^^ not found in this scope
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0412]: cannot find type `Dom` in this scope
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:29:30
+   |
+29 |     fn group(&mut self, dom: Dom, role: Limbs, name: &str, count: usize, old: usize, old_count: usize) {
+   |                              ^^^ not found in this scope
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:44:88
+   |
+44 |         for (id,name) in [(A_D,"D"),(A_DSQ,"DSQ"),(A_DM,"DM"),(A_DSQM,"DSQM")] {x.word(Dom::T,id,name);}
+   |                                                                                        ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:45:16
+   |
+45 |         x.word(Dom::Ht,A_MX,"MX"); x.word(Dom::Ht,A_SUM,"SUM");
+   |                ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:45:43
+   |
+45 |         x.word(Dom::Ht,A_MX,"MX"); x.word(Dom::Ht,A_SUM,"SUM");
+   |                                           ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:46:16
+   |
+46 |         x.word(Dom::L,A_LIMB,"LIMB"); x.word(Dom::L,A_LIMBM,"LIMBM");
+   |                ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:46:46
+   |
+46 |         x.word(Dom::L,A_LIMB,"LIMB"); x.word(Dom::L,A_LIMBM,"LIMBM");
+   |                                              ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:47:16
+   |
+47 |         x.word(Dom::D,A_X,"X"); x.group(Dom::D,Limbs::X,"XL",2,A_XL0,2);
+   |                ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:47:41
+   |
+47 |         x.word(Dom::D,A_X,"X"); x.group(Dom::D,Limbs::X,"XL",2,A_XL0,2);
+   |                                         ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:48:16
+   |
+48 |         x.word(Dom::D,A_Y,"Y"); x.group(Dom::D,Limbs::Y,"YL",2,usize::MAX,0);
+   |                ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:48:41
+   |
+48 |         x.word(Dom::D,A_Y,"Y"); x.group(Dom::D,Limbs::Y,"YL",2,usize::MAX,0);
+   |                                         ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:49:17
+   |
+49 |         x.group(Dom::D,Limbs::Nr,"NR",3,A_NR0,LN_TOY); x.group(Dom::D,Limbs::Ns,"NS",3,A_NS0,LN_TOY);
+   |                 ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:49:64
+   |
+49 |         x.group(Dom::D,Limbs::Nr,"NR",3,A_NR0,LN_TOY); x.group(Dom::D,Limbs::Ns,"NS",3,A_NS0,LN_TOY);
+   |                                                                ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:50:16
+   |
+50 |         x.word(Dom::D,A_AO,"AO"); x.group(Dom::D,Limbs::Ao,"AL",2,A_AL0,2);
+   |                ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:50:43
+   |
+50 |         x.word(Dom::D,A_AO,"AO"); x.group(Dom::D,Limbs::Ao,"AL",2,A_AL0,2);
+   |                                           ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:51:17
+   |
+51 |         x.group(Dom::D,Limbs::Rao,"RAL",3,A_RAL,1);
+   |                 ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:52:16
+   |
+52 |         x.word(Dom::D,A_X1,"X1"); x.group(Dom::D,Limbs::X1,"X1L",2,A_X1L0,2);
+   |                ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:52:43
+   |
+52 |         x.word(Dom::D,A_X1,"X1"); x.group(Dom::D,Limbs::X1,"X1L",2,A_X1L0,2);
+   |                                           ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:53:16
+   |
+53 |         x.word(Dom::D,A_YM,"YM"); x.group(Dom::D,Limbs::Ym,"YML",2,usize::MAX,0);
+   |                ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:53:43
+   |
+53 |         x.word(Dom::D,A_YM,"YM"); x.group(Dom::D,Limbs::Ym,"YML",2,usize::MAX,0);
+   |                                           ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:54:17
+   |
+54 |         x.group(Dom::D,Limbs::Mr,"MR",3,A_MR0,LN_TOY); x.group(Dom::D,Limbs::Ms,"MS",3,A_MS0,LN_TOY);
+   |                 ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:54:64
+   |
+54 |         x.group(Dom::D,Limbs::Mr,"MR",3,A_MR0,LN_TOY); x.group(Dom::D,Limbs::Ms,"MS",3,A_MS0,LN_TOY);
+   |                                                                ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:55:16
+   |
+55 |         x.word(Dom::D,A_Z16,"Z"); x.group(Dom::D,Limbs::Z,"ZL",2,A_ZL0,2);
+   |                ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:55:43
+   |
+55 |         x.word(Dom::D,A_Z16,"Z"); x.group(Dom::D,Limbs::Z,"ZL",2,A_ZL0,2);
+   |                                           ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:56:17
+   |
+56 |         x.group(Dom::D,Limbs::Rd,"RDL",if h24 {3} else {2},A_RDL,1);
+   |                 ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:57:16
+   |
+57 |         x.word(Dom::D,A_X2,"X2"); x.group(Dom::D,Limbs::X2,"X2L",2,A_X2L0,2);
+   |                ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:57:43
+   |
+57 |         x.word(Dom::D,A_X2,"X2"); x.group(Dom::D,Limbs::X2,"X2L",2,A_X2L0,2);
+   |                                           ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:58:16
+   |
+58 |         x.word(Dom::Q,A_Q8,"Q"); x.group(Dom::Q,Limbs::Q,"QL",2,usize::MAX,0);
+   |                ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:58:42
+   |
+58 |         x.word(Dom::Q,A_Q8,"Q"); x.group(Dom::Q,Limbs::Q,"QL",2,usize::MAX,0);
+   |                                          ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:59:17
+   |
+59 |         x.group(Dom::Q,Limbs::Rq,"RQL",2,A_RQL,1);
+   |                 ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:60:16
+   |
+60 |         x.word(Dom::Q,A_QR8,"QR"); x.group(Dom::Q,Limbs::Qr,"QRL",2,usize::MAX,0);
+   |                ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:60:44
+   |
+60 |         x.word(Dom::Q,A_QR8,"QR"); x.group(Dom::Q,Limbs::Qr,"QRL",2,usize::MAX,0);
+   |                                            ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:61:17
+   |
+61 |         x.group(Dom::Q,Limbs::Rqr,"RQRL",1,A_RQRL,1);
+   |                 ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:62:16
+   |
+62 |         x.word(Dom::Q,A_O8,"O"); x.group(Dom::Q,Limbs::O,"OL",2,usize::MAX,0);
+   |                ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:62:42
+   |
+62 |         x.word(Dom::Q,A_O8,"O"); x.group(Dom::Q,Limbs::O,"OL",2,usize::MAX,0);
+   |                                          ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:63:17
+   |
+63 |         x.group(Dom::Q,Limbs::Ro,"RO",2,A_RO0,2);
+   |                 ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:64:16
+   |
+64 |         x.word(Dom::Kv,A_K8,"K"); x.group(Dom::Kv,Limbs::K,"KL",2,usize::MAX,0);
+   |                ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:64:43
+   |
+64 |         x.word(Dom::Kv,A_K8,"K"); x.group(Dom::Kv,Limbs::K,"KL",2,usize::MAX,0);
+   |                                           ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:65:17
+   |
+65 |         x.group(Dom::Kv,Limbs::Rk,"RKL",2,A_RKL,1);
+   |                 ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:66:16
+   |
+66 |         x.word(Dom::Kv,A_V8,"V"); x.group(Dom::Kv,Limbs::V,"VL",2,usize::MAX,0);
+   |                ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:66:43
+   |
+66 |         x.word(Dom::Kv,A_V8,"V"); x.group(Dom::Kv,Limbs::V,"VL",2,usize::MAX,0);
+   |                                           ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:67:17
+   |
+67 |         x.group(Dom::Kv,Limbs::Rv,"RVL",2,A_RVL,1);
+   |                 ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:68:16
+   |
+68 |         x.word(Dom::Kv,A_KR8,"KR"); x.group(Dom::Kv,Limbs::Kr,"KRL",2,usize::MAX,0);
+   |                ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:68:45
+   |
+68 |         x.word(Dom::Kv,A_KR8,"KR"); x.group(Dom::Kv,Limbs::Kr,"KRL",2,usize::MAX,0);
+   |                                             ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:69:17
+   |
+69 |         x.group(Dom::Kv,Limbs::Rkr,"RKRL",1,A_RKRL,1);
+   |                 ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:70:16
+   |
+70 |         x.word(Dom::S,A_S8,"S"); x.group(Dom::S,Limbs::Rs,"RSL",3,A_RSL,1);
+   |                ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:70:42
+   |
+70 |         x.word(Dom::S,A_S8,"S"); x.group(Dom::S,Limbs::Rs,"RSL",3,A_RSL,1);
+   |                                          ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:71:16
+   |
+71 |         x.word(Dom::S,A_ZSEL,"ZSEL"); x.word(Dom::S,A_E,"E"); x.word(Dom::S,A_P,"P");
+   |                ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:71:46
+   |
+71 |         x.word(Dom::S,A_ZSEL,"ZSEL"); x.word(Dom::S,A_E,"E"); x.word(Dom::S,A_P,"P");
+   |                                              ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:71:70
+   |
+71 |         x.word(Dom::S,A_ZSEL,"ZSEL"); x.word(Dom::S,A_E,"E"); x.word(Dom::S,A_P,"P");
+   |                                                                      ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:72:29
+   |
+72 |         if !dd { x.division(Dom::S,ls); }
+   |                             ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:73:16
+   |
+73 |         x.word(Dom::F,A_G8,"G"); x.group(Dom::F,Limbs::Rg,"RGL",3,A_RGL,1);
+   |                ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:73:42
+   |
+73 |         x.word(Dom::F,A_G8,"G"); x.group(Dom::F,Limbs::Rg,"RGL",3,A_RGL,1);
+   |                                          ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:74:16
+   |
+74 |         x.word(Dom::F,A_A16,"A_SCALED"); x.word(Dom::F,A_U16,"U"); x.group(Dom::F,Limbs::Up,"UL",2,A_UL0,2);
+   |                ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:74:49
+   |
+74 |         x.word(Dom::F,A_A16,"A_SCALED"); x.word(Dom::F,A_U16,"U"); x.group(Dom::F,Limbs::Up,"UL",2,A_UL0,2);
+   |                                                 ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:74:76
+   |
+74 |         x.word(Dom::F,A_A16,"A_SCALED"); x.word(Dom::F,A_U16,"U"); x.group(Dom::F,Limbs::Up,"UL",2,A_UL0,2);
+   |                                                                            ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:75:17
+   |
+75 |         x.group(Dom::F,Limbs::Ru,"RU",2,usize::MAX,0);
+   |                 ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:76:16
+   |
+76 |         x.word(Dom::F,A_H16,"H"); x.group(Dom::F,Limbs::H,"HL",if h24 {3} else {2},A_HL0,2);
+   |                ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:76:43
+   |
+76 |         x.word(Dom::F,A_H16,"H"); x.group(Dom::F,Limbs::H,"HL",if h24 {3} else {2},A_HL0,2);
+   |                                           ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:77:17
+   |
+77 |         x.group(Dom::F,Limbs::Rh,"RH",if h24 {2} else {3},A_RH0,2);
+   |                 ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:79:28
+   |
+79 |             x.pdict=x.word(Dom::Dd,usize::MAX,"PDICT"); x.division(Dom::Dd,ls);
+   |                            ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:79:68
+   |
+79 |             x.pdict=x.word(Dom::Dd,usize::MAX,"PDICT"); x.division(Dom::Dd,ls);
+   |                                                                    ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:80:26
+   |
+80 |             x.mdd=x.word(Dom::Dd,usize::MAX,"MDD");
+   |                          ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:82:16
+   |
+82 |         x.word(Dom::Tab,A_MU8,"MU8"); x.word(Dom::Tab,A_MEXP,"MEXP"); x.word(Dom::Tab,A_MACT,"MACT");
+   |                ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:82:46
+   |
+82 |         x.word(Dom::Tab,A_MU8,"MU8"); x.word(Dom::Tab,A_MEXP,"MEXP"); x.word(Dom::Tab,A_MACT,"MACT");
+   |                                              ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0433]: failed to resolve: use of undeclared type `Dom`
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:82:78
+   |
+82 |         x.word(Dom::Tab,A_MU8,"MU8"); x.word(Dom::Tab,A_MEXP,"MEXP"); x.word(Dom::Tab,A_MACT,"MACT");
+   |                                                                              ^^^ use of undeclared type `Dom`
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+error[E0412]: cannot find type `Dom` in this scope
+  --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/a_ids.rs:92:33
+   |
+92 |     fn division(&mut self, dom: Dom, ls: usize) {
+   |                                 ^^^ not found in this scope
+   |
+help: consider importing this enum
+   |
+1  + use crate::Dom;
+   |
+
+warning: unused import: `super::*`
+ --> /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/harness.rs:6:16
+  |
+6 | mod layout{use super::*;include!("a_constants.rs");}
+  |                ^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` on by default
+
+error: aborting due to 68 previous errors; 1 warning emitted
+
+Some errors have detailed explanations: E0412, E0433.
+For more information about an error, try `rustc --explain E0412`.

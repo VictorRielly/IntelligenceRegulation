@@ -1,0 +1,4 @@
+/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/manifest_final_r17.sha256: list sha256 23a958766cf946d07b35e93e1f82685c3f952e5526a99f4d389be766881dd9a2
+copied 303 files into /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r18: all re-hashed match, none missing, none extra
+exit 0
+/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/r18/manifest_r18_init.sha256: 303 files, list sha256 23a958766cf946d07b35e93e1f82685c3f952e5526a99f4d389be766881dd9a2

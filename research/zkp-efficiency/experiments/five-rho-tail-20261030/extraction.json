@@ -1,0 +1,7 @@
+{
+  "host_adapter": "Rayon iterator serial only",
+  "kernel_change": "max4 -> max5 plus symbol rename only",
+  "cuda_compiled": false,
+  "native_crate_built": false,
+  "patch_applied": false
+}

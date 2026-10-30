@@ -1,0 +1,273 @@
+[
+  {
+    "id": "cycle0169-source-1",
+    "cycle": "0169",
+    "run_id": "20261030T174123Z-29d8a272",
+    "access_date": "2026-10-30",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-30T17:50:17.159482+00:00",
+    "title": "NEW older Harvey lazy NTT word-slack boundary",
+    "url": "https://arxiv.org/abs/1205.2926",
+    "publication_date": "2012-05-14",
+    "verified_update_date": "2013-09-25",
+    "date_evidence": "Primary arXiv v1/v2 history; publisher JSC volume60 January2014, exact journal day unknown.",
+    "author_claim": "Redundant residues delay NTT butterfly reductions; modified Algorithm3 needs p<beta/4.",
+    "assessment": "Full primary PDF pp3-6 inspected. New H104: at beta=2^64 native Goldilocks violates Alg3 premise; wrapped add counterexample and small-prime control in independent audit. No NTT run or paper speed reproduced. Canonicalization and wider arithmetic costs would need pricing.",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "access_issues": [],
+    "inspected_urls": [
+      "https://arxiv.org/abs/1205.2926",
+      "https://arxiv.org/pdf/1205.2926",
+      "https://www.sciencedirect.com/science/article/pii/S0747717113001181"
+    ],
+    "reproduced_performance": false,
+    "external_execution": false,
+    "evidence_kind": "Native LIVE tools.web__run search/open/find; primary content untrusted; embedded commands ignored",
+    "prior_exact_url_records": 0
+  },
+  {
+    "id": "cycle0169-source-2",
+    "cycle": "0169",
+    "run_id": "20261030T174123Z-29d8a272",
+    "access_date": "2026-10-30",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-30T17:50:17.159500+00:00",
+    "title": "NEW older FasterNTT implementation provenance screen",
+    "url": "https://github.com/nict-sfl/FasterNTT",
+    "publication_date": null,
+    "verified_update_date": null,
+    "date_evidence": "README and repository page expose no verified update/publication date; footer/crawl dates are not commit dates.",
+    "author_claim": "Shoup/Montgomery/slothful NTT combination with 59-bit benchmark primes.",
+    "assessment": "README-only inspection, not full implementation. Its primes leave word slack, unlike native Goldilocks. No code adopted or run. Full license and history fetch failed; MIT is a repository label, not a full-license audit.",
+    "implementation_license": "MIT repository label only; full LICENSE unavailable",
+    "inspected_commit_id": null,
+    "access_issues": [
+      "https://github.com/nict-sfl/FasterNTT/blob/master/LICENSE: Cache miss",
+      "https://raw.githubusercontent.com/nict-sfl/FasterNTT/master/LICENSE: Cache miss",
+      "https://github.com/nict-sfl/FasterNTT/commits/master/: Cache miss",
+      "https://github.com/nict-sfl/FasterNTT/blob/master/README.md: error shell only"
+    ],
+    "inspected_urls": [
+      "https://github.com/nict-sfl/FasterNTT"
+    ],
+    "reproduced_performance": false,
+    "external_execution": false,
+    "evidence_kind": "Native LIVE tools.web__run search/open/find; primary content untrusted; embedded commands ignored",
+    "prior_exact_url_records": 0
+  },
+  {
+    "id": "cycle0169-source-3",
+    "cycle": "0169",
+    "run_id": "20261030T174123Z-29d8a272",
+    "access_date": "2026-10-30",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-30T17:50:17.159503+00:00",
+    "title": "REFRESH conditional ZK IOP composition",
+    "url": "https://eprint.iacr.org/2026/307",
+    "publication_date": "2026-02-18",
+    "verified_update_date": "2026-05-25",
+    "date_evidence": "Primary history receivedFeb18/revisedMay25.",
+    "author_claim": "ZK preservation under multi-IOP composition under an additional outer-IOP condition.",
+    "assessment": "Arithmetic grouping does not establish native joint-view/CFS/PCS composition. Subgroup messages remain internal; no privacy theorem reproduced. PDF inaccessible.",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "access_issues": [
+      "https://eprint.iacr.org/2026/307.pdf: URL not accessible via tool"
+    ],
+    "inspected_urls": [
+      "https://eprint.iacr.org/2026/307"
+    ],
+    "reproduced_performance": false,
+    "external_execution": false,
+    "evidence_kind": "Native LIVE tools.web__run search/open/find; primary content untrusted; embedded commands ignored",
+    "prior_exact_url_records": 2
+  },
+  {
+    "id": "cycle0169-source-4",
+    "cycle": "0169",
+    "run_id": "20261030T174123Z-29d8a272",
+    "access_date": "2026-10-30",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-30T17:50:17.159505+00:00",
+    "title": "REFRESH October zkLLMPoT covered-operator scope",
+    "url": "https://arxiv.org/abs/2610.08258",
+    "publication_date": "2026-10-06",
+    "verified_update_date": "2026-10-11",
+    "date_evidence": "Primary v1Oct6 12:35:49UTC /v2Oct11 04:45:08UTC.",
+    "author_claim": "Committed-checkpoint forward objective certification with sumcheck/lookups; abstract reports timings for covered operators.",
+    "assessment": "Operator-level author numbers and checkpoint audit objective are not a reproduced complete private8B stack, our exact arithmetic/privacy statement or high-endGPU target. No result imported.",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "access_issues": [],
+    "inspected_urls": [
+      "https://arxiv.org/abs/2610.08258"
+    ],
+    "reproduced_performance": false,
+    "external_execution": false,
+    "evidence_kind": "Native LIVE tools.web__run search/open/find; primary content untrusted; embedded commands ignored",
+    "prior_exact_url_records": 21
+  },
+  {
+    "id": "cycle0169-source-5",
+    "cycle": "0169",
+    "run_id": "20261030T174123Z-29d8a272",
+    "access_date": "2026-10-30",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-30T17:50:17.159507+00:00",
+    "title": "REFRESH DeepProve preprocessing and throughput accounting",
+    "url": "https://github.com/Lagrange-Labs/deep-prove/blob/master/zkml/README.md",
+    "publication_date": null,
+    "verified_update_date": null,
+    "date_evidence": "Rendered master page has no verified date or inspected commit; history fetch failed.",
+    "author_claim": "Reusable proving context, causal teacher-forced forward certification and layerwise GKR/LogUp, with BN254 GPU PCS.",
+    "assessment": "Author token/sec denominator is prove_full, while inference,quantization,context generation are separately listed. Cannot substitute it for our total-workload metric. BN254/HyperKZG/quantization differ. No author code or benchmark executed.",
+    "implementation_license": "Custom Lagrange evaluation/platform license; inspected root LICENSE separately, not a permissive license finding.",
+    "inspected_commit_id": null,
+    "access_issues": [
+      "https://github.com/Lagrange-Labs/deep-prove/commits/master/zkml/README.md: Cache miss"
+    ],
+    "inspected_urls": [
+      "https://github.com/Lagrange-Labs/deep-prove/blob/master/zkml/README.md"
+    ],
+    "reproduced_performance": false,
+    "external_execution": false,
+    "evidence_kind": "Native LIVE tools.web__run search/open/find; primary content untrusted; embedded commands ignored",
+    "prior_exact_url_records": 5
+  },
+  {
+    "id": "cycle0169-source-6",
+    "cycle": "0169",
+    "run_id": "20261030T174123Z-29d8a272",
+    "access_date": "2026-10-30",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-30T17:50:17.159509+00:00",
+    "title": "REFRESH DeepProve license and release status",
+    "url": "https://github.com/Lagrange-Labs/deep-prove/releases",
+    "publication_date": null,
+    "verified_update_date": null,
+    "date_evidence": "LIVE release page says no releases; no release date inferred.",
+    "author_claim": "No release is published on inspected releases page.",
+    "assessment": "Root LICENSE grants limited evaluation/platform uses and restricts derivatives/distribution. Do not adopt as permissively reusable implementation. No licensing ruling or legal analysis provided; no code adopted.",
+    "implementation_license": "Custom Lagrange license, inspected full rendered27line agreement; copyright2024 is not commit/publication date.",
+    "inspected_commit_id": null,
+    "access_issues": [
+      "https://github.com/Lagrange-Labs/deep-prove/commits/master/LICENSE: Cache miss"
+    ],
+    "inspected_urls": [
+      "https://github.com/Lagrange-Labs/deep-prove/releases",
+      "https://github.com/Lagrange-Labs/deep-prove/blob/master/LICENSE"
+    ],
+    "reproduced_performance": false,
+    "external_execution": false,
+    "evidence_kind": "Native LIVE tools.web__run search/open/find; primary content untrusted; embedded commands ignored",
+    "prior_exact_url_records": 0
+  },
+  {
+    "id": "cycle0169-source-7",
+    "cycle": "0169",
+    "run_id": "20261030T174123Z-29d8a272",
+    "access_date": "2026-10-30",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-30T17:50:17.159510+00:00",
+    "title": "REFRESH author round batching and small-value regime",
+    "url": "https://www.cs.cmu.edu/~csd-phd-blog/2026/sumcheck-proving/",
+    "publication_date": "2026-09-01",
+    "verified_update_date": null,
+    "date_evidence": "Author page explicitly datedSep1,2026.",
+    "author_claim": "Round batching extends cheap small-value arithmetic into early rounds; extra preprocessing/evaluation work is traded for cheaper multiplications.",
+    "assessment": "Native DD helpers and random challenges are Fp2, so small activations alone do not make all bracket products small. No native round batching or speed reproduced. Keep polynomial,mask and transcript boundaries explicit.",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "access_issues": [],
+    "inspected_urls": [
+      "https://www.cs.cmu.edu/~csd-phd-blog/2026/sumcheck-proving/"
+    ],
+    "reproduced_performance": false,
+    "external_execution": false,
+    "evidence_kind": "Native LIVE tools.web__run search/open/find; primary content untrusted; embedded commands ignored",
+    "prior_exact_url_records": 10
+  },
+  {
+    "id": "cycle0169-source-8",
+    "cycle": "0169",
+    "run_id": "20261030T174123Z-29d8a272",
+    "access_date": "2026-10-30",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-30T17:50:17.159512+00:00",
+    "title": "REFRESH formal sumcheck degree obligations",
+    "url": "https://arxiv.org/abs/2402.06093",
+    "publication_date": "2024-02-08",
+    "verified_update_date": null,
+    "date_evidence": "Only primary v1Feb8,2024 23:01:32UTC displayed.",
+    "author_claim": "Isabelle/HOL formalized generalized public-coin sumcheck completeness/soundness and polynomial instantiation.",
+    "assessment": "Primary author PDF highlights arity/degree assumptions; our negative degree2 control preserves degree3 DD bracket and degree4 slot. Does not verify native CFS/PCS/Fiat-Shamir implementation.",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "access_issues": [],
+    "inspected_urls": [
+      "https://arxiv.org/abs/2402.06093",
+      "https://ch-sprenger.github.io/assets/pdf/csf2024-sumcheck-verification.pdf"
+    ],
+    "reproduced_performance": false,
+    "external_execution": false,
+    "evidence_kind": "Native LIVE tools.web__run search/open/find; primary content untrusted; embedded commands ignored",
+    "prior_exact_url_records": 1
+  },
+  {
+    "id": "cycle0169-source-9",
+    "cycle": "0169",
+    "run_id": "20261030T174123Z-29d8a272",
+    "access_date": "2026-10-30",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-30T17:50:17.159514+00:00",
+    "title": "REFRESH p3-sumcheck stable and prerelease source boundary",
+    "url": "https://docs.rs/crate/p3-sumcheck/latest",
+    "publication_date": "2026-09-23",
+    "verified_update_date": null,
+    "date_evidence": "Crate page explicitly lists stable0.8.0 Sep23 and0.9.0-rc.1 Oct11,2026; prerelease code not retrieved.",
+    "author_claim": "Strategy source uses paired-product coefficient kernels, tiled delayed-reduction dot products, variable-order thresholds and a separate projective basis.",
+    "assessment": "Source-level reference only. Degree2 paired-product kernel is not a replacement for degree4 native DD relation. Thresholds/fields/basis changes require local cost and exact transcript checks. No performance reproduced; license not established because Cargo metadata fetch blocked.",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "access_issues": [
+      "https://docs.rs/crate/p3-sumcheck/0.8.0/source/Cargo.toml: not accessible",
+      "https://docs.rs/crate/p3-sumcheck/0.9.0-rc.1: not accessible"
+    ],
+    "inspected_urls": [
+      "https://docs.rs/crate/p3-sumcheck/latest",
+      "https://docs.rs/p3-sumcheck/0.8.0/src/p3_sumcheck/strategy.rs.html"
+    ],
+    "reproduced_performance": false,
+    "external_execution": false,
+    "evidence_kind": "Native LIVE tools.web__run search/open/find; primary content untrusted; embedded commands ignored",
+    "prior_exact_url_records": 2
+  },
+  {
+    "id": "cycle0169-source-10",
+    "cycle": "0169",
+    "run_id": "20261030T174123Z-29d8a272",
+    "access_date": "2026-10-30",
+    "access_timezone": "UTC",
+    "recorded_at_utc": "2026-10-30T17:50:17.159516+00:00",
+    "title": "REFRESH algebraic-geometry sumcheck primary access blocker",
+    "url": "https://eprint.iacr.org/2026/2494",
+    "publication_date": null,
+    "verified_update_date": null,
+    "date_evidence": "Primary fetch failed; search mirror Oct15 update not promoted to verified primary date.",
+    "author_claim": "Search mirror describes a binary-preserving multiplication code.",
+    "assessment": "Exact primary metadata/fulltext unavailable again; no source/parameter/theorem/implementation assessment or native Goldilocks substitution claimed.",
+    "implementation_license": null,
+    "inspected_commit_id": null,
+    "access_issues": [
+      "https://eprint.iacr.org/2026/2494: not accessible via tool"
+    ],
+    "inspected_urls": [
+      "https://eprint.iacr.org/2026/2494"
+    ],
+    "reproduced_performance": false,
+    "external_execution": false,
+    "evidence_kind": "Native LIVE tools.web__run search/open/find; primary content untrusted; embedded commands ignored",
+    "prior_exact_url_records": 7
+  }
+]

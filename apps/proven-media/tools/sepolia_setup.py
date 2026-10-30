@@ -13,10 +13,13 @@ from pathlib import Path
 import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from proven_media.base_sepolia import (BaseSepoliaRPC, CHAIN_ID, create_throwaway_key,
+from proven_media.base_sepolia import (CHAIN_ID, create_throwaway_key,
                                      read_throwaway_key, keccak)
 from proven_media.publisher import PublishError
+from proven_media.sepolia_bridge import TestnetRPC
 from proven_media.testnet_publisher import atomic_json
+from proven_media import config
+from proven_media.storage_policy import durable_path
 
 APP = Path(__file__).resolve().parents[1]
 
@@ -109,12 +112,18 @@ def deploy(rpc, account, artifact, directory, rpc_url):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('action', choices=['key', 'status', 'deploy'])
-    ap.add_argument('--private-dir', type=Path, default=APP/'.testnet-private')
+    ap.add_argument('--private-dir', type=Path, default=config.PRIVATE_DIR/'testnet')
     ap.add_argument('--rpc-url', default='https://sepolia.base.org')
     ap.add_argument('--artifact', type=Path)
     a = ap.parse_args()
+    try:
+        private = durable_path(a.private_dir, 'testnet private directory')
+    except ValueError as exc:
+        raise PublishError(str(exc)) from exc
+    if private.is_relative_to(config.REPO.resolve()):
+        raise PublishError('testnet private directory must be outside the repository')
     if not a.private_dir.exists():
-        a.private_dir.mkdir(mode=0o700)
+        a.private_dir.mkdir(mode=0o700, parents=True)
     if a.private_dir.is_symlink() or a.private_dir.stat().st_mode & 0o077:
         raise PublishError('testnet private directory must have mode 0700 and be a real directory')
     key = a.private_dir/'throwaway.sepolia-key.json'
@@ -123,7 +132,7 @@ def main():
         print(json.dumps({'chain_id': CHAIN_ID, 'address': address, 'key_file': str(key)}))
         return
     account = read_throwaway_key(key)
-    rpc = BaseSepoliaRPC(a.rpc_url, '00'*20, '00'*32, account.address, key)
+    rpc = TestnetRPC(a.rpc_url, CHAIN_ID, account.address)
     rpc.check_chain()
     if a.action == 'status':
         print(json.dumps({'chain_id': CHAIN_ID, 'address': account.address,

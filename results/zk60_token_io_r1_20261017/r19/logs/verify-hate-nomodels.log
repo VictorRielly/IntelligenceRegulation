@@ -1,0 +1,2 @@
+{"event":"refused","command":"classify-verify","error":"/home/victor/IntelligenceRegulation/results/zk60_shieldstral_export_20261026/native_low_h24_t128/profile.json: /home/victor/zk60-artifacts/token-io/r19/no-models-here/shieldstral-1.0-3b/snapshot-003ec7e2/model.safetensors: No such file or directory (os error 2)"}
+{"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling D45(4), Victor 2026-10-29)"}

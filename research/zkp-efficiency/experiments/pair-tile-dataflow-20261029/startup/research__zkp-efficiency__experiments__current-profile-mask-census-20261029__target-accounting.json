@@ -1,0 +1,30 @@
+{
+  "full_stack_proofs": 0,
+  "model_passes": 0,
+  "proved_positions": 0,
+  "actual_model_context": null,
+  "accelerator": null,
+  "device_count": 0,
+  "research_cpu_threads": 1,
+  "context_census": [
+    32,
+    128,
+    256
+  ],
+  "metadata_census_not_model_work": true,
+  "witness_s": null,
+  "proof_s": null,
+  "serialization_s": null,
+  "verification_s": null,
+  "startup_s": null,
+  "initial_prefill_s": null,
+  "startup_fraction": null,
+  "steady_state_proved_tokens_per_s": null,
+  "total_workload_proved_tokens_per_s": null,
+  "proof_latency_s": null,
+  "proof_bytes": null,
+  "prefill": false,
+  "resident_model_passes": false,
+  "decode": false,
+  "target_achieved": false
+}

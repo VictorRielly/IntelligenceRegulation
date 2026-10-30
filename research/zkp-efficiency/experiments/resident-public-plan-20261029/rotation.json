@@ -1,0 +1,14 @@
+{
+  "cycle": "0144",
+  "tested": "batching/amortization: exact values-free priv_table half-map reuse with fresh synthetic resident1/2/4/8 replays",
+  "next": "quantization/arithmetic: inspect current R13 exclusive native phase evidence first; absent evidence, count the safe-integer arithmetic in fresh fixed Eq construction versus public half-map planning and identify whether any actual base-field-valued operands survive. Do not infer small-value masks or remove full CFS basis.",
+  "queue": [
+    "GPU NTT/commitments",
+    "sumcheck/GKR",
+    "lookup arguments and softmax",
+    "memory traffic",
+    "batching/amortization",
+    "quantization/arithmetic",
+    "proof composition"
+  ]
+}

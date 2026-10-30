@@ -1,0 +1,8 @@
+{
+  "status": "UNCOMPILED_UNAPPLIED",
+  "original_poly_preserved_byte_for_byte": true,
+  "poly_sha256": "97f261cd28e6fe6dffa3a13b36c8a51314643c0c39240b7d4dd052e28d627bb1",
+  "patch_path": "experiments/accuracy-dd-groups-20261030/accuracy_dd_groups.uncompiled.diff",
+  "added_costs": "Clones of index,limb,lookup,mu,nu vectors and group point descriptors; Arc allocation; scalar factoring, suffix setup, inversion/recovery, Rayon reductions. Setup and dispatch/allocation timings unknown.",
+  "unpadded_guard": "ght.0.is_none() && gs.0.is_none(); other support cases keep groups=None"
+}

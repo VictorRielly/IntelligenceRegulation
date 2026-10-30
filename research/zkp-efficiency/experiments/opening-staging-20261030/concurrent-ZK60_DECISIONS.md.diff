@@ -1,0 +1,39 @@
+--- 
++++ 
+@@ -1477,3 +1477,36 @@
+   unaffected.
+ 
+ Not a privacy acceptance.
++
++**Privacy gate round 22 (Claude gate lane, 2026-10-30, recorded 02:03 UTC): the
++review's two blocking findings answered by measurement; draft v2 ready for
++re-review** (`results/zk60_gate_tinyllama_20261017/round22/R22_SUMMARY.md`).
++The draft is now
++`docs/zkmatrix-poc/ZK60_PRIVACY_STATEMENT_CLASSIFIER_SHIELDSTRAL_T128_DRAFT_v2.md`
++(cfbfeafe…). v1 is kept byte-identical as `..._DRAFT_v1.md`, and the earlier
++pointers to `..._DRAFT.md` above mean v1.
++- **P-2 (draw replay, G-R4 by value): PASS at the R13 rung** [MEASURED]. Three
++  seeded replays (L2 verdict 1, L2 verdict 0 short n = 1, L1 tie) were accepted
++  by the production verifier. The prover consumed exactly the predicted bytes
++  stage by stage (L2 run stream 250,608,544 B). Roots were rebuilt in order,
++  and 5 / 5 perturbations fired. Round 21's counting function reproduces the
++  per-part counts, so the 2^-68.19 figure now rests on a replayed count.
++- **P-1 (NL-1 and the surjection) [MEASURED]:**
++  - NL-1 S1–S5 passes on the 12 classifier slots and the 7 R13-changed block
++    slots, on three rung captures and on the real hate capture (classifier
++    slots plus blocks 0 and 2).
++  - The surjection with TS-1 passes on the rung (12 / 12) and at the real
++    classifier stages (6 / 6).
++  - **On a real block it is partial:** the roles pass, but TS-1 did not run
++    (about 1 h of cpu slot per block; named, not run).
++- **C-R1 / C-R2 census: done.** The transcript query count is measured at
++  287,237 (pre-query term 2^-109.87); the total stays 2^-68.19.
++- **Owner check at n = 17: PASS** [READ], from Astra's first real post (r16b
++  binary, all three policies, three distinct roots).
++- Draft v2 takes in P-3 to P-15 with a disposition table (§12), and adds
++  conditions C-7 (no non-public post through the app until failures are
++  shown only to the authenticated author) and C-8 (measure the real model's
++  refusal rate before non-public posts).
++- Next: the reviewer re-reviews v2, then the security owner, then Victor.
++
++Not a privacy acceptance.

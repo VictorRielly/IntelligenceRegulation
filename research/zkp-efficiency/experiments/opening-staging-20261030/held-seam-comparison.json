@@ -1,0 +1,34 @@
+[
+  {
+    "file": "zkp-core/src/pcs.rs",
+    "symbol": "fn fold_rows_host(",
+    "bodies_identical": true,
+    "root_body_sha256": "49b5ebe55ecd4b7991cd5e45e4f99ed23956195d25d0755df57de9885727234d",
+    "held_body_sha256": "49b5ebe55ecd4b7991cd5e45e4f99ed23956195d25d0755df57de9885727234d"
+  },
+  {
+    "file": "zkp-core/src/pcs.rs",
+    "symbol": "fn fold_rows_multi_zk<",
+    "bodies_identical": true,
+    "root_body_sha256": "59c76b8a1f6a82d5c55d44cf87a61e25063095c1c20d13674b02738acf2bed59",
+    "held_body_sha256": "59c76b8a1f6a82d5c55d44cf87a61e25063095c1c20d13674b02738acf2bed59"
+  },
+  {
+    "file": "hashline/src/gpu/cuda.rs",
+    "symbol": "pub fn dev_fold_rows(",
+    "bodies_identical": true,
+    "root_body_sha256": "e248ce6d3fdde28ee8eaba6e4f402a1a4074034d7103bb10ea42b81a395b8ee2",
+    "held_body_sha256": "e248ce6d3fdde28ee8eaba6e4f402a1a4074034d7103bb10ea42b81a395b8ee2"
+  },
+  {
+    "file": "hashline/src/gpu/kernels.cu",
+    "symbol": "extern \"C\" __global__ void k_fold_rows(",
+    "bodies_identical": true,
+    "root_body_sha256": "6497bad763b25962b0d14b90f5023878c2139785205979efc05cad8726561f15",
+    "held_body_sha256": "6497bad763b25962b0d14b90f5023878c2139785205979efc05cad8726561f15"
+  },
+  {
+    "file": "zkp-core/src/field.rs",
+    "whole_file_identical": true
+  }
+]

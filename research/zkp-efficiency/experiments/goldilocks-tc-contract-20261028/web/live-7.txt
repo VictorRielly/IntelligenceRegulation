@@ -1,0 +1,359 @@
+tensor-core-ntt/include/polyarith/arithmetic.cuh at main · Terminus-IMRC/tensor-core-ntt · GitHub (https://github.com/Terminus-IMRC/tensor-core-ntt/blob/main/include/polyarith/arithmetic.cuh)
+citeturn7view0 [wordlim: 200] Crawled: 2 months ago; Content type: text/html; Source: open({"ref_id":"https://github.com/Terminus-IMRC/tensor-core-ntt/blob/main/include/polyarith/arithmetic.cuh","lineno":null}); Total lines: 769
+L0: 【0†Skip to content】
+L1: ## Navigation Menu
+L2: 
+L3: 【1†Sign in】Appearance settings
+L4: 
+L5:   * Platform
+L6: 
+L7:     * AI CODE CREATION
+L8:       * 【2†GitHub CopilotWrite better code with AI】
+L9:       * 【3†GitHub Copilot appDirect agents from issue to merge】
+L10:       * 【4†MCP RegistryIntegrate external tools】
+L11: 
+L12:     * DEVELOPER WORKFLOWS
+L13:       * 【5†ActionsAutomate any workflow】
+L14:       * 【6†CodespacesInstant dev environments】
+L15:       * 【7†IssuesPlan and track work】
+L16:       * 【8†Code ReviewManage code changes】
+L17:       * 【9†Code QualityEnforce quality at merge】
+L18:     * APPLICATION SECURITY
+L19:       * 【10†GitHub Advanced SecurityFind and fix vulnerabilities】
+L20:       * 【11†Code securitySecure your code as you build】
+L21:       * 【12†Secret protectionStop leaks before they start】
+L22: 
+L23:     * EXPLORE
+L24:       * 【13†Why GitHub】
+L25:       * 【14†Documentation†docs.github.com】
+L26:       * 【15†Blog†github.blog】
+L27:       * 【16†Changelog†github.blog】
+L28:       * 【17†Marketplace】
+L29: 
+L30: 【18†View all features】
+L31: 
+L32:   * Solutions
+L33:     * BY COMPANY SIZE
+L34:       * 【19†Enterprises】
+L35:       * 【20†Small and medium teams】
+L36:       * 【21†Startups】
+L37:       * 【22†Nonprofits】
+L38: 
+L39:     * BY USE CASE
+L40:       * 【23†App Modernization】
+L41:       * 【24†DevSecOps】
+L42:       * 【25†DevOps】
+L43:       * 【26†CI/CD】
+L44:       * 【27†View all use cases】
+L45: 
+L46:     * BY INDUSTRY
+L47:       * 【28†Healthcare】
+L48:       * 【29†Financial services】
+L49:       * 【30†Manufacturing】
+L50:       * 【31†Government】
+L51:       * 【32†View all industries】
+L52: 
+L53: 【33†View all solutions】
+L54: 
+L55:   * Resources
+L56:     * EXPLORE BY TOPIC
+L57:       * 【34†AI】
+L58:       * 【35†Software Development】
+L59:       * 【36†DevOps】
+L60:       * 【37†Security】
+L61:       * 【38†View all topics】
+L62: 
+L63:     * EXPLORE BY TYPE
+L64:       * 【39†Customer stories】
+L65:       * 【40†Events & webinars】
+L66:       * 【41†Ebooks & reports】
+L67:       * 【42†Business insights】
+L68:       * 【43†GitHub Skills†skills.github.com】
+L69:     * SUPPORT & SERVICES
+L70:       * 【14†Documentation†docs.github.com】
+L71:       * 【44†Customer support†support.github.com】
+L72:       * 【45†Community forum】
+L73:       * 【46†Trust center】
+L74:       * 【47†Partners】
+L75: 
+L76: 【48†View all resources】
+L77: 
+L78:   * Open Source
+L79: 
+L80:     * COMMUNITY
+L81:       * 【49†GitHub SponsorsFund open source developers】
+L82:     * PROGRAMS
+L83:       * 【50†Security Lab†securitylab.github.com】
+L84:       * 【51†Maintainer Community†maintainers.github.com】
+L85:       * 【52†Accelerator】
+L86:       * 【53†GitHub Stars†stars.github.com】
+L87:       * 【54†Archive Program†archiveprogram.github.com】
+L88: 
+L89:     * REPOSITORIES
+L90:       * 【55†Topics】
+L91:       * 【56†Trending】
+L92:       * 【57†Collections】
+L93: 
+L94:   * Enterprise
+L95: 
+L96:     * ENTERPRISE SOLUTIONS
+L97:       * 【19†Enterprise platformAI-powered developer platform】
+L98:     * AVAILABLE ADD-ONS
+L99:       * 【10†GitHub Advanced SecurityEnterprise-grade security features】
+L100:       * 【58†Copilot for BusinessEnterprise-grade AI features】
+L101:       * 【59†Premium SupportEnterprise-grade 24/7 support】
+L102: 
+L103:   * 【60†Pricing】
+L104: 
+L105: Type `/` to search
+L106: 
+L107: 【1†Sign in】
+L108: 
+L109: 【61†Sign up】Appearance settings
+--------------------------------------------------------------------------------
+tensor-core-ntt/include/polyarith/polyarith.cuh at main · Terminus-IMRC/tensor-core-ntt · GitHub (https://github.com/Terminus-IMRC/tensor-core-ntt/blob/main/include/polyarith/polyarith.cuh)
+citeturn7view1 [wordlim: 200] Crawled: last month; Content type: text/html; Source: open({"ref_id":"https://github.com/Terminus-IMRC/tensor-core-ntt/blob/main/include/polyarith/polyarith.cuh","lineno":null}); Total lines: 261
+L0: 【0†Skip to content】
+L1: ## Navigation Menu
+L2: 
+L3: 【1†Sign in】
+L4: 
+L5: Appearance settings
+L6: 
+L7:   * Platform
+L8: 
+L9:     * AI CODE CREATION
+L10:       * 【2†GitHub CopilotWrite better code with AI】
+L11:       * 【3†GitHub Copilot appDirect agents from issue to merge】
+L12:       * 【4†MCP RegistryIntegrate external tools】
+L13: 
+L14:     * DEVELOPER WORKFLOWS
+L15:       * 【5†ActionsAutomate any workflow】
+L16:       * 【6†CodespacesInstant dev environments】
+L17:       * 【7†IssuesPlan and track work】
+L18:       * 【8†Code ReviewManage code changes】
+L19:       * 【9†Code QualityEnforce quality at merge】
+L20:     * APPLICATION SECURITY
+L21:       * 【10†GitHub Advanced SecurityFind and fix vulnerabilities】
+L22:       * 【11†Code securitySecure your code as you build】
+L23:       * 【12†Secret protectionStop leaks before they start】
+L24: 
+L25:     * EXPLORE
+L26:       * 【13†Why GitHub】
+L27:       * 【14†Documentation†docs.github.com】
+L28:       * 【15†Blog†github.blog】
+L29:       * 【16†Changelog†github.blog】
+L30:       * 【17†Marketplace】
+L31: 
+L32: 【18†View all features】
+L33: 
+L34:   * Solutions
+L35:     * BY COMPANY SIZE
+L36:       * 【19†Enterprises】
+L37:       * 【20†Small and medium teams】
+L38:       * 【21†Startups】
+L39:       * 【22†Nonprofits】
+L40: 
+L41:     * BY USE CASE
+L42:       * 【23†App Modernization】
+L43:       * 【24†DevSecOps】
+L44:       * 【25†DevOps】
+L45:       * 【26†CI/CD】
+L46:       * 【27†View all use cases】
+L47: 
+L48:     * BY INDUSTRY
+L49:       * 【28†Healthcare】
+L50:       * 【29†Financial services】
+L51:       * 【30†Manufacturing】
+L52:       * 【31†Government】
+L53:       * 【32†View all industries】
+L54: 
+L55: 【33†View all solutions】
+L56: 
+L57:   * Resources
+L58:     * EXPLORE BY TOPIC
+L59:       * 【34†AI】
+L60:       * 【35†Software Development】
+L61:       * 【36†DevOps】
+L62:       * 【37†Security】
+L63:       * 【38†View all topics】
+L64: 
+L65:     * EXPLORE BY TYPE
+L66:       * 【39†Customer stories】
+L67:       * 【40†Events & webinars】
+L68:       * 【41†Ebooks & reports】
+L69:       * 【42†Business insights】
+L70:       * 【43†GitHub Skills†skills.github.com】
+L71:     * SUPPORT & SERVICES
+L72:       * 【14†Documentation†docs.github.com】
+L73:       * 【44†Customer support†support.github.com】
+L74:       * 【45†Community forum】
+L75:       * 【46†Trust center】
+L76:       * 【47†Partners】
+L77: 
+L78: 【48†View all resources】
+L79: 
+L80:   * Open Source
+L81: 
+L82:     * COMMUNITY
+L83:       * 【49†GitHub SponsorsFund open source developers】
+L84:     * PROGRAMS
+L85:       * 【50†Security Lab†securitylab.github.com】
+L86:       * 【51†Maintainer Community†maintainers.github.com】
+L87:       * 【52†GitHub Stars†stars.github.com】
+L88:       * 【53†Archive Program†archiveprogram.github.com】
+L89: 
+L90:     * REPOSITORIES
+L91:       * 【54†Topics】
+L92:       * 【55†Trending】
+L93:       * 【56†Collections】
+L94: 
+L95:   * Enterprise
+L96: 
+L97:     * ENTERPRISE SOLUTIONS
+L98:       * 【19†Enterprise platformAI-powered developer platform】
+L99:     * AVAILABLE ADD-ONS
+L100:       * 【10†GitHub Advanced SecurityEnterprise-grade security features】
+L101:       * 【57†Copilot for BusinessEnterprise-grade AI features】
+L102:       * 【58†Premium SupportEnterprise-grade 24/7 support】
+L103: 
+L104:   * 【59†Pricing】
+L105: 
+L106: Search`/`
+L107: 
+L108: 【1†Sign in】
+L109: 
+L110: 【60†Sign up】
+L111: 
+L112: Appearance settings
+L113: You signed in with another tab or window. Reload to refresh your session. You signed out in another tab or window. Reload to refresh your session. You switched accounts on another tab or window. Reload to refresh your session. Dismiss alert
+L114: 
+L115: 【61†Terminus-IMRC】 / 【62†tensor-core-ntt】 Public
+L116: 
+L117:   * 【63†Notifications】 You must be signed in to change notification settings
+L118:   * 【63†Fork 2】
+L119:   * 【63†Star】
+--------------------------------------------------------------------------------
+tensor-core-ntt/include/polyarith/cuda/ntt.cuh at main · Terminus-IMRC/tensor-core-ntt · GitHub (https://github.com/Terminus-IMRC/tensor-core-ntt/blob/main/include/polyarith/cuda/ntt.cuh)
+citeturn7view2 [wordlim: 200] Crawled: last month; Content type: text/html; Source: open({"ref_id":"https://github.com/Terminus-IMRC/tensor-core-ntt/blob/main/include/polyarith/cuda/ntt.cuh","lineno":null}); Total lines: 1508
+L0: 【0†Skip to content】
+L1: ## Navigation Menu
+L2: 
+L3: 【1†Sign in】
+L4: 
+L5: Appearance settings
+L6: 
+L7:   * Platform
+L8: 
+L9:     * AI CODE CREATION
+L10:       * 【2†GitHub CopilotWrite better code with AI】
+L11:       * 【3†GitHub Copilot appDirect agents from issue to merge】
+L12:       * 【4†MCP RegistryIntegrate external tools】
+L13: 
+L14:     * DEVELOPER WORKFLOWS
+L15:       * 【5†ActionsAutomate any workflow】
+L16:       * 【6†CodespacesInstant dev environments】
+L17:       * 【7†IssuesPlan and track work】
+L18:       * 【8†Code ReviewManage code changes】
+L19:       * 【9†Code QualityEnforce quality at merge】
+L20:     * APPLICATION SECURITY
+L21:       * 【10†GitHub Advanced SecurityFind and fix vulnerabilities】
+L22:       * 【11†Code securitySecure your code as you build】
+L23:       * 【12†Secret protectionStop leaks before they start】
+L24: 
+L25:     * EXPLORE
+L26:       * 【13†Why GitHub】
+L27:       * 【14†Documentation†docs.github.com】
+L28:       * 【15†Blog†github.blog】
+L29:       * 【16†Changelog†github.blog】
+L30:       * 【17†Marketplace】
+L31: 
+L32: 【18†View all features】
+L33: 
+L34:   * Solutions
+L35:     * BY COMPANY SIZE
+L36:       * 【19†Enterprises】
+L37:       * 【20†Small and medium teams】
+L38:       * 【21†Startups】
+L39:       * 【22†Nonprofits】
+L40: 
+L41:     * BY USE CASE
+L42:       * 【23†App Modernization】
+L43:       * 【24†DevSecOps】
+L44:       * 【25†DevOps】
+L45:       * 【26†CI/CD】
+L46:       * 【27†View all use cases】
+L47: 
+L48:     * BY INDUSTRY
+L49:       * 【28†Healthcare】
+L50:       * 【29†Financial services】
+L51:       * 【30†Manufacturing】
+L52:       * 【31†Government】
+L53:       * 【32†View all industries】
+L54: 
+L55: 【33†View all solutions】
+L56: 
+L57:   * Resources
+L58:     * EXPLORE BY TOPIC
+L59:       * 【34†AI】
+L60:       * 【35†Software Development】
+L61:       * 【36†DevOps】
+L62:       * 【37†Security】
+L63:       * 【38†View all topics】
+L64: 
+L65:     * EXPLORE BY TYPE
+L66:       * 【39†Customer stories】
+L67:       * 【40†Events & webinars】
+L68:       * 【41†Ebooks & reports】
+L69:       * 【42†Business insights】
+L70:       * 【43†GitHub Skills†skills.github.com】
+L71:     * SUPPORT & SERVICES
+L72:       * 【14†Documentation†docs.github.com】
+L73:       * 【44†Customer support†support.github.com】
+L74:       * 【45†Community forum】
+L75:       * 【46†Trust center】
+L76:       * 【47†Partners】
+L77: 
+L78: 【48†View all resources】
+L79: 
+L80:   * Open Source
+L81: 
+L82:     * COMMUNITY
+L83:       * 【49†GitHub SponsorsFund open source developers】
+L84:     * PROGRAMS
+L85:       * 【50†Security Lab†securitylab.github.com】
+L86:       * 【51†Maintainer Community†maintainers.github.com】
+L87:       * 【52†GitHub Stars†stars.github.com】
+L88:       * 【53†Archive Program†archiveprogram.github.com】
+L89: 
+L90:     * REPOSITORIES
+L91:       * 【54†Topics】
+L92:       * 【55†Trending】
+L93:       * 【56†Collections】
+L94: 
+L95:   * Enterprise
+L96: 
+L97:     * ENTERPRISE SOLUTIONS
+L98:       * 【19†Enterprise platformAI-powered developer platform】
+L99:     * AVAILABLE ADD-ONS
+L100:       * 【10†GitHub Advanced SecurityEnterprise-grade security features】
+L101:       * 【57†Copilot for BusinessEnterprise-grade AI features】
+L102:       * 【58†Premium SupportEnterprise-grade 24/7 support】
+L103: 
+L104:   * 【59†Pricing】
+L105: 
+L106: Search`/`
+L107: 
+L108: 【1†Sign in】
+L109: 
+L110: 【60†Sign up】
+L111: 
+L112: Appearance settings
+L113: You signed in with another tab or window. Reload to refresh your session. You signed out in another tab or window. Reload to refresh your session. You switched accounts on another tab or window. Reload to refresh your session. Dismiss alert
+L114: 
+L115: 【61†Terminus-IMRC】 / 【62†tensor-core-ntt】 Public
+L116: 
+L117:   * 【63†Notifications】 You must be signed in to change notification settings
+L118:   * 【63†Fork 2】
+L119:   * 【63†Star】
+

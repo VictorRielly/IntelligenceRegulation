@@ -1,0 +1,10 @@
+[zk60-guard 09:04:11] START gate24-pin-census class=light need=0.8G cap=1.5G enforce=cgroup+watchdog waited=0s run=ea5b15256b9c
+[zk60-guard 09:04:11] END gate24-pin-census exit=0 child_wall=0s peak_rss=0.00G min_avail=14.09G
+[zk60-guard 09:04:12] START gate24-unittests-v24-frozen class=light need=0.8G cap=1.5G enforce=cgroup+watchdog waited=0s run=c873031161b7
+[zk60-guard 09:05:12] END gate24-unittests-v24-frozen exit=0 child_wall=61s peak_rss=0.43G min_avail=13.70G
+[zk60-guard 09:05:12] START gate24-ff-v23-gate-p18-r19b class=light need=0.8G cap=2G enforce=cgroup+watchdog waited=0s run=98f4b470efef
+[zk60-guard 09:05:13] END gate24-ff-v23-gate-p18-r19b exit=3 child_wall=1s peak_rss=0.08G min_avail=14.03G
+[zk60-guard 09:05:13] START gate24-v24-gate-p18-r19b class=light need=0.8G cap=2G enforce=cgroup+watchdog waited=0s run=b0979a25a3de
+[zk60-guard 09:10:03] END gate24-v24-gate-p18-r19b exit=0 child_wall=289s peak_rss=0.27G min_avail=13.85G
+[zk60-guard 09:10:03] START gate24-unittests-v24-working-copy class=light need=0.8G cap=1.5G enforce=cgroup+watchdog waited=0s run=15f8b7777048
+[zk60-guard 09:11:04] END gate24-unittests-v24-working-copy exit=0 child_wall=61s peak_rss=0.47G min_avail=13.64G

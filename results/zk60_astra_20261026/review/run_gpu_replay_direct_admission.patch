@@ -1,0 +1,25 @@
+--- results/zk60_astra_20261026/run_gpu_replay.py
++++ results/zk60_astra_20261026/run_gpu_replay.py
+@@ -52,18 +52,13 @@
+     (directory / 'plan.json').write_text(json.dumps(plan, indent=2) + '\n')
+     with (directory.parent / 'replay.lock').open('a') as lock:
+         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+-        while True:
+-            if any(p.exists() for p in HOLDS):
+-                time.sleep(15)
+-                continue
+-            ready = subprocess.run(['python3', str(GUARD), 'check', '--class', 'gpu', '--need-gib', '2.1'], capture_output=True, text=True)
+-            (directory / 'precheck.txt').write_text(ready.stdout + ready.stderr)
+-            if ready.returncode == 0 and 'OK to start now' in ready.stdout and not any(p.exists() for p in HOLDS):
+-                break
++        # The installed guard admits before taking the shared heavy lock.
++        # Queue directly so short gaps between other jobs are not missed.
++        while any(p.exists() for p in HOLDS):
+             time.sleep(15)
+         subprocess.run(['python3', str(GUARD), 'status'], check=True)
+         result = subprocess.run(['python3', str(GUARD), 'run', '--class', 'gpu', '--need-gib', '2.1', '--cap-gib', '4.5',
+-            '--label', f'astra-gpu-{args.mode}-l{args.layer:02d}', '--wait-secs', '60', '--max-secs', str(int(args.max_minutes * 60 + 120)),
++            '--label', f'astra-gpu-{args.mode}-l{args.layer:02d}', '--wait-secs', '1800', '--max-secs', str(int(args.max_minutes * 60 + 120)),
+             '--log', str(directory / 'leaf.log'), '--done', str(directory / 'leaf.done'),
+             '--result-json', str(directory / 'guard.json'), '--', *command])
+         (directory / 'worker.done').write_text(str(result.returncode) + '\n')

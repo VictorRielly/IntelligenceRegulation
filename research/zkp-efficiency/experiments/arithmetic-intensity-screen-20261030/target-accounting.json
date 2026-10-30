@@ -1,0 +1,49 @@
+{
+  "new_independently_verified_full_stack_proofs": 0,
+  "new_complete_passes": 0,
+  "new_proved_positions": 0,
+  "actual_context": null,
+  "synthetic_threads": [
+    32,
+    64,
+    128,
+    256,
+    512,
+    1024
+  ],
+  "synthetic_half_rows": [
+    1,
+    17,
+    31,
+    32,
+    33,
+    127,
+    128,
+    257,
+    1025
+  ],
+  "synthetic_polynomial_degrees": [
+    2,
+    3,
+    4,
+    5
+  ],
+  "device": "One CPU affinity, Intel Core Ultra 9 185H",
+  "accelerator": null,
+  "worker_threads": 1,
+  "steady_state_proved_tokens_per_s": null,
+  "total_workload_proved_tokens_per_s": null,
+  "startup_s": null,
+  "startup_fraction": null,
+  "initial_prefill_s": null,
+  "witness_s": null,
+  "proof_s": null,
+  "serialization_s": null,
+  "verification_s": null,
+  "proof_latency_s": null,
+  "proof_bytes": null,
+  "long_context_prefill": false,
+  "resident_model_series": false,
+  "decode": false,
+  "scope": "CPU synthetic reducer arithmetic and source-only incidence. No full model/witness/prover/verifier; private8B50/s unachieved."
+}

@@ -1,0 +1,1 @@
+The closing checker found a schema mismatch. Replaced the copied prior-cycle accounting object with explicit cycle0163 identity,zero counts,null proof clocks and current synthetic Vec dimensions. No proof experiment or target changed.

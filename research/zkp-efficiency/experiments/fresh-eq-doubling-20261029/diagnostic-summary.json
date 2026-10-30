@@ -1,0 +1,44 @@
+[
+  {
+    "log": 0,
+    "entries": 1,
+    "native_median_ns": 55,
+    "candidate_median_ns": 61,
+    "serial_helper_ratio": 0.9016393442622951
+  },
+  {
+    "log": 4,
+    "entries": 16,
+    "native_median_ns": 323,
+    "candidate_median_ns": 239,
+    "serial_helper_ratio": 1.3514644351464435
+  },
+  {
+    "log": 8,
+    "entries": 256,
+    "native_median_ns": 4445,
+    "candidate_median_ns": 2769,
+    "serial_helper_ratio": 1.6052726616106898
+  },
+  {
+    "log": 14,
+    "entries": 16384,
+    "native_median_ns": 278110,
+    "candidate_median_ns": 174383,
+    "serial_helper_ratio": 1.5948228898459138
+  },
+  {
+    "log": 17,
+    "entries": 131072,
+    "native_median_ns": 2343084,
+    "candidate_median_ns": 1343690,
+    "serial_helper_ratio": 1.7437682798859857
+  },
+  {
+    "log": 20,
+    "entries": 1048576,
+    "native_median_ns": 12049513,
+    "candidate_median_ns": 9584214,
+    "serial_helper_ratio": 1.2572249534494953
+  }
+]

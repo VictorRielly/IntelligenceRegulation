@@ -1,0 +1,47 @@
+{
+  "stage": "compile",
+  "command": [
+    "/usr/bin/rustc",
+    "--edition=2021",
+    "-C",
+    "opt-level=1",
+    "-C",
+    "codegen-units=1",
+    "-C",
+    "debuginfo=0",
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/commitment-width-lifetimes-20261029/harness.rs",
+    "-o",
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/commitment-width-lifetimes-20261029/probe"
+  ],
+  "exit_code": 0,
+  "elapsed_s": 0.9734945230011363,
+  "max_rss_kib": 164336,
+  "threads": 1,
+  "nice": 19,
+  "affinity": [
+    0
+  ],
+  "cpu_cap_s": 40,
+  "alarm_s": 45,
+  "parent_timeout_s": 50,
+  "address_space_cap_bytes": 402653184,
+  "estimated_memory_bytes": 335544320,
+  "cargo": false,
+  "gpu": false,
+  "rust_source_sha256": {
+    "baseline_row.rs": "7475c95dd553fa3becba57883d956e4132f973ecd5ed4c56e51c9ab552a4624a",
+    "baseline_serial.rs": "c2b70d721a13112c52329c0d726cad0af0e9f652127691b86a80fdee471419f8",
+    "candidate_row.rs": "ea0c89b4f09cf5ccddafd10e08d29dd5379d58a2abb85d4caabf07d55dc74887",
+    "candidate_serial.rs": "b47a9aa7dc85a98cc416814a7c06280ffbadab06c0a64e776282aaecdff30a58",
+    "encode_buffer.candidate.rs": "453d343b6e601a9091d72b4fa88cbde40b64e07dd11fb1ea7117e8fb3c1fadfc",
+    "harness.rs": "22b2daaf5df69d22bcbdcd1fe862a94a504c9926332695428e08bf4177dc8755",
+    "native/hashline__src__gpu__cuda.rs": "8fe2a2a39e0796254be37d0d7507d7fc22ea3af141d97d35cd93754d505072c9",
+    "native/hashline__src__gpu__mod.rs": "d651be2ccf8f19ff75fe6bca5ad42f4b773b569d0ae2017306f0bf819c51b283",
+    "native/zkp-core__src__field.rs": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+    "native/zkp-core__src__ntt.rs": "97572d4f242637d21a089388abad4b5b39136c62036faa17ae94b3ba6f170890",
+    "native/zkp-core__src__pcs.rs": "5c9cfc4e9c84283309f4c47f87d4a9146e2c9c9f5b52aa608b4ce6a7588cd495",
+    "native/zkp-core__src__pcs__encode_buffer.rs": "3c01433d84507cddadcf5c1387c08948fd3efe853a066d74690c0a6e1ce3dd70",
+    "native/zkp-core__src__pcs__encode_buffer__tests.rs": "41787bbc3896d7539e531beca3384555b0081153d6cb1cef1ace9adb4ca93bb2"
+  },
+  "binary_sha256": "b8a90dc3e6a54c046adc3dc14476afad1b81324e85405f136894ec5a519b7904"
+}

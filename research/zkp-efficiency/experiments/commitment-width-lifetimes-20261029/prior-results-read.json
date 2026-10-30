@@ -1,0 +1,51 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/lookup-public-incidence-20261029/result.json",
+    "sha256": "7589bbbe5c52fac658a233ef3dcca64e45e183eb7f7e6851f0b0c2b128d81ab3",
+    "bytes": 1115
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/lookup-public-incidence-20261029/audit-result.json",
+    "sha256": "2a37aab4a0970eb44c051446427a175e6aacc1583f40cfd9e6255723a07a54c5",
+    "bytes": 385
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/lookup-public-incidence-20261029/cost-result.json",
+    "sha256": "953c5779d7c6893e6b4fc0a81c0cffb383dcb5b55756b9181fb08732e08c9b2d",
+    "bytes": 19458
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/lookup-public-incidence-20261029/hypotheses.json",
+    "sha256": "04787c7d3e1b7185508568090cab47f4f0b105a1f48f2280c6620010a0fa7412",
+    "bytes": 117930
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/lookup-public-incidence-20261029/cycle-ranking.json",
+    "sha256": "a86a48cd580cf563b6e230b608e18ed91daa8fe770821699d1f02f433a775ed3",
+    "bytes": 1038
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/mask-tail-incidence-20261029/result.json",
+    "sha256": "1bc0b422d2c3462f07e5090445d046e0300bfd1333c2d69ed643c5d3ec670c80",
+    "status": "PASS",
+    "scope": "Prior result read, not rerun or newly credited"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/paired-mask-three-product-20261029/result.json",
+    "sha256": "c3353a584f98e3a1fad82256c7341a391b15d00bf7c753a650e68098e1fbeabf",
+    "status": "PASS",
+    "scope": "Prior result read, not rerun or newly credited"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/final-claim-lifetimes-20261029/result.json",
+    "sha256": "d4f4e7666b8a5dbd180310e47b9c6abdd54a5b862fb412c89c6421baf522a75e",
+    "status": "PASS",
+    "scope": "Prior result read, not rerun or newly credited"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/ntt-coset-layout-20261029/result.json",
+    "sha256": "1ff67219f94800d7e4d24ebe93b08c0976ee0c621916263af96b9f6d7238c788",
+    "status": "PASS_EXACT_SYNTHETIC_ONLY_NO_NATIVE_GAIN",
+    "scope": "Prior result read, not rerun or newly credited"
+  }
+]

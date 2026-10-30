@@ -1,0 +1,11 @@
+
+running 1 test
+test private_block::argument::split_attack_tests::split_run_t128_malicious_arithmetic_receipt_from_env ... R14_GROUP_FIXTURE dd=false global_channel=8192 gate=2 global_group=2 local_group=0 correct=65536 wrong=67584
+R14_MALICIOUS_RECEIPT {"case":"global-group-honest","dd":false,"bytes":34875688,"expected_accept":true,"canonical_frame_decoded":true,"native_verifier_used":true}
+R14_MALICIOUS_RECEIPT {"case":"local-group-honest","dd":false,"bytes":34875688,"expected_accept":true,"canonical_frame_decoded":true,"native_verifier_used":true}
+R14_ATTACK_REFUSAL local-group-reset: R14 H: pcs zk: group 10: <v, c> != combined claim
+R14_MALICIOUS_RECEIPT {"case":"local-group-reset","dd":false,"bytes":34875688,"expected_accept":false,"canonical_frame_decoded":true,"native_verifier_used":true}
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 767 filtered out; finished in 37.16s
+

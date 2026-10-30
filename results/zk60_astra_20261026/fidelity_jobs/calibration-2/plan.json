@@ -1,0 +1,26 @@
+{
+  "stage": "calibration",
+  "attempt": 2,
+  "command": [
+    "/usr/bin/env",
+    "OPENBLAS_NUM_THREADS=2",
+    "OMP_NUM_THREADS=2",
+    "python3",
+    "/home/victor/IntelligenceRegulation/results/zk60_shieldstral_export_20261026/evaluate_verdicts.py",
+    "--all",
+    "--max-minutes",
+    "25.0",
+    "--token-io",
+    "/home/victor/IntelligenceRegulation/results/zk60_shieldstral_export_20261026/dg_r12b_t256/token_io",
+    "--layer25-fix",
+    "/home/victor/IntelligenceRegulation/results/zk60_shieldstral_export_20261026/layer25_fix_candidate",
+    "--out",
+    "/home/victor/IntelligenceRegulation/results/zk60_shieldstral_export_20261026/calibration_full_fix1",
+    "--input",
+    "/home/victor/IntelligenceRegulation/results/zk60_shieldstral_export_20261026/calibration_replay_inputs"
+  ],
+  "need_gib": 1.6,
+  "cap_gib": 4.0,
+  "threads": 2,
+  "measurement_basis": "smoke8 1.14GiB plus40%; exact-length per-item processing"
+}

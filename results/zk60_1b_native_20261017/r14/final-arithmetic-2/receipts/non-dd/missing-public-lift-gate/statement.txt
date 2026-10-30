@@ -1,0 +1,8 @@
+R14-public-synthetic-malicious-fixture/1
+case=missing-public-lift-gate
+dd=0
+model_identity=c938cee189603756466ff5648f8677a97254d1831c38c599dd16b3ed66bd608b
+input_root=3696471dee56a8cb67f163218902aaa8d812c4e5faefb84921b7b2dbbfd51d5a
+output_root=8b6d6d353f8b24c11a3410d6298b9ac58299ac55ab6bef94f442e7142a6992f9
+binding=cd2b744dda7ce15b7c25305c38762368fca00bd054d02eb08d3958ccf0b05a6e
+error=slot 20 [R14 04 Q zero-check (hosts 09Q, 11) Whole]: sumcheck round 0: s(0) + s(1) != claim

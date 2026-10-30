@@ -1,0 +1,117 @@
+{
+  "schema": "pm-real-shieldstral-testnet-demo/1",
+  "at": "2026-10-30T19:48:44.131011+00:00",
+  "post_id": "61ac12af82b9e6c36d95075db3fc91b9",
+  "submitted_via": "authenticated ASGI /api/session then CSRF-protected /api/posts; original app Store and Worker",
+  "post_text": "The library opened early today. I borrowed a book about birds and read it by the window.",
+  "content_tokens": 19,
+  "plan": [
+    {
+      "index": 0,
+      "start": 0,
+      "end": 19,
+      "category": "sexual",
+      "category_chunk_index": 0,
+      "category_chunks": 1,
+      "content_total": 19,
+      "policy_id": "shieldstral-1.0-3b-moderate-sexual/1",
+      "chunk_tokens": 55,
+      "overlap_tokens": 8,
+      "context_tokens": 128
+    },
+    {
+      "index": 1,
+      "start": 0,
+      "end": 19,
+      "category": "violence",
+      "category_chunk_index": 0,
+      "category_chunks": 1,
+      "content_total": 19,
+      "policy_id": "shieldstral-1.0-3b-moderate-violence/1",
+      "chunk_tokens": 55,
+      "overlap_tokens": 8,
+      "context_tokens": 128
+    },
+    {
+      "index": 2,
+      "start": 0,
+      "end": 19,
+      "category": "hate",
+      "category_chunk_index": 0,
+      "category_chunks": 1,
+      "content_total": 19,
+      "policy_id": "shieldstral-1.0-3b-moderate-hate/1",
+      "chunk_tokens": 49,
+      "overlap_tokens": 8,
+      "context_tokens": 128
+    }
+  ],
+  "prover": {
+    "kind": "shieldstral",
+    "label": "Shieldstral-1.0-3B classifier \u2014 privacy statement pending",
+    "supports": [
+      "text"
+    ],
+    "proves_verdict": true,
+    "model": "Shieldstral-1.0-3B",
+    "model_digest": "29aeba6c04a819cdbafde311f7c9d0c678d85aff22292ae6b9647761158a0bd1",
+    "token_profile_digest": "2ba468f98085caf1136f27cf66220f93d8e316acb8dbae7e98f9eb68347f05a0",
+    "binary_sha256": "dfb8025eb903b203f4b50371fdd0dd00659d46a9dbaad9d121d6a68343ebc70c",
+    "run_profile": "hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/1",
+    "cli": "zk60_classify r16b, native R13, T128",
+    "privacy_status": "privacy statement pending",
+    "policy_selection": "moderate testnet demo; product ruling pending",
+    "what_is_proved": "The pinned integer model verdict for each category, bound to the post by input-owner verification.",
+    "per_job_s": 700,
+    "category_geometry": {
+      "sexual": {
+        "chunk_tokens": 55,
+        "overlap_tokens": 8,
+        "max_chunks": 8
+      },
+      "violence": {
+        "chunk_tokens": 55,
+        "overlap_tokens": 8,
+        "max_chunks": 8
+      },
+      "hate": {
+        "chunk_tokens": 49,
+        "overlap_tokens": 8,
+        "max_chunks": 8
+      }
+    }
+  },
+  "source_sha256": {
+    "apps/proven-media/proven_media/__init__.py": "0990ec46e2646a55706cb2c24a63be9303b335fd71dcd781dcf47c284182b65d",
+    "apps/proven-media/proven_media/app.py": "2ffa9c87591dd212f35c19daf680c93cec8ad634bea3b7be0d961ab37c6247f6",
+    "apps/proven-media/proven_media/auth.py": "1861c10dc753ebb38022354e684b89195ba438eddc4863124653a855b2feec7c",
+    "apps/proven-media/proven_media/base_sepolia.py": "5d5bffc438b27c343e339921b6c8cfbad1a4d9e41b2d5a4b698a29b9fe538886",
+    "apps/proven-media/proven_media/classifier_cli.py": "78a12f75f95df6f3899b62207e3766ca489d991cc7007edfb6a51fbca7eebd79",
+    "apps/proven-media/proven_media/classifier_prover.py": "3b36969f3889f8bdb2c5b61edf0f96d73f6bf7d053e3f1979e4adec20be5cf48",
+    "apps/proven-media/proven_media/config.py": "53566219e4b43fa42fae36a749454b95200f532a7c571158c93697a418699e62",
+    "apps/proven-media/proven_media/demo_reset.py": "b5095a58726e36bc1d50261f65d56319cde6711d3f5bf145ba7c151e6f377e9c",
+    "apps/proven-media/proven_media/hardware_profiles.py": "bbc4ca52aa0fba22b2333129d198dc6e774f0fd6923c29629c6c85312b616bfb",
+    "apps/proven-media/proven_media/image_preprocess.py": "45750962c0edd6f083531217e41520479abfb5a89f2c8e7455fe4ce02f9a8e69",
+    "apps/proven-media/proven_media/items.py": "0bd70050f252579b14ef45fbacaece62a266023d0fbfae4ac8848f5c7152b9ce",
+    "apps/proven-media/proven_media/jobs.py": "27afa7d12c4b2bf19ab767669d168ee62809ad158b911a8b3d7b1f18e1d87e7a",
+    "apps/proven-media/proven_media/manifest.py": "e8722a753c4156d54b532edcca70d00c399da2a276cb7191f9d095d9c267ef02",
+    "apps/proven-media/proven_media/prompting.py": "77dc8c08e45d0a677e691de80a8487672648ffbc1d6d85e43fc2bf7c3d49826e",
+    "apps/proven-media/proven_media/proof_plans.py": "2f586ccc429af60ae41ce87c89539bf2e1d685bbadf42ef7e428250a496ba71d",
+    "apps/proven-media/proven_media/provers.py": "0d92039c97b2bb831aa336b7acb38d83758ae20a8f29184aa44f3216da673acd",
+    "apps/proven-media/proven_media/publisher.py": "3433ce2d5de3c3d6457de928204c2a9f5738927b1e78e8d455587c359cdfb210",
+    "apps/proven-media/proven_media/records.py": "93d73246b84253bf79e30f0d0d95225b5246a3206330f00b5098a6806041c7d3",
+    "apps/proven-media/proven_media/sepolia_bridge.py": "f888fbbfd066bb11e653788541a0943e2e0b8a371f2647ab6e13257d1bf2e422",
+    "apps/proven-media/proven_media/shieldstral_prover.py": "f31d373368bff8ed7bb82abe2122df83eba7018c924854c01d3a373cc3acabb0",
+    "apps/proven-media/proven_media/shieldstral_runtime.py": "b0cbf83877d18e328b20eb5c26508cadc5e87e57d7bc66388399837e7e582f73",
+    "apps/proven-media/proven_media/shieldstral_text.py": "34f116d6c13bb342b471d50a8160c77a30907131a6e8a8cc964c327497353eae",
+    "apps/proven-media/proven_media/storage_policy.py": "28d647ea16e87d98f4c021285d8ca45ffd62dad645af7c9c0234822340670a52",
+    "apps/proven-media/proven_media/store.py": "47ca250eecbdb0f285514f13bef874a73f49396cf93520135b3bc1b8294daeaa",
+    "apps/proven-media/proven_media/testnet_publisher.py": "f2f4bad6e9ce217747e7d51ea643d48afbffdf1aeb9c2165428ece133230bdf8",
+    "apps/proven-media/proven_media/tokenizer.py": "1f093759158a2cc16b24545b45b0ab5b2e65bbabe82e2c0a89cf6db3e553e70c",
+    "apps/proven-media/tools/classifier_pipeline.py": "fd555a057a9202df6fbf6dac45bd5c43fb40b8bc0a2c74947fa618a85c0b5973",
+    "results/zk60_astra_20261026/run_durable_app_demo.py": "6c3ad742e66a7d5b2ed73f45d0a1d5002bcd7c5a2d5fe2983e9bf5fd5b6cb281"
+  },
+  "private_root": "/home/victor/zk60-owner-private/proven-media-astra-demo-2",
+  "public_root": "/home/victor/IntelligenceRegulation/results/zk60_astra_20261026/real_app_demo_2/public",
+  "categories": {}
+}

@@ -1,0 +1,4 @@
+[zk60-guard 04:30:45] START gate19-build-tests-2 class=build need=2.7G cap=3.5G enforce=cgroup+watchdog waited=0s run=276dc1ba7c3e
+[zk60-guard 04:33:45] END gate19-build-tests-2 exit=0 child_wall=180s peak_rss=2.28G min_avail=11.76G
+[zk60-guard 04:33:45] START gate19-cap-one class=cpu need=1.2G cap=2.5G enforce=cgroup+watchdog waited=0s run=64aa553b9bfa
+[zk60-guard 04:33:55] END gate19-cap-one exit=101 child_wall=9s peak_rss=0.59G min_avail=13.34G

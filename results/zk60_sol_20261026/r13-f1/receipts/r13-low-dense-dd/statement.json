@@ -1,0 +1,20 @@
+{
+ "schema": "zk60-trained-block-run/2",
+ "scope": "SYNTHETIC development export at the decoupled-head rung (rung-HD, width 192, query axis 512): NOT a trained model; a test of the export reader and the driver only; no privacy acceptance",
+ "prover_reported": {"backend": "gpu: off (built without --features gpu-cuda)", "gpu_declines": 0, "what": "self-reports of the prover (privacy review P-7): a CPU proof and a GPU proof have the same form, so no verifier can check these fields"},
+ "block_profile": "hashline-zk-mr1/private-block-rung-ld-t32-dev/1",
+ "run_profile": "hashline-zk-mr1/private-run-rung-ld-t32-dev/1",
+ "export_variant": "r13-low-dense",
+ "export_profile_sha256": "31ac461a2d380ef6ce2b4f559a7a5b34d6cf25bfa86d0f828dfca70680f8298b",
+ "calibration_tool_sha256": "4918b7644e1936826bd553d3a5c1db7f89bcde77e9f465a163cd531e176b3e80",
+ "layer": 0,
+ "layer_manifest_sha256": "f839271fc331f338f4fb4e64839918d839fa9e6d42560410fb802f4b07c1d254",
+ "block_digest": "616b2bdbf6fb40b64f5aece508ad30eb340f0766c141ea246f8cb4c53b826539",
+ "trained_statement_identity": "62d849886e90b7d3f6595f33fb8bff5e6b9009c6c3b34e5979ed4f9bd46666d5",
+ "context_label": "zk60-trained-block",
+ "context": "0b50bb3f4ea040b8487386c80f0c0a0c635f0f8c0309a7d57d507bcdf0d7ddb1",
+ "expected_io": "48424c4b455850310b50bb3f4ea040b8487386c80f0c0a0c635f0f8c0309a7d57d507bcdf0d7ddb100000000000000007e7c937ec45e5f9356b94892bd9d48c72ad1faff85131d96231d7641b9fbd3f5422cee16de86068f1200cc7e4d1019eee63a3ca900670f60971a9e8506a5df4d",
+ "rope_tables": "native generator at theta 10000 (the export carries no RoPE tables)",
+ "constants_source": "profile.json (uniform across the export's layers)",
+ "shape": {"tokens": 32, "width": 384, "hidden": 768, "q_heads": 16, "kv_heads": 8, "head_dim": 64, "log_cols": 14, "inv_rate": 4, "opened_cols": 256, "f_e": 12, "wrho_s": 17, "norm_wrho": 31, "norm_tn": 10, "norm_cn_a": 4000, "norm_cn_m": 4000, "norm_ceps": 1, "sh_ao": 7, "d_max": 642119}
+}

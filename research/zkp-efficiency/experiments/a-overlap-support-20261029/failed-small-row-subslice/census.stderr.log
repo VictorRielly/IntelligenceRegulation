@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/census.py", line 68, in <module>
+    for slot,entries in enumerate(base.catalog(g)):
+  File "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/legacy_catalog.py", line 83, in catalog
+    for j in range(9):add(2,'A','T',c0=j*g.t,label=f'limb{norm}:{j}')
+  File "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/a-overlap-support-20261029/legacy_catalog.py", line 74, in add
+    assert c0+(1<<min(log,row)) <= 1<<row
+AssertionError

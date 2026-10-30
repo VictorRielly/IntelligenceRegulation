@@ -1,0 +1,26 @@
+[zk60-guard 23:53:36] START rv13-test-build class=build need=2.5G cap=4.5G enforce=cgroup+watchdog waited=0s run=546cfbcc5d3b
+[zk60-guard 23:56:31] END rv13-test-build exit=0 child_wall=175s peak_rss=1.99G min_avail=11.00G
+[zk60-guard 23:57:31] START rv13-cli-build class=build need=2.5G cap=4.5G enforce=cgroup+watchdog waited=0s run=db2b300847b1
+[zk60-guard 23:58:32] END rv13-cli-build exit=0 child_wall=61s peak_rss=1.14G min_avail=11.52G
+[zk60-guard 23:59:32] START rv13-review class=cpu need=1.5G cap=3G enforce=cgroup+watchdog waited=0s run=7217a7572bca
+[zk60-guard 00:00:08] END rv13-review exit=0 child_wall=36s peak_rss=0.64G min_avail=13.19G
+[zk60-guard 00:01:08] START rv13-sol-attacks class=cpu need=1.5G cap=3G enforce=cgroup+watchdog waited=0s run=9ccb0745205e
+[zk60-guard 00:01:43] END rv13-sol-attacks exit=0 child_wall=35s peak_rss=0.64G min_avail=13.19G
+[zk60-guard 00:02:44] START rv13-components class=cpu need=1G cap=3G enforce=cgroup+watchdog waited=0s run=4960fab1d224
+[zk60-guard 00:02:44] END rv13-components exit=0 child_wall=1s peak_rss=0.16G min_avail=13.74G
+[zk60-guard 00:02:44] START rv13-cli-r13-low-dense-plain class=cpu need=1G cap=3G enforce=cgroup+watchdog waited=0s run=b7129c8d7347
+[zk60-guard 00:02:45] END rv13-cli-r13-low-dense-plain exit=0 child_wall=1s peak_rss=0.09G min_avail=13.73G
+[zk60-guard 00:02:45] START rv13-cli-r13-low-dense-dd class=cpu need=1G cap=3G enforce=cgroup+watchdog waited=0s run=1d2ce31d19de
+[zk60-guard 00:02:46] END rv13-cli-r13-low-dense-dd exit=0 child_wall=1s peak_rss=0.12G min_avail=13.67G
+[zk60-guard 00:02:46] START rv13-cli-r13-h24-wide-plain class=cpu need=1G cap=3G enforce=cgroup+watchdog waited=0s run=1e8a8bd462ca
+[zk60-guard 00:02:46] END rv13-cli-r13-h24-wide-plain exit=0 child_wall=1s peak_rss=0.08G min_avail=13.67G
+[zk60-guard 00:02:46] START rv13-cli-r13-h24-wide-dd class=cpu need=1G cap=3G enforce=cgroup+watchdog waited=0s run=16ee664b869e
+[zk60-guard 00:02:47] END rv13-cli-r13-h24-wide-dd exit=0 child_wall=1s peak_rss=0.11G min_avail=13.60G
+[zk60-guard 00:02:47] START rv13-compat-tl-dd class=cpu need=1.2G cap=3G enforce=cgroup+watchdog waited=0s run=d9740c89227b
+[zk60-guard 00:02:56] END rv13-compat-tl-dd exit=0 child_wall=9s peak_rss=0.52G min_avail=13.20G
+[zk60-guard 00:02:56] START rv13-compat-8b-dd class=cpu need=2.7G cap=4G enforce=cgroup+watchdog waited=0s run=b95bbc6ce4ec
+[zk60-guard 00:03:34] END rv13-compat-8b-dd exit=0 child_wall=37s peak_rss=1.73G min_avail=12.03G
+[zk60-guard 00:03:34] START rv13-compat-tl class=cpu need=1.2G cap=3G enforce=cgroup+watchdog waited=0s run=b38e00675de7
+[zk60-guard 00:03:42] END rv13-compat-tl exit=0 child_wall=9s peak_rss=0.49G min_avail=13.46G
+[zk60-guard 00:03:42] START rv13-compat-8b class=cpu need=2.7G cap=4G enforce=cgroup+watchdog waited=0s run=6bc997832556
+[zk60-guard 00:04:19] END rv13-compat-8b exit=0 child_wall=37s peak_rss=1.81G min_avail=12.09G

@@ -1,0 +1,47 @@
+Token-I/O lane round-15 tree frozen at 2026-10-29T04:51:01Z (REVIEW_R14 N-r14-1: label --expect-total, the label's
+whole-post check; gate round 18 F18-1: the capture writers' slot list = n_slots; H18-1: the gate's CLI-path short-item
+capture hook adopted; N-r14-4: next-token fixtures off /tmp; docs N-r14-2 / O18-1). **UNREVIEWED**: an independent review
+of round 15 is to follow (routed by the coordinator). Basis: frozen-r14, ACCEPTED on soundness (REVIEW_R14, no fixes).
+copy:     /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r15/
+source:   /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r15/ (a new durable tree, copied 2026-10-29 04:16 from
+          token-io-r14 = exactly frozen-r14's 258 files, no target/; r15/tools/freeze15.py init). target/, BASELINE.sha256
+          and the native tests' pid-named evidence dirs (results/r12b-*, results/r12-tied-<pid>/) are excluded.
+manifest: /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/manifest_final_r15.sha256
+          (= r15/manifest_r15A.sha256: 259 files, list sha256 b82a371e93df7aece9e40ec4c4a50d09e2e057d67c10ad05ec588c76e7e566ae);
+          all 259 re-hashed in the copy: match, none missing, none extra. Post-suite manifest r15B: 0 changed, 0 added, 0 removed.
+binary:   cli/zk60_classify.r15.release.bin (5edb7241f3c6b788289fca4a03f4fd40649355cf016663ec9dadbdaaa66c9a8e,
+          cli/binaries_r15.sha256; build note cli/zk60_classify.r15.BUILD.txt), built from this tree. Through it, each command
+          its own process, all PASS [MEASURED]: the N-r14-1 label cases (r15/logs/bin-label-r15.log: truncated sets refused,
+          a label without --expect-total refused, the honest full sets labelled); the r14 22-id short item proved, verified,
+          owner-checked and labelled (bin-short-r15.log); r15 <-> r14 cross-verification of a 23-id and a 22-id receipt, both
+          ways (xbin-r15-r14.log: round 15 moves no receipt or statement byte); the P-18 CLI-path capture
+          (~/zk60-artifacts/token-io/captures/classify-rc3-cli-p18-r15) and the H18-1 CLI-path capture of an 11-id short item
+          (~/zk60-artifacts/token-io/captures/classify-rc3-cli-short11-r15; published /3 statement copied to
+          r15/classify-rc3-cli-short11-r15.statement.json), both outside the repo. The next-token binary is not rebuilt.
+suite:    s19 (r15/logs/s19-suite.log) on this tree: exit 0, 850 passed, 0 failed, 59 ignored, 29 test binaries [666 s, peak
+          RSS 6.87 GiB / cgroup 7.16 GiB, shared box n=1, nothing else live; declared 8.5 / cap 10]. s18 (r14): 845 / 0 / 56.
+failing-first: r15/logs/red-tests.log + red-r14-binary.log (the r15 tree at frozen-r14's code plus the new tests): 3 red
+          (11 of 11 label cases wrong, the truncated set labelled exit 0; the classifier and token run files list 24 slot
+          triples under n_slots 23) and the frozen r14 binary failed the label cases in fresh processes.
+N-r14-1:  `zk60_classify label ... --expect-total N` is REQUIRED (N = the post's own token count from the pinned tokenizer,
+          counted by the caller; public by D45(1)); missing, 0 or not a number -> refused with the fail-closed line. The
+          library's aggregate_label(seen, expect_total) refuses unless every run's content_total = N, the chunk count = the
+          split's, each run's range = its index's range in chunk_ranges(N, plan), every index once, and the ranges cover
+          [0, N) exactly. The label event gains expect_total. cli/README.md's app recipe: one item per post; pass the
+          post's count as --expect-total; compare content_total again in the app and fail closed.
+F18-1:    write_run_token / write_run_classify (run_capture.rs) list exactly N_SLOTS (= the declared n_slots, 23) slot
+          triples; the reader contract is written on the writer (the replay admits only N_SLOTS-slot block stages, so no
+          capture exists for a DD block). Only run.json's slot list moves (the r15 P-18 run.json differs from r14's in the
+          slot list and the run-random input root / binding only). The gate's tools v21 read both forms.
+H18-1:    classify_capture_tests::capture_a_short_item_through_the_classify_cli (#[ignore]d, test-only like every capture
+          hook; HL_PB_CLI_SHORT_N, HL_PB_CLI_STATEMENT_OUT), adopted from the gate's round-18 patch.
+pins:     capture source pins changed: run_capture.rs (+15 / -2, F18-1 + its doc) and token_io.rs (+3, one test module).
+          classify.rs, classify_tied.rs, classify_run.rs, stage_in_c.rs, stage_out_c.rs (the classifier pins) are
+          byte-identical to frozen-r14 (so N-r14-2's ctl_q comment is deferred). classify_cli.rs is not a pin.
+vs frozen-r14: 10 changed, 1 added, 0 removed (r15/r15A_vs_frozen_r14.txt, unified diff r15/r15A_vs_frozen_r14.diff).
+native:   the base is still NATIVE R12b. Native files edited this round: run_capture.rs (the two token-lane writers only) and
+          token_io.rs (+3). The schema stays zk60-classify-run/3 (nothing forced a change).
+docs:     classifier/DESIGN_CLASSIFIER.md v2.5 (§16; the ruling table and §5 / §6 marked RULED D45; §15.2's causality
+          argument now cites the relation; O18-1 noted in §16.4); cli/README.md round-15 section, binaries table.
+Not a privacy acceptance and not a classifier-fidelity claim. Unreviewed. The lane's working copy may move on; this copy
+does not change.

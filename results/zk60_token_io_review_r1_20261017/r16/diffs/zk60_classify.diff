@@ -1,0 +1,26 @@
+--- results/zk60_token_io_r1_20261017/frozen-r15/hashline/examples/zk60_classify.rs	2026-10-28 21:51:01.776531288 -0700
++++ results/zk60_token_io_r1_20261017/frozen-r16/hashline/examples/zk60_classify.rs	2026-10-29 02:29:32.227110868 -0700
+@@ -32,12 +32,20 @@
+ //! the POST's own token count from the pinned tokenizer; a label is refused
+ //! unless the chunk runs cover exactly `[0, N)` (a proof set of only the
+ //! post's first ids is refused).
++//! ROUND 16 (native R13, REVIEW_R13 §10): the Shieldstral-1.0-3B LOW + h24
++//! exports (schema v2, `low-h24-v1`, `shieldstral-3b-t128` / `-t256`, non-DD)
++//! are registered under their own classifier run profiles; each block stage
++//! is proved and verified at its layer's bound gate denominator; the D37
++//! category policies `shieldstral-1.0-3b-moderate-{sexual,violence,hate}/1`
++//! (moderate wording, pending Victor's strict / moderate ruling) are the fixed
++//! list; a prove or verify streams the pinned checkpoint ONCE (the loader's
++//! pass also derives the margin row).
+ //! Every refusal prints the fail-closed outcome line (D45(4): no accepted proof
+ //! is handled as flagged). See `src/private_block/token_io/classify_cli.rs`.
+ //!
+-//! SCOPE: the development rung is the registered run profile (Shieldstral's
+-//! tied source is wired through native R12b's recompute; its classifier run
+-//! profile is not registered yet); public-row variant; NO privacy acceptance. JSON lines
++//! SCOPE: the development rung and (round 16) the R13 Shieldstral T128 / T256
++//! classifier run profiles (T256 is not proved on the 8 GB laptop);
++//! public-row variant; NO privacy acceptance, NO classifier-quality claim. JSON lines
+ //! on stdout; exit 0 = done, 1 = refused, 2 = bad arguments. The frozen
+ //! next-token CLI (`zk60_token_io`) is a separate binary and is unchanged.
+ 

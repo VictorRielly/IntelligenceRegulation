@@ -1,0 +1,540 @@
+diff -ruN -x __pycache__ frozen_v23/scripts/zk60_native_rg_classgate.py frozen_v24/scripts/zk60_native_rg_classgate.py
+--- frozen_v23/scripts/zk60_native_rg_classgate.py	2026-10-29 09:43:14.154508243 -0700
++++ frozen_v24/scripts/zk60_native_rg_classgate.py	2026-10-30 08:54:48.008534030 -0700
+@@ -96,6 +96,14 @@
+ * the file hash in `class_integrity` streams and is cached per process (a
+   values capture's arrays.bin is 2.25 GB; v22 held it whole six times).
+ 
++[v24, gate round 24, 2026-10-30] token frozen-r18 / r19 / r19b (A5 one-load
++batch, E7, REVIEW_R19's fixes): no code change here.  The pins come from
++`zk60_native_rg_classpins.classify_capture_pins_v24` (v23's rule plus the
++readings of private_block.rs 96c1cd16... and derive.rs 4b53222b... /
++1d615010..., `zk60_native_rg_r13_pins.TOKEN_R19B_READINGS`); B-3 at the
++Shieldstral profile reads the checkpoint where E7 says
++(`zk60_native_rg_classtied.shield_checkpoint_path`).
++
+ NOTHING HERE IS A PRIVACY RESULT OR A PRIVACY ACCEPTANCE.
+ """
+ 
+diff -ruN -x __pycache__ frozen_v23/scripts/zk60_native_rg_classpins.py frozen_v24/scripts/zk60_native_rg_classpins.py
+--- frozen_v23/scripts/zk60_native_rg_classpins.py	2026-10-29 09:47:09.524580717 -0700
++++ frozen_v24/scripts/zk60_native_rg_classpins.py	2026-10-30 08:56:40.544451942 -0700
+@@ -797,3 +797,186 @@
+     frozen-r16b); v22's rule is kept as `classify_capture_pins_v22`, v21's as
+     `classify_capture_pins_v21`, for the record"""
+     return classify_capture_pins_v23(manifest)
++
++
++# =====================================================================
++# [v24, gate round 24, 2026-10-30] token frozen-r18 / r19 / r19b
++# =====================================================================
++# r17 -> r19b moves exactly TWO of an R13 classifier capture's 72 source pins
++# (round24/READINGS_R24.json): src/private_block.rs (r18: one re-exported name)
++# and tied_tables/derive.rs (r19: E7, where the Shieldstral checkpoint is read
++# from; r19b: doc + tests).  Both are READ in
++# `zk60_native_rg_r13_pins.TOKEN_R19B_READINGS`, each step chaining to the
++# r16b digest v22 read (PRIVATE_BLOCK_T16 / DERIVE_T16).  The five ported
++# classifier files and every other pin do not move, so v22's classifier port
++# applies unchanged (`CLASSIFY_PORTED_FROM_V22`).
++TOKEN_R18_MANIFEST = "results/zk60_token_io_r1_20261017/manifest_final_r18.sha256"
++TOKEN_R19_MANIFEST = "results/zk60_token_io_r1_20261017/manifest_final_r19.sha256"
++TOKEN_R19B_MANIFEST = "results/zk60_token_io_r1_20261017/manifest_final_r19b.sha256"
++# the classifier CLI binaries each token round built (cli/binaries_<round>.sha256): which named binary made
++# a CLI-path capture is recorded in its README note (HL_PB_CLI_BIN_SHA256); report-only, never a pin rule
++TOKEN_CLI_BINARIES = {
++    "r16b": "dfb8025eb903b203f4b50371fdd0dd00659d46a9dbaad9d121d6a68343ebc70c",
++    "r17": "81bd86248e9f42393c9fe739e6794b7af155ad9a0a06874c89efb7a7bba18317",
++    "r18": "110f0c53c56f691c301fe4f47d13afc1ccc9898efbaaf8506f1e0d5cde5f4496",
++    "r19": "841ba983cebaae65bbae6289d71f740d44c137fdc6cc98ed46410f2d33a09fd8",
++    "r19b": "6d65d32ea783e36db2458ccce2d459cb29a91bcb45a89c4e23e484914126d609",
++}
++
++
++def _r19b_tables():
++    try:
++        import zk60_native_rg_r13_pins as R13
++    except ImportError:
++        return {}
++    return getattr(R13, "TOKEN_R19B_READINGS", {})
++
++
++def _reading_v24(f, d):
++    r = _r19b_tables().get(f, {}).get(d)
++    return r if r is not None else _reading_v23(f, d)
++
++
++def classify_capture_pins_v24(manifest: dict) -> dict:
++    """[v24] v23's rule (every pin at the v22 classifier port's digest, accepted
++    by the token or block gate, or by a chain of written readings) with the
++    frozen-r18 / r19 / r19b readings in front: an r19b capture (private_block.rs
++    96c1cd16..., derive.rs 1d615010...) is accepted, an r18 / r19 capture too,
++    an r17 / r16b capture still is, an r14 or R-C1 capture is still refused by
++    name"""
++    return classify_capture_pins_v22(manifest, reading=_reading_v24,
++                                     port="v24 (token frozen-r19b / r19 / r18 / r17 / r16b on native R13: H19-1..H19-4 "
++                                          "adopted, the recorder's export replay, E7)")
++
++
++def classify_capture_pins(manifest: dict) -> dict:  # noqa: F811  [v24] replaces v23's dispatcher
++    """[v24] the classifier capture pin check is v24's (token frozen-r19b, r19,
++    r18, r17 and r16b); v23's rule is kept as `classify_capture_pins_v23`, v22's
++    as `classify_capture_pins_v22`, v21's as `classify_capture_pins_v21`, for the
++    record"""
++    return classify_capture_pins_v24(manifest)
++
++
++def _capture_pin_files(tree_rel: str) -> list:
++    """the 72 capture source pins, as the recorder lists them: OWN_SOURCE_FILES, SHARED_SOURCE_FILES and
++    CLASSIFY_SOURCE_FILES parsed from `<tree>/src/private_block/run_capture.rs`"""
++    import os
++    import re
++    with open(os.path.join(_repo_root(), tree_rel, "src/private_block/run_capture.rs")) as fh:
++        src = fh.read()
++    out = []
++    for name in ("OWN_SOURCE_FILES", "SHARED_SOURCE_FILES", "CLASSIFY_SOURCE_FILES"):
++        m = re.search(r"const " + name + r": \[&str; (\d+)\] = \[(.*?)\];", src, re.S)
++        items = re.findall(r'"([^"]+)"', re.sub(r"//[^\n]*", "", m.group(2)))
++        if len(items) != int(m.group(1)):
++            raise ValueError(f"{name}: {len(items)} items, declared {m.group(1)}")
++        out += items
++    return out
++
++
++def r19b_self_check() -> dict:
++    """[v24, COUNTED] the two moved pins against the token lane's manifests: the
++    pinned set is the r19b recorder's 72 (equal in r17 / r18 / r19 / r19b); of
++    the paths moved r17 -> r19b exactly src/private_block.rs and derive.rs are
++    pinned; their r18 / r19 / r19b digests are the ones read, each chaining to
++    frozen-r17's digest; the files re-hash in the frozen trees; the CLI binaries
++    re-hash to the token lane's lists"""
++    import hashlib
++    import os
++    root = _repo_root()
++    R13 = __import__("zk60_native_rg_r13_pins")
++
++    def man(p):
++        out = {}
++        with open(os.path.join(root, p)) as fh:
++            for line in fh:
++                d, q = line.rstrip("\n").split("  ", 1)
++                out[q[len("hashline/"):] if q.startswith("hashline/") else q] = d
++        return out
++
++    def sha(p):
++        if not os.path.exists(p):
++            return None
++        h = hashlib.sha256()
++        with open(p, "rb") as fh:
++            for c in iter(lambda: fh.read(1 << 20), b""):
++                h.update(c)
++        return h.hexdigest()
++    ms = {"r17": man(TOKEN_R17_MANIFEST), "r18": man(TOKEN_R18_MANIFEST), "r19": man(TOKEN_R19_MANIFEST),
++          "r19b": man(TOKEN_R19B_MANIFEST)}
++    f = []
++    lists = {t: _capture_pin_files(f"results/zk60_token_io_r1_20261017/frozen-{t}/hashline")
++             for t in ("r17", "r18", "r19", "r19b")}
++    if any(v != lists["r19b"] for v in lists.values()):
++        f.append("the recorder's pin lists differ between r17 and r19b")
++    # a pin is relative to hashline/; the manifests key hashline's files without that prefix (`man`) and
++    # zkp-core's as `zkp-core/...`, so `../zkp-core/x` is `zkp-core/x` here
++    pinned = {x[3:] if x.startswith("../") else x for x in lists["r19b"]}
++    moved = sorted(p for p in set(ms["r17"]) | set(ms["r19b"]) if ms["r17"].get(p) != ms["r19b"].get(p))
++    moved_pinned = sorted(p for p in moved if p in pinned)
++    pb, drv = "src/private_block.rs", "src/private_block/tied_tables/derive.rs"
++    if moved_pinned != sorted([pb, drv]):
++        f.append(f"pinned paths moved r17 -> r19b: {moved_pinned}, expected exactly {pb} and {drv}")
++    rd = _r19b_tables()
++    walk = {}
++    for file in (pb, drv):
++        seq = []
++        for t in ("r18", "r19", "r19b"):
++            d = ms[t].get(file)
++            seq.append(d)
++            if d != ms["r17"].get(file) and d not in rd.get(file, {}):
++                f.append(f"{file}: frozen-{t} has {str(d)[:12]}, which has no round-24 reading")
++        # the chain from r19b's digest back to frozen-r17's
++        cur, chain = ms["r19b"].get(file), []
++        for _ in range(4):
++            chain.append(cur)
++            if cur == ms["r17"].get(file):
++                break
++            r = rd.get(file, {}).get(cur)
++            if r is None:
++                f.append(f"{file}: the chain stops at {str(cur)[:12]} before frozen-r17's digest")
++                break
++            cur = r["base"]
++        walk[file] = {"r17": ms["r17"].get(file), "r18": seq[0], "r19": seq[1], "r19b": seq[2], "chain_r19b_to_r17": chain}
++    # the terminals of r13_pins at r19b against the r19b manifest
++    for file, d in R13.TOKEN_R19B_DIGESTS.items():
++        if ms["r19b"].get(file) != d:
++            f.append(f"r13_pins TOKEN_R19B_DIGESTS {file}: {d[:12]}, frozen-r19b has {str(ms['r19b'].get(file))[:12]}")
++    if R13.TOKEN_R19B_DIGESTS[RC := "src/private_block/run_capture.rs"] not in TOKEN_R17_READINGS[RC]:
++        f.append("run_capture.rs at r19b is not the digest TOKEN_R17_READINGS read")
++    rehashed = {}
++    for t in ("r18", "r19", "r19b"):
++        for file in (pb, drv):
++            got = sha(os.path.join(root, f"results/zk60_token_io_r1_20261017/frozen-{t}/hashline", file))
++            rehashed[f"frozen-{t} {file}"] = got
++            if got != ms[t].get(file):
++                f.append(f"frozen-{t} {file}: re-hashed {str(got)[:12]}, the manifest says {str(ms[t].get(file))[:12]}")
++    bins = {}
++    for t, want in TOKEN_CLI_BINARIES.items():
++        got = sha(os.path.join(root, f"results/zk60_token_io_r1_20261017/cli/zk60_classify.{t}.release.bin"))
++        with open(os.path.join(root, f"results/zk60_token_io_r1_20261017/cli/binaries_{t}.sha256")) as fh:
++            listed = fh.read().split()[0]
++        bins[t] = {"rehashed": got, "listed": listed}
++        if not (got == want == listed):
++            f.append(f"the {t} CLI binary: re-hashed {str(got)[:12]}, listed {listed[:12]}, named {want[:12]}")
++    return {"files": {t: len(m) for t, m in ms.items()}, "pinned": len(lists["r19b"]), "moved_r17_to_r19b": moved,
++            "moved_and_pinned": moved_pinned, "walk": walk, "rehashed": rehashed, "cli_binaries": bins,
++            "findings": f, "ok": not f}
++
++
++def capture_cli_binary(bundle_dir: str) -> dict:
++    """[v24, report-only] the named CLI binary a CLI-path capture's README note records
++    (`The named binary <path> (sha256 <hex>)` / `the named binary <path> (sha256 <hex>)`), and which token
++    round's binary that is (None: not a binary these tools name, or not a CLI-path capture)"""
++    import os
++    import re
++    p = os.path.join(bundle_dir, "README.md")
++    text = ""
++    if os.path.exists(p):
++        with open(p) as fh:
++            text = fh.read()
++    m = re.search(r"[Tt]he named binary (\S+) \(sha256 ([0-9a-f]{64})\)", text)
++    if not m:
++        return {"cli_path_capture": False, "binary": None, "sha256": None, "token_round": None}
++    rnd = next((t for t, d in TOKEN_CLI_BINARIES.items() if d == m.group(2)), None)
++    return {"cli_path_capture": True, "binary": m.group(1), "sha256": m.group(2), "token_round": rnd}
+diff -ruN -x __pycache__ frozen_v23/scripts/zk60_native_rg_classtied.py frozen_v24/scripts/zk60_native_rg_classtied.py
+--- frozen_v23/scripts/zk60_native_rg_classtied.py	2026-10-29 05:00:33.617094305 -0700
++++ frozen_v24/scripts/zk60_native_rg_classtied.py	2026-10-30 08:54:38.334422541 -0700
+@@ -43,6 +43,15 @@
+ binary64: 0 disagreements); `derive_dev` below reproduces all three (unit
+ test `ClassifierV21`).
+ 
++[v24, gate round 24, 2026-10-30] token frozen-r19 / r19b moved derive.rs (E7):
++where the Shieldstral checkpoint is read from.  `shield_checkpoint_path`
++mirrors it (a declared checkpoint_file wins; else ZK60_MODELS when set and
++non-empty, else HOME/models, else refused; a non-string or EMPTY declared path
++is refused, as Rust refuses it).  What is accepted does not move: the size,
++the header, the whole-file SHA-256 pin and the consumed-tensor pin.  One known
++difference is left as it was in v22 / v23: Rust also refuses a SYMLINKED model
++file (`regular`), the gate's `open` follows it; both authenticate the bytes.
++
+ NOTHING HERE IS A PRIVACY RESULT OR A PRIVACY ACCEPTANCE.
+ """
+ 
+@@ -299,19 +308,29 @@
+ # =====================================================================
+ # [v22, gate round 19, 2026-10-29] B-3 at the REAL Shieldstral profile
+ # =====================================================================
+-# READ [token frozen-r16b, list 04d94bc0...]:
+-# * `tied_tables/derive.rs` (c5bec3c6): WIDTH 3072, VOCAB 131072, TENSOR
++# READ [token frozen-r16b, list 04d94bc0...; v24: line numbers and digest at
++# token frozen-r19b, list cfae2d1e..., where derive.rs is 1d615010 (r19 4b53222b,
++# r16b / r17 / r18 c5bec3c6: round24/readings/; production text r16b -> r19b
++# differs ONLY in E7, the checkpoint's location, round24/READINGS_R24.json)]:
++# * `tied_tables/derive.rs` (1d615010): WIDTH 3072, VOCAB 131072, TENSOR
+ #   `language_model.model.embed_tokens.weight`, NORM
+-#   `language_model.model.norm.weight`, CHECKPOINT_BYTES 7698241104,
+-#   DEFAULT_CHECKPOINT (:5-10); `Checkpoint::open` (:121-160): the safetensors
+-#   header, the tensor [V, D] and norm [D] extents, no `lm_head`, the WHOLE
+-#   file's SHA-256 against `ModelSource::shieldstral_1_0_3b().weights_sha256`
+-#   (trained_statement.rs:162, 87753e30...), the consumed tensor bytes against
+-#   SHIELDSTRAL_TIED_TENSOR_SHA256 (67a138c1..., :601); `rotate` (:163-178):
+-#   x *= sign, then per 1024-block the in-place butterfly (a + b, a - b) for
+-#   step 1, 2, 4, ..., 512, then x /= sqrt(1024); `quantize` (:180-187);
+-#   `recompute_profile` (:227-276): the embedding row = rotate(raw), rounded
+-#   to f32, quantize(residual_scales_in[0], -32768, 32767); the margin row =
++#   `language_model.model.norm.weight`, CHECKPOINT_BYTES 7698241104 (:5-9);
++#   [v24, E7] CHECKPOINT_IN_MODELS (:15), `default_checkpoint` /
++#   `default_checkpoint_from` (:47-60) and `checkpoint_path_with` (:65-70),
++#   which replace r16b's absolute DEFAULT_CHECKPOINT (:10 at c5bec3c6), mirrored
++#   by `shield_default_checkpoint` / `shield_checkpoint_path` below;
++#   `Checkpoint::open` (:182-220; r16b :121-160): `regular` (:183: a regular
++#   file, no final symlink, exactly CHECKPOINT_BYTES), the safetensors header,
++#   the tensor [V, D] and norm [D] extents, no `lm_head`, the WHOLE file's
++#   SHA-256 against `ModelSource::shieldstral_1_0_3b().weights_sha256`
++#   (trained_statement.rs:162, 87753e30...) at :216 (r16b :156), the consumed
++#   tensor bytes against SHIELDSTRAL_TIED_TENSOR_SHA256 (67a138c1...,
++#   trained_statement.rs:601) at :325 (r16b :265); `rotate` (:223-238; r16b
++#   :163-178): x *= sign, then per 1024-block the in-place butterfly (a + b,
++#   a - b) for step 1, 2, 4, ..., 512, then x /= sqrt(1024); `quantize`
++#   (:240-247; r16b :180-187); `recompute_profile` (:287-336; r16b :227-276;
++#   the checkpoint path at :304): the embedding row = rotate(raw), rounded to
++#   f32, quantize(residual_scales_in[0], -32768, 32767); the margin row =
+ #   rotate((yes - no) * norm), quantize(public_scale, -32767, 32767) (the
+ #   difference BEFORE quantization); the rotation = block-hadamard, width
+ #   3072, block 1024, 3 blocks, signs = `rotation_sign.bin` (f64 LE) whose
+@@ -331,13 +350,55 @@
+ SHIELD_TENSOR_SHA256 = "67a138c1c483b89874526ef523f5f0c30f161808076561730193d1de2093dd19"
+ SHIELD_WEIGHTS_SHA256 = "87753e30c8c321da478b83bbabebcd813cc9b3d0cee5c5b3d64349a8ee4172f7"
+ SHIELD_CHECKPOINT_BYTES = 7698241104
+-SHIELD_DEFAULT_CHECKPOINT = "/home/victor/models/shieldstral-1.0-3b/snapshot-003ec7e2/model.safetensors"
++# [v24, gate round 24] token round 19's E7 replaces v23's absolute
++# SHIELD_DEFAULT_CHECKPOINT ("/home/victor/models/<the place below>", round 18's
++# DEFAULT_CHECKPOINT): the place below a models directory, and WHERE that
++# directory is (`shield_default_checkpoint`), mirrored from derive.rs
++SHIELD_CHECKPOINT_IN_MODELS = "shieldstral-1.0-3b/snapshot-003ec7e2/model.safetensors"
+ TIED_SOURCE_SHIELDSTRAL = ("tied-source=shieldstral-checkpoint tensor=language_model.model.embed_tokens.weight "
+                            f"sha256={SHIELD_TENSOR_SHA256} "
+                            "derivation=native-R12b-recompute_tied_tables(rotate-then-floor(x/scale+0.5),"
+                            "refuse-outside-int16,no-clip)")
+ 
+ 
++def shield_default_checkpoint(env=None) -> str:
++    """[v24] derive.rs `default_checkpoint_from` (1d615010 :53-60), mirrored:
++    `$ZK60_MODELS/<place>` when ZK60_MODELS is set and NON-EMPTY, else
++    `$HOME/models/<place>` when HOME is set and non-empty, else REFUSED (never a
++    guessed path).  A set ZK60_MODELS never falls back to HOME.  `env` defaults
++    to the process environment (a mapping; tests pass their own)."""
++    env = os.environ if env is None else env
++    models, home = env.get("ZK60_MODELS"), env.get("HOME")
++    if models:
++        base = models
++    elif home:
++        base = os.path.join(home, "models")
++    else:
++        raise ValueError("tied tables: the export declares no tied_embeddings.checkpoint_file and neither ZK60_MODELS "
++                         "nor HOME is set, so the pinned checkpoint has no default location")
++    return os.path.join(base, SHIELD_CHECKPOINT_IN_MODELS)
++
++
++def shield_checkpoint_path(decl: dict, env=None) -> str:
++    """[v24] derive.rs `checkpoint_path_with(declaration, default_checkpoint)`
++    (1d615010 :65-70, called at :304), mirrored, with the empty-path refusal
++    `Checkpoint::open` -> `regular` makes of it: a DECLARED
++    `tied_embeddings.checkpoint_file` wins and the default is evaluated only
++    without one; a declaration that is not a string (null included) is refused
++    (`J::str`: "expected a string"); a declared EMPTY string is refused (Rust
++    opens the empty path and `symlink_metadata("")` fails; v23's `or` took it
++    for absent and used the default)."""
++    if "checkpoint_file" in decl:
++        declared = decl["checkpoint_file"]
++        if not isinstance(declared, str):
++            raise ValueError("tied tables: tied_embeddings.checkpoint_file: expected a string")
++        if declared == "":
++            raise ValueError("tied tables: the declared tied_embeddings.checkpoint_file is the empty path, which the "
++                             "verifier refuses (no default is used)")
++        return declared
++    return shield_default_checkpoint(env)
++
++
+ def _np():
+     import numpy as np
+     return np
+@@ -385,7 +446,7 @@
+ 
+ 
+ def _shield_stream(export_dir: str, authenticate: bool, chunk_rows: int, rows_wanted, on_chunk):
+-    """[v22] native R12b `recompute_profile` (derive.rs:227-276) as a STREAM over
++    """[v22] native R12b `recompute_profile` (derive.rs:227-276 at r16b; :287-336 at r19b) as a STREAM over
+     the pinned checkpoint: the profile's rotation and scale, the safetensors
+     extents, the whole file's SHA-256 against the model pin (when
+     `authenticate`), the final norm, then the tensor in chunks of `chunk_rows`
+@@ -411,7 +472,7 @@
+     decl = profile["tied_embeddings"]
+     if decl.get("tensor") != SHIELD_TENSOR or decl.get("sha256") != SHIELD_TENSOR_SHA256:
+         raise ValueError("tied tensor declaration differs from pin")
+-    path = decl.get("checkpoint_file") or SHIELD_DEFAULT_CHECKPOINT
++    path = shield_checkpoint_path(decl)          # [v24] E7, mirrored (v23: `decl.get("checkpoint_file") or` the constant)
+     size = os.path.getsize(path)
+     if size != SHIELD_CHECKPOINT_BYTES:
+         raise ValueError(f"the checkpoint is {size} B, the pinned file is {SHIELD_CHECKPOINT_BYTES} B")
+@@ -495,7 +556,7 @@
+ 
+ def shieldstral_derive(export_dir: str, yes: int, no: int, margin_scale: float, authenticate: bool = True,
+                        chunk_rows: int = 1024, keep_emb: bool = False) -> dict:
+-    """native R12b `recompute_profile` (derive.rs:227-276) on the pinned
++    """native R12b `recompute_profile` (derive.rs:227-276 at r16b; :287-336 at r19b) on the pinned
+     Shieldstral checkpoint, for the classifier: the int16 embedding's digests
+     (SHA-256 of the LE table; the statement's BLAKE3 `emb_digest`) and the
+     margin row for (yes, no, margin_scale), in ONE stream (`_shield_stream`).
+diff -ruN -x __pycache__ frozen_v23/scripts/zk60_native_rg_r13_pins.py frozen_v24/scripts/zk60_native_rg_r13_pins.py
+--- frozen_v23/scripts/zk60_native_rg_r13_pins.py	2026-10-29 09:43:50.073739094 -0700
++++ frozen_v24/scripts/zk60_native_rg_r13_pins.py	2026-10-30 08:51:42.308605925 -0700
+@@ -79,6 +79,17 @@
+ No frozen-r16b hook can write an R13-stack bundle as the tree stands.  See
+ OPEN_QUESTIONS and R13_READINGS.json `r13_block_changes_for_the_port`.
+ 
++[v24, gate round 24, 2026-10-30] token frozen-r17 -> r18 -> r19 -> r19b
++(manifest_final_r19b, 306 files, list cfae2d1e...): exactly two of the 72
++capture pins move -- `src/private_block.rs` 2af1df7d -> 96c1cd16 (r18, one
++re-exported name) and `tied_tables/derive.rs` c5bec3c6 -> 4b53222b (r19,
++E7) -> 1d615010 (r19b, doc + tests).  `TOKEN_R19B_READINGS` reads each step;
++`TOKEN_R19B_DIGESTS` is the r19b terminal table (r16b's with those two and
++run_capture.rs cce0fc2a); `self_check` chains and re-hashes it too.
++DERIVE_T16 / PRIVATE_BLOCK_T16 keep their values (the r16b links).  The
++other eight moved paths (classify_cli.rs, the two batch files,
++examples/zk60_classify.rs and four test files) are not capture pins.
++
+ NOTHING HERE IS A PRIVACY STATEMENT.
+ """
+ 
+@@ -192,7 +203,7 @@
+ PRIVATE_BLOCK_T16 = "2af1df7d5bc222695c1d233050ff87a5f0981a26a5df1828678b67a6fe0a1cb3"      # = t16b
+ TRAINED_BLOCK_T16 = "dc6e8772bf80ff3d16dff49b416667cf92bf58148da60d8695004df01900ca07"      # = t16b
+ TIED_TABLES_T16 = "45fc3f0fe20c5d8b798f6bbc0fe3f1b7aa68f4427b0a3521c92ba83230b30e33"        # = t16b
+-DERIVE_T16 = "c5bec3c676e635aab1c609fdf2f541d003e14d7a50efc36d0fed42fc85b7d981"             # = t16b
++DERIVE_T16 = "c5bec3c676e635aab1c609fdf2f541d003e14d7a50efc36d0fed42fc85b7d981"             # = t16b = t17 = t18 (v24: the r16b LINK; r19 / r19b below)
+ TOKEN_RUN_T16 = "aae4b0ab9568f90150f78a1eaf68710c65b52e54ab2654e18452de279039117e"          # = t16b
+ LOAD_T16 = "67307f096ca4ea9dd12e182a9b173436fd0015e7367a3b444e5733d188a4ce79"               # = t16b
+ CLASSIFY_T16 = "c23074e9db87563d610ebd65a4083cdddeda07744f86a4c3ddf00fa94d5b82c7"
+@@ -200,6 +211,22 @@
+ CLASSIFY_TIED_T16 = "a89acfabc75c869c1f53d493a5caaa236af1a8df18ba6e30b1f3ab26167c4aaf"     # = t16b
+ CLASSIFY_RUN_T16 = "8abbf72f1c8e18bea1ac99e93a82562bca793afb4d94ed27dea24403850523f9"      # = t16b
+ 
++# [v24, gate round 24] token frozen-r18 / r19 / r19b (READ in round 24, each against the previous digest:
++# results/zk60_gate_tinyllama_20261017/round24/readings/).  Exactly two of an R13 classifier capture's 72
++# source pins move r17 -> r19b (round24/READINGS_R24.json).  DERIVE_T16 and PRIVATE_BLOCK_T16 are NOT
++# overwritten: they stay the r16b links of their chains (their readings above and below are unchanged); the
++# r19b TERMINALS of those two files move to the digests here (TOKEN_R19B_DIGESTS).
++PRIVATE_BLOCK_T18 = "96c1cd16270b087ab56d8fd4cf3777009e5000800ab2d65afc1342ae555c6ac4"      # = t19 = t19b
++DERIVE_T19 = "4b53222b37820936821eea2fd506ff3dee991e2474d39a3b21f1c0c10d357d75"             # token round 19 (E7)
++DERIVE_T19B = "1d6150100abb051d08e77d6c86e2cafed0915342203480ce73c8583170810fb7"            # token round 19b (R19-1 / R19-3)
++RUN_CAPTURE_T17 = "cce0fc2a4062fcb4c92e771b8d7ac7f996c9ccfbc985bfb6decd79b29fba7ddf"        # = t18 = t19 = t19b (read in classpins v23)
++TOKEN_R17_TREE = "results/zk60_token_io_r1_20261017/frozen-r17/hashline"
++TOKEN_R18_TREE = "results/zk60_token_io_r1_20261017/frozen-r18/hashline"
++TOKEN_R19_TREE = "results/zk60_token_io_r1_20261017/frozen-r19/hashline"
++TOKEN_R19B_TREE = "results/zk60_token_io_r1_20261017/frozen-r19b/hashline"
++TOKEN_R19B_MANIFEST = "results/zk60_token_io_r1_20261017/manifest_final_r19b.sha256"
++TOKEN_R19B_LIST_SHA256 = "cfae2d1e3c9f662b477bc7ba7ee418ed74c8732d0717732a74385cd8430b67b9"
++
+ # the twelve NEW R13 modules: native R13 digest and the token frozen-r16b digest (equal except trained_accuracy.rs)
+ NEW_R13_DIGESTS = {
+     ACC["argument_accuracy"]: ("a5e02391b61577c7041efc41c04cd2564610e3fbb26b188b66b1623a5b7940d9", None),
+@@ -231,6 +258,9 @@
+     TLOAD: LOAD_T16, CLS: CLASSIFY_T16B, CTD: CLASSIFY_TIED_T16, CRN: CLASSIFY_RUN_T16,
+     **{f: _r16b_digest_of_new(f) for f in NEW_R13_DIGESTS},
+ }
++# [v24] the terminal digests of token frozen-r19b (= frozen-r16b's above but for three files: private_block.rs
++# and derive.rs, read below, and run_capture.rs, read in zk60_native_rg_classpins.TOKEN_R17_READINGS)
++TOKEN_R19B_DIGESTS = dict(TOKEN_R16B_DIGESTS, **{PBR: PRIVATE_BLOCK_T18, DRV: DERIVE_T19B, RCP: RUN_CAPTURE_T17})
+ NATIVE_R13_DIGESTS = {
+     ARG: ARGUMENT_R13, SHP: SHAPE_R13, WIT: WITNESS_R13, PROT: PROTOCOL_R13, LAY: LAYOUT_R13,
+     TST: TRAINED_STATEMENT_R13, TBK: TRAINED_BLOCK_R13, PBR: PRIVATE_BLOCK_R13, RUN: RUN_R13,
+@@ -552,6 +582,60 @@
+     },
+ }
+ 
++# [v24, gate round 24] file -> new digest -> its reading (token frozen-r17 -> r18 -> r19 -> r19b; each against
++# the previous digest; READ 2026-10-30 from 15:46 UTC with `diff -u` over the frozen copies, the derive.rs
++# production text also compared with comment lines dropped: round24/READINGS_R24.json)
++_P24 = "[GATE ROUND 24, token frozen-r18 / r19 / r19b] "
++_D24 = "results/zk60_gate_tinyllama_20261017/round24/readings/"
++REEXPORT = "re-export-only"
++
++
++def _r24(base, stat, reading, cls, diff):
++    return {"base": base, "diff_stat": stat, "moves_a_receipt_byte": False, "moves_a_block_stage_byte": False,
++            "classification": cls, "diff_file": diff, "reading": _P24 + reading}
++
++
++TOKEN_R19B_READINGS = {
++    PBR: {
++        PRIVATE_BLOCK_T18: _r24(PRIVATE_BLOCK_T16, "+1 / -1, 1 hunk against 2af1df7d (token frozen-r17 = r16b)",
++            "Token round 18 (A5 one-load batch): the classifier CLI bridge's `pub use token_io::classify_cli::{..}` "
++            "(:142) names one more function, `classify_prove_batch_command` (the `prove-batch` subcommand of "
++            "examples/zk60_classify.rs).  A re-export only: no item, constant, module declaration, `ExpectedIo` / "
++            "`IoSpec` / `calibration_identity` byte or absorbed word moves (the run header absorbs "
++            "`expected.to_bytes()`, not this text); every other line is byte-identical.  r18 -> r19 -> r19b: the "
++            "same bytes (96c1cd16 in all three)",
++            REEXPORT, _D24 + "tok-r17-r18-private_block.rs.diff"),
++    },
++    DRV: {
++        DERIVE_T19: _r24(DERIVE_T16, "+97 / -3, 3 hunks against c5bec3c6 (token frozen-r18 = r17 = r16b)",
++            "Token round 19, E7 (open release): the absolute `DEFAULT_CHECKPOINT` (r18 :10) is replaced by "
++            "`CHECKPOINT_IN_MODELS` (the relative place below a models directory) and `default_checkpoint` / "
++            "`default_checkpoint_from` (`$ZK60_MODELS/<place>` when ZK60_MODELS is set and non-empty, else "
++            "`$HOME/models/<place>` when HOME is set and non-empty, else refused) and `checkpoint_path_with` (a "
++            "declared `tied_embeddings.checkpoint_file` wins and the default is evaluated only without one; a "
++            "non-string declaration is refused; an EMPTY declared string becomes the empty path, which "
++            "`Checkpoint::open` -> `regular` refuses); the one call site in `recompute_profile` uses them "
++            "(r19 :282-283).  The production text with comment lines dropped differs from r18 in exactly those "
++            "lines (3 removed, 20 added: 230 -> 247 lines r16b -> r19b, round24/READINGS_R24.json): `Checkpoint::open` (size, header, extents, no "
++            "LM head, the WHOLE file's SHA-256 against the compiled-in model pin), `rotate`, `quantize`, the "
++            "consumed-tensor pin and the margin row are unchanged; no absorb, no transcript, no BLAKE3 "
++            "(`Sha256::new(` 5 -> 5).  So only WHERE the file is read from moves, never what is accepted "
++            "(REVIEW_R19 §2).  Reached only at a tied (Shieldstral) export; no receipt, block-stage or statement "
++            "byte moves at any profile (REVIEW_R19 §3: r19's job-0 receipt = r18's on 30 / 30 files).  Three "
++            "`#[cfg(test)]` E7 tests.  Mirrored by the gate in zk60_native_rg_classtied v24 "
++            "(`shield_default_checkpoint` / `shield_checkpoint_path`)",
++            GATED, _D24 + "tok-r18-r19-derive.rs.diff"),
++        DERIVE_T19B: _r24(DERIVE_T19, "+136 / -0, 2 hunks against 4b53222b (token frozen-r19)",
++            "Token round 19b: R19-3's 22 `///` lines on `default_checkpoint` (a symlinked model FILE is refused, "
++            "symlinked directories are followed; a relative ZK60_MODELS resolves against the working directory; "
++            "HOME unset and no ZK60_MODELS is refused; a set ZK60_MODELS naming a missing file never falls back), "
++            "and R19-1's two `#[cfg(test)]` tests (a same-size sparse wrong file refused by the whole-file pin at "
++            ":216; a symlinked model file refused by `regular`).  Production text with comment lines dropped: "
++            "byte-identical to r19 (REVIEW_R19B §4)",
++            GATED, _D24 + "tok-r19-r19b-derive.rs.diff"),
++    },
++}
++
+ # the twelve NEW R13 modules: first readings (base None), at the r16b digest
+ _NEW_TEXT = {
+     "argument_accuracy": "the R13 relations of the SEVEN redefined slots (`define_changed`: SC_DZC, SC_FZC, "
+@@ -680,7 +764,7 @@
+ # ---------------------------------------------------------------- self-checks
+ def _all_readings():
+     out = {}
+-    for table in (NATIVE_R13_READINGS, TOKEN_R16B_READINGS, NEW_R13_READINGS):
++    for table in (NATIVE_R13_READINGS, TOKEN_R16B_READINGS, NEW_R13_READINGS, TOKEN_R19B_READINGS):   # [v24] + r19b
+         for f, rd in table.items():
+             out.setdefault(f, {}).update(rd)
+     return out
+@@ -721,17 +805,20 @@
+                     bad.append(f"{f}: digest {x!r} is not 64 hex")
+             if r["moves_a_receipt_byte"] or r["moves_a_block_stage_byte"]:
+                 bad.append(f"{f}: {d[:8]} moves a byte")
+-    for name, terms in (("token r16b", TOKEN_R16B_DIGESTS), ("native r13", NATIVE_R13_DIGESTS)):
++    for name, terms in (("token r16b", TOKEN_R16B_DIGESTS), ("native r13", NATIVE_R13_DIGESTS),
++                        ("token r19b", TOKEN_R19B_DIGESTS)):          # [v24] + the r19b terminals
+         for f, d in terms.items():
+             c = chain(f, d)
+             roots = CHAIN_ROOTS[f] if isinstance(CHAIN_ROOTS[f], tuple) else (CHAIN_ROOTS[f],)
+             if f == DRV and name == "native r13" and d == DERIVE_T14:
+                 continue   # read in v21
++            if f == RCP and name == "token r19b":
++                continue   # [v24] cce0fc2a is read in zk60_native_rg_classpins.TOKEN_R17_READINGS (its r19b_self_check)
+             if c[-1] not in roots:
+                 bad.append(f"{name} {f}: chain {[x[:8] if x else x for x in c]} does not reach {roots}")
+     if rehash:
+-        trees = {"t16b": TOKEN_R16B_TREE, "n13": NATIVE_R13_TREE}
+-        for tag, terms in (("t16b", TOKEN_R16B_DIGESTS), ("n13", NATIVE_R13_DIGESTS)):
++        trees = {"t16b": TOKEN_R16B_TREE, "n13": NATIVE_R13_TREE, "t19b": TOKEN_R19B_TREE}
++        for tag, terms in (("t16b", TOKEN_R16B_DIGESTS), ("n13", NATIVE_R13_DIGESTS), ("t19b", TOKEN_R19B_DIGESTS)):
+             for f, d in terms.items():
+                 got = _sha(os.path.join(_ROOT, trees[tag], f))
+                 hashed += 1
+@@ -743,7 +830,8 @@
+                     if x is None:
+                         continue
+                     found = False
+-                    for t in (NATIVE_R12B_TREE, NATIVE_R13_TREE, TOKEN_R14_TREE, TOKEN_R15_TREE, TOKEN_R16_TREE, TOKEN_R16B_TREE):
++                    for t in (NATIVE_R12B_TREE, NATIVE_R13_TREE, TOKEN_R14_TREE, TOKEN_R15_TREE, TOKEN_R16_TREE, TOKEN_R16B_TREE,
++                              TOKEN_R17_TREE, TOKEN_R18_TREE, TOKEN_R19_TREE, TOKEN_R19B_TREE):   # [v24] + r17 .. r19b
+                         if _sha(os.path.join(_ROOT, t, f)) == x:
+                             found = True
+                             break
+@@ -762,6 +850,19 @@
+                     bad.append(f"manifest_final_r16b: hashline/{f} is {str(listed.get('hashline/' + f))[:12]}")
+         except FileNotFoundError:
+             bad.append("manifest_final_r16b.sha256 missing")
++        # [v24] the r19b terminals against token round 19b's manifest
++        man = os.path.join(_ROOT, TOKEN_R19B_MANIFEST)
++        try:
++            with open(man, "rb") as fh:
++                mb = fh.read()
++            if hashlib.sha256(mb).hexdigest() != TOKEN_R19B_LIST_SHA256:
++                bad.append("manifest_final_r19b.sha256: list digest moved")
++            listed = dict((ln.split("  ", 1)[1], ln.split("  ", 1)[0]) for ln in mb.decode().splitlines() if "  " in ln)
++            for f, d in TOKEN_R19B_DIGESTS.items():
++                if listed.get("hashline/" + f) != d:
++                    bad.append(f"manifest_final_r19b: hashline/{f} is {str(listed.get('hashline/' + f))[:12]}")
++        except FileNotFoundError:
++            bad.append("manifest_final_r19b.sha256 missing")
+     return {"ok": not bad, "problems": bad, "digests_rehashed": hashed}
+ 
+ 

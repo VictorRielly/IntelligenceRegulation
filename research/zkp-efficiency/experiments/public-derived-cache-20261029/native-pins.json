@@ -1,0 +1,44 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/tied_tables.rs",
+    "retained": "experiments/public-derived-cache-20261029/native/private_block__tied_tables.rs",
+    "sha256": "901fa1e4f4a1c4c5070665fc1f81534142038e362408bff4dbcb5fca1e57c8b2",
+    "bytes": 4561
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/tied_tables/derive.rs",
+    "retained": "experiments/public-derived-cache-20261029/native/tied_tables__derive.rs",
+    "sha256": "e2b76895fae1ee04a469f095153d8451969c637ca4dd5939dd937c159d749adf",
+    "bytes": 19894
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/trained_block.rs",
+    "retained": "experiments/public-derived-cache-20261029/native/private_block__trained_block.rs",
+    "sha256": "e2551aa15fddc7cf43753ca0f5ef65fe813b1f7c279f4928fad1fd6b8c5d77a5",
+    "bytes": 173673
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-review-r13-scratch/hashline/src/private_block/token_io/classify_tied.rs",
+    "retained": "experiments/public-derived-cache-20261029/native/token_io__classify_tied.rs",
+    "sha256": "b8f68b04b51021997eb913c291ac8f8a5e68517db5ef238d985d5726206d0468",
+    "bytes": 21146
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-review-r13-scratch/hashline/src/private_block/token_io/classify_cli.rs",
+    "retained": "experiments/public-derived-cache-20261029/native/token_io__classify_cli.rs",
+    "sha256": "939490d63b176c0b8610320d75598cc77fdfcf1f7413e1a7aa27aef8d50e5017",
+    "bytes": 42511
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-review-r13-scratch/hashline/src/private_block/token_io/load.rs",
+    "retained": "experiments/public-derived-cache-20261029/native/token_io__load.rs",
+    "sha256": "a9b72811350e1042392b0a8b60bcffddcd01a6b8a39cfa32f97ce4f72cb030dc",
+    "bytes": 14054
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/trained_statement.rs",
+    "retained": "experiments/public-derived-cache-20261029/native/private_block__trained_statement.rs",
+    "sha256": "7908d827889d5bb424b51cb470313c666533577b29fd45c78957db00963e6a1d",
+    "bytes": 45013
+  }
+]

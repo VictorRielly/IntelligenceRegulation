@@ -1,0 +1,10 @@
+{
+  "status": "COMPLETE",
+  "run_id": "20261029T225649Z-78d0981c",
+  "checkpoint_utc": "2026-10-29T23:07:16.558444+00:00",
+  "deadline_utc": "2026-10-29T23:16:49Z",
+  "next_cycle_not_before": "2026-10-29T23:56:49Z",
+  "full_stack_proofs": 0,
+  "passes": 0,
+  "positions": 0
+}

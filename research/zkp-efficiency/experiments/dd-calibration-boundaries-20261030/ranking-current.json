@@ -1,0 +1,13 @@
+{
+  "top3": [
+    1,
+    2,
+    3
+  ],
+  "refined": 103,
+  "conditional_priority4": 103,
+  "new_demoted": 104,
+  "preserved_prior_hypotheses": 103,
+  "total": 104,
+  "reason": "DD arithmetic survives admitted shifts and short row equality; actual slot/exclusive clocks/native proofs still missing. Lazy NTT word premise fails."
+}

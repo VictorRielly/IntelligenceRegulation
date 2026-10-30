@@ -1,0 +1,12 @@
+{
+  "completed": "GPU NTT/commitments and memory lifetime rotation",
+  "next": "sumcheck/GKR terminal public-component sums",
+  "remaining": [
+    "lookup/softmax",
+    "memory traffic",
+    "batching/amortization",
+    "quantization/arithmetic",
+    "proof composition"
+  ],
+  "owner_priority": "Complete-prover named high-end GPU with independently verified resident1/2/4/8 workloads"
+}

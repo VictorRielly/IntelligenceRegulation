@@ -1,0 +1,74 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/hashline/src/private_block/accuracy_layout.rs",
+    "snapshot": "native/accuracy_layout.rs",
+    "sha256": "37a3e3458e4961ddaab98440de114e575da3af21f7d872b532cb71a04ac788d3",
+    "bytes": 9081
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/hashline/src/private_block/accuracy_precision.rs",
+    "snapshot": "native/accuracy_precision.rs",
+    "sha256": "145c1e0f66ea5aad558148aa7885b4fcaaf74c6145893cc1efd10f7a77eee56b",
+    "bytes": 6302
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/hashline/src/private_block/accuracy_layout_tests.rs",
+    "snapshot": "native/accuracy_layout_tests.rs",
+    "sha256": "ab3ffad2bde280c25d01cd4e568ee26342a806e8e8da3916e8d61d5f871eef07",
+    "bytes": 4361
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/hashline/src/private_block/shape.rs",
+    "snapshot": "native/shape.rs",
+    "sha256": "8e00a144bd194fd5a3dd30c9aaece2869d43d461df623cdcfc5a9da59e51436b",
+    "bytes": 149746
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/hashline/src/private_block/layout.rs",
+    "snapshot": "native/layout.rs",
+    "sha256": "8519a514b8d1f43ab51c86b0a8af955230a2eab4fff4fc4c594733c59dcfd0bf",
+    "bytes": 76914
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/hashline/src/private_block/protocol.rs",
+    "snapshot": "native/protocol.rs",
+    "sha256": "1011441431a37f735999405986af6c9f11c2d303b48aa6d9cefae55b0311718d",
+    "bytes": 79043
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/hashline/src/private_block/argument.rs",
+    "snapshot": "native/argument.rs",
+    "sha256": "bc0332e39904ca881d26c255581aa1ab6a0e73899141689960ec2262f8561830",
+    "bytes": 112753
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/hashline/src/private_block/argument_accuracy.rs",
+    "snapshot": "native/argument_accuracy.rs",
+    "sha256": "a5e02391b61577c7041efc41c04cd2564610e3fbb26b188b66b1623a5b7940d9",
+    "bytes": 41213
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/hashline/src/private_block/accuracy_public.rs",
+    "snapshot": "native/accuracy_public.rs",
+    "sha256": "0b44bf5424fed9ea9911e3b041c0977ea0727bb461b83be198a5d2210d73d660",
+    "bytes": 19851
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/NATIVE_LAYOUT_CENSUS.json",
+    "snapshot": "native/NATIVE_LAYOUT_CENSUS.json",
+    "sha256": "36caa5bb71da50a3be89570eeaa8c533f3cab8291cea45816f1b8b6e13edb21a",
+    "bytes": 154939
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/FROZEN.txt",
+    "snapshot": "native/FROZEN.txt",
+    "sha256": "2ade71342bd57686b974839b316e5fd5f4c187908deb6b4be92a58c0a6131b0c",
+    "bytes": 232
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/R13_AUDIT.json",
+    "snapshot": "native/R13_AUDIT.json",
+    "sha256": "9c6d1b8e151d3ff7e79f340ebd4a6c0589c355be295ec58498673cef31500c3c",
+    "bytes": 82228
+  }
+]

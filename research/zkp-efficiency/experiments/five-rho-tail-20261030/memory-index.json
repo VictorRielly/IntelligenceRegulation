@@ -1,0 +1,77 @@
+{
+  "source_records_parsed": 1027,
+  "findings_bytes_read": 1132850,
+  "cycle_headings": [
+    "## Cycle0142 \u2014 current R13 mask-site census (2026-10-29T12:08:53.130978+00:00)",
+    "## Cycle0143 \u2014 pair-tile dataflow: exact component, no useful CPU gain",
+    "## Cycle0144 \u2014 public half-map reuse preserves fresh values",
+    "## Cycle0145 \u2014 same-basis fresh Eq complement doubling",
+    "## Cycle0146 \u2014 prover-only PCS column preparation (2026-10-29)",
+    "## Cycle0147 \u2014 public-rho row-fold skipping (2026-10-29)",
+    "## Cycle0149 \u2014 2026-10-29: exact H source support and conditional packing",
+    "## Cycle 0150 \u2014 2026-10-29: A support and empty row scans",
+    "## Cycle 0151 \u2014 public indexed membership rowfold, 20261029T205649Z-c620e79d",
+    "## Cycle0152 \u2014 public consecutive-row/membership intervals (2026-10-29)",
+    "## Cycle0153 \u2014 public zero-gap interval coalescing",
+    "## Cycle0154 \u2014 R14 public geometry and fresh-proximity batch boundary"
+  ],
+  "old_source_matches": {
+    "1004.3719": [],
+    "s44443-026-00722-6": [],
+    "2606.16146": [
+      28,
+      63,
+      70,
+      78,
+      101,
+      157,
+      187,
+      256,
+      288,
+      390,
+      413,
+      476,
+      497,
+      537,
+      714,
+      736,
+      760,
+      772,
+      980,
+      999
+    ],
+    "ntt-tensorcore": [
+      549,
+      591
+    ],
+    "zk-duel": [
+      810,
+      952,
+      998
+    ],
+    "2610.14849": [
+      260,
+      318,
+      330,
+      361,
+      439,
+      456,
+      466,
+      539,
+      607,
+      629,
+      811,
+      892,
+      933,
+      988,
+      994,
+      1001,
+      1023
+    ]
+  },
+  "notes": [
+    "No older finding deleted. Current docs unchanged from prior snapshots.",
+    "Prior T128 A byte claim461373440 corresponds3520 rows, not f_e9 rows3517; corrected count460980224.",
+    "Owner CURRENT_DEV_STATE advanced to00:28:47; this records recovery intent, not independently checked liveness."
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "utc": "2026-10-28T22:34:17.809840+00:00",
+  "files": {
+    "accuracy_precision.rs": {
+      "source": "precision-next/accuracy_precision.green.rs",
+      "sha256": "145c1e0f66ea5aad558148aa7885b4fcaaf74c6145893cc1efd10f7a77eee56b"
+    },
+    "accuracy_aligned.rs": {
+      "source": "aligned-next/accuracy_aligned.green.rs",
+      "sha256": "72da24ae0b80b692266e4ed1fd5993562c6c6e0bd569821c447b0679d48c8e3f"
+    }
+  },
+  "scope": "tested component helpers installed into isolated rebased crate; full integration checks pending"
+}

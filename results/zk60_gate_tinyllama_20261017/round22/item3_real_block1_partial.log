@@ -1,0 +1,3 @@
+stage-01.json BLOCK A: groups 36, surjective 36, disclosed 0 {}, joint [] (818.0 s)
+stage-01.json BLOCK H: groups 9, surjective 8, disclosed 2 {'8': 2}, joint [([7, 8], 2)] (2573.4 s)
+stage-01.json BLOCK Input: groups 2, surjective 2, disclosed 0 {}, joint [] (2579.6 s)

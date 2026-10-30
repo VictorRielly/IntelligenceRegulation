@@ -1,0 +1,127 @@
+{
+  "utc_start": "2026-10-29T00:30:21.899653+00:00",
+  "ruling": "D44",
+  "old": "87138bda80ae4499a668e67a1c0e7706bb859eafb5e766020bcd59567c8ac59c",
+  "new": "88af4c639848d39df8da559652db11529575aa745b916a06eb522c20ea89fbd3",
+  "ready": {
+    "written_utc": "2026-10-29T00:29:59Z",
+    "written_by": "Claude (coordinator)",
+    "change": "S8",
+    "ruling": "D44 (Victor, console, 2026-10-28 23:50 UTC: \"Go ahead and install the guard swap-rule fix\"); procedure per D42/S3",
+    "window": "OPEN",
+    "candidate_sha256": "88af4c639848d39df8da559652db11529575aa745b916a06eb522c20ea89fbd3",
+    "installed_sha256_before": "87138bda80ae4499a668e67a1c0e7706bb859eafb5e766020bcd59567c8ac59c",
+    "review": "results/zk60_guard_fix_20261021/S8_REVIEW.md (accept with conditions)",
+    "boot_id": "9ecf0dc6-8b67-411a-8ac8-042f41dfd9d5",
+    "hold_files": [
+      "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/HOLD",
+      "/home/victor/IntelligenceRegulation/results/zk60_shieldstral_prep_20261021/HOLD",
+      "/home/victor/IntelligenceRegulation/results/zk60_shieldstral_export_20261026/HOLD",
+      "/home/victor/IntelligenceRegulation/results/zk60_guard_fix_20261021/WINDOW_HOLD"
+    ],
+    "sandbox_views_checked": true,
+    "views": {
+      "astra": "ASTRA VIEW CLEAR 2026-10-29T00:20:05Z (todo-file Astra log): launcher 107126 and guard 107148 terminal (exit 0 at 00:19:12Z), no worker/guard/consumer live; evidence astra/s8_gpu_waiter_drain.json",
+      "claude_namespace": "2026-10-29T00:29:59Z re-check (3 samples, 5 s apart, own ancestry excluded): no zk60_resource_guard.py run process live; status: RAM   14.02 GiB available of 15.39; swap used 0.61 GiB | BUDGET 0 of 11.89 GiB committed by guarded jobs | LOCKS heavy free, build free; holds retained since 00:10Z; R-C2 reviewer gated by WINDOW_HOLD. The 'live' PIDs 117413/117565 seen at 00:29 were the coordinator's own shell wrappers (self-match), not guard processes",
+      "sol": "S8 READY FOR WINDOW 2026-10-29T00:10:07Z and 00:19:03Z: no Sol guarded job; swap driver b3fce737\u2026 refuses any live/waiting guard or consumer"
+    },
+    "attempt": 2,
+    "note": "attempt 1 aborted 00:28:29Z (consumer runner sys.path; candidate unchanged); rollback verified by coordinator 00:28:55Z (guard + both pins 87138bda); Sol S8 RETRY READY 00:29:14Z (consumer suites 8+13+14, 0 skips)"
+  },
+  "stage": "complete",
+  "tests": [
+    {
+      "utc": "2026-10-29T00:31:33.012938+00:00",
+      "pattern": "test_zk60_resource_guard.py",
+      "tests": 45,
+      "failures": 0,
+      "errors": 0,
+      "skipped": [],
+      "seconds": 70.94461868799954,
+      "expected": 45,
+      "accepted": true
+    },
+    {
+      "utc": "2026-10-29T00:33:30.501062+00:00",
+      "pattern": "test_zk60_guard_fix.py",
+      "tests": 31,
+      "failures": 0,
+      "errors": 0,
+      "skipped": [],
+      "seconds": 117.43098425800054,
+      "expected": 31,
+      "accepted": true
+    },
+    {
+      "utc": "2026-10-29T00:33:30.566225+00:00",
+      "pattern": "test_zk60_guard_s8.py",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": [],
+      "seconds": 0.004543357999864384,
+      "expected": 9,
+      "accepted": true
+    },
+    {
+      "utc": "2026-10-29T00:33:30.729049+00:00",
+      "pattern": "test_zk60_guarded_command.py",
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": [],
+      "seconds": 0.08574907000001986,
+      "expected": null,
+      "accepted": true
+    },
+    {
+      "utc": "2026-10-29T00:33:31.057652+00:00",
+      "pattern": "test_zk60_techweek_demo.py",
+      "tests": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": [],
+      "seconds": 0.25218977899930906,
+      "expected": null,
+      "accepted": true
+    },
+    {
+      "utc": "2026-10-29T00:33:31.600662+00:00",
+      "pattern": "test_zk60_private_stack_benchmark.py",
+      "tests": 14,
+      "failures": 0,
+      "errors": 0,
+      "skipped": [],
+      "seconds": 0.48789571599991177,
+      "expected": null,
+      "accepted": true
+    }
+  ],
+  "utc_end": "2026-10-29T00:33:31.729182+00:00",
+  "guard_sha256": "88af4c639848d39df8da559652db11529575aa745b916a06eb522c20ea89fbd3",
+  "pins": {
+    "zk60_guarded_command.py": "bfbeae7ae6e32a3e5dc9c10d220902835409311e35769cb9b119812ae2fbe7ea",
+    "zk60_techweek_demo.py": "d112ae77ba34f16f7d6133145bdc0844749b12b97fa5d2a86c29bc1f554a968f"
+  },
+  "fifo_on": false,
+  "final_status": {
+    "mem_total_gib": 15.39,
+    "mem_available_gib": 14.02,
+    "swap_used_gib": 0.61,
+    "job_budget_gib": 11.89,
+    "committed_gib": 0,
+    "live_guarded_jobs": [],
+    "heavy_lock_free": true,
+    "build_lock_free": true,
+    "gpu_used_mib": 57,
+    "gpu_total_mib": 8188,
+    "top_processes": [
+      {
+        "pid": 2149,
+        "rss_mib": 440,
+        "cmd": "claude "
+      }
+    ],
+    "kernel_memory_cap_available": true
+  }
+}

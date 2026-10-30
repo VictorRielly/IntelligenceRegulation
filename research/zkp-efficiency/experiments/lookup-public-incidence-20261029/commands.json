@@ -1,0 +1,14 @@
+[
+  {
+    "command": "python3 experiments/lookup-public-incidence-20261029/run_bounded.py probe.py",
+    "scope": "one pinned CPU, bounded local model/audit only"
+  },
+  {
+    "command": "python3 experiments/lookup-public-incidence-20261029/run_bounded.py audit.py",
+    "scope": "one pinned CPU, bounded local model/audit only"
+  },
+  {
+    "command": "python3 experiments/lookup-public-incidence-20261029/run_bounded.py final_audit.py",
+    "scope": "one pinned CPU, bounded local model/audit only"
+  }
+]

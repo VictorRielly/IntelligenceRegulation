@@ -51,6 +51,7 @@
 }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html { -webkit-text-size-adjust: 100%; }
 body {
   margin: 0; background: var(--bg); color: var(--ink);
@@ -82,8 +83,13 @@ p { margin: 0 0 .7em; }
 .nav a.on, .nav a:hover { background: var(--surface-2); color: var(--ink); text-decoration: none; }
 .who { display: flex; align-items: center; background: var(--surface-2); border: 1px solid var(--line);
   border-radius: 999px; padding: 3px 10px; }
-.who .at { color: var(--ink-3); }
-.who input { border: 0; background: transparent; color: var(--ink); width: 110px; font: inherit; outline: none; }
+.who { gap: 8px; }
+dialog { max-width: min(430px, 90vw); padding: 24px; border: 1px solid var(--line);
+  border-radius: var(--radius); background: var(--surface); color: var(--ink); }
+dialog::backdrop { background: #0008; }
+#access-key { display: block; width: 100%; padding: 10px; border: 1px solid var(--line);
+  border-radius: 6px; background: var(--surface-2); color: var(--ink); font: inherit; }
+#signin-error { color: var(--unsafe); }
 .modebar { border-top: 1px solid var(--stub-line); background: var(--stub-bg); color: var(--stub); font-size: 13px; }
 .modebar > div { max-width: 1120px; margin: 0 auto; padding: 6px 16px; }
 .modebar.fake { background: var(--fake-bg); color: var(--fake); border-top-color: var(--fake-bg); font-weight: 700; }
@@ -95,7 +101,6 @@ p { margin: 0 0 .7em; }
   .grid { grid-template-columns: minmax(0, 1fr); }
   .side { position: static; }
   .nav a { padding: 6px 7px; }
-  .who input { width: 80px; }
 }
 @media (max-width: 560px) {
   .topbar-inner { flex-wrap: wrap; gap: 8px 12px; }

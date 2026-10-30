@@ -1,0 +1,68 @@
+{
+  "base": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12/frozen-tree",
+  "r12b_tree_sha256": "51de5b83bc0dcaeeeb430165081c47653ac012c462c09f3df4ce7f125faf904f",
+  "conflicts": [],
+  "writes": [
+    {
+      "path": "hashline/examples/zk60_tied_tables.rs",
+      "before_sha256": null,
+      "after_sha256": "9ca799939b5327110bf4c622f0c8c533f32d5d4fc699e84bc2b987aa7755091e"
+    },
+    {
+      "path": "hashline/src/private_block.rs",
+      "before_sha256": "623c26d1117991aea606e81518d6ae55e4101f896799880786a3265e426673ed",
+      "after_sha256": "5e7eeeafc635bfe815dab043deda2c3b7ed027fbb40b609ad7dbd259a9176b14"
+    },
+    {
+      "path": "hashline/src/private_block/hash_domain_tests.rs",
+      "before_sha256": "e33a61366396606e59d8ecaed014dd4fda2ee3fe1c63d07a3cabc590bd7b7814",
+      "after_sha256": "3448a7eb37ea4c43c98794b17e82d9d0af3e1d3084539e0f7b92131631c1ffeb"
+    },
+    {
+      "path": "hashline/src/private_block/r12_tests.rs",
+      "before_sha256": "f63efcf356a394b4912b7c36cfccc7b0bb996c4ef382c7129770dec7162f1ebd",
+      "after_sha256": "3f8a3d664c83a03b47561844f31c3673a7199b41538cde463ba0495163e199f9"
+    },
+    {
+      "path": "hashline/src/private_block/r12b_tests.rs",
+      "before_sha256": null,
+      "after_sha256": "f4de3a4e48eabeebf02c9c46cb9edc79860eaafe55bb7170b425ef61d7947215"
+    },
+    {
+      "path": "hashline/src/private_block/run_capture.rs",
+      "before_sha256": "50221a02f873d98be98aaeb94b09ea5c86a6adafcfbc03160c118aa85a2a4927",
+      "after_sha256": "8721e83d277f4ee853603bc8d5fe63f60b2b3917b9fbee7ed2123e25d0ec76db"
+    },
+    {
+      "path": "hashline/src/private_block/s24_tests.rs",
+      "before_sha256": "43fb01c469ef9480168aa2af0fd028910ad2357baa9678ca5ed7c77e649df639",
+      "after_sha256": "bacef1d0e1c9c210846294a1a7858685e754fb0ef76badd8fe5cc630dbd71e2a"
+    },
+    {
+      "path": "hashline/src/private_block/s25_tests.rs",
+      "before_sha256": "a1f96adc43e5dae8e630c269c4036cd19f8740c0b6fb3871ae4091dafb49cd22",
+      "after_sha256": "f06a823e12fd001f8e02316d6c3c08b29348a09e90da0463bf4d3f6cd5bbbd64"
+    },
+    {
+      "path": "hashline/src/private_block/tied_tables.rs",
+      "before_sha256": null,
+      "after_sha256": "901fa1e4f4a1c4c5070665fc1f81534142038e362408bff4dbcb5fca1e57c8b2"
+    },
+    {
+      "path": "hashline/src/private_block/tied_tables/derive.rs",
+      "before_sha256": null,
+      "after_sha256": "e2b76895fae1ee04a469f095153d8451969c637ca4dd5939dd937c159d749adf"
+    },
+    {
+      "path": "hashline/src/private_block/trained_block.rs",
+      "before_sha256": "d63ee6207dc4c27d23e1b73b30cc9b4d3064d9609c19b48cac1158eadc827ae0",
+      "after_sha256": "7e692c1887c8593088abe92543db1e319c3ef20280cc82d57953fe04b7b21880"
+    },
+    {
+      "path": "hashline/src/private_block/trained_statement.rs",
+      "before_sha256": "0fbf90ed39063532fd19c42f4d7e36b8a6a030c5cb4386c46ed4d7a393e88e5e",
+      "after_sha256": "7908d827889d5bb424b51cb470313c666533577b29fd45c78957db00963e6a1d"
+    }
+  ],
+  "applied": true
+}

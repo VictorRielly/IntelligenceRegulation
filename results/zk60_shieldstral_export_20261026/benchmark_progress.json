@@ -1,0 +1,99 @@
+{
+  "started": true,
+  "complete": false,
+  "fully_verified": false,
+  "model_artifact_hashes_verified": false,
+  "scope": "all 12 A1 sets without truncation",
+  "expected_items": 4872,
+  "expected_tokens_per_layer": 702006,
+  "run_sha256": "d40dec34c69a7ffbc1e9a84bf1f2ecbef3aebde2e29305fa901e326256eca5b5",
+  "stages": {
+    "input": {
+      "items": 4872,
+      "refused_items": [],
+      "violations_by_site": {},
+      "incomplete_journal_tail": false,
+      "complete": true,
+      "residual_hash_verified": false
+    },
+    "layer_00": {
+      "items": 4872,
+      "refused_items": [],
+      "violations_by_site": {},
+      "incomplete_journal_tail": false,
+      "complete": true,
+      "residual_hash_verified": false
+    },
+    "layer_01": {
+      "items": 4872,
+      "refused_items": [],
+      "violations_by_site": {},
+      "incomplete_journal_tail": false,
+      "complete": true,
+      "residual_hash_verified": false
+    },
+    "layer_02": {
+      "items": 4872,
+      "refused_items": [],
+      "violations_by_site": {},
+      "incomplete_journal_tail": false,
+      "complete": true,
+      "residual_hash_verified": false
+    },
+    "layer_03": {
+      "items": 4872,
+      "refused_items": [],
+      "violations_by_site": {},
+      "incomplete_journal_tail": false,
+      "complete": true,
+      "residual_hash_verified": false
+    },
+    "layer_04": {
+      "items": 4872,
+      "refused_items": [],
+      "violations_by_site": {},
+      "incomplete_journal_tail": false,
+      "complete": true,
+      "residual_hash_verified": false
+    },
+    "layer_05": {
+      "items": 4872,
+      "refused_items": [],
+      "violations_by_site": {},
+      "incomplete_journal_tail": false,
+      "complete": true,
+      "residual_hash_verified": false
+    },
+    "layer_06": {
+      "items": 4872,
+      "refused_items": [],
+      "violations_by_site": {},
+      "incomplete_journal_tail": false,
+      "complete": true,
+      "residual_hash_verified": false
+    },
+    "layer_07": {
+      "items": 3209,
+      "refused_items": [],
+      "violations_by_site": {},
+      "incomplete_journal_tail": false,
+      "complete": false,
+      "residual_hash_verified": false
+    }
+  },
+  "stack_refused_items_so_far": [],
+  "head_refusals": {},
+  "zero_refusals": false,
+  "note": "Numerical replay only. Native export, proof and privacy acceptance are separate.",
+  "at": "2026-10-30T19:48:54.423069+00:00",
+  "complete_layers": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+  ],
+  "next_layer": 7
+}

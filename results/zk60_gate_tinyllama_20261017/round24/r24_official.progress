@@ -1,0 +1,8 @@
+16:04:11 start
+16:04:11 toolcheck 80 listed, 0 moved, 0 unlisted
+16:04:11 pin-census exit 0 (expected 0)
+16:05:12 unittests-v24-frozen exit 0 (expected 0)
+16:05:13 ff-v23-gate-p18-r19b exit 3 (expected 3)
+16:10:03 v24-gate-p18-r19b exit 0 (expected 0)
+16:10:03 install 80 files installed from frozen_v24 into the working copy
+16:11:04 unittests-v24-working-copy exit 0 (expected 0)

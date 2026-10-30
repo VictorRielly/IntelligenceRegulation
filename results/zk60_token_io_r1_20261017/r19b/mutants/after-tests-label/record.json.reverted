@@ -1,0 +1,11 @@
+{
+ "edited": {
+  "hashline/src/private_block/tied_tables/derive.rs": {
+   "orig": "hashline__src__private_block__tied_tables__derive.rs.orig",
+   "sha256": "1d6150100abb051d08e77d6c86e2cafed0915342203480ce73c8583170810fb7",
+   "mutant_sha256": "4064a04cfdbd4ad1736f796adbb3c94b3ca6d1e0b1dc6190d11e99514fe97fa9"
+  }
+ },
+ "created": [],
+ "dirs": []
+}

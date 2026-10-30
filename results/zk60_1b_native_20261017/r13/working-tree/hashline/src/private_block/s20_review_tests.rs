@@ -263,7 +263,7 @@ fn build(sh: &Shape, seed: u64, degenerate: bool) -> Built {
     let lay = Layout::for_shape(sh).unwrap_or_else(|e| panic!("{}: layout: {e}", sh.name));
     let ids = lay.ids();
     let (public, ff, _) = super::grow_tests::tame_case(sh);
-    let ctx = Ctx {
+    let ctx = Ctx { accuracy:None,
         lay: &lay,
         public: &public,
         ff: &ff,
@@ -413,7 +413,7 @@ fn the_group_eq_carries_the_head_challenges_own_group_bits() {
     for sh in [Shape::toy(), Shape::rung_g(), kv4()] {
         let lay = Layout::for_shape(&sh).expect("layout");
         let (public, ff, _) = super::grow_tests::tame_case(&sh);
-        let ctx = Ctx {
+        let ctx = Ctx { accuracy:None,
             lay: &lay,
             public: &public,
             ff: &ff,

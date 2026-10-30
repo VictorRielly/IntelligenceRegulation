@@ -1,0 +1,1289 @@
+//! [ZK60-CL1] The chunked HIDING commitment against the CPU oracle.
+//!
+//! Run with `cargo test --release --features gpu-cuda --test zk60_gpu_commit`.
+//!
+//! [ZK60 round-7 review] This file no longer compiles to NOTHING without the
+//! feature. `gpu_required_gate_refuses_a_build_without_the_feature` below is
+//! compiled in every configuration, and under `HL_GPU_REQUIRED=1` it FAILS a
+//! binary built without `gpu-cuda` — before, such a run compiled every device
+//! test away and reported success. With the feature but no usable device
+//! every test SKIPS loudly (and fails under `HL_GPU_REQUIRED=1`) rather than
+//! passing vacuously — a green run on a box with no GPU must not be mistaken
+//! for evidence.
+//!
+//! Each case compares BOTH halves against the CPU's own `encode_row_zk`, not
+//! against the device's resident path, so a bug shared by the two device
+//! paths could not hide:
+//!   * the chunked commitment's column leaves, and
+//!   * the chunked, pad/coset-aware OPENING columns —
+//! the second being the half `columns_chunked` cannot serve, because it
+//! re-encodes with neither the pads nor the coset scaling.
+
+/// [ZK60 round-7 review] Compiled WITH and WITHOUT the feature. Asking for a
+/// GPU-required run of a binary built without `gpu-cuda` is a FAILURE with a
+/// visible reason, not a vacuous pass. Without the requirement it prints the
+/// same machine-readable summary the device tests print, with zero cases, so
+/// a gate script can see that nothing ran rather than infer it from silence.
+#[test]
+fn gpu_required_gate_refuses_a_build_without_the_feature() {
+    let required = std::env::var("HL_GPU_REQUIRED").map(|v| v != "0").unwrap_or(false);
+    if !cfg!(feature = "gpu-cuda") {
+        println!(
+            "ZK60_CL4_SUMMARY {{\"executed_cases\":0,\"gpu_enabled\":false,\"gpu_required\":{required},\"device\":\"built without --features gpu-cuda\"}}"
+        );
+        assert!(
+            !required,
+            "HL_GPU_REQUIRED=1 but this test binary was built WITHOUT --features gpu-cuda: every \
+             device test was compiled away, so a green result would be vacuous. Build with \
+             CARGO_TARGET_DIR=hashline/target-gpu and --features gpu-cuda."
+        );
+    }
+}
+
+// ---------------------------------------------------------------------------
+// [ZK60-CL15] The openings' index boundary, WITHOUT a device. Codex's round-9
+// review found (by source inspection) that the hiding fused/pruned opening
+// reached `qs.last().unwrap()` on an empty query list after it had already
+// taken scratch, uploaded the index list and allocated the output. The
+// preprocessing both chunked openings duplicated is now ONE pure function in
+// `gpu/mod.rs`, compiled in every configuration, and these tests run in the
+// no-feature build: an empty list is `Empty`, an out-of-range index is `Err`,
+// and every other value is exactly what the device code used to build inline.
+// ---------------------------------------------------------------------------
+mod open_plan_boundary {
+    use hashline::gpu::open_plan::{plan_open_indices, residue_list, OpenPlan};
+
+    /// Mirrors of cuda.rs `NTT_LOG_BLK` (12) and `P2SP_NC` (64); the feature
+    /// build pins them to their owner in `device::open_plan_mirrors_the_kernel_constants`.
+    const BLK: usize = 1 << 12;
+    const NC: usize = 64;
+
+    /// The CL7 duplicate list: 11 indices, 7 distinct, at nn = 2^14.
+    const DUPS: [usize; 11] = [5, 4099, 5, 16383, 4099, 0, 0, 8191, 5, 4095, 4096];
+
+    #[test]
+    fn an_empty_query_list_is_empty_on_every_route() {
+        for &nn in &[1usize << 10, 1 << 12, 1 << 14, 1 << 17] {
+            for fused in [true, false] {
+                for prune in [true, false] {
+                    assert_eq!(
+                        plan_open_indices(&[], nn, BLK, NC, fused, prune),
+                        Ok(OpenPlan::Empty),
+                        "empty list at nn {nn}, fused {fused}, prune {prune}"
+                    );
+                }
+            }
+        }
+        assert_eq!(residue_list(&[], BLK, NC), None, "an empty residue list has no last entry to pad with");
+    }
+
+    #[test]
+    fn an_out_of_range_index_is_an_error_not_a_panic() {
+        let nn = 1usize << 14;
+        for bad in [vec![nn], vec![5, nn, 5], vec![0, nn + 1], vec![usize::MAX], vec![nn - 1, nn]] {
+            for fused in [true, false] {
+                let r = plan_open_indices(&bad, nn, BLK, NC, fused, true);
+                let e = r.expect_err(&format!("{bad:?} must be refused"));
+                assert!(e.contains("out of range"), "the error must say why: {e}");
+            }
+        }
+        // the largest legal index is fine
+        assert!(matches!(plan_open_indices(&[nn - 1], nn, BLK, NC, true, true), Ok(OpenPlan::Open(_))));
+    }
+
+    #[test]
+    fn duplicates_collapse_to_one_slot_each_in_first_occurrence_order() {
+        let nn = 1usize << 14;
+        let p = match plan_open_indices(&DUPS, nn, BLK, NC, true, true) {
+            Ok(OpenPlan::Open(p)) => p,
+            other => panic!("expected a plan, got {other:?}"),
+        };
+        assert!(p.fused, "log_nn 14 > 12 is fusion-eligible");
+        assert_eq!(p.uniq, vec![5, 4099, 16383, 0, 8191, 4095, 4096]);
+        assert_eq!(p.slot, vec![0, 1, 0, 2, 1, 3, 3, 4, 0, 5, 6]);
+        assert_eq!(p.idx32, DUPS.iter().map(|&j| j as i32).collect::<Vec<_>>());
+        assert_eq!(p.sel.len(), nn);
+        for (slot, &j) in p.uniq.iter().enumerate() {
+            assert_eq!(p.sel[j], slot as i32, "sel[{j}]");
+        }
+        assert_eq!(p.sel.iter().filter(|&&s| s >= 0).count(), 7, "exactly the distinct columns are selected");
+        assert_eq!(p.cols_out(), 7);
+        assert_eq!(p.device_index_list(), &p.sel[..], "fused: the device reads the slot map");
+        for c in 0..DUPS.len() {
+            assert_eq!(p.out_slot(c), p.slot[c]);
+        }
+    }
+
+    #[test]
+    fn the_residue_list_is_sorted_deduped_and_padded_with_its_last_entry() {
+        // residues of DUPS mod 4096: 5,3,5,4095,3,0,0,4095,5,4095,0 -> {0,3,5,4095}
+        let (qs, nq) = residue_list(&DUPS, BLK, NC).expect("nonempty");
+        assert_eq!(nq, 4);
+        assert_eq!(qs.len(), NC, "padded to one tile of P2SP_NC");
+        assert_eq!(&qs[..4], &[0, 3, 5, 4095]);
+        assert!(qs[4..].iter().all(|&r| r == 4095), "padding repeats the LAST entry");
+        // exactly one tile: 64 distinct residues need no padding; 65 need two tiles
+        let (qs64, n64) = residue_list(&(0..64usize).collect::<Vec<_>>(), BLK, NC).unwrap();
+        assert_eq!((n64, qs64.len()), (64, 64));
+        let (qs65, n65) = residue_list(&(0..65usize).collect::<Vec<_>>(), BLK, NC).unwrap();
+        assert_eq!((n65, qs65.len()), (65, 128));
+        assert!(qs65[65..].iter().all(|&r| r == 64));
+        // the plan carries the same list on the pruned route
+        let p = match plan_open_indices(&DUPS, 1 << 14, BLK, NC, true, true) {
+            Ok(OpenPlan::Open(p)) => p,
+            other => panic!("{other:?}"),
+        };
+        assert_eq!(p.residues, Some((qs, nq)));
+    }
+
+    #[test]
+    fn pruning_declines_above_a_quarter_of_the_block() {
+        let nn = 1usize << 14;
+        // 1,024 distinct residues is exactly a quarter: kept
+        let quarter: Vec<usize> = (0..BLK / 4).collect();
+        match plan_open_indices(&quarter, nn, BLK, NC, true, true) {
+            Ok(OpenPlan::Open(p)) => {
+                assert!(p.fused);
+                let (qs, nq) = p.residues.expect("nq * 4 == blk is still pruned");
+                assert_eq!((nq, qs.len()), (BLK / 4, BLK / 4));
+            }
+            other => panic!("{other:?}"),
+        }
+        // 1,100 distinct residues: declined to the DENSE fused last stage
+        let many: Vec<usize> = (0..1100usize).collect();
+        match plan_open_indices(&many, nn, BLK, NC, true, true) {
+            Ok(OpenPlan::Open(p)) => {
+                assert!(p.fused, "the decline is of PRUNING, not of fusion");
+                assert_eq!(p.residues, None);
+                assert_eq!(p.cols_out(), 1100);
+            }
+            other => panic!("{other:?}"),
+        }
+    }
+
+    #[test]
+    fn fusion_is_declined_at_or_below_the_block() {
+        // log_nn <= NTT_LOG_BLK: no second stage group to fuse, so the plan is
+        // the unfused one whatever the switches say — the device reads the
+        // plain index list and writes one column per index, duplicates included
+        for &nn in &[1usize << 10, 1 << 12] {
+            let idx = [5usize, 1023, 5, 0, 0, 512, 5];
+            for prune in [true, false] {
+                let p = match plan_open_indices(&idx, nn, BLK, NC, true, prune) {
+                    Ok(OpenPlan::Open(p)) => p,
+                    other => panic!("{other:?}"),
+                };
+                assert!(!p.fused, "nn {nn} must not fuse");
+                assert_eq!(p.residues, None, "no pruning without fusion");
+                assert_eq!(p.device_index_list(), &p.idx32[..]);
+                assert_eq!(p.cols_out(), idx.len());
+                for c in 0..idx.len() {
+                    assert_eq!(p.out_slot(c), c);
+                }
+                // the distinct-slot expansion is still computed (same values)
+                assert_eq!(p.uniq, vec![5, 1023, 0, 512]);
+                assert_eq!(p.slot, vec![0, 1, 0, 2, 2, 3, 0]);
+            }
+        }
+    }
+
+    #[test]
+    fn pruning_needs_the_switch_the_fusion_and_a_small_tile_count() {
+        // switch off
+        match plan_open_indices(&DUPS, 1 << 14, BLK, NC, true, false) {
+            Ok(OpenPlan::Open(p)) => { assert!(p.fused); assert_eq!(p.residues, None); }
+            other => panic!("{other:?}"),
+        }
+        // fusion not requested (HL_ZK_FUSE_GATHER=0 / HL_GPU_FUSE_GATHER=0)
+        match plan_open_indices(&DUPS, 1 << 14, BLK, NC, false, true) {
+            Ok(OpenPlan::Open(p)) => {
+                assert!(!p.fused);
+                assert_eq!(p.residues, None);
+                assert_eq!(p.device_index_list(), &p.idx32[..]);
+                assert_eq!(p.cols_out(), DUPS.len());
+            }
+            other => panic!("{other:?}"),
+        }
+        // log_nn - log_blk = 5 is the last pruned width; 6 is not
+        match plan_open_indices(&DUPS, 1 << 17, BLK, NC, true, true) {
+            Ok(OpenPlan::Open(p)) => { assert!(p.fused); assert!(p.residues.is_some()); }
+            other => panic!("{other:?}"),
+        }
+        match plan_open_indices(&DUPS, 1 << 18, BLK, NC, true, true) {
+            Ok(OpenPlan::Open(p)) => { assert!(p.fused); assert_eq!(p.residues, None); }
+            other => panic!("{other:?}"),
+        }
+    }
+
+    #[test]
+    fn a_malformed_shape_is_an_error() {
+        assert!(plan_open_indices(&[1], 3, BLK, NC, true, true).is_err(), "nn must be a power of two");
+        assert!(plan_open_indices(&[1], 1 << 14, 100, NC, true, true).is_err(), "blk must be a power of two");
+        assert!(plan_open_indices(&[1], 1 << 14, BLK, 0, true, true).is_err(), "p2sp_nc must be nonzero");
+    }
+}
+
+#[cfg(feature = "gpu-cuda")]
+mod device {
+
+use hashline::gpu;
+use std::sync::atomic::{AtomicUsize, Ordering};
+use std::sync::{Mutex, MutexGuard, OnceLock};
+
+/// The allocation cap and chunk-mode hooks are PROCESS-GLOBAL, and Rust runs
+/// tests in parallel threads. Without this, a strict-mode test's injected cap
+/// makes every concurrently-running test fail — which is exactly what happened
+/// the first time this file was run. Every test takes the lock.
+
+/// [ZK60-CL4] A GPU-required gate. Returning `true` from a skip is how a
+/// suite reports a vacuous success: on a box with no device every test here
+/// printed SKIP and PASSED, so "6 passed" meant nothing at all. Under
+/// `HL_GPU_REQUIRED=1` a missing feature or device is a FAILURE.
+///
+/// `EXECUTED_CASES` then proves the run was not vacuous in the other
+/// direction either: a device can be present while zero cases actually ran.
+static EXECUTED_CASES: AtomicUsize = AtomicUsize::new(0);
+
+fn gpu_required() -> bool {
+    std::env::var("HL_GPU_REQUIRED").map(|v| v != "0").unwrap_or(false)
+}
+
+/// true = run the case. Panics instead of skipping when a GPU is required.
+fn gpu_ready() -> bool {
+    if gpu::enabled() {
+        return true;
+    }
+    if gpu_required() {
+        panic!(
+            "HL_GPU_REQUIRED=1 but no usable device: {}. A skipped GPU case must FAIL this \
+             gate, not report success.",
+            gpu::label()
+        );
+    }
+    eprintln!("SKIP (no device: {}) — set HL_GPU_REQUIRED=1 to make this a failure", gpu::label());
+    false
+}
+
+fn note_case() {
+    EXECUTED_CASES.fetch_add(1, Ordering::SeqCst);
+}
+
+/// Machine-readable summary for the gate script.
+fn emit_summary() {
+    println!(
+        "ZK60_CL4_SUMMARY {{\"executed_cases\":{},\"gpu_enabled\":{},\"gpu_required\":{},\"device\":\"{}\"}}",
+        EXECUTED_CASES.load(Ordering::SeqCst), gpu::enabled(), gpu_required(), gpu::label()
+    );
+}
+
+fn serial() -> MutexGuard<'static, ()> {
+    static L: OnceLock<Mutex<()>> = OnceLock::new();
+    let m = L.get_or_init(|| Mutex::new(()));
+    m.lock().unwrap_or_else(|e| e.into_inner())
+}
+
+/// `(0, 0)` or the test fails with the shape printed.
+fn check(log_cols: u32, inv_rate: usize, rows: usize, q_pad: usize, chunk: usize) {
+    if !gpu_ready() {
+        return;
+    }
+    note_case();
+    match gpu::dev_commit_zk_check_chunked(log_cols, inv_rate, rows, q_pad, chunk, false) {
+        Ok((bad_leaves, bad_cols)) => assert_eq!(
+            (bad_leaves, bad_cols),
+            (0, 0),
+            "chunked ZK commit mismatch at log_cols {log_cols}, inv_rate {inv_rate}, rows {rows}, q_pad {q_pad}, chunk {chunk}"
+        ),
+        Err(e) => panic!("chunked ZK commit failed at log_cols {log_cols}, inv_rate {inv_rate}, rows {rows}, q_pad {q_pad}, chunk {chunk}: {e}"),
+    }
+}
+
+/// Every supported encoding rate, at a shape that really splits into chunks.
+#[test]
+fn zk_chunked_matches_cpu_at_every_rate() {
+    let _g = serial();
+    for &inv_rate in &[2usize, 4, 8] {
+        check(10, inv_rate, 300, 16, 128);
+    }
+}
+
+/// Row counts that are not multiples of the chunk step, so the LAST chunk is
+/// short — the case that breaks a naive streaming hash.
+#[test]
+fn zk_chunked_matches_cpu_at_ragged_row_counts() {
+    let _g = serial();
+    for &rows in &[129usize, 255, 256, 257, 384, 400] {
+        check(10, 4, rows, 16, 128);
+    }
+}
+
+/// A single chunk must agree with the resident construction too: `rows <=
+/// chunk` is the degenerate plan, and it is the one a small gate exercises.
+#[test]
+fn zk_chunked_matches_cpu_in_one_chunk() {
+    let _g = serial();
+    check(10, 4, 64, 16, 128);
+    check(10, 4, 128, 16, 128);
+}
+
+/// Varied pad counts. `q_pad` sets how many hiding symbols ride each row, so
+/// it moves the pad slice the chunk loop takes; `n + q <= nn` bounds it.
+#[test]
+fn zk_chunked_matches_cpu_at_varied_pad_counts() {
+    let _g = serial();
+    for &q_pad in &[1usize, 16, 64, 256] {
+        check(10, 4, 300, q_pad, 128);
+    }
+}
+
+/// Wider rows, where a chunk's encoded scratch is the thing being bounded.
+#[test]
+fn zk_chunked_matches_cpu_at_wider_shapes() {
+    let _g = serial();
+    check(12, 4, 300, 16, 128);
+    check(14, 2, 200, 256, 128);
+}
+
+/// THE NEGATIVE CONTROL. Open the same hiding commitment with the non-ZK
+/// `columns_chunked`, which re-encodes with neither the pads nor the coset
+/// scaling. A correct build MUST disagree with the CPU almost everywhere; if
+/// this ever passes as "0 bad", the positive tests above prove nothing,
+/// because it would mean the oracle cannot tell the two apart.
+#[test]
+fn plain_reencode_of_a_hiding_commitment_is_detected_as_wrong() {
+    let _g = serial();
+    if !gpu_ready() {
+        return;
+    }
+    note_case();
+    let (rows, q_pad) = (300usize, 16usize);
+    let (bad_leaves, bad_cols) =
+        gpu::dev_commit_zk_check_chunked(10, 4, rows, q_pad, 128, true).expect("negative control ran");
+    // The COMMITMENT is still the chunked hiding one, so its leaves stay right;
+    // only the opening is wrong. That split is itself the diagnosis.
+    assert_eq!(bad_leaves, 0, "the chunked hiding leaves should be correct even in the negative control");
+    assert!(
+        bad_cols > rows,
+        "the plain re-encode of a hiding commitment must disagree with the CPU in far more than {rows} entries, got {bad_cols} — the oracle is not discriminating"
+    );
+}
+
+// ---------------------------------------------------------------------------
+// [ZK60-CL2] The CL1 integration review's findings, turned into tests.
+// Those findings were reached by SOURCE INSPECTION with no GPU reproduction,
+// so each one gets a test that actually executes the path.
+// ---------------------------------------------------------------------------
+
+/// FINDING: `ensure_twiddles` replaced the tables whenever `max_log` DIFFERED,
+/// so a smaller later commitment shrank them out from under an earlier
+/// commitment's deferred opening. A resident commitment never cared (it opens
+/// by gathering a retained `enc`); a chunked one re-encodes.
+///
+/// This proves the monotonic-cache invariant WITHOUT a device, against the
+/// real layout function: the stage-major table for a larger `max_log` is a
+/// strict prefix-extension of the one for a smaller `max_log`, entry for
+/// entry. That is why keeping the largest tables is correct and not merely
+/// convenient — a bigger table computes a smaller transform exactly.
+#[test]
+fn stage_major_twiddles_are_a_prefix_extension() {
+    let _g = serial();
+    for &(small, big) in &[(8u32, 10u32), (10, 12), (12, 16), (14, 16)] {
+        let (fs, is) = gpu::stage_major_twiddles_for_test(small);
+        let (fb, ib) = gpu::stage_major_twiddles_for_test(big);
+        assert_eq!(fs.len(), (1usize << small) - 1, "forward length at max_log {small}");
+        assert_eq!(fb.len(), (1usize << big) - 1, "forward length at max_log {big}");
+        assert_eq!(
+            fb[..fs.len()], fs[..],
+            "forward stage-major table at max_log {big} is not a prefix-extension of {small}"
+        );
+        assert_eq!(
+            ib[..is.len()], is[..],
+            "inverse stage-major table at max_log {big} is not a prefix-extension of {small}"
+        );
+    }
+}
+
+/// FINDING: large commitment -> smaller-profile commitment -> open the
+/// ORIGINAL. Before the monotonic fix the second commit shrank the tables and
+/// the first commitment's opening could no longer run. Descending `log_cols`
+/// is the ordering that triggers it; the openings all happen after every
+/// commit, and each is repeated, per the review's "repeated openings".
+#[test]
+fn deferred_openings_survive_a_later_smaller_commitment() {
+    let _g = serial();
+    if !gpu_ready() {
+        return;
+    }
+    note_case();
+    // descending width: the later, smaller tables must not strand the first
+    let specs = [(14u32, 4usize, 200usize, 16usize), (10, 4, 300, 16), (8, 4, 200, 16)];
+    let (bad_leaves, bad_cols) =
+        gpu::dev_commit_zk_check_interleaved(&specs, 128, 2).expect("interleaved oracle ran");
+    assert_eq!((bad_leaves, bad_cols), (0, 0), "descending-width interleaving mismatch");
+}
+
+/// The same, with ALTERNATING rates and widths and several live commitments,
+/// so the tables grow and shrink repeatedly while openings are outstanding.
+#[test]
+fn deferred_openings_survive_alternating_rates_and_widths() {
+    let _g = serial();
+    if !gpu_ready() {
+        return;
+    }
+    note_case();
+    let specs = [
+        (12u32, 8usize, 200usize, 16usize),
+        (10, 2, 300, 64),
+        (14, 4, 150, 256),
+        (10, 8, 260, 16),
+        (12, 2, 200, 32),
+    ];
+    let (bad_leaves, bad_cols) =
+        gpu::dev_commit_zk_check_interleaved(&specs, 128, 3).expect("interleaved oracle ran");
+    assert_eq!((bad_leaves, bad_cols), (0, 0), "alternating-rate interleaving mismatch");
+}
+
+/// FINDING: `HL_ZK_CHUNK=off` was supposed to retain the reference path, but a
+/// resident allocation failure sent it into the chunked path anyway — so the
+/// reference arm of an A/B could silently become the test arm.
+///
+/// This drives the REAL entry point (`dev_commit_zk_from`), not the chunked
+/// helper, so the mode/fallback branch is genuinely exercised. The failure is
+/// injected with a deterministic allocation cap rather than by exhausting the
+/// card, so it is reproducible and safe on any device.
+#[test]
+fn strict_off_reports_allocation_failure_instead_of_chunking() {
+    let _g = serial();
+    if !gpu_ready() {
+        return;
+    }
+    note_case();
+    // Cap fresh allocations below the resident need but above the witness
+    // upload, so the failure lands on the resident commit buffers.
+    // Drain first: pool REUSE legitimately bypasses the cap (it needs no new
+    // memory), so a same-shape buffer left by an earlier test would make this
+    // injection a no-op and the assertion vacuous. That is exactly what
+    // happened on the first run of this test.
+    gpu::dev_pool_drain();
+    let prev_mode = gpu::set_zk_chunk_mode_for_test(0); // 0 = off/strict
+    let prev_cap = gpu::set_alloc_cap_for_test(1 << 19); // 524,288 elems = 4 MiB
+    let r = gpu::dev_commit_zk_from_probe(10, 4, 300, 16);
+    gpu::set_alloc_cap_for_test(prev_cap);
+    gpu::set_zk_chunk_mode_for_test(prev_mode);
+
+    match r {
+        Ok(o) => panic!(
+            "strict off must not silently succeed under an injected resident failure \
+             (outcome = {o:?}); if chunked = true the reference mode is not strict at all"
+        ),
+        Err(e) => assert!(
+            e.contains("strict reference mode"),
+            "strict off must say WHY it refused rather than surfacing a bare allocation error: {e}"
+        ),
+    }
+}
+
+/// The complement: in AUTO the same injected failure must fall back to chunking
+/// and succeed. Together these two pin the mode switch from both sides — strict
+/// refuses, auto adapts — so neither can be satisfied by a path that ignores the
+/// mode entirely.
+#[test]
+fn auto_falls_back_to_chunking_under_the_same_injected_failure() {
+    let _g = serial();
+    if !gpu_ready() {
+        return;
+    }
+    note_case();
+    gpu::dev_pool_drain();
+    let prev_mode = gpu::set_zk_chunk_mode_for_test(1); // 1 = auto
+    let prev_cap = gpu::set_alloc_cap_for_test(1 << 19);
+    let r = gpu::dev_commit_zk_from_probe(10, 4, 300, 16);
+    gpu::set_alloc_cap_for_test(prev_cap);
+    gpu::set_zk_chunk_mode_for_test(prev_mode);
+
+    match r {
+        Ok(o) => {
+            assert!(o.chunked, "auto must CHUNK when the resident buffers cannot be allocated");
+            // and the fallback must be CORRECT, not merely routed
+            assert_eq!((o.bad_leaves, o.bad_cols), (0, 0), "the chunked fallback produced wrong output: {o:?}");
+        }
+        Err(e) => panic!("auto must not fail where it can chunk instead: {e}"),
+    }
+}
+
+/// And the positive half of strict: with no cap, strict off still produces
+/// correct results by the resident path, so the switch retains a WORKING
+/// reference implementation rather than merely a failing one.
+#[test]
+fn strict_off_still_produces_correct_results_when_it_fits() {
+    let _g = serial();
+    if !gpu_ready() {
+        return;
+    }
+    note_case();
+    gpu::dev_pool_drain();
+    let prev_mode = gpu::set_zk_chunk_mode_for_test(0);
+    let o = gpu::dev_commit_zk_from_probe(10, 4, 300, 16).expect("strict off ran");
+    gpu::set_zk_chunk_mode_for_test(prev_mode);
+    assert!(!o.chunked, "strict off must stay RESIDENT when it fits");
+    assert_eq!((o.bad_leaves, o.bad_cols), (0, 0), "the resident reference path must be correct: {o:?}");
+}
+
+// ---------------------------------------------------------------------------
+// [ZK60-CL3] Every resident allocation site, not just the first pair.
+// ---------------------------------------------------------------------------
+
+/// FINDING: the LAST resident take (`d_enc`) used a bare `?`, so a failure
+/// there handed the whole commitment to the caller's CPU path instead of the
+/// chunked one sitting right beside it. The first two takes got a chunked
+/// retry; this one did not, purely because it happens later in the function.
+///
+/// A size cap cannot isolate this site — `d_coef2` and `d_enc` are the same
+/// size — so the injection counts fresh allocations instead and fails only the
+/// third one.
+#[test]
+fn the_last_resident_allocation_retries_chunking_rather_than_giving_up() {
+    let _g = serial();
+    if !gpu_ready() {
+        return;
+    }
+    note_case();
+    gpu::dev_pool_drain();
+    let prev_mode = gpu::set_zk_chunk_mode_for_test(1); // auto
+    // fresh allocations in order: witness upload, d_coef, d_coef2, then d_enc.
+    // Allowing 3 lets the pair succeed and fails exactly the d_enc take.
+    let prev_fail = gpu::set_alloc_fail_after_for_test(3);
+    let r = gpu::dev_commit_zk_from_probe(10, 4, 300, 16);
+    gpu::set_alloc_fail_after_for_test(prev_fail);
+    gpu::set_zk_chunk_mode_for_test(prev_mode);
+
+    match r {
+        Ok(o) => {
+            assert!(o.chunked, "a refused encoded buffer must fall back to CHUNKING, not to the caller's CPU path");
+            // the review's point: routing is not correctness
+            assert_eq!((o.bad_leaves, o.bad_cols), (0, 0), "the d_enc retry produced wrong output: {o:?}");
+        }
+        Err(e) => panic!("the d_enc site must retry chunked instead of erroring out: {e}"),
+    }
+}
+
+/// The same site under STRICT off must refuse, not quietly chunk.
+#[test]
+fn the_last_resident_allocation_is_also_strict_under_off() {
+    let _g = serial();
+    if !gpu_ready() {
+        return;
+    }
+    note_case();
+    gpu::dev_pool_drain();
+    let prev_mode = gpu::set_zk_chunk_mode_for_test(0); // off/strict
+    let prev_fail = gpu::set_alloc_fail_after_for_test(3);
+    let r = gpu::dev_commit_zk_from_probe(10, 4, 300, 16);
+    gpu::set_alloc_fail_after_for_test(prev_fail);
+    gpu::set_zk_chunk_mode_for_test(prev_mode);
+
+    match r {
+        Err(e) => assert!(
+            e.contains("strict reference mode"),
+            "strict off must name itself when it refuses the encoded buffer: {e}"
+        ),
+        Ok(o) => panic!("strict off must not chunk at the d_enc site (outcome = {o:?})"),
+    }
+}
+
+/// ACCEPTANCE: "distinguish live ownership from pool reservation and allocated
+/// capacity from requested scratch."
+///
+/// THE FIRST VERSION OF THIS TEST WAS VACUOUS and the round-6 review caught it:
+/// it counted `pool_take` allocations, but the chunked path uses
+/// `pool_take_min` for ALL its scratch, and take_min allocated straight from
+/// the device outside the counter. The assertion could not fail. take_min is
+/// now behind the same gate, and RAW (non-pool) allocations — pads, powers,
+/// leaves, gather output — are counted separately, because they are real
+/// device capacity that the old claim ignored entirely.
+///
+/// [ZK60 round-7 review] THE SECOND VERSION WAS STILL TOO WEAK: "at most 3
+/// fresh pooled allocations" is satisfied by a fresh coef2/enc pair plus the
+/// hash state, `raw_n > 0` says nothing about capacity, and its illustrative
+/// `full_pair_elems` used 2^16 columns for a 2^12-column probe. This version
+/// asserts BYTES — exactly what the chunked path was allowed to allocate
+/// fresh, exactly what it reused and at what capacity, exactly which raw
+/// allocations it made — and then DISABLES pool reuse and shows the same path
+/// allocates the whole request fresh, so the reuse assertion is demonstrably
+/// not vacuous.
+#[test]
+fn the_chunked_retry_reuses_pooled_capacity_rather_than_allocating_more() {
+    let _g = serial();
+    if !gpu_ready() {
+        return;
+    }
+    note_case();
+    // The probe's shape: n = 2^10, nn = 2^12, chunk 128 -> rmax 128, 16 opened
+    // columns. B3 state slots mirror cuda.rs (8 * 24 + 1), as the planner does.
+    let (log_cols, inv_rate, rows, q_pad, q_open) = (10u32, 4usize, 300usize, 16usize, 16usize);
+    let n = 1usize << log_cols;
+    let nn = n * inv_rate;
+    let rmax = 128usize;
+    let state_elems = ((8 * 24 + 1) * nn + 1) / 2;
+    let data_b = rows * n * 8;
+    let coef_b = rmax * n * 8;
+    let big_b = rmax * nn * 8;
+    let state_b = state_elems * 8;
+    // What the forced-chunk probe ASKS the pool for, in order: the probe's data
+    // upload (exact take); the commit's coef / coef2 / enc / state (take_min);
+    // the opening's coef / coef2 / enc (take_min; the commit returned its own).
+    let requested = data_b + (coef_b + 2 * big_b + state_b) + (coef_b + 2 * big_b);
+    // What the warm-up leaves in the pool: coef and coef2 released mid-commit,
+    // then data and enc when the resident DevCommit drops. Deterministic after
+    // a drain.
+    let warm_pool_b = 2 * data_b + 2 * rows * nn * 8;
+
+    gpu::dev_pool_drain();
+    let prev_mode = gpu::set_zk_chunk_mode_for_test(1);
+    let warm = gpu::dev_commit_zk_from_probe(log_cols, inv_rate, rows, q_pad).expect("warm-up ran");
+    assert!(!warm.chunked, "warm-up should be resident");
+    assert_eq!((warm.bad_leaves, warm.bad_cols), (0, 0), "warm-up must be correct: {warm:?}");
+
+    // ---- reuse ON: forced chunking on the SAME shape
+    gpu::reset_alloc_counters_for_test();
+    let prev2 = gpu::set_zk_chunk_mode_for_test(2);
+    let o = gpu::dev_commit_zk_from_probe(log_cols, inv_rate, rows, q_pad).expect("forced chunked ran");
+    let on = gpu::pool_stats_for_test();
+    gpu::set_zk_chunk_mode_for_test(prev2);
+    assert!(o.chunked, "must have chunked");
+    assert_eq!((o.bad_leaves, o.bad_cols), (0, 0), "the chunked path must be correct: {o:?}");
+    eprintln!("[CL3] forced-chunk, reuse ON:  {on:?}");
+
+    // The ONLY fresh pooled allocation a warm pool cannot serve is the blake3
+    // column state: nothing of that size was ever pooled and the leftover
+    // rows*n buffer is too small for it. EXACT, in bytes — not "<= 3 events".
+    assert_eq!((on.fresh_count, on.fresh_bytes), (1, state_b),
+        "reuse ON: the chunked path may allocate ONLY the blake3 state fresh ({state_b} B); saw {on:?}");
+    // Every other take was served from the pool, by requested size ...
+    assert_eq!(on.reuse_requested_bytes, requested - state_b,
+        "reuse ON: every take but the state must be a reuse; saw {on:?}");
+    // ... at the capacity of the RELEASED RESIDENT buffers (oversize reuse,
+    // each buffer counted once): the data take is exact, the commit's three
+    // scratch takes consume the other three warm buffers, and the opening's
+    // three takes get the commit's scratch back. Capacity is what the card
+    // holds; requested is what the kernels use.
+    let capacity_expect = data_b + (data_b + 2 * rows * nn * 8) + (data_b + 2 * rows * nn * 8);
+    assert_eq!(on.reuse_capacity_bytes, capacity_expect,
+        "reuse ON: the capacity handed out must be the warm pool's ({warm_pool_b} B) plus the commit scratch re-served to the opening; saw {on:?}");
+    assert!(on.reuse_capacity_bytes > on.reuse_requested_bytes, "oversize reuse must show capacity above request");
+    // RAW allocations, one event each, EXACT: pads, coset powers, the chunked
+    // leaf buffer, then the opening's index list and gather output.
+    let raw_expect_b = rows * q_pad * 8 + nn * 8 + nn * 8 * 4 + q_open * 4 + rows * q_open * 8;
+    assert_eq!((on.raw_count, on.raw_bytes), (5, raw_expect_b),
+        "raw allocations on the commit+opening path must be counted one by one (scope: {}); saw {on:?}", gpu::RAW_ALLOC_SCOPE);
+
+    // ---- NEGATIVE CONTROL: reuse OFF, same forced-chunk probe.
+    // Every take is now fresh, so the fresh bytes must equal the whole request
+    // and no reuse may be recorded. Had reuse been silently absent above, the
+    // ON numbers would have looked like these.
+    gpu::reset_alloc_counters_for_test();
+    let prev_reuse = gpu::set_pool_reuse_for_test(false);
+    let prev3 = gpu::set_zk_chunk_mode_for_test(2);
+    let o2 = gpu::dev_commit_zk_from_probe(log_cols, inv_rate, rows, q_pad);
+    let off = gpu::pool_stats_for_test();
+    gpu::set_zk_chunk_mode_for_test(prev3);
+    gpu::set_pool_reuse_for_test(prev_reuse);
+    gpu::set_zk_chunk_mode_for_test(prev_mode);
+    gpu::dev_pool_drain();
+    let o2 = o2.expect("forced chunked with reuse disabled ran");
+    assert!(o2.chunked, "reuse OFF must still chunk");
+    assert_eq!((o2.bad_leaves, o2.bad_cols), (0, 0), "reuse OFF must still be correct: {o2:?}");
+    eprintln!("[CL3] forced-chunk, reuse OFF: {off:?}");
+    assert_eq!(off.reuse_count, 0, "reuse OFF: no take may be served from the pool; saw {off:?}");
+    assert_eq!(off.fresh_bytes, requested,
+        "reuse OFF: the whole request ({requested} B) must be allocated fresh; saw {off:?}");
+    assert_eq!((off.raw_count, off.raw_bytes), (5, raw_expect_b), "raw allocations do not depend on pool reuse");
+    // The exact identity the control establishes: every byte the ON run took
+    // from the pool is a byte the OFF run had to allocate. (Measured on the
+    // RTX 4070: ON fresh 3,162,112 B vs OFF fresh 24,494,080 B, 7.75x.)
+    assert_eq!(off.fresh_bytes, on.fresh_bytes + on.reuse_requested_bytes,
+        "reuse OFF must allocate fresh exactly what reuse ON served from the pool: ON {on:?} vs OFF {off:?}");
+}
+
+// ---------------------------------------------------------------------------
+// [ZK60-CL6] Chunk-row choices are a MEMORY decision, not a proof decision.
+// ---------------------------------------------------------------------------
+
+/// Every chunk-row choice must reproduce the CPU's leaves AND opened columns:
+/// the multiples of 128, a choice that is NOT a multiple of 128 (300 steps by
+/// 256), and the `rows <= choice` corner where the device takes all rows as
+/// ONE chunk (700 on 700, 1000 on 1024). 700 rows leaves a ragged tail at
+/// 128/256/512; rate 8 with 64 pads widens the pad slice each chunk carries.
+/// This is the oracle behind the CL6 sweep: if any choice moved a leaf or a
+/// column, a chunk-row sweep would be comparing different proofs.
+#[test]
+fn every_chunk_row_choice_matches_the_cpu() {
+    let _g = serial();
+    for &chunk in &[128usize, 256, 300, 384, 512, 700] {
+        check(10, 4, 700, 16, chunk);
+        check(10, 8, 300, 64, chunk);
+    }
+    // rows <= choice at a wider shape: one chunk of all 1000 rows (131 MB of scratch)
+    check(12, 4, 1000, 16, 1024);
+}
+
+// ---------------------------------------------------------------------------
+// [ZK60-CL7] The fused, output-pruned hiding opening.
+// ---------------------------------------------------------------------------
+
+/// The hiding opening now takes the non-hiding opening's fused form: the
+/// expand NTT's last stage group writes only the sampled columns, pruned to
+/// the residues that can produce one. Against the CPU's `encode_row_zk`:
+/// pruned AND dense at three shapes where fusion is eligible (log_nn 14, 15,
+/// 15; ragged rows; rates 2/4/8; pads 16-256; chunk 128/256), REPEATED
+/// indices (the distinct-slot expansion), a shape where fusion is NOT
+/// eligible (log_nn = 10) and must fall through to the reference form, and
+/// the reference form itself under `HL_ZK_FUSE_GATHER=0`. The negative
+/// control above still uses the non-ZK opening and still fails loudly.
+#[test]
+fn fused_hiding_openings_match_the_cpu_in_every_form() {
+    let _g = serial();
+    if !gpu_ready() {
+        return;
+    }
+    let prev_fuse = gpu::set_zk_fuse_gather_for_test(1);
+    let prev_prune = gpu::set_prune_p2_for_test(1);
+    for &(lc, rate, rows, q, chunk) in &[(12u32, 4usize, 300usize, 16usize, 128usize), (14, 2, 200, 256, 128), (12, 8, 260, 64, 256)] {
+        for prune in [1usize, 0] {
+            gpu::set_prune_p2_for_test(prune);
+            note_case();
+            let r = gpu::dev_commit_zk_check_chunked(lc, rate, rows, q, chunk, false).expect("fused oracle ran");
+            assert_eq!(r, (0, 0), "fused opening (prune {prune}) mismatch at ({lc},{rate},{rows},{q},{chunk})");
+        }
+    }
+    gpu::set_prune_p2_for_test(1);
+    // repeated indices: the fused path keeps one slot per DISTINCT column and
+    // expands duplicates on the host; every repeat must come back identical
+    let idx = [5usize, 4099, 5, 16383, 4099, 0, 0, 8191, 5, 4095, 4096];
+    note_case();
+    let r = gpu::dev_commit_zk_check_chunked_with(12, 4, 300, 16, 128, false, Some(&idx)).expect("duplicate-index oracle ran");
+    assert_eq!(r, (0, 0), "fused opening with repeated indices mismatch");
+    assert!(gpu::dev_commit_zk_check_chunked_with(12, 4, 300, 16, 128, false, Some(&[1usize << 14])).is_err(),
+            "an out-of-range index must be refused, not panic");
+    // not eligible (log_nn = 10 <= NTT_LOG_BLK): the unfused form must serve it
+    note_case();
+    assert_eq!(gpu::dev_commit_zk_check_chunked(8, 4, 200, 16, 128, false).expect("ineligible shape ran"), (0, 0));
+    // the reference form, retained
+    gpu::set_zk_fuse_gather_for_test(0);
+    note_case();
+    assert_eq!(gpu::dev_commit_zk_check_chunked(12, 4, 300, 16, 128, false).expect("reference form ran"), (0, 0));
+    gpu::set_prune_p2_for_test(prev_prune);
+    gpu::set_zk_fuse_gather_for_test(prev_fuse);
+}
+
+// ---------------------------------------------------------------------------
+// [ZK60-CL15] Empty, out-of-range, duplicate, ragged and below-threshold
+// openings EXECUTED on every applicable route — hiding (`columns_chunked_zk`)
+// under fused/reference x pruned/dense, the plain re-encode of a hiding
+// commitment, and the non-hiding opening (`columns_chunked`) on its own
+// commitment — with the empty and the out-of-range case proven to allocate
+// NOTHING on the device, by the counters read around the open alone.
+// ---------------------------------------------------------------------------
+
+/// The no-feature `open_plan_boundary` tests mirror the kernel constants as
+/// literals; this pins the mirror to its owner, so a change on either side is
+/// a failing test rather than a silent divergence. Needs no device.
+#[test]
+fn open_plan_mirrors_the_kernel_constants() {
+    assert_eq!(1usize << gpu::NTT_LOG_BLK, 1 << 12, "cuda.rs NTT_LOG_BLK moved; update open_plan_boundary::BLK");
+    assert_eq!(gpu::P2SP_NC, 64, "cuda.rs P2SP_NC moved; update open_plan_boundary::NC");
+}
+
+/// (log_cols, inv_rate, rows, q_pad, chunk): a fusion-eligible shape
+/// (log_nn 14 > NTT_LOG_BLK) and one below the threshold (log_nn 10).
+const ELIGIBLE: (u32, usize, usize, usize, usize) = (12, 4, 300, 16, 128);
+const BELOW: (u32, usize, usize, usize, usize) = (8, 4, 200, 16, 128);
+/// The CL7 duplicate list (11 indices, 7 distinct) for nn = 2^14, and a
+/// duplicate list for nn = 2^10.
+const DUPS: [usize; 11] = [5, 4099, 5, 16383, 4099, 0, 0, 8191, 5, 4095, 4096];
+const DUPS_SMALL: [usize; 7] = [5, 1023, 5, 0, 0, 512, 5];
+
+/// Sets both opening switches to their defaults (fused, pruned) and RESTORES
+/// the previous settings on drop — including when an assertion panics, so a
+/// failing case cannot leak its switch state into the tests that follow.
+struct Switches {
+    fuse: usize,
+    prune: usize,
+}
+impl Switches {
+    fn set() -> Switches {
+        Switches { fuse: gpu::set_zk_fuse_gather_for_test(1), prune: gpu::set_prune_p2_for_test(1) }
+    }
+    fn select(&self, fuse: usize, prune: usize) {
+        gpu::set_zk_fuse_gather_for_test(fuse);
+        gpu::set_prune_p2_for_test(prune);
+    }
+}
+impl Drop for Switches {
+    fn drop(&mut self) {
+        gpu::set_prune_p2_for_test(self.prune);
+        gpu::set_zk_fuse_gather_for_test(self.fuse);
+    }
+}
+
+/// An opening that really ran: exactly `takes` pool takes (fresh or reused —
+/// the chunk scratch), exactly `raw_count` raw device allocations of exactly
+/// `raw_bytes` (index/residue lists and the gather output).
+fn expect_alloc(a: &gpu::PoolStats, takes: usize, raw_count: usize, raw_bytes: usize, tag: &str) {
+    assert_eq!(a.fresh_count + a.reuse_count, takes, "{tag}: pool takes across the open; saw {a:?}");
+    assert_eq!((a.raw_count, a.raw_bytes), (raw_count, raw_bytes), "{tag}: raw allocations across the open; saw {a:?}");
+}
+
+/// The raw bytes an opening of `idx` MUST allocate on the device, from the
+/// pure plan: its device index list, its residue list if pruned, its output.
+fn planned_raw(idx: &[usize], nn: usize, rows: usize, fused: bool, prune: bool) -> (usize, usize) {
+    use hashline::gpu::open_plan::{plan_open_indices, OpenPlan};
+    match plan_open_indices(idx, nn, 1 << gpu::NTT_LOG_BLK, gpu::P2SP_NC, fused, prune) {
+        Ok(OpenPlan::Open(p)) => {
+            let mut count = 2;
+            let mut bytes = p.device_index_list().len() * 4 + rows * p.cols_out() * 8;
+            if let Some((qs, _)) = &p.residues {
+                count += 1;
+                bytes += qs.len() * 4;
+            }
+            (count, bytes)
+        }
+        other => panic!("planned_raw wants a nonempty plan, got {other:?}"),
+    }
+}
+
+/// THE EMPTY BOUNDARY. An empty query list opens ZERO columns and touches
+/// nothing on the device: through the public oracle (`Ok((0, 0))`), and
+/// through the allocation-scoped probe, whose counters — pool fresh and reuse,
+/// raw count and bytes — must not move at all across the open. Every route:
+/// hiding under fused/reference x pruned/dense, the plain re-encode of the
+/// hiding commitment, and the non-hiding commitment's own opening; at the
+/// fusion-eligible shape and the below-threshold one.
+///
+/// Then the POSITIVE CONTROL: the same probes with 16 indices allocate
+/// exactly what their route needs, so the zero above is a measurement and not
+/// a counter that never moves.
+#[test]
+fn empty_openings_return_zero_columns_and_allocate_nothing() {
+    let _g = serial();
+    if !gpu_ready() {
+        return;
+    }
+    let sw = Switches::set();
+    let zero = gpu::PoolStats::default();
+    for &(lc, rate, rows, q, chunk) in &[ELIGIBLE, BELOW] {
+        for plain in [false, true] {
+            for fuse in [1usize, 0] {
+                for prune in [1usize, 0] {
+                    sw.select(fuse, prune);
+                    let tag = format!("({lc},{rate},{rows},{q},{chunk}) plain_reencode {plain} fuse {fuse} prune {prune}");
+                    // the public oracle, as the contract asks
+                    note_case();
+                    let r = gpu::dev_commit_zk_check_chunked_with(lc, rate, rows, q, chunk, plain, Some(&[]))
+                        .unwrap_or_else(|e| panic!("the empty open must succeed at {tag}: {e}"));
+                    assert_eq!(r, (0, 0), "the empty open at {tag}");
+                    // the same open with the counters read around IT alone
+                    note_case();
+                    let p = gpu::dev_commit_zk_open_probe(lc, rate, rows, q, chunk, plain, &[])
+                        .unwrap_or_else(|e| panic!("the empty probe's commit failed at {tag}: {e}"));
+                    assert_eq!(p.bad_leaves, 0, "the commit under the empty open at {tag}");
+                    assert_eq!(p.open, Ok((0, 0)), "an empty query list opens zero columns at {tag}");
+                    assert_eq!(p.alloc, zero, "the empty open must not touch the device at {tag}; saw {:?}", p.alloc);
+                }
+            }
+        }
+    }
+    // the NON-hiding opening on its own commitment (pruned and dense)
+    for &(lc, rate, rows, _q, chunk) in &[ELIGIBLE, BELOW] {
+        for prune in [1usize, 0] {
+            sw.select(1, prune);
+            let tag = format!("plain commitment ({lc},{rate},{rows},{chunk}) prune {prune}");
+            note_case();
+            let p = gpu::dev_commit_open_probe(lc, rate, rows, chunk, &[]).unwrap_or_else(|e| panic!("{tag}: {e}"));
+            assert_eq!(p.bad_leaves, 0, "{tag}");
+            assert_eq!(p.open, Ok((0, 0)), "{tag}");
+            assert_eq!(p.alloc, zero, "the empty plain open must not touch the device at {tag}; saw {:?}", p.alloc);
+        }
+    }
+
+    // ---- POSITIVE CONTROL: 16 indices allocate exactly the route's needs.
+    for &(lc, rate, rows, q, chunk) in &[ELIGIBLE, BELOW] {
+        let nn = (1usize << lc) * rate;
+        let idx: Vec<usize> = (0..16).map(|i| (i * 7919 + 13) % nn).collect();
+        for fuse in [1usize, 0] {
+            for prune in [1usize, 0] {
+                sw.select(fuse, prune);
+                let tag = format!("positive control ({lc},{rate},{rows},{q},{chunk}) fuse {fuse} prune {prune}");
+                note_case();
+                let p = gpu::dev_commit_zk_open_probe(lc, rate, rows, q, chunk, false, &idx).unwrap_or_else(|e| panic!("{tag}: {e}"));
+                assert_eq!((p.bad_leaves, p.open.clone()), (0, Ok((16, 0))), "{tag}");
+                // three scratch takes (coef, coef2, enc) and the plan's raw lists
+                let (rc, rb) = planned_raw(&idx, nn, rows, fuse == 1, prune == 1);
+                expect_alloc(&p.alloc, 3, rc, rb, &tag);
+                assert!(p.alloc.raw_count > 0 && p.alloc.fresh_count + p.alloc.reuse_count > 0, "{tag}: the counters must see a real open");
+            }
+        }
+        // the non-hiding opening: two scratch takes (coef, enc); fusion follows HL_GPU_FUSE_GATHER (default on)
+        for prune in [1usize, 0] {
+            sw.select(1, prune);
+            let tag = format!("positive control, plain commitment ({lc},{rate},{rows},{chunk}) prune {prune}");
+            note_case();
+            let p = gpu::dev_commit_open_probe(lc, rate, rows, chunk, &idx).unwrap_or_else(|e| panic!("{tag}: {e}"));
+            assert_eq!((p.bad_leaves, p.open.clone()), (0, Ok((16, 0))), "{tag}");
+            let (rc, rb) = planned_raw(&idx, nn, rows, true, prune == 1);
+            expect_alloc(&p.alloc, 2, rc, rb, &tag);
+        }
+    }
+}
+
+/// An out-of-range index is an `Err` from the opening itself — never a panic,
+/// never an out-of-bounds device read — and, like the empty list, it is
+/// decided before any device work: the counters must not move. The probe hands
+/// the list to the opening UNCHECKED, so this is the helper's own boundary, not
+/// the oracle's pre-check (which is also retained, and asserted last).
+#[test]
+fn out_of_range_indices_are_refused_before_any_allocation() {
+    let _g = serial();
+    if !gpu_ready() {
+        return;
+    }
+    let sw = Switches::set();
+    let zero = gpu::PoolStats::default();
+    for &(lc, rate, rows, q, chunk) in &[ELIGIBLE, BELOW] {
+        let nn = (1usize << lc) * rate;
+        let lists: [Vec<usize>; 3] = [vec![nn], vec![5, nn, 5], vec![nn - 1, usize::MAX]];
+        for plain in [false, true] {
+            for list in &lists {
+                for fuse in [1usize, 0] {
+                    sw.select(fuse, 1);
+                    let tag = format!("({lc},{rate},{rows},{q},{chunk}) plain_reencode {plain} fuse {fuse} idx {list:?}");
+                    note_case();
+                    let p = gpu::dev_commit_zk_open_probe(lc, rate, rows, q, chunk, plain, list).unwrap_or_else(|e| panic!("{tag}: {e}"));
+                    assert_eq!(p.bad_leaves, 0, "{tag}");
+                    let e = p.open.clone().expect_err(&format!("{tag}: an out-of-range index must be refused"));
+                    assert!(e.contains("out of range"), "{tag}: the error must say why: {e}");
+                    assert_eq!(p.alloc, zero, "{tag}: a refused open must not touch the device; saw {:?}", p.alloc);
+                }
+            }
+        }
+        // the non-hiding opening on its own commitment
+        sw.select(1, 1);
+        note_case();
+        let p = gpu::dev_commit_open_probe(lc, rate, rows, chunk, &[5, nn]).expect("plain probe ran");
+        assert!(p.open.clone().expect_err("plain open must refuse").contains("out of range"));
+        assert_eq!(p.alloc, zero, "plain commitment ({lc},{rate},{rows},{chunk}): a refused open must not touch the device; saw {:?}", p.alloc);
+        // and the oracle's own pre-check, retained from CL7
+        assert!(gpu::dev_commit_zk_check_chunked_with(lc, rate, rows, q, chunk, false, Some(&[nn])).is_err());
+    }
+}
+
+/// Repeated indices come back identical to the CPU on EVERY route — the
+/// distinct-slot expansion is what the fused forms rely on — at the eligible
+/// shape with a whole number of chunks (300 = 128 + 128 + 44) and a RAGGED
+/// one (257 = 128 + 128 + 1, the one-row last chunk), under every switch
+/// setting, for the hiding opening AND the non-hiding one; below the fusion
+/// threshold, where the unfused route must serve both; and with 1,100
+/// distinct residues, where pruning must DECLINE to the dense fused last
+/// stage (and the device's allocations show it did).
+#[test]
+fn duplicate_indices_open_identically_on_every_route() {
+    let _g = serial();
+    if !gpu_ready() {
+        return;
+    }
+    let sw = Switches::set();
+    // hiding, eligible shape, whole and ragged row counts, every switch setting
+    for &rows in &[300usize, 257] {
+        for fuse in [1usize, 0] {
+            for prune in [1usize, 0] {
+                sw.select(fuse, prune);
+                note_case();
+                let r = gpu::dev_commit_zk_check_chunked_with(12, 4, rows, 16, 128, false, Some(&DUPS))
+                    .unwrap_or_else(|e| panic!("duplicate open failed at rows {rows} fuse {fuse} prune {prune}: {e}"));
+                assert_eq!(r, (0, 0), "hiding opening with repeated indices at rows {rows} fuse {fuse} prune {prune}");
+            }
+        }
+    }
+    // non-hiding, on its own commitment (fused by default; pruned and dense)
+    for &rows in &[300usize, 257] {
+        for prune in [1usize, 0] {
+            sw.select(1, prune);
+            note_case();
+            let p = gpu::dev_commit_open_probe(12, 4, rows, 128, &DUPS).expect("plain duplicate probe ran");
+            assert_eq!((p.bad_leaves, p.open.clone()), (0, Ok((DUPS.len(), 0))), "plain opening with repeated indices at rows {rows} prune {prune}");
+        }
+    }
+    // below the fusion threshold (log_nn 10): the unfused route, whole and ragged
+    sw.select(1, 1);
+    for &rows in &[200usize, 129] {
+        note_case();
+        let r = gpu::dev_commit_zk_check_chunked_with(8, 4, rows, 16, 128, false, Some(&DUPS_SMALL)).expect("below-threshold hiding open ran");
+        assert_eq!(r, (0, 0), "below-threshold hiding opening with repeated indices at rows {rows}");
+        note_case();
+        let p = gpu::dev_commit_open_probe(8, 4, rows, 128, &DUPS_SMALL).expect("below-threshold plain open ran");
+        assert_eq!((p.bad_leaves, p.open.clone()), (0, Ok((DUPS_SMALL.len(), 0))), "below-threshold plain opening at rows {rows}");
+        // unfused: the plain index list and one output column per index, no residue list
+        expect_alloc(&p.alloc, 2, 2, DUPS_SMALL.len() * 4 + rows * DUPS_SMALL.len() * 8, &format!("below-threshold plain open at rows {rows}"));
+    }
+    // the pruning DECLINE: 1,100 distinct residues of 4,096 is more than a
+    // quarter of the block, so the fused last stage runs DENSE
+    let many: Vec<usize> = (0..1100).collect();
+    sw.select(1, 1);
+    note_case();
+    let r = gpu::dev_commit_zk_check_chunked_with(12, 4, 300, 16, 128, false, Some(&many)).expect("declined-prune hiding open ran");
+    assert_eq!(r, (0, 0), "hiding opening at 1,100 distinct residues (pruning declined)");
+    note_case();
+    let p = gpu::dev_commit_open_probe(12, 4, 300, 128, &many).expect("declined-prune plain open ran");
+    assert_eq!((p.bad_leaves, p.open.clone()), (0, Ok((1100, 0))), "plain opening at 1,100 distinct residues");
+    // fused (the selector, nn * 4 B) and the output, and NO residue list: the decline happened on the device
+    expect_alloc(&p.alloc, 2, 2, (1 << 14) * 4 + 300 * 1100 * 8, "declined-prune plain open");
+}
+
+// ---------------------------------------------------------------------------
+// [ZK60-CL18] The compact pad/scale output (`HL_ZK_COMPACT_PAD=1`, default
+// OFF): the chunked hiding routes write the pad/scale output `rmax x (n + q)`
+// and launch the expand NTT's `k_ntt_p1` with `n_src = n + q`, instead of
+// `rmax x nn` / `n_src = nn`. Derivation: ZK60_CLAUDE_RESIDENCY.md §7. Every
+// case below runs the SAME oracle with the switch ON and OFF; the reference
+// form is retained and is what the frozen byte gates run by default.
+// ---------------------------------------------------------------------------
+
+/// Sets the compact switch and RESTORES the previous setting on drop — also
+/// when an assertion panics — so a failing case cannot leak its switch state
+/// into the tests that follow (the CL3 pool-accounting test assumes the
+/// full-width scratch).
+struct CompactPad(usize);
+impl CompactPad {
+    fn set(mode: usize) -> CompactPad {
+        CompactPad(gpu::set_zk_compact_pad_for_test(mode))
+    }
+    fn select(&self, mode: usize) {
+        gpu::set_zk_compact_pad_for_test(mode);
+    }
+}
+impl Drop for CompactPad {
+    fn drop(&mut self) {
+        gpu::set_zk_compact_pad_for_test(self.0);
+    }
+}
+
+/// The width function itself, no device needed: `nn` on the reference form,
+/// `n + q` on the compact one, `n + q == nn` ALLOWED (the compact width is
+/// then the full width — a boundary, not a refusal), and `n + q > nn` REFUSED
+/// with the shape in the message, so an unsupported `n + q` can never be
+/// launched silently.
+#[test]
+fn compact_pad_width_is_n_plus_q_and_refuses_an_oversize_pad() {
+    assert_eq!(gpu::zk_pad_width(1024, 16, 4096, false), Ok(4096), "reference form: the full width");
+    assert_eq!(gpu::zk_pad_width(1024, 16, 4096, true), Ok(1040), "compact form: n + q");
+    assert_eq!(gpu::zk_pad_width(1024, 1024, 2048, true), Ok(2048), "n + q == nn is the boundary, not a refusal");
+    assert_eq!(gpu::zk_pad_width(16384, 256, 65536, true), Ok(16640), "the Mistral W/A/H shape");
+    let e = gpu::zk_pad_width(1024, 1025, 2048, true).expect_err("n + q > nn must be refused");
+    assert!(e.contains("compact pad/scale refused") && e.contains("1024 + 1025"), "the refusal must name itself and the shape: {e}");
+    assert!(gpu::zk_pad_width(1024, 1025, 2048, false).is_ok(), "the reference form does not decide n + q; its callers assert it upstream");
+}
+
+/// CPU-oracle parity of leaves AND opened columns with the compact switch ON
+/// and OFF, at: every supported rate; pad boundaries (q = 1, 16, 256, and
+/// the exact `n + q == nn` boundary where the compact width equals the full
+/// one, and `nn - 1`, a one-element zero tail); the fusion threshold
+/// (log_nn 12 unfused, 13 first fused, 14 the eligible shape) and the pruning
+/// threshold (log_nn 17 the last pruned width, 18 pruning declined to the
+/// dense fused stage); ragged chunks (129 and 257 rows); duplicate queries;
+/// interleaved commitments with deferred repeated openings; every opening
+/// route (fused/reference x pruned/dense); and the negative control, which
+/// must keep detecting the wrong re-encode under the compact switch too.
+#[test]
+fn compact_pad_scale_matches_the_cpu_on_and_off() {
+    let _g = serial();
+    if !gpu_ready() {
+        return;
+    }
+    let cp = CompactPad::set(1);
+    let sw = Switches::set();
+    for compact in [1usize, 0] {
+        cp.select(compact);
+        sw.select(1, 1);
+        // every supported rate
+        for &rate in &[2usize, 4, 8] {
+            check(10, rate, 300, 16, 128);
+        }
+        // pad boundaries
+        for &q in &[1usize, 16, 256] {
+            check(10, 4, 300, q, 128);
+        }
+        check(10, 2, 300, 1024, 128); // n + q == nn: the compact width IS the full width
+        check(10, 2, 300, 1023, 128); // n + q == nn - 1: a single zero in the tail
+        // fusion and pruning thresholds (log_nn 12 is covered by (10, 4) above)
+        check(11, 4, 200, 16, 128); // log_nn 13: the first fused width
+        check(12, 4, 300, 16, 128); // log_nn 14: ELIGIBLE
+        check(14, 8, 130, 64, 128); // log_nn 17: the last pruned width, ragged (128 + 2)
+        check(15, 8, 40, 16, 128); // log_nn 18: pruning declined -> dense fused last stage
+        // ragged chunks
+        for &rows in &[129usize, 257] {
+            check(10, 4, rows, 16, 128);
+        }
+        // duplicate queries on the fused route
+        note_case();
+        let r = gpu::dev_commit_zk_check_chunked_with(12, 4, 300, 16, 128, false, Some(&DUPS))
+            .unwrap_or_else(|e| panic!("compact {compact}: duplicate-index oracle failed: {e}"));
+        assert_eq!(r, (0, 0), "compact {compact}: hiding opening with repeated indices");
+        // interleaved commitments, all live, then opened twice each (descending width)
+        note_case();
+        let r = gpu::dev_commit_zk_check_interleaved(&[(14u32, 4usize, 200usize, 16usize), (10, 4, 300, 16), (8, 4, 200, 16)], 128, 2)
+            .unwrap_or_else(|e| panic!("compact {compact}: interleaved oracle failed: {e}"));
+        assert_eq!(r, (0, 0), "compact {compact}: interleaved commitments with deferred openings");
+        // every opening route at the eligible shape
+        for fuse in [1usize, 0] {
+            for prune in [1usize, 0] {
+                sw.select(fuse, prune);
+                let (lc, rate, rows, q, chunk) = ELIGIBLE;
+                check(lc, rate, rows, q, chunk);
+            }
+        }
+        sw.select(1, 1);
+        // the negative control keeps detecting
+        note_case();
+        let (bad_leaves, bad_cols) = gpu::dev_commit_zk_check_chunked(10, 4, 300, 16, 128, true)
+            .unwrap_or_else(|e| panic!("compact {compact}: negative control failed to run: {e}"));
+        assert_eq!(bad_leaves, 0, "compact {compact}: the hiding leaves stay right in the negative control");
+        assert!(bad_cols > 300, "compact {compact}: the plain re-encode must still be detected, got {bad_cols}");
+    }
+}
+
+/// The allocation probes: the compact route takes the SMALLER `d_coef2`
+/// scratch and the reference route the full one, exact to the byte against
+/// the planner's formula (`chunk_expanded = rmax * width * 8`, width `n + q`
+/// or `nn`; ZK60_CLAUDE_RESIDENCY.md §7.5), read by the counters around the
+/// OPEN alone (reuse disabled, so fresh bytes ARE the scratch), then through
+/// the real entry point for commit + opening together, then the TRANSITION:
+/// a pool warmed by the reference route serves the compact route entirely by
+/// oversize reuse — the compact `coef2` request is served by the smallest
+/// pooled buffer that fits, which is the blake3 STATE buffer, not a full
+/// `rmax x nn` one — with zero fresh allocation. Also pins the DEFAULT: with
+/// `HL_ZK_COMPACT_PAD` unset the switch follows the environment and is OFF.
+#[test]
+fn compact_pad_scale_takes_the_smaller_scratch_and_the_reference_route_the_full_one() {
+    let _g = serial();
+    if !gpu_ready() {
+        return;
+    }
+    let cp = CompactPad::set(1);
+    let sw = Switches::set();
+    let (lc, rate, rows, q, chunk) = ELIGIBLE; // n 4096, nn 16384, rmax 128
+    let n = 1usize << lc;
+    let nn = n * rate;
+    let rmax = 128usize;
+    let coef_b = rmax * n * 8;
+    let big_b = rmax * nn * 8;
+    let cpad_b = rmax * (n + q) * 8;
+    let state_b = (((8 * 24 + 1) * nn + 1) / 2) * 8;
+    let data_b = rows * n * 8;
+    let idx: Vec<usize> = (0..16).map(|i| (i * 7919 + 13) % nn).collect();
+    assert_eq!((cpad_b, big_b, state_b), (4_210_688, 16_777_216, 12_648_448), "the derivation's numbers for the eligible shape");
+
+    // ---- (a) reuse OFF: the open's three scratch takes are all fresh, so
+    // fresh bytes are exactly coef + coef2 + enc, and only coef2 differs.
+    gpu::dev_pool_drain();
+    let prev_reuse = gpu::set_pool_reuse_for_test(false);
+    for (mode, want_coef2, tag) in [(1usize, cpad_b, "compact"), (0, big_b, "reference")] {
+        cp.select(mode);
+        note_case();
+        let p = gpu::dev_commit_zk_open_probe(lc, rate, rows, q, chunk, false, &idx).unwrap_or_else(|e| panic!("{tag}: {e}"));
+        assert_eq!((p.bad_leaves, p.open.clone()), (0, Ok((16, 0))), "{tag}: correctness first");
+        assert_eq!((p.alloc.fresh_count, p.alloc.reuse_count), (3, 0), "{tag}: reuse OFF means three fresh scratch takes; saw {:?}", p.alloc);
+        assert_eq!(p.alloc.fresh_bytes, coef_b + want_coef2 + big_b,
+            "{tag}: the open's scratch must be coef {coef_b} + coef2 {want_coef2} + enc {big_b}; saw {:?}", p.alloc);
+        let (rc, rb) = planned_raw(&idx, nn, rows, true, true);
+        assert_eq!((p.alloc.raw_count, p.alloc.raw_bytes), (rc, rb), "{tag}: raw allocations do not depend on the pad width; saw {:?}", p.alloc);
+    }
+    // the DEFAULT: unset in the environment -> follow it -> OFF -> full width
+    if std::env::var_os("HL_ZK_COMPACT_PAD").is_none() {
+        cp.select(255);
+        note_case();
+        let p = gpu::dev_commit_zk_open_probe(lc, rate, rows, q, chunk, false, &idx).expect("default-switch probe ran");
+        assert_eq!((p.bad_leaves, p.open.clone()), (0, Ok((16, 0))));
+        assert_eq!(p.alloc.fresh_bytes, coef_b + 2 * big_b, "HL_ZK_COMPACT_PAD unset must mean the full-width reference scratch; saw {:?}", p.alloc);
+    } else {
+        eprintln!("HL_ZK_COMPACT_PAD is set in this process; the default-OFF pin was not exercised");
+    }
+    gpu::set_pool_reuse_for_test(prev_reuse);
+    gpu::dev_pool_drain();
+
+    // ---- (b) the whole path through the REAL entry point (`dev_commit_zk_from`,
+    // forced chunked) plus its opening, reuse OFF: everything the path asks
+    // the pool for, in bytes — CL3's `requested` with coef2 at the pad width
+    // in BOTH the commit's and the opening's takes.
+    let prev_mode = gpu::set_zk_chunk_mode_for_test(2);
+    let prev_reuse = gpu::set_pool_reuse_for_test(false);
+    for (mode, want_coef2, tag) in [(1usize, cpad_b, "compact"), (0, big_b, "reference")] {
+        cp.select(mode);
+        gpu::reset_alloc_counters_for_test();
+        note_case();
+        let o = gpu::dev_commit_zk_from_probe(lc, rate, rows, q).unwrap_or_else(|e| panic!("{tag}: {e}"));
+        let s = gpu::pool_stats_for_test();
+        assert!(o.chunked, "{tag}: forced mode must chunk: {o:?}");
+        assert_eq!((o.bad_leaves, o.bad_cols), (0, 0), "{tag}: the real entry point must be correct: {o:?}");
+        let requested = data_b + (coef_b + want_coef2 + big_b + state_b) + (coef_b + want_coef2 + big_b);
+        assert_eq!((s.reuse_count, s.fresh_bytes), (0, requested),
+            "{tag}: forced-chunk commit + opening must allocate exactly data + commit scratch + opening scratch fresh ({requested} B); saw {s:?}");
+        gpu::dev_pool_drain();
+    }
+    gpu::set_pool_reuse_for_test(prev_reuse);
+    gpu::set_zk_chunk_mode_for_test(prev_mode);
+
+    // ---- (c) the TRANSITION from a reference-warmed pool. The warm-up leaves
+    // {coef 4 MiB, coef2 16 MiB, enc 16 MiB, state 12,648,448 B, data} pooled;
+    // the compact commit's coef2 request (4,210,688 B) is served by the
+    // smallest pooled buffer that fits — the STATE buffer — and its state take
+    // then gets a 16 MiB one; the opening sees the same inventory. Zero fresh
+    // allocation; capacity handed out ABOVE the request (oversize reuse).
+    gpu::dev_pool_drain();
+    sw.select(1, 1);
+    cp.select(0);
+    let warm = gpu::dev_commit_zk_open_probe(lc, rate, rows, q, chunk, false, &idx).expect("reference warm-up ran");
+    assert_eq!((warm.bad_leaves, warm.open.clone()), (0, Ok((16, 0))));
+    cp.select(1);
+    note_case();
+    let p = gpu::dev_commit_zk_open_probe(lc, rate, rows, q, chunk, false, &idx).expect("compact probe on a reference-warmed pool ran");
+    assert_eq!((p.bad_leaves, p.open.clone()), (0, Ok((16, 0))), "transition: correctness first");
+    assert_eq!((p.alloc.fresh_count, p.alloc.reuse_count), (0, 3),
+        "transition: a reference-warmed pool must serve the compact open entirely by reuse; saw {:?}", p.alloc);
+    assert_eq!(p.alloc.reuse_requested_bytes, coef_b + cpad_b + big_b, "transition: requested = coef + compact coef2 + enc; saw {:?}", p.alloc);
+    assert_eq!(p.alloc.reuse_capacity_bytes, coef_b + state_b + big_b,
+        "transition: the compact coef2 must be served by the pooled STATE buffer ({state_b} B), the smallest that fits; saw {:?}", p.alloc);
+    assert!(p.alloc.reuse_capacity_bytes > p.alloc.reuse_requested_bytes, "oversize reuse must show capacity above request");
+    gpu::dev_pool_drain();
+}
+
+/// [ZK60-CL4] The gate that proves the run was not vacuous, from BOTH sides:
+/// a device must be present when required, AND real cases must have executed.
+/// A green suite that skipped everything is the failure mode this closes.
+#[test]
+fn zzz_gpu_required_gate_proves_nonzero_executed_cases() {
+    let _g = serial();
+    emit_summary();
+    if !gpu_required() {
+        eprintln!("HL_GPU_REQUIRED not set: this gate is advisory in this run");
+        return;
+    }
+    assert!(gpu::enabled(), "HL_GPU_REQUIRED=1 but no device: {}", gpu::label());
+    // Execute a real case here so the gate never depends on test ORDER: even
+    // if this runs first, it proves at least one genuine case ran.
+    gpu::dev_pool_drain();
+    let (bad_leaves, bad_cols) =
+        gpu::dev_commit_zk_check_chunked(10, 4, 300, 16, 128, false).expect("required gate case ran");
+    assert_eq!((bad_leaves, bad_cols), (0, 0));
+    note_case();
+    let n = EXECUTED_CASES.load(Ordering::SeqCst);
+    assert!(n > 0, "GPU-required gate executed {n} cases; a zero-case run is not evidence");
+
+    // and the negative control must have run too — a suite of positives only
+    // cannot distinguish a correct build from an oracle that never fails
+    let neg = gpu::dev_commit_zk_check_chunked(10, 4, 300, 16, 128, true)
+        .expect("negative control ran under the required gate");
+    assert!(neg.1 > 300, "the negative control must still detect the wrong re-encode, got {neg:?}");
+    emit_summary();
+}
+
+} // mod device

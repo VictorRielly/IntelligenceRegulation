@@ -1,0 +1,16 @@
+{
+ "edited": {
+  "hashline/src/private_block/token_io/classify_cli.rs": {
+   "orig": "hashline__src__private_block__token_io__classify_cli.rs.orig",
+   "sha256": "616e33b95cb9ad67a49c2229fe1960b73b5fd2c0372c2432626a3f89202ff4b8",
+   "mutant_sha256": "8f35e26099c65f7a4fcfc422f1bbf50cff88a41c7a69a261c7ae6b561eb197f6"
+  }
+ },
+ "created": [
+  {
+   "file": "hashline/src/private_block/token_io/r19b_plant.rs",
+   "sha256": "4f924411bd4b714a89492a322aa8d4abde09daaa0002e98e97b6fca01ee444bc"
+  }
+ ],
+ "dirs": []
+}

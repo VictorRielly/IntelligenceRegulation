@@ -1,0 +1,530 @@
+Internal Error ()
+citeturn5view0 [wordlim: 200] Source: open({"ref_id":"https://github.com/Terminus-IMRC/tensor-core-ntt/blob/6f407daa8a4cef96331511ae86b922b520d7aa33/include/polyarith/arithmetic.cuh","lineno":null}); 
+Failed to fetch https://github.com/Terminus-IMRC/tensor-core-ntt/blob/6f407daa8a4cef96331511ae86b922b520d7aa33/include/polyarith/arithmetic.cuh: Cache miss--------------------------------------------------------------------------------
+Internal Error ()
+citeturn5view1 [wordlim: 200] Source: open({"ref_id":"https://github.com/Terminus-IMRC/tensor-core-ntt/blob/6f407daa8a4cef96331511ae86b922b520d7aa33/include/polyarith/polyarith.cuh","lineno":null}); 
+Failed to fetch https://github.com/Terminus-IMRC/tensor-core-ntt/blob/6f407daa8a4cef96331511ae86b922b520d7aa33/include/polyarith/polyarith.cuh: Cache miss--------------------------------------------------------------------------------
+Internal Error ()
+citeturn5view2 [wordlim: 200] Source: open({"ref_id":"https://github.com/Terminus-IMRC/tensor-core-ntt/tree/6f407daa8a4cef96331511ae86b922b520d7aa33/include/polyarith/cuda","lineno":null}); 
+Failed to fetch https://github.com/Terminus-IMRC/tensor-core-ntt/tree/6f407daa8a4cef96331511ae86b922b520d7aa33/include/polyarith/cuda: Cache miss--------------------------------------------------------------------------------
+ (https://raw.githubusercontent.com/Terminus-IMRC/tensor-core-ntt/6f407daa8a4cef96331511ae86b922b520d7aa33/tests/test-ntt.cu)
+citeturn5view3 [wordlim: 200] Crawled: 2 weeks ago; Content type: text/plain; Source: find({"ref_id":"turn4view3","pattern":"modulus_bits = "}); Total lines: 2356
+L162: template <int modulus_bits>
+L163: static __global__ void __launch_bounds__(1024) run_forward_two4_x16(
+L164:     std::uint64_t *const sequence,
+L165:     const __grid_constant__ precomputation::Precomputation<modulus_bits> *const
+L166:         precomp,
+L167:     const __grid_constant__ precomputation::ConstantPrecomputation<modulus_bits>
+L168:         constant_precomp) {
+L169:   const std::uint64_t modulus = constant_precomp.modulus;
+L170:   const typename precomputation::ConstantPrecomputation<
+L171:       modulus_bits>::reduction_type reduction =
+L173:   polyarith::MatrixView<16, polyarith::UnreducedRatio<16>, 16,
+L174:                         polyarith::UnreducedRatio<1>>
+L175:       block(sequence);
+L176: 
+L177:   std::uint64_t a[8];
+L178:   polyarith::cuda::load_matrix2_packed4cols_n(a, block);
+L179: 
+L180:   precomp->ntt_forward_16x16.compute_2n(a, modulus, reduction);
+L181: 
+L182:   polyarith::cuda::store_matrix2_packed2cols_n(block, a);
+L183: }
+L184: template <int modulus_bits>
+L185: static __global__ void __launch_bounds__(1024) run_forward_wmma_two4_x16(
+L186:     std::uint64_t *const sequence,
+L187:     const __grid_constant__ precomputation::Precomputation<modulus_bits> *const
+L188:         precomp,
+L189:     const __grid_constant__ precomputation::ConstantPrecomputation<modulus_bits>
+L190:         constant_precomp) {
+L191:   const int laneId = polyarith::cuda::get_laneId();
+L192:   const std::uint64_t modulus = constant_precomp.modulus;
+L193:   const typename decltype(precomp->ntt_forward_wmma_16x16)::reduction_type
+L194:       reduction = constant_precomp.friendly_reduction;
+L195: 
+L196:   polyarith::MatrixView<16, polyarith::UnreducedRatio<16>, 16,
+L197:                         polyarith::UnreducedRatio<1>>
+L198:       block(sequence);
+L199: 
+L200:   std::uint64_t a[8];
+L201:   polyarith::cuda::load_matrix_packed1col_n(a, block);
+L202:   precomp->ntt_forward_wmma_16x16.compute(a, nvcuda::wmma::mem_row_major,
+L203:                                           modulus, reduction);
+L204: 
+L205:   polyarith::cuda::store_matrix_packed1col_n(block, a);
+L206: }
+L207: template <int modulus_bits>
+L208: static __global__ void __launch_bounds__(1024) run_forward_two8(
+L209:     std::uint64_t *const sequence,
+L210:     const __grid_constant__ precomputation::Precomputation<modulus_bits> *const
+L211:         precomp,
+L212:     const __grid_constant__ precomputation::ConstantPrecomputation<modulus_bits>
+L213:         constant_precomp) {
+L214:   const std::uint64_t modulus = constant_precomp.modulus;
+L215:   const typename decltype(precomp->ntt_forward_16x16)::reduction_type
+L216:       reduction = constant_precomp.friendly_reduction;
+L217:   polyarith::MatrixView<16, polyarith::UnreducedRatio<16>, 16,
+L218:                         polyarith::UnreducedRatio<1>>
+L219:       block(sequence);
+L220: 
+L221:   std::uint64_t a[8];
+L222:   polyarith::cuda::load_matrix2_packed4cols_t(a, block);
+L223: 
+L224:   precomp->ntt_forward_16x16.compute_2t(a, modulus, reduction);
+L225: 
+L226:   precomp->ntt_forward_twiddle_16x16.compute(a, modulus);
+L227: 
+L228:   polyarith::cuda::matrix_16x16_packed2cols_to_packed4cols(a);
+L229: 
+L230:   precomp->ntt_forward_16x16.compute_2n(a, modulus, reduction);
+L231:   polyarith::cuda::store_matrix2_packed2cols_n(block, a);
+L232: }
+L233: template <int modulus_bits>
+L234: static __global__ void __launch_bounds__(1024) run_forward_wmma_two8(
+L235:     std::uint64_t *const sequence,
+L236:     const precomputation::Precomputation<modulus_bits> *const precomp,
+L237:     const precomputation::ConstantPrecomputation<modulus_bits>
+L238:         constant_precomp) {
+L239:   const std::uint64_t modulus = constant_precomp.modulus;
+L240:   const typename decltype(precomp->ntt_forward_wmma_16x16)::reduction_type
+L241:       reduction = constant_precomp.friendly_reduction;
+L242:   polyarith::MatrixView<16, polyarith::UnreducedRatio<16>, 16,
+L243:                         polyarith::UnreducedRatio<1>>
+L244:       block(sequence);
+L245: 
+L246:   std::uint64_t a[8];
+L247:   polyarith::cuda::load_matrix_packed1col_t(a, block);
+L248: 
+L249:   precomp->ntt_forward_wmma_16x16.compute(a, nvcuda::wmma::mem_col_major,
+L250:                                           modulus, reduction);
+L251: 
+L252:   precomp->ntt_forward_twiddle_wmma_16x16.compute(a, modulus);
+L253:   precomp->ntt_forward_wmma_16x16.compute(a, nvcuda::wmma::mem_row_major,
+L254:                                           modulus, reduction);
+L255: 
+L256:   polyarith::cuda::store_matrix_packed1col_n(block, a);
+L257: }
+L258: template <int m, int n, int modulus_bits>
+L259: static __global__ void __launch_bounds__(1024) run_forward_iterative_radix16(
+L260:     std::uint64_t *const sequence,
+L261:     const precomputation::Precomputation<modulus_bits> *const precomp,
+L262:     const precomputation::ConstantPrecomputation<modulus_bits>
+L263:         constant_precomp) {
+L264:   const std::uint64_t modulus = constant_precomp.modulus;
+L265:   const typename decltype(precomp->ntt_forward_16x16)::reduction_type
+L266:       reduction = constant_precomp.friendly_reduction;
+L299: template <int m, int n, int modulus_bits>
+L300: static __global__ void __launch_bounds__(1024)
+L301:     run_forward_iterative_wmma_radix16(
+L302:         std::uint64_t *const sequence,
+L303:         const precomputation::Precomputation<modulus_bits> *const precomp,
+L304:         const precomputation::ConstantPrecomputation<modulus_bits>
+L305:             constant_precomp) {
+L306:   const std::uint64_t modulus = constant_precomp.modulus;
+L307:   const typename decltype(precomp->ntt_forward_wmma_16x16)::reduction_type
+L341: template <int m, int n, int modulus_bits>
+L342: static __global__ void __launch_bounds__(1024) run_forward_iterative_radix256(
+L343:     std::uint64_t *const sequence,
+L344:     const precomputation::Precomputation<modulus_bits> *const precomp,
+L345:     const precomputation::ConstantPrecomputation<modulus_bits> constant_precomp)
+L346:   requires(n == (1 << 8))
+L347: {
+L348:   const std::uint64_t modulus = constant_precomp.modulus;
+L349:   const typename decltype(precomp->ntt_forward_16x16)::reduction_type
+L370: template <int m, int n, int modulus_bits>
+L371: static __global__ void
+L372: __launch_bounds__(1024) run_forward_iterative_wmma_radix256(
+L373:     std::uint64_t *const sequence,
+L374:     const precomputation::Precomputation<modulus_bits> *const precomp,
+L375:     const precomputation::ConstantPrecomputation<modulus_bits> constant_precomp)
+L376:   requires(n == (1 << 8))
+L377: {
+L378:   const std::uint64_t modulus = constant_precomp.modulus;
+L379:   const typename decltype(precomp->ntt_forward_wmma_16x16)::reduction_type
+L381:   const int warpId = threadIdx.y;
+L382:   const int subindex = n * (blockDim.y * blockIdx.x + warpId);
+L383: 
+L384:   polyarith::MatrixView<16, polyarith::UnreducedRatio<n / 16>, 16,
+L385:                         polyarith::UnreducedRatio<1>>
+L386:       block(&sequence[subindex]);
+L387: 
+L388:   std::uint64_t a[8];
+L389:   polyarith::cuda::load_matrix_packed1col_t(a, block);
+L390: 
+L391:   precomp->ntt_forward_wmma_16x16.compute(a, nvcuda::wmma::mem_col_major,
+L392:                                           modulus, reduction);
+L400: template <int m, int n, int modulus_bits>
+L401: static __global__ void
+L402: __launch_bounds__(1024) run_forward_scalar_iterative_radix8(
+L403:     std::uint64_t *const sequence,
+L404:     const precomputation::Precomputation<modulus_bits> *const precomp,
+L405:     const precomputation::ConstantPrecomputation<modulus_bits> constant_precomp)
+L406:   requires(m >= (1 << 3) * 32 && n == (1 << 3))
+L407: {
+L408:   const std::uint64_t modulus = constant_precomp.modulus;
+L409:   const int laneId = threadIdx.x;
+L410:   const int warpId = threadIdx.y;
+L411:   const int subindex =
+L412:       n * (warpSize * (blockDim.y * blockIdx.x + warpId) + laneId);
+L413: 
+L414:   std::uint64_t a[8];
+L415:   for (int col = 0; col < 8; ++col) {
+L416:     a[col] = sequence[subindex + col];
+L417:   }
+L418: 
+L419:   precomp->ntt_forward_scalar_iterative_radix8_two3.compute(a, 0, modulus);
+L420: 
+L421:   for (int col = 0; col < 8; ++col) {
+L422:     sequence[subindex + col] = a[col];
+L423:   }
+L424: }
+L425: template <int m, int n, int modulus_bits>
+L426: static __global__ void __launch_bounds__(1024)
+L427:     run_forward_scalar_iterative_within_subsequence_radix8(
+L428:         std::uint64_t *const sequence,
+L429:         const precomputation::Precomputation<modulus_bits> *const precomp,
+L430:         const precomputation::ConstantPrecomputation<modulus_bits>
+L431:             constant_precomp) {
+L432:   const std::uint64_t modulus = constant_precomp.modulus;
+L433: 
+L434:   /*
+L477: template <int m, int n, int modulus_bits>
+L478: static __global__ void __launch_bounds__(65536 / 80)
+L479:     run_forward_scalar_iterative_within_subsequence_radix16(
+L480:         std::uint64_t *const sequence,
+L481:         const precomputation::Precomputation<modulus_bits> *const precomp,
+L482:         const precomputation::ConstantPrecomputation<modulus_bits>
+L483:             constant_precomp) {
+L484:   const std::uint64_t modulus = constant_precomp.modulus;
+L514:   for (int row = 0; row < 16; ++row) {
+L515:     sequence[subindex + n / 16 * row] = a[row];
+L516:   }
+L517: }
+L518: 
+L519: // MARK: Matrix, recursive
+L520: 
+L521: template <int modulus_bits>
+L522: static void test_forward_recursive_two4(
+L523:     const polyarith::Modulus &modulus,
+L524:     const precomputation::Precomputation<modulus_bits> *const precomp_device,
+L525:     const precomputation::ConstantPrecomputation<modulus_bits>
+L526:         &constant_precomp) {
+L527:   std::clog << "** " << __PRETTY_FUNCTION__ << std::endl;
+L528: 
+L529:   constexpr int m = 1 << 4;
+L550: template <int modulus_bits>
+L551: static void test_forward_recursive_two8(
+L552:     const polyarith::Modulus &modulus,
+L553:     const precomputation::Precomputation<modulus_bits> *const precomp_device,
+L554:     const precomputation::ConstantPrecomputation<modulus_bits>
+L555:         &constant_precomp) {
+L556:   std::clog << "** " << __PRETTY_FUNCTION__ << std::endl;
+L557: 
+L558:   constexpr int m = 1 << 8;
+L559: 
+L560:   thrust::host_vector<std::uint64_t> a(m), b_correct(m);
+L561:   std::default_random_engine gen(42);
+L562:   std::uniform_int_distribution<std::uint64_t> dist(0,
+L563:                                                     modulus.get_modulus() - 1);
+L564:   thrust::generate(a.begin(), a.end(), [&] { return dist(gen); });
+L565: 
+L566:   NttReference ntt_ref(m, modulus.get_modulus(), modulus.get_generator());
+L567:   ntt_ref.compute_forward(b_correct.data(), a.data());
+L568: 
+L569:   thrust::device_vector<std::uint64_t> b(a);
+L570:   run_forward_two8<<<1, 32>>>(thrust::raw_pointer_cast(b.data()),
+L571:                               precomp_device, constant_precomp);
+L572: 
+L573:   const boost::icl::interval_set<int> mismatches =
+L574:       find_mismatches(b, b_correct, modulus.get_modulus());
+L575:   std::clog << "Mismatches: " << mismatches << std::endl;
+L576: }
+L577: 
+L578: // MARK: Matrix, recursive, WMMA
+L579: template <int modulus_bits>
+L580: static void test_forward_wmma_recursive_two4(
+L581:     const polyarith::Modulus &modulus,
+L582:     const precomputation::Precomputation<modulus_bits> *const precomp_device,
+L583:     const precomputation::ConstantPrecomputation<modulus_bits>
+L584:         &constant_precomp) {
+L585:   std::clog << "** " << __PRETTY_FUNCTION__ << std::endl;
+L586: 
+L587:   constexpr int m = 1 << 4;
+L588: 
+L589:   thrust::host_vector<std::uint64_t> a(m * 16), b_correct(m * 16);
+L590:   std::default_random_engine gen(42);
+L591:   std::uniform_int_distribution<std::uint64_t> dist(0,
+L592:                                                     modulus.get_modulus() - 1);
+L593:   thrust::generate(a.begin(), a.end(), [&] { return dist(gen); });
+L594: 
+L595:   NttReference ntt_ref(m, modulus.get_modulus(), modulus.get_generator());
+L596:   for (int i = 0; i < 16; ++i) {
+L597:     ntt_ref.compute_forward(&b_correct[m * i], &a[m * i]);
+L598:   }
+L599: 
+L600:   thrust::device_vector<std::uint64_t> b(a);
+L601:   run_forward_wmma_two4_x16<<<1, 32, 4 * 8 * 16 * 16>>>(
+L602:       thrust::raw_pointer_cast(b.data()), precomp_device, constant_precomp);
+L603: 
+L604:   const boost::icl::interval_set<int> mismatches =
+L605:       find_mismatches(b, b_correct, modulus.get_modulus());
+L606:   std::clog << "Mismatches: " << mismatches << std::endl;
+L607: }
+L608: template <int modulus_bits>
+L609: static void test_forward_wmma_recursive_two8(
+L610:     const polyarith::Modulus &modulus,
+L611:     const precomputation::Precomputation<modulus_bits> *const precomp_device,
+L612:     const precomputation::ConstantPrecomputation<modulus_bits>
+L613:         &constant_precomp) {
+L614:   std::clog << "** " << __PRETTY_FUNCTION__ << std::endl;
+L615: 
+L616:   constexpr int m = 1 << 8;
+L617: 
+L618:   thrust::host_vector<std::uint64_t> a(m), b_correct(m);
+L619:   std::default_random_engine gen(42);
+L620:   std::uniform_int_distribution<std::uint64_t> dist(0,
+L621:                                                     modulus.get_modulus() - 1);
+L622:   thrust::generate(a.begin(), a.end(), [&] { return dist(gen); });
+L623: 
+L624:   NttReference ntt_ref(m, modulus.get_modulus(), modulus.get_generator());
+L625:   ntt_ref.compute_forward(b_correct.data(), a.data());
+L626: 
+L627:   thrust::device_vector<std::uint64_t> b(a);
+L637: template <int modulus_bits>
+L638: static void test_forward_iterative_two8(
+L639:     const polyarith::Modulus &modulus,
+L640:     const precomputation::Precomputation<modulus_bits> *const precomp_device,
+L641:     const precomputation::ConstantPrecomputation<modulus_bits>
+L642:         &constant_precomp,
+L643:     const int num_iters) {
+L644:   std::clog << "** " << __PRETTY_FUNCTION__ << std::endl;
+L645: 
+L646:   constexpr int m = 1 << 8;
+L647: 
+L648:   thrust::host_vector<std::uint64_t> a(m), b_correct(m);
+L691: template <int modulus_bits>
+L692: static void test_forward_iterative_two12(
+L693:     const polyarith::Modulus &modulus,
+L694:     const precomputation::Precomputation<modulus_bits> *const precomp_device,
+L695:     const precomputation::ConstantPrecomputation<modulus_bits>
+L696:         &constant_precomp,
+L697:     const int num_iters) {
+L698:   std::clog << "** " << __PRETTY_FUNCTION__ << std::endl;
+L699: 
+L700:   constexpr int m = 1 << 12;
+L701: 
+L702:   thrust::host_vector<std::uint64_t> a(m), b_correct(m);
+L753: template <int modulus_bits>
+L754: static void test_forward_iterative_two16(
+L755:     const polyarith::Modulus &modulus,
+L756:     const precomputation::Precomputation<modulus_bits> *const precomp_device,
+L757:     const precomputation::ConstantPrecomputation<modulus_bits>
+L758:         &constant_precomp,
+L759:     const int num_iters) {
+L760:   std::clog << "** " << __PRETTY_FUNCTION__ << std::endl;
+L761: 
+L762:   constexpr int m = 1 << 16;
+L763: 
+L764:   thrust::host_vector<std::uint64_t> a(m), b_correct(m);
+L823: template <int modulus_bits>
+L824: static void test_forward_iterative_two20(
+L825:     const polyarith::Modulus &modulus,
+L826:     const precomputation::Precomputation<modulus_bits> *const precomp_device,
+L827:     const precomputation::ConstantPrecomputation<modulus_bits>
+L828:         &constant_precomp,
+L829:     const int num_iters) {
+L830:   std::clog << "** " << __PRETTY_FUNCTION__ << std::endl;
+L831: 
+L832:   constexpr int m = 1 << 20;
+L833: 
+L834:   thrust::host_vector<std::uint64_t> a(m), b_correct(m);
+L901: template <int modulus_bits>
+L902: static void test_forward_iterative_two24(
+L903:     const polyarith::Modulus &modulus,
+L904:     const precomputation::Precomputation<modulus_bits> *const precomp_device,
+L905:     const precomputation::ConstantPrecomputation<modulus_bits>
+L906:         &constant_precomp,
+L907:     const int num_iters) {
+L908:   std::clog << "** " << __PRETTY_FUNCTION__ << std::endl;
+L909: 
+L910:   constexpr int m = 1 << 24;
+L911: 
+L912:   thrust::host_vector<std::uint64_t> a(m), b_correct(m);
+L1138: template <int modulus_bits>
+L1139: static void test_forward_iterative_wmma_two12(
+L1140:     const polyarith::Modulus &modulus,
+L1141:     const precomputation::Precomputation<modulus_bits> *const precomp_device,
+L1142:     const precomputation::ConstantPrecomputation<modulus_bits>
+L1143:         &constant_precomp,
+L1144:     const int num_iters) {
+L1145:   std::clog << "** " << __PRETTY_FUNCTION__ << std::endl;
+L1146: 
+L1147:   constexpr int m = 1 << 12;
+L1148: 
+L1149:   thrust::host_vector<std::uint64_t> a(m), b_correct(m);
+L1205: template <int modulus_bits>
+L1206: static void test_forward_iterative_wmma_two16(
+L1207:     const polyarith::Modulus &modulus,
+L1208:     const precomputation::Precomputation<modulus_bits> *const precomp_device,
+L1209:     const precomputation::ConstantPrecomputation<modulus_bits>
+L1210:         &constant_precomp,
+L1211:     const int num_iters) {
+L1212:   std::clog << "** " << __PRETTY_FUNCTION__ << std::endl;
+L1213: 
+L1214:   constexpr int m = 1 << 16;
+L1215: 
+L1216:   thrust::host_vector<std::uint64_t> a(m), b_correct(m);
+L1282: template <int modulus_bits>
+L1283: static void test_forward_iterative_wmma_two20(
+L1284:     const polyarith::Modulus &modulus,
+L1285:     const precomputation::Precomputation<modulus_bits> *const precomp_device,
+L1286:     const precomputation::ConstantPrecomputation<modulus_bits>
+L1287:         &constant_precomp,
+L1288:     const int num_iters) {
+L1289:   std::clog << "** " << __PRETTY_FUNCTION__ << std::endl;
+L1290: 
+L1291:   constexpr int m = 1 << 20;
+L1292: 
+L1293:   thrust::host_vector<std::uint64_t> a(m), b_correct(m);
+L1581: template <int modulus_bits>
+L1582: static void test_forward_scalar_iterative_radix8_two3(
+L1583:     const polyarith::Modulus &modulus,
+L1584:     const precomputation::Precomputation<modulus_bits> *const precomp_device,
+L1585:     const precomputation::ConstantPrecomputation<modulus_bits>
+L1586:         &constant_precomp) {
+L1587:   std::clog << "** " << __PRETTY_FUNCTION__ << std::endl;
+L1613: template <int modulus_bits>
+L1614: static void test_forward_scalar_iterative_radix8_two9(
+L1615:     const polyarith::Modulus &modulus,
+L1616:     const precomputation::Precomputation<modulus_bits> *const precomp_device,
+L1617:     const precomputation::ConstantPrecomputation<modulus_bits>
+L1618:         &constant_precomp) {
+L1619:   std::clog << "** " << __PRETTY_FUNCTION__ << std::endl;
+L1620: 
+L1621:   constexpr int m = 1 << 9;
+L1622: 
+L1623:   thrust::host_vector<std::uint64_t> a(m), b_correct(m);
+L1662: template <int modulus_bits>
+L1663: static void test_forward_scalar_iterative_radix8_two12(
+L1664:     const polyarith::Modulus &modulus,
+L1665:     const precomputation::Precomputation<modulus_bits> *const precomp_device,
+L1666:     const precomputation::ConstantPrecomputation<modulus_bits>
+L1667:         &constant_precomp) {
+L1668:   std::clog << "** " << __PRETTY_FUNCTION__ << std::endl;
+L1669: 
+L1670:   constexpr int m = 1 << 12;
+L1671: 
+L1672:   thrust::host_vector<std::uint64_t> a(m), b_correct(m);
+L1719: template <int modulus_bits>
+L1720: static void test_forward_scalar_iterative_radix8_two15(
+L1721:     const polyarith::Modulus &modulus,
+L1722:     const precomputation::Precomputation<modulus_bits> *const precomp_device,
+L1723:     const precomputation::ConstantPrecomputation<modulus_bits>
+L1724:         &constant_precomp) {
+L1725:   std::clog << "** " << __PRETTY_FUNCTION__ << std::endl;
+L1726: 
+L1727:   constexpr int m = 1 << 15;
+L1728: 
+L1729:   thrust::host_vector<std::uint64_t> a(m), b_correct(m);
+L1784: template <int modulus_bits>
+L1785: static void test_forward_scalar_iterative_radix8_two18(
+L1786:     const polyarith::Modulus &modulus,
+L1787:     const precomputation::Precomputation<modulus_bits> *const precomp_device,
+L1788:     const precomputation::ConstantPrecomputation<modulus_bits>
+L1789:         &constant_precomp) {
+L1790:   std::clog << "** " << __PRETTY_FUNCTION__ << std::endl;
+L1791: 
+L1792:   constexpr int m = 1 << 18;
+L1793: 
+L1794:   thrust::host_vector<std::uint64_t> a(m), b_correct(m);
+L1857: template <int modulus_bits>
+L1858: static void test_forward_scalar_iterative_radix8_two21(
+L1859:     const polyarith::Modulus &modulus,
+L1860:     const precomputation::Precomputation<modulus_bits> *const precomp_device,
+L1861:     const precomputation::ConstantPrecomputation<modulus_bits>
+L1862:         &constant_precomp) {
+L1863:   std::clog << "** " << __PRETTY_FUNCTION__ << std::endl;
+L1864: 
+L1865:   constexpr int m = 1 << 21;
+L1866: 
+L1867:   thrust::host_vector<std::uint64_t> a(m), b_correct(m);
+L2029: template <int modulus_bits>
+L2030: static void test_forward_scalar_iterative_radix16_two12(
+L2031:     const polyarith::Modulus &modulus,
+L2032:     const precomputation::Precomputation<modulus_bits> *const precomp_device,
+L2033:     const precomputation::ConstantPrecomputation<modulus_bits>
+L2034:         &constant_precomp) {
+L2035:   std::clog << "** " << __PRETTY_FUNCTION__ << std::endl;
+L2036: 
+L2037:   constexpr int m = 1 << 12;
+L2038: 
+L2039:   thrust::host_vector<std::uint64_t> a(m), b_correct(m);
+L2077: template <int modulus_bits>
+L2078: static void test_forward_scalar_iterative_radix16_two16(
+L2079:     const polyarith::Modulus &modulus,
+L2080:     const precomputation::Precomputation<modulus_bits> *const precomp_device,
+L2081:     const precomputation::ConstantPrecomputation<modulus_bits>
+L2082:         &constant_precomp) {
+L2083:   std::clog << "** " << __PRETTY_FUNCTION__ << std::endl;
+L2084: 
+L2085:   constexpr int m = 1 << 16;
+L2086: 
+L2087:   thrust::host_vector<std::uint64_t> a(m), b_correct(m);
+L2133: template <int modulus_bits>
+L2134: static void test_forward_scalar_iterative_radix16_two20(
+L2135:     const polyarith::Modulus &modulus,
+L2136:     const precomputation::Precomputation<modulus_bits> *const precomp_device,
+L2137:     const precomputation::ConstantPrecomputation<modulus_bits>
+L2138:         &constant_precomp) {
+L2139:   std::clog << "** " << __PRETTY_FUNCTION__ << std::endl;
+L2140: 
+L2141:   constexpr int m = 1 << 20;
+L2142: 
+L2143:   thrust::host_vector<std::uint64_t> a(m), b_correct(m);
+L2197: template <int modulus_bits>
+L2198: static void test_forward_scalar_iterative_radix16_two24(
+L2199:     const polyarith::Modulus &modulus,
+L2200:     const precomputation::Precomputation<modulus_bits> *const precomp_device,
+L2201:     const precomputation::ConstantPrecomputation<modulus_bits>
+L2202:         &constant_precomp) {
+L2203:   std::clog << "** " << __PRETTY_FUNCTION__ << std::endl;
+L2204: 
+L2205:   constexpr int m = 1 << 24;
+L2206: 
+L2207:   thrust::host_vector<std::uint64_t> a(m), b_correct(m);
+L2290:   auto precomp_device = thrust::uninitialized_allocate_unique<
+L2291:       precomputation::Precomputation<modulus_bits>>(
+L2292:       thrust::device_allocator<precomputation::Precomputation<modulus_bits>>());
+L2293:   const precomputation::Precomputation<modulus_bits> *const precomp_ptr =
+L2294:       thrust::raw_pointer_cast(precomp_device.get());
+L2295:   {
+L2296:     const precomputation::Precomputation<modulus_bits> precomp(modulus);
+L2297:     checkCudaErrors(cudaMemcpy(thrust::raw_pointer_cast(precomp_device.get()),
+L2301:   const precomputation::ConstantPrecomputation<modulus_bits> constant_precomp(
+L2302:       modulus);
+L2303: 
+L2304:   test_forward_recursive_two4(modulus, precomp_ptr, constant_precomp);
+L2305:   test_forward_recursive_two8(modulus, precomp_ptr, constant_precomp);
+L2306: 
+L2307:   test_forward_wmma_recursive_two4(modulus, precomp_ptr, constant_precomp);
+L2308:   test_forward_wmma_recursive_two8(modulus, precomp_ptr, constant_precomp);
+--------------------------------------------------------------------------------
+ (https://raw.githubusercontent.com/Terminus-IMRC/tensor-core-ntt/6f407daa8a4cef96331511ae86b922b520d7aa33/tests/test-ntt.cu)
+citeturn5view4 [wordlim: 200] Crawled: 2 weeks ago; Content type: text/plain; Source: find({"ref_id":"turn4view3","pattern":"MontgomeryMultiplier64"}); Total lines: 2356
+No matching text found for "MontgomeryMultiplier64"--------------------------------------------------------------------------------
+ (https://raw.githubusercontent.com/Terminus-IMRC/tensor-core-ntt/6f407daa8a4cef96331511ae86b922b520d7aa33/include/polyarith/modular.cuh)
+citeturn5view5 [wordlim: 200] Crawled: 2 weeks ago; Content type: text/plain; Source: find({"ref_id":"turn4view0","pattern":"class MontgomeryMultiplier64"}); Total lines: 406
+L338: class MontgomeryMultiplier64 {
+L339: 
+L340:   std::uint64_t b;
+L341:   std::uint64_t bp;
+L342: 
+L343: public:
+L344:   MontgomeryMultiplier64(void) = default;
+L345: 
+L346:   MontgomeryMultiplier64(const std::uint64_t multiplier,
+L347:                          const std::uint64_t modulus) {
+L348:     b = arithmetic::multiply_wide(multiplier, -modulus) % modulus;
+L349:     bp = b * calculate_montgomery_inverse(modulus);
+L350:   }
+

@@ -1,0 +1,13 @@
+{
+  "run_id": "20261029T125649Z-54c94436",
+  "checkpoint": "2026-10-29T13:07:22.573272+00:00",
+  "deadline": "2026-10-29T13:16:49Z",
+  "prior_source_records": 948,
+  "new_source_records": 7,
+  "hypotheses_preserved": 60,
+  "refined": [
+    60
+  ],
+  "native_integration": "parked",
+  "target_achieved": false
+}

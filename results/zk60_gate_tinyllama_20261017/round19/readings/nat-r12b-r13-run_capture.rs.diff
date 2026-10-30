@@ -1,0 +1,32 @@
+--- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12b/frozen-tree/hashline/src/private_block/run_capture.rs	2026-10-28 15:30:02.117728830 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/hashline/src/private_block/run_capture.rs	2026-10-28 23:08:24.413805743 -0700
+@@ -216,7 +216,11 @@
+     "../zkp-core/src/tables.rs",
+ ];
+ 
+-pub(super) const OWN_SOURCE_FILES: [&str; 20] = [
++pub(super) const OWN_SOURCE_FILES: [&str; 32] = [
++    "src/private_block/argument_accuracy.rs",
++    "src/private_block/accuracy_act.rs",
++    "src/private_block/accuracy_fold.rs",
++    "src/private_block/accuracy_layout.rs",
+     "src/private_block/run_capture.rs",
+     "src/private_block/run.rs",
+     "src/private_block/boundary.rs",
+@@ -269,6 +273,16 @@
+     // authenticated model before their digests enter a trained statement.
+     "src/private_block/tied_tables.rs",
+     "src/private_block/tied_tables/derive.rs",
++    // R13 accuracy arithmetic/public data, export reader and trace builder.
++    "src/private_block/accuracy.rs",
++    "src/private_block/accuracy_aligned.rs",
++    "src/private_block/accuracy_groups.rs",
++    "src/private_block/accuracy_precision.rs",
++    "src/private_block/accuracy_public.rs",
++    "src/private_block/accuracy_tables.rs",
++    "src/private_block/trained_accuracy.rs",
++    "src/private_block/witness_accuracy.rs",
++
+ ];
+ 
+ /// **The production modules of `private_block` that are NOT source pins, with

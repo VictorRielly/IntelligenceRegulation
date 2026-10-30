@@ -1,0 +1,25 @@
+{
+ "keys_only_in_new": 0,
+ "new": "/home/victor/zk60-artifacts/token-io/captures/classify-r13-shield-t128-cli-hate-r17-values",
+ "old": "/home/victor/zk60-artifacts/token-io/captures/classify-r13-shield-t128-cli-sexual-r16b",
+ "per_file_kind": {
+  "manifest.json": {
+   "keys_new": 11,
+   "keys_old": 11,
+   "only_in_new": [],
+   "only_in_old": []
+  },
+  "run.json": {
+   "keys_new": 167,
+   "keys_old": 167,
+   "only_in_new": [],
+   "only_in_old": []
+  },
+  "stage": {
+   "keys_new": 142,
+   "keys_old": 142,
+   "only_in_new": [],
+   "only_in_old": []
+  }
+ }
+}

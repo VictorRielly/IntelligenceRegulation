@@ -1,0 +1,619 @@
+Releases · LayerZero-Labs/akita · GitHub (https://github.com/LayerZero-Labs/akita/releases)
+citeturn2search0 [wordlim: 200] Crawled: today; # Releases: LayerZero-Labs/akita ... Image: @sumchecker sumchecker released this 09 Sep 14:50 ... This is the first release of Akita, a high-performance, modular lattice polynomial commitment scheme with transparent setup and post-quantum security.
+
+# Releases: LayerZero-Labs/akita
+
+Releases Tags
+
+## Akita v0.1.0
+
+Akita v0.1.0
+
+Latest
+
+Image: @sumchecker sumchecker released this 09 Sep 14:50
+
+v0.1.0
+
+`029cece`
+
+This commit was created on GitHub.com and signed with GitHub’s verified signature.
+
+GPG key ID: B5690EEEBB952194
+
+Verified
+
+Learn about vigilant mode.
+
+This is the first release of Akita, a high-performance, modular lattice polynomial commitment scheme with transparent setup and post-quantum security.--------------------------------------------------------------------------------
+Pull requests · LayerZero-Labs/akita · GitHub (https://github.com/LayerZero-Labs/akita/pulls)
+citeturn2search1 [wordlim: 200] Crawled: 2 days ago;   * ### feat!: one sparse challenge message per fold group ...   * ### feat(transcript)!: run Akita inside a caller's transcript (protocol v9) ...   * ### fix(grinding): price sumcheck rounds at the verifier's wire degrees
+
+All pull requests
+
+Labels 20 (20)Milestones 0 (0)New pull request Pull request creation is restricted
+
+## Pull requests
+
+Open 21 (21)Closed 216 (216)
+
+  * ### perf(planner): cap setup size while planning recursive schedules, and guard planner cost in CI
+
+no-spec
+
+#262·quangvdao opened Oct 25, 2026 Collaborator·9 tasks done·
+
+·
+
+4
+
+  * ### fix: share setup-prefix coefficients and inner rows
+
+no-spec
+
+#261·RadNi opened Oct 25, 2026 Contributor·
+
+·
+
+4
+
+  * ### feat(transcript): positional, word-aligned absorbs (protocol v8, descriptor v6, Keccak digests)
+
+implementation spec
+
+#260·quangvdao opened Oct 24, 2026 Collaborator·
+
+·
+
+3
+
+  * ### config: switch all standard onehot cases to K=16
+
+no-spec
+
+#258·omibo opened Oct 23, 2026 Contributor·1/2·
+
+·
+
+4
+
+  * ### perf(cpu): experiment with onehot NTT commitments
+
+no-spec
+
+#257·omibo opened Oct 23, 2026 Contributor·2/2·5 of 6 tasks·
+
+·
+
+4
+
+  * ### fix: amortize CPU prefix folding and digit-range reductions
+
+no-spec
+
+#256·RadNi opened Oct 22, 2026 Contributor·
+
+·
+
+3
+
+  * ### feat!: one sparse challenge message per fold group
+
+implementation spec
+
+#255·quangvdao opened Oct 21, 2026 Collaborator·
+
+·
+
+3
+
+  * ### feat(transcript)!: run Akita inside a caller's transcript (protocol v9)
+
+implementation spec
+
+#254·quangvdao opened Oct 21, 2026 Collaborator·
+
+·
+
+3
+
+  * ### feat(transcript)!: move the transcript onto jolt-transcript (protocol v8)
+
+implementation spec
+
+#253·quangvdao opened Oct 21, 2026 Collaborator·
+
+·
+
+5
+
+  * ### feat(labinius): polynomial commitment for binary and prime evaluation claims
+
+ai-reviewed implementation spec
+
+#229·quangvdao opened Oct 10, 2026 Collaborator·
+
+·
+
+15
+
+  * ### docs: state security targets and the verifier preprocessing trust model
+
+ai-reviewed no-spec
+
+#223·sumchecker opened Oct 10, 2026 Collaborator·
+
+·
+
+21
+
+  * ### test(sis): tie the production SIS tables to their audit certificates
+
+ai-reviewed no-spec
+
+#221·sumchecker opened Oct 10, 2026 Collaborator·9 tasks done·
+
+·
+
+11
+
+  * ### fix(profile): reject a panicking guest in the recursion profile host
+
+no-spec
+
+#219·markosg04 opened Oct 9, 2026 Collaborator·
+
+·
+
+3
+
+  * ### fix(grinding): price sumcheck rounds at the verifier's wire degrees
+
+ai-reviewed no-spec
+
+#214·sumchecker opened Oct 9, 2026 Collaborator·9 tasks done·
+
+·
+
+14
+
+  * ### fix(transcript): bound byte-payload reservations by proof length
+
+ai-reviewed no-spec
+
+#213·sumchecker opened Oct 9, 2026 Collaborator·
+
+·
+
+8
+
+  * ### fix(schedules): require full-width inner digits for setup-prefix commitments
+
+ai-reviewed no-spec
+
+#212·sumchecker opened Oct 9, 2026 Collaborator·
+
+·
+
+8
+
+  * ### (on-hold) fix(setup): recompute setup-prefix commitments when loading disk caches
+
+ai-reviewed no-spec
+
+#210·sumchecker opened Oct 9, 2026 Collaborator·
+
+·
+
+21
+
+  * ### perf(verifier): batch verifier dot products through jolt-field row kernels
+
+ai-reviewed implementation spec
+
+#190·markosg04 opened Oct 6, 2026 Collaborator·
+
+·
+
+10
+
+  * ### perf: cheaper decoding and challenge setup for RISC-V guest verifiers
+
+ai-reviewed no-spec
+
+#188·markosg04 opened Oct 6, 2026 Collaborator·
+
+·
+
+15
+
+  * ### Bump the "dependencies" group with 1 update across multiple ecosystems
+
+dependencies no-spec rust
+
+#145·dependabot[bot] opened Sep 30, 2026 Bot·
+
+·
+
+5
+
+  * ### Bump the "dependencies" group with 2 updates across multiple ecosystems
+
+dependencies github_actions no-spec
+
+#118·dependabot[bot] opened Sep 29, 2026 Bot·
+
+·
+
+6--------------------------------------------------------------------------------
+GitHub - LayerZero-Labs/akita: A high-performance, lattice-based polynomial commitment scheme with transparent setup and post-quantum security. · GitHub (https://github.com/LayerZero-Labs/akita)
+citeturn2search2 [wordlim: 200] Crawled: yesterday;   * `akita-transcript`, `akita-challenges`, and `akita-sumcheck` own Fiat-Shamir transcripts, challenge sampling, and generic sumcheck machinery. ... This is also the line where planned protocol improvements over the original design live: faster verifier-oriented reductions via matrix-claim delegation, smaller large-field proofs via field-size lowering, and efficient zero-knowledge techniques under the Whiteout design direction.
+
+# Akita PCS
+
+Akita is a high-performance, modular lattice polynomial commitment scheme with transparent setup and post-quantum security.
+
+Akita is the public scheme name for this implementation and the intended repository/package name is `akita-pcs`. The codebase is being decomposed into a focused `akita-*` crate family rather than remaining a single monolithic package.
+
+The current workspace exposes the main ownership boundaries under `crates/`:
+
+  * `akita-error` owns the shared protocol error and reusable checked integer formulas for exact sizes, offsets, and ranges.
+  * Jolt's `jolt-field` package owns shared field arithmetic; `akita-serialization` and `akita-algebra` own Akita encoding, NTT, ring, and polynomial utilities.
+  * `akita-transcript`, `akita-challenges`, and `akita-sumcheck` own Fiat-Shamir transcripts, challenge sampling, and generic sumcheck machinery.
+  * `akita-types` owns shared proof, setup, schedule, layout, SIS, and commitment data shapes used by both roles.
+  * `akita-planner` is the `Cfg`-free offline schedule engine: candidate expansion, schedule-search DP, and external artifact emitter. It sits below `akita-config`.
+  * `akita-schedules` owns versioned schedule artifacts, semantic row validation, and validated owned runtime catalogs.
+  * `akita-config` owns concrete runtime config presets and the single `CommitmentConfig` policy trait. A config identifies the expected artifact family and policy but does not own rows.
+  * `akita-setup` owns config-backed setup construction and optional setup cache persistence.
+  * `akita-verifier` owns verifier replay without prover-only polynomial backends. It receives the validated schedule catalog explicitly.
+  * `akita-prover` owns commitment, proving, setup expansion, recursive/ring-switch witness construction, and polynomial backends.
+  * `akita-pcs` is the umbrella package: it owns the end-to-end `AkitaCommitmentScheme` orchestration, re-exports the broad public surface, and hosts examples, benches, and integration tests. (There is no separate `akita-scheme` crate.)
+
+Verifier-only consumers should prefer the slim role crates directly: `akita-verifier` for verification, `akita-types` for proof/setup/claim shapes, and `akita-config` for concrete schedule/config policy. The umbrella `akita-pcs` package is convenient for examples and end-to-end use, but it also pulls in prover-facing APIs.
+
+## Documentation
+
+The Akita Book is the canonical target for narrative documentation (how the scheme works, how to use it, and the foundations). Most chapters are still stubs that cite source paths and specs to fold; until prose lands, integrators should read the Akita Book (start with `book/src/how/architecture.md`), `book/src/usage/commitment-api.md`, and `profile/akita-recursion/README.md`. Build the book locally with `./scripts/serve-book.sh` (see `book/README.md` for the toolchain). `AGENTS.md` is the agent command runbook; `docs/` holds maintainer contracts (crate graph, verifier contract, CI timing). `specs/` holds design records (lifecycle in `specs/PRUNING.md`). Documentation guardrails (CI + PR comments) are in `docs/documentation.md`.
+
+## External schedule artifacts
+
+The runtime schedule contract is `TrustedScheduleCatalog<Cfg>`. A versioned JSON artifact stores complete expanded rows. The application loads that artifact as a config-bound trusted parameter for both proving and verification. A proof contains only the 32 byte `OpeningScheduleSelection` row digest. It cannot provide or replace schedule content.
+
+Artifact loading checks the expected family, protocol epoch, config policy, runtime challenge hooks, every expanded schedule invariant, every committed profile, and every row digest. Honest prover key selection and verifier digest selection then use the same owned catalog.
+
+`AkitaCommitmentScheme<Cfg>` instance owns one validated catalog and uses it for setup, commitment, proving, and verification. Direct verifier and prover orchestration accept `&TrustedScheduleCatalog<Cfg>`, so an integration can load an external trusted artifact without compiling its rows into Akita.
+
+Load artifact bytes from application-owned storage and supply the expected chunking from trusted application configuration. This example uses a single chunk:
+    
+    use akita_config::proof_optimized::fp128;
+    use akita_params::ChunkedWitnessCfg;
+    use akita_pcs::AkitaCommitmentScheme;
+    
+    let bytes = std::fs::read("parameters/fp128_onehot.aks")?;
+    let chunking = ChunkedWitnessCfg::default_non_chunked();
+    let scheme = AkitaCommitmentScheme::<fp128::OneHot>::from_schedule_artifact(&bytes, chunking)?;
+
+Admission checks that the artifact matches this geometry. Subsequent operations use the admitted `scheme.schedules().policy()`. See runtime witness chunking for selecting a different chunk count and number of chunked folds.
+
+Git tracks deterministic family artifacts under `artifacts/schedules/`. Regenerate them after changing planner policy, candidate search, or artifact structure:
+    
+    scripts/generate-schedule-artifacts.sh
+
+For a faster planner iteration loop, pass one or more family names, for example `scripts/generate-schedule-artifacts.sh fp32_dense`. Run the unfiltered command before committing planner changes.
+
+The schedule-artifact drift job regenerates every family into a temporary directory and rejects any byte difference from the tracked artifacts.
+
+## Lineage
+
+Akita keeps the earlier implementation lineage explicit while giving the improved scheme its own name. This is also the line where planned protocol improvements over the original design live: faster verifier-oriented reductions via matrix-claim delegation, smaller large-field proofs via field-size lowering, and efficient zero-knowledge techniques under the Whiteout design direction.
+
+## Contributing
+
+Major features and architectural changes should start with a short spec. See CONTRIBUTING.md and specs/TEMPLATE.md for the review workflow.
+
+## Acknowledgements
+
+The CRT/NTT and small-prime arithmetic design in this repository is informed by the Labrador/Greyhound C implementation family. In particular, the pseudo-Mersenne profile uses moduli of the form `q = 2^k - offset`. Akita provides a Rust-native architecture and APIs, while drawing algorithmic inspiration from those implementations.--------------------------------------------------------------------------------
+akita/STACK.md at main · LayerZero-Labs/akita · GitHub (https://github.com/LayerZero-Labs/akita/blob/main/STACK.md)
+citeturn2search3 [wordlim: 200] Crawled: 6 days ago; Akita makes no backward-compatibility guarantees. ... The optimized target is the no-new-stage relation-shift form: batch the relation into the Stage-1 range/norm sumcheck so `r_x` is fixed early (dropping the `eq(tau_0, .)`-factored compact range message), use Stage 2 for the setup product sumcheck, and fold an explicit witness claim-reduction sumcheck (`lambda * W(r_1) + s -> W(r_star)`, with `s = W(r_1)(W(r_1)+1)`) into Stage 2 to merge the relation and norm witness claims into one carried folded-witness opening.
+  * Force-pushes are allowed while PRs are drafts, but only with `--force-with-lease`.
+  * After changing a parent branch, rebase affected children and inspect `git range-diff` before pushing.
+  * Generated schedule tables, lockfiles, and benchmark updates should be isolated when they would obscure protocol-review diffs.
+  * Do not introduce compatibility shims for old setup layouts. Akita makes no backward-compatibility guarantees.
+
+## Dependency DAG
+    
+    `00 docs/spec
+       |
+    01 packed setup layout full cutover
+       |
+       +--> 02A materialized setup inner-product oracle
+       |        |
+       |        +--> 03A succinct omega_S evaluator
+       |        |
+       |        +--> 03B setup product-sumcheck skeleton
+       |
+       +--> 02B setup prefix commitment artifacts
+       |
+       +--> 02C recursive carried-opening batching
+       |
+       +--> 02D proof-size/gating policy scaffolding
+    
+    03A + 03B + 02B + 02C + 02D
+       |
+    04 setup-offloading integration
+       |
+    05 tables, benchmarks, cleanup
+    `
+
+The 03B product sum-check milestone and the 04 planner-selected setup offloading milestone are shipped. Rows 03B and 04 remain in this document as the implementation history. The remaining broader verifier-offloading work is tracked in the Book roadmap and row 05.
+
+`02C` is intentionally independent of the packed setup layout at the math level. It may be developed in parallel from `main`, but its review PR should be rebased onto `01` before integration so proof structs and transcript labels do not fork.
+| The prover/verifier agree on eligibility and selected prefix without changing proof semantics yet.
+03A  | `setup-weight-evaluator`  | 02A  | Implement succinct verifier evaluation of `omega_S(rho_lambda, rho_y)` with canonical digit-innermost D/B/A views and compact mixed-ring projection factors.  | Evaluator matches materialized `omega_S` at random points without scanning `S`.
+03B  | `setup-product-sumcheck`  | 02A  | Shipped in PR #147 and reorganized by later protocol refactors. The current Stage 3 implementation is documented in the Book.  | Complete. The setup product sum-check checks the deferred setup contribution and closes against the selected setup-prefix opening.
+04  | `setup-claim-offloading`  | integration of 02B, 02C, 02D, 03A, 03B  | Shipped in PRs #301 and #318, with later setup-prefix follow-ups. The planner selects direct or offloaded successors under the current recursive config.  | Complete for the shipped planner-selected path. Direct, unsupported, and terminal cases retain their fallback behavior. 
+### Slice 02C: Recursive Carried-Opening Batching
+
+This lane is the protocol-boundary refactor. The current recursive path is a singleton carry:
+    
+    `(commitment, opening_point, opening)
+    `
+
+The target is a list of carried opening claims:
+    
+    `(commitment, point, value, basis, natural_len, padded_len, kind)
+    `
+
+Use root-style incidence at the recursive boundary. For the first cut, batch claims in a common padded power-of-two field domain. This avoids heterogeneous MLE arity in the initial implementation and keeps the verifier shape simple.
+
+The setup-offload integration later appends:
+    
+    `(S_{<=N_setup} commitment, (rho_lambda, rho_y), s_rho, ...)
+    `
+
+to the usual folded-witness claim.
+
+### Slice 03B/04: Product Sumcheck and Integration
+
+This lane wires the actual delegated setup claim. It should initially depend on the materialized oracle, then swap to the succinct `omega_S` evaluator and the prefix commitment opening carry.
+
+The first implementation should use the cleaner post-Stage-2 placement:
+The post-Stage-2 Stage-3 placement above is the first implementation step toward this; the relation-shift form is valid because the shifted relation work's witness claim is closed by the reduction (the alternative closure, carrying both openings into the next recursive incidence batch, also works). See `specs/archive/2026-Q3/setup-layout-repack.md` (Product Sumcheck Placement) for the full schedule and cost.
+
+If there is no subsequent recursive fold, setup offloading is disabled for that level in the first implementation.
+
+## Why Not a Jolt-Style Splitter
+
+The Jolt refactor-audit stack uses pathspec ownership to regenerate disposable PR branches from one source branch. That is a good fit when slices are mostly crate- or directory-shaped.
+
+Akita setup offloading cuts through shared protocol invariants:
+
+  * setup seed serialization and descriptor identity;
+  * setup sizing policy;
+  * `FlatMatrix` role views;
+  * prover paths that consume A/B/D setup rows;
+  * verifier direct-recommit paths that consume A/B setup rows;
+  * fused setup contribution replay;
+  * ZK blinding paths, which deliberately use stored `zkB`/`zkD` matrices derived from `public_matrix_seed` instead of tail columns in the base setup matrix;
+  * recursive proof state and carried opening claims;
+  * generated schedule/table policy.
+
+Those changes often touch the same files in different semantic phases. A path-restoration splitter would make invalid intermediate branches too easy. Use manual semantic branches, with optional helper scripts only for bookkeeping.
+--------------------------------------------------------------------------------
+Tracking: consolidate Akita sumcheck into Jolt and complete native Spongefish integration · Issue #61 · LayerZero-Labs/akita · GitHub (https://github.com/LayerZero-Labs/akita/issues/61)
+citeturn2search4 [wordlim: 200] Published: last month; Crawled: 2 days ago; Its inspected native prover still uses the older infallible instance interface; preserve errors from round generation, binding, and finalization as well as release-mode round-identity checks. ... Jolt's current primitive compression and Akita's differ on constants/empty zero polynomials. ...   * [Input] Extend structural package-identity checks to require one identity per shared package and no `akita-sumcheck`/`akita-field`; check root and isolated/fuzz/profile workspaces.
+
+# Tracking: consolidate Akita sumcheck into Jolt and complete native Spongefish integration #61
+
+Tracking: consolidate Akita sumcheck into Jolt and complete native Spongefish integration#61
+
+## Description
+
+quangvdao
+
+opened on Sep 23, 2026
+
+Issue body actions
+
+## Objective
+
+Consolidate Akita's reusable sumcheck machinery into `jolt-poly`, `jolt-sumcheck`, and the existing native `jolt-transcript` integration, then complete the Jolt–Akita dependency cutover. The endpoint is one canonical implementation per shared concept, no `akita-sumcheck` compatibility facade, and working Jolt clear, committed/ZK, and Akita-backed paths.
+
+Target the native Spongefish architecture being introduced by #37. Do not build a new legacy transcript or structured-proof pipeline that the native migration is deliberately removing.
+
+This is an implementation tracker. The checkboxes below are acceptance work, not claims of completed validation.
+
+## Inspected baseline and prerequisites
+
+The source inspection used:
+## Ownership after migration
+
+Owner  | Responsibilities
+--- | ---
+`jolt-field`  | Canonical field types and arithmetic capabilities
+`jolt-poly`  | Ordinary full/compressed univariate representations and shared polynomial arithmetic; normalized inner-polynomial representation where appropriate
+`jolt-sumcheck`  | Checked round shapes, ordinary and normalized claim transitions, generic proving/replay, batching geometry, scheduler integration, reduction results
+`jolt-transcript` / Spongefish  | Typed native message codecs and prover/verifier operations; shared checked verifier-state behavior and reusable sampling primitives
+Akita protocol crates  | PCS relations, stage order, setup/schedules, grinding plans, protocol/session/instance binding, terminal equations, diagnostics
+`akita-cpu-backend`  | Specialized arithmetic, opaque sessions, compact witness storage, prefix kernels, source-specific optimizations
+Jolt protocol crates  | VM relations and claim ownership, stage recipes, commitment policy, BlindFold integration, Akita PCS adapter
+--------------------------------------------------------------------------------
+Tracking: integrate LaBinius binary openings with Akita mixed roots and setup offloading · Issue #45 · LayerZero-Labs/akita · GitHub (https://github.com/LayerZero-Labs/akita/issues/45)
+citeturn2search5 [wordlim: 200] Crawled: 2 days ago;   * Checks/review: 7 focused binary tests pass on ARM and x86 at the topic head; all-target release Clippy passes on ARM serial/parallel and x86 default/parallel. ... Independent long-division field oracles, Rabin irreducibility, nonsymmetric dense partial matrices, row/basis/variable ordering, zero padding, modified partials, tensor evaluation and packed terminal identities are covered. ... The setup contribution is the same weighted linear scan and Stage-3 product sumcheck that Akita already implements.
+### Incorporated packed binary kernels — 2026-09-22
+
+  * Owner/scope: perf(algebra): add packed F162 sumcheck round and fold kernels #54; persistent packed F162 buffers, degree-two product-sumcheck round messages and in-place folds, including portable and architecture-specific kernels. No protocol/transcript/field-switch or production-profile wiring.
+  * Dependency/review base: feat(algebra): add fast degree-162 binary scalar arithmetic #46 (`codex/labinius-binary-field`, `72720ed529c0d285836f80ad1196d7da8e78cd22`). This slice does not depend on refactor(prover): isolate an owning CPU backend behind opaque kernels #36.
+  * Topic: `codex/labinius-packed-f162`; published/incorporated head `06344bf21989af8a0231ed76228311a13320485e`; PR #54.
+  * Integration: normal merge at `456301f4088032ead1e518c0fe5d81137149ad62` on `feat/labinius`; the entire aggregate delta matches the topic delta exactly. No integration-only implementation or conflict repair needs extraction.
+  * Checks/review: 7 focused binary tests pass on ARM and x86 at the topic head; all-target release Clippy passes on ARM serial/parallel and x86 default/parallel. ### Incorporated field-switch optimization and handoff — 2026-09-22
+
+  * Owner/dependencies: feat(binary): accelerate F128/F192 field switching into packed F162 #55 (`codex/labinius-field-switch`), stacked on perf(algebra): add packed F162 sumcheck round and fold kernels #54; independent of refactor(prover): isolate an owning CPU backend behind opaque kernels #36. Published/incorporated head `459013a2b8f7de9e1acb755bf11f214be2078b96` supersedes the earlier `ea1d6c4030e077ae9f4354ecc209f299350fb080` checkpoint and portable baseline.
+  * Integration: normal append-only merge `64d6b401498ff5376ae1f8166d78c7510399cb6b` on `feat/labinius`, from previous `9ba072f6a125a8d53adebdce97ac082dd78ce0f5`. The integrated two-file patch is byte-identical to the topic delta; no aggregate-only repair. [integration/reference] LaBinius aggregate — keep draft, do not merge #53 remains draft/reference-only.
+  * Delivered: PMULL/PCLMUL host multiplication; four-lane AVX-512/VPCLMUL equality and packed F162 message/fold kernels; GFNI binary matrix operations with VBMI transpose/inverse; direct source/coefficient conversion into retained packed limb buffers. --------------------------------------------------------------------------------
+akita/book/src/foundations/extension-opening-reduction.md at main · LayerZero-Labs/akita · GitHub (https://github.com/LayerZero-Labs/akita/blob/main/book/src/foundations/extension-opening-reduction.md)
+citeturn2search6 [wordlim: 200] Crawled: last month; Akita checks the connection with a degree-two sum-check.
+  * The row view transposes those column values through the chosen extension basis. This produces the extension-field values used in the packed opening.
+
+The row values are not extra witness data chosen independently by the prover. They are a deterministic basis transpose of the column values. This detail is what binds the packed polynomial back to the original base-field polynomial.
+
+## The reduction check
+
+Akita checks the connection with a degree-two sum-check. The sum-check reduces the many table positions to one randomly selected point. At that point, the verifier checks that the packed witness value and the transparent tensor factor reproduce the claimed opening. The transcript samples the random coefficients only after the relevant claims have been absorbed, so the prover cannot adapt the claims to those coefficients.
+
+Akita runs this reduction only when a scheduled fold uses an evaluation trace and the extension degree is greater than one. Configurations whose base and extension fields are the same do not need it. A fold that uses coefficient packing also opens its extension-valued claim directly and skips this reduction.
+
+## Implementation map
+
+  * `crates/akita-types/src/extension_opening_reduction.rs` contains the shared tensor algebra, field split, packing, and transpose operations.
+  * `crates/akita-prover/src/protocol/extension_opening_reduction/` contains the prover implementation.
+  * `crates/akita-verifier/src/protocol/core/fold/extension_claim.rs` replays the resulting claim on the verifier side.
+  * Fold path and field geometry explains which schedules select this path.--------------------------------------------------------------------------------
+akita/book/src/how/architecture.md at main · LayerZero-Labs/akita · GitHub (https://github.com/LayerZero-Labs/akita/blob/main/book/src/how/architecture.md)
+citeturn2search7 [wordlim: 200] Crawled: last month; `akita-witness`  | Shared borrowed witness/polynomial view vocabulary (`PolynomialView`, `WitnessProvider`) for sumcheck and polyops paths ...   * `akita-error` is the lowest shared failure layer.
+
+# Architecture overview
+
+How the workspace is organized and how a single `commit → prove → verify` call flows through it.
+
+## Crate map
+
+Workspace members live under `crates/`. There is no `akita-scheme` crate: end-to-end `AkitaCommitmentScheme` orchestration lives in `akita-pcs`.
+
+Crate  | Role
+--- | ---
+`akita-error`  | Shared protocol error and reusable checked integer formulas for exact sizes, offsets, and ranges
+`jolt-field` (external)  | Shared field traits, prime and extension fields, packed and unreduced kernels, parallel helpers
+`akita-witness`  | Shared borrowed witness/polynomial view vocabulary (`PolynomialView`, `WitnessProvider`) for sumcheck and polyops paths
+`akita-serialization`  | Serialization, validation, and compression traits
+`akita-algebra`  | Modules, vectors, NTTs, cyclotomic rings, sparse challenges, polynomials
+`akita-transcript`  | Spongefish-backed Fiat-Shamir transcript, descriptor preamble, logging checks
+`akita-challenges`  | Fiat-Shamir challenge sampling helpers
+`akita-sumcheck`  | Sumcheck proofs, drivers, compact folding, batching, accumulation
+--------------------------------------------------------------------------------
+akita/SECURITY.md at main · LayerZero-Labs/akita · GitHub (https://github.com/LayerZero-Labs/akita/blob/main/SECURITY.md)
+citeturn2search8 [wordlim: 200] Crawled: last month; Report security issues by emailing the maintainers listed in `Cargo.toml`, or by contacting the LayerZero Labs maintainers through the private channel used for Akita development. ... Akita is not yet a formally audited production release.
+
+# Security Policy
+
+Akita is a cryptographic proof-system implementation. Security reports should be handled privately until the issue is understood and a fix is available.
+
+## Reporting A Vulnerability
+
+Please do not open public issues for suspected vulnerabilities. Report security issues by emailing the maintainers listed in `Cargo.toml`, or by contacting the LayerZero Labs maintainers through the private channel used for Akita development.
+
+Include:
+
+  * affected commit or release,
+  * whether the issue affects prover soundness, verifier correctness, serialization, transcript binding, dependency integrity, or private witness handling,
+  * a minimal reproducer or proof sketch when possible,
+  * whether the issue is public, embargoed, or already disclosed elsewhere.
+
+## Scope
+
+Security-sensitive surfaces include:
+
+  * verifier acceptance or rejection behavior,
+  * Fiat-Shamir transcript labels and challenge derivation,
+  * canonical serialization and deserialization of proofs, setup artifacts, and claims,
+  * crate-boundary violations that pull prover-only or planner-only code into verifier paths,
+  * dependency or CI supply-chain changes,
+  * unsafe code in field, algebra, and prover kernels,
+  * resource exhaustion from untrusted proof or setup bytes.
+
+Performance regressions are security-relevant when they create practical denial-of-service risk for verifier or prover deployments.
+
+## Current Status
+
+Akita is not yet a formally audited production release. Treat the implementation as security-critical research software unless a specific release states otherwise.--------------------------------------------------------------------------------
+PR #212 · LayerZero-Labs/akita@cfd58f8 · GitHub (https://github.com/LayerZero-Labs/akita/actions/runs/39880322636)
+citeturn2search9 [wordlim: 200] Crawled: 2 days ago; sumchecker
+
+# PR #212 #878
+
+PR #212 #878
+
+Triggered via dynamic October 23, 2026 00:48
+
+sumchecker
+
+⁠ cfd58f8
+
+refs/pull/212/head
+
+Status Success
+
+Total duration 7m 46s
+
+Artifacts –
+
+## codeql
+
+on: dynamic
+
+Matrix: analyze
+
+5 jobs completed
+
+Show all jobs
+
+## Annotations
+
+5 notices
+
+Analyze (actions) "The ubuntu-latest label will migrate to Ubuntu 26 beginning October 19, 2026. For more information, see https://github.com/actions/runner-images/issues/14748" [Button: Show more] [Button: Show less]
+Analyze (javascript-typescript) "The ubuntu-latest label will migrate to Ubuntu 26 beginning October 19, 2026. For more information, see https://github.com/actions/runner-images/issues/14748" [Button: Show more] [Button: Show less]
+Analyze (python) "The ubuntu-latest label will migrate to Ubuntu 26 beginning October 19, 2026. For more information, see https://github.com/actions/runner-images/issues/14748" [Button: Show more] [Button: Show less]
+Analyze (c-cpp) "The ubuntu-latest label will migrate to Ubuntu 26 beginning October 19, 2026. For more information, see https://github.com/actions/runner-images/issues/14748" [Button: Show more] [Button: Show less]
+Analyze (rust) "The ubuntu-latest label will migrate to Ubuntu 26 beginning October 19, 2026. For more information, see https://github.com/actions/runner-images/issues/14748" [Button: Show more] [Button: Show less]--------------------------------------------------------------------------------
+akita/AGENTS.md at main · LayerZero-Labs/akita · GitHub (https://github.com/LayerZero-Labs/akita/blob/main/AGENTS.md)
+citeturn2search10 [wordlim: 200] Crawled: 4 days ago; Use those primitives directly and do not redefine local product, sum, fixed-arity multiplication, range, alignment, division, or power-of-two helpers. ... Direct generated-schedule SIS report  | `cargo run --release -p akita-planner --features catalog-security --example catalog_security -- --check`
+
+# AGENTS.md
+
+Compatibility notice (explicit): This repo makes NO backward-compatibility guarantees. Breaking changes are allowed and expected.
+
+## Project Overview
+
+Akita is a lattice-based polynomial commitment scheme (PCS) with transparent setup and post-quantum security. Built in Rust. Intended to replace Dory in Jolt.
+
+## Branches
+
+`main` carries the current Akita protocol. `dev` is `main` plus opt-in protocol extensions and compute backends. Target `dev` with new extensions, opt-in features, and backends. Target `main` with fixes, refactors, and the extension seams they need. On `dev`, an unselected extension must leave setup, commitment, and proof bytes identical to `main`, even when its Cargo feature is enabled. Contract, sync procedure, and seam rules: `docs/branches.md`.
+
+## CI preflight
+
+Run the cheap repository-wide gates before starting expensive compilation:
+    
+    scripts/generate-schedule-artifacts.sh
+    cargo fmt --all --check
+    taplo fmt --check
+    scripts/test-rust-file-lines.sh
+--------------------------------------------------------------------------------
+akita/book/src/how/proving/extension-opening-reduction.md at main · LayerZero-Labs/akita · GitHub (https://github.com/LayerZero-Labs/akita/blob/main/book/src/how/proving/extension-opening-reduction.md)
+citeturn2search11 [wordlim: 200] Crawled: last month; A group with fewer variables is extended to the common sumcheck domain virtually, without repeating either table. ... If a group has fewer variables, Akita treats its witness as independent of the additional high variables and multiplies it by equality to a fixed zero point on those variables.
+
+A multi-group evaluation trace fold emits one EOR proof and runs one degree-two sumcheck. A coefficient packing fold emits neither. For every evaluation-trace group $a$ and claim $i$, the reduction uses the group's complete public point, native packed witness, and transparent factor:
+
+$$ \widetilde A_{\eta,a}(x)\widetilde g_{a,i}(x). $$
+
+Here $g_{a,i}$ is the packed table called $g$ on the foundations page. $A_{\eta,a}$ is its group's public coordinate factor. The tilde denotes multilinear extension of a Boolean table.
+
+The public points are independent; equal, nested, and unrelated values use the same per-group preparation path. The reduction embeds all claims in one maximum-arity Boolean domain. After the partials and their input claims are fixed, the transcript samples an early coefficient vector. The prover linearly combines the claim polynomials with those coefficients and sends one degree-two polynomial per round. If a group has fewer variables, Akita treats its witness as independent of the additional high variables and multiplies it by equality to a fixed zero point on those variables. --------------------------------------------------------------------------------
+StateSync-GKR: Design and Evaluation of aReusable Sparse GKR Engine (https://arxiv.org/html/2610.14849v2)
+citeturn2view0 [wordlim: 200] Crawled: today; Content type: text/html; Source: open({"ref_id":"https://arxiv.org/html/2610.14849v2","lineno":null}); Total lines: 508
+L0: ##### Report GitHub Issue
+L1: 
+L2: [Button: ×]
+L3: 
+L4: Title: [Input: Enter title]
+L5: 
+L6: Content selection saved. Describe the issue below:
+L7: 
+L8: Description:
+L9: 
+L10: [Button: Submit without GitHub] [Button: Submit in GitHub]
+L11: 
+L12: 【0†Why HTML?†info.arxiv.org】 Report Issue 【1†Back to Abstract】 【2†Download PDF】 Contents Reading mode Colour theme
+

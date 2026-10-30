@@ -1,0 +1,7 @@
+
+running 1 test
+test private_block::argument::split_run_tests::split_run_t128_dd_serialized_two_blocks_with_own_calibration_verify ... R14_NATIVE_STREAM {"tokens":128,"dd":true,"blocks":2,"narrow_boundary_forgery":false,"prove_seconds":33.845201312,"verify_seconds":1.672533869,"prove_hwm_mib":5921.0234375,"bytes":[34107208, 35649320],"model_identity":"2771835e24824e8dc99899264655cc60870bf2b70775182538b3190ad47b6b07","block_digest":"70c065a71fefa6f8caeaef95d66f739cc6137def79f75235c433645f6e7bf6a9","fixture_helpers_sha256":"9bce20f3bc9f97592db66bbbef9a307529604dbf46980bac9dce43c3a1ad8c96","scope":"new native run/segment path, public synthetic model with explicit native test waiver; prove timer excludes endpoint/setup and later controls, includes on-demand second witness; n1 sharedhost, no trained-model/privacy acceptance"}
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 746 filtered out; finished in 46.10s
+

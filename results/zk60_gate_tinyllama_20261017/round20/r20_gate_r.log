@@ -1,0 +1,2 @@
+[zk60-guard 10:30:10] START gate20-v23-classify-r13-shield-t128-cli-hate-r17-values class=cpu need=8.8G cap=10.5G enforce=cgroup+watchdog waited=0s run=6be522064961
+[zk60-guard 14:33:37] END gate20-v23-classify-r13-shield-t128-cli-hate-r17-values exit=0 child_wall=14607s peak_rss=6.47G min_avail=8.10G

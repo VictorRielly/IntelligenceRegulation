@@ -1,0 +1,20 @@
+{
+  "next": [
+    "lookup/softmax:SAK sparse-selection boundary and native helper capacity",
+    "GPU NTT/commitments:backend offer,fallback,public transfer/lifetime roster"
+  ],
+  "retained": [
+    "memory traffic",
+    "batching/amortization",
+    "sumcheck/GKR",
+    "quantization/arithmetic",
+    "proof composition"
+  ],
+  "assessed_this_cycle": [
+    "memory constructor payload",
+    "lookup architecture SAK",
+    "older G10 migration planning",
+    "known NTT locality refresh",
+    "recent zkDuel/ICICLE release refresh"
+  ]
+}

@@ -1,6 +1,19 @@
 //! Profile-derived R13 precision and shifts, shared by every consumer.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub(crate) enum Stack { Legacy, LowH24 }
+pub(crate) enum Stack { Legacy, Low, LowH24 }
+
+impl Stack {
+    pub(crate) fn from_export_name(name: &str) -> Result<Self, String> {
+        match name {
+            "low-v1" => Ok(Self::Low),
+            "low-h24-v1" => Ok(Self::LowH24),
+            _ => Err("R13 export: unknown or missing accuracy_stack".into()),
+        }
+    }
+    pub(crate) fn export_name(self) -> Option<&'static str> {
+        match self { Self::Legacy => None, Self::Low => Some("low-v1"), Self::LowH24 => Some("low-h24-v1") }
+    }
+}
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) struct BaseShifts {
@@ -65,18 +78,21 @@ pub(crate) fn derive(stack: Stack, base: BaseShifts) -> Result<Precision, String
     p.ao += 14;
     p.gate += 10;
     p.up += 12;
-    p.product = base.product.checked_sub(8).ok_or("precision: h shift underflow")?;
-    p.down += 14;
+    let h_extra = if stack == Stack::LowH24 { 8 } else { 0 };
+    p.product = base.product.checked_sub(h_extra).ok_or("precision: h shift underflow")?;
+    p.down += 6 + h_extra;
     if ![p.q, p.k, p.v, p.pv, p.up].iter().all(|v| (9..=16).contains(v))
-        || ![p.score, p.ao, p.down].iter().all(|v| (17..=24).contains(v))
-        || !(1..=24).contains(&p.gate) || !(5..=8).contains(&p.product) {
+        || ![p.score, p.ao].iter().all(|v| (17..=24).contains(v))
+        || !(1..=24).contains(&p.gate)
+        || !(if stack == Stack::LowH24 { 5..=8 } else { 13..=16 }).contains(&p.product)
+        || !(if stack == Stack::LowH24 { 17..=24 } else { 9..=16 }).contains(&p.down) {
         return Err("precision: derived shift is outside the declared remainder window".into());
     }
     p.f_p = 12;
     p.norm_bits = 16;
     p.attention_bits = 16;
     p.gate_bits = 12;
-    p.product_bits = 24;
+    p.product_bits = 16 + h_extra;
     p.multiplier_bits = [5, 5, 6, 8, 6, 4, 6];
     Ok(p)
 }
@@ -113,6 +129,33 @@ mod tests {
                      BaseShifts { gate: 0, ..BASE }, BaseShifts { up: 1, ..BASE },
                      BaseShifts { product: 12, ..BASE }, BaseShifts { down: 2, ..BASE }] {
             assert!(derive(Stack::LowH24, base).is_err(), "{base:?}");
+        }
+    }
+}
+
+#[cfg(test)]
+mod low_tests {
+    use super::*;
+    const BASE: BaseShifts = BaseShifts { norm_tn: 10, qkv: 8, score: 6, pv: 9, ao: 7, gate: 8, up: 0, product: 14, down: 6 };
+
+    #[test]
+    fn low_keeps_h16_and_its_downstream_scale() {
+        let low = derive(Stack::Low, BASE).unwrap();
+        let h24 = derive(Stack::LowH24, BASE).unwrap();
+        assert_eq!((low.product, low.down, low.product_bits), (14, 12, 16));
+        assert_eq!((h24.product, h24.down, h24.product_bits), (6, 20, 24));
+        assert_eq!((low.q, low.k, low.v, low.f_p, low.norm_bits), (15, 15, 16, 12, 16));
+    }
+
+    #[test]
+    fn exports_choose_an_explicit_stack_without_a_global_flag() {
+        assert_eq!(Stack::from_export_name("low-v1").unwrap(), Stack::Low);
+        assert_eq!(Stack::from_export_name("low-h24-v1").unwrap(), Stack::LowH24);
+        assert_eq!(Stack::Low.export_name(), Some("low-v1"));
+        assert_eq!(Stack::LowH24.export_name(), Some("low-h24-v1"));
+        assert_eq!(Stack::Legacy.export_name(), None);
+        for invalid in ["", "legacy", "LOW", "low-h16-v2", "low-h24-v1 "] {
+            assert!(Stack::from_export_name(invalid).is_err());
         }
     }
 }

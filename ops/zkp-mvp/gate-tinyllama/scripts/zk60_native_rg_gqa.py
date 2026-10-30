@@ -209,6 +209,24 @@ _tl_merge1(ARGUMENT_DEFINITIONS, _R5_ARG, "ARGUMENT_DEFINITIONS")
 from zk60_native_rg_tinyllama_r9_pins import (  # noqa: E402
     ARGUMENT_DEFINITIONS as _R9_ARG)
 _tl_merge1(ARGUMENT_DEFINITIONS, _R9_ARG, "ARGUMENT_DEFINITIONS")
+# [v21, gate round 18] native R12's argument.rs, READ
+# (`zk60_native_rg_tinyllama_r12b_pins`): the q-axis widths in the Q / K / V / O
+# matmul arm only (the identity where q_pad == d_pad); the repaired definition
+from zk60_native_rg_tinyllama_r12b_pins import (  # noqa: E402
+    ARGUMENT_DEFINITIONS as _R12B_ARG)
+_tl_merge1(ARGUMENT_DEFINITIONS, _R12B_ARG, "ARGUMENT_DEFINITIONS")
+# [v22, gate round 19] native R13's argument.rs (= token frozen-r16b), READ vs
+# c4f9f9f4 (round19/readings/nat-r12b-r13-argument.rs.diff, +27 / -2): `mod
+# accuracy` (argument_accuracy.rs), `Ctx.accuracy`, `define` dispatching FIRST
+# to `accuracy::define_changed` at a non-legacy stack (slots 14-19 / 23), and the
+# matmul folds through `accuracy_fold` at R13; the bilinear arms SC_SCORE / SC_PV
+# are byte-identical: the repaired definition
+_tl_merge1(ARGUMENT_DEFINITIONS, {
+    "bc0332e39904ca881d26c255581aa1ab6a0e73899141689960ec2262f8561830": (
+        REPAIRED,
+        "[v22, native R13 / r16b] read against c4f9f9f4: the R13 dispatch and the multiplier folds; the "
+        "bilinear arms SC_SCORE / SC_PV unchanged (the repaired definition)"),
+}, "ARGUMENT_DEFINITIONS")
 
 
 def clog2(v: int) -> int:

@@ -1,0 +1,37 @@
+2026-10-29T00:04:22Z queue start
+2026-10-29T00:04:22Z launch build
+2026-10-29T00:07:25Z build exit 0
+2026-10-29T00:07:25Z test binary /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-review-r13-scratch/hashline/target/release/deps/hashline-056050b1e4757b13
+2026-10-29T00:07:25Z launch baseline
+2026-10-29T00:08:03Z baseline exit 101
+2026-10-29T00:08:03Z launch xbin
+2026-10-29T00:08:11Z xbin exit 0
+2026-10-29T00:08:11Z launch mut-rc1
+2026-10-29T00:08:34Z mut-rc1 exit 101
+2026-10-29T00:08:34Z launch mut-skip-policy
+2026-10-29T00:09:00Z mut-skip-policy exit 101
+2026-10-29T00:09:00Z launch mut-skip-copies
+2026-10-29T00:09:26Z mut-skip-copies exit 101
+2026-10-29T00:09:26Z launch mut-skip-bound
+2026-10-29T00:09:51Z mut-skip-bound exit 101
+2026-10-29T00:09:51Z launch mut-skip-second-digest
+2026-10-29T00:10:19Z mut-skip-second-digest exit 101
+2026-10-29T00:10:19Z launch mut-no-g
+2026-10-29T00:10:44Z mut-no-g exit 101
+2026-10-29T00:34:44Z launch mut-g-twice
+2026-10-29T00:35:09Z mut-g-twice exit 101
+2026-10-29T00:35:09Z launch mut-clamp
+2026-10-29T00:35:34Z mut-clamp exit 101
+2026-10-29T00:35:34Z launch mut-skip-emb-cmp
+2026-10-29T00:35:59Z mut-skip-emb-cmp exit 101
+2026-10-29T00:35:59Z launch mut-skip-w-cmp
+2026-10-29T00:36:23Z mut-skip-w-cmp exit 101
+2026-10-29T00:36:23Z launch mut-use-file-w
+2026-10-29T00:36:49Z mut-use-file-w exit 101
+2026-10-29T00:36:49Z launch mut-skip-bos-norm
+2026-10-29T00:37:13Z mut-skip-bos-norm exit 101
+2026-10-29T00:37:13Z launch mut-use-file-bos-norm
+2026-10-29T00:37:37Z mut-use-file-bos-norm exit 101
+2026-10-29T00:37:37Z launch mut-floor-off
+2026-10-29T00:38:00Z mut-floor-off exit 101
+2026-10-29T00:38:00Z queue end

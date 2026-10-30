@@ -1,0 +1,38 @@
+[
+  {
+    "label": "nonDD-A",
+    "source_profile": "hashline-zk-mr1/private-block-llama-3-8b-t128-lh24-v1/1",
+    "rows": 4577,
+    "log_cols": 14,
+    "claims": 146,
+    "groups": 36,
+    "scope": "Synthetic row placement/coefficients/points at public source-derived descriptor and row dimensions. No native constructor/witness/proof."
+  },
+  {
+    "label": "nonDD-H",
+    "source_profile": "hashline-zk-mr1/private-block-llama-3-8b-t128-lh24-v1/1",
+    "rows": 4390,
+    "log_cols": 14,
+    "claims": 54,
+    "groups": 9,
+    "scope": "Synthetic row placement/coefficients/points at public source-derived descriptor and row dimensions. No native constructor/witness/proof."
+  },
+  {
+    "label": "DD-A",
+    "source_profile": "hashline-zk-mr1/private-block-llama-3-8b-t128-lh24-dd/1",
+    "rows": 4455,
+    "log_cols": 14,
+    "claims": 149,
+    "groups": 38,
+    "scope": "Synthetic row placement/coefficients/points at public source-derived descriptor and row dimensions. No native constructor/witness/proof."
+  },
+  {
+    "label": "DD-H",
+    "source_profile": "hashline-zk-mr1/private-block-llama-3-8b-t128-lh24-dd/1",
+    "rows": 4234,
+    "log_cols": 14,
+    "claims": 56,
+    "groups": 10,
+    "scope": "Synthetic row placement/coefficients/points at public source-derived descriptor and row dimensions. No native constructor/witness/proof."
+  }
+]

@@ -1,0 +1,503 @@
+   Compiling hashline v0.1.0 (/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline)
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+    |
+    = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/private_block/protocol.rs:1067:9
+     |
+1067 |     let mut m_u8 = byte_histogram_at(&looked, lookup_words, HISTOGRAM_PAR_MIN);
+     |         ----^^^^
+     |         |
+     |         help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+    --> src/private_block/protocol.rs:1070:10
+     |
+1070 |     let (mut m_exp, exp_missed) = exp_histogram(&deltas, &wit.planes[ids.at(A_E)], &public.exp);
+     |          ----^^^^^
+     |          |
+     |          help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/private_block/protocol.rs:1072:10
+     |
+1072 |     let (mut m_act, act_missed) = act_histogram(&act_idx, &wit.planes[ids.at(A_A16)], &ff.act);
+     |          ----^^^^^
+     |          |
+     |          help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/private_block/run.rs:1126:13
+     |
+1126 |         let mut tr = st.transcript()?;
+     |             ----^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: associated items `to_bytes_at` and `from_bytes_at` are never used
+    --> src/private_block.rs:1211:19
+     |
+1194 | impl Receipt {
+     | ------------ associated items in this implementation
+...
+1211 |     pub(crate) fn to_bytes_at(&self, sh: &shape::Shape, public: &BlockPublic, expected: &ExpectedIo) -> Result<Vec<u8>, String> {
+     |                   ^^^^^^^^^^^
+...
+1220 |     pub(crate) fn from_bytes_at(sh: &shape::Shape, public: &BlockPublic, expected: &ExpectedIo, bytes: &[u8]) -> Result<Self, Stri...
+     |                   ^^^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `verify_bytes_at` is never used
+    --> src/private_block.rs:1231:15
+     |
+1231 | pub(crate) fn verify_bytes_at(sh: &shape::Shape, public: &BlockPublic, expected: &ExpectedIo, bytes: &[u8]) -> Result<(), String> {
+     |               ^^^^^^^^^^^^^^^
+
+warning: function `limbs` is never used
+   --> src/private_block/argument.rs:905:4
+    |
+905 | fn limbs(v: &[Fp2], ix: &[usize]) -> Fp2 {
+    |    ^^^^^
+
+warning: function `causal_mask` is never used
+    --> src/private_block/argument.rs:1042:15
+     |
+1042 | pub(crate) fn causal_mask() -> Vec<Fp2> {
+     |               ^^^^^^^^^^^
+
+warning: function `rope_tables` is never used
+    --> src/private_block/argument.rs:1102:15
+     |
+1102 | pub(super) fn rope_tables(sh: &Shape, public: &AttentionPublic, heads: usize) -> (Vec<Fp2>, Vec<Fp2>) {
+     |               ^^^^^^^^^^^
+
+warning: associated items `new`, `index`, and `scale` are never used
+   --> src/private_block/boundary.rs:108:19
+    |
+ 99 | impl BoundarySpec {
+    | ----------------- associated items in this implementation
+...
+108 |     pub(crate) fn new(context: Digest, rows: usize, cols: usize, scale: i32, index: u64, sites: usize, log_n: usize, inv_rate: usiz...
+    |                   ^^^
+...
+174 |     pub(crate) fn index(&self) -> u64 {
+    |                   ^^^^^
+...
+177 |     pub(crate) fn scale(&self) -> i32 {
+    |                   ^^^^^
+
+warning: method `commitment` is never used
+   --> src/private_block/boundary.rs:250:19
+    |
+249 | impl PreparedBoundary {
+    | --------------------- method in this implementation
+250 |     pub(crate) fn commitment(&self) -> Commitment {
+    |                   ^^^^^^^^^^
+
+warning: associated function `new` is never used
+   --> src/private_block/endpoint_g.rs:126:19
+    |
+120 | impl EndpointSpecG {
+    | ------------------ associated function in this implementation
+...
+126 |     pub(crate) fn new(context: Digest, rows: usize, cols: usize, scale: i32, left_slot: u64, right_slot: u64, log_n: usize, inv_rat...
+    |                   ^^^
+
+warning: constant `SEED_USE_BOUNDARY` is never used
+   --> src/private_block/hash_domain.rs:192:7
+    |
+192 | const SEED_USE_BOUNDARY: &[u8] = b"hashline-zk-rng/private-block/run-boundary/v1/";
+    |       ^^^^^^^^^^^^^^^^^
+
+warning: function `boundary_seed_domain` is never used
+   --> src/private_block/hash_domain.rs:226:15
+    |
+226 | pub(crate) fn boundary_seed_domain(index: u64, spec_digest: &[u8; 32]) -> Vec<u8> {
+    |               ^^^^^^^^^^^^^^^^^^^^
+
+warning: function `boundary_seed_input_len` is never used
+   --> src/private_block/hash_domain.rs:270:15
+    |
+270 | pub(crate) fn boundary_seed_input_len() -> usize {
+    |               ^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `at_shape` is never used
+   --> src/private_block/hash_domain.rs:547:15
+    |
+547 | pub(crate) fn at_shape(sh: &Shape) -> HashInputs {
+    |               ^^^^^^^^
+
+warning: function `full_at_shape` is never used
+   --> src/private_block/hash_domain.rs:566:15
+    |
+566 | pub(crate) fn full_at_shape(sh: &Shape) -> HashInputs {
+    |               ^^^^^^^^^^^^^
+
+warning: constant `D` is never used
+  --> src/private_block/layout.rs:41:18
+   |
+41 | pub(crate) const D: usize = 16;
+   |                  ^
+
+warning: constant `H` is never used
+  --> src/private_block/layout.rs:42:18
+   |
+42 | pub(crate) const H: usize = 2;
+   |                  ^
+
+warning: constant `HALF` is never used
+  --> src/private_block/layout.rs:44:18
+   |
+44 | pub(crate) const HALF: usize = DH / 2;
+   |                  ^^^^
+
+warning: constant `KV` is never used
+  --> src/private_block/layout.rs:45:18
+   |
+45 | pub(crate) const KV: usize = 8;
+   |                  ^^
+
+warning: constant `F` is never used
+  --> src/private_block/layout.rs:47:18
+   |
+47 | pub(crate) const F: usize = 16;
+   |                  ^
+
+warning: constant `NORM_WRHO` is never used
+  --> src/private_block/layout.rs:65:18
+   |
+65 | pub(crate) const NORM_WRHO: u32 = 29;
+   |                  ^^^^^^^^^
+
+warning: constant `WRHO_S` is never used
+  --> src/private_block/layout.rs:74:18
+   |
+74 | pub(crate) const WRHO_S: u32 = 14;
+   |                  ^^^^^^
+
+warning: constant `SH_G` is never used
+  --> src/private_block/layout.rs:78:18
+   |
+78 | pub(crate) const SH_G: u32 = 7;
+   |                  ^^^^
+
+warning: constant `SH_H_PROD` is never used
+  --> src/private_block/layout.rs:79:18
+   |
+79 | pub(crate) const SH_H_PROD: u32 = 14;
+   |                  ^^^^^^^^^
+
+warning: constant `SH_Z` is never used
+  --> src/private_block/layout.rs:80:18
+   |
+80 | pub(crate) const SH_Z: u32 = 6;
+   |                  ^^^^
+
+warning: constant `A_PL1` is never used
+   --> src/private_block/layout.rs:272:18
+    |
+272 | pub(crate) const A_PL1: usize = 62;
+    |                  ^^^^^
+
+warning: constant `A_SR1` is never used
+   --> src/private_block/layout.rs:274:18
+    |
+274 | pub(crate) const A_SR1: usize = 64;
+    |                  ^^^^^
+
+warning: function `is_multiplicity` is never used
+   --> src/private_block/layout.rs:315:15
+    |
+315 | pub(crate) fn is_multiplicity(plane: usize) -> bool {
+    |               ^^^^^^^^^^^^^^^
+
+warning: associated function `toy` is never used
+   --> src/private_block/layout.rs:459:19
+    |
+359 | impl Ids {
+    | -------- associated function in this implementation
+...
+459 |     pub(crate) fn toy() -> Ids {
+    |                   ^^^
+
+warning: constant `H_GU8` is never used
+   --> src/private_block/layout.rs:523:18
+    |
+523 | pub(crate) const H_GU8: usize = 47;
+    |                  ^^^^^
+
+warning: constant `H_GEXP` is never used
+   --> src/private_block/layout.rs:524:18
+    |
+524 | pub(crate) const H_GEXP: usize = 48;
+    |                  ^^^^^^
+
+warning: constant `H_GACT` is never used
+   --> src/private_block/layout.rs:525:18
+    |
+525 | pub(crate) const H_GACT: usize = 49;
+    |                  ^^^^^^
+
+warning: constant `H_U` is never used
+   --> src/private_block/layout.rs:527:18
+    |
+527 | pub(crate) const H_U: usize = 50;
+    |                  ^^^
+
+warning: function `h_is_table` is never used
+   --> src/private_block/layout.rs:543:15
+    |
+543 | pub(crate) fn h_is_table(plane: usize) -> bool {
+    |               ^^^^^^^^^^
+
+warning: function `lookups` is never used
+   --> src/private_block/layout.rs:770:15
+    |
+770 | pub(crate) fn lookups(dom: Dom) -> Vec<Lk> {
+    |               ^^^^^^^
+
+warning: function `helpers` is never used
+   --> src/private_block/layout.rs:896:15
+    |
+896 | pub(crate) fn helpers(dom: Dom) -> (usize, usize) {
+    |               ^^^^^^^
+
+warning: constant `M_ROWS` is never used
+    --> src/private_block/layout.rs:1062:18
+     |
+1062 | pub(crate) const M_ROWS: usize = 2 * N_SLOTS + 4;
+     |                  ^^^^^^
+
+warning: function `slot_terms` is never used
+    --> src/private_block/layout.rs:1072:15
+     |
+1072 | pub(crate) fn slot_terms(slot: usize) -> usize {
+     |               ^^^^^^^^^^
+
+warning: function `mask_specs` is never used
+    --> src/private_block/layout.rs:1076:15
+     |
+1076 | pub(crate) fn mask_specs() -> Vec<(usize, usize)> {
+     |               ^^^^^^^^^^
+
+warning: function `rows_of` is never used
+    --> src/private_block/layout.rs:1084:15
+     |
+1084 | pub(crate) fn rows_of(log: usize) -> usize {
+     |               ^^^^^^^
+
+warning: function `no_commitment_has_a_node_shaped_column` is never used
+    --> src/private_block/layout.rs:1106:15
+     |
+1106 | pub(crate) fn no_commitment_has_a_node_shaped_column(rows: &[(&str, usize)]) -> Result<(), String> {
+     |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `pcs_params` is never used
+  --> src/private_block/protocol.rs:77:15
+   |
+77 | pub(crate) fn pcs_params() -> PcsParams {
+   |               ^^^^^^^^^^
+
+warning: multiple associated items are never used
+   --> src/private_block/run.rs:184:19
+    |
+164 | impl RunShape {
+    | ------------- associated items in this implementation
+...
+184 |     pub(crate) fn sh(&self) -> &Shape {
+    |                   ^^
+...
+188 |     pub(crate) fn l(&self) -> usize {
+    |                   ^
+...
+195 |     pub(crate) fn rung_g(l: usize) -> Result<RunShape, String> {
+    |                   ^^^^^^
+...
+199 |     pub(crate) fn rung_k4(l: usize) -> Result<RunShape, String> {
+    |                   ^^^^^^^
+...
+207 |     pub(crate) fn rung_c6(l: usize) -> Result<RunShape, String> {
+    |                   ^^^^^^^
+...
+211 |     pub(crate) fn rung_w14(l: usize) -> Result<RunShape, String> {
+    |                   ^^^^^^^^
+...
+215 |     pub(crate) fn rung_e32(l: usize) -> Result<RunShape, String> {
+    |                   ^^^^^^^^
+...
+231 |     pub(crate) fn tinyllama_t32_trained(sh: Shape, l: usize) -> Result<RunShape, String> {
+    |                   ^^^^^^^^^^^^^^^^^^^^^
+
+warning: method `rs` is never used
+   --> src/private_block/run.rs:323:19
+    |
+321 | impl RunStatement {
+    | ----------------- method in this implementation
+322 |     /// the run's geometry (ruling CS-8: read-only outside this module)
+323 |     pub(crate) fn rs(&self) -> &RunShape {
+    |                   ^^
+
+warning: struct `MemorySink` is never constructed
+   --> src/private_block/run_sink.rs:116:19
+    |
+116 | pub(crate) struct MemorySink {
+    |                   ^^^^^^^^^^
+
+warning: method `segments` is never used
+   --> src/private_block/run_sink.rs:121:19
+    |
+120 | impl MemorySink {
+    | --------------- method in this implementation
+121 |     pub(crate) fn segments(&self) -> &[Vec<u8>] {
+    |                   ^^^^^^^^
+
+warning: associated function `llama3_1` is never used
+  --> src/private_block/rope.rs:50:25
+   |
+38 | impl RopeScaling {
+   | ---------------- associated function in this implementation
+...
+50 |     pub(crate) const fn llama3_1() -> RopeScaling {
+   |                         ^^^^^^^^
+
+warning: multiple associated items are never used
+    --> src/private_block/shape.rs:1619:19
+     |
+ 606 | impl Shape {
+     | ---------- associated items in this implementation
+...
+1619 |     pub(crate) fn with_score_shift(&self, sh_s: u32) -> Result<Shape, String> {
+     |                   ^^^^^^^^^^^^^^^^
+...
+1687 |     pub(crate) fn tinyllama_t32_trained(cal: &NormCalibration, f_e: u32) -> Result<Shape, String> {
+     |                   ^^^^^^^^^^^^^^^^^^^^^
+...
+1945 |     pub(crate) fn log_slots_per_kv_group(&self) -> usize {
+     |                   ^^^^^^^^^^^^^^^^^^^^^^
+...
+1966 |     pub(crate) fn kv_of_slot(&self, sl: usize) -> usize {
+     |                   ^^^^^^^^^^
+...
+2343 |     pub(crate) fn totals(&self) -> Totals {
+     |                   ^^^^^^
+...
+2432 |     pub(crate) fn logup_sum_claim_keys(&self) -> usize {
+     |                   ^^^^^^^^^^^^^^^^^^^^
+...
+2527 |     pub(crate) fn padded_domains(&self) -> Vec<Dom> {
+     |                   ^^^^^^^^^^^^^^
+
+warning: struct `Totals` is never constructed
+    --> src/private_block/shape.rs:2564:19
+     |
+2564 | pub(crate) struct Totals {
+     |                   ^^^^^^
+
+warning: method `slot` is never used
+   --> src/private_block/timing.rs:259:19
+    |
+216 | impl Phases {
+    | ----------- method in this implementation
+...
+259 |     pub(crate) fn slot(&mut self, s: usize, size: u64, unit: &'static str) {
+    |                   ^^^^
+
+warning: function `timed` is never used
+   --> src/private_block/timing.rs:427:15
+    |
+427 | pub(crate) fn timed<T>(side: &str, label: &str, size: u64, unit: &str, f: impl FnOnce() -> T) -> T {
+    |               ^^^^^
+
+warning: associated function `recipe` is never used
+   --> src/private_block/trained_statement.rs:274:19
+    |
+270 | impl Provenance {
+    | --------------- associated function in this implementation
+...
+274 |     pub(crate) fn recipe(label: &str, residual_unit: f64, quantizer_sha256: [u8; 32], calibration_set_sha256: [u8; 32]) -> Provenan...
+    |                   ^^^^^^
+
+warning: associated function `new` is never used
+   --> src/private_block/trained_statement.rs:622:19
+    |
+621 | impl TrainedModelStatement {
+    | -------------------------- associated function in this implementation
+622 |     pub(crate) fn new(sh: &Shape, run_profile: &str, source: ModelSource, calibration: IntegerCalibration, layers: Vec<LayerRecord>...
+    |                   ^^^
+
+warning: method `is_dd` is never used
+   --> src/private_block/trained_block.rs:709:19
+    |
+658 | impl Geometry {
+    | ------------- method in this implementation
+...
+709 |     pub(crate) fn is_dd(self) -> bool {
+    |                   ^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib) generated 64 warnings (run `cargo fix --lib -p hashline` to apply 10 suggestions)
+    Finished `release` profile [optimized] target(s) in 1m 03s

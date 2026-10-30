@@ -1,0 +1,11 @@
+{
+  "utc": "2026-10-29T00:25:50.345239+00:00",
+  "pattern": "test_zk60_resource_guard.py",
+  "tests": 45,
+  "failures": 0,
+  "errors": 0,
+  "skipped": [],
+  "seconds": 70.99687225000162,
+  "expected": 45,
+  "accepted": true
+}

@@ -1,0 +1,5 @@
+{
+  "failure": "drop_tuple_mask negative control used only one causal-mask=1 row; mutant equals original on that row",
+  "arithmetic_mismatch": false,
+  "fix": "Select and retain a row for each mutation that exposes it; independently reexecute controls in audit."
+}

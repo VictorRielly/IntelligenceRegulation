@@ -1,0 +1,220 @@
+{
+  "utc": "2026-10-30T19:55:41.623289+00:00",
+  "script_sha256": "6a5268a81df1b41e3207e080a221509883482186624add3cf0177779429e3350",
+  "seed_sha256": "47cb8709c55ac1aa7cefa207a34a7a3c500cfb7b8601d08438d065895534bc39",
+  "reference_sha256": "d7c175e154cef761e7e574e417c6979634e05243e6abf0357fb3cb2c7cdfe4ac",
+  "tokens": 1,
+  "passed_layers": [
+    {
+      "layer": 0,
+      "output_sha256": "214cff9a29e56184a96c3d67dece97497b3e65fc17460dede050ae2bd741d638",
+      "output_range": [
+        -54,
+        71
+      ]
+    },
+    {
+      "layer": 1,
+      "output_sha256": "b35db4e27f94e194c179e9211c713ae244085b6cf7d8da5397441aacb57be24a",
+      "output_range": [
+        -60,
+        79
+      ]
+    },
+    {
+      "layer": 2,
+      "output_sha256": "fb6ea161995ed58a583a0695e1a9b2901702eb4bdc7545a57689c73fa27a9888",
+      "output_range": [
+        -6475,
+        201
+      ]
+    },
+    {
+      "layer": 3,
+      "output_sha256": "cab572f03f6d64a48a760e25e6231fd878f09f03dabb5b0b184ea0347ad64f41",
+      "output_range": [
+        -6491,
+        199
+      ]
+    },
+    {
+      "layer": 4,
+      "output_sha256": "e9a3692edf50e364e411475434c0016258ff9268372cebb10a202d97ad6f5c5c",
+      "output_range": [
+        -6513,
+        207
+      ]
+    },
+    {
+      "layer": 5,
+      "output_sha256": "1fe90ab250c80095cec08a900c114ca13b8a60beb8450b031edfd5ecb21f97e0",
+      "output_range": [
+        -6529,
+        210
+      ]
+    },
+    {
+      "layer": 6,
+      "output_sha256": "981ce6727ca75756a6d9ceb408c155ac7756bc9c95bc60d2eac97d79c57c626d",
+      "output_range": [
+        -6540,
+        217
+      ]
+    },
+    {
+      "layer": 7,
+      "output_sha256": "f9f3ba9db83beb60f6fb8d899b410a2f4a0675dd74095067086d3ff51045defc",
+      "output_range": [
+        -6545,
+        212
+      ]
+    },
+    {
+      "layer": 8,
+      "output_sha256": "8a92bb46a2824222908c6a73ca8cb8cc79e2e5254594eb780895e5bae24e0dac",
+      "output_range": [
+        -6538,
+        219
+      ]
+    },
+    {
+      "layer": 9,
+      "output_sha256": "99703c7cf13476b7c0d954371a3b4d24ac2b9054ac61aea3892abcf500ed7e82",
+      "output_range": [
+        -6528,
+        223
+      ]
+    },
+    {
+      "layer": 10,
+      "output_sha256": "692715067a78c9c3f65b5c7f4ba249bc9d358fa23b88d7c1fc2c65e00edcf4cd",
+      "output_range": [
+        -6496,
+        247
+      ]
+    },
+    {
+      "layer": 11,
+      "output_sha256": "482f6a61d29922c60306553c4d2256caeadc6499c52ca20118711a357e38abd8",
+      "output_range": [
+        -6481,
+        267
+      ]
+    },
+    {
+      "layer": 12,
+      "output_sha256": "6854fe912da8bb97510e928ddc67de904a18ad82a4dcd7fa7ab2ebfad8e8cd3d",
+      "output_range": [
+        -6471,
+        251
+      ]
+    },
+    {
+      "layer": 13,
+      "output_sha256": "b68976b9078002a464a18a2f4086c133ef396216b62dafac99f21c218de250a5",
+      "output_range": [
+        -6467,
+        252
+      ]
+    },
+    {
+      "layer": 14,
+      "output_sha256": "f2d37a5c295eadcbe62bf33afc28909814f407455dfab5b6b5b4f46248bb84f8",
+      "output_range": [
+        -6454,
+        260
+      ]
+    },
+    {
+      "layer": 15,
+      "output_sha256": "f16adc76f5658514a120e7790609a512b5b53a5cc8ffd25b4313484fceec09c7",
+      "output_range": [
+        -6459,
+        246
+      ]
+    },
+    {
+      "layer": 16,
+      "output_sha256": "f500c0f77a54f934a9eb68ae35dfce25805fed5e95bb27f7fb22dd65c03340db",
+      "output_range": [
+        -6465,
+        236
+      ]
+    },
+    {
+      "layer": 17,
+      "output_sha256": "d10d518914553bfe030b65216ad6924e8c608fcd734e34e4d5b213dfb20a5bb0",
+      "output_range": [
+        -6471,
+        225
+      ]
+    },
+    {
+      "layer": 18,
+      "output_sha256": "ac8b4ba9acd97c6f15110b7aaa54de19368b1132642d5e4e46663ba5e9b5164c",
+      "output_range": [
+        -6457,
+        228
+      ]
+    },
+    {
+      "layer": 19,
+      "output_sha256": "4a8a2e0659859461c4834972eaba30bcec17799820f14cc4141e74de2d6d91df",
+      "output_range": [
+        -6449,
+        235
+      ]
+    },
+    {
+      "layer": 20,
+      "output_sha256": "618f00a380efa557b6fd3e004e38acbfd3bb407b6e18104846f88615d6f6f609",
+      "output_range": [
+        -6428,
+        267
+      ]
+    },
+    {
+      "layer": 21,
+      "output_sha256": "378a7697902ec818a8f5c8333e80a5d2608430818de0359ed003806ff0dd1de1",
+      "output_range": [
+        -6420,
+        270
+      ]
+    },
+    {
+      "layer": 22,
+      "output_sha256": "802cea7632eb0ad329fdbeee09d25430075c7168ebbedda28e9a6274558ec1a9",
+      "output_range": [
+        -6405,
+        272
+      ]
+    },
+    {
+      "layer": 23,
+      "output_sha256": "fa301cd2a5ed982a48e2292c6d45a59f4d2bbae7aca46563c1ea93101280894f",
+      "output_range": [
+        -6427,
+        359
+      ]
+    },
+    {
+      "layer": 24,
+      "output_sha256": "fd16dfa3be90ab8614ee5529d424ef41ed40ab7d92a8851ba367379dad2a1b81",
+      "output_range": [
+        -6336,
+        520
+      ]
+    },
+    {
+      "layer": 25,
+      "output_sha256": "e983447d3699e445bf39392af231808024036d7a8bd7118bf9324ef40e111a5f",
+      "output_range": [
+        -4904,
+        8596
+      ]
+    }
+  ],
+  "refusal": null,
+  "scope": "Only the token0 causal path with unchanged integer arithmetic and actual T128 calibration. A refusal falsifies this input path; a pass does not certify full128 unmasked scores or native proof.",
+  "privacy_accepted": false
+}

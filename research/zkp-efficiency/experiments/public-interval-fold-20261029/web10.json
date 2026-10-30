@@ -1,0 +1,15 @@
+{
+  "tool": "tools.web__run",
+  "access_date": "2026-10-29",
+  "access_timezone": "UTC",
+  "commands": {
+    "open": [
+      "https://blog.brevis.network/2026/09/30/pico-3-0-real-time-ethereum-proving-on-4-gpus-with-100-bit-provable-security/",
+      "https://github.com/brevis-network/pico"
+    ]
+  },
+  "raw_response_sha256": "28cd55ba9bfc6880e4dc0a957b718b91101eb4d5bcb9a38c3f0d41327331540a",
+  "raw_response_bytes": 14100,
+  "retention": "Provenance and source assessments retained; full webpage/paper text not redistributed. Exact source dates/licenses/limits in sources-cycle.jsonl.",
+  "external_execution": false
+}

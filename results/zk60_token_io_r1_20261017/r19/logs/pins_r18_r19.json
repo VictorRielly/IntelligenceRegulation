@@ -1,0 +1,43 @@
+{
+ "capture_pins": {
+  "count": 72,
+  "moving": [
+   {
+    "file": "src/private_block/tied_tables/derive.rs",
+    "list": "OWN_SOURCE_FILES",
+    "moves": true,
+    "r18": "c5bec3c676e635aab1c609fdf2f541d003e14d7a50efc36d0fed42fc85b7d981",
+    "r19": "4b53222b37820936821eea2fd506ff3dee991e2474d39a3b21f1c0c10d357d75"
+   }
+  ]
+ },
+ "checkpoint_default_equal_on_this_box": true,
+ "derive_default_on_this_box": "/home/victor/models/shieldstral-1.0-3b/snapshot-003ec7e2/model.safetensors",
+ "gate_DERIVE_T16": "c5bec3c676e635aab1c609fdf2f541d003e14d7a50efc36d0fed42fc85b7d981",
+ "gate_SHIELD_DEFAULT_CHECKPOINT": "/home/victor/models/shieldstral-1.0-3b/snapshot-003ec7e2/model.safetensors",
+ "gate_scripts_sha256": {
+  "zk60_native_rg_classtied.py": "bf929b44824b004a914bfe0794ef9662e5c547a79746b96396cb38869139c94b",
+  "zk60_native_rg_r13_pins.py": "99418fb36258291a9f600832bc020f9677c737df61c5377a2a2b85d53b5a1bf9"
+ },
+ "gate_v23_pin_table": {
+  "checked": 18,
+  "moving_r18_to_r19": [
+   {
+    "file": "src/private_block/tied_tables/derive.rs",
+    "moves_r18_to_r19": true,
+    "pin": "c5bec3c676e635aab1c609fdf2f541d003e14d7a50efc36d0fed42fc85b7d981",
+    "pin_name": "DERIVE_T16",
+    "r18": "c5bec3c676e635aab1c609fdf2f541d003e14d7a50efc36d0fed42fc85b7d981",
+    "r18_equals_pin": true,
+    "r19": "4b53222b37820936821eea2fd506ff3dee991e2474d39a3b21f1c0c10d357d75",
+    "r19_equals_pin": false
+   }
+  ],
+  "r18_files_not_equal_to_their_v23_pin": [
+   "src/private_block.rs",
+   "src/private_block/run_capture.rs"
+  ]
+ },
+ "new": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r19",
+ "old": "/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r18"
+}

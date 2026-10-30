@@ -1,0 +1,2 @@
+stage  1 layer  0: 17/17 equal, G 19 (line 19), groups 3, ok True, 0.9s, {'maxrss_gib': 0.232, 'VmHWM': 0.232, 'VmRSS': 0.2, 'RssAnon': 0.183, 'RssFile': 0.018}
+{"stages": 1, "stages_ok": 1, "arrays_equal": 17, "arrays": 17, "entries_compared": 4546560, "G_all_equal_stage_lines": true, "silu_members_checked": [[-5, -13], [-4, -12], [-3, -11]], "controls_fired": true, "all_ok": true, "seconds": 4.8, "mem_end": {"maxrss_gib": 0.328, "VmHWM": 0.328, "VmRSS": 0.115, "RssAnon": 0.098, "RssFile": 0.018}}

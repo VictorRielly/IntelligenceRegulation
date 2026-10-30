@@ -1,0 +1,9 @@
+
+running 1 test
+test private_block::review_r13_tests::rv13_shieldstral_actual_layers_native_witness ... RV13-SHIELD export loaded (checkpoint authenticated, tied tables derived) in 16.6 s
+RV13-SHIELD L0: groups [(-5, -13), (-4, -12), (-3, -11)], G 19, product shift 16, multipliers [256, 512, 1024], witness dumped
+RV13-SHIELD L25: groups [(-3, -11), (-2, -11), (-1, -9), (0, -8)], G 19, product shift 16, multipliers [128, 512, 1024], witness dumped
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 727 filtered out; finished in 36.75s
+

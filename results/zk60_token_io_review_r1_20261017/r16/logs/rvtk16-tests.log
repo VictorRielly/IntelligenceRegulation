@@ -1,0 +1,56 @@
+
+running 12 tests
+test private_block::token_io::classify_r16_tests::r16_a_block_at_another_stage_shape_and_the_run_seed_shape_are_refused ... TOKEN-IO R16 | R13 rung | swapped blocks refused before the header; 2 of 2 blocks do not fit the run seed (G 17)
+ok
+test private_block::token_io::classify_r16_tests::r16_a_doctored_per_layer_gate_shift_is_refused_before_any_header ... TOKEN-IO R16 | R13 rung | a doctored gate denominator (G 21 -> 22) refused by the verifier before its header and by the prover's sealing pass (no header); G None / 16 / 25 do not construct
+ok
+test private_block::token_io::classify_r16_tests::r16_a_t256_export_statement_with_a_t128_profile_is_refused ... TOKEN-IO R16 | T mismatch | trained statement: the calibration 'token-io-r16/synthetic-r13' declares constants the proof relations at hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/1 do not use (the relations prove the code's constants; see PLAN.md C-1)
+ok
+test private_block::token_io::classify_r16_tests::r16_an_r13_classifier_run_with_two_gate_denominators_proves_and_verifies ... TOKEN-IO R16 | R13 rung | two stages at G 20 and G 21: prove 4 segments (35293200 B), fresh verify, owner check, changed byte refused; floor 100 bits
+ok
+test private_block::token_io::classify_r16_tests::r16_the_loaders_tied_derivation_is_reused_only_with_the_bound_margin_parameters ... TOKEN-IO R16 | N-r13-5 | the loader's derivation is reused with the bound margin parameters (no second stream) and only then; the post-derivation digest check still applies
+ok
+test private_block::token_io::classify_r16_tests::r16_the_r13_shieldstral_classifier_profiles_are_registered_at_their_block_shapes ... TOKEN-IO R16 | registry | the two R13 Shieldstral classifier run profiles at their block shapes; the moderate D37 list; CS-7 refuses the swapped T
+ok
+test private_block::token_io::classify_r16_tests::r16_the_r13_whole_run_figure_charges_the_degree_two_tables_and_clears_95 ... TOKEN-IO R16 | bits [COUNTED] | hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/1: N 66879488 (legacy count 66879488), T_d 16896, per block 2^-102.00
+TOKEN-IO R16 | bits [COUNTED] | hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-blocks/1: N 154730496 (legacy count 154730496), T_d 16896, per block 2^-100.79
+TOKEN-IO R16 | bits [COUNTED] | hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/1 L26: whole-run 2^-96.86 (column 2^-98.79, LogUp 2^-97.30, PCS+sumcheck 2^-106.17), floor 96 bits, 112 openings
+TOKEN-IO R16 | bits [COUNTED] | hashline-zk-mr1/private-classify-run-shieldstral-3b-t256-r13-public-row/1 L26: whole-run 2^-95.91 (column 2^-99.01, LogUp 2^-96.09, PCS+sumcheck 2^-106.17), floor 95 bits, 112 openings
+ok
+test private_block::token_io::classify_r16_tests::r16_write_item_activations ... ignored, real Shieldstral export via HL_R16_EXPORT / HL_R16_ITEMS; streams the checkpoint once; guarded
+test private_block::token_io::review_r16_tests::rv16_s1_the_policies_the_r13_shieldstral_profiles_admit ... RV16-S1 | registered policies (production list + none test-only): ["rung-tc-synthetic-policy-dev/1", "shieldstral-1.0-3b-card-unsafe/1", "shieldstral-1.0-3b-moderate-sexual/1", "shieldstral-1.0-3b-moderate-violence/1", "shieldstral-1.0-3b-moderate-hate/1"]
+RV16-S1 | T128 profile door refuses rung-tc-synthetic-policy-dev/1: classifier: the policy "rung-tc-synthetic-policy-dev/1" is for V = 300, the tables have V = 131072
+RV16-S1 | T128 profile door ADMITS shieldstral-1.0-3b-card-unsafe/1 (P0 84, chunk 43)
+RV16-S1 | T128 profile door ADMITS shieldstral-1.0-3b-moderate-sexual/1 (P0 72, chunk 55)
+RV16-S1 | T128 profile door ADMITS shieldstral-1.0-3b-moderate-violence/1 (P0 72, chunk 55)
+RV16-S1 | T128 profile door ADMITS shieldstral-1.0-3b-moderate-hate/1 (P0 78, chunk 49)
+RV16-S1 | T128 statement under shieldstral-1.0-3b-card-unsafe/1: CONSTRUCTS (admitted)
+RV16-S1 | the real T128 export's classifier_margin_parameters (yes 13059, no 2649, scale 4.08288030735373e-6, c 0) equal the card policy's: true
+RV16-S1 | admitted at the R13 Shieldstral T128 profile: [("shieldstral-1.0-3b-card-unsafe/1", 84), ("shieldstral-1.0-3b-moderate-sexual/1", 72), ("shieldstral-1.0-3b-moderate-violence/1", 72), ("shieldstral-1.0-3b-moderate-hate/1", 78)]
+ok
+test private_block::token_io::review_r16_tests::rv16_s2_whole_run_terms_floors_and_min_bits ... RV16-S2-SHAPE {"profile":"hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/1","log_cols":14,"inv_rate":4,"opened_cols":256,"endpoint_log_n":14,"endpoint_inv_rate":4,"tokens":128,"t_pad":128,"d_pad":4096,"u8_lookups":64258048,"S":524288,"F":2097152,"r13_numerator":66947071,"mask_vec":1024,"mask_dom":4096,"mask_q":256,"tier_q":256,"tier_stage_log_n":12,"tier_stage_inv_rate":4,"tier_ep_log_n":8,"tier_ep_inv_rate":8,"pcs_field":-113,"sumcheck":-117.2}
+RV16-S2-TERMS {"profile":"hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/1","policy":"shieldstral-1.0-3b-moderate-sexual/1","p0":72,"n":55,"out_c_n":53248,"out_c_r":256,"in_c_n":4096,"in_c_r":131072,"cp_tokens":128,"cp_d_pad":4096,"openings":112,"column_log2":-98.792756,"logup_log2":-97.301365,"omitted_log2":-106.173153,"total_log2":-96.860089,"floor":96}
+RV16-S2-TERMS {"profile":"hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/1","policy":"shieldstral-1.0-3b-moderate-violence/1","p0":72,"n":55,"out_c_n":53248,"out_c_r":256,"in_c_n":4096,"in_c_r":131072,"cp_tokens":128,"cp_d_pad":4096,"openings":112,"column_log2":-98.792756,"logup_log2":-97.301365,"omitted_log2":-106.173153,"total_log2":-96.860089,"floor":96}
+RV16-S2-TERMS {"profile":"hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/1","policy":"shieldstral-1.0-3b-moderate-hate/1","p0":78,"n":49,"out_c_n":53248,"out_c_r":256,"in_c_n":4096,"in_c_r":131072,"cp_tokens":128,"cp_d_pad":4096,"openings":112,"column_log2":-98.792756,"logup_log2":-97.301365,"omitted_log2":-106.173153,"total_log2":-96.860089,"floor":96}
+RV16-S2-TERMS {"profile":"hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/1","policy":"shieldstral-1.0-3b-card-unsafe/1","p0":84,"n":43,"out_c_n":53248,"out_c_r":256,"in_c_n":4096,"in_c_r":131072,"cp_tokens":128,"cp_d_pad":4096,"openings":112,"column_log2":-98.792756,"logup_log2":-97.301365,"omitted_log2":-106.173153,"total_log2":-96.860089,"floor":96}
+RV16-S2 | hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/1: floor 96; --min-bits 96 passes the floor door (classifier run: 0 blocks and 0 segments were offered, this run has 26 blocks and 28 segments); --min-bits 97 refused (classifier run: the statement's derived whole-run figure (96 bits) is below the verifier's minimum of 97 bits (D27 policy))
+RV16-S2-SHAPE {"profile":"hashline-zk-mr1/private-classify-run-shieldstral-3b-t256-r13-public-row/1","log_cols":15,"inv_rate":4,"opened_cols":256,"endpoint_log_n":15,"endpoint_inv_rate":4,"tokens":256,"t_pad":256,"d_pad":4096,"u8_lookups":148439040,"S":2097152,"F":4194304,"r13_numerator":154798079,"mask_vec":1024,"mask_dom":4096,"mask_q":256,"tier_q":256,"tier_stage_log_n":12,"tier_stage_inv_rate":4,"tier_ep_log_n":8,"tier_ep_inv_rate":8,"pcs_field":-113,"sumcheck":-117.2}
+RV16-S2-TERMS {"profile":"hashline-zk-mr1/private-classify-run-shieldstral-3b-t256-r13-public-row/1","policy":"shieldstral-1.0-3b-moderate-sexual/1","p0":72,"n":183,"out_c_n":53248,"out_c_r":256,"in_c_n":4096,"in_c_r":131072,"cp_tokens":256,"cp_d_pad":4096,"openings":112,"column_log2":-99.009559,"logup_log2":-96.093021,"omitted_log2":-106.173153,"total_log2":-95.912404,"floor":95}
+RV16-S2-TERMS {"profile":"hashline-zk-mr1/private-classify-run-shieldstral-3b-t256-r13-public-row/1","policy":"shieldstral-1.0-3b-moderate-violence/1","p0":72,"n":183,"out_c_n":53248,"out_c_r":256,"in_c_n":4096,"in_c_r":131072,"cp_tokens":256,"cp_d_pad":4096,"openings":112,"column_log2":-99.009559,"logup_log2":-96.093021,"omitted_log2":-106.173153,"total_log2":-95.912404,"floor":95}
+RV16-S2-TERMS {"profile":"hashline-zk-mr1/private-classify-run-shieldstral-3b-t256-r13-public-row/1","policy":"shieldstral-1.0-3b-moderate-hate/1","p0":78,"n":177,"out_c_n":53248,"out_c_r":256,"in_c_n":4096,"in_c_r":131072,"cp_tokens":256,"cp_d_pad":4096,"openings":112,"column_log2":-99.009559,"logup_log2":-96.093021,"omitted_log2":-106.173153,"total_log2":-95.912404,"floor":95}
+RV16-S2-TERMS {"profile":"hashline-zk-mr1/private-classify-run-shieldstral-3b-t256-r13-public-row/1","policy":"shieldstral-1.0-3b-card-unsafe/1","p0":84,"n":171,"out_c_n":53248,"out_c_r":256,"in_c_n":4096,"in_c_r":131072,"cp_tokens":256,"cp_d_pad":4096,"openings":112,"column_log2":-99.009559,"logup_log2":-96.093021,"omitted_log2":-106.173153,"total_log2":-95.912404,"floor":95}
+RV16-S2 | hashline-zk-mr1/private-classify-run-shieldstral-3b-t256-r13-public-row/1: floor 95; --min-bits 95 passes the floor door (classifier run: 0 blocks and 0 segments were offered, this run has 26 blocks and 28 segments); --min-bits 96 refused (classifier run: the statement's derived whole-run figure (95 bits) is below the verifier's minimum of 96 bits (D27 policy))
+ok
+test private_block::token_io::review_r16_tests::rv16_s3_a_wrong_activation_set_yields_no_accepting_receipt ... RV16-S3 | control-honest (verdict 1): VERIFIED
+RV16-S3 | wrong-boundary-1 (verdict 1): receipt of 4 segments REFUSED by the verifier: block 0: slot 22 [IO-out endpoint equality]: sumcheck round 0: s(0) + s(1) != claim
+RV16-S3 | chain-from-wrong-layer1-input (verdict 1): receipt of 4 segments REFUSED by the verifier: block 0: slot 22 [IO-out endpoint equality]: sumcheck round 0: s(0) + s(1) != claim
+RV16-S3 | chain-from-wrong-B_in (verdict 1): receipt of 4 segments REFUSED by the verifier: stage IN-C H (the LogUp sum claim is part of this opening): pcs zk: group 3: <v, c> != combined claim
+ok
+test private_block::token_io::review_r16_tests::rv16_s4_the_reused_derivation_needs_its_row_of_the_block_width ... RV16-S4 | reused derivation with no row: refused (classifier (R-C2): the R12b recompute returned no margin row)
+RV16-S4 | reused derivation with row 3071 wide: refused (classifier (R-C2): the recomputed margin row has 3071 words; the block width is 3072)
+RV16-S4 | reused derivation with row 3073 wide: refused (classifier (R-C2): the recomputed margin row has 3073 words; the block width is 3072)
+RV16-S4 | a reused derivation under another statement digest: refused at the bound-profile read (classifier (R-C2): profile.json is not the profile the trained statement binds (export_profile_sha256))
+ok
+
+test result: ok. 11 passed; 0 failed; 1 ignored; 0 measured; 849 filtered out; finished in 108.53s
+

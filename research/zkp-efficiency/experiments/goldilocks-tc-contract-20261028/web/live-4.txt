@@ -1,0 +1,491 @@
+ (https://raw.githubusercontent.com/Terminus-IMRC/tensor-core-ntt/6f407daa8a4cef96331511ae86b922b520d7aa33/include/polyarith/modular.cuh)
+citeturn4view0 [wordlim: 200] Crawled: 2 weeks ago; Content type: text/plain; Source: open({"ref_id":"https://raw.githubusercontent.com/Terminus-IMRC/tensor-core-ntt/6f407daa8a4cef96331511ae86b922b520d7aa33/include/polyarith/modular.cuh","lineno":null}); Total lines: 406
+L0: // SPDX-License-Identifier: Apache-2.0
+L1: // SPDX-FileCopyrightText: Copyright © 2026 Yukimasa Sugizaki
+L2: 
+L3: #ifndef POLYARITH_MODULAR_CUH_INCLUDED
+L4: #define POLYARITH_MODULAR_CUH_INCLUDED
+L5: 
+L6: #include <bit>
+L7: #include <cstdint>
+L8: #include <stdexcept>
+L9: #include "arithmetic.cuh"
+L10: 
+L11: namespace polyarith {
+L12: 
+L13: namespace modular {
+L14: 
+L15: static __host__ __device__ std::uint32_t
+L16: calculate_montgomery_inverse(const std::uint32_t modulus) {
+L17:   std::uint32_t num, den, t;
+L18:   num = (modulus * 3) ^ 2; /* 5 */
+L19:   den = num * modulus;
+L20: 
+L21:   t = 2 - den;
+L22:   num *= t; /* 10 */
+L23:   den *= t;
+L24: 
+L25:   t = 2 - den;
+L26:   num *= t; /* 20 */
+L27:   den *= t;
+L28: 
+L29:   t = 2 - den;
+L30:   num *= t; /* 32 */
+L31: 
+L32:   return num;
+L33: }
+L34: static __host__ __device__ std::uint64_t
+L35: calculate_montgomery_inverse(const std::uint64_t modulus) {
+L36:   const std::uint32_t inverse =
+L37:       calculate_montgomery_inverse(static_cast<std::uint32_t>(modulus));
+L38:   return inverse * (2 - modulus * inverse); /* 32 -> 64 */
+L39: }
+L40: 
+L41: template <int modulus_bits_> class MontgomeryFriendlyReductionBy64 {
+L42: 
+L43: public:
+L44:   constexpr static int modulus_bits = modulus_bits_;
+L45: private:
+L46:   __device__ std::uint64_t normalize(const std::uint64_t u,
+L47:                                      const std::uint64_t modulus) const {
+L48:     const std::uint32_t N1 = static_cast<std::uint32_t>(modulus >> 32);
+L49:     if (static_cast<std::uint32_t>(u) >= 2 &&
+L50:         static_cast<std::uint32_t>(u >> 32) >= N1 * 2) {
+L51:       return u - modulus * 2;
+L52:     } else if (static_cast<std::uint32_t>(u) >= 1 &&
+L53:                static_cast<std::uint32_t>(u >> 32) >= N1) {
+L54:       return u - modulus;
+L55:     }
+L56:     return u;
+L57:   }
+L58:   /* Up to 40 bits. */
+L59:   __device__ std::uint64_t
+L60:   reduce_impl(const std::uint32_t t0, const std::uint32_t t1,
+L61:               const std::uint32_t t2, const std::uint32_t t3,
+L62:               const std::uint32_t t4, const std::uint64_t modulus) const {
+L63:     std::uint64_t u;
+L64: 
+L65:     asm("{\n\t\t"
+L66:         ".reg.u64 N;\n\t\t"
+L67:         ".reg.u32 N1;\n\t\t"
+L68:         "mov.b64 N, %1;\n\t\t"
+L69:         "mov.b64 {_, N1}, N;\n\t\t"
+L70:         ".reg.u32 s<8>;\n\t\t"
+L71:         "mov.b32 s0, %2;\n\t\t"
+L72:         "mov.b32 s1, %3;\n\t\t"
+L73:         "mov.b32 s2, %4;\n\t\t"
+L74:         "mov.b32 s3, %5;\n\t\t"
+L75:         "mov.b32 s4, %6;\n\t\t"
+L76: 
+L77:         ".reg.u64 c, t;\n\t\t"
+L78:         ".reg.u32 c0, c1, u;\n\t\t"
+L79: 
+L80:         "shl.b32 u, s1, 16;\n\t\t"
+L81:         "add.cc.u32 s0, s0, u;\n\t\t"
+L82:         "mul.wide.u32 c, s0, N1;\n\t\t"
+L83:         "sub.u64 c, N, c;\n\t\t"
+L84:         "shr.b32 u, s1, 16;\n\t\t"
+L85:         "addc.u32 s2, s2, u;\n\t\t"
+L86:         "shl.b32 u, s3, 16;\n\t\t"
+L87:         "add.cc.u32 s2, s2, u;\n\t\t"
+L88:         "mov.b64 t, {s2, 0};\n\t\t"
+L89:         "add.u64 c, c, t;\n\t\t"
+L90:         "mov.b64 {c0, c1}, c;\n\t\t"
+L91:         "mul.wide.u32 c, c0, N1;\n\t\t"
+L92:         "mov.b64 t, {c1, 0};\n\t\t"
+L93:         "sub.u64 c, t, c;\n\t\t"
+L94:         "add.u64 c, c, N;\n\t\t"
+L95:         "shr.b32 u, s3, 16;\n\t\t"
+L96:         "addc.u32 s4, s4, u;\n\t\t"
+L97:         "mov.b64 t, {s4, 0};\n\t\t"
+L98:         "add.u64 %0, c, t;\n\t\t"
+L99:         "}"
+L100:         : "=l"(u)
+L101:         : "l"(modulus), "r"(t0), "r"(t1), "r"(t2), "r"(t3), "r"(t4));
+L102: 
+L103:     return normalize(u, modulus);
+L104:   }
+L105:   /* Up to 48 bits. */
+L106:   __device__ std::uint64_t
+L107:   reduce_impl(const std::uint32_t t0, const std::uint32_t t1,
+L108:               const std::uint32_t t2, const std::uint32_t t3,
+L109:               const std::uint32_t t4, const std::uint32_t t5,
+L110:               const std::uint64_t modulus) const {
+L111:     std::uint64_t u;
+L112: 
+L113:     asm("{\n\t\t"
+L114:         ".reg.u64 N;\n\t\t"
+L115:         ".reg.u32 N1;\n\t\t"
+L116:         "mov.b64 N, %1;\n\t\t"
+L117:         "mov.b64 {_, N1}, N;\n\t\t"
+L118:         ".reg.u32 s<8>;\n\t\t"
+L119:         "mov.b32 s0, %2;\n\t\t"
+L120:         "mov.b32 s1, %3;\n\t\t"
+L121:         "mov.b32 s2, %4;\n\t\t"
+L122:         "mov.b32 s3, %5;\n\t\t"
+L123:         "mov.b32 s4, %6;\n\t\t"
+L124:         "mov.b32 s5, %7;\n\t\t"
+L125: 
+L126:         ".reg.u64 c, t;\n\t\t"
+L127:         ".reg.u32 c0, c1, u;\n\t\t"
+L128: 
+L129:         "shl.b32 u, s1, 16;\n\t\t"
+L130:         "add.cc.u32 s0, s0, u;\n\t\t"
+L131:         "mul.wide.u32 c, s0, N1;\n\t\t"
+L132:         "sub.u64 c, N, c;\n\t\t"
+L133:         "shr.b32 u, s1, 16;\n\t\t"
+L134:         "addc.u32 s2, s2, u;\n\t\t"
+L135:         "shl.b32 u, s3, 16;\n\t\t"
+L136:         "add.cc.u32 s2, s2, u;\n\t\t"
+L137:         "mov.b64 t, {s2, 0};\n\t\t"
+L138:         "add.u64 c, c, t;\n\t\t"
+L139:         "mov.b64 {c0, c1}, c;\n\t\t"
+L140:         "mul.wide.u32 c, c0, N1;\n\t\t"
+L141:         "mov.b64 t, {c1, 0};\n\t\t"
+L142:         "sub.u64 c, t, c;\n\t\t"
+L143:         "add.u64 c, c, N;\n\t\t"
+L144:         "shr.b32 u, s3, 16;\n\t\t"
+L145:         "addc.u32 s4, s4, u;\n\t\t"
+L146:         "shl.b32 u, s5, 16;\n\t\t"
+L147:         "add.cc.u32 s4, s4, u;\n\t\t"
+L148:         "mov.b64 t, {s4, 0};\n\t\t"
+L149:         "add.u64 c, c, t;\n\t\t"
+L150:         "mov.b64 {c0, c1}, c;\n\t\t"
+L151:         "mul.wide.u32 c, c0, N1;\n\t\t"
+L152:         "mov.b64 t, {c1, 0};\n\t\t"
+L153:         "sub.u64 c, t, c;\n\t\t"
+L154:         "add.u64 c, c, N;\n\t\t"
+L155:         "shr.b32 u, s5, 16;\n\t\t"
+L156:         "mov.b64 t, {u, 0};\n\t\t"
+L157:         "addc.u64 %0, c, t;\n\t\t"
+L158:         "}"
+L159:         : "=l"(u)
+L160:         : "l"(modulus), "r"(t0), "r"(t1), "r"(t2), "r"(t3), "r"(t4), "r"(t5));
+L161: 
+L162:     return normalize(u, modulus);
+L163:   }
+L164:   /* Up to 56 bits. */
+L165:   __device__ std::uint64_t
+L166:   reduce_impl(const std::uint32_t t0, const std::uint32_t t1,
+L167:               const std::uint32_t t2, const std::uint32_t t3,
+L168:               const std::uint32_t t4, const std::uint32_t t5,
+L169:               const std::uint32_t t6, const std::uint64_t modulus) const {
+L170:     std::uint64_t u;
+L171: 
+L172:     asm("{\n\t\t"
+L173:         ".reg.u64 N;\n\t\t"
+L174:         ".reg.u32 N1;\n\t\t"
+L175:         "mov.b64 N, %1;\n\t\t"
+L176:         "mov.b64 {_, N1}, N;\n\t\t"
+L177:         ".reg.u32 s<8>;\n\t\t"
+L178:         "mov.b32 s0, %2;\n\t\t"
+L179:         "mov.b32 s1, %3;\n\t\t"
+L180:         "mov.b32 s2, %4;\n\t\t"
+L181:         "mov.b32 s3, %5;\n\t\t"
+L182:         "mov.b32 s4, %6;\n\t\t"
+L183:         "mov.b32 s5, %7;\n\t\t"
+L184:         "mov.b32 s6, %8;\n\t\t"
+L185: 
+L186:         ".reg.u64 c, t;\n\t\t"
+L187:         ".reg.u32 c0, c1, u;\n\t\t"
+L188: 
+L189:         "shl.b32 u, s1, 16;\n\t\t"
+L190:         "add.cc.u32 s0, s0, u;\n\t\t"
+L191:         "mul.wide.u32 c, s0, N1;\n\t\t"
+L192:         "sub.u64 c, N, c;\n\t\t"
+L193:         "shr.b32 u, s1, 16;\n\t\t"
+L194:         "addc.u32 s2, s2, u;\n\t\t"
+L195:         "shl.b32 u, s3, 16;\n\t\t"
+L196:         "add.cc.u32 s2, s2, u;\n\t\t"
+L197:         "mov.b64 t, {s2, 0};\n\t\t"
+L198:         "add.u64 c, c, t;\n\t\t"
+L199:         "mov.b64 {c0, c1}, c;\n\t\t"
+L200:         "mul.wide.u32 c, c0, N1;\n\t\t"
+L201:         "mov.b64 t, {c1, 0};\n\t\t"
+L202:         "sub.u64 c, t, c;\n\t\t"
+L203:         "add.u64 c, c, N;\n\t\t"
+L204:         "shr.b32 u, s3, 16;\n\t\t"
+L205:         "addc.u32 s4, s4, u;\n\t\t"
+L206:         "shl.b32 u, s5, 16;\n\t\t"
+L207:         "add.cc.u32 s4, s4, u;\n\t\t"
+L208:         "mov.b64 t, {s4, 0};\n\t\t"
+L209:         "add.u64 c, c, t;\n\t\t"
+L210:         "mov.b64 {c0, c1}, c;\n\t\t"
+L211:         "mul.wide.u32 c, c0, N1;\n\t\t"
+L212:         "mov.b64 t, {c1, 0};\n\t\t"
+L213:         "sub.u64 c, t, c;\n\t\t"
+L214:         "add.u64 c, c, N;\n\t\t"
+L215:         "shr.b32 u, s5, 16;\n\t\t"
+L216:         "addc.u32 s6, s6, u;\n\t\t"
+L217:         "mov.b64 t, {s6, 0};\n\t\t"
+L218:         "add.u64 %0, c, t;\n\t\t"
+L219:         "}"
+L220:         : "=l"(u)
+L221:         : "l"(modulus), "r"(t0), "r"(t1), "r"(t2), "r"(t3), "r"(t4), "r"(t5),
+L222:           "r"(t6));
+L223: 
+L224:     return normalize(u, modulus);
+L225:   }
+L226:   /* Up to 62 bits. */
+L227:   __device__ std::uint64_t
+L228:   reduce_impl(const std::uint32_t t0, const std::uint32_t t1,
+L229:               const std::uint32_t t2, const std::uint32_t t3,
+L230:               const std::uint32_t t4, const std::uint32_t t5,
+L231:               const std::uint32_t t6, std::uint32_t t7,
+L232:               const std::uint64_t modulus) const {
+L233:     std::uint64_t u;
+L234: 
+L235:     asm("{\n\t\t"
+L236:         ".reg.u64 N;\n\t\t"
+L237:         ".reg.u32 N1;\n\t\t"
+L238:         "mov.b64 N, %1;\n\t\t"
+L239:         "mov.b64 {_, N1}, N;\n\t\t"
+L240:         ".reg.u32 s<8>;\n\t\t"
+L241:         "mov.b32 s0, %2;\n\t\t"
+L242:         "mov.b32 s1, %3;\n\t\t"
+L243:         "mov.b32 s2, %4;\n\t\t"
+L244:         "mov.b32 s3, %5;\n\t\t"
+L245:         "mov.b32 s4, %6;\n\t\t"
+L246:         "mov.b32 s5, %7;\n\t\t"
+L247:         "mov.b32 s6, %8;\n\t\t"
+L248:         "mov.b32 s7, %9;\n\t\t"
+L249: 
+L250:         ".reg.u64 c, t;\n\t\t"
+L251:         ".reg.u32 c0, c1, u;\n\t\t"
+L252: 
+L253:         "shl.b32 u, s1, 16;\n\t\t"
+L254:         "add.cc.u32 s0, s0, u;\n\t\t"
+L255:         "mul.wide.u32 c, s0, N1;\n\t\t"
+L256:         "sub.u64 c, N, c;\n\t\t"
+L257:         "shr.b32 u, s1, 16;\n\t\t"
+L258:         "addc.u32 s2, s2, u;\n\t\t"
+L259:         "shl.b32 u, s3, 16;\n\t\t"
+L260:         "add.cc.u32 s2, s2, u;\n\t\t"
+L261:         "mov.b64 t, {s2, 0};\n\t\t"
+L262:         "add.u64 c, c, t;\n\t\t"
+L263:         "mov.b64 {c0, c1}, c;\n\t\t"
+L264:         "mul.wide.u32 c, c0, N1;\n\t\t"
+L265:         "mov.b64 t, {c1, 0};\n\t\t"
+L266:         "sub.u64 c, t, c;\n\t\t"
+L267:         "add.u64 c, c, N;\n\t\t"
+L268:         "shr.b32 u, s3, 16;\n\t\t"
+L269:         "addc.u32 s4, s4, u;\n\t\t"
+L270:         "shl.b32 u, s5, 16;\n\t\t"
+L271:         "add.cc.u32 s4, s4, u;\n\t\t"
+L272:         "mov.b64 t, {s4, 0};\n\t\t"
+L273:         "add.u64 c, c, t;\n\t\t"
+L274:         "mov.b64 {c0, c1}, c;\n\t\t"
+L275:         "mul.wide.u32 c, c0, N1;\n\t\t"
+L276:         "mov.b64 t, {c1, 0};\n\t\t"
+--------------------------------------------------------------------------------
+Internal Error ()
+citeturn4view1 [wordlim: 200] Source: open({"ref_id":"https://raw.githubusercontent.com/Terminus-IMRC/tensor-core-ntt/6f407daa8a4cef96331511ae86b922b520d7aa33/include/polyarith/arithmetic.cuh","lineno":null}); 
+Failed to fetch https://raw.githubusercontent.com/Terminus-IMRC/tensor-core-ntt/6f407daa8a4cef96331511ae86b922b520d7aa33/include/polyarith/arithmetic.cuh: Cache miss--------------------------------------------------------------------------------
+Internal Error ()
+citeturn4view2 [wordlim: 200] Source: open({"ref_id":"https://raw.githubusercontent.com/Terminus-IMRC/tensor-core-ntt/6f407daa8a4cef96331511ae86b922b520d7aa33/include/polyarith/polyarith.cuh","lineno":null}); 
+Failed to fetch https://raw.githubusercontent.com/Terminus-IMRC/tensor-core-ntt/6f407daa8a4cef96331511ae86b922b520d7aa33/include/polyarith/polyarith.cuh: Cache miss--------------------------------------------------------------------------------
+ (https://raw.githubusercontent.com/Terminus-IMRC/tensor-core-ntt/6f407daa8a4cef96331511ae86b922b520d7aa33/tests/test-ntt.cu)
+citeturn4view3 [wordlim: 200] Crawled: 2 weeks ago; Content type: text/plain; Source: open({"ref_id":"https://raw.githubusercontent.com/Terminus-IMRC/tensor-core-ntt/6f407daa8a4cef96331511ae86b922b520d7aa33/tests/test-ntt.cu","lineno":null}); Total lines: 2356
+L0: // SPDX-License-Identifier: Apache-2.0
+L1: // SPDX-FileCopyrightText: Copyright © 2026 Yukimasa Sugizaki
+L2: 
+L3: #include <cstdint>
+L4: #include <iostream>
+L5: #include <random>
+L6: #include <sstream>
+L7: #include <stdexcept>
+L8: #include <type_traits>
+L9: 
+L10: #include <boost/icl/interval_set.hpp>
+L11: 
+L12: #include <thrust/device_make_unique.h>
+L13: #include <thrust/device_vector.h>
+L14: #include <thrust/generate.h>
+L15: #include <thrust/host_vector.h>
+L16: 
+L17: #include "polyarith/polyarith.cuh"
+L18: #include "ntt-reference.hpp"
+L19: 
+L20: static boost::icl::interval_set<int>
+L21: find_mismatches(const thrust::host_vector<std::uint64_t> &a,
+L22:                 const thrust::host_vector<std::uint64_t> &b,
+L23:                 const std::uint64_t modulus) {
+L24:   boost::icl::interval_set<int> mismatches;
+L25: 
+L26: #pragma omp parallel
+L27:   {
+L28:     boost::icl::interval_set<int> m;
+L29: #pragma omp for schedule(static) nowait
+L30:     for (int i = 0; i < static_cast<int>(a.size()); ++i) {
+L31:       if ((a[i] % modulus) != (b[i] % modulus)) {
+L32:         m.add(i);
+L33:       }
+L34:     }
+L35: #pragma omp critical
+L36:     mismatches += m;
+L37:   }
+L38: 
+L39:   return mismatches;
+L40: }
+L41: 
+L42: // MARK: Precomputations
+L43: 
+L44: namespace precomputation {
+L45: 
+L46: template <int modulus_bits_> class ConstantPrecomputation {
+L47: 
+L48: public:
+L49:   constexpr static int modulus_bits = modulus_bits_;
+L50: 
+L51:   using reduction_type =
+L52:       polyarith::modular::MontgomeryFriendlyReductionBy64<modulus_bits>;
+L53: 
+L54:   __align__(16) std::uint64_t modulus;
+L55:   __align__(16) reduction_type friendly_reduction;
+L56: 
+L57:   ConstantPrecomputation(void) = default;
+L58:   ConstantPrecomputation(const polyarith::Modulus &modulus)
+L59: 
+L60:       : modulus(modulus.get_modulus()),
+L61:         friendly_reduction(modulus.get_modulus()){}
+L62: };
+L63: 
+L64: /* Warning: Do not allocate this on stack. */
+L65: 
+L66: template <int modulus_bits_> class Precomputation {
+L67: 
+L68: public:
+L69:   constexpr static int modulus_bits = modulus_bits_;
+L70: 
+L71:   using reduction_type = ConstantPrecomputation<modulus_bits>::reduction_type;
+L72:   __align__(16) polyarith::cuda::NttForward16x16Coalesced<
+L73:       reduction_type> ntt_forward_16x16;
+L74:   __align__(32) polyarith::cuda::NttForwardWmma16x16<
+L75:       reduction_type> ntt_forward_wmma_16x16;
+L76: 
+L77:   __align__(16) polyarith::cuda::NttForwardTwiddle16x16Coalesced
+L78:       ntt_forward_twiddle_16x16;
+L79:   __align__(16) polyarith::cuda::NttForwardTwiddleWmma16x16
+L80:       ntt_forward_twiddle_wmma_16x16;
+L81:   __align__(16) polyarith::cuda::NttForwardTwiddleIterativeCoalesced<
+L82:       (1 << 12)> ntt_forward_twiddle_iterative_two12;
+L83:   __align__(16) polyarith::cuda::NttForwardTwiddleIterativeCoalesced<
+L84:       (1 << 16)> ntt_forward_twiddle_iterative_two16;
+L85:   __align__(16) polyarith::cuda::NttForwardTwiddleIterativeCoalesced<
+L86:       (1 << 20)> ntt_forward_twiddle_iterative_two20;
+L87:   __align__(16) polyarith::cuda::NttForwardTwiddleIterativeCoalesced<
+L88:       (1 << 24)> ntt_forward_twiddle_iterative_two24;
+L89:   __align__(16) polyarith::cuda::NttForwardTwiddleIterativeCoalesced<
+L90:       (1 << 28)> ntt_forward_twiddle_iterative_two28;
+L91:   __align__(16) polyarith::cuda::NttForwardTwiddleIterativeWmma<
+L92:       (1 << 12)> ntt_forward_twiddle_iterative_wmma_two12;
+L93:   __align__(16) polyarith::cuda::NttForwardTwiddleIterativeWmma<
+L94:       (1 << 16)> ntt_forward_twiddle_iterative_wmma_two16;
+L95:   __align__(16) polyarith::cuda::NttForwardTwiddleIterativeWmma<
+L96:       (1 << 20)> ntt_forward_twiddle_iterative_wmma_two20;
+L97:   __align__(16) polyarith::cuda::NttForwardTwiddleIterativeWmma<
+L98:       (1 << 24)> ntt_forward_twiddle_iterative_wmma_two24;
+L99:   __align__(16) polyarith::cuda::NttForwardTwiddleIterativeWmma<
+L100:       (1 << 28)> ntt_forward_twiddle_iterative_wmma_two28;
+L101:   __align__(16) polyarith::cuda::NttForwardScalarIterative<
+L102:       (1 << 3), 8> ntt_forward_scalar_iterative_radix8_two3;
+L103:   __align__(16) polyarith::cuda::NttForwardScalarIterative<
+L104:       (1 << 6), 8> ntt_forward_scalar_iterative_radix8_two6;
+L105:   __align__(16) polyarith::cuda::NttForwardScalarIterative<
+L106:       (1 << 9), 8> ntt_forward_scalar_iterative_radix8_two9;
+L107:   __align__(16) polyarith::cuda::NttForwardScalarIterative<
+L108:       (1 << 12), 8> ntt_forward_scalar_iterative_radix8_two12;
+L109:   __align__(16) polyarith::cuda::NttForwardScalarIterative<
+L110:       (1 << 15), 8> ntt_forward_scalar_iterative_radix8_two15;
+L111:   __align__(16) polyarith::cuda::NttForwardScalarIterative<
+L112:       (1 << 18), 8> ntt_forward_scalar_iterative_radix8_two18;
+L113:   __align__(16) polyarith::cuda::NttForwardScalarIterative<
+L114:       (1 << 21), 8> ntt_forward_scalar_iterative_radix8_two21;
+L115:   __align__(16) polyarith::cuda::NttForwardScalarIterative<
+L116:       (1 << 24), 8> ntt_forward_scalar_iterative_radix8_two24;
+L117:   __align__(16) polyarith::cuda::NttForwardScalarIterative<
+L118:       (1 << 4), 16> ntt_forward_scalar_iterative_radix16_two4;
+L119:   __align__(16) polyarith::cuda::NttForwardScalarIterative<
+L120:       (1 << 8), 16> ntt_forward_scalar_iterative_radix16_two8;
+L121:   __align__(16) polyarith::cuda::NttForwardScalarIterative<
+L122:       (1 << 12), 16> ntt_forward_scalar_iterative_radix16_two12;
+L123:   __align__(16) polyarith::cuda::NttForwardScalarIterative<
+L124:       (1 << 16), 16> ntt_forward_scalar_iterative_radix16_two16;
+L125:   __align__(16) polyarith::cuda::NttForwardScalarIterative<
+L126:       (1 << 20), 16> ntt_forward_scalar_iterative_radix16_two20;
+L127:   __align__(16) polyarith::cuda::NttForwardScalarIterative<
+L128:       (1 << 24), 16> ntt_forward_scalar_iterative_radix16_two24;
+L129:   Precomputation(void) = default;
+L130:   Precomputation(const polyarith::Modulus &modulus)
+L131:       : ntt_forward_16x16(modulus), ntt_forward_wmma_16x16(modulus),
+L132:         ntt_forward_twiddle_16x16(modulus),
+L133:         ntt_forward_twiddle_wmma_16x16(modulus),
+L134:         ntt_forward_twiddle_iterative_two12(modulus),
+L135:         ntt_forward_twiddle_iterative_two16(modulus),
+L136:         ntt_forward_twiddle_iterative_two20(modulus),
+L137:         ntt_forward_twiddle_iterative_two24(modulus),
+L138:         ntt_forward_twiddle_iterative_two28(modulus),
+L139:         ntt_forward_twiddle_iterative_wmma_two12(modulus),
+L140:         ntt_forward_twiddle_iterative_wmma_two16(modulus),
+L141:         ntt_forward_twiddle_iterative_wmma_two20(modulus),
+L142:         ntt_forward_twiddle_iterative_wmma_two24(modulus),
+L143:         ntt_forward_twiddle_iterative_wmma_two28(modulus),
+L144:         ntt_forward_scalar_iterative_radix8_two3(modulus),
+L145:         ntt_forward_scalar_iterative_radix8_two6(modulus),
+L146:         ntt_forward_scalar_iterative_radix8_two9(modulus),
+L147:         ntt_forward_scalar_iterative_radix8_two12(modulus),
+L148:         ntt_forward_scalar_iterative_radix8_two15(modulus),
+L149:         ntt_forward_scalar_iterative_radix8_two18(modulus),
+L150:         ntt_forward_scalar_iterative_radix8_two21(modulus),
+L151:         ntt_forward_scalar_iterative_radix8_two24(modulus),
+L152:         ntt_forward_scalar_iterative_radix16_two4(modulus),
+L153:         ntt_forward_scalar_iterative_radix16_two8(modulus),
+L154:         ntt_forward_scalar_iterative_radix16_two12(modulus),
+L155:         ntt_forward_scalar_iterative_radix16_two16(modulus),
+L156:         ntt_forward_scalar_iterative_radix16_two20(modulus),
+L157:         ntt_forward_scalar_iterative_radix16_two24(modulus) {}
+L158: };
+L159: } // namespace precomputation
+L160: 
+L161: // MARK: Global functions
+L162: template <int modulus_bits>
+L163: static __global__ void __launch_bounds__(1024) run_forward_two4_x16(
+L164:     std::uint64_t *const sequence,
+L165:     const __grid_constant__ precomputation::Precomputation<modulus_bits> *const
+L166:         precomp,
+L167:     const __grid_constant__ precomputation::ConstantPrecomputation<modulus_bits>
+L168:         constant_precomp) {
+L169:   const std::uint64_t modulus = constant_precomp.modulus;
+L170:   const typename precomputation::ConstantPrecomputation<
+L171:       modulus_bits>::reduction_type reduction =
+L172:       constant_precomp.friendly_reduction;
+L173:   polyarith::MatrixView<16, polyarith::UnreducedRatio<16>, 16,
+L174:                         polyarith::UnreducedRatio<1>>
+L175:       block(sequence);
+L176: 
+L177:   std::uint64_t a[8];
+L178:   polyarith::cuda::load_matrix2_packed4cols_n(a, block);
+L179: 
+L180:   precomp->ntt_forward_16x16.compute_2n(a, modulus, reduction);
+L181: 
+L182:   polyarith::cuda::store_matrix2_packed2cols_n(block, a);
+L183: }
+L184: template <int modulus_bits>
+L185: static __global__ void __launch_bounds__(1024) run_forward_wmma_two4_x16(
+L186:     std::uint64_t *const sequence,
+L187:     const __grid_constant__ precomputation::Precomputation<modulus_bits> *const
+L188:         precomp,
+L189:     const __grid_constant__ precomputation::ConstantPrecomputation<modulus_bits>
+L190:         constant_precomp) {
+L191:   const int laneId = polyarith::cuda::get_laneId();
+L192:   const std::uint64_t modulus = constant_precomp.modulus;
+L193:   const typename decltype(precomp->ntt_forward_wmma_16x16)::reduction_type
+L194:       reduction = constant_precomp.friendly_reduction;
+L195: 
+L196:   polyarith::MatrixView<16, polyarith::UnreducedRatio<16>, 16,
+L197:                         polyarith::UnreducedRatio<1>>
+L198:       block(sequence);
+L199: 
+L200:   std::uint64_t a[8];
+L201:   polyarith::cuda::load_matrix_packed1col_n(a, block);
+

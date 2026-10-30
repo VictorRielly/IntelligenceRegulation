@@ -1,0 +1,22 @@
+{
+  "run_id": "20261029T145649Z-fb1b89ab",
+  "full_stack_proofs": 0,
+  "model_passes": 0,
+  "proved_positions": 0,
+  "model_context": null,
+  "device": "Intel Core Ultra9 185H CPU; no GPU",
+  "witness_s": null,
+  "proof_s": null,
+  "serialization_s": null,
+  "verification_s": null,
+  "startup_s": null,
+  "initial_prefill_s": null,
+  "startup_fraction": null,
+  "steady_tokens_per_s": null,
+  "total_tokens_per_s": null,
+  "proof_bytes": null,
+  "decode": false,
+  "long_context_prefill": false,
+  "resident_model_workload": false,
+  "target_achieved": false
+}

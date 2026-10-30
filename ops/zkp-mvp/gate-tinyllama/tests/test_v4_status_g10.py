@@ -1371,7 +1371,10 @@ class ClassifierV19(unittest.TestCase):
         for t in (128, 256, 512):
             s = CL.ClassGeom(**CL.shieldstral(t))
             self.assertEqual((s.window_bits, s.limbs, s.door_findings), (35, 5, []))
-        bad = dict(CL.RUNG_RC1, n=22)
+        # [v21, R-C3] n = 22 is now a SHORT item (P0 + n + S <= T); the door
+        # refuses only P0 + n + S > T
+        self.assertEqual(CL.ClassGeom(**dict(CL.RUNG_RC1, n=22)).door_findings, [])
+        bad = dict(CL.RUNG_RC1, n=24)
         self.assertTrue(CL.ClassGeom(**bad).door_findings)
         src = os.path.join(self.TOKEN_IO, "stage_out_c.rs")
         if os.path.isfile(src):
@@ -1392,8 +1395,10 @@ class ClassifierV19(unittest.TestCase):
         r = CL.chunk_ranges(1000, 43, 4)
         self.assertEqual((r[0], r[-1]), ((0, 43), (957, 1000)))
         self.assertTrue(all(b - a == 43 for a, b in r))
+        # [v21, R-C3] a short content is ONE chunk of its length; empty is refused
+        self.assertEqual(CL.chunk_ranges(20, 23, 4), [(0, 20)])
         with self.assertRaises(ValueError):
-            CL.chunk_ranges(20, 23, 4)
+            CL.chunk_ranges(0, 23, 4)
         plan = dict(total=27, size=23, overlap=4)
 
         def ch(j, v=0, **kw):
@@ -1409,6 +1414,11 @@ class ClassifierV19(unittest.TestCase):
             self.assertEqual(r2["label"], 1, name)
             self.assertTrue(r2["fail_closed_reasons"], name)
         self.assertEqual(CL.check_item_chunks([], total=20, size=23, overlap=4)["label"], 1)
+        # [v21] the short item's one chunk carries the label
+        short = dict(index=0, count=1, a=0, b=20, total=20, size=23, overlap=4, verdict=0, policy="p", model="m")
+        self.assertEqual(CL.check_item_chunks([short], total=20, size=23, overlap=4)["label"], 0)
+        self.assertEqual(CL.check_item_chunks([dict(short, verdict=1)], total=20, size=23, overlap=4)["label"], 1)
+        self.assertEqual(CL.check_item_chunks([dict(short, b=21)], total=20, size=23, overlap=4)["label"], 1)
 
     def test_synthetic_relations_and_controls(self):
         import zk60_native_rg_classterminals as CT
@@ -1466,34 +1476,26 @@ class ClassifierV20(unittest.TestCase):
 
     @unittest.skipUnless(os.path.isdir(os.path.join(CAP, "classify-rung-L1-v1")), "the classifier rung capture is not on disk")
     def test_reader_replay_terminals_and_controls(self):
+        """[v21] the R-C1 capture is now a NEGATIVE fixture: REVIEW_R13 N-r13-8
+        (R-C1 receipts support no classifier claim); v21's pin rule refuses it by
+        name (the classifier port read at r14; classify_tied.rs not pinned) and
+        no classifier slot is evaluated. Its replay still reproduces (the
+        transcript machinery is unchanged)."""
         import zk60_native_rg_classgate as CG
         import zk60_native_rg_classterminals as CT
         b = CG.load(os.path.join(self.CAP, "classify-rung-L1-v1"))
         i = CG.class_integrity(b)
-        self.assertTrue(i["ok"], i["findings"])
+        self.assertFalse(i["ok"])
         self.assertEqual(i["source_pins"]["pins"], 56)
+        # [v22] the dispatcher is v22's; the R-C1 capture is refused by name there too
+        self.assertIn("src/private_block/token_io/classify_tied.rs: not pinned (the v22 classifier port was read from it)",
+                      i["source_pins"]["refusals"])
         rp = CG.ClassRunReplay(b).run()
         self.assertTrue(rp.summary()["ok"], rp.summary()["failures"][:3])
         tc = CT.check_classify_terminals(b, rp)
-        self.assertTrue(tc["ok"], tc["findings"][:3])
-        self.assertEqual((tc["slots_equal"], tc["slots_checked"]), (12, 12))
-        self.assertTrue(tc["B3_margin_vector"]["ok"])
-        self.assertEqual(tc["one_public_bit"]["taken_tables"], ["captured tau_tab_c", "margin vector w_Delta"])
-        self.assertTrue(CT.nl1_classify_slots(b, rp)["ok"])
-        # failing first: a flipped verdict breaks the binding and exactly LZC
-        b2 = copy.copy(b)
-        b2.run = copy.deepcopy(b.run)
-        b2.run["classify"]["verdict"] = 1 - b.run["classify"]["verdict"]
-        self.assertFalse(CG.ClassRunReplay(b2).run().summary()["run_binding_reproduced"])
-        t1 = CT.check_classify_terminals(b, rp, facts_override={"verdict": 1 - b.run["classify"]["verdict"]})
-        self.assertEqual(sorted({(r["stage"], r["slot"]) for r in t1["slots"] if not r["equal"]}), [("OUT-C", 4)])
-        # [v20] the stage-line reader leaves a classifier run to the per-block shim
-        import zk60_native_rg_stagecal as SC
-        self.assertEqual(SC.stage_shapes(b.run)[0], [])
-        r = CG.class_block_terminals(b, rp)
-        self.assertTrue(r["ok"], [p["port_findings"] for p in r["per_stage"]])
-        self.assertTrue(r["controls"]["NC-1_constant_moved"]["fires"])
-        # and v19's reader refused any classifier capture
+        self.assertFalse(tc["ok"])
+        self.assertEqual(tc["slots_checked"], 0)
+        self.assertIn("source pins without a reading; no slot evaluated", tc["findings"])
         import types
         self.assertTrue(CT.check_classify_terminals(types.SimpleNamespace(manifest={"schema": "x"}))["ok"] is False)
 
@@ -1507,3 +1509,517 @@ class ClassifierV20(unittest.TestCase):
         r = CG.d41_item_check([b])
         self.assertEqual(r["label"], 1)
         self.assertIn("chunks [0] have no accepted proof", r["fail_closed_reasons"])
+
+
+class ClassifierV21(unittest.TestCase):
+    """[v21, gate round 18] R-C2 / R-C3 on token frozen-r14: the tables
+    derived from the pinned tensor (B-3, the reviewer's reference digests),
+    the short-item geometry (pad, verdict row, plan size), the v21 pin rule,
+    and on the r14 captures the reader, replay, the 12 slots with every
+    public table rebuilt (none taken), and the C-13 short-item controls"""
+
+    CAP = "/home/victor/zk60-artifacts/token-io/captures"
+
+    def test_derived_tables_reproduce_the_references(self):
+        import zk60_native_rg_classterminals as CT
+        import zk60_native_rg_classtied as TD
+        d = TD.derive_dev(40, 41, 2.0 ** -8)
+        self.assertEqual(d["tensor_sha256"], TD.DEV_TIED_TENSOR_SHA256)
+        self.assertEqual(d["emb_sha256"], TD.REF_EMB_SHA256)          # REVIEW_R13 §5
+        self.assertEqual(d["w_sha256"], TD.REF_DEV_MARGIN_SHA256)      # REVIEW_R13 §5
+        self.assertEqual(d["w"][:8], [740, -6269, -463, 1445, -12, 36, -43, -2606])
+        # the BLAKE3 statement digests the r14 rung profile text carries
+        self.assertEqual(CT.w_digest(384, d["w"]), "40f3fe498402edec315cfc92bec67365b3c0784bfe72b47040043ecbfe1095fd")
+        self.assertEqual(TD.emb_digest(300, 384, d["emb"]), "a8d55fc067234ea1f587e3668e000096c803abc8d4f75838798b482efa4fa60b")
+        # the swapped policy's row: w + w' in {0, 1} (the reviewer's check)
+        e = TD.derive_dev(41, 40, 2.0 ** -8)
+        self.assertTrue(all(a + b in (0, 1) for a, b in zip(d["w"], e["w"])))
+        with self.assertRaises(ValueError):
+            TD.quantize([1.0], 2.0 ** -20, -32767, 32767)              # refused, never clipped
+
+    def test_short_item_geometry(self):
+        import zk60_native_rg_classify as CL
+        g = CL.ClassGeom(**dict(CL.RUNG_RC1, n=20))
+        self.assertEqual(g.door_findings, [])
+        self.assertEqual((g.item_len(), g.pad_positions(), g.verdict_row(), g.plan_size(), g.is_short()), (29, 3, 28, 23, True))
+        pre, suf = list(range(1, 9)), [32]
+        self.assertEqual([g.kappa(t, pre, suf) for t in range(26, 32)], [0, 0, 32, 2, 2, 2])
+        self.assertTrue(all(g.is_template(t) for t in range(28, 32)))
+        full = CL.ClassGeom(**CL.RUNG_RC1)
+        self.assertEqual((full.item_len(), full.pad_positions(), full.verdict_row(), full.is_short()), (32, 0, 31, False))
+        self.assertEqual(full.kappa(31, pre, suf), 32)
+        self.assertTrue(CL.ClassGeom(**dict(CL.RUNG_RC1, pad=300)).door_findings)
+
+    @unittest.skipUnless(os.path.isdir(os.path.join(CAP, "classify-rc3-rung-L2-v1-short20")), "the r14 short-item capture is not on disk")
+    def test_short_item_capture_end_to_end(self):
+        import zk60_native_rg_classgate as CG
+        import zk60_native_rg_classterminals as CT
+        import zk60_native_rg_classpins as CP
+        b = CG.load(os.path.join(self.CAP, "classify-rc3-rung-L2-v1-short20"))
+        self.assertEqual(b.shape_slot_note["extra_zero_slot_triples_stripped"], 1)   # F18-1
+        # [v22] an r14 capture is refused by name by v22's pin rule (the three
+        # ported classifier files moved); the rest of this test runs the v22
+        # tools on it under v21's rule, kept for the record
+        v22 = CP.classify_capture_pins(b.manifest)
+        self.assertFalse(v22["ok"])
+        self.assertTrue(all("the v22 classifier port was read at" in x for x in v22["refusals"]), v22["refusals"])
+        self.assertTrue(CP.classify_capture_pins_v21(b.manifest)["ok"])
+        _keep = CP.classify_capture_pins
+        CP.classify_capture_pins = CP.classify_capture_pins_v21
+        self.addCleanup(setattr, CP, "classify_capture_pins", _keep)
+        i = CG.class_integrity(b)
+        self.assertTrue(i["ok"], i["findings"][:4])
+        self.assertEqual(i["source_pins"]["pins"], 60)
+        self.assertEqual(i["bout_claim_row"]["row"], 28)
+        self.assertEqual(i["rc3_lengths_re_derived"]["pad_positions"], 3)
+        rp = CG.ClassRunReplay(b).run()
+        self.assertTrue(rp.summary()["ok"])
+        tc = CT.check_classify_terminals(b, rp)
+        self.assertTrue(tc["ok"], tc["findings"][:3])
+        self.assertEqual((tc["slots_equal"], tc["public_tables_taken"]), (12, 0))
+        self.assertEqual(tc["one_public_bit"]["taken_tables"], [])
+        self.assertTrue(tc["B3_margin_vector"]["ok"])
+        c = CG.c13_controls(b, rp)
+        for k in ("C13-1_doctored_pad_position", "C13-2_pad_inside_the_content_range",
+                  "C13-3_shifted_verdict_row", "C13-4_declared_length_not_the_actual"):
+            self.assertTrue(c[k]["fires"], (k, c[k]))
+
+    @unittest.skipUnless(os.path.isdir(os.path.join(CAP, "classify-rc3-cli-p18-r14")), "the P-18 r14 capture is not on disk")
+    def test_the_p18_capture_pins_and_a_full_item(self):
+        import zk60_native_rg_classgate as CG
+        import zk60_native_rg_classpins as CP
+        b = CG.load(os.path.join(self.CAP, "classify-rc3-cli-p18-r14"))
+        self.assertFalse(CP.classify_capture_pins(b.manifest)["ok"])   # [v22] refused by name
+        _keep = CP.classify_capture_pins
+        CP.classify_capture_pins = CP.classify_capture_pins_v21
+        self.addCleanup(setattr, CP, "classify_capture_pins", _keep)
+        r = CP.classify_capture_pins(b.manifest)
+        self.assertTrue(r["ok"], r["refusals"][:4])
+        ported = {x["file"] for x in r["per_file"] if x["status"] == "the v21 classifier port's digest"}
+        self.assertEqual(ported, set(CP.CLASSIFY_PORTED_FROM_V21))
+        i = CG.class_integrity(b)
+        self.assertTrue(i["ok"], i["findings"][:4])
+        self.assertEqual((i["bout_claim_row"]["row"], i["rc3_lengths_re_derived"]["pad_positions"]), (31, 0))
+        c = CG.c13_controls(b, CG.ClassRunReplay(b).run())
+        self.assertIsNone(c["C13-1_doctored_pad_position"]["fires"])          # no pad position
+        self.assertTrue(c["C13-3_shifted_verdict_row"]["fires"])
+
+
+class ClassifierV22(unittest.TestCase):
+    """[v22, gate round 19] token frozen-r16b on native R13: the v22 pin rule
+    (72 pins, the gate's own H19 patch readings), the R13 integrity (one gate
+    denominator per block stage line), the registered Shieldstral policy list,
+    the Shieldstral B-3 arithmetic (the butterfly and the exact numpy fold), the
+    refusal-term recount, and on an R13 rung capture the replay, the 12
+    classifier slots, NL-1 and the C-13 controls"""
+
+    CAP = "/home/victor/zk60-artifacts/token-io/captures"
+    R13 = "classify-r13-rung-L2-v1-short11"
+
+    def test_shieldstral_policy_list(self):
+        import zk60_native_rg_classify as CL
+        import struct
+        self.assertEqual(sorted(CL.SHIELDSTRAL_POLICIES), ["shieldstral-1.0-3b-moderate-hate/1",
+                         "shieldstral-1.0-3b-moderate-sexual/1", "shieldstral-1.0-3b-moderate-violence/1"])
+        self.assertEqual(CL.PAD_IDS[CL.RUN_PROFILE_CLASSIFY_R13_SHIELD_T128], 11)
+        self.assertEqual(CL.CHUNK_OVERLAPS[CL.RUN_PROFILE_CLASSIFY_R13_SHIELD_T256], 8)
+        self.assertIn("card policy", CL.shieldstral_policy_check({"id": CL.SHIELDSTRAL_CARD_POLICY})[0])
+        self.assertTrue(CL.shieldstral_policy_check({"id": "shieldstral-1.0-3b-strict-hate/1"}))
+        bad = {"id": "shieldstral-1.0-3b-moderate-hate/1", "prefix_ids": [0] * 78, "suffix_ids": [4], "yes": 13059,
+               "no": 2649, "c": 0, "num_special": 1000}
+        self.assertEqual(CL.shieldstral_policy_check(bad), ["policy shieldstral-1.0-3b-moderate-hate/1: the prefix ids are not the registered template's"])
+        self.assertEqual(struct.unpack("<d", struct.pack("<Q", int(CL.SHIELDSTRAL_POLICY_COMMON["margin_scale_bits"], 16)))[0], 4.08288030735373e-06)
+
+    def test_shieldstral_derivation_arithmetic(self):
+        import random
+        import numpy as np
+        import zk60_native_rg_classtied as TD
+        from zk60_native_jv_field import eq_table_msb, f2_add, f2_mul_base, P
+        rng = random.Random(19)
+        row = [rng.uniform(-3, 3) for _ in range(3072)]
+        signs = [rng.choice((-1.0, 1.0)) for _ in range(3072)]
+        want = [x * s for x, s in zip(row, signs)]          # derive.rs::rotate, transcribed scalar
+        for b0 in range(0, 3072, 1024):
+            blk = want[b0:b0 + 1024]
+            step = 1
+            while step < 1024:
+                for c0 in range(0, 1024, 2 * step):
+                    for i in range(step):
+                        a, b = blk[c0 + i], blk[c0 + i + step]
+                        blk[c0 + i], blk[c0 + i + step] = a + b, a - b
+                step *= 2
+            want[b0:b0 + 1024] = [x / 32.0 for x in blk]
+        got = TD._rotate_rows(np.array([row]), np.array(signs))[0].tolist()
+        self.assertEqual(got, want)                           # bit for bit
+        emb = np.array([[rng.randint(-32768, 32767) for _ in range(40)] for _ in range(7)], dtype=np.int16)
+        r = [(rng.randrange(P), rng.randrange(P)) for _ in range(6)]
+        e = eq_table_msb(r)
+        exact = []
+        for v in range(7):
+            acc = (0, 0)
+            for i in range(40):
+                acc = f2_add(acc, f2_mul_base(e[i], int(emb[v, i]) % P))
+            exact.append(acc)
+        self.assertEqual(TD.emb_fold_np(emb, 40, r), exact)
+
+    def test_refusal_term_recount(self):
+        import math
+        P = (1 << 64) - (1 << 32) + 1
+        f = lambda tds, t: round(math.log2(2 * (sum(tds) + t + 256)) - 2 * math.log2(P), 2)
+        self.assertEqual(f([512 + 4096 * 4] * 26, 128), -108.25)   # R13 Shieldstral T128, groups at the class max
+        self.assertEqual(f([768] * 26, 512), -112.66)              # D40 as accepted (legacy shape)
+
+    @unittest.skipUnless(os.path.isdir(os.path.join(CAP, R13)), "the R13 rung capture is not on disk")
+    def test_r13_capture_pins_integrity_and_classifier_stages(self):
+        import zk60_native_rg_classgate as CG
+        import zk60_native_rg_classterminals as CT
+        b = CG.load(os.path.join(self.CAP, self.R13))
+        i = CG.class_integrity(b)
+        self.assertTrue(i["ok"], i["findings"][:4])
+        self.assertEqual(i["source_pins"]["pins"], 72)
+        self.assertEqual((i["r13_profile"], i["r13_stage_gates"]), (True, [20, 21]))
+        self.assertEqual((i["bout_claim_row"]["row"], i["rc3_lengths_re_derived"]["pad_positions"]), (19, 12))
+        import zk60_native_rg_classpins as CP
+        st = {x["status"].split(":")[0] for x in CP.classify_capture_pins(b.manifest)["per_file"]}
+        self.assertIn("the v22 classifier port's digest", st)
+        rp = CG.ClassRunReplay(b).run()
+        self.assertTrue(rp.summary()["ok"])
+        tc = CT.check_classify_terminals(b, rp)
+        self.assertTrue(tc["ok"], tc["findings"][:3])
+        self.assertEqual((tc["slots_equal"], tc["public_tables_taken"]), (12, 0))
+        self.assertTrue(CT.nl1_classify_slots(b, rp)["ok"])
+        c = CG.c13_controls(b, rp)
+        for k in ("C13-1_doctored_pad_position", "C13-2_pad_inside_the_content_range",
+                  "C13-3_shifted_verdict_row", "C13-4_declared_length_not_the_actual"):
+            self.assertTrue(c[k]["fires"], (k, c[k]))
+        # a stage line naming another denominator is refused
+        keep = list(b.run["stage_lines"])
+        b.run["stage_lines"] = [ln.replace("R13 gate denominator 21", "R13 gate denominator 25") for ln in keep]
+        bad = CG.class_integrity(b)
+        b.run["stage_lines"] = keep
+        self.assertFalse(bad["ok"])
+        self.assertTrue(any("R13 gate denominator" in x for x in bad["findings"]), bad["findings"][:3])
+
+    @unittest.skipUnless(os.path.isdir(os.path.join(CAP, R13)), "the R13 rung capture is not on disk")
+    def test_length_and_digest_only_capture_path(self):
+        """[v22] a capture written with public tables as length + digest only (the
+        real Shieldstral capture's option): the 12 classifier slots are checked on
+        the REBUILT tables against the capture's digests (19 rebuilt, 0 taken), B-3
+        holds, the controls fire, a doctored digest is refused; a capture that does
+        not declare the option still refuses a table without values"""
+        import zk60_native_rg_classgate as CG
+        import zk60_native_rg_classterminals as CT
+        b = CG.load(os.path.join(self.CAP, self.R13))
+        rp = CG.ClassRunReplay(b).run()
+        for st in (b.stages[0], b.stages[-1]):
+            for a in st.doc["arguments"]:
+                for t in a["tables"]:
+                    if t["kind"] == "public":
+                        t.pop("values", None)
+        undeclared = CT.check_classify_terminals(b, rp)
+        self.assertFalse(undeclared["ok"])
+        self.assertTrue(any("the capture carries no values" in x for x in undeclared["findings"]))
+        b.run["public_tables_included"] = False
+        tc = CT.check_classify_terminals(b, rp)
+        self.assertTrue(tc["ok"], tc["findings"][:3])
+        self.assertEqual((tc["slots_equal"], tc["public_tables_rebuilt"], tc["public_tables_taken"]), (12, 19, 0))
+        self.assertTrue(tc["B3_margin_vector"]["ok"])
+        c = CG.class_controls(b, rp, tc)
+        self.assertEqual(c["not_fired"], [])
+        for a in b.stages[-1].doc["arguments"]:
+            for t in a["tables"]:
+                if t["kind"] == "public" and t["len"] == 512:
+                    t["sha256"] = "00" * 32
+                    break
+        self.assertFalse(CT.check_classify_terminals(b, rp)["ok"])
+
+
+class ClassifierV23(unittest.TestCase):
+    """[v23, gate round 20] token frozen-r17: the v23 pin rule (frozen-r17's
+    run_capture.rs read, plane_index.rs = the gate's H19-3), v22 refusing an r17
+    capture by name, the r17 self-check against the token manifests; F19-G1
+    (the repository root searched upward); F19-G2 (refused pins -> a written
+    refusal, exit code 3, no KeyError); the streamed file hash; and on the r17
+    rung capture WITH table values the integrity and all 23 block slots of both
+    R13 stages"""
+
+    CAP = "/home/victor/zk60-artifacts/token-io/captures"
+    R17_RUNG = "classify-r13-rung-L2-v1-r17-values"
+    R17_REAL = "classify-r13-shield-t128-cli-hate-r17-values"
+    R14_SHORT = "classify-rc3-rung-L2-v1-short20"
+
+    def test_r17_pin_reading_and_self_check(self):
+        import zk60_native_rg_classpins as CP
+        rc = "src/private_block/run_capture.rs"
+        self.assertIn("cce0fc2a4062fcb4c92e771b8d7ac7f996c9ccfbc985bfb6decd79b29fba7ddf", CP.TOKEN_R17_READINGS[rc])
+        sc = CP.r17_self_check()
+        self.assertTrue(sc["ok"], sc["findings"])
+        pinned_moves = [p for p in sc["moved_r16b_to_r17"] if p in (rc, "src/private_block/plane_index.rs")]
+        self.assertEqual(len(pinned_moves), 2)
+        for name in (self.R17_REAL, self.R17_RUNG):
+            p = os.path.join(self.CAP, name, "manifest.json")
+            if not os.path.exists(p):
+                continue
+            man = json.load(open(p))
+            v23 = CP.classify_capture_pins_v23(man)                 # [v24] by name: the dispatcher is v24's now
+            self.assertTrue(v23["ok"], v23["refusals"])
+            self.assertEqual(v23["pins"], 72)
+            self.assertTrue(v23["port"].startswith("v23"))
+            v22 = CP.classify_capture_pins_v22(man)                 # v22's own rule refuses by name
+            self.assertEqual(v22["refusals"], [f"{rc}: cce0fc2a4062 has no reading"])
+            # a moved digest of the read file is still refused
+            bad = copy.deepcopy(man)
+            for e in bad["source_pins"]:
+                if e["file"] == rc:
+                    e["sha256"] = "ab" * 32
+            self.assertFalse(CP.classify_capture_pins(bad)["ok"])
+
+    def test_f19_g1_repository_root_searched_upward(self):
+        import zk60_native_rg_classpins as CP
+        import zk60_native_rg_r13_pins as R13
+        root = R13.repo_root()
+        self.assertTrue(os.path.isdir(os.path.join(root, "results")) and os.path.isdir(os.path.join(root, "ops", "zkp-mvp")))
+        self.assertEqual(CP._repo_root(), root)
+        self.assertEqual(R13._ROOT, root)
+        # at every depth the gate's copies live (working copy: 4; staging / frozen: 5)
+        for rel in ("ops/zkp-mvp/gate-tinyllama/scripts/x.py", "ops/zkp-mvp/gate-tinyllama/frozen_v23/scripts/x.py"):
+            self.assertEqual(R13.repo_root(os.path.join(root, rel)), root)
+        with self.assertRaises(RuntimeError):
+            R13.repo_root("/proc/self/x.py")
+        self.assertTrue(R13.self_check()["ok"])                    # its 119 digests re-hashed from the found root
+
+    def test_streamed_file_hash(self):
+        import hashlib
+        import zk60_native_rg_classgate as CG
+        p = os.path.join(PORT, "zk60_native_rg_classgate.py")
+        want = hashlib.sha256(open(p, "rb").read()).hexdigest()
+        self.assertEqual(CG._sha(p), want)
+        self.assertEqual(CG._sha(p), want)                           # cached
+
+    @unittest.skipUnless(os.path.isdir(os.path.join(CAP, R14_SHORT)), "the r14 short-item capture is not on disk")
+    def test_f19_g2_refused_pins_are_a_written_refusal(self):
+        import tempfile
+        import zk60_native_rg_classgate as CG
+        d = tempfile.mkdtemp(prefix="gate-v23-f19g2-")
+        import shutil
+        self.addCleanup(shutil.rmtree, d, True)
+        rc = CG.main(["--bundle", os.path.join(self.CAP, self.R14_SHORT), "--evidence", d, "--name", "refused"])
+        self.assertEqual(rc, CG.EXIT_REFUSED)
+        rec = json.load(open(os.path.join(d, "refused.json")))
+        self.assertEqual(rec["status"], "REFUSED")
+        self.assertEqual(rec["refusal"]["by"], "source pins")
+        self.assertTrue(rec["refusal"]["refusals"])
+        self.assertTrue(all("classifier port was read at" in x or "has no reading" in x for x in rec["refusal"]["refusals"]))
+        self.assertNotIn("replay", rec)                             # nothing past the integrity check ran
+        self.assertFalse(rec["privacy_acceptance"])
+
+    @unittest.skipUnless(os.path.isdir(os.path.join(CAP, R17_RUNG)), "the r17 rung values capture is not on disk")
+    def test_r17_rung_values_capture_closes_all_23_block_slots(self):
+        import zk60_native_rg_classgate as CG
+        import zk60_native_rg_r13blocks as RB
+        b = CG.load(os.path.join(self.CAP, self.R17_RUNG))
+        self.assertTrue(b.public_tables_included)
+        i = CG.class_integrity(b)
+        self.assertTrue(i["ok"], i["findings"][:4])
+        self.assertEqual((i["source_pins"]["pins"], i["r13_stage_gates"]), (72, [20, 21]))
+        rp = CG.ClassRunReplay(b).run()
+        self.assertTrue(rp.summary()["ok"])
+        t = RB.r13_block_terminals(b, rp, controls=True)
+        self.assertTrue(t["ok"], [(p["stage"], p["checked_not_equal"], p["refused_or_open"][:2]) for p in t.get("per_stage", [])])
+        self.assertFalse(t["tables_absent_by_capture_option"])
+        self.assertEqual([p["slot_checks_equal"] for p in t["per_stage"]], [23, 23])
+        self.assertEqual([p["open_by_capture_option"] for p in t["per_stage"]], [[], []])
+        self.assertTrue(all(c["fires"] for c in t["controls"].values() if isinstance(c, dict)))
+
+
+class ClassifierV24(unittest.TestCase):
+    """[v24, gate round 24] token frozen-r18 / r19 / r19b: the readings of the two
+    moved capture pins (private_block.rs, derive.rs), the v24 pin rule on the 72
+    pins of frozen-r18 / r19 / r19b (v23 refusing them by name), the r19b
+    self-check and its controls, and the E7 checkpoint rule mirrored in
+    zk60_native_rg_classtied (ZK60_MODELS set / empty / unset, HOME, a declared
+    checkpoint_file winning, an empty or non-string declaration refused, at the
+    rule and at its call site)"""
+
+    CAP = "/home/victor/zk60-artifacts/token-io/captures"
+    R17_REAL = "classify-r13-shield-t128-cli-hate-r17-values"
+    R16B_REAL = "classify-r13-shield-t128-cli-sexual-r16b"
+    R14_SHORT = "classify-rc3-rung-L2-v1-short20"
+    P18_R19B = "classify-rc3-cli-p18-r19b-gate24"
+    TOK = "/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017"
+    PB, DRV = "src/private_block.rs", "src/private_block/tied_tables/derive.rs"
+    PLACE = "shieldstral-1.0-3b/snapshot-003ec7e2/model.safetensors"
+
+    def _tree_manifest(self, tag):
+        """a classifier capture's `source_pins` as the recorder of frozen-<tag> would write them"""
+        import hashlib
+        import zk60_native_rg_classpins as CP
+        rel = f"results/zk60_token_io_r1_20261017/frozen-{tag}/hashline"
+        pins = []
+        for f in CP._capture_pin_files(rel):
+            with open(os.path.normpath(os.path.join(CP._repo_root(), rel, f)), "rb") as fh:
+                pins.append({"file": f, "sha256": hashlib.sha256(fh.read()).hexdigest()})
+        return {"source_pins": pins}
+
+    def test_r19b_readings_chain_to_the_r16b_links(self):
+        import zk60_native_rg_r13_pins as R13
+        self.assertEqual(R13.chain(self.DRV, R13.DERIVE_T19B)[:4],
+                         [R13.DERIVE_T19B, R13.DERIVE_T19, R13.DERIVE_T16, R13.DERIVE_T14])
+        self.assertEqual(R13.chain(self.PB, R13.PRIVATE_BLOCK_T18)[:3],
+                         [R13.PRIVATE_BLOCK_T18, R13.PRIVATE_BLOCK_T16, R13.PRIVATE_BLOCK_T14])
+        self.assertEqual(R13.DERIVE_T16, "c5bec3c676e635aab1c609fdf2f541d003e14d7a50efc36d0fed42fc85b7d981")  # the link kept
+        self.assertEqual(R13.TOKEN_R16B_DIGESTS[self.DRV], R13.DERIVE_T16)                                  # r16b's terminal kept
+        self.assertEqual((R13.TOKEN_R19B_DIGESTS[self.DRV], R13.TOKEN_R19B_DIGESTS[self.PB]),
+                         (R13.DERIVE_T19B, R13.PRIVATE_BLOCK_T18))
+        for rd in R13.TOKEN_R19B_READINGS.values():
+            for r in rd.values():
+                self.assertFalse(r["moves_a_receipt_byte"] or r["moves_a_block_stage_byte"])
+        sc = R13.self_check()
+        self.assertTrue(sc["ok"], sc["problems"][:4])
+
+    def test_r19b_self_check_and_its_control(self):
+        from unittest import mock
+        import zk60_native_rg_classpins as CP
+        sc = CP.r19b_self_check()
+        self.assertTrue(sc["ok"], sc["findings"])
+        self.assertEqual(sc["moved_and_pinned"], [self.PB, self.DRV])
+        self.assertEqual(sc["pinned"], 72)
+        self.assertEqual(len(sc["moved_r17_to_r19b"]), 10)
+        # control: without the round-24 readings (the OLD pins) the self-check fails, naming both files
+        with mock.patch.object(CP, "_r19b_tables", return_value={}):
+            bad = CP.r19b_self_check()
+        self.assertFalse(bad["ok"])
+        self.assertTrue(any(self.PB in x for x in bad["findings"]) and any(self.DRV in x for x in bad["findings"]))
+
+    def test_v24_pin_rule_on_the_trees(self):
+        """the 72 pins of frozen-r18 / r19 / r19b: v24 accepts each, v23 refuses each by name"""
+        import zk60_native_rg_classpins as CP
+        want_v23 = {"r18": [self.PB], "r19": [self.PB, self.DRV], "r19b": [self.PB, self.DRV]}
+        for tag in ("r17", "r18", "r19", "r19b"):
+            man = self._tree_manifest(tag)
+            v24 = CP.classify_capture_pins(man)
+            self.assertTrue(v24["ok"], (tag, v24["refusals"]))
+            self.assertEqual(v24["pins"], 72)
+            self.assertTrue(v24["port"].startswith("v24"))
+            v23 = CP.classify_capture_pins_v23(man)
+            got = sorted(x.split(":")[0] for x in v23["refusals"])
+            self.assertEqual(got, want_v23.get(tag, []), (tag, v23["refusals"]))
+            self.assertTrue(all("has no reading" in x for x in v23["refusals"]))
+        # a moved digest of a read file is still refused
+        man = self._tree_manifest("r19b")
+        for e in man["source_pins"]:
+            if e["file"] == self.DRV:
+                e["sha256"] = "ab" * 32
+        bad = CP.classify_capture_pins(man)
+        self.assertEqual(bad["refusals"], [f"{self.DRV}: {'ab' * 6} has no reading"])
+
+    def test_v24_still_reads_the_older_captures_and_refuses_r14(self):
+        import zk60_native_rg_classpins as CP
+        for name, ok in ((self.R17_REAL, True), (self.R16B_REAL, True), (self.R14_SHORT, False)):
+            p = os.path.join(self.CAP, name, "manifest.json")
+            if not os.path.exists(p):
+                continue
+            v = CP.classify_capture_pins(json.load(open(p)))
+            self.assertEqual(v["ok"], ok, (name, v["refusals"][:3]))
+
+    def test_capture_cli_binary(self):
+        import zk60_native_rg_classpins as CP
+        self.assertEqual(set(CP.TOKEN_CLI_BINARIES), {"r16b", "r17", "r18", "r19", "r19b"})
+        d = os.path.join(self.CAP, self.R17_REAL)
+        if os.path.isdir(d):
+            self.assertEqual(CP.capture_cli_binary(d)["token_round"], "r17")
+        self.assertFalse(CP.capture_cli_binary("/proc/self")["cli_path_capture"])
+
+    def test_e7_checkpoint_rule_mirrored(self):
+        """the cases of derive.rs (1d615010) `r19_the_default_checkpoint_is_under_zk60_models_when_set_else_
+        under_home_models` (:409-422) and `r19_a_declared_checkpoint_file_keeps_precedence_over_the_default`
+        (:427-440), transcribed, plus Rust's refusal of an EMPTY declared path (`regular("")`)"""
+        import zk60_native_rg_classtied as TD
+        under = lambda d: f"{d}/{self.PLACE}"
+        D = TD.shield_default_checkpoint
+        self.assertEqual(D({"ZK60_MODELS": "/srv/zk60-models", "HOME": "/home/someone"}), under("/srv/zk60-models"))
+        self.assertEqual(D({"ZK60_MODELS": "/srv/zk60-models"}), under("/srv/zk60-models"))          # HOME unset
+        self.assertEqual(D({"HOME": "/home/someone"}), under("/home/someone/models"))                  # ZK60_MODELS unset
+        self.assertEqual(D({"ZK60_MODELS": "", "HOME": "/home/someone"}), under("/home/someone/models"))  # EMPTY = unset
+        for env in ({}, {"ZK60_MODELS": "", "HOME": ""}, {"HOME": ""}, {"ZK60_MODELS": ""}):
+            with self.assertRaises(ValueError):                                                       # refused, never guessed
+                D(env)
+        self.assertEqual(D({"HOME": "/home/victor"}),
+                         "/home/victor/models/shieldstral-1.0-3b/snapshot-003ec7e2/model.safetensors")  # = v23's constant
+        self.assertEqual(D({"ZK60_MODELS": "rel/models", "HOME": "/home/x"}), under("rel/models"))     # relative: as given
+        self.assertFalse(hasattr(TD, "SHIELD_DEFAULT_CHECKPOINT"))                                     # no absolute default left
+        P = TD.shield_checkpoint_path
+        env = {"ZK60_MODELS": "/srv/zk60-models", "HOME": "/home/someone"}
+        decl = {"tensor": "t", "sha256": "00", "checkpoint_file": "/declared/model.safetensors"}
+        self.assertEqual(P(decl, env), "/declared/model.safetensors")                                 # a declaration wins
+        self.assertEqual(P(decl, {}), "/declared/model.safetensors")                                  # the default not evaluated
+        self.assertEqual(P({"tensor": "t", "sha256": "00"}, env), under("/srv/zk60-models"))          # no declaration: the default
+        with self.assertRaises(ValueError):
+            P({"tensor": "t", "sha256": "00"}, {})                                                    # no declaration, no default
+        for bad in ("", 7, None, ["x"]):                                                              # empty / non-string: refused
+            with self.assertRaises(ValueError):
+                P(dict(decl, checkpoint_file=bad), env)
+        with self.assertRaises(ValueError):
+            P(dict(decl, checkpoint_file=""), {"HOME": "/home/victor"})                             # even where a default exists
+
+    def test_e7_rule_is_what_the_stream_opens(self):
+        """at the call site (`_shield_stream`): a set ZK60_MODELS naming a missing file is refused there and
+        never falls back to HOME (whose default may exist on this box); ZK60_MODELS empty -> HOME; an empty
+        declared path is refused before anything is opened"""
+        import hashlib
+        import shutil
+        import struct
+        import tempfile
+        from unittest import mock
+        import zk60_native_rg_classtied as TD
+        d = tempfile.mkdtemp(prefix="gate-v24-e7-")
+        self.addCleanup(shutil.rmtree, d, True)
+        ex = os.path.join(d, "export")
+        os.makedirs(ex)
+        signs = struct.pack("<3072d", *([1.0] * 3072))
+        with open(os.path.join(ex, "rotation_sign.bin"), "wb") as fh:
+            fh.write(signs)
+
+        def profile(tied):
+            with open(os.path.join(ex, "profile.json"), "w") as fh:
+                json.dump({"metadata_out_of_proof": {"residual_scales_in": [0.01], "rotation": {
+                    "kind": "block-hadamard", "width": 3072, "block_width": 1024, "blocks": 3,
+                    "sign_sha256": hashlib.sha256(signs).hexdigest()}}, "tied_embeddings": tied}, fh)
+        tied = {"tensor": TD.SHIELD_TENSOR, "sha256": TD.SHIELD_TENSOR_SHA256}
+        profile(tied)
+        models = os.path.join(d, "models")
+        with mock.patch.dict(os.environ, {"ZK60_MODELS": models, "HOME": "/home/victor"}):
+            with self.assertRaises(FileNotFoundError) as cm:
+                TD._shield_stream(ex, False, 1024, (), lambda r0, q: None)
+        self.assertEqual(cm.exception.filename, os.path.join(models, self.PLACE))
+        home = os.path.join(d, "home")
+        with mock.patch.dict(os.environ, {"ZK60_MODELS": "", "HOME": home}):
+            with self.assertRaises(FileNotFoundError) as cm:
+                TD._shield_stream(ex, False, 1024, (), lambda r0, q: None)
+        self.assertEqual(cm.exception.filename, os.path.join(home, "models", self.PLACE))
+        # a file there of the wrong size: refused by the size pin (the bytes are authenticated wherever they are)
+        os.makedirs(os.path.dirname(os.path.join(models, self.PLACE)))
+        with open(os.path.join(models, self.PLACE), "wb") as fh:
+            fh.write(b"\0" * 10)
+        with mock.patch.dict(os.environ, {"ZK60_MODELS": models}):
+            with self.assertRaises(ValueError) as cm:
+                TD._shield_stream(ex, False, 1024, (), lambda r0, q: None)
+        self.assertIn("the checkpoint is 10 B", str(cm.exception))
+        profile(dict(tied, checkpoint_file=""))
+        with mock.patch.dict(os.environ, {"ZK60_MODELS": models, "HOME": "/home/victor"}):
+            with self.assertRaises(ValueError) as cm:
+                TD._shield_stream(ex, False, 1024, (), lambda r0, q: None)
+        self.assertIn("empty path", str(cm.exception))
+
+    @unittest.skipUnless(os.path.isdir(os.path.join(CAP, P18_R19B)), "the round-24 r19b P-18 capture is not on disk (deleted after its record, D46)")
+    def test_the_r19b_p18_capture(self):
+        import zk60_native_rg_classgate as CG
+        import zk60_native_rg_classpins as CP
+        d = os.path.join(self.CAP, self.P18_R19B)
+        self.assertEqual(CP.capture_cli_binary(d)["token_round"], "r19b")
+        b = CG.load(d)
+        i = CG.class_integrity(b)
+        self.assertTrue(i["ok"], i["findings"][:4])
+        self.assertEqual(i["source_pins"]["pins"], 72)
+        self.assertEqual(CP.classify_capture_pins_v23(b.manifest)["refusals"],
+                         [f"{self.PB}: 96c1cd16270b has no reading", f"{self.DRV}: 1d6150100abb has no reading"])

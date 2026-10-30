@@ -1,0 +1,100 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-indexed-fold-20261029/claim_point.rs",
+    "snapshot": "claim_point.rs",
+    "source_sha256": "2f8fc512b715646ef35c4355f8139ca76de3e74da5abd2894eaaf285a0f0f8bc",
+    "snapshot_sha256": "2f8fc512b715646ef35c4355f8139ca76de3e74da5abd2894eaaf285a0f0f8bc",
+    "change": "exact copy"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-indexed-fold-20261029/packing_plans.rs",
+    "snapshot": "packing_plans.rs",
+    "source_sha256": "3e3c45f5f5a9ff348c8e8f2897f92aa04c905d049a61e22e22f14c8de4465c61",
+    "snapshot_sha256": "3e3c45f5f5a9ff348c8e8f2897f92aa04c905d049a61e22e22f14c8de4465c61",
+    "change": "exact copy"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-indexed-fold-20261029/a_constants.rs",
+    "snapshot": "a_constants.rs",
+    "source_sha256": "208f48ad7d97219d1d2639bda728c9a18e9366625650e64482385fe92d54a1e9",
+    "snapshot_sha256": "208f48ad7d97219d1d2639bda728c9a18e9366625650e64482385fe92d54a1e9",
+    "change": "exact copy"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-indexed-fold-20261029/serial_eq.rs",
+    "snapshot": "serial_eq.rs",
+    "source_sha256": "2224d6650569ee8c764959acdb87c32313a19bc01be3756ac71337f69afdc808",
+    "snapshot_sha256": "2224d6650569ee8c764959acdb87c32313a19bc01be3756ac71337f69afdc808",
+    "change": "exact copy"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-indexed-fold-20261029/cases.rs",
+    "snapshot": "cases.rs",
+    "source_sha256": "7d9a1a846936d498b4c8d2aba5f48efa59db9a8029f9dfe1e4be2f1d6c7e1ee4",
+    "snapshot_sha256": "7d9a1a846936d498b4c8d2aba5f48efa59db9a8029f9dfe1e4be2f1d6c7e1ee4",
+    "change": "exact copy"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-indexed-fold-20261029/a_domains.rs",
+    "snapshot": "a_domains.rs",
+    "source_sha256": "1204d9ed6e637221e927838df98f121d10e4bdc7c1daa7011c62d7de2ef1f1ff",
+    "snapshot_sha256": "1204d9ed6e637221e927838df98f121d10e4bdc7c1daa7011c62d7de2ef1f1ff",
+    "change": "exact copy"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-indexed-fold-20261029/a_ids.rs",
+    "snapshot": "a_ids.rs",
+    "source_sha256": "62e6873551fd42b065f196f2941cee5cb6a10985506c657a608324198ae8993b",
+    "snapshot_sha256": "62e6873551fd42b065f196f2941cee5cb6a10985506c657a608324198ae8993b",
+    "change": "exact copy"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-indexed-fold-20261029/a_offsets.rs",
+    "snapshot": "a_offsets.rs",
+    "source_sha256": "b1875399618b6ea59d42e6eb01b2889366c39c921a5c24e25756ce768199ea39",
+    "snapshot_sha256": "b1875399618b6ea59d42e6eb01b2889366c39c921a5c24e25756ce768199ea39",
+    "change": "exact copy"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-indexed-fold-20261029/native_audit.rs",
+    "snapshot": "native_audit.rs",
+    "source_sha256": "8b1795992b919822529b610777bfb4430c4a78f3d6f83707a3d4bab39930c663",
+    "snapshot_sha256": "8b1795992b919822529b610777bfb4430c4a78f3d6f83707a3d4bab39930c663",
+    "change": "exact copy"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-indexed-fold-20261029/indexed.rs",
+    "snapshot": "indexed.rs",
+    "source_sha256": "182de0b5911f37a4b7168ae09b3c517bc55d18198194daa07dad27d49fd1bdb5",
+    "snapshot_sha256": "182de0b5911f37a4b7168ae09b3c517bc55d18198194daa07dad27d49fd1bdb5",
+    "change": "exact copy"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-indexed-fold-20261029/native_groups.rs",
+    "snapshot": "native_groups.rs",
+    "source_sha256": "54c0c1d6d7cdaa4fbea7448dd7448990f1a94e6234634ea24f71c030a4ef9ce9",
+    "snapshot_sha256": "54c0c1d6d7cdaa4fbea7448dd7448990f1a94e6234634ea24f71c030a4ef9ce9",
+    "change": "exact copy"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-indexed-fold-20261029/builder.rs",
+    "snapshot": "builder.rs",
+    "source_sha256": "16ab91fb910e2d63bf339808260397addfe2688103654b27853be87f6ad1e7b9",
+    "snapshot_sha256": "16ab91fb910e2d63bf339808260397addfe2688103654b27853be87f6ad1e7b9",
+    "change": "exact copy"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-indexed-fold-20261029/a_builder.rs",
+    "snapshot": "a_builder.rs",
+    "source_sha256": "e5030179c03abb32d2156bdae225460914400c6e454ca84c84fc6ecd5f946418",
+    "snapshot_sha256": "e5030179c03abb32d2156bdae225460914400c6e454ca84c84fc6ecd5f946418",
+    "change": "exact copy"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-indexed-fold-20261029/harness.rs",
+    "snapshot": "harness.rs",
+    "source_sha256": "f9b9a60e80fb1b9f31868b604139329e8bb0d2b024cfa49fa9d5cc4a7be1ade7",
+    "snapshot_sha256": "7bf2485041b9063b403374e3a2c256285e2f89fc2cd79ed0acdf1b97bd7d79d0",
+    "change": "include interval.rs, call run_interval and change seed"
+  }
+]

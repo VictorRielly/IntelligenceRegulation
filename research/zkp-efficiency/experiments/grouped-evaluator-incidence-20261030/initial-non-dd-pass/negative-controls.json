@@ -1,0 +1,14 @@
+[
+  "drop_sum",
+  "drop_exp_helper",
+  "stop_support_at_host_degree",
+  "stop_s8_at_zero",
+  "out_of_range_plan",
+  "zero_degree_plan",
+  "group_count_plan",
+  "round_order",
+  "fold_without_round",
+  "premature_finals",
+  "ragged_tables",
+  "explicit_zero_factor_fallback"
+]

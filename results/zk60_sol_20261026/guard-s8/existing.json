@@ -1,0 +1,9 @@
+{
+  "utc": "2026-10-28T22:13:37.105544+00:00",
+  "suite": "existing",
+  "tests": 45,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 4,
+  "scope": "private candidate only; live guard unchanged"
+}

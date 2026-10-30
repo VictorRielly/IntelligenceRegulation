@@ -1,0 +1,19 @@
+{
+  "stage": "final-audit",
+  "command": [
+    "/usr/bin/python3",
+    "-B",
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/hybrid-opening-budget-20261030/final_audit.py"
+  ],
+  "exit_code": 0,
+  "wall_s": 0.06560192500000994,
+  "max_rss_kib": 31612,
+  "one_cpu_affinity": true,
+  "nice": 19,
+  "cpu_limit_s": 40,
+  "alarm_s": 45,
+  "parent_timeout_s": 50,
+  "address_space_mib": 384,
+  "estimated_memory_mib": 96,
+  "gpu": false
+}

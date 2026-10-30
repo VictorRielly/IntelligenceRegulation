@@ -1,0 +1,11 @@
+{
+  "status": "COMPLETE",
+  "run_id": "20261029T165649Z-7b8b834a",
+  "checkpoint_utc": "2026-10-29T17:11:57.380169+00:00",
+  "deadline_utc": "2026-10-29T17:16:49Z",
+  "next_cycle_not_before": "2026-10-29T17:56:49Z",
+  "native_improvement_measured": false,
+  "full_stack_proofs": 0,
+  "model_passes": 0,
+  "proved_positions": 0
+}

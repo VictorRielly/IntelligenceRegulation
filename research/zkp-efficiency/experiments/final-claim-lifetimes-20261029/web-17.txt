@@ -1,0 +1,433 @@
+Doubly Eﬃcient Interactive Proofs for General (https://eprint.iacr.org/2020/1247.pdf)
+citeturn16search12 [wordlim: 200] Published: 2.2 years ago; Doubly Eﬃcient Interactive Proofs for General
+Arithmetic Circuits with Linear Prover Time ... general arithmetic circuits using our new interactive proof protocol to- ... it only takes 0.3 seconds to generate the proof for a circuit with more
+Doubly Eﬃcient Interactive Proofs for General
+Arithmetic Circuits with Linear Prover Time
+Jiaheng Zhang⋆, Tianyi Liu⋆⋆, Weijie Wang⋆⋆⋆, Yinuo Zhang⋆, Dawn
+Song⋆, Xiang Xie†, Yupeng Zhang⋆⋆.
+Abstract. We propose a new doubly eﬃcient interactive proof protocol
+for general arithmetic circuits. The protocol generalizes the interactive
+proof for layered circuits proposed by Goldwasser, Kalai and Rothblum to
+arbitrary circuits, while preserving the optimal prover complexity that is
+strictly linear to the size of the circuits. The proof size remains succinct
+for low depth circuits and the veriﬁer time is sublinear for structured
+circuits. We then construct a new zero knowledge argument scheme for
+general arithmetic circuits using our new interactive proof protocol to-
+gether with polynomial commitments.
+Our key technique is a new sumcheck equation that reduces a claim
+about the output of one layer to claims about its input only, instead
+of claims about all the layers above which inevitably incurs an overhead
+proportional to the depth of the circuit. We developed eﬃcient algorithms
+for the prover to run this sumcheck protocol and to combine multiple
+claims back into one in linear time in the size of the circuit.
+Not only does our new protocol achieve optimal prover complexity asymp-
+totically, but it is also eﬃcient in practice. Our experiments show that
+it only takes 0.3 seconds to generate the proof for a circuit with more
+than 600,000 gates, which is 13 times faster than the original interactive
+proof protocol on the corresponding layered circuit. The proof size is 208
+kilobytes and the veriﬁer time is 66 milliseconds. Our implementation
+can take general arithmetic circuits directly, without transforming them
+to layered circuits with a high overhead on the size of the circuit.
+1
+Introduction
+Interactive proofs allow a powerful yet untrusted prover to convince a veriﬁer
+through a sequence of interactions that the result of a computation is correctly
+computed. Since they were introduced by Goldwasser, Micali, and Rackoﬀ[15]
+in the 1980s, interactive proofs have expanded people’s understanding on tradi-
+tional static mathematical proofs and led to many important theoretical results
+in complexity theory, such as IP=PSPACE [16, 20] and MIP=NEXP [7].
+⋆University
+of
+California,
+Berkeley.
+Email:
+{jiaheng_zhang,yinuo,
+dawnsong}@berkeley.edu.
+⋆⋆Texas A&M University. Email: {tianyi,zhangyp}@tamu.edu.
+⋆⋆⋆Shanghai Jiao Tong University. Email: wangnick@sjtu.edu.cn.
+† Shanghai
+Key
+Laboratory
+of
+Privacy-Preserving
+Computation.
+Email:
+xiexiang@matrixelements.com.--------------------------------------------------------------------------------
+Efficient Zero-Knowledge Proofs: Theory and Practice (https://escholarship.org/uc/item/5qm6n0s0)
+citeturn16search0 [wordlim: 200] Published: 3.5 years ago; Crawled: yesterday; Communication Group and the Chinese Graduate Communication Group of 2021. ... can add a check to both the protocol and the simulator to abort if 2 c 2 − 1 = 0. ... proof size is O(√C) and the verification time is quasi-linear to the size of the circuit. ... In the seminal work of [GKR15], Goldwasser et al. proposed an efficient interactive proof for layered
+arithmetic circuits, which was extended to an arugment system by Zhang et al. in [ZGKPP17b] using a protocol ... [XZZPS19a] proposed a variant with O(C) prover time for arbitrary circuits. ... Consider the following theorem: ... For a finite field F and a family of layered arithmetic circuit C F over F, Protocol 7 is a zero ... The efficiency follows Lemma 7.2.5 and the ... Bulletproofs for general computations, providing full anonimity still remain impractical. ... In this paper, we propose to address the problem of machine learning integrity using the cryptographic
+2.4 Zero Knowledge Argument Protocols
+In this section, we present the construction of our new zero-knowledge argument system. In [ZGKPP17b],
+Zhang et al. proposed to combine the GKR protocol with a verifiable polynomial delegation protocol, resulting
+in an argument system. Later, in [ZGKPP17a; WTSTW18], the construction was extended to zero-knowledge,
+by sending all the messages in the GKR protocol in homomorphic commitments and performing all the
+checks by zero-knowledge equality and product testing. This incurs a high overhead for the verifier compared
+to the plain version without zero-knowledge, as each multiplication becomes an exponentiation and each
+equality check becomes a Σ-protocol, which is around 100× slower in practice.
+In this paper, we follow the same blueprint of combining GKR and VPD to obtain an argument system,
+but instead show how to extend it to be zero-knowledge efficiently. In particular, the prover masks the
+GKR protocol with special random polynomials so that the verifier runs a “randomized” GKR that leaks
+no extra information and her overhead is small. A similar approach was used by Chiesa et al. in [CFS17].
+In the following, we present the zero-knowledge version of each building block, followed by the whole
+zero-knowledge argument.
+2.4.1 Zero Knowledge Sumcheck
+As a core step of the GKR protocol, P and V execute a sumcheck protocol on Equation 7.1, during which
+P sends V evaluations of the polynomial at several random points chosen by V. These evaluations leak
+information about the values in the circuit, as they can be viewed as weighted sums of these values.
+To make the sumcheck protocol zero-knowledge, we take the approach proposed by Chiesa et al. in
+[CFS17], which is masking the polynomial in the sumcheck protocol by a random polynomial. In this
+approach, to prove
+H = ∑
+x 1,x 2,...,x ℓ∈{0,1} f (x 1, x 2, . . . , x ℓ),
+the prover generates a random polynomial g with the same variables and individual degrees of f . She commits
+to the polynomial g, and sends the verifier a claim G = ∑
+x 1,x 2,...,x ℓ∈{0,1}
+g(x 1, x 2, . . . , x ℓ). The verifier picks
+a random number ρ, and execute a sumcheck protocol with the prover on
+H + ρG = ∑
+x 1,x 2,...,x ℓ∈{0,1}(f (x 1, x 2, . . . , x ℓ) + ρg(x 1, x 2, . . . , x ℓ)).
+At the last round of this sumcheck, the prover opens the commitment of g at g(r 1, . . . , r ℓ), and the verifier
+computes f (r 1, . . . , r l) by subtracting ρg(r 1, . . . , r ℓ) from the last message, and compares it with the oracle
+access of f . It is shown that as long as the commitment and opening of g are zero-knowledge, the protocol is
+zero-knowledge. Intuitively, this is because all the coefficients of f are masked by those of g. The soundness
+still holds because of the random linear combination of f and g.
+Unfortunately, the masking polynomial g is as big as f , and opening it to a random point later is expensive.
+In [CFS17], the prover sends a PCP oracle of g, and executes a zero-knowledge sumcheck to open it to a
+
+3.1.2 Related Work
+Zero knowledge proof. Zero knowledge proof was introduced by Goldwasser et al. in [GMR89] and
+generic constructions based on probabilistically checkable proofs (PCPs) were proposed in the seminal
+work of Kilian [Kil92] and Micali [Mic00] in the early days. In recent years there has been significant
+progress in efficient ZKP protocols and systems. Following earlier work of Ishai [IKO], Groth [Gro10] and
+Lipmaa [Lip12], Gennaro et al. [GGPR13] introduced quadratic arithmetic programs (QAPs), which leads
+to efficient implementations of SNARKs [PHGR13; BSCGTV; BFRSBW; BSCTV14; Cos+; WSRBW15;
+FFGKOP16]. The proof size and verification time of SNARK are constant, which is particularly useful for
+real-world applications such as cryptocurrencies [Ben+14] and smart contract [KMSWP; BCGMMW18].
+However, SNARKs require a per-statement trusted setup, and incurs a high overhead in the prover running
+time and memory consumption, making it hard to scale to large statements. There has been great research for
+In the seminal work of [GKR15], Goldwasser et al. proposed an efficient interactive proof for layered
+arithmetic circuits, which was extended to an arugment system by Zhang et al. in [ZGKPP17b] using a protocol
+for verifiable polynomial delegation. Later, Zhang et al. [ZGKPP18], Wahby et al. [WTSTW18] and Xie et
+al. [XZZPS19a] made the argument system zero knowledge by Cramer and Damgard transformation [CD]
+and random masking polynomials [CFS17]. The scheme of [WTSTW18], Hyrax, is transparent, yet the proof
+size and verification time are O(√n) where n is the input size of the circuit; the schemes of [ZGKPP17a]
+and [XZZPS19a] are succinct for structured circuits, but require one-time trusted setup. The prover time of
+the GKR protocol is substantially improved in [CMT12; Tha13b; Wah+17; WTSTW18; ZGKPP18], and
+recently Xie et al. [XZZPS19a] proposed a variant with O(C) prover time for arbitrary circuits.
+Other transparent ZKP schemes based on different techniques include discrete-log-based schemes [Gro09;
+BG12; BCCGP16; BBBPWM], hash-based schemes [BCGGHJ17] and lattice-based schemes [BBCDPGL18].
+See Section 3.5.3 for detailed asymptotic complexity and practical performance of state-of-the-art systems
+with implementations.
+Verifiable polynomial delegation. Verifiable polynomial delegation (VPD) allows a verifier to delegate
+the computation of polynomial evaluations to a powerful prover, and validates the result in time that is
+constant or logarithmic to the size of the polynomial. Earlier works in the literature include [KZG; BGV;
+FG]. Based on [KZG], Papamanthou et al. [PST13] propose a protocol for multivariate polynomials. Later
+in [ZGKPP17c], Zhang et al. extend the scheme to an argument of knowledge using powers of exponent
+assumptions, allowing a prover to commit to a multivariate polynomial, and open to evaluations at points
+queried by the verifier. In [ZGKPP17a], Zhang et al. further make the scheme zero knowledge. These
+schemes are based on bilinear maps and require a trusted setup phase that generates linear-size public keys
+with a trapdoor.
+In a concurrent work, Bünz et al. [BFS19] propose another transparent polynomial commitment scheme
+without trusted setup. The scheme utilizes groups of unknown order and the techniques are different from our
+construction. The prover and verifier time are O(N ) and O(log N ) modulo exponentiation in the group and
+the proof size is O(log N ) group elements. Concretely, the proof size is 10-20KB for a circuit with 2 20 gates
+when compiled to different ZKP systems [BFS19, Section 6], and the prover time and the verification time are
+not reported. Comparing to our scheme, we expect the prover and verifier time in our scheme are faster, while
+our proof size is larger, which gives an interesting trade-off.
+3.2 Preliminaries
+We use λ to denote the security parameter, and negl(λ) to denote the negligible function in λ. “PPT" stands
+for probabilistic polynomial time. For a multivariate polynomial f , its "variable-degree" is the maximum
+degree of f in any of its variables. We often rely on polynomial arithmetic, which can be efficiently performed
+via fast Fourier tranforms and their inverses. In particular, polynomial evaluation and interpolation over a
+multiplicative coset of size n of a finite field can be performed in O(n log n) field operations via the standard
+FFT protocol, which is based on the divide-and-conquer algorthim.
+
+The efficiency follows Lemma 7.2.5 and the
+efficiency of our instantiations of the zkVPD protocol with optimizations described above.
+Proof. Completeness. It follows the completeness of Protocol 6 and the completeness of the GKR protocol
+in [XZZPS19a].
+Soundness. It follows the soundness of Protocol 6 and the soundness of the GKR protocol with masking
+polynomials as proven in [CFS17; XZZPS19a]. The proof of knowledge property follows the knowledge
+soundness of our zkVPD protocol. In particular, the witness can be extracted using the extractor presented
+in Section 3.3. More formally speaking, our construction is an interactive oracle proof (IOP) as defined
+in [BSCS16]. Applying the transformation from IOP to an argument system using Merkle tree preserves the
+proof of knowledge property. Our underlying IOP is proof of knowledge as the proofs are RS codes and the
+witness can be efficiently extracted through decoding.
+Zero knowledge. The simulator is given in Figure 3.3. V∗ can behave arbitrarily in Step 3, 4(b), 4(e), 4(f)
+and 6. We include these steps as place holders to compare to Protocol 7.
+To prove zero-knowledge, Step 1, 2, 4(d) and 5 of both worlds are indistinguishable because of the zero
+knowledge property of the zkVPD protocol in Protocol 6. As the commitments and proofs are simulated in
+step 2 and 4(d) by S vpd without knowing the polynomials, Step 4(c) of both worlds are indistinguishable as
+shown in [XZZPS19a, Theorem 3]. Step 4(a) in both worlds are indistinguishable as δ are randomly selected
+in both worlds.
+Removing interactions. Similar to [XZZPS19a], our construction can be made non-interactive in the random
+oracle model using Fiat-Shamir heuristic [FS]. As shown in recent work [BSCS16; CCHLRR18], applying
+Fiat-Shamir on the GKR protocol only incurs a polynomial soundness loss in the number of rounds.
+Regular circuits and log-space uniform. In our scheme, the verification time is succinct only when the
+circuit is regular. This is the best that can be achieved for transparent ZKP, as in the worst case, the verifier
+must read the entire circuit, which takes linear time. In fact, as shown in [GKR15], the verification time is
+
+
+A zero knowledge proof allows a prover to produce a short proof π
+that can convince any verifier that the result of a public function f on the public input x and secret input w of
+the prover is y = f (x, w). w is usually referred as the witness or auxiliary input. Zero knowledge proofs
+guarantee that the verifier rejects with overwhelming probability if the prover cheats on computing the result,
+while the proof reveals no extra information about the secret w beyond the result.
+During the last decade, there has been great progress on generic ZKP schemes that are nearly practical.
+They allow proving arbitrary computations modeled as arithmetic circuits. In principle, we can apply these
+general-purpose ZKP schemes to address the problem of machine learning integrity. The prover proves that
+she knows a secret machine learning model that computes the prediction of an input or achieves the claimed
+accuracy on a public dataset, without leaking any additional information about the machine learning model.
+The proof is succinct, meaning that it is much smaller than the machine learning model and the prediction
+Notably, for a large decision tree with 23 levels and 1,029 nodes, it only
+takes 250s to generate a proof for its accuracy on a testing dataset with 5,000 samples and 54 attributes.
+The proof size is 287KB and the verification time is 15.6s.
+5.1.1 Related Work
+Zero knowledge proofs were introduced by Goldwasser et al. in [GMR89] and generic constructions
+based on probabilistically checkable proofs were proposed in the seminal work of Kilian [Kil92] and
+Micali [Mic00]. In recent years there has been significant progress in efficient ZKP protocols and systems.
+Categorized by their underlying techniques, there are succinct non-interactive argument of knowledge
+(SNARK) schemes [PHGR13; BSCGTV; BFRSBW; BSCTV14; Cos+; WSRBW15; FFGKOP16; Gro16a],
+discrete-log-based schemes [Gro09; BG12; BCCGP16; BBBPWM], hash-based schemes [BCGGHJ17],
+interactive oracle proofs (IOP) [AHIV17; BSCRSVW19; BSBHR19; ZXZS] and interactive-proof-based
+schemes [ZGKPP17c; ZGKPP17a; WTSTW18; XZZPS19a]. Their security relies on different assumptions
+and settings, and they provide trade-offs between prover time and proof size. In our construction, we use the
+ZKP scheme proposed in [BSCRSVW19], named Aurora, as our backend because of its fast prover time and
+good scalability. The proof size is relatively large compared to other schemes. Please refer to [WTSTW18;
+XZZPS19a; ZXZS] for more details on the performance and comparisons of different ZKP schemes.
+Most ZKP schemes model the computations as arithmetic circuits, while decision tree predictions are
+naturally in the RAM model with comparisons and conditional branching. Several papers [BSCGTV; BSCTV;
+WSRBW15; ZGKPP18; BCGJM18] proposed ZKP schemes for RAM programs. We use some of their
+techniques in our constructions, without going through the heavy machinery of RAM-to-circuit reductions.
+Zero knowledge proofs for machine learning applications have not been studied extensively before.
+In [GGG17], Ghodsi et al. proposed a system named SafetyNet to delegate neural network predictions
+to a cloud server. It assumes that the verifier has the neural network and guarantees the soundness of the
+predictions. The scheme does not support witness from the prover, and there is no notion of zero knowledge.
+In [Zha+19], Zhao et al. proposed to use SNARK to validate neural network predictions. The prover commits
+to the values of all intermediate layers, and the verifier validates one layer randomly with a SNARK proof.
+The scheme does not provide negligible soundness. It also justifies the challenge of the overhead on the
+prover time as we mentioned in the introduction, as it is too expensive to apply SNARK to the whole machine
+learning model.
+Finally, there is a rich literature on privacy-preserving decision tree predictions and training using secure
+multiparty computations (MPC), oblivious RAM (ORAM) and fully homomorphic encryptions (FHE) [VC05;
+
+(x; w) ∈ R for some input x. We focus on arguments of knowledge which have the stronger property that if
+the prover convinces the verifier of the statement validity, then the prover must know w. We use G to represent
+the generation phase of the public parameters pp. Formally, consider the definition below, where we assume
+R is known to P and V.
+Definition 5.2.1. Let R be an NP relation. A tuple of algorithm (G, P, V) is a zero-knowledge argument of
+knowledge for R if the following holds.
+• Completeness. For every pp output by G(1 λ), (x; w) ∈ R and π ← P(x, w, pp),
+Pr[V(x, π, pp) = 1] = 1
+• Knowledge Soundness. For any PPT prover P∗, there exists a PPT extractor E such that given the access
+to the entire executing process and the randomness of P∗, E can extract a witness w such that pp ← G(1 λ),
+π∗ ← P∗(x, pp) and w ← E P∗
+(pp, x, π∗), the following probability is negl(λ):
+Pr[(x; w) /∈ R ∧ V(x, π∗, pp) = 1]
+• Zero knowledge. There exists a PPT simulator S such that for any PPT algorithm V∗, (x; w) ∈ R, pp
+output by G(1 λ), it holds that
+View(V∗(pp, x)) ≈ S V∗
+(x)
+We say that (G, P, V) is a succinct argument system if the total communication between P and V (proof size)
+is poly(λ, |x|, log |w|).
+In the definition of zero knowledge, View(V∗(pp, x)) denotes the veiw the verifier sees during the
+execution of the interactive process with P while S V∗
+(x) denotes the view generated by S given input x and
+transcript of V∗, and ≈ denotes two distributions perfect indistinguishable. This definition is commonly used
+in existing transparent zero knowledge proof schemes [AHIV17; BBBPWM; WTSTW18; BSCRSVW19].
+
+--------------------------------------------------------------------------------
+dblp: Doubly Efficient Interactive Proofs for General Arithmetic Circuits with Linear Prover Time. (https://dblp.org/rec/journals/iacr/ZhangWZZ20.html)
+citeturn16search1 [wordlim: 200] Published: 6.0 years ago; Crawled: 4 months ago; # "Doubly Efficient Interactive Proofs for General Arithmetic Circuits with ..." ... Doubly Efficient Interactive Proofs for General Arithmetic Circuits with Linear Prover Time.
+
+# "Doubly Efficient Interactive Proofs for General Arithmetic Circuits with ..."
+
+  * help us
+
+    * How can I correct errors in dblp?
+    * contact dblp
+
+Jiaheng Zhang et al. (2020)
+
+  *   * Image: use mirror server
+
+Dagstuhl
+
+  * Trier
+
+  * > Home
+
+## Details and statistics
+
+DOI: —
+
+access: openImage
+
+type: Informal or Other Publication
+
+metadata version: 2020-11-03
+
+  * Image: Informal and Other Publications
+
+    * view
+
+      * electronic edition @ iacr.org (open access)
+ 
+
+    * export record
+
+      * BibTeX
+      * RIS
+      * RDF N-Triples
+      * RDF Turtle
+      * RDF/XML
+      * XML
+      * plain text
+
+
+persistent URL:
+
+      * https://dblp.org/rec/journals/iacr/ZhangWZZ20
+
+Jiaheng Zhang, Weijie Wang, Yinuo Zhang, Yupeng Zhang:
+Doubly Efficient Interactive Proofs for General Arithmetic Circuits with Linear Prover Time. IACR Cryptol. ePrint Arch. 2020: 1247 (2020)
+
+
+last updated on 2020-11-03 08:09 CET by the dblp team
+
+ all metadata released as open data under CC0 1.0 license--------------------------------------------------------------------------------
+Doubly Efficient Interactive Proofs for General Arithmetic Circuits with Linear Prover Time - Illinois Experts (https://experts.illinois.edu/en/publications/doubly-efficient-interactive-proofs-for-general-arithmetic-circui/)
+citeturn16search2 [wordlim: 200] Published: 5.0 years ago; Crawled: last month; Our experiments show that it only takes 0.3 seconds to generate the proof for a circuit with more than 600,000 gates, which is 13 times faster than the original interactive proof protocol on the corresponding layered circuit. ... Zhang, J, Liu, T, Wang, W, Zhang, Y, Song, D, Xie, X & Zhang, Y 2021, Doubly Efficient Interactive Proofs for General Arithmetic Circuits with Linear Prover Time. in CCS 2021 - Proceedings of the 2021 ACM SIGSAC Conference on Computer and Communications Security.
+
+# Doubly Efficient Interactive Proofs for General Arithmetic Circuits with Linear Prover Time
+
+  * Jiaheng Zhang
+  * , Tianyi Liu
+  * , Weijie Wang
+  * , Yinuo Zhang
+  * , Dawn Song
+  * , Xiang Xie
+  * , Yupeng Zhang
+
+Research output: Chapter in Book/Report/Conference proceeding › Conference contribution
+
+## Abstract
+
+We propose a new doubly efficient interactive proof protocol for general arithmetic circuits. The protocol generalizes the interactive proof for layered circuits proposed by Goldwasser, Kalai and Rothblum to arbitrary circuits, while preserving the optimal prover complexity that is strictly linear to the size of the circuits. The proof size remains succinct for low depth circuits and the verifier time is sublinear for structured circuits. We then construct a new zero knowledge argument scheme for general arithmetic circuits using our new interactive proof protocol together with polynomial commitments. Our key technique is a new sumcheck equation that reduces a claim about the output of one layer to claims about its input only, instead of claims about all the layers above which inevitably incurs an overhead proportional to the depth of the circuit. We developed efficient algorithms for the prover to run this sumcheck protocol and to combine multiple claims back into one in linear time in the size of the circuit. Not only does our new protocol achieve optimal prover complexity asymptotically, but it is also efficient in practice. Our experiments show that it only takes 0.3 seconds to generate the proof for a circuit with more than 600,000 gates, which is 13 times faster than the original interactive proof protocol on the corresponding layered circuit. The proof size is 208 kilobytes and the verifier time is 66 milliseconds. Our implementation can take general arithmetic circuits directly, without transforming them to layered circuits with a high overhead on the size of the circuit.
+
+Original language  | English (US)
+Title of host publication  | CCS 2021 - Proceedings of the 2021 ACM SIGSAC Conference on Computer and Communications Security
+Publisher  | Association for Computing Machinery
+Pages  | 159-177
+Number of pages  | 19
+ISBN (Electronic)  | 9781450384544
+--------------------------------------------------------------------------------
+Efficient Zero-Knowledge Proofs: Theory and Practice | EECS at UC Berkeley (https://www2.eecs.berkeley.edu/Pubs/TechRpts/2025/EECS-2025-20.html)
+citeturn16search3 [wordlim: 200] Published: 1.5 years ago; Crawled: 5 months ago; # Efficient Zero-Knowledge Proofs: Theory and Practice
+
+# Efficient Zero-Knowledge Proofs: Theory and Practice
+
+### Jiaheng Zhang
+
+### EECS Department, University of California, Berkeley
+
+### Technical Report No. UCB/EECS-2025-20
+
+### May 1, 2025
+
+This publication is archived. It is kept only for reference purposes, so it is no longer being updated and may not meet accessibility standards. If you need this content in a different format, please email webteam@eecs.berkeley.edu.
+
+### http://www2.eecs.berkeley.edu/Pubs/TechRpts/2025/Archive/EECS-2025-20.pdf
+
+Advisors: Dawn Song
+
+BibTeX citation:
+    
+    @phdthesis{Zhang:EECS-2025-20,
+        Author= {Zhang, Jiaheng},
+        Title= {Efficient Zero-Knowledge Proofs: Theory and Practice},
+        School= {EECS Department, University of California, Berkeley},
+        Year= {2025},
+        Month= {May},
+        Url= {http://www2.eecs.berkeley.edu/Pubs/TechRpts/2025/EECS-2025-20.html},
+        Number= {UCB/EECS-2025-20},
+    }
+    
+
+EndNote citation:
+    
+    %0 Thesis
+    %A Zhang, Jiaheng 
+    %T Efficient Zero-Knowledge Proofs: Theory and Practice
+    %I EECS Department, University of California, Berkeley
+    %D 2025
+    %8 May 1
+    %@ UCB/EECS-2025-20
+    %U http://www2.eecs.berkeley.edu/Pubs/TechRpts/2025/EECS-2025-20.html
+    %F Zhang:EECS-2025-20--------------------------------------------------------------------------------
+v (https://cfcs.pku.edu.cn/english/docs/2023-06/20230601174102340338.pdf)
+citeturn16search13 [wordlim: 200] Published: 3.4 years ago; Efficient Zero-Knowledge Proofs: Theory and Practice ... Libra also has excellent concrete efficiency in practice. ... His research interests lie in security, privacy, and applied cryptography, especially zero-knowledge proof and applications on blockchains and machine learning.
+北京大学前沿计算研究中心  
+Center on Frontiers of Computing Studies, Peking University
+
+静园5号院  
+青年讲座
+
+Efficient Zero-Knowledge Proofs: Theory and Practice
+
+Dr. Jiaheng Zhang  
+Department of Computer Science  
+Carnegie Mellon University
+
+Host: 李彤阳 助理教授  
+2023年6月9日 星期五 11:00am  
+静园五院204室
+
+Abstract
+
+In this talk, we discuss a cryptographic tool named zero-knowledge proof from both theory and application perspectives. In theory, we present Libra, the first zero-knowledge protocol with optimal prover time, fast verifier time, and succinct proof size. Libra also has excellent concrete efficiency in practice. In application, we present the first solution for building trustless and permissionless cross-chain bridges in blockchains using zero-knowledge proof. In addition, we discuss how to apply zero-knowledge proof to machine learning and make the protocol practical to guarantee the integrity of machine learning models by the example of the decision tree model. These applied ZKP protocols have rigorous security guarantees along with practical efficiency.
+
+Biography
+
+Jiaheng Zhang is an incoming assistant professor at NUS CS and currently a postdoc at CMU, supervised by Prof. Elaine Shi. Previously, Jiaheng obtained his Ph.D. degree in Computer Science at UC Berkeley, where he was advised by Prof. Dawn Song. His research interests lie in security, privacy, and applied cryptography, especially zero-knowledge proof and applications on blockchains and machine learning. Before coming to Berkeley, he received his Bachelor's degree in ACM Honors Class of Shanghai Jiao Tong University, advised by Prof. Xiaotie Deng. He has interned at Meta Crypto Research, NTT Research, Qizhi Research Institute, and Alibaba. He received the Facebook Fellowship in Security and Privacy in 2021.
+
+http://cfcs.pku.edu.cn/--------------------------------------------------------------------------------
+ACM CCS 2021 - November 15-19, 2021 (https://sigsac.hosting.acm.org/ccs/CCS2021/accepted-papers.html)
+citeturn16search4 [wordlim: 200] Crawled: 4.9 years ago; Doubly Efficient Interactive Proofs for General Arithmetic Circuits with Linear Prover Time
+
+Quantifying and Mitigating Privacy Risks of Contrastive Learning
+
+Xinlei He (CISPA Helmholtz Center for Information Security); Yang Zhang (CISPA Helmholtz Center for Information Security)
+
+Doubly Efficient Interactive Proofs for General Arithmetic Circuits with Linear Prover Time
+
+Jiaheng Zhang (UC Berkeley); Tianyi Liu (Texas A&M University & Shanghai Key Laboratory of Privacy-Preserving Computation); Weijie Wang (Shanghai Jiao Tong University); Yinuo Zhang (UC Berkeley); Dawn Song (UC Berkeley); Xiang Xie (Shanghai Key Laboratory of Privacy-Preserving Computation); Yupeng Zhang (Texas A&M University)
+
+Rusted Anchors: A National Client-Side View of Hidden Root CAs in the Web PKI Ecosystem
+
+Yiming Zhang (Tsinghua University); Baojun Liu (Tsinghua University); Chaoyi Lu (Tsinghua University; 360 Netlab); Zhou Li (University of California, Irvine); Haixin Duan (Tsinghua University; QI-ANXIN Technology Research Institute; Beijing National Research Center for Information Science and Technology; Peng Cheng Laboratory); Jiachen Li (Tsinghua University); Zaifeng Zhang (360 Netlab)
+--------------------------------------------------------------------------------
+Efficient Zero-Knowledge Proofs: Theory and Practice | HKUST CSE (https://cse.hkust.edu.hk/pg/seminars/S23/zhang2.html)
+citeturn16search5 [wordlim: 200] Published: 3.6 years ago; Crawled: 3 weeks ago; # Efficient Zero-Knowledge Proofs: Theory and Practice ...     efficiency in practice. ...     using zero-knowledge proof.
+--------------------------------------------------------------------------------
+静5青年讲座回顾：张嘉恒博士谈零知识证明-新闻动态-北京大学前沿计算研究中心 (https://cfcs.pku.edu.cn/news/42cfcs241418.htm)
+citeturn16search6 [wordlim: 200] Published: 3.4 years ago; Crawled: 3 months ago; 　　2023年6月9日，来自 CMU 的张嘉恒博士访问北京大学前沿计算研究中心，在静园五院做了题为“Efficient Zero-Knowledge Proofs: Theory and Practice”的报告。 ... 在理论方面，主要介绍了 Libra——首个线性证明时间（prover time）、亚线性证明大小和验证时间（succinct proof size）的零知识证明协议。
+--------------------------------------------------------------------------------
+Ph.D. Dissertations | EECS at UC Berkeley (https://www2.eecs.berkeley.edu/Pubs/Dissertations/Faculty/song.html)
+citeturn16search7 [wordlim: 200] Crawled: 2 days ago; Advances in Zero-Knowledge Proofs: Bridging the Gap between Theory and Practice ... Efficient Zero-Knowledge Proofs: Theory and Practice
+--------------------------------------------------------------------------------
+Center on Frontiers of Computing Studies,Peking University (https://cfcs.pku.edu.cn/english/events/index5.htm)
+citeturn16search8 [wordlim: 200] Crawled: 4 weeks ago; Efficient Zero-Knowledge Proofs: Theory and Practice  | 2023-06-09 11:00  | Room 204, Courtyard No.5, Jingyuan  | Dr.
+--------------------------------------------------------------------------------
+ABCDE ZK Hacker Camp (https://abcdelabs.github.io/zkcamp)
+citeturn16search9 [wordlim: 200] Published: 3.3 years ago; Crawled: 2.0 years ago; Jul 22, 2023  | Jiaheng Zhang  | #1 Efficient Zero-Knowledge Proofs: Theory and Practice
+--------------------------------------------------------------------------------
+dblp: CCS 2021 (https://dblp.dagstuhl.de/db/conf/ccs/ccs2021.html)
+citeturn16search10 [wordlim: 200] Published: 5.0 years ago; Crawled: last month; Doubly Efficient Interactive Proofs for General Arithmetic Circuits with Linear Prover Time.
+--------------------------------------------------------------------------------
+Yupeng Zhang - researchr alias (https://researchr.org/alias/yupeng-zhang)
+citeturn16search11 [wordlim: 200] Crawled: 4 weeks ago;   * Doubly Efficient Interactive Proofs for General Arithmetic Circuits with Linear Prover Time Jiaheng Zhang, Weijie Wang, Yinuo Zhang, Yupeng Zhang. iacr, 2020:1247, 2020. [doi]
+--------------------------------------------------------------------------------
+Internal Error ()
+citeturn16view0 [wordlim: 200] Source: open({"ref_id":"https://escholarship.org/uc/item/5qm6n0s0","lineno":null}); 
+Failed to fetch https://escholarship.org/uc/item/5qm6n0s0: (429) Too Many Requests

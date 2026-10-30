@@ -1,0 +1,25 @@
+{
+  "utc": "2026-10-30T00:18:58.817658+00:00",
+  "self_pid": 490559,
+  "self_pid_ns": "pid:[4026532216]",
+  "host_visibility": true,
+  "guarded_jobs": [
+    {
+      "label": "gate22-item3-ts-real-block1",
+      "pid": 488596,
+      "pid_ns": "pid:[4026532216]"
+    },
+    {
+      "label": "gate22-item3-ts1-dev",
+      "pid": 488857,
+      "pid_ns": "pid:[4026532216]"
+    },
+    {
+      "label": "gate22-item3-ts-rung-values",
+      "pid": 484927,
+      "pid_ns": "pid:[4026532216]"
+    }
+  ],
+  "surviving_r14_processes": [],
+  "unreadable_own_processes": []
+}

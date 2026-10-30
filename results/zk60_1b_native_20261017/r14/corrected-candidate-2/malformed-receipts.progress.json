@@ -1,0 +1,214 @@
+[
+  {
+    "dd": false,
+    "case": "per-piece-round-q",
+    "receipts": [
+      {
+        "case": "per-piece-round-q",
+        "dd": false,
+        "bytes": 34875688,
+        "expected_accept": false,
+        "canonical_frame_decoded": true,
+        "native_verifier_used": true
+      }
+    ],
+    "sha256": "bd20b1663edbc9ef844a0cc848acd6480dcc534a90f1587d6ff5c13a86163e45"
+  },
+  {
+    "dd": false,
+    "case": "local-c2-ao",
+    "receipts": [
+      {
+        "case": "local-c2-ao",
+        "dd": false,
+        "bytes": 34875688,
+        "expected_accept": false,
+        "canonical_frame_decoded": true,
+        "native_verifier_used": true
+      }
+    ],
+    "sha256": "816dd0a38b88a8e68e19a8784663bc006dcf540898602c47d806803cccd16ce1"
+  },
+  {
+    "dd": false,
+    "case": "one-piece-norm",
+    "receipts": [
+      {
+        "case": "one-piece-norm",
+        "dd": false,
+        "bytes": 34875688,
+        "expected_accept": false,
+        "canonical_frame_decoded": true,
+        "native_verifier_used": true
+      }
+    ],
+    "sha256": "24adfd48fb312b2ba719171fffcc8831014f05f13e9d950d79f49702c23ca73a"
+  },
+  {
+    "dd": false,
+    "case": "wrong-omitted-source-bit",
+    "receipts": [
+      {
+        "case": "wrong-omitted-source-bit",
+        "dd": false,
+        "bytes": 34875688,
+        "expected_accept": false,
+        "canonical_frame_decoded": true,
+        "native_verifier_used": true
+      }
+    ],
+    "sha256": "6d9b8a0d2ff413a546af6a0c8ad7fedf49fca93f02be80eb846cc57a5f851f11"
+  },
+  {
+    "dd": false,
+    "case": "missing-public-lift-gate",
+    "receipts": [
+      {
+        "case": "missing-public-lift-gate",
+        "dd": false,
+        "bytes": 34875688,
+        "expected_accept": false,
+        "canonical_frame_decoded": true,
+        "native_verifier_used": true
+      }
+    ],
+    "sha256": "031b291e0c6e647616d46ef3f33c1dacfb440d90837b250f1d78084c0394efa6"
+  },
+  {
+    "dd": false,
+    "case": "local-group-reset",
+    "receipts": [
+      {
+        "case": "global-group-honest",
+        "dd": false,
+        "bytes": 34875688,
+        "expected_accept": true,
+        "canonical_frame_decoded": true,
+        "native_verifier_used": true
+      },
+      {
+        "case": "local-group-honest",
+        "dd": false,
+        "bytes": 34875688,
+        "expected_accept": true,
+        "canonical_frame_decoded": true,
+        "native_verifier_used": true
+      },
+      {
+        "case": "local-group-reset",
+        "dd": false,
+        "bytes": 34875688,
+        "expected_accept": false,
+        "canonical_frame_decoded": true,
+        "native_verifier_used": true
+      }
+    ],
+    "sha256": "11ecc310b500cf00cf5de96f3241b474bac71d6c1c4a4e3250252e228e3f1142"
+  },
+  {
+    "dd": true,
+    "case": "per-piece-round-q",
+    "receipts": [
+      {
+        "case": "per-piece-round-q",
+        "dd": true,
+        "bytes": 35110696,
+        "expected_accept": false,
+        "canonical_frame_decoded": true,
+        "native_verifier_used": true
+      }
+    ],
+    "sha256": "cf9cc6efcd515f12041ca26d229e92b7f8e6f278690c4f495f597e2bbf634b73"
+  },
+  {
+    "dd": true,
+    "case": "local-c2-ao",
+    "receipts": [
+      {
+        "case": "local-c2-ao",
+        "dd": true,
+        "bytes": 35110696,
+        "expected_accept": false,
+        "canonical_frame_decoded": true,
+        "native_verifier_used": true
+      }
+    ],
+    "sha256": "5c2a43c1f015c22a98704671e81412a1c579a915f2cce4246b930222cb5f3631"
+  },
+  {
+    "dd": true,
+    "case": "one-piece-norm",
+    "receipts": [
+      {
+        "case": "one-piece-norm",
+        "dd": true,
+        "bytes": 35110696,
+        "expected_accept": false,
+        "canonical_frame_decoded": true,
+        "native_verifier_used": true
+      }
+    ],
+    "sha256": "fc2b1709968bc2d06af231bba84dae26fa6da0eafed413684836f24793bc2615"
+  },
+  {
+    "dd": true,
+    "case": "wrong-omitted-source-bit",
+    "receipts": [
+      {
+        "case": "wrong-omitted-source-bit",
+        "dd": true,
+        "bytes": 35110696,
+        "expected_accept": false,
+        "canonical_frame_decoded": true,
+        "native_verifier_used": true
+      }
+    ],
+    "sha256": "78058731c3187809f0b834d3e3b9c16ee4880c2f859cad4aaf86a7312f29c3b8"
+  },
+  {
+    "dd": true,
+    "case": "missing-public-lift-gate",
+    "receipts": [
+      {
+        "case": "missing-public-lift-gate",
+        "dd": true,
+        "bytes": 35110696,
+        "expected_accept": false,
+        "canonical_frame_decoded": true,
+        "native_verifier_used": true
+      }
+    ],
+    "sha256": "ebc3ef8740095445fde95d4d675b488113466a95c176d819c05f176abc557b67"
+  },
+  {
+    "dd": true,
+    "case": "local-group-reset",
+    "receipts": [
+      {
+        "case": "global-group-honest",
+        "dd": true,
+        "bytes": 35110696,
+        "expected_accept": true,
+        "canonical_frame_decoded": true,
+        "native_verifier_used": true
+      },
+      {
+        "case": "local-group-honest",
+        "dd": true,
+        "bytes": 35110696,
+        "expected_accept": true,
+        "canonical_frame_decoded": true,
+        "native_verifier_used": true
+      },
+      {
+        "case": "local-group-reset",
+        "dd": true,
+        "bytes": 35110696,
+        "expected_accept": false,
+        "canonical_frame_decoded": true,
+        "native_verifier_used": true
+      }
+    ],
+    "sha256": "541e7948d4fedd916f0aae87ab8ea6fbe15c05a232755a073da209b7bdb6ba0d"
+  }
+]

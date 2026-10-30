@@ -1,0 +1,230 @@
+
+running 54 tests
+test private_block::token_io::classify_capture_tests::capture_a_classify_rung_run ... ignored, writes a classifier rung capture; set HL_PB_CAPTURE_DIR (outside the repo), HL_PB_CLASSIFY_VERDICT and HL_RUN_CAPTURE_PUBLIC_TABLES
+test private_block::token_io::classify_capture_tests::capture_the_classify_cli_verify_path ... ignored, writes the classifier CLI-path capture; set HL_PB_CAPTURE_DIR, HL_PB_CLI_BIN, HL_PB_CLI_BIN_SHA256 and HL_RUN_CAPTURE_PUBLIC_TABLES
+test private_block::token_io::classify_capture_tests::r12_a_tampered_or_reverdicted_classify_run_is_refused_and_no_bundle_is_written ... ok
+test private_block::token_io::classify_capture_tests::r12_a_classify_chunk_at_the_tie_is_captured ... ok
+test private_block::token_io::classify_capture_tests::r12_the_classify_hooks_are_inert_on_the_prover_and_a_run_verifies_the_same_with_and_without_a_recorder ... ok
+test private_block::token_io::classify_capture_tests::r14_a_capture_of_relation_test_tables_is_refused_by_the_replay ... ok
+test private_block::token_io::classify_capture_tests::r12_a_classify_run_is_captured_and_its_bundle_is_self_consistent ... ok
+test private_block::token_io::classify_capture_tests::r14_the_gate_capture_fixture_proves_with_the_tables_derived_from_the_pinned_tensor ... ok
+test private_block::token_io::classify_capture_tests::r14_a_short_item_is_captured ... FAILED
+test private_block::token_io::classify_cli_tests::r12_cli_the_classifier_tables_loader_refuses_a_changed_margin_vector ... ok
+test private_block::token_io::classify_cli_tests::r12_cli_the_label_is_the_or_over_every_chunk_exactly_once ... ok
+test private_block::token_io::classify_cli_tests::r12_cli_other_tables_a_consistently_flipped_verdict_or_a_tampered_segment_are_refused ... ok
+test private_block::token_io::classify_cli_tests::r12_cli_the_prover_refuses_content_on_the_command_line_an_unknown_policy_and_a_control_id ... ok
+test private_block::token_io::classify_r14_tests::r14_a_library_call_with_doctored_tables_and_a_consistent_manifest_is_refused ... ok
+test private_block::token_io::classify_r14_tests::r14_a_short_item_proves_and_verifies_through_the_named_binary_in_fresh_processes ... ignored, runs the named zk60_classify binary; set HL_PB_CLI_BIN
+test private_block::token_io::classify_cli_tests::r12_cli_the_classifier_proves_at_both_verdicts_the_verifier_publishes_and_the_owner_checks ... ok
+test private_block::token_io::classify_r14_tests::r14_only_the_tied_derivation_constructs_bound_tables ... ok
+test private_block::token_io::classify_r14_tests::r14_a_short_items_statement_read_under_another_length_is_refused ... FAILED
+test private_block::token_io::classify_r14_tests::r14_the_block_and_run_profiles_must_name_one_tied_source ... ok
+test private_block::token_io::classify_cli_tests::r12_cli_chunks_prove_verify_owner_check_and_label_fail_closed ... ok
+test private_block::token_io::classify_r14_tests::r14_tables_bound_to_another_trained_statement_are_refused_at_every_entry_point ... ok
+test private_block::token_io::classify_tests::r12_a_changed_template_position_is_refused_at_the_template_clause ... ok
+test private_block::token_io::classify_r14_tests::r14_a_short_dev_rung_item_is_one_chunk_of_its_true_length ... ok
+test private_block::token_io::classify_tests::r12_a_content_control_id_is_refused_by_the_ctl_column ... ok
+test private_block::token_io::classify_tests::r12_a_chunk_receipt_is_bound_to_its_index_and_total ... ok
+test private_block::token_io::classify_tests::r12_a_nonzero_limb_pad_is_refused ... ok
+test private_block::token_io::classify_tests::r12_chunk_ranges_cover_the_content_consecutively_with_the_overlap_and_end_align ... ok
+test private_block::token_io::classify_tests::r12_a_flipped_verdict_with_field_limbs_is_refused_at_the_byte_lookups ... ok
+test private_block::token_io::classify_tests::r12_byte_limbs_that_break_the_margin_identity_are_refused ... ok
+test private_block::token_io::classify_tests::r12_the_ruling_switches_are_in_the_profile_text ... ok
+test private_block::token_io::classify_tests::r12_a_receipt_does_not_verify_under_the_other_verdict ... ok
+test private_block::token_io::classify_tests::r12_the_door_refuses_an_unregistered_policy_and_reads_the_margin_vector_itself ... ok
+test private_block::token_io::classify_tests::r14_a_margin_read_at_another_row_than_the_verdict_row_is_refused ... FAILED
+test private_block::token_io::classify_tests::r14_a_short_item_proves_and_verifies_and_reads_its_public_verdict_row ... FAILED
+test private_block::token_io::classify_tied_tests::r14_the_post_derivation_profile_digest_check_refuses_a_derivation_that_read_another_profile ... ok
+test private_block::token_io::classify_tied_tests::rc2_a_doctored_embedding_with_a_consistent_manifest_is_refused ... ok
+test private_block::token_io::classify_tests::r12_the_tie_is_not_flagged_and_proves ... ok
+test private_block::token_io::classify_tied_tests::rc2_a_doctored_final_norm_or_bos_is_refused ... ok
+test private_block::token_io::classify_tied_tests::rc2_a_margin_word_beyond_int16_is_refused_never_clamped ... ok
+test private_block::token_io::classify_tests::r12_honest_runs_prove_and_verify_at_both_verdicts_and_the_owner_check_holds ... ok
+test private_block::token_io::classify_tied_tests::rc2_a_doctored_margin_row_with_a_consistent_manifest_is_refused ... ok
+test private_block::token_io::classify_tied_tests::rc2_the_dev_tensor_is_pinned_and_the_tables_derive_with_r12bs_quantizer ... ok
+test private_block::token_io::classify_tied_tests::rc2_the_shieldstral_export_tables_are_recomputed_through_native_r12b ... ignored, streams the pinned 7.7 GB Shieldstral checkpoint through native R12b; run guarded with ZK60_RC2_SHIELDSTRAL_EXPORT
+test private_block::token_io::review_r14_tests::rv14_s1_short_item_boundaries ... FAILED
+test private_block::token_io::classify_tied_tests::rc2_the_margin_parameters_come_only_from_the_bound_profile ... ok
+test private_block::token_io::classify_tied_tests::rc2_min_bits_below_the_profile_floor_is_refused ... ok
+test private_block::token_io::classify_tests::r14_a_doctored_pad_position_is_refused ... ok
+test private_block::token_io::review_r14_tests::rv14_s2_a_short_receipt_under_any_other_length_is_refused ... ok
+test private_block::token_io::review_r14_tests::rv14_s4_a_margin_at_any_other_row_is_refused ... FAILED
+test private_block::token_io::review_r14_tests::rv14_s5_a_masked_weight_toward_a_pad_row_is_refused_by_the_relation ... FAILED
+test private_block::token_io::review_r14_tests::rv14_s8_receipts_do_not_cross_between_the_r12_r13_and_r14_binaries ... ignored, runs the named zk60_classify binaries; set RV14_R12_BIN, RV14_R13_BIN, RV14_R14_BIN
+test private_block::token_io::review_r14_tests::rv14_s7_cli_truncation_coverage_and_statement_fields ... FAILED
+test private_block::token_io::review_r14_tests::rv14_s6_the_pad_id_is_bound_and_never_reaches_the_verdict_row ... FAILED
+test private_block::token_io::review_r14_tests::rv14_s3_forged_layouts_are_refused ... ok
+
+failures:
+
+---- private_block::token_io::classify_capture_tests::r14_a_short_item_is_captured stdout ----
+
+thread 'private_block::token_io::classify_capture_tests::r14_a_short_item_is_captured' (189988) panicked at src/private_block/token_io/classify_capture_tests.rs:456:5:
+run.json's profile text does not name the short item's layout
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- private_block::token_io::classify_r14_tests::r14_a_short_items_statement_read_under_another_length_is_refused stdout ----
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1","blocks":1,"trained_statement_identity":"061340df02f975c16fa1b3f9a2e1c8d582a54888a33edafab112426a69c5ae88","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"content_length_n":22}
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.144}
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":1.307}
+{"event":"segment","index":2,"bytes":2489016,"elapsed_seconds":1.474}
+{"event":"proved","run":"/home/victor/zk60-artifacts/token-io/review-r14-tmp/tio-cls-r14-short-len-189937/short","owner_dir":"/home/victor/zk60-artifacts/token-io/review-r14-tmp/tio-cls-owners-r14-short-len-189937/short.owner-private","verdict":"flagged","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"segments":3,"receipt_bytes":11134808,"prove_seconds":1.474,"whole_run_floor_bits":94,"total_seconds":1.630,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"}
+
+thread 'private_block::token_io::classify_r14_tests::r14_a_short_items_statement_read_under_another_length_is_refused' (190029) panicked at src/private_block/token_io/classify_r14_tests.rs:361:5:
+{
+ "schema": "zk60-classify-run/3",
+ "scope": "a classifier proof (DESIGN_CLASSIFIER v2.4, rung R-C3): the approved integer model's verdict on hidden content under a pre-registered policy; the margin row and the embedding re-derived from the pinned tied tensor; one external endpoint; the verdict bit and the content length are public (D45); a short item's trailing positions hold the public pad id; NOT a privacy acceptance",
+ "statement_written_by": "zk60_classify prove, WITHOUT a verification (unverified)",
+ "run_profile": "hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1",
+ "block_profile": "hashline-zk-mr1/private-block-rung-tc-t32-dev/1",
+ "blocks": 1,
+ "export_variant": "tiny",
+ "trained_statement_identity": "061340df02f975c16fa1b3f9a2e1c8d582a54888a33edafab112426a69c5ae88",
+ "policy": "rung-tc-synthetic-policy-dev/1",
+ "verdict": "flagged",
+ "verdict_bit": 1,
+ "threshold_c": 0,
+ "yes_id": 40,
+ "no_id": 41,
+ "template_prefix_ids": [1, 2, 3, 4, 5, 6, 7, 8],
+ "template_suffix_ids": [32],
+ "content_length_n": 22,
+ "chunk": {"index": 0, "count": 1, "range": [0, 22], "content_total": 22, "chunk_size": 23, "overlap": 4, "split": "end-aligned (DESIGN v2.2 13.1); a short content is one chunk of its length (v2.4 15)"},
+ "T": 32,
+ "item_length": 31,
+ "pad_id": 2,
+ "pad_positions": 1,
+ "verdict_row": 31,
+ "control_ids_below": 5,
+ "tokenizer": "synthetic (ids only, no text)",
+ "margin_vector_digest": "40f3fe498402edec315cfc92bec67365b3c0784bfe72b47040043ecbfe1095fd",
+ "margin_scale": 3.90625e-3,
+ "tied_source": "tied-source=dev-rung-synthetic-bf16 file=dev_tied_tensor_bf16.bin V=300 d=384 sha256=bba6d094831861aa0b207ae5ca46938e2115e02c81215ba95e27e2bad1cc1dd6 derivation=R12b-quantize(floor(x/scale+0.5),refuse-outside-int16,no-clip,no-rotation)",
+ "embedding_digest": "a8d55fc067234ea1f587e3668e000096c803abc8d4f75838798b482efa4fa60b",
+ "bos": 1,
+ "final_norm": {"g0": 127, "cn": 2048, "tn": 11, "ceps": 33554467},
+ "classifier_profile_digest": "07ddb38b6bd8a487598940498481b534aa4e72d01e05d45c49a923f43aedfb02",
+ "rulings": "rulings: B-5 n-public=true B-6 fixed-policy-list=true B-8 binding=input-endpoint-root B-4 fail-closed=true (accepted by Victor: D45, 2026-10-29)",
+ "context_label": "zk60-classify-verdict",
+ "context": "1df50784aaeb22bedb1b86df49625532e216e099884ce307bc3442ab1a1be57e",
+ "input_token_endpoint_root": "613ef341c8a9278f52b6208629a7ba0c767d27c9068e7fa6a867c295ecd3d77a",
+ "whole_run_floor_bits": 94,
+ "parameter_line": "T32/d384/f512/H12/KV4/dh32/log_cols10/inv_rate4/Q256/P1/sh-g8-u0-h13-z5/two-internal-boundaries/one-proof-one-transcript/endpoint-log_n10-rate4-pad256-rows21/L1/boundaries-B_in-B_out-and-interior-log_n10-rate4-pad256-rows22-sites2/token-endpoint-in-log_n8-rate8-pad256-words256-rows6-sites1/no-output-endpoint/stages-log_n12-rate4-pad256/classify (DESIGN_CLASSIFIER v2) under hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1: V=300 V_pad=512 d=384 d_pad=512 T=32 P0=8 n=22 S=1 item-length=31 pad-id=2 pad-positions=1 verdict-row=31 BOS=1 final-norm g0=127 cn=2048 tn=11 ceps=33554467 wrho=32 dmax=642145 margin-vector=int16[-32767,32767] 40f3fe498402edec315cfc92bec67365b3c0784bfe72b47040043ecbfe1095fd threshold c=0 c-class=[-2^33,2^33] margin-window=34 byte-limbs=5 limbs-at-Lo-entry=32 no-pin yes=40 no=41 ctl=ids<5 template=1980a3704eb94693c6aabf7e8998bd39cdb27c3375a99c0dd4c4c8c74048c028 policy=rung-tc-synthetic-policy-dev/1 tokenizer=synthetic (ids only, no text) embedding=a8d55fc067234ea1f587e3668e000096c803abc8d4f75838798b482efa4fa60b variant=public-row mode=verdict-public-bit no-output-endpoint chunk-size=23 chunk-overlap=4 chunk-split=end-aligned short-content=one-chunk-of-its-length-pad-pinned margin-scale=3.90625e-3 margin-scale-bits=0x3f70000000000000 tied-source=dev-rung-synthetic-bf16 file=dev_tied_tensor_bf16.bin V=300 d=384 sha256=bba6d094831861aa0b207ae5ca46938e2115e02c81215ba95e27e2bad1cc1dd6 derivation=R12b-quantize(floor(x/scale+0.5),refuse-outside-int16,no-clip,no-rotation) rulings: B-5 n-public=true B-6 fixed-policy-list=true B-8 binding=input-endpoint-root B-4 fail-closed=true (accepted by Victor: D45, 2026-10-29) tier mvp-95-whole-run (D27): Q=256 stage-row 2^12 rate 1/4 token-endpoint-row 2^8 rate 1/8 lookup-field F_p^2/whole-run-floor-94-bits-12-openings-column-plus-logup-derived-plus-pcs-field-and-sumcheck-bound/one-run-one-transcript"
+}
+
+
+---- private_block::token_io::classify_tests::r14_a_margin_read_at_another_row_than_the_verdict_row_is_refused stdout ----
+
+thread 'private_block::token_io::classify_tests::r14_a_margin_read_at_another_row_than_the_verdict_row_is_refused' (190108) panicked at src/private_block/token_io/classify_tests.rs:565:5:
+assertion `left != right` failed: row T - 1 gives another margin on this fixture
+  left: 634040
+ right: 634040
+
+---- private_block::token_io::classify_tests::r14_a_short_item_proves_and_verifies_and_reads_its_public_verdict_row stdout ----
+
+thread 'private_block::token_io::classify_tests::r14_a_short_item_proves_and_verifies_and_reads_its_public_verdict_row' (190109) panicked at src/private_block/token_io/classify_tests.rs:483:5:
+assertion `left == right` failed
+  left: (29, 3, 31)
+ right: (29, 3, 28)
+
+---- private_block::token_io::review_r14_tests::rv14_s1_short_item_boundaries stdout ----
+
+thread 'private_block::token_io::review_r14_tests::rv14_s1_short_item_boundaries' (190146) panicked at src/private_block/token_io/review_r14_tests.rs:160:9:
+assertion `left == right` failed: n = 1: the layout
+  left: (10, 22, 31)
+ right: (10, 22, 9)
+
+---- private_block::token_io::review_r14_tests::rv14_s4_a_margin_at_any_other_row_is_refused stdout ----
+RV14 S4 | the margin at row 30 instead of the verdict row 31: refused (stage OUT-C slot 00 [OUTC-00 IO-in: x = B_out at the public verdict row P0+n+S-1 (fixed public row bits; T-1 without pad)]: sumcheck round 0: s(0) + s(1) != claim)
+
+thread 'private_block::token_io::review_r14_tests::rv14_s4_a_margin_at_any_other_row_is_refused' (190153) panicked at src/private_block/token_io/stage_out_c.rs:255:10:
+range end index 16896 out of range for slice of length 16384
+
+---- private_block::token_io::review_r14_tests::rv14_s5_a_masked_weight_toward_a_pad_row_is_refused_by_the_relation stdout ----
+
+thread 'private_block::token_io::review_r14_tests::rv14_s5_a_masked_weight_toward_a_pad_row_is_refused_by_the_relation' (190185) panicked at src/private_block/token_io/review_r14_tests.rs:322:9:
+the forge was not applied at (0, 31, 32)
+
+---- private_block::token_io::review_r14_tests::rv14_s7_cli_truncation_coverage_and_statement_fields stdout ----
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1","blocks":1,"trained_statement_identity":"061340df02f975c16fa1b3f9a2e1c8d582a54888a33edafab112426a69c5ae88","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"content_length_n":22}
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.211}
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":1.309}
+{"event":"segment","index":2,"bytes":2489016,"elapsed_seconds":1.466}
+{"event":"proved","run":"/home/victor/zk60-artifacts/token-io/review-r14-tmp/tio-cls-rv14-s7-189937/short","owner_dir":"/home/victor/zk60-artifacts/token-io/review-r14-tmp/tio-cls-owners-rv14-s7-189937/short.owner-private","verdict":"flagged","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"segments":3,"receipt_bytes":11134808,"prove_seconds":1.467,"whole_run_floor_bits":94,"total_seconds":1.599,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"}
+{"event":"removed","path":"/home/victor/zk60-artifacts/token-io/review-r14-tmp/tio-cls-owners-rv14-s7-189937/short-chunk1.owner-private","why":"the prove was refused; this directory was created by this prove and is removed with everything in it"}
+{"event":"removed","path":"/home/victor/zk60-artifacts/token-io/review-r14-tmp/tio-cls-rv14-s7-189937/short-chunk1.unverified-statement","why":"the prove was refused; this directory was created by this prove and is removed with everything in it"}
+{"event":"removed","path":"/home/victor/zk60-artifacts/token-io/review-r14-tmp/tio-cls-rv14-s7-189937/short-chunk1.incomplete","why":"the prove was refused; this directory was created by this prove and is removed with everything in it"}
+{"event":"refused","command":"classify-prove","error":"classifier chunks: chunk 1 of a 22-id content (the plan gives 1 chunks)"}
+{"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling D45(4), Victor 2026-10-29)"}
+{"event":"refused","command":"classify-verify","error":"/home/victor/zk60-artifacts/token-io/review-r14-tmp/tio-cls-rv14-s7-189937/short-edit-0.unverified-statement/statement.json: not byte for byte the canonical statement of this run under the verifier's own inputs (B-3: the margin vector, ids, threshold, template and model are re-derived, never taken from the statement)"}
+{"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling D45(4), Victor 2026-10-29)"}
+RV14 S7 | statement field pad_id edited ("pad_id": 2, -> "pad_id": 3,): refused, nothing published
+{"event":"refused","command":"classify-verify","error":"/home/victor/zk60-artifacts/token-io/review-r14-tmp/tio-cls-rv14-s7-189937/short-edit-1.unverified-statement/statement.json: not byte for byte the canonical statement of this run under the verifier's own inputs (B-3: the margin vector, ids, threshold, template and model are re-derived, never taken from the statement)"}
+{"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling D45(4), Victor 2026-10-29)"}
+RV14 S7 | statement field pad_positions edited ("pad_positions": 1, -> "pad_positions": 0,): refused, nothing published
+
+thread 'private_block::token_io::review_r14_tests::rv14_s7_cli_truncation_coverage_and_statement_fields' (190196) panicked at src/private_block/token_io/review_r14_tests.rs:485:9:
+verdict_row: "verdict_row": 30, not in the statement:
+{
+ "schema": "zk60-classify-run/3",
+ "scope": "a classifier proof (DESIGN_CLASSIFIER v2.4, rung R-C3): the approved integer model's verdict on hidden content under a pre-registered policy; the margin row and the embedding re-derived from the pinned tied tensor; one external endpoint; the verdict bit and the content length are public (D45); a short item's trailing positions hold the public pad id; NOT a privacy acceptance",
+ "statement_written_by": "zk60_classify prove, WITHOUT a verification (unverified)",
+ "run_profile": "hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1",
+ "block_profile": "hashline-zk-mr1/private-block-rung-tc-t32-dev/1",
+ "blocks": 1,
+ "export_variant": "tiny",
+ "trained_statement_identity": "061340df02f975c16fa1b3f9a2e1c8d582a54888a33edafab112426a69c5ae88",
+ "policy": "rung-tc-synthetic-policy-dev/1",
+ "verdict": "flagged",
+ "verdict_bit": 1,
+ "threshold_c": 0,
+ "yes_id": 40,
+ "no_id": 41,
+ "template_prefix_ids": [1, 2, 3, 4, 5, 6, 7, 8],
+ "template_suffix_ids": [32],
+ "content_length_n": 22,
+ "chunk": {"index": 0, "count": 1, "range": [0, 22], "content_total": 22, "chunk_size": 23, "overlap": 4, "split": "end-aligned (DESIGN v2.2 13.1); a short content is one chunk of its length (v2.4 15)"},
+ "T": 32,
+ "item_length": 31,
+ "pad_id": 2,
+ "pad_positions": 1,
+ "verdict_row": 31,
+ "control_ids_below": 5,
+ "tokenizer": "synthetic (ids only, no text)",
+ "margin_vector_digest": "40f3fe498402edec315cfc92bec67365b3c0784bfe72b47040043ecbfe1095fd",
+ "margin_scale": 3.90625e-3,
+ "tied_source": "tied-source=dev-rung-synthetic-bf16 file=dev_tied_tensor_bf16.bin V=300 d=384 sha256=bba6d094831861aa0b207ae5ca46938e2115e02c81215ba95e27e2bad1cc1dd6 derivation=R12b-quantize(floor(x/scale+0.5),refuse-outside-int16,no-clip,no-rotation)",
+ "embedding_digest": "a8d55fc067234ea1f587e3668e000096c803abc8d4f75838798b482efa4fa60b",
+ "bos": 1,
+ "final_norm": {"g0": 127, "cn": 2048, "tn": 11, "ceps": 33554467},
+ "classifier_profile_digest": "07ddb38b6bd8a487598940498481b534aa4e72d01e05d45c49a923f43aedfb02",
+ "rulings": "rulings: B-5 n-public=true B-6 fixed-policy-list=true B-8 binding=input-endpoint-root B-4 fail-closed=true (accepted by Victor: D45, 2026-10-29)",
+ "context_label": "zk60-classify-verdict",
+ "context": "1df50784aaeb22bedb1b86df49625532e216e099884ce307bc3442ab1a1be57e",
+ "input_token_endpoint_root": "20a2c3466bcf3132d7747ae54735d3c88cba632abe72b4205f35c3fe97c5f8d7",
+ "whole_run_floor_bits": 94,
+ "parameter_line": "T32/d384/f512/H12/KV4/dh32/log_cols10/inv_rate4/Q256/P1/sh-g8-u0-h13-z5/two-internal-boundaries/one-proof-one-transcript/endpoint-log_n10-rate4-pad256-rows21/L1/boundaries-B_in-B_out-and-interior-log_n10-rate4-pad256-rows22-sites2/token-endpoint-in-log_n8-rate8-pad256-words256-rows6-sites1/no-output-endpoint/stages-log_n12-rate4-pad256/classify (DESIGN_CLASSIFIER v2) under hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1: V=300 V_pad=512 d=384 d_pad=512 T=32 P0=8 n=22 S=1 item-length=31 pad-id=2 pad-positions=1 verdict-row=31 BOS=1 final-norm g0=127 cn=2048 tn=11 ceps=33554467 wrho=32 dmax=642145 margin-vector=int16[-32767,32767] 40f3fe498402edec315cfc92bec67365b3c0784bfe72b47040043ecbfe1095fd threshold c=0 c-class=[-2^33,2^33] margin-window=34 byte-limbs=5 limbs-at-Lo-entry=32 no-pin yes=40 no=41 ctl=ids<5 template=1980a3704eb94693c6aabf7e8998bd39cdb27c3375a99c0dd4c4c8c74048c028 policy=rung-tc-synthetic-policy-dev/1 tokenizer=synthetic (ids only, no text) embedding=a8d55fc067234ea1f587e3668e000096c803abc8d4f75838798b482efa4fa60b variant=public-row mode=verdict-public-bit no-output-endpoint chunk-size=23 chunk-overlap=4 chunk-split=end-aligned short-content=one-chunk-of-its-length-pad-pinned margin-scale=3.90625e-3 margin-scale-bits=0x3f70000000000000 tied-source=dev-rung-synthetic-bf16 file=dev_tied_tensor_bf16.bin V=300 d=384 sha256=bba6d094831861aa0b207ae5ca46938e2115e02c81215ba95e27e2bad1cc1dd6 derivation=R12b-quantize(floor(x/scale+0.5),refuse-outside-int16,no-clip,no-rotation) rulings: B-5 n-public=true B-6 fixed-policy-list=true B-8 binding=input-endpoint-root B-4 fail-closed=true (accepted by Victor: D45, 2026-10-29) tier mvp-95-whole-run (D27): Q=256 stage-row 2^12 rate 1/4 token-endpoint-row 2^8 rate 1/8 lookup-field F_p^2/whole-run-floor-94-bits-12-openings-column-plus-logup-derived-plus-pcs-field-and-sumcheck-bound/one-run-one-transcript"
+}
+
+
+---- private_block::token_io::review_r14_tests::rv14_s6_the_pad_id_is_bound_and_never_reaches_the_verdict_row stdout ----
+
+thread 'private_block::token_io::review_r14_tests::rv14_s6_the_pad_id_is_bound_and_never_reaches_the_verdict_row' (190190) panicked at src/private_block/token_io/review_r14_tests.rs:367:9:
+assertion `left == right` failed: pad 3: another margin
+  left: 3622386
+ right: 634040
+
+
+failures:
+    private_block::token_io::classify_capture_tests::r14_a_short_item_is_captured
+    private_block::token_io::classify_r14_tests::r14_a_short_items_statement_read_under_another_length_is_refused
+    private_block::token_io::classify_tests::r14_a_margin_read_at_another_row_than_the_verdict_row_is_refused
+    private_block::token_io::classify_tests::r14_a_short_item_proves_and_verifies_and_reads_its_public_verdict_row
+    private_block::token_io::review_r14_tests::rv14_s1_short_item_boundaries
+    private_block::token_io::review_r14_tests::rv14_s4_a_margin_at_any_other_row_is_refused
+    private_block::token_io::review_r14_tests::rv14_s5_a_masked_weight_toward_a_pad_row_is_refused_by_the_relation
+    private_block::token_io::review_r14_tests::rv14_s6_the_pad_id_is_bound_and_never_reaches_the_verdict_row
+    private_block::token_io::review_r14_tests::rv14_s7_cli_truncation_coverage_and_statement_fields
+
+test result: FAILED. 40 passed; 9 failed; 5 ignored; 0 measured; 710 filtered out; finished in 56.19s
+

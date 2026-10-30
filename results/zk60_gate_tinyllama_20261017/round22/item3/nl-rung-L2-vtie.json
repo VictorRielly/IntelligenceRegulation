@@ -1,0 +1,6062 @@
+{
+ "bundle": "classify-r13-rung-L2-vtie",
+ "bundle_dir": "/home/victor/zk60-artifacts/token-io/captures/classify-r13-rung-L2-vtie",
+ "flags": {
+  "lazy_store": false,
+  "no_b3": false,
+  "r13_blocks": null,
+  "skip_classifier_t0": false
+ },
+ "nl_check_pins": {
+  "nl_check.py": "e4db99a251ddde4f432675a53bd7e9149cdeb7c9edd61bbac87f50b87d0727c7",
+  "nl_field.py": "ea8ca39263213d88ef92c3f5d18fb8f86ed73471da027bf57348f94087dbb7e4"
+ },
+ "ok": true,
+ "parts": {
+  "classifier": {
+   "S3_fact21": {
+    "checks": 35,
+    "pairs": [
+     [
+      2,
+      3
+     ],
+     [
+      9,
+      3
+     ],
+     [
+      10,
+      2
+     ],
+     [
+      13,
+      2
+     ],
+     [
+      13,
+      3
+     ],
+     [
+      13,
+      4
+     ],
+     [
+      13,
+      5
+     ]
+    ],
+    "rows": [
+     {
+      "ImR_in_C": true,
+      "L": 8,
+      "N": 2,
+      "d": 3,
+      "dimC": 7,
+      "explicit_kernel": true,
+      "rank_R": 7,
+      "regime": "random-Fp2",
+      "tight": true
+     },
+     {
+      "ImR_in_C": true,
+      "L": 8,
+      "N": 2,
+      "d": 3,
+      "dimC": 7,
+      "explicit_kernel": true,
+      "rank_R": 7,
+      "regime": "all-zero",
+      "tight": true
+     },
+     {
+      "ImR_in_C": true,
+      "L": 8,
+      "N": 2,
+      "d": 3,
+      "dimC": 7,
+      "explicit_kernel": true,
+      "rank_R": 7,
+      "regime": "all-one",
+      "tight": true
+     },
+     {
+      "ImR_in_C": true,
+      "L": 8,
+      "N": 2,
+      "d": 3,
+      "dimC": 7,
+      "explicit_kernel": true,
+      "rank_R": 7,
+      "regime": "alternating-0-1",
+      "tight": true
+     },
+     {
+      "ImR_in_C": true,
+      "L": 8,
+      "N": 2,
+      "d": 3,
+      "dimC": 7,
+      "explicit_kernel": true,
+      "rank_R": 7,
+      "regime": "all-equal",
+      "tight": true
+     },
+     {
+      "ImR_in_C": true,
+      "L": 29,
+      "N": 9,
+      "d": 3,
+      "dimC": 28,
+      "explicit_kernel": true,
+      "rank_R": 28,
+      "regime": "random-Fp2",
+      "tight": true
+     },
+     {
+      "ImR_in_C": true,
+      "L": 29,
+      "N": 9,
+      "d": 3,
+      "dimC": 28,
+      "explicit_kernel": true,
+      "rank_R": 28,
+      "regime": "all-zero",
+      "tight": true
+     },
+     {
+      "ImR_in_C": true,
+      "L": 29,
+      "N": 9,
+      "d": 3,
+      "dimC": 28,
+      "explicit_kernel": true,
+      "rank_R": 28,
+      "regime": "all-one",
+      "tight": true
+     },
+     {
+      "ImR_in_C": true,
+      "L": 29,
+      "N": 9,
+      "d": 3,
+      "dimC": 28,
+      "explicit_kernel": true,
+      "rank_R": 28,
+      "regime": "alternating-0-1",
+      "tight": true
+     },
+     {
+      "ImR_in_C": true,
+      "L": 29,
+      "N": 9,
+      "d": 3,
+      "dimC": 28,
+      "explicit_kernel": true,
+      "rank_R": 28,
+      "regime": "all-equal",
+      "tight": true
+     },
+     {
+      "ImR_in_C": true,
+      "L": 22,
+      "N": 10,
+      "d": 2,
+      "dimC": 21,
+      "explicit_kernel": true,
+      "rank_R": 21,
+      "regime": "random-Fp2",
+      "tight": true
+     },
+     {
+      "ImR_in_C": true,
+      "L": 22,
+      "N": 10,
+      "d": 2,
+      "dimC": 21,
+      "explicit_kernel": true,
+      "rank_R": 21,
+      "regime": "all-zero",
+      "tight": true
+     },
+     {
+      "ImR_in_C": true,
+      "L": 22,
+      "N": 10,
+      "d": 2,
+      "dimC": 21,
+      "explicit_kernel": true,
+      "rank_R": 21,
+      "regime": "all-one",
+      "tight": true
+     },
+     {
+      "ImR_in_C": true,
+      "L": 22,
+      "N": 10,
+      "d": 2,
+      "dimC": 21,
+      "explicit_kernel": true,
+      "rank_R": 21,
+      "regime": "alternating-0-1",
+      "tight": true
+     },
+     {
+      "ImR_in_C": true,
+      "L": 22,
+      "N": 10,
+      "d": 2,
+      "dimC": 21,
+      "explicit_kernel": true,
+      "rank_R": 21,
+      "regime": "all-equal",
+      "tight": true
+     },
+     {
+      "ImR_in_C": true,
+      "L": 28,
+      "N": 13,
+      "d": 2,
+      "dimC": 27,
+      "explicit_kernel": true,
+      "rank_R": 27,
+      "regime": "random-Fp2",
+      "tight": true
+     },
+     {
+      "ImR_in_C": true,
+      "L": 28,
+      "N": 13,
+      "d": 2,
+      "dimC": 27,
+      "explicit_kernel": true,
+      "rank_R": 27,
+      "regime": "all-zero",
+      "tight": true
+     },
+     {
+      "ImR_in_C": true,
+      "L": 28,
+      "N": 13,
+      "d": 2,
+      "dimC": 27,
+      "explicit_kernel": true,
+      "rank_R": 27,
+      "regime": "all-one",
+      "tight": true
+     },
+     {
+      "ImR_in_C": true,
+      "L": 28,
+      "N": 13,
+      "d": 2,
+      "dimC": 27,
+      "explicit_kernel": true,
+      "rank_R": 27,
+      "regime": "alternating-0-1",
+      "tight": true
+     },
+     {
+      "ImR_in_C": true,
+      "L": 28,
+      "N": 13,
+      "d": 2,
+      "dimC": 27,
+      "explicit_kernel": true,
+      "rank_R": 27,
+      "regime": "all-equal",
+      "tight": true
+     },
+     {
+      "ImR_in_C": true,
+      "L": 41,
+      "N": 13,
+      "d": 3,
+      "dimC": 40,
+      "explicit_kernel": true,
+      "rank_R": 40,
+      "regime": "random-Fp2",
+      "tight": true
+     },
+     {
+      "ImR_in_C": true,
+      "L": 41,
+      "N": 13,
+      "d": 3,
+      "dimC": 40,
+      "explicit_kernel": true,
+      "rank_R": 40,
+      "regime": "all-zero",
+      "tight": true
+     },
+     {
+      "ImR_in_C": true,
+      "L": 41,
+      "N": 13,
+      "d": 3,
+      "dimC": 40,
+      "explicit_kernel": true,
+      "rank_R": 40,
+      "regime": "all-one",
+      "tight": true
+     },
+     {
+      "ImR_in_C": true,
+      "L": 41,
+      "N": 13,
+      "d": 3,
+      "dimC": 40,
+      "explicit_kernel": true,
+      "rank_R": 40,
+      "regime": "alternating-0-1",
+      "tight": true
+     },
+     {
+      "ImR_in_C": true,
+      "L": 41,
+      "N": 13,
+      "d": 3,
+      "dimC": 40,
+      "explicit_kernel": true,
+      "rank_R": 40,
+      "regime": "all-equal",
+      "tight": true
+     },
+     {
+      "ImR_in_C": true,
+      "L": 54,
+      "N": 13,
+      "d": 4,
+      "dimC": 53,
+      "explicit_kernel": true,
+      "rank_R": 53,
+      "regime": "random-Fp2",
+      "tight": true
+     },
+     {
+      "ImR_in_C": true,
+      "L": 54,
+      "N": 13,
+      "d": 4,
+      "dimC": 53,
+      "explicit_kernel": true,
+      "rank_R": 53,
+      "regime": "all-zero",
+      "tight": true
+     },
+     {
+      "ImR_in_C": true,
+      "L": 54,
+      "N": 13,
+      "d": 4,
+      "dimC": 53,
+      "explicit_kernel": true,
+      "rank_R": 53,
+      "regime": "all-one",
+      "tight": true
+     },
+     {
+      "ImR_in_C": true,
+      "L": 54,
+      "N": 13,
+      "d": 4,
+      "dimC": 53,
+      "explicit_kernel": true,
+      "rank_R": 53,
+      "regime": "alternating-0-1",
+      "tight": true
+     },
+     {
+      "ImR_in_C": true,
+      "L": 54,
+      "N": 13,
+      "d": 4,
+      "dimC": 53,
+      "explicit_kernel": true,
+      "rank_R": 53,
+      "regime": "all-equal",
+      "tight": true
+     },
+     {
+      "ImR_in_C": true,
+      "L": 67,
+      "N": 13,
+      "d": 5,
+      "dimC": 66,
+      "explicit_kernel": true,
+      "rank_R": 66,
+      "regime": "random-Fp2",
+      "tight": true
+     },
+     {
+      "ImR_in_C": true,
+      "L": 67,
+      "N": 13,
+      "d": 5,
+      "dimC": 66,
+      "explicit_kernel": true,
+      "rank_R": 66,
+      "regime": "all-zero",
+      "tight": true
+     },
+     {
+      "ImR_in_C": true,
+      "L": 67,
+      "N": 13,
+      "d": 5,
+      "dimC": 66,
+      "explicit_kernel": true,
+      "rank_R": 66,
+      "regime": "all-one",
+      "tight": true
+     },
+     {
+      "ImR_in_C": true,
+      "L": 67,
+      "N": 13,
+      "d": 5,
+      "dimC": 66,
+      "explicit_kernel": true,
+      "rank_R": 66,
+      "regime": "alternating-0-1",
+      "tight": true
+     },
+     {
+      "ImR_in_C": true,
+      "L": 67,
+      "N": 13,
+      "d": 5,
+      "dimC": 66,
+      "explicit_kernel": true,
+      "rank_R": 66,
+      "regime": "all-equal",
+      "tight": true
+     }
+    ],
+    "tight": 35
+   },
+   "S3_pairs": [
+    [
+     2,
+     3
+    ],
+    [
+     9,
+     3
+    ],
+    [
+     10,
+     2
+    ],
+    [
+     13,
+     2
+    ],
+    [
+     13,
+     3
+    ],
+    [
+     13,
+     4
+    ],
+    [
+     13,
+     5
+    ]
+   ],
+   "S5_controls": {
+    "F_1": [
+     {
+      "fidelity_holds_on_perturbed_ir": false,
+      "fires": true,
+      "name": "IN-C-00 INC-00 IO-in: token endpoint = supp_T tok (whole padded plane: template and content)"
+     },
+     {
+      "fidelity_holds_on_perturbed_ir": false,
+      "fires": true,
+      "name": "IN-C-01 INC-01 query zero-check: LogUp over (id, row, ctl) + BOS + TEMPLATE (prefix, suffix, trailing pad ids) + pad, fresh mu each"
+     },
+     {
+      "fidelity_holds_on_perturbed_ir": false,
+      "fires": true,
+      "name": "IN-C-02 INC-02 table zero-check: h_tab (alpha - tau(v, ctl)) = m + pad, fresh mu each"
+     },
+     {
+      "fidelity_holds_on_perturbed_ir": false,
+      "fires": true,
+      "name": "IN-C-03 INC-03 ZS zero-sum row"
+     },
+     {
+      "fidelity_holds_on_perturbed_ir": false,
+      "fires": true,
+      "name": "OUT-C-00 OUTC-00 IO-in: x = B_out at the public verdict row P0+n+S-1 (fixed public row bits; T-1 without pad)"
+     },
+     {
+      "fidelity_holds_on_perturbed_ir": false,
+      "fires": true,
+      "name": "OUT-C-01 OUTC-01 SS final-norm row sum (private, hosted by TZC)"
+     },
+     {
+      "fidelity_holds_on_perturbed_ir": false,
+      "fires": true,
+      "name": "OUT-C-02 OUTC-02 TZC isqrt (D, Dsq, 9 limb slices; hosts SS)"
+     },
+     {
+      "fidelity_holds_on_perturbed_ir": false,
+      "fires": true,
+      "name": "OUT-C-03 OUTC-03 PD margin sum_i y(i) w_Delta(i) (private, hosted by LZC)"
+     },
+     {
+      "fidelity_holds_on_perturbed_ir": false,
+      "fires": true,
+      "name": "OUT-C-04 OUTC-04 LZC limb lookups (+pad; isqrt and margin limbs) + host term sigma g limb + u0 (sigma b + c)"
+     },
+     {
+      "fidelity_holds_on_perturbed_ir": false,
+      "fires": true,
+      "name": "OUT-C-05 OUTC-05 DZC final-norm quotient + x limbs + helpers (+pad)"
+     },
+     {
+      "fidelity_holds_on_perturbed_ir": false,
+      "fires": true,
+      "name": "OUT-C-06 OUTC-06 TAB byte-table helper (+pad)"
+     },
+     {
+      "fidelity_holds_on_perturbed_ir": false,
+      "fires": true,
+      "name": "OUT-C-07 OUTC-07 ZS zero-sum row"
+     }
+    ],
+    "N5_1": [
+     {
+      "chain_accepts": false,
+      "fires": true,
+      "moved": true,
+      "name": "IN-C-00 INC-00 IO-in: token endpoint = supp_T tok (whole padded plane: template and content)",
+      "premise_holds": false
+     },
+     {
+      "chain_accepts": false,
+      "fires": true,
+      "moved": true,
+      "name": "IN-C-01 INC-01 query zero-check: LogUp over (id, row, ctl) + BOS + TEMPLATE (prefix, suffix, trailing pad ids) + pad, fresh mu each",
+      "premise_holds": false
+     },
+     {
+      "chain_accepts": false,
+      "fires": true,
+      "moved": true,
+      "name": "IN-C-02 INC-02 table zero-check: h_tab (alpha - tau(v, ctl)) = m + pad, fresh mu each",
+      "premise_holds": false
+     },
+     {
+      "chain_accepts": false,
+      "fires": true,
+      "moved": true,
+      "name": "IN-C-03 INC-03 ZS zero-sum row",
+      "premise_holds": false
+     },
+     {
+      "chain_accepts": false,
+      "fires": true,
+      "moved": true,
+      "name": "OUT-C-00 OUTC-00 IO-in: x = B_out at the public verdict row P0+n+S-1 (fixed public row bits; T-1 without pad)",
+      "premise_holds": false
+     },
+     {
+      "chain_accepts": false,
+      "fires": true,
+      "moved": true,
+      "name": "OUT-C-01 OUTC-01 SS final-norm row sum (private, hosted by TZC)",
+      "premise_holds": false
+     },
+     {
+      "chain_accepts": false,
+      "fires": true,
+      "moved": true,
+      "name": "OUT-C-02 OUTC-02 TZC isqrt (D, Dsq, 9 limb slices; hosts SS)",
+      "premise_holds": false
+     },
+     {
+      "chain_accepts": false,
+      "fires": true,
+      "moved": true,
+      "name": "OUT-C-03 OUTC-03 PD margin sum_i y(i) w_Delta(i) (private, hosted by LZC)",
+      "premise_holds": false
+     },
+     {
+      "chain_accepts": false,
+      "fires": true,
+      "moved": true,
+      "name": "OUT-C-04 OUTC-04 LZC limb lookups (+pad; isqrt and margin limbs) + host term sigma g limb + u0 (sigma b + c)",
+      "premise_holds": false
+     },
+     {
+      "chain_accepts": false,
+      "fires": true,
+      "moved": true,
+      "name": "OUT-C-05 OUTC-05 DZC final-norm quotient + x limbs + helpers (+pad)",
+      "premise_holds": false
+     },
+     {
+      "chain_accepts": false,
+      "fires": true,
+      "moved": true,
+      "name": "OUT-C-06 OUTC-06 TAB byte-table helper (+pad)",
+      "premise_holds": false
+     },
+     {
+      "chain_accepts": false,
+      "fires": true,
+      "moved": true,
+      "name": "OUT-C-07 OUTC-07 ZS zero-sum row",
+      "premise_holds": false
+     }
+    ],
+    "N5_2": [
+     {
+      "chain_accepts": false,
+      "declared": 2,
+      "fires": true,
+      "name": "IN-C-00 INC-00 IO-in: token endpoint = supp_T tok (whole padded plane: template and content)"
+     },
+     {
+      "fires": null,
+      "name": "IN-C-01 INC-01 query zero-check: LogUp over (id, row, ctl) + BOS + TEMPLATE (prefix, suffix, trailing pad ids) + pad, fresh mu each",
+      "not_applicable": "slack 1"
+     },
+     {
+      "fires": null,
+      "name": "IN-C-02 INC-02 table zero-check: h_tab (alpha - tau(v, ctl)) = m + pad, fresh mu each",
+      "not_applicable": "slack 1"
+     },
+     {
+      "chain_accepts": false,
+      "declared": 1,
+      "fires": true,
+      "name": "IN-C-03 INC-03 ZS zero-sum row"
+     },
+     {
+      "chain_accepts": false,
+      "declared": 1,
+      "fires": true,
+      "name": "OUT-C-00 OUTC-00 IO-in: x = B_out at the public verdict row P0+n+S-1 (fixed public row bits; T-1 without pad)"
+     },
+     {
+      "fires": null,
+      "name": "OUT-C-01 OUTC-01 SS final-norm row sum (private, hosted by TZC)",
+      "not_applicable": "slack 1"
+     },
+     {
+      "chain_accepts": false,
+      "declared": 2,
+      "fires": true,
+      "name": "OUT-C-02 OUTC-02 TZC isqrt (D, Dsq, 9 limb slices; hosts SS)"
+     },
+     {
+      "chain_accepts": false,
+      "declared": 1,
+      "fires": true,
+      "name": "OUT-C-03 OUTC-03 PD margin sum_i y(i) w_Delta(i) (private, hosted by LZC)"
+     },
+     {
+      "fires": null,
+      "name": "OUT-C-04 OUTC-04 LZC limb lookups (+pad; isqrt and margin limbs) + host term sigma g limb + u0 (sigma b + c)",
+      "not_applicable": "slack 1"
+     },
+     {
+      "fires": null,
+      "name": "OUT-C-05 OUTC-05 DZC final-norm quotient + x limbs + helpers (+pad)",
+      "not_applicable": "slack 1"
+     },
+     {
+      "chain_accepts": false,
+      "declared": 2,
+      "fires": true,
+      "name": "OUT-C-06 OUTC-06 TAB byte-table helper (+pad)"
+     },
+     {
+      "chain_accepts": false,
+      "declared": 1,
+      "fires": true,
+      "name": "OUT-C-07 OUTC-07 ZS zero-sum row"
+     }
+    ],
+    "N5_3": {
+     "N": 13,
+     "covers": false,
+     "d": 5,
+     "dimC": 66,
+     "fires": true,
+     "rank": 53
+    },
+    "N5_4": {
+     "cm_cm_boolean_tail": 1,
+     "fires": true,
+     "honest_distinct_pairs_same_tail": 4,
+     "honest_pair_boolean_tail": 2,
+     "shared_pair_same_tail": 2
+    },
+    "ok": true,
+    "summary": {
+     "F_1_fires": "12/12",
+     "N5_1_fires": "12/12",
+     "N5_2_fires": "7/7 (not applicable at slack > 0: 5)",
+     "N5_3_fires": true,
+     "N5_4_fires": true
+    }
+   },
+   "T0_terminal_identity": {
+    "ok": true,
+    "skipped": null,
+    "slots_checked": 12,
+    "slots_equal": 12
+   },
+   "ir_run_challenges": {
+    "schema": "zk60-slot-ir/1-classify",
+    "slots": [
+     {
+      "declared_degree": 3,
+      "extension_rounds": 1,
+      "group_bits": 0,
+      "kind": "Standalone",
+      "main_rounds": 8,
+      "max_product_degree": 3,
+      "name": "IN-C-00 INC-00 IO-in: token endpoint = supp_T tok (whole padded plane: template and content)",
+      "nodes": [],
+      "pad_on": null,
+      "slot": 0,
+      "tables": [
+       {
+        "kind": "eq(start=0,|point|=8)",
+        "label": "eq(tau)",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "supp(supp(32) over 256)",
+        "label": "supp(32) over 256",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "A",
+        "label": "A_TOK",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "EP",
+        "label": "E-token-in",
+        "prov": "classifier transcription (classterminals.define)"
+       }
+      ],
+      "terms": [
+       {
+        "coef": {
+         "value": "18446744069414584320+0u"
+        },
+        "degree": 3,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 1
+         },
+         {
+          "table": 2
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "1+0u"
+        },
+        "degree": 2,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 3
+         }
+        ],
+        "wrapper": []
+       }
+      ]
+     },
+     {
+      "declared_degree": 4,
+      "extension_rounds": 1,
+      "group_bits": 0,
+      "kind": "Standalone",
+      "main_rounds": 12,
+      "max_product_degree": 3,
+      "name": "IN-C-01 INC-01 query zero-check: LogUp over (id, row, ctl) + BOS + TEMPLATE (prefix, suffix, trailing pad ids) + pad, fresh mu each",
+      "nodes": [],
+      "pad_on": null,
+      "slot": 1,
+      "tables": [
+       {
+        "kind": "eq(start=0,|point|=12)",
+        "label": "eq(tau)",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "supp(supp(32) over 4096)",
+        "label": "supp(32) over 4096",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "supp(supp(1) over 4096)",
+        "label": "supp(1) over 4096",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "supp(template indicator pi)",
+        "label": "template indicator pi",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "pub",
+        "label": "template ids kappa",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "pub",
+        "label": "query control column beta^2 ctl_q",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "A",
+        "label": "A_TOK",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "H",
+        "label": "H_Q",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "EP",
+        "label": "B-in",
+        "prov": "classifier transcription (classterminals.define)"
+       }
+      ],
+      "terms": [
+       {
+        "coef": {
+         "value": "9772278997770308391+4271551631943135426u"
+        },
+        "degree": 2,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 1
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "5669346818900991139+9520845262531518930u"
+        },
+        "degree": 3,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 1
+         },
+         {
+          "table": 6
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "17341976662507780054+14611769571024728058u"
+        },
+        "degree": 3,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 1
+         },
+         {
+          "table": 7
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "10545139943823861769+14353275496243928634u"
+        },
+        "degree": 2,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 2
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "7901604125590722552+4093468573170655687u"
+        },
+        "degree": 3,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 2
+         },
+         {
+          "table": 6
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "5827948213743314285+5890155075308111042u"
+        },
+        "degree": 3,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 3
+         },
+         {
+          "table": 4
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "12618795855671270036+12556588994106473279u"
+        },
+        "degree": 3,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 3
+         },
+         {
+          "table": 6
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "9772278997770308391+4271551631943135426u"
+        },
+        "degree": 3,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 5
+         },
+         {
+          "table": 7
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "12777397250513593182+8925898806883065391u"
+        },
+        "degree": 2,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 6
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "9772278997770308391+4271551631943135426u"
+        },
+        "degree": 3,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 6
+         },
+         {
+          "table": 7
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "296264826522329018+12197876586940244791u"
+        },
+        "degree": 2,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 7
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "5021717312398550126+17749615227646147959u"
+        },
+        "degree": 3,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 7
+         },
+         {
+          "table": 8
+         }
+        ],
+        "wrapper": []
+       }
+      ]
+     },
+     {
+      "declared_degree": 4,
+      "extension_rounds": 1,
+      "group_bits": 0,
+      "kind": "Standalone",
+      "main_rounds": 12,
+      "max_product_degree": 3,
+      "name": "IN-C-02 INC-02 table zero-check: h_tab (alpha - tau(v, ctl)) = m + pad, fresh mu each",
+      "nodes": [],
+      "pad_on": null,
+      "slot": 2,
+      "tables": [
+       {
+        "kind": "eq(start=0,|point|=12)",
+        "label": "eq(tau)",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "supp(supp(300) over 4096)",
+        "label": "supp(300) over 4096",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "pub",
+        "label": "captured tau_tab_c",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "A",
+        "label": "A_MULT",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "H",
+        "label": "H_TAB",
+        "prov": "classifier transcription (classterminals.define)"
+       }
+      ],
+      "terms": [
+       {
+        "coef": {
+         "value": "4087078934014977644+6207533436483356338u"
+        },
+        "degree": 3,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 1
+         },
+         {
+          "table": 3
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "1449371983564045040+9394573743636289881u"
+        },
+        "degree": 3,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 1
+         },
+         {
+          "table": 4
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "4034290732105148844+7853791554488306300u"
+        },
+        "degree": 3,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 2
+         },
+         {
+          "table": 4
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "18393955867504755521+1646258118004949962u"
+        },
+        "degree": 2,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 3
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "7781762537337927034+708012645629471541u"
+        },
+        "degree": 2,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 4
+         }
+        ],
+        "wrapper": []
+       }
+      ]
+     },
+     {
+      "declared_degree": 2,
+      "extension_rounds": 1,
+      "group_bits": 0,
+      "kind": "Standalone",
+      "main_rounds": 12,
+      "max_product_degree": 2,
+      "name": "IN-C-03 INC-03 ZS zero-sum row",
+      "nodes": [],
+      "pad_on": null,
+      "slot": 3,
+      "tables": [
+       {
+        "kind": "pub",
+        "label": "ones over 4096",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "H",
+        "label": "H_U",
+        "prov": "classifier transcription (classterminals.define)"
+       }
+      ],
+      "terms": [
+       {
+        "coef": {
+         "value": "1+0u"
+        },
+        "degree": 2,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 1
+         }
+        ],
+        "wrapper": []
+       }
+      ]
+     },
+     {
+      "declared_degree": 2,
+      "extension_rounds": 1,
+      "group_bits": 0,
+      "kind": "Standalone",
+      "main_rounds": 9,
+      "max_product_degree": 2,
+      "name": "OUT-C-00 OUTC-00 IO-in: x = B_out at the public verdict row P0+n+S-1 (fixed public row bits; T-1 without pad)",
+      "nodes": [],
+      "pad_on": null,
+      "slot": 0,
+      "tables": [
+       {
+        "kind": "eq(start=0,|point|=9)",
+        "label": "eq(tau)",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "A",
+        "label": "A_X",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "EP",
+        "label": "B-out",
+        "prov": "classifier transcription (classterminals.define)"
+       }
+      ],
+      "terms": [
+       {
+        "coef": {
+         "value": "1+0u"
+        },
+        "degree": 2,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 1
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "18446744069414584320+0u"
+        },
+        "degree": 2,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 2
+         }
+        ],
+        "wrapper": []
+       }
+      ]
+     },
+     {
+      "declared_degree": 4,
+      "extension_rounds": 1,
+      "group_bits": 0,
+      "kind": "Private",
+      "main_rounds": 12,
+      "max_product_degree": 3,
+      "name": "OUT-C-01 OUTC-01 SS final-norm row sum (private, hosted by TZC)",
+      "nodes": [],
+      "pad_on": null,
+      "slot": 1,
+      "tables": [
+       {
+        "kind": "supp(supp(384) over 4096)",
+        "label": "supp(384) over 4096",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "A",
+        "label": "A_X",
+        "prov": "classifier transcription (classterminals.define)"
+       }
+      ],
+      "terms": [
+       {
+        "coef": {
+         "value": "1+0u"
+        },
+        "degree": 3,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 1
+         },
+         {
+          "table": 1
+         }
+        ],
+        "wrapper": []
+       }
+      ]
+     },
+     {
+      "declared_degree": 3,
+      "extension_rounds": 1,
+      "group_bits": 0,
+      "kind": "Host",
+      "main_rounds": 1,
+      "max_product_degree": 3,
+      "name": "OUT-C-02 OUTC-02 TZC isqrt (D, Dsq, 9 limb slices; hosts SS)",
+      "nodes": [],
+      "pad_on": null,
+      "slot": 2,
+      "tables": [
+       {
+        "kind": "eq(start=0,|point|=1)",
+        "label": "eq(tau)",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "supp(supp(1) over 2)",
+        "label": "supp(1) over 2",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "A",
+        "label": "A_D",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "A",
+        "label": "A_DSQ",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "A",
+        "label": "A_LIMB",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "A",
+        "label": "A_LIMB",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "A",
+        "label": "A_LIMB",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "A",
+        "label": "A_LIMB",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "A",
+        "label": "A_LIMB",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "A",
+        "label": "A_LIMB",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "A",
+        "label": "A_LIMB",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "A",
+        "label": "A_LIMB",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "A",
+        "label": "A_LIMB",
+        "prov": "classifier transcription (classterminals.define)"
+       }
+      ],
+      "terms": [
+       {
+        "coef": {
+         "value": "777307380503866425+3466637556352477171u"
+        },
+        "degree": 3,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 1
+         },
+         {
+          "table": 2
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "4326545929283306978+8683786578904155941u"
+        },
+        "degree": 3,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 1
+         },
+         {
+          "table": 3
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "17696449734139539133+6188677529499579236u"
+        },
+        "degree": 2,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 2
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "13655134386356402515+12181893691859632442u"
+        },
+        "degree": 3,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 2
+         },
+         {
+          "table": 2
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "465063753774874828+16027807868065380259u"
+        },
+        "degree": 2,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 3
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "11912314337045094595+1410462380014442219u"
+        },
+        "degree": 2,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 4
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "5839698830137803355+10590231964820105965u"
+        },
+        "degree": 2,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 5
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "776630892696328879+17874748859417816174u"
+        },
+        "degree": 2,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 6
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "12477080378277626405+12913855336481335008u"
+        },
+        "degree": 2,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 7
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "2845852830349272147+3979777714011168589u"
+        },
+        "degree": 2,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 8
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "9115305862244881113+4252170969057021129u"
+        },
+        "degree": 2,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 9
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "12477080378277626405+12913855336481335008u"
+        },
+        "degree": 2,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 10
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "2845852830349272147+3979777714011168589u"
+        },
+        "degree": 2,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 11
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "9115305862244881113+4252170969057021129u"
+        },
+        "degree": 2,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 12
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "12374764555964303787+7857643366836204934u"
+        },
+        "degree": 1,
+        "inner": [
+         {
+          "table": 1
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "14319238530836187712+793661615086419630u"
+        },
+        "degree": 2,
+        "inner": [
+         {
+          "table": 1
+         },
+         {
+          "table": 3
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "14319238530836187712+793661615086419630u"
+        },
+        "degree": 2,
+        "inner": [
+         {
+          "table": 1
+         },
+         {
+          "table": 7
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "13269738149976358714+263188698562997749u"
+        },
+        "degree": 2,
+        "inner": [
+         {
+          "table": 1
+         },
+         {
+          "table": 8
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "2852057621664315720+12036074623883670781u"
+        },
+        "degree": 2,
+        "inner": [
+         {
+          "table": 1
+         },
+         {
+          "table": 9
+         }
+        ],
+        "wrapper": []
+       }
+      ]
+     },
+     {
+      "declared_degree": 2,
+      "extension_rounds": 1,
+      "group_bits": 0,
+      "kind": "Private",
+      "main_rounds": 9,
+      "max_product_degree": 2,
+      "name": "OUT-C-03 OUTC-03 PD margin sum_i y(i) w_Delta(i) (private, hosted by LZC)",
+      "nodes": [],
+      "pad_on": null,
+      "slot": 3,
+      "tables": [
+       {
+        "kind": "A",
+        "label": "A_Y",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "pub",
+        "label": "margin vector w_Delta",
+        "prov": "classifier transcription (classterminals.define)"
+       }
+      ],
+      "terms": [
+       {
+        "coef": {
+         "value": "1+0u"
+        },
+        "degree": 2,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 1
+         }
+        ],
+        "wrapper": []
+       }
+      ]
+     },
+     {
+      "declared_degree": 4,
+      "extension_rounds": 1,
+      "group_bits": 0,
+      "kind": "Host",
+      "main_rounds": 12,
+      "max_product_degree": 3,
+      "name": "OUT-C-04 OUTC-04 LZC limb lookups (+pad; isqrt and margin limbs) + host term sigma g limb + u0 (sigma b + c)",
+      "nodes": [],
+      "pad_on": null,
+      "slot": 4,
+      "tables": [
+       {
+        "kind": "eq(start=0,|point|=12)",
+        "label": "eq(tau)",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "supp(limb-plane live selector (isqrt + margin limbs))",
+        "label": "limb-plane live selector (isqrt + margin limbs)",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "pub",
+        "label": "g(z) = sigma 256^(z-32) on the margin limbs",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "supp(supp(1) over 4096)",
+        "label": "supp(1) over 4096",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "A",
+        "label": "A_LIMB",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "H",
+        "label": "H_LO",
+        "prov": "classifier transcription (classterminals.define)"
+       }
+      ],
+      "terms": [
+       {
+        "coef": {
+         "value": "1665619992988156220+18149304883891506198u"
+        },
+        "degree": 1,
+        "inner": [
+         {
+          "table": 0
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "12019093096131438135+1913636902763041906u"
+        },
+        "degree": 3,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 1
+         },
+         {
+          "table": 4
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "6427650973283146186+16533107166651542415u"
+        },
+        "degree": 2,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 4
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "1665619992988156220+18149304883891506198u"
+        },
+        "degree": 3,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 4
+         },
+         {
+          "table": 5
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "11421832227915671413+12418574747674355760u"
+        },
+        "degree": 2,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 5
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "11270783621914087015+9326100263441767720u"
+        },
+        "degree": 2,
+        "inner": [
+         {
+          "table": 2
+         },
+         {
+          "table": 4
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "2999268848758226181+5973294114806260590u"
+        },
+        "degree": 1,
+        "inner": [
+         {
+          "table": 3
+         }
+        ],
+        "wrapper": []
+       }
+      ]
+     },
+     {
+      "declared_degree": 5,
+      "extension_rounds": 1,
+      "group_bits": 0,
+      "kind": "Standalone",
+      "main_rounds": 12,
+      "max_product_degree": 4,
+      "name": "OUT-C-05 OUTC-05 DZC final-norm quotient + x limbs + helpers (+pad)",
+      "nodes": [],
+      "pad_on": null,
+      "slot": 5,
+      "tables": [
+       {
+        "kind": "eq(start=0,|point|=12)",
+        "label": "eq(tau)",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "supp(supp(384) over 4096)",
+        "label": "supp(384) over 4096",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "A",
+        "label": "A_X",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "A",
+        "label": "A_XL0",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "A",
+        "label": "A_XL1",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "A",
+        "label": "A_Y",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "A",
+        "label": "A_RHO0",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "A",
+        "label": "A_RHO1",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "A",
+        "label": "A_RHO2",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "A",
+        "label": "A_RHO3",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "A",
+        "label": "A_SIG0",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "A",
+        "label": "A_SIG1",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "A",
+        "label": "A_SIG2",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "A",
+        "label": "A_SIG3",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "A",
+        "label": "A_D",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "H",
+        "label": "H_D0",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "H",
+        "label": "H_D1",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "H",
+        "label": "H_D2",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "H",
+        "label": "H_D3",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "H",
+        "label": "H_D4",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "H",
+        "label": "H_D5",
+        "prov": "classifier transcription (classterminals.define)"
+       }
+      ],
+      "terms": [
+       {
+        "coef": {
+         "value": "1696659526918196495+3814032167252254375u"
+        },
+        "degree": 1,
+        "inner": [
+         {
+          "table": 0
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "10098923270794330414+15129595990270213811u"
+        },
+        "degree": 2,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 1
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "3621697583162143789+16667490626919759883u"
+        },
+        "degree": 3,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 1
+         },
+         {
+          "table": 2
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "2709635385921781024+12116802280250155473u"
+        },
+        "degree": 3,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 1
+         },
+         {
+          "table": 3
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "14864947766690264729+16580886354632549152u"
+        },
+        "degree": 3,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 1
+         },
+         {
+          "table": 4
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "10078277674754015771+10267508863188357075u"
+        },
+        "degree": 3,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 1
+         },
+         {
+          "table": 5
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "17379019376860439340+359906266707769644u"
+        },
+        "degree": 4,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 1
+         },
+         {
+          "table": 5
+         },
+         {
+          "table": 14
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "8493589597357578096+2534586653446499873u"
+        },
+        "degree": 3,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 1
+         },
+         {
+          "table": 6
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "11492870935701036071+11484017521181787655u"
+        },
+        "degree": 3,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 1
+         },
+         {
+          "table": 7
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "811067817068129421+90051628529303710u"
+        },
+        "degree": 3,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 1
+         },
+         {
+          "table": 8
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "3163216462230784982+8421997961575609984u"
+        },
+        "degree": 3,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 1
+         },
+         {
+          "table": 9
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "12689683309589804598+823687131653452986u"
+        },
+        "degree": 3,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 1
+         },
+         {
+          "table": 10
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "13735799476147346217+4820699565400337141u"
+        },
+        "degree": 3,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 1
+         },
+         {
+          "table": 11
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "12688632283498549353+15373095194561852159u"
+        },
+        "degree": 3,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 1
+         },
+         {
+          "table": 12
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "18072765633567504200+6927505709742499116u"
+        },
+        "degree": 3,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 1
+         },
+         {
+          "table": 13
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "10763394674870145624+16086191961842746783u"
+        },
+        "degree": 3,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 1
+         },
+         {
+          "table": 14
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "11526232841636362481+11235570630283151684u"
+        },
+        "degree": 2,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 2
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "5637508035120539611+13195808660168863188u"
+        },
+        "degree": 2,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 3
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "17021246377366504565+6690047722435753411u"
+        },
+        "degree": 4,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 3
+         },
+         {
+          "table": 4
+         },
+         {
+          "table": 15
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "13792532547778649903+4414873611941488118u"
+        },
+        "degree": 3,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 3
+         },
+         {
+          "table": 15
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "13641974190849856597+16672119331970937762u"
+        },
+        "degree": 2,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 4
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "13792532547778649903+4414873611941488118u"
+        },
+        "degree": 3,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 4
+         },
+         {
+          "table": 15
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "8368466394660568550+8179235206226227246u"
+        },
+        "degree": 2,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 5
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "4588310730174809770+9336258224385214246u"
+        },
+        "degree": 4,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 5
+         },
+         {
+          "table": 5
+         },
+         {
+          "table": 16
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "14440313176415599733+11570269008866783074u"
+        },
+        "degree": 2,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 6
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "3613966696428908588+3691913085719668525u"
+        },
+        "degree": 4,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 6
+         },
+         {
+          "table": 7
+         },
+         {
+          "table": 17
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "2059076978111152874+6764816435520845910u"
+        },
+        "degree": 3,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 6
+         },
+         {
+          "table": 17
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "12744065027166784506+1590049176803030678u"
+        },
+        "degree": 2,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 7
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "2059076978111152874+6764816435520845910u"
+        },
+        "degree": 3,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 7
+         },
+         {
+          "table": 17
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "403265893546296256+9754436186850444586u"
+        },
+        "degree": 2,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 8
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "15949749424238656620+6089892099397359178u"
+        },
+        "degree": 4,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 8
+         },
+         {
+          "table": 9
+         },
+         {
+          "table": 18
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "9623399782770774159+1719931512713728032u"
+        },
+        "degree": 3,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 8
+         },
+         {
+          "table": 18
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "3655900434779951714+18060449889169563031u"
+        },
+        "degree": 2,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 9
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "9623399782770774159+1719931512713728032u"
+        },
+        "degree": 3,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 9
+         },
+         {
+          "table": 18
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "515830693608648021+8944840499635058164u"
+        },
+        "degree": 2,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 10
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "8679642023347922477+7227965069246508340u"
+        },
+        "degree": 4,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 10
+         },
+         {
+          "table": 11
+         },
+         {
+          "table": 19
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "10766019928521317991+4903168119444821976u"
+        },
+        "degree": 3,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 10
+         },
+         {
+          "table": 19
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "9868937085232064710+7155238957088439324u"
+        },
+        "degree": 2,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 11
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "10766019928521317991+4903168119444821976u"
+        },
+        "degree": 3,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 11
+         },
+         {
+          "table": 19
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "12307240711646744108+14424024967803907316u"
+        },
+        "degree": 2,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 12
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "4200949558488620387+13354280644293100340u"
+        },
+        "degree": 4,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 12
+         },
+         {
+          "table": 13
+         },
+         {
+          "table": 20
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "11090459983259972589+7641608459142931375u"
+        },
+        "degree": 3,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 12
+         },
+         {
+          "table": 20
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "15413035787043723004+9936043734626114596u"
+        },
+        "degree": 2,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 13
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "11090459983259972589+7641608459142931375u"
+        },
+        "degree": 3,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 13
+         },
+         {
+          "table": 20
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "1198019220309037176+12412171147438216079u"
+        },
+        "degree": 2,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 15
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "15872293957540254249+5840742924170065833u"
+        },
+        "degree": 2,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 16
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "1606981338688390158+1004166409059077816u"
+        },
+        "degree": 2,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 17
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "10978289851132723493+4239131542460233467u"
+        },
+        "degree": 2,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 18
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "17995835935577197332+16807674141159225260u"
+        },
+        "degree": 2,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 19
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "1304352836927074480+81618817920210359u"
+        },
+        "degree": 2,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 20
+         }
+        ],
+        "wrapper": []
+       }
+      ]
+     },
+     {
+      "declared_degree": 3,
+      "extension_rounds": 1,
+      "group_bits": 0,
+      "kind": "Standalone",
+      "main_rounds": 12,
+      "max_product_degree": 3,
+      "name": "OUT-C-06 OUTC-06 TAB byte-table helper (+pad)",
+      "nodes": [],
+      "pad_on": null,
+      "slot": 6,
+      "tables": [
+       {
+        "kind": "eq(start=0,|point|=12)",
+        "label": "eq(tau)",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "supp(supp(256) over 4096)",
+        "label": "supp(256) over 4096",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "pub",
+        "label": "byte table over 4096",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "A",
+        "label": "A_MU8",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "H",
+        "label": "H_GU8",
+        "prov": "classifier transcription (classterminals.define)"
+       }
+      ],
+      "terms": [
+       {
+        "coef": {
+         "value": "12401757998494829548+16076516407087869286u"
+        },
+        "degree": 3,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 1
+         },
+         {
+          "table": 3
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "15828867495593578488+13774581660892900814u"
+        },
+        "degree": 3,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 1
+         },
+         {
+          "table": 4
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "229983865511524336+17926938738736813738u"
+        },
+        "degree": 3,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 2
+         },
+         {
+          "table": 4
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "6274969936431279109+1850422331648944452u"
+        },
+        "degree": 2,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 3
+         }
+        ],
+        "wrapper": []
+       },
+       {
+        "coef": {
+         "value": "10871525526920416881+9731239330006467348u"
+        },
+        "degree": 2,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 4
+         }
+        ],
+        "wrapper": []
+       }
+      ]
+     },
+     {
+      "declared_degree": 2,
+      "extension_rounds": 1,
+      "group_bits": 0,
+      "kind": "Standalone",
+      "main_rounds": 12,
+      "max_product_degree": 2,
+      "name": "OUT-C-07 OUTC-07 ZS zero-sum row",
+      "nodes": [],
+      "pad_on": null,
+      "slot": 7,
+      "tables": [
+       {
+        "kind": "pub",
+        "label": "ones over 4096",
+        "prov": "classifier transcription (classterminals.define)"
+       },
+       {
+        "kind": "H",
+        "label": "H_U",
+        "prov": "classifier transcription (classterminals.define)"
+       }
+      ],
+      "terms": [
+       {
+        "coef": {
+         "value": "1+0u"
+        },
+        "degree": 2,
+        "inner": [
+         {
+          "table": 0
+         },
+         {
+          "table": 1
+         }
+        ],
+        "wrapper": []
+       }
+      ]
+     }
+    ]
+   },
+   "ok": true,
+   "per_challenge_mode": {
+    "random-1": {
+     "F0_fidelity": "12/12",
+     "S1": [
+      {
+       "L": 29,
+       "budget_ok": true,
+       "declared_degree": 3,
+       "degree_fits": true,
+       "dimC": 28,
+       "ext": 1,
+       "main": 8,
+       "max_product_degree_walked": 3,
+       "name": "IN-C-00 INC-00 IO-in: token endpoint = supp_T tok (whole padded plane: template and content)",
+       "per_variable_degree_bound_max": 3,
+       "premise": [
+        {
+         "exact_zero_3_of_3": true,
+         "round": 0,
+         "syntactically_zero": true
+        }
+       ],
+       "premise_holds": true,
+       "private_tables": 2,
+       "public_factor_in_every_monomial_exact": true,
+       "public_factor_in_every_monomial_syntactic": true,
+       "slack": 0,
+       "stored_degrees_agree": true,
+       "tables": {
+        "A": 1,
+        "EP": 1,
+        "eq": 1,
+        "supp": 1
+       },
+       "terms": 2
+      },
+      {
+       "L": 54,
+       "budget_ok": true,
+       "declared_degree": 4,
+       "degree_fits": true,
+       "dimC": 53,
+       "ext": 1,
+       "main": 12,
+       "max_product_degree_walked": 3,
+       "name": "IN-C-01 INC-01 query zero-check: LogUp over (id, row, ctl) + BOS + TEMPLATE (prefix, suffix, trailing pad ids) + pad, fresh mu each",
+       "per_variable_degree_bound_max": 3,
+       "premise": [
+        {
+         "exact_zero_3_of_3": true,
+         "round": 0,
+         "syntactically_zero": true
+        }
+       ],
+       "premise_holds": true,
+       "private_tables": 3,
+       "public_factor_in_every_monomial_exact": true,
+       "public_factor_in_every_monomial_syntactic": true,
+       "slack": 1,
+       "stored_degrees_agree": true,
+       "tables": {
+        "A": 1,
+        "EP": 1,
+        "H": 1,
+        "eq": 1,
+        "pub": 2,
+        "supp": 3
+       },
+       "terms": 12
+      },
+      {
+       "L": 54,
+       "budget_ok": true,
+       "declared_degree": 4,
+       "degree_fits": true,
+       "dimC": 53,
+       "ext": 1,
+       "main": 12,
+       "max_product_degree_walked": 3,
+       "name": "IN-C-02 INC-02 table zero-check: h_tab (alpha - tau(v, ctl)) = m + pad, fresh mu each",
+       "per_variable_degree_bound_max": 3,
+       "premise": [
+        {
+         "exact_zero_3_of_3": true,
+         "round": 0,
+         "syntactically_zero": true
+        }
+       ],
+       "premise_holds": true,
+       "private_tables": 2,
+       "public_factor_in_every_monomial_exact": true,
+       "public_factor_in_every_monomial_syntactic": true,
+       "slack": 1,
+       "stored_degrees_agree": true,
+       "tables": {
+        "A": 1,
+        "H": 1,
+        "eq": 1,
+        "pub": 1,
+        "supp": 1
+       },
+       "terms": 5
+      },
+      {
+       "L": 28,
+       "budget_ok": true,
+       "declared_degree": 2,
+       "degree_fits": true,
+       "dimC": 27,
+       "ext": 1,
+       "main": 12,
+       "max_product_degree_walked": 2,
+       "name": "IN-C-03 INC-03 ZS zero-sum row",
+       "per_variable_degree_bound_max": 2,
+       "premise": [
+        {
+         "exact_zero_3_of_3": true,
+         "round": 0,
+         "syntactically_zero": true
+        }
+       ],
+       "premise_holds": true,
+       "private_tables": 1,
+       "public_factor_in_every_monomial_exact": true,
+       "public_factor_in_every_monomial_syntactic": true,
+       "slack": 0,
+       "stored_degrees_agree": true,
+       "tables": {
+        "H": 1,
+        "pub": 1
+       },
+       "terms": 1
+      },
+      {
+       "L": 22,
+       "budget_ok": true,
+       "declared_degree": 2,
+       "degree_fits": true,
+       "dimC": 21,
+       "ext": 1,
+       "main": 9,
+       "max_product_degree_walked": 2,
+       "name": "OUT-C-00 OUTC-00 IO-in: x = B_out at the public verdict row P0+n+S-1 (fixed public row bits; T-1 without pad)",
+       "per_variable_degree_bound_max": 2,
+       "premise": [
+        {
+         "exact_zero_3_of_3": true,
+         "round": 0,
+         "syntactically_zero": true
+        }
+       ],
+       "premise_holds": true,
+       "private_tables": 2,
+       "public_factor_in_every_monomial_exact": true,
+       "public_factor_in_every_monomial_syntactic": true,
+       "slack": 0,
+       "stored_degrees_agree": true,
+       "tables": {
+        "A": 1,
+        "EP": 1,
+        "eq": 1
+       },
+       "terms": 2
+      },
+      {
+       "L": 54,
+       "budget_ok": true,
+       "declared_degree": 4,
+       "degree_fits": true,
+       "dimC": 53,
+       "ext": 1,
+       "main": 12,
+       "max_product_degree_walked": 3,
+       "name": "OUT-C-01 OUTC-01 SS final-norm row sum (private, hosted by TZC)",
+       "per_variable_degree_bound_max": 3,
+       "premise": [
+        {
+         "exact_zero_3_of_3": true,
+         "round": 0,
+         "syntactically_zero": true
+        }
+       ],
+       "premise_holds": true,
+       "private_tables": 1,
+       "public_factor_in_every_monomial_exact": true,
+       "public_factor_in_every_monomial_syntactic": true,
+       "slack": 1,
+       "stored_degrees_agree": true,
+       "tables": {
+        "A": 1,
+        "supp": 1
+       },
+       "terms": 1
+      },
+      {
+       "L": 8,
+       "budget_ok": true,
+       "declared_degree": 3,
+       "degree_fits": true,
+       "dimC": 7,
+       "ext": 1,
+       "main": 1,
+       "max_product_degree_walked": 3,
+       "name": "OUT-C-02 OUTC-02 TZC isqrt (D, Dsq, 9 limb slices; hosts SS)",
+       "per_variable_degree_bound_max": 3,
+       "premise": [
+        {
+         "exact_zero_3_of_3": true,
+         "round": 0,
+         "syntactically_zero": true
+        }
+       ],
+       "premise_holds": true,
+       "private_tables": 11,
+       "public_factor_in_every_monomial_exact": true,
+       "public_factor_in_every_monomial_syntactic": true,
+       "slack": 0,
+       "stored_degrees_agree": true,
+       "tables": {
+        "A": 11,
+        "eq": 1,
+        "supp": 1
+       },
+       "terms": 19
+      },
+      {
+       "L": 22,
+       "budget_ok": true,
+       "declared_degree": 2,
+       "degree_fits": true,
+       "dimC": 21,
+       "ext": 1,
+       "main": 9,
+       "max_product_degree_walked": 2,
+       "name": "OUT-C-03 OUTC-03 PD margin sum_i y(i) w_Delta(i) (private, hosted by LZC)",
+       "per_variable_degree_bound_max": 2,
+       "premise": [
+        {
+         "exact_zero_3_of_3": true,
+         "round": 0,
+         "syntactically_zero": true
+        }
+       ],
+       "premise_holds": true,
+       "private_tables": 1,
+       "public_factor_in_every_monomial_exact": true,
+       "public_factor_in_every_monomial_syntactic": true,
+       "slack": 0,
+       "stored_degrees_agree": true,
+       "tables": {
+        "A": 1,
+        "pub": 1
+       },
+       "terms": 1
+      },
+      {
+       "L": 54,
+       "budget_ok": true,
+       "declared_degree": 4,
+       "degree_fits": true,
+       "dimC": 53,
+       "ext": 1,
+       "main": 12,
+       "max_product_degree_walked": 3,
+       "name": "OUT-C-04 OUTC-04 LZC limb lookups (+pad; isqrt and margin limbs) + host term sigma g limb + u0 (sigma b + c)",
+       "per_variable_degree_bound_max": 3,
+       "premise": [
+        {
+         "exact_zero_3_of_3": true,
+         "round": 0,
+         "syntactically_zero": true
+        }
+       ],
+       "premise_holds": true,
+       "private_tables": 2,
+       "public_factor_in_every_monomial_exact": true,
+       "public_factor_in_every_monomial_syntactic": true,
+       "slack": 1,
+       "stored_degrees_agree": true,
+       "tables": {
+        "A": 1,
+        "H": 1,
+        "eq": 1,
+        "pub": 1,
+        "supp": 2
+       },
+       "terms": 7
+      },
+      {
+       "L": 67,
+       "budget_ok": true,
+       "declared_degree": 5,
+       "degree_fits": true,
+       "dimC": 66,
+       "ext": 1,
+       "main": 12,
+       "max_product_degree_walked": 4,
+       "name": "OUT-C-05 OUTC-05 DZC final-norm quotient + x limbs + helpers (+pad)",
+       "per_variable_degree_bound_max": 4,
+       "premise": [
+        {
+         "exact_zero_3_of_3": true,
+         "round": 0,
+         "syntactically_zero": true
+        }
+       ],
+       "premise_holds": true,
+       "private_tables": 19,
+       "public_factor_in_every_monomial_exact": true,
+       "public_factor_in_every_monomial_syntactic": true,
+       "slack": 1,
+       "stored_degrees_agree": true,
+       "tables": {
+        "A": 13,
+        "H": 6,
+        "eq": 1,
+        "supp": 1
+       },
+       "terms": 50
+      },
+      {
+       "L": 41,
+       "budget_ok": true,
+       "declared_degree": 3,
+       "degree_fits": true,
+       "dimC": 40,
+       "ext": 1,
+       "main": 12,
+       "max_product_degree_walked": 3,
+       "name": "OUT-C-06 OUTC-06 TAB byte-table helper (+pad)",
+       "per_variable_degree_bound_max": 3,
+       "premise": [
+        {
+         "exact_zero_3_of_3": true,
+         "round": 0,
+         "syntactically_zero": true
+        }
+       ],
+       "premise_holds": true,
+       "private_tables": 2,
+       "public_factor_in_every_monomial_exact": true,
+       "public_factor_in_every_monomial_syntactic": true,
+       "slack": 0,
+       "stored_degrees_agree": true,
+       "tables": {
+        "A": 1,
+        "H": 1,
+        "eq": 1,
+        "pub": 1,
+        "supp": 1
+       },
+       "terms": 5
+      },
+      {
+       "L": 28,
+       "budget_ok": true,
+       "declared_degree": 2,
+       "degree_fits": true,
+       "dimC": 27,
+       "ext": 1,
+       "main": 12,
+       "max_product_degree_walked": 2,
+       "name": "OUT-C-07 OUTC-07 ZS zero-sum row",
+       "per_variable_degree_bound_max": 2,
+       "premise": [
+        {
+         "exact_zero_3_of_3": true,
+         "round": 0,
+         "syntactically_zero": true
+        }
+       ],
+       "premise_holds": true,
+       "private_tables": 1,
+       "public_factor_in_every_monomial_exact": true,
+       "public_factor_in_every_monomial_syntactic": true,
+       "slack": 0,
+       "stored_degrees_agree": true,
+       "tables": {
+        "H": 1,
+        "pub": 1
+       },
+       "terms": 1
+      }
+     ],
+     "S1_summary": {
+      "budget_ok": 12,
+      "degree_fits": 12,
+      "of": 12,
+      "premise_holds": 12,
+      "public_factor_every_monomial": 12
+     },
+     "S2": {
+      "IN": {
+       "budget_all_ok": true,
+       "slots": 4,
+       "sum_L": 165,
+       "sum_dimC": 161,
+       "sum_ker": 4,
+       "worst_L": 54
+      },
+      "OUT": {
+       "budget_all_ok": true,
+       "slots": 8,
+       "sum_L": 296,
+       "sum_dimC": 288,
+       "sum_ker": 8,
+       "worst_L": 67
+      }
+     },
+     "S4": [
+      {
+       "L": 14,
+       "N": 4,
+       "chain_accepts": true,
+       "d": 3,
+       "dimC_expected": 13,
+       "fact32_identity": true,
+       "fibre_constructed": true,
+       "fibre_private_gamma_shift_is_sigma_diff": true,
+       "fibre_private_gamma_would_differ": true,
+       "fibre_same_V": true,
+       "fibre_same_published_view": true,
+       "fibre_witness_differs": true,
+       "n_mini": 3,
+       "name": "IN-C-00 INC-00 IO-in: token endpoint = supp_T tok (whole padded plane: template and content)",
+       "offset_in_ImR": true,
+       "passes": true,
+       "rank_R": 13,
+       "terminal_formula": true,
+       "terminal_map": {
+        "fp_rank_random_tails": 4,
+        "fp_rank_shared_boolean_tail": 4,
+        "m": 2,
+        "onto_Fp2^m": true
+       }
+      },
+      {
+       "L": 18,
+       "N": 4,
+       "chain_accepts": true,
+       "d": 4,
+       "dimC_expected": 17,
+       "fact32_identity": true,
+       "fibre_constructed": true,
+       "fibre_private_gamma_shift_is_sigma_diff": true,
+       "fibre_private_gamma_would_differ": true,
+       "fibre_same_V": true,
+       "fibre_same_published_view": true,
+       "fibre_witness_differs": true,
+       "n_mini": 3,
+       "name": "IN-C-01 INC-01 query zero-check: LogUp over (id, row, ctl) + BOS + TEMPLATE (prefix, suffix, trailing pad ids) + pad, fresh mu each",
+       "offset_in_ImR": true,
+       "passes": true,
+       "rank_R": 17,
+       "terminal_formula": true,
+       "terminal_map": {
+        "fp_rank_random_tails": 6,
+        "fp_rank_shared_boolean_tail": 6,
+        "m": 3,
+        "onto_Fp2^m": true
+       }
+      },
+      {
+       "L": 18,
+       "N": 4,
+       "chain_accepts": true,
+       "d": 4,
+       "dimC_expected": 17,
+       "fact32_identity": true,
+       "fibre_constructed": true,
+       "fibre_private_gamma_shift_is_sigma_diff": true,
+       "fibre_private_gamma_would_differ": true,
+       "fibre_same_V": true,
+       "fibre_same_published_view": true,
+       "fibre_witness_differs": true,
+       "n_mini": 3,
+       "name": "IN-C-02 INC-02 table zero-check: h_tab (alpha - tau(v, ctl)) = m + pad, fresh mu each",
+       "offset_in_ImR": true,
+       "passes": true,
+       "rank_R": 17,
+       "terminal_formula": true,
+       "terminal_map": {
+        "fp_rank_random_tails": 4,
+        "fp_rank_shared_boolean_tail": 4,
+        "m": 2,
+        "onto_Fp2^m": true
+       }
+      },
+      {
+       "L": 10,
+       "N": 4,
+       "chain_accepts": true,
+       "d": 2,
+       "dimC_expected": 9,
+       "fact32_identity": true,
+       "fibre_constructed": true,
+       "fibre_private_gamma_shift_is_sigma_diff": true,
+       "fibre_private_gamma_would_differ": true,
+       "fibre_same_V": true,
+       "fibre_same_published_view": true,
+       "fibre_witness_differs": true,
+       "n_mini": 3,
+       "name": "IN-C-03 INC-03 ZS zero-sum row",
+       "offset_in_ImR": true,
+       "passes": true,
+       "rank_R": 9,
+       "terminal_formula": true,
+       "terminal_map": {
+        "fp_rank_random_tails": 2,
+        "fp_rank_shared_boolean_tail": 2,
+        "m": 1,
+        "onto_Fp2^m": true
+       }
+      },
+      {
+       "L": 10,
+       "N": 4,
+       "chain_accepts": true,
+       "d": 2,
+       "dimC_expected": 9,
+       "fact32_identity": true,
+       "fibre_constructed": true,
+       "fibre_private_gamma_shift_is_sigma_diff": true,
+       "fibre_private_gamma_would_differ": true,
+       "fibre_same_V": true,
+       "fibre_same_published_view": true,
+       "fibre_witness_differs": true,
+       "n_mini": 3,
+       "name": "OUT-C-00 OUTC-00 IO-in: x = B_out at the public verdict row P0+n+S-1 (fixed public row bits; T-1 without pad)",
+       "offset_in_ImR": true,
+       "passes": true,
+       "rank_R": 9,
+       "terminal_formula": true,
+       "terminal_map": {
+        "fp_rank_random_tails": 4,
+        "fp_rank_shared_boolean_tail": 4,
+        "m": 2,
+        "onto_Fp2^m": true
+       }
+      },
+      {
+       "L": 18,
+       "N": 4,
+       "chain_accepts": true,
+       "d": 4,
+       "dimC_expected": 17,
+       "fact32_identity": true,
+       "fibre_constructed": true,
+       "fibre_private_gamma_shift_is_sigma_diff": true,
+       "fibre_private_gamma_would_differ": true,
+       "fibre_same_V": true,
+       "fibre_same_published_view": true,
+       "fibre_witness_differs": true,
+       "n_mini": 3,
+       "name": "OUT-C-01 OUTC-01 SS final-norm row sum (private, hosted by TZC)",
+       "offset_in_ImR": true,
+       "passes": true,
+       "rank_R": 17,
+       "terminal_formula": true,
+       "terminal_map": {
+        "fp_rank_random_tails": 2,
+        "fp_rank_shared_boolean_tail": 2,
+        "m": 1,
+        "onto_Fp2^m": true
+       }
+      },
+      {
+       "L": 8,
+       "N": 2,
+       "chain_accepts": true,
+       "d": 3,
+       "dimC_expected": 7,
+       "fact32_identity": true,
+       "fibre_constructed": true,
+       "fibre_private_gamma_shift_is_sigma_diff": true,
+       "fibre_private_gamma_would_differ": true,
+       "fibre_same_V": true,
+       "fibre_same_published_view": true,
+       "fibre_witness_differs": true,
+       "n_mini": 1,
+       "name": "OUT-C-02 OUTC-02 TZC isqrt (D, Dsq, 9 limb slices; hosts SS)",
+       "offset_in_ImR": true,
+       "passes": true,
+       "rank_R": 7,
+       "terminal_formula": true,
+       "terminal_map": {
+        "fp_rank_random_tails": 22,
+        "fp_rank_shared_boolean_tail": 22,
+        "m": 11,
+        "onto_Fp2^m": true
+       }
+      },
+      {
+       "L": 10,
+       "N": 4,
+       "chain_accepts": true,
+       "d": 2,
+       "dimC_expected": 9,
+       "fact32_identity": true,
+       "fibre_constructed": true,
+       "fibre_private_gamma_shift_is_sigma_diff": true,
+       "fibre_private_gamma_would_differ": true,
+       "fibre_same_V": true,
+       "fibre_same_published_view": true,
+       "fibre_witness_differs": true,
+       "n_mini": 3,
+       "name": "OUT-C-03 OUTC-03 PD margin sum_i y(i) w_Delta(i) (private, hosted by LZC)",
+       "offset_in_ImR": true,
+       "passes": true,
+       "rank_R": 9,
+       "terminal_formula": true,
+       "terminal_map": {
+        "fp_rank_random_tails": 2,
+        "fp_rank_shared_boolean_tail": 2,
+        "m": 1,
+        "onto_Fp2^m": true
+       }
+      },
+      {
+       "L": 18,
+       "N": 4,
+       "chain_accepts": true,
+       "d": 4,
+       "dimC_expected": 17,
+       "fact32_identity": true,
+       "fibre_constructed": true,
+       "fibre_private_gamma_shift_is_sigma_diff": true,
+       "fibre_private_gamma_would_differ": true,
+       "fibre_same_V": true,
+       "fibre_same_published_view": true,
+       "fibre_witness_differs": true,
+       "n_mini": 3,
+       "name": "OUT-C-04 OUTC-04 LZC limb lookups (+pad; isqrt and margin limbs) + host term sigma g limb + u0 (sigma b + c)",
+       "offset_in_ImR": true,
+       "passes": true,
+       "rank_R": 17,
+       "terminal_formula": true,
+       "terminal_map": {
+        "fp_rank_random_tails": 4,
+        "fp_rank_shared_boolean_tail": 4,
+        "m": 2,
+        "onto_Fp2^m": true
+       }
+      },
+      {
+       "L": 22,
+       "N": 4,
+       "chain_accepts": true,
+       "d": 5,
+       "dimC_expected": 21,
+       "fact32_identity": true,
+       "fibre_constructed": true,
+       "fibre_private_gamma_shift_is_sigma_diff": true,
+       "fibre_private_gamma_would_differ": true,
+       "fibre_same_V": true,
+       "fibre_same_published_view": true,
+       "fibre_witness_differs": true,
+       "n_mini": 3,
+       "name": "OUT-C-05 OUTC-05 DZC final-norm quotient + x limbs + helpers (+pad)",
+       "offset_in_ImR": true,
+       "passes": true,
+       "rank_R": 21,
+       "terminal_formula": true,
+       "terminal_map": {
+        "fp_rank_random_tails": 38,
+        "fp_rank_shared_boolean_tail": 38,
+        "m": 19,
+        "onto_Fp2^m": true
+       }
+      },
+      {
+       "L": 14,
+       "N": 4,
+       "chain_accepts": true,
+       "d": 3,
+       "dimC_expected": 13,
+       "fact32_identity": true,
+       "fibre_constructed": true,
+       "fibre_private_gamma_shift_is_sigma_diff": true,
+       "fibre_private_gamma_would_differ": true,
+       "fibre_same_V": true,
+       "fibre_same_published_view": true,
+       "fibre_witness_differs": true,
+       "n_mini": 3,
+       "name": "OUT-C-06 OUTC-06 TAB byte-table helper (+pad)",
+       "offset_in_ImR": true,
+       "passes": true,
+       "rank_R": 13,
+       "terminal_formula": true,
+       "terminal_map": {
+        "fp_rank_random_tails": 4,
+        "fp_rank_shared_boolean_tail": 4,
+        "m": 2,
+        "onto_Fp2^m": true
+       }
+      },
+      {
+       "L": 10,
+       "N": 4,
+       "chain_accepts": true,
+       "d": 2,
+       "dimC_expected": 9,
+       "fact32_identity": true,
+       "fibre_constructed": true,
+       "fibre_private_gamma_shift_is_sigma_diff": true,
+       "fibre_private_gamma_would_differ": true,
+       "fibre_same_V": true,
+       "fibre_same_published_view": true,
+       "fibre_witness_differs": true,
+       "n_mini": 3,
+       "name": "OUT-C-07 OUTC-07 ZS zero-sum row",
+       "offset_in_ImR": true,
+       "passes": true,
+       "rank_R": 9,
+       "terminal_formula": true,
+       "terminal_map": {
+        "fp_rank_random_tails": 2,
+        "fp_rank_shared_boolean_tail": 2,
+        "m": 1,
+        "onto_Fp2^m": true
+       }
+      }
+     ],
+     "S4_summary": {
+      "miniatures_pass": 12,
+      "of": 12,
+      "terminal_map_onto": 12
+     },
+     "fidelity_all": true,
+     "label": "random-1"
+    },
+    "random-2": {
+     "F0_fidelity": "12/12",
+     "S1": [
+      {
+       "L": 29,
+       "budget_ok": true,
+       "declared_degree": 3,
+       "degree_fits": true,
+       "dimC": 28,
+       "ext": 1,
+       "main": 8,
+       "max_product_degree_walked": 3,
+       "name": "IN-C-00 INC-00 IO-in: token endpoint = supp_T tok (whole padded plane: template and content)",
+       "per_variable_degree_bound_max": 3,
+       "premise": [
+        {
+         "exact_zero_3_of_3": true,
+         "round": 0,
+         "syntactically_zero": true
+        }
+       ],
+       "premise_holds": true,
+       "private_tables": 2,
+       "public_factor_in_every_monomial_exact": true,
+       "public_factor_in_every_monomial_syntactic": true,
+       "slack": 0,
+       "stored_degrees_agree": true,
+       "tables": {
+        "A": 1,
+        "EP": 1,
+        "eq": 1,
+        "supp": 1
+       },
+       "terms": 2
+      },
+      {
+       "L": 54,
+       "budget_ok": true,
+       "declared_degree": 4,
+       "degree_fits": true,
+       "dimC": 53,
+       "ext": 1,
+       "main": 12,
+       "max_product_degree_walked": 3,
+       "name": "IN-C-01 INC-01 query zero-check: LogUp over (id, row, ctl) + BOS + TEMPLATE (prefix, suffix, trailing pad ids) + pad, fresh mu each",
+       "per_variable_degree_bound_max": 3,
+       "premise": [
+        {
+         "exact_zero_3_of_3": true,
+         "round": 0,
+         "syntactically_zero": true
+        }
+       ],
+       "premise_holds": true,
+       "private_tables": 3,
+       "public_factor_in_every_monomial_exact": true,
+       "public_factor_in_every_monomial_syntactic": true,
+       "slack": 1,
+       "stored_degrees_agree": true,
+       "tables": {
+        "A": 1,
+        "EP": 1,
+        "H": 1,
+        "eq": 1,
+        "pub": 2,
+        "supp": 3
+       },
+       "terms": 12
+      },
+      {
+       "L": 54,
+       "budget_ok": true,
+       "declared_degree": 4,
+       "degree_fits": true,
+       "dimC": 53,
+       "ext": 1,
+       "main": 12,
+       "max_product_degree_walked": 3,
+       "name": "IN-C-02 INC-02 table zero-check: h_tab (alpha - tau(v, ctl)) = m + pad, fresh mu each",
+       "per_variable_degree_bound_max": 3,
+       "premise": [
+        {
+         "exact_zero_3_of_3": true,
+         "round": 0,
+         "syntactically_zero": true
+        }
+       ],
+       "premise_holds": true,
+       "private_tables": 2,
+       "public_factor_in_every_monomial_exact": true,
+       "public_factor_in_every_monomial_syntactic": true,
+       "slack": 1,
+       "stored_degrees_agree": true,
+       "tables": {
+        "A": 1,
+        "H": 1,
+        "eq": 1,
+        "pub": 1,
+        "supp": 1
+       },
+       "terms": 5
+      },
+      {
+       "L": 28,
+       "budget_ok": true,
+       "declared_degree": 2,
+       "degree_fits": true,
+       "dimC": 27,
+       "ext": 1,
+       "main": 12,
+       "max_product_degree_walked": 2,
+       "name": "IN-C-03 INC-03 ZS zero-sum row",
+       "per_variable_degree_bound_max": 2,
+       "premise": [
+        {
+         "exact_zero_3_of_3": true,
+         "round": 0,
+         "syntactically_zero": true
+        }
+       ],
+       "premise_holds": true,
+       "private_tables": 1,
+       "public_factor_in_every_monomial_exact": true,
+       "public_factor_in_every_monomial_syntactic": true,
+       "slack": 0,
+       "stored_degrees_agree": true,
+       "tables": {
+        "H": 1,
+        "pub": 1
+       },
+       "terms": 1
+      },
+      {
+       "L": 22,
+       "budget_ok": true,
+       "declared_degree": 2,
+       "degree_fits": true,
+       "dimC": 21,
+       "ext": 1,
+       "main": 9,
+       "max_product_degree_walked": 2,
+       "name": "OUT-C-00 OUTC-00 IO-in: x = B_out at the public verdict row P0+n+S-1 (fixed public row bits; T-1 without pad)",
+       "per_variable_degree_bound_max": 2,
+       "premise": [
+        {
+         "exact_zero_3_of_3": true,
+         "round": 0,
+         "syntactically_zero": true
+        }
+       ],
+       "premise_holds": true,
+       "private_tables": 2,
+       "public_factor_in_every_monomial_exact": true,
+       "public_factor_in_every_monomial_syntactic": true,
+       "slack": 0,
+       "stored_degrees_agree": true,
+       "tables": {
+        "A": 1,
+        "EP": 1,
+        "eq": 1
+       },
+       "terms": 2
+      },
+      {
+       "L": 54,
+       "budget_ok": true,
+       "declared_degree": 4,
+       "degree_fits": true,
+       "dimC": 53,
+       "ext": 1,
+       "main": 12,
+       "max_product_degree_walked": 3,
+       "name": "OUT-C-01 OUTC-01 SS final-norm row sum (private, hosted by TZC)",
+       "per_variable_degree_bound_max": 3,
+       "premise": [
+        {
+         "exact_zero_3_of_3": true,
+         "round": 0,
+         "syntactically_zero": true
+        }
+       ],
+       "premise_holds": true,
+       "private_tables": 1,
+       "public_factor_in_every_monomial_exact": true,
+       "public_factor_in_every_monomial_syntactic": true,
+       "slack": 1,
+       "stored_degrees_agree": true,
+       "tables": {
+        "A": 1,
+        "supp": 1
+       },
+       "terms": 1
+      },
+      {
+       "L": 8,
+       "budget_ok": true,
+       "declared_degree": 3,
+       "degree_fits": true,
+       "dimC": 7,
+       "ext": 1,
+       "main": 1,
+       "max_product_degree_walked": 3,
+       "name": "OUT-C-02 OUTC-02 TZC isqrt (D, Dsq, 9 limb slices; hosts SS)",
+       "per_variable_degree_bound_max": 3,
+       "premise": [
+        {
+         "exact_zero_3_of_3": true,
+         "round": 0,
+         "syntactically_zero": true
+        }
+       ],
+       "premise_holds": true,
+       "private_tables": 11,
+       "public_factor_in_every_monomial_exact": true,
+       "public_factor_in_every_monomial_syntactic": true,
+       "slack": 0,
+       "stored_degrees_agree": true,
+       "tables": {
+        "A": 11,
+        "eq": 1,
+        "supp": 1
+       },
+       "terms": 19
+      },
+      {
+       "L": 22,
+       "budget_ok": true,
+       "declared_degree": 2,
+       "degree_fits": true,
+       "dimC": 21,
+       "ext": 1,
+       "main": 9,
+       "max_product_degree_walked": 2,
+       "name": "OUT-C-03 OUTC-03 PD margin sum_i y(i) w_Delta(i) (private, hosted by LZC)",
+       "per_variable_degree_bound_max": 2,
+       "premise": [
+        {
+         "exact_zero_3_of_3": true,
+         "round": 0,
+         "syntactically_zero": true
+        }
+       ],
+       "premise_holds": true,
+       "private_tables": 1,
+       "public_factor_in_every_monomial_exact": true,
+       "public_factor_in_every_monomial_syntactic": true,
+       "slack": 0,
+       "stored_degrees_agree": true,
+       "tables": {
+        "A": 1,
+        "pub": 1
+       },
+       "terms": 1
+      },
+      {
+       "L": 54,
+       "budget_ok": true,
+       "declared_degree": 4,
+       "degree_fits": true,
+       "dimC": 53,
+       "ext": 1,
+       "main": 12,
+       "max_product_degree_walked": 3,
+       "name": "OUT-C-04 OUTC-04 LZC limb lookups (+pad; isqrt and margin limbs) + host term sigma g limb + u0 (sigma b + c)",
+       "per_variable_degree_bound_max": 3,
+       "premise": [
+        {
+         "exact_zero_3_of_3": true,
+         "round": 0,
+         "syntactically_zero": true
+        }
+       ],
+       "premise_holds": true,
+       "private_tables": 2,
+       "public_factor_in_every_monomial_exact": true,
+       "public_factor_in_every_monomial_syntactic": true,
+       "slack": 1,
+       "stored_degrees_agree": true,
+       "tables": {
+        "A": 1,
+        "H": 1,
+        "eq": 1,
+        "pub": 1,
+        "supp": 2
+       },
+       "terms": 7
+      },
+      {
+       "L": 67,
+       "budget_ok": true,
+       "declared_degree": 5,
+       "degree_fits": true,
+       "dimC": 66,
+       "ext": 1,
+       "main": 12,
+       "max_product_degree_walked": 4,
+       "name": "OUT-C-05 OUTC-05 DZC final-norm quotient + x limbs + helpers (+pad)",
+       "per_variable_degree_bound_max": 4,
+       "premise": [
+        {
+         "exact_zero_3_of_3": true,
+         "round": 0,
+         "syntactically_zero": true
+        }
+       ],
+       "premise_holds": true,
+       "private_tables": 19,
+       "public_factor_in_every_monomial_exact": true,
+       "public_factor_in_every_monomial_syntactic": true,
+       "slack": 1,
+       "stored_degrees_agree": true,
+       "tables": {
+        "A": 13,
+        "H": 6,
+        "eq": 1,
+        "supp": 1
+       },
+       "terms": 50
+      },
+      {
+       "L": 41,
+       "budget_ok": true,
+       "declared_degree": 3,
+       "degree_fits": true,
+       "dimC": 40,
+       "ext": 1,
+       "main": 12,
+       "max_product_degree_walked": 3,
+       "name": "OUT-C-06 OUTC-06 TAB byte-table helper (+pad)",
+       "per_variable_degree_bound_max": 3,
+       "premise": [
+        {
+         "exact_zero_3_of_3": true,
+         "round": 0,
+         "syntactically_zero": true
+        }
+       ],
+       "premise_holds": true,
+       "private_tables": 2,
+       "public_factor_in_every_monomial_exact": true,
+       "public_factor_in_every_monomial_syntactic": true,
+       "slack": 0,
+       "stored_degrees_agree": true,
+       "tables": {
+        "A": 1,
+        "H": 1,
+        "eq": 1,
+        "pub": 1,
+        "supp": 1
+       },
+       "terms": 5
+      },
+      {
+       "L": 28,
+       "budget_ok": true,
+       "declared_degree": 2,
+       "degree_fits": true,
+       "dimC": 27,
+       "ext": 1,
+       "main": 12,
+       "max_product_degree_walked": 2,
+       "name": "OUT-C-07 OUTC-07 ZS zero-sum row",
+       "per_variable_degree_bound_max": 2,
+       "premise": [
+        {
+         "exact_zero_3_of_3": true,
+         "round": 0,
+         "syntactically_zero": true
+        }
+       ],
+       "premise_holds": true,
+       "private_tables": 1,
+       "public_factor_in_every_monomial_exact": true,
+       "public_factor_in_every_monomial_syntactic": true,
+       "slack": 0,
+       "stored_degrees_agree": true,
+       "tables": {
+        "H": 1,
+        "pub": 1
+       },
+       "terms": 1
+      }
+     ],
+     "S1_summary": {
+      "budget_ok": 12,
+      "degree_fits": 12,
+      "of": 12,
+      "premise_holds": 12,
+      "public_factor_every_monomial": 12
+     },
+     "S2": {
+      "IN": {
+       "budget_all_ok": true,
+       "slots": 4,
+       "sum_L": 165,
+       "sum_dimC": 161,
+       "sum_ker": 4,
+       "worst_L": 54
+      },
+      "OUT": {
+       "budget_all_ok": true,
+       "slots": 8,
+       "sum_L": 296,
+       "sum_dimC": 288,
+       "sum_ker": 8,
+       "worst_L": 67
+      }
+     },
+     "S4": [
+      {
+       "L": 14,
+       "N": 4,
+       "chain_accepts": true,
+       "d": 3,
+       "dimC_expected": 13,
+       "fact32_identity": true,
+       "fibre_constructed": true,
+       "fibre_private_gamma_shift_is_sigma_diff": true,
+       "fibre_private_gamma_would_differ": true,
+       "fibre_same_V": true,
+       "fibre_same_published_view": true,
+       "fibre_witness_differs": true,
+       "n_mini": 3,
+       "name": "IN-C-00 INC-00 IO-in: token endpoint = supp_T tok (whole padded plane: template and content)",
+       "offset_in_ImR": true,
+       "passes": true,
+       "rank_R": 13,
+       "terminal_formula": true,
+       "terminal_map": {
+        "fp_rank_random_tails": 4,
+        "fp_rank_shared_boolean_tail": 4,
+        "m": 2,
+        "onto_Fp2^m": true
+       }
+      },
+      {
+       "L": 18,
+       "N": 4,
+       "chain_accepts": true,
+       "d": 4,
+       "dimC_expected": 17,
+       "fact32_identity": true,
+       "fibre_constructed": true,
+       "fibre_private_gamma_shift_is_sigma_diff": true,
+       "fibre_private_gamma_would_differ": true,
+       "fibre_same_V": true,
+       "fibre_same_published_view": true,
+       "fibre_witness_differs": true,
+       "n_mini": 3,
+       "name": "IN-C-01 INC-01 query zero-check: LogUp over (id, row, ctl) + BOS + TEMPLATE (prefix, suffix, trailing pad ids) + pad, fresh mu each",
+       "offset_in_ImR": true,
+       "passes": true,
+       "rank_R": 17,
+       "terminal_formula": true,
+       "terminal_map": {
+        "fp_rank_random_tails": 6,
+        "fp_rank_shared_boolean_tail": 6,
+        "m": 3,
+        "onto_Fp2^m": true
+       }
+      },
+      {
+       "L": 18,
+       "N": 4,
+       "chain_accepts": true,
+       "d": 4,
+       "dimC_expected": 17,
+       "fact32_identity": true,
+       "fibre_constructed": true,
+       "fibre_private_gamma_shift_is_sigma_diff": true,
+       "fibre_private_gamma_would_differ": true,
+       "fibre_same_V": true,
+       "fibre_same_published_view": true,
+       "fibre_witness_differs": true,
+       "n_mini": 3,
+       "name": "IN-C-02 INC-02 table zero-check: h_tab (alpha - tau(v, ctl)) = m + pad, fresh mu each",
+       "offset_in_ImR": true,
+       "passes": true,
+       "rank_R": 17,
+       "terminal_formula": true,
+       "terminal_map": {
+        "fp_rank_random_tails": 4,
+        "fp_rank_shared_boolean_tail": 4,
+        "m": 2,
+        "onto_Fp2^m": true
+       }
+      },
+      {
+       "L": 10,
+       "N": 4,
+       "chain_accepts": true,
+       "d": 2,
+       "dimC_expected": 9,
+       "fact32_identity": true,
+       "fibre_constructed": true,
+       "fibre_private_gamma_shift_is_sigma_diff": true,
+       "fibre_private_gamma_would_differ": true,
+       "fibre_same_V": true,
+       "fibre_same_published_view": true,
+       "fibre_witness_differs": true,
+       "n_mini": 3,
+       "name": "IN-C-03 INC-03 ZS zero-sum row",
+       "offset_in_ImR": true,
+       "passes": true,
+       "rank_R": 9,
+       "terminal_formula": true,
+       "terminal_map": {
+        "fp_rank_random_tails": 2,
+        "fp_rank_shared_boolean_tail": 2,
+        "m": 1,
+        "onto_Fp2^m": true
+       }
+      },
+      {
+       "L": 10,
+       "N": 4,
+       "chain_accepts": true,
+       "d": 2,
+       "dimC_expected": 9,
+       "fact32_identity": true,
+       "fibre_constructed": true,
+       "fibre_private_gamma_shift_is_sigma_diff": true,
+       "fibre_private_gamma_would_differ": true,
+       "fibre_same_V": true,
+       "fibre_same_published_view": true,
+       "fibre_witness_differs": true,
+       "n_mini": 3,
+       "name": "OUT-C-00 OUTC-00 IO-in: x = B_out at the public verdict row P0+n+S-1 (fixed public row bits; T-1 without pad)",
+       "offset_in_ImR": true,
+       "passes": true,
+       "rank_R": 9,
+       "terminal_formula": true,
+       "terminal_map": {
+        "fp_rank_random_tails": 4,
+        "fp_rank_shared_boolean_tail": 4,
+        "m": 2,
+        "onto_Fp2^m": true
+       }
+      },
+      {
+       "L": 18,
+       "N": 4,
+       "chain_accepts": true,
+       "d": 4,
+       "dimC_expected": 17,
+       "fact32_identity": true,
+       "fibre_constructed": true,
+       "fibre_private_gamma_shift_is_sigma_diff": true,
+       "fibre_private_gamma_would_differ": true,
+       "fibre_same_V": true,
+       "fibre_same_published_view": true,
+       "fibre_witness_differs": true,
+       "n_mini": 3,
+       "name": "OUT-C-01 OUTC-01 SS final-norm row sum (private, hosted by TZC)",
+       "offset_in_ImR": true,
+       "passes": true,
+       "rank_R": 17,
+       "terminal_formula": true,
+       "terminal_map": {
+        "fp_rank_random_tails": 2,
+        "fp_rank_shared_boolean_tail": 2,
+        "m": 1,
+        "onto_Fp2^m": true
+       }
+      },
+      {
+       "L": 8,
+       "N": 2,
+       "chain_accepts": true,
+       "d": 3,
+       "dimC_expected": 7,
+       "fact32_identity": true,
+       "fibre_constructed": true,
+       "fibre_private_gamma_shift_is_sigma_diff": true,
+       "fibre_private_gamma_would_differ": true,
+       "fibre_same_V": true,
+       "fibre_same_published_view": true,
+       "fibre_witness_differs": true,
+       "n_mini": 1,
+       "name": "OUT-C-02 OUTC-02 TZC isqrt (D, Dsq, 9 limb slices; hosts SS)",
+       "offset_in_ImR": true,
+       "passes": true,
+       "rank_R": 7,
+       "terminal_formula": true,
+       "terminal_map": {
+        "fp_rank_random_tails": 22,
+        "fp_rank_shared_boolean_tail": 22,
+        "m": 11,
+        "onto_Fp2^m": true
+       }
+      },
+      {
+       "L": 10,
+       "N": 4,
+       "chain_accepts": true,
+       "d": 2,
+       "dimC_expected": 9,
+       "fact32_identity": true,
+       "fibre_constructed": true,
+       "fibre_private_gamma_shift_is_sigma_diff": true,
+       "fibre_private_gamma_would_differ": true,
+       "fibre_same_V": true,
+       "fibre_same_published_view": true,
+       "fibre_witness_differs": true,
+       "n_mini": 3,
+       "name": "OUT-C-03 OUTC-03 PD margin sum_i y(i) w_Delta(i) (private, hosted by LZC)",
+       "offset_in_ImR": true,
+       "passes": true,
+       "rank_R": 9,
+       "terminal_formula": true,
+       "terminal_map": {
+        "fp_rank_random_tails": 2,
+        "fp_rank_shared_boolean_tail": 2,
+        "m": 1,
+        "onto_Fp2^m": true
+       }
+      },
+      {
+       "L": 18,
+       "N": 4,
+       "chain_accepts": true,
+       "d": 4,
+       "dimC_expected": 17,
+       "fact32_identity": true,
+       "fibre_constructed": true,
+       "fibre_private_gamma_shift_is_sigma_diff": true,
+       "fibre_private_gamma_would_differ": true,
+       "fibre_same_V": true,
+       "fibre_same_published_view": true,
+       "fibre_witness_differs": true,
+       "n_mini": 3,
+       "name": "OUT-C-04 OUTC-04 LZC limb lookups (+pad; isqrt and margin limbs) + host term sigma g limb + u0 (sigma b + c)",
+       "offset_in_ImR": true,
+       "passes": true,
+       "rank_R": 17,
+       "terminal_formula": true,
+       "terminal_map": {
+        "fp_rank_random_tails": 4,
+        "fp_rank_shared_boolean_tail": 4,
+        "m": 2,
+        "onto_Fp2^m": true
+       }
+      },
+      {
+       "L": 22,
+       "N": 4,
+       "chain_accepts": true,
+       "d": 5,
+       "dimC_expected": 21,
+       "fact32_identity": true,
+       "fibre_constructed": true,
+       "fibre_private_gamma_shift_is_sigma_diff": true,
+       "fibre_private_gamma_would_differ": true,
+       "fibre_same_V": true,
+       "fibre_same_published_view": true,
+       "fibre_witness_differs": true,
+       "n_mini": 3,
+       "name": "OUT-C-05 OUTC-05 DZC final-norm quotient + x limbs + helpers (+pad)",
+       "offset_in_ImR": true,
+       "passes": true,
+       "rank_R": 21,
+       "terminal_formula": true,
+       "terminal_map": {
+        "fp_rank_random_tails": 38,
+        "fp_rank_shared_boolean_tail": 38,
+        "m": 19,
+        "onto_Fp2^m": true
+       }
+      },
+      {
+       "L": 14,
+       "N": 4,
+       "chain_accepts": true,
+       "d": 3,
+       "dimC_expected": 13,
+       "fact32_identity": true,
+       "fibre_constructed": true,
+       "fibre_private_gamma_shift_is_sigma_diff": true,
+       "fibre_private_gamma_would_differ": true,
+       "fibre_same_V": true,
+       "fibre_same_published_view": true,
+       "fibre_witness_differs": true,
+       "n_mini": 3,
+       "name": "OUT-C-06 OUTC-06 TAB byte-table helper (+pad)",
+       "offset_in_ImR": true,
+       "passes": true,
+       "rank_R": 13,
+       "terminal_formula": true,
+       "terminal_map": {
+        "fp_rank_random_tails": 4,
+        "fp_rank_shared_boolean_tail": 4,
+        "m": 2,
+        "onto_Fp2^m": true
+       }
+      },
+      {
+       "L": 10,
+       "N": 4,
+       "chain_accepts": true,
+       "d": 2,
+       "dimC_expected": 9,
+       "fact32_identity": true,
+       "fibre_constructed": true,
+       "fibre_private_gamma_shift_is_sigma_diff": true,
+       "fibre_private_gamma_would_differ": true,
+       "fibre_same_V": true,
+       "fibre_same_published_view": true,
+       "fibre_witness_differs": true,
+       "n_mini": 3,
+       "name": "OUT-C-07 OUTC-07 ZS zero-sum row",
+       "offset_in_ImR": true,
+       "passes": true,
+       "rank_R": 9,
+       "terminal_formula": true,
+       "terminal_map": {
+        "fp_rank_random_tails": 2,
+        "fp_rank_shared_boolean_tail": 2,
+        "m": 1,
+        "onto_Fp2^m": true
+       }
+      }
+     ],
+     "S4_summary": {
+      "miniatures_pass": 12,
+      "of": 12,
+      "terminal_map_onto": 12
+     },
+     "fidelity_all": true,
+     "label": "random-2"
+    },
+    "random-3": {
+     "F0_fidelity": "12/12",
+     "S1": [
+      {
+       "L": 29,
+       "budget_ok": true,
+       "declared_degree": 3,
+       "degree_fits": true,
+       "dimC": 28,
+       "ext": 1,
+       "main": 8,
+       "max_product_degree_walked": 3,
+       "name": "IN-C-00 INC-00 IO-in: token endpoint = supp_T tok (whole padded plane: template and content)",
+       "per_variable_degree_bound_max": 3,
+       "premise": [
+        {
+         "exact_zero_3_of_3": true,
+         "round": 0,
+         "syntactically_zero": true
+        }
+       ],
+       "premise_holds": true,
+       "private_tables": 2,
+       "public_factor_in_every_monomial_exact": true,
+       "public_factor_in_every_monomial_syntactic": true,
+       "slack": 0,
+       "stored_degrees_agree": true,
+       "tables": {
+        "A": 1,
+        "EP": 1,
+        "eq": 1,
+        "supp": 1
+       },
+       "terms": 2
+      },
+      {
+       "L": 54,
+       "budget_ok": true,
+       "declared_degree": 4,
+       "degree_fits": true,
+       "dimC": 53,
+       "ext": 1,
+       "main": 12,
+       "max_product_degree_walked": 3,
+       "name": "IN-C-01 INC-01 query zero-check: LogUp over (id, row, ctl) + BOS + TEMPLATE (prefix, suffix, trailing pad ids) + pad, fresh mu each",
+       "per_variable_degree_bound_max": 3,
+       "premise": [
+        {
+         "exact_zero_3_of_3": true,
+         "round": 0,
+         "syntactically_zero": true
+        }
+       ],
+       "premise_holds": true,
+       "private_tables": 3,
+       "public_factor_in_every_monomial_exact": true,
+       "public_factor_in_every_monomial_syntactic": true,
+       "slack": 1,
+       "stored_degrees_agree": true,
+       "tables": {
+        "A": 1,
+        "EP": 1,
+        "H": 1,
+        "eq": 1,
+        "pub": 2,
+        "supp": 3
+       },
+       "terms": 12
+      },
+      {
+       "L": 54,
+       "budget_ok": true,
+       "declared_degree": 4,
+       "degree_fits": true,
+       "dimC": 53,
+       "ext": 1,
+       "main": 12,
+       "max_product_degree_walked": 3,
+       "name": "IN-C-02 INC-02 table zero-check: h_tab (alpha - tau(v, ctl)) = m + pad, fresh mu each",
+       "per_variable_degree_bound_max": 3,
+       "premise": [
+        {
+         "exact_zero_3_of_3": true,
+         "round": 0,
+         "syntactically_zero": true
+        }
+       ],
+       "premise_holds": true,
+       "private_tables": 2,
+       "public_factor_in_every_monomial_exact": true,
+       "public_factor_in_every_monomial_syntactic": true,
+       "slack": 1,
+       "stored_degrees_agree": true,
+       "tables": {
+        "A": 1,
+        "H": 1,
+        "eq": 1,
+        "pub": 1,
+        "supp": 1
+       },
+       "terms": 5
+      },
+      {
+       "L": 28,
+       "budget_ok": true,
+       "declared_degree": 2,
+       "degree_fits": true,
+       "dimC": 27,
+       "ext": 1,
+       "main": 12,
+       "max_product_degree_walked": 2,
+       "name": "IN-C-03 INC-03 ZS zero-sum row",
+       "per_variable_degree_bound_max": 2,
+       "premise": [
+        {
+         "exact_zero_3_of_3": true,
+         "round": 0,
+         "syntactically_zero": true
+        }
+       ],
+       "premise_holds": true,
+       "private_tables": 1,
+       "public_factor_in_every_monomial_exact": true,
+       "public_factor_in_every_monomial_syntactic": true,
+       "slack": 0,
+       "stored_degrees_agree": true,
+       "tables": {
+        "H": 1,
+        "pub": 1
+       },
+       "terms": 1
+      },
+      {
+       "L": 22,
+       "budget_ok": true,
+       "declared_degree": 2,
+       "degree_fits": true,
+       "dimC": 21,
+       "ext": 1,
+       "main": 9,
+       "max_product_degree_walked": 2,
+       "name": "OUT-C-00 OUTC-00 IO-in: x = B_out at the public verdict row P0+n+S-1 (fixed public row bits; T-1 without pad)",
+       "per_variable_degree_bound_max": 2,
+       "premise": [
+        {
+         "exact_zero_3_of_3": true,
+         "round": 0,
+         "syntactically_zero": true
+        }
+       ],
+       "premise_holds": true,
+       "private_tables": 2,
+       "public_factor_in_every_monomial_exact": true,
+       "public_factor_in_every_monomial_syntactic": true,
+       "slack": 0,
+       "stored_degrees_agree": true,
+       "tables": {
+        "A": 1,
+        "EP": 1,
+        "eq": 1
+       },
+       "terms": 2
+      },
+      {
+       "L": 54,
+       "budget_ok": true,
+       "declared_degree": 4,
+       "degree_fits": true,
+       "dimC": 53,
+       "ext": 1,
+       "main": 12,
+       "max_product_degree_walked": 3,
+       "name": "OUT-C-01 OUTC-01 SS final-norm row sum (private, hosted by TZC)",
+       "per_variable_degree_bound_max": 3,
+       "premise": [
+        {
+         "exact_zero_3_of_3": true,
+         "round": 0,
+         "syntactically_zero": true
+        }
+       ],
+       "premise_holds": true,
+       "private_tables": 1,
+       "public_factor_in_every_monomial_exact": true,
+       "public_factor_in_every_monomial_syntactic": true,
+       "slack": 1,
+       "stored_degrees_agree": true,
+       "tables": {
+        "A": 1,
+        "supp": 1
+       },
+       "terms": 1
+      },
+      {
+       "L": 8,
+       "budget_ok": true,
+       "declared_degree": 3,
+       "degree_fits": true,
+       "dimC": 7,
+       "ext": 1,
+       "main": 1,
+       "max_product_degree_walked": 3,
+       "name": "OUT-C-02 OUTC-02 TZC isqrt (D, Dsq, 9 limb slices; hosts SS)",
+       "per_variable_degree_bound_max": 3,
+       "premise": [
+        {
+         "exact_zero_3_of_3": true,
+         "round": 0,
+         "syntactically_zero": true
+        }
+       ],
+       "premise_holds": true,
+       "private_tables": 11,
+       "public_factor_in_every_monomial_exact": true,
+       "public_factor_in_every_monomial_syntactic": true,
+       "slack": 0,
+       "stored_degrees_agree": true,
+       "tables": {
+        "A": 11,
+        "eq": 1,
+        "supp": 1
+       },
+       "terms": 19
+      },
+      {
+       "L": 22,
+       "budget_ok": true,
+       "declared_degree": 2,
+       "degree_fits": true,
+       "dimC": 21,
+       "ext": 1,
+       "main": 9,
+       "max_product_degree_walked": 2,
+       "name": "OUT-C-03 OUTC-03 PD margin sum_i y(i) w_Delta(i) (private, hosted by LZC)",
+       "per_variable_degree_bound_max": 2,
+       "premise": [
+        {
+         "exact_zero_3_of_3": true,
+         "round": 0,
+         "syntactically_zero": true
+        }
+       ],
+       "premise_holds": true,
+       "private_tables": 1,
+       "public_factor_in_every_monomial_exact": true,
+       "public_factor_in_every_monomial_syntactic": true,
+       "slack": 0,
+       "stored_degrees_agree": true,
+       "tables": {
+        "A": 1,
+        "pub": 1
+       },
+       "terms": 1
+      },
+      {
+       "L": 54,
+       "budget_ok": true,
+       "declared_degree": 4,
+       "degree_fits": true,
+       "dimC": 53,
+       "ext": 1,
+       "main": 12,
+       "max_product_degree_walked": 3,
+       "name": "OUT-C-04 OUTC-04 LZC limb lookups (+pad; isqrt and margin limbs) + host term sigma g limb + u0 (sigma b + c)",
+       "per_variable_degree_bound_max": 3,
+       "premise": [
+        {
+         "exact_zero_3_of_3": true,
+         "round": 0,
+         "syntactically_zero": true
+        }
+       ],
+       "premise_holds": true,
+       "private_tables": 2,
+       "public_factor_in_every_monomial_exact": true,
+       "public_factor_in_every_monomial_syntactic": true,
+       "slack": 1,
+       "stored_degrees_agree": true,
+       "tables": {
+        "A": 1,
+        "H": 1,
+        "eq": 1,
+        "pub": 1,
+        "supp": 2
+       },
+       "terms": 7
+      },
+      {
+       "L": 67,
+       "budget_ok": true,
+       "declared_degree": 5,
+       "degree_fits": true,
+       "dimC": 66,
+       "ext": 1,
+       "main": 12,
+       "max_product_degree_walked": 4,
+       "name": "OUT-C-05 OUTC-05 DZC final-norm quotient + x limbs + helpers (+pad)",
+       "per_variable_degree_bound_max": 4,
+       "premise": [
+        {
+         "exact_zero_3_of_3": true,
+         "round": 0,
+         "syntactically_zero": true
+        }
+       ],
+       "premise_holds": true,
+       "private_tables": 19,
+       "public_factor_in_every_monomial_exact": true,
+       "public_factor_in_every_monomial_syntactic": true,
+       "slack": 1,
+       "stored_degrees_agree": true,
+       "tables": {
+        "A": 13,
+        "H": 6,
+        "eq": 1,
+        "supp": 1
+       },
+       "terms": 50
+      },
+      {
+       "L": 41,
+       "budget_ok": true,
+       "declared_degree": 3,
+       "degree_fits": true,
+       "dimC": 40,
+       "ext": 1,
+       "main": 12,
+       "max_product_degree_walked": 3,
+       "name": "OUT-C-06 OUTC-06 TAB byte-table helper (+pad)",
+       "per_variable_degree_bound_max": 3,
+       "premise": [
+        {
+         "exact_zero_3_of_3": true,
+         "round": 0,
+         "syntactically_zero": true
+        }
+       ],
+       "premise_holds": true,
+       "private_tables": 2,
+       "public_factor_in_every_monomial_exact": true,
+       "public_factor_in_every_monomial_syntactic": true,
+       "slack": 0,
+       "stored_degrees_agree": true,
+       "tables": {
+        "A": 1,
+        "H": 1,
+        "eq": 1,
+        "pub": 1,
+        "supp": 1
+       },
+       "terms": 5
+      },
+      {
+       "L": 28,
+       "budget_ok": true,
+       "declared_degree": 2,
+       "degree_fits": true,
+       "dimC": 27,
+       "ext": 1,
+       "main": 12,
+       "max_product_degree_walked": 2,
+       "name": "OUT-C-07 OUTC-07 ZS zero-sum row",
+       "per_variable_degree_bound_max": 2,
+       "premise": [
+        {
+         "exact_zero_3_of_3": true,
+         "round": 0,
+         "syntactically_zero": true
+        }
+       ],
+       "premise_holds": true,
+       "private_tables": 1,
+       "public_factor_in_every_monomial_exact": true,
+       "public_factor_in_every_monomial_syntactic": true,
+       "slack": 0,
+       "stored_degrees_agree": true,
+       "tables": {
+        "H": 1,
+        "pub": 1
+       },
+       "terms": 1
+      }
+     ],
+     "S1_summary": {
+      "budget_ok": 12,
+      "degree_fits": 12,
+      "of": 12,
+      "premise_holds": 12,
+      "public_factor_every_monomial": 12
+     },
+     "S2": {
+      "IN": {
+       "budget_all_ok": true,
+       "slots": 4,
+       "sum_L": 165,
+       "sum_dimC": 161,
+       "sum_ker": 4,
+       "worst_L": 54
+      },
+      "OUT": {
+       "budget_all_ok": true,
+       "slots": 8,
+       "sum_L": 296,
+       "sum_dimC": 288,
+       "sum_ker": 8,
+       "worst_L": 67
+      }
+     },
+     "S4": [
+      {
+       "L": 14,
+       "N": 4,
+       "chain_accepts": true,
+       "d": 3,
+       "dimC_expected": 13,
+       "fact32_identity": true,
+       "fibre_constructed": true,
+       "fibre_private_gamma_shift_is_sigma_diff": true,
+       "fibre_private_gamma_would_differ": true,
+       "fibre_same_V": true,
+       "fibre_same_published_view": true,
+       "fibre_witness_differs": true,
+       "n_mini": 3,
+       "name": "IN-C-00 INC-00 IO-in: token endpoint = supp_T tok (whole padded plane: template and content)",
+       "offset_in_ImR": true,
+       "passes": true,
+       "rank_R": 13,
+       "terminal_formula": true,
+       "terminal_map": {
+        "fp_rank_random_tails": 4,
+        "fp_rank_shared_boolean_tail": 4,
+        "m": 2,
+        "onto_Fp2^m": true
+       }
+      },
+      {
+       "L": 18,
+       "N": 4,
+       "chain_accepts": true,
+       "d": 4,
+       "dimC_expected": 17,
+       "fact32_identity": true,
+       "fibre_constructed": true,
+       "fibre_private_gamma_shift_is_sigma_diff": true,
+       "fibre_private_gamma_would_differ": true,
+       "fibre_same_V": true,
+       "fibre_same_published_view": true,
+       "fibre_witness_differs": true,
+       "n_mini": 3,
+       "name": "IN-C-01 INC-01 query zero-check: LogUp over (id, row, ctl) + BOS + TEMPLATE (prefix, suffix, trailing pad ids) + pad, fresh mu each",
+       "offset_in_ImR": true,
+       "passes": true,
+       "rank_R": 17,
+       "terminal_formula": true,
+       "terminal_map": {
+        "fp_rank_random_tails": 6,
+        "fp_rank_shared_boolean_tail": 6,
+        "m": 3,
+        "onto_Fp2^m": true
+       }
+      },
+      {
+       "L": 18,
+       "N": 4,
+       "chain_accepts": true,
+       "d": 4,
+       "dimC_expected": 17,
+       "fact32_identity": true,
+       "fibre_constructed": true,
+       "fibre_private_gamma_shift_is_sigma_diff": true,
+       "fibre_private_gamma_would_differ": true,
+       "fibre_same_V": true,
+       "fibre_same_published_view": true,
+       "fibre_witness_differs": true,
+       "n_mini": 3,
+       "name": "IN-C-02 INC-02 table zero-check: h_tab (alpha - tau(v, ctl)) = m + pad, fresh mu each",
+       "offset_in_ImR": true,
+       "passes": true,
+       "rank_R": 17,
+       "terminal_formula": true,
+       "terminal_map": {
+        "fp_rank_random_tails": 4,
+        "fp_rank_shared_boolean_tail": 4,
+        "m": 2,
+        "onto_Fp2^m": true
+       }
+      },
+      {
+       "L": 10,
+       "N": 4,
+       "chain_accepts": true,
+       "d": 2,
+       "dimC_expected": 9,
+       "fact32_identity": true,
+       "fibre_constructed": true,
+       "fibre_private_gamma_shift_is_sigma_diff": true,
+       "fibre_private_gamma_would_differ": true,
+       "fibre_same_V": true,
+       "fibre_same_published_view": true,
+       "fibre_witness_differs": true,
+       "n_mini": 3,
+       "name": "IN-C-03 INC-03 ZS zero-sum row",
+       "offset_in_ImR": true,
+       "passes": true,
+       "rank_R": 9,
+       "terminal_formula": true,
+       "terminal_map": {
+        "fp_rank_random_tails": 2,
+        "fp_rank_shared_boolean_tail": 2,
+        "m": 1,
+        "onto_Fp2^m": true
+       }
+      },
+      {
+       "L": 10,
+       "N": 4,
+       "chain_accepts": true,
+       "d": 2,
+       "dimC_expected": 9,
+       "fact32_identity": true,
+       "fibre_constructed": true,
+       "fibre_private_gamma_shift_is_sigma_diff": true,
+       "fibre_private_gamma_would_differ": true,
+       "fibre_same_V": true,
+       "fibre_same_published_view": true,
+       "fibre_witness_differs": true,
+       "n_mini": 3,
+       "name": "OUT-C-00 OUTC-00 IO-in: x = B_out at the public verdict row P0+n+S-1 (fixed public row bits; T-1 without pad)",
+       "offset_in_ImR": true,
+       "passes": true,
+       "rank_R": 9,
+       "terminal_formula": true,
+       "terminal_map": {
+        "fp_rank_random_tails": 4,
+        "fp_rank_shared_boolean_tail": 4,
+        "m": 2,
+        "onto_Fp2^m": true
+       }
+      },
+      {
+       "L": 18,
+       "N": 4,
+       "chain_accepts": true,
+       "d": 4,
+       "dimC_expected": 17,
+       "fact32_identity": true,
+       "fibre_constructed": true,
+       "fibre_private_gamma_shift_is_sigma_diff": true,
+       "fibre_private_gamma_would_differ": true,
+       "fibre_same_V": true,
+       "fibre_same_published_view": true,
+       "fibre_witness_differs": true,
+       "n_mini": 3,
+       "name": "OUT-C-01 OUTC-01 SS final-norm row sum (private, hosted by TZC)",
+       "offset_in_ImR": true,
+       "passes": true,
+       "rank_R": 17,
+       "terminal_formula": true,
+       "terminal_map": {
+        "fp_rank_random_tails": 2,
+        "fp_rank_shared_boolean_tail": 2,
+        "m": 1,
+        "onto_Fp2^m": true
+       }
+      },
+      {
+       "L": 8,
+       "N": 2,
+       "chain_accepts": true,
+       "d": 3,
+       "dimC_expected": 7,
+       "fact32_identity": true,
+       "fibre_constructed": true,
+       "fibre_private_gamma_shift_is_sigma_diff": true,
+       "fibre_private_gamma_would_differ": true,
+       "fibre_same_V": true,
+       "fibre_same_published_view": true,
+       "fibre_witness_differs": true,
+       "n_mini": 1,
+       "name": "OUT-C-02 OUTC-02 TZC isqrt (D, Dsq, 9 limb slices; hosts SS)",
+       "offset_in_ImR": true,
+       "passes": true,
+       "rank_R": 7,
+       "terminal_formula": true,
+       "terminal_map": {
+        "fp_rank_random_tails": 22,
+        "fp_rank_shared_boolean_tail": 22,
+        "m": 11,
+        "onto_Fp2^m": true
+       }
+      },
+      {
+       "L": 10,
+       "N": 4,
+       "chain_accepts": true,
+       "d": 2,
+       "dimC_expected": 9,
+       "fact32_identity": true,
+       "fibre_constructed": true,
+       "fibre_private_gamma_shift_is_sigma_diff": true,
+       "fibre_private_gamma_would_differ": true,
+       "fibre_same_V": true,
+       "fibre_same_published_view": true,
+       "fibre_witness_differs": true,
+       "n_mini": 3,
+       "name": "OUT-C-03 OUTC-03 PD margin sum_i y(i) w_Delta(i) (private, hosted by LZC)",
+       "offset_in_ImR": true,
+       "passes": true,
+       "rank_R": 9,
+       "terminal_formula": true,
+       "terminal_map": {
+        "fp_rank_random_tails": 2,
+        "fp_rank_shared_boolean_tail": 2,
+        "m": 1,
+        "onto_Fp2^m": true
+       }
+      },
+      {
+       "L": 18,
+       "N": 4,
+       "chain_accepts": true,
+       "d": 4,
+       "dimC_expected": 17,
+       "fact32_identity": true,
+       "fibre_constructed": true,
+       "fibre_private_gamma_shift_is_sigma_diff": true,
+       "fibre_private_gamma_would_differ": true,
+       "fibre_same_V": true,
+       "fibre_same_published_view": true,
+       "fibre_witness_differs": true,
+       "n_mini": 3,
+       "name": "OUT-C-04 OUTC-04 LZC limb lookups (+pad; isqrt and margin limbs) + host term sigma g limb + u0 (sigma b + c)",
+       "offset_in_ImR": true,
+       "passes": true,
+       "rank_R": 17,
+       "terminal_formula": true,
+       "terminal_map": {
+        "fp_rank_random_tails": 4,
+        "fp_rank_shared_boolean_tail": 4,
+        "m": 2,
+        "onto_Fp2^m": true
+       }
+      },
+      {
+       "L": 22,
+       "N": 4,
+       "chain_accepts": true,
+       "d": 5,
+       "dimC_expected": 21,
+       "fact32_identity": true,
+       "fibre_constructed": true,
+       "fibre_private_gamma_shift_is_sigma_diff": true,
+       "fibre_private_gamma_would_differ": true,
+       "fibre_same_V": true,
+       "fibre_same_published_view": true,
+       "fibre_witness_differs": true,
+       "n_mini": 3,
+       "name": "OUT-C-05 OUTC-05 DZC final-norm quotient + x limbs + helpers (+pad)",
+       "offset_in_ImR": true,
+       "passes": true,
+       "rank_R": 21,
+       "terminal_formula": true,
+       "terminal_map": {
+        "fp_rank_random_tails": 38,
+        "fp_rank_shared_boolean_tail": 38,
+        "m": 19,
+        "onto_Fp2^m": true
+       }
+      },
+      {
+       "L": 14,
+       "N": 4,
+       "chain_accepts": true,
+       "d": 3,
+       "dimC_expected": 13,
+       "fact32_identity": true,
+       "fibre_constructed": true,
+       "fibre_private_gamma_shift_is_sigma_diff": true,
+       "fibre_private_gamma_would_differ": true,
+       "fibre_same_V": true,
+       "fibre_same_published_view": true,
+       "fibre_witness_differs": true,
+       "n_mini": 3,
+       "name": "OUT-C-06 OUTC-06 TAB byte-table helper (+pad)",
+       "offset_in_ImR": true,
+       "passes": true,
+       "rank_R": 13,
+       "terminal_formula": true,
+       "terminal_map": {
+        "fp_rank_random_tails": 4,
+        "fp_rank_shared_boolean_tail": 4,
+        "m": 2,
+        "onto_Fp2^m": true
+       }
+      },
+      {
+       "L": 10,
+       "N": 4,
+       "chain_accepts": true,
+       "d": 2,
+       "dimC_expected": 9,
+       "fact32_identity": true,
+       "fibre_constructed": true,
+       "fibre_private_gamma_shift_is_sigma_diff": true,
+       "fibre_private_gamma_would_differ": true,
+       "fibre_same_V": true,
+       "fibre_same_published_view": true,
+       "fibre_witness_differs": true,
+       "n_mini": 3,
+       "name": "OUT-C-07 OUTC-07 ZS zero-sum row",
+       "offset_in_ImR": true,
+       "passes": true,
+       "rank_R": 9,
+       "terminal_formula": true,
+       "terminal_map": {
+        "fp_rank_random_tails": 2,
+        "fp_rank_shared_boolean_tail": 2,
+        "m": 1,
+        "onto_Fp2^m": true
+       }
+      }
+     ],
+     "S4_summary": {
+      "miniatures_pass": 12,
+      "of": 12,
+      "terminal_map_onto": 12
+     },
+     "fidelity_all": true,
+     "label": "random-3"
+    },
+    "run": {
+     "F0_fidelity": "12/12",
+     "S1": [
+      {
+       "L": 29,
+       "budget_ok": true,
+       "declared_degree": 3,
+       "degree_fits": true,
+       "dimC": 28,
+       "ext": 1,
+       "main": 8,
+       "max_product_degree_walked": 3,
+       "name": "IN-C-00 INC-00 IO-in: token endpoint = supp_T tok (whole padded plane: template and content)",
+       "per_variable_degree_bound_max": 3,
+       "premise": [
+        {
+         "exact_zero_3_of_3": true,
+         "round": 0,
+         "syntactically_zero": true
+        }
+       ],
+       "premise_holds": true,
+       "private_tables": 2,
+       "public_factor_in_every_monomial_exact": true,
+       "public_factor_in_every_monomial_syntactic": true,
+       "slack": 0,
+       "stored_degrees_agree": true,
+       "tables": {
+        "A": 1,
+        "EP": 1,
+        "eq": 1,
+        "supp": 1
+       },
+       "terms": 2
+      },
+      {
+       "L": 54,
+       "budget_ok": true,
+       "declared_degree": 4,
+       "degree_fits": true,
+       "dimC": 53,
+       "ext": 1,
+       "main": 12,
+       "max_product_degree_walked": 3,
+       "name": "IN-C-01 INC-01 query zero-check: LogUp over (id, row, ctl) + BOS + TEMPLATE (prefix, suffix, trailing pad ids) + pad, fresh mu each",
+       "per_variable_degree_bound_max": 3,
+       "premise": [
+        {
+         "exact_zero_3_of_3": true,
+         "round": 0,
+         "syntactically_zero": true
+        }
+       ],
+       "premise_holds": true,
+       "private_tables": 3,
+       "public_factor_in_every_monomial_exact": true,
+       "public_factor_in_every_monomial_syntactic": true,
+       "slack": 1,
+       "stored_degrees_agree": true,
+       "tables": {
+        "A": 1,
+        "EP": 1,
+        "H": 1,
+        "eq": 1,
+        "pub": 2,
+        "supp": 3
+       },
+       "terms": 12
+      },
+      {
+       "L": 54,
+       "budget_ok": true,
+       "declared_degree": 4,
+       "degree_fits": true,
+       "dimC": 53,
+       "ext": 1,
+       "main": 12,
+       "max_product_degree_walked": 3,
+       "name": "IN-C-02 INC-02 table zero-check: h_tab (alpha - tau(v, ctl)) = m + pad, fresh mu each",
+       "per_variable_degree_bound_max": 3,
+       "premise": [
+        {
+         "exact_zero_3_of_3": true,
+         "round": 0,
+         "syntactically_zero": true
+        }
+       ],
+       "premise_holds": true,
+       "private_tables": 2,
+       "public_factor_in_every_monomial_exact": true,
+       "public_factor_in_every_monomial_syntactic": true,
+       "slack": 1,
+       "stored_degrees_agree": true,
+       "tables": {
+        "A": 1,
+        "H": 1,
+        "eq": 1,
+        "pub": 1,
+        "supp": 1
+       },
+       "terms": 5
+      },
+      {
+       "L": 28,
+       "budget_ok": true,
+       "declared_degree": 2,
+       "degree_fits": true,
+       "dimC": 27,
+       "ext": 1,
+       "main": 12,
+       "max_product_degree_walked": 2,
+       "name": "IN-C-03 INC-03 ZS zero-sum row",
+       "per_variable_degree_bound_max": 2,
+       "premise": [
+        {
+         "exact_zero_3_of_3": true,
+         "round": 0,
+         "syntactically_zero": true
+        }
+       ],
+       "premise_holds": true,
+       "private_tables": 1,
+       "public_factor_in_every_monomial_exact": true,
+       "public_factor_in_every_monomial_syntactic": true,
+       "slack": 0,
+       "stored_degrees_agree": true,
+       "tables": {
+        "H": 1,
+        "pub": 1
+       },
+       "terms": 1
+      },
+      {
+       "L": 22,
+       "budget_ok": true,
+       "declared_degree": 2,
+       "degree_fits": true,
+       "dimC": 21,
+       "ext": 1,
+       "main": 9,
+       "max_product_degree_walked": 2,
+       "name": "OUT-C-00 OUTC-00 IO-in: x = B_out at the public verdict row P0+n+S-1 (fixed public row bits; T-1 without pad)",
+       "per_variable_degree_bound_max": 2,
+       "premise": [
+        {
+         "exact_zero_3_of_3": true,
+         "round": 0,
+         "syntactically_zero": true
+        }
+       ],
+       "premise_holds": true,
+       "private_tables": 2,
+       "public_factor_in_every_monomial_exact": true,
+       "public_factor_in_every_monomial_syntactic": true,
+       "slack": 0,
+       "stored_degrees_agree": true,
+       "tables": {
+        "A": 1,
+        "EP": 1,
+        "eq": 1
+       },
+       "terms": 2
+      },
+      {
+       "L": 54,
+       "budget_ok": true,
+       "declared_degree": 4,
+       "degree_fits": true,
+       "dimC": 53,
+       "ext": 1,
+       "main": 12,
+       "max_product_degree_walked": 3,
+       "name": "OUT-C-01 OUTC-01 SS final-norm row sum (private, hosted by TZC)",
+       "per_variable_degree_bound_max": 3,
+       "premise": [
+        {
+         "exact_zero_3_of_3": true,
+         "round": 0,
+         "syntactically_zero": true
+        }
+       ],
+       "premise_holds": true,
+       "private_tables": 1,
+       "public_factor_in_every_monomial_exact": true,
+       "public_factor_in_every_monomial_syntactic": true,
+       "slack": 1,
+       "stored_degrees_agree": true,
+       "tables": {
+        "A": 1,
+        "supp": 1
+       },
+       "terms": 1
+      },
+      {
+       "L": 8,
+       "budget_ok": true,
+       "declared_degree": 3,
+       "degree_fits": true,
+       "dimC": 7,
+       "ext": 1,
+       "main": 1,
+       "max_product_degree_walked": 3,
+       "name": "OUT-C-02 OUTC-02 TZC isqrt (D, Dsq, 9 limb slices; hosts SS)",
+       "per_variable_degree_bound_max": 3,
+       "premise": [
+        {
+         "exact_zero_3_of_3": true,
+         "round": 0,
+         "syntactically_zero": true
+        }
+       ],
+       "premise_holds": true,
+       "private_tables": 11,
+       "public_factor_in_every_monomial_exact": true,
+       "public_factor_in_every_monomial_syntactic": true,
+       "slack": 0,
+       "stored_degrees_agree": true,
+       "tables": {
+        "A": 11,
+        "eq": 1,
+        "supp": 1
+       },
+       "terms": 19
+      },
+      {
+       "L": 22,
+       "budget_ok": true,
+       "declared_degree": 2,
+       "degree_fits": true,
+       "dimC": 21,
+       "ext": 1,
+       "main": 9,
+       "max_product_degree_walked": 2,
+       "name": "OUT-C-03 OUTC-03 PD margin sum_i y(i) w_Delta(i) (private, hosted by LZC)",
+       "per_variable_degree_bound_max": 2,
+       "premise": [
+        {
+         "exact_zero_3_of_3": true,
+         "round": 0,
+         "syntactically_zero": true
+        }
+       ],
+       "premise_holds": true,
+       "private_tables": 1,
+       "public_factor_in_every_monomial_exact": true,
+       "public_factor_in_every_monomial_syntactic": true,
+       "slack": 0,
+       "stored_degrees_agree": true,
+       "tables": {
+        "A": 1,
+        "pub": 1
+       },
+       "terms": 1
+      },
+      {
+       "L": 54,
+       "budget_ok": true,
+       "declared_degree": 4,
+       "degree_fits": true,
+       "dimC": 53,
+       "ext": 1,
+       "main": 12,
+       "max_product_degree_walked": 3,
+       "name": "OUT-C-04 OUTC-04 LZC limb lookups (+pad; isqrt and margin limbs) + host term sigma g limb + u0 (sigma b + c)",
+       "per_variable_degree_bound_max": 3,
+       "premise": [
+        {
+         "exact_zero_3_of_3": true,
+         "round": 0,
+         "syntactically_zero": true
+        }
+       ],
+       "premise_holds": true,
+       "private_tables": 2,
+       "public_factor_in_every_monomial_exact": true,
+       "public_factor_in_every_monomial_syntactic": true,
+       "slack": 1,
+       "stored_degrees_agree": true,
+       "tables": {
+        "A": 1,
+        "H": 1,
+        "eq": 1,
+        "pub": 1,
+        "supp": 2
+       },
+       "terms": 7
+      },
+      {
+       "L": 67,
+       "budget_ok": true,
+       "declared_degree": 5,
+       "degree_fits": true,
+       "dimC": 66,
+       "ext": 1,
+       "main": 12,
+       "max_product_degree_walked": 4,
+       "name": "OUT-C-05 OUTC-05 DZC final-norm quotient + x limbs + helpers (+pad)",
+       "per_variable_degree_bound_max": 4,
+       "premise": [
+        {
+         "exact_zero_3_of_3": true,
+         "round": 0,
+         "syntactically_zero": true
+        }
+       ],
+       "premise_holds": true,
+       "private_tables": 19,
+       "public_factor_in_every_monomial_exact": true,
+       "public_factor_in_every_monomial_syntactic": true,
+       "slack": 1,
+       "stored_degrees_agree": true,
+       "tables": {
+        "A": 13,
+        "H": 6,
+        "eq": 1,
+        "supp": 1
+       },
+       "terms": 50
+      },
+      {
+       "L": 41,
+       "budget_ok": true,
+       "declared_degree": 3,
+       "degree_fits": true,
+       "dimC": 40,
+       "ext": 1,
+       "main": 12,
+       "max_product_degree_walked": 3,
+       "name": "OUT-C-06 OUTC-06 TAB byte-table helper (+pad)",
+       "per_variable_degree_bound_max": 3,
+       "premise": [
+        {
+         "exact_zero_3_of_3": true,
+         "round": 0,
+         "syntactically_zero": true
+        }
+       ],
+       "premise_holds": true,
+       "private_tables": 2,
+       "public_factor_in_every_monomial_exact": true,
+       "public_factor_in_every_monomial_syntactic": true,
+       "slack": 0,
+       "stored_degrees_agree": true,
+       "tables": {
+        "A": 1,
+        "H": 1,
+        "eq": 1,
+        "pub": 1,
+        "supp": 1
+       },
+       "terms": 5
+      },
+      {
+       "L": 28,
+       "budget_ok": true,
+       "declared_degree": 2,
+       "degree_fits": true,
+       "dimC": 27,
+       "ext": 1,
+       "main": 12,
+       "max_product_degree_walked": 2,
+       "name": "OUT-C-07 OUTC-07 ZS zero-sum row",
+       "per_variable_degree_bound_max": 2,
+       "premise": [
+        {
+         "exact_zero_3_of_3": true,
+         "round": 0,
+         "syntactically_zero": true
+        }
+       ],
+       "premise_holds": true,
+       "private_tables": 1,
+       "public_factor_in_every_monomial_exact": true,
+       "public_factor_in_every_monomial_syntactic": true,
+       "slack": 0,
+       "stored_degrees_agree": true,
+       "tables": {
+        "H": 1,
+        "pub": 1
+       },
+       "terms": 1
+      }
+     ],
+     "S1_summary": {
+      "budget_ok": 12,
+      "degree_fits": 12,
+      "of": 12,
+      "premise_holds": 12,
+      "public_factor_every_monomial": 12
+     },
+     "S2": {
+      "IN": {
+       "budget_all_ok": true,
+       "slots": 4,
+       "sum_L": 165,
+       "sum_dimC": 161,
+       "sum_ker": 4,
+       "worst_L": 54
+      },
+      "OUT": {
+       "budget_all_ok": true,
+       "slots": 8,
+       "sum_L": 296,
+       "sum_dimC": 288,
+       "sum_ker": 8,
+       "worst_L": 67
+      }
+     },
+     "S4": [
+      {
+       "L": 14,
+       "N": 4,
+       "chain_accepts": true,
+       "d": 3,
+       "dimC_expected": 13,
+       "fact32_identity": true,
+       "fibre_constructed": true,
+       "fibre_private_gamma_shift_is_sigma_diff": true,
+       "fibre_private_gamma_would_differ": true,
+       "fibre_same_V": true,
+       "fibre_same_published_view": true,
+       "fibre_witness_differs": true,
+       "n_mini": 3,
+       "name": "IN-C-00 INC-00 IO-in: token endpoint = supp_T tok (whole padded plane: template and content)",
+       "offset_in_ImR": true,
+       "passes": true,
+       "rank_R": 13,
+       "terminal_formula": true,
+       "terminal_map": {
+        "fp_rank_random_tails": 4,
+        "fp_rank_shared_boolean_tail": 4,
+        "m": 2,
+        "onto_Fp2^m": true
+       }
+      },
+      {
+       "L": 18,
+       "N": 4,
+       "chain_accepts": true,
+       "d": 4,
+       "dimC_expected": 17,
+       "fact32_identity": true,
+       "fibre_constructed": true,
+       "fibre_private_gamma_shift_is_sigma_diff": true,
+       "fibre_private_gamma_would_differ": true,
+       "fibre_same_V": true,
+       "fibre_same_published_view": true,
+       "fibre_witness_differs": true,
+       "n_mini": 3,
+       "name": "IN-C-01 INC-01 query zero-check: LogUp over (id, row, ctl) + BOS + TEMPLATE (prefix, suffix, trailing pad ids) + pad, fresh mu each",
+       "offset_in_ImR": true,
+       "passes": true,
+       "rank_R": 17,
+       "terminal_formula": true,
+       "terminal_map": {
+        "fp_rank_random_tails": 6,
+        "fp_rank_shared_boolean_tail": 6,
+        "m": 3,
+        "onto_Fp2^m": true
+       }
+      },
+      {
+       "L": 18,
+       "N": 4,
+       "chain_accepts": true,
+       "d": 4,
+       "dimC_expected": 17,
+       "fact32_identity": true,
+       "fibre_constructed": true,
+       "fibre_private_gamma_shift_is_sigma_diff": true,
+       "fibre_private_gamma_would_differ": true,
+       "fibre_same_V": true,
+       "fibre_same_published_view": true,
+       "fibre_witness_differs": true,
+       "n_mini": 3,
+       "name": "IN-C-02 INC-02 table zero-check: h_tab (alpha - tau(v, ctl)) = m + pad, fresh mu each",
+       "offset_in_ImR": true,
+       "passes": true,
+       "rank_R": 17,
+       "terminal_formula": true,
+       "terminal_map": {
+        "fp_rank_random_tails": 4,
+        "fp_rank_shared_boolean_tail": 4,
+        "m": 2,
+        "onto_Fp2^m": true
+       }
+      },
+      {
+       "L": 10,
+       "N": 4,
+       "chain_accepts": true,
+       "d": 2,
+       "dimC_expected": 9,
+       "fact32_identity": true,
+       "fibre_constructed": true,
+       "fibre_private_gamma_shift_is_sigma_diff": true,
+       "fibre_private_gamma_would_differ": true,
+       "fibre_same_V": true,
+       "fibre_same_published_view": true,
+       "fibre_witness_differs": true,
+       "n_mini": 3,
+       "name": "IN-C-03 INC-03 ZS zero-sum row",
+       "offset_in_ImR": true,
+       "passes": true,
+       "rank_R": 9,
+       "terminal_formula": true,
+       "terminal_map": {
+        "fp_rank_random_tails": 2,
+        "fp_rank_shared_boolean_tail": 2,
+        "m": 1,
+        "onto_Fp2^m": true
+       }
+      },
+      {
+       "L": 10,
+       "N": 4,
+       "chain_accepts": true,
+       "d": 2,
+       "dimC_expected": 9,
+       "fact32_identity": true,
+       "fibre_constructed": true,
+       "fibre_private_gamma_shift_is_sigma_diff": true,
+       "fibre_private_gamma_would_differ": true,
+       "fibre_same_V": true,
+       "fibre_same_published_view": true,
+       "fibre_witness_differs": true,
+       "n_mini": 3,
+       "name": "OUT-C-00 OUTC-00 IO-in: x = B_out at the public verdict row P0+n+S-1 (fixed public row bits; T-1 without pad)",
+       "offset_in_ImR": true,
+       "passes": true,
+       "rank_R": 9,
+       "terminal_formula": true,
+       "terminal_map": {
+        "fp_rank_random_tails": 4,
+        "fp_rank_shared_boolean_tail": 4,
+        "m": 2,
+        "onto_Fp2^m": true
+       }
+      },
+      {
+       "L": 18,
+       "N": 4,
+       "chain_accepts": true,
+       "d": 4,
+       "dimC_expected": 17,
+       "fact32_identity": true,
+       "fibre_constructed": true,
+       "fibre_private_gamma_shift_is_sigma_diff": true,
+       "fibre_private_gamma_would_differ": true,
+       "fibre_same_V": true,
+       "fibre_same_published_view": true,
+       "fibre_witness_differs": true,
+       "n_mini": 3,
+       "name": "OUT-C-01 OUTC-01 SS final-norm row sum (private, hosted by TZC)",
+       "offset_in_ImR": true,
+       "passes": true,
+       "rank_R": 17,
+       "terminal_formula": true,
+       "terminal_map": {
+        "fp_rank_random_tails": 2,
+        "fp_rank_shared_boolean_tail": 2,
+        "m": 1,
+        "onto_Fp2^m": true
+       }
+      },
+      {
+       "L": 8,
+       "N": 2,
+       "chain_accepts": true,
+       "d": 3,
+       "dimC_expected": 7,
+       "fact32_identity": true,
+       "fibre_constructed": true,
+       "fibre_private_gamma_shift_is_sigma_diff": true,
+       "fibre_private_gamma_would_differ": true,
+       "fibre_same_V": true,
+       "fibre_same_published_view": true,
+       "fibre_witness_differs": true,
+       "n_mini": 1,
+       "name": "OUT-C-02 OUTC-02 TZC isqrt (D, Dsq, 9 limb slices; hosts SS)",
+       "offset_in_ImR": true,
+       "passes": true,
+       "rank_R": 7,
+       "terminal_formula": true,
+       "terminal_map": {
+        "fp_rank_random_tails": 22,
+        "fp_rank_shared_boolean_tail": 22,
+        "m": 11,
+        "onto_Fp2^m": true
+       }
+      },
+      {
+       "L": 10,
+       "N": 4,
+       "chain_accepts": true,
+       "d": 2,
+       "dimC_expected": 9,
+       "fact32_identity": true,
+       "fibre_constructed": true,
+       "fibre_private_gamma_shift_is_sigma_diff": true,
+       "fibre_private_gamma_would_differ": true,
+       "fibre_same_V": true,
+       "fibre_same_published_view": true,
+       "fibre_witness_differs": true,
+       "n_mini": 3,
+       "name": "OUT-C-03 OUTC-03 PD margin sum_i y(i) w_Delta(i) (private, hosted by LZC)",
+       "offset_in_ImR": true,
+       "passes": true,
+       "rank_R": 9,
+       "terminal_formula": true,
+       "terminal_map": {
+        "fp_rank_random_tails": 2,
+        "fp_rank_shared_boolean_tail": 2,
+        "m": 1,
+        "onto_Fp2^m": true
+       }
+      },
+      {
+       "L": 18,
+       "N": 4,
+       "chain_accepts": true,
+       "d": 4,
+       "dimC_expected": 17,
+       "fact32_identity": true,
+       "fibre_constructed": true,
+       "fibre_private_gamma_shift_is_sigma_diff": true,
+       "fibre_private_gamma_would_differ": true,
+       "fibre_same_V": true,
+       "fibre_same_published_view": true,
+       "fibre_witness_differs": true,
+       "n_mini": 3,
+       "name": "OUT-C-04 OUTC-04 LZC limb lookups (+pad; isqrt and margin limbs) + host term sigma g limb + u0 (sigma b + c)",
+       "offset_in_ImR": true,
+       "passes": true,
+       "rank_R": 17,
+       "terminal_formula": true,
+       "terminal_map": {
+        "fp_rank_random_tails": 4,
+        "fp_rank_shared_boolean_tail": 4,
+        "m": 2,
+        "onto_Fp2^m": true
+       }
+      },
+      {
+       "L": 22,
+       "N": 4,
+       "chain_accepts": true,
+       "d": 5,
+       "dimC_expected": 21,
+       "fact32_identity": true,
+       "fibre_constructed": true,
+       "fibre_private_gamma_shift_is_sigma_diff": true,
+       "fibre_private_gamma_would_differ": true,
+       "fibre_same_V": true,
+       "fibre_same_published_view": true,
+       "fibre_witness_differs": true,
+       "n_mini": 3,
+       "name": "OUT-C-05 OUTC-05 DZC final-norm quotient + x limbs + helpers (+pad)",
+       "offset_in_ImR": true,
+       "passes": true,
+       "rank_R": 21,
+       "terminal_formula": true,
+       "terminal_map": {
+        "fp_rank_random_tails": 38,
+        "fp_rank_shared_boolean_tail": 38,
+        "m": 19,
+        "onto_Fp2^m": true
+       }
+      },
+      {
+       "L": 14,
+       "N": 4,
+       "chain_accepts": true,
+       "d": 3,
+       "dimC_expected": 13,
+       "fact32_identity": true,
+       "fibre_constructed": true,
+       "fibre_private_gamma_shift_is_sigma_diff": true,
+       "fibre_private_gamma_would_differ": true,
+       "fibre_same_V": true,
+       "fibre_same_published_view": true,
+       "fibre_witness_differs": true,
+       "n_mini": 3,
+       "name": "OUT-C-06 OUTC-06 TAB byte-table helper (+pad)",
+       "offset_in_ImR": true,
+       "passes": true,
+       "rank_R": 13,
+       "terminal_formula": true,
+       "terminal_map": {
+        "fp_rank_random_tails": 4,
+        "fp_rank_shared_boolean_tail": 4,
+        "m": 2,
+        "onto_Fp2^m": true
+       }
+      },
+      {
+       "L": 10,
+       "N": 4,
+       "chain_accepts": true,
+       "d": 2,
+       "dimC_expected": 9,
+       "fact32_identity": true,
+       "fibre_constructed": true,
+       "fibre_private_gamma_shift_is_sigma_diff": true,
+       "fibre_private_gamma_would_differ": true,
+       "fibre_same_V": true,
+       "fibre_same_published_view": true,
+       "fibre_witness_differs": true,
+       "n_mini": 3,
+       "name": "OUT-C-07 OUTC-07 ZS zero-sum row",
+       "offset_in_ImR": true,
+       "passes": true,
+       "rank_R": 9,
+       "terminal_formula": true,
+       "terminal_map": {
+        "fp_rank_random_tails": 2,
+        "fp_rank_shared_boolean_tail": 2,
+        "m": 1,
+        "onto_Fp2^m": true
+       }
+      }
+     ],
+     "S4_summary": {
+      "miniatures_pass": 12,
+      "of": 12,
+      "terminal_map_onto": 12
+     },
+     "fidelity_all": true,
+     "label": "run"
+    }
+   },
+   "seconds": 2.5,
+   "slots": 12
+  }
+ },
+ "peak_rss_mb": 135,
+ "privacy_acceptance": false,
+ "profile": "hashline-zk-mr1/private-classify-run-rung-lh-t32-public-row-tst/1",
+ "replay_ok": true,
+ "seconds": 4.3,
+ "status": "PASS",
+ "summary": {
+  "classifier": {
+   "E0": null,
+   "S3": "35/35 at [(2, 3), (9, 3), (10, 2), (13, 2), (13, 3), (13, 4), (13, 5)]",
+   "S5": {
+    "F_1_fires": "12/12",
+    "N5_1_fires": "12/12",
+    "N5_2_fires": "7/7 (not applicable at slack > 0: 5)",
+    "N5_3_fires": true,
+    "N5_4_fires": true
+   },
+   "S5_ok": true,
+   "T0": {
+    "ok": true,
+    "skipped": null,
+    "slots_checked": 12,
+    "slots_equal": 12
+   },
+   "ok": true,
+   "per_mode": {
+    "random-1": {
+     "F0": "12/12",
+     "S1": {
+      "budget_ok": 12,
+      "degree_fits": 12,
+      "of": 12,
+      "premise_holds": 12,
+      "public_factor_every_monomial": 12
+     },
+     "S4": {
+      "miniatures_pass": 12,
+      "of": 12,
+      "terminal_map_onto": 12
+     }
+    },
+    "random-2": {
+     "F0": "12/12",
+     "S1": {
+      "budget_ok": 12,
+      "degree_fits": 12,
+      "of": 12,
+      "premise_holds": 12,
+      "public_factor_every_monomial": 12
+     },
+     "S4": {
+      "miniatures_pass": 12,
+      "of": 12,
+      "terminal_map_onto": 12
+     }
+    },
+    "random-3": {
+     "F0": "12/12",
+     "S1": {
+      "budget_ok": 12,
+      "degree_fits": 12,
+      "of": 12,
+      "premise_holds": 12,
+      "public_factor_every_monomial": 12
+     },
+     "S4": {
+      "miniatures_pass": 12,
+      "of": 12,
+      "terminal_map_onto": 12
+     }
+    },
+    "run": {
+     "F0": "12/12",
+     "S1": {
+      "budget_ok": 12,
+      "degree_fits": 12,
+      "of": 12,
+      "premise_holds": 12,
+      "public_factor_every_monomial": 12
+     },
+     "S4": {
+      "miniatures_pass": 12,
+      "of": 12,
+      "terminal_map_onto": 12
+     }
+    }
+   },
+   "slots": 12
+  }
+ },
+ "tool_sha256": {
+  "zk60_native_rg_classterminals.py": "91cfafeeec7b36ee63676a2bc20e649e4fa42f7f218cd1f10785f5e5085f24cf",
+  "zk60_native_rg_r13blocks.py": "f4ef6373667f7efd0154ffc3773d726c383a4a3b49651157dd452493f79ccb42",
+  "zk60_native_rg_r13slots.py": "09878d5e444dfec142898e2eae875498b93e38cbda709b5ead06b78cb0ca1fd7",
+  "zk60_native_rg_terminals.py": "094029b73e082b85410c6aff44dae665e0500c19597e340b7128857681c5c630",
+  "zk60_native_rg_tokennl.py": "c5047cf0eec180a067435de2f76b5ab714dce5eae90fd1ee3174d18407f52f21",
+  "zk60_native_rg_tokenterminals.py": "23c5c72f0fb3cb0e6a62a5e55e4abcb55da47d8351c47019456d55823785490c",
+  "zk60_r22_classnl.py": "4f0c2061b89ded2db81030f13150ddd4e7cdfbb343e706800ccd9c0d3003133d"
+ },
+ "what": "gate round 22 item 3: NL-1 S1-S5 through the frozen nl_check on the classifier slots and the R13-redefined block slots, IR from the gate's own transcriptions over Poly; NOT a privacy result"
+}

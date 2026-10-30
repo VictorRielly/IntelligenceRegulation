@@ -1,0 +1,247 @@
+[
+  {
+    "file": "argument.rs",
+    "line": 1211,
+    "text": "            pts.r_t = tr.challenge_fp2_vec(lt);"
+  },
+  {
+    "file": "argument.rs",
+    "line": 1212,
+    "text": "            b.eq(&pts.r_t, 0);"
+  },
+  {
+    "file": "argument.rs",
+    "line": 1220,
+    "text": "            pts.r_t2 = tr.challenge_fp2_vec(lt);"
+  },
+  {
+    "file": "argument.rs",
+    "line": 1221,
+    "text": "            b.eq(&pts.r_t2, 0);"
+  },
+  {
+    "file": "argument.rs",
+    "line": 1237,
+    "text": "            let i_rt = b.eq(&pts.r_t, 0);"
+  },
+  {
+    "file": "argument.rs",
+    "line": 1238,
+    "text": "            let i_rt2 = b.eq(&pts.r_t2, 0);"
+  },
+  {
+    "file": "argument.rs",
+    "line": 1316,
+    "text": "            pts.p_ht = tr.challenge_fp2_vec(sh.log(Dom::Ht));"
+  },
+  {
+    "file": "argument.rs",
+    "line": 1317,
+    "text": "            pts.lam_z = tr.challenge_fp2();"
+  },
+  {
+    "file": "argument.rs",
+    "line": 1318,
+    "text": "            let lam = pts.lam_z;"
+  },
+  {
+    "file": "argument.rs",
+    "line": 1319,
+    "text": "            b.eq(&pts.p_ht, 0);"
+  },
+  {
+    "file": "argument.rs",
+    "line": 1332,
+    "text": "                pts.r_q = tr.challenge_fp2_vec(lt);"
+  },
+  {
+    "file": "argument.rs",
+    "line": 1349,
+    "text": "            let point = cat(&[&pts.r_q, &r_j]);"
+  },
+  {
+    "file": "argument.rs",
+    "line": 1350,
+    "text": "            let mut coords = fixed(&pts.r_q);"
+  },
+  {
+    "file": "argument.rs",
+    "line": 1365,
+    "text": "                SC_QMM => pts.pq = point,"
+  },
+  {
+    "file": "argument.rs",
+    "line": 1366,
+    "text": "                SC_KMM => pts.pk = point,"
+  },
+  {
+    "file": "argument.rs",
+    "line": 1367,
+    "text": "                SC_VMM => pts.pv = point,"
+  },
+  {
+    "file": "argument.rs",
+    "line": 1368,
+    "text": "                _ => pts.p_a = point,"
+  },
+  {
+    "file": "argument.rs",
+    "line": 1415,
+    "text": "            pts.p_s = cat(&[&r_h, &r_t, &r_j]);"
+  },
+  {
+    "file": "argument.rs",
+    "line": 1451,
+    "text": "            pts.p_o = cat(&[&r_t, &r_h, &r_i]);"
+  },
+  {
+    "file": "argument.rs",
+    "line": 1481,
+    "text": "                pts.r_tf = tr.challenge_fp2_vec(lt);"
+  },
+  {
+    "file": "argument.rs",
+    "line": 1484,
+    "text": "            let r_row = if slot == SC_DMM { tr.challenge_fp2_vec(lt) } else { pts.r_tf.clone() };"
+  },
+  {
+    "file": "argument.rs",
+    "line": 1507,
+    "text": "                SC_GMM => pts.p_g = point,"
+  },
+  {
+    "file": "argument.rs",
+    "line": 1508,
+    "text": "                SC_UMM => pts.p_u = point,"
+  },
+  {
+    "file": "argument.rs",
+    "line": 1509,
+    "text": "                _ => pts.p_z = point,"
+  },
+  {
+    "file": "argument.rs",
+    "line": 1520,
+    "text": "            b.eq(&pts.p_a, 0);"
+  },
+  {
+    "file": "argument.rs",
+    "line": 1521,
+    "text": "            b.eq(&pts.p_z, 0);"
+  },
+  {
+    "file": "argument.rs",
+    "line": 1678,
+    "text": "            b.eq(&pts.p_g, 0);"
+  },
+  {
+    "file": "argument.rs",
+    "line": 1679,
+    "text": "            b.eq(&pts.p_u, 0);"
+  },
+  {
+    "file": "argument.rs",
+    "line": 1734,
+    "text": "            b.eq(if q { &pts.pq } else { &pts.pk }, 0);"
+  },
+  {
+    "file": "argument.rs",
+    "line": 1735,
+    "text": "            b.eq(if q { &pts.p_o } else { &pts.pv }, 0);"
+  },
+  {
+    "file": "argument.rs",
+    "line": 1807,
+    "text": "            let lam = pts.lam_z;"
+  },
+  {
+    "file": "argument.rs",
+    "line": 1809,
+    "text": "            b.eq(&pts.p_ht, 0);"
+  },
+  {
+    "file": "argument.rs",
+    "line": 1810,
+    "text": "            b.eq(&pts.p_s, 0);"
+  },
+  {
+    "file": "argument.rs",
+    "line": 1855,
+    "text": "            let lam = pts.lam_z;"
+  },
+  {
+    "file": "argument.rs",
+    "line": 1857,
+    "text": "            b.eq(&pts.p_ht, 0);"
+  },
+  {
+    "file": "argument.rs",
+    "line": 1858,
+    "text": "            b.eq(&pts.p_s, 0);"
+  },
+  {
+    "file": "argument.rs",
+    "line": 1939,
+    "text": "                sumcheck::EqualityGroup { point: pts.p_ht.clone(), start: 0, bracket_degree: if pad_on { 2 } else { 1 } },"
+  },
+  {
+    "file": "argument.rs",
+    "line": 1940,
+    "text": "                sumcheck::EqualityGroup { point: pts.p_s.clone(), start: 0, bracket_degree: if pad_on { 2 } else { 1 } },"
+  },
+  {
+    "file": "argument_accuracy.rs",
+    "line": 35,
+    "text": "    b.eq(&tr.challenge_fp2_vec(sh.log(Dom::D)),0);b.eq(&pts.p_a,0);b.eq(&pts.p_z,0);"
+  },
+  {
+    "file": "argument_accuracy.rs",
+    "line": 80,
+    "text": "    b.eq(&tr.challenge_fp2_vec(sh.log(Dom::F)),0);b.eq(&pts.p_g,0);b.eq(&pts.p_u,0);"
+  },
+  {
+    "file": "argument_accuracy.rs",
+    "line": 116,
+    "text": "    b.eq(&tr.challenge_fp2_vec(log),0);b.eq(if q {&pts.pq} else {&pts.pk},0);b.eq(if q {&pts.p_o} else {&pts.pv},0);"
+  },
+  {
+    "file": "argument_accuracy.rs",
+    "line": 161,
+    "text": "            let lam = pts.lam_z;"
+  },
+  {
+    "file": "argument_accuracy.rs",
+    "line": 163,
+    "text": "            b.eq(&pts.p_ht, 0);"
+  },
+  {
+    "file": "argument_accuracy.rs",
+    "line": 164,
+    "text": "            b.eq(&pts.p_s, 0);"
+  },
+  {
+    "file": "argument_accuracy.rs",
+    "line": 219,
+    "text": "            let lam = pts.lam_z;"
+  },
+  {
+    "file": "argument_accuracy.rs",
+    "line": 221,
+    "text": "            b.eq(&pts.p_ht, 0);"
+  },
+  {
+    "file": "argument_accuracy.rs",
+    "line": 222,
+    "text": "            b.eq(&pts.p_s, 0);"
+  },
+  {
+    "file": "argument_accuracy.rs",
+    "line": 280,
+    "text": "                sumcheck::EqualityGroup { point: pts.p_ht.clone(), start: 0, bracket_degree: if pad_on { 2 } else { 1 } },"
+  },
+  {
+    "file": "argument_accuracy.rs",
+    "line": 281,
+    "text": "                sumcheck::EqualityGroup { point: pts.p_s.clone(), start: 0, bracket_degree: if pad_on { 2 } else { 1 } },"
+  }
+]

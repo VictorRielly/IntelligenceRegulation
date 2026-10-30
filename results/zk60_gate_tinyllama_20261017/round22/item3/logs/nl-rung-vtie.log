@@ -1,0 +1,86 @@
+classifier: ok True (4.3 s)
+{
+ "classifier": {
+  "slots": 12,
+  "ok": true,
+  "T0": {
+   "slots_equal": 12,
+   "slots_checked": 12,
+   "ok": true,
+   "skipped": null
+  },
+  "E0": null,
+  "per_mode": {
+   "run": {
+    "F0": "12/12",
+    "S1": {
+     "premise_holds": 12,
+     "public_factor_every_monomial": 12,
+     "degree_fits": 12,
+     "budget_ok": 12,
+     "of": 12
+    },
+    "S4": {
+     "miniatures_pass": 12,
+     "terminal_map_onto": 12,
+     "of": 12
+    }
+   },
+   "random-1": {
+    "F0": "12/12",
+    "S1": {
+     "premise_holds": 12,
+     "public_factor_every_monomial": 12,
+     "degree_fits": 12,
+     "budget_ok": 12,
+     "of": 12
+    },
+    "S4": {
+     "miniatures_pass": 12,
+     "terminal_map_onto": 12,
+     "of": 12
+    }
+   },
+   "random-2": {
+    "F0": "12/12",
+    "S1": {
+     "premise_holds": 12,
+     "public_factor_every_monomial": 12,
+     "degree_fits": 12,
+     "budget_ok": 12,
+     "of": 12
+    },
+    "S4": {
+     "miniatures_pass": 12,
+     "terminal_map_onto": 12,
+     "of": 12
+    }
+   },
+   "random-3": {
+    "F0": "12/12",
+    "S1": {
+     "premise_holds": 12,
+     "public_factor_every_monomial": 12,
+     "degree_fits": 12,
+     "budget_ok": 12,
+     "of": 12
+    },
+    "S4": {
+     "miniatures_pass": 12,
+     "terminal_map_onto": 12,
+     "of": 12
+    }
+   }
+  },
+  "S3": "35/35 at [(2, 3), (9, 3), (10, 2), (13, 2), (13, 3), (13, 4), (13, 5)]",
+  "S5": {
+   "N5_1_fires": "12/12",
+   "N5_2_fires": "7/7 (not applicable at slack > 0: 5)",
+   "N5_3_fires": true,
+   "N5_4_fires": true,
+   "F_1_fires": "12/12"
+  },
+  "S5_ok": true
+ }
+}
+record: /home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/round22/item3/nl-rung-L2-vtie.json  status PASS

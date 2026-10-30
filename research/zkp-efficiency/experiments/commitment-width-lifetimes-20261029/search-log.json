@@ -1,0 +1,20 @@
+{
+  "tool": "nativeLIVE web.run",
+  "queries": [
+    "GPU Goldilocks NTT memory optimization2026github commitment",
+    "GPU polynomial commitment split width NTT heterogeneous row length2025 2026",
+    "in-place NTT memory GPU2026preprocessing",
+    "GPU NTT scratch in-place2025paper",
+    "site:github.com ingonyama-zk icicle releases2026NTT memory"
+  ],
+  "source_count": 8,
+  "raw_web_batches": [
+    "web1.json",
+    "web2.json",
+    "web3.json",
+    "web4.json",
+    "web5.json",
+    "web-release-followup.json"
+  ],
+  "limits": "Some early tool results only remain in conversation; saved batches cover source dispositions. External code never executed."
+}

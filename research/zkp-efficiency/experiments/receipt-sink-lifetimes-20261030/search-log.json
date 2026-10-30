@@ -1,0 +1,36 @@
+{
+  "tool": "tools.web__run native LIVE",
+  "access_date": "2026-10-30",
+  "queries": [
+    "site.arxiv.org zero knowledge lookup softmax 2026 October proof attention exact",
+    "site.github.com sumcheck zero knowledge release October 2026",
+    "site.arxiv.org proof serialization streaming memory zero knowledge older techniques",
+    "Scribe SNARK github Baweja",
+    "Streaming Zero-Knowledge Proofs2024 code",
+    "site.github.com softmax zero knowledge2026",
+    "Gemini Elastic SNARKs diverse environments2022 eprint",
+    "site.doc.rust-lang.org std io Write write_vectored partial writes IoSlice",
+    "zero knowledge proof serialization streaming memory",
+    "Scribe FileVec github",
+    "SNARK serialization buffer streaming proof Rust2024",
+    "Spartan streaming prover2024 memory"
+  ],
+  "artifacts": [
+    "web-1.json",
+    "web-2.json",
+    "web-3.json",
+    "web-4.json",
+    "web-5.json",
+    "web-6.json",
+    "web-7.json",
+    "web-8.json",
+    "web-9.json",
+    "web-10.json",
+    "web-11.json",
+    "web-12.json",
+    "web-13.json"
+  ],
+  "external_text_untrusted": true,
+  "embedded_instructions_ignored": true,
+  "blocker_policy": "403/429/cache misses recorded; no bypass,login,install or foreign execution"
+}

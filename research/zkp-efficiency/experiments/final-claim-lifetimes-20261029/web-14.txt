@@ -1,0 +1,568 @@
+statesync-gkr/LICENSE at main · Oraclizer/statesync-gkr · GitHub (https://github.com/Oraclizer/statesync-gkr/blob/main/LICENSE)
+citeturn13view0 [wordlim: 200] Crawled: last week; Content type: text/html; Source: open({"ref_id":"turn9view1","lineno":410}); Total lines: 565
+L0: 【0†Skip to content】
+L1: ## Navigation Menu
+L2: 
+L3: 【1†Sign in】
+L4: 
+L5: Appearance settings
+L6: 
+L7:   * Platform
+L8: 
+L9:     * AI CODE CREATION
+L10:       * 【2†GitHub CopilotWrite better code with AI】
+L11:       * 【3†GitHub Copilot appDirect agents from issue to merge】
+L12:       * 【4†MCP RegistryIntegrate external tools】
+L13: 
+L14:     * DEVELOPER WORKFLOWS
+L15:       * 【5†ActionsAutomate any workflow】
+L16:       * 【6†CodespacesInstant dev environments】
+L17:       * 【7†IssuesPlan and track work】
+L18:       * 【8†Code ReviewManage code changes】
+L19:       * 【9†Code QualityEnforce quality at merge】
+L20:     * APPLICATION SECURITY
+L21:       * 【10†GitHub Advanced SecurityFind and fix vulnerabilities】
+L22:       * 【11†Code securitySecure your code as you build】
+L23:       * 【12†Secret protectionStop leaks before they start】
+L24: 
+L25:     * EXPLORE
+L26:       * 【13†Why GitHub】
+L27:       * 【14†Documentation†docs.github.com】
+L28:       * 【15†Blog†github.blog】
+L29:       * 【16†Changelog†github.blog】
+L30:       * 【17†Marketplace】
+L31: 
+L32: 【18†View all features】
+L33: 
+L34:   * Solutions
+L35:     * BY COMPANY SIZE
+L36:       * 【19†Enterprises】
+L37:       * 【20†Small and medium teams】
+L38:       * 【21†Startups】
+L39:       * 【22†Nonprofits】
+L40: 
+L41:     * BY USE CASE
+L42:       * 【23†App Modernization】
+L43:       * 【24†DevSecOps】
+L44:       * 【25†DevOps】
+L45:       * 【26†CI/CD】
+L46:       * 【27†View all use cases】
+L47: 
+L48:     * BY INDUSTRY
+L49:       * 【28†Healthcare】
+L50:       * 【29†Financial services】
+L51:       * 【30†Manufacturing】
+L52:       * 【31†Government】
+L53:       * 【32†View all industries】
+L54: 
+L55: 【33†View all solutions】
+L56: 
+L57:   * Resources
+L58:     * EXPLORE BY TOPIC
+L59:       * 【34†AI】
+L60:       * 【35†Software Development】
+L61:       * 【36†DevOps】
+L62:       * 【37†Security】
+L63:       * 【38†View all topics】
+L64: 
+L65:     * EXPLORE BY TYPE
+L66:       * 【39†Customer stories】
+L67:       * 【40†Events & webinars】
+L68:       * 【41†Ebooks & reports】
+L69:       * 【42†Business insights】
+L70:       * 【43†GitHub Skills†skills.github.com】
+L71:     * SUPPORT & SERVICES
+L72:       * 【14†Documentation†docs.github.com】
+L73:       * 【44†Customer support†support.github.com】
+L74:       * 【45†Community forum】
+L75:       * 【46†Trust center】
+L76:       * 【47†Partners】
+L77: 
+L78: 【48†View all resources】
+L79: 
+L80:   * Open Source
+L81: 
+L82:     * COMMUNITY
+L83:       * 【49†GitHub SponsorsFund open source developers】
+L84:     * PROGRAMS
+L85:       * 【50†Security Lab†securitylab.github.com】
+L86:       * 【51†Maintainer Community†maintainers.github.com】
+L87:       * 【52†GitHub Stars†stars.github.com】
+L88:       * 【53†Archive Program†archiveprogram.github.com】
+L89: 
+L90:     * REPOSITORIES
+L91:       * 【54†Topics】
+L92:       * 【55†Trending】
+L93:       * 【56†Collections】
+L94: 
+L95:   * Enterprise
+L96: 
+L97:     * ENTERPRISE SOLUTIONS
+L98:       * 【19†Enterprise platformAI-powered developer platform】
+L99:     * AVAILABLE ADD-ONS
+L100:       * 【10†GitHub Advanced SecurityEnterprise-grade security features】
+L101:       * 【57†Copilot for BusinessEnterprise-grade AI features】
+L102:       * 【58†Premium SupportEnterprise-grade 24/7 support】
+L103: 
+L104:   * 【59†Pricing】
+L105: 
+L106: Search`/`
+L107: 
+L108: 【1†Sign in】
+L109: 
+L110: 【60†Sign up】
+L111: 
+L112: Appearance settings
+L113: You signed in with another tab or window. Reload to refresh your session. You signed out in another tab or window. Reload to refresh your session. You switched accounts on another tab or window. Reload to refresh your session. Dismiss alert
+L114: 
+L115:   1. 【61†Oraclizer】
+L116:   2. 【62†statesync-gkr】
+L117: ## Repository navigation
+L118: 
+L119:   *   * 【62†Code】
+L120:   * 【63†Issues】
+L121:   * 【64†Pull requests】
+L122:   * 【65†Actions】
+L123:   * 【66†Security and quality】
+L124:   * 【67†Insights】
+L125: 
+L126: More items
+L127: 
+L128: ## Files Expand file tree
+L129: 
+L130: main
+L131: 
+L132: ## Breadcrumbs
+L133: 
+L134:   1. 【68†statesync-gkr】
+L135: 
+L136: /
+L137: 
+L138: # LICENSE
+L139: 
+L140: Copy path
+L141: 
+L142: [Input: Go to file]
+L143: 
+L144: Blame More file actions
+L145: 
+L146: Blame More file actions
+L147: 
+L148: ## Latest commit
+L149: 
+L150: 
+L151: 
+L152: ## History
+L153: 
+L154: History
+L155: 
+L156: main
+L157: 
+L158: ## Breadcrumbs
+L159: 
+L160:   1. 【68†statesync-gkr】
+L161: 
+L162: /
+L163: 
+L164: # LICENSE
+L165: 
+L166: Copy path
+L167: 
+L168: Top
+L169: ## File metadata and controls
+L170: 
+L171:   * Code
+L172: 
+L173:   * Blame
+L174: 
+L175: 112 lines (82 loc) · 5.09 KB
+L176: 
+L177: 【69†Raw】
+L178: 
+L179: Copy raw file
+L180: 
+L181: Download raw file
+L182: 
+L183: Open symbols panel
+L184: 
+L185: Edit and raw actions
+L186: 
+L187: 1
+L188: 
+L189: 2
+L190: 
+L191: 3
+L192: 
+L193: 4
+L194: 
+L195: 5
+L196: 
+L197: 6
+L198: 
+L199: 7
+L200: 
+L201: 8
+L202: 
+L203: 9
+L204: 
+L205: 10
+L206: 
+L207: 11
+L208: 
+L209: 12
+L210: 
+L211: 13
+L212: 
+L213: 14
+L214: 
+L215: 15
+L216: 
+L217: 16
+L218: 
+L219: 17
+L220: 
+L221: 18
+L222: 
+L223: 19
+L224: 
+L225: 20
+L226: 
+L227: 21
+L228: 
+L229: 22
+L230: 
+L231: 23
+L232: 
+L233: 24
+L234: 
+L235: 25
+L236: 
+L237: 26
+L238: 
+L239: 27
+L240: 
+L241: 28
+L242: 
+L243: 29
+L244: 
+L245: 30
+L246: 
+L247: 31
+L248: 
+L249: 32
+L250: 
+L251: 33
+L252: 
+L253: 34
+L254: 
+L255: 35
+L256: 
+L257: 36
+L258: 
+L259: 37
+L260: 
+L261: 38
+L262: 
+L263: 39
+L264: 
+L265: 40
+L266: 
+L267: 41
+L268: 
+L269: 42
+L270: 
+L271: 43
+L272: 
+L273: 44
+L274: 
+L275: 45
+L276: 
+L277: 46
+L278: 
+L279: 47
+L280: 
+L281: 48
+L282: 
+L283: 49
+L284: 
+L285: 50
+L286: 
+L287: 51
+L288: 
+L289: 52
+L290: 
+L291: 53
+L292: 
+L293: 54
+L294: 
+L295: 55
+L296: 
+L297: 56
+L298: 
+L299: 57
+L300: 
+L301: 58
+L302: 
+L303: 59
+L304: 
+L305: 60
+L306: 
+L307: 61
+L308: 
+L309: 62
+L310: 
+L311: 63
+L312: 
+L313: 64
+L314: 
+L315: 65
+L316: 
+L317: 66
+L318: 
+L319: 67
+L320: 
+L321: 68
+L322: 
+L323: 69
+L324: 
+L325: 70
+L326: 
+L327: 71
+L328: 
+L329: 72
+L330: 
+L331: 73
+L332: 
+L333: 74
+L334: 
+L335: 75
+L336: 
+L337: 76
+L338: 
+L339: 77
+L340: 
+L341: 78
+L342: 
+L343: 79
+L344: 
+L345: 80
+L346: 
+L347: 81
+L348: 
+L349: 82
+L350: 
+L351: 83
+L352: 
+L353: 84
+L354: 
+L355: 85
+L356: 
+L357: 86
+L358: 
+L359: 87
+L360: 
+L361: 88
+L362: 89
+L363: 
+L364: 90
+L365: 
+L366: 91
+L367: 
+L368: 92
+L369: 
+L370: 93
+L371: 
+L372: 94
+L373: 
+L374: 95
+L375: 
+L376: 96
+L377: 
+L378: 97
+L379: 
+L380: 98
+L381: 
+L382: 99
+L383: 
+L384: 100
+L385: 
+L386: 101
+L387: 
+L388: 102
+L389: 
+L390: 103
+L391: 
+L392: 104
+L393: 
+L394: 105
+L395: 
+L396: 106
+L397: 
+L398: 107
+L399: 
+L400: 108
+L401: 
+L402: 109
+L403: 
+L404: 110
+L405: 
+L406: 111
+L407: 
+L408: 112
+L409: 
+L410: Business Source License 1.1
+L411: 
+L412: License text copyright (c) 2017 MariaDB Corporation Ab, All Rights Reserved.
+L413: 
+L414: "Business Source License" is a trademark of MariaDB Corporation Ab.
+L415: 
+L416: -----------------------------------------------------------------------------
+L417: 
+L418: Parameters
+L419: 
+L420: Licensor: Oraclizer Labs, Inc.
+L421: 
+L422: Licensed Work: StateSync-GKR, every version published after v1.1.0
+L423: from https://github.com/Oraclizer/statesync-gkr
+L424: 
+L425: The Licensed Work is (c) 2026 Oraclizer Labs, Inc.
+L426: 
+L427: Additional Use Grant: You may make production use of the Licensed Work solely
+L428: 
+L429: to verify proofs, including embedding or distributing
+L430: 
+L431: its verification functionality for that purpose. This
+L432: 
+L433: grant does not extend to production use that generates
+L434: 
+L435: proofs, that embeds or redistributes the proving
+L436: 
+L437: functionality of the Licensed Work in a product or
+L438: 
+L439: service, or that offers proof generation to third
+L440: parties; such use requires a commercial license from
+L441: 
+L442: the Licensor.
+L443: 
+L444: Change Date: For each version of the Licensed Work, three years from
+L445: 
+L446: the date that version is first publicly distributed
+L447: 
+L448: under this License.
+L449: 
+L450: Change License: Apache License, Version 2.0
+L451: 
+L452: For information about alternative licensing arrangements for the Licensed
+L453: 
+L454: Work, please visit: https://oraclizer.io
+L455: 
+L456: -----------------------------------------------------------------------------
+L457: 
+L458: Terms
+L459: The Licensor hereby grants you the right to copy, modify, create derivative
+L460: 
+L461: works, redistribute, and make non-production use of the Licensed Work. The
+L462: 
+L463: Licensor may make an Additional Use Grant, above, permitting limited
+L464: 
+L465: production use.
+L466: 
+L467: Effective on the Change Date, or the fourth anniversary of the first publicly
+L468: 
+L469: available distribution of a specific version of the Licensed Work under this
+L470: 
+L471: License, whichever comes first, the Licensor hereby grants you rights under
+L472: the terms of the Change License, and the rights granted in the paragraph
+L473: 
+L474: above terminate.
+L475: 
+L476: If your use of the Licensed Work does not comply with the requirements
+L477: 
+L478: currently in effect as described in this License, you must purchase a
+L479: 
+L480: commercial license from the Licensor, its affiliated entities, or authorized
+L481: 
+L482: resellers, or you must refrain from using the Licensed Work.
+L483: 
+L484: All copies of the original and modified Licensed Work, and derivative works
+L485: of the Licensed Work, are subject to this License. This License applies
+L486: 
+L487: separately for each version of the Licensed Work and the Change Date may vary
+L488: 
+L489: for each version of the Licensed Work released by Licensor.
+L490: 
+L491: You must conspicuously display this License on each original or modified copy
+L492: 
+L493: of the Licensed Work. If you receive the Licensed Work in original or
+L494: 
+L495: modified form from a third party, the terms and conditions set forth in this
+L496: 
+L497: License apply to your use of that work.
+L498: Any use of the Licensed Work in violation of this License will automatically
+L499: 
+L500: terminate your rights under this License for the current and all other
+L501: 
+L502: versions of the Licensed Work.
+L503: 
+L504: This License does not grant you any right in any trademark or logo of
+L505: 
+L506: Licensor or its affiliates (provided that you may use a trademark or logo of
+L507: 
+L508: Licensor as expressly required by this License).
+L509: 
+L510: TO THE EXTENT PERMITTED BY APPLICABLE LAW, THE LICENSED WORK IS PROVIDED ON
+L511: AN "AS IS" BASIS. LICENSOR HEREBY DISCLAIMS ALL WARRANTIES AND CONDITIONS,
+L512: 
+L513: EXPRESS OR IMPLIED, INCLUDING (WITHOUT LIMITATION) WARRANTIES OF
+L514: 
+L515: MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND
+L516: 
+L517: TITLE.
+L518: 
+L519: MariaDB hereby grants you permission to use this License's text to license
+L520: 
+L521: your works, and to refer to it using the trademark "Business Source License",
+L522: 
+L523: as long as you comply with the Covenants of Licensor below.
+L524: -----------------------------------------------------------------------------
+L525: 
+L526: Covenants of Licensor
+L527: 
+L528: In consideration of the right to use this License's text and the "Business
+L529: 
+L530: Source License" name and trademark, Licensor covenants to MariaDB, and to all
+L531: 
+L532: other recipients of the licensed work to be provided by Licensor:
+L533: 
+L534: 1. To specify as the Change License the GPL Version 2.0 or any later version,
+L535: 
+L536: or a license that is compatible with GPL Version 2.0 or a later version,
+L537: where "compatible" means that software provided under the Change License can
+L538: 
+L539: be included in a program with software provided under GPL Version 2.0 or a
+L540: 
+L541: later version. Licensor may specify additional Change Licenses without
+L542: 
+L543: limitation.
+L544: 
+L545: 2. To either: (a) specify an additional grant of rights to use that does not
+L546: 
+L547: impose any additional restriction on the right granted in this License, as
+L548: 
+L549: the Additional Use Grant; or (b) insert the text "None".
+L550: 
+L551: 3. To specify a Change Date.
+L552: 4. Not to modify this License in any other way.
+L553: 
+L554: -----------------------------------------------------------------------------
+L555: 
+L556: Notice
+L557: 
+L558: The Business Source License (this document, or the "License") is not an Open
+L559: 
+L560: Source license. However, the Licensed Work will eventually be made available
+L561: 
+L562: under an Open Source License, as stated in this License.
+L563: 
+L564: You can’t perform that action at this time.
+

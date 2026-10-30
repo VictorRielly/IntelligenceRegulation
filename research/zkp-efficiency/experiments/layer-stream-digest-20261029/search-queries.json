@@ -1,0 +1,24 @@
+{
+  "batches": 8,
+  "rotation": [
+    "memory/streaming",
+    "batching/amortization",
+    "GPU NTT/commitments/release",
+    "sumcheck/GKR",
+    "lookup/softmax",
+    "quantization/arithmetic",
+    "composition"
+  ],
+  "queries": [
+    "site.arxiv.org zero knowledge proving streaming memory efficient sumcheck 2026 GPU preprocessing",
+    "site.github.com GPU sumcheck prover releases 2026 streaming weights zkML",
+    "site.eprint.iacr.org streaming prover preprocessing memory polynomial commitment 2025 2026",
+    "Pipelonk github zk proof segment operator 2026",
+    "site.eprint.iacr.org \"2026\" \"lookup\" \"softmax\"",
+    "site.arxiv.org \"2026\" \"quantization\" \"zero-knowledge\" \"LLM\"",
+    "site.eprint.iacr.org \"preprocessing\" \"lookup\" \"2022\" \"hash\"",
+    "site.github.com \"Pipelonk\" proof",
+    "site.eprint.iacr.org \"2026\" \"proof composition\" sumcheck"
+  ],
+  "additional_blocker": "https://eprint.iacr.org/2026/2581 not accessible via tool; discovered through nonprimary index,metadata unverified,no substantive source record or adoption"
+}

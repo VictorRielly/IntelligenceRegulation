@@ -1,0 +1,14 @@
+{
+  "run_id": "20261030T154123Z-20600a3e",
+  "cycle": "0167",
+  "completed_at_utc": "2026-10-30T15:55:32.027583+00:00",
+  "status": "COMPLETE",
+  "source_records_before": 1113,
+  "source_records_after": 1122,
+  "prior_hypotheses": 100,
+  "current_hypotheses": 101,
+  "new_full_stack_proofs": 0,
+  "new_proved_positions": 0,
+  "final_checkpoint_utc": "2026-10-30T15:58:05.567640+00:00",
+  "retained_refinement_failure": "failed-explicit-carry-control/"
+}

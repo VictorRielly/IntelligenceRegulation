@@ -1,0 +1,8 @@
+R14-public-synthetic-malicious-fixture/1
+case=limb-y-wide
+dd=1
+model_identity=d363a0f78f4b673e86b8ac1e930c63c068b7048578ee6142adde04d1d615fde4
+input_root=2a782be3fba8326062ceba608cc166621fc99c326261f7d0a902d0cdec71f253
+output_root=50fab10622493c9a2ef6bd56beca0a9ec643d65b329fc4c0546201e443d6333b
+binding=2d4616244ae64811fdc2a98656b376e4da5ee6f7a92a3ec41dd621aa02f89d4f
+error=slot 18 [R14 03 D zero-check (hosts 12, 13D) Wide]: sumcheck round 0: s(0) + s(1) != claim

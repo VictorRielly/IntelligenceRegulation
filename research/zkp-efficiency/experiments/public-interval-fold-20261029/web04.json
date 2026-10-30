@@ -1,0 +1,17 @@
+{
+  "tool": "tools.web__run",
+  "access_date": "2026-10-29",
+  "access_timezone": "UTC",
+  "commands": {
+    "open": [
+      "https://arxiv.org/abs/2608.01536",
+      "https://arxiv.org/html/2608.01536v1",
+      "https://www.comp.nus.edu.sg/~wongwf/papers/SC13.pdf",
+      "https://hpcrl.github.io/ICS2025-webpage/program/Proceedings_ICS25/ics25-28.pdf"
+    ]
+  },
+  "raw_response_sha256": "8fbc420858a5ca25b0c4534fd1108bcefb9d62441e8e41f90c8f53bb34f1511c",
+  "raw_response_bytes": 27550,
+  "retention": "Provenance and source assessments retained; full webpage/paper text not redistributed. Exact source dates/licenses/limits in sources-cycle.jsonl.",
+  "external_execution": false
+}

@@ -1,0 +1,63 @@
+Token-I/O lane round-19 tree frozen at 2026-10-30T12:10:42Z: REVIEW_R18's low fixes R18-2 (the census scans' module
+follower fails closed on every module-line shape), R18-3 (records) and R18-4 (doc), plus the open release's E7 (the
+Shieldstral checkpoint's default location from ZK60_MODELS / HOME instead of a hard-coded owner path), on frozen-r18
+(REVIEW_R18: ACCEPTED WITH FIXES). ONE PRODUCTION FILE MOVED (tied_tables/derive.rs) plus one doc comment
+(token_io/classify_batch.rs). **UNREVIEWED.**
+copy:     /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r19/ (306 files, 20,768,624 B)
+source:   /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r19/ (r19/tools/freeze19.py init = exactly frozen-r18's 306
+          files, no target/; then the RED state, then the GREEN state). target/ and the native tests' evidence dirs excluded;
+          the tree's target/ was deleted after this freeze (D46; 306,627,341 B).
+manifest: /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/manifest_final_r19.sha256
+          (= r19/manifest_r19A.sha256: 306 files, list sha256 91585afe62335ba50c1568a7e63f44e2858759aa146091990438b44a16dfb0d9);
+          all 306 re-hashed in the copy: match, none missing, none extra. The green-source, post-mutation, post-suite and
+          final-check manifests equal it.
+vs r18:   5 changed paths, 0 added, 0 removed (r19/r19A_vs_frozen_r18.txt / .diff):
+          production: hashline/src/private_block/tied_tables/derive.rs (E7: `DEFAULT_CHECKPOINT` -> `default_checkpoint()` =
+          $ZK60_MODELS/shieldstral-1.0-3b/snapshot-003ec7e2/model.safetensors when ZK60_MODELS is set and non-empty, else
+          the same under $HOME/models/, else refused; a declared tied_embeddings.checkpoint_file keeps precedence; the
+          bytes stay authenticated by CHECKPOINT_BYTES, the pinned file SHA-256 and the consumed tied-tensor digest;
+          Sha256::new( count 5 unchanged, no absorb label, no owner path in production text);
+          doc only: hashline/src/private_block/token_io/classify_batch.rs (R18-4: an argument refusal, exit 2, prints no
+          fail-closed line; a refusal after the arguments are read prints `refused` and the fail-closed line);
+          tests: private_block/s25_tests.rs (R18-2: a token-reading module follower — `rust_tokens`, `mod_items`,
+          `module_children` with rustc's resolution rules, `module_graph`; production_sources = the graph from
+          private_block.rs + private_seam.rs, its COMPLETE edge list (45) and file count (47) asserted; fails closed on
+          any module line it cannot classify; two fixture-tree tests), private_block/hash_domain_tests.rs (the label lane
+          39 -> 47 files; every production module of a listed file, any shape, must be listed),
+          token_io/classify_r18_tests.rs (R18-3: the reload text, 78 per job at L = 26 = 26 + 52, (1, 1) at the rung).
+tests:    failing-first: on the RED tree (round 18's reader and constant behind the new interfaces) exactly the three
+          predicted tests failed (r19/logs/red.log): 10 of 13 module-line shapes wrong, 12 of 12 unclassifiable lines not
+          refused, the ZK60_MODELS branch absent; precedence and unset-on-this-box passed (already true).
+          Mutants: all 20 killed as named (compiled, exit 101, the named test FAILED for the named reason; r19/logs/mut-*.log,
+          rejudge.log, r19_mut_rejudged.done): round 18's seven on this tree (fix1-revert, fix2-revert re-targeted at the
+          new follower, rng-plant, label-plant, one-post-revert, job-order 101 and reused-draw 97 under the fixed-entropy
+          harness), three E7 (ignore ZK60_MODELS, empty counts as set, default before the declaration), and ten R18-2: a
+          seeded generator hidden in a new file behind each shape the round-18 follower missed (one-line #[path] mod,
+          a comment between #[path] and mod, pub(in ...), pub(self), a plain mod in classify_cli.rs) — unlisted: the
+          census's module graph AND the label scan's module check fail; listed in the edge list: the generator census
+          itself reports the file's ZkRng::new.
+suite:    s24 (r19/logs/s24-suite.log; guard cpu 11 / 12): exit 0, 966 passed, 0 failed, 71 ignored, 29 test binaries [885 s,
+          peak RSS 7.78 GiB / cgroup 8.13, shared box n=1]. s23 (r18): 961 / 0 / 71.
+binary:   cli/zk60_classify.r19.release.bin 841ba983cebaae65bbae6289d71f740d44c137fdc6cc98ed46410f2d33a09fd8 (built from this tree
+          after the suite): cli/binaries_r19.sha256, build note cli/zk60_classify.r19.BUILD.txt. Not byte-equal to r18's
+          110f0c53… (derive.rs moved; the tree path is baked in).
+checked:  rung receipts cross-verify with the r18 binary both ways (r19/logs/xbin-r19-r18.log). The REAL moderate-hate
+          receipt (r16-runs/hate-run, made by e94cecf9…) re-verified by the r19 binary in three fresh processes: ZK60_MODELS
+          unset (exit 0) and ZK60_MODELS=/home/victor/models (exit 0), both identity 29aeba6c…, not-flagged, floor 96,
+          input root 4cf9e8ae… = round 16's; ZK60_MODELS naming a missing directory: refused (exit 1, the path named,
+          app-outcome flagged). The receipt directory's 29 files hash to 8a990fde… before and after each of the three
+          (r19/logs/hate-tree-*.json).
+bytes:    RECEIPT BYTES UNCHANGED at real scale (r19/logs/bytes/): the r19 binary's single prove of job 0 (moderate sexual,
+          Astra's public 17-id sentence, ZK60_MODELS unset) under round 18's FIXED PUBLIC entropy job0.bin equals round 18's
+          recorded single, batch and r16b job-0 digests on all 30 files (28 segments, the unverified statement.json, the
+          owner's input.dec; bytes.json ok true; unread entropy 0). The test receipt, its owner dir and the activations
+          were deleted after the record (971,219,778 B).
+          Limits (as round 18's, R18-3): one input point, one chunk, a not-flagged verdict, n = 1; not a proof of equality.
+gate:     pins that move r18 -> r19 (r19/logs/pins_r18_r19.json): of the capture writer's 72 source pins exactly one,
+          src/private_block/tied_tables/derive.rs c5bec3c6… -> 4b53222b37820936821eea2fd506ff3dee991e2474d39a3b21f1c0c10d357d75;
+          in the gate, DERIVE_T16 (zk60_native_rg_r13_pins.py line 195, used at 230 and 482) and the derive.rs line
+          ranges its reading cites (+38 after line 10); SHIELD_DEFAULT_CHECKPOINT (zk60_native_rg_classtied.py line 334,
+          used at 414) should mirror the ZK60_MODELS / HOME default (equal to it on this box today). The gate lane re-pins;
+          no gate file was edited.
+Not a privacy acceptance and not a classifier-fidelity claim. Unreviewed. The lane's working copy may move on; this copy
+does not change.

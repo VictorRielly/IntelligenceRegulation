@@ -1,0 +1,409 @@
+Releases · ingonyama-zk/icicle · GitHub (https://github.com/ingonyama-zk/icicle/releases)
+citeturn12view0 [wordlim: 200] Crawled: today; Content type: text/html; Source: open({"ref_id":"turn11view3","lineno":190}); Total lines: 877
+L187:   * Object-Oriented Field API: Complete redesign of field operations from static methods to instance methods
+L188:   * Method Chaining Support: Write more concise and expressive code with method chaining
+L189:   * Improved Rust API: Better trait design with standard operator overloading
+L190:   * Enhanced Program API: Reorganized Program module with better type safety
+L191:   * Backward Compatibility: Comprehensive migration guides for v3 to v4 transition
+L192:   * Post Quantum: Implemented a NIST FIPS203 (ML-KEM) protocol on CUDA, fully open-source
+L193:   * Lattice Based Cryptography: Add support for Lattice based cryptography, with integer ring support and a full LaBRADOR prover (soon announced)
+L194: ## 🔄 Breaking Changes
+L195: 
+L196: ### C++ API Changes
+L197: 
+L198: #### Field Arithmetic Operations
+L199: 
+L200: All field operations have been converted from static methods to instance methods
+L201: Check the 【87†migration page†dev.ingonyama.com】 for more details
+L202: 
+L203: ### Rust API Changes
+L204: 
+L205: #### Arithmetic Trait Redesign
+L206: 
+L207: The `FieldImpl` trait has been deprecated and split into focused, orthogonal traits
+--------------------------------------------------------------------------------
+Releases · Alisah-Ozcan/GPU-NTT · GitHub (https://github.com/Alisah-Ozcan/GPU-NTT/releases)
+citeturn12view1 [wordlim: 200] Crawled: last week; Content type: text/html; Source: open({"ref_id":"turn11view2","lineno":129}); Total lines: 141
+L113: You signed in with another tab or window. Reload to refresh your session. You signed out in another tab or window. Reload to refresh your session. You switched accounts on another tab or window. Reload to refresh your session. Dismiss alert
+L114: 
+L115:   1. 【61†Alisah-Ozcan】
+L116:   2. 【62†GPU-NTT】
+L117: ## Repository navigation
+L118: 
+L119:   *   * 【62†Code】
+L120:   * 【63†Issues1 (1)】
+L121:   * 【64†Pull requests1 (1)】
+L122:   * 【65†Actions】
+L123:   * 【66†Projects】
+L124:   * 【67†Security and quality】
+L125:   * 【68†Insights】
+L126: 
+L127: More items
+L128: 
+L129: # Releases: Alisah-Ozcan/GPU-NTT
+L130: 
+L131: 【69†Releases】 【70†Tags】
+L132: 
+L133: [Input: Find a release] [Input]
+L134: 
+L135: Releases · Alisah-Ozcan/GPU-NTT
+L136: ## There aren’t any releases here
+L137: 
+L138: You can create a release to package software, along with release notes and links to binary files, for other people to use. Learn more about releases in 【71†our docs†docs.github.com】.
+L139: 
+L140: You can’t perform that action at this time.
+--------------------------------------------------------------------------------
+Internal Error ()
+citeturn12view2 [wordlim: 200] Source: open({"ref_id":"https://eprint.iacr.org/2017/1057.pdf","lineno":null}); 
+Failed to fetch https://eprint.iacr.org/2017/1057.pdf: (403) Forbidden--------------------------------------------------------------------------------
+tensor-core-ntt/include/polyarith/cuda/ntt.cuh at main · Terminus-IMRC/tensor-core-ntt · GitHub (https://github.com/Terminus-IMRC/tensor-core-ntt/blob/main/include/polyarith/cuda/ntt.cuh)
+citeturn12view3 [wordlim: 200] Crawled: last month; Content type: text/html; Source: find({"ref_id":"turn7view2","pattern":"SPDX"}); Total lines: 1508
+L778: 295
+L779: 
+L780: 296
+L781: 
+L782: 297
+L783: 
+L784: 298
+L785: 
+L786: 299
+L787: 
+L788: 300
+L789: 
+L790: 301
+L791: 
+L792: 302
+L793: 
+L794: 303
+L795: 
+L796: 304
+L797: 
+L798: 305
+L799: 
+L800: 306
+L801: 
+L802: 307
+L803: 
+L804: 308
+L805: 
+L806: 309
+L807: 
+L808: 310
+L809: 
+L810: 311
+L811: 
+L812: 312
+L813: 
+L814: 313
+L815: 
+L816: 314
+L817: 
+L818: 315
+L819: 
+L820: 316
+L821: 
+L822: 317
+L823: 
+L824: 318
+L825: 
+L826: 319
+L827: 
+L828: 320
+L829: 
+L830: 321
+L831: 
+L832: 322
+L833: 
+L834: 323
+L835: 
+L836: 324
+L837: 
+L838: 325
+L839: 
+L840: 326
+L841: 
+L842: 327
+L843: 
+L844: 328
+L845: 
+L846: 329
+L847: 
+L848: 330
+L849: 
+L850: 331
+L851: 
+L852: 332
+L853: 
+L854: 333
+L855: 
+L856: 334
+L857: 
+L858: 335
+L859: 
+L860: 336
+L861: 
+L862: 337
+L863: 
+L864: 338
+L865: 
+L866: 339
+L867: 
+L868: 340
+L869: 
+L870: 341
+L871: 
+L872: 342
+L873: 
+L874: 343
+L875: 
+L876: 344
+L877: 
+L878: 345
+L879: 
+L880: 346
+L881: 
+L882: 347
+L883: 
+L884: 348
+L885: 
+L886: 349
+L887: 
+L888: 350
+L889: 
+L890: 351
+L891: 
+L892: 352
+L893: 
+L894: 353
+L895: 
+L896: 354
+L897: 
+L898: 355
+L899: 
+L900: 356
+L901: 
+L902: 357
+L903: 
+L904: 358
+L905: 
+L906: 359
+L907: 
+L908: 360
+L909: 
+L910: 361
+L911: 
+L912: 362
+L913: 
+L914: 363
+L915: 
+L916: 364
+L917: 
+L918: 365
+L919: 
+L920: 366
+L921: 
+L922: 367
+L923: 
+L924: // SPDX-License-Identifier: Apache-2.0
+L925: 
+L926: // SPDX-FileCopyrightText: Copyright © 2026 Yukimasa Sugizaki
+L927: #ifndef POLYARITH_CUDA_NTT_CUH_INCLUDED
+L928: 
+L929: #define POLYARITH_CUDA_NTT_CUH_INCLUDED
+L930: 
+L931: #include <cstdint>
+L932: 
+L933: #include <cstring>
+L934: 
+L935: #include <stdexcept>
+L936: 
+L937: #include <vector>
+L938: 
+L939: #include <mma.h>
+L940: 
+L941: #include "../arithmetic.cuh"
+L942: 
+L943: #include "../modular.cuh"
+L944: 
+L945: #include "../modulus.cuh"
+L946: 
+L947: #include "matrix.cuh"
+L948: 
+L949: #include "mma.cuh"
+L950: #include "thread.cuh"
+L951: 
+L952: namespace polyarith {
+L953: 
+L954: namespace cuda {
+L955: 
+L956: template <class reduction_type_> class NttForward16x16Coalesced {
+L957: 
+L958: public:
+L959: 
+L960: using reduction_type = reduction_type_;
+L961: 
+L962: private:
+L963: 
+L964: struct {
+L965: 
+L966: struct {
+L967: 
+L968: std::uint64_t value;
+L969: 
+L970: } by_lane[32];
+L971: 
+L972: } values[8];
+L973: 
+L974: public:
+L975: 
+L976: NttForward16x16Coalesced(void) = default;
+L977: 
+L978: NttForward16x16Coalesced(const Modulus &modulus) {
+L979: 
+L980: const std::uint64_t factor = modulus.power(2, reduction_type::get_factor());
+L981: 
+L982: const std::uint64_t root = modulus.get_root_forward(16);
+--------------------------------------------------------------------------------
+Merge pull request #3 from Terminus-IMRC/feature/add-missing-license · Terminus-IMRC/tensor-core-ntt@6f407da · GitHub (https://github.com/Terminus-IMRC/tensor-core-ntt/commit/6f407daa8a4cef96331511ae86b922b520d7aa33)
+citeturn12view4 [wordlim: 200] Crawled: last month; Content type: text/html; Source: find({"ref_id":"turn3view5","pattern":"Jan"}); Total lines: 189
+No matching text found for "Jan"--------------------------------------------------------------------------------
+Releases · ingonyama-zk/icicle · GitHub (https://github.com/ingonyama-zk/icicle/releases)
+citeturn12view5 [wordlim: 200] Crawled: today; Content type: text/html; Source: find({"ref_id":"turn11view3","pattern":"v4.0.0"}); Total lines: 877
+L117: ## Repository navigation
+L118: 
+L119:   *   * 【62†Code】
+L120:   * 【63†Issues27 (27)】
+L121:   * 【64†Pull requests22 (22)】
+L122:   * 【65†Actions】
+L123:   * 【66†Projects】
+L124:   * 【67†Security and quality】
+L125:   * 【68†Insights】
+L126: 
+L127: More items
+L128: 
+L129: # Releases: ingonyama-zk/icicle
+L130: 
+L131: 【69†Releases】 【70†Tags】
+L132: 
+L133: [Input: Find a release] [Input]
+L134: 
+L135: Releases · ingonyama-zk/icicle
+L136: ## Release list
+L137: 
+L138:   * 【71†Release v4.0.0】
+L139:   * 【72†Release v3.9.2】
+L140:   * 【73†Release v3.9.1】
+L141:   * 【74†Release v3.9.0】
+L142:   * 【75†Release v3.8.0】
+L143:   * 【76†Release v3.7.1】
+L144:   * 【77†Release v3.7.0】
+L145:   * 【78†Release v3.6.0】
+L146:   * 【79†Release v3.5.0】
+L147:   * 【80†Release v3.4.0】
+L148: 
+L149: Jump to release
+L150: 
+L151: ## Release v4.0.0
+L152: 
+L153: 【81†Release v4.0.0】
+L154: 
+L155: 【82†Latest】
+L156: 
+L157: Compare
+L158: 
+L159: # Choose a tag to compare
+L160: 
+L161: ## Sorry, something went wrong.
+L162: 
+L163: Filter
+L164: 
+L165: Loading [Input]
+L166: 
+L167: ## Sorry, something went wrong.
+L168: ### Uh oh!
+L169: 
+L170: There was an error while loading. Please reload this page.
+L171: 
+L172: ## No results found
+L173: 
+L174: 【70†View all tags】
+L175: 
+L176: 【83†Image: @github-actions†avatars.githubusercontent.com】 【84†github-actions】 released this 11 Jul 05:36
+L177: 
+L178: 【85†v4.0.0】
+L179: 
+L180: 【86†`6c77775`】
+L181: 
+L182: # ICICLE v4.0.0 Release Notes
+L183: ## 🎉 Major Release: ICICLE v4.0.0
+L184: 
+L185: We're excited to announce the release of ICICLE v4.0.0! This major version introduces significant improvements to the API design, making it more intuitive, object-oriented, and developer-friendly across all supported languages.
+L186: ## 🚀 Key Highlights
+L187:   * Object-Oriented Field API: Complete redesign of field operations from static methods to instance methods
+L188:   * Method Chaining Support: Write more concise and expressive code with method chaining
+L189:   * Improved Rust API: Better trait design with standard operator overloading
+L190:   * Enhanced Program API: Reorganized Program module with better type safety
+L191:   * Backward Compatibility: Comprehensive migration guides for v3 to v4 transition
+L192:   * Post Quantum: Implemented a NIST FIPS203 (ML-KEM) protocol on CUDA, fully open-source
+L193:   * Lattice Based Cryptography: Add support for Lattice based cryptography, with integer ring support and a full LaBRADOR prover (soon announced)
+L194: ## 🔄 Breaking Changes
+L195: 
+L196: ### C++ API Changes
+L197: 
+L198: #### Field Arithmetic Operations
+L199: 
+L200: All field operations have been converted from static methods to instance methods
+L201: Check the 【87†migration page†dev.ingonyama.com】 for more details
+L202: 
+L203: ### Rust API Changes
+L204: 
+L205: #### Arithmetic Trait Redesign
+L206: 
+L207: The `FieldImpl` trait has been deprecated and split into focused, orthogonal traits
+L208: ## What's Changed
+L209:   * Negacyclic NTT for polynomial rings by 【88†@yshekel】 in 【89†#930】
+L210:   * Update README.md by 【90†@Shalmoni】 in 【91†#931】
+L211:   * Fixed devdocs link licensing by 【90†@Shalmoni】 in 【92†#933】
+L212:   * Fix collab instructions for version mismatch error by 【93†@jeremyfelder】 in 【94†#935】
+L213:   * Feat: generate JL-projection matrix rows by 【88†@yshekel】 in 【95†#936】
+L214:   * Curve Montgomery Conversion Fix for Host Memory by 【96†@emirsoyturk】 in 【97†#938】
+L215:   * [FIX] Invalid memory access causes hang by 【93†@jeremyfelder】 in 【98†#939】
+L216:   * PQC ML-KEM by 【99†@nonam3e】 and 【100†@dorshmil】 in 【101†#932】
+L217:   * Add PQC documentation to 3.9.0 by 【102†@LeonHibnik】 in 【103†#940】
+L218:   * Changed broken link on readme by 【90†@Shalmoni】 in 【104†#942】
+L219:   * [FEAT] Rust Polynomial-Ring trait and NegacyclicNTT by 【88†@yshekel】 in 【105†#943】
+L220:   * [FEAT] Decompose Polynomial-rings by 【88†@yshekel】 in 【106†#945】
+L261: ## New Contributors
+L262: 
+L263:   * 【108†@lnm-at-work】 made their first contribution in 【109†#871】
+L264: 
+L265: Full Changelog: 【152†`v3.9.2...v4.0.0`】
+L266: 
+L267: ### Contributors
+L268: 
+L269:   *   *   *   *   *   *   *   *   *   *   *   * vhnatyk, ChickenLover, and 10 other contributors
+L270: 
+L271: Assets 6
+L272: 
+L273: Loading
+L274: 
+L275: ### Uh oh!
+L276: 
+L277: There was an error while loading. Please reload this page.
+L278: 
+L279: [Input][Input] [Input]
+L280: 
+L281: TalDerei and STARRGAXE reacted with hooray emoji
+L282: 
+L283: All reactions
+L284: 
+L285:   * 2 reactions
+L286: 
+L287: 2 people reacted
+L288: 
+L289: ## Release v3.9.2
+L290: 
+L291: 【153†Release v3.9.2】
+L292: 
+L293: Compare
+

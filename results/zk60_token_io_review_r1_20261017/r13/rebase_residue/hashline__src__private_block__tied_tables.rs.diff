@@ -1,0 +1,7 @@
+--- n12/hashline/src/private_block/tied_tables.rs
++++ t13/hashline/src/private_block/tied_tables.rs
+@@ -13,2 +13,4 @@
+ pub(crate) use derive::recompute_declared_tied_tables;
++/// TOKEN I/O R-C2: the quantizer's own functions, for the classifier's development-rung tied source
++pub(crate) use derive::{bf16, norm, quantize};
+ 

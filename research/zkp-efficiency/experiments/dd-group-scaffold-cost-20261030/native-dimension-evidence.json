@@ -1,0 +1,38 @@
+{
+  "slot_definitions": [
+    {
+      "base": "hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-ddict1/1",
+      "physical": 22,
+      "logical": 17,
+      "part": "Whole",
+      "main": 19,
+      "ext": 1,
+      "degree": 4,
+      "terminals": 14,
+      "hosted": 2,
+      "scope": "native SlotDef source/site/degree census; not a full proof or privacy gate"
+    },
+    {
+      "base": "hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-ddict1/1",
+      "physical": 22,
+      "logical": 17,
+      "part": "Whole",
+      "main": 21,
+      "ext": 1,
+      "degree": 4,
+      "terminals": 14,
+      "hosted": 2,
+      "scope": "native SlotDef source/site/degree census; not a full proof or privacy gate"
+    }
+  ],
+  "projection_k": 15,
+  "projection_k_basis": "3 Eq+1 public causal+5 A+2 row slices+2 range helpers+exp helper+tuple helper",
+  "native_terminals_are_not_projection_k": true,
+  "observed_count": 14,
+  "scope": "Public native census provenance; no native code executed by this cycle.",
+  "observed_terminals_meaning": "Private Tab::Priv count; schedule a_sites+h_sites+endpoint_sites. Not total table count.",
+  "actual_accuracy_dd_total_tables_counted": 18,
+  "actual_accuracy_dd_lookups_counted": 6,
+  "actual_accuracy_dd_helpers_counted": 3,
+  "legacy_projection_not_current_accuracy_profile": true
+}

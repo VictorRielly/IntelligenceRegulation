@@ -1,0 +1,105 @@
+diff -ruN -x __pycache__ frozen_v22/tests/test_v4_status_g10.py frozen_v23/tests/test_v4_status_g10.py
+--- frozen_v22/tests/test_v4_status_g10.py	2026-10-29 05:09:05.318934399 -0700
++++ frozen_v23/tests/test_v4_status_g10.py	2026-10-29 09:46:01.312677630 -0700
+@@ -1732,3 +1732,101 @@
+                     t["sha256"] = "00" * 32
+                     break
+         self.assertFalse(CT.check_classify_terminals(b, rp)["ok"])
++
++
++class ClassifierV23(unittest.TestCase):
++    """[v23, gate round 20] token frozen-r17: the v23 pin rule (frozen-r17's
++    run_capture.rs read, plane_index.rs = the gate's H19-3), v22 refusing an r17
++    capture by name, the r17 self-check against the token manifests; F19-G1
++    (the repository root searched upward); F19-G2 (refused pins -> a written
++    refusal, exit code 3, no KeyError); the streamed file hash; and on the r17
++    rung capture WITH table values the integrity and all 23 block slots of both
++    R13 stages"""
++
++    CAP = "/home/victor/zk60-artifacts/token-io/captures"
++    R17_RUNG = "classify-r13-rung-L2-v1-r17-values"
++    R17_REAL = "classify-r13-shield-t128-cli-hate-r17-values"
++    R14_SHORT = "classify-rc3-rung-L2-v1-short20"
++
++    def test_r17_pin_reading_and_self_check(self):
++        import zk60_native_rg_classpins as CP
++        rc = "src/private_block/run_capture.rs"
++        self.assertIn("cce0fc2a4062fcb4c92e771b8d7ac7f996c9ccfbc985bfb6decd79b29fba7ddf", CP.TOKEN_R17_READINGS[rc])
++        sc = CP.r17_self_check()
++        self.assertTrue(sc["ok"], sc["findings"])
++        pinned_moves = [p for p in sc["moved_r16b_to_r17"] if p in (rc, "src/private_block/plane_index.rs")]
++        self.assertEqual(len(pinned_moves), 2)
++        for name in (self.R17_REAL, self.R17_RUNG):
++            p = os.path.join(self.CAP, name, "manifest.json")
++            if not os.path.exists(p):
++                continue
++            man = json.load(open(p))
++            v23 = CP.classify_capture_pins(man)
++            self.assertTrue(v23["ok"], v23["refusals"])
++            self.assertEqual(v23["pins"], 72)
++            self.assertTrue(v23["port"].startswith("v23"))
++            v22 = CP.classify_capture_pins_v22(man)                 # v22's own rule refuses by name
++            self.assertEqual(v22["refusals"], [f"{rc}: cce0fc2a4062 has no reading"])
++            # a moved digest of the read file is still refused
++            bad = copy.deepcopy(man)
++            for e in bad["source_pins"]:
++                if e["file"] == rc:
++                    e["sha256"] = "ab" * 32
++            self.assertFalse(CP.classify_capture_pins(bad)["ok"])
++
++    def test_f19_g1_repository_root_searched_upward(self):
++        import zk60_native_rg_classpins as CP
++        import zk60_native_rg_r13_pins as R13
++        root = R13.repo_root()
++        self.assertTrue(os.path.isdir(os.path.join(root, "results")) and os.path.isdir(os.path.join(root, "ops", "zkp-mvp")))
++        self.assertEqual(CP._repo_root(), root)
++        self.assertEqual(R13._ROOT, root)
++        # at every depth the gate's copies live (working copy: 4; staging / frozen: 5)
++        for rel in ("ops/zkp-mvp/gate-tinyllama/scripts/x.py", "ops/zkp-mvp/gate-tinyllama/frozen_v23/scripts/x.py"):
++            self.assertEqual(R13.repo_root(os.path.join(root, rel)), root)
++        with self.assertRaises(RuntimeError):
++            R13.repo_root("/proc/self/x.py")
++        self.assertTrue(R13.self_check()["ok"])                    # its 119 digests re-hashed from the found root
++
++    def test_streamed_file_hash(self):
++        import hashlib
++        import zk60_native_rg_classgate as CG
++        p = os.path.join(PORT, "zk60_native_rg_classgate.py")
++        want = hashlib.sha256(open(p, "rb").read()).hexdigest()
++        self.assertEqual(CG._sha(p), want)
++        self.assertEqual(CG._sha(p), want)                           # cached
++
++    @unittest.skipUnless(os.path.isdir(os.path.join(CAP, R14_SHORT)), "the r14 short-item capture is not on disk")
++    def test_f19_g2_refused_pins_are_a_written_refusal(self):
++        import tempfile
++        import zk60_native_rg_classgate as CG
++        d = tempfile.mkdtemp(prefix="gate-v23-f19g2-")
++        import shutil
++        self.addCleanup(shutil.rmtree, d, True)
++        rc = CG.main(["--bundle", os.path.join(self.CAP, self.R14_SHORT), "--evidence", d, "--name", "refused"])
++        self.assertEqual(rc, CG.EXIT_REFUSED)
++        rec = json.load(open(os.path.join(d, "refused.json")))
++        self.assertEqual(rec["status"], "REFUSED")
++        self.assertEqual(rec["refusal"]["by"], "source pins")
++        self.assertTrue(rec["refusal"]["refusals"])
++        self.assertTrue(all("classifier port was read at" in x or "has no reading" in x for x in rec["refusal"]["refusals"]))
++        self.assertNotIn("replay", rec)                             # nothing past the integrity check ran
++        self.assertFalse(rec["privacy_acceptance"])
++
++    @unittest.skipUnless(os.path.isdir(os.path.join(CAP, R17_RUNG)), "the r17 rung values capture is not on disk")
++    def test_r17_rung_values_capture_closes_all_23_block_slots(self):
++        import zk60_native_rg_classgate as CG
++        import zk60_native_rg_r13blocks as RB
++        b = CG.load(os.path.join(self.CAP, self.R17_RUNG))
++        self.assertTrue(b.public_tables_included)
++        i = CG.class_integrity(b)
++        self.assertTrue(i["ok"], i["findings"][:4])
++        self.assertEqual((i["source_pins"]["pins"], i["r13_stage_gates"]), (72, [20, 21]))
++        rp = CG.ClassRunReplay(b).run()
++        self.assertTrue(rp.summary()["ok"])
++        t = RB.r13_block_terminals(b, rp, controls=True)
++        self.assertTrue(t["ok"], [(p["stage"], p["checked_not_equal"], p["refused_or_open"][:2]) for p in t.get("per_stage", [])])
++        self.assertFalse(t["tables_absent_by_capture_option"])
++        self.assertEqual([p["slot_checks_equal"] for p in t["per_stage"]], [23, 23])
++        self.assertEqual([p["open_by_capture_option"] for p in t["per_stage"]], [[], []])
++        self.assertTrue(all(c["fires"] for c in t["controls"].values() if isinstance(c, dict)))

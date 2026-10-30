@@ -1,0 +1,11 @@
+{
+ "edited": {
+  "hashline/src/private_block/token_io/classify_batch.rs": {
+   "orig": "hashline__src__private_block__token_io__classify_batch.rs.orig",
+   "sha256": "707c8db27986a1fc265bad2ab5a0620382f44e40b1fa8b99c8fb886624a26efb",
+   "mutant_sha256": "6b014a34e3b55f1a0b23358e2bd028a6824095e7ea0123dbd19e4095a865951b"
+  }
+ },
+ "created": [],
+ "dirs": []
+}

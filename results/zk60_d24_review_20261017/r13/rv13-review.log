@@ -1,0 +1,64 @@
+
+running 4 tests
+test private_block::review_r13_tests::rv13_alternative_witnesses_are_rejected ... RV13-ALT rv-generic-h24 dd=false Gate: gate -563->-564 at (t0,j52), rg 9920->1058496 (window 2^20), a -> table[g-1], h -7 unchanged; pre-proof lookup check misses (cheating prover skips it); receipt 15838024 B; verifier: H: pcs zk: group 8: <v, c> != combined claim
+RV13-ALT rv-generic-h24 dd=false Up: up 347->346 at (t0,j3) where a = 0, ru 1736->5832 (window 2^12); pre-proof lookup check misses (cheating prover skips it); receipt 15838024 B; verifier: H: pcs zk: group 8: <v, c> != combined claim
+RV13-ALT rv-generic-h24 dd=false Down: down z -6->-7 and output x2 -7599->-7600 at (t0,i0), rd 666324->1714900 (window 2^20); pre-proof lookup check misses (cheating prover skips it); receipt 15838024 B; verifier: H: pcs zk: group 8: <v, c> != combined claim
+RV13-ALT rv-generic-h24 dd=false MaskedScore: masked score 9->8 at (h0,t0,j1), rs 161988->424132 (window 2^18); pre-proof lookup check misses (cheating prover skips it); receipt 15838024 B; verifier: H: pcs zk: group 8: <v, c> != combined claim
+RV13-ALT rv-generic-h24 dd=false PadAct: padded F position (t3, j773): (gate 1, group-0 table[1] = 4096) instead of (0, 0); pre-proof lookup check hits; receipt 15838024 B; verifier: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+RV13-ALT rv-generic-h24 dd=false GroupSwap(witness): ids of channels 0/1 swapped in the witness only, 61 F words differ, receipt 15838024 B; verifier: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+RV13-ALT rv-generic-h24 dd=false GroupSwap(statement): swapped statement verifies its own honest receipt; cross-verification refused both ways
+RV13-ALT rv-generic-h24 dd=true Gate: gate -563->-564 at (t0,j52), rg 9920->1058496 (window 2^20), a -> table[g-1], h -7 unchanged; pre-proof lookup check misses (cheating prover skips it); receipt 16674904 B; verifier: H: pcs zk: group 9: <v, c> != combined claim
+RV13-ALT rv-generic-h24 dd=true Up: up 347->346 at (t0,j3) where a = 0, ru 1736->5832 (window 2^12); pre-proof lookup check misses (cheating prover skips it); receipt 16674904 B; verifier: H: pcs zk: group 9: <v, c> != combined claim
+RV13-ALT rv-generic-h24 dd=true Down: down z -6->-7 and output x2 -7599->-7600 at (t0,i0), rd 666324->1714900 (window 2^20); pre-proof lookup check misses (cheating prover skips it); receipt 16674904 B; verifier: H: pcs zk: group 9: <v, c> != combined claim
+RV13-ALT rv-generic-h24 dd=true MaskedScore: masked score 9->8 at (h0,t0,j1), rs 161988->424132 (window 2^18); pre-proof lookup check misses (cheating prover skips it); receipt 16674904 B; verifier: H: pcs zk: group 9: <v, c> != combined claim
+RV13-ALT rv-generic-h24 dd=true PadAct: padded F position (t3, j773): (gate 1, group-0 table[1] = 4096) instead of (0, 0); pre-proof lookup check hits; receipt 16674904 B; verifier: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+RV13-ALT rv-generic-h24 dd=true GroupSwap(witness): ids of channels 0/1 swapped in the witness only, 61 F words differ, receipt 16674904 B; verifier: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+RV13-ALT rv-generic-h24 dd=true GroupSwap(statement): swapped statement verifies its own honest receipt; cross-verification refused both ways
+RV13-ALT rv-generic-low dd=false Gate: gate 2->1 at (t0,j0), rg 689872->1738448 (window 2^20), a -> table[g-1], h 0 unchanged; pre-proof lookup check misses (cheating prover skips it); receipt 15831864 B; verifier: H: pcs zk: group 8: <v, c> != combined claim
+RV13-ALT rv-generic-low dd=false Up: up 518->517 at (t0,j2) where a = 0, ru 1320->5416 (window 2^12); pre-proof lookup check misses (cheating prover skips it); receipt 15831864 B; verifier: H: pcs zk: group 8: <v, c> != combined claim
+RV13-ALT rv-generic-low dd=false Down: down z 3->2 and output x2 -7854->-7855 at (t0,i0), rd 3129->7225 (window 2^12); pre-proof lookup check misses (cheating prover skips it); receipt 15831864 B; verifier: H: pcs zk: group 8: <v, c> != combined claim
+RV13-ALT rv-generic-low dd=false MaskedScore: masked score -6->-7 at (h0,t0,j1), rs 162216->424360 (window 2^18); pre-proof lookup check misses (cheating prover skips it); receipt 15831864 B; verifier: H: pcs zk: group 8: <v, c> != combined claim
+RV13-ALT rv-generic-low dd=false PadAct: padded F position (t3, j773): (gate 1, group-0 table[1] = 4096) instead of (0, 0); pre-proof lookup check hits; receipt 15831864 B; verifier: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+RV13-ALT rv-generic-low dd=false GroupSwap(witness): ids of channels 0/1 swapped in the witness only, 61 F words differ, receipt 15831864 B; verifier: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+RV13-ALT rv-generic-low dd=false GroupSwap(statement): swapped statement verifies its own honest receipt; cross-verification refused both ways
+ok
+test private_block::review_r13_tests::rv13_doctored_exports_are_refused_at_the_door ... RV13-DOOR rv-w128: refused: /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r13-scratch/tree/hashline/../../loader-fixtures-rv/rv-w128/layer_00/manifest.json: R13 public weights/gains must be symmetric int8
+RV13-DOOR rv-gamma128: refused: /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r13-scratch/tree/hashline/../../loader-fixtures-rv/rv-gamma128/layer_00/manifest.json: R13 public weights/gains must be symmetric int8
+RV13-DOOR rv-scaled-act: refused: /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r13-scratch/tree/hashline/../../loader-fixtures-rv/rv-scaled-act/layer_00/manifest.json: R13 array `scaled_act` is derived by the verifier, not supplied in the export
+RV13-DOOR rv-act-doctored: refused: /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r13-scratch/tree/hashline/../../loader-fixtures-rv/rv-act-doctored/layer_00/manifest.json: R13 public data: SiLU table is not the declared generated member
+RV13-DOOR rv-five-groups: refused: /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r13-scratch/tree/hashline/../../loader-fixtures-rv/rv-five-groups/layer_00/manifest.json: array `silu_groups`: the manifest declares I64 [5, 2], expected one of [(I64, [1, 2]), (I64, [2, 2]), (I64, [3, 2]), (I64, [4, 2])] (refused before it is read: review r4_A)
+RV13-DOOR rv-std-08: refused: /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r13-scratch/tree/hashline/../../loader-fixtures-rv/rv-std-08/layer_00/manifest.json: R13 groups: registry members must be unique and in canonical order
+RV13-DOOR rv-mg-zero: refused: /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r13-scratch/tree/hashline/../../loader-fixtures-rv/rv-mg-zero/layer_00/manifest.json: R13 public data: multiplier shape or narrow range mismatch
+RV13-DOOR rv-mo-257: refused: /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r13-scratch/tree/hashline/../../loader-fixtures-rv/rv-mo-257/layer_00/manifest.json: R13 public data: multiplier shape or narrow range mismatch
+RV13-DOOR rv-legacy-names-r13: refused: /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r13-scratch/tree/hashline/../../loader-fixtures-rv/rv-legacy-names-r13/profile.json: legacy export cannot select R13 arithmetic
+RV13-DOOR rv-group-swap: loads (a valid public change) and moves the block digest 613d7481a9f007f11c53147b462ff87bb1dae705525c176513722072e027a83a -> 45967e9e266b3e549192b2ab8f9f05a949af3cffa86519c3bf1cfeb8524e5e78
+ok
+test private_block::review_r13_tests::rv13_generic_witness_parity_prove_verify ... RV13-GENERIC rv-generic-h24 dd=false: native x2 = reviewer reference (12288 words), y min -32768 (endpoint -32768 present), score range [-49, 44], receipt 15838024 B verified, tampered refused, 1.2 s
+RV13-GENERIC rv-generic-h24 dd=true: native x2 = reviewer reference (12288 words), y min -32768 (endpoint -32768 present), score range [-49, 44], receipt 16674904 B verified, tampered refused, 1.3 s
+RV13-GENERIC rv-generic-low dd=false: native x2 = reviewer reference (12288 words), y min -32768 (endpoint -32768 present), score range [-46, 45], receipt 15831864 B verified, tampered refused, 1.2 s
+RV13-GENERIC rv-generic-low dd=true: native x2 = reviewer reference (12288 words), y min -32768 (endpoint -32768 present), score range [-46, 45], receipt 16668744 B verified, tampered refused, 1.2 s
+ok
+test private_block::review_r13_tests::rv13_native_lookup_windows ... RV13-WINDOW rv-generic-h24 Rg: 3 limbs, pin [16], admitted top limb <= 15 (2^20 window)
+RV13-WINDOW rv-generic-h24 Ru: 2 limbs, pin [16], admitted top limb <= 15 (2^12 window)
+RV13-WINDOW rv-generic-h24 Rd: 3 limbs, pin [16], admitted top limb <= 15 (2^20 window)
+RV13-WINDOW rv-generic-h24 Rs: 3 limbs, pin [64], admitted top limb <= 3 (2^18 window)
+RV13-WINDOW rv-generic-h24 Rao: 3 limbs, pin [8], admitted top limb <= 31 (2^21 window)
+RV13-WINDOW rv-generic-h24 Rq: 2 limbs, pin [2], admitted top limb <= 127 (2^15 window)
+RV13-WINDOW rv-generic-h24 Rk: 2 limbs, pin [2], admitted top limb <= 127 (2^15 window)
+RV13-WINDOW rv-generic-h24 Rv: 2 limbs, pin [], admitted top limb <= 255 (2^16 window)
+RV13-WINDOW rv-generic-h24 Ro: 2 limbs, pin [16], admitted top limb <= 15 (2^12 window)
+RV13-WINDOW rv-generic-h24: 8 widened words are two plain bytes each ([-32768, 32767]); score admits exactly [-127, 127]
+RV13-WINDOW rv-generic-low Rg: 3 limbs, pin [16], admitted top limb <= 15 (2^20 window)
+RV13-WINDOW rv-generic-low Ru: 2 limbs, pin [16], admitted top limb <= 15 (2^12 window)
+RV13-WINDOW rv-generic-low Rd: 2 limbs, pin [16], admitted top limb <= 15 (2^12 window)
+RV13-WINDOW rv-generic-low Rs: 3 limbs, pin [64], admitted top limb <= 3 (2^18 window)
+RV13-WINDOW rv-generic-low Rao: 3 limbs, pin [8], admitted top limb <= 31 (2^21 window)
+RV13-WINDOW rv-generic-low Rq: 2 limbs, pin [2], admitted top limb <= 127 (2^15 window)
+RV13-WINDOW rv-generic-low Rk: 2 limbs, pin [2], admitted top limb <= 127 (2^15 window)
+RV13-WINDOW rv-generic-low Rv: 2 limbs, pin [], admitted top limb <= 255 (2^16 window)
+RV13-WINDOW rv-generic-low Ro: 2 limbs, pin [16], admitted top limb <= 15 (2^12 window)
+RV13-WINDOW rv-generic-low: 8 widened words are two plain bytes each ([-32768, 32767]); score admits exactly [-127, 127]
+ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 723 filtered out; finished in 36.20s
+

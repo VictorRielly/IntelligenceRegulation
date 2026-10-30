@@ -14,7 +14,9 @@ CREATE TABLE IF NOT EXISTS posts(
   text TEXT, media_name TEXT, media_sha256 TEXT, media_mime TEXT, media_bytes INTEGER, media_meta TEXT,
   status TEXT NOT NULL, status_message TEXT, verdict TEXT, prover_kind TEXT,
   record TEXT, anchor_ref TEXT, published_at TEXT, content_key TEXT, salt_enc TEXT, prove_attempted INTEGER,
-  labels TEXT, manifest TEXT, chunks TEXT);
+  labels TEXT, manifest TEXT, chunks TEXT, screening_context TEXT);
+CREATE TABLE IF NOT EXISTS screenings(
+  item_key TEXT PRIMARY KEY, context TEXT NOT NULL, post_id TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS jobs(
   id INTEGER PRIMARY KEY AUTOINCREMENT, post_id TEXT NOT NULL, kind TEXT NOT NULL, status TEXT NOT NULL,
   created_at TEXT NOT NULL, started_at TEXT, finished_at TEXT, job_dir TEXT, result TEXT, error TEXT, chunk INTEGER);
@@ -30,6 +32,10 @@ CREATE INDEX IF NOT EXISTS posts_key ON posts(content_key);
 """
 
 
+class ScreeningConflict(ValueError):
+    pass
+
+
 class Store:
     def __init__(self, path: Path):
         self.path = Path(path)
@@ -41,12 +47,14 @@ class Store:
         self.db.executescript(SCHEMA)
         cols = {r[1] for r in self.db.execute("PRAGMA table_info(posts)")}
         for col, typ in (("content_key", "TEXT"), ("salt_enc", "TEXT"), ("prove_attempted", "INTEGER"),
-                         ("labels", "TEXT"), ("manifest", "TEXT"), ("chunks", "TEXT")):
+                         ("labels", "TEXT"), ("manifest", "TEXT"), ("chunks", "TEXT"),
+                         ("screening_context", "TEXT")):
             if col not in cols:                       # an older database: add the column in place
                 self.db.execute(f"ALTER TABLE posts ADD COLUMN {col} {typ}")
         jcols = {r[1] for r in self.db.execute("PRAGMA table_info(jobs)")}
         if "chunk" not in jcols:
             self.db.execute("ALTER TABLE jobs ADD COLUMN chunk INTEGER")
+        self._migrate_screenings()
         try:
             self.path.chmod(0o600)
         except OSError:
@@ -66,6 +74,78 @@ class Store:
             return cur.lastrowid
 
     # ------------------------------------------------------------ posts
+    def _migrate_screenings(self) -> None:
+        """Recover retained text identities; never invent a missing historic policy."""
+        rows = self.q("SELECT * FROM posts WHERE kind='text' AND text IS NOT NULL ORDER BY created_at,id")
+        if not rows:
+            return
+        current = records.screening_context()
+        with self.lock:
+            self.db.execute('BEGIN IMMEDIATE')
+            try:
+                for post in rows:
+                    context = post.get('screening_context')
+                    if context is None:
+                        context = current if post.get('content_key') == records.content_key(post['text']) else \
+                            records.canonical({'schema': 'legacy-screening-unresolved/1'}).decode()
+                        self.db.execute('UPDATE posts SET screening_context=? WHERE id=?', (context, post['id']))
+                    key = records.screening_key('text', post['text'])
+                    claim = self.db.execute('SELECT context,post_id FROM screenings WHERE item_key=?', (key,)).fetchone()
+                    if claim is None:
+                        self.db.execute('INSERT INTO screenings VALUES(?,?,?)', (key, context, post['id']))
+                    elif claim['context'] != context:
+                        # Historic conflicting submissions cannot authorize another query.
+                        self.db.execute('UPDATE screenings SET context=? WHERE item_key=?',
+                                        ('{"schema":"legacy-screening-conflict/1"}', key))
+                    else:
+                        previous = self.post(claim['post_id'])
+                        if (previous and previous['status'] == 'failed' and previous.get('prove_attempted') == 0
+                                and not (post['status'] == 'failed' and post.get('prove_attempted') == 0)):
+                            # An old pre-admission failure must not hide a later
+                            # successful/attempted submission of the same item.
+                            self.db.execute('UPDATE screenings SET post_id=? WHERE item_key=?', (post['id'], key))
+                self.db.execute('COMMIT')
+            except BaseException:
+                self.db.execute('ROLLBACK')
+                raise
+
+    def add_screened_post(self, identity: str, plan=(), **kw) -> None:
+        """Atomically reserve the item, create the post and queue its initial proofs.
+
+        A retry is allowed only under the original context after failure before
+        any proof work. Reservations remain after post/receipt deletion.
+        """
+        context = records.screening_context()
+        key = records.screening_key(kw['kind'], identity)
+        with self.lock:
+            self.db.execute('BEGIN IMMEDIATE')
+            try:
+                claim = self.one('SELECT * FROM screenings WHERE item_key=?', (key,))
+                if claim:
+                    if claim['context'] != context:
+                        raise ScreeningConflict('This item was already reserved under another policy or threshold. It cannot be screened again.')
+                    previous = self.post(claim['post_id'])
+                    if not (previous and previous['status'] == 'failed' and previous.get('prove_attempted') == 0):
+                        raise ScreeningConflict('This exact content was already submitted. Each item is proved once; it is not proved again.')
+                    self.x('UPDATE screenings SET post_id=? WHERE item_key=?', (kw['id'], key))
+                else:
+                    self.x('INSERT INTO screenings VALUES(?,?,?)', (key, context, kw['id']))
+                self.add_post(**kw, screening_context=context)
+                for chunk in plan:
+                    self.add_job(kw['id'], 'prove', chunk['index'])
+                self.db.execute('COMMIT')
+            except BaseException:
+                self.db.execute('ROLLBACK')
+                raise
+
+    def check_screening(self, post: dict) -> None:
+        current = records.screening_context()
+        claim = self.one('SELECT * FROM screenings WHERE item_key=?',
+                         (records.screening_key('text', post['text']),))
+        if (post.get('screening_context') != current or not claim or claim['context'] != current
+                or claim['post_id'] != post['id']):
+            raise ScreeningConflict('The policy or threshold differs from this item\'s original screening. No new proof may run.')
+
     def add_post(self, **kw) -> None:
         kw.setdefault("created_at", records.now_iso())
         cols = ",".join(kw)

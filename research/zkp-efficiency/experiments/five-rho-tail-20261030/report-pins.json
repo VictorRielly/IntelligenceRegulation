@@ -1,0 +1,32 @@
+[
+  {
+    "path": "STATE.md",
+    "bytes": 5299,
+    "sha256": "34a06baa939978e24f1fa1d8adfe21cace0c0b2ead9319223ef1c455959628fc"
+  },
+  {
+    "path": "PROGRESS.md",
+    "bytes": 1663,
+    "sha256": "1c95e34962983c607b2d8ec65cbedbcd79b22c3f30408d71c74d7fd2f68b9a8a"
+  },
+  {
+    "path": "FINDINGS.md",
+    "bytes": 1142923,
+    "sha256": "30639856cc2c20288e7683fd4ab361286706dbdd01cff3be5a26bb9cc5685286"
+  },
+  {
+    "path": "sources.jsonl",
+    "bytes": 1278603,
+    "sha256": "765b0ddd94ba73cb89e60507b2e107c6f6d2394ae6f637bb91cc5212da9f8f0c"
+  },
+  {
+    "path": "progress/20261030T005649Z-506c4db2.md",
+    "bytes": 3401,
+    "sha256": "189574e0c588efca3569af4b928ffc293fc835b60809f87a8c35549bc90cf3e8"
+  },
+  {
+    "path": "handoffs/20261030-five-rho-tail.md",
+    "bytes": 4148,
+    "sha256": "214d41ad1224eca907bd9a0380cf956eb5d44b602ed4e6bb9cf07ae7b79b784d"
+  }
+]

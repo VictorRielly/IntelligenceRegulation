@@ -1,0 +1,44 @@
+{
+  "utc": "2026-10-29T12:12:04.276949+00:00",
+  "documents": [
+    {
+      "path": "CLAUDE.md",
+      "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6",
+      "initial_sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6",
+      "changed": false,
+      "bytes": 14089
+    },
+    {
+      "path": "docs/zkmatrix-poc/MVP_STATUS.md",
+      "sha256": "8fec95ef7de1ba13d4c03a9cb7b7bdf4945a672f8e495a35d3281c79fc2079ee",
+      "initial_sha256": "743fd052b73c3a477f84a8985cfe7c3a6dea0e0957678d865d31c5770f42eaa0",
+      "changed": true,
+      "bytes": 98239
+    },
+    {
+      "path": "docs/zkmatrix-poc/ZK60_DECISIONS.md",
+      "sha256": "0e04114ce5db6e997b597935496355877a8ae74c5e9c4615e0d1e11085204927",
+      "initial_sha256": "0e04114ce5db6e997b597935496355877a8ae74c5e9c4615e0d1e11085204927",
+      "changed": false,
+      "bytes": 139017
+    },
+    {
+      "path": "docs/zkmatrix-poc/ZK60_CODEX_FABLE_COORDINATION.md",
+      "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f",
+      "initial_sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f",
+      "changed": false,
+      "bytes": 64889
+    },
+    {
+      "path": "docs/zkmatrix-poc/ZK60_THROUGHPUT_TARGET.md",
+      "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53",
+      "initial_sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53",
+      "changed": false,
+      "bytes": 4941
+    }
+  ],
+  "reviewed_changes": [
+    "docs/zkmatrix-poc/MVP_STATUS.md"
+  ],
+  "assessment": "Reread new12:09UTC header: owner reports public testnet integration and implementation-lane continuation needs; classifier gate19 ongoing. These owner reports are not independently verified liveness or this lane outcomes. No profile or private8B throughput target amendment. No jobs relaunched or external actions taken."
+}

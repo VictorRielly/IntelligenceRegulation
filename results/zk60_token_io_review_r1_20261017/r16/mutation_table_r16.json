@@ -1,0 +1,62 @@
+{
+ "reviewer": [
+  {
+   "mutant": "bits-l",
+   "what": "classify.rs whole_run_of_classifier: the R13 block term charged once instead of L times (an over-optimistic figure)",
+   "exit": 101,
+   "peak_rss_gib": 1.65,
+   "lane_tests_failed": [],
+   "reviewer_tests_failed": [
+    "private_block::token_io::review_r16_tests::rv16_s2_whole_run_terms_floors_and_min_bits"
+   ],
+   "passed": 10
+  },
+  {
+   "mutant": "prehdr-cs6",
+   "what": "classify_run.rs verify: CS-6 dropped from the R13 pre-header stage pass",
+   "exit": 0,
+   "peak_rss_gib": 1.65,
+   "lane_tests_failed": [],
+   "reviewer_tests_failed": [],
+   "passed": 11
+  }
+ ],
+ "lane_reread": [
+  {
+   "mutant": "gate",
+   "killed_by": [
+    "private_block::token_io::classify_r16_tests::r16_an_r13_classifier_run_with_two_gate_denominators_proves_and_verifies"
+   ],
+   "result": [
+    "FAILED"
+   ]
+  },
+  {
+   "mutant": "prehdr",
+   "killed_by": [
+    "private_block::token_io::classify_r16_tests::r16_a_block_at_another_stage_shape_and_the_run_seed_shape_are_refused"
+   ],
+   "result": [
+    "FAILED"
+   ]
+  },
+  {
+   "mutant": "bits",
+   "killed_by": [
+    "private_block::token_io::classify_r16_tests::r16_the_r13_whole_run_figure_charges_the_degree_two_tables_and_clears_95"
+   ],
+   "result": [
+    "FAILED"
+   ]
+  },
+  {
+   "mutant": "reuse",
+   "killed_by": [
+    "private_block::token_io::classify_r16_tests::r16_the_loaders_tied_derivation_is_reused_only_with_the_bound_margin_parameters"
+   ],
+   "result": [
+    "FAILED"
+   ]
+  }
+ ]
+}

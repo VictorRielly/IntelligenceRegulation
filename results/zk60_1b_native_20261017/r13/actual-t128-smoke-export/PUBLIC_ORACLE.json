@@ -1,0 +1,107 @@
+{
+  "profile_sha256": "04102cce64dea0cd45dee5caa62095da1cf33fcaabd5647554202b564e6e7e57",
+  "ranges": {
+    "a_scaled": [
+      -491520,
+      919552
+    ],
+    "ao": [
+      -1,
+      1
+    ],
+    "gate": [
+      -140,
+      131
+    ],
+    "h": [
+      -4289,
+      5921
+    ],
+    "input": [
+      -1,
+      1
+    ],
+    "k": [
+      -149,
+      130
+    ],
+    "kr": [
+      -149,
+      141
+    ],
+    "nm": [
+      -3597,
+      3102
+    ],
+    "o": [
+      -204,
+      192
+    ],
+    "p": [
+      0,
+      4096
+    ],
+    "q": [
+      -214,
+      140
+    ],
+    "qr": [
+      -214,
+      140
+    ],
+    "s": [
+      0,
+      0
+    ],
+    "up": [
+      -1081,
+      1222
+    ],
+    "v": [
+      -307,
+      270
+    ],
+    "x1": [
+      -2,
+      2
+    ],
+    "x2": [
+      -6,
+      6
+    ],
+    "y": [
+      -1099,
+      1099
+    ],
+    "z": [
+      -6,
+      5
+    ]
+  },
+  "scope": "one actual S2 public layer, public synthetic input, T128; no model fidelity or full-stack proof claim",
+  "script_sha256": "77f6de30f741f07be08f276400236234c9c97c9f843cfaa37935c72720004c91",
+  "source_profile_sha256": "1d50078243f13d58afa814a55c47c2df797e494d7f045941ea82fa142740498a",
+  "trace_sha256": {
+    "a_scaled": "854d984436b4a8e58183b4c46fd01cd428fdb83af178f22ea7de322811dd4bd3",
+    "ao": "1f5027fae943fee11b29afc75f5bdd61233cae7781bf9e317db9d5aff3592bca",
+    "gate": "8a5a53231851bb238d1a1ef31b2c4fe1674a561bfc73ec757e59dfcd70aff2e0",
+    "h": "9639af590f77236b28341876ee3cb78e13567acbf93374abd2b80052fdd1998c",
+    "input": "f692d5f3437bae77bedea8164930992a9603017481bb603e5aec7f7a35750f30",
+    "k": "9ae3fc1660b2f64b857a4bbee03052608566ec4419e02d10fda1355480adbed7",
+    "kr": "9aecc6b7e2fd45f12463985aaa22c87d5fa68279e10b85ce4113df3aa2b9931e",
+    "nm": "35f75d2e04a7f3068df5c16e7becd24cdf53c885b34bd0107d3927717cdf4d9f",
+    "o": "37362f0f84a112757cd12ba67d4bc6cf66214b2da53f87835c4762ff15e6ae68",
+    "p": "2e0211eec3e7eeca1a41da2acb7c979c789beec8c992f3c97290a97e12ac7834",
+    "q": "8f8e13a812dbf55f9b9cf9b46d3e147d1dd1c3dc5ca9dc88b8d55381d062e4d7",
+    "qr": "9b82d70839b31697e91f658daa72c4d0c446bbe2cf526f5a127ea3712c01489c",
+    "s": "bb9f8df61474d25e71fa00722318cd387396ca1736605e1248821cc0de3d3af8",
+    "up": "d7487123d89896638e3cc7bb4ae3551010ca2520f98d68e7d0e57e979f59f105",
+    "v": "2c0cacc6f5157da8a55593c1878e0b2757c410a5b32397b0bea5f012c1c55cfb",
+    "x1": "ea09573d5c5b3987a9fc3fbd8949aaaacbd611bf95e16abe9e203b0e72d19d41",
+    "x2": "8c4e75d719f9609b07aa88bba29e5be790bbb7781788826624cb6525325b5fda",
+    "y": "9fca0e9c8aa134aa5946c052c4f7e337217357fb32d4d22872d6e12c6703c47d",
+    "z": "b068d5c6fd7a1c1e3053cfe31507ac8ffad5bb20f9271c53b9b707ef37fe4c47"
+  },
+  "trace_sites": 19,
+  "violations": 0
+}

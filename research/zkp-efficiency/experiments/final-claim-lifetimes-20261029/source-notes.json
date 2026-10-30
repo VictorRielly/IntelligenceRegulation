@@ -1,0 +1,127 @@
+[
+  {
+    "title": "StateSync-GKR October revision: per-layer equality preparation and request boundaries",
+    "url": "https://arxiv.org/abs/2610.14849",
+    "publication_date": "2026-10-10",
+    "verified_update_date": "2026-10-26",
+    "inspected_urls": [
+      "https://arxiv.org/html/2610.14849v2"
+    ],
+    "date_evidence": "Primary arXiv submission history: v1 October10, v2 October26,2026.",
+    "assessment": "Author v2 describes equality tables built once per layer, arithmetic reorganization and separate prepared requests, with challenge-specific state per job. KoalaBear degree4 sparse-Merkle CPU engine differs from native Goldilocks/Fp2 transformer. No author speed, bytes, formal correspondence or privacy claim reproduced. Source motivates a local equality-weight census only.",
+    "implementation_license": "Paper identifies current source BSL1.1; implementation license inspected separately."
+  },
+  {
+    "title": "StateSync-GKR v1.2.1 release, observed source coordinate and current license",
+    "url": "https://github.com/Oraclizer/statesync-gkr/releases/tag/v1.2.1",
+    "publication_date": "2026-10-26",
+    "verified_update_date": null,
+    "observed_commit_id": "54e76515bf53777836221b88d7404a1ef67bcdd3",
+    "inspected_urls": [
+      "https://github.com/Oraclizer/statesync-gkr/releases",
+      "https://github.com/Oraclizer/statesync-gkr/blob/main/LICENSE"
+    ],
+    "date_evidence": "Release list assets include exact2026-10-26T08:48:09Z; note says library/proof format unchanged from1.2.0.",
+    "assessment": "Release adds external zkVM proof of its program identity; this is no new transformer/GPU measurement. Actual main LICENSE heading/parameters inspected: BusinessSourceLicense1.1, versions afterv1.1.0. No code adopted/executed. Observed full commit comes from release link; diff fetch failed.",
+    "implementation_license": "BSL1.1 LICENSE text inspected on main, not pinned immutable version. PriorMIT/Apache grants and current official distribution are not conflated.",
+    "blockers": [
+      "https://github.com/Oraclizer/statesync-gkr/commit/54e76515bf53777836221b88d7404a1ef67bcdd3: Cache miss",
+      "https://github.com/Oraclizer/statesync-gkr/releases/tag/v1.2.0: Cache miss; release list andv1.2.1 inspected instead."
+    ]
+  },
+  {
+    "title": "Newly inspected Akita MLE/folding and final oracle contract",
+    "url": "https://layerzero-labs.github.io/akita/foundations/multilinear-sumcheck.html",
+    "publication_date": null,
+    "verified_update_date": null,
+    "date_evidence": "Undated primary project book. Crawl age is not publication/update date.",
+    "assessment": "Public MLE weights, final oracle checks and batching boundaries inform review. Akita describes little-endian tables; native masked-block tables use MSB-first. Its compression/batching/scheduler conventions must not be transplanted. This cycle tests locally authored ordered Fp2 row evaluations only.",
+    "implementation_license": "Book does not establish implementation license; repository declaration inspected separately."
+  },
+  {
+    "title": "Newly inspected Akita/Jolt sumcheck migration tracker and residual ownership",
+    "url": "https://github.com/LayerZero-Labs/akita/issues/61",
+    "publication_date": "2026-09-23",
+    "verified_update_date": null,
+    "date_evidence": "Primary GitHub issue shows openedSeptember23,2026; last edit date not established.",
+    "assessment": "Tracker assigns terminal equations and PCS relations to protocol callers; acceptance checkboxes are plans, not validation. Supports keeping native terminal/mask/PCS obligations unchanged when arithmetic is cached. No migration implementation or benchmark reproduced.",
+    "implementation_license": "Repository root advertises MIT OR Apache2.0; actual license-body fetches failed.",
+    "inspected_urls": [
+      "https://github.com/LayerZero-Labs/akita"
+    ],
+    "blockers": [
+      "https://github.com/LayerZero-Labs/akita/blob/main/LICENSE-MIT: Cache miss",
+      "https://raw.githubusercontent.com/LayerZero-Labs/akita/main/LICENSE-MIT: Cache miss"
+    ]
+  },
+  {
+    "title": "Akita observed historical commit is not current code pin",
+    "url": "https://github.com/LayerZero-Labs/akita/commits/main/",
+    "publication_date": null,
+    "verified_update_date": "2026-08-28",
+    "observed_commit_id": "4a6897c9b5156e98370d8a7e15cffc2ce4f9765e",
+    "date_evidence": "Fetched history rendersAugust28,2026 with tool crawl2months; root and other primary pages are newer. This is historical observed date, not presentHEAD update.",
+    "assessment": "Commit link resolves full coordinate; diff fetch failed. No source, performance or immutable license inspected at that coordinate. Preserve stale-history limitation rather than claiming newest commit.",
+    "implementation_license": "MIT OR Apache2.0 repository declaration only; no pinned license-body inspection.",
+    "blockers": [
+      "https://github.com/LayerZero-Labs/akita/commit/4a6897c9b5156e98370d8a7e15cffc2ce4f9765e: Cache miss"
+    ]
+  },
+  {
+    "title": "Vega primary equality-weight and top-variable folding convention refreshed",
+    "url": "https://microsoft.github.io/vega-prover/building-blocks/multilinear.html",
+    "publication_date": null,
+    "verified_update_date": null,
+    "date_evidence": "Undated primary project book; no publication/update date inferred.",
+    "assessment": "Distinguishes full equality-weight evaluation from repeated top-variable table folds. Reusing public weights at one point does not reuse private values or authenticate original inputs. Native already returns folded finals, so that recomputation hypothesis is eliminated by source inspection.",
+    "implementation_license": "No implementation or license text inspected this cycle."
+  },
+  {
+    "title": "Extended sumcheck 2026 primary history and equality factor context refreshed",
+    "url": "https://eprint.iacr.org/2026/587",
+    "publication_date": "2026-03-24",
+    "verified_update_date": null,
+    "date_evidence": "Primary history receivedMarch24,approvedMarch25,2026; no exact revision date established.",
+    "assessment": "Equality decomposition and small-value work are already assessed in earlier cycles. Current terminal experiment removes repeated constructor work only; it is not another claimed grouped-round gain. No author performance reproduced.",
+    "implementation_license": "ArticleCCBY; implementation license not inspected.",
+    "blockers": [
+      "Invented-version probe https://eprint.iacr.org/2026/587/20260325:105231 inaccessible; not a verified version identifier. Canonical metadata page inspected."
+    ]
+  },
+  {
+    "title": "Thaler older regular-wiring and work-reuse construction refreshed",
+    "url": "https://arxiv.org/abs/1304.3812",
+    "publication_date": "2013-04-13",
+    "verified_update_date": "2017-02-08",
+    "inspected_urls": [
+      "https://arxiv.org/html/1304.3812v4"
+    ],
+    "date_evidence": "Primary arXiv v1April13,2013;v4February8,2017.",
+    "assessment": "Selected reuse/bookkeeping/regular-wiring discussion inspected. This is a known earlier source, not a newly discovered method. Native already retains final main-table evaluations. Distinct fresh private mask pairs cannot be replaced by one evaluation. No historical GPU/CPU author gains transferred.",
+    "implementation_license": "No implementation/license inspected."
+  },
+  {
+    "title": "NEW detailed older subset-claim circuit treatment in author thesis",
+    "url": "https://escholarship.org/content/qt5qm6n0s0/qt5qm6n0s0.pdf",
+    "publication_date": "2023",
+    "verified_update_date": null,
+    "inspected_urls": [
+      "https://escholarship.org/uc/item/5qm6n0s0"
+    ],
+    "date_evidence": "Primary cover identifies JiahengZhang,Spring2023; publisher cover says publication2023. Exact day unverified.",
+    "assessment": "New detailed assessment of section4.3.3 ordered subset-claim combining circuit and section4.3.2 once-per-point beta preparation, beyond cycle0109abstract. UnderlyingVirgo++ is already known. It adds a reduction circuit/sumcheck and original-input consistency obligations, so parked pending native incidence/costs and private wrapping. Not the weight-only adapter; no theorem or author timing reproduced.",
+    "implementation_license": "No implementation inspected; dissertationcopyright2023 is not a code license.",
+    "blockers": [
+      "Landing page https://escholarship.org/uc/item/5qm6n0s0:429TooManyRequests on followup; indexed primary PDF accessible with native web tool. No bypass."
+    ]
+  },
+  {
+    "title": "Virgo++ canonical dates refreshed; abstract-only prior disposition retained",
+    "url": "https://eprint.iacr.org/2020/1247",
+    "publication_date": "2020-10-09",
+    "verified_update_date": "2021-05-19",
+    "date_evidence": "Canonical primary ePrint receivedOctober9,2020 and revisedMay19,2021.",
+    "assessment": "Prior abstract-only unlayered-circuit screen is preserved. This cycle reads the author thesis's detailed claim-combining subsection; do not count it as a newly discovered underlying paper. Primary abstract and indexedPDFbenchmark figures differ; no number used or reproduced.",
+    "implementation_license": "ArticleCCBY; no implementation inspected."
+  }
+]

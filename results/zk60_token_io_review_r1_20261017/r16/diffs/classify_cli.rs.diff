@@ -1,0 +1,101 @@
+--- results/zk60_token_io_r1_20261017/frozen-r15/hashline/src/private_block/token_io/classify_cli.rs	2026-10-28 21:51:01.781749753 -0700
++++ results/zk60_token_io_r1_20261017/frozen-r16/hashline/src/private_block/token_io/classify_cli.rs	2026-10-29 02:29:32.233972550 -0700
+@@ -71,14 +71,21 @@
+ //!   `{"event":"app-outcome","outcome":"flagged",...}`: an item without an
+ //!   accepted proof is handled as flagged.
+ //!
+-//! SCOPE: the development rung (the classifier profile family registers more
+-//! shapes with the native F1-F3); public-row variant (n public, D45(1)); NO
+-//! privacy acceptance. JSON lines on stdout; exit 0 = done, 1 = refused, 2 =
++//! * **Round 16 (native R13, REVIEW_R13 §10):** the R13 Shieldstral T128 /
++//!   T256 LOW + h24 exports load under their classifier run profiles; the
++//!   sealing chain and the prover build each block with `build_for_block` at
++//!   its layer record's stage shape (`LayerRecord::shape_at`: its own
++//!   calibration and gate denominator); the verifier checks every block
++//!   against its own stage shape before its header; the loader's one
++//!   checkpoint pass also derives the margin row (N-r13-5).
++//!
++//! SCOPE: the development rung and the R13 Shieldstral classifier profiles;
++//! public-row variant (n public, D45(1)); NO privacy acceptance. JSON lines on stdout; exit 0 = done, 1 = refused, 2 =
+ //! bad arguments. The frozen next-token CLI (`zk60_token_io`) is untouched.
+ 
+ use super::classify::*;
+ use super::classify_run::*;
+-use super::cli::{cli_stage_shape, leftover_refusal, owner_dir_at, read_prompt_file};
++use super::cli::{leftover_refusal, owner_dir_at, read_prompt_file};
+ use super::load::{read_exact_streamed, ExportPublic, ExportTokenBlocks, MAX_MANIFEST_BYTES};
+ use super::stage_in::StageInWitness;
+ use super::stage_out_c::StageOutCWitness;
+@@ -88,7 +95,6 @@
+ use super::super::run::{read_regular_file_bounded, RunShape, RUN_PROFILE_CLASSIFY_RUNG_TC};
+ use super::super::run_sink::{self, SegmentSink};
+ use super::super::trained_block::{check_statement_dir, clear_stale_writing_dirs, flag, flags, js, need, parse_json, publish_statement_dir, refuse_prover_private_entries, stack_context, unhex32, write_new, TrainedExport, J};
+-use super::super::trained_statement::TrainedModelStatement;
+ use super::super::witness::Witness;
+ use super::super::BlockPublic;
+ use std::path::{Path, PathBuf};
+@@ -211,17 +217,18 @@
+     use super::super::shape::TRAINED_CALIB_RUNG_PROFILE;
+     match sh.profile {
+         p if p == TRAINED_CALIB_RUNG_PROFILE => Ok(RUN_PROFILE_CLASSIFY_RUNG_TC),
+-        p => Err(format!("classifier: no classifier run profile is registered for the block profile {p} (Shieldstral's lands with the native F1-F3 freeze, R-C2)")),
++        // ROUND 16: the native R13 Shieldstral LOW + h24 block profiles (T128,
++        // T256; non-DD), each its own classifier run profile (D17)
++        p => super::super::run::accuracy_classify_run_profile(p).ok_or_else(|| format!("classifier: no classifier run profile is registered for the block profile {p} (round 16 registers the R13 Shieldstral T128 / T256 non-DD profiles and the development rung)")),
+     }
+ }
+ 
+-/// the export's public side (the digest pass) with the trained statement under the CLASSIFIER run profile
++/// the export's public side (the digest pass) with the trained statement
++/// under the CLASSIFIER run profile (round 16: built under it directly, with
++/// the export's tied record at a tied model; the rung's statement is the one
++/// earlier rounds rebuilt)
+ pub(crate) fn load_export(path: &Path) -> Result<ExportPublic, String> {
+-    let mut p = ExportPublic::load(path)?;
+-    let profile = classify_run_profile_of(&p.sh)?;
+-    p.model = TrainedModelStatement::new(&p.sh, profile, p.model.source.clone(), p.model.calibration.clone(), p.model.layers.clone())?;
+-    p.profile = profile;
+-    Ok(p)
++    ExportPublic::load_with(path, classify_run_profile_of)
+ }
+ 
+ /// D41: the deployment profile's chunk plan for a policy (size `T - P0 - S`)
+@@ -433,8 +440,15 @@
+     }
+     fn witness(&mut self, k: usize, blk: &BlockPublic, ssh: &Shape) -> Result<Witness, String> {
+         let sh = &self.p.sh;
+-        let w = super::super::witness::build_shaped(ssh, blk.attention(), blk.feed_forward(), &self.x)?;
+-        let out: Vec<i16> = w.planes[self.ids.at(A_X2)].iter().map(|v| i16::try_from(*v).map_err(|_| "classifier run: a block output outside int16".to_string())).collect::<Result<_, _>>()?;
++        // ROUND 16: the block's own builder (R13 accuracy data at the stage's G)
++        let w = super::super::witness::build_for_block(ssh, blk, &self.x)?;
++        // ROUND 16: the stage shape's own plane ids (an R13 stage is the run
++        // seed at its layer's gate denominator; the plane list is the same)
++        let ids = Ids::new(ssh)?;
++        if ids.at(A_X2) != self.ids.at(A_X2) {
++            return Err(format!("classifier run: block {k}'s stage shape moves the output plane"));
++        }
++        let out: Vec<i16> = w.planes[ids.at(A_X2)].iter().map(|v| i16::try_from(*v).map_err(|_| "classifier run: a block output outside int16".to_string())).collect::<Result<_, _>>()?;
+         let next = unpad(sh, &out);
+         if next != self.seq.load(&self.p.ex, sh, self.p.layers[k])?.1 {
+             return Err(format!("classifier run: block {k}'s output is not the export's x_out_L{:02} (parity)", self.p.layers[k]));
+@@ -464,13 +478,17 @@
+ /// own chain, int16, parity, CS-3; the builder's last plane
+ fn seal_chain(p: &ExportPublic, seq: &SeqIn, blocks: &mut ExportTokenBlocks, x_in0: Vec<i16>) -> Result<Vec<i16>, String> {
+     let sh = &p.sh;
+-    let ids = Ids::new(sh)?;
+     let mut x = x_in0;
+     for (k, r) in p.model.layers.iter().enumerate() {
+-        let ssh = cli_stage_shape(sh, &r.own)?;
++        // ROUND 16 (REVIEW_R13 §10 item 3): the bound layer record's whole
++        // stage context — its own calibration and, at R13, its gate
++        // denominator (native `LayerRecord::shape_at`); at a legacy shape this
++        // is the token CLI's `cli_stage_shape`
++        let ssh = r.shape_at(sh).map_err(|e| format!("block {k}: {e} (the sealing pass, before any header)"))?;
++        let ids = Ids::new(&ssh)?;
+         let lay = super::super::layout::Layout::for_shape(&ssh)?;
+         let blk = blocks.block(k)?;
+-        let w = super::super::witness::build_shaped(&ssh, blk.attention(), blk.feed_forward(), &x).map_err(|e| format!("block {k}: the witness builder refuses: {e} (the sealing pass, before any header)"))?;
++        let w = super::super::witness::build_for_block(&ssh, &blk, &x).map_err(|e| format!("block {k}: the witness builder refuses: {e} (the sealing pass, before any header)"))?;
+         let out: Vec<i16> = w.planes[ids.at(A_X2)].iter().map(|v| i16::try_from(*v).map_err(|_| format!("block {k}: an output outside int16 (the sealing pass, before any header)"))).collect::<Result<_, _>>()?;
+         let next = unpad(sh, &out);
+         if next != seq.load(&p.ex, sh, p.layers[k])?.1 {

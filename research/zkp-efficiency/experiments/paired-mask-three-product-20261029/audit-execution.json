@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "/usr/bin/python3",
+    "-B",
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/paired-mask-three-product-20261029/audit.py"
+  ],
+  "exit_code": 0,
+  "elapsed_s": 0.21670919200550998,
+  "threads": 1,
+  "cpu_seconds_cap": 40,
+  "alarm_s": 45,
+  "parent_timeout_s": 50,
+  "address_space_cap_bytes": 268435456,
+  "estimated_memory_bytes": 100663296,
+  "native_build": false,
+  "gpu": false
+}

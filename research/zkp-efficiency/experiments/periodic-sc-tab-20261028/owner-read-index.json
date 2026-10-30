@@ -1,0 +1,225 @@
+[
+  {
+    "file": "MVP_STATUS.md",
+    "lines": 1307,
+    "sha256": "86888b578a306269252b9af6c26236feedbd97882ce3f56b66f344f7789007d7",
+    "headings": [
+      {
+        "line": 1,
+        "text": "# Where the MVP stands, in plain words"
+      },
+      {
+        "line": 948,
+        "text": "## 1. Do we have a workable proof?"
+      },
+      {
+        "line": 1061,
+        "text": "## 2. How slow are we against the target?"
+      },
+      {
+        "line": 1114,
+        "text": "## 3. What blocks a private, model-scale MVP at speed, and what is being done"
+      },
+      {
+        "line": 1230,
+        "text": "## 4. Where the evidence is"
+      },
+      {
+        "line": 1238,
+        "text": "## 2026-09-29 (PDT): VC readiness snapshot for Tech Week SF"
+      }
+    ],
+    "current_terms": [
+      {
+        "line": 5,
+        "text": "priority (D43).**"
+      },
+      {
+        "line": 18,
+        "text": "  for Sol's R12b, the fix that makes the prover check that the classifier's"
+      },
+      {
+        "line": 20,
+        "text": "- **Now running:** Sol on R12b, Astra on the Shieldstral benchmark report and"
+      },
+      {
+        "line": 22,
+        "text": "- **New direction (D43):** finding funding as fast as possible comes first. A"
+      },
+      {
+        "line": 40,
+        "text": "  (fix in R12b, Sol). Not a privacy acceptance."
+      },
+      {
+        "line": 41,
+        "text": "- **Resource guard fix installed (D42, 19:00 UTC):** jobs no longer block the"
+      },
+      {
+        "line": 394,
+        "text": "**2026-10-17 14:00 UTC \u2014 how far from 50 proved tokens/s, measured-model"
+      },
+      {
+        "line": 534,
+        "text": "forward-pass proof at >=50 proved tokens/s on an RTX 5090 or another high-end"
+      }
+    ]
+  },
+  {
+    "file": "ZK60_DECISIONS.md",
+    "lines": 1066,
+    "sha256": "4a5e0d0447b753d3f9e35d189c2adc00ae014326d5d5491a924cdbd35d0f51bf",
+    "headings": [
+      {
+        "line": 1,
+        "text": "# ZK60 decisions register \u2014 the rulings that govern the proof project"
+      },
+      {
+        "line": 9,
+        "text": "## At a glance"
+      },
+      {
+        "line": 81,
+        "text": "## D1 \u2014 Privacy scope (standing since 2026-09-09)"
+      },
+      {
+        "line": 97,
+        "text": "## D2 \u2014 Two lines (standing since 2026-09-17)"
+      },
+      {
+        "line": 120,
+        "text": "## D3 \u2014 About 97 bits of conjectured soundness accepted for the zkVM intermediate (2026-09-18)"
+      },
+      {
+        "line": 172,
+        "text": "## D4 \u2014 Groth16 trusted setup accepted for soundness (2026-09-18)"
+      },
+      {
+        "line": 227,
+        "text": "## D5 \u2014 Receipt kind: Groth16 only (2026-09-18)"
+      },
+      {
+        "line": 246,
+        "text": "## D6 \u2014 Groth16 proving path on this box (in progress)"
+      },
+      {
+        "line": 266,
+        "text": "## D7 \u2014 New endpoint and weight identity profile (implemented, ruling pending)"
+      },
+      {
+        "line": 302,
+        "text": "## D8 \u2014 Caller-fixed endpoint roots on the custom line (corrected 2026-09-18)"
+      },
+      {
+        "line": 327,
+        "text": "## D11 \u2014 Technical correction to D8 and profile clarification (2026-09-18)"
+      },
+      {
+        "line": 350,
+        "text": "## D12 \u2014 How a complete private block is composed on the custom line (construction rule, 2026-09-19)"
+      },
+      {
+        "line": 414,
+        "text": "## D9 \u2014 `fp()` reduction bias (accepted as stated, 2026-09-19)"
+      },
+      {
+        "line": 454,
+        "text": "## D10 \u2014 Compact-PCS proof-size lever (declined, 2026-09-19)"
+      },
+      {
+        "line": 482,
+        "text": "## D15 \u2014 \"106 bits\" is per opening; the whole 8B proof is about 94 (technical clarification, 2026-09-19)"
+      },
+      {
+        "line": 564,
+        "text": "## D16 \u2014 The private block's norm before it is widened (construction rule, 2026-09-19)"
+      },
+      {
+        "line": 613,
+        "text": "## D17 \u2014 Hiding endpoints beyond the tiny shape (construction rule, 2026-09-19)"
+      },
+      {
+        "line": 654,
+        "text": "## D8/D11 \u2014 note of 2026-09-19: a restatement was attempted and NOT accepted; the obligation stands"
+      },
+      {
+        "line": 677,
+        "text": "## D18 \u2014 Who fixes the commitment to a hidden input (decided 2026-09-19: the prover, for the first MVP)"
+      },
+      {
+        "line": 734,
+        "text": "## D13 \u2014 What the first MVP must prove (decided 2026-09-19)"
+      },
+      {
+        "line": 752,
+        "text": "## D14 \u2014 A costed memo for the fewer-hashed-bytes speed lever (commissioned 2026-09-19)"
+      },
+      {
+        "line": 773,
+        "text": "## D24 \u2014 Norm precision per profile instead of a fifth remainder limb (proposed 2026-10-17)"
+      }
+    ],
+    "current_terms": [
+      {
+        "line": 13,
+        "text": "forward-pass proof at >=50 proved tokens/s on an RTX 5090 or another high-end"
+      },
+      {
+        "line": 71,
+        "text": "| D42 | **Swap in the resource-guard fix today.** The live `scripts/zk60_resource_guard.py` (sha256 f0b87668\u2026) is replaced by the reviewed candidate `results/zk60_guard_fix_20261021/zk60_resource_guard.py.new` (sha256 87138bda\u2026: admission before the heavy lock; FIFO mode present but OFF by default), following `results/zk60_guard_fix_20261021/NOTES.md` \u00a77: all lanes on hold and no guard process in any session's view; rollback copy kept outside /tmp (`results/zk60_sol_20261026/guard-backup/`); official guard suites without sandbox skips plus the 31 staged tests; Sol (a Codex agent, S3) updates the two static pins (`scripts/zk60_guarded_command.py` `REVIEWED_GUARD_SHA256`, `scripts/zk60_techweek_demo.py` `GUARD_PIN`) in the same window and notes it in `ops/zkp-mvp/RECOVERY_COORDINATION.md`; never during a demo | **operations ruling (Victor)**; **done 2026-10-26 19:00:31 UTC** (Sol S3: official suites 45/45 + 31/31 without skips, consumer suites green, both pins = 87138bda\u2026, FIFO off; audit `results/zk60_sol_20261026/S3_AUDIT.json`; coordinator re-checked the live hash and pins at 19:01) | 2026-10-26 18:22 | Victor (console: \"swap yes\"), answering the 2026-10-21 06:20 question in `ZK60"
+      },
+      {
+        "line": 72,
+        "text": "| D43 | **Funding first; a paper with the demo once the PoC works.** (a) The top priority is to obtain funding for continuing the work as soon as possible \u2014 grants, other funding sources or publications, whichever gets there fastest and best; the coordinator researches the routes and brings one ranked plan (research under `results/zk60_funding_20261028/`). (b) Once the proof of concept works, write and publish a paper on the ZKP technology built here at a prestigious venue, together with the PoC demo, so the technology enters the literature for others to use. Working notes (coordinator, not rulings): in this field the top venues are mostly conferences (security and cryptography), with an IACR ePrint preprint as the fast public form; publication is prior art, so any patent filing must come first \u2014 Victor's call, flagged 2026-10-28. Neither part changes D1, D13, D27, D33, D36 or any security claim | **product direction (Victor)**; plan written 2026-10-28 22:00 UTC: `docs/zkmatrix-poc/ZK60_FUNDING_PLAN.md` (drafts for Foresight, due Oct 31, and YC W27, due Nov 2, in `results/zk60_funding_20261028/`); **ruled by Victor 2026-10-28 ~22:05 UTC (console):** (1) **file a US provisional pate"
+      },
+      {
+        "line": 1057,
+        "text": "over D27's floor without DD]; no wrap, worst 2^43.08. **Fixes owed (Sol, R12b):**"
+      },
+      {
+        "line": 1058,
+        "text": "R12-F1 (medium) the tied embedding is declared, not checked \u2014 the loader and"
+      }
+    ]
+  },
+  {
+    "file": "ZK60_CODEX_FABLE_COORDINATION.md",
+    "lines": 995,
+    "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f",
+    "headings": [
+      {
+        "line": 1,
+        "text": "# Codex \u2194 Fable active loop \u2014 2026-09-18"
+      },
+      {
+        "line": 3,
+        "text": "## Reboot recovery coordination \u2014 2026-09-30 00:54 UTC"
+      },
+      {
+        "line": 43,
+        "text": "## CURRENT \u2014 Codex pickup, 2026-09-19"
+      },
+      {
+        "line": 898,
+        "text": "## Codex lane: complete functional receipt and integration"
+      },
+      {
+        "line": 924,
+        "text": "## Fable request: implement the custom attention path"
+      },
+      {
+        "line": 964,
+        "text": "## Integration and rulings"
+      }
+    ],
+    "current_terms": [
+      {
+        "line": 159,
+        "text": "No native KV implementation, GPU result or 50-token/s achievement is claimed."
+      },
+      {
+        "line": 162,
+        "text": "initialization/initial prefill toward >=50 proved tokens/s on an **RTX 5090"
+      }
+    ]
+  }
+]

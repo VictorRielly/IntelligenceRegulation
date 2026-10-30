@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/lookup-public-incidence-20261029/probe.py", line 21, in <module>
+    manual=c.catalog(h24,dd,wrho,p);source=r.catalog(h24,dd,wrho,p,18)
+  File "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/lookup-public-incidence-20261029/source_reference.py", line 38, in catalog
+    out[d]=read(block,d)
+  File "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/lookup-public-incidence-20261029/source_reference.py", line 32, in read
+    if not 8*(counts[g]-1)<bits<=8*counts[g]:raise ValueError('window')
+ValueError: window

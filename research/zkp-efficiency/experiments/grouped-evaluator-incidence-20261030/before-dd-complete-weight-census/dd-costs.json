@@ -1,0 +1,224 @@
+[
+  {
+    "n": 7,
+    "not_admitted_geometry": true,
+    "recovery": false,
+    "generic_core": {
+      "add": 24130,
+      "mul": 19050,
+      "sub": 12065,
+      "mul_base": 3175
+    },
+    "grouped_partial_core": {
+      "add": 19685,
+      "mul": 13081,
+      "sub": 10160,
+      "mul_base": 2286
+    },
+    "generic_bracket_calls": [
+      635,
+      635,
+      635
+    ],
+    "grouped_bracket_calls": [
+      508,
+      254,
+      254
+    ],
+    "excluded_added_costs": [
+      "group Eq prefix/suffix preparation",
+      "per-row split weight products",
+      "weight*bracket and accumulation",
+      "group inversions/recovery",
+      "degree completion",
+      "pending group values",
+      "unchanged whole-proof work"
+    ],
+    "warning": "Partial operation census; not a net cost comparison or speed estimate"
+  },
+  {
+    "n": 7,
+    "not_admitted_geometry": true,
+    "recovery": true,
+    "generic_core": {
+      "add": 22681,
+      "mul": 17349,
+      "sub": 11246,
+      "mul_base": 2860
+    },
+    "grouped_partial_core": {
+      "add": 18362,
+      "mul": 11569,
+      "sub": 9341,
+      "mul_base": 1971
+    },
+    "generic_bracket_calls": [
+      572,
+      572,
+      572
+    ],
+    "grouped_bracket_calls": [
+      445,
+      191,
+      191
+    ],
+    "excluded_added_costs": [
+      "group Eq prefix/suffix preparation",
+      "per-row split weight products",
+      "weight*bracket and accumulation",
+      "group inversions/recovery",
+      "degree completion",
+      "pending group values",
+      "unchanged whole-proof work"
+    ],
+    "warning": "Partial operation census; not a net cost comparison or speed estimate"
+  },
+  {
+    "n": 14,
+    "not_admitted_geometry": true,
+    "recovery": false,
+    "generic_core": {
+      "add": 3112770,
+      "mul": 2457450,
+      "sub": 1556385,
+      "mul_base": 409575
+    },
+    "grouped_partial_core": {
+      "add": 2539365,
+      "mul": 1687449,
+      "sub": 1310640,
+      "mul_base": 294894
+    },
+    "generic_bracket_calls": [
+      81915,
+      81915,
+      81915
+    ],
+    "grouped_bracket_calls": [
+      65532,
+      32766,
+      32766
+    ],
+    "excluded_added_costs": [
+      "group Eq prefix/suffix preparation",
+      "per-row split weight products",
+      "weight*bracket and accumulation",
+      "group inversions/recovery",
+      "degree completion",
+      "pending group values",
+      "unchanged whole-proof work"
+    ],
+    "warning": "Partial operation census; not a net cost comparison or speed estimate"
+  },
+  {
+    "n": 14,
+    "not_admitted_geometry": true,
+    "recovery": true,
+    "generic_core": {
+      "add": 2924377,
+      "mul": 2236293,
+      "sub": 1449902,
+      "mul_base": 368620
+    },
+    "grouped_partial_core": {
+      "add": 2367354,
+      "mul": 1490865,
+      "sub": 1204157,
+      "mul_base": 253939
+    },
+    "generic_bracket_calls": [
+      73724,
+      73724,
+      73724
+    ],
+    "grouped_bracket_calls": [
+      57341,
+      24575,
+      24575
+    ],
+    "excluded_added_costs": [
+      "group Eq prefix/suffix preparation",
+      "per-row split weight products",
+      "weight*bracket and accumulation",
+      "group inversions/recovery",
+      "degree completion",
+      "pending group values",
+      "unchanged whole-proof work"
+    ],
+    "warning": "Partial operation census; not a net cost comparison or speed estimate"
+  },
+  {
+    "n": 23,
+    "not_admitted_geometry": true,
+    "recovery": false,
+    "generic_core": {
+      "add": 1593835330,
+      "mul": 1258291050,
+      "sub": 796917665,
+      "mul_base": 209715175
+    },
+    "grouped_partial_core": {
+      "add": 1300234085,
+      "mul": 864026521,
+      "sub": 671088560,
+      "mul_base": 150994926
+    },
+    "generic_bracket_calls": [
+      41943035,
+      41943035,
+      41943035
+    ],
+    "grouped_bracket_calls": [
+      33554428,
+      16777214,
+      16777214
+    ],
+    "excluded_added_costs": [
+      "group Eq prefix/suffix preparation",
+      "per-row split weight products",
+      "weight*bracket and accumulation",
+      "group inversions/recovery",
+      "degree completion",
+      "pending group values",
+      "unchanged whole-proof work"
+    ],
+    "warning": "Partial operation census; not a net cost comparison or speed estimate"
+  },
+  {
+    "n": 23,
+    "not_admitted_geometry": true,
+    "recovery": true,
+    "generic_core": {
+      "add": 1497366361,
+      "mul": 1145044869,
+      "sub": 742391726,
+      "mul_base": 188743660
+    },
+    "grouped_partial_core": {
+      "add": 1212153722,
+      "mul": 763363249,
+      "sub": 616562621,
+      "mul_base": 130023411
+    },
+    "generic_bracket_calls": [
+      37748732,
+      37748732,
+      37748732
+    ],
+    "grouped_bracket_calls": [
+      29360125,
+      12582911,
+      12582911
+    ],
+    "excluded_added_costs": [
+      "group Eq prefix/suffix preparation",
+      "per-row split weight products",
+      "weight*bracket and accumulation",
+      "group inversions/recovery",
+      "degree completion",
+      "pending group values",
+      "unchanged whole-proof work"
+    ],
+    "warning": "Partial operation census; not a net cost comparison or speed estimate"
+  }
+]

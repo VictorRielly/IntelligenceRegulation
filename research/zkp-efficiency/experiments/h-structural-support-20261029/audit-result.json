@@ -1,0 +1,371 @@
+{
+  "status": "PASS",
+  "checks": 90,
+  "details": [
+    {
+      "name": "snapshot native/zkp-core/src/field.rs",
+      "passed": true
+    },
+    {
+      "name": "immutable source /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/zkp-core/src/field.rs",
+      "passed": true
+    },
+    {
+      "name": "snapshot native/zkp-core/src/pcs.rs",
+      "passed": true
+    },
+    {
+      "name": "immutable source /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/zkp-core/src/pcs.rs",
+      "passed": true
+    },
+    {
+      "name": "snapshot native/zkp-core/src/mle.rs",
+      "passed": true
+    },
+    {
+      "name": "immutable source /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/zkp-core/src/mle.rs",
+      "passed": true
+    },
+    {
+      "name": "snapshot native/hashline/src/private_block/protocol.rs",
+      "passed": true
+    },
+    {
+      "name": "immutable source /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/hashline/src/private_block/protocol.rs",
+      "passed": true
+    },
+    {
+      "name": "snapshot native/hashline/src/private_block/layout.rs",
+      "passed": true
+    },
+    {
+      "name": "immutable source /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/hashline/src/private_block/layout.rs",
+      "passed": true
+    },
+    {
+      "name": "snapshot native/hashline/src/private_block/shape.rs",
+      "passed": true
+    },
+    {
+      "name": "immutable source /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/hashline/src/private_block/shape.rs",
+      "passed": true
+    },
+    {
+      "name": "snapshot native/hashline/src/private_block/argument.rs",
+      "passed": true
+    },
+    {
+      "name": "immutable source /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/hashline/src/private_block/argument.rs",
+      "passed": true
+    },
+    {
+      "name": "snapshot native/hashline/src/private_block/argument_accuracy.rs",
+      "passed": true
+    },
+    {
+      "name": "immutable source /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/hashline/src/private_block/argument_accuracy.rs",
+      "passed": true
+    },
+    {
+      "name": "snapshot native/NATIVE_LAYOUT_CENSUS.json",
+      "passed": true
+    },
+    {
+      "name": "immutable source /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/NATIVE_LAYOUT_CENSUS.json",
+      "passed": true
+    },
+    {
+      "name": "startup AGENDA.md",
+      "passed": true
+    },
+    {
+      "name": "startup STATE.md",
+      "passed": true
+    },
+    {
+      "name": "startup FINDINGS.md",
+      "passed": true
+    },
+    {
+      "name": "startup sources.jsonl",
+      "passed": true
+    },
+    {
+      "name": "startup PROGRESS.md",
+      "passed": true
+    },
+    {
+      "name": "startup CLAUDE.md",
+      "passed": true
+    },
+    {
+      "name": "startup MVP_STATUS.md",
+      "passed": true
+    },
+    {
+      "name": "startup ZK60_DECISIONS.md",
+      "passed": true
+    },
+    {
+      "name": "startup ZK60_CODEX_FABLE_COORDINATION.md",
+      "passed": true
+    },
+    {
+      "name": "startup ZK60_THROUGHPUT_TARGET.md",
+      "passed": true
+    },
+    {
+      "name": "build_claim unchanged",
+      "passed": true
+    },
+    {
+      "name": "B h unchanged",
+      "passed": true
+    },
+    {
+      "name": "H domain builder unchanged",
+      "passed": true
+    },
+    {
+      "name": "HIds unchanged",
+      "passed": true
+    },
+    {
+      "name": "sum claim unchanged",
+      "passed": true
+    },
+    {
+      "name": "audit unchanged",
+      "passed": true
+    },
+    {
+      "name": "group/rho unchanged",
+      "passed": true
+    },
+    {
+      "name": "serial Eq only",
+      "passed": true
+    },
+    {
+      "name": "native H offset loop",
+      "passed": true
+    },
+    {
+      "name": "chunk4 seam",
+      "passed": true
+    },
+    {
+      "name": "all68priorhypotheses",
+      "passed": true
+    },
+    {
+      "name": "old findings preserved",
+      "passed": true
+    },
+    {
+      "name": "old sources preserved",
+      "passed": true
+    },
+    {
+      "name": "seven source records",
+      "passed": true
+    },
+    {
+      "name": "source provenance cycle0149-source-1",
+      "passed": true
+    },
+    {
+      "name": "source provenance cycle0149-source-2",
+      "passed": true
+    },
+    {
+      "name": "source provenance cycle0149-source-3",
+      "passed": true
+    },
+    {
+      "name": "source provenance cycle0149-source-4",
+      "passed": true
+    },
+    {
+      "name": "source provenance cycle0149-source-5",
+      "passed": true
+    },
+    {
+      "name": "source provenance cycle0149-source-6",
+      "passed": true
+    },
+    {
+      "name": "source provenance cycle0149-source-7",
+      "passed": true
+    },
+    {
+      "name": "bounded prepare",
+      "passed": true
+    },
+    {
+      "name": "bounded compile",
+      "passed": true
+    },
+    {
+      "name": "bounded probe",
+      "passed": true
+    },
+    {
+      "name": "bounded census",
+      "passed": true
+    },
+    {
+      "name": "probe status",
+      "passed": true
+    },
+    {
+      "name": "probe fixtures",
+      "passed": true
+    },
+    {
+      "name": "probe independent_coefficients",
+      "passed": true
+    },
+    {
+      "name": "probe message_plus_pad_folds",
+      "passed": true
+    },
+    {
+      "name": "probe restored_order_values",
+      "passed": true
+    },
+    {
+      "name": "probe negative_controls",
+      "passed": true
+    },
+    {
+      "name": "census 175 checks",
+      "passed": true
+    },
+    {
+      "name": "positive conservative scope False",
+      "passed": true
+    },
+    {
+      "name": "positive conservative scope True",
+      "passed": true
+    },
+    {
+      "name": "zero full work new_independently_verified_full_stack_proofs",
+      "passed": true
+    },
+    {
+      "name": "zero full work completed_model_passes",
+      "passed": true
+    },
+    {
+      "name": "zero full work proved_positions",
+      "passed": true
+    },
+    {
+      "name": "unmeasured witness_s",
+      "passed": true
+    },
+    {
+      "name": "unmeasured proof_s",
+      "passed": true
+    },
+    {
+      "name": "unmeasured serialization_s",
+      "passed": true
+    },
+    {
+      "name": "unmeasured verification_s",
+      "passed": true
+    },
+    {
+      "name": "unmeasured startup_prefill_s",
+      "passed": true
+    },
+    {
+      "name": "unmeasured startup_fraction",
+      "passed": true
+    },
+    {
+      "name": "unmeasured steady_state_proved_tokens_per_s",
+      "passed": true
+    },
+    {
+      "name": "unmeasured total_workload_proved_tokens_per_s",
+      "passed": true
+    },
+    {
+      "name": "current report PROGRESS.md",
+      "passed": true
+    },
+    {
+      "name": "current report STATE.md",
+      "passed": true
+    },
+    {
+      "name": "current report progress/20261029T185649Z-81a2bde2.md",
+      "passed": true
+    },
+    {
+      "name": "handoff",
+      "passed": true
+    },
+    {
+      "name": "README",
+      "passed": true
+    },
+    {
+      "name": "raw LIVE 1",
+      "passed": true
+    },
+    {
+      "name": "raw LIVE 2",
+      "passed": true
+    },
+    {
+      "name": "raw LIVE 3",
+      "passed": true
+    },
+    {
+      "name": "raw LIVE 4",
+      "passed": true
+    },
+    {
+      "name": "raw LIVE 5",
+      "passed": true
+    },
+    {
+      "name": "raw LIVE 6",
+      "passed": true
+    },
+    {
+      "name": "raw LIVE 7",
+      "passed": true
+    },
+    {
+      "name": "raw LIVE 8",
+      "passed": true
+    },
+    {
+      "name": "raw LIVE 9",
+      "passed": true
+    },
+    {
+      "name": "retained failed-include-in-impl",
+      "passed": true
+    },
+    {
+      "name": "retained failed-corner-single-batch-control",
+      "passed": true
+    },
+    {
+      "name": "retained before-packed-scatter",
+      "passed": true
+    }
+  ],
+  "utc": "2026-10-29T19:12:21.740350+00:00",
+  "owner_documents_unchanged": true,
+  "full_stack_proofs": 0,
+  "model_passes": 0,
+  "proved_positions": 0
+}

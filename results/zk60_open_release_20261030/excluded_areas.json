@@ -1,0 +1,35 @@
+{
+ "generated_utc": "2026-10-30T06:10:00Z",
+ "method": "du -s (disk use, MiB) and directory listings only; no bulk file opened. Frozen copies are hard-linked in places, so du totals depend on walk order and overlap",
+ "repo_areas_MiB": {
+  "results/": 208140,
+  ".git/": 14625,
+  "local-models/ (Llama-3-8B, TinyLlama weights)": 17424,
+  "ops/ (frozen trees, review scratch, gate versions; with build dirs)": 13582,
+  "research/ (explorer memory, 161 experiments, one vendors a third-party crate with its own LICENSE files)": 1076,
+  ".claude/ (agent settings, hooks)": 113
+ },
+ "outside_repo_MiB": {
+  "~/models": 19135,
+  "~/zk60-artifacts (exports, receipts, owner openings of past runs)": 42863,
+  "~/zk60-owner-private": "exists, 4 entries, never listed further, never in the candidate tree"
+ },
+ "excluded_with_reason": {
+  "every target/ and target-*/ dir": "build output",
+  ".git": "private history: fresh public repository instead (see history_scan.json)",
+  ".venv, node_modules, __pycache__, *.pyc": "environments and caches",
+  "apps/proven-media/.testnet-private/": "throwaway Sepolia key, app signing keys, app and auth databases, recovery state (12 files, names in name_flags.json); gitignored, never committed",
+  "results/ (except 20 test fixtures and 33 curated evidence files)": "bulk evidence: receipts (848 MB each), exports, logs, lane ledgers",
+  "results/zk60_funding_20261028/": "funding drafts, wave-2 research, patent/PROVISIONAL_DISCLOSURE_DRAFT.md (personal / business)",
+  "ops/zkp-mvp/ (except gate-tinyllama/frozen_v23)": "frozen round copies, review scratch, coordination files (RECOVERY_COORDINATION.md, LANE_RULES, *-delivery / *-handoff / *-task notes)",
+  "ops/zkp-explorer/": "agent supervisor prompt and service file",
+  "research/": "explorer memory; release later if wanted, after a licence pass of experiments/",
+  "local-models/, ~/models": "third-party weights (see model_licences.json)",
+  "root PDFs": "zkMatrix.pdf = ePrint 2024/161 (third party, same bytes size as docs/zkmatrix-poc/references/zkMatrix-eprint-2024-161.pdf); docs/zkmatrix-poc/references/*.pdf = third-party ePrints (LatticeFold, LatticeFold+, Neo): link, do not redistribute. zk-matrix-multiplication-lattice (2).pdf = the project's own lattice protocol report by its outline (pdfTeX, 2026-07-03) [INFERRED]: publish only after Victor confirms authorship. Zero Knowledge AI Governance Framework.pdf = a Google Docs export, probably Victor's own vision paper [INFERRED]: his choice",
+  "PROGRESS*.md at the root (2 MB of ledgers), CLAUDE.md": "agent ledgers and agent instructions (Telegram approval workflow, box rules)",
+  "codex-audit-2026-07-*/, codex-gpu-readiness-2026-07-12/": "audit reports written by Codex for this project (our work product, not third-party code); historical, superseded; optional docs/history/ later",
+  "ComputationIdentification/, ComputationMonitor/, approximatematrixmultiplication.py, contentzkpfilterpoc (1).py, uk9-residue-2026-07-12.patch": "June/July prototypes and a stray patch; not needed to build or check the system",
+  "docs/provenance/MUSIC_PROVENANCE_POC.md": "separate side project",
+  "docs exclusions (14 files)": "listed with reasons in candidate_summary.json doc_exclude"
+ }
+}

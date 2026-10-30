@@ -4,7 +4,7 @@
 "use strict";
 
 const $ = (sel, el = document) => el.querySelector(sel);
-const S = { cfg: null, handle: "", audience: "adult", hide: [], timer: null, composeKind: "text", lastPostJSON: "" };
+const S = { cfg: null, handle: "", csrf: "", operator: false, sessionEpoch: 0, audience: "adult", hide: [], timer: null, composeKind: "text", lastPostJSON: "" };
 
 function esc(s) {
   return String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -39,18 +39,39 @@ const SHIELD_DOTS = `<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="cur
 const CRED = `<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M7 9h6M7 13h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="16.5" cy="14.5" r="2.5" fill="currentColor"/></svg>`;
 
 async function api(path, opts = {}) {
-  const r = await fetch(path, opts);
+  const sessionEpoch = S.sessionEpoch;
+  const headers = new Headers(opts.headers || {});
+  if (opts.method && !["GET", "HEAD"].includes(opts.method.toUpperCase()) && S.csrf) headers.set("X-PM-CSRF", S.csrf);
+  const r = await fetch(path, { ...opts, headers, credentials: "same-origin" });
   const ct = r.headers.get("content-type") || "";
   const body = ct.includes("json") ? await r.json() : await r.text();
-  if (!r.ok) throw new Error((body && body.detail) || (body && body.error) || r.statusText);
+  if (sessionEpoch !== S.sessionEpoch) throw new Error("Session changed.");
+  if (!r.ok) {
+    if (r.status === 401 && path !== "/api/session") {
+      setSession({});
+      $("#app").innerHTML = '<div class="card empty">Sign in to view your submissions.</div>';
+    }
+    throw new Error((body && body.detail) || (body && body.error) || r.statusText);
+  }
   return body;
+}
+
+function setSession(session) {
+  S.sessionEpoch++;
+  S.handle = (session.author || "").replace(/^@/, "");
+  S.csrf = session.csrf || ""; S.operator = !!session.operator;
+  $("#handle").textContent = session.author || "Signed out";
+  $("#signin").hidden = !!S.handle; $("#signout").hidden = !S.handle;
+  $('[data-nav="status"]').hidden = !S.operator;
+  S.lastPostJSON = "";
 }
 function toast(msg, ms = 3800) {
   const t = document.createElement("div"); t.className = "toast"; t.textContent = msg; document.body.appendChild(t);
   setTimeout(() => t.remove(), ms);
 }
 function isFake() { return S.cfg && S.cfg.prover && S.cfg.prover.kind === "fake"; }
-function stubTag() { return isFake() ? `<span class="tag fake">fake: no proof</span>` : `<span class="tag" title="${esc(S.cfg?.prover?.label || "")}">demo stub</span>`; }
+function isShieldstral() { return S.cfg?.prover?.kind === "shieldstral"; }
+function stubTag() { return isFake() ? `<span class="tag fake">fake: no proof</span>` : `<span class="tag" title="${esc(S.cfg?.prover?.label || "")}">${isShieldstral() ? "privacy statement pending" : "demo stub"}</span>`; }
 function audQuery() { return `audience=${encodeURIComponent(S.audience)}&hide=${encodeURIComponent(S.hide.join(","))}`; }
 function audName() { return (S.cfg.audiences[S.audience] || {}).name || S.audience; }
 function catName(id) { const c = S.cfg.categories.find(c => c.id === id); return c ? c.short : id; }
@@ -64,6 +85,10 @@ function renderModebar() {
     return;
   }
   mb.className = "modebar";
+  if (p.kind === "shieldstral") {
+    mb.innerHTML = `<div><b>Real Shieldstral classifier · privacy statement pending.</b> Each category label is bound to a verified model proof and checked against the post. Moderate policies are enabled for this testnet demo; the product wording remains pending.</div>`;
+    return;
+  }
   mb.innerHTML = `<div><b>Demo stub:</b> each post gets a real zero-knowledge proof of a 1.1B model run (next-token proof), standing in for its three
     Shieldstral category proofs; the labels shown are not yet bound by the proof. <a href="#/about">What this means</a></div>`;
 }
@@ -101,9 +126,10 @@ function progressBar(prog) {
   const pct = Math.round(100 * (prog.done + prog.failed) / prog.total);
   return `<div class="progress"><div class="bar"><i style="width:${pct}%"></i></div>
     <span class="small muted">${prog.done + prog.failed} of ${prog.total} chunk run${prog.total > 1 ? "s" : ""} done${prog.failed ? ` (${prog.failed} without proof)` : ""} ·
-    ${(prog.done + prog.failed) * 3} of ${prog.total * 3} category proofs</span></div>`;
+    ${(prog.done + prog.failed) * (isShieldstral() ? 1 : 3)} of ${prog.total * (isShieldstral() ? 1 : 3)} category proofs</span></div>`;
 }
 function cell(ch, cat) {
+  if (ch.category && ch.category !== cat) return '<td><span class="muted">—</span></td>';
   if (ch.status === "done") { const v = ch.labels[cat]; return `<td><span class="chip ${v === "no" ? "no" : (v === "yes" ? "yes" : "unproved")}">${esc(v === "unproved" ? "not proved" : v)}</span></td>`; }
   if (ch.status === "failed") return `<td><span class="chip unproved">no proof</span></td>`;
   if (ch.status === "running") return `<td><span class="cellrun"><span class="spinner"></span> ${ch.waiting_for_machine ? "waiting" : "proving"}</span></td>`;
@@ -115,10 +141,11 @@ function chunkGrid(p, title) {
   const rows = ch.map(c => `<tr class="${c.status}"><td><b>${c.index + 1}</b></td><td class="mono small">${c.start}–${c.end} <span class="muted">(${c.tokens})</span></td>
     ${cats.map(k => cell(c, k.id)).join("")}<td class="small">${c.status === "running" ? esc(c.step_label || "") : (c.status === "failed" ? `<span class="bad-t">${esc((c.error || "").slice(0, 120))}</span>` : (c.status === "done" ? `<span class="hash">${short(c.statement_sha256, 10)}</span>` : ""))}</td></tr>`).join("");
   const d = S.cfg.deploy;
+  const separate = ch.some(c => c.category);
   return `<section class="card pad"><h2>${esc(title)}</h2>
-    <p class="small muted">${ch.length} chunk${ch.length > 1 ? "s" : ""} × ${cats.length} categories = ${ch.length * cats.length} proofs ·
+    <p class="small muted">${separate ? `${ch.length} category proofs · each category covers the whole post using its own token ranges` : `${ch.length} chunk${ch.length > 1 ? "s" : ""} × ${cats.length} categories = ${ch.length * cats.length} proofs ·
       profile <b>${esc(d.profile)}</b>: ${esc(d.effective_chunk_tokens)}-token chunks, overlap ${esc(d.effective_overlap_tokens)}${d.capped_by_prover ? ` (configured ${esc(d.chunk_tokens)}, capped by the stub's ${esc(S.cfg.limits.stub_chunk_max)}-token run)` : ""} ·
-      demo stub: one run per chunk stands in for its 3 category proofs</p>
+      demo stub: one run per chunk stands in for its 3 category proofs`}</p>
     ${progressBar(p.job && p.job.progress)}
     <div style="overflow-x:auto"><table class="table grid"><tr><th>chunk</th><th>tokens</th>${cats.map(k => `<th>${esc(k.short)}</th>`).join("")}<th>proof</th></tr>${rows}</table></div>
     <p class="small muted" style="margin-top:6px">A category is <b>yes</b> if any chunk is yes, and <b>not proved</b> if any chunk lacks an accepted proof (fail closed).</p></section>`;
@@ -149,6 +176,7 @@ function mediaBlock(p) {
 }
 function postCard(p) {
   if (p.hidden) return hiddenCard(p);
+  if (p.status === "failed") return '<article class="card pad">Could not be verified.</article>';
   const body = p.kind === "text"
     ? (p.text_hidden ? `<p class="post-text muted"><i>Text not shown.</i></p>` : `<p class="post-text">${esc(p.text)}</p>`)
     : mediaBlock(p);
@@ -158,6 +186,7 @@ function postCard(p) {
 }
 
 function composeHTML() {
+  if (!S.handle) return '<section class="card pad" id="compose">Sign in to write a post and view your submissions.</section>';
   const k = S.composeKind, max = S.cfg.limits.max_content_tokens;
   const tab = (id, label, dev) => `<button class="tab ${k === id ? "on" : ""}" data-kind="${id}">${label}${dev ? ` <span class="pill">in dev</span>` : ""}</button>`;
   let inner;
@@ -185,6 +214,7 @@ function composeHTML() {
 function bindCompose() {
   document.querySelectorAll("#compose .tab").forEach(b => b.onclick = () => { S.composeKind = b.dataset.kind; $("#compose").outerHTML = composeHTML(); bindCompose(); });
   const btn = $("#postbtn");
+  if (!btn) return;
   if (S.composeKind === "text") {
     const ta = $("#ctext"), ctr = $("#counter"); let tmr = null;
     ta.oninput = () => {
@@ -194,7 +224,8 @@ function bindCompose() {
         try {
           const r = await api("/api/tokenize", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ text: ta.value }) });
           ctr.textContent = r.fits
-            ? `${r.count} tokens → ${r.chunks} chunk${r.chunks > 1 ? "s" : ""} × 3 categories = ${r.proofs} proofs (profile ${r.profile}: ${r.chunk_tokens}-token chunks, overlap ${r.overlap_tokens})`
+            ? (r.profile === 'per-category' ? `${r.count} tokens → ${r.proofs} proofs (${Object.entries(r.category_chunks).map(([c, n]) => `${c}: ${n}`).join(', ')})`
+              : `${r.count} tokens → ${r.chunks} chunk${r.chunks > 1 ? "s" : ""} × 3 categories = ${r.proofs} proofs (profile ${r.profile}: ${r.chunk_tokens}-token chunks, overlap ${r.overlap_tokens})`)
             : `${r.count} tokens: too long for this deployment profile (at most ${r.max} tokens; the whole post is proved or nothing)`;
           ctr.classList.toggle("over", !r.fits); btn.disabled = !r.fits;
         } catch (e) { ctr.textContent = "could not count tokens"; }
@@ -239,7 +270,7 @@ function bindCompose() {
 }
 function requireHandle() {
   if (S.handle) return true;
-  toast("Choose a handle first (top right)."); $("#handle").focus(); return false;
+  $("#signin-dialog").showModal(); return false;
 }
 
 function audiencePanel() {
@@ -276,6 +307,8 @@ async function refreshFeed() {
 }
 async function refreshQueue() {
   const el = $("#queue"); if (!el) return;
+  if (!S.operator) { el.hidden = true; return; }
+  el.hidden = false;
   const q = await api("/api/queue");
   el.innerHTML = queueHTML(q, true);
 }
@@ -301,14 +334,15 @@ function queueHTML(q, compact) {
 }
 async function refreshSubs() {
   const el = $("#subs"); if (!el) return;
-  if (!S.handle) { el.innerHTML = `<h3>Your submissions</h3><p class="small muted">Choose a handle (top right) to post and follow your submissions.</p>`; return; }
-  const r = await api(`/api/submissions?author=${encodeURIComponent(S.handle)}`);
+  if (!S.handle) { el.innerHTML = `<h3>Your submissions</h3><p class="small muted">Sign in to view your submissions.</p>`; return; }
+  const r = await api('/api/submissions');
   const items = r.posts.map(p => {
+    if (p.status === "failed") return `<li><a href="#/post/${esc(p.id)}">Could not be verified.</a></li>`;
     const snip = p.kind === "text" ? esc(p.text) : `<i>${esc(p.kind)} post</i>`;
     let prog = "";
     if (p.job && (p.job.status === "running" || p.job.status === "queued")) prog = `<div class="muted">${p.job.status === "running" ? `chunk ${(p.job.chunk || 0) + 1}: ${esc(p.job.step_label || "")}` : "queued"}${p.job.eta_s != null ? ` · ~${Math.max(1, Math.round(p.job.eta_s / 60))} min left` : ""}</div>${progressBar(p.job.progress)}`;
     else if (p.status === "published") prog = `<div>${chips(p.labels)}</div>`;
-    const label = { "in-development": "pending verification", queued: "pending verification", screening: "pending verification", published: "labelled" }[p.status] || p.status;
+    const label = { "in-development": "pending verification", pending: "pending verification", published: "labelled" }[p.status] || p.status;
     return `<li><span class="status ${esc(p.status)}">${esc(label)}</span> · <a href="#/post/${esc(p.id)}">${esc(p.id.slice(0, 12))}…</a>
       <div class="snip">${snip}</div>${prog}</li>`;
   }).join("");
@@ -320,15 +354,24 @@ const PROVE_STEPS = [["seqgen", "Prepare the hidden input"], ["prove", "Prove (m
   ["verify", "Verify from public files only"], ["owner", "Platform opens the sealed output"], ["inowner", "Check the proof is about this post"], ["publish", "Publish the labels, anchor, sign the manifest"]];
 
 function stepsHTML(job) {
+  const steps = isShieldstral() ? PROVE_STEPS.filter(s => !["owner", "publish"].includes(s[0])).concat([
+    ["label", "Verify whole-category coverage and aggregate label"], ["publish", "Store proofs, anchor batch, sign manifest"]]) : PROVE_STEPS;
   const cur = job && job.status === "running" ? job.step : null;
-  const idx = cur ? PROVE_STEPS.findIndex(s => s[0] === cur) : -1;
-  return `<ol class="steps">${PROVE_STEPS.map(([k, label], i) => {
+  const idx = cur ? steps.findIndex(s => s[0] === cur) : -1;
+  return `<ol class="steps">${steps.map(([k, label], i) => {
     const cls = idx < 0 ? "" : (i < idx ? "done" : (i === idx ? "now" : ""));
     return `<li class="${cls}"><span class="ic">${cls === "done" ? "✓" : ""}</span>${esc(label)}${cls === "now" && job.waiting_for_machine ? ` <span class="muted small">(waiting for the shared machine)</span>` : ""}</li>`;
   }).join("")}</ol>`;
 }
 
 function honestLimits() {
+  if (isShieldstral()) return `<ul class="limits small">
+    <li><b>Privacy statement pending.</b> The independent classifier privacy review is separate from proof verification.</li>
+    <li><b>Real text classifier.</b> Three moderate categories, with 55 / 55 / 49 content tokens per chunk, overlap 8. Image proofs remain in development.</li>
+    <li><b>Laptop cost.</b> Earlier real runs took about 7.5 minutes to prove each category, plus about a minute each for verification, input binding and aggregation. Work is sequential and may wait for the shared machine.</li>
+    <li><b>Content binding.</b> The platform checks each sealed input against the post. The statement hash is included in the anchored publication.</li>
+    <li><b>Model quality.</b> Full held-out integer-versus-float verdict metrics remain in progress. The moderate product wording is pending.</li>
+    <li><b>Testnet storage.</b> Only a batch digest goes to Base Sepolia. Proof files remain in this machine's off-chain store.</li></ul>`;
   return `<ul class="limits small">
     <li><b>Demo stub.</b> One next-token proof of TinyLlama-1.1B stands in for the three Shieldstral-1.0-3B category proofs. It proves the approved
       model ran on the hidden post; each label comes from a placeholder keyword list and is <b>not</b> bound by the proof.</li>
@@ -358,11 +401,12 @@ function labelsHero(p, rec) {
         <div style="margin-top:8px">${chips(p.labels)}</div></div></section>`;
     }
     return `<section class="card hero"><div class="seal">${SHIELD}</div><div><h1>Labelled: ${(p.labels || []).map(l => esc(l.short) + " " + esc(l.value === "unproved" ? "not proved" : l.value)).join(" · ")}</h1>
-      <p class="muted">Classified by ${esc(S.cfg.classifier.name)} in ${(p.labels || []).length} registered categories · <b>proved once, at creation: ${esc((rec && (rec.proved_at || rec.created_at)) || "")}</b> ·
+      <p class="muted">Classified by ${esc(S.cfg.classifier.name)} in ${(p.labels || []).length} registered categories · <b>proved once, at creation</b> ·
         published ${ago(p.published_at)}</p>
       <div style="margin:6px 0 10px">${chips(p.labels)}</div>
       ${p.status_message ? `<div class="note bad" style="margin-bottom:8px">${esc(p.status_message)}</div>` : ""}
-      <div class="note ${fake ? "bad" : "stub"}">${fake ? "FAKE PROVER: nothing was proved for this post." :
+      <div class="note ${fake ? "bad" : "stub"}">${fake ? "FAKE PROVER: nothing was proved for this post." : rec?.prover?.kind === "shieldstral" ?
+        `<b>Real classifier proofs · privacy statement pending.</b> Every category label was verified and bound to this post. The complete category coverage was checked before publication.` :
         `<b>Demo stub: next-token proof, classifier proofs coming.</b> A real zero-knowledge proof was made and verified for this post: it shows the approved
         ${esc(rec && rec.prover ? rec.prover.model : "")} ran on each hidden chunk. Each run stands in for that chunk's three category proofs; the labels themselves come from a placeholder and are not yet bound by the proof.`}</div></div></section>`;
   }
@@ -411,7 +455,7 @@ function manifestSection(p) {
   return `<section class="card pad stack" id="manifest"><h2>Proof manifest <span class="muted small">zk60.manifest/1 · content credentials</span></h2>
     <p class="small">Attached to this item whenever it is served: one entry per category (model, policy, label, statement hash, bundle and anchor references,
     salted content commitment), signed with the app's publisher key (Ed25519, key id <span class="hash">${esc(m.issuer && m.issuer.key_id)}</span>, <b>local development key</b>).</p>
-    <div><button class="btn ghost small" id="vmanbtn">Verify manifest</button> <a class="btn ghost small" href="/api/posts/${esc(p.id)}/manifest.json?${S.handle ? "author=" + encodeURIComponent(S.handle) + "&" : ""}${audQuery()}">Download ${esc(p.id.slice(0, 8))}….manifest.json</a>
+    <div><button class="btn ghost small" id="vmanbtn">Verify manifest</button> <a class="btn ghost small" href="/api/posts/${esc(p.id)}/manifest.json?${audQuery()}">Download ${esc(p.id.slice(0, 8))}….manifest.json</a>
       <span class="small muted">signature, then each entry's anchor and Merkle path in the ledger</span></div>
     <div id="vmanout" class="small"></div>
     <details><summary class="small">Manifest JSON</summary><pre class="code">${esc(JSON.stringify(m, null, 1))}</pre></details></section>`;
@@ -473,7 +517,7 @@ function verifySection(p, rec) {
   }
   return `<section class="card pad stack" id="verify"><h2>Check the proof yourself</h2>
     <div><button class="btn" id="verifybtn" ${p.recheck ? "disabled" : ""}>Re-verify now</button>
-      <span class="small muted">runs the verifier again on this server in a fresh process for every chunk (about 15 s of work each, through the shared machine's guard); it re-checks, it never re-proves</span></div>
+      <span class="small muted">runs the verifier and input check again on this server in fresh processes for every chunk (${isShieldstral() ? "about two minutes" : "about 15 seconds"} of work each, through the shared machine's guard); it re-checks, it never re-proves</span></div>
     ${lastHTML}
     <div><b class="small">Or verify on your own machine</b>
       <p class="small">Download the bundle (${fmtBytes(rec.receipt.bytes)}: the receipt, the published statement, the record and the manifest) and run the public verifier:</p>
@@ -492,49 +536,34 @@ function publicTable(rec) {
   return `<section class="card pad"><h2>What is public</h2><table class="table">
     ${row("Labels", "one per registered category, aggregated over the chunks; each chunk × category has its own proof (above)")}
     ${row("Classifier (target)", `${esc(S.cfg.classifier.name)} <span class="muted">· ${esc(S.cfg.classifier.status)}</span>`)}
-    ${row("Model proved (stub)", esc(pr.model || "—"))}
+    ${row("Model proved", esc(pr.model || "—"))}
     ${row("Model identity", `<span class="hash">${short(pr.model_digest, 24)}</span> <span class="muted">statement identity, pinned by the approval record</span>`)}
     ${row("Token profile", `<span class="hash">${short(pr.token_profile_digest, 24)}</span>`)}
     ${row("Category set", `${esc(S.cfg.category_set.id)} <span class="hash">${short(S.cfg.category_set.digest, 16)}</span>`)}
-    ${row("Content length", `${esc(rec.content_length)} tokens <span class="muted">(public by the design rule, pending the project lead)</span>`)}
-    ${row("Chunking", `${esc(ch.n_chunks)} chunk${ch.n_chunks > 1 ? "s" : ""} of ≤ ${esc(ch.chunk_tokens)} tokens, overlap ${esc(ch.overlap_tokens)} (profile ${esc(ch.profile)})`)}
-    ${row("Hidden-input commitments (in the proofs)", `one per chunk, inside each statement (first: <span class="hash">${short(cc.value, 16)}</span>); ${esc(cc.kind || "")}. Not put in the anchors (O-2 / D23).`)}
+    ${row("Content length", `${esc(rec.content_length)} tokens <span class="muted">(public, D45)</span>`)}
+    ${row("Chunking", ch.categories ? Object.entries(ch.categories).map(([c, v]) => `${esc(c)}: ${esc(v.chunks)} chunks of ≤ ${esc(v.chunk_tokens)} tokens, overlap ${esc(v.overlap_tokens)}`).join('; ')
+      : `${esc(ch.n_chunks)} chunk${ch.n_chunks > 1 ? "s" : ""} of ≤ ${esc(ch.chunk_tokens)} tokens, overlap ${esc(ch.overlap_tokens)} (profile ${esc(ch.profile)})`)}
+    ${row("Hidden-input commitments (in the proofs)", `one per proof, inside its statement (first: <span class="hash">${short(cc.value, 16)}</span>); ${esc(cc.kind || "")}. The anchor binds the statement hash; the opening stays private.`)}
     ${row("Receipts", `${esc(rec.receipt.segments)} sealed segments in total · ${fmtBytes(rec.receipt.bytes)}`)}
     ${row("Security floor", `${esc(sec.whole_run_floor_bits)} bits per run <span class="muted">(verifier requires ${esc(sec.min_bits_required)}; ${esc(sec.note || "")})</span>`)}
   </table></section>`;
 }
 
 function privateList() {
-  return `<section class="card pad"><h2>What stays private</h2><ul class="small">
+  return `<section class="card pad"><h2>Private material held by the platform</h2>${isShieldstral() ? '<p class="small">Privacy statement pending. These files are excluded from the published proof bundles.</p>' : ''}<ul class="small">
     <li>The post's tokens as the proof's input: a 0600 file on the platform, never on a command line or in a log.</li>
-    <li>Every intermediate number of the model run (the hidden activations are deleted after proving).</li>
+    <li>Intermediate model activations${isShieldstral() ? ' (retained privately for this integration demo)' : ''}.</li>
     <li>The openings of the input and output commitments (held by the platform; never in a bundle, D21).</li>
     <li>The stub's opened next token; the classifier's confidence scores (only the labels are published).</li>
     <li>The content itself from any audience its labels exclude: hidden items are served as placeholders only.</li></ul></section>`;
 }
 
-function timingStats(rec) {
-  const recs = chunkRecords(rec);
-  if (!recs.length) return "";
-  const sum = (f) => recs.reduce((a, r) => a + (f(r) || 0), 0);
-  const waited = sum(r => Object.values((r.timings || {}).waited_for_machine_s || {}).reduce((a, b) => a + (b || 0), 0));
-  const peak = Math.max(...recs.flatMap(r => Object.values((r.timings || {}).peak_rss_gib || {}).filter(x => x != null)), 0);
-  const rows = recs.map(r => { const t = r.timings || {}, c = r.chunk || {};
-    return `<tr><td>${esc((c.index || 0) + 1)}</td><td>${fmtS(t.seqgen_s)}</td><td>${fmtS(t.prove_s)} <span class="muted">(${fmtS(t.prove_with_loading_s)})</span></td><td>${fmtS(t.verify_s)}</td><td>${fmtBytes(r.receipt.bytes)}</td><td class="small">${esc(r.proved_at || "")}</td></tr>`; }).join("");
-  return `<section class="card pad"><h2>Timings and sizes</h2><div class="stats">
-    <div class="stat"><b>${fmtS(sum(r => (r.timings || {}).prove_s))}</b><span>proving, all chunks</span></div>
-    <div class="stat"><b>${fmtS(sum(r => (r.timings || {}).verify_s))}</b><span>verifying, all chunks</span></div>
-    <div class="stat"><b>${fmtBytes(rec.receipt.bytes)}</b><span>proof size, ${esc(rec.receipt.segments)} segments</span></div>
-    <div class="stat"><b>${fmtS(rec.timings && rec.timings.work_s)}</b><span>all steps (work); ${fmtS(waited)} waiting for the machine</span></div></div>
-    <div style="overflow-x:auto"><table class="table" style="margin-top:12px"><tr><th>chunk</th><th>prepare</th><th>prove (with loading)</th><th>verify</th><th>proof</th><th>proved at</th></tr>${rows}</table></div>
-    <p class="small muted">Peak memory (largest step) ${peak ? peak.toFixed(2) + " GiB" : "—"} · laptop CPU (Intel Core Ultra 9 185H), no GPU; shared box, n = 1 · ${esc((recs[0].prover || {}).cli || "")}</p></section>`;
-}
 
 function imagePlan(p) {
   const m = p.media || {}, px = m.canvas_px || S.cfg.image_spec.canvas_px;
   const mine = S.handle && ("@" + S.handle) === p.author;
   return `<section class="card pad"><h2>Planned proofs</h2>
-    ${mine ? `<div class="imgprev"><figure><img src="/api/posts/${esc(p.id)}/canvas.png?author=${encodeURIComponent(S.handle)}" alt="canonical canvas" width="${px}" height="${px}">
+    ${mine ? `<div class="imgprev"><figure><img src="/api/posts/${esc(p.id)}/canvas.png" alt="canonical canvas" width="${px}" height="${px}">
       <figcaption>The exact canonical canvas the classifier will see (shown to you, the author, only)</figcaption></figure></div>` : ""}
     <table class="table">
     ${row("Proofs needed", `3 (one per category), over the canonical ${px} × ${px} canvas`)}
@@ -558,11 +587,26 @@ function hiddenPage(p) {
 }
 
 async function viewPost(id) {
-  const q = `?${S.handle ? "author=" + encodeURIComponent(S.handle) + "&" : ""}${audQuery()}`;
+  const q = `?${audQuery()}`;
   let p;
   try { p = await api(`/api/posts/${encodeURIComponent(id)}${q}`); }
   catch (e) { $("#app").innerHTML = `<div class="card empty" style="margin-top:20px">${esc(e.message)}</div>`; return; }
-  const live = p.status === "queued" || p.status === "screening" || p.recheck;
+  if (p.status === "failed") {
+    $("#app").innerHTML = '<div id="postpage" class="card pad" style="margin-top:20px"><a href="#/">← Feed</a><h1>Could not be verified.</h1><button id="delete-failed" class="btn ghost small">Delete this post</button></div>';
+    $("#delete-failed").onclick = async () => {
+      if (!confirm("Delete this post and its private files?")) return;
+      try { await api(`/api/posts/${encodeURIComponent(id)}`, { method: 'DELETE' }); await viewPost(id); }
+      catch (error) { toast(error.message); }
+    };
+    return;
+  }
+  if (p.status !== "published") {
+    $("#app").innerHTML = `<div id="postpage" class="card pad" style="margin-top:20px"><a href="#/">← Feed</a>
+      <h1>${p.status === "deleted" ? "Post deleted" : "Verification pending"}</h1>
+      <p class="post-text">${esc(p.text || "")}</p>${p.kind === "image" && p.status !== "deleted" ? imagePlan(p) : ""}</div>`;
+    return;
+  }
+  const live = !!p.recheck;
   const anc = p.publication ? Object.values(p.publication.anchors).map(a => a.status).join() : "";
   const sig = JSON.stringify([p.hidden, p.status, p.job, p.recheck, (p.checks || []).length, anc, (p.labels || []).map(l => l.value),
     (p.chunks || []).map(c => c.status + (c.step || "") + (c.waiting_for_machine ? "w" : "")), live ? Math.floor(Date.now() / 5000) : 0]);
@@ -583,7 +627,7 @@ async function viewPost(id) {
     if (rec) html += verifySection(p, rec);
     html += `<div class="cols">${anchorSection(p)}<div class="stack">${commitmentSection(p)}${privateList()}</div></div>`;
     if (rec) {
-      html += publicTable(rec) + timingStats(rec);
+      html += publicTable(rec);
       const sts = chunkRecords(rec).filter(r => r.statement);
       if (sts.length) html += `<section class="card pad"><details><summary>The published statements (statement.json, one per chunk)</summary>${sts.map(r => `<p class="small"><b>chunk ${(r.chunk || {}).index + 1}</b></p><pre class="code">${esc(JSON.stringify(r.statement, null, 1))}</pre>`).join("")}</details></section>`;
     }
@@ -595,6 +639,7 @@ async function viewPost(id) {
   html += `<section class="card pad"><h2>Honest limits</h2>${honestLimits()}</section></div>`;
   $("#app").innerHTML = html;
   const vb = $("#verifybtn");
+  if (vb) vb.hidden = !S.operator && ("@" + S.handle) !== p.author;
   if (vb) vb.onclick = async () => { vb.disabled = true; try { await api(`/api/posts/${p.id}/verify`, { method: "POST" }); toast("Re-verification queued."); S.lastPostJSON = ""; viewPost(id); } catch (e) { toast(e.message); vb.disabled = false; } };
   const checkList = (checks) => Object.entries(checks).map(([k, v]) => `<li>${v ? `<span class="ok-t">✓</span>` : `<span class="bad-t">✗</span>`} ${esc(k.replace(/_/g, " "))}</li>`).join("");
   const pb = $("#vpubbtn");
@@ -628,13 +673,14 @@ async function viewPost(id) {
   const db = $("#delbtn");
   if (db) db.onclick = async () => {
     if (!confirm("Delete this post? Its text and salt are erased and its receipt deleted. The anchored leaves stay (now unlinkable).")) return;
-    try { await api(`/api/posts/${p.id}?author=${encodeURIComponent(S.handle)}`, { method: "DELETE" }); toast("Deleted."); S.lastPostJSON = ""; viewPost(id); }
+    try { await api(`/api/posts/${p.id}`, { method: "DELETE" }); toast("Deleted."); S.lastPostJSON = ""; viewPost(id); }
     catch (e) { toast(e.message); }
   };
 }
 
 /* ---------------------------------------------------------------- status (admin) */
 async function viewStatus() {
+  if (!S.operator) { $("#app").innerHTML = '<div class="card empty">Operator sign-in required.</div>'; return; }
   const st = await api("/api/status");
   const d = st.deploy;
   const prof = Object.entries(d.profiles).map(([k, v]) => `<tr class="${k === d.profile ? "active" : ""}"><td><b>${esc(k)}</b>${k === d.profile ? ` <span class="tag">active</span>` : ""}</td><td>${esc(v.label || "")}</td>
@@ -675,6 +721,7 @@ async function viewLedger() {
     <section class="card pad" style="overflow-x:auto"><table class="table"><tr><th>block</th><th>time</th><th>batch</th><th>leaves</th><th>Merkle root</th><th>tx</th><th>block hash</th><th>prev</th></tr>
     ${rows || `<tr><td colspan="8" class="muted">No blocks yet.</td></tr>`}</table></section></div>`;
   const cb = $("#closebtn");
+  if (cb) cb.hidden = !S.operator;
   if (cb) cb.onclick = async () => { cb.disabled = true; const x = await api("/api/ledger/close-batch", { method: "POST" }); toast(x.batch_id ? `Closed ${x.batch_id}.` : "Nothing to close."); viewLedger(); };
 }
 
@@ -686,7 +733,7 @@ function viewAbout() {
     <p>Proven Media labels every item <b>inside zero-knowledge proofs</b>, once, when it is created: a harmful-content classifier answers one fixed question per
     category. Every label, yes or no, is published with its proof and travels with the item in a <b>signed proof manifest</b> (like content credentials).
     The platform uses the proved labels to decide who receives the item: explicit content is not sent to minors, for example. Anyone can check the proofs,
-    and the proofs never reveal the item itself.</p>
+    ${isShieldstral() ? "The classifier privacy statement is pending acceptance." : "The intended proof interface hides the item; the active stub has a separate privacy scope."}</p>
     <div class="flow"><div><b>Post</b>The item goes to the platform; the proof's input is written to a private 0600 file. It is pending verification.</div>
     <div><b>Label</b>The prover runs the classifier on the hidden item, once per category, and proves every step (minutes, on a laptop CPU).</div>
     <div><b>Verify &amp; sign</b>A fresh verifier, holding only public model files, checks the proofs; the labels are anchored and the manifest is signed.</div>
@@ -694,9 +741,9 @@ function viewAbout() {
   <section class="card pad"><h2>The categories and the statement</h2>
     <p class="small"><b>${esc(S.cfg.classifier.name)}</b> (${esc(S.cfg.classifier.source)}). Each category is one fixed policy text with one threshold:
     ${esc(S.cfg.threshold.rule)}. Public: the labels, the model identity, the policy texts and the content length. Private: the content and the confidence scores.
-    <b>Today</b> the app runs the demo stub: ${esc(S.cfg.prover.what_is_proved || "")}</p>
+    <b>Today</b>: ${esc(S.cfg.prover.what_is_proved || "")}${isShieldstral() ? " Privacy statement pending." : ""}</p>
     <ul class="small">${cats}</ul>
-    <p class="small muted">The policy texts are short placeholders until the calibration lane's exact texts land; each new text will be a new registered id.</p></section>
+    <p class="small muted">${isShieldstral() ? "These are the registered moderate templates for the testnet demo. The product wording remains pending." : "The stub policy texts are placeholders; each new text requires a new registered id."}</p></section>
   <section class="card pad"><h2>Audiences</h2><p class="small"><b>Adult</b>: receives every labelled item, and may choose to hide categories.
     <b>Minor (under 18)</b>: receives only items proved <b>no</b> in all three categories. Hidden items are served as a placeholder with the reason, never with their content.</p></section>
   <section class="card pad"><h2>Images</h2><p class="small">Three classifier proofs per image, over a canonical canvas (Shieldstral's Pixtral encoder:
@@ -722,15 +769,27 @@ async function router() {
 }
 
 async function boot() {
-  try { S.handle = localStorage.getItem("pm-handle") || ""; } catch (e) { S.handle = ""; }
+  try { localStorage.removeItem("pm-handle"); } catch (e) {}
   try { const a = JSON.parse(localStorage.getItem("pm-audience") || "null"); if (a) { S.audience = a.a || "adult"; S.hide = a.hide || []; } } catch (e) {}
   const qs = new URLSearchParams(location.search);
-  const as = qs.get("as");                                  // presenter convenience: /?as=victor&audience=minor
-  if (as) { S.handle = as.replace(/^@/, "").replace(/[^A-Za-z0-9_]/g, "").slice(0, 24); try { localStorage.setItem("pm-handle", S.handle); } catch (e) {} }
   if (qs.get("audience")) S.audience = qs.get("audience") === "minor" ? "minor" : "adult";
-  const hi = $("#handle"); hi.value = S.handle;
-  hi.onchange = () => { S.handle = hi.value.trim().replace(/^@/, "").replace(/[^A-Za-z0-9_]/g, "").slice(0, 24); hi.value = S.handle;
-    try { localStorage.setItem("pm-handle", S.handle); } catch (e) {} refreshSubs().catch(() => {}); };
+  setSession(await api('/api/session'));
+  const dialog = $("#signin-dialog"), form = $("#signin-form");
+  $("#signin").onclick = () => { $("#signin-error").textContent = ""; dialog.showModal(); };
+  $("#signin-cancel").onclick = () => { form.reset(); dialog.close(); };
+  dialog.addEventListener('close', () => form.reset());
+  form.onsubmit = async e => {
+    e.preventDefault();
+    try {
+      const session = await api('/api/session', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ access_key: $("#access-key").value }) });
+      form.reset(); setSession(session); dialog.close(); await router();
+    } catch (error) { $("#signin-error").textContent = error.message; }
+  };
+  $("#signout").onclick = async () => {
+    try { await api('/api/session', { method: 'DELETE' }); setSession({}); await router(); }
+    catch (error) { toast(error.message); }
+  };
   S.cfg = await api("/api/config");
   renderModebar(); renderAudiencePill();
   $("#audpill").onclick = () => setAudience(S.audience === "minor" ? "adult" : "minor");

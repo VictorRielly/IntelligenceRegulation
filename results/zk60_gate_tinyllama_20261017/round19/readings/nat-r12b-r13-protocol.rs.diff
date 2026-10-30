@@ -1,0 +1,128 @@
+--- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12b/frozen-tree/hashline/src/private_block/protocol.rs	2026-10-28 15:30:02.116707361 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/hashline/src/private_block/protocol.rs	2026-10-28 23:08:24.410370586 -0700
+@@ -583,7 +583,10 @@
+     let looked: Vec<(Dom, Vec<Vec<i64>>)> = lay.lookup_doms().iter().map(|d| (*d, lookup_values(lay, wit, *d))).collect();
+     let lookup_words: u64 = looked.iter().map(|(d, cols)| (cols.len() * sh.size(*d)) as u64).sum();
+     let (_, exp_missed) = exp_histogram(&exp_deltas(lay, wit), &wit.planes[ids.at(A_E)], &blk.attention().exp);
+-    let (_, act_missed) = act_histogram(&act_indices(lay, wit), &wit.planes[ids.at(A_A16)], &blk.feed_forward().act);
++    let (_, act_missed) = match blk.accuracy() {
++        Some(data)=>super::accuracy_act::histogram(sh,data,&wit.planes[ids.at(A_G8)],&wit.planes[ids.at(A_A16)])?,
++        None=>act_histogram(&act_indices(lay,wit),&wit.planes[ids.at(A_A16)],&blk.feed_forward().act),
++    };
+     refuse_lookup_misses(u8_misses_of(&looked, lookup_words), exp_missed, act_missed)?;
+     // NATIVE R9 (D30, CHECK.md B-8): the dictionary family, in the sealing
+     // pass too, before `A` and before the header
+@@ -1055,11 +1058,9 @@
+         }
+     }
+     ph.mark_bytes(Half::Commit, "A: allocate + witness planes -> committed rows", (lay.a_rows * n) as u64, "words", 8 * (lay.a_rows * n) as u64);
+-    // The three histograms are indexed by a TABLE ENTRY, so they are `U8_LEN`
+-    // long and their in-class guards test `[0, U8_LEN)` — never the row width
+-    // `N` (trap T-1). The two guards that index `public.exp` (256 words) and
+-    // `ff.act` (`[i16; 256]`) are what stops a widened `N` from turning a
+-    // graceful bucket-0 fallback into an out-of-bounds panic (missed pin M-4).
++    // Histograms are indexed by registered table entries, never row width:
++    // byte/exp and legacy ACT have 256 entries; ACT3 has groups*4096.
++    // Invalid queries retain the bucket-0/miss refusal before A masks.
+     let looked: Vec<(Dom, Vec<Vec<i64>>)> = lay.lookup_doms().iter().map(|d| (*d, lookup_values(&lay, &wit, *d))).collect();
+     // a public count: how many lookup words the six lookup domains carry at
+     // THIS shape. It is a function of the geometry and of nothing private.
+@@ -1068,8 +1069,11 @@
+     ph.mark(Half::Commit, "A: lookup values + the byte histogram", lookup_words, "words");
+     let deltas = exp_deltas(lay, &wit);
+     let (mut m_exp, exp_missed) = exp_histogram(&deltas, &wit.planes[ids.at(A_E)], &public.exp);
+-    let act_idx = act_indices(lay, &wit);
+-    let (mut m_act, act_missed) = act_histogram(&act_idx, &wit.planes[ids.at(A_A16)], &ff.act);
++    let act_idx = if blk.accuracy().is_some() {Vec::new()} else {act_indices(lay,&wit)};
++    let (mut m_act, act_missed) = match blk.accuracy() {
++        Some(data)=>super::accuracy_act::histogram(sh,data,&wit.planes[ids.at(A_G8)],&wit.planes[ids.at(A_A16)])?,
++        None=>act_histogram(&act_idx,&wit.planes[ids.at(A_A16)],&ff.act),
++    };
+     // RULING CS-3 (ported from the 125M lane's stage 40, text per errata
+     // K-1 / K-2 of its stage 44): the three bucket-0 paths above are ONE
+     // named refusal HERE — after the three histograms, from values this
+@@ -1086,7 +1090,12 @@
+     for i in 0..U8_LEN {
+         a_data[lay.a_off[ids.at(A_MU8)] + i] = Fp::new(m_u8[i]);
+         a_data[lay.a_off[ids.at(A_MEXP)] + i] = Fp::new(m_exp[i]);
+-        a_data[lay.a_off[ids.at(A_MACT)] + i] = Fp::new(m_act[i]);
++    }
++    // ACT3 has one registered 4096-row table per public group; its support
++    // is independent of the 256-entry byte/exp families. The remaining
++    // committed multiplicity entries stay zero.
++    for (i,&count) in m_act.iter().enumerate() {
++        a_data[lay.a_off[ids.at(A_MACT)] + i]=Fp::new(count);
+     }
+     ph.mark(Half::Commit, "A: exp/act indices + their two histograms", (sh.size(Dom::S) + sh.size(Dom::F)) as u64, "words");
+     // FINDING F-4, injection point 1 of 2 (test builds only): one count moves
+@@ -1100,7 +1109,7 @@
+             1 => (ids.at(A_MEXP), &mut m_exp),
+             _ => (ids.at(A_MACT), &mut m_act),
+         };
+-        assert!(from < U8_LEN && to >= U8_LEN && to < sh.size(Dom::Tab) && to % U8_LEN == from, "the hook moves a count to the PADDED COPY of its own row");
++        assert!(from < m.len() && to >= m.len() && to < sh.size(Dom::Tab), "the hook moves a count outside its family's registered support");
+         assert!(m[from] > 0, "the hook's true row carries no multiplicity to move");
+         m[from] -= 1;
+         a_data[lay.a_off[plane] + from] = Fp::new(m[from]);
+@@ -1167,7 +1176,11 @@
+     ph.mark_bytes(Half::Commit, "H: LogUp helper inverses (six lookup domains)", lookup_words, "words", 16 * lookup_words);
+     let exp_den = deltas.iter().zip(wit.planes[ids.at(A_E)].iter()).map(|(d, e)| alpha.sub(Fp2::from_i64(*d).add(beta.mul(Fp2::from_i64(*e))).add(g_exp))).collect();
+     write_h(&mut h_data, lay.h_off[hids.sexp()], &inverses(exp_den)?);
+-    let act_den = act_idx.iter().zip(wit.planes[ids.at(A_A16)].iter()).map(|(i, a)| alpha.sub(Fp2::from_i64(*i).add(beta.mul(Fp2::from_i64(*a))).add(g_act))).collect();
++    let act_den = match blk.accuracy() {
++        Some(data)=>super::accuracy_act::query_values(sh,data,&wit.planes[ids.at(A_G8)],&wit.planes[ids.at(A_A16)],beta,g_act)?
++            .into_iter().map(|query|alpha.sub(query)).collect(),
++        None=>act_idx.iter().zip(wit.planes[ids.at(A_A16)].iter()).map(|(i,a)|alpha.sub(Fp2::from_i64(*i).add(beta.mul(Fp2::from_i64(*a))).add(g_act))).collect(),
++    };
+     write_h(&mut h_data, lay.h_off[hids.fact()], &inverses(act_den)?);
+     ph.mark_bytes(Half::Commit, "H: exp + activation helper inverses", (sh.size(Dom::S) + sh.size(Dom::F)) as u64, "words", 16 * (sh.size(Dom::S) + sh.size(Dom::F)) as u64);
+     // **NATIVE R9 (D30): the dictionary's two LogUp columns.** The score
+@@ -1219,10 +1232,17 @@
+     // what the S2 drops cost in time (at 125M they release about 1.5 GB)
+     ph.mark(Half::Commit, "H: release the four witness buffers (S2 drops)", 0, "-");
+     let [gu8, gexp, gact] = hids.table_helpers();
++    let act_table=match blk.accuracy() {
++        Some(data)=>{
++            let table=super::accuracy_act::table(data,sh.size(Dom::Tab),beta,g_act)?;
++            table.compressed[..table.entries].to_vec()
++        },
++        None=>table_values_act(ff,beta,g_act),
++    };
+     for (plane, tv, m) in [
+         (gu8, table_values_u8(g_u8), &m_u8),
+         (gexp, table_values_exp(public, beta, g_exp), &m_exp),
+-        (gact, table_values_act(ff, beta, g_act), &m_act),
++        (gact, act_table, &m_act),
+     ] {
+         let inv = inverses(tv.iter().map(|t| alpha.sub(*t)).collect())?;
+         let col: Vec<Fp2> = inv.iter().zip(m.iter()).map(|(x, c)| x.mul_base(Fp::new(*c))).collect();
+@@ -1240,7 +1260,10 @@
+         let (plane, tv) = match which {
+             0 => (gu8, super::argument::table_values_u8_at(tab_len, g_u8)),
+             1 => (gexp, super::argument::table_values_exp_at(tab_len, public, beta, g_exp)),
+-            _ => (gact, super::argument::table_values_act_at(tab_len, ff, beta, g_act)),
++            _ => (gact,match blk.accuracy() {
++                Some(data)=>super::accuracy_act::table(data,tab_len,beta,g_act)?.compressed,
++                None=>super::argument::table_values_act_at(tab_len,ff,beta,g_act),
++            }),
+         };
+         assert_eq!(tv[to], tv[from], "the padded row does not repeat its true row");
+         let val = inverses(vec![alpha.sub(tv[to])])?[0];
+@@ -1270,7 +1293,7 @@
+ 
+     // ---- the twenty-three slots ----
+     let g_dd = gamma.mul_base(Fp::new(TAG_DD));
+-    let ctx = Ctx { lay, public, ff, alpha, beta, g_u8, g_exp, g_act, g_dd };
++    let ctx = Ctx { accuracy:blk.accuracy(), lay, public, ff, alpha, beta, g_u8, g_exp, g_act, g_dd };
+     let pd = ProverData { data: [a.data.as_slice(), h.data.as_slice(), io_data[0], io_data[1]], masks: &mc.masks };
+     let mut side = Side::Prove { pd, out: Vec::new() };
+     let acc = argument(&mut side, &ctx, tr, ph)?;
+@@ -1370,7 +1393,7 @@
+     let g_act = gamma.mul_base(Fp::new(TAG_ACT));
+     absorb_root(tr, b"H", &v.h_root, lay.h_rows, sh.log_cols);
+     let g_dd = gamma.mul_base(Fp::new(TAG_DD));
+-    let ctx = Ctx { lay, public, ff, alpha, beta, g_u8, g_exp, g_act, g_dd };
++    let ctx = Ctx { accuracy:blk.accuracy(), lay, public, ff, alpha, beta, g_u8, g_exp, g_act, g_dd };
+     let mut side = Side::Verify { slots: v.slots };
+     ph.mark(Half::Setup, "transcript header + the A and H roots", 2, "roots");
+     let acc = argument(&mut side, &ctx, tr, ph)?;

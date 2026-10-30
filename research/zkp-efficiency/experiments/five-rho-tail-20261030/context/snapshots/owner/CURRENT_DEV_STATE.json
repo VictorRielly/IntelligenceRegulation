@@ -1,0 +1,86 @@
+{
+  "utc": "2026-10-30T00:28:47.232218+00:00",
+  "phase": "Original waiters interrupted before build; detached host recovery queued;18 supplemental algebra/provenance checks PASS",
+  "live_tool_sessions": [],
+  "source_base_sha256": "b4f7d795c23eef05676dc5fafbc91f7d70391f972ec5d6b46ca9116720a55f9f",
+  "s4_design_review_path": "results/zk60_d24_review_20261017/S4_DESIGN_CHECK.md",
+  "s4_review_sha256": "a1c521ca7eeb3af4bea264b4e4c3dfdb9707bb19d8d53083ec94d0a03c7f3ac5",
+  "adopted_rules": [
+    "B-gate: zero lift folded into existing public factor, never private functional",
+    "single joint commitment per logical endpoint/boundary, ordered row blocks; no additional openings",
+    "new profile and source/hash domains; oldR13 andlegacybytes fixed",
+    "receipt-level attacks for wrong source map/rounding/c2/group/norm, all19 trace-site parity",
+    "native layout+degree+M budget census and whole-run bits before registration",
+    "freeze->D24->privacy gate before any use; T256 proofsdesktoponly"
+  ],
+  "endpoint_plan": {
+    "external": "two sites, two proximity rows and one spare: data24+7=31rows at ShieldstralT128/T256 Nratio",
+    "internal": "four sites plus two proximity rows: data24+10=34rows"
+  },
+  "next": "Read recovery-20261030-1/status.json and worker/phase logs. Check recorded host PID/boot/start identity before any recovery; never relaunch merely from stale files. Source and original seven runners remain held. New supplemental checkers are prepared/tested but not in the running chain; run on actual captures once available.",
+  "source_edits_held": true,
+  "live_stage": "sol-r14-actual-build-2-recovery-1",
+  "live_tool_session": null,
+  "source_pin": "sol-r14-actual-build-2.source.json",
+  "source_sha256": "7152ef1a269b2aca5b0ec7ee507a8591db46225466653aaa3113789bfce24262",
+  "staged_modules": [
+    "argument_split.rs",
+    "split_profile.rs",
+    "split_endpoint.rs",
+    "split_definition_tests.rs",
+    "split_witness.rs"
+  ],
+  "receipt_tradeoff": "Native DD/nonDD first/last bytes exactly match counter; T128 backend receipt +~6%, A/H words -24..25%. Coordinator10:23 accepted proceed.",
+  "matched_report": "MATCHED_R13_R14_COMPARISON.json",
+  "source_tree": "actual-working-tree",
+  "independent_uncompiled_branch": {
+    "tree": "capture-working-tree",
+    "source": "3c7b1dcfd47ba8cb257c6f734348f25fb960af3f25f8b1b14ea4e262ff8defda",
+    "files": 287,
+    "status": "Held by detached recovery490564; capture compile pending after candidate acceptance; old48014 waiter no longer exists",
+    "prepared": [
+      "schema6 observer hooks with independent FS replay, native physical metadata and rejected-bundle suppression",
+      "3stage DD/nonDD capture tests and transport/public allow-list/array validator",
+      "actualL25 reviewer causal-prefix19site proof/fresh/corruption gates",
+      "50relation regressions, high bytes onbothD/Fpieces/DDvariants, dictionary unused/counts, pairedhelper supporttail moves"
+    ],
+    "entrypoints": [
+      "capture_gate.py",
+      "capture_checks.py",
+      "actual_l25_checks.py",
+      "regression_checks.py"
+    ],
+    "queue_plan": "sol-r14-observer-pipeline-1.plan.json",
+    "pipeline_session": 48014,
+    "extra_prepared": [
+      "Accepted receipt byte hashes/length and explicit ordered block digests in observer export; transport validator checks binding/profile/stage/header/core roots/trailer and stage links",
+      "Full legacy suite, four seeded old byte goldens, fresh retained R8/R9/R13 CLI receipts and R12 Shieldstral verification"
+    ]
+  },
+  "retired_tool_sessions": [
+    {
+      "session": 47150,
+      "reason": "Unknown tool handle; host audit00:18:58 found no surviving R14 worker or heavy leaf"
+    },
+    {
+      "session": 24662,
+      "reason": "Unknown tool handle; host audit00:18:58 found no surviving R14 worker or heavy leaf"
+    },
+    {
+      "session": 48014,
+      "reason": "Unknown tool handle; host audit00:18:58 found no surviving R14 worker or heavy leaf"
+    }
+  ],
+  "detached_worker": {
+    "utc": "2026-10-30T00:18:58.978782+00:00",
+    "pid": 490564,
+    "pid_ns": "pid:[4026532216]",
+    "starttime_ticks": "9853210",
+    "boot_id": "9ecf0dc6-8b67-411a-8ac8-042f41dfd9d5",
+    "log": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/recovery-20261030-1/worker.log",
+    "status_file": "recovery-20261030-1/status.json",
+    "contract_file": "recovery-20261030-1/contract.json",
+    "phase_at_recording": "candidate-build",
+    "heartbeat_at_recording": "2026-10-30T00:28:44.661313+00:00"
+  }
+}

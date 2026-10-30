@@ -1,0 +1,4 @@
+
+thread 'main' (302919) panicked at /home/victor/IntelligenceRegulation/ops/zkp-mvp/s4-design-check-scratch/s4_gate_check.rs:307:89:
+called `Result::unwrap()` on an `Err` value: "mask: the product polynomial's sum != the combined functional"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace

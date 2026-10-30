@@ -1,0 +1,25 @@
+{
+  "stage": "compile",
+  "command": [
+    "/usr/bin/rustc",
+    "--edition=2021",
+    "-C",
+    "opt-level=2",
+    "-C",
+    "codegen-units=1",
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/slot-batching-census-20261030/census.rs",
+    "-o",
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/slot-batching-census-20261030/census"
+  ],
+  "exit_code": 1,
+  "wall_s": 0.2672905969993735,
+  "max_rss_kib": 123408,
+  "cpu_affinity_count": 1,
+  "nice": 19,
+  "cpu_limit_s": 30,
+  "alarm_s": 40,
+  "parent_timeout_s": 45,
+  "address_space_mib": 384,
+  "estimated_memory_mib": 300,
+  "gpu": false
+}

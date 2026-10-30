@@ -1,0 +1,7 @@
+{
+  "adapter_sha256": "54c42949d3ad8cf26d616d095bd0402099e5c90bd6c568769f6ea77babaadb49",
+  "audit_sha256": "a60edbc04fdc4ea1338a44698a8cf9628906fb9656042281ee77a37319200950",
+  "layers": 26,
+  "profile_sha256": "1d50078243f13d58afa814a55c47c2df797e494d7f045941ea82fa142740498a",
+  "scope": "lossless public array conversion; native acceptance pending"
+}

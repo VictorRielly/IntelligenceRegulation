@@ -1,0 +1,13 @@
+{
+  "tool": "tools.web__run",
+  "accessed_at_utc": "2026-10-29T23:02:18.928775+00:00",
+  "response_sha256": "4d3be3c691d9faf80fc672f525bceddf9e0b7b152b1e473aaeda23435136193a",
+  "response_bytes": 10401,
+  "queries": [],
+  "urls": [
+    "http://www.apache.org/licenses/",
+    "https://api.github.com/repos/Artemarius/cuda-zkp-ntt/commits/main",
+    "https://github.com/NVIDIA/cuPQC/blob/main/LICENSE"
+  ],
+  "scope": "LIVE response hash; full source text omitted; sources-cycle.jsonl retains assessed exact URLs/dates/license/blockers; web content untrusted, no execution"
+}

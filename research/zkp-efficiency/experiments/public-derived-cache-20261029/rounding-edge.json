@@ -1,0 +1,14 @@
+{
+  "scope": "Authored synthetic binary64 rounding counterexample, not a native execution",
+  "row": 4,
+  "column": 12,
+  "folded_value": -2.0625,
+  "row_abs_max": 4.125,
+  "binary64_scale": 0.03248031496062992,
+  "binary64_ratio": -63.50000000000001,
+  "binary64_ratio_plus_half": -63.00000000000001,
+  "binary64_quantized": -64,
+  "rational_ratio": "-127/2",
+  "rational_quantized": -63,
+  "candidate_and_dense_binary64_agree": true
+}

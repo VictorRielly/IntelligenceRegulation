@@ -1,0 +1,307 @@
+ (https://escholarship.org/content/qt5qm6n0s0/qt5qm6n0s0.pdf)
+citeturn18view0 [wordlim: 200] Crawled: 2 days ago; Content type: application/pdf; Number of pages: 219; Source: open({"ref_id":"https://escholarship.org/content/qt5qm6n0s0/qt5qm6n0s0.pdf","lineno":null}); Total lines: 13716
+L0@P0: UC Berkeley
+L1@P0: UC Berkeley Electronic Theses and Dissertations
+L2@P0: Title
+L3@P0: Efficient Zero-Knowledge Proofs: Theory and Practice
+L4@P0: Permalink
+L5@P0: https://escholarship.org/uc/item/5qm6n0s0
+L6@P0: Author
+L7@P0: Zhang, Jiaheng
+L8@P0: Publication Date
+L9@P0: 2023
+L10@P0: Peer reviewed|Thesis/dissertation
+L11@P0: eScholarship.org Powered by the California Digital Library
+L12@P0-1: University of CaliforniaEfficient Zero-Knowledge Proofs: Theory and Practice
+L13@P1: By
+L14@P1: Jiaheng Zhang
+L15@P1: A dissertation submitted in partial satisfaction of the
+L16@P1: requirements for the degree of
+L17@P1: Doctor of Philosophy
+L18@P1: in
+L19@P1: Computer Science
+L20@P1: in the
+L21@P1: Graduate Division
+L22@P1: of the
+L23@P1: University of California, Berkeley
+L24@P1: Committee in charge:
+L25@P1: Professor Dawn Song, Chair
+L26@P1: Associate Professor Sanjam Garg
+L27@P1: Associate Professor Nikhil Srivastava
+L28@P1-2: Spring 2023Efficient Zero-Knowledge Proofs: Theory and Practice
+L29@P2: Copyright 2023
+L30@P2: by
+L31@P2-3: Jiaheng Zhang1
+L32@P3: Abstract
+L33@P3: Efficient Zero-Knowledge Proofs: Theory and Practice
+L34@P3: By
+L35@P3: Jiaheng Zhang
+L36@P3: Doctor of Philosophy in Computer Science
+L37@P3: University of California, Berkeley
+L38@P3: Professor Dawn Song, Chair
+L39@P3: Zero-knowledge proof is a cryptographic protocol enabling provers to convince verifiers of a
+L40@P3: statement’s validity without disclosing any additional information beyond its truthfulness. It can be
+L41@P3: used to address security and privacy challenges in diverse fields, such as artificial intelligence, data
+L42@P3: analytics, and blockchain.
+L43@P3: In this dissertation, we delve into the zero-knowledge proof, examining both its theoretical
+L44@P3: foundations and real-world applications. In theory, we introduce Libra, Virgo and Virgo++, a series
+L45@P3: of pioneering zero-knowledge protocols that boast optimal prover time, rapid verifier time, and
+L46@P3: succinct proof size while maintaining exceptional efficiency in practical settings. In practice, we
+L47@P3: explore the groundbreaking implementation of zero-knowledge proof in creating secure, trustless,
+L48@P3: and permissionless cross-chain bridges for blockchain networks. Furthermore, we also investigate
+L49@P3: the application of zero-knowledge proof in the realm of machine learning, showcasing its potential
+L50@P3: to ensure the integrity of machine learning models, as demonstrated with the decision tree model.
+L51@P3: The applied zero-knowledge proof protocols presented in this dissertation offer robust security
+L52@P3-4: assurances coupled with pragmatic efficiency.i
+L53@P4-5: To my family, friends, mentors, and colleagues.ii
+L54@P5: Contents
+L55@P5: Contents ii
+L56@P5: List of Figures iv
+L57@P5: List of Tables v
+L58@P5: 1 Introduction 1
+L59@P5: 1.1 ZKP protocols with optimal prover computation . . . . . . . . . . . . . . . . . . . 1
+L60@P5: 1.2 Applications of ZKP on machine learning and blockchains . . . . . . . . . . . . . 3
+L61@P5: 2 Libra: Succinct Zero-Knowledge Proofs with Optimal Prover Computation 5
+L62@P5: 2.1 Introduction . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 6
+L63@P5: 2.2 Preliminaries . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 11
+L64@P5: 2.3 GKR Protocol with Linear Prover Time . . . . . . . . . . . . . . . . . . . . . . . 19
+L65@P5: 2.4 Zero Knowledge Argument Protocols . . . . . . . . . . . . . . . . . . . . . . . . . 28
+L66@P5: 2.5 Implementation and Evaluation . . . . . . . . . . . . . . . . . . . . . . . . . . . . 38
+L67@P5: 3 Transparent Polynomial Delegation and Its Applications to Zero Knowledge Proof 45
+L68@P5: 3.1 Introduction . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 46
+L69@P5: 3.2 Preliminaries . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 48
+L70@P5: 3.3 Transparent Zero Knowledge Polynomial Delegation . . . . . . . . . . . . . . . . . 56
+L71@P5: 3.4 Zero Knowledge Argument . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 64
+L72@P5: 3.5 Implementation and Evaluation . . . . . . . . . . . . . . . . . . . . . . . . . . . . 68
+L73@P5: 3.6 Applications . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 73
+L74@P5: 4 Doubly Efficient Interactive Proofs for General Arithmetic Circuits with Linear
+L75@P5: Prover Time 75
+L76@P5: 4.1 Introduction . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 76
+L77@P5: 4.2 Preliminaries . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 81
+L78@P5: 4.3 Generalizing GKR to Arbitrary Arithmetic Circuits . . . . . . . . . . . . . . . . . 85
+L79@P5: 4.4 Zero Knowledge Arguments from Generalized GKR . . . . . . . . . . . . . . . . . 99
+L80@P5-6: 4.5 Implementations and Evaluations . . . . . . . . . . . . . . . . . . . . . . . . . . . 106iii
+L81@P6: 5 Zero Knowledge Proofs
+L82@P6: for Decision Tree Predictions and Accuracy 110
+L83@P6: 5.1 Introduction . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 111
+L84@P6: 5.2 Preliminaries . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 113
+L85@P6: 5.3 Zero Knowledge Decision Tree . . . . . . . . . . . . . . . . . . . . . . . . . . . . 114
+L86@P6: 5.4 Zero Knowledge Decision Tree Accuracy . . . . . . . . . . . . . . . . . . . . . . 124
+L87@P6: 5.5 Implementation and Evaluations . . . . . . . . . . . . . . . . . . . . . . . . . . . 130
+L88@P6: 6 zkBridge: Trustless Cross-chain Bridges Made Practical 137
+L89@P6: 6.1 Introduction . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 138
+L90@P6: 6.2 Background . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 141
+L91@P6: 6.3 zkBridge Protocol . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 144
+L92@P6: 6.4 Distributed proof generation . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 149
+L93@P6: 6.5 Reducing proof size and verifier time . . . . . . . . . . . . . . . . . . . . . . . . . 161
+L94@P6: 6.6 Implementation and Evaluation . . . . . . . . . . . . . . . . . . . . . . . . . . . . 162
+L95@P6: 6.7 Related work . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 168
+L96@P6: 7 Polynomial Commitment with a One-to-Many Prover and Applications 169
+L97@P6: 7.1 Introduction . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 170
+L98@P6: 7.2 Preliminary . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 176
+L99@P6: 7.3 Transparent Polynomial Commitment with Prover Batching . . . . . . . . . . . . . 181
+L100@P6: 7.4 KZG-Based Polynomial Commitment with Prover Batching . . . . . . . . . . . . . 191
+L101@P6: 7.5 Implementation and Evaluation . . . . . . . . . . . . . . . . . . . . . . . . . . . . 193
+L102@P6-7: Bibliography 197iv
+L103@P7: List of Figures
+L104@P7: 2.1 Comparisons of prover time, proof size and verification time between Libra and existing
+L105@P7: zero knowledge proof systems. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 42
+L106@P7: 3.1 Arithmetic circuit C computing evaluations of q(x) at κ points in L indexed by I. . . . 59
+L107@P7: 3.2 Simulator S of the zkVPD protocol. . . . . . . . . . . . . . . . . . . . . . . . . . . . 63
+L108@P7: 3.3 Simulator S of Virgo. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 67
+L109@P7: 3.4 Comparison of our zkVPD and the pairing-based zkVPD in [ZGKPP17a]. . . . . . . . 69
+L110@P7: 3.5 Comparisons of prover time, proof size and verification time between Virgo and existing
+L111@P7: ZKP systems. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 71
+L112@P7: 4.1 Circuit Ci computing V˜
+L113@P7: 0,i(r
+L114@P7: (0,i)
+L115@P7: ), V˜
+L116@P7: i−1,i(r
+L117@P7: (i−1,i)
+L118@P7: ), V˜
+L119@P7: i−1,i(r
+L120@P7: (i−1,i)
+L121@P7: ′
+L122@P7: ) . . . . . . . . . . . . . 95
+L123@P7: 4.2 Comparison of Virgo++ and Spartan. . . . . . . . . . . . . . . . . . . . . . . . . . . . 108
+L124@P7: 5.1 Committing algorithm of ADT scheme, lc and rc represent the left child value and the
+L125@P7: right child value respectively. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 118
+L126@P7: 5.2 Zero knowledge decision tree prediction. Public inputs are in black, secret witness is in
+L127@P7: red, and extended witness for efficiency is in blue. . . . . . . . . . . . . . . . . . . . . 119
+L128@P7: 5.4 Zero knowledge decision tree accuracy. . . . . . . . . . . . . . . . . . . . . . . . . . . 126
+L129@P7: 5.5 Performance of the zero knowledge decision tree accuracy scheme. . . . . . . . . . . . 131
+L130@P7: 5.6 Zero knowledge multivariate decision tree prediction. Public inputs are in black, secret
+L131@P7: witness is in red, and extended witness for efficiency is in blue. . . . . . . . . . . . . . 132
+L132@P7: 5.7 Comparison between zkDT, RAM-based and circuit-based generic ZKP schemes. . . . 134
+L133@P7: 6.1 The design of zkBridge illustrated with the example of cross-chain token transfer. The
+L134@P7: components in shade belongs to zkBridge. For clarity we only show one direction of
+L135@P7: the bridge and the opposite direction is symmetric. . . . . . . . . . . . . . . . . . . . 144
+L136@P7: 6.2 Prover time of deVirgo and the original Virgo for Cosmos block header verification. . . 165
+L137@P7: 7.1 VSS Comparison, Trusted setup version . . . . . . . . . . . . . . . . . . . . . . . . . 194
+L138@P7: 7.2 VSS Comparison, Transparent setup version . . . . . . . . . . . . . . . . . . . . . . . 194
+L139@P7-8: 7.3 DKG Comparison . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 195v
+L140@P8: List of Tables
+L141@P8: 2.1 Comparison of Libra to existing ZKP systems, where (G,P, V, |π|) denote the trusted
+L142@P8: setup algorithm, the prover algorithm, the verification algorithm and the proof size
+L143@P8: respectively. Also, C is the size of the log-space uniform circuit with depth d, and n is
+L144@P8: the size of its input. The numbers are for a circuit computing the root of a Merkle tree
+L145@P8: with 256 leaves (511 instances of SHA256).1 . . . . . . . . . . . . . . . . . . . . . . . 8
+L146@P8: 2.2 Prover time of our linear GKR and previous GKR variants. . . . . . . . . . . . . . . . 40
+L147@P8: 3.1 Speed of basic arithmetic on different fields. The time is averaged over 100 million runs
+L148@P8: and is in nanosecond. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 68
+L149@P8: 3.2 Performance of transparent ZKP systems. C is the size of the regular circuit with depth
+L150@P8: D, and n is witness size. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 73
+L151@P8: 4.1 Comparison of our scheme 1, our scheme 2 and the original GKR on random circuits. . 106
+L152@P8: 5.1 Performance of zero knowledge decision tree predictions. . . . . . . . . . . . . . . . . . . 131
+L153@P8: 5.2 Performance of zero knowledge random forest predictions. . . . . . . . . . . . . . . . . . . 134
+L154@P8: 6.1 The verification circuit size of deVirgo . . . . . . . . . . . . . . . . . . . . . . . . . . 161
+L155@P8: 6.2 Evaluation results. RV is the shorthand for recursive verification. . . . . . . . . . . . . 164
+L156@P8: 6.3 Prover hardware configuration. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 167
+L157@P8: 7.1 Polynomial commitment with a one-to-many prover: comparison with prior works. We
+L158@P8: assume t = Θ(N). . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 172
+L159@P8: 7.2 Polynomial commitment with a one-to-many prover: comparison with prior works. We
+L160@P8: assume t = Θ(N). . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 172
+L161@P8: 7.3 Comparison of our schemes and prior works in VSS and DKG settings. We assume
+L162@P8: t = Θ(N). . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 173
+L163@P8: 7.4 VSS schemes . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 173
+L164@P8-9: 7.5 DKG schemes (per party overhead) . . . . . . . . . . . . . . . . . . . . . . . . . . . . 173vi
+L165@P9: Acknowledgments
+L166@P9: In the course of completing my Ph.D. and dissertation, I have been fortunate to receive the unwavering
+L167@P9: support of numerous individuals. First and foremost, I would like to express my deepest gratitude to
+L168@P9: my advisor, Prof. Dawn Song, whose invaluable guidance, steadfast encouragement, and genuine
+L169@P9: kindness have been instrumental throughout my Ph.D. journey. As an esteemed professor in
+L170@P9: computer security and privacy, Prof. Song consistently offered me inspiring insights, generously
+L171@P9: shared her extensive knowledge, and enriched our research discussions with her vast experience.
+L172@P9: Her diverse background in the industry has allowed her to introduce me to real-world challenges,
+L173@P9: fostering my ability to create impactful work and tackle the most complex problems.
+L174@P9: I am profoundly thankful to Prof. Yupeng Zhang from Texas A&M University, whom I had
+L175@P9: the pleasure of meeting during his postdoctoral tenure at Berkeley while I began my Ph.D. in
+L176@P9: 2018. Our collaboration has grown from strength to strength since that initial encounter, and
+L177@P9: Prof. Zhang has proven to be an indispensable mentor and a trusted friend throughout my Ph.D.
+L178@P9: journey. He has guided me in every aspect of research, ranging from pinpointing valuable problems
+L179@P9: and employing cryptographic tools and elegant protocols, to uncovering potential applications,
+L180@P9: articulating motivations and contributions with clarity, and presenting our findings to the wider
+L181@P9: research community. Beyond research, his valuable life advice has been of immense support.
+L182@P9: I also wish to convey my heartfelt appreciation to Prof. Elaine Shi at CMU, who has been both
+L183@P9: a mentor and a friend since my undergraduate days. Prof. Shi’s outstanding achievements as a
+L184@P9: computer scientist have been a constant source of inspiration, while her genuine concern for my
+L185@P9: well-being has provided unwavering encouragement. She has offered invaluable advice regarding
+L186@P9: both my research and career aspirations. The knowledge and wisdom I have gained from Professors
+L187@P9: Song, Zhang, and Shi serve as my primary motivation for pursuing a faculty position, as I aspire to
+L188@P9: pass on their invaluable teachings to the next generation of students.
+L189@P9: I would like to express my heartfelt appreciation to Prof. Sanjam Garg and Prof. Nikhil Srivastava
+L190@P9: for their invaluable contributions as members of both my dissertation and qualifying committees. I
+L191@P9: am equally grateful to Prof. Alessandro Chiesa for serving on my qualifying committee and for
+L192@P9: introducing me to cutting-edge zero-knowledge proof constructions during his course. My sincere
+L193@P9: thanks go to Prof. Raluca Popa for her role as my hooder at the Ph.D. commencement, as well as
+L194@P9: her invaluable support within the security group. Furthermore, I am profoundly grateful to Prof.
+L195@P9: Sanjam Garg and Prof. Raluca Popa for their unwavering assistance, guidance, and encouragement
+L196@P9: throughout my faculty job search. Their generosity was mirrored by Prof. Dan Boneh, Prof. Justin
+L197@P9: Thaler, Prof. Dawn Song, Prof. Elaine Shi, and Prof. Yupeng Zhang, to whom I extend my heartfelt
+L198@P9: thanks for their invaluable support.
+L199@P9: Throughout my Ph.D. journey, I have had the privilege of collaborating with an exceptional
+L200@P9: group of individuals, whose contributions have been instrumental in shaping my research experience.
+L201@P9: I would like to extend my gratitude to Zerui Cheng, Arka Rai Choudhuri, Zhiyong Fang, Thang
+L202@P9: Hoang, Abhishek Jain, Zhengzhong Jin, Yongzheng Jia, Tianyi Liu, Charalampos Papamanthou,
+L203@P9: Weĳie Wang, Tiancheng Xie, Xiang Xie, Fan Zhang, and Yinuo Zhang. Their collective expertise,
+L204@P9-10: creativity, and dedication have been invaluable to our collaborative efforts.vii
+L205@P10: I would also like to express my appreciation to my former mentors, Prof. Xiaotie Deng, Prof.
+L206@P10: Yong Yu, Prof. Yu Yu, Prof. John Hopcroft, and others from Shanghai Jiao Tong University. As
+L207@P10: an undergraduate student in the ACM Class at Shanghai Jiao Tong University, I was fortunate to
+L208@P10: be guided by extraordinary teachers and advisors who introduced me to the captivating realm of
+L209@P10: computer science.
+L210@P10: Throughout my academic journey, I have been incredibly fortunate to be surrounded by a
+L211@P10: close-knit circle of friends who have consistently provided unwavering support and encouragement
+L212@P10: during the highs and lows of life. Their presence has been indispensable in completing my Ph.D. I
+L213@P10: am truly grateful to have the company of friends from across the globe, spanning from China to the
+L214@P10: U.S.A., and covering diverse regions from the West Coast to the East Coast, the Bay Area to Boston,
+L215@P10: Los Angeles to New York, Seattle to Pittsburgh, Shanghai to Beĳing, Singapore to Hong Kong,
+L216@P10: and beyond. While it is impossible to enumerate all their names, I would like to extend my deepest
+L217@P10: gratitude to all the colleagues and friends who have been by my side throughout this journey.
+L218@P10: I am especially grateful to Tiancheng Xie, who has been a friend, co-author, roommate, and even
+L219@P10: family member to me. His support throughout the entire process has been invaluable, particularly
+L220@P10: when overcoming numerous challenges while I was in China during the COVID-19 pandemic.
+L221@P10: I also wish to thank the members of the Association of Chinese Entrepreneurs (ACE) club at
+L222@P10: Berkeley. Since joining the club in my first year, I have relished discussing, playing, and socializing
+L223@P10: with its members, many of whom are undergraduate, master, and Ph.D. students from various
+L224@P10: departments. Their enthusiasm, passion, and vitality remind me to cherish my own formative years.
+L225@P10: Additionally, I am grateful for the numerous friends who have shared conversations and leisure
+L226@P10: activities with me during ordinary days. We exchange news, stories, and emotions, and one such
+L227@P10: friend is Lianke Qin, who keeps me informed with daily messages and essential information.
+L228@P10: I would also like to acknowledge the individuals in two WeChat groups: The Sun Never Sets
+L229@P10: Communication Group and the Chinese Graduate Communication Group of 2021. These groups
+L230@P10: have connected me with friends from around the world, expanding my horizons and bringing
+L231@P10: immense joy.
+L232@P10: Lastly, my profound gratitude goes to my family for their unwavering support. I would like to
+L233@P10: express my heartfelt appreciation to my mother, Hongmei Hao, and my father, Jun Zhang, who have
+L234@P10: always provided a haven for me to recharge and gather strength. Their steadfast encouragement and
+L235@P10-11: unconditional love have been the driving force behind my journey.1
+L236@P11: Chapter 1
+L237@P11: Introduction
+L238@P11: The rapid growth of artificial intelligence, data analytics, and blockchains has resulted in an explosion
+L239@P11: of sensitive data, including personal information, that requires secure and simple privacy-preserving
+L240@P11: solutions. Unfortunately, data breaches have become increasingly frequent, resulting in significant
+L241@P11: economic losses and serious concerns about data privacy and security. Cryptographic algorithms
+L242@P11: and tools have been developed to address these challenges, and Zero-Knowledge Proofs [GMR]
+L243@P11: (ZKP) has emerged as a promising solution. ZKP is a cryptographic protocol that enables a prover
+L244@P11: to convince a verifier of the validity of a statement without disclosing any additional information
+L245@P11: beyond its truthfulness. For example, the prover can convince the verifier that there exists a x
+L246@P11: satisfying f(x) = y for a public function f without revealing x to the verifier. However, applying
+L247@P11: ZKP to real-world use cases has been challenging due to the gap between its theoretical feasibility
+L248@P11: and practical efficiency, especially for large-scale statements. Therefore, this thesis aims to advance
+L249@P11: ZKP from both theoretical and application perspectives, bridging the gap. On the theory side, we
+L250@P11: propose novel ZKP protocols with optimal prover time, succinct proof size, and succinct verifier time,
+L251@P11: resolving a long-standing open problem. On the application side, we are the first to employ ZKP in
+L252@P11: machine learning, providing practical guarantees for the integrity and reproducibility of machine
+L253@P11: learning models. We also propose the first solution for building truly trustless and permissionless
+L254@P11: cross-chain bridges in blockchains using ZKP, called zkBridge. Our applied ZKP protocols provide
+L255@P11: rigorous security guarantees along with practical efficiency. The zkBridge technology has generated
+L256@P11: excitement in the industry, with numerous entities and researchers joining the zkBridge collective
+L257@P11: to bring the technology to wide industry adoption, creating a secure, universal foundation for
+L258@P11: multichain interoperability.
+L259@P11: 1.1 ZKP protocols with optimal prover computation
+L260@P11: The area of ZKP has a rich history and has transitioned from a purely theoretical question to
+L261@P11: solutions deployed at sophisticated cryptocurrency constructions, e.g., ZCash [Ben+14]. However,
+L262@P11: the existing protocols cannot scale to complicated statements in practice because of heavy prover
+L263@P11-12: computations. In particular, the ZKP protocol used in ZCash needs a prover running quasi-linear1.1. ZKP PROTOCOLS WITH OPTIMAL PROVER COMPUTATION 2
+L264@P12: time in the statement size and each statement needs a separate trusted setup. They are both
+L265@P12: time-consuming. To address the bottleneck of the prover time in ZKP, we introduce three protocols,
+L266@P12: namely Libra [XZZPS19a], Virgo [ZXZS], and Virgo++ [Zha+20]. All these protocols focus on
+L267@P12: accelerating proof generation in ZKP. We also develop libraries of these protocols and released
+L268@P12: codes online [Liba; Vira; Virb] for developers.
+L269@P12: 1.1.1 Libra
+L270@P12: Libra presents a groundbreaking solution to the long-standing open problem of creating a ZKP
+L271@P12: system based on layered arithmetic circuits that achieves optimal prover time, succinct proof size, and
+L272@P12: succinct verifier time. Specifically, for a circuit of size C, Libra’s performance is as follows: (i) the
+L273@P12: prover time is O(C), regardless of the circuit type; (ii) the proof size and verification time are both
+L274@P12: O(d log C) for d-depth log-space uniform circuits (e.g., RAM programs). Moreover, Libra features
+L275@P12: a one-time trusted setup that depends solely on the size of the input to the circuit and not on the
+L276@P12: circuit logic. The foundation of Libra is a new linear-time algorithm for the prover of the interactive
+L277@P12: proof protocol by Goldwasser, Kalai, and Rothblum (also known as the GKR protocol), as well as
+L278@P12: an efficient method for transforming the GKR protocol into zero-knowledge using small masking
+L279@P12: polynomials. Libra not only boasts impressive asymptotic performance but also demonstrates
+L280@P12: practical efficiency. For instance, our implementation reveals that it takes just 200 seconds to
+L281@P12: generate a proof for constructing a SHA2-based Merkle tree root with 256 leaves, outperforming all
+L282@P12: existing ZKP systems. Libra’s proof size and verification time are equally competitive.
+L283@P12: 1.1.2 Virgo
+L284@P12: Libra requires a one-time trusted setup, which we aim to eliminate by designing a transparent
+L285@P12: polynomial commitment (PC) scheme with succinct proof size and fast verification cost. Leveraging
+L286@P12: this PC scheme, we develop Virgo, a transparent ZKP protocol that offers significantly improved
+L287@P12: performance compared to previous transparent ZKP systems. Specifically, Virgo’s prover time is at
+L288@P12: least an order of magnitude faster, while its verification time is a mere tens of milliseconds. Our
+L289@P12: new succinct zero-knowledge argument scheme for layered arithmetic circuits does not rely on a
+L290@P12: trusted setup and exhibits a prover time of O(C + n log n) and a proof size of O(D log C + log2n)
+L291@P12: for a D-depth circuit with n inputs and C gates. Additionally, the verification time is succinct
+L292@P12: at O(D log C + log2n) for structured circuits. Utilizing lightweight cryptographic primitives
+L293@P12: such as collision-resistant hash functions, our scheme is plausibly post-quantum secure. We have
+L294@P12: implemented Virgo based on our new scheme and compared its performance to existing systems.
+L295@P12: Experiments reveal that it takes only 53 seconds to generate a proof for a circuit computing a Merkle
+L296@P12: tree with 256 leaves—significantly faster than all other succinct zero-knowledge argument schemes.
+L297@P12: The verification time is 50ms, and the proof size is 253KB, both of which are competitive with
+L298@P12: existing systems. At the core of Virgo is a novel transparent zero-knowledge verifiable polynomial
+L299@P12: delegation scheme with logarithmic proof size and verification time. This interactive oracle proof
+L300@P12-13: model-based scheme may hold independent interest.1.2. APPLICATIONS OF ZKP ON MACHINE LEARNING AND BLOCKCHAINS 3
+L301@P13: 1.1.3 Virgo++
+L302@P13: Both Libra and Virgo operate on layered arithmetic circuits, which are incompatible with other
+L303@P13: ZKP frameworks that utilize arbitrary arithmetic circuits. To address this limitation, we introduce
+

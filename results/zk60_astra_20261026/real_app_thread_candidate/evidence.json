@@ -1,0 +1,64 @@
+{
+  "at": "2026-10-30T01:17:12.342037+00:00",
+  "tests": 5,
+  "applied": true,
+  "ruling": "coordinator2026-10-30T01:02Z",
+  "prior_source_sha256": {
+    "apps/proven-media/tools/classifier_pipeline.py": "dd2de31a5dee01b4780efec3b5a2865f803f6acdfc30dc919eb0d2963b8c5e0b",
+    "results/zk60_astra_20261026/run_real_app_demo.py": "dd2d076adf0d90a2c4de0d950d89c90773fa08ee5185855affa4c31fb126b254"
+  },
+  "source_sha256": {
+    "results/zk60_astra_20261026/real_app_thread_candidate/test_execution.py": "03d77085d2a5d85041f90a4ce5dfc98b5bf1061ead03248249c2d5c9d1501a08",
+    "results/zk60_astra_20261026/real_app_thread_candidate/classifier_pipeline.py": "fd555a057a9202df6fbf6dac45bd5c43fb40b8bc0a2c74947fa618a85c0b5973",
+    "results/zk60_astra_20261026/real_app_thread_candidate/run_real_app_demo.py": "e41c9a2f53bb438fdab077cab2bab215e46e4dcb1c34b2634377e4be71b80f05"
+  },
+  "native_binary_or_statement_changed": false,
+  "sexual_original_evidence_unchanged": true,
+  "guard": {
+    "ts_end": "2026-10-30T01:16:49Z",
+    "run_id": "6dcf0c333daf",
+    "label": "astra-demo-thread-controls",
+    "class": "light",
+    "cmd": [
+      "/usr/bin/env",
+      "OPENBLAS_NUM_THREADS=2",
+      "OMP_NUM_THREADS=2",
+      "RAYON_NUM_THREADS=2",
+      "apps/proven-media/.venv/bin/python",
+      "results/zk60_astra_20261026/real_app_thread_candidate/test_execution.py",
+      "-v"
+    ],
+    "need_gib": 0.25,
+    "cap_gib": 0.75,
+    "exit": 0,
+    "child_rc": 0,
+    "guard_killed": null,
+    "child_wall_seconds": 0.11448454856872559,
+    "refused": null,
+    "guard_error": null,
+    "guard_pid": 2,
+    "boot_id": "9ecf0dc6-8b67-411a-8ac8-042f41dfd9d5",
+    "pid_ns": "pid:[4026532362]",
+    "guard_starttime_ticks": 10200241,
+    "lock_ids": {
+      "heavy": "2096:1134228",
+      "build": "2096:1134231"
+    },
+    "enforcement": "watchdog-only",
+    "waited_s": 0.0,
+    "guard_wall_s": 0.1,
+    "stragglers_killed": 0,
+    "hard_killed": 0,
+    "scope_unit": null,
+    "scope_adopted": null,
+    "foreign_cgroups_refused": [],
+    "peak_rss_gib": 0.0,
+    "peak_cgroup_gib": null,
+    "peak_vram_mib": null,
+    "min_mem_available_gib": 12.46,
+    "vram_drain_s": null,
+    "gpu_drain_failed": false,
+    "gpu_telemetry_lost": false,
+    "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache"
+  }
+}

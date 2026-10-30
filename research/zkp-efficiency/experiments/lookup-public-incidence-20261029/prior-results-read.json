@@ -1,0 +1,62 @@
+[
+  {
+    "path": "experiments/mask-tail-incidence-20261029/result.json",
+    "sha256": "1bc0b422d2c3462f07e5090445d046e0300bfd1333c2d69ed643c5d3ec670c80",
+    "bytes": 1780
+  },
+  {
+    "path": "experiments/mask-tail-incidence-20261029/audit-result.json",
+    "sha256": "808b47fdfe702d40c23acc93c5005d48beb4f49c98aaa492b907336b4d37e762",
+    "bytes": 347
+  },
+  {
+    "path": "experiments/mask-tail-incidence-20261029/hypotheses.json",
+    "sha256": "088c70d4e19765a8ab5845bb044e8dc27d62dd18c0bc07cb8c670d7d8f4539d0",
+    "bytes": 113964
+  },
+  {
+    "path": "experiments/mask-tail-incidence-20261029/README.md",
+    "sha256": "34cfebafdd9f5ed7e74c064b796afcddc0309052a5b0430a78eeca9d410a76e5",
+    "bytes": 9307
+  },
+  {
+    "path": "experiments/paired-mask-three-product-20261029/result.json",
+    "sha256": "c3353a584f98e3a1fad82256c7341a391b15d00bf7c753a650e68098e1fbeabf",
+    "bytes": 39850
+  },
+  {
+    "path": "experiments/paired-mask-three-product-20261029/audit-result.json",
+    "sha256": "ce7106a7960a52c66a6e516cf3b47ae6d3ff458c3a5e6b022db09b4a8dddd1cb",
+    "bytes": 566
+  },
+  {
+    "path": "experiments/paired-mask-three-product-20261029/hypotheses.json",
+    "sha256": "451ed0b65012c1303deef6958575f70c21ae486a92af6f5736785e7cd8dd2be2",
+    "bytes": 112192
+  },
+  {
+    "path": "experiments/paired-mask-three-product-20261029/README.md",
+    "sha256": "0c92e07f65d88edd20174fdd9f03fe08182ff23c4eedfa839931fd0ae19ad3ce",
+    "bytes": 9280
+  },
+  {
+    "path": "experiments/final-claim-lifetimes-20261029/result.json",
+    "sha256": "d4f4e7666b8a5dbd180310e47b9c6abdd54a5b862fb412c89c6421baf522a75e",
+    "bytes": 39123
+  },
+  {
+    "path": "experiments/final-claim-lifetimes-20261029/audit-result.json",
+    "sha256": "e897ab6fe6a93537329cd06f4293b9224f1f52e4b323c9bc88c1eba5955964bf",
+    "bytes": 196
+  },
+  {
+    "path": "experiments/final-claim-lifetimes-20261029/hypotheses.json",
+    "sha256": "8e17f3acd17ec4a44fffb7a7715257076e0f4c7b0e3ebe1a3f2dd86b79774ef3",
+    "bytes": 107946
+  },
+  {
+    "path": "experiments/final-claim-lifetimes-20261029/README.md",
+    "sha256": "028c7f6adb3e83757835742d539d11265fb02189237115cdbd4b78c5eff7c6db",
+    "bytes": 7891
+  }
+]

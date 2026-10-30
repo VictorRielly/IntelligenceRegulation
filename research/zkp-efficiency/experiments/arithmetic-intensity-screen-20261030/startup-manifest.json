@@ -1,0 +1,68 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/AGENDA.md",
+    "snapshot": "experiments/arithmetic-intensity-screen-20261030/startup/AGENDA.md",
+    "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139",
+    "bytes": 5603
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/STATE.md",
+    "snapshot": "experiments/arithmetic-intensity-screen-20261030/startup/STATE.md",
+    "sha256": "6a792e7fedade0468b325693cca3c27b38da9b49072461ac19be8ccefd0f5463",
+    "bytes": 4823
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/FINDINGS.md",
+    "snapshot": "experiments/arithmetic-intensity-screen-20261030/startup/FINDINGS.md",
+    "sha256": "edf05b055336c2f16b9e36b056a9c267f19dd3b37516d3076ca515170d78c033",
+    "bytes": 1234373
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/PROGRESS.md",
+    "snapshot": "experiments/arithmetic-intensity-screen-20261030/startup/PROGRESS.md",
+    "sha256": "6bd9130afa803f75db5ec0a503f8fc19b1c8a89446eca99b009567c52af40414",
+    "bytes": 2798
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/sources.jsonl",
+    "snapshot": "experiments/arithmetic-intensity-screen-20261030/startup/sources.jsonl",
+    "sha256": "4cff2734252de47173eec58ddc79b4e85455a8ff8600ec1dff15fe50eab449e8",
+    "bytes": 1378013
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/receipt-sink-lifetimes-20261030/hypotheses.json",
+    "snapshot": "experiments/arithmetic-intensity-screen-20261030/startup/prior-hypotheses.json",
+    "sha256": "ee2be7485f6aa5aa56702b70aa19d6e0339453d718541ccedb503a3126898bc4",
+    "bytes": 223055
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/CLAUDE.md",
+    "snapshot": "experiments/arithmetic-intensity-screen-20261030/startup/CLAUDE.md",
+    "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6",
+    "bytes": 14089
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/MVP_STATUS.md",
+    "snapshot": "experiments/arithmetic-intensity-screen-20261030/startup/MVP_STATUS.md",
+    "sha256": "f75da8ddcf7edefaf3f367ecd6ac63b07ab17f418cae4a3a0c9e9a1c9c09e28b",
+    "bytes": 106429
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_DECISIONS.md",
+    "snapshot": "experiments/arithmetic-intensity-screen-20261030/startup/ZK60_DECISIONS.md",
+    "sha256": "6eeb59b3a2f558c1b45e54f6ff87053dc66b9da77351ce97f4f4b925a738609b",
+    "bytes": 170470
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_CODEX_FABLE_COORDINATION.md",
+    "snapshot": "experiments/arithmetic-intensity-screen-20261030/startup/ZK60_CODEX_FABLE_COORDINATION.md",
+    "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f",
+    "bytes": 64889
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_THROUGHPUT_TARGET.md",
+    "snapshot": "experiments/arithmetic-intensity-screen-20261030/startup/ZK60_THROUGHPUT_TARGET.md",
+    "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53",
+    "bytes": 4941
+  }
+]

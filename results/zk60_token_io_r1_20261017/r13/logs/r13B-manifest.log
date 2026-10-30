@@ -1,0 +1,4 @@
+/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/r13/manifest_r13B.sha256: 262 files, list sha256 63a8f578870fbb200869bf2f0162d3a9b89d2adf57eb1fabcccb14dd5ff6a1f2
+changed 0: []
+added 5: ['results/r12-tied-89747/token_io/embedding_int16.bin', 'results/r12-tied-89747/token_io/head_int8_perrow.bin', 'results/r12-tied-89747/token_io/head_manifest.json', 'results/r12-tied-89747/token_io/head_mult12.bin', 'results/r12-tied-89747/token_io/token_io.json']
+removed 0: []

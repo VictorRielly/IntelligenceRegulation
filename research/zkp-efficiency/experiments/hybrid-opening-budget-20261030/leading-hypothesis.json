@@ -1,0 +1,15 @@
+{
+  "rank": 85,
+  "title": "TESTED public-byte-budget hybrid rho staging with max4 output scratch",
+  "baseline": "Native fold_rows_multi_zk chunks complete supplied rho list by4; dev_fold_rows allocates/uploads/downloads per chunk. Source root unchanged from cycle0156. Hybrid84 was untested.",
+  "eliminated_work": "Synthetic hybrid: device allocation requests2B->2; H2D submissionsB->1. Installed sync-copy wrappers imply copy-wrapper synchronizations2B->B+1, but not saved wait time. D2H requestsB, matrix scansB, launchesB, payload bytes, arithmetic, pads/proximity unchanged.",
+  "added_costs": "Full opening-local rho device/host staging and offset slices; requested device scratch16*(k*rows+min(k,4)*n), public shape-only selector falls back to serial before work. Budget excludes matrix/allocator rounding/host and must not be presented as total memory. Wider GPU mutex scope, earlier shape refusal, error/cancel lifetime and host packing remain costs.",
+  "prerequisites": "Owner exclusive host flatten/allocation/H2D/kernel/D2H/conversion/synchronize/mutex-wait clocks, actual current groups, capacity accounting and enclosing independently verified workload. Use current guard/heavy locks for native work; no native build/GPU authorized here.",
+  "integration_cost": "Moderate optional opening hook from cycle0156 plus dev_fold_rows opening-local override using existing safe synchronous into/slice APIs; no runtime upgrade needed. Research-only hybrid.rs prototype, not native override/patch applied.",
+  "exactness": "388 synthetic Rust fixtures, four budget choices,1567 budget checks/controls,25 simulated synchronous failures.16 exported vectors match3648 Python bigint limbs;1764 Rust plans match bigint capacity oracle,8261 Python assertions. Exact serial host body/field copied; no real CUDA,FS,receipt or native refusal check.",
+  "privacy_soundness": "No mask,challenge,pad,proximity or opening reuse. Synthetic last-vector and protected-tail controls only. Fresh opening-local buffers; complete ordered outputs or Err. Actual source lifetimes,panic/cancel drain,native refusal/publication and privacy acceptance still owed.",
+  "compatibility": "Cudarc0.13.9 has safe synchronous copy-into and views. Configured cuda-12040 lacks batch API; inspected cuDF CUDA13 runtime wrapper is not a drop-in. Native Fp2 lacks repr(C): do not upload struct bytes directly. Plan covers usize scratch arithmetic; native i32/u32 launch limits and admitted profile checks remain separate.",
+  "end_to_end_ceiling": "N/(T-C_removed_exclusive+A_added); free removal of measured exclusive f bounded by1/(1-f). f is unknown. Historical T128 A57: scratch4256080B,serial1273664B,full18149712B; counts do not predict private8B GPU rate.",
+  "falsification": "Negligible exclusive submission/allocation cost; capacity falls back; larger mutex/packing overhead erases saving; any limb/order/pad/proximity/refusal/receipt/lifetime/privacy mismatch.",
+  "disposition": "Correctness/capacity candidate for owner measurement only; no measured proving gain. Park staging variants until exclusive native clocks justify them."
+}

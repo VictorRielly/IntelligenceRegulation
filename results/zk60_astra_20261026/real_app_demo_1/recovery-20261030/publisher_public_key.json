@@ -1,0 +1,5 @@
+{
+  "alg": "Ed25519",
+  "public_key": "573c1ef0611a86761ed1dff408c27e2192deadf63e504312da527786ce66604a",
+  "replaces_lost_development_key": "dcc934a93fb6d3e89ca290350c71430e0992dfc0edd9677394ec2935f1de55ed"
+}

@@ -1,0 +1,73 @@
+{
+  "utc": "2026-10-29T07:42:27.134812+00:00",
+  "status": "R13-F1 four regenerated receipts and fresh controls PASS",
+  "source_tree_sha256": "b4f7d795c23eef05676dc5fafbc91f7d70391f972ec5d6b46ca9116720a55f9f",
+  "cli_sha256": "5ff7e86beb2cd71d8824a6d526383654e121edbb63a536434a69bd3d47f3cf47",
+  "cases": [
+    {
+      "case": "r13-low-dense-plain",
+      "utc_before_prove": "2026-10-29T07:41:56.038337+00:00",
+      "cli_sha256": "5ff7e86beb2cd71d8824a6d526383654e121edbb63a536434a69bd3d47f3cf47",
+      "cli_path": "/home/victor/IntelligenceRegulation/results/zk60_sol_20261026/r13-f1/zk60_trained_block.r13-f1.release.bin",
+      "source_tree_sha256": "b4f7d795c23eef05676dc5fafbc91f7d70391f972ec5d6b46ca9116720a55f9f",
+      "profile_sha256": "31ac461a2d380ef6ce2b4f559a7a5b34d6cf25bfa86d0f828dfca70680f8298b",
+      "scope": "public synthetic fixture",
+      "statement_identity": "2f386a9fd7480b2d8bcca4064e679e204ba2068358bd50677e7f6bf54feb6dbd",
+      "receipt_dir": "/home/victor/IntelligenceRegulation/results/zk60_sol_20261026/r13-f1/receipts/r13-low-dense-plain",
+      "segment_sha256": "ad50a59ab2893df366e8d9189b09fa6977f18bb43624011f2daa21f4341ebb8b",
+      "calibration_controls_reach_receipt": 11,
+      "all_refusals": 19,
+      "old_receipt_verifies": true
+    },
+    {
+      "case": "r13-low-dense-dd",
+      "utc_before_prove": "2026-10-29T07:42:03.865068+00:00",
+      "cli_sha256": "5ff7e86beb2cd71d8824a6d526383654e121edbb63a536434a69bd3d47f3cf47",
+      "cli_path": "/home/victor/IntelligenceRegulation/results/zk60_sol_20261026/r13-f1/zk60_trained_block.r13-f1.release.bin",
+      "source_tree_sha256": "b4f7d795c23eef05676dc5fafbc91f7d70391f972ec5d6b46ca9116720a55f9f",
+      "profile_sha256": "31ac461a2d380ef6ce2b4f559a7a5b34d6cf25bfa86d0f828dfca70680f8298b",
+      "scope": "public synthetic fixture",
+      "statement_identity": "62d849886e90b7d3f6595f33fb8bff5e6b9009c6c3b34e5979ed4f9bd46666d5",
+      "receipt_dir": "/home/victor/IntelligenceRegulation/results/zk60_sol_20261026/r13-f1/receipts/r13-low-dense-dd",
+      "segment_sha256": "8653e9eb160ddc97de5bec0c71f4aab432c0c4a83449b13fac60d7a66fc3311c",
+      "calibration_controls_reach_receipt": 11,
+      "all_refusals": 19,
+      "old_receipt_verifies": true
+    },
+    {
+      "case": "r13-h24-wide-plain",
+      "utc_before_prove": "2026-10-29T07:42:11.678386+00:00",
+      "cli_sha256": "5ff7e86beb2cd71d8824a6d526383654e121edbb63a536434a69bd3d47f3cf47",
+      "cli_path": "/home/victor/IntelligenceRegulation/results/zk60_sol_20261026/r13-f1/zk60_trained_block.r13-f1.release.bin",
+      "source_tree_sha256": "b4f7d795c23eef05676dc5fafbc91f7d70391f972ec5d6b46ca9116720a55f9f",
+      "profile_sha256": "5e7ca7b4f0fa68575e5b5bdf16e2e739cffe6f41dbff97eb1c38637854055ea2",
+      "scope": "public synthetic fixture",
+      "statement_identity": "6ac6d19087ee02ba9f87bcc6f772404b23726c293dd213b04d7392dc7f519b5b",
+      "receipt_dir": "/home/victor/IntelligenceRegulation/results/zk60_sol_20261026/r13-f1/receipts/r13-h24-wide-plain",
+      "segment_sha256": "b82bf6ee4658d881137dfd1f0c31eeb47fee22b21e6f0982035740594d5d365a",
+      "calibration_controls_reach_receipt": 11,
+      "all_refusals": 19,
+      "old_receipt_verifies": true
+    },
+    {
+      "case": "r13-h24-wide-dd",
+      "utc_before_prove": "2026-10-29T07:42:19.397979+00:00",
+      "cli_sha256": "5ff7e86beb2cd71d8824a6d526383654e121edbb63a536434a69bd3d47f3cf47",
+      "cli_path": "/home/victor/IntelligenceRegulation/results/zk60_sol_20261026/r13-f1/zk60_trained_block.r13-f1.release.bin",
+      "source_tree_sha256": "b4f7d795c23eef05676dc5fafbc91f7d70391f972ec5d6b46ca9116720a55f9f",
+      "profile_sha256": "5e7ca7b4f0fa68575e5b5bdf16e2e739cffe6f41dbff97eb1c38637854055ea2",
+      "scope": "public synthetic fixture",
+      "statement_identity": "1fc37b86657ad43d2fa2025a99312d796b4f76cafcacabd2b779219221010ff3",
+      "receipt_dir": "/home/victor/IntelligenceRegulation/results/zk60_sol_20261026/r13-f1/receipts/r13-h24-wide-dd",
+      "segment_sha256": "4c327fffb64ce8f4d1544e5107e29c66b56fd0b8058f046d06d95d3ffdf86d0f",
+      "calibration_controls_reach_receipt": 11,
+      "all_refusals": 19,
+      "old_receipt_verifies": true
+    }
+  ],
+  "calibration_receipt_refusals": 44,
+  "all_fresh_controls_refused": 76,
+  "unchanged_old_statement_identities": 4,
+  "old_receipts_verified": 4,
+  "scope": "CLI control/evidence correction only; frozen R13 retained; no new relation, S4 profile or security acceptance"
+}

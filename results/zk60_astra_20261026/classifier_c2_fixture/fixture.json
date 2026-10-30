@@ -1,0 +1,148 @@
+{
+  "schema": "pm-r-c2-development-fixture/1",
+  "scope": "Synthetic candidates; native proof and fresh verification still required",
+  "reference_sha256": "1d228eeb461adad214447562350298e82f5e0ed3c7c6e1e2af39f55c14eba474",
+  "tool_sha256": "7ea35a0ca6b19eeec99c663359683e8df09bfaece28f34a23fa0a44c4bcbad8d",
+  "integer_kernel_sha256": "2441cc4072c0d4b4cf3f07779a3323ad066ced9eaa6aa31eeb757e0362d94738",
+  "source_profile_sha256": "357f1c2cebb6d9bd9dc6e1ce76977ee5f90c5dead56684566985d4ab61ab02fa",
+  "retained_native_python_parity": true,
+  "private_root": "/tmp/zk60-astra-classifier-c2-20261029",
+  "cases": [
+    {
+      "name": "negative",
+      "content_ids": [
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31
+      ],
+      "margins": [
+        -213659
+      ],
+      "sequence_dirs": [
+        "/tmp/zk60-astra-classifier-c2-20261029/negative-seq-0"
+      ],
+      "sequence_sha256": [
+        {
+          "x_in_L00.bin": "21f51519a9d38aa7eafd4c3ed2e5a9c0fcc2ec666caa45b2ab3d8442623191c9",
+          "x_out_L00.bin": "fb2ccea4472418126894fb3c7d1d4bfe2741121946aaba2cdfa4b1492174c381"
+        }
+      ]
+    },
+    {
+      "name": "multi",
+      "content_ids": [
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        33,
+        34,
+        35,
+        36
+      ],
+      "margins": [
+        -213659,
+        -196944
+      ],
+      "sequence_dirs": [
+        "/tmp/zk60-astra-classifier-c2-20261029/multi-seq-0",
+        "/tmp/zk60-astra-classifier-c2-20261029/multi-seq-1"
+      ],
+      "sequence_sha256": [
+        {
+          "x_in_L00.bin": "21f51519a9d38aa7eafd4c3ed2e5a9c0fcc2ec666caa45b2ab3d8442623191c9",
+          "x_out_L00.bin": "fb2ccea4472418126894fb3c7d1d4bfe2741121946aaba2cdfa4b1492174c381"
+        },
+        {
+          "x_in_L00.bin": "766801ff6318ec8485248184cd207fa73d1993c538c0c28cb106b06e266a82c7",
+          "x_out_L00.bin": "24f8aab773b363326a38ccadd165c32230c34efbcbfa44248b3f4e530f40b5b5"
+        }
+      ]
+    }
+  ],
+  "candidate_search": {
+    "inputs": 327,
+    "margin_min": -232068,
+    "margin_max": -179696,
+    "verdict_bits": [
+      0
+    ],
+    "limit": "This fixture claims only the observed native verdict coverage, not both verdict branches."
+  },
+  "files": {
+    "verifier-export/profile.json": "c30b0e7057a66932ee92ad913e8a42c0cf4e3ae8ef3417df7f146a250d4a5075",
+    "verifier-export/layer_00/manifest.json": "20019e64a436e48ff4ed1293920789660e25b35cd95ada601b05c95c4ef0515b",
+    "verifier-export/layer_00/rope_sin.bin": "091b164181da6d8ccb26a9e7b12e8e61284fb84be1c07cf30474baa581c1d07f",
+    "verifier-export/layer_00/wo.bin": "075498ec13679ea08ebf22002ddb5151288a00d9da04ff19d9f6f1c1dacc3483",
+    "verifier-export/layer_00/gamma_m.bin": "38b3c8c3b210f1b9b6cad2ea919ebae8335b29db37ac113e969353666b6e3f2a",
+    "verifier-export/layer_00/exp.bin": "9dd78359aa4ec05c6c5c1af43067028e4ced60c58e0860b645576affe5eb21ba",
+    "verifier-export/layer_00/wd_t.bin": "d0420e254876c2cc5b837f4d7d0eef2d855684d2b233990e83400ffeedd8bda5",
+    "verifier-export/layer_00/wg_t.bin": "973bf4fb01ad50181d5b3c15ece8fd7e2f471f52fae3775331b54e3e5aee302e",
+    "verifier-export/layer_00/rope_cos.bin": "78679a9907a4041c464eb5f8162222d592043e91e4b0143a1ff96dbb94cd5dd1",
+    "verifier-export/layer_00/wk.bin": "bb39d6990f89e0c42ec9352965c56a2fa9ba3382366def9707e32f15b311f654",
+    "verifier-export/layer_00/gamma_a.bin": "281785fe1c681e4e22564b262040525575122c4a8f573c237592435f17b94cd9",
+    "verifier-export/layer_00/wv.bin": "b0ac4c020fdf2932b6a2cc480626ec9db20d60d018634dfc517aadc01f06635f",
+    "verifier-export/layer_00/act.bin": "6d2a512bb132519a3f62c6d08ed6e24dd8c19a82d203992a2fa86763bb6293a7",
+    "verifier-export/layer_00/wu_t.bin": "e1d0381294a5700f9f375c24b447a568f1e05d1edb6bd432da8581a1182f7015",
+    "verifier-export/layer_00/wq.bin": "f9f8d9b710dbb53e49b8221b31985b9d6b35122351fe4f3e1507afe1fa9df14c",
+    "tables/classifier.json": "58e5f5d30d2fcf071139a411e55a9fcd9dfdb246047107634815c8c3051f120d",
+    "tables/margin_int16.bin": "24e6ff4ca67bac45c810f78b72d967894b6806615206c5571842055ce20ef3c1",
+    "tables/token_io.json": "4c3b984a97b02ab0bcc78040e6e0d72701852b1bd7e2d59381870715ddc16071",
+    "tables/dev_tied_tensor_bf16.bin": "bba6d094831861aa0b207ae5ca46938e2115e02c81215ba95e27e2bad1cc1dd6",
+    "tables/embedding_int16.bin": "c0e816c9f41a251df8560c5532d3f24c3b753ceb6ad712adcc7a893f71bfa475",
+    "prover-export/profile.json": "c30b0e7057a66932ee92ad913e8a42c0cf4e3ae8ef3417df7f146a250d4a5075",
+    "prover-export/layer_00/manifest.json": "20019e64a436e48ff4ed1293920789660e25b35cd95ada601b05c95c4ef0515b",
+    "prover-export/layer_00/rope_sin.bin": "091b164181da6d8ccb26a9e7b12e8e61284fb84be1c07cf30474baa581c1d07f",
+    "prover-export/layer_00/wo.bin": "075498ec13679ea08ebf22002ddb5151288a00d9da04ff19d9f6f1c1dacc3483",
+    "prover-export/layer_00/gamma_m.bin": "38b3c8c3b210f1b9b6cad2ea919ebae8335b29db37ac113e969353666b6e3f2a",
+    "prover-export/layer_00/exp.bin": "9dd78359aa4ec05c6c5c1af43067028e4ced60c58e0860b645576affe5eb21ba",
+    "prover-export/layer_00/wd_t.bin": "d0420e254876c2cc5b837f4d7d0eef2d855684d2b233990e83400ffeedd8bda5",
+    "prover-export/layer_00/wg_t.bin": "973bf4fb01ad50181d5b3c15ece8fd7e2f471f52fae3775331b54e3e5aee302e",
+    "prover-export/layer_00/rope_cos.bin": "78679a9907a4041c464eb5f8162222d592043e91e4b0143a1ff96dbb94cd5dd1",
+    "prover-export/layer_00/wk.bin": "bb39d6990f89e0c42ec9352965c56a2fa9ba3382366def9707e32f15b311f654",
+    "prover-export/layer_00/gamma_a.bin": "281785fe1c681e4e22564b262040525575122c4a8f573c237592435f17b94cd9",
+    "prover-export/layer_00/wv.bin": "b0ac4c020fdf2932b6a2cc480626ec9db20d60d018634dfc517aadc01f06635f",
+    "prover-export/layer_00/act.bin": "6d2a512bb132519a3f62c6d08ed6e24dd8c19a82d203992a2fa86763bb6293a7",
+    "prover-export/layer_00/wu_t.bin": "e1d0381294a5700f9f375c24b447a568f1e05d1edb6bd432da8581a1182f7015",
+    "prover-export/layer_00/wq.bin": "f9f8d9b710dbb53e49b8221b31985b9d6b35122351fe4f3e1507afe1fa9df14c"
+  }
+}

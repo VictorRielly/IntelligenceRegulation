@@ -1,0 +1,10 @@
+{
+  "source": "native/sumcheck.rs",
+  "range_markers": [
+    "#[derive(Clone, Debug)]\\npub struct CfsMask",
+    "/// The transcript masker"
+  ],
+  "removal": "Only CfsMask::random removed: no RNG or dependency build. Synthetic coefficients supplied by harness.",
+  "round_evaluator": "New serial Rust evaluator follows native MSB pair/increment/fold convention; not extracted native prove.",
+  "transcript": "Python SHA256 surrogate; not native BLAKE3 or a production privacy argument."
+}

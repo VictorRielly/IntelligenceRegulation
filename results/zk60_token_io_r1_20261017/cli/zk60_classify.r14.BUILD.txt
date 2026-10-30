@@ -1,0 +1,11 @@
+zk60_classify round-14 CPU binary (rung R-C3: short items as one chunk of their length, pad positions pinned to the public pad id; the tables bound to the model in the library (REVIEW_R13 N-r13-1); statement schema zk60-classify-run/3; native R12b base)
+file:      /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/cli/zk60_classify.r14.release.bin
+sha256:    48dac98818f795a2a04b4b7f54e48d1a71f61fb09fbbd9de314101c9a661a986
+built:     2026-10-29T02:11:09Z on MSI, by r14/tools/r14_chain.sh (log r14/logs/b14-cli-build.log)
+command:   /home/victor/.cargo/bin/cargo build --release --offline --locked -j2 --manifest-path /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r14/hashline/Cargo.toml --example zk60_classify
+toolchain: rustc 1.97.1 (8bab26f4f 2026-07-14); cargo 1.97.1 (c980f4866 2026-06-30)
+features:  the crate's defaults only; gpu-cuda NOT enabled (cudarc is not compiled in): CPU backend only.
+profile:   [profile.release] opt-level 3, codegen-units 1, lto fat, panic abort, debug false (hashline/Cargo.toml)
+rustflags: none (no RUSTFLAGS, no .cargo/config in the tree or $HOME); default target, no target-cpu
+source:    the lane tree ops/zkp-mvp/token-io-r14 = r14/manifest_r14A.sha256 (list sha256 0b4c429bafadc5aa13c3d97634f648611ce8a76b0e27963ad6a41a2bdf630170)
+scope:     the development rung registered (Shieldstral's tied path wired and tested, no Shieldstral classifier run profile yet); a build record, not a privacy acceptance; unreviewed

@@ -1,0 +1,120 @@
+{
+  "status": "PASS",
+  "seed": 20261030164,
+  "metadata_cases": 216,
+  "metadata_comparisons": 1296,
+  "allocation_skeleton_cases": 24,
+  "allocation_snapshots": 240,
+  "phase_projections": 648,
+  "checks": 3952,
+  "negative_controls": 249,
+  "selected": {
+    "id": "g79",
+    "context_metadata": 128,
+    "workers_model_only": 1,
+    "single_block_only": true,
+    "endpoint_rows": 37,
+    "A": {
+      "resident": 3015247840,
+      "phases": {
+        "encode": 3011708928,
+        "hash": 3016018432,
+        "salt": 3015772160,
+        "tree": 3017869280
+      },
+      "peak": 3017869280,
+      "extra_above_resident": 2621440
+    },
+    "H": {
+      "resident": 2892312544,
+      "phases": {
+        "encode": 2888773632,
+        "hash": 2892987392,
+        "salt": 2892836864,
+        "tree": 2894933984
+      },
+      "peak": 2894933984,
+      "extra_above_resident": 2621440
+    },
+    "M_resident_payload": 2271088,
+    "known_transient_payload": 518258688,
+    "phases": {
+      "A_encode": {
+        "known_bytes": 3591198656,
+        "witness_live": true
+      },
+      "A_hash": {
+        "known_bytes": 3595508160,
+        "witness_live": true
+      },
+      "A_salt": {
+        "known_bytes": 3595261888,
+        "witness_live": true
+      },
+      "A_tree": {
+        "known_bytes": 3597359008,
+        "witness_live": true
+      },
+      "M_hash": {
+        "known_bytes": 3597198096,
+        "witness_live": true
+      },
+      "M_tree": {
+        "known_bytes": 3597172496,
+        "witness_live": true
+      },
+      "H_helpers": {
+        "known_bytes": 4239523600,
+        "witness_live": true
+      },
+      "H_encode": {
+        "known_bytes": 5967523600,
+        "witness_live": false
+      },
+      "H_hash": {
+        "known_bytes": 5971737360,
+        "witness_live": false
+      },
+      "H_salt": {
+        "known_bytes": 5971586832,
+        "witness_live": false
+      },
+      "H_tree": {
+        "known_bytes": 5973683952,
+        "witness_live": false
+      },
+      "SC_SZC": {
+        "known_bytes": 6205943536,
+        "witness_live": false
+      }
+    },
+    "max_known_payload": 6205943536,
+    "actual_fit": null,
+    "missing_reserves": [
+      "witness capacity W while live",
+      "public/resident model",
+      "remaining run boundaries and other blocks",
+      "all omitted helper/DD/accuracy temporaries",
+      "Vec headers and capacity excess",
+      "backend offers and device buffers",
+      "NTT tables and caches",
+      "proof/open/serialization output",
+      "pools and pending frees/quarantine",
+      "allocator/driver/other processes"
+    ]
+  },
+  "counterexample": {
+    "scope": "symbolic two H constructors only; no proof schedule",
+    "final_owner_budget": 5784625088,
+    "simultaneous_constructor_peak": 5789867968,
+    "excess_bytes": 5242880,
+    "staggered_one_constructor_plus_one_resident": 5787246528,
+    "known_payload_only": true
+  },
+  "wall_s": 0.05096093199972529,
+  "native_constructors": false,
+  "native_prover": false,
+  "gpu": false,
+  "full_stack_proofs": 0,
+  "proved_positions": 0
+}

@@ -1,0 +1,11 @@
+{
+  "scope": "independent public int12 member reference, not a proof profile",
+  "member": [
+    0,
+    -8
+  ],
+  "sha256": "88d900f65ea5dbb7064d8139380897e925a7633f58c2f33a8879646d9d914c25",
+  "min": -71,
+  "max": 32752,
+  "clipped": 0
+}

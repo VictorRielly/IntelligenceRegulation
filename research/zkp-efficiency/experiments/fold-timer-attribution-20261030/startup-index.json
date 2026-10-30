@@ -1,0 +1,110 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/AGENDA.md",
+    "snapshot": "startup/0-AGENDA.md",
+    "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139",
+    "bytes": 5603
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/STATE.md",
+    "snapshot": "startup/1-STATE.md",
+    "sha256": "fd890db4178158c033e007d819a54ab62dc238f530cf22c91c4baaa39dbb0f2a",
+    "bytes": 5476
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/FINDINGS.md",
+    "snapshot": "startup/2-FINDINGS.md",
+    "sha256": "59e196b9e0ac8fd937ca2f9f93cff88446d57579180620f4bde76f36dc9f1686",
+    "bytes": 1175505
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/sources.jsonl",
+    "snapshot": "startup/3-sources.jsonl",
+    "sha256": "534a8878c08a8e4b2755af7c8925bb553771526f6ede5f3083d9be63bf1522a8",
+    "bytes": 1300088
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/PROGRESS.md",
+    "snapshot": "startup/4-PROGRESS.md",
+    "sha256": "cc2212fef6643eaf67ec9791eb14e486051d46a5ed5411d1fdf3c9a0717e281c",
+    "bytes": 2494
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/CLAUDE.md",
+    "snapshot": "startup/5-CLAUDE.md",
+    "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6",
+    "bytes": 14089
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/START_HERE.md",
+    "snapshot": "startup/6-START_HERE.md",
+    "sha256": "89f6732a39f4294f2f1b7b68add8fdcbb76b86006e21041f52c0f40d9e39df9d",
+    "bytes": 42025
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_THROUGHPUT_TARGET.md",
+    "snapshot": "startup/7-ZK60_THROUGHPUT_TARGET.md",
+    "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53",
+    "bytes": 4941
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/MVP_STATUS.md",
+    "snapshot": "startup/8-MVP_STATUS.md",
+    "sha256": "044afa457fb32bcdc1e3cf5350f1b032c040b2eed42167a396fb7de114cf0c13",
+    "bytes": 105092
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_DECISIONS.md",
+    "snapshot": "startup/9-ZK60_DECISIONS.md",
+    "sha256": "c02c54d7aaec713a9459a9f15ef17f7f8229437c0e12c0c1b2c7c44c9ff2bf30",
+    "bytes": 157189
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_CODEX_FABLE_COORDINATION.md",
+    "snapshot": "startup/10-ZK60_CODEX_FABLE_COORDINATION.md",
+    "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f",
+    "bytes": 64889
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/TASK_BOARD.md",
+    "snapshot": "startup/11-TASK_BOARD.md",
+    "sha256": "d96f67dd1d199ffc31672974dad5bd8c8d6453f2f7bab6a4849d229a91bef953",
+    "bytes": 186876
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/direct-limb-packing-20261030/result.json",
+    "snapshot": "startup/prior-result.json",
+    "sha256": "89fc3d7b9b844d336cb1519df637ae875b522204f64ec0d877530dd7e4a57dd5",
+    "bytes": 867
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/direct-limb-packing-20261030/final-audit-result.json",
+    "snapshot": "startup/prior-final-audit-result.json",
+    "sha256": "c33bdc2a0d10ead54ca63fd524282995fa3808a5b8e6f791d3b47ef360dc065c",
+    "bytes": 368
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/direct-limb-packing-20261030/hypotheses.json",
+    "snapshot": "startup/prior-hypotheses.json",
+    "sha256": "9bed3f9459ccfa1257ecf88cad6b7342a3ac3b9ffb143dabb48cd453f645c296",
+    "bytes": 198030
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/direct-limb-packing-20261030/ranking-current.json",
+    "snapshot": "startup/prior-ranking-current.json",
+    "sha256": "bf4ee757bb5a1b93fdbaf09a81e9ccb5c2798dcd766a47a721d9b8eb8a50e4c6",
+    "bytes": 13160
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/direct-limb-packing-20261030/leading-hypothesis.json",
+    "snapshot": "startup/prior-leading-hypothesis.json",
+    "sha256": "865eab4c4af278cbfcf9cbfc7fd0f9102c4096df07a7144a69c6e227b1181fee",
+    "bytes": 2986
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/direct-limb-packing-20261030/README.md",
+    "snapshot": "startup/prior-README.md",
+    "sha256": "b91e2f2673897984fa84284fbf8e6652471dad0210472e72f0ad02fcc1fb0c09",
+    "bytes": 10952
+  }
+]

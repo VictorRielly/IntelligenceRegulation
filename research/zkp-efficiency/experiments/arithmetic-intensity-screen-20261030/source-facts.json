@@ -1,0 +1,38 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/gpu/cuda.rs",
+    "sha256": "8fe2a2a39e0796254be37d0d7507d7fc22ea3af141d97d35cd93754d505072c9",
+    "fact": "Legacy dev_zerocheck and dev_tab_zerocheck use k_reduce_f2. This CUDA module exposes no DevFzcRounds or literal impl SumcheckRounds for. This is a source screen, not execution."
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/argument.rs",
+    "sha256": "c4f9f9f4cb477346b03e9f769d7c3141a8529f096d08da2be6c415d5160a5e66",
+    "line": 488,
+    "selector": "run_slot",
+    "body_sha256": "8fcc3616ba19d0a5aaeb602feddd58b9d42e43be7dafbdcb12e60342dcb64c82",
+    "fact": "Inspected slot evaluator factory selects only CPU GroupedEqRounds or ClosureRounds; no direct legacy CUDA zerocheck call in this body. Not a global program callgraph/security audit."
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/final-working-tree/hashline/src/private_block/argument.rs",
+    "sha256": "d0b93cd99c0706fb44caa86d0083aa1b27d01de68f3019c08b7649f245d85cf8",
+    "line": 547,
+    "selector": "run_slot_scheduled",
+    "body_sha256": "7d1b66b7f48790ea5070a258e1964c80b0b2d6bf5c81230fe794b9018392ba32",
+    "fact": "Inspected slot evaluator factory selects only CPU GroupedEqRounds or ClosureRounds; no direct legacy CUDA zerocheck call in this body. Not a global program callgraph/security audit."
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/final-working-tree/hashline/src/gpu/cuda.rs",
+    "sha256": "8fe2a2a39e0796254be37d0d7507d7fc22ea3af141d97d35cd93754d505072c9",
+    "fact": "Legacy dev_zerocheck and dev_tab_zerocheck use k_reduce_f2. This CUDA module exposes no DevFzcRounds or literal impl SumcheckRounds for. This is a source screen, not execution."
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/zkp-core/src/sumcheck/grouped.rs",
+    "sha256": "7777a19c8db97694c51e66c78d1a7688573158bddaa7fcb370345ebd14ab669b",
+    "fact": "GroupedEqRounds source uses host Vec tables; no GPU/CUDA reference. No native evaluator executed."
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/final-working-tree/zkp-core/src/sumcheck/grouped.rs",
+    "sha256": "7777a19c8db97694c51e66c78d1a7688573158bddaa7fcb370345ebd14ab669b",
+    "fact": "GroupedEqRounds source uses host Vec tables; no GPU/CUDA reference. No native evaluator executed."
+  }
+]

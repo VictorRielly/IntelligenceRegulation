@@ -1,0 +1,463 @@
+{
+ "what": "gate round 24 step 2: the pin and census checks that read the token tree, against frozen-r19b, with the new tools (v24) and the old (v23) as the control",
+ "privacy_acceptance": false,
+ "v23": {
+  "scripts": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/frozen_v23/scripts",
+  "pin_rule_on_the_trees": {
+   "r17": {
+    "ok": true,
+    "pins": 72,
+    "port": "v23 (token frozen-r17 / frozen-r16b on native R13: H19-1..H19-4 adopted, the recorder's export replay)",
+    "refusals": []
+   },
+   "r18": {
+    "ok": false,
+    "pins": 72,
+    "port": "v23 (token frozen-r17 / frozen-r16b on native R13: H19-1..H19-4 adopted, the recorder's export replay)",
+    "refusals": [
+     "src/private_block.rs: 96c1cd16270b has no reading"
+    ]
+   },
+   "r19": {
+    "ok": false,
+    "pins": 72,
+    "port": "v23 (token frozen-r17 / frozen-r16b on native R13: H19-1..H19-4 adopted, the recorder's export replay)",
+    "refusals": [
+     "src/private_block.rs: 96c1cd16270b has no reading",
+     "src/private_block/tied_tables/derive.rs: 4b53222b3782 has no reading"
+    ]
+   },
+   "r19b": {
+    "ok": false,
+    "pins": 72,
+    "port": "v23 (token frozen-r17 / frozen-r16b on native R13: H19-1..H19-4 adopted, the recorder's export replay)",
+    "refusals": [
+     "src/private_block.rs: 96c1cd16270b has no reading",
+     "src/private_block/tied_tables/derive.rs: 1d6150100abb has no reading"
+    ]
+   }
+  },
+  "pin_rule_on_captures": {
+   "classify-rc3-cli-p18-r19b-gate24": {
+    "ok": false,
+    "pins": 72,
+    "refusals": [
+     "src/private_block.rs: 96c1cd16270b has no reading",
+     "src/private_block/tied_tables/derive.rs: 1d6150100abb has no reading"
+    ]
+   },
+   "classify-r13-shield-t128-cli-hate-r17-values": {
+    "ok": true,
+    "pins": 72,
+    "refusals": []
+   },
+   "classify-r13-shield-t128-cli-sexual-r16b": {
+    "ok": true,
+    "pins": 72,
+    "refusals": []
+   },
+   "classify-rc3-rung-L2-v1-short20": {
+    "ok": false,
+    "pins": 60,
+    "refusals": [
+     "src/private_block/token_io/classify.rs: 6c828db6673e, the v22 classifier port was read at c180c83fb50f",
+     "src/private_block/token_io/classify_run.rs: 5d1d077f5102, the v22 classifier port was read at 8abbf72f1c8e",
+     "src/private_block/token_io/classify_tied.rs: 401d38d444b6, the v22 classifier port was read at a89acfabc75c"
+    ]
+   }
+  },
+  "pin_tables_vs_moved_r17_r19b": {
+   "terminals.PORTED_FROM": [],
+   "terminals.ALSO_ACCEPTED": [],
+   "terminals.PINNED_IF_PRESENT": [],
+   "classpins.CLASSIFY_PORTED_FROM_V22": [],
+   "r13_pins.TOKEN_R16B_DIGESTS": [
+    "src/private_block.rs",
+    "src/private_block/tied_tables/derive.rs"
+   ],
+   "classpins.TOKEN_R17_READINGS": [],
+   "classpins.GATE19_PATCH_READINGS": [],
+   "classpins.CLASSIFY_REPORT_ONLY (v19, not consulted since v21)": [
+    "examples/zk60_classify.rs",
+    "src/private_block/token_io/classify_cli.rs"
+   ],
+   "classpins.CLASSIFY_REPORT_ONLY_V21 (not consulted)": [
+    "src/private_block/token_io/classify_cli.rs"
+   ]
+  },
+  "r13_self_check": {
+   "ok": true,
+   "problems": [],
+   "digests_rehashed": 119
+  },
+  "r17_self_check": {
+   "ok": true,
+   "findings": []
+  }
+ },
+ "v24": {
+  "scripts": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/frozen_v24/scripts",
+  "pin_rule_on_the_trees": {
+   "r17": {
+    "ok": true,
+    "pins": 72,
+    "port": "v24 (token frozen-r19b / r19 / r18 / r17 / r16b on native R13: H19-1..H19-4 adopted, the recorder's export replay, E7)",
+    "refusals": []
+   },
+   "r18": {
+    "ok": true,
+    "pins": 72,
+    "port": "v24 (token frozen-r19b / r19 / r18 / r17 / r16b on native R13: H19-1..H19-4 adopted, the recorder's export replay, E7)",
+    "refusals": []
+   },
+   "r19": {
+    "ok": true,
+    "pins": 72,
+    "port": "v24 (token frozen-r19b / r19 / r18 / r17 / r16b on native R13: H19-1..H19-4 adopted, the recorder's export replay, E7)",
+    "refusals": []
+   },
+   "r19b": {
+    "ok": true,
+    "pins": 72,
+    "port": "v24 (token frozen-r19b / r19 / r18 / r17 / r16b on native R13: H19-1..H19-4 adopted, the recorder's export replay, E7)",
+    "refusals": []
+   }
+  },
+  "pin_rule_on_captures": {
+   "classify-rc3-cli-p18-r19b-gate24": {
+    "ok": true,
+    "pins": 72,
+    "refusals": []
+   },
+   "classify-r13-shield-t128-cli-hate-r17-values": {
+    "ok": true,
+    "pins": 72,
+    "refusals": []
+   },
+   "classify-r13-shield-t128-cli-sexual-r16b": {
+    "ok": true,
+    "pins": 72,
+    "refusals": []
+   },
+   "classify-rc3-rung-L2-v1-short20": {
+    "ok": false,
+    "pins": 60,
+    "refusals": [
+     "src/private_block/token_io/classify.rs: 6c828db6673e, the v22 classifier port was read at c180c83fb50f",
+     "src/private_block/token_io/classify_run.rs: 5d1d077f5102, the v22 classifier port was read at 8abbf72f1c8e",
+     "src/private_block/token_io/classify_tied.rs: 401d38d444b6, the v22 classifier port was read at a89acfabc75c"
+    ]
+   }
+  },
+  "pin_tables_vs_moved_r17_r19b": {
+   "terminals.PORTED_FROM": [],
+   "terminals.ALSO_ACCEPTED": [],
+   "terminals.PINNED_IF_PRESENT": [],
+   "classpins.CLASSIFY_PORTED_FROM_V22": [],
+   "r13_pins.TOKEN_R16B_DIGESTS": [
+    "src/private_block.rs",
+    "src/private_block/tied_tables/derive.rs"
+   ],
+   "classpins.TOKEN_R17_READINGS": [],
+   "classpins.GATE19_PATCH_READINGS": [],
+   "classpins.CLASSIFY_REPORT_ONLY (v19, not consulted since v21)": [
+    "examples/zk60_classify.rs",
+    "src/private_block/token_io/classify_cli.rs"
+   ],
+   "classpins.CLASSIFY_REPORT_ONLY_V21 (not consulted)": [
+    "src/private_block/token_io/classify_cli.rs"
+   ]
+  },
+  "r13_self_check": {
+   "ok": true,
+   "problems": [],
+   "digests_rehashed": 155
+  },
+  "r17_self_check": {
+   "ok": true,
+   "findings": []
+  },
+  "r19b_self_check": {
+   "ok": true,
+   "findings": [],
+   "moved_and_pinned": [
+    "src/private_block.rs",
+    "src/private_block/tied_tables/derive.rs"
+   ],
+   "walk": {
+    "src/private_block.rs": {
+     "r17": "2af1df7d5bc222695c1d233050ff87a5f0981a26a5df1828678b67a6fe0a1cb3",
+     "r18": "96c1cd16270b087ab56d8fd4cf3777009e5000800ab2d65afc1342ae555c6ac4",
+     "r19": "96c1cd16270b087ab56d8fd4cf3777009e5000800ab2d65afc1342ae555c6ac4",
+     "r19b": "96c1cd16270b087ab56d8fd4cf3777009e5000800ab2d65afc1342ae555c6ac4",
+     "chain_r19b_to_r17": [
+      "96c1cd16270b087ab56d8fd4cf3777009e5000800ab2d65afc1342ae555c6ac4",
+      "2af1df7d5bc222695c1d233050ff87a5f0981a26a5df1828678b67a6fe0a1cb3"
+     ]
+    },
+    "src/private_block/tied_tables/derive.rs": {
+     "r17": "c5bec3c676e635aab1c609fdf2f541d003e14d7a50efc36d0fed42fc85b7d981",
+     "r18": "c5bec3c676e635aab1c609fdf2f541d003e14d7a50efc36d0fed42fc85b7d981",
+     "r19": "4b53222b37820936821eea2fd506ff3dee991e2474d39a3b21f1c0c10d357d75",
+     "r19b": "1d6150100abb051d08e77d6c86e2cafed0915342203480ce73c8583170810fb7",
+     "chain_r19b_to_r17": [
+      "1d6150100abb051d08e77d6c86e2cafed0915342203480ce73c8583170810fb7",
+      "4b53222b37820936821eea2fd506ff3dee991e2474d39a3b21f1c0c10d357d75",
+      "c5bec3c676e635aab1c609fdf2f541d003e14d7a50efc36d0fed42fc85b7d981"
+     ]
+    }
+   },
+   "cli_binaries": {
+    "r16b": {
+     "rehashed": "dfb8025eb903b203f4b50371fdd0dd00659d46a9dbaad9d121d6a68343ebc70c",
+     "listed": "dfb8025eb903b203f4b50371fdd0dd00659d46a9dbaad9d121d6a68343ebc70c"
+    },
+    "r17": {
+     "rehashed": "81bd86248e9f42393c9fe739e6794b7af155ad9a0a06874c89efb7a7bba18317",
+     "listed": "81bd86248e9f42393c9fe739e6794b7af155ad9a0a06874c89efb7a7bba18317"
+    },
+    "r18": {
+     "rehashed": "110f0c53c56f691c301fe4f47d13afc1ccc9898efbaaf8506f1e0d5cde5f4496",
+     "listed": "110f0c53c56f691c301fe4f47d13afc1ccc9898efbaaf8506f1e0d5cde5f4496"
+    },
+    "r19": {
+     "rehashed": "841ba983cebaae65bbae6289d71f740d44c137fdc6cc98ed46410f2d33a09fd8",
+     "listed": "841ba983cebaae65bbae6289d71f740d44c137fdc6cc98ed46410f2d33a09fd8"
+    },
+    "r19b": {
+     "rehashed": "6d65d32ea783e36db2458ccce2d459cb29a91bcb45a89c4e23e484914126d609",
+     "listed": "6d65d32ea783e36db2458ccce2d459cb29a91bcb45a89c4e23e484914126d609"
+    }
+   }
+  },
+  "control_readings_removed": {
+   "pin_rule_ok": false,
+   "pin_rule_refusals": [
+    "src/private_block.rs: 96c1cd16270b has no reading",
+    "src/private_block/tied_tables/derive.rs: 1d6150100abb has no reading"
+   ],
+   "r19b_self_check_ok": false,
+   "r19b_self_check_findings": [
+    "src/private_block.rs: frozen-r18 has 96c1cd16270b, which has no round-24 reading",
+    "src/private_block.rs: frozen-r19 has 96c1cd16270b, which has no round-24 reading",
+    "src/private_block.rs: frozen-r19b has 96c1cd16270b, which has no round-24 reading",
+    "src/private_block.rs: the chain stops at 96c1cd16270b before frozen-r17's digest",
+    "src/private_block/tied_tables/derive.rs: frozen-r19 has 4b53222b3782, which has no round-24 reading",
+    "src/private_block/tied_tables/derive.rs: frozen-r19b has 1d6150100abb, which has no round-24 reading"
+   ],
+   "fires": true
+  },
+  "control_r19b_terminal_at_the_old_pin": {
+   "r13_self_check_ok": false,
+   "problems": [
+    "t19b src/private_block/tied_tables/derive.rs: re-hashed 1d6150100abb, the module says c5bec3c676e6",
+    "manifest_final_r19b: hashline/src/private_block/tied_tables/derive.rs is 1d6150100abb"
+   ],
+   "fires": true
+  },
+  "e7_on_this_box": {
+   "declared": null,
+   "ZK60_MODELS": null,
+   "HOME": "/home/victor",
+   "path": "/home/victor/models/shieldstral-1.0-3b/snapshot-003ec7e2/model.safetensors",
+   "equals_v23_constant": true,
+   "regular_not_symlink": true,
+   "bytes": 7698241104,
+   "size_is_the_pin": true
+  }
+ },
+ "census": {
+  "moved_r17_to_r19b": [
+   "hashline/examples/zk60_classify.rs",
+   "hashline/src/private_block.rs",
+   "hashline/src/private_block/hash_domain_tests.rs",
+   "hashline/src/private_block/s25_tests.rs",
+   "hashline/src/private_block/s26_tests.rs",
+   "hashline/src/private_block/tied_tables/derive.rs",
+   "hashline/src/private_block/token_io/classify_batch.rs",
+   "hashline/src/private_block/token_io/classify_batch_plan.rs",
+   "hashline/src/private_block/token_io/classify_cli.rs",
+   "hashline/src/private_block/token_io/classify_r18_tests.rs"
+  ],
+  "c_r1_sites": [
+   {
+    "site": "ClassifierTables::emb_digest",
+    "source": "token_io/classify.rs:476-485",
+    "file": "hashline/src/private_block/token_io/classify.rs",
+    "listed": true,
+    "unchanged_r17_to_r19b": true
+   },
+   {
+    "site": "ClassifierTables::w_digest",
+    "source": "token_io/classify.rs:486-494",
+    "file": "hashline/src/private_block/token_io/classify.rs",
+    "listed": true,
+    "unchanged_r17_to_r19b": true
+   },
+   {
+    "site": "ClassifierProfile::template_digest (hate / sexual, violence)",
+    "source": "token_io/classify.rs:729-738",
+    "file": "hashline/src/private_block/token_io/classify.rs",
+    "listed": true,
+    "unchanged_r17_to_r19b": true
+   },
+   {
+    "site": "ClassifierProfile::digest_under (the classifier profile digest)",
+    "source": "token_io/classify.rs:787-794",
+    "file": "hashline/src/private_block/token_io/classify.rs",
+    "listed": true,
+    "unchanged_r17_to_r19b": true
+   },
+   {
+    "site": "ClassifyRunStatement::public_statement",
+    "source": "token_io/classify.rs:1099-1108",
+    "file": "hashline/src/private_block/token_io/classify.rs",
+    "listed": true,
+    "unchanged_r17_to_r19b": true
+   },
+   {
+    "site": "ClassifyRunStatement::calibration",
+    "source": "token_io/classify.rs:1110-1116",
+    "file": "hashline/src/private_block/token_io/classify.rs",
+    "listed": true,
+    "unchanged_r17_to_r19b": true
+   },
+   {
+    "site": "ClassifyRunStatement::schedule_digest",
+    "source": "token_io/classify.rs:1192-",
+    "file": "hashline/src/private_block/token_io/classify.rs",
+    "listed": true,
+    "unchanged_r17_to_r19b": true
+   },
+   {
+    "site": "stack_context (the run's context; c_r1 refuses a 40-byte input at run time)",
+    "source": "trained_block.rs:2358-2369, :1586-1591",
+    "file": "hashline/src/private_block/trained_block.rs",
+    "listed": true,
+    "unchanged_r17_to_r19b": true
+   },
+   {
+    "site": "BlockPublic::digest (R13 block public statement)",
+    "source": "private_block.rs:880-893",
+    "file": "hashline/src/private_block.rs",
+    "listed": true,
+    "unchanged_r17_to_r19b": false,
+    "site_lines_equal": true,
+    "site_lines_sha256": "888a1add5348e4454c87e764bfcbb31efb2cb1f8a11c62a613776579f0551e14"
+   },
+   {
+    "site": "BoundarySpec::digest",
+    "source": "boundary.rs:216-232",
+    "file": "hashline/src/private_block/boundary.rs",
+    "listed": true,
+    "unchanged_r17_to_r19b": true
+   },
+   {
+    "site": "EndpointSpecG::digest (the input token endpoint spec)",
+    "source": "endpoint_g.rs:197-206",
+    "file": "hashline/src/private_block/endpoint_g.rs",
+    "listed": true,
+    "unchanged_r17_to_r19b": true
+   },
+   {
+    "site": "TrainedModelStatement::identity",
+    "source": "trained_statement.rs:913-918",
+    "file": "hashline/src/private_block/trained_statement.rs",
+    "listed": true,
+    "unchanged_r17_to_r19b": true
+   },
+   {
+    "site": "ZkRng::refill (the run prover's generator AND the endpoint generator)",
+    "source": "zkp-core/src/rng.rs:53-61",
+    "file": "zkp-core/src/rng.rs",
+    "listed": true,
+    "unchanged_r17_to_r19b": true
+   }
+  ],
+  "c_r1_sites_all_unchanged_or_lines_equal": true,
+  "changed_production_files": [
+   {
+    "file": "hashline/examples/zk60_classify.rs",
+    "new_in_r18_or_later": false,
+    "tokens_r17": {},
+    "tokens_r19b": {},
+    "hash_or_transcript_tokens_added": {}
+   },
+   {
+    "file": "hashline/src/private_block.rs",
+    "new_in_r18_or_later": false,
+    "tokens_r17": {
+     "blake3": 4,
+     "Hasher": 3,
+     "hash_tag": 9,
+     "transcript": 4
+    },
+    "tokens_r19b": {
+     "blake3": 4,
+     "Hasher": 3,
+     "hash_tag": 9,
+     "transcript": 4
+    },
+    "hash_or_transcript_tokens_added": {}
+   },
+   {
+    "file": "hashline/src/private_block/tied_tables/derive.rs",
+    "new_in_r18_or_later": false,
+    "tokens_r17": {
+     "Sha256": 6,
+     "sha256": 5
+    },
+    "tokens_r19b": {
+     "Sha256": 6,
+     "sha256": 5
+    },
+    "hash_or_transcript_tokens_added": {}
+   },
+   {
+    "file": "hashline/src/private_block/token_io/classify_batch.rs",
+    "new_in_r18_or_later": true,
+    "tokens_r17": {},
+    "tokens_r19b": {},
+    "hash_or_transcript_tokens_added": {}
+   },
+   {
+    "file": "hashline/src/private_block/token_io/classify_batch_plan.rs",
+    "new_in_r18_or_later": true,
+    "tokens_r17": {},
+    "tokens_r19b": {},
+    "hash_or_transcript_tokens_added": {}
+   },
+   {
+    "file": "hashline/src/private_block/token_io/classify_cli.rs",
+    "new_in_r18_or_later": false,
+    "tokens_r17": {
+     "hash_tag": 1,
+     "sha256": 4
+    },
+    "tokens_r19b": {
+     "hash_tag": 1,
+     "sha256": 4
+    },
+    "hash_or_transcript_tokens_added": {}
+   }
+  ],
+  "control_planted_blake3_seen": true
+ },
+ "verdict": {
+  "v24_accepts_r17_r18_r19_r19b_trees": true,
+  "v23_refuses_r18_r19_r19b_trees_by_name": true,
+  "v23_refusals_r19b": [
+   "src/private_block.rs: 96c1cd16270b has no reading",
+   "src/private_block/tied_tables/derive.rs: 1d6150100abb has no reading"
+  ],
+  "v24_self_checks_ok": true,
+  "v23_r13_self_check_ok_at_r16b": true,
+  "controls_fire": true,
+  "census_c_r1_carries": true,
+  "census_no_hash_token_added": true,
+  "census_control_fires": true,
+  "e7_on_this_box_is_the_v23_path": true,
+  "v23_consulted_tables_moved_exactly_the_two": true
+ },
+ "ok": true
+}

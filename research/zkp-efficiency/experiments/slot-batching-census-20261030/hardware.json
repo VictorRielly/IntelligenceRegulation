@@ -1,0 +1,9 @@
+{
+  "cpu": "Intel Core Ultra 9 185H",
+  "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "python": "3.10.12",
+  "affinity_workers": 1,
+  "gpu_used": false,
+  "device_count": 0,
+  "limits": "one CPU affinity; nice19; 30s CPU/40s alarm/45s parent per stage; 384MiB address cap; estimated64MiB audit/300MiB compiler"
+}

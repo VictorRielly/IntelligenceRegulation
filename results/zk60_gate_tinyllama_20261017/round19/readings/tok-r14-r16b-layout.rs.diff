@@ -1,0 +1,106 @@
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r14/hashline/src/private_block/layout.rs	2026-10-28 19:12:07.677734852 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r16b/hashline/src/private_block/layout.rs	2026-10-29 03:50:55.903870203 -0700
+@@ -345,6 +345,7 @@
+ pub(crate) struct Ids {
+     /// `map[toy id]` = the same plane's id at this shape
+     map: Vec<usize>,
++    accuracy:Option<super::accuracy_layout::AccuracyIds>,
+     /// the domain of every plane at this shape, in plane order
+     doms: Vec<Dom>,
+     pub ln: usize,
+@@ -359,6 +360,12 @@
+ impl Ids {
+     pub(crate) fn new(sh: &super::shape::Shape) -> Result<Ids, String> {
+         let (ln, ls, lp) = (sh.limbs_norm(), sh.limbs_sigma_s(), sh.limbs_p());
++        if sh.accuracy_stack()!=super::accuracy_precision::Stack::Legacy {
++            let low=super::accuracy_layout::AccuracyIds::new(sh.accuracy_stack(),sh.dd_cap>0,ls)?;
++            if low.doms!=sh.a_plane_doms() {return Err("R13 planes differ from the independently counted shape list".into());}
++            return Ok(Ids{map:low.map.clone(),doms:low.doms.clone(),ln,ls,lp,pdict:low.pdict,mdd:low.mdd,accuracy:Some(low)});
++        }
++
+         if ln < LN_TOY || ls < LS_TOY || lp < LP_TOY {
+             return Err("private block: this shape's A plane list is shorter than the pinned one".into());
+         }
+@@ -413,7 +420,7 @@
+             if doms != sh.a_plane_doms() {
+                 return Err("private block: this shape's A plane list differs from the pinned one".into());
+             }
+-            return Ok(Ids { map, doms, ln, ls, lp, pdict: firsts[14], mdd: firsts[18] });
++            return Ok(Ids { map, doms, ln, ls, lp, accuracy:None, pdict: firsts[14], mdd: firsts[18] });
+         }
+         let segs: [(usize, usize, usize, Dom); 18] = [
+             (A_D, 4, 4, Dom::T),
+@@ -452,7 +459,7 @@
+         if doms != sh.a_plane_doms() {
+             return Err("private block: this shape's A plane list differs from the pinned one".into());
+         }
+-        Ok(Ids { map, doms, ln, ls, lp, pdict: usize::MAX, mdd: usize::MAX })
++        Ok(Ids { map, doms, ln, ls, lp, accuracy:None, pdict: usize::MAX, mdd: usize::MAX })
+     }
+ 
+     /// the toy's own map, which is the identity (asserted by `Layout::new`)
+@@ -465,26 +472,42 @@
+         self.map[toy_id]
+     }
+     pub(crate) fn nr(&self, k: usize) -> usize {
++        assert!(k<self.ln,"absent limb role nr");
+         self.map[A_NR0] + k
+     }
+     pub(crate) fn ns(&self, k: usize) -> usize {
++        assert!(k<self.ln,"absent limb role ns");
+         self.map[A_NS0] + k
+     }
+     pub(crate) fn mr(&self, k: usize) -> usize {
++        assert!(k<self.ln,"absent limb role mr");
+         self.map[A_MR0] + k
+     }
+     pub(crate) fn ms(&self, k: usize) -> usize {
++        assert!(k<self.ln,"absent limb role ms");
+         self.map[A_MS0] + k
+     }
+     pub(crate) fn pl(&self, k: usize) -> usize {
++        assert!(k<self.lp,"absent limb role pl");
+         self.map[A_PL0] + k
+     }
+     pub(crate) fn sr(&self, k: usize) -> usize {
++        assert!(k<self.ls,"absent limb role sr");
+         self.map[A_SR0] + k
+     }
+     pub(crate) fn sg(&self, k: usize) -> usize {
++        assert!(k<self.ls,"absent limb role sg");
+         self.map[A_SR0] + self.ls + k
+     }
++    pub(crate) fn accuracy(&self)->Result<&super::accuracy_layout::AccuracyIds,String> {
++        self.accuracy.as_ref().ok_or("R13 limb roles requested at a legacy profile".into())
++    }
++    pub(crate) fn domain_range(&self,dom:Dom)->Result<std::ops::Range<usize>,String> {
++        let start=self.doms.iter().position(|&d|d==dom).ok_or("domain has no A planes")?;
++        let end=self.doms.iter().rposition(|&d|d==dom).unwrap()+1;
++        if self.doms[start..end].iter().any(|&d|d!=dom) {return Err("domain A planes are not contiguous".into());}
++        Ok(start..end)
++    }
+     pub(crate) fn n_a(&self) -> usize {
+         self.doms.len()
+     }
+@@ -792,6 +815,10 @@
+ /// [`super::shape::Shape::lookups_per_position`], which counts the same list
+ /// from the memo's §4 without building it, at every named shape.
+ pub(crate) fn lookups_at(sh: &super::shape::Shape, ids: &Ids, dom: Dom) -> Vec<Lk> {
++    if sh.accuracy_stack()!=super::accuracy_precision::Stack::Legacy {
++        return ids.accuracy().expect("R13 allocation").lookups(dom,&sh.accuracy_precision().expect("validated R13 calibration"),sh.accuracy_gate_shift,sh.wrho_s).expect("validated R13 lookup windows");
++    }
++
+     let (ln, ls, lp) = (ids.ln, ids.ls, ids.lp);
+     // C-6: when the window fills its top limb exactly the `scaled` lookup is
+     // the identity and is not emitted at all.
+@@ -1472,7 +1499,9 @@
+             // `D_max`, so the schedule digest — absorbed by every block and
+             // run transcript — binds them: a verifier configured with any
+             // other `tn`, `Cn`, `Ceps` or `sh_ao` derives another transcript.
+-            if sh.trained_calibration {
++            if sh.accuracy_stack()!=super::accuracy_precision::Stack::Legacy {
++                format!("calibration: R13 stack={:?} registry={} base={} norm-window=24 fp=12 gate-common={} precision={:?}; exact group-scaled ACT3; symmetric int8 weights/score, full int16 words",sh.accuracy_stack(),sh.accuracy_registry().name(),sh.norm_calibration().describe(),sh.accuracy_gate_shift,sh.accuracy_precision().expect("validated R13 precision"))
++            } else if sh.trained_calibration {
+                 format!(
+                     "calibration: trained norm {} wrho={} dmax={} int16-endpoint=32768; shifts qkv={} rope={SH_ROPE} score={} o={} ao={} residual=0; fE={} fP={F_P} fRo={F_RO} wrhoS={} mask={MASK_SCORE}; classes int8=[-127,127] int16; tables U8 + exp",
+                     sh.norm_calibration().describe(),

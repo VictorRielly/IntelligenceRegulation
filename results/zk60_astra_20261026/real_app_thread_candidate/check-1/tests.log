@@ -1,0 +1,10 @@
+test_default_two_threads_have_27_minute_margin (__main__.ExecutionTests) ... ok
+test_eight_threads_and_caps_are_recorded_per_job (__main__.ExecutionTests) ... ok
+test_invalid_or_changed_settings_refused (__main__.ExecutionTests) ... ok
+test_real_guard_commands_keep_memory_caps_and_use_recorded_threads (__main__.ExecutionTests) ... ok
+test_tampered_execution_file_never_launches_native_command (__main__.ExecutionTests) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.013s
+
+OK

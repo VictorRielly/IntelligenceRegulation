@@ -1,0 +1,46 @@
+{
+  "utc": "2026-10-30T12:10:02.230814+00:00",
+  "cases": [
+    {
+      "mode": "non-dd",
+      "stage": 0,
+      "frame_sha256": "1e7f80c8fc7bc13c96135b0de30300717b95522cca6a111bbeedb82c32623fdd",
+      "nonvacuous_encoded_column_mutations": {
+        "swap": 256,
+        "duplicate": 256,
+        "zero_drop": 256
+      }
+    },
+    {
+      "mode": "non-dd",
+      "stage": 1,
+      "frame_sha256": "efa3b7c4f3f45ee3eb85e9a4a2b63945f1d4ce81bd25ce95d1d49eadcc1e5e77",
+      "nonvacuous_encoded_column_mutations": {
+        "swap": 256,
+        "duplicate": 256,
+        "zero_drop": 256
+      }
+    },
+    {
+      "mode": "dd",
+      "stage": 0,
+      "frame_sha256": "d9d8787ae526969c39d2a73edf6334329f4e73ca67e4fd6e6a513977bd4437a6",
+      "nonvacuous_encoded_column_mutations": {
+        "swap": 256,
+        "duplicate": 256,
+        "zero_drop": 256
+      }
+    },
+    {
+      "mode": "dd",
+      "stage": 1,
+      "frame_sha256": "9404c8fbaa66d40e85b9258e1b995dad638424acbaf97778b0548046b58f595e",
+      "nonvacuous_encoded_column_mutations": {
+        "swap": 256,
+        "duplicate": 256,
+        "zero_drop": 256
+      }
+    }
+  ],
+  "scope": "All256 encoded columns change for each proposed row mutation. This tests fixed-root opening forgeries; it does not assert that the corresponding private message rows differ, because independently randomized pads also affect encoded columns."
+}

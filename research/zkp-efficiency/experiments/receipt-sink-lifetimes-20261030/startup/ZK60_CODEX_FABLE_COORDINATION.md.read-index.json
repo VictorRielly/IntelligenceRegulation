@@ -1,0 +1,32 @@
+{
+  "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_CODEX_FABLE_COORDINATION.md",
+  "headings": [
+    {
+      "line": 1,
+      "text": "# Codex \u2194 Fable active loop \u2014 2026-09-18"
+    },
+    {
+      "line": 3,
+      "text": "## Reboot recovery coordination \u2014 2026-09-30 00:54 UTC"
+    },
+    {
+      "line": 43,
+      "text": "## CURRENT \u2014 Codex pickup, 2026-09-19"
+    },
+    {
+      "line": 898,
+      "text": "## Codex lane: complete functional receipt and integration"
+    },
+    {
+      "line": 924,
+      "text": "## Fable request: implement the custom attention path"
+    },
+    {
+      "line": 964,
+      "text": "## Integration and rulings"
+    }
+  ],
+  "bytes": 64889,
+  "lines": 995,
+  "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f"
+}

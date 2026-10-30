@@ -1,0 +1,25 @@
+[zk60-guard 13:27:57] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 13:28:58] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 13:29:58] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 13:30:23] START sol-r14-full26-non-dd-capture-1 class=cpu need=5.1G cap=7G enforce=watchdog-only waited=145s run=a21a10d2285c
+[zk60-guard 13:33:37] END sol-r14-full26-non-dd-capture-1 exit=0 child_wall=194s peak_rss=4.06G min_avail=9.74G
+[zk60-guard 13:33:37] START sol-r14-full26-non-dd-transport-1 class=light need=0.8G cap=1.5G enforce=watchdog-only waited=0s run=c9bb59865aaa
+[zk60-guard 13:33:53] END sol-r14-full26-non-dd-transport-1 exit=0 child_wall=15s peak_rss=0.07G min_avail=13.42G
+[zk60-guard 13:33:53] START sol-r14-full26-non-dd-mask-1 class=light need=0.8G cap=1.5G enforce=watchdog-only waited=0s run=6604728b5cae
+[zk60-guard 13:33:55] END sol-r14-full26-non-dd-mask-1 exit=0 child_wall=2s peak_rss=0.07G min_avail=13.44G
+[zk60-guard 13:33:55] START sol-r14-full26-non-dd-claims-1 class=light need=0.8G cap=1.5G enforce=watchdog-only waited=0s run=74779c8ecad8
+[zk60-guard 13:33:58] END sol-r14-full26-non-dd-claims-1 exit=0 child_wall=3s peak_rss=0.09G min_avail=13.39G
+[zk60-guard 13:33:58] START sol-r14-full26-non-dd-local-rows-1 class=light need=0.8G cap=1.5G enforce=watchdog-only waited=0s run=e1a5b43d74bd
+[zk60-guard 13:34:00] END sol-r14-full26-non-dd-local-rows-1 exit=0 child_wall=2s peak_rss=0.19G min_avail=13.41G
+non-dd full26 capture/transport/M/claim/local-row gates PASS
+[zk60-guard 13:34:01] START sol-r14-full26-dd-capture-1 class=cpu need=5.1G cap=7G enforce=watchdog-only waited=0s run=a3e10a5e1784
+[zk60-guard 13:37:12] END sol-r14-full26-dd-capture-1 exit=0 child_wall=191s peak_rss=4.12G min_avail=9.35G
+[zk60-guard 13:37:12] START sol-r14-full26-dd-transport-1 class=light need=0.8G cap=1.5G enforce=watchdog-only waited=0s run=007aae2b1b53
+[zk60-guard 13:37:27] END sol-r14-full26-dd-transport-1 exit=0 child_wall=15s peak_rss=0.07G min_avail=13.28G
+[zk60-guard 13:37:27] START sol-r14-full26-dd-mask-1 class=light need=0.8G cap=1.5G enforce=watchdog-only waited=0s run=0120737b521b
+[zk60-guard 13:37:30] END sol-r14-full26-dd-mask-1 exit=0 child_wall=2s peak_rss=0.07G min_avail=13.37G
+[zk60-guard 13:37:30] START sol-r14-full26-dd-claims-1 class=light need=0.8G cap=1.5G enforce=watchdog-only waited=0s run=6f51a4518f81
+[zk60-guard 13:37:33] END sol-r14-full26-dd-claims-1 exit=0 child_wall=3s peak_rss=0.08G min_avail=13.33G
+[zk60-guard 13:37:33] START sol-r14-full26-dd-local-rows-1 class=light need=0.8G cap=1.5G enforce=watchdog-only waited=0s run=c4d6d26a1fe2
+[zk60-guard 13:37:36] END sol-r14-full26-dd-local-rows-1 exit=0 child_wall=3s peak_rss=0.17G min_avail=13.40G
+dd full26 capture/transport/M/claim/local-row gates PASS

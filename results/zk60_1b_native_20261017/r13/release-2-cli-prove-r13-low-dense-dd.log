@@ -1,0 +1,7 @@
+{"event":"loaded","variant":"r13-low-dense","layer":0,"block_digest":"616b2bdbf6fb40b64f5aece508ad30eb340f0766c141ea246f8cb4c53b826539","rope":"native generator at theta 10000 (the export carries no RoPE tables)","seconds":0.010,"scope":"SYNTHETIC development export at the decoupled-head rung (rung-HD, width 192, query axis 512): NOT a trained model; a test of the export reader and the driver only; no privacy acceptance"}
+{"event":"parity","result":"bit-exact","words":12288,"seconds":0.036}
+{"event":"proved","segment_bytes":16668744,"segment_sha256":"dfb1f81eeb2c5760984dbe70b66f34dceb9e53878315382b567efcfe8c88d428","prove_seconds":1.436,"in_process_verify_seconds":0.194,"peak_rss_mib_after_prove":522,"total_seconds":1.778,"statement_identity":"62d849886e90b7d3f6595f33fb8bff5e6b9009c6c3b34e5979ed4f9bd46666d5","out":"/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/release-receipts/release-2/r13-low-dense-dd"}
+{"event":"control-refused","control":"one norm_a output word moved by one","error":"slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim"}
+{"event":"control-refused","control":"one query activation moved by one","error":"slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim"}
+{"event":"control-refused","control":"a witness honest under norm_cn_m + 7","error":"slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim"}
+{"event":"inconsistent-witness-controls","refused":3}

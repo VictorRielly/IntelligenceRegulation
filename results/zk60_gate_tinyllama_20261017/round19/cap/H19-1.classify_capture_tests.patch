@@ -1,0 +1,11 @@
+--- results/zk60_token_io_r1_20261017/frozen-r16b/hashline/src/private_block/token_io/classify_capture_tests.rs	2026-10-29 03:50:55.909699224 -0700
++++ ops/zkp-mvp/gate-tinyllama/capture-tree-r16b/hashline/src/private_block/token_io/classify_capture_tests.rs	2026-10-29 04:14:44.535822540 -0700
+@@ -847,3 +847,8 @@
+         dir.display()
+     );
+ }
++
++// PRIVACY GATE ROUND 19 (test-only patch H19, the gate's capture tree only):
++// the R13-stack classifier captures (REVIEW_R16 §10 item 1)
++#[path = "gate19_capture_tests.rs"]
++mod gate19;

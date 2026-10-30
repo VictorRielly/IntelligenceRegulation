@@ -69,7 +69,15 @@ proposal is accepted by this performance direction. No speed result is claimed.
 | D40 | **Classifier profiles (D38): one external endpoint plus a public verdict bit; D34 recounted.** Construction rule for the classifier profile family: the run has ONE external endpoint (the input token endpoint) and NO output endpoint; the verdict b is a public bit absorbed into the transcript header and sits in the margin slot's public right-hand side (D12a's "two external endpoints" reads as one endpoint plus a public bit for these profiles). D34's input-dependent refusal term is recounted for Shieldstral's shape (L = 26, T ≤ 512): about 2^-112.7 per run [COUNTED by the adversarial check], and any classifier privacy statement carries that figure. Binding with the design's fixes B-1 (prefix ends at ':', content encoded ' ' + content by tekken's plain-text encoder), B-2 (that encoder pinned by digest; control ids excluded at content positions in-circuit) and B-3 (the verifier re-derives the margin vector, multipliers, c and the yes/no ids from the export) | **construction rule (security owner); not a privacy acceptance**; the classifier privacy statement, gate and Victor's acceptance follow the build | 2026-10-21 03:02 | Claude (coordinating session as security owner), on the adversarial check `results/zk60_token_io_r1_20261017/classifier/check/CHECK.md` (B-7) |
 | D41 | **Long content is split into chunks, each proved; the chunk size is tunable per machine.** Content longer than the proof length allows is split into small chunks, each classified and proved separately per category (as many as needed, e.g. 40), and the chunk size is a tunable setting so the demo can run on different hardware (laptop T128: about 40 content tokens per chunk; T256 about 168; T512 about 424). Working design (coordinator's reading, for the lanes): the content is tokenized once with the pinned encoder and split on token boundaries, with optional overlap between chunks (tunable) to reduce missed meaning across a cut; the post's label for a category is "yes" if any chunk's proof says yes (and any chunk without an accepted proof counts as yes, fail-closed); the manifest lists every chunk proof with its token range so a verifier sees that the chunks cover the whole content. Consequences to note: per-chunk verdict bits are public, so a "yes" also shows which part of the post triggered it; classification of a chunk lacks the rest of the post's context | **product direction (Victor)**; design detail with the token and app lanes | 2026-10-21 03:36 | Victor via Telegram (spool line 2026-10-20T20:36:01 PDT: "For now, split the content up into small enough chunks and prove each chunk (40 chunks if needed) allow this to be a tunable thing. So we can demo on different hardware") |
 | D42 | **Swap in the resource-guard fix today.** The live `scripts/zk60_resource_guard.py` (sha256 f0b87668…) is replaced by the reviewed candidate `results/zk60_guard_fix_20261021/zk60_resource_guard.py.new` (sha256 87138bda…: admission before the heavy lock; FIFO mode present but OFF by default), following `results/zk60_guard_fix_20261021/NOTES.md` §7: all lanes on hold and no guard process in any session's view; rollback copy kept outside /tmp (`results/zk60_sol_20261026/guard-backup/`); official guard suites without sandbox skips plus the 31 staged tests; Sol (a Codex agent, S3) updates the two static pins (`scripts/zk60_guarded_command.py` `REVIEWED_GUARD_SHA256`, `scripts/zk60_techweek_demo.py` `GUARD_PIN`) in the same window and notes it in `ops/zkp-mvp/RECOVERY_COORDINATION.md`; never during a demo | **operations ruling (Victor)**; **done 2026-10-26 19:00:31 UTC** (Sol S3: official suites 45/45 + 31/31 without skips, consumer suites green, both pins = 87138bda…, FIFO off; audit `results/zk60_sol_20261026/S3_AUDIT.json`; coordinator re-checked the live hash and pins at 19:01) | 2026-10-26 18:22 | Victor (console: "swap yes"), answering the 2026-10-21 06:20 question in `ZK60_RULINGS_FOR_VICTOR_20261017.md` after the plain explanation of 2026-10-26 |
-| D43 | **Funding first; a paper with the demo once the PoC works.** (a) The top priority is to obtain funding for continuing the work as soon as possible — grants, other funding sources or publications, whichever gets there fastest and best; the coordinator researches the routes and brings one ranked plan (research under `results/zk60_funding_20261028/`). (b) Once the proof of concept works, write and publish a paper on the ZKP technology built here at a prestigious venue, together with the PoC demo, so the technology enters the literature for others to use. Working notes (coordinator, not rulings): in this field the top venues are mostly conferences (security and cryptography), with an IACR ePrint preprint as the fast public form; publication is prior art, so any patent filing must come first — Victor's call, flagged 2026-10-28. Neither part changes D1, D13, D27, D33, D36 or any security claim | **product direction (Victor)**; plan owed by the coordinator | 2026-10-28 21:05 / 21:20 | Victor (console: "once we have a working proof of concept, I want to see about writing and publishing a paper on the ZKP technology … together with the proof of concept demo"; then "the top priority is to find funding for continuation of this work … The priority is to achieve funding for this as soon as possible") |
+| D43 | **Funding first; a paper with the demo once the PoC works.** (a) The top priority is to obtain funding for continuing the work as soon as possible — grants, other funding sources or publications, whichever gets there fastest and best; the coordinator researches the routes and brings one ranked plan (research under `results/zk60_funding_20261028/`). (b) Once the proof of concept works, write and publish a paper on the ZKP technology built here at a prestigious venue, together with the PoC demo, so the technology enters the literature for others to use. Working notes (coordinator, not rulings): in this field the top venues are mostly conferences (security and cryptography), with an IACR ePrint preprint as the fast public form; publication is prior art, so any patent filing must come first — Victor's call, flagged 2026-10-28 21:02 UTC. Neither part changes D1, D13, D27, D33, D36 or any security claim | **product direction (Victor)**; plan written 2026-10-28 21:23 UTC: `docs/zkmatrix-poc/ZK60_FUNDING_PLAN.md` (drafts for Foresight, due Oct 31, and YC W27, due Nov 2, in `results/zk60_funding_20261028/`); **ruled by Victor 2026-10-28 21:24 UTC (console):** (1) **file a US provisional patent before anything is published** (preprint, open-source release) — the private YC / Foresight applications are not blocked by it; (2) **open-source scope for grants that require it = the verifier + the specification + the benchmarks** (open-core; the prover stays the product). Still open: when the company is formed. **Addendum, Victor 2026-10-28 21:39 UTC (console):** "apply for multiple avenues of funding just in case some do not pan out … consider all options even if they might be a little out there" — apply broadly in parallel (all four of this week's applications plus every further fitting route), and widen the search to unconventional sources; a second research wave runs under `results/zk60_funding_20261028/wave2/` | 2026-10-28 21:01 / 21:02 | Victor (console: "once we have a working proof of concept, I want to see about writing and publishing a paper on the ZKP technology … together with the proof of concept demo"; then "the top priority is to find funding for continuation of this work … The priority is to achieve funding for this as soon as possible") |
+| D44 | **Install the S8 guard swap-rule fix.** The live `scripts/zk60_resource_guard.py` (87138bda…) is replaced by Sol's candidate `results/zk60_sol_20261026/guard-s8/zk60_resource_guard.py.candidate` (88af4c63…). It changes one admission rule: while swap use is over 1 GiB, refuse only if MemAvailable < need + 1 GiB margin + all swap in use (before: refuse whenever swap use was over 1 GiB). Coordinator review: `results/zk60_guard_fix_20261021/S8_REVIEW.md` (accept, with conditions). The install follows D42's S3 procedure: drain and holds, `.orig` backup outside /tmp, atomic replace, both static consumer pins updated, the official suites (45 with the swap fixture changed in the official file, plus 31, plus the 9 S8 policy tests) on the host without systemd skips, FIFO off, a note in `ZK60_RESOURCE_PROTOCOL.md` that the guard cannot see Windows host memory, and rollback on any failure | **operations ruling (Victor)**; **done 2026-10-29 00:33:31 UTC** (Sol, attempt 2; attempt 1 at 00:24 aborted on a test-runner import path and rolled back cleanly). Host preflight clean; official 45 + S3 31 + S8 9 + consumer suites 8 / 13 / 14, all with zero skips; both static pins = 88af4c63…; FIFO off. Coordinator re-verified the live hash, the pins, `status` / `check` and the protocol note at 00:33:59; window 00:10–00:34 UTC, holds removed | 2026-10-28 23:50 | Victor (console: "Go ahead and install the guard swap-rule fix") |
+| D45 | **The four classifier-proof rulings (from the classifier design's adversarial check, `results/zk60_token_io_r1_20261017/classifier/check/CHECK.md`).** **(1) Content length is public:** a proof reveals the post's length in tokens, besides the verdict, model and policy. Hiding the length is a later, costlier variant. **(2) One fixed policy list, one threshold each; an item is never re-proved under a different policy or threshold** (each extra policy is another yes / no question about the hidden content). **(3) The proof is linked to the post (amends D23 for classifier runs):** the proof's sealed input fingerprint is stored with the post and anchored on-chain (D39), and the app keeps the opening so anyone given the post's text can check the link. Accepted consequence: whoever holds an opening can prove which content was posted. **(4) Fail closed:** a post without an accepted proof is not published and is shown as "could not be verified", never as safe | **product rulings (Victor)**; consistent with D1 (P1) and D37–D41. Token round 14's short-item support (T < T_pad) stays within (1) | 2026-10-29 01:04 | Victor (console: "1) yes, 2) yes, 3) yes, 4) yes"), answering the open item of 2026-10-21 03:00 UTC in `ZK60_RULINGS_FOR_VICTOR_20261017.md` |
+| D46 | **Keep the laptop's disk and memory from crashing it again.** The laptop crashed 2026-10-30 ~02:50 UTC (19:50 PDT) with C: at ~5 GB free: C: holds the WSL disk file and Windows' auto-managed page file, so neither could grow while a full-size batch proof (token round 18's A5 byte-identity run) was writing receipts. Done 2026-10-30 by the coordinator: (1) ~135 GB of Windows AI image tools deleted with Victor's yes (ComfyUI, MSI AI Artist except a locked `Tool` folder, Pinokio data, an ISO, `sd.webui`) and ~35 GB of regenerable Linux files (32 review-scratch build dirs, the August Gemma/Mistral exports); C: 5.2 → ~135 GB free. (2) **Guard S9 (host drive):** `scripts/zk60_resource_guard.py` 88af4c63… → **67e9478f…**: cpu/gpu/build jobs wait while `/mnt/c` has under 40 GiB free, and any live job is killed under 8 GiB (checked every 5 s); a missing drive switches both off; record and status JSON shapes unchanged. Host suites without skips: official 50 (45 + 5 new), S3 31, S8 9, guarded-command 8; both static pins moved; diff, rollback copy and manifest in `results/zk60_resource_guard/guard-s9-host-drive/`. No guarded job was live during the edit; Sol saw an intermediate hash, held its launches, diff-read the final guard and re-ran the suites (`results/zk60_1b_native_20261017/r14/GUARD_DISK_CONTINUITY.json`). (3) **Box watch:** `scripts/zk60_resource_watch.py` adds DISKLOW (C: under 60 GiB) and WINMEM (Windows free RAM under 3 GiB or commit over 85 %), a `--state` / `--notify` unattended mode, and `--evict-cache` (drops the clean page cache of large data files when Windows has under 6 GiB free; measured: 5.5 GiB released in 2 s, vmmem 14.9 → 10.5 GiB). Its cron entry was refused by the session's auto-mode classifier and awaits Victor; until then it runs as the main session's monitor. (4) `C:\Users\victo\.wslconfig` = `[experimental] autoMemoryReclaim=gradual` (Victor's yes); takes effect at the next `wsl --shutdown`. Still Victor's: the cron line, the VM-disk compaction (~45 GB) at a quiet moment, which also activates (4) | **operations directive (Victor)**; installed 2026-10-30 05:10 UTC (guard), 05:20 UTC (watch monitor) | 2026-10-30 04:5x | Victor (console, `/goal`: "please continue from where you left off before the computer shut down due to not enough memory. Also, make sure memory usage is always maintained so we don't see a repeat"; earlier the same session: delete the Windows AI tools and the Linux rebuildable files, write the .wslconfig) |
+| D47 | **Funding applications on hold until Victor has a partner.** D43(a)'s "funding first, as soon as possible" is suspended: no application is pursued (Foresight, YC W27, NSF, EA Funds, Alliance, DARPA) until Victor finds a partner to work with him, and that partner is to receive the majority of any funding, because Victor is starting a new job soon. The drafts in `results/zk60_funding_20261028/` are kept unchanged for later. Unchanged: D43(b) (the paper with the demo once the PoC works), the provisional patent before any publication, and the open-source scope (verifier, specification, benchmarks). Coordinator notes, not rulings: a new employer's invention-assignment terms can reach work done while employed there, so this project's status as a prior invention, and the provisional's timing, are for Victor's attorney before he signs; the Anthropic Fellows application Victor already submitted (10-28) is his to keep or withdraw | **product direction (Victor)** | 2026-10-30 05:46 | Victor via Telegram (spool line 2026-10-29T22:46:11 PDT: "For funding, I think I will hold off until I can find a partner to work with me and they will receive the majority of the funding as I will be starting a new job soon.") |
+| D48 | **Proliferation over rights: open by default, as fast as possible.** Victor is not concerned about rights to the invention; the best case is that the technology spreads, and if that needs everything open source, everything is open-sourced; the aim is wide use as quickly as possible. This **replaces** D43's rulings (1) (a provisional patent before any publication: no longer required) and (2) (open-core: verifier + specification + benchmarks only: widened to the whole stack, prover included). D43(b), the paper with the demo, stands, and nothing now waits on a patent. Coordinator's reading for execution (not rulings): a public release is outward-facing and irreversible, so it is prepared first: a curated public tree (code, specifications, docs, small evidence) under a permissive license, with a secret scan and a third-party licence inventory, and without model weights whose licences forbid redistribution, private keys, owner openings, personal drafts or the 200 GB of results. It goes out on Victor's go (license choice and timing are his). Publishing before he starts the new job keeps an employer's invention-assignment terms from reaching it — a point for his attorney, not legal advice. An early preprint (IACR ePrint) also serves D48 and establishes prior art that keeps others from patenting the construction | **product direction (Victor)**; release-readiness check commissioned 2026-10-30 | 2026-10-30 05:48 | Victor via Telegram (spool line 2026-10-29T22:48:37 PDT: "I'm not concerned about rights for the invention. In the best case scenario the technology will proliferate. If everything needs to be open source for that then that's what we should do. The technology needs to be widespread as quickly as possible") |
+| D49 | **A proving-service website.** Victor wants to host a website where others use the proving software as a service: for example, a platform like Facebook could create and publish proofs that its content passed the quality / safety classifier. Coordinator's reading for the spec (not rulings): whoever runs the prover sees the content (P1 hides it from verifiers, not from the prover), so the trust model (self-host kit, confidential-computing enclave, or plain hosted) is Victor's choice. Illegal-content reporting duties (e.g. CSAM, 18 U.S.C. §2258A), data protection and terms need a lawyer before any hosted content. Spec: `docs/zkmatrix-poc/ZK60_PROVING_SERVICE_SPEC.md` (in preparation). Going live is outward-facing and waits for Victor's go | **product direction (Victor)** | 2026-10-30 20:21 | Victor (console: "I also want to host a website where people can use the proving services as a service. (For example, if facebook wanted to publish proofs of good quality content they could go on my site and use my software to create and publish a proof)") |
+| D50 | **Always a researcher on efficiency.** A researcher works on proving efficiency at all times. The standing hourly explorer (`research/zkp-efficiency/`, `scripts/zk60_explorer.py`) is that researcher, and its AGENDA now carries the DeepProve speed-gap question. The coordinator checks its health on every resume and restarts it per its own supervisor if it is down, never as a duplicate. Speed never trades away the decided privacy requirements | **standing direction (Victor)**; gap study `results/zk60_deepprove_gap_20261030/` commissioned | 2026-10-30 20:21 | Victor (console: "Make sure there is always a researcher digging into the efficiency side of things. Could our proofs use some of the techniques employed by DeepProve to catch that 100x speedup?") |
+| D51 | **Upstream only into open stacks; Attestable is closed.** Victor notes that Attestable does not open-source its technology. Under D48, contributions and partnerships go to open projects (DeepProve, EZKL, academic groups); Attestable is a competitor to compare against, and its public numbers are claims, not techniques to copy | **product direction (Victor)** | 2026-10-30 20:21 | Victor (console: "As far as I'm aware attestable does not open source their technology") |
 | D35 | **Next-token statement at calibration `pg_rot1_b4_T32_cal128`: which block-layer evidence carries from D33's calibration.** The calibration-SENSITIVE block controls were run at b4 inside the token captures and fire (NC-1: `sh_z` moved, fails exactly at slot 14; NC-2: the frozen-calibration fallback fails exactly at slots 2, 14, 15, 16, 18; NC-3: the cross-check; NC-4: a per-layer table swap), and the absorbed calibration word recomputed from the b4 export and the named embedding / head tables equals the statement header in 5 of 5 cases and 10 of 10 captures (gate round 10, PR4-9, tools v16). The remaining block control families — CT, GQ, P, M, X, C, CH, M9, the pin controls and G-10 — test the tools and the block shape, not the calibration constants; they were exercised at pg_rot1 on the same block shape and tools, and are recorded as carrying to b4. The token run's own integrity controls (TC-1..TC-12, J-1..J-3) fire on all ten token captures. In plain words: the parts of the privacy checks that depend on the calibration numbers were re-run at the new calibration; the parts that only test the machinery are not repeated | **statement-evidence note (security owner); not a privacy acceptance** — lapses if a carried family is found to read a calibration constant, or the block shape or the tools differ between the D33 runs and the b4 captures | 2026-10-20 04:34 | Claude (coordinating session as security owner), on privacy review round 4 PR4-9 ("can carry, if the owner records it") and gate round 10 (`results/zk60_gate_tinyllama_20261017/round9/PRIVACY_STATEMENT_NEXT_TOKEN_T32_DRAFT.ADDENDUM-20261020.md`) |
 | — | RTX 5090 install (an action, not a ruling; the 600 W bound was ruled on 2026-09-04) | **go**; date, machine and host RAM still to be named | 2026-09-19 | Victor (Telegram 11:50) |
 
@@ -1064,3 +1072,672 @@ that reads the head**; R12-F2 (low, DoS) unbounded/symlink-following token-table
 reads; R12-F3 (low) `--rope-from-export` proves export tables the statement does
 not record (refuse at transform-pinned profiles or record the digest). Notes
 N-1..N-7 in the review. Not a privacy acceptance.
+
+**Token round 16 frozen 2026-10-29 ~09:30 UTC (Claude token lane;
+unreviewed): the real Shieldstral-1.0-3B classifier registered on native R13**
+(`results/zk60_token_io_r1_20261017/frozen-r16.FROZEN.txt`; 300 files;
+binaries e94cecf9… (made the real receipts) and dae5abd7… (frozen tree); suite
+934 / 0 / 68 [MEASURED]).
+- Run profiles `…private-classify-run-shieldstral-3b-t128-r13-public-row/1`
+  and the T256 twin. The fixed policy list is the three D37 categories in the
+  **moderate** wording, flagged pending Victor's strict / moderate ruling.
+  Pad id 11; overlap 8.
+- **First real proofs** [MEASURED, laptop, n=1]: one 35-token ToxicChat post
+  through all three categories:
+  - prove 439–456 s total (328–349 s proving), peak 8.08–8.27 GiB;
+  - receipt 848,412,096 B in 28 segments;
+  - verify / input-owner / label 66–71 s, about 2.3 GiB;
+  - all verdicts not-flagged.
+- Whole-run bits: T128 96.86, T256 95.91 [COUNTED].
+- One checkpoint stream per prove / verify (N-r13-5 fixed).
+- Blockers for the app: the per-item activation source (Astra's integer
+  evaluator); Victor's policy-wording ruling; the independent review and the
+  privacy gate (no classifier privacy statement exists).
+- **Independent review (recorded 2026-10-29 10:06 UTC): ACCEPTED WITH FIXES
+  on soundness** (`results/zk60_token_io_review_r1_20261017/REVIEW_R16.md`).
+  - The real moderate-hate receipt re-verifies under the frozen-tree binary
+    (identity 29aeba6c…, verify 39.6 s).
+  - The rebase, the gate shift per layer, the per-block stage shapes,
+    `build_for_block` and the bits (96.86 / 95.91, recomputed) all hold.
+  - The single checkpoint stream stays inside the authenticated load.
+  - Wrong activations are refused even by a prover with its own checks
+    switched off, so **the activation source is integration only, not
+    soundness**.
+  - **Fix F-1 (medium; D45(2) conformance):** the production list still
+    admits round 12's `shieldstral-1.0-3b-card-unsafe/1`, so four policies
+    instead of three. Make it test-only, and test that each R13 profile
+    admits exactly the three.
+  - **N-r16-1 (low):** pin the exact floors (a mutant charging one block
+    stays green).
+  - The privacy-gate needs are in the review's §10.
+- **Round 16b frozen 2026-10-29 ~10:55 UTC (recorded 10:58)** (`frozen-r16b`, binary
+  `cli/zk60_classify.r16b.release.bin` dfb8025e…; suite 936 / 0 / 68).
+  - **F-1 fixed:** `card-unsafe/1` is test-only, and T128 / T256 each admit
+    exactly the three moderate policies (failing-first; the `card-back`
+    mutant is killed).
+  - **N-r16-1 fixed:** the exact floors are pinned, and the one-block mutant
+    is killed.
+  - No statement bytes moved: the real violence receipt re-verifies, identity
+    29aeba6c….
+  - Coordinator code check of `registered_policies` / `policy_shieldstral_card`
+    confirms the fix.
+  - **The app must use r16b or later** (the r16 binaries still accept the card
+    policy).
+
+Not a privacy or classifier-quality claim.
+
+**Privacy gate round 19 (Claude gate lane, 2026-10-29, tools v22 frozen,
+manifest ab703596…): all 14 classifier captures PASS, including the REAL
+Shieldstral-1.0-3B classifier** (`results/zk60_gate_tinyllama_20261017/round19/R19_SUMMARY.md`).
+- **The real capture** (r16b binary dfb8025e, moderate-sexual, the 35-token
+  post as a short item with 20 pads at id 11): `PASS-WITH-DECLARED-LIMITS`.
+  - Disclosed dimension 0 on all 84 A / endpoint / boundary commitments and 2
+    on every H. CFS: 0 of 440,221 entries differ. Joint 0 over 1.05 M pairs.
+  - 15 of 15 controls fire. 19 tables were rebuilt, and B-3 was derived from
+    the checkpoint (bit-exact).
+  - **Limits:** (1) the capture has no table values, so 12 of the 23 block
+    slots stay open; (2) the full preimage was checked on a declared sample of
+    15 commitments (9.7 M entries, 0 differing).
+- **13 R13-rung captures** pass: the verdict reveals only its public bit, and
+  a short item only its public length.
+- **R19-PIN-1:** frozen-r16b's recorder cannot record R13 runs
+  (`plane_index.rs` is legacy-only). The gate used test-only patches H19-1..4,
+  and the token lane must adopt them.
+- **Refusal recount** [COUNTED]: the D34 / D40 term at R13 Shieldstral is
+  2^-108.25 (was 2^-112.7; the SiLU table has 16,384 rows).
+- **R19-1:** range refusals depend on hidden content (102 of 300 ids refuse
+  at one dev calibration). The classifier privacy statement must state this
+  channel; with D45(4), fail-closed, it shows as "could not be verified".
+
+**Not a privacy acceptance.**
+
+**Privacy gate round 20 (Claude gate lane, 2026-10-29, tools v23 frozen,
+manifest 64f4b757…): both of round 19's limits are CLOSED on the real
+Shieldstral capture** (`classify-r13-shield-t128-cli-hate-r17-values`;
+`results/zk60_gate_tinyllama_20261017/round20/R20_SUMMARY.md`). The status is
+**PASS with no declared limit**.
+- All 23 block slots hold in all 26 real blocks (each at its own gate
+  denominator), and all 7 R13 block controls fire.
+- **The full zero-data preimage over all 84 commitments: 81,731,058 view
+  entries, 0 differing.**
+- Everything round 19 checked holds again: disclosure 0 / 2, CFS 0 of
+  440,221, joint 0, 12 classifier slots with tables rebuilt, B-3 bit-exact,
+  15 controls including C-13 at pad 11.
+- 4.06 h, 6.47 GiB peak, alone; one checkpoint stream.
+- **Still owed for a classifier privacy statement:**
+  - the statement text;
+  - the per-run distance figure, including the 2^-108.25 refusal term;
+  - the R19-1 refusal-channel wording;
+  - an independent derivation (or review) of the 15 block tables the gate
+    takes from the capture;
+  - the owner checks;
+  - Victor's policy-wording ruling;
+  - an independent privacy review, the security owner's sign-off and
+    Victor's acceptance.
+
+**Not a privacy acceptance.**
+
+**Token round 17 frozen 2026-10-29 (recorded 16:35 UTC; Claude token lane)**
+(`frozen-r17`, 303 files, manifest 23a95876…; binary 81bd8624…; suite
+940 / 0 / 70).
+- It adopts the gate's H19-1..4 (an R13-aware `plane_index`, the classifier
+  bundle schema, the capture hooks).
+- Captures now record the public block tables (442 on the real run), each
+  re-derived from the export and required byte-equal before recording.
+- **All six changed files are test-only.** The coordinator confirmed that
+  `run_capture` and `plane_index` are `#[cfg(test)]` modules: no prover,
+  verifier, statement or receipt byte changes. The real hate receipt
+  re-verifies with r17.
+- The coordinator's check stands in for a separate review (scope: test and
+  recorder code only). The gate's own reader closes 23 / 23 block slots on
+  the rung and on 2 sampled real blocks.
+
+**S4 split-width: independent design check (2026-10-29 07:43 UTC), PROCEED WITH
+CONDITIONS** (`results/zk60_d24_review_20261017/S4_DESIGN_CHECK.md`; binding
+conditions C-1..C-11, privacy re-derivations P-1..P-6). **Construction rules
+adopted by the coordinator (security owner for construction rules), the same
+day:**
+- **(a) Lift placement "B-gate":** the zero lift (1 − b) enters only the
+  public factor each term already has: the zero-padded weight fold for
+  matmuls, and `Tab::Eq` at (r_t, 0^k) for the norm sums. The smaller piece's
+  private table stays as native code builds it, and σ never enters a private
+  functional. The masks, claim audit, `open_zk`, wire format and rank
+  structure are unchanged. The lift is folded into that existing public
+  factor, never added as a separate public table (that raises the extension
+  degree to 4 against a declared 3; the checker's harness refuses it). This
+  replaces the wording of the 06:35Z go-ahead about scaling the whole masked
+  functional.
+- **(b) Boundaries and endpoints:** **one commitment per logical boundary or
+  endpoint holding both pieces as ordered row blocks** (30 rows external, 34
+  internal in the checker's model, disclosure 0), not two commitments. D12a
+  ("one prover-generated boundary commitment") therefore stands unchanged,
+  and no extra PCS openings are added.
+- **(c)** Per-piece rounding, wrong c2 / group offsets and a one-piece norm
+  must become receipt-level attacks at the native stage. The ACT3 group
+  column uses global channel ids, and the ACT3 bound is re-evaluated at the
+  new lookup count.
+- **(d)** The whole-run soundness bits are recounted (lookup term, opening
+  count) before any S4 profile is registered (R13's lowest is 96.09).
+- **(e)** S4 is a new versioned profile. R13 and legacy bytes stay fixed. A
+  D24 review and a privacy-gate round (P-1..P-6) come before any S4 use.
+
+**Native R13 frozen 2026-10-29 06:12 UTC (Sol; accuracy stack S2: LOW + h
+int24 at 8B, LOW at TinyLlama, the Shieldstral-only SiLU member (0, −8),
+two's-complement int16 at the 8 widened word sites; source bb9eb212…, 269
+files; suite 816 / 0 / 51; 19 receipt-emitting attacks rejected).**
+**D24 review (recorded 2026-10-29 07:21 UTC): ACCEPTED on soundness at all
+twelve registered profiles** (`results/zk60_d24_review_20261017/REVIEW_R13.md`).
+- Existing profiles are byte-identical (9 of 9 golden lines), and retained
+  R8 / R9 stacks verify.
+- An independent integer reference built from the S2 spec matches the native
+  witness at 0 differences: generic fixtures, real Shieldstral layer 0 at
+  T128, and layers 0 and 25 at T256 including the (0, −8) member.
+- The widened words admit exactly [−32768, 32767] and the score [−127, 127].
+  The worst field bound is 2^49.99.
+- SiLU-group forgeries are refused: prover tables, doctored or fifth groups,
+  wrong groups, swapped ids. Also refused: 15 self-consistent alternative
+  witnesses, 9 doctored exports and 22 rebuilt calibration controls.
+- **Bits:**
+  - TinyLlama T128: 98.40 / 98.50 (no DD / DD);
+  - 8B T128: 97.00 / 97.06;
+  - Shieldstral T128: 97.30 / 97.36;
+  - Shieldstral T256: 96.09 / 96.26;
+  - **8B T512 (not registered): 94.48 / 94.80**. Below ~95 (N-r13-1),
+    needing a ruling or a lever before 8B T512 is registered on R13.
+- Low fix **R13-F1** (Sol): 11 calibration CLI controls are built at a
+  legacy shape, so at R13 they are refused before any receipt byte is read
+  (a test defect; the property itself was re-shown by the reviewer).
+- The requirements for registering the Shieldstral classifier on R13 (token
+  lane) are in the review.
+
+Not a privacy acceptance.
+
+**Native R12b frozen 2026-10-28 22:33 UTC (Sol, tree 51de5b83…, 229 files;
+suite 739/0) — the three R12 fixes; independent fix-check review (recorded
+23:12 UTC): ACCEPTED on soundness for the fix scope, no fixes required**
+(`results/zk60_d24_review_20261017/REVIEW_R12B.md`).
+- **R12-F1 FIXED:** the loader checks dtype, shape and exact size, then
+  recomputes the embedding, head and multiplier tables from the checkpoint
+  (whose sha256 must equal the model pin) and refuses any mismatch. The
+  reviewer's independent quantizer reproduces every digest bit for bit, and
+  27 attacks are refused, including rehashed one-byte forgeries of each table.
+- The coordinator's three F1 conditions hold:
+  - the yes / no ids and the scale are function arguments, never file
+    contents (binding them to the profile is R-C2's job);
+  - `token_io_parameters` sit inside the bound profile digest;
+  - an out-of-range margin is refused, never clamped (0 of 3,072 coordinates
+    refuse at the policy scale).
+- **F2 FIXED:** symlinks, FIFOs, devices and names that escape `token_io/` are
+  refused (no-follow flags are set on Linux x86_64 only).
+- **F3 FIXED:** refused at all four Shieldstral geometries on both load paths.
+  The older gap at unscaled profiles remains.
+- **N-7 fixed with notes:** about ten older test sites still write to /tmp.
+- **Regression:** five retained receipts verify with byte-identical
+  statements, and Sol's golden output matches the reviewer's round-10 run
+  9 of 9.
+- **Note N-r12b-1:** every Shieldstral prove or verify reads the whole 7.7 GB
+  checkpoint (17–18 s per load) at a path bound in the profile.
+- **R-C2 must:** take the ids, the scale and threshold_c only from the bound
+  profile's `classifier_margin_parameters`; require the returned profile
+  digest to equal the statement's `export_profile_sha256`; use the derived
+  margin, never the file; let refusals through; never apply the final norm
+  or the rotation twice.
+
+Not a privacy acceptance.
+
+**Token round 13 (R-C2) frozen 2026-10-28 ~23:40 UTC (Claude token lane) on
+native R12b** (`results/zk60_token_io_r1_20261017/frozen-r13.FROZEN.txt`; 257
+files; binary `cli/zk60_classify.r13.release.bin` e320c237…; suite 832 / 0 /
+55 [MEASURED]).
+- The classifier verifier recomputes the margin row, the embedding, BOS and
+  the final norm from the pinned tensor and the bound export profile
+  (`classifier_margin_parameters`, `token_io_parameters`). It refuses
+  doctored tables carrying updated manifest digests. Four tests failed first
+  against R-C1 and are now green.
+- The statement schema is `zk60-classify-run/2`. `--min-bits` is floored at
+  93 (dev rung) and 95 (elsewhere, D27).
+- Only the dev-rung classifier profile is registered. Shieldstral's waits for
+  native R13 and Astra's fixed export.
+- **Independent review (recorded 2026-10-29 00:56 UTC): ACCEPTED on soundness
+  for R-C2's scope, no required fixes**
+  (`results/zk60_token_io_review_r1_20261017/REVIEW_R13.md`).
+  - The five R12b requirements hold in the shipped CLI.
+  - 51 attacks in 9 groups are refused, and 13 of the reviewer's 14 mutations
+    are killed by tests.
+  - The dev-rung tables were recomputed independently (exact and binary64
+    arithmetic agree).
+  - Neither binary accepts the other's receipts; R-C1's doctored-row gap was
+    shown live and is closed in r13.
+  - **Must fix before the gate or any non-CLI caller relies on R-C2:**
+    - **N-r13-1:** the binding to the model lives only in the CLI loader. The
+      library prove / verify functions and the gate's capture tool accept any
+      tables.
+    - **N-r13-2:** no test fails without the post-derivation digest check.
+  - The privacy gate must re-capture every R-C2 item; no R-C1 capture
+    carries over.
+
+  Not a privacy acceptance; no Shieldstral classifier claim (Shieldstral is
+  not yet registered).
+
+**Token round 14 frozen 2026-10-29 ~02:05 UTC (Claude token lane; unreviewed)**
+(`results/zk60_token_io_r1_20261017/frozen-r14.FROZEN.txt`; binary
+`cli/zk60_classify.r14.release.bin` 48dac988…; suite 845 / 0 / 56 [MEASURED]).
+- N-r13-1: every library entry point takes only tables bound by
+  re-derivation.
+- N-r13-2: a test now kills the missing-digest-check mutant.
+- The gate's capture helper builds derived tables.
+- **Short items (T < T_pad):** one chunk with public pad positions (within
+  D45(1)). Coverage by length: 100% of the 4,872 benchmark item / policy pairs
+  at T128 and T256 [COUNTED].
+- Schema `zk60-classify-run/3`.
+- **Independent review (recorded 2026-10-29 03:05 UTC): ACCEPTED on
+  soundness for round 14's scope, no required fixes**
+  (`results/zk60_token_io_review_r1_20261017/REVIEW_R14.md`).
+  - Short-item attacks are all refused: boundaries, restated lengths, 10
+    forged prover layouts, moved verdict rows, other pad ids.
+  - Causality is enforced by the relation: forged masked weights that moved
+    the margin were refused at the softmax zero-check.
+  - Only the diagonal verifies across the r12 / r13 / r14 schemas, and all 10
+    mutants are killed.
+  - **N-r14-1 (low, must close before the app accepts short items):** `label`
+    cannot check that the proved chunks cover the whole post, so the app must
+    compare `content_total` with the post's length (Astra), with a CLI
+    `--expect-total` to follow.
+  - Gate C-13 requirements are in the review's §10.
+
+  Not a privacy acceptance.
+
+**Privacy gate round 18 (Claude gate lane, 2026-10-29, tools v21 frozen,
+manifest 25814977…): all 21 R-C3 classifier captures PASS**
+(`results/zk60_gate_tinyllama_20261017/round18/R18_SUMMARY.md`).
+- The captures cover L1 and L2 at verdict 0 / 1 / tie, a 2-chunk item, short
+  items with n = 1, 11, 20 and 22, and two CLI-path captures.
+- Disclosed dimension: 0 on every A, endpoint and boundary commitment, and 2 on
+  every H (as expected). 19 public tables were rebuilt and none was taken from
+  a capture.
+- The verdict moves nothing but its public bit, at every n. A short item
+  discloses the same as a full item, apart from its public length fields
+  (D45(1)).
+- All C-13 controls fire, and REVIEW_R14 §10 (a)–(f) is covered.
+- Token-lane follow-ups: F18-1 (the capture writers emit 24 slot triples
+  against n_slots 23), O18-1 and H18-1.
+- Still owed for a classifier privacy statement: the statement text, per-run
+  distance figures, owner checks on short items, the Shieldstral profile and
+  its captures, an independent privacy review, the security owner's sign-off
+  and Victor's acceptance.
+
+**Not a privacy acceptance.**
+
+**Token round 15 frozen 2026-10-29 ~04:52 UTC (Claude token lane)**
+(`results/zk60_token_io_r1_20261017/frozen-r15.FROZEN.txt`; binary
+`cli/zk60_classify.r15.release.bin` 5edb7241…; suite 850 / 0 / 59 [MEASURED]).
+- **N-r14-1 closed:** `label --expect-total N` is required, and
+  `aggregate_label` refuses unless every run names the same policy, model and
+  plan, the total is N, and the ranges are exactly the D41 split of [0, N).
+  Missing or duplicate chunks are refused.
+- **F18-1:** the capture writers list exactly 23 slot triples.
+- **H18-1:** the CLI short-item capture hook is adopted.
+- Docs: v2.5, with the D45 marks and the causality argument citing the
+  relation.
+- The round changes no receipt or statement bytes: r14 and r15 cross-verify
+  both ways, and the schema stays /3.
+- **Coordinator code reading of `aggregate_label` (no separate review agent,
+  given the scope):** correct. Note that `--expect-total` binds length only;
+  binding to the post's content remains the input-owner check (D45(3)).
+- The gate moves its two capture-source pins (`run_capture.rs`,
+  `token_io.rs`) to r15 in its next round.
+
+Not a privacy or classifier claim.
+
+**A5 one-load batch (`zk60_classify prove-batch`): independent patch review
+2026-10-29, READY WITH FIXES (recorded 22:23 UTC)**
+(`results/zk60_token_io_r1_20261017/r18/A5_PATCH_REVIEW.md`; read-only, nothing
+compiled or run). Astra's candidate proves the three categories of one post
+after one checkpoint / model / table load.
+- Confirmed by reading: each proof still draws its own two fresh OS-randomness
+  blocks; no RNG, seal, transcript, witness source or block reader outlives its
+  job; the shared `ExportPublic` / `BoundClassifierTables` have no interior
+  mutability; every block reload stays digest-checked (52 per job); verifier,
+  input-owner and label code is byte-identical to r16b.
+- **Two fixes are required in the adoption round (token round 18):**
+  (1) a failed batch must not leave earlier jobs' receipts, statements or
+  `input.dec` behind (one batch-level claim, released only at `batch-proved`;
+  the app also removes every listed path when no `batch-proved` arrives);
+  (2) the randomness and transcript-label census tests must cover the two new
+  `#[path]` files (test code only).
+- **Coordinator reading of rule 3 (asked by finding 4): accepted.** Holding the
+  derived embedding / margin tables and the one digest pass in memory, immutable,
+  for the proofs of ONE post in ONE process meets "no weights reused across
+  proofs without that check": nothing on disk is used without its digest check,
+  and each proof's `check_tables` still compares its statement with those
+  values. Condition: the batch stays one process per post. A long-lived
+  server that keeps tables across posts would need a new ruling.
+- Byte-identity (acceptance criterion 1) cannot be tested in the source without
+  a seeded hook, and a hook would break the "fresh OS randomness per proof"
+  census. Method adopted: run the real binaries under bubblewrap with
+  `/dev/urandom` replaced by a FIFO of fixed public blocks (the prover reads
+  `/dev/urandom` by `File::open`, checked). Receipts made this way hide nothing:
+  test-only, never published, deleted afterwards.
+- Note: r16b's and r17's freeze records say "unreviewed". The register's
+  entries above record round 16 accepted with fixes, the 16b fixes checked by
+  the coordinator, and round 17 coordinator-checked (test-only).
+
+Not a privacy acceptance and not a timing claim.
+
+**Privacy gate round 21 (Claude gate lane, 2026-10-29, recorded 22:49 UTC): the
+Shieldstral T128 classifier privacy statement exists as a DRAFT**
+(`docs/zkmatrix-poc/ZK60_PRIVACY_STATEMENT_CLASSIFIER_SHIELDSTRAL_T128_DRAFT.md`,
+v1 db89f427…; summary `results/zk60_gate_tinyllama_20261017/round21/R21_SUMMARY.md`).
+- The gate re-derived all 442 public block tables (17 per block × 26 blocks,
+  118,210,560 entries) from the T128 export with its own arithmetic. Every one
+  equals the real capture's, byte for byte; 8 / 8 controls fire [MEASURED].
+- Per-run distance at the Shieldstral R13 shape: 2^-68.19 (235,660,902 draws ×
+  2^-96; the refusal term 2^-108.25 and the smaller terms do not move it)
+  [COUNTED; the draw count comes from the geometry, not yet from a replay].
+  D36's figure for the TinyLlama next-token proof was 2^-70.35.
+- Owner check recorded from existing runs (hate run, round-19 re-prove) [READ].
+- **Owed before any ruling:** an independent privacy review (routed now); the
+  stage-47 draw replay, NL-1 S3–S5 with the terminal surjection, and the
+  C-R1 / C-R2 hash-input census (gate round 22); an owner check at n ≠ 35
+  (Astra's 17-id post); Victor's strict / moderate wording; the security
+  owner's sign-off and Victor's acceptance.
+
+DRAFT only: not a privacy acceptance.
+
+**Classifier T128 privacy statement: independent privacy review 2026-10-29,
+NOT ACCEPTABLE YET (recorded 23:13 UTC)**
+(`results/zk60_privacy_review_20261029/CLASSIFIER_T128_PRIVACY_REVIEW.md`; read-only).
+- **Blocking:**
+  - **P-1:** the 7 R13-redefined block slots have no NL-1 check at all.
+  - **P-2:** the draw discipline (G-R4) was never replayed on IN-C, OUT-C or
+    the R13 blocks; the replay is needed at the R13 rung (L = 1, 2), not at
+    the real shape.
+  Both are assigned to gate round 22. D36 closed the same items by
+  measurement before its ruling.
+- **Must change before a ruling:**
+  - **P-3:** a whole-post corollary (a post is 3 to 22 runs over one text:
+    J × 2^-68.19, i.e. 2^-66.60 at J = 3 and 2^-63.73 at J = 22), with its
+    four hypotheses.
+  - **P-4:** `prove-batch` is not covered until it is named, fixed and
+    byte-identity checked.
+  - **P-5:** an accepted proof also reveals that the post passed the
+    integer ranges.
+  - **P-6:** plain-words corrections.
+  - **P-7:** the refusal / retry / display rules R1–R4. The demo app meets
+    R1, R3 and R4, but not R2 (failure details and texts are served to any
+    caller, and the "author" is unauthenticated). Hence the condition: **no
+    non-public post through the app until failure status is shown only to
+    the authenticated author.**
+  - **P-8:** timing and memory are out of scope (D20); the app's public
+    record shows proving time.
+  - **P-9:** name the binary behind each piece of evidence (round 20's
+    no-limit PASS came from `e94cecf9…`).
+- **Confirmed:**
+  - the refusal term 2^-108.25 (conservative) and 2^-68.19 recompute exactly;
+  - chunk facts reveal nothing beyond the length;
+  - the code baseline: r16 → r16b changes only the policy list and tests,
+    and r16b → r17 is test-only (every file hashed). This closes the draft's
+    item 7.
+- Next: gate round 22 (P-1, P-2), then draft v2 with P-3 to P-10, then a
+  re-review. Astra fixes R2 in the app. The first real post (public text) is
+  unaffected.
+
+Not a privacy acceptance.
+
+**Privacy gate round 22 (Claude gate lane, 2026-10-30, recorded 02:03 UTC): the
+review's two blocking findings answered by measurement; draft v2 ready for
+re-review** (`results/zk60_gate_tinyllama_20261017/round22/R22_SUMMARY.md`).
+The draft is now
+`docs/zkmatrix-poc/ZK60_PRIVACY_STATEMENT_CLASSIFIER_SHIELDSTRAL_T128_DRAFT_v2.md`
+(cfbfeafe…). v1 is kept byte-identical as `..._DRAFT_v1.md`, and the earlier
+pointers to `..._DRAFT.md` above mean v1.
+- **P-2 (draw replay, G-R4 by value): PASS at the R13 rung** [MEASURED]. Three
+  seeded replays (L2 verdict 1, L2 verdict 0 short n = 1, L1 tie) were accepted
+  by the production verifier. The prover consumed exactly the predicted bytes
+  stage by stage (L2 run stream 250,608,544 B). Roots were rebuilt in order,
+  and 5 / 5 perturbations fired. Round 21's counting function reproduces the
+  per-part counts, so the 2^-68.19 figure now rests on a replayed count.
+- **P-1 (NL-1 and the surjection) [MEASURED]:**
+  - NL-1 S1–S5 passes on the 12 classifier slots and the 7 R13-changed block
+    slots, on three rung captures and on the real hate capture (classifier
+    slots plus blocks 0 and 2).
+  - The surjection with TS-1 passes on the rung (12 / 12) and at the real
+    classifier stages (6 / 6).
+  - **On a real block it is partial:** the roles pass, but TS-1 did not run
+    (about 1 h of cpu slot per block; named, not run).
+- **C-R1 / C-R2 census: done.** The transcript query count is measured at
+  287,237 (pre-query term 2^-109.87); the total stays 2^-68.19.
+- **Owner check at n = 17: PASS** [READ], from Astra's first real post (r16b
+  binary, all three policies, three distinct roots).
+- Draft v2 takes in P-3 to P-15 with a disposition table (§12), and adds
+  conditions C-7 (no non-public post through the app until failures are
+  shown only to the authenticated author) and C-8 (measure the real model's
+  refusal rate before non-public posts).
+- Next: the reviewer re-reviews v2, then the security owner, then Victor.
+
+Not a privacy acceptance.
+
+**Classifier T128 privacy statement: re-review of draft v2 2026-10-30,
+ACCEPTABLE WITH CHANGES (recorded 02:13 UTC)**
+(`results/zk60_privacy_review_20261029/CLASSIFIER_T128_PRIVACY_REREVIEW_v2.md`).
+The reviewer checked round 22's claims against the files and re-ran the light
+checks; the summary is accurate.
+- **P-2 closed** at the rung (byte sums recomputed; `count_rung.py` re-run
+  reproduces the gate's output exactly).
+- **P-1 closed except one control:** TS-1 and the claim census never ran on a
+  real R13 block. Not required before the ruling (D36 required TS-1 on every
+  new role at the real shape, which the classifier has, 6 / 6). It becomes a
+  stated limit plus **condition C-9** before the statement is in force: one
+  block (~1 h, under 1 GiB); the statement lapses if TS-1 fails to fire or the
+  census finds identical claims or equal published values.
+- Every v1 must-change is taken in. Four text fixes (R-1 to R-4) go into
+  draft v3 (gate lane, now).
+- Then: Victor's acceptance (as for D33 / D36, on the basis of the gate notes
+  and the review), together with his strict / moderate wording ruling.
+  Conditions C-7 (app failures shown only to the authenticated author), C-8
+  (real-model refusal rate) and C-9 stand before non-public posts / in force.
+
+Not a privacy acceptance.
+
+**Token round 18 frozen 2026-10-30 (recorded 09:20 UTC; Claude token lane): Astra's one-load batch (A5)
+adopted, with the A5 review's two fixes.** (`frozen-r18`, 306 files, manifest list sha256 1ca1b2d7…; binary
+`cli/zk60_classify.r18.release.bin` 110f0c53…; suite s23 961 / 0 / 71; all mutants killed.) Interrupted by the
+02:50 crash mid step E and rerun from clean.
+- **Byte identity, measured at real scale** (Shieldstral T128, the public 17-id post, three categories, fixed
+  public entropy under bubblewrap): each batch job equals its single run byte for byte across all 30 files
+  (28 segments, `statement.json`, `input.dec`). The reviewed r16b binary's job 0 equals the candidate's job 0.
+  The pre-crash c0 and c1 equal the rerun's. Entropy fully read (unread 0).
+- The router says `unverified` until the fresh checks run; all 9 pass (verify, input-owner, label with
+  `--expect-total 17`).
+- **Fail-closed control:** with job 1's activations emptied, the batch refuses, removes job 0's and job 1's
+  outputs and leaves nothing behind (A5 fix 1).
+- Batch 1418 s against 1453 s for three singles (2.4 % saved) [MEASURED, n=1, shared box]: the gain is one
+  model load per post, not speed.
+- All fixed-entropy receipts deleted (6.06 GB).
+- **Unreviewed.** Production code moved (`classify_cli.rs`, `private_block.rs`): an independent review is
+  running (`results/zk60_token_io_review_r1_20261017/REVIEW_R18.md`), and the gate must re-check its capture pins.
+  **Astra's app stays on the per-category path until the review accepts round 18.**
+
+Not a privacy acceptance and not a timing claim.
+
+**Token round 18 review (2026-10-30, recorded 09:40 UTC): ACCEPTED WITH FIXES**
+(`results/zk60_token_io_review_r1_20261017/REVIEW_R18.md`, independent reviewer, reading plus one 0.07 GiB scratch
+compile; no proofs re-run).
+- **Native code sound to adopt.** Each batch job runs the single path's `prove_with_public` with its own two OS
+  draws, seal, transcript, witness source and block readers, all dropped at return. Shared state is borrowed
+  read-only (the digest pass, the table derivation, the content). Every block reload is digest-checked: 78 per
+  job, 26 + 52. Verify, input-owner and label code is byte-unchanged. The byte-identity equality was recomputed
+  from `digests.json`.
+- **R18-1 (required before the app adopts `prove-batch`; app side, Astra):** release builds abort on panic, so a
+  panic, an OOM, a guard or disk kill, or a crash skips the native cleanup and leaves finished-looking receipts.
+  The 02:50 crash did exactly that. The app must route every batch through the terminal collector, quarantine
+  any unfinished batch at queue start-up before any retry, and have that app half reviewed, including that
+  `.batch-quarantine/` is never published.
+- **R18-2 / R18-3 / R18-4 (low):**
+  - R18-2: the census scans' module follower must fail closed on every module-line shape.
+  - R18-3: the byte test's limits go into the records: one input, one chunk per category, not-flagged verdicts,
+    the r16b control for job 0 only, nothing over 22 jobs, n = 1. The reload count is 78 per job.
+  - R18-4: one doc sentence on refusals.
+  All three go to token round 19.
+- **Gate pins:** one of the 72 capture source pins moves (`src/private_block.rs` 2af1df7d… → 96c1cd16…,
+  one `pub use` name). The CLI binary a capture records becomes 110f0c53…. Re-pin in the next gate round.
+- A 22-job post is one guarded job of about 2.8 h writing about 18.7 GB: it needs its own time budget and a D46
+  announcement.
+
+Not a privacy acceptance.
+
+**Privacy gate round 23 (Claude gate lane, 2026-10-30, recorded 11:30 UTC): C-9 and NL-1 measured; draft v3
+complete.** The current draft is now
+`docs/zkmatrix-poc/ZK60_PRIVACY_STATEMENT_CLASSIFIER_SHIELDSTRAL_T128_DRAFT_v3.md` (sha256 c752abe6…; v1 db89f427…
+and v2 cfbfeafe… unchanged). Earlier references to "the draft" mean v1 or v2 as dated.
+- **After the crash:** 120 input files re-hashed against their pre-crash records, all equal
+  (`round23/INTEGRITY_AFTER_CRASH.json`). The crashed attempt's leftovers were set aside unread.
+- **C-9 on real block 0** [MEASURED, 14,718 s, 0.85 GiB; `round23/c9b-real-block0-ts1-census.json` a2d2dea3…]:
+  - roles: A 36 / 36 onto, disclosed 0; H 8 / 9, disclosed exactly 2 (joint {7, 8}); Input 2 / 2, disclosed 0;
+  - **TS-1 fires on all three roles** (honest 0 → 32,768 with a reserved pair removed);
+  - **claim census:** identical claims 0 and equal published values 0 (A 146, H 54, Input 2 claims);
+  - review controls on block A: C1, C2 and G7-D3 fire; C3, C6, C8, G7-D1 and G7-D2 stay silent, as predicted.
+  - **Security owner's reading (the coordinating session, as in D35): condition C-9 is met; its lapse trigger did
+    not fire.** v3 itself leaves that reading to the security owner.
+  - Attempt 2 (cap 7,200 s) was stopped by the guard. Attempt 3 ran the same wrapper with the cap sized to the job
+    (25,200 s, per the re-review's N22-1); its figures equal attempt 2's wherever attempt 2 got. **Coordinator:
+    the cap change is accepted.**
+- **NL-1 on all 26 real blocks** [MEASURED, 731 s; `round23/nl-real-hate-all26.json` 95fce6d5…]: 182 slot
+  instances; T-0, E-0, F-0, S1 and S4 182 / 182 in all four challenge modes; S3 30 / 30; S5 all fire. It used
+  2.96 GiB by cgroup against 2.5 declared, so a re-run declares ≥ 3.3.
+- Not re-run: the classifier slots' T-0, which needs the checkpoint stream (round 20's 12 / 12 stands).
+- Next: a short check that v3 takes in the re-review's R-1..R-4. Done 11:45 UTC: `results/zk60_privacy_review_20261029/CLASSIFIER_T128_V3_CHECK.md`
+  found R-1..R-4 and N-1..N-5 taken in, every quoted number equal to its record, and two text errors in added
+  text: the S3 pair count (17, not 12) and the NL-1 S5 summary. The coordinator corrected both; v3 is now
+  sha256 6356e35b…. Then the security owner's reading, and Victor's acceptance with the strict / moderate
+  wording ruling (as for D33 / D36). C-7 (failures shown only to the authenticated author) and C-8 (the real model's
+  refusal rate; Astra's benchmark, running) stand before non-public posts.
+
+Not a privacy acceptance.
+
+**Token round 19 frozen 2026-10-30 (recorded 12:25 UTC; Claude token lane): the round-18 review's three low
+fixes, plus E7.** (`frozen-r19`, 306 files, manifest list sha256 91585afe…; binary
+`cli/zk60_classify.r19.release.bin` 841ba983…; suite 966 / 0 / 71; 20 / 20 mutants killed, each by its named test
+for its named reason.)
+- **R18-2:** the census scans read Rust tokens over the whole module graph (47 files, 45 edges asserted) and fail
+  on any module line they cannot classify. Ten mutants hide a generator behind each of the five missed shapes,
+  each in two variants; all are caught.
+- **R18-3 / R18-4:** the records and doc text are corrected; the byte test's limits are in the round-18 freeze note
+  (one input, one chunk per category, not-flagged verdicts, the r16b control for job 0 only, 3 jobs tested; posts of up to 22 jobs are allowed by design but untested; n = 1).
+  The reload count is 78 per job.
+- **E7 (production):** `derive.rs` resolves the Shieldstral checkpoint through `$ZK60_MODELS`, otherwise `$HOME/models`,
+  and refuses when neither resolves; a declared `checkpoint_file` wins. The real receipt verifies with the variable
+  unset and set, and is refused when the directory is missing.
+- **Receipt bytes unchanged:** r19's job-0 prove under round 18's fixed entropy equals round 18's single, batch and
+  r16b digests on all 30 files.
+- **Gate pins:** one of the 72 capture pins moves (`derive.rs` c5bec3c6… → 4b53222b…), plus `DERIVE_T16` and the
+  mirrored `SHIELD_DEFAULT_CHECKPOINT`, and the CLI binary a capture records (841ba983…). The gate re-pins rounds
+  18 and 19 together after the review.
+- **Unreviewed:** the independent review is running (`REVIEW_R19.md`). Its main question: can a wrong file at
+  `$ZK60_MODELS` ever be accepted, or is it refused?
+
+**Token round 19 review (2026-10-30, recorded 13:05 UTC): ACCEPTED WITH FIXES**
+(`results/zk60_token_io_review_r1_20261017/REVIEW_R19.md`; reading plus a 0.12 GiB scratch probe).
+- **E7 is sound:** whatever path `ZK60_MODELS` or `HOME` gives, the verifier opens only a regular file of exactly
+  7,698,241,104 bytes whose whole-file SHA-256 equals the Shieldstral pin built into the binary. It re-hashes the
+  tensor rows it reads against a second built-in pin. A wrong file is refused before any table is derived
+  (`derive.rs:160-198`, comparison at `:194`).
+- **R19-1 (required before the gate re-pins derive.rs and before the open release relies on E7):** no test opens a
+  non-pinned file. Add a real-receipt verify with `ZK60_MODELS` pointing at a same-size wrong (sparse) file, which
+  must exit 1 with the pin message, show the flagged outcome line and leave the receipt bytes unchanged; check that
+  a symlink to the real checkpoint is refused; add a `Checkpoint::open` test and a mutant deleting `:194`.
+- **R19-2 (low):** every census scan reads a file only up to its first `#[cfg(test)] mod tests {`, so items after
+  it, or an `include!`, would be missed (none today). Make the cut fail closed, refuse `include!` outside test
+  code, and add fixtures and mutants.
+- **R19-3 (low, doc):** a symlinked model file is refused (the Hugging Face cache uses symlinks); a relative
+  `ZK60_MODELS` resolves against the working directory; with `HOME` unset the verify is refused; a set but missing
+  path never falls back.
+- Gate: as recorded (one capture pin, `DERIVE_T16`, the mirrored default with Rust's empty-string rule, the CLI
+  binary). The gate re-pins after round 19b.
+- Wording fixed in the round-19 entry above: "3 jobs tested", where it had said "≤ 22 jobs".
+
+**Token round 19b frozen 2026-10-30 (recorded 15:15 UTC; Claude token lane): the round-19 review's R19-1..R19-3.**
+(`frozen-r19b`, 306 files, manifest list sha256 cfae2d1e…; binary `cli/zk60_classify.r19b.release.bin` 6d65d32e…;
+suite 971 / 0 / 71; 29 / 29 mutants killed as named.)
+- **R19-1:** two new tests show that a pinned-size wrong file is refused with "checkpoint SHA-256 differs from the
+  pinned model" and that a symlinked model file is refused. The mutants deleting the comparison and following a
+  final symlink are killed. At real scale the moderate-hate receipt is refused against a same-size sparse wrong
+  file (exit 1, 11.7 s, flagged outcome line) and against a symlink (exit 1). It verifies with the variable unset
+  and set. Its bytes are unchanged throughout.
+- **R19-2:** every census scan reads the whole file (the later non-test items included), fails closed when it
+  cannot place the cut, and refuses `include!` outside test code. All 121 `.rs` files under `src/private_block/`
+  are accounted for (45 on the path, 76 named test-only). A macro-expanded module mutant is caught only by that
+  directory check.
+- **Found beyond the review:** `hashline/src/zk.rs`, a foreign file of the label scan, has about 2,600 production
+  lines after its tests module (≈2037–4673) that earlier label scans never read. Reading them found one unlisted
+  absorb label, `zk-mask-profile`. The lane says only the feed-forward v3 mr1 probe uses it, off the block path,
+  and listed it in `NOT_ON_THE_BLOCK_PATH`. **The review of 19b must confirm this, and say whether any earlier
+  accepted hash-domain census is affected.**
+- R19-3: the doc text is corrected.
+- Receipt bytes are unchanged (job 0 under round 18's fixed entropy, 30 / 30 files).
+- Gate pins: `derive.rs` 4b53222b… → 1d615010…, and the CLI binary 6d65d32e…. The gate re-pins rounds 18, 19
+  and 19b together after the review.
+
+**Token round 19b review (2026-10-30, recorded 15:45 UTC): ACCEPTED WITH FIXES, all low, none in a pinned file**
+(`results/zk60_token_io_review_r1_20261017/REVIEW_R19B.md`; reading plus three light probes ≤ 0.13 GiB).
+- R19-1, R19-2 and R19-3 are closed. The suite (971 / 0 / 71), the 29 / 29 mutants, the receipt bytes (30 / 30)
+  and the rung cross-verification all match the logs.
+- **The zk.rs region:** `zk-mask-profile` is absorbed only by the feed-forward mr1 probe (`zk.rs:2662`, `:3937`).
+  Nothing in the region (2037–4273, plus `fresh_poc` at 4672–4673) is reachable from the block path, the classifier's
+  prove or verify, or the token-I/O stages. No other hashline or zkp-core file has production code after its tests
+  module. zk.rs is byte-identical from r7 to r19, and rounds r13–r19 relied on the label scan only for lane files,
+  which are clean. **No accepted conclusion changes:** T-3, T-4, D19's residual, D33 and D36 are unaffected. Not
+  checked: the native lane's own trees (R7, as D33 names).
+- Low fixes for a later token round:
+  - R19B-1: refuse every production `include` token. A renamed or macro-passed `include!` still splices code past
+    the check.
+  - R19B-2: optionally, check rustc's dep-info for a non-test build.
+  - R19B-3: wording. About 2,237 production lines, not 2,600. The foreign-file check does not read zk.rs, pcs.rs or
+    sumcheck.rs's production submodules (`sumcheck/rounds.rs`, on the path, absorbs only `sc-round`).
+- **The gate may re-pin rounds 18, 19 and 19b now** (gate round 24). For the release text: `O_NOFOLLOW` is set only
+  on Linux x86-64.
+
+**Privacy gate round 24 (Claude gate lane, 2026-10-30, recorded 16:45 UTC): tools v24 re-pinned to token rounds 18,
+19 and 19b.** (`ops/zkp-mvp/gate-tinyllama/frozen_v24/`, 80 files, manifest b0532c6e…; v23 64f4b757… unchanged.
+Write-up: `results/zk60_gate_tinyllama_20261017/round24/R24_SUMMARY.md`.)
+- Of the 72 capture pins, exactly two moved between r17 and r19b:
+  - `private_block.rs` (r18): a re-exported name;
+  - `tied_tables/derive.rs` (r19, r19b): E7 only, with the size, whole-file SHA-256 and tensor-digest checks
+    unchanged.
+- The gate's reading chain gains r18, r19 and r19b readings and an r19b terminal (the r16b link `DERIVE_T16` is
+  kept). The checkpoint rule now mirrors Rust's: a declared path wins, then `ZK60_MODELS`, then `HOME`, else
+  refuse; an empty or non-string declared path is refused.
+- v24 accepts r17, r18, r19 and r19b; v23 refuses r18 and later by name on the two files. All self-checks pass, and
+  the old-pin controls fail as expected.
+- **Real check:** a CLI-path rung capture made by the r19b release binary passes the whole v24 gate (every part
+  true, every applicable control fired); v23 refuses it on the two pins.
+- Open note N24-1: the gate's checkpoint stream still follows a symlinked file, which Rust refuses (both check the
+  bytes; not a privacy issue).
+- **Coordinator: no v4 now.** Draft v3 covers the r16b and r17 binaries, which the app runs. A v4 for r19b and the
+  batch path comes after Astra's R18-1, and needs:
+  - the named binaries and the v24 pins;
+  - a stated carry of the r17 real-capture results (by reading plus the 30 / 30 byte identity), or a real r19b
+    Shieldstral capture;
+  - E7 as an operating rule;
+  - the batch path's one-post corollary for several runs in one process (J ≤ 22), and R18-1 closed.
+
+Not a privacy acceptance.
+
+**Proving-service spec (D49) written, 2026-10-30 (recorded 20:50 UTC):** `docs/zkmatrix-poc/ZK60_PROVING_SERVICE_SPEC.md`
+(arithmetic in `results/zk60_proving_service_20261030/`).
+- **Recommended:** Phase 0 first: a registry, verification page, anchoring, downloads and a self-host kit, so no
+  customer content reaches the service. Phase 1 is a free invited pilot for already-public text, after counsel.
+  Phase 2 handles sensitive content by self-hosting, with an enclave (CPU confidential VMs) only on request.
+- Capacity: about 42 short posts a day per prover slot (measured 684.6–693.5 s per category, all work included).
+- Storage: 2.55 GB of receipts per short post (measured), but 5.09 GB on disk today because of a double copy (sent
+  to Astra).
+- **Security owner's readings:**
+  1. In self-host mode the registry cannot detect the same post proved twice. That repeats the same verdict and asks
+     no new question, so D45(2) holds.
+  2. The D45 duplicate-item reservation must be per tenant: a global one tells a customer that someone else proved a
+     text.
+- Decisions for Victor: the trust model and phase order, hosting, the domain and name, a free pilot or pricing,
+  counsel, retention and chain.
+- Blockers: counsel before any hosted content (e.g. 18 U.S.C. §2258A reporting, GDPR DPA); classifier statement v3
+  and C-7 / C-8; the open release unpublished; no host.
+

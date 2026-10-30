@@ -1,0 +1,8 @@
+R14-public-synthetic-malicious-fixture/1
+case=table-act-support
+dd=1
+model_identity=7306d482ea724c992f0a73200b1873b36e5af3bdd5deb8c5059be30a0da800bf
+input_root=a1d1e8e72bee429e511497153a5596fe9e8475f733464d856e72c5f622309121
+output_root=ba7db5c314a8132448c6af7de5f502faf270cb38363ca4d980b175e92660aa06
+binding=18a7fe60ebce6a25b5e4e01209073f5b6082cc750d1d669f173cc50d887c9b58
+error=slot 25 [R14 TAB table helper zero-check Whole]: sumcheck round 0: s(0) + s(1) != claim

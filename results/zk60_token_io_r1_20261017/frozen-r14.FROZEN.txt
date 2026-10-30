@@ -1,0 +1,52 @@
+Token-I/O lane round-14 tree frozen at 2026-10-29T02:12:07Z (rung R-C3: short classifier items as one chunk of their
+true length, the trailing positions pinned to the policy's public pad id; the R-C2 table binding moved into the
+library entry points; REVIEW_R13 N-r13-1 / N-r13-2 / N-r13-6 and the low notes). **UNREVIEWED**: an independent review of
+round 14 is to follow (routed by the coordinator).
+copy:     /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r14/
+source:   /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r14/ (a new durable tree, copied 2026-10-29 01:00 from
+          token-io-r12b = exactly frozen-r13's 257 files, no target/; r14/tools/freeze14.py init). target/, BASELINE.sha256
+          and the native tests' pid-named evidence dirs (results/r12b-*, results/r12-tied-<pid>/) are excluded.
+manifest: /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/manifest_final_r14.sha256
+          (= r14/manifest_r14A.sha256: 258 files, list sha256 0b4c429bafadc5aa13c3d97634f648611ce8a76b0e27963ad6a41a2bdf630170);
+          all 258 re-hashed in the copy: match, none missing, none extra. Post-suite manifest r14B: 0 changed, 0 added, 0 removed.
+binary:   cli/zk60_classify.r14.release.bin (48dac98818f795a2a04b4b7f54e48d1a71f61fb09fbbd9de314101c9a661a986,
+          cli/binaries_r14.sha256; build note cli/zk60_classify.r14.BUILD.txt), built from this tree. Fresh-process runs through
+          it PASS: a 22-id dev-rung item (one chunk [0, 22) of a 23-id plan) proved, verified (published), owner-checked and
+          labelled, each command its own process (r14/logs/bin-short-r14.log); the P-18 CLI-path capture
+          (r14/logs/p18-cli-r14.log; bundle ~/zk60-artifacts/token-io/captures/classify-rc3-cli-p18-r14, outside the repo).
+          The next-token binary is not rebuilt.
+suite:    s18 (r14/logs/s18-suite.log) on this tree: exit 0, 845 passed, 0 failed, 56 ignored, 29 test binaries
+          [838 s, peak RSS 7.22 GiB, shared box n=1; declared 8.5 / cap 10]. s17 (r13): 832 / 0 / 55. Ignored, run separately
+          and PASS: the short item through the named binary, the P-18 capture, the Shieldstral R12b-path test on Astra's
+          actual export dg_r12b_t256 (r14/logs/shieldstral-r12b.log; the round's one 7.7 GB stream, 14.4 s warm, 0.47 GiB;
+          embedding baff04d2..., margin 1f5cb346..., unchanged from r13).
+failing-first: r14/logs/red-tests.log + red-r13-binary.log (the r14 tree at frozen-r13's code plus the new tests): 3 red
+          (the library proved and verified a doctored rehashed margin row; the short item refused by name; the capture
+          fixture's margin row not the derived one) and the frozen r13 binary refused the short item in a fresh process.
+mutations: r14/logs/mut-{n2,pad,bind}.log: all three killed (the post-derivation digest check, N-r13-2; the template
+          clause over the pad positions; the trained-statement binding check), each reverted with its sha256 checked.
+native:   the base is still NATIVE R12b (results/zk60_1b_native_20261017/r12b/frozen-tree, tree 51de5b83...). Round 14 edits no
+          native file except the token lane's run_capture.rs (+11: the replay refuses a classifier header whose tables are not
+          derived) and token_io.rs (+3: one test module).
+vs frozen-r13: 14 changed, 1 added, 0 removed (r14/r14A_vs_frozen_r13.txt, unified diff r14/r14A_vs_frozen_r13.diff).
+R-C3:     a content of 1 <= N < T - P0 - S ids is ONE chunk [0, N): tok = prefix || content || suffix || pad^(T - P0 - N - S)
+          (Policy.pad: dev rung 2; Shieldstral card 11 = tekken <pad>); the template clause pins the pad positions (kappa =
+          pad, ctl(pad) in the control column), the owner's check compares them, stage OUT-C reads the public verdict row
+          P0 + N + S - 1 (T - 1 without pad); the verifier derives the chunk plan's size from the shape and requires n = the
+          chunk's length; an empty content is refused. The attention is causal (masked scores are the constant MASK_SCORE),
+          so the pad rows never reach the verdict row. Statement schema zk60-classify-run/3 (+ item_length, pad_id,
+          pad_positions, verdict_row); the profile text names them and the rulings as D45. Coverage of Astra's 4,872
+          benchmark item/policy pairs: 100% admitted at T128 and T256 by the split (round 13: 23-67% / 0-10%)
+          [COUNTED, input lengths only, r14/short_item_coverage.json].
+N-r13-1:  every classifier run entry point takes BoundClassifierTables (fields private to classify_tied.rs; built only by
+          load_bound_tables = the pinned-tensor re-derivation under the trained statement's own profile digest and
+          residual unit + the file comparison, and, test builds only, the relation tests' synthetic binding, which the
+          capture replay refuses). The statement constructor checks the tables were derived for its trained statement and
+          policy and that the block and run profiles name one tied source (N-r13-6); prove and verify check the tables are
+          the statement's. The gate's capture fixture and capture_a_classify_rung_run prove with the derived tables, each
+          placed policy with its own export profile (N-r13-3).
+rulings:  Victor accepted the four classifier rulings 2026-10-29 01:04 UTC = D45; the short-item work stays inside D45(1)
+          (the content length is public) and reveals nothing more. C-13 still applies: the privacy gate's pad controls must
+          cover the short-item configuration before any figure about it is quoted.
+Not a privacy acceptance and not a classifier-fidelity claim. Unreviewed. The lane's working copy may move on; this copy
+does not change.

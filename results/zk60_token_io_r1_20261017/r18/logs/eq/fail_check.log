@@ -1,0 +1,1 @@
+{"ok": true, "checks": {"child_rc_1": true, "one_proved_job0": true, "removed_after_proved": true, "job0_three_dirs_removed": true, "refused_after_removed": true, "fail_closed_after_refused": true, "no_batch_proved": true, "no_removal_failed": true, "nothing_left": true}, "left": []}

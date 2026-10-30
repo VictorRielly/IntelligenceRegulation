@@ -1,0 +1,107 @@
+{
+ "what": "gate round 22 item 4: C-R1, the unkeyed BLAKE3 (F_U) inputs on the classifier run's path, READ in token frozen-r17 (zkp-core included), lengths at Shieldstral T128 (L 26, V 131072, d 3072, P0 78 / 72, S 1) [READ / COUNTED]; NOT a privacy result",
+ "keyed_or_outside_F_U": [
+  "the transcript (keyed, D19a transcript key)",
+  "column digests, salted leaves, Merkle nodes (keyed, their own keys)",
+  "the generators' keys (new_keyed from 32 bytes of OS entropy)",
+  "every SHA-256 (tied tensor, export manifests, profile.json, classify_tied profile digest, activation manifests)"
+ ],
+ "sites": [
+  {
+   "site": "ClassifierTables::emb_digest",
+   "source": "token_io/classify.rs:476-485",
+   "formula": "36 + 8 + 8 + 2\u00b7V\u00b7d",
+   "length_T128": 805306420,
+   "note": ">= 54 for any V, d >= 1"
+  },
+  {
+   "site": "ClassifierTables::w_digest",
+   "source": "token_io/classify.rs:486-494",
+   "formula": "40 (the domain string) + 8 + 2\u00b7d",
+   "length_T128": 6192,
+   "note": ">= 50 for any d >= 1 (48 at d = 0, never 40)"
+  },
+  {
+   "site": "ClassifierProfile::template_digest (hate / sexual, violence)",
+   "source": "token_io/classify.rs:729-738",
+   "formula": "29 + (8 + 8\u00b7P0) + (8 + 8\u00b7S)",
+   "length_T128": [
+    677,
+    629
+   ],
+   "note": "45 + 8k, never 40"
+  },
+  {
+   "site": "ClassifierProfile::digest_under (the classifier profile digest)",
+   "source": "token_io/classify.rs:787-794",
+   "formula": "28 + 8 + |profile text|",
+   "length_T128": "36 + ~1,700",
+   "note": "> 40"
+  },
+  {
+   "site": "ClassifyRunStatement::public_statement",
+   "source": "token_io/classify.rs:1099-1108",
+   "formula": "31 + 32\u00b7L + 32 + 32",
+   "length_T128": 927,
+   "note": "95 + 32L, never 40"
+  },
+  {
+   "site": "ClassifyRunStatement::calibration",
+   "source": "token_io/classify.rs:1110-1116",
+   "formula": "32 + 32 + 32",
+   "length_T128": 96,
+   "note": "constant 96"
+  },
+  {
+   "site": "ClassifyRunStatement::schedule_digest",
+   "source": "token_io/classify.rs:1192-",
+   "formula": "33 + sum(8 + |line|)",
+   "length_T128": "thousands",
+   "note": "> 40"
+  },
+  {
+   "site": "stack_context (the run's context; c_r1 refuses a 40-byte input at run time)",
+   "source": "trained_block.rs:2358-2369, :1586-1591",
+   "formula": "(8+37) + (8+|variant|) + (8+|label|) + 8\u00b7L",
+   "length_T128": 326,
+   "note": "guarded by c_r1"
+  },
+  {
+   "site": "BlockPublic::digest (R13 block public statement)",
+   "source": "private_block.rs:880-893",
+   "formula": "31 + the weights + 12 + 8 + |R13 accuracy encoding|",
+   "length_T128": "> 10^8",
+   "note": "> 40"
+  },
+  {
+   "site": "BoundarySpec::digest",
+   "source": "boundary.rs:216-232",
+   "formula": "43 + 32 + 9\u00b78",
+   "length_T128": 147,
+   "note": "constant 147"
+  },
+  {
+   "site": "EndpointSpecG::digest (the input token endpoint spec)",
+   "source": "endpoint_g.rs:197-206",
+   "formula": "43 + 32 + 8\u00b78 + |scale|",
+   "length_T128": "143 or 147",
+   "note": "constant"
+  },
+  {
+   "site": "TrainedModelStatement::identity",
+   "source": "trained_statement.rs:913-918",
+   "formula": "47 + |encode()|",
+   "length_T128": "> 10^3",
+   "note": "> 40"
+  },
+  {
+   "site": "ZkRng::refill (the run prover's generator AND the endpoint generator)",
+   "source": "zkp-core/src/rng.rs:53-61",
+   "formula": "32 (key) + 8 (counter)",
+   "length_T128": 40,
+   "note": "THE reserved 40-byte class (the generator key is keyed-derived from OS entropy: from_entropy_reader uses new_keyed)"
+  }
+ ],
+ "C-R1_holds": true,
+ "why": "every F_U input on the path other than the two generators' refills is a public digest input whose length formula exceeds 40 for every admissible parameter (minimum the template digest's 45); the run context is additionally refused at 40 by c_r1 at run time; no F_U input is a function of the hidden content"
+}

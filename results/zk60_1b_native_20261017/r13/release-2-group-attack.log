@@ -1,0 +1,7 @@
+
+running 1 test
+test private_block::accuracy_proof_tests::accuracy_wrong_group_table_is_rejected_after_both_honest_contexts_verify ... R13 ACT3 wrong-group: both honest contexts verify; self-consistent wrong-group witness rejected under the original statement
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 721 filtered out; finished in 5.80s
+

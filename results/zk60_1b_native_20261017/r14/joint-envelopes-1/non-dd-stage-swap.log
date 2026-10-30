@@ -1,0 +1,15 @@
+
+running 1 test
+test private_block::argument::split_run_tests::split_run_t128_non_dd_fresh_verify_from_dir ... 
+thread 'private_block::argument::split_run_tests::split_run_t128_non_dd_fresh_verify_from_dir' (43) panicked at src/private_block/split_run_tests.rs:319:25:
+called `Result::unwrap()` on an `Err` value: "fixture file is not bounded regular exact-size input"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    private_block::argument::split_run_tests::split_run_t128_non_dd_fresh_verify_from_dir
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 767 filtered out; finished in 1.17s
+

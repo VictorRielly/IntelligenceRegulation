@@ -596,6 +596,53 @@ from zk60_native_rg_tinyllama_r9_pins import (  # noqa: E402
     TERMINALS_PINNED_IF_PRESENT as _R9_PIP)
 _tl_merge2(ALSO_ACCEPTED, _R9_AA, "ALSO_ACCEPTED")
 _tl_merge2(PINNED_IF_PRESENT, _R9_PIP, "PINNED_IF_PRESENT")
+# [v21, gate round 18] native R12 / R12b (the token frozen-r14 rebase):
+# shape.rs and pad.rs, READ (`zk60_native_rg_tinyllama_r12b_pins`); layout.rs,
+# protocol.rs and plane_index.rs are native R9's bytes
+from zk60_native_rg_tinyllama_r12b_pins import (  # noqa: E402
+    TERMINALS_PINNED_IF_PRESENT as _R12B_PIP)
+_tl_merge2(PINNED_IF_PRESENT, _R12B_PIP, "PINNED_IF_PRESENT")
+# [v22, gate round 19] native R13 (= token frozen-r16b for these files) and the
+# gate's test-only H19-3 plane_index.rs, READ (readings in
+# `zk60_native_rg_r13_pins.NATIVE_R13_READINGS`, diffs in
+# results/.../round19/readings/nat-r12b-r13-*.diff).  At every LEGACY shape the
+# files are the identity (each R13 branch is gated on `accuracy_stack() !=
+# Legacy`); at an R13 shape the seven redefined slots are ported in
+# `zk60_native_rg_r13slots` and evaluated by `zk60_native_rg_r13blocks`, which
+# is the only caller that admits an R13 shape.
+_R13_AA = {
+    "src/private_block/layout.rs": {
+        "8519a514b8d1f43ab51c86b0a8af955230a2eab4fff4fc4c594733c59dcfd0bf":
+            "[v22, native R13 / r16b, READ vs 9332802e: +32 / -3] `Ids` takes `AccuracyIds` first at a "
+            "non-legacy stack (checked against `Shape::a_plane_doms`), `domain_range`, limb-role asserts, "
+            "`lookups_at` dispatches to `AccuracyIds::lookups` at R13, and the R13 calibration line of the "
+            "layout description; the legacy construction, lookups and lines are byte-identical",
+    },
+    "src/private_block/protocol.rs": {
+        "1011441431a37f735999405986af6c9f11c2d303b48aa6d9cefae55b0311718d":
+            "[v22, native R13 / r16b, READ vs c4824023: +38 / -15] `blk.accuracy()` selects the ACT3 "
+            "histogram, helper denominators and table column (accuracy_act); `Ctx.accuracy`; the legacy "
+            "arms (None at every legacy block) are the R9 code, and no draw order moved",
+    },
+    "src/private_block/plane_index.rs": {
+        "ce79803c86a80dde832dc92a262a023efdd52bb95b9a15f128791978c306ffac":
+            "[v22, the GATE's test-only patch H19-3 in capture-tree-r16b, READ (written by the gate lane) "
+            "vs 13a7dd6f: at an accuracy shape the A names are AccuracyIds' (prefix A_), and SC_DZC / "
+            "SC_QZC / SC_KVZC / SC_FZC sweep the whole domain range, mirroring argument_accuracy.rs; "
+            "legacy shapes are unchanged; the recorder still cross-checks every slot's actual push order]",
+    },
+}
+_R13_PIP = {
+    "src/private_block/shape.rs": {
+        "8e00a144bd194fd5a3dd30c9aaece2869d43d461df623cdcfc5a9da59e51436b":
+            "[v22, native R13 / r16b, READ vs 9a870818: +123 / -5] the twelve R13 profiles APPENDED to "
+            "the registries, ACCURACY_PROFILES, `accuracy_gate_shift` (0 on legacy shapes), the R13 "
+            "plane / lookup / helper counts behind `accuracy_stack() != Legacy`; every legacy geometry "
+            "function this port reads is unchanged",
+    },
+}
+_tl_merge2(ALSO_ACCEPTED, _R13_AA, "ALSO_ACCEPTED")
+_tl_merge2(PINNED_IF_PRESENT, _R13_PIP, "PINNED_IF_PRESENT")
 
 # **ROUND 4 (2026-09-20), finding S19-F1.**  `argument.rs` is the file that
 # decides what a slot's polynomial IS, and its stage-20 digest carries a
@@ -2415,7 +2462,12 @@ class TerminalGate:
             # down projection by the HIDDEN dimension.
             kind = structure.split("@")[1]
             n, dh = len(vals), s["head_dim"]
-            want_len = s["f_pad"] if kind == "hidden" else s["d_pad"]
+            # [v22, gate round 19] the output projection's input is the QUERY
+            # axis, q_pad = h_pad * head_dim (native R12 `Shape::q_pad`); the
+            # identity q_pad == d_pad holds at every pre-R12 shape, so no
+            # earlier figure moves (rung-HD / the R13 rung: 1024 vs d_pad 512)
+            want_len = (s["f_pad"] if kind == "hidden"
+                        else s["h_pad"] * dh if kind == "heads" else s["d_pad"])
             if n != want_len:
                 out.append(f"{label}: a fold of {n} entries, not {want_len}")
             else:

@@ -1,0 +1,26 @@
+{
+  "current": [
+    "memory traffic",
+    "sumcheck/GKR interface"
+  ],
+  "next": [
+    "proof composition",
+    "lookup arguments and softmax"
+  ],
+  "queue": [
+    "GPU NTT/commitments",
+    "sumcheck/GKR",
+    "lookup arguments and softmax",
+    "memory traffic",
+    "batching/amortization",
+    "quantization/arithmetic",
+    "proof composition"
+  ],
+  "evidence_this_cycle": [
+    "October2026 SpMV bottlenecks",
+    "August2026 public-vector masks",
+    "older2024 allocation/API accounting",
+    "current GPU SpMV and DeepProve provenance"
+  ],
+  "local_next": "Exact public run/interval census and fold differential, unless owner current exclusive clocks identify a better bottleneck."
+}

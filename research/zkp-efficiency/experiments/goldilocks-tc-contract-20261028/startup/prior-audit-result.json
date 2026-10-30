@@ -1,0 +1,97 @@
+{
+  "status": "PASS_SOURCE_AND_SCOPE_AUDIT",
+  "checks": 83,
+  "live_pins": [
+    {
+      "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/argument.rs",
+      "pinned": "c4f9f9f4cb477346b03e9f769d7c3141a8529f096d08da2be6c415d5160a5e66",
+      "current": "c4f9f9f4cb477346b03e9f769d7c3141a8529f096d08da2be6c415d5160a5e66",
+      "unchanged": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/shape.rs",
+      "pinned": "9a87081897ff0ec716d7f27a2813cc32117683eb5b2f2082a248f479ef98c4c5",
+      "current": "9a87081897ff0ec716d7f27a2813cc32117683eb5b2f2082a248f479ef98c4c5",
+      "unchanged": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/layout.rs",
+      "pinned": "9332802e597beacab56cfa69cfe18325bc476d2ce6485f517051992b26d26efa",
+      "current": "9332802e597beacab56cfa69cfe18325bc476d2ce6485f517051992b26d26efa",
+      "unchanged": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/zk.rs",
+      "pinned": "66d1128675bea3b473abd4f2fe70d470b1abc19a7fe5a579a227616d76280e32",
+      "current": "66d1128675bea3b473abd4f2fe70d470b1abc19a7fe5a579a227616d76280e32",
+      "unchanged": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/zkp-core/src/sumcheck.rs",
+      "pinned": "fc7374bbd5e5cc4ede62e8a21d325eb62acff9b9dcc786d12eae39efbdfdbb95",
+      "current": "fc7374bbd5e5cc4ede62e8a21d325eb62acff9b9dcc786d12eae39efbdfdbb95",
+      "unchanged": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/zkp-core/src/sumcheck/rounds.rs",
+      "pinned": "c60520596e6d855687e0a225850850c12bd15b8741522de69a624f0db8a003df",
+      "current": "c60520596e6d855687e0a225850850c12bd15b8741522de69a624f0db8a003df",
+      "unchanged": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/zkp-core/src/transcript.rs",
+      "pinned": "cc9752d0ef9bcd6d7b20e94e611ff26748593a2ea1a4f55b63d8c221715f1967",
+      "current": "cc9752d0ef9bcd6d7b20e94e611ff26748593a2ea1a4f55b63d8c221715f1967",
+      "unchanged": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/zkp-core/src/field.rs",
+      "pinned": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+      "current": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+      "unchanged": true
+    },
+    {
+      "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/zkp-core/src/sumcheck/rounds/tests.rs",
+      "pinned": "e724f79891155101f2a8c0330deabeaa9e244f2ca375aa163fa3029cc72c1d8b",
+      "current": "e724f79891155101f2a8c0330deabeaa9e244f2ca375aa163fa3029cc72c1d8b",
+      "unchanged": true
+    }
+  ],
+  "cost": [
+    {
+      "slot": "R12 SC_TAB",
+      "n": 13,
+      "full_mask_variables": 14,
+      "mask_coefficients_before": 44,
+      "mask_coefficients_after": 44,
+      "private_claims_before": 6,
+      "private_claims_after": 6,
+      "public_words_before": 24576,
+      "public_words_after": 768,
+      "logical_public_payload_removed_bytes": 380928,
+      "public_lerps_removed": 23808,
+      "generic_round_cube_before": 8192,
+      "generic_round_cube_after": 8192,
+      "native_elapsed_saving": null
+    },
+    {
+      "slot": "R12 SC_TAB",
+      "n": 14,
+      "full_mask_variables": 15,
+      "mask_coefficients_before": 47,
+      "mask_coefficients_after": 47,
+      "private_claims_before": 6,
+      "private_claims_after": 6,
+      "public_words_before": 49152,
+      "public_words_after": 768,
+      "logical_public_payload_removed_bytes": 774144,
+      "public_lerps_removed": 48384,
+      "generic_round_cube_before": 16384,
+      "generic_round_cube_after": 16384,
+      "native_elapsed_saving": null
+    }
+  ],
+  "elapsed_seconds": 0.0028088179997212137,
+  "max_rss_kib": 15552,
+  "limits": "String/extent/source-count audit only; no native executable. Key/domain/prelude/rows are synthetic. Reserved mask row width8 fixtures are not current R12 widths13/14. No actual source mutation, capture, PCS, RNG or privacy acceptance."
+}

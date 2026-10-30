@@ -1,0 +1,12 @@
+{
+  "FINDINGS.md": {
+    "bytes": 1132850,
+    "sha256": "b4114cd10446828bf90bd5602cb60e3a18f0ece32f2e7073ef8025a7f9fd9ad6",
+    "lines": 14275
+  },
+  "sources.jsonl": {
+    "bytes": 1271420,
+    "sha256": "e41a9e18941ddef1870d0318dcf5b763fb8703c9a3a52598859babe53a1182aa",
+    "lines": 1027
+  }
+}

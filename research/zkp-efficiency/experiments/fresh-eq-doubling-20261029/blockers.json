@@ -1,0 +1,122 @@
+{
+  "primary_blockers": [
+    {
+      "artifact": "web-02.json",
+      "error_marker": "Cache miss",
+      "exact_response_in": "web-02.json"
+    },
+    {
+      "artifact": "web-02.json",
+      "error_marker": "not accessible via this tool",
+      "exact_response_in": "web-02.json"
+    },
+    {
+      "artifact": "web-03.json",
+      "error_marker": "Cache miss",
+      "exact_response_in": "web-03.json"
+    },
+    {
+      "artifact": "web-03.json",
+      "error_marker": "403",
+      "exact_response_in": "web-03.json"
+    },
+    {
+      "artifact": "web-04.json",
+      "error_marker": "Cache miss",
+      "exact_response_in": "web-04.json"
+    },
+    {
+      "artifact": "web-05.json",
+      "error_marker": "Cache miss",
+      "exact_response_in": "web-05.json"
+    },
+    {
+      "artifact": "web-05.json",
+      "error_marker": "403",
+      "exact_response_in": "web-05.json"
+    },
+    {
+      "artifact": "web-06.json",
+      "error_marker": "403",
+      "exact_response_in": "web-06.json"
+    },
+    {
+      "artifact": "web-07.json",
+      "error_marker": "Cache miss",
+      "exact_response_in": "web-07.json"
+    },
+    {
+      "artifact": "web-07.json",
+      "error_marker": "403",
+      "exact_response_in": "web-07.json"
+    },
+    {
+      "artifact": "web-07.json",
+      "error_marker": "not accessible via this tool",
+      "exact_response_in": "web-07.json"
+    }
+  ],
+  "note": "Exact URLs/error text retained in web01..09 tool result artifacts. No permission escalation, retries outside native search, install or bypass.",
+  "exact_failures": [
+    {
+      "url": "https://github.com/quangvdao/monomial-sumcheck-benchmarks/blob/main/src/lookup_tables.rs",
+      "error": "Failed to fetch: Cache miss",
+      "tool": "native LIVE web__run"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/quangvdao/monomial-sumcheck-benchmarks/main/src/lookup_tables.rs",
+      "error": "Failed to fetch: Cache miss",
+      "tool": "native LIVE web__run"
+    },
+    {
+      "url": "https://github.com/quangvdao/monomial-sumcheck-benchmarks/releases",
+      "error": "Failed to fetch: Cache miss",
+      "tool": "native LIVE web__run"
+    },
+    {
+      "url": "https://github.com/quangvdao/monomial-sumcheck-benchmarks/blob/main/LICENSE",
+      "error": "Failed to fetch: Cache miss",
+      "tool": "native LIVE web__run"
+    },
+    {
+      "url": "https://github.com/EspressoSystems/hyperplonk/blob/main/LICENSE",
+      "error": "Failed to fetch: Cache miss",
+      "tool": "native LIVE web__run"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/EspressoSystems/hyperplonk/main/LICENSE",
+      "error": "Failed to fetch: Cache miss",
+      "tool": "native LIVE web__run"
+    },
+    {
+      "url": "https://github.com/EspressoSystems/hyperplonk/pull/21",
+      "error": "Failed to fetch: Cache miss",
+      "tool": "native LIVE web__run"
+    },
+    {
+      "url": "https://github.com/EspressoSystems/hyperplonk/blob/2a3b55c97ad8a5d6627108a2e7def2aeccb7f3b9/arithmetic/src/virtual_polynomial.rs",
+      "error": "Failed to fetch: Cache miss",
+      "tool": "native LIVE web__run"
+    },
+    {
+      "url": "https://github.com/EspressoSystems/hyperplonk/blob/70b0df5c52fd07a0c63ba397bcd9ed596ef282b3/LICENSE",
+      "error": "Failed to fetch: Cache miss",
+      "tool": "native LIVE web__run"
+    },
+    {
+      "url": "https://eprint.iacr.org/archive/versions/2026/762",
+      "error": "(403) Forbidden",
+      "tool": "native LIVE web__run"
+    },
+    {
+      "url": "https://eprint.iacr.org/2026/2494",
+      "error": "URL is not accessible via this tool",
+      "tool": "native LIVE web__run"
+    },
+    {
+      "url": "https://eprint.iacr.org/2026/2494.pdf",
+      "error": "URL is not accessible via this tool",
+      "tool": "native LIVE web__run"
+    }
+  ]
+}

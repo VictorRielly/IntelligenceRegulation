@@ -1,0 +1,12 @@
+ok True
+v22 r17 classify-r13-shield-t128-cli-hate-r17-values False 72 ['src/private_block/run_capture.rs: cce0fc2a4062 has no reading']
+v22 r17 classify-r13-rung-L2-v1-r17-values False 72 ['src/private_block/run_capture.rs: cce0fc2a4062 has no reading']
+v22 r16b classify-r13-shield-t128-cli-sexual-r16b True 72 []
+v22 r16b classify-r13-rung-L2-v1-short11 True 72 []
+v23 r17 classify-r13-shield-t128-cli-hate-r17-values True 72 []
+v23 r17 classify-r13-rung-L2-v1-r17-values True 72 []
+v23 r16b classify-r13-shield-t128-cli-sexual-r16b True 72 []
+v23 r16b classify-r13-rung-L2-v1-short11 True 72 []
+v23 old classify-rc3-rung-L2-v1-short20 False 60 ['src/private_block/token_io/classify.rs: 6c828db6673e, the v22 classifier port was read at c180c83fb50f', 'src/private_block/token_io/classify_run.rs: 5d1d077f5102, the v22 classifier port was read at 8abbf72f1c8e']
+v23 old classify-rung-L2-v1 False 56 ['src/private_block/token_io/classify.rs: 5d2c642a60d1, the v22 classifier port was read at c180c83fb50f', 'src/private_block/token_io/classify_run.rs: be2ccd1c97f1, the v22 classifier port was read at 8abbf72f1c8e']
+self-check {'r16b_files': 301, 'r17_files': 303, 'moved_r16b_to_r17': ['src/private_block/plane_index.rs', 'src/private_block/run_capture.rs', 'src/private_block/s25_tests.rs', 'src/private_block/token_io/classify_capture_tests.rs', 'src/private_block/token_io/classify_r17_tests.rs', 'src/private_block/token_io/gate19_capture_tests.rs'], 'rehashed': {'frozen-r17 src/private_block/run_capture.rs': 'cce0fc2a4062fcb4c92e771b8d7ac7f996c9ccfbc985bfb6decd79b29fba7ddf', 'frozen-r17 src/private_block/plane_index.rs': 'ce79803c86a80dde832dc92a262a023efdd52bb95b9a15f128791978c306ffac', 'capture-tree-r16b (H19-4) src/private_block/run_capture.rs': '8292b1c6856daa521439037570930827ecc3979bd64c279127a2b0f1b6014817'}, 'run_capture_r17': 'cce0fc2a4062fcb4c92e771b8d7ac7f996c9ccfbc985bfb6decd79b29fba7ddf', 'plane_index_r17': 'ce79803c86a80dde832dc92a262a023efdd52bb95b9a15f128791978c306ffac', 'findings': [], 'ok': True}

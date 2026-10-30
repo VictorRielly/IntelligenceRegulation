@@ -1,0 +1,13 @@
+{
+  "current": "GPU commitments + memory traffic",
+  "next": "sumcheck/GKR public support and exclusive phase incidence, unless newer owner bottleneck changes priority",
+  "queue": [
+    "GPU NTT/commitments",
+    "sumcheck/GKR",
+    "lookup arguments and softmax",
+    "memory traffic",
+    "batching/amortization",
+    "quantization/arithmetic",
+    "proof composition"
+  ]
+}

@@ -1,0 +1,212 @@
+[
+  {
+    "path": "CLAUDE.md",
+    "lines": 235,
+    "headings": [
+      {
+        "line": 1,
+        "text": "# IntelligenceRegulation \u2014 project instructions"
+      },
+      {
+        "line": 77,
+        "text": "## Command style (prompt hygiene)"
+      },
+      {
+        "line": 103,
+        "text": "## Heavy runs: detach, queue, marker (the no-hangup protocol, 2026-08-26)"
+      },
+      {
+        "line": 136,
+        "text": "## Protocol invariants (from the PROGRESS ledgers \u2014 verify there before acting)"
+      },
+      {
+        "line": 153,
+        "text": "## Approval etiquette"
+      },
+      {
+        "line": 160,
+        "text": "## Codex unattended workflow \u2014 Victor's direction, 2026-09-22"
+      },
+      {
+        "line": 198,
+        "text": "## Persistent efficiency research lane (Victor, 2026-09-22)"
+      }
+    ]
+  },
+  {
+    "path": "docs/zkmatrix-poc/MVP_STATUS.md",
+    "lines": 1307,
+    "headings": [
+      {
+        "line": 1,
+        "text": "# Where the MVP stands, in plain words"
+      },
+      {
+        "line": 948,
+        "text": "## 1. Do we have a workable proof?"
+      },
+      {
+        "line": 1061,
+        "text": "## 2. How slow are we against the target?"
+      },
+      {
+        "line": 1114,
+        "text": "## 3. What blocks a private, model-scale MVP at speed, and what is being done"
+      },
+      {
+        "line": 1230,
+        "text": "## 4. Where the evidence is"
+      },
+      {
+        "line": 1238,
+        "text": "## 2026-09-29 (PDT): VC readiness snapshot for Tech Week SF"
+      }
+    ]
+  },
+  {
+    "path": "docs/zkmatrix-poc/ZK60_DECISIONS.md",
+    "lines": 1066,
+    "headings": [
+      {
+        "line": 1,
+        "text": "# ZK60 decisions register \u2014 the rulings that govern the proof project"
+      },
+      {
+        "line": 9,
+        "text": "## At a glance"
+      },
+      {
+        "line": 81,
+        "text": "## D1 \u2014 Privacy scope (standing since 2026-09-09)"
+      },
+      {
+        "line": 97,
+        "text": "## D2 \u2014 Two lines (standing since 2026-09-17)"
+      },
+      {
+        "line": 120,
+        "text": "## D3 \u2014 About 97 bits of conjectured soundness accepted for the zkVM intermediate (2026-09-18)"
+      },
+      {
+        "line": 172,
+        "text": "## D4 \u2014 Groth16 trusted setup accepted for soundness (2026-09-18)"
+      },
+      {
+        "line": 227,
+        "text": "## D5 \u2014 Receipt kind: Groth16 only (2026-09-18)"
+      },
+      {
+        "line": 246,
+        "text": "## D6 \u2014 Groth16 proving path on this box (in progress)"
+      },
+      {
+        "line": 266,
+        "text": "## D7 \u2014 New endpoint and weight identity profile (implemented, ruling pending)"
+      },
+      {
+        "line": 302,
+        "text": "## D8 \u2014 Caller-fixed endpoint roots on the custom line (corrected 2026-09-18)"
+      },
+      {
+        "line": 327,
+        "text": "## D11 \u2014 Technical correction to D8 and profile clarification (2026-09-18)"
+      },
+      {
+        "line": 350,
+        "text": "## D12 \u2014 How a complete private block is composed on the custom line (construction rule, 2026-09-19)"
+      },
+      {
+        "line": 414,
+        "text": "## D9 \u2014 `fp()` reduction bias (accepted as stated, 2026-09-19)"
+      },
+      {
+        "line": 454,
+        "text": "## D10 \u2014 Compact-PCS proof-size lever (declined, 2026-09-19)"
+      },
+      {
+        "line": 482,
+        "text": "## D15 \u2014 \"106 bits\" is per opening; the whole 8B proof is about 94 (technical clarification, 2026-09-19)"
+      },
+      {
+        "line": 564,
+        "text": "## D16 \u2014 The private block's norm before it is widened (construction rule, 2026-09-19)"
+      },
+      {
+        "line": 613,
+        "text": "## D17 \u2014 Hiding endpoints beyond the tiny shape (construction rule, 2026-09-19)"
+      },
+      {
+        "line": 654,
+        "text": "## D8/D11 \u2014 note of 2026-09-19: a restatement was attempted and NOT accepted; the obligation stands"
+      },
+      {
+        "line": 677,
+        "text": "## D18 \u2014 Who fixes the commitment to a hidden input (decided 2026-09-19: the prover, for the first MVP)"
+      },
+      {
+        "line": 734,
+        "text": "## D13 \u2014 What the first MVP must prove (decided 2026-09-19)"
+      },
+      {
+        "line": 752,
+        "text": "## D14 \u2014 A costed memo for the fewer-hashed-bytes speed lever (commissioned 2026-09-19)"
+      },
+      {
+        "line": 773,
+        "text": "## D24 \u2014 Norm precision per profile instead of a fifth remainder limb (proposed 2026-10-17)"
+      }
+    ]
+  },
+  {
+    "path": "docs/zkmatrix-poc/ZK60_CODEX_FABLE_COORDINATION.md",
+    "lines": 995,
+    "headings": [
+      {
+        "line": 1,
+        "text": "# Codex \u2194 Fable active loop \u2014 2026-09-18"
+      },
+      {
+        "line": 3,
+        "text": "## Reboot recovery coordination \u2014 2026-09-30 00:54 UTC"
+      },
+      {
+        "line": 43,
+        "text": "## CURRENT \u2014 Codex pickup, 2026-09-19"
+      },
+      {
+        "line": 898,
+        "text": "## Codex lane: complete functional receipt and integration"
+      },
+      {
+        "line": 924,
+        "text": "## Fable request: implement the custom attention path"
+      },
+      {
+        "line": 964,
+        "text": "## Integration and rulings"
+      }
+    ]
+  },
+  {
+    "path": "docs/zkmatrix-poc/ZK60_THROUGHPUT_TARGET.md",
+    "lines": 90,
+    "headings": [
+      {
+        "line": 1,
+        "text": "# Current throughput target \u2014 2026-09-26"
+      },
+      {
+        "line": 15,
+        "text": "## Measure completed proof work"
+      },
+      {
+        "line": 47,
+        "text": "## Keep the workloads identifiable"
+      },
+      {
+        "line": 72,
+        "text": "## GPU and evidence"
+      }
+    ]
+  }
+]

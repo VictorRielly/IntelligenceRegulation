@@ -1,0 +1,27 @@
+
+running 4 tests
+test private_block::review_r12b_tests::review_r12b_c_rope_opt_in_is_refused_at_every_shieldstral_geometry_on_both_load_paths ... REVIEW-R12B C: the four Shieldstral geometries pin YaRN; the opt-in is refused on load_layer and reload_block (--rope-from-export is refused at a profile with a pinned RoPE transform); without it the generator comparison stands
+ok
+test private_block::review_r12b_tests::review_r12b_d2_links_fifos_devices_and_escaping_names_are_refused_without_blocking ... REVIEW-R12B D2 refused: a symbolic link to a file outside token_io/ -> /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r12b-scratch/review_tmp/review/review-r12b-d2/token_io (0.020 s)
+REVIEW-R12B D2 refused: a symbolic link to /dev/zero -> /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r12b-scratch/review_tmp/review/review-r12b-d2/token_io (0.020 s)
+REVIEW-R12B D2 refused: a FIFO -> /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r12b-scratch/review_tmp/review/review-r12b-d2/token_io (0.020 s)
+REVIEW-R12B D2 refused: a file name that leaves token_io/ -> manifest file name `../escape.bin` is not a plain file name (0.020 s)
+ok
+test private_block::review_r12b_tests::review_r12b_d_short_or_misdeclared_tables_are_refused_before_derivation ... REVIEW-R12B D refused: R12 attack D (no dtype/shape): missing key `dtype`
+REVIEW-R12B D refused: R12 attack D (no dtype/shape): missing key `dtype`
+REVIEW-R12B D refused: declared right, 7/5/3-byte files: /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r12b-scratch/review_tmp/review/review-r12b-d
+REVIEW-R12B D refused: declared right, 7/5/3-byte files: /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r12b-scratch/review_tmp/review/review-r12b-d
+REVIEW-R12B D refused: embedding shape 131072x3071: embedding_table: dtype/shape I16 [131072, 3071], expected I16 [131072, 3072]
+REVIEW-R12B D refused: embedding shape 131072x3071: embedding_table: dtype/shape I16 [131072, 3071], expected I16 [131072, 3072]
+REVIEW-R12B D refused: embedding dtype int8: embedding_table: dtype/shape I8 [131072, 3072], expected I16 [131072, 3072]
+REVIEW-R12B D refused: embedding dtype int8: embedding_table: dtype/shape I8 [131072, 3072], expected I16 [131072, 3072]
+REVIEW-R12B D refused: head dtype int16: head_int8_perrow.bin: dtype/shape I16 [131072, 3072], expected I8 [131072, 3072]
+REVIEW-R12B D refused: head dtype int16: head_int8_perrow.bin: dtype/shape I16 [131072, 3072], expected I8 [131072, 3072]
+REVIEW-R12B D refused: multipliers shape 131071: head_mult12.bin: dtype/shape I64 [131071], expected I64 [131072]
+REVIEW-R12B D refused: multipliers shape 131071: head_mult12.bin: dtype/shape I64 [131071], expected I64 [131072]
+REVIEW-R12B D: 12 short / mis-declared table cases refused at Shieldstral T128 and T256-DD; the R12 swapped head refused
+ok
+test private_block::review_r12b_tests::review_r12b_f1_derivation_accepts_my_honest_tables_and_refuses_every_forgery ... ignored, full pinned checkpoint reads (nine derivation passes); run guarded with ZK60_REVIEW_R12B_FIXTURE
+
+test result: ok. 3 passed; 0 failed; 1 ignored; 0 measured; 646 filtered out; finished in 0.13s
+

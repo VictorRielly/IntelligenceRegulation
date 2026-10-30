@@ -1,0 +1,110 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/STATE.md",
+    "snapshot": "startup/00-STATE.md",
+    "bytes": 6824,
+    "sha256": "fa68db300a4f32789085f6684c0c0b14f642a3ada8468dc003a159cf29bff3a4"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/FINDINGS.md",
+    "snapshot": "startup/01-FINDINGS.md",
+    "bytes": 1164529,
+    "sha256": "3de4d9e33594daf1eb49d594bab56d5c68514b25d35c75548a31ff4fa4140c05"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/AGENDA.md",
+    "snapshot": "startup/02-AGENDA.md",
+    "bytes": 5603,
+    "sha256": "12377d48336177be4ed3b39c9db028736a117a17a063633a60156842a4539139"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/PROGRESS.md",
+    "snapshot": "startup/03-PROGRESS.md",
+    "bytes": 2370,
+    "sha256": "1149b9b836baab0594b67e6408542b3130f533ca606fcba34823faf5b1a8bdfe"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/sources.jsonl",
+    "snapshot": "startup/04-sources.jsonl",
+    "bytes": 1294195,
+    "sha256": "5e9f45770dc59ed0491b101968c270cb054bf8a841bb774a5624adbd28fbf120"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/CLAUDE.md",
+    "snapshot": "startup/05-CLAUDE.md",
+    "bytes": 14089,
+    "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_THROUGHPUT_TARGET.md",
+    "snapshot": "startup/06-ZK60_THROUGHPUT_TARGET.md",
+    "bytes": 4941,
+    "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/MVP_STATUS.md",
+    "snapshot": "startup/07-MVP_STATUS.md",
+    "bytes": 105092,
+    "sha256": "044afa457fb32bcdc1e3cf5350f1b032c040b2eed42167a396fb7de114cf0c13"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_DECISIONS.md",
+    "snapshot": "startup/08-ZK60_DECISIONS.md",
+    "bytes": 157189,
+    "sha256": "c02c54d7aaec713a9459a9f15ef17f7f8229437c0e12c0c1b2c7c44c9ff2bf30"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_CODEX_FABLE_COORDINATION.md",
+    "snapshot": "startup/09-ZK60_CODEX_FABLE_COORDINATION.md",
+    "bytes": 64889,
+    "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/START_HERE.md",
+    "snapshot": "startup/10-START_HERE.md",
+    "bytes": 42025,
+    "sha256": "89f6732a39f4294f2f1b7b68add8fdcbb76b86006e21041f52c0f40d9e39df9d"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/TASK_BOARD.md",
+    "snapshot": "startup/11-TASK_BOARD.md",
+    "bytes": 186876,
+    "sha256": "d96f67dd1d199ffc31672974dad5bd8c8d6453f2f7bab6a4849d229a91bef953"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/hybrid-opening-budget-20261030/result.json",
+    "snapshot": "startup/12-result.json",
+    "bytes": 955,
+    "sha256": "dbdcda67b64ec7916a815c58229595b9dcfb906c63e9ace3e31cc596d891d93f"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/hybrid-opening-budget-20261030/hypotheses.json",
+    "snapshot": "startup/13-hypotheses.json",
+    "bytes": 192848,
+    "sha256": "f599b82b0af23d66abf4e8dd8ee6d9887e3347d4712ded72ced8ca4f36a09610"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/hybrid-opening-budget-20261030/ranking-current.json",
+    "snapshot": "startup/14-ranking-current.json",
+    "bytes": 10865,
+    "sha256": "6b0f5b6383d2b665c3b423b23394908ba20e3e676f96f75bda393f0611ec66c3"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/hybrid-opening-budget-20261030/target-accounting.json",
+    "snapshot": "startup/15-target-accounting.json",
+    "bytes": 1224,
+    "sha256": "9437064315caaec923972bde89c064e35bcfebb9d1f41080b3a0ed41c2e8d8ab"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/hybrid-opening-budget-20261030/cost-study.json",
+    "snapshot": "startup/16-cost-study.json",
+    "bytes": 7462,
+    "sha256": "c4d0beb1455020a72f484a5b7191e695a2d196cbf699b190cea7172b7bfb289e"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/hybrid-opening-budget-20261030/README.md",
+    "snapshot": "startup/17-README.md",
+    "bytes": 12007,
+    "sha256": "a60968536265b5a42e9e162a5e508ea5331026d5af2c4820a9a618c253887def"
+  }
+]

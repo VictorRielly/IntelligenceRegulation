@@ -1,0 +1,44 @@
+
+running 1 test
+test private_block::token_io::classify_cli::batch::r18::r18_rung_batch_receipts_equal_single_proves_under_fixed_entropy ... {"event":"batch-loaded","jobs":2,"model_loads":1,"table_loads":1,"load_seconds":0.032,"trained_statement_identity":"061340df02f975c16fa1b3f9a2e1c8d582a54888a33edafab112426a69c5ae88","context_label":"zk60-classify-verdict"}
+{"event":"batch-job-start","index":1,"name":"c1","policy":"rung-tc-synthetic-policy-dev/1","chunk":1}
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1","blocks":1,"trained_statement_identity":"061340df02f975c16fa1b3f9a2e1c8d582a54888a33edafab112426a69c5ae88","policy":"rung-tc-synthetic-policy-dev/1","chunk":1,"chunks":2,"content_length_n":23}
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.150}
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":1.462}
+{"event":"segment","index":2,"bytes":2489016,"elapsed_seconds":1.588}
+{"event":"proved","run":"/home/victor/zk60-artifacts/token-io/r19b/tmp/tio-cls-r18-eq-263339/r18e-c1","owner_dir":"/home/victor/zk60-artifacts/token-io/r19b/tmp/tio-cls-owners-r18-eq-263339/r18e-c1.owner-private","verdict":"not-flagged","policy":"rung-tc-synthetic-policy-dev/1","chunk":1,"chunks":2,"segments":3,"receipt_bytes":11134808,"prove_seconds":1.588,"whole_run_floor_bits":94,"total_seconds":1.701,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"}
+{"event":"batch-job-proved","index":1,"name":"c1","seal_block_loads":1,"prove_block_loads":1,"blocks":1}
+{"event":"batch-job-start","index":0,"name":"c0","policy":"rung-tc-synthetic-policy-dev/1","chunk":0}
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1","blocks":1,"trained_statement_identity":"061340df02f975c16fa1b3f9a2e1c8d582a54888a33edafab112426a69c5ae88","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":2,"content_length_n":23}
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.147}
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":1.448}
+{"event":"segment","index":2,"bytes":2489016,"elapsed_seconds":1.578}
+{"event":"proved","run":"/home/victor/zk60-artifacts/token-io/r19b/tmp/tio-cls-r18-eq-263339/r18e-c0","owner_dir":"/home/victor/zk60-artifacts/token-io/r19b/tmp/tio-cls-owners-r18-eq-263339/r18e-c0.owner-private","verdict":"not-flagged","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":2,"segments":3,"receipt_bytes":11134808,"prove_seconds":1.578,"whole_run_floor_bits":94,"total_seconds":1.683,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"}
+{"event":"batch-job-proved","index":0,"name":"c0","seal_block_loads":1,"prove_block_loads":1,"blocks":1}
+{"event":"batch-proved","jobs":2,"total_seconds":3.417,"verified":false}
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1","blocks":1,"trained_statement_identity":"061340df02f975c16fa1b3f9a2e1c8d582a54888a33edafab112426a69c5ae88","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":2,"content_length_n":23}
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.149}
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":1.428}
+{"event":"segment","index":2,"bytes":2489016,"elapsed_seconds":1.555}
+{"event":"proved","run":"/home/victor/zk60-artifacts/token-io/r19b/tmp/tio-cls-r18-eq-263339/r18e-single-c0","owner_dir":"/home/victor/zk60-artifacts/token-io/r19b/tmp/tio-cls-owners-r18-eq-263339/r18e-single-c0.owner-private","verdict":"not-flagged","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":2,"segments":3,"receipt_bytes":11134808,"prove_seconds":1.555,"whole_run_floor_bits":94,"total_seconds":1.694,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"}
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1","blocks":1,"trained_statement_identity":"061340df02f975c16fa1b3f9a2e1c8d582a54888a33edafab112426a69c5ae88","policy":"rung-tc-synthetic-policy-dev/1","chunk":1,"chunks":2,"content_length_n":23}
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.145}
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":1.436}
+{"event":"segment","index":2,"bytes":2489016,"elapsed_seconds":1.558}
+{"event":"proved","run":"/home/victor/zk60-artifacts/token-io/r19b/tmp/tio-cls-r18-eq-263339/r18e-single-c1","owner_dir":"/home/victor/zk60-artifacts/token-io/r19b/tmp/tio-cls-owners-r18-eq-263339/r18e-single-c1.owner-private","verdict":"not-flagged","policy":"rung-tc-synthetic-policy-dev/1","chunk":1,"chunks":2,"segments":3,"receipt_bytes":11134808,"prove_seconds":1.559,"whole_run_floor_bits":94,"total_seconds":1.695,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"}
+
+thread 'private_block::token_io::classify_cli::batch::r18::r18_rung_batch_receipts_equal_single_proves_under_fixed_entropy' (263340) panicked at src/private_block/token_io/classify_r18_tests.rs:310:9:
+assertion `left == right` failed: job 0: the batch's run directory is not the single prove's byte for byte
+  left: [("segment-000.bin", "6208e962eccda611795b6793d78700f858aa306283a411d319fe246d362817e9"), ("segment-001.bin", "5d64e1c9ba0c4d116c18036b3a968e0ad56abda07ca97fa4ae443ee582a11f37"), ("segment-002.bin", "33575401b149816ac9c6a54e89881a1e5bb1a2b0677dd5c51eb581a2038a5aa0")]
+ right: [("segment-000.bin", "4f89eb17fc72c2a299f6b570243a24ec26a93d1969eef42867563a877d20ba31"), ("segment-001.bin", "f88e2b74c1a5da7516de4f39cf53c7fb06effe19dcef0c4681198f920ad632f7"), ("segment-002.bin", "21824f7f3b6704394d36e4d1f4a076f4ac72f4a9f18d627805d4f1be33ff0b87")]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    private_block::token_io::classify_cli::batch::r18::r18_rung_batch_receipts_equal_single_proves_under_fixed_entropy
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 896 filtered out; finished in 7.28s
+
+{"event":"fixed-entropy","block_bytes":256,"unread_bytes":0,"rc":101}

@@ -1,0 +1,18 @@
+{
+  "utc": "2026-10-30T09:24:25.919186+00:00",
+  "status": "R14authorcheckpointcomplete;goalactive/incomplete",
+  "live_own_jobs": [],
+  "author_source": "06c540f2a7616e052540ce8dae44f043403ed8974b510f34c47623e54e48856a",
+  "source_pin": "sol-r14-cli-build-2.source.json",
+  "immutable_checkpoint": "checkpoints/cli-build-2",
+  "acceptance": [
+    "STREAMING_SOURCE_HANDOFF.json",
+    "LEGACY_COMPATIBILITY_ACCEPTANCE.json",
+    "NATIVE_RELATION_REGRESSIONS.json",
+    "cli-native-2/ACCEPTANCE.json",
+    "cli-native-2/M9_ACCEPTANCE.json"
+  ],
+  "next": "Next full26 backend gate: run prepared reference_sequence_step.py one guarded exact-int64 layer at a time from explicit public sparseinput, authenticated export2ba468f9, pin unchanged reviewer reference source before step0; compare step0 all19 native sites. Generate everylayer x_in/x_out references, then CLI stack-prove/stack-verify all26 at T128, bothDDmodes, one-public-blockcache. PreserveH1parity, no test waiver/calib change. Combine FINAL_SOURCE_TIDY_TODO with finalcapture/newsource revision, rerun finalsource native/legacy gates, recountwholebits, freeze->independentD24->fullprivacygate. No source activation, no laptopT256proof, S6parked. All own originalhandles terminal; do not restart oldrecovery/observer pipelines.",
+  "prepared_reference": "reference_sequence_step.py",
+  "scope": "No finalsourcefreeze, full26proof, independentreview orprivacyacceptance. Do not restart historicalworkers."
+}

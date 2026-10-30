@@ -1,0 +1,198 @@
+{
+  "label": "sol-r14-actual-dd-prove-1",
+  "source": "087016a359c1c0b096f3f131181583f568f7166a476bef3b7c484f181fde5bd9",
+  "binary_sha256": "ea8ec6e3adbea8adfb092f1e8d2174404dd6172f004008b5939feac077090d5a",
+  "guard": {
+    "ts_end": "2026-10-29T17:29:01Z",
+    "run_id": "292dc015435f",
+    "label": "sol-r14-actual-dd-prove-1",
+    "class": "cpu",
+    "cmd": [
+      "/usr/bin/env",
+      "RAYON_NUM_THREADS=2",
+      "OPENBLAS_NUM_THREADS=1",
+      "HL_R14_DD=1",
+      "HL_R14_ACTUAL_EXPORT=/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/actual-t128-smoke-export",
+      "HL_R14_ACTUAL_PROVE=1",
+      "HL_R14_ACTUAL_OUTPUT=/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/actual-native-fixtures/dd",
+      "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/checkpoints/actual-build-1/hashline.test.bin"
+    ],
+    "need_gib": 9.6,
+    "cap_gib": 11.5,
+    "exit": 0,
+    "child_rc": 0,
+    "guard_killed": null,
+    "child_wall_seconds": 38.58059287071228,
+    "refused": null,
+    "guard_error": null,
+    "guard_pid": 317,
+    "boot_id": "9ecf0dc6-8b67-411a-8ac8-042f41dfd9d5",
+    "pid_ns": "pid:[4026532417]",
+    "guard_starttime_ticks": 7389557,
+    "lock_ids": {
+      "heavy": "2096:1134228",
+      "build": "2096:1134231"
+    },
+    "enforcement": "watchdog-only",
+    "waited_s": 0.0,
+    "guard_wall_s": 38.6,
+    "stragglers_killed": 0,
+    "hard_killed": 0,
+    "scope_unit": null,
+    "scope_adopted": null,
+    "foreign_cgroups_refused": [],
+    "peak_rss_gib": 5.51,
+    "peak_cgroup_gib": null,
+    "peak_vram_mib": null,
+    "min_mem_available_gib": 8.32,
+    "vram_drain_s": null,
+    "gpu_drain_failed": false,
+    "gpu_telemetry_lost": false,
+    "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache"
+  },
+  "trace_sites": [
+    {
+      "dd": true,
+      "site": "input",
+      "words": 393216,
+      "sha256": "f692d5f3437bae77bedea8164930992a9603017481bb603e5aec7f7a35750f30",
+      "reference_and_physical_match": true
+    },
+    {
+      "dd": true,
+      "site": "y",
+      "words": 393216,
+      "sha256": "9fca0e9c8aa134aa5946c052c4f7e337217357fb32d4d22872d6e12c6703c47d",
+      "reference_and_physical_match": true
+    },
+    {
+      "dd": true,
+      "site": "q",
+      "words": 524288,
+      "sha256": "8f8e13a812dbf55f9b9cf9b46d3e147d1dd1c3dc5ca9dc88b8d55381d062e4d7",
+      "reference_and_physical_match": true
+    },
+    {
+      "dd": true,
+      "site": "k",
+      "words": 131072,
+      "sha256": "9ae3fc1660b2f64b857a4bbee03052608566ec4419e02d10fda1355480adbed7",
+      "reference_and_physical_match": true
+    },
+    {
+      "dd": true,
+      "site": "v",
+      "words": 131072,
+      "sha256": "2c0cacc6f5157da8a55593c1878e0b2757c410a5b32397b0bea5f012c1c55cfb",
+      "reference_and_physical_match": true
+    },
+    {
+      "dd": true,
+      "site": "qr",
+      "words": 524288,
+      "sha256": "9b82d70839b31697e91f658daa72c4d0c446bbe2cf526f5a127ea3712c01489c",
+      "reference_and_physical_match": true
+    },
+    {
+      "dd": true,
+      "site": "kr",
+      "words": 131072,
+      "sha256": "9aecc6b7e2fd45f12463985aaa22c87d5fa68279e10b85ce4113df3aa2b9931e",
+      "reference_and_physical_match": true
+    },
+    {
+      "dd": true,
+      "site": "s",
+      "words": 524288,
+      "sha256": "bb9f8df61474d25e71fa00722318cd387396ca1736605e1248821cc0de3d3af8",
+      "reference_and_physical_match": true
+    },
+    {
+      "dd": true,
+      "site": "p",
+      "words": 524288,
+      "sha256": "2e0211eec3e7eeca1a41da2acb7c979c789beec8c992f3c97290a97e12ac7834",
+      "reference_and_physical_match": true
+    },
+    {
+      "dd": true,
+      "site": "o",
+      "words": 524288,
+      "sha256": "37362f0f84a112757cd12ba67d4bc6cf66214b2da53f87835c4762ff15e6ae68",
+      "reference_and_physical_match": true
+    },
+    {
+      "dd": true,
+      "site": "ao",
+      "words": 393216,
+      "sha256": "1f5027fae943fee11b29afc75f5bdd61233cae7781bf9e317db9d5aff3592bca",
+      "reference_and_physical_match": true
+    },
+    {
+      "dd": true,
+      "site": "x1",
+      "words": 393216,
+      "sha256": "ea09573d5c5b3987a9fc3fbd8949aaaacbd611bf95e16abe9e203b0e72d19d41",
+      "reference_and_physical_match": true
+    },
+    {
+      "dd": true,
+      "site": "nm",
+      "words": 393216,
+      "sha256": "35f75d2e04a7f3068df5c16e7becd24cdf53c885b34bd0107d3927717cdf4d9f",
+      "reference_and_physical_match": true
+    },
+    {
+      "dd": true,
+      "site": "gate",
+      "words": 1179648,
+      "sha256": "8a5a53231851bb238d1a1ef31b2c4fe1674a561bfc73ec757e59dfcd70aff2e0",
+      "reference_and_physical_match": true
+    },
+    {
+      "dd": true,
+      "site": "a_scaled",
+      "words": 1179648,
+      "sha256": "854d984436b4a8e58183b4c46fd01cd428fdb83af178f22ea7de322811dd4bd3",
+      "reference_and_physical_match": true
+    },
+    {
+      "dd": true,
+      "site": "up",
+      "words": 1179648,
+      "sha256": "d7487123d89896638e3cc7bb4ae3551010ca2520f98d68e7d0e57e979f59f105",
+      "reference_and_physical_match": true
+    },
+    {
+      "dd": true,
+      "site": "h",
+      "words": 1179648,
+      "sha256": "9639af590f77236b28341876ee3cb78e13567acbf93374abd2b80052fdd1998c",
+      "reference_and_physical_match": true
+    },
+    {
+      "dd": true,
+      "site": "z",
+      "words": 393216,
+      "sha256": "b068d5c6fd7a1c1e3053cfe31507ac8ffad5bb20f9271c53b9b707ef37fe4c47",
+      "reference_and_physical_match": true
+    },
+    {
+      "dd": true,
+      "site": "x2",
+      "words": 393216,
+      "sha256": "8c4e75d719f9609b07aa88bba29e5be790bbb7781788826624cb6525325b5fda",
+      "reference_and_physical_match": true
+    }
+  ],
+  "proof": {
+    "dd": true,
+    "trace_sites": 19,
+    "bytes": 35110696,
+    "prove_seconds": 16.304423967,
+    "process_hwm_mib": 5640.2578125,
+    "model_identity": "5af573e263178790f10b62e672d98c1d293e1d31e2384413848dd6e0c6ab9789",
+    "test_synthetic_waiver": false,
+    "scope": "actual S2 L00 public weights, public synthetic input, native R14 one-stage only; no full26/CLI/privacy acceptance"
+  }
+}

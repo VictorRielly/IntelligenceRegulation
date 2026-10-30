@@ -1,0 +1,19 @@
+{
+  "at": "2026-10-30T00:22:54Z",
+  "status": "candidate code and light tests complete; full native build/integration pending",
+  "path": "a5_batch_candidate",
+  "rust_light_tests": 13,
+  "python_light_tests": 30,
+  "peak_rss_gib": 0.15,
+  "wall_seconds": 2.1666862964630127,
+  "scope": "shared box n=1 light transport only",
+  "full_native_build": false,
+  "new_native_proofs": 0,
+  "measured_speedup": null,
+  "queue_adoption": false,
+  "evidence": "a5_batch_candidate/check-2/evidence.json",
+  "app_review_findings": {
+    "1": "terminal failure quarantines all requested outputs/sidecars/openings in trusted scope",
+    "11": "guard record required in terminal collector"
+  }
+}

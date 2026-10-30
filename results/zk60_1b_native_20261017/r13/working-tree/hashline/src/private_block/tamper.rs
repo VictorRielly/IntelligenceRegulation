@@ -282,7 +282,7 @@ fn a_gate_output_not_derived_from_nm_is_rejected() {
             if w.planes[A_G8][k] >= 127 {
                 return false;
             }
-            let mut probe = Witness { planes: w.planes.clone() };
+            let mut probe = w.clone();
             probe.planes[A_G8][k] += 1;
             probe.planes[A_A16][k] = i64::from(ff.act[(probe.planes[A_G8][k] + 128) as usize]);
             recompute_from_product(&mut probe, ff)
@@ -306,7 +306,7 @@ fn an_activation_value_off_its_table_row_is_rejected() {
             if w.planes[A_A16][k] >= 32767 {
                 return false;
             }
-            let mut probe = Witness { planes: w.planes.clone() };
+            let mut probe = w.clone();
             probe.planes[A_A16][k] += 1;
             recompute_from_product(&mut probe, ff)
         });
@@ -326,7 +326,7 @@ fn an_up_output_not_derived_from_nm_is_rejected() {
             if w.planes[A_U16][k] >= 32767 {
                 return false;
             }
-            let mut probe = Witness { planes: w.planes.clone() };
+            let mut probe = w.clone();
             probe.planes[A_U16][k] += 1;
             recompute_from_product(&mut probe, ff)
         });
@@ -347,7 +347,7 @@ fn a_product_output_not_equal_to_a16_times_u16_is_rejected() {
             if w.planes[A_H16][k] >= 32767 {
                 return false;
             }
-            let mut probe = Witness { planes: w.planes.clone() };
+            let mut probe = w.clone();
             probe.planes[A_H16][k] += 1;
             recompute_from_h16(&mut probe, ff)
         });
@@ -478,7 +478,7 @@ fn a_norm_m_output_not_derived_from_xres1_is_rejected() {
             if w.planes[A_YM][k] >= 127 {
                 return false;
             }
-            let mut probe = Witness { planes: w.planes.clone() };
+            let mut probe = w.clone();
             probe.planes[A_YM][k] += 1;
             recompute_from_nm(&mut probe, ff)
         });
@@ -521,7 +521,7 @@ fn the_norm_m_denominator_is_pinned_by_its_isqrt_witness() {
     });
     expect_rejection("dm (+1, consistent everywhere the integers allow)", Catch::LogUp, |ff, w| {
         let t = pick("dm", T, |t| {
-            let mut probe = Witness { planes: w.planes.clone() };
+            let mut probe = w.clone();
             shift_norm_m_denominator(&mut probe, t);
             recompute_norm_m_row(&mut probe, ff, t) && recompute_from_nm(&mut probe, ff)
         });
@@ -586,7 +586,7 @@ fn the_norm_m_quotient_is_pinned_by_its_remainder_windows() {
             if w.planes[A_YM][k] <= -127 {
                 return false;
             }
-            let mut probe = Witness { planes: w.planes.clone() };
+            let mut probe = w.clone();
             shift_norm_m_quotient(&mut probe, k);
             recompute_from_nm(&mut probe, ff)
         });
@@ -699,7 +699,7 @@ fn a_moved_activation_multiplicity_is_rejected_by_the_logup_sum_claim() {
         if w.planes[A_A16][k] >= 32767 {
             return false;
         }
-        let mut probe = Witness { planes: w.planes.clone() };
+        let mut probe = w.clone();
         probe.planes[A_A16][k] += 1;
         recompute_from_product(&mut probe, ff)
     });

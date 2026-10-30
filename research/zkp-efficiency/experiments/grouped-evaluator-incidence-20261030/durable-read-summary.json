@@ -1,0 +1,15 @@
+{
+  "source_records": 1122,
+  "findings_headings": 214,
+  "source_categories": [
+    "REFRESH zkDuel SumCheck kernel characterization",
+    "REFRESH zkDuel repository and unavailable code/license body",
+    "NEWLY ASSESSED OLDER CUDA11 hardware warp reduction introduction",
+    "NEWLY ASSESSED OLDER archived Ampere integer reduction guide",
+    "NEW primary PTX redux arithmetic and synchronization contract",
+    "NEW CUB WarpReduce hardware path documentation",
+    "NEW CCCL3.5 release and inspected tag arch_traits fix scope",
+    "REFRESH prime-ir409 author-rejected carry arithmetic hypothesis",
+    "REFRESH CUDA13.3 carryless multiplication field compatibility"
+  ]
+}

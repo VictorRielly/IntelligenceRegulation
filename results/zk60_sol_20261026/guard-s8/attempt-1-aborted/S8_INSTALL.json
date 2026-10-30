@@ -1,0 +1,68 @@
+{
+  "utc_start": "2026-10-29T00:24:39.094310+00:00",
+  "ruling": "D44",
+  "old": "87138bda80ae4499a668e67a1c0e7706bb859eafb5e766020bcd59567c8ac59c",
+  "new": "88af4c639848d39df8da559652db11529575aa745b916a06eb522c20ea89fbd3",
+  "ready": {
+    "written_utc": "2026-10-29T00:20:24Z",
+    "written_by": "Claude (coordinator)",
+    "change": "S8",
+    "ruling": "D44 (Victor, console, 2026-10-28 23:50 UTC: \"Go ahead and install the guard swap-rule fix\"); procedure per D42/S3",
+    "window": "OPEN",
+    "candidate_sha256": "88af4c639848d39df8da559652db11529575aa745b916a06eb522c20ea89fbd3",
+    "installed_sha256_before": "87138bda80ae4499a668e67a1c0e7706bb859eafb5e766020bcd59567c8ac59c",
+    "review": "results/zk60_guard_fix_20261021/S8_REVIEW.md (accept with conditions)",
+    "boot_id": "9ecf0dc6-8b67-411a-8ac8-042f41dfd9d5",
+    "hold_files": [
+      "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/HOLD",
+      "/home/victor/IntelligenceRegulation/results/zk60_shieldstral_prep_20261021/HOLD",
+      "/home/victor/IntelligenceRegulation/results/zk60_shieldstral_export_20261026/HOLD",
+      "/home/victor/IntelligenceRegulation/results/zk60_guard_fix_20261021/WINDOW_HOLD"
+    ],
+    "sandbox_views_checked": true,
+    "views": {
+      "astra": "ASTRA VIEW CLEAR 2026-10-29T00:20:05Z (todo-file Astra log): launcher 107126 and guard 107148 terminal (exit 0 at 00:19:12Z), no worker/guard/consumer live; evidence astra/s8_gpu_waiter_drain.json",
+      "claude_namespace": "2026-10-29T00:19:17Z drain watcher: no zk60_resource_guard.py run process live; status at write time: RAM   14.02 GiB available of 15.39; swap used 0.62 GiB | BUDGET 0 of 11.89 GiB committed by guarded jobs | LOCKS heavy free, build free; Claude agents (R-C2 reviewer) gated by WINDOW_HOLD, launch nothing",
+      "sol": "S8 READY FOR WINDOW 2026-10-29T00:10:07Z and 00:19:03Z: no Sol guarded job; swap driver b3fce737\u2026 refuses any live/waiting guard or consumer"
+    }
+  },
+  "stage": "aborted",
+  "tests": [
+    {
+      "utc": "2026-10-29T00:25:50.345239+00:00",
+      "pattern": "test_zk60_resource_guard.py",
+      "tests": 45,
+      "failures": 0,
+      "errors": 0,
+      "skipped": [],
+      "seconds": 70.99687225000162,
+      "expected": 45,
+      "accepted": true
+    },
+    {
+      "utc": "2026-10-29T00:27:47.819239+00:00",
+      "pattern": "test_zk60_guard_fix.py",
+      "tests": 31,
+      "failures": 0,
+      "errors": 0,
+      "skipped": [],
+      "seconds": 117.41180557700136,
+      "expected": 31,
+      "accepted": true
+    },
+    {
+      "utc": "2026-10-29T00:27:47.883762+00:00",
+      "pattern": "test_zk60_guard_s8.py",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": [],
+      "seconds": 0.005590086000665906,
+      "expected": 9,
+      "accepted": true
+    }
+  ],
+  "utc_end": "2026-10-29T00:27:47.962425+00:00",
+  "error": "host suite failed/incomplete: test_zk60_guarded_command.py",
+  "rollback": "complete"
+}

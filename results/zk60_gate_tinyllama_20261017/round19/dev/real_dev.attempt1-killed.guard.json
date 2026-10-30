@@ -1,0 +1,42 @@
+{
+ "ts_end": "2026-10-29T11:59:08Z",
+ "run_id": "52d381ab5180",
+ "label": "gate19-real-dev",
+ "class": "light",
+ "cmd": [
+  "python3",
+  "/home/victor/IntelligenceRegulation/results/zk60_gate_tinyllama_20261017/round19/dev/real_dev.py"
+ ],
+ "need_gib": 3.3,
+ "cap_gib": 5.0,
+ "exit": 75,
+ "child_rc": 143,
+ "guard_killed": "job RSS 5.20 GiB > cap 5 GiB",
+ "child_wall_seconds": 323.5675666332245,
+ "refused": null,
+ "guard_error": null,
+ "guard_pid": 401944,
+ "boot_id": "9ecf0dc6-8b67-411a-8ac8-042f41dfd9d5",
+ "pid_ns": "pid:[4026532216]",
+ "guard_starttime_ticks": 5381761,
+ "lock_ids": {
+  "heavy": "2096:1134228",
+  "build": "2096:1134231"
+ },
+ "enforcement": "cgroup+watchdog",
+ "waited_s": 0.0,
+ "guard_wall_s": 323.6,
+ "stragglers_killed": 0,
+ "hard_killed": 0,
+ "scope_unit": "zk60-52d381ab5180.scope",
+ "scope_adopted": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/zk60.slice/zk60-52d381ab5180.scope",
+ "foreign_cgroups_refused": [],
+ "peak_rss_gib": 5.2,
+ "peak_cgroup_gib": 5.0,
+ "peak_vram_mib": null,
+ "min_mem_available_gib": 8.53,
+ "vram_drain_s": null,
+ "gpu_drain_failed": false,
+ "gpu_telemetry_lost": false,
+ "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache"
+}

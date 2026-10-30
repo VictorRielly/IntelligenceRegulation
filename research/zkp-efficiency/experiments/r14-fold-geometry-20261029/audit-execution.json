@@ -1,0 +1,19 @@
+{
+  "stage": "audit",
+  "command": [
+    "/usr/bin/python3",
+    "-B",
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/r14-fold-geometry-20261029/audit.py"
+  ],
+  "exit_code": 0,
+  "wall_s": 0.21687028899032157,
+  "max_rss_kib": 18440,
+  "cpu_affinity": "one",
+  "nice": 19,
+  "cpu_limit_s": 40,
+  "alarm_s": 45,
+  "parent_timeout_s": 50,
+  "address_space_mib": 384,
+  "estimated_memory_mib": 96,
+  "gpu": false
+}

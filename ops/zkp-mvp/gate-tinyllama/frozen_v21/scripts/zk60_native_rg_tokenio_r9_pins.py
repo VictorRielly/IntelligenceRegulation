@@ -1,0 +1,137 @@
+#!/usr/bin/env python3
+"""[GATE ROUND 10, tools v13, 2026-10-20; review round 4 PR4-10] The
+READINGS of the six pinned files the token lane's ROUND 9 moved relative to
+frozen-r7 (`results/zk60_token_io_r1_20261017/frozen-r7/`, manifest
+`manifest_final_r7.sha256`, eb912dd5...), as the CLI-path capture
+`tinyllama-t32-L2-dense-pt1-cli-r9` pins them.
+
+READ 2026-10-20 about 01:50 UTC by the privacy gate lane, with `diff -u`
+against frozen-r7, on the token lane's working copy
+`ops/zkp-mvp/token-io/hashline/` (= `manifest_r9C.sha256`, b666a991..., the
+tree the named binary b56f1b71... was built from), whose six files had
+exactly the capture's digests at the time of reading.  **Pre-freeze:** the
+round-9 tree's final manifest was not yet written; it is to be checked
+against these digests when it lands (a different digest has no reading
+here and is refused by the gate's pin check).
+
+The other 46 of the capture's 52 pins are frozen-r7's bytes (the R7 pins
+read in v8 and the token r7c readings).
+
+Every reading says whether the change moves a byte of a token-run receipt
+at the T32 profiles (`moves_a_receipt_byte`): none does.  Round 9 adds the
+T128 token profiles (registry and shape arms), the SEALING PASS (F-T1,
+PR4-4) and the CLI's prompt / owner / removal changes (PR4-15/16/17); the
+transcript, every absorb, every draw and every opening are unchanged.
+
+NOTHING HERE IS A PRIVACY STATEMENT.
+"""
+
+from __future__ import annotations
+
+TOKEN_R9_READINGS = {
+    "src/private_block/run.rs": {
+        "cc2c420498b114273c4e67874c500b0f0fb3a0256e6ccef0a171f438ba0f3226": {
+            "base": "2c158dc9c22c23e46e1fc9b8b1215555880a3e7e8642703cc47d37f24b6116f2",
+            "diff_stat": "+16 / -1, 2 hunks against 2c158dc9 (frozen-r7)",
+            "moves_a_receipt_byte": False,
+            "moves_a_block_stage_byte": False,
+            "reading": "ADDITIVE: two new token-I/O run profile strings for T128 "
+                       "(`RUN_PROFILE_TOKEN_IO_TINYLLAMA_T128`, `..._LLAMA3_8B_T128`, round 8), "
+                       "their two `run_shape` arms, and `TOKEN_IO_RUN_PROFILES` grown from 3 "
+                       "to 5 entries (so a blocks-only run statement also refuses the two T128 "
+                       "token profiles).  Every other arm, the header, the stage order, the "
+                       "boundary absorb, the position tags, the opening order, `stage_shape`, "
+                       "`stage_cal` and the schedule lines are byte-identical: the T32 token "
+                       "profiles and every block profile build what they built",
+        },
+    },
+    "src/private_block/token_io.rs": {
+        "602597ad50d0978d4ea82385011084e2ff4f3678ecbffedc3f192b69d8fe5d9f": {
+            "base": "396daba1a49477ba7f2034a31d053f51b41d67704487fc78ab65ce604029092a",
+            "diff_stat": "+14 / -0, 2 hunks against 396daba1 (frozen-r7)",
+            "moves_a_receipt_byte": False,
+            "moves_a_block_stage_byte": False,
+            "reading": "TEST-ONLY: three `#[cfg(test)]` module declarations (`t128_tests`, "
+                       "`r9_tests`, `r9v_tests`) and the two T128 profiles added to the "
+                       "`#[cfg(test)]` profile registry the censuses read.  No production "
+                       "item changes: `StageLayout`, the slot builder, `run_slot`, the "
+                       "verifier's slot loop, `TokenProfile` and its digest, the tables and "
+                       "their digests are byte-identical",
+        },
+    },
+    "src/private_block/token_io/stage_in.rs": {
+        "e4609b1acc8c9306c200321f1e80c13fa9ffdfa2b28e50dce88611b2be12eecd": {
+            "base": "0387e6b1a9f617eb21bf79e76bf131dff8ba62a8ff6df875e0a78de606717728",
+            "diff_stat": "+40 / -0, 1 hunk against 0387e6b1 (frozen-r7)",
+            "moves_a_receipt_byte": False,
+            "moves_a_block_stage_byte": False,
+            "reading": "ADDITIVE: a new `lookup_misses(tp, tables, wit, b_plane)` -- stage IN's "
+                       "indexed-lookup check for the SEALING PASS (F-T1): every prompt id below "
+                       "V, BOS at position 0, each B_in row the id's embedding row with zero pad "
+                       "words, pad positions zero, the multiplicities the prompt's histogram. "
+                       "Challenge-free, read-only, refuses with the class only.  `layout`, "
+                       "`define`, `prove`, `verify`, `tau_table`, the challenges, every draw and "
+                       "every absorb are byte-identical",
+        },
+    },
+    "src/private_block/token_io/run.rs": {
+        "4671d03edea02468403066bbc33e0a117f5d3cbe6cfd142110718bb48f7fcfca": {
+            "base": "924ee3e27aea8da26e04567d556fc66af6cfbfcc11a7ffc8dca7a235cc9d1ae1",
+            "diff_stat": "+63 / -12, 6 hunks against 924ee3e2 (frozen-r7)",
+            "moves_a_receipt_byte": False,
+            "moves_a_block_stage_byte": False,
+            "reading": "THE SEALING PASS (F-T1).  `prove_token_run_with` now runs, BEFORE the "
+                       "run generator and the header exist: stage IN's `lookup_misses` and a "
+                       "check that the input endpoint's sealed plane is the witness's; per "
+                       "block the CS-1/4/6 check (as before) and the new `seal_check` -> "
+                       "`protocol::check_lookup_misses` (CS-3) at the stage shape and layout; "
+                       "stage OUT's byte-miss check (as before) and the output endpoint's plane "
+                       "check (`endpoint_is_the_witnesss`, read-only on the owners' data).  "
+                       "`src.stage_in()` moved from stage IN's start to the sealing pass (no "
+                       "draw, no absorb).  `TokenRunSource` gains `seal_check`; "
+                       "`PipelineSource` implements it on the pipeline's witnesses.  A "
+                       "test-only header counter.  The generator is created at the same "
+                       "place relative to every draw; the header, the stage order, stage IN / "
+                       "the blocks / stage OUT, every absorb, draw and opening, the verifier "
+                       "are byte-identical.  The token-stage LogUp refusals of D34 are "
+                       "unchanged (they stay after the stage's first commitments)",
+        },
+    },
+    "src/private_block/token_io/load.rs": {
+        "8c0417214a15ed45afafe89a345609dedfd622fe45fb9b007a8782ed4344935e": {
+            "base": "998bc0e85e94e1d797e8de1129f4de3e16f9cf94944207b327abcae231a07669",
+            "diff_stat": "+5 / -2, 1 hunk against 998bc0e8 (frozen-r7)",
+            "moves_a_receipt_byte": False,
+            "moves_a_block_stage_byte": False,
+            "reading": "ADDITIVE: `token_run_profile_of` maps the two T128 block profiles to "
+                       "the two T128 token-run profiles.  The T32 arms, the table loaders and "
+                       "their digest checks are byte-identical",
+        },
+    },
+    "src/private_block/token_io/cli.rs": {
+        "b9079130204b49f5f73d38d8f5d531fcfa388d3a8d57c84ff87142eb57b655e9": {
+            "base": "04e328686466e1e5fcbe997e5599d8fc658bcbc48bec163f9840338226691dfe",
+            "diff_stat": "+237 / -46, 20 hunks against 04e32868 (frozen-r7)",
+            "moves_a_receipt_byte": False,
+            "moves_a_block_stage_byte": False,
+            "reading": "THE CLI ONLY (a caller of the token run; off the harness capture path). "
+                       "PR4-4: the CLI's own SEALING PASS (`seal_chain`) before any header -- "
+                       "each block reloaded (CS-6), its witness built from the builder's own "
+                       "chain, int16 range, bit-exact parity against the export, CS-3 -- and "
+                       "the next token computed from the builder's last plane (no longer from "
+                       "the export's reference); `CliSource::seal_check` refuses an unsealed "
+                       "source.  PR4-17: the prompt only from `--prompt-file` (mode 0600) or "
+                       "stdin, never `--prompt`; the owner's next token to a 0600 file, "
+                       "printed only with `--print`.  PR4-16: the owners' default base "
+                       "`$HOME/zk60-owner-private/` (0700), and the git-tree check applied to "
+                       "the default too (TR6-3).  PR4-15: removal of a refused run's "
+                       "directories reported, a failed removal loudly; a leftover "
+                       "`.incomplete/` refused by name.  Visibility of a few helpers raised "
+                       "to `pub(super)` for its tests.  The statement it writes, the "
+                       "verifier's reading of a run directory, the transcript and every draw "
+                       "are those of the shared prover / verifier",
+        },
+    },
+}
+
+READ_AT = "2026-10-20 ~01:50 UTC, pre-freeze (token lane working copy = manifest_r9C b666a991...)"

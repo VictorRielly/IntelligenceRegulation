@@ -1,0 +1,97 @@
+--- a/apps/proven-media/proven_media/publisher.py
++++ b/apps/proven-media/proven_media/publisher.py
+@@ -31,6 +31,8 @@
+ """
+ from __future__ import annotations
+ 
++from .quarantine_paths import require_public_receipt_path
++
+ import fcntl
+ import hashlib
+ import json
+@@ -263,6 +265,7 @@
+         return sha
+ 
+     def put_file(self, path: Path, expect_sha: str | None = None) -> tuple[str, int]:
++        require_public_receipt_path(path)
+         # Snapshot and hash the same bytes. A hard link would let later edits
+         # to a prover's run mutate an already published CAS object.
+         fd, name = tempfile.mkstemp(prefix=".receipt-", dir=self.store)
+@@ -344,6 +347,8 @@
+ 
+     # ------------------------------------------------------------ publish
+     def publish(self, record: PublicationRecord) -> AnchorRef:
++        for path in record.receipt_segments:
++            require_public_receipt_path(path)
+         if record.verdict not in ("yes", "no"):
+             raise PublishError("a published label is 'yes' or 'no' (an unproved category is not published)")
+         if self.anchor_of(record.post_id, record.category, record.chunk):
+--- a/apps/proven-media/proven_media/testnet_publisher.py
++++ b/apps/proven-media/proven_media/testnet_publisher.py
+@@ -4,6 +4,8 @@
+ content-addressed store. This does not claim permanent/network proof storage.
+ """
+ from __future__ import annotations
++
++from .quarantine_paths import require_public_receipt_path
+ 
+ import json
+ import os
+@@ -57,6 +59,8 @@
+         return json.loads((self.batches / (batch_id + ".json")).read_text())
+ 
+     def publish(self, record):
++        for path in record.receipt_segments:
++            require_public_receipt_path(path)
+         if record.development_only is not False:
+             raise PublishError("development classifier fixtures cannot be published as media labels")
+         if record.proof_verified is not True or record.verdict_bound is not True:
+--- a/apps/proven-media/proven_media/app.py
++++ b/apps/proven-media/proven_media/app.py
+@@ -5,6 +5,8 @@
+ Run:  apps/proven-media/.venv/bin/python apps/proven-media/serve.py   (see README.md)
+ """
+ from __future__ import annotations
++
++from .quarantine_paths import require_public_receipt_path
+ 
+ import calendar
+ import hashlib
+@@ -686,13 +688,16 @@
+         mj = json.dumps(loads(p["manifest"]), indent=1, sort_keys=True).encode()
+         members.append((f"{root}/{pid}.manifest.json", mj, len(mj)))
+     for ci, run, crec in chunk_runs:
++        require_public_receipt_path(run)
+         for seg in crec["receipt"]["files"]:
+             f = run / seg["file"]
++            require_public_receipt_path(f)
+             members.append((f"{root}/chunk-{ci}/run/{seg['file']}", f, f.stat().st_size))
+         for rel in ("statement/statement.json", "statement/segments.json"):
+             f = run / rel
+             if rel == "statement/segments.json" and not f.exists():
+                 continue  # Classifier receipts keep their inventory in the app record.
++            require_public_receipt_path(f)
+             members.append((f"{root}/chunk-{ci}/run/{rel}", f, f.stat().st_size))
+     mtime = int(time.time())
+     total = sum(512 + -(-n // 512) * 512 for _, _, n in members) + 1024
+@@ -703,6 +708,7 @@
+             if isinstance(src, bytes):
+                 yield src
+             else:
++                require_public_receipt_path(src)
+                 with open(src, "rb") as fh:
+                     for blk in iter(lambda: fh.read(1 << 20), b""):
+                         yield blk
+--- /dev/null
++++ b/apps/proven-media/proven_media/quarantine_paths.py
+@@ -0,0 +1,10 @@
++"""Never expose quarantined batch receipts through publication or downloads."""
++from pathlib import Path
++
++
++def require_public_receipt_path(path):
++    path = Path(path)
++    for candidate in (path.absolute(), path.resolve()):
++        if '.batch-quarantine' in candidate.parts:
++            raise ValueError('quarantined batch receipts cannot be published or downloaded')
++    return path

@@ -1,0 +1,23 @@
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r12/hashline/src/private_block/token_io.rs	2026-10-20 20:44:13.027766112 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r13/hashline/src/private_block/token_io.rs	2026-10-28 16:42:48.583790516 -0700
+@@ -43,6 +43,8 @@
+ pub(crate) mod classify_run;
+ // ROUND 12 (R-C1): the classifier CLI (examples/zk60_classify.rs)
+ pub(crate) mod classify_cli;
++/// TOKEN I/O ROUND 13 (rung R-C2): the classifier's tables re-derived from the pinned tied tensor
++pub(crate) mod classify_tied;
+ pub(crate) mod stage_in_c;
+ pub(crate) mod stage_out_c;
+ #[cfg(test)]
+@@ -77,6 +79,11 @@
+ mod classify_tests;
+ #[cfg(test)]
+ mod classify_cli_tests;
++#[cfg(test)]
++mod classify_tied_tests;
++// TOKEN I/O (round 12, gate round 16): classifier run captures
++#[cfg(test)]
++mod classify_capture_tests;
+ 
+ /// **THE TOKEN-I/O RUN PROFILES THIS BUILD REGISTERS, with their block shape**
+ /// (test only): the one list the profile-registry censuses (s24 / s25 / s33)

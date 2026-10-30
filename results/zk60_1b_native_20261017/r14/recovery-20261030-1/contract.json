@@ -1,0 +1,49 @@
+{
+  "utc": "2026-10-30T00:18:58.978074+00:00",
+  "audit": {
+    "utc": "2026-10-30T00:18:58.817658+00:00",
+    "self_pid": 490559,
+    "self_pid_ns": "pid:[4026532216]",
+    "host_visibility": true,
+    "guarded_jobs": [
+      {
+        "label": "gate22-item3-ts-real-block1",
+        "pid": 488596,
+        "pid_ns": "pid:[4026532216]"
+      },
+      {
+        "label": "gate22-item3-ts1-dev",
+        "pid": 488857,
+        "pid_ns": "pid:[4026532216]"
+      },
+      {
+        "label": "gate22-item3-ts-rung-values",
+        "pid": 484927,
+        "pid_ns": "pid:[4026532216]"
+      }
+    ],
+    "surviving_r14_processes": [],
+    "unreadable_own_processes": []
+  },
+  "source_pins": {
+    "sol-r14-actual-build-2": "7152ef1a269b2aca5b0ec7ee507a8591db46225466653aaa3113789bfce24262",
+    "sol-r14-capture-build-1": "3c7b1dcfd47ba8cb257c6f734348f25fb960af3f25f8b1b14ea4e262ff8defda"
+  },
+  "guard_sha256": "88af4c639848d39df8da559652db11529575aa745b916a06eb522c20ea89fbd3",
+  "runner_pins": {
+    "capture_gate.py": "30965a3e637105c902ad3779e92971a20db3a92de67a1abfefaef58d61138314",
+    "capture_checks.py": "634c2ba72018699c4fdec8cbfb0390928a823c81feb835206c7661ffec913629",
+    "validate_capture.py": "7b44b65e0b83fffd78fb0d8e692519cc5884a6b09959ca704d96e6873a9b75a5",
+    "local_row_rank.py": "5b60eaa0f180e5391a108245cf1fcd8fe09c94d49f55e8ec061bd129529d5f88",
+    "actual_l25_checks.py": "601e509f101c46225ce7aeba7f93160605733c27319e45c9dca9116fbe83e267",
+    "regression_checks.py": "2b38919ac324aecd1c76db969f9409e7dff2cb4c059d92929d50029bc6dccefb",
+    "compatibility_checks.py": "4af7f69d077fb2fcf4efdd9090593121664ebc82c6c32e966b643a3a36c25b90"
+  },
+  "recovery_source_sha256": "cd6b71ecc690a3db69002ce879a32d561cb4db8a0e5b40525026852999803138",
+  "original_handles_unavailable": [
+    47150,
+    24662,
+    48014
+  ],
+  "scope": "Resume exact held sources, no native pass inferred from interrupted waiters; no profile activation or privacy claim."
+}

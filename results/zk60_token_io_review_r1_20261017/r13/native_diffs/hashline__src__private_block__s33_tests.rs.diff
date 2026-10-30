@@ -1,0 +1,11 @@
+--- r12b/hashline/src/private_block/s33_tests.rs
++++ token-r13/hashline/src/private_block/s33_tests.rs
+@@ -147,4 +147,8 @@
+     built.extend(super::trained_calib_tests::registered_trained_shapes().iter().map(|sh| sh.profile.to_string()));
+     built.extend(super::trained_calib_tests::registered_trained_runs().iter().map(|(p, _)| p.to_string()));
++    // TOKEN I/O R1 LANE: the token-I/O run profile(s)
++    built.extend(super::token_io::registered_token_runs().iter().map(|(p, _)| p.to_string()));
++    // TOKEN I/O ROUND 12: the classifier run profile(s)
++    built.extend(super::token_io::classify::registered_classify_runs().iter().map(|(p, _)| p.to_string()));
+     built.sort();
+     built.dedup();

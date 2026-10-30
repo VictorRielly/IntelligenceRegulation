@@ -125,3 +125,21 @@ follow this rule.
 inside `run` no longer holds the heavy lock. The pre-check is no longer needed
 for lock safety; existing scripts may keep it (it is harmless), and new
 scripts may call `run` directly.
+
+## Addendum 2026-10-29 00:34 UTC — guard swap rule changed (D44, S8)
+
+The live guard is now `88af4c63…` (pins updated). A job is no longer refused
+just because swap use is over 1 GiB: it waits only if MemAvailable < need + 1
+GiB + all swap in use. Declarations and the budget are unchanged. The
+coordinator's lean-memory rule still applies: at most one job declaring
+≥ 3 GiB box-wide, with only light jobs of ≤ 1 GiB beside it. The guard cannot
+see Windows host memory (`ZK60_RESOURCE_PROTOCOL.md`).
+
+## Addendum 2026-10-30 05:20 UTC — host drive floor (D46, S9)
+
+The live guard is now `67e9478f…` (pins updated). The laptop crashed with C: full
+(it holds the WSL disk and the Windows page file). Heavy jobs now wait while C:
+has under 40 GiB free, and any job is killed under 8 GiB. Every lane: delete
+test-only receipts after use, clean up `*.incomplete` outputs, copy trees without
+`target/`, and announce in the coordination file any job that will write more than
+10 GB. The lean-memory rule is unchanged. Details: `ZK60_RESOURCE_PROTOCOL.md` §S9.

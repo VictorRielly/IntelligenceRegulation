@@ -1,0 +1,1 @@
+Initial passing logs/results retained. Initial source versions reconstructed by reversing the recorded additive DD patch; these source copies were not captured at initial execution time. No initial per-source runtime hash claim. The subsequent full replay is pinned independently.

@@ -1,0 +1,1 @@
+The independent Python geometry oracle omitted the dictionary TABLE helper (one extra Fp2 H plane and one H site). Extracted native metadata detected an H row mismatch. Correct the reference, not native source; retain failure. No model proof ran.

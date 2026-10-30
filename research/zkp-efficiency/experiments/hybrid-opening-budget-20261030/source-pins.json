@@ -1,0 +1,77 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/opening-staging-20261030/field.rs",
+    "snapshot": "field.rs",
+    "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/opening-staging-20261030/native_host.rs",
+    "snapshot": "native_host.rs",
+    "sha256": "a8ba1f868e74fbe7dbf8a9f34ab0f7d08e85dd362925ee00485f29bcd53e7da0"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/zkp-core/src/field.rs",
+    "snapshot": "native/zkp-core/src/field.rs",
+    "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+    "matches_prior": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/zkp-core/src/pcs.rs",
+    "snapshot": "native/zkp-core/src/pcs.rs",
+    "sha256": "2d9149564ff7f77482bcc314ad1949eef4e183d2a6c9b6b3f8ac7ac4cc72b24d",
+    "matches_prior": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/zkp-core/src/pcs/backend.rs",
+    "snapshot": "native/zkp-core/src/pcs/backend.rs",
+    "sha256": "1734c03ce6897e784e8ac443581190a00f30f6a91c16479aa7a7a65e00617499",
+    "matches_prior": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/hashline/src/gpu/cuda.rs",
+    "snapshot": "native/hashline/src/gpu/cuda.rs",
+    "sha256": "a0ed0b3af7e38bd9a842cc0c024f9c12cc988c81fa586d2e4a67d5c7c5c11e9d",
+    "matches_prior": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/hashline/src/gpu/kernels.cu",
+    "snapshot": "native/hashline/src/gpu/kernels.cu",
+    "sha256": "bd00229fd61e86ae2bc0e037d5fa9cd90acc8a8a0f0fbf5583d501d2caf7b6aa",
+    "matches_prior": true
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/hashline/Cargo.toml",
+    "snapshot": "native/hashline/Cargo.toml",
+    "sha256": "eaba50ecf1434ad8514feb83c6e610b0d662b8fd6d512f26bacdde69163b860a"
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/hashline/Cargo.lock",
+    "snapshot": "native/hashline/Cargo.lock",
+    "sha256": "97b74f02153a9b041cd0151e487c912793ef6b662ceda603b598a81b7173d5cd"
+  },
+  {
+    "path": "/home/victor/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cudarc-0.13.9/src/driver/safe/alloc.rs",
+    "snapshot": "dependency/src/driver/safe/alloc.rs",
+    "sha256": "47876a4ff5a5dc96395f5034e73131a03c49be8d7c3c9cd5878c76f51eb06bc6"
+  },
+  {
+    "path": "/home/victor/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cudarc-0.13.9/src/driver/safe/core.rs",
+    "snapshot": "dependency/src/driver/safe/core.rs",
+    "sha256": "02a01e0271a7e7f08ca5aac2f1cac727d457f0c321e37a2322b6727119976251"
+  },
+  {
+    "path": "/home/victor/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cudarc-0.13.9/src/driver/sys/sys_12040.rs",
+    "snapshot": "dependency/src/driver/sys/sys_12040.rs",
+    "sha256": "1bc0eec13f7f3f832fbf288934bc2702589106433937ea56332e3b1cdde10eb8"
+  },
+  {
+    "path": "/home/victor/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cudarc-0.13.9/LICENSE-MIT",
+    "snapshot": "dependency/LICENSE-MIT",
+    "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3"
+  },
+  {
+    "path": "/home/victor/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cudarc-0.13.9/LICENSE-APACHE",
+    "snapshot": "dependency/LICENSE-APACHE",
+    "sha256": "62c7a1e35f56406896d7aa7ca52d0cc0d272ac022b5d2796e7d6905db8a3636a"
+  }
+]

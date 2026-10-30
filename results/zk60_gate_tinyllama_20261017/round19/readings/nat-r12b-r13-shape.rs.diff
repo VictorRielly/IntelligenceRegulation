@@ -1,0 +1,259 @@
+--- /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12b/frozen-tree/hashline/src/private_block/shape.rs	2026-10-28 15:30:02.118810716 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree/hashline/src/private_block/shape.rs	2026-10-28 23:08:24.415496858 -0700
+@@ -128,7 +128,7 @@
+ /// the other rungs' (47 bytes).
+ pub(crate) const TRAINED_HD_RUNG_PROFILE: &str = "hashline-zk-mr1/private-block-rung-hd-t32-dev/1";
+ /// the DD profiles
+-pub(crate) const DD_PROFILES: [&str; 5] = [TINYLLAMA_T128_DD_TRAINED_PROFILE, LLAMA3_8B_T128_DD_TRAINED_PROFILE, TRAINED_DD_RUNG_PROFILE, SHIELDSTRAL_T128_DD_TRAINED_PROFILE, SHIELDSTRAL_T256_DD_TRAINED_PROFILE];
++pub(crate) const DD_PROFILES: [&str; 11] = [TINYLLAMA_T128_DD_TRAINED_PROFILE, LLAMA3_8B_T128_DD_TRAINED_PROFILE, TRAINED_DD_RUNG_PROFILE, SHIELDSTRAL_T128_DD_TRAINED_PROFILE, SHIELDSTRAL_T256_DD_TRAINED_PROFILE, R13_TINY_T128_LOW_DD, R13_8B_T128_H24_DD, R13_SHIELD_T128_H24_DD, R13_SHIELD_T256_H24_DD, R13_RUNG_LOW_DD, R13_RUNG_H24_DD];
+ /// **D30 / CHECK.md B-8: the dictionary's slots per attention row** — one
+ /// constant for every DD profile, bound in the schedule line; the trained
+ /// door refuses a layer whose exp table needs more (`n_col =
+@@ -140,7 +140,7 @@
+ pub(crate) const LLAMA3_8B_DD_PROFILES: [&str; 1] = [LLAMA3_8B_T128_DD_TRAINED_PROFILE];
+ /// the profiles [`Shape::with_trained_calibration`] may give a non-frozen
+ /// calibration to; every other profile's calibration is frozen
+-pub(crate) const TRAINED_CALIBRATION_PROFILES: [&str; 15] = [
++pub(crate) const TRAINED_CALIBRATION_PROFILES: [&str; 27] = [
+     TINYLLAMA_T32_TRAINED_PROFILE,
+     TRAINED_CALIB_RUNG_PROFILE,
+     TINYLLAMA_T64_TRAINED_PROFILE,
+@@ -156,6 +156,18 @@
+     SHIELDSTRAL_T128_DD_TRAINED_PROFILE,
+     SHIELDSTRAL_T256_DD_TRAINED_PROFILE,
+     TRAINED_HD_RUNG_PROFILE,
++    R13_TINY_T128_LOW,
++    R13_TINY_T128_LOW_DD,
++    R13_8B_T128_H24,
++    R13_8B_T128_H24_DD,
++    R13_SHIELD_T128_H24,
++    R13_SHIELD_T128_H24_DD,
++    R13_SHIELD_T256_H24,
++    R13_SHIELD_T256_H24_DD,
++    R13_RUNG_LOW,
++    R13_RUNG_H24,
++    R13_RUNG_LOW_DD,
++    R13_RUNG_H24_DD,
+ ];
+ const INT16_MAX: i128 = 32_767;
+ /// the absolute endpoint of signed int16 (`-32768`), used by the TRAINED
+@@ -167,6 +179,42 @@
+ const NORM_TN: u32 = 11;
+ const NORM_CEPS: i128 = 1;
+ 
++
++// R13 registry. Construction/counting exists before proof activation.
++pub(crate) const R13_TINY_T128_LOW: &str = "hashline-zk-mr1/private-block-tinyllama-1.1b-t128-low-stack-v01/1";
++pub(crate) const R13_TINY_T128_LOW_DD: &str = "hashline-zk-mr1/private-block-tinyllama-1.1b-t128-low-ddict-v01/1";
++pub(crate) const R13_8B_T128_H24: &str = "hashline-zk-mr1/private-block-llama-3-8b-t128-lh24-v1/1";
++pub(crate) const R13_8B_T128_H24_DD: &str = "hashline-zk-mr1/private-block-llama-3-8b-t128-lh24-dd/1";
++pub(crate) const R13_SHIELD_T128_H24: &str = "hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/1";
++pub(crate) const R13_SHIELD_T128_H24_DD: &str = "hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-ddict1/1";
++pub(crate) const R13_SHIELD_T256_H24: &str = "hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-blocks/1";
++pub(crate) const R13_SHIELD_T256_H24_DD: &str = "hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-ddict1/1";
++pub(crate) const R13_RUNG_LOW: &str = "hashline-zk-mr1/private-block-rung-lo-t32-dev/1";
++pub(crate) const R13_RUNG_H24: &str = "hashline-zk-mr1/private-block-rung-lh-t32-dev/1";
++pub(crate) const R13_RUNG_LOW_DD: &str = "hashline-zk-mr1/private-block-rung-ld-t32-dev/1";
++pub(crate) const R13_RUNG_H24_DD: &str = "hashline-zk-mr1/private-block-rung-hh-t32-dev/1";
++#[derive(Clone,Copy)]
++pub(crate) struct AccuracyProfile {
++    pub profile:&'static str, pub name:&'static str, pub legacy:&'static str,
++    pub stack:super::accuracy_precision::Stack, pub registry:super::accuracy_tables::Registry,
++    pub tokens:usize,pub width:usize,pub hidden:usize,pub q_heads:usize,pub head_dim:usize,pub kv_heads:usize,pub log_cols:usize,
++}
++pub(crate) const ACCURACY_PROFILES:[AccuracyProfile;12]=[
++AccuracyProfile{profile:R13_TINY_T128_LOW,name:"R13_TINY_T128_LOW",legacy:TINYLLAMA_T128_TRAINED_PROFILE,stack:super::accuracy_precision::Stack::Low,registry:super::accuracy_tables::Registry::Standard,tokens:128,width:2048,hidden:5632,q_heads:32,head_dim:64,kv_heads:4,log_cols:14},
++AccuracyProfile{profile:R13_TINY_T128_LOW_DD,name:"R13_TINY_T128_LOW_DD",legacy:TINYLLAMA_T128_TRAINED_PROFILE,stack:super::accuracy_precision::Stack::Low,registry:super::accuracy_tables::Registry::Standard,tokens:128,width:2048,hidden:5632,q_heads:32,head_dim:64,kv_heads:4,log_cols:14},
++AccuracyProfile{profile:R13_8B_T128_H24,name:"R13_8B_T128_H24",legacy:LLAMA3_8B_T128_TRAINED_PROFILE,stack:super::accuracy_precision::Stack::LowH24,registry:super::accuracy_tables::Registry::Standard,tokens:128,width:4096,hidden:14336,q_heads:32,head_dim:128,kv_heads:8,log_cols:14},
++AccuracyProfile{profile:R13_8B_T128_H24_DD,name:"R13_8B_T128_H24_DD",legacy:LLAMA3_8B_T128_TRAINED_PROFILE,stack:super::accuracy_precision::Stack::LowH24,registry:super::accuracy_tables::Registry::Standard,tokens:128,width:4096,hidden:14336,q_heads:32,head_dim:128,kv_heads:8,log_cols:14},
++AccuracyProfile{profile:R13_SHIELD_T128_H24,name:"R13_SHIELD_T128_H24",legacy:SHIELDSTRAL_T128_TRAINED_PROFILE,stack:super::accuracy_precision::Stack::LowH24,registry:super::accuracy_tables::Registry::Shieldstral,tokens:128,width:3072,hidden:9216,q_heads:32,head_dim:128,kv_heads:8,log_cols:14},
++AccuracyProfile{profile:R13_SHIELD_T128_H24_DD,name:"R13_SHIELD_T128_H24_DD",legacy:SHIELDSTRAL_T128_TRAINED_PROFILE,stack:super::accuracy_precision::Stack::LowH24,registry:super::accuracy_tables::Registry::Shieldstral,tokens:128,width:3072,hidden:9216,q_heads:32,head_dim:128,kv_heads:8,log_cols:14},
++AccuracyProfile{profile:R13_SHIELD_T256_H24,name:"R13_SHIELD_T256_H24",legacy:SHIELDSTRAL_T128_TRAINED_PROFILE,stack:super::accuracy_precision::Stack::LowH24,registry:super::accuracy_tables::Registry::Shieldstral,tokens:256,width:3072,hidden:9216,q_heads:32,head_dim:128,kv_heads:8,log_cols:15},
++AccuracyProfile{profile:R13_SHIELD_T256_H24_DD,name:"R13_SHIELD_T256_H24_DD",legacy:SHIELDSTRAL_T128_TRAINED_PROFILE,stack:super::accuracy_precision::Stack::LowH24,registry:super::accuracy_tables::Registry::Shieldstral,tokens:256,width:3072,hidden:9216,q_heads:32,head_dim:128,kv_heads:8,log_cols:15},
++AccuracyProfile{profile:R13_RUNG_LOW,name:"R13_RUNG_LOW",legacy:TRAINED_HD_RUNG_PROFILE,stack:super::accuracy_precision::Stack::Low,registry:super::accuracy_tables::Registry::Standard,tokens:32,width:384,hidden:768,q_heads:16,head_dim:64,kv_heads:8,log_cols:14},
++AccuracyProfile{profile:R13_RUNG_H24,name:"R13_RUNG_H24",legacy:TRAINED_HD_RUNG_PROFILE,stack:super::accuracy_precision::Stack::LowH24,registry:super::accuracy_tables::Registry::Standard,tokens:32,width:384,hidden:768,q_heads:16,head_dim:64,kv_heads:8,log_cols:14},
++AccuracyProfile{profile:R13_RUNG_LOW_DD,name:"R13_RUNG_LOW_DD",legacy:TRAINED_HD_RUNG_PROFILE,stack:super::accuracy_precision::Stack::Low,registry:super::accuracy_tables::Registry::Standard,tokens:32,width:384,hidden:768,q_heads:16,head_dim:64,kv_heads:8,log_cols:14},
++AccuracyProfile{profile:R13_RUNG_H24_DD,name:"R13_RUNG_H24_DD",legacy:TRAINED_HD_RUNG_PROFILE,stack:super::accuracy_precision::Stack::LowH24,registry:super::accuracy_tables::Registry::Standard,tokens:32,width:384,hidden:768,q_heads:16,head_dim:64,kv_heads:8,log_cols:14},
++ ];
++pub(crate) fn accuracy_spec(profile:&str)->Option<&'static AccuracyProfile> {ACCURACY_PROFILES.iter().find(|s|s.profile==profile)}
++
+ /// **The declared parameter class of a trained norm calibration** (the
+ /// validator's bounds; the no-wrap derivation in
+ /// `results/zk60_1b_native_20261017/NOWRAP_DERIVATION.md` is written for
+@@ -238,6 +286,7 @@
+ /// profile with no trained calibration. An export or statement naming any
+ /// other base is refused.
+ pub(crate) fn trained_rope_theta(profile: &str) -> Option<f64> {
++    let profile=accuracy_spec(profile).map(|s|s.legacy).unwrap_or(profile);
+     if LLAMA3_8B_TRAINED_PROFILES.contains(&profile) || LLAMA3_8B_DD_PROFILES.contains(&profile) {
+         Some(LLAMA3_8B_ROPE_THETA)
+     } else if SHIELDSTRAL_PROFILES.contains(&profile) {
+@@ -259,6 +308,7 @@
+ /// attention factor is exactly 1, truncate absent = true), none elsewhere. It
+ /// changes the PUBLIC cos/sin tables only.
+ pub(crate) fn trained_rope_scaling(profile: &str) -> Option<super::rope::RopeScaling> {
++    let profile=accuracy_spec(profile).map(|s|s.legacy).unwrap_or(profile);
+     if SHIELDSTRAL_PROFILES.contains(&profile) {
+         Some(super::rope::RopeScaling::shieldstral())
+     } else if TRAINED_CALIBRATION_PROFILES.contains(&profile) {
+@@ -472,6 +522,10 @@
+ /// the trained door's. The one source of these parameters: the trained
+ /// constructors build through it.
+ fn trained_geometry(profile: &str, f_e: u32) -> Option<Result<Shape, String>> {
++    if let Some(s)=accuracy_spec(profile) {
++        let rows=(s.tokens.next_power_of_two()*s.width.next_power_of_two()).div_ceil(1usize<<s.log_cols).max(1)+super::endpoint_g::MASK_ROWS;
++        return Some(Shape::build(s.name,s.profile,s.tokens,s.width,s.hidden,s.q_heads,s.head_dim,s.kv_heads,s.log_cols,4,f_e,rows,None,None,None,None));
++    }
+     let mask = super::endpoint_g::MASK_ROWS;
+     let tl = |name: &'static str, p: &'static str, tokens: usize, lc: usize| Shape::build(name, p, tokens, 2048, 5632, 32, 64, 4, lc, 4, f_e, ((tokens * 2048) >> lc) + mask, None, None, None, None);
+     let l8 = |name: &'static str, p: &'static str, tokens: usize| {
+@@ -595,6 +649,8 @@
+     /// string in [`Shape::build`] (a DD profile carries [`DD_CAP`]), never set
+     /// by hand, so CS-8's rebuild and CS-9's registry see it.
+     pub dd_cap: usize,
++    /// R13 public common gate denominator; zero on every legacy shape.
++    pub accuracy_gate_shift:u32,
+     // ---- derived
+     pub t_pad: usize,
+     pub d_pad: usize,
+@@ -604,6 +660,39 @@
+ }
+ 
+ impl Shape {
++    /// R13 stack/registry are profile facts, never caller flags.
++    pub(crate) fn accuracy_stack(&self) -> super::accuracy_precision::Stack {
++        accuracy_spec(self.profile).map(|s|s.stack).unwrap_or(super::accuracy_precision::Stack::Legacy)
++    }
++    pub(crate) fn accuracy_registry(&self) -> super::accuracy_tables::Registry {
++        accuracy_spec(self.profile).map(|s|s.registry).unwrap_or_else(||
++            if SHIELDSTRAL_PROFILES.contains(&self.profile) {super::accuracy_tables::Registry::Shieldstral}
++            else {super::accuracy_tables::Registry::Standard})
++    }
++    pub(crate) fn accuracy_base(&self) -> super::accuracy_precision::BaseShifts {
++        super::accuracy_precision::BaseShifts { norm_tn:self.norm_tn,qkv:self.sh_qkv,score:self.sh_s,
++            pv:self.sh_o,ao:self.sh_ao,gate:self.sh_g,up:0,product:self.sh_h,down:self.sh_z }
++    }
++    pub(crate) fn accuracy_precision(&self) -> Result<super::accuracy_precision::Precision,String> {
++        super::accuracy_precision::derive(self.accuracy_stack(),self.accuracy_base())
++    }
++    pub(crate) fn f_p(&self) -> u32 {
++        if self.accuracy_stack()==super::accuracy_precision::Stack::Legacy {F_P} else {12}
++    }
++    pub(crate) fn with_accuracy_gate_shift(mut self, shift:u32)->Result<Self,String> {
++        if self.accuracy_stack()==super::accuracy_precision::Stack::Legacy || !(17..=24).contains(&shift) {
++            return Err("R13 shape: a LOW profile and common gate shift in17..=24 required".into());
++        }
++        self.accuracy_gate_shift=shift;
++        Ok(self)
++    }
++    pub(crate) fn accuracy_trained(profile:&str,cal:&NormCalibration,f_e:u32,gate_shift:u32)->Result<Self,String> {
++        if accuracy_spec(profile).is_none() {return Err("R13 shape: unregistered accuracy profile".into());}
++        Self::check_f_e_class(accuracy_spec(profile).unwrap().tokens,f_e)?;
++        trained_geometry(profile,f_e).ok_or("R13 shape: missing registered geometry")??
++            .with_trained_calibration(cal)?.with_accuracy_gate_shift(gate_shift)
++    }
++
+     #[allow(clippy::too_many_arguments)]
+     /// **THE one place a block profile string meets a geometry** (ruling
+     /// CS-9, ported from the 125M lane's stage 44): every refusal of the
+@@ -789,6 +878,7 @@
+             sh_z: NormCalibration::FROZEN.sh_z,
+             trained_calibration: false,
+             dd_cap: if DD_PROFILES.contains(&profile) { DD_CAP } else { 0 },
++            accuracy_gate_shift: if accuracy_spec(profile).is_some() {17} else {0},
+             t_pad,
+             d_pad,
+             h_pad,
+@@ -816,6 +906,13 @@
+         // No shape this module builds is affected: the toy's `Dom::Kv` is at
+         // the row width and everything else is above it. This refusal is a
+         // construction-time statement of the same fact, by name.
++        if accuracy_spec(profile).is_some() {
++            for dom in [Dom::D,Dom::F] {
++                if sh.log(dom)!=sh.natural_log(dom) {
++                    return Err(format!("R13 shape: the {dom:?} matmul domain cannot be lifted by the row width"));
++                }
++            }
++        }
+         for dom in [Dom::Q, Dom::Kv, Dom::S] {
+             if sh.log(dom) != sh.natural_log(dom) {
+                 return Err(format!(
+@@ -1575,6 +1672,10 @@
+         if !TRAINED_CALIBRATION_PROFILES.contains(&self.profile) {
+             return Err(format!("private block shape: {} is not a trained-calibration profile", self.profile));
+         }
++        if self.accuracy_stack()!=super::accuracy_precision::Stack::Legacy {
++            self.accuracy_precision()?;
++            if !(17..=24).contains(&self.accuracy_gate_shift) {return Err("R13 shape: common gate shift outside17..=24".into());}
++        }
+         let (d_max, wrho) = self.norm_calibration().derive_at_width(self.width)?;
+         if (d_max, wrho) != (self.d_max, self.norm_wrho) {
+             return Err(format!("private block shape: {}'s norm window {} / D_max {} are not the derived {wrho} / {d_max}", self.profile, self.norm_wrho, self.d_max));
+@@ -1720,6 +1821,7 @@
+             ws,
+         )
+         .and_then(|b| if self.trained_calibration { b.with_trained_calibration(&self.norm_calibration()) } else { Ok(b) })
++        .and_then(|b| if self.accuracy_stack()!=super::accuracy_precision::Stack::Legacy {b.with_accuracy_gate_shift(self.accuracy_gate_shift)} else {Ok(b)})
+         .map_err(|e| format!("{CS8}{:?} is not a shape Shape::new builds: Shape::new refuses its own parameters ({e})", self.name))?;
+         if rebuilt == *self {
+             return Ok(());
+@@ -1736,6 +1838,7 @@
+             ("wrho_s", rebuilt.wrho_s != self.wrho_s),
+             ("the calibration", rebuilt.norm_calibration() != self.norm_calibration()),
+             ("trained_calibration", rebuilt.trained_calibration != self.trained_calibration),
++            ("accuracy_gate_shift", rebuilt.accuracy_gate_shift != self.accuracy_gate_shift),
+         ]
+         .iter()
+         .filter(|(_, d)| *d)
+@@ -2030,19 +2133,19 @@
+ 
+     // ---- the byte-limb counts the two integer windows force ----------------
+     pub(crate) fn limbs_norm(&self) -> usize {
+-        self.norm_wrho.div_ceil(8) as usize
++        if self.accuracy_stack()!=super::accuracy_precision::Stack::Legacy {3} else {self.norm_wrho.div_ceil(8) as usize}
+     }
+     /// When the window fills its top limb exactly, the
+     /// `scaled(top, 1 << (32 - wrho))` lookup is redundant and is dropped —
+     /// FOUR of them, `rho` and `sigma` of each norm (C-6).
+     pub(crate) fn norm_top_is_full_byte(&self) -> bool {
+-        self.norm_wrho == 8 * self.limbs_norm() as u32
++        self.accuracy_stack()!=super::accuracy_precision::Stack::Legacy || self.norm_wrho == 8 * self.limbs_norm() as u32
+     }
+     pub(crate) fn limbs_sigma_s(&self) -> usize {
+         self.wrho_s.div_ceil(8) as usize
+     }
+     pub(crate) fn limbs_p(&self) -> usize {
+-        (F_P + 1).div_ceil(8) as usize
++        (self.f_p() + 1).div_ceil(8) as usize
+     }
+ 
+     // ---- the nine domains --------------------------------------------------
+@@ -2099,6 +2202,15 @@
+     // ---- the plane lists ---------------------------------------------------
+     /// the domain of every committed `A` plane, in plane order
+     pub(crate) fn a_plane_doms(&self) -> Vec<Dom> {
++        if self.accuracy_stack()!=super::accuracy_precision::Stack::Legacy {
++            let h24=self.accuracy_stack()==super::accuracy_precision::Stack::LowH24;
++            let mut v=vec![Dom::T;4];v.extend([Dom::Ht;2]);v.extend([Dom::L;2]);
++            v.extend(vec![Dom::D;if h24 {39} else {38}]);v.extend([Dom::Q;14]);v.extend([Dom::Kv;14]);
++            v.extend(vec![Dom::S;if self.dd_cap>0 {7} else {9+2*self.limbs_sigma_s()}]);v.extend([Dom::F;16]);
++            if self.dd_cap>0 {v.extend(vec![Dom::Dd;4+2*self.limbs_sigma_s()]);}
++            v.extend([Dom::Tab;3]);return v;
++        }
++
+         let ln = self.limbs_norm();
+         let mut v = vec![Dom::T; 4];
+         v.extend([Dom::Ht; 2]);
+@@ -2129,6 +2241,12 @@
+     /// how many `U8` lookups each POSITION of each lookup domain carries
+     /// (`layout::lookups`), with the two shape-driven changes of §4
+     pub(crate) fn lookups_per_position(&self, dom: Dom) -> usize {
++        if self.accuracy_stack()!=super::accuracy_precision::Stack::Legacy {
++            return match dom {Dom::L=>2,Dom::D=>if self.accuracy_stack()==super::accuracy_precision::Stack::LowH24 {34} else {33},
++                Dom::Q|Dom::Kv|Dom::F=>14,Dom::S=>if self.dd_cap>0 {6} else {11+2*self.limbs_sigma_s()},
++                Dom::Dd if self.dd_cap>0=>5+2*self.limbs_sigma_s(),_=>0};
++        }
++
+         let ln = self.limbs_norm();
+         let top = usize::from(!self.norm_top_is_full_byte());
+         // sym(y) + rho limbs (+ the scaled top) + sigma limbs (+ the scaled top)

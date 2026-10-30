@@ -1,0 +1,14 @@
+{
+  "cycle": "0142",
+  "tested": "lookup/softmax R13 site incidence with memory-traffic accounting",
+  "next": "memory traffic: conditional mask-pair tile dataflow and register budget, only after checking new owner exclusive clocks",
+  "queue": [
+    "GPU NTT/commitments",
+    "sumcheck/GKR",
+    "lookup arguments and softmax",
+    "memory traffic",
+    "batching/amortization",
+    "quantization/arithmetic",
+    "proof composition"
+  ]
+}

@@ -1,0 +1,1905 @@
+[
+  {
+    "budget": 6161633279,
+    "background": 4096,
+    "events": []
+  },
+  {
+    "budget": 6161633280,
+    "background": 4096,
+    "events": [
+      {
+        "op": "admit",
+        "owner": 0,
+        "persistent": 5926748160,
+        "requested": 234881024,
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "capacity": 234881024,
+        "reused": false,
+        "total": 6161633280
+      },
+      {
+        "op": "use",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "event": 100,
+        "total": 6161633280
+      },
+      {
+        "op": "use",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "event": 200,
+        "total": 6161633280
+      },
+      {
+        "op": "truncate",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "logical": 117440512,
+        "total": 6161633280
+      },
+      {
+        "op": "finish_slot",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "total": 6161633280
+      },
+      {
+        "op": "complete",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "event": 100,
+        "total": 6161633280
+      },
+      {
+        "op": "complete",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "event": 200,
+        "total": 6161633280
+      },
+      {
+        "op": "retire",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "total": 6161633280
+      },
+      {
+        "op": "open_complete",
+        "owner": 0,
+        "released": 5926748160,
+        "total": 234885120
+      },
+      {
+        "op": "free_idle",
+        "index": 0,
+        "released": 234881024,
+        "total": 4096
+      }
+    ]
+  },
+  {
+    "budget": 6161633281,
+    "background": 4096,
+    "events": [
+      {
+        "op": "admit",
+        "owner": 0,
+        "persistent": 5926748160,
+        "requested": 234881024,
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "capacity": 234881024,
+        "reused": false,
+        "total": 6161633280
+      },
+      {
+        "op": "use",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "event": 100,
+        "total": 6161633280
+      },
+      {
+        "op": "use",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "event": 200,
+        "total": 6161633280
+      },
+      {
+        "op": "truncate",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "logical": 117440512,
+        "total": 6161633280
+      },
+      {
+        "op": "finish_slot",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "total": 6161633280
+      },
+      {
+        "op": "complete",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "event": 100,
+        "total": 6161633280
+      },
+      {
+        "op": "complete",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "event": 200,
+        "total": 6161633280
+      },
+      {
+        "op": "retire",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "total": 6161633280
+      },
+      {
+        "op": "open_complete",
+        "owner": 0,
+        "released": 5926748160,
+        "total": 234885120
+      },
+      {
+        "op": "free_idle",
+        "index": 0,
+        "released": 234881024,
+        "total": 4096
+      }
+    ]
+  },
+  {
+    "budget": 12323262463,
+    "background": 4096,
+    "events": [
+      {
+        "op": "admit",
+        "owner": 0,
+        "persistent": 5926748160,
+        "requested": 234881024,
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "capacity": 234881024,
+        "reused": false,
+        "total": 6161633280
+      },
+      {
+        "op": "use",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "event": 100,
+        "total": 6161633280
+      },
+      {
+        "op": "use",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "event": 200,
+        "total": 6161633280
+      },
+      {
+        "op": "truncate",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "logical": 117440512,
+        "total": 6161633280
+      },
+      {
+        "op": "finish_slot",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "total": 6161633280
+      },
+      {
+        "op": "complete",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "event": 100,
+        "total": 6161633280
+      },
+      {
+        "op": "complete",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "event": 200,
+        "total": 6161633280
+      },
+      {
+        "op": "retire",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "total": 6161633280
+      },
+      {
+        "op": "open_complete",
+        "owner": 0,
+        "released": 5926748160,
+        "total": 234885120
+      },
+      {
+        "op": "free_idle",
+        "index": 0,
+        "released": 234881024,
+        "total": 4096
+      }
+    ]
+  },
+  {
+    "budget": 12323262464,
+    "background": 4096,
+    "events": [
+      {
+        "op": "admit",
+        "owner": 0,
+        "persistent": 5926748160,
+        "requested": 234881024,
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "capacity": 234881024,
+        "reused": false,
+        "total": 6161633280
+      },
+      {
+        "op": "admit",
+        "owner": 1,
+        "persistent": 5926748160,
+        "requested": 234881024,
+        "token": [
+          1,
+          1,
+          0
+        ],
+        "capacity": 234881024,
+        "reused": false,
+        "total": 12323262464
+      },
+      {
+        "op": "use",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "event": 100,
+        "total": 12323262464
+      },
+      {
+        "op": "use",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "event": 200,
+        "total": 12323262464
+      },
+      {
+        "op": "truncate",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "logical": 117440512,
+        "total": 12323262464
+      },
+      {
+        "op": "finish_slot",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "total": 12323262464
+      },
+      {
+        "op": "complete",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "event": 100,
+        "total": 12323262464
+      },
+      {
+        "op": "complete",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "event": 200,
+        "total": 12323262464
+      },
+      {
+        "op": "retire",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "total": 12323262464
+      },
+      {
+        "op": "open_complete",
+        "owner": 0,
+        "released": 5926748160,
+        "total": 6396514304
+      },
+      {
+        "op": "use",
+        "token": [
+          1,
+          1,
+          0
+        ],
+        "event": 100,
+        "total": 6396514304
+      },
+      {
+        "op": "use",
+        "token": [
+          1,
+          1,
+          0
+        ],
+        "event": 200,
+        "total": 6396514304
+      },
+      {
+        "op": "truncate",
+        "token": [
+          1,
+          1,
+          0
+        ],
+        "logical": 117440512,
+        "total": 6396514304
+      },
+      {
+        "op": "finish_slot",
+        "token": [
+          1,
+          1,
+          0
+        ],
+        "total": 6396514304
+      },
+      {
+        "op": "complete",
+        "token": [
+          1,
+          1,
+          0
+        ],
+        "event": 100,
+        "total": 6396514304
+      },
+      {
+        "op": "complete",
+        "token": [
+          1,
+          1,
+          0
+        ],
+        "event": 200,
+        "total": 6396514304
+      },
+      {
+        "op": "retire",
+        "token": [
+          1,
+          1,
+          0
+        ],
+        "total": 6396514304
+      },
+      {
+        "op": "open_complete",
+        "owner": 1,
+        "released": 5926748160,
+        "total": 469766144
+      },
+      {
+        "op": "free_idle",
+        "index": 0,
+        "released": 234881024,
+        "total": 234885120
+      },
+      {
+        "op": "free_idle",
+        "index": 1,
+        "released": 234881024,
+        "total": 4096
+      }
+    ]
+  },
+  {
+    "budget": 12323262465,
+    "background": 4096,
+    "events": [
+      {
+        "op": "admit",
+        "owner": 0,
+        "persistent": 5926748160,
+        "requested": 234881024,
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "capacity": 234881024,
+        "reused": false,
+        "total": 6161633280
+      },
+      {
+        "op": "admit",
+        "owner": 1,
+        "persistent": 5926748160,
+        "requested": 234881024,
+        "token": [
+          1,
+          1,
+          0
+        ],
+        "capacity": 234881024,
+        "reused": false,
+        "total": 12323262464
+      },
+      {
+        "op": "use",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "event": 100,
+        "total": 12323262464
+      },
+      {
+        "op": "use",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "event": 200,
+        "total": 12323262464
+      },
+      {
+        "op": "truncate",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "logical": 117440512,
+        "total": 12323262464
+      },
+      {
+        "op": "finish_slot",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "total": 12323262464
+      },
+      {
+        "op": "complete",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "event": 100,
+        "total": 12323262464
+      },
+      {
+        "op": "complete",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "event": 200,
+        "total": 12323262464
+      },
+      {
+        "op": "retire",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "total": 12323262464
+      },
+      {
+        "op": "open_complete",
+        "owner": 0,
+        "released": 5926748160,
+        "total": 6396514304
+      },
+      {
+        "op": "use",
+        "token": [
+          1,
+          1,
+          0
+        ],
+        "event": 100,
+        "total": 6396514304
+      },
+      {
+        "op": "use",
+        "token": [
+          1,
+          1,
+          0
+        ],
+        "event": 200,
+        "total": 6396514304
+      },
+      {
+        "op": "truncate",
+        "token": [
+          1,
+          1,
+          0
+        ],
+        "logical": 117440512,
+        "total": 6396514304
+      },
+      {
+        "op": "finish_slot",
+        "token": [
+          1,
+          1,
+          0
+        ],
+        "total": 6396514304
+      },
+      {
+        "op": "complete",
+        "token": [
+          1,
+          1,
+          0
+        ],
+        "event": 100,
+        "total": 6396514304
+      },
+      {
+        "op": "complete",
+        "token": [
+          1,
+          1,
+          0
+        ],
+        "event": 200,
+        "total": 6396514304
+      },
+      {
+        "op": "retire",
+        "token": [
+          1,
+          1,
+          0
+        ],
+        "total": 6396514304
+      },
+      {
+        "op": "open_complete",
+        "owner": 1,
+        "released": 5926748160,
+        "total": 469766144
+      },
+      {
+        "op": "free_idle",
+        "index": 0,
+        "released": 234881024,
+        "total": 234885120
+      },
+      {
+        "op": "free_idle",
+        "index": 1,
+        "released": 234881024,
+        "total": 4096
+      }
+    ]
+  },
+  {
+    "budget": 24646520831,
+    "background": 4096,
+    "events": [
+      {
+        "op": "admit",
+        "owner": 0,
+        "persistent": 5926748160,
+        "requested": 234881024,
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "capacity": 234881024,
+        "reused": false,
+        "total": 6161633280
+      },
+      {
+        "op": "admit",
+        "owner": 1,
+        "persistent": 5926748160,
+        "requested": 234881024,
+        "token": [
+          1,
+          1,
+          0
+        ],
+        "capacity": 234881024,
+        "reused": false,
+        "total": 12323262464
+      },
+      {
+        "op": "admit",
+        "owner": 2,
+        "persistent": 5926748160,
+        "requested": 234881024,
+        "token": [
+          2,
+          2,
+          0
+        ],
+        "capacity": 234881024,
+        "reused": false,
+        "total": 18484891648
+      },
+      {
+        "op": "use",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "event": 100,
+        "total": 18484891648
+      },
+      {
+        "op": "use",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "event": 200,
+        "total": 18484891648
+      },
+      {
+        "op": "truncate",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "logical": 117440512,
+        "total": 18484891648
+      },
+      {
+        "op": "finish_slot",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "total": 18484891648
+      },
+      {
+        "op": "complete",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "event": 100,
+        "total": 18484891648
+      },
+      {
+        "op": "complete",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "event": 200,
+        "total": 18484891648
+      },
+      {
+        "op": "retire",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "total": 18484891648
+      },
+      {
+        "op": "open_complete",
+        "owner": 0,
+        "released": 5926748160,
+        "total": 12558143488
+      },
+      {
+        "op": "use",
+        "token": [
+          1,
+          1,
+          0
+        ],
+        "event": 100,
+        "total": 12558143488
+      },
+      {
+        "op": "use",
+        "token": [
+          1,
+          1,
+          0
+        ],
+        "event": 200,
+        "total": 12558143488
+      },
+      {
+        "op": "truncate",
+        "token": [
+          1,
+          1,
+          0
+        ],
+        "logical": 117440512,
+        "total": 12558143488
+      },
+      {
+        "op": "finish_slot",
+        "token": [
+          1,
+          1,
+          0
+        ],
+        "total": 12558143488
+      },
+      {
+        "op": "complete",
+        "token": [
+          1,
+          1,
+          0
+        ],
+        "event": 100,
+        "total": 12558143488
+      },
+      {
+        "op": "complete",
+        "token": [
+          1,
+          1,
+          0
+        ],
+        "event": 200,
+        "total": 12558143488
+      },
+      {
+        "op": "retire",
+        "token": [
+          1,
+          1,
+          0
+        ],
+        "total": 12558143488
+      },
+      {
+        "op": "open_complete",
+        "owner": 1,
+        "released": 5926748160,
+        "total": 6631395328
+      },
+      {
+        "op": "use",
+        "token": [
+          2,
+          2,
+          0
+        ],
+        "event": 100,
+        "total": 6631395328
+      },
+      {
+        "op": "use",
+        "token": [
+          2,
+          2,
+          0
+        ],
+        "event": 200,
+        "total": 6631395328
+      },
+      {
+        "op": "truncate",
+        "token": [
+          2,
+          2,
+          0
+        ],
+        "logical": 117440512,
+        "total": 6631395328
+      },
+      {
+        "op": "finish_slot",
+        "token": [
+          2,
+          2,
+          0
+        ],
+        "total": 6631395328
+      },
+      {
+        "op": "complete",
+        "token": [
+          2,
+          2,
+          0
+        ],
+        "event": 100,
+        "total": 6631395328
+      },
+      {
+        "op": "complete",
+        "token": [
+          2,
+          2,
+          0
+        ],
+        "event": 200,
+        "total": 6631395328
+      },
+      {
+        "op": "retire",
+        "token": [
+          2,
+          2,
+          0
+        ],
+        "total": 6631395328
+      },
+      {
+        "op": "open_complete",
+        "owner": 2,
+        "released": 5926748160,
+        "total": 704647168
+      },
+      {
+        "op": "free_idle",
+        "index": 0,
+        "released": 234881024,
+        "total": 469766144
+      },
+      {
+        "op": "free_idle",
+        "index": 1,
+        "released": 234881024,
+        "total": 234885120
+      },
+      {
+        "op": "free_idle",
+        "index": 2,
+        "released": 234881024,
+        "total": 4096
+      }
+    ]
+  },
+  {
+    "budget": 24646520832,
+    "background": 4096,
+    "events": [
+      {
+        "op": "admit",
+        "owner": 0,
+        "persistent": 5926748160,
+        "requested": 234881024,
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "capacity": 234881024,
+        "reused": false,
+        "total": 6161633280
+      },
+      {
+        "op": "admit",
+        "owner": 1,
+        "persistent": 5926748160,
+        "requested": 234881024,
+        "token": [
+          1,
+          1,
+          0
+        ],
+        "capacity": 234881024,
+        "reused": false,
+        "total": 12323262464
+      },
+      {
+        "op": "admit",
+        "owner": 2,
+        "persistent": 5926748160,
+        "requested": 234881024,
+        "token": [
+          2,
+          2,
+          0
+        ],
+        "capacity": 234881024,
+        "reused": false,
+        "total": 18484891648
+      },
+      {
+        "op": "admit",
+        "owner": 3,
+        "persistent": 5926748160,
+        "requested": 234881024,
+        "token": [
+          3,
+          3,
+          0
+        ],
+        "capacity": 234881024,
+        "reused": false,
+        "total": 24646520832
+      },
+      {
+        "op": "use",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "event": 100,
+        "total": 24646520832
+      },
+      {
+        "op": "use",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "event": 200,
+        "total": 24646520832
+      },
+      {
+        "op": "truncate",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "logical": 117440512,
+        "total": 24646520832
+      },
+      {
+        "op": "finish_slot",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "total": 24646520832
+      },
+      {
+        "op": "complete",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "event": 100,
+        "total": 24646520832
+      },
+      {
+        "op": "complete",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "event": 200,
+        "total": 24646520832
+      },
+      {
+        "op": "retire",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "total": 24646520832
+      },
+      {
+        "op": "open_complete",
+        "owner": 0,
+        "released": 5926748160,
+        "total": 18719772672
+      },
+      {
+        "op": "use",
+        "token": [
+          1,
+          1,
+          0
+        ],
+        "event": 100,
+        "total": 18719772672
+      },
+      {
+        "op": "use",
+        "token": [
+          1,
+          1,
+          0
+        ],
+        "event": 200,
+        "total": 18719772672
+      },
+      {
+        "op": "truncate",
+        "token": [
+          1,
+          1,
+          0
+        ],
+        "logical": 117440512,
+        "total": 18719772672
+      },
+      {
+        "op": "finish_slot",
+        "token": [
+          1,
+          1,
+          0
+        ],
+        "total": 18719772672
+      },
+      {
+        "op": "complete",
+        "token": [
+          1,
+          1,
+          0
+        ],
+        "event": 100,
+        "total": 18719772672
+      },
+      {
+        "op": "complete",
+        "token": [
+          1,
+          1,
+          0
+        ],
+        "event": 200,
+        "total": 18719772672
+      },
+      {
+        "op": "retire",
+        "token": [
+          1,
+          1,
+          0
+        ],
+        "total": 18719772672
+      },
+      {
+        "op": "open_complete",
+        "owner": 1,
+        "released": 5926748160,
+        "total": 12793024512
+      },
+      {
+        "op": "use",
+        "token": [
+          2,
+          2,
+          0
+        ],
+        "event": 100,
+        "total": 12793024512
+      },
+      {
+        "op": "use",
+        "token": [
+          2,
+          2,
+          0
+        ],
+        "event": 200,
+        "total": 12793024512
+      },
+      {
+        "op": "truncate",
+        "token": [
+          2,
+          2,
+          0
+        ],
+        "logical": 117440512,
+        "total": 12793024512
+      },
+      {
+        "op": "finish_slot",
+        "token": [
+          2,
+          2,
+          0
+        ],
+        "total": 12793024512
+      },
+      {
+        "op": "complete",
+        "token": [
+          2,
+          2,
+          0
+        ],
+        "event": 100,
+        "total": 12793024512
+      },
+      {
+        "op": "complete",
+        "token": [
+          2,
+          2,
+          0
+        ],
+        "event": 200,
+        "total": 12793024512
+      },
+      {
+        "op": "retire",
+        "token": [
+          2,
+          2,
+          0
+        ],
+        "total": 12793024512
+      },
+      {
+        "op": "open_complete",
+        "owner": 2,
+        "released": 5926748160,
+        "total": 6866276352
+      },
+      {
+        "op": "use",
+        "token": [
+          3,
+          3,
+          0
+        ],
+        "event": 100,
+        "total": 6866276352
+      },
+      {
+        "op": "use",
+        "token": [
+          3,
+          3,
+          0
+        ],
+        "event": 200,
+        "total": 6866276352
+      },
+      {
+        "op": "truncate",
+        "token": [
+          3,
+          3,
+          0
+        ],
+        "logical": 117440512,
+        "total": 6866276352
+      },
+      {
+        "op": "finish_slot",
+        "token": [
+          3,
+          3,
+          0
+        ],
+        "total": 6866276352
+      },
+      {
+        "op": "complete",
+        "token": [
+          3,
+          3,
+          0
+        ],
+        "event": 100,
+        "total": 6866276352
+      },
+      {
+        "op": "complete",
+        "token": [
+          3,
+          3,
+          0
+        ],
+        "event": 200,
+        "total": 6866276352
+      },
+      {
+        "op": "retire",
+        "token": [
+          3,
+          3,
+          0
+        ],
+        "total": 6866276352
+      },
+      {
+        "op": "open_complete",
+        "owner": 3,
+        "released": 5926748160,
+        "total": 939528192
+      },
+      {
+        "op": "free_idle",
+        "index": 0,
+        "released": 234881024,
+        "total": 704647168
+      },
+      {
+        "op": "free_idle",
+        "index": 1,
+        "released": 234881024,
+        "total": 469766144
+      },
+      {
+        "op": "free_idle",
+        "index": 2,
+        "released": 234881024,
+        "total": 234885120
+      },
+      {
+        "op": "free_idle",
+        "index": 3,
+        "released": 234881024,
+        "total": 4096
+      }
+    ]
+  },
+  {
+    "budget": 24646520833,
+    "background": 4096,
+    "events": [
+      {
+        "op": "admit",
+        "owner": 0,
+        "persistent": 5926748160,
+        "requested": 234881024,
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "capacity": 234881024,
+        "reused": false,
+        "total": 6161633280
+      },
+      {
+        "op": "admit",
+        "owner": 1,
+        "persistent": 5926748160,
+        "requested": 234881024,
+        "token": [
+          1,
+          1,
+          0
+        ],
+        "capacity": 234881024,
+        "reused": false,
+        "total": 12323262464
+      },
+      {
+        "op": "admit",
+        "owner": 2,
+        "persistent": 5926748160,
+        "requested": 234881024,
+        "token": [
+          2,
+          2,
+          0
+        ],
+        "capacity": 234881024,
+        "reused": false,
+        "total": 18484891648
+      },
+      {
+        "op": "admit",
+        "owner": 3,
+        "persistent": 5926748160,
+        "requested": 234881024,
+        "token": [
+          3,
+          3,
+          0
+        ],
+        "capacity": 234881024,
+        "reused": false,
+        "total": 24646520832
+      },
+      {
+        "op": "use",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "event": 100,
+        "total": 24646520832
+      },
+      {
+        "op": "use",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "event": 200,
+        "total": 24646520832
+      },
+      {
+        "op": "truncate",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "logical": 117440512,
+        "total": 24646520832
+      },
+      {
+        "op": "finish_slot",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "total": 24646520832
+      },
+      {
+        "op": "complete",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "event": 100,
+        "total": 24646520832
+      },
+      {
+        "op": "complete",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "event": 200,
+        "total": 24646520832
+      },
+      {
+        "op": "retire",
+        "token": [
+          0,
+          0,
+          0
+        ],
+        "total": 24646520832
+      },
+      {
+        "op": "open_complete",
+        "owner": 0,
+        "released": 5926748160,
+        "total": 18719772672
+      },
+      {
+        "op": "use",
+        "token": [
+          1,
+          1,
+          0
+        ],
+        "event": 100,
+        "total": 18719772672
+      },
+      {
+        "op": "use",
+        "token": [
+          1,
+          1,
+          0
+        ],
+        "event": 200,
+        "total": 18719772672
+      },
+      {
+        "op": "truncate",
+        "token": [
+          1,
+          1,
+          0
+        ],
+        "logical": 117440512,
+        "total": 18719772672
+      },
+      {
+        "op": "finish_slot",
+        "token": [
+          1,
+          1,
+          0
+        ],
+        "total": 18719772672
+      },
+      {
+        "op": "complete",
+        "token": [
+          1,
+          1,
+          0
+        ],
+        "event": 100,
+        "total": 18719772672
+      },
+      {
+        "op": "complete",
+        "token": [
+          1,
+          1,
+          0
+        ],
+        "event": 200,
+        "total": 18719772672
+      },
+      {
+        "op": "retire",
+        "token": [
+          1,
+          1,
+          0
+        ],
+        "total": 18719772672
+      },
+      {
+        "op": "open_complete",
+        "owner": 1,
+        "released": 5926748160,
+        "total": 12793024512
+      },
+      {
+        "op": "use",
+        "token": [
+          2,
+          2,
+          0
+        ],
+        "event": 100,
+        "total": 12793024512
+      },
+      {
+        "op": "use",
+        "token": [
+          2,
+          2,
+          0
+        ],
+        "event": 200,
+        "total": 12793024512
+      },
+      {
+        "op": "truncate",
+        "token": [
+          2,
+          2,
+          0
+        ],
+        "logical": 117440512,
+        "total": 12793024512
+      },
+      {
+        "op": "finish_slot",
+        "token": [
+          2,
+          2,
+          0
+        ],
+        "total": 12793024512
+      },
+      {
+        "op": "complete",
+        "token": [
+          2,
+          2,
+          0
+        ],
+        "event": 100,
+        "total": 12793024512
+      },
+      {
+        "op": "complete",
+        "token": [
+          2,
+          2,
+          0
+        ],
+        "event": 200,
+        "total": 12793024512
+      },
+      {
+        "op": "retire",
+        "token": [
+          2,
+          2,
+          0
+        ],
+        "total": 12793024512
+      },
+      {
+        "op": "open_complete",
+        "owner": 2,
+        "released": 5926748160,
+        "total": 6866276352
+      },
+      {
+        "op": "use",
+        "token": [
+          3,
+          3,
+          0
+        ],
+        "event": 100,
+        "total": 6866276352
+      },
+      {
+        "op": "use",
+        "token": [
+          3,
+          3,
+          0
+        ],
+        "event": 200,
+        "total": 6866276352
+      },
+      {
+        "op": "truncate",
+        "token": [
+          3,
+          3,
+          0
+        ],
+        "logical": 117440512,
+        "total": 6866276352
+      },
+      {
+        "op": "finish_slot",
+        "token": [
+          3,
+          3,
+          0
+        ],
+        "total": 6866276352
+      },
+      {
+        "op": "complete",
+        "token": [
+          3,
+          3,
+          0
+        ],
+        "event": 100,
+        "total": 6866276352
+      },
+      {
+        "op": "complete",
+        "token": [
+          3,
+          3,
+          0
+        ],
+        "event": 200,
+        "total": 6866276352
+      },
+      {
+        "op": "retire",
+        "token": [
+          3,
+          3,
+          0
+        ],
+        "total": 6866276352
+      },
+      {
+        "op": "open_complete",
+        "owner": 3,
+        "released": 5926748160,
+        "total": 939528192
+      },
+      {
+        "op": "free_idle",
+        "index": 0,
+        "released": 234881024,
+        "total": 704647168
+      },
+      {
+        "op": "free_idle",
+        "index": 1,
+        "released": 234881024,
+        "total": 469766144
+      },
+      {
+        "op": "free_idle",
+        "index": 2,
+        "released": 234881024,
+        "total": 234885120
+      },
+      {
+        "op": "free_idle",
+        "index": 3,
+        "released": 234881024,
+        "total": 4096
+      }
+    ]
+  },
+  {
+    "budget": 12205821952,
+    "background": 4096,
+    "events": [
+      {
+        "op": "admit",
+        "owner": "A",
+        "persistent": 5926748160,
+        "requested": 234881024,
+        "token": [
+          0,
+          "A",
+          0
+        ],
+        "capacity": 234881024,
+        "reused": false,
+        "total": 6161633280
+      },
+      {
+        "op": "use",
+        "token": [
+          0,
+          "A",
+          0
+        ],
+        "event": 10,
+        "total": 6161633280
+      },
+      {
+        "op": "use",
+        "token": [
+          0,
+          "A",
+          0
+        ],
+        "event": 11,
+        "total": 6161633280
+      },
+      {
+        "op": "truncate",
+        "token": [
+          0,
+          "A",
+          0
+        ],
+        "logical": 117440512,
+        "total": 6161633280
+      },
+      {
+        "op": "finish_slot",
+        "token": [
+          0,
+          "A",
+          0
+        ],
+        "total": 6161633280
+      },
+      {
+        "op": "complete",
+        "token": [
+          0,
+          "A",
+          0
+        ],
+        "event": 10,
+        "total": 6161633280
+      },
+      {
+        "op": "complete",
+        "token": [
+          0,
+          "A",
+          0
+        ],
+        "event": 11,
+        "total": 6161633280
+      },
+      {
+        "op": "retire",
+        "token": [
+          0,
+          "A",
+          0
+        ],
+        "total": 6161633280
+      },
+      {
+        "op": "admit",
+        "owner": "B",
+        "persistent": 5926748160,
+        "requested": 234881024,
+        "token": [
+          0,
+          "B",
+          1
+        ],
+        "capacity": 234881024,
+        "reused": true,
+        "total": 12088381440
+      },
+      {
+        "op": "use",
+        "token": [
+          0,
+          "B",
+          1
+        ],
+        "event": 20,
+        "total": 12088381440
+      },
+      {
+        "op": "complete",
+        "token": [
+          0,
+          "B",
+          1
+        ],
+        "event": 20,
+        "total": 12088381440
+      },
+      {
+        "op": "finish_slot",
+        "token": [
+          0,
+          "B",
+          1
+        ],
+        "total": 12088381440
+      },
+      {
+        "op": "retire",
+        "token": [
+          0,
+          "B",
+          1
+        ],
+        "total": 12088381440
+      },
+      {
+        "op": "open_complete",
+        "owner": "A",
+        "released": 5926748160,
+        "total": 6161633280
+      },
+      {
+        "op": "open_complete",
+        "owner": "B",
+        "released": 5926748160,
+        "total": 234885120
+      },
+      {
+        "op": "free_idle",
+        "index": 0,
+        "released": 234881024,
+        "total": 4096
+      }
+    ]
+  }
+]

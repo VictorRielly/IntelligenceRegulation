@@ -1,0 +1,56 @@
+{
+ "diff_run_capture_H19_4_to_r17": {
+  "path": "results/zk60_gate_tinyllama_20261017/round20/readings/run_capture.H19-4_to_r17.diff",
+  "sha256": "907727b99f2de2d0229adc40d3ef24971295da378f169af4aaff50f0ba9a2bfb"
+ },
+ "module_gating": "private_block.rs:258-259 #[cfg(test)] mod run_capture; :267-268 #[cfg(test)] mod plane_index; (frozen-r17)",
+ "read_at_utc": "2026-10-29T16:40Z",
+ "readings": {
+  "src/private_block/plane_index.rs": {
+   "ce79803c86a80dde832dc92a262a023efdd52bb95b9a15f128791978c306ffac": {
+    "base": "13a7dd6ff1f9178dd640e3d38309a5581a39cf13c9c61238c41ceba83420afbf",
+    "classification": "token frozen-r17 adopted the gate's H19-3 byte for byte (cfg(test) recorder module)",
+    "moves_a_block_stage_byte": false,
+    "moves_a_receipt_byte": false,
+    "reading": "[GATE ROUND 20, READ by digest] frozen-r17's plane_index.rs is ce79803c..., the digest of the gate's own H19-3 patch (GATE19_PATCH_READINGS); the same reading applies"
+   }
+  },
+  "src/private_block/run_capture.rs": {
+   "cce0fc2a4062fcb4c92e771b8d7ac7f996c9ccfbc985bfb6decd79b29fba7ddf": {
+    "base": "8292b1c6856daa521439037570930827ecc3979bd64c279127a2b0f1b6014817",
+    "classification": "token frozen-r17: test-only (`#[cfg(test)] mod run_capture;`, private_block.rs:258-259)",
+    "diff": "results/zk60_gate_tinyllama_20261017/round20/readings/run_capture.H19-4_to_r17.diff (907727b9..., +436 / -9 against the gate's H19-4 8292b1c6)",
+    "moves_a_block_stage_byte": false,
+    "moves_a_receipt_byte": false,
+    "reading": "[GATE ROUND 20, READ] the gate's H19-4 (`bundle_is_classify` = `is_classify_run_profile`) kept byte for byte, plus the token lane's EXPORT REPLAY: at an R13 BLOCK stage whose public-table values are recorded, each Tab::Pub table that `r13_statement_table` names (the seven folds, gamma_a / gamma_m, the RoPE pairs on Q / Kv, the group column, exp / ACT3, the ACT support) is pushed to `Rec.statement` with the SAME sha256 `write_public_table` writes (it now returns it; the bytes written are unchanged); an R13 DD block stage with values is refused by name; `export_replay` re-derives every listed table from an export layer and refuses on any digest or length difference or a missing required (slot, nth); `write_bundle` refuses a bundle that lists statement tables until the replay passed and appends the replay to the README note. No stage-file key, run.json key or value encoding moves; no prover, verifier or statement byte (the module is not compiled outside tests). The gate does not rely on the replay: it TAKES the statement tables and checks the terminal identity on them"
+   }
+  }
+ },
+ "self_check": {
+  "findings": [],
+  "moved_r16b_to_r17": [
+   "src/private_block/plane_index.rs",
+   "src/private_block/run_capture.rs",
+   "src/private_block/s25_tests.rs",
+   "src/private_block/token_io/classify_capture_tests.rs",
+   "src/private_block/token_io/classify_r17_tests.rs",
+   "src/private_block/token_io/gate19_capture_tests.rs"
+  ],
+  "ok": true,
+  "plane_index_r17": "ce79803c86a80dde832dc92a262a023efdd52bb95b9a15f128791978c306ffac",
+  "r16b_files": 301,
+  "r17_files": 303,
+  "rehashed": {
+   "capture-tree-r16b (H19-4) src/private_block/run_capture.rs": "8292b1c6856daa521439037570930827ecc3979bd64c279127a2b0f1b6014817",
+   "frozen-r17 src/private_block/plane_index.rs": "ce79803c86a80dde832dc92a262a023efdd52bb95b9a15f128791978c306ffac",
+   "frozen-r17 src/private_block/run_capture.rs": "cce0fc2a4062fcb4c92e771b8d7ac7f996c9ccfbc985bfb6decd79b29fba7ddf"
+  },
+  "run_capture_r17": "cce0fc2a4062fcb4c92e771b8d7ac7f996c9ccfbc985bfb6decd79b29fba7ddf"
+ },
+ "token_frozen_r17": {
+  "files": 303,
+  "list_sha256": "23a958766cf946d07b35e93e1f82685c3f952e5526a99f4d389be766881dd9a2",
+  "manifest": "results/zk60_token_io_r1_20261017/manifest_final_r17.sha256"
+ },
+ "what": "gate round 20 [READ] list: the token frozen-r17 capture source pins the gate reads (tools v23); not a privacy result"
+}

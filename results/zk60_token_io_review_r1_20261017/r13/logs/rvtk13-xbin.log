@@ -1,0 +1,16 @@
+
+running 1 test
+test private_block::token_io::review_r13_tests::rv13_r7b_receipts_do_not_cross_between_the_r12_and_r13_binaries ... RV13 R7b | r12 binary verifying an r13 receipt: exit 1 {"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling B-4, the recommended default; Victor's ruling pending)"}
+RV13 R7b | r12 prove on the R-C2 fixture: exit 0 {"event":"proved","run":"/home/victor/zk60-artifacts/token-io-review-r13-tmp/tio-cls-rv13-r7b-107613/run-r12","owner_dir":"/home/victor/zk60-artifacts/token-io-review-r13-tmp/tio-cls-owners-rv13-r7b-107613/run-r12.owner-private","verdict":"not-flagged","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"segments":3,"receipt_bytes":11134808,"prove_seconds":1.707,"whole_run_floor_bits":94,"total_seconds":1.843,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"}
+RV13 R7b | identity under r12 061340df02f975c16fa1b3f9a2e1c8d582a54888a33edafab112426a69c5ae88, under r13 061340df02f975c16fa1b3f9a2e1c8d582a54888a33edafab112426a69c5ae88 (equal: true)
+RV13 R7b | r12 binary verifying the r13 receipt at the r12 pin: exit 1 {"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling B-4, the recommended default; Victor's ruling pending)"}
+RV13 R7b | r13 binary verifying an r12 receipt: exit 1 {"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling B-4, the recommended default; Victor's ruling pending)"}
+{"event":"refused","command":"classify-verify","error":"statement.json: not schema zk60-classify-run/2"}
+{"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling B-4, the recommended default; Victor's ruling pending)"}
+RV13 R7b | r12 prove with a doctored (rehashed) margin row: exit 0 {"event":"proved","run":"/home/victor/zk60-artifacts/token-io-review-r13-tmp/tio-cls-rv13-r7b-107613/run-r12-doctored","owner_dir":"/home/victor/zk60-artifacts/token-io-review-r13-tmp/tio-cls-owners-rv13-r7b-107613/run-r12-doctored.owner-private","verdict":"flagged","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"segments":3,"receipt_bytes":11134808,"prove_seconds":1.708,"whole_run_floor_bits":94,"total_seconds":1.845,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"}
+RV13 R7b | r12 verify of the doctored-row receipt with the doctored tables: exit 0 (R-C1's gap)
+RV13 R7b | PASS: no receipt crosses between the r12 and r13 binaries
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 752 filtered out; finished in 7.21s
+

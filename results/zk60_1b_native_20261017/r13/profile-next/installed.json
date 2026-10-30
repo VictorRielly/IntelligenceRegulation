@@ -1,0 +1,9 @@
+{
+  "scope": "native profile/Shape/Ids construction and counts; explicit shared proof refusal remains",
+  "files": {
+    "shape.rs": "eca4091b9bcfebe4db7aea334aa624d591ef6e9764cc2fce93fedfc12a353742",
+    "layout.rs": "8519a514b8d1f43ab51c86b0a8af955230a2eab4fff4fc4c594733c59dcfd0bf",
+    "witness_accuracy.rs": "8b03abadc73db1d46be642e32c83312c87e34bfa4d560ab8d8e2675b14abcf2a",
+    "accuracy_profile_tests.rs": "ad8bb69d59a4c38051909393281a972e0f495eb1b74c7cb0dc9aa38e9c975641"
+  }
+}

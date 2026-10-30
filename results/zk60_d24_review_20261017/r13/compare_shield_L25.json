@@ -1,0 +1,140 @@
+{
+ "native": "/home/victor/IntelligenceRegulation/results/zk60_d24_review_20261017/r13/shield-L25.native.tsv",
+ "stack": "h24",
+ "sites": {
+  "x": {
+   "n": 786432,
+   "differ": 0,
+   "min": -6336,
+   "max": 2071,
+   "nonzero": 785188
+  },
+  "y": {
+   "n": 786432,
+   "differ": 0,
+   "min": -5296,
+   "max": 5369,
+   "nonzero": 785188
+  },
+  "q": {
+   "n": 1048576,
+   "differ": 0,
+   "min": -3588,
+   "max": 3306,
+   "nonzero": 1047353
+  },
+  "k": {
+   "n": 262144,
+   "differ": 0,
+   "min": -2355,
+   "max": 2787,
+   "nonzero": 261953
+  },
+  "v": {
+   "n": 262144,
+   "differ": 0,
+   "min": -4224,
+   "max": 3220,
+   "nonzero": 262028
+  },
+  "qr": {
+   "n": 1048576,
+   "differ": 0,
+   "min": -3566,
+   "max": 3398,
+   "nonzero": 1047420
+  },
+  "kr": {
+   "n": 262144,
+   "differ": 0,
+   "min": -2916,
+   "max": 2933,
+   "nonzero": 261940
+  },
+  "s": {
+   "n": 2097152,
+   "differ": 0,
+   "min": -45,
+   "max": 50,
+   "nonzero": 2011115
+  },
+  "p": {
+   "n": 2097152,
+   "differ": 0,
+   "min": 0,
+   "max": 4096,
+   "nonzero": 30741
+  },
+  "o": {
+   "n": 1048576,
+   "differ": 0,
+   "min": -4222,
+   "max": 3213,
+   "nonzero": 1045895
+  },
+  "ao": {
+   "n": 786432,
+   "differ": 0,
+   "min": -503,
+   "max": 448,
+   "nonzero": 782869
+  },
+  "x1": {
+   "n": 786432,
+   "differ": 0,
+   "min": -6520,
+   "max": 2437,
+   "nonzero": 785367
+  },
+  "nm": {
+   "n": 786432,
+   "differ": 0,
+   "min": -4479,
+   "max": 5094,
+   "nonzero": 785366
+  },
+  "gate": {
+   "n": 2359296,
+   "differ": 0,
+   "min": -1459,
+   "max": 602,
+   "nonzero": 2356224
+  },
+  "a_scaled": {
+   "n": 2359296,
+   "differ": 0,
+   "min": -73216,
+   "max": 9863168,
+   "nonzero": 2326031
+  },
+  "u": {
+   "n": 2359296,
+   "differ": 0,
+   "min": -28567,
+   "max": 10531,
+   "nonzero": 2358774
+  },
+  "h": {
+   "n": 2359296,
+   "differ": 0,
+   "min": -445028,
+   "max": 420727,
+   "nonzero": 2323067
+  },
+  "z": {
+   "n": 786432,
+   "differ": 0,
+   "min": -18250,
+   "max": 20117,
+   "nonzero": 786333
+  },
+  "x2": {
+   "n": 786432,
+   "differ": 0,
+   "min": -18863,
+   "max": 20490,
+   "nonzero": 786327
+  }
+ },
+ "all_equal": true
+}

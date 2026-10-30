@@ -1,0 +1,28 @@
+{
+  "cwd": "/home/victor/IntelligenceRegulation/research/zkp-efficiency",
+  "commands": [
+    "python3 experiments/paired-mask-three-product-20261029/prepare_adapter.py",
+    "python3 experiments/paired-mask-three-product-20261029/run_bounded.py probe.py",
+    "python3 experiments/paired-mask-three-product-20261029/run_bounded.py audit.py"
+  ],
+  "seed": 202610290137,
+  "scope": "self-contained standard-library Python; no native compilation, GPU, installs or external code execution",
+  "limits": {
+    "argv": [
+      "/usr/bin/python3",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/paired-mask-three-product-20261029/probe.py"
+    ],
+    "exit_code": 0,
+    "elapsed_s": 4.043986646000121,
+    "threads": 1,
+    "cpu_seconds_cap": 40,
+    "alarm_s": 45,
+    "parent_timeout_s": 50,
+    "address_space_cap_bytes": 268435456,
+    "estimated_memory_bytes": 100663296,
+    "native_build": false,
+    "gpu": false
+  },
+  "no_heavy_job_queued": true
+}

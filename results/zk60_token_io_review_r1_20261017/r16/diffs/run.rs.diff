@@ -1,0 +1,63 @@
+--- results/zk60_token_io_r1_20261017/frozen-r15/hashline/src/private_block/token_io/run.rs	2026-10-28 21:51:01.782402705 -0700
++++ results/zk60_token_io_r1_20261017/frozen-r16/hashline/src/private_block/token_io/run.rs	2026-10-29 02:29:32.234730380 -0700
+@@ -110,6 +110,38 @@
+     (u8 + sh.size(Dom::S) as u128 + sh.size(Dom::F) as u128, 3 * U8_LEN as u128)
+ }
+ 
++/// **TOKEN I/O ROUND 16 (REVIEW_R13 §10 item 6 and its §4 / N-r13-2): an R13
++/// block's LogUp numerator `N + 4 T_d - 1`** (the term is that over `p^2`),
++/// `None` at every legacy shape (whose `(N, R)` above, `N + 3 R - 1`, is
++/// unchanged byte for byte). At R13 the ACT3 lookup is a degree-2 tuple
++/// `(g + 2048) + beta a + beta^2 gid + gamma TAG` into a 4096·G-row
++/// verifier-derived table, and DD's `(Sum, e, P)` tuples are degree 2 too, so
++/// the derived bound is `(N + 4 T_d - 1) / p^2` (B1: 2 T_d, B2: |PP| + T_d,
++/// B3: |V| + T_d - 1, |V| + |PP| <= N) with
++/// * `N` = the `U8` lookups of every lookup domain over its padded (lifted)
++///   extent (`lookups_per_position` already returns R13's counts at an R13
++///   shape), plus the `Dd` domain's at a DD shape, plus `|S|` exp queries,
++///   `|F|` ACT3 queries and, at a DD shape, `|S|` DD tuple queries;
++/// * `T_d` = 256 (`U8`) + 256 (exp) + 4096·G (ACT3) (+ `|Dd|` under DD),
++///   charged at the class maximum G = [`R13_MAX_SILU_GROUPS`] (a profile
++///   constant: the figure does not depend on an export's group count).
++pub(crate) const R13_MAX_SILU_GROUPS: u128 = 4;
++pub(crate) fn r13_block_logup_numerator(sh: &Shape) -> Option<u128> {
++    use super::super::accuracy_precision::Stack;
++    use super::super::layout::{Dom, LOOKUP_DOMS};
++    if sh.accuracy_stack() == Stack::Legacy {
++        return None;
++    }
++    let dd = sh.dd_cap > 0;
++    let mut n: u128 = LOOKUP_DOMS.iter().map(|d| sh.lookups_per_position(*d) as u128 * sh.size(*d) as u128).sum();
++    if dd {
++        n += sh.lookups_per_position(Dom::Dd) as u128 * sh.size(Dom::Dd) as u128;
++    }
++    n += sh.size(Dom::S) as u128 + sh.size(Dom::F) as u128 + if dd { sh.size(Dom::S) as u128 } else { 0 };
++    let t_d = 2 * U8_LEN as u128 + 4096 * R13_MAX_SILU_GROUPS + if dd { sh.size(Dom::Dd) as u128 } else { 0 };
++    Some(n + 4 * t_d - 1)
++}
++
+ /// the whole-run figure of a token run of `L` blocks of `sh` under `tp`
+ pub(crate) fn whole_run_of(sh: &Shape, l: usize, tp: &TokenProfile) -> WholeRun {
+     let t = tp.tier;
+@@ -136,11 +168,18 @@
+     }
+     // the byte / exp / act lookup arguments: stage OUT and the L blocks
+     let mut lk = vec![stage_out::logup_size(&stage_out::layout(sh, tp), tp)];
+-    let blk = block_logup_size(sh);
+-    lk.extend(vec![blk; l]);
+     let field_log2 = 2.0 * (P as f64).log2();
+     let column: f64 = col.iter().map(|x| x.exp2()).sum();
+-    let mut num: f64 = lk.iter().map(|(n, r)| (*n + 3 * *r - 1) as f64).sum::<f64>();
++    // ROUND 16: an R13 block's degree-2 term (no R13 token run is registered;
++    // the legacy sum below is unchanged)
++    let mut num: f64 = if let Some(blk_num) = r13_block_logup_numerator(sh) {
++        let (n, r) = lk[0];
++        (n + 3 * r - 1) as f64 + (l as u128 * blk_num) as f64
++    } else {
++        let blk = block_logup_size(sh);
++        lk.extend(vec![blk; l]);
++        lk.iter().map(|(n, r)| (*n + 3 * *r - 1) as f64).sum::<f64>()
++    };
+     // stage IN's compressed-row embedding lookup (review R2-2)
+     let (n_in, r_in) = stage_in::logup_size(&stage_in::layout(sh, tp), tp);
+     let lg = clog2(tp.d_pad) as u128;

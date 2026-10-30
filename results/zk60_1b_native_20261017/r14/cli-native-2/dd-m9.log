@@ -1,0 +1,10 @@
+
+running 1 test
+test private_block::trained_block::split_cli::tests::split_cli_publication_names_only_the_segment_bytes_consumed_by_verification ... {"event":"verified","experimental":true,"privacy_accepted":false,"blocks":1,"statement_identity":"59cef7c582345aa5ebba11f7716f3a27a663470d38b4adbe84039aaed7b7919b","binding":"a4d308a23d79e41c0ca2c899fa7860c76b5a778fc59a237fd0ac3932d120952a","statement_promoted":true}
+{"event":"rejected","error":"slot 0 [R14 01 SS row sums norm_a (private) Whole]: sumcheck round 0: s(0) + s(1) != claim"}
+{"event":"verified","experimental":true,"privacy_accepted":false,"blocks":1,"statement_identity":"59cef7c582345aa5ebba11f7716f3a27a663470d38b4adbe84039aaed7b7919b","binding":"a4d308a23d79e41c0ca2c899fa7860c76b5a778fc59a237fd0ac3932d120952a","statement_promoted":false}
+R14_CLI_M9 consumed_hash_publication_and_manifest_rewrite_refusal PASS
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 766 filtered out; finished in 69.05s
+

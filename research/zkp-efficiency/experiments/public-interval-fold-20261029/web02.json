@@ -1,0 +1,17 @@
+{
+  "tool": "tools.web__run",
+  "access_date": "2026-10-29",
+  "access_timezone": "UTC",
+  "commands": {
+    "open": [
+      "https://doi.org/10.1145/3828547",
+      "https://github.com/THU-HAS/MegaZK",
+      "https://craft.cs.tsinghua.edu.cn/publication/vdha-vector-drivenhash-aggregation-for-sparse-matrixsparse-vector-multiplication-on-gpus/",
+      "https://gpuopen.com/learn/amd-lab-notes/amd-lab-notes-spmv-docs-spmv_part1/"
+    ]
+  },
+  "raw_response_sha256": "649e27653eabf5a436339469940ed2f9ffb8d0639c51115226605fb14f292ac8",
+  "raw_response_bytes": 27633,
+  "retention": "Provenance and source assessments retained; full webpage/paper text not redistributed. Exact source dates/licenses/limits in sources-cycle.jsonl.",
+  "external_execution": false
+}

@@ -1,0 +1,15 @@
+{
+  "rank": 101,
+  "title": "NEW TESTED three bounded binary-digit Goldilocks warp reduction; direct current slot incidence zero",
+  "baseline": "Pinned scg_emit and k_reduce_f2 use canonical shared-memory trees. Inspected active R13/R14 slot factories select host GroupedEqRounds/ClosureRounds, not these legacy CUDA functions.",
+  "eliminated_work": "Conditional device component: reduce CTA shared scratch/tree accesses/barriers and per-edge canonical modular additions. No direct current private-slot work removed; per-thread polynomial evaluation, fold, global I/O, launches and fresh masks unchanged.",
+  "added_costs": "Per-warp digit extraction, six u32 redux per Fp2, leader carry reconstruction/canonicalization, warp partial shared traffic, public architecture/block guards and compatibility fallback. Extra register and instruction/occupancy costs unmeasured.",
+  "prerequisites": "Actual private SumcheckRounds GPU evaluator with exact masked-round/transcript/RNG/refusal equivalence, source-backed reduction incidence, exclusive native reduction clocks, valid canonical operands, full-warp convergence, CTA scratch ownership and complete independently verified workloads under shared heavy/build locks.",
+  "integration_cost": "Small locally authored uncompiled helper; larger missing native private evaluator. No production patch, build or GPU invocation.",
+  "exactness": "53030 model checks;10530 masked warp sums,96 CTA cases,36 fullFp2 product-polynomial round cases,29 negative controls. Independent bigint whole sums and explicit-node reference; separate saved-evidence audit. CUDA sketch uncompiled; no compiler/physical memory-order/race/CFS/PCS proof tests.",
+  "privacy_soundness": "No field change,mask/pad/salt/challenge/opening reuse or weakened privacy. Public fixed-geometry scheduling only. Native refusal channels and privacy gates unchanged and owed.",
+  "compatibility": "Legacy kernels.cu::scg_emit/k_reduce_f2; future actual private evaluator must implement zkp-core::SumcheckRounds::round. CUDA integer redux requires sm80+; intrinsic is not a field add.",
+  "end_to_end_ceiling": "Current inspected private-slot direct contribution1x (no call). Conditional future N/(T-C_reduce_exclusive+A_added), unknown; >=50/s needs T-C+A<=N/50. No CUDA-kernel or complete-workload speed claim.",
+  "falsification": "Direct current slot path has no reducer incidence (observed); any canonical byte/round/refusal mismatch, carry/membermask/convergence fault, compiler erasure/reordering, negligible reduction fraction, or added occupancy cost >= exclusive savings blocks promotion.",
+  "disposition": "Bounded arithmetic prerequisite retained; demoted for current incidence. Park variants until real private GPU evaluator and exclusive phase/capacity evidence."
+}

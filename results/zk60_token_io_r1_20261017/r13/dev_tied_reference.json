@@ -1,0 +1,29 @@
+{
+ "tensor_file": "dev_tied_tensor_bf16.bin",
+ "V": 300,
+ "d": 384,
+ "tensor_bytes": 231168,
+ "tensor_sha256": "bba6d094831861aa0b207ae5ca46938e2115e02c81215ba95e27e2bad1cc1dd6",
+ "s_x": 0.0053663705198366135,
+ "embedding_sha256": "c0e816c9f41a251df8560c5532d3f24c3b753ceb6ad712adcc7a893f71bfa475",
+ "embedding_absmax": 5940,
+ "margins": {
+  "rung-tc-synthetic-policy-dev/1": {
+   "yes": 40,
+   "no": 41,
+   "scale": 0.00390625,
+   "sha256": "24e6ff4ca67bac45c810f78b72d967894b6806615206c5571842055ce20ef3c1",
+   "absmax": 15305,
+   "first8": [
+    740,
+    -6269,
+    -463,
+    1445,
+    -12,
+    36,
+    -43,
+    -2606
+   ]
+  }
+ }
+}

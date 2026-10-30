@@ -1,0 +1,27 @@
+stage  1 layer  0: 17/17 equal, G 19 (line 19), groups 3, ok True, 1.0s, {'maxrss_gib': 0.245, 'VmHWM': 0.245, 'VmRSS': 0.183, 'RssAnon': 0.167, 'RssFile': 0.015}
+stage  2 layer  1: 17/17 equal, G 19 (line 19), groups 3, ok True, 0.6s, {'maxrss_gib': 0.295, 'VmHWM': 0.295, 'VmRSS': 0.185, 'RssAnon': 0.169, 'RssFile': 0.015}
+stage  3 layer  2: 17/17 equal, G 18 (line 18), groups 4, ok True, 0.8s, {'maxrss_gib': 0.295, 'VmHWM': 0.295, 'VmRSS': 0.184, 'RssAnon': 0.169, 'RssFile': 0.015}
+stage  4 layer  3: 17/17 equal, G 20 (line 20), groups 3, ok True, 0.6s, {'maxrss_gib': 0.295, 'VmHWM': 0.295, 'VmRSS': 0.185, 'RssAnon': 0.169, 'RssFile': 0.015}
+stage  5 layer  4: 17/17 equal, G 20 (line 20), groups 3, ok True, 0.6s, {'maxrss_gib': 0.295, 'VmHWM': 0.295, 'VmRSS': 0.201, 'RssAnon': 0.186, 'RssFile': 0.015}
+stage  6 layer  5: 17/17 equal, G 20 (line 20), groups 3, ok True, 0.7s, {'maxrss_gib': 0.295, 'VmHWM': 0.295, 'VmRSS': 0.181, 'RssAnon': 0.169, 'RssFile': 0.011}
+stage  7 layer  6: 17/17 equal, G 20 (line 20), groups 3, ok True, 0.7s, {'maxrss_gib': 0.295, 'VmHWM': 0.295, 'VmRSS': 0.182, 'RssAnon': 0.17, 'RssFile': 0.011}
+stage  8 layer  7: 17/17 equal, G 20 (line 20), groups 3, ok True, 0.7s, {'maxrss_gib': 0.295, 'VmHWM': 0.295, 'VmRSS': 0.182, 'RssAnon': 0.17, 'RssFile': 0.011}
+stage  9 layer  8: 17/17 equal, G 20 (line 20), groups 3, ok True, 0.6s, {'maxrss_gib': 0.295, 'VmHWM': 0.295, 'VmRSS': 0.182, 'RssAnon': 0.171, 'RssFile': 0.011}
+stage 10 layer  9: 17/17 equal, G 20 (line 20), groups 4, ok True, 0.7s, {'maxrss_gib': 0.295, 'VmHWM': 0.295, 'VmRSS': 0.198, 'RssAnon': 0.187, 'RssFile': 0.011}
+stage 11 layer 10: 17/17 equal, G 19 (line 19), groups 3, ok True, 0.6s, {'maxrss_gib': 0.295, 'VmHWM': 0.295, 'VmRSS': 0.181, 'RssAnon': 0.17, 'RssFile': 0.011}
+stage 12 layer 11: 17/17 equal, G 20 (line 20), groups 4, ok True, 0.6s, {'maxrss_gib': 0.295, 'VmHWM': 0.295, 'VmRSS': 0.182, 'RssAnon': 0.171, 'RssFile': 0.011}
+stage 13 layer 12: 17/17 equal, G 20 (line 20), groups 4, ok True, 0.6s, {'maxrss_gib': 0.295, 'VmHWM': 0.295, 'VmRSS': 0.198, 'RssAnon': 0.187, 'RssFile': 0.011}
+stage 14 layer 13: 17/17 equal, G 20 (line 20), groups 4, ok True, 0.6s, {'maxrss_gib': 0.295, 'VmHWM': 0.295, 'VmRSS': 0.183, 'RssAnon': 0.172, 'RssFile': 0.011}
+stage 15 layer 14: 17/17 equal, G 19 (line 19), groups 3, ok True, 0.6s, {'maxrss_gib': 0.295, 'VmHWM': 0.295, 'VmRSS': 0.198, 'RssAnon': 0.187, 'RssFile': 0.011}
+stage 16 layer 15: 17/17 equal, G 20 (line 20), groups 4, ok True, 0.6s, {'maxrss_gib': 0.295, 'VmHWM': 0.295, 'VmRSS': 0.182, 'RssAnon': 0.171, 'RssFile': 0.011}
+stage 17 layer 16: 17/17 equal, G 20 (line 20), groups 4, ok True, 0.6s, {'maxrss_gib': 0.295, 'VmHWM': 0.295, 'VmRSS': 0.198, 'RssAnon': 0.187, 'RssFile': 0.011}
+stage 18 layer 17: 17/17 equal, G 20 (line 20), groups 4, ok True, 0.6s, {'maxrss_gib': 0.295, 'VmHWM': 0.295, 'VmRSS': 0.196, 'RssAnon': 0.185, 'RssFile': 0.011}
+stage 19 layer 18: 17/17 equal, G 20 (line 20), groups 4, ok True, 0.6s, {'maxrss_gib': 0.295, 'VmHWM': 0.295, 'VmRSS': 0.181, 'RssAnon': 0.171, 'RssFile': 0.011}
+stage 20 layer 19: 17/17 equal, G 20 (line 20), groups 4, ok True, 0.6s, {'maxrss_gib': 0.295, 'VmHWM': 0.295, 'VmRSS': 0.196, 'RssAnon': 0.185, 'RssFile': 0.011}
+stage 21 layer 20: 17/17 equal, G 20 (line 20), groups 4, ok True, 0.6s, {'maxrss_gib': 0.295, 'VmHWM': 0.295, 'VmRSS': 0.18, 'RssAnon': 0.17, 'RssFile': 0.011}
+stage 22 layer 21: 17/17 equal, G 20 (line 20), groups 3, ok True, 0.6s, {'maxrss_gib': 0.295, 'VmHWM': 0.295, 'VmRSS': 0.182, 'RssAnon': 0.171, 'RssFile': 0.011}
+stage 23 layer 22: 17/17 equal, G 20 (line 20), groups 3, ok True, 0.6s, {'maxrss_gib': 0.295, 'VmHWM': 0.295, 'VmRSS': 0.182, 'RssAnon': 0.171, 'RssFile': 0.011}
+stage 24 layer 23: 17/17 equal, G 19 (line 19), groups 4, ok True, 0.6s, {'maxrss_gib': 0.295, 'VmHWM': 0.295, 'VmRSS': 0.181, 'RssAnon': 0.171, 'RssFile': 0.011}
+stage 25 layer 24: 17/17 equal, G 19 (line 19), groups 4, ok True, 0.7s, {'maxrss_gib': 0.295, 'VmHWM': 0.295, 'VmRSS': 0.182, 'RssAnon': 0.171, 'RssFile': 0.011}
+stage 26 layer 25: 17/17 equal, G 19 (line 19), groups 4, ok True, 0.7s, {'maxrss_gib': 0.295, 'VmHWM': 0.295, 'VmRSS': 0.183, 'RssAnon': 0.172, 'RssFile': 0.011}
+{"stages": 26, "stages_ok": 26, "arrays_equal": 442, "arrays": 442, "entries_compared": 118210560, "G_all_equal_stage_lines": true, "silu_members_checked": [[-5, -13], [-4, -12], [-3, -11], [-2, -11], [-1, -10], [-1, -9], [0, -8]], "controls_fired": true, "all_ok": true, "seconds": 22.4, "mem_end": {"maxrss_gib": 0.295, "VmHWM": 0.295, "VmRSS": 0.119, "RssAnon": 0.108, "RssFile": 0.011}}

@@ -1,0 +1,15 @@
+{
+  "rank": 62,
+  "title": "NEW TESTED same-basis fresh Eq complement doubling; fixed Eq tiny, mask Eq more material but unclocked",
+  "baseline": "Canonical frozen R13 core Eq builder uses two Fp2 products/node and one 1-r subtraction/dimension. 8B T128 fixed Eq has2165nodes/block; mask_eval Eq2878263..2997039nodes/block. No exclusive native Eq clock.",
+  "eliminated_work": "One Fp2 multiplication per doubling node, replacing e*(1-r) with e-(e*r). Native source Fp2::mul has five base mul and two adds; compiler may specialize constants. No allocations, private reads, mask draws, commitments, openings or attention work removed.",
+  "added_costs": "One Fp2 subtraction/node, replacing per-dimension complement subtractions; net nodes-log subtractions per table. Same one-read/two-store dataflow, initialization and reverse-copy allocations. Native scheduling/compiler effects unmeasured.",
+  "prerequisites": "Native Rayon branch/source integration review, unchanged-byte receipts/refusals/transcript and current privacy gates; exclusive Eq/dot/mask extension and enclosing clocks before performance promotion; owner shared locks for native work.",
+  "expected_end_to_end_impact": "Unknown. Serial helper diagnostic1.257..1.744x for nonempty tested sizes is not a native/GPU ratio. For exclusive affected fraction f and actual native phase ratio k, whole speedup1/((1-f)+f/k); no f/k measured. Fixed Eq-only lane demoted.",
+  "integration_cost": "Small two-loop arithmetic patch in zkp-core/src/mle.rs. Research patch preserves threshold,Rayon,MSB wrapper and empty behavior; actual Cargo/native build not run.",
+  "exactness": "234Eq fixtures/2691054entries/14094direct weights/198independent MLE folds;600priv_table and600fresh mask cases vs native extract and independent schoolbook-u128 literal/fold references;8controls. Same researcher,not external review.",
+  "privacy_soundness": "Pure exact all-field algebra with unchanged challenge law,representation,draw/order and no cache. Keep every fresh CFS/reserved pair; no privacy acceptance inherited or newly claimed.",
+  "compatibility": "Frozen R13 hashline mle adapter reexports ../zkp-core by pinned Cargo path; actual frozen field/mle match prior adapters byte-for-byte. PCS row/column and other Eq consumers exist; complete incidence uncounted.",
+  "falsification": "Any all-field/order/empty/mask/MLE/native refusal/transcript/receipt mismatch; changed accepted domain/randomness; no exclusive phase share; native compiler already removes work or added subtraction/scheduling cost erases enclosing improvement.",
+  "status": "Bounded correctness and serial helper improvement; conditional native review/profiling handoff, no integration or native speed result"
+}

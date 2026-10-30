@@ -1,0 +1,6 @@
+header bytes 61008
+stat: regular file, 7698241104 bytes, 120 blocks of 512
+7698241104	/home/victor/zk60-artifacts/token-io/r19b/wrong-models/shieldstral-1.0-3b/snapshot-003ec7e2/model.safetensors
+61440	/home/victor/zk60-artifacts/token-io/r19b/wrong-models/shieldstral-1.0-3b/snapshot-003ec7e2/model.safetensors
+removing the sparse wrong file: 73728	/home/victor/zk60-artifacts/token-io/r19b/wrong-models
+ls: cannot access '/home/victor/zk60-artifacts/token-io/r19b/wrong-models': No such file or directory

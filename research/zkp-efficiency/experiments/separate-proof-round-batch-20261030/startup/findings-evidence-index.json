@@ -1,0 +1,1736 @@
+[
+  {
+    "heading": "# ZKP efficiency findings",
+    "bytes": 27,
+    "evidence_lines": []
+  },
+  {
+    "heading": "## Cycle 0001 \u2014 2026-09-22",
+    "bytes": 5842,
+    "evidence_lines": [
+      "| Baseline | [zkLLM's official CUDA implementation](https://github.com/jvhs0706/zkllm-ccs2024) links the CCS 2024 system. | Useful attention/lookup baseline; an older reference, not evidence of a newly achieved performance target. |",
+      "### Negative findings / limits that change the next action"
+    ]
+  },
+  {
+    "heading": "## Cycle 0002 \u2014 2026-09-24 \u2014 SC_SZC groups and GPU-memory triage",
+    "bytes": 7230,
+    "evidence_lines": [
+      "| 4, algorithm lead | [SumCATS (DATE 2026)](https://tanvirarafin.github.io/assets/pdf/DATE_2026.pdf): fewer global reads and GPU reduction/layout changes. | Binary towers and initial binary tables differ from our extension-valued helpers. Paper reports small A100 cases slower than baseline. Nested repository README states MIT; licensing of additions and commit not pinned. No blanket or model-speed claim. |",
+      "points, five detected negative controls, four zero-factor fallback rounds,"
+    ]
+  },
+  {
+    "heading": "## Cycle 0003 \u2014 2026-09-26 \u2014 hiding-row NTT layout and pad overlap",
+    "bytes": 6895,
+    "evidence_lines": [
+      "correctness repair candidate; no measured proving improvement.** The fixed",
+      "### Reproduced result and negative findings",
+      "Nine negative controls detect wrong order, inverse map, missing coset,",
+      "The data branch alone subtracts pads, dropping the negative contribution in",
+      "**Negative disposition:** the existing natural-output CUDA path has no such"
+    ]
+  },
+  {
+    "heading": "## Cycle 0004 \u2014 2026-09-26 \u2014 exact pair-table inverse cache",
+    "bytes": 8128,
+    "evidence_lines": [
+      "### Experiment and negative findings",
+      "stage/refusal models and 11 negative controls pass**, seed 2026092604.",
+      "inversions vs one reference inversion. These negatives rule out a universal",
+      "Controls detect index-only caching, negative/modulo index aliasing, stale",
+      "and a wrong-quarter negative control. Then restore the SC_SZC groups only"
+    ]
+  },
+  {
+    "heading": "## Cycle 0005 \u2014 2026-09-26 \u2014 fuse fold and next-round sampling",
+    "bytes": 7455,
+    "evidence_lines": [
+      "only its reread and cannot claim that ceiling as a saving. Fold/read/cache",
+      "| Rank by expected usable end-to-end value | Hypothesis, prerequisites and cost | Exactness / privacy / falsification |",
+      "| 2, newly refined batching question | Batch public int8 weight contractions for B independent fresh challenge vectors at `fold_cols_i8`, reading each weight tile once. Native P1 has no W commitment, and public objects already own reusable weights, so do not import a legacy W-commit cache saving. | Exact signed arithmetic and padding; per-proof challenges/masks remain separate. Requires several proofs reaching the same stage, additional accumulators and possibly prohibitive witness residency. Falsify via direct contractions, changed-challenge controls and an honest traffic/lifetime model; phase time is unmeasured. |",
+      "| 4, owner follow-up | Prior NTT pad-overlap correction and mapped-layout oracle. | Device parity remains owed; no existing restore-copy saving exists. Retain negative findings. |"
+    ]
+  },
+  {
+    "heading": "## Cycle 0006 \u2014 2026-09-26 \u2014 public-weight batching has a tiny phase ceiling",
+    "bytes": 8685,
+    "evidence_lines": [
+      "## Cycle 0006 \u2014 2026-09-26 \u2014 public-weight batching has a tiny phase ceiling",
+      "| 1, next bounded research test | Exact Fp2 Karatsuba and specialized squaring at `zkp-core/src/field.rs`. Current multiplication uses four variable base products plus multiplication by seven; square calls the same routine. Larger sumchecks use this arithmetic. | Small arithmetic seam, broad validation scope. Compare canonical bytes to independent polynomial reduction; count extra additions and reductions. No assumed runtime win: carry handling, compiler output and instruction dependency may dominate. Keep field/modulus/transcript unchanged. |",
+      "| 4, tested and demoted | B public int8 weight contractions with independently supplied challenges. | Arithmetic exact; small kernel but substantial proof rendezvous/lifetime work. Current complete-slot ceiling <0.1% and whole-process RSS make scheduling work unattractive. Revisit only if larger-model phase attribution reverses this. |",
+      "### Experiment and decisive negatives",
+      "tiled independent baseline. Arithmetic remains unchanged; local accumulator",
+      "GPU inference from CPU proving and labels larger separate-proof baselines as"
+    ]
+  },
+  {
+    "heading": "## Cycle 0007 \u2014 2026-09-26 \u2014 exact Fp2 multiplication and squaring",
+    "bytes": 8121,
+    "evidence_lines": [
+      "there is no measured native or end-to-end speed gain.** Read durable history,",
+      "### Bottleneck, ranking and falsification",
+      "| Deferred | Public-weight batching remains below 0.1% of known readiness; pair-inverse caching remains a tiny-phase optimization. | Previous positive arithmetic and negative cost evidence preserved. Do not reopen scheduling/preprocessing work without larger-shape measurements. |",
+      "a global Fp2 ceiling. The base-field commitment encoder is not sped up merely",
+      "by changing Fp2. Falsify this candidate with native release independent-array",
+      "### Reproduced experiment and negative controls"
+    ]
+  },
+  {
+    "heading": "## Cycle 0008 \u2014 2026-09-26 \u2014 fractional LogUp tree and private binding",
+    "bytes": 8622,
+    "evidence_lines": [
+      "ceiling, never this candidate's saving. U8 helper preparation is 1.046/1.134 s,",
+      "verification and serialization are new costs with no measured attribution.",
+      "| 2, existing arithmetic handoff | Fp2 multiplication/squaring may reduce recurring sumcheck work. | Small source patch, wide validation scope. Native independent-array and dependent-chain A/B needed; added carry dependencies may eliminate any gain. No measured phase share. |",
+      "| Deferred | Public-weight batching, pair-inverse caching and binary-specific GKR. | Preserve prior negative ceilings; binary preprocessing is not valid for challenge-valued Fp2 helpers. Revisit only with changed bottleneck/provenance evidence. |",
+      "### Experiment and falsification",
+      "15 negative controls**, seed 2026092608, one CPU and under one second with"
+    ]
+  },
+  {
+    "heading": "## Cycle 0009 \u2014 2026-09-27 \u2014 grouped fold / next-round fusion",
+    "bytes": 8081,
+    "evidence_lines": [
+      "| Rank | Hypothesis and expected complete-proof relevance | Prerequisites, integration cost and falsification |",
+      "| 1, tested for owner | Fuse folds with next-round accumulation while preserving grouped equality. Targets a large slot; deleting that entire slot is only a 21.3%/20.0% readiness ceiling. | Moderate evaluator/parallel ownership work. Preserve actual per-group claims, masks/RNG, exact samples and table finals. No saving forecast without native slot/readiness timing; lost parallelism/cache locality falsifies it. |",
+      "| 2, refined next research question | Fuse hiding pad/coset coefficient production into `k_ntt_p1`'s bit-reversed load, removing the existing `coef2` write/read pass and scratch lifetime. Baseline must use compact `pw=n+q`, not pretend the earlier pad-skip optimization is new. | Moderate CUDA load/ownership work. More scattered pad/power loads may erase savings; q>n overlap, inverse normalization, coset, chunk/gather order and tag-path availability all require exact tests. Current tagged shaped commitments still need an authorized keyed device path. |",
+      "| 4, architectural queue | Masked fractional-GKR with streamed lifetimes could reduce H helper commitment costs. | High construction/PCS/composition cost. Preserve prior root-disclosure and tree-residency negatives; no net saving without new masks and original leaf links. |",
+      "Public-weight batching's <0.1% readiness ceiling and tiny-phase pair caching",
+      "### Reproduced experiment and meaningful negative"
+    ]
+  },
+  {
+    "heading": "## Cycle 0010 \u2014 2026-09-27 \u2014 NTT pad-load fusion loses locality",
+    "bytes": 8404,
+    "evidence_lines": [
+      "| Rank | Hypothesis and end-to-end relevance | Prerequisites, integration cost, exactness and falsification |",
+      "| 3, next lookup rotation | Write already cached U8 helper inverses directly into the two H limbs, eliminating the temporary Fp2 Vec and copy at helper_*_u8_at -> write_h. | Small/moderate Rust output-slice work, safe disjoint lifetimes and partial private writes on refusal. Current enclosing helper phase 1.046/1.134 s gives only a 2.6\u20132.9% readiness ceiling; retained work makes actual saving smaller or zero. Target memory as well as time; preserve invalid fallback and every full-table refusal. |",
+      "disclosure/tree-residency negatives. Public-weight batching's <0.1% ceiling",
+      "This falsifies a claim of uniformly improved coalescing, not a measured runtime",
+      "The previous **q>n pad-overlap bug remains a negative control**. Successful"
+    ]
+  },
+  {
+    "heading": "## Cycle 0011 \u2014 2026-09-27 \u2014 Direct U8 helper planes: exact, small ceiling",
+    "bytes": 6870,
+    "evidence_lines": [
+      "## Cycle 0011 \u2014 2026-09-27 \u2014 Direct U8 helper planes: exact, small ceiling",
+      "### Tested hypothesis and falsification",
+      "two Fp planes. Baseline: **52,183,040** helper outputs in the 125M model;",
+      "negative controls in **2.097 s**, **16,500 KiB** RSS, Intel Core Ultra 9 185H.",
+      "and preserves no-partial-write behavior. This partial-buffer negative is",
+      "sums; the candidate retains most work. Its falsification gate is native exact"
+    ]
+  },
+  {
+    "heading": "## Cycle 0012 \u2014 2026-09-27 \u2014 Inverse-store hiding fusion, then a new GPU bottleneck",
+    "bytes": 7288,
+    "evidence_lines": [
+      "to the CPU polynomial: it drops the negative overlap term; that shape is a",
+      "Baseline for the tested hypothesis is inverse last store into `coef`,",
+      "improvement at about 40%; this narrower candidate's GPU/full-stack ceiling",
+      "falsification gates. It remains a lower-priority handoff, not a 50-token/s",
+      "lag, decode throughput and full-stack end-to-end ceiling remain unknown.",
+      "   Native phase A/B and whole-proof clock falsify the gain; no numerical 8B"
+    ]
+  },
+  {
+    "heading": "## Cycle 0013 \u2014 2026-09-27 \u2014 attention SC_SZC device-round boundary",
+    "bytes": 6542,
+    "evidence_lines": [
+      "Run `20260927T045233Z-e6183046`. **No complete private 8B proof or measured throughput improvement.** The leading recurring cost is still attention softmax in the keyed GPU-assisted 125M one-block diagnostic: about half of 17.130 s GPU proving, with 30.055 s mean whole process, 8.215 s witness, 0.815 s same-process verification, and 3.895 s combined serialization/other/startup residual on RTX 4070 Laptop. Two non-warm samples, fresh process each, shared host. Zero complete-model passes/countable positions; no 5090 or trained 8B timing. Prior results and negative findings remain above and in earlier handoffs.",
+      "**Question refined this cycle:** Can an attention SC_SZC slot keep all folded tables on a device while leaving the exact CFS masking and Fiat\u2013Shamir schedule on the host, and when would round trips erase the benefit? The baseline is current CPU generic `hashline/src/zk.rs::masked_prove` -> `zkp-core/src/sumcheck.rs::prove`. Candidate: upload once, compute/reduce one unmasked round vector on device, mask/absorb/draw on host, return challenge, fold all tables on device. It moves CPU table scanning but **eliminates zero table reads or field operations** in the source schedule. It adds upload, final transfer, 2\u20133 launches and one dependent host/device exchange per round, VRAM residency and integration cost. No mask, salt or private-opening reuse is proposed.",
+      "[One-thread experiment](experiments/sc-szc-device-round-20260927/README.md): seed 2026092713; four synthetic SC_SZC-shaped profiles with 8\u2013128 rows, 13/26 Fp2 tables, degree four and tiles of 3/7/16 pairs. In 0.510 s/17,140 KiB RSS on Intel Core Ultra 9 185H, 110 round samples match an independently reconstructed original Boolean-cube MLE oracle; 91 finals, masked claim chain and eight negative controls pass. At 128 rows/26 tables, tiles 16 and 3 have identical complete masked-message digests. The source CFS formula is transcribed; the polynomial is a simplified three-group stand-in, and the challenge hash is a test SHA-256, **not** Rust BLAKE3. No native/GPU receipt parity or speed result. Source/script SHA-256, command, dimensions and limits are in `result.json`.",
+      "At synthetic N=128/k=26/d=4, once-only upload is 53,248 B; source-counted table round/fold reads 211,328 B and writes 52,832 B in **both** CPU-style and device-resident schedules. Reduced vectors total 560 B D2H, seven challenges 112 B H2D, finals 416 B. At least seven sequential challenge exchanges survive; a separate device reduction adds seven launches. Sending tile partials instead costs 880/3,680 B at tile 16/3. These are logical counts, not DRAM/time. The device route is useful only if measured GPU execution beats CPU work after transfers/synchronization. As a generous ceiling, deleting the entire *approximate* 8.565 s softmax slot at zero cost from the 30.055 s one-block wall leaves ~21.49 s, a ~28.5% wall reduction. This candidate can remove less. The complete private 8B ceiling and >=50 tokens/s feasibility are unknown. Falsify on byte/terminal/refusal mismatch, VRAM overflow, or no quiesced enclosing proof gain. [Handoff](handoffs/20260927-sc-szc-device-round.md) names the patch seam and validation.",
+      "1. **GPU attention SC_SZC, with a measured transcript boundary** \u2014 highest observed recurring proving cost, high integration and privacy review cost. The new gate is an actual-slot/native CPU byte oracle and owner-run per-round transfer/sync/launch clock. A later on-device BLAKE3/mask route might remove host exchanges but would need exact transcript/keyed-domain parity, fresh mask handling and larger-profile security review; it is a separate hypothesis, not inferred from this toy. End-to-end ceiling limited by the measured softmax fraction, then by witness/PCS/startup; 8B ceiling unknown.",
+      "2. **Resident fixed-context complete-pass amortization** \u2014 potentially higher total-workload effect if setup dominates, but no registered 8B setup/pass/drain clocks or VRAM peak. Need distinguish independent passes, long-context T-squared prefill, and decode with authenticated KV growth. More than 20 ms of complete proof drain per newly proved position falsifies a >=50 steady slope for that schedule, regardless of startup; total workload additionally needs measured startup fraction."
+    ]
+  },
+  {
+    "heading": "## Cycle 0015 \u2014 2026-09-30 \u2014 bounded full-validation tile batches",
+    "bytes": 8888,
+    "evidence_lines": [
+      "Run `20260930T004944Z-77f0d93d`. **No measured complete-proof improvement or",
+      "All prior negative findings and handoffs are retained.",
+      "chunk crossing and ragged tails are included. Eight negative-control",
+      "phase. This negative prevents promoting a hypothetical tiled baseline as a",
+      "Falsify by byte/refusal mismatch, partial return, excess live memory, or no",
+      "zero work. No numerical trained 8B ceiling or >=50-token/s estimate follows."
+    ]
+  },
+  {
+    "heading": "## Cycle 0016 \u2014 2026-10-03 \u2014 bounded lossless suffix witness replay",
+    "bytes": 6841,
+    "evidence_lines": [
+      "[dated report](progress/20261003T220146Z-cf20886e.md). Prior findings/negative results preserved.",
+      "**Negative designs preserved:** initial synthetic fixture refused a score at",
+      "**Ceiling:** saving = measured cached second-pass witness time Wc minus pack P",
+      "Falsify native plane/refusal/byte/RNG mismatch, new cache-dependent leakage or",
+      "| Rank | Expected end-to-end scope | Prerequisites/cost/obligations and falsification |",
+      "| 1, owner | Actual GPU SC_SZC then witness, highest measured recurring costs. | High native CUDA/transcript integration; fresh masks and exact generic slot. Native parity, transfers/peak and whole-proof clocks needed. Do not duplicate owner lane; mismatch/overflow/no enclosing gain falsifies. |"
+    ]
+  },
+  {
+    "heading": "## Cycle 0017 \u2014 2026-10-03 \u2014 typed readers and lazy lookup preparation",
+    "bytes": 7348,
+    "evidence_lines": [
+      "changing integer semantics, invalid fallback or unused-table refusals? Baseline",
+      "fixtures,65816 independent helper limbs,20 zero-denominator refusals,99 negative",
+      "1348.277MiB. Unregistered Llama3 T512/1024/2048 baseline4888.766/13489.031/",
+      "could erase gain. Timing ceilingN/(T-M+C), removed measured preparationM,",
+      "**Negatives/obligations:** invalid signed inputs cannot be truncated, clamped,",
+      "Falsify on native exact/refusal/RNG mismatch, leakage/new refusal, pack-peak"
+    ]
+  },
+  {
+    "heading": "## Cycle0018 \u2014 public last-read witness release (2026-10-04)",
+    "bytes": 4235,
+    "evidence_lines": [
+      "Completed 2026-10-04T00:20:58.279502+00:00; 2026-10-04 UTC. Investigated whether public last-read release can improve the lazy witness-reader path. Twelve synthetic fixtures passed an independent named-catalog oracle:91,076 A/H field words,110,444 reads,356 lookup specs and ten negative controls. Final CPU run 3.309s, 27164KiB RSS, one thread on Intel(R) Core(TM) Ultra 9 185H. The initial refusal-fixture failure and intermediate pass remain saved.",
+      "Read AGENDA, STATE, FINDINGS, sources, latest experiments, project CLAUDE/START_HERE and current MVP_STATUS/DECISIONS/active coordination/throughput direction. Owner baseline unchanged: synthetic12-block T512 single cold pass RTX4070 Laptop8188MiB, wall408.609s, prover318.22s includes witness/serialization, in-process verification12.15s, receipt484107456B, sampledVRAM2113MiB, independent verification false. Arithmetic1.253positions/s is not accepted private8B evidence; startup and separate witness/proof/serialization clocks absent. Stale interrupted receipt does not establish liveness.",
+      "Leading tested baseline: lazy readers keep source planes through H_ACT. Eliminate plane storage only after public last read; add metadata/ownership and optional typed pack/lazy load costs. End-to-end ceiling N/(T-M+C), unknown M/C. Falsify any value/read/refusal/proof-byte divergence, value-dependent schedule or no actual peak benefit. [Handoff](../handoffs/20261004-public-witness-lifetimes.md) is for owner review, no integration or merge performed. Prior negative fusion/cache/table/memory results preserved."
+    ]
+  },
+  {
+    "heading": "## Cycle0019 \u2014 chunk-local opening gather ownership (2026-10-04)",
+    "bytes": 7148,
+    "evidence_lines": [
+      "**Baseline/eliminated work/new costs:** native columns_chunked_zk retains full device gather8RC, downloaded host8RC and returned per-query8RQ. Candidate retains output8RQ plus stage8min(B,R)C, destination-only row0=0/rows_total=rc with global source/pad slicing preserved. Removes temporary gather storage, no NTT, commitment, semantic query or transfer bytes. Adds synchronous downloads1->ceil(R/B), final preallocation/scatter and ownership/bookkeeping; device/pool sync owed. Fused unique-query optimization already exists; do not claim it anew. Metadata and common NTT/source/receipt storage omitted from counts.",
+      "**Decisive speed limit:** source-pinned synthetic12-blockT512 diagnostic logs sum A-open8.051s/H-open3.565s=11.616s,2.8428% of408.609s enclosing wall (3.6503% of318.22s run-prover). Deleting both ENTIRE phases at zero cost leaves396.993s, arithmetic1.2897positions/s. This is a parent-phase optimistic bound for an independently-unverified synthetic diagnostic, never candidate saving or counted private8B tokens. Chunk reencoding/copy costs are unmeasured separately and memory tier may differ. Demote this idea as a speed priority; retain exactness/capacity handoff. Trained8B ceilingN/(T-M+C_added), all phase terms unknown. Falsify mismatch/refusal/RNG/byte divergence, scheduling from hidden values, unchanged actual peak, or transfer-sync overhead >= avoided cost.",
+      "Read-derived negative: run.rs::prove_run already flushes/drops each owned serialized segment, DirSink retains metadata. There is no full484MB run buffer to eliminate in that path. Same retained log attributes86.691s to A allocation+witness-plane fill,4.231s to lookup+byte histogram,0.587s exp/act preparation. A-fill21.22% of enclosing wall is a large parent to inspect, not a proposed21.22% saving. Zero initialization may be optimized/calloc-backed already.",
+      "3. NEW next bounded test: public A-row coverage plan for zero-then-scatter versus write-once construction at protocol.rs A buffer/layout.rs offsets. Eliminate only overwritten initialization bytes; add checked coverage/schedule and fill costs. Include required domain padding, histogram and reserved mask/proximity writes. Native actual traffic/time must establish benefit; parent ceiling86.691s only for this diagnostic. Falsify missing/duplicate writes, native proof/RNG/refusal mismatch or no actual eliminated work.",
+      "4. Tested chunk-local opening stage: capacity candidate; moderate GPU plumbing,15 synthetic controls, added transfers and full native gates pending; speed ceiling above.",
+      "Full-stack accounting: this cycle deviceCPU only, accepted complete private8B passes0/tokens0/contextnull; steady-state and total-workload rates, startup fraction, witness/proof/serialization/independent-verification clocks, lag/drain null. No prefill/resident/decode run. Prior single cold synthetic12-blockT512 RTX4070Laptop8188MiB diagnostic has318.22s prover includingwitness/serialization,12.15s in-process verify,484107456B, independent verification false; no current process inference or relaunch. >=50verified positions/s unachieved. Larger workloads allowed, fixed512 latency ceiling not adopted. Reports saved locally; saved reports do not prove delivery."
+    ]
+  },
+  {
+    "heading": "## Cycle 0020 \u2014 public A-row write coverage (2026-10-04)",
+    "bytes": 6580,
+    "evidence_lines": [
+      "**Baseline and work removed:** shaped protocol.rs::prove_core allocates zero A, then overwrites supplied planes, first256 histogram words and all mask/proximity rows. The candidate appends each region after unchanged histogram derivation, with initialized Vec operations only in the uncompiled Rust review sketch. m125 counts 709.146 MiB of overwritten initial zeros per block, 0.979 MiB required zeros and unchanged 710.125 MiB final matrix capacity. Historical unregistered Mistral T512/T1024 counts are 2328.271/6288.537 MiB, not literal trained 8B profile evidence or experiment allocations. Counts reconcile with retained layout payloads. No witness conversion, lookup work, fresh masking, encoding/hashing, opening, transfer or proof-byte work is removed.",
+      "**End-to-end ceiling:** the retained cold, synthetic twelve-block T512 RTX4070Laptop diagnostic has408.609226s wall,318.22s prover including witness/serialization,12.15s in-process verification,484107456B and independent verification false. A allocation+witness-fill sums86.691s (21.216% wall). Entire parent deletion at zero cost leaves321.918226s, arithmetic1.590466 positions/s. It is not candidate savings or countable private8B throughput. Table/mask overwrites fall in later timers, so this parent bounds the allocation/plane component rather than every zero store. Candidate ceiling N/(T-M+C) is unknown. Falsify native value/padding/refusal/RNG/transcript/proof-byte divergence, hidden schedule, already-eliminated zero traffic, unchanged phase time or added cost >= removed cost. No improvement measured.",
+      "2. Tested A assembly plus NEW conversion refinement: moderate assembly change, logical traffic potential but no capacity gain. Split native zero allocation from conversion/copy first. Next CPU question: can magnitude modulo be removed from signed-i64 conversion because abs(i64)<=2^63<P? Preserve i64MIN/MAX and every negative; compiler may already remove it. Actual end-to-end gain unknown.",
+      "4. Resident fixed-context fresh complete passes: measure setup, recurring clocks, verification, lag/drain and peaks with a registered trained model. No masking/opening reuse; >20ms/new verified position falsifies50/s steady state for that schedule. Long prefill T\u00b2 and authenticated decode differ.",
+      "Next: exact signed-i64 conversion oracle and negative controls; owner split allocation/conversion and native full-proof A/B before promoting assembly. Rotate sumcheck/GKR, batching/amortization, quantization/arithmetic, composition, GPU NTT/commitments."
+    ]
+  },
+  {
+    "heading": "## Cycle 0021 \u2014 exact signed-i64 conversion and a compiled negative (2026-10-04)",
+    "bytes": 7965,
+    "evidence_lines": [
+      "## Cycle 0021 \u2014 exact signed-i64 conversion and a compiled negative (2026-10-04)",
+      "**Result:**139,880 synthetic signed values match baseline, direct magnitude, signed-word correction and independent decoded-ELF arithmetic against a Euclidean-remainder oracle. Includes all65,536i16 values,616 boundaries,65,536 full-i64 random values and8,192 near extrema. Independent base256 byte extraction, canonicality and Fp2base embedding checks pass.60 vector arithmetic models/6,800words and25 representative A-row copies/3,208words pass, including odd/empty tails and supplied nonzero internal padding.20 controls fire. Seed2026100421;2.257907s,22,616KiBRSS,one pinned low-priority CoreUltra9 185H thread,Python3.10.12,estimated64MiB/cap512MiB/59s alarm. Initial final-assertion failure omitted the witness load from a static instruction count; script/log/exit1 retained before correcting9->10total/9arithmetic. No field mismatch suppressed.",
+      "**Baseline/eliminated work/new costs:** `zkp-core/src/field.rs::Fp::from_i64`, called per A witness coordinate at shaped `protocol.rs:801`, uses magnitude modulo and canonical constructor. Since abs(i64)<=2^63<p, candidate uses rawu64 minus signMask&(2^32-1). This preserves every i64, includingMIN/MAX, and exact bytes. No new narrowing/refusal, RNG draw, masks, memory reads/writes, capacity, transfers, commitments or proof work removed. Candidate signed-mask arithmetic/compiler behavior and broad shared-field regression costs remain. m125 A-row count88,918,016 supplied conversions/block is public geometry only, not timed work or negative-value statistics.",
+      "**Useful negative:** the apparent A conversion loop of the current ELF already has **no integer division**: a compare/cmov remains among9 arithmetic instructions after its witness load. Both decoded constant choices are tested; only the ordinary p correction can affect negative i64. Source `%` is not evidence of an expensive native division. Candidate instruction count/vectorization/runtime unmeasured. Current allocation has malloc+memset at0x525703..0x525770, narrowing the previous zero-store question for this build, not measuring physical traffic/execution.",
+      "**A-only end-to-end ceiling:** prior onecold synthetic12-block125M T512 RTX4070Laptop8188MiB diagnostic408.609226s wall,318.22s runprover including witness/segment serialization,12.15s in-process verify,484107456B,independentfalse. Allocation+plane-fill86.691s is21.216%wall. Deleting ENTIRE parent at zero cost leaves321.918226s, arithmetic1.590466positions/s, not conversion savings or counted private8B throughput. Global shared-field change needs separate attribution outsideA. Trained8B ceiling N/(T-C_old+C_new), all terms unknown. Falsify canonical/byte/native refusal/RNG/transcript/proof mismatch, compiler already short, more expensive vectorization, or no enclosing gain. No improvement measured.",
+      "Ranked queue after current measured negative:"
+    ]
+  },
+  {
+    "heading": "## Cycle 0022 \u2014 exact int16 FFN-down and corrected run clock attribution (2026-10-04)",
+    "bytes": 8256,
+    "evidence_lines": [
+      "Question: can exact int16 FFN-down witness work move to byte GEMM without changing precision, padding or the first refusal, and can low/high planes be stacked to amortize a launch? Baseline is `witness.rs::matmul_in_out` line312, down call685, after h16 has passed the product's inclusive int16 check. The candidate eliminates CPU direct down dots only if a device adapter wins; it doubles byte dot work and adds packing, sums, transfers, i64 reconstruction and synchronization. Stacking [low;high] can remove one API call; cache reuse or a device speedup was not measured. No proof relation, commitment, masks or randomness changed.",
+      "Count-only public Llama3-8B config at T512/Kpad16384/N4096 gives16MiB packed slices +16MiB i32 partials =32MiB extra scratch before BLAS workspace,16KiB column sums,64MiB padded weights, while64MiB existing i64 input and16MiB output remain. The geometry is not an admitted trained profile. No transfer/peak saving measured. End-to-end ceiling P/(T-C_down_all_builds+C_pack+C_upload+C_byte_GEMM+C_i64+C_download+C_sync), all accepted8B terms unknown. Falsify any byte/accumulator/remainder/support/refusal/RNG/transcript/receipt mismatch, integer/float epilogue error or added enclosing cost >= CPU cost removed.",
+      "| Rank | Hypothesis / end-to-end scope | Prerequisites, costs and falsification |",
+      "|4|A write-once allocation/exact conversion, only unknown A-write subphase.|Existing compiled loop has no integer division; first-mark parent also includes witness/boundary. Matched allocation/conversion clocks and native byte/RNG gates needed. No measured traffic/capacity saving.|",
+      "|6|Resident fixed-context fresh complete passes amortize public model setup.|NTT already once/run, not/layer. Measure setup/slope/lag/drain/independent verify/peaks; preserve fresh randomness/P3 review. >20ms/new verified position falsifies50/s for tested schedule.|"
+    ]
+  },
+  {
+    "heading": "## Cycle 0023 \u2014 exact row-tiled down/requant (2026-10-04)",
+    "bytes": 7339,
+    "evidence_lines": [
+      "**New source finding:** FFN-down matmul result at witness.rs685 is a temporary passed directly into quantize; only z16/RDL persist. Exact tiled reconstruction can remove the whole raw-accumulator temporary locally. Baseline materialized split releases packed after GEMM, partials after reconstruction, then allocates outputs. Candidate writes final planes after complete K sums. Final planes, proof work and fresh masks stay; no saved scalar product count (two byte MACs replace one wide MAC). First-refusal control shows early residual fusion returns residual instead of a later down failure: all down checks must finish before residual. Keep private status/order and unchanged site string. Native mask/RNG/byte/refusal gates owed.",
+      "End-to-end ceiling P/(T-C_down_all_builds+C_pack+C_upload+C_byte_GEMM+C_reconstruct+C_download+C_sync); accepted8B terms absent. Historical73.36s initial-chain and86.691s first-mark are combined parents, not down/alloc/startup clocks. Even zero-cost deletion of both leaves248.558226s of408.609226s, arithmetic2.05988positions/s only; not candidate saving or counted8B rate. Falsify raw/remainder/support/pad/first-refusal/native RNG/transcript/receipt divergence, new domain/refusal/privacy leakage, no native peak benefit or added enclosing costs>=removed down cost.",
+      "| Rank | Expected complete-proof scope | Prerequisites, added costs and falsification |",
+      "|5|A write-once and exact conversion.|Compiled conversion has no division; unknown isolated allocation/conversion clocks, no full matrix capacity saving. Falsify already-eliminated stores/enclosing regression.|"
+    ]
+  },
+  {
+    "heading": "## Cycle 0024 \u2014 public integer batch scheduling and a grouped-API negative (2026-10-04)",
+    "bytes": 7111,
+    "evidence_lines": [
+      "## Cycle 0024 \u2014 public integer batch scheduling and a grouped-API negative (2026-10-04)",
+      "Question: can public row/K-first batches reuse packed slices and reduce output-tile calls without restoring full scratch or changing private status? Baseline prior coarse row64/fullK8 calls/36MiB; N128256 calls/34.0625MiB, splitK1024 4096 calls/512MiB packing. Baseline fullK already packs once. Added pointer/descriptor/pool/synchronization and full row i64 splitK reduction costs must be counted; two byte MACs and final32MiB planes remain. Isolated native down/both witness-build clocks absent. Complete-proof ceiling P/(T\u2212Cdown_all_builds+Cpack+Cupload+CGEMM+Cfinalize+Cdownload+Csync); no accepted8B terms measured.",
+      "**Bounded negative:** at counted unadmitted T512/K16384/N4096, q32 grouped N128 tiles has36MiB/8 conceptual calls, identical payload/calls to coarse fullN but256 versus8 problems. No reason from these counts to prefer it. q4 gives34.25MiB/64calls versus34.0625MiB/256. Coarser row128/256 gives40/48MiB and4/2calls; row51264MiB is16MiB worse than materialized split48MiB. K-first1024/q4 reduces packed traffic512->16MiB but adds2MiB full-width reduction:34.375MiB/1024calls vsprior32.25MiB/4096. FullK partials safe already. Logical row64 W reads512MiB, actual cache/DRAMunknown. APIcalls are not measured launches; payload excludes workspace/mirrors/descriptors/status/transfers/pools/input/weights/other planes/preallocated outputs. No memory/speed improvement measured.",
+      "|Rank|Expected end-to-end scope|Prerequisites/costs/falsification|",
+      "|6|Composition/commitment/lookup architecture.|High soundness/privacy/PCS integration; no replacement accepted. Revisit with measured full-stack phase ceiling; preserve incompatible/small-parent negatives.|"
+    ]
+  },
+  {
+    "heading": "## Cycle 0025 \u2014 TN weight preprocessing and separated-scan residency (2026-10-04)",
+    "bytes": 7064,
+    "evidence_lines": [
+      "**Useful negative:** actual CLI StackSource seals layers0..L-1, restarts, then rebuilds0..L-1; boundary_plane/witness shares one cached witness, not a third build. Distinct32layer K16384/N4096 one-layerLRU still has64preparations/pass; it cannot halve preprocessing across those scans. All32down caches retain2048.5MiB extra plus original2GiB down weights;32preparationsonce vs64P atPpasses.128column cache2.000488MiB bounds capacity but tile-first64 vsrow-first8rowtiles512full-weight equivalent preps/pass. At4passes256 vs2048preps. Counts only, no large allocations; packX/residency/transfers/workspace omitted. Tile-first does not reuse across whole scans without retaining all tiles or changing source scheduling. Synthetic identical recipe weights can deduplicate differently; not assumed for trained distinct layers.",
+      "Baseline direct wide native down has no adapter cache overhead to remove. Versus a conditional uncached byte adapter, caching can remove transpose/sums/upload recurrence only with correct tier/lifetime. Adds loader identity scan, packing/startup/residency, leases/eviction/sync; no MAC/proof work removed. No isolated native down/preprocess clocks, accepted8B startup or rate. Ceiling N/(T-Cprep_removed+Csetup+Ccache+Ceviction+Ctransfersync) unknown. Falsify rawdot/plane/pad/support/refusal/identity/public schedule or native RNG/transcript/receipt mismatch, domain/privacy weakening or no enclosing gain. P3 cache/sums stay private; no masks/openings reused.",
+      "Next: independent orientation-aware fold_cols_i8 and canonical statement digest oracle at argument.rs1426/1433, private_block.rs575; pin actual consumers/loader/support, include stale/transposed/ragged controls. Owner first isolates both witness/down/preprocessing clocks then guarded supported integer native/device parity/full-stack A/B; no job launched. Rotation composition ->GPU NTT/commitments ->lookup/softmax ->sumcheck/GKR ->batching/amortization ->quantization/arithmetic. Preserve all prior negatives."
+    ]
+  },
+  {
+    "heading": "## Cycle 0026 \u2014 canonical TN readers and bounded digest transpose (2026-10-04)",
+    "bytes": 7424,
+    "evidence_lines": [
+      "Run `20261004T080146Z-55b15f9d`, checkpoint 2026-10-04T08:18:12.165349+00:00. Required agenda/state/findings/source inventory/latest result and project CLAUDE/START_HERE/MVP/decisions/active coordination/target read; baseline/source prefixes pinned. Research-only writes excluding runtime; no native/GPU/proof/install/Git/external messages or production edits.",
+      "**Result:**324 synthetic cases,3888 fresh Fp2 folds/40824 output words,10206 independent raw witness dots,1157652 canonical FFN bytes,315 support refusals,576 line-accounting cases and26 controls pass. 0.460062s/17392KiB RSS, seed2026100426, one pinned nice10 CoreUltra9 185H CPU thread,59s/512MiB caps. No measured proving improvement. [Experiment](experiments/tn-canonical-readers-20261004/README.md) and [owner handoff](handoffs/20261004-tn-canonical-readers.md).",
+      "Baseline conditional original+packed cache; eliminate duplicate retention/full cast temporary/repacking only with valid residency. Add import/canonical identity, migration/leases, transpose/scratch/scatter/fresh fold/transfer/workspace/sync. Complete ceiling N/(Tbaseline-Cremoved+Cadded) unknown; isolated down/prep/digest clocks/actual peak absent. Falsify logical value/support/refusal/framing/model identity or native bytes/RNG mismatch, weakened privacy/domain or no enclosing/peak gain. P3 metadata/storage stay private and require reviewed binding; no blinding/opening reuse. Previous separated-scan LRU, slower fusion, small-parent and arithmetic negatives preserved.",
+      "|Rank|Hypothesis and expected enclosing impact|Prerequisites / cost / falsification|"
+    ]
+  },
+  {
+    "heading": "## Cycle 0027 \u2014 complete public digest cache and scan attribution (2026-10-04)",
+    "bytes": 6093,
+    "evidence_lines": [
+      "NEW attribution negative: `run.rs`571/717 already reads stored block_digests during stages. There is NO full-model digest scan removed inside a proof stage. CLI model root and statement construction scan twice before proving; fresh verifier likewise. Repeated cold processes have2P->P scans, resident model/root with fresh statements P+1->1 conditionally, fixed existing statement has setup-only scans and does not establish distinct newly proved positions. Synthetic DenseRun clones before initialization, so cold Clone is not a shared warm cache. No resident driver/result or private randomness reuse.",
+      "Count-only unadmitted Llama3-8B padded public layout T512: model preimage7,801,753,824B (~7.266GiB), i8 cast payload7,784,890,368B, maximum64MiB cast temporary -> proposed64KiB scratch; cached digest payload1KiB + unknown cell overhead. No large allocation, DRAM/host/GPU peak or speed measured. T-dependent RoPE invalidates complete digest across longer contexts; attention remains quadratic. Removed conditional scans/temporary; added first hash/scratch/cache checks/ownership/import/clone and independent auth costs. Ceiling N/(T-Drepeated+Ccache+Cstream) unknown without isolated digest and accepted8B clocks. No matrix/SC_SZC/mask/proof work removed. Falsify any canonical/native digest, support/table/refusal, outer binding/provenance/RNG/transcript/receipt/privacy mismatch, stale clone, cross-process trust, peak failure or enclosing regression.",
+      "Ranked: 1 owner GPU SC_SZC + witness recurrence (highest observed recurring scope; high native/device cost); 2 exact coarse fullK split-int16 FFN-down (packing/transfers/twice byte products/i64/requant/refusal; isolated clocks unknown); 3 tested full public digest/cache (moderate local integration, native ownership/byte gates pending, stage benefit absent); 4 TN canonical weight owner/migration (all consumers before dropping duplicate); 5 NEW context-change incremental hasher prefix cache before first T-dependent table (unchanged digest framing; FFN after table still scans, bound before integration); 6 resident fresh complete-pass startup/slope/lag/drain/verify sweep; 7 lookup/composition/PCS (high protocol/field/privacy cost). Preserve all earlier slower fusion, small-parent, compiler division, separated-scan LRU and scheduling negatives."
+    ]
+  },
+  {
+    "heading": "## Cycle 0028 \u2014 public hash prefix reuse has a large remaining suffix (2026-10-04)",
+    "bytes": 5349,
+    "evidence_lines": [
+      "NEW counted negative: dynamic RoPE length frames precede the entire FFN. Before the first frame, the ordinary checkpoint can reuse the domain/five attention tensors, but every suffix frame and FFN word still hashes. Unadmitted public32layerLlama/D4096/F16384/KV8/dh128/T512 prefix1,342,310,624B vs full7,801,753,824B(17.205%); suffix6,459,443,200B(82.795%). Four distinct contexts512/1024/2048/4096 remove4,026,931,872Bof31,391,564,672B(12.828%) including cold prefix. Same-context finished digest cache dominates after the first call. These are allocation-free logical hash bytes, not runtime/DRAM/peak gains or admitted profiles. No universal bound on other hashing algorithms claimed.",
+      "NEW ownership/cost negative: source constructors still support-scan and copy1,342,308,352prefix bytes per new32layervariant. Current Vec ownership does not provide cross-context shared weight identity; shared immutable owner/support-shape certificate would be added integration work, and all table/refusal/provenance checks remain. No validation/copy saving priced. Cached state is local, never imported/caller asserted; actual verifier content is independently hashed. Controls detect stale internal mutation, wrong owner/domain/order/framing, concatenated/finalized digest substitutions, obsolete context frame and omitted FFN. Public P1 cache provides no P3/private opening or mask reuse authority.",
+      "Native seam private_block.rs494/614, candidate/sonnet bothSHA9540a7e60a2d07f2988d57267e9971c618627407dc9109f691656ea300c5b96d. No Rust patch for the demoted candidate; tested oracle/interface in [handoff](handoffs/20261004-public-prefix-checkpoint.md) and [experiment](experiments/public-prefix-checkpoint-20261004/README.md). Removed only conditional prefixhash; added firsthash/statecopy/owner checks/stream/context validation/suffix/import/freshauth. Complete ceiling N/(T-Dprefix+Cstate+Cowner+Cstream) unmeasured. Falsify any native byte/hash/refusal/binding/RNG/transcript/receipt/privacy mismatch, staleowner/coldcache trust or enclosing regression.",
+      "Ranked:1owner GPU SC_SZC+witness recurrence;2exact full-K split-int16 down;3NEW memory-bounded exact SC_SZC reconstruction windows;4finished-public-digest stream/cache and TNowner;5residentfresh complete-pass startup/slope/drain/verify;6prefix checkpoint demoted. All earlier negatives preserved. Next local test reconstructs MSB-folded SC_SZC tables from immutable synthetic inputs/challenges with independent per-round/final cube checks; count rereads/field work/live payload including parent retained codewords. Exactseams zkp-core/sumcheck/rounds.rs19/grouped.rs22 and private_block/argument.rs495/553 pinned. Native uses MSBhalf-split; do not blindly transplant earlier Pythonpair-split conventions. Native masked-boundary owner work is not duplicated. Main/Claude reviews/integrates under shared locks; no heavy job queued."
+    ]
+  },
+  {
+    "heading": "## Cycle 0029 \u2014 reconstruction tradeoff and symbolic equality storage (2026-10-04)",
+    "bytes": 7834,
+    "evidence_lines": [
+      "NEW negative: simple per-round bounded reconstruction at illustrative n23/K23/B4096 reduces table buffer3,489,660,928->3,014,656B, excluding source/scratch owners. It adds11 source scans and1,929,379,840 reconstruction multiplies versus192,937,961 baseline data-fold multiplies; residual folds/prefix generation add more. A separate fullFp2source copy adds3,087,007,744B. No native memory/time gain follows; this is not staged Blendy/RW streaming and does not falsify those stronger methods. Existing A/H/codeword tier lifetimes remain; no duplicate-source capacity excluded silently.",
+      "Seams: SumcheckRounds at rounds.rs19; grouped.rs22/167/172; argument.rs195/311/495/553/1699; zk.rs1091. Source SHA256/snapshots pinned; [experiment](experiments/sc-szc-reconstruction-windows-20261004/README.md) and [handoff](handoffs/20261004-sc-szc-symbolic-equality.md). Baseline/eliminated/new costs and end-to-end formula documented; accepted8B and isolated phase clocks absent. Any sample/final/refusal/index/binding/RNG/transcript/receipt/privacy mismatch or no actual peak/enclosing benefit falsifies. Main/Claude reviews and integrates; no heavy job queued.",
+      "| Rank | Hypothesis and enclosing impact | Prerequisites, cost and falsification |",
+      "Seven LIVE records: newly assessed product sumcheck2025/1473 revisedFeb25 2026; older Blendy section4/7 refinement beyond cycle13; newly assessed Scribe2024/1970 revisedJul29/Aug2026proceedings and RW/symbolicEq scheduling; EPFL design/license refinement (MIT terms now inspected via old URL redirect, canonical failure retained); hardware study refresh; Jolt displayedOctober1release/date-year limitation and benchmark-only commit pin5101ad2143039de6f279613810414c3d071d1f8f; official Rust capacity contract. Paper/repository performance not reproduced. PDF/license/history failures retained without workaround. Rotation memory traffic -> batching/amortization -> arithmetic -> composition -> NTT/commitments -> lookup/softmax -> sumcheck/GKR. Preserve slower fusion, small-parent, separated-scan LRU, compiler conversion and all prior negatives."
+    ]
+  },
+  {
+    "heading": "## Cycle0030 \u2014 tagged equality storage and cubic contraction filter (2026-10-04)",
+    "bytes": 7975,
+    "evidence_lines": [
+      "NEW negative: naive cubic contraction f*MLE(g*h) matches original triple product at Boolean endpoints but fails t2/t3 (t2:1320vs1192). Four deterministic tuple-oracle checks retained in highdegree-control.json. This is a transfer filter, **not a TensorZKP paper defect assertion**. Their August2026 proceedings use H10080GB/BabyBeardegree8, report52.9GBat2^25 and pipeline overhead; different field/PCS/highdegree mechanisms cannot provide nativeGoldilocks/Fp2degree4/5 rates. Source/history/license qualifications retained.",
+      "| Rank | Hypothesis / enclosing impact | Prerequisites, costs, exactness and falsification |",
+      "| 7, demoted | Simple per-round source reconstruction / hash prefix reuse. | Reconstruction adds many scans/multiplies; prefix hash leaves most FFN suffix and constructor scans. Prior negative results stand. Staged/RW architecture remains a separate high-cost privacy/storage/PCS question. |",
+      "Complete ceilingN/(T-Ceq+Croles) unknown: accepted8BT and isolatedEqphase clocks absent. Falsify any original sample/final/index/support/refusal/RNG/transcript/extension/receipt/privacy mismatch, lost coverage, actual peak failure or enclosing regression. Owner reviews/integrates [handoff](handoffs/20261004-sc-szc-tagged-equality.md); [prototype/results](experiments/sc-szc-tagged-equality-20261004/README.md). Native seams argument.rs195/284/311/495/553/570/1699,grouped.rs22/86/149/172,rounds.rs19,zk.rs1091. No Rust patch or heavy job queued.",
+      "SixLIVEqualifiedrecords appended: originalGruen2024/108 andDaoThaler2024/1210 (newly assessed original scopes), combinedMarch2026/587date correction approvedvsrevision, JoltEqdocs/source/MITterms plusPR953verified2025-09-19merge (latestOct1releaseyearstillunknown), TensorZKPAug2026proceedings memory/degree scope. Remotecommit/history/diffCachemiss/InternalError preserved; no inspectedremotecommit claimed. No author gains reproduced. Rotation nextbatching/amortization->arithmetic->composition->NTT/commitments->lookup/softmax->sumcheck/GKR. All earlier fusion/compiler/small-parent/LRU/privacy/reconstruction negatives preserved."
+    ]
+  },
+  {
+    "heading": "## Cycle 0031 \u2014 adaptive two-layer equality accumulation (2026-10-04)",
+    "bytes": 6374,
+    "evidence_lines": [
+      "NEW negative and refinement: n8/j0/S5/chunk1:1,280multiplies vs768baseline,1,280adds vs640. Unconditional tiny chunk1024 arm saves only96multiplies vsunit-aware whileadding1,537adds. Adaptive per-group/per-chunk guard preserves exact output and never increases counted equality multiplications versusunit-aware in tested rounds; chunk1024tiny3,614->3,434mul,5,053->5,305add. Integer/branch/locality/runtime costs remain. Keep debug explicit sample1 when adapting native S. Initial unmatched-parenthesis syntax failure and first successful unguarded experiment retained separately.",
+      "Illustrative allocation-free n23/Eq23/14/23/paddeddegrees4/2/2/K26/nativechunks1024/nonzero later recovery counts104,857,589literal or104,853,484unit-aware ->79,773,652adaptive:25,079,832multiplications removed and83,904adds added. These are equality-only operation counts (about23.919% of unit-aware weighting), not whole SC_SZC/proof/runtime/model throughput. All-explicit counts retained. Baseline measured remaining SC_SZC roughlyhalf of earlier single-block GPU-assisted proving, but no accepted8B T or equality-only clock. CeilingN/(T-Cweight+Cnew) remains unknown. Falsify any sample/final/index/support/refusal/native mask/transcript/RNG/extension/receipt/privacy mismatch or enclosing timing/peak regression.",
+      "Ranking:1ownerGPU SC_SZC+recurringwitness;2exact full-K split-int16down;3materiallyrefined symbolicEqstorage plus independentlyreviewable adaptiveweighting;4publicdigest/TNowner;5fresh residentfixedcontext complete-pass startup/slope/drain/verify;6NEWmatrix-packed basefield/groupedopening architecture filter;7source reconstruction/hashprefix/unconditional tinysplitdemoted. README records prerequisites/integration/addcost/exactness/privacy/soundness/falsification for each. Preserve all prior fusion/compiler/smallphase/LRU/hashprefix/reconstruction/privacy negatives."
+    ]
+  },
+  {
+    "heading": "## Cycle0032 \u2014 actual SC_SZC clauses and weighting ceiling (2026-10-04)",
+    "bytes": 8095,
+    "evidence_lines": [
+      "## Cycle0032 \u2014 actual SC_SZC clauses and weighting ceiling (2026-10-04)",
+      "64 source-derived clause fixtures passed 576 independent original-cube samples against 1,728 candidate samples, 5,280 direct-MLE final values, 192 arbitrary-input clause values, 36 even-lookup values, 128 native declaration checks, 192 independent arithmetic-formula checks, 576 repeated counter checks and 288 adaptive guards. Ten negative controls fired. Final run: 6.607152 s / 17,664 KiB RSS; seed 2026100432, one pinned nice19 Core Ultra 9 185H CPU thread; 59 s wall/CPU and 512 MiB address-space caps. No native proof or proving speed measured.",
+      "Illustrative n23/short-Ht14/ls3/padded/release nonzero-recovery case has 30 native-style tables, 15 lookups and eight helpers. The complete zero-check bracket takes 54 Fp2 mul, 21 mul_base, 65 add and 33 sub API calls per evaluation; host groups each take two mul. Equality accumulation removes 25,079,832 mul from 2,478,829,294 counted scan+table-fold mul (1.012%), adds 83,904 Fp2 additions and 176 B logical scratch per part plus metadata. Including source-lowered base multiplications (5 per Fp2 mul, 2 per mul_base) makes the removed fraction 0.894%. Literal API count reduction is 0.281%; none of these fractions is a time ceiling or native speedup. Table construction, Eq setup, inversions, group interpolation/recovery/reduction, masks/extensions, transcript, witness, PCS, transfers, serialization and verification are excluded and remain. Data/table folds are unchanged; symbolic Eq storage is a separate candidate.",
+      "Two preserved mistakes matter: the initial all-zero IR lost its source-declared degree (fixed with zero metadata sentinels); the first passing port incorrectly batched the exempt A_E plane and used the wrong S-plane order. An independent pad.rs/layout.rs declaration audit corrected both, and added explicit exempt-E and wrong-order controls. The before-pad-plane-audit result is not native-relation evidence. The tuple-field expanded oracle is algebraically independent, but both evaluators consume a descriptor; that descriptor needs its own source-derived gate. Preserve all earlier slower fusion, compiler/small-phase, LRU, hash-prefix, reconstruction, privacy and tiny-chunk negatives.",
+      "| Rank | Hypothesis / end-to-end scope | Prerequisites, added costs and falsification |",
+      "| 3, NEW refined local | Compile lookup denominators once per proof definition: precompute alpha-cst, tag Unit/Neg/Scale rather than general mul_base for +/-1. Actual ls3 S lookup list has ten +1 and one -1 coefficient. | Moderate typed local helper/definition seam; setup/tag/dispatch costs, constant binding and term order. Potentially remove 11 mul_base and 15 accumulation adds per bracket call, subject to exact negative-coefficient rewrite. No tested/runtime gain yet. Native helper range/layout/odd-pair/mask/refusal/bytes must remain. Lost parity or enclosing regression rejects. |"
+    ]
+  },
+  {
+    "heading": "## Cycle0033 \u2014 compiled lookup denominators and explicit dispatch costs (2026-10-04)",
+    "bytes": 9901,
+    "evidence_lines": [
+      "128 complete-clause fixtures passed 1,152 independent original-cube samples against 1,152 compiled samples, 3,456 direct-MLE finals, 384 arbitrary-input full-clause values, 160 general helper cases, 720 direct denominator values, 256 native declaration checks, 128 independent clause-counter checks, 320 general counter checks, 384 per-call counter checks, 160 preparation and 160 dispatch checks, and 36 prior loop-census checks. Eleven negative controls fired. Final run: 2.179922 s / 17,984 KiB RSS; seed2026100433, one pinned nice19 Core Ultra9 185H CPU thread, 59s wall/CPU and512MiB AS caps. These are synthetic algebra/accounting results, not native proofs or proving clocks.",
+      "Baseline: helper_sum evaluates alpha minus an affine lookup expression on every bracket sample. The candidate precomputes alpha-(cst+tag) from the CURRENT proof definition, then subtracts Unit, adds Neg and subtracts Scale products in original term order. Empty/multiple terms, aliases,0/non-unit/field-negative coefficients, arbitrary Fp2 constants/challenges, odd/even helper lists and zero denominators match an independent tuple-field expanded oracle. Full fixture n0..3,ls2/3,with/without both pads,full/base/zero/Boolean values; native A_E exemption and plane order retained. Partial support configurations, honest native witnesses, private source maps, native extensions/masks/RNG/transcript/PCS/refusals remain unexecuted. Stale alpha/tag plans fail controls: these plans are definition-local and cannot be cached between proofs. No private mask/opening reuse is authorized.",
+      "Illustrative n23/short-Ht14/ls3/padded/release nonzero-recovery census:30 tables,15 lookups,8 helpers; bracket54mul/21mul_base/65add/33sub becomes54mul/10mul_base/51add/32sub. Eleven general coefficient products,14 additions and1 subtraction are removed per call. Fp2 multiplication count is unchanged. Across37,748,732 zero-check calls,415,236,052 mul_base are removed; counting5 base mul per Fp2 mul and2 per mul_base yields830,472,104 fewer of14,021,556,775 counted base multiplications (**5.923%**). Literal API total falls11.033%, including15 extra setup subtractions. None of these fractions is a runtime ceiling or speedup. Unchanged folds, other brackets and all per-sample equality products are counted. Setup/Eq construction, inversions, interpolation/recovery/reduction, masks, witness, PCS, transfers, serialization and verification are excluded.15 tag classifications,15 new setup subtractions and566,230,980 recurring coefficient dispatches remain. The existing15 cst+tag additions are shared setup, not additional work. Native enum size, allocations and compiler elimination are unmeasured.",
+      "The first passing algebra run omitted weight*bracket products from the projection denominator. Its exact source/hash/result/log/command is preserved in initial-missing-weight-count/. Final corrected loop totals independently match36 previous literal census entries; the retained initial6.096% fraction is not the final5.923% fraction. Earlier pad-order/A_E, slower fusion, compiler/small-phase, LRU, hash-prefix, reconstruction and privacy negatives remain intact. The specialization still leaves54 full-extension multiplications per zero-check bracket and adds tag dispatch; algebraic success need not improve runtime.",
+      "Expected complete ceiling remains `N/(T-Cden_removed+Cplan+Cdispatch+Calloc)` with all recurring witness/proof/serialization/drain included. T and isolated denominator time for an accepted8B workload do not exist, so no numerical end-to-end ceiling can be justified. Falsify any native sample/final/helper/index/support/pad/RNG/transcript/extension/receipt/refusal/privacy mismatch, actual peak failure or enclosing slowdown. Phase clocks and native release/compiler behavior must precede a claimed benefit.",
+      "| Rank | Hypothesis / expected complete-proof impact | Prerequisites, costs, exactness/privacy and falsification |"
+    ]
+  },
+  {
+    "heading": "## Cycle0034 \u2014 row-local denominators pass algebra but worsen API count (2026-10-04)",
+    "bytes": 7099,
+    "evidence_lines": [
+      "128 source-derived complete SC_SZC fixtures/768 release/debug chunk schedules pass1,152 independent original-cube samples against6,912 candidate samples,20,736 direct-MLE finals,5,376 row-counter checks,48 previous-baseline census entries,160 general lookup rows and3,798 direct denominators. Eleven algebra/lifecycle negative controls fire.1,098 group recoveries and630 zero-factor fallbacks occurred. Final11.575187s/17,332KiB RSS, seed2026100434, pinned nice19 Core Ultra9 185H thread;59s wall/CPU/512MiB AS caps. n0..3,ls2/3,padded/unpadded,odd/even helpers,full/base/zero/Boolean values,chunks1/3/7,explicit-debug/release sample1; general empty/multiple/alias/zero/negative/non-unit terms. Zero denominators checked only algebraically. Native honest witnesses, extensions, mask/RNG/transcript/PCS/refusal/privacy parity unexecuted.",
+      "Baseline cycle0033 compiled Unit/Neg/Scale plan reevaluates affine denominators per bracket. Candidate prepares CURRENT-row origin and slope, advancing over EVERY sample including skipped1 and resetting per row/round/chunk. It preserves all helper products, clauses, padded domains and source indices; no masks or relation weakened. Differential source patch:stepping.py RowPlan/SteppedTerms and row_rounds.py hooks. Shared copied scheduler is qualified by the separate tuple-field expanded original-cube oracle. Initial passing result/source retained; final run added the48 cross-cycle count checks.",
+      "NEW negative: illustrative n23/ls3/padded/release removes83,886,072 mul_base but adds482,344,902 Fp2 adds, removes293,601,252 subs and leaves2,478,833,399 full multiplies unchanged. Lowered base-mul count falls1.271860%; total API operations INCREASE1.324854%. Debug explicitly sampling1 still increasesAPI0.292969%; unpadded n20/ls2 release increases2.425874%. Setup is two affine dispatch passes per row/round,480B logical origin/slope per part,566,230,980 logical reads/754,974,630 writes in the illustrated release census. Accesses may be registers/cache, not measured DRAM. Native allocation/compiler/occupancy/spill/phase costs unknown. Row stepping demoted; reduced multiplication count alone does not support integration.",
+      "Expected complete ceilingN/(T-Cold_den+Crow_setup+Cstep+Cscratch+Cdispatch) unmeasured because accepted8B T/denominator clocks are missing. Tables/interpolation/native Eq/data folds and weight products are charged unchanged; setupEqs/inverses/recovery/reduction/masks/witness/PCS/transfers/serialization/verification excluded. Falsify any complete original/native sample/final/helper/order/support/pad/refusal/RNG/transcript/extension/receipt/privacy mismatch, memory failure or enclosing regression. No runtime ceiling follows from1.27% counted arithmetic.",
+      "Ranked queue:1 owner GPU SC_SZC+recurring witness (largest measured remaining single-block scope; high CUDA/memory/native privacy integration);2 owner exact full-K split-int16 down (packing/i64/requant/workspace and isolated share unknown);3 compiled denominators pending native compiler/phase gates (low/moderate plan/dispatch costs);4 NEW exact delayed modular reduction in terminal Fp2 weighted sums (prove >u128 accumulation bounds and charge wider carries/flush/reduction/scratch before any speed claim);5 symbolic Eq/public causal-mask descriptors (memory benefit with full index/support/terminal gates, causal predicate includes padded heads);6 fresh fixed-context resident complete-pass startup/slope/lag/drain/verify sweep (20ms recurring/new position falsifies50/s for that schedule);7 row stepping demoted on API/scratch tradeoff;8 Vega/binary-field/SWIRL/Fold-DCS architecture filter (high PCS/PIOP/state/privacy/whole-proof soundness migration). Detailed prerequisites/costs/exactness/falsification in experiment README. Previous fusion/compiler/small-phase/LRU/hash-prefix/reconstruction/privacy negatives preserved."
+    ]
+  },
+  {
+    "heading": "## Cycle0035 \u2014 recovered exact wide-accumulation result (reported 2026-10-12)",
+    "bytes": 1991,
+    "evidence_lines": []
+  },
+  {
+    "heading": "## Cycle0036 \u2014 four-reduction Fp2 arithmetic and CUDA carry model (2026-10-12)",
+    "bytes": 8991,
+    "evidence_lines": [
+      "6,912 direct-MLE finals;368 recoveries,208 zero-factor fallbacks.19 negative",
+      "Baseline:canonical Goldilocks2,u\u00b2=7,FP2 product has5 reduce128 calls and2",
+      "Illustrative n23/ls3/padded/release nonzero-recovery,baselineafter cycle0033",
+      "Complete ceiling N/(T-Caffected+Cnew),ideal upper boundN/(T-Caffected),cannot",
+      "be numeric without accepted8B total/affected clocks. Falsify any canonical",
+      "LRU/hash-prefix/reconstruction/padding/privacy negatives all remain intact."
+    ]
+  },
+  {
+    "heading": "## Cycle 0037 \u2014 public causal-mask descriptor (2026-10-12)",
+    "bytes": 8470,
+    "evidence_lines": [
+      "**A compact public-mask candidate passed synthetic differential checks; no native proving speed gain was measured.** Final 0.960794 s / 19,804 KiB RSS, seed2026101237, one pinned nice19 Core Ultra 9 185H thread; 59-second wall/CPU, 512-MiB address-space caps and 32-MiB estimated memory. Thirty-six fixtures cover leading axes0..3 and token bits0..4 with full/base/Boolean/zero Fp2. Results:13,920 endpoints,48,720 degree0..6 sample values,188 folded states,1,316 mask-sensitive point evaluations,224 complete tail sums of those contributions,7,952 independent original-cube MLEs,36 terminals,72 arbitrary off-domain comparator checks,144 public zero-extension terminals and19 negative/refusal controls. Two intermediate passes and all matching reconstructed code pins retained; later runs add coverage and correctly lift supp_Ht over j. This is not complete native SC_SZC, an honest witness, grouped-head/P3 support validation, masked-transcript/receipt evidence or a privacy proof.",
+      "The baseline has one explicit N-word Fp2 mask plane per SC_RS/SC_SZC slot, N-1 dense folds, and original capacity retained by Vec::truncate. The candidate removes mask construction and dense folds, adds2(T-1) interpolation calls and O(T) state. Conditional T512/32-leading-slot counts:128 MiB explicit payload versus24 KiB compact temporary bound/8 KiB t-end payload;8,388,607 ->1,022 interpolations. Added proposed native work is2N-2T=16,776,192 predicate readers, O(T) preparation/drop, typed total/round/census/final adapters and O(log T) verifier recurrence. Common sample interpolation and other tables, private/support/Eq scans/folds, witness, per-proof randomness/commitments/PCS/transfers remain. These are counts, not measured parent peaks or speed. The two sequential slots' peak savings cannot be added. Longer contexts still increase attention quadratically.",
+      "The complete ceiling is `Npositions/(Ttotal-Cmask_build_fold+Cnew)`, with ideal upper bound `Npositions/(Ttotal-Cmask_build_fold)`. No numeric accepted8B ceiling exists because total and isolated affected clocks are absent. The historical shared synthetic125M one-block/T512 RTX4070Laptop b2 profile records SC_RS0.600 s and SC_SZC7.794 s within16.864 s proving,5.77 s external witness,0.028 s serialization,0.82 s in-process byte verification and27.523873 s whole-test wall. Removing both ENTIRE prover slots bounds savings at8.394 s on that diagnostic; the mask-only saving is a subset, not an8B rate. Verifier slots0.191/0.274 s are reported separately. Startup is not isolated. The historical synthetic12-block diagnostic remains408.609226 s wall/318.22 s combined run-prover/12.15 s in-process verification/484,107,456 B, without fresh independent verification. The interrupted CLI has no terminal result; state=running is not liveness.",
+      "|Rank|Hypothesis and end-to-end scope|Prerequisites, added costs and falsification|",
+      "Next LOCAL: symbolic supp_Ht/supp_S descriptors with exact grouped-head/P3 mapping against original-cube MLE. Include negative products of separately interpolated predicates, terminal/extension values and predicate/scratch costs. OWNER: verifier descriptor frozen/terminal/refusal byte gates, then Closure/Grouped/total/census adapters, isolated mask clocks and shared-lock complete-slot/block A/B. No heavy job queued. Rotation: GPU NTT/commitments -> lookup/softmax -> sumcheck/GKR -> memory traffic/batching -> arithmetic -> proof composition. Prior slower fusion,row-step/API,compiler/small-parent,hash-prefix/reconstruction/padding/privacy negatives preserved. Saved reports do not establish external delivery."
+    ]
+  },
+  {
+    "heading": "## Cycle 0038 \u2014 compact public support descriptors (2026-10-12)",
+    "bytes": 10390,
+    "evidence_lines": [
+      "The first run failed a negative control: the same challenge on every coordinate gave equal evaluations for two different grouped/flat head tables because changed cells had equal bit weight. No candidate mismatch was found. Its complete matching source/log/command/completion is retained under initial-negative-point-collision; distinct coordinate challenges correct the test and final pass. Other controls catch wrong head prefix, trailing coarse tiling, substituting S for Ht, row-lift repetition, stale/mutated values, lost extension limbs, overlap/index/shape/tile/native-lift refusals. Merging causal/support Boolean tables changes offdomain native multiplication: at t2/j3 the separate product is8 versus2 for the merged MLE. Causal/support remain separate; no whole-row, LogUp, private-table or future-score skipping is authorized.",
+      "Complete ceiling positions/(Ttotal-Csupport_build_fold_eval+Cnew), ideal upper bound positions/(Ttotal-Csupport_build_fold_eval). No numeric accepted8B ceiling exists: total and isolated affected clocks absent. Raw b2 log hash verified. Historical shared synthetic one-blockT512 RTX4070Laptop/two-thread profile remains externalwitness5.77s/prove16.864s/serialization0.028s/in-process byteverify0.82s/enclosingtest27.523873s;SC_RS0.600s/SC_SZC7.794s. Deleting BOTH WHOLE slots bounds savings at8.394s on that diagnostic; support is only a subset, not an8B rate. Verifier slots0.191/0.274s separate. Startup not isolated; recurring native witness/commit preparation also remains. Historical synthetic12block408.609226s wall/318.22combinedrun-prover/12.15in-processverify/484,107,456B lacks fresh independentverification. Reboot-interrupted CLI has no terminal result; state=running is not liveness.",
+      "|Rank|Hypothesis / end-to-end scope|Prerequisites, added cost and falsification|",
+      "|7 architecture, refined filter|Structured PCS/GPU NTT/composition; projective basis demoted pending native affected shares.|Field/layout/query/hiding/state/soundness migration and extra sumchecks. New enclosing-WHIR negative prevents adopting binding-only claims; original-cube final oracle required.|",
+      "Six LIVE primary records appended;209total. New [projective-WHIR author negative](https://github.com/Plonky3/Plonky3/pull/1949) reports faster binding with enclosing loss/parity;[issue1890](https://github.com/Plonky3/Plonky3/issues/1890) closesSep4. This is author evidence, not reproduced here; native64bit/Fp2 affected shares differ. Newly assessed older [JaggedPCS](https://eprint.iacr.org/2025/917) receivedMay21 2025/revisedApr13 2026 gives a structured public-indexing architecture lead with extra reduction/PCS/privacy obligations; metadata/abstract inspected, PDF403 prevents a full audit. [Oct8 resettable-NIZK revision](https://eprint.iacr.org/2026/1036) is a fresh-randomness filter for resident proving, not an adopted compiler. [Plonky3v0.8.0](https://github.com/Plonky3/Plonky3/releases/tag/v0.8.0) Sep23 is pinned by inspected version/CHANGELOG diff commit a21e3ed42905040ad49c519e402f018381c12d0c; no arithmetic diff. Jolt MLE traits refreshed with undated doc qualification; JoltMIT terms and Plonky3Apache terms plus MIT-or-Apache manifest inspected. April17 projective paper refreshed alongside the negative. No author performance reproduced. Commit InternalError/Cachemiss andPDF403 blockers retained; exactURLs/date/license/commit scopes in source-records.json, no source-page text retained.",
+      "Actual seams: private_block/argument.rs Tab68/B::supp810/tile_rep835/build338/run447/verify613, pad.rs48/132/335,shape.rs257/883,witness.rs211 and grouped.rs99/149/175. [Evidence and uncompiled unapplied Rust sketch](experiments/support-descriptor-20261012/README.md) \u00b7 [Owner handoff](handoffs/20261012-support-descriptor.md). Typed readers require explicit original cube size/table order, BOTH closure/grouped rounds, generic private total, diagnostics/finals and public extensions. Descriptor is immutable during part scans, bound once after reduction. Empty dense placeholders are invalid. No production patch/merge or native-gate claim. Preserve slower native fusion, row-step/API inflation, small-phase/compiler/hash-prefix/LRU/reconstruction/padding/privacy negatives."
+    ]
+  },
+  {
+    "heading": "## Cycle 0039 \u2014 heterogeneous public/dense driver (2026-10-12)",
+    "bytes": 8915,
+    "evidence_lines": [
+      "retained separately and produced no result. All prior scientific negatives stand.",
+      "Baseline: native dense public vectors and folds. At m125's 12 query / 4 KV /",
+      "Complete ceiling: `Nproved/(Ttotal-Cpublic_build_fold+Cnew)`; ideal upper bound",
+      "`Nproved/(Ttotal-Cpublic_build_fold)`. No numeric accepted 8B ceiling without",
+      "native total/affected clocks. Falsify any sample/final/cube/order/degree/support/",
+      "| Rank | Hypothesis / end-to-end scope | Prerequisites, added cost and falsification |"
+    ]
+  },
+  {
+    "heading": "## Cycle 0040 \u2014 heterogeneous grouped public-table driver (2026-10-12)",
+    "bytes": 8526,
+    "evidence_lines": [
+      "failed. Prior scientific negatives, including slower native fusion, tiny phase",
+      "ceilings, compiler/cache/residency tradeoffs and privacy gaps, remain.",
+      "Baseline is dense public storage WITH current grouped optimization. At n7",
+      "Complete ceiling:`Nproved/(Ttotal-Cpublic_build_fold+Cnew)`; ideal upper bound",
+      "removes only affected work. No accepted private8B numeric ceiling. Historical",
+      "complete-model throughput is derived. Falsify on any sample/subgroup/claim/"
+    ]
+  },
+  {
+    "heading": "## Cycle 0041 \u2014 per-proof split equality suffix cache (2026-10-12)",
+    "bytes": 7493,
+    "evidence_lines": [
+      "pins still match; new mle.rs source pin. Prior findings and negatives retained.",
+      "Baseline is existing grouped/split equality, with two eq_table_msb rebuilds",
+      "Complete ceiling:`Nproved/(Ttotal-Ceq_preparation+Ccache_build_read_free)`;",
+      "numeric accepted private8B ceiling unknown. Native affected-phase clocks are",
+      "Falsify on sample/claim/final/degree/support/order/zero/extension/refusal/mask/",
+      "compiler,cache/residency and privacy negatives remain."
+    ]
+  },
+  {
+    "heading": "## Cycle 0042 \u2014 2026-10-12 \u2014 lifted Ht host multiplicity",
+    "bytes": 7664,
+    "evidence_lines": [
+      "Existing grouped baseline retained. At conditional m125 h_pad16/T512/n22/HtL13/",
+      "Complete ceiling Nproved/(Ttotal-Cht_round+Cnew); native Cht clock absent,",
+      "no accepted8B numeric ceiling. Historical shared synthetic one-block125M/T512/",
+      "native fusion and smaller-phase/compiler/residency/privacy negatives remain.",
+      "Falsify on any source/cube/sample/degree/claim/order/final/extension/refusal/",
+      "| Rank | Hypothesis | Prerequisites, new costs and falsification |"
+    ]
+  },
+  {
+    "heading": "## Cycle 0043 \u2014 2026-10-13 \u2014 compact private leading planes through grouped softmax",
+    "bytes": 8939,
+    "evidence_lines": [
+      "96 compact/32 baseline schedules:2520 original-cube group samples,7560 sample/",
+      "End-to-end ceiling `Nproved/(Ttotal-Cmxsum_build_fold+Creader_integration)`;",
+      "no accepted private8B numeric ceiling. Historical shared synthetic one-block",
+      "Falsify on source/cube/sample/degree/group-claim/order/final/extension/refusal/",
+      "cache/residency and privacy negatives. No security ruling changed.",
+      "|Rank|Hypothesis|Prerequisites, added costs and falsification|"
+    ]
+  },
+  {
+    "heading": "## Cycle0044 \u2014 2026-10-13 \u2014 symbolic equality in current mixed grouped SC_SZC",
+    "bytes": 6198,
+    "evidence_lines": [
+      "Negative cost obligation: generic three-Eq original-cube reads require",
+      "Ceiling `Nproved/(Ttotal-Ceq_build_fold_scan+Csymbolic_and_integration)`;",
+      "accepted private8B ceiling unknown, Eq native clocks absent. Historical",
+      "Falsify any source/dependency/cube/sample/degree/final/order/extension/generic",
+      "8lookup/GKR/composition/PCS. Detailed prerequisites/costs/ceilings/falsification",
+      "Prior slower fusion/compiler/reconstruction/small-phase/cache/privacy negatives"
+    ]
+  },
+  {
+    "heading": "## Cycle0045 \u2014 2026-10-13 \u2014 actual native-root shift twiddles",
+    "bytes": 4225,
+    "evidence_lines": [
+      "Run `20261013T022555Z-d570e67c`. **Synthetic exactness/filter result; no measured proving gain.**",
+      "source inventory read/scanned; latest3experiment results and retained baseline",
+      "exponents,1,280 larger samples per class,40 baseline/roundtrip fixtures,",
+      "Legacy q>n negative reconfirms an already repaired owner path, not a new bug.",
+      "nonidentity5N/2-31 for L>=6. At L20:10,485,760 baseline and3,669,984 eligible",
+      "CeilingNproved/(Ttotal-Celigible_general+Cshift_dispatch+Cmetadata);no accepted"
+    ]
+  },
+  {
+    "heading": "## Cycle0046 \u2014 2026-10-13 \u2014 bounded exact-pair fallback and denominator census",
+    "bytes": 7232,
+    "evidence_lines": [
+      "Early STATE saved03:27:23UTC; previous findings and negatives preserved.",
+      "numeric ceiling: Nproved/(Ttotal-Cpair_old+Cplan+Creads+Cfallback+Cscatter).",
+      "Ranked queue (full costs/prerequisites/exactness/privacy/falsification in README):",
+      "actual peak failure or enclosing regression falsifies. Large architecture"
+    ]
+  },
+  {
+    "heading": "## Cycle 0047 \u2014 2026-10-13 \u2014 selective SC_SZC row coefficients",
+    "bytes": 8212,
+    "evidence_lines": [
+      "The baseline is cycle33's proof-definition-local compiled denominators.",
+      "unpadded profiles stay baseline. Policy and coefficient lengths are public",
+      "not an integrated native baseline.",
+      "points,948 generic denominators (empty/multiple terms,aliases,zero/negative/",
+      "runtime/instructions/DRAM/end-to-end ceilings. Both census arms retain native",
+      "Useful negatives: initial all-coefficient version passes algebra but increases"
+    ]
+  },
+  {
+    "heading": "## Cycle0048 \u2014 2026-10-13 \u2014 suffix-weighted coefficients before samples",
+    "bytes": 7292,
+    "evidence_lines": [
+      "Earlier findings/negative results remain append-only and snapshotted.",
+      "**Synthetic candidate passes; no native proving time gain.** Baseline is",
+      "Public half>=2/padded selection retains singleton/unpadded baseline.",
+      "Useful negative: unconditional singleton reduction has equal algebra but adds",
+      "later CLI saved state does not imply liveness. Actual complete ceiling:",
+      "|Rank|Hypothesis, costs, prerequisites and falsification|"
+    ]
+  },
+  {
+    "heading": "## Cycle0049 \u2014 recovered public-axis result, reported2026-10-14",
+    "bytes": 1736,
+    "evidence_lines": [
+      "Baseline cycle48 weighted coefficients. Public immutable mask/support axis",
+      "Five negative controls reject forced-constant causal mask,swappedHt/S axes,"
+    ]
+  },
+  {
+    "heading": "## Cycle0050 \u2014 2026-10-14 \u2014 fixed affine Karatsuba and an API-cost negative",
+    "bytes": 7495,
+    "evidence_lines": [
+      "## Cycle0050 \u2014 2026-10-14 \u2014 fixed affine Karatsuba and an API-cost negative",
+      "Ten current native/measurement pins match cycle49; earlier negative findings",
+      "Baseline cycle49 public-axis row factory. For public coefficient width2x2,",
+      "**Useful negative:** illustrative hp16/kv4/qh12/T512/3limb count drops",
+      "4.9514\u20135.1328%,API increase3.3342\u20133.4859%. Five-productFp2 baseline includes",
+      "complete ceiling `N/(T_complete-C_products+C_add_sub_dispatch_scratch)` is"
+    ]
+  },
+  {
+    "heading": "## Cycle0051 \u2014 2026-10-17 \u2014 public static plans and blocked3x2 cost tradeoff",
+    "bytes": 9397,
+    "evidence_lines": [
+      "Baseline: cycle50 public-axis/suffix-weighted coefficient factory with fixed",
+      "**Useful negatives:** illustrative hp16/kv4/qh12/T512/3limb removes30,670,839",
+      "baseline226,492,362width tests become226,492,362plan cursor reads plus",
+      "ceiling `N/(T_complete - saved_product_time + added_arithmetic_schedule_time)`",
+      "The historical entireSC_SZC-removal ceiling28.317% is only an upper bound on",
+      "|Rank|Expected end-to-end impact, prerequisites/costs and falsifier|"
+    ]
+  },
+  {
+    "heading": "## Cycle 0052 \u2014 2026-10-17 \u2014 public row CSE: no multiplication saving",
+    "bytes": 9350,
+    "evidence_lines": [
+      "**Useful negative:** no Fp2mul or mul_base saved. At illustrative",
+      "fusion and extra-operation negatives remain. Falsify on oracle/schema/native",
+      "Baseline clocks unchanged: one synthetic125M block,T512,onepass,RTX4070",
+      "ceiling or a scale factor for this count saving. Synthetic12block/T512/",
+      "Actual accepted8B ceiling `N/(T_complete-saved_add_sub_time+",
+      "Ranked queue (expected end-to-end relevance, prerequisites/costs and falsifiers):"
+    ]
+  },
+  {
+    "heading": "## Cycle 0053 \u2014 2026-10-17 \u2014 correct optional supports before estimating gains",
+    "bytes": 9485,
+    "evidence_lines": [
+      "Baseline group0 evaluates4 samples on round0 and3 after nonzero-factor h1",
+      "End-to-end ceiling is unknown:",
+      "|Rank|Hypothesis, prerequisites and falsifier|",
+      "Baseline remains one synthetic125M block,T512,one pass,RTX4070 Laptop:",
+      "historical enclosing saving at28.317%;this is not an8B ceiling or a factor",
+      "fusion regression and all arithmetic/count/memory negatives."
+    ]
+  },
+  {
+    "heading": "## Cycle0054 \u2014 2026-10-17 \u2014 only round0 repays unpadded cubic construction",
+    "bytes": 10436,
+    "evidence_lines": [
+      "indexed for negative/next evidence. Latest three experiment results read.",
+      "construction when native h1 recovery removes a scalar sample? Baseline group0",
+      "|Rank|Hypothesis, baseline / eliminated work / added costs / falsifier|",
+      "|1 owner|Move dominant SC_SZC and both recurring witness paths to GPU. Baseline native synthetic measurements below; remove CPU recurrence, add CUDA transfers/device storage/dispatch. Require native exact/masked/final/RNG/PCS/refusal and fresh-verifier gates; reject mismatch,overflow,peak or enclosing-time regression. Full8B ceiling unknown.|",
+      "|3 workload owner|Measure resident complete passes at fixed context with fresh masks and full coverage. Baseline startup/slope unmeasured. Eliminate only actually reusable model/public setup; add residency/cache validation,all per-proof masks,lag/drain and verifier costs. Recurring wall above20ms/new proved position rejects50/s for that schedule. Long prefill and decode require separate measurements and state binding.|",
+      "|4 owner|Exact full-K split-int16 FFN-down witness. Remove slow scalar products; add packing,two products,i64 recombination,exact requant/refusal,transfer and scratch. Require integer/native receipt parity and lower enclosing time; affected fraction/8B ceiling unknown.|"
+    ]
+  },
+  {
+    "heading": "## Cycle 0055 \u2014 2026-10-17 \u2014 fixed unpadded round0 arithmetic and lifetimes",
+    "bytes": 10301,
+    "evidence_lines": [
+      "Run `20261017T052624Z-c8881557`; checkpoint 2026-10-17T05:36:29.568471+00:00. **No native speed improvement established.** Agenda, current target, durable/project memory and latest three experiment results read and snapshotted. All 276 starting source records parsed; 53 historical findings sections indexed without deleting negatives. All 11 native/measurement pins match; owner memory unchanged. D24 remains proposed; no new trained receipt or privacy ruling.",
+      "The full-head T512 / three-limb scoped API count is unchanged from cycle54: **3,527,474,753 prepared scalar -> 3,280,010,835 fixed round0**, a 7.0153% reduction. This cycle adds no arithmetic saving over the dynamic round0 prototype. It removes 159,383,552 dynamic width tests from that **research prototype**; the native scalar prover never had that added dispatcher. No incremental native speed factor follows. Denominator tags are compiled out of the fixed row; proof-local offsets are still charged. Hosted groups and later rounds retain prepared scalar. The scope includes bracket construction/evaluation, weighting, modeled part reduction, Horner and denominator preparation. It omits common equality/interpolation/recovery/folds, PCS/masks, witnesses, transfers, serialization and unspecified Rayon identity-fold additions. T1024 attention work is roughly4x. Prior all-round/padded/fusion/CSE/memory negatives remain.",
+      "Historical measured baseline, not re-run: one synthetic 125M-shape block, T512, one pass, RTX 4070 Laptop. SC_SZC 7.794 s; proof 16.864 s; reported witness 5.77 s; encode 0.028 s; decode 0.013 s; in-process verification 0.806 s; enclosing test 27.523873 s; 40,783,352 proof bytes. Startup and the two recurring witness paths were not separately resolved. Erasing all SC_SZC could remove at most 28.317% of that enclosing diagnostic. This is neither an accepted private8B proof nor an8B bound. The synthetic 12-block/T512/one-pass diagnostic remains 408.609226 s enclosing, 318.22 s proving, 12.15 s in-process verification, 484,107,456 B (~1.253 diagnostic positions/s); trained=false, privacy accepted=false, independent-process verification=false. No token credit is taken.",
+      "The complete8B ceiling remains `N/(T_complete - avoided_recurring_scalar_time + added_factory_dispatch_scratch_time)`, with native terms unmeasured. The first round recurs on every proof. Only generated public code can be reusable setup; no per-proof offsets, masks or openings are silently reused.",
+      "|Rank|Hypothesis and expected end-to-end impact|Prerequisites, integration costs, exactness/privacy, falsifier|",
+      "|1 owner|Dominant GPU SC_SZC and both recurring witness paths; highest measured phase opportunity, complete8B ceiling unknown.|Native profile/privacy/refusal/masked/final/RNG/PCS and fresh-verifier gates. Add device storage, transfers, launch/scratch. Reject mismatch, overflow, peak or enclosing-time regression.|"
+    ]
+  },
+  {
+    "heading": "## Cycle 0056 \u2014 2026-10-17 \u2014 exact public DAG order reduces logical retention",
+    "bytes": 10092,
+    "evidence_lines": [
+      "Baseline for this cycle is the prior fixed unpadded round0 factory. Eliminated work: **no field operations**; only shorter logical retention of2/3 full-head intermediate results. Added costs: public generation/search, permutation/remapping, source/metadata and compiler scheduling constraints; static helpers can be generated ahead of time. These must not be presented as measured native startup. The prior scoped full-head hp32/kv8/qh32/T512/3limb count remains3,527,474,753 prepared scalar ->3,280,010,835 fixed round0 (7.0153% fewer API calls), with the same exclusions. No further arithmetic saving or timing factor is established. The earlier159,383,552 eliminated width tests concern a dynamic RESEARCH prototype, not native scalar work. Round0 recurs for every proof; it is not startup amortization.",
+      "End-to-end ceiling remains unknown: `N/(T_complete - avoided_native_spill_or_scheduling_time + added_native_setup_dispatch_time)`. All native terms for this scheduling change are unmeasured; a compiler may already find an equivalent schedule, yielding zero benefit. Even erasing all historical SC_SZC is only a28.317% ceiling on that one synthetic block's enclosing diagnostic, not an8B bound or a path to50/s by itself.",
+      "|Rank|Hypothesis / end-to-end opportunity|Prerequisites, added costs and falsifier|",
+      "|1 owner|GPU SC_SZC plus both recurring witness paths. Largest measured phase opportunity; complete8B ceiling unknown.|Exact native profile/refusal/masked/RNG/finals/PCS/privacy and fresh-verifier gates. Charge device storage, transfers, launches, scratch and both witnesses; reject mismatch, overflow or enclosing regression.|",
+      "|3 workload owner|Resident complete passes at fixed context can amortize public setup; startup/slope not measured.|Fresh masks/openings per accepted policy; cache identity, residency, lag, drain and independent verification. Recurring complete cost>20ms/new proved position falsifies50/s for that schedule. Long-context prefill and growing-context decode remain distinct; decode needs state binding.|",
+      "|Demoted|Broad later-round cubic, CSE, prior native fusion, twiddle/memory/table-cache negatives retained.|Do not credit padded savings to full-domain8B or treat table shrink as fewer queries. No reconstruction/spill optimization promoted without native measurement.|"
+    ]
+  },
+  {
+    "heading": "## Cycle0057 \u2014 2026-10-17 \u2014 native capture mapping without a per-row gather",
+    "bytes": 9196,
+    "evidence_lines": [
+      "Fourteen controls distinguish arithmetic mismatches, adapter metadata refusals, scalar fallbacks and a valid invariance. Swapping max/sum or lookups across pairs, stale proof-local offsets, a false constant-mask dependency, wrong remapping, the wrong Ht support and restarting zeta powers are detected. Removing a third sigma limb refuses because a lookup still references it. Malformed helper count/index/alias/sentinel cases refuse in the research adapter. These checks are not added native refusals. Pad-enabled profiles stay on the original scalar path even when both optional support captures are None; multi-term lookups and later rounds also retain scalar fallback. Within a single LogUp pair, swapping the two denominators is an expected algebraic invariance and supplies no speed benefit. The initial harness incorrectly demanded mismatches for the limb refusal and within-pair swap; both failed harness runs and source versions are retained in initial-negative-control-refusal/ and initial-within-pair-control-assumption/.",
+      "Baseline: pinned native literal/grouped SC_SZC and the prior fixed round0 research factory. Eliminated work this cycle: **zero field operations and no established native work**. The adapter rewrites graph input references once into captured native table indices, so its row helper needs no compact-array gather. Such a gather was not present in the existing native baseline; avoiding a hypothetical integration cost is not a measured gain. Added costs: public capture/layout validation, index remapping, generated code/dispatch and source maintenance; proof-local constants/offsets still refresh per proof. The full15-lookup/three-limb moving-mask helper retains419 field API calls and20 live logical results (320B); prior scheduling values and scoped T512 7.0153% API reduction are unchanged. Logical temporaries exclude inputs/constants/offsets, Eq/accumulators and field-API internals. Registers, spills, occupancy, code size and runtime are unmeasured.",
+      "End-to-end ceiling: unknown, N/(T_complete - saved_native_time + added_native_time); neither time delta is measured. A compiler may already achieve the same schedule. Historical one-block T512/one-pass synthetic125M RTX4070Laptop diagnostic: SC_SZC7.794s, prove16.864s, reported witness5.77s, encode0.028s, decode0.013s, in-process verification0.806s and enclosing test27.523873s; proof40,783,352B. The A/B JSON reports16.86s rounded proof and0.82s verification from bytes; raw0.806s verification plus0.013s decode is0.819s, consistent with that enclosing verification clock. Startup and both recurring witness paths remain unresolved. Even deleting all7.794s SC_SZC would remove at most28.317% of that enclosing diagnostic (~1.395x), not establish an8B bound. The historical12-block/T512/one-pass synthetic diagnostic remains408.609226s enclosing,318.22s prove,12.15s in-process verify,484,107,456B (~1.253 diagnostic positions/s). No target token credit is taken.",
+      "|Rank|Hypothesis / expected complete-proof impact|Prerequisites, added costs and falsifier|",
+      "|1 owner|GPU SC_SZC plus BOTH recurring witness paths; dominant measured opportunity,8B ceiling unknown.|Exact native integer/profile/refusal/masked/RNG/final/PCS/privacy and fresh-verifier gates; charge transfers, scratch, launches and device memory. Reject mismatch or enclosing regression.|",
+      "|3 owner|Resident complete passes at fixed context may amortize public startup; actual slope unknown.|Fresh masks and accepted opening policy, all clocks, residency/peak memory, proof lag/drain and independent verification. Recurring complete cost>20ms/new proved position falsifies50/s for that schedule. Keep long-context prefill and decode with bound state separate.|"
+    ]
+  },
+  {
+    "heading": "## Cycle 0058 \u2014 2026-10-17 \u2014 native public-axis selector prerequisite",
+    "bytes": 7464,
+    "evidence_lines": [
+      "Incremental eliminated work: **zero field operations, zero established native time**. Added public validation/dispatch/source maintenance. Earlier factory arithmetic/logical retention and7.0153% scoped API accounting are unchanged. The comparator and conditional vector elimination were already studied in cycle0037; this rerun is a regression oracle for new dispatch, not a new algorithm or memory saving. Hpad32/T512128MiB,T1024512MiB,T40968GiB mask counts are allocation-free and conditional; verifier savings cannot be claimed as prover throughput. Complete8B ceiling remains unknown. Historical deleting all SC_SZC only28.317% (~1.395x) of one27.523873s synthetic125M diagnostic; target unchanged.",
+      "|Rank|Hypothesis and baseline|Removed work / added cost / complete-proof limit|Prerequisites, exactness/privacy and falsification|",
+      "|2 REFINED/TESTED|Derive constant-mask selector from trusted native S axes and appended extension policy; prior adapter takes mask_active Boolean.|No new field work eliminated, no incremental descriptor saving. Adds public validation/dispatch; native complete-time delta unknown.|Moderate constructor/helper integration. Pad-on/later-round fallback; never receipt/witness-driven dispatch. Any selected-constant nonzero paired difference, extension mismatch or native byte/refusal change falsifies. Native compile/capture still owner work.|",
+      "|3 OWNER|Resident complete-stack workload sweep with explicit startup, recurring work and drain.|Amortize only genuine reusable public/model setup; adds residency/memory pressure and measured scheduling. No mask reuse. Unknown actual8B ceiling.|Complete linked stack/independent verifier plus all clocks, fixed context and distinct proved positions. Recurring>20ms/new proved position falsifies50/s for that schedule; larger single-context attention has quadratic cost.|",
+      "|4 LOCAL NEXT/OWNER|Audit new trained-block clock records to locate both witness builds and serialization boundaries before exact full-K split-int16 witness work.|Avoid duplicate or inefficient CPU witness arithmetic only if measured; packing/reconstruction/i64/requant/scratch may offset it. Current isolated share unknown.|Low-cost read-only accounting first; owner native/device gate later. Preserve exact trained integer values and refusal domain. Incomplete clocks block numeric ceiling; integer mismatch or no enclosing gain demotes.|"
+    ]
+  },
+  {
+    "heading": "## Cycle 0059 \u2014 2026-10-17 \u2014 trained witness and inclusive-clock audit",
+    "bytes": 8544,
+    "evidence_lines": [
+      "All previous findings/negatives and source bytes retained.",
+      "**Baseline/eliminated work/added cost/ceiling:** accounting eliminates zero",
+      "retained sums only, eliminating all prove_run has a1.25504x ideal ceiling;",
+      "projections. Complete8B ceiling and genuine reusable startup remain unknown.",
+      "|Rank|Hypothesis and expected end-to-end impact|Prerequisites, added costs, exactness/privacy and falsifier|",
+      "|2 OWNER|GPU native SC_SZC remains leading historical GPU-assisted proof-phase opportunity.|Original masked clauses/finals/hosted claims/transcript/RNG/PCS/fresh-verifier gates,transfers,scratch and occupancy. Old125M diagnostic deleting allSC_SZC only28.317%; not an8B ceiling.|"
+    ]
+  },
+  {
+    "heading": "## Cycle0060 \u2014 exact witness projection census and new linked-stack accounting (20261017T102624Z-c13de864)",
+    "bytes": 12489,
+    "evidence_lines": [
+      "Original pinned round-2 baseline: seven native dense projection calls use i64 activations and",
+      "Complete-workload ceiling is N/(Ttotal-Csix_native+Cnew_native); neither",
+      "Csix_native nor Cnew_native is measured, so no numerical8B ceiling exists.",
+      "|Rank|Hypothesis / expected complete-proof opportunity|Prerequisites, added costs and falsifier|",
+      "|1 REFINED, TESTED SYNTHETIC / OWNER|Six exact int8-fed witness projections can use int32 accumulators. Original baseline had two witness passes; concurrent R3 owner code now tiles/parallelizes and builds once. Incremental benefit versus R3 is unknown.|Stale patch must be reviewed/rebased, then native compiler/witness/refusal/receipt and phase profile; charge packing/allocation/widening. Current R3 uses i32 products widened into i64 accumulators; our i32 accumulation is a potential further change. Keep full K, quantize order and fresh masks. Any mismatch or no enclosing improvement falsifies. Narrowing alone regressed strided cases.|",
+      "|3 OWNER|Reuse input-independent public setup across fixed-context linked resident passes. Concurrent R3 one-pass work supersedes proposing a cache just to eliminate the old sealing rebuild.|Identity/lifetime and memory/storage traffic; preserve endpoint/parity/refusal semantics, fresh masks/openings and drain. No endpoint-root chaining shortcut. Recurring cost>20ms/new completed position falsifies50/s for that schedule. R3 has no new accepted timing in this experiment.|"
+    ]
+  },
+  {
+    "heading": "## Cycle0061 \u2014 deferred witness planes after R3 moves the bottleneck (20261017T112624Z-88d6b64e)",
+    "bytes": 9916,
+    "evidence_lines": [
+      "appended,315total. Historical findings/negative prefixes preserved.",
+      "Baseline is pinned R3 initial plane construction. Eliminated work is46",
+      "dispatch, unsafe reads, mask reuse or skipped constraint.8B ceiling remains",
+      "N/(T_complete-saved_native_time+added_cost), all times unknown. Falsify any",
+      "1. **OWNER, largest recurring-time opportunity:** obtain trained slot/commitment clocks, then move the largest measured phase to the GPU. T128GPU prove_run minus witness is107.079/142.783s but includes boundary/serialization/sink. The old synthetic SC_SZC share cannot be transplanted. High CUDA integration; charge launches/transfers/scratch/drain. Exact masked polynomial, terminal oracle, RNG, bytes, fresh verifier and privacy gates remain owed. Any mismatch or unchanged complete time falsifies a gain.",
+      "2. **OWNER, refined resident question:** after one-pass witness construction, which public model/NTT/digest setup survives repeated fresh complete proofs? Fixed-context pass sweeps with valid identities, fresh inputs/masks, recurring clocks/verification and lag/drain are needed. Cold load fractions5.76\u201317.26%CPU/6.58\u201315.05%GPU are not startup fractions. Costs are retained memory and recurring work; a recurring budget above20ms/new completed position falsifies50/s for that schedule. No endpoint-root reuse or decode inference."
+    ]
+  },
+  {
+    "heading": "## Cycle 0062 \u2014 2026-10-17 \u2014 borrowed lookup catalog; trained GPU phase correction",
+    "bytes": 7497,
+    "evidence_lines": [
+      "helper values and 11 negative controls pass; five extra generic expressions",
+      "1. **Owner: trained GPU D/F zero-checks.** New T128 GPU-assisted slot clocks are D 25.353 s and F 19.484 s, versus softmax 11.834 s. Their shared masked-sumcheck portions are 19.860/16.457 s. Follow these measured costs; retain slot-polynomial/final-oracle, RNG, transcript, PCS, fresh-mask and independent-verifier gates. Charge launches, transfers and scratch. A mismatch or unchanged enclosing workload cost falsifies a speed gain. This is one 1.1B diagnostic, not an 8B forecast.",
+      "2. **Owner: resident fixed-context fresh-proof slopes.** Reuse only valid input-independent public model/NTT/digest setup. Measure recurring witness/proof/serialization, verification, startup, backlog and drain. Added retained memory and identity maintenance; no reused private openings or masks. More than 20 ms recurring cost per newly proved position falsifies 50/s for that schedule. Keep prefill, resident passes and decode separate.",
+      "4. **New next local experiment: specialize the current F zero-check's public base-field constants.** The pinned `argument.rs:1602` still uses extension multiplication by `p1`, `k_h` and `k_g`; D and softmax have prior Stage35 base-constant work. Capture the F closure's exact current grammar and compare a mul_base rewrite against an independent full-extension reference, including helper, pad and hosted terms. First census actual operations; the compiler may already simplify them. Native integration is small/moderate, but no end-to-end estimate exists. Deleting the entire F slot would give at most 1.136852x on this GPU diagnostic; this local change can remove only a subset. Any polynomial mismatch or no native enclosing benefit falsifies it. Do not redo a generic arithmetic identity toy without the actual F closure.",
+      "5. **Retained/deferred:** the duplicate-descriptor histogram idea removes at most 8.36% of histogram input visits at T128, inside a tiny phase, so demote it behind F work. Prior deferred witness allocations/int8 accumulation remain unintegrated owner candidates. HOBBIT is an architecture lead with streaming-access/PCS costs; ring lookup arguments are not a native field replacement. Preserve all prior negative results."
+    ]
+  },
+  {
+    "heading": "## Cycle 0063 \u2014 2026-10-17 \u2014 F constants/support factoring; new 8B clocks",
+    "bytes": 4892,
+    "evidence_lines": [
+      "**negative preserved:**support-only0.990x unpadded despite fewer calls.",
+      "for capacity, demoted for speed; every prior negative/privacy finding preserved.",
+      "F-deletion ceiling on earlier1.1B T128 GPU diagnostic1.137x. New8B F subclock"
+    ]
+  },
+  {
+    "heading": "## Cycle0064 \u2014 current F three-bracket grouped arithmetic, 2026-10-17",
+    "bytes": 3590,
+    "evidence_lines": [
+      "padded. Current ClosureRounds.recover_one(None) baseline is retained and",
+      "Small N16 grouped is slower (baseline/grouped0.633/0.731). N256/4096/8192",
+      "negative;4NEW local audit of F-device logical-term bandwidth numerator versus"
+    ]
+  },
+  {
+    "heading": "## Cycle 0065 \u2014 F-device source traffic, 2026-10-17",
+    "bytes": 2830,
+    "evidence_lines": [
+      "representation/lifetime audit. Prior lookup privacy and small-phase negative",
+      "findings retained. Whole earlier1.1B T128GPU maskedF deletion ceiling1.113184x;"
+    ]
+  },
+  {
+    "heading": "## Cycle 0066 \u2014 resident helper integer/field boundary, 2026-10-17",
+    "bytes": 4688,
+    "evidence_lines": [
+      "has8.844/161.857226s in allU8H: entire-parent deletion ceiling1.057799\u00d7;",
+      "refusal negatives. Added GKR/PCS/masks/composition cost and exact displacement",
+      "must precede any proposed H-row saving. All older negatives remain.",
+      "Owner functional8B T32 cold baseline carried, not rerun:32 linked blocks,"
+    ]
+  },
+  {
+    "heading": "## Cycle 0067 \u2014 private LogUp* pushforward boundary, 2026-10-17",
+    "bytes": 4899,
+    "evidence_lines": [
+      "New decisive negative: hiding Y's commitment alone does not hide a published",
+      "ordering not replayed. Prior D/C,zero-zero,padding and integer-wrap negatives",
+      "fixed-other-work effect at1.128224x. Not a full-architecture/5090 ceiling or"
+    ]
+  },
+  {
+    "heading": "## Cycle 0068 \u2014 lookup batching domains, 2026-10-17",
+    "bytes": 4298,
+    "evidence_lines": [
+      "New negative: sharing one scalar across seven column tensor coordinates gives",
+      "negatives stand, including full-i64 wrapping and original ordered A links.",
+      "GPU phase remains 2.8\u00d7 its native baseline despite small device arithmetic time."
+    ]
+  },
+  {
+    "heading": "## Cycle 0069 \u2014 public padding and native MSB bit placement, 2026-10-17",
+    "bytes": 6804,
+    "evidence_lines": [
+      "NEW negative: zero Boolean products need not be zero off-cube: disjoint factor",
+      "negative findings stand. No mask reuse/privacy weakening authorized.",
+      "Whole-architecture end-to-end ceiling remains unknown. Owner complete GPU",
+      "sparse baseline; new older sources are watchlist leads only. CFS arithmetic"
+    ]
+  },
+  {
+    "heading": "## Cycle 0070 \u2014 factorized distinct-column public equality, 2026-10-17",
+    "bytes": 6031,
+    "evidence_lines": [
+      "this probe's row-first baseline. 84 synthetic fixtures (30 prior), 1,788 round",
+      "endpoint-history negatives remain. Probe is not a complete/minimal lookup",
+      "a phase-set ceiling, not whole architecture/shared zero-check/GPU/5090.",
+      "gain. Full new-architecture end-to-end ceiling unknown. Owner workload/device"
+    ]
+  },
+  {
+    "heading": "## Cycle 0071 \u2014 pending previous fold plus next weighted round, 2026-10-18",
+    "bytes": 5437,
+    "evidence_lines": [
+      "Full ceiling unknown without native Caffected/Cadded. Large census groups",
+      "negative overturned. Only fixed PUBLIC shape support, never hidden prompt/"
+    ]
+  },
+  {
+    "heading": "## Cycle 0072 \u2014 native order-64 late-root compression, 2026-10-18",
+    "bytes": 6483,
+    "evidence_lines": [
+      "handoffs/20261018-native-root-compression.md. Ceiling remains",
+      "negatives and avoid owned implementation duplication. Read owner enclosing",
+      "scope cannot transfer. CurrentCUDArepo source/cache/release negatives,",
+      "establish delivery. All previous negativefindings preserved."
+    ]
+  },
+  {
+    "heading": "## Cycle0073 \u2014 base-aware derived construction, 2026-10-18",
+    "bytes": 6179,
+    "evidence_lines": [
+      "Main PASS120fixtures,4,644baseline+4,644candidate values,6,966fold values,",
+      "subset. Actual derive time and8B ceiling unknown. Newdefault phases:",
+      "fixedcontext fresh-pass slopes;3new tested base-awarederive lowceiling;",
+      "lookupjointmask/offcube/singleton/D-C/wrapping/history andslowerfusionnegatives.",
+      "`gpu/fzc_kernels.cu`. Captured round3 baseline/test hashes remain intact.",
+      "round4 moves arithmetic into round0, so it is not a universal ceiling for"
+    ]
+  },
+  {
+    "heading": "## Cycle0074 \u2014 D affine aggregate, 2026-10-18",
+    "bytes": 11781,
+    "evidence_lines": [
+      "Baseline seam is owner `private_block/argument.rs::SC_DZC`, slot14;",
+      "seven negative controls. Controls cover coefficient swap, missing constant,",
+      "changes only the clause subset. Actual clause timing and8B ceiling unknown:",
+      "may erase the counted benefit. Falsify on polynomial/final/refusal/byte/RNG/",
+      "| Rank | Hypothesis and expected impact | Cost/prerequisites, exactness/privacy and falsifier |",
+      "|4 TESTED PRIOR|Root compression/F constructor; capacity or small-phase opportunities only|Cached roots still need provenance/dispatch and added shifts; F ownerR4 now inline. Actual affected timing and enclosing gain required; prior genericOT/small-N negatives retained.|"
+    ]
+  },
+  {
+    "heading": "## Cycle0075 \u2014 actual D catalog and a memory negative, 2026-10-18",
+    "bytes": 7732,
+    "evidence_lines": [
+      "## Cycle0075 \u2014 actual D catalog and a memory negative, 2026-10-18",
+      "**Negative for memory.** Both current trained T128 public catalog descriptors",
+      "Baseline: retained TinyLlama T128/22blocks/onepass RTX4070Laptop run174.052s",
+      "Measured D clause share and8B ceiling unknown. Arithmetic result survives;",
+      "   transcript/final and fresh-mask requirements unchanged. Falsify if all",
+      "   fresh private masks/openings and drain each pass; no measured steady slope."
+    ]
+  },
+  {
+    "heading": "## Cycle0076 \u2014 D endpoint coefficient schedule, 2026-10-18",
+    "bytes": 7943,
+    "evidence_lines": [
+      "The baseline is the current host-slot schedule: full first round, then",
+      "D work and integration costs. Actual D arithmetic share and8B ceiling are",
+      "   originals. Moderate fixed-array/adapter cost. Falsify on any mismatch,",
+      "   openings per pass; falsify on stale identity, backlog or no slope gain.",
+      "   whole-run soundness review. Prior negative findings remain preserved.",
+      "confirms recovery/incremental points are baseline techniques and ZK uses"
+    ]
+  },
+  {
+    "heading": "## Cycle0077 \u2014 D helper streaming: complete-lifetime negative, 2026-10-19",
+    "bytes": 6656,
+    "evidence_lines": [
+      "## Cycle0077 \u2014 D helper streaming: complete-lifetime negative, 2026-10-19",
+      "not apply to actual unpadded T128; odd unpadded129\u2192129 is another negative.",
+      "Baseline/eliminated/added: versus cycle76, replace all-denominator retention",
+      "8B affected D time/end-to-end ceiling unknown: total-old affected D+new D+",
+      "3. OWNER immutable public residency: possible setup amortization, no measured"
+    ]
+  },
+  {
+    "heading": "## Cycle 0078 \u2014 Lazy D endpoint construction, 2026-10-19",
+    "bytes": 8472,
+    "evidence_lines": [
+      "release. No original full table is removed. Cycle 77's 130\u2192129 negative remains",
+      "Baseline, eliminated work and added costs: remove early endpoint lifetimes",
+      "Native 8B D share and end-to-end ceiling are unknown:",
+      "Falsify on any sample, final, degree, transcript, RNG, refusal or privacy",
+      "Negative controls constrain the port: keeping endpoints until the end gives",
+      "saved metadata shadowing (`ll` reused by a baseline-lifetime loop); corrected"
+    ]
+  },
+  {
+    "heading": "## Cycle0079 \u2014 use-driven D affine lifetimes and actual8B ceiling, 2026-10-19",
+    "bytes": 7678,
+    "evidence_lines": [
+      "## Cycle0079 \u2014 use-driven D affine lifetimes and actual8B ceiling, 2026-10-19",
+      "Baseline is the previous unintegrated coefficient prototype, not the installed",
+      "raises reads118\u2192138/differences59\u219269. Prior negatives preserved.",
+      "**1.105058\u00d7/0.299944 diagnostic positions/s**, versus0.271428 baseline.",
+      "   Falsify on enclosing regression, growing proof backlog or privacy mismatch.",
+      "   Baseline77-word affine-first lazy prototype; eliminate early endpoint"
+    ]
+  },
+  {
+    "heading": "## Cycle0080 \u2014 2026-10-19: static D runtime parameters and compiler boundaries",
+    "bytes": 5547,
+    "evidence_lines": [
+      "and verifieddrain gates;4OWNER D30/architecturecomparisons. For2,baseline",
+      "incremental integration cost;candidate ceilingunknown. Falsify any differential,",
+      "accounting constraints;known compiler/runtimekernel and NTTnegatives refreshed."
+    ]
+  },
+  {
+    "heading": "## Cycle 0081 \u2014 2026-10-19 \u2014 generic helper grouping is a negative result",
+    "bytes": 5408,
+    "evidence_lines": [
+      "## Cycle 0081 \u2014 2026-10-19 \u2014 generic helper grouping is a negative result",
+      "**6.208298\u21926.525496us** (grouped5.109%higher); seven pairs favor baseline.",
+      "One shared CoreUltra9 185H CPU0,nice19; baseline has artificial noinline field",
+      "[negative handoff](handoffs/20261019-dzc-helper-groups-negative.md).",
+      "failure,noresource benefit or enclosing regression. This follows the negative",
+      "Baseline/eliminated/added/ceiling: baseline current use-driven coefficient"
+    ]
+  },
+  {
+    "heading": "## Cycle 0082 \u2014 2026-10-19 \u2014 shared helper code shrinks; no speed gain",
+    "bytes": 5157,
+    "evidence_lines": [
+      "504 bytes versus scalar baseline 424. Logical row bytes rise 8,528\u21929,162,",
+      "noinline scalar baseline; no native sampler, whole-D, GPU, quiesced/p95 or",
+      "Baseline/eliminated/added/ceiling: compared with unique groups, eliminate",
+      "falsification criteria are in hypotheses.json. D32 float fidelity stands."
+    ]
+  },
+  {
+    "heading": "## Cycle 0083 \u2014 2026-10-19 \u2014 single raw-pointer translation falsified",
+    "bytes": 5243,
+    "evidence_lines": [
+      "## Cycle 0083 \u2014 2026-10-19 \u2014 single raw-pointer translation falsified",
+      "Previous negative grouped CPU timing stands; partial option is low priority.",
+      "Baseline/eliminated/added/ceiling: shared maps versus99 fewer index requests,",
+      "sealing101.279,D44.833,receipt922711264B. Delete-all-D ceiling1.105058\u00d7,",
+      "privacy/falsification criteria in hypotheses.json. D32 fidelity direction"
+    ]
+  },
+  {
+    "heading": "## Cycle0084 \u2014 2026-10-19 \u2014 public setup lifetime and partial-LRU negatives",
+    "bytes": 6017,
+    "evidence_lines": [
+      "## Cycle0084 \u2014 2026-10-19 \u2014 public setup lifetime and partial-LRU negatives",
+      "Baseline/eliminated/added/ceiling: remove only truly avoided immutable public",
+      "Candidate ceiling T/(T-s+a),s/a unisolated. Deleting all reported load tasks",
+      "Falsify stale identity/calibration/site,private dependence,gate mismatch,"
+    ]
+  },
+  {
+    "heading": "## Cycle0085 \u2014 2026-10-19: public owner freshness and live leases",
+    "bytes": 7773,
+    "evidence_lines": [
+      "Baseline is current separate ownership. Removed work: only authenticated",
+      "ceiling T/(T-s+a), saved exclusive wall s and extra a, is unknown. Do not use",
+      "to this guard. Falsify if native refusal/receipt/privacy behavior changes,"
+    ]
+  },
+  {
+    "heading": "## Cycle0086 \u2014 2026-10-19: checked public constructor transfer",
+    "bytes": 6687,
+    "evidence_lines": [
+      "Baseline and eliminated work: native Array objects keep eleven raw source",
+      "No high-end GPU ceiling is known.",
+      "Falsification: any native byte, first refusal or gate mismatch; allocations",
+      "Negative findings retained: one KV group has tail-only head padding, so a"
+    ]
+  },
+  {
+    "heading": "## Cycle0087 \u2014 2026-10-19: direct signed-byte padding",
+    "bytes": 7111,
+    "evidence_lines": [
+      "Decisive negative: every full-sealing public-payload envelope in the prior",
+      "an optimistic1.103104x /0.294937 positions/s CPU diagnostic ceiling. This is",
+      "No high-end GPU end-to-end ceiling can be inferred.",
+      "Falsify if native bytes/records/first refusal/receipt change,any decode Vec"
+    ]
+  },
+  {
+    "heading": "## Cycle0088 \u2014 2026-10-19: public raw-array last use",
+    "bytes": 7784,
+    "evidence_lines": [
+      "Decisive negative: every reload envelope has0B peak reduction. It skips record",
+      "Baseline/eliminated work/added costs: R8 retains all11 raw Array values",
+      "Falsify if native bytes/records/first refusal/receipt change,a live borrow",
+      "Ranked queue (costs,prerequisites,exactness/privacy/falsifiers in hypotheses.json):",
+      "CS and H-1 checks. This addresses the reload/constructor negative."
+    ]
+  },
+  {
+    "heading": "## Cycle0089 \u2014 split public matrix release",
+    "bytes": 6829,
+    "evidence_lines": [
+      "Correction: Rust statement scopes allow all four `fw` decode temporaries to coexist:176164864B (168.003906MiB), rather than58720256B max-single. This adds117444608B (112.003906MiB) to the native-decode padding phase in the old model. The prior cycle's native-decode+move+release1.618387GiB envelope is superseded by1.727766GiB. Direct-byte variants and baseline sealing/reload maxima above are unaffected. Initial results before this correction are retained under before-temporary-scope-correction/. Semantic lifetime is source/reference-derived; native compiler/allocator behavior has not been measured.",
+      "Falsify on native byte/metadata/record/first-refusal/receipt mismatch,live reads beyond drops,already-released allocations,no useful actual peak reduction,or moved frees regressing enclosing time. The independent Python oracle reconstructs destination-indexed signed words,SHA256 word/table hashes,metadata and first errors. Block SHA256 and JSON framing are explicit surrogates,not native BLAKE3/wire/proof equivalence. IO concurrency,constructor refusals,CS/H-1 and proofs are not executed here."
+    ]
+  },
+  {
+    "heading": "## Cycle0090 \u2014 separate public decode statement scopes",
+    "bytes": 8188,
+    "evidence_lines": [
+      "negative extends lifetimes and reaches1872B. These are observable wrapper",
+      "Baseline/eliminated work/added costs: frozen R8 aw/fw arrays contain5/4",
+      "Falsify on original Vec allocation elision,changed native bytes/first refusal/",
+      "probe. Costs,prerequisites,exactness,privacy/soundness and falsifiers retained."
+    ]
+  },
+  {
+    "heading": "## Cycle0091 \u2014 original Vec allocation-scope evidence",
+    "bytes": 9767,
+    "evidence_lines": [
+      "| Reference-binding negative |460288|213248|36|482848|",
+      "| Separate results plus clone negative |475648|57344|45|720672|",
+      "Baseline/eliminated work/added costs:grouped native5+4 argument temporaries",
+      "or target-size measurements. Falsify promotion on native bytes/first-refusal/",
+      "Queue:hypotheses.json retains prior negatives.1 owner whole-prover GPU and"
+    ]
+  },
+  {
+    "heading": "## Cycle0092 \u2014 public request pool retention, 2026-10-20",
+    "bytes": 5950,
+    "evidence_lines": [
+      "exact/min requests rather than clearing all idle buffers. Baseline already",
+      "full/no drains but fresh5->20. Negative finding:indiscriminate extra draining",
+      "not VRAM. Device-time/fit gain is unknown. End-to-end ceiling has no numeric",
+      "Falsify on absent avoidable idle,incorrect public horizon,stream/stale-value"
+    ]
+  },
+  {
+    "heading": "## Cycle0093 \u2014 allocation coverage and host-backed staging,2026-10-20",
+    "bytes": 8650,
+    "evidence_lines": []
+  },
+  {
+    "heading": "# Cycle0094 \u2014 private-stage commitment lifetimes",
+    "bytes": 8081,
+    "evidence_lines": [
+      "The baseline is source-derived, not a runtime trace. `prove_run_with` starts",
+      "330 negative controls**,6 traces with1/2/3/4/8/32 BLOCKS,",
+      "time benefit is unknown and can be negative. Initial seal or scratch peaks can",
+      "The experiment retains the R8 baseline; no R9 production/source edit occurred.",
+      "Rankings and baseline/eliminated work/added costs/ceilings/falsifiers are in"
+    ]
+  },
+  {
+    "heading": "# Cycle0095 \u2014 private transients and mixed FZC arena",
+    "bytes": 7248,
+    "evidence_lines": [
+      "| Commitment mode | Baseline backing MiB | Mixed backing MiB | Saving MiB |",
+      "baseline reservation nor the logical owner lifetime. Earlier release-only,",
+      "OUT-only eviction and all-resident host staging remain negative/demoted.",
+      "end-to-end time ceiling is justified without exclusive native phase costs.",
+      "allocation route; no>=50/sprojection. Falsify on native out-of-bounds/uninitialized"
+    ]
+  },
+  {
+    "heading": "## Cycle 0096 \u2014 FZC arena algebra and implicit affine tables (2026-10-20T04:33:40.848204+00:00)",
+    "bytes": 7210,
+    "evidence_lines": [
+      "Run `20261020T041854Z-f70297a5`. **No measured proving improvement.**",
+      "checkpoint preceded the experiment; prior findings and negative results remain.",
+      "Eleven negative controls reject unchanged full constructor slices and uniform",
+      "versus baseline L, adding L-2 evaluations, shared work and a later chunk",
+      "resident-pool negative finding therefore remains a strong promotion filter.",
+      "(9) prepared public metadata. Full baseline, eliminated work, added costs,"
+    ]
+  },
+  {
+    "heading": "## Cycle 0097 \u2014 paired affine derivation and rematerialization cost",
+    "bytes": 9795,
+    "evidence_lines": [
+      "and seven negative controls**. Fixtures have 8/16/32 entries per table,",
+      "The round-zero candidate's end-to-end ceiling is unknown. If the exclusive",
+      "50 complete proved positions/s. Falsify the candidate on any round, high-store,",
+      "Carried owner baseline, not rerun/reverified here: complete 8B stack,"
+    ]
+  },
+  {
+    "heading": "## Cycle 0098 \u2014 BASE paired affine derivation and an upstream negative",
+    "bytes": 6237,
+    "evidence_lines": [
+      "## Cycle 0098 \u2014 BASE paired affine derivation and an upstream negative",
+      "checks pass **36 fixtures, 144 rounds, 1,669 checks, 18 negative controls**,",
+      "upstream carry negative; NEW older packed-protocol filter. Each records",
+      "baseline, removed work, costs, prerequisites/integration, exactness, privacy/",
+      "soundness, compatibility, ceiling and falsification. Prior negative findings",
+      "Preserve that negative and require compiler/register/occupancy measurements."
+    ]
+  },
+  {
+    "heading": "## Cycle 0099 \u2014 host-free BASE GL-only derivation (2026-10-20)",
+    "bytes": 5827,
+    "evidence_lines": [
+      "checks pass: 36 fixtures, 144 rounds, 2,372 checks, 15 negative controls and",
+      "Fourteen ranked hypotheses retain the earlier negative findings. First:"
+    ]
+  },
+  {
+    "heading": "## Cycle 0100 \u2014 reachable public pad weights and affine dispatch (2026-10-20)",
+    "bytes": 6289,
+    "evidence_lines": [
+      "46 negative controls,eight zero-zeta refusals. Ten public geometry fixtures",
+      "occupancy and exclusive f remain unknown; even full-phase deletion ceiling",
+      "regression. Prior negative findings are preserved."
+    ]
+  },
+  {
+    "heading": "## Cycle 0101 \u2014 fused NTT sector requests and ownership limit (2026-10-20)",
+    "bytes": 7013,
+    "evidence_lines": [
+      "and an older GNTT direct-float64 negative. Exact dates/license/commit scope",
+      "The existing CPU non-DD baseline is carried, not rerun/reverified:8B",
+      "Baseline: native fused bit-reversed gather, no standalone reorder. Eliminated",
+      "occupancy effects. End-to-end deletion ceiling1/(1-f) needs the unknown",
+      "Falsification: large-N request gain disproved at unchanged tile ownership;",
+      "arena; retained OUT/early-release negatives; tested NTT scope; public GKR"
+    ]
+  },
+  {
+    "heading": "## Cycle 0102 \u2014 private PCS small-transform incidence (2026-10-20)",
+    "bytes": 5433,
+    "evidence_lines": [
+      "negative and fixed16-lane shared-bank1->2 concern are preserved.",
+      "verification/current gates owed. Delete-all-load ceiling<=1/(1-f),f unknown;"
+    ]
+  },
+  {
+    "heading": "## Cycle 0103 \u2014 recurring private U8 helpers versus fraction-tree storage (2026-10-20)",
+    "bytes": 6011,
+    "evidence_lines": [
+      "Useful negative: full global fraction tree about 4 GiB at T128; exact column",
+      "and weak-leaf negatives remain binding. Unknown exclusive affected time",
+      "fraction f gives free-deletion ceiling <=1/(1-f); byte shares do not give f.",
+      "natural-width/unroll and capture negatives refreshed; author timings not"
+    ]
+  },
+  {
+    "heading": "## Cycle 0104 \u2014 private fraction-forest lifetime and recomputation (2026-10-20)",
+    "bytes": 6106,
+    "evidence_lines": [
+      "can a mixed-height forest avoid the prior materialized-storage negative",
+      "leaf binding. Prior unmasked-root and weak-binding negatives remain binding.",
+      "Baseline: recurring original U8 helpers. Hypothetically eliminated work is",
+      "has ceiling <=1/(1-f). Counts cannot supply f or a GPU rate. Falsify on changed"
+    ]
+  },
+  {
+    "heading": "## Cycle 0105 \u2014 explicit lookup layer-consumer capacity (2026-10-20)",
+    "bytes": 10099,
+    "evidence_lines": [
+      "The useful negative is that cycle0104's arithmetic-only schedule explicitly",
+      "The baseline remains frozen R9 normwindow32/fE9/cap32, excluding the newer",
+      "Baseline potentially removed: only recurring original U8 helper data and",
+      "CFS/PCS, whole-run soundness and terminal binding. A free-deletion ceiling",
+      "the candidate adds work. No numeric high-end GPU throughput ceiling follows.",
+      "complete workload elapsed time. A smaller budget falsifies this chosen"
+    ]
+  },
+  {
+    "heading": "## Cycle 0106 \u2014 owned lookup-layer buffers and factorized equality (2026-10-20)",
+    "bytes": 9164,
+    "evidence_lines": [
+      "Baseline potentially removed is recurring original U8 helper data/processing",
+      "deletion has ceiling<=1/(1-f); no numeric complete GPU rate follows.",
+      "Falsify on any original binding/exactness/refusal/privacy/soundness failure,",
+      "the selected model falsifies its contract accounting, not every GKR schedule."
+    ]
+  },
+  {
+    "heading": "## Cycle 0107 \u2014 budget-adaptive tiled lookup prefix (2026-10-20)",
+    "bytes": 10438,
+    "evidence_lines": [
+      "Baseline potentially removed is only selected recurring U8 helper work after",
+      "affected time fraction, even free deletion has speed ceiling<=1/(1-f), before",
+      "these new costs. No numeric complete high-end GPU rate follows. Falsify on"
+    ]
+  },
+  {
+    "heading": "## Cycle 0108 \u2014 native Fp2 ordered U8 consumer prerequisite (2026-10-20)",
+    "bytes": 5813,
+    "evidence_lines": [
+      "Useful negatives: the256-entry reciprocal cache ALREADY exists per attempt.",
+      "affected time, free-deletion ceiling<=1/(1-f) before all new costs. Falsify on"
+    ]
+  },
+  {
+    "heading": "## Cycle 0109 \u2014 ordered fraction-tree sites and native point mapping (2026-10-20)",
+    "bytes": 9392,
+    "evidence_lines": [
+      "The baseline is frozen R9 U8 helper data, carried as420.25MiB nonDD /",
+      "fraction, even free deletion has speed ceiling<=1/(1-f), before added costs.",
+      "There is no numeric complete-GPU throughput prediction. Falsify on original",
+      "by this mask-budget negative; rank21 adds reversible storage with inverse and"
+    ]
+  },
+  {
+    "heading": "## Cycle0110 \u2014 reversible fraction tree: exact, full-column capacity negative (2026-10-20)",
+    "bytes": 7266,
+    "evidence_lines": [
+      "## Cycle0110 \u2014 reversible fraction tree: exact, full-column capacity negative (2026-10-20)",
+      "Baseline: frozenR9 U8 helper data420.25/390.25MiB(nonDD/DD) at8B T128;",
+      "is baseline work, not a new saving. Native array/profile/full-proof benefit",
+      "unknown. Unknown exclusive affected fraction f gives free-deletion ceiling",
+      "<=1/(1-f) before added costs. Falsify on binding/field/refusal/order drift,",
+      "redesign. Rank21 refined by exact reconstruction and selected-budget negative;"
+    ]
+  },
+  {
+    "heading": "## Cycle0111 \u2014 disposable reversible tiles: matched-budget cost negative (2026-10-20)",
+    "bytes": 10687,
+    "evidence_lines": [
+      "## Cycle0111 \u2014 disposable reversible tiles: matched-budget cost negative (2026-10-20)",
+      "this schedule. This is a bounded operation/payload negative, not a universal",
+      "The baseline is frozenR9 U8 helper payload420.25MiB non-DD /390.25MiB DD for one",
+      "proving has ceiling1/(1-f); this candidate adds costs and removes no measured",
+      "native work. There is no numerical complete high-endGPU forecast. Falsification",
+      "and63negative controls. U8 affine leaves, table-style multiplicities including0,"
+    ]
+  },
+  {
+    "heading": "## Cycle 0112 \u2014 2026-10-20 \u2014 exact S12/DD cardinality and larger public caps",
+    "bytes": 6474,
+    "evidence_lines": [
+      "Run `20261020T201854Z-91cdb36a`. **No measured proving improvement.** Read agenda, durable state/findings/source ledger, latest0111results and required project documents; retained their startup snapshots. Initial682 source records validated; now692. No production write or GPU/heavy job.",
+      "Probe486,630 checks/1,080 synthetic rows and7negative controls pass. Independent audit1,927checks,265,728entries via90-digit recurrence, key130-digit repeats,410 actual public arrays and16pins passes; min half-integer rounding margin~5.53e-5. Cost612checks includes four retained native phase-size anchors and exact R11 HIGH baseline rows. Probe0.308050s/15,928KiB, audit0.444542s/16,004KiB, count0.043956s/14,688KiB. One CPU worker, nice19, first allowed core; each <=60s,512MiB AS,64MiB estimated. Intel Core Ultra9 185H/WSL2. These are arithmetic/count studies; no native proof or timing reproduced.",
+      "Two initial accounting assertions failed: first omitted removed S U8 helper pairs and understated claim sites; second omitted S12's score-lookup effect on helper ceilings. Both code/logs retained; corrected identities pass. An initial startup snapshot referenced an absent prior audit-result filename and was corrected without altering prior evidence. No permission boundary was bypassed.",
+      "24 ranked hypotheses retain prior negatives. Top3: whole-GPU plus independently verified fixed-context resident1/2/4/8; native DD context/fidelity scaling; complete phase/capacity clocks. All-eleven FZC owner A/B remains rank4. Tested precision/cap lead now rank5; new SIMD screen low priority. Unknown exclusive fraction f gives even free-deletion ceiling1/(1-f), before added costs. No numerical complete high-endGPU speed forecast."
+    ]
+  },
+  {
+    "heading": "## Cycle0113 \u2014 2026-10-20 \u2014 public per-layer dictionary caps: limited diversity and unchanged peak",
+    "bytes": 7450,
+    "evidence_lines": [
+      "Run `20261020T211854Z-71297104`; checkpoint 2026-10-20T21:30:19.165784+00:00. **No proving improvement measured.** Startup agenda/state/latest0112results, historical findings index,692-record ledger and required project documents read/pinned; early state checkpoint retained. Prior findings and negative results preserved.",
+      "Tested/refined question: can an entire-public-table cap per layer retain S12 DD savings more efficiently than one uniform cap? Baseline: owner R11 HIGH direct layout152,256,512 /836,337,664 words per8B block atT128/T512. Existing b7 schedule30e_s2/1e_s3/1e_s4 is only a sensitivity fixture; actual HIGH calibration tables are missing. Other synthetic schedules vary diversity; no private trace information used.",
+      "Native work actually eliminated:none. Conditional receipt deltas use the R9 fixed wire skeleton and include messages,terminals,Mrows,A/Hrows andPCSgroups, matching its235,008B T128 DDdelta. HIGH/new stage metadata and degree/group/endpoint validity still need native review. The rows-only cost shortcut fails. Let f be unknown exclusive affected full-prover fraction; even free deletion has ceiling1/(1-f), before added costs. No numerical fullGPU rate forecast.",
+      "53,836probechecks/120syntheticrows/10negativecontrols PASS (1.777999s,18,720KiB). Independent8,915checks PASS (0.021773s,18,000KiB),90digit20,480publicentries,3,360independentpositions,4,096allocationevents,15sourcepins/9controls; Mrowbudget holds. An earlier successful audit is preserved before the Mbudget addition. One worker/nice19/first allowedcore;59sCPU+alarm/60sparent,512MiBAS,64MiBestimate. Intel CoreUltra9 185H/WSL2; no native proof. Copied inspected local R10/R11 code only, no downloaded scripts executed.",
+      "26ranked hypotheses retain all prior negatives. Top3 unchanged: wholeGPU/resident workloads, DD scaling/fidelity, complete phase/capacity clocks; FZC owner A/B4. Publiccap/mode5refined; next dyadic padding question26added. Review seams: Shape dd_cap/check_dd_geometry/slots/receipt_bytes, publicE loader, trainedstatement,RunStatement stage_shape/stage_layout/schedule_digest. Calibration API refuses plane-list changes; no new profile/native patch. [Experiment](experiments/public-layer-dd-caps-20261020/README.md), [handoff](handoffs/20261020-public-layer-dd-caps.md)."
+    ]
+  },
+  {
+    "heading": "# Cycle0114 \u2014 public dyadic dictionary union feasibility",
+    "bytes": 8197,
+    "evidence_lines": [
+      "**No proving improvement measured.** Read AGENDA, STATE, FINDINGS, all702source records, prior0113results and required project documents. Early STATE checkpoint and byte snapshots retained. Production remained read-only; prior findings/negatives preserved.",
+      "An extra T512 shard adds11A+7H claim sites,36row-widths in fresh mask words (9MiB),3PCSgroups,1DDslot and2Mencoded rows. Exact156 positions save12MiB over160 but add18MiB in masks. Native no-lift requires cap>=4 atT128 or>=2 atT512; raw55=32+16+4+2+1 fails. Splitting248 outputs regresses at both contexts. AtT128 e_s2, the best128+32 choice remains+4.928441% versus direct; e_s4 keeps single64. These are useful negative findings.",
+      "Wire accounting includes fresh claim/mask rows, slots, terminals and PCS groups;32-layer conditional body delta versus direct atT512 is-40,092,272B. HIGH/new schema metadata and degree/group assumptions are not validated. No complete receipt was produced. Hypothetical eliminated work is unused dictionary slots, helper lookups and inversions; native eliminated work is zero. Extra masks, Sum reads, commitments, schema binding and challenge scheduling are added costs. The exclusive full-prover affected fractionf is unknown; even free deletion has ceiling1/(1-f), before new costs. No numerical50-token/s projection.",
+      "The first audit failed on a flawed negative control: moving a count between two padded0 entries leaves the multiset unchanged. Initial source/stderr retained. Corrected distinct-value mutation rejects; final runs add full public-table hash, insufficient-support and no-lift API controls. Commands, final source hashes, dimensions and limitations are retained.",
+      "28ranked hypotheses retain prior negatives. Top3 remain whole-GPU/resident workloads, DD fidelity/context scaling and complete phase/capacity clocks; all-elevenFZC A/B rank4. Tested shard union is rank5; prior public per-layer cap work remains preserved at6. New semantic-validation and public-preprocessing/capacity questions are included. Rotation emphasized lookup, exact arithmetic, input consistency, composition and memory; next returns to GPU commitments/NTT and amortization.",
+      "Historical CPU diagnostic carried without rerun/reverification: non-DD8B T128,32layers,one16-thread CPU pass,GPUoff; total478.737s=0.267370positions/s. prove_run393.785s includes witness98.348s and load17.595s; seal84.824s has overlapping subwork. Receipt922,711,264B; fresh verify42.709s+public load13.681s; recheck34.395s+load10.739s. Isolated serialization,startup fraction and steady slope unknown. This is not a high-end GPU baseline."
+    ]
+  },
+  {
+    "heading": "## Cycle 0115 \u2014 public coset leases after the NTT cache negative (2026-10-20)",
+    "bytes": 7844,
+    "evidence_lines": [
+      "## Cycle 0115 \u2014 public coset leases after the NTT cache negative (2026-10-20)",
+      "Early and midcycle state checkpoints preserved; prior findings and negatives retained.",
+      "the earlier cycle 0084 negative is confirmed in active/R9 sources. CPU NTT construction",
+      "Baseline/eliminated/added/ceiling: replace only repeated public powers generation/uploads,",
+      "gives even free-deletion ceiling 1/(1-f). Resident workload slope and startup are unknown;",
+      "amortization cannot exceed context/recurring. Falsify on changed values/refusals/column"
+    ]
+  },
+  {
+    "heading": "## Cycle0116 \u2014 2026-10-21 \u2014 inverse-length scaling: exact small cleanup, GPU fusion already present",
+    "bytes": 5754,
+    "evidence_lines": [
+      "Baseline: literal pow(P-2) costs127source-level field multiplies; compiler may",
+      "Falsification: byte/refusal mismatch, compile-folded existing inverse, negligible",
+      "hypotheses and every earlier negative remain. Top4owner priorities unchanged.",
+      "fraction and steady slope unknown. This is not a high-end GPU baseline."
+    ]
+  },
+  {
+    "heading": "## Cycle0117 \u2014 FZC CPU-tail boundary: exact small launch/traffic candidate",
+    "bytes": 78,
+    "evidence_lines": []
+  },
+  {
+    "heading": "# Cycle 0117 \u2014 FZC tail boundary \u2014 2026-10-21",
+    "bytes": 7039,
+    "evidence_lines": [
+      "Baseline: k_sc_fold over kd tables followed by k_fzc_pack over the original k tables.",
+      "Falsify it on any canonical round, next challenge, final, receipt or refusal mismatch,",
+      "all 31 prior entries and negative findings remain, and the top four owner priorities",
+      "slope are unknown. This is not a high-end GPU baseline."
+    ]
+  },
+  {
+    "heading": "## Cycle 0118 \u2014 FZC scratch reuse: allocation counts and lifecycle gates",
+    "bytes": 8675,
+    "evidence_lines": [
+      "from a 21,704 B fresh baseline peak to 31,944 B. Driver page granularity is unknown.",
+      "36 changed-shape cases and 17 negative-control types. Its independent reference",
+      "Baseline: per-attempt FzcMapped + fallback PinBuf, and a separate tail PinBuf.",
+      "No numeric end-to-end rate follows. Falsify on stale words, length/sequence/refusal"
+    ]
+  },
+  {
+    "heading": "## Cycle 0119 \u2014 FZC error retirement and recorded completion, 2026-10-21",
+    "bytes": 7832,
+    "evidence_lines": [
+      "Negative policies retire before the conservative operation-completion bound in 67",
+      "Baseline: per-attempt mapped/fallback pins and a separate tail pin. Potential eliminated",
+      "free deletion is bounded by 1/(1-f); added costs reduce it. No numeric full-stack ceiling",
+      "or 5090 rate is justified. Falsify on unsafe retirement, stale values, changed refusal/",
+      "| Rank | Hypothesis and expected enclosing relevance | Prerequisites / costs / falsifier |"
+    ]
+  },
+  {
+    "heading": "## Cycle 0120 \u2014 FZC exclusive phase and role accounting, 2026-10-21",
+    "bytes": 7777,
+    "evidence_lines": [
+      "Decisive synthetic negative: two30-unit workloads each spend8units in allocation;",
+      "Baseline: per-attempt round fallback pin, conditional mapped pin and distinct",
+      "deletion gives at most1/(1-f), before costs. No numeric complete GPU ceiling follows.",
+      "Falsify on unreconciled/missing failure/drop scopes, privacy/transcript/refusal drift,",
+      "The nonlinear lookup refresh preserves the existing256-entry-table negative.",
+      "already-known tiny-public-table preprocessing negative. Scratch runtime pooling is parked"
+    ]
+  },
+  {
+    "heading": "## Cycle 0121 \u2014 ordered U8 one-hot contracts and dense PCS negative, 2026-10-21",
+    "bytes": 8499,
+    "evidence_lines": [
+      "## Cycle 0121 \u2014 ordered U8 one-hot contracts and dense PCS negative, 2026-10-21",
+      "Useful negative: native U8H pairs two looked inverses in oneFp2 helper. Direct",
+      "no private protocol exists to price them. No numeric GPU ceiling follows.",
+      "Baseline: frozen normwindow32/fE9/fP9/DDcap32. Potential eliminated work: gross"
+    ]
+  },
+  {
+    "heading": "## Cycle 0122 \u2014 2026-10-21 \u2014 affine U8 source sharing and exact aliases",
+    "bytes": 7483,
+    "evidence_lines": [
+      "The broad dense-bit alternative remains negative. Sharing the original source",
+      "Baseline: frozenR9 normwindow32/fE9/fP9/DDcap32. Eliminated native work:none;",
+      "gives at most1/(1-f), before costs. No numeric end-to-end GPU ceiling follows.",
+      "Falsification: any original-source/range/pad/histogram/denominator/refusal/",
+      "already falsified for this backend/representation.",
+      "Carried baseline, not rerun/reverified: historical nonDD8B T128/L32/one"
+    ]
+  },
+  {
+    "heading": "## Cycle 0123 \u2014 streaming BLAKE3 state: exact CPU model, native benefit unknown",
+    "bytes": 6610,
+    "evidence_lines": [
+      "Baseline: `commit_zk_chunked`, `commit_chunked` and `commit_chunked_upload` reserve",
+      "Falsify on stale reads, wrong ordered hash/root/salt/path, RNG/transcript/receipt or",
+      "Carried historical baseline (not rerun/reverified): nonDD8B T128/L32, one16-thread"
+    ]
+  },
+  {
+    "heading": "## Cycle0124 \u2014 public frontier removes stored count; native benefit unknown",
+    "bytes": 7239,
+    "evidence_lines": [
+      "Baseline: root unkeyed stream plus activeGPU keyed/unkeyed stream. Each host tree has",
+      "Ceiling: unknown truly removable elapsed fractionf gives only1/(1\u2212f) before extra",
+      "popcount/index costs. No numeric complete-GPU speed forecast. Falsify on any hash,",
+      "Carried historical baseline, not rerun/reverified: nonDD8B T128/L32, one CPU pass"
+    ]
+  },
+  {
+    "heading": "## Cycle0125 \u2014 salted Merkle fusion: exact model, small counts and transfer negative",
+    "bytes": 8600,
+    "evidence_lines": [
+      "## Cycle0125 \u2014 salted Merkle fusion: exact model, small counts and transfer negative",
+      "For N encoded columns, baseline salting costs N BLAKE3 compressions and the external",
+      "Two useful negative findings constrain integration. First, naive safe zero-filled",
+      "End-to-end ceiling: if f is the unknown truly removable critical-path fraction,",
+      "GPU speed forecast follows. Falsify on any digest/node/path/key/flag/order/RNG/",
+      "Carried historical baseline, not rerun/reverified: nonDD8B T128/L32, one16-thread"
+    ]
+  },
+  {
+    "heading": "## Cycle 0126 \u2014 exact interpolation, scalar incidence and stale public encodings",
+    "bytes": 10167,
+    "evidence_lines": [
+      "No complete-proof improvement was measured. The baseline is the source-pinned",
+      "For m samples, the baseline has m(m-1) base denominator products and",
+      "the compiler may already remove some baseline constant arithmetic.",
+      "partial-LRU, metadata, fraction-tree and masking negatives remain preserved.",
+      "Baseline / removed / added / ceiling / falsification: remove only the scalar",
+      "RNG/refusal/privacy mismatch, compiler-erased baseline cost, absent incidence,"
+    ]
+  },
+  {
+    "heading": "## Cycle0127 \u2014 fresh periodic lookup encoding: exact model, extra-read tradeoff",
+    "bytes": 8352,
+    "evidence_lines": [
+      "**Negative:** net354816B more logical reads perpair; no output/peak-memory",
+      "operands and can remove some baseline work. Counts are not instructions or",
+      "Baseline/eliminated/added/ceiling/falsification: remove only repeated public",
+      "critical-path fractionf, free deletion ceiling1/(1\u2212f) precedes added costs.",
+      "All39 previous hypotheses/negative findings retained;1/14 refined,40/41 added."
+    ]
+  },
+  {
+    "heading": "## Cycle 0128 \u2014 periodic public SC_TAB descriptor",
+    "bytes": 7998,
+    "evidence_lines": [
+      "full cube, polynomial, extension points and private obligations? Baseline",
+      "challenge; 24 negative/refusal-control instances. Native SC_TAB has one",
+      "| Quantity, three public factors at R12 T128 L16384 | Baseline | Candidate |",
+      "Ceiling: with unknown exclusive affected critical-path fraction f, even",
+      "SC_TAB and leaves dense private/full-cube work. Falsify on any field, point,",
+      "   prerequisite; unknown ceiling; failed coverage/fit or recurring rate below"
+    ]
+  },
+  {
+    "heading": "## Cycle 0129 \u2014 masked SC_TAB conformance; no proving gain",
+    "bytes": 5880,
+    "evidence_lines": [
+      "Useful negative: four lifted fixtures change the mask total when it is",
+      "ceiling follows.",
+      "Full costs, prerequisites, exactness, privacy, seams and falsification remain",
+      "integers at Goldilocks edge values. If unsupported, retain that negative and"
+    ]
+  },
+  {
+    "heading": "## Cycle 0130 \u2014 Goldilocks Tensor NTT port boundary; no proving gain",
+    "bytes": 4788,
+    "evidence_lines": [
+      "carries fails. Unsupported-port negatives, not upstream defect claims.",
+      "Baseline specialized nativeGoldilocksNTT. Nativeworkremoved:none. Research",
+      "ceiling<=1/(1-f)beforecosts. Falsifyonanyfield/carry/layout/root/inverse/coset/"
+    ]
+  },
+  {
+    "heading": "## Cycle 0131 \u2014 public derivation cache contract; zero direct 8B incidence",
+    "bytes": 4866,
+    "evidence_lines": [
+      "R12b tied-table seam; source incidence falsifies direct 8B applicability.",
+      "Authored contract passes 1,717 synthetic checks, including 1,067 negative",
+      "Useful negatives: same path/device/inode/length/mtime can contain changed",
+      "is not measured traffic/time. Baseline2D+R toD+R+a has <=2x free per-request",
+      "ceiling with unknown D/R/a; direct current8B speedup1x. Margin6,144B+digests96B"
+    ]
+  },
+  {
+    "heading": "## Cycle 0132 \u2014 same-call full-loader SHA identity reuse; reload zero",
+    "bytes": 5388,
+    "evidence_lines": [
+      "Synthetic prerequisite: 5,150 checks, 2,584 negative-control instances,",
+      "Baseline is the current full loader. Added costs are internal provenance,",
+      "f gives a free-deletion ceiling of 1/(1-f) before costs. Historical all-load"
+    ]
+  },
+  {
+    "heading": "## Cycle 0133 \u2014 support evidence needs actual immutable ownership (2026-10-29)",
+    "bytes": 5779,
+    "evidence_lines": [
+      "9,014negative-control checks include correctly accepted differential cases;",
+      "Baseline scans become firstscan+key/lifetime checks+unchanged otherchecks.",
+      "Complete ceiling N/(T-C+A), with exclusive removable supportC and addedA",
+      "Falsify any byte/refusal/order/support/owner/binding/RNG/transcript/receipt/"
+    ]
+  },
+  {
+    "heading": "## Cycle 0134 \u2014 modular bounds and cumulative evidence before check removal (2026-10-29)",
+    "bytes": 4595,
+    "evidence_lines": [
+      "under c in [1, 2], integer division infers only a=-1. This is a negative control",
+      "Baseline C remains intact. Potential eliminated work is genuinely entailed",
+      "review cost are unknown. Ceiling N/(T-C_removable+A), with exclusive costs",
+      "unmeasured. Falsify one changed witness/refusal/binding/privacy result,"
+    ]
+  },
+  {
+    "heading": "## Cycle 0135 \u2014 split-coset hiding encoder: exact model and bounded cost negative",
+    "bytes": 7195,
+    "evidence_lines": [
+      "## Cycle 0135 \u2014 split-coset hiding encoder: exact model and bounded cost negative",
+      "(+4.7619%): a bounded negative for broad arithmetic-saving claims. Public",
+      "negative. Charge16N logicalB/row if a natural-order restore copy is needed;",
+      "current native gates remain owed. Ceiling Npositions/(T-Cremoved+Aadded), with",
+      "Operation percentages do not imply time or50-token/s throughput. Falsify any",
+      "controls. Read prior terminal/lookup negatives before selecting an adapter."
+    ]
+  },
+  {
+    "heading": "## Cycle 0136 \u2014 terminal weights share public work; enclosing scope is small",
+    "bytes": 7024,
+    "evidence_lines": [
+      "ceilingNpositions/(T-Cexclusive_removed+Aadded) remains unknown. Falsify on",
+      "read wide-Fp2/fused-MAC negatives, then assess three-product paired-mask dots"
+    ]
+  },
+  {
+    "heading": "## Cycle0137 \u2014 paired mask-dot reconstruction after accumulation (2026-10-29)",
+    "bytes": 5695,
+    "evidence_lines": [
+      "lane was duplicated. Prior findings and negative results remain.",
+      "negative controls; eight current source hashes; uncompiled single-function Rust",
+      "Validation:7399checks/168fixtures/18negative families,1296extrema and4096random",
+      "No transfer toR12b,8B or a named high-endGPU. Actual target ceiling remains"
+    ]
+  },
+  {
+    "heading": "## Cycle0138 \u2014 all-slot mask-tail incidence and cache capacity tradeoff (2026-10-29)",
+    "bytes": 6766,
+    "evidence_lines": [
+      "The new source-derived model covers23 baseline slots plus optional24th DD.",
+      "AtT128 both non-DD baseline families:174 mask pairs,4,871,844 constructorFp2",
+      "Model PASS22,307 checks/423 fixtures/35 negative controls;6,270 independent",
+      "spelling; retainedfailurecorrectedfromsource,finalPASS. No scientific negative",
+      "removes only a subset. No R13/8B/high-endGPU transfer. Target ceiling remains",
+      "N/(T-Cexclusive_removed+Aadded),unknown. Falsify on any value/order/tail/c0/"
+    ]
+  },
+  {
+    "heading": "## Cycle 0139 \u2014 exact R13 lookup storage: small logical savings, native gain unknown",
+    "bytes": 6329,
+    "evidence_lines": [
+      "prior U8 alias/PCS negatives, latest results and required project documents were",
+      "follow-up studies must select the current owner baseline explicitly.",
+      "| Representative 8B T128 class | Baseline looked MiB | Prepared MiB | Avoided MiB |",
+      "Baseline: each lookup independently allocates a Vec<i64> in lookup_values_at.",
+      "1/(1-f) before costs; saved logical byte fraction is not f. Falsify promotion on",
+      "No numeric native or high-end GPU ceiling follows."
+    ]
+  },
+  {
+    "heading": "## Cycle0140 \u2014 final-output prefix removes CPU row scratch; impact bounded",
+    "bytes": 8552,
+    "evidence_lines": [
+      "Baseline: CPU initialize_row allocates data.to_vec, inverts it, then",
+      "Expected end-to-end ceiling: unknown, N/(T\u2212C_exclusive_allocator+A_added).",
+      "agree with the exact extracted baseline. **29,106 values** also agree with an",
+      "Ten original public-shape refusal cases and ten output/algebra negative",
+      "newly inspected primary coordinate. Known GPIR and cuda-zkp-ntt release/negative",
+      "First re-read owner updates and the earlier mask-tail incidence negatives."
+    ]
+  },
+  {
+    "heading": "## Cycle0141 \u2014 prepared public sums trade additions for traffic (2026-10-29)",
+    "bytes": 8692,
+    "evidence_lines": [
+      "serial. The installed native baseline still has two original row dots. Paired3",
+      "and ten negative controls PASS. Row logs 0\u20138, 13 and 14; private logs below,",
+      "no support for unconditional eager preparation. Single/two-use negative",
+      "The end-to-end ceiling remains Npositions/(T-C_exclusive_removed+A_added),",
+      "Falsify on any value, support, tail, width, offset, source identity, order,",
+      "negatives remain. Known power-circuit and Karatsuba references were refreshed."
+    ]
+  },
+  {
+    "heading": "## Cycle0142 \u2014 current R13 mask-site census (2026-10-29T12:08:53.130978+00:00)",
+    "bytes": 9243,
+    "evidence_lines": [
+      "M=2.878..2.997million pair coefficients; the native baseline still uses two",
+      "Nine negative controls cover legacy undercount,private freshness,offset,",
+      "Baseline/eliminated work/added costs/prerequisites/ceiling/falsification are",
+      "retained in leading-hypothesis.json. End-to-end ceiling remains",
+      "Falsify on any metadata/value/address/order/extension/refusal/RNG/transcript/",
+      "Carried older-profile CPU 8B baseline: T128/L32, one 16-thread pass,"
+    ]
+  },
+  {
+    "heading": "## Cycle0143 \u2014 pair-tile dataflow: exact component, no useful CPU gain",
+    "bytes": 8446,
+    "evidence_lines": [
+      "The installed R13 baseline computes two original Fp2 mask-row dots and a fresh",
+      "|f_E|DD|Pairs|K2 public bytes removed|K4 public bytes removed|K2 dot read ceiling|K4 dot read ceiling|",
+      "These ceilings divide source-level dot traversal bytes;they exclude Eq builds,",
+      "ragged5-pair groups and empty edge. Ten negative controls cover pair order,",
+      "Initial arithmetic passed;a positive empty edge had been labelled a negative",
+      "Hypothesis60 is materially refined;all60 prior hypotheses and negatives remain."
+    ]
+  },
+  {
+    "heading": "## Cycle0144 \u2014 public half-map reuse preserves fresh values",
+    "bytes": 7714,
+    "evidence_lines": [
+      "3,402,855output words and3150fresh mask/reference checks;10negative controls.",
+      "Initial failure was a negative control mutating unread data[0] when the slice",
+      "small absent a material exclusive phase share. CeilingN/(T-Cremoved+Aadded);",
+      "canceling enclosing gain,falsifies promotion.",
+      "Carried older-profile CPU8B baseline:T128/L32,one16-thread pass,GPUoff;",
+      "baseline or R13/high-endGPU throughput."
+    ]
+  },
+  {
+    "heading": "## Cycle0145 \u2014 same-basis fresh Eq complement doubling",
+    "bytes": 9801,
+    "evidence_lines": [
+      "End-to-end ceiling: `N/(T-C_removed_exclusive+A_added)`. With affected",
+      "that whole fraction has ceiling `1/(1-f)`. Serial helper ratios and operation",
+      "falsifies promotion. Main/Claude owns review and integration; no merge here.",
+      "Carried older-profile CPU 8B baseline: T128/L32, one 16-thread pass, GPU off."
+    ]
+  },
+  {
+    "heading": "## Cycle0146 \u2014 prover-only PCS column preparation (2026-10-29)",
+    "bytes": 8282,
+    "evidence_lines": [
+      "No native Rayon/FS/matrix-fold/enclosing/GPU speedup follows. End-to-end ceiling",
+      "fractionf and phase ratiok. Both unknown; free-deletion ceiling1/(1-f).",
+      "license body inspected. Plonky3PR2305 September22/23 dates and author negative",
+      "62prior entries and their negatives unchanged. Owner next: exclusive",
+      "using current shared build/heavy locks. Falsify on any mismatch, a new column",
+      "Carried older-profile CPU8B baseline, not rerun/reverified or newly counted:"
+    ]
+  },
+  {
+    "heading": "## Cycle0147 \u2014 public-rho row-fold skipping (2026-10-29)",
+    "bytes": 8311,
+    "evidence_lines": [
+      "source acc+rw128B/thread versus64B baselineacc. Compiled registers/spills,",
+      "forces one full matrix scan in its batch. This negative redirects the next",
+      "Whole-workloadceiling N/(T-Cremoved_exclusive+Aadded),funknown;",
+      "free-deletionbound1/(1-f). No numeric8Btokenforecast. Falsifyonanyvalue,",
+      "Carried older-profile CPU8B baseline,notrerun/reverified/newlycounted:"
+    ]
+  },
+  {
+    "heading": "# Cycle 0148 \u2014 public mask-row incidence bound, 2026-10-29",
+    "bytes": 7774,
+    "evidence_lines": [
+      "The baseline device kernel scans all rows in chunks of four rho vectors.",
+      "| Source geometry, per core | Baseline A/H reads | Guaranteed skips with prior candidate |",
+      "vectors and proof work remain. Mask-count-only packing is a negative result:",
+      "unchanged; 67 adds this bound and 68 rejects mask-only packing. The ceiling",
+      "privacy mismatch, memory regression or absent enclosing benefit falsifies",
+      "unapplied. This cycle supplies incidence evidence and a scheduling negative."
+    ]
+  },
+  {
+    "heading": "## Cycle0149 \u2014 2026-10-29: exact H source support and conditional packing",
+    "bytes": 8450,
+    "evidence_lines": [
+      "Whole-workload ceiling N/(T\u2212C_removed_exclusive+A_added), with native",
+      "falsifies promotion.",
+      "Carried older-profile CPU8B baseline, not rerun/reverified/newly counted:"
+    ]
+  },
+  {
+    "heading": "## Cycle 0150 \u2014 2026-10-29: A support and empty row scans",
+    "bytes": 61,
+    "evidence_lines": []
+  },
+  {
+    "heading": "# Cycle 0150 \u2014 A support and the cost of empty row scans",
+    "bytes": 7830,
+    "evidence_lines": [
+      "The ceiling remains N/(T\u2212C_removed_exclusive+A_added), with unknown exclusive",
+      "gain, or no verified enclosing benefit falsifies promotion.",
+      "Carried older CPU 8B baseline, not rerun, reverified or newly counted:"
+    ]
+  },
+  {
+    "heading": "## Cycle 0151 \u2014 public indexed membership rowfold, 20261029T205649Z-c620e79d",
+    "bytes": 7822,
+    "evidence_lines": [
+      "Useful negative result: reversing noDD groups reduces matrix union",
+      "Ceiling N/(T-C_removed_exclusive+A_added), unknown exclusive f; free deletion",
+      "Next bounded local experiment: independent public run-length census",
+      "Carried older CPU 8B baseline, not rerun/reverified/newly counted:"
+    ]
+  },
+  {
+    "heading": "## Cycle0152 \u2014 public consecutive-row/membership intervals (2026-10-29)",
+    "bytes": 6739,
+    "evidence_lines": [
+      "End-to-end ceiling is N/(T-C_removed_exclusive+A_added), with unknown",
+      "Next bounded local experiment: compare exact public point lists with",
+      "Carried older CPU8B baseline, not rerun/reverified/newly counted:"
+    ]
+  },
+  {
+    "heading": "## Cycle0153 \u2014 public zero-gap interval coalescing",
+    "bytes": 9360,
+    "evidence_lines": [
+      "**No native proving speedup measured.** The falsifiable local question was",
+      "batch. FrozenR13 8B/T128 A baseline is74/81pure spans and",
+      "Expected end-to-end ceiling remains N/(T-C_removed_exclusive+A_added);",
+      "Rankings retain76prior hypotheses exactly and add77tested negative and",
+      "3exclusive native phase/capacity clocks. The next bounded local experiment",
+      "compares current native layout census if present. Any mismatch falsifies"
+    ]
+  },
+  {
+    "heading": "## Cycle0154 \u2014 R14 public geometry and fresh-proximity batch boundary",
+    "bytes": 7744,
+    "evidence_lines": [
+      "extracted-native metadata refusal controls and120Python negative controls.",
+      "The leading hypothesis baseline was frozenR13 metadata tuning against an",
+      "Falsify a proposed transfer on any geometry, source, mask, endpoint,",
+      "Carried older CPU8B baseline, not rerun/reverified/newly counted: T128/L32,"
+    ]
+  },
+  {
+    "heading": "## Cycle0155 \u2014 Exact five-vector tail fold and conditional scan ceiling",
+    "bytes": 10072,
+    "evidence_lines": [
+      "## Cycle0155 \u2014 Exact five-vector tail fold and conditional scan ceiling",
+      "Baseline: each max4 call flattens/uploads rho,allocates output,launches,",
+      "| Conditional f_e9 standalone generic core | Baseline matrix source B | Candidate B | Fewer source B |",
+      "Expected complete ceiling remains N/(T-C_removed_exclusive+A_added), with",
+      "telemetry issue. Falsify promotion on any native limb/order/refusal/RNG/FS/",
+      "Carried older CPU8B baseline,not rerun/reverified/newly counted:T128/L32,"
+    ]
+  },
+  {
+    "heading": "## Cycle 0156 \u2014 opening-local staging and scratch lifetime",
+    "bytes": 10165,
+    "evidence_lines": [
+      "**No measured proving improvement.** Opening-local serial scratch reuse",
+      "`16 * min(k,4) * (rows+n)` bytes for baseline/serial reuse, and",
+      "| Role | Vectors / chunks | Allocation requests, baseline \u2192 serial | Baseline/serial scratch B | Full scratch B |",
+      "removable critical-path time. Falsify on negligible exclusive cost, excess",
+      "clocks. The complete-workload ceiling is"
+    ]
+  },
+  {
+    "heading": "## Cycle 0157 \u2014 hybrid opening staging and public scratch-budget fallback",
+    "bytes": 11441,
+    "evidence_lines": [
+      "**No measured proving improvement.** A public-budget hybrid stages all",
+      "stop further work and release tracked scratch. Negative controls change",
+      "| Historical role | k / chunks | Serial scratch B | Hybrid scratch B | Full scratch B | H2D calls, baseline \u2192 hybrid |",
+      "earlier validation and host/device capacity. Complete-workload ceiling:",
+      "follows. Falsify on negligible exclusive cost, failed capacity admission,",
+      "are unsafe. The independent two-copy negative control shows aliasing"
+    ]
+  },
+  {
+    "heading": "## Cycle 0158 \u2014 explicit host limb packing and omitted mutex waits",
+    "bytes": 10977,
+    "evidence_lines": [
+      "**No measured proving improvement.** Direct explicit-limb packing passed",
+      "Baseline and candidate use the pinned native field. The baseline packing",
+      "integers and reduce once per output limb. Eleven Rust negative controls",
+      "| Conditional historical T128 f_e9 role | k / chunks | Pack allocation requests, baseline \u2192 direct | Peak requested packing B, baseline \u2192 direct |",
+      "End-to-end ceiling is `N/(T-C_pack_exclusive+A_added)`; ideal free removal of",
+      "exclusive fraction f gives at most `1/(1-f)`. f is unknown. Falsify if native"
+    ]
+  },
+  {
+    "heading": "## Cycle0159 \u2014 fold counter boundaries and queued-work attribution \u2014 2026-10-30T07:55:01.314464+00:00",
+    "bytes": 5920,
+    "evidence_lines": [
+      "Run `20261030T074123Z-71d2f333`. **No measured proving improvement.**",
+      "These are synthetic scheduling negatives,not measured phase savings. General",
+      "safely removable critical-path time may be subtracted. Falsify on repinned",
+      "Carried historical CPU8B baseline, not rerun/reverified or newly counted:"
+    ]
+  },
+  {
+    "heading": "# Cycle0160 \u2014 same-capture fold attribution and completeness negative",
+    "bytes": 6770,
+    "evidence_lines": [
+      "# Cycle0160 \u2014 same-capture fold attribution and completeness negative",
+      "**No measured proving improvement.** The standalone Rust normalized trace",
+      "The useful negative: coherently removing an entire call,its roster entry and",
+      "observer/export/join overhead. The ceiling N/(T-C_critical+A_added) is unknown;",
+      "Falsify promotion if collector ambiguity/perturbation,coverage/privacy mismatch",
+      "Carried historical CPU8B baseline, not rerun/reverified or newly counted:"
+    ]
+  },
+  {
+    "heading": "## Cycle0161 \u2014 source-derived slot batching compatibility negative",
+    "bytes": 5328,
+    "evidence_lines": [
+      "## Cycle0161 \u2014 source-derived slot batching compatibility negative",
+      "**No measured proving improvement.** A standalone Rust source-metadata",
+      "Baseline: current serial 23/24-slot schedule. Work eliminated: zero. Added",
+      "source/terminal binding and a new proof/privacy argument. Ceiling remains",
+      "here. Falsified: na\u00efve shape-only whole-slot merging that preserves the",
+      "Carried historical CPU8B baseline (not rerun/reverified or newly counted):"
+    ]
+  }
+]

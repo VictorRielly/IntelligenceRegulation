@@ -1,0 +1,23 @@
+--- my-diff3-merge/hashline/src/private_block/run_capture.rs
++++ t13/hashline/src/private_block/run_capture.rs
+@@ -218,9 +218,3 @@
+ 
+-<<<<<<< /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io/hashline/src/private_block/run_capture.rs
+-pub(super) const OWN_SOURCE_FILES: [&str; 23] = [
+-||||||| /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r8/frozen-tree/hashline/src/private_block/run_capture.rs
+-pub(super) const OWN_SOURCE_FILES: [&str; 17] = [
+-=======
+-pub(super) const OWN_SOURCE_FILES: [&str; 20] = [
+->>>>>>> /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r12b/frozen-tree/hashline/src/private_block/run_capture.rs
++pub(super) const OWN_SOURCE_FILES: [&str; 26] = [
+     "src/private_block/run_capture.rs",
+@@ -2603,3 +2597,3 @@
+ /// shared list (appended to `source_pins`, for classifier bundles only)
+-const CLASSIFY_SOURCE_FILES: [&str; 4] = ["src/private_block/token_io/classify.rs", "src/private_block/token_io/classify_run.rs", "src/private_block/token_io/stage_in_c.rs", "src/private_block/token_io/stage_out_c.rs"];
++const CLASSIFY_SOURCE_FILES: [&str; 5] = ["src/private_block/token_io/classify.rs", "src/private_block/token_io/classify_tied.rs", "src/private_block/token_io/classify_run.rs", "src/private_block/token_io/stage_in_c.rs", "src/private_block/token_io/stage_out_c.rs"];
+ 
+@@ -2868,3 +2862,3 @@
+     format!(
+-        "# ZK60 classifier run capture bundle\n\n{note}\n\nWhat this is: the VERIFIER'S VIEW of one private CLASSIFIER run (stage IN-C, {} blocks,\nstage OUT-C) under one transcript, profile `{}`, written by\n`hashline/src/private_block/run_capture.rs` (schema `{SCHEMA_CLASSIFY}`). It is the INPUT to the\nprivacy gate's classifier items (gate round 16) and it is NOT a privacy result: no gate has read it.\n\nWhat made it:\n\n    {command}\n\nFiles: `run.json` (the run header, the shape, `classify` with the classifier facts: the policy,\nc, the margin vector's digest, the PUBLIC verdict and D41's chunk; the boundaries in token\nnumbering: 0 = B_in, L = B_out) and `stage-NN.json` for the {} stages: stage-00 is stage IN-C\n(its slots, M, A-in, H-in and the input token endpoint, and its plane table), stage-01 ..\nstage-{:02} the blocks (each with the Input opening of the boundary before it, B_in at stage-01),\nand the last is stage OUT-C (its slots, M, A-out, H-out and B-out, and its plane table; NO output\nendpoint). Each stage file carries its segment's length and SHA-256. `manifest.json` lists every\nfile with its SHA-256 and pins the source files (the classifier's four included).\n\n{arrays_note}\n\nNOT in this bundle: any prover-side value, the content's token ids, the margin and its limbs,\nand the owner's decommitment (`not_in_a_capture` in `run.json`); every key is on the allow-list.\n\n{payload} bytes of run file, stage files and segments.\n",
++        "# ZK60 classifier run capture bundle\n\n{note}\n\nWhat this is: the VERIFIER'S VIEW of one private CLASSIFIER run (stage IN-C, {} blocks,\nstage OUT-C) under one transcript, profile `{}`, written by\n`hashline/src/private_block/run_capture.rs` (schema `{SCHEMA_CLASSIFY}`). It is the INPUT to the\nprivacy gate's classifier items (gate round 16) and it is NOT a privacy result: no gate has read it.\n\nWhat made it:\n\n    {command}\n\nFiles: `run.json` (the run header, the shape, `classify` with the classifier facts: the policy,\nc, the margin vector's digest, the PUBLIC verdict and D41's chunk; the boundaries in token\nnumbering: 0 = B_in, L = B_out) and `stage-NN.json` for the {} stages: stage-00 is stage IN-C\n(its slots, M, A-in, H-in and the input token endpoint, and its plane table), stage-01 ..\nstage-{:02} the blocks (each with the Input opening of the boundary before it, B_in at stage-01),\nand the last is stage OUT-C (its slots, M, A-out, H-out and B-out, and its plane table; NO output\nendpoint). Each stage file carries its segment's length and SHA-256. `manifest.json` lists every\nfile with its SHA-256 and pins the source files (the classifier's five included).\n\n{arrays_note}\n\nNOT in this bundle: any prover-side value, the content's token ids, the margin and its limbs,\nand the owner's decommitment (`not_in_a_capture` in `run.json`); every key is on the allow-list.\n\n{payload} bytes of run file, stage files and segments.\n",
+         b.l,

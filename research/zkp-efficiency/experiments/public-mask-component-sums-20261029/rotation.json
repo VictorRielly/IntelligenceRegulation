@@ -1,0 +1,27 @@
+{
+  "cycle": "0141",
+  "tested": "sumcheck/GKR public preparation and memory traffic",
+  "previous": "GPU NTT/commitment row scratch",
+  "next": "lookup/softmax actual admitted R13 LOW+h24/DD mask-site census before further arithmetic",
+  "queue": [
+    "GPU NTT/commitments",
+    "sumcheck/GKR",
+    "lookup/softmax",
+    "memory traffic",
+    "batching/amortization",
+    "quantization/arithmetic",
+    "proof composition"
+  ],
+  "owner_priority": [
+    1,
+    2,
+    3
+  ],
+  "all_prior_hypotheses_preserved": 59,
+  "refined": [
+    57
+  ],
+  "new": [
+    60
+  ]
+}

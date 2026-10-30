@@ -1,0 +1,20 @@
+test_zk60_guarded_command (unittest.loader._FailedTest) ... ERROR
+
+======================================================================
+ERROR: test_zk60_guarded_command (unittest.loader._FailedTest)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_zk60_guarded_command
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/unittest/loader.py", line 436, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/usr/lib/python3.10/unittest/loader.py", line 377, in _get_module_from_name
+    __import__(name)
+  File "/home/victor/IntelligenceRegulation/tests/test_zk60_guarded_command.py", line 9, in <module>
+    from scripts import zk60_guarded_command as guarded
+ModuleNotFoundError: No module named 'scripts'
+
+
+----------------------------------------------------------------------
+Ran 1 test in 0.000s
+
+FAILED (errors=1)

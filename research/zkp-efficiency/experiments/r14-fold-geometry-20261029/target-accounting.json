@@ -1,0 +1,28 @@
+{
+  "new_independently_verified_full_stack_proofs": 0,
+  "new_complete_passes": 0,
+  "new_proved_positions": 0,
+  "actual_context": null,
+  "modeled_contexts": [
+    128,
+    256
+  ],
+  "device": "Intel(R) Core(TM) Ultra 9 185H",
+  "accelerator": null,
+  "worker_threads": 1,
+  "steady_state_proved_tokens_per_s": null,
+  "total_workload_proved_tokens_per_s": null,
+  "startup_s": null,
+  "startup_fraction": null,
+  "initial_prefill_s": null,
+  "witness_s": null,
+  "proof_s": null,
+  "serialization_s": null,
+  "verification_s": null,
+  "proof_latency_s": null,
+  "proof_bytes": null,
+  "long_context_prefill": false,
+  "resident_model_series": false,
+  "decode": false,
+  "scope": "Metadata and logical operand accounting only; complete private8B>=50/s remains unachieved; context attention can grow quadratically. No numerical GPU8B forecast."
+}

@@ -1,0 +1,295 @@
+{
+  "source": "27b2a427491912cd54969b66f1d6ace29740ba8923dce6ba5ac4e23cfd992191",
+  "binary_sha256": "29a8be1d08ad537b88db6261663e7af6f34adf004d9e7691e4fb71ff6cc28a1d",
+  "cases": [
+    {
+      "dd": false,
+      "case": "per-piece-round-q",
+      "receipts": [
+        {
+          "case": "per-piece-round-q",
+          "dd": false,
+          "bytes": 34875688,
+          "expected_accept": false,
+          "canonical_frame_decoded": true,
+          "native_verifier_used": true
+        }
+      ],
+      "sha256": "1a267884ad817643b53d2e92608b7e9cb8592c6ec51e705e4498ac8788461f36",
+      "frame_retained": true
+    },
+    {
+      "dd": false,
+      "case": "local-c2-ao",
+      "receipts": [
+        {
+          "case": "local-c2-ao",
+          "dd": false,
+          "bytes": 34875688,
+          "expected_accept": false,
+          "canonical_frame_decoded": true,
+          "native_verifier_used": true
+        }
+      ],
+      "sha256": "95842dfa09843ca6aa278fbc302ddf0ddc00decf9ce52783dfaad8e3d4e0a1fb",
+      "frame_retained": true
+    },
+    {
+      "dd": false,
+      "case": "one-piece-norm",
+      "receipts": [
+        {
+          "case": "one-piece-norm",
+          "dd": false,
+          "bytes": 34875688,
+          "expected_accept": false,
+          "canonical_frame_decoded": true,
+          "native_verifier_used": true
+        }
+      ],
+      "sha256": "afded5a8bdcb6ecc7e2b5e4663851ecd077ef8d0cee2deff18a92f8041673f73",
+      "frame_retained": true
+    },
+    {
+      "dd": false,
+      "case": "wrong-omitted-source-bit",
+      "receipts": [
+        {
+          "case": "wrong-omitted-source-bit",
+          "dd": false,
+          "bytes": 34875688,
+          "expected_accept": false,
+          "canonical_frame_decoded": true,
+          "native_verifier_used": true
+        }
+      ],
+      "sha256": "9ceab7873422519be159bf494d27f7e479fd707bce3f71715af32e9ad36fa30d",
+      "frame_retained": true
+    },
+    {
+      "dd": false,
+      "case": "missing-public-lift-gate",
+      "receipts": [
+        {
+          "case": "missing-public-lift-gate",
+          "dd": false,
+          "bytes": 34875688,
+          "expected_accept": false,
+          "canonical_frame_decoded": true,
+          "native_verifier_used": true
+        }
+      ],
+      "sha256": "b01a230446a603d1759eefb3b5fcb5c9e7073a6320459d41775427e943925cb4",
+      "frame_retained": true
+    },
+    {
+      "dd": false,
+      "case": "local-group-reset",
+      "receipts": [
+        {
+          "case": "global-group-honest",
+          "dd": false,
+          "bytes": 34875688,
+          "expected_accept": true,
+          "canonical_frame_decoded": true,
+          "native_verifier_used": true
+        },
+        {
+          "case": "local-group-honest",
+          "dd": false,
+          "bytes": 34875688,
+          "expected_accept": true,
+          "canonical_frame_decoded": true,
+          "native_verifier_used": true
+        },
+        {
+          "case": "local-group-reset",
+          "dd": false,
+          "bytes": 34875688,
+          "expected_accept": false,
+          "canonical_frame_decoded": true,
+          "native_verifier_used": true
+        }
+      ],
+      "sha256": null,
+      "frame_retained": false
+    },
+    {
+      "dd": false,
+      "case": "wrong-feature-axis",
+      "receipts": [
+        {
+          "case": "wrong-feature-axis",
+          "dd": false,
+          "bytes": 34875688,
+          "expected_accept": false,
+          "canonical_frame_decoded": true,
+          "native_verifier_used": true
+        }
+      ],
+      "sha256": "b197a2337c4b69799b38da5b8a0c88c38e22128424d2289fcf9d5b6f54469ee3",
+      "frame_retained": true
+    },
+    {
+      "dd": false,
+      "case": "wrong-global-fold-offset",
+      "receipts": [
+        {
+          "case": "wrong-global-fold-offset",
+          "dd": false,
+          "bytes": 34875688,
+          "expected_accept": false,
+          "canonical_frame_decoded": true,
+          "native_verifier_used": true
+        }
+      ],
+      "sha256": "4e814a2a2c3c41551712d772c749815f697718bdf747b9d11ceb330528f2f109",
+      "frame_retained": true
+    },
+    {
+      "dd": true,
+      "case": "per-piece-round-q",
+      "receipts": [
+        {
+          "case": "per-piece-round-q",
+          "dd": true,
+          "bytes": 35110696,
+          "expected_accept": false,
+          "canonical_frame_decoded": true,
+          "native_verifier_used": true
+        }
+      ],
+      "sha256": "45972974f57091d835aad8ce9c07270fcf669636f36670bf14775c769e95c45c",
+      "frame_retained": true
+    },
+    {
+      "dd": true,
+      "case": "local-c2-ao",
+      "receipts": [
+        {
+          "case": "local-c2-ao",
+          "dd": true,
+          "bytes": 35110696,
+          "expected_accept": false,
+          "canonical_frame_decoded": true,
+          "native_verifier_used": true
+        }
+      ],
+      "sha256": "63ff7c7457b200f4b7786f5ce1ccd2d405818a0cb281665764899451d42b71cd",
+      "frame_retained": true
+    },
+    {
+      "dd": true,
+      "case": "one-piece-norm",
+      "receipts": [
+        {
+          "case": "one-piece-norm",
+          "dd": true,
+          "bytes": 35110696,
+          "expected_accept": false,
+          "canonical_frame_decoded": true,
+          "native_verifier_used": true
+        }
+      ],
+      "sha256": "dca5fe601ebea1d345ce2306295b8a6f05506ab4f9be398f6cee5bfc33de1d55",
+      "frame_retained": true
+    },
+    {
+      "dd": true,
+      "case": "wrong-omitted-source-bit",
+      "receipts": [
+        {
+          "case": "wrong-omitted-source-bit",
+          "dd": true,
+          "bytes": 35110696,
+          "expected_accept": false,
+          "canonical_frame_decoded": true,
+          "native_verifier_used": true
+        }
+      ],
+      "sha256": "e78175b891dea769c1c71a91c06589008c82b54ebf58e2f97721959ea7f9648b",
+      "frame_retained": true
+    },
+    {
+      "dd": true,
+      "case": "missing-public-lift-gate",
+      "receipts": [
+        {
+          "case": "missing-public-lift-gate",
+          "dd": true,
+          "bytes": 35110696,
+          "expected_accept": false,
+          "canonical_frame_decoded": true,
+          "native_verifier_used": true
+        }
+      ],
+      "sha256": "5d119732e8ec26188ddaea00c107c0d75bc2ff7f5b442eb1519fd6ee856b2813",
+      "frame_retained": true
+    },
+    {
+      "dd": true,
+      "case": "local-group-reset",
+      "receipts": [
+        {
+          "case": "global-group-honest",
+          "dd": true,
+          "bytes": 35110696,
+          "expected_accept": true,
+          "canonical_frame_decoded": true,
+          "native_verifier_used": true
+        },
+        {
+          "case": "local-group-honest",
+          "dd": true,
+          "bytes": 35110696,
+          "expected_accept": true,
+          "canonical_frame_decoded": true,
+          "native_verifier_used": true
+        },
+        {
+          "case": "local-group-reset",
+          "dd": true,
+          "bytes": 35110696,
+          "expected_accept": false,
+          "canonical_frame_decoded": true,
+          "native_verifier_used": true
+        }
+      ],
+      "sha256": null,
+      "frame_retained": false
+    },
+    {
+      "dd": true,
+      "case": "wrong-feature-axis",
+      "receipts": [
+        {
+          "case": "wrong-feature-axis",
+          "dd": true,
+          "bytes": 35110696,
+          "expected_accept": false,
+          "canonical_frame_decoded": true,
+          "native_verifier_used": true
+        }
+      ],
+      "sha256": "a4b75adf546978c6323f9d3821ef0d791c08accfdff456bae701fbfb1410384d",
+      "frame_retained": true
+    },
+    {
+      "dd": true,
+      "case": "wrong-global-fold-offset",
+      "receipts": [
+        {
+          "case": "wrong-global-fold-offset",
+          "dd": true,
+          "bytes": 35110696,
+          "expected_accept": false,
+          "canonical_frame_decoded": true,
+          "native_verifier_used": true
+        }
+      ],
+      "sha256": "cfa0a66d20c65fddb143141c6b54bb941739ced87b8a4b448843c61a5958bff7",
+      "frame_retained": true
+    }
+  ],
+  "scope": "16 complete canonical receipts rejected by final-source native verifier, including C3 axes/folds;4 honest group controls verify. Group cases omit output env to avoid test-only accepted-control path collision; their complete frames are natively decoded/verified in memory, not retained on disk."
+}

@@ -1,0 +1,4 @@
+
+thread 'main' (302562) panicked at /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/working-tree/zkp-core/src/pcs.rs:987:9:
+zk pcs: group 0's clear vector has no mask row (unmasked opening site)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace

@@ -1,0 +1,7 @@
+
+running 1 test
+test private_block::s25_tests::no_profile_on_this_path_can_obtain_a_generator_other_than_from_the_operating_system ... S25 W-8(7): the path's four generators are all `ZkRng::from_os` (["src/private_block/endpoint_g.rs:269", "src/private_block/protocol.rs:936", "src/private_block/run.rs:1035", "src/private_block/split_endpoint.rs:214", "src/private_block/split_run.rs:393", "src/private_seam.rs:196"]); a fifth site, src/private_seam.rs:349 in `private_seam::prove`, is off this path and no file on it names that function; no production file names ZkConfig
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 766 filtered out; finished in 0.01s
+

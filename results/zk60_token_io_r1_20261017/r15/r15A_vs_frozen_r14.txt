@@ -1,0 +1,16 @@
+changed 10: ['hashline/examples/zk60_classify.rs', 'hashline/src/private_block/run_capture.rs', 'hashline/src/private_block/token_io.rs', 'hashline/src/private_block/token_io/capture_tests.rs', 'hashline/src/private_block/token_io/classify_capture_tests.rs', 'hashline/src/private_block/token_io/classify_cli.rs', 'hashline/src/private_block/token_io/classify_cli_tests.rs', 'hashline/src/private_block/token_io/classify_r14_tests.rs', 'hashline/src/private_block/token_io/cli_tests.rs', 'hashline/src/private_block/token_io/r3_tests.rs']
+added 1: ['hashline/src/private_block/token_io/classify_r15_tests.rs']
+removed 0: []
+
+per file (diff -u line counts):
+hashline/examples/zk60_classify.rs: +5 / -1
+hashline/src/private_block/run_capture.rs: +15 / -2
+hashline/src/private_block/token_io.rs: +3 / -0
+hashline/src/private_block/token_io/capture_tests.rs: +19 / -0
+hashline/src/private_block/token_io/classify_capture_tests.rs: +175 / -0
+hashline/src/private_block/token_io/classify_cli.rs: +71 / -7
+hashline/src/private_block/token_io/classify_cli_tests.rs: +18 / -15
+hashline/src/private_block/token_io/classify_r14_tests.rs: +2 / -2
+hashline/src/private_block/token_io/cli_tests.rs: +40 / -2
+hashline/src/private_block/token_io/r3_tests.rs: +2 / -2
+hashline/src/private_block/token_io/classify_r15_tests.rs: +264 / -0

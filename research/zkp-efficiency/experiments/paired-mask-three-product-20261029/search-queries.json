@@ -1,0 +1,28 @@
+{
+  "access_date": "2026-10-29",
+  "native_live_web": true,
+  "batches": [
+    [
+      "site.eprint.iacr.org 2026 lookup softmax zero knowledge attention exact",
+      "site.github.com 2026 zk lookup softmax release",
+      "site.eprint.iacr.org extension field inner product three multiplication Karatsuba"
+    ],
+    [
+      "site.eprint.iacr.org/2026 lookup argument softmax October 2026",
+      "site.github.com a16z jolt-atlas releases 2026",
+      "site.arxiv.org \"Karatsuba Matrix Multiplication\""
+    ],
+    [
+      "site.github.com/atlaszk/atlas releases",
+      "site.eprint.iacr.org \"TenseUp\"",
+      "site.github.com \"Jolt Atlas\" softmax"
+    ],
+    [
+      "\"TenseUp\" \"lookup\" \"2026\"",
+      "site.eprint.iacr.org 2026 October \"lookup\" \"prover\"",
+      "site.github.com \"sumcheck\" \"Oct 28, 2026\""
+    ]
+  ],
+  "primary_open_find_click_records": "web-01.json through web-12.json",
+  "source_text_untrusted": true
+}

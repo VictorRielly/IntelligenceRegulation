@@ -1,0 +1,21 @@
+{"event":"verified","segment_bytes":16668744,"segment_sha256":"dfb1f81eeb2c5760984dbe70b66f34dceb9e53878315382b567efcfe8c88d428","load_seconds":0.018,"verify_seconds":0.170,"peak_rss_mib":95,"statement_identity":"62d849886e90b7d3f6595f33fb8bff5e6b9009c6c3b34e5979ed4f9bd46666d5","scope":"SYNTHETIC development export at the decoupled-head rung (rung-HD, width 192, query axis 512): NOT a trained model; a test of the export reader and the driver only; no privacy acceptance"}
+{"event":"control-refused","control":"verifier statement with norm_tn - 1","error":"trained statement: legacy layer carries an R13 gate denominator"}
+{"event":"control-refused","control":"verifier statement with norm_cn_a + 1","error":"trained statement: legacy layer carries an R13 gate denominator"}
+{"event":"control-refused","control":"verifier statement with norm_cn_m + 1","error":"trained statement: legacy layer carries an R13 gate denominator"}
+{"event":"control-refused","control":"verifier statement with norm_ceps + 1","error":"trained statement: legacy layer carries an R13 gate denominator"}
+{"event":"control-refused","control":"verifier statement with sh_ao moved by one","error":"trained statement: legacy layer carries an R13 gate denominator"}
+{"event":"control-refused","control":"verifier statement with sh_qkv moved by one","error":"trained statement: legacy layer carries an R13 gate denominator"}
+{"event":"control-refused","control":"verifier statement with sh_s moved by one","error":"trained statement: legacy layer carries an R13 gate denominator"}
+{"event":"control-refused","control":"verifier statement with sh_o moved by one","error":"trained statement: legacy layer carries an R13 gate denominator"}
+{"event":"control-refused","control":"verifier statement with sh_g moved by one","error":"trained statement: legacy layer carries an R13 gate denominator"}
+{"event":"control-refused","control":"verifier statement with sh_h moved by one","error":"trained statement: legacy layer carries an R13 gate denominator"}
+{"event":"control-refused","control":"verifier statement with sh_z moved by one","error":"trained statement: legacy layer carries an R13 gate denominator"}
+{"event":"control-refused","control":"verifier statement with f_e moved by one","error":"trained export: the decoupled-head rung geometry fixes f_e = 12, the export declares 13"}
+{"event":"control-refused","control":"verifier statement with another export profile digest","error":"private run wire: this segment belongs to another run"}
+{"event":"control-refused","control":"verifier statement naming another layer","error":"trained statement: layer 1 does not exist in a 1-layer checkpoint"}
+{"event":"control-refused","control":"verifier statement with one gamma_a word moved","error":"private run wire: this segment belongs to another run"}
+{"event":"control-refused","control":"segment with byte 3333748 flipped","error":"A: pcs zk: group 11: <v, c> != combined claim"}
+{"event":"control-refused","control":"segment with byte 8334372 flipped","error":"A: pcs zk: group 30: <v, c> != combined claim"}
+{"event":"control-refused","control":"segment with byte 16668704 flipped","error":"run output endpoint: pcs zk: Merkle path for column 16109 fails"}
+{"event":"control-refused","control":"segment truncated by one byte","error":"private run wire: segment 0 is 16668743 B, the counted length is 16668744"}
+{"event":"controls","refused":19,"honest_still_verifies":true}

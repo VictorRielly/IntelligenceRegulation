@@ -1,0 +1,24 @@
+--- 
++++ 
+@@ -1088,4 +1088,21 @@
+   evaluator); Victor's policy-wording ruling; the independent review and the
+   privacy gate (no classifier privacy statement exists).
++- **Independent review (recorded 2026-10-29 10:06 UTC): ACCEPTED WITH FIXES
++  on soundness** (`results/zk60_token_io_review_r1_20261017/REVIEW_R16.md`).
++  - The real moderate-hate receipt re-verifies under the frozen-tree binary
++    (identity 29aeba6c…, verify 39.6 s).
++  - The rebase, the gate shift per layer, the per-block stage shapes,
++    `build_for_block` and the bits (96.86 / 95.91, recomputed) all hold.
++  - The single checkpoint stream stays inside the authenticated load.
++  - Wrong activations are refused even by a prover with its own checks
++    switched off, so **the activation source is integration only, not
++    soundness**.
++  - **Fix F-1 (medium; D45(2) conformance):** the production list still
++    admits round 12's `shieldstral-1.0-3b-card-unsafe/1`, so four policies
++    instead of three. Make it test-only, and test that each R13 profile
++    admits exactly the three.
++  - **N-r16-1 (low):** pin the exact floors (a mutant charging one block
++    stays green).
++  - The privacy-gate needs are in the review's §10.
+ 
+ Not a privacy or classifier-quality claim.

@@ -1,0 +1,19 @@
+{
+  "stage": "prepare",
+  "command": [
+    "/usr/bin/python3",
+    "-B",
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/slot-batching-census-20261030/prepare.py"
+  ],
+  "exit_code": 0,
+  "wall_s": 0.06906538200200885,
+  "max_rss_kib": 15792,
+  "cpu_affinity_count": 1,
+  "nice": 19,
+  "cpu_limit_s": 30,
+  "alarm_s": 40,
+  "parent_timeout_s": 45,
+  "address_space_mib": 384,
+  "estimated_memory_mib": 64,
+  "gpu": false
+}

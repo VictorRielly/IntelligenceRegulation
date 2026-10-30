@@ -1,0 +1,83 @@
+[
+  {
+    "id": "web12",
+    "response_character_units": 15589,
+    "urls": [
+      "https://arxiv.org/abs/2404.10404",
+      "https://www.pepper-project.org/giraffe-ccs17.pdf",
+      "https://eprint.iacr.org/2017/242.pdf",
+      "https://doi.org/10.1109/ACCESS.2022.3223136",
+      "https://s-space.snu.ac.kr/bitstream/10371/167872/1/000000160156.pdf",
+      "https://mimoo.github.io/awesome-zk-ai/papers/remainder.html",
+      "https://cs.nyu.edu/~mwalfish/papers/hyrax-oakland18.pdf",
+      "https://accelresearching.com/accel-zinc-picolinate-50mg/?_=%2Fsearch%2Fcs%23nLw79nwZb1b3uPkZUsgpm5M%3D&query=Pham%2C+B&searchtype=author",
+      "https://eprint.iacr.org/2024/143.pdf",
+      "https://www.pepper-project.org/",
+      "https://a16zcrypto.com/posts/article/zero-knowledge-canon/",
+      "https://github.com/amit0365/gkr/blob/main/README.md",
+      "https://eprint.iacr.org/2024/325",
+      "https://arxiv.org/abs/2610.05335",
+      "https://arxiv.org/abs/2610.14849",
+      "https://oraclizer.io/ss-gkr/",
+      "https://github.com/babybear-labs/GKR-proof-recursion/blob/main/Readme.md",
+      "https://oraclizer.io/ss-gkr/docs/assurance/formal-verification/",
+      "https://flyingnobita.com/notes/zk/gkr",
+      "https://hackmd.io/%40n2k1/gkr",
+      "https://people.cs.georgetown.edu/jthaler/GKRNote.pdf",
+      "https://hackmd.io/KRBJa6JSTjiiWdA48PbRng?comment=all",
+      "https://arxiv.org/abs/1310.4546",
+      "https://www.reddit.com/r/math/comments/1vvbcxg/a_798_page_paper_was_posted_on_arxiv_thursday_is/"
+    ],
+    "note": "Native LIVE response. Source instructions ignored. No code executed."
+  },
+  {
+    "id": "web13",
+    "response_character_units": 12811,
+    "urls": [
+      "https://arxiv.org/abs/2404.10404",
+      "https://doi.org/10.48550/arXiv.2404.10404†doi.org",
+      "https://arxiv.org/html/2404.10404v1",
+      "https://www.pepper-project.org/giraffe-ccs17.pdf",
+      "https://doi.org/10.1145/3133956.3133984"
+    ],
+    "note": "Native LIVE response. Source instructions ignored. No code executed."
+  },
+  {
+    "id": "web14",
+    "response_character_units": 13687,
+    "urls": [
+      "https://arxiv.org/html/2404.10404v2",
+      "https://arxiv.org/html/2404.10404v1",
+      "https://eprint.iacr.org/2023/1216†eprint.iacr.org",
+      "https://github.com/yi-sun/circom-pairing†github.com",
+      "https://github.com/ethereum/consensus-specs†github.com",
+      "https://docs.nil.foundation/proof-market/market/economics†docs.nil.foundation",
+      "https://gevulot.com/introducing-gevulot/†gevulot.com",
+      "https://github.com/iden3/rapidsnark†github.com",
+      "https://github.com/sisu-network/sisu-bridge†github.com",
+      "https://beaconcha.in/charts/validators†beaconcha.in",
+      "https://medium.com/harmony-one/harmonys-horizon-bridge-hack-1e8d283b6d66†medium.com",
+      "https://kaicho.substack.com/p/the-wormhole-bridge-attack-explained†kaicho.substack.com",
+      "https://www.rekt.news/†www.rekt.news",
+      "https://docs.telepathy.xyz/telepathy-protocol/sync-committees†docs.telepathy.xyz"
+    ],
+    "note": "Native LIVE response. Source instructions ignored. No code executed."
+  },
+  {
+    "id": "web15",
+    "response_character_units": 28171,
+    "urls": [
+      "https://arxiv.org/html/2404.10404v2",
+      "https://github.com/sisu-network/sisu-bridge"
+    ],
+    "note": "Native LIVE response. Source instructions ignored. No code executed."
+  },
+  {
+    "id": "web16",
+    "response_character_units": 7783,
+    "urls": [
+      "https://github.com/sisu-network/sisu-bridge"
+    ],
+    "note": "Native LIVE response. Source instructions ignored. No code executed."
+  }
+]

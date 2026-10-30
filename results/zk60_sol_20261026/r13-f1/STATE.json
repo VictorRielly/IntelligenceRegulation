@@ -1,0 +1,10 @@
+{
+  "utc": "2026-10-29T08:02:17.212608+00:00",
+  "phase": "R13-F1 CLI controls fixed and four receipts regenerated; ready for scoped review/carry into R14",
+  "source_sha256": "b4f7d795c23eef05676dc5fafbc91f7d70391f972ec5d6b46ca9116720a55f9f",
+  "base_r13": "bb9eb2123c9350c738dafd19fe3b0133d6e2e7ab93f1e765cac4f20ccaed69ec",
+  "live_stage": null,
+  "source_edits_held": false,
+  "next": "Coordinator scoped review of CLI-only patch and regenerated evidence; carry same source fix into isolated R14. Original R13 source, receipts and binaries retained. Native S4 proceeds only under07:43 B-gate/joint-endpoint rules.",
+  "live_tool_sessions": []
+}

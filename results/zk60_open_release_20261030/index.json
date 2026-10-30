@@ -1,0 +1,28 @@
+{
+ "what": "machine-readable inventories behind docs/zkmatrix-poc/ZK60_OPEN_RELEASE_PLAN.md (D48 release readiness, 2026-10-30)",
+ "redaction": "no secret value is written in any file here: file:line and kind only",
+ "files": {
+  "candidate_files.tsv": "every file of the proposed public tree: public path, bytes, sha256, decision (include / redact / review / exclude), group, source path, note",
+  "candidate_summary.json": "totals by decision and group, largest files, binaries, the tree spec, the reference prover and gate",
+  "secret_scan_hits.tsv": "redacted scan hits over the candidate tree",
+  "secret_scan_summary.json": "hit counts per kind / severity and the exact patterns",
+  "abs_path_counts.tsv": "per-file counts of /home/victor and Windows-user paths (low risk; parametrise before release)",
+  "personal_keyword_counts.tsv": "per-file counts of funding / employment / patent / Telegram / owner-machine words (docs review aid; most 'partner' hits are technical)",
+  "name_flags.json": "sensitive file names in and around the tree (names only, never opened)",
+  "history_scan.json": "bounded, redacted search of all git refs: paths ever committed, sensitive names ever committed, pickaxe hits",
+  "rust_licences.tsv": "371 distinct crates from 11 Cargo.lock files with licence and class",
+  "python_licences.tsv": "app venv and system-python packages with licence",
+  "licence_summary.json": "licence counts, flagged crates / packages, RISC Zero crates",
+  "model_licences.json": "per-model licence, evidence and redistribution advice",
+  "excluded_areas.json": "what stays out and why, with du sizes",
+  "build_inventory.py": "regenerates candidate / scan files; --scan-tree re-scans a built snapshot",
+  "build_licences.py": "regenerates the licence files (offline)",
+  "scan_history.py": "regenerates history_scan.json",
+  "*.log, scan_history.done": "guard logs of the runs that produced these files"
+ },
+ "regenerate": [
+  "python3 scripts/zk60_resource_guard.py run --class light --need-gib 0.4 --cap-gib 0.8 -- python3 -I results/zk60_open_release_20261030/build_inventory.py",
+  "python3 scripts/zk60_resource_guard.py run --class light --need-gib 0.3 --cap-gib 0.6 -- python3 results/zk60_open_release_20261030/build_licences.py",
+  "python3 scripts/zk60_resource_guard.py run --class light --need-gib 0.45 --cap-gib 1.0 -- python3 -I results/zk60_open_release_20261030/scan_history.py"
+ ]
+}

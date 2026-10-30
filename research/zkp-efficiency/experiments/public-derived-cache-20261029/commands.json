@@ -1,0 +1,59 @@
+{
+  "final_model": {
+    "command": [
+      "python3",
+      "-I",
+      "-B",
+      "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-derived-cache-20261029/run.py"
+    ],
+    "cwd": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-derived-cache-20261029",
+    "exit_code": 0,
+    "wall_s": 0.6885671209984139,
+    "timeout_s": 55,
+    "seed": 202610290131,
+    "estimated_memory_MiB": 64,
+    "source_hashes": {
+      "run.py": "35dd0f0f70b46e2c9118b58f49b7ec26f139de2d88263360f988ef35ad0a792e",
+      "model.py": "60440ec37d9b9cb4d1f36d9dce8cf57b4cdafba1bab005e91f7e0c8fe491f3dc",
+      "reference.py": "2a33da78eb531d00ece7cc4083851cbbf96cb1dd82f9aaab042356882052defb"
+    }
+  },
+  "adaptive_runs": [
+    {
+      "directory": "initial-noop-control",
+      "exit_code": 1,
+      "result": "Test replacement equalled original block width; corrected no-op control."
+    },
+    {
+      "directory": "initial-exact-rational-comparison",
+      "exit_code": 1,
+      "result": "Exact-rational head quantization differs from source-specified binary64."
+    },
+    {
+      "directory": "rational-mismatch-diagnostic",
+      "exit_code": 1,
+      "result": "Retained the exact rational counterexample; no production bug claim."
+    },
+    {
+      "directory": "before-extra-controls",
+      "exit_code": 0,
+      "result": "1710 census included two observations, revised census excludes them and adds nine checks; full code hashes retained."
+    },
+    {
+      "directory": ".",
+      "exit_code": 0,
+      "result": "Final1717 assertions/control checks;2rational observations separately counted."
+    }
+  ],
+  "audit_command": [
+    "python3",
+    "-I",
+    "-B",
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-derived-cache-20261029/audit.py"
+  ],
+  "audit_exit": 0,
+  "all_runs_single_thread": true,
+  "all_runs_under_60s": true,
+  "all_runs_estimated_MiB": 64,
+  "audit_source_sha256": "f343f7882da114908b042520f134bb10ad96aeeacb6617a4ffec6bf331b8b19a"
+}

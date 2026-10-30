@@ -1,0 +1,93 @@
+{
+  "schema": "zk60-astra-native-t128-check/1",
+  "at": "2026-10-29T06:30:46.410392+00:00",
+  "scope": "Actual L00/T128 with public synthetic input from independent19-site oracle; no full26/classifier/fidelity/privacy acceptance",
+  "cli_sha256": "899d7c01a1abc8839156d29d4667536a9eb43cb3b5285ff6f698c6b2cf549cf1",
+  "profile_sha256": "2ba468f98085caf1136f27cf66220f93d8e316acb8dbae7e98f9eb68347f05a0",
+  "oracle_sha256": "9fe10a9c257bd18baf1dd00d752ddfa4e46ef0db914027fcc715d26f2d8e59b2",
+  "input_output_sha256": {
+    "x_in_L00.bin": "95edfa4b878bb34c92290ac8021af90a62c82f84898456e0de1518a4831b2348",
+    "x_out_L00.bin": "dd55ad657278bafdae0cb62855cd233ffef52e24d15d7d524225733c54ebaa7b"
+  },
+  "tool_sha256": "179ad785afd0d83df478beebc42b54d5f726f636ec2ee4f608b1651340d88d45",
+  "steps": {
+    "prove": {
+      "exit": 0,
+      "guard": {
+        "child_wall_seconds": 42.42057776451111,
+        "peak_rss_gib": 7.58,
+        "peak_cgroup_gib": null,
+        "enforcement": "watchdog-only"
+      },
+      "events": [
+        {
+          "event": "loaded",
+          "variant": "shieldstral-s2-fixed-low-h24-t128-v2",
+          "layer": 0,
+          "block_digest": "7c23cfb3947eeb3aafd38bf96027f4ca3b0df04c8f8e7d046f91a32d09f958a6",
+          "rope": "native generator at theta 1000000, equal to the export's tables",
+          "seconds": 16.304,
+          "scope": "ONE trained Shieldstral-1.0-3B text block (of 26; d 3072, a 4096-wide query axis, YaRN RoPE) at the export's T (128 or 256), CPU unless the run line says gpu; the integer model the calibration export names; NOT a model pass; NOT a soundness or privacy acceptance (the D24 review of the R12 profiles follows); float fidelity is the calibration lane's measurement"
+        },
+        {
+          "event": "parity",
+          "result": "bit-exact",
+          "words": 393216,
+          "seconds": 3.158
+        },
+        {
+          "event": "proved",
+          "segment_bytes": 32931432,
+          "segment_sha256": "cf4bb1aa25dcbef392b8f65c15e1141fe68e7145b7745a97c475ab5d394c648b",
+          "prove_seconds": 21.483,
+          "in_process_verify_seconds": 0.732,
+          "peak_rss_mib_after_prove": 7765,
+          "total_seconds": 42.359,
+          "statement_identity": "5f4d39f71c3268025d2c898152e3abde7fe1e47a0714c7890e550bcdd1c93061",
+          "out": "/home/victor/IntelligenceRegulation/results/zk60_astra_20261026/native_t128_check_1/receipt"
+        }
+      ],
+      "log_sha256": "9949b4733e2375f31e7dfd898e514f332e78375395048aeaf699c52ec653a2c5"
+    },
+    "verify": {
+      "exit": 0,
+      "guard": {
+        "child_wall_seconds": 17.083330869674683,
+        "peak_rss_gib": 0.59,
+        "peak_cgroup_gib": null,
+        "enforcement": "watchdog-only"
+      },
+      "events": [
+        {
+          "event": "verified",
+          "segment_bytes": 32931432,
+          "segment_sha256": "cf4bb1aa25dcbef392b8f65c15e1141fe68e7145b7745a97c475ab5d394c648b",
+          "load_seconds": 16.133,
+          "verify_seconds": 0.887,
+          "peak_rss_mib": 681,
+          "statement_identity": "5f4d39f71c3268025d2c898152e3abde7fe1e47a0714c7890e550bcdd1c93061",
+          "scope": "ONE trained Shieldstral-1.0-3B text block (of 26; d 3072, a 4096-wide query axis, YaRN RoPE) at the export's T (128 or 256), CPU unless the run line says gpu; the integer model the calibration export names; NOT a model pass; NOT a soundness or privacy acceptance (the D24 review of the R12 profiles follows); float fidelity is the calibration lane's measurement"
+        }
+      ],
+      "log_sha256": "eacd7e0760edf70d922c2c91aab228ff1228dddbbce151cd0b596853e8b25f28"
+    },
+    "tamper": {
+      "exit": 1,
+      "guard": {
+        "child_wall_seconds": 18.051916360855103,
+        "peak_rss_gib": 0.59,
+        "peak_cgroup_gib": null,
+        "enforcement": "watchdog-only"
+      },
+      "events": [
+        {
+          "event": "rejected",
+          "error": "A: pcs zk: Merkle path for column 55217 fails"
+        }
+      ],
+      "log_sha256": "6ed03156adaa423d983bea99dc9ebf2f94d6d7129ed3a49c7953785e66f5f130"
+    }
+  },
+  "statement_identity": "5f4d39f71c3268025d2c898152e3abde7fe1e47a0714c7890e550bcdd1c93061",
+  "finished_at": "2026-10-29T06:35:09.550645+00:00"
+}

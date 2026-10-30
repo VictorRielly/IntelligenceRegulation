@@ -1,0 +1,3566 @@
+[
+  {
+    "id": "g0",
+    "context_metadata": 32,
+    "dd_cap": 0,
+    "norm_window": 24,
+    "softmax_window": 14,
+    "a_rows": 1625,
+    "h_rows": 1690,
+    "endpoint_rows": 21,
+    "slot_tables": 25,
+    "slot_log": 15,
+    "systematic_commitment_data_bytes": 220004352,
+    "cpu_encoding_payload_bytes": 881655808,
+    "round_capacity_bytes": 13107200,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 233111552,
+        "cpu_store_payload_subtotal_bytes": 1114767360
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 466223104,
+        "cpu_store_payload_subtotal_bytes": 2229534720
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 932446208,
+        "cpu_store_payload_subtotal_bytes": 4459069440
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g1",
+    "context_metadata": 32,
+    "dd_cap": 0,
+    "norm_window": 24,
+    "softmax_window": 17,
+    "a_rows": 1637,
+    "h_rows": 1700,
+    "endpoint_rows": 21,
+    "slot_tables": 28,
+    "slot_log": 15,
+    "systematic_commitment_data_bytes": 221446144,
+    "cpu_encoding_payload_bytes": 887422976,
+    "round_capacity_bytes": 14680064,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 236126208,
+        "cpu_store_payload_subtotal_bytes": 1123549184
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 472252416,
+        "cpu_store_payload_subtotal_bytes": 2247098368
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 944504832,
+        "cpu_store_payload_subtotal_bytes": 4494196736
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g2",
+    "context_metadata": 32,
+    "dd_cap": 0,
+    "norm_window": 24,
+    "softmax_window": 21,
+    "a_rows": 1637,
+    "h_rows": 1700,
+    "endpoint_rows": 21,
+    "slot_tables": 28,
+    "slot_log": 15,
+    "systematic_commitment_data_bytes": 221446144,
+    "cpu_encoding_payload_bytes": 887422976,
+    "round_capacity_bytes": 14680064,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 236126208,
+        "cpu_store_payload_subtotal_bytes": 1123549184
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 472252416,
+        "cpu_store_payload_subtotal_bytes": 2247098368
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 944504832,
+        "cpu_store_payload_subtotal_bytes": 4494196736
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g3",
+    "context_metadata": 32,
+    "dd_cap": 0,
+    "norm_window": 32,
+    "softmax_window": 14,
+    "a_rows": 1697,
+    "h_rows": 1758,
+    "endpoint_rows": 21,
+    "slot_tables": 25,
+    "slot_log": 15,
+    "systematic_commitment_data_bytes": 229179392,
+    "cpu_encoding_payload_bytes": 918355968,
+    "round_capacity_bytes": 13107200,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 242286592,
+        "cpu_store_payload_subtotal_bytes": 1160642560
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 484573184,
+        "cpu_store_payload_subtotal_bytes": 2321285120
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 969146368,
+        "cpu_store_payload_subtotal_bytes": 4642570240
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g4",
+    "context_metadata": 32,
+    "dd_cap": 0,
+    "norm_window": 32,
+    "softmax_window": 17,
+    "a_rows": 1709,
+    "h_rows": 1768,
+    "endpoint_rows": 21,
+    "slot_tables": 28,
+    "slot_log": 15,
+    "systematic_commitment_data_bytes": 230621184,
+    "cpu_encoding_payload_bytes": 924123136,
+    "round_capacity_bytes": 14680064,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 245301248,
+        "cpu_store_payload_subtotal_bytes": 1169424384
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 490602496,
+        "cpu_store_payload_subtotal_bytes": 2338848768
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 981204992,
+        "cpu_store_payload_subtotal_bytes": 4677697536
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g5",
+    "context_metadata": 32,
+    "dd_cap": 0,
+    "norm_window": 32,
+    "softmax_window": 21,
+    "a_rows": 1709,
+    "h_rows": 1768,
+    "endpoint_rows": 21,
+    "slot_tables": 28,
+    "slot_log": 15,
+    "systematic_commitment_data_bytes": 230621184,
+    "cpu_encoding_payload_bytes": 924123136,
+    "round_capacity_bytes": 14680064,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 245301248,
+        "cpu_store_payload_subtotal_bytes": 1169424384
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 490602496,
+        "cpu_store_payload_subtotal_bytes": 2338848768
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 981204992,
+        "cpu_store_payload_subtotal_bytes": 4677697536
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g6",
+    "context_metadata": 32,
+    "dd_cap": 0,
+    "norm_window": 34,
+    "softmax_window": 14,
+    "a_rows": 1769,
+    "h_rows": 1894,
+    "endpoint_rows": 21,
+    "slot_tables": 25,
+    "slot_log": 15,
+    "systematic_commitment_data_bytes": 242810880,
+    "cpu_encoding_payload_bytes": 972881920,
+    "round_capacity_bytes": 13107200,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 255918080,
+        "cpu_store_payload_subtotal_bytes": 1228800000
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 511836160,
+        "cpu_store_payload_subtotal_bytes": 2457600000
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 1023672320,
+        "cpu_store_payload_subtotal_bytes": 4915200000
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g7",
+    "context_metadata": 32,
+    "dd_cap": 0,
+    "norm_window": 34,
+    "softmax_window": 17,
+    "a_rows": 1781,
+    "h_rows": 1904,
+    "endpoint_rows": 21,
+    "slot_tables": 28,
+    "slot_log": 15,
+    "systematic_commitment_data_bytes": 244252672,
+    "cpu_encoding_payload_bytes": 978649088,
+    "round_capacity_bytes": 14680064,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 258932736,
+        "cpu_store_payload_subtotal_bytes": 1237581824
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 517865472,
+        "cpu_store_payload_subtotal_bytes": 2475163648
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 1035730944,
+        "cpu_store_payload_subtotal_bytes": 4950327296
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g8",
+    "context_metadata": 32,
+    "dd_cap": 0,
+    "norm_window": 34,
+    "softmax_window": 21,
+    "a_rows": 1781,
+    "h_rows": 1904,
+    "endpoint_rows": 21,
+    "slot_tables": 28,
+    "slot_log": 15,
+    "systematic_commitment_data_bytes": 244252672,
+    "cpu_encoding_payload_bytes": 978649088,
+    "round_capacity_bytes": 14680064,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 258932736,
+        "cpu_store_payload_subtotal_bytes": 1237581824
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 517865472,
+        "cpu_store_payload_subtotal_bytes": 2475163648
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 1035730944,
+        "cpu_store_payload_subtotal_bytes": 4950327296
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g9",
+    "context_metadata": 32,
+    "dd_cap": 32,
+    "norm_window": 24,
+    "softmax_window": 14,
+    "a_rows": 1639,
+    "h_rows": 1710,
+    "endpoint_rows": 21,
+    "slot_tables": 15,
+    "slot_log": 15,
+    "systematic_commitment_data_bytes": 222232576,
+    "cpu_encoding_payload_bytes": 890634240,
+    "round_capacity_bytes": 7864320,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 230096896,
+        "cpu_store_payload_subtotal_bytes": 1120731136
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 460193792,
+        "cpu_store_payload_subtotal_bytes": 2241462272
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 920387584,
+        "cpu_store_payload_subtotal_bytes": 4482924544
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g10",
+    "context_metadata": 32,
+    "dd_cap": 32,
+    "norm_window": 24,
+    "softmax_window": 17,
+    "a_rows": 1651,
+    "h_rows": 1720,
+    "endpoint_rows": 21,
+    "slot_tables": 15,
+    "slot_log": 15,
+    "systematic_commitment_data_bytes": 223674368,
+    "cpu_encoding_payload_bytes": 896401408,
+    "round_capacity_bytes": 7864320,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 231538688,
+        "cpu_store_payload_subtotal_bytes": 1127940096
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 463077376,
+        "cpu_store_payload_subtotal_bytes": 2255880192
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 926154752,
+        "cpu_store_payload_subtotal_bytes": 4511760384
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g11",
+    "context_metadata": 32,
+    "dd_cap": 32,
+    "norm_window": 24,
+    "softmax_window": 21,
+    "a_rows": 1651,
+    "h_rows": 1720,
+    "endpoint_rows": 21,
+    "slot_tables": 15,
+    "slot_log": 15,
+    "systematic_commitment_data_bytes": 223674368,
+    "cpu_encoding_payload_bytes": 896401408,
+    "round_capacity_bytes": 7864320,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 231538688,
+        "cpu_store_payload_subtotal_bytes": 1127940096
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 463077376,
+        "cpu_store_payload_subtotal_bytes": 2255880192
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 926154752,
+        "cpu_store_payload_subtotal_bytes": 4511760384
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g12",
+    "context_metadata": 32,
+    "dd_cap": 32,
+    "norm_window": 32,
+    "softmax_window": 14,
+    "a_rows": 1711,
+    "h_rows": 1778,
+    "endpoint_rows": 21,
+    "slot_tables": 15,
+    "slot_log": 15,
+    "systematic_commitment_data_bytes": 231407616,
+    "cpu_encoding_payload_bytes": 927334400,
+    "round_capacity_bytes": 7864320,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 239271936,
+        "cpu_store_payload_subtotal_bytes": 1166606336
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 478543872,
+        "cpu_store_payload_subtotal_bytes": 2333212672
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 957087744,
+        "cpu_store_payload_subtotal_bytes": 4666425344
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g13",
+    "context_metadata": 32,
+    "dd_cap": 32,
+    "norm_window": 32,
+    "softmax_window": 17,
+    "a_rows": 1723,
+    "h_rows": 1788,
+    "endpoint_rows": 21,
+    "slot_tables": 15,
+    "slot_log": 15,
+    "systematic_commitment_data_bytes": 232849408,
+    "cpu_encoding_payload_bytes": 933101568,
+    "round_capacity_bytes": 7864320,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 240713728,
+        "cpu_store_payload_subtotal_bytes": 1173815296
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 481427456,
+        "cpu_store_payload_subtotal_bytes": 2347630592
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 962854912,
+        "cpu_store_payload_subtotal_bytes": 4695261184
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g14",
+    "context_metadata": 32,
+    "dd_cap": 32,
+    "norm_window": 32,
+    "softmax_window": 21,
+    "a_rows": 1723,
+    "h_rows": 1788,
+    "endpoint_rows": 21,
+    "slot_tables": 15,
+    "slot_log": 15,
+    "systematic_commitment_data_bytes": 232849408,
+    "cpu_encoding_payload_bytes": 933101568,
+    "round_capacity_bytes": 7864320,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 240713728,
+        "cpu_store_payload_subtotal_bytes": 1173815296
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 481427456,
+        "cpu_store_payload_subtotal_bytes": 2347630592
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 962854912,
+        "cpu_store_payload_subtotal_bytes": 4695261184
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g15",
+    "context_metadata": 32,
+    "dd_cap": 32,
+    "norm_window": 34,
+    "softmax_window": 14,
+    "a_rows": 1783,
+    "h_rows": 1914,
+    "endpoint_rows": 21,
+    "slot_tables": 15,
+    "slot_log": 15,
+    "systematic_commitment_data_bytes": 245039104,
+    "cpu_encoding_payload_bytes": 981860352,
+    "round_capacity_bytes": 7864320,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 252903424,
+        "cpu_store_payload_subtotal_bytes": 1234763776
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 505806848,
+        "cpu_store_payload_subtotal_bytes": 2469527552
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 1011613696,
+        "cpu_store_payload_subtotal_bytes": 4939055104
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g16",
+    "context_metadata": 32,
+    "dd_cap": 32,
+    "norm_window": 34,
+    "softmax_window": 17,
+    "a_rows": 1795,
+    "h_rows": 1924,
+    "endpoint_rows": 21,
+    "slot_tables": 15,
+    "slot_log": 15,
+    "systematic_commitment_data_bytes": 246480896,
+    "cpu_encoding_payload_bytes": 987627520,
+    "round_capacity_bytes": 7864320,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 254345216,
+        "cpu_store_payload_subtotal_bytes": 1241972736
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 508690432,
+        "cpu_store_payload_subtotal_bytes": 2483945472
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 1017380864,
+        "cpu_store_payload_subtotal_bytes": 4967890944
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g17",
+    "context_metadata": 32,
+    "dd_cap": 32,
+    "norm_window": 34,
+    "softmax_window": 21,
+    "a_rows": 1795,
+    "h_rows": 1924,
+    "endpoint_rows": 21,
+    "slot_tables": 15,
+    "slot_log": 15,
+    "systematic_commitment_data_bytes": 246480896,
+    "cpu_encoding_payload_bytes": 987627520,
+    "round_capacity_bytes": 7864320,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 254345216,
+        "cpu_store_payload_subtotal_bytes": 1241972736
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 508690432,
+        "cpu_store_payload_subtotal_bytes": 2483945472
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 1017380864,
+        "cpu_store_payload_subtotal_bytes": 4967890944
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g18",
+    "context_metadata": 64,
+    "dd_cap": 0,
+    "norm_window": 24,
+    "softmax_window": 15,
+    "a_rows": 3093,
+    "h_rows": 3402,
+    "endpoint_rows": 37,
+    "slot_tables": 25,
+    "slot_log": 17,
+    "systematic_commitment_data_bytes": 430505984,
+    "cpu_encoding_payload_bytes": 1723662336,
+    "round_capacity_bytes": 52428800,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 482934784,
+        "cpu_store_payload_subtotal_bytes": 2206597120
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 965869568,
+        "cpu_store_payload_subtotal_bytes": 4413194240
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 1931739136,
+        "cpu_store_payload_subtotal_bytes": 8826388480
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g19",
+    "context_metadata": 64,
+    "dd_cap": 0,
+    "norm_window": 24,
+    "softmax_window": 18,
+    "a_rows": 3129,
+    "h_rows": 3436,
+    "endpoint_rows": 37,
+    "slot_tables": 28,
+    "slot_log": 17,
+    "systematic_commitment_data_bytes": 435093504,
+    "cpu_encoding_payload_bytes": 1742012416,
+    "round_capacity_bytes": 58720256,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 493813760,
+        "cpu_store_payload_subtotal_bytes": 2235826176
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 987627520,
+        "cpu_store_payload_subtotal_bytes": 4471652352
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 1975255040,
+        "cpu_store_payload_subtotal_bytes": 8943304704
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g20",
+    "context_metadata": 64,
+    "dd_cap": 0,
+    "norm_window": 24,
+    "softmax_window": 22,
+    "a_rows": 3129,
+    "h_rows": 3436,
+    "endpoint_rows": 37,
+    "slot_tables": 28,
+    "slot_log": 17,
+    "systematic_commitment_data_bytes": 435093504,
+    "cpu_encoding_payload_bytes": 1742012416,
+    "round_capacity_bytes": 58720256,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 493813760,
+        "cpu_store_payload_subtotal_bytes": 2235826176
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 987627520,
+        "cpu_store_payload_subtotal_bytes": 4471652352
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 1975255040,
+        "cpu_store_payload_subtotal_bytes": 8943304704
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g21",
+    "context_metadata": 64,
+    "dd_cap": 0,
+    "norm_window": 32,
+    "softmax_window": 15,
+    "a_rows": 3229,
+    "h_rows": 3534,
+    "endpoint_rows": 37,
+    "slot_tables": 25,
+    "slot_log": 17,
+    "systematic_commitment_data_bytes": 448069632,
+    "cpu_encoding_payload_bytes": 1793916928,
+    "round_capacity_bytes": 52428800,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 500498432,
+        "cpu_store_payload_subtotal_bytes": 2294415360
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 1000996864,
+        "cpu_store_payload_subtotal_bytes": 4588830720
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 2001993728,
+        "cpu_store_payload_subtotal_bytes": 9177661440
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g22",
+    "context_metadata": 64,
+    "dd_cap": 0,
+    "norm_window": 32,
+    "softmax_window": 18,
+    "a_rows": 3265,
+    "h_rows": 3568,
+    "endpoint_rows": 37,
+    "slot_tables": 28,
+    "slot_log": 17,
+    "systematic_commitment_data_bytes": 452657152,
+    "cpu_encoding_payload_bytes": 1812267008,
+    "round_capacity_bytes": 58720256,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 511377408,
+        "cpu_store_payload_subtotal_bytes": 2323644416
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 1022754816,
+        "cpu_store_payload_subtotal_bytes": 4647288832
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 2045509632,
+        "cpu_store_payload_subtotal_bytes": 9294577664
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g23",
+    "context_metadata": 64,
+    "dd_cap": 0,
+    "norm_window": 32,
+    "softmax_window": 22,
+    "a_rows": 3265,
+    "h_rows": 3568,
+    "endpoint_rows": 37,
+    "slot_tables": 28,
+    "slot_log": 17,
+    "systematic_commitment_data_bytes": 452657152,
+    "cpu_encoding_payload_bytes": 1812267008,
+    "round_capacity_bytes": 58720256,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 511377408,
+        "cpu_store_payload_subtotal_bytes": 2323644416
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 1022754816,
+        "cpu_store_payload_subtotal_bytes": 4647288832
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 2045509632,
+        "cpu_store_payload_subtotal_bytes": 9294577664
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g24",
+    "context_metadata": 64,
+    "dd_cap": 0,
+    "norm_window": 34,
+    "softmax_window": 15,
+    "a_rows": 3365,
+    "h_rows": 3798,
+    "endpoint_rows": 37,
+    "slot_tables": 25,
+    "slot_log": 17,
+    "systematic_commitment_data_bytes": 474284032,
+    "cpu_encoding_payload_bytes": 1898774528,
+    "round_capacity_bytes": 52428800,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 526712832,
+        "cpu_store_payload_subtotal_bytes": 2425487360
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 1053425664,
+        "cpu_store_payload_subtotal_bytes": 4850974720
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 2106851328,
+        "cpu_store_payload_subtotal_bytes": 9701949440
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g25",
+    "context_metadata": 64,
+    "dd_cap": 0,
+    "norm_window": 34,
+    "softmax_window": 18,
+    "a_rows": 3401,
+    "h_rows": 3832,
+    "endpoint_rows": 37,
+    "slot_tables": 28,
+    "slot_log": 17,
+    "systematic_commitment_data_bytes": 478871552,
+    "cpu_encoding_payload_bytes": 1917124608,
+    "round_capacity_bytes": 58720256,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 537591808,
+        "cpu_store_payload_subtotal_bytes": 2454716416
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 1075183616,
+        "cpu_store_payload_subtotal_bytes": 4909432832
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 2150367232,
+        "cpu_store_payload_subtotal_bytes": 9818865664
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g26",
+    "context_metadata": 64,
+    "dd_cap": 0,
+    "norm_window": 34,
+    "softmax_window": 22,
+    "a_rows": 3401,
+    "h_rows": 3832,
+    "endpoint_rows": 37,
+    "slot_tables": 28,
+    "slot_log": 17,
+    "systematic_commitment_data_bytes": 478871552,
+    "cpu_encoding_payload_bytes": 1917124608,
+    "round_capacity_bytes": 58720256,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 537591808,
+        "cpu_store_payload_subtotal_bytes": 2454716416
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 1075183616,
+        "cpu_store_payload_subtotal_bytes": 4909432832
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 2150367232,
+        "cpu_store_payload_subtotal_bytes": 9818865664
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g27",
+    "context_metadata": 64,
+    "dd_cap": 32,
+    "norm_window": 24,
+    "softmax_window": 15,
+    "a_rows": 3067,
+    "h_rows": 3374,
+    "endpoint_rows": 37,
+    "slot_tables": 15,
+    "slot_log": 17,
+    "systematic_commitment_data_bytes": 426967040,
+    "cpu_encoding_payload_bytes": 1709572096,
+    "round_capacity_bytes": 31457280,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 458424320,
+        "cpu_store_payload_subtotal_bytes": 2167996416
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 916848640,
+        "cpu_store_payload_subtotal_bytes": 4335992832
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 1833697280,
+        "cpu_store_payload_subtotal_bytes": 8671985664
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g28",
+    "context_metadata": 64,
+    "dd_cap": 32,
+    "norm_window": 24,
+    "softmax_window": 18,
+    "a_rows": 3087,
+    "h_rows": 3392,
+    "endpoint_rows": 37,
+    "slot_tables": 15,
+    "slot_log": 17,
+    "systematic_commitment_data_bytes": 429457408,
+    "cpu_encoding_payload_bytes": 1719533568,
+    "round_capacity_bytes": 31457280,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 460914688,
+        "cpu_store_payload_subtotal_bytes": 2180448256
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 921829376,
+        "cpu_store_payload_subtotal_bytes": 4360896512
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 1843658752,
+        "cpu_store_payload_subtotal_bytes": 8721793024
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g29",
+    "context_metadata": 64,
+    "dd_cap": 32,
+    "norm_window": 24,
+    "softmax_window": 22,
+    "a_rows": 3087,
+    "h_rows": 3392,
+    "endpoint_rows": 37,
+    "slot_tables": 15,
+    "slot_log": 17,
+    "systematic_commitment_data_bytes": 429457408,
+    "cpu_encoding_payload_bytes": 1719533568,
+    "round_capacity_bytes": 31457280,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 460914688,
+        "cpu_store_payload_subtotal_bytes": 2180448256
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 921829376,
+        "cpu_store_payload_subtotal_bytes": 4360896512
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 1843658752,
+        "cpu_store_payload_subtotal_bytes": 8721793024
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g30",
+    "context_metadata": 64,
+    "dd_cap": 32,
+    "norm_window": 32,
+    "softmax_window": 15,
+    "a_rows": 3203,
+    "h_rows": 3506,
+    "endpoint_rows": 37,
+    "slot_tables": 15,
+    "slot_log": 17,
+    "systematic_commitment_data_bytes": 444530688,
+    "cpu_encoding_payload_bytes": 1779826688,
+    "round_capacity_bytes": 31457280,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 475987968,
+        "cpu_store_payload_subtotal_bytes": 2255814656
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 951975936,
+        "cpu_store_payload_subtotal_bytes": 4511629312
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 1903951872,
+        "cpu_store_payload_subtotal_bytes": 9023258624
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g31",
+    "context_metadata": 64,
+    "dd_cap": 32,
+    "norm_window": 32,
+    "softmax_window": 18,
+    "a_rows": 3223,
+    "h_rows": 3524,
+    "endpoint_rows": 37,
+    "slot_tables": 15,
+    "slot_log": 17,
+    "systematic_commitment_data_bytes": 447021056,
+    "cpu_encoding_payload_bytes": 1789788160,
+    "round_capacity_bytes": 31457280,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 478478336,
+        "cpu_store_payload_subtotal_bytes": 2268266496
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 956956672,
+        "cpu_store_payload_subtotal_bytes": 4536532992
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 1913913344,
+        "cpu_store_payload_subtotal_bytes": 9073065984
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g32",
+    "context_metadata": 64,
+    "dd_cap": 32,
+    "norm_window": 32,
+    "softmax_window": 22,
+    "a_rows": 3223,
+    "h_rows": 3524,
+    "endpoint_rows": 37,
+    "slot_tables": 15,
+    "slot_log": 17,
+    "systematic_commitment_data_bytes": 447021056,
+    "cpu_encoding_payload_bytes": 1789788160,
+    "round_capacity_bytes": 31457280,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 478478336,
+        "cpu_store_payload_subtotal_bytes": 2268266496
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 956956672,
+        "cpu_store_payload_subtotal_bytes": 4536532992
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 1913913344,
+        "cpu_store_payload_subtotal_bytes": 9073065984
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g33",
+    "context_metadata": 64,
+    "dd_cap": 32,
+    "norm_window": 34,
+    "softmax_window": 15,
+    "a_rows": 3339,
+    "h_rows": 3770,
+    "endpoint_rows": 37,
+    "slot_tables": 15,
+    "slot_log": 17,
+    "systematic_commitment_data_bytes": 470745088,
+    "cpu_encoding_payload_bytes": 1884684288,
+    "round_capacity_bytes": 31457280,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 502202368,
+        "cpu_store_payload_subtotal_bytes": 2386886656
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 1004404736,
+        "cpu_store_payload_subtotal_bytes": 4773773312
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 2008809472,
+        "cpu_store_payload_subtotal_bytes": 9547546624
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g34",
+    "context_metadata": 64,
+    "dd_cap": 32,
+    "norm_window": 34,
+    "softmax_window": 18,
+    "a_rows": 3359,
+    "h_rows": 3788,
+    "endpoint_rows": 37,
+    "slot_tables": 15,
+    "slot_log": 17,
+    "systematic_commitment_data_bytes": 473235456,
+    "cpu_encoding_payload_bytes": 1894645760,
+    "round_capacity_bytes": 31457280,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 504692736,
+        "cpu_store_payload_subtotal_bytes": 2399338496
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 1009385472,
+        "cpu_store_payload_subtotal_bytes": 4798676992
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 2018770944,
+        "cpu_store_payload_subtotal_bytes": 9597353984
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g35",
+    "context_metadata": 64,
+    "dd_cap": 32,
+    "norm_window": 34,
+    "softmax_window": 22,
+    "a_rows": 3359,
+    "h_rows": 3788,
+    "endpoint_rows": 37,
+    "slot_tables": 15,
+    "slot_log": 17,
+    "systematic_commitment_data_bytes": 473235456,
+    "cpu_encoding_payload_bytes": 1894645760,
+    "round_capacity_bytes": 31457280,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 504692736,
+        "cpu_store_payload_subtotal_bytes": 2399338496
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 1009385472,
+        "cpu_store_payload_subtotal_bytes": 4798676992
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 2018770944,
+        "cpu_store_payload_subtotal_bytes": 9597353984
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g36",
+    "context_metadata": 128,
+    "dd_cap": 0,
+    "norm_window": 24,
+    "softmax_window": 16,
+    "a_rows": 3269,
+    "h_rows": 3658,
+    "endpoint_rows": 37,
+    "slot_tables": 25,
+    "slot_log": 19,
+    "systematic_commitment_data_bytes": 917635072,
+    "cpu_encoding_payload_bytes": 3672178688,
+    "round_capacity_bytes": 209715200,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 1127350272,
+        "cpu_store_payload_subtotal_bytes": 4799528960
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 2254700544,
+        "cpu_store_payload_subtotal_bytes": 9599057920
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 4509401088,
+        "cpu_store_payload_subtotal_bytes": 19198115840
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g37",
+    "context_metadata": 128,
+    "dd_cap": 0,
+    "norm_window": 24,
+    "softmax_window": 19,
+    "a_rows": 3337,
+    "h_rows": 3724,
+    "endpoint_rows": 37,
+    "slot_tables": 28,
+    "slot_log": 19,
+    "systematic_commitment_data_bytes": 935198720,
+    "cpu_encoding_payload_bytes": 3742433280,
+    "round_capacity_bytes": 234881024,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 1170079744,
+        "cpu_store_payload_subtotal_bytes": 4912513024
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 2340159488,
+        "cpu_store_payload_subtotal_bytes": 9825026048
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 4680318976,
+        "cpu_store_payload_subtotal_bytes": 19650052096
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g38",
+    "context_metadata": 128,
+    "dd_cap": 0,
+    "norm_window": 24,
+    "softmax_window": 23,
+    "a_rows": 3337,
+    "h_rows": 3724,
+    "endpoint_rows": 37,
+    "slot_tables": 28,
+    "slot_log": 19,
+    "systematic_commitment_data_bytes": 935198720,
+    "cpu_encoding_payload_bytes": 3742433280,
+    "round_capacity_bytes": 234881024,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 1170079744,
+        "cpu_store_payload_subtotal_bytes": 4912513024
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 2340159488,
+        "cpu_store_payload_subtotal_bytes": 9825026048
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 4680318976,
+        "cpu_store_payload_subtotal_bytes": 19650052096
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g39",
+    "context_metadata": 128,
+    "dd_cap": 0,
+    "norm_window": 32,
+    "softmax_window": 16,
+    "a_rows": 3405,
+    "h_rows": 3790,
+    "endpoint_rows": 37,
+    "slot_tables": 25,
+    "slot_log": 19,
+    "systematic_commitment_data_bytes": 952762368,
+    "cpu_encoding_payload_bytes": 3812687872,
+    "round_capacity_bytes": 209715200,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 1162477568,
+        "cpu_store_payload_subtotal_bytes": 4975165440
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 2324955136,
+        "cpu_store_payload_subtotal_bytes": 9950330880
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 4649910272,
+        "cpu_store_payload_subtotal_bytes": 19900661760
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g40",
+    "context_metadata": 128,
+    "dd_cap": 0,
+    "norm_window": 32,
+    "softmax_window": 19,
+    "a_rows": 3473,
+    "h_rows": 3856,
+    "endpoint_rows": 37,
+    "slot_tables": 28,
+    "slot_log": 19,
+    "systematic_commitment_data_bytes": 970326016,
+    "cpu_encoding_payload_bytes": 3882942464,
+    "round_capacity_bytes": 234881024,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 1205207040,
+        "cpu_store_payload_subtotal_bytes": 5088149504
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 2410414080,
+        "cpu_store_payload_subtotal_bytes": 10176299008
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 4820828160,
+        "cpu_store_payload_subtotal_bytes": 20352598016
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g41",
+    "context_metadata": 128,
+    "dd_cap": 0,
+    "norm_window": 32,
+    "softmax_window": 23,
+    "a_rows": 3473,
+    "h_rows": 3856,
+    "endpoint_rows": 37,
+    "slot_tables": 28,
+    "slot_log": 19,
+    "systematic_commitment_data_bytes": 970326016,
+    "cpu_encoding_payload_bytes": 3882942464,
+    "round_capacity_bytes": 234881024,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 1205207040,
+        "cpu_store_payload_subtotal_bytes": 5088149504
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 2410414080,
+        "cpu_store_payload_subtotal_bytes": 10176299008
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 4820828160,
+        "cpu_store_payload_subtotal_bytes": 20352598016
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g42",
+    "context_metadata": 128,
+    "dd_cap": 0,
+    "norm_window": 34,
+    "softmax_window": 16,
+    "a_rows": 3541,
+    "h_rows": 4054,
+    "endpoint_rows": 37,
+    "slot_tables": 25,
+    "slot_log": 19,
+    "systematic_commitment_data_bytes": 1005191168,
+    "cpu_encoding_payload_bytes": 4022403072,
+    "round_capacity_bytes": 209715200,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 1214906368,
+        "cpu_store_payload_subtotal_bytes": 5237309440
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 2429812736,
+        "cpu_store_payload_subtotal_bytes": 10474618880
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 4859625472,
+        "cpu_store_payload_subtotal_bytes": 20949237760
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g43",
+    "context_metadata": 128,
+    "dd_cap": 0,
+    "norm_window": 34,
+    "softmax_window": 19,
+    "a_rows": 3609,
+    "h_rows": 4120,
+    "endpoint_rows": 37,
+    "slot_tables": 28,
+    "slot_log": 19,
+    "systematic_commitment_data_bytes": 1022754816,
+    "cpu_encoding_payload_bytes": 4092657664,
+    "round_capacity_bytes": 234881024,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 1257635840,
+        "cpu_store_payload_subtotal_bytes": 5350293504
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 2515271680,
+        "cpu_store_payload_subtotal_bytes": 10700587008
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 5030543360,
+        "cpu_store_payload_subtotal_bytes": 21401174016
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g44",
+    "context_metadata": 128,
+    "dd_cap": 0,
+    "norm_window": 34,
+    "softmax_window": 23,
+    "a_rows": 3609,
+    "h_rows": 4120,
+    "endpoint_rows": 37,
+    "slot_tables": 28,
+    "slot_log": 19,
+    "systematic_commitment_data_bytes": 1022754816,
+    "cpu_encoding_payload_bytes": 4092657664,
+    "round_capacity_bytes": 234881024,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 1257635840,
+        "cpu_store_payload_subtotal_bytes": 5350293504
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 2515271680,
+        "cpu_store_payload_subtotal_bytes": 10700587008
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 5030543360,
+        "cpu_store_payload_subtotal_bytes": 21401174016
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g45",
+    "context_metadata": 128,
+    "dd_cap": 32,
+    "norm_window": 24,
+    "softmax_window": 16,
+    "a_rows": 3147,
+    "h_rows": 3502,
+    "endpoint_rows": 37,
+    "slot_tables": 15,
+    "slot_log": 19,
+    "systematic_commitment_data_bytes": 881197056,
+    "cpu_encoding_payload_bytes": 3526492160,
+    "round_capacity_bytes": 125829120,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 1007026176,
+        "cpu_store_payload_subtotal_bytes": 4533518336
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 2014052352,
+        "cpu_store_payload_subtotal_bytes": 9067036672
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 4028104704,
+        "cpu_store_payload_subtotal_bytes": 18134073344
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g46",
+    "context_metadata": 128,
+    "dd_cap": 32,
+    "norm_window": 24,
+    "softmax_window": 19,
+    "a_rows": 3167,
+    "h_rows": 3520,
+    "endpoint_rows": 37,
+    "slot_tables": 15,
+    "slot_log": 19,
+    "systematic_commitment_data_bytes": 886177792,
+    "cpu_encoding_payload_bytes": 3546415104,
+    "round_capacity_bytes": 125829120,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 1012006912,
+        "cpu_store_payload_subtotal_bytes": 4558422016
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 2024013824,
+        "cpu_store_payload_subtotal_bytes": 9116844032
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 4048027648,
+        "cpu_store_payload_subtotal_bytes": 18233688064
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g47",
+    "context_metadata": 128,
+    "dd_cap": 32,
+    "norm_window": 24,
+    "softmax_window": 23,
+    "a_rows": 3167,
+    "h_rows": 3520,
+    "endpoint_rows": 37,
+    "slot_tables": 15,
+    "slot_log": 19,
+    "systematic_commitment_data_bytes": 886177792,
+    "cpu_encoding_payload_bytes": 3546415104,
+    "round_capacity_bytes": 125829120,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 1012006912,
+        "cpu_store_payload_subtotal_bytes": 4558422016
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 2024013824,
+        "cpu_store_payload_subtotal_bytes": 9116844032
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 4048027648,
+        "cpu_store_payload_subtotal_bytes": 18233688064
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g48",
+    "context_metadata": 128,
+    "dd_cap": 32,
+    "norm_window": 32,
+    "softmax_window": 16,
+    "a_rows": 3283,
+    "h_rows": 3634,
+    "endpoint_rows": 37,
+    "slot_tables": 15,
+    "slot_log": 19,
+    "systematic_commitment_data_bytes": 916324352,
+    "cpu_encoding_payload_bytes": 3667001344,
+    "round_capacity_bytes": 125829120,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 1042153472,
+        "cpu_store_payload_subtotal_bytes": 4709154816
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 2084306944,
+        "cpu_store_payload_subtotal_bytes": 9418309632
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 4168613888,
+        "cpu_store_payload_subtotal_bytes": 18836619264
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g49",
+    "context_metadata": 128,
+    "dd_cap": 32,
+    "norm_window": 32,
+    "softmax_window": 19,
+    "a_rows": 3303,
+    "h_rows": 3652,
+    "endpoint_rows": 37,
+    "slot_tables": 15,
+    "slot_log": 19,
+    "systematic_commitment_data_bytes": 921305088,
+    "cpu_encoding_payload_bytes": 3686924288,
+    "round_capacity_bytes": 125829120,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 1047134208,
+        "cpu_store_payload_subtotal_bytes": 4734058496
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 2094268416,
+        "cpu_store_payload_subtotal_bytes": 9468116992
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 4188536832,
+        "cpu_store_payload_subtotal_bytes": 18936233984
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g50",
+    "context_metadata": 128,
+    "dd_cap": 32,
+    "norm_window": 32,
+    "softmax_window": 23,
+    "a_rows": 3303,
+    "h_rows": 3652,
+    "endpoint_rows": 37,
+    "slot_tables": 15,
+    "slot_log": 19,
+    "systematic_commitment_data_bytes": 921305088,
+    "cpu_encoding_payload_bytes": 3686924288,
+    "round_capacity_bytes": 125829120,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 1047134208,
+        "cpu_store_payload_subtotal_bytes": 4734058496
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 2094268416,
+        "cpu_store_payload_subtotal_bytes": 9468116992
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 4188536832,
+        "cpu_store_payload_subtotal_bytes": 18936233984
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g51",
+    "context_metadata": 128,
+    "dd_cap": 32,
+    "norm_window": 34,
+    "softmax_window": 16,
+    "a_rows": 3419,
+    "h_rows": 3898,
+    "endpoint_rows": 37,
+    "slot_tables": 15,
+    "slot_log": 19,
+    "systematic_commitment_data_bytes": 968753152,
+    "cpu_encoding_payload_bytes": 3876716544,
+    "round_capacity_bytes": 125829120,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 1094582272,
+        "cpu_store_payload_subtotal_bytes": 4971298816
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 2189164544,
+        "cpu_store_payload_subtotal_bytes": 9942597632
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 4378329088,
+        "cpu_store_payload_subtotal_bytes": 19885195264
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g52",
+    "context_metadata": 128,
+    "dd_cap": 32,
+    "norm_window": 34,
+    "softmax_window": 19,
+    "a_rows": 3439,
+    "h_rows": 3916,
+    "endpoint_rows": 37,
+    "slot_tables": 15,
+    "slot_log": 19,
+    "systematic_commitment_data_bytes": 973733888,
+    "cpu_encoding_payload_bytes": 3896639488,
+    "round_capacity_bytes": 125829120,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 1099563008,
+        "cpu_store_payload_subtotal_bytes": 4996202496
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 2199126016,
+        "cpu_store_payload_subtotal_bytes": 9992404992
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 4398252032,
+        "cpu_store_payload_subtotal_bytes": 19984809984
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g53",
+    "context_metadata": 128,
+    "dd_cap": 32,
+    "norm_window": 34,
+    "softmax_window": 23,
+    "a_rows": 3439,
+    "h_rows": 3916,
+    "endpoint_rows": 37,
+    "slot_tables": 15,
+    "slot_log": 19,
+    "systematic_commitment_data_bytes": 973733888,
+    "cpu_encoding_payload_bytes": 3896639488,
+    "round_capacity_bytes": 125829120,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 1099563008,
+        "cpu_store_payload_subtotal_bytes": 4996202496
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 2199126016,
+        "cpu_store_payload_subtotal_bytes": 9992404992
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 4398252032,
+        "cpu_store_payload_subtotal_bytes": 19984809984
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g54",
+    "context_metadata": 256,
+    "dd_cap": 0,
+    "norm_window": 24,
+    "softmax_window": 17,
+    "a_rows": 7257,
+    "h_rows": 8492,
+    "endpoint_rows": 69,
+    "slot_tables": 28,
+    "slot_log": 21,
+    "systematic_commitment_data_bytes": 2082340864,
+    "cpu_encoding_payload_bytes": 8331001856,
+    "round_capacity_bytes": 939524096,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 3021864960,
+        "cpu_store_payload_subtotal_bytes": 11352866816
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 6043729920,
+        "cpu_store_payload_subtotal_bytes": 22705733632
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 12087459840,
+        "cpu_store_payload_subtotal_bytes": 45411467264
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g55",
+    "context_metadata": 256,
+    "dd_cap": 0,
+    "norm_window": 24,
+    "softmax_window": 20,
+    "a_rows": 7257,
+    "h_rows": 8492,
+    "endpoint_rows": 69,
+    "slot_tables": 28,
+    "slot_log": 21,
+    "systematic_commitment_data_bytes": 2082340864,
+    "cpu_encoding_payload_bytes": 8331001856,
+    "round_capacity_bytes": 939524096,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 3021864960,
+        "cpu_store_payload_subtotal_bytes": 11352866816
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 6043729920,
+        "cpu_store_payload_subtotal_bytes": 22705733632
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 12087459840,
+        "cpu_store_payload_subtotal_bytes": 45411467264
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g56",
+    "context_metadata": 256,
+    "dd_cap": 0,
+    "norm_window": 24,
+    "softmax_window": 24,
+    "a_rows": 7257,
+    "h_rows": 8492,
+    "endpoint_rows": 69,
+    "slot_tables": 28,
+    "slot_log": 21,
+    "systematic_commitment_data_bytes": 2082340864,
+    "cpu_encoding_payload_bytes": 8331001856,
+    "round_capacity_bytes": 939524096,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 3021864960,
+        "cpu_store_payload_subtotal_bytes": 11352866816
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 6043729920,
+        "cpu_store_payload_subtotal_bytes": 22705733632
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 12087459840,
+        "cpu_store_payload_subtotal_bytes": 45411467264
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g57",
+    "context_metadata": 256,
+    "dd_cap": 0,
+    "norm_window": 32,
+    "softmax_window": 17,
+    "a_rows": 7521,
+    "h_rows": 8752,
+    "endpoint_rows": 69,
+    "slot_tables": 28,
+    "slot_log": 21,
+    "systematic_commitment_data_bytes": 2151022592,
+    "cpu_encoding_payload_bytes": 8605728768,
+    "round_capacity_bytes": 939524096,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 3090546688,
+        "cpu_store_payload_subtotal_bytes": 11696275456
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 6181093376,
+        "cpu_store_payload_subtotal_bytes": 23392550912
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 12362186752,
+        "cpu_store_payload_subtotal_bytes": 46785101824
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g58",
+    "context_metadata": 256,
+    "dd_cap": 0,
+    "norm_window": 32,
+    "softmax_window": 20,
+    "a_rows": 7521,
+    "h_rows": 8752,
+    "endpoint_rows": 69,
+    "slot_tables": 28,
+    "slot_log": 21,
+    "systematic_commitment_data_bytes": 2151022592,
+    "cpu_encoding_payload_bytes": 8605728768,
+    "round_capacity_bytes": 939524096,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 3090546688,
+        "cpu_store_payload_subtotal_bytes": 11696275456
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 6181093376,
+        "cpu_store_payload_subtotal_bytes": 23392550912
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 12362186752,
+        "cpu_store_payload_subtotal_bytes": 46785101824
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g59",
+    "context_metadata": 256,
+    "dd_cap": 0,
+    "norm_window": 32,
+    "softmax_window": 24,
+    "a_rows": 7521,
+    "h_rows": 8752,
+    "endpoint_rows": 69,
+    "slot_tables": 28,
+    "slot_log": 21,
+    "systematic_commitment_data_bytes": 2151022592,
+    "cpu_encoding_payload_bytes": 8605728768,
+    "round_capacity_bytes": 939524096,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 3090546688,
+        "cpu_store_payload_subtotal_bytes": 11696275456
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 6181093376,
+        "cpu_store_payload_subtotal_bytes": 23392550912
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 12362186752,
+        "cpu_store_payload_subtotal_bytes": 46785101824
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g60",
+    "context_metadata": 256,
+    "dd_cap": 0,
+    "norm_window": 34,
+    "softmax_window": 17,
+    "a_rows": 7785,
+    "h_rows": 9272,
+    "endpoint_rows": 69,
+    "slot_tables": 28,
+    "slot_log": 21,
+    "systematic_commitment_data_bytes": 2253783040,
+    "cpu_encoding_payload_bytes": 9016770560,
+    "round_capacity_bytes": 939524096,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 3193307136,
+        "cpu_store_payload_subtotal_bytes": 12210077696
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 6386614272,
+        "cpu_store_payload_subtotal_bytes": 24420155392
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 12773228544,
+        "cpu_store_payload_subtotal_bytes": 48840310784
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g61",
+    "context_metadata": 256,
+    "dd_cap": 0,
+    "norm_window": 34,
+    "softmax_window": 20,
+    "a_rows": 7785,
+    "h_rows": 9272,
+    "endpoint_rows": 69,
+    "slot_tables": 28,
+    "slot_log": 21,
+    "systematic_commitment_data_bytes": 2253783040,
+    "cpu_encoding_payload_bytes": 9016770560,
+    "round_capacity_bytes": 939524096,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 3193307136,
+        "cpu_store_payload_subtotal_bytes": 12210077696
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 6386614272,
+        "cpu_store_payload_subtotal_bytes": 24420155392
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 12773228544,
+        "cpu_store_payload_subtotal_bytes": 48840310784
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g62",
+    "context_metadata": 256,
+    "dd_cap": 0,
+    "norm_window": 34,
+    "softmax_window": 24,
+    "a_rows": 7785,
+    "h_rows": 9272,
+    "endpoint_rows": 69,
+    "slot_tables": 28,
+    "slot_log": 21,
+    "systematic_commitment_data_bytes": 2253783040,
+    "cpu_encoding_payload_bytes": 9016770560,
+    "round_capacity_bytes": 939524096,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 3193307136,
+        "cpu_store_payload_subtotal_bytes": 12210077696
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 6386614272,
+        "cpu_store_payload_subtotal_bytes": 24420155392
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 12773228544,
+        "cpu_store_payload_subtotal_bytes": 48840310784
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g63",
+    "context_metadata": 256,
+    "dd_cap": 32,
+    "norm_window": 24,
+    "softmax_window": 17,
+    "a_rows": 6399,
+    "h_rows": 7440,
+    "endpoint_rows": 69,
+    "slot_tables": 15,
+    "slot_log": 21,
+    "systematic_commitment_data_bytes": 1831993344,
+    "cpu_encoding_payload_bytes": 7329677312,
+    "round_capacity_bytes": 503316480,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 2335309824,
+        "cpu_store_payload_subtotal_bytes": 9664987136
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 4670619648,
+        "cpu_store_payload_subtotal_bytes": 19329974272
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 9341239296,
+        "cpu_store_payload_subtotal_bytes": 38659948544
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g64",
+    "context_metadata": 256,
+    "dd_cap": 32,
+    "norm_window": 24,
+    "softmax_window": 20,
+    "a_rows": 6399,
+    "h_rows": 7440,
+    "endpoint_rows": 69,
+    "slot_tables": 15,
+    "slot_log": 21,
+    "systematic_commitment_data_bytes": 1831993344,
+    "cpu_encoding_payload_bytes": 7329677312,
+    "round_capacity_bytes": 503316480,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 2335309824,
+        "cpu_store_payload_subtotal_bytes": 9664987136
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 4670619648,
+        "cpu_store_payload_subtotal_bytes": 19329974272
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 9341239296,
+        "cpu_store_payload_subtotal_bytes": 38659948544
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g65",
+    "context_metadata": 256,
+    "dd_cap": 32,
+    "norm_window": 24,
+    "softmax_window": 24,
+    "a_rows": 6399,
+    "h_rows": 7440,
+    "endpoint_rows": 69,
+    "slot_tables": 15,
+    "slot_log": 21,
+    "systematic_commitment_data_bytes": 1831993344,
+    "cpu_encoding_payload_bytes": 7329677312,
+    "round_capacity_bytes": 503316480,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 2335309824,
+        "cpu_store_payload_subtotal_bytes": 9664987136
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 4670619648,
+        "cpu_store_payload_subtotal_bytes": 19329974272
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 9341239296,
+        "cpu_store_payload_subtotal_bytes": 38659948544
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g66",
+    "context_metadata": 256,
+    "dd_cap": 32,
+    "norm_window": 32,
+    "softmax_window": 17,
+    "a_rows": 6663,
+    "h_rows": 7700,
+    "endpoint_rows": 69,
+    "slot_tables": 15,
+    "slot_log": 21,
+    "systematic_commitment_data_bytes": 1900675072,
+    "cpu_encoding_payload_bytes": 7604404224,
+    "round_capacity_bytes": 503316480,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 2403991552,
+        "cpu_store_payload_subtotal_bytes": 10008395776
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 4807983104,
+        "cpu_store_payload_subtotal_bytes": 20016791552
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 9615966208,
+        "cpu_store_payload_subtotal_bytes": 40033583104
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g67",
+    "context_metadata": 256,
+    "dd_cap": 32,
+    "norm_window": 32,
+    "softmax_window": 20,
+    "a_rows": 6663,
+    "h_rows": 7700,
+    "endpoint_rows": 69,
+    "slot_tables": 15,
+    "slot_log": 21,
+    "systematic_commitment_data_bytes": 1900675072,
+    "cpu_encoding_payload_bytes": 7604404224,
+    "round_capacity_bytes": 503316480,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 2403991552,
+        "cpu_store_payload_subtotal_bytes": 10008395776
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 4807983104,
+        "cpu_store_payload_subtotal_bytes": 20016791552
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 9615966208,
+        "cpu_store_payload_subtotal_bytes": 40033583104
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g68",
+    "context_metadata": 256,
+    "dd_cap": 32,
+    "norm_window": 32,
+    "softmax_window": 24,
+    "a_rows": 6663,
+    "h_rows": 7700,
+    "endpoint_rows": 69,
+    "slot_tables": 15,
+    "slot_log": 21,
+    "systematic_commitment_data_bytes": 1900675072,
+    "cpu_encoding_payload_bytes": 7604404224,
+    "round_capacity_bytes": 503316480,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 2403991552,
+        "cpu_store_payload_subtotal_bytes": 10008395776
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 4807983104,
+        "cpu_store_payload_subtotal_bytes": 20016791552
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 9615966208,
+        "cpu_store_payload_subtotal_bytes": 40033583104
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g69",
+    "context_metadata": 256,
+    "dd_cap": 32,
+    "norm_window": 34,
+    "softmax_window": 17,
+    "a_rows": 6927,
+    "h_rows": 8220,
+    "endpoint_rows": 69,
+    "slot_tables": 15,
+    "slot_log": 21,
+    "systematic_commitment_data_bytes": 2003435520,
+    "cpu_encoding_payload_bytes": 8015446016,
+    "round_capacity_bytes": 503316480,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 2506752000,
+        "cpu_store_payload_subtotal_bytes": 10522198016
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 5013504000,
+        "cpu_store_payload_subtotal_bytes": 21044396032
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 10027008000,
+        "cpu_store_payload_subtotal_bytes": 42088792064
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g70",
+    "context_metadata": 256,
+    "dd_cap": 32,
+    "norm_window": 34,
+    "softmax_window": 20,
+    "a_rows": 6927,
+    "h_rows": 8220,
+    "endpoint_rows": 69,
+    "slot_tables": 15,
+    "slot_log": 21,
+    "systematic_commitment_data_bytes": 2003435520,
+    "cpu_encoding_payload_bytes": 8015446016,
+    "round_capacity_bytes": 503316480,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 2506752000,
+        "cpu_store_payload_subtotal_bytes": 10522198016
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 5013504000,
+        "cpu_store_payload_subtotal_bytes": 21044396032
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 10027008000,
+        "cpu_store_payload_subtotal_bytes": 42088792064
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g71",
+    "context_metadata": 256,
+    "dd_cap": 32,
+    "norm_window": 34,
+    "softmax_window": 24,
+    "a_rows": 6927,
+    "h_rows": 8220,
+    "endpoint_rows": 69,
+    "slot_tables": 15,
+    "slot_log": 21,
+    "systematic_commitment_data_bytes": 2003435520,
+    "cpu_encoding_payload_bytes": 8015446016,
+    "round_capacity_bytes": 503316480,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 2506752000,
+        "cpu_store_payload_subtotal_bytes": 10522198016
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 5013504000,
+        "cpu_store_payload_subtotal_bytes": 21044396032
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 10027008000,
+        "cpu_store_payload_subtotal_bytes": 42088792064
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g72",
+    "context_metadata": 512,
+    "dd_cap": 0,
+    "norm_window": 24,
+    "softmax_window": 18,
+    "a_rows": 17593,
+    "h_rows": 21484,
+    "endpoint_rows": 133,
+    "slot_tables": 28,
+    "slot_log": 23,
+    "systematic_commitment_data_bytes": 5156765696,
+    "cpu_encoding_payload_bytes": 20628701184,
+    "round_capacity_bytes": 3758096384,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 8914862080,
+        "cpu_store_payload_subtotal_bytes": 29543563264
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 17829724160,
+        "cpu_store_payload_subtotal_bytes": 59087126528
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 35659448320,
+        "cpu_store_payload_subtotal_bytes": 118174253056
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g73",
+    "context_metadata": 512,
+    "dd_cap": 0,
+    "norm_window": 24,
+    "softmax_window": 21,
+    "a_rows": 17593,
+    "h_rows": 21484,
+    "endpoint_rows": 133,
+    "slot_tables": 28,
+    "slot_log": 23,
+    "systematic_commitment_data_bytes": 5156765696,
+    "cpu_encoding_payload_bytes": 20628701184,
+    "round_capacity_bytes": 3758096384,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 8914862080,
+        "cpu_store_payload_subtotal_bytes": 29543563264
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 17829724160,
+        "cpu_store_payload_subtotal_bytes": 59087126528
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 35659448320,
+        "cpu_store_payload_subtotal_bytes": 118174253056
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g74",
+    "context_metadata": 512,
+    "dd_cap": 0,
+    "norm_window": 24,
+    "softmax_window": 25,
+    "a_rows": 18621,
+    "h_rows": 22510,
+    "endpoint_rows": 133,
+    "slot_tables": 31,
+    "slot_log": 23,
+    "systematic_commitment_data_bytes": 5425987584,
+    "cpu_encoding_payload_bytes": 21705588736,
+    "round_capacity_bytes": 4160749568,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 9586737152,
+        "cpu_store_payload_subtotal_bytes": 31292325888
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 19173474304,
+        "cpu_store_payload_subtotal_bytes": 62584651776
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 38346948608,
+        "cpu_store_payload_subtotal_bytes": 125169303552
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g75",
+    "context_metadata": 512,
+    "dd_cap": 0,
+    "norm_window": 32,
+    "softmax_window": 18,
+    "a_rows": 18113,
+    "h_rows": 22000,
+    "endpoint_rows": 133,
+    "slot_tables": 28,
+    "slot_log": 23,
+    "systematic_commitment_data_bytes": 5292556288,
+    "cpu_encoding_payload_bytes": 21171863552,
+    "round_capacity_bytes": 3758096384,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 9050652672,
+        "cpu_store_payload_subtotal_bytes": 30222516224
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 18101305344,
+        "cpu_store_payload_subtotal_bytes": 60445032448
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 36202610688,
+        "cpu_store_payload_subtotal_bytes": 120890064896
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g76",
+    "context_metadata": 512,
+    "dd_cap": 0,
+    "norm_window": 32,
+    "softmax_window": 21,
+    "a_rows": 18113,
+    "h_rows": 22000,
+    "endpoint_rows": 133,
+    "slot_tables": 28,
+    "slot_log": 23,
+    "systematic_commitment_data_bytes": 5292556288,
+    "cpu_encoding_payload_bytes": 21171863552,
+    "round_capacity_bytes": 3758096384,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 9050652672,
+        "cpu_store_payload_subtotal_bytes": 30222516224
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 18101305344,
+        "cpu_store_payload_subtotal_bytes": 60445032448
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 36202610688,
+        "cpu_store_payload_subtotal_bytes": 120890064896
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g77",
+    "context_metadata": 512,
+    "dd_cap": 0,
+    "norm_window": 32,
+    "softmax_window": 25,
+    "a_rows": 19141,
+    "h_rows": 23026,
+    "endpoint_rows": 133,
+    "slot_tables": 31,
+    "slot_log": 23,
+    "systematic_commitment_data_bytes": 5561778176,
+    "cpu_encoding_payload_bytes": 22248751104,
+    "round_capacity_bytes": 4160749568,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 9722527744,
+        "cpu_store_payload_subtotal_bytes": 31971278848
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 19445055488,
+        "cpu_store_payload_subtotal_bytes": 63942557696
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 38890110976,
+        "cpu_store_payload_subtotal_bytes": 127885115392
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g78",
+    "context_metadata": 512,
+    "dd_cap": 0,
+    "norm_window": 34,
+    "softmax_window": 18,
+    "a_rows": 18633,
+    "h_rows": 23032,
+    "endpoint_rows": 133,
+    "slot_tables": 28,
+    "slot_log": 23,
+    "systematic_commitment_data_bytes": 5495980032,
+    "cpu_encoding_payload_bytes": 21985558528,
+    "round_capacity_bytes": 3758096384,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 9254076416,
+        "cpu_store_payload_subtotal_bytes": 31239634944
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 18508152832,
+        "cpu_store_payload_subtotal_bytes": 62479269888
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 37016305664,
+        "cpu_store_payload_subtotal_bytes": 124958539776
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g79",
+    "context_metadata": 512,
+    "dd_cap": 0,
+    "norm_window": 34,
+    "softmax_window": 21,
+    "a_rows": 18633,
+    "h_rows": 23032,
+    "endpoint_rows": 133,
+    "slot_tables": 28,
+    "slot_log": 23,
+    "systematic_commitment_data_bytes": 5495980032,
+    "cpu_encoding_payload_bytes": 21985558528,
+    "round_capacity_bytes": 3758096384,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 9254076416,
+        "cpu_store_payload_subtotal_bytes": 31239634944
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 18508152832,
+        "cpu_store_payload_subtotal_bytes": 62479269888
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 37016305664,
+        "cpu_store_payload_subtotal_bytes": 124958539776
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g80",
+    "context_metadata": 512,
+    "dd_cap": 0,
+    "norm_window": 34,
+    "softmax_window": 25,
+    "a_rows": 19661,
+    "h_rows": 24058,
+    "endpoint_rows": 133,
+    "slot_tables": 31,
+    "slot_log": 23,
+    "systematic_commitment_data_bytes": 5765201920,
+    "cpu_encoding_payload_bytes": 23062446080,
+    "round_capacity_bytes": 4160749568,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 9925951488,
+        "cpu_store_payload_subtotal_bytes": 32988397568
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 19851902976,
+        "cpu_store_payload_subtotal_bytes": 65976795136
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 39703805952,
+        "cpu_store_payload_subtotal_bytes": 131953590272
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g81",
+    "context_metadata": 512,
+    "dd_cap": 32,
+    "norm_window": 24,
+    "softmax_window": 18,
+    "a_rows": 13823,
+    "h_rows": 16816,
+    "endpoint_rows": 133,
+    "slot_tables": 15,
+    "slot_log": 23,
+    "systematic_commitment_data_bytes": 4050780160,
+    "cpu_encoding_payload_bytes": 16204824576,
+    "round_capacity_bytes": 2013265920,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 6064046080,
+        "cpu_store_payload_subtotal_bytes": 22268870656
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 12128092160,
+        "cpu_store_payload_subtotal_bytes": 44537741312
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 24256184320,
+        "cpu_store_payload_subtotal_bytes": 89075482624
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g82",
+    "context_metadata": 512,
+    "dd_cap": 32,
+    "norm_window": 24,
+    "softmax_window": 21,
+    "a_rows": 13823,
+    "h_rows": 16816,
+    "endpoint_rows": 133,
+    "slot_tables": 15,
+    "slot_log": 23,
+    "systematic_commitment_data_bytes": 4050780160,
+    "cpu_encoding_payload_bytes": 16204824576,
+    "round_capacity_bytes": 2013265920,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 6064046080,
+        "cpu_store_payload_subtotal_bytes": 22268870656
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 12128092160,
+        "cpu_store_payload_subtotal_bytes": 44537741312
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 24256184320,
+        "cpu_store_payload_subtotal_bytes": 89075482624
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g83",
+    "context_metadata": 512,
+    "dd_cap": 32,
+    "norm_window": 24,
+    "softmax_window": 25,
+    "a_rows": 13891,
+    "h_rows": 16882,
+    "endpoint_rows": 133,
+    "slot_tables": 15,
+    "slot_log": 23,
+    "systematic_commitment_data_bytes": 4068343808,
+    "cpu_encoding_payload_bytes": 16275079168,
+    "round_capacity_bytes": 2013265920,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 6081609728,
+        "cpu_store_payload_subtotal_bytes": 22356688896
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 12163219456,
+        "cpu_store_payload_subtotal_bytes": 44713377792
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 24326438912,
+        "cpu_store_payload_subtotal_bytes": 89426755584
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g84",
+    "context_metadata": 512,
+    "dd_cap": 32,
+    "norm_window": 32,
+    "softmax_window": 18,
+    "a_rows": 14343,
+    "h_rows": 17332,
+    "endpoint_rows": 133,
+    "slot_tables": 15,
+    "slot_log": 23,
+    "systematic_commitment_data_bytes": 4186570752,
+    "cpu_encoding_payload_bytes": 16747986944,
+    "round_capacity_bytes": 2013265920,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 6199836672,
+        "cpu_store_payload_subtotal_bytes": 22947823616
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 12399673344,
+        "cpu_store_payload_subtotal_bytes": 45895647232
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 24799346688,
+        "cpu_store_payload_subtotal_bytes": 91791294464
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g85",
+    "context_metadata": 512,
+    "dd_cap": 32,
+    "norm_window": 32,
+    "softmax_window": 21,
+    "a_rows": 14343,
+    "h_rows": 17332,
+    "endpoint_rows": 133,
+    "slot_tables": 15,
+    "slot_log": 23,
+    "systematic_commitment_data_bytes": 4186570752,
+    "cpu_encoding_payload_bytes": 16747986944,
+    "round_capacity_bytes": 2013265920,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 6199836672,
+        "cpu_store_payload_subtotal_bytes": 22947823616
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 12399673344,
+        "cpu_store_payload_subtotal_bytes": 45895647232
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 24799346688,
+        "cpu_store_payload_subtotal_bytes": 91791294464
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g86",
+    "context_metadata": 512,
+    "dd_cap": 32,
+    "norm_window": 32,
+    "softmax_window": 25,
+    "a_rows": 14411,
+    "h_rows": 17398,
+    "endpoint_rows": 133,
+    "slot_tables": 15,
+    "slot_log": 23,
+    "systematic_commitment_data_bytes": 4204134400,
+    "cpu_encoding_payload_bytes": 16818241536,
+    "round_capacity_bytes": 2013265920,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 6217400320,
+        "cpu_store_payload_subtotal_bytes": 23035641856
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 12434800640,
+        "cpu_store_payload_subtotal_bytes": 46071283712
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 24869601280,
+        "cpu_store_payload_subtotal_bytes": 92142567424
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g87",
+    "context_metadata": 512,
+    "dd_cap": 32,
+    "norm_window": 34,
+    "softmax_window": 18,
+    "a_rows": 14863,
+    "h_rows": 18364,
+    "endpoint_rows": 133,
+    "slot_tables": 15,
+    "slot_log": 23,
+    "systematic_commitment_data_bytes": 4389994496,
+    "cpu_encoding_payload_bytes": 17561681920,
+    "round_capacity_bytes": 2013265920,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 6403260416,
+        "cpu_store_payload_subtotal_bytes": 23964942336
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 12806520832,
+        "cpu_store_payload_subtotal_bytes": 47929884672
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 25613041664,
+        "cpu_store_payload_subtotal_bytes": 95859769344
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g88",
+    "context_metadata": 512,
+    "dd_cap": 32,
+    "norm_window": 34,
+    "softmax_window": 21,
+    "a_rows": 14863,
+    "h_rows": 18364,
+    "endpoint_rows": 133,
+    "slot_tables": 15,
+    "slot_log": 23,
+    "systematic_commitment_data_bytes": 4389994496,
+    "cpu_encoding_payload_bytes": 17561681920,
+    "round_capacity_bytes": 2013265920,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 6403260416,
+        "cpu_store_payload_subtotal_bytes": 23964942336
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 12806520832,
+        "cpu_store_payload_subtotal_bytes": 47929884672
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 25613041664,
+        "cpu_store_payload_subtotal_bytes": 95859769344
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g89",
+    "context_metadata": 512,
+    "dd_cap": 32,
+    "norm_window": 34,
+    "softmax_window": 25,
+    "a_rows": 14931,
+    "h_rows": 18430,
+    "endpoint_rows": 133,
+    "slot_tables": 15,
+    "slot_log": 23,
+    "systematic_commitment_data_bytes": 4407558144,
+    "cpu_encoding_payload_bytes": 17631936512,
+    "round_capacity_bytes": 2013265920,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 6420824064,
+        "cpu_store_payload_subtotal_bytes": 24052760576
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 12841648128,
+        "cpu_store_payload_subtotal_bytes": 48105521152
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 25683296256,
+        "cpu_store_payload_subtotal_bytes": 96211042304
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g90",
+    "context_metadata": 17,
+    "dd_cap": 0,
+    "norm_window": 24,
+    "softmax_window": 14,
+    "a_rows": 1625,
+    "h_rows": 1690,
+    "endpoint_rows": 21,
+    "slot_tables": 27,
+    "slot_log": 15,
+    "systematic_commitment_data_bytes": 220004352,
+    "cpu_encoding_payload_bytes": 881655808,
+    "round_capacity_bytes": 14155776,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 234160128,
+        "cpu_store_payload_subtotal_bytes": 1115815936
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 468320256,
+        "cpu_store_payload_subtotal_bytes": 2231631872
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 936640512,
+        "cpu_store_payload_subtotal_bytes": 4463263744
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g91",
+    "context_metadata": 17,
+    "dd_cap": 0,
+    "norm_window": 24,
+    "softmax_window": 17,
+    "a_rows": 1637,
+    "h_rows": 1700,
+    "endpoint_rows": 21,
+    "slot_tables": 30,
+    "slot_log": 15,
+    "systematic_commitment_data_bytes": 221446144,
+    "cpu_encoding_payload_bytes": 887422976,
+    "round_capacity_bytes": 15728640,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 237174784,
+        "cpu_store_payload_subtotal_bytes": 1124597760
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 474349568,
+        "cpu_store_payload_subtotal_bytes": 2249195520
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 948699136,
+        "cpu_store_payload_subtotal_bytes": 4498391040
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g92",
+    "context_metadata": 17,
+    "dd_cap": 0,
+    "norm_window": 24,
+    "softmax_window": 21,
+    "a_rows": 1637,
+    "h_rows": 1700,
+    "endpoint_rows": 21,
+    "slot_tables": 30,
+    "slot_log": 15,
+    "systematic_commitment_data_bytes": 221446144,
+    "cpu_encoding_payload_bytes": 887422976,
+    "round_capacity_bytes": 15728640,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 237174784,
+        "cpu_store_payload_subtotal_bytes": 1124597760
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 474349568,
+        "cpu_store_payload_subtotal_bytes": 2249195520
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 948699136,
+        "cpu_store_payload_subtotal_bytes": 4498391040
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g93",
+    "context_metadata": 17,
+    "dd_cap": 0,
+    "norm_window": 32,
+    "softmax_window": 14,
+    "a_rows": 1697,
+    "h_rows": 1758,
+    "endpoint_rows": 21,
+    "slot_tables": 27,
+    "slot_log": 15,
+    "systematic_commitment_data_bytes": 229179392,
+    "cpu_encoding_payload_bytes": 918355968,
+    "round_capacity_bytes": 14155776,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 243335168,
+        "cpu_store_payload_subtotal_bytes": 1161691136
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 486670336,
+        "cpu_store_payload_subtotal_bytes": 2323382272
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 973340672,
+        "cpu_store_payload_subtotal_bytes": 4646764544
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g94",
+    "context_metadata": 17,
+    "dd_cap": 0,
+    "norm_window": 32,
+    "softmax_window": 17,
+    "a_rows": 1709,
+    "h_rows": 1768,
+    "endpoint_rows": 21,
+    "slot_tables": 30,
+    "slot_log": 15,
+    "systematic_commitment_data_bytes": 230621184,
+    "cpu_encoding_payload_bytes": 924123136,
+    "round_capacity_bytes": 15728640,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 246349824,
+        "cpu_store_payload_subtotal_bytes": 1170472960
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 492699648,
+        "cpu_store_payload_subtotal_bytes": 2340945920
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 985399296,
+        "cpu_store_payload_subtotal_bytes": 4681891840
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g95",
+    "context_metadata": 17,
+    "dd_cap": 0,
+    "norm_window": 32,
+    "softmax_window": 21,
+    "a_rows": 1709,
+    "h_rows": 1768,
+    "endpoint_rows": 21,
+    "slot_tables": 30,
+    "slot_log": 15,
+    "systematic_commitment_data_bytes": 230621184,
+    "cpu_encoding_payload_bytes": 924123136,
+    "round_capacity_bytes": 15728640,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 246349824,
+        "cpu_store_payload_subtotal_bytes": 1170472960
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 492699648,
+        "cpu_store_payload_subtotal_bytes": 2340945920
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 985399296,
+        "cpu_store_payload_subtotal_bytes": 4681891840
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g96",
+    "context_metadata": 17,
+    "dd_cap": 0,
+    "norm_window": 34,
+    "softmax_window": 14,
+    "a_rows": 1769,
+    "h_rows": 1894,
+    "endpoint_rows": 21,
+    "slot_tables": 27,
+    "slot_log": 15,
+    "systematic_commitment_data_bytes": 242810880,
+    "cpu_encoding_payload_bytes": 972881920,
+    "round_capacity_bytes": 14155776,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 256966656,
+        "cpu_store_payload_subtotal_bytes": 1229848576
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 513933312,
+        "cpu_store_payload_subtotal_bytes": 2459697152
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 1027866624,
+        "cpu_store_payload_subtotal_bytes": 4919394304
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g97",
+    "context_metadata": 17,
+    "dd_cap": 0,
+    "norm_window": 34,
+    "softmax_window": 17,
+    "a_rows": 1781,
+    "h_rows": 1904,
+    "endpoint_rows": 21,
+    "slot_tables": 30,
+    "slot_log": 15,
+    "systematic_commitment_data_bytes": 244252672,
+    "cpu_encoding_payload_bytes": 978649088,
+    "round_capacity_bytes": 15728640,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 259981312,
+        "cpu_store_payload_subtotal_bytes": 1238630400
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 519962624,
+        "cpu_store_payload_subtotal_bytes": 2477260800
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 1039925248,
+        "cpu_store_payload_subtotal_bytes": 4954521600
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g98",
+    "context_metadata": 17,
+    "dd_cap": 0,
+    "norm_window": 34,
+    "softmax_window": 21,
+    "a_rows": 1781,
+    "h_rows": 1904,
+    "endpoint_rows": 21,
+    "slot_tables": 30,
+    "slot_log": 15,
+    "systematic_commitment_data_bytes": 244252672,
+    "cpu_encoding_payload_bytes": 978649088,
+    "round_capacity_bytes": 15728640,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 259981312,
+        "cpu_store_payload_subtotal_bytes": 1238630400
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 519962624,
+        "cpu_store_payload_subtotal_bytes": 2477260800
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 1039925248,
+        "cpu_store_payload_subtotal_bytes": 4954521600
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g99",
+    "context_metadata": 127,
+    "dd_cap": 0,
+    "norm_window": 24,
+    "softmax_window": 16,
+    "a_rows": 3269,
+    "h_rows": 3658,
+    "endpoint_rows": 37,
+    "slot_tables": 27,
+    "slot_log": 19,
+    "systematic_commitment_data_bytes": 917635072,
+    "cpu_encoding_payload_bytes": 3672178688,
+    "round_capacity_bytes": 226492416,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 1144127488,
+        "cpu_store_payload_subtotal_bytes": 4816306176
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 2288254976,
+        "cpu_store_payload_subtotal_bytes": 9632612352
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 4576509952,
+        "cpu_store_payload_subtotal_bytes": 19265224704
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g100",
+    "context_metadata": 127,
+    "dd_cap": 0,
+    "norm_window": 24,
+    "softmax_window": 19,
+    "a_rows": 3337,
+    "h_rows": 3724,
+    "endpoint_rows": 37,
+    "slot_tables": 30,
+    "slot_log": 19,
+    "systematic_commitment_data_bytes": 935198720,
+    "cpu_encoding_payload_bytes": 3742433280,
+    "round_capacity_bytes": 251658240,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 1186856960,
+        "cpu_store_payload_subtotal_bytes": 4929290240
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 2373713920,
+        "cpu_store_payload_subtotal_bytes": 9858580480
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 4747427840,
+        "cpu_store_payload_subtotal_bytes": 19717160960
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g101",
+    "context_metadata": 127,
+    "dd_cap": 0,
+    "norm_window": 24,
+    "softmax_window": 23,
+    "a_rows": 3337,
+    "h_rows": 3724,
+    "endpoint_rows": 37,
+    "slot_tables": 30,
+    "slot_log": 19,
+    "systematic_commitment_data_bytes": 935198720,
+    "cpu_encoding_payload_bytes": 3742433280,
+    "round_capacity_bytes": 251658240,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 1186856960,
+        "cpu_store_payload_subtotal_bytes": 4929290240
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 2373713920,
+        "cpu_store_payload_subtotal_bytes": 9858580480
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 4747427840,
+        "cpu_store_payload_subtotal_bytes": 19717160960
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g102",
+    "context_metadata": 127,
+    "dd_cap": 0,
+    "norm_window": 32,
+    "softmax_window": 16,
+    "a_rows": 3405,
+    "h_rows": 3790,
+    "endpoint_rows": 37,
+    "slot_tables": 27,
+    "slot_log": 19,
+    "systematic_commitment_data_bytes": 952762368,
+    "cpu_encoding_payload_bytes": 3812687872,
+    "round_capacity_bytes": 226492416,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 1179254784,
+        "cpu_store_payload_subtotal_bytes": 4991942656
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 2358509568,
+        "cpu_store_payload_subtotal_bytes": 9983885312
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 4717019136,
+        "cpu_store_payload_subtotal_bytes": 19967770624
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g103",
+    "context_metadata": 127,
+    "dd_cap": 0,
+    "norm_window": 32,
+    "softmax_window": 19,
+    "a_rows": 3473,
+    "h_rows": 3856,
+    "endpoint_rows": 37,
+    "slot_tables": 30,
+    "slot_log": 19,
+    "systematic_commitment_data_bytes": 970326016,
+    "cpu_encoding_payload_bytes": 3882942464,
+    "round_capacity_bytes": 251658240,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 1221984256,
+        "cpu_store_payload_subtotal_bytes": 5104926720
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 2443968512,
+        "cpu_store_payload_subtotal_bytes": 10209853440
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 4887937024,
+        "cpu_store_payload_subtotal_bytes": 20419706880
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g104",
+    "context_metadata": 127,
+    "dd_cap": 0,
+    "norm_window": 32,
+    "softmax_window": 23,
+    "a_rows": 3473,
+    "h_rows": 3856,
+    "endpoint_rows": 37,
+    "slot_tables": 30,
+    "slot_log": 19,
+    "systematic_commitment_data_bytes": 970326016,
+    "cpu_encoding_payload_bytes": 3882942464,
+    "round_capacity_bytes": 251658240,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 1221984256,
+        "cpu_store_payload_subtotal_bytes": 5104926720
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 2443968512,
+        "cpu_store_payload_subtotal_bytes": 10209853440
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 4887937024,
+        "cpu_store_payload_subtotal_bytes": 20419706880
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g105",
+    "context_metadata": 127,
+    "dd_cap": 0,
+    "norm_window": 34,
+    "softmax_window": 16,
+    "a_rows": 3541,
+    "h_rows": 4054,
+    "endpoint_rows": 37,
+    "slot_tables": 27,
+    "slot_log": 19,
+    "systematic_commitment_data_bytes": 1005191168,
+    "cpu_encoding_payload_bytes": 4022403072,
+    "round_capacity_bytes": 226492416,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 1231683584,
+        "cpu_store_payload_subtotal_bytes": 5254086656
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 2463367168,
+        "cpu_store_payload_subtotal_bytes": 10508173312
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 4926734336,
+        "cpu_store_payload_subtotal_bytes": 21016346624
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g106",
+    "context_metadata": 127,
+    "dd_cap": 0,
+    "norm_window": 34,
+    "softmax_window": 19,
+    "a_rows": 3609,
+    "h_rows": 4120,
+    "endpoint_rows": 37,
+    "slot_tables": 30,
+    "slot_log": 19,
+    "systematic_commitment_data_bytes": 1022754816,
+    "cpu_encoding_payload_bytes": 4092657664,
+    "round_capacity_bytes": 251658240,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 1274413056,
+        "cpu_store_payload_subtotal_bytes": 5367070720
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 2548826112,
+        "cpu_store_payload_subtotal_bytes": 10734141440
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 5097652224,
+        "cpu_store_payload_subtotal_bytes": 21468282880
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  },
+  {
+    "id": "g107",
+    "context_metadata": 127,
+    "dd_cap": 0,
+    "norm_window": 34,
+    "softmax_window": 23,
+    "a_rows": 3609,
+    "h_rows": 4120,
+    "endpoint_rows": 37,
+    "slot_tables": 30,
+    "slot_log": 19,
+    "systematic_commitment_data_bytes": 1022754816,
+    "cpu_encoding_payload_bytes": 4092657664,
+    "round_capacity_bytes": 251658240,
+    "cohorts": [
+      {
+        "jobs": 1,
+        "data_plus_round_lower_bound_bytes": 1274413056,
+        "cpu_store_payload_subtotal_bytes": 5367070720
+      },
+      {
+        "jobs": 2,
+        "data_plus_round_lower_bound_bytes": 2548826112,
+        "cpu_store_payload_subtotal_bytes": 10734141440
+      },
+      {
+        "jobs": 4,
+        "data_plus_round_lower_bound_bytes": 5097652224,
+        "cpu_store_payload_subtotal_bytes": 21468282880
+      }
+    ],
+    "actual_gpu_placement_or_fit": false
+  }
+]

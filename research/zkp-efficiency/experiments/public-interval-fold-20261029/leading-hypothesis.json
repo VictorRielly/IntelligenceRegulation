@@ -1,0 +1,16 @@
+{
+  "rank": 75,
+  "title": "TESTED public consecutive-row/membership intervals with list/dense fallback",
+  "baseline": "Frozen R13 A core 8B/T128, N16384, original order noDD/DD: indexed membership logical operands 4.468113408/4.340318208 GB; plan upload 38616/37312 B. Native exclusive rowfold time unknown.",
+  "eliminated_work": "Replace one packed index per visited row by one 8-byte equal-membership consecutive interval; choose old list for fragmented batches and old dense for the dense proximity-only batch. Matrix/rho values, output order and all fresh masks/pads/proximity retained.",
+  "added_costs": "Prior public list construction plus conversion/validation, mode dispatch, nested loops, new metadata allocation/upload, device code/register/occupancy/cache costs. Conversion 10.634/11.060 us, validation286.722/292.304us n=1 sharedCPU; prior list construction remains unmeasured here. Payload584/648B; all rho uploads2.710/2.780MB remain. Actual GPU/compiler costs unknown.",
+  "prerequisites": "Current public rho provenance and owner materiality, current R14 repin/census, shared native build/heavy locks, exact native gates and independently verified enclosing A/B.",
+  "integration_cost": "Moderate local dev_fold_rows adapter plus separate registered run kernel and host per-batch selector; new trait unnecessary for numeric-public-rho scan. interval.rs tested CPU, candidate-kernel.cuh uncompiled.",
+  "exactness": "184770 exact independent schoolbook modular fold comparisons across14 native-helper fixtures plus45 additional support patterns,462 controls,102314 independent Python assertions. Source-row/narrow8 comparisons27360. Native define, actualFS, PCS pad generation, CUDA, receipts and privacy acceptance untested.",
+  "privacy_soundness": "Only verifier-public descriptors/rho choose plan. No private sparsity or mask/opening reuse. Native assert_mask_sites/refusals, fresh masking/proximity/PCS/FS/RNG unchanged; structural masks retained even if numeric zero. Linear-algebra controls are not admitted proof instances.",
+  "compatibility": "Current max4 dev_fold_rows/k_fold_rows. Rust repr(C)8-byteRun{word:u32,len:u32},word=row<<4|flags; row<2^28,positive length,canonical nonoverlap/exact coverage; otherwise fallback.",
+  "end_to_end_ceiling": "Original order source operands3.844997120/3.739615232GB,13.9458/13.8401% below prior list;92.3700/92.7224% below dense. These are not physical traffic or runtime. N/(T-C_removed_exclusive+A_added), free deletion<=1/(1-f), exclusive f unknown. No numerical GPU8B forecast.",
+  "falsification": "Any native value/limb/order/refusal/mask/RNG/FS/PCS/privacy mismatch, changed current support, or plan/upload/nested-loop/register/cache overhead erasing verified enclosing gain.",
+  "disposition": "Promising CPU algebra/encoding only. Numerical-zero fragmentation enlarges metadata; automatic choice must cost full operands rather than compressed bytes only.",
+  "selection": "Highest useful permitted local continuation of prior#74; owner GPU/admission/current phase work remains higher priority."
+}

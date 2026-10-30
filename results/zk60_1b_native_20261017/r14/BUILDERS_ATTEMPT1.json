@@ -1,0 +1,7 @@
+{
+  "source": "fb09103376c85460a6f41657a5e7ee5a59b495b6fc79f8b561d6c0c1ab4f0280",
+  "binary_sha256": "c72692dbbbd84f371256a0dc2f4b991e25eac82708a6d86bf30a0a60263b0722",
+  "scope": "attempt1 terminal101,12pass/1fail; all126 SlotDef census entries, joint endpoints and witness histogram passed; descriptor f_e12/16 alias found",
+  "fix": "New R14 descriptor explicitly binds every arithmetic calibration/window including f_e,f_p,d_max. Stable joint geometry digest permits adjacent layer calibrations; added regression. OldR13 frozen bytes unchanged.",
+  "pending": "full protocol,codec,captures,receipt attacks,old compatibility,whole-run security,freeze/D24/privacy"
+}

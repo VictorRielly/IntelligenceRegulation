@@ -1,0 +1,26 @@
+{
+  "stage": "final_audit",
+  "command": [
+    "/usr/bin/python3",
+    "-B",
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/commitment-width-lifetimes-20261029/final_audit.py"
+  ],
+  "exit_code": 0,
+  "elapsed_s": 0.06582584800344193,
+  "max_rss_kib": 37032,
+  "threads": 1,
+  "nice": 19,
+  "affinity": [
+    0
+  ],
+  "cpu_cap_s": 40,
+  "alarm_s": 45,
+  "parent_timeout_s": 50,
+  "address_space_cap_bytes": 402653184,
+  "estimated_memory_bytes": 67108864,
+  "cargo": false,
+  "gpu": false,
+  "rust_source_sha256": {},
+  "binary_sha256": "b8a90dc3e6a54c046adc3dc14476afad1b81324e85405f136894ec5a519b7904",
+  "thread_limit_kind": "Single-thread harness; compiler one codegen unit and one-CPU affinity. Auxiliary OS thread count not measured."
+}

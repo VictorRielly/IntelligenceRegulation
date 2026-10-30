@@ -1,0 +1,262 @@
+SumCheck
+Notes by 6.5610 Staff
+MIT - 6.5610
+Lectur (https://65610.csail.mit.edu/2026/lec/l15-sumcheck.pdf)
+citeturn0search12 [wordlim: 200] Published: 6 months ago; In particular, for multilinear f (so d = 1) the soundness error is at most ... Thus, any cheating prover that reaches the final check
+must ensure that all the per-round sum equalities hold up to the final
+sumcheck
+7
+m · d
+|F| .
+In particular, for multilinear f (so d = 1) the soundness error is at most
+m/|F|.
+Proof. We follow the standard round-by-round argument.
+True partial-sum polynomials.
+Define the true partial-sum univariate
+polynomials inductively as follows. For the first variable set
+˜g1(X1) :=
+∑
+x2,...,xm∈H
+f (X1, x2, . . . , xm),
+and for j ≥2, after the verifier has sampled (and fixed) values
+r1, . . . , rj−1 ∈F, define
+˜gj(Xj) :=
+∑
+xj+1,...,xm∈H
+f (r1, . . . , rj−1, Xj, xj+1, . . . , xm).
+Each ˜gj is a univariate polynomial with deg( ˜gj) ≤d.
+Behavior of a cheating prover.
+Let the prover send polynomials g1, g2, . . . , gm
+(these are the messages the prover supplies in each round). If for
+some round j the verifier finds gj(0) + gj(1) + · · · + gj(h) (sum over
+H) not equal to the previously checked value, the verifier rejects im-
+mediately. Thus, any cheating prover that reaches the final check
+must ensure that all the per-round sum equalities hold up to the final
+round.
+Assume Hclaim ̸= S. Consider the smallest index t ∈{1, . . . , m}
+such that the prover’s sent polynomial gt is not identical (as a poly-
+nomial) to the true polynomial ˜gt. Such a t must exist: otherwise the
+equalities checked in every round would force Hclaim = S, contradict-
+ing the assumption.
+Detecting a disagreement at round t.
+Define the difference polynomial
+h(X) := gt(X) −˜gt(X).
+By choice of t we have h ̸≡0, and deg(h) ≤d. The verifier samples
+rt uniformly from F at round t. The protocol will detect the disagree-
+ment at round t unless h(rt) = 0. Since a nonzero univariate poly-
+nomial of degree at most d has at most d roots in F, the probability
+(over the verifier’s choice of rt) that h(rt) = 0 is at most d/|F|.--------------------------------------------------------------------------------
+Small-value sum-check optimizations. When the underlying multilinear polynomials in the sum-check protocol have small evaluations (as is common in zkVMs), we further reduce the number of expensive big-big multiplications in this algorithm. Here, we say informally that an ℓ-variate multilinear polynomial \(p\) has small evaluations if, for all \(x \in \{0,1\}^\ell\), \(p(x)\) can be specified with significantly fewer bits than arbitrary elements of \(\mathbb{F}\). This includes, for example, values in \(\{0,1,\ldots,2^{64}-1\}\) when working over a 128- or 256-bit prime field, or values in a 32- or 64-bit subfield of a larger extension field. (https://cs.nyu.edu/~zd2131/papers/26-587.pdf)
+citeturn0search13 [wordlim: 200] Published: 7 months ago; When the underlying multilinear polynomials in the sum-check protocol have small evaluations (as is common in zkVMs), we further reduce the number of expensive big-big multiplications in this algorithm. ... This includes, for example, values in \(\{0,1,\ldots,2^{64}-1\}\) when working over a 128- or 256-bit prime field, or values in a 32- or 64-bit subfield of a larger extension field. ... One common example is the equality polynomial ... In Section 6, we show how to leverage this structure in the streaming setting, to nearly eliminate all overheads from this polynomial factor. ... ⁵ Our experimental evaluation (§9) shows substantial microbenchmark speedups that carry over to end-to-end prover performance. In Jolt’s Spartan outer benchmarks, our most optimized variant (using univariate skip, which trades faster proving for a higher-degree verifier interpolation step) reaches 10.9× runtime speedup over an unoptimized baseline (with none of our optimizations in this paper), and up to 17.5× lower isolated peak memory; at memory-bottleneck scales, runtime speedup grows up to 57.9×.
+The resulting prover time improvements are substantial for all \(d\), even \(d = 2\), and even in non-streaming (i.e., linear-space) contexts.
+
+Handling decomposable polynomials for free. In practice, some of the multilinear polynomials in the sum-check protocol have a specific decomposable structure. That is they can be expressed as a product of univariate polynomials. One common example is the equality polynomial
+
+\[
+\mathrm{eq}(W, X) = \prod_{i=1}^{\ell} (W_i \cdot X_i + (1 - W_i) \cdot (1 - X_i)),
+\]
+
+with randomly chosen \(W \in \mathbb{F}^\ell\), which is nearly ubiquitous in sum-check applications. In Section 6, we show how to leverage this structure in the streaming setting, to nearly eliminate all overheads from this polynomial factor.
+
+This decomposability allows for unique amortization strategies. This structure was previously exploited by Gruen [33]; however, our techniques are distinct and complementary.⁴ The key insight involves rewriting the sum-check messages as iterated sums, which allows the prover to compute small tables of values that can be reused across rounds of the protocol.
+--------------------------------------------------------------------------------
+Natively Compatible Super-Efficient Lookup (https://eprint.iacr.org/2024/1058.pdf)
+citeturn0search14 [wordlim: 200] Published: 2.2 years ago; First, the prover commits in
+ˆcr to the multilinear extension of the vector r = (λH ... i=1 f i · ri with standard sumcheck for inner products ... Remark 3 (Batching optimizations in our constructions). ... cost of the two (resp. four) multilinear evaluation proofs if the underlying poly-
+To address (c), we use a random point σ to test that
+f(σ) =
+X
+j hj2j(σ)
+h∈{0,1}µ
+˜f(h) · λHP
+The left-hand side of the equation can be proven via a standard polynomial
+evaluation that y = f(σ).
+For the right-hand side, we proceed as follows. First, the prover commits in
+ˆcr to the multilinear extension of the vector r = (λH
+1 (σ), . . . , λH
+n(σ)). Second, it
+proves that y = Pn
+i=1 f i · ri with standard sumcheck for inner products
+y =
+X
+h∈{0,1}µ
+˜f(h)˜r(h)
+Third, it proves that ˆcr is wellformed as follows. For every i ∈[n] it holds
+ri = λH
+i (σ) = ωi−1(σn−1)
+n(σ−ωi−1) , which can be reduced to the following statement
+∀h ∈{0, 1}µ : ˜r(h)n(σ −˜ω(h)) = ˜ω(h)(σn −1)
+w.r.t. the multilinear polynomials ˜r(X) and ˜ω(X), which are the multilinear
+extensions of r and ω = (ωi−1)n
+i=1 respectively13.
+By using a random challenge ρ ←$ Fµ we reduce the statement above to the
+following sumcheck
+0 =
+X
+h∈{0,1}µ
+(˜r(h)(σ −˜ω(h)) −˜ω(h)n(σn −1))χ(ρ, h)
+Finally, we optimize and batch the two sumchecks, with a random challenge
+τ ←$ F, into a single sumcheck:
+y =
+X
+h∈{0,1}µ
+˜f(h)˜r(h) + τ · χ(ρ, h) · (˜r(h)n(σ −˜ω(h)) −˜ω(h)(σn −1))
+Proof size. The proof size of our generic protocol is
+1|CuPC| + 3|F|(log n + 2) + 1|CmPC| + 4|πmPC| + 1|πuPC-lu|
+where |CuPC| is the size of the commitment in the univariate polynomial
+commitment, |CmPC| and |πmPC| are respectively the size of the commitment
+and opening proof in the multilinear polynomial commitment, |πuPC-lu| is the
+size of the lookup argument for univariate polynomial commitments.
+Remark 3 (Batching optimizations in our constructions). We stress that in con-
+struction in Fig. 4 (resp. Fig. 5) one is able to avoid the full size and verification
+cost of the two (resp. four) multilinear evaluation proofs if the underlying poly-
+nomial commitment supports batching.
+20--------------------------------------------------------------------------------
+Blaze: Fast SNARKs from Interleaved RAA Codes (https://eprint.iacr.org/2024/1609.pdf)
+citeturn0search15 [wordlim: 200] Published: 2.0 years ago; x∈{0,1}m Q(x) then when interacting with the honest prover, the ... Remark 2.3 (Batch Sumcheck). ... This batching ... that reduce multiple multilinear evaluation claims into a single one [RR24,CBBZ23]. ... multilinear extension.
+at least 1 −dm
+|F| , the verifier either rejects or outputs (z, v) such that Q(z) ̸= v.
+Remark 2.3 (Batch Sumcheck). Suppose we wish to simultaneously check k sumcheck statements
+α1 = P
+x f1(x), . . . , αk = P
+x fk(x), where each fi : Fm →F is an individual degree d polynomial.
+Rather than running k separate sumcheck protocols, we can batch them by having the verifier select
+a random λ ∈F and running a single sumcheck on the statement P
+x∈{0,1}m Q(x) = Pk−1
+i=0 λi · αi,
+where Q is the individual degree d polynomial defined as Q(x) = Pk−1
+i=0 λi · fi(x). This batching
+incurs an additional k/|F| soundness error.
+Interactive Proofs for Batching Polynomial Evaluations.
+We recall an interactive protocol
+that reduce multiple multilinear evaluation claims into a single one [RR24,CBBZ23]. We state the
+result from [CBBZ23] due to its optimal prover complexity.
+|F|
+, prover time
+Theorem 2.4 ( [CBBZ23, Algorithm 4]). Let f : {0, 1}ℓ→F be a function and denote by bf its
+multilinear extension. There exists an interactive protocol that reduces t > 1 evaluation claims
+--------------------------------------------------------------------------------
+Multilinear extensions and sum-check - Akita Book (https://layerzero-labs.github.io/akita/foundations/multilinear-sumcheck.html)
+citeturn0search0 [wordlim: 200] Crawled: 3 weeks ago; It replaces one claim about all 2 n table entries with n short polynomial messages and one final evaluation claim. ... For a table f:{0,1}n→F, its multilinear extension is therefore ... `multilinear_eval` in `akita-algebra/src/poly.rs` evaluates a table this way. `fold_evals_in_place` provides the mutable fold used throughout prover code. ... A caller may already have absorbed the public statement or batching data before entering a driver. ... These rules differ from equality-factored sum-check, where a valid constant inner polynomial has an empty message and its constant term is recovered from the normalized claim. ...   6.
+
+# Akita Book
+
+# Multilinear extensions and sum-check
+
+Sum-check lets Akita prove a sum over an exponentially large table without putting that table in the proof. It replaces one claim about all 2 n table entries with n short polynomial messages and one final evaluation claim.
+
+This chapter builds the protocol from a four-entry example. It then explains the compressed messages and unequal-size batching used by the implementation.
+
+## A table is also a polynomial
+
+Consider a table indexed by two bits:
+
+x 0​  | x 1​  | f(x 0​,x 1​)
+--- | --- | ---
+0  | 0  | 2
+1  | 0  | 5
+0  | 1  | 7
+1  | 1  | 11
+
+There is exactly one polynomial that agrees with this table on the four Boolean points and has degree at most one in each variable. It is the multilinear extension of the table:
+
+f​(X 0​,X 1​)=2(1−X 0​)(1−X 1​)+5 X 0​(1−X 1​)+7(1−X 0​)X 1​+11 X 0​X 1​.
+
+The four terms are selectors. At (X 0​,X 1​)=(1,0), for example, only the second selector is one, so the polynomial returns 5.
+--------------------------------------------------------------------------------
+cronokirby - (2026-03) Speeding Up Sum-Check Proving (Extended Version) (https://cronokirby.com/refs/2026-03-speeding-up-sum-check-proving-extended-version.html)
+citeturn0search1 [wordlim: 200] Published: 7 months ago; Crawled: last month; # (2026-03) Speeding Up Sum-Check Proving (Extended Version) ... > First, for applications involving products of many multilinear polynomials, we develop a new algorithm that significantly reduces the number of field multiplications required for proving. ... This significantly speeds up the prover in the common setting where the polynomials being summed evaluate to 64 or 32-bit integers, or to elements of a small sub-field within a larger extension field. ... Third, we nearly eliminate prover overhead in the ubiquitous case where one factor is an equality polynomial by exploiting its decomposable tensor structure. ... In Jolt, we observe over an order of magnitude runtime speedup and memory reduction on the Spartan sub-protocol, and $1.7\times$1.7× to $2.2\times$2.2× speedups for a key high-degree sum-check sub-protocol in the Shout batch-evaluation argument.
+
+# (2026-03) Speeding Up Sum-Check Proving (Extended Version)
+
+  * Quang Dao
+  * Zachary DeStefano
+  * Suyash Bagad
+  * Yuval Domb
+  * Justin Thaler
+
+2026-03-24
+
+  * #cryptography
+  * #paper
+
+# Abstract
+
+> The sum-check protocol is a foundational primitive in modern cryptographic proof systems, but its prover-side cost has emerged as a concrete bottleneck. This paper introduces three complementary techniques that significantly reduce sum-check proving time and memory, especially in the context of zero-knowledge virtual machines (zkVMs).
+> 
+> First, for applications involving products of many multilinear polynomials, we develop a new algorithm that significantly reduces the number of field multiplications required for proving. Second, we develop a "small-value sum-check prover" algorithm. This significantly speeds up the prover in the common setting where the polynomials being summed evaluate to 64 or 32-bit integers, or to elements of a small sub-field within a larger extension field. Even outside of the small-value setting, this algorithm yields a faster "streaming prover", by which we mean a small-space algorithm that applies whenever the terms being summed can be enumerated in small space (as arises, for example, in zkVM applications). Third, we nearly eliminate prover overhead in the ubiquitous case where one factor is an equality polynomial by exploiting its decomposable tensor structure.
+> We implement these techniques in Jolt, a state-of-the-art zkVM, and evaluate their performance. In Jolt, we observe over an order of magnitude runtime speedup and memory reduction on the Spartan sub-protocol, and $1.7\times$1.7× to $2.2\times$2.2× speedups for a key high-degree sum-check sub-protocol in the Shout batch-evaluation argument.--------------------------------------------------------------------------------
+GitHub - arkworks-rs/sumcheck: linear-time sumcheck protocol for multilinear polynomials and related addends · GitHub (https://github.com/arkworks-rs/sumcheck)
+citeturn0search2 [wordlim: 200] Crawled: last week; [Input: Go to file] ...   * `MLSumcheck`: The sumcheck protocol for products of multilinear polynomials in evaluation form over boolean hypercube.
+  * `GKRRoundSumcheck`: The sumcheck protocol for GKR Round Function. ... WARNING: This is an academic proof-of-concept prototype, and in particular has not received careful code review. ... Benchmarks were run on a machine with an Intel Xeon 6136 CPU running at 3.0 GHz. ... ## Reference Paper
+.github  | .github  |    |  
+benchmark_results  | benchmark_results  |    |  
+src  | src  |    |  
+sumcheck-benches  | sumcheck-benches  |    |  
+.gitignore  | .gitignore  |    |  
+CHANGELOG.md  | CHANGELOG.md  |    |  
+Cargo.toml  | Cargo.toml  |    |  
+LICENSE-APACHE  | LICENSE-APACHE  |    |  
+LICENSE-MIT  | LICENSE-MIT  |    |  
+README.md  | README.md  |    |  
+
+# Linear-Time Sumcheck
+
+`linear-sumcheck` is a Rust library that implements the sumcheck protocol.
+
+This crate implements the following protocols:
+
+  * `MLSumcheck`: The sumcheck protocol for products of multilinear polynomials in evaluation form over boolean hypercube.
+  * `GKRRoundSumcheck`: The sumcheck protocol for GKR Round Function. This protocol takes `MLSumcheck` as a subroutine.
+
+WARNING: This is an academic proof-of-concept prototype, and in particular has not received careful code review. --------------------------------------------------------------------------------
+UC Berkeley (https://www.escholarship.org/content/qt5qm6n0s0/qt5qm6n0s0.pdf)
+citeturn0search16 [wordlim: 200] Published: 7 months ago; We can then rewrite Equation 4.6 as:\(\tilde{V}_i(g)=\sum_{x,y\in\{0,1\}^{s_{i,i+1}}}\big(\tilde{a}dd_{i+1,i+1}(g,x,y)(\tilde{V}_{i,i+1}(x)+\tilde{V}_{i,i+1}(y_{1},\dots,y_{s_{i,i+1}}))\) ... linear-time algorithm for the prover of the sumcheck protocol on the product of two multilinear polynomials ... Given multilinear functions \(f\) and \(g\) on \(\ell\) variables and a bookkeeping table \(A_f\) for
+--------------------------------------------------------------------------------
+Protocols for Univariate Sumcheck | Proceedings of the ACM ASIA Public-Key Cryptography Workshop (https://doi.org/10.1145/3803627.3805819)
+citeturn0search3 [wordlim: 200] Published: 5 months ago; Crawled: last week; Published: 31 May 2026 Publication History ... The other two both consist of a direct reduction from univariate sumcheck to multilinear evaluation, which can be combined with Gemini (Bootle et al., Eurocrypt 2022). Two of our approaches optionally support a natural exponential round reduction from m to log(m) while retaining asymptotically linear prover time.
+--------------------------------------------------------------------------------
+Modular Sumcheck Proofs with Applications to Machine (https://e-archivo.uc3m.es/bitstreams/440ddb76-285d-4b7e-a1f1-614b1678586e/download)
+citeturn0search17 [wordlim: 200] Published: 8 months ago; CCS ’23, November 26–30, 2023, Copenhagen, Denmark ... Let F be a field, ˜𝒙be the multilinear extension ... Then, the evaluation of a multilinear ... Definition 3.6 (Parametrization of VEs). ... of the multilinear sumcheck-based delegation schemes in the ... instead holds the commitment com𝑥, and we let the prover show
+--------------------------------------------------------------------------------
+mle-pcs/final-report.md at main · sec-bit/mle-pcs · GitHub (https://github.com/sec-bit/mle-pcs/blob/main/final-report.md)
+citeturn0search4 [wordlim: 200] Crawled: last month; The Deepfold protocol and WHIR protocol also continue with the Sumcheck approach, with the difference being that Deepfold adopts the idea from DEEP-FRI, where the Prover predetermined the evaluation of a polynomial at some Out-of-domain random point as a form of Commitment, ensuring that the Prover always commits to the same polynomial even in the List-decoding Regime. ... When proving $k$ evaluation relations $(f_i(\vec{z}i) = v_i){i = 1}^k$, Σ-Check interpolates all $f_i(\vec{X})$ as a single function $f(\vec{y}, \vec{X})$ over a hypercube $\vec{y} \in {0, 1}^{\log k}$.
+--------------------------------------------------------------------------------
+Multilinear polynomials - The Vega Prover Book (https://microsoft.github.io/vega-prover/building-blocks/multilinear.html)
+citeturn0search5 [wordlim: 200] Crawled: 3 months ago; The result has length \(2^{\ell-1}\) and is the evaluation table obtained by fixing the variable \(x_{\ell-1}=r\). ... A sum-check prover repeatedly sends a univariate round polynomial, receives a verifier challenge, and restricts the remaining multilinear tables to that challenge. ... The same high-to-low order is used for the tables that represent witness-derived values and for the auxiliary weights that participate in batching. Equality weights and powers weights are therefore not separate conventions; they are reusable polynomial families arranged to agree with the table order used by the sum-check implementation.
+--------------------------------------------------------------------------------
+z-lean/SumcheckProtocol/doc/stability.md at main · z-tech/z-lean · GitHub (https://github.com/z-tech/z-lean/blob/main/SumcheckProtocol/doc/stability.md)
+citeturn0search6 [wordlim: 200] Crawled: 2 months ago;   * Symbolic protocol — the canonical sumcheck protocol over `CPoly.CMvPolynomial`: ... The previously-shipped eval-form IP wrapper (`Src/EvalFormVerifier.lean`, `IP/EvalForm.lean`, `IP/CoefficientProver.lean`, `IP/InnerProductNative.lean`, `Properties/EvalForm.lean`) routed its round-polynomial check through `Lagrange.interpolate` from Mathlib, which is `noncomputable`. ... The eval-form prover (`Src/EvalForm.lean::honestProverMessageEvalsAt`) remains and is computable; it's the prover-side evaluation tuple used by the VSBW multilinear prover. ... If you need Fiat–Shamir, fork the Arc III scaffold from pre-`4336abd` history. ... The maintainer's policy is to push the qualifier into the first line of the docstring; if you find one that doesn't, please file an issue.
+--------------------------------------------------------------------------------
+sumcheck-gkr-notes/docs/cli.md at main · tmfreiberg/sumcheck-gkr-notes · GitHub (https://github.com/tmfreiberg/sumcheck-gkr-notes/blob/main/docs/cli.md)
+citeturn0search7 [wordlim: 200] Crawled: 3 weeks ago; This is a guide to running the protocols yourself — from a terminal with the `gkr` command, or from a notebook or script with the Python functions. ... `gkr sumcheck` (`sc`)  | Run the sum-check protocol on a polynomial `g`. ... `gkr circuit "<expr>"` builds the arithmetic circuit for an expression and prints what GKR needs from it: the gate values, the layer multilinear extensions `W̃_i`, the wiring predicates and their MLEs, and the verification propagation equation. ... `--color auto|always|never` controls colourised output; the default is `auto` (colour when writing to a terminal, plain when redirected to a file or pipe). ...         evaluation_array,             # MLE values over the whole field ... The keyword arguments that make these run without prompts — `interactive`, `scenario`, `examples`, `polynomials`, `secrets_to`, `use_commitment`, `save_transcript` — are documented in the function docstrings and demonstrated throughout the book's executable cells.
+--------------------------------------------------------------------------------
+arkworks-rs/sumcheck — GitHub Explorer (https://ghe.derekchia.com/repo/arkworks-rs/sumcheck)
+citeturn0search8 [wordlim: 200] Crawled: 2 weeks ago; View on GitHub ↗Related repositories →[Button: ☆ Pin]
+
+linear-time sumcheck protocol for multilinear polynomials and related addends ... Line chart, 932 days from 2023-08-22 to 2026-03-10.
+--------------------------------------------------------------------------------
+API reference | StateSync-GKR (https://oraclizer.io/ss-gkr/docs/reference/api/)
+citeturn0search9 [wordlim: 200] Crawled: last week; `SumcheckOracle<F: Field>`  | trait: `num_vars(&self) -> usize`, `degree_bound(&self) -> usize`, `round_poly(&self) -> RoundPoly<F>`, `bind(&mut self, r: F)`  | The prover's polynomial; `bind` fixes the current variable ... `MultilinearPoly<F>`  | `from_evals(evals: Vec<F>) -> Result<Self, PolyError>`, `num_vars(&self) -> usize`, `evals(&self) -> &[F]`, `evaluate(&self, point: &[F]) -> F`, `fix_first_var(&mut self, r: F)`  | Evaluation table of length 2^n. `evaluate` panics when the point length differs from `num_vars`; `fix_first_var` panics when no variable is left.
+--------------------------------------------------------------------------------
+The multivariate sumcheck protocol - Alin Tomescu (https://alinush.github.io/sumcheck)
+citeturn0search10 [wordlim: 200] Published: 1.4 years ago; Crawled: last month;   * Jun 20, 2025 ...   6. ... $\P$ can be optimized when $f$ is a multilinear extension (MLE) or a product of MLEs ... Since the sumcheck proof consists of all the univariate polynomials sent by the prover, as per Eq. \ref{eq:proof}, its size is: \begin{align} |\pi| &= \left(\sum_{j\in[\mu]} (\deg_j(f) + 1)\right) \times \F\\ ... For example, when using KZG commitments, the proof is reduced to (1) $\mu\times \Gr_1 + \mu\times \F$ elements and (2) a batch evaluation proof^{4}, IIUC.
+--------------------------------------------------------------------------------
+sumcheck-gkr-notes/book/04-gkr-protocol.md at main · tmfreiberg/sumcheck-gkr-notes · GitHub (https://github.com/tmfreiberg/sumcheck-gkr-notes/blob/main/book/04-gkr-protocol.md)
+citeturn0search11 [wordlim: 200] Crawled: last month; Instead, they sample a uniformly random $\rho_0\in\mathbb{F}^{s_0}$ and check equality at that point: \begin{equation*} \widetilde{W}_0(\rho_0) = \widetilde{W}_0^(\rho_0). \end{equation} If $\widetilde{W}_0\neq \widetilde{W}_0^$, then $\widetilde{W}_0-\widetilde{W}_0^$ is a nonzero multilinear polynomial function (degree $\le s_0$), so by Schwartz-Zippel, \begin{equation*} \Pr\big[\widetilde{W}_0(\rho_0)=\widetilde{W}_0^(\rho_0)\big] = \Pr\big[(\widetilde{W}_0-\widetilde{W}_0^)(\rho_0)=0\big] \le \frac{s_0}{#\mathbb{F}}. \end{equation*} Thus, a match at a random point gives strong evidence that all output gates are correct. ... With our specific values $(r_0,r_1)=(99,7)$, the true polynomial is \begin{equation*} g_2(u_2) = 69133476u_2^2 + 2010688435u_2 + 138157656. \end{equation*} Suppose P instead claims this is \begin{equation*} g^_2(u_2) = 69133477u_2^2 + 1469794372u_2 + 138157656. \end{equation} V verifies the degree bound and the consistency equation by checking (in $\mathbb{Z}/p\mathbb{Z}$) \begin{equation*} \begin{align} g^_1(7) & = 5361856(7)^2 + 2139364395(7) + 2757396 = 1815243161,\ g^_2(0) + g^_2(1) & = 138157656 + (69133477 + 1469794372 + 138157656) = 1815243161. \end{align} \end{equation} So V still does not reject. ... By Thaler's identity, $\alpha_i$ really is the sum of $g$ over ${0,1}^{s{i+1}} \times {0,1}^{s{i+1}}$, so the honest round polynomials satisfy every degree bound and every consistency condition of the sum-check, and the terminal value is $g{m-1}(r{m-1}) = g(r_x, r_y)$.
+--------------------------------------------------------------------------------
+StateSync-GKR: Design and Evaluation of a Reusable Sparse GKR Engine (https://arxiv.org/abs/2610.14849)
+citeturn0academia18 [wordlim: 200] Published: 2 weeks ago; Title: StateSync-GKR: Design and Evaluation of a Reusable Sparse GKR Engine ... Date: Sat Oct 10 12:06:57 2026 ... We present StateSync-GKR, a reusable Rust sumcheck/GKR core with a sparse-Merkle frontend, and connect its design mechanisms to controlled measurements.
+--------------------------------------------------------------------------------
+A divide-and-conquer sumcheck protocol (https://arxiv.org/abs/2504.00693)
+citeturn0academia19 [wordlim: 200] Published: 1.6 years ago; Date: Tue Apr  1 12:04:40 2025 ... Its round complexity and soundness error are logarithmic in the number of variables, whereas they are linear in the classical sumcheck protocol. ... We first present Fold-DCS in the PIOP model, where the prover provides oracle access to a multivariate polynomial at each round. We then replace this oracle access in practice with a multivariate polynomial commitment scheme; we illustrate this with an adapted version of the recent commitment scheme Zeromorph [KT24], which allows us to replace most of the queries made by the verifier with a single batched evaluation check.
+--------------------------------------------------------------------------------
+Formal Verification of the Sumcheck Protocol (https://arxiv.org/abs/2402.06093)
+citeturn0academia20 [wordlim: 200] Published: 2.7 years ago; In this paper, we make progress in this direction by providing a formally verified security analysis of the sumcheck protocol using the interactive theorem prover Isabelle/HOL. ... Moreover, the analysis supports the development and formal verification of future cryptographic protocols using the sumcheck protocol as a building block.
+--------------------------------------------------------------------------------
+A Zero Knowledge Sumcheck and its Applications (https://arxiv.org/abs/1704.02086)
+citeturn0academia21 [wordlim: 200] Published: 9.6 years ago; The sumcheck protocol is a key building block in many IPs, including the protocol for polynomial-space computation due to Shamir [Sha92], and the protocol for parallel computation due to Goldwasser, Kalai, and Rothblum [GKR15]. ... This commitment scheme can then be used to considerably strengthen our previous work [BCFGRS16] that gives a sumcheck protocol with much weaker zero knowledge guarantees, itself using algebraic techniques based on algorithms for polynomial identity testing [RS05,BW04].
+--------------------------------------------------------------------------------
+Sum-check protocol (https://en.wikipedia.org/wiki/Sum-check_protocol)
+citeturn0search22 [wordlim: 200] Crawled: 2 weeks ago; The goals of the sum-check protocol are to make the verifier run in time linear to the input size, to keep the proof logarithmically small, and to keep the prover efficient. ... *  Bagad, Suyash; Domb, Yuval; Thaler, Justin (2024), The Sum-Check Protocol over Fields of Small Characteristic, 2024/1046, retrieved 2025-08-25
+

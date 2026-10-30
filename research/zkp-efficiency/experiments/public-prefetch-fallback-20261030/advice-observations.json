@@ -1,0 +1,11 @@
+{
+  "fixtures": 16,
+  "actual_advice_calls": 1556,
+  "actual_requested_range_bytes": 18536,
+  "mutation_cases": 1248,
+  "stale_eager_snapshot_accepts": 1248,
+  "page_residency_measured": false,
+  "page_cache_memory_bound_proven": false,
+  "actual_hint_latency_benchmark": false,
+  "concurrent_race_test": false
+}

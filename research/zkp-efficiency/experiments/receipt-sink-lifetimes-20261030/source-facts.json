@@ -1,0 +1,9 @@
+{
+  "core_owners_already_drop": true,
+  "segment_drops_before_sink": true,
+  "sink_precedes_boundary_move": true,
+  "one_full_segment_vec": true,
+  "run_encode_has_no_decode": true,
+  "sink_sync_rename_hash_order": true,
+  "native_sink_owned_vec": true
+}

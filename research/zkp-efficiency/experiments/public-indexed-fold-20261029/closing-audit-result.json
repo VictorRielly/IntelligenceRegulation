@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "checks": 98,
+  "run_id": "20261029T205649Z-c620e79d",
+  "closed_at_utc": "2026-10-29T21:09:59.810803+00:00",
+  "artifact_files": 108,
+  "prior_findings_sources_preserved": true,
+  "production_and_owner_pins_unchanged": true,
+  "prior_hypotheses_preserved": 72,
+  "ranked_hypotheses": 74,
+  "new_verified_full_stack_proofs": 0,
+  "new_model_passes": 0,
+  "new_proved_positions": 0
+}

@@ -1,0 +1,10 @@
+{
+  "utc": "2026-10-30T10:27:50.709818+00:00",
+  "failed_script_sha256": "696dbbdbf19e12f496636b17de14ed5ac6e0d2a09b98310ffb10e96773d5951e",
+  "tool_session": 30301,
+  "exit": 1,
+  "case": "wrong-trusted-source",
+  "diagnosis": "Test supplied final pin with historical source tree, so missing new file raised FileNotFoundError before testing the intended bundle-pin mismatch. Validator emitted no acceptance.",
+  "repair": "Version2 supplies the matching final trusted source tree, then tests its mismatch against the historical bundle; validator unchanged.",
+  "production_changed": false
+}

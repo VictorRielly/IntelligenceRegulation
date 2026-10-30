@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "checks": 160,
+  "native_and_prior_model_pins": 13,
+  "native_functions_unchanged": 4,
+  "all_prior_hypotheses_preserved": true,
+  "source_records_added": 7,
+  "elapsed_s": 0.03755103299045004,
+  "max_rss_kib": 18384,
+  "external_review": false,
+  "full_stack_proofs": 0
+}

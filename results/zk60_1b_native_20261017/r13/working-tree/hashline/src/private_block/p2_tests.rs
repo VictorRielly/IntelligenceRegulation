@@ -278,7 +278,7 @@ fn the_new_shapes_padded_layout_is_rung_k4s_and_only_its_true_sizes_move() {
 fn measured_draws(sh: &Shape) -> [usize; N_SLOTS] {
     let lay = Layout::for_shape(sh).unwrap_or_else(|e| panic!("{}: layout: {e}", sh.name));
     let (public, ff, _) = super::grow_tests::tame_case(sh);
-    let ctx = Ctx {
+    let ctx = Ctx { accuracy:None,
         lay: &lay,
         public: &public,
         ff: &ff,

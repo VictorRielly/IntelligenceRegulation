@@ -1,0 +1,27 @@
+{
+  "current": [
+    "memory traffic",
+    "batching/amortization"
+  ],
+  "next": [
+    "proof composition",
+    "lookup arguments and softmax"
+  ],
+  "queue": [
+    "GPU NTT/commitments",
+    "sumcheck/GKR",
+    "lookup arguments and softmax",
+    "memory traffic",
+    "batching/amortization",
+    "quantization/arithmetic",
+    "proof composition"
+  ],
+  "evidence_this_cycle": [
+    "StateSync recentGKR",
+    "efficient-sumcheck currentrewrite",
+    "MegaZK GPUmemory",
+    "older2025cachemethod",
+    "HEpubliclayoutobjective"
+  ],
+  "local_next": "Public row-union indexed fold, both limbs, pads and proximity; rerank if owner exclusive clocks arrive."
+}

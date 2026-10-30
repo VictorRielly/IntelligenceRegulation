@@ -1,0 +1,52 @@
+--- r13/hashline/src/private_block/trained_block.rs
++++ r13-f1/hashline/src/private_block/trained_block.rs
+@@ -1999,8 +1999,20 @@
+         ("verifier statement with sh_z moved by one", NormCalibration { sh_z: nudge(c.sh_z, 1, 8), ..c }),
+     ] {
+         let r = (|| -> Result<(), String> {
+-            let s2 = ex.geometry.shape_at(&v, rc.f_e)?;
+-            let mut l2 = TrainedLayer { index: layer.index, manifest_sha256: layer.manifest_sha256, blk: layer.blk.clone(), record: layer.record.clone(), rope_note: String::new() };
++            // R13-F1: construct a valid counterfactual R13 context, including
++            // its derived gate/product folds. A legacy shape rejects at the
++            // gate-denominator door and never exercises receipt binding.
++            let c2 = Constants { cal: v, ..rc.clone() };
++            let s2 = ex.shape_for(&c2)?;
++            let mut blk2 = layer.blk.clone();
++            if let Some(a) = layer.blk.accuracy() {
++                let data2 = super::accuracy_public::AccuracyPublic::new_with_registry(
++                    a.registry(), a.stack(), a.geometry(), s2.accuracy_base(), a.member(),
++                    a.multipliers().clone(), a.groups().to_vec(), a.group_ids().to_vec(), a.raw_tables().to_vec(),
++                )?;
++                blk2 = blk2.with_accuracy(data2);
++            }
++            let mut l2 = TrainedLayer { index: layer.index, manifest_sha256: layer.manifest_sha256, blk: blk2, record: layer.record.clone(), rope_note: String::new() };
+             l2.record = {
+                 let mut r = LayerRecord::of_block(layer.index, &l2.blk, layer.record.source_tensors.clone());
+                 r.manifest_sha256 = layer.manifest_sha256;
+@@ -2008,12 +2020,23 @@
+                 r.exp_e_s = layer.record.exp_e_s;
+                 r
+             };
+-            let st2 = ex.statement(&s2, &Constants { cal: v, ..rc.clone() }, &[&l2])?;
++            let st2 = ex.statement(&s2, &c2, &[&l2])?;
+             let e2 = ExpectedIo::from_bytes_at(&s2, &expected.to_bytes())?;
+-            let r2 = RunStatement::new_bound(ex.geometry.run_shape(&s2, 1)?, ctx, e2, &blocks, &[(0, 0)], &st2)?;
+-            run::verify_run(&r2, &blocks, &[seg.to_vec()])
++            let blocks2 = vec![l2.blk];
++            let r2 = RunStatement::new_bound(ex.geometry.run_shape(&s2, 1)?, ctx, e2, &blocks2, &[(0, 0)], &st2)?;
++            run::verify_run(&r2, &blocks2, &[seg.to_vec()])
+         })();
++        if layer.blk.accuracy().is_some() {
++            if let Err(e) = &r {
++                if e != "private run wire: this segment belongs to another run" {
++                    return Err(format!("CONTROL DID NOT REACH RECEIPT: `{name}`: {e}"));
++                }
++            }
++        }
+         refuse(name, r)?;
++    }
++    if layer.blk.accuracy().is_some() {
++        println!("{{\"event\":\"calibration-controls\",\"receipt_refusals\":11,\"door_refusals\":0}}");
+     }
+     // (1b) review finding F-1: the softmax exp precision moved by one, inside
+     //      its declared class

@@ -1,0 +1,34 @@
+--- a/zkp-core/src/pcs/backend.rs
++++ b/zkp-core/src/pcs/backend.rs
+@@ -32,6 +32,16 @@
+     /// (`rhos.len()` vectors of `n = 2^log_cols` entries each), the same
+     /// linear map the host fold computes.
+     fn fold_rows(&self, rhos: &[Vec<Fp2>]) -> Result<Vec<Vec<Fp2>>, String>;
++    /// Fold one opening without changing rho order. Default keeps max-four calls.
++    /// Overrides must retain opening-local scratch through every queued use,
++    /// propagate errors, and preserve exact field values and fresh proof state.
++    fn fold_rows_opening(&self, rhos: &[Vec<Fp2>]) -> Result<Vec<Vec<Fp2>>, String> {
++        let mut out = Vec::with_capacity(rhos.len());
++        for chunk in rhos.chunks(4) {
++            out.extend(self.fold_rows(chunk)?);
++        }
++        Ok(out)
++    }
+     /// The encoded columns at `idx`, each the commitment's `rows` entries,
+     /// in the order of `idx` (duplicates repeated).
+     fn columns(&self, idx: &[usize]) -> Result<Vec<Vec<Fp>>, String>;
+--- a/zkp-core/src/pcs.rs
++++ b/zkp-core/src/pcs.rs
+@@ -964,11 +964,7 @@
+     let msg: Vec<Vec<Fp2>> = match &cmz.cm.store {
+         Store::Host { .. } => fold_rows_host(&cmz.data, rows, n, n, 1, rhos),
+         Store::Device(dc) => {
+-            let mut m = Vec::with_capacity(rhos.len());
+-            for chunk in rhos.chunks(4) {
+-                m.extend(dc.fold_rows(chunk).expect("pcs: external store row-combination"));
+-            }
+-            m
++            dc.fold_rows_opening(rhos).expect("pcs: external store row-combination")
+         }
+     };
+     let padf = fold_rows_host(&cmz.pads, rows, q, q, 1, rhos);

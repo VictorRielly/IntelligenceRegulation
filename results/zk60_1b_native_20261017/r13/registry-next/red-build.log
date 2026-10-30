@@ -1,0 +1,20 @@
+warning: methods `name`, `permits`, `scaled_exponents`, `product_shifts`, and `scaled_abs` are never used
+  --> results/zk60_1b_native_20261017/r13/registry-next/accuracy_tables.red.rs:12:19
+   |
+11 | impl Registry {
+   | ------------- methods in this implementation
+12 |     pub(crate) fn name(self) -> &'static str { match self { Self::Standard=>"standard-int12-v1",Self::Shieldstral=>"shieldstral-int1...
+   |                   ^^^^
+13 |     pub(crate) fn permits(self,member:(i32,i32)) -> bool { SILU_MEMBERS.contains(&member) || (self==Self::Shieldstral && member==(0,...
+   |                   ^^^^^^^
+14 |     pub(crate) fn scaled_exponents(self) -> std::ops::RangeInclusive<i64> { match self {Self::Standard=>4..=15,Self::Shieldstral=>3....
+   |                   ^^^^^^^^^^^^^^^^
+15 |     pub(crate) fn product_shifts(self) -> std::ops::RangeInclusive<i64> { match self {Self::Standard=>1..=12,Self::Shieldstral=>0..=...
+   |                   ^^^^^^^^^^^^^^
+16 |     pub(crate) fn scaled_abs(self) -> i64 { 32767 * (1i64 << if self==Self::Shieldstral {16} else {15}) }
+   |                   ^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: 1 warning emitted
+

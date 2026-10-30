@@ -1,0 +1,172 @@
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r12/hashline/src/private_block/token_io/classify.rs	2026-10-26 10:36:03.502308861 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r13/hashline/src/private_block/token_io/classify.rs	2026-10-28 16:42:48.583953226 -0700
+@@ -102,12 +102,24 @@
+     pub tokenizer: String,
+     /// the vocabulary the policy's ids are of
+     pub v: usize,
++    /// **R-C2: the margin row's PUBLIC quantization scale** (f64 bits), a
++    /// registered policy constant: `w = floor((E[yes] - E[no]) * g / scale +
++    /// 0.5)` from the pinned tied tensor (never from a file; coordinator
++    /// 2026-10-28 21:35, condition 1)
++    pub margin_scale_bits: u64,
++}
++
++impl Policy {
++    /// the margin row's public scale
++    pub(crate) fn margin_scale(&self) -> f64 {
++        f64::from_bits(self.margin_scale_bits)
++    }
+ }
+ 
+ /// the development rung's synthetic policy (its ids are the CLI fixture's
+ /// prompt layout: positions 0..8 template, 8..31 content, 31 suffix)
+ pub(crate) fn policy_rung_dev() -> Policy {
+-    Policy { id: "rung-tc-synthetic-policy-dev/1".into(), prefix: (1..=8).collect(), suffix: vec![32], num_special: 5, yes: 40, no: 41, c: 0, tokenizer: "synthetic (ids only, no text)".into(), v: 300 }
++    Policy { id: "rung-tc-synthetic-policy-dev/1".into(), prefix: (1..=8).collect(), suffix: vec![32], num_special: 5, yes: 40, no: 41, c: 0, tokenizer: "synthetic (ids only, no text)".into(), v: 300, margin_scale_bits: (1.0f64 / 256.0).to_bits() }
+ }
+ 
+ /// Shieldstral-1.0-3B with the card's 7-category template (R-C0's pinned ids,
+@@ -129,6 +141,9 @@
+         c: 0,
+         tokenizer: "tekken.json sha256 ceb11e85e44d7c91 (plain-text encoding, no special-token parsing)".into(),
+         v: 131_072,
++        // native R12b's chosen scale for 13059 / 2649 (SOL_REPORT_20261028: the
++        // 3,072 coordinates span -32767 .. 31800, zero refusals [COUNTED])
++        margin_scale_bits: 4.08288030735373e-6f64.to_bits(),
+     }
+ }
+ 
+@@ -503,7 +518,7 @@
+     /// calibration identity (the ruling switches included)
+     pub(crate) fn describe_under(&self, run_profile: &str) -> String {
+         format!(
+-            "classify (DESIGN_CLASSIFIER v2) under {run_profile}: V={} V_pad={} d={} d_pad={} T={} P0={} n={} S={} BOS={} final-norm g0={} cn={} tn={} ceps={} wrho={} dmax={} margin-vector=int16[-32767,32767] {} threshold c={} c-class=[-2^33,2^33] margin-window={} byte-limbs={} limbs-at-Lo-entry={} no-pin yes={} no={} ctl=ids<{} template={} policy={} tokenizer={} embedding={} variant=public-row mode=verdict-public-bit no-output-endpoint chunk-size={} chunk-overlap={} chunk-split=end-aligned {} {}",
++            "classify (DESIGN_CLASSIFIER v2) under {run_profile}: V={} V_pad={} d={} d_pad={} T={} P0={} n={} S={} BOS={} final-norm g0={} cn={} tn={} ceps={} wrho={} dmax={} margin-vector=int16[-32767,32767] {} threshold c={} c-class=[-2^33,2^33] margin-window={} byte-limbs={} limbs-at-Lo-entry={} no-pin yes={} no={} ctl=ids<{} template={} policy={} tokenizer={} embedding={} variant=public-row mode=verdict-public-bit no-output-endpoint chunk-size={} chunk-overlap={} chunk-split=end-aligned margin-scale={:e} margin-scale-bits={:#018x} {} {} {}",
+             self.v,
+             self.v_pad,
+             self.d,
+@@ -533,6 +548,9 @@
+             hex(&self.emb_digest),
+             self.n,
+             chunk_overlap_of(run_profile).map(|o| o.to_string()).unwrap_or_else(|_| "unregistered".into()),
++            self.policy.margin_scale(),
++            self.policy.margin_scale_bits,
++            super::classify_tied::TiedSource::of_run_profile(run_profile).map(|t| t.describe()).unwrap_or_else(|_| "tied-source=unregistered".into()),
+             rulings_text(),
+             self.tier.describe()
+         )
+@@ -947,6 +965,114 @@
+         Ok(Layout::for_shape(&self.stage_shape(k)?)?.with_io_mask_rows([self.boundary_spec(k)?.mask_row(1)?, self.boundary_spec(k + 1)?.mask_row(0)?]))
+     }
+ 
++    /// **ROUND 12 (gate round 16, capture request 2.3): the run capture's
++    /// header** — the block part as for a token run (the same six header
++    /// words, `run-shape` eleven u64 long), plus [`ClassifyFacts`] with the
++    /// verdict and the chunk the header absorbs last. Test builds only.
++    #[cfg(test)]
++    pub(crate) fn capture_header(&self) -> Result<super::super::run_capture::RunHeader, String> {
++        use super::super::run_capture::{BoundaryFacts, ClassifyFacts, RunHeader, TokenEndpointFacts};
++        let sh = self.sh();
++        let cp = &self.cp;
++        let t = cp.tier;
++        let mut boundaries = Vec::with_capacity(self.l() + 1);
++        for j in 0..=self.l() {
++            let spec = self.boundary_spec(j)?;
++            boundaries.push(BoundaryFacts {
++                index: j,
++                scale: spec.scale(),
++                sites: spec.sites(),
++                data_rows: spec.data_rows(),
++                rows: spec.commitment_rows(),
++                site_rows: spec.site_rows(),
++                prox_row: spec.prox_row(),
++                log_n: spec.log_n(),
++                inv_rate: sh.endpoint_inv_rate,
++                checks: sh.opened_cols,
++                digest: spec.digest(),
++                plane: (sh.t_pad, sh.d_pad),
++            });
++        }
++        let e = &self.in_spec;
++        let d = e.data_rows();
++        let input_endpoint = TokenEndpointFacts { rows: e.commitment_rows(), data_rows: d, sites: 1, site_rows: vec![d, d + 1], prox_row: d + 2, log_n: t.ep_log_n, inv_rate: t.ep_inv_rate, checks: t.opened_cols, plane: (1, e.len()), digest: e.digest(), scale: 0 };
++        let ch = self.chunk;
++        let classify = ClassifyFacts {
++            run_profile: self.profile(),
++            v: cp.v,
++            v_pad: cp.v_pad,
++            tokens: cp.tokens,
++            t_pad: cp.t_pad,
++            d: cp.d,
++            d_pad: cp.d_pad,
++            p0: cp.p0(),
++            n: cp.n,
++            s: cp.policy.suffix.len(),
++            profile_text: cp.describe_under(self.profile()),
++            profile_digest: cp.digest_under(self.profile()),
++            policy_id: cp.policy.id.clone(),
++            prefix: cp.policy.prefix.clone(),
++            suffix: cp.policy.suffix.clone(),
++            num_special: cp.policy.num_special,
++            yes: cp.policy.yes,
++            no: cp.policy.no,
++            c: cp.policy.c,
++            tokenizer: cp.policy.tokenizer.clone(),
++            template_digest: cp.template_digest(),
++            w_digest: cp.w_digest,
++            emb_digest: cp.emb_digest,
++            bos: cp.bos,
++            final_norm: (cp.norm.g0, cp.norm.cn, cp.norm.tn, cp.norm.ceps),
++            wrho: cp.wrho,
++            d_max: cp.d_max,
++            window_bits: cp.window_bits,
++            limbs: cp.limbs,
++            lam_base: LAM_BASE,
++            tier: (t.name, t.opened_cols, t.stage_log_n, t.stage_inv_rate, t.ep_log_n, t.ep_inv_rate),
++            scale: self.scale,
++            input_endpoint,
++            input_root: self.in_root,
++            boundaries: boundaries.clone(),
++            r_emb_len: clog2(cp.d_pad),
++            stage_layouts: [super::stage_in_c::layout(sh, cp).describe(), super::stage_out_c::layout(sh, cp).describe()],
++            verdict: self.verdict,
++            chunk: [ch.index, ch.count, ch.a, ch.b, ch.total, ch.size, ch.overlap],
++        };
++        Ok(RunHeader {
++            profile: self.profile(),
++            l: self.l(),
++            sh: sh.clone(),
++            run_shape_words: [self.l(), sh.tokens, sh.width, sh.hidden, sh.q_heads, sh.kv_heads, sh.head_dim, cp.v, cp.p0(), cp.n, cp.policy.suffix.len()].iter().map(|v| *v as u64).collect(),
++            expected_bytes: self.expected_bytes(),
++            public_statement: self.public_statement(),
++            parameter_line: self.parameter_line()?,
++            calibration: self.calibration(),
++            schedule_digest: self.schedule_digest()?,
++            context: self.context,
++            block_digests: self.block_digests.clone(),
++            boundary_scales: vec![self.scale; self.l() + 1],
++            external_input_root: self.in_root,
++            // a classifier run has NO output endpoint
++            external_output_root: [0; 32],
++            external_rows: self.in_spec.commitment_rows(),
++            external_data_rows: self.in_spec.data_rows(),
++            external_log_n: t.ep_log_n,
++            external_inv_rate: t.ep_inv_rate,
++            stage_lines: self.stage_lines()?,
++            layout_description: Layout::for_shape(sh)?.describe(),
++            boundaries,
++            external_scales: (0, 0),
++            token: None,
++            classify: Some(classify),
++        })
++    }
++
++    /// the run binding (the header transcript's state), for the capture
++    #[cfg(test)]
++    pub(crate) fn binding(&self) -> Result<Digest, String> {
++        Ok(self.transcript()?.state())
++    }
++
+     pub(crate) fn segment_lens(&self) -> Result<Vec<usize>, String> {
+         let sh = self.sh();
+         let mut v = vec![self.in_geom(&super::stage_in_c::layout(sh, &self.cp)).len()];

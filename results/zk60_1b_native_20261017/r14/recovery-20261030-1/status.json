@@ -1,0 +1,23 @@
+{
+  "utc": "2026-10-30T01:44:34.945913+00:00",
+  "pid": 490564,
+  "phase": "stopped after failure",
+  "stop_requested": false,
+  "child_pid": null,
+  "records": [
+    {
+      "phase": "candidate-build",
+      "exit": 0,
+      "utc": "2026-10-30T01:19:18.044478+00:00"
+    },
+    {
+      "phase": "candidate-arithmetic",
+      "exit": 101,
+      "utc": "2026-10-30T01:44:34.945631+00:00"
+    }
+  ],
+  "source_pins": {
+    "sol-r14-actual-build-2": "7152ef1a269b2aca5b0ec7ee507a8591db46225466653aaa3113789bfce24262",
+    "sol-r14-capture-build-1": "3c7b1dcfd47ba8cb257c6f734348f25fb960af3f25f8b1b14ea4e262ff8defda"
+  }
+}

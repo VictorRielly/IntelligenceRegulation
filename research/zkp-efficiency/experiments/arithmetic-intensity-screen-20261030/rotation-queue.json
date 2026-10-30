@@ -1,0 +1,17 @@
+{
+  "this_cycle": [
+    "quantization/arithmetic: exact GL integer reduction and binary-field exclusion",
+    "sumcheck/GKR: refreshed Oct26 zkDuel; source incidence",
+    "memory traffic: conditional shared-tree versus two-level warp reduction"
+  ],
+  "next": [
+    "GPU NTT/commitments",
+    "lookup arguments and exact softmax",
+    "proof composition",
+    "batching/amortization",
+    "quantization/arithmetic",
+    "memory traffic",
+    "sumcheck/GKR"
+  ],
+  "rule": "Rotate literature searches; measured end-to-end bottlenecks and owner evidence determine experiments. No more conditional reducer variants absent active incidence."
+}

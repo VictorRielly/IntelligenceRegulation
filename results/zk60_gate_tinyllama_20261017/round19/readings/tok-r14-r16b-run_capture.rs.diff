@@ -1,0 +1,70 @@
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r14/hashline/src/private_block/run_capture.rs	2026-10-28 19:12:07.678707172 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r16b/hashline/src/private_block/run_capture.rs	2026-10-29 03:50:55.907273090 -0700
+@@ -216,7 +216,11 @@
+     "../zkp-core/src/tables.rs",
+ ];
+ 
+-pub(super) const OWN_SOURCE_FILES: [&str; 26] = [
++pub(super) const OWN_SOURCE_FILES: [&str; 38] = [
++    "src/private_block/argument_accuracy.rs",
++    "src/private_block/accuracy_act.rs",
++    "src/private_block/accuracy_fold.rs",
++    "src/private_block/accuracy_layout.rs",
+     "src/private_block/run_capture.rs",
+     "src/private_block/run.rs",
+     "src/private_block/boundary.rs",
+@@ -283,6 +287,16 @@
+     // authenticated model before their digests enter a trained statement.
+     "src/private_block/tied_tables.rs",
+     "src/private_block/tied_tables/derive.rs",
++    // R13 accuracy arithmetic/public data, export reader and trace builder.
++    "src/private_block/accuracy.rs",
++    "src/private_block/accuracy_aligned.rs",
++    "src/private_block/accuracy_groups.rs",
++    "src/private_block/accuracy_precision.rs",
++    "src/private_block/accuracy_public.rs",
++    "src/private_block/accuracy_tables.rs",
++    "src/private_block/trained_accuracy.rs",
++    "src/private_block/witness_accuracy.rs",
++
+ ];
+ 
+ /// **The production modules of `private_block` that are NOT source pins, with
+@@ -2468,6 +2482,17 @@
+ /// run. The block run file's header members, the shape and the block
+ /// digests, plus `"token_io"` (the token facts), the boundaries in token
+ /// numbering, `L + 2` stage files and the token transcript program.
++///
++/// **TOKEN ROUND 15 (gate round 18, F18-1): the reader contract of
++/// `shape.slots`.** It holds EXACTLY `shape.n_slots` triples `(main rounds,
++/// extension rounds, degree)`, the block stages' slots in transcript order,
++/// as the block writer's run file does. `n_slots` is [`N_SLOTS`] (23): the
++/// replay admits a block stage only with that many slot transcripts
++/// (`want_slots`), so no capture is written for a block that runs native
++/// R9's appended 24th (DD) slot. `Shape::slots()` is sized [`MAX_SLOTS`]
++/// (24) and its 24th entry is `(0, 0, 0)` on every non-DD shape; rounds 7-14
++/// wrote that entry too (24 triples under `n_slots` 23), and the gate's
++/// tools v21 accept only an all-zero extra triple and strip it.
+ fn write_run_token(r: &Rec) -> Vec<u8> {
+     let h = &r.header;
+     let sh = &h.sh;
+@@ -2519,7 +2544,8 @@
+         sh.endpoint_general,
+         sh.norm_wrho,
+         sh.wrho_s,
+-        sh.slots().iter().map(|&(n, e, d)| [n, e, d]).collect::<Vec<_>>(),
++        // F18-1 (token round 15): exactly the declared `n_slots` (N_SLOTS) triples
++        sh.slots().iter().take(N_SLOTS).map(|&(n, e, d)| [n, e, d]).collect::<Vec<_>>(),
+         sh.a_groups(),
+         sh.h_groups()
+     )
+@@ -2758,7 +2784,8 @@
+         sh.endpoint_general,
+         sh.norm_wrho,
+         sh.wrho_s,
+-        sh.slots().iter().map(|&(n, e, d)| [n, e, d]).collect::<Vec<_>>(),
++        // F18-1 (token round 15): exactly the declared `n_slots` (N_SLOTS) triples
++        sh.slots().iter().take(N_SLOTS).map(|&(n, e, d)| [n, e, d]).collect::<Vec<_>>(),
+         sh.a_groups(),
+         sh.h_groups()
+     )

@@ -1,0 +1,141 @@
+{
+ "what": "gate round 22: the gate-side READ record of the input-owner check at n = 17 (Astra's first real app post, public input, three moderate policies, the named r16b binary) [READ: Astra's public records only; no .dec, no content file, no activation opened]; NOT a privacy result",
+ "source_dir": "/home/victor/IntelligenceRegulation/results/zk60_astra_20261026/real_app_demo_1",
+ "files": {
+  "input_owner_capture.json": "6514c2aeb2625c0020b106d2a7314fc6f33c23212ff8b0189985cc1ff9bcabb6",
+  "hate.json": "fc10a22d26577f53cdef7fe32a6ae8ebb68a1f0e24d3db076a31ae2ab94c64c1",
+  "violence.json": "16cc7cba9d694dfcc95d5240c51f51341f09413cf189f9a754f86e6d139cecca",
+  "sexual.json": "76c5365c9f0b5c278a4905be1f30708616d09ed31ac107f9fff7d8b847dba8b8",
+  "sexual_execution.json": "13a394899ba9b4e1146fce46262f24addbadd03b376201486130bb2c60266f9a"
+ },
+ "categories": [
+  {
+   "category": "sexual",
+   "policy": "shieldstral-1.0-3b-moderate-sexual/1",
+   "input_owner": {
+    "event": "content-checked",
+    "chunk": 0,
+    "range": [
+     0,
+     17
+    ],
+    "content_total": 17,
+    "verdict": "not-flagged"
+   },
+   "owner_guard": {
+    "exit": 0,
+    "child_rc": 0,
+    "child_wall_seconds": 81.3481297492981,
+    "peak_rss_gib": 2.12,
+    "enforcement": "cgroup+watchdog"
+   },
+   "binary_sha256": "dfb8025eb903b203f4b50371fdd0dd00659d46a9dbaad9d121d6a68343ebc70c",
+   "statement_sha256": "55d944e78346fbe51ddf74519c9526bc35e4e014e55c73a2b31961bbb17d7bf7",
+   "statement_sha256_matches_owner_record": true,
+   "identity": "29aeba6c04a819cdbafde311f7c9d0c678d85aff22292ae6b9647761158a0bd1",
+   "verdict": "not-flagged",
+   "n": 17,
+   "item_length": 90,
+   "pad_positions": 38,
+   "chunk": {
+    "index": 0,
+    "count": 1,
+    "range": [
+     0,
+     17
+    ],
+    "content_total": 17,
+    "chunk_size": 55,
+    "overlap": 8,
+    "split": "end-aligned (DESIGN v2.2 13.1); a short content is one chunk of its length (v2.4 15)"
+   },
+   "input_root": "60efbf799833cb65e2deb3b2931277bcd7ec62f062a6dc067f9f1e830a002b39"
+  },
+  {
+   "category": "violence",
+   "policy": "shieldstral-1.0-3b-moderate-violence/1",
+   "input_owner": {
+    "event": "content-checked",
+    "chunk": 0,
+    "range": [
+     0,
+     17
+    ],
+    "content_total": 17,
+    "verdict": "not-flagged"
+   },
+   "owner_guard": {
+    "exit": 0,
+    "child_rc": 0,
+    "child_wall_seconds": 66.96275901794434,
+    "peak_rss_gib": 2.32,
+    "enforcement": "cgroup+watchdog"
+   },
+   "binary_sha256": "dfb8025eb903b203f4b50371fdd0dd00659d46a9dbaad9d121d6a68343ebc70c",
+   "statement_sha256": "3012cbce8092eab0c5abde8126f0aaa2c498c3489a5ef0615e69817372249277",
+   "statement_sha256_matches_owner_record": true,
+   "identity": "29aeba6c04a819cdbafde311f7c9d0c678d85aff22292ae6b9647761158a0bd1",
+   "verdict": "not-flagged",
+   "n": 17,
+   "item_length": 90,
+   "pad_positions": 38,
+   "chunk": {
+    "index": 0,
+    "count": 1,
+    "range": [
+     0,
+     17
+    ],
+    "content_total": 17,
+    "chunk_size": 55,
+    "overlap": 8,
+    "split": "end-aligned (DESIGN v2.2 13.1); a short content is one chunk of its length (v2.4 15)"
+   },
+   "input_root": "952e06e39914cffbc022e845133599cfc8624263421dd32fd452ef4e0351d119"
+  },
+  {
+   "category": "hate",
+   "policy": "shieldstral-1.0-3b-moderate-hate/1",
+   "input_owner": {
+    "event": "content-checked",
+    "chunk": 0,
+    "range": [
+     0,
+     17
+    ],
+    "content_total": 17,
+    "verdict": "not-flagged"
+   },
+   "owner_guard": {
+    "exit": 0,
+    "child_rc": 0,
+    "child_wall_seconds": 67.92077970504761,
+    "peak_rss_gib": 2.29,
+    "enforcement": "cgroup+watchdog"
+   },
+   "binary_sha256": "dfb8025eb903b203f4b50371fdd0dd00659d46a9dbaad9d121d6a68343ebc70c",
+   "statement_sha256": "5e68991ab1ff0202daf77ef8ffae4a0d98683b5fc966f51f3fdd880fdbd33ec2",
+   "statement_sha256_matches_owner_record": true,
+   "identity": "29aeba6c04a819cdbafde311f7c9d0c678d85aff22292ae6b9647761158a0bd1",
+   "verdict": "not-flagged",
+   "n": 17,
+   "item_length": 96,
+   "pad_positions": 32,
+   "chunk": {
+    "index": 0,
+    "count": 1,
+    "range": [
+     0,
+     17
+    ],
+    "content_total": 17,
+    "chunk_size": 49,
+    "overlap": 8,
+    "split": "end-aligned (DESIGN v2.2 13.1); a short content is one chunk of its length (v2.4 15)"
+   },
+   "input_root": "92a6aafd03394144b6ca5941b057282d13a406ad6944388970660b3545743908"
+  }
+ ],
+ "roots_distinct": true,
+ "passed": true
+}

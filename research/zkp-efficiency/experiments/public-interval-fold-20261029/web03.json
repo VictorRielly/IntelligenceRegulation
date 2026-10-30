@@ -1,0 +1,19 @@
+{
+  "tool": "tools.web__run",
+  "access_date": "2026-10-29",
+  "access_timezone": "UTC",
+  "commands": {
+    "search_query": [
+      "\"BlockSmith\" \"github\"",
+      "GPU SpMV \"run-length\" encoding 2014 2025",
+      "\"MegaZK\" \"June\" 2026 memory efficient"
+    ],
+    "open": [
+      "https://api.github.com/repos/THU-HAS/MegaZK/commits/main"
+    ]
+  },
+  "raw_response_sha256": "39cb4b84cc814218a7e9259d220caecddc8929e06371aee10d67b7c7584224bb",
+  "raw_response_bytes": 32249,
+  "retention": "Provenance and source assessments retained; full webpage/paper text not redistributed. Exact source dates/licenses/limits in sources-cycle.jsonl.",
+  "external_execution": false
+}

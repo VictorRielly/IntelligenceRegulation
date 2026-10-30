@@ -1,0 +1,41 @@
+{
+  "utc": "2026-10-29T17:33:30.819308+00:00",
+  "phase": "Actual6andjoint20PASS; consolidated actual branch2 build queued",
+  "live_tool_sessions": [
+    {
+      "session": 47150,
+      "task": "consolidated actual build2 source7152ef1a/284files"
+    }
+  ],
+  "source_base_sha256": "b4f7d795c23eef05676dc5fafbc91f7d70391f972ec5d6b46ca9116720a55f9f",
+  "s4_design_review_path": "results/zk60_d24_review_20261017/S4_DESIGN_CHECK.md",
+  "s4_review_sha256": "a1c521ca7eeb3af4bea264b4e4c3dfdb9707bb19d8d53083ec94d0a03c7f3ac5",
+  "adopted_rules": [
+    "B-gate: zero lift folded into existing public factor, never private functional",
+    "single joint commitment per logical endpoint/boundary, ordered row blocks; no additional openings",
+    "new profile and source/hash domains; oldR13 andlegacybytes fixed",
+    "receipt-level attacks for wrong source map/rounding/c2/group/norm, all19 trace-site parity",
+    "native layout+degree+M budget census and whole-run bits before registration",
+    "freeze->D24->privacy gate before any use; T256 proofsdesktoponly"
+  ],
+  "endpoint_plan": {
+    "external": "two sites, two proximity rows and one spare: data24+7=31rows at ShieldstralT128/T256 Nratio",
+    "internal": "four sites plus two proximity rows: data24+10=34rows"
+  },
+  "next": "Poll original34732/77357, never restart from stale state. No main/actual source edits while queued/running. Diagnose any test failure with source/binary checkpoint and new attempt labels.",
+  "source_edits_held": true,
+  "live_stage": "sol-r14-actual-build-2",
+  "live_tool_session": 47150,
+  "source_pin": "sol-r14-actual-build-2.source.json",
+  "source_sha256": "7152ef1a269b2aca5b0ec7ee507a8591db46225466653aaa3113789bfce24262",
+  "staged_modules": [
+    "argument_split.rs",
+    "split_profile.rs",
+    "split_endpoint.rs",
+    "split_definition_tests.rs",
+    "split_witness.rs"
+  ],
+  "receipt_tradeoff": "Native DD/nonDD first/last bytes exactly match counter; T128 backend receipt +~6%, A/H words -24..25%. Coordinator10:23 accepted proceed.",
+  "matched_report": "MATCHED_R13_R14_COMPARISON.json",
+  "source_tree": "actual-working-tree"
+}

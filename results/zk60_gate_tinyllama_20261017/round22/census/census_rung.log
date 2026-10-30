@@ -1,0 +1,4 @@
+{"profile_len": 65, "replay_ok": true, "challenges_checked": 3786, "C-R1_no_40_byte_F_U_input_in_the_gate_recomputations": true, "C-R2_constructor_not_47": true, "W-2_holds": true, "transcript_query_count_A_measured": 6252, "seconds": 2.8}
+constructors {'77': 1} W-2 neighbours {'77': []}
+{"profile_len": 65, "replay_ok": true, "challenges_checked": 3786, "C-R1_no_40_byte_F_U_input_in_the_gate_recomputations": true, "C-R2_constructor_not_47": true, "W-2_holds": true, "transcript_query_count_A_measured": 6252, "seconds": 1.9}
+constructors {'77': 1} W-2 neighbours {'77': []}

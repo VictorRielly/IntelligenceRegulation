@@ -365,7 +365,7 @@ fn every_absorb_label_on_the_path_is_in_the_table() {
         assert!(!u.label.is_empty() && !u.site.is_empty() && !u.data.is_empty(), "the table entry for `{}` is incomplete", u.label);
     }
     let table: Vec<String> = entries.iter().map(|u| u.label.to_string()).collect();
-    let lane: [(&str, &str); 14] = [
+    let lane: [(&str, &str); 16] = [
         ("argument.rs", include_str!("argument.rs")),
         ("boundary.rs", include_str!("boundary.rs")),
         ("endpoint_g.rs", include_str!("endpoint_g.rs")),
@@ -377,6 +377,8 @@ fn every_absorb_label_on_the_path_is_in_the_table() {
         ("run_capture.rs", include_str!("run_capture.rs")),
         ("run_sink.rs", include_str!("run_sink.rs")),
         ("shape.rs", include_str!("shape.rs")),
+        ("tied_tables.rs", include_str!("tied_tables.rs")),
+        ("tied_tables/derive.rs", include_str!("tied_tables/derive.rs")),
         ("wire.rs", include_str!("wire.rs")),
         ("witness.rs", include_str!("witness.rs")),
         ("private_block.rs", include_str!("../private_block.rs")),

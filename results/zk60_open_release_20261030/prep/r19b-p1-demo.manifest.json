@@ -1,0 +1,315 @@
+{
+  "schema": 1,
+  "tool": "scripts/zk60_p1_demo.py",
+  "tool_sha256": "5b9a23af585264c9b79d30e1cfde077aa5bdca6a072efb1fee6d3568d846a490",
+  "profile": "ffn-v3-mr1-fresh-io-poc/2",
+  "privacy_target": "P1 (hidden input, output, intermediate values; public weights)",
+  "fixture": "public-synthetic-T32-d16-f16",
+  "status": "passed",
+  "path_tokens": {
+    "<source>": "the source checkout root",
+    "<output>": "--output"
+  },
+  "environment": {
+    "removed_env_prefix": "HL_",
+    "removed_env_names": [],
+    "rayon_num_threads": "2",
+    "gpu_requested": false,
+    "legacy_privacy_flags": [],
+    "modes_invoked": [
+      "p1"
+    ]
+  },
+  "build": {
+    "performed": true,
+    "flags": [
+      "--locked",
+      "--release"
+    ],
+    "features": "default (CPU)",
+    "manifest": "<source>/hashline/Cargo.toml",
+    "command": [
+      "/home/victor/.cargo/bin/cargo",
+      "build",
+      "--locked",
+      "--release",
+      "--manifest-path",
+      "<source>/hashline/Cargo.toml",
+      "--example",
+      "zk60_bound_ffn",
+      "--message-format",
+      "json-render-diagnostics"
+    ],
+    "seconds": 9.735,
+    "exit_code": 0,
+    "stderr": "\n   --> src/private_block/trained_block.rs:454:4\n    |\n454 | fn constants_of(c:&J,what:&str,rope_pin:f64)->Result<Constants,String> {\n    |    ^^^^^^^^^^^^\n\nwarning: function `tied_of` is never used\n   --> src/private_block/trained_block.rs:548:15\n    |\n548 | pub(super) fn tied_of(dir: &Path, p: &J, geometry: Geometry, source: &ModelSource) -> Result<Option<TiedEmbedding>, String> {\n    |               ^^^^^^^\n\nwarning: function `table_keys_of` is never used\n   --> src/private_block/trained_block.rs:652:4\n    |\n652 | fn table_keys_of(c:&J,what:&str)->Result<TableKeys,String> {\n    |    ^^^^^^^^^^^^^\n\nwarning: method `is_dd` is never used\n   --> src/private_block/trained_block.rs:759:19\n    |\n708 | impl Geometry {\n    | ------------- method in this implementation\n...\n759 |     pub(crate) fn is_dd(self) -> bool {\n    |                   ^^^^^\n\nwarning: field `sha256` is never read\n  --> src/private_block/trained_accuracy.rs:35:9\n   |\n33 | pub(super) struct Loaded {\n   |                   ------ field in this struct\n34 |     pub accuracy: AccuracyPublic,\n35 |     pub sha256: Vec<(&'static str, [u8; 32])>,\n   |         ^^^^^^\n\nwarning: function `load` is never used\n  --> src/private_block/trained_accuracy.rs:38:15\n   |\n38 | pub(super) fn load(\n   |               ^^^^\n\nwarning: associated function `of` is never used\n    --> src/attention.rs:1593:8\n     |\n1585 | impl Recon {\n     | ---------- associated function in this implementation\n...\n1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {\n     |        ^^\n\nwarning: method `pd` is never used\n    --> src/attention.rs:1932:8\n     |\n1931 | impl<'a> Side<'a> {\n     | ----------------- method in this implementation\n1932 |     fn pd(&self) -> Option<&ProvData<'a>> {\n     |        ^^\n\nwarning: `hashline` (lib) generated 81 warnings (run `cargo fix --lib -p hashline` to apply 18 suggestions)\n   Compiling hashline v0.1.0 (/home/victor/ir-public-build/hashline)\n    Finished `release` profile [optimized] target(s) in 9.72s\n"
+  },
+  "steps": [
+    {
+      "name": "register_public_weights",
+      "command": [
+        "<source>/hashline/target/release/examples/zk60_bound_ffn",
+        "prepare"
+      ],
+      "cwd": "<output>",
+      "expected_exit": 0,
+      "seconds": 0.004,
+      "exit_code": 0,
+      "stderr": "",
+      "stdout_json": {
+        "public_weight_root": "7578e15ca90d83ca31ce14df62f39fd0ede70089b34dd4580b86eb9e424ddbad",
+        "proving_executed": false
+      }
+    },
+    {
+      "name": "prove_p1",
+      "command": [
+        "<source>/hashline/target/release/examples/zk60_bound_ffn",
+        "prove",
+        "p1",
+        "7703ac39158e64a90a53a03d9051177b89e3578182d5dbcadfc899ecbbab36d3",
+        "p1.expected",
+        "p1.receipt"
+      ],
+      "cwd": "<output>",
+      "expected_exit": 0,
+      "seconds": 0.209,
+      "exit_code": 0,
+      "stderr": "",
+      "stdout_json": {
+        "mode": "P1",
+        "wire_bytes": 5029244,
+        "policy_saved_before_proving": true,
+        "verified_from_bytes": true,
+        "input_root": "267a679c5c61c5165a2b5c3202148ae921ba877358f2213f1fe233740dc005bb",
+        "output_root": "eb1c568f385f68d55e4e8ce2e91d3a45365eff3706ebd6869c638e2e4958e01d"
+      }
+    },
+    {
+      "name": "verify_p1",
+      "command": [
+        "<source>/hashline/target/release/examples/zk60_bound_ffn",
+        "verify",
+        "p1",
+        "7578e15ca90d83ca31ce14df62f39fd0ede70089b34dd4580b86eb9e424ddbad",
+        "7703ac39158e64a90a53a03d9051177b89e3578182d5dbcadfc899ecbbab36d3",
+        "p1.expected",
+        "p1.receipt"
+      ],
+      "cwd": "<output>",
+      "expected_exit": 0,
+      "seconds": 0.029,
+      "exit_code": 0,
+      "stderr": "",
+      "stdout_json": {
+        "mode": "P1",
+        "wire_bytes": 5029244,
+        "verified_from_bytes": true,
+        "proving_executed": false
+      }
+    },
+    {
+      "name": "reject_wrong_context",
+      "command": [
+        "<source>/hashline/target/release/examples/zk60_bound_ffn",
+        "verify",
+        "p1",
+        "7578e15ca90d83ca31ce14df62f39fd0ede70089b34dd4580b86eb9e424ddbad",
+        "cd661f4813948df4d8120ad4f0430157cdf0fc4094531444a43cba43fad4ad26",
+        "p1.expected",
+        "p1.receipt"
+      ],
+      "cwd": "<output>",
+      "expected_exit": 1,
+      "seconds": 0.001,
+      "exit_code": 1,
+      "stderr": "expected request context/scales mismatch\n"
+    },
+    {
+      "name": "reject_wrong_public_weight",
+      "command": [
+        "<source>/hashline/target/release/examples/zk60_bound_ffn",
+        "verify",
+        "p1",
+        "0000000000000000000000000000000000000000000000000000000000000000",
+        "7703ac39158e64a90a53a03d9051177b89e3578182d5dbcadfc899ecbbab36d3",
+        "p1.expected",
+        "p1.receipt"
+      ],
+      "cwd": "<output>",
+      "expected_exit": 1,
+      "seconds": 0.003,
+      "exit_code": 1,
+      "stderr": "FFN IO: expected statement mismatch\n"
+    },
+    {
+      "name": "reject_wrong_endpoint_policy",
+      "command": [
+        "<source>/hashline/target/release/examples/zk60_bound_ffn",
+        "verify",
+        "p1",
+        "7578e15ca90d83ca31ce14df62f39fd0ede70089b34dd4580b86eb9e424ddbad",
+        "7703ac39158e64a90a53a03d9051177b89e3578182d5dbcadfc899ecbbab36d3",
+        "p1.wrong_policy.expected",
+        "p1.receipt"
+      ],
+      "cwd": "<output>",
+      "expected_exit": 1,
+      "seconds": 0.003,
+      "exit_code": 1,
+      "stderr": "FFN IO: expected statement mismatch\n"
+    },
+    {
+      "name": "reject_tampered_receipt",
+      "command": [
+        "<source>/hashline/target/release/examples/zk60_bound_ffn",
+        "verify",
+        "p1",
+        "7578e15ca90d83ca31ce14df62f39fd0ede70089b34dd4580b86eb9e424ddbad",
+        "7703ac39158e64a90a53a03d9051177b89e3578182d5dbcadfc899ecbbab36d3",
+        "p1.expected",
+        "p1.tampered.receipt"
+      ],
+      "cwd": "<output>",
+      "expected_exit": 1,
+      "seconds": 0.028,
+      "exit_code": 1,
+      "stderr": "IO endpoint 1: pcs zk: Merkle path for column 1995 fails\n"
+    },
+    {
+      "name": "reject_truncated_receipt",
+      "command": [
+        "<source>/hashline/target/release/examples/zk60_bound_ffn",
+        "verify",
+        "p1",
+        "7578e15ca90d83ca31ce14df62f39fd0ede70089b34dd4580b86eb9e424ddbad",
+        "7703ac39158e64a90a53a03d9051177b89e3578182d5dbcadfc899ecbbab36d3",
+        "p1.expected",
+        "p1.truncated.receipt"
+      ],
+      "cwd": "<output>",
+      "expected_exit": 1,
+      "seconds": 0.003,
+      "exit_code": 1,
+      "stderr": "FFN IO: frame length\n"
+    },
+    {
+      "name": "reject_trailing_receipt",
+      "command": [
+        "<source>/hashline/target/release/examples/zk60_bound_ffn",
+        "verify",
+        "p1",
+        "7578e15ca90d83ca31ce14df62f39fd0ede70089b34dd4580b86eb9e424ddbad",
+        "7703ac39158e64a90a53a03d9051177b89e3578182d5dbcadfc899ecbbab36d3",
+        "p1.expected",
+        "p1.trailing.receipt"
+      ],
+      "cwd": "<output>",
+      "expected_exit": 1,
+      "seconds": 0.003,
+      "exit_code": 1,
+      "stderr": "FFN IO: frame length\n"
+    }
+  ],
+  "artifacts": [
+    {
+      "name": "endpoint_policy",
+      "path": "<output>/p1.expected",
+      "bytes": 112,
+      "sha256": "93520b7ce1d299b036a3f3c890dc12cc802c7be737d37d0c352b115cb49b633a"
+    },
+    {
+      "name": "receipt",
+      "path": "<output>/p1.receipt",
+      "bytes": 5029244,
+      "sha256": "c4ae0237c9b402488f5f4d5f491f3912ed2a5b526770e7cd81829e54cba4588a"
+    },
+    {
+      "name": "wrong_endpoint_policy",
+      "path": "<output>/p1.wrong_policy.expected",
+      "bytes": 112,
+      "sha256": "e331c30cf842b2b61c0d0042a3c27948f0b496d112c67b78807eb8e5d4c738e0"
+    },
+    {
+      "name": "tampered_receipt",
+      "path": "<output>/p1.tampered.receipt",
+      "bytes": 5029244,
+      "sha256": "5872a03127f9310ac82ddec50cc0ab55efbe6e4a0ecf27d25e78756e8e1e6536"
+    },
+    {
+      "name": "truncated_receipt",
+      "path": "<output>/p1.truncated.receipt",
+      "bytes": 5029243,
+      "sha256": "b057a719d45558acd63d089f685b9d041ef2e21317233e291fbb0bf7df3a914c"
+    },
+    {
+      "name": "trailing_receipt",
+      "path": "<output>/p1.trailing.receipt",
+      "bytes": 5029245,
+      "sha256": "a30acc5df4038a3360e3c6dd7a5c2dc2e85d979fabb92be6ba439ea9efec6a67"
+    }
+  ],
+  "rejection_controls": [
+    "reject_wrong_context",
+    "reject_wrong_public_weight",
+    "reject_wrong_endpoint_policy",
+    "reject_tampered_receipt",
+    "reject_truncated_receipt",
+    "reject_trailing_receipt"
+  ],
+  "timing_note": "seconds are diagnostics on a shared box, not a benchmark",
+  "coverage": {
+    "covers": [
+      "public-weight registration executed before any proving",
+      "one P1 bound-FFN proof over the public synthetic fixture",
+      "verification of the saved receipt bytes in a fresh process, from caller-held context, registered public weight root and trusted endpoint policy",
+      "six verifier rejection controls"
+    ],
+    "does_not_cover": [
+      "whole-proof zero knowledge for the P1 private set (open)",
+      "a complete transformer block, a multi-layer run or an MVP",
+      "real model weights or a downloaded checkpoint",
+      "attention, normalization, composition, repeated-request behavior",
+      "P3 weight privacy and authenticated private model identity",
+      "any performance or timing claim"
+    ]
+  },
+  "status_claims": {
+    "component_demo_only": true,
+    "full_private_block": false,
+    "mvp": false,
+    "privacy_review_complete": false,
+    "whole_proof_zero_knowledge_established": false
+  },
+  "binary": {
+    "supplied": false,
+    "path": "<source>/hashline/target/release/examples/zk60_bound_ffn",
+    "bytes": 1894848,
+    "sha256": "3d7143627285472969bff4aa2c0a41026cba0043badf3dccd8fe1fe6f0622aa1"
+  },
+  "example_source": {
+    "path": "<source>/hashline/examples/zk60_bound_ffn.rs",
+    "sha256": "26d8d4029c7f42b99c21271c8762ffb934fe94854677141c88f3d1ec9107777e",
+    "modified_by_demo": false
+  },
+  "public_weight_root": {
+    "value": "7578e15ca90d83ca31ce14df62f39fd0ede70089b34dd4580b86eb9e424ddbad",
+    "source": "the prepare subcommand, run before any proving",
+    "used_for_verification": true
+  },
+  "caller_context": {
+    "value": "7703ac39158e64a90a53a03d9051177b89e3578182d5dbcadfc899ecbbab36d3",
+    "bytes": 32,
+    "source": "fresh OS randomness (os.urandom) in this process",
+    "held_by": "caller; supplied to prove and to verify independently"
+  },
+  "verification": {
+    "process": "separate from proving; reads only saved bytes",
+    "trust_inputs": [
+      "caller-held request context",
+      "public weight root from registration",
+      "endpoint policy file written before FFN proving"
+    ],
+    "policy_derived_from_candidate_receipt": false
+  }
+}

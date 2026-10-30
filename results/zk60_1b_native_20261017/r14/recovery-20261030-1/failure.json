@@ -1,0 +1,17 @@
+{
+  "utc": "2026-10-30T01:44:34.946195+00:00",
+  "error": "candidate-arithmetic failed (101); inspect retained logs; no retry",
+  "records": [
+    {
+      "phase": "candidate-build",
+      "exit": 0,
+      "utc": "2026-10-30T01:19:18.044478+00:00"
+    },
+    {
+      "phase": "candidate-arithmetic",
+      "exit": 101,
+      "utc": "2026-10-30T01:44:34.945631+00:00"
+    }
+  ],
+  "retry": false
+}

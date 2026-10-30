@@ -1,0 +1,21 @@
+public_path	decision	note
+docs/zkmatrix-poc/ZK60_CL1_INTEGRATION_REVIEW.md	include	Read in full 2026-10-30 UTC; technical Codex review of CL1-CL4; no personal material, real-person names, secrets or Windows-host details; "repeatedly frozen laptop" kept as a technical fact
+docs/zkmatrix-poc/ZK60_CL20_ROUND14_REVIEW.md	include	Read in full; PCS/decoder review with probe outputs; nothing to redact
+docs/zkmatrix-poc/ZK60_CL5_CL9_REVIEW.md	include	Read in full; CPU reproductions of CL5/CL9; nothing to redact
+docs/zkmatrix-poc/ZK60_CL8_CL10_REVIEW.md	include	Read in full; counting-model corrections; nothing to redact
+docs/zkmatrix-poc/ZK60_CLAUDE_5090.md	include	Read in full; 5090 preflight/manifest design; RTX 4070 laptop, driver and memory facts are technical and kept; no host IPs or personal schedule
+docs/zkmatrix-poc/ZK60_CLAUDE_ARTIFACTS.md	include	Read in full; proof-size accounting; /home/victor and /tmp paths kept as records; nothing to redact
+docs/zkmatrix-poc/ZK60_CLAUDE_CACHE.md	include	Read in full; weight-cache review; /home/victor/wt-uperf3-aa export path (line 217) kept as a record; nothing to redact
+docs/zkmatrix-poc/ZK60_CLAUDE_CHUNK.md	include	Read in full; chunk sweep measurements; nothing to redact
+docs/zkmatrix-poc/ZK60_CLAUDE_GPU.md	include	Read in full; CL1 GPU lane record; line 432 "Victor's or Codex's call" is a bare decision-owner mention (allowed); "while the 5090 is unavailable" is hardware status, not personal schedule
+docs/zkmatrix-poc/ZK60_CLAUDE_PENDING_GPU.md	include	Read in full; pending-block memory design; nothing to redact
+docs/zkmatrix-poc/ZK60_CLAUDE_PROFILE.md	include	Read in full; CL5 profile; nothing to redact
+docs/zkmatrix-poc/ZK60_CLAUDE_RESIDENCY.md	include	Read in full; CL7/CL18 re-encode work; nothing to redact
+docs/zkmatrix-poc/ZK60_FABLE_CAPTURE_REVIEW.md	include	Read in full; FA7 capture analysis (digests only, no recovered values); nothing to redact; PINNED by sha256 b3edda40 in ZK60_FABLE_TRANSCRIPT_REVIEW.md (do not edit)
+docs/zkmatrix-poc/ZK60_FABLE_CFS_CHANNEL.md	include	Read in full; FA6 CFS channel review; nothing to redact; PINNED by sha256 840be7ce in ZK60_FABLE_TRANSCRIPT_REVIEW.md (do not edit)
+docs/zkmatrix-poc/ZK60_FABLE_MASK_REPAIR.md	include	Read in full; FA3 repair spec; line 737 rate-limit note is about the agent, not personal; nothing to redact; PINNED by sha256 0df12a98 in ZK60_FABLE_TRANSCRIPT_REVIEW.md (do not edit)
+docs/zkmatrix-poc/ZK60_FABLE_MODEL_IDENTITY.md	include	Read in full; FA4 identity review; UNSURE-LEFT: line 367 cites published paper authors (Ames, Hazay, Ishai, Venkitasubramaniam, CCS 2017) as a literature reference, not personal data, kept; file is PINNED by sha256 8e8c13d9 in ZK60_FABLE_TRANSCRIPT_REVIEW.md so editing would break the pin
+docs/zkmatrix-poc/ZK60_FABLE_PRIVACY_REVIEW.md	include	Read in full; FA1/FA2 privacy review; line 34 "6.18.33.2" is a WSL kernel version, not an IP; nothing to redact
+docs/zkmatrix-poc/ZK60_FABLE_ROUND12_DELIVERY.md	include	Read in full; Fable round-12 delivery summary; nothing to redact
+docs/zkmatrix-poc/ZK60_FABLE_SECURITY_OBLIGATIONS.md	include	Read in full; FA5/FA9 obligations; "BCIKS20" is a citation key; nothing to redact
+docs/zkmatrix-poc/ZK60_FABLE_TRANSCRIPT_REVIEW.md	include	Read in full; FA8 simulator review; line 910 "Victor (product ruling)" is a bare decision-owner mention (allowed); nothing to redact

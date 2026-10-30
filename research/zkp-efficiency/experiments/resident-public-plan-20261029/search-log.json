@@ -1,0 +1,15 @@
+{
+  "native_live_search": true,
+  "access_date": "2026-10-29",
+  "queries": [
+    "CUDA Graphs graph update kernel parameters dynamic inputs reuse execution plan 2026 NVIDIA",
+    "zero knowledge proof reusable preprocessing sumcheck GPU batch 2026 GitHub",
+    "input independent preprocessing GKR circuit wiring reusable prover 2013 Thaler",
+    "\"MegaZK\" \"2026\" July June publication",
+    "\"Foundry\" \"Template-Based\" github",
+    "\"Time-Optimal Interactive Proofs\" \"2013\" CRYPTO"
+  ],
+  "raw_saved": "web-01.json through web-11.json (first discovery query is retained here, not as raw response)",
+  "source_records": 9,
+  "no_external_code_execution": true
+}

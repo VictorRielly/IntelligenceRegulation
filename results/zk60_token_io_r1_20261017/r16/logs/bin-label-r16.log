@@ -1,0 +1,249 @@
+warning: unused doc comment
+   --> src/private_block/token_io/run.rs:737:1
+    |
+737 | / /// **THE TOKEN-I/O RUN PROVER.** One transcript, one OS stream, `L + 2`
+738 | | /// segments, each handed to `sink` and dropped (M-3); block `k` asked for
+739 | | /// at its own stage (R3 streaming).
+740 | | ///
+...   |
+749 | | /// it receives as UNPUBLISHED until this function returns `Ok` (the CLI's
+750 | | /// sink writes `<out>.incomplete/` and renames it only then).
+    | |_-------------------------------------------------------------^
+    |   |
+    |   rustdoc does not generate documentation for macro invocations
+    |
+    = help: to document an item produced by a macro, the macro must produce the documentation as part of its expansion
+    = note: `#[warn(unused_doc_comments)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Dom`
+  --> src/private_block/s28_review_tests.rs:19:21
+   |
+19 | use super::layout::{Dom, Layout, U8_LEN};
+   |                     ^^^
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: unused variable: `ls`
+   --> src/private_block/argument_accuracy.rs:149:9
+    |
+149 |     let(ls,lp)=(sh.limbs_sigma_s(),sh.limbs_p());
+    |         ^^ help: if this is intentional, prefix it with an underscore: `_ls`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `lp`
+   --> src/private_block/argument_accuracy.rs:149:12
+    |
+149 |     let(ls,lp)=(sh.limbs_sigma_s(),sh.limbs_p());
+    |            ^^ help: if this is intentional, prefix it with an underscore: `_lp`
+
+warning: unused variable: `n_pad`
+   --> src/private_block/argument_accuracy.rs:152:9
+    |
+152 |     let n_pad=usize::from(pad_on);let cube=1usize<<sh.slots()[SC_SZC].0;
+    |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_n_pad`
+
+warning: unused variable: `low`
+   --> src/private_block/argument_accuracy.rs:332:9
+    |
+332 |     let low=ids.accuracy()?;let precision=sh.accuracy_precision()?;
+    |         ^^^ help: if this is intentional, prefix it with an underscore: `_low`
+
+warning: unused variable: `precision`
+   --> src/private_block/argument_accuracy.rs:332:33
+    |
+332 |     let low=ids.accuracy()?;let precision=sh.accuracy_precision()?;
+    |                                 ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_precision`
+
+warning: unused variable: `g_exp`
+   --> src/private_block/argument_accuracy.rs:333:25
+    |
+333 |     let(alpha,beta,g_u8,g_exp)=(ctx.alpha,ctx.beta,ctx.g_u8,ctx.g_exp);
+    |                         ^^^^^ help: if this is intentional, prefix it with an underscore: `_g_exp`
+
+warning: unused variable: `n_pad`
+   --> src/private_block/argument_accuracy.rs:337:9
+    |
+337 |     let n_pad=usize::from(pad_on);let cube=1usize<<sh.slots()[SC_DD].0;
+    |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_n_pad`
+
+warning: unused variable: `cube`
+   --> src/private_block/argument_accuracy.rs:337:39
+    |
+337 |     let n_pad=usize::from(pad_on);let cube=1usize<<sh.slots()[SC_DD].0;
+    |                                       ^^^^ help: if this is intentional, prefix it with an underscore: `_cube`
+
+warning: variable does not need to be mutable
+    --> src/private_block/run.rs:1308:13
+     |
+1308 |         let mut tr = st.transcript()?;
+     |             ----^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:302:18
+    |
+302 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: method `slot` is never used
+   --> src/private_block/timing.rs:259:19
+    |
+216 | impl Phases {
+    | ----------- method in this implementation
+...
+259 |     pub(crate) fn slot(&mut self, s: usize, size: u64, unit: &'static str) {
+    |                   ^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `constants_of` is never used
+   --> src/private_block/trained_block.rs:454:4
+    |
+454 | fn constants_of(c:&J,what:&str,rope_pin:f64)->Result<Constants,String> {
+    |    ^^^^^^^^^^^^
+
+warning: function `table_keys_of` is never used
+   --> src/private_block/trained_block.rs:652:4
+    |
+652 | fn table_keys_of(c:&J,what:&str)->Result<TableKeys,String> {
+    |    ^^^^^^^^^^^^^
+
+warning: method `is_dd` is never used
+   --> src/private_block/trained_block.rs:759:19
+    |
+708 | impl Geometry {
+    | ------------- method in this implementation
+...
+759 |     pub(crate) fn is_dd(self) -> bool {
+    |                   ^^^^^
+
+warning: field `boundaries` is never read
+   --> src/private_block/run_capture.rs:837:5
+    |
+830 | struct Rec {
+    |        --- field in this struct
+...
+837 |     boundaries: Vec<Vec<u8>>,
+    |     ^^^^^^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib test) generated 26 warnings (run `cargo fix --lib -p hashline --tests` to apply 18 suggestions)
+    Finished `release` profile [optimized] target(s) in 0.03s
+     Running unittests src/lib.rs (ops/zkp-mvp/token-io-r16/hashline/target/release/deps/hashline-4e9297c357ac990f)
+
+running 1 test
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1","blocks":1,"trained_statement_identity":"061340df02f975c16fa1b3f9a2e1c8d582a54888a33edafab112426a69c5ae88","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"content_length_n":23}
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.154}
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":1.466}
+{"event":"segment","index":2,"bytes":2489016,"elapsed_seconds":1.597}
+{"event":"proved","run":"/home/victor/zk60-artifacts/token-io/tmp-r16/tio-cls-r15-bin-348380/post23","owner_dir":"/home/victor/zk60-artifacts/token-io/tmp-r16/tio-cls-owners-r15-bin-348380/post23.owner-private","verdict":"not-flagged","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"segments":3,"receipt_bytes":11134808,"prove_seconds":1.598,"whole_run_floor_bits":94,"total_seconds":1.749,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"}
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1","blocks":1,"trained_statement_identity":"061340df02f975c16fa1b3f9a2e1c8d582a54888a33edafab112426a69c5ae88","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"content_length_n":22}
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.149}
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":1.486}
+{"event":"segment","index":2,"bytes":2489016,"elapsed_seconds":1.618}
+{"event":"proved","run":"/home/victor/zk60-artifacts/token-io/tmp-r16/tio-cls-r15-bin-348380/first22","owner_dir":"/home/victor/zk60-artifacts/token-io/tmp-r16/tio-cls-owners-r15-bin-348380/first22.owner-private","verdict":"not-flagged","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":1,"segments":3,"receipt_bytes":11134808,"prove_seconds":1.618,"whole_run_floor_bits":94,"total_seconds":1.761,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"}
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1","blocks":1,"trained_statement_identity":"061340df02f975c16fa1b3f9a2e1c8d582a54888a33edafab112426a69c5ae88","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":2,"content_length_n":23}
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.175}
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":1.498}
+{"event":"segment","index":2,"bytes":2489016,"elapsed_seconds":1.631}
+{"event":"proved","run":"/home/victor/zk60-artifacts/token-io/tmp-r16/tio-cls-r15-bin-348380/post27-c0","owner_dir":"/home/victor/zk60-artifacts/token-io/tmp-r16/tio-cls-owners-r15-bin-348380/post27-c0.owner-private","verdict":"not-flagged","policy":"rung-tc-synthetic-policy-dev/1","chunk":0,"chunks":2,"segments":3,"receipt_bytes":11134808,"prove_seconds":1.631,"whole_run_floor_bits":94,"total_seconds":1.775,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"}
+{"event":"loaded","export_variant":"tiny","run_profile":"hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1","blocks":1,"trained_statement_identity":"061340df02f975c16fa1b3f9a2e1c8d582a54888a33edafab112426a69c5ae88","policy":"rung-tc-synthetic-policy-dev/1","chunk":1,"chunks":2,"content_length_n":23}
+{"event":"segment","index":0,"bytes":1224328,"elapsed_seconds":0.155}
+{"event":"segment","index":1,"bytes":7421464,"elapsed_seconds":1.474}
+{"event":"segment","index":2,"bytes":2489016,"elapsed_seconds":1.603}
+{"event":"proved","run":"/home/victor/zk60-artifacts/token-io/tmp-r16/tio-cls-r15-bin-348380/post27-c1","owner_dir":"/home/victor/zk60-artifacts/token-io/tmp-r16/tio-cls-owners-r15-bin-348380/post27-c1.owner-private","verdict":"not-flagged","policy":"rung-tc-synthetic-policy-dev/1","chunk":1,"chunks":2,"segments":3,"receipt_bytes":11134808,"prove_seconds":1.604,"whole_run_floor_bits":94,"total_seconds":1.746,"statement":"UNVERIFIED until zk60_classify verify publishes <run>/statement/"}
+{"event":"classified","verdict":"not-flagged","chunk":0,"chunks":1,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"061340df02f975c16fa1b3f9a2e1c8d582a54888a33edafab112426a69c5ae88","input_token_endpoint_root":"2879e7abdd90e97872ab8bd1bd3d9415d12418d324ef99e9f222374b5303626e","verify_seconds":0.277,"whole_run_floor_bits":94,"published_by":"this verifier"}
+{"event":"classified","verdict":"not-flagged","chunk":0,"chunks":1,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"061340df02f975c16fa1b3f9a2e1c8d582a54888a33edafab112426a69c5ae88","input_token_endpoint_root":"120d762c1e79e28b06bd29dfbdab79a6d81d050cb8fe4dd448cc1b9de468a35c","verify_seconds":0.294,"whole_run_floor_bits":94,"published_by":"this verifier"}
+{"event":"classified","verdict":"not-flagged","chunk":0,"chunks":2,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"061340df02f975c16fa1b3f9a2e1c8d582a54888a33edafab112426a69c5ae88","input_token_endpoint_root":"ccc503716b316575d403dab44a65180a90fb22552c3b4267d0c8893b7ef989a6","verify_seconds":0.298,"whole_run_floor_bits":94,"published_by":"this verifier"}
+{"event":"classified","verdict":"not-flagged","chunk":1,"chunks":2,"policy":"rung-tc-synthetic-policy-dev/1","trained_statement_identity":"061340df02f975c16fa1b3f9a2e1c8d582a54888a33edafab112426a69c5ae88","input_token_endpoint_root":"41406e1f3b239dfc6eba48fcf87999f6827c8f54760100c80449289233801ac1","verify_seconds":0.301,"whole_run_floor_bits":94,"published_by":"this verifier"}
+TOKEN-IO R15 | binary /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/cli/zk60_classify.r16.release.bin | truncated: the first 22 ids of the 23-id post, --expect-total 23: exit 1 (want 1) | stdout {"event":"chunk-verified","run":"/home/victor/zk60-artifacts/token-io/tmp-r16/tio-cls-r15-bin-348380/first22","chunk":0,"range":[0, 22],"verdict":"not-flagged"}
+{"event":"refused","command":"classify-label","error":"label: the chunk runs cover a content of 22 ids, but the post has 23 (--expect-total): a proof set of another length (e.g. only the post's first 22 ids) is not the post's label (N-r14-1; fail-closed: handled as flagged)"}
+{"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling D45(4), Victor 2026-10-29)"}
+TOKEN-IO R15 | binary /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/cli/zk60_classify.r16.release.bin | truncated: the first 23 ids of the 27-id post, --expect-total 27: exit 1 (want 1) | stdout {"event":"chunk-verified","run":"/home/victor/zk60-artifacts/token-io/tmp-r16/tio-cls-r15-bin-348380/post23","chunk":0,"range":[0, 23],"verdict":"not-flagged"}
+{"event":"refused","command":"classify-label","error":"label: the chunk runs cover a content of 23 ids, but the post has 27 (--expect-total): a proof set of another length (e.g. only the post's first 23 ids) is not the post's label (N-r14-1; fail-closed: handled as flagged)"}
+{"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling D45(4), Victor 2026-10-29)"}
+TOKEN-IO R15 | binary /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/cli/zk60_classify.r16.release.bin | truncated: the first 22 ids with no --expect-total: exit 1 (want 1) | stdout {"event":"refused","command":"classify-label","error":"--expect-total N is required: N is the post's own token count from the policy's pinned tokenizer, counted by the caller (REVIEW_R14 N-r14-1: the proofs cannot tell how long the post is, so a proof set of only its first ids would otherwise label)"}
+{"event":"app-outcome","outcome":"flagged","why":"no accepted proof: fail-closed (ruling D45(4), Victor 2026-10-29)"}
+TOKEN-IO R15 | binary /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/cli/zk60_classify.r16.release.bin | honest: the 23-id post's one chunk, --expect-total 23: exit 0 (want 0) | stdout {"event":"chunk-verified","run":"/home/victor/zk60-artifacts/token-io/tmp-r16/tio-cls-r15-bin-348380/post23","chunk":0,"range":[0, 23],"verdict":"not-flagged"}
+{"event":"label","policy":"rung-tc-synthetic-policy-dev/1","label":"not-flagged","chunks":1,"content_total":23,"expect_total":23,"chunk_size":23,"overlap":4,"flagged_ranges":[],"note":"the per-chunk verdicts are public: a flagged label shows which ranges triggered it (DESIGN v2.2 13.4); the chunks cover exactly [0, expect_total), the post's own count (round 15, N-r14-1)"}
+TOKEN-IO R15 | binary /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/cli/zk60_classify.r16.release.bin | honest: the 27-id post's two chunks, --expect-total 27: exit 0 (want 0) | stdout {"event":"chunk-verified","run":"/home/victor/zk60-artifacts/token-io/tmp-r16/tio-cls-r15-bin-348380/post27-c0","chunk":0,"range":[0, 23],"verdict":"not-flagged"}
+{"event":"chunk-verified","run":"/home/victor/zk60-artifacts/token-io/tmp-r16/tio-cls-r15-bin-348380/post27-c1","chunk":1,"range":[4, 27],"verdict":"not-flagged"}
+{"event":"label","policy":"rung-tc-synthetic-policy-dev/1","label":"not-flagged","chunks":2,"content_total":27,"expect_total":27,"chunk_size":23,"overlap":4,"flagged_ranges":[],"note":"the per-chunk verdicts are public: a flagged label shows which ranges triggered it (DESIGN v2.2 13.4); the chunks cover exactly [0, expect_total), the post's own count (round 15, N-r14-1)"}
+TOKEN-IO R15 | binary /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/cli/zk60_classify.r16.release.bin | honest: the 22-id post's own one chunk, --expect-total 22: exit 0 (want 0) | stdout {"event":"chunk-verified","run":"/home/victor/zk60-artifacts/token-io/tmp-r16/tio-cls-r15-bin-348380/first22","chunk":0,"range":[0, 22],"verdict":"not-flagged"}
+{"event":"label","policy":"rung-tc-synthetic-policy-dev/1","label":"not-flagged","chunks":1,"content_total":22,"expect_total":22,"chunk_size":23,"overlap":4,"flagged_ranges":[],"note":"the per-chunk verdicts are public: a flagged label shows which ranges triggered it (DESIGN v2.2 13.4); the chunks cover exactly [0, expect_total), the post's own count (round 15, N-r14-1)"}
+test private_block::token_io::classify_r15_tests::r15_label_expect_total_through_the_named_binary_in_fresh_processes ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 856 filtered out; finished in 10.77s
+

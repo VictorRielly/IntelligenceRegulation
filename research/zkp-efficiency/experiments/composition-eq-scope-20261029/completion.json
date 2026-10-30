@@ -1,0 +1,15 @@
+{
+  "cycle": "0146",
+  "run_id": "20261029T155649Z-9750c59b",
+  "checkpoint_utc": "2026-10-29T16:13:15.690540+00:00",
+  "deadline_utc": "2026-10-29T16:16:49Z",
+  "next_cycle_not_before_utc": "2026-10-29T16:56:49Z",
+  "new_verified_full_stack_proofs": 0,
+  "model_passes": 0,
+  "proved_positions": 0,
+  "source_records": 978,
+  "no_production_writes": true,
+  "no_gpu": true,
+  "no_native_build": true,
+  "no_runtime_writes": true
+}

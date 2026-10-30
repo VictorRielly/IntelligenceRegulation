@@ -1,0 +1,25 @@
+{
+  "current": [
+    "GPU NTT/commitments",
+    "quantization/arithmetic",
+    "memory traffic"
+  ],
+  "next": [
+    "sumcheck/GKR",
+    "lookup arguments and softmax",
+    "batching/amortization",
+    "proof composition"
+  ],
+  "queue": [
+    "GPU NTT/commitments",
+    "sumcheck/GKR",
+    "lookup arguments and softmax",
+    "memory traffic",
+    "batching/amortization",
+    "quantization/arithmetic",
+    "proof composition"
+  ],
+  "tested": "TESTED public zero-gap coalescing: negative for logical operand objective",
+  "local_next": "NEW explicit current R14 A/H/endpoint fold-work repin before more R13 metadata tuning",
+  "owner_precedence": "Verified complete resident workloads and exclusive phase clocks first"
+}

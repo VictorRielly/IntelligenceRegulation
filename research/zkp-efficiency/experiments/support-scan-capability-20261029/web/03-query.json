@@ -1,0 +1,26 @@
+{
+  "click": [
+    {
+      "ref_id": "turn1view1",
+      "id": 94
+    },
+    {
+      "ref_id": "turn1view2",
+      "id": 6
+    },
+    {
+      "ref_id": "turn1view2",
+      "id": 9
+    },
+    {
+      "ref_id": "turn1view1",
+      "id": 101
+    }
+  ],
+  "open": [
+    {
+      "ref_id": "https://github.com/THU-HAS/MegaZK/commits/main/"
+    }
+  ],
+  "response_length": "long"
+}

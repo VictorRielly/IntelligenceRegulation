@@ -1,0 +1,787 @@
+ (https://raw.githubusercontent.com/Terminus-IMRC/tensor-core-ntt/6f407daa8a4cef96331511ae86b922b520d7aa33/include/polyarith/cuda/ntt.cuh)
+citeturn8view0 [wordlim: 200] Crawled: 3 weeks ago; Content type: text/plain; Source: open({"ref_id":"https://raw.githubusercontent.com/Terminus-IMRC/tensor-core-ntt/6f407daa8a4cef96331511ae86b922b520d7aa33/include/polyarith/cuda/ntt.cuh","lineno":null}); Total lines: 339
+L0: // SPDX-License-Identifier: Apache-2.0
+L1: // SPDX-FileCopyrightText: Copyright © 2026 Yukimasa Sugizaki
+L2: 
+L3: #ifndef POLYARITH_CUDA_NTT_CUH_INCLUDED
+L4: #define POLYARITH_CUDA_NTT_CUH_INCLUDED
+L5: 
+L6: #include <cstdint>
+L7: #include <cstring>
+L8: #include <stdexcept>
+L9: #include <vector>
+L10: 
+L11: #include <mma.h>
+L12: #include "../arithmetic.cuh"
+L13: #include "../modular.cuh"
+L14: #include "../modulus.cuh"
+L15: #include "matrix.cuh"
+L16: #include "mma.cuh"
+L17: #include "thread.cuh"
+L18: 
+L19: namespace polyarith {
+L20: 
+L21: namespace cuda {
+L22: 
+L23: template <class reduction_type_> class NttForward16x16Coalesced {
+L24: 
+L25: public:
+L26:   using reduction_type = reduction_type_;
+L27: 
+L28: private:
+L29:   struct {
+L30:     struct {
+L31:       std::uint64_t value;
+L32:     } by_lane[32];
+L33:   } values[8];
+L34: 
+L35: public:
+L36:   NttForward16x16Coalesced(void) = default;
+L37:   NttForward16x16Coalesced(const Modulus &modulus) {
+L38:     const std::uint64_t factor = modulus.power(2, reduction_type::get_factor());
+L39:     const std::uint64_t root = modulus.get_root_forward(16);
+L40: 
+L41:     std::uint64_t forward_ntt[16][16];
+L42:     for (int row = 0; row < 16; ++row) {
+L43:       for (int col = 0; col < 16; ++col) {
+L44:         forward_ntt[row][col] = modulus.multiply(
+L45:             modulus.power(
+L46:                 root, arithmetic::bitswap_within<std::uint32_t>(row, 4) * col),
+L47:             factor);
+L48:       }
+L49:     }
+L50:     for (int laneId = 0; laneId < 32; ++laneId) {
+L51:       std::uint64_t a[8];
+L52:       load_matrix_16x16_packed4cols_n_lane(a, &forward_ntt[0][0], 16, laneId);
+L53:       for (int pos = 0; pos < 8; ++pos) {
+L54:         std::uint8_t aa[8];
+L55:         for (int i = 0; i < 8; ++i) {
+L56:           aa[i] = a[i] >> (8 * pos);
+L57:         }
+L58:         std::memcpy(&values[pos].by_lane[laneId].value, aa, 8);
+L59:       }
+L60:     }
+L61:   }
+L62: 
+L63:   __device__ void get(void *const out) const {
+L64:     const int laneId = get_laneId();
+L65:     for (int i = 0; i < (reduction_type::modulus_bits + 7) / 8; ++i) {
+L66:       reinterpret_cast<std::uint64_t *>(out)[i] =
+L67:           values[i].by_lane[laneId].value;
+L68:     }
+L69:   }
+L70: private:
+L71:   static __device__ void multiply_ntt_matrix(std::uint64_t uu[8],
+L72:                                              const std::uint32_t aa[8][2],
+L73:                                              const std::uint32_t bb[8][2],
+L74:                                              const std::uint64_t modulus,
+L75:                                              const reduction_type &reduction) {
+L76:     std::uint32_t ss[15][8]{};
+L77:     std::uint32_t tt[8][8]{};
+L78:     constexpr int num_digits = (reduction_type::modulus_bits + 7) / 8;
+L79:     for (int i = 0; i <= 2 * (num_digits - 1); ++i) {
+L80:       for (int j = 0; j < num_digits; ++j) {
+L81:         const int k = i - j;
+L82:         if (0 <= k && k < num_digits) {
+L83:           mma_m16n16k16(ss[i], aa[j], bb[k], ss[i]);
+L84:         }
+L85:       }
+L86:     }
+--------------------------------------------------------------------------------
+Internal Error ()
+citeturn8view1 [wordlim: 200] Source: open({"ref_id":"https://raw.githubusercontent.com/Terminus-IMRC/tensor-core-ntt/main/include/polyarith/arithmetic.cuh","lineno":null}); 
+Failed to fetch https://raw.githubusercontent.com/Terminus-IMRC/tensor-core-ntt/main/include/polyarith/arithmetic.cuh: Cache miss--------------------------------------------------------------------------------
+tensor-core-ntt/include/polyarith/arithmetic.cuh at main · Terminus-IMRC/tensor-core-ntt · GitHub (https://github.com/Terminus-IMRC/tensor-core-ntt/blob/main/include/polyarith/arithmetic.cuh)
+citeturn8view2 [wordlim: 200] Crawled: 2 months ago; Content type: text/html; Source: find({"ref_id":"turn7view0","pattern":"subtract_and_add_if_borrows"}); Total lines: 769
+L553: #if defined(__CUDA_ARCH__)
+L554: 
+L555: std::uint32_t b;
+L556: 
+L557: asm("{\n"
+L558: 
+L559: ".reg.u8 a0, a1, a2, a3;\n"
+L560: 
+L561: "mov.b16 {a0, _}, %1;\n"
+L562: 
+L563: "mov.b16 {a1, _}, %2;\n"
+L564: 
+L565: "mov.b16 {a2, _}, %3;\n"
+L566: 
+L567: "mov.b16 {a3, _}, %4;\n"
+L568: 
+L569: "mov.b32 %0, {a0, a1, a2, a3};"
+L570: 
+L571: "}"
+L572: 
+L573: : "=r"(b)
+L574: 
+L575: : "h"(static_cast<std::uint16_t>(a0)),
+L576: 
+L577: "h"(static_cast<std::uint16_t>(a1)),
+L578: 
+L579: "h"(static_cast<std::uint16_t>(a2)),
+L580: 
+L581: "h"(static_cast<std::uint16_t>(a3)));
+L582: 
+L583: return b;
+L584: #else
+L585: 
+L586: return a0 | (static_cast<std::uint32_t>(a1) << 8) |
+L587: 
+L588: (static_cast<std::uint32_t>(a2) << 16) |
+L589: 
+L590: (static_cast<std::uint32_t>(a3) << 24);
+L591: 
+L592: #endif
+L593: 
+L594: }
+L595: 
+L596: template <class T>
+L597: 
+L598: static __host__ __device__ std::uint64_t concatenate(const T a0, const T a1)
+L599: 
+L600: requires std::same_as<T, std::uint32_t>
+L601: 
+L602: {
+L603: 
+L604: #if defined(__CUDA_ARCH__)
+L605: 
+L606: std::uint64_t b;
+L607: 
+L608: asm("mov.b64 %0, {%1, %2};" : "=l"(b) : "r"(a0), "r"(a1));
+L609: 
+L610: return b;
+L611: 
+L612: #else
+L613: 
+L614: return a0 | (static_cast<std::uint64_t>(a1) << 32);
+L615: #endif
+L616: 
+L617: }
+L618: 
+L619: /*
+L620: 
+L621: * Addition/subtraction with subtraction/addition if carries/borrows.
+L622: 
+L623: * We want to specify the carry/borrow flag as the predicate for the SEL
+L624: 
+L625: * SASS instruction, but it looks like the PTX assembler cannot regard
+L626: 
+L627: * carry/borrow and predicate as the same thing.
+L628: 
+L629: * We first tried the SETP and the SLCT PTX instructions, but it ended up
+L630: 
+L631: * with borrow predicate -> 0/1 mask by IMAD/IADD3 -> predicate generation
+L632: 
+L633: * by ISETP -> selection by SEL.
+L634: * Fow now, we use the LOP3 PTX instruction, which replaces this ISETP ->
+L635: 
+L636: * SEL steps with simply the LOP3 SASS instruction.
+L637: 
+L638: */
+L639: 
+L640: static __host__ __device__ std::uint64_t
+L641: 
+L642: subtract_and_add_if_borrows(const std::uint64_t a, const std::uint64_t b,
+L643: 
+L644: const std::uint64_t c) {
+L645: #if defined(__CUDA_ARCH__)
+L646: 
+L647: std::uint64_t d;
+L648: 
+L649: asm("{\n"
+L650: 
+L651: ".reg.u64 d, e;\n"
+L652: 
+L653: "sub.cc.u64 d, %1, %2;\n"
+L654: 
+L655: "add.u64 e, d, %3;\n"
+L656: 
+L657: ".reg.u32 mask;\n"
+L658: 
+L659: "subc.u32 mask, 0, 0;\n"
+L660: 
+L661: ".reg.u32 d0, d1, e0, e1;\n"
+L662: 
+L663: "mov.b64 {d0, d1}, d;\n"
+L664: 
+L665: "mov.b64 {e0, e1}, e;\n"
+L666: 
+L667: "lop3.b32 d0, d0, e0, mask, (~0xaa & 0xf0) | (0xaa & 0xcc);\n"
+L668: 
+L669: "lop3.b32 d1, d1, e1, mask, (~0xaa & 0xf0) | (0xaa & 0xcc);\n"
+L670: 
+L671: "mov.b64 %0, {d0, d1};\n"
+L672: 
+L673: "}"
+L674: 
+L675: : "=l"(d)
+L676: 
+L677: : "l"(a), "l"(b), "l"(c));
+L678: 
+L679: return d;
+L680: #else
+L681: 
+L682: return (a >= b) ? (a - b) : (a - b + c);
+L683: 
+L684: #endif
+L685: 
+L686: }
+L687: 
+L688: template <class T>
+L689: 
+L690: static __host__ __device__ std::uint32_t multiply_high(const T a, const T b)
+L691: 
+L692: requires std::same_as<T, std::uint32_t>
+L693: 
+L694: {
+L695: 
+L696: #if defined(__CUDA_ARCH__)
+L697: 
+L698: return __umulhi(a, b);
+L699: 
+L700: #else
+L701: 
+L702: return (static_cast<std::uint64_t>(a) * b) >> 32;
+L703: 
+L704: #endif
+L705: 
+L706: }
+L707: 
+L708: template <class T>
+L709: 
+L710: static __host__ __device__ std::uint64_t multiply_high(const T a, const T b)
+L711: 
+L712: requires std::same_as<T, std::uint64_t>
+L713: 
+L714: {
+L715: #if defined(__CUDA_ARCH__)
+L716: 
+L717: return __umul64hi(a, b);
+L718: 
+L719: #else
+L720: 
+L721: return (static_cast<unsigned __int128>(a) * b) >> 64;
+L722: 
+L723: #endif
+L724: 
+L725: }
+L726: 
+L727: template <class T>
+L728: 
+L729: static __host__ __device__ std::uint64_t multiply_wide(const T a, const T b)
+L730: 
+L731: requires std::same_as<T, std::uint32_t>
+L732: 
+L733: {
+L734: 
+L735: #if defined(__CUDA_ARCH__)
+L736: 
+L737: std::uint64_t c;
+L738: 
+L739: asm("mul.wide.u32 %0, %1, %2;" : "=l"(c) : "r"(a), "r"(b));
+L740: 
+L741: return c;
+L742: 
+L743: #else
+L744: 
+L745: return static_cast<std::uint64_t>(a) * b;
+L746: #endif
+L747: 
+L748: }
+L749: 
+L750: template <class T>
+L751: 
+L752: static __host__ __device__ unsigned __int128 multiply_wide(const T a, const T b)
+L753: 
+L754: requires std::same_as<T, std::uint64_t>
+L755: 
+L756: {
+L757: 
+L758: return static_cast<unsigned __int128>(a) * b;
+L759: 
+L760: }
+L761: 
+L762: } // namespace arithmetic
+L763: 
+L764: } // namespace polyarith
+L765: 
+L766: #endif /* POLYARITH_ARITHMETIC_CUH_INCLUDED */
+L767: 
+L768: You can’t perform that action at this time.
+--------------------------------------------------------------------------------
+tensor-core-ntt/include/polyarith/arithmetic.cuh at main · Terminus-IMRC/tensor-core-ntt · GitHub (https://github.com/Terminus-IMRC/tensor-core-ntt/blob/main/include/polyarith/arithmetic.cuh)
+citeturn8view3 [wordlim: 200] Crawled: 2 months ago; Content type: text/html; Source: find({"ref_id":"turn7view0","pattern":"multiply_wide"}); Total lines: 769
+L645: #if defined(__CUDA_ARCH__)
+L646: 
+L647: std::uint64_t d;
+L648: 
+L649: asm("{\n"
+L650: 
+L651: ".reg.u64 d, e;\n"
+L652: 
+L653: "sub.cc.u64 d, %1, %2;\n"
+L654: 
+L655: "add.u64 e, d, %3;\n"
+L656: 
+L657: ".reg.u32 mask;\n"
+L658: 
+L659: "subc.u32 mask, 0, 0;\n"
+L660: 
+L661: ".reg.u32 d0, d1, e0, e1;\n"
+L662: 
+L663: "mov.b64 {d0, d1}, d;\n"
+L664: 
+L665: "mov.b64 {e0, e1}, e;\n"
+L666: 
+L667: "lop3.b32 d0, d0, e0, mask, (~0xaa & 0xf0) | (0xaa & 0xcc);\n"
+L668: 
+L669: "lop3.b32 d1, d1, e1, mask, (~0xaa & 0xf0) | (0xaa & 0xcc);\n"
+L670: 
+L671: "mov.b64 %0, {d0, d1};\n"
+L672: 
+L673: "}"
+L674: 
+L675: : "=l"(d)
+L676: 
+L677: : "l"(a), "l"(b), "l"(c));
+L678: 
+L679: return d;
+L680: #else
+L681: 
+L682: return (a >= b) ? (a - b) : (a - b + c);
+L683: 
+L684: #endif
+L685: 
+L686: }
+L687: 
+L688: template <class T>
+L689: 
+L690: static __host__ __device__ std::uint32_t multiply_high(const T a, const T b)
+L691: 
+L692: requires std::same_as<T, std::uint32_t>
+L693: 
+L694: {
+L695: 
+L696: #if defined(__CUDA_ARCH__)
+L697: 
+L698: return __umulhi(a, b);
+L699: 
+L700: #else
+L701: 
+L702: return (static_cast<std::uint64_t>(a) * b) >> 32;
+L703: 
+L704: #endif
+L705: 
+L706: }
+L707: 
+L708: template <class T>
+L709: 
+L710: static __host__ __device__ std::uint64_t multiply_high(const T a, const T b)
+L711: 
+L712: requires std::same_as<T, std::uint64_t>
+L713: 
+L714: {
+L715: #if defined(__CUDA_ARCH__)
+L716: 
+L717: return __umul64hi(a, b);
+L718: 
+L719: #else
+L720: 
+L721: return (static_cast<unsigned __int128>(a) * b) >> 64;
+L722: 
+L723: #endif
+L724: 
+L725: }
+L726: 
+L727: template <class T>
+L728: 
+L729: static __host__ __device__ std::uint64_t multiply_wide(const T a, const T b)
+L730: 
+L731: requires std::same_as<T, std::uint32_t>
+L732: 
+L733: {
+L734: 
+L735: #if defined(__CUDA_ARCH__)
+L736: 
+L737: std::uint64_t c;
+L738: 
+L739: asm("mul.wide.u32 %0, %1, %2;" : "=l"(c) : "r"(a), "r"(b));
+L740: 
+L741: return c;
+L742: 
+L743: #else
+L744: 
+L745: return static_cast<std::uint64_t>(a) * b;
+L746: #endif
+L747: 
+L748: }
+L749: 
+L750: template <class T>
+L751: 
+L752: static __host__ __device__ unsigned __int128 multiply_wide(const T a, const T b)
+L753: 
+L754: requires std::same_as<T, std::uint64_t>
+L755: 
+L756: {
+L757: 
+L758: return static_cast<unsigned __int128>(a) * b;
+L759: 
+L760: }
+L761: 
+L762: } // namespace arithmetic
+L763: 
+L764: } // namespace polyarith
+L765: 
+L766: #endif /* POLYARITH_ARITHMETIC_CUH_INCLUDED */
+L767: 
+L768: You can’t perform that action at this time.
+--------------------------------------------------------------------------------
+tensor-core-ntt/include/polyarith/cuda/ntt.cuh at main · Terminus-IMRC/tensor-core-ntt · GitHub (https://github.com/Terminus-IMRC/tensor-core-ntt/blob/main/include/polyarith/cuda/ntt.cuh)
+citeturn8view4 [wordlim: 200] Crawled: last month; Content type: text/html; Source: find({"ref_id":"turn7view2","pattern":"MontgomeryFriendlyMultiplier64"}); Total lines: 1508
+L1277: const int row = 2 * i + 1 * (laneId / 16);
+L1278: 
+L1279: const int col = laneId % 16;
+L1280: 
+L1281: uu[i] = reduction.reduce(vv[warpId][0][row][col], vv[warpId][1][row][col],
+L1282: 
+L1283: vv[warpId][2][row][col], vv[warpId][3][row][col],
+L1284: 
+L1304: const int laneId = get_laneId();
+L1305: 
+L1306: const int warpId = get_warpId<2>();
+L1307: 
+L1308: std::uint32_t aa[8][2];
+L1309: 
+L1310: matrix_16x16_decompose_u64_to_u8<reduction_type::modulus_bits>(aa, a);
+L1311: 
+L1312: extern __shared__ std::uint8_t bb[][8][16][16];
+L1313: 
+L1314: for (int pos = 0; pos < 8; ++pos) {
+L1315: 
+L1316: for (int i = 0; i < 8; ++i) {
+L1317: 
+L1318: const int row = 2 * i + 1 * (laneId / 16);
+L1319: 
+L1320: const int col = laneId % 16;
+L1321: 
+L1322: // XXX
+L1323: 
+L1324: bb[warpId * 4][pos][row][col] =
+L1325: 
+L1326: aa[pos][(i < 4) ? 0 : 1] >> (8 * (i % 4));
+L1327: 
+L1328: }
+L1329: 
+L1330: }
+L1331: 
+L1332: __syncwarp();
+L1333: nvcuda::wmma::fragment<nvcuda::wmma::matrix_a, 16, 16, 16, std::uint8_t,
+L1334: 
+L1335: nvcuda::wmma::row_major>
+L1336: 
+L1337: cc[8];
+L1338: 
+L1339: nvcuda::wmma::fragment<nvcuda::wmma::matrix_b, 16, 16, 16, std::uint8_t,
+L1340: 
+L1341: nvcuda::wmma::col_major>
+L1342: 
+L1343: dd[8];
+L1344: 
+L1345: for (int pos = 0; pos < 8; ++pos) {
+L1346: 
+L1347: nvcuda::wmma::load_matrix_sync(cc[pos], &bb[warpId * 4][pos][0][0], 16);
+L1348: 
+L1349: nvcuda::wmma::load_matrix_sync(dd[pos], &values[pos][0][0], 16);
+L1350: 
+L1351: }
+L1352: 
+L1353: // mma(A, N^T) = A N
+L1354: 
+L1355: // mma(A^T, N^T) = A^T N
+L1356: 
+L1357: multiply_ntt_matrix_wmma(a, cc, dd, layout, modulus, reduction);
+L1358: }
+L1359: 
+L1360: };
+L1361: 
+L1362: template <int n_, int radix_> class NttForwardScalarIterative {
+L1363: 
+L1364: public:
+L1365: 
+L1366: static constexpr int n = n_;
+L1367: 
+L1368: static constexpr int radix = radix_;
+L1369: 
+L1370: private:
+L1371: 
+L1372: using multiplier_type = modular::MontgomeryFriendlyMultiplier64;
+L1373: 
+L1374: multiplier_type values[radix - 1][n / radix];
+L1375: 
+L1376: public:
+L1377: 
+L1378: NttForwardScalarIterative(void) = default;
+L1379: 
+L1380: NttForwardScalarIterative(const Modulus &modulus) {
+L1381: 
+L1382: const std::uint64_t root = modulus.get_root_forward(n);
+L1383: #pragma omp parallel for
+L1384: 
+L1385: for (int i = 0; i < n / radix; ++i) {
+L1386: 
+L1387: std::vector<int> indices;
+L1388: 
+L1389: indices.reserve(radix - 1);
+L1390: 
+L1391: for (int subradix = radix; subradix > 1; subradix /= 2) {
+L1392: 
+L1393: for (int j = 0; j < subradix / 2; ++j) {
+L1394: 
+L1395: indices.push_back(i * (radix / subradix) + n / subradix * j);
+L1396: 
+L1397: }
+L1398: 
+L1399: }
+L1400: 
+L1401: if (indices.size() != radix - 1) {
+L1402: 
+L1403: throw std::runtime_error("internal error");
+L1404: 
+L1405: }
+L1406: 
+L1407: for (int j = 0; j < radix - 1; ++j) {
+L1408: 
+L1409: values[j][i] = multiplier_type(modulus.power(root, indices[j]),
+L1410: 
+L1411: modulus.get_modulus());
+L1412: 
+L1413: }
+L1414: 
+L1415: }
+L1416: }
+L1417: 
+L1418: __device__ void get(multiplier_type out[radix - 1], const int index) const {
+L1419: 
+L1420: for (int i = 0; i < radix - 1; ++i) {
+L1421: 
+L1422: out[i] = values[i][index];
+L1423: 
+L1424: }
+L1425: 
+L1426: }
+L1427: 
+L1428: private:
+L1429: 
+L1430: static __device__ void
+L1431: 
+L1432: montgomery_butterfly(std::uint64_t &a0, std::uint64_t &a1,
+L1433: 
+L1434: const modular::MontgomeryFriendlyMultiplier64 omega,
+L1435: 
+L1436: const std::uint64_t N) {
+L1437: 
+L1438: std::uint64_t b0;
+L1439: 
+L1440: b0 = a0 + a1;
+L1441: 
+L1442: if (b0 >= N * 2) {
+L1443: 
+L1444: b0 -= N * 2;
+L1445: 
+L1446: }
+L1447: 
+L1448: std::uint64_t b1;
+L1449: 
+L1450: b1 = a0 - a1 + N * 2;
+L1451: 
+L1452: b1 = omega.multiply(b1, N);
+L1453: 
+L1454: a0 = b0;
+L1455: 
+L1456: a1 = b1;
+L1457: 
+L1458: }
+L1459: template <int radix>
+L1460: 
+L1461: static __device__ void montgomery_butterfly(
+L1462: 
+L1463: std::uint64_t a[radix],
+L1464: 
+L1465: const modular::MontgomeryFriendlyMultiplier64 omega[radix - 1],
+L1466: 
+L1467: const std::uint64_t N) {
+L1468: 
+L1469: for (int i = 0; i < radix / 2; ++i) {
+L1470: 
+L1471: montgomery_butterfly(a[radix / 2 * 0 + i], a[radix / 2 * 1 + i], omega[i],
+L1472: 
+L1473: N);
+L1474: 
+L1475: }
+L1476: 
+L1477: if constexpr (radix / 2 > 1) {
+L1478: 
+L1479: montgomery_butterfly<radix / 2>(&a[radix / 2 * 0], &omega[radix / 2], N);
+L1480: 
+L1481: montgomery_butterfly<radix / 2>(&a[radix / 2 * 1], &omega[radix / 2], N);
+L1482: 
+L1483: }
+L1484: 
+L1485: }
+L1486: 
+L1487: public:
+L1488: __device__ void compute(std::uint64_t a[radix], const int index,
+L1489: 
+L1490: const std::uint64_t modulus) const {
+L1491: 
+L1492: multiplier_type omega[radix - 1];
+L1493: 
+L1494: get(omega, index);
+L1495: 
+L1496: montgomery_butterfly<radix>(a, omega, modulus);
+L1497: 
+L1498: }
+L1499: 
+L1500: };
+L1501: 
+L1502: } // namespace cuda
+L1503: 
+L1504: } // namespace polyarith
+L1505: #endif /* POLYARITH_CUDA_NTT_CUH_INCLUDED */
+L1506: 
+L1507: You can’t perform that action at this time.
+--------------------------------------------------------------------------------
+tensor-core-ntt/include/polyarith/cuda at main · Terminus-IMRC/tensor-core-ntt · GitHub (https://github.com/Terminus-IMRC/tensor-core-ntt/tree/main/include/polyarith/cuda)
+citeturn8view5 [wordlim: 200] Crawled: last month; Content type: text/html; Source: find({"ref_id":"turn6view3","pattern":"ntt"}); Total lines: 201
+L71:     * SUPPORT & SERVICES
+L72:       * 【14†Documentation†docs.github.com】
+L73:       * 【44†Customer support†support.github.com】
+L74:       * 【45†Community forum】
+L75:       * 【46†Trust center】
+L76:       * 【47†Partners】
+L77: 
+L78: 【48†View all resources】
+L79: 
+L80:   * Open Source
+L81: 
+L82:     * COMMUNITY
+L83:       * 【49†GitHub SponsorsFund open source developers】
+L84:     * PROGRAMS
+L85:       * 【50†Security Lab†securitylab.github.com】
+L86:       * 【51†Maintainer Community†maintainers.github.com】
+L87:       * 【52†GitHub Stars†stars.github.com】
+L88:       * 【53†Archive Program†archiveprogram.github.com】
+L89: 
+L90:     * REPOSITORIES
+L91:       * 【54†Topics】
+L92:       * 【55†Trending】
+L93:       * 【56†Collections】
+L94: 
+L95:   * Enterprise
+L96: 
+L97:     * ENTERPRISE SOLUTIONS
+L98:       * 【19†Enterprise platformAI-powered developer platform】
+L99:     * AVAILABLE ADD-ONS
+L100:       * 【10†GitHub Advanced SecurityEnterprise-grade security features】
+L101:       * 【57†Copilot for BusinessEnterprise-grade AI features】
+L102:       * 【58†Premium SupportEnterprise-grade 24/7 support】
+L103: 
+L104:   * 【59†Pricing】
+L105: 
+L106: Search`/`
+L107: 
+L108: 【1†Sign in】
+L109: 
+L110: 【60†Sign up】
+L111: 
+L112: Appearance settings
+L113: You signed in with another tab or window. Reload to refresh your session. You signed out in another tab or window. Reload to refresh your session. You switched accounts on another tab or window. Reload to refresh your session. Dismiss alert
+L114: 
+L115: 【61†Terminus-IMRC】 / 【62†tensor-core-ntt】 Public
+L116: 
+L117:   * 【63†Notifications】 You must be signed in to change notification settings
+L118:   * 【63†Fork 2】
+L119:   * 【63†Star】
+L120:   * 【62†Code】
+L121:   * 【64†Issues 0】
+L122:   * 【65†Pull requests 0】
+L123:   * 【66†Actions】
+L124:   * 【67†Security and quality 0】
+L125:   * 【68†Insights】
+L126: 
+L127: Additional navigation options
+L128: ## Files Expand file tree
+L129: 
+L130: main
+L131: 
+L132: ## Breadcrumbs
+L133: 
+L134:   1. 【69†tensor-core-ntt】
+L135:   2. /【70†include】
+L136:   3. /【71†polyarith】
+L137: 
+L138: /
+L139: 
+L140: # cuda
+L141: 
+L142: /
+L143: 
+L144: Copy path
+L145: 
+L146: ## Directory actions
+L147: 
+L148: [Input: Go to file]
+L149: 
+L150: ## More options
+L151: 
+L152: More options
+L153: 
+L154: ## Directory actions
+L155: 
+L156: ## More options
+L157: 
+L158: More options
+L159: 
+L160: ## Latest commit
+L161: 
+L162: 
+L163: 
+L164: ## History
+L165: 
+L166: History
+L167: 
+L168: main
+L169: 
+L170: ## Breadcrumbs
+L171: 
+L172:   1. 【69†tensor-core-ntt】
+L173:   2. /【70†include】
+L174:   3. /【71†polyarith】
+L175: 
+L176: /
+L177: 
+L178: # cuda
+L179: 
+L180: /
+L181: 
+L182: Copy path
+L183: 
+L184: Top
+L185: ## Folders and files
+L186: 
+L187: Name  | Name  | Last commit message  | Last commit date
+L188: --- | --- | --- | ---
+L189: 
+L190: ### parent directory
+L191: 
+L192: 【71†..】
+L193: 【72†error.cuh】  | 【72†error.cuh】  |    |
+L194: 【73†matrix.cuh】  | 【73†matrix.cuh】  |    |
+L195: 【74†mma.cuh】  | 【74†mma.cuh】  |    |
+L196: 【75†ntt.cuh】  | 【75†ntt.cuh】  |    |
+L197: 【76†thread.cuh】  | 【76†thread.cuh】  |    |
+L198: 【77†twiddle.cuh】  | 【77†twiddle.cuh】  |    |
+L199: 
+L200: You can’t perform that action at this time.
+

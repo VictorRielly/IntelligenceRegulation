@@ -1,0 +1,16 @@
+{
+  "command": [
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-indexed-fold-20261029/probe"
+  ],
+  "exit_code": 0,
+  "wall_s": 0.9225478340085829,
+  "max_rss_kib": 29040,
+  "one_cpu_affinity": true,
+  "nice": 19,
+  "cpu_limit_s": 40,
+  "alarm_s": 45,
+  "parent_timeout_s": 50,
+  "address_space_mib": 384,
+  "estimated_memory_mib": 96,
+  "gpu": false
+}

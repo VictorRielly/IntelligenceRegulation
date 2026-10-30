@@ -1,0 +1,224 @@
+from pathlib import Path
+import json,datetime
+D=Path(__file__).resolve().parent;W=D.parent.parent;run='20261029T195649Z-795daf31';now=datetime.datetime.now(datetime.timezone.utc).isoformat()
+report=f'''# Cycle 0150 — A support and the cost of empty row scans
+
+Run `{run}`. Started October 29, 2026 at 19:56:49 UTC;
+checkpoint {now}; deadline 20:16:49 UTC. The agenda, target, durable memory,
+latest results and owner documents were read and snapshotted. An early STATE
+checkpoint preceded the experiment.
+
+**No native proving improvement measured.** At frozen R13 8B/T128 geometry,
+A's source-derived structural support permits 78.9076% / 79.0617% fewer
+logical matrix reads with the prior zero-skip candidate (noDD / DD32).
+Dense chunk4 visits are 45,770 / 44,550; structural visits are 9,654 / 9,328.
+With prior H support, combined reductions are 68.7275% / 69.1085%.
+These counts exclude actual host pads, construction and other proof phases.
+They are not physical traffic, GPU time or an end-to-end speedup.
+
+Native plane allocation, domain list, offset loop, slice builder, claim-point
+mapping, claim builder, grouping, rho and audit helpers were extracted
+unchanged. Local public Shape/Layout wrappers and source-read slot schedules
+supply metadata. An independent Python named-plane and interval model agrees
+with every descriptor, grouping key and support row. Native define, FS,
+CUDA and full proofs were not run. R14 geometry differs.
+
+A has 508 / 509 data rows touched by more than one evaluation group; H's
+partition assumption fails for A. A bounded public pair-swap planner gives
+5,658 / 5,794 visits in 7 / 10 swaps. This is a local optimum, not a global
+or device-time optimum. Python planning took 17.9 / 27.3 ms in one diagnostic.
+Simple rho clones add 2,709,584 / 2,779,920 B; streaming limits active clone
+payload to 292,928 / 285,120 B. Actual plans restore logical output order.
+
+The denominator check prevents an inflated interpretation: all row scans and
+44.394 / 45.546 GB of source logical rho operands remain. Matrix-plus-rho
+operand reductions are only 9.3938% / 8.9843%, before compiler, cache and warp
+broadcast effects. Prior source accumulator-plus-weight payload grows from
+64 to 128 B/thread; actual registers, spills and occupancy are unknown.
+
+Validation passed 14 Rust cases: 27,540,288 independent full-cube coefficient
+comparisons, 5,172 restored synthetic message-plus-three-pad-column values,
+380 source-row/narrow-five-column base-field values and 62 controls. The
+independent census passed 517 checks; the artifact/exact-helper audit passed
+64. Small shapes are synthetic and unadmitted. Actual PCS pads, FS, receipts
+and privacy validation are not covered. This is one researcher's independent
+reference, not external review. Seed: 202610290150.
+
+Final compile: 2.6373 s / 183,748 KiB RSS; probe: 0.6713 s / 25,748 KiB;
+census: 0.1663 s / 17,388 KiB; cost accounting: 0.0331 s / 12,564 KiB;
+audit: 0.0653 s / 31,120 KiB. One CPU affinity, nice 19, 40 s CPU, 45 s alarm,
+50 s parent timeout and 384 MiB address-space caps. Estimated memory was
+300 MiB for compilation and 96 MiB otherwise. Intel Core Ultra 9 185H,
+WSL2, Rust 1.75, Python 3.10.12. Worker code is serial; compiler auxiliary
+threads are unmeasured, with one affinity and one codegen unit. Initial
+import, unpadded-axis-log, census-key and small-row-modulo failures remain
+saved alongside corrections and earlier passing results.
+
+Ranked priorities remain: (1) owner complete high-end GPU proofs and verified
+resident 1/2/4/8 workloads; (2) admitted context/DD/fidelity scaling;
+(3) exclusive native phase and capacity clocks. All 70 prior hypothesis
+objects are unchanged. Hypothesis 71 tests A support; 72 asks whether sorted
+public row-union indices can remove empty scans and rho loads. Index payload
+would be 38,616 / 37,312 B in original order, including dense proximity, or
+22,632 / 23,176 B after this packing. No indexed kernel was tested.
+Next local experiment: an exact indexed-loop/base-field differential with
+missing, duplicate, out-of-range and order controls, imaginary-only rho,
+masks, pads and proximity. Charge index construction, upload and indirection.
+New owner measurements take precedence. The rotating category queue is saved.
+
+Integration seam: fold_rows_multi_zk → EncodedStore::fold_rows →
+dev_fold_rows → k_fold_rows, max four. The prior kernel patch remains
+unapplied; no new production patch. Public planning must restore output
+order before pad concatenation or absorption. Keep every mask, pad,
+proximity vector, H sum/U, refusal, RNG draw, FS and PCS check. No private
+sparsity or mask/opening reuse. Main/Claude reviews and integrates.
+
+Owner next: actual current descriptor/group/support counters and exclusive
+rho H2D, allocation, kernel, D2H, pad, opening and enclosing clocks. Prior
+aggregate H2D accounting omits rho upload. Re-pin R14 separately. Only if
+material, use current shared locks for CUDA/register checks and native
+golden/refusal/RNG/FS/PCS/privacy plus independently verified full-receipt A/B.
+The ceiling remains N/(T−C_removed_exclusive+A_added), with unknown exclusive
+fraction f; free deletion is bounded by 1/(1−f). Any native counter, value,
+order, refusal, mask, RNG/FS/PCS or privacy mismatch, added costs erasing the
+gain, or no verified enclosing benefit falsifies promotion.
+
+LIVE searches refreshed [StateSync October26v2](https://arxiv.org/abs/2610.14849),
+[efficient-sumcheck](https://github.com/compsec-epfl/efficient-sumcheck) and
+[MegaZK](https://github.com/THU-HAS/MegaZK), and newly assessed
+[2025 reordering methodology](https://arxiv.org/abs/2506.10356) and
+[2026 HE layout objectives](https://arxiv.org/abs/2604.04683). They support
+methodology and applicability screens; no author performance was reproduced.
+Five records were appended, 1000→1005, retaining dates, exact URLs, nulls
+where dates/commits are unknown, license limits and Cachemiss blockers.
+Eight raw LIVE batches are saved. No external commit was inspected or foreign
+implementation executed. StateSync's current BSL1.1 body was inspected;
+MIT/Apache declarations for the other repositories lack inspected full bodies.
+The future November16 result was excluded.
+
+The owner's 19:14:14 state reports held R14 pipelines; it does not prove
+liveness. Its n=1 shared-box two-block public sparse T128 comparison remains
+49.2→35.1 s noDD and 48.7→33.8 s DD, excluding initial fixture/endpoint
+preparation and later verification. Reviews/privacy are owed. D44/D45/S4 do
+not amend the target. R13 8B/T512 remains unregistered at 94.48/94.80 bits.
+
+New independently verified full-stack proofs / passes / positions: **0/0/0**.
+Actual context and accelerator: **none**; modeled context 128; one CPU worker.
+Witness, proof, serialization, verification, startup/prefill duration and
+fraction, proof latency/bytes, steady-state and total-workload rates:
+**unmeasured**. No prefill, resident series or decode ran. Larger workloads
+remain allowed; dense attention can grow quadratically. Complete private 8B
+**>=50 proved tokens/s remains unachieved**.
+
+Carried older CPU 8B baseline, not rerun, reverified or newly counted:
+T128/L32, one 16-thread pass, GPU off. Total 478.737 s = 0.267370 positions/s;
+prove_run 393.785 s includes witness 98.348 s / load 17.595 s. Sealing
+84.824 s precedes it, with overlapping load 27.151 s / witness 80.897 s.
+Receipt 922,711,264 B; verify 42.709 s plus load 13.681 s. Isolated
+serialization, startup fraction and steady slope remain unknown.
+
+Only research outside runtime was written. Production, Git, receipts,
+calibration, instructions, safety gates and reviewer files were untouched.
+No GPU/native build, install, foreign execution, external write/message,
+purchase, escalation, Git operation or merge. Saved reports do not establish
+delivery or supervisor liveness.
+
+[Experiment](../experiments/a-overlap-support-20261029/README.md) ·
+[Handoff](../handoffs/20261029-a-overlap-support.md).
+'''
+(W/'progress'/f'{run}.md').write_text(report)
+old=(D/'startup/FINDINGS.md').read_bytes();current=(W/'FINDINGS.md').read_bytes();assert current.startswith(old)
+(W/'FINDINGS.md').write_bytes(old+b'\n\n## Cycle 0150 — 2026-10-29: A support and empty row scans\n\n'+report.encode())
+state=f'''# ZKP efficiency explorer — durable state
+
+Cycle 0150 COMPLETE: `{run}`.
+Started October 29, 2026 at 19:56:49 UTC; deadline 20:16:49 UTC.
+Next cycle no earlier than 20:56:49 UTC. Read AGENDA.md every cycle.
+Checkpoint: {now}. Startup snapshots and hashes are retained in
+experiments/a-overlap-support-20261029/startup/ and memory-index.json.
+
+**No native proving improvement measured.** Frozen R13 A public source
+support gives 9,654 / 9,328 row visits versus 45,770 / 44,550 dense chunk4
+at 8B/T128, noDD / DD32: 78.9076% / 79.0617% fewer logical matrix reads
+with the prior zero-skip candidate. Combined original-order A/H reduction:
+68.7275% / 69.1085%. A has 508 / 509 overlapping data rows; do not import
+H's partition. Native define, FS and CUDA were not run. R14 differs.
+
+Public pair-swap plans give 5,658 / 5,794 A visits, local optima only.
+Python planning: 17.9 / 27.3 ms n=1. Source-row/narrow-five-column base-field
+folds restore all logical outputs. Simple rho clones add 2,709,584 /
+2,779,920 B, or streamed active payload 292,928 / 285,120 B. No production
+patch; the prior kernel patch remains unapplied.
+
+All row scans and 44.394 / 45.546 GB of logical rho operands remain.
+Matrix-plus-rho source read reduction is only 9.3938% / 8.9843% before
+compiler/cache/broadcast effects; no physical traffic or time follows.
+Source accumulator plus weights grows 64→128 B/thread; registers/spills/
+occupancy remain unknown. Keep all transfers, outputs, pads, fresh masks,
+proximity, H sum/U, refusals, RNG/FS/PCS and privacy requirements.
+
+Validation: 14 Rust fixtures; 27,540,288 independent coefficients;
+5,172 restored synthetic message-plus-pad values; 380 source-row packed
+base-field values; 62 controls. Independent census: 517 checks; helper/
+artifact audit: 64; nine owner/mandate documents unchanged. Synthetic small
+shapes are unadmitted; native pads, FS, receipts and privacy were not tested.
+Initial compile/log/census-key/modulo failures and prior passing results saved.
+Seed 202610290150. Compile 2.6373 s / 183,748 KiB RSS; probe 0.6713 s /
+25,748 KiB; census 0.1663 s / 17,388 KiB. All bounded stages use one CPU
+affinity, nice 19, 40 s CPU /45 s alarm /50 s parent and 384 MiB address-space
+caps. Serial worker; compiler auxiliary threads unmeasured, one codegen unit.
+
+Ranked priorities: 1 owner complete high-end GPU proofs and verified resident
+1/2/4/8 workloads; 2 admitted context/DD/fidelity; 3 exclusive phases/capacity.
+All 70 prior hypotheses preserved; 71 tests A support and packing; 72 asks
+whether sorted public row-union indices remove empty scans and rho loads.
+Next local: indexed-loop/base-field differential with missing, duplicate,
+out-of-range and order controls, imaginary rho, masks, pads and proximity.
+Charge construction, upload and indirection. Original index payload:
+38,616 /37,312 B, or packed 22,632 /23,176 B, including dense proximity.
+No indexed kernel tested. New owner measured bottlenecks take precedence.
+
+Owner next: actual current public descriptor/group/support counters and
+exclusive rho H2D/allocation/kernel/D2H/pad/open/enclosing clocks; prior H2D
+stats omit rho upload. Re-pin R14 separately. If material, owner uses current
+shared locks for CUDA/register, native golden/refusal/RNG/FS/PCS/privacy and
+independently verified full-receipt/workload A/B. Main/Claude integrates.
+Ceiling N/(T−C_removed_exclusive+A_added); exclusive fraction unknown;
+free deletion ≤1/(1−f). No numerical 8B GPU forecast.
+
+Five LIVE records, 1000→1005; eight raw batches. StateSync October26v2,
+efficient-sumcheck and MegaZK refreshed; 2025 cache methodology and 2026 HE
+objective newly assessed. StateSync's current BSL1.1 body inspected; no
+foreign implementation executed or adopted, no external commit inspected.
+Exact URLs, dates/nulls, license limits and Cachemiss blockers saved.
+Owner R14 state at 19:14:14 reports held pipelines, not liveness. Its n=1
+shared-box two-block public sparse comparison excludes initial setup/later
+verify; reviews/privacy remain owed. D44/D45/S4 do not amend this target.
+R13 8B/T512 remains unregistered at 94.48 /94.80 bits. No 8B high-end GPU rate.
+
+New independently verified full-stack proofs / passes / positions: **0/0/0**.
+Actual context and accelerator: none; modeled T128; one pinned Intel Core
+Ultra 9 185H CPU worker. Witness, proof, serialization, verification,
+startup/prefill duration and fraction, proof latency/bytes and both rates:
+unmeasured. No prefill, resident series or decode. Larger workloads remain
+allowed; attention can grow quadratically. Complete private 8B >=50 proved
+tokens/s remains unachieved.
+
+Carried older CPU 8B baseline, not rerun/reverified/newly counted: T128/L32,
+one 16-thread pass, GPU off; total 478.737 s =0.267370 positions/s.
+prove_run 393.785 s includes witness 98.348 s /load 17.595 s; sealing
+84.824 s precedes it, with overlapping load 27.151 s /witness 80.897 s.
+Receipt 922,711,264 B; verify 42.709 s plus load 13.681 s. Isolated
+serialization, startup fraction and steady slope unknown. No GPU conclusion.
+
+Experiment: experiments/a-overlap-support-20261029/README.md.
+Handoff: handoffs/20261029-a-overlap-support.md.
+Report: progress/{run}.md.
+Only research outside runtime written. Production/Git/receipts/calibration/
+instructions/safety/reviewer files untouched. No GPU/native build, install,
+foreign execution, external write/message, purchase, escalation, Git or merge.
+Saved reports do not imply delivery or supervisor liveness.
+'''
+(W/'STATE.md').write_text(state)
+(D/'completion.json').write_text(json.dumps(dict(run_id=run,cycle='0150',status='COMPLETE',checkpoint_utc=now,full_stack_proofs=0,passes=0,positions=0,proof_clocks='unmeasured',device='One pinned Intel Core Ultra 9 185H CPU worker; no accelerator',actual_context=None,modeled_context=128,source_records_added=5,prior_hypotheses_preserved=70,new_hypotheses=2,production_writes=False,runtime_writes=False),indent=2)+'\n')
+print('Plain-language checkpoint complete; prior FINDINGS bytes unchanged.')

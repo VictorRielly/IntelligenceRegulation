@@ -1,0 +1,236 @@
+Time-Optimal Interactive Proofs for Circuit Evaluation (https://arxiv.org/html/1304.3812v4)
+citeturn11view0 [wordlim: 200] Crawled: yesterday; Content type: text/html; Source: open({"ref_id":"https://arxiv.org/html/1304.3812v4","lineno":null}); Total lines: 1007
+L0: ##### Report GitHub Issue
+L1: 
+L2: [Button: ×]
+L3: 
+L4: Title: [Input: Enter title]
+L5: 
+L6: Content selection saved. Describe the issue below:
+L7: 
+L8: Description:
+L9: 
+L10: [Button: Submit without GitHub] [Button: Submit in GitHub]
+L11: 
+L12: 【0†Why HTML?†info.arxiv.org】 Report Issue 【1†Back to Abstract】 【2†Download PDF】 Contents Reading mode Colour theme
+L13:   1. 【3†Abstract】
+L14:   2. 【4†1 Introduction】
+L15:     1. 【5†1.1 Prior Work】
+L16:       1. 【6†1.1.1 Work on Interactive Proofs.】
+L17:       2. 【7†1.1.2 Work on Argument Systems.】
+L18:     2. 【8†1.2 Our Contributions】
+L19:     3. 【9†1.3 Roadmap】
+L20:   3. 【10†2 Preliminaries】
+L21:     1. 【11†2.1 Definitions】
+L22:       1. 【12†2.1.1 Cost Model】
+L23:       2. 【13†2.1.2 Problem Definitions】
+L24:       3. 【14†2.1.3 Additional Notation】
+L25:   4. 【15†3 Overview of the Ideas】
+L26:     1. 【16†3.1 The GKR Protocol From 10,000 Feet】
+L27:     2. 【17†3.2 Achieving Optimal Prover Runtime for Regular Circuits】
+L28:     3. 【18†3.3 Verifying General Data Parallel Computations】
+L29:     4. 【19†3.4 A Special-Purpose Protocol for matmult】
+L30:   5. 【20†4 Technical Background】
+L31:     1. 【21†4.1 Schwartz-Zippel Lemma】
+L32:     2. 【22†4.2 Sum-Check Protocol】
+L33:       1. 【23†4.2.1 Discussion of costs.】
+L34:     3. 【24†4.3 The GKR Protocol】
+L35:       1. 【25†4.3.1 Notation】
+L36:       2. 【26†4.3.2 Protocol Outline】
+L37:       3. 【27†4.3.3 Details for Each Iteration】
+L38:       4. 【28†4.3.4 Discussion of Costs.】
+L39:       5. 【29†4.3.5 Making $\mathcal{V}$ Fast vs. Making $\mathcal{V}$ Streaming】
+L40:   6. 【30†5 Time-Optimal Protocols for Circuit Evaluation】
+L41:     1. 【31†5.1 Protocol Outline and Section Roadmap】
+L42:     2. 【32†5.2 A Preliminary Lemma】
+L43:     3. 【33†5.3 Polynomials for Specific Circuits】
+L44:       1. 【34†5.3.1 The Polynomial for a Binary Tree】
+L45:       2. 【35†5.3.2 The Polynomials for distinct】
+L46:     4. 【36†5.4 Reusing Work】
+L47:       1. 【37†5.4.1 Computing the Necessary $\beta(z,p)$ Values】
+L48:       2. 【38†5.4.2 Computing the Necessary $\tilde{V}_{i+1}(p)$ Values】
+L49:     5. 【39†5.5 A General Theorem】
+L50:       1. 【40†5.5.1 Applications】
+L51:   7. 【41†6 Experimental Results】
+L52:     1. 【42†6.1 Summary of Results】
+L53:     2. 【43†6.2 Details】
+L54:       1. 【44†6.2.1 Serial Implementation】
+L55:       2. 【45†6.2.2 Parallel Implementation】
+L56:   8. 【46†7 Verifying General Data Parallel Computations】
+L57:     1. 【47†7.1 Motivation】
+L58:     2. 【48†7.2 Overview of the Protocol】
+L59:     3. 【49†7.3 Technical Details】
+L60:       1. 【50†7.3.1 Notation】
+L61:       2. 【51†7.3.2 Main Theorem】
+L62:   9. 【52†8 Extensions】
+L63:     1. 【53†8.1 Binary Tree of Addition Gates】
+L64:     2. 【54†8.2 Optimal Space and Time Costs for matmult】
+L65:       1. 【55†8.2.1 Comparison to Prior Work】
+L66:       2. 【56†8.2.2 Protocol Details】
+L67:   10. 【57†9 Conclusion】
+L68:   11. 【58†References】
+L69:   12. 【59†A Proof of Theorem】
+L70:   13. 【60†B Analysis for Pattern Matching】
+L71: 【61†License: arXiv.org perpetual non-exclusive license†info.arxiv.org】
+L72: 
+L73: arXiv:1304.3812v4 [cs.CR] 08 Feb 2017
+L74: # Time-Optimal Interactive Proofs for Circuit Evaluation
+L75: 
+L76: Justin Thaler ^{†}^{†}thanks: Harvard University, School of Engineering and Applied Sciences. Supported by an NSF Graduate Research Fellowship and NSF grants CNS-1011840 and CCF-0915922.
+L77: ###### Abstract
+L78: Several research teams have recently been working toward the development of practical general-purpose protocols for verifiable computation. These protocols enable a computationally weak verifier to offload computations to a powerful but untrusted prover, while providing the verifier with a guarantee that the prover performed the requested computations correctly. Despite substantial progress, existing implementations require further improvements before they become practical for most settings.
+L79: The main bottleneck is typically the extra effort required by the prover to return an answer with a guarantee of correctness, compared to returning an answer with no guarantee.
+L80: We describe a refinement of a powerful interactive proof protocol due to Goldwasser, Kalai, and Rothblum [【62†21】]. Cormode, Mitzenmacher, and Thaler [【63†14】] show how to implement the prover in this protocol in time $O(S\log S)$, where $S$ is the size of an arithmetic circuit computing the function of interest. Our refinements apply to circuits with sufficiently “regular” wiring patterns; for these circuits, we bring the runtime of the prover down to $O(S)$.
+L81: That is, our prover can evaluate the circuit with a guarantee of correctness, with only a constant-factor blowup in work compared to evaluating the circuit with no guarantee.
+L82: We argue that our refinements capture a large class of circuits, and we complement our theoretical results with experiments on problems such as matrix multiplication and determining the number of distinct elements in a data stream. Experimentally, our refinements yield a 200x speedup for the prover over the implementation of Cormode et al., and our prover is less than 10x slower than a C++ program that simply evaluates the circuit.
+L83: Along the way, we describe a special-purpose protocol for matrix multiplication that is of interest in its own right.
+L84: Our final contribution is the design of an interactive proof protocol targeted at general data parallel computation. Compared to prior work, this protocol can more efficiently verify complicated computations as long as that computation is applied independently to many different pieces of data.
+L85: ###### Contents
+L86:   1. 【4†1 Introduction】
+L87:     1. 【5†1.1 Prior Work】
+L88:       1. 【6†1.1.1 Work on Interactive Proofs.】
+L89:       2. 【7†1.1.2 Work on Argument Systems.】
+L90:     2. 【8†1.2 Our Contributions】
+L91:     3. 【9†1.3 Roadmap】
+L92:   2. 【10†2 Preliminaries】
+L93:     1. 【11†2.1 Definitions】
+L94:       1. 【12†2.1.1 Cost Model】
+L95:       2. 【13†2.1.2 Problem Definitions】
+L96:       3. 【14†2.1.3 Additional Notation】
+L97:   3. 【15†3 Overview of the Ideas】
+L98:     1. 【16†3.1 The GKR Protocol From 10,000 Feet】
+L99:     2. 【17†3.2 Achieving Optimal Prover Runtime for Regular Circuits】
+L100:     3. 【18†3.3 Verifying General Data Parallel Computations】
+L101:     4. 【19†3.4 A Special-Purpose Protocol for matmult】
+L102:   4. 【20†4 Technical Background】
+L103:     1. 【21†4.1 Schwartz-Zippel Lemma】
+L104:     2. 【22†4.2 Sum-Check Protocol】
+L105:       1. 【23†4.2.1 Discussion of costs.】
+L106:     3. 【24†4.3 The GKR Protocol】
+L107:       1. 【25†4.3.1 Notation】
+L108:       2. 【26†4.3.2 Protocol Outline】
+L109:       3. 【27†4.3.3 Details for Each Iteration】
+L110:       4. 【28†4.3.4 Discussion of Costs.】
+L111:       5. 【29†4.3.5 Making $\mathcal{V}$ Fast vs. Making $\mathcal{V}$ Streaming】
+L112:   5. 【30†5 Time-Optimal Protocols for Circuit Evaluation】
+L113:     1. 【31†5.1 Protocol Outline and Section Roadmap】
+L114:     2. 【32†5.2 A Preliminary Lemma】
+L115:     3. 【33†5.3 Polynomials for Specific Circuits】
+L116:       1. 【34†5.3.1 The Polynomial for a Binary Tree】
+L117:       2. 【35†5.3.2 The Polynomials for distinct】
+L118:     4. 【36†5.4 Reusing Work】
+L119:       1. 【37†5.4.1 Computing the Necessary $\beta(z,p)$ Values】
+L120:       2. 【38†5.4.2 Computing the Necessary $\tilde{V}_{i+1}(p)$ Values】
+L121:     5. 【39†5.5 A General Theorem】
+L122:       1. 【40†5.5.1 Applications】
+L123:   6. 【41†6 Experimental Results】
+L124:     1. 【42†6.1 Summary of Results】
+L125:     2. 【43†6.2 Details】
+L126:       1. 【44†6.2.1 Serial Implementation】
+L127:       2. 【45†6.2.2 Parallel Implementation】
+L128:   7. 【46†7 Verifying General Data Parallel Computations】
+L129:     1. 【47†7.1 Motivation】
+L130:     2. 【48†7.2 Overview of the Protocol】
+L131:     3. 【49†7.3 Technical Details】
+L132:       1. 【50†7.3.1 Notation】
+L133:       2. 【51†7.3.2 Main Theorem】
+L134:   8. 【52†8 Extensions】
+L135:     1. 【53†8.1 Binary Tree of Addition Gates】
+L136:     2. 【54†8.2 Optimal Space and Time Costs for matmult】
+L137:       1. 【55†8.2.1 Comparison to Prior Work】
+L138:       2. 【56†8.2.2 Protocol Details】
+L139:   9. 【57†9 Conclusion】
+L140:   10. 【58†References】
+L141:   11. 【59†A Proof of Theorem】
+L142:   12. 【60†B Analysis for Pattern Matching】
+L143: ## 1 Introduction
+L144: 
+L145: Protocols for verifiable computation enable a computationally weak verifier $\mathcal{V}$ to offload computations to a powerful but untrusted prover $\mathcal{P}$. These protocols aim to provide the verifier with a guarantee that the prover performed the requested computations correctly, without requiring the verifier to perform the computations herself.
+L146: Surprisingly powerful protocols for verifiable computation were discovered within the computer science theory community several decades ago, in the form of interactive proofs (IPs) and their brethren, interactive arguments (IAs) and probabilistically checkable proofs (PCPs). In these protocols, the prover $\mathcal{P}$ solves a problem using her (possibly vast) computational resources, and tells $\mathcal{V}$ the answer.
+L147: $\mathcal{P}$ and $\mathcal{V}$ then have a conversation, i.e., they engage in a randomized protocol involving the exchange of one or more messages. During this conversation, $\mathcal{P}$’s goal is to convince $\mathcal{V}$ that the answer is correct.
+L148: Results quantifying the power of IPs, IAs, and PCPs represent some of the most celebrated results in all of computational complexity theory, but until recently they were mainly of theoretical interest, far too inefficient for actual deployment. In fact, the main applications of these results have traditionally been in negative applications – showing that many problems are just as hard to approximate as they are to solve exactly.
+L149: However, the surging popularity of cloud computing has brought renewed interest in positive applications of protocols for verifiable computation. A typical motivating scenario is as follows. A business processes billions or trillions of transactions a day. The volume is sufficiently high that the business cannot or will not store and process the transactions on its own. Instead, it offloads the processing to a commercial cloud computing service.
+L150: The offloading of any computation raises issues of trust: the business may be concerned about relatively benign events like dropped transactions, buggy algorithms, or uncorrected hardware faults, or the business may be more paranoid and fear that the cloud operator is deliberately deceptive or has been externally compromised. Either way, each time the business poses a query to the cloud, the business may demand that the cloud also provide a guarantee that the returned answer is correct.
+L151: This is precisely what protocols for verifiable computation accomplish, with the cloud acting as the prover in the protocol, and the business acting as the verifier. In this paper, we describe a refinement of an existing general-purpose protocol originally due to Goldwasser, Kalai, and Rothblum [【62†21】, 【63†14】].
+L152: When they are applicable, our techniques achieve asymptotically optimal runtime for the prover, and we demonstrate that they yield protocols that are significantly closer to practicality than that achieved by prior work.
+L153: We also make progress toward addressing another issue of existing interactive proof implementations: their applicability. The protocol of Goldwasser, Kalai, and Rothblum (henceforth the GKR protocol) applies in principle to any problem computed by a small-depth arithmetic circuit, but this is not the case when more fine-grained considerations of prover and verifier efficiency are taken into account.
+L154: In brief, existing implementations of interactive proof protocols for circuit evaluation all require that the circuit have a highly regular wiring pattern [【63†14】, 【64†40】].
+L155: If this is not the case, then these implementations require the verifier to perform an expensive (though data-independent) preprocessing phase to pull out information about the wiring of the circuit, and they require a substantial factor blowup (logarithmic in the circuit size) in runtime for the prover relative to evaluating the circuit without a guarantee of correctness. Developing a protocol that avoids these pitfalls and applies to more general computations remains an important open question.
+L156: Our approach is the following. We do not have a magic bullet for dealing with irregular wiring patterns; if we want to avoid an expensive pre-processing phase for the verifier and minimize the blowup in runtime for the prover, we do need to make an assumption about the structure of the circuit we are verifying. Acknowledging this, we ask whether there is some general structure in real-world computations that we can leverage for efficiency gains.
+L157: To this end, we design a protocol that is highly efficient for data parallel computation. By data parallel computation, we mean any setting in which one applies the same computation independently to many pieces of data. Many outsourced computations are data parallel, with Amazon Elastic MapReduce^{1}^{1} 1 http://aws.amazon.com/elasticmapreduce/ being one prominent example of a cloud computing service targeted specifically at data parallel computations.
+L158: Crucially, we do not want to make significant assumptions on the sub-computation that is being applied, and in particular we want to handle sub-computations computed by circuits with highly irregular wiring patterns.
+L159: The verifier in our protocol still has to perform an offline phase to pull out information about the wiring of the circuit, but the cost of this phase is proportional to the size of a single instance of the sub-computation, avoiding any dependence on the number of pieces of data to which the sub-computation is applied. Similarly, the blowup in runtime suffered by the prover is the same as it would be if the prover had run the basic GKR protocol on a single instance of the sub-computation.
+L160: Our final contribution is to describe a new protocol specific to matrix multiplication that is of interest in its own right. It avoids circuit evaluation entirely, and reduces the overhead of the prover (relative to running any unverifiable algorithm) to an additive low-order term.
+L161: ### 1.1 Prior Work
+L162: #### 1.1.1 Work on Interactive Proofs.
+L163: Goldwasser, Kalai, and Rothblum described a powerful general-purpose interactive proof protocol in [【62†21】]. This protocol is framed in the context of circuit evaluation.
+L164: Given a layered arithmetic circuit $C$ of depth $d$, size $S(n)$, and fan-in 2, the GKR protocol allows a prover to evaluate $C$ with a guarantee of correctness in time $\mathrm{poly}(S(n))$, while the verifier runs in time $\tilde{O}(n+d\log S(n))$, where $n$ is the length of the input and the $\tilde{O}$ notation hides polylogarithmic factors in $n$.
+L165: Cormode, Mitzenmacher, and Thaler showed how to bring the runtime of the prover in the GKR protocol down from $\mathrm{poly}(S(n))$ to $O(S(n)\log S(n))$ [【63†14】]. They also built a full implementation of the protocol and ran it on benchmark problems.
+L166: These results demonstrated that the protocol does indeed save the verifier significant time in practice (relative to evaluating the circuit locally); they also demonstrated surprising scalability for the prover, although the prover’s runtime remained a major bottleneck. With the implementation of [【63†14】] as a baseline, Thaler et al.
+L167: [【65†38】] described a parallel implementation of the GKR protocol that achieved 40x-100x speedups for the prover and 100x speedups for the (already fast) implementation of the verifier.
+L168: Vu, Setty, Blumberg, and Walfish [【64†40】] further refine and extend the implementation of Cormode et al. [【63†14】]. In particular, they combine the GKR protocol with a compiler from a high-level programming language so that programmers do not have to explicitly express computation in the form of arithmetic circuits as was the case in the implementation of [【63†14】].
+L169: This substantially extends the reach of the implementation, but it should be noted that their approach generates circuits with irregular wiring patterns, and hence only works in a batching model, where the cost of a fairly expensive offline setup phase is amortized by verifying many instances of a single computation in batch.
+L170: They also build a hybrid system that statically evaluates whether it is better to use the GKR protocol or a different, cryptography-based argument system called Zaatar (see Section 【7†1.1.2】), and runs the more efficient of the two protocols in an automated fashion.
+L171: A growing line of work studies protocols for verifiable computation in the context of data streaming. In this context, the goal is not just to save the verifier time (compared to doing the computation without a prover), but also to save the verifier space. The protocols developed in this line of work allow the client to make a single streaming pass over the input (which can occur, for example, while the client is uploading data to the cloud), keeping only a very small summary of the data set.
+L172: The interactive version of this model was introduced by Cormode, Thaler, and Yi [【66†15】], who observed that many protocols from the interactive proofs literature, including the GKR protocol, can be made to work in this restrictive setting. The observations of [【66†15】] imply that all of our protocols also work with streaming verifiers. Non-interactive variants of the streaming interactive proofs model have also been studied in detail [【67†12】, 【68†13】, 【69†23】, 【70†27】].
+L173: #### 1.1.2 Work on Argument Systems.
+L174: There has been a lot of work on the development of efficient interactive arguments, which are essentially interactive proofs that are secure only against dishonest provers that run in polynomial time. A substantial body of work in this area has focused on the development of protocols targeted at specific problems (e.g. [【71†2】, 【72†5】, 【73†16】]). Other works have focused on the development of general-purpose argument systems. Several papers in this direction (e.g.
+L175: [【74†11】, 【75†8】, 【76†18】, 【77†10】]) have used fully homomorphic encryption, which unfortunately remains impractical despite substantial recent progress. Work in this category by Chung et al. [【77†10】] focuses on streaming settings, and is therefore particularly relevant.
+L176: Several research teams have been pursuing the development of general-purpose argument systems that might be suitable for practical use. Theoretical work by Ben-Sasson et al. [【78†4】] focuses on the development of short PCPs that might be suitable for use in practice – such PCPs can be compiled into efficient interactive arguments. As short PCPs are often a bottleneck in the development of efficient argument systems, other works have focused on avoiding their use [【79†6】, 【80†3】, 【81†7】, 【82†19】].
+L177: In particular, Gennaro et al. [【82†19】] and Bitansky et al. [【83†9】] develop argument systems with a clear focus on implementation potential. Very recent work by Parno et al. [【84†30】] describes a near-practical general-purpose implementation, called Pinocchio, of an argument system based on [【82†19】]. Pinocchio is additionally non-interactive and achieves public verifiability.
+L178: Another line of implementation work focusing on general-purpose interactive argument systems is due to Setty et al. [【85†34】, 【86†35】, 【87†36】]. This line of work begins with a base argument system due to Ishai et al. [【88†25】], and substantially refines the theory to achieve an implementation that approaches practicality. The most recent system in this line of work is called Zaatar [【87†36】], and is also based on the work of Gennaro et al. [【82†19】].
+L179: An empirical comparison of the GKR-based approach and Zaatar performed by Vu et al. [【64†40】] finds the GKR approach to be significantly more efficient for quasi-straight-line computations (e.g. programs with relatively simple control flow), while Zaatar is appropriate for programs with more complicated control flow.
+L180: ### 1.2 Our Contributions
+L181: Our primary contributions are three-fold. Our first contribution addresses one of the biggest remaining obstacles to achieving a truly practical implementation of the GKR protocol: the logarithmic factor overhead for the prover. That is, Cormode et al. show how to implement the prover in time $O(S(n)\log S(n))$, where $S(n)$ is the size of the arithmetic circuit to which the GKR protocol is applied, down from the $\Omega(S(n)^{3})$ time required for a naive implementation.
+L182: The hidden constant in the Big-Oh notation is at least 3, and the $\log S(n)$ factor translates to well over an order of magnitude, even for circuits with a few million gates.
+L183: We remove this logarithmic factor, bringing $\mathcal{P}$’s runtime down to $O(S(n))$ for a large class of circuits. Informally, our results apply to any circuit whose wiring pattern is sufficiently “regular”. We formalize the class of circuits to which our results apply in Theorem 【89†1】.
+L184: We experimentally demonstrate the generality and effectiveness of Theorem 【89†1】 via two case studies. Specifically, we apply an implementation of the protocol of Theorem 【89†1】 to a circuit computing matrix multiplication (matmult), as well as to a circuit computing the number of distinct items in a data stream (distinct). Experimentally, our refinements yield a 200x-250x speedup for the prover over the state of the art implementation of Cormode et al. [【63†14】].
+L185: A serial implementation of our prover is less than 10x slower than a C++ program that simply evaluates the circuit sequentially, a slowdown that is tolerable in realistic outsourcing scenarios where cycles are plentiful for the prover. Moreover, a parallel implementation of our prover using a graphics processing unit (GPU) is roughly 30x faster than our serial implementation, and therefore takes less time than that required to evaluate the circuit in serial.
+L186: Our second contribution is to specify a highly efficient protocol for verifiably outsourcing arbitrary data parallel computation. Compared to prior work, this protocol can more efficiently verify complicated computations, as long as that computation is applied independently to many different pieces of data. We formalize this protocol and its efficiency guarantees in Theorem 【90†2】.
+L187: Our third contribution is to describe a new protocol specific to matrix multiplication that we believe to be of interest in its own right. This protocol is formalized in Theorem 【91†3】. Given any unverifiable algorithm for $n\times n$ matrix multiplication that requires time $T(n)$ using space $s(n)$, Theorem 【91†3】 allows the prover to run in time $T(n)+O(n^{2})$ using space $s(n)+o(n^{2})$.
+L188: Note that Theorem 【91†3】 (which is specific to matrix multiplication) is much less general than Theorem 【89†1】 (which applies to any circuit with a sufficiently regular wiring pattern). However, Theorem 【91†3】 achieves optimal runtime and space usage for the prover up to leading constants, assuming there is no $O(n^{2})$ time algorithm for matrix multiplication.
+L189: While these properties are also satisfied by a classic protocol due to Freivalds [【92†17】], the protocol of Theorem 【91†3】 is significantly more amenable for use as a primitive when verifying computations that repeatedly invoke matrix multiplication. For example, using the protocol of Theorem 【91†3】 as a primitive, we give a natural protocol for computing the diameter of an unweighted directed graph $G$.
+L190: $\mathcal{V}$’s runtime in this protocol is $O(m\log n)$, where $m$ is the number of edges in $G$, $\mathcal{P}$’s runtime matches the best known unverifiable diameter algorithm up to a low-order additive term [【93†33】, 【94†42】], and the total communication is just $\mathrm{polylog}(n)$. We know of no other protocol achieving this.
+L191: We complement Theorem 【91†3】 with experimental results demonstrating its efficiency.
+L192: ### 1.3 Roadmap
+L193: Section 【10†2】 presents preliminaries. We give a high-level overview of the ideas underlying our main results in Section 【15†3】. Section 【20†4】 gives a detailed overview of prior work, including the standard sum-check protocol as well as the GKR protocol. Section 【30†5】 contains the details of our time-optimal protocol for circuit evaluation as formalized in Theorem 【89†1】. Section 【41†6】 describes our experimental cases studies of the protocol described in Theorem 【89†1】.
+L194: Section 【46†7】 describes our protocol for arbitrary data parallel computation. Section 【52†8】 describes some additional optimizations that apply to specific important wiring patterns. In particular, this section describes our special-purpose protocol for matmult that achieves optimal prover efficiency up to leading constants. Section 【57†9】 concludes.
+L195: ## 2 Preliminaries
+L196: 
+L197: ### 2.1 Definitions
+L198: 
+L199: We begin by defining a valid interactive proof protocol for a function $f$.
+L200: ###### Definition 1
+L201: Consider a prover $\mathcal{P}$ and verifier $\mathcal{V}$ who both observe an input $x$ and wish to compute a function $f:\{0,1\}^{n}\rightarrow\mathcal{R}$ for some set $\mathcal{R}$. After the input is observed, $\mathcal{P}$ and $\mathcal{V}$ exchange a sequence of messages. Denote the output of $\mathcal{V}$ on input $x$, given prover $\mathcal{P}$ and $\mathcal{V}$’s random bits $R$, by $\text{out}(\mathcal{V},x,R,\mathcal{P})$.
+L202: $\mathcal{V}$ can output $\perp$ if $\mathcal{V}$ is not convinced that $\mathcal{P}$’s claim is valid.
+L203: We say $\mathcal{P}$ is a valid prover with respect to $\mathcal{V}$ if for all inputs $x$, $\text{Pr}_{R}[\text{out}(\mathcal{V},x,R,\mathcal{P})=f(x)]=1$. The property that there is at least one valid prover $\mathcal{P}$ with respect to $\mathcal{V}$ is called completeness.
+L204: We say $\mathcal{V}$ is a valid verifier for $f$ with soundness probability $\delta$ if there is at least one valid prover $\mathcal{P}$ with respect to $\mathcal{V}$, and for all provers $\mathcal{P}^{\prime}$ and all inputs $x$, $\text{Pr}[\text{out}(\mathcal{V},A,R,\mathcal{P}^{\prime})\notin\{f(x),\perp\}]\leq\delta$.
+L205: We say a prover-verifier pair $(\mathcal{P},\mathcal{V})$ is a valid interactive proof protocol for $f$ if $\mathcal{V}$ is a valid verifier for $f$ with soundness probability $1/3$, and $\mathcal{P}$ is a valid prover with respect to $\mathcal{V}$. If $\mathcal{P}$ and $\mathcal{V}$ exchange $r$ messages in total, we say the protocol has $\lceil r/2\rceil$ rounds.
+L206: Informally, the completeness property guarantees that an honest prover will convince the verifier that the claimed answer is correct, while the soundness property ensures that a dishonest prover will be caught with high probability. An interactive argument is an interactive proof where the soundness property holds only against polynomial-time provers $\mathcal{P}^{\prime}$.
+L207: We remark that the constant $1/3$ used for the soundness probability in Definition 【95†1】 is chosen for consistency with the interactive proofs literature, where $1/3$ is used by convention. In our actual implementation, the soundness probability will always be less than $2^{-45}$.
+L208: #### 2.1.1 Cost Model
+L209: 
+L210: Whenever we work over a finite field $\mathbb{F}$, we assume that a single field operation can be computed in a single machine operation. For example, when we say that the prover $\mathcal{P}$ in our interactive protocols requires time $O(S(n))$, we mean that $\mathcal{P}$ must perform $O(S(n))$ additions and multiplications within the finite field over which the protocol is defined.
+L211: Input Representation. Following prior work [【67†12】, 【63†14】, 【66†15】], all of the protocols we consider can handle inputs specified in a general data stream form. Each element of the stream is a tuple $(i,\delta)$, where $i\in[n]$ and $\delta$ is an integer. The $\delta$ values may be negative, thereby modeling deletions. The data stream implicitly defines a frequency vector $a$, where $a_{i}$ is the sum of all $\delta$ values associated with $i$ in the stream.
+L212: For simplicity, we assume throughout the paper that the number of stream updates $m$ is related to $n$ by a constant factor i.e., $m=\Theta(n)$.
+L213: When checking the evaluation of a circuit $C$, we consider the inputs to $C$ to be the entries of the frequency vector $a$. We emphasize that in all of our protocols, $\mathcal{V}$ only needs to see the raw stream and not the aggregated frequency vector $a$ (see Lemma 【96†2】 for details). Notice that we may interpret the frequency vector $a$ as an object other than a vector, such as a matrix or a string. For example, in matmult, the data stream defines two matrices to be multiplied.
+L214: When we refer to a streaming verifier with space usage $s(n)$, we mean that the verifier can make a single pass over the stream of tuples defining the input, regardless of their ordering, while storing at most $s(n)$ elements in the finite field over which the protocol is defined.
+L215: #### 2.1.2 Problem Definitions
+L216: 
+L217: To focus our discussion in this paper, we give special attention to two problems also considered in prior work [【63†14】, 【65†38】].
+L218: 
+L219:   1. 1.
+L220: 
+L221: In the matmult problem, the input consists of two $n\times n$ matrices $A,B\in\mathbb{Z}^{n\times n}$, and the goal is to compute the matrix product $A\cdot B$.
+L222: 
+L223:   2. 2.
+L224: In the distinct problem, also denoted $F_{0}$, the input is a data steam consisting of $m$ tuples $(i,\delta)$ from a universe of size $n$. The stream defines a frequency vector $a$, and the goal is to compute $|\{i:a_{i}\neq 0\}|$, the number of items with non-zero frequency.
+L225: #### 2.1.3 Additional Notation
+L226: 
+--------------------------------------------------------------------------------
+Internal Error ()
+citeturn11view1 [wordlim: 200] Source: click({"ref_id":"turn10view0","id":64}); 
+Failed to fetch https://github.com/Oraclizer/statesync-gkr/commit/54e76515bf53777836221b88d7404a1ef67bcdd3: Cache miss--------------------------------------------------------------------------------
+Release StateSync-GKR v1.2.1 · Oraclizer/statesync-gkr · GitHub (https://github.com/Oraclizer/statesync-gkr/releases/tag/v1.2.1)
+citeturn11view2 [wordlim: 200] Crawled: today; Content type: text/html; Source: click({"ref_id":"turn10view0","id":58}); Total lines: 173
+

@@ -1,0 +1,23 @@
+{
+  "arrays": {
+    "x_in_L00": {
+      "dtype": "int16",
+      "file": "x_in_L00.bin",
+      "sha256": "95edfa4b878bb34c92290ac8021af90a62c82f84898456e0de1518a4831b2348",
+      "shape": [
+        128,
+        3072
+      ]
+    },
+    "x_out_L00": {
+      "dtype": "int16",
+      "file": "x_out_L00.bin",
+      "sha256": "dd55ad657278bafdae0cb62855cd233ffef52e24d15d7d524225733c54ebaa7b",
+      "shape": [
+        128,
+        3072
+      ]
+    }
+  },
+  "kind": "public synthetic sequence"
+}

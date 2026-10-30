@@ -1,0 +1,21 @@
+{
+  "prepare": [
+    "python3",
+    "experiments/final-claim-lifetimes-20261029/prepare_adapter.py"
+  ],
+  "experiment": [
+    "python3",
+    "experiments/final-claim-lifetimes-20261029/run_bounded.py",
+    "probe.py"
+  ],
+  "source_audit": [
+    "python3",
+    "experiments/final-claim-lifetimes-20261029/run_bounded.py",
+    "audit.py"
+  ],
+  "checkpoint": [
+    "python3",
+    "experiments/final-claim-lifetimes-20261029/checkpoint.py"
+  ],
+  "workdir": "/home/victor/IntelligenceRegulation/research/zkp-efficiency"
+}

@@ -1,0 +1,241 @@
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r14/hashline/src/private_block/run.rs	2026-10-28 19:12:07.678637508 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r16b/hashline/src/private_block/run.rs	2026-10-29 03:50:55.907191580 -0700
+@@ -139,8 +139,55 @@
+ /// token rung's string (65 characters), whose transcript constructor the W-2
+ /// census already admits.
+ pub(crate) const RUN_PROFILE_CLASSIFY_RUNG_TC: &str = "hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1";
++/// **TOKEN I/O ROUND 16 (2026-10-29): the CLASSIFIER run over the native R13
++/// Shieldstral-1.0-3B LOW + h24 blocks** (REVIEW_R13 §10: block profiles
++/// `R13_SHIELD_T128_H24` / `R13_SHIELD_T256_H24`, export schema v2, each
++/// stage at its layer's bound gate denominator). NEW profile strings under
++/// D17 (their own transcripts; D17's one-run-profile-per-block-shape rule),
++/// built by `token_io::classify_run` only (73 characters: an 85-byte transcript
++/// constructor, the length of no other hash-input kind of these runs and one
++/// byte from none; s25's W-2 census refused the first 76-character choice, whose
++/// 88 bytes equal the `schedule` absorb). Non-DD only (the classifier CLI
++/// carries no `--dd` switch); T256 is registered for larger hosts and is not
++/// proved on the 8 GB laptop (its modelled peak exceeds the budget).
++pub(crate) const RUN_PROFILE_CLASSIFY_R13_SHIELD_T128: &str = "hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/1";
++pub(crate) const RUN_PROFILE_CLASSIFY_R13_SHIELD_T256: &str = "hashline-zk-mr1/private-classify-run-shieldstral-3b-t256-r13-public-row/1";
++/// TOKEN I/O ROUND 16: each R13 classifier run profile and the ONE R13 block
++/// profile it names (CS-7), as native R13's `ACCURACY_RUN_PROFILES`
++pub(crate) const ACCURACY_CLASSIFY_RUN_PROFILES: [(&str, &str); 2] = [
++    (RUN_PROFILE_CLASSIFY_R13_SHIELD_T128, super::shape::R13_SHIELD_T128_H24),
++    (RUN_PROFILE_CLASSIFY_R13_SHIELD_T256, super::shape::R13_SHIELD_T256_H24),
++];
+ /// every classifier run profile this build registers
+-pub(crate) const CLASSIFY_RUN_PROFILES: [&str; 1] = [RUN_PROFILE_CLASSIFY_RUNG_TC];
++pub(crate) const CLASSIFY_RUN_PROFILES: [&str; 3] = [RUN_PROFILE_CLASSIFY_RUNG_TC, RUN_PROFILE_CLASSIFY_R13_SHIELD_T128, RUN_PROFILE_CLASSIFY_R13_SHIELD_T256];
++/// TOKEN I/O ROUND 16: the classifier run profile of an R13 block profile
++pub(crate) fn accuracy_classify_run_profile(block: &str) -> Option<&'static str> {
++    ACCURACY_CLASSIFY_RUN_PROFILES.iter().find(|(_, b)| *b == block).map(|(r, _)| *r)
++}
++/// **TOKEN I/O ROUND 16, TEST BUILDS ONLY:** a classifier run over native
++/// R13's LOW + h24 development rung (`R13_RUNG_H24`, T32, width 384), so the
++/// R13 classifier path (per-layer gate denominators, the pre-header stage
++/// check) proves and verifies in seconds on public synthetic fixtures. No
++/// production build has it.
++#[cfg(test)]
++pub(crate) const RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST: &str = "hashline-zk-mr1/private-classify-run-rung-lh-t32-public-row-tst/1";
++/// whether `p` is a classifier run profile of this build (test builds also
++/// admit [`RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST`])
++pub(crate) fn is_classify_run_profile(p: &str) -> bool {
++    #[cfg(test)]
++    if p == RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST {
++        return true;
++    }
++    CLASSIFY_RUN_PROFILES.contains(&p)
++}
++/// whether `p` is an R13 classifier run profile (the blocks-only refusal)
++fn is_r13_classify_run_profile(p: &str) -> bool {
++    #[cfg(test)]
++    if p == RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST {
++        return true;
++    }
++    ACCURACY_CLASSIFY_RUN_PROFILES.iter().any(|(r, _)| *r == p)
++}
+ /// **NATIVE R9 (D30): the run profiles of the three DD block profiles** (one
+ /// per shape, D17), at the lengths of their non-DD twins' (67 / 63 / 45)
+ pub(crate) const RUN_PROFILE_TINYLLAMA_T128_DD: &str = "hashline-zk-mr1/private-run-tinyllama-1.1b-t128-ddict32-statement/1";
+@@ -155,6 +202,38 @@
+ pub(crate) const RUN_PROFILE_SHIELDSTRAL_T256_DD: &str = "hashline-zk-mr1/private-run-shieldstral-3b-t256-ddict32-statement/1";
+ pub(crate) const RUN_PROFILE_RUNG_HD: &str = "hashline-zk-mr1/private-run-rung-hd-t32-dev/1";
+ 
++
++// R13: one new run identity for each new arithmetic/geometry profile.
++pub(crate) const RUN_PROFILE_R13_TINY_T128_LOW: &str = "hashline-zk-mr1/private-run-tinyllama-1.1b-t128-low-stack-v01-run/1";
++pub(crate) const RUN_PROFILE_R13_TINY_T128_LOW_DD: &str = "hashline-zk-mr1/private-run-tinyllama-1.1b-t128-low-ddict-v01-run/1";
++pub(crate) const RUN_PROFILE_R13_8B_T128_H24: &str = "hashline-zk-mr1/private-run-llama-3-8b-t128-lh24-v1-statement/1";
++pub(crate) const RUN_PROFILE_R13_8B_T128_H24_DD: &str = "hashline-zk-mr1/private-run-llama-3-8b-t128-lh24-dd-statement/1";
++pub(crate) const RUN_PROFILE_R13_SHIELD_T128_H24: &str = "hashline-zk-mr1/private-run-shieldstral-3b-t128-lowh24-blocks-run/1";
++pub(crate) const RUN_PROFILE_R13_SHIELD_T128_H24_DD: &str = "hashline-zk-mr1/private-run-shieldstral-3b-t128-lowh24-ddict1-run/1";
++pub(crate) const RUN_PROFILE_R13_SHIELD_T256_H24: &str = "hashline-zk-mr1/private-run-shieldstral-3b-t256-lowh24-blocks-run/1";
++pub(crate) const RUN_PROFILE_R13_SHIELD_T256_H24_DD: &str = "hashline-zk-mr1/private-run-shieldstral-3b-t256-lowh24-ddict1-run/1";
++pub(crate) const RUN_PROFILE_R13_RUNG_LOW: &str = "hashline-zk-mr1/private-run-rung-lo-t32-dev/1";
++pub(crate) const RUN_PROFILE_R13_RUNG_H24: &str = "hashline-zk-mr1/private-run-rung-lh-t32-dev/1";
++pub(crate) const RUN_PROFILE_R13_RUNG_LOW_DD: &str = "hashline-zk-mr1/private-run-rung-ld-t32-dev/1";
++pub(crate) const RUN_PROFILE_R13_RUNG_H24_DD: &str = "hashline-zk-mr1/private-run-rung-hh-t32-dev/1";
++pub(crate) const ACCURACY_RUN_PROFILES:[(&str,&str);12]=[
++    (RUN_PROFILE_R13_TINY_T128_LOW,super::shape::R13_TINY_T128_LOW),
++    (RUN_PROFILE_R13_TINY_T128_LOW_DD,super::shape::R13_TINY_T128_LOW_DD),
++    (RUN_PROFILE_R13_8B_T128_H24,super::shape::R13_8B_T128_H24),
++    (RUN_PROFILE_R13_8B_T128_H24_DD,super::shape::R13_8B_T128_H24_DD),
++    (RUN_PROFILE_R13_SHIELD_T128_H24,super::shape::R13_SHIELD_T128_H24),
++    (RUN_PROFILE_R13_SHIELD_T128_H24_DD,super::shape::R13_SHIELD_T128_H24_DD),
++    (RUN_PROFILE_R13_SHIELD_T256_H24,super::shape::R13_SHIELD_T256_H24),
++    (RUN_PROFILE_R13_SHIELD_T256_H24_DD,super::shape::R13_SHIELD_T256_H24_DD),
++    (RUN_PROFILE_R13_RUNG_LOW,super::shape::R13_RUNG_LOW),
++    (RUN_PROFILE_R13_RUNG_H24,super::shape::R13_RUNG_H24),
++    (RUN_PROFILE_R13_RUNG_LOW_DD,super::shape::R13_RUNG_LOW_DD),
++    (RUN_PROFILE_R13_RUNG_H24_DD,super::shape::R13_RUNG_H24_DD),
++];
++pub(crate) fn accuracy_run_profile(block:&str)->Option<&'static str> {
++    ACCURACY_RUN_PROFILES.iter().find(|(_,b)|*b==block).map(|(r,_)|*r)
++}
++
+ /// One run's geometry: the per-block shape, how many blocks, and the run's own
+ /// profile id. A run is a NEW profile under D17 — its own transcript, its own
+ /// digests — so no byte of any single-block profile moves.
+@@ -178,6 +257,18 @@
+ /// `None` for a run profile this build does not register.
+ fn registered_block_shape(profile: &str, sh: &Shape) -> Option<Result<Shape, String>> {
+     let cal = sh.norm_calibration();
++    if let Some((_,block))=ACCURACY_RUN_PROFILES.iter().find(|(run,_)|*run==profile) {
++        return Some(Shape::accuracy_trained(block,&cal,sh.f_e,sh.accuracy_gate_shift));
++    }
++    // TOKEN I/O ROUND 16: the R13 classifier run profiles, rebuilt through the
++    // same R13 door as native's (the handed shape's calibration, f_e and gate)
++    if let Some((_, block)) = ACCURACY_CLASSIFY_RUN_PROFILES.iter().find(|(run, _)| *run == profile) {
++        return Some(Shape::accuracy_trained(block, &cal, sh.f_e, sh.accuracy_gate_shift));
++    }
++    #[cfg(test)]
++    if profile == RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST {
++        return Some(Shape::accuracy_trained(super::shape::R13_RUNG_H24, &cal, sh.f_e, sh.accuracy_gate_shift));
++    }
+     Some(match profile {
+         RUN_PROFILE_RUNG_G => Ok(Shape::rung_g()),
+         RUN_PROFILE_RUNG_K4 => Ok(Shape::rung_k4()),
+@@ -215,6 +306,11 @@
+ }
+ 
+ impl RunShape {
++    pub(crate) fn accuracy(sh:Shape,l:usize)->Result<RunShape,String> {
++        let profile=accuracy_run_profile(sh.profile).ok_or("private run: no R13 run profile for this block")?;
++        Self::new(sh,l,profile)
++    }
++
+     /// **RULING CS-7 (finding S41-N1 of the 125M lane).** A run profile names
+     /// exactly one block shape: it is admitted only over the shape it is
+     /// registered for, compared field by field, and a profile this build does
+@@ -369,6 +465,7 @@
+     /// absorbs). Stage `k` is proved and verified at
+     /// [`RunStatement::stage_shape`]`(k)`.
+     stage_cal: Vec<super::shape::NormCalibration>,
++    stage_accuracy_gate:Vec<u32>,
+ }
+ 
+ impl RunStatement {
+@@ -415,11 +512,15 @@
+     /// never called, so none of their bytes moves.
+     pub(crate) fn new_bound(rs: RunShape, context: Digest, expected: ExpectedIo, blocks: &[BlockPublic], block_scales: &[(i32, i32)], model: &super::trained_statement::TrainedModelStatement) -> Result<RunStatement, String> {
+         // RULINGS CS-1 and CS-4 on the blocks handed, before they are digested
+-        if blocks.len() == rs.l {
+-            blocks_fit_the_shape(blocks, &rs.sh)?;
++        if blocks.len()==rs.l && rs.sh.accuracy_stack()==super::accuracy_precision::Stack::Legacy {
++            blocks_fit_the_shape(blocks,&rs.sh)?;
+         }
+-        let digests: Vec<Digest> = blocks.iter().map(|b| b.digest()).collect();
+-        Self::new_bound_from_digests(rs, context, expected, digests, block_scales, model)
++        let digests:Vec<Digest>=blocks.iter().map(|b|b.digest()).collect();
++        let st=Self::new_bound_from_digests(rs,context,expected,digests,block_scales,model)?;
++        if st.rs.sh.accuracy_stack()!=super::accuracy_precision::Stack::Legacy {
++            for (k,block) in blocks.iter().enumerate() {block.check_for_shape(&st.stage_shape(k)?).map_err(|e|format!("private run: block{k}: {e}"))?;}
++        }
++        Ok(st)
+     }
+ 
+     /// **ROUND 4: the same statement from the blocks' DIGESTS** (what the
+@@ -439,6 +540,11 @@
+         if TOKEN_IO_RUN_PROFILES.contains(&rs.profile) {
+             return Err(format!("private run: {} is a token-I/O run profile; a blocks-only run statement may not carry it", rs.profile));
+         }
++        // TOKEN I/O ROUND 16: nor an R13 classifier run profile (built by
++        // `token_io::classify_run` only; the rung's profile keeps its old rule)
++        if is_r13_classify_run_profile(rs.profile) {
++            return Err(format!("private run: {} is a classifier run profile; a blocks-only run statement may not carry it", rs.profile));
++        }
+         // RULING CS-4: the endpoint policy against the run's shape
+         policy_fits_the_shape(&expected, &rs.sh)?;
+         model.check_against(&rs.sh, rs.profile, &digests, block_scales)?;
+@@ -451,6 +557,8 @@
+         // unmoved, CS-8's rebuild, the trained class)
+         let base = st.rs.sh.norm_calibration();
+         for (k, r) in model.layers.iter().enumerate() {
++            r.check_accuracy_gate(&st.rs.sh)?;
++            if let Some(g)=r.accuracy_gate_shift {st.stage_accuracy_gate[k]=g;}
+             if super::trained_statement::has_own(&r.own) {
+                 let cal = super::trained_statement::apply_own(&base, &r.own).map_err(|e| format!("private run: layer {}: {e}", r.index))?;
+                 st.rs.sh.with_layer_calibration(&cal).map_err(|e| format!("private run: layer {}'s own calibration: {e}", r.index))?;
+@@ -511,7 +619,8 @@
+         }
+         let boundary_scales: Vec<i32> = (0..rs.l - 1).map(|k| block_scales[k].1).collect();
+         let stage_cal = vec![rs.sh.norm_calibration(); rs.l];
+-        let st = RunStatement { rs, expected, block_digests, context, boundary_scales, calibration, stage_cal };
++        let stage_accuracy_gate=vec![rs.sh.accuracy_gate_shift;rs.l];
++        let st = RunStatement { rs, expected, block_digests, context, boundary_scales, calibration, stage_cal,stage_accuracy_gate };
+         // **STAGE 16, ruling T-3.** `Layout::for_shape` has already checked
+         // `A`, `H`, `M` and the external endpoint against the BLOCK's set of
+         // hash-input lengths. A run absorbs one word no block does — its own
+@@ -632,11 +741,9 @@
+     /// shape with that layer's calibration, rebuilt through the trained door
+     pub(crate) fn stage_shape(&self, k: usize) -> Result<Shape, String> {
+         let cal = *self.stage_cal.get(k).ok_or_else(|| format!("private run: no stage {k}"))?;
+-        if cal == self.rs.sh.norm_calibration() {
+-            Ok(self.rs.sh.clone())
+-        } else {
+-            self.rs.sh.with_layer_calibration(&cal)
+-        }
++        let sh=if cal==self.rs.sh.norm_calibration() {self.rs.sh.clone()} else {self.rs.sh.with_layer_calibration(&cal)?};
++        if sh.accuracy_stack()==super::accuracy_precision::Stack::Legacy {Ok(sh)}
++        else {sh.with_accuracy_gate_shift(*self.stage_accuracy_gate.get(k).ok_or("private run: missing R13 stage denominator")?)}
+     }
+ 
+     /// the reserved pair slot 21 (the INCOMING claim) uses in stage `k`
+@@ -889,6 +996,19 @@
+     /// shape when it loads it, and `prove_core` / `verify_core` re-run the
+     /// check on it before its stage commits or absorbs anything of it.
+     fn fit_the_shape(&mut self, sh: &Shape) -> Result<(), String>;
++    /// R13 checks the actual stage context before the run header. A
++    /// streaming source may reload public blocks here; it still retains at
++    /// most one. Legacy sources keep their original preflight path.
++    fn fit_the_stages(&mut self,st:&RunStatement)->Result<(),String> {
++        if st.rs.sh.accuracy_stack()==super::accuracy_precision::Stack::Legacy {return self.fit_the_shape(&st.rs.sh);}
++        if self.count()!=st.rs.l {return Err("private run: public block count differs from the stage count".into());}
++        for k in 0..st.rs.l {
++            let sh=st.stage_shape(k)?;
++            self.block(k)?.check_for_shape(&sh).map_err(|e|format!("private run: block{k}: {e}"))?;
++        }
++        Ok(())
++    }
++
+     /// **RULING CS-6** before anything is absorbed: the blocks are the ones
+     /// the statement names. A resident slice compares every block's digest;
+     /// a streaming source compares the digest list it enforces on every load.
+@@ -1009,7 +1129,7 @@
+     // RULINGS CS-1 and CS-4: the blocks and the endpoint policy, before the
+     // endpoint owners are opened, the run's randomness is seeded or its
+     // header is absorbed
+-    blocks.fit_the_shape(sh)?;
++    blocks.fit_the_stages(st)?;
+     policy_fits_the_shape(&st.expected, sh)?;
+     // RULING CS-6: the blocks handed are the ones the statement names, at
+     // the same point. A CHEATING prover runs none of the honest prover's own
+@@ -1175,7 +1295,7 @@
+         protocol::fits_the_ntt_tables(sh)?;
+         // RULINGS CS-1 and CS-4: the blocks and the endpoint policy, before
+         // the run header is absorbed
+-        blocks.fit_the_shape(sh)?;
++        blocks.fit_the_stages(st)?;
+         policy_fits_the_shape(&st.expected, sh)?;
+         // RULING CS-6: every block is the one the statement names, before the
+         // header that absorbs the statement's digests exists. Never consults

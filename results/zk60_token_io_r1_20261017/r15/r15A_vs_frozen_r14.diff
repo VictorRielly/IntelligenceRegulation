@@ -1,0 +1,869 @@
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r14/hashline/examples/zk60_classify.rs	2026-10-28 19:12:07.674756935 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r15/hashline/examples/zk60_classify.rs	2026-10-28 21:29:10.955622815 -0700
+@@ -11,7 +11,7 @@
+ //!                              --expect-statement HEX [--label L] [--min-bits N]
+ //!   zk60_classify input-owner  (verify's arguments) --decommitment FILE --content-file FILE|-
+ //!   zk60_classify label        --export DIR --tables DIR --policy ID --runs DIR,DIR,...
+-//!                              --expect-statement HEX [--label L] [--min-bits N]
++//!                              --expect-statement HEX --expect-total N [--label L] [--min-bits N]
+ //!
+ //! `--tables` holds `token_io.json` + `embedding_int16.bin` and
+ //! `classifier.json` + `margin_int16.bin` (and, at the development rung, the
+@@ -28,6 +28,10 @@
+ //! (rung R-C3): a content SHORTER than one chunk is one chunk of its true
+ //! length, its trailing positions holding the policy's public pad id (the
+ //! content length is public: D45(1)); statement schema `zk60-classify-run/3`.
++//! ROUND 15 (REVIEW_R14 N-r14-1): `label --expect-total N` is required, N being
++//! the POST's own token count from the pinned tokenizer; a label is refused
++//! unless the chunk runs cover exactly `[0, N)` (a proof set of only the
++//! post's first ids is refused).
+ //! Every refusal prints the fail-closed outcome line (D45(4): no accepted proof
+ //! is handled as flagged). See `src/private_block/token_io/classify_cli.rs`.
+ //!
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r14/hashline/src/private_block/run_capture.rs	2026-10-28 19:12:07.678707172 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r15/hashline/src/private_block/run_capture.rs	2026-10-28 21:29:10.954669539 -0700
+@@ -2468,6 +2468,17 @@
+ /// run. The block run file's header members, the shape and the block
+ /// digests, plus `"token_io"` (the token facts), the boundaries in token
+ /// numbering, `L + 2` stage files and the token transcript program.
++///
++/// **TOKEN ROUND 15 (gate round 18, F18-1): the reader contract of
++/// `shape.slots`.** It holds EXACTLY `shape.n_slots` triples `(main rounds,
++/// extension rounds, degree)`, the block stages' slots in transcript order,
++/// as the block writer's run file does. `n_slots` is [`N_SLOTS`] (23): the
++/// replay admits a block stage only with that many slot transcripts
++/// (`want_slots`), so no capture is written for a block that runs native
++/// R9's appended 24th (DD) slot. `Shape::slots()` is sized [`MAX_SLOTS`]
++/// (24) and its 24th entry is `(0, 0, 0)` on every non-DD shape; rounds 7-14
++/// wrote that entry too (24 triples under `n_slots` 23), and the gate's
++/// tools v21 accept only an all-zero extra triple and strip it.
+ fn write_run_token(r: &Rec) -> Vec<u8> {
+     let h = &r.header;
+     let sh = &h.sh;
+@@ -2519,7 +2530,8 @@
+         sh.endpoint_general,
+         sh.norm_wrho,
+         sh.wrho_s,
+-        sh.slots().iter().map(|&(n, e, d)| [n, e, d]).collect::<Vec<_>>(),
++        // F18-1 (token round 15): exactly the declared `n_slots` (N_SLOTS) triples
++        sh.slots().iter().take(N_SLOTS).map(|&(n, e, d)| [n, e, d]).collect::<Vec<_>>(),
+         sh.a_groups(),
+         sh.h_groups()
+     )
+@@ -2758,7 +2770,8 @@
+         sh.endpoint_general,
+         sh.norm_wrho,
+         sh.wrho_s,
+-        sh.slots().iter().map(|&(n, e, d)| [n, e, d]).collect::<Vec<_>>(),
++        // F18-1 (token round 15): exactly the declared `n_slots` (N_SLOTS) triples
++        sh.slots().iter().take(N_SLOTS).map(|&(n, e, d)| [n, e, d]).collect::<Vec<_>>(),
+         sh.a_groups(),
+         sh.h_groups()
+     )
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r14/hashline/src/private_block/token_io.rs	2026-10-28 19:12:07.680032398 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r15/hashline/src/private_block/token_io.rs	2026-10-28 21:24:07.883683318 -0700
+@@ -87,6 +87,9 @@
+ // TOKEN I/O (round 14): REVIEW_R13 N-r13-1 (the library binding) and short items
+ #[cfg(test)]
+ mod classify_r14_tests;
++// TOKEN I/O (round 15): REVIEW_R14 N-r14-1 (label --expect-total)
++#[cfg(test)]
++mod classify_r15_tests;
+ 
+ /// **THE TOKEN-I/O RUN PROFILES THIS BUILD REGISTERS, with their block shape**
+ /// (test only): the one list the profile-registry censuses (s24 / s25 / s33)
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r14/hashline/src/private_block/token_io/capture_tests.rs	2026-10-28 19:12:07.680152910 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r15/hashline/src/private_block/token_io/capture_tests.rs	2026-10-28 21:24:18.751681966 -0700
+@@ -186,6 +186,25 @@
+     );
+ }
+ 
++/// **TOKEN ROUND 15 (gate round 18, F18-1): a token run file lists exactly
++/// `n_slots` slot triples**, the block schedule's first `n_slots`
++/// (`Shape::slots`), as the block writer's run file does. Round 14 wrote all
++/// 24 entries of `Shape::slots()` (the 24th `(0, 0, 0)`) under `n_slots` 23.
++#[test]
++fn r15_a_token_run_files_slot_list_has_exactly_n_slots_triples() {
++    let fx = fx_generic();
++    let tp = profile(&fx);
++    let mut pipe = honest(&fx, &tp);
++    let p = prove_pipe(&fx, &tp, &mut pipe).expect("the honest rung run");
++    let bundle = capture(&p.st, &fx.blocks, &fx.tables, &p.segs, CaptureOpts { arrays: false, public_tables: false }).expect("a bundle");
++    let (slots, n_slots) = super::classify_capture_tests::shape_slot_list(&bundle.run_json);
++    assert_eq!(n_slots, fx.sh.n_slots(), "run.json's n_slots is not the block shape's");
++    assert_eq!(slots.len(), n_slots, "F18-1: the token run file declares n_slots {n_slots} but lists {} slot triples (the last {:?})", slots.len(), slots.last());
++    let sched: Vec<[usize; 3]> = fx.sh.slots().iter().take(n_slots).map(|&(a, e, d)| [a, e, d]).collect();
++    assert_eq!(slots, sched, "the listed triples are not the block schedule's");
++    eprintln!("TOKEN-IO R15 | F18-1 | the token run file lists exactly n_slots = {n_slots} slot triples");
++}
++
+ /// **THE HOOKS ARE NO-OPS ON THE PROVER'S PATH, AND A RUN VERIFIES THE SAME
+ /// WITH AND WITHOUT A RECORDER.** A run proved while a recorder is attached
+ /// AND seeded with its header: the recorder has recorded nothing (no stage,
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r14/hashline/src/private_block/token_io/classify_capture_tests.rs	2026-10-28 19:12:07.680275874 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r15/hashline/src/private_block/token_io/classify_capture_tests.rs	2026-10-28 21:29:10.950953470 -0700
+@@ -26,6 +26,11 @@
+ //! its c placed gets its own export profile: one parameter set per export,
+ //! N-r13-3). The replay refuses a run whose tables are the relation tests'
+ //! synthetic binding.
++//!
++//! **ROUND 15:** F18-1 (gate round 18): a run file lists exactly `n_slots`
++//! slot triples (tested here for classifier runs, in `capture_tests` for
++//! token runs); H18-1: the gate's test-only CLI-path capture of a SHORT
++//! item, adopted as [`capture_a_short_item_through_the_classify_cli`].
+ 
+ use super::classify::*;
+ use super::classify_cli_tests::{add_classifier_parameters, fixture_root, write_classifier_tables};
+@@ -476,6 +481,72 @@
+     eprintln!("TOKEN-IO R14 | the gate's capture fixture (L = 1, 2) proves with the dev rung's derived tables (embedding c0e816c9…, margin 24e6ff4c…)");
+ }
+ 
++/// **TOKEN ROUND 15 (gate round 18, F18-1): run.json's `shape` object** —
++/// its `slots` triples and its declared `n_slots` (the shape object is cut
++/// out at its matching brace, strings skipped, and parsed strictly)
++pub(super) fn shape_slot_list(run_json: &[u8]) -> (Vec<[usize; 3]>, usize) {
++    let text = std::str::from_utf8(run_json).expect("run.json is UTF-8");
++    let at = text.find("\"shape\":{").expect("run.json has a shape object") + "\"shape\":".len();
++    let (mut depth, mut in_str, mut esc, mut end) = (0usize, false, false, None);
++    for (i, ch) in text[at..].char_indices() {
++        if in_str {
++            match (esc, ch) {
++                (true, _) => esc = false,
++                (false, '\\') => esc = true,
++                (false, '"') => in_str = false,
++                _ => {}
++            }
++            continue;
++        }
++        match ch {
++            '"' => in_str = true,
++            '{' => depth += 1,
++            '}' => {
++                depth -= 1;
++                if depth == 0 {
++                    end = Some(at + i + 1);
++                    break;
++                }
++            }
++            _ => {}
++        }
++    }
++    let shape = super::super::trained_block::parse_json(text[at..end.expect("the shape object closes")].as_bytes()).expect("the shape object parses");
++    let n_slots = usize::try_from(shape.get("n_slots").unwrap().i64().unwrap()).unwrap();
++    let slots = shape
++        .get("slots")
++        .unwrap()
++        .arr()
++        .unwrap()
++        .iter()
++        .map(|t| {
++            let v = t.arr().unwrap();
++            assert_eq!(v.len(), 3, "a slot triple has three words");
++            [0, 1, 2].map(|k| usize::try_from(v[k].i64().unwrap()).unwrap())
++        })
++        .collect();
++    (slots, n_slots)
++}
++
++/// **TOKEN ROUND 15 (gate round 18, F18-1): a classifier run file lists
++/// exactly `n_slots` slot triples**, the block schedule's first `n_slots`
++/// (`Shape::slots`), as the block writer's run file does. Round 14 wrote all
++/// 24 entries of `Shape::slots()` (the 24th `(0, 0, 0)`) under `n_slots` 23.
++#[test]
++fn r15_a_classify_run_files_slot_list_has_exactly_n_slots_triples() {
++    let f = fx(1);
++    for (want, chunk) in [("1", None), ("tie", Some((20, 0)))] {
++        let r = honest_run(&f, want, chunk);
++        let b = capture(&r.st, &f.blocks, &r.bound, &r.segs, CaptureOpts { arrays: false, public_tables: false }).expect("a bundle");
++        let (slots, n_slots) = shape_slot_list(&b.run_json);
++        assert_eq!(n_slots, f.sh.n_slots(), "run.json's n_slots is not the block shape's");
++        assert_eq!(slots.len(), n_slots, "F18-1: the classifier run file declares n_slots {n_slots} but lists {} slot triples (the last {:?})", slots.len(), slots.last());
++        let sched: Vec<[usize; 3]> = f.sh.slots().iter().take(n_slots).map(|&(a, e, d)| [a, e, d]).collect();
++        assert_eq!(slots, sched, "the listed triples are not the block schedule's");
++    }
++    eprintln!("TOKEN-IO R15 | F18-1 | the classifier run file lists exactly n_slots = {} slot triples (full item and short item)", f.sh.n_slots());
++}
++
+ // -------------------------------------------------- the gate's captures (environment-driven)
+ 
+ fn env_or(k: &str, default: &str) -> String {
+@@ -672,3 +743,107 @@
+         dir.display()
+     );
+ }
++
++/// **THE CLI PATH (P-18) FOR A SHORT ITEM** (TOKEN ROUND 15: the privacy
++/// gate's round-18 test-only patch H18-1, `gate18_capture_a_short_item_through_the_cli`
++/// in its copy `ops/zkp-mvp/gate-tinyllama/capture-tree-r14`, adopted here;
++/// REVIEW_R14 §10 item 4). As [`capture_the_classify_cli_verify_path`], for
++/// the content `9 .. 9 + n` (`HL_PB_CLI_SHORT_N`, default 22; `1 <= n <
++/// T - P0 - S`), which the named binary proves from a prover-private seq dir
++/// of the padded item (the prefix, the content, the suffix, then the policy's
++/// public pad id up to T). The published `/3` statement must name the short
++/// item's layout (n, the chunk `[0, n)`, item length, pad id, pad positions,
++/// verdict row); `HL_PB_CLI_STATEMENT_OUT`, when set, receives a copy of it
++/// (it is public). Test-only, `#[ignore]`d, like every capture hook.
++///
++/// | variable | what | default |
++/// |---|---|---|
++/// | `HL_PB_CAPTURE_DIR` | where the bundle goes | **required**, absolute, outside the repository |
++/// | `HL_PB_CLI_BIN` / `HL_PB_CLI_BIN_SHA256` | the named binary and its SHA-256 | **required** |
++/// | `HL_RUN_CAPTURE_PUBLIC_TABLES` | `1` values, `0` length + digest | **required** |
++/// | `HL_PB_CLI_SHORT_N` | the short item's length n | 22 |
++/// | `HL_PB_CLI_STATEMENT_OUT` | a file for a copy of the published statement | none |
++/// | `HL_TEST_SOURCE_COMMIT` | the commit the bundle records | `uncommitted-test` |
++#[test]
++#[ignore = "writes the classifier CLI-path capture of a SHORT item; set HL_PB_CAPTURE_DIR, HL_PB_CLI_BIN, HL_PB_CLI_BIN_SHA256, HL_RUN_CAPTURE_PUBLIC_TABLES (and HL_PB_CLI_SHORT_N)"]
++fn capture_a_short_item_through_the_classify_cli() {
++    let dir = capture_dir();
++    let public_tables = public_tables_from_env();
++    let bin = PathBuf::from(std::env::var("HL_PB_CLI_BIN").expect("HL_PB_CLI_BIN is not set: the named zk60_classify binary"));
++    let bin_sha = std::env::var("HL_PB_CLI_BIN_SHA256").expect("HL_PB_CLI_BIN_SHA256 is not set");
++    assert!(bin.is_absolute() && bin.is_file(), "HL_PB_CLI_BIN must be an absolute path to the binary");
++    assert!(bin_sha.len() == 64 && bin_sha.bytes().all(|c| c.is_ascii_hexdigit()), "HL_PB_CLI_BIN_SHA256 must be the binary's SHA-256");
++    let cc = super::classify_cli_tests::Cc::new("short-cli");
++    let pol = policy_rung_dev();
++    let t = super::classify_cli::load_export(&cc.export).expect("the fixture's export").sh.tokens;
++    let (p0, s_len) = (pol.prefix.len(), pol.suffix.len());
++    let size = t - p0 - s_len;
++    let n: usize = env_or("HL_PB_CLI_SHORT_N", "22").parse().expect("HL_PB_CLI_SHORT_N is a number");
++    assert!((1..size).contains(&n), "HL_PB_CLI_SHORT_N is a short item's length, 1 ..= {} at the rung", size - 1);
++    let short: Vec<u64> = (9..9 + n as u64).collect();
++    let mut toks: Vec<u64> = pol.prefix.iter().chain(short.iter()).chain(pol.suffix.iter()).copied().collect();
++    toks.resize(t, pol.pad);
++    let (item_len, pads) = (p0 + n + s_len, t - (p0 + n + s_len));
++    let sd = cc.owners.join("seq-short-cli");
++    cc.write_seq_dir(&sd, &toks);
++    let run = cc.root.join("run-short-cli");
++    let od = cc.owner_dir(&run);
++    let cf = cc.content_file(&short.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(","));
++    let s = |v: &[&str]| -> Vec<String> { v.iter().map(|x| x.to_string()).collect() };
++    let policy = pol.id.clone();
++    let t0 = std::time::Instant::now();
++    let code = std::process::Command::new(&bin).arg("prove").args(s(&["--export", cc.export.to_str().unwrap(), "--tables", cc.tables.to_str().unwrap(), "--policy", &policy, "--content-file", cf.to_str().unwrap(), "--seq-dir", sd.to_str().unwrap(), "--out", run.to_str().unwrap(), "--owner-dir", od.to_str().unwrap()])).status().expect("the CLI binary runs").code();
++    assert_eq!(code, Some(0), "the named binary's prove of the short item");
++    let prove_s = t0.elapsed().as_secs_f64();
++    let pub_flags = s(&["--export", cc.verifier_copy.to_str().unwrap(), "--tables", cc.tables.to_str().unwrap(), "--policy", &policy, "--artifact", run.to_str().unwrap(), "--expect-statement", &cc.identity, "--min-bits", "93"]);
++    let t1 = std::time::Instant::now();
++    let code = std::process::Command::new(&bin).arg("verify").args(&pub_flags).status().expect("the CLI binary runs").code();
++    assert_eq!(code, Some(0), "the named binary's verify (it publishes <run>/statement/)");
++    let cli_verify_s = t1.elapsed().as_secs_f64();
++    let stmt = std::fs::read_to_string(run.join(super::super::run_sink::STATEMENT_DIR).join("statement.json")).unwrap();
++    for want in [format!("\"content_length_n\": {n},"), format!("\"range\": [0, {n}]"), format!("\"item_length\": {item_len},"), format!("\"pad_id\": {},", pol.pad), format!("\"pad_positions\": {pads},"), format!("\"verdict_row\": {},", item_len - 1)] {
++        assert!(stmt.contains(&want), "the published statement does not name {want}: {stmt}");
++    }
++    if let Ok(out) = std::env::var("HL_PB_CLI_STATEMENT_OUT") {
++        std::fs::write(out, &stmt).expect("the statement copy");
++    }
++    let t2 = std::time::Instant::now();
++    let pairs: Vec<(String, String)> = pub_flags.chunks(2).map(|kv| (kv[0].clone(), kv[1].clone())).collect();
++    let d = super::classify_cli::door(&pairs, &run).expect("the CLI's door on the published run directory");
++    assert!(d.published, "the door read the verifier's published statement");
++    let mut blocks = super::load::ExportTokenBlocks::new(&d.p);
++    let guard = run_capture::Recorder::attach();
++    run_capture::begin_run_with(d.st.capture_header().unwrap(), d.st.binding().unwrap(), CaptureOpts { arrays: true, public_tables });
++    let bundle = match verify_classify_run_with(&d.st, &mut blocks, &d.tables, &d.segs, POLICY_93) {
++        Ok(()) => run_capture::take().expect("a bundle for the accepted verification"),
++        Err(e) => {
++            run_capture::discard();
++            panic!("the recorded verification of the CLI's run directory refused: {e}");
++        }
++    };
++    drop(guard);
++    drop(blocks);
++    let verify_s = t2.elapsed().as_secs_f64();
++    let dec = Decommitment::from_bytes(&std::fs::read(od.join("input.dec")).unwrap()).unwrap();
++    let l = d.st.l();
++    check_classify_bundle_parts(&bundle, &d.st, &d.segs, &dec, l);
++    let (slots, n_slots) = shape_slot_list(&bundle.run_json);
++    assert_eq!(slots.len(), n_slots, "F18-1: the run file lists exactly n_slots slot triples");
++    let note = format!(
++        "Bundle: a capture through the CLASSIFIER CLI PATH (the native P-18 pattern) of a SHORT item (token round 15's hook, adopted from the privacy gate's round-18 test-only patch H18-1): the named binary {} (sha256 {bin_sha}) ran `zk60_classify prove` (from a prover-private seq dir of the padded item) and `zk60_classify verify` as its own processes (verify from a verifier copy without seq_*, pinned by --expect-statement; it published the statement); then, with no CLI hook, the run directory was read through the CLI's own door and verified with the round-7 recorder attached, and this is that verification's bundle. The rung's tiny export, the synthetic policy `{policy}` (c = 0), a {n}-id item (one chunk [0, {n}) of a {size}-id plan; item length {item_len}, {pads} pad positions holding the public pad id {}, verdict row {}), verdict {} ({}). The content, every activation and the owner's decommitment are prover-side and NOT here.",
++        bin.display(),
++        pol.pad,
++        item_len - 1,
++        d.st.verdict(),
++        if d.st.verdict() == 1 { "flagged" } else { "not flagged" }
++    );
++    run_capture::write_bundle(&dir, &bundle, &d.segs, &note, "HL_PB_CAPTURE_DIR=<dir> HL_PB_CLI_BIN=<zk60_classify binary> HL_PB_CLI_BIN_SHA256=<its sha256> HL_RUN_CAPTURE_PUBLIC_TABLES=<1|0> HL_PB_CLI_SHORT_N=<n> cargo test --release --lib private_block::token_io::classify_capture_tests::capture_a_short_item_through_the_classify_cli -- --ignored --nocapture").unwrap();
++    eprintln!(
++        "CLASSIFY CAPTURE THROUGH THE CLI, SHORT ITEM n={n} (the named binary, sha256 {}): rung L={l}, verdict {}, CLI prove {prove_s:.1} s, CLI verify {cli_verify_s:.1} s, recorded verify {verify_s:.1} s; segments {:?} B; bundle {} B run.json in {}",
++        &bin_sha[..12],
++        d.st.verdict(),
++        d.segs.iter().map(|s| s.len()).collect::<Vec<_>>(),
++        bundle.run_json.len(),
++        dir.display()
++    );
++}
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r14/hashline/src/private_block/token_io/classify_cli.rs	2026-10-28 19:12:07.680339014 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r15/hashline/src/private_block/token_io/classify_cli.rs	2026-10-28 21:29:10.948058007 -0700
+@@ -1,5 +1,6 @@
+ //! **THE CLASSIFIER CLI** (round 12, rung R-C1; round 13, rung R-C2; round 14,
+-//! rung R-C3: short items and the library binding; DESIGN_CLASSIFIER v2.4):
++//! rung R-C3: short items and the library binding; round 15: the label's
++//! whole-post check; DESIGN_CLASSIFIER v2.5):
+ //!
+ //! ```text
+ //! zk60_classify prove        --export DIR --tables DIR --policy ID --content-file FILE|-
+@@ -8,7 +9,7 @@
+ //!                            --expect-statement HEX [--label L] [--min-bits N]
+ //! zk60_classify input-owner  (verify's arguments) --decommitment FILE --content-file FILE|-
+ //! zk60_classify label        --export DIR --tables DIR --policy ID --runs DIR,DIR,...
+-//!                            --expect-statement HEX [--label L] [--min-bits N]
++//!                            --expect-statement HEX --expect-total N [--label L] [--min-bits N]
+ //! ```
+ //!
+ //! * **D41 (DESIGN v2.2 §13), chunks:** `--content-file` holds the WHOLE
+@@ -28,6 +29,14 @@
+ //!   up to T (pinned by the template clause), and stage OUT-C reads the public
+ //!   verdict row `P0 + N + S - 1`. The prover's activations (`--seq` /
+ //!   `--seq-dir`) are those of that padded item. N is public (D45(1)).
++//! * **Round 15 (REVIEW_R14 N-r14-1), the label's whole-post check:**
++//!   `label --expect-total N` is REQUIRED. N is the POST's own token count
++//!   (the caller's, from the policy's pinned tokenizer; public by D45(1)),
++//!   never a number taken from the proofs. The label is refused (fail-closed)
++//!   unless every chunk run's `content_total` is N and their D41 ranges are
++//!   exactly the split of `[0, N)`: a proof set of only the first k < N ids
++//!   of a post (since round 14 a short item of any k >= 1 is one chunk) is
++//!   refused, and so is a label call without the post's count.
+ //!
+ //! * `--tables DIR` holds the classifier's public tables: `token_io.json` +
+ //!   `embedding_int16.bin` (the token run's embedding format) and
+@@ -758,9 +767,11 @@
+ /// door included), then the OR of the chunk verdicts. FAIL-CLOSED: a run
+ /// that does not verify, a chunk index missing or repeated, or chunks naming
+ /// different public fields (policy, model, N, plan) give `flagged` (exit 1,
+-/// with the reason).
++/// with the reason). **ROUND 15 (N-r14-1):** `--expect-total N`, the post's
++/// own token count, is required and is checked against the chunk runs
++/// ([`aggregate_label`]) before any label is printed.
+ pub fn classify_label_command(args: &[String]) -> i32 {
+-    let f = match flags(args, &["--export", "--tables", "--policy", "--runs", "--expect-statement", "--label", "--min-bits"], &[]) {
++    let f = match flags(args, &["--export", "--tables", "--policy", "--runs", "--expect-statement", "--expect-total", "--label", "--min-bits"], &[]) {
+         Ok(f) => f,
+         Err(e) => {
+             eprintln!("zk60_classify label: {e}");
+@@ -773,7 +784,20 @@
+     }
+ }
+ 
++/// **ROUND 15 (N-r14-1): `--expect-total`**, the post's own token count
++/// (required; at least 1)
++fn expect_total_of(f: &[(String, String)]) -> Result<usize, String> {
++    let raw = flag(f, "--expect-total").ok_or("--expect-total N is required: N is the post's own token count from the policy's pinned tokenizer, counted by the caller (REVIEW_R14 N-r14-1: the proofs cannot tell how long the post is, so a proof set of only its first ids would otherwise label)")?;
++    let n: usize = raw.parse().map_err(|_| format!("--expect-total: the post's token count, a positive integer, not {raw:?}"))?;
++    if n == 0 {
++        return Err("--expect-total 0: an empty content has no chunk and no label (n >= 1)".into());
++    }
++    Ok(n)
++}
++
+ fn label_inner(f: &[(String, String)]) -> Result<(), String> {
++    // the post's own count first: no run is read without it
++    let expect_total = expect_total_of(f)?;
+     let runs: Vec<PathBuf> = need(f, "--runs")?.split(',').filter(|x| !x.is_empty()).map(PathBuf::from).collect();
+     if runs.is_empty() {
+         return Err("--runs: no chunk run".into());
+@@ -784,15 +808,16 @@
+         println!("{{\"event\":\"chunk-verified\",\"run\":{},\"chunk\":{},\"range\":[{}, {}],\"verdict\":{}}}", js(&r.display().to_string()), c.st.chunk().index, c.st.chunk().a, c.st.chunk().b, js(verdict_text(c.st.verdict())));
+         seen.push((c.st.chunk(), c.st.verdict(), c.st.cp.policy.id.clone(), c.st.model_identity()));
+     }
+-    let label = aggregate_label(&seen)?;
++    let label = aggregate_label(&seen, expect_total)?;
+     let first = seen[0].0;
+     let flagged: Vec<String> = seen.iter().filter(|s| s.1 == 1).map(|s| format!("[{}, {}]", s.0.a, s.0.b)).collect();
+     println!(
+-        "{{\"event\":\"label\",\"policy\":{},\"label\":{},\"chunks\":{},\"content_total\":{},\"chunk_size\":{},\"overlap\":{},\"flagged_ranges\":[{}],\"note\":\"the per-chunk verdicts are public: a flagged label shows which ranges triggered it (DESIGN v2.2 13.4)\"}}",
++        "{{\"event\":\"label\",\"policy\":{},\"label\":{},\"chunks\":{},\"content_total\":{},\"expect_total\":{},\"chunk_size\":{},\"overlap\":{},\"flagged_ranges\":[{}],\"note\":\"the per-chunk verdicts are public: a flagged label shows which ranges triggered it (DESIGN v2.2 13.4); the chunks cover exactly [0, expect_total), the post's own count (round 15, N-r14-1)\"}}",
+         js(&seen[0].2),
+         js(verdict_text(label)),
+         first.count,
+         first.total,
++        expect_total,
+         first.size,
+         first.overlap,
+         flagged.join(", ")
+@@ -803,13 +828,39 @@
+ /// **THE AGGREGATION RULE (§13.4)** over verified chunk runs: the same
+ /// policy, model, N and plan in every run; every index of the split exactly
+ /// once; then the OR. Any other set is refused (the caller fails closed).
+-pub(crate) fn aggregate_label(seen: &[(ChunkRef, u8, String, Digest)]) -> Result<u8, String> {
++///
++/// **ROUND 15 (REVIEW_R14 N-r14-1): `expect_total` is the POST's own token
++/// count** (the caller's, from the pinned tokenizer; never taken from the
++/// runs). Refused unless every run's `content_total` is `expect_total`, each
++/// run's range is exactly its index's range in the split of
++/// `[0, expect_total)` under the runs' plan, and the ranges together cover
++/// `[0, expect_total)` with no gap and nothing beyond it. A proof set of only
++/// the first k < N ids of an N-id post (a short item of k ids, or a k-id
++/// item's full chunks) names `content_total` = k and is refused.
++pub(crate) fn aggregate_label(seen: &[(ChunkRef, u8, String, Digest)], expect_total: usize) -> Result<u8, String> {
+     let (c0, _, pol, model) = seen.first().ok_or("label: no chunk run")?;
+     for (c, _, p, m) in seen {
+         if p != pol || m != model || (c.total, c.count, c.size, c.overlap) != (c0.total, c0.count, c0.size, c0.overlap) {
+             return Err("label: the chunk runs name different policies, models, totals or plans; they are not one item's chunks".into());
+         }
+     }
++    // N-r14-1: the item is the post; its length is the caller's count
++    if c0.total != expect_total {
++        return Err(format!(
++            "label: the chunk runs cover a content of {} ids, but the post has {expect_total} (--expect-total): a proof set of another length (e.g. only the post's first {} ids) is not the post's label (N-r14-1; fail-closed: handled as flagged)",
++            c0.total, c0.total
++        ));
++    }
++    let split = chunk_ranges(expect_total, ChunkPlan { size: c0.size, overlap: c0.overlap }).map_err(|e| format!("label: {e}"))?;
++    if c0.count != split.len() {
++        return Err(format!("label: the chunk runs name {} chunks; the split of [0, {expect_total}) has {}", c0.count, split.len()));
++    }
++    for (c, _, _, _) in seen {
++        let want = *split.get(c.index).ok_or_else(|| format!("label: chunk {} of a {}-chunk split", c.index, split.len()))?;
++        if (c.a, c.b) != want {
++            return Err(format!("label: chunk {} names the range [{}, {}); the split of [0, {expect_total}) gives [{}, {})", c.index, c.a, c.b, want.0, want.1));
++        }
++    }
+     let mut have = vec![false; c0.count];
+     for (c, _, _, _) in seen {
+         if std::mem::replace(&mut have[c.index], true) {
+@@ -819,5 +870,18 @@
+     if let Some(j) = have.iter().position(|h| !h) {
+         return Err(format!("label: chunk {j} of {} has no accepted proof (fail-closed: handled as flagged)", c0.count));
+     }
++    // and the ranges together cover [0, expect_total) exactly (no gap, nothing beyond)
++    let mut ranges: Vec<(usize, usize)> = seen.iter().map(|s| (s.0.a, s.0.b)).collect();
++    ranges.sort_unstable();
++    let mut end = 0usize;
++    for (a, b) in ranges {
++        if a > end || b <= a || b > expect_total {
++            return Err(format!("label: the chunk ranges leave [{end}, {a}) of [0, {expect_total}) uncovered or reach beyond it"));
++        }
++        end = end.max(b);
++    }
++    if end != expect_total {
++        return Err(format!("label: the chunk ranges cover [0, {end}) of [0, {expect_total})"));
++    }
+     Ok(u8::from(seen.iter().any(|s| s.1 == 1)))
+ }
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r14/hashline/src/private_block/token_io/classify_cli_tests.rs	2026-10-28 19:12:07.680380983 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r15/hashline/src/private_block/token_io/classify_cli_tests.rs	2026-10-28 21:29:10.949154712 -0700
+@@ -264,9 +264,12 @@
+     pub(super) fn write_seq_dir(&self, dir: &Path, tokens: &[u64]) {
+         write_seq_files(&self.export, &self.t.emb, dir, tokens);
+     }
+-    pub(super) fn label(&self, runs: &[&PathBuf]) -> i32 {
++    /// `label` over `runs` with ROUND 15's required `--expect-total` (N-r14-1):
++    /// `total`, the post's own token count
++    pub(super) fn label(&self, runs: &[&PathBuf], total: usize) -> i32 {
+         let joined = runs.iter().map(|r| r.to_str().unwrap()).collect::<Vec<_>>().join(",");
+-        classify_label_command(&s(&["--export", self.verifier_copy.to_str().unwrap(), "--tables", self.tables.to_str().unwrap(), "--policy", POLICY_RUNG_DEV, "--runs", &joined, "--expect-statement", &self.identity, "--min-bits", "93"]))
++        let n = total.to_string();
++        classify_label_command(&s(&["--export", self.verifier_copy.to_str().unwrap(), "--tables", self.tables.to_str().unwrap(), "--policy", POLICY_RUNG_DEV, "--runs", &joined, "--expect-statement", &self.identity, "--expect-total", &n, "--min-bits", "93"]))
+     }
+     /// R-C2: each tables directory is derived for ONE policy and export
+     pub(super) fn export_of(&self, tables: &Path) -> &Path {
+@@ -486,16 +489,16 @@
+     assert_eq!(cc.input_owner(&r1, &cc.tables, &whole), 0, "the owner's check on chunk 1's slice of the whole content");
+     assert_eq!(cc.input_owner(&r0, &cc.tables, &whole), 0, "and on chunk 0's");
+     assert_eq!(cc.input_owner(&r1, &cc.tables, &cc.content), 1, "a content of another total is refused");
+-    assert_eq!(cc.label(&[&r0, &r1]), 0, "the label over both chunks");
+-    assert_eq!(cc.label(&[&r1, &r0]), 0, "in any order");
+-    assert_eq!(cc.label(&[&r0]), 1, "a missing chunk fails closed");
+-    assert_eq!(cc.label(&[&r0, &r1, &r1]), 1, "a repeated chunk fails closed");
++    assert_eq!(cc.label(&[&r0, &r1], 27), 0, "the label over both chunks");
++    assert_eq!(cc.label(&[&r1, &r0], 27), 0, "in any order");
++    assert_eq!(cc.label(&[&r0], 27), 1, "a missing chunk fails closed");
++    assert_eq!(cc.label(&[&r0, &r1, &r1], 27), 1, "a repeated chunk fails closed");
+     let seg = r1.join(run_sink::segment_file_name(1));
+     let mut b = std::fs::read(&seg).unwrap();
+     let at = b.len() / 2;
+     b[at] ^= 1;
+     std::fs::write(&seg, &b).unwrap();
+-    assert_eq!(cc.label(&[&r0, &r1]), 1, "a chunk that does not verify fails closed");
++    assert_eq!(cc.label(&[&r0, &r1], 27), 1, "a chunk that does not verify fails closed");
+     eprintln!("TOKEN-IO R-C1 CLI | D41: 27 ids -> chunks [0, 23) + [4, 27) proved, verified, owner-checked, labelled | fail-closed: missing, repeated, tampered chunk; re-labelled chunk refused");
+ }
+ 
+@@ -507,12 +510,12 @@
+     let c = |j: usize, total: usize| ChunkRef::derive(total, j, plan).unwrap();
+     let m = [7u8; 32];
+     let pol = || "rung-tc-synthetic-policy-dev/1".to_string();
+-    assert_eq!(aggregate_label(&[(c(0, 43), 0, pol(), m), (c(1, 43), 0, pol(), m), (c(2, 43), 0, pol(), m)]).unwrap(), 0);
+-    assert_eq!(aggregate_label(&[(c(2, 43), 0, pol(), m), (c(0, 43), 1, pol(), m), (c(1, 43), 0, pol(), m)]).unwrap(), 1, "any flagged chunk flags the item");
+-    assert!(aggregate_label(&[(c(0, 43), 0, pol(), m), (c(2, 43), 0, pol(), m)]).unwrap_err().contains("chunk 1 of 3 has no accepted proof"));
+-    assert!(aggregate_label(&[(c(0, 43), 0, pol(), m), (c(0, 43), 0, pol(), m), (c(1, 43), 0, pol(), m), (c(2, 43), 0, pol(), m)]).unwrap_err().contains("appears twice"));
+-    assert!(aggregate_label(&[(c(0, 43), 0, pol(), m), (c(1, 42), 0, pol(), m)]).unwrap_err().contains("not one item's chunks"));
+-    assert!(aggregate_label(&[(c(0, 27), 0, pol(), m), (c(1, 27), 0, "another/1".to_string(), m)]).unwrap_err().contains("not one item's chunks"));
+-    assert!(aggregate_label(&[(c(0, 27), 0, pol(), m), (c(1, 27), 0, pol(), [8u8; 32])]).unwrap_err().contains("not one item's chunks"));
+-    assert!(aggregate_label(&[]).is_err());
++    assert_eq!(aggregate_label(&[(c(0, 43), 0, pol(), m), (c(1, 43), 0, pol(), m), (c(2, 43), 0, pol(), m)], 43).unwrap(), 0);
++    assert_eq!(aggregate_label(&[(c(2, 43), 0, pol(), m), (c(0, 43), 1, pol(), m), (c(1, 43), 0, pol(), m)], 43).unwrap(), 1, "any flagged chunk flags the item");
++    assert!(aggregate_label(&[(c(0, 43), 0, pol(), m), (c(2, 43), 0, pol(), m)], 43).unwrap_err().contains("chunk 1 of 3 has no accepted proof"));
++    assert!(aggregate_label(&[(c(0, 43), 0, pol(), m), (c(0, 43), 0, pol(), m), (c(1, 43), 0, pol(), m), (c(2, 43), 0, pol(), m)], 43).unwrap_err().contains("appears twice"));
++    assert!(aggregate_label(&[(c(0, 43), 0, pol(), m), (c(1, 42), 0, pol(), m)], 43).unwrap_err().contains("not one item's chunks"));
++    assert!(aggregate_label(&[(c(0, 27), 0, pol(), m), (c(1, 27), 0, "another/1".to_string(), m)], 27).unwrap_err().contains("not one item's chunks"));
++    assert!(aggregate_label(&[(c(0, 27), 0, pol(), m), (c(1, 27), 0, pol(), [8u8; 32])], 27).unwrap_err().contains("not one item's chunks"));
++    assert!(aggregate_label(&[], 1).is_err());
+ }
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r14/hashline/src/private_block/token_io/classify_r14_tests.rs	2026-10-28 19:12:07.680419919 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r15/hashline/src/private_block/token_io/classify_r14_tests.rs	2026-10-28 21:29:10.950059478 -0700
+@@ -194,7 +194,7 @@
+         }
+         let longer: Vec<u64> = short.iter().copied().chain([300 - 1]).collect();
+         assert_eq!(cc.input_owner(&r, &cc.tables, &text(&longer)), 1, "{name}: a content of another total is refused");
+-        assert_eq!(cc.label(&[&r]), 0, "{name}: the label over the one chunk");
++        assert_eq!(cc.label(&[&r], n), 0, "{name}: the label over the one chunk");
+         eprintln!("TOKEN-IO R14 | short item {name}: {n} ids as one chunk [0, {n}) of a 23-id plan; proved, verified, owner-checked, labelled");
+     }
+ }
+@@ -227,7 +227,7 @@
+     let cf2 = cc.content_file(&text(&short));
+     let out = std::process::Command::new(&bin).arg("input-owner").args(&pub_flags).args(["--artifact", run.to_str().unwrap(), "--decommitment", od.join("input.dec").to_str().unwrap(), "--content-file", cf2.to_str().unwrap()]).output().expect("the CLI binary runs");
+     assert_eq!(out.status.code(), Some(0), "the named binary's input-owner: {}", String::from_utf8_lossy(&out.stdout));
+-    let out = std::process::Command::new(&bin).arg("label").args(&pub_flags).args(["--runs", run.to_str().unwrap()]).output().expect("the CLI binary runs");
++    let out = std::process::Command::new(&bin).arg("label").args(&pub_flags).args(["--runs", run.to_str().unwrap(), "--expect-total", "22"]).output().expect("the CLI binary runs");
+     eprintln!("label stdout: {}", String::from_utf8_lossy(&out.stdout));
+     assert_eq!(out.status.code(), Some(0), "the named binary's label over the one chunk");
+     eprintln!("TOKEN-IO R14 | the named binary {}: a 22-id item proved, verified (fresh process, published), owner-checked and labelled", bin.display());
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r14/hashline/src/private_block/token_io/cli_tests.rs	2026-10-28 19:12:07.680675028 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r15/hashline/src/private_block/token_io/cli_tests.rs	2026-10-28 21:29:10.952816334 -0700
+@@ -65,14 +65,52 @@
+     calls: std::cell::Cell<usize>,
+ }
+ 
++/// **TOKEN ROUND 15 (REVIEW_R14 N-r14-4): where the next-token fixtures
++/// write** — `TMPDIR` when it is set (the guarded runs set it to a directory
++/// outside the repository), else `$HOME/zk60-artifacts/token-io/test-fixtures/`:
++/// never `/tmp` by default (the classifier fixtures' rule, round 14 N-r13-9).
++pub(super) fn next_token_fixture_root() -> PathBuf {
++    fixture_root_from(std::env::var_os("TMPDIR"), std::env::var_os("HOME"))
++}
++
++/// [`next_token_fixture_root`] on given `TMPDIR` / `HOME` values (an empty
++/// `TMPDIR` counts as unset)
++pub(super) fn fixture_root_from(tmpdir: Option<std::ffi::OsString>, home: Option<std::ffi::OsString>) -> PathBuf {
++    match tmpdir.filter(|d| !d.is_empty()) {
++        Some(d) => PathBuf::from(d),
++        None => PathBuf::from(home.expect("neither TMPDIR nor HOME is set: set TMPDIR to an absolute directory outside any git work tree")).join("zk60-artifacts").join("token-io").join("test-fixtures"),
++    }
++}
++
++/// **N-r14-4:** the next-token fixtures default to
++/// `~/zk60-artifacts/token-io/test-fixtures/` when `TMPDIR` is unset (or
++/// empty), and take `TMPDIR` when set; and no next-token test file still
++/// takes its fixture root from the standard library's temporary directory
++/// (which is `/tmp` without TMPDIR).
++#[test]
++fn r15_the_next_token_fixtures_default_off_tmp_when_tmpdir_is_unset() {
++    let home = || Some(std::ffi::OsString::from("/home/someone"));
++    let want = PathBuf::from("/home/someone/zk60-artifacts/token-io/test-fixtures");
++    assert_eq!(fixture_root_from(None, home()), want, "TMPDIR unset");
++    assert_eq!(fixture_root_from(Some("".into()), home()), want, "TMPDIR empty");
++    assert_eq!(fixture_root_from(Some("/x/tmp-r15".into()), home()), PathBuf::from("/x/tmp-r15"), "TMPDIR set");
++    let dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("src/private_block/token_io");
++    for f in ["cli_tests.rs", "r3_tests.rs"] {
++        let src = std::fs::read_to_string(dir.join(f)).unwrap();
++        let call = ["std::env::", "temp_dir()"].concat();
++        assert!(!src.contains(&call), "{f} still takes its fixture root from the standard library's temporary directory (/tmp without TMPDIR)");
++    }
++}
++
+ impl Cli {
+     fn new(tag: &str) -> Cli {
+         Cli::new_with(tag, &Fault::default())
+     }
+     /// the CLI fixture over an export written with `fault`
+     fn new_with(tag: &str, fault: &Fault) -> Cli {
+-        let root = std::env::temp_dir().join(format!("tio-cli-{tag}-{}", std::process::id()));
+-        let owners = std::env::temp_dir().join(format!("tio-cli-owners-{tag}-{}", std::process::id()));
++        // N-r14-4 (round 15): TMPDIR, else ~/zk60-artifacts/token-io/test-fixtures/ (never /tmp by default)
++        let root = next_token_fixture_root().join(format!("tio-cli-{tag}-{}", std::process::id()));
++        let owners = next_token_fixture_root().join(format!("tio-cli-owners-{tag}-{}", std::process::id()));
+         let _ = std::fs::remove_dir_all(&root);
+         let _ = std::fs::remove_dir_all(&owners);
+         std::fs::create_dir_all(&root).unwrap();
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r14/hashline/src/private_block/token_io/r3_tests.rs	2026-10-28 19:12:07.680894405 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r15/hashline/src/private_block/token_io/r3_tests.rs	2026-10-28 21:29:10.953795825 -0700
+@@ -318,7 +318,7 @@
+ #[test]
+ fn tr3_2_a_truncated_manifest_is_refused_by_name() {
+     let t = generic_tables(384, 0x7472_3332);
+-    let dir = std::env::temp_dir().join(format!("tio-tr3-2-{}", std::process::id()));
++    let dir = super::cli_tests::next_token_fixture_root().join(format!("tio-tr3-2-{}", std::process::id()));
+     write_token_tables(&dir, &t, norm());
+     let hm = std::fs::read(dir.join("head_manifest.json")).unwrap();
+     let at = hm.windows(8).position(|w| w == b"\"sha256\"").expect("a sha256 key") + 14;
+@@ -585,7 +585,7 @@
+ #[test]
+ fn r3_the_table_loader_round_trips_and_refuses_a_table_that_is_not_the_recorded_one() {
+     let t = generic_tables(384, 0x6c6f_6164);
+-    let dir = std::env::temp_dir().join(format!("tio-r3-loader-{}", std::process::id()));
++    let dir = super::cli_tests::next_token_fixture_root().join(format!("tio-r3-loader-{}", std::process::id()));
+     write_token_tables(&dir, &t, norm());
+     let files = TableFiles { emb_dir: dir.clone(), head_dir: dir.clone() };
+     let (back, m) = load_token_tables(&files, t.v, t.d).expect("the written set loads");
+--- /dev/null	2026-10-28 13:56:48.989250820 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r15/hashline/src/private_block/token_io/classify_r15_tests.rs	2026-10-28 21:34:54.894154013 -0700
+@@ -0,0 +1,264 @@
++//! **TOKEN I/O ROUND 15: REVIEW_R14 N-r14-1, the label's whole-post check.**
++//! TEST CODE ONLY, public synthetic data (the development rung's pinned
++//! tensor and tiny export, `classify_cli_tests`' fixture).
++//!
++//! Written FAILING-FIRST against round 14's code (run r15-red: the tree as
++//! frozen in frozen-r14 plus this file and the F18-1 capture tests):
++//!
++//! * **N-r14-1** (REVIEW_R14 §9): `label` cannot know how long the post is.
++//!   A proof set of only the FIRST k < N ids of an N-id post labels cleanly,
++//!   with `content_total` = k (round 14 widened this: a short item of any
++//!   k >= 1 is one chunk). `label --expect-total N` (N = the post's own token
++//!   count from the pinned tokenizer; public by D45(1)) must refuse such a set
++//!   and admit the honest full set. Round 14's CLI has no such argument
++//!   (exit 2) and labels the truncated set without one (exit 0).
++//!
++//! The `#[ignore]`d binary test runs the same cases through the NAMED
++//! `zk60_classify` binary, each command its own process (the r14 binary
++//! fails them; the r15 binary passes).
++
++use super::classify::*;
++use super::classify_cli::classify_label_command;
++use super::classify_cli_tests::{Cc, POLICY_RUNG_DEV};
++use std::path::PathBuf;
++
++/// the development policy's public pad id (DESIGN v2.4 §15)
++const DEV_PAD: u64 = 2;
++
++fn s(v: &[&str]) -> Vec<String> {
++    v.iter().map(|x| x.to_string()).collect()
++}
++
++fn text(v: &[u64]) -> String {
++    v.iter().map(|x| x.to_string()).collect::<Vec<_>>().join(",")
++}
++
++/// the padded item of a content: template prefix, the content, the suffix,
++/// then the public pad id up to `t` (a full-length content gets no pad)
++fn padded(content: &[u64], t: usize) -> Vec<u64> {
++    let p = policy_rung_dev();
++    let mut v: Vec<u64> = p.prefix.iter().chain(content.iter()).chain(p.suffix.iter()).copied().collect();
++    while v.len() < t {
++        v.push(DEV_PAD);
++    }
++    v
++}
++
++/// `zk60_classify label` over `runs` from the fixture's verifier copy, with
++/// `--expect-total` when `expect` is given (a raw value, so bad values are
++/// testable)
++fn label_with(cc: &Cc, runs: &[&PathBuf], expect: Option<&str>) -> i32 {
++    let joined = runs.iter().map(|r| r.to_str().unwrap()).collect::<Vec<_>>().join(",");
++    let mut args = vec!["--export", cc.verifier_copy.to_str().unwrap(), "--tables", cc.tables.to_str().unwrap(), "--policy", POLICY_RUNG_DEV, "--runs", &joined, "--expect-statement", &cc.identity, "--min-bits", "93"];
++    if let Some(n) = expect {
++        args.extend_from_slice(&["--expect-total", n]);
++    }
++    classify_label_command(&s(&args))
++}
++
++/// the four proved and verified runs of the cases below: the 23-id post's
++/// one chunk, the first 22 ids of that post (a short item), and the 27-id
++/// post's two chunks `[0, 23)` and `[4, 27)`
++struct Runs {
++    full23: PathBuf,
++    first22: PathBuf,
++    c0: PathBuf,
++    c1: PathBuf,
++}
++
++fn prove_runs(cc: &Cc) -> Runs {
++    let p = policy_rung_dev();
++    // the 23-id post (9..=31): one chunk [0, 23), the export's s0
++    let full23 = cc.root.join("post23");
++    assert_eq!(cc.prove_chunk(&full23, &cc.content, 0, None), 0, "the 23-id post");
++    // the first 22 ids of that post, proved as a short item (round 14)
++    let first22: Vec<u64> = (9..=30).collect();
++    let sd = cc.owners.join("seq-first22");
++    cc.write_seq_dir(&sd, &padded(&first22, 32));
++    let r22 = cc.root.join("first22");
++    assert_eq!(cc.prove_chunk(&r22, &text(&first22), 0, Some(sd.as_path())), 0, "the first 22 ids as a short item");
++    // the 27-id post (9..=31, 33..=36): chunk 0 = the export's s0, chunk 1 [4, 27)
++    let whole27 = format!("{},33,34,35,36", cc.content);
++    let chunk1: Vec<u64> = p.prefix.iter().copied().chain((13..=31).chain(33..=36)).chain(p.suffix.iter().copied()).collect();
++    let sd1 = cc.owners.join("seq-chunk1");
++    cc.write_seq_dir(&sd1, &chunk1);
++    let (c0, c1) = (cc.root.join("post27-c0"), cc.root.join("post27-c1"));
++    assert_eq!(cc.prove_chunk(&c0, &whole27, 0, None), 0, "chunk 0 of the 27-id post");
++    assert_eq!(cc.prove_chunk(&c1, &whole27, 1, Some(sd1.as_path())), 0, "chunk 1 of the 27-id post");
++    for r in [&full23, &r22, &c0, &c1] {
++        assert_eq!(cc.verify(r, &cc.tables), 0, "{} verifies (and is published)", r.display());
++    }
++    Runs { full23, first22: r22, c0, c1 }
++}
++
++/// **N-r14-1: a truncated proof set is refused against the post's own
++/// total; the honest full set passes.** Truncated: the first 22 ids of the
++/// 23-id post (a short item, `content_total` 22) under `--expect-total 23`;
++/// the first 23 ids of the 27-id post (`content_total` 23) under 27; the
++/// first 22 ids under 27; chunk 0 of the 27-id post alone. Also refused: the
++/// truncated set with no `--expect-total` (the post's count is required),
++/// and the values 0 and `x`. Honest: the 23-id post's set under 23, the
++/// 27-id post's two chunks under 27 (either order), the 22-id post's own set
++/// under 22.
++#[test]
++fn r15_label_refuses_a_truncated_proof_set_against_the_posts_own_total() {
++    let cc = Cc::new("r15-trunc");
++    let r = prove_runs(&cc);
++    let cases: Vec<(&str, Vec<&PathBuf>, Option<&str>, i32)> = vec![
++        ("truncated: the first 22 ids of the 23-id post, --expect-total 23", vec![&r.first22], Some("23"), 1),
++        ("truncated: the first 23 ids of the 27-id post, --expect-total 27", vec![&r.full23], Some("27"), 1),
++        ("truncated: the first 22 ids of the 27-id post, --expect-total 27", vec![&r.first22], Some("27"), 1),
++        ("truncated: chunk 0 of the 27-id post alone, --expect-total 27", vec![&r.c0], Some("27"), 1),
++        ("truncated: the first 22 ids with no --expect-total", vec![&r.first22], None, 1),
++        ("bad value: --expect-total 0", vec![&r.full23], Some("0"), 1),
++        ("bad value: --expect-total x", vec![&r.full23], Some("x"), 1),
++        ("honest: the 23-id post's one chunk, --expect-total 23", vec![&r.full23], Some("23"), 0),
++        ("honest: the 27-id post's two chunks, --expect-total 27", vec![&r.c0, &r.c1], Some("27"), 0),
++        ("honest: the 27-id post's two chunks in the other order", vec![&r.c1, &r.c0], Some("27"), 0),
++        ("honest: the 22-id post's own one chunk, --expect-total 22", vec![&r.first22], Some("22"), 0),
++    ];
++    let mut wrong = Vec::new();
++    for (what, runs, expect, want) in &cases {
++        let got = label_with(&cc, runs, *expect);
++        eprintln!("TOKEN-IO R15 | N-r14-1 | {what}: exit {got} (want {want})");
++        if got != *want {
++            wrong.push(format!("{what}: exit {got}, want {want}"));
++        }
++    }
++    assert!(wrong.is_empty(), "N-r14-1: THE LABEL ADMITTED A TRUNCATED PROOF SET OR REFUSED THE HONEST ONE ({} of {} cases): {wrong:#?}", wrong.len(), cases.len());
++}
++
++/// **The same cases through the NAMED binary, each command its own process**
++/// (`HL_PB_CLI_BIN`): the runs proved and verified in-process as above, then
++/// every `label` call is the binary's own process.
++#[test]
++#[ignore = "runs the named zk60_classify binary; set HL_PB_CLI_BIN"]
++fn r15_label_expect_total_through_the_named_binary_in_fresh_processes() {
++    let bin = PathBuf::from(std::env::var("HL_PB_CLI_BIN").expect("HL_PB_CLI_BIN is not set: the named zk60_classify binary"));
++    assert!(bin.is_absolute() && bin.is_file(), "HL_PB_CLI_BIN must be an absolute path to the binary");
++    let cc = Cc::new("r15-bin");
++    let r = prove_runs(&cc);
++    let cases: Vec<(&str, Vec<&PathBuf>, Option<&str>, i32)> = vec![
++        ("truncated: the first 22 ids of the 23-id post, --expect-total 23", vec![&r.first22], Some("23"), 1),
++        ("truncated: the first 23 ids of the 27-id post, --expect-total 27", vec![&r.full23], Some("27"), 1),
++        ("truncated: the first 22 ids with no --expect-total", vec![&r.first22], None, 1),
++        ("honest: the 23-id post's one chunk, --expect-total 23", vec![&r.full23], Some("23"), 0),
++        ("honest: the 27-id post's two chunks, --expect-total 27", vec![&r.c0, &r.c1], Some("27"), 0),
++        ("honest: the 22-id post's own one chunk, --expect-total 22", vec![&r.first22], Some("22"), 0),
++    ];
++    let mut wrong = Vec::new();
++    for (what, runs, expect, want) in &cases {
++        let joined = runs.iter().map(|r| r.to_str().unwrap()).collect::<Vec<_>>().join(",");
++        let mut args = s(&["label", "--export", cc.verifier_copy.to_str().unwrap(), "--tables", cc.tables.to_str().unwrap(), "--policy", POLICY_RUNG_DEV, "--runs", &joined, "--expect-statement", &cc.identity, "--min-bits", "93"]);
++        if let Some(n) = expect {
++            args.extend(s(&["--expect-total", n]));
++        }
++        let out = std::process::Command::new(&bin).args(&args).output().expect("the CLI binary runs");
++        let got = out.status.code().unwrap_or(-1);
++        eprintln!("TOKEN-IO R15 | binary {} | {what}: exit {got} (want {want}) | stdout {}", bin.display(), String::from_utf8_lossy(&out.stdout).trim());
++        if got != *want {
++            wrong.push(format!("{what}: exit {got}, want {want}"));
++        }
++    }
++    assert!(wrong.is_empty(), "N-r14-1 through the named binary {}: {wrong:#?}", bin.display());
++}
++
++// ------------------------------------------------------------------ added after the red run (GREEN)
++
++/// **N-r14-1 in the library: `aggregate_label(seen, expect_total)`** (the
++/// parameter round 15 adds; a library caller hands `ChunkRef` values it may
++/// have built itself). Honest sets pass at their post's total; refused: a
++/// set of another total (the first 23 or 22 ids of a 27-id post, the first 22
++/// of a 23-id post), a run whose range is not its index's range in the split
++/// of `[0, N)`, a chunk count that is not the split's, an index beyond the
++/// split, and `expect_total` 0.
++#[test]
++fn r15_the_library_label_checks_the_posts_total_and_every_range() {
++    use super::classify_cli::aggregate_label;
++    let plan = ChunkPlan { size: 23, overlap: 4 };
++    let c = |j: usize, total: usize| ChunkRef::derive(total, j, plan).unwrap();
++    let m = [7u8; 32];
++    let pol = || POLICY_RUNG_DEV.to_string();
++    let set = |cs: &[ChunkRef]| cs.iter().map(|x| (*x, 0u8, pol(), m)).collect::<Vec<_>>();
++    // honest: each post's whole split at its own total
++    assert_eq!(aggregate_label(&set(&[c(0, 27), c(1, 27)]), 27), Ok(0));
++    assert_eq!(aggregate_label(&set(&[c(0, 23)]), 23), Ok(0));
++    assert_eq!(aggregate_label(&set(&[c(0, 22)]), 22), Ok(0));
++    assert_eq!(aggregate_label(&set(&[c(0, 1)]), 1), Ok(0));
++    assert_eq!(aggregate_label(&set(&[c(2, 43), c(0, 43), c(1, 43)]), 43), Ok(0));
++    // truncated: a set of another total
++    for (cs, n) in [(vec![c(0, 23)], 27), (vec![c(0, 22)], 27), (vec![c(0, 22)], 23), (vec![c(0, 1)], 23), (vec![c(0, 27), c(1, 27)], 43), (vec![c(0, 27), c(1, 27)], 26)] {
++        let e = aggregate_label(&set(&cs), n).unwrap_err();
++        assert!(e.contains(&format!("but the post has {n}")), "{e}");
++    }
++    // a library caller's own ChunkRef: a range that is not the split's, a count that is not, an index beyond it
++    let good = c(1, 27);
++    let shifted = ChunkRef { a: 5, ..good };
++    assert!(aggregate_label(&set(&[c(0, 27), shifted]), 27).unwrap_err().contains("names the range [5, 27)"));
++    let short_b = ChunkRef { b: 26, ..good };
++    assert!(aggregate_label(&set(&[c(0, 27), short_b]), 27).unwrap_err().contains("names the range [4, 26)"));
++    let one = ChunkRef { count: 1, ..c(0, 27) };
++    assert!(aggregate_label(&set(&[one]), 27).unwrap_err().contains("the split of [0, 27) has 2"));
++    let beyond = ChunkRef { index: 2, ..good };
++    assert!(aggregate_label(&set(&[c(0, 27), good, beyond]), 27).unwrap_err().contains("chunk 2 of a 2-chunk split"));
++    assert!(aggregate_label(&set(&[c(0, 1)]), 0).is_err(), "expect_total 0");
++    eprintln!("TOKEN-IO R15 | N-r14-1 | the library's aggregate_label refuses another total, a range off the split, a wrong count and an index beyond it");
++}
++
++/// **Round 15 changes no receipt, statement or profile byte**: a receipt
++/// proved by one named binary verifies with the other (`HL_PB_CLI_BIN`, this
++/// round's; `HL_PB_CLI_BIN_OTHER`, e.g. the frozen r14 binary), both ways, for
++/// the 23-id item and a 22-id short item; each command its own process, each
++/// verify on its own fresh copy of the run directory.
++#[test]
++#[ignore = "runs two named zk60_classify binaries; set HL_PB_CLI_BIN and HL_PB_CLI_BIN_OTHER"]
++fn r15_receipts_cross_verify_between_two_named_binaries() {
++    let bin_of = |k: &str| {
++        let b = PathBuf::from(std::env::var(k).unwrap_or_else(|_| panic!("{k} is not set: a named zk60_classify binary")));
++        assert!(b.is_absolute() && b.is_file(), "{k} must be an absolute path to the binary");
++        b
++    };
++    let (this, other) = (bin_of("HL_PB_CLI_BIN"), bin_of("HL_PB_CLI_BIN_OTHER"));
++    let cc = Cc::new("r15-xbin");
++    let first22: Vec<u64> = (9..=30).collect();
++    let sd = cc.owners.join("seq-xbin-22");
++    cc.write_seq_dir(&sd, &padded(&first22, 32));
++    fn copy_dir(from: &std::path::Path, to: &std::path::Path) {
++        std::fs::create_dir_all(to).unwrap();
++        for e in std::fs::read_dir(from).unwrap() {
++            let e = e.unwrap();
++            let dst = to.join(e.file_name());
++            if e.file_type().unwrap().is_dir() {
++                copy_dir(&e.path(), &dst);
++            } else {
++                std::fs::copy(e.path(), &dst).unwrap();
++            }
++        }
++    }
++    let mut wrong = Vec::new();
++    for (pname, prover, vname, verifier) in [("this", &this, "other", &other), ("other", &other, "this", &this)] {
++        for (item, content, seq) in [("23", cc.content.clone(), None), ("22", text(&first22), Some(sd.clone()))] {
++            let run = cc.root.join(format!("x-{pname}-{item}"));
++            let od = cc.owner_dir(&run);
++            let cf = cc.content_file(&content);
++            let mut args = s(&["prove", "--export", cc.export.to_str().unwrap(), "--tables", cc.tables.to_str().unwrap(), "--policy", POLICY_RUNG_DEV, "--content-file", cf.to_str().unwrap(), "--out", run.to_str().unwrap(), "--owner-dir", od.to_str().unwrap()]);
++            match &seq {
++                Some(d) => args.extend(s(&["--seq-dir", d.to_str().unwrap()])),
++                None => args.extend(s(&["--seq", "s0"])),
++            }
++            let code = std::process::Command::new(prover).args(&args).output().expect("the CLI binary runs").status.code();
++            assert_eq!(code, Some(0), "{pname} binary's prove of the {item}-id item");
++            // a fresh copy of the run (and its unverified statement) for the other binary's verify
++            let vrun = cc.root.join(format!("x-{pname}-{item}-by-{vname}"));
++            copy_dir(&run, &vrun);
++            copy_dir(&PathBuf::from(format!("{}.unverified-statement", run.display())), &PathBuf::from(format!("{}.unverified-statement", vrun.display())));
++            let out = std::process::Command::new(verifier).args(s(&["verify", "--export", cc.verifier_copy.to_str().unwrap(), "--tables", cc.tables.to_str().unwrap(), "--policy", POLICY_RUNG_DEV, "--artifact", vrun.to_str().unwrap(), "--expect-statement", &cc.identity, "--min-bits", "93"])).output().expect("the CLI binary runs");
++            let got = out.status.code().unwrap_or(-1);
++            eprintln!("TOKEN-IO R15 | cross-binary | {item}-id item proved by {pname} ({}), verified by {vname} ({}): exit {got} | {}", prover.display(), verifier.display(), String::from_utf8_lossy(&out.stdout).trim());
++            if got != 0 {
++                wrong.push(format!("{item}-id item proved by {pname}, verified by {vname}: exit {got}"));
++            }
++        }
++    }
++    assert!(wrong.is_empty(), "round 15 moved a receipt or statement byte: {wrong:#?}");
++}

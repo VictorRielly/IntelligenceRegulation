@@ -1,0 +1,4 @@
+  File "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/arithmetic-intensity-screen-20261030/experiment.py", line 26
+    elif i == 31:
+    ^^^^
+SyntaxError: invalid syntax

@@ -1,0 +1,44 @@
+[
+  {
+    "workers": 1,
+    "baseline_byte_time_units": 243277824,
+    "candidate_byte_time_units": 201326592,
+    "ratio": 1.2083740234375,
+    "assumption": "independent equal byte-time workers; no shared bandwidth contention; LPT countermodel, not measured Rayon scheduling"
+  },
+  {
+    "workers": 2,
+    "baseline_byte_time_units": 134217728,
+    "candidate_byte_time_units": 134217728,
+    "ratio": 1.0,
+    "assumption": "independent equal byte-time workers; no shared bandwidth contention; LPT countermodel, not measured Rayon scheduling"
+  },
+  {
+    "workers": 3,
+    "baseline_byte_time_units": 83886080,
+    "candidate_byte_time_units": 67108864,
+    "ratio": 1.25,
+    "assumption": "independent equal byte-time workers; no shared bandwidth contention; LPT countermodel, not measured Rayon scheduling"
+  },
+  {
+    "workers": 4,
+    "baseline_byte_time_units": 67108864,
+    "candidate_byte_time_units": 67108864,
+    "ratio": 1.0,
+    "assumption": "independent equal byte-time workers; no shared bandwidth contention; LPT countermodel, not measured Rayon scheduling"
+  },
+  {
+    "workers": 8,
+    "baseline_byte_time_units": 67108864,
+    "candidate_byte_time_units": 67108864,
+    "ratio": 1.0,
+    "assumption": "independent equal byte-time workers; no shared bandwidth contention; LPT countermodel, not measured Rayon scheduling"
+  },
+  {
+    "workers": 16,
+    "baseline_byte_time_units": 67108864,
+    "candidate_byte_time_units": 67108864,
+    "ratio": 1.0,
+    "assumption": "independent equal byte-time workers; no shared bandwidth contention; LPT countermodel, not measured Rayon scheduling"
+  }
+]

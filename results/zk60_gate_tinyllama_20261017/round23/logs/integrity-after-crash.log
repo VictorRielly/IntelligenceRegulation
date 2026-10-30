@@ -1,0 +1,1 @@
+checked 120, ok 120, failed [], manifest consistent True, unlisted [], scripts [('alone_check.py', True), ('c9.sh', True), ('nl26.sh', True)] -> PASS (2.0 s)

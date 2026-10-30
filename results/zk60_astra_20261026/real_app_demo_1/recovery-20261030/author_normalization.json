@@ -1,0 +1,5 @@
+{
+  "before": "astra_demo",
+  "after": "@astra_demo",
+  "basis": "original app submission handler normalizes handles with @; correction of recovered display metadata only"
+}

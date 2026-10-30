@@ -1,0 +1,193 @@
+{
+  "scope": "COUNTED review proposal for native R13, not accepted soundness/privacy; final release recensus and D24 required",
+  "field_modulus": 18446744069414584321,
+  "conditional_clause_bounds": {
+    "qkv_requant": {
+      "absolute_bound": 2190433320960,
+      "bits": 41,
+      "below_field": true
+    },
+    "gate_requant": {
+      "absolute_bound": 558689345863680,
+      "bits": 49,
+      "below_field": true
+    },
+    "ao_requant": {
+      "absolute_bound": 10926396801024,
+      "bits": 44,
+      "below_field": true
+    },
+    "down_requant": {
+      "absolute_bound": 2236406650896384,
+      "bits": 51,
+      "below_field": true
+    },
+    "score_requant": {
+      "absolute_bound": 283467841536,
+      "bits": 39,
+      "below_field": true
+    },
+    "rope_requant": {
+      "absolute_bound": 25166080,
+      "bits": 25,
+      "below_field": true
+    },
+    "pv_requant": {
+      "absolute_bound": 146028888064,
+      "bits": 38,
+      "below_field": true
+    },
+    "up_requant": {
+      "absolute_bound": 554050781184,
+      "bits": 40,
+      "below_field": true
+    },
+    "derived_table_output": {
+      "absolute_bound": 2147418112,
+      "bits": 31,
+      "below_field": true
+    },
+    "product_requant_h24": {
+      "absolute_bound": 142932216905728,
+      "bits": 48,
+      "below_field": true
+    },
+    "product_requant_low": {
+      "absolute_bound": 142932283752448,
+      "bits": 48,
+      "below_field": true
+    },
+    "norm_numerator": {
+      "absolute_bound": 18069392719872,
+      "bits": 45,
+      "below_field": true
+    },
+    "norm_reconstruction": {
+      "absolute_bound": 78674674057216,
+      "bits": 47,
+      "below_field": true
+    },
+    "softmax_quotient": {
+      "absolute_bound": 549789368320,
+      "bits": 40,
+      "below_field": true
+    }
+  },
+  "maximum_clause_bits": 51,
+  "source_sha256": {
+    "hashline/src/private_block.rs": "c55da6ade97d9e2864d0cad43fc330620b4929f86a7338ff5517163b1242e677",
+    "hashline/src/private_block/argument.rs": "bc0332e39904ca881d26c255581aa1ab6a0e73899141689960ec2262f8561830",
+    "hashline/src/private_block/argument_accuracy.rs": "a5e02391b61577c7041efc41c04cd2564610e3fbb26b188b66b1623a5b7940d9",
+    "hashline/src/private_block/accuracy_layout.rs": "37a3e3458e4961ddaab98440de114e575da3af21f7d872b532cb71a04ac788d3",
+    "hashline/src/private_block/accuracy_precision.rs": "145c1e0f66ea5aad558148aa7885b4fcaaf74c6145893cc1efd10f7a77eee56b",
+    "hashline/src/private_block/accuracy_public.rs": "0b44bf5424fed9ea9911e3b041c0977ea0727bb461b83be198a5d2210d73d660",
+    "hashline/src/private_block/accuracy_aligned.rs": "396d0cf271b9ac401364e0c96a6c549eb4a31f91750a3072391d55ac8b9e9f8d",
+    "hashline/src/private_block/accuracy_act.rs": "7ef5fe26fc9395817436fc55851dc1f2ea066bc06b8a5eaaa3e2c39a8045eb4e",
+    "hashline/src/private_block/shape.rs": "8e00a144bd194fd5a3dd30c9aaece2869d43d461df623cdcfc5a9da59e51436b",
+    "hashline/src/private_block/protocol.rs": "1011441431a37f735999405986af6c9f11c2d303b48aa6d9cefae55b0311718d"
+  },
+  "word_classes": {
+    "norm_and_attention": "[-32768,32767], biased two-byte decomposition",
+    "weights_gains_scores": "symmetric [-127,127]; public weights/gains explicitly reject -128",
+    "gate": "[-2048,2047] via ACT3 registered table",
+    "up": "[-32768,32767]",
+    "h_low": "[-32768,32767]",
+    "h_h24": "[-8388608,8388607]",
+    "raw_activation": "frozen signed16 table, positive clipping only as already registered",
+    "scaled_activation": "verifier-derived exact integer, abs<=2147418112 for Shieldstral extension, abs<=1073709056 Standard"
+  },
+  "conditions_and_native_paths": [
+    {
+      "condition": "positive narrow c2 multipliers and folded gate coefficient <=2^14; exact approved geometry/base/stack/registry/G",
+      "paths": [
+        "accuracy_public.rs:new_for_registry/check_for_registry",
+        "accuracy_groups.rs:derive",
+        "private_block.rs:check_accuracy_for_shape"
+      ]
+    },
+    {
+      "condition": "all widened signed words and remainders have emitted limbs; no absent role aliases; support padding is zero",
+      "paths": [
+        "accuracy_layout.rs:AccuracyIds::new/lookups",
+        "argument_accuracy.rs:dzc/fzc/qzc/szc/dd",
+        "pad.rs:zero_rule_a_planes"
+      ]
+    },
+    {
+      "condition": "normD is the nonnegative integer square root of eps+sum(x*x); denominator-positive and full24 rho/sigma complement enforce quotient",
+      "paths": [
+        "argument.rs:unchanged SC_SS/SC_SSM and isqrt clauses",
+        "argument_accuracy.rs:dzc",
+        "shape.rs:accuracy_trained/check_constructed"
+      ]
+    },
+    {
+      "condition": "all public EXP words lie in declared FE range; causal sum is bounded by tokens*2^FE; FP12 division at every DD slot including unused",
+      "paths": [
+        "trained_block.rs:generated EXP validation",
+        "argument_accuracy.rs:szc/szc_dd/dd",
+        "witness_accuracy.rs:assign"
+      ]
+    },
+    {
+      "condition": "ACT3 uses gate+2048 + beta*scaled_word + beta^2*public_gid + gamma*tag, with every padded query assigned real group0/gate0/output0",
+      "paths": [
+        "accuracy_act.rs:histogram/query_values/table",
+        "argument_accuracy.rs:fzc/tab",
+        "protocol.rs:ACT histograms and H helpers"
+      ]
+    },
+    {
+      "condition": "raw registered table words are multiplied by exact powers of two BEFORE product rounding; no re-quantization or move to Wd",
+      "paths": [
+        "accuracy_aligned.rs:derive_aligned_for",
+        "accuracy_public.rs:check_for_registry",
+        "argument_accuracy.rs:fzc"
+      ]
+    }
+  ],
+  "lookup_bound": {
+    "q": "p^2",
+    "positions": "Qbyte+S+F+(DD?S:0)+256+256+4096*groups+(DD?Dd:0)",
+    "proposed_polynomial_total_degree": "2*(positions-1)",
+    "review_obligations": [
+      "formal nonzero numerator under committed arbitrary field multiplicities",
+      "coupling to native helper claims and the one zero-sum identity",
+      "union across actual layers and with batching/sumcheck/PCS/CFS/hash terms"
+    ]
+  },
+  "native_census": {
+    "path": "NATIVE_LAYOUT_CENSUS.json",
+    "sha256": "36caa5bb71da50a3be89570eeaa8c533f3cab8291cea45816f1b8b6e13edb21a",
+    "profiles": 12,
+    "rows": 144,
+    "calibration_scope": "normal-release admitted FE9/12/16 examples,1..4groups; actual export matching public profile/calibration; Shape receipt count excludes80-byte bound-run header"
+  },
+  "evidence": {
+    "honest_receipts": "four Low/H24 DD/nonDD development receipts, all verify/tamper refuses",
+    "native_mutations": "19 normal-release adversarial cases emitted receipts then failed verification, including a wrong-group witness with otherwise self-consistent arithmetic and two honest context controls",
+    "actual_import": "all26 Shieldstral public layers and tied checkpoint derivation pass; not a full26 proof",
+    "final_release": "PASS: normal library/CLI,77 component cases,19 receipt-emitting attacks,2 private-boundary receipts,4 dense receipts,26 full public imports,4R9 goldens/5identities,9 coverage gates,4 fresh CLI cases,4 retained R8/R9 full stacks,2 retained R12 Shieldstral receipts,816/0 full suite,actualL00T128DD/nonDD parity/proofs/fresh/tamper"
+  },
+  "omitted_acceptance_claims": [
+    "no overall security bits asserted",
+    "no privacy acceptance asserted",
+    "no model-level fidelity acceptance asserted",
+    "no full26-layer trained proof asserted"
+  ],
+  "refusal_conditions_for_independent_privacy_review": {
+    "scope": "public counts and required review obligations only; no privacy acceptance or distance claim",
+    "public_ACT_support_entries": "4096*public_group_count,1..4groups",
+    "ACT_padding": "all padded queries use group0/gate0/output0 and therefore the already inverted actual table entry2048",
+    "table_helpers": "invert all registered byte256/EXP256/ACT4096*groups entries before multiplicities; never skip a zero-count ACT entry",
+    "DD_helpers": "invert every row/slot including repeated0/unused slots; preserve row Sum key and FP12 quotient constraints",
+    "review_required": [
+      "Update D30/D34 bookkeeping for the enlarged ACT public table",
+      "Distinguish input-independent public-table refusals from private keyed-DD refusals",
+      "Recount masks/openings and disclosure surfaces for new profiles separately from soundness"
+    ]
+  },
+  "source_manifest": "release-2.source.json",
+  "source_tree_sha256": "bb9eb2123c9350c738dafd19fe3b0133d6e2e7ab93f1e765cac4f20ccaed69ec",
+  "acceptance_status": "Ready for independent D24 soundness review; no privacy or full26-layer trained proof acceptance"
+}

@@ -1,0 +1,79 @@
+{
+  "at": "2026-10-30T00:44:17.999378+00:00",
+  "status": "staged and tested; not applied while first demo sources are pinned",
+  "findings": [
+    "P-7",
+    "P-8"
+  ],
+  "tests": 183,
+  "guard": "check-2/guard.json",
+  "test_log": "check-2/tests.log",
+  "test_wall_seconds": 9.67886996269226,
+  "peak_rss_gib": 0.09,
+  "enforcement": "cgroup+watchdog",
+  "javascript_syntax": "node --check passed after UI edits",
+  "browser_visual_check": false,
+  "source_changes": {
+    "DESIGN.md": {
+      "before": "b666baf5dd82328323bd8c1bc29b86e0da69b43c17fd9504a69a9f868b5a8e53",
+      "candidate": "a7e2d0000d3e2dcf6882c932e1c36db060ec1861f283731c71ec0bc1e82401a9"
+    },
+    "README.md": {
+      "before": "f97fdea2ca9ab53c15f6ff1758167ab2f15f16698b4990e8051e1a434c32ab38",
+      "candidate": "9636136c5ad924539670a265d10c3e3be752a854491dd27edb716316d2515496"
+    },
+    "proven_media/app.py": {
+      "before": "e07d365987507a1f3f3c0fa5d36abe74fdbbc9b0fefe03045275cb49dc0d9d82",
+      "candidate": "60d39b7e93f271516396eaa58b3f1cbda5e63d4d02151584e0289f0631f0d8c7"
+    },
+    "proven_media/auth.py": {
+      "before": null,
+      "candidate": "1861c10dc753ebb38022354e684b89195ba438eddc4863124653a855b2feec7c"
+    },
+    "proven_media/config.py": {
+      "before": "9de948a0e6e80747a595497033162b65c25ea357953519359fc6146fb74bf8df",
+      "candidate": "9193c33ca234d35dd00ac51e824fff3509752b31e3c850938e01571c5ccf0b36"
+    },
+    "static/app.css": {
+      "before": "ae16192e4ae0f7934cc7c4e53e14b8c989698dae4558a15076ee2e0aa1166f4b",
+      "candidate": "8aaf15dffe269a98809c79dce713bf2dfbf887d5ff75c29a80eb50678042b459"
+    },
+    "static/app.js": {
+      "before": "779b9ea8441dbf94970fa0d703ebd2f1ffd6153d5d3d46c1662c04f2a5f7f924",
+      "candidate": "4b661c18e72f8e09bdf931b4bf96c9431ad7e014079a435a43aa441f278f0661"
+    },
+    "static/index.html": {
+      "before": "5c5755b589b6387813e09389b2165937164dcb0700889e4228c5c9532ac3b159",
+      "candidate": "6afa84c8d3bc3043c654f2b3bb29c6a3812fcb6d9e72501d8efe15b50dd93470"
+    },
+    "tests/test_app.py": {
+      "before": "113589b3b6aeb38ff51f80f83cddb02aa6851ebf2d3b000a1065484bb41d70bf",
+      "candidate": "80a15f16129ff30018d911e7d41a55d117a007ae796fdf5166e85ee75a0efe58"
+    },
+    "tests/test_category_queue.py": {
+      "before": "530250a77247851759d07714184d635b96e6123762ecf12047a27db18d8f1521",
+      "candidate": "fcccdd67818f2d843199661d31a9007f021f71dd789c18f76780db21007aaa79"
+    },
+    "tests/test_privacy_auth.py": {
+      "before": null,
+      "candidate": "085ff810cf7d8f9345386f4f135cb117c1b327a2661e413f6151e4b051c29a94"
+    },
+    "tools/create_author.py": {
+      "before": null,
+      "candidate": "dd30050d873a4e96423d1ae373f7a2db746f076320b9475699f69d2930f7a2e4"
+    },
+    "tests/test_frontend_auth.js": {
+      "before": null,
+      "candidate": "ec5fde51185f266e33a9de632d278cff73f3ecb4711a99cbb7433278b6c1fc98"
+    }
+  },
+  "private_data_used": false,
+  "native_proofs_run": 0,
+  "privacy_acceptance": false,
+  "frontend_behavioral_checks": {
+    "passed": 5,
+    "command": "node tests/test_frontend_auth.js",
+    "scope": "DOM fixtures for session races, expiry, mutation headers and failure rendering; not a browser visual test"
+  },
+  "operational_delta": "The active runner/pipeline gained separately tested per-job execution settings after sexual completed; final integration tests will run after privacy promotion."
+}

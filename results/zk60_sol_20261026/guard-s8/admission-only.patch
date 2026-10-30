@@ -1,0 +1,20 @@
+--- installed/scripts/zk60_resource_guard.py
++++ candidate/scripts/zk60_resource_guard.py
+@@ -529,8 +529,15 @@
+     if avail < need_gib + ADMIT_MARGIN_GIB:
+         reasons.append(("mem", f"MemAvailable {avail:.1f} GiB < need {need_gib:g} + "
+                                f"margin {ADMIT_MARGIN_GIB:g}"))
+-    if mem.get("SwapTotal", 0) - mem.get("SwapFree", 0) > 1 * GIB:
+-        reasons.append(("swap", "swap in use > 1 GiB (box is already under pressure)"))
++    # S8 candidate: stale swapped-out pages alone do not establish pressure.
++    # Reserve enough available RAM to page ALL current swap back in, as well
++    # as the new job's declared need and the unchanged admission margin.
++    swap_used = max(0, mem.get("SwapTotal", 0) - mem.get("SwapFree", 0)) / GIB
++    swap_headroom = need_gib + ADMIT_MARGIN_GIB + swap_used
++    if swap_used > 1.0 and avail < swap_headroom:
++        reasons.append(("swap", f"swap in use {swap_used:.2f} GiB and MemAvailable "
++                                f"{avail:.2f} GiB < need {need_gib:g} + margin "
++                                f"{ADMIT_MARGIN_GIB:g} + full swap reserve {swap_used:.2f}"))
+     if cls == "gpu":
+         g = gpu_used_mib()
+         if g is None:

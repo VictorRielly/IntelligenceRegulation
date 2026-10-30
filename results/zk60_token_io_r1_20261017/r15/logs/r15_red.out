@@ -1,0 +1,4 @@
+[zk60-guard 21:24:47] START tio15-red-build-tests class=build need=3.7G cap=4.5G enforce=cgroup+watchdog waited=0s run=c834e1a32590
+[zk60-guard 21:27:49] END tio15-red-build-tests exit=101 child_wall=181s peak_rss=2.17G min_avail=11.81G
+[zk60-guard 21:27:49] START tio15-red-r14-binary class=cpu need=1G cap=2G enforce=cgroup+watchdog waited=0s run=58ce3c0aaf95
+[zk60-guard 21:27:58] END tio15-red-r14-binary exit=101 child_wall=9s peak_rss=0.20G min_avail=13.78G

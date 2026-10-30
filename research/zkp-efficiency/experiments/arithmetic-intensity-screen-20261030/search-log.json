@@ -1,0 +1,27 @@
+{
+  "access_date": "2026-10-30",
+  "method": "Native LIVE tools.web__run search/open/find/click",
+  "queries": [
+    "Goldilocks field GPU multiplication sumcheck tensor cores 2026 October NTT exact arithmetic",
+    "GPU sumcheck small field 2026 tensor cores lookup quantization GitHub",
+    "Goldilocks quadratic extension multiplication fused GPU Karatsuba 2025 2026",
+    "\"zkDuel\" \"2610.37710\"",
+    "Goldilocks modular warp reduction carry count sum GPU 64 bit",
+    "GPU NTT 2026 October Goldilocks tensor NTT GitHub exact",
+    "site.developer.nvidia.com/blog CUDA 11 warp reduce 2020 Ampere __reduce_add_sync",
+    "site:docs.nvidia.com cuda 11.0 release notes July 2020 warp reduction"
+  ],
+  "retained_result_batches": [
+    "web-1.json",
+    "web-2.json",
+    "web-3.json",
+    "web-4.json",
+    "web-5.json",
+    "web-6.json",
+    "web-7.json",
+    "web-8.json"
+  ],
+  "limitations": "Primary sources only. Search snippets/crawl dates are not publication dates. Initial broad discovery and some intermediate finds remain in tool history rather than these eight retained batches. Exact assessed URLs/date/license/commit scopes in sources-cycle.json.",
+  "excluded_unrelated_guess": "https://github.com/NVIDIA/cccl/pull/10712 concerns tuple/pair execution spaces; excluded from reduction claims.",
+  "external_code_execution": false
+}

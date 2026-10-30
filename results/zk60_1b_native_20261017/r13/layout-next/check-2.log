@@ -1,0 +1,14 @@
+
+running 9 tests
+test accuracy_precision::low_tests::exports_choose_an_explicit_stack_without_a_global_flag ... ok
+test accuracy_precision::low_tests::low_keeps_h16_and_its_downstream_scale ... ok
+test accuracy_precision::tests::invalid_base_or_derived_windows_are_refused ... ok
+test accuracy_precision::tests::legacy_shifts_and_widths_remain_unchanged ... ok
+test accuracy_precision::tests::low_h24_matches_the_received_build_spec ... ok
+test tests::every_allocated_role_and_lookup_count_matches_the_independent_inventory ... ok
+test tests::every_remainder_top_pin_enforces_its_exact_window_including_full_bytes ... ok
+test tests::malformed_lookup_context_is_refused_before_any_lookup_is_used ... ok
+test tests::removed_norm_limbs_are_absent_and_every_other_legacy_role_is_unique ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

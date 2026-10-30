@@ -1,0 +1,20 @@
+{
+  "schema": "zk60-classifier-tables/1",
+  "bos": 1,
+  "final_norm": {
+    "g0": 127,
+    "cn": 2048,
+    "tn": 11,
+    "ceps": 33554467
+  },
+  "yes_id": 40,
+  "no_id": 41,
+  "threshold_c": 0,
+  "margin_vector": {
+    "dtype": "int16",
+    "file": "margin_int16.bin",
+    "sha256": "24e6ff4ca67bac45c810f78b72d967894b6806615206c5571842055ce20ef3c1",
+    "d": 384,
+    "scale": 0.00390625
+  }
+}

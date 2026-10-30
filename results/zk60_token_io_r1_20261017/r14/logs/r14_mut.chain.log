@@ -1,0 +1,7 @@
+[zk60-guard 18:47:21] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 18:48:21] START tio14-mut-n2 class=build need=2.7G cap=3.5G enforce=cgroup+watchdog waited=60s run=fb2f7af96e05
+[zk60-guard 18:51:10] END tio14-mut-n2 exit=101 child_wall=169s peak_rss=2.17G min_avail=11.75G
+[zk60-guard 18:51:10] START tio14-mut-pad class=build need=2.7G cap=3.5G enforce=cgroup+watchdog waited=0s run=fe2640ef1eab
+[zk60-guard 18:54:05] END tio14-mut-pad exit=101 child_wall=175s peak_rss=2.14G min_avail=11.80G
+[zk60-guard 18:54:06] START tio14-mut-bind class=build need=2.7G cap=3.5G enforce=cgroup+watchdog waited=0s run=fdf155963469
+[zk60-guard 18:56:58] END tio14-mut-bind exit=101 child_wall=172s peak_rss=2.20G min_avail=11.85G

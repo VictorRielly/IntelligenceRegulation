@@ -1,0 +1,110 @@
+{
+  "status": "PASS",
+  "checks": 175,
+  "profiles": [
+    {
+      "dd": false,
+      "context": 128,
+      "commitment": "H",
+      "baseline_bytes": 1726218240,
+      "structural_upper_bytes": 1150550016,
+      "guaranteed_skipped_bytes": 575668224,
+      "guaranteed_logical_matrix_read_reduction": 0.3334851936218679,
+      "chunk_union_visits": [
+        1714,
+        2674,
+        4390
+      ],
+      "structural_fp2_base_mac_upper": 213975040,
+      "baseline_fp2_base_macs": 719257600,
+      "combined_A_prior_conservative_H_current_baseline_bytes": 7725383680,
+      "combined_A_prior_conservative_H_current_skipped_bytes": 884211712,
+      "combined_A_prior_conservative_H_current_reduction": 0.11445537835086529,
+      "exact_three_batch_support_optimum_visits": 5592,
+      "exact_partition": [
+        [
+          1,
+          5,
+          8,
+          9
+        ],
+        [
+          3,
+          4,
+          6,
+          7
+        ],
+        [
+          0,
+          2
+        ]
+      ],
+      "partition_dp_states": 441,
+      "packed_structural_upper_bytes": 732954624,
+      "packed_reduction_from_dense_baseline": 0.5753986332574031,
+      "largest_evaluation_groups": [
+        5,
+        1
+      ],
+      "native_define_executed": false,
+      "native_FS_executed": false,
+      "device_test": false,
+      "scope": "frozen R13 source-derived H schedule and extracted offsets/builders, synthetic generic challenges. Structural support upper bound; no physical DRAM/time or R14 assertion."
+    },
+    {
+      "dd": true,
+      "context": 128,
+      "commitment": "H",
+      "baseline_bytes": 1664876544,
+      "structural_upper_bytes": 1095499776,
+      "guaranteed_skipped_bytes": 569376768,
+      "guaranteed_logical_matrix_read_reduction": 0.34199338686820974,
+      "chunk_union_visits": [
+        1714,
+        2410,
+        4234
+      ],
+      "structural_fp2_base_mac_upper": 206241792,
+      "baseline_fp2_base_macs": 763068416,
+      "combined_A_prior_conservative_H_current_baseline_bytes": 7504134144,
+      "combined_A_prior_conservative_H_current_skipped_bytes": 884211712,
+      "combined_A_prior_conservative_H_current_reduction": 0.11782994480542164,
+      "exact_three_batch_support_optimum_visits": 5280,
+      "exact_partition": [
+        [
+          1,
+          5,
+          9,
+          10
+        ],
+        [
+          4,
+          6,
+          7,
+          8
+        ],
+        [
+          0,
+          2,
+          3
+        ]
+      ],
+      "partition_dp_states": 726,
+      "packed_structural_upper_bytes": 692060160,
+      "packed_reduction_from_dense_baseline": 0.584317430325933,
+      "largest_evaluation_groups": [
+        5,
+        1
+      ],
+      "native_define_executed": false,
+      "native_FS_executed": false,
+      "device_test": false,
+      "scope": "frozen R13 source-derived H schedule and extracted offsets/builders, synthetic generic challenges. Structural support upper bound; no physical DRAM/time or R14 assertion."
+    }
+  ],
+  "seed": 202610290149,
+  "full_stack_proofs": 0,
+  "model_passes": 0,
+  "proved_positions": 0,
+  "end_to_end_ceiling": "N/(T-C_removed_exclusive+A_added). Native exclusive H-rowfold fraction unknown; free deletion<=1/(1-f)."
+}

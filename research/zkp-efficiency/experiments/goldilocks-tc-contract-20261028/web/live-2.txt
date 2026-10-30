@@ -1,0 +1,742 @@
+tensor-core-ntt/include/polyarith at main · Terminus-IMRC/tensor-core-ntt · GitHub (https://github.com/Terminus-IMRC/tensor-core-ntt/tree/main/include/polyarith)
+citeturn2view0 [wordlim: 200] Crawled: last month; Content type: text/html; Source: open({"ref_id":"https://github.com/Terminus-IMRC/tensor-core-ntt/tree/main/include/polyarith","lineno":null}); Total lines: 200
+L0: 【0†Skip to content】
+L1: ## Navigation Menu
+L2: 
+L3: 【1†Sign in】
+L4: 
+L5: Appearance settings
+L6: 
+L7:   * Platform
+L8: 
+L9:     * AI CODE CREATION
+L10:       * 【2†GitHub CopilotWrite better code with AI】
+L11:       * 【3†GitHub Copilot appDirect agents from issue to merge】
+L12:       * 【4†MCP RegistryIntegrate external tools】
+L13: 
+L14:     * DEVELOPER WORKFLOWS
+L15:       * 【5†ActionsAutomate any workflow】
+L16:       * 【6†CodespacesInstant dev environments】
+L17:       * 【7†IssuesPlan and track work】
+L18:       * 【8†Code ReviewManage code changes】
+L19:       * 【9†Code QualityEnforce quality at merge】
+L20:     * APPLICATION SECURITY
+L21:       * 【10†GitHub Advanced SecurityFind and fix vulnerabilities】
+L22:       * 【11†Code securitySecure your code as you build】
+L23:       * 【12†Secret protectionStop leaks before they start】
+L24: 
+L25:     * EXPLORE
+L26:       * 【13†Why GitHub】
+L27:       * 【14†Documentation†docs.github.com】
+L28:       * 【15†Blog†github.blog】
+L29:       * 【16†Changelog†github.blog】
+L30:       * 【17†Marketplace】
+L31: 
+L32: 【18†View all features】
+L33: 
+L34:   * Solutions
+L35:     * BY COMPANY SIZE
+L36:       * 【19†Enterprises】
+L37:       * 【20†Small and medium teams】
+L38:       * 【21†Startups】
+L39:       * 【22†Nonprofits】
+L40: 
+L41:     * BY USE CASE
+L42:       * 【23†App Modernization】
+L43:       * 【24†DevSecOps】
+L44:       * 【25†DevOps】
+L45:       * 【26†CI/CD】
+L46:       * 【27†View all use cases】
+L47: 
+L48:     * BY INDUSTRY
+L49:       * 【28†Healthcare】
+L50:       * 【29†Financial services】
+L51:       * 【30†Manufacturing】
+L52:       * 【31†Government】
+L53:       * 【32†View all industries】
+L54: 
+L55: 【33†View all solutions】
+L56: 
+L57:   * Resources
+L58:     * EXPLORE BY TOPIC
+L59:       * 【34†AI】
+L60:       * 【35†Software Development】
+L61:       * 【36†DevOps】
+L62:       * 【37†Security】
+L63:       * 【38†View all topics】
+L64: 
+L65:     * EXPLORE BY TYPE
+L66:       * 【39†Customer stories】
+L67:       * 【40†Events & webinars】
+L68:       * 【41†Ebooks & reports】
+L69:       * 【42†Business insights】
+L70:       * 【43†GitHub Skills†skills.github.com】
+L71:     * SUPPORT & SERVICES
+L72:       * 【14†Documentation†docs.github.com】
+L73:       * 【44†Customer support†support.github.com】
+L74:       * 【45†Community forum】
+L75:       * 【46†Trust center】
+L76:       * 【47†Partners】
+L77: 
+L78: 【48†View all resources】
+L79: 
+L80:   * Open Source
+L81: 
+L82:     * COMMUNITY
+L83:       * 【49†GitHub SponsorsFund open source developers】
+L84:     * PROGRAMS
+L85:       * 【50†Security Lab†securitylab.github.com】
+L86:       * 【51†Maintainer Community†maintainers.github.com】
+L87:       * 【52†GitHub Stars†stars.github.com】
+L88:       * 【53†Archive Program†archiveprogram.github.com】
+L89: 
+L90:     * REPOSITORIES
+L91:       * 【54†Topics】
+L92:       * 【55†Trending】
+L93:       * 【56†Collections】
+L94: 
+L95:   * Enterprise
+L96: 
+L97:     * ENTERPRISE SOLUTIONS
+L98:       * 【19†Enterprise platformAI-powered developer platform】
+L99:     * AVAILABLE ADD-ONS
+L100:       * 【10†GitHub Advanced SecurityEnterprise-grade security features】
+L101:       * 【57†Copilot for BusinessEnterprise-grade AI features】
+L102:       * 【58†Premium SupportEnterprise-grade 24/7 support】
+L103: 
+L104:   * 【59†Pricing】
+L105: 
+L106: Search`/`
+L107: 
+L108: 【1†Sign in】
+L109: 
+L110: 【60†Sign up】
+L111: 
+L112: Appearance settings
+L113: You signed in with another tab or window. Reload to refresh your session. You signed out in another tab or window. Reload to refresh your session. You switched accounts on another tab or window. Reload to refresh your session. Dismiss alert
+L114: 
+L115: 【61†Terminus-IMRC】 / 【62†tensor-core-ntt】 Public
+L116: 
+L117:   * 【63†Notifications】 You must be signed in to change notification settings
+L118:   * 【63†Fork 2】
+L119:   * 【63†Star】
+L120:   * 【62†Code】
+L121:   * 【64†Issues 0】
+L122:   * 【65†Pull requests 0】
+L123:   * 【66†Actions】
+L124:   * 【67†Security and quality 0】
+L125:   * 【68†Insights】
+L126: 
+L127: Additional navigation options
+--------------------------------------------------------------------------------
+tensor-core-ntt/tests at main · Terminus-IMRC/tensor-core-ntt · GitHub (https://github.com/Terminus-IMRC/tensor-core-ntt/tree/main/tests)
+citeturn2view1 [wordlim: 200] Crawled: last month; Content type: text/html; Source: open({"ref_id":"https://github.com/Terminus-IMRC/tensor-core-ntt/tree/main/tests","lineno":null}); Total lines: 193
+L0: 【0†Skip to content】
+L1: ## Navigation Menu
+L2: 
+L3: 【1†Sign in】
+L4: 
+L5: Appearance settings
+L6: 
+L7:   * Platform
+L8: 
+L9:     * AI CODE CREATION
+L10:       * 【2†GitHub CopilotWrite better code with AI】
+L11:       * 【3†GitHub Copilot appDirect agents from issue to merge】
+L12:       * 【4†MCP RegistryIntegrate external tools】
+L13: 
+L14:     * DEVELOPER WORKFLOWS
+L15:       * 【5†ActionsAutomate any workflow】
+L16:       * 【6†CodespacesInstant dev environments】
+L17:       * 【7†IssuesPlan and track work】
+L18:       * 【8†Code ReviewManage code changes】
+L19:       * 【9†Code QualityEnforce quality at merge】
+L20:     * APPLICATION SECURITY
+L21:       * 【10†GitHub Advanced SecurityFind and fix vulnerabilities】
+L22:       * 【11†Code securitySecure your code as you build】
+L23:       * 【12†Secret protectionStop leaks before they start】
+L24: 
+L25:     * EXPLORE
+L26:       * 【13†Why GitHub】
+L27:       * 【14†Documentation†docs.github.com】
+L28:       * 【15†Blog†github.blog】
+L29:       * 【16†Changelog†github.blog】
+L30:       * 【17†Marketplace】
+L31: 
+L32: 【18†View all features】
+L33: 
+L34:   * Solutions
+L35:     * BY COMPANY SIZE
+L36:       * 【19†Enterprises】
+L37:       * 【20†Small and medium teams】
+L38:       * 【21†Startups】
+L39:       * 【22†Nonprofits】
+L40: 
+L41:     * BY USE CASE
+L42:       * 【23†App Modernization】
+L43:       * 【24†DevSecOps】
+L44:       * 【25†DevOps】
+L45:       * 【26†CI/CD】
+L46:       * 【27†View all use cases】
+L47: 
+L48:     * BY INDUSTRY
+L49:       * 【28†Healthcare】
+L50:       * 【29†Financial services】
+L51:       * 【30†Manufacturing】
+L52:       * 【31†Government】
+L53:       * 【32†View all industries】
+L54: 
+L55: 【33†View all solutions】
+L56: 
+L57:   * Resources
+L58:     * EXPLORE BY TOPIC
+L59:       * 【34†AI】
+L60:       * 【35†Software Development】
+L61:       * 【36†DevOps】
+L62:       * 【37†Security】
+L63:       * 【38†View all topics】
+L64: 
+L65:     * EXPLORE BY TYPE
+L66:       * 【39†Customer stories】
+L67:       * 【40†Events & webinars】
+L68:       * 【41†Ebooks & reports】
+L69:       * 【42†Business insights】
+L70:       * 【43†GitHub Skills†skills.github.com】
+L71:     * SUPPORT & SERVICES
+L72:       * 【14†Documentation†docs.github.com】
+L73:       * 【44†Customer support†support.github.com】
+L74:       * 【45†Community forum】
+L75:       * 【46†Trust center】
+L76:       * 【47†Partners】
+L77: 
+L78: 【48†View all resources】
+L79: 
+L80:   * Open Source
+L81: 
+L82:     * COMMUNITY
+L83:       * 【49†GitHub SponsorsFund open source developers】
+L84:     * PROGRAMS
+L85:       * 【50†Security Lab†securitylab.github.com】
+L86:       * 【51†Maintainer Community†maintainers.github.com】
+L87:       * 【52†GitHub Stars†stars.github.com】
+L88:       * 【53†Archive Program†archiveprogram.github.com】
+L89: 
+L90:     * REPOSITORIES
+L91:       * 【54†Topics】
+L92:       * 【55†Trending】
+L93:       * 【56†Collections】
+L94: 
+L95:   * Enterprise
+L96: 
+L97:     * ENTERPRISE SOLUTIONS
+L98:       * 【19†Enterprise platformAI-powered developer platform】
+L99:     * AVAILABLE ADD-ONS
+L100:       * 【10†GitHub Advanced SecurityEnterprise-grade security features】
+L101:       * 【57†Copilot for BusinessEnterprise-grade AI features】
+L102:       * 【58†Premium SupportEnterprise-grade 24/7 support】
+L103: 
+L104:   * 【59†Pricing】
+L105: 
+L106: Search`/`
+L107: 
+L108: 【1†Sign in】
+L109: 
+L110: 【60†Sign up】
+L111: 
+L112: Appearance settings
+L113: You signed in with another tab or window. Reload to refresh your session. You signed out in another tab or window. Reload to refresh your session. You switched accounts on another tab or window. Reload to refresh your session. Dismiss alert
+L114: 
+L115: 【61†Terminus-IMRC】 / 【62†tensor-core-ntt】 Public
+L116: 
+L117:   * 【63†Notifications】 You must be signed in to change notification settings
+L118:   * 【63†Fork 2】
+L119:   * 【63†Star】
+L120:   * 【62†Code】
+L121:   * 【64†Issues 0】
+L122:   * 【65†Pull requests 0】
+L123:   * 【66†Actions】
+L124:   * 【67†Security and quality 0】
+L125:   * 【68†Insights】
+--------------------------------------------------------------------------------
+Commits · Terminus-IMRC/tensor-core-ntt · GitHub (https://github.com/Terminus-IMRC/tensor-core-ntt/commits/main/)
+citeturn2view2 [wordlim: 200] Crawled: last month; Content type: text/html; Source: find({"ref_id":"turn1view0","pattern":"Jan"}); Total lines: 254
+L84:     * PROGRAMS
+L85:       * 【50†Security Lab†securitylab.github.com】
+L86:       * 【51†Maintainer Community†maintainers.github.com】
+L87:       * 【52†GitHub Stars†stars.github.com】
+L88:       * 【53†Archive Program†archiveprogram.github.com】
+L89: 
+L90:     * REPOSITORIES
+L91:       * 【54†Topics】
+L92:       * 【55†Trending】
+L93:       * 【56†Collections】
+L94: 
+L95:   * Enterprise
+L96: 
+L97:     * ENTERPRISE SOLUTIONS
+L98:       * 【19†Enterprise platformAI-powered developer platform】
+L99:     * AVAILABLE ADD-ONS
+L100:       * 【10†GitHub Advanced SecurityEnterprise-grade security features】
+L101:       * 【57†Copilot for BusinessEnterprise-grade AI features】
+L102:       * 【58†Premium SupportEnterprise-grade 24/7 support】
+L103: 
+L104:   * 【59†Pricing】
+L105: 
+L106: Search`/`
+L107: 
+L108: 【1†Sign in】
+L109: 
+L110: 【60†Sign up】
+L111: 
+L112: Appearance settings
+L113: You signed in with another tab or window. Reload to refresh your session. You signed out in another tab or window. Reload to refresh your session. You switched accounts on another tab or window. Reload to refresh your session. Dismiss alert
+L114: 
+L115: 【61†Terminus-IMRC】 / 【62†tensor-core-ntt】 Public
+L116: 
+L117:   * 【63†Notifications】 You must be signed in to change notification settings
+L118:   * 【63†Fork 2】
+L119:   * 【63†Star】
+L120:   * 【62†Code】
+L121:   * 【64†Issues 0】
+L122:   * 【65†Pull requests 0】
+L123:   * 【66†Actions】
+L124:   * 【67†Security and quality 0】
+L125:   * 【68†Insights】
+L126: 
+L127: Additional navigation options
+L128: # Commits
+L129: 
+L130: ## Branch selector
+L131: 
+L132: main
+L133: 
+L134: ## User selector
+L135: 
+L136: All users
+L137: 
+L138: ## Datepicker
+L139: 
+L140: All time
+L141: 
+L142: ## Commit history
+L143: ### Commits on Jan 17, 2026
+L144: 
+L145:   * #### 【69†Merge pull request #3 from Terminus-IMRC/feature/add-missing-license】
+L146: 
+L147: Show description for 6f407da
+L148: 
+L149: 【70†Terminus-IMRC】
+L150: 
+L151: authored
+L152: 
+L153: 【69†6f407da】View commit details
+L154: 
+L155: Copy full SHA for 6f407da
+L156: 
+L157: Browse repository at this point
+L158: 
+L159:   * #### 【71†Add missing license header】
+L160: 
+L161: Show description for ab7f238
+L162: 
+L163: 【70†Terminus-IMRC】
+L164: 
+L165: committed
+L166: 
+L167: 【71†ab7f238】View commit details
+L168: 
+L169: Copy full SHA for ab7f238
+L170: 
+L171: Browse repository at this point
+L172:   * #### 【72†Merge pull request #2 from Terminus-IMRC/feature/remove-excessive-namespace】
+L173: 
+L174: Show description for a4ed47e
+L175: 
+L176: 【70†Terminus-IMRC】
+L177: 
+L178: authored
+L179: 
+L180: 【72†a4ed47e】View commit details
+L181: 
+L182: Copy full SHA for a4ed47e
+L183: 
+L184: Browse repository at this point
+L185: 
+L186:   * #### 【73†Remove excessive namespace specifications】
+L187: 
+L188: Show description for fde9869
+L189: 
+L190: 【70†Terminus-IMRC】
+L191: 
+L192: committed
+L193: 
+L194: 【73†fde9869】View commit details
+L195: 
+L196: Copy full SHA for fde9869
+L197: 
+L198: Browse repository at this point
+L199:   * #### 【74†Merge pull request #1 from Terminus-IMRC/feature/arithmetic-explicit-type】
+L200: 
+L201: Show description for d402355
+L202: 
+L203: 【70†Terminus-IMRC】
+L204: 
+L205: authored
+L206: 
+L207: 【74†d402355】View commit details
+L208: 
+L209: Copy full SHA for d402355
+L210: 
+L211: Browse repository at this point
+L212: 
+L213:   * #### 【75†arithmetic: Explicitly specify argument types】
+L214: 
+L215: Show description for 3779d79
+L216: 
+L217: 【70†Terminus-IMRC】
+L218: 
+L219: committed
+L220: 
+L221: 【75†3779d79】View commit details
+L222: 
+L223: Copy full SHA for 3779d79
+L224: 
+L225: Browse repository at this point
+L226: 
+L227:   * #### 【76†Import files from development branch】
+L228: Show description for 3798275
+L229: 
+L230: 【70†Terminus-IMRC】
+L231: 
+L232: committed
+L233: 
+L234: 【76†3798275】View commit details
+L235: 
+L236: Copy full SHA for 3798275
+L237: 
+L238: Browse repository at this point
+L239: ### Commits on Dec 28, 2025
+L240: 
+L241:   * #### 【77†Initial commit】
+L242: 
+L243: 【70†Terminus-IMRC】
+L244: 
+L245: committed
+L246: 
+L247: 【77†b7f8601】View commit details
+L248: 
+L249: Copy full SHA for b7f8601
+L250: 
+L251: Browse repository at this point
+L252: 
+L253: You can’t perform that action at this time.
+--------------------------------------------------------------------------------
+tensor-core-ntt/include/polyarith/modular.cuh at main · Terminus-IMRC/tensor-core-ntt · GitHub (https://github.com/Terminus-IMRC/tensor-core-ntt/blob/main/include/polyarith/modular.cuh)
+citeturn2view3 [wordlim: 200] Crawled: last month; Content type: text/html; Source: find({"ref_id":"turn1view1","pattern":"Montgomery"}); Total lines: 1775
+L1475: ".reg.u64 N;\n\t\t"
+L1476: 
+L1477: ".reg.u32 N1;\n\t\t"
+L1478: 
+L1479: "mov.b64 N, %1;\n\t\t"
+L1480: 
+L1481: "mov.b64 {_, N1}, N;\n\t\t"
+L1482: 
+L1483: ".reg.u32 s<8>;\n\t\t"
+L1484: 
+L1485: "mov.b32 s0, %2;\n\t\t"
+L1486: 
+L1487: "mov.b32 s1, %3;\n\t\t"
+L1488: 
+L1489: "mov.b32 s2, %4;\n\t\t"
+L1490: 
+L1491: "mov.b32 s3, %5;\n\t\t"
+L1492: 
+L1493: "mov.b32 s4, %6;\n\t\t"
+L1494: 
+L1495: "mov.b32 s5, %7;\n\t\t"
+L1496: 
+L1497: "mov.b32 s6, %8;\n\t\t"
+L1498: 
+L1499: "mov.b32 s7, %9;\n\t\t"
+L1500: 
+L1501: ".reg.u64 c, t;\n\t\t"
+L1502: 
+L1503: ".reg.u32 c0, c1, u;\n\t\t"
+L1504: 
+L1505: "shl.b32 u, s1, 16;\n\t\t"
+L1506: 
+L1507: "add.cc.u32 s0, s0, u;\n\t\t"
+L1508: 
+L1509: "mul.wide.u32 c, s0, N1;\n\t\t"
+L1510: 
+L1511: "sub.u64 c, N, c;\n\t\t"
+L1512: "shr.b32 u, s1, 16;\n\t\t"
+L1513: 
+L1514: "addc.u32 s2, s2, u;\n\t\t"
+L1515: 
+L1516: "shl.b32 u, s3, 16;\n\t\t"
+L1517: 
+L1518: "add.cc.u32 s2, s2, u;\n\t\t"
+L1519: 
+L1520: "mov.b64 t, {s2, 0};\n\t\t"
+L1521: 
+L1522: "add.u64 c, c, t;\n\t\t"
+L1523: 
+L1524: "mov.b64 {c0, c1}, c;\n\t\t"
+L1525: 
+L1526: "mul.wide.u32 c, c0, N1;\n\t\t"
+L1527: 
+L1528: "mov.b64 t, {c1, 0};\n\t\t"
+L1529: 
+L1530: "sub.u64 c, t, c;\n\t\t"
+L1531: 
+L1532: "add.u64 c, c, N;\n\t\t"
+L1533: 
+L1534: "shr.b32 u, s3, 16;\n\t\t"
+L1535: 
+L1536: "addc.u32 s4, s4, u;\n\t\t"
+L1537: 
+L1538: "shl.b32 u, s5, 16;\n\t\t"
+L1539: 
+L1540: "add.cc.u32 s4, s4, u;\n\t\t"
+L1541: 
+L1542: "mov.b64 t, {s4, 0};\n\t\t"
+L1543: 
+L1544: "add.u64 c, c, t;\n\t\t"
+L1545: "mov.b64 {c0, c1}, c;\n\t\t"
+L1546: 
+L1547: "mul.wide.u32 c, c0, N1;\n\t\t"
+L1548: 
+L1549: "mov.b64 t, {c1, 0};\n\t\t"
+L1550: 
+L1551: "sub.u64 c, t, c;\n\t\t"
+L1552: 
+L1553: "add.u64 c, c, N;\n\t\t"
+L1554: 
+L1555: "shr.b32 u, s5, 16;\n\t\t"
+L1556: 
+L1557: "addc.u32 s6, s6, u;\n\t\t"
+L1558: 
+L1559: "shl.b32 u, s7, 16;\n\t\t"
+L1560: 
+L1561: "add.cc.u32 s6, s6, u;\n\t\t"
+L1562: 
+L1563: "mov.b64 t, {s6, 0};\n\t\t"
+L1564: 
+L1565: "add.u64 c, c, t;\n\t\t"
+L1566: 
+L1567: "mov.b64 {c0, c1}, c;\n\t\t"
+L1568: 
+L1569: "mul.wide.u32 c, c0, N1;\n\t\t"
+L1570: 
+L1571: "mov.b64 t, {c1, 0};\n\t\t"
+L1572: 
+L1573: "sub.u64 c, t, c;\n\t\t"
+L1574: 
+L1575: "add.u64 c, c, N;\n\t\t"
+L1576: 
+L1577: "mov.b64 %0, c;\n"
+L1578: 
+L1579: "}"
+L1580: 
+L1581: : "=l"(u)
+L1582: : "l"(modulus), "r"(t0), "r"(t1), "r"(t2), "r"(t3), "r"(t4), "r"(t5),
+L1583: 
+L1584: "r"(t6), "r"(t7));
+L1585: 
+L1586: return normalize(u, modulus);
+L1587: 
+L1588: }
+L1589: 
+L1590: public:
+L1591: 
+L1592: MontgomeryFriendlyReductionBy64(void) = default;
+L1593: 
+L1594: MontgomeryFriendlyReductionBy64(const std::uint64_t modulus) {
+L1595: 
+L1596: if (std::bit_width(modulus) >= 63) {
+L1597: 
+L1598: throw std::runtime_error("modulus needs to be within 62 bits for now");
+L1599: 
+L1600: } else if (static_cast<std::uint32_t>(modulus) != 1) {
+L1601: 
+L1602: throw std::runtime_error("modulus needs to be Montgomery friendly");
+L1603: } else if constexpr (modulus_bits != 64) {
+L1604: 
+L1605: /* Check in two steps to supress compiler warning. */
+L1606: 
+L1607: if ((modulus >> modulus_bits) != 0) {
+L1608: 
+L1609: throw std::runtime_error("modulus exceeds the specified bit size");
+L1610: 
+L1611: }
+L1612: 
+L1613: }
+L1614: 
+L1615: }
+L1616: 
+L1617: static __host__ __device__ int get_factor(void) {
+L1618: 
+L1619: if constexpr (modulus_bits <= 40) {
+L1620: 
+L1621: return 32 * 2;
+L1622: 
+L1623: } else if constexpr (modulus_bits <= 48) {
+L1624: 
+L1625: return 32 * 3;
+L1626: 
+L1627: } else if constexpr (modulus_bits <= 56) {
+L1628: 
+L1629: return 32 * 3;
+L1630: 
+L1631: }
+L1632: 
+L1633: return 32 * 4;
+L1634: 
+L1635: }
+L1636: 
+L1637: __device__ std::uint64_t
+L1638: reduce(const std::uint32_t t0, const std::uint32_t t1, const std::uint32_t t2,
+L1639: 
+L1640: const std::uint32_t t3, const std::uint32_t t4, const std::uint32_t t5,
+L1641: 
+L1642: const std::uint32_t t6, std::uint32_t t7,
+L1643: 
+L1644: const std::uint64_t modulus) const {
+L1645: 
+L1646: if constexpr (modulus_bits <= 40) {
+L1647: 
+L1648: return reduce_impl(t0, t1, t2, t3, t4, modulus);
+L1649: 
+L1650: } else if constexpr (modulus_bits <= 48) {
+L1651: 
+L1652: return reduce_impl(t0, t1, t2, t3, t4, t5, modulus);
+L1653: 
+L1654: } else if constexpr (modulus_bits <= 56) {
+L1655: return reduce_impl(t0, t1, t2, t3, t4, t5, t6, modulus);
+L1656: 
+L1657: }
+L1658: 
+L1659: return reduce_impl(t0, t1, t2, t3, t4, t5, t6, t7, modulus);
+L1660: 
+L1661: }
+L1662: 
+L1663: };
+L1664: 
+L1665: class MontgomeryMultiplier64 {
+L1666: 
+L1667: std::uint64_t b;
+L1668: 
+L1669: std::uint64_t bp;
+L1670: 
+L1671: public:
+L1672: 
+L1673: MontgomeryMultiplier64(void) = default;
+L1674: 
+L1675: MontgomeryMultiplier64(const std::uint64_t multiplier,
+L1676: 
+L1677: const std::uint64_t modulus) {
+L1678: 
+L1679: b = arithmetic::multiply_wide(multiplier, -modulus) % modulus;
+L1680: 
+L1681: bp = b * calculate_montgomery_inverse(modulus);
+L1682: 
+L1683: }
+L1684: __host__ __device__ std::uint64_t multiply(const std::uint64_t a,
+L1685: 
+L1686: const std::uint64_t N) const {
+L1687: 
+L1688: const std::uint64_t ab1 = arithmetic::multiply_high(a, b);
+L1689: 
+L1690: const std::uint64_t q = a * bp;
+L1691: 
+L1692: const std::uint64_t qN1 = arithmetic::multiply_high(q, N);
+L1693: 
+L1694: return arithmetic::subtract_and_add_if_borrows(ab1, qN1, N);
+L1695: 
+L1696: }
+L1697: 
+L1698: };
+L1699: 
+L1700: class MontgomeryFriendlyMultiplier64 {
+L1701: 
+L1702: std::uint64_t b;
+L1703: 
+L1704: public:
+L1705: 
+L1706: MontgomeryFriendlyMultiplier64(void) = default;
+L1707: 
+L1708: MontgomeryFriendlyMultiplier64(const std::uint64_t multiplier,
+L1709: const std::uint64_t modulus) {
+L1710: 
+L1711: if (std::bit_width(modulus) >= 63) {
+L1712: 
+L1713: throw std::runtime_error("modulus needs to be within 62 bits for now");
+L1714: 
+L1715: } else if (static_cast<std::uint32_t>(modulus) != 1) {
+L1716: 
+L1717: throw std::runtime_error("modulus needs to be Montgomery friendly");
+L1718: 
+L1719: }
+L1720: 
+L1721: b = arithmetic::multiply_wide(multiplier, -modulus) % modulus;
+L1722: 
+L1723: }
+L1724: 
+L1725: __host__ __device__ std::uint64_t get_b(void) const { return b; }
+L1726: 
+L1727: __host__ __device__ std::uint64_t multiply(const std::uint64_t a,
+L1728: 
+L1729: const std::uint64_t N) const {
+L1730: const std::uint32_t a0 = a;
+L1731: 
+L1732: const std::uint32_t a1 = a >> 32;
+L1733: 
+L1734: const std::uint32_t b0 = b;
+L1735: 
+L1736: const std::uint32_t b1 = b >> 32;
+L1737: 
+L1738: const std::uint32_t N1 = N >> 32;
+L1739: 
+L1740: std::uint64_t c;
+L1741: 
+L1742: c = arithmetic::multiply_wide(a0, b0) + (std::uint64_t(1) << 32);
+L1743: 
+L1744: c = arithmetic::concatenate<std::uint32_t>(c >> 32, N1 + 1) -
+L1745: 
+L1746: arithmetic::multiply_wide<std::uint32_t>(c, N1) +
+L1747: 
+L1748: arithmetic::multiply_wide(a0, b1) + arithmetic::multiply_wide(a1, b0);
+L1749: 
+L1750: c = arithmetic::concatenate<std::uint32_t>(c >> 32, N1) -
+L1751: arithmetic::multiply_wide<std::uint32_t>(c, N1) +
+L1752: 
+L1753: arithmetic::multiply_wide(a1, b1);
+L1754: 
+L1755: if (static_cast<std::uint32_t>(c) >= 1 &&
+L1756: 
+L1757: static_cast<std::uint32_t>(c >> 32) >= N1) {
+L1758: 
+L1759: c -= N;
+L1760: 
+L1761: }
+L1762: 
+L1763: return c;
+L1764: 
+L1765: }
+L1766: 
+L1767: };
+L1768: 
+L1769: } // namespace modular
+L1770: 
+L1771: } // namespace polyarith
+L1772: #endif /* POLYARITH_MODULAR_CUH_INCLUDED */
+L1773: 
+L1774: You can’t perform that action at this time.
+--------------------------------------------------------------------------------
+tensor-core-ntt/include/polyarith/modular.cuh at main · Terminus-IMRC/tensor-core-ntt · GitHub (https://github.com/Terminus-IMRC/tensor-core-ntt/blob/main/include/polyarith/modular.cuh)
+citeturn2view4 [wordlim: 200] Crawled: last month; Content type: text/html; Source: find({"ref_id":"turn1view1","pattern":"bit_size"}); Total lines: 1775
+No matching text found for "bit_size"--------------------------------------------------------------------------------
+tensor-core-ntt/include/polyarith/modulus.cuh at main · Terminus-IMRC/tensor-core-ntt · GitHub (https://github.com/Terminus-IMRC/tensor-core-ntt/blob/main/include/polyarith/modulus.cuh)
+citeturn2view5 [wordlim: 200] Crawled: 2 months ago; Content type: text/html; Source: find({"ref_id":"turn1view2","pattern":"assert"}); Total lines: 432
+No matching text found for "assert"

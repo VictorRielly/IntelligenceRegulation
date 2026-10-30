@@ -1,0 +1,11 @@
+{
+  "top3_unchanged": [
+    1,
+    2,
+    3
+  ],
+  "next_local_candidate": 103,
+  "demoted_new": 102,
+  "preserved_prior_hypotheses": 101,
+  "reason": "DD branch currently lacks grouped evaluator; non-DD liveness adds no independent saving. Native phase evidence remains highest priority."
+}

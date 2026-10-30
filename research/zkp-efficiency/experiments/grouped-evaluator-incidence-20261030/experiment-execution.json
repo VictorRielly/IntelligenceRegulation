@@ -1,0 +1,19 @@
+{
+  "command": [
+    "/usr/bin/python3",
+    "-B",
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/grouped-evaluator-incidence-20261030/experiment.py"
+  ],
+  "utc": "2026-10-30T16:50:41.042278+00:00",
+  "returncode": 0,
+  "wall_s": 1.6764276850008173,
+  "child_maxrss_kib": 22012,
+  "limits": {
+    "threads": 1,
+    "cpu_s": 30,
+    "wall_alarm_s": 40,
+    "parent_timeout_s": 45,
+    "address_space_mib": 256,
+    "estimated_memory_mib": 64
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "binary64_exact_integer_bits": 53,
+  "full_goldilocks_product_bits": 128,
+  "two_max_products_exceed_u128": true,
+  "conclusion": "2010 small-modulus floating/deferred-reduction implementation is not a native full-width replacement; limb splitting/carry-aware accumulation requires separate exact proof and cost"
+}

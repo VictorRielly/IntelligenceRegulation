@@ -1,0 +1,17 @@
+[
+  {
+    "name": "native_priv_table",
+    "native_body_sha256": "0a023d69a3d2d83d59b95626350684d73f71b8a897c29074098b8f8fcef66013",
+    "adapter_only": "visibility/name; body unchanged"
+  },
+  {
+    "name": "native_claim_point",
+    "native_body_sha256": "55b0ed4a4658481979af8bdae72fd9b1a3c9ef0ed6caf9cc0a7979deb121e3b1",
+    "adapter_only": "visibility/name; body unchanged"
+  },
+  {
+    "name": "native_mask_eval",
+    "native_body_sha256": "95eaf80fc895582bcb6499d1b2fd7e049b6861b5fedf4bfc565427035d195f79",
+    "adapter_only": "visibility/name; body unchanged"
+  }
+]

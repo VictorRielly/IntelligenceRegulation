@@ -1,0 +1,153 @@
+{
+  "status": "PASS_GEOMETRY_MATCHED_SYNTHETIC_ROWS",
+  "checks": 114688,
+  "rows": [
+    {
+      "n": 4096,
+      "expanded_length": 16384,
+      "q": 256,
+      "rate": 4,
+      "h": 7,
+      "full_output_sha256": "1383e1a466593847ae7f88972a24bba8bc7d127be1669e21d2c4f10821fc1bfa",
+      "known_f_terms": [
+        [
+          0,
+          18446744069414584320
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          2047,
+          18446744069414584319
+        ],
+        [
+          4094,
+          17
+        ],
+        [
+          4095,
+          18446744069414584310
+        ]
+      ],
+      "known_g_terms": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          18446744069414584320
+        ],
+        [
+          255,
+          23
+        ]
+      ]
+    },
+    {
+      "n": 8192,
+      "expanded_length": 32768,
+      "q": 256,
+      "rate": 4,
+      "h": 7,
+      "full_output_sha256": "0844ffb05f7a38fcc4207b8dacad58e62360cf0609f1706161268d3e60987761",
+      "known_f_terms": [
+        [
+          0,
+          18446744069414584320
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          4095,
+          18446744069414584319
+        ],
+        [
+          8190,
+          17
+        ],
+        [
+          8191,
+          18446744069414584310
+        ]
+      ],
+      "known_g_terms": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          18446744069414584320
+        ],
+        [
+          255,
+          23
+        ]
+      ]
+    },
+    {
+      "n": 16384,
+      "expanded_length": 65536,
+      "q": 256,
+      "rate": 4,
+      "h": 7,
+      "full_output_sha256": "a8e2f38befd33813a21b187e30a49e7383c6d80be8a6bbe20eec7325fc33467b",
+      "known_f_terms": [
+        [
+          0,
+          18446744069414584320
+        ],
+        [
+          1,
+          3
+        ],
+        [
+          8191,
+          18446744069414584319
+        ],
+        [
+          16382,
+          17
+        ],
+        [
+          16383,
+          18446744069414584310
+        ]
+      ],
+      "known_g_terms": [
+        [
+          0,
+          1
+        ],
+        [
+          1,
+          18446744069414584320
+        ],
+        [
+          255,
+          23
+        ]
+      ]
+    }
+  ],
+  "elapsed_s": 1.1814376879992778,
+  "peak_rss_kib": 43100,
+  "cpu_affinity": [
+    0
+  ],
+  "threads": 1,
+  "nice": 19,
+  "cpu_limit_s": 40,
+  "alarm_s": 45,
+  "address_space_mib": 256,
+  "estimated_memory_mib": 64,
+  "native_execution": false,
+  "gpu_execution": false,
+  "model_context": null,
+  "complete_verified_proofs": 0
+}

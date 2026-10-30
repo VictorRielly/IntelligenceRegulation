@@ -1,0 +1,16 @@
+{
+  "rank": 73,
+  "title": "TESTED public packed row plus membership index at the current rho adapter",
+  "baseline": "FrozenR13 A 8B/T128 noDD/DD: dense chunk4 scans45770/44550 rows per output column; prior zero-skip retains all rho reads. Source operand baseline50.393/51.385GB per core, not physical DRAM.",
+  "eliminated_work": "Original-order public union loop skips empty rows; 4-bit membership skips structurally unsupported rho loads and basefield MACs. Tested on current synthetic public numeric rhos too, including both limbs and zero cancellations.",
+  "added_costs": "Once-per-call construction/validation, plan allocation/upload38,616/37,312B; source index reads amplified16384x (632,684,544/611,319,808B). Every rho upload, all output/D2H/pads, masks, commitments and other phases remain. Cache/broadcast/indirection/register costs unknown.",
+  "prerequisites": "Owner current public-rho provenance/counters, exclusive phase materiality, source/profile pin, shared locks for native/CUDA. FrozenR13 geometry does not describe heldR14.",
+  "integration_cost": "Moderate local dev_fold_rows numerical-public-rho scan + plan upload and registered indexed kernel; existing output order and PCS/pads unchanged. Uncompiled candidate-kernel.cuh, no production patch.",
+  "exactness": "14Rustfixtures;109512 independent basefield fold values including3synthetic pad columns (16416 source-row/narrow8);376controls;1206 independent Python set checks. Actual native helpers/field extracted fromR13; native define, FS, native pads, CUDA and receipts not run.",
+  "privacy_soundness": "Only verifier-public descriptors/rho can choose indices; no private matrix sparsity, no mask/commit/opening reuse or privacy weakening. Keep native assert_mask_sites, fresh same-slot/proximity masks, all audits/refusals/RNG/FS/PCS. Numeric zero tests are linear algebra fixtures, not admitted proof instances.",
+  "compatibility": "Existing max4 dev_fold_rows/k_fold_rows seam. row<2^28 in packedword; canonical sorted unique rows and valid flags; fallback for unsupported shape. Public numeric scan avoids trait change but requires reviewed public provenance.",
+  "end_to_end_ceiling": "N/(T-C_removed_exclusive+A_added); exclusive f unknown; free deletion<=1/(1-f). 91.13/91.55% source operand reductions (index included) are not runtime predictions.",
+  "falsification": "Any value/limb/order/rowbound/mask/refusal/RNG/FS/PCS/privacy mismatch; source counts differ; plan/upload/register/cache overhead erases independently verified enclosing gain.",
+  "disposition": "Promising component correctness; owner measurement only. Plain union order reversal reduces visits but raises logical bytes40.93%, refuting matrix-only objective for that loop.",
+  "selection": "Highest useful permitted local continuation of prior#72; higher-ranked owner GPU/admission/exclusive-clock tasks need the owner lane and remain prerequisites, not duplicated here."
+}

@@ -1,0 +1,36 @@
+{
+  "global_top_three": [
+    {
+      "rank": 1,
+      "title": "Owner whole-prover high-end GPU plus verified fixed-context resident1/2/4/8"
+    },
+    {
+      "rank": 2,
+      "title": "REFINED owner DD larger-context scaling after measured T128 null result"
+    },
+    {
+      "rank": 3,
+      "title": "REFINED tested public-role exclusive FZC clocks before allocator/capacity changes"
+    }
+  ],
+  "feasible_local_order": [
+    {
+      "priority": 1,
+      "hypothesis": 58,
+      "reason": "Current R13 descriptors and prior alias/PCS negatives make this a decisive small differential experiment."
+    },
+    {
+      "priority": 2,
+      "hypothesis": 35,
+      "reason": "Versioned profile deletion changes multiple schedules; cost-only comparison until owner reviews."
+    },
+    {
+      "priority": 3,
+      "hypothesis": 57,
+      "reason": "Public mask-dot component sums require current native dot/constructor clocks first."
+    }
+  ],
+  "all_prior_hypotheses_retained": 57,
+  "total": 58,
+  "owner_work_not_launched": true
+}

@@ -1,0 +1,9 @@
+{
+  "source": "79093470047464587140fc63d4ca84b95c11c090bd32d4cbd1057503969d6db5",
+  "files": 284,
+  "binary_sha256": "8d589cfad44036fa438c9e6c0813ca55f8be4744a66e52d2fc483a39c9b934cb",
+  "script_sha256": "32c72022e7374e561ae3e18a4e93a25ee1fecdfa42a316ac8ccec61df9685db3",
+  "reference_sha256": "4fdc7d0c447c4a7fd155cee14d9806e5438bb04ba88da2e90530f8469e08c639",
+  "guard_sha256": "67e9478f55518c2808ff65e5f303f70e155a5f21c5987243a39cf579d1a9a6f3",
+  "scope": "Test-only correction, full native malformed receipts and dense/reference acceptance; no privacy or release acceptance"
+}

@@ -1,0 +1,21 @@
+test_checked_laptop_profile (test_demo_reset.HardwareTests) ... ok
+test_geometry_resources_identity_and_boolean_floor_refused (test_demo_reset.HardwareTests) ... ok
+test_archive_symlink_refused (test_demo_reset.ResetTests) ... ok
+test_busy_database_refused (test_demo_reset.ResetTests) ... ok
+test_busy_publisher_refused (test_demo_reset.ResetTests) ... ok
+test_missing_detached_completion_refused (test_demo_reset.ResetTests) ... ok
+test_pending_jobs_refuse_without_archiving_or_withdrawing (test_demo_reset.ResetTests) ... ok
+test_preview_is_read_only (test_demo_reset.ResetTests) ... ok
+test_publisher_parent_symlink_escape_refused (test_demo_reset.ResetTests) ... ok
+test_reservation_trigger_rolls_back_reset (test_demo_reset.ResetTests) ... ok
+test_reset_archives_and_preserves_reservation_keys_and_files (test_demo_reset.ResetTests) ... ok
+test_reset_does_not_allow_second_screening (test_demo_reset.ResetTests) ... ok
+test_screening_post_refused_even_if_queue_is_terminal (test_demo_reset.ResetTests) ... ok
+test_second_reset_is_noop (test_demo_reset.ResetTests) ... ok
+test_unanchored_or_inflight_publisher_refused (test_demo_reset.ResetTests) ... ok
+test_profiles (test_app.TestChunking) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 1.209s
+
+OK

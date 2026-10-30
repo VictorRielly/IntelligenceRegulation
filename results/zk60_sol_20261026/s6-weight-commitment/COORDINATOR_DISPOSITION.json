@@ -1,0 +1,18 @@
+{
+  "utc": "2026-10-29T08:02:17.294657+00:00",
+  "phase": "PARKED by coordinator07:33:43Z; design/count complete, no microprotocol or measurement",
+  "native_anchor_public_weight_bytes_reproduced": 243277824,
+  "count_variants": 30,
+  "native_size_crosscheck": {
+    "log_cols": 16,
+    "rows": 3712,
+    "groups": 7,
+    "native_size_bytes": 16140288,
+    "wire_bytes_match": true,
+    "scope": "COUNTED empty native Opening structure size only; not an S6 proof"
+  },
+  "design_sha256": "bc00a8eaf3160d5960987fd7566a2cb68e93049f72dc4753a01cc570c61aa448",
+  "next": "Revisit only if measured verification dominates the app flow; no further S6 work now.",
+  "live_tool_sessions": [],
+  "limitations": "A public weight PCS can replace the seven folded-table terminal evaluations, but the native PCS adds substantial receipt, encoding and verifier work. Full O(parameters) removal additionally needs a registered-model boundary that preserves current source/tied authenticity. Neither a twofold speedup nor a cheap on-chain wrapper is established."
+}

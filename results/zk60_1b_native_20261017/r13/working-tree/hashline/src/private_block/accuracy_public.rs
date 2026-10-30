@@ -1,8 +1,9 @@
 //! Typed and bound public R13 data, not yet imported
 //! into the prover.
-use super::accuracy_aligned::derive_aligned;
+use super::accuracy_aligned::derive_aligned_for;
 use super::accuracy_groups::{Group, GroupFolds};
 use super::accuracy_precision::{BaseShifts, Precision, Stack};
+use super::accuracy_tables::Registry;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) struct Geometry {
@@ -27,6 +28,29 @@ impl Geometry {
         }
         Ok(())
     }
+
+    pub(crate) fn check_registry(self, registry: Registry) -> Result<(), String> {
+        self.check_bounds()?;
+        if registry == Registry::Shieldstral && self != (Self {
+            width: 3072, query_width: 4096, kv_width: 1024, hidden: 9216,
+        }) {
+            return Err("R13 public data: Shieldstral registry requires its pinned geometry".into());
+        }
+        Ok(())
+    }
+}
+
+const ENCODING_DOMAIN:&[u8]=b"zk60-low-public/v2\0";
+
+/// Complete bounded family of public binding lengths. Hash-class tests check
+/// this against real encodings and a separately transcribed census formula.
+pub(crate) fn encoded_len(geometry:Geometry,registry:Registry,stack:Stack,groups:usize)->Result<usize,String> {
+    geometry.check_registry(registry)?;
+    let stack=stack.export_name().ok_or("R13 encoding length requires a LOW stack")?;
+    if !(1..=4).contains(&groups) {return Err("R13 encoding length requires one to four groups".into());}
+    let channels=geometry.query_width+2*geometry.kv_width+2*geometry.width+2*geometry.hidden;
+    Ok(ENCODING_DOMAIN.len()+4+registry.name().len()+4+stack.len()
+        +4*8+9*4+2*4+7*8+2*channels+8+8*groups+8+8*geometry.hidden+groups*(8+4096*2))
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -42,6 +66,7 @@ pub(crate) struct Multipliers {
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) struct AccuracyPublic {
+    registry: Registry,
     stack: Stack,
     geometry: Geometry,
     base: BaseShifts,
@@ -66,9 +91,23 @@ impl AccuracyPublic {
         group_ids: Vec<usize>,
         tables: Vec<Vec<i16>>,
     ) -> Result<Self, String> {
+        Self::new_with_registry(Registry::Standard, stack, geometry, base, member, multipliers, groups, group_ids, tables)
+    }
+
+    pub(crate) fn new_with_registry(
+        registry: Registry,
+        stack: Stack,
+        geometry: Geometry,
+        base: BaseShifts,
+        member: (i32, i32),
+        multipliers: Multipliers,
+        groups: Vec<Group>,
+        group_ids: Vec<usize>,
+        tables: Vec<Vec<i16>>,
+    ) -> Result<Self, String> {
         use super::accuracy_precision::derive;
-        use super::accuracy_tables::silu_table;
-        geometry.check_bounds()?;
+        use super::accuracy_tables::silu_table_for;
+        geometry.check_registry(registry)?;
         if stack == Stack::Legacy {
             return Err("R13 public data: an explicit LOW export stack is required".into());
         }
@@ -104,7 +143,8 @@ impl AccuracyPublic {
             return Err("R13 public data: group/table shape mismatch".into());
         }
         let gate: Vec<u64> = multipliers.g.iter().map(|&v| v as u64).collect();
-        let aligned = derive_aligned(
+        let aligned = derive_aligned_for(
+            registry,
             stack,
             &groups,
             &group_ids,
@@ -115,13 +155,14 @@ impl AccuracyPublic {
             base.product,
         )?;
         for (group, table) in groups.iter().zip(&tables) {
-            if *table != silu_table(group.e_in, group.e_out, 12)? {
+            if *table != silu_table_for(registry, group.e_in, group.e_out, 12)? {
                 return Err(
                     "R13 public data: SiLU table is not the declared generated member".into(),
                 );
             }
         }
         Ok(Self {
+            registry,
             stack,
             geometry,
             base,
@@ -136,7 +177,10 @@ impl AccuracyPublic {
         })
     }
     pub(crate) fn encode(&self) -> Vec<u8> {
-        let mut out = b"zk60-low-public/v1\0".to_vec();
+        let mut out = ENCODING_DOMAIN.to_vec();
+        let registry = self.registry.name();
+        out.extend_from_slice(&(registry.len() as u32).to_le_bytes());
+        out.extend_from_slice(registry.as_bytes());
         let stack = self
             .stack
             .export_name()
@@ -203,7 +247,18 @@ impl AccuracyPublic {
         base: BaseShifts,
         stack: Stack,
     ) -> Result<(), String> {
+        self.check_for_registry(Registry::Standard, geometry, base, stack)
+    }
+
+    pub(crate) fn check_for_registry(
+        &self,
+        registry: Registry,
+        geometry: Geometry,
+        base: BaseShifts,
+        stack: Stack,
+    ) -> Result<(), String> {
         if stack == Stack::Legacy
+            || registry != self.registry
             || stack != self.stack
             || geometry != self.geometry
             || base != self.base
@@ -212,7 +267,8 @@ impl AccuracyPublic {
                 "R13 public data: profile, geometry or calibration context mismatch".into(),
             );
         }
-        let recomputed = Self::new(
+        let recomputed = Self::new_with_registry(
+            registry,
             stack,
             geometry,
             base,
@@ -230,8 +286,13 @@ impl AccuracyPublic {
         }
         Ok(())
     }
+    pub(crate) fn raw_tables(&self)->&[Vec<i16>] {&self.tables}
+    pub(crate) fn member(&self)->(i32,i32) {self.member}
     pub(crate) fn stack(&self) -> Stack {
         self.stack
+    }
+    pub(crate) fn registry(&self) -> Registry {
+        self.registry
     }
     pub(crate) fn geometry(&self) -> Geometry {
         self.geometry
@@ -437,4 +498,62 @@ mod tests {
         )
         .is_err());
     }
+
+    fn shieldstral_data(registry: Registry, member: (i32, i32)) -> Result<AccuracyPublic, String> {
+        let geo = Geometry { width: 3072, query_width: 4096, kv_width: 1024, hidden: 9216 };
+        let m = Multipliers { q: vec![1; 4096], k: vec![1; 1024], v: vec![1; 1024],
+            o: vec![1; 3072], g: vec![1; 9216], u: vec![1; 9216], d: vec![1; 3072] };
+        let table = super::super::accuracy_tables::silu_table_for(registry, member.0, member.1, 12)?;
+        AccuracyPublic::new_with_registry(registry, Stack::LowH24, geo, BASE, (-1, -9), m,
+            vec![Group { e_in: member.0, e_out: member.1 }], vec![0; 9216], vec![table])
+    }
+
+    #[test]
+    fn registry_is_bound_even_when_every_public_table_word_is_identical() {
+        let standard = shieldstral_data(Registry::Standard, (-1, -9)).unwrap();
+        let shield = shieldstral_data(Registry::Shieldstral, (-1, -9)).unwrap();
+        assert_eq!(standard.tables, shield.tables);
+        assert_eq!(standard.scaled_tables, shield.scaled_tables);
+        assert_ne!(standard.encode(), shield.encode());
+        shield.check_for_registry(Registry::Shieldstral, shield.geometry(), BASE, Stack::LowH24).unwrap();
+        assert!(shield.check_for_registry(Registry::Standard, shield.geometry(), BASE, Stack::LowH24).is_err());
+        assert!(standard.check_for_registry(Registry::Shieldstral, standard.geometry(), BASE, Stack::LowH24).is_err());
+    }
+
+    #[test]
+    fn the_coarse_member_requires_the_shieldstral_registry_and_exact_geometry() {
+        let a = shieldstral_data(Registry::Shieldstral, (0, -8)).unwrap();
+        a.check_for_registry(Registry::Shieldstral, a.geometry(), BASE, Stack::LowH24).unwrap();
+        assert!(shieldstral_data(Registry::Standard, (0, -8)).is_err());
+        assert!(AccuracyPublic::new_with_registry(Registry::Shieldstral, a.stack, GEO, BASE,
+            a.member, multipliers(), a.groups.clone(), vec![0; 6], a.tables.clone()).is_err());
+        for geo in [Geometry { width: 2048, ..a.geometry }, Geometry { width: 4096, ..a.geometry },
+            Geometry { query_width: 3072, ..a.geometry }, Geometry { hidden: 14336, ..a.geometry }] {
+            assert!(geo.check_registry(Registry::Shieldstral).is_err());
+        }
+        let mut forged = a.clone();
+        forged.registry = Registry::Standard;
+        assert!(forged.check_for_registry(Registry::Standard, a.geometry, BASE, a.stack).is_err());
+    }
+    #[test]
+    fn every_stack_registry_and_group_count_matches_its_actual_encoded_length() {
+        for registry in [Registry::Standard,Registry::Shieldstral] {
+            let geo=if registry==Registry::Standard {GEO} else {Geometry{width:3072,query_width:4096,kv_width:1024,hidden:9216}};
+            let members=if registry==Registry::Standard {[(-5,-13),(-4,-12),(-3,-11),(-1,-9)]}
+                else {[(-5,-13),(-3,-11),(-1,-9),(0,-8)]};
+            for stack in [Stack::Low,Stack::LowH24] {for count in 1..=4 {
+                let m=Multipliers{q:vec![1;geo.query_width],k:vec![1;geo.kv_width],v:vec![1;geo.kv_width],
+                    o:vec![1;geo.width],g:vec![1;geo.hidden],u:vec![1;geo.hidden],d:vec![1;geo.width]};
+                let groups:Vec<_>=members[..count].iter().map(|&(e_in,e_out)|Group{e_in,e_out}).collect();
+                let tables=groups.iter().map(|g|super::super::accuracy_tables::silu_table_for(registry,g.e_in,g.e_out,12).unwrap()).collect();
+                let data=AccuracyPublic::new_with_registry(registry,stack,geo,BASE,(-3,-11),m,groups,
+                    (0..geo.hidden).map(|i|i%count).collect(),tables).unwrap();
+                assert_eq!(encoded_len(geo,registry,stack,count).unwrap(),data.encode().len(),"{stack:?}/{registry:?}/{count}");
+            }}
+        }
+        assert!(encoded_len(GEO,Registry::Standard,Stack::Legacy,1).is_err());
+        assert!(encoded_len(GEO,Registry::Standard,Stack::Low,0).is_err());
+        assert!(encoded_len(GEO,Registry::Standard,Stack::Low,5).is_err());
+    }
+
 }

@@ -1,0 +1,50 @@
+{
+  "owner_priorities": [
+    {
+      "rank": 1,
+      "hypothesis_rank": 1,
+      "title": "Owner whole-prover high-end GPU plus verified fixed-context resident1/2/4/8"
+    },
+    {
+      "rank": 2,
+      "hypothesis_rank": 2,
+      "title": "REFINED owner DD larger-context scaling after measured T128 null result"
+    },
+    {
+      "rank": 3,
+      "hypothesis_rank": 3,
+      "title": "REFINED tested public-role exclusive FZC clocks before allocator/capacity changes"
+    }
+  ],
+  "highest_feasible_local": {
+    "rank": 77,
+    "title": "TESTED public zero-gap coalescing: negative for logical operand objective",
+    "baseline": "Frozen R13 A8B/T128N16384: ordinary pure runs74/81; protected data-zero-every-third control3077/2974; prior interval/list/dense fallback remains available. Native exclusive clocks absent.",
+    "eliminated_work": "Same-flag intervals across batch-public zero gaps reduce run starts/8-byte metadata; no private values enter planning. No native work has been removed.",
+    "added_costs": "Each merged gap adds matrix loads8B/row, rho16B/member, two basefield multiplies and two limb additions/member/column, plus planning/current-support validation. All transfers/allocation/pads/commitments/masks/proximity remain.",
+    "prerequisites": "Current public-rho provenance, retained native mask/refusal checks, currentR14repin, owner exclusive device/enclosing measurements and current locks.",
+    "integration_cost": "Low research CPU model, moderate alternate dev_fold_rows plan/kernel integration; no CUDA sketch or production patch this cycle.",
+    "exactness": "231200 independent dense-vs-candidate values across14native-helper fixtures,367controls,185031 independentPythonassertions;33362exhaustivecutpartitions/840objectives. Source-row/narrow8subtotal24320. Native define/FS/actualPCS/CUDA/receipts/privacy not run.",
+    "privacy_soundness": "Only public current coefficients/support; both limbs checked. Structural mask/proximity support protected even at numericzero. Superset audit rejects stale unflagged nonzero/imaginary values, provenance changes, missing masks/order/bounds. No mask/opening reuse.",
+    "compatibility": "fold_rows_multi_zk -> EncodedStore::fold_rows -> dev_fold_rows currentmax4; frozenR13fixture not heldR14 geometry.",
+    "end_to_end_ceiling": "Every nonempty merge adds at least16 logical bytes/column; H=0nevermerges. Syntheticfragmentation H64raises full operands26.3153/26.2681% versus exactruns; source H64removesoneboundary only. Native f unknown; N/(T-Cremoved_exclusive+Aadded), free deletion<=1/(1-f). NoGPU8Bforecast.",
+    "falsification": "Reopening requires native exclusive run-start savings exceeding extra operands/MAC/planner cost and independentlyverified enclosing benefit. Any value/limb/order/mask/FS/PCS/RNG/privacy mismatch rejects promotion.",
+    "disposition": "Do not promote as memory optimization. Keep prior exact run/list/dense fallback; only measured run-start bottleneck can reopen gap candidate."
+  },
+  "next_local": {
+    "rank": 78,
+    "title": "NEW explicit current R14 A/H/endpoint fold-work repin before more R13 metadata tuning",
+    "baseline": "Owner split-width matchedT128two-block diagnostic reduces A/H words24..25% but adds receiptbytes~6%; no currentR14public group/support census or exclusive fold fraction.",
+    "eliminated_work": "Question whether reduced/split R14 row bands change public union density and dominant fold work enough to change candidate ranking; no saving assumed.",
+    "added_costs": "Separate source-derived public geometry extraction, endpoint inclusion, independent census and current-source pins; native instrumentation/proof/device work deferred to owner.",
+    "prerequisites": "Use owner frozen or held read-only source without edits, duplicates or native build; retain pending review/admission conditions.",
+    "integration_cost": "Bounded CPU source/counter accounting, then owner-only minimal public counters at existing fold adapter.",
+    "exactness": "Untested next experiment: independently reconstruct row totals, bounds, reserved masks/proximity and max4 widths; compare current NATIVE_LAYOUT_CENSUS if available. Do not claim native descriptor execution.",
+    "privacy_soundness": "Public shape/role counters only, no private matrix/trace logging or schedule based on hidden values; all new-profile reviews remain.",
+    "compatibility": "CurrentR14 split_definition/layout/endpoint metadata to existing fold_rows_multi_zk/EncodedStore adapter; R13 only retained as independent baseline.",
+    "end_to_end_ceiling": "Unknown exclusive fractions; source traffic is not device time. Rank actual complete workload above representation savings.",
+    "falsification": "Any current source/census mismatch, missing endpoint/mask/proximity role, or absent material fold incidence parks representation work.",
+    "disposition": "Concrete next bounded local experiment after reading new owner counters; prioritize verified high-endGPU/resident workload and exclusive clocks."
+  },
+  "owner_update": "22:50UTCclassifierstatementDRAFT/independentreview; A5batchone-postone-processREADYWITHFIXES22:23 is not private8Bsteady-rate evidence or blanket cache permission."
+}

@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "checks": 844,
+  "native_pins": 9,
+  "extracted_native_bodies": 3,
+  "external_review": false,
+  "scope": "same-researcher provenance/count/side-effect audit; independent arithmetic walk is in harness.rs",
+  "elapsed_s": 0.0029824669982190244,
+  "max_rss_kib": 15268,
+  "full_stack_proofs": 0
+}

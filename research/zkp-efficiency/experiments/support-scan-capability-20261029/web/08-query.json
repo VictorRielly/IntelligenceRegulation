@@ -1,0 +1,19 @@
+{
+  "open": [
+    {
+      "ref_id": "https://github.com/xuezhantong/zk-debloater",
+      "lineno": 180
+    },
+    {
+      "ref_id": "https://github.com/THU-HAS/MegaZK",
+      "lineno": 220
+    },
+    {
+      "ref_id": "https://raw.githubusercontent.com/xuezhantong/zk-debloater/main/LICENSE"
+    },
+    {
+      "ref_id": "https://raw.githubusercontent.com/THU-HAS/MegaZK/main/LICENSE"
+    }
+  ],
+  "response_length": "long"
+}

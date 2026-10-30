@@ -1,0 +1,15 @@
+{
+  "tool": "tools.web__run",
+  "access_date": "2026-10-29",
+  "access_timezone": "UTC",
+  "commands": {
+    "search_query": [
+      "GPU sparse matrix vector multiplication run length encoding consecutive nonzero rows 2025 2026",
+      "zero knowledge proof GPU sumcheck lookup commitments 2026 October release GitHub"
+    ]
+  },
+  "raw_response_sha256": "c149faf6c81c5b6ea4e4966637a36b43a919de49a0b004af5533c7cab5218a69",
+  "raw_response_bytes": 34256,
+  "retention": "Provenance and source assessments retained; full webpage/paper text not redistributed. Exact source dates/licenses/limits in sources-cycle.jsonl.",
+  "external_execution": false
+}

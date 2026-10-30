@@ -1,0 +1,15 @@
+{
+  "rank": 69,
+  "title": "TESTED frozenR13 H disjoint public evaluation supports at actual source offsets",
+  "baseline": "FrozenR13 8BT128 H: noDD4390rows/9ordinarygroups,DD4234rows/10ordinarygroups; chunk4baseline13170/12702logicalrowvisits. Prior A/H mask-only bound4.18/4.39%. Native define/FS not executed.",
+  "eliminated_work": "Existing-order structural H union8778/8358visits:33.3485/34.1993%fewer logicalmatrixwordreads if priorzero-skipdevicecandidateused. CombinedwithpriorconservativeA:11.4455/11.7830%. No actual native work removed.",
+  "added_costs": "Both-limb publiczero tests,branches,rw4longerlifetimes; prior sourceacc+weights64to128B/thread. AllrhoH2D,outputsD2H,pads,masks,sum,proximity,PCSremain. PhysicalDRAM/cache/register/occupancy/timeunknown.",
+  "prerequisites": "Owner actualpublicpart/group/nonzero/unioncounters,currentprofilepins and exclusive upload/allocation/kernel/download/pad/open/enclosingclocks; current sharedlocksforeventualCUDA.",
+  "integration_cost": "Small incidence prerequisite at fold_rows_multi_zk -> EncodedStore::fold_rows -> dev_fold_rows -> k_fold_rows. Existing unapplied patch fromcycle0147; no new production patch.",
+  "exactness": "20Rustfixtures;539532independentcubecoefficients,1683message+padfolds and1683packed/inverse-scatteredvalues. Fivecontrolclasses90invocations.175independentPythonoffset/interval/DPchecks.",
+  "privacy_soundness": "Public/syntheticdescriptors only;Hsum,zero-sumU,allfreshterminal/proximitymasks,pads,RNG/order/FS/PCSretained. No real private material,cached openings,proofsorprivacyreview.",
+  "compatibility": "Extractedunchanged frozenR13 HIds,domains,offsetloop,Bh,build_claim,sum,audit/group/rho;localShapeandslotschedule.Native define/FS notrun.R14differs.",
+  "end_to_end_ceiling": "N/(T-Cremoved_exclusive+Aadded);nativeexclusiveHrowfoldfractionfunknown;freedeletion<=1/(1-f). No numeric8Brate.",
+  "falsification": "Native descriptor/group/counter mismatch, any value/limb/mask/refusal/order/RNG/FS/PCS/privacy difference, spills/planning erase benefit, no independentlyverifiedenclosingworkloadgain.",
+  "disposition": "Promising source incidence only; below globaltop3. Genericdistinct-keycounts not hardcoded; cornerchallengesmergerhosandmayfitonebatchwithnoloadskip."
+}

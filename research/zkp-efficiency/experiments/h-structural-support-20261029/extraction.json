@@ -1,0 +1,24 @@
+{
+  "exact": [
+    "HIds struct/impl",
+    "Shape::h_plane_doms",
+    "B::h",
+    "build_claim",
+    "logup_sum_claim",
+    "part_rows",
+    "audit_claims",
+    "zpart_weights",
+    "zkey_weights",
+    "group_zclaims",
+    "zk_rhos",
+    "Layout H offset loop"
+  ],
+  "adapters": [
+    "equality iterator serial only",
+    "local Shape methods supplied public geometry",
+    "local Layout wrapper uses unchanged extracted H offset loop",
+    "dd_lapse always false, as release",
+    "synthetic scripted challenges, not native FS",
+    "H evaluation plane/slot schedule source-derived locally, native define not executed"
+  ]
+}

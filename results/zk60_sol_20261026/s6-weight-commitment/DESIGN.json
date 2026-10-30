@@ -1,0 +1,71 @@
+{
+  "status": "S6 design and count only; no new native proof profile or verifier fast path",
+  "authorization": "Coordinator 2026-10-29T07:15:45Z: S6 verifier weight commitment, design/count first, while S4 independent design review runs",
+  "anchor": "Native R13 bb9eb2123c9350c738dafd19fe3b0133d6e2e7ab93f1e765cac4f20ccaed69ec, accepted on soundness at its 12 registered profiles; no privacy acceptance",
+  "problem": "Every native block verification reconstructs all seven public folded weight tables and hashes/validates the public block. Current CLI model loading also authenticates the checkpoint and re-derives tied tables. A weight-root cache alone does not remove this work.",
+  "proposed_relation": {
+    "scope": "P1 public weights only. Inputs, outputs and activations retain their existing hiding commitments. No P3/private-weight claim.",
+    "canonical_matrix": "For each of Q,K,V,O,gate,up,down, define C[output,input]=W[output,input]*m_output in the field, using the exact native global channel coefficient. Gate uses its verifier-derived folded group coefficient. Canonicalize all seven matrices to output-major order; transpose the current input-major gate/up/down storage during public preprocessing. Preserve Q's head-slot permutation and all required zero padding.",
+    "preweighting": "Multiply at Boolean output channels BEFORE multilinear interpolation, exactly as R13 accuracy_fold.rs does. MLE(W*m) is generally not MLE(W)*MLE(m): W=[1,3],m=[2,4],r=1/2 gives7 versus6.",
+    "commitment": "Compute public PCS commitment roots for the canonical field matrices once per authenticated model/fold context and PCS parameter set. Registration binds the public roots, exact extents/order, field/rate/column checks, transformations, c2/group metadata, gate denominator and calibration context. Roots precede all per-proof sumcheck challenges.",
+    "terminal": "For each matrix slot, send the unextended public scalar w=C_tilde(r_output,r_inner). Native CFS public-table terminal is sel*w, where sel is the product of (1-e) across the slot extension rounds. Do not divide by sel. Add a public PCS claim at the exact output/inner point reconstructed by the verifier.",
+    "masked_sumcheck": "The prover still builds the same folded public weight table for the sumcheck. The verifier uses the opened scalar at the final point instead of rebuilding that table. Public weights still extend to zero, so the existing extension-zero identity has the same algebra; the private terminal remains independently masked. The changed transcript/public inputs require review and new profile domains.",
+    "claim_binding": "Public weight-terminal values and exact claim ordering are absorbed before the public PCS batching/query challenges. The verifier derives all points, coefficients, slices, roots and geometry from the registered model and slot transcript. A receipt cannot supply its own authorized weight root or claim map.",
+    "legacy": "A new explicit profile and public context type are required. Preserve every R13 and legacy statement, source-pin list, transcript and wire byte. No transparent substitution inside BlockPublic or skip-validation flag."
+  },
+  "registration_and_verification_levels": {
+    "A_fold_only": {
+      "effect": "New weight PCS authenticates the seven scalar terminals, avoiding per-verification full-matrix folds in the proof core.",
+      "remaining": "Existing full BlockPublic construction, range/source checks, digest(), streaming block loads, checkpoint authentication and tied derivation remain. Verification is still O(parameters). This intermediate level does not achieve a succinct verifier."
+    },
+    "B_registered_model_context": {
+      "effect": "A separately reviewed immutable registered-model context contains the expected weight roots and small public tables/calibration metadata. The verifier consumes this context without loading all matrix weights.",
+      "registration": "Once per model/version, authenticate the pinned checkpoint and exact integer export, perform all current public validation and tied-table derivation, construct canonical weighted matrices, compute roots and produce a canonical manifest. Anyone can independently reproduce this public preprocessing.",
+      "trust_boundary": "Every proof verifier must obtain the EXPECTED registry digest from the trusted model/policy context. A manifest containing a checkpoint SHA and roots does not prove those roots derive from that checkpoint. Hashing an attacker-editable manifest and cache together does not authenticate them. Local verified registration or an independently verified pinned manifest is needed; the receipt cannot select the trusted pin.",
+      "context": "Bind model/tensor source pins, integer transform/version and RoPE choice, all seven c2 arrays and folded gate coefficients, G, per-layer calibration, true/padded extents, Q permutation, root PCS parameters, small gain/EXP/ACT tables and group IDs, tied-table derivation identity, and ordered layer records.",
+      "tied_path": "Do not bypass R12b F1 or R-C2's checkpoint-derived embedding/head relationship. Eliminating the per-load checkpoint pass needs a reviewed registered equivalent for those identities too. A block-weight commitment alone does not supply it.",
+      "new_identity": "Bind the registry digest and root descriptors in a new public model/statement identity. Reusing the old BlockPublic digest while replacing its actual matrices by unchecked roots would change the statement silently.",
+      "portability": "Pin generated ACT member digests and exact preprocessing versions so independent registrars agree. Cache hits must recheck the small canonical manifest against the expected registry digest and exact parameters; malformed entries fail closed.",
+      "owner_review": "D24, CS-1/4/6 and the token/tied-data security owner must review this registration boundary before the verifier avoids current authentication passes. No new fast path is authorized by this paper."
+    }
+  },
+  "existing_cache": {
+    "source": "frozen hashline/src/wcache.rs",
+    "finding": "The existing P1 cache stores a Merkle tree for the older three-FFN-plane prover commitment. Its key hashes the actual int8 planes; it neither replaces the native seven-matrix verifier folds nor authenticates a small registered-model context.",
+    "storage": "It intentionally does not persist the full encoded matrix. Root/tree reuse alone still requires proving-time encoding or an encoded-column store. Its useful cache-integrity and atomic-file rules can inform S6, but no existing S6 verifier implementation was found."
+  },
+  "packing_tradeoffs": {
+    "per_tensor_roots": "Seven current padded matrices each have one scalar claim and one proximity vector. Per-root column checking uses two vectors; total14 encodings. More roots repeat Merkle paths and proximity vectors.",
+    "joint_root": "One ordered matrix commitment contains all seven planes. Generic column-weight tails form seven groups, plus proximity: eight encodings. A sampled column contains all rows; the native verifier checks every group vector against every sampled full column. This increases column MACs while reducing vectors and paths.",
+    "S4_pieces": "True-width piece counts use20 matrix pieces and depend on an unimplemented S4 profile. Keeping7 logical roots permits several claim groups per root; one root for everything permits up to20 groups. Distinct physical claims cannot be combined when their column-weight keys differ.",
+    "group_caveat": "Counts assume generic distinct physical claim groups and are upper bounds. A final profile/wire must define canonical grouping and public-challenge coincidence behavior.",
+    "parameters": "COUNT.json explores independent weight-row widths2^12..2^17 at rate4 and256 column checks. Reusing these numerical parameters does not confer an accepted S6 soundness bound. The weight commitment need not use A/H's row width."
+  },
+  "counted_results": {
+    "native_anchor": "R13 native census public-weight bytes reproduced exactly:243277824 =243269632 padded matrix i8 positions +8192 gain bytes per layer.",
+    "true_axes": "Seven logical matrices have116391936 true i8 weights/layer. S4's20 power-of-two matrix pieces represent those exactly, without model/FFN-axis padding.",
+    "padded_joint_n65536": "Adds15.3927MiB/block,400.21MiB over26 blocks, excluding new wire framing/registry metadata. Native flat Opening::size_bytes and write_bytes agree at16140288B, plus112B for7 public terminals. Column checks add7.60M Fp2-by-base MACs and nominal46.14M base-field radix2 NTT butterflies/block.",
+    "padded_seven_roots_n65536": "Adds22.2482MiB/block,578.45MiB/26 blocks. Column checks add1.90M mixed MACs;14 clear/proximity vectors entail nominal80.74M base-field NTT butterflies/block.",
+    "padded_seven_roots_n16384": "Adds33.3888MiB/block,868.11MiB/26 blocks, with7.60M mixed MACs and nominal17.89M base-field NTT butterflies/block.",
+    "encoded_storage": "Persisting every full rate4 field encoding costs7.25GiB/layer or188.5GiB/model at current padding. True pieces reduce it to3.46875GiB/layer or90.1875GiB/model, conditional on S4. These sizes exclude original int8 model files, trees, registration copies and temporaries.",
+    "memory": "A current padded joint root's field data plus encoding is9.0625GiB before trees/scratch and the private block prover. A largest individual padded tensor is2.5GiB for data+encoding. Retaining those buffers beside a7.5GiB-class R13 proof is not an established laptop fit. Streaming/re-encoding or an authenticated on-disk column store needs a separate implementation and measurement.",
+    "cost_caveat": "Do not convert unlike primitive counts into a speedup. Current folds skip zero entries and use deferred integer row accumulators; new PCS adds modular NTTs, column MACs, receipt hashing and Merkle work. The published 'half the verifier work' is an older estimate, not an S6 benchmark.",
+    "all_variants": "COUNT.json/COUNT.csv contain30 packing/row-width combinations. New message counts are design bounds, not native profile measurements or full26-layer proof results."
+  },
+  "security_review_obligations": [
+    "Derive the union of public weight PCS soundness with existing SC/PCS/CFS/LogUp/hash terms under adaptive openings to reused model roots. Do not inherit the R13 whole-run bit claim.",
+    "Prove root-to-model identity through the registration boundary, including signed weight classes, exact transforms, zero padding, c2-before-interpolation, Q permutation and global group coefficients.",
+    "Bind root descriptors, indices, all public weight terminals and their points before opening challenges; distinct new hash/domain registrations and canonical wire counts.",
+    "Revalidate privacy with new public scalar terminals and opening transcript. P1 weights are public; that fact alone does not transfer the existing frozen profile's capture/source-pin approval.",
+    "For S4 combination, resolve two-piece endpoints, lifted points, zero coefficients, group keys and native census first. S6 does not resolve S4's independent review."
+  ],
+  "falsification_and_next_stage": [
+    "After design review, use an isolated microprotocol to prove all seven public weighted matrix terminals with existing native PCS, both matrix orientations, nonconstant multipliers and fixed/moving token contexts. This paper did only a native size-serialization count.",
+    "Change one weight, one c2 coefficient, one group/G context, one head permutation, one shape/parameter descriptor, one layer/site tag and one registry root. Each must reject under the original expected model; a wholly different model must require a different trusted policy pin.",
+    "Compare MLE(W*m) with the deliberately wrong MLE(W)*MLE(m), and reject a proof carrying the latter at a non-Boolean output point.",
+    "Replay openings across runs/points and swap matrices/roots. Test corrupted/truncated/foreign registered manifests and encoded column caches without reusing attacker-supplied expected pins.",
+    "Measure the core-verifier and end-to-end load/hash/tied/PCS breakdown separately on the same real block and host before choosing a packing/row width or claiming a speedup.",
+    "Do not build an on-chain wrapper, skip checkpoint authentication or start real-size weight preprocessing under this design/count authorization."
+  ],
+  "conclusion": "A public weight PCS can replace the seven folded-table terminal evaluations, but the native PCS adds substantial receipt, encoding and verifier work. Full O(parameters) removal additionally needs a registered-model boundary that preserves current source/tied authenticity. Neither a twofold speedup nor a cheap on-chain wrapper is established."
+}

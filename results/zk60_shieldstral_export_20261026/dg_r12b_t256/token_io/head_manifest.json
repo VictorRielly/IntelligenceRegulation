@@ -1,0 +1,50 @@
+{
+  "kind": "D25 per-row int8 plus 12-bit multipliers",
+  "source_tensor": {
+    "name": "language_model.model.embed_tokens.weight",
+    "sha256": "67a138c1c483b89874526ef523f5f0c30f161808076561730193d1de2093dd19"
+  },
+  "V": 131072,
+  "d": 3072,
+  "bos": 1,
+  "head_int8_perrow.bin": {
+    "file": "head_int8_perrow.bin",
+    "dtype": "int8",
+    "shape": [
+      131072,
+      3072
+    ],
+    "bytes": 402653184,
+    "sha256": "786f02bc011e3f23c4e9ac480772a0413d39f8d10c7259000929ada771d0ce95"
+  },
+  "head_mult12.bin": {
+    "file": "head_mult12.bin",
+    "dtype": "int64",
+    "shape": [
+      131072
+    ],
+    "bytes": 1048576,
+    "sha256": "f43790f32bd4cf4b252aafaa08e9b788937a0878594d2756f73248b0dfdc0464"
+  },
+  "row_scales": {
+    "file": "head_row_scales_f64.bin",
+    "sha256": "923f67d3c89b235ce7bf07dd1be4d0db2d97695d69cbd69b8170d2eb73b13a83",
+    "bytes": 1048576,
+    "dtype": "float64",
+    "shape": [
+      131072
+    ]
+  },
+  "final_norm": {
+    "g0": 127,
+    "tn": 9,
+    "ceps": 2439,
+    "cn_calibrated": 3504,
+    "cn_refusal_free": 512,
+    "window_bits": 31,
+    "calibrated_output_scale": 0.06376946129329919,
+    "rule": "own final float calibration maxima, margin 0.5",
+    "cn": 3504
+  },
+  "scope": "candidate tied public tables with independent reference match; native loader, policy registration, fidelity and privacy acceptance still required"
+}

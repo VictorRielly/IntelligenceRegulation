@@ -222,7 +222,8 @@ fn the_trained_door_refuses_every_frozen_profile() {
         assert!(e.contains("is frozen"), "{}: {e}", sh.name);
         assert!(!sh.trained_calibration && sh.norm_calibration() == NormCalibration::FROZEN, "{}: a registered shape carries a non-frozen calibration", sh.name);
     }
-    assert_eq!(TRAINED_CALIBRATION_PROFILES, [TINYLLAMA_T32_TRAINED_PROFILE, TRAINED_CALIB_RUNG_PROFILE, super::shape::TINYLLAMA_T64_TRAINED_PROFILE, super::shape::TINYLLAMA_T128_TRAINED_PROFILE, super::shape::LLAMA3_8B_T32_TRAINED_PROFILE, super::shape::LLAMA3_8B_T64_TRAINED_PROFILE, super::shape::LLAMA3_8B_T128_TRAINED_PROFILE, super::shape::TINYLLAMA_T128_DD_TRAINED_PROFILE, super::shape::LLAMA3_8B_T128_DD_TRAINED_PROFILE, super::shape::TRAINED_DD_RUNG_PROFILE, super::shape::SHIELDSTRAL_T128_TRAINED_PROFILE, super::shape::SHIELDSTRAL_T256_TRAINED_PROFILE, super::shape::SHIELDSTRAL_T128_DD_TRAINED_PROFILE, super::shape::SHIELDSTRAL_T256_DD_TRAINED_PROFILE, super::shape::TRAINED_HD_RUNG_PROFILE]);
+    assert_eq!(TRAINED_CALIBRATION_PROFILES[..15], [TINYLLAMA_T32_TRAINED_PROFILE, TRAINED_CALIB_RUNG_PROFILE, super::shape::TINYLLAMA_T64_TRAINED_PROFILE, super::shape::TINYLLAMA_T128_TRAINED_PROFILE, super::shape::LLAMA3_8B_T32_TRAINED_PROFILE, super::shape::LLAMA3_8B_T64_TRAINED_PROFILE, super::shape::LLAMA3_8B_T128_TRAINED_PROFILE, super::shape::TINYLLAMA_T128_DD_TRAINED_PROFILE, super::shape::LLAMA3_8B_T128_DD_TRAINED_PROFILE, super::shape::TRAINED_DD_RUNG_PROFILE, super::shape::SHIELDSTRAL_T128_TRAINED_PROFILE, super::shape::SHIELDSTRAL_T256_TRAINED_PROFILE, super::shape::SHIELDSTRAL_T128_DD_TRAINED_PROFILE, super::shape::SHIELDSTRAL_T256_DD_TRAINED_PROFILE, super::shape::TRAINED_HD_RUNG_PROFILE]);
+    assert_eq!(&TRAINED_CALIBRATION_PROFILES[15..],super::shape::ACCURACY_PROFILES.iter().map(|s|s.profile).collect::<Vec<_>>().as_slice());
     // ROUND 3 (R3-2): one profile per context length; any other T is refused
     for t in [16usize, 48, 256, 512] {
         assert!(Shape::tinyllama_trained(t, &c, T3_F_E).unwrap_err().contains("no trained TinyLlama profile"), "T{t}");
@@ -817,7 +818,7 @@ fn ir_walk(sh: &Shape) -> Vec<super::slot_ir::SlotIr> {
     let lay = Layout::for_shape(sh).unwrap();
     let (public, ff, _) = super::grow_tests::tame_case(sh);
     let c = |re: u64, im: u64| Fp2::new(Fp::new(re), Fp::new(im));
-    let ctx = Ctx { lay: &lay, public: &public, ff: &ff, alpha: c(7, 1), beta: c(11, 2), g_u8: c(13, 3), g_exp: c(17, 5), g_act: c(19, 7), g_dd: c(23, 11) };
+    let ctx = Ctx { accuracy:None, lay: &lay, public: &public, ff: &ff, alpha: c(7, 1), beta: c(11, 2), g_u8: c(13, 3), g_exp: c(17, 5), g_act: c(19, 7), g_dd: c(23, 11) };
     let mut tr = crate::transcript::Transcript::new(sh.profile.as_bytes());
     let mut pts = IrPoints::default();
     (0..N_SLOTS).map(|s| build_slot_ir(s, &ctx, &mut pts, &mut tr).unwrap_or_else(|e| panic!("{}: slot {s} IR: {e}", sh.name))).collect()

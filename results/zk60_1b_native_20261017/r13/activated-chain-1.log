@@ -1,0 +1,15 @@
+
+running 1 test
+test private_block::accuracy_proof_tests::accuracy_two_stage_private_boundary_with_different_gate_shifts_verifies ... 
+thread 'private_block::accuracy_proof_tests::accuracy_two_stage_private_boundary_with_different_gate_shifts_verifies' (6) panicked at src/private_block/accuracy_proof_tests.rs:197:87:
+called `Result::unwrap()` on an `Err` value: "private block: endpoint scales are pinned to the approved calibration (0, 0)"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    private_block::accuracy_proof_tests::accuracy_two_stage_private_boundary_with_different_gate_shifts_verifies
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 720 filtered out; finished in 0.08s
+

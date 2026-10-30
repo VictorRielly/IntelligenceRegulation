@@ -1,0 +1,6 @@
+[zk60-guard 04:41:41] START gate19-real-prove class=cpu need=10.3G cap=11.5G enforce=cgroup+watchdog waited=0s run=6f4c17bb0e72
+[zk60-guard 04:49:30] END gate19-real-prove exit=0 child_wall=469s peak_rss=8.13G min_avail=5.07G
+[zk60-guard 04:49:30] START gate19-real-verify class=cpu need=2.9G cap=4.5G enforce=cgroup+watchdog waited=0s run=5b3466236c25
+[zk60-guard 04:50:45] END gate19-real-verify exit=0 child_wall=75s peak_rss=2.32G min_avail=11.06G
+[zk60-guard 04:50:45] START gate19-real-capture class=cpu need=5.5G cap=7G enforce=cgroup+watchdog waited=0s run=c3bf2a92ba74
+[zk60-guard 04:52:28] END gate19-real-capture exit=0 child_wall=103s peak_rss=4.05G min_avail=8.94G

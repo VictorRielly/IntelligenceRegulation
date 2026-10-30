@@ -52,6 +52,38 @@ WHAT R-C1 BUILDS, IN THE GATE'S TERMS [READ]
 * **One external endpoint** (the input token endpoint); no output endpoint
   (D40); B_in / B_out are the run's boundaries.
 
+[v21, gate round 18, 2026-10-29] RE-READ on token frozen-r14 (manifest
+`manifest_final_r14.sha256`, list 0b4c429b..., 258 files; rungs R-C2 + R-C3):
+
+    token_io/classify.rs     6c828db6673e...   (R-C2 margin scale + tied
+                                                source in the profile text;
+                                                R-C3 short items, pad id,
+                                                verdict row)
+    token_io/stage_in_c.rs   6a92da0ecfe7...   (INC-01's name; the template
+                                                clause covers the pad)
+    token_io/stage_out_c.rs  93a79a2b39ab...   (OUTC-00 reads the verdict row)
+    token_io/classify_run.rs 5d1d077f5102...   (BoundClassifierTables; the
+                                                verdict row in the pipeline)
+    token_io/classify_tied.rs 401d38d444b6...  (the tables derived from the
+                                                pinned tensor; NEW)
+
+What moved for this module [READ, classify.rs at 6c828db6]:
+* a SHORT item (DESIGN v2.4 §15): `1 <= n < T - P0 - S` content ids are ONE
+  chunk `[0, n)`; the item is `prefix || content || suffix || pad^(T - P0 -
+  n - S)`, the pad a PUBLIC policy id (rung: 2), every pad position a
+  template position (`is_template` unchanged: `t >= P0 + n`), `kappa` the
+  suffix id on `P0 + n .. P0 + n + S` and the pad id after it
+  (classify.rs:512-524); the door admits `P0 + n + S <= T` (:431-433);
+* the verdict row is `P0 + n + S - 1` (classify.rs:503-505; `T - 1` without
+  pad), read by OUTC-00 (stage_out_c.rs:302);
+* the chunk plan's size is `T - P0 - S` (never n; classify.rs:798) and
+  `chunk_ranges` returns `[(0, total)]` for `1 <= total < size`, refusing an
+  empty content (classify.rs:220-228);
+* the profile text adds `item-length= pad-id= pad-positions= verdict-row=`,
+  `chunk-size=` is the plan's size, `short-content=one-chunk-of-its-length-
+  pad-pinned`, `margin-scale= margin-scale-bits=`, the tied source and the
+  D45 rulings sentence (classify.rs:578-622).
+
 NOTHING HERE IS A PRIVACY STATEMENT.
 """
 
@@ -86,6 +118,69 @@ HEADER_TAIL_LABELS = ("classify-verdict", "classify-chunk")
 RUN_PROFILE_CLASSIFY_RUNG_TC = "hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1"
 # [READ] classify.rs:166
 CHUNK_OVERLAPS = {RUN_PROFILE_CLASSIFY_RUNG_TC: 4}
+# [v21, READ classify.rs:137 at r14] the registered policy's PUBLIC pad id per
+# classifier run profile (the rung's synthetic policy and every test policy
+# cloned from it: 2)
+PAD_IDS = {RUN_PROFILE_CLASSIFY_RUNG_TC: 2}
+
+# [v22, gate round 19, READ token frozen-r16b] run.rs:153-154 / :173 (the R13
+# classifier run profiles: Shieldstral T128 / T256, and the TEST-ONLY R13 h24
+# development rung), classify.rs:280-292 (CHUNK_OVERLAPS 8 at Shieldstral; 4 at
+# the test rung, `#[cfg(test)]`), classify.rs:136-235 (the pad ids: the dev
+# policy's 2, every Shieldstral category policy's 11)
+RUN_PROFILE_CLASSIFY_R13_SHIELD_T128 = "hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/1"
+RUN_PROFILE_CLASSIFY_R13_SHIELD_T256 = "hashline-zk-mr1/private-classify-run-shieldstral-3b-t256-r13-public-row/1"
+RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST = "hashline-zk-mr1/private-classify-run-rung-lh-t32-public-row-tst/1"
+CHUNK_OVERLAPS.update({RUN_PROFILE_CLASSIFY_R13_SHIELD_T128: 8, RUN_PROFILE_CLASSIFY_R13_SHIELD_T256: 8,
+                       RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST: 4})
+PAD_IDS.update({RUN_PROFILE_CLASSIFY_R13_SHIELD_T128: 11, RUN_PROFILE_CLASSIFY_R13_SHIELD_T256: 11,
+                RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST: 2})
+# the R13 block profile each R13 classifier run profile names (run.rs:157-160,
+# shape.rs:188-193), and the R13 classifier run profiles (the stage lines
+# carry each block stage's gate denominator, classify.rs `stage_lines`)
+R13_BLOCK_PROFILE_OF = {RUN_PROFILE_CLASSIFY_R13_SHIELD_T128: "hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/1",
+                        RUN_PROFILE_CLASSIFY_R13_SHIELD_T256: "hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-blocks/1",
+                        RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST: "hashline-zk-mr1/private-block-rung-lh-t32-dev/1"}
+R13_CLASSIFY_RUN_PROFILES = tuple(R13_BLOCK_PROFILE_OF)
+# **THE PRE-REGISTERED SHIELDSTRAL POLICY LIST (D45(2))** at r16b
+# (classify.rs:145-235, `registered_policies()` = [dev] + these three; the card
+# policy is `#[cfg(test)]` since round 16b, REVIEW_R16 F-1). The prefix ids'
+# SHA-256 (u64 LE each) are the round-16 test's pins of Astra's moderate
+# templates (classify_r16_tests.rs:70-74); every other field is common.
+SHIELDSTRAL_POLICIES = {
+    "shieldstral-1.0-3b-moderate-sexual/1": {"p0": 72, "prefix_sha256": "eed4d4c58661672ee6ee9b2f30fe2bbc99282f875f8246dec0d9d2d26d8ab3fd"},
+    "shieldstral-1.0-3b-moderate-violence/1": {"p0": 72, "prefix_sha256": "96225c387d6c3d6ccf29827d5ea6889e0be13e68fa0788c9cc7a5edd3aedfba1"},
+    "shieldstral-1.0-3b-moderate-hate/1": {"p0": 78, "prefix_sha256": "83ac93e6a103a270205398d4c9bc341ac64b5f48021a963504ac270277329fee"},
+}
+SHIELDSTRAL_POLICY_COMMON = {"suffix": [4], "yes": 13059, "no": 2649, "c": 0, "pad": 11, "num_special": 1000,
+                             "v": 131072, "margin_scale_bits": "0x3ed11ff597db2fb6"}
+SHIELDSTRAL_CARD_POLICY = "shieldstral-1.0-3b-card-unsafe/1"   # test-only at r16b; refused here by name
+
+
+def shieldstral_policy_check(policy: dict) -> list:
+    """[v22] a Shieldstral capture's policy against the registered list:
+    the id one of the three, its P0 and prefix digest, every common field"""
+    import hashlib
+    import struct as _st
+    f = []
+    pid = policy.get("id")
+    if pid == SHIELDSTRAL_CARD_POLICY:
+        return [f"policy {pid} is round 12's card policy, test-only since r16b (REVIEW_R16 F-1): not registered"]
+    want = SHIELDSTRAL_POLICIES.get(pid)
+    if want is None:
+        return [f"policy {pid!r} is not one of the three registered Shieldstral category policies (D45(2))"]
+    pre = list(policy.get("prefix_ids") or [])
+    if len(pre) != want["p0"]:
+        f.append(f"policy {pid}: P0 {len(pre)}, registered {want['p0']}")
+    if hashlib.sha256(b"".join(_st.pack("<Q", int(x)) for x in pre)).hexdigest() != want["prefix_sha256"]:
+        f.append(f"policy {pid}: the prefix ids are not the registered template's")
+    c = SHIELDSTRAL_POLICY_COMMON
+    got = {"suffix": list(policy.get("suffix_ids") or []), "yes": policy.get("yes"), "no": policy.get("no"),
+           "c": policy.get("c"), "num_special": policy.get("num_special")}
+    for k_, v_ in got.items():
+        if v_ != c[k_]:
+            f.append(f"policy {pid}: {k_} {v_!r}, registered {c[k_]!r}")
+    return f
 
 # [READ] stage_in_c.rs:24-37
 INC_A_TOK, INC_A_MULT = 0, 1
@@ -96,7 +191,8 @@ INC_A_NAMES = ["A_TOK", "A_MULT"]
 INC_H_NAMES = ["H_Q", "H_TAB", "H_U"]
 INC_NAMES = [
     "INC-00 IO-in: token endpoint = supp_T tok (whole padded plane: template and content)",
-    "INC-01 query zero-check: LogUp over (id, row, ctl) + BOS + TEMPLATE + pad, fresh mu each",
+    # [v21] r14's name (stage_in_c.rs:49): the template now names the trailing pad ids
+    "INC-01 query zero-check: LogUp over (id, row, ctl) + BOS + TEMPLATE (prefix, suffix, trailing pad ids) + pad, fresh mu each",
     "INC-02 table zero-check: h_tab (alpha - tau(v, ctl)) = m + pad, fresh mu each",
     "INC-03 ZS zero-sum row",
 ]
@@ -110,7 +206,8 @@ OUTC_A_NAMES = (["A_D", "A_DSQ", "A_LIMB", "A_X", "A_XL0", "A_XL1", "A_Y"]
                 + ["A_MU8"])
 OUTC_H_NAMES = ["H_LO"] + [f"H_D{i}" for i in range(OC_H_DO_HELPERS)] + ["H_GU8", "H_U"]
 OUTC_NAMES = [
-    "OUTC-00 IO-in: x = B_out row T-1 (fixed public row bits)",
+    # [v21] r14's name (stage_out_c.rs:78): the public verdict row
+    "OUTC-00 IO-in: x = B_out at the public verdict row P0+n+S-1 (fixed public row bits; T-1 without pad)",
     "OUTC-01 SS final-norm row sum (private, hosted by TZC)",
     "OUTC-02 TZC isqrt (D, Dsq, 9 limb slices; hosts SS)",
     "OUTC-03 PD margin sum_i y(i) w_Delta(i) (private, hosted by LZC)",
@@ -144,13 +241,19 @@ class ClassGeom:
     block_log_n: int
     block_inv_rate: int
     tier: Tier = R1_MVP
+    # [v21, R-C3] the policy's PUBLIC pad id (classify.rs:119; the rung's 2)
+    pad: int = 2
 
     def __post_init__(self):
         f = []
         if not (2 <= self.v <= TIO.V_MAX):
             f.append(f"V = {self.v} outside 2..=2^17")
-        if self.n < 1 or self.p0 + self.n + self.s != self.tokens:
-            f.append(f"P0 + n + S = {self.p0} + {self.n} + {self.s} is not T = {self.tokens} (n >= 1)")
+        # [v21, R-C3] classify.rs:431-433: P0 + n + S <= T (a short item's
+        # trailing positions hold the public pad id)
+        if self.n < 1 or self.p0 + self.n + self.s > self.tokens:
+            f.append(f"P0 + n + S = {self.p0} + {self.n} + {self.s} is more than T = {self.tokens} (n >= 1)")
+        if not (0 <= self.pad < self.v):
+            f.append(f"the public pad id {self.pad} is outside the vocabulary")
         if self.s < 1:
             f.append("the template has no suffix")
         if not (-C_MAX <= self.c <= C_MAX):
@@ -183,8 +286,28 @@ class ClassGeom:
     def tab_log(self): return max(clog2(U8_LEN), self.tier.stage_log_n)
     def in_ep_words(self): return max(self.t_pad, 1 << self.tier.ep_log_n)
 
-    # the template (classify.rs:411-437)
+    # the template (classify.rs:489-524 at r14)
     def is_template(self, t): return t < self.p0 or (self.p0 + self.n <= t < self.tokens)
+
+    # [v21, R-C3] the item's own length, the pad count, the verdict row, the
+    # chunk plan's size (classify.rs:493-505, 798)
+    def item_len(self): return self.p0 + self.n + self.s
+    def pad_positions(self): return self.tokens - self.item_len()
+    def verdict_row(self): return self.item_len() - 1
+    def plan_size(self): return self.tokens - self.p0 - self.s
+    def is_short(self): return self.n < self.plan_size()
+
+    def kappa(self, t, prefix, suffix):
+        """`ClassifierProfile::kappa` (classify.rs:512-524 at r14): the
+        prefix's id, the suffix's, then the PUBLIC pad id up to T; 0 at
+        content positions and beyond T"""
+        if t < self.p0:
+            return prefix[t]
+        if self.p0 + self.n <= t < self.item_len():
+            return suffix[t - self.p0 - self.n]
+        if self.item_len() <= t < self.tokens:
+            return self.pad
+        return 0
 
     def stage_in_c(self) -> StageLayout:
         """`stage_in_c.rs:39-55`: stage IN's layout under new slot names"""
@@ -230,7 +353,9 @@ class ClassGeom:
         return {"words": words, "row_width_log": self.tier.ep_log_n, "inv_rate": self.tier.ep_inv_rate,
                 "data_rows": data, "commitment_rows": data + TIO.EP_MASK_ROWS,
                 "true_words": self.tokens, "pad_words": words - self.tokens,
-                "template_words": self.p0 + self.s, "content_words": self.n}
+                # [v21, R-C3] a short item's trailing pad ids are template words
+                "template_words": self.tokens - self.n, "content_words": self.n,
+                "pad_id_words": self.pad_positions()}
 
     def boundary(self) -> dict:
         words = self.t_pad * self.d_pad
@@ -313,13 +438,16 @@ def d34_table() -> dict:
 
 # ---------------------------------------------------------------- D41 chunks
 def chunk_ranges(total: int, size: int, overlap: int) -> list:
-    """`chunk_ranges` (classify.rs:183-193), transcribed: chunks of exactly
-    `size` ids at stride `size - overlap`, the last END-ALIGNED; short
-    content refused by name"""
+    """`chunk_ranges` (classify.rs:219-235 at r14), transcribed: chunks of
+    exactly `size` ids at stride `size - overlap`, the last END-ALIGNED;
+    [v21, R-C3] a SHORT content (`1 <= total < size`) is ONE chunk
+    `[0, total)`; an empty content is refused"""
     if size <= 0 or overlap >= size or overlap < 0:
         raise ValueError(f"the plan (size {size}, overlap {overlap}) needs 0 <= overlap < size")
+    if total <= 0:
+        raise ValueError("an empty content has no chunk (n >= 1)")
     if total < size:
-        raise ValueError(f"a content of {total} ids is shorter than one chunk of {size} ids (short content is not built)")
+        return [(0, total)]
     stride = size - overlap
     k = 1 + -(-(total - size) // stride)
     return [(j * stride, j * stride + size) if j + 1 < k else (total - size, total) for j in range(k)]

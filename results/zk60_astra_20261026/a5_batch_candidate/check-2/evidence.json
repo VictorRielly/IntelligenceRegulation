@@ -1,0 +1,89 @@
+{
+  "at": "2026-10-30T00:22:54.117747+00:00",
+  "exit": 0,
+  "scope": "light candidate transport/path tests, recorded R16 log payloads, pinned encoding; no new native proof",
+  "native_full_build": false,
+  "native_integration": false,
+  "measured_batch_speedup": null,
+  "steps": [
+    {
+      "name": "stage-native-delta",
+      "exit": 0,
+      "wall_seconds": 0.02908633700280916,
+      "stdout": "{\"staged_files\": 5, \"native_build_complete\": false}\n",
+      "stderr": ""
+    },
+    {
+      "name": "rust-parse:examples/zk60_classify.rs",
+      "exit": 0,
+      "wall_seconds": 0.02408584200020414,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "name": "rust-parse:src/private_block.rs",
+      "exit": 0,
+      "wall_seconds": 0.02380570099921897,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "name": "rust-parse:src/private_block/token_io/classify_batch.rs",
+      "exit": 0,
+      "wall_seconds": 0.014370364995556884,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "name": "rust-parse:src/private_block/token_io/classify_batch_plan.rs",
+      "exit": 0,
+      "wall_seconds": 0.016100023000035435,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "name": "rust-parse:src/private_block/token_io/classify_cli.rs",
+      "exit": 0,
+      "wall_seconds": 0.028493522011558525,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "name": "rust-plan-compile",
+      "exit": 0,
+      "wall_seconds": 0.27557115998934023,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "name": "rust-plan-tests",
+      "exit": 0,
+      "wall_seconds": 0.017267780000111088,
+      "stdout": "\nrunning 13 tests\ntest plan::tests::complete_plan_creates_nothing ... ok\ntest plan::tests::dangling_symlink_refused ... ok\ntest plan::tests::distinct_names_required ... ok\ntest plan::tests::dotdot_path_refused ... ok\ntest plan::tests::existing_receipt_and_sidecar_refused ... ok\ntest plan::tests::missing_category_refused ... ok\ntest plan::tests::output_in_model_refused ... ok\ntest plan::tests::output_sidecar_alias_refused ... ok\ntest plan::tests::owner_under_other_receipt_parent_refused ... ok\ntest plan::tests::prefix_subset_refused ... ok\ntest plan::tests::reordered_plan_refused ... ok\ntest plan::tests::repeated_chunk_refused ... ok\ntest plan::tests::symlink_parent_alias_refused ... ok\n\ntest result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s\n\n",
+      "stderr": ""
+    },
+    {
+      "name": "python-transport-tests",
+      "exit": 0,
+      "wall_seconds": 1.6616136070078937,
+      "stdout": "",
+      "stderr": "test_bad_guard_shape_or_boolean_exit_refused (test_batch_cleanup.CleanupTests) ... ok\ntest_changed_request_cleans_original_scope_only (test_batch_cleanup.CleanupTests) ... ok\ntest_clean_completion_remains_unverified (test_batch_cleanup.CleanupTests) ... ok\ntest_cleanup_error_blocks_result_and_other_moves_continue (test_batch_cleanup.CleanupTests) ... ok\ntest_guard_failure_cannot_be_hidden_by_complete_stdout (test_batch_cleanup.CleanupTests) ... ok\ntest_missing_terminal_event_quarantines_every_path_and_opening (test_batch_cleanup.CleanupTests) ... ok\ntest_nonterminal_child_is_never_cleaned_up (test_batch_cleanup.CleanupTests) ... ok\ntest_recovery_is_idempotent_after_some_moves (test_batch_cleanup.CleanupTests) ... ok\ntest_scope_cannot_claim_arbitrary_paths (test_batch_cleanup.CleanupTests) ... ok\ntest_symlink_output_is_moved_without_following_target (test_batch_cleanup.CleanupTests) ... ok\ntest_all_chunk_geometries_and_tail (test_batch_request.BatchTests) ... ok\ntest_changed_policy_context_refused_before_writes (test_batch_request.BatchTests) ... ok\ntest_changed_reservation_refused_before_writes (test_batch_request.BatchTests) ... ok\ntest_dangling_job_symlink_refused (test_batch_request.BatchTests) ... ok\ntest_duplicate_json_keys_and_nonfinite_refused (test_batch_request.BatchTests) ... ok\ntest_duplicate_or_reordered_segment_refused (test_batch_request.BatchTests) ... ok\ntest_existing_receipt_refused (test_batch_request.BatchTests) ... ok\ntest_missing_repeated_or_reordered_category (test_batch_request.BatchTests) ... ok\ntest_no_automatic_retry_or_overwrite (test_batch_request.BatchTests) ... ok\ntest_one_private_content_and_activation_request_for_all_categories (test_batch_request.BatchTests) ... ok\ntest_over_limit_refused_before_writes (test_batch_request.BatchTests) ... ok\ntest_owner_under_other_receipt_parent_refused (test_batch_request.BatchTests) ... ok\ntest_partial_batch_and_failed_exit_never_succeed (test_batch_request.BatchTests) ... ok\ntest_pinned_tokenizer_preparation (test_batch_request.BatchTests) ... ok\ntest_preparation_uses_existing_writer_batch_interface (test_batch_request.BatchTests) ... ok\ntest_prover_cannot_claim_verified (test_batch_request.BatchTests) ... ok\ntest_refusal_cannot_be_hidden_by_success (test_batch_request.BatchTests) ... ok\ntest_swapped_policy_floor_or_receipt_size_refused (test_batch_request.BatchTests) ... ok\ntest_truncated_count_boolean_and_changed_identity (test_batch_request.BatchTests) ... ok\ntest_valid_native_payloads_route_as_unverified (test_batch_request.BatchTests) ... ok\n\n----------------------------------------------------------------------\nRan 30 tests in 1.515s\n\nOK\n"
+    }
+  ],
+  "source_sha256": {
+    "batch_cleanup.py": "df5ab991b4d14338d9b0964cd1d947373295be7a63ccde46f1838db0328f3a6d",
+    "batch_request.py": "8286ded03de15815bed6d400e825a0869761b67c04dcc8db11ca9f5dda0f97d4",
+    "check_light.py": "a781dfb080b37d9ee02559cbeafed1b5e45d8bc366c4d5dcedbf2583d1239a31",
+    "native/classify_batch.rs": "ed1d14beb5d2af0908f4d2d6582c95b5cd2f5c5ee0bfb22d6b31926d9721578f",
+    "native/classify_batch_plan.rs": "8ddd7e58723aa0caf6c16590d67666da80b2ee677b26c67317880db67aec591f",
+    "native/light_tests.rs": "cf0832909e0be38d4dd904c357885be0602580876c191fbceab71be4e7df5d71",
+    "stage_native.py": "f4b85e75d8c406ef09a8f0b13079b9222b478dad8a2cf320776b058f43ec470c",
+    "staged/hashline/examples/zk60_classify.rs": "35824dcfd39f36e300ad1ff394e9b8f28f184ca6c594ee57584e546fe3d09b2e",
+    "staged/hashline/src/private_block/token_io/classify_batch.rs": "ed1d14beb5d2af0908f4d2d6582c95b5cd2f5c5ee0bfb22d6b31926d9721578f",
+    "staged/hashline/src/private_block/token_io/classify_batch_plan.rs": "8ddd7e58723aa0caf6c16590d67666da80b2ee677b26c67317880db67aec591f",
+    "staged/hashline/src/private_block/token_io/classify_cli.rs": "41511d40828135052eba67117bf70471cc0fe7c4ee7c847d47dc97d1144b1d92",
+    "staged/hashline/src/private_block.rs": "96c1cd16270b087ab56d8fd4cf3777009e5000800ab2d65afc1342ae555c6ac4",
+    "test_batch_cleanup.py": "7630946f6ad7f143190a39db28036f5ccf4bcd693adfe3eb296c715d4360df71",
+    "test_batch_request.py": "656526a4dd0ca8caf64ffce685cd29bca9427d33e2d27f95c0157fb7cac54218"
+  }
+}

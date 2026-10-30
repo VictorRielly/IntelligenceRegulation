@@ -1,0 +1,12 @@
+{
+  "at": "2026-10-29T17:13:30.975964+00:00",
+  "command": "python3 -m unittest discover -s results/zk60_shieldstral_export_20261026 -p test_item_activations.py",
+  "exit": 0,
+  "tests": 7,
+  "reported_seconds": 0.055,
+  "source_sha256": {
+    "results/zk60_shieldstral_export_20261026/write_item_activations.py": "8d6ce81b74316ef36a7b5202376f465611436d980e4a46a51aa0f32e474d922d",
+    "results/zk60_shieldstral_export_20261026/test_item_activations.py": "0bdc6e6da64b14e16b74414fbaacbd5b97934a08ef016cd9d54371cc1b34210e"
+  },
+  "scope": "Request validation, private file handling, exact prompt geometry and diagnostic range refusal; native parity separate."
+}

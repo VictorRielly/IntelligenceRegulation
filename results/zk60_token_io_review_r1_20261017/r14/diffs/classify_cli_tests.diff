@@ -1,0 +1,84 @@
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r13/hashline/src/private_block/token_io/classify_cli_tests.rs	2026-10-28 16:42:48.584109127 -0700
++++ /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r14/hashline/src/private_block/token_io/classify_cli_tests.rs	2026-10-28 19:12:07.680380983 -0700
+@@ -128,6 +128,24 @@
+     .unwrap();
+ }
+ 
++/// **ROUND 14 (REVIEW_R13 N-r13-9): where the classifier fixtures write** —
++/// `HL_TIO_FIXTURE_DIR` when set (absolute), else
++/// `$HOME/zk60-artifacts/token-io/test-fixtures/`: never `/tmp` and never a
++/// git work tree (the CLI refuses an owner directory inside one, TR5-3 (a)).
++/// Each fixture removes its directories on drop.
++pub(super) fn fixture_root() -> PathBuf {
++    let root = match std::env::var_os("HL_TIO_FIXTURE_DIR") {
++        Some(d) => {
++            let d = PathBuf::from(d);
++            assert!(d.is_absolute(), "HL_TIO_FIXTURE_DIR must be an absolute path");
++            d
++        }
++        None => PathBuf::from(std::env::var_os("HOME").expect("HOME is not set: set HL_TIO_FIXTURE_DIR to an absolute directory outside any git work tree")).join("zk60-artifacts").join("token-io").join("test-fixtures"),
++    };
++    std::fs::create_dir_all(&root).unwrap();
++    root
++}
++
+ pub(super) struct Cc {
+     pub(super) root: PathBuf,
+     pub(super) owners: PathBuf,
+@@ -152,8 +170,8 @@
+ 
+ impl Cc {
+     pub(super) fn new(tag: &str) -> Cc {
+-        let root = std::env::temp_dir().join(format!("tio-cls-{tag}-{}", std::process::id()));
+-        let owners = std::env::temp_dir().join(format!("tio-cls-owners-{tag}-{}", std::process::id()));
++        let root = fixture_root().join(format!("tio-cls-{tag}-{}", std::process::id()));
++        let owners = fixture_root().join(format!("tio-cls-owners-{tag}-{}", std::process::id()));
+         let _ = std::fs::remove_dir_all(&root);
+         let _ = std::fs::remove_dir_all(&owners);
+         std::fs::create_dir_all(&root).unwrap();
+@@ -230,7 +248,7 @@
+     }
+     /// D41: chunk `chunk` of the whole content `content`, the activations
+     /// from `seq_dir` (a prover-private directory) or the export's `s0`
+-    fn prove_chunk(&self, out: &Path, content: &str, chunk: usize, seq_dir: Option<&Path>) -> i32 {
++    pub(super) fn prove_chunk(&self, out: &Path, content: &str, chunk: usize, seq_dir: Option<&Path>) -> i32 {
+         let cf = self.content_file(content);
+         let od = self.owner_dir(out);
+         let ck = chunk.to_string();
+@@ -243,10 +261,10 @@
+     }
+     /// a prover-private sequence directory for `tokens`: x_in from the
+     /// embedding, x_out from the builder on the export's block (test only)
+-    fn write_seq_dir(&self, dir: &Path, tokens: &[u64]) {
++    pub(super) fn write_seq_dir(&self, dir: &Path, tokens: &[u64]) {
+         write_seq_files(&self.export, &self.t.emb, dir, tokens);
+     }
+-    fn label(&self, runs: &[&PathBuf]) -> i32 {
++    pub(super) fn label(&self, runs: &[&PathBuf]) -> i32 {
+         let joined = runs.iter().map(|r| r.to_str().unwrap()).collect::<Vec<_>>().join(",");
+         classify_label_command(&s(&["--export", self.verifier_copy.to_str().unwrap(), "--tables", self.tables.to_str().unwrap(), "--policy", POLICY_RUNG_DEV, "--runs", &joined, "--expect-statement", &self.identity, "--min-bits", "93"]))
+     }
+@@ -285,7 +303,7 @@
+         let (copy, pin) = self.copy_of(tables);
+         self.verify_full(copy, tables, out, pin)
+     }
+-    fn input_owner(&self, out: &Path, tables: &Path, content: &str) -> i32 {
++    pub(super) fn input_owner(&self, out: &Path, tables: &Path, content: &str) -> i32 {
+         let dec = self.owner_dir(out).join("input.dec");
+         let cf = self.content_file(content);
+         let (copy, pin) = self.copy_of(tables);
+@@ -396,8 +414,13 @@
+     assert_eq!(cc.prove_full(&out, &cc.tables, POLICY_RUNG_DEV, &ctl), 1, "a content control id is refused");
+     assert_eq!(classify_headers(), h0, "before any header");
+     assert!(!out.exists() && !cc.owner_dir(&out).exists(), "every claimed directory removed");
++    // round 14: a 22-id content is a legitimate SHORT item (one chunk of its
++    // length), but its activations are not the 23-id item's s0: refused by
++    // the sealing pass's parity, before any header
+     let short = cc.content.replacen("9,", "", 1);
+-    assert_eq!(cc.prove_full(&out, &cc.tables, POLICY_RUNG_DEV, &short), 1, "a content of the wrong length is refused (n is public: B-5)");
++    let h1 = classify_headers();
++    assert_eq!(cc.prove_full(&out, &cc.tables, POLICY_RUNG_DEV, &short), 1, "a short content with another item's activations is refused");
++    assert_eq!(classify_headers(), h1, "before any header");
+     assert_eq!(cc.prove(&out, &cc.tables), 0);
+     assert_eq!(cc.prove(&out, &cc.tables), 1, "a prove into an existing directory is refused");
+     eprintln!("TOKEN-IO R-C1 CLI | refused: --content (exit 2), unknown policy, content control id (before any header), wrong length, existing directory");

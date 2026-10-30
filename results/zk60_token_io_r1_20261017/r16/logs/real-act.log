@@ -1,0 +1,242 @@
+warning: unused doc comment
+   --> src/private_block/token_io/run.rs:737:1
+    |
+737 | / /// **THE TOKEN-I/O RUN PROVER.** One transcript, one OS stream, `L + 2`
+738 | | /// segments, each handed to `sink` and dropped (M-3); block `k` asked for
+739 | | /// at its own stage (R3 streaming).
+740 | | ///
+...   |
+749 | | /// it receives as UNPUBLISHED until this function returns `Ok` (the CLI's
+750 | | /// sink writes `<out>.incomplete/` and renames it only then).
+    | |_-------------------------------------------------------------^
+    |   |
+    |   rustdoc does not generate documentation for macro invocations
+    |
+    = help: to document an item produced by a macro, the macro must produce the documentation as part of its expansion
+    = note: `#[warn(unused_doc_comments)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `verify_inner_at`
+  --> src/private_block/review_tests.rs:16:39
+   |
+16 | use super::protocol::{prove_inner_at, verify_inner_at};
+   |                                       ^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Dom`
+  --> src/private_block/s28_review_tests.rs:19:21
+   |
+19 | use super::layout::{Dom, Layout, U8_LEN};
+   |                     ^^^
+
+warning: unused import: `eval_mle_ext`
+   --> src/attention.rs:787:42
+    |
+787 | use crate::mle::{eq_point, eq_table_msb, eval_mle_ext};
+    |                                          ^^^^^^^^^^^^
+
+warning: unused variable: `ls`
+   --> src/private_block/argument_accuracy.rs:149:9
+    |
+149 |     let(ls,lp)=(sh.limbs_sigma_s(),sh.limbs_p());
+    |         ^^ help: if this is intentional, prefix it with an underscore: `_ls`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `lp`
+   --> src/private_block/argument_accuracy.rs:149:12
+    |
+149 |     let(ls,lp)=(sh.limbs_sigma_s(),sh.limbs_p());
+    |            ^^ help: if this is intentional, prefix it with an underscore: `_lp`
+
+warning: unused variable: `n_pad`
+   --> src/private_block/argument_accuracy.rs:152:9
+    |
+152 |     let n_pad=usize::from(pad_on);let cube=1usize<<sh.slots()[SC_SZC].0;
+    |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_n_pad`
+
+warning: unused variable: `low`
+   --> src/private_block/argument_accuracy.rs:332:9
+    |
+332 |     let low=ids.accuracy()?;let precision=sh.accuracy_precision()?;
+    |         ^^^ help: if this is intentional, prefix it with an underscore: `_low`
+
+warning: unused variable: `precision`
+   --> src/private_block/argument_accuracy.rs:332:33
+    |
+332 |     let low=ids.accuracy()?;let precision=sh.accuracy_precision()?;
+    |                                 ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_precision`
+
+warning: unused variable: `g_exp`
+   --> src/private_block/argument_accuracy.rs:333:25
+    |
+333 |     let(alpha,beta,g_u8,g_exp)=(ctx.alpha,ctx.beta,ctx.g_u8,ctx.g_exp);
+    |                         ^^^^^ help: if this is intentional, prefix it with an underscore: `_g_exp`
+
+warning: unused variable: `n_pad`
+   --> src/private_block/argument_accuracy.rs:337:9
+    |
+337 |     let n_pad=usize::from(pad_on);let cube=1usize<<sh.slots()[SC_DD].0;
+    |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_n_pad`
+
+warning: unused variable: `cube`
+   --> src/private_block/argument_accuracy.rs:337:39
+    |
+337 |     let n_pad=usize::from(pad_on);let cube=1usize<<sh.slots()[SC_DD].0;
+    |                                       ^^^^ help: if this is intentional, prefix it with an underscore: `_cube`
+
+warning: variable does not need to be mutable
+    --> src/private_block/run.rs:1308:13
+     |
+1308 |         let mut tr = st.transcript()?;
+     |             ----^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:302:18
+    |
+302 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1046:13
+     |
+1046 |         let mut cls_plane = |al: &mut Alloc, cls: Cls, log: u32| -> ClsPlane {
+     |             ----^^^^^^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:1086:13
+     |
+1086 |         let mut pair = |hl: &mut Alloc, n: usize, log: u32| -> Vec<(usize, usize)> {
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2025:9
+     |
+2025 |     let mut push_cls = |o: &mut Vec<usize>, t: &mut Vec<Tbl>, cp: &ClsPlane| {
+     |         ----^^^^^^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2077:9
+     |
+2077 |     let mut put = |h: &mut Vec<Fp>, (re, im): (usize, usize), col: Vec<Fp2>| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: variable does not need to be mutable
+    --> src/attention.rs:2859:9
+     |
+2859 |     let mut lap = |n: &str, timings: &mut Vec<(String, f64)>, tick: &mut Instant| {
+     |         ----^^^
+     |         |
+     |         help: remove this `mut`
+
+warning: method `slot` is never used
+   --> src/private_block/timing.rs:259:19
+    |
+216 | impl Phases {
+    | ----------- method in this implementation
+...
+259 |     pub(crate) fn slot(&mut self, s: usize, size: u64, unit: &'static str) {
+    |                   ^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `constants_of` is never used
+   --> src/private_block/trained_block.rs:454:4
+    |
+454 | fn constants_of(c:&J,what:&str,rope_pin:f64)->Result<Constants,String> {
+    |    ^^^^^^^^^^^^
+
+warning: function `table_keys_of` is never used
+   --> src/private_block/trained_block.rs:652:4
+    |
+652 | fn table_keys_of(c:&J,what:&str)->Result<TableKeys,String> {
+    |    ^^^^^^^^^^^^^
+
+warning: method `is_dd` is never used
+   --> src/private_block/trained_block.rs:759:19
+    |
+708 | impl Geometry {
+    | ------------- method in this implementation
+...
+759 |     pub(crate) fn is_dd(self) -> bool {
+    |                   ^^^^^
+
+warning: field `boundaries` is never read
+   --> src/private_block/run_capture.rs:837:5
+    |
+830 | struct Rec {
+    |        --- field in this struct
+...
+837 |     boundaries: Vec<Vec<u8>>,
+    |     ^^^^^^^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib test) generated 26 warnings (run `cargo fix --lib -p hashline --tests` to apply 18 suggestions)
+    Finished `release` profile [optimized] target(s) in 0.04s
+     Running unittests src/lib.rs (ops/zkp-mvp/token-io-r16/hashline/target/release/deps/hashline-4e9297c357ac990f)
+
+running 1 test
+R16-ACT | loaded 26 layers, profile hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/1, 28.1 s
+R16-ACT | item 0: n 35, 32.4 s
+R16-ACT | item 1: n 35, 36.5 s
+R16-ACT | item 2: n 35, 40.7 s
+R16-ACT | layer 0 (G Some(19)) done for 3 items, 48.6 s
+R16-ACT | layer 1 (G Some(19)) done for 3 items, 57.1 s
+test private_block::token_io::classify_r16_tests::r16_write_item_activations has been running for over 60 seconds
+R16-ACT | layer 2 (G Some(18)) done for 3 items, 65.7 s
+R16-ACT | layer 3 (G Some(20)) done for 3 items, 74.0 s
+R16-ACT | layer 4 (G Some(20)) done for 3 items, 82.1 s
+R16-ACT | layer 5 (G Some(20)) done for 3 items, 90.5 s
+R16-ACT | layer 6 (G Some(20)) done for 3 items, 99.0 s
+R16-ACT | layer 7 (G Some(20)) done for 3 items, 107.3 s
+R16-ACT | layer 8 (G Some(20)) done for 3 items, 115.4 s
+R16-ACT | layer 9 (G Some(20)) done for 3 items, 123.9 s
+R16-ACT | layer 10 (G Some(19)) done for 3 items, 132.3 s
+R16-ACT | layer 11 (G Some(20)) done for 3 items, 140.5 s
+R16-ACT | layer 12 (G Some(20)) done for 3 items, 148.6 s
+R16-ACT | layer 13 (G Some(20)) done for 3 items, 156.8 s
+R16-ACT | layer 14 (G Some(19)) done for 3 items, 165.0 s
+R16-ACT | layer 15 (G Some(20)) done for 3 items, 173.1 s
+R16-ACT | layer 16 (G Some(20)) done for 3 items, 181.6 s
+R16-ACT | layer 17 (G Some(20)) done for 3 items, 189.9 s
+R16-ACT | layer 18 (G Some(20)) done for 3 items, 198.0 s
+R16-ACT | layer 19 (G Some(20)) done for 3 items, 206.2 s
+R16-ACT | layer 20 (G Some(20)) done for 3 items, 214.3 s
+R16-ACT | layer 21 (G Some(20)) done for 3 items, 222.3 s
+R16-ACT | layer 22 (G Some(20)) done for 3 items, 230.3 s
+R16-ACT | layer 23 (G Some(19)) done for 3 items, 238.3 s
+R16-ACT | layer 24 (G Some(19)) done for 3 items, 246.5 s
+R16-ACT | layer 25 (G Some(19)) done for 3 items, 254.6 s
+R16-ACT | 3 items x 26 layers written in 254.6 s
+test private_block::token_io::classify_r16_tests::r16_write_item_activations ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 856 filtered out; finished in 254.64s
+

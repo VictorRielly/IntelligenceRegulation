@@ -567,6 +567,11 @@ _tl_merge2(MASK_LAYER_PINS, _TK7_MLP, "MASK_LAYER_PINS")
 from zk60_native_rg_tinyllama_r9_pins import (  # noqa: E402
     MASK_LAYER_PINS as _R9_MLP)
 _tl_merge2(MASK_LAYER_PINS, _R9_MLP, "MASK_LAYER_PINS")
+# [v21, gate round 18] native R12 / R12b: argument.rs, shape.rs
+# (`zk60_native_rg_tinyllama_r12b_pins`)
+from zk60_native_rg_tinyllama_r12b_pins import (  # noqa: E402
+    MASK_LAYER_PINS as _R12B_MLP)
+_tl_merge2(MASK_LAYER_PINS, _R12B_MLP, "MASK_LAYER_PINS")
 
 # Files the mask port transcribes that NO bundle pins, so that nothing in
 # this module can check them.  The digests were read at the capture commits

@@ -1,0 +1,9 @@
+{
+  "utc": "2026-10-28T22:16:04.926342+00:00",
+  "suite": "s3",
+  "tests": 31,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "scope": "private candidate only; live guard unchanged"
+}

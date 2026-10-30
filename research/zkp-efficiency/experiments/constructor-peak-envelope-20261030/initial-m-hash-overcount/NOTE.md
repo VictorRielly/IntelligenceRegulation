@@ -1,0 +1,1 @@
+Self-review correction before finalization: M_hash incorrectly included the future full Merkle tree while hashing leaves. The final model subtracts that not-yet-allocated tree. M_tree and final SC_SZC totals were unchanged; original PASS lacked an independent phase-specific M hash assertion. Retained for evidence. This was a local accounting error, not a production failure.

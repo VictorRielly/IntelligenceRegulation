@@ -1,0 +1,22 @@
+[
+  {
+    "path": "experiments/periodic-sc-tab-20261028/result.json",
+    "status": "PASS_SYNTHETIC_SC_TAB_ONLY",
+    "entries": null
+  },
+  {
+    "path": "experiments/periodic-sc-tab-20261028/audit-result.json",
+    "status": "PASS_SOURCE_AND_COST_ONLY",
+    "entries": null
+  },
+  {
+    "path": "experiments/periodic-sc-tab-20261028/artifact-audit-result.json",
+    "status": "PASS_FINAL_EVIDENCE_AUDIT",
+    "entries": null
+  },
+  {
+    "path": "experiments/periodic-sc-tab-20261028/hypotheses.json",
+    "status": "hypotheses",
+    "entries": 42
+  }
+]

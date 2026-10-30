@@ -1,0 +1,122 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/zkp-core/src/sumcheck/grouped.rs",
+    "snapshot": "experiments/dd-group-scaffold-cost-20261030/native/0-grouped.rs",
+    "sha256": "7777a19c8db97694c51e66c78d1a7688573158bddaa7fcb370345ebd14ab669b",
+    "bytes": 7903
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/zkp-core/src/sumcheck/rounds.rs",
+    "snapshot": "experiments/dd-group-scaffold-cost-20261030/native/1-rounds.rs",
+    "sha256": "c60520596e6d855687e0a225850850c12bd15b8741522de69a624f0db8a003df",
+    "bytes": 7092
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/zkp-core/src/mle.rs",
+    "snapshot": "experiments/dd-group-scaffold-cost-20261030/native/2-mle.rs",
+    "sha256": "b20c8b75c9246471fe1cc395122558eba715f66d9efe1dc4cd5be1750f2e542e",
+    "bytes": 15255
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/zkp-core/src/field.rs",
+    "snapshot": "experiments/dd-group-scaffold-cost-20261030/native/3-field.rs",
+    "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+    "bytes": 11065
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/argument.rs",
+    "snapshot": "experiments/dd-group-scaffold-cost-20261030/native/4-argument.rs",
+    "sha256": "c4f9f9f4cb477346b03e9f769d7c3141a8529f096d08da2be6c415d5160a5e66",
+    "bytes": 111325
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/shape.rs",
+    "snapshot": "experiments/dd-group-scaffold-cost-20261030/native/5-shape.rs",
+    "sha256": "9a87081897ff0ec716d7f27a2813cc32117683eb5b2f2082a248f479ef98c4c5",
+    "bytes": 139369
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b/hashline/src/private_block/layout.rs",
+    "snapshot": "experiments/dd-group-scaffold-cost-20261030/native/6-layout.rs",
+    "sha256": "9332802e597beacab56cfa69cfe18325bc476d2ce6485f517051992b26d26efa",
+    "bytes": 74733
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/final-census-1/ACCEPTANCE.json",
+    "snapshot": "experiments/dd-group-scaffold-cost-20261030/native/7-ACCEPTANCE.json",
+    "sha256": "cc30e1a075359584188d528847c5b41488f69628cc1d8aa9670586bf06bee424",
+    "bytes": 57359
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/final-working-tree/hashline/src/private_block/argument.rs",
+    "snapshot": "experiments/dd-group-scaffold-cost-20261030/native/8-argument.rs",
+    "sha256": "d0b93cd99c0706fb44caa86d0083aa1b27d01de68f3019c08b7649f245d85cf8",
+    "bytes": 116652
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/final-working-tree/zkp-core/src/sumcheck/grouped.rs",
+    "snapshot": "experiments/dd-group-scaffold-cost-20261030/native/9-grouped.rs",
+    "sha256": "7777a19c8db97694c51e66c78d1a7688573158bddaa7fcb370345ebd14ab669b",
+    "bytes": 7903
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/dd-calibration-boundaries-20261030/fixtures.json",
+    "sha256": "d7ce75b208a0e86d3222335f0110c9d6c85ebe32d317b5f04f4754262d1737f1",
+    "bytes": 505078
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/dd-calibration-boundaries-20261030/costs.json",
+    "sha256": "3612cb44e1334afbaa00756aeffbec26016bdb66e30719cf850f58c6a9b0b6b3",
+    "bytes": 1258
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/dd-calibration-boundaries-20261030/result.json",
+    "sha256": "ee7697c3be000fbcef1ec92da1831e89699da21e387feb946368e55d70282c3d",
+    "bytes": 922
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/dd-calibration-boundaries-20261030/candidate.py",
+    "sha256": "a5d6041dd936210ad868fa320891a77a5438d962727548a7997879168a940ee8",
+    "bytes": 4338
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/dd-calibration-boundaries-20261030/oracle.py",
+    "sha256": "a1c639a63dcc7175b9567dcc4e52ae71bb66a5c5e88ae18f77682adc335f2d58",
+    "bytes": 2382
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/dd-calibration-boundaries-20261030/audit.py",
+    "sha256": "6986bb4fd4daf1e444d847832dfe825b90496e0c0bce0a46e1b874870a99140a",
+    "bytes": 6388
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/final-working-tree/hashline/src/private_block/argument_accuracy.rs",
+    "snapshot": "experiments/dd-group-scaffold-cost-20261030/native/r14-argument_accuracy.rs",
+    "sha256": "76243d8562f55e281603f62530a3a9172a11c6f37ca4ba1cb6066811daa2883a",
+    "bytes": 42609
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/final-working-tree/hashline/src/private_block/accuracy_precision.rs",
+    "snapshot": "experiments/dd-group-scaffold-cost-20261030/native/r14-accuracy_precision.rs",
+    "sha256": "145c1e0f66ea5aad558148aa7885b4fcaaf74c6145893cc1efd10f7a77eee56b",
+    "bytes": 6302
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/final-working-tree/hashline/src/private_block/accuracy_layout.rs",
+    "snapshot": "experiments/dd-group-scaffold-cost-20261030/native/r14-accuracy_layout.rs",
+    "sha256": "37a3e3458e4961ddaab98440de114e575da3af21f7d872b532cb71a04ac788d3",
+    "bytes": 9081
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/final-working-tree/hashline/src/private_block/argument_split.rs",
+    "snapshot": "experiments/dd-group-scaffold-cost-20261030/native/r14-argument_split.rs",
+    "sha256": "50bcc0b870817f1961b497699d3d161eff6e031e7a4e10225a481eea3e719fb6",
+    "bytes": 18152
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/final-working-tree/hashline/src/private_block/split_definition_tests.rs",
+    "snapshot": "experiments/dd-group-scaffold-cost-20261030/native/r14-split_definition_tests.rs",
+    "sha256": "e11fe92e79f3dd470b522af2d24f0a23ddced981fe08dc89ae840c8c88f3e0c8",
+    "bytes": 22445
+  }
+]

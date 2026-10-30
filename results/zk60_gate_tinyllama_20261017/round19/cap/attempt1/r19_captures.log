@@ -1,0 +1,28 @@
+[zk60-guard 04:15:54] START gate19-build-tests class=build need=2.7G cap=3.5G enforce=cgroup+watchdog waited=0s run=178e772fa039
+[zk60-guard 04:19:04] END gate19-build-tests exit=0 child_wall=190s peak_rss=2.32G min_avail=11.68G
+[zk60-guard 04:19:04] START gate19-cap-classify-r13-rung-L2-v1 class=cpu need=1.2G cap=2.5G enforce=cgroup+watchdog waited=0s run=ce9141b4651f
+[zk60-guard 04:19:04] END gate19-cap-classify-r13-rung-L2-v1 exit=101 child_wall=0s peak_rss=0.00G min_avail=13.84G
+[zk60-guard 04:19:04] START gate19-cap-classify-r13-rung-L2-v0 class=cpu need=1.2G cap=2.5G enforce=cgroup+watchdog waited=0s run=e57e7e8faa5f
+[zk60-guard 04:19:04] END gate19-cap-classify-r13-rung-L2-v0 exit=101 child_wall=0s peak_rss=0.00G min_avail=13.85G
+[zk60-guard 04:19:05] START gate19-cap-classify-r13-rung-L2-vtie class=cpu need=1.2G cap=2.5G enforce=cgroup+watchdog waited=0s run=34c48c5978ab
+[zk60-guard 04:19:05] END gate19-cap-classify-r13-rung-L2-vtie exit=101 child_wall=0s peak_rss=0.00G min_avail=13.85G
+[zk60-guard 04:19:05] START gate19-cap-classify-r13-rung-L1-v1 class=cpu need=1.2G cap=2.5G enforce=cgroup+watchdog waited=0s run=785f0a25cee1
+[zk60-guard 04:19:05] END gate19-cap-classify-r13-rung-L1-v1 exit=101 child_wall=0s peak_rss=0.00G min_avail=13.83G
+[zk60-guard 04:19:05] START gate19-cap-classify-r13-rung-L2-v1-chunk0o27 class=cpu need=1.2G cap=2.5G enforce=cgroup+watchdog waited=0s run=ea177b84b768
+[zk60-guard 04:19:05] END gate19-cap-classify-r13-rung-L2-v1-chunk0o27 exit=101 child_wall=0s peak_rss=0.00G min_avail=13.83G
+[zk60-guard 04:19:05] START gate19-cap-classify-r13-rung-L2-v1-chunk1o27 class=cpu need=1.2G cap=2.5G enforce=cgroup+watchdog waited=0s run=266b226306eb
+[zk60-guard 04:19:05] END gate19-cap-classify-r13-rung-L2-v1-chunk1o27 exit=101 child_wall=0s peak_rss=0.00G min_avail=13.83G
+[zk60-guard 04:19:05] START gate19-cap-classify-r13-rung-L2-v0-short1 class=cpu need=1.2G cap=2.5G enforce=cgroup+watchdog waited=0s run=f2a35b695db5
+[zk60-guard 04:19:06] END gate19-cap-classify-r13-rung-L2-v0-short1 exit=101 child_wall=0s peak_rss=0.00G min_avail=13.81G
+[zk60-guard 04:19:06] START gate19-cap-classify-r13-rung-L2-v1-short1 class=cpu need=1.2G cap=2.5G enforce=cgroup+watchdog waited=0s run=5f17469ca7ab
+[zk60-guard 04:19:06] END gate19-cap-classify-r13-rung-L2-v1-short1 exit=101 child_wall=0s peak_rss=0.00G min_avail=13.83G
+[zk60-guard 04:19:06] START gate19-cap-classify-r13-rung-L2-vtie-short1 class=cpu need=1.2G cap=2.5G enforce=cgroup+watchdog waited=0s run=3254ac15335e
+[zk60-guard 04:19:06] END gate19-cap-classify-r13-rung-L2-vtie-short1 exit=101 child_wall=0s peak_rss=0.00G min_avail=13.83G
+[zk60-guard 04:19:06] START gate19-cap-classify-r13-rung-L2-v0-short11 class=cpu need=1.2G cap=2.5G enforce=cgroup+watchdog waited=0s run=73b19af736f7
+[zk60-guard 04:19:06] END gate19-cap-classify-r13-rung-L2-v0-short11 exit=101 child_wall=0s peak_rss=0.00G min_avail=13.84G
+[zk60-guard 04:19:06] START gate19-cap-classify-r13-rung-L2-v1-short11 class=cpu need=1.2G cap=2.5G enforce=cgroup+watchdog waited=0s run=dc62d5d39719
+[zk60-guard 04:19:07] END gate19-cap-classify-r13-rung-L2-v1-short11 exit=101 child_wall=0s peak_rss=0.00G min_avail=13.85G
+[zk60-guard 04:19:07] START gate19-cap-classify-r13-rung-L2-vtie-short11 class=cpu need=1.2G cap=2.5G enforce=cgroup+watchdog waited=0s run=c888e8cc0edf
+[zk60-guard 04:19:07] END gate19-cap-classify-r13-rung-L2-vtie-short11 exit=101 child_wall=0s peak_rss=0.00G min_avail=13.84G
+[zk60-guard 04:19:07] START gate19-cap-classify-r13-rung-L2-v1-short22 class=cpu need=1.2G cap=2.5G enforce=cgroup+watchdog waited=0s run=570569c19e82
+[zk60-guard 04:19:07] END gate19-cap-classify-r13-rung-L2-v1-short22 exit=101 child_wall=0s peak_rss=0.00G min_avail=13.80G

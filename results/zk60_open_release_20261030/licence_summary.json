@@ -1,0 +1,156 @@
+{
+ "generated_utc": "2026-10-30T06:03:55Z",
+ "lockfiles": {
+  "hashline (r16b)": "results/zk60_token_io_r1_20261017/frozen-r16b/hashline/Cargo.lock",
+  "zkp-core (r16b)": "results/zk60_token_io_r1_20261017/frozen-r16b/zkp-core/Cargo.lock",
+  "private-block-kernel-shaped (r16b)": "results/zk60_token_io_r1_20261017/frozen-r16b/private-block-kernel-shaped/Cargo.lock",
+  "private-block-kernel": "private-block-kernel/Cargo.lock",
+  "private-model-kernel": "private-model-kernel/Cargo.lock",
+  "zkmatrix-rs": "zkmatrix-rs/Cargo.lock",
+  "zkvm-block": "zkvm-block/Cargo.lock",
+  "zkvm-block guest": "zkvm-block/methods/guest/Cargo.lock",
+  "zkvm-model": "zkvm-model/Cargo.lock",
+  "zkvm-model guest": "zkvm-model/methods/guest/Cargo.lock",
+  "zkvm-native-tools": "zkvm-native-tools/Cargo.lock"
+ },
+ "registry_dirs": [
+  "/home/victor/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f"
+ ],
+ "rust_crates_distinct": 371,
+ "rust_by_class": {
+  "permissive": 349,
+  "first-party": 20,
+  "unknown": 1,
+  "copyleft": 1
+ },
+ "rust_by_license": {
+  "MIT OR Apache-2.0": 190,
+  "MIT": 54,
+  "MIT/Apache-2.0": 29,
+  "Apache-2.0 OR MIT": 26,
+  "ours": 20,
+  "Apache-2.0": 19,
+  "Unlicense OR MIT": 8,
+  "Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT": 5,
+  "Zlib OR Apache-2.0 OR MIT": 3,
+  "BSD-3-Clause OR MIT OR Apache-2.0": 2,
+  "MIT OR Apache-2.0 OR LGPL-2.1-or-later": 2,
+  "(MIT OR Apache-2.0) AND Unicode-3.0": 2,
+  "BSD-2-Clause OR Apache-2.0 OR MIT": 2,
+  "CC0-1.0 OR Apache-2.0 OR Apache-2.0 WITH LLVM-exception": 1,
+  "CC0-1.0 OR MIT-0 OR Apache-2.0": 1,
+  "(Apache-2.0 OR MIT) AND BSD-3-Clause": 1,
+  "Apache-2.0 / MIT": 1,
+  "Zlib": 1,
+  "NOT-IN-LOCAL-REGISTRY": 1,
+  "ISC": 1,
+  "MPL-2.0": 1,
+  "BSD-3-Clause": 1
+ },
+ "rust_flagged": [
+  {
+   "crate": "hermit-abi",
+   "version": "0.5.2",
+   "license": "NOT-IN-LOCAL-REGISTRY",
+   "cls": "unknown",
+   "note": "",
+   "used_by": [
+    "zkmatrix-rs"
+   ]
+  },
+  {
+   "crate": "option-ext",
+   "version": "0.2.0",
+   "license": "MPL-2.0",
+   "cls": "copyleft",
+   "note": "",
+   "used_by": [
+    "zkvm-block",
+    "zkvm-model"
+   ]
+  }
+ ],
+ "risc0_crates": [
+  {
+   "crate": "risc0-binfmt",
+   "version": "3.0.5",
+   "license": "Apache-2.0"
+  },
+  {
+   "crate": "risc0-build",
+   "version": "3.0.6",
+   "license": "Apache-2.0"
+  },
+  {
+   "crate": "risc0-build-kernel",
+   "version": "2.0.1",
+   "license": "Apache-2.0"
+  },
+  {
+   "crate": "risc0-circuit-keccak",
+   "version": "4.0.6",
+   "license": "Apache-2.0"
+  },
+  {
+   "crate": "risc0-circuit-recursion",
+   "version": "4.0.5",
+   "license": "Apache-2.0"
+  },
+  {
+   "crate": "risc0-circuit-rv32im",
+   "version": "4.0.5",
+   "license": "Apache-2.0"
+  },
+  {
+   "crate": "risc0-core",
+   "version": "3.0.2",
+   "license": "Apache-2.0"
+  },
+  {
+   "crate": "risc0-groth16",
+   "version": "3.0.5",
+   "license": "Apache-2.0"
+  },
+  {
+   "crate": "risc0-sys",
+   "version": "1.5.0",
+   "license": "Apache-2.0"
+  },
+  {
+   "crate": "risc0-zkos-v1compat",
+   "version": "2.2.3",
+   "license": "Apache-2.0"
+  },
+  {
+   "crate": "risc0-zkp",
+   "version": "3.0.5",
+   "license": "Apache-2.0"
+  },
+  {
+   "crate": "risc0-zkvm",
+   "version": "3.0.6",
+   "license": "Apache-2.0"
+  },
+  {
+   "crate": "risc0-zkvm-platform",
+   "version": "2.2.3",
+   "license": "Apache-2.0"
+  }
+ ],
+ "python_packages": 67,
+ "python_flagged": [
+  {
+   "env": "app-venv",
+   "package": "certifi",
+   "version": "2025.8.3",
+   "license": "MPL-2.0"
+  },
+  {
+   "env": "app-venv",
+   "package": "pycountry",
+   "version": "26.2.16",
+   "license": "LGPL-2.1-only"
+  }
+ ],
+ "note": "Dependencies are not vendored into the public tree (Cargo / pip fetch them), so their licences bind redistributors of binaries, not the source release itself."
+}

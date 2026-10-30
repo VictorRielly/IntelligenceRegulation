@@ -1,0 +1,20 @@
+
+running 1 test
+test private_block::accuracy_proof_tests::accuracy_all_new_limb_and_unused_dictionary_mutations_reach_verification ... R13 scoped receipt r13-h24-wide DD=true attack=Some(Byte(Ym, 1)): bytes16674904
+R13 scoped receipt r13-h24-wide DD=true attack=Some(Byte(Q, 1)): bytes16674904
+R13 scoped receipt r13-h24-wide DD=true attack=Some(Byte(K, 1)): bytes16674904
+R13 scoped receipt r13-h24-wide DD=true attack=Some(Byte(V, 1)): bytes16674904
+R13 scoped receipt r13-h24-wide DD=true attack=Some(Byte(O, 1)): bytes16674904
+R13 scoped receipt r13-h24-wide DD=true attack=Some(Byte(Rao, 2)): bytes16674904
+R13 scoped receipt r13-h24-wide DD=true attack=Some(Byte(Rs, 2)): bytes16674904
+R13 scoped receipt r13-h24-wide DD=true attack=Some(Byte(Rg, 2)): bytes16674904
+R13 scoped receipt r13-h24-wide DD=true attack=Some(Byte(Up, 1)): bytes16674904
+R13 scoped receipt r13-h24-wide DD=true attack=Some(Byte(H, 2)): bytes16674904
+R13 scoped receipt r13-h24-wide DD=true attack=Some(Byte(Rh, 1)): bytes16674904
+R13 scoped receipt r13-h24-wide DD=true attack=Some(Byte(Rd, 2)): bytes16674904
+R13 scoped receipt r13-h24-wide DD=true attack=Some(DdUnused): bytes16674904
+R13 scoped receipt r13-h24-wide DD=true attack=Some(DdCounts): bytes16674904
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 717 filtered out; finished in 23.50s
+

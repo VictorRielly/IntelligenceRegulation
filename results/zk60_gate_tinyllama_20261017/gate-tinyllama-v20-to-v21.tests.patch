@@ -1,0 +1,168 @@
+diff -ruN -x __pycache__ frozen_v20/tests/test_v4_status_g10.py frozen_v21/tests/test_v4_status_g10.py
+--- frozen_v20/tests/test_v4_status_g10.py	2026-10-26 12:44:19.078831104 -0700
++++ frozen_v21/tests/test_v4_status_g10.py	2026-10-28 19:41:07.727380915 -0700
+@@ -1371,7 +1371,10 @@
+         for t in (128, 256, 512):
+             s = CL.ClassGeom(**CL.shieldstral(t))
+             self.assertEqual((s.window_bits, s.limbs, s.door_findings), (35, 5, []))
+-        bad = dict(CL.RUNG_RC1, n=22)
++        # [v21, R-C3] n = 22 is now a SHORT item (P0 + n + S <= T); the door
++        # refuses only P0 + n + S > T
++        self.assertEqual(CL.ClassGeom(**dict(CL.RUNG_RC1, n=22)).door_findings, [])
++        bad = dict(CL.RUNG_RC1, n=24)
+         self.assertTrue(CL.ClassGeom(**bad).door_findings)
+         src = os.path.join(self.TOKEN_IO, "stage_out_c.rs")
+         if os.path.isfile(src):
+@@ -1392,8 +1395,10 @@
+         r = CL.chunk_ranges(1000, 43, 4)
+         self.assertEqual((r[0], r[-1]), ((0, 43), (957, 1000)))
+         self.assertTrue(all(b - a == 43 for a, b in r))
++        # [v21, R-C3] a short content is ONE chunk of its length; empty is refused
++        self.assertEqual(CL.chunk_ranges(20, 23, 4), [(0, 20)])
+         with self.assertRaises(ValueError):
+-            CL.chunk_ranges(20, 23, 4)
++            CL.chunk_ranges(0, 23, 4)
+         plan = dict(total=27, size=23, overlap=4)
+ 
+         def ch(j, v=0, **kw):
+@@ -1409,6 +1414,11 @@
+             self.assertEqual(r2["label"], 1, name)
+             self.assertTrue(r2["fail_closed_reasons"], name)
+         self.assertEqual(CL.check_item_chunks([], total=20, size=23, overlap=4)["label"], 1)
++        # [v21] the short item's one chunk carries the label
++        short = dict(index=0, count=1, a=0, b=20, total=20, size=23, overlap=4, verdict=0, policy="p", model="m")
++        self.assertEqual(CL.check_item_chunks([short], total=20, size=23, overlap=4)["label"], 0)
++        self.assertEqual(CL.check_item_chunks([dict(short, verdict=1)], total=20, size=23, overlap=4)["label"], 1)
++        self.assertEqual(CL.check_item_chunks([dict(short, b=21)], total=20, size=23, overlap=4)["label"], 1)
+ 
+     def test_synthetic_relations_and_controls(self):
+         import zk60_native_rg_classterminals as CT
+@@ -1466,34 +1476,25 @@
+ 
+     @unittest.skipUnless(os.path.isdir(os.path.join(CAP, "classify-rung-L1-v1")), "the classifier rung capture is not on disk")
+     def test_reader_replay_terminals_and_controls(self):
++        """[v21] the R-C1 capture is now a NEGATIVE fixture: REVIEW_R13 N-r13-8
++        (R-C1 receipts support no classifier claim); v21's pin rule refuses it by
++        name (the classifier port read at r14; classify_tied.rs not pinned) and
++        no classifier slot is evaluated. Its replay still reproduces (the
++        transcript machinery is unchanged)."""
+         import zk60_native_rg_classgate as CG
+         import zk60_native_rg_classterminals as CT
+         b = CG.load(os.path.join(self.CAP, "classify-rung-L1-v1"))
+         i = CG.class_integrity(b)
+-        self.assertTrue(i["ok"], i["findings"])
++        self.assertFalse(i["ok"])
+         self.assertEqual(i["source_pins"]["pins"], 56)
++        self.assertIn("src/private_block/token_io/classify_tied.rs: not pinned (the v21 classifier port was read from it)",
++                      i["source_pins"]["refusals"])
+         rp = CG.ClassRunReplay(b).run()
+         self.assertTrue(rp.summary()["ok"], rp.summary()["failures"][:3])
+         tc = CT.check_classify_terminals(b, rp)
+-        self.assertTrue(tc["ok"], tc["findings"][:3])
+-        self.assertEqual((tc["slots_equal"], tc["slots_checked"]), (12, 12))
+-        self.assertTrue(tc["B3_margin_vector"]["ok"])
+-        self.assertEqual(tc["one_public_bit"]["taken_tables"], ["captured tau_tab_c", "margin vector w_Delta"])
+-        self.assertTrue(CT.nl1_classify_slots(b, rp)["ok"])
+-        # failing first: a flipped verdict breaks the binding and exactly LZC
+-        b2 = copy.copy(b)
+-        b2.run = copy.deepcopy(b.run)
+-        b2.run["classify"]["verdict"] = 1 - b.run["classify"]["verdict"]
+-        self.assertFalse(CG.ClassRunReplay(b2).run().summary()["run_binding_reproduced"])
+-        t1 = CT.check_classify_terminals(b, rp, facts_override={"verdict": 1 - b.run["classify"]["verdict"]})
+-        self.assertEqual(sorted({(r["stage"], r["slot"]) for r in t1["slots"] if not r["equal"]}), [("OUT-C", 4)])
+-        # [v20] the stage-line reader leaves a classifier run to the per-block shim
+-        import zk60_native_rg_stagecal as SC
+-        self.assertEqual(SC.stage_shapes(b.run)[0], [])
+-        r = CG.class_block_terminals(b, rp)
+-        self.assertTrue(r["ok"], [p["port_findings"] for p in r["per_stage"]])
+-        self.assertTrue(r["controls"]["NC-1_constant_moved"]["fires"])
+-        # and v19's reader refused any classifier capture
++        self.assertFalse(tc["ok"])
++        self.assertEqual(tc["slots_checked"], 0)
++        self.assertIn("source pins without a reading; no slot evaluated", tc["findings"])
+         import types
+         self.assertTrue(CT.check_classify_terminals(types.SimpleNamespace(manifest={"schema": "x"}))["ok"] is False)
+ 
+@@ -1507,3 +1508,82 @@
+         r = CG.d41_item_check([b])
+         self.assertEqual(r["label"], 1)
+         self.assertIn("chunks [0] have no accepted proof", r["fail_closed_reasons"])
++
++
++class ClassifierV21(unittest.TestCase):
++    """[v21, gate round 18] R-C2 / R-C3 on token frozen-r14: the tables
++    derived from the pinned tensor (B-3, the reviewer's reference digests),
++    the short-item geometry (pad, verdict row, plan size), the v21 pin rule,
++    and on the r14 captures the reader, replay, the 12 slots with every
++    public table rebuilt (none taken), and the C-13 short-item controls"""
++
++    CAP = "/home/victor/zk60-artifacts/token-io/captures"
++
++    def test_derived_tables_reproduce_the_references(self):
++        import zk60_native_rg_classterminals as CT
++        import zk60_native_rg_classtied as TD
++        d = TD.derive_dev(40, 41, 2.0 ** -8)
++        self.assertEqual(d["tensor_sha256"], TD.DEV_TIED_TENSOR_SHA256)
++        self.assertEqual(d["emb_sha256"], TD.REF_EMB_SHA256)          # REVIEW_R13 §5
++        self.assertEqual(d["w_sha256"], TD.REF_DEV_MARGIN_SHA256)      # REVIEW_R13 §5
++        self.assertEqual(d["w"][:8], [740, -6269, -463, 1445, -12, 36, -43, -2606])
++        # the BLAKE3 statement digests the r14 rung profile text carries
++        self.assertEqual(CT.w_digest(384, d["w"]), "40f3fe498402edec315cfc92bec67365b3c0784bfe72b47040043ecbfe1095fd")
++        self.assertEqual(TD.emb_digest(300, 384, d["emb"]), "a8d55fc067234ea1f587e3668e000096c803abc8d4f75838798b482efa4fa60b")
++        # the swapped policy's row: w + w' in {0, 1} (the reviewer's check)
++        e = TD.derive_dev(41, 40, 2.0 ** -8)
++        self.assertTrue(all(a + b in (0, 1) for a, b in zip(d["w"], e["w"])))
++        with self.assertRaises(ValueError):
++            TD.quantize([1.0], 2.0 ** -20, -32767, 32767)              # refused, never clipped
++
++    def test_short_item_geometry(self):
++        import zk60_native_rg_classify as CL
++        g = CL.ClassGeom(**dict(CL.RUNG_RC1, n=20))
++        self.assertEqual(g.door_findings, [])
++        self.assertEqual((g.item_len(), g.pad_positions(), g.verdict_row(), g.plan_size(), g.is_short()), (29, 3, 28, 23, True))
++        pre, suf = list(range(1, 9)), [32]
++        self.assertEqual([g.kappa(t, pre, suf) for t in range(26, 32)], [0, 0, 32, 2, 2, 2])
++        self.assertTrue(all(g.is_template(t) for t in range(28, 32)))
++        full = CL.ClassGeom(**CL.RUNG_RC1)
++        self.assertEqual((full.item_len(), full.pad_positions(), full.verdict_row(), full.is_short()), (32, 0, 31, False))
++        self.assertEqual(full.kappa(31, pre, suf), 32)
++        self.assertTrue(CL.ClassGeom(**dict(CL.RUNG_RC1, pad=300)).door_findings)
++
++    @unittest.skipUnless(os.path.isdir(os.path.join(CAP, "classify-rc3-rung-L2-v1-short20")), "the r14 short-item capture is not on disk")
++    def test_short_item_capture_end_to_end(self):
++        import zk60_native_rg_classgate as CG
++        import zk60_native_rg_classterminals as CT
++        b = CG.load(os.path.join(self.CAP, "classify-rc3-rung-L2-v1-short20"))
++        self.assertEqual(b.shape_slot_note["extra_zero_slot_triples_stripped"], 1)   # F18-1
++        i = CG.class_integrity(b)
++        self.assertTrue(i["ok"], i["findings"][:4])
++        self.assertEqual(i["source_pins"]["pins"], 60)
++        self.assertEqual(i["bout_claim_row"]["row"], 28)
++        self.assertEqual(i["rc3_lengths_re_derived"]["pad_positions"], 3)
++        rp = CG.ClassRunReplay(b).run()
++        self.assertTrue(rp.summary()["ok"])
++        tc = CT.check_classify_terminals(b, rp)
++        self.assertTrue(tc["ok"], tc["findings"][:3])
++        self.assertEqual((tc["slots_equal"], tc["public_tables_taken"]), (12, 0))
++        self.assertEqual(tc["one_public_bit"]["taken_tables"], [])
++        self.assertTrue(tc["B3_margin_vector"]["ok"])
++        c = CG.c13_controls(b, rp)
++        for k in ("C13-1_doctored_pad_position", "C13-2_pad_inside_the_content_range",
++                  "C13-3_shifted_verdict_row", "C13-4_declared_length_not_the_actual"):
++            self.assertTrue(c[k]["fires"], (k, c[k]))
++
++    @unittest.skipUnless(os.path.isdir(os.path.join(CAP, "classify-rc3-cli-p18-r14")), "the P-18 r14 capture is not on disk")
++    def test_the_p18_capture_pins_and_a_full_item(self):
++        import zk60_native_rg_classgate as CG
++        import zk60_native_rg_classpins as CP
++        b = CG.load(os.path.join(self.CAP, "classify-rc3-cli-p18-r14"))
++        r = CP.classify_capture_pins(b.manifest)
++        self.assertTrue(r["ok"], r["refusals"][:4])
++        ported = {x["file"] for x in r["per_file"] if x["status"] == "the v21 classifier port's digest"}
++        self.assertEqual(ported, set(CP.CLASSIFY_PORTED_FROM_V21))
++        i = CG.class_integrity(b)
++        self.assertTrue(i["ok"], i["findings"][:4])
++        self.assertEqual((i["bout_claim_row"]["row"], i["rc3_lengths_re_derived"]["pad_positions"]), (31, 0))
++        c = CG.c13_controls(b, CG.ClassRunReplay(b).run())
++        self.assertIsNone(c["C13-1_doctored_pad_position"]["fires"])          # no pad position
++        self.assertTrue(c["C13-3_shifted_verdict_row"]["fires"])

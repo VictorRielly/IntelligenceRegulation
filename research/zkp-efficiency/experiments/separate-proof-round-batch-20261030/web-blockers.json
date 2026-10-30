@@ -1,0 +1,32 @@
+[
+  {
+    "url": "https://eprint.iacr.org/2024/1862.pdf",
+    "error": "403 Forbidden",
+    "effect": "No new PDF inspection; landing-page claim only."
+  },
+  {
+    "url": "https://developer.nvidia.com/blog/constructing-cuda-graphs-with-dynamic-parameters/",
+    "error": "(400) Timeout fetching",
+    "effect": "Used current official CUDA graph guide and already-readable older blog; no bypass."
+  },
+  {
+    "url": "https://github.com/ingonyama-zk/icicle/pull/946",
+    "error": "Cache miss",
+    "effect": "Release-note metadata only; no implementation inspection."
+  },
+  {
+    "url": "https://github.com/ingonyama-zk/icicle/tree/6c77775",
+    "error": "Cache miss",
+    "effect": "Abbreviated inspected commit only; full SHA not established."
+  },
+  {
+    "url": "https://github.com/AbdelStark/tessera/issues/470",
+    "error": "Cache miss",
+    "effect": "Unassessed search lead; no technical claim used."
+  },
+  {
+    "url": "https://github.com/NVlabs/mirage",
+    "error": "Cache miss",
+    "effect": "Unassessed search lead; no technical claim used."
+  }
+]

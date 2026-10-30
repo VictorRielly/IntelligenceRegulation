@@ -1,0 +1,9 @@
+
+running 1 test
+test private_block::argument::split_attack_tests::split_run_t128_relation_regression_receipt_from_env ... R14_RELATION_MUTATION case=limb-v-whole parent=68 domain=Kv global_index=0 old=128 new=129
+R14_ATTACK_REFUSAL limb-v-whole: slot 21 [R14 05 KV zero-check (hosts 09K, 09V) Whole]: sumcheck round 0: s(0) + s(1) != claim
+R14_MALICIOUS_RECEIPT {"case":"limb-v-whole","dd":true,"bytes":35110696,"expected_accept":false,"canonical_frame_decoded":true,"native_verifier_used":true}
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 758 filtered out; finished in 13.40s
+

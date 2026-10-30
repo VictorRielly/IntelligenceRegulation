@@ -1,0 +1,19 @@
+{
+  "status": "PASS",
+  "checks": 16972,
+  "literal_address_trace_cases": 36,
+  "registry_rows": 144,
+  "geometries": 36,
+  "elapsed_s": 0.10729196899774252,
+  "max_rss_kib": 16096,
+  "diagnostic_faster_rows": 21,
+  "diagnostic_rows": 36,
+  "end_to_end_ceiling": "N/(T-C_removed_exclusive+A_added); if fraction f could be deleted freely, speedup <=1/(1-f). No exclusive map phase fraction measured.",
+  "model_context": null,
+  "model_passes": 0,
+  "proved_positions": 0,
+  "startup_fraction": null,
+  "steady_tokens_per_s": null,
+  "total_tokens_per_s": null,
+  "gpu": false
+}

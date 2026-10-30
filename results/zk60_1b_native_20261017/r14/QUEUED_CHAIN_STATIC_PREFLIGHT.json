@@ -1,0 +1,18 @@
+{
+  "utc": "2026-10-29T19:14:14.315989+00:00",
+  "scope": "Static preparation only; no new native compile/proof/capture/privacy acceptance",
+  "candidate_source": "7152ef1a269b2aca5b0ec7ee507a8591db46225466653aaa3113789bfce24262",
+  "capture_source": "3c7b1dcfd47ba8cb257c6f734348f25fb960af3f25f8b1b14ea4e262ff8defda",
+  "source_manifest_consistency": "PASS both held trees",
+  "python_syntax": "PASS seven pinned pipeline modules",
+  "rust_syntax": "rustfmt parsed draft and modified Rust modules; type-check pending",
+  "regression_cases": 50,
+  "limb_cases_per_variant": 21,
+  "source_edits_held": true,
+  "live_original_handles": [
+    47150,
+    24662,
+    48014
+  ],
+  "native_results_added_this_continuation": 0
+}

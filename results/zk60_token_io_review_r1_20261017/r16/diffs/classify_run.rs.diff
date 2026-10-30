@@ -1,0 +1,32 @@
+--- results/zk60_token_io_r1_20261017/frozen-r15/hashline/src/private_block/token_io/classify_run.rs	2026-10-28 21:51:01.781906119 -0700
++++ results/zk60_token_io_r1_20261017/frozen-r16/hashline/src/private_block/token_io/classify_run.rs	2026-10-29 02:29:32.234246828 -0700
+@@ -241,6 +241,18 @@
+     protocol::fits_the_ntt_tables(sh)?;
+     // N-r13-1: the tables are bound to the statement's trained statement and are its own
+     st.check_tables(tables)?;
++    // ROUND 16 (REVIEW_R13 §10 item 4, native R13's `fit_the_stages`): at an
++    // R13 profile every block is checked against ITS OWN stage shape (its
++    // layer's gate denominator), and is the statement's, before the run header
++    // exists — never against the run seed's shape. A streaming source reloads
++    // each block once more for it. Legacy profiles keep the per-stage check
++    // below only (their bytes and costs do not move).
++    if sh.accuracy_stack() != super::super::accuracy_precision::Stack::Legacy {
++        for k in 0..l {
++            let blk = blocks.block(k)?;
++            stage_block_is_the_statements(st, k, &blk, true)?;
++        }
++    }
+     let tables = tables.tables();
+     let tag = sh.hash_tag();
+     let ntt = NttTables::new(st.ntt_log());
+@@ -419,7 +431,9 @@
+     let mut witnesses = Vec::with_capacity(blocks.len());
+     let mut planes = Vec::with_capacity(blocks.len());
+     for (k, b) in blocks.iter().enumerate() {
+-        let w = super::super::witness::build_shaped(&shapes[k], b.attention(), b.feed_forward(), &x).map_err(|e| format!("classifier pipeline: block {k}: {e}"))?;
++        // ROUND 16: the block's own builder (R13: its accuracy data, at the stage's G;
++        // legacy: the block-shape check, then the frozen builder)
++        let w = super::super::witness::build_for_block(&shapes[k], b, &x).map_err(|e| format!("classifier pipeline: block {k}: {e}"))?;
+         let plane: Vec<i16> = w.planes[ids.at(A_X2)].iter().map(|v| i16::try_from(*v).map_err(|_| "classifier pipeline: a block output outside int16".to_string())).collect::<Result<Vec<i16>, String>>()?;
+         if k == 0 && w.planes[ids.at(A_X)].iter().zip(b_in.iter()).any(|(a, b)| *a != i64::from(*b)) {
+             return Err("classifier pipeline: block 0's input plane is not B_in".into());

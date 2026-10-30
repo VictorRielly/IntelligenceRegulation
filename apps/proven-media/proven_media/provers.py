@@ -13,7 +13,7 @@ Implementations:
                     that the approved public model ran on the hidden post; it does NOT prove a
                     classifier verdict (the verdict comes from an unproved placeholder and is
                     labelled so everywhere). Images: "proof path in development".
-  ShieldstralProver placeholder for the classifier prover the other lanes are building (D38).
+  ShieldstralProver reviewed R16b/T128 text classifier in shieldstral_prover.py (explicit testnet mode).
   FakeProver        tests / UI development only: no proof at all, shown in red in the UI.
 """
 from __future__ import annotations
@@ -41,6 +41,7 @@ STEP_LABELS = {
     "verify": "Verifying the proof from the public files only (fresh process)",
     "owner": "Platform opens the sealed output (kept private)",
     "inowner": "Checking the proof's hidden input is this post",
+    "label": "Verifying the complete category and its aggregate label",
     "held": "Paused by the project coordinator (HOLD file)",
     "done": "Finished",
 }
@@ -203,6 +204,7 @@ class ClassifierProver(ABC):
     label = ""
     supports: frozenset = frozenset()
     proves_verdict = False          # True only when the verdict is the proof's public output
+    separate_categories = False     # True when one queue job covers one category's native chunk
 
     def can_prove(self, item) -> bool:
         return item.kind in self.supports
@@ -210,6 +212,25 @@ class ClassifierProver(ABC):
     def describe(self) -> dict:
         return {"kind": self.kind, "label": self.label, "supports": sorted(self.supports),
                 "proves_verdict": self.proves_verdict}
+
+    def content_length(self, text: str) -> int:
+        """Use the same encoder as plan_text and the proof input."""
+        return prompting.content_length(self.kind, text)
+
+    def plan_text(self, text: str) -> list[dict]:
+        """Plan all jobs before reserving the item; category provers override this.
+
+        A category plan uses proof_plans.category_work_plan with the registered
+        templates and pinned encoder. No template or policy is selected here.
+        """
+        plan = prompting.plan_for(self.kind, text)
+        for chunk in plan:
+            prompting.build_prompt(self.kind, text, start=chunk['start'], end=chunk['end'])
+        return plan
+
+    def check_final_records(self, item, rows):
+        """Additional implementation-specific gates before any publication."""
+        return None
 
     @abstractmethod
     def start(self, post_id: str, item, job: Path, chunk: dict | None = None) -> None:
@@ -451,40 +472,6 @@ class StubProver(ClassifierProver):
                                 "waited_for_machine_s": {s: guard_json(job, s).get("waited_s") for s in ("verify", "inowner")}})
 
 
-# ---------------------------------------------------------------- the classifier (placeholder)
-
-class ShieldstralProver(ClassifierProver):
-    """Placeholder for the classifier prover (D38). Expected shape, once the other lanes land it:
-
-        zk60_classifier prove  --model-export DIR --policy FILE --content-file FILE(0600) --out DIR --owner-dir DIR
-        zk60_classifier verify --model-export DIR --artifact DIR --expect-statement HEX --expect-policy HEX
-
-    with the statement carrying the verdict bit (z_yes - z_no > c at the public threshold), the model
-    identity, the policy digest and the hidden-content commitment. Images: one proof per image over
-    its canonical 224-px canvas through the Pixtral encoder, bound through the run's hidden input
-    endpoint (results/zk60_multimodal_design_20261021/ §2-§3). Video and audio: deferred.
-    """
-    kind = "shieldstral"
-    label = "Shieldstral-1.0-3B classifier proof (not landed yet)"
-    supports = frozenset()
-    proves_verdict = True
-
-    def _nope(self):
-        raise NotSupported("the Shieldstral classifier prover has not landed yet; the app runs the demo stub")
-
-    def start(self, post_id, item, job, chunk=None):
-        self._nope()
-
-    def collect(self, post_id, item, job, chunk=None):
-        self._nope()
-
-    def start_recheck(self, record, prove_job, job):
-        self._nope()
-
-    def collect_recheck(self, record, job):
-        self._nope()
-
-
 # ---------------------------------------------------------------- fake (tests / UI only)
 
 class FakeProver(ClassifierProver):
@@ -555,7 +542,8 @@ def make_prover(mode: str | None = None) -> ClassifierProver:
     if mode == "fake":
         return FakeProver()
     if mode == "shieldstral":
-        return ShieldstralProver()
+        from .shieldstral_prover import ShieldstralProver as RealShieldstralProver
+        return RealShieldstralProver()
     return StubProver()
 
 
@@ -572,6 +560,17 @@ def media_status(item) -> dict:
 def verify_instructions(record: dict) -> dict:
     """how anyone re-checks the proof from a downloaded bundle (public pins only)"""
     p = record.get("prover", {})
+    if p.get('kind') == 'shieldstral':
+        from . import shieldstral_runtime as runtime
+        policy = record.get('statement', {}).get('policy', '<category-policy-id>')
+        return {'binary': 'zk60_classify r16b, sha256 ' + runtime.BINARY_SHA,
+                'public_model_files': 'R13 T128 public export and its token_io tables',
+                'expect_statement': runtime.IDENTITY,
+                'command': 'zk60_classify verify --export <public-export> --tables <public-export>/token_io '
+                           f'--policy {policy} --label zk60-classify-verdict --artifact <run> '
+                           f'--expect-statement {runtime.IDENTITY} --min-bits 95',
+                'accept_if': 'exit0 with classified event; statement rechecked byte for byte',
+                'privacy_status': 'privacy statement pending'}
     if p.get("kind") != "stub-next-token":
         return {"note": "no CLI check for this prover kind"}
     return {

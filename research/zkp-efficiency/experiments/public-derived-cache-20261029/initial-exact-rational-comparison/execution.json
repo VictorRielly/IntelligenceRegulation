@@ -1,0 +1,7 @@
+{
+  "command": "python3 -I -B /home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/public-derived-cache-20261029/run.py",
+  "exit_code": 1,
+  "failure": "AssertionError: digest_differential",
+  "elapsed_tool_s": 0.189995098,
+  "no_result_written": true
+}

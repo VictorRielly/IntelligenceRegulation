@@ -1,0 +1,43 @@
+{
+  "status": "PASS",
+  "seed": 202610290136,
+  "checks": 1042,
+  "negative_controls": [
+    "stale-mask-value-on-new-private-data",
+    "length-only-weight-key",
+    "reversed-coordinate-order",
+    "dropped-column-offset",
+    "wrong-row-width",
+    "reused-reserved-pair",
+    "wrong-flip-tail",
+    "wrong-fixed-coordinate",
+    "swapped-real-imag-mask-rows",
+    "dropped-imaginary-mask-row",
+    "swapped-terminal-order",
+    "wrong-extension-family",
+    "forgot-later-zero-extension"
+  ],
+  "elapsed_s": 1.5281050430021423,
+  "peak_rss_kib": 41284,
+  "cpu_affinity": [
+    0
+  ],
+  "cpu_model": "Intel(R) Core(TM) Ultra 9 185H",
+  "python": "3.10.12",
+  "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "native_execution": false,
+  "gpu_execution": false,
+  "complete_verified_proofs": 0,
+  "complete_passes": 0,
+  "proved_positions": 0,
+  "actual_model_context": null,
+  "witness_s": null,
+  "proof_s": null,
+  "serialization_s": null,
+  "verification_s": null,
+  "startup_s": null,
+  "startup_fraction": null,
+  "steady_positions_s": null,
+  "total_positions_s": null
+}
+fixtures 102 last [{"label": "SC_TAB:8", "sites": 6, "rho_axes": 8, "row_logs": [8], "extension_rounds": 1, "baseline_eq_mul": 3060, "candidate_eq_mul": 510, "builds": 1, "hits": 5, "max_weight_words": 256, "wire_sha256": "4b6cd01c267d05593ede5d8bfb9d1ac70cad8da3e0b8519341bc3d9c17959c4a"}, {"label": "SC_TAB:13", "sites": 6, "rho_axes": 13, "row_logs": [13], "extension_rounds": 1, "baseline_eq_mul": 98292, "candidate_eq_mul": 16382, "builds": 1, "hits": 5, "max_weight_words": 8192, "wire_sha256": "797d1d011b35530825f9a0341f567a3d60c1a9ab2e6c551287327edfa45db040"}, {"label": "SC_TAB:14", "sites": 6, "rho_axes": 14, "row_logs": [14], "extension_rounds": 1, "baseline_eq_mul": 196596, "candidate_eq_mul": 32766, "builds": 1, "hits": 5, "max_weight_words": 16384, "wire_sha256": "134dd69a843d836ccaf6fa1afc4a127f2515748739a91fa346e41c998b2c445f"}]

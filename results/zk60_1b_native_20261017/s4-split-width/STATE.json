@@ -1,0 +1,13 @@
+{
+  "utc": "2026-10-29T07:14:07.067558+00:00",
+  "phase": "S4 paper/count/isolated validation complete; ready for independent design review",
+  "base_r13": "bb9eb2123c9350c738dafd19fe3b0133d6e2e7ab93f1e765cac4f20ccaed69ec",
+  "native_baselines": 4,
+  "paper_sha256": "bbd8b135a23dfdc46309edf1d23dab93d69f3bb57ad424d57bbb73c7b368599e",
+  "counts_sha256": "fc7dbbc9e4c5b46c2a96a0adafbecf64397fa90498f02b0a9e7151da276878e7",
+  "design_review_sha256": "73dcff1f7b04a25be038a94b691c22b63ad730ed6ecbfe00af51affe501fa33c",
+  "validation_sha256": "043466a6db94205c7257ac0338dde81b9da88ebc4b849b4f9c46a1e64e4209a6",
+  "live_tool_sessions": [],
+  "native_layout_implementation_authorized": false,
+  "next": "Coordinator routes independent soundness/privacy design check; resolve mask/rank/endpoints/zero-group handling and native census before implementing an isolated new profile. R13 review separate. T256 desktop only; no laptop-fit claim."
+}

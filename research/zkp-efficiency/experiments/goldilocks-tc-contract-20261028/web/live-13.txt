@@ -1,0 +1,323 @@
+Internal Error ()
+citeturn13view0 [wordlim: 200] Source: open({"ref_id":"https://doi.org/10.1145/3773656.3773673","lineno":null}); 
+URL https://doi.org/10.1145/3773656.3773673 is not accessible via this tool.--------------------------------------------------------------------------------
+Releases · Plonky3/Plonky3 · GitHub (https://github.com/Plonky3/Plonky3/releases)
+citeturn13view1 [wordlim: 200] Crawled: yesterday; Content type: text/html; Source: open({"ref_id":"https://github.com/Plonky3/Plonky3/releases","lineno":null}); Total lines: 776
+L0: 【0†Skip to content】
+L1: ## Navigation Menu
+L2: 
+L3: 【1†Sign in】
+L4: 
+L5: Appearance settings
+L6: 
+L7:   * Platform
+L8: 
+L9:     * AI CODE CREATION
+L10:       * 【2†GitHub CopilotWrite better code with AI】
+L11:       * 【3†GitHub Copilot appDirect agents from issue to merge】
+L12:       * 【4†MCP RegistryIntegrate external tools】
+L13: 
+L14:     * DEVELOPER WORKFLOWS
+L15:       * 【5†ActionsAutomate any workflow】
+L16:       * 【6†CodespacesInstant dev environments】
+L17:       * 【7†IssuesPlan and track work】
+L18:       * 【8†Code ReviewManage code changes】
+L19:       * 【9†Code QualityEnforce quality at merge】
+L20:     * APPLICATION SECURITY
+L21:       * 【10†GitHub Advanced SecurityFind and fix vulnerabilities】
+L22:       * 【11†Code securitySecure your code as you build】
+L23:       * 【12†Secret protectionStop leaks before they start】
+L24: 
+L25:     * EXPLORE
+L26:       * 【13†Why GitHub】
+L27:       * 【14†Documentation†docs.github.com】
+L28:       * 【15†Blog†github.blog】
+L29:       * 【16†Changelog†github.blog】
+L30:       * 【17†Marketplace】
+L31: 
+L32: 【18†View all features】
+L33: 
+L34:   * Solutions
+L35:     * BY COMPANY SIZE
+L36:       * 【19†Enterprises】
+L37:       * 【20†Small and medium teams】
+L38:       * 【21†Startups】
+L39:       * 【22†Nonprofits】
+L40: 
+L41:     * BY USE CASE
+L42:       * 【23†App Modernization】
+L43:       * 【24†DevSecOps】
+L44:       * 【25†DevOps】
+L45:       * 【26†CI/CD】
+L46:       * 【27†View all use cases】
+L47: 
+L48:     * BY INDUSTRY
+L49:       * 【28†Healthcare】
+L50:       * 【29†Financial services】
+L51:       * 【30†Manufacturing】
+L52:       * 【31†Government】
+L53:       * 【32†See all industries】
+L54: 
+L55: 【33†View all solutions】
+L56: 
+L57:   * Resources
+L58:     * EXPLORE BY TOPIC
+L59:       * 【34†AI】
+L60:       * 【35†Software Development】
+L61:       * 【36†DevOps】
+L62:       * 【37†Security】
+L63:       * 【38†View all topics】
+L64: 
+L65:     * EXPLORE BY TYPE
+L66:       * 【39†Customer stories】
+L67:       * 【40†Events & webinars】
+L68:       * 【41†Ebooks & reports】
+L69:       * 【42†Business insights】
+L70:       * 【43†GitHub Skills†skills.github.com】
+L71:     * SUPPORT & SERVICES
+L72:       * 【14†Documentation†docs.github.com】
+L73:       * 【44†Customer support†support.github.com】
+L74:       * 【45†Community forum】
+L75:       * 【46†Trust center】
+L76:       * 【47†Partners】
+L77: 
+L78: 【48†View all resources】
+L79: 
+L80:   * Open Source
+L81: 
+L82:     * COMMUNITY
+L83:       * 【49†GitHub SponsorsFund open source developers】
+L84:     * PROGRAMS
+L85:       * 【50†Security Lab†securitylab.github.com】
+L86:       * 【51†Maintainer Community†maintainers.github.com】
+L87:       * 【52†GitHub Stars†stars.github.com】
+L88:       * 【53†Archive Program†archiveprogram.github.com】
+L89: 
+L90:     * REPOSITORIES
+L91:       * 【54†Topics】
+L92:       * 【55†Trending】
+L93:       * 【56†Collections】
+L94: 
+L95:   * Enterprise
+L96: 
+L97:     * ENTERPRISE SOLUTIONS
+L98:       * 【19†Enterprise platformAI-powered developer platform】
+L99:     * AVAILABLE ADD-ONS
+L100:       * 【10†GitHub Advanced SecurityEnterprise-grade security features】
+L101:       * 【57†Copilot for BusinessEnterprise-grade AI features】
+L102:       * 【58†Premium SupportEnterprise-grade 24/7 support】
+L103: 
+L104:   * 【59†Pricing】
+L105: 
+L106: Search`/`
+L107: 
+L108: 【1†Sign in】
+L109: 
+L110: 【60†Sign up】
+L111: 
+L112: Appearance settings
+L113: You signed in with another tab or window. Reload to refresh your session. You signed out in another tab or window. Reload to refresh your session. You switched accounts on another tab or window. Reload to refresh your session. Dismiss alert
+L114: 
+L115:   1. 【61†Plonky3】
+L116:   2. 【62†Plonky3】
+L117: ## Repository navigation
+L118: 
+L119:   *   * 【62†Code】
+L120:   * 【63†Issues23 (23)】
+L121:   * 【64†Pull requests5 (5)】
+L122:   * 【65†Discussions】
+L123:   * 【66†Actions】
+L124:   * 【67†Projects】
+L125:   * 【68†Security and quality5 (5)】
+L126:   * 【69†Insights】
+L127: 
+L128: More items
+L129: 
+L130: # Releases: Plonky3/Plonky3
+L131: 
+L132: 【70†Releases】 【71†Tags】
+L133: 
+L134: [Input: Find a release] [Input]
+L135: 
+L136: Releases · Plonky3/Plonky3
+L137: ## Release list
+L138: 
+L139:   * 【72†p3-zk-codes-v0.9.0-rc.2】
+L140:   * 【73†p3-word-v0.9.0-rc.2】
+L141:   * 【74†p3-word-backend-v0.9.0-rc.2】
+L142:   * 【75†p3-whir-v0.9.0-rc.2】
+L143:   * 【76†p3-util-v0.9.0-rc.2】
+L144:   * 【77†p3-uni-stark-v0.9.0-rc.2】
+L145:   * 【78†p3-symmetric-v0.9.0-rc.2】
+L146:   * 【79†p3-sumcheck-v0.9.0-rc.2】
+L147:   * 【80†p3-stir-v0.9.0-rc.2】
+L148:   * 【81†p3-sha256-v0.9.0-rc.2】
+L149: 
+L150: Jump to release
+L151: 
+L152: ## p3-zk-codes-v0.9.0-rc.2
+L153: 
+L154: 【82†p3-zk-codes-v0.9.0-rc.2】
+L155: 
+L156: Compare
+L157: 
+L158: # Choose a tag to compare
+L159: 
+L160: ## Sorry, something went wrong.
+L161: 
+L162: Filter
+L163: 
+L164: Loading [Input]
+L165: ## Sorry, something went wrong.
+L166: 
+L167: ### Uh oh!
+L168: 
+L169: There was an error while loading. Please reload this page.
+L170: 
+L171: ## No results found
+L172: 
+L173: 【71†View all tags】
+L174: 
+L175: 【83†Image: @Nashtare†avatars.githubusercontent.com】 【84†Nashtare】 released this 16 Oct 10:17
+L176: 
+L177: 【85†p3-zk-codes-v0.9.0-rc.2】
+L178: 
+L179: 【86†`fe5e46d`】
+L180: 
+L181: This commit was created on GitHub.com and signed with GitHub’s verified signature.
+L182: 
+L183: GPG key ID: B5690EEEBB952194
+L184: 
+L185: Verified
+L186: 
+L187: 【87†Learn about vigilant mode†docs.github.com】.
+L188: ### Merged PRs
+L189: 
+L190:   * Ci: fail on unused dependencies, and drop the ones already there (【88†#2029】)
+L191:   * Fix(sumcheck): require a cryptographic RNG for HVZK mask sampling (【89†#2260】)
+L192: 
+L193: Assets 2
+L194: 
+L195: Loading
+L196: 
+L197: ### Uh oh!
+L198: 
+L199: There was an error while loading. Please reload this page.
+L200: 
+L201: ## p3-word-v0.9.0-rc.2
+L202: 
+L203: 【90†p3-word-v0.9.0-rc.2】
+L204: 
+L205: Compare
+L206: 
+L207: # Choose a tag to compare
+L208: 
+L209: ## Sorry, something went wrong.
+L210: 
+L211: Filter
+L212: 
+--------------------------------------------------------------------------------
+Speeding Up Sum-Check Proving (Extended Version) (https://eprint.iacr.org/2026/587)
+citeturn13view2 [wordlim: 200] Crawled: today; Content type: text/html; Source: open({"ref_id":"https://eprint.iacr.org/2026/587","lineno":null}); Total lines: 82
+L0: # What a lovely hat
+L1: #### Is it made out of 【0†tin foil†iacr.org】?
+L2: 
+L3: 【1†Cryptology ePrint Archive】
+L4: 
+L5:   * 【2†Papers】 Updates from the last:
+L6:     * 【3†7 days】
+L7:     * 【4†31 days】
+L8:     * 【5†6 months】
+L9:     * 【6†365 days】
+L10:     * * * *
+L11: 
+L12:     * 【7†Listing by year】
+L13:     * 【8†All papers】
+L14:     * 【9†Compact view】
+L15:     * 【10†Subscribe†www.iacr.org】
+L16:     * * * *
+L17: 
+L18:     * 【11†How to cite】
+L19:     * * * *
+L20:     * 【12†Harvesting metadata】
+L21:   * 【2†Submissions】
+L22:     * 【13†Submit a paper】
+L23:     * 【14†Revise or withdraw a paper】
+L24:     * 【15†Acceptance and publishing conditions】
+L25: 
+L26: 【16†Image: Search Button】
+L27: 
+L28: [Input] [Button: Search ]
+L29: #### Paper 2026/587
+L30: 
+L31: ### 【17†Speeding Up Sum-Check Proving (Extended Version)】
+L32: 
+L33: Quang Dao, Carnegie Mellon University
+L34: 
+L35: Zachary DeStefano, New York University
+L36: 
+L37: Suyash Bagad, Ingonyama
+L38: 
+L39: Yuval Domb, Ingonyama
+L40: 
+L41: Justin Thaler, Georgetown University, a16z crypto research
+L42: ##### Abstract
+L43: The sum-check protocol is a foundational primitive in modern cryptographic proof systems, but its prover-side cost has emerged as a concrete bottleneck. This paper introduces three complementary techniques that significantly reduce sum-check proving time and memory, especially in the context of zero-knowledge virtual machines (zkVMs).
+L44: First, for applications involving products of many multilinear polynomials, we develop a new algorithm that significantly reduces the number of field multiplications required for proving. Second, we develop a "small-value sum-check prover" algorithm. This significantly speeds up the prover in the common setting where the polynomials being summed evaluate to 64 or 32-bit integers, or to elements of a small sub-field within a larger extension field.
+L45: Even outside of the small-value setting, this algorithm yields a faster "streaming prover", by which we mean a small-space algorithm that applies whenever the terms being summed can be enumerated in small space (as arises, for example, in zkVM applications). Third, we nearly eliminate prover overhead in the ubiquitous case where one factor is an equality polynomial by exploiting its decomposable tensor structure.
+L46: We implement these techniques in Jolt, a state-of-the-art zkVM, and evaluate their performance. In Jolt, we observe over an order of magnitude runtime speedup and memory reduction on the Spartan sub-protocol, and $1.7\times$ to $2.2\times$ speedups for a key high-degree sum-check sub-protocol in the Shout batch-evaluation argument.
+L47: Note: This manuscript directly combines and improves upon results from prior works: 2025/1117, 2024/1046, and 2024/1210
+L48: ##### Metadata
+L49: Available format(s)
+L50:     【17†PDF】
+L51: Category
+L52:     【18†Applications】
+L53: Publication info
+L54:     Preprint.
+L55: Keywords
+L56:     【19†sum-check】【20†snark】【21†zkvm】【22†delayed-reduction】【23†jolt】【24†spartan】【25†twist-shout】
+L57: Contact author(s)
+L58:     qvd @ andrew cmu edu
+L59: zd2131 @ nyu edu
+L60: suyash @ ingonyama com
+L61: yuval domb @ gmail com
+L62: justin r thaler @ gmail com
+L63: History
+L64:     2026-03-25: approved
+L65:     2026-03-24: received
+L66:     【26†See all versions】
+L67: Short URL
+L68:     【27†https://ia.cr/2026/587†ia.cr】
+L69: License
+L70: 
+L71: 【28†CC BY†creativecommons.org】
+L72: BibTeX 【29†Image】Copy to clipboard
+L73: 
+L74:     @misc{cryptoeprint:2026/587,
+L75:           author = {Quang Dao and Zachary DeStefano and Suyash Bagad and Yuval Domb and Justin Thaler},
+L76:           title = {Speeding Up Sum-Check Proving (Extended Version)},
+L77:           howpublished = {Cryptology {ePrint} Archive, Paper 2026/587},
+L78:           year = {2026},
+L79:           url = {https://eprint.iacr.org/2026/587}
+L80:     }
+L81: Note: In order to protect the privacy of readers, eprint.iacr.org does not use cookies or embedded third party content.
+--------------------------------------------------------------------------------
+Goldilocks NTT Trick (https://www.ingonyama.com/post/goldilocks-ntt-trick)
+citeturn13view3 [wordlim: 200] Crawled: 5 days ago; Content type: text/html; Source: open({"ref_id":"https://www.ingonyama.com/post/goldilocks-ntt-trick","lineno":null}); Total lines: 16
+L0: 【0†Research & Innovation】
+L1: # Goldilocks NTT Trick
+L2: 
+L3: 【0†December 13, 2022】
+L4: 
+L5: 【1†Image†cdn.prod.website-files.com】
+L6: 
+L7: Polynomial arithmetic is at the heart of modern Zero Knowledge Proving (ZKP) systems. The Number Theoretic Transform (NTT) is a crucial tool in facilitating efficient computational complexity over large polynomials encountered in ZKPs. NTTs are dominated by the number of field multiplications.
+L8: In this short note we focus on the specific case of NTT in the 64 bit Goldilocks field. Following the simple observation that 2⁴⁸ is a root of unity, we show that expressing the first few roots of unity in terms of powers of 2, allows modular multiplications to be replaced with simple bit-shift operations, resulting in a significant cost saving for NTT.
+L9: 
+L10: Read the Paper on our Github here: 【2†https://github.com/ingonyama-zk/papers/blob/main/goldilocks_ntt_trick.pdf†github.com】
+L11: 
+L12: ‍
+L13: 【3†iframe†cdn.prod.website-files.com】
+L14: 
+L15: 【2†‍†github.com】
+

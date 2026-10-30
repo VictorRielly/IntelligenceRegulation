@@ -1,0 +1,14 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/MVP_STATUS.md",
+    "sha256": "f75da8ddcf7edefaf3f367ecd6ac63b07ab17f418cae4a3a0c9e9a1c9c09e28b",
+    "diff_sha256": "cf2d54c342724b659d2e2ca998c47e9394b868fa48de9aa090bd736ac46f4902",
+    "assessment": "Read exact diff: classifier draft filenames and security-owner C-9 reading/v3 text-check corrections. No new privacy acceptance or throughput amendment."
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_DECISIONS.md",
+    "sha256": "bc48e85e09798f8768a67c6c02c131c964259b20379ae209281df393a3ebf30c",
+    "diff_sha256": "abbb77e41244e822f4329167159fdfaf828c0111abeeccc03c31eae0dc7bc67d",
+    "assessment": "Read exact diff: classifier draft filenames and security-owner C-9 reading/v3 text-check corrections. No new privacy acceptance or throughput amendment."
+  }
+]

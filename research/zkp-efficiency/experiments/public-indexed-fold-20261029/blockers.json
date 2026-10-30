@@ -1,0 +1,24 @@
+{
+  "native_materiality": "Exclusive current rowfold/GPU/cache/enclosing clocks unavailable; aggregate secs_fold is not an exclusive kernel fraction.",
+  "profile": "FrozenR13 census only; ownerR14 held source differs and is not frozen/reviewed for integration here.",
+  "resource_authority": "No GPU/native build/full proof in this CPU-light research lane. Owner shared build/heavy locks required for later work.",
+  "network": [
+    [
+      "https://eprints.gla.ac.uk/396825/: (400) Timeout fetching, repeated",
+      "https://eprints.gla.ac.uk/396825/1/396825.pdf: not accessible",
+      "https://doi.org/10.1145/3856990: not accessible"
+    ],
+    [
+      "https://ieee-hpec.org/wp-content/uploads/2024/09/140.pdf: not accessible"
+    ],
+    [
+      "https://github.com/VSJ001/Cache-Aware-and-GPU-Accelerated-Sparse-Matrix-Vector-Multiplication/tree/main/src: Cache miss"
+    ],
+    [
+      "https://github.com/Lagrange-Labs/deep-prove/blob/main/LICENSE:404; corrected to master"
+    ]
+  ],
+  "independent_local_progress": "Completed native-helper CPU linear-algebra differential, independent support census and cost accounting despite source fetch failures.",
+  "approval_requests": 0,
+  "new_verified_full_stack_proofs": 0
+}

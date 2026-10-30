@@ -1,0 +1,19 @@
+{
+ "removed": [
+  {
+   "path": "/home/victor/zk60-artifacts/token-io/captures/classify-rc3-cli-p18-r19b-gate24",
+   "files": 7,
+   "bytes": 21294137,
+   "gone": true
+  },
+  {
+   "path": "/home/victor/IntelligenceRegulation/ops/zkp-mvp/gate-tinyllama/capture-tree-r19b/hashline/target",
+   "files": 273,
+   "bytes": 63451961,
+   "gone": true
+  }
+ ],
+ "kept": [
+  "ops/zkp-mvp/gate-tinyllama/capture-tree-r19b (sources only, = frozen-r19b)"
+ ]
+}

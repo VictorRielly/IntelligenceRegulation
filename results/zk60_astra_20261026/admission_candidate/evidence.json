@@ -1,0 +1,13 @@
+{
+  "at": "2026-10-30T20:27:31.349081+00:00",
+  "tests": 9,
+  "exit": 0,
+  "scope": "mocked admission and scheduling controls; no new native job or live-source edit",
+  "applied": false,
+  "source_sha256": {
+    "test_admission.py": "83f549427fc5c0b3e925e0363f4f43d22a96794861c1be20256e71fa671d49d2",
+    "classifier_pipeline.py": "cb8f7505cc73aa3d3c11eaf54608703d9fcd26f40101df9d6291cf35b7c9fa61",
+    "test_execution.py": "4ec93d210ea5e51e24f801078856a213081f1a151c86c1037f1684398d617bd1"
+  },
+  "rationale": "Running app preflight waits for every guarded job, starving behind a continuous0.7GiB reference chain. Candidate follows the existing lean rule: light<=1GiB may remain; CPU/build/GPU and larger light jobs keep preflight waiting. Guard memory/disk/lock checks and all native/thread/time caps unchanged."
+}

@@ -1,0 +1,22 @@
+{
+  "current": [
+    "memory traffic",
+    "proof composition / lookup-GKR source screen"
+  ],
+  "next": [
+    "GPU NTT/commitments",
+    "quantization/arithmetic"
+  ],
+  "queue": [
+    "GPU NTT/commitments",
+    "sumcheck/GKR",
+    "lookup arguments and softmax",
+    "memory traffic",
+    "batching/amortization",
+    "quantization/arithmetic",
+    "proof composition"
+  ],
+  "tested": "Public run/list/dense exact rowfold and zero-fragmentation control",
+  "local_next": "NEW public zero-gap interval coalescing versus exact sparse lists",
+  "owner_precedence": "Current exclusive clocks and verified complete resident workload take precedence"
+}

@@ -1,0 +1,8 @@
+{
+  "cpu": "Intel(R) Core(TM) Ultra 9 185H",
+  "python": "3.10.12",
+  "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.35",
+  "actual_worker_affinity_count": 1,
+  "device": "CPU only, no GPU",
+  "threads": 1
+}

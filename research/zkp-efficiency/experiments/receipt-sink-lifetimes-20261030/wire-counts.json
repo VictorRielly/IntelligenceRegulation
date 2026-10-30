@@ -1,0 +1,1136 @@
+[
+  {
+    "z": 0,
+    "l": 1,
+    "k": 0,
+    "bytes": 43224,
+    "budget": 1,
+    "buffer_high": 1,
+    "write_calls": 43224
+  },
+  {
+    "z": 0,
+    "l": 1,
+    "k": 0,
+    "bytes": 43224,
+    "budget": 7,
+    "buffer_high": 7,
+    "write_calls": 6175
+  },
+  {
+    "z": 0,
+    "l": 1,
+    "k": 0,
+    "bytes": 43224,
+    "budget": 64,
+    "buffer_high": 64,
+    "write_calls": 1351
+  },
+  {
+    "z": 0,
+    "l": 1,
+    "k": 0,
+    "bytes": 43224,
+    "budget": 1024,
+    "buffer_high": 1024,
+    "write_calls": 1182
+  },
+  {
+    "z": 0,
+    "l": 1,
+    "k": 0,
+    "bytes": 43224,
+    "budget": 4096,
+    "buffer_high": 4096,
+    "write_calls": 1172
+  },
+  {
+    "z": 0,
+    "l": 1,
+    "k": 0,
+    "bytes": 43224,
+    "budget": 43225,
+    "buffer_high": 43224,
+    "write_calls": 1169
+  },
+  {
+    "z": 0,
+    "l": 2,
+    "k": 0,
+    "bytes": 41528,
+    "budget": 1,
+    "buffer_high": 1,
+    "write_calls": 41528
+  },
+  {
+    "z": 0,
+    "l": 2,
+    "k": 0,
+    "bytes": 41528,
+    "budget": 7,
+    "buffer_high": 7,
+    "write_calls": 5933
+  },
+  {
+    "z": 0,
+    "l": 2,
+    "k": 0,
+    "bytes": 41528,
+    "budget": 64,
+    "buffer_high": 64,
+    "write_calls": 1298
+  },
+  {
+    "z": 0,
+    "l": 2,
+    "k": 0,
+    "bytes": 41528,
+    "budget": 1024,
+    "buffer_high": 1024,
+    "write_calls": 1136
+  },
+  {
+    "z": 0,
+    "l": 2,
+    "k": 0,
+    "bytes": 41528,
+    "budget": 4096,
+    "buffer_high": 4096,
+    "write_calls": 1126
+  },
+  {
+    "z": 0,
+    "l": 2,
+    "k": 0,
+    "bytes": 41528,
+    "budget": 41529,
+    "buffer_high": 41528,
+    "write_calls": 1123
+  },
+  {
+    "z": 0,
+    "l": 2,
+    "k": 1,
+    "bytes": 43816,
+    "budget": 1,
+    "buffer_high": 1,
+    "write_calls": 43816
+  },
+  {
+    "z": 0,
+    "l": 2,
+    "k": 1,
+    "bytes": 43816,
+    "budget": 7,
+    "buffer_high": 7,
+    "write_calls": 6260
+  },
+  {
+    "z": 0,
+    "l": 2,
+    "k": 1,
+    "bytes": 43816,
+    "budget": 64,
+    "buffer_high": 64,
+    "write_calls": 1370
+  },
+  {
+    "z": 0,
+    "l": 2,
+    "k": 1,
+    "bytes": 43816,
+    "budget": 1024,
+    "buffer_high": 1024,
+    "write_calls": 1198
+  },
+  {
+    "z": 0,
+    "l": 2,
+    "k": 1,
+    "bytes": 43816,
+    "budget": 4096,
+    "buffer_high": 4096,
+    "write_calls": 1188
+  },
+  {
+    "z": 0,
+    "l": 2,
+    "k": 1,
+    "bytes": 43816,
+    "budget": 43817,
+    "buffer_high": 43816,
+    "write_calls": 1185
+  },
+  {
+    "z": 0,
+    "l": 4,
+    "k": 0,
+    "bytes": 41528,
+    "budget": 1,
+    "buffer_high": 1,
+    "write_calls": 41528
+  },
+  {
+    "z": 0,
+    "l": 4,
+    "k": 0,
+    "bytes": 41528,
+    "budget": 7,
+    "buffer_high": 7,
+    "write_calls": 5933
+  },
+  {
+    "z": 0,
+    "l": 4,
+    "k": 0,
+    "bytes": 41528,
+    "budget": 64,
+    "buffer_high": 64,
+    "write_calls": 1298
+  },
+  {
+    "z": 0,
+    "l": 4,
+    "k": 0,
+    "bytes": 41528,
+    "budget": 1024,
+    "buffer_high": 1024,
+    "write_calls": 1136
+  },
+  {
+    "z": 0,
+    "l": 4,
+    "k": 0,
+    "bytes": 41528,
+    "budget": 4096,
+    "buffer_high": 4096,
+    "write_calls": 1126
+  },
+  {
+    "z": 0,
+    "l": 4,
+    "k": 0,
+    "bytes": 41528,
+    "budget": 41529,
+    "buffer_high": 41528,
+    "write_calls": 1123
+  },
+  {
+    "z": 0,
+    "l": 4,
+    "k": 1,
+    "bytes": 42120,
+    "budget": 1,
+    "buffer_high": 1,
+    "write_calls": 42120
+  },
+  {
+    "z": 0,
+    "l": 4,
+    "k": 1,
+    "bytes": 42120,
+    "budget": 7,
+    "buffer_high": 7,
+    "write_calls": 6018
+  },
+  {
+    "z": 0,
+    "l": 4,
+    "k": 1,
+    "bytes": 42120,
+    "budget": 64,
+    "buffer_high": 64,
+    "write_calls": 1317
+  },
+  {
+    "z": 0,
+    "l": 4,
+    "k": 1,
+    "bytes": 42120,
+    "budget": 1024,
+    "buffer_high": 1024,
+    "write_calls": 1152
+  },
+  {
+    "z": 0,
+    "l": 4,
+    "k": 1,
+    "bytes": 42120,
+    "budget": 4096,
+    "buffer_high": 4096,
+    "write_calls": 1142
+  },
+  {
+    "z": 0,
+    "l": 4,
+    "k": 1,
+    "bytes": 42120,
+    "budget": 42121,
+    "buffer_high": 42120,
+    "write_calls": 1139
+  },
+  {
+    "z": 0,
+    "l": 4,
+    "k": 2,
+    "bytes": 42120,
+    "budget": 1,
+    "buffer_high": 1,
+    "write_calls": 42120
+  },
+  {
+    "z": 0,
+    "l": 4,
+    "k": 2,
+    "bytes": 42120,
+    "budget": 7,
+    "buffer_high": 7,
+    "write_calls": 6018
+  },
+  {
+    "z": 0,
+    "l": 4,
+    "k": 2,
+    "bytes": 42120,
+    "budget": 64,
+    "buffer_high": 64,
+    "write_calls": 1317
+  },
+  {
+    "z": 0,
+    "l": 4,
+    "k": 2,
+    "bytes": 42120,
+    "budget": 1024,
+    "buffer_high": 1024,
+    "write_calls": 1152
+  },
+  {
+    "z": 0,
+    "l": 4,
+    "k": 2,
+    "bytes": 42120,
+    "budget": 4096,
+    "buffer_high": 4096,
+    "write_calls": 1142
+  },
+  {
+    "z": 0,
+    "l": 4,
+    "k": 2,
+    "bytes": 42120,
+    "budget": 42121,
+    "buffer_high": 42120,
+    "write_calls": 1139
+  },
+  {
+    "z": 0,
+    "l": 4,
+    "k": 3,
+    "bytes": 43816,
+    "budget": 1,
+    "buffer_high": 1,
+    "write_calls": 43816
+  },
+  {
+    "z": 0,
+    "l": 4,
+    "k": 3,
+    "bytes": 43816,
+    "budget": 7,
+    "buffer_high": 7,
+    "write_calls": 6260
+  },
+  {
+    "z": 0,
+    "l": 4,
+    "k": 3,
+    "bytes": 43816,
+    "budget": 64,
+    "buffer_high": 64,
+    "write_calls": 1370
+  },
+  {
+    "z": 0,
+    "l": 4,
+    "k": 3,
+    "bytes": 43816,
+    "budget": 1024,
+    "buffer_high": 1024,
+    "write_calls": 1198
+  },
+  {
+    "z": 0,
+    "l": 4,
+    "k": 3,
+    "bytes": 43816,
+    "budget": 4096,
+    "buffer_high": 4096,
+    "write_calls": 1188
+  },
+  {
+    "z": 0,
+    "l": 4,
+    "k": 3,
+    "bytes": 43816,
+    "budget": 43817,
+    "buffer_high": 43816,
+    "write_calls": 1185
+  },
+  {
+    "z": 1,
+    "l": 1,
+    "k": 0,
+    "bytes": 47448,
+    "budget": 1,
+    "buffer_high": 1,
+    "write_calls": 47448
+  },
+  {
+    "z": 1,
+    "l": 1,
+    "k": 0,
+    "bytes": 47448,
+    "budget": 7,
+    "buffer_high": 7,
+    "write_calls": 6779
+  },
+  {
+    "z": 1,
+    "l": 1,
+    "k": 0,
+    "bytes": 47448,
+    "budget": 64,
+    "buffer_high": 64,
+    "write_calls": 1483
+  },
+  {
+    "z": 1,
+    "l": 1,
+    "k": 0,
+    "bytes": 47448,
+    "budget": 1024,
+    "buffer_high": 1024,
+    "write_calls": 1298
+  },
+  {
+    "z": 1,
+    "l": 1,
+    "k": 0,
+    "bytes": 47448,
+    "budget": 4096,
+    "buffer_high": 4096,
+    "write_calls": 1286
+  },
+  {
+    "z": 1,
+    "l": 1,
+    "k": 0,
+    "bytes": 47448,
+    "budget": 47449,
+    "buffer_high": 47448,
+    "write_calls": 1283
+  },
+  {
+    "z": 1,
+    "l": 2,
+    "k": 0,
+    "bytes": 45688,
+    "budget": 1,
+    "buffer_high": 1,
+    "write_calls": 45688
+  },
+  {
+    "z": 1,
+    "l": 2,
+    "k": 0,
+    "bytes": 45688,
+    "budget": 7,
+    "buffer_high": 7,
+    "write_calls": 6527
+  },
+  {
+    "z": 1,
+    "l": 2,
+    "k": 0,
+    "bytes": 45688,
+    "budget": 64,
+    "buffer_high": 64,
+    "write_calls": 1428
+  },
+  {
+    "z": 1,
+    "l": 2,
+    "k": 0,
+    "bytes": 45688,
+    "budget": 1024,
+    "buffer_high": 1024,
+    "write_calls": 1250
+  },
+  {
+    "z": 1,
+    "l": 2,
+    "k": 0,
+    "bytes": 45688,
+    "budget": 4096,
+    "buffer_high": 4096,
+    "write_calls": 1239
+  },
+  {
+    "z": 1,
+    "l": 2,
+    "k": 0,
+    "bytes": 45688,
+    "budget": 45689,
+    "buffer_high": 45688,
+    "write_calls": 1235
+  },
+  {
+    "z": 1,
+    "l": 2,
+    "k": 1,
+    "bytes": 47864,
+    "budget": 1,
+    "buffer_high": 1,
+    "write_calls": 47864
+  },
+  {
+    "z": 1,
+    "l": 2,
+    "k": 1,
+    "bytes": 47864,
+    "budget": 7,
+    "buffer_high": 7,
+    "write_calls": 6838
+  },
+  {
+    "z": 1,
+    "l": 2,
+    "k": 1,
+    "bytes": 47864,
+    "budget": 64,
+    "buffer_high": 64,
+    "write_calls": 1496
+  },
+  {
+    "z": 1,
+    "l": 2,
+    "k": 1,
+    "bytes": 47864,
+    "budget": 1024,
+    "buffer_high": 1024,
+    "write_calls": 1309
+  },
+  {
+    "z": 1,
+    "l": 2,
+    "k": 1,
+    "bytes": 47864,
+    "budget": 4096,
+    "buffer_high": 4096,
+    "write_calls": 1297
+  },
+  {
+    "z": 1,
+    "l": 2,
+    "k": 1,
+    "bytes": 47864,
+    "budget": 47865,
+    "buffer_high": 47864,
+    "write_calls": 1294
+  },
+  {
+    "z": 1,
+    "l": 4,
+    "k": 0,
+    "bytes": 45688,
+    "budget": 1,
+    "buffer_high": 1,
+    "write_calls": 45688
+  },
+  {
+    "z": 1,
+    "l": 4,
+    "k": 0,
+    "bytes": 45688,
+    "budget": 7,
+    "buffer_high": 7,
+    "write_calls": 6527
+  },
+  {
+    "z": 1,
+    "l": 4,
+    "k": 0,
+    "bytes": 45688,
+    "budget": 64,
+    "buffer_high": 64,
+    "write_calls": 1428
+  },
+  {
+    "z": 1,
+    "l": 4,
+    "k": 0,
+    "bytes": 45688,
+    "budget": 1024,
+    "buffer_high": 1024,
+    "write_calls": 1250
+  },
+  {
+    "z": 1,
+    "l": 4,
+    "k": 0,
+    "bytes": 45688,
+    "budget": 4096,
+    "buffer_high": 4096,
+    "write_calls": 1239
+  },
+  {
+    "z": 1,
+    "l": 4,
+    "k": 0,
+    "bytes": 45688,
+    "budget": 45689,
+    "buffer_high": 45688,
+    "write_calls": 1235
+  },
+  {
+    "z": 1,
+    "l": 4,
+    "k": 1,
+    "bytes": 46104,
+    "budget": 1,
+    "buffer_high": 1,
+    "write_calls": 46104
+  },
+  {
+    "z": 1,
+    "l": 4,
+    "k": 1,
+    "bytes": 46104,
+    "budget": 7,
+    "buffer_high": 7,
+    "write_calls": 6587
+  },
+  {
+    "z": 1,
+    "l": 4,
+    "k": 1,
+    "bytes": 46104,
+    "budget": 64,
+    "buffer_high": 64,
+    "write_calls": 1441
+  },
+  {
+    "z": 1,
+    "l": 4,
+    "k": 1,
+    "bytes": 46104,
+    "budget": 1024,
+    "buffer_high": 1024,
+    "write_calls": 1261
+  },
+  {
+    "z": 1,
+    "l": 4,
+    "k": 1,
+    "bytes": 46104,
+    "budget": 4096,
+    "buffer_high": 4096,
+    "write_calls": 1250
+  },
+  {
+    "z": 1,
+    "l": 4,
+    "k": 1,
+    "bytes": 46104,
+    "budget": 46105,
+    "buffer_high": 46104,
+    "write_calls": 1247
+  },
+  {
+    "z": 1,
+    "l": 4,
+    "k": 2,
+    "bytes": 46104,
+    "budget": 1,
+    "buffer_high": 1,
+    "write_calls": 46104
+  },
+  {
+    "z": 1,
+    "l": 4,
+    "k": 2,
+    "bytes": 46104,
+    "budget": 7,
+    "buffer_high": 7,
+    "write_calls": 6587
+  },
+  {
+    "z": 1,
+    "l": 4,
+    "k": 2,
+    "bytes": 46104,
+    "budget": 64,
+    "buffer_high": 64,
+    "write_calls": 1441
+  },
+  {
+    "z": 1,
+    "l": 4,
+    "k": 2,
+    "bytes": 46104,
+    "budget": 1024,
+    "buffer_high": 1024,
+    "write_calls": 1261
+  },
+  {
+    "z": 1,
+    "l": 4,
+    "k": 2,
+    "bytes": 46104,
+    "budget": 4096,
+    "buffer_high": 4096,
+    "write_calls": 1250
+  },
+  {
+    "z": 1,
+    "l": 4,
+    "k": 2,
+    "bytes": 46104,
+    "budget": 46105,
+    "buffer_high": 46104,
+    "write_calls": 1247
+  },
+  {
+    "z": 1,
+    "l": 4,
+    "k": 3,
+    "bytes": 47864,
+    "budget": 1,
+    "buffer_high": 1,
+    "write_calls": 47864
+  },
+  {
+    "z": 1,
+    "l": 4,
+    "k": 3,
+    "bytes": 47864,
+    "budget": 7,
+    "buffer_high": 7,
+    "write_calls": 6838
+  },
+  {
+    "z": 1,
+    "l": 4,
+    "k": 3,
+    "bytes": 47864,
+    "budget": 64,
+    "buffer_high": 64,
+    "write_calls": 1496
+  },
+  {
+    "z": 1,
+    "l": 4,
+    "k": 3,
+    "bytes": 47864,
+    "budget": 1024,
+    "buffer_high": 1024,
+    "write_calls": 1309
+  },
+  {
+    "z": 1,
+    "l": 4,
+    "k": 3,
+    "bytes": 47864,
+    "budget": 4096,
+    "buffer_high": 4096,
+    "write_calls": 1297
+  },
+  {
+    "z": 1,
+    "l": 4,
+    "k": 3,
+    "bytes": 47864,
+    "budget": 47865,
+    "buffer_high": 47864,
+    "write_calls": 1294
+  },
+  {
+    "z": 2,
+    "l": 1,
+    "k": 0,
+    "bytes": 58168,
+    "budget": 1,
+    "buffer_high": 1,
+    "write_calls": 58168
+  },
+  {
+    "z": 2,
+    "l": 1,
+    "k": 0,
+    "bytes": 58168,
+    "budget": 7,
+    "buffer_high": 7,
+    "write_calls": 8310
+  },
+  {
+    "z": 2,
+    "l": 1,
+    "k": 0,
+    "bytes": 58168,
+    "budget": 64,
+    "buffer_high": 64,
+    "write_calls": 1818
+  },
+  {
+    "z": 2,
+    "l": 1,
+    "k": 0,
+    "bytes": 58168,
+    "budget": 1024,
+    "buffer_high": 1024,
+    "write_calls": 1591
+  },
+  {
+    "z": 2,
+    "l": 1,
+    "k": 0,
+    "bytes": 58168,
+    "budget": 4096,
+    "buffer_high": 4096,
+    "write_calls": 1577
+  },
+  {
+    "z": 2,
+    "l": 1,
+    "k": 0,
+    "bytes": 58168,
+    "budget": 58169,
+    "buffer_high": 58168,
+    "write_calls": 1573
+  },
+  {
+    "z": 2,
+    "l": 2,
+    "k": 0,
+    "bytes": 55640,
+    "budget": 1,
+    "buffer_high": 1,
+    "write_calls": 55640
+  },
+  {
+    "z": 2,
+    "l": 2,
+    "k": 0,
+    "bytes": 55640,
+    "budget": 7,
+    "buffer_high": 7,
+    "write_calls": 7949
+  },
+  {
+    "z": 2,
+    "l": 2,
+    "k": 0,
+    "bytes": 55640,
+    "budget": 64,
+    "buffer_high": 64,
+    "write_calls": 1739
+  },
+  {
+    "z": 2,
+    "l": 2,
+    "k": 0,
+    "bytes": 55640,
+    "budget": 1024,
+    "buffer_high": 1024,
+    "write_calls": 1522
+  },
+  {
+    "z": 2,
+    "l": 2,
+    "k": 0,
+    "bytes": 55640,
+    "budget": 4096,
+    "buffer_high": 4096,
+    "write_calls": 1508
+  },
+  {
+    "z": 2,
+    "l": 2,
+    "k": 0,
+    "bytes": 55640,
+    "budget": 55641,
+    "buffer_high": 55640,
+    "write_calls": 1504
+  },
+  {
+    "z": 2,
+    "l": 2,
+    "k": 1,
+    "bytes": 58616,
+    "budget": 1,
+    "buffer_high": 1,
+    "write_calls": 58616
+  },
+  {
+    "z": 2,
+    "l": 2,
+    "k": 1,
+    "bytes": 58616,
+    "budget": 7,
+    "buffer_high": 7,
+    "write_calls": 8374
+  },
+  {
+    "z": 2,
+    "l": 2,
+    "k": 1,
+    "bytes": 58616,
+    "budget": 64,
+    "buffer_high": 64,
+    "write_calls": 1832
+  },
+  {
+    "z": 2,
+    "l": 2,
+    "k": 1,
+    "bytes": 58616,
+    "budget": 1024,
+    "buffer_high": 1024,
+    "write_calls": 1603
+  },
+  {
+    "z": 2,
+    "l": 2,
+    "k": 1,
+    "bytes": 58616,
+    "budget": 4096,
+    "buffer_high": 4096,
+    "write_calls": 1589
+  },
+  {
+    "z": 2,
+    "l": 2,
+    "k": 1,
+    "bytes": 58616,
+    "budget": 58617,
+    "buffer_high": 58616,
+    "write_calls": 1585
+  },
+  {
+    "z": 2,
+    "l": 4,
+    "k": 0,
+    "bytes": 55640,
+    "budget": 1,
+    "buffer_high": 1,
+    "write_calls": 55640
+  },
+  {
+    "z": 2,
+    "l": 4,
+    "k": 0,
+    "bytes": 55640,
+    "budget": 7,
+    "buffer_high": 7,
+    "write_calls": 7949
+  },
+  {
+    "z": 2,
+    "l": 4,
+    "k": 0,
+    "bytes": 55640,
+    "budget": 64,
+    "buffer_high": 64,
+    "write_calls": 1739
+  },
+  {
+    "z": 2,
+    "l": 4,
+    "k": 0,
+    "bytes": 55640,
+    "budget": 1024,
+    "buffer_high": 1024,
+    "write_calls": 1522
+  },
+  {
+    "z": 2,
+    "l": 4,
+    "k": 0,
+    "bytes": 55640,
+    "budget": 4096,
+    "buffer_high": 4096,
+    "write_calls": 1508
+  },
+  {
+    "z": 2,
+    "l": 4,
+    "k": 0,
+    "bytes": 55640,
+    "budget": 55641,
+    "buffer_high": 55640,
+    "write_calls": 1504
+  },
+  {
+    "z": 2,
+    "l": 4,
+    "k": 1,
+    "bytes": 56088,
+    "budget": 1,
+    "buffer_high": 1,
+    "write_calls": 56088
+  },
+  {
+    "z": 2,
+    "l": 4,
+    "k": 1,
+    "bytes": 56088,
+    "budget": 7,
+    "buffer_high": 7,
+    "write_calls": 8013
+  },
+  {
+    "z": 2,
+    "l": 4,
+    "k": 1,
+    "bytes": 56088,
+    "budget": 64,
+    "buffer_high": 64,
+    "write_calls": 1753
+  },
+  {
+    "z": 2,
+    "l": 4,
+    "k": 1,
+    "bytes": 56088,
+    "budget": 1024,
+    "buffer_high": 1024,
+    "write_calls": 1534
+  },
+  {
+    "z": 2,
+    "l": 4,
+    "k": 1,
+    "bytes": 56088,
+    "budget": 4096,
+    "buffer_high": 4096,
+    "write_calls": 1520
+  },
+  {
+    "z": 2,
+    "l": 4,
+    "k": 1,
+    "bytes": 56088,
+    "budget": 56089,
+    "buffer_high": 56088,
+    "write_calls": 1516
+  },
+  {
+    "z": 2,
+    "l": 4,
+    "k": 2,
+    "bytes": 56088,
+    "budget": 1,
+    "buffer_high": 1,
+    "write_calls": 56088
+  },
+  {
+    "z": 2,
+    "l": 4,
+    "k": 2,
+    "bytes": 56088,
+    "budget": 7,
+    "buffer_high": 7,
+    "write_calls": 8013
+  },
+  {
+    "z": 2,
+    "l": 4,
+    "k": 2,
+    "bytes": 56088,
+    "budget": 64,
+    "buffer_high": 64,
+    "write_calls": 1753
+  },
+  {
+    "z": 2,
+    "l": 4,
+    "k": 2,
+    "bytes": 56088,
+    "budget": 1024,
+    "buffer_high": 1024,
+    "write_calls": 1534
+  },
+  {
+    "z": 2,
+    "l": 4,
+    "k": 2,
+    "bytes": 56088,
+    "budget": 4096,
+    "buffer_high": 4096,
+    "write_calls": 1520
+  },
+  {
+    "z": 2,
+    "l": 4,
+    "k": 2,
+    "bytes": 56088,
+    "budget": 56089,
+    "buffer_high": 56088,
+    "write_calls": 1516
+  },
+  {
+    "z": 2,
+    "l": 4,
+    "k": 3,
+    "bytes": 58616,
+    "budget": 1,
+    "buffer_high": 1,
+    "write_calls": 58616
+  },
+  {
+    "z": 2,
+    "l": 4,
+    "k": 3,
+    "bytes": 58616,
+    "budget": 7,
+    "buffer_high": 7,
+    "write_calls": 8374
+  },
+  {
+    "z": 2,
+    "l": 4,
+    "k": 3,
+    "bytes": 58616,
+    "budget": 64,
+    "buffer_high": 64,
+    "write_calls": 1832
+  },
+  {
+    "z": 2,
+    "l": 4,
+    "k": 3,
+    "bytes": 58616,
+    "budget": 1024,
+    "buffer_high": 1024,
+    "write_calls": 1603
+  },
+  {
+    "z": 2,
+    "l": 4,
+    "k": 3,
+    "bytes": 58616,
+    "budget": 4096,
+    "buffer_high": 4096,
+    "write_calls": 1589
+  },
+  {
+    "z": 2,
+    "l": 4,
+    "k": 3,
+    "bytes": 58616,
+    "budget": 58617,
+    "buffer_high": 58616,
+    "write_calls": 1585
+  }
+]

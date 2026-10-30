@@ -1,0 +1,4721 @@
+{
+  "schema": "zk60-shieldstral-native-intake-audit/1",
+  "scope": "COUNTED actual public arrays and exact integer checks; not native import/proof/privacy acceptance",
+  "layers": [
+    {
+      "layer": 0,
+      "constants": {
+        "norm_tn": 9,
+        "norm_cn_a": 848,
+        "norm_cn_m": 1716,
+        "norm_ceps": 2439,
+        "sh_qkv": 8,
+        "sh_rope": 7,
+        "sh_s": 7,
+        "sh_o": 9,
+        "sh_ao": 8,
+        "sh_g": 8,
+        "sh_u": 0,
+        "sh_h": 16,
+        "sh_z": 8,
+        "f_e": 9,
+        "f_p": 9,
+        "f_ro": 7,
+        "sh_r2": 0,
+        "silu_member": [
+          -4,
+          -13
+        ],
+        "exp_e_s": 2,
+        "rope_theta": 1000000.0,
+        "e_s": 2,
+        "silu": [
+          -4,
+          -13
+        ],
+        "wrho": 31
+      },
+      "derived_shifts": {
+        "norm_tn": 1,
+        "q": 15,
+        "k": 15,
+        "v": 16,
+        "score": 19,
+        "pv": 12,
+        "ao": 22,
+        "gate_before_group": 18,
+        "up": 12,
+        "product_before_group": 8,
+        "down": 22
+      },
+      "matrices": {
+        "q": {
+          "shape": [
+            4096,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 5,
+          "multiplier_min": 1,
+          "multiplier_max": 14
+        },
+        "k": {
+          "shape": [
+            1024,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 5,
+          "multiplier_min": 1,
+          "multiplier_max": 9
+        },
+        "v": {
+          "shape": [
+            1024,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 6,
+          "multiplier_max": 32
+        },
+        "o": {
+          "shape": [
+            3072,
+            4096
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 8,
+          "multiplier_min": 22,
+          "multiplier_max": 59
+        },
+        "g": {
+          "shape": [
+            3072,
+            9216
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 10,
+          "multiplier_max": 37
+        },
+        "u": {
+          "shape": [
+            3072,
+            9216
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 4,
+          "multiplier_min": 1,
+          "multiplier_max": 6
+        },
+        "d": {
+          "shape": [
+            9216,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 5,
+          "multiplier_max": 15
+        }
+      },
+      "group_members": [
+        [
+          -5,
+          -13
+        ],
+        [
+          -4,
+          -12
+        ],
+        [
+          -3,
+          -11
+        ]
+      ],
+      "group_counts": [
+        8,
+        6023,
+        3185
+      ],
+      "group_table_words": 12288,
+      "table_evidence": [
+        {
+          "member": [
+            -5,
+            -13
+          ],
+          "independent_fixture_sha256": "e4eeffcb8f6da10be42281581cd8b6155af26f659da09f360e9509cdc10554bc"
+        },
+        {
+          "member": [
+            -4,
+            -12
+          ],
+          "independent_fixture_sha256": "eb9eb66e4d23b793794e4f50b1cf4590c9664ea7920aa603f8806a0877ba1c9d"
+        },
+        {
+          "member": [
+            -3,
+            -11
+          ],
+          "independent_fixture_sha256": "d9bbe45ad9e8fc68f4e56aaa8d0d255bf33a8dbac2b4f373685478bce18fca53"
+        }
+      ],
+      "gate_common_shift": 19,
+      "folded_gate_multiplier_max": 60,
+      "aligned_product_shift": 16,
+      "derived_table_max_abs": 33538048,
+      "product_rounding_checks": 61440
+    },
+    {
+      "layer": 1,
+      "constants": {
+        "norm_tn": 9,
+        "norm_cn_a": 2600,
+        "norm_cn_m": 1471,
+        "norm_ceps": 2439,
+        "sh_qkv": 8,
+        "sh_rope": 7,
+        "sh_s": 8,
+        "sh_o": 9,
+        "sh_ao": 8,
+        "sh_g": 8,
+        "sh_u": 0,
+        "sh_h": 14,
+        "sh_z": 8,
+        "f_e": 9,
+        "f_p": 9,
+        "f_ro": 7,
+        "sh_r2": 0,
+        "silu_member": [
+          -3,
+          -11
+        ],
+        "exp_e_s": 2,
+        "rope_theta": 1000000.0,
+        "e_s": 2,
+        "silu": [
+          -3,
+          -11
+        ],
+        "wrho": 31
+      },
+      "derived_shifts": {
+        "norm_tn": 1,
+        "q": 15,
+        "k": 15,
+        "v": 16,
+        "score": 20,
+        "pv": 12,
+        "ao": 22,
+        "gate_before_group": 18,
+        "up": 12,
+        "product_before_group": 6,
+        "down": 22
+      },
+      "matrices": {
+        "q": {
+          "shape": [
+            4096,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 5,
+          "multiplier_min": 2,
+          "multiplier_max": 8
+        },
+        "k": {
+          "shape": [
+            1024,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 5,
+          "multiplier_min": 1,
+          "multiplier_max": 7
+        },
+        "v": {
+          "shape": [
+            1024,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 11,
+          "multiplier_max": 36
+        },
+        "o": {
+          "shape": [
+            3072,
+            4096
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 8,
+          "multiplier_min": 49,
+          "multiplier_max": 134
+        },
+        "g": {
+          "shape": [
+            3072,
+            9216
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 6,
+          "multiplier_max": 19
+        },
+        "u": {
+          "shape": [
+            3072,
+            9216
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 4,
+          "multiplier_min": 1,
+          "multiplier_max": 4
+        },
+        "d": {
+          "shape": [
+            9216,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 4,
+          "multiplier_max": 13
+        }
+      },
+      "group_members": [
+        [
+          -4,
+          -12
+        ],
+        [
+          -3,
+          -11
+        ],
+        [
+          -2,
+          -11
+        ]
+      ],
+      "group_counts": [
+        2946,
+        5801,
+        469
+      ],
+      "group_table_words": 12288,
+      "table_evidence": [
+        {
+          "member": [
+            -4,
+            -12
+          ],
+          "independent_fixture_sha256": "eb9eb66e4d23b793794e4f50b1cf4590c9664ea7920aa603f8806a0877ba1c9d"
+        },
+        {
+          "member": [
+            -3,
+            -11
+          ],
+          "independent_fixture_sha256": "d9bbe45ad9e8fc68f4e56aaa8d0d255bf33a8dbac2b4f373685478bce18fca53"
+        },
+        {
+          "member": [
+            -2,
+            -11
+          ],
+          "independent_fixture_sha256": "af09df195722879c4a339576ddefe0ca444158e8c57a2446abfb74995086b7d3"
+        }
+      ],
+      "gate_common_shift": 19,
+      "folded_gate_multiplier_max": 56,
+      "aligned_product_shift": 16,
+      "derived_table_max_abs": 33553408,
+      "product_rounding_checks": 61440
+    },
+    {
+      "layer": 2,
+      "constants": {
+        "norm_tn": 9,
+        "norm_cn_a": 2727,
+        "norm_cn_m": 1196,
+        "norm_ceps": 2439,
+        "sh_qkv": 8,
+        "sh_rope": 7,
+        "sh_s": 8,
+        "sh_o": 9,
+        "sh_ao": 8,
+        "sh_g": 8,
+        "sh_u": 0,
+        "sh_h": 16,
+        "sh_z": 6,
+        "f_e": 9,
+        "f_p": 9,
+        "f_ro": 7,
+        "sh_r2": 0,
+        "silu_member": [
+          -1,
+          -9
+        ],
+        "exp_e_s": 2,
+        "rope_theta": 1000000.0,
+        "e_s": 2,
+        "silu": [
+          -1,
+          -9
+        ],
+        "wrho": 31
+      },
+      "derived_shifts": {
+        "norm_tn": 1,
+        "q": 15,
+        "k": 15,
+        "v": 16,
+        "score": 20,
+        "pv": 12,
+        "ao": 22,
+        "gate_before_group": 18,
+        "up": 12,
+        "product_before_group": 8,
+        "down": 20
+      },
+      "matrices": {
+        "q": {
+          "shape": [
+            4096,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 5,
+          "multiplier_min": 1,
+          "multiplier_max": 8
+        },
+        "k": {
+          "shape": [
+            1024,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 5,
+          "multiplier_min": 1,
+          "multiplier_max": 7
+        },
+        "v": {
+          "shape": [
+            1024,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 12,
+          "multiplier_max": 40
+        },
+        "o": {
+          "shape": [
+            3072,
+            4096
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 8,
+          "multiplier_min": 51,
+          "multiplier_max": 123
+        },
+        "g": {
+          "shape": [
+            3072,
+            9216
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 2,
+          "multiplier_max": 7
+        },
+        "u": {
+          "shape": [
+            3072,
+            9216
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 4,
+          "multiplier_min": 1,
+          "multiplier_max": 4
+        },
+        "d": {
+          "shape": [
+            9216,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 16,
+          "multiplier_max": 64
+        }
+      },
+      "group_members": [
+        [
+          -4,
+          -12
+        ],
+        [
+          -3,
+          -11
+        ],
+        [
+          -2,
+          -11
+        ],
+        [
+          -1,
+          -9
+        ]
+      ],
+      "group_counts": [
+        525,
+        8081,
+        602,
+        8
+      ],
+      "group_table_words": 16384,
+      "table_evidence": [
+        {
+          "member": [
+            -4,
+            -12
+          ],
+          "independent_fixture_sha256": "eb9eb66e4d23b793794e4f50b1cf4590c9664ea7920aa603f8806a0877ba1c9d"
+        },
+        {
+          "member": [
+            -3,
+            -11
+          ],
+          "independent_fixture_sha256": "d9bbe45ad9e8fc68f4e56aaa8d0d255bf33a8dbac2b4f373685478bce18fca53"
+        },
+        {
+          "member": [
+            -2,
+            -11
+          ],
+          "independent_fixture_sha256": "af09df195722879c4a339576ddefe0ca444158e8c57a2446abfb74995086b7d3"
+        },
+        {
+          "member": [
+            -1,
+            -9
+          ],
+          "independent_fixture_sha256": "a86689aff2d6cd18c1c14ef13448cbbfb309f07f4c4b3570fe46bbbedc45471b"
+        }
+      ],
+      "gate_common_shift": 18,
+      "folded_gate_multiplier_max": 32,
+      "aligned_product_shift": 16,
+      "derived_table_max_abs": 8384512,
+      "product_rounding_checks": 81920
+    },
+    {
+      "layer": 3,
+      "constants": {
+        "norm_tn": 9,
+        "norm_cn_a": 2899,
+        "norm_cn_m": 1448,
+        "norm_ceps": 2439,
+        "sh_qkv": 8,
+        "sh_rope": 7,
+        "sh_s": 8,
+        "sh_o": 9,
+        "sh_ao": 8,
+        "sh_g": 8,
+        "sh_u": 0,
+        "sh_h": 15,
+        "sh_z": 8,
+        "f_e": 9,
+        "f_p": 9,
+        "f_ro": 7,
+        "sh_r2": 0,
+        "silu_member": [
+          -4,
+          -12
+        ],
+        "exp_e_s": 2,
+        "rope_theta": 1000000.0,
+        "e_s": 2,
+        "silu": [
+          -4,
+          -12
+        ],
+        "wrho": 31
+      },
+      "derived_shifts": {
+        "norm_tn": 1,
+        "q": 15,
+        "k": 15,
+        "v": 16,
+        "score": 20,
+        "pv": 12,
+        "ao": 22,
+        "gate_before_group": 18,
+        "up": 12,
+        "product_before_group": 7,
+        "down": 22
+      },
+      "matrices": {
+        "q": {
+          "shape": [
+            4096,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 5,
+          "multiplier_min": 1,
+          "multiplier_max": 11
+        },
+        "k": {
+          "shape": [
+            1024,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 5,
+          "multiplier_min": 2,
+          "multiplier_max": 9
+        },
+        "v": {
+          "shape": [
+            1024,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 10,
+          "multiplier_max": 34
+        },
+        "o": {
+          "shape": [
+            3072,
+            4096
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 8,
+          "multiplier_min": 74,
+          "multiplier_max": 166
+        },
+        "g": {
+          "shape": [
+            3072,
+            9216
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 9,
+          "multiplier_max": 23
+        },
+        "u": {
+          "shape": [
+            3072,
+            9216
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 4,
+          "multiplier_min": 1,
+          "multiplier_max": 3
+        },
+        "d": {
+          "shape": [
+            9216,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 5,
+          "multiplier_max": 11
+        }
+      },
+      "group_members": [
+        [
+          -4,
+          -12
+        ],
+        [
+          -3,
+          -11
+        ],
+        [
+          -2,
+          -11
+        ]
+      ],
+      "group_counts": [
+        109,
+        8080,
+        1027
+      ],
+      "group_table_words": 12288,
+      "table_evidence": [
+        {
+          "member": [
+            -4,
+            -12
+          ],
+          "independent_fixture_sha256": "eb9eb66e4d23b793794e4f50b1cf4590c9664ea7920aa603f8806a0877ba1c9d"
+        },
+        {
+          "member": [
+            -3,
+            -11
+          ],
+          "independent_fixture_sha256": "d9bbe45ad9e8fc68f4e56aaa8d0d255bf33a8dbac2b4f373685478bce18fca53"
+        },
+        {
+          "member": [
+            -2,
+            -11
+          ],
+          "independent_fixture_sha256": "af09df195722879c4a339576ddefe0ca444158e8c57a2446abfb74995086b7d3"
+        }
+      ],
+      "gate_common_shift": 20,
+      "folded_gate_multiplier_max": 68,
+      "aligned_product_shift": 16,
+      "derived_table_max_abs": 33553408,
+      "product_rounding_checks": 61440
+    },
+    {
+      "layer": 4,
+      "constants": {
+        "norm_tn": 9,
+        "norm_cn_a": 2304,
+        "norm_cn_m": 1289,
+        "norm_ceps": 2439,
+        "sh_qkv": 8,
+        "sh_rope": 7,
+        "sh_s": 6,
+        "sh_o": 9,
+        "sh_ao": 8,
+        "sh_g": 8,
+        "sh_u": 0,
+        "sh_h": 15,
+        "sh_z": 8,
+        "f_e": 9,
+        "f_p": 9,
+        "f_ro": 7,
+        "sh_r2": 0,
+        "silu_member": [
+          -4,
+          -12
+        ],
+        "exp_e_s": 1,
+        "rope_theta": 1000000.0,
+        "e_s": 1,
+        "silu": [
+          -4,
+          -12
+        ],
+        "wrho": 31
+      },
+      "derived_shifts": {
+        "norm_tn": 1,
+        "q": 15,
+        "k": 15,
+        "v": 16,
+        "score": 18,
+        "pv": 12,
+        "ao": 22,
+        "gate_before_group": 18,
+        "up": 12,
+        "product_before_group": 7,
+        "down": 22
+      },
+      "matrices": {
+        "q": {
+          "shape": [
+            4096,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 5,
+          "multiplier_min": 1,
+          "multiplier_max": 10
+        },
+        "k": {
+          "shape": [
+            1024,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 5,
+          "multiplier_min": 1,
+          "multiplier_max": 7
+        },
+        "v": {
+          "shape": [
+            1024,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 11,
+          "multiplier_max": 37
+        },
+        "o": {
+          "shape": [
+            3072,
+            4096
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 8,
+          "multiplier_min": 85,
+          "multiplier_max": 167
+        },
+        "g": {
+          "shape": [
+            3072,
+            9216
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 9,
+          "multiplier_max": 27
+        },
+        "u": {
+          "shape": [
+            3072,
+            9216
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 4,
+          "multiplier_min": 1,
+          "multiplier_max": 3
+        },
+        "d": {
+          "shape": [
+            9216,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 5,
+          "multiplier_max": 13
+        }
+      },
+      "group_members": [
+        [
+          -4,
+          -12
+        ],
+        [
+          -3,
+          -11
+        ],
+        [
+          -2,
+          -11
+        ]
+      ],
+      "group_counts": [
+        44,
+        7265,
+        1907
+      ],
+      "group_table_words": 12288,
+      "table_evidence": [
+        {
+          "member": [
+            -4,
+            -12
+          ],
+          "independent_fixture_sha256": "eb9eb66e4d23b793794e4f50b1cf4590c9664ea7920aa603f8806a0877ba1c9d"
+        },
+        {
+          "member": [
+            -3,
+            -11
+          ],
+          "independent_fixture_sha256": "d9bbe45ad9e8fc68f4e56aaa8d0d255bf33a8dbac2b4f373685478bce18fca53"
+        },
+        {
+          "member": [
+            -2,
+            -11
+          ],
+          "independent_fixture_sha256": "af09df195722879c4a339576ddefe0ca444158e8c57a2446abfb74995086b7d3"
+        }
+      ],
+      "gate_common_shift": 20,
+      "folded_gate_multiplier_max": 68,
+      "aligned_product_shift": 16,
+      "derived_table_max_abs": 33553408,
+      "product_rounding_checks": 61440
+    },
+    {
+      "layer": 5,
+      "constants": {
+        "norm_tn": 9,
+        "norm_cn_a": 2277,
+        "norm_cn_m": 1539,
+        "norm_ceps": 2439,
+        "sh_qkv": 8,
+        "sh_rope": 7,
+        "sh_s": 7,
+        "sh_o": 9,
+        "sh_ao": 8,
+        "sh_g": 8,
+        "sh_u": 0,
+        "sh_h": 15,
+        "sh_z": 8,
+        "f_e": 9,
+        "f_p": 9,
+        "f_ro": 7,
+        "sh_r2": 0,
+        "silu_member": [
+          -4,
+          -12
+        ],
+        "exp_e_s": 2,
+        "rope_theta": 1000000.0,
+        "e_s": 2,
+        "silu": [
+          -4,
+          -12
+        ],
+        "wrho": 31
+      },
+      "derived_shifts": {
+        "norm_tn": 1,
+        "q": 15,
+        "k": 15,
+        "v": 16,
+        "score": 19,
+        "pv": 12,
+        "ao": 22,
+        "gate_before_group": 18,
+        "up": 12,
+        "product_before_group": 7,
+        "down": 22
+      },
+      "matrices": {
+        "q": {
+          "shape": [
+            4096,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 5,
+          "multiplier_min": 1,
+          "multiplier_max": 9
+        },
+        "k": {
+          "shape": [
+            1024,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 5,
+          "multiplier_min": 2,
+          "multiplier_max": 8
+        },
+        "v": {
+          "shape": [
+            1024,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 12,
+          "multiplier_max": 34
+        },
+        "o": {
+          "shape": [
+            3072,
+            4096
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 8,
+          "multiplier_min": 96,
+          "multiplier_max": 208
+        },
+        "g": {
+          "shape": [
+            3072,
+            9216
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 8,
+          "multiplier_max": 32
+        },
+        "u": {
+          "shape": [
+            3072,
+            9216
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 4,
+          "multiplier_min": 1,
+          "multiplier_max": 3
+        },
+        "d": {
+          "shape": [
+            9216,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 5,
+          "multiplier_max": 12
+        }
+      },
+      "group_members": [
+        [
+          -4,
+          -12
+        ],
+        [
+          -3,
+          -11
+        ],
+        [
+          -2,
+          -11
+        ]
+      ],
+      "group_counts": [
+        20,
+        6842,
+        2354
+      ],
+      "group_table_words": 12288,
+      "table_evidence": [
+        {
+          "member": [
+            -4,
+            -12
+          ],
+          "independent_fixture_sha256": "eb9eb66e4d23b793794e4f50b1cf4590c9664ea7920aa603f8806a0877ba1c9d"
+        },
+        {
+          "member": [
+            -3,
+            -11
+          ],
+          "independent_fixture_sha256": "d9bbe45ad9e8fc68f4e56aaa8d0d255bf33a8dbac2b4f373685478bce18fca53"
+        },
+        {
+          "member": [
+            -2,
+            -11
+          ],
+          "independent_fixture_sha256": "af09df195722879c4a339576ddefe0ca444158e8c57a2446abfb74995086b7d3"
+        }
+      ],
+      "gate_common_shift": 20,
+      "folded_gate_multiplier_max": 60,
+      "aligned_product_shift": 16,
+      "derived_table_max_abs": 33553408,
+      "product_rounding_checks": 61440
+    },
+    {
+      "layer": 6,
+      "constants": {
+        "norm_tn": 9,
+        "norm_cn_a": 2190,
+        "norm_cn_m": 1370,
+        "norm_ceps": 2439,
+        "sh_qkv": 8,
+        "sh_rope": 7,
+        "sh_s": 7,
+        "sh_o": 9,
+        "sh_ao": 7,
+        "sh_g": 8,
+        "sh_u": 0,
+        "sh_h": 15,
+        "sh_z": 8,
+        "f_e": 9,
+        "f_p": 9,
+        "f_ro": 7,
+        "sh_r2": 0,
+        "silu_member": [
+          -4,
+          -12
+        ],
+        "exp_e_s": 2,
+        "rope_theta": 1000000.0,
+        "e_s": 2,
+        "silu": [
+          -4,
+          -12
+        ],
+        "wrho": 31
+      },
+      "derived_shifts": {
+        "norm_tn": 1,
+        "q": 15,
+        "k": 15,
+        "v": 16,
+        "score": 19,
+        "pv": 12,
+        "ao": 21,
+        "gate_before_group": 18,
+        "up": 12,
+        "product_before_group": 7,
+        "down": 22
+      },
+      "matrices": {
+        "q": {
+          "shape": [
+            4096,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 5,
+          "multiplier_min": 1,
+          "multiplier_max": 10
+        },
+        "k": {
+          "shape": [
+            1024,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 5,
+          "multiplier_min": 2,
+          "multiplier_max": 8
+        },
+        "v": {
+          "shape": [
+            1024,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 11,
+          "multiplier_max": 34
+        },
+        "o": {
+          "shape": [
+            3072,
+            4096
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 8,
+          "multiplier_min": 66,
+          "multiplier_max": 147
+        },
+        "g": {
+          "shape": [
+            3072,
+            9216
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 8,
+          "multiplier_max": 25
+        },
+        "u": {
+          "shape": [
+            3072,
+            9216
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 4,
+          "multiplier_min": 1,
+          "multiplier_max": 3
+        },
+        "d": {
+          "shape": [
+            9216,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 5,
+          "multiplier_max": 14
+        }
+      },
+      "group_members": [
+        [
+          -4,
+          -12
+        ],
+        [
+          -3,
+          -11
+        ],
+        [
+          -2,
+          -11
+        ]
+      ],
+      "group_counts": [
+        19,
+        6076,
+        3121
+      ],
+      "group_table_words": 12288,
+      "table_evidence": [
+        {
+          "member": [
+            -4,
+            -12
+          ],
+          "independent_fixture_sha256": "eb9eb66e4d23b793794e4f50b1cf4590c9664ea7920aa603f8806a0877ba1c9d"
+        },
+        {
+          "member": [
+            -3,
+            -11
+          ],
+          "independent_fixture_sha256": "d9bbe45ad9e8fc68f4e56aaa8d0d255bf33a8dbac2b4f373685478bce18fca53"
+        },
+        {
+          "member": [
+            -2,
+            -11
+          ],
+          "independent_fixture_sha256": "af09df195722879c4a339576ddefe0ca444158e8c57a2446abfb74995086b7d3"
+        }
+      ],
+      "gate_common_shift": 20,
+      "folded_gate_multiplier_max": 68,
+      "aligned_product_shift": 16,
+      "derived_table_max_abs": 33553408,
+      "product_rounding_checks": 61440
+    },
+    {
+      "layer": 7,
+      "constants": {
+        "norm_tn": 9,
+        "norm_cn_a": 2212,
+        "norm_cn_m": 1424,
+        "norm_ceps": 2439,
+        "sh_qkv": 8,
+        "sh_rope": 7,
+        "sh_s": 6,
+        "sh_o": 9,
+        "sh_ao": 8,
+        "sh_g": 8,
+        "sh_u": 0,
+        "sh_h": 15,
+        "sh_z": 8,
+        "f_e": 9,
+        "f_p": 9,
+        "f_ro": 7,
+        "sh_r2": 0,
+        "silu_member": [
+          -4,
+          -12
+        ],
+        "exp_e_s": 1,
+        "rope_theta": 1000000.0,
+        "e_s": 1,
+        "silu": [
+          -4,
+          -12
+        ],
+        "wrho": 31
+      },
+      "derived_shifts": {
+        "norm_tn": 1,
+        "q": 15,
+        "k": 15,
+        "v": 16,
+        "score": 18,
+        "pv": 12,
+        "ao": 22,
+        "gate_before_group": 18,
+        "up": 12,
+        "product_before_group": 7,
+        "down": 22
+      },
+      "matrices": {
+        "q": {
+          "shape": [
+            4096,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 5,
+          "multiplier_min": 1,
+          "multiplier_max": 10
+        },
+        "k": {
+          "shape": [
+            1024,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 5,
+          "multiplier_min": 2,
+          "multiplier_max": 7
+        },
+        "v": {
+          "shape": [
+            1024,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 12,
+          "multiplier_max": 31
+        },
+        "o": {
+          "shape": [
+            3072,
+            4096
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 8,
+          "multiplier_min": 99,
+          "multiplier_max": 199
+        },
+        "g": {
+          "shape": [
+            3072,
+            9216
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 8,
+          "multiplier_max": 26
+        },
+        "u": {
+          "shape": [
+            3072,
+            9216
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 4,
+          "multiplier_min": 1,
+          "multiplier_max": 3
+        },
+        "d": {
+          "shape": [
+            9216,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 5,
+          "multiplier_max": 13
+        }
+      },
+      "group_members": [
+        [
+          -4,
+          -12
+        ],
+        [
+          -3,
+          -11
+        ],
+        [
+          -2,
+          -11
+        ]
+      ],
+      "group_counts": [
+        10,
+        4233,
+        4973
+      ],
+      "group_table_words": 12288,
+      "table_evidence": [
+        {
+          "member": [
+            -4,
+            -12
+          ],
+          "independent_fixture_sha256": "eb9eb66e4d23b793794e4f50b1cf4590c9664ea7920aa603f8806a0877ba1c9d"
+        },
+        {
+          "member": [
+            -3,
+            -11
+          ],
+          "independent_fixture_sha256": "d9bbe45ad9e8fc68f4e56aaa8d0d255bf33a8dbac2b4f373685478bce18fca53"
+        },
+        {
+          "member": [
+            -2,
+            -11
+          ],
+          "independent_fixture_sha256": "af09df195722879c4a339576ddefe0ca444158e8c57a2446abfb74995086b7d3"
+        }
+      ],
+      "gate_common_shift": 20,
+      "folded_gate_multiplier_max": 56,
+      "aligned_product_shift": 16,
+      "derived_table_max_abs": 33553408,
+      "product_rounding_checks": 61440
+    },
+    {
+      "layer": 8,
+      "constants": {
+        "norm_tn": 9,
+        "norm_cn_a": 2248,
+        "norm_cn_m": 1479,
+        "norm_ceps": 2439,
+        "sh_qkv": 8,
+        "sh_rope": 7,
+        "sh_s": 6,
+        "sh_o": 9,
+        "sh_ao": 8,
+        "sh_g": 8,
+        "sh_u": 0,
+        "sh_h": 15,
+        "sh_z": 8,
+        "f_e": 9,
+        "f_p": 9,
+        "f_ro": 7,
+        "sh_r2": 0,
+        "silu_member": [
+          -4,
+          -12
+        ],
+        "exp_e_s": 1,
+        "rope_theta": 1000000.0,
+        "e_s": 1,
+        "silu": [
+          -4,
+          -12
+        ],
+        "wrho": 31
+      },
+      "derived_shifts": {
+        "norm_tn": 1,
+        "q": 15,
+        "k": 15,
+        "v": 16,
+        "score": 18,
+        "pv": 12,
+        "ao": 22,
+        "gate_before_group": 18,
+        "up": 12,
+        "product_before_group": 7,
+        "down": 22
+      },
+      "matrices": {
+        "q": {
+          "shape": [
+            4096,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 5,
+          "multiplier_min": 1,
+          "multiplier_max": 9
+        },
+        "k": {
+          "shape": [
+            1024,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 5,
+          "multiplier_min": 2,
+          "multiplier_max": 8
+        },
+        "v": {
+          "shape": [
+            1024,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 10,
+          "multiplier_max": 34
+        },
+        "o": {
+          "shape": [
+            3072,
+            4096
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 8,
+          "multiplier_min": 115,
+          "multiplier_max": 250
+        },
+        "g": {
+          "shape": [
+            3072,
+            9216
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 7,
+          "multiplier_max": 25
+        },
+        "u": {
+          "shape": [
+            3072,
+            9216
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 4,
+          "multiplier_min": 1,
+          "multiplier_max": 3
+        },
+        "d": {
+          "shape": [
+            9216,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 5,
+          "multiplier_max": 15
+        }
+      },
+      "group_members": [
+        [
+          -4,
+          -12
+        ],
+        [
+          -3,
+          -11
+        ],
+        [
+          -2,
+          -11
+        ]
+      ],
+      "group_counts": [
+        13,
+        5757,
+        3446
+      ],
+      "group_table_words": 12288,
+      "table_evidence": [
+        {
+          "member": [
+            -4,
+            -12
+          ],
+          "independent_fixture_sha256": "eb9eb66e4d23b793794e4f50b1cf4590c9664ea7920aa603f8806a0877ba1c9d"
+        },
+        {
+          "member": [
+            -3,
+            -11
+          ],
+          "independent_fixture_sha256": "d9bbe45ad9e8fc68f4e56aaa8d0d255bf33a8dbac2b4f373685478bce18fca53"
+        },
+        {
+          "member": [
+            -2,
+            -11
+          ],
+          "independent_fixture_sha256": "af09df195722879c4a339576ddefe0ca444158e8c57a2446abfb74995086b7d3"
+        }
+      ],
+      "gate_common_shift": 20,
+      "folded_gate_multiplier_max": 56,
+      "aligned_product_shift": 16,
+      "derived_table_max_abs": 33553408,
+      "product_rounding_checks": 61440
+    },
+    {
+      "layer": 9,
+      "constants": {
+        "norm_tn": 9,
+        "norm_cn_a": 2267,
+        "norm_cn_m": 1302,
+        "norm_ceps": 2439,
+        "sh_qkv": 8,
+        "sh_rope": 7,
+        "sh_s": 7,
+        "sh_o": 9,
+        "sh_ao": 7,
+        "sh_g": 8,
+        "sh_u": 0,
+        "sh_h": 14,
+        "sh_z": 8,
+        "f_e": 9,
+        "f_p": 9,
+        "f_ro": 7,
+        "sh_r2": 0,
+        "silu_member": [
+          -3,
+          -11
+        ],
+        "exp_e_s": 2,
+        "rope_theta": 1000000.0,
+        "e_s": 2,
+        "silu": [
+          -3,
+          -11
+        ],
+        "wrho": 31
+      },
+      "derived_shifts": {
+        "norm_tn": 1,
+        "q": 15,
+        "k": 15,
+        "v": 16,
+        "score": 19,
+        "pv": 12,
+        "ao": 21,
+        "gate_before_group": 18,
+        "up": 12,
+        "product_before_group": 6,
+        "down": 22
+      },
+      "matrices": {
+        "q": {
+          "shape": [
+            4096,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 5,
+          "multiplier_min": 2,
+          "multiplier_max": 14
+        },
+        "k": {
+          "shape": [
+            1024,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 5,
+          "multiplier_min": 2,
+          "multiplier_max": 8
+        },
+        "v": {
+          "shape": [
+            1024,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 9,
+          "multiplier_max": 32
+        },
+        "o": {
+          "shape": [
+            3072,
+            4096
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 8,
+          "multiplier_min": 62,
+          "multiplier_max": 156
+        },
+        "g": {
+          "shape": [
+            3072,
+            9216
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 6,
+          "multiplier_max": 36
+        },
+        "u": {
+          "shape": [
+            3072,
+            9216
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 4,
+          "multiplier_min": 1,
+          "multiplier_max": 4
+        },
+        "d": {
+          "shape": [
+            9216,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 6,
+          "multiplier_max": 12
+        }
+      },
+      "group_members": [
+        [
+          -4,
+          -12
+        ],
+        [
+          -3,
+          -11
+        ],
+        [
+          -2,
+          -11
+        ],
+        [
+          -1,
+          -10
+        ]
+      ],
+      "group_counts": [
+        8,
+        5277,
+        3911,
+        20
+      ],
+      "group_table_words": 16384,
+      "table_evidence": [
+        {
+          "member": [
+            -4,
+            -12
+          ],
+          "independent_fixture_sha256": "eb9eb66e4d23b793794e4f50b1cf4590c9664ea7920aa603f8806a0877ba1c9d"
+        },
+        {
+          "member": [
+            -3,
+            -11
+          ],
+          "independent_fixture_sha256": "d9bbe45ad9e8fc68f4e56aaa8d0d255bf33a8dbac2b4f373685478bce18fca53"
+        },
+        {
+          "member": [
+            -2,
+            -11
+          ],
+          "independent_fixture_sha256": "af09df195722879c4a339576ddefe0ca444158e8c57a2446abfb74995086b7d3"
+        },
+        {
+          "member": [
+            -1,
+            -10
+          ],
+          "independent_fixture_sha256": "b56bb145dee964c113b7ccb54b95854dec7180384e9ab1027b703498abe1e0ae"
+        }
+      ],
+      "gate_common_shift": 20,
+      "folded_gate_multiplier_max": 84,
+      "aligned_product_shift": 16,
+      "derived_table_max_abs": 67106816,
+      "product_rounding_checks": 81920
+    },
+    {
+      "layer": 10,
+      "constants": {
+        "norm_tn": 9,
+        "norm_cn_a": 2218,
+        "norm_cn_m": 1539,
+        "norm_ceps": 2439,
+        "sh_qkv": 8,
+        "sh_rope": 7,
+        "sh_s": 6,
+        "sh_o": 9,
+        "sh_ao": 7,
+        "sh_g": 8,
+        "sh_u": 0,
+        "sh_h": 16,
+        "sh_z": 8,
+        "f_e": 9,
+        "f_p": 9,
+        "f_ro": 7,
+        "sh_r2": 0,
+        "silu_member": [
+          -3,
+          -11
+        ],
+        "exp_e_s": 1,
+        "rope_theta": 1000000.0,
+        "e_s": 1,
+        "silu": [
+          -3,
+          -11
+        ],
+        "wrho": 31
+      },
+      "derived_shifts": {
+        "norm_tn": 1,
+        "q": 15,
+        "k": 15,
+        "v": 16,
+        "score": 18,
+        "pv": 12,
+        "ao": 21,
+        "gate_before_group": 18,
+        "up": 12,
+        "product_before_group": 8,
+        "down": 22
+      },
+      "matrices": {
+        "q": {
+          "shape": [
+            4096,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 5,
+          "multiplier_min": 2,
+          "multiplier_max": 9
+        },
+        "k": {
+          "shape": [
+            1024,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 5,
+          "multiplier_min": 2,
+          "multiplier_max": 7
+        },
+        "v": {
+          "shape": [
+            1024,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 10,
+          "multiplier_max": 32
+        },
+        "o": {
+          "shape": [
+            3072,
+            4096
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 8,
+          "multiplier_min": 58,
+          "multiplier_max": 130
+        },
+        "g": {
+          "shape": [
+            3072,
+            9216
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 4,
+          "multiplier_max": 21
+        },
+        "u": {
+          "shape": [
+            3072,
+            9216
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 4,
+          "multiplier_min": 1,
+          "multiplier_max": 7
+        },
+        "d": {
+          "shape": [
+            9216,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 9,
+          "multiplier_max": 52
+        }
+      },
+      "group_members": [
+        [
+          -4,
+          -12
+        ],
+        [
+          -3,
+          -11
+        ],
+        [
+          -2,
+          -11
+        ]
+      ],
+      "group_counts": [
+        12,
+        5960,
+        3244
+      ],
+      "group_table_words": 12288,
+      "table_evidence": [
+        {
+          "member": [
+            -4,
+            -12
+          ],
+          "independent_fixture_sha256": "eb9eb66e4d23b793794e4f50b1cf4590c9664ea7920aa603f8806a0877ba1c9d"
+        },
+        {
+          "member": [
+            -3,
+            -11
+          ],
+          "independent_fixture_sha256": "d9bbe45ad9e8fc68f4e56aaa8d0d255bf33a8dbac2b4f373685478bce18fca53"
+        },
+        {
+          "member": [
+            -2,
+            -11
+          ],
+          "independent_fixture_sha256": "af09df195722879c4a339576ddefe0ca444158e8c57a2446abfb74995086b7d3"
+        }
+      ],
+      "gate_common_shift": 19,
+      "folded_gate_multiplier_max": 32,
+      "aligned_product_shift": 16,
+      "derived_table_max_abs": 8388352,
+      "product_rounding_checks": 61440
+    },
+    {
+      "layer": 11,
+      "constants": {
+        "norm_tn": 9,
+        "norm_cn_a": 2233,
+        "norm_cn_m": 1533,
+        "norm_ceps": 2439,
+        "sh_qkv": 8,
+        "sh_rope": 7,
+        "sh_s": 7,
+        "sh_o": 9,
+        "sh_ao": 7,
+        "sh_g": 8,
+        "sh_u": 0,
+        "sh_h": 15,
+        "sh_z": 8,
+        "f_e": 9,
+        "f_p": 9,
+        "f_ro": 7,
+        "sh_r2": 0,
+        "silu_member": [
+          -3,
+          -11
+        ],
+        "exp_e_s": 2,
+        "rope_theta": 1000000.0,
+        "e_s": 2,
+        "silu": [
+          -3,
+          -11
+        ],
+        "wrho": 31
+      },
+      "derived_shifts": {
+        "norm_tn": 1,
+        "q": 15,
+        "k": 15,
+        "v": 16,
+        "score": 19,
+        "pv": 12,
+        "ao": 21,
+        "gate_before_group": 18,
+        "up": 12,
+        "product_before_group": 7,
+        "down": 22
+      },
+      "matrices": {
+        "q": {
+          "shape": [
+            4096,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 5,
+          "multiplier_min": 2,
+          "multiplier_max": 8
+        },
+        "k": {
+          "shape": [
+            1024,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 5,
+          "multiplier_min": 2,
+          "multiplier_max": 8
+        },
+        "v": {
+          "shape": [
+            1024,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 6,
+          "multiplier_max": 30
+        },
+        "o": {
+          "shape": [
+            3072,
+            4096
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 8,
+          "multiplier_min": 74,
+          "multiplier_max": 248
+        },
+        "g": {
+          "shape": [
+            3072,
+            9216
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 4,
+          "multiplier_max": 20
+        },
+        "u": {
+          "shape": [
+            3072,
+            9216
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 4,
+          "multiplier_min": 1,
+          "multiplier_max": 5
+        },
+        "d": {
+          "shape": [
+            9216,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 7,
+          "multiplier_max": 34
+        }
+      },
+      "group_members": [
+        [
+          -4,
+          -12
+        ],
+        [
+          -3,
+          -11
+        ],
+        [
+          -2,
+          -11
+        ],
+        [
+          -1,
+          -9
+        ]
+      ],
+      "group_counts": [
+        8,
+        6810,
+        2379,
+        19
+      ],
+      "group_table_words": 16384,
+      "table_evidence": [
+        {
+          "member": [
+            -4,
+            -12
+          ],
+          "independent_fixture_sha256": "eb9eb66e4d23b793794e4f50b1cf4590c9664ea7920aa603f8806a0877ba1c9d"
+        },
+        {
+          "member": [
+            -3,
+            -11
+          ],
+          "independent_fixture_sha256": "d9bbe45ad9e8fc68f4e56aaa8d0d255bf33a8dbac2b4f373685478bce18fca53"
+        },
+        {
+          "member": [
+            -2,
+            -11
+          ],
+          "independent_fixture_sha256": "af09df195722879c4a339576ddefe0ca444158e8c57a2446abfb74995086b7d3"
+        },
+        {
+          "member": [
+            -1,
+            -9
+          ],
+          "independent_fixture_sha256": "a86689aff2d6cd18c1c14ef13448cbbfb309f07f4c4b3570fe46bbbedc45471b"
+        }
+      ],
+      "gate_common_shift": 20,
+      "folded_gate_multiplier_max": 60,
+      "aligned_product_shift": 16,
+      "derived_table_max_abs": 67076096,
+      "product_rounding_checks": 81920
+    },
+    {
+      "layer": 12,
+      "constants": {
+        "norm_tn": 9,
+        "norm_cn_a": 2208,
+        "norm_cn_m": 1246,
+        "norm_ceps": 2439,
+        "sh_qkv": 8,
+        "sh_rope": 7,
+        "sh_s": 6,
+        "sh_o": 9,
+        "sh_ao": 7,
+        "sh_g": 8,
+        "sh_u": 0,
+        "sh_h": 14,
+        "sh_z": 8,
+        "f_e": 9,
+        "f_p": 9,
+        "f_ro": 7,
+        "sh_r2": 0,
+        "silu_member": [
+          -3,
+          -11
+        ],
+        "exp_e_s": 1,
+        "rope_theta": 1000000.0,
+        "e_s": 1,
+        "silu": [
+          -3,
+          -11
+        ],
+        "wrho": 31
+      },
+      "derived_shifts": {
+        "norm_tn": 1,
+        "q": 15,
+        "k": 15,
+        "v": 16,
+        "score": 18,
+        "pv": 12,
+        "ao": 21,
+        "gate_before_group": 18,
+        "up": 12,
+        "product_before_group": 6,
+        "down": 22
+      },
+      "matrices": {
+        "q": {
+          "shape": [
+            4096,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 5,
+          "multiplier_min": 1,
+          "multiplier_max": 9
+        },
+        "k": {
+          "shape": [
+            1024,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 5,
+          "multiplier_min": 2,
+          "multiplier_max": 7
+        },
+        "v": {
+          "shape": [
+            1024,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 5,
+          "multiplier_max": 29
+        },
+        "o": {
+          "shape": [
+            3072,
+            4096
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 8,
+          "multiplier_min": 85,
+          "multiplier_max": 255
+        },
+        "g": {
+          "shape": [
+            3072,
+            9216
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 4,
+          "multiplier_max": 31
+        },
+        "u": {
+          "shape": [
+            3072,
+            9216
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 4,
+          "multiplier_min": 1,
+          "multiplier_max": 4
+        },
+        "d": {
+          "shape": [
+            9216,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 6,
+          "multiplier_max": 22
+        }
+      },
+      "group_members": [
+        [
+          -4,
+          -12
+        ],
+        [
+          -3,
+          -11
+        ],
+        [
+          -2,
+          -11
+        ],
+        [
+          -1,
+          -9
+        ]
+      ],
+      "group_counts": [
+        60,
+        7352,
+        1786,
+        18
+      ],
+      "group_table_words": 16384,
+      "table_evidence": [
+        {
+          "member": [
+            -4,
+            -12
+          ],
+          "independent_fixture_sha256": "eb9eb66e4d23b793794e4f50b1cf4590c9664ea7920aa603f8806a0877ba1c9d"
+        },
+        {
+          "member": [
+            -3,
+            -11
+          ],
+          "independent_fixture_sha256": "d9bbe45ad9e8fc68f4e56aaa8d0d255bf33a8dbac2b4f373685478bce18fca53"
+        },
+        {
+          "member": [
+            -2,
+            -11
+          ],
+          "independent_fixture_sha256": "af09df195722879c4a339576ddefe0ca444158e8c57a2446abfb74995086b7d3"
+        },
+        {
+          "member": [
+            -1,
+            -9
+          ],
+          "independent_fixture_sha256": "a86689aff2d6cd18c1c14ef13448cbbfb309f07f4c4b3570fe46bbbedc45471b"
+        }
+      ],
+      "gate_common_shift": 20,
+      "folded_gate_multiplier_max": 84,
+      "aligned_product_shift": 16,
+      "derived_table_max_abs": 134152192,
+      "product_rounding_checks": 81920
+    },
+    {
+      "layer": 13,
+      "constants": {
+        "norm_tn": 9,
+        "norm_cn_a": 2185,
+        "norm_cn_m": 999,
+        "norm_ceps": 2439,
+        "sh_qkv": 8,
+        "sh_rope": 7,
+        "sh_s": 7,
+        "sh_o": 9,
+        "sh_ao": 7,
+        "sh_g": 8,
+        "sh_u": 0,
+        "sh_h": 13,
+        "sh_z": 8,
+        "f_e": 9,
+        "f_p": 9,
+        "f_ro": 7,
+        "sh_r2": 0,
+        "silu_member": [
+          -3,
+          -11
+        ],
+        "exp_e_s": 2,
+        "rope_theta": 1000000.0,
+        "e_s": 2,
+        "silu": [
+          -3,
+          -11
+        ],
+        "wrho": 31
+      },
+      "derived_shifts": {
+        "norm_tn": 1,
+        "q": 15,
+        "k": 15,
+        "v": 16,
+        "score": 19,
+        "pv": 12,
+        "ao": 21,
+        "gate_before_group": 18,
+        "up": 12,
+        "product_before_group": 5,
+        "down": 22
+      },
+      "matrices": {
+        "q": {
+          "shape": [
+            4096,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 5,
+          "multiplier_min": 1,
+          "multiplier_max": 10
+        },
+        "k": {
+          "shape": [
+            1024,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 5,
+          "multiplier_min": 2,
+          "multiplier_max": 9
+        },
+        "v": {
+          "shape": [
+            1024,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 6,
+          "multiplier_max": 28
+        },
+        "o": {
+          "shape": [
+            3072,
+            4096
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 8,
+          "multiplier_min": 84,
+          "multiplier_max": 228
+        },
+        "g": {
+          "shape": [
+            3072,
+            9216
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 6,
+          "multiplier_max": 35
+        },
+        "u": {
+          "shape": [
+            3072,
+            9216
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 4,
+          "multiplier_min": 1,
+          "multiplier_max": 3
+        },
+        "d": {
+          "shape": [
+            9216,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 5,
+          "multiplier_max": 16
+        }
+      },
+      "group_members": [
+        [
+          -4,
+          -12
+        ],
+        [
+          -3,
+          -11
+        ],
+        [
+          -2,
+          -11
+        ],
+        [
+          -1,
+          -10
+        ]
+      ],
+      "group_counts": [
+        21,
+        7317,
+        1861,
+        17
+      ],
+      "group_table_words": 16384,
+      "table_evidence": [
+        {
+          "member": [
+            -4,
+            -12
+          ],
+          "independent_fixture_sha256": "eb9eb66e4d23b793794e4f50b1cf4590c9664ea7920aa603f8806a0877ba1c9d"
+        },
+        {
+          "member": [
+            -3,
+            -11
+          ],
+          "independent_fixture_sha256": "d9bbe45ad9e8fc68f4e56aaa8d0d255bf33a8dbac2b4f373685478bce18fca53"
+        },
+        {
+          "member": [
+            -2,
+            -11
+          ],
+          "independent_fixture_sha256": "af09df195722879c4a339576ddefe0ca444158e8c57a2446abfb74995086b7d3"
+        },
+        {
+          "member": [
+            -1,
+            -10
+          ],
+          "independent_fixture_sha256": "b56bb145dee964c113b7ccb54b95854dec7180384e9ab1027b703498abe1e0ae"
+        }
+      ],
+      "gate_common_shift": 20,
+      "folded_gate_multiplier_max": 96,
+      "aligned_product_shift": 16,
+      "derived_table_max_abs": 134213632,
+      "product_rounding_checks": 81920
+    },
+    {
+      "layer": 14,
+      "constants": {
+        "norm_tn": 9,
+        "norm_cn_a": 2118,
+        "norm_cn_m": 1052,
+        "norm_ceps": 2439,
+        "sh_qkv": 8,
+        "sh_rope": 7,
+        "sh_s": 7,
+        "sh_o": 9,
+        "sh_ao": 7,
+        "sh_g": 8,
+        "sh_u": 0,
+        "sh_h": 13,
+        "sh_z": 8,
+        "f_e": 9,
+        "f_p": 9,
+        "f_ro": 7,
+        "sh_r2": 0,
+        "silu_member": [
+          -3,
+          -11
+        ],
+        "exp_e_s": 2,
+        "rope_theta": 1000000.0,
+        "e_s": 2,
+        "silu": [
+          -3,
+          -11
+        ],
+        "wrho": 31
+      },
+      "derived_shifts": {
+        "norm_tn": 1,
+        "q": 15,
+        "k": 15,
+        "v": 16,
+        "score": 19,
+        "pv": 12,
+        "ao": 21,
+        "gate_before_group": 18,
+        "up": 12,
+        "product_before_group": 5,
+        "down": 22
+      },
+      "matrices": {
+        "q": {
+          "shape": [
+            4096,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 5,
+          "multiplier_min": 1,
+          "multiplier_max": 11
+        },
+        "k": {
+          "shape": [
+            1024,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 5,
+          "multiplier_min": 2,
+          "multiplier_max": 9
+        },
+        "v": {
+          "shape": [
+            1024,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 7,
+          "multiplier_max": 26
+        },
+        "o": {
+          "shape": [
+            3072,
+            4096
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 8,
+          "multiplier_min": 87,
+          "multiplier_max": 222
+        },
+        "g": {
+          "shape": [
+            3072,
+            9216
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 6,
+          "multiplier_max": 40
+        },
+        "u": {
+          "shape": [
+            3072,
+            9216
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 4,
+          "multiplier_min": 1,
+          "multiplier_max": 3
+        },
+        "d": {
+          "shape": [
+            9216,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 5,
+          "multiplier_max": 14
+        }
+      },
+      "group_members": [
+        [
+          -4,
+          -12
+        ],
+        [
+          -3,
+          -11
+        ],
+        [
+          -2,
+          -11
+        ]
+      ],
+      "group_counts": [
+        12,
+        7053,
+        2151
+      ],
+      "group_table_words": 12288,
+      "table_evidence": [
+        {
+          "member": [
+            -4,
+            -12
+          ],
+          "independent_fixture_sha256": "eb9eb66e4d23b793794e4f50b1cf4590c9664ea7920aa603f8806a0877ba1c9d"
+        },
+        {
+          "member": [
+            -3,
+            -11
+          ],
+          "independent_fixture_sha256": "d9bbe45ad9e8fc68f4e56aaa8d0d255bf33a8dbac2b4f373685478bce18fca53"
+        },
+        {
+          "member": [
+            -2,
+            -11
+          ],
+          "independent_fixture_sha256": "af09df195722879c4a339576ddefe0ca444158e8c57a2446abfb74995086b7d3"
+        }
+      ],
+      "gate_common_shift": 19,
+      "folded_gate_multiplier_max": 42,
+      "aligned_product_shift": 16,
+      "derived_table_max_abs": 67106816,
+      "product_rounding_checks": 61440
+    },
+    {
+      "layer": 15,
+      "constants": {
+        "norm_tn": 9,
+        "norm_cn_a": 2015,
+        "norm_cn_m": 1182,
+        "norm_ceps": 2439,
+        "sh_qkv": 8,
+        "sh_rope": 7,
+        "sh_s": 7,
+        "sh_o": 9,
+        "sh_ao": 7,
+        "sh_g": 8,
+        "sh_u": 0,
+        "sh_h": 13,
+        "sh_z": 8,
+        "f_e": 9,
+        "f_p": 9,
+        "f_ro": 7,
+        "sh_r2": 0,
+        "silu_member": [
+          -3,
+          -11
+        ],
+        "exp_e_s": 2,
+        "rope_theta": 1000000.0,
+        "e_s": 2,
+        "silu": [
+          -3,
+          -11
+        ],
+        "wrho": 31
+      },
+      "derived_shifts": {
+        "norm_tn": 1,
+        "q": 15,
+        "k": 15,
+        "v": 16,
+        "score": 19,
+        "pv": 12,
+        "ao": 21,
+        "gate_before_group": 18,
+        "up": 12,
+        "product_before_group": 5,
+        "down": 22
+      },
+      "matrices": {
+        "q": {
+          "shape": [
+            4096,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 5,
+          "multiplier_min": 2,
+          "multiplier_max": 8
+        },
+        "k": {
+          "shape": [
+            1024,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 5,
+          "multiplier_min": 2,
+          "multiplier_max": 7
+        },
+        "v": {
+          "shape": [
+            1024,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 6,
+          "multiplier_max": 38
+        },
+        "o": {
+          "shape": [
+            3072,
+            4096
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 8,
+          "multiplier_min": 75,
+          "multiplier_max": 189
+        },
+        "g": {
+          "shape": [
+            3072,
+            9216
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 4,
+          "multiplier_max": 39
+        },
+        "u": {
+          "shape": [
+            3072,
+            9216
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 4,
+          "multiplier_min": 1,
+          "multiplier_max": 3
+        },
+        "d": {
+          "shape": [
+            9216,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 4,
+          "multiplier_max": 11
+        }
+      },
+      "group_members": [
+        [
+          -4,
+          -12
+        ],
+        [
+          -3,
+          -11
+        ],
+        [
+          -2,
+          -11
+        ],
+        [
+          -1,
+          -9
+        ]
+      ],
+      "group_counts": [
+        45,
+        7030,
+        2110,
+        31
+      ],
+      "group_table_words": 16384,
+      "table_evidence": [
+        {
+          "member": [
+            -4,
+            -12
+          ],
+          "independent_fixture_sha256": "eb9eb66e4d23b793794e4f50b1cf4590c9664ea7920aa603f8806a0877ba1c9d"
+        },
+        {
+          "member": [
+            -3,
+            -11
+          ],
+          "independent_fixture_sha256": "d9bbe45ad9e8fc68f4e56aaa8d0d255bf33a8dbac2b4f373685478bce18fca53"
+        },
+        {
+          "member": [
+            -2,
+            -11
+          ],
+          "independent_fixture_sha256": "af09df195722879c4a339576ddefe0ca444158e8c57a2446abfb74995086b7d3"
+        },
+        {
+          "member": [
+            -1,
+            -9
+          ],
+          "independent_fixture_sha256": "a86689aff2d6cd18c1c14ef13448cbbfb309f07f4c4b3570fe46bbbedc45471b"
+        }
+      ],
+      "gate_common_shift": 20,
+      "folded_gate_multiplier_max": 76,
+      "aligned_product_shift": 16,
+      "derived_table_max_abs": 268304384,
+      "product_rounding_checks": 81920
+    },
+    {
+      "layer": 16,
+      "constants": {
+        "norm_tn": 9,
+        "norm_cn_a": 2174,
+        "norm_cn_m": 1481,
+        "norm_ceps": 2439,
+        "sh_qkv": 8,
+        "sh_rope": 7,
+        "sh_s": 6,
+        "sh_o": 9,
+        "sh_ao": 6,
+        "sh_g": 8,
+        "sh_u": 0,
+        "sh_h": 14,
+        "sh_z": 8,
+        "f_e": 9,
+        "f_p": 9,
+        "f_ro": 7,
+        "sh_r2": 0,
+        "silu_member": [
+          -3,
+          -11
+        ],
+        "exp_e_s": 1,
+        "rope_theta": 1000000.0,
+        "e_s": 1,
+        "silu": [
+          -3,
+          -11
+        ],
+        "wrho": 31
+      },
+      "derived_shifts": {
+        "norm_tn": 1,
+        "q": 15,
+        "k": 15,
+        "v": 16,
+        "score": 18,
+        "pv": 12,
+        "ao": 20,
+        "gate_before_group": 18,
+        "up": 12,
+        "product_before_group": 6,
+        "down": 22
+      },
+      "matrices": {
+        "q": {
+          "shape": [
+            4096,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 5,
+          "multiplier_min": 1,
+          "multiplier_max": 10
+        },
+        "k": {
+          "shape": [
+            1024,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 5,
+          "multiplier_min": 2,
+          "multiplier_max": 9
+        },
+        "v": {
+          "shape": [
+            1024,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 6,
+          "multiplier_max": 33
+        },
+        "o": {
+          "shape": [
+            3072,
+            4096
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 8,
+          "multiplier_min": 48,
+          "multiplier_max": 136
+        },
+        "g": {
+          "shape": [
+            3072,
+            9216
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 4,
+          "multiplier_max": 37
+        },
+        "u": {
+          "shape": [
+            3072,
+            9216
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 4,
+          "multiplier_min": 1,
+          "multiplier_max": 5
+        },
+        "d": {
+          "shape": [
+            9216,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 6,
+          "multiplier_max": 16
+        }
+      },
+      "group_members": [
+        [
+          -4,
+          -12
+        ],
+        [
+          -3,
+          -11
+        ],
+        [
+          -2,
+          -11
+        ],
+        [
+          -1,
+          -10
+        ]
+      ],
+      "group_counts": [
+        11,
+        5943,
+        3190,
+        72
+      ],
+      "group_table_words": 16384,
+      "table_evidence": [
+        {
+          "member": [
+            -4,
+            -12
+          ],
+          "independent_fixture_sha256": "eb9eb66e4d23b793794e4f50b1cf4590c9664ea7920aa603f8806a0877ba1c9d"
+        },
+        {
+          "member": [
+            -3,
+            -11
+          ],
+          "independent_fixture_sha256": "d9bbe45ad9e8fc68f4e56aaa8d0d255bf33a8dbac2b4f373685478bce18fca53"
+        },
+        {
+          "member": [
+            -2,
+            -11
+          ],
+          "independent_fixture_sha256": "af09df195722879c4a339576ddefe0ca444158e8c57a2446abfb74995086b7d3"
+        },
+        {
+          "member": [
+            -1,
+            -10
+          ],
+          "independent_fixture_sha256": "b56bb145dee964c113b7ccb54b95854dec7180384e9ab1027b703498abe1e0ae"
+        }
+      ],
+      "gate_common_shift": 20,
+      "folded_gate_multiplier_max": 72,
+      "aligned_product_shift": 16,
+      "derived_table_max_abs": 67106816,
+      "product_rounding_checks": 81920
+    },
+    {
+      "layer": 17,
+      "constants": {
+        "norm_tn": 9,
+        "norm_cn_a": 2430,
+        "norm_cn_m": 1435,
+        "norm_ceps": 2439,
+        "sh_qkv": 8,
+        "sh_rope": 7,
+        "sh_s": 7,
+        "sh_o": 9,
+        "sh_ao": 7,
+        "sh_g": 8,
+        "sh_u": 0,
+        "sh_h": 14,
+        "sh_z": 8,
+        "f_e": 9,
+        "f_p": 9,
+        "f_ro": 7,
+        "sh_r2": 0,
+        "silu_member": [
+          -3,
+          -11
+        ],
+        "exp_e_s": 2,
+        "rope_theta": 1000000.0,
+        "e_s": 2,
+        "silu": [
+          -3,
+          -11
+        ],
+        "wrho": 31
+      },
+      "derived_shifts": {
+        "norm_tn": 1,
+        "q": 15,
+        "k": 15,
+        "v": 16,
+        "score": 19,
+        "pv": 12,
+        "ao": 21,
+        "gate_before_group": 18,
+        "up": 12,
+        "product_before_group": 6,
+        "down": 22
+      },
+      "matrices": {
+        "q": {
+          "shape": [
+            4096,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 5,
+          "multiplier_min": 1,
+          "multiplier_max": 9
+        },
+        "k": {
+          "shape": [
+            1024,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 5,
+          "multiplier_min": 2,
+          "multiplier_max": 8
+        },
+        "v": {
+          "shape": [
+            1024,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 8,
+          "multiplier_max": 28
+        },
+        "o": {
+          "shape": [
+            3072,
+            4096
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 8,
+          "multiplier_min": 77,
+          "multiplier_max": 165
+        },
+        "g": {
+          "shape": [
+            3072,
+            9216
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 5,
+          "multiplier_max": 36
+        },
+        "u": {
+          "shape": [
+            3072,
+            9216
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 4,
+          "multiplier_min": 1,
+          "multiplier_max": 4
+        },
+        "d": {
+          "shape": [
+            9216,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 6,
+          "multiplier_max": 15
+        }
+      },
+      "group_members": [
+        [
+          -4,
+          -12
+        ],
+        [
+          -3,
+          -11
+        ],
+        [
+          -2,
+          -11
+        ],
+        [
+          -1,
+          -9
+        ]
+      ],
+      "group_counts": [
+        1,
+        5141,
+        3987,
+        87
+      ],
+      "group_table_words": 16384,
+      "table_evidence": [
+        {
+          "member": [
+            -4,
+            -12
+          ],
+          "independent_fixture_sha256": "eb9eb66e4d23b793794e4f50b1cf4590c9664ea7920aa603f8806a0877ba1c9d"
+        },
+        {
+          "member": [
+            -3,
+            -11
+          ],
+          "independent_fixture_sha256": "d9bbe45ad9e8fc68f4e56aaa8d0d255bf33a8dbac2b4f373685478bce18fca53"
+        },
+        {
+          "member": [
+            -2,
+            -11
+          ],
+          "independent_fixture_sha256": "af09df195722879c4a339576ddefe0ca444158e8c57a2446abfb74995086b7d3"
+        },
+        {
+          "member": [
+            -1,
+            -9
+          ],
+          "independent_fixture_sha256": "a86689aff2d6cd18c1c14ef13448cbbfb309f07f4c4b3570fe46bbbedc45471b"
+        }
+      ],
+      "gate_common_shift": 20,
+      "folded_gate_multiplier_max": 80,
+      "aligned_product_shift": 16,
+      "derived_table_max_abs": 134152192,
+      "product_rounding_checks": 81920
+    },
+    {
+      "layer": 18,
+      "constants": {
+        "norm_tn": 9,
+        "norm_cn_a": 2448,
+        "norm_cn_m": 1607,
+        "norm_ceps": 2439,
+        "sh_qkv": 8,
+        "sh_rope": 7,
+        "sh_s": 7,
+        "sh_o": 9,
+        "sh_ao": 6,
+        "sh_g": 8,
+        "sh_u": 0,
+        "sh_h": 15,
+        "sh_z": 8,
+        "f_e": 9,
+        "f_p": 9,
+        "f_ro": 7,
+        "sh_r2": 0,
+        "silu_member": [
+          -3,
+          -11
+        ],
+        "exp_e_s": 2,
+        "rope_theta": 1000000.0,
+        "e_s": 2,
+        "silu": [
+          -3,
+          -11
+        ],
+        "wrho": 31
+      },
+      "derived_shifts": {
+        "norm_tn": 1,
+        "q": 15,
+        "k": 15,
+        "v": 16,
+        "score": 19,
+        "pv": 12,
+        "ao": 20,
+        "gate_before_group": 18,
+        "up": 12,
+        "product_before_group": 7,
+        "down": 22
+      },
+      "matrices": {
+        "q": {
+          "shape": [
+            4096,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 5,
+          "multiplier_min": 1,
+          "multiplier_max": 9
+        },
+        "k": {
+          "shape": [
+            1024,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 5,
+          "multiplier_min": 2,
+          "multiplier_max": 7
+        },
+        "v": {
+          "shape": [
+            1024,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 5,
+          "multiplier_max": 30
+        },
+        "o": {
+          "shape": [
+            3072,
+            4096
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 8,
+          "multiplier_min": 48,
+          "multiplier_max": 149
+        },
+        "g": {
+          "shape": [
+            3072,
+            9216
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 5,
+          "multiplier_max": 37
+        },
+        "u": {
+          "shape": [
+            3072,
+            9216
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 4,
+          "multiplier_min": 1,
+          "multiplier_max": 6
+        },
+        "d": {
+          "shape": [
+            9216,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 8,
+          "multiplier_max": 20
+        }
+      },
+      "group_members": [
+        [
+          -4,
+          -12
+        ],
+        [
+          -3,
+          -11
+        ],
+        [
+          -2,
+          -11
+        ],
+        [
+          -1,
+          -9
+        ]
+      ],
+      "group_counts": [
+        2,
+        4586,
+        4532,
+        96
+      ],
+      "group_table_words": 16384,
+      "table_evidence": [
+        {
+          "member": [
+            -4,
+            -12
+          ],
+          "independent_fixture_sha256": "eb9eb66e4d23b793794e4f50b1cf4590c9664ea7920aa603f8806a0877ba1c9d"
+        },
+        {
+          "member": [
+            -3,
+            -11
+          ],
+          "independent_fixture_sha256": "d9bbe45ad9e8fc68f4e56aaa8d0d255bf33a8dbac2b4f373685478bce18fca53"
+        },
+        {
+          "member": [
+            -2,
+            -11
+          ],
+          "independent_fixture_sha256": "af09df195722879c4a339576ddefe0ca444158e8c57a2446abfb74995086b7d3"
+        },
+        {
+          "member": [
+            -1,
+            -9
+          ],
+          "independent_fixture_sha256": "a86689aff2d6cd18c1c14ef13448cbbfb309f07f4c4b3570fe46bbbedc45471b"
+        }
+      ],
+      "gate_common_shift": 20,
+      "folded_gate_multiplier_max": 96,
+      "aligned_product_shift": 16,
+      "derived_table_max_abs": 67076096,
+      "product_rounding_checks": 81920
+    },
+    {
+      "layer": 19,
+      "constants": {
+        "norm_tn": 9,
+        "norm_cn_a": 2599,
+        "norm_cn_m": 1835,
+        "norm_ceps": 2439,
+        "sh_qkv": 8,
+        "sh_rope": 7,
+        "sh_s": 7,
+        "sh_o": 9,
+        "sh_ao": 7,
+        "sh_g": 8,
+        "sh_u": 0,
+        "sh_h": 15,
+        "sh_z": 8,
+        "f_e": 9,
+        "f_p": 9,
+        "f_ro": 7,
+        "sh_r2": 0,
+        "silu_member": [
+          -3,
+          -11
+        ],
+        "exp_e_s": 2,
+        "rope_theta": 1000000.0,
+        "e_s": 2,
+        "silu": [
+          -3,
+          -11
+        ],
+        "wrho": 31
+      },
+      "derived_shifts": {
+        "norm_tn": 1,
+        "q": 15,
+        "k": 15,
+        "v": 16,
+        "score": 19,
+        "pv": 12,
+        "ao": 21,
+        "gate_before_group": 18,
+        "up": 12,
+        "product_before_group": 7,
+        "down": 22
+      },
+      "matrices": {
+        "q": {
+          "shape": [
+            4096,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 5,
+          "multiplier_min": 1,
+          "multiplier_max": 8
+        },
+        "k": {
+          "shape": [
+            1024,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 5,
+          "multiplier_min": 2,
+          "multiplier_max": 8
+        },
+        "v": {
+          "shape": [
+            1024,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 6,
+          "multiplier_max": 28
+        },
+        "o": {
+          "shape": [
+            3072,
+            4096
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 8,
+          "multiplier_min": 88,
+          "multiplier_max": 218
+        },
+        "g": {
+          "shape": [
+            3072,
+            9216
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 5,
+          "multiplier_max": 33
+        },
+        "u": {
+          "shape": [
+            3072,
+            9216
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 4,
+          "multiplier_min": 1,
+          "multiplier_max": 5
+        },
+        "d": {
+          "shape": [
+            9216,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 7,
+          "multiplier_max": 24
+        }
+      },
+      "group_members": [
+        [
+          -4,
+          -12
+        ],
+        [
+          -3,
+          -11
+        ],
+        [
+          -2,
+          -11
+        ],
+        [
+          -1,
+          -9
+        ]
+      ],
+      "group_counts": [
+        1,
+        3752,
+        5359,
+        104
+      ],
+      "group_table_words": 16384,
+      "table_evidence": [
+        {
+          "member": [
+            -4,
+            -12
+          ],
+          "independent_fixture_sha256": "eb9eb66e4d23b793794e4f50b1cf4590c9664ea7920aa603f8806a0877ba1c9d"
+        },
+        {
+          "member": [
+            -3,
+            -11
+          ],
+          "independent_fixture_sha256": "d9bbe45ad9e8fc68f4e56aaa8d0d255bf33a8dbac2b4f373685478bce18fca53"
+        },
+        {
+          "member": [
+            -2,
+            -11
+          ],
+          "independent_fixture_sha256": "af09df195722879c4a339576ddefe0ca444158e8c57a2446abfb74995086b7d3"
+        },
+        {
+          "member": [
+            -1,
+            -9
+          ],
+          "independent_fixture_sha256": "a86689aff2d6cd18c1c14ef13448cbbfb309f07f4c4b3570fe46bbbedc45471b"
+        }
+      ],
+      "gate_common_shift": 20,
+      "folded_gate_multiplier_max": 72,
+      "aligned_product_shift": 16,
+      "derived_table_max_abs": 67076096,
+      "product_rounding_checks": 81920
+    },
+    {
+      "layer": 20,
+      "constants": {
+        "norm_tn": 9,
+        "norm_cn_a": 2273,
+        "norm_cn_m": 1926,
+        "norm_ceps": 2439,
+        "sh_qkv": 8,
+        "sh_rope": 7,
+        "sh_s": 7,
+        "sh_o": 9,
+        "sh_ao": 6,
+        "sh_g": 8,
+        "sh_u": 0,
+        "sh_h": 16,
+        "sh_z": 8,
+        "f_e": 9,
+        "f_p": 9,
+        "f_ro": 7,
+        "sh_r2": 0,
+        "silu_member": [
+          -3,
+          -11
+        ],
+        "exp_e_s": 3,
+        "rope_theta": 1000000.0,
+        "e_s": 3,
+        "silu": [
+          -3,
+          -11
+        ],
+        "wrho": 31
+      },
+      "derived_shifts": {
+        "norm_tn": 1,
+        "q": 15,
+        "k": 15,
+        "v": 16,
+        "score": 19,
+        "pv": 12,
+        "ao": 20,
+        "gate_before_group": 18,
+        "up": 12,
+        "product_before_group": 8,
+        "down": 22
+      },
+      "matrices": {
+        "q": {
+          "shape": [
+            4096,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 5,
+          "multiplier_min": 1,
+          "multiplier_max": 8
+        },
+        "k": {
+          "shape": [
+            1024,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 5,
+          "multiplier_min": 2,
+          "multiplier_max": 7
+        },
+        "v": {
+          "shape": [
+            1024,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 8,
+          "multiplier_max": 36
+        },
+        "o": {
+          "shape": [
+            3072,
+            4096
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 8,
+          "multiplier_min": 59,
+          "multiplier_max": 155
+        },
+        "g": {
+          "shape": [
+            3072,
+            9216
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 4,
+          "multiplier_max": 32
+        },
+        "u": {
+          "shape": [
+            3072,
+            9216
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 4,
+          "multiplier_min": 1,
+          "multiplier_max": 8
+        },
+        "d": {
+          "shape": [
+            9216,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 10,
+          "multiplier_max": 31
+        }
+      },
+      "group_members": [
+        [
+          -4,
+          -12
+        ],
+        [
+          -3,
+          -11
+        ],
+        [
+          -2,
+          -11
+        ],
+        [
+          -1,
+          -9
+        ]
+      ],
+      "group_counts": [
+        3,
+        3408,
+        5652,
+        153
+      ],
+      "group_table_words": 16384,
+      "table_evidence": [
+        {
+          "member": [
+            -4,
+            -12
+          ],
+          "independent_fixture_sha256": "eb9eb66e4d23b793794e4f50b1cf4590c9664ea7920aa603f8806a0877ba1c9d"
+        },
+        {
+          "member": [
+            -3,
+            -11
+          ],
+          "independent_fixture_sha256": "d9bbe45ad9e8fc68f4e56aaa8d0d255bf33a8dbac2b4f373685478bce18fca53"
+        },
+        {
+          "member": [
+            -2,
+            -11
+          ],
+          "independent_fixture_sha256": "af09df195722879c4a339576ddefe0ca444158e8c57a2446abfb74995086b7d3"
+        },
+        {
+          "member": [
+            -1,
+            -9
+          ],
+          "independent_fixture_sha256": "a86689aff2d6cd18c1c14ef13448cbbfb309f07f4c4b3570fe46bbbedc45471b"
+        }
+      ],
+      "gate_common_shift": 20,
+      "folded_gate_multiplier_max": 64,
+      "aligned_product_shift": 16,
+      "derived_table_max_abs": 33538048,
+      "product_rounding_checks": 81920
+    },
+    {
+      "layer": 21,
+      "constants": {
+        "norm_tn": 9,
+        "norm_cn_a": 2343,
+        "norm_cn_m": 2091,
+        "norm_ceps": 2439,
+        "sh_qkv": 8,
+        "sh_rope": 7,
+        "sh_s": 7,
+        "sh_o": 9,
+        "sh_ao": 7,
+        "sh_g": 8,
+        "sh_u": 0,
+        "sh_h": 14,
+        "sh_z": 8,
+        "f_e": 9,
+        "f_p": 9,
+        "f_ro": 7,
+        "sh_r2": 0,
+        "silu_member": [
+          -3,
+          -11
+        ],
+        "exp_e_s": 3,
+        "rope_theta": 1000000.0,
+        "e_s": 3,
+        "silu": [
+          -3,
+          -11
+        ],
+        "wrho": 31
+      },
+      "derived_shifts": {
+        "norm_tn": 1,
+        "q": 15,
+        "k": 15,
+        "v": 16,
+        "score": 19,
+        "pv": 12,
+        "ao": 21,
+        "gate_before_group": 18,
+        "up": 12,
+        "product_before_group": 6,
+        "down": 22
+      },
+      "matrices": {
+        "q": {
+          "shape": [
+            4096,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 5,
+          "multiplier_min": 1,
+          "multiplier_max": 7
+        },
+        "k": {
+          "shape": [
+            1024,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 5,
+          "multiplier_min": 2,
+          "multiplier_max": 8
+        },
+        "v": {
+          "shape": [
+            1024,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 13,
+          "multiplier_max": 39
+        },
+        "o": {
+          "shape": [
+            3072,
+            4096
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 8,
+          "multiplier_min": 76,
+          "multiplier_max": 172
+        },
+        "g": {
+          "shape": [
+            3072,
+            9216
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 5,
+          "multiplier_max": 36
+        },
+        "u": {
+          "shape": [
+            3072,
+            9216
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 4,
+          "multiplier_min": 1,
+          "multiplier_max": 4
+        },
+        "d": {
+          "shape": [
+            9216,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 6,
+          "multiplier_max": 20
+        }
+      },
+      "group_members": [
+        [
+          -3,
+          -11
+        ],
+        [
+          -2,
+          -11
+        ],
+        [
+          -1,
+          -9
+        ]
+      ],
+      "group_counts": [
+        2767,
+        5553,
+        896
+      ],
+      "group_table_words": 12288,
+      "table_evidence": [
+        {
+          "member": [
+            -3,
+            -11
+          ],
+          "independent_fixture_sha256": "d9bbe45ad9e8fc68f4e56aaa8d0d255bf33a8dbac2b4f373685478bce18fca53"
+        },
+        {
+          "member": [
+            -2,
+            -11
+          ],
+          "independent_fixture_sha256": "af09df195722879c4a339576ddefe0ca444158e8c57a2446abfb74995086b7d3"
+        },
+        {
+          "member": [
+            -1,
+            -9
+          ],
+          "independent_fixture_sha256": "a86689aff2d6cd18c1c14ef13448cbbfb309f07f4c4b3570fe46bbbedc45471b"
+        }
+      ],
+      "gate_common_shift": 20,
+      "folded_gate_multiplier_max": 68,
+      "aligned_product_shift": 16,
+      "derived_table_max_abs": 134152192,
+      "product_rounding_checks": 61440
+    },
+    {
+      "layer": 22,
+      "constants": {
+        "norm_tn": 9,
+        "norm_cn_a": 2753,
+        "norm_cn_m": 2455,
+        "norm_ceps": 2439,
+        "sh_qkv": 8,
+        "sh_rope": 7,
+        "sh_s": 7,
+        "sh_o": 9,
+        "sh_ao": 6,
+        "sh_g": 8,
+        "sh_u": 0,
+        "sh_h": 15,
+        "sh_z": 8,
+        "f_e": 9,
+        "f_p": 9,
+        "f_ro": 7,
+        "sh_r2": 0,
+        "silu_member": [
+          -3,
+          -11
+        ],
+        "exp_e_s": 4,
+        "rope_theta": 1000000.0,
+        "e_s": 4,
+        "silu": [
+          -3,
+          -11
+        ],
+        "wrho": 31
+      },
+      "derived_shifts": {
+        "norm_tn": 1,
+        "q": 15,
+        "k": 15,
+        "v": 16,
+        "score": 19,
+        "pv": 12,
+        "ao": 20,
+        "gate_before_group": 18,
+        "up": 12,
+        "product_before_group": 7,
+        "down": 22
+      },
+      "matrices": {
+        "q": {
+          "shape": [
+            4096,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 5,
+          "multiplier_min": 1,
+          "multiplier_max": 6
+        },
+        "k": {
+          "shape": [
+            1024,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 5,
+          "multiplier_min": 1,
+          "multiplier_max": 6
+        },
+        "v": {
+          "shape": [
+            1024,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 9,
+          "multiplier_max": 42
+        },
+        "o": {
+          "shape": [
+            3072,
+            4096
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 8,
+          "multiplier_min": 53,
+          "multiplier_max": 152
+        },
+        "g": {
+          "shape": [
+            3072,
+            9216
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 5,
+          "multiplier_max": 41
+        },
+        "u": {
+          "shape": [
+            3072,
+            9216
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 4,
+          "multiplier_min": 1,
+          "multiplier_max": 6
+        },
+        "d": {
+          "shape": [
+            9216,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 8,
+          "multiplier_max": 23
+        }
+      },
+      "group_members": [
+        [
+          -3,
+          -11
+        ],
+        [
+          -2,
+          -11
+        ],
+        [
+          -1,
+          -9
+        ]
+      ],
+      "group_counts": [
+        2938,
+        4902,
+        1376
+      ],
+      "group_table_words": 12288,
+      "table_evidence": [
+        {
+          "member": [
+            -3,
+            -11
+          ],
+          "independent_fixture_sha256": "d9bbe45ad9e8fc68f4e56aaa8d0d255bf33a8dbac2b4f373685478bce18fca53"
+        },
+        {
+          "member": [
+            -2,
+            -11
+          ],
+          "independent_fixture_sha256": "af09df195722879c4a339576ddefe0ca444158e8c57a2446abfb74995086b7d3"
+        },
+        {
+          "member": [
+            -1,
+            -9
+          ],
+          "independent_fixture_sha256": "a86689aff2d6cd18c1c14ef13448cbbfb309f07f4c4b3570fe46bbbedc45471b"
+        }
+      ],
+      "gate_common_shift": 20,
+      "folded_gate_multiplier_max": 80,
+      "aligned_product_shift": 16,
+      "derived_table_max_abs": 67076096,
+      "product_rounding_checks": 61440
+    },
+    {
+      "layer": 23,
+      "constants": {
+        "norm_tn": 9,
+        "norm_cn_a": 3854,
+        "norm_cn_m": 2062,
+        "norm_ceps": 2439,
+        "sh_qkv": 8,
+        "sh_rope": 7,
+        "sh_s": 8,
+        "sh_o": 9,
+        "sh_ao": 7,
+        "sh_g": 8,
+        "sh_u": 0,
+        "sh_h": 16,
+        "sh_z": 8,
+        "f_e": 9,
+        "f_p": 9,
+        "f_ro": 7,
+        "sh_r2": 0,
+        "silu_member": [
+          -2,
+          -11
+        ],
+        "exp_e_s": 4,
+        "rope_theta": 1000000.0,
+        "e_s": 4,
+        "silu": [
+          -2,
+          -11
+        ],
+        "wrho": 31
+      },
+      "derived_shifts": {
+        "norm_tn": 1,
+        "q": 15,
+        "k": 15,
+        "v": 16,
+        "score": 20,
+        "pv": 12,
+        "ao": 21,
+        "gate_before_group": 18,
+        "up": 12,
+        "product_before_group": 8,
+        "down": 22
+      },
+      "matrices": {
+        "q": {
+          "shape": [
+            4096,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 5,
+          "multiplier_min": 1,
+          "multiplier_max": 6
+        },
+        "k": {
+          "shape": [
+            1024,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 5,
+          "multiplier_min": 1,
+          "multiplier_max": 8
+        },
+        "v": {
+          "shape": [
+            1024,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 8,
+          "multiplier_max": 44
+        },
+        "o": {
+          "shape": [
+            3072,
+            4096
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 8,
+          "multiplier_min": 89,
+          "multiplier_max": 186
+        },
+        "g": {
+          "shape": [
+            3072,
+            9216
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 4,
+          "multiplier_max": 24
+        },
+        "u": {
+          "shape": [
+            3072,
+            9216
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 4,
+          "multiplier_min": 2,
+          "multiplier_max": 14
+        },
+        "d": {
+          "shape": [
+            9216,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 12,
+          "multiplier_max": 42
+        }
+      },
+      "group_members": [
+        [
+          -4,
+          -12
+        ],
+        [
+          -3,
+          -11
+        ],
+        [
+          -2,
+          -11
+        ],
+        [
+          -1,
+          -9
+        ]
+      ],
+      "group_counts": [
+        11,
+        3313,
+        4002,
+        1890
+      ],
+      "group_table_words": 16384,
+      "table_evidence": [
+        {
+          "member": [
+            -4,
+            -12
+          ],
+          "independent_fixture_sha256": "eb9eb66e4d23b793794e4f50b1cf4590c9664ea7920aa603f8806a0877ba1c9d"
+        },
+        {
+          "member": [
+            -3,
+            -11
+          ],
+          "independent_fixture_sha256": "d9bbe45ad9e8fc68f4e56aaa8d0d255bf33a8dbac2b4f373685478bce18fca53"
+        },
+        {
+          "member": [
+            -2,
+            -11
+          ],
+          "independent_fixture_sha256": "af09df195722879c4a339576ddefe0ca444158e8c57a2446abfb74995086b7d3"
+        },
+        {
+          "member": [
+            -1,
+            -9
+          ],
+          "independent_fixture_sha256": "a86689aff2d6cd18c1c14ef13448cbbfb309f07f4c4b3570fe46bbbedc45471b"
+        }
+      ],
+      "gate_common_shift": 19,
+      "folded_gate_multiplier_max": 56,
+      "aligned_product_shift": 16,
+      "derived_table_max_abs": 33538048,
+      "product_rounding_checks": 81920
+    },
+    {
+      "layer": 24,
+      "constants": {
+        "norm_tn": 9,
+        "norm_cn_a": 4532,
+        "norm_cn_m": 2467,
+        "norm_ceps": 2439,
+        "sh_qkv": 8,
+        "sh_rope": 7,
+        "sh_s": 8,
+        "sh_o": 9,
+        "sh_ao": 7,
+        "sh_g": 8,
+        "sh_u": 0,
+        "sh_h": 15,
+        "sh_z": 8,
+        "f_e": 9,
+        "f_p": 9,
+        "f_ro": 7,
+        "sh_r2": 0,
+        "silu_member": [
+          -2,
+          -11
+        ],
+        "exp_e_s": 6,
+        "rope_theta": 1000000.0,
+        "e_s": 6,
+        "silu": [
+          -2,
+          -11
+        ],
+        "wrho": 31
+      },
+      "derived_shifts": {
+        "norm_tn": 1,
+        "q": 15,
+        "k": 15,
+        "v": 16,
+        "score": 20,
+        "pv": 12,
+        "ao": 21,
+        "gate_before_group": 18,
+        "up": 12,
+        "product_before_group": 7,
+        "down": 22
+      },
+      "matrices": {
+        "q": {
+          "shape": [
+            4096,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 5,
+          "multiplier_min": 1,
+          "multiplier_max": 4
+        },
+        "k": {
+          "shape": [
+            1024,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 126,
+          "multiplier_bits": 5,
+          "multiplier_min": 1,
+          "multiplier_max": 4
+        },
+        "v": {
+          "shape": [
+            1024,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 8,
+          "multiplier_max": 62
+        },
+        "o": {
+          "shape": [
+            3072,
+            4096
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 8,
+          "multiplier_min": 98,
+          "multiplier_max": 213
+        },
+        "g": {
+          "shape": [
+            3072,
+            9216
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 4,
+          "multiplier_max": 24
+        },
+        "u": {
+          "shape": [
+            3072,
+            9216
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 4,
+          "multiplier_min": 1,
+          "multiplier_max": 11
+        },
+        "d": {
+          "shape": [
+            9216,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 10,
+          "multiplier_max": 32
+        }
+      },
+      "group_members": [
+        [
+          -4,
+          -12
+        ],
+        [
+          -3,
+          -11
+        ],
+        [
+          -2,
+          -11
+        ],
+        [
+          -1,
+          -9
+        ]
+      ],
+      "group_counts": [
+        56,
+        3543,
+        3229,
+        2388
+      ],
+      "group_table_words": 16384,
+      "table_evidence": [
+        {
+          "member": [
+            -4,
+            -12
+          ],
+          "independent_fixture_sha256": "eb9eb66e4d23b793794e4f50b1cf4590c9664ea7920aa603f8806a0877ba1c9d"
+        },
+        {
+          "member": [
+            -3,
+            -11
+          ],
+          "independent_fixture_sha256": "d9bbe45ad9e8fc68f4e56aaa8d0d255bf33a8dbac2b4f373685478bce18fca53"
+        },
+        {
+          "member": [
+            -2,
+            -11
+          ],
+          "independent_fixture_sha256": "af09df195722879c4a339576ddefe0ca444158e8c57a2446abfb74995086b7d3"
+        },
+        {
+          "member": [
+            -1,
+            -9
+          ],
+          "independent_fixture_sha256": "a86689aff2d6cd18c1c14ef13448cbbfb309f07f4c4b3570fe46bbbedc45471b"
+        }
+      ],
+      "gate_common_shift": 19,
+      "folded_gate_multiplier_max": 72,
+      "aligned_product_shift": 16,
+      "derived_table_max_abs": 67076096,
+      "product_rounding_checks": 81920
+    },
+    {
+      "layer": 25,
+      "constants": {
+        "norm_tn": 9,
+        "norm_cn_a": 3047,
+        "norm_cn_m": 3106,
+        "norm_ceps": 2439,
+        "sh_qkv": 8,
+        "sh_rope": 7,
+        "sh_s": 8,
+        "sh_o": 9,
+        "sh_ao": 7,
+        "sh_g": 8,
+        "sh_u": 0,
+        "sh_h": 15,
+        "sh_z": 5,
+        "f_e": 9,
+        "f_p": 9,
+        "f_ro": 7,
+        "sh_r2": 0,
+        "silu_member": [
+          -1,
+          -9
+        ],
+        "exp_e_s": 6,
+        "rope_theta": 1000000.0,
+        "e_s": 6,
+        "silu": [
+          -1,
+          -9
+        ],
+        "wrho": 31
+      },
+      "derived_shifts": {
+        "norm_tn": 1,
+        "q": 15,
+        "k": 15,
+        "v": 16,
+        "score": 20,
+        "pv": 12,
+        "ao": 21,
+        "gate_before_group": 18,
+        "up": 12,
+        "product_before_group": 7,
+        "down": 19
+      },
+      "matrices": {
+        "q": {
+          "shape": [
+            4096,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 5,
+          "multiplier_min": 1,
+          "multiplier_max": 5
+        },
+        "k": {
+          "shape": [
+            1024,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 5,
+          "multiplier_min": 1,
+          "multiplier_max": 8
+        },
+        "v": {
+          "shape": [
+            1024,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 6,
+          "multiplier_max": 64
+        },
+        "o": {
+          "shape": [
+            3072,
+            4096
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 8,
+          "multiplier_min": 94,
+          "multiplier_max": 241
+        },
+        "g": {
+          "shape": [
+            3072,
+            9216
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 2,
+          "multiplier_max": 32
+        },
+        "u": {
+          "shape": [
+            3072,
+            9216
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 4,
+          "multiplier_min": 1,
+          "multiplier_max": 7
+        },
+        "d": {
+          "shape": [
+            9216,
+            3072
+          ],
+          "weight_min": -127,
+          "weight_max": 127,
+          "multiplier_bits": 6,
+          "multiplier_min": 11,
+          "multiplier_max": 64
+        }
+      },
+      "group_members": [
+        [
+          -3,
+          -11
+        ],
+        [
+          -2,
+          -11
+        ],
+        [
+          -1,
+          -9
+        ],
+        [
+          0,
+          -8
+        ]
+      ],
+      "group_counts": [
+        1669,
+        1685,
+        4784,
+        1078
+      ],
+      "group_table_words": 16384,
+      "table_evidence": [
+        {
+          "member": [
+            -3,
+            -11
+          ],
+          "independent_fixture_sha256": "d9bbe45ad9e8fc68f4e56aaa8d0d255bf33a8dbac2b4f373685478bce18fca53"
+        },
+        {
+          "member": [
+            -2,
+            -11
+          ],
+          "independent_fixture_sha256": "af09df195722879c4a339576ddefe0ca444158e8c57a2446abfb74995086b7d3"
+        },
+        {
+          "member": [
+            -1,
+            -9
+          ],
+          "independent_fixture_sha256": "a86689aff2d6cd18c1c14ef13448cbbfb309f07f4c4b3570fe46bbbedc45471b"
+        },
+        {
+          "member": [
+            0,
+            -8
+          ],
+          "independent_native_fixture": "pending profile-specific extension"
+        }
+      ],
+      "gate_common_shift": 19,
+      "folded_gate_multiplier_max": 56,
+      "aligned_product_shift": 16,
+      "derived_table_max_abs": 33538048,
+      "product_rounding_checks": 81920
+    }
+  ],
+  "all_weight_multiplier_and_shift_classes_pass": true,
+  "maximum_groups": 4,
+  "group_cap_fits_T128_and_T256": true,
+  "product_rounding_checks": 1884160,
+  "candidate": {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_shieldstral_export_20261026/layer25_fix_candidate",
+    "complete_sha256": "6e540249aa2513234ccd33c639afcfb98caf37c3a6111a6f4c84f382f710d3ce",
+    "loader_sha256": "1ad05f13eadfe6bd1a52e192b300d082b8cb0b59e5c623ed1d42528d07049306"
+  },
+  "evaluation_export_sha256": "0818a06c74176921a406a1582231f82bee4247a4131f07438c3b955f5868197b",
+  "audit_source_sha256": "98bee72a6aecfa6d9b663a078e5e5575e5f9b0c4c6d13eebb21a956553f7fcb0",
+  "native_pending": [
+    "profile-specific (0,-8) generator/oracle",
+    "native R13 schema/import",
+    "native recount",
+    "proof and review gates"
+  ],
+  "native_reference_sources": {
+    "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/working-tree/hashline/src/private_block/accuracy_precision.rs": "65f2b5a9484e2eae3ac63845f73803e32d70790cc3f204645c4ed49492e4e20f",
+    "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/working-tree/hashline/src/private_block/accuracy_groups.rs": "3d7835fb035134ec4bced2baeca760e8d0bbda4a585a42294eb38b941247e861",
+    "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/aligned-next/accuracy_aligned.green.rs": "26eb2fb919de263227138282581022c4c687aac86330bf5a21e6e6d285cbd186",
+    "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/nowrap_shieldstral_counted.json": "7b0429718eb1a8144a6df9e5465b95c26420747ca6866190e5d9e6b948f3b642"
+  }
+}

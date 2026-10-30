@@ -10,10 +10,21 @@ OUT=HERE/'review'
 BASELINE={'README.md':'README.md','items.py':'proven_media/items.py','publisher.py':'proven_media/publisher.py','test_app.py':'tests/test_app.py'}
 ADDED=['TESTNET.md','R_C1_DEVELOPMENT.md','requirements-testnet.txt','contracts/ProvenMediaAnchor.sol',
        'proven_media/image_preprocess.py','proven_media/base_sepolia.py','proven_media/testnet_publisher.py',
+       'proven_media/sepolia_bridge.py','tools/bridge_sepolia.py','tests/test_sepolia_bridge.py',
        'proven_media/classifier_cli.py','proven_media/classifier_prover.py',
        'tools/compile_anchor.py','tools/sepolia_setup.py','tools/classifier_pipeline.py',
        'tests/test_image_preprocess.py','tests/test_testnet_publisher.py','tests/test_sepolia_setup.py',
-       'tests/test_classifier_cli.py','tests/test_classifier_prover.py','tests/test_publication_bundle.py','tests/fixtures/image_area_v1.json']
+       'tests/test_classifier_cli.py','tests/test_classifier_prover.py','tests/test_publication_bundle.py','tests/fixtures/image_area_v1.json',
+       'proven_media/shieldstral_text.py','requirements-shieldstral.txt','tests/test_shieldstral_text.py','tests/test_screening_rules.py',
+       'proven_media/proof_plans.py','tests/test_category_queue.py',
+       'proven_media/shieldstral_runtime.py','proven_media/shieldstral_prover.py',
+       'tests/test_shieldstral_prover.py','tests/test_real_manifest.py','tests/test_real_publication_verifier.py',
+       'proven_media/demo_reset.py','proven_media/hardware_profiles.py','tools/reset_demo.py','tests/test_demo_reset.py',
+       'proven_media/auth.py','tools/create_author.py','tests/test_privacy_auth.py',
+       'tests/test_frontend_auth.js','tests/test_rpc_retry.py',
+       'proven_media/storage_policy.py','tests/test_storage_policy.py',
+       'policy/shieldstral-moderate-sexual-v1.txt','policy/shieldstral-moderate-violence-v1.txt',
+       'policy/shieldstral-moderate-hate-v1.txt']
 
 
 def sha(path):return hashlib.sha256(path.read_bytes()).hexdigest()

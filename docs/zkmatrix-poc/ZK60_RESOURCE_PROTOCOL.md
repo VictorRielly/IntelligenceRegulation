@@ -161,3 +161,52 @@ Owner: Claude (main session).
 ## Guard admission update, 2026-10-26 (S3)
 
 The reviewed guard is SHA-256 `87138bda80ae4499a668e67a1c0e7706bb859eafb5e766020bcd59567c8ac59c`. Waiting jobs hold no heavy/build lock until the advisory admission check passes. Admission is rechecked and registration remains atomic under the admission lock. Both static Codex pins name this release; the private-stack benchmark still pins dynamically per run. FIFO is OFF by default; `/tmp/zk-guard/fifo.on` or `ZK60_GUARD_FIFO=1` enables it and requires a separate announced decision. A reboot clears the file. Evidence and rollback backup: `results/zk60_sol_20261026/`. The older lane-rule pre-check requirement can remain in callers; it is conservative.
+
+
+## Swap headroom update (S8, D44)
+
+The installed guard is SHA-256 `88af4c639848d39df8da559652db11529575aa745b916a06eb522c20ea89fbd3`. While swap use exceeds 1 GiB,
+admission requires MemAvailable to cover the declared need, the existing
+1 GiB admission margin, and every swapped page. The normal memory check,
+global declared budget, exclusive heavy lock, runtime floor and caps remain
+in force. FIFO remains OFF. Both static consumers pin this release.
+
+The guard sees only Linux/WSL VM memory. It cannot observe Windows host
+memory pressure: high MemAvailable inside the VM does not establish that
+the Windows host has headroom. This limitation applies to both swap rules.
+
+Installation evidence and rollback: `results/zk60_sol_20261026/guard-s8/`
+and `guard-s8-backup/`. The official 45-case, S3/FIFO 31-case and S8 policy 9-case
+suites passed on the host without systemd skips.
+
+
+## Host drive floor and box watch (S9, D46, 2026-10-30)
+
+**Why.** The laptop crashed 2026-10-30 ~02:50 UTC with C: at about 5 GB free. C:
+holds the WSL disk file (`ext4.vhdx`) and Windows' automatically managed page file;
+with the drive full neither could grow, so a full-size proof writing receipts took the
+whole machine down. Deleting files inside Linux does not give C: space back: the disk
+file only shrinks when it is compacted.
+
+**Guard** (`67e9478f…`): cpu/gpu/build jobs wait while the host drive has under
+`ZK60_GUARD_DISK_FLOOR_GIB` (40) GiB free; the watchdog kills any live job under
+`ZK60_GUARD_DISK_KILL_GIB` (8) GiB, checked every 5 s. `ZK60_GUARD_HOST_DRIVE`
+(default `/mnt/c`) missing or empty switches both off, so plain Linux boxes are not
+affected. `status` prints a `DISK` line.
+
+**Watch** (`scripts/zk60_resource_watch.py`): also reports `DISKLOW` (host drive under
+60 GiB) and `WINMEM` (Windows free RAM under 3 GiB or commit over 85 % of its
+limit, read through PowerShell at most once a minute). Unattended mode for cron:
+`--once --state results/zk60_resource_guard/watch_state.json --notify --evict-cache`.
+`--evict-cache` drops the clean page cache of files of 64 MiB or more under
+`~/zk60-artifacts`, `~/models`, `results/`, `local-models/` and `ops/zkp-mvp/`
+(posix_fadvise DONTNEED; nothing is written or deleted) when Windows has under 6 GiB
+free, at most every 15 min. Measured 2026-10-30: 5.5 GiB released in 2 s and the VM's
+share of Windows memory fell from 14.9 to 10.5 GiB.
+
+**Disk rules for every lane:** delete test-only receipts once their check is recorded;
+quarantine or delete incomplete outputs (`*.incomplete`); never copy a whole tree with
+its `target/` directories; say in the coordination file before any job that will
+write more than 10 GB; the coordinator prunes regenerable build output when `DISKLOW`
+fires. `C:\Users\victo\.wslconfig` sets `autoMemoryReclaim=gradual` (active after the
+next `wsl --shutdown`).

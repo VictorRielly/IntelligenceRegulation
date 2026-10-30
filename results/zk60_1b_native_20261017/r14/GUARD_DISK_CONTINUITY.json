@@ -1,0 +1,58 @@
+{
+  "utc": "2026-10-30T05:16:50.524239+00:00",
+  "guard_sha256": "67e9478f55518c2808ff65e5f303f70e155a5f21c5987243a39cf579d1a9a6f3",
+  "validation_passed": true,
+  "test_pins": {
+    "test_zk60_resource_guard.py": "984f462567aef41f19916be6a61ae8855cb72cf623486b60764933bc2875b050",
+    "test_zk60_guard_fix.py": "7814c8f43f8ab5fc337fbe1ffa1c1740f8eb812ca58e93bd90a59747cff512c9",
+    "test_zk60_guard_s8.py": "ce7c1694e9c3906a4c4e2c5d13631f8a180bb175a97dfbedefbb5602cd244c9e"
+  },
+  "tests": [
+    {
+      "test": "test_zk60_resource_guard.py",
+      "exit": 0,
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_zk60_resource_guard.py"
+      ],
+      "log_sha256": "a4da515ed8648f29ea6571a8ea43fb8e2897fc4ef384aa5df73b54ea2b32cdaf"
+    },
+    {
+      "test": "test_zk60_guard_fix.py",
+      "exit": 0,
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_zk60_guard_fix.py"
+      ],
+      "log_sha256": "481210d26162ed18a243eaa070369b6900a72b976504fb94be5fdac302095af1"
+    },
+    {
+      "test": "test_zk60_guard_s8.py",
+      "exit": 0,
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_zk60_guard_s8.py"
+      ],
+      "log_sha256": "203e8d11dc9529763cb172c4d4acdffe3b67db7d123ed6f2223ef9c377a8923b"
+    }
+  ],
+  "scope": "Independent diff read and three source-pinned existing guard suites. Disk-only additions; shared memory budget, heavy locks, caps and cleanup retained. Tests may skip systemd-dependent cases in the sandbox. No change to live guard, static consumer pins or disk floors. This is local runner compatibility evidence, not host/kernel validation or a new guard installation."
+}

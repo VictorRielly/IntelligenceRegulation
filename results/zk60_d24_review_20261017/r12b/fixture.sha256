@@ -1,0 +1,9 @@
+11bccfa20dc58684dab3ff0745945ef3255a0f20899dc6b0d3dcd845216bfa8b  /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r12b-scratch/fixture/profile.json
+d4e7754fdce9d3920d3b20660d76b58cf629359f7574e7329683031ba23cacf7  /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r12b-scratch/fixture/rotation_sign.bin
+baff04d2385ad49dcf9704384de268ce5aa5e16749d2af62c2101676538b5afe  /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r12b-scratch/fixture/token_io/embedding_int16.bin
+786f02bc011e3f23c4e9ac480772a0413d39f8d10c7259000929ada771d0ce95  /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r12b-scratch/fixture/token_io/head_int8_perrow.bin
+bdea4882af4d3d8c401d56e6226b7ace9aacb1c84abac2dcdc11f687f7bac4c4  /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r12b-scratch/fixture/token_io/head_manifest.json
+f43790f32bd4cf4b252aafaa08e9b788937a0878594d2756f73248b0dfdc0464  /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r12b-scratch/fixture/token_io/head_mult12.bin
+b597f2543ab813248d6cfa26052daa94f9e3a889dcb515fca43985e2d35d643d  /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r12b-scratch/fixture/token_io/margin_fixture_int16.bin
+1f5cb3468ff4142fe5eee6afd989b2626afa9c12a2d49c877164a0ef7d7eb45f  /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r12b-scratch/fixture/token_io/margin_policy_int16.bin
+3e8cd59d05d37d64a5a6fc61c23b006159462abfd90f2d420abfd209ceaf3171  /home/victor/IntelligenceRegulation/ops/zkp-mvp/trained-1b-review-r12b-scratch/fixture/token_io/token_io.json

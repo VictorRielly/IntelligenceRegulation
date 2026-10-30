@@ -1,0 +1,1 @@
+{"live_guarded_jobs": [{"label": "gate22-item3-ts-rung-values", "class": "light", "need_gib": 1.1}], "fifo_tickets": [], "guard_processes": [{"pid": 484927, "label": "gate22-item3-ts-rung-values"}], "holds": [], "mem_available_gib": 13.0, "committed_gib": 1.1, "sol_or_astra": [], "alone": true}

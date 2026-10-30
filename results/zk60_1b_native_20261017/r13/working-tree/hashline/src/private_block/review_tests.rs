@@ -38,7 +38,7 @@ fn honest_rung() -> (Shape, BlockPublic, Witness) {
 }
 
 pub(super) fn clone_witness(w: &Witness) -> Witness {
-    Witness { planes: w.planes.clone() }
+    w.clone()
 }
 
 /// prove at the rung, with the two endpoints taken from THIS witness (so a

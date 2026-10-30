@@ -1,0 +1,28 @@
+{
+  "tool": "tools.web__run",
+  "mode": "LIVE native primary search/open/click/find",
+  "queries": [
+    "sumcheck GKR prover optimization 2026 October site:arxiv.org",
+    "sumcheck prepared equality polynomial extension field multiplication preprocessing site:github.com",
+    "quadratic extension field multiplication precomputed fixed operand three multiplications site:eprint.iacr.org",
+    "site:eprint.iacr.org/2026 \"sumcheck\" \"October\"",
+    "site:github.com/Oraclizer/statesync-gkr/releases \"1.2\"",
+    "\"extension field\" \"precomputation\" \"scalar product\" cryptography Karatsuba",
+    "site:arxiv.org \"sumcheck\" \"2026\" \"October\" GPU",
+    "finite field dot product simultaneous multiplication precomputation Dumas FFLAS exact delayed reduction",
+    "Winograd inner product algorithm 1968 original multiplication additions computation"
+  ],
+  "assessed_records": "sources-cycle.jsonl",
+  "new_vs_refreshed": "exact URL history counts retained per record; new page or commit does not imply a new algorithm",
+  "external_execution": false,
+  "untrusted_instructions_ignored": true,
+  "unassessed_leads": [
+    "Winograd matrix inner-product row/column preprocessing: search lead only, not adopted or tested; no shared private operand assumed"
+  ],
+  "raw_first_search": "Tool transcript retained; subsequent outputs also saved as web-*.json",
+  "limits": [
+    "StateSync release commit:Cache miss",
+    "Akita LICENSE and LICENSE-MIT:Cache miss",
+    "Power circuits PDF:403 Forbidden"
+  ]
+}

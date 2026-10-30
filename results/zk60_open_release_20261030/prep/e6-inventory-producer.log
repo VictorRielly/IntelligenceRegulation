@@ -1,0 +1,24 @@
+PASS  commitment rows (W, A, H) vs public_block_wire.rs:117-121
+PASS  ATTN_SC (rounds, degree+1) vs public_block_wire.rs:21-35
+PASS  collapse block rounds vs public_block_wire.rs:114
+PASS  block claim-value count vs public_block_wire.rs:106
+PASS  receipt claim-value count vs public_block_receipt.rs:300
+PASS  A evaluations vs A01
+PASS  W evaluations vs A01
+PASS  H extension evaluations vs A01
+PASS  H extension sums vs A01
+PASS  terminal descriptors vs A01
+PASS  sumcheck count vs A01
+PASS  collapse count vs A01
+PASS  distinct LogUp table tags vs A01
+PASS  total attention lookups vs FA5 section 4.3 (N = 26624)
+PASS  short-W claims lifted by the adapter
+PASS  short-W adapter preconditions vs public_block_oracle.rs:196-205
+PASS  FA6 criterion: every derived attention slot surjective (P1)
+PASS  mask row budget L+256<=512 (P1)
+PASS  FA6 criterion: every derived attention slot surjective (P3)
+PASS  mask row budget L+256<=512 (P3)
+PASS  FA6 criterion: every derived attention slot surjective (collapse)
+PASS  mask row budget L+256<=512 (collapse)
+
+all checks pass: True

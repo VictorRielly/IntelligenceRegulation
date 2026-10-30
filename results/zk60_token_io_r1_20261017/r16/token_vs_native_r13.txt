@@ -1,0 +1,45 @@
+native R13 files the token tree differs in: 12
++10    -0     hashline/src/private_block.rs
++3     -3     hashline/src/private_block/accuracy_proof_tests.rs
++20    -2     hashline/src/private_block/hash_domain_tests.rs
++123   -0     hashline/src/private_block/run.rs
++1497  -12    hashline/src/private_block/run_capture.rs
++12    -0     hashline/src/private_block/s24_tests.rs
++341   -15    hashline/src/private_block/s25_tests.rs
++4     -0     hashline/src/private_block/s33_tests.rs
++2     -0     hashline/src/private_block/tied_tables.rs
++10    -1     hashline/src/private_block/tied_tables/derive.rs
++2     -1     hashline/src/private_block/trained_accuracy.rs
++51    -14    hashline/src/private_block/trained_block.rs
+token-only files: 31
+hashline/examples/zk60_classify.rs
+hashline/examples/zk60_token_io.rs
+hashline/src/private_block/token_io.rs
+hashline/src/private_block/token_io/capture_tests.rs
+hashline/src/private_block/token_io/classify.rs
+hashline/src/private_block/token_io/classify_capture_tests.rs
+hashline/src/private_block/token_io/classify_cli.rs
+hashline/src/private_block/token_io/classify_cli_tests.rs
+hashline/src/private_block/token_io/classify_r14_tests.rs
+hashline/src/private_block/token_io/classify_r15_tests.rs
+hashline/src/private_block/token_io/classify_r16_tests.rs
+hashline/src/private_block/token_io/classify_run.rs
+hashline/src/private_block/token_io/classify_tests.rs
+hashline/src/private_block/token_io/classify_tied.rs
+hashline/src/private_block/token_io/classify_tied_tests.rs
+hashline/src/private_block/token_io/cli.rs
+hashline/src/private_block/token_io/cli_tests.rs
+hashline/src/private_block/token_io/load.rs
+hashline/src/private_block/token_io/r0_words.rs
+hashline/src/private_block/token_io/r11_tests.rs
+hashline/src/private_block/token_io/r2_tests.rs
+hashline/src/private_block/token_io/r3_tests.rs
+hashline/src/private_block/token_io/r9_tests.rs
+hashline/src/private_block/token_io/r9v_tests.rs
+hashline/src/private_block/token_io/run.rs
+hashline/src/private_block/token_io/stage_in.rs
+hashline/src/private_block/token_io/stage_in_c.rs
+hashline/src/private_block/token_io/stage_out.rs
+hashline/src/private_block/token_io/stage_out_c.rs
+hashline/src/private_block/token_io/t128_tests.rs
+hashline/src/private_block/token_io/tests.rs

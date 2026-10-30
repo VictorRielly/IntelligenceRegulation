@@ -1,0 +1,10 @@
+{
+  "native_gpu_phase_clocks": "Unmeasured/excludes attribution; secs_fold spans flatten,H2D,allocation,kernel,D2H.",
+  "r14": "Source held per retained19:14:14state; no liveness inference, no duplicate jobs or edits.",
+  "web": [
+    "https://github.com/Artemarius/cuda-zkp-ntt/commits/main/: Cache miss",
+    "https://github.com/Artemarius/cuda-zkp-ntt/tags: Cache miss",
+    "https://api.github.com/repos/Artemarius/cuda-zkp-ntt/commits/main: inaccessible via web tool"
+  ],
+  "no_permission_escalation": true
+}

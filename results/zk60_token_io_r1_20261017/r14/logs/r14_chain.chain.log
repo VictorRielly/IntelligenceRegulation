@@ -1,0 +1,10 @@
+[zk60-guard 18:56:58] START tio14-s18-suite class=cpu need=8.5G cap=10G enforce=cgroup+watchdog waited=0s run=4610887344b3
+[zk60-guard 19:10:56] END tio14-s18-suite exit=0 child_wall=838s peak_rss=7.22G min_avail=6.53G
+[zk60-guard 19:10:56] START tio14-b14-cli-build class=build need=1.5G cap=3G enforce=cgroup+watchdog waited=0s run=168028b3bf1b
+[zk60-guard 19:11:09] END tio14-b14-cli-build exit=0 child_wall=13s peak_rss=0.43G min_avail=13.30G
+[zk60-guard 19:11:09] START tio14-bin-short class=cpu need=1G cap=2G enforce=cgroup+watchdog waited=0s run=17a767d11361
+[zk60-guard 19:11:12] END tio14-bin-short exit=0 child_wall=3s peak_rss=0.21G min_avail=13.52G
+[zk60-guard 19:11:12] START tio14-p18-cli class=cpu need=1G cap=2G enforce=cgroup+watchdog waited=0s run=09c6fbc31ba2
+[zk60-guard 19:11:15] END tio14-p18-cli exit=0 child_wall=3s peak_rss=0.21G min_avail=13.52G
+[zk60-guard 19:11:15] START tio14-shieldstral-r12b class=cpu need=1.5G cap=2.5G enforce=cgroup+watchdog waited=0s run=2951526e94d2
+[zk60-guard 19:11:31] END tio14-shieldstral-r12b exit=0 child_wall=16s peak_rss=0.47G min_avail=13.30G

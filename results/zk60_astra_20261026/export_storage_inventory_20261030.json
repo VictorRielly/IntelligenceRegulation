@@ -1,0 +1,274 @@
+{
+  "at": "2026-10-30T12:28:28.498631+00:00",
+  "read_only": true,
+  "directories": {
+    "(top-level)": {
+      "files": 68,
+      "logical_path_bytes": 514913,
+      "unique_allocated_bytes": 667648,
+      "exclusive_reclaimable_inode_bytes": 0
+    },
+    "__pycache__": {
+      "files": 35,
+      "logical_path_bytes": 171735,
+      "unique_allocated_bytes": 241664,
+      "exclusive_reclaimable_inode_bytes": 241664
+    },
+    "fidelity_smoke8_cached": {
+      "files": 84,
+      "logical_path_bytes": 170567909,
+      "unique_allocated_bytes": 170774528,
+      "exclusive_reclaimable_inode_bytes": 170774528
+    },
+    "layer25_fix_candidate": {
+      "files": 3,
+      "logical_path_bytes": 30374488,
+      "unique_allocated_bytes": 30384128,
+      "exclusive_reclaimable_inode_bytes": 30384128
+    },
+    "stats_t256": {
+      "files": 83,
+      "logical_path_bytes": 16370440277,
+      "unique_allocated_bytes": 16370802688,
+      "exclusive_reclaimable_inode_bytes": 16370802688
+    },
+    "dg_base_t256": {
+      "files": 446,
+      "logical_path_bytes": 3042095540,
+      "unique_allocated_bytes": 3042529280,
+      "exclusive_reclaimable_inode_bytes": 16384
+    },
+    "calibration_replay_inputs": {
+      "files": 3,
+      "logical_path_bytes": 462465,
+      "unique_allocated_bytes": 471040,
+      "exclusive_reclaimable_inode_bytes": 471040
+    },
+    "native_low_h24_t128-verifier": {
+      "files": 611,
+      "logical_path_bytes": 4249300006,
+      "unique_allocated_bytes": 4249575424,
+      "exclusive_reclaimable_inode_bytes": 0
+    },
+    "fidelity_full_fix1": {
+      "files": 39,
+      "logical_path_bytes": 34508075455,
+      "unique_allocated_bytes": 34508251136,
+      "exclusive_reclaimable_inode_bytes": 34508251136
+    },
+    "calibration_full_fix1": {
+      "files": 84,
+      "logical_path_bytes": 8154333256,
+      "unique_allocated_bytes": 8154537984,
+      "exclusive_reclaimable_inode_bytes": 8154537984
+    },
+    "fidelity_smoke8_fix1": {
+      "files": 85,
+      "logical_path_bytes": 170572376,
+      "unique_allocated_bytes": 170782720,
+      "exclusive_reclaimable_inode_bytes": 170782720
+    },
+    "fidelity_smoke8_gpu": {
+      "files": 110,
+      "logical_path_bytes": 170575513,
+      "unique_allocated_bytes": 170881024,
+      "exclusive_reclaimable_inode_bytes": 170881024
+    },
+    "vendor": {
+      "files": 13,
+      "logical_path_bytes": 289576,
+      "unique_allocated_bytes": 319488,
+      "exclusive_reclaimable_inode_bytes": 319488
+    },
+    "evaluation_inputs": {
+      "files": 3,
+      "logical_path_bytes": 7401500,
+      "unique_allocated_bytes": 7409664,
+      "exclusive_reclaimable_inode_bytes": 7409664
+    },
+    "upstream": {
+      "files": 4,
+      "logical_path_bytes": 154603,
+      "unique_allocated_bytes": 163840,
+      "exclusive_reclaimable_inode_bytes": 163840
+    },
+    "calibration_t256": {
+      "files": 3,
+      "logical_path_bytes": 428777,
+      "unique_allocated_bytes": 438272,
+      "exclusive_reclaimable_inode_bytes": 438272
+    },
+    "cache_probe1": {
+      "files": 1,
+      "logical_path_bytes": 905,
+      "unique_allocated_bytes": 4096,
+      "exclusive_reclaimable_inode_bytes": 4096
+    },
+    "s2_evaluation_t256": {
+      "files": 80,
+      "logical_path_bytes": 3050215601,
+      "unique_allocated_bytes": 3050434560,
+      "exclusive_reclaimable_inode_bytes": 3050434560
+    },
+    "layer25_probe": {
+      "files": 154,
+      "logical_path_bytes": 44162832,
+      "unique_allocated_bytes": 44593152,
+      "exclusive_reclaimable_inode_bytes": 44593152
+    },
+    "native_low_h24_t128": {
+      "files": 611,
+      "logical_path_bytes": 4249300006,
+      "unique_allocated_bytes": 4249575424,
+      "exclusive_reclaimable_inode_bytes": 0
+    },
+    "dg_r12b_t256": {
+      "files": 457,
+      "logical_path_bytes": 4252189512,
+      "unique_allocated_bytes": 4252647424,
+      "exclusive_reclaimable_inode_bytes": 1210134528
+    },
+    "gpu_probe": {
+      "files": 3,
+      "logical_path_bytes": 3454,
+      "unique_allocated_bytes": 12288,
+      "exclusive_reclaimable_inode_bytes": 12288
+    }
+  },
+  "root_unique_allocated_bytes": 71183409152,
+  "statistics_aggregate_and_plan_hashes_verified": true,
+  "float_residual_candidates": [
+    {
+      "path": "stats_t256/input_rotated.npy",
+      "bytes": 603979904,
+      "expected_sha256": "8ccf9b7d13927720a5c40e9c4589ac46a414c4de891b0d58bf25c9112b234b18"
+    },
+    {
+      "path": "stats_t256/layer_00/residual.npy",
+      "bytes": 603979904,
+      "expected_sha256": "ee145976534222818dfcfd7bb6107f5621a7a56883c9dea6324c2cfad0f71718"
+    },
+    {
+      "path": "stats_t256/layer_01/residual.npy",
+      "bytes": 603979904,
+      "expected_sha256": "a5977cff12dc73d408d14f3dba05dc792c553d2faffcacb5ead4084bb8a39b2a"
+    },
+    {
+      "path": "stats_t256/layer_02/residual.npy",
+      "bytes": 603979904,
+      "expected_sha256": "85bd9a1fe2e4029f54af2a43bebd82216685a9514131968b512e731f902b3106"
+    },
+    {
+      "path": "stats_t256/layer_03/residual.npy",
+      "bytes": 603979904,
+      "expected_sha256": "04a2eef4b6c96a13e6631c9ff5b1bea21e48b81146e27388136919005db802ee"
+    },
+    {
+      "path": "stats_t256/layer_04/residual.npy",
+      "bytes": 603979904,
+      "expected_sha256": "414d53a73cd8d683adc9e67f91c5b1f9a9daae66e26ed234b47e74510737b51f"
+    },
+    {
+      "path": "stats_t256/layer_05/residual.npy",
+      "bytes": 603979904,
+      "expected_sha256": "a695dc39dc91aba651e0ca1822e67fff500d33770a1887e879b35e1e2585a357"
+    },
+    {
+      "path": "stats_t256/layer_06/residual.npy",
+      "bytes": 603979904,
+      "expected_sha256": "214ced8884a2369781e7a200dddf06213c7c124f8e900f5e672c7fc58da94c29"
+    },
+    {
+      "path": "stats_t256/layer_07/residual.npy",
+      "bytes": 603979904,
+      "expected_sha256": "7856fa6ab65799c2a7cfc3afd6c211433813b2b0807882cd0170ca4c7b2ab86a"
+    },
+    {
+      "path": "stats_t256/layer_08/residual.npy",
+      "bytes": 603979904,
+      "expected_sha256": "8d6c95b76b42765ff12ccfe61cefd5445638e3b4cce65ea1d16add7eb1ae3a31"
+    },
+    {
+      "path": "stats_t256/layer_09/residual.npy",
+      "bytes": 603979904,
+      "expected_sha256": "8d0bf7041da864030b6a43ae459fd8fe4930e759df447f81c109fe0828f9d931"
+    },
+    {
+      "path": "stats_t256/layer_10/residual.npy",
+      "bytes": 603979904,
+      "expected_sha256": "3ebbb623023d651a7ad63579e2684060a0fa2011bc476f53fba7f627fc9be454"
+    },
+    {
+      "path": "stats_t256/layer_11/residual.npy",
+      "bytes": 603979904,
+      "expected_sha256": "4da712275aad54e8045c01903a8efa9c861b63b9a25a123479f8f8aab85c3c57"
+    },
+    {
+      "path": "stats_t256/layer_12/residual.npy",
+      "bytes": 603979904,
+      "expected_sha256": "c672d39b2e5c845d7e8515a3afc8b81366ab6ed743f124a9b50e5af1bd7146cf"
+    },
+    {
+      "path": "stats_t256/layer_13/residual.npy",
+      "bytes": 603979904,
+      "expected_sha256": "773e9843984205e261bbf003fda158579214e1ab92165ea83257ca69438b5e28"
+    },
+    {
+      "path": "stats_t256/layer_14/residual.npy",
+      "bytes": 603979904,
+      "expected_sha256": "334aab1f3a45cf4d26ee7c66ab1554483bd1cc28c1992a2a5b0e66a960176043"
+    },
+    {
+      "path": "stats_t256/layer_15/residual.npy",
+      "bytes": 603979904,
+      "expected_sha256": "e52889ae36fd49f702126fd9a7b5f368545cc1a717bf7392c3b9914c92cc19df"
+    },
+    {
+      "path": "stats_t256/layer_16/residual.npy",
+      "bytes": 603979904,
+      "expected_sha256": "d03d03c69cd3e7de49c75af20e45a249c6f3b896cbe4fc3007ca9c6514e16fa7"
+    },
+    {
+      "path": "stats_t256/layer_17/residual.npy",
+      "bytes": 603979904,
+      "expected_sha256": "1021d42fdeda33bc2e4305453fdc4c8665e99da501a8a5db66a5d7201b1167e3"
+    },
+    {
+      "path": "stats_t256/layer_18/residual.npy",
+      "bytes": 603979904,
+      "expected_sha256": "b8b763bc570508a756f3417fe6adcc6ccade202f7712822de6c39d288b6eaa35"
+    },
+    {
+      "path": "stats_t256/layer_19/residual.npy",
+      "bytes": 603979904,
+      "expected_sha256": "9912550c45458ed39b4b729886e3dfbe012b8eef0df336efb387703f6582ae04"
+    },
+    {
+      "path": "stats_t256/layer_20/residual.npy",
+      "bytes": 603979904,
+      "expected_sha256": "baf1484b1d964f9fb9c694c7dd49c6fe4bde1ace7ec3553726903d4eb0bba8f7"
+    },
+    {
+      "path": "stats_t256/layer_21/residual.npy",
+      "bytes": 603979904,
+      "expected_sha256": "534457cdfbd62992bab6d9c99355cd97056d3767a52a76b52e7318a68330e1f8"
+    },
+    {
+      "path": "stats_t256/layer_22/residual.npy",
+      "bytes": 603979904,
+      "expected_sha256": "e0c19751d72af55f7d4936353954633c40bc8cf047cd860cd520fef06bf860ab"
+    },
+    {
+      "path": "stats_t256/layer_23/residual.npy",
+      "bytes": 603979904,
+      "expected_sha256": "3fc3d9d1d2c20db7603070f0709988c46cc05ce4ac409a53acdf11264ef53e9b"
+    }
+  ],
+  "float_residual_candidate_bytes": 15099497600,
+  "float_payload_hashes_rechecked": false,
+  "incomplete_candidates": [],
+  "benchmark_residual_bytes_per_stage": 4313124864,
+  "benchmark_27_stage_residual_bytes": 116454371328,
+  "files_deleted": 0,
+  "caveat": "Directory unique sizes overlap for shared hard links. External links may prevent reclaim; no payload is deleted."
+}

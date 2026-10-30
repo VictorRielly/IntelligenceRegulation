@@ -1,0 +1,25 @@
+{
+ "draws": 235660902,
+ "salts": 5359616,
+ "total_log2": -68.1879,
+ "terms": {
+  "sampler bias (D9): draws x 2^-96": -68.19,
+  "input-dependent refusal, two-world (D34 / D40, R13 recount)": -108.25,
+  "salt guessing: q x N_leaf x 2^-256": -105.65,
+  "leaf-input collision: C(N_leaf,2) x 2^-256": -212.29,
+  "transcript pre-query: q x A x 2^-256": -108.0,
+  "transcript-input collision: C(A,2) x 2^-256": -217.0,
+  "generator, in-model alternative: 6q x 2^-256 (ASSUMED)": -125.42,
+  "generator-key row: 3 x 4 x 2^-256": -252.42,
+  "constructor vs absorb (B10): (A + q) x 2^-256": -128.0
+ },
+ "controls": {
+  "K-1 boundary 38/32/2^14 draws 108,032": true,
+  "K-1b every block stage has the same geometry": true,
+  "K-0 D36's L22 figure reproduced (2^-70.35)": {
+   "got": -70.35,
+   "want": -70.35,
+   "ok": true
+  }
+ }
+}

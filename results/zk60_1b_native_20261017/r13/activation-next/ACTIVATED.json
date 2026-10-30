@@ -1,0 +1,10 @@
+{
+  "utc": "2026-10-29T02:31:49.592097+00:00",
+  "state": "isolated candidate enabled; final release/freeze/review pending",
+  "gates": [
+    "four honest Low/H24 DD/nonDD receipts",
+    "18 native mutation cases",
+    "full actual26-layer public import"
+  ],
+  "removed": "temporary test-only availability hook; no relation or validation loosened"
+}

@@ -1,0 +1,6 @@
+{
+  "utc": "2026-10-30T19:51:06.177255+00:00",
+  "failed_case": "non-dd-local-group-reset",
+  "diagnosis": "Generic accepted-control writer added for dictionary alias test uses same HL_R14_ATTACK_OUTPUT for both honest group contexts; second honest control refuses to overwrite first accepted control. Native verification of first honest control passed. No mathematical attack accepted.",
+  "repair": "Version2 retains validated leaves, reruns group contexts without an output path, and records that full native group frames are in-memory only. No Rust/protocol source change."
+}

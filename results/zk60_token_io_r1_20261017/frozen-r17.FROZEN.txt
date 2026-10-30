@@ -1,0 +1,53 @@
+Token-I/O lane round-17 tree frozen at 2026-10-29T16:24:16Z: gate round 19's capture fixes adopted (H19-1..4) and table
+values in R13 classifier captures (the recorder's export replay), on frozen-r16b (round 16b, unreviewed). RECORDER CODE
+AND TESTS ONLY: every changed file is a #[cfg(test)] module. **UNREVIEWED**: a check of round 17 is to follow (routed by
+the coordinator).
+copy:     /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r17/
+source:   /home/victor/IntelligenceRegulation/ops/zkp-mvp/token-io-r17/ (a new durable tree: r17/tools/freeze17.py init =
+          exactly frozen-r16b's 301 files, then the round's edits). target/ and the native tests' evidence dirs are excluded.
+manifest: /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/manifest_final_r17.sha256
+          (= r17/manifest_r17A.sha256: 303 files, list sha256 23a958766cf946d07b35e93e1f82685c3f952e5526a99f4d389be766881dd9a2);
+          all 303 re-hashed in the copy: match, none missing, none extra. Pre/post-mutation (both mutation runs) and
+          post-suite manifests equal it.
+vs r16b:  6 paths (r17/r17A_vs_frozen_r16b.txt / .diff), all test-only:
+          * hashline/src/private_block/plane_index.rs (cfg(test); 13a7dd6f… -> ce79803c… = the gate's H19-3 byte for byte):
+            at an R13 shape the A plane names are AccuracyIds' (A_ + name), and DZC / QZC / KVZC / FZC sweep their whole
+            domain (R19-PIN-1: frozen-r16b's recorder could not record any R13 run);
+          * hashline/src/private_block/run_capture.rs (cfg(test); cad25086… -> cce0fc2a…): H19-4 (`bundle_is_classify` =
+            `is_classify_run_profile`, F19-1) and the EXPORT REPLAY — at an R13 block stage whose public-table values are
+            recorded, each statement table (the 7 folds, gamma_a / gamma_m, the RoPE pairs on Q / Kv, the group column, the
+            exp / ACT3 tables, the ACT support: the tables gate v22 takes rather than rebuilds) is listed; `export_replay`
+            derives each again from the export's layer and compares SHA-256s; `write_bundle` refuses a bundle that lists
+            statement tables until the replay passed and writes the replay into the README; no new bundle key;
+          * hashline/src/private_block/s25_tests.rs (cfg(test); e730f1d1…): one census row, run_capture.rs's `sha256_hex(`
+            sites 11 -> 12 (the replay's digest);
+          * hashline/src/private_block/token_io/classify_capture_tests.rs (cfg(test); 226553ba… = the gate's H19-1 line):
+            one #[path] line registering gate19_capture_tests.rs;
+          * token_io/gate19_capture_tests.rs (new, d018fa27…): the gate's H19-1 / H19-2 hooks adopted, each binding the export
+            replay when values are recorded (H19-1: the rung fixture's blocks; H19-2: a second ExportTokenBlocks load of the
+            real export), plus one #[path] line for the round's tests;
+          * token_io/classify_r17_tests.rs (new, 154927e6…): the round's four tests.
+bytes:    **No prover, verifier, statement or receipt byte changes** (no production source moved). Shown: the r17 binary
+          re-verifies the real moderate-hate receipt made by e94cecf9… in a fresh process (r17/logs/verify-hate.log: identity
+          29aeba6c…, the published statement re-checked byte for byte, not-flagged, floor 96, input root 4cf9e8ae… = round
+          16's), and rung receipts cross-verify with the r16b binary dfb8025e… both ways (r17/logs/xbin-r17-r16b.log; identity
+          061340df…). No re-prove.
+binary:   cli/zk60_classify.r17.release.bin 81bd86248e9f… (built from this tree after the suite): cli/binaries_r17.sha256,
+          build note cli/zk60_classify.r17.BUILD.txt. Not byte-equal to r16b's dfb8025e…: the tree path is baked in (12
+          zkp-core source paths, the crates' metadata hashes); same .text size.
+suite:    s22 (r17/logs/s22-suite.log): exit 0, 940 passed, 0 failed, 70 ignored, 29 test binaries [877 s, peak RSS 7.82 GiB /
+          cgroup 8.16 GiB, shared box n=1, nothing else live; declared 9.9 / cap 11]. s21 (r16b): 936 / 0 / 68.
+tests:    failing-first: on the unfixed recorder (frozen-r16b's plane_index.rs / run_capture.rs) both R13 recorder tests FAILED
+          ("the A plane name table has 79 names for 109 planes", r17/logs/red.log). Mutants killed (r17/logs/mut-*.log,
+          mut2-*.log): h19-4-off (F19-1), replay-blind (the replay never compares), group-skip (the group column not listed),
+          and h19-3-off (re-run in r17_mut2.sh: its first form did not compile, a false kill caught on reading the log).
+gate:     capture source pins that move: run_capture.rs (OWN_SOURCE_FILES entry; a digest the gate has not read) and
+          plane_index.rs (= H19-3, the gate's own reading ce79803c…); the classifier pins (classify.rs, classify_run.rs,
+          classify_tied.rs, stage_in_c.rs, stage_out_c.rs) and token_io.rs do not move. v22's pin rule therefore refuses an
+          r17 bundle until the gate re-reads run_capture.rs (v23).
+Not a privacy acceptance and not a classifier-fidelity claim. Unreviewed. The lane's working copy may move on; this copy does not
+change.
+after:    evidence made after the freeze from the tree at exactly these bytes (r17 ledger, 16:24-16:33): a rung capture and the
+          REAL moderate-hate capture WITH table values through the adopted hooks (442 statement tables replayed against a
+          second export load; arrays.bin 2,253,896,728 B; 126 s, peak RSS 8.77 GiB), and the gate's frozen v22 evaluators
+          on both (all 23 block slots closed: rung both stages; real blocks 2 and 3 only, a declared bound).

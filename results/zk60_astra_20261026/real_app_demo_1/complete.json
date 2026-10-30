@@ -1,0 +1,2631 @@
+{
+  "schema": "pm-real-shieldstral-testnet-demo/1",
+  "at": "2026-10-29T17:46:24.326893+00:00",
+  "post_id": "d1800de17fffed4565733d12e5c30f52",
+  "submitted_via": "app.api_create_post handler; original app Store and Worker",
+  "post_text": "Today I planted basil and watered the garden. The afternoon was quiet and sunny.",
+  "content_tokens": 17,
+  "plan": [
+    {
+      "index": 0,
+      "start": 0,
+      "end": 17,
+      "category": "sexual",
+      "category_chunk_index": 0,
+      "category_chunks": 1,
+      "content_total": 17,
+      "policy_id": "shieldstral-1.0-3b-moderate-sexual/1",
+      "chunk_tokens": 55,
+      "overlap_tokens": 8,
+      "context_tokens": 128
+    },
+    {
+      "index": 1,
+      "start": 0,
+      "end": 17,
+      "category": "violence",
+      "category_chunk_index": 0,
+      "category_chunks": 1,
+      "content_total": 17,
+      "policy_id": "shieldstral-1.0-3b-moderate-violence/1",
+      "chunk_tokens": 55,
+      "overlap_tokens": 8,
+      "context_tokens": 128
+    },
+    {
+      "index": 2,
+      "start": 0,
+      "end": 17,
+      "category": "hate",
+      "category_chunk_index": 0,
+      "category_chunks": 1,
+      "content_total": 17,
+      "policy_id": "shieldstral-1.0-3b-moderate-hate/1",
+      "chunk_tokens": 49,
+      "overlap_tokens": 8,
+      "context_tokens": 128
+    }
+  ],
+  "prover": {
+    "kind": "shieldstral",
+    "label": "Shieldstral-1.0-3B classifier \u2014 privacy statement pending",
+    "supports": [
+      "text"
+    ],
+    "proves_verdict": true,
+    "model": "Shieldstral-1.0-3B",
+    "model_digest": "29aeba6c04a819cdbafde311f7c9d0c678d85aff22292ae6b9647761158a0bd1",
+    "token_profile_digest": "2ba468f98085caf1136f27cf66220f93d8e316acb8dbae7e98f9eb68347f05a0",
+    "binary_sha256": "dfb8025eb903b203f4b50371fdd0dd00659d46a9dbaad9d121d6a68343ebc70c",
+    "run_profile": "hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/1",
+    "cli": "zk60_classify r16b, native R13, T128",
+    "privacy_status": "privacy statement pending",
+    "policy_selection": "moderate testnet demo; product ruling pending",
+    "what_is_proved": "The pinned integer model verdict for each category, bound to the post by input-owner verification.",
+    "per_job_s": 700,
+    "category_geometry": {
+      "sexual": {
+        "chunk_tokens": 55,
+        "overlap_tokens": 8,
+        "max_chunks": 8
+      },
+      "violence": {
+        "chunk_tokens": 55,
+        "overlap_tokens": 8,
+        "max_chunks": 8
+      },
+      "hate": {
+        "chunk_tokens": 49,
+        "overlap_tokens": 8,
+        "max_chunks": 8
+      }
+    }
+  },
+  "source_sha256": {
+    "apps/proven-media/proven_media/shieldstral_prover.py": "f31d373368bff8ed7bb82abe2122df83eba7018c924854c01d3a373cc3acabb0",
+    "apps/proven-media/proven_media/shieldstral_runtime.py": "b0cbf83877d18e328b20eb5c26508cadc5e87e57d7bc66388399837e7e582f73",
+    "apps/proven-media/proven_media/classifier_cli.py": "78a12f75f95df6f3899b62207e3766ca489d991cc7007edfb6a51fbca7eebd79",
+    "apps/proven-media/proven_media/classifier_prover.py": "3b36969f3889f8bdb2c5b61edf0f96d73f6bf7d053e3f1979e4adec20be5cf48",
+    "apps/proven-media/proven_media/provers.py": "0d92039c97b2bb831aa336b7acb38d83758ae20a8f29184aa44f3216da673acd",
+    "apps/proven-media/proven_media/jobs.py": "27afa7d12c4b2bf19ab767669d168ee62809ad158b911a8b3d7b1f18e1d87e7a",
+    "apps/proven-media/proven_media/proof_plans.py": "2f586ccc429af60ae41ce87c89539bf2e1d685bbadf42ef7e428250a496ba71d",
+    "apps/proven-media/proven_media/records.py": "93d73246b84253bf79e30f0d0d95225b5246a3206330f00b5098a6806041c7d3",
+    "apps/proven-media/proven_media/config.py": "9de948a0e6e80747a595497033162b65c25ea357953519359fc6146fb74bf8df",
+    "apps/proven-media/proven_media/app.py": "e07d365987507a1f3f3c0fa5d36abe74fdbbc9b0fefe03045275cb49dc0d9d82",
+    "apps/proven-media/proven_media/manifest.py": "e8722a753c4156d54b532edcca70d00c399da2a276cb7191f9d095d9c267ef02",
+    "apps/proven-media/tools/classifier_pipeline.py": "fd555a057a9202df6fbf6dac45bd5c43fb40b8bc0a2c74947fa618a85c0b5973",
+    "results/zk60_astra_20261026/run_real_app_demo.py": "e41c9a2f53bb438fdab077cab2bab215e46e4dcb1c34b2634377e4be71b80f05"
+  },
+  "private_root": "/tmp/zk60-astra-real-app-demo-20261029-1",
+  "public_root": "/home/victor/IntelligenceRegulation/results/zk60_astra_20261026/real_app_demo_1/public",
+  "categories": {},
+  "prelaunch_revision": {
+    "at": "2026-10-29T17:48:28.439011+00:00",
+    "reason": "Before any proof job, allow native recheck to reject missing/tampered receipt bytes so the app withdraws the post; seven adapter controls pass."
+  },
+  "source_revisions": [
+    {
+      "at": "2026-10-29T18:28:08.478032+00:00",
+      "reason": "Original guard withdrawn before computation; tested metadata/download fixes applied. No proof rerun.",
+      "previous_plan": "plan.before-metadata-fix.json",
+      "previous_source_sha256": {
+        "apps/proven-media/proven_media/shieldstral_prover.py": "f31d373368bff8ed7bb82abe2122df83eba7018c924854c01d3a373cc3acabb0",
+        "apps/proven-media/proven_media/shieldstral_runtime.py": "b0cbf83877d18e328b20eb5c26508cadc5e87e57d7bc66388399837e7e582f73",
+        "apps/proven-media/proven_media/classifier_cli.py": "78a12f75f95df6f3899b62207e3766ca489d991cc7007edfb6a51fbca7eebd79",
+        "apps/proven-media/proven_media/classifier_prover.py": "3b36969f3889f8bdb2c5b61edf0f96d73f6bf7d053e3f1979e4adec20be5cf48",
+        "apps/proven-media/proven_media/provers.py": "6115464239e2106332877dc04f0269b39c6d4bac43b94d0b19a5dbab14999ce5",
+        "apps/proven-media/proven_media/jobs.py": "6ac060b1de108e276710aaba7713b5fca06ddd483737a9affca8604a970123df",
+        "apps/proven-media/proven_media/proof_plans.py": "2f586ccc429af60ae41ce87c89539bf2e1d685bbadf42ef7e428250a496ba71d",
+        "apps/proven-media/proven_media/records.py": "93d73246b84253bf79e30f0d0d95225b5246a3206330f00b5098a6806041c7d3",
+        "apps/proven-media/proven_media/config.py": "4e1a917ec22e4a5da6f0c25ce8230c9fb0d4153f2e532c0bc3a3095366bc65f3",
+        "apps/proven-media/proven_media/app.py": "15e045c11748fad72372990f3eccd80fa6ad622616b2de9e90985b255a558f26",
+        "apps/proven-media/tools/classifier_pipeline.py": "dd2de31a5dee01b4780efec3b5a2865f803f6acdfc30dc919eb0d2963b8c5e0b",
+        "results/zk60_astra_20261026/run_real_app_demo.py": "806e381781c1e585f15f895e8ef71c19e153be8330c4fc555660686a39d71fb1"
+      },
+      "source_sha256": {
+        "apps/proven-media/proven_media/shieldstral_prover.py": "f31d373368bff8ed7bb82abe2122df83eba7018c924854c01d3a373cc3acabb0",
+        "apps/proven-media/proven_media/shieldstral_runtime.py": "b0cbf83877d18e328b20eb5c26508cadc5e87e57d7bc66388399837e7e582f73",
+        "apps/proven-media/proven_media/classifier_cli.py": "78a12f75f95df6f3899b62207e3766ca489d991cc7007edfb6a51fbca7eebd79",
+        "apps/proven-media/proven_media/classifier_prover.py": "3b36969f3889f8bdb2c5b61edf0f96d73f6bf7d053e3f1979e4adec20be5cf48",
+        "apps/proven-media/proven_media/provers.py": "0d92039c97b2bb831aa336b7acb38d83758ae20a8f29184aa44f3216da673acd",
+        "apps/proven-media/proven_media/jobs.py": "27afa7d12c4b2bf19ab767669d168ee62809ad158b911a8b3d7b1f18e1d87e7a",
+        "apps/proven-media/proven_media/proof_plans.py": "2f586ccc429af60ae41ce87c89539bf2e1d685bbadf42ef7e428250a496ba71d",
+        "apps/proven-media/proven_media/records.py": "93d73246b84253bf79e30f0d0d95225b5246a3206330f00b5098a6806041c7d3",
+        "apps/proven-media/proven_media/config.py": "9de948a0e6e80747a595497033162b65c25ea357953519359fc6146fb74bf8df",
+        "apps/proven-media/proven_media/app.py": "e07d365987507a1f3f3c0fa5d36abe74fdbbc9b0fefe03045275cb49dc0d9d82",
+        "apps/proven-media/proven_media/manifest.py": "e8722a753c4156d54b532edcca70d00c399da2a276cb7191f9d095d9c267ef02",
+        "apps/proven-media/tools/classifier_pipeline.py": "dd2de31a5dee01b4780efec3b5a2865f803f6acdfc30dc919eb0d2963b8c5e0b",
+        "results/zk60_astra_20261026/run_real_app_demo.py": "e5b7d00b89c74e51e43fbea404fdcb62a766d02aab7f16e98d4707d24748345d"
+      },
+      "candidate_test_evidence": "../real_adapter_metadata_candidate/test_result.json"
+    },
+    {
+      "at": "2026-10-29T18:37:02.548884+00:00",
+      "reason": "Pinned tokenizer dependencies installed in app venv; remove preparation/user-site path borrowing. All real ASGI routes checked with actual local tokenizer, no computation started.",
+      "previous_plan": "plan.before-local-tokenizer.json",
+      "previous_source_sha256": {
+        "apps/proven-media/proven_media/shieldstral_prover.py": "f31d373368bff8ed7bb82abe2122df83eba7018c924854c01d3a373cc3acabb0",
+        "apps/proven-media/proven_media/shieldstral_runtime.py": "b0cbf83877d18e328b20eb5c26508cadc5e87e57d7bc66388399837e7e582f73",
+        "apps/proven-media/proven_media/classifier_cli.py": "78a12f75f95df6f3899b62207e3766ca489d991cc7007edfb6a51fbca7eebd79",
+        "apps/proven-media/proven_media/classifier_prover.py": "3b36969f3889f8bdb2c5b61edf0f96d73f6bf7d053e3f1979e4adec20be5cf48",
+        "apps/proven-media/proven_media/provers.py": "0d92039c97b2bb831aa336b7acb38d83758ae20a8f29184aa44f3216da673acd",
+        "apps/proven-media/proven_media/jobs.py": "27afa7d12c4b2bf19ab767669d168ee62809ad158b911a8b3d7b1f18e1d87e7a",
+        "apps/proven-media/proven_media/proof_plans.py": "2f586ccc429af60ae41ce87c89539bf2e1d685bbadf42ef7e428250a496ba71d",
+        "apps/proven-media/proven_media/records.py": "93d73246b84253bf79e30f0d0d95225b5246a3206330f00b5098a6806041c7d3",
+        "apps/proven-media/proven_media/config.py": "9de948a0e6e80747a595497033162b65c25ea357953519359fc6146fb74bf8df",
+        "apps/proven-media/proven_media/app.py": "e07d365987507a1f3f3c0fa5d36abe74fdbbc9b0fefe03045275cb49dc0d9d82",
+        "apps/proven-media/proven_media/manifest.py": "e8722a753c4156d54b532edcca70d00c399da2a276cb7191f9d095d9c267ef02",
+        "apps/proven-media/tools/classifier_pipeline.py": "dd2de31a5dee01b4780efec3b5a2865f803f6acdfc30dc919eb0d2963b8c5e0b",
+        "results/zk60_astra_20261026/run_real_app_demo.py": "e5b7d00b89c74e51e43fbea404fdcb62a766d02aab7f16e98d4707d24748345d"
+      },
+      "source_sha256": {
+        "apps/proven-media/proven_media/shieldstral_prover.py": "f31d373368bff8ed7bb82abe2122df83eba7018c924854c01d3a373cc3acabb0",
+        "apps/proven-media/proven_media/shieldstral_runtime.py": "b0cbf83877d18e328b20eb5c26508cadc5e87e57d7bc66388399837e7e582f73",
+        "apps/proven-media/proven_media/classifier_cli.py": "78a12f75f95df6f3899b62207e3766ca489d991cc7007edfb6a51fbca7eebd79",
+        "apps/proven-media/proven_media/classifier_prover.py": "3b36969f3889f8bdb2c5b61edf0f96d73f6bf7d053e3f1979e4adec20be5cf48",
+        "apps/proven-media/proven_media/provers.py": "0d92039c97b2bb831aa336b7acb38d83758ae20a8f29184aa44f3216da673acd",
+        "apps/proven-media/proven_media/jobs.py": "27afa7d12c4b2bf19ab767669d168ee62809ad158b911a8b3d7b1f18e1d87e7a",
+        "apps/proven-media/proven_media/proof_plans.py": "2f586ccc429af60ae41ce87c89539bf2e1d685bbadf42ef7e428250a496ba71d",
+        "apps/proven-media/proven_media/records.py": "93d73246b84253bf79e30f0d0d95225b5246a3206330f00b5098a6806041c7d3",
+        "apps/proven-media/proven_media/config.py": "9de948a0e6e80747a595497033162b65c25ea357953519359fc6146fb74bf8df",
+        "apps/proven-media/proven_media/app.py": "e07d365987507a1f3f3c0fa5d36abe74fdbbc9b0fefe03045275cb49dc0d9d82",
+        "apps/proven-media/proven_media/manifest.py": "e8722a753c4156d54b532edcca70d00c399da2a276cb7191f9d095d9c267ef02",
+        "apps/proven-media/tools/classifier_pipeline.py": "dd2de31a5dee01b4780efec3b5a2865f803f6acdfc30dc919eb0d2963b8c5e0b",
+        "results/zk60_astra_20261026/run_real_app_demo.py": "dd2d076adf0d90a2c4de0d950d89c90773fa08ee5185855affa4c31fb126b254"
+      },
+      "route_evidence": "real_routes_check.json"
+    },
+    {
+      "at": "2026-10-30T01:17:12.341016+00:00",
+      "reason": "Coordinator01:02:8native threads and time margin for future categories; original sexual run unchanged",
+      "previous_plan": "plan.before-thread-tuning.json"
+    }
+  ],
+  "category_execution": {
+    "sexual": {
+      "native_threads": 2,
+      "prove_max_seconds": 1200,
+      "source_snapshot": "plan.before-thread-tuning.json"
+    },
+    "violence": {
+      "native_threads": 8,
+      "prove_max_seconds": 1200
+    },
+    "hate": {
+      "native_threads": 8,
+      "prove_max_seconds": 1200
+    }
+  },
+  "finished_at": "2026-10-30T05:11:30.239923+00:00",
+  "record": {
+    "schema": "proven-media-item/1",
+    "post_id": "d1800de17fffed4565733d12e5c30f52",
+    "item_kind": "text",
+    "prover": {
+      "kind": "shieldstral",
+      "label": "Shieldstral-1.0-3B classifier \u2014 privacy statement pending",
+      "supports": [
+        "text"
+      ],
+      "proves_verdict": true,
+      "model": "Shieldstral-1.0-3B",
+      "model_digest": "29aeba6c04a819cdbafde311f7c9d0c678d85aff22292ae6b9647761158a0bd1",
+      "token_profile_digest": "2ba468f98085caf1136f27cf66220f93d8e316acb8dbae7e98f9eb68347f05a0",
+      "binary_sha256": "dfb8025eb903b203f4b50371fdd0dd00659d46a9dbaad9d121d6a68343ebc70c",
+      "run_profile": "hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/1",
+      "cli": "zk60_classify r16b, native R13, T128",
+      "privacy_status": "privacy statement pending",
+      "policy_selection": "moderate testnet demo; product ruling pending",
+      "what_is_proved": "The pinned integer model verdict for each category, bound to the post by input-owner verification.",
+      "per_job_s": 700,
+      "category_geometry": {
+        "sexual": {
+          "chunk_tokens": 55,
+          "overlap_tokens": 8,
+          "max_chunks": 8
+        },
+        "violence": {
+          "chunk_tokens": 55,
+          "overlap_tokens": 8,
+          "max_chunks": 8
+        },
+        "hate": {
+          "chunk_tokens": 49,
+          "overlap_tokens": 8,
+          "max_chunks": 8
+        }
+      }
+    },
+    "labels": {
+      "sexual": {
+        "value": "no",
+        "proof": "accepted",
+        "bound_by_proof": true,
+        "chunks": [
+          {
+            "index": 0,
+            "value": "no",
+            "bound_by_proof": true
+          }
+        ]
+      },
+      "violence": {
+        "value": "no",
+        "proof": "accepted",
+        "bound_by_proof": true,
+        "chunks": [
+          {
+            "index": 1,
+            "value": "no",
+            "bound_by_proof": true
+          }
+        ]
+      },
+      "hate": {
+        "value": "no",
+        "proof": "accepted",
+        "bound_by_proof": true,
+        "chunks": [
+          {
+            "index": 2,
+            "value": "no",
+            "bound_by_proof": true
+          }
+        ]
+      }
+    },
+    "policies": [
+      {
+        "id": "shieldstral-1.0-3b-moderate-sexual/1",
+        "sha256": "e702f604f893d95c773dda6b1cbd30c4c3a253555075c623bc5e800d164c0822",
+        "text": "<s>[SYSTEM_PROMPT]Judge whether the Document meets the requirements based on the Query and the Instruction provided. Note that the answer can only be \"yes\" or \"no\".[/SYSTEM_PROMPT][INST]<Instruct>: You are a safety moderator. Apply a moderate tolerance threshold.\n\n<Query>: Does this content contain NSFW or sexually explicit material?\n\n<Document>: [User] {{private_content}}[/INST]\n",
+        "registered": true,
+        "category": "sexual",
+        "name": "Sexual / explicit content"
+      },
+      {
+        "id": "shieldstral-1.0-3b-moderate-violence/1",
+        "sha256": "eb124ee93d46d2f716fb6beee54a8f26d21883a2b87daa721d9cbe92e5131128",
+        "text": "<s>[SYSTEM_PROMPT]Judge whether the Document meets the requirements based on the Query and the Instruction provided. Note that the answer can only be \"yes\" or \"no\".[/SYSTEM_PROMPT][INST]<Instruct>: You are a safety moderator. Apply a moderate tolerance threshold.\n\n<Query>: Does this content depict graphic violence or promote physical violence?\n\n<Document>: [User] {{private_content}}[/INST]\n",
+        "registered": true,
+        "category": "violence",
+        "name": "Graphic violence"
+      },
+      {
+        "id": "shieldstral-1.0-3b-moderate-hate/1",
+        "sha256": "c9a65df1b6a57e0e1aa5a497949aaae2b8c00843a7b3b465d69f9ee811b68f89",
+        "text": "<s>[SYSTEM_PROMPT]Judge whether the Document meets the requirements based on the Query and the Instruction provided. Note that the answer can only be \"yes\" or \"no\".[/SYSTEM_PROMPT][INST]<Instruct>: You are a safety moderator. Apply a moderate tolerance threshold.\n\n<Query>: Does this content contain hate speech targeting a protected group, or harassment or personal attacks?\n\n<Document>: [User] {{private_content}}[/INST]\n",
+        "registered": true,
+        "category": "hate",
+        "name": "Hate / harassment"
+      }
+    ],
+    "threshold": {
+      "tau": 0.5,
+      "c": 0.0,
+      "rule": "label 'yes' iff z_yes - z_no > c, c = ln(tau / (1 - tau)) (z = the classifier's logits of 'yes' / 'no' at the first answer position, for that category's policy query); 'no' otherwise"
+    },
+    "chunking": {
+      "profile": "per-category",
+      "n_chunks": 3
+    },
+    "chunks": [
+      {
+        "index": 0,
+        "start": 0,
+        "end": 17,
+        "category": "sexual",
+        "category_chunk_index": 0,
+        "category_chunks": 1,
+        "content_total": 17,
+        "policy_id": "shieldstral-1.0-3b-moderate-sexual/1",
+        "chunk_tokens": 55,
+        "overlap_tokens": 8,
+        "context_tokens": 128,
+        "record": {
+          "post_id": "d1800de17fffed4565733d12e5c30f52",
+          "item_kind": "text",
+          "prover": {
+            "kind": "shieldstral",
+            "label": "Shieldstral-1.0-3B classifier \u2014 privacy statement pending",
+            "supports": [
+              "text"
+            ],
+            "proves_verdict": true,
+            "model": "Shieldstral-1.0-3B",
+            "model_digest": "29aeba6c04a819cdbafde311f7c9d0c678d85aff22292ae6b9647761158a0bd1",
+            "token_profile_digest": "2ba468f98085caf1136f27cf66220f93d8e316acb8dbae7e98f9eb68347f05a0",
+            "binary_sha256": "dfb8025eb903b203f4b50371fdd0dd00659d46a9dbaad9d121d6a68343ebc70c",
+            "run_profile": "hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/1",
+            "cli": "zk60_classify r16b, native R13, T128",
+            "privacy_status": "privacy statement pending",
+            "policy_selection": "moderate testnet demo; product ruling pending",
+            "what_is_proved": "The pinned integer model verdict for each category, bound to the post by input-owner verification.",
+            "per_job_s": 700,
+            "category_geometry": {
+              "sexual": {
+                "chunk_tokens": 55,
+                "overlap_tokens": 8,
+                "max_chunks": 8
+              },
+              "violence": {
+                "chunk_tokens": 55,
+                "overlap_tokens": 8,
+                "max_chunks": 8
+              },
+              "hate": {
+                "chunk_tokens": 49,
+                "overlap_tokens": 8,
+                "max_chunks": 8
+              }
+            }
+          },
+          "labels": {
+            "sexual": {
+              "value": "no",
+              "proof": "accepted",
+              "bound_by_proof": true,
+              "policy_id": "shieldstral-1.0-3b-moderate-sexual/1",
+              "development_only": false,
+              "policy_sha256": "e702f604f893d95c773dda6b1cbd30c4c3a253555075c623bc5e800d164c0822"
+            }
+          },
+          "policies": [
+            {
+              "id": "shieldstral-1.0-3b-moderate-sexual/1",
+              "sha256": "e702f604f893d95c773dda6b1cbd30c4c3a253555075c623bc5e800d164c0822",
+              "text": "<s>[SYSTEM_PROMPT]Judge whether the Document meets the requirements based on the Query and the Instruction provided. Note that the answer can only be \"yes\" or \"no\".[/SYSTEM_PROMPT][INST]<Instruct>: You are a safety moderator. Apply a moderate tolerance threshold.\n\n<Query>: Does this content contain NSFW or sexually explicit material?\n\n<Document>: [User] {{private_content}}[/INST]\n",
+              "registered": true,
+              "category": "sexual"
+            }
+          ],
+          "threshold": {
+            "tau": 0.5,
+            "c": 0.0,
+            "rule": "label 'yes' iff z_yes - z_no > c, c = ln(tau / (1 - tau)) (z = the classifier's logits of 'yes' / 'no' at the first answer position, for that category's policy query); 'no' otherwise"
+          },
+          "content_commitment": {
+            "kind": "sealed native input-token endpoint",
+            "value": "60efbf799833cb65e2deb3b2931277bcd7ec62f062a6dc067f9f1e830a002b39"
+          },
+          "statement": {
+            "schema": "zk60-classify-run/3",
+            "scope": "a classifier proof (DESIGN_CLASSIFIER v2.4, rung R-C3): the approved integer model's verdict on hidden content under a pre-registered policy; the margin row and the embedding re-derived from the pinned tied tensor; one external endpoint; the verdict bit and the content length are public (D45); a short item's trailing positions hold the public pad id; NOT a privacy acceptance",
+            "statement_written_by": "zk60_classify verify, after its fresh-process verification of the run directory, from its own data",
+            "run_profile": "hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/1",
+            "block_profile": "hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/1",
+            "blocks": 26,
+            "export_variant": "shieldstral-s2-fixed-low-h24-t128-v2",
+            "trained_statement_identity": "29aeba6c04a819cdbafde311f7c9d0c678d85aff22292ae6b9647761158a0bd1",
+            "policy": "shieldstral-1.0-3b-moderate-sexual/1",
+            "verdict": "not-flagged",
+            "verdict_bit": 0,
+            "threshold_c": 0,
+            "yes_id": 13059,
+            "no_id": 2649,
+            "template_prefix_ids": [
+              1,
+              17,
+              1074,
+              45463,
+              5627,
+              1278,
+              23762,
+              37005,
+              1278,
+              13795,
+              4057,
+              1408,
+              1278,
+              27356,
+              1321,
+              1278,
+              83779,
+              5662,
+              1046,
+              13708,
+              1455,
+              1278,
+              4832,
+              1710,
+              2342,
+              1402,
+              1429,
+              13059,
+              1034,
+              1505,
+              1429,
+              2649,
+              3871,
+              18,
+              3,
+              1060,
+              1785,
+              8166,
+              72067,
+              3213,
+              1584,
+              1261,
+              12216,
+              11673,
+              2412,
+              1046,
+              63882,
+              1261,
+              21680,
+              27710,
+              13472,
+              1338,
+              1060,
+              7087,
+              72067,
+              20525,
+              1593,
+              4701,
+              4231,
+              10703,
+              70351,
+              1505,
+              61522,
+              14960,
+              4318,
+              2634,
+              1060,
+              16060,
+              72067,
+              1766,
+              4019,
+              1093
+            ],
+            "template_suffix_ids": [
+              4
+            ],
+            "content_length_n": 17,
+            "chunk": {
+              "index": 0,
+              "count": 1,
+              "range": [
+                0,
+                17
+              ],
+              "content_total": 17,
+              "chunk_size": 55,
+              "overlap": 8,
+              "split": "end-aligned (DESIGN v2.2 13.1); a short content is one chunk of its length (v2.4 15)"
+            },
+            "T": 128,
+            "item_length": 90,
+            "pad_id": 11,
+            "pad_positions": 38,
+            "verdict_row": 89,
+            "control_ids_below": 1000,
+            "tokenizer": "tekken.json sha256 ceb11e85e44d7c91 (plain-text encoding, no special-token parsing; template ids as Astra's candidates b1cfcda9)",
+            "margin_vector_digest": "6429a242ca399fa22d7fd77136002da0e5be6d659a91733507e678f1c2a13c91",
+            "margin_scale": 4.08288030735373e-06,
+            "tied_source": "tied-source=shieldstral-checkpoint tensor=language_model.model.embed_tokens.weight sha256=67a138c1c483b89874526ef523f5f0c30f161808076561730193d1de2093dd19 derivation=native-R12b-recompute_tied_tables(rotate-then-floor(x/scale+0.5),refuse-outside-int16,no-clip)",
+            "embedding_digest": "1cb276d1c83861e0b5e2860eb46c98b9991651ee3cf6f0eb77bdbe836af19b0a",
+            "bos": 1,
+            "final_norm": {
+              "g0": 127,
+              "cn": 1024,
+              "tn": 10,
+              "ceps": 2439
+            },
+            "classifier_profile_digest": "3682e5ceed63d4c971c2ed9c1e14de3df979ab5162ba54f28db130cadbe01dce",
+            "rulings": "rulings: B-5 n-public=true B-6 fixed-policy-list=true B-8 binding=input-endpoint-root B-4 fail-closed=true (accepted by Victor: D45, 2026-10-29)",
+            "context_label": "zk60-classify-verdict",
+            "context": "4ed79c32c1ac80bb290d534bf24a809d0abfeffa335fbfba1a09b13c34b032e1",
+            "input_token_endpoint_root": "60efbf799833cb65e2deb3b2931277bcd7ec62f062a6dc067f9f1e830a002b39",
+            "whole_run_floor_bits": 96,
+            "parameter_line": "T128/d3072/f9216/H32/KV8/dh128/log_cols14/inv_rate4/Q256/P1/sh-g8-u0-h14-z8/two-internal-boundaries/one-proof-one-transcript/endpoint-log_n14-rate4-pad256-rows37/L26/boundaries-B_in-B_out-and-interior-log_n14-rate4-pad256-rows38-sites2/token-endpoint-in-log_n8-rate8-pad256-words256-rows6-sites1/no-output-endpoint/stages-log_n12-rate4-pad256/classify (DESIGN_CLASSIFIER v2) under hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/1: V=131072 V_pad=131072 d=3072 d_pad=4096 T=128 P0=72 n=17 S=1 item-length=90 pad-id=11 pad-positions=38 verdict-row=89 BOS=1 final-norm g0=127 cn=1024 tn=10 ceps=2439 wrho=32 dmax=1816186 margin-vector=int16[-32767,32767] 6429a242ca399fa22d7fd77136002da0e5be6d659a91733507e678f1c2a13c91 threshold c=0 c-class=[-2^33,2^33] margin-window=35 byte-limbs=5 limbs-at-Lo-entry=32 no-pin yes=13059 no=2649 ctl=ids<1000 template=01b862069544781b580fbff1ff12050d755297b5efddd2b0bfe21e76940f48ab policy=shieldstral-1.0-3b-moderate-sexual/1 tokenizer=tekken.json sha256 ceb11e85e44d7c91 (plain-text encoding, no special-token parsing; template ids as Astra's candidates b1cfcda9) embedding=1cb276d1c83861e0b5e2860eb46c98b9991651ee3cf6f0eb77bdbe836af19b0a variant=public-row mode=verdict-public-bit no-output-endpoint chunk-size=55 chunk-overlap=8 chunk-split=end-aligned short-content=one-chunk-of-its-length-pad-pinned margin-scale=4.08288030735373e-6 margin-scale-bits=0x3ed11ff597db2fb6 tied-source=shieldstral-checkpoint tensor=language_model.model.embed_tokens.weight sha256=67a138c1c483b89874526ef523f5f0c30f161808076561730193d1de2093dd19 derivation=native-R12b-recompute_tied_tables(rotate-then-floor(x/scale+0.5),refuse-outside-int16,no-clip) rulings: B-5 n-public=true B-6 fixed-policy-list=true B-8 binding=input-endpoint-root B-4 fail-closed=true (accepted by Victor: D45, 2026-10-29) tier mvp-95-whole-run (D27): Q=256 stage-row 2^12 rate 1/4 token-endpoint-row 2^8 rate 1/8 lookup-field F_p^2/whole-run-floor-96-bits-112-openings-column-plus-logup-derived-plus-pcs-field-and-sumcheck-bound/one-run-one-transcript"
+          },
+          "statement_sha256": "55d944e78346fbe51ddf74519c9526bc35e4e014e55c73a2b31961bbb17d7bf7",
+          "receipt": {
+            "run_dir": "/home/victor/IntelligenceRegulation/results/zk60_astra_20261026/real_app_demo_1/public/runs/d1800de17fffed4565733d12e5c30f52-c0",
+            "files": [
+              {
+                "file": "segment-000.bin",
+                "bytes": 1415192,
+                "sha256": "4a6e158d25a91d703463ae28a94a0d2cfdf4aeb0ed02d2b383756e49f551a6ef"
+              },
+              {
+                "file": "segment-001.bin",
+                "bytes": 32450184,
+                "sha256": "fbe3ada4acbe0a4f03853294d608158e40a3e6404ddc2d4a827b9285ffc085bf"
+              },
+              {
+                "file": "segment-002.bin",
+                "bytes": 32450184,
+                "sha256": "c74c6bbe9c4b16e6fc08984a925ccde5caa8793a9a2b5b75b2945ac7a0ac228a"
+              },
+              {
+                "file": "segment-003.bin",
+                "bytes": 32450184,
+                "sha256": "3ce0c3b5f498548944d3c288c6b8185c57ad3426cb2d70c88745f286ffbec661"
+              },
+              {
+                "file": "segment-004.bin",
+                "bytes": 32450184,
+                "sha256": "3128feccad9c7b05d3eb3b07813c33b9dd94770b333f2dc6a1bd9ae1e3eb0c73"
+              },
+              {
+                "file": "segment-005.bin",
+                "bytes": 32450184,
+                "sha256": "4db5ceac8a7f0d5a1539eb9a2cf08474e97054762e9ef9043e73e173a759612a"
+              },
+              {
+                "file": "segment-006.bin",
+                "bytes": 32450184,
+                "sha256": "e06f84d6cddfc08a3acd2317d7cc9fbcfeaa6ab0cd682c64966e4f36c2695dac"
+              },
+              {
+                "file": "segment-007.bin",
+                "bytes": 32450184,
+                "sha256": "7744264450c086cdda6dece0e405e50e83e6321bacba4c0822cce3e4259f5f65"
+              },
+              {
+                "file": "segment-008.bin",
+                "bytes": 32450184,
+                "sha256": "d0cb09ca7e84fd2ecde2710d1385999ef97d9dac96dd94e88d396c416e5f6938"
+              },
+              {
+                "file": "segment-009.bin",
+                "bytes": 32450184,
+                "sha256": "a6edf91fdd4b825c0bcd1770f2296a6f0d841e2207435ff0a5f254d924ac8ae3"
+              },
+              {
+                "file": "segment-010.bin",
+                "bytes": 32450184,
+                "sha256": "f920c8f3a4f1b4029c1f2fe90bda4628fb757ebbd5fe83439ff7638225293357"
+              },
+              {
+                "file": "segment-011.bin",
+                "bytes": 32450184,
+                "sha256": "6a5a7e5064d0cf707a9b9f1c1b82f1f39cb4acd325fc388608e336bcbd90318f"
+              },
+              {
+                "file": "segment-012.bin",
+                "bytes": 32450184,
+                "sha256": "4d5d0951cca1da17bb788414f677db1e9a14dee79ee0131ceb03f5efcb41ed68"
+              },
+              {
+                "file": "segment-013.bin",
+                "bytes": 32450184,
+                "sha256": "ada457f599d4577fd38a6c61a1bdb5d30801c1e2ebac3161219d0a7b43560fa4"
+              },
+              {
+                "file": "segment-014.bin",
+                "bytes": 32450184,
+                "sha256": "ed3c077e645bed4551c2f140c6739d2b42223a05a58a6a985d90b7f90a68c6c0"
+              },
+              {
+                "file": "segment-015.bin",
+                "bytes": 32450184,
+                "sha256": "37840d01486cb5215c8878efefa8a092a480c10c21011cc01fe57c7d827688fb"
+              },
+              {
+                "file": "segment-016.bin",
+                "bytes": 32450184,
+                "sha256": "4622ad70336d3850345318739c137695a9093ec977ae48f7eb18884b613c489e"
+              },
+              {
+                "file": "segment-017.bin",
+                "bytes": 32450184,
+                "sha256": "2490cd6ac3b4965c98f321ae75116a1d6b33ef3e0cb83a8964e9899a18c2a876"
+              },
+              {
+                "file": "segment-018.bin",
+                "bytes": 32450184,
+                "sha256": "e9fab18e6fd927dab98e3b70bb2e0dc7ecf234a65c6d099e4aed1acfdf03a6d5"
+              },
+              {
+                "file": "segment-019.bin",
+                "bytes": 32450184,
+                "sha256": "ddff2997b64a09f29a5a3b511527d8e3768448b8d5cf2796ba9a3c3edb802289"
+              },
+              {
+                "file": "segment-020.bin",
+                "bytes": 32450184,
+                "sha256": "67b0e1685255fd4a9b729c801bce128d2793604caa8daa957e8813fb97f9a2ae"
+              },
+              {
+                "file": "segment-021.bin",
+                "bytes": 32450184,
+                "sha256": "b803a4a84242063f0c60426680e8bcc1e8835911374c2475936e7e6eed082438"
+              },
+              {
+                "file": "segment-022.bin",
+                "bytes": 32450184,
+                "sha256": "7fae732aeddf4266693ad7e4bc4897a13b8949683fe83de6a3d7288ce88ff317"
+              },
+              {
+                "file": "segment-023.bin",
+                "bytes": 32450184,
+                "sha256": "75fedbf94d0274be14e0685eaefbae7105a0bc9b562e22d651ff2575b328476c"
+              },
+              {
+                "file": "segment-024.bin",
+                "bytes": 32450184,
+                "sha256": "9a84905e195a614a2f547fb28645d17e582a08bd0becfe86c3be62711808e768"
+              },
+              {
+                "file": "segment-025.bin",
+                "bytes": 32450184,
+                "sha256": "ea70b49a0a9c8d5023c7ca02f3879c9c9e6a2d92feb237803e9440f4c6ed8bb1"
+              },
+              {
+                "file": "segment-026.bin",
+                "bytes": 32450184,
+                "sha256": "1743f75f16fa92a733fad6b41ee0200420bb99af5ff0aed40a8173cf6703c881"
+              },
+              {
+                "file": "segment-027.bin",
+                "bytes": 3292120,
+                "sha256": "a5ee4ccd8b208ef53de3c9d40ae518d1993866bb2366ef0388ff9be7efdbc796"
+              }
+            ],
+            "segments": 28,
+            "bytes": 848412096
+          },
+          "timings": {
+            "work_s": 1300.0127794742584,
+            "steps": {
+              "seqgen": {
+                "child_wall_seconds": 27.353595972061157,
+                "peak_rss_gib": 0.72,
+                "enforcement": "cgroup+watchdog",
+                "waited_s": 2260.8
+              },
+              "prove": {
+                "child_wall_seconds": 1031.1587619781494,
+                "peak_rss_gib": 7.99,
+                "enforcement": "cgroup+watchdog",
+                "waited_s": 0.0
+              },
+              "verify": {
+                "child_wall_seconds": 80.81978869438171,
+                "peak_rss_gib": 2.13,
+                "enforcement": "cgroup+watchdog",
+                "waited_s": 0.0
+              },
+              "inowner": {
+                "child_wall_seconds": 81.3481297492981,
+                "peak_rss_gib": 2.12,
+                "enforcement": "cgroup+watchdog",
+                "waited_s": 0.0
+              },
+              "label": {
+                "child_wall_seconds": 79.33250308036804,
+                "peak_rss_gib": 2.14,
+                "enforcement": "cgroup+watchdog",
+                "waited_s": 0.0
+              }
+            }
+          },
+          "security": {
+            "whole_run_floor_bits": 96,
+            "min_bits_required": 95,
+            "privacy_status": "privacy statement pending"
+          },
+          "checks": {
+            "verify": {
+              "ok": true,
+              "by": "pinned r16b fresh process"
+            },
+            "content_binding": {
+              "ok": true
+            },
+            "category_aggregate": {
+              "result": {
+                "value": "no",
+                "proof": "accepted",
+                "bound_by_proof": true,
+                "policy_id": "shieldstral-1.0-3b-moderate-sexual/1",
+                "development_only": false,
+                "flagged_ranges": [],
+                "chunks": 1
+              },
+              "statement_sha256": [
+                "55d944e78346fbe51ddf74519c9526bc35e4e014e55c73a2b31961bbb17d7bf7"
+              ],
+              "total": 17
+            }
+          },
+          "content_length": {
+            "tokens": 17,
+            "total_tokens": 17,
+            "tokenizer": "pinned Tekken",
+            "tokenizer_sha256": "ceb11e85e44d7c91d051604d636d97b05aee59a907a0dc96a3c6e557d9634e18"
+          },
+          "chunk": {
+            "index": 0,
+            "start": 0,
+            "end": 17,
+            "category": "sexual",
+            "category_chunk_index": 0,
+            "category_chunks": 1,
+            "content_total": 17,
+            "policy_id": "shieldstral-1.0-3b-moderate-sexual/1",
+            "chunk_tokens": 55,
+            "overlap_tokens": 8,
+            "context_tokens": 128
+          },
+          "proved_at": "2026-10-30T01:16:33Z",
+          "created_at": "2026-10-30T01:16:33Z",
+          "schema": "proven-media-record/2",
+          "notes": [
+            "Real classifier testnet demo; privacy statement pending. Moderate product wording remains pending."
+          ]
+        },
+        "error": null
+      },
+      {
+        "index": 1,
+        "start": 0,
+        "end": 17,
+        "category": "violence",
+        "category_chunk_index": 0,
+        "category_chunks": 1,
+        "content_total": 17,
+        "policy_id": "shieldstral-1.0-3b-moderate-violence/1",
+        "chunk_tokens": 55,
+        "overlap_tokens": 8,
+        "context_tokens": 128,
+        "record": {
+          "post_id": "d1800de17fffed4565733d12e5c30f52",
+          "item_kind": "text",
+          "prover": {
+            "kind": "shieldstral",
+            "label": "Shieldstral-1.0-3B classifier \u2014 privacy statement pending",
+            "supports": [
+              "text"
+            ],
+            "proves_verdict": true,
+            "model": "Shieldstral-1.0-3B",
+            "model_digest": "29aeba6c04a819cdbafde311f7c9d0c678d85aff22292ae6b9647761158a0bd1",
+            "token_profile_digest": "2ba468f98085caf1136f27cf66220f93d8e316acb8dbae7e98f9eb68347f05a0",
+            "binary_sha256": "dfb8025eb903b203f4b50371fdd0dd00659d46a9dbaad9d121d6a68343ebc70c",
+            "run_profile": "hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/1",
+            "cli": "zk60_classify r16b, native R13, T128",
+            "privacy_status": "privacy statement pending",
+            "policy_selection": "moderate testnet demo; product ruling pending",
+            "what_is_proved": "The pinned integer model verdict for each category, bound to the post by input-owner verification.",
+            "per_job_s": 700,
+            "category_geometry": {
+              "sexual": {
+                "chunk_tokens": 55,
+                "overlap_tokens": 8,
+                "max_chunks": 8
+              },
+              "violence": {
+                "chunk_tokens": 55,
+                "overlap_tokens": 8,
+                "max_chunks": 8
+              },
+              "hate": {
+                "chunk_tokens": 49,
+                "overlap_tokens": 8,
+                "max_chunks": 8
+              }
+            }
+          },
+          "labels": {
+            "violence": {
+              "value": "no",
+              "proof": "accepted",
+              "bound_by_proof": true,
+              "policy_id": "shieldstral-1.0-3b-moderate-violence/1",
+              "development_only": false,
+              "policy_sha256": "eb124ee93d46d2f716fb6beee54a8f26d21883a2b87daa721d9cbe92e5131128"
+            }
+          },
+          "policies": [
+            {
+              "id": "shieldstral-1.0-3b-moderate-violence/1",
+              "sha256": "eb124ee93d46d2f716fb6beee54a8f26d21883a2b87daa721d9cbe92e5131128",
+              "text": "<s>[SYSTEM_PROMPT]Judge whether the Document meets the requirements based on the Query and the Instruction provided. Note that the answer can only be \"yes\" or \"no\".[/SYSTEM_PROMPT][INST]<Instruct>: You are a safety moderator. Apply a moderate tolerance threshold.\n\n<Query>: Does this content depict graphic violence or promote physical violence?\n\n<Document>: [User] {{private_content}}[/INST]\n",
+              "registered": true,
+              "category": "violence"
+            }
+          ],
+          "threshold": {
+            "tau": 0.5,
+            "c": 0.0,
+            "rule": "label 'yes' iff z_yes - z_no > c, c = ln(tau / (1 - tau)) (z = the classifier's logits of 'yes' / 'no' at the first answer position, for that category's policy query); 'no' otherwise"
+          },
+          "content_commitment": {
+            "kind": "sealed native input-token endpoint",
+            "value": "952e06e39914cffbc022e845133599cfc8624263421dd32fd452ef4e0351d119"
+          },
+          "statement": {
+            "schema": "zk60-classify-run/3",
+            "scope": "a classifier proof (DESIGN_CLASSIFIER v2.4, rung R-C3): the approved integer model's verdict on hidden content under a pre-registered policy; the margin row and the embedding re-derived from the pinned tied tensor; one external endpoint; the verdict bit and the content length are public (D45); a short item's trailing positions hold the public pad id; NOT a privacy acceptance",
+            "statement_written_by": "zk60_classify verify, after its fresh-process verification of the run directory, from its own data",
+            "run_profile": "hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/1",
+            "block_profile": "hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/1",
+            "blocks": 26,
+            "export_variant": "shieldstral-s2-fixed-low-h24-t128-v2",
+            "trained_statement_identity": "29aeba6c04a819cdbafde311f7c9d0c678d85aff22292ae6b9647761158a0bd1",
+            "policy": "shieldstral-1.0-3b-moderate-violence/1",
+            "verdict": "not-flagged",
+            "verdict_bit": 0,
+            "threshold_c": 0,
+            "yes_id": 13059,
+            "no_id": 2649,
+            "template_prefix_ids": [
+              1,
+              17,
+              1074,
+              45463,
+              5627,
+              1278,
+              23762,
+              37005,
+              1278,
+              13795,
+              4057,
+              1408,
+              1278,
+              27356,
+              1321,
+              1278,
+              83779,
+              5662,
+              1046,
+              13708,
+              1455,
+              1278,
+              4832,
+              1710,
+              2342,
+              1402,
+              1429,
+              13059,
+              1034,
+              1505,
+              1429,
+              2649,
+              3871,
+              18,
+              3,
+              1060,
+              1785,
+              8166,
+              72067,
+              3213,
+              1584,
+              1261,
+              12216,
+              11673,
+              2412,
+              1046,
+              63882,
+              1261,
+              21680,
+              27710,
+              13472,
+              1338,
+              1060,
+              7087,
+              72067,
+              20525,
+              1593,
+              4701,
+              17767,
+              47223,
+              16988,
+              1505,
+              17438,
+              8137,
+              16988,
+              2634,
+              1060,
+              16060,
+              72067,
+              1766,
+              4019,
+              1093
+            ],
+            "template_suffix_ids": [
+              4
+            ],
+            "content_length_n": 17,
+            "chunk": {
+              "index": 0,
+              "count": 1,
+              "range": [
+                0,
+                17
+              ],
+              "content_total": 17,
+              "chunk_size": 55,
+              "overlap": 8,
+              "split": "end-aligned (DESIGN v2.2 13.1); a short content is one chunk of its length (v2.4 15)"
+            },
+            "T": 128,
+            "item_length": 90,
+            "pad_id": 11,
+            "pad_positions": 38,
+            "verdict_row": 89,
+            "control_ids_below": 1000,
+            "tokenizer": "tekken.json sha256 ceb11e85e44d7c91 (plain-text encoding, no special-token parsing; template ids as Astra's candidates b1cfcda9)",
+            "margin_vector_digest": "6429a242ca399fa22d7fd77136002da0e5be6d659a91733507e678f1c2a13c91",
+            "margin_scale": 4.08288030735373e-06,
+            "tied_source": "tied-source=shieldstral-checkpoint tensor=language_model.model.embed_tokens.weight sha256=67a138c1c483b89874526ef523f5f0c30f161808076561730193d1de2093dd19 derivation=native-R12b-recompute_tied_tables(rotate-then-floor(x/scale+0.5),refuse-outside-int16,no-clip)",
+            "embedding_digest": "1cb276d1c83861e0b5e2860eb46c98b9991651ee3cf6f0eb77bdbe836af19b0a",
+            "bos": 1,
+            "final_norm": {
+              "g0": 127,
+              "cn": 1024,
+              "tn": 10,
+              "ceps": 2439
+            },
+            "classifier_profile_digest": "4c4a00e30b178db03ac4227765402312b5c591d353305675219d6f0eb1310140",
+            "rulings": "rulings: B-5 n-public=true B-6 fixed-policy-list=true B-8 binding=input-endpoint-root B-4 fail-closed=true (accepted by Victor: D45, 2026-10-29)",
+            "context_label": "zk60-classify-verdict",
+            "context": "4ed79c32c1ac80bb290d534bf24a809d0abfeffa335fbfba1a09b13c34b032e1",
+            "input_token_endpoint_root": "952e06e39914cffbc022e845133599cfc8624263421dd32fd452ef4e0351d119",
+            "whole_run_floor_bits": 96,
+            "parameter_line": "T128/d3072/f9216/H32/KV8/dh128/log_cols14/inv_rate4/Q256/P1/sh-g8-u0-h14-z8/two-internal-boundaries/one-proof-one-transcript/endpoint-log_n14-rate4-pad256-rows37/L26/boundaries-B_in-B_out-and-interior-log_n14-rate4-pad256-rows38-sites2/token-endpoint-in-log_n8-rate8-pad256-words256-rows6-sites1/no-output-endpoint/stages-log_n12-rate4-pad256/classify (DESIGN_CLASSIFIER v2) under hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/1: V=131072 V_pad=131072 d=3072 d_pad=4096 T=128 P0=72 n=17 S=1 item-length=90 pad-id=11 pad-positions=38 verdict-row=89 BOS=1 final-norm g0=127 cn=1024 tn=10 ceps=2439 wrho=32 dmax=1816186 margin-vector=int16[-32767,32767] 6429a242ca399fa22d7fd77136002da0e5be6d659a91733507e678f1c2a13c91 threshold c=0 c-class=[-2^33,2^33] margin-window=35 byte-limbs=5 limbs-at-Lo-entry=32 no-pin yes=13059 no=2649 ctl=ids<1000 template=120845c0a9ca23d3346fd4355886f6a15d4747ab1b9caa5a33bd6ee2e4b67764 policy=shieldstral-1.0-3b-moderate-violence/1 tokenizer=tekken.json sha256 ceb11e85e44d7c91 (plain-text encoding, no special-token parsing; template ids as Astra's candidates b1cfcda9) embedding=1cb276d1c83861e0b5e2860eb46c98b9991651ee3cf6f0eb77bdbe836af19b0a variant=public-row mode=verdict-public-bit no-output-endpoint chunk-size=55 chunk-overlap=8 chunk-split=end-aligned short-content=one-chunk-of-its-length-pad-pinned margin-scale=4.08288030735373e-6 margin-scale-bits=0x3ed11ff597db2fb6 tied-source=shieldstral-checkpoint tensor=language_model.model.embed_tokens.weight sha256=67a138c1c483b89874526ef523f5f0c30f161808076561730193d1de2093dd19 derivation=native-R12b-recompute_tied_tables(rotate-then-floor(x/scale+0.5),refuse-outside-int16,no-clip) rulings: B-5 n-public=true B-6 fixed-policy-list=true B-8 binding=input-endpoint-root B-4 fail-closed=true (accepted by Victor: D45, 2026-10-29) tier mvp-95-whole-run (D27): Q=256 stage-row 2^12 rate 1/4 token-endpoint-row 2^8 rate 1/8 lookup-field F_p^2/whole-run-floor-96-bits-112-openings-column-plus-logup-derived-plus-pcs-field-and-sumcheck-bound/one-run-one-transcript"
+          },
+          "statement_sha256": "3012cbce8092eab0c5abde8126f0aaa2c498c3489a5ef0615e69817372249277",
+          "receipt": {
+            "run_dir": "/home/victor/IntelligenceRegulation/results/zk60_astra_20261026/real_app_demo_1/public/runs/d1800de17fffed4565733d12e5c30f52-c1",
+            "files": [
+              {
+                "file": "segment-000.bin",
+                "bytes": 1415192,
+                "sha256": "606e5bd2b3a8a96fc7ad5bd05fe2538081771e347dc65a0e5143bb7082d31ae5"
+              },
+              {
+                "file": "segment-001.bin",
+                "bytes": 32450184,
+                "sha256": "99b215b0309d52c3deb9f9a8ffa694b646d9a7091196c3394a1f8ec4a56129b7"
+              },
+              {
+                "file": "segment-002.bin",
+                "bytes": 32450184,
+                "sha256": "bdbfba2fddcadae7e245313de2554161f6b8d44873e485d739a05d2586f0c308"
+              },
+              {
+                "file": "segment-003.bin",
+                "bytes": 32450184,
+                "sha256": "ab5c6f90cc27db5a0524de8443f169bc0949b4b350572d606a9dccd0c7893ff8"
+              },
+              {
+                "file": "segment-004.bin",
+                "bytes": 32450184,
+                "sha256": "9bd086916733bf8a66675f69f410f2b2db3967671fe76dba5a836c301f61362b"
+              },
+              {
+                "file": "segment-005.bin",
+                "bytes": 32450184,
+                "sha256": "3c80dd2ad93445a5b977a7cd6c54daa50fc7f44aada84cf30e5b9a7ff3d17370"
+              },
+              {
+                "file": "segment-006.bin",
+                "bytes": 32450184,
+                "sha256": "3013ecb5544c7c698414b87c740379212f0ae805cf867a5045d4cc71ca9b9c0a"
+              },
+              {
+                "file": "segment-007.bin",
+                "bytes": 32450184,
+                "sha256": "1eccb4bd0b86db41473c5c740fbe2e8c12321bc178dd00e951dd8e7375f970a4"
+              },
+              {
+                "file": "segment-008.bin",
+                "bytes": 32450184,
+                "sha256": "0b5cfe3dbdb3380f18b6f9f03538da74ee2db841ea88c4011c64f9c4b27cd0ff"
+              },
+              {
+                "file": "segment-009.bin",
+                "bytes": 32450184,
+                "sha256": "a7f208d6ca420dbce9d6d31d4d36b81085c20ddaa58c58ead29ac58a90b4166f"
+              },
+              {
+                "file": "segment-010.bin",
+                "bytes": 32450184,
+                "sha256": "17249b742ae9537719cb00a4bbd6aa597b9183fe448daff9c2bbadfd6434909c"
+              },
+              {
+                "file": "segment-011.bin",
+                "bytes": 32450184,
+                "sha256": "05ffa538473985dc6573bf75f0abe1f425803dd3f469bb42153c32495012e8f5"
+              },
+              {
+                "file": "segment-012.bin",
+                "bytes": 32450184,
+                "sha256": "34efac3a1756636c563cb9e09c9c220b3dacd305ebcda45e20916b674df18fbb"
+              },
+              {
+                "file": "segment-013.bin",
+                "bytes": 32450184,
+                "sha256": "ba229250be2d00c20abc51c949b5fd4ed673ea3d6ef65ac0835d74bf48cf47a7"
+              },
+              {
+                "file": "segment-014.bin",
+                "bytes": 32450184,
+                "sha256": "5da90cf67b8f90e8c49314ce62a0be812fa0fc0912e689cf2851be4e9729fdbd"
+              },
+              {
+                "file": "segment-015.bin",
+                "bytes": 32450184,
+                "sha256": "c42a710fd94e33da0a480fc19d07c9833b231e23d1e7f47cf7e66ae2d9eb86f7"
+              },
+              {
+                "file": "segment-016.bin",
+                "bytes": 32450184,
+                "sha256": "973c9cc0824ae6a1791eb1f96626893bc82d03e9233ccb4ada59ee3a4308f16b"
+              },
+              {
+                "file": "segment-017.bin",
+                "bytes": 32450184,
+                "sha256": "3486347dcf40a92e87def9b9b1c1e99086c060e214f4d434cae8f1874e9df34a"
+              },
+              {
+                "file": "segment-018.bin",
+                "bytes": 32450184,
+                "sha256": "e4bfa332c40dd84e533a1b98b684d1787f671c0b571fcb713e571a6d5266ed2d"
+              },
+              {
+                "file": "segment-019.bin",
+                "bytes": 32450184,
+                "sha256": "ba795e1f9efcd14f7ff2648d9b4db8c5d4e8992d7e8adea2d4b88875c463b9b5"
+              },
+              {
+                "file": "segment-020.bin",
+                "bytes": 32450184,
+                "sha256": "a7fc2ee23bced535a339723c68bed6e26f73ced9f4bdfc9fe585ac92399e9a52"
+              },
+              {
+                "file": "segment-021.bin",
+                "bytes": 32450184,
+                "sha256": "9513c8accc64a6b6dfc9d5a7fee0ce50aa5314ecdf07dcafc82cee31d9c8853d"
+              },
+              {
+                "file": "segment-022.bin",
+                "bytes": 32450184,
+                "sha256": "c8d183ff847e0e139c9156de16cce8bf139745ac09cf928263055b02b925968e"
+              },
+              {
+                "file": "segment-023.bin",
+                "bytes": 32450184,
+                "sha256": "7a235b91499c17922e438995e6c5beaafa8915b01bced91aad1631eb249b2071"
+              },
+              {
+                "file": "segment-024.bin",
+                "bytes": 32450184,
+                "sha256": "f52f3c44e3bd3656aa88006c558384e76fa3b36d3cc142342d2817c813a5692b"
+              },
+              {
+                "file": "segment-025.bin",
+                "bytes": 32450184,
+                "sha256": "54b2750af95214a2e627caa19e34d9217777e4f0a6ff4bb67fd23cad125f94eb"
+              },
+              {
+                "file": "segment-026.bin",
+                "bytes": 32450184,
+                "sha256": "f68afb0e5ec506eb0793369246d8281ba55d88652aa728f6563320378ae2a858"
+              },
+              {
+                "file": "segment-027.bin",
+                "bytes": 3292120,
+                "sha256": "c05d79389b8a85bbc331869a1659b82f4b8df742433c025dd477536966ba2608"
+              }
+            ],
+            "segments": 28,
+            "bytes": 848412096
+          },
+          "timings": {
+            "work_s": 687.4906151294708,
+            "steps": {
+              "seqgen": {
+                "child_wall_seconds": 29.12595534324646,
+                "peak_rss_gib": 0.71,
+                "enforcement": "cgroup+watchdog",
+                "waited_s": 150.3
+              },
+              "prove": {
+                "child_wall_seconds": 456.3015673160553,
+                "peak_rss_gib": 8.24,
+                "enforcement": "cgroup+watchdog",
+                "waited_s": 0.0
+              },
+              "verify": {
+                "child_wall_seconds": 69.302077293396,
+                "peak_rss_gib": 2.3,
+                "enforcement": "cgroup+watchdog",
+                "waited_s": 0.0
+              },
+              "inowner": {
+                "child_wall_seconds": 66.96275901794434,
+                "peak_rss_gib": 2.32,
+                "enforcement": "cgroup+watchdog",
+                "waited_s": 0.0
+              },
+              "label": {
+                "child_wall_seconds": 65.79825615882874,
+                "peak_rss_gib": 2.28,
+                "enforcement": "cgroup+watchdog",
+                "waited_s": 0.0
+              }
+            }
+          },
+          "security": {
+            "whole_run_floor_bits": 96,
+            "min_bits_required": 95,
+            "privacy_status": "privacy statement pending"
+          },
+          "checks": {
+            "verify": {
+              "ok": true,
+              "by": "pinned r16b fresh process"
+            },
+            "content_binding": {
+              "ok": true
+            },
+            "category_aggregate": {
+              "result": {
+                "value": "no",
+                "proof": "accepted",
+                "bound_by_proof": true,
+                "policy_id": "shieldstral-1.0-3b-moderate-violence/1",
+                "development_only": false,
+                "flagged_ranges": [],
+                "chunks": 1
+              },
+              "statement_sha256": [
+                "3012cbce8092eab0c5abde8126f0aaa2c498c3489a5ef0615e69817372249277"
+              ],
+              "total": 17
+            }
+          },
+          "content_length": {
+            "tokens": 17,
+            "total_tokens": 17,
+            "tokenizer": "pinned Tekken",
+            "tokenizer_sha256": "ceb11e85e44d7c91d051604d636d97b05aee59a907a0dc96a3c6e557d9634e18"
+          },
+          "chunk": {
+            "index": 1,
+            "start": 0,
+            "end": 17,
+            "category": "violence",
+            "category_chunk_index": 0,
+            "category_chunks": 1,
+            "content_total": 17,
+            "policy_id": "shieldstral-1.0-3b-moderate-violence/1",
+            "chunk_tokens": 55,
+            "overlap_tokens": 8,
+            "context_tokens": 128
+          },
+          "proved_at": "2026-10-30T01:32:22Z",
+          "created_at": "2026-10-30T01:32:22Z",
+          "schema": "proven-media-record/2",
+          "notes": [
+            "Real classifier testnet demo; privacy statement pending. Moderate product wording remains pending."
+          ]
+        },
+        "error": null
+      },
+      {
+        "index": 2,
+        "start": 0,
+        "end": 17,
+        "category": "hate",
+        "category_chunk_index": 0,
+        "category_chunks": 1,
+        "content_total": 17,
+        "policy_id": "shieldstral-1.0-3b-moderate-hate/1",
+        "chunk_tokens": 49,
+        "overlap_tokens": 8,
+        "context_tokens": 128,
+        "record": {
+          "post_id": "d1800de17fffed4565733d12e5c30f52",
+          "item_kind": "text",
+          "prover": {
+            "kind": "shieldstral",
+            "label": "Shieldstral-1.0-3B classifier \u2014 privacy statement pending",
+            "supports": [
+              "text"
+            ],
+            "proves_verdict": true,
+            "model": "Shieldstral-1.0-3B",
+            "model_digest": "29aeba6c04a819cdbafde311f7c9d0c678d85aff22292ae6b9647761158a0bd1",
+            "token_profile_digest": "2ba468f98085caf1136f27cf66220f93d8e316acb8dbae7e98f9eb68347f05a0",
+            "binary_sha256": "dfb8025eb903b203f4b50371fdd0dd00659d46a9dbaad9d121d6a68343ebc70c",
+            "run_profile": "hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/1",
+            "cli": "zk60_classify r16b, native R13, T128",
+            "privacy_status": "privacy statement pending",
+            "policy_selection": "moderate testnet demo; product ruling pending",
+            "what_is_proved": "The pinned integer model verdict for each category, bound to the post by input-owner verification.",
+            "per_job_s": 700,
+            "category_geometry": {
+              "sexual": {
+                "chunk_tokens": 55,
+                "overlap_tokens": 8,
+                "max_chunks": 8
+              },
+              "violence": {
+                "chunk_tokens": 55,
+                "overlap_tokens": 8,
+                "max_chunks": 8
+              },
+              "hate": {
+                "chunk_tokens": 49,
+                "overlap_tokens": 8,
+                "max_chunks": 8
+              }
+            }
+          },
+          "labels": {
+            "hate": {
+              "value": "no",
+              "proof": "accepted",
+              "bound_by_proof": true,
+              "policy_id": "shieldstral-1.0-3b-moderate-hate/1",
+              "development_only": false,
+              "policy_sha256": "c9a65df1b6a57e0e1aa5a497949aaae2b8c00843a7b3b465d69f9ee811b68f89"
+            }
+          },
+          "policies": [
+            {
+              "id": "shieldstral-1.0-3b-moderate-hate/1",
+              "sha256": "c9a65df1b6a57e0e1aa5a497949aaae2b8c00843a7b3b465d69f9ee811b68f89",
+              "text": "<s>[SYSTEM_PROMPT]Judge whether the Document meets the requirements based on the Query and the Instruction provided. Note that the answer can only be \"yes\" or \"no\".[/SYSTEM_PROMPT][INST]<Instruct>: You are a safety moderator. Apply a moderate tolerance threshold.\n\n<Query>: Does this content contain hate speech targeting a protected group, or harassment or personal attacks?\n\n<Document>: [User] {{private_content}}[/INST]\n",
+              "registered": true,
+              "category": "hate"
+            }
+          ],
+          "threshold": {
+            "tau": 0.5,
+            "c": 0.0,
+            "rule": "label 'yes' iff z_yes - z_no > c, c = ln(tau / (1 - tau)) (z = the classifier's logits of 'yes' / 'no' at the first answer position, for that category's policy query); 'no' otherwise"
+          },
+          "content_commitment": {
+            "kind": "sealed native input-token endpoint",
+            "value": "92a6aafd03394144b6ca5941b057282d13a406ad6944388970660b3545743908"
+          },
+          "statement": {
+            "schema": "zk60-classify-run/3",
+            "scope": "a classifier proof (DESIGN_CLASSIFIER v2.4, rung R-C3): the approved integer model's verdict on hidden content under a pre-registered policy; the margin row and the embedding re-derived from the pinned tied tensor; one external endpoint; the verdict bit and the content length are public (D45); a short item's trailing positions hold the public pad id; NOT a privacy acceptance",
+            "statement_written_by": "zk60_classify verify, after its fresh-process verification of the run directory, from its own data",
+            "run_profile": "hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/1",
+            "block_profile": "hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/1",
+            "blocks": 26,
+            "export_variant": "shieldstral-s2-fixed-low-h24-t128-v2",
+            "trained_statement_identity": "29aeba6c04a819cdbafde311f7c9d0c678d85aff22292ae6b9647761158a0bd1",
+            "policy": "shieldstral-1.0-3b-moderate-hate/1",
+            "verdict": "not-flagged",
+            "verdict_bit": 0,
+            "threshold_c": 0,
+            "yes_id": 13059,
+            "no_id": 2649,
+            "template_prefix_ids": [
+              1,
+              17,
+              1074,
+              45463,
+              5627,
+              1278,
+              23762,
+              37005,
+              1278,
+              13795,
+              4057,
+              1408,
+              1278,
+              27356,
+              1321,
+              1278,
+              83779,
+              5662,
+              1046,
+              13708,
+              1455,
+              1278,
+              4832,
+              1710,
+              2342,
+              1402,
+              1429,
+              13059,
+              1034,
+              1505,
+              1429,
+              2649,
+              3871,
+              18,
+              3,
+              1060,
+              1785,
+              8166,
+              72067,
+              3213,
+              1584,
+              1261,
+              12216,
+              11673,
+              2412,
+              1046,
+              63882,
+              1261,
+              21680,
+              27710,
+              13472,
+              1338,
+              1060,
+              7087,
+              72067,
+              20525,
+              1593,
+              4701,
+              4231,
+              31483,
+              16181,
+              27491,
+              1261,
+              8949,
+              3204,
+              1044,
+              1505,
+              84083,
+              1505,
+              7357,
+              19447,
+              2634,
+              1060,
+              16060,
+              72067,
+              1766,
+              4019,
+              1093
+            ],
+            "template_suffix_ids": [
+              4
+            ],
+            "content_length_n": 17,
+            "chunk": {
+              "index": 0,
+              "count": 1,
+              "range": [
+                0,
+                17
+              ],
+              "content_total": 17,
+              "chunk_size": 49,
+              "overlap": 8,
+              "split": "end-aligned (DESIGN v2.2 13.1); a short content is one chunk of its length (v2.4 15)"
+            },
+            "T": 128,
+            "item_length": 96,
+            "pad_id": 11,
+            "pad_positions": 32,
+            "verdict_row": 95,
+            "control_ids_below": 1000,
+            "tokenizer": "tekken.json sha256 ceb11e85e44d7c91 (plain-text encoding, no special-token parsing; template ids as Astra's candidates b1cfcda9)",
+            "margin_vector_digest": "6429a242ca399fa22d7fd77136002da0e5be6d659a91733507e678f1c2a13c91",
+            "margin_scale": 4.08288030735373e-06,
+            "tied_source": "tied-source=shieldstral-checkpoint tensor=language_model.model.embed_tokens.weight sha256=67a138c1c483b89874526ef523f5f0c30f161808076561730193d1de2093dd19 derivation=native-R12b-recompute_tied_tables(rotate-then-floor(x/scale+0.5),refuse-outside-int16,no-clip)",
+            "embedding_digest": "1cb276d1c83861e0b5e2860eb46c98b9991651ee3cf6f0eb77bdbe836af19b0a",
+            "bos": 1,
+            "final_norm": {
+              "g0": 127,
+              "cn": 1024,
+              "tn": 10,
+              "ceps": 2439
+            },
+            "classifier_profile_digest": "8ca2c304cdbe7bdf82a8d327864c976d48c01c6b74b194ec03b4f44bc31a6a70",
+            "rulings": "rulings: B-5 n-public=true B-6 fixed-policy-list=true B-8 binding=input-endpoint-root B-4 fail-closed=true (accepted by Victor: D45, 2026-10-29)",
+            "context_label": "zk60-classify-verdict",
+            "context": "4ed79c32c1ac80bb290d534bf24a809d0abfeffa335fbfba1a09b13c34b032e1",
+            "input_token_endpoint_root": "92a6aafd03394144b6ca5941b057282d13a406ad6944388970660b3545743908",
+            "whole_run_floor_bits": 96,
+            "parameter_line": "T128/d3072/f9216/H32/KV8/dh128/log_cols14/inv_rate4/Q256/P1/sh-g8-u0-h14-z8/two-internal-boundaries/one-proof-one-transcript/endpoint-log_n14-rate4-pad256-rows37/L26/boundaries-B_in-B_out-and-interior-log_n14-rate4-pad256-rows38-sites2/token-endpoint-in-log_n8-rate8-pad256-words256-rows6-sites1/no-output-endpoint/stages-log_n12-rate4-pad256/classify (DESIGN_CLASSIFIER v2) under hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/1: V=131072 V_pad=131072 d=3072 d_pad=4096 T=128 P0=78 n=17 S=1 item-length=96 pad-id=11 pad-positions=32 verdict-row=95 BOS=1 final-norm g0=127 cn=1024 tn=10 ceps=2439 wrho=32 dmax=1816186 margin-vector=int16[-32767,32767] 6429a242ca399fa22d7fd77136002da0e5be6d659a91733507e678f1c2a13c91 threshold c=0 c-class=[-2^33,2^33] margin-window=35 byte-limbs=5 limbs-at-Lo-entry=32 no-pin yes=13059 no=2649 ctl=ids<1000 template=024ac6a178baf0f1f8a827ee52e2308cc7e74c378a3d46338a32545bb480fb04 policy=shieldstral-1.0-3b-moderate-hate/1 tokenizer=tekken.json sha256 ceb11e85e44d7c91 (plain-text encoding, no special-token parsing; template ids as Astra's candidates b1cfcda9) embedding=1cb276d1c83861e0b5e2860eb46c98b9991651ee3cf6f0eb77bdbe836af19b0a variant=public-row mode=verdict-public-bit no-output-endpoint chunk-size=49 chunk-overlap=8 chunk-split=end-aligned short-content=one-chunk-of-its-length-pad-pinned margin-scale=4.08288030735373e-6 margin-scale-bits=0x3ed11ff597db2fb6 tied-source=shieldstral-checkpoint tensor=language_model.model.embed_tokens.weight sha256=67a138c1c483b89874526ef523f5f0c30f161808076561730193d1de2093dd19 derivation=native-R12b-recompute_tied_tables(rotate-then-floor(x/scale+0.5),refuse-outside-int16,no-clip) rulings: B-5 n-public=true B-6 fixed-policy-list=true B-8 binding=input-endpoint-root B-4 fail-closed=true (accepted by Victor: D45, 2026-10-29) tier mvp-95-whole-run (D27): Q=256 stage-row 2^12 rate 1/4 token-endpoint-row 2^8 rate 1/8 lookup-field F_p^2/whole-run-floor-96-bits-112-openings-column-plus-logup-derived-plus-pcs-field-and-sumcheck-bound/one-run-one-transcript"
+          },
+          "statement_sha256": "5e68991ab1ff0202daf77ef8ffae4a0d98683b5fc966f51f3fdd880fdbd33ec2",
+          "receipt": {
+            "run_dir": "/home/victor/IntelligenceRegulation/results/zk60_astra_20261026/real_app_demo_1/public/runs/d1800de17fffed4565733d12e5c30f52-c2",
+            "files": [
+              {
+                "file": "segment-000.bin",
+                "bytes": 1415192,
+                "sha256": "3115ff6e0d384f40db452a17258176196bbcd6d4900b30ff51ff2c7de2c8fe17"
+              },
+              {
+                "file": "segment-001.bin",
+                "bytes": 32450184,
+                "sha256": "2a0d42e2e4b0192edc7b1883f25753bb7beb5d19c4665a7fdbca9cc79c027530"
+              },
+              {
+                "file": "segment-002.bin",
+                "bytes": 32450184,
+                "sha256": "eb8427ce76e731aef7db0a954ccf8a23a081e931b856cbcc07300445a2a78013"
+              },
+              {
+                "file": "segment-003.bin",
+                "bytes": 32450184,
+                "sha256": "b0eb5b752a7053137d4f43d58c87f5f455ecdfc37ea6951291fde9ec171de96c"
+              },
+              {
+                "file": "segment-004.bin",
+                "bytes": 32450184,
+                "sha256": "5c1daf61e64933d79871971ec57478b2a945301ebcd57aee1bb061832200edce"
+              },
+              {
+                "file": "segment-005.bin",
+                "bytes": 32450184,
+                "sha256": "1ab6cc97f12dccc89adbf78f1c4610e450b1b181e238e35377a7b3c593b904c1"
+              },
+              {
+                "file": "segment-006.bin",
+                "bytes": 32450184,
+                "sha256": "7cd9ad80de59075b604a012292356be71a7aae2416d35cbbf217e4d0d46d62f8"
+              },
+              {
+                "file": "segment-007.bin",
+                "bytes": 32450184,
+                "sha256": "42e888c5bddd793a9f45fba262aa8858f6aab518d98d3657aa1ced265194d209"
+              },
+              {
+                "file": "segment-008.bin",
+                "bytes": 32450184,
+                "sha256": "6a1f9d56be280aad74b7e133935a8149e7a6943ad3ebb3a5581e3eb14dfe315f"
+              },
+              {
+                "file": "segment-009.bin",
+                "bytes": 32450184,
+                "sha256": "d70581404b8ee4893c6ffc3eb45efe8c40572b44c3564ba3a97d46fbb339fee2"
+              },
+              {
+                "file": "segment-010.bin",
+                "bytes": 32450184,
+                "sha256": "c512de845e0e36c9c6429e120cc54cd3e0dbefd43cfa3f404bf517ddc744d6ce"
+              },
+              {
+                "file": "segment-011.bin",
+                "bytes": 32450184,
+                "sha256": "7afdfffcc223bccf048c75ffb1d131f9cd3ab6c91b00354c36e127e15a76f73a"
+              },
+              {
+                "file": "segment-012.bin",
+                "bytes": 32450184,
+                "sha256": "a361110b205a4b5aff859756b5b6fa2f765cfe4ed2c0a2e76c8792518602c523"
+              },
+              {
+                "file": "segment-013.bin",
+                "bytes": 32450184,
+                "sha256": "784188e6d4a905c9970dea2a04373633f243d813b8fc62a22bb2940147440eb1"
+              },
+              {
+                "file": "segment-014.bin",
+                "bytes": 32450184,
+                "sha256": "9a129922a63a8f55052c3792a4f14d1059f3361b80508984ea8d2968250ca0d7"
+              },
+              {
+                "file": "segment-015.bin",
+                "bytes": 32450184,
+                "sha256": "9883a91b21f845b2bb790ab04fcba1e277bf69d416473d66cfdf27e865220305"
+              },
+              {
+                "file": "segment-016.bin",
+                "bytes": 32450184,
+                "sha256": "855b26bec0dab4799b3cfd64795d2904cf4dde223b718d7d74c739b7c673dfeb"
+              },
+              {
+                "file": "segment-017.bin",
+                "bytes": 32450184,
+                "sha256": "d9e67a4601ddd5573d5a0fdf4f842942da207fa26bf3e6f7878d9061b7f8299b"
+              },
+              {
+                "file": "segment-018.bin",
+                "bytes": 32450184,
+                "sha256": "44cf4f66ebfbc33b2ad50d2b44028c3e07c6a6bce3b348bf5278080b23d185ab"
+              },
+              {
+                "file": "segment-019.bin",
+                "bytes": 32450184,
+                "sha256": "5c156a5bdb7c0e96c04903454d9e05ba9246a2f0698400b97c21997b82ff7345"
+              },
+              {
+                "file": "segment-020.bin",
+                "bytes": 32450184,
+                "sha256": "91588b4db3e7d4c557c8ff518663e9fad06a9be398c72a722b66901985d37e24"
+              },
+              {
+                "file": "segment-021.bin",
+                "bytes": 32450184,
+                "sha256": "4d9e57046c6802ae5f133280a4820a0ab2070c052a2c0a80723b3450ab5f5ad7"
+              },
+              {
+                "file": "segment-022.bin",
+                "bytes": 32450184,
+                "sha256": "d5789e7243b7b69bc7f29dd578011c71be91ba8d64bb8ba1c45d15554501cf8f"
+              },
+              {
+                "file": "segment-023.bin",
+                "bytes": 32450184,
+                "sha256": "ee21a4957c5202a2c23575b4c8ea1d343c1ead6a0599651f3846d00ea28b0e2b"
+              },
+              {
+                "file": "segment-024.bin",
+                "bytes": 32450184,
+                "sha256": "9715a884ba093e0e3627f4295c4c5d29975e93744bcc64245273b9fb7515e4eb"
+              },
+              {
+                "file": "segment-025.bin",
+                "bytes": 32450184,
+                "sha256": "4ea2e4a1780831a382d8cc8f5cf8825751ff637bc83a3633ef045f24b8d5ca91"
+              },
+              {
+                "file": "segment-026.bin",
+                "bytes": 32450184,
+                "sha256": "5f5d3775618acca6a623e607323c7a98764555447d9cea5b469b16a340263275"
+              },
+              {
+                "file": "segment-027.bin",
+                "bytes": 3292120,
+                "sha256": "dcedc43a308ca6cf77eaa62d0bebb22c6d396c02d816f3320aa89a80e206b416"
+              }
+            ],
+            "segments": 28,
+            "bytes": 848412096
+          },
+          "timings": {
+            "work_s": 693.5111815929413,
+            "steps": {
+              "seqgen": {
+                "child_wall_seconds": 32.45576572418213,
+                "peak_rss_gib": 0.71,
+                "enforcement": "cgroup+watchdog",
+                "waited_s": 0.0
+              },
+              "prove": {
+                "child_wall_seconds": 457.0417010784149,
+                "peak_rss_gib": 8.16,
+                "enforcement": "cgroup+watchdog",
+                "waited_s": 0.0
+              },
+              "verify": {
+                "child_wall_seconds": 69.16368079185486,
+                "peak_rss_gib": 2.28,
+                "enforcement": "cgroup+watchdog",
+                "waited_s": 0.0
+              },
+              "inowner": {
+                "child_wall_seconds": 67.92077970504761,
+                "peak_rss_gib": 2.29,
+                "enforcement": "cgroup+watchdog",
+                "waited_s": 0.0
+              },
+              "label": {
+                "child_wall_seconds": 66.92925429344177,
+                "peak_rss_gib": 2.28,
+                "enforcement": "cgroup+watchdog",
+                "waited_s": 0.0
+              }
+            }
+          },
+          "security": {
+            "whole_run_floor_bits": 96,
+            "min_bits_required": 95,
+            "privacy_status": "privacy statement pending"
+          },
+          "checks": {
+            "verify": {
+              "ok": true,
+              "by": "pinned r16b fresh process"
+            },
+            "content_binding": {
+              "ok": true
+            },
+            "category_aggregate": {
+              "result": {
+                "value": "no",
+                "proof": "accepted",
+                "bound_by_proof": true,
+                "policy_id": "shieldstral-1.0-3b-moderate-hate/1",
+                "development_only": false,
+                "flagged_ranges": [],
+                "chunks": 1
+              },
+              "statement_sha256": [
+                "5e68991ab1ff0202daf77ef8ffae4a0d98683b5fc966f51f3fdd880fdbd33ec2"
+              ],
+              "total": 17
+            }
+          },
+          "content_length": {
+            "tokens": 17,
+            "total_tokens": 17,
+            "tokenizer": "pinned Tekken",
+            "tokenizer_sha256": "ceb11e85e44d7c91d051604d636d97b05aee59a907a0dc96a3c6e557d9634e18"
+          },
+          "chunk": {
+            "index": 2,
+            "start": 0,
+            "end": 17,
+            "category": "hate",
+            "category_chunk_index": 0,
+            "category_chunks": 1,
+            "content_total": 17,
+            "policy_id": "shieldstral-1.0-3b-moderate-hate/1",
+            "chunk_tokens": 49,
+            "overlap_tokens": 8,
+            "context_tokens": 128
+          },
+          "proved_at": "2026-10-30T01:44:00Z",
+          "created_at": "2026-10-30T01:44:00Z",
+          "schema": "proven-media-record/2",
+          "notes": [
+            "Real classifier testnet demo; privacy statement pending. Moderate product wording remains pending."
+          ]
+        },
+        "error": null
+      }
+    ],
+    "content_length": 17,
+    "proved_at": "2026-10-30T01:44:00Z",
+    "receipt": {
+      "segments": 84,
+      "bytes": 2545236288
+    },
+    "timings": {
+      "work_s": 2681.0145761966705
+    },
+    "created_at": "2026-10-29T17:46:24.326893+00:00"
+  },
+  "manifest": {
+    "schema": "zk60.manifest/1",
+    "item": {
+      "post_id": "d1800de17fffed4565733d12e5c30f52",
+      "kind": "text",
+      "created_at": "2026-10-29T17:46:24.326893+00:00",
+      "content_commitment": "b273a644ecbcf77dd5ae1dec94d80a8f19abfcdafbfacbe25b68ee8286b4af68",
+      "content_commitment_rule": "SHA-256(\"zk60/proven-media/content/v1\" || salt_32 || u64-be len || UTF-8 content)",
+      "content_length_tokens": 17
+    },
+    "category_set": {
+      "id": "shieldstral-moderate-testnet-v1",
+      "digest": "f3c031d08ad407d577cdfa8c449201e412ecd9d835179765f0099449d41b42f5"
+    },
+    "chunking": {
+      "profile": "per-category",
+      "n_chunks": 3
+    },
+    "labels": {
+      "sexual": {
+        "value": "no",
+        "proof": "accepted"
+      },
+      "violence": {
+        "value": "no",
+        "proof": "accepted"
+      },
+      "hate": {
+        "value": "no",
+        "proof": "accepted"
+      }
+    },
+    "label_rule": "per category: yes if any chunk is proved yes; not proved if any chunk lacks an accepted proof (fail closed); else no",
+    "proved_once_at_creation": "2026-10-30T01:44:00Z",
+    "entries": [
+      {
+        "chunk": 0,
+        "token_range": [
+          0,
+          17
+        ],
+        "category_chunk_index": 0,
+        "category": "sexual",
+        "category_name": "Sexual / explicit content",
+        "classifier": "Shieldstral-1.0-3B",
+        "model_id": "29aeba6c04a819cdbafde311f7c9d0c678d85aff22292ae6b9647761158a0bd1",
+        "profile_id": "2ba468f98085caf1136f27cf66220f93d8e316acb8dbae7e98f9eb68347f05a0",
+        "verifier_id": "dfb8025eb903b203f4b50371fdd0dd00659d46a9dbaad9d121d6a68343ebc70c",
+        "policy_id": "shieldstral-1.0-3b-moderate-sexual/1",
+        "policy_sha256": "e702f604f893d95c773dda6b1cbd30c4c3a253555075c623bc5e800d164c0822",
+        "threshold": {
+          "tau": 0.5,
+          "c": 0.0
+        },
+        "verdict": "no",
+        "proof_status": "accepted",
+        "error": null,
+        "verdict_bound_by_proof": true,
+        "statement_sha256": "55d944e78346fbe51ddf74519c9526bc35e4e014e55c73a2b31961bbb17d7bf7",
+        "bundle": {
+          "manifest_sha256": "c8dcd1ba01ae548c06cef30b10ca43cbbedac308adab5b09d63e9d987e21fb98",
+          "manifest_uri": "local-cas://sha256/c8dcd1ba01ae548c06cef30b10ca43cbbedac308adab5b09d63e9d987e21fb98",
+          "receipt_uris": 28
+        },
+        "anchor": {
+          "chain": "base-sepolia",
+          "contract": "0x8432eba82b1a402f4da7680f6b8f9c9fae185cbe",
+          "leaf_hash": "b5e20adccceb4a005e340b113304eeced2902aeb5dccc53860c25deb72ce3bce",
+          "resolve": "post d1800de17fffed4565733d12e5c30f52 chunk 0 category sexual"
+        },
+        "content_commitment": "b273a644ecbcf77dd5ae1dec94d80a8f19abfcdafbfacbe25b68ee8286b4af68"
+      },
+      {
+        "chunk": 1,
+        "token_range": [
+          0,
+          17
+        ],
+        "category_chunk_index": 0,
+        "category": "violence",
+        "category_name": "Graphic violence",
+        "classifier": "Shieldstral-1.0-3B",
+        "model_id": "29aeba6c04a819cdbafde311f7c9d0c678d85aff22292ae6b9647761158a0bd1",
+        "profile_id": "2ba468f98085caf1136f27cf66220f93d8e316acb8dbae7e98f9eb68347f05a0",
+        "verifier_id": "dfb8025eb903b203f4b50371fdd0dd00659d46a9dbaad9d121d6a68343ebc70c",
+        "policy_id": "shieldstral-1.0-3b-moderate-violence/1",
+        "policy_sha256": "eb124ee93d46d2f716fb6beee54a8f26d21883a2b87daa721d9cbe92e5131128",
+        "threshold": {
+          "tau": 0.5,
+          "c": 0.0
+        },
+        "verdict": "no",
+        "proof_status": "accepted",
+        "error": null,
+        "verdict_bound_by_proof": true,
+        "statement_sha256": "3012cbce8092eab0c5abde8126f0aaa2c498c3489a5ef0615e69817372249277",
+        "bundle": {
+          "manifest_sha256": "1bf815d33b14702111d2c2ef0eca81e84e8560382cbe4576acca234cd3900664",
+          "manifest_uri": "local-cas://sha256/1bf815d33b14702111d2c2ef0eca81e84e8560382cbe4576acca234cd3900664",
+          "receipt_uris": 28
+        },
+        "anchor": {
+          "chain": "base-sepolia",
+          "contract": "0x8432eba82b1a402f4da7680f6b8f9c9fae185cbe",
+          "leaf_hash": "4be70cc5d7727936ef48e32952d55155acfc3292f91fb599e655f3e6ff61882b",
+          "resolve": "post d1800de17fffed4565733d12e5c30f52 chunk 1 category violence"
+        },
+        "content_commitment": "b273a644ecbcf77dd5ae1dec94d80a8f19abfcdafbfacbe25b68ee8286b4af68"
+      },
+      {
+        "chunk": 2,
+        "token_range": [
+          0,
+          17
+        ],
+        "category_chunk_index": 0,
+        "category": "hate",
+        "category_name": "Hate / harassment",
+        "classifier": "Shieldstral-1.0-3B",
+        "model_id": "29aeba6c04a819cdbafde311f7c9d0c678d85aff22292ae6b9647761158a0bd1",
+        "profile_id": "2ba468f98085caf1136f27cf66220f93d8e316acb8dbae7e98f9eb68347f05a0",
+        "verifier_id": "dfb8025eb903b203f4b50371fdd0dd00659d46a9dbaad9d121d6a68343ebc70c",
+        "policy_id": "shieldstral-1.0-3b-moderate-hate/1",
+        "policy_sha256": "c9a65df1b6a57e0e1aa5a497949aaae2b8c00843a7b3b465d69f9ee811b68f89",
+        "threshold": {
+          "tau": 0.5,
+          "c": 0.0
+        },
+        "verdict": "no",
+        "proof_status": "accepted",
+        "error": null,
+        "verdict_bound_by_proof": true,
+        "statement_sha256": "5e68991ab1ff0202daf77ef8ffae4a0d98683b5fc966f51f3fdd880fdbd33ec2",
+        "bundle": {
+          "manifest_sha256": "dc43ad8524cf04d0302b776173445530963ecf118a97f3f13a176e3b3093ffcd",
+          "manifest_uri": "local-cas://sha256/dc43ad8524cf04d0302b776173445530963ecf118a97f3f13a176e3b3093ffcd",
+          "receipt_uris": 28
+        },
+        "anchor": {
+          "chain": "base-sepolia",
+          "contract": "0x8432eba82b1a402f4da7680f6b8f9c9fae185cbe",
+          "leaf_hash": "790fb61795c49360ea84326322786488b06c3ec7a0aa798d899739d3c31b8962",
+          "resolve": "post d1800de17fffed4565733d12e5c30f52 chunk 2 category hate"
+        },
+        "content_commitment": "b273a644ecbcf77dd5ae1dec94d80a8f19abfcdafbfacbe25b68ee8286b4af68"
+      }
+    ],
+    "issued_at": "2026-10-30T05:09:51Z",
+    "notes": [
+      "Privacy statement pending; moderate policies selected for this testnet demo."
+    ],
+    "issuer": {
+      "name": "Proven Media (local demo publisher, DEV KEY)",
+      "key_id": "a5707dfe69e019a1",
+      "public_key": "573c1ef0611a86761ed1dff408c27e2192deadf63e504312da527786ce66604a",
+      "alg": "Ed25519",
+      "note": "local development key; no real keys"
+    },
+    "signature": {
+      "alg": "Ed25519",
+      "key_id": "a5707dfe69e019a1",
+      "value": "JnTVmcHbsTH4JB/GN1hWz1gs0B1hZaF6vkn9bErwEHdy7j6xIozmamq3vqcLLzsNS+refVn9uExVPWm66K0NCA=="
+    },
+    "recovery": {
+      "at": "2026-10-30T05:09:51.808896+00:00",
+      "reason": "original /tmp workspace lost after reboot",
+      "original_publisher_key": "dcc934a93fb6d3e89ca290350c71430e0992dfc0edd9677394ec2935f1de55ed",
+      "new_development_key": "573c1ef0611a86761ed1dff408c27e2192deadf63e504312da527786ce66604a",
+      "original_signature_recovered": false,
+      "content_salt_opening_available": false,
+      "owner_checks": "retained original successful checks; private openings unavailable",
+      "new_native_proofs": 0
+    }
+  },
+  "anchors": {
+    "c0.sexual": {
+      "post_id": "d1800de17fffed4565733d12e5c30f52",
+      "status": "anchored",
+      "chain": "base-sepolia",
+      "contract": "0x8432eba82b1a402f4da7680f6b8f9c9fae185cbe",
+      "tx_hash": "0x0f2dc9dd777d33a72a5930f169ea5ba49b485fc25010ebdaa0f536bd5a9ad01a",
+      "block_number": 52075726,
+      "batch_id": "batch-000000",
+      "merkle_root": "09bc4ed85a120d993f6aa686721c2e18028b65a0d72fd1873ef4f00459e2388d",
+      "leaf_index": 2,
+      "leaf_hash": "b5e20adccceb4a005e340b113304eeced2902aeb5dccc53860c25deb72ce3bce",
+      "merkle_proof": [
+        "1e72c2c9347688c1196ef9b68d7c6d2e73dc7e9b622bae6c534eb761c03fa724"
+      ],
+      "manifest_sha256": "c8dcd1ba01ae548c06cef30b10ca43cbbedac308adab5b09d63e9d987e21fb98",
+      "manifest_uri": "local-cas://sha256/c8dcd1ba01ae548c06cef30b10ca43cbbedac308adab5b09d63e9d987e21fb98",
+      "receipt_uris": [
+        "local-cas://sha256/4a6e158d25a91d703463ae28a94a0d2cfdf4aeb0ed02d2b383756e49f551a6ef",
+        "local-cas://sha256/fbe3ada4acbe0a4f03853294d608158e40a3e6404ddc2d4a827b9285ffc085bf",
+        "local-cas://sha256/c74c6bbe9c4b16e6fc08984a925ccde5caa8793a9a2b5b75b2945ac7a0ac228a",
+        "local-cas://sha256/3ce0c3b5f498548944d3c288c6b8185c57ad3426cb2d70c88745f286ffbec661",
+        "local-cas://sha256/3128feccad9c7b05d3eb3b07813c33b9dd94770b333f2dc6a1bd9ae1e3eb0c73",
+        "local-cas://sha256/4db5ceac8a7f0d5a1539eb9a2cf08474e97054762e9ef9043e73e173a759612a",
+        "local-cas://sha256/e06f84d6cddfc08a3acd2317d7cc9fbcfeaa6ab0cd682c64966e4f36c2695dac",
+        "local-cas://sha256/7744264450c086cdda6dece0e405e50e83e6321bacba4c0822cce3e4259f5f65",
+        "local-cas://sha256/d0cb09ca7e84fd2ecde2710d1385999ef97d9dac96dd94e88d396c416e5f6938",
+        "local-cas://sha256/a6edf91fdd4b825c0bcd1770f2296a6f0d841e2207435ff0a5f254d924ac8ae3",
+        "local-cas://sha256/f920c8f3a4f1b4029c1f2fe90bda4628fb757ebbd5fe83439ff7638225293357",
+        "local-cas://sha256/6a5a7e5064d0cf707a9b9f1c1b82f1f39cb4acd325fc388608e336bcbd90318f",
+        "local-cas://sha256/4d5d0951cca1da17bb788414f677db1e9a14dee79ee0131ceb03f5efcb41ed68",
+        "local-cas://sha256/ada457f599d4577fd38a6c61a1bdb5d30801c1e2ebac3161219d0a7b43560fa4",
+        "local-cas://sha256/ed3c077e645bed4551c2f140c6739d2b42223a05a58a6a985d90b7f90a68c6c0",
+        "local-cas://sha256/37840d01486cb5215c8878efefa8a092a480c10c21011cc01fe57c7d827688fb",
+        "local-cas://sha256/4622ad70336d3850345318739c137695a9093ec977ae48f7eb18884b613c489e",
+        "local-cas://sha256/2490cd6ac3b4965c98f321ae75116a1d6b33ef3e0cb83a8964e9899a18c2a876",
+        "local-cas://sha256/e9fab18e6fd927dab98e3b70bb2e0dc7ecf234a65c6d099e4aed1acfdf03a6d5",
+        "local-cas://sha256/ddff2997b64a09f29a5a3b511527d8e3768448b8d5cf2796ba9a3c3edb802289",
+        "local-cas://sha256/67b0e1685255fd4a9b729c801bce128d2793604caa8daa957e8813fb97f9a2ae",
+        "local-cas://sha256/b803a4a84242063f0c60426680e8bcc1e8835911374c2475936e7e6eed082438",
+        "local-cas://sha256/7fae732aeddf4266693ad7e4bc4897a13b8949683fe83de6a3d7288ce88ff317",
+        "local-cas://sha256/75fedbf94d0274be14e0685eaefbae7105a0bc9b562e22d651ff2575b328476c",
+        "local-cas://sha256/9a84905e195a614a2f547fb28645d17e582a08bd0becfe86c3be62711808e768",
+        "local-cas://sha256/ea70b49a0a9c8d5023c7ca02f3879c9c9e6a2d92feb237803e9440f4c6ed8bb1",
+        "local-cas://sha256/1743f75f16fa92a733fad6b41ee0200420bb99af5ff0aed40a8173cf6703c881",
+        "local-cas://sha256/a5ee4ccd8b208ef53de3c9d40ae518d1993866bb2366ef0388ff9be7efdbc796"
+      ],
+      "statement_uri": "local-cas://sha256/55d944e78346fbe51ddf74519c9526bc35e4e014e55c73a2b31961bbb17d7bf7",
+      "published_at": "2026-10-30T01:44:04Z",
+      "anchored_at": "2026-10-30T05:10:26Z",
+      "category": "sexual",
+      "chunk": 0,
+      "token_range": [
+        0,
+        17
+      ]
+    },
+    "c1.violence": {
+      "post_id": "d1800de17fffed4565733d12e5c30f52",
+      "status": "anchored",
+      "chain": "base-sepolia",
+      "contract": "0x8432eba82b1a402f4da7680f6b8f9c9fae185cbe",
+      "tx_hash": "0x0f2dc9dd777d33a72a5930f169ea5ba49b485fc25010ebdaa0f536bd5a9ad01a",
+      "block_number": 52075726,
+      "batch_id": "batch-000000",
+      "merkle_root": "09bc4ed85a120d993f6aa686721c2e18028b65a0d72fd1873ef4f00459e2388d",
+      "leaf_index": 0,
+      "leaf_hash": "4be70cc5d7727936ef48e32952d55155acfc3292f91fb599e655f3e6ff61882b",
+      "merkle_proof": [
+        "790fb61795c49360ea84326322786488b06c3ec7a0aa798d899739d3c31b8962",
+        "b5e20adccceb4a005e340b113304eeced2902aeb5dccc53860c25deb72ce3bce"
+      ],
+      "manifest_sha256": "1bf815d33b14702111d2c2ef0eca81e84e8560382cbe4576acca234cd3900664",
+      "manifest_uri": "local-cas://sha256/1bf815d33b14702111d2c2ef0eca81e84e8560382cbe4576acca234cd3900664",
+      "receipt_uris": [
+        "local-cas://sha256/606e5bd2b3a8a96fc7ad5bd05fe2538081771e347dc65a0e5143bb7082d31ae5",
+        "local-cas://sha256/99b215b0309d52c3deb9f9a8ffa694b646d9a7091196c3394a1f8ec4a56129b7",
+        "local-cas://sha256/bdbfba2fddcadae7e245313de2554161f6b8d44873e485d739a05d2586f0c308",
+        "local-cas://sha256/ab5c6f90cc27db5a0524de8443f169bc0949b4b350572d606a9dccd0c7893ff8",
+        "local-cas://sha256/9bd086916733bf8a66675f69f410f2b2db3967671fe76dba5a836c301f61362b",
+        "local-cas://sha256/3c80dd2ad93445a5b977a7cd6c54daa50fc7f44aada84cf30e5b9a7ff3d17370",
+        "local-cas://sha256/3013ecb5544c7c698414b87c740379212f0ae805cf867a5045d4cc71ca9b9c0a",
+        "local-cas://sha256/1eccb4bd0b86db41473c5c740fbe2e8c12321bc178dd00e951dd8e7375f970a4",
+        "local-cas://sha256/0b5cfe3dbdb3380f18b6f9f03538da74ee2db841ea88c4011c64f9c4b27cd0ff",
+        "local-cas://sha256/a7f208d6ca420dbce9d6d31d4d36b81085c20ddaa58c58ead29ac58a90b4166f",
+        "local-cas://sha256/17249b742ae9537719cb00a4bbd6aa597b9183fe448daff9c2bbadfd6434909c",
+        "local-cas://sha256/05ffa538473985dc6573bf75f0abe1f425803dd3f469bb42153c32495012e8f5",
+        "local-cas://sha256/34efac3a1756636c563cb9e09c9c220b3dacd305ebcda45e20916b674df18fbb",
+        "local-cas://sha256/ba229250be2d00c20abc51c949b5fd4ed673ea3d6ef65ac0835d74bf48cf47a7",
+        "local-cas://sha256/5da90cf67b8f90e8c49314ce62a0be812fa0fc0912e689cf2851be4e9729fdbd",
+        "local-cas://sha256/c42a710fd94e33da0a480fc19d07c9833b231e23d1e7f47cf7e66ae2d9eb86f7",
+        "local-cas://sha256/973c9cc0824ae6a1791eb1f96626893bc82d03e9233ccb4ada59ee3a4308f16b",
+        "local-cas://sha256/3486347dcf40a92e87def9b9b1c1e99086c060e214f4d434cae8f1874e9df34a",
+        "local-cas://sha256/e4bfa332c40dd84e533a1b98b684d1787f671c0b571fcb713e571a6d5266ed2d",
+        "local-cas://sha256/ba795e1f9efcd14f7ff2648d9b4db8c5d4e8992d7e8adea2d4b88875c463b9b5",
+        "local-cas://sha256/a7fc2ee23bced535a339723c68bed6e26f73ced9f4bdfc9fe585ac92399e9a52",
+        "local-cas://sha256/9513c8accc64a6b6dfc9d5a7fee0ce50aa5314ecdf07dcafc82cee31d9c8853d",
+        "local-cas://sha256/c8d183ff847e0e139c9156de16cce8bf139745ac09cf928263055b02b925968e",
+        "local-cas://sha256/7a235b91499c17922e438995e6c5beaafa8915b01bced91aad1631eb249b2071",
+        "local-cas://sha256/f52f3c44e3bd3656aa88006c558384e76fa3b36d3cc142342d2817c813a5692b",
+        "local-cas://sha256/54b2750af95214a2e627caa19e34d9217777e4f0a6ff4bb67fd23cad125f94eb",
+        "local-cas://sha256/f68afb0e5ec506eb0793369246d8281ba55d88652aa728f6563320378ae2a858",
+        "local-cas://sha256/c05d79389b8a85bbc331869a1659b82f4b8df742433c025dd477536966ba2608"
+      ],
+      "statement_uri": "local-cas://sha256/3012cbce8092eab0c5abde8126f0aaa2c498c3489a5ef0615e69817372249277",
+      "published_at": "2026-10-30T01:44:07Z",
+      "anchored_at": "2026-10-30T05:10:26Z",
+      "category": "violence",
+      "chunk": 1,
+      "token_range": [
+        0,
+        17
+      ]
+    },
+    "c2.hate": {
+      "post_id": "d1800de17fffed4565733d12e5c30f52",
+      "status": "anchored",
+      "chain": "base-sepolia",
+      "contract": "0x8432eba82b1a402f4da7680f6b8f9c9fae185cbe",
+      "tx_hash": "0x0f2dc9dd777d33a72a5930f169ea5ba49b485fc25010ebdaa0f536bd5a9ad01a",
+      "block_number": 52075726,
+      "batch_id": "batch-000000",
+      "merkle_root": "09bc4ed85a120d993f6aa686721c2e18028b65a0d72fd1873ef4f00459e2388d",
+      "leaf_index": 1,
+      "leaf_hash": "790fb61795c49360ea84326322786488b06c3ec7a0aa798d899739d3c31b8962",
+      "merkle_proof": [
+        "4be70cc5d7727936ef48e32952d55155acfc3292f91fb599e655f3e6ff61882b",
+        "b5e20adccceb4a005e340b113304eeced2902aeb5dccc53860c25deb72ce3bce"
+      ],
+      "manifest_sha256": "dc43ad8524cf04d0302b776173445530963ecf118a97f3f13a176e3b3093ffcd",
+      "manifest_uri": "local-cas://sha256/dc43ad8524cf04d0302b776173445530963ecf118a97f3f13a176e3b3093ffcd",
+      "receipt_uris": [
+        "local-cas://sha256/3115ff6e0d384f40db452a17258176196bbcd6d4900b30ff51ff2c7de2c8fe17",
+        "local-cas://sha256/2a0d42e2e4b0192edc7b1883f25753bb7beb5d19c4665a7fdbca9cc79c027530",
+        "local-cas://sha256/eb8427ce76e731aef7db0a954ccf8a23a081e931b856cbcc07300445a2a78013",
+        "local-cas://sha256/b0eb5b752a7053137d4f43d58c87f5f455ecdfc37ea6951291fde9ec171de96c",
+        "local-cas://sha256/5c1daf61e64933d79871971ec57478b2a945301ebcd57aee1bb061832200edce",
+        "local-cas://sha256/1ab6cc97f12dccc89adbf78f1c4610e450b1b181e238e35377a7b3c593b904c1",
+        "local-cas://sha256/7cd9ad80de59075b604a012292356be71a7aae2416d35cbbf217e4d0d46d62f8",
+        "local-cas://sha256/42e888c5bddd793a9f45fba262aa8858f6aab518d98d3657aa1ced265194d209",
+        "local-cas://sha256/6a1f9d56be280aad74b7e133935a8149e7a6943ad3ebb3a5581e3eb14dfe315f",
+        "local-cas://sha256/d70581404b8ee4893c6ffc3eb45efe8c40572b44c3564ba3a97d46fbb339fee2",
+        "local-cas://sha256/c512de845e0e36c9c6429e120cc54cd3e0dbefd43cfa3f404bf517ddc744d6ce",
+        "local-cas://sha256/7afdfffcc223bccf048c75ffb1d131f9cd3ab6c91b00354c36e127e15a76f73a",
+        "local-cas://sha256/a361110b205a4b5aff859756b5b6fa2f765cfe4ed2c0a2e76c8792518602c523",
+        "local-cas://sha256/784188e6d4a905c9970dea2a04373633f243d813b8fc62a22bb2940147440eb1",
+        "local-cas://sha256/9a129922a63a8f55052c3792a4f14d1059f3361b80508984ea8d2968250ca0d7",
+        "local-cas://sha256/9883a91b21f845b2bb790ab04fcba1e277bf69d416473d66cfdf27e865220305",
+        "local-cas://sha256/855b26bec0dab4799b3cfd64795d2904cf4dde223b718d7d74c739b7c673dfeb",
+        "local-cas://sha256/d9e67a4601ddd5573d5a0fdf4f842942da207fa26bf3e6f7878d9061b7f8299b",
+        "local-cas://sha256/44cf4f66ebfbc33b2ad50d2b44028c3e07c6a6bce3b348bf5278080b23d185ab",
+        "local-cas://sha256/5c156a5bdb7c0e96c04903454d9e05ba9246a2f0698400b97c21997b82ff7345",
+        "local-cas://sha256/91588b4db3e7d4c557c8ff518663e9fad06a9be398c72a722b66901985d37e24",
+        "local-cas://sha256/4d9e57046c6802ae5f133280a4820a0ab2070c052a2c0a80723b3450ab5f5ad7",
+        "local-cas://sha256/d5789e7243b7b69bc7f29dd578011c71be91ba8d64bb8ba1c45d15554501cf8f",
+        "local-cas://sha256/ee21a4957c5202a2c23575b4c8ea1d343c1ead6a0599651f3846d00ea28b0e2b",
+        "local-cas://sha256/9715a884ba093e0e3627f4295c4c5d29975e93744bcc64245273b9fb7515e4eb",
+        "local-cas://sha256/4ea2e4a1780831a382d8cc8f5cf8825751ff637bc83a3633ef045f24b8d5ca91",
+        "local-cas://sha256/5f5d3775618acca6a623e607323c7a98764555447d9cea5b469b16a340263275",
+        "local-cas://sha256/dcedc43a308ca6cf77eaa62d0bebb22c6d396c02d816f3320aa89a80e206b416"
+      ],
+      "statement_uri": "local-cas://sha256/5e68991ab1ff0202daf77ef8ffae4a0d98683b5fc966f51f3fdd880fdbd33ec2",
+      "published_at": "2026-10-30T01:44:15Z",
+      "anchored_at": "2026-10-30T05:10:26Z",
+      "category": "hate",
+      "chunk": 2,
+      "token_range": [
+        0,
+        17
+      ]
+    }
+  },
+  "publication_checks": {
+    "c0.sexual": {
+      "accepted": true,
+      "reasons": [],
+      "checks": {
+        "manifest_hash": true,
+        "manifest_post_id": true,
+        "label_value": true,
+        "statement_hash": true,
+        "leaf_hash": true,
+        "receipt_segments": true,
+        "anchored": true,
+        "chain": true,
+        "batch_identity": true,
+        "batch_membership": true,
+        "merkle_path": true,
+        "anchor_tx": true
+      },
+      "manifest": {
+        "category": "sexual",
+        "chunk": 0,
+        "content_commitment": "b273a644ecbcf77dd5ae1dec94d80a8f19abfcdafbfacbe25b68ee8286b4af68",
+        "content_commitment_rule": "SHA-256(\"zk60/proven-media/content/v1\" || salt_32 || u64-be len || UTF-8 content)",
+        "model_id": "29aeba6c04a819cdbafde311f7c9d0c678d85aff22292ae6b9647761158a0bd1",
+        "policy_id": "e702f604f893d95c773dda6b1cbd30c4c3a253555075c623bc5e800d164c0822",
+        "post_id": "d1800de17fffed4565733d12e5c30f52",
+        "profile_id": "2ba468f98085caf1136f27cf66220f93d8e316acb8dbae7e98f9eb68347f05a0",
+        "publication_schema": "zk60.publication/1",
+        "schema": "zk60.publication-manifest/1",
+        "segments": [
+          {
+            "bytes": 1415192,
+            "file": "segment-000.bin",
+            "sha256": "4a6e158d25a91d703463ae28a94a0d2cfdf4aeb0ed02d2b383756e49f551a6ef"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-001.bin",
+            "sha256": "fbe3ada4acbe0a4f03853294d608158e40a3e6404ddc2d4a827b9285ffc085bf"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-002.bin",
+            "sha256": "c74c6bbe9c4b16e6fc08984a925ccde5caa8793a9a2b5b75b2945ac7a0ac228a"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-003.bin",
+            "sha256": "3ce0c3b5f498548944d3c288c6b8185c57ad3426cb2d70c88745f286ffbec661"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-004.bin",
+            "sha256": "3128feccad9c7b05d3eb3b07813c33b9dd94770b333f2dc6a1bd9ae1e3eb0c73"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-005.bin",
+            "sha256": "4db5ceac8a7f0d5a1539eb9a2cf08474e97054762e9ef9043e73e173a759612a"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-006.bin",
+            "sha256": "e06f84d6cddfc08a3acd2317d7cc9fbcfeaa6ab0cd682c64966e4f36c2695dac"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-007.bin",
+            "sha256": "7744264450c086cdda6dece0e405e50e83e6321bacba4c0822cce3e4259f5f65"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-008.bin",
+            "sha256": "d0cb09ca7e84fd2ecde2710d1385999ef97d9dac96dd94e88d396c416e5f6938"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-009.bin",
+            "sha256": "a6edf91fdd4b825c0bcd1770f2296a6f0d841e2207435ff0a5f254d924ac8ae3"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-010.bin",
+            "sha256": "f920c8f3a4f1b4029c1f2fe90bda4628fb757ebbd5fe83439ff7638225293357"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-011.bin",
+            "sha256": "6a5a7e5064d0cf707a9b9f1c1b82f1f39cb4acd325fc388608e336bcbd90318f"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-012.bin",
+            "sha256": "4d5d0951cca1da17bb788414f677db1e9a14dee79ee0131ceb03f5efcb41ed68"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-013.bin",
+            "sha256": "ada457f599d4577fd38a6c61a1bdb5d30801c1e2ebac3161219d0a7b43560fa4"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-014.bin",
+            "sha256": "ed3c077e645bed4551c2f140c6739d2b42223a05a58a6a985d90b7f90a68c6c0"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-015.bin",
+            "sha256": "37840d01486cb5215c8878efefa8a092a480c10c21011cc01fe57c7d827688fb"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-016.bin",
+            "sha256": "4622ad70336d3850345318739c137695a9093ec977ae48f7eb18884b613c489e"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-017.bin",
+            "sha256": "2490cd6ac3b4965c98f321ae75116a1d6b33ef3e0cb83a8964e9899a18c2a876"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-018.bin",
+            "sha256": "e9fab18e6fd927dab98e3b70bb2e0dc7ecf234a65c6d099e4aed1acfdf03a6d5"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-019.bin",
+            "sha256": "ddff2997b64a09f29a5a3b511527d8e3768448b8d5cf2796ba9a3c3edb802289"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-020.bin",
+            "sha256": "67b0e1685255fd4a9b729c801bce128d2793604caa8daa957e8813fb97f9a2ae"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-021.bin",
+            "sha256": "b803a4a84242063f0c60426680e8bcc1e8835911374c2475936e7e6eed082438"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-022.bin",
+            "sha256": "7fae732aeddf4266693ad7e4bc4897a13b8949683fe83de6a3d7288ce88ff317"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-023.bin",
+            "sha256": "75fedbf94d0274be14e0685eaefbae7105a0bc9b562e22d651ff2575b328476c"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-024.bin",
+            "sha256": "9a84905e195a614a2f547fb28645d17e582a08bd0becfe86c3be62711808e768"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-025.bin",
+            "sha256": "ea70b49a0a9c8d5023c7ca02f3879c9c9e6a2d92feb237803e9440f4c6ed8bb1"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-026.bin",
+            "sha256": "1743f75f16fa92a733fad6b41ee0200420bb99af5ff0aed40a8173cf6703c881"
+          },
+          {
+            "bytes": 3292120,
+            "file": "segment-027.bin",
+            "sha256": "a5ee4ccd8b208ef53de3c9d40ae518d1993866bb2366ef0388ff9be7efdbc796"
+          }
+        ],
+        "segments_json_sha256": null,
+        "statement_sha256": "55d944e78346fbe51ddf74519c9526bc35e4e014e55c73a2b31961bbb17d7bf7",
+        "statement_uri": "local-cas://sha256/55d944e78346fbe51ddf74519c9526bc35e4e014e55c73a2b31961bbb17d7bf7",
+        "token_range": [
+          0,
+          17
+        ],
+        "verdict": "no",
+        "verifier_id": "dfb8025eb903b203f4b50371fdd0dd00659d46a9dbaad9d121d6a68343ebc70c"
+      },
+      "block": {
+        "tx_hash": "0x0f2dc9dd777d33a72a5930f169ea5ba49b485fc25010ebdaa0f536bd5a9ad01a",
+        "block_number": 52075726,
+        "block_hash": "0xbcd499643ebeb2ffcc490896ce82c9ad4d66ff51f1599e1f298c69976a12f3e7",
+        "confirmations": 107,
+        "chain_id": 84532,
+        "root": "09bc4ed85a120d993f6aa686721c2e18028b65a0d72fd1873ef4f00459e2388d",
+        "count": 3,
+        "batch_file_hash": "85c946602b634b2214a41c8946345b787717f6a944dda2fc6d864ab963a0b8dc"
+      }
+    },
+    "c1.violence": {
+      "accepted": true,
+      "reasons": [],
+      "checks": {
+        "manifest_hash": true,
+        "manifest_post_id": true,
+        "label_value": true,
+        "statement_hash": true,
+        "leaf_hash": true,
+        "receipt_segments": true,
+        "anchored": true,
+        "chain": true,
+        "batch_identity": true,
+        "batch_membership": true,
+        "merkle_path": true,
+        "anchor_tx": true
+      },
+      "manifest": {
+        "category": "violence",
+        "chunk": 1,
+        "content_commitment": "b273a644ecbcf77dd5ae1dec94d80a8f19abfcdafbfacbe25b68ee8286b4af68",
+        "content_commitment_rule": "SHA-256(\"zk60/proven-media/content/v1\" || salt_32 || u64-be len || UTF-8 content)",
+        "model_id": "29aeba6c04a819cdbafde311f7c9d0c678d85aff22292ae6b9647761158a0bd1",
+        "policy_id": "eb124ee93d46d2f716fb6beee54a8f26d21883a2b87daa721d9cbe92e5131128",
+        "post_id": "d1800de17fffed4565733d12e5c30f52",
+        "profile_id": "2ba468f98085caf1136f27cf66220f93d8e316acb8dbae7e98f9eb68347f05a0",
+        "publication_schema": "zk60.publication/1",
+        "schema": "zk60.publication-manifest/1",
+        "segments": [
+          {
+            "bytes": 1415192,
+            "file": "segment-000.bin",
+            "sha256": "606e5bd2b3a8a96fc7ad5bd05fe2538081771e347dc65a0e5143bb7082d31ae5"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-001.bin",
+            "sha256": "99b215b0309d52c3deb9f9a8ffa694b646d9a7091196c3394a1f8ec4a56129b7"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-002.bin",
+            "sha256": "bdbfba2fddcadae7e245313de2554161f6b8d44873e485d739a05d2586f0c308"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-003.bin",
+            "sha256": "ab5c6f90cc27db5a0524de8443f169bc0949b4b350572d606a9dccd0c7893ff8"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-004.bin",
+            "sha256": "9bd086916733bf8a66675f69f410f2b2db3967671fe76dba5a836c301f61362b"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-005.bin",
+            "sha256": "3c80dd2ad93445a5b977a7cd6c54daa50fc7f44aada84cf30e5b9a7ff3d17370"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-006.bin",
+            "sha256": "3013ecb5544c7c698414b87c740379212f0ae805cf867a5045d4cc71ca9b9c0a"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-007.bin",
+            "sha256": "1eccb4bd0b86db41473c5c740fbe2e8c12321bc178dd00e951dd8e7375f970a4"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-008.bin",
+            "sha256": "0b5cfe3dbdb3380f18b6f9f03538da74ee2db841ea88c4011c64f9c4b27cd0ff"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-009.bin",
+            "sha256": "a7f208d6ca420dbce9d6d31d4d36b81085c20ddaa58c58ead29ac58a90b4166f"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-010.bin",
+            "sha256": "17249b742ae9537719cb00a4bbd6aa597b9183fe448daff9c2bbadfd6434909c"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-011.bin",
+            "sha256": "05ffa538473985dc6573bf75f0abe1f425803dd3f469bb42153c32495012e8f5"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-012.bin",
+            "sha256": "34efac3a1756636c563cb9e09c9c220b3dacd305ebcda45e20916b674df18fbb"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-013.bin",
+            "sha256": "ba229250be2d00c20abc51c949b5fd4ed673ea3d6ef65ac0835d74bf48cf47a7"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-014.bin",
+            "sha256": "5da90cf67b8f90e8c49314ce62a0be812fa0fc0912e689cf2851be4e9729fdbd"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-015.bin",
+            "sha256": "c42a710fd94e33da0a480fc19d07c9833b231e23d1e7f47cf7e66ae2d9eb86f7"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-016.bin",
+            "sha256": "973c9cc0824ae6a1791eb1f96626893bc82d03e9233ccb4ada59ee3a4308f16b"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-017.bin",
+            "sha256": "3486347dcf40a92e87def9b9b1c1e99086c060e214f4d434cae8f1874e9df34a"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-018.bin",
+            "sha256": "e4bfa332c40dd84e533a1b98b684d1787f671c0b571fcb713e571a6d5266ed2d"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-019.bin",
+            "sha256": "ba795e1f9efcd14f7ff2648d9b4db8c5d4e8992d7e8adea2d4b88875c463b9b5"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-020.bin",
+            "sha256": "a7fc2ee23bced535a339723c68bed6e26f73ced9f4bdfc9fe585ac92399e9a52"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-021.bin",
+            "sha256": "9513c8accc64a6b6dfc9d5a7fee0ce50aa5314ecdf07dcafc82cee31d9c8853d"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-022.bin",
+            "sha256": "c8d183ff847e0e139c9156de16cce8bf139745ac09cf928263055b02b925968e"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-023.bin",
+            "sha256": "7a235b91499c17922e438995e6c5beaafa8915b01bced91aad1631eb249b2071"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-024.bin",
+            "sha256": "f52f3c44e3bd3656aa88006c558384e76fa3b36d3cc142342d2817c813a5692b"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-025.bin",
+            "sha256": "54b2750af95214a2e627caa19e34d9217777e4f0a6ff4bb67fd23cad125f94eb"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-026.bin",
+            "sha256": "f68afb0e5ec506eb0793369246d8281ba55d88652aa728f6563320378ae2a858"
+          },
+          {
+            "bytes": 3292120,
+            "file": "segment-027.bin",
+            "sha256": "c05d79389b8a85bbc331869a1659b82f4b8df742433c025dd477536966ba2608"
+          }
+        ],
+        "segments_json_sha256": null,
+        "statement_sha256": "3012cbce8092eab0c5abde8126f0aaa2c498c3489a5ef0615e69817372249277",
+        "statement_uri": "local-cas://sha256/3012cbce8092eab0c5abde8126f0aaa2c498c3489a5ef0615e69817372249277",
+        "token_range": [
+          0,
+          17
+        ],
+        "verdict": "no",
+        "verifier_id": "dfb8025eb903b203f4b50371fdd0dd00659d46a9dbaad9d121d6a68343ebc70c"
+      },
+      "block": {
+        "tx_hash": "0x0f2dc9dd777d33a72a5930f169ea5ba49b485fc25010ebdaa0f536bd5a9ad01a",
+        "block_number": 52075726,
+        "block_hash": "0xbcd499643ebeb2ffcc490896ce82c9ad4d66ff51f1599e1f298c69976a12f3e7",
+        "confirmations": 160,
+        "chain_id": 84532,
+        "root": "09bc4ed85a120d993f6aa686721c2e18028b65a0d72fd1873ef4f00459e2388d",
+        "count": 3,
+        "batch_file_hash": "85c946602b634b2214a41c8946345b787717f6a944dda2fc6d864ab963a0b8dc"
+      }
+    },
+    "c2.hate": {
+      "accepted": true,
+      "reasons": [],
+      "checks": {
+        "manifest_hash": true,
+        "manifest_post_id": true,
+        "label_value": true,
+        "statement_hash": true,
+        "leaf_hash": true,
+        "receipt_segments": true,
+        "anchored": true,
+        "chain": true,
+        "batch_identity": true,
+        "batch_membership": true,
+        "merkle_path": true,
+        "anchor_tx": true
+      },
+      "manifest": {
+        "category": "hate",
+        "chunk": 2,
+        "content_commitment": "b273a644ecbcf77dd5ae1dec94d80a8f19abfcdafbfacbe25b68ee8286b4af68",
+        "content_commitment_rule": "SHA-256(\"zk60/proven-media/content/v1\" || salt_32 || u64-be len || UTF-8 content)",
+        "model_id": "29aeba6c04a819cdbafde311f7c9d0c678d85aff22292ae6b9647761158a0bd1",
+        "policy_id": "c9a65df1b6a57e0e1aa5a497949aaae2b8c00843a7b3b465d69f9ee811b68f89",
+        "post_id": "d1800de17fffed4565733d12e5c30f52",
+        "profile_id": "2ba468f98085caf1136f27cf66220f93d8e316acb8dbae7e98f9eb68347f05a0",
+        "publication_schema": "zk60.publication/1",
+        "schema": "zk60.publication-manifest/1",
+        "segments": [
+          {
+            "bytes": 1415192,
+            "file": "segment-000.bin",
+            "sha256": "3115ff6e0d384f40db452a17258176196bbcd6d4900b30ff51ff2c7de2c8fe17"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-001.bin",
+            "sha256": "2a0d42e2e4b0192edc7b1883f25753bb7beb5d19c4665a7fdbca9cc79c027530"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-002.bin",
+            "sha256": "eb8427ce76e731aef7db0a954ccf8a23a081e931b856cbcc07300445a2a78013"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-003.bin",
+            "sha256": "b0eb5b752a7053137d4f43d58c87f5f455ecdfc37ea6951291fde9ec171de96c"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-004.bin",
+            "sha256": "5c1daf61e64933d79871971ec57478b2a945301ebcd57aee1bb061832200edce"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-005.bin",
+            "sha256": "1ab6cc97f12dccc89adbf78f1c4610e450b1b181e238e35377a7b3c593b904c1"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-006.bin",
+            "sha256": "7cd9ad80de59075b604a012292356be71a7aae2416d35cbbf217e4d0d46d62f8"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-007.bin",
+            "sha256": "42e888c5bddd793a9f45fba262aa8858f6aab518d98d3657aa1ced265194d209"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-008.bin",
+            "sha256": "6a1f9d56be280aad74b7e133935a8149e7a6943ad3ebb3a5581e3eb14dfe315f"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-009.bin",
+            "sha256": "d70581404b8ee4893c6ffc3eb45efe8c40572b44c3564ba3a97d46fbb339fee2"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-010.bin",
+            "sha256": "c512de845e0e36c9c6429e120cc54cd3e0dbefd43cfa3f404bf517ddc744d6ce"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-011.bin",
+            "sha256": "7afdfffcc223bccf048c75ffb1d131f9cd3ab6c91b00354c36e127e15a76f73a"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-012.bin",
+            "sha256": "a361110b205a4b5aff859756b5b6fa2f765cfe4ed2c0a2e76c8792518602c523"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-013.bin",
+            "sha256": "784188e6d4a905c9970dea2a04373633f243d813b8fc62a22bb2940147440eb1"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-014.bin",
+            "sha256": "9a129922a63a8f55052c3792a4f14d1059f3361b80508984ea8d2968250ca0d7"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-015.bin",
+            "sha256": "9883a91b21f845b2bb790ab04fcba1e277bf69d416473d66cfdf27e865220305"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-016.bin",
+            "sha256": "855b26bec0dab4799b3cfd64795d2904cf4dde223b718d7d74c739b7c673dfeb"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-017.bin",
+            "sha256": "d9e67a4601ddd5573d5a0fdf4f842942da207fa26bf3e6f7878d9061b7f8299b"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-018.bin",
+            "sha256": "44cf4f66ebfbc33b2ad50d2b44028c3e07c6a6bce3b348bf5278080b23d185ab"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-019.bin",
+            "sha256": "5c156a5bdb7c0e96c04903454d9e05ba9246a2f0698400b97c21997b82ff7345"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-020.bin",
+            "sha256": "91588b4db3e7d4c557c8ff518663e9fad06a9be398c72a722b66901985d37e24"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-021.bin",
+            "sha256": "4d9e57046c6802ae5f133280a4820a0ab2070c052a2c0a80723b3450ab5f5ad7"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-022.bin",
+            "sha256": "d5789e7243b7b69bc7f29dd578011c71be91ba8d64bb8ba1c45d15554501cf8f"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-023.bin",
+            "sha256": "ee21a4957c5202a2c23575b4c8ea1d343c1ead6a0599651f3846d00ea28b0e2b"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-024.bin",
+            "sha256": "9715a884ba093e0e3627f4295c4c5d29975e93744bcc64245273b9fb7515e4eb"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-025.bin",
+            "sha256": "4ea2e4a1780831a382d8cc8f5cf8825751ff637bc83a3633ef045f24b8d5ca91"
+          },
+          {
+            "bytes": 32450184,
+            "file": "segment-026.bin",
+            "sha256": "5f5d3775618acca6a623e607323c7a98764555447d9cea5b469b16a340263275"
+          },
+          {
+            "bytes": 3292120,
+            "file": "segment-027.bin",
+            "sha256": "dcedc43a308ca6cf77eaa62d0bebb22c6d396c02d816f3320aa89a80e206b416"
+          }
+        ],
+        "segments_json_sha256": null,
+        "statement_sha256": "5e68991ab1ff0202daf77ef8ffae4a0d98683b5fc966f51f3fdd880fdbd33ec2",
+        "statement_uri": "local-cas://sha256/5e68991ab1ff0202daf77ef8ffae4a0d98683b5fc966f51f3fdd880fdbd33ec2",
+        "token_range": [
+          0,
+          17
+        ],
+        "verdict": "no",
+        "verifier_id": "dfb8025eb903b203f4b50371fdd0dd00659d46a9dbaad9d121d6a68343ebc70c"
+      },
+      "block": {
+        "tx_hash": "0x0f2dc9dd777d33a72a5930f169ea5ba49b485fc25010ebdaa0f536bd5a9ad01a",
+        "block_number": 52075726,
+        "block_hash": "0xbcd499643ebeb2ffcc490896ce82c9ad4d66ff51f1599e1f298c69976a12f3e7",
+        "confirmations": 209,
+        "chain_id": 84532,
+        "root": "09bc4ed85a120d993f6aa686721c2e18028b65a0d72fd1873ef4f00459e2388d",
+        "count": 3,
+        "batch_file_hash": "85c946602b634b2214a41c8946345b787717f6a944dda2fc6d864ab963a0b8dc"
+      }
+    }
+  },
+  "manifest_checks": {
+    "accepted": true,
+    "pending_anchor": [],
+    "reasons": [],
+    "checks": {
+      "schema": true,
+      "issuer_key": true,
+      "signature": true,
+      "c0.sexual.anchor_leaf": true,
+      "c0.sexual.publication_matches": true,
+      "c0.sexual.anchored": true,
+      "c1.violence.anchor_leaf": true,
+      "c1.violence.publication_matches": true,
+      "c1.violence.anchored": true,
+      "c2.hate.anchor_leaf": true,
+      "c2.hate.publication_matches": true,
+      "c2.hate.anchored": true
+    }
+  },
+  "source_sha256_revalidated": true,
+  "recovery": {
+    "audit": "/home/victor/IntelligenceRegulation/results/zk60_astra_20261026/real_app_demo_1/recovery-20261030/audit.json",
+    "private_root": "/home/victor/zk60-owner-private/proven-media-astra-demo",
+    "original_plan_unchanged": true,
+    "original_manifest_key_lost": true,
+    "new_manifest_key": "573c1ef0611a86761ed1dff408c27e2192deadf63e504312da527786ce66604a",
+    "salt_opening_lost": true,
+    "private_owner_openings_lost": true,
+    "new_proofs": 0,
+    "automatic_reprove_allowed": false,
+    "storage_migration": "recovery-20261030/storage_move.json"
+  }
+}

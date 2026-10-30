@@ -1,0 +1,224 @@
+{
+ "scope": "S4 design check rank model: per-commitment linear view only; not CFS/joint view; not a privacy acceptance",
+ "field": "Goldilocks Fp2 (u^2 = 7)",
+ "geometry": "Shieldstral T128 rows, N = 2^14 (D0 = 16 rows, D1 = 8 rows per plane)",
+ "A_commitment": {
+  "native": {
+   "groups": 7,
+   "openings": 1,
+   "view_dims": 16,
+   "nondata_rows": 16,
+   "rank_full": 16,
+   "rank_masks": 16,
+   "disclosed": 0
+  },
+  "whole": {
+   "groups": 14,
+   "openings": 1,
+   "view_dims": 30,
+   "nondata_rows": 30,
+   "rank_full": 30,
+   "rank_masks": 30,
+   "disclosed": 0
+  },
+  "indep": {
+   "groups": 14,
+   "openings": 1,
+   "view_dims": 30,
+   "nondata_rows": 30,
+   "rank_full": 30,
+   "rank_masks": 30,
+   "disclosed": 0
+  },
+  "gate": {
+   "groups": 14,
+   "openings": 1,
+   "view_dims": 30,
+   "nondata_rows": 30,
+   "rank_full": 30,
+   "rank_masks": 30,
+   "disclosed": 0
+  },
+  "whole_sigma0_ssm": {
+   "groups": 13,
+   "openings": 1,
+   "view_dims": 28,
+   "nondata_rows": 30,
+   "rank_full": 28,
+   "rank_masks": 28,
+   "disclosed": 0
+  },
+  "whole_sigma0_q": {
+   "groups": 13,
+   "openings": 1,
+   "view_dims": 28,
+   "nondata_rows": 30,
+   "rank_full": 28,
+   "rank_masks": 28,
+   "disclosed": 0
+  },
+  "indep_sigma0_ssm": {
+   "groups": 14,
+   "openings": 1,
+   "view_dims": 30,
+   "nondata_rows": 30,
+   "rank_full": 30,
+   "rank_masks": 30,
+   "disclosed": 0
+  },
+  "indep_sigma0_q": {
+   "groups": 14,
+   "openings": 1,
+   "view_dims": 30,
+   "nondata_rows": 30,
+   "rank_full": 30,
+   "rank_masks": 30,
+   "disclosed": 0
+  },
+  "gate_sigma0_ssm": {
+   "groups": 14,
+   "openings": 1,
+   "view_dims": 30,
+   "nondata_rows": 30,
+   "rank_full": 30,
+   "rank_masks": 30,
+   "disclosed": 0
+  },
+  "gate_sigma0_q": {
+   "groups": 14,
+   "openings": 1,
+   "view_dims": 30,
+   "nondata_rows": 30,
+   "rank_full": 30,
+   "rank_masks": 30,
+   "disclosed": 0
+  },
+  "maskonly_bug_sigma0_ssm": {
+   "groups": 14,
+   "openings": 1,
+   "view_dims": 30,
+   "nondata_rows": 30,
+   "rank_full": 30,
+   "rank_masks": 28,
+   "disclosed": 2
+  },
+  "maskonly_bug_sigma0_q": {
+   "groups": 14,
+   "openings": 1,
+   "view_dims": 30,
+   "nondata_rows": 30,
+   "rank_full": 30,
+   "rank_masks": 28,
+   "disclosed": 2
+  }
+ },
+ "endpoint_pieces": {
+  "external_D0_piece": {
+   "groups": 1,
+   "openings": 1,
+   "view_dims": 4,
+   "nondata_rows": 5,
+   "rank_full": 4,
+   "rank_masks": 4,
+   "disclosed": 0
+  },
+  "external_D1_piece": {
+   "groups": 1,
+   "openings": 1,
+   "view_dims": 4,
+   "nondata_rows": 5,
+   "rank_full": 4,
+   "rank_masks": 4,
+   "disclosed": 0
+  },
+  "external_R13_unsplit": {
+   "groups": 1,
+   "openings": 1,
+   "view_dims": 4,
+   "nondata_rows": 5,
+   "rank_full": 4,
+   "rank_masks": 4,
+   "disclosed": 0
+  },
+  "internal_D0_piece_2sites": {
+   "groups": 2,
+   "openings": 1,
+   "view_dims": 6,
+   "nondata_rows": 6,
+   "rank_full": 6,
+   "rank_masks": 6,
+   "disclosed": 0
+  },
+  "internal_D1_piece_2sites": {
+   "groups": 2,
+   "openings": 1,
+   "view_dims": 6,
+   "nondata_rows": 6,
+   "rank_full": 6,
+   "rank_masks": 6,
+   "disclosed": 0
+  },
+  "NEG_internal_single_prox_row": {
+   "groups": 2,
+   "openings": 1,
+   "view_dims": 6,
+   "nondata_rows": 5,
+   "rank_full": 6,
+   "rank_masks": 5,
+   "disclosed": 1
+  },
+  "NEG_external_two_sites_one_commitment": {
+   "groups": 2,
+   "openings": 1,
+   "view_dims": 6,
+   "nondata_rows": 5,
+   "rank_full": 6,
+   "rank_masks": 5,
+   "disclosed": 1
+  },
+  "NEG_external_piece_opened_twice": {
+   "groups": 1,
+   "openings": 2,
+   "view_dims": 8,
+   "nondata_rows": 5,
+   "rank_full": 6,
+   "rank_masks": 5,
+   "disclosed": 1
+  },
+  "joint_external_2sites": {
+   "groups": 2,
+   "openings": 1,
+   "view_dims": 6,
+   "nondata_rows": 6,
+   "rank_full": 6,
+   "rank_masks": 6,
+   "disclosed": 0,
+   "rows": 30,
+   "data_rows": 24
+  },
+  "joint_internal_4sites": {
+   "groups": 4,
+   "openings": 1,
+   "view_dims": 10,
+   "nondata_rows": 10,
+   "rank_full": 10,
+   "rank_masks": 10,
+   "disclosed": 0,
+   "rows": 34,
+   "data_rows": 24
+  }
+ },
+ "sigma_zero": {
+  "coordinate_events_per_block": {
+   "QKV (k=1 each)": 3,
+   "gate,up out-pieces x D1 input (k=1)": 4,
+   "down out-pieces x F1 input (k=3)": 6,
+   "two norm sums (k=1)": 2
+  },
+  "events_per_block": 15,
+  "blocks": 26,
+  "union_bound": "390/p^2",
+  "log2_union_bound": -119.39266968557858
+ },
+ "expectations_hold": true
+}
