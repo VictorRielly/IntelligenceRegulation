@@ -1,5 +1,19 @@
 # Where the MVP stands, in plain words
 
+**2026-10-30 21:55 UTC: a second real post, now with durable openings; the R14 prover passes its soundness review.**
+- **Durable demo post** (Astra): 19 tokens, all three categories accepted as not flagged, 84 public segments
+  (2.55 GB). Anchored on Base Sepolia, transaction `0x6e6d5166…8181`, block 52,373,745.
+  - Its openings are kept in durable private storage, so the link between the proof and the post's text can be
+    checked from an opening (D45). The first post's openings were lost in the crash.
+  - Proving per category: 444–452 s on 8 threads, peak 8.2 GiB [MEASURED, n=1, shared laptop].
+- **Native prover R14 is accepted on soundness** (independent review): about 97.3 bits.
+  - It proves all 26 real Shieldstral layers in about 440 s at 5.6 GiB peak (the current app binary needs
+    8.2 GiB).
+  - It is not yet registered: that waits on a security tier in the statement, one T256 proof and the privacy gate.
+- **Nothing is published until proving and verification run on the GPU** (D53). The GPU lane is profiling.
+  - The laptop GPU now runs at full clocks after Victor's power-mode change (about 2.0 GHz, memory 8,000 MHz).
+  - Every GPU figure measured before today was taken with the GPU capped.
+
 **2026-10-30 11:35 UTC: work interrupted by the crash is caught up.**
 - **The one-load batch (token round 18)** is frozen and passed its independent review, with one fix required on
   the app side (R18-1). One process now proves all the categories of a post after loading the model once. Each

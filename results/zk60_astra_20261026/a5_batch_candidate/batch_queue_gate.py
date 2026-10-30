@@ -24,7 +24,7 @@ def reject_quarantined_source(path):
 
 
 def recover_batch(job, receipts, *, post_id, reserved_plan, reserved_context, terminal_confirmed,
-                  terminal_exit=None):
+                  terminal_exit=None, reserved_scope=None):
     """Queue startup and normal termination share the exact same collector.
 
     Roots are provided by the queue, never taken from child stdout. A corrupt
@@ -35,7 +35,7 @@ def recover_batch(job, receipts, *, post_id, reserved_plan, reserved_context, te
     require(terminal_exit is None or type(terminal_exit) is int, 'invalid supervisor exit')
     job, receipts = Path(job).resolve(), Path(receipts).resolve()
     require(job.name == 'batch' and job.parent.name == post_id, 'batch job differs from queue post')
-    raw = json.loads((job/'cleanup-scope.json').read_text())
+    raw = reserved_scope if reserved_scope is not None else json.loads((job/'cleanup-scope.json').read_text())
     scope = CleanupScope(**raw)
     require(scope.post_id == post_id and scope.job == str(job) and scope.receipts == str(receipts)
             and scope.count == len(reserved_plan), 'batch cleanup scope differs from original queue')
@@ -54,6 +54,8 @@ def recover_batch(job, receipts, *, post_id, reserved_plan, reserved_context, te
     if (job/'failed-batch-quarantine.json').exists() or terminal_exit not in (None, 0):
         return fail()
     try:
+        require(json.loads((job/'cleanup-scope.json').read_text())==asdict(scope),
+                'cleanup file differs from original registered scope')
         require(reserved_context == records.screening_context(), 'original batch screening context changed')
         request = json.loads((job/'batch-request.json').read_text())
         total = request['content_total']

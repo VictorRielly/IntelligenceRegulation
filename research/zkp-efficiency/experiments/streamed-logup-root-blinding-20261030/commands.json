@@ -1,0 +1,74 @@
+[
+  {
+    "command": "python3 -B experiments/streamed-logup-root-blinding-20261030/run_bounded.py experiment.py",
+    "execution": {
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/streamed-logup-root-blinding-20261030/experiment.py"
+      ],
+      "exit_code": 0,
+      "wall_s": 2.1310213029937586,
+      "peak_rss_kib": 19992,
+      "one_cpu_affinity": true,
+      "nice": 19,
+      "address_space_cap_mib": 256,
+      "cpu_soft_hard_s": [
+        40,
+        42
+      ],
+      "alarm_s": 45,
+      "parent_timeout_s": 50,
+      "memory_estimate_mib": 64,
+      "scope": "CPU arithmetic, not native proving"
+    }
+  },
+  {
+    "command": "python3 -B experiments/streamed-logup-root-blinding-20261030/run_bounded.py audit.py",
+    "execution": {
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/streamed-logup-root-blinding-20261030/audit.py"
+      ],
+      "exit_code": 0,
+      "wall_s": 0.16692425099608954,
+      "peak_rss_kib": 15400,
+      "one_cpu_affinity": true,
+      "nice": 19,
+      "address_space_cap_mib": 256,
+      "cpu_soft_hard_s": [
+        40,
+        42
+      ],
+      "alarm_s": 45,
+      "parent_timeout_s": 50,
+      "memory_estimate_mib": 64,
+      "scope": "CPU arithmetic, not native proving"
+    }
+  },
+  {
+    "command": "python3 -B experiments/streamed-logup-root-blinding-20261030/run_bounded.py pair_table_recurrence.py",
+    "execution": {
+      "command": [
+        "/usr/bin/python3",
+        "-B",
+        "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/streamed-logup-root-blinding-20261030/pair_table_recurrence.py"
+      ],
+      "exit_code": 0,
+      "wall_s": 1.730308069003513,
+      "peak_rss_kib": 20716,
+      "one_cpu_affinity": true,
+      "nice": 19,
+      "address_space_cap_mib": 256,
+      "cpu_soft_hard_s": [
+        40,
+        42
+      ],
+      "alarm_s": 45,
+      "parent_timeout_s": 50,
+      "memory_estimate_mib": 64,
+      "scope": "CPU arithmetic, not native proving"
+    }
+  }
+]

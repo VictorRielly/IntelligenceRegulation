@@ -1,0 +1,21 @@
+{
+  "command": [
+    "/usr/bin/python3",
+    "-B",
+    "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/streamed-logup-root-blinding-20261030/audit.py"
+  ],
+  "exit_code": 0,
+  "wall_s": 0.16692425099608954,
+  "peak_rss_kib": 15400,
+  "one_cpu_affinity": true,
+  "nice": 19,
+  "address_space_cap_mib": 256,
+  "cpu_soft_hard_s": [
+    40,
+    42
+  ],
+  "alarm_s": 45,
+  "parent_timeout_s": 50,
+  "memory_estimate_mib": 64,
+  "scope": "CPU arithmetic, not native proving"
+}

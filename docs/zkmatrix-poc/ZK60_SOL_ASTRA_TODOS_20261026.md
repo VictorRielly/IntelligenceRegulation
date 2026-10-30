@@ -582,6 +582,8 @@ lane), a new `results/zk60_shieldstral_export_20261026/`,
 
 - 2026-10-30T21:44:04.301979+00:00 — Astra: durable-demo post61ac12af82b9e6c36d95075db3fc91b9 now has all3accepted no labels,84segments. All category supervisors terminal0, no further prove planned. Hate native447.880353s/RSS8.15GiB, pipeline676.014429s [MEASURED n=1 shared box]. Finalizer371569 is anchoring, then queues3fresh stored-receipt verifiers through the guard, app checks and browser captures. No app source or binary changes while this finalizer is pinned.
 
+- 2026-10-30T21:55:07.797389+00:00 — Astra: durable demo COMPLETE. Post `61ac12af82b9e6c36d95075db3fc91b9`, 19 tokens, all three accepted no labels, 84 segments / 2,545,236,288 bytes. Confirmed Base Sepolia tx `0x6e6d5166cf17dbaaf03443dddc4d2490ddff90e8bbfd05901ede5222bbac8181`, block 52373745. Original signer, salt and all three owner openings retained outside repo; 3 additional fresh CAS native verifications and 11 real app checks pass. Reviewed actual feed/post/ledger captures, fixed stale sidebar stub/privacy copy, preserved initial captures and recaptured; JS syntax + 5 auth/session controls pass. All category supervisors, finalizer and snapshot servers terminal 0; no own job pending. Report `results/zk60_astra_20261026/real_app_demo_2/REPORT.md`. R18-1 remains staged (67 controls now); actual batch command/check/queue integration still owed. Admission patch has 9 tests and is ready for your review before quiescent promotion; no live pipeline or guard edit. Tenant-scoped D45 requirement is recorded in DESIGN; single-copy store follows R18-1.
+
 ## Coordinator notes (Claude writes here; read on every check-in)
 
 - 2026-10-26T17:50Z — **S3 swap window protocol.** The swap needs a moment with
@@ -1653,6 +1655,27 @@ lane), a new `results/zk60_shieldstral_export_20261026/`,
     Put the final-source suite in the packet.
 
   Heavy runs go through the guard as usual. Leave Astra's app jobs their gap.
+
+- 2026-10-30T22:07:00Z — **Coordinator to Sol: GPU work needs two seams in your prover (D53).**
+  The GPU lane's profile of the real classifier prove (`results/zk60_gpu_classifier_20261030/PHASE_PROFILE.md`) found:
+  - the witness is built **twice** (once in the sealing chain, again in the run), about 30 % of 476 s;
+  - the five zero-checks are about 20 %.
+  Commitments on the GPU already work byte-identically (1.37×, host RSS 8.2 → 4.0 GiB).
+
+  After R14-F1/F2 and the registration prerequisites, please scope a round (R15) that:
+  1. builds the witness ONCE and reuses it. That is pure CPU waste today, and the reuse must be byte-identical;
+  2. exposes a backend seam in `witness.rs` and in the slot-expression IR / zero-check dispatch, so the GPU lane can
+     add device kernels behind a run-time switch. The CPU path stays the reference, with byte identity as the gate.
+
+  Read `GPU_PORT_PLAN.md` §4–5 for the exact seams the lane needs. Take the R14 items first; no rush beyond that.
+
+- 2026-10-30T22:12:34Z — **Coordinator to Sol and Astra: HOLD — Victor is restarting Windows shortly.** Victor asked to pause
+  everything. He will run `wsl --shutdown`, possibly a VM-disk compaction, change the laptop's MSI GPU mode, and
+  restart. Launch NOTHING new, light or heavy. Let any running step finish or checkpoint, then stop at a clean
+  boundary. Write your resume point in your own ledger. After the restart, resume only from your ledgers and
+  `.done` markers, never from a stale status file. Check `zk60_resource_guard.py status` and the guard history
+  first. The Claude lanes are stopped and the hourly explorer is paused (`zk60_explorer.py pause`); the
+  coordinator resumes it after the restart.
 
 ## Backlog — take the next item when your list is done (log which one)
 

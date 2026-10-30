@@ -1,0 +1,43 @@
+{
+  "at": "2026-10-30T21:54:21.020804+00:00",
+  "post_id": "61ac12af82b9e6c36d95075db3fc91b9",
+  "categories": [
+    {
+      "category": "sexual",
+      "verdict": "no",
+      "threads": 8,
+      "prove_s": 451.99030923843384,
+      "work_s": 684.5115902423859,
+      "rss_gib": 8.16,
+      "receipt_bytes": 848412096,
+      "segments": 28
+    },
+    {
+      "category": "violence",
+      "verdict": "no",
+      "threads": 8,
+      "prove_s": 444.0387108325958,
+      "work_s": 678.5162038803101,
+      "rss_gib": 8.19,
+      "receipt_bytes": 848412096,
+      "segments": 28
+    },
+    {
+      "category": "hate",
+      "verdict": "no",
+      "threads": 8,
+      "prove_s": 447.88035345077515,
+      "work_s": 676.0144290924072,
+      "rss_gib": 8.15,
+      "receipt_bytes": 848412096,
+      "segments": 28
+    }
+  ],
+  "transactions": [
+    "0x6e6d5166cf17dbaaf03443dddc4d2490ddff90e8bbfd05901ede5222bbac8181"
+  ],
+  "stored_verify": true,
+  "app_checks": 11,
+  "original_openings_retained": true,
+  "privacy_accepted": false
+}

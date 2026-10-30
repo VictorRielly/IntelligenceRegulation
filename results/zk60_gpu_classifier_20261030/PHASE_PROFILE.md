@@ -103,3 +103,8 @@ The study's ranking (whole prover on the GPU first) stands. Two corrections for 
 model passes together are about 44% of the process and are not in its table, and the commitments, not the
 zero-checks, are the largest block phase. Its items 2–4 (masked LogUp-GKR, wider limbs, derived linear planes) are
 separate design rounds and are not part of this byte-identical port.
+
+## The same prove with the commitments on the GPU
+
+`GPU_PORT_PLAN.md` §3 and `profile_prove_gpu.json`: 346.6 s (1.37×), commitments 104.3 → 15.5 s, all 30 files
+equal to the CPU run's, verified fresh by the frozen production binary.

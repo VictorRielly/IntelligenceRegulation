@@ -1,0 +1,36 @@
+{
+  "status": "PASS",
+  "checks": {
+    "dimensions_and_seed": 16,
+    "source_digest": 16,
+    "independent_query": 16,
+    "independent_table": 16,
+    "all_layers": 16,
+    "arithmetic_cost": 16,
+    "logical_bytes": 16,
+    "selected_buffers": 16,
+    "tiny_fixture_seed": 10,
+    "tiny_sequential": 10,
+    "distribution_support": 4,
+    "distribution_frequencies": 4,
+    "distribution_total": 4,
+    "independent_tv": 2,
+    "base_field_scale_not_extension_uniform": 1,
+    "unconstrained_mask_repairs_false_statement": 1,
+    "zero_scale_is_not_valid_padding": 1,
+    "native_character_recount": 2,
+    "main_controls": 1,
+    "main_pass": 1,
+    "production_read_only_pin": 5,
+    "snapshot_pin": 5
+  },
+  "total_checks": 179,
+  "additional_controls": {
+    "base_field_scale_not_extension_uniform": true,
+    "unconstrained_mask_repairs_false_statement": true,
+    "zero_scale_is_not_valid_padding": true
+  },
+  "wall_s": 0.14108023299922934,
+  "peak_rss_kib": 15208,
+  "scope": "Independent arithmetic/cost/distribution audit; not a native proof, privacy simulator, or cryptographic verification"
+}

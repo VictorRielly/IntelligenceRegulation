@@ -1,47 +1,46 @@
 # ZKP efficiency progress
 
-Cycle0172 complete — 20261030T204123Z-0f14d260.
+Cycle 0173 complete — 20261030T214123Z-4c34fc82, 2026-10-30 UTC.
 
-**No measured proving improvement.** The new DeepProve gap study rules out
-Merkle-path repetition as the main cause of our large receipts. Source
-accounting puts all authentication paths at **13.66 MB, 1.61%** of the current
-848.41 MB classifier receipt. Synthetic path sharing saves **0.74%** of the
-whole receipt. Even deleting every path would shrink it only 1.016 times;
-this is a size bound, not a wall-time speedup estimate.
+**No measured proving improvement.** The streamed lookup arithmetic matches
+independent references through 65,536 synthetic lookups. It is not a GKR proof.
+The main experiment passed 247,337 checks and 13 controls; the separate audit
+passed 179 checks, including three additional controls.
 
-The isolated codec restores every original path, ordered query occurrence,
-column and salt in 50 synthetic cases; 12,800 independent synthetic root
-checks and ten negative controls pass. A separately authored local audit
-passes 7,291 checks. Main: 0.469 s /40,844 KiB; audit: 0.217 s /29,368 KiB.
-SHA256 is a synthetic tree oracle, not native BLAKE3/PCS verification.
+The useful negative: cancelling fractions that share a random denominator
+leak a property of hidden lookups. An unequal-denominator variant hides the
+root denominator in the tested marginal distribution, but still needs a
+complete privacy construction and constraints on its new leaves.
 
-New independently verified full-stack proofs / complete-model passes /
-proved positions: **0 / 0 / 0**. Actual model context: **none**; passes: **0**.
-Device: Intel Core Ultra 9 185H, one low-priority CPU affinity, **no GPU**.
-Witness, proof, serialization, verification, startup and initial-prefill
-clocks, startup fraction, proof latency/bytes and both steady-state and
-total-workload proved-token rates: **unmeasured**. No long-context prefill,
-resident-model proof series or decode ran. The complete private 8B / >=50
-proved-token/s RTX 5090 or named high-end-GPU target remains unachieved.
-Larger workloads remain allowed; attention can grow quadratically. No mask,
-pad or private-opening reuse or weaker privacy is proposed.
+A public table recurrence replaces 65,536 extension-field multiplications
+with one multiplication plus 65,535 subtractions. All 196,608 tested entries
+match. Table storage and gathers remain, and including setup made root
+construction slower in 11 of 12 final diagnostic cases. No proof speedup follows.
 
-Ten LIVE primary-source records were added. DeepProve's backward chaining
-without activation commitments is the more substantial architectural lead;
-its private-IO transfer, exact arithmetic and native phase savings remain
-unknown. Its paper PDF returned403. Attestable's alpha H100 claims are a
-comparison, with no public implementation reproduced. The owner R18
-one-load batch already saves about2.4%; that does not remove recurring proof
-work or establish an8B GPU rate.
+One low-priority CPU affinity on Intel Core Ultra 9 185H; no GPU. Main:
+2.131 s / 19,992 KiB RSS; audit: 0.167 s / 15,400 KiB; recurrence:
+1.730 s / 20,716 KiB. Every experiment stayed below 60 s and 512 MiB.
 
-Closing update: the coordinator's gap study arrived and was read. Next is a
-small streamed, masked-LogUp-GKR prerequisite against H helpers; retain all
-old root-disclosure, binding and memory negatives. Its projected savings
-remain models. D53's GPU-classifier lane belongs to Claude; no duplicate
-job was launched. Main/Claude owns review and integration. No Rust patch.
+New independently verified full-stack proofs / passes / proved positions:
+**0 / 0 / 0**. Actual model context: **none**. Witness, proof, serialization,
+verification, startup and prefill clocks, startup fraction, proof latency and
+bytes, and steady-state and total-workload proved-token rates: **unmeasured**.
+No long-context prefill, resident-model proof series or decode ran. The complete
+private 8B / >=50 proved-token/s target remains unachieved. Larger workloads
+remain allowed; attention can grow quadratically. No masks or openings are reused.
 
-[Experiment](experiments/deepprove-gap-ledger-20261030/README.md) ·
-[Gap analysis](experiments/deepprove-gap-ledger-20261030/GAP_ANALYSIS.md) ·
-[Handoff](handoffs/20261030-deepprove-gap-path-ceiling.md) ·
-[Dated report](progress/20261030T204123Z-0f14d260.md).
+Eight LIVE source records cover LogUp-GKR, Libra, DeepProve, Logup*, recent
+GPU-kernel work and older finite-difference mathematics. Access failures,
+dates, licences and unverified commit details are retained. All 108 prior
+hypotheses remain; H107 was refined and H109/H110 were added.
+
+Next: adapt the existing tiny top-down fraction-layer consumer to an explicit
+hidden-root and leaf-mask contract. Count every new message, binding, mask
+and opening group, then test the joint view before larger arrays. Main/Claude
+reviews the handoff; native proof and GPU measurements remain with their owners.
+
+[Experiment](experiments/streamed-logup-root-blinding-20261030/README.md) ·
+[Design note](experiments/streamed-logup-root-blinding-20261030/ZK_DESIGN_NOTE.md) ·
+[Handoff](handoffs/20261030-streamed-logup-root-blinding.md) ·
+[Dated report](progress/20261030T214123Z-4c34fc82.md).
 Saved reports do not establish message delivery.

@@ -1,0 +1,19 @@
+{
+  "this_cycle": [
+    "lookup arguments and softmax",
+    "sumcheck/GKR",
+    "batching/amortization",
+    "memory traffic"
+  ],
+  "next": [
+    "masked GKR layer claims and composition",
+    "quantization/wider-limb census",
+    "GPU NTT/commitments owner phase evidence"
+  ],
+  "preserved": [
+    "proof-window/KV binding",
+    "public preprocessing",
+    "proof composition"
+  ],
+  "no_foreign_execution": true
+}

@@ -1,0 +1,21 @@
+{
+  "queries": [
+    "LogUp GKR zero knowledge fractional sums root denominator random leaves Libra zero knowledge 2026",
+    "Libra zero knowledge GKR masking polynomial 2019 paper github",
+    "site:github.com Lagrange-Labs deep-prove logup gkr fractional sum lookups",
+    "LogUp* paper 2026",
+    "site:github.com/sunblaze-ucb/Libra/commit 2019",
+    "site:github.com/Lagrange-Labs/deep-prove/releases 2026 October",
+    "GKR zero knowledge sumcheck lookup October 2026 site:arxiv.org/abs",
+    "site:eprint.iacr.org/2026 streaming zero knowledge GKR October lookup"
+  ],
+  "excluded_secondary_page": "sasha.place October12 LogUp* blog search result; full page inaccessible, not relied on for technical facts",
+  "primary_fetch_issues": [
+    "Linked PDF HTTP403 Forbidden",
+    "ePrint PDF and IACR archive PDF both HTTP403 Forbidden; abstract metadata inspected",
+    "Commit fetch Cache miss; raw LICENSE and guessed prover.cpp fetch Cache miss"
+  ],
+  "bypass": false,
+  "downloaded_code_executed": false,
+  "inspected_external_commits": []
+}

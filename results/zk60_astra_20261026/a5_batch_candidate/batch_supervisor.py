@@ -13,6 +13,7 @@ from pathlib import Path
 import re
 import signal
 import subprocess
+import time
 
 from batch_cleanup import _atomic_private
 from batch_registry import boot_id
@@ -51,7 +52,9 @@ class BatchSupervisor:
 
     def step(self, name, command, need, cap, maximum):
         require(not self.stopping, 'batch supervisor stopped')
-        require(not config.HOLD_FILE.exists(), 'coordinator hold blocks batch launch')
+        holds=(config.HOLD_FILE, config.REPO/'results/zk60_shieldstral_prep_20261021/HOLD',
+               config.REPO/'results/zk60_shieldstral_export_20261026/HOLD')
+        require(not any(p.exists() for p in holds), 'coordinator hold blocks batch launch')
         require(type(name) is str and re.fullmatch(r'[a-z0-9-]{1,64}', name), 'invalid step name')
         require(all(type(v) in (int, float) and math.isfinite(v) and v > 0 for v in (need, cap, maximum))
                 and need <= cap, 'invalid guarded resource declaration')
@@ -59,18 +62,25 @@ class BatchSupervisor:
         require(not any((logs/(name+s)).exists() for s in ('.guard.done','.guard.json','.guard.out')),
                 'batch step already exists; no automatic retry')
         argv = self._guard_argv(name, command, need, cap, maximum)
+        display='prove' if name=='prove-batch' else name.rsplit('-',1)[-1]
+        _atomic_private(self.job/'batch-progress.json',{'step':display,'step_since':time.time(),
+                                                     'waiting_for_machine':False})
         with (logs/(name+'.guard.out')).open('xb') as out:
             self.child = subprocess.Popen(argv, stdin=subprocess.DEVNULL, stdout=out,
                                           stderr=subprocess.STDOUT, close_fds=True)
             self.children_reaped = False
             if self.stopping:
                 self.child.terminate()
+            interrupted=None
             try:
+                _atomic_private(logs/(name+'.guard-process.json'),
+                    {'pid':self.child.pid,'boot_id':self.boot,
+                     'pid_namespace':os.readlink('/proc/self/ns/pid')})
                 rc = self.child.wait()
-            except BaseException:
+            except BaseException as exc:
+                interrupted=exc
                 self.stop()
-                self.child.wait()  # do not impose a shorter drain deadline than the guard
-                raise
+                rc=self.child.wait()  # no shorter drain deadline than the guard
             child_pid = self.child.pid
             self.child = None
         # Process exit alone is insufficient: a killed guard can orphan a
@@ -83,18 +93,19 @@ class BatchSupervisor:
                 and not guard.get('guard_error') and not guard.get('foreign_cgroups_refused')
                 and not guard.get('gpu_drain_failed'), 'guard cleanup is unconfirmed')
         self.children_reaped = True
+        if interrupted is not None:raise interrupted
         require(rc == 0 and not self.stopping, 'guarded batch step failed or was stopped')
         return guard
 
-    def run(self, steps):
+    def run(self, steps, *, on_terminal=None):
         fd = os.open(self.job/'batch-supervisor.lock', os.O_RDWR|os.O_CREAT|os.O_NOFOLLOW, 0o600)
         with os.fdopen(fd, 'r+b') as lock:
             # A competing supervisor must not write a terminal marker while
             # the original supervisor's child is still running.
             fcntl.flock(lock, fcntl.LOCK_EX|fcntl.LOCK_NB)
-            return self._run_locked(steps)
+            return self._run_locked(steps, on_terminal)
 
-    def _run_locked(self, steps):
+    def _run_locked(self, steps, on_terminal):
         """Run explicit leaf declarations and retain a truthful terminal marker.
 
         `steps` must be constructed by the future pinned batch pipeline; each
@@ -103,6 +114,8 @@ class BatchSupervisor:
         """
         require(not (self.job/'pipeline-terminal.json').exists(), 'batch is already terminal')
         (self.job/'logs').mkdir(mode=0o700, exist_ok=True)
+        _atomic_private(self.job/'supervisor-process.json',{'pid':os.getpid(),'boot_id':self.boot,
+                        'launch_id':self.launch_id,'pid_namespace':os.readlink('/proc/self/ns/pid')})
         previous = {s:signal.getsignal(s) for s in (signal.SIGTERM, signal.SIGINT)}
         for s in previous: signal.signal(s, self.stop)
         code = 1
@@ -118,7 +131,15 @@ class BatchSupervisor:
         finally:
             for s, handler in previous.items(): signal.signal(s, handler)
             if self.children_reaped:
+                try:
+                    if on_terminal is not None:
+                        on_terminal(code)
+                except Exception as exc:
+                    code=1
+                    _atomic_private(self.job/'collector-error.json',
+                                    {'type':type(exc).__name__, 'message':str(exc)})
                 _atomic_private(self.job/'pipeline-terminal.json',
                     {'schema':'pm-batch-terminal/1', 'launch_id':self.launch_id,
                      'boot_id':self.boot, 'children_reaped':True, 'exit':code})
+                _atomic_private(self.job/'pipeline.done',code)
         return code

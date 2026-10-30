@@ -1,0 +1,782 @@
+//! The fixed T32/d16/H2/KV1/dh8/F16 layout and the DECLARED mask/CFS schedule
+//! of the private block module: the WHOLE BLOCK — attention, `norm_m`, the
+//! SiLU feed-forward and residual 2 — on ONE `A`, ONE `H` and ONE `M`, under
+//! one transcript, each commitment opened once (T1 sections C.1-C.2, T2
+//! sections A-C, form S of T1 section B.1).
+//!
+//! 455 `A` rows, 384 `H` rows, 120 / 51 claim sites, 23 slots, six host
+//! groups, 50 `M` rows, 34 functionals, opening groups `A` 35 / `H` 9, largest
+//! slot length 50, 61,440 byte lookups. `Layout::new` ASSERTS the four row
+//! totals itself, so a layout edit that breaks them cannot ship.
+//!
+//! Planes are laid out CONTIGUOUSLY PER DOMAIN, which T2 section C.2 makes an
+//! obligation on the implementer rather than a choice: `SC_DZC`'s and
+//! `SC_FZC`'s `a_range` each sweep one plane block.
+//!
+//! Everything here is a function of the fixed geometry only: no proof value,
+//! witness value or challenge moves a row, a site or a slot. The verifier and
+//! the wire parser build every count from this file, never from a receipt.
+//!
+//! Schedule rules (ZK60_PRIVATE_ATTENTION_CONSTRUCTION.md sections 1-4):
+//! * every claim site has its OWN reserved mask pair (two fresh rows), used by
+//!   exactly that one claim; a plane opened at k points has k pairs;
+//! * every commitment has a dedicated proximity pair;
+//! * the histograms are committed A rows, the LogUp identity is one value-0
+//!   sum claim on H masked by a zero-sum pair `u` whose own terminal is masked
+//!   by a fresh pair;
+//! * twenty-three CFS slots on one M (50 rows), 34 functionals in the fixed
+//!   order `[Gamma_s if standalone] eval_s ... then one batched Gamma per host`.
+//!
+//! RECORDED DEVIATION from `zk60_private_attention_schedule.json`: that file
+//! numbers rows of the legacy `AttnLayout` (65,536-entry range tables with
+//! block masks). This component ranges every value through the single
+//! 256-entry `U8` table by byte limbs (the lever section 6 of the construction
+//! records), so every table is ONE row and no block mask exists. The slot
+//! list, host assignment, M shape and functional order are the declared ones;
+//! the row numbering is this file's.
+
+use crate::field::Fp2;
+
+pub(crate) const T: usize = 32;
+pub(crate) const D: usize = 16;
+pub(crate) const H: usize = 2;
+pub(crate) const DH: usize = 8;
+pub(crate) const HALF: usize = DH / 2;
+pub(crate) const KV: usize = 8;
+/// feed-forward width (the `f` axis)
+pub(crate) const F: usize = 16;
+pub(crate) const LOG_N: usize = 8;
+pub(crate) const N: usize = 1 << LOG_N;
+
+/// Fixed public calibration (private-block-kernel `calib`).
+pub(crate) const NORM_TN: u32 = 11;
+pub(crate) const NORM_CN: i64 = 1024;
+pub(crate) const NORM_CEPS: i64 = 1;
+pub(crate) const NORM_WRHO: u32 = 29;
+pub(crate) const SH_QKV: u32 = 7;
+pub(crate) const SH_ROPE: u32 = 7;
+pub(crate) const SH_S: u32 = 6;
+pub(crate) const SH_O: u32 = 9;
+pub(crate) const SH_AO: u32 = 7;
+pub(crate) const F_E: u32 = 9;
+pub(crate) const F_P: u32 = 9;
+pub(crate) const F_RO: u32 = 7;
+pub(crate) const WRHO_S: u32 = 14;
+pub(crate) const MASK_SCORE: i64 = -127;
+/// Feed-forward shifts (kernel `calib::SH_G/SH_U/SH_H/SH_Z`). `SH_U = 0` is
+/// why there is no `up` remainder plane at all (T2 section A.4).
+pub(crate) const SH_G: u32 = 7;
+pub(crate) const SH_H_PROD: u32 = 14;
+pub(crate) const SH_Z: u32 = 6;
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) enum Dom {
+    /// rows: t (5 vars)
+    T,
+    /// (h, t) (6 vars)
+    Ht,
+    /// sixteen packed 32-entry limb sub-planes (9 vars)
+    L,
+    /// (t, i) (9 vars)
+    D,
+    /// (t, h, i') (9 vars) - same flat index as `D`
+    Q,
+    /// (t, i') (8 vars)
+    Kv,
+    /// (h, t, j) (11 vars)
+    S,
+    /// (t, j) over the feed-forward axis (9 vars at F = 16). A variant of its
+    /// own even though the size equals `Dom::D`'s: a `Dom` keys a lookup list,
+    /// a helper block and a zero-check, and the feed-forward needs its own of
+    /// each (T2 section B.1).
+    F,
+    /// one 256-entry table row (8 vars)
+    Tab,
+}
+
+impl Dom {
+    pub(crate) fn log(self) -> usize {
+        match self {
+            Dom::T => 5,
+            Dom::Ht => 6,
+            Dom::L | Dom::D | Dom::Q | Dom::F => 9,
+            Dom::Kv | Dom::Tab => 8,
+            Dom::S => 11,
+        }
+    }
+    pub(crate) fn len(self) -> usize {
+        1usize << self.log()
+    }
+}
+
+// ---- the A planes, contiguous per domain ------------------------------------
+// Dom::T
+pub(crate) const A_D: usize = 0;
+pub(crate) const A_DSQ: usize = 1;
+/// norm_m's isqrt D (T1 C.1)
+pub(crate) const A_DM: usize = 2;
+pub(crate) const A_DSQM: usize = 3;
+// Dom::Ht
+pub(crate) const A_MX: usize = 4;
+pub(crate) const A_SUM: usize = 5;
+// Dom::L — sub-plane k occupies entries [32k, 32k + 32): 0..3 d, 3..6 a1, 6..9 a2
+pub(crate) const A_LIMB: usize = 6;
+/// norm_m's limb plane (nine of sixteen sub-planes used, as `A_LIMB`)
+pub(crate) const A_LIMBM: usize = 7;
+// Dom::D
+pub(crate) const A_X: usize = 8;
+pub(crate) const A_XL0: usize = 9;
+pub(crate) const A_XL1: usize = 10;
+pub(crate) const A_Y: usize = 11;
+pub(crate) const A_NR0: usize = 12; // ..=15
+pub(crate) const A_NS0: usize = 16; // ..=19
+pub(crate) const A_AO: usize = 20;
+pub(crate) const A_AL0: usize = 21;
+pub(crate) const A_AL1: usize = 22;
+pub(crate) const A_RAL: usize = 23;
+pub(crate) const A_X1: usize = 24;
+pub(crate) const A_X1L0: usize = 25;
+pub(crate) const A_X1L1: usize = 26;
+/// `nm`, norm_m's output and the feed-forward's input (T1 C.1)
+pub(crate) const A_YM: usize = 27;
+pub(crate) const A_MR0: usize = 28; // ..=31
+pub(crate) const A_MS0: usize = 32; // ..=35
+/// the feed-forward output (T1 C.2, derived by T2 R5)
+pub(crate) const A_Z16: usize = 36;
+pub(crate) const A_X2: usize = 37;
+pub(crate) const A_X2L0: usize = 38;
+pub(crate) const A_X2L1: usize = 39;
+pub(crate) const A_ZL0: usize = 40;
+pub(crate) const A_ZL1: usize = 41;
+/// the biased down remainder, `rd` in [0, 2^6)
+pub(crate) const A_RDL: usize = 42;
+// Dom::Q
+pub(crate) const A_Q8: usize = 43;
+pub(crate) const A_RQL: usize = 44;
+pub(crate) const A_QR8: usize = 45;
+pub(crate) const A_RQRL: usize = 46;
+pub(crate) const A_O8: usize = 47;
+pub(crate) const A_RO0: usize = 48;
+pub(crate) const A_RO1: usize = 49;
+// Dom::Kv
+pub(crate) const A_K8: usize = 50;
+pub(crate) const A_RKL: usize = 51;
+pub(crate) const A_V8: usize = 52;
+pub(crate) const A_RVL: usize = 53;
+pub(crate) const A_KR8: usize = 54;
+pub(crate) const A_RKRL: usize = 55;
+// Dom::S
+pub(crate) const A_S8: usize = 56;
+pub(crate) const A_RSL: usize = 57;
+pub(crate) const A_ZSEL: usize = 58;
+pub(crate) const A_E: usize = 59;
+pub(crate) const A_P: usize = 60;
+pub(crate) const A_PL0: usize = 61;
+pub(crate) const A_PL1: usize = 62;
+pub(crate) const A_SR0: usize = 63;
+pub(crate) const A_SR1: usize = 64;
+pub(crate) const A_SG0: usize = 65;
+pub(crate) const A_SG1: usize = 66;
+// Dom::F (T2 section B.2)
+pub(crate) const A_G8: usize = 67;
+/// the biased gate remainder, `rg` in [0, 2^7)
+pub(crate) const A_RGL: usize = 68;
+pub(crate) const A_A16: usize = 69;
+pub(crate) const A_U16: usize = 70;
+pub(crate) const A_UL0: usize = 71;
+pub(crate) const A_UL1: usize = 72;
+pub(crate) const A_H16: usize = 73;
+pub(crate) const A_HL0: usize = 74;
+pub(crate) const A_HL1: usize = 75;
+/// the two byte limbs of the biased product remainder `rh` in [0, 2^14)
+pub(crate) const A_RH0: usize = 76;
+pub(crate) const A_RH1: usize = 77;
+// Dom::Tab — committed multiplicities of the three tables
+pub(crate) const A_MU8: usize = 78;
+pub(crate) const A_MEXP: usize = 79;
+pub(crate) const A_MACT: usize = 80;
+/// every A plane of the whole-block layout
+pub(crate) const N_A: usize = 81;
+pub(crate) const N_LIMBS: usize = 9;
+
+pub(crate) fn a_dom(plane: usize) -> Dom {
+    match plane {
+        A_D..=A_DSQM => Dom::T,
+        A_MX | A_SUM => Dom::Ht,
+        A_LIMB | A_LIMBM => Dom::L,
+        A_X..=A_RDL => Dom::D,
+        A_Q8..=A_RO1 => Dom::Q,
+        A_K8..=A_RKRL => Dom::Kv,
+        A_S8..=A_SG1 => Dom::S,
+        A_G8..=A_RH1 => Dom::F,
+        _ => Dom::Tab,
+    }
+}
+
+/// The three committed lookup histograms: derived from the witness by the
+/// prover (`protocol.rs`), never filled by the integer witness builder.
+pub(crate) fn is_multiplicity(plane: usize) -> bool {
+    matches!(plane, A_MU8 | A_MEXP | A_MACT)
+}
+
+// ---- the H planes (every one Fp2-valued: a `re` slice then an `im` slice) ----
+pub(crate) const H_L: usize = 0;
+/// 19 helpers for the 38 `Dom::D` lookups
+pub(crate) const H_D0: usize = 1;
+pub(crate) const H_D_LAST: usize = 19;
+pub(crate) const H_Q0: usize = 20; // 7
+pub(crate) const H_KV0: usize = 27; // 6
+pub(crate) const H_S0: usize = 33; // 7
+pub(crate) const H_SEXP: usize = 40;
+/// the five `Dom::F` U8 helpers
+pub(crate) const H_F0: usize = 41;
+/// the activation lookup's own helper, mirroring `H_SEXP`
+pub(crate) const H_FACT: usize = 46;
+pub(crate) const H_GU8: usize = 47;
+pub(crate) const H_GEXP: usize = 48;
+pub(crate) const H_GACT: usize = 49;
+/// the zero-sum pair `u`; its claim site's reserved pair is the fresh `u'`
+pub(crate) const H_U: usize = 50;
+pub(crate) const N_H: usize = 51;
+
+pub(crate) fn h_dom(plane: usize) -> Dom {
+    match plane {
+        H_L => Dom::L,
+        H_D0..=H_D_LAST => Dom::D,
+        H_Q0..=26 => Dom::Q,
+        H_KV0..=32 => Dom::Kv,
+        H_S0..=H_SEXP => Dom::S,
+        H_F0..=H_FACT => Dom::F,
+        _ => Dom::Tab,
+    }
+}
+
+/// The table helpers enter the value-0 LogUp identity with a negative sign.
+pub(crate) fn h_is_table(plane: usize) -> bool {
+    matches!(plane, H_GU8 | H_GEXP | H_GACT)
+}
+
+// ---- lookups (all into the 256-entry U8 table; value = cst + sum coef * plane) ----
+#[derive(Clone, Debug)]
+pub(crate) struct Lk {
+    pub terms: Vec<(usize, i64)>,
+    pub cst: i64,
+}
+
+fn byte(p: usize) -> Lk {
+    Lk { terms: vec![(p, 1)], cst: 0 }
+}
+/// `k * plane` in U8: with `byte(plane)` this bounds the plane below `256 / k`
+fn scaled(p: usize, k: i64) -> Lk {
+    Lk { terms: vec![(p, k)], cst: 0 }
+}
+/// the attention int8 subset [-127, 127]
+fn sym(p: usize) -> [Lk; 2] {
+    [Lk { terms: vec![(p, 1)], cst: 127 }, Lk { terms: vec![(p, -1)], cst: 127 }]
+}
+
+/// The U8 lookups of a domain, in helper order: helper k covers lookups
+/// (2k, 2k + 1); an odd count leaves the last helper single.
+///
+/// CONSTRUCTION PREMISE (integer soundness; to be re-derived by the reviewer, not
+/// checked by code). Every relation of `argument::define` is an identity between
+/// integers only if no term wraps the 64-bit field. With every limb in [0, 256):
+/// * x, ao, xres1, xres2, u16, h16, z16 in int16 (two limbs, offset 32768);
+///   y, nm, q8, k8, v8, qr8, kr8, s8, o8 in [-127, 127] (`v + 127` and
+///   `127 - v` both bytes); g8 in [-128, 127] from the 256-row activation
+///   table itself, never from `sym`;
+/// * D, a1, a2 < 2^24 (three limbs each), so D^2 + a1 < 2^49 equals sum x^2 + ceps
+///   (< 2^35) over the integers, a2 = 2D - a1 >= 0 and a1 >= 0 give
+///   D^2 <= ss <= D^2 + 2D, i.e. D = isqrt(ss), and ceps = 1 gives D >= 1;
+/// * norm: |2 cn g x| < 2^34, y D 2^(tn+1) < 2^44, rho and sigma < 2^29 exactly
+///   (top limb `8 * l3` a byte), so 0 <= rho <= den - 1 and y is the floor quotient;
+/// * requant remainders are biased limbs: 7-bit (`2 l`), 6-bit (`4 l`), 9-bit
+///   (l0 + 256 l1 with `128 l1` a byte), 14-bit (l0 + 256 l1 with `4 l1` a
+///   byte), so r in [-2^(s-1), 2^(s-1)) exactly;
+/// * softmax: p < 2^10 (`64 l1`), rho_s and sigma_s < 2^14 exactly (`4 l1`),
+///   Sum <= 2^14, so p Sum + rho < 2^25 and the quotient relation is over the
+///   integers; off the causal support it forces p = rho = 0 because Sum >= 2^9 > 0
+///   (some position ON the support has delta = 0, hence E[0] = 2^fE: the selected
+///   one, or, if the selector sits on a masked position, the max is -127 and every
+///   supported score equals it);
+/// * delta in [0, 256) and E = exp[delta] come from the two-column exp lookup;
+///   (g8 + 128, a16) comes from the two-column activation lookup, whose value
+///   range is enforced by the public statement, not promised by the caller;
+/// * feed-forward (T2 section E): gacc and uacc below 2^18, the product
+///   a16 u16 at most 2^30 and `f0` below 2^31 (the worst new case), zacc at
+///   most 2^26.
+/// All bounds are far below p = 2^64 - 2^32 + 1. The LogUp multiplicities (at
+/// most 61,440) cannot wrap.
+pub(crate) fn lookups(dom: Dom) -> Vec<Lk> {
+    let mut v = Vec::new();
+    match dom {
+        Dom::L => {
+            v.push(byte(A_LIMB));
+            v.push(byte(A_LIMBM));
+        }
+        Dom::D => {
+            v.extend([byte(A_XL0), byte(A_XL1)]);
+            v.extend(sym(A_Y));
+            v.extend((0..4).map(|k| byte(A_NR0 + k)));
+            v.push(scaled(A_NR0 + 3, 1 << (32 - NORM_WRHO)));
+            v.extend((0..4).map(|k| byte(A_NS0 + k)));
+            v.push(scaled(A_NS0 + 3, 1 << (32 - NORM_WRHO)));
+            v.extend([byte(A_AL0), byte(A_AL1), byte(A_RAL), scaled(A_RAL, 2), byte(A_X1L0), byte(A_X1L1)]);
+            // T1 section C.1: norm_m's class, its rho / sigma limbs, and
+            // residual 2's int16 limbs. Fourteen lookups.
+            v.extend(sym(A_YM));
+            v.extend((0..4).map(|k| byte(A_MR0 + k)));
+            v.push(scaled(A_MR0 + 3, 1 << (32 - NORM_WRHO)));
+            v.extend((0..4).map(|k| byte(A_MS0 + k)));
+            v.push(scaled(A_MS0 + 3, 1 << (32 - NORM_WRHO)));
+            v.extend([byte(A_X2L0), byte(A_X2L1)]);
+            // T2 section B.3: z16's int16 class and the down remainder.
+            v.extend([byte(A_ZL0), byte(A_ZL1), byte(A_RDL), scaled(A_RDL, 4)]);
+        }
+        Dom::F => {
+            v.extend([byte(A_RGL), scaled(A_RGL, 2)]);
+            v.extend([byte(A_UL0), byte(A_UL1)]);
+            v.extend([byte(A_HL0), byte(A_HL1)]);
+            v.extend([byte(A_RH0), byte(A_RH1), scaled(A_RH1, 4)]);
+        }
+        Dom::Q => {
+            v.extend(sym(A_Q8));
+            v.extend([byte(A_RQL), scaled(A_RQL, 2)]);
+            v.extend(sym(A_QR8));
+            v.extend([byte(A_RQRL), scaled(A_RQRL, 2)]);
+            v.extend(sym(A_O8));
+            v.extend([byte(A_RO0), byte(A_RO1), scaled(A_RO1, 128)]);
+        }
+        Dom::Kv => {
+            v.extend(sym(A_K8));
+            v.extend([byte(A_RKL), scaled(A_RKL, 2)]);
+            v.extend(sym(A_V8));
+            v.extend([byte(A_RVL), scaled(A_RVL, 2)]);
+            v.extend(sym(A_KR8));
+            v.extend([byte(A_RKRL), scaled(A_RKRL, 2)]);
+        }
+        Dom::S => {
+            v.extend(sym(A_S8));
+            v.extend([byte(A_RSL), scaled(A_RSL, 4)]);
+            v.extend([byte(A_PL0), byte(A_PL1), scaled(A_PL1, 64)]);
+            v.extend([byte(A_SR0), byte(A_SR1), scaled(A_SR1, 4)]);
+            v.extend([byte(A_SG0), byte(A_SG1), scaled(A_SG1, 4)]);
+        }
+        Dom::T | Dom::Ht | Dom::Tab => {}
+    }
+    v
+}
+
+/// (first H helper plane, helper count) of a lookup domain.
+pub(crate) fn helpers(dom: Dom) -> (usize, usize) {
+    match dom {
+        Dom::L => (H_L, 1),
+        Dom::D => (H_D0, 19),
+        Dom::F => (H_F0, 5),
+        Dom::Q => (H_Q0, 7),
+        Dom::Kv => (H_KV0, 6),
+        Dom::S => (H_S0, 7),
+        _ => (0, 0),
+    }
+}
+
+pub(crate) const LOOKUP_DOMS: [Dom; 6] = [Dom::L, Dom::D, Dom::F, Dom::Q, Dom::Kv, Dom::S];
+
+// ---- the CFS slots, in transcript order (T2 section C.3) ---------------------
+pub(crate) const N_SLOTS: usize = 23;
+pub(crate) const SC_SS: usize = 0;
+pub(crate) const SC_SSM: usize = 1;
+pub(crate) const SC_TZC: usize = 2;
+pub(crate) const SC_LZC: usize = 3;
+pub(crate) const SC_RS: usize = 4;
+pub(crate) const SC_QMM: usize = 5;
+pub(crate) const SC_KMM: usize = 6;
+pub(crate) const SC_VMM: usize = 7;
+pub(crate) const SC_SCORE: usize = 8;
+pub(crate) const SC_PV: usize = 9;
+pub(crate) const SC_WO: usize = 10;
+pub(crate) const SC_GMM: usize = 11;
+pub(crate) const SC_UMM: usize = 12;
+pub(crate) const SC_DMM: usize = 13;
+pub(crate) const SC_DZC: usize = 14;
+pub(crate) const SC_QZC: usize = 15;
+pub(crate) const SC_KVZC: usize = 16;
+pub(crate) const SC_SZC: usize = 17;
+pub(crate) const SC_FZC: usize = 18;
+pub(crate) const SC_TAB: usize = 19;
+pub(crate) const SC_ZS: usize = 20;
+pub(crate) const SC_IO_IN: usize = 21;
+pub(crate) const SC_IO_OUT: usize = 22;
+
+pub(crate) const SLOT_NAMES: [&str; N_SLOTS] = [
+    "01 SS row sums norm_a (private)",
+    "01m SS row sums norm_m (private)",
+    "02 norm squares zero-check (hosts 01, 01m)",
+    "08 limb zero-check",
+    "07 masked row sums + selector (private)",
+    "09Q matmul (private)",
+    "09K matmul (private)",
+    "09V matmul (private)",
+    "10 score matmul (private, bilinear)",
+    "11 PV matmul (private, bilinear)",
+    "12 Wo matmul (private)",
+    "13G gate matmul (private)",
+    "13U up matmul (private)",
+    "13D down matmul (private)",
+    "03 D zero-check (hosts 12, 13D)",
+    "04 Q zero-check (hosts 09Q, 11)",
+    "05 KV zero-check (hosts 09K, 09V)",
+    "06 softmax zero-check (hosts 07, 10)",
+    "14 F zero-check (hosts 13G, 13U)",
+    "TAB table helper zero-check",
+    "ZS zero-sum row",
+    "IO-in endpoint equality",
+    "IO-out endpoint equality",
+];
+
+/// (main rounds, extension rounds, degree)
+pub(crate) const SLOTS: [(usize, usize, usize); N_SLOTS] = [
+    (9, 1, 3),
+    (9, 1, 3),
+    (5, 1, 3),
+    (9, 1, 4),
+    (11, 1, 3),
+    (4, 1, 2),
+    (4, 1, 2),
+    (4, 1, 2),
+    (3, 2, 2),
+    (5, 2, 2),
+    (4, 1, 2),
+    (4, 1, 2),
+    (4, 1, 2),
+    (4, 1, 2),
+    (9, 1, 4),
+    (9, 1, 4),
+    (8, 1, 4),
+    (11, 1, 4),
+    (9, 1, 4),
+    (8, 1, 3),
+    (8, 1, 2),
+    (9, 1, 2),
+    (9, 1, 2),
+];
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) enum SlotKind {
+    /// publishes ONE masked scalar `s + c G`; its total appears only inside its host's Gamma
+    Private,
+    /// public zero claimed sum; publishes `Gamma = c G`
+    Standalone,
+    /// claimed sum `sum nu kappa claim_s + Gamma_host`
+    Host,
+}
+
+pub(crate) const SLOT_KINDS: [SlotKind; N_SLOTS] = [
+    SlotKind::Private,
+    SlotKind::Private,
+    SlotKind::Host,
+    SlotKind::Standalone,
+    SlotKind::Private,
+    SlotKind::Private,
+    SlotKind::Private,
+    SlotKind::Private,
+    SlotKind::Private,
+    SlotKind::Private,
+    SlotKind::Private,
+    SlotKind::Private,
+    SlotKind::Private,
+    SlotKind::Private,
+    SlotKind::Host,
+    SlotKind::Host,
+    SlotKind::Host,
+    SlotKind::Host,
+    SlotKind::Host,
+    SlotKind::Standalone,
+    SlotKind::Standalone,
+    SlotKind::Standalone,
+    SlotKind::Standalone,
+];
+
+/// host slot -> the private slots it hosts (every private slot exactly once)
+pub(crate) const HOSTS: [(usize, &[usize]); 6] = [
+    (SC_TZC, &[SC_SS, SC_SSM]),
+    (SC_DZC, &[SC_WO, SC_DMM]),
+    (SC_QZC, &[SC_QMM, SC_PV]),
+    (SC_KVZC, &[SC_KMM, SC_VMM]),
+    (SC_SZC, &[SC_RS, SC_SCORE]),
+    (SC_FZC, &[SC_GMM, SC_UMM]),
+];
+
+/// claim sites per slot on A and on H (each one reserved mask pair);
+/// T1 section C.3 and T2 section D.1, site by site: 120 on A, 51 on H
+pub(crate) const A_SITES: [usize; N_SLOTS] = [1, 1, 22, 2, 2, 1, 1, 1, 2, 2, 1, 1, 1, 1, 37, 8, 7, 13, 11, 3, 0, 1, 1];
+pub(crate) const H_SITES: [usize; N_SLOTS] = [0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 19, 7, 6, 8, 6, 3, 1, 0, 0];
+/// column-weight groups of the single A / H openings (checked by the prover
+/// against the PCS's own grouping; the wire shape uses them)
+pub(crate) const A_GROUPS: usize = 35;
+pub(crate) const H_GROUPS: usize = 9;
+pub(crate) const N_FUNCTIONALS: usize = 34;
+pub(crate) const M_ROWS: usize = 2 * N_SLOTS + 4;
+
+/// The derived whole-block row totals of the disposition section 1.2, asserted
+/// by `Layout::new` itself so a layout edit that breaks them cannot ship.
+pub(crate) const A_ROWS: usize = 455;
+pub(crate) const H_ROWS: usize = 384;
+pub(crate) const A_DATA_ROWS: usize = 213;
+pub(crate) const H_DATA_ROWS: usize = 280;
+
+/// private terminals a slot publishes (A sites, H sites, one endpoint terminal for IO)
+pub(crate) fn slot_terms(slot: usize) -> usize {
+    A_SITES[slot] + H_SITES[slot] + usize::from(slot >= SC_IO_IN)
+}
+
+pub(crate) fn mask_specs() -> Vec<(usize, usize)> {
+    SLOTS.iter().map(|&(n, e, d)| (n + e, d)).collect()
+}
+
+fn rows_of(log: usize) -> usize {
+    (1usize << log).div_ceil(N)
+}
+
+pub(crate) struct Layout {
+    /// element offset of every A plane (row aligned)
+    pub a_off: Vec<usize>,
+    pub a_data_rows: usize,
+    pub a_mask_base: usize,
+    pub a_prox: usize,
+    pub a_rows: usize,
+    /// (re, im) element offsets of every H plane
+    pub h_off: Vec<(usize, usize)>,
+    pub h_data_rows: usize,
+    pub h_mask_base: usize,
+    pub h_prox: usize,
+    pub h_rows: usize,
+    a_prefix: Vec<usize>,
+    h_prefix: Vec<usize>,
+}
+
+impl Layout {
+    pub(crate) fn new() -> Layout {
+        let mut row = 0usize;
+        let mut a_off = Vec::with_capacity(N_A);
+        for p in 0..N_A {
+            a_off.push(row * N);
+            row += rows_of(a_dom(p).log());
+        }
+        let a_data_rows = row;
+        let mut a_prefix = vec![0usize; N_SLOTS + 1];
+        let mut h_prefix = vec![0usize; N_SLOTS + 1];
+        for s in 0..N_SLOTS {
+            a_prefix[s + 1] = a_prefix[s] + A_SITES[s];
+            h_prefix[s + 1] = h_prefix[s] + H_SITES[s];
+        }
+        let a_mask_base = a_data_rows;
+        let a_prox = a_mask_base + 2 * a_prefix[N_SLOTS];
+        let a_rows = a_prox + 2;
+        let mut row = 0usize;
+        let mut h_off = Vec::with_capacity(N_H);
+        for p in 0..N_H {
+            let r = rows_of(h_dom(p).log());
+            h_off.push((row * N, (row + r) * N));
+            row += 2 * r;
+        }
+        let h_data_rows = row;
+        let h_mask_base = h_data_rows;
+        let h_prox = h_mask_base + 2 * h_prefix[N_SLOTS];
+        let h_rows = h_prox + 2;
+        // the derived counts of the disposition section 1.2
+        assert_eq!(a_data_rows, A_DATA_ROWS, "block A data rows");
+        assert_eq!(h_data_rows, H_DATA_ROWS, "block H data rows");
+        assert_eq!(a_rows, A_ROWS, "block A rows");
+        assert_eq!(h_rows, H_ROWS, "block H rows");
+        Layout { a_off, a_data_rows, a_mask_base, a_prox, a_rows, h_off, h_data_rows, h_mask_base, h_prox, h_rows, a_prefix, h_prefix }
+    }
+
+    // ---- the slot schedule ----
+    pub(crate) fn a_sites(&self) -> &'static [usize] {
+        &A_SITES
+    }
+    pub(crate) fn h_sites(&self) -> &'static [usize] {
+        &H_SITES
+    }
+    pub(crate) fn lookup_doms(&self) -> &'static [Dom] {
+        &LOOKUP_DOMS
+    }
+    pub(crate) fn lookups(&self, dom: Dom) -> Vec<Lk> {
+        lookups(dom)
+    }
+    pub(crate) fn helpers(&self, dom: Dom) -> (usize, usize) {
+        helpers(dom)
+    }
+    /// every A / H plane, in plane order
+    pub(crate) fn a_planes(&self) -> Vec<usize> {
+        (0..N_A).collect()
+    }
+    pub(crate) fn h_planes(&self) -> Vec<usize> {
+        (0..N_H).collect()
+    }
+
+    /// first row of the reserved pair of A site `k` of `slot`
+    pub(crate) fn a_site(&self, slot: usize, k: usize) -> Result<usize, String> {
+        if k >= A_SITES[slot] {
+            return Err(format!("private block: undeclared A site {k} in slot {slot}"));
+        }
+        Ok(self.a_mask_base + 2 * (self.a_prefix[slot] + k))
+    }
+    pub(crate) fn h_site(&self, slot: usize, k: usize) -> Result<usize, String> {
+        if k >= H_SITES[slot] {
+            return Err(format!("private block: undeclared H site {k} in slot {slot}"));
+        }
+        Ok(self.h_mask_base + 2 * (self.h_prefix[slot] + k))
+    }
+    /// every reserved claim-pair row of A / of H (the proximity pairs excluded)
+    pub(crate) fn a_site_rows(&self) -> Vec<usize> {
+        (self.a_mask_base..self.a_prox).collect()
+    }
+    pub(crate) fn h_site_rows(&self) -> Vec<usize> {
+        (self.h_mask_base..self.h_prox).collect()
+    }
+    /// the two zero-sum rows `u`
+    pub(crate) fn h_u_rows(&self) -> [usize; 2] {
+        let (re, im) = self.h_off[H_U];
+        [re / N, im / N]
+    }
+    pub(crate) fn limb_off(&self, k: usize) -> usize {
+        self.a_off[A_LIMB] + k * T
+    }
+    pub(crate) fn limb_off_m(&self, k: usize) -> usize {
+        self.a_off[A_LIMBM] + k * T
+    }
+
+    /// The declared schedule, line by line; its digest is transcript-bound.
+    pub(crate) fn describe(&self) -> Vec<String> {
+        let mut out = vec![
+            format!("private-block-t32/1: T{T} d{D} H{H} KV1 dh{DH} F{F}; n={N} inv_rate=8 Q=256; P1 (weights public, no W commitment); whole block (attention, norm_m, feed-forward, residual 2)"),
+            format!("A rows={} data={} site-pairs={} prox-pair=({},{})", self.a_rows, self.a_data_rows, self.a_prefix[N_SLOTS], self.a_prox, self.a_prox + 1),
+            format!("H rows={} data={} site-pairs={} zero-sum-pair={:?} prox-pair=({},{})", self.h_rows, self.h_data_rows, self.h_prefix[N_SLOTS], self.h_u_rows(), self.h_prox, self.h_prox + 1),
+            format!("M rows={M_ROWS} functionals={N_FUNCTIONALS} A-groups={A_GROUPS} H-groups={H_GROUPS} collapse=0"),
+            format!(
+                "calibration: norm tn={NORM_TN} cn={NORM_CN} ceps={NORM_CEPS} wrho={NORM_WRHO}; shifts qkv={SH_QKV} rope={SH_ROPE} score={SH_S} o={SH_O} ao={SH_AO} residual=0; fE={F_E} fP={F_P} fRo={F_RO} wrhoS={WRHO_S} mask={MASK_SCORE}; classes int8=[-127,127] int16; tables U8 + exp"
+            ),
+            format!(
+                "feed-forward: F={F} shifts gate={SH_G} up=0 product={SH_H_PROD} down={SH_Z} residual2=0; gate class int8=[-128,127]; tables U8 + exp + act"
+            ),
+        ];
+        for s in 0..N_SLOTS {
+            let (n, e, d) = SLOTS[s];
+            out.push(format!(
+                "slot {s:02} [{}] main={n} ext={e} degree={d} kind={:?} A-sites={} H-sites={}",
+                SLOT_NAMES[s], SLOT_KINDS[s], A_SITES[s], H_SITES[s]
+            ));
+        }
+        for (host, hosted) in HOSTS {
+            out.push(format!("host {host:02} <- {hosted:?}"));
+        }
+        out
+    }
+
+    pub(crate) fn schedule_digest(&self) -> [u8; 32] {
+        let mut h = blake3::Hasher::new();
+        h.update(b"hashline/private-block-schedule/1");
+        for line in self.describe() {
+            h.update(&(line.len() as u64).to_le_bytes());
+            h.update(line.as_bytes());
+        }
+        *h.finalize().as_bytes()
+    }
+}
+
+/// 256^k as a field constant (k < 4)
+pub(crate) fn pow256(k: usize) -> Fp2 {
+    Fp2::from_u64(1u64 << (8 * k))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// the whole-block layout against the derived counts of the disposition
+    /// section 1.2 and T2 section D.2
+    #[test]
+    fn declared_counts_are_self_consistent() {
+        let lay = Layout::new();
+        assert_eq!((lay.a_data_rows, lay.a_rows), (213, 455));
+        assert_eq!((lay.h_data_rows, lay.h_rows), (280, 384));
+        assert_eq!(A_SITES.iter().sum::<usize>(), 120);
+        assert_eq!(H_SITES.iter().sum::<usize>(), 51);
+        // 23 slots -> 46 coefficient rows + b_re, b_im, u_re, u_im
+        assert_eq!(M_ROWS, 50);
+        assert_eq!((lay.a_planes().len(), lay.h_planes().len()), (N_A, N_H));
+        // 23 slots: 12 private, 5 standalone, 6 hosts; 34 functionals
+        let kinds = |k: SlotKind| SLOT_KINDS.iter().filter(|x| **x == k).count();
+        assert_eq!((kinds(SlotKind::Private), kinds(SlotKind::Standalone), kinds(SlotKind::Host)), (12, 5, 6));
+        // one eval per slot, one Gamma per standalone slot, one batched Gamma per host
+        assert_eq!(N_SLOTS + kinds(SlotKind::Standalone) + HOSTS.len(), N_FUNCTIONALS);
+        // every private slot is hosted exactly once, by a Host slot that runs after it
+        let mut hosted = vec![0usize; N_SLOTS];
+        for (host, list) in HOSTS {
+            assert_eq!(SLOT_KINDS[host], SlotKind::Host);
+            for &s in list {
+                assert_eq!(SLOT_KINDS[s], SlotKind::Private);
+                assert!(s < host, "a host runs after the slots it hosts");
+                hosted[s] += 1;
+            }
+        }
+        for s in 0..N_SLOTS {
+            assert_eq!(hosted[s], usize::from(SLOT_KINDS[s] == SlotKind::Private));
+        }
+        // every mask row fits the M message: L + 256 pads <= 512; the largest is SC_SZC at 50
+        let l = |s: usize| {
+            let (n, e, d) = SLOTS[s];
+            (n + e) * d + 2
+        };
+        assert_eq!((0..N_SLOTS).map(l).max(), Some(50));
+        for (n, d) in mask_specs() {
+            assert!(n * d + 2 + 256 <= 512);
+        }
+        assert_eq!((0..N_SLOTS).map(|s| SLOTS[s].0).sum::<usize>(), 159);
+        assert_eq!((0..N_SLOTS).map(|s| SLOTS[s].1).sum::<usize>(), 25);
+        // helper planes cover the lookups pairwise, on six domains
+        for dom in LOOKUP_DOMS {
+            assert_eq!(lookups(dom).len().div_ceil(2), helpers(dom).1);
+        }
+        // T2 section D.2's per-domain U8 totals, and their sum
+        let per_dom: Vec<usize> = LOOKUP_DOMS.iter().map(|d| lookups(*d).len() * d.len()).collect();
+        assert_eq!(per_dom, vec![1_024, 19_456, 4_608, 6_656, 3_072, 26_624]);
+        assert_eq!(per_dom.iter().sum::<usize>(), 61_440);
+        assert_eq!((0..N_A).filter(|p| a_dom(*p) == Dom::F).count(), 11);
+        assert_eq!((0..N_H).filter(|p| h_dom(*p) == Dom::F).count(), 6);
+    }
+
+    /// planes are laid out contiguously per domain and row-aligned, which the
+    /// two `a_range` sweeps and the PCS grouping both depend on (T2 C.2)
+    #[test]
+    fn planes_are_row_aligned_and_contiguous_per_domain() {
+        let lay = Layout::new();
+        let mut offs: Vec<usize> = (0..N_A).map(|p| lay.a_off[p]).collect();
+        let sorted = {
+            let mut o = offs.clone();
+            o.sort_unstable();
+            o
+        };
+        assert_eq!(offs, sorted, "A planes are not packed in plane order");
+        offs.dedup();
+        assert_eq!(offs.len(), N_A, "two A planes share an offset");
+        assert!((0..N_A).all(|p| lay.a_off[p] % N == 0), "an A plane is not row aligned");
+        // each domain occupies ONE run of plane indices
+        for dom in [Dom::T, Dom::Ht, Dom::L, Dom::D, Dom::Q, Dom::Kv, Dom::S, Dom::F, Dom::Tab] {
+            let ids: Vec<usize> = (0..N_A).filter(|p| a_dom(*p) == dom).collect();
+            assert!(!ids.is_empty() && ids.last().unwrap() - ids[0] + 1 == ids.len(), "domain {dom:?} is not a contiguous plane run");
+        }
+        for dom in [Dom::L, Dom::D, Dom::Q, Dom::Kv, Dom::S, Dom::F, Dom::Tab] {
+            let ids: Vec<usize> = (0..N_H).filter(|p| h_dom(*p) == dom).collect();
+            assert!(!ids.is_empty() && ids.last().unwrap() - ids[0] + 1 == ids.len(), "H domain {dom:?} is not a contiguous plane run");
+        }
+        // the description carries the derived counts, line by line
+        let lines = lay.describe();
+        assert_eq!(lines.len(), 6 + N_SLOTS + HOSTS.len());
+        assert!(lines.iter().any(|l| l.contains("A rows=455 data=213 site-pairs=120")));
+        assert!(lines.iter().any(|l| l.contains("H rows=384 data=280 site-pairs=51")));
+        assert!(lines.iter().any(|l| l.contains("M rows=50 functionals=34 A-groups=35 H-groups=9")));
+    }
+}

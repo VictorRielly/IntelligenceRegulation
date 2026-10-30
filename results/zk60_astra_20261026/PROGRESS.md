@@ -410,3 +410,11 @@ Staged the actual Store/Worker recovery hook before publication or queue work; c
 ### 2026-10-30T21:44:04.301979+00:00 — all durable-demo categories accepted
 
 Sexual, violence and hate accepted no; all84segments and all private openings retained. Native proof wall times451.990309/444.038711/447.880353s, sampled RSS8.16/8.19/8.15GiB, cgroup+watchdog [MEASURED n=1 shared box]. All category supervisors terminal0. Existing finalizer371569 now anchors, then performs stored-verification/app/browser checks. These final checks are still pending.
+
+### 2026-10-30T21:55:07.797389+00:00 — durable demo complete
+
+All three categories accepted no; all 84 segments (2,545,236,288 bytes) retained, with original signer, salt and private input-owner openings outside the repository. Base Sepolia transaction `0x6e6d5166cf17dbaaf03443dddc4d2490ddff90e8bbfd05901ede5222bbac8181` confirmed in block 52373745. Three additional fresh native verifications from public CAS pass; 11 real app checks pass. Finalizer and all category supervisors terminal 0.
+
+Reviewed the actual feed, post and ledger screenshots. Initial review caught stale stub wording and an unqualified privacy claim in the feed sidebar. Corrected mode-dependent feed copy and About introduction, retained first captures, recaptured all three views, and confirmed server exit 0. JavaScript syntax and five existing auth/session controls pass. No new proof or transaction for recapture. Current report: `real_app_demo_2/REPORT.md`; current images: `real_app_demo_2/screenshots/`.
+
+Batch recovery candidate now passes 67 controls (11 real Store/Worker startup controls and 9 real tiny subprocess controls with simulated guard added). It remains staged: command/fresh-check/queue integration and coordinator review are outstanding. Admission correction remains staged pending review; no guard/FIFO/binary change. Full benchmark still has layers 0–6 complete and L07 at 3209/4872 items, next attempt2. No own job pending.

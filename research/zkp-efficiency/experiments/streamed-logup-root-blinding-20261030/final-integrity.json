@@ -1,0 +1,18 @@
+{
+  "status": "PASS",
+  "run_id": "20261030T214123Z-4c34fc82",
+  "checkpoint_utc": "2026-10-30T21:57:18.328366+00:00",
+  "checks": {
+    "local_python_syntax": true,
+    "five_production_source_and_snapshot_pins": true,
+    "prior_findings_byte_identical_and_one_new_entry": true,
+    "prior_sources_byte_identical_eight_exact_appends": true,
+    "all_prior_hypotheses_retained": true,
+    "experiments_pass_and_within_caps": true,
+    "report_and_handoff_links_resolve": true,
+    "no_full_stack_tokens_counted": true,
+    "checkpoint_before_deadline": true
+  },
+  "artifact_files": 64,
+  "scope": "Research artifact integrity; not native verification or whole-proof privacy"
+}

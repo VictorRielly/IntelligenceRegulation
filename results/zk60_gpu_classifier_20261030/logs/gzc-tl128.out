@@ -1,0 +1,2 @@
+[zk60-guard 15:00:36] START gcl-tl128 class=gpu need=2.5G cap=6G enforce=cgroup+watchdog waited=0s run=9b9ed1b5d4a0
+[zk60-guard 15:01:41] END gcl-tl128 exit=0 child_wall=65s peak_rss=1.70G min_avail=12.26G peak_vram=1059MiB

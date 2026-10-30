@@ -1,0 +1,10 @@
+INFO:     Started server process [389895]
+INFO:     Waiting for application startup.
+2026-10-30 14:50:25,785 mistral_common.tokens.tokenizers.tekken INFO Non special vocabulary size is 130072 with 1000 special tokens.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8766 (Press CTRL+C to quit)
+2026-10-30 14:50:43,325 root INFO stop file /home/victor/zk60-owner-private/proven-media-astra-demo-2/STOP-SERVER found: shutting down
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [389895]

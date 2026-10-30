@@ -1,0 +1,144 @@
+# Streamed LogUp arithmetic and root-blinding prerequisite — cycle0173
+
+Run `20261030T214123Z-4c34fc82`, checkpoint 2026-10-30T21:55:58.569107+00:00; deadline22:01:23UTC.
+**No measured proving improvement. No GKR proof or Rust patch.**
+
+The current bottleneck lead is recurring H helper work. The coordinator's
+historical TinyLlamaT128 profile attributes30.03/152.2s (19.7%) to H commit,
+inverses and openings, plus unmeasured/modeled H zero-check share. These are
+historical phase rows, not a matched P1/public-IO causal comparison or an8B
+GPU profile. Its54ns/lookup16-thread CPU and170B/lookup GPU values are cost
+laws, not measurements against this one-thread Python arithmetic.
+
+Baseline: committed inverse helpers and their zero-check/PCS work. Potential
+eliminated work: those H commitments, inverses and helper constraints; **none
+is removed by this prototype**. Added costs: public pair-table setup, every
+fraction layer, top-down GKR reductions/recomputation, mask and root constraints,
+ordered A/table bindings, new PCS sites, serialization and verification.
+End-to-end ceiling remains `N/(T-C_removed+A_added)`, unknown until exclusive
+native clocks and a complete masked construction exist. Free removal of only
+the three historical H phases would give1.246x on that historical block,
+before added work; that is not a bound on other savings or GPU throughput.
+The coordinator's1.37–1.57GPU roofline/40–50%receipt models remain unmeasured.
+Falsify on any arithmetic/binding/refusal/joint-view mismatch or A_added>=the
+critical removed cost. The coordinator's0.7CPU-and-equal-bytes kill rule needs
+matched all-in native implementations; it cannot be evaluated here.
+
+`candidate.py` keeps only current/next packed layers, not the complete tree.
+It is a bottom-up root builder. Discarding a layer creates future recomputation
+or storage work for top-down GKR, which is absent here and must be charged.
+`reference.py` uses independent polynomial-basis arithmetic, histogram sums
+and sequential fraction addition. `audit.py` imports neither implementation
+and uses Karatsuba products/norm inverses to reconstruct all16large cases,
+all10tiny fixtures, costs and root distributions.
+
+Main PASS: 247,337 checks;16cases (two synthetic challenges,
+uniform/single-hot arrays,2^10..2^16lookups), all131,072pair-table entries,
+ten tiny sequential roots and13negative controls. Every query/table identity
+matches; all public-table entries are checked even with multiplicity0.
+Audit PASS: 179 checks and3additional controls. Roots alone
+do not bind order/multiplicity/leaves; those controls expose the obligation.
+
+**Root result:** `(s,r),(-s,r)` is rejected because D*r² leaks the quadratic
+character. F121 exhaustive supports are disjoint60-element sets (TV1), and
+GoldilocksFp2 confirms an opposite-character pair at equal public length.
+`(s,1),(-s*r,r)` with fresh uniform nonzero extension-field r makes only the
+root denominator uniform on Fp2* (TV0 in exhaustion). It does not hide other
+messages or prove cancellation/binding. [Design note](ZK_DESIGN_NOTE.md).
+
+| Query lookups | Direct root Fp2 mul | Full table + root mul | Additive table + root mul | Selected packed peak MiB |
+|---:|---:|---:|---:|---:|
+| 1,024 | 2,045 | 67,069 | 1,534 | 1.036 |
+| 4,096 | 8,189 | 71,677 | 6,142 | 1.133 |
+| 16,384 | 32,765 | 90,109 | 24,574 | 1.520 |
+| 65,536 | 131,069 | 163,837 | 98,302 | 3.066 |
+
+Direct counts:2N-3; full table:65536+3(N/2-1). The latter saves multiplications
+only above131072aggregate lookups under one effective challenge. This threshold
+is **superseded for multiplication counts** by the additive recurrence:
+`Q(a,b+1)=Q(a,b)-(alpha-a)` and `Q(a+1,0)=Q(a,0)-alpha`.
+It needs1Fp2multiply+65535Fp2subtracts+256base denominator subtractions.
+The1MiB table and8logical extra gather bytes/lookup remain. Logical operand
+byte counts are an ideal packed accounting model, not DRAM telemetry; scratch,
+Python objects, reference tables, GKR and private wrappers are excluded from
+selected-array peaks; diagnostic layer-hash copies are included. Process RSS
+is measured separately. The initial buffer ledger omitted hash copies and
+is preserved under initial-layer-buffer-ledger/; the corrected ledger passed
+the independent audit, and noncanonical challenges are now explicitly refused.
+
+Recurrence PASS: 196,627 checks,196608entries across3challenges,
+12root comparisons and4controls; the mutated table entry changes a two-leaf
+root against the independent oracle. Setup diagnostic milliseconds:
+
+| Synthetic challenge | Ordinary | Additive recurrence |
+|---:|---:|---:|
+| 1 | 37.790 | 15.927 |
+| 2 | 38.591 | 34.258 |
+| 3 | 26.502 | 18.064 |
+
+Final all-in root construction is slower in **11/12** cases. The initial
+run was slower11/12; it is preserved under initial-recurrence/. The rerun
+strengthened the entry-corruption control; timings are noisy diagnostics,
+not a selected best-case speed claim. Reduced arithmetic is useful to retain,
+but neither table generation nor this root is the native full prover.
+
+CPU executions (one nice19 affinity,256MiBAS,40/42sCPU,45s alarm,50sparent):
+main 2.131s/19992KiB;
+audit 0.167s/15400KiB;
+recurrence 1.730s/20716KiB.
+Memory estimate64MiB; every experiment below60s/512MiB. Python3.10.12,
+Intel Core Ultra9 185H, seed20261030173; recurrence seed2026103017301.
+
+```
+python3 -B experiments/streamed-logup-root-blinding-20261030/run_bounded.py experiment.py
+python3 -B experiments/streamed-logup-root-blinding-20261030/run_bounded.py audit.py
+python3 -B experiments/streamed-logup-root-blinding-20261030/run_bounded.py pair_table_recurrence.py
+```
+
+Future seam: `hashline/src/private_block/protocol.rs::{write_h,logup_sum_claim,prove_core}`,
+actual shape's helpers/H-plane schedule and leaf bindings; GoldilocksFp2 in
+`zkp-core/src/field.rs`. FrozenR18 shape/layout and main toy protocol are
+pinned separately; do not claim the toy protocol is the registered classifier.
+No production edit or profile change. Public table key is the **effective**
+alpha (native U8 alpha-gamma*TAG_U8), field and alphabet. Rebuild per challenge;
+only share within the same public challenge/type, never masks or private
+openings. This256byte pair table is not an exp/act tuple lookup replacement.
+
+Eight LIVE primary-source records1168->1176: LogUp-GKR, Libra paper/repository,
+DeepProve lookup docs/license, prior Logup*, currentOct26zkDuel, and newly
+assessed older finite-difference background in NISTDLMF. Exact dates/limits,
+URLs and licence details are in sources-cycle.json. No external implementation
+commit inspected; the Libra commit fetch failed. PDFs403, raw/commit Cache
+misses and inaccessible secondary blog are recorded without bypass. No foreign
+code copied/executed or author performance reproduced.
+
+All108prior hypotheses preserved; H107 refined, new H109root-marginal and
+H110public-table hypotheses added (110total). Top3remain whole high-endGPU
+verified workloads, admitted context/DD/fidelity scaling and exclusive native
+clocks/capacities. [Ranking](ranking-current.json).
+
+New independently verified full-stack proofs / complete-model passes /
+proved positions: **0 / 0 / 0**. Actual model context: **none**; passes: **0**.
+Device: Intel Core Ultra9 185H, one low-priority CPU affinity, **no GPU**.
+Witness, proof, serialization, verification, startup and initial-prefill
+clocks, startup fraction, proof latency/bytes, steady-state and total-workload
+proved-token rates: **unmeasured**. No long-context prefill, resident-model
+proof series or decode ran. Synthetic lookup count is not context length.
+Complete private8B **>=50 proved tokens/s on RTX5090 or another named high-end
+GPU remains unachieved**. Larger workloads remain allowed; attention can
+grow quadratically. No mask, pad or private-opening reuse is proposed.
+
+Next local experiment: adapt the existing cycle0109 tiny top-down fraction
+layer consumer to an explicit hidden-root/leaf-mask contract. Enumerate every
+new layer message, original-A/histogram leaf claim, CFS/Libra mask and opening
+group; test its joint-view distribution/rank in a toy field before larger
+arrays. Preserve the prior mask-row capacity negative. Main/Claude and the
+security owner review the construction; the native owner handles matched
+masked receipts and exclusive whole-workload GPU clocks under shared locks.
+Do not duplicate D53's Claude GPU-classifier lane or the R14 review.
+
+Only this research directory outside runtime/ was written. No production,
+Git metadata, receipts, calibration, safety gates, instructions or reviewer
+files changed. No builds, GPU jobs, installs, downloaded scripts, external
+writes/messages, purchases, escalation, merges or supervisor/liveness actions.
+Saved reports do not establish delivery to Victor.

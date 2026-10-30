@@ -1,0 +1,9 @@
+RAM   14.04 GiB available of 15.39; swap used 0.92 GiB
+BUDGET 0 of 11.89 GiB committed by guarded jobs
+LOCKS heavy free, build free
+GPU   0 of 8188 MiB used
+DISK  /mnt/c 133.6 GiB free (heavy jobs wait under 40, any job is killed under 8)
+kernel memory cap available: True
+  rss    468 MiB  pid 2294    claude 
+  rss    258 MiB  pid 6847    /home/victor/.codex/packages/app-server-daemon/releases/0.166.0-x86_64-unknown-linux-musl/bin/codex app-server
+  rss    211 MiB  pid 388165  /home/victor/.nvm/versions/node/v22.22.3/lib/node_modules/@openai/codex/node_modules/@openai/codex-linux-x64/v

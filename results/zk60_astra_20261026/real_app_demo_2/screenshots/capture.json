@@ -1,0 +1,40 @@
+{
+  "at": "2026-10-30T21:53:32.068757+00:00",
+  "post_id": "61ac12af82b9e6c36d95075db3fc91b9",
+  "captures": [
+    {
+      "route": "#/",
+      "file": "feed.png",
+      "bytes": 76969,
+      "sha256": "748129b3d95c156b8e83c47a9fe77d9bcd197f216a7e297caa12d661cf020886"
+    },
+    {
+      "route": "#/post/61ac12af82b9e6c36d95075db3fc91b9",
+      "file": "post.png",
+      "bytes": 117869,
+      "sha256": "68c7365eed118b13029cd880ae32a5aea7ed9835e81e68dbdf5bac6dcf175218"
+    },
+    {
+      "route": "#/ledger",
+      "file": "ledger.png",
+      "bytes": 61973,
+      "sha256": "b5e651a74dfa480f13df46eabcd9bdd47249dfc32d6d7ccd63ff1628a0bb87c0"
+    }
+  ],
+  "server_exit": 0,
+  "proof_worker_started": false,
+  "signed_in": false,
+  "browser": "installed Windows Chrome,isolated headless profile",
+  "visual_review_pending": false,
+  "visual_review": {
+    "at": "2026-10-30T21:54:20.906072+00:00",
+    "reviewed_files": [
+      "feed.png",
+      "post.png",
+      "ledger.png"
+    ],
+    "findings": "Feed shows the original text and all three accepted no labels with correct real-classifier copy; post shows all three accepted category proofs and the confirmed block; ledger shows three anchored leaves and none pending. Privacy-pending notices remain visible. No blank/error page or horizontal overflow observed in these viewports.",
+    "frontend_sha256": "2bbe1ab5ce3195a2d7f6a953d5d8a32ef545722f052c1972c96b85eeaed0f636",
+    "initial_review": "../initial_visual_review.json"
+  }
+}

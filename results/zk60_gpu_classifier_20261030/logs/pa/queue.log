@@ -17,3 +17,8 @@
 2026-10-30T21:44:45Z wait: hold /home/victor/IntelligenceRegulation/results/zk60_gpu_classifier_20261030/HOLD
 2026-10-30T21:46:05Z release_hold: waiting: finish_durable_demo.py[371569]; pm-verifypub-61ac12af82b9(cpu,2.9)
 2026-10-30T21:49:46Z wait: hold /home/victor/IntelligenceRegulation/results/zk60_gpu_classifier_20261030/HOLD; astra app pm-verifypub-61ac12af82b9(cpu,2.9)
+2026-10-30T21:52:06Z release_hold: Astra demo finished: HOLD removed
+2026-10-30T21:52:16Z p-gpu
+2026-10-30T21:58:03Z bytes-gpu
+2026-10-30T21:58:04Z v-gpu
+2026-10-30T21:59:09Z phase A end 0

@@ -1,0 +1,216 @@
+{
+  "status": "PASS",
+  "seed": 2026103017301,
+  "checks": 196627,
+  "rows": [
+    {
+      "alpha": [
+        123456789012345,
+        98765432101234
+      ],
+      "direct_build_s": 0.025673823998658918,
+      "recurrence_build_s": 0.014311165003164206,
+      "table_sha256": "1a4e044370dc70db3532a1f56226430ec32062d00a7c71f84507f8b7b25fde1a",
+      "direct_setup_fp2_multiplies": 65536,
+      "recurrence_setup_fp2_multiplies": 1,
+      "recurrence_setup_fp2_subtractions": 65535,
+      "cases": [
+        {
+          "n": 1024,
+          "direct_root_s": 0.0024426210002275184,
+          "cached_root_s": 0.001315393004915677,
+          "all_in_recurrence_s_diagnostic": 0.015626558008079883,
+          "direct_fp2_multiplies": 2045,
+          "recurrence_all_in_fp2_multiplies": 1534,
+          "recurrence_setup_fp2_subtractions": 65535,
+          "selected_array_peak_bytes": 1078272,
+          "table_gather_extra_logical_bytes": 8192,
+          "scope": "Root construction only; masks, GKR reductions, bindings and verification absent"
+        },
+        {
+          "n": 4096,
+          "direct_root_s": 0.005393856001319364,
+          "cached_root_s": 0.005386166005337145,
+          "all_in_recurrence_s_diagnostic": 0.01969733100850135,
+          "direct_fp2_multiplies": 8189,
+          "recurrence_all_in_fp2_multiplies": 6142,
+          "recurrence_setup_fp2_subtractions": 65535,
+          "selected_array_peak_bytes": 1155072,
+          "table_gather_extra_logical_bytes": 32768,
+          "scope": "Root construction only; masks, GKR reductions, bindings and verification absent"
+        },
+        {
+          "n": 16384,
+          "direct_root_s": 0.02223722900089342,
+          "cached_root_s": 0.019063207000726834,
+          "all_in_recurrence_s_diagnostic": 0.03337437200389104,
+          "direct_fp2_multiplies": 32765,
+          "recurrence_all_in_fp2_multiplies": 24574,
+          "recurrence_setup_fp2_subtractions": 65535,
+          "selected_array_peak_bytes": 1462272,
+          "table_gather_extra_logical_bytes": 131072,
+          "scope": "Root construction only; masks, GKR reductions, bindings and verification absent"
+        },
+        {
+          "n": 65536,
+          "direct_root_s": 0.09593089299596613,
+          "cached_root_s": 0.08247303499956615,
+          "all_in_recurrence_s_diagnostic": 0.09678420000273036,
+          "direct_fp2_multiplies": 131069,
+          "recurrence_all_in_fp2_multiplies": 98302,
+          "recurrence_setup_fp2_subtractions": 65535,
+          "selected_array_peak_bytes": 2691072,
+          "table_gather_extra_logical_bytes": 524288,
+          "scope": "Root construction only; masks, GKR reductions, bindings and verification absent"
+        }
+      ]
+    },
+    {
+      "alpha": [
+        18446744069414584320,
+        18446744069414584319
+      ],
+      "direct_build_s": 0.028068468993296847,
+      "recurrence_build_s": 0.01682169400010025,
+      "table_sha256": "212c2500b2195dd70d09293f6cfaaac179a4237d10510a8b52411e9caecc13c4",
+      "direct_setup_fp2_multiplies": 65536,
+      "recurrence_setup_fp2_multiplies": 1,
+      "recurrence_setup_fp2_subtractions": 65535,
+      "cases": [
+        {
+          "n": 1024,
+          "direct_root_s": 0.0019429639942245558,
+          "cached_root_s": 0.001637211003981065,
+          "all_in_recurrence_s_diagnostic": 0.018458905004081316,
+          "direct_fp2_multiplies": 2045,
+          "recurrence_all_in_fp2_multiplies": 1534,
+          "recurrence_setup_fp2_subtractions": 65535,
+          "selected_array_peak_bytes": 1078272,
+          "table_gather_extra_logical_bytes": 8192,
+          "scope": "Root construction only; masks, GKR reductions, bindings and verification absent"
+        },
+        {
+          "n": 4096,
+          "direct_root_s": 0.007239242004288826,
+          "cached_root_s": 0.006416910000552889,
+          "all_in_recurrence_s_diagnostic": 0.02323860400065314,
+          "direct_fp2_multiplies": 8189,
+          "recurrence_all_in_fp2_multiplies": 6142,
+          "recurrence_setup_fp2_subtractions": 65535,
+          "selected_array_peak_bytes": 1155072,
+          "table_gather_extra_logical_bytes": 32768,
+          "scope": "Root construction only; masks, GKR reductions, bindings and verification absent"
+        },
+        {
+          "n": 16384,
+          "direct_root_s": 0.02064556699770037,
+          "cached_root_s": 0.01818886500404915,
+          "all_in_recurrence_s_diagnostic": 0.0350105590041494,
+          "direct_fp2_multiplies": 32765,
+          "recurrence_all_in_fp2_multiplies": 24574,
+          "recurrence_setup_fp2_subtractions": 65535,
+          "selected_array_peak_bytes": 1462272,
+          "table_gather_extra_logical_bytes": 131072,
+          "scope": "Root construction only; masks, GKR reductions, bindings and verification absent"
+        },
+        {
+          "n": 65536,
+          "direct_root_s": 0.08049364700127626,
+          "cached_root_s": 0.07248780400550459,
+          "all_in_recurrence_s_diagnostic": 0.08930949800560484,
+          "direct_fp2_multiplies": 131069,
+          "recurrence_all_in_fp2_multiplies": 98302,
+          "recurrence_setup_fp2_subtractions": 65535,
+          "selected_array_peak_bytes": 2691072,
+          "table_gather_extra_logical_bytes": 524288,
+          "scope": "Root construction only; masks, GKR reductions, bindings and verification absent"
+        }
+      ]
+    },
+    {
+      "alpha": [
+        256,
+        0
+      ],
+      "direct_build_s": 0.013962949000415392,
+      "recurrence_build_s": 0.008397705998504534,
+      "table_sha256": "76887498234c9e066a4a9aad6467ae89d3ae81f9689d98002b9c02b5a6bc15de",
+      "direct_setup_fp2_multiplies": 65536,
+      "recurrence_setup_fp2_multiplies": 1,
+      "recurrence_setup_fp2_subtractions": 65535,
+      "cases": [
+        {
+          "n": 1024,
+          "direct_root_s": 0.0009130100006586872,
+          "cached_root_s": 0.0007640179974259809,
+          "all_in_recurrence_s_diagnostic": 0.009161723995930515,
+          "direct_fp2_multiplies": 2045,
+          "recurrence_all_in_fp2_multiplies": 1534,
+          "recurrence_setup_fp2_subtractions": 65535,
+          "selected_array_peak_bytes": 1078272,
+          "table_gather_extra_logical_bytes": 8192,
+          "scope": "Root construction only; masks, GKR reductions, bindings and verification absent"
+        },
+        {
+          "n": 4096,
+          "direct_root_s": 0.0033975859987549484,
+          "cached_root_s": 0.003355804001330398,
+          "all_in_recurrence_s_diagnostic": 0.011753509999834932,
+          "direct_fp2_multiplies": 8189,
+          "recurrence_all_in_fp2_multiplies": 6142,
+          "recurrence_setup_fp2_subtractions": 65535,
+          "selected_array_peak_bytes": 1155072,
+          "table_gather_extra_logical_bytes": 32768,
+          "scope": "Root construction only; masks, GKR reductions, bindings and verification absent"
+        },
+        {
+          "n": 16384,
+          "direct_root_s": 0.013586414002929814,
+          "cached_root_s": 0.01291297099669464,
+          "all_in_recurrence_s_diagnostic": 0.021310676995199174,
+          "direct_fp2_multiplies": 32765,
+          "recurrence_all_in_fp2_multiplies": 24574,
+          "recurrence_setup_fp2_subtractions": 65535,
+          "selected_array_peak_bytes": 1462272,
+          "table_gather_extra_logical_bytes": 131072,
+          "scope": "Root construction only; masks, GKR reductions, bindings and verification absent"
+        },
+        {
+          "n": 65536,
+          "direct_root_s": 0.05934707100095693,
+          "cached_root_s": 0.05002081199927488,
+          "all_in_recurrence_s_diagnostic": 0.05841851799777942,
+          "direct_fp2_multiplies": 131069,
+          "recurrence_all_in_fp2_multiplies": 98302,
+          "recurrence_setup_fp2_subtractions": 65535,
+          "selected_array_peak_bytes": 2691072,
+          "table_gather_extra_logical_bytes": 524288,
+          "scope": "Root construction only; masks, GKR reductions, bindings and verification absent"
+        }
+      ]
+    }
+  ],
+  "controls": {
+    "whole_table_zero_refused": true,
+    "fresh_alpha_changes_table": true,
+    "cross_alpha_use_refused": true,
+    "single_entry_mutation_detected": true
+  },
+  "wall_s": 1.0288011400043615,
+  "peak_rss_kib": 20636,
+  "scope": "Synthetic public-table/root construction; no proving speed improvement measured",
+  "proofs": 0,
+  "proved_positions": 0,
+  "recurrences": [
+    "Q(a,b+1)=Q(a,b)-(alpha-a)",
+    "Q(a+1,0)=Q(a,0)-alpha"
+  ],
+  "claim": "65536 setup Fp2 multiplies replaced by1multiply+65535Fp2subtracts; no wall-time or complete-proof factor follows",
+  "limitations": [
+    "1MiB table remains",
+    "private gathers add logical8B/lookup",
+    "setup repeats per freshalpha",
+    "sequential recurrence depth may limit GPU parallelism; per-row seeds cost256multiplies",
+    "no GKR/CFS/PCS/mask/leaf-binding costs included"
+  ]
+}

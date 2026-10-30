@@ -144,6 +144,7 @@ for v in (0, other):
 
 controls = {}
 controls['non_byte'] = refuses(lambda: query_root([0, 256], native_alpha))
+controls['noncanonical_challenge'] = refuses(lambda: query_root([0, 0], (P+255, 0)))
 controls['zero_in_unused_public_table_entry'] = refuses(lambda: query_root([0, 0], (255, 0)))
 controls['stale_pair_table'] = refuses(lambda: query_root([0, 0], native_alpha, tab))
 controls['zero_mask_denominator'] = refuses(lambda: cancelling_pair(F, F.one, F.zero, 'independent_scale'))

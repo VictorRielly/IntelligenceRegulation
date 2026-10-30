@@ -1,0 +1,30 @@
+--- before/static/app.js
++++ after/static/app.js
+@@ -292,10 +292,10 @@
+   $("#app").innerHTML = `<div class="grid"><div class="stack">${composeHTML()}<div id="feed" class="stack"><div class="card empty">Loading…</div></div></div>
+     <aside class="side"><section class="card pad panel" id="audience">${audiencePanel()}</section>
+     <section class="card pad panel" id="queue"></section><section class="card pad panel" id="subs"></section>
+-    <section class="card pad panel"><h3>What the labels mean</h3><p class="small">Each item is classified once, at creation, in three categories by a classifier inside
+-    zero-knowledge proofs. Every label (yes or no) is published with its proof and travels with the item in a signed manifest; the labels decide who receives it.
+-    Anyone can check the proofs without the proofs revealing the item.</p>
+-    <p class="small muted">In this demo one next-token stub proof stands in for the three classifier proofs.</p></section></aside></div>`;
++    <section class="card pad panel"><h3>What the labels mean</h3><p class="small">Published items carry three category labels in a signed manifest.
++    The labels decide who receives the item. Open a post to inspect its proofs and what they establish.</p>
++    <p class="small muted">${isShieldstral() ? "This testnet demo verifies one Shieldstral proof per category and chunk. Classifier privacy acceptance remains pending." :
++      isFake() ? "Development mode: no proof is produced." : "In this demo one next-token stub proof stands in for the three classifier proofs; its labels are not bound by the proof."}</p></section></aside></div>`;
+   bindCompose(); bindAudience();
+   await refreshFeed();
+ }
+@@ -730,9 +730,9 @@
+     <details><summary class="small">policy text</summary><pre class="code">${esc(c.policy.text)}</pre></details></li>`).join("");
+   $("#app").innerHTML = `<div class="stack" style="padding:20px 0 32px">
+   <section class="card pad"><h1>How it works</h1>
+-    <p>Proven Media labels every item <b>inside zero-knowledge proofs</b>, once, when it is created: a harmful-content classifier answers one fixed question per
+-    category. Every label, yes or no, is published with its proof and travels with the item in a <b>signed proof manifest</b> (like content credentials).
+-    The platform uses the proved labels to decide who receives the item: explicit content is not sent to minors, for example. Anyone can check the proofs,
++    <p>Proven Media attaches category labels to published items in a <b>signed proof manifest</b> (like content credentials).
++    In classifier mode, a fixed question defines each category and each label is checked against its proof.
++    The platform uses these labels to decide who receives the item: explicit content is not sent to minors, for example. Anyone can inspect the proof files.
+     ${isShieldstral() ? "The classifier privacy statement is pending acceptance." : "The intended proof interface hides the item; the active stub has a separate privacy scope."}</p>
+     <div class="flow"><div><b>Post</b>The item goes to the platform; the proof's input is written to a private 0600 file. It is pending verification.</div>
+     <div><b>Label</b>The prover runs the classifier on the hidden item, once per category, and proves every step (minutes, on a laptop CPU).</div>

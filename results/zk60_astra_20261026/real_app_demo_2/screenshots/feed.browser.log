@@ -1,0 +1,29 @@
+[1030/145313.677:ERROR:third_party\crashpad\crashpad\util\file\file_io_win.cc:202] LockFileEx: Incorrect function. (0x1)
+[1030/145313.678:ERROR:third_party\crashpad\crashpad\util\file\file_io_win.cc:202] LockFileEx: Incorrect function. (0x1)
+[1030/145313.679:ERROR:third_party\crashpad\crashpad\util\file\file_io_win.cc:202] LockFileEx: Incorrect function. (0x1)
+[1030/145313.680:ERROR:third_party\crashpad\crashpad\util\file\file_io_win.cc:202] LockFileEx: Incorrect function. (0x1)
+[1030/145313.844:ERROR:third_party\crashpad\crashpad\util\file\file_io_win.cc:202] LockFileEx: Incorrect function. (0x1)
+[1030/145313.847:ERROR:third_party\crashpad\crashpad\util\file\file_io_win.cc:202] LockFileEx: Incorrect function. (0x1)
+[13412:12652:1030/145313.892:ERROR:components\segmentation_platform\internal\database\ukm_database_backend.cc:142] Failed to open UKM database: 0 database is locked
+[13412:12304:1030/145313.904:ERROR:content\browser\network_sandbox.cc:418] Failed to grant sandbox access to cache directory \\wsl.localhost\Ubuntu\home\victor\IntelligenceRegulation\results\zk60_astra_20261026\real_app_demo_2\screenshots\browser-profile\Default\Cache\Cache_Data: Incorrect function. (0x1)
+[1030/145313.905:ERROR:third_party\crashpad\crashpad\util\file\file_io_win.cc:202] LockFileEx: Incorrect function. (0x1)
+[1030/145313.909:ERROR:third_party\crashpad\crashpad\util\file\file_io_win.cc:202] LockFileEx: Incorrect function. (0x1)
+[13412:12304:1030/145313.913:ERROR:content\browser\network_sandbox.cc:338] Failed to grant sandbox access to SharedDictionary directory \\wsl.localhost\Ubuntu\home\victor\IntelligenceRegulation\results\zk60_astra_20261026\real_app_demo_2\screenshots\browser-profile\Default\Shared Dictionary: Incorrect function. (0x1)
+[13412:12304:1030/145313.917:ERROR:content\browser\network_sandbox.cc:537] Failed to grant sandbox access to network context data directory \\wsl.localhost\Ubuntu\home\victor\IntelligenceRegulation\results\zk60_astra_20261026\real_app_demo_2\screenshots\browser-profile\Default\Network: Incorrect function. (0x1)
+[13412:22436:1030/145313.923:ERROR:components\password_manager\core\browser\password_store\login_database.cc:1128] Unable to open the password store database.
+[13412:14024:1030/145313.923:ERROR:components\password_manager\core\browser\password_store\login_database.cc:1128] Unable to open the password store database.
+[13412:22436:1030/145313.924:ERROR:components\password_manager\core\browser\password_store\login_database_async_helper.cc:78] Could not create/open login database.
+[13412:14024:1030/145313.924:ERROR:components\password_manager\core\browser\password_store\login_database_async_helper.cc:78] Could not create/open login database.
+[1030/145313.969:ERROR:third_party\crashpad\crashpad\util\file\file_io_win.cc:202] LockFileEx: Incorrect function. (0x1)
+[1030/145313.973:ERROR:third_party\crashpad\crashpad\util\file\file_io_win.cc:202] LockFileEx: Incorrect function. (0x1)
+[13412:3512:1030/145313.993:ERROR:content\browser\network_sandbox_grant_result_helper.cc:108] Encountered error while migrating network context data or granting sandbox access for \\wsl.localhost\Ubuntu\home\victor\IntelligenceRegulation\results\zk60_astra_20261026\real_app_demo_2\screenshots\browser-profile\Default\Network. Result: 6: The operation completed successfully. (0x0)
+[13412:20340:1030/145313.994:ERROR:content\browser\network_sandbox.cc:537] Failed to grant sandbox access to network context data directory \\wsl.localhost\Ubuntu\home\victor\IntelligenceRegulation\results\zk60_astra_20261026\real_app_demo_2\screenshots\browser-profile\Default\Safe Browsing Network: Incorrect function. (0x1)
+[13412:3512:1030/145314.013:ERROR:content\browser\network_sandbox_grant_result_helper.cc:108] Encountered error while migrating network context data or granting sandbox access for \\wsl.localhost\Ubuntu\home\victor\IntelligenceRegulation\results\zk60_astra_20261026\real_app_demo_2\screenshots\browser-profile\Default\Safe Browsing Network. Result: 6: The operation completed successfully. (0x0)
+[13412:5472:1030/145314.033:ERROR:components\history\core\browser\top_sites_backend.cc:77] Failed to initialize database.
+[13412:8228:1030/145314.064:ERROR:storage\browser\quota\quota_database.cc:979] Could not open the quota database, resetting.
+[13412:8228:1030/145314.125:ERROR:storage\browser\quota\quota_database.cc:979] Could not open the quota database, resetting.
+[13412:8228:1030/145314.153:ERROR:storage\browser\quota\quota_database.cc:984] Failed to reset the quota database.
+[13412:8228:1030/145314.153:ERROR:storage\browser\quota\quota_database.cc:984] Failed to reset the quota database.
+[1030/145318.400:ERROR:third_party\crashpad\crashpad\util\file\file_io_win.cc:202] LockFileEx: Incorrect function. (0x1)
+[1030/145318.404:ERROR:third_party\crashpad\crashpad\util\file\file_io_win.cc:202] LockFileEx: Incorrect function. (0x1)
+76969 bytes written to file \\wsl.localhost\Ubuntu\home\victor\IntelligenceRegulation\results\zk60_astra_20261026\real_app_demo_2\screenshots\feed.png

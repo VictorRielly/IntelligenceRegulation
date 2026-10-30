@@ -1,0 +1,51 @@
+{
+ "differing_files": [],
+ "equals_round_18": {
+  "batch-c0": true,
+  "r16b-c0": true,
+  "single-c0": true
+ },
+ "files": 30,
+ "label": "gpu-path",
+ "note": "SHA-256 of a test-only receipt made with FIXED PUBLIC entropy (it hides nothing); deleted after this comparison",
+ "ok": true,
+ "receipt_bytes": 848412096,
+ "tree": {
+  "owner": {
+   "input.dec": "bea8e58dd943c80f7449c549367b8f675824eddfa9e241d56f0256fd09602dce"
+  },
+  "receipt": {
+   "segment-000.bin": "e24e8dfa6a84e3a5ee53ee7ef8c6368de05c8b7075e45705193ee520ca45700e",
+   "segment-001.bin": "e2675b8bedfffbb787cecad4da989ace04eb24a1c2a471612930e08084d23e18",
+   "segment-002.bin": "c1caffaebb6744248176a942b7004ab3d25e87778724bc378b5958152d42c898",
+   "segment-003.bin": "e959949637e374f62db1c48b1677a61b34549204977f3e5e57e328fc72ab10c6",
+   "segment-004.bin": "4ebcefa9e8447f822dffcb8321bedfe6edb1244a1b07aee88d6c383c89c1ade5",
+   "segment-005.bin": "d71c58915e242d6d4367bead4d7c257dc0662dccde3dd9c6265d309acbab1b24",
+   "segment-006.bin": "dee64594f69b091e42774a42d3e9974fbc608eec82b69cd349e8f5e317519610",
+   "segment-007.bin": "ec0969471e94370c8b2e84a59f7bfd1fc8e4155834f5172206c09389a9baeba3",
+   "segment-008.bin": "7daf61a2c82f95c8d0dc0004130dab5ff3658b1c6bc4305b9362300f9ccdbfe7",
+   "segment-009.bin": "f880cf7bacd0cb3c34c0d2577c7701b09f958aed97eb8c413924f015f1a40fd1",
+   "segment-010.bin": "0c4932d5cf4bd6887dba97b581e1b01512208fdc66d0fd515e8d7f01d32b141c",
+   "segment-011.bin": "dde5a88eced6479091ad5a24ec1e47eb264e20691db8092c12193b4e20661cdf",
+   "segment-012.bin": "0fdf4cf2b46b9e7d24b4c4209c6feaf91878c7c4216d0d5731716529dc83c983",
+   "segment-013.bin": "4036faee79238fa31466df3b7e08ef932ff3e4e56590f727b73e895ab5159a7e",
+   "segment-014.bin": "9f3077a5a22c3e4afbab989dd9feb04f0862fc59378cf62e97f4fc9c8a2ae73a",
+   "segment-015.bin": "3679edcb0036821956edbf383036428fb5ebdca243181305af51fc9dcd49d292",
+   "segment-016.bin": "e3447201b8e51925bf0c6f1c1fd5195855cb00c961e6765d027948ee5efca78f",
+   "segment-017.bin": "891a659af8654963ebc134f39b55471ff4c71997cbd7844bba4bec6eb575596b",
+   "segment-018.bin": "d948f935955a9035d54624d9ce64af0802a34ea67e15697b72ddf42fa73acc4a",
+   "segment-019.bin": "6e0a0b33674c7450aeb8835ee96efe757b5c8ca82bb98343235f90f156cbdf9e",
+   "segment-020.bin": "4d969ff5af73e09e2f413c1204157dc693845517693476f89e6892628be55dfb",
+   "segment-021.bin": "5e12fa85095949669d401e31a8b4f97817f79db68a9241473ca4862b2384e3e8",
+   "segment-022.bin": "6d466834283b25b61d15e800a53bfdf87109d7e4f4f719e5a47fb92ad7023160",
+   "segment-023.bin": "21940b287f58c5ac5fcc91131a37b6d7af1aa3b83adc25a262417549ba115476",
+   "segment-024.bin": "75db6fe81489abf9db9d0ec0ab3b8bb1e73d5f5397157272c8f1754f7c2ac3db",
+   "segment-025.bin": "3afa0b0c4883a36c539b356484c0565886d242fbb5e790683ff7b9d0cd42a514",
+   "segment-026.bin": "a3f8064ea9eacab187aebb45a9a2c80f784fd7f0e015edd17267ee5520285598",
+   "segment-027.bin": "4be4957d24a9aa48f95b0c081064f819c5098b86c12f00ae7e3ca0ae6959ffd7"
+  },
+  "statement": {
+   "statement.json": "e61cf348fa5eb600c75fe59d6f37c904922191af5003d99dff37336c6721019b"
+  }
+ }
+}

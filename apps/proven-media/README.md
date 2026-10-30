@@ -151,25 +151,20 @@ Archives retain post content; use the app's author-deletion flow when content
 must be erased. Reset refuses queued/running jobs, missing pipeline completion
 markers and pending/in-flight anchors. It starts no worker and sends no RPC.
 
-The pending first real post has only been inspected with the read-only preview;
-it has not been reset. Investor screenshots await the completed real post and
-retain the **privacy statement pending** label until acceptance.
-The first new real post is retained in
-`results/zk60_astra_20261026/real_app_demo_1/plan.json` (repository root):
-17 Tekken tokens and one proof job per category. The original waiter was
-withdrawn before any computation while the privacy gate occupied the shared
-machine. Its private logs and terminal guard record are preserved; the same
-reserved post and policies are queued, with no active worker. Metadata and
-download fixes are applied, and all 154 current app tests pass on the host
-(6.014 s, n=1 shared box). These fixture checks do not establish a completed
-real app proof. Evidence and source pins are in
-`results/zk60_astra_20261026/app_real_adapter_tests.json`. The installed
-local environment also passes 25 real ASGI route checks using the pinned
-Shieldstral tokenizer and the actual queued demo database, with no proof
-worker or chain transaction. They cover token counts, category jobs, metadata,
-duplicate refusal and withholding unproved content from both feeds.
-`real_app_demo_1/real_routes_check.json` records those checks; browser layout
-and completed native proofs remain separate.
+The completed durable demo is retained in
+`results/zk60_astra_20261026/real_app_demo_2/REPORT.md` (repository root).
+Its 19-token library post has three accepted real classifier labels, 84 receipt
+segments, and a confirmed Base Sepolia anchor. Three additional native
+verifications from the public store and 11 real ASGI checks pass. The original
+signer, post salt and all input-owner openings remain in durable private
+storage outside this repository. The storage changes pass 199 app tests.
+Screenshots retain the **privacy statement pending** label until acceptance.
+
+The earlier 17-token garden post remains under `real_app_demo_1/`. Its public
+receipts and anchor survived the reboot, but its original private openings
+were lost. Its recovery report records the replacement development signer
+and the limit on rechecking proof-to-post binding. The new demo does not
+restore those lost openings. Neither post has been reset or re-proved.
 
 ## Real classifier testnet mode
 
@@ -196,7 +191,8 @@ The deployment is testnet-only: contract
 `0x8432eba82b1a402f4da7680f6b8f9c9fae185cbe` on Base Sepolia. Receipts remain
 in the public content-addressed store; only a batch digest is anchored.
 The wallet received 0.46 free test ETH and needs no further funding for this demo.
-No real classifier batch has been anchored yet.
+The durable demo's three commitments are confirmed in block 52373745,
+transaction `0x6e6d5166cf17dbaaf03443dddc4d2490ddff90e8bbfd05901ede5222bbac8181`.
 
 ## Per-job native execution settings
 

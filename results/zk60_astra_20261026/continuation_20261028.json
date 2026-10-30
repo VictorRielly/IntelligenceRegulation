@@ -1,15 +1,8 @@
 {
-  "at": "2026-10-30T21:44:04.301979+00:00",
+  "at": "2026-10-30T21:55:07.797389+00:00",
   "goal_status": "active",
-  "previous_goal_turn": "progress: recovered and anchored first real app post; applied/authenticated app verified; benchmark L06 checkpoint advanced",
-  "own_live_jobs": [
-    {
-      "kind": "durable-demo-finalizer",
-      "pid": 371569,
-      "boot_id": "4f7dab84-38e2-4f1a-9518-e305e81ef580",
-      "worker_done": "/home/victor/IntelligenceRegulation/results/zk60_astra_20261026/real_app_demo_2/finalization/worker.done"
-    }
-  ],
+  "previous_goal_turn": "Durable real demo completed, anchored and independently reverified; all private openings retained, 11 app checks and reviewed screenshots; staged batch recovery advanced to 67 tests.",
+  "own_live_jobs": [],
   "calibration": {
     "complete_layers": 26,
     "items": 192,
@@ -43,7 +36,7 @@
     "running_layer": null,
     "running_attempt": null
   },
-  "next_command": "Supervise existing finalizer371569; all category supervisors terminal0. No new proof. Do not edit its pinned helpers until terminal; inspect/screenshots on completion, then refresh report and review handoffs.",
+  "next_command": "No own job pending. Finish A5/R18-1 candidate: connect atomic batch registration and guarded supervisor to batch commands, fresh native checks and queue record collection; integrate publication exclusion and route app-half review. Keep r16b until coordinator go. Admission correction is staged with 9 tests and needs coordinator review. A2 next GPU is L07 attempt2 (3209/4872 retained); obey shared-slot fairness and one pass per command. Single-copy store follows R18-1.",
   "wallet": {
     "chain_id": 84532,
     "address": "0x775E8A2D741446d74E3f5a02244D1241eceB187d",
@@ -65,9 +58,9 @@
     "full benchmark layers7-25, final heads, paired metrics and full hash audit",
     "strict/moderate product ruling and real-classifier privacy gate",
     "A5 native owner adoption/review then app integration/measurements",
-    "A6 browser screenshots",
-    "new public demo with retained private proof-to-post openings",
-    "R18-1 batch startup quarantine and publication exclusion before app adoption"
+    "R18-1 batch startup quarantine and publication exclusion before app adoption",
+    "single-copy content-addressed receipt storage after R18-1",
+    "review and quiescent promotion of staged app admission correction"
   ],
   "hold": {
     "status": "S9 window closed; current coordinator holds honored before each launch",
@@ -332,7 +325,7 @@
     "inspection": "inspect_durable_demo.py",
     "stored_verifier": "verify_durable_app_store.py",
     "route_checks": "check_durable_app_demo.py",
-    "report": "report_durable_demo.py",
+    "report": "real_app_demo_2/REPORT.md",
     "waiting_since": "2026-10-30T20:05:47Z",
     "last_foreign_guard": "sol-r14-full26-dd-fresh-1",
     "last_observed": "2026-10-30T20:32:38.609375+00:00",
@@ -342,7 +335,15 @@
       "boot_id": "4f7dab84-38e2-4f1a-9518-e305e81ef580",
       "worker_done": "/home/victor/IntelligenceRegulation/results/zk60_astra_20261026/real_app_demo_2/finalization/worker.done"
     },
-    "progress_note": "All three categories accepted no; all84segments. Hate native447.880353s/RSS8.15GiB, pipeline work676.014429s. All category supervisors terminal0. Finalizer371569 in anchor step; stored verification, app checks, screenshots still pending."
+    "progress_note": "All categories terminal0; finalizer terminal0; original openings retained; screenshots visually reviewed after correcting stale sidebar copy.",
+    "status": "complete",
+    "summary": "real_app_demo_2/summary.json",
+    "app_checks": 11,
+    "stored_native_verifications": 3,
+    "visual_review_completed": true,
+    "transaction": "0x6e6d5166cf17dbaaf03443dddc4d2490ddff90e8bbfd05901ede5222bbac8181",
+    "block": 52373745,
+    "all_original_openings_retained": true
   },
   "admission_candidate": {
     "path": "admission_candidate",
@@ -370,5 +371,12 @@
     "document": "apps/proven-media/DESIGN.md",
     "implemented": false,
     "current_demo": "single tenant"
+  },
+  "a6_screenshots": {
+    "directory": "real_app_demo_2/screenshots",
+    "visually_reviewed": true,
+    "server_stopped": true,
+    "initial_findings_retained": "real_app_demo_2/initial_visual_review.json",
+    "frontend_fix": "real_app_demo_2/frontend_copy_fix.json"
   }
 }

@@ -71,3 +71,56 @@ and this directory. No git writes. Every build/test/proof through
   violence prove still live: no gap missed). `tools/release_hold.py` (detached, bounded 4 h, never signals)
   removes HOLD only after no Astra pipeline process and no astra*/pm-* guard job is seen on 3 checks 30 s apart,
   i.e. after the whole durable demo (violence, hate, finaliser). Every later waiter call loads the new check.
+- 21:29-21:52Z Astra's demo: violence label 21:29, hate prove from 21:34:45, verify / input-owner, then the
+  finaliser's stored-receipt verify (pm-verifypub). 21:52:06Z release_hold.py: demo finished, HOLD removed;
+  the queued p-gpu goes through the guard now. (A `gpu-clock-check-2` gpu job, the coordinator's, ran at 21:44.)
+- ~21:50Z coordinator: Victor set the laptop to MSI Extreme Performance on mains: under load P0, SM ≈ 2,000 MHz,
+  mem 8,000 MHz, 80 W cap (reason 0x4 only), 41–59 °C (was P4 / 1,065 / 6,000 with SW thermal 0x20). Rules
+  taken: clocks/P-state/power/temperature sampled with every GPU timing (this lane's sampler: 0.25 s); the slot-18
+  kernel and the commitment path re-measured under the new clocks before ranking; a fraction of 256 GB/s quoted
+  only at mem 8,000 MHz; any 0x20 / 0x40 flag noted.
+- 21:52:16-21:58:03Z **p-gpu** (gcl1-gpu binary, HL_GPU=1 HL_GPU_REQUIRED=1 HL_ZK_CHUNK=force, HL_PB_TIMING=1, 8
+  threads, fixed entropy job0.bin): exit 0, "gpu: ON — RTX 4070 Laptop", **0 declines**, 84 chunked device
+  commitments; **bytes-gpu: all 30 files equal round 18's recorded job-0 digests** (= the CPU run's). Guard
+  child wall **346.6 s vs 476.1 s CPU (1.37×)**; the run 238.3 vs 351.6 s; block walls 225.4 vs 337.5 s;
+  **commitments 15.0 s vs 103.3 s (6.9×)**; openings 16.2 vs 14.0 s (device row folds 9.96 s); peak RSS 4.03
+  GiB (CPU 8.15), **peak VRAM 1,569 MiB**. Device stats: H2D 31.2 GB in 5.17 s, encode+hash 8.13 s, chunked
+  re-encode 3.21 s. Clocks (0.25 s sampler, `logs/pa/p-gpu.gpu.csv`): 158 of 1,089 samples busy (the GPU idles
+  between commitments); busy samples P0 90 / P3-P5 64, SM median 2,130 MHz (max 2,520), memory 8,000 MHz in 97
+  of 158 busy samples, reasons 0x4 (SW power cap) / 0x0 / 0x1; **no 0x20 or 0x40**; max 47 °C; power limit 80 W.
+  First CUDA use (init + NVRTC) inside "stage OUT-C values, endpoint seal": 5.95 vs 3.28 s.
+- 21:58:04-21:59:10Z **v-gpu**: the GPU-made receipt verified by the FROZEN production CPU binary 6d65d32e… in a
+  fresh process: exit 0, not-flagged, floor 96, verify_seconds 35.7, child 65.2 s. GPU receipt, owner dir and
+  the activations / content ids deleted (D46). `logs/pa/phase_a.done` = 0.
+- 21:59:39-22:00:15Z **gzc ladder re-measured under the new clocks** (`tools/gzc_measure.sh ladder`, the paused
+  lane's round-4 test binary `hashline-5af71eb9341564fc` run read-only, `logs/gzc/ladder.*`): exit 0, peak VRAM
+  899 MiB. Kernels only (rounds + fused fold+round), split default: 2^19 5.3 ms, **2^20 ≈ 9.8 ms** (round 4,
+  capped: 20.66), 2^21 18.7 ms (39.2). (The ladder's "device body" includes a pageable H2D of host tables,
+  1.3–1.9 GB/s: not the body.) Clocks: 95 busy samples, P0 91, SM median 2,355 MHz, **mem 8,000 MHz in 91**,
+  reasons 0x4 (power cap) 88; no 0x20 / 0x40; max 53 °C.
+- 22:00:36-22:01:42Z **real slot 18, TinyLlama T128 geometry, warm** (`tools/gzc_measure.sh tl128`,
+  `logs/gzc/tl128.*`): exit 0, every device == CPU equality held (20 rounds each; dense random and honest data,
+  claim none / given), peak VRAM 1,059 MiB. Steady body incl. the device table build: default (split, raw +
+  mapped + tail 5) **14.4–14.6 ms** (round 4 capped: 26.5–27.9), split-mat 14.9–15.8 ms (25.9–27.1), lean
+  23.4–24.1 ms; kernels only ≈ 10.6–11.5 ms. On the plan figure (72 B × 2^20 × 17 = 1.2835 GB): **89 GB/s =
+  34.8% of 256 GB/s** [MEASURED, n = 1; mem 8,000 MHz in 29 of 33 busy samples, 7,000 in 4; P0 28; reasons 0x4
+  25; no thermal flag; max 51 °C]. This crosses the speed plan's 25% band on the laptop.
+- Commitments in the classifier run (per block, GPU): A 0.393 s = 5.24 ns/word (first device work after the
+  2.4 s CPU witness: clock ramp + 0.6 GB upload), H 0.174 s = 2.42 ns/word (GPU still warm); CPU 26.6 / 27.4
+  ns/word (8 threads). Openings: A 0.499 s/block on the GPU arm vs 0.249 CPU (the device row fold reads the whole
+  A matrix once per 4 weight vectors: `fold_rows_multi_zk` chunks of 4, `k_fold_rows`), H 0.120 vs 0.285. No
+  fraction of 256 GB/s is quoted for the commitments: the memory clock was not steady at 8,000 MHz through them
+  (the GPU idles between blocks and ramps P5 → P0).
+- 22:02-22:05Z `GPU_PORT_PLAN.md` completed (Phase B: re-ranked on the GPU-arm profile: witness ×2 36%,
+  zero-checks 24%, model passes 16%, inverses etc. 8%, openings 4.7% (device fold in chunks of 4 is slower than
+  the CPU for A), commitments 4.5%; R13 zero-check generator from the slot IR; GPU verification; ownership;
+  timeline; 5090; plain words for Victor). The harness refused a `REPORT.md` from this agent (sub-agents return
+  reports as text): the report went to the coordinator in the hand-back.
+- 22:04Z D46 cleanup: lane `target/` (85 MB) and `target-gpu/` (158 MB) deleted after recording the rung test
+  binary's hash (hashline-7baed0d3…: 23056127ee9f…); lane sources unchanged since gcl1 (`manifest_final.sha256`).
+  All test receipts, owner dirs, activations and fixtures deleted; only `~/zk60-artifacts/gpu-classifier/ent/
+  job0.bin` (64 B, = r18's) is kept. No job of this lane is running or queued.
+- **Next concrete step:** step 0 of the plan: the token lane builds and pins a `gpu-cuda` release of the reviewed
+  tree (the lane's hooks are not needed for it), the review re-reads only that binary and the decline rule, then
+  Sol + this lane start item 1 (GPU witness) and the R13 IR extension in parallel. On resume, rebuild binaries
+  with `tools/build.sh` / `tools/build_testbin.sh` (≈ 1.5 / 3.5 min, build class).

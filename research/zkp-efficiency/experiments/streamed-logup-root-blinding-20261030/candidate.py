@@ -38,6 +38,8 @@ F = Field()
 
 
 def check_alpha(alpha):
+    if len(alpha) != 2 or any(not isinstance(x, int) or x < 0 or x >= P for x in alpha):
+        raise ValueError('noncanonical challenge')
     # Every table denominator, including entries with zero multiplicity.
     if alpha[1] == 0 and 0 <= alpha[0] < 256:
         raise ValueError('zero denominator in the complete public table')
@@ -58,7 +60,9 @@ def pair_table(alpha):
 
 def reduce_layers(current, first_stats):
     layers = [first_stats]
-    peak_buffers = len(current)*8
+    # Layer digests are diagnostic only, but tobytes() is a live packed copy.
+    # The initial layer was hashed just before this call.
+    peak_buffers = 2*len(current)*8
     while len(current) > 4:
         nxt = array('Q')
         nodes = len(current)//8
@@ -67,7 +71,7 @@ def reduce_layers(current, first_stats):
             right = ((current[i+4], current[i+5]), (current[i+6], current[i+7]))
             n, d = F.merge(left, right)
             nxt.extend((*n, *d))
-        peak_buffers = max(peak_buffers, 8*(len(current)+len(nxt)))
+        peak_buffers = max(peak_buffers, 8*(len(current)+2*len(nxt)))
         layers.append({'nodes': nodes, 'fp2_multiplies': 3*nodes,
                        'logical_operand_bytes': 96*nodes,
                        'digest': sha256(nxt.tobytes()).hexdigest()})

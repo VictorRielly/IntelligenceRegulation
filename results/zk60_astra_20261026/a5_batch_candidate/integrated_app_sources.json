@@ -1,0 +1,27 @@
+{
+  "base": {
+    "store.py": "47ca250eecbdb0f285514f13bef874a73f49396cf93520135b3bc1b8294daeaa",
+    "jobs.py": "27afa7d12c4b2bf19ab767669d168ee62809ad158b911a8b3d7b1f18e1d87e7a",
+    "publisher.py": "3433ce2d5de3c3d6457de928204c2a9f5738927b1e78e8d455587c359cdfb210",
+    "testnet_publisher.py": "f2f4bad6e9ce217747e7d51ea643d48afbffdf1aeb9c2165428ece133230bdf8",
+    "app.py": "2ffa9c87591dd212f35c19daf680c93cec8ad634bea3b7be0d961ab37c6247f6"
+  },
+  "candidate": {
+    "testnet_publisher.py": "7f06d379f8ff483bd26a6a332226844623717810c6af7dd4c1cc79cbea8b6147",
+    "__init__.py": "5bcc0d7ff51a16a18b897eb274a4651e0a351627d27be7e18645d2365386a341",
+    "batch_pipeline.py": "0d2bbc7d84a1d82f0e7f5942d6ccea58afd685ac11ca31c6cae2a9d6e224ab8f",
+    "app.py": "28329aab366fdcebb90991f360c239f593500629e42f1a2079b8160724b3a371",
+    "batch_supervisor.py": "508927cd683db66e4f695e738ea4bc1de9f923a5e178999444ee049347e4c76e",
+    "batch_registry.py": "3ae48f851528e684123a92dd60ce9e688c849bbafa7086f8e797e3f3b31f6af9",
+    "quarantine_paths.py": "b3b10db8024cd71d3ce979988d082186291beab86afad65a5e4f4a1eb1c35dd2",
+    "batch_queue_gate.py": "c2ba858bccf01e707f165cea5dd0cf188ecc491881c8f87e88deefd95e631693",
+    "jobs.py": "9b5ce1ea4e3f0f6979e863bad691bf61d54329945e6c856f2bc840f103ba9905",
+    "publisher.py": "cd196aab9afa9489601e36f8e3eed04beb13f5f1c4d5b0f5e8bea43929aebe27",
+    "batch_request.py": "94923658902393e7ee7e5034b8666994040216613f1b995187af15895babfdb4",
+    "batch_cleanup.py": "c8c6aa8de5e3530eac0bf430fa5e5bc85338a2f38c434d2eb97dcb20556533a6",
+    "batch_prover.py": "ff24fc1c3298310de0fea2620c9d673fce63b1e271636327e2cfa53ec7031ab1",
+    "store.py": "4c9fc75296812c1b19644d6a0f81981dd603eea373cd9b1c79204ab22ecd27db"
+  },
+  "factory_changed": false,
+  "production_changed": false
+}

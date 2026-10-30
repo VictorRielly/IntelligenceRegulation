@@ -8,8 +8,9 @@ import sys
 import tempfile
 import time
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
+import batch_supervisor as supervisor_module
 from batch_supervisor import BatchSupervisor
 from proven_media import config
 from proven_media.provers import ProverError
@@ -46,11 +47,12 @@ class SupervisorTests(unittest.TestCase):
         p = patch.object(config, 'HOLD_FILE', self.job/'HOLD')
         p.start(); self.addCleanup(p.stop)
 
-    def run_fake(self, mode='ok'):
+    def run_fake(self, mode='ok', on_terminal=None):
         def command(name, argv, *resources):
             return [sys.executable,str(self.fake),str(self.job),name,mode]
         with patch.object(self.supervisor, '_guard_argv', side_effect=command):
-            return self.supervisor.run([('prove-batch',['unused'],.1,.2,5),('verify',['unused'],.1,.2,5)])
+            return self.supervisor.run([('prove-batch',['unused'],.1,.2,5),('verify',['unused'],.1,.2,5)],
+                                       on_terminal=on_terminal)
 
     def marker(self):
         return json.loads((self.job/'pipeline-terminal.json').read_text())
@@ -94,6 +96,44 @@ class SupervisorTests(unittest.TestCase):
         self.assertEqual(self.run_fake(),1)
         self.assertEqual(self.marker()['exit'],1)
         self.assertFalse((self.job/'logs/prove-batch.guard.out').exists())
+
+    def test_terminal_collector_runs_before_marker_on_known_failure(self):
+        def terminal(code):
+            self.assertEqual(code,1)
+            self.assertFalse((self.job/'pipeline-terminal.json').exists())
+        collect=Mock(side_effect=terminal)
+        self.assertEqual(self.run_fake('failed',on_terminal=collect),1)
+        collect.assert_called_once_with(1)
+        self.assertEqual(self.marker()['exit'],1)
+
+    def test_unknown_cleanup_never_calls_terminal_collector(self):
+        collect=Mock()
+        self.assertEqual(self.run_fake('missing',on_terminal=collect),1)
+        collect.assert_not_called()
+        self.assertFalse((self.job/'pipeline-terminal.json').exists())
+
+    def test_terminal_collector_failure_cannot_report_success(self):
+        collect=Mock(side_effect=OSError('TEST: quarantine filesystem failure'))
+        self.assertEqual(self.run_fake(on_terminal=collect),1)
+        collect.assert_called_once_with(0)
+        self.assertEqual(self.marker()['exit'],1)
+        self.assertTrue((self.job/'collector-error.json').exists())
+
+    def test_process_metadata_failure_stops_own_guard_and_waits_for_cleanup(self):
+        real=supervisor_module._atomic_private
+        def write(path,value):
+            if path.name=='prove-batch.guard-process.json':
+                deadline=time.monotonic()+5
+                while not (self.job/'ready').exists() and time.monotonic()<deadline:time.sleep(.01)
+                self.assertTrue((self.job/'ready').exists())
+                raise OSError('TEST: metadata write failed after Popen')
+            return real(path,value)
+        collect=Mock()
+        with patch.object(supervisor_module,'_atomic_private',side_effect=write):
+            self.assertEqual(self.run_fake('stop',on_terminal=collect),1)
+        collect.assert_called_once_with(1)
+        self.assertTrue(self.marker()['children_reaped'])
+        self.assertEqual((self.job/'logs/prove-batch.guard.done').read_text(),'75')
 
     def test_sigterm_forwards_only_to_own_guard_and_waits_for_evidence(self):
         runner=self.job/'runner.py'

@@ -1,0 +1,817 @@
+{
+ "log": "/home/victor/IntelligenceRegulation/results/zk60_gpu_classifier_20261030/logs/pa/p-gpu.log",
+ "side": "prove",
+ "blocks": 26,
+ "sum_block_walls_s": 225.36,
+ "phases": {
+  "run: block load + statement check": {
+   "seconds": 10.157,
+   "count": 26,
+   "half": "run (witness, boundary)"
+  },
+  "run: boundary B_k commitment": {
+   "seconds": 0.5110000000000001,
+   "count": 26,
+   "half": "run (witness, boundary)"
+  },
+  "run: witness (CliSource)": {
+   "seconds": 62.348,
+   "count": 26,
+   "half": "run (witness, boundary)"
+  },
+  "A: allocate + witness planes -> committed rows": {
+   "seconds": 9.259,
+   "count": 26,
+   "half": "commit"
+  },
+  "A: lookup values + the byte histogram": {
+   "seconds": 1.0720000000000003,
+   "count": 26,
+   "half": "commit"
+  },
+  "A: exp/act indices + their two histograms": {
+   "seconds": 0.5190000000000001,
+   "count": 26,
+   "half": "commit"
+  },
+  "A: mask + proximity rows (fresh randomness)": {
+   "seconds": 1.8310000000000004,
+   "count": 26,
+   "half": "commit"
+  },
+  "A: commit (pcs::commit_zk_owned: encode+Merkle, ONE call)": {
+   "seconds": 10.217,
+   "count": 26,
+   "half": "commit"
+  },
+  "M: mask commit (zk::mask_commit, ONE call)": {
+   "seconds": 0.23800000000000007,
+   "count": 26,
+   "half": "commit"
+  },
+  "H: LogUp helper inverses (six lookup domains)": {
+   "seconds": 11.129000000000001,
+   "count": 26,
+   "half": "commit"
+  },
+  "H: exp + activation helper inverses": {
+   "seconds": 2.5710000000000006,
+   "count": 26,
+   "half": "commit"
+  },
+  "H: release the four witness buffers (S2 drops)": {
+   "seconds": 0.1680000000000001,
+   "count": 26,
+   "half": "commit"
+  },
+  "H: the three table helpers": {
+   "seconds": 0.017000000000000008,
+   "count": 26,
+   "half": "commit"
+  },
+  "H: mask rows + the zero-sum rows": {
+   "seconds": 0.7000000000000004,
+   "count": 26,
+   "half": "commit"
+  },
+  "H: commit (pcs::commit_zk_owned: encode+Merkle, ONE call)": {
+   "seconds": 4.529,
+   "count": 26,
+   "half": "commit"
+  },
+  "slot 00 01 SS row sums norm_a (private)": {
+   "seconds": 0.8090000000000005,
+   "count": 26,
+   "half": "norm"
+  },
+  "slot 01 01m SS row sums norm_m (private)": {
+   "seconds": 0.7330000000000004,
+   "count": 26,
+   "half": "norm"
+  },
+  "slot 02 02 norm squares zero-check (hosts 01, 01m)": {
+   "seconds": 0.026000000000000016,
+   "count": 26,
+   "half": "norm"
+  },
+  "slot 03 08 limb zero-check": {
+   "seconds": 0.2800000000000001,
+   "count": 26,
+   "half": "norm"
+  },
+  "slot 04 07 masked row sums + selector (private)": {
+   "seconds": 0.7590000000000005,
+   "count": 26,
+   "half": "attention"
+  },
+  "slot 05 09Q matmul (private)": {
+   "seconds": 0.3460000000000002,
+   "count": 26,
+   "half": "attention"
+  },
+  "slot 06 09K matmul (private)": {
+   "seconds": 0.20900000000000013,
+   "count": 26,
+   "half": "attention"
+  },
+  "slot 07 09V matmul (private)": {
+   "seconds": 0.20500000000000013,
+   "count": 26,
+   "half": "attention"
+  },
+  "slot 08 10 score matmul (private, bilinear)": {
+   "seconds": 0.2030000000000001,
+   "count": 26,
+   "half": "attention"
+  },
+  "slot 09 11 PV matmul (private, bilinear)": {
+   "seconds": 0.2000000000000001,
+   "count": 26,
+   "half": "attention"
+  },
+  "slot 10 12 Wo matmul (private)": {
+   "seconds": 0.3490000000000002,
+   "count": 26,
+   "half": "attention"
+  },
+  "slot 11 13G gate matmul (private)": {
+   "seconds": 0.8500000000000005,
+   "count": 26,
+   "half": "feed-forward"
+  },
+  "slot 12 13U up matmul (private)": {
+   "seconds": 0.8420000000000005,
+   "count": 26,
+   "half": "feed-forward"
+  },
+  "slot 13 13D down matmul (private)": {
+   "seconds": 1.2020000000000004,
+   "count": 26,
+   "half": "feed-forward"
+  },
+  "slot 14 03 D zero-check (hosts 12, 13D)": {
+   "seconds": 26.965000000000003,
+   "count": 26,
+   "half": "residual"
+  },
+  "slot 15 04 Q zero-check (hosts 09Q, 11)": {
+   "seconds": 8.177000000000001,
+   "count": 26,
+   "half": "attention"
+  },
+  "slot 16 05 KV zero-check (hosts 09K, 09V)": {
+   "seconds": 4.055999999999998,
+   "count": 26,
+   "half": "attention"
+  },
+  "slot 17 06 softmax zero-check (hosts 07, 10)": {
+   "seconds": 7.350999999999999,
+   "count": 26,
+   "half": "attention"
+  },
+  "slot 18 14 F zero-check (hosts 13G, 13U)": {
+   "seconds": 36.998,
+   "count": 26,
+   "half": "feed-forward"
+  },
+  "slot 19 TAB table helper zero-check": {
+   "seconds": 0.6720000000000004,
+   "count": 26,
+   "half": "lookup-table"
+  },
+  "slot 20 ZS zero-sum row": {
+   "seconds": 0.07700000000000003,
+   "count": 26,
+   "half": "lookup-table"
+  },
+  "slot 21 IO-in endpoint equality": {
+   "seconds": 0.5710000000000002,
+   "count": 26,
+   "half": "endpoints"
+  },
+  "slot 22 IO-out endpoint equality": {
+   "seconds": 0.5100000000000002,
+   "count": 26,
+   "half": "endpoints"
+  },
+  "open M (zk::mask_open, ONE call)": {
+   "seconds": 0.11300000000000006,
+   "count": 26,
+   "half": "openings"
+  },
+  "open A (schedule audit + pcs::open_zk)": {
+   "seconds": 12.966999999999999,
+   "count": 26,
+   "half": "openings"
+  },
+  "open H (schedule audit + pcs::open_zk)": {
+   "seconds": 3.1120000000000005,
+   "count": 26,
+   "half": "openings"
+  },
+  "run: boundary B_(k-1) opening": {
+   "seconds": 0.1700000000000001,
+   "count": 26,
+   "half": "openings"
+  },
+  "frame: encode segment": {
+   "seconds": 0.19300000000000006,
+   "count": 26,
+   "half": "frame"
+  },
+  "sink: segment to disk": {
+   "seconds": 1.1010000000000002,
+   "count": 26,
+   "half": "frame"
+  },
+  "run: drop block": {
+   "seconds": 0.0,
+   "count": 26,
+   "half": "run (witness, boundary)"
+  }
+ },
+ "groups": {
+  "witness (CPU builder)": 62.348,
+  "zero-check slot 18": 36.998,
+  "zero-check slot 14": 26.965000000000003,
+  "openings (prover) / PCS verify (verifier)": 16.192,
+  "commit A + H + M (encode + Merkle)": 14.984,
+  "LogUp helper inverses (H)": 13.717000000000002,
+  "block load + statement check": 10.157,
+  "A planes -> committed rows (conversion)": 9.259,
+  "zero-check slot 15": 8.177000000000001,
+  "zero-check slot 17": 7.350999999999999,
+  "matmul slots 05-13 (weight folds + sumchecks)": 4.406000000000002,
+  "A/H lookups, histograms, mask + zero-sum rows": 4.290000000000001,
+  "zero-check slot 16": 4.055999999999998,
+  "norm slots 00-03": 1.848000000000001,
+  "frame encode/decode + disk": 1.2940000000000003,
+  "endpoint slots 21-22": 1.0810000000000004,
+  "other slot 04 (attention)": 0.7590000000000005,
+  "lookup-table slots 19-20": 0.7490000000000004,
+  "boundary B_k commit": 0.5110000000000001,
+  "boundary opening / verify": 0.1700000000000001,
+  "other (run (witness, boundary)): run: drop block": 0.0
+ },
+ "slotsteps": {
+  "00 tables: build (argument.rs)": {
+   "seconds": 0.054000000000000034,
+   "count": 26
+  },
+  "00 claimed sum: total (argument.rs)": {
+   "seconds": 0.07800000000000004,
+   "count": 26
+  },
+  "00 masked sumcheck (zk.rs, shared)": {
+   "seconds": 0.5690000000000002,
+   "count": 26
+  },
+  "00 extension rounds (mask_eval + zk.rs)": {
+   "seconds": 0.033000000000000015,
+   "count": 26
+  },
+  "01 tables: build (argument.rs)": {
+   "seconds": 0.05300000000000003,
+   "count": 26
+  },
+  "01 claimed sum: total (argument.rs)": {
+   "seconds": 0.07800000000000003,
+   "count": 26
+  },
+  "01 masked sumcheck (zk.rs, shared)": {
+   "seconds": 0.5110000000000001,
+   "count": 26
+  },
+  "01 extension rounds (mask_eval + zk.rs)": {
+   "seconds": 0.027000000000000017,
+   "count": 26
+  },
+  "02 tables: build (argument.rs)": {
+   "seconds": 0.0,
+   "count": 26
+  },
+  "02 claimed sum: total (argument.rs)": {
+   "seconds": 0.0,
+   "count": 26
+  },
+  "02 masked sumcheck (zk.rs, shared)": {
+   "seconds": 0.0,
+   "count": 26
+  },
+  "02 extension rounds (mask_eval + zk.rs)": {
+   "seconds": 0.0,
+   "count": 26
+  },
+  "03 tables: build (argument.rs)": {
+   "seconds": 0.031000000000000014,
+   "count": 26
+  },
+  "03 claimed sum: total (argument.rs)": {
+   "seconds": 0.0,
+   "count": 26
+  },
+  "03 masked sumcheck (zk.rs, shared)": {
+   "seconds": 0.1740000000000001,
+   "count": 26
+  },
+  "03 extension rounds (mask_eval + zk.rs)": {
+   "seconds": 0.06800000000000003,
+   "count": 26
+  },
+  "04 tables: build (argument.rs)": {
+   "seconds": 0.06800000000000003,
+   "count": 26
+  },
+  "04 claimed sum: total (argument.rs)": {
+   "seconds": 0.08200000000000003,
+   "count": 26
+  },
+  "04 masked sumcheck (zk.rs, shared)": {
+   "seconds": 0.5190000000000001,
+   "count": 26
+  },
+  "04 extension rounds (mask_eval + zk.rs)": {
+   "seconds": 0.04000000000000002,
+   "count": 26
+  },
+  "05 tables: build (argument.rs)": {
+   "seconds": 0.12900000000000003,
+   "count": 26
+  },
+  "05 claimed sum: total (argument.rs)": {
+   "seconds": 0.0,
+   "count": 26
+  },
+  "05 masked sumcheck (zk.rs, shared)": {
+   "seconds": 0.0,
+   "count": 26
+  },
+  "05 extension rounds (mask_eval + zk.rs)": {
+   "seconds": 0.027000000000000014,
+   "count": 26
+  },
+  "06 tables: build (argument.rs)": {
+   "seconds": 0.13000000000000003,
+   "count": 26
+  },
+  "06 claimed sum: total (argument.rs)": {
+   "seconds": 0.0,
+   "count": 26
+  },
+  "06 masked sumcheck (zk.rs, shared)": {
+   "seconds": 0.0,
+   "count": 26
+  },
+  "06 extension rounds (mask_eval + zk.rs)": {
+   "seconds": 0.027000000000000017,
+   "count": 26
+  },
+  "07 tables: build (argument.rs)": {
+   "seconds": 0.13000000000000003,
+   "count": 26
+  },
+  "07 claimed sum: total (argument.rs)": {
+   "seconds": 0.0,
+   "count": 26
+  },
+  "07 masked sumcheck (zk.rs, shared)": {
+   "seconds": 0.0,
+   "count": 26
+  },
+  "07 extension rounds (mask_eval + zk.rs)": {
+   "seconds": 0.027000000000000014,
+   "count": 26
+  },
+  "08 tables: build (argument.rs)": {
+   "seconds": 0.1600000000000001,
+   "count": 26
+  },
+  "08 claimed sum: total (argument.rs)": {
+   "seconds": 0.0,
+   "count": 26
+  },
+  "08 masked sumcheck (zk.rs, shared)": {
+   "seconds": 0.0,
+   "count": 26
+  },
+  "08 extension rounds (mask_eval + zk.rs)": {
+   "seconds": 0.03700000000000002,
+   "count": 26
+  },
+  "09 tables: build (argument.rs)": {
+   "seconds": 0.15800000000000006,
+   "count": 26
+  },
+  "09 claimed sum: total (argument.rs)": {
+   "seconds": 0.0,
+   "count": 26
+  },
+  "09 masked sumcheck (zk.rs, shared)": {
+   "seconds": 0.0,
+   "count": 26
+  },
+  "09 extension rounds (mask_eval + zk.rs)": {
+   "seconds": 0.03600000000000002,
+   "count": 26
+  },
+  "10 tables: build (argument.rs)": {
+   "seconds": 0.12700000000000003,
+   "count": 26
+  },
+  "10 claimed sum: total (argument.rs)": {
+   "seconds": 0.0,
+   "count": 26
+  },
+  "10 masked sumcheck (zk.rs, shared)": {
+   "seconds": 0.0,
+   "count": 26
+  },
+  "10 extension rounds (mask_eval + zk.rs)": {
+   "seconds": 0.032000000000000015,
+   "count": 26
+  },
+  "11 tables: build (argument.rs)": {
+   "seconds": 0.12900000000000003,
+   "count": 26
+  },
+  "11 claimed sum: total (argument.rs)": {
+   "seconds": 0.0,
+   "count": 26
+  },
+  "11 masked sumcheck (zk.rs, shared)": {
+   "seconds": 0.0,
+   "count": 26
+  },
+  "11 extension rounds (mask_eval + zk.rs)": {
+   "seconds": 0.027000000000000017,
+   "count": 26
+  },
+  "12 tables: build (argument.rs)": {
+   "seconds": 0.12800000000000006,
+   "count": 26
+  },
+  "12 claimed sum: total (argument.rs)": {
+   "seconds": 0.0,
+   "count": 26
+  },
+  "12 masked sumcheck (zk.rs, shared)": {
+   "seconds": 0.0,
+   "count": 26
+  },
+  "12 extension rounds (mask_eval + zk.rs)": {
+   "seconds": 0.027000000000000014,
+   "count": 26
+  },
+  "13 tables: build (argument.rs)": {
+   "seconds": 0.4870000000000001,
+   "count": 26
+  },
+  "13 claimed sum: total (argument.rs)": {
+   "seconds": 0.0,
+   "count": 26
+  },
+  "13 masked sumcheck (zk.rs, shared)": {
+   "seconds": 0.026000000000000016,
+   "count": 26
+  },
+  "13 extension rounds (mask_eval + zk.rs)": {
+   "seconds": 0.02900000000000002,
+   "count": 26
+  },
+  "14 tables: build (argument.rs)": {
+   "seconds": 1.0900000000000003,
+   "count": 26
+  },
+  "14 claimed sum: total (argument.rs)": {
+   "seconds": 0.0,
+   "count": 26
+  },
+  "14 masked sumcheck (zk.rs, shared)": {
+   "seconds": 23.570000000000004,
+   "count": 26
+  },
+  "14 extension rounds (mask_eval + zk.rs)": {
+   "seconds": 2.163,
+   "count": 26
+  },
+  "15 tables: build (argument.rs)": {
+   "seconds": 0.4760000000000002,
+   "count": 26
+  },
+  "15 claimed sum: total (argument.rs)": {
+   "seconds": 0.0,
+   "count": 26
+  },
+  "15 masked sumcheck (zk.rs, shared)": {
+   "seconds": 6.6640000000000015,
+   "count": 26
+  },
+  "15 extension rounds (mask_eval + zk.rs)": {
+   "seconds": 0.8520000000000002,
+   "count": 26
+  },
+  "16 tables: build (argument.rs)": {
+   "seconds": 0.12700000000000003,
+   "count": 26
+  },
+  "16 claimed sum: total (argument.rs)": {
+   "seconds": 0.0,
+   "count": 26
+  },
+  "16 masked sumcheck (zk.rs, shared)": {
+   "seconds": 3.0130000000000003,
+   "count": 26
+  },
+  "16 extension rounds (mask_eval + zk.rs)": {
+   "seconds": 0.8730000000000003,
+   "count": 26
+  },
+  "17 tables: build (argument.rs)": {
+   "seconds": 0.48900000000000016,
+   "count": 26
+  },
+  "17 claimed sum: total (argument.rs)": {
+   "seconds": 0.0,
+   "count": 26
+  },
+  "17 masked sumcheck (zk.rs, shared)": {
+   "seconds": 5.9510000000000005,
+   "count": 26
+  },
+  "17 extension rounds (mask_eval + zk.rs)": {
+   "seconds": 0.8550000000000004,
+   "count": 26
+  },
+  "18 tables: build (argument.rs)": {
+   "seconds": 3.3520000000000008,
+   "count": 26
+  },
+  "18 claimed sum: total (argument.rs)": {
+   "seconds": 0.0,
+   "count": 26
+  },
+  "18 masked sumcheck (zk.rs, shared)": {
+   "seconds": 32.003,
+   "count": 26
+  },
+  "18 extension rounds (mask_eval + zk.rs)": {
+   "seconds": 0.8870000000000002,
+   "count": 26
+  },
+  "19 tables: build (argument.rs)": {
+   "seconds": 0.034000000000000016,
+   "count": 26
+  },
+  "19 claimed sum: total (argument.rs)": {
+   "seconds": 0.0,
+   "count": 26
+  },
+  "19 masked sumcheck (zk.rs, shared)": {
+   "seconds": 0.37600000000000017,
+   "count": 26
+  },
+  "19 extension rounds (mask_eval + zk.rs)": {
+   "seconds": 0.2460000000000001,
+   "count": 26
+  },
+  "20 tables: build (argument.rs)": {
+   "seconds": 0.0,
+   "count": 26
+  },
+  "20 claimed sum: total (argument.rs)": {
+   "seconds": 0.0,
+   "count": 26
+  },
+  "20 masked sumcheck (zk.rs, shared)": {
+   "seconds": 0.026000000000000016,
+   "count": 26
+  },
+  "20 extension rounds (mask_eval + zk.rs)": {
+   "seconds": 0.04400000000000002,
+   "count": 26
+  },
+  "21 tables: build (argument.rs)": {
+   "seconds": 0.13900000000000004,
+   "count": 26
+  },
+  "21 claimed sum: total (argument.rs)": {
+   "seconds": 0.0,
+   "count": 26
+  },
+  "21 masked sumcheck (zk.rs, shared)": {
+   "seconds": 0.33300000000000013,
+   "count": 26
+  },
+  "21 extension rounds (mask_eval + zk.rs)": {
+   "seconds": 0.08400000000000003,
+   "count": 26
+  },
+  "22 tables: build (argument.rs)": {
+   "seconds": 0.12000000000000005,
+   "count": 26
+  },
+  "22 claimed sum: total (argument.rs)": {
+   "seconds": 0.0,
+   "count": 26
+  },
+  "22 masked sumcheck (zk.rs, shared)": {
+   "seconds": 0.2990000000000001,
+   "count": 26
+  },
+  "22 extension rounds (mask_eval + zk.rs)": {
+   "seconds": 0.08200000000000003,
+   "count": 26
+  }
+ },
+ "stagesteps": {},
+ "cli": {
+  "args + directories + load_export (the digest pass)": 25.435,
+  "tied classifier tables (re-derived from the pinned checkpoint)": 1.005,
+  "content, honest stage IN-C inputs, x_in load": 2.729,
+  "seal_chain (every block: load, witness, int16, parity, CS-3)": 72.939,
+  "stage OUT-C values, input endpoint seal, statement": 5.948,
+  "run sealing pass (every block loaded once, statement checks)": 9.788,
+  "the run (prove_classify_run_with: sealing pass, IN-C, 26 blocks, OUT-C)": 238.343,
+  "owner file, unverified statement, rename": 0.004
+ },
+ "gpu": "gpu: ON \u2014 NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB) | declines 0 | h2d 5.167 s 31222470656 B | ntt 8.134 s | hash 0.000 s | d2h 0.000 s 990572496 B | reenc 3.205 s | chunked 84 | fold 9.963 s | vram_peak 2700607488 B",
+ "events": [
+  {
+   "event": "loaded",
+   "export_variant": "shieldstral-s2-fixed-low-h24-t128-v2",
+   "run_profile": "hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/1",
+   "blocks": 26,
+   "trained_statement_identity": "29aeba6c04a819cdbafde311f7c9d0c678d85aff22292ae6b9647761158a0bd1",
+   "policy": "shieldstral-1.0-3b-moderate-sexual/1",
+   "chunk": 0,
+   "chunks": 1,
+   "content_length_n": 17
+  },
+  {
+   "event": "proved",
+   "run": "/home/victor/zk60-artifacts/gpu-classifier/gpu/c0",
+   "owner_dir": "/home/victor/zk60-owner-private/gpu-classifier/gpu-owner/c0",
+   "verdict": "not-flagged",
+   "policy": "shieldstral-1.0-3b-moderate-sexual/1",
+   "chunk": 0,
+   "chunks": 1,
+   "segments": 28,
+   "receipt_bytes": 848412096,
+   "prove_seconds": 238.343,
+   "whole_run_floor_bits": 96,
+   "total_seconds": 346.403,
+   "statement": "UNVERIFIED until zk60_classify verify publishes <run>/statement/"
+  }
+ ],
+ "segments": [
+  [
+   0,
+   1415192,
+   12.89
+  ],
+  [
+   1,
+   32450184,
+   21.898
+  ],
+  [
+   2,
+   32450184,
+   30.309
+  ],
+  [
+   3,
+   32450184,
+   38.724
+  ],
+  [
+   4,
+   32450184,
+   47.296
+  ],
+  [
+   5,
+   32450184,
+   55.886
+  ],
+  [
+   6,
+   32450184,
+   64.514
+  ],
+  [
+   7,
+   32450184,
+   73.077
+  ],
+  [
+   8,
+   32450184,
+   81.7
+  ],
+  [
+   9,
+   32450184,
+   90.337
+  ],
+  [
+   10,
+   32450184,
+   99.285
+  ],
+  [
+   11,
+   32450184,
+   108.291
+  ],
+  [
+   12,
+   32450184,
+   117.097
+  ],
+  [
+   13,
+   32450184,
+   125.887
+  ],
+  [
+   14,
+   32450184,
+   134.898
+  ],
+  [
+   15,
+   32450184,
+   143.853
+  ],
+  [
+   16,
+   32450184,
+   152.479
+  ],
+  [
+   17,
+   32450184,
+   161.073
+  ],
+  [
+   18,
+   32450184,
+   169.879
+  ],
+  [
+   19,
+   32450184,
+   178.458
+  ],
+  [
+   20,
+   32450184,
+   187.237
+  ],
+  [
+   21,
+   32450184,
+   196.049
+  ],
+  [
+   22,
+   32450184,
+   204.451
+  ],
+  [
+   23,
+   32450184,
+   212.85
+  ],
+  [
+   24,
+   32450184,
+   221.261
+  ],
+  [
+   25,
+   32450184,
+   229.838
+  ],
+  [
+   26,
+   32450184,
+   238.254
+  ],
+  [
+   27,
+   3292120,
+   238.342
+  ]
+ ],
+ "guard": {
+  "exit": 0,
+  "child_wall_seconds": 346.61021995544434,
+  "peak_rss_gib": 4.03,
+  "peak_cgroup_gib": 4.86,
+  "peak_vram_mib": 1569,
+  "enforcement": "cgroup+watchdog",
+  "min_mem_available_gib": 9.87
+ }
+}

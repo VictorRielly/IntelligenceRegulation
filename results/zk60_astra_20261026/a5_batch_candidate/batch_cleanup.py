@@ -58,6 +58,9 @@ def _atomic_private(path, value):
     with os.fdopen(fd, 'w') as f:
         json.dump(value, f, sort_keys=True); f.write('\n'); f.flush(); os.fsync(f.fileno())
     os.replace(tmp, path)
+    directory=os.open(path.parent,os.O_RDONLY|os.O_DIRECTORY)
+    try:os.fsync(directory)
+    finally:os.close(directory)
 
 
 def quarantine(scope, *, terminal_confirmed):

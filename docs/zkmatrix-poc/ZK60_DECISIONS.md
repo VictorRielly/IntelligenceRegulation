@@ -1783,3 +1783,21 @@ Shieldstral T128 / T256 × DD / non-DD; T256 checked by definition and count onl
 - **Before registration (N-r14-5):** bind a security tier into the run statement (D27); the token lane recounts N
   for R14's pieces; one native T256 proof; the privacy gate. Not a privacy acceptance and not a registration.
 
+**GPU lane, phases A and B (D53; recorded 2026-10-30 22:07 UTC):** `results/zk60_gpu_classifier_20261030/`
+(`GPU_PORT_PLAN.md`, `PHASE_PROFILE.md`, `GPU_INVENTORY.md`) [MEASURED, n = 1, shared laptop, RTX 4070 at P0 about
+2.1 GHz, memory 8,000 MHz].
+- **The commitments on the GPU work on the real classifier, byte-identical.** A `gpu-cuda` build with `HL_GPU=1`
+  produced 30 / 30 files equal to round 18's digests, and the frozen CPU binary verified the receipt in a fresh
+  process. 346.6 s against 476.1 s (1.37×); commitments 104.3 → 15.5 s; **host RSS 4.0 against 8.2 GiB**; VRAM
+  1,569 MiB. The production r19b binary has no GPU feature; no verifier phase has device code.
+- **CPU profile, prove 476 s:** witness about 30 % (**built twice**), commitments 22 %, five zero-checks 20 %, model
+  passes about 14 % (one digest pass plus three loads per block), inverses / masks 6 %, openings 3 %. **Verify 67 s:**
+  74 % is reading and hashing the model three times; the cryptography is about 10 s. Hiding is 3.5 % here.
+- Under the new clocks the slot-18 zero-check kernel reaches 34.8 % of 256 GB/s (was 19.4 %, capped).
+- **Plan:**
+  - step 0: a reviewed, pinned GPU build of today's tree (no source change);
+  - model-pass hygiene (token lane: load and hash once);
+  - a single witness pass, then the witness on the GPU (Sol's `witness.rs`);
+  - the five zero-checks on the GPU (an IR-driven code generator; Sol's IR lines, this lane's kernels).
+  End state about 50–60 s per category on the laptop (8–9×), 25–40 lane-days.
+

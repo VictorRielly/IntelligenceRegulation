@@ -14,6 +14,7 @@
     "independent_scale_uniform_nonzero": 1,
     "native_square_character": 16,
     "control_non_byte": 1,
+    "control_noncanonical_challenge": 1,
     "control_zero_in_unused_public_table_entry": 1,
     "control_stale_pair_table": 1,
     "control_zero_mask_denominator": 1,
@@ -26,7 +27,7 @@
     "control_disclosed_scale_recovers_denominator": 1,
     "control_equal_denominator_mask_leaks_character": 1
   },
-  "total_checks": 247336,
+  "total_checks": 247337,
   "cases": [
     {
       "alpha_index": 0,
@@ -130,11 +131,11 @@
             "digest": "79815a53ae2552f6a1dcb7a69e76ba6ec97ee287e47021e87139e6417209f70f"
           }
         ],
-        "peak_live_packed_layer_bytes": 24576,
+        "peak_live_packed_layer_bytes": 32768,
         "fp2_multiplies": 2045,
         "logical_operand_bytes": 66464,
-        "root_build_s": 0.0016012499982025474,
-        "ns_per_lookup_diagnostic": 1563.7207013696752
+        "root_build_s": 0.0014785120001761243,
+        "ns_per_lookup_diagnostic": 1443.8593751719964
       },
       "cached": {
         "layers": [
@@ -199,16 +200,16 @@
             "digest": "79815a53ae2552f6a1dcb7a69e76ba6ec97ee287e47021e87139e6417209f70f"
           }
         ],
-        "peak_live_packed_layer_bytes": 24576,
+        "peak_live_packed_layer_bytes": 32768,
         "fp2_multiplies": 1533,
         "logical_operand_bytes": 74656,
-        "root_build_s": 0.0012086610004189424,
-        "ns_per_lookup_diagnostic": 1180.3330082216235
+        "root_build_s": 0.0013368910003919154,
+        "ns_per_lookup_diagnostic": 1305.55761757023
       },
-      "cold_cached_s_diagnostic": 0.03008526500343578,
+      "cold_cached_s_diagnostic": 0.04713554600311909,
       "cold_cached_fp2_multiplies": 67069,
       "cold_cached_logical_operand_bytes": 3220384,
-      "packed_peak_selected_bytes": 1078272
+      "packed_peak_selected_bytes": 1086464
     },
     {
       "alpha_index": 0,
@@ -312,11 +313,11 @@
             "digest": "62a9a6bf8e8622cbd0ff9344f194ea691646283cd341ae029ae208d32eb9e6ed"
           }
         ],
-        "peak_live_packed_layer_bytes": 24576,
+        "peak_live_packed_layer_bytes": 32768,
         "fp2_multiplies": 2045,
         "logical_operand_bytes": 66464,
-        "root_build_s": 0.0012364020003587939,
-        "ns_per_lookup_diagnostic": 1207.4238284753847
+        "root_build_s": 0.0024824209976941347,
+        "ns_per_lookup_diagnostic": 2424.2392555606784
       },
       "cached": {
         "layers": [
@@ -381,16 +382,16 @@
             "digest": "62a9a6bf8e8622cbd0ff9344f194ea691646283cd341ae029ae208d32eb9e6ed"
           }
         ],
-        "peak_live_packed_layer_bytes": 24576,
+        "peak_live_packed_layer_bytes": 32768,
         "fp2_multiplies": 1533,
         "logical_operand_bytes": 74656,
-        "root_build_s": 0.0010908260010182858,
-        "ns_per_lookup_diagnostic": 1065.2597666194197
+        "root_build_s": 0.0023576339954161085,
+        "ns_per_lookup_diagnostic": 2302.3769486485435
       },
-      "cold_cached_s_diagnostic": 0.029967430004035123,
+      "cold_cached_s_diagnostic": 0.04815628899814328,
       "cold_cached_fp2_multiplies": 67069,
       "cold_cached_logical_operand_bytes": 3220384,
-      "packed_peak_selected_bytes": 1078272
+      "packed_peak_selected_bytes": 1086464
     },
     {
       "alpha_index": 0,
@@ -506,11 +507,11 @@
             "digest": "7697c40f8e1ce4d3cc8df786f7b826cbe0401be437a5e277a65cb0cd7db0a92c"
           }
         ],
-        "peak_live_packed_layer_bytes": 98304,
+        "peak_live_packed_layer_bytes": 131072,
         "fp2_multiplies": 8189,
         "logical_operand_bytes": 266144,
-        "root_build_s": 0.0056035079978755675,
-        "ns_per_lookup_diagnostic": 1368.0439447938397
+        "root_build_s": 0.006037409999407828,
+        "ns_per_lookup_diagnostic": 1473.9770506366767
       },
       "cached": {
         "layers": [
@@ -587,16 +588,16 @@
             "digest": "7697c40f8e1ce4d3cc8df786f7b826cbe0401be437a5e277a65cb0cd7db0a92c"
           }
         ],
-        "peak_live_packed_layer_bytes": 98304,
+        "peak_live_packed_layer_bytes": 131072,
         "fp2_multiplies": 6141,
         "logical_operand_bytes": 298912,
-        "root_build_s": 0.0049108009989140555,
-        "ns_per_lookup_diagnostic": 1198.9260251255018
+        "root_build_s": 0.008718962002603803,
+        "ns_per_lookup_diagnostic": 2128.652832666944
       },
-      "cold_cached_s_diagnostic": 0.03378740500193089,
+      "cold_cached_s_diagnostic": 0.054517617005330976,
       "cold_cached_fp2_multiplies": 71677,
       "cold_cached_logical_operand_bytes": 3444640,
-      "packed_peak_selected_bytes": 1155072
+      "packed_peak_selected_bytes": 1187840
     },
     {
       "alpha_index": 0,
@@ -712,11 +713,11 @@
             "digest": "9c07316bfb74c21fb9ee470b35ac03ff2a680d05d0f7d98a7e8d227514b92c5a"
           }
         ],
-        "peak_live_packed_layer_bytes": 98304,
+        "peak_live_packed_layer_bytes": 131072,
         "fp2_multiplies": 8189,
         "logical_operand_bytes": 266144,
-        "root_build_s": 0.0046771350025665015,
-        "ns_per_lookup_diagnostic": 1141.8786627359623
+        "root_build_s": 0.004985796003893483,
+        "ns_per_lookup_diagnostic": 1217.2353525130575
       },
       "cached": {
         "layers": [
@@ -793,16 +794,16 @@
             "digest": "9c07316bfb74c21fb9ee470b35ac03ff2a680d05d0f7d98a7e8d227514b92c5a"
           }
         ],
-        "peak_live_packed_layer_bytes": 98304,
+        "peak_live_packed_layer_bytes": 131072,
         "fp2_multiplies": 6141,
         "logical_operand_bytes": 298912,
-        "root_build_s": 0.004373016003228258,
-        "ns_per_lookup_diagnostic": 1067.630860163149
+        "root_build_s": 0.00448318100097822,
+        "ns_per_lookup_diagnostic": 1094.5266115669483
       },
-      "cold_cached_s_diagnostic": 0.033249620006245095,
+      "cold_cached_s_diagnostic": 0.050281836003705394,
       "cold_cached_fp2_multiplies": 71677,
       "cold_cached_logical_operand_bytes": 3444640,
-      "packed_peak_selected_bytes": 1155072
+      "packed_peak_selected_bytes": 1187840
     },
     {
       "alpha_index": 0,
@@ -930,11 +931,11 @@
             "digest": "53733a5fd7847120ae636430ef3db709e7424cfc503baadec09504155b568531"
           }
         ],
-        "peak_live_packed_layer_bytes": 393216,
+        "peak_live_packed_layer_bytes": 524288,
         "fp2_multiplies": 32765,
         "logical_operand_bytes": 1064864,
-        "root_build_s": 0.023020540000288747,
-        "ns_per_lookup_diagnostic": 1405.0622558769987
+        "root_build_s": 0.02966957999888109,
+        "ns_per_lookup_diagnostic": 1810.8874511035822
       },
       "cached": {
         "layers": [
@@ -1023,16 +1024,16 @@
             "digest": "53733a5fd7847120ae636430ef3db709e7424cfc503baadec09504155b568531"
           }
         ],
-        "peak_live_packed_layer_bytes": 393216,
+        "peak_live_packed_layer_bytes": 524288,
         "fp2_multiplies": 24573,
         "logical_operand_bytes": 1195936,
-        "root_build_s": 0.02118509499996435,
-        "ns_per_lookup_diagnostic": 1293.0355834939178
+        "root_build_s": 0.030954529996961355,
+        "ns_per_lookup_diagnostic": 1889.3145750098483
       },
-      "cold_cached_s_diagnostic": 0.050061699002981186,
+      "cold_cached_s_diagnostic": 0.07675318499968853,
       "cold_cached_fp2_multiplies": 90109,
       "cold_cached_logical_operand_bytes": 4341664,
-      "packed_peak_selected_bytes": 1462272
+      "packed_peak_selected_bytes": 1593344
     },
     {
       "alpha_index": 0,
@@ -1160,11 +1161,11 @@
             "digest": "9d645200bc2f572c11cc7b2674b8562a1b2720211cb116a6e00546bc359c8245"
           }
         ],
-        "peak_live_packed_layer_bytes": 393216,
+        "peak_live_packed_layer_bytes": 524288,
         "fp2_multiplies": 32765,
         "logical_operand_bytes": 1064864,
-        "root_build_s": 0.02218149499822175,
-        "ns_per_lookup_diagnostic": 1353.851013075058
+        "root_build_s": 0.029256839996378403,
+        "ns_per_lookup_diagnostic": 1785.6958005602053
       },
       "cached": {
         "layers": [
@@ -1253,16 +1254,16 @@
             "digest": "9d645200bc2f572c11cc7b2674b8562a1b2720211cb116a6e00546bc359c8245"
           }
         ],
-        "peak_live_packed_layer_bytes": 393216,
+        "peak_live_packed_layer_bytes": 524288,
         "fp2_multiplies": 24573,
         "logical_operand_bytes": 1195936,
-        "root_build_s": 0.01727353499882156,
-        "ns_per_lookup_diagnostic": 1054.2929076429175
+        "root_build_s": 0.01946393599791918,
+        "ns_per_lookup_diagnostic": 1187.9843748729968
       },
-      "cold_cached_s_diagnostic": 0.0461501390018384,
+      "cold_cached_s_diagnostic": 0.06526259100064635,
       "cold_cached_fp2_multiplies": 90109,
       "cold_cached_logical_operand_bytes": 4341664,
-      "packed_peak_selected_bytes": 1462272
+      "packed_peak_selected_bytes": 1593344
     },
     {
       "alpha_index": 0,
@@ -1402,11 +1403,11 @@
             "digest": "47ffa624adece669b4778c1960809b9b15f7e3f2132375eaf30a50e7fe75e793"
           }
         ],
-        "peak_live_packed_layer_bytes": 1572864,
+        "peak_live_packed_layer_bytes": 2097152,
         "fp2_multiplies": 131069,
         "logical_operand_bytes": 4259744,
-        "root_build_s": 0.09416622600110713,
-        "ns_per_lookup_diagnostic": 1436.8625793625965
+        "root_build_s": 0.09460401000251295,
+        "ns_per_lookup_diagnostic": 1443.5426330949851
       },
       "cached": {
         "layers": [
@@ -1507,16 +1508,16 @@
             "digest": "47ffa624adece669b4778c1960809b9b15f7e3f2132375eaf30a50e7fe75e793"
           }
         ],
-        "peak_live_packed_layer_bytes": 1572864,
+        "peak_live_packed_layer_bytes": 2097152,
         "fp2_multiplies": 98301,
         "logical_operand_bytes": 4784032,
-        "root_build_s": 0.08452033100184053,
-        "ns_per_lookup_diagnostic": 1289.677902249764
+        "root_build_s": 0.07672866999928374,
+        "ns_per_lookup_diagnostic": 1170.7865905652425
       },
-      "cold_cached_s_diagnostic": 0.11339693500485737,
+      "cold_cached_s_diagnostic": 0.12252732500201091,
       "cold_cached_fp2_multiplies": 163837,
       "cold_cached_logical_operand_bytes": 7929760,
-      "packed_peak_selected_bytes": 2691072
+      "packed_peak_selected_bytes": 3215360
     },
     {
       "alpha_index": 0,
@@ -1656,11 +1657,11 @@
             "digest": "164215d6d2ba6dd6f19fba7011877cb27caaa10c4f9acb39b2f76f260d843295"
           }
         ],
-        "peak_live_packed_layer_bytes": 1572864,
+        "peak_live_packed_layer_bytes": 2097152,
         "fp2_multiplies": 131069,
         "logical_operand_bytes": 4259744,
-        "root_build_s": 0.08242336799594341,
-        "ns_per_lookup_diagnostic": 1257.6807860709139
+        "root_build_s": 0.08875834400532767,
+        "ns_per_lookup_diagnostic": 1354.3448487141063
       },
       "cached": {
         "layers": [
@@ -1761,16 +1762,16 @@
             "digest": "164215d6d2ba6dd6f19fba7011877cb27caaa10c4f9acb39b2f76f260d843295"
           }
         ],
-        "peak_live_packed_layer_bytes": 1572864,
+        "peak_live_packed_layer_bytes": 2097152,
         "fp2_multiplies": 98301,
         "logical_operand_bytes": 4784032,
-        "root_build_s": 0.07036846999835689,
-        "ns_per_lookup_diagnostic": 1073.7376403557873
+        "root_build_s": 0.06965706899791257,
+        "ns_per_lookup_diagnostic": 1062.8825225511562
       },
-      "cold_cached_s_diagnostic": 0.09924507400137372,
+      "cold_cached_s_diagnostic": 0.11545572400063975,
       "cold_cached_fp2_multiplies": 163837,
       "cold_cached_logical_operand_bytes": 7929760,
-      "packed_peak_selected_bytes": 2691072
+      "packed_peak_selected_bytes": 3215360
     },
     {
       "alpha_index": 1,
@@ -1874,11 +1875,11 @@
             "digest": "928ca9e1b09df4392637d711284515761038703d63f4570c28b48427d059b00b"
           }
         ],
-        "peak_live_packed_layer_bytes": 24576,
+        "peak_live_packed_layer_bytes": 32768,
         "fp2_multiplies": 2045,
         "logical_operand_bytes": 66464,
-        "root_build_s": 0.0013150219965609722,
-        "ns_per_lookup_diagnostic": 1284.2011685165744
+        "root_build_s": 0.0013482270005624741,
+        "ns_per_lookup_diagnostic": 1316.6279302367911
       },
       "cached": {
         "layers": [
@@ -1943,16 +1944,16 @@
             "digest": "928ca9e1b09df4392637d711284515761038703d63f4570c28b48427d059b00b"
           }
         ],
-        "peak_live_packed_layer_bytes": 24576,
+        "peak_live_packed_layer_bytes": 32768,
         "fp2_multiplies": 1533,
         "logical_operand_bytes": 74656,
-        "root_build_s": 0.0011908509986824356,
-        "ns_per_lookup_diagnostic": 1162.940428400816
+        "root_build_s": 0.0012152920025982894,
+        "ns_per_lookup_diagnostic": 1186.808596287392
       },
-      "cold_cached_s_diagnostic": 0.028145786993263755,
+      "cold_cached_s_diagnostic": 0.027169973000127356,
       "cold_cached_fp2_multiplies": 67069,
       "cold_cached_logical_operand_bytes": 3220384,
-      "packed_peak_selected_bytes": 1078272
+      "packed_peak_selected_bytes": 1086464
     },
     {
       "alpha_index": 1,
@@ -2056,11 +2057,11 @@
             "digest": "e7400cd79cb7576feb453059a62e766e2239ba072037c9ebfa4aea92155bd706"
           }
         ],
-        "peak_live_packed_layer_bytes": 24576,
+        "peak_live_packed_layer_bytes": 32768,
         "fp2_multiplies": 2045,
         "logical_operand_bytes": 66464,
-        "root_build_s": 0.0011728200042853132,
-        "ns_per_lookup_diagnostic": 1145.3320354348762
+        "root_build_s": 0.001407072995789349,
+        "ns_per_lookup_diagnostic": 1374.0947224505362
       },
       "cached": {
         "layers": [
@@ -2125,16 +2126,16 @@
             "digest": "e7400cd79cb7576feb453059a62e766e2239ba072037c9ebfa4aea92155bd706"
           }
         ],
-        "peak_live_packed_layer_bytes": 24576,
+        "peak_live_packed_layer_bytes": 32768,
         "fp2_multiplies": 1533,
         "logical_operand_bytes": 74656,
-        "root_build_s": 0.0010671730051399209,
-        "ns_per_lookup_diagnostic": 1042.161137831954
+        "root_build_s": 0.0010252189968014136,
+        "ns_per_lookup_diagnostic": 1001.1904265638805
       },
-      "cold_cached_s_diagnostic": 0.02802210899972124,
+      "cold_cached_s_diagnostic": 0.02697989999433048,
       "cold_cached_fp2_multiplies": 67069,
       "cold_cached_logical_operand_bytes": 3220384,
-      "packed_peak_selected_bytes": 1078272
+      "packed_peak_selected_bytes": 1086464
     },
     {
       "alpha_index": 1,
@@ -2250,11 +2251,11 @@
             "digest": "414750897094815db68f2cf509b0cf2bf971c9f118455eb36d6dbe6cae84634f"
           }
         ],
-        "peak_live_packed_layer_bytes": 98304,
+        "peak_live_packed_layer_bytes": 131072,
         "fp2_multiplies": 8189,
         "logical_operand_bytes": 266144,
-        "root_build_s": 0.005273766000755131,
-        "ns_per_lookup_diagnostic": 1287.5405275281082
+        "root_build_s": 0.005579107004450634,
+        "ns_per_lookup_diagnostic": 1362.0866710084556
       },
       "cached": {
         "layers": [
@@ -2331,16 +2332,16 @@
             "digest": "414750897094815db68f2cf509b0cf2bf971c9f118455eb36d6dbe6cae84634f"
           }
         ],
-        "peak_live_packed_layer_bytes": 98304,
+        "peak_live_packed_layer_bytes": 131072,
         "fp2_multiplies": 6141,
         "logical_operand_bytes": 298912,
-        "root_build_s": 0.005043283999839332,
-        "ns_per_lookup_diagnostic": 1231.2705077732744
+        "root_build_s": 0.004705424995336216,
+        "ns_per_lookup_diagnostic": 1148.7853992520058
       },
-      "cold_cached_s_diagnostic": 0.03199821999442065,
+      "cold_cached_s_diagnostic": 0.030660105992865283,
       "cold_cached_fp2_multiplies": 71677,
       "cold_cached_logical_operand_bytes": 3444640,
-      "packed_peak_selected_bytes": 1155072
+      "packed_peak_selected_bytes": 1187840
     },
     {
       "alpha_index": 1,
@@ -2456,11 +2457,11 @@
             "digest": "845794c62a339ba2365e280b4496ca399eae679671d74c1d00a686676a71c307"
           }
         ],
-        "peak_live_packed_layer_bytes": 98304,
+        "peak_live_packed_layer_bytes": 131072,
         "fp2_multiplies": 8189,
         "logical_operand_bytes": 266144,
-        "root_build_s": 0.005048798004281707,
-        "ns_per_lookup_diagnostic": 1232.6167002640886
+        "root_build_s": 0.004657675999624189,
+        "ns_per_lookup_diagnostic": 1137.1279295957493
       },
       "cached": {
         "layers": [
@@ -2537,16 +2538,16 @@
             "digest": "845794c62a339ba2365e280b4496ca399eae679671d74c1d00a686676a71c307"
           }
         ],
-        "peak_live_packed_layer_bytes": 98304,
+        "peak_live_packed_layer_bytes": 131072,
         "fp2_multiplies": 6141,
         "logical_operand_bytes": 298912,
-        "root_build_s": 0.004417627998918761,
-        "ns_per_lookup_diagnostic": 1078.5224606735255
+        "root_build_s": 0.004043330998683814,
+        "ns_per_lookup_diagnostic": 987.1413571005405
       },
-      "cold_cached_s_diagnostic": 0.03137256399350008,
+      "cold_cached_s_diagnostic": 0.02999801199621288,
       "cold_cached_fp2_multiplies": 71677,
       "cold_cached_logical_operand_bytes": 3444640,
-      "packed_peak_selected_bytes": 1155072
+      "packed_peak_selected_bytes": 1187840
     },
     {
       "alpha_index": 1,
@@ -2674,11 +2675,11 @@
             "digest": "73c50c8a2fcb51758c0f1b5b47fcd6c8e7a6f03dc4959f9379375a72fa054e21"
           }
         ],
-        "peak_live_packed_layer_bytes": 393216,
+        "peak_live_packed_layer_bytes": 524288,
         "fp2_multiplies": 32765,
         "logical_operand_bytes": 1064864,
-        "root_build_s": 0.020853371999692172,
-        "ns_per_lookup_diagnostic": 1272.7888183405867
+        "root_build_s": 0.020833214999584015,
+        "ns_per_lookup_diagnostic": 1271.558532689454
       },
       "cached": {
         "layers": [
@@ -2767,16 +2768,16 @@
             "digest": "73c50c8a2fcb51758c0f1b5b47fcd6c8e7a6f03dc4959f9379375a72fa054e21"
           }
         ],
-        "peak_live_packed_layer_bytes": 393216,
+        "peak_live_packed_layer_bytes": 524288,
         "fp2_multiplies": 24573,
         "logical_operand_bytes": 1195936,
-        "root_build_s": 0.021664265004801564,
-        "ns_per_lookup_diagnostic": 1322.2817996094705
+        "root_build_s": 0.023893638004665263,
+        "ns_per_lookup_diagnostic": 1458.3519289956826
       },
-      "cold_cached_s_diagnostic": 0.04861920099938288,
+      "cold_cached_s_diagnostic": 0.04984831900219433,
       "cold_cached_fp2_multiplies": 90109,
       "cold_cached_logical_operand_bytes": 4341664,
-      "packed_peak_selected_bytes": 1462272
+      "packed_peak_selected_bytes": 1593344
     },
     {
       "alpha_index": 1,
@@ -2904,11 +2905,11 @@
             "digest": "8e6cf8002ca4a68f1a7177d44af3ee2677ab606145f5e355fa88bf9fe52cbf55"
           }
         ],
-        "peak_live_packed_layer_bytes": 393216,
+        "peak_live_packed_layer_bytes": 524288,
         "fp2_multiplies": 32765,
         "logical_operand_bytes": 1064864,
-        "root_build_s": 0.020367803001136053,
-        "ns_per_lookup_diagnostic": 1243.152038643558
+        "root_build_s": 0.018431113996484783,
+        "ns_per_lookup_diagnostic": 1124.9459226370107
       },
       "cached": {
         "layers": [
@@ -2997,16 +2998,16 @@
             "digest": "8e6cf8002ca4a68f1a7177d44af3ee2677ab606145f5e355fa88bf9fe52cbf55"
           }
         ],
-        "peak_live_packed_layer_bytes": 393216,
+        "peak_live_packed_layer_bytes": 524288,
         "fp2_multiplies": 24573,
         "logical_operand_bytes": 1195936,
-        "root_build_s": 0.017421498996554874,
-        "ns_per_lookup_diagnostic": 1063.323913363945
+        "root_build_s": 0.021563829999649897,
+        "ns_per_lookup_diagnostic": 1316.151733377069
       },
-      "cold_cached_s_diagnostic": 0.04437643499113619,
+      "cold_cached_s_diagnostic": 0.047518510997178964,
       "cold_cached_fp2_multiplies": 90109,
       "cold_cached_logical_operand_bytes": 4341664,
-      "packed_peak_selected_bytes": 1462272
+      "packed_peak_selected_bytes": 1593344
     },
     {
       "alpha_index": 1,
@@ -3146,11 +3147,11 @@
             "digest": "15fcdd5bcfe9355987b0137475d702f1ba20ed66b7198cbfe2e2990b843432eb"
           }
         ],
-        "peak_live_packed_layer_bytes": 1572864,
+        "peak_live_packed_layer_bytes": 2097152,
         "fp2_multiplies": 131069,
         "logical_operand_bytes": 4259744,
-        "root_build_s": 0.08669130400085123,
-        "ns_per_lookup_diagnostic": 1322.8043213020512
+        "root_build_s": 0.09444967200397514,
+        "ns_per_lookup_diagnostic": 1441.1876221309683
       },
       "cached": {
         "layers": [
@@ -3251,16 +3252,16 @@
             "digest": "15fcdd5bcfe9355987b0137475d702f1ba20ed66b7198cbfe2e2990b843432eb"
           }
         ],
-        "peak_live_packed_layer_bytes": 1572864,
+        "peak_live_packed_layer_bytes": 2097152,
         "fp2_multiplies": 98301,
         "logical_operand_bytes": 4784032,
-        "root_build_s": 0.08105548900493886,
-        "ns_per_lookup_diagnostic": 1236.8086090841502
+        "root_build_s": 0.08179666600335622,
+        "ns_per_lookup_diagnostic": 1248.1180725609775
       },
-      "cold_cached_s_diagnostic": 0.10801042499952018,
+      "cold_cached_s_diagnostic": 0.10775134700088529,
       "cold_cached_fp2_multiplies": 163837,
       "cold_cached_logical_operand_bytes": 7929760,
-      "packed_peak_selected_bytes": 2691072
+      "packed_peak_selected_bytes": 3215360
     },
     {
       "alpha_index": 1,
@@ -3400,11 +3401,11 @@
             "digest": "99ffc0d85519618d9bcf1c12cc3e849e1945791f66b2132f3af8a1bb1ae2c3ac"
           }
         ],
-        "peak_live_packed_layer_bytes": 1572864,
+        "peak_live_packed_layer_bytes": 2097152,
         "fp2_multiplies": 131069,
         "logical_operand_bytes": 4259744,
-        "root_build_s": 0.08707948699884582,
-        "ns_per_lookup_diagnostic": 1328.7275237860995
+        "root_build_s": 0.08235255400359165,
+        "ns_per_lookup_diagnostic": 1256.600250298945
       },
       "cached": {
         "layers": [
@@ -3505,16 +3506,16 @@
             "digest": "99ffc0d85519618d9bcf1c12cc3e849e1945791f66b2132f3af8a1bb1ae2c3ac"
           }
         ],
-        "peak_live_packed_layer_bytes": 1572864,
+        "peak_live_packed_layer_bytes": 2097152,
         "fp2_multiplies": 98301,
         "logical_operand_bytes": 4784032,
-        "root_build_s": 0.07155310599773657,
-        "ns_per_lookup_diagnostic": 1091.813751186166
+        "root_build_s": 0.07726132900279481,
+        "ns_per_lookup_diagnostic": 1178.9143219420594
       },
-      "cold_cached_s_diagnostic": 0.09850804199231789,
+      "cold_cached_s_diagnostic": 0.10321601000032388,
       "cold_cached_fp2_multiplies": 163837,
       "cold_cached_logical_operand_bytes": 7929760,
-      "packed_peak_selected_bytes": 2691072
+      "packed_peak_selected_bytes": 3215360
     }
   ],
   "pair_table_builds": [
@@ -3523,7 +3524,7 @@
         9310509233984441266,
         9229993307753264439
       ],
-      "build_s": 0.028876604003016837,
+      "build_s": 0.04579865500272717,
       "fp2_multiplies": 65536,
       "logical_operand_bytes": 3145728,
       "packed_bytes": 1048576
@@ -3533,7 +3534,7 @@
         9468653824808749351,
         506573883760513879
       ],
-      "build_s": 0.02695493599458132,
+      "build_s": 0.025954680997529067,
       "fp2_multiplies": 65536,
       "logical_operand_bytes": 3145728,
       "packed_bytes": 1048576
@@ -3961,6 +3962,7 @@
   ],
   "controls": {
     "non_byte": true,
+    "noncanonical_challenge": true,
     "zero_in_unused_public_table_entry": true,
     "stale_pair_table": true,
     "zero_mask_denominator": true,
@@ -3973,8 +3975,8 @@
     "disclosed_scale_recovers_denominator": true,
     "equal_denominator_mask_leaks_character": true
   },
-  "wall_s": 1.9431491240029573,
-  "peak_rss_kib": 20032,
+  "wall_s": 2.0397528969988343,
+  "peak_rss_kib": 19992,
   "scope": "Bottom-up arithmetic and root marginal only; no GKR, CFS, PCS, masked claims, proof, or simulator",
   "proofs": 0,
   "proved_positions": 0,

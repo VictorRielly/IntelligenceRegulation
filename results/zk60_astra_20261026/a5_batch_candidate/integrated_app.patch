@@ -1,0 +1,1339 @@
+--- a/apps/proven-media/proven_media/store.py
++++ b/apps/proven-media/proven_media/store.py
+@@ -45,6 +45,8 @@
+         self.db.row_factory = sqlite3.Row
+         self.db.execute("PRAGMA journal_mode=WAL")
+         self.db.executescript(SCHEMA)
++        from .batch_registry import SCHEMA as BATCH_SCHEMA
++        self.db.executescript(BATCH_SCHEMA)
+         cols = {r[1] for r in self.db.execute("PRAGMA table_info(posts)")}
+         for col, typ in (("content_key", "TEXT"), ("salt_enc", "TEXT"), ("prove_attempted", "INTEGER"),
+                          ("labels", "TEXT"), ("manifest", "TEXT"), ("chunks", "TEXT"),
+--- a/apps/proven-media/proven_media/jobs.py
++++ b/apps/proven-media/proven_media/jobs.py
+@@ -153,6 +153,9 @@
+ 
+     # ------------------------------------------------------------ one step of the queue
+     def tick(self) -> None:
++        from .batch_registry import recover_registered_batches
++        if recover_registered_batches(self):
++            return
+         try:
+             self.publisher.tick()          # close an anchor batch when due (10 min or 1,000 leaves)
+         except Exception:
+@@ -187,6 +190,14 @@
+             chunk = plan[ci]
+             if j["kind"] == "prove":
+                 self.store.check_screening(post)
++                if getattr(self.prover, 'batch_proving', False) is True:
++                    try:
++                        self.prover.start_batch(self.store, post)
++                    except Exception:
++                        if not self.store.one('SELECT post_id FROM batch_runs WHERE post_id=?', (post['id'],)):
++                            raise
++                        log.exception("Registered batch launch needs whole-post recovery")
++                    return
+                 d = prove_job_dir(post["id"], ci)
+                 self.store.update_job(j["id"], status="running", started_at=records.now_iso(), job_dir=str(d))
+                 self.store.update_post(post["id"], status="screening", status_message="")
+@@ -196,7 +207,9 @@
+                 self.store.update_job(j["id"], status="running", started_at=records.now_iso(), job_dir=str(d))
+                 row = self.store.one("SELECT * FROM chunk_proofs WHERE post_id=? AND chunk=?", (post["id"], ci))
+                 rec = ProofRecord.from_dict(loads(row["record"]))
+-                self.prover.start_recheck(rec, prove_job_dir(post["id"], ci), d)
++                original = self.store.one("SELECT job_dir FROM jobs WHERE post_id=? AND kind='prove' AND chunk=? ORDER BY id LIMIT 1", (post['id'], ci))
++                original_dir = Path(original['job_dir']) if original and original['job_dir'] else prove_job_dir(post['id'], ci)
++                self.prover.start_recheck(rec, original_dir, d)
+         except (ValueError, NotSupported, ProverError) as e:
+             self.fail(j, getattr(e, "user_message", str(e)), repr(e))
+         except Exception as e:  # launching failed: never leave a phantom "running" job
+@@ -283,7 +296,7 @@
+             return
+         self.finalize(pid)
+ 
+-    def finalize(self, pid: str, note: str | None = None) -> None:
++    def finalize(self, pid: str, note: str | None = None, *, require_publication=False) -> None:
+         post = self.store.post(pid)
+         plan = chunks_of(post)
+         rows = {r["chunk"]: r for r in self.store.q("SELECT * FROM chunk_proofs WHERE post_id=?", (pid,))}
+@@ -343,6 +356,8 @@
+                     pubs[key] = PubInfo(man["model_id"], man["profile_id"], man["statement_sha256"])
+                 except Exception as e:     # the proofs stand; publication can be retried
+                     log.error("publish failed for %s %s: %r", pid, key, e)
++        if require_publication and accepted and len(anchors) != len(plan):
++            raise PublishError("Batch publication is incomplete; retain verified records for retry.")
+         first = next((r for r in chunk_recs if r), None)
+         d = config.deploy()
+         chunking = {"profile": d["profile"], "chunk_tokens": d["effective_chunk_tokens"],
+--- a/apps/proven-media/proven_media/publisher.py
++++ b/apps/proven-media/proven_media/publisher.py
+@@ -31,6 +31,8 @@
+ """
+ from __future__ import annotations
+ 
++from .quarantine_paths import require_public_receipt_path
++
+ import fcntl
+ import hashlib
+ import json
+@@ -263,6 +265,7 @@
+         return sha
+ 
+     def put_file(self, path: Path, expect_sha: str | None = None) -> tuple[str, int]:
++        require_public_receipt_path(path)
+         # Snapshot and hash the same bytes. A hard link would let later edits
+         # to a prover's run mutate an already published CAS object.
+         fd, name = tempfile.mkstemp(prefix=".receipt-", dir=self.store)
+@@ -344,6 +347,8 @@
+ 
+     # ------------------------------------------------------------ publish
+     def publish(self, record: PublicationRecord) -> AnchorRef:
++        for path in record.receipt_segments:
++            require_public_receipt_path(path)
+         if record.verdict not in ("yes", "no"):
+             raise PublishError("a published label is 'yes' or 'no' (an unproved category is not published)")
+         if self.anchor_of(record.post_id, record.category, record.chunk):
+--- a/apps/proven-media/proven_media/testnet_publisher.py
++++ b/apps/proven-media/proven_media/testnet_publisher.py
+@@ -4,6 +4,8 @@
+ content-addressed store. This does not claim permanent/network proof storage.
+ """
+ from __future__ import annotations
++
++from .quarantine_paths import require_public_receipt_path
+ 
+ import json
+ import os
+@@ -57,6 +59,8 @@
+         return json.loads((self.batches / (batch_id + ".json")).read_text())
+ 
+     def publish(self, record):
++        for path in record.receipt_segments:
++            require_public_receipt_path(path)
+         if record.development_only is not False:
+             raise PublishError("development classifier fixtures cannot be published as media labels")
+         if record.proof_verified is not True or record.verdict_bound is not True:
+--- a/apps/proven-media/proven_media/app.py
++++ b/apps/proven-media/proven_media/app.py
+@@ -5,6 +5,8 @@
+ Run:  apps/proven-media/.venv/bin/python apps/proven-media/serve.py   (see README.md)
+ """
+ from __future__ import annotations
++
++from .quarantine_paths import require_public_receipt_path
+ 
+ import calendar
+ import hashlib
+@@ -686,13 +688,16 @@
+         mj = json.dumps(loads(p["manifest"]), indent=1, sort_keys=True).encode()
+         members.append((f"{root}/{pid}.manifest.json", mj, len(mj)))
+     for ci, run, crec in chunk_runs:
++        require_public_receipt_path(run)
+         for seg in crec["receipt"]["files"]:
+             f = run / seg["file"]
++            require_public_receipt_path(f)
+             members.append((f"{root}/chunk-{ci}/run/{seg['file']}", f, f.stat().st_size))
+         for rel in ("statement/statement.json", "statement/segments.json"):
+             f = run / rel
+             if rel == "statement/segments.json" and not f.exists():
+                 continue  # Classifier receipts keep their inventory in the app record.
++            require_public_receipt_path(f)
+             members.append((f"{root}/chunk-{ci}/run/{rel}", f, f.stat().st_size))
+     mtime = int(time.time())
+     total = sum(512 + -(-n // 512) * 512 for _, _, n in members) + 1024
+@@ -703,6 +708,7 @@
+             if isinstance(src, bytes):
+                 yield src
+             else:
++                require_public_receipt_path(src)
+                 with open(src, "rb") as fh:
+                     for blk in iter(lambda: fh.read(1 << 20), b""):
+                         yield blk
+--- /dev/null
++++ b/apps/proven-media/proven_media/batch_cleanup.py
+@@ -0,0 +1,106 @@
++"""A5 failed-batch quarantine. No native receipt is accepted by this module.
++
++The scope is fixed before launching the child. All paths derive from the app's
++job/post/receipt roots; cleanup never follows paths from a failed child's log.
++Receipts stay on their original filesystem in a mode0700 quarantine. Owners
++stay outside the repository in the private job tree. Moves are restartable.
++"""
++from dataclasses import asdict, dataclass
++import fcntl
++import json
++import os
++from pathlib import Path
++import re
++import stat
++import uuid
++
++
++@dataclass(frozen=True)
++class CleanupScope:
++    post_id: str
++    job: str
++    receipts: str
++    count: int
++    manifest_sha256: str
++
++    def __post_init__(self):
++        if (not re.fullmatch(r'[A-Za-z0-9_-]{1,80}', self.post_id)
++                or type(self.count) is not int or not 1 <= self.count <= 24
++                or not re.fullmatch(r'[0-9a-f]{64}', self.manifest_sha256)):
++            raise ValueError('invalid batch cleanup scope')
++        for raw in (self.job, self.receipts):
++            p = Path(raw)
++            if not p.is_absolute() or p != p.resolve() or not p.is_dir():
++                raise ValueError('cleanup roots must be existing canonical directories')
++        if Path(self.job) == Path(self.receipts) or Path(self.receipts) in Path(self.job).parents:
++            raise ValueError('private cleanup root is under receipts')
++
++    def paths(self):
++        job, receipts = Path(self.job), Path(self.receipts)
++        for i in range(self.count):
++            for suffix, label in (('', 'run'), ('.incomplete', 'incomplete'), ('.unverified-statement', 'statement')):
++                yield f'c{i}-{label}', receipts / f'{self.post_id}-c{i}{suffix}', 'receipt'
++            yield f'c{i}-owner', job / 'owners' / f'c{i}', 'owner'
++
++
++def _private_dir(path):
++    if path.is_symlink():
++        raise ValueError('quarantine directory is a symlink')
++    path.mkdir(mode=0o700, exist_ok=True)
++    m = path.stat()
++    if not stat.S_ISDIR(m.st_mode) or m.st_uid != os.getuid() or m.st_mode & 0o077:
++        raise ValueError('quarantine directory must be owner-only')
++
++
++def _atomic_private(path, value):
++    tmp = path.with_name(path.name + '.' + uuid.uuid4().hex + '.tmp')
++    fd = os.open(tmp, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
++    with os.fdopen(fd, 'w') as f:
++        json.dump(value, f, sort_keys=True); f.write('\n'); f.flush(); os.fsync(f.fileno())
++    os.replace(tmp, path)
++    directory=os.open(path.parent,os.O_RDONLY|os.O_DIRECTORY)
++    try:os.fsync(directory)
++    finally:os.close(directory)
++
++
++def quarantine(scope, *, terminal_confirmed):
++    """Call after the supervisor observes child termination, including recovery
++    from a kill. Never call against a live prover. No implicit retry is enabled.
++    A cleanup error keeps publication blocked and permits later cleanup only.
++    """
++    if terminal_confirmed is not True or not isinstance(scope, CleanupScope):
++        raise ValueError('terminal batch supervisor result and prepared cleanup scope required')
++    job, receipts = Path(scope.job), Path(scope.receipts)
++    # Recheck parent resolution after the job, but do not resolve the final
++    # outputs: a malicious symlink is moved as a link, never followed.
++    if job.resolve() != job or receipts.resolve() != receipts or (job / 'owners').resolve() != job / 'owners':
++        raise ValueError('batch cleanup parent changed')
++    lock_fd = os.open(job / 'batch-finalize.lock', os.O_RDWR | os.O_CREAT | os.O_NOFOLLOW, 0o600)
++    with os.fdopen(lock_fd, 'r+b') as lock:
++        fcntl.flock(lock, fcntl.LOCK_EX)
++        roots = {'owner': job / 'failed-batch-owners'}
++        _private_dir(roots['owner'])
++        public_base = receipts / '.batch-quarantine'
++        _private_dir(public_base)
++        roots['receipt'] = public_base / (scope.post_id + '-' + scope.manifest_sha256[:16])
++        _private_dir(roots['receipt'])
++        moves, errors = [], []
++        for name, source, kind in scope.paths():
++            target = roots[kind] / name
++            try:
++                if not os.path.lexists(source):
++                    state = 'already-quarantined' if os.path.lexists(target) else 'absent'
++                else:
++                    if os.path.lexists(target):
++                        raise ValueError('quarantine target already exists while source remains')
++                    os.rename(source, target)
++                    state = 'quarantined'
++                moves.append({'path': str(source), 'destination': str(target), 'status': state})
++            except (OSError, ValueError) as exc:
++                errors.append({'path': str(source), 'error': str(exc)})
++        result = {'schema': 'pm-failed-batch-quarantine/1', 'scope': asdict(scope),
++                  'publication_allowed': False, 'complete': not errors, 'moves': moves, 'errors': errors}
++        _atomic_private(job / 'failed-batch-quarantine.json', result)
++        if errors:
++            raise ValueError('batch quarantine incomplete; publication and retries remain blocked')
++        return result
+--- /dev/null
++++ b/apps/proven-media/proven_media/batch_request.py
+@@ -0,0 +1,276 @@
++"""A5 app transport candidate; not selected by the production queue/factory.
++
++Preparation uses the existing pinned tokenizer, complete category planner and
++activation writer. Prover events route unverified receipts only. The existing
++r16b fresh verify/input-owner/label commands still decide acceptance.
++"""
++from __future__ import annotations
++import json
++from dataclasses import asdict
++import hashlib
++import math
++import os
++from pathlib import Path
++import re
++import sys
++
++HERE = Path(__file__).resolve().parent
++REPO = Path('/home/victor/IntelligenceRegulation')
++from . import config, proof_plans, records, shieldstral_runtime as runtime
++from .classifier_cli import CONTEXT, ClassifierCLI, in_git_tree, require
++from .provers import ProverError, write_private
++from .shieldstral_text import ShieldstralTextEncoder, SPECIAL_TOKENS, VOCABULARY
++from .batch_cleanup import CleanupScope, quarantine
++
++SCHEMA = 'zk60-classify-prove-batch/1'
++ROW_KEYS = {'name', 'policy_id', 'chunk_index', 'sequence_dir', 'out', 'owner_dir'}
++
++
++def validate_manifest(manifest, total):
++    require(type(total) is int and 1 <= total <= 336, 'invalid whole-post count')
++    require(type(manifest) is dict and set(manifest) == {'schema', 'expect_statement', 'content_total', 'jobs'},
++            'invalid batch fields')
++    require(manifest['schema'] == SCHEMA and manifest['expect_statement'] == runtime.IDENTITY
++            and type(manifest['content_total']) is int and manifest['content_total'] == total,
++            'batch model or independently counted post length changed')
++    work = proof_plans.category_work_plan(total, runtime.templates())
++    jobs = manifest['jobs']
++    require(type(jobs) is list and len(jobs) == len(work) <= 24, 'incomplete batch')
++    names, destinations = set(), []
++    for row, chunk in zip(jobs, work):
++        require(type(row) is dict and set(row) == ROW_KEYS, 'invalid batch job fields')
++        require(type(row['name']) is str and re.fullmatch(r'[A-Za-z0-9_-]{1,48}', row['name'])
++                and row['name'] not in names, 'duplicate or invalid batch job name')
++        names.add(row['name'])
++        require(row['policy_id'] == chunk['policy_id'] and type(row['chunk_index']) is int
++                and row['chunk_index'] == chunk['category_chunk_index'], 'batch policy/chunk differs from the complete plan')
++        for key in ('sequence_dir', 'out', 'owner_dir'):
++            require(type(row[key]) is str and '\x00' not in row[key] and Path(row[key]).is_absolute()
++                    and '..' not in Path(row[key]).parts, 'batch requires absolute paths')
++        # Future sequence/output leaves may not exist yet. resolve() still
++        # collapses any existing symlink parent before alias comparisons.
++        out, owner = (Path(row[k]).resolve() for k in ('out', 'owner_dir'))
++        destinations.extend((out, Path(str(out) + '.incomplete'), Path(str(out) + '.unverified-statement'), owner))
++    for i, dst in enumerate(destinations):
++        require(all(dst != old and dst not in old.parents and old not in dst.parents for old in destinations[:i]),
++                'batch output/private paths overlap')
++    for row in jobs:
++        owner = Path(row['owner_dir']).resolve()
++        require(not in_git_tree(owner), 'batch owner directory must be outside git work trees')
++        for public in (Path(other['out']).resolve().parent for other in jobs):
++            require(owner != public and public not in owner.parents, 'batch owner is inside a receipt parent')
++    return work
++
++
++def prepare_ids(post_id, ids, reserved_plan, job, receipts, *, reserved_context):
++    """Internal transport boundary. The caller must supply the original post's
++    pinned encoding/reservation; public prepare_text computes that encoding.
++    Exclusive creation prevents a restarted worker from screening it again.
++    """
++    require(config.prover_mode() == 'shieldstral' and reserved_context == records.screening_context(),
++            'original screening context differs from the real classifier configuration')
++    require(type(post_id) is str and re.fullmatch(r'[A-Za-z0-9_-]{1,80}', post_id), 'invalid post id')
++    require(type(ids) is tuple and 1 <= len(ids) <= 336
++            and all(type(i) is int and SPECIAL_TOKENS <= i < VOCABULARY for i in ids), 'invalid content encoding')
++    work = proof_plans.category_work_plan(len(ids), runtime.templates())
++    proof_plans.check_plan(reserved_plan, work)
++    require(not Path(job).is_symlink(), 'private job path is a symlink')
++    job, receipts = Path(job).resolve(), Path(receipts).resolve()
++    require(job.parent.is_dir() and receipts.is_dir() and not in_git_tree(job), 'invalid private/receipt roots')
++    require(not job.exists() and not job.is_symlink(), 'batch is already prepared; no automatic retry')
++    content = job / 'content.ids'
++    jobs = []
++    for chunk in work:
++        name = f'c{chunk["index"]}'
++        jobs.append({'name': name, 'policy_id': chunk['policy_id'], 'chunk_index': chunk['category_chunk_index'],
++                     'sequence_dir': str(job / 'activations' / name),
++                     'out': str(receipts / f'{post_id}-{name}'), 'owner_dir': str(job / 'owners' / name)})
++    manifest = {'schema': SCHEMA, 'expect_statement': runtime.IDENTITY, 'content_total': len(ids), 'jobs': jobs}
++    validate_manifest(manifest, len(ids))
++    for row in jobs:
++        for suffix in ('', '.incomplete', '.unverified-statement'):
++            path = Path(row['out'] + suffix)
++            require(not path.exists() and not path.is_symlink(), 'a batch receipt path already exists')
++    job.mkdir(mode=0o700, exist_ok=False)
++    (job / 'owners').mkdir(mode=0o700)
++    write_private(content, (','.join(map(str, ids)) + '\n').encode())
++    request = [{'name': r['name'], 'policy_id': r['policy_id'], 'content_file': str(content),
++                'chunk_index': r['chunk_index']} for r in jobs]
++    write_private(job / 'activation-request.json', records.canonical(request))
++    write_private(job / 'batch-request.json', records.canonical(manifest))
++    write_private(job / 'prepared.json', records.canonical({'schema': 'pm-classifier-batch-candidate/1',
++        'post_id': post_id, 'reserved_plan': reserved_plan, 'screening_context': records.screening_context(),
++        'status': 'prepared; unverified; not integrated with the app queue'}))
++    scope = cleanup_scope(manifest, len(ids), post_id, job, receipts)
++    write_private(job / 'cleanup-scope.json', records.canonical(asdict(scope)))
++    return manifest
++
++
++def prepare_text(post_id, text, reserved_plan, job, receipts, *, reserved_context):
++    ids = ShieldstralTextEncoder(runtime.TEKKEN).content_ids(text)
++    return prepare_ids(post_id, ids, reserved_plan, job, receipts, reserved_context=reserved_context)
++
++
++def prove_command(manifest, total, job, candidate_binary, candidate_sha256):
++    """Command construction only. Execution must use the shared resource guard.
++    A candidate binary is explicit and is never installed as the app default.
++    """
++    validate_manifest(manifest, total)
++    job, binary = Path(job).resolve(), Path(candidate_binary).resolve()
++    require(binary != runtime.BINARY.resolve() and candidate_sha256 != runtime.BINARY_SHA,
++            'r16b has no prove-batch command')
++    require(re.fullmatch(r'[0-9a-f]{64}', candidate_sha256) is not None
++            and records.sha256_file(binary) == candidate_sha256, 'batch binary differs from candidate pin')
++    require(records.canonical(json.loads((job / 'batch-request.json').read_bytes())) == records.canonical(manifest),
++            'batch request changed after preparation')
++    return [str(binary), 'prove-batch', '--export', str(runtime.EXPORT), '--tables', str(runtime.VERIFIER_EXPORT / 'token_io'),
++            '--content-file', str(job / 'content.ids'), '--batch-file', str(job / 'batch-request.json'), '--label', CONTEXT]
++
++
++def fresh_check_commands(manifest, total, job):
++    """Use the reviewed verifier in new processes; no batch prover verdict is
++    accepted here. collect_verified/collect_label must validate their results.
++    """
++    work = validate_manifest(manifest, total)
++    clis = {t.policy_id: ClassifierCLI(runtime.deployment(t)) for t in runtime.templates()}
++    commands = []
++    grouped = {t.policy_id: [] for t in runtime.templates()}
++    for row, chunk in zip(manifest['jobs'], work):
++        cli = clis[row['policy_id']]
++        commands.append((row['name'] + '-verify', cli.verify_command(row['out'])))
++        commands.append((row['name'] + '-inowner', cli.owner_command(row['out'], Path(row['owner_dir']) / 'input.dec', Path(job) / 'content.ids')))
++        grouped[row['policy_id']].append(row['out'])
++    for policy, paths in grouped.items():
++        commands.append((policy.split('-moderate-')[1].split('/')[0] + '-label', clis[policy].label_command(paths, total)))
++    return commands
++
++
++def _nonnegative(value):
++    return type(value) in (int, float) and math.isfinite(value) and value >= 0
++
++
++def _unique_object(pairs):
++    obj = {}
++    for key, value in pairs:
++        if key in obj:
++            raise ValueError('duplicate JSON key')
++        obj[key] = value
++    return obj
++
++
++def cleanup_scope(manifest, total, post_id, job, receipts):
++    """Fix the authorized output locations before starting a batch child."""
++    validate_manifest(manifest, total)
++    job, receipts = Path(job).resolve(), Path(receipts).resolve()
++    for i, row in enumerate(manifest['jobs']):
++        require(row['name'] == f'c{i}' and row['out'] == str(receipts / f'{post_id}-c{i}')
++                and row['owner_dir'] == str(job / 'owners' / f'c{i}')
++                and row['sequence_dir'] == str(job / 'activations' / f'c{i}'),
++                'batch paths differ from the prepared app scope')
++    return CleanupScope(post_id, str(job), str(receipts), len(manifest['jobs']),
++                        hashlib.sha256(records.canonical(manifest)).hexdigest())
++
++
++def collect_batch_result(stdout, rc, manifest, total, guard_record, scope, *, terminal_confirmed):
++    """The queue's terminal boundary, including recovery after failure/kill.
++
++    A caller retains the prepared scope (cleanup-scope.json), and checks its
++    job/post/receipt roots against its own queue configuration on restart.
++    Guard completion alone never accepts a proof; normal native fresh checks
++    follow only the unverified result returned here.
++    """
++    require(terminal_confirmed is True and isinstance(scope, CleanupScope), 'batch child is not confirmed terminal')
++    try:
++        require(hashlib.sha256(records.canonical(manifest)).hexdigest() == scope.manifest_sha256,
++                'batch request changed after launch')
++        g = guard_record
++        require(type(g) is dict and type(g.get('exit')) is int and g['exit'] == 0
++                and type(g.get('child_rc')) is int and g['child_rc'] == 0
++                and not any(g.get(k) for k in ('guard_killed', 'refused', 'guard_error', 'hard_killed',
++                                             'stragglers_killed', 'gpu_drain_failed')),
++                'batch guard did not report clean child completion')
++        return split_unverified_log(stdout, rc, manifest, total)
++    except Exception:
++        try:
++            quarantine(scope, terminal_confirmed=True)
++        except Exception as exc:
++            raise ProverError('Batch failed; quarantine needs recovery. Publication and retries remain blocked.') from exc
++        raise ProverError('Batch failed; outputs quarantined. No proof is accepted and no automatic retry is allowed.') from None
++
++
++def split_unverified_log(stdout, rc, manifest, total):
++    """Validate a complete, ordered event stream and route private per-run logs.
++    Success means transport completed, NOT proof acceptance. On any malformed,
++    failed or partial stream no per-run success result is returned.
++    """
++    work = validate_manifest(manifest, total)
++    require(type(rc) is int and rc == 0, 'batch prover did not exit successfully')
++    require(type(stdout) is str and len(stdout.encode()) <= 2 << 20, 'batch log is too large')
++    jobs, logs = manifest['jobs'], {}
++    current, events, next_index, loaded, terminal = None, [], 0, False, False
++    for line in stdout.splitlines():
++        if not line.strip():
++            continue
++        try:
++            e = json.loads(line, object_pairs_hook=_unique_object,
++                           parse_constant=lambda _: (_ for _ in ()).throw(ValueError('nonfinite JSON')))
++        except (ValueError, TypeError):
++            require(False, 'malformed batch event')
++        require(type(e) is dict and not terminal, 'unexpected event after batch completion')
++        kind = e.get('event')
++        if kind == 'batch-loaded':
++            require(not loaded and next_index == 0 and current is None and type(e.get('jobs')) is int
++                    and e['jobs'] == len(jobs) and type(e.get('model_loads')) is int and e['model_loads'] == 1
++                    and type(e.get('table_loads')) is int and e['table_loads'] == 1
++                    and e.get('trained_statement_identity') == runtime.IDENTITY and e.get('context_label') == CONTEXT
++                    and _nonnegative(e.get('load_seconds')), 'invalid shared model-load event')
++            loaded = True
++        elif kind == 'batch-job-start':
++            require(loaded and current is None and next_index < len(jobs), 'unexpected job start')
++            row = jobs[next_index]
++            require(type(e.get('index')) is int and e['index'] == next_index and e.get('name') == row['name']
++                    and e.get('policy') == row['policy_id'] and type(e.get('chunk')) is int
++                    and e['chunk'] == row['chunk_index'], 'batch job identity changed')
++            current, events = next_index, []
++        elif kind in ('loaded', 'segment', 'proved'):
++            require(current is not None, 'native event outside a batch job')
++            events.append(e)
++        elif kind == 'batch-job-proved':
++            require(current is not None and type(e.get('index')) is int and e['index'] == current
++                    and e.get('name') == jobs[current]['name'], 'wrong job completion')
++            row, chunk = jobs[current], work[current]
++            require(len(events) == 30 and [x['event'] for x in events] == ['loaded'] + ['segment'] * 28 + ['proved'],
++                    'missing, duplicated or reordered native proof events')
++            a, z = events[0], events[-1]
++            for k, value in {'policy': row['policy_id'], 'chunk': row['chunk_index'], 'chunks': chunk['category_chunks']}.items():
++                require(records.canonical(a.get(k)) == records.canonical(value)
++                        and records.canonical(z.get(k)) == records.canonical(value), 'native event differs from job')
++            require(a.get('trained_statement_identity') == runtime.IDENTITY and a.get('run_profile') == runtime.RUN_PROFILE
++                    and type(a.get('blocks')) is int and a['blocks'] == 26
++                    and type(a.get('content_length_n')) is int and a['content_length_n'] == chunk['end'] - chunk['start'],
++                    'native loaded event differs from whole-post plan')
++            sizes = []
++            for i, part in enumerate(events[1:-1]):
++                require(type(part.get('index')) is int and part['index'] == i
++                        and type(part.get('bytes')) is int and part['bytes'] > 0 and _nonnegative(part.get('elapsed_seconds')),
++                        'invalid native segment event')
++                sizes.append(part['bytes'])
++            require(z.get('run') == row['out'] and z.get('owner_dir') == row['owner_dir']
++                    and type(z.get('segments')) is int and z['segments'] == 28
++                    and type(z.get('receipt_bytes')) is int and z['receipt_bytes'] == sum(sizes)
++                    and type(z.get('whole_run_floor_bits')) is int and z['whole_run_floor_bits'] >= 95
++                    and z.get('verdict') in ('flagged', 'not-flagged')
++                    and _nonnegative(z.get('prove_seconds')) and _nonnegative(z.get('total_seconds')),
++                    'invalid native proof summary')
++            logs[row['name']] = '\n'.join(json.dumps(x, sort_keys=True) for x in events) + '\n'
++            next_index += 1
++            current, events = None, []
++        elif kind == 'batch-proved':
++            require(loaded and current is None and next_index == len(jobs)
++                    and type(e.get('jobs')) is int and e['jobs'] == len(jobs) and e.get('verified') is False
++                    and _nonnegative(e.get('total_seconds')), 'partial or invalid batch completion')
++            terminal = True
++        else:
++            require(False, 'batch reported refusal or an unknown event')
++    require(terminal and len(logs) == len(jobs), 'batch completion missing')
++    return {'status': 'unverified', 'logs': logs}
+--- /dev/null
++++ b/apps/proven-media/proven_media/batch_queue_gate.py
+@@ -0,0 +1,81 @@
++"""Staged R18-1 startup/terminal gate; production remains r16b per category.
++
++The caller supplies the original queue reservation and confirms termination.
++Unknown or live process state blocks the queue, without moving live outputs.
++A successful transport is still unverified: fresh per-job checks are required.
++"""
++from dataclasses import asdict
++import hashlib
++import json
++from pathlib import Path
++
++from .batch_cleanup import CleanupScope, quarantine, _atomic_private
++from .batch_request import collect_batch_result
++from . import proof_plans, records
++from .classifier_cli import require
++from .provers import ProverError
++
++
++def reject_quarantined_source(path):
++    """Use before either publication inventory reads or content-store writes."""
++    path = Path(path)
++    require(all('.batch-quarantine' not in p.parts for p in (path.absolute(), path.resolve())),
++            'quarantined batch receipts cannot be published')
++
++
++def recover_batch(job, receipts, *, post_id, reserved_plan, reserved_context, terminal_confirmed,
++                  terminal_exit=None, reserved_scope=None):
++    """Queue startup and normal termination share the exact same collector.
++
++    Roots are provided by the queue, never taken from child stdout. A corrupt
++    request is quarantined using the retained, independently checked scope.
++    No outcome returned by this function permits automatic re-proving.
++    """
++    require(terminal_confirmed is True, 'live or uncertain batch blocks queue recovery')
++    require(terminal_exit is None or type(terminal_exit) is int, 'invalid supervisor exit')
++    job, receipts = Path(job).resolve(), Path(receipts).resolve()
++    require(job.name == 'batch' and job.parent.name == post_id, 'batch job differs from queue post')
++    raw = reserved_scope if reserved_scope is not None else json.loads((job/'cleanup-scope.json').read_text())
++    scope = CleanupScope(**raw)
++    require(scope.post_id == post_id and scope.job == str(job) and scope.receipts == str(receipts)
++            and scope.count == len(reserved_plan), 'batch cleanup scope differs from original queue')
++    require(proof_plans.is_category_plan(reserved_plan), 'original category plan required')
++    report = job/'batch-collection.json'
++
++    def fail():
++        cleanup = quarantine(scope, terminal_confirmed=True)
++        result = {'schema':'pm-batch-collection/1', 'status':'quarantined',
++                  'publication_allowed':False, 'retry_allowed':False,
++                  'scope':asdict(scope), 'cleanup_complete':cleanup['complete']}
++        _atomic_private(report, result)
++        return result
++
++    # A completed quarantine is irreversible, even if a success log appears later.
++    if (job/'failed-batch-quarantine.json').exists() or terminal_exit not in (None, 0):
++        return fail()
++    try:
++        require(json.loads((job/'cleanup-scope.json').read_text())==asdict(scope),
++                'cleanup file differs from original registered scope')
++        require(reserved_context == records.screening_context(), 'original batch screening context changed')
++        request = json.loads((job/'batch-request.json').read_text())
++        total = request['content_total']
++        from .batch_request import validate_manifest
++        work = validate_manifest(request, total)
++        proof_plans.check_plan(reserved_plan, work)
++        require(hashlib.sha256(records.canonical(request)).hexdigest() == scope.manifest_sha256,
++                'batch request differs from prepared scope')
++        # Missing log, completion marker, or guard evidence is a failed batch,
++        # including startup following a reboot. A proved prefix is insufficient.
++        logs = job/'logs'
++        stdout = (logs/'prove-batch.log').read_text()
++        rc = int((logs/'prove-batch.guard.done').read_text().strip())
++        guard = json.loads((logs/'prove-batch.guard.json').read_text())
++        routed = collect_batch_result(stdout, rc, request, total, guard, scope,
++                                      terminal_confirmed=True)
++    except (OSError, ValueError, KeyError, TypeError, ProverError):
++        return fail()
++    result = {'schema':'pm-batch-collection/1', 'status':'unverified',
++              'publication_allowed':False, 'retry_allowed':False,
++              'scope':asdict(scope), 'transport':routed}
++    _atomic_private(report, result)
++    return result
+--- /dev/null
++++ b/apps/proven-media/proven_media/batch_registry.py
+@@ -0,0 +1,201 @@
++"""Staged queue registration and startup recovery; no batch launcher enabled.
++
++The registration is committed before launch. A same-boot missing PID is never
++termination evidence. The future supervisor must write pipeline-terminal.json
++only after all guarded children have been reaped; until then recovery blocks.
++"""
++import json
++import os
++from pathlib import Path
++import uuid
++
++from .batch_queue_gate import recover_batch
++from . import config, proof_plans, records
++from .classifier_cli import require
++
++SCHEMA = """
++CREATE TABLE IF NOT EXISTS batch_runs(
++ post_id TEXT PRIMARY KEY, job_dir TEXT NOT NULL, receipts TEXT NOT NULL,
++ plan TEXT NOT NULL, context TEXT NOT NULL, boot_id TEXT NOT NULL,
++ launch_id TEXT NOT NULL UNIQUE, status TEXT NOT NULL, collection TEXT, scope TEXT NOT NULL);
++"""
++
++
++def boot_id():
++    return Path('/proc/sys/kernel/random/boot_id').read_text().strip()
++
++
++def register_prepared(store, post_id):
++    """Atomically claim every queued category before any batch child starts.
++
++    Preparation itself does not prove. Existing registration, partial claims,
++    or completed category rows forbid registering the post a second time.
++    """
++    post = store.post(post_id)
++    require(post is not None, 'batch post is missing')
++    store.check_screening(post)
++    plan = json.loads(post['chunks'])
++    require(proof_plans.is_category_plan(plan), 'complete category plan required')
++    job = (config.JOBS_DIR/post_id/'batch').resolve()
++    receipts = config.RUNS_DIR.resolve()
++    scope = json.loads((job/'cleanup-scope.json').read_text())
++    prepared = json.loads((job/'prepared.json').read_text())
++    require(scope['post_id'] == post_id and scope['job'] == str(job)
++            and scope['receipts'] == str(receipts) and scope['count'] == len(plan),
++            'prepared scope differs from queue roots')
++    require(prepared['post_id'] == post_id and prepared['reserved_plan'] == plan
++            and prepared['screening_context'] == post['screening_context'],
++            'prepared batch differs from original reservation')
++    # Persist owner inputs and the trusted cleanup scope before the SQLite
++    # claim can authorize any child. Recovery also keeps scope in the DB.
++    for path in job.iterdir():
++        if path.is_file():
++            with path.open('rb') as stream:os.fsync(stream.fileno())
++    for path in (job/'owners',job,job.parent):
++        fd=os.open(path,os.O_RDONLY|os.O_DIRECTORY)
++        try:os.fsync(fd)
++        finally:os.close(fd)
++    launch_id = uuid.uuid4().hex
++    with store.lock:
++        store.db.execute('BEGIN IMMEDIATE')
++        try:
++            store.check_screening(store.post(post_id))
++            require(not store.one('SELECT post_id FROM batch_runs WHERE post_id=?', (post_id,)),
++                    'batch is already registered; no retry')
++            jobs = store.q("SELECT * FROM jobs WHERE post_id=? AND kind='prove' ORDER BY chunk", (post_id,))
++            require(len(jobs) == len(plan) and all(j['status'] == 'queued' and j['chunk'] == p['index']
++                    for j, p in zip(jobs, plan)), 'batch needs every original queued category')
++            require(not store.one('SELECT post_id FROM chunk_proofs WHERE post_id=?', (post_id,)),
++                    'a category was already attempted')
++            store.x('INSERT INTO batch_runs VALUES(?,?,?,?,?,?,?,?,NULL,?)',
++                    (post_id, str(job), str(receipts), records.canonical(plan).decode(),
++                     post['screening_context'], boot_id(), launch_id, 'active',records.canonical(scope).decode()))
++            store.x("UPDATE jobs SET status='running',job_dir=?,started_at=? WHERE post_id=? AND kind='prove'",
++                    (str(job), records.now_iso(), post_id))
++            store.update_post(post_id, status='screening', prove_attempted=1)
++            store.db.execute('COMMIT')
++        except BaseException:
++            store.db.execute('ROLLBACK')
++            raise
++    return launch_id
++
++
++def terminal_known(row):
++    # Reboot is sufficient even when a crash left no terminal marker. Merely
++    # losing visibility of a process in another namespace is insufficient.
++    path = Path(row['job_dir'])/'pipeline-terminal.json'
++    if not path.exists():
++        return row['boot_id'] != boot_id(), None
++    terminal = json.loads(path.read_text())
++    require(terminal.get('schema') == 'pm-batch-terminal/1'
++            and terminal.get('launch_id') == row['launch_id']
++            and terminal.get('boot_id') == row['boot_id']
++            and terminal.get('children_reaped') is True
++            and type(terminal.get('exit')) is int, 'batch terminal identity is invalid')
++    return True, terminal['exit']
++
++
++def _failed(store, row, result):
++    """Persist failure without releasing the original D45 reservation."""
++    with store.lock:
++        store.db.execute('BEGIN IMMEDIATE')
++        try:
++            store.x('UPDATE batch_runs SET status=?,collection=? WHERE post_id=?',
++                    ('quarantined', records.canonical(result).decode(), row['post_id']))
++            store.x("UPDATE jobs SET status='failed',finished_at=?,error=? WHERE post_id=? AND kind='prove'",
++                    (records.now_iso(), 'Batch failed; quarantined; no retry.', row['post_id']))
++            store.x("UPDATE chunk_proofs SET status='failed',attempted=1,error=? WHERE post_id=?",
++                    ('Batch quarantined; no accepted proof.', row['post_id']))
++            store.update_post(row['post_id'], status='failed', prove_attempted=1,
++                              status_message='Could not be verified.')
++            store.db.execute('COMMIT')
++        except BaseException:
++            store.db.execute('ROLLBACK')
++            raise
++
++
++def recover_registered_batches(worker):
++    """Quarantine all failed terminal batches before any publication or launch.
++
++    Unknown/live jobs hold the queue. Successful transport needs fresh native
++    checks from the batch adapter before the entire category set is committed.
++    Publication can resume after a crash, but native proof work never restarts.
++    """
++    store = worker.store
++    blocked, ready = False, []
++    for row in store.q("SELECT * FROM batch_runs WHERE status NOT IN ('quarantined','finished') ORDER BY post_id"):
++        post_id = row['post_id']
++        job = (config.JOBS_DIR/post_id/'batch').resolve()
++        require(row['job_dir'] == str(job) and row['receipts'] == str(config.RUNS_DIR.resolve()),
++                'registered batch roots differ from deployment')
++        require(row['status'] in ('active', 'unverified', 'verified'), 'unknown batch state blocks queue')
++        terminal, terminal_exit = terminal_known(row)
++        if not terminal:
++            blocked = True
++            continue
++        post = store.post(post_id)
++        require(post is not None and (post['status'] != 'published' or row['status'] == 'verified'),
++                'unverified batch post already published or missing')
++        require(json.loads(post['chunks']) == json.loads(row['plan'])
++                and post['screening_context'] == row['context'], 'original batch reservation changed')
++        result = recover_batch(job, config.RUNS_DIR, post_id=post_id,
++                               reserved_plan=json.loads(row['plan']), reserved_context=row['context'],
++                               terminal_confirmed=True, terminal_exit=terminal_exit,
++                               reserved_scope=json.loads(row['scope']))
++        if result['status'] == 'quarantined':
++            _failed(store, row, result)
++        else:
++            # Preserve 'verified' across a crash after publication but before
++            # the final DB transition; ordinary unverified data cannot do so.
++            if row['status'] != 'verified':
++                store.x("UPDATE batch_runs SET status='unverified',collection=? WHERE post_id=?",
++                        (records.canonical(result).decode(), post_id))
++            ready.append((row, post))
++            if getattr(worker.prover, 'batch_proving', False) is not True:
++                blocked = True
++    if blocked:
++        return True
++    verified=[]
++    for row, post in ready:
++        plan=json.loads(row['plan'])
++        try:
++            store.check_screening(post)
++            recs=worker.prover.collect_batch(post,Path(row['job_dir']),row)
++            require(len(recs)==len(plan), 'batch did not return every category record')
++            for chunk, rec in zip(plan,recs):
++                proof_plans.check_category_record(rec.to_dict(),post['id'],chunk,require_verdict=True)
++            from .items import TextItem
++            worker.prover.check_final_records(TextItem(post['text']),[r.to_dict() for r in recs])
++        except Exception:
++            failed=recover_batch(Path(row['job_dir']),config.RUNS_DIR,post_id=row['post_id'],
++                reserved_plan=plan,reserved_context=row['context'],terminal_confirmed=True,
++                terminal_exit=1,reserved_scope=json.loads(row['scope']))
++            _failed(store,row,failed)
++            continue
++        with store.lock:
++            store.db.execute('BEGIN IMMEDIATE')
++            try:
++                store.check_screening(store.post(post['id']))
++                for chunk, rec in zip(plan,recs):
++                    worker._set_chunk(post['id'],chunk['index'],'done',rec.to_dict(),None,True)
++                    store.x("UPDATE jobs SET status='done',finished_at=?,result=? WHERE post_id=? AND kind='prove' AND chunk=?",
++                            (records.now_iso(),records.canonical({'chunk':chunk['index'],
++                             'labels':records.effective_labels(rec.to_dict())}).decode(),post['id'],chunk['index']))
++                store.x("UPDATE batch_runs SET status='verified' WHERE post_id=?",(post['id'],))
++                store.db.execute('COMMIT')
++            except BaseException:
++                store.db.execute('ROLLBACK')
++                raise
++        verified.append((row,post))
++    # No publisher call occurs until every known terminal failure above has
++    # been quarantined and every accepted category set committed atomically.
++    for row, post in verified:
++        worker.finalize(post['id'], require_publication=True)
++        if store.post(post['id'])['status']!='published':
++            failed=recover_batch(Path(row['job_dir']),config.RUNS_DIR,post_id=row['post_id'],
++                reserved_plan=json.loads(row['plan']),reserved_context=row['context'],
++                terminal_confirmed=True,terminal_exit=1,reserved_scope=json.loads(row['scope']))
++            _failed(store,row,failed)
++        else:
++            store.x("UPDATE batch_runs SET status='finished' WHERE post_id=?",(post['id'],))
++    return False
+--- /dev/null
++++ b/apps/proven-media/proven_media/batch_supervisor.py
+@@ -0,0 +1,145 @@
++"""Staged guarded-child lifecycle; not a selectable application prover.
++
++No batch command plan or factory is installed here. The caller must have
++atomically registered its prepared batch, and must still collect/verify every
++receipt. This module only establishes whether recovery may move output files.
++"""
++import fcntl
++import hashlib
++import json
++import math
++import os
++from pathlib import Path
++import re
++import signal
++import subprocess
++import time
++
++from .batch_cleanup import _atomic_private
++from .batch_registry import boot_id
++from . import config
++from .classifier_cli import require
++
++GUARD_SHA256 = '67e9478f55518c2808ff65e5f303f70e155a5f21c5987243a39cf579d1a9a6f3'
++
++
++class BatchSupervisor:
++    def __init__(self, job, launch_id):
++        self.job = Path(job)
++        self.launch_id = launch_id
++        self.boot = boot_id()
++        self.child = None
++        self.stopping = False
++        self.children_reaped = True
++
++    def stop(self, _signum=None, _frame=None):
++        self.stopping = True
++        if self.child is not None and self.child.poll() is None:
++            # Signal only this guard. Its contract drains its child tree and
++            # publishes terminal evidence; never kill the guard or its group.
++            self.child.terminate()
++
++    def _guard_argv(self, name, command, need, cap, maximum):
++        require(hashlib.sha256(config.GUARD.read_bytes()).hexdigest() == GUARD_SHA256,
++                'guard source changed; lifecycle contract needs review')
++        logs = self.job/'logs'
++        return ['python3', str(config.GUARD), 'run', '--class', 'cpu',
++                '--need-gib', str(need), '--cap-gib', str(cap),
++                '--max-secs', str(maximum), '--wait-secs', str(config.GUARD_WAIT_SECS),
++                '--label', 'pm-batch-'+name, '--log', str(logs/(name+'.log')),
++                '--done', str(logs/(name+'.guard.done')),
++                '--result-json', str(logs/(name+'.guard.json')), '--', *command]
++
++    def step(self, name, command, need, cap, maximum):
++        require(not self.stopping, 'batch supervisor stopped')
++        holds=(config.HOLD_FILE, config.REPO/'results/zk60_shieldstral_prep_20261021/HOLD',
++               config.REPO/'results/zk60_shieldstral_export_20261026/HOLD')
++        require(not any(p.exists() for p in holds), 'coordinator hold blocks batch launch')
++        require(type(name) is str and re.fullmatch(r'[a-z0-9-]{1,64}', name), 'invalid step name')
++        require(all(type(v) in (int, float) and math.isfinite(v) and v > 0 for v in (need, cap, maximum))
++                and need <= cap, 'invalid guarded resource declaration')
++        logs = self.job/'logs'
++        require(not any((logs/(name+s)).exists() for s in ('.guard.done','.guard.json','.guard.out')),
++                'batch step already exists; no automatic retry')
++        argv = self._guard_argv(name, command, need, cap, maximum)
++        display='prove' if name=='prove-batch' else name.rsplit('-',1)[-1]
++        _atomic_private(self.job/'batch-progress.json',{'step':display,'step_since':time.time(),
++                                                     'waiting_for_machine':False})
++        with (logs/(name+'.guard.out')).open('xb') as out:
++            self.child = subprocess.Popen(argv, stdin=subprocess.DEVNULL, stdout=out,
++                                          stderr=subprocess.STDOUT, close_fds=True)
++            self.children_reaped = False
++            if self.stopping:
++                self.child.terminate()
++            interrupted=None
++            try:
++                _atomic_private(logs/(name+'.guard-process.json'),
++                    {'pid':self.child.pid,'boot_id':self.boot,
++                     'pid_namespace':os.readlink('/proc/self/ns/pid')})
++                rc = self.child.wait()
++            except BaseException as exc:
++                interrupted=exc
++                self.stop()
++                rc=self.child.wait()  # no shorter drain deadline than the guard
++            child_pid = self.child.pid
++            self.child = None
++        # Process exit alone is insufficient: a killed guard can orphan a
++        # native child. Missing or uncertain cleanup evidence leaves no safe
++        # terminal marker; the queue must wait for reboot/operator recovery.
++        done = int((logs/(name+'.guard.done')).read_text().strip())
++        guard = json.loads((logs/(name+'.guard.json')).read_text())
++        require(type(guard.get('exit')) is int and guard['exit'] == done == rc
++                and guard.get('guard_pid') == child_pid and guard.get('boot_id') == self.boot
++                and not guard.get('guard_error') and not guard.get('foreign_cgroups_refused')
++                and not guard.get('gpu_drain_failed'), 'guard cleanup is unconfirmed')
++        self.children_reaped = True
++        if interrupted is not None:raise interrupted
++        require(rc == 0 and not self.stopping, 'guarded batch step failed or was stopped')
++        return guard
++
++    def run(self, steps, *, on_terminal=None):
++        fd = os.open(self.job/'batch-supervisor.lock', os.O_RDWR|os.O_CREAT|os.O_NOFOLLOW, 0o600)
++        with os.fdopen(fd, 'r+b') as lock:
++            # A competing supervisor must not write a terminal marker while
++            # the original supervisor's child is still running.
++            fcntl.flock(lock, fcntl.LOCK_EX|fcntl.LOCK_NB)
++            return self._run_locked(steps, on_terminal)
++
++    def _run_locked(self, steps, on_terminal):
++        """Run explicit leaf declarations and retain a truthful terminal marker.
++
++        `steps` must be constructed by the future pinned batch pipeline; each
++        tuple is (name, argv, need_gib, cap_gib, max_seconds). This function
++        makes no claim that a successful step accepted any proof.
++        """
++        require(not (self.job/'pipeline-terminal.json').exists(), 'batch is already terminal')
++        (self.job/'logs').mkdir(mode=0o700, exist_ok=True)
++        _atomic_private(self.job/'supervisor-process.json',{'pid':os.getpid(),'boot_id':self.boot,
++                        'launch_id':self.launch_id,'pid_namespace':os.readlink('/proc/self/ns/pid')})
++        previous = {s:signal.getsignal(s) for s in (signal.SIGTERM, signal.SIGINT)}
++        for s in previous: signal.signal(s, self.stop)
++        code = 1
++        try:
++            for step in steps:
++                self.step(*step)
++            require(not self.stopping, 'batch supervisor stopped')
++            code = 0
++        except Exception as exc:
++            _atomic_private(self.job/'supervisor-error.json',
++                            {'type':type(exc).__name__, 'message':str(exc),
++                             'children_reaped':self.children_reaped})
++        finally:
++            for s, handler in previous.items(): signal.signal(s, handler)
++            if self.children_reaped:
++                try:
++                    if on_terminal is not None:
++                        on_terminal(code)
++                except Exception as exc:
++                    code=1
++                    _atomic_private(self.job/'collector-error.json',
++                                    {'type':type(exc).__name__, 'message':str(exc)})
++                _atomic_private(self.job/'pipeline-terminal.json',
++                    {'schema':'pm-batch-terminal/1', 'launch_id':self.launch_id,
++                     'boot_id':self.boot, 'children_reaped':True, 'exit':code})
++                _atomic_private(self.job/'pipeline.done',code)
++        return code
+--- /dev/null
++++ b/apps/proven-media/proven_media/batch_pipeline.py
+@@ -0,0 +1,165 @@
++"""Candidate batch pipeline: one guarded prove, then separate fresh checks.
++
++Not registered in the app factory. Every confirmed terminal path calls the
++same quarantine collector before exposing the supervisor completion marker.
++"""
++import hashlib
++import json
++import math
++import os
++from pathlib import Path
++import sqlite3
++import sys
++
++from .batch_cleanup import _atomic_private
++from .batch_request import prove_command, validate_manifest
++from .batch_queue_gate import recover_batch
++from .batch_supervisor import BatchSupervisor
++from . import config, proof_plans, records, shieldstral_runtime as runtime
++from .classifier_cli import ClassifierCLI, require
++
++BATCH_BINARY = config.TOKEN_IO/'cli/zk60_classify.r18.release.bin'
++BATCH_BINARY_SHA = '110f0c53c56f691c301fe4f47d13afc1ccc9898efbaaf8506f1e0d5cde5f4496'
++SCHEMA = 'pm-classifier-batch-pipeline/1'
++
++
++def source_pins():
++    files=[Path(__file__).with_name(name) for name in ('batch_pipeline.py','batch_prover.py',
++        'batch_request.py','batch_cleanup.py','batch_queue_gate.py','batch_registry.py','batch_supervisor.py')]
++    from . import classifier_cli, shieldstral_prover
++    files += [Path(m.__file__) for m in (config,proof_plans,records,runtime,classifier_cli,shieldstral_prover)]
++    return {str(p.resolve()):hashlib.sha256(p.read_bytes()).hexdigest() for p in files}
++
++
++def registration(job):
++    """Read the original atomic queue claim without opening a writable store."""
++    job=Path(job).resolve()
++    require(job == (config.JOBS_DIR/job.parent.name/'batch').resolve(), 'batch job outside configured root')
++    with sqlite3.connect('file:'+str(config.DB_PATH)+'?mode=ro',uri=True) as db:
++        db.row_factory=sqlite3.Row
++        row=db.execute('SELECT * FROM batch_runs WHERE job_dir=?',(str(job),)).fetchone()
++    require(row is not None, 'batch launch has no original queue claim')
++    row=dict(row)
++    require(row['post_id']==job.parent.name and row['receipts']==str(config.RUNS_DIR.resolve())
++            and row['status']=='active', 'batch registration is not launchable')
++    return row
++
++
++def load_spec(job, row):
++    job=Path(job)
++    spec=json.loads((job/'batch-pipeline.json').read_text())
++    request=json.loads((job/'batch-request.json').read_text())
++    require(spec['schema']==SCHEMA and spec['post_id']==row['post_id']
++            and spec['launch_id']==row['launch_id'] and spec['boot_id']==row['boot_id']
++            and spec['context']==row['context']==records.screening_context()
++            and spec['plan']==json.loads(row['plan']), 'batch pipeline differs from queue claim')
++    require(spec['source_sha256']==source_pins(), 'batch pipeline sources changed')
++    require(spec['prover_binary']==str(BATCH_BINARY) and spec['prover_sha256']==BATCH_BINARY_SHA
++            and records.sha256_file(BATCH_BINARY)==BATCH_BINARY_SHA, 'batch prover pin changed')
++    ids=tuple(int(x) for x in (job/'content.ids').read_text().strip().split(','))
++    require(type(spec['total']) is int and len(ids)==spec['total'], 'whole-post content length changed')
++    work=validate_manifest(request,len(ids));proof_plans.check_plan(spec['plan'],work)
++    require(spec['request_sha256']==hashlib.sha256(records.canonical(request)).hexdigest(),
++            'batch manifest changed after queue claim')
++    require(spec['native_threads']==8 and type(spec['native_threads']) is int,
++            'batch candidate currently requires the explicit eight-thread profile')
++    require(type(spec['max_prove_seconds']) is int and spec['max_prove_seconds']>=900*len(work),
++            'batch time cap must include per-job margin')
++    require(len(work)*848412096<=10_000_000_000 or bool(spec['large_batch_window']),
++            'batch over10GB requires an announced D46 window')
++    for template in runtime.templates():runtime.validate(runtime.deployment(template))
++    return spec,request
++
++
++def commands(job, spec, request):
++    job=Path(job);total=spec['total']
++    def wrapped(argv, threads=8):
++        return ['/usr/bin/env','RAYON_NUM_THREADS='+str(threads),'OPENBLAS_NUM_THREADS=2','OMP_NUM_THREADS=2',*map(str,argv)]
++    need,cap,maximum=runtime.RESOURCES['seqgen']
++    out=[('seqgen',wrapped([config.SYSTEM_PYTHON,runtime.WRITER,'--request',job/'activation-request.json',
++                           '--out',job/'activations'],2),need,cap,maximum)]
++    need,cap,_=runtime.RESOURCES['prove']
++    out.append(('prove-batch',wrapped(prove_command(request,total,job,BATCH_BINARY,BATCH_BINARY_SHA)),
++                need,cap,spec['max_prove_seconds']))
++    clis={t.policy_id:ClassifierCLI(runtime.deployment(t)) for t in runtime.templates()}
++    for row in request['jobs']:
++        cli=clis[row['policy_id']]
++        for suffix,argv in [('verify',cli.verify_command(row['out'])),
++            ('inowner',cli.owner_command(row['out'],Path(row['owner_dir'])/'input.dec',job/'content.ids'))]:
++            out.append((row['name']+'-'+suffix,wrapped(argv),*runtime.RESOURCES[suffix]))
++    for t in runtime.templates():
++        paths=[r['out'] for r in request['jobs'] if r['policy_id']==t.policy_id]
++        out.append((t.category+'-label',wrapped(clis[t.policy_id].label_command(paths,total)),
++                    *runtime.RESOURCES['label']))
++    return out
++
++
++def clean_guard(job, step):
++    name,argv,need,cap,maximum=step
++    logs=Path(job)/'logs';g=json.loads((logs/(name+'.guard.json')).read_text())
++    require((logs/(name+'.guard.done')).read_text().strip()=='0'
++            and all(type(g.get(k)) is int and g[k]==0 for k in ('exit','child_rc'))
++            and not any(g.get(k) for k in ('guard_killed','refused','guard_error','hard_killed',
++                'stragglers_killed','foreign_cgroups_refused','gpu_drain_failed')),
++            'required batch/check step did not cleanly succeed')
++    require(g.get('cmd')==argv and g.get('need_gib')==need and g.get('cap_gib')==cap,
++            'guard ran a different batch/check command')
++    require(type(g.get('child_wall_seconds')) in (int,float)
++            and math.isfinite(g['child_wall_seconds']) and g['child_wall_seconds']>=0,
++            'invalid measured batch work')
++    return g
++
++
++def collect_checks(job, spec, request):
++    """Parse fresh native checks and rehash every receipt with the existing CLI."""
++    job=Path(job);total=spec['total'];steps=commands(job,spec,request)
++    guards={step[0]:clean_guard(job,step) for step in steps}
++    templates={t.policy_id:t for t in runtime.templates()}
++    checked=[]
++    for row,chunk in zip(request['jobs'],spec['plan']):
++        template=templates[row['policy_id']];cli=ClassifierCLI(runtime.deployment(template))
++        r=cli.collect_verified(row['out'],total,chunk['category_chunk_index'],
++            (job/'logs'/(row['name']+'-verify.log')).read_text(),0,
++            (job/'logs'/(row['name']+'-inowner.log')).read_text(),0)
++        st=r['statement']
++        require(st['template_prefix_ids']==list(template.prefix)
++                and st['template_suffix_ids']==list(template.suffix) and st['blocks']==26,
++                'batch receipt model/template differs')
++        checked.append(r)
++    aggregates={}
++    for t in runtime.templates():
++        parts=[r for r,ch in zip(checked,spec['plan']) if ch['category']==t.category]
++        cli=ClassifierCLI(runtime.deployment(t))
++        result=cli.collect_label(parts,(job/'logs'/(t.category+'-label.log')).read_text(),0,total)
++        aggregates[t.category]={'result':result,'statement_sha256':[p['statement_sha256'] for p in parts],
++                                'total':total}
++    return {'schema':'pm-batch-verified/1','post_id':spec['post_id'],'launch_id':spec['launch_id'],
++            'checked':checked,'aggregates':aggregates,'work_s':sum(g['child_wall_seconds'] for g in guards.values()),
++            'steps':{k:{n:g.get(n) for n in ('child_wall_seconds','peak_rss_gib','enforcement','waited_s')}
++                     for k,g in guards.items()}}
++
++
++def run_registered(job):
++    job=Path(job).resolve();row=registration(job)
++    def collect_terminal(code):
++        result=recover_batch(job,config.RUNS_DIR,post_id=row['post_id'],
++            reserved_plan=json.loads(row['plan']),reserved_context=row['context'],
++            terminal_confirmed=True,terminal_exit=code,reserved_scope=json.loads(row['scope']))
++        require(code!=0 or result['status']=='unverified', 'successful batch was quarantined')
++        return result
++    def steps():
++        spec,request=load_spec(job,row)
++        from .batch_registry import boot_id
++        require(row['boot_id']==boot_id(), 'an old batch cannot launch after reboot')
++        for step in commands(job,spec,request):
++            yield step
++            if step[0]=='prove-batch':
++                result=collect_terminal(0)
++                require(result['status']=='unverified', 'batch transport was quarantined')
++        _atomic_private(job/'batch-verified.json',collect_checks(job,spec,request))
++    return BatchSupervisor(job,row['launch_id']).run(steps(),on_terminal=collect_terminal)
++
++
++if __name__=='__main__':
++    os.umask(0o077)
++    raise SystemExit(run_registered(Path(sys.argv[1])))
+--- /dev/null
++++ b/apps/proven-media/proven_media/batch_prover.py
+@@ -0,0 +1,180 @@
++"""Explicit batch adapter candidate; make_prover still selects r16b singles."""
++import hashlib
++import json
++import os
++from pathlib import Path
++import subprocess
++import sys
++import time
++
++from .batch_cleanup import _atomic_private
++from .batch_pipeline import BATCH_BINARY, BATCH_BINARY_SHA, SCHEMA, collect_checks, load_spec, source_pins
++from .batch_request import prepare_text, validate_manifest
++from .batch_registry import register_prepared
++from .batch_queue_gate import recover_batch
++from . import config, proof_plans, records, storage_policy
++from .classifier_cli import require
++from .items import TextItem
++from .provers import ProverError, write_private
++from .shieldstral_prover import ShieldstralProver
++from .shieldstral_text import TEKKEN_SHA256
++
++
++class LaunchNotStarted(ProverError):
++    """Only raised when Popen never returned a child."""
++
++
++class BatchShieldstralProver(ShieldstralProver):
++    batch_proving = True
++
++    def __init__(self, *, max_prove_seconds, large_batch_window=None):
++        super().__init__()
++        require(type(max_prove_seconds) is int and max_prove_seconds>=2700,
++                'explicit batch time cap required')
++        self.max_prove_seconds=max_prove_seconds
++        self.large_batch_window=large_batch_window
++
++    def describe(self):
++        return {**super().describe(), 'prover_binary_sha256':BATCH_BINARY_SHA,
++                'cli':'candidate r18 prove-batch; reviewed r16b fresh verification',
++                'batch_proving':True, 'adoption_status':'candidate; coordinator review required'}
++
++    def start(self, *args, **kwargs):
++        raise ProverError('Batch proving requires one atomic whole-post queue claim.')
++
++    def collect(self, *args, **kwargs):
++        raise ProverError('A batch is collected atomically for the entire post.')
++
++    def start_batch(self, store, post):
++        storage_policy.validate_storage(store)
++        require(store.path.resolve()==config.DB_PATH.resolve(), 'batch queue database differs from deployment')
++        store.check_screening(post)
++        plan=json.loads(post['chunks'])
++        proof_plans.check_plan(plan,self.plan_text(post['text']))
++        require(self.max_prove_seconds>=900*len(plan), 'batch time cap is too short for this post')
++        require(len(plan)*848412096<=10_000_000_000 or bool(self.large_batch_window),
++                'announce a D46 window before preparing a batch over10GB')
++        holds=(config.HOLD_FILE,config.REPO/'results/zk60_shieldstral_prep_20261021/HOLD',
++               config.REPO/'results/zk60_shieldstral_export_20261026/HOLD')
++        require(not any(p.exists() for p in holds), 'coordinator HOLD active')
++        job=config.JOBS_DIR/post['id']/'batch'
++        job.parent.mkdir(mode=0o700,parents=True,exist_ok=True)
++        config.RUNS_DIR.mkdir(parents=True,exist_ok=True)
++        request=prepare_text(post['id'],post['text'],plan,job,config.RUNS_DIR,
++                             reserved_context=post['screening_context'])
++        launch_id=register_prepared(store,post['id'])
++        row=store.one('SELECT * FROM batch_runs WHERE post_id=?',(post['id'],))
++        spec={'schema':SCHEMA,'post_id':post['id'],'launch_id':launch_id,'boot_id':row['boot_id'],
++              'context':row['context'],'plan':plan,'total':request['content_total'],
++              'request_sha256':hashlib.sha256(records.canonical(request)).hexdigest(),
++              'prover_binary':str(BATCH_BINARY),'prover_sha256':BATCH_BINARY_SHA,
++              'native_threads':8,'max_prove_seconds':self.max_prove_seconds,
++              'large_batch_window':self.large_batch_window,'source_sha256':source_pins()}
++        def no_child_failure():
++            recover_batch(job,config.RUNS_DIR,post_id=post['id'],reserved_plan=plan,
++                          reserved_context=post['screening_context'],terminal_confirmed=True,
++                          terminal_exit=1,reserved_scope=json.loads(row['scope']))
++            _atomic_private(job/'pipeline-terminal.json',{'schema':'pm-batch-terminal/1',
++                'launch_id':launch_id,'boot_id':row['boot_id'],'children_reaped':True,'exit':1})
++        try:
++            _atomic_private(job/'batch-pipeline.json',spec)
++        except Exception:
++            no_child_failure()
++            raise
++        try:
++            self._launch(job)
++        except LaunchNotStarted:
++            # Popen failed before returning a child; no guard could have run.
++            no_child_failure()
++            raise
++
++    def _launch(self, job):
++        # The isolated package and the eventual installed package share the
++        # same module entry point; the factory is deliberately not modified.
++        package_root=Path(__file__).resolve().parents[1]
++        env=dict(os.environ, PYTHONPATH=str(package_root))
++        try:
++            output=(job/'pipeline.out').open('xb')
++        except OSError as exc:
++            raise LaunchNotStarted('Cannot open the private batch log.') from exc
++        try:
++            try:
++                child=subprocess.Popen([sys.executable,'-m','proven_media.batch_pipeline',str(job)],
++                    env=env,stdin=subprocess.DEVNULL,stdout=output,stderr=subprocess.STDOUT,
++                    start_new_session=True,close_fds=True)
++            except OSError as exc:
++                raise LaunchNotStarted('Batch supervisor could not be launched.') from exc
++        finally:
++            output.close()
++        _atomic_private(job/'launched.json',{'pid':child.pid,'boot_id':Path('/proc/sys/kernel/random/boot_id').read_text().strip()})
++
++    def poll(self, job):
++        job=Path(job)
++        if not (job/'batch-request.json').exists():return super().poll(job)
++        result={'done':False,'exit':None,'alive':None,'step':'queued','step_since':None,
++                'waiting_for_machine':False}
++        progress=job/'batch-progress.json'
++        if progress.exists():result.update(json.loads(progress.read_text()))
++        marker=job/'pipeline-terminal.json'
++        if marker.exists():
++            terminal=json.loads(marker.read_text())
++            result.update(done=True,exit=terminal['exit'],step='done')
++        return result
++
++    def collect_batch(self, post, job, row):
++        require(isinstance(post.get('text'),str), 'batch post text is missing')
++        spec,request=load_spec(job,row)
++        ids=tuple(int(x) for x in (Path(job)/'content.ids').read_text().strip().split(','))
++        require(ids==self.encoder.content_ids(post['text']), 'batch input differs from original post')
++        proof_plans.check_plan(spec['plan'],self.plan_text(post['text']))
++        current=collect_checks(job,spec,request)
++        require(current==json.loads((Path(job)/'batch-verified.json').read_text()),
++                'batch verification artifacts changed after supervisor completion')
++        result=[]
++        for chunk,r in zip(spec['plan'],current['checked']):
++            category=chunk['category'];st=r['statement']
++            policy=next(c['policy'] for c in records.categories() if c['id']==category)
++            checks={'verify':{'ok':True,'by':'pinned r16b fresh process'},'content_binding':{'ok':True}}
++            if chunk['category_chunk_index']==chunk['category_chunks']-1:
++                checks['category_aggregate']=current['aggregates'][category]
++            # The shared guard is charged exactly once to the item. Per-job
++            # native prove timings remain in the original private batch log.
++            timings={'work_s':current['work_s'] if chunk['index']==0 else 0,
++                     'shared_batch':spec['launch_id']}
++            if chunk['index']==0:timings['steps']=current['steps']
++            rec=records.ProofRecord(post_id=post['id'],item_kind='text',prover=self.describe(),
++                labels={category:{k:r[k] for k in ('value','proof','bound_by_proof','policy_id','development_only')}},
++                policies=[{**policy,'category':category}],threshold=records.threshold(),
++                content_commitment={'kind':'sealed native input-token endpoint','value':st['input_token_endpoint_root']},
++                statement=st,statement_sha256=r['statement_sha256'],
++                receipt={'run_dir':r['run_dir'],'files':r['files'],'segments':len(r['files']),
++                         'bytes':sum(f['bytes'] for f in r['files'])},timings=timings,
++                security={'whole_run_floor_bits':st['whole_run_floor_bits'],'min_bits_required':95,
++                          'privacy_status':'privacy statement pending'},checks=checks,
++                content_length={'tokens':chunk['end']-chunk['start'],'total_tokens':spec['total'],
++                                'tokenizer':'pinned Tekken','tokenizer_sha256':TEKKEN_SHA256},
++                chunk=chunk,created_at=records.now_iso(),proved_at=records.now_iso(),
++                notes=['Batch candidate; classifier privacy acceptance and product policy remain pending.'])
++            rec.labels[category]['policy_sha256']=policy['sha256']
++            proof_plans.check_category_record(rec.to_dict(),post['id'],chunk,require_verdict=True)
++            result.append(rec)
++        self.check_final_records(TextItem(post['text']),[r.to_dict() for r in result])
++        return result
++
++    def prepare_recheck(self, record, prove_job, job):
++        prove_job=Path(prove_job)
++        if not (prove_job/'batch-request.json').exists():return super().prepare_recheck(record,prove_job,job)
++        original=json.loads((prove_job/'batch-pipeline.json').read_text())
++        request=json.loads((prove_job/'batch-request.json').read_text())
++        plan=validate_manifest(request,original['total']);ci=record.chunk['index'];chunk=plan[ci]
++        row=request['jobs'][ci];category=chunk['category'];cli=self.clis[category]
++        require(record.post_id==original['post_id'] and record.chunk==chunk
++                and record.receipt['run_dir']==row['out'] and record.prover['kind']==self.kind
++                and record.prover['binary_sha256']==cli.deployment.binary_sha256
++                and record.prover.get('prover_binary_sha256')==BATCH_BINARY_SHA,
++                'batch recheck record differs from original scope')
++        spec={'mode':'recheck','post_id':record.post_id,'category':category,'queue_chunk':chunk,
++              'artifact':row['out'],'total':original['total'],'chunk':chunk['category_chunk_index'],
++              'content_file':str(prove_job/'content.ids'),'owner_dir':row['owner_dir'],
++              'sequence_dir':row['sequence_dir'],'prior_jobs':[], 'last_category_chunk':False}
++        return self._job(job,cli,spec)
+--- /dev/null
++++ b/apps/proven-media/proven_media/quarantine_paths.py
+@@ -0,0 +1,10 @@
++"""Never expose quarantined batch receipts through publication or downloads."""
++from pathlib import Path
++
++
++def require_public_receipt_path(path):
++    path = Path(path)
++    for candidate in (path.absolute(), path.resolve()):
++        if '.batch-quarantine' in candidate.parts:
++            raise ValueError('quarantined batch receipts cannot be published or downloaded')
++    return path

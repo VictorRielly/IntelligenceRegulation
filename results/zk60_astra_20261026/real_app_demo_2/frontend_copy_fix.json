@@ -1,0 +1,19 @@
+{
+  "at": "2026-10-30T21:54:20.906072+00:00",
+  "before_sha256": "01311cc35d308ffb640fdf22b859bc515c74320b1c0e16981d358dac3ad528d6",
+  "after_sha256": "2bbe1ab5ce3195a2d7f6a953d5d8a32ef545722f052c1972c96b85eeaed0f636",
+  "validation": [
+    {
+      "command": "node --check apps/proven-media/static/app.js",
+      "exit": 0
+    },
+    {
+      "command": "node apps/proven-media/tests/test_frontend_auth.js",
+      "exit": 0,
+      "behavioral_controls": 5
+    }
+  ],
+  "screenshots_recaptured": true,
+  "native_proofs_repeated": 0,
+  "transactions_added": 0
+}

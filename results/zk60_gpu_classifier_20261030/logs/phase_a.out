@@ -6,3 +6,7 @@
 [zk60-guard 14:18:36] END gcl-p-cpu exit=0 child_wall=476s peak_rss=8.15G min_avail=5.55G
 [zk60-guard 14:18:37] START gcl-v-cpu class=cpu need=2.9G cap=7G enforce=cgroup+watchdog waited=0s run=55874292ef49
 [zk60-guard 14:19:44] END gcl-v-cpu exit=0 child_wall=67s peak_rss=2.32G min_avail=11.47G
+[zk60-guard 14:52:16] START gcl-p-gpu class=gpu need=10.4G cap=11.5G enforce=cgroup+watchdog waited=0s run=671094793ade
+[zk60-guard 14:58:03] END gcl-p-gpu exit=0 child_wall=347s peak_rss=4.03G min_avail=9.87G peak_vram=1569MiB
+[zk60-guard 14:58:04] START gcl-v-gpu class=cpu need=2.9G cap=7G enforce=cgroup+watchdog waited=0s run=65c1798980d1
+[zk60-guard 14:59:09] END gcl-v-gpu exit=0 child_wall=65s peak_rss=2.28G min_avail=11.69G

@@ -1,0 +1,2 @@
+[zk60-guard 14:59:39] START gcl-ladder class=gpu need=2.5G cap=6G enforce=cgroup+watchdog waited=0s run=1a3ad030f236
+[zk60-guard 15:00:15] END gcl-ladder exit=0 child_wall=36s peak_rss=1.53G min_avail=12.44G peak_vram=899MiB

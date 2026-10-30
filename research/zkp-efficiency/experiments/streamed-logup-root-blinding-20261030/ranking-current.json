@@ -1,0 +1,50 @@
+[
+  {
+    "priority": 1,
+    "hypothesis": "Owner verified complete high-end GPU resident1/2/4/8 workloads",
+    "ceiling": "Unknown complete-proof slope",
+    "action": "Owner lane/shared locks; not launched"
+  },
+  {
+    "priority": 2,
+    "hypothesis": "Admitted context/DD/fidelity/proof-window scaling",
+    "ceiling": "Unknown; dense attention grows quadratically",
+    "action": "Distinguish long prefill, resident passes and bound decode"
+  },
+  {
+    "priority": 3,
+    "hypothesis": "Exclusive native clocks/capacity",
+    "ceiling": "Unknown critical A/H,slot,witness,serialization and startup shares",
+    "action": "Owner measurement, avoid nested-clock sums"
+  },
+  {
+    "priority": 4,
+    "hypothesis": "H107 masked streamed LogUp-GKR",
+    "ceiling": "Unknown all-in, owner1.37..1.57GPUroofline remains model",
+    "action": "Hidden top-down layer/leaf contract before bigger arrays"
+  },
+  {
+    "priority": 4.1,
+    "hypothesis": "H109 root marginal gate",
+    "ceiling": "No speed result",
+    "action": "Reject equal denominators; keep corrected marginal private pending full simulator"
+  },
+  {
+    "priority": 4.2,
+    "hypothesis": "H110 public table recurrence",
+    "ceiling": "Unknown full-proof setup share",
+    "action": "Retain exact recurrence; count all-in native costs only after architecture review"
+  },
+  {
+    "priority": 5,
+    "hypothesis": "H103 grouped-DD native gates",
+    "ceiling": "Prior product counts are not timing",
+    "action": "Existing owner handoff, no duplicate job"
+  },
+  {
+    "priority": 8,
+    "hypothesis": "H108 path compression",
+    "ceiling": "All paths only1.6096%receipt bytes",
+    "action": "Keep negative/demoted"
+  }
+]

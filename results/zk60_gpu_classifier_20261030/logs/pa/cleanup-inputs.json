@@ -1,0 +1,14 @@
+{
+ "removed": [
+  {
+   "path": "/home/victor/zk60-artifacts/gpu-classifier/batch",
+   "files": 0,
+   "bytes": 0
+  },
+  {
+   "path": "/home/victor/zk60-owner-private/gpu-classifier/batch",
+   "files": 163,
+   "bytes": 122712392
+  }
+ ]
+}

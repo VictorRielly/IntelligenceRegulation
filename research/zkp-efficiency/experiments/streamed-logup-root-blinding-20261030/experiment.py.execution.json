@@ -5,8 +5,8 @@
     "/home/victor/IntelligenceRegulation/research/zkp-efficiency/experiments/streamed-logup-root-blinding-20261030/experiment.py"
   ],
   "exit_code": 0,
-  "wall_s": 1.9795684540004004,
-  "peak_rss_kib": 20032,
+  "wall_s": 2.1310213029937586,
+  "peak_rss_kib": 19992,
   "one_cpu_affinity": true,
   "nice": 19,
   "address_space_cap_mib": 256,

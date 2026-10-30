@@ -1,0 +1,322 @@
+[
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/README.md",
+    "sha256": "af2331369a7080eea434210a524fb8335fa3b34996c69c0636d4e540aa13e749",
+    "bytes": 8746
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/ZK_DESIGN_NOTE.md",
+    "sha256": "50ee5441ca3e460236fbccefc66b34929b770b14ca390ef4b6dccd9c0fbd9108",
+    "bytes": 3029
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/audit-result.json",
+    "sha256": "207bf66389e05f23fa5a213cfd00eded6b8d607f5c38b38522ec687d60ba7663",
+    "bytes": 1110
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/audit.py",
+    "sha256": "d2eb23e553117f3acf31f0bc89eb6cffd747563ab35189a95b6f94be93da3389",
+    "bytes": 7415
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/audit.py.execution.json",
+    "sha256": "df5d4b3671288bca9d90a97624c2e055a4f2a504be23fa590614035d3b9fbc78",
+    "bytes": 496
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/audit.py.stderr.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/audit.py.stdout.log",
+    "sha256": "a0abfb7dd0f5b6d60d432050d150a9c04438c4075d03b5986ebd17a4dacb6f88",
+    "bytes": 986
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/candidate.py",
+    "sha256": "85cecf93eaccb5f9d2d8b1132f0a1de1266fc2a876033eb375306c81c03928af",
+    "bytes": 4984
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/commands.json",
+    "sha256": "1aa04ba4546345efbff2659b53fd11d178a70b0a7c8c9a3082f0b2eab952f1bb",
+    "bytes": 2157
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/completion.json",
+    "sha256": "e8275b501e4ffb6e2a9fefa4e5c9aff6a2a1ec89ca226fcdd66ad2158fc7703d",
+    "bytes": 394
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/experiment.py",
+    "sha256": "029d128a58f9dad61a5ea911eaf3f7f4d70b7413aa5d17db9e2c14b9f5236fd8",
+    "bytes": 10539
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/experiment.py.execution.json",
+    "sha256": "4ac0be52545fdb6aac1aa224ec34f8fbe29a81f7c47884e7a72c4f5696964fe4",
+    "bytes": 500
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/experiment.py.stderr.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/experiment.py.stdout.log",
+    "sha256": "49a0903ae0b092220b73623d1fcf004c9aca6f3d434fbcfd040a27a345eee08e",
+    "bytes": 150
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/finalize.py",
+    "sha256": "cb0462284875119041411784e3821261f6fd21518e0d7b28ac36aed6a1f69b3e",
+    "bytes": 37939
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/hardware.json",
+    "sha256": "671bae0763e6334687cf227c6a2d3a5d2781f07d68a756ce5aedd1a72cc35dfb",
+    "bytes": 2045
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/hypotheses.json",
+    "sha256": "b65f0174f3a1e15c0c7ae32e0eb63d60ee6184f6f144b1101843b0a1d884aab2",
+    "bytes": 246940
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/initial-layer-buffer-ledger/audit-result.json",
+    "sha256": "06ccfee0f68f754b0d5d9834cbe6c3399aab01717421d298caa253d216724236",
+    "bytes": 1110
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/initial-layer-buffer-ledger/audit.py",
+    "sha256": "813e2c2f2010a5819de6910734c22a580aefd6fd0561cca57b17574b42dfd002",
+    "bytes": 7422
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/initial-layer-buffer-ledger/audit.py.execution.json",
+    "sha256": "c8548cb822c0c522502bda18ce9d8425ea150ebf300eac7fb09a46a9d9df877f",
+    "bytes": 496
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/initial-layer-buffer-ledger/candidate.py",
+    "sha256": "fa9c16a7fcb937b3a4623be9877f0eab975dc481706ec86515dc38c65eb47caf",
+    "bytes": 4704
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/initial-layer-buffer-ledger/experiment.py",
+    "sha256": "bd68af854cbdcfb2c7b50b12a9614e0a668cc0b9b3c5be050771c46fa0068ed9",
+    "bytes": 10454
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/initial-layer-buffer-ledger/experiment.py.execution.json",
+    "sha256": "a1d9266bbf4870be7c05e144d5bece5522738bacaf6ab2d2b7610ebf02325c4f",
+    "bytes": 500
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/initial-layer-buffer-ledger/result.json",
+    "sha256": "0a4e8a0f6252ba8f575ee8ae376426884eb07849a1635d299fa43063483048f1",
+    "bytes": 124786
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/initial-recurrence/pair_table_recurrence.py",
+    "sha256": "28e14a3bac71ed96594f8bc5a5db7d56966465214a0c4bbe9be5e8e817fb85ce",
+    "bytes": 4764
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/initial-recurrence/pair_table_recurrence.py.execution.json",
+    "sha256": "aea3215bb3cfd8ed0dfda2cda5a31b3b067d86b5715301673442d1ae4856b3f7",
+    "bytes": 511
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/initial-recurrence/pair_table_recurrence.py.stderr.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/initial-recurrence/pair_table_recurrence.py.stdout.log",
+    "sha256": "d254c17bc86046798007ac4f3c137ef5531648ccb693e172c383b3e3a393af3f",
+    "bytes": 90
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/initial-recurrence/recurrence-result.json",
+    "sha256": "5539b9cfc548346fd54ece84b248e69480967d282af88a8778c1c4e5324a867a",
+    "bytes": 8904
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/native/0-protocol.rs",
+    "sha256": "d9455a1054aab7e18e1cba0194416a83847e862db26d8b4f5b9cf982ba082d65",
+    "bytes": 22936
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/native/1-layout.rs",
+    "sha256": "6cc8f6fed8bc55ccb7cde23270976ed23912f768a6a60f3d392da08f2fcf0989",
+    "bytes": 30983
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/native/2-field.rs",
+    "sha256": "df3eb5a68eb8f563d6cd4d2198b6959ce304c68429e53895147d7d8607d07f13",
+    "bytes": 11065
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/native/3-shape.rs",
+    "sha256": "8e00a144bd194fd5a3dd30c9aaece2869d43d461df623cdcfc5a9da59e51436b",
+    "bytes": 149746
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/native/4-layout.rs",
+    "sha256": "8519a514b8d1f43ab51c86b0a8af955230a2eab4fff4fc4c594733c59dcfd0bf",
+    "bytes": 76914
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/pair_table_recurrence.py",
+    "sha256": "e8878d638231fbfd2504356b878dc0528b737f415abfb4e7bd33aaeb1c1e407b",
+    "bytes": 4995
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/pair_table_recurrence.py.execution.json",
+    "sha256": "6baea8be927950c41f73d1c5d4e3544e63ab9e879b2b97ad6afc2f9972dcfa1f",
+    "bytes": 510
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/pair_table_recurrence.py.stderr.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/pair_table_recurrence.py.stdout.log",
+    "sha256": "d7b01b6ac7be38f1a23e240f4795caccdde4b69fd3817941c80d315d163ab1cd",
+    "bytes": 90
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/prior-hypotheses.json",
+    "sha256": "b402c20335382ae8c9a65fe51d63da2f71f4571487e4c7c79ec8084696979f75",
+    "bytes": 243389
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/ranking-current.json",
+    "sha256": "9ccf2ebdba2f1f95d2896a2b907a570306eacc4e23490fb59407b47c09cadba6",
+    "bytes": 1692
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/recurrence-result.json",
+    "sha256": "1f963a13c0c13263fc91c5f0fda63902b5bb6acfd567a6d74e78173ab73c830f",
+    "bytes": 8897
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/reference.py",
+    "sha256": "bd77f6f4783e1b28aa3fce7c2a263b84ad5683e5d305d5cf87ac744303f701e7",
+    "bytes": 2329
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/result.json",
+    "sha256": "596b8b904caee9c246ab6f86205fdc55970096f6977bcea4dd40bae25dc7355e",
+    "bytes": 124869
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/rotation-queue.json",
+    "sha256": "3ad63c53e399846154b428c75156a63d055c068d977eade021f73fecd83e0205",
+    "bytes": 418
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/run_bounded.py",
+    "sha256": "2afc403051f80087a8ae68c50d14f0b7415afb74b721ab6e4a729a8a337528d2",
+    "bytes": 1568
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/source-pins.json",
+    "sha256": "bd938ba6384640dbc67ae10118d377e08ad272f17a8fdfb2686befe937212843",
+    "bytes": 1260
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/sources-cycle.json",
+    "sha256": "8b9dfcb8a0a8f265e90c91073bcc6bd7964c259100d334327872e92a1822a32e",
+    "bytes": 10594
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/startup/20261030-deepprove-gap.md",
+    "sha256": "25f6c142994bcc5aa1b10b792faaf868643c6b4df570f2818a7675017b73c9ad",
+    "bytes": 4557
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/startup/AGENDA.md",
+    "sha256": "9c499f9d2f68216f7d27b55d83a626b7e6f03399e674d5723832c83979a923f8",
+    "bytes": 7414
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/startup/CLAUDE.md",
+    "sha256": "6e211dd07ee411cd23d29a04277766f4c29e014469cf84d39ef7868d27b5e4c6",
+    "bytes": 14089
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/startup/GAP_ANALYSIS.md",
+    "sha256": "341c2b32ff553b34f9416e949e4d22e87a1e1e706f9584081b6375abd5a76922",
+    "bytes": 35873
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/startup/MVP_STATUS.md",
+    "sha256": "683f1c412dcc21432c9a6e52637ea45ec82e2ef2f1750a139316b9cfdb87f863",
+    "bytes": 107654
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/startup/PROGRESS.md",
+    "sha256": "dccf110efab5ca7d9b227562dc9ad8978c6d5d081b7cdd1166b1d4a15ee30561",
+    "bytes": 2771
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/startup/STATE.md",
+    "sha256": "896a86ab364959b3e105845fc7a8bcd8fb23fce76562b82ed6b1f2b7eb952dfd",
+    "bytes": 4827
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/startup/ZK60_CODEX_FABLE_COORDINATION.md",
+    "sha256": "a63df9cd41eb5eeee9386534c66f66fb6694e8daa5b03372ef7de9f28ed9676f",
+    "bytes": 64889
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/startup/ZK60_DECISIONS.md",
+    "sha256": "d4dfb655a60bde4cf8513acc6a474aa8bab622066c95a59dd3b9c98a45f5971d",
+    "bytes": 182700
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/startup/ZK60_PRIVACY_REQUIREMENTS.md",
+    "sha256": "77037699ed0a89471d72795e112812276bdca1850078fbdd24abee26d7ff04a3",
+    "bytes": 2264
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/startup/ZK60_THROUGHPUT_TARGET.md",
+    "sha256": "b34ca1a12b4f8cdcbca7384772a1db0e834d9ee1490354957a1d066635871d53",
+    "bytes": 4941
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/startup/findings-read-index.json",
+    "sha256": "a867ccdfac54e05fc3dc155296fe8201be35fbac0f0d61c0a94c90cd67b4bfe2",
+    "bytes": 14324
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/startup/pins.json",
+    "sha256": "aa7ffa3b225581fb6467ab82f39951cd270299e612adb4b9c7152a9181770fdf",
+    "bytes": 1417
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/startup/required-doc-pins.json",
+    "sha256": "a84947375fb6fff032853cb06432e2c69cc17c65cc460ea1c3dfc547c5d9c4b0",
+    "bytes": 1189
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/startup/source-history-summary.json",
+    "sha256": "60395c7692bf7f6ebb42c7dff1711e927239fc8ecd8a3adaa2ad1c41c7011d40",
+    "bytes": 23434
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/target-accounting.json",
+    "sha256": "544d10a4a068ee96af287b8f0894a81a8a5c3d6ae6cc081d2a331491c1995245",
+    "bytes": 826
+  },
+  {
+    "path": "experiments/streamed-logup-root-blinding-20261030/web-searches-and-blockers.json",
+    "sha256": "c5cb21f7c402727623a18bbbca45f430575ffbd59558ca990d4df7886bacfd0f",
+    "bytes": 1051
+  }
+]
