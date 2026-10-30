@@ -1,0 +1,23 @@
+{
+  "utc": "2026-10-30T21:15:41.900865+00:00",
+  "source": "27b2a427491912cd54969b66f1d6ace29740ba8923dce6ba5ac4e23cfd992191",
+  "reports": {
+    "AUTHOR_REFERENCE_SUPPLEMENT.json": "9da9aebc8bfd2f47dab3249aca234d3e246afc299d52d4bb5e9e8ba391e7d797",
+    "AUTHOR_REPRODUCTION_NOTES.json": "47afc64544d03e7b5c859ba6966298397a5e5b34ee9ccf014058f5a298d8356b",
+    "FULL26_ACTUAL_CONDITIONAL_COUNT.json": "a6863180f2212a2ec2f0c1ac7af163a003e660759c8f5fe026f4a04ca4a6eb4d",
+    "astra-smoke-prefix-1/ACCEPTANCE.json": "d9b685704121e67fb1922f32fc00b4bb3681564609d14cbb02ea9cc182a44e8f",
+    "final-arithmetic-2/ACCEPTANCE.json": "3421b9644bdfaa133d14e1429a8f1593fba0a4a72a538126564701a4f988f340",
+    "final-arithmetic-2/done": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+    "final-census-1/ACCEPTANCE.json": "cc30e1a075359584188d528847c5b41488f69628cc1d8aa9670586bf06bee424",
+    "final-relations-1/ACCEPTANCE.json": "ed741774b1d517b839ff9756a6c57bae0bcaf1bb3f2ecc9d18e670ea6efdebe3",
+    "final-validation-1/ACCEPTANCE.json": "4a7729e03410af8749eb5d5dd66df823cc6076e4817a3502ac7de0f67fe2bdf7",
+    "full26-captures-1/ACCEPTANCE.json": "2a52d3a6441608caeb66602e36bf1a9603f665ee008b031d5441650b87c372d5",
+    "full26-native-1/ACCEPTANCE.json": "da5996b4002e642b03fdfeb64657bb485daa44ef561ee8fad2b03fe14fe7ea0a",
+    "joint-envelopes-1/ACCEPTANCE.json": "f39035d82e2555d94b03bd17fa34186763965f48873c29e87526a64984853362",
+    "joint-receipts-2/ACCEPTANCE.json": "c2554aacbac64fa09527f611d03e4e53353ecc3a493beeeb81578ee5e2bd9c39",
+    "reference-stack-3/ACCEPTANCE.json": "7eb8dde2d32e5d2f00932a28840b0b04491a3043ac703dfced40626287b0ccc7",
+    "review-author-1/AUTHOR_FREEZE.json": "f086db8296c3666ef9a4e5b2a69b79d5bf57ce2255e6742e0071205ced103a42",
+    "review-author-1/EVIDENCE.json": "2e8b76c2cb8f3ab5d73e534eb188f480ca4d99b02d08a47fc553cd7ad3cd51eb"
+  },
+  "scope": "Immutable completed author acceptance reports; no security/privacy acceptance inferred."
+}

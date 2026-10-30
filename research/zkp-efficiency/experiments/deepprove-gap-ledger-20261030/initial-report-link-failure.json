@@ -1,0 +1,17 @@
+{
+  "scope": "New appended FINDINGS links only; no experiment/native failure",
+  "links": [
+    {
+      "label": "Experiment",
+      "target": "../experiments/deepprove-gap-ledger-20261030/README.md"
+    },
+    {
+      "label": "Gap analysis",
+      "target": "../experiments/deepprove-gap-ledger-20261030/GAP_ANALYSIS.md"
+    },
+    {
+      "label": "Handoff",
+      "target": "../handoffs/20261030-deepprove-gap-path-ceiling.md"
+    }
+  ]
+}

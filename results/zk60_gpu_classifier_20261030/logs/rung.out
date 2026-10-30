@@ -1,0 +1,4 @@
+[zk60-guard 14:08:43] START gcl-rung-cpu class=cpu need=1G cap=2.5G enforce=cgroup+watchdog waited=0s run=6da28ba99d7b
+[zk60-guard 14:08:46] END gcl-rung-cpu exit=0 child_wall=3s peak_rss=0.17G min_avail=13.48G
+[zk60-guard 14:08:46] START gcl-rung-gpu class=gpu need=1.5G cap=3G enforce=cgroup+watchdog waited=0s run=6009a48fcb4f
+[zk60-guard 14:08:54] END gcl-rung-gpu exit=0 child_wall=7s peak_rss=0.38G min_avail=13.06G peak_vram=385MiB

@@ -1,0 +1,481 @@
+{
+  "category": "violence",
+  "finished_at": "2026-10-30T21:30:28.291407+00:00",
+  "record": {
+    "post_id": "61ac12af82b9e6c36d95075db3fc91b9",
+    "item_kind": "text",
+    "prover": {
+      "kind": "shieldstral",
+      "label": "Shieldstral-1.0-3B classifier \u2014 privacy statement pending",
+      "supports": [
+        "text"
+      ],
+      "proves_verdict": true,
+      "model": "Shieldstral-1.0-3B",
+      "model_digest": "29aeba6c04a819cdbafde311f7c9d0c678d85aff22292ae6b9647761158a0bd1",
+      "token_profile_digest": "2ba468f98085caf1136f27cf66220f93d8e316acb8dbae7e98f9eb68347f05a0",
+      "binary_sha256": "dfb8025eb903b203f4b50371fdd0dd00659d46a9dbaad9d121d6a68343ebc70c",
+      "run_profile": "hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/1",
+      "cli": "zk60_classify r16b, native R13, T128",
+      "privacy_status": "privacy statement pending",
+      "policy_selection": "moderate testnet demo; product ruling pending",
+      "what_is_proved": "The pinned integer model verdict for each category, bound to the post by input-owner verification.",
+      "per_job_s": 700,
+      "category_geometry": {
+        "sexual": {
+          "chunk_tokens": 55,
+          "overlap_tokens": 8,
+          "max_chunks": 8
+        },
+        "violence": {
+          "chunk_tokens": 55,
+          "overlap_tokens": 8,
+          "max_chunks": 8
+        },
+        "hate": {
+          "chunk_tokens": 49,
+          "overlap_tokens": 8,
+          "max_chunks": 8
+        }
+      }
+    },
+    "labels": {
+      "violence": {
+        "value": "no",
+        "proof": "accepted",
+        "bound_by_proof": true,
+        "policy_id": "shieldstral-1.0-3b-moderate-violence/1",
+        "development_only": false,
+        "policy_sha256": "eb124ee93d46d2f716fb6beee54a8f26d21883a2b87daa721d9cbe92e5131128"
+      }
+    },
+    "policies": [
+      {
+        "id": "shieldstral-1.0-3b-moderate-violence/1",
+        "sha256": "eb124ee93d46d2f716fb6beee54a8f26d21883a2b87daa721d9cbe92e5131128",
+        "text": "<s>[SYSTEM_PROMPT]Judge whether the Document meets the requirements based on the Query and the Instruction provided. Note that the answer can only be \"yes\" or \"no\".[/SYSTEM_PROMPT][INST]<Instruct>: You are a safety moderator. Apply a moderate tolerance threshold.\n\n<Query>: Does this content depict graphic violence or promote physical violence?\n\n<Document>: [User] {{private_content}}[/INST]\n",
+        "registered": true,
+        "category": "violence"
+      }
+    ],
+    "threshold": {
+      "tau": 0.5,
+      "c": 0.0,
+      "rule": "label 'yes' iff z_yes - z_no > c, c = ln(tau / (1 - tau)) (z = the classifier's logits of 'yes' / 'no' at the first answer position, for that category's policy query); 'no' otherwise"
+    },
+    "content_commitment": {
+      "kind": "sealed native input-token endpoint",
+      "value": "93c15cd394825e937cf097892bbc50e86c45ddf3016f03fba36606a9b27043b4"
+    },
+    "statement": {
+      "schema": "zk60-classify-run/3",
+      "scope": "a classifier proof (DESIGN_CLASSIFIER v2.4, rung R-C3): the approved integer model's verdict on hidden content under a pre-registered policy; the margin row and the embedding re-derived from the pinned tied tensor; one external endpoint; the verdict bit and the content length are public (D45); a short item's trailing positions hold the public pad id; NOT a privacy acceptance",
+      "statement_written_by": "zk60_classify verify, after its fresh-process verification of the run directory, from its own data",
+      "run_profile": "hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/1",
+      "block_profile": "hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/1",
+      "blocks": 26,
+      "export_variant": "shieldstral-s2-fixed-low-h24-t128-v2",
+      "trained_statement_identity": "29aeba6c04a819cdbafde311f7c9d0c678d85aff22292ae6b9647761158a0bd1",
+      "policy": "shieldstral-1.0-3b-moderate-violence/1",
+      "verdict": "not-flagged",
+      "verdict_bit": 0,
+      "threshold_c": 0,
+      "yes_id": 13059,
+      "no_id": 2649,
+      "template_prefix_ids": [
+        1,
+        17,
+        1074,
+        45463,
+        5627,
+        1278,
+        23762,
+        37005,
+        1278,
+        13795,
+        4057,
+        1408,
+        1278,
+        27356,
+        1321,
+        1278,
+        83779,
+        5662,
+        1046,
+        13708,
+        1455,
+        1278,
+        4832,
+        1710,
+        2342,
+        1402,
+        1429,
+        13059,
+        1034,
+        1505,
+        1429,
+        2649,
+        3871,
+        18,
+        3,
+        1060,
+        1785,
+        8166,
+        72067,
+        3213,
+        1584,
+        1261,
+        12216,
+        11673,
+        2412,
+        1046,
+        63882,
+        1261,
+        21680,
+        27710,
+        13472,
+        1338,
+        1060,
+        7087,
+        72067,
+        20525,
+        1593,
+        4701,
+        17767,
+        47223,
+        16988,
+        1505,
+        17438,
+        8137,
+        16988,
+        2634,
+        1060,
+        16060,
+        72067,
+        1766,
+        4019,
+        1093
+      ],
+      "template_suffix_ids": [
+        4
+      ],
+      "content_length_n": 19,
+      "chunk": {
+        "index": 0,
+        "count": 1,
+        "range": [
+          0,
+          19
+        ],
+        "content_total": 19,
+        "chunk_size": 55,
+        "overlap": 8,
+        "split": "end-aligned (DESIGN v2.2 13.1); a short content is one chunk of its length (v2.4 15)"
+      },
+      "T": 128,
+      "item_length": 92,
+      "pad_id": 11,
+      "pad_positions": 36,
+      "verdict_row": 91,
+      "control_ids_below": 1000,
+      "tokenizer": "tekken.json sha256 ceb11e85e44d7c91 (plain-text encoding, no special-token parsing; template ids as Astra's candidates b1cfcda9)",
+      "margin_vector_digest": "6429a242ca399fa22d7fd77136002da0e5be6d659a91733507e678f1c2a13c91",
+      "margin_scale": 4.08288030735373e-06,
+      "tied_source": "tied-source=shieldstral-checkpoint tensor=language_model.model.embed_tokens.weight sha256=67a138c1c483b89874526ef523f5f0c30f161808076561730193d1de2093dd19 derivation=native-R12b-recompute_tied_tables(rotate-then-floor(x/scale+0.5),refuse-outside-int16,no-clip)",
+      "embedding_digest": "1cb276d1c83861e0b5e2860eb46c98b9991651ee3cf6f0eb77bdbe836af19b0a",
+      "bos": 1,
+      "final_norm": {
+        "g0": 127,
+        "cn": 1024,
+        "tn": 10,
+        "ceps": 2439
+      },
+      "classifier_profile_digest": "0c55fc1c0aa5ce316265d66f448c0bad158ef58c7763e3e64f2053d4f2dd152d",
+      "rulings": "rulings: B-5 n-public=true B-6 fixed-policy-list=true B-8 binding=input-endpoint-root B-4 fail-closed=true (accepted by Victor: D45, 2026-10-29)",
+      "context_label": "zk60-classify-verdict",
+      "context": "4ed79c32c1ac80bb290d534bf24a809d0abfeffa335fbfba1a09b13c34b032e1",
+      "input_token_endpoint_root": "93c15cd394825e937cf097892bbc50e86c45ddf3016f03fba36606a9b27043b4",
+      "whole_run_floor_bits": 96,
+      "parameter_line": "T128/d3072/f9216/H32/KV8/dh128/log_cols14/inv_rate4/Q256/P1/sh-g8-u0-h14-z8/two-internal-boundaries/one-proof-one-transcript/endpoint-log_n14-rate4-pad256-rows37/L26/boundaries-B_in-B_out-and-interior-log_n14-rate4-pad256-rows38-sites2/token-endpoint-in-log_n8-rate8-pad256-words256-rows6-sites1/no-output-endpoint/stages-log_n12-rate4-pad256/classify (DESIGN_CLASSIFIER v2) under hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/1: V=131072 V_pad=131072 d=3072 d_pad=4096 T=128 P0=72 n=19 S=1 item-length=92 pad-id=11 pad-positions=36 verdict-row=91 BOS=1 final-norm g0=127 cn=1024 tn=10 ceps=2439 wrho=32 dmax=1816186 margin-vector=int16[-32767,32767] 6429a242ca399fa22d7fd77136002da0e5be6d659a91733507e678f1c2a13c91 threshold c=0 c-class=[-2^33,2^33] margin-window=35 byte-limbs=5 limbs-at-Lo-entry=32 no-pin yes=13059 no=2649 ctl=ids<1000 template=120845c0a9ca23d3346fd4355886f6a15d4747ab1b9caa5a33bd6ee2e4b67764 policy=shieldstral-1.0-3b-moderate-violence/1 tokenizer=tekken.json sha256 ceb11e85e44d7c91 (plain-text encoding, no special-token parsing; template ids as Astra's candidates b1cfcda9) embedding=1cb276d1c83861e0b5e2860eb46c98b9991651ee3cf6f0eb77bdbe836af19b0a variant=public-row mode=verdict-public-bit no-output-endpoint chunk-size=55 chunk-overlap=8 chunk-split=end-aligned short-content=one-chunk-of-its-length-pad-pinned margin-scale=4.08288030735373e-6 margin-scale-bits=0x3ed11ff597db2fb6 tied-source=shieldstral-checkpoint tensor=language_model.model.embed_tokens.weight sha256=67a138c1c483b89874526ef523f5f0c30f161808076561730193d1de2093dd19 derivation=native-R12b-recompute_tied_tables(rotate-then-floor(x/scale+0.5),refuse-outside-int16,no-clip) rulings: B-5 n-public=true B-6 fixed-policy-list=true B-8 binding=input-endpoint-root B-4 fail-closed=true (accepted by Victor: D45, 2026-10-29) tier mvp-95-whole-run (D27): Q=256 stage-row 2^12 rate 1/4 token-endpoint-row 2^8 rate 1/8 lookup-field F_p^2/whole-run-floor-96-bits-112-openings-column-plus-logup-derived-plus-pcs-field-and-sumcheck-bound/one-run-one-transcript"
+    },
+    "statement_sha256": "ee0eb77706ea2c927f66f0637221008c8cbdbf01e843d8dd4946be154ad5a970",
+    "receipt": {
+      "run_dir": "/home/victor/IntelligenceRegulation/results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c1",
+      "files": [
+        {
+          "file": "segment-000.bin",
+          "bytes": 1415192,
+          "sha256": "a623e11960ad2616387147f56f69306e66dd0f42489964d46f69cd465b6add0c"
+        },
+        {
+          "file": "segment-001.bin",
+          "bytes": 32450184,
+          "sha256": "94b07ae65e14aceddaf85a397686f85c43178b6e71c0c9d0d4bee8f32bbeba85"
+        },
+        {
+          "file": "segment-002.bin",
+          "bytes": 32450184,
+          "sha256": "bc3db84e8c50866c2606082b879d454f53974dd32316659fa85546fe59cee2de"
+        },
+        {
+          "file": "segment-003.bin",
+          "bytes": 32450184,
+          "sha256": "f8e2c79d5c3e4542819e40cadb49aacbf67cd288738c3488a0194eff8ae781e4"
+        },
+        {
+          "file": "segment-004.bin",
+          "bytes": 32450184,
+          "sha256": "9f2da7d360a3371d932828092dcd08ce7ee3ce058f2fe1f2b8c1cdf881439946"
+        },
+        {
+          "file": "segment-005.bin",
+          "bytes": 32450184,
+          "sha256": "6b0e6dfc7a3662f8e3352da5377cfd9b0a2fcd4c676965712991ab04b439d914"
+        },
+        {
+          "file": "segment-006.bin",
+          "bytes": 32450184,
+          "sha256": "4e8c09f6a02ee2581a457a02b6d7e23031a8fa1447267d561e2ff2d618b21967"
+        },
+        {
+          "file": "segment-007.bin",
+          "bytes": 32450184,
+          "sha256": "8073922050f4f30a13a41c2ae18939462ab8a98c93167ff124431e11878838e8"
+        },
+        {
+          "file": "segment-008.bin",
+          "bytes": 32450184,
+          "sha256": "bcd7350d1c8ccc14c8ccd63569653fb6f3218f088c23207ef356bbd401170e84"
+        },
+        {
+          "file": "segment-009.bin",
+          "bytes": 32450184,
+          "sha256": "c2fe0edb15622d9b13527eb9122bbbf0cc427e1e60c66ca02bb7b185638317fd"
+        },
+        {
+          "file": "segment-010.bin",
+          "bytes": 32450184,
+          "sha256": "86f7bd34debfcdadd58a0b9479772081042c837c31b84acb8267b582f1ed566e"
+        },
+        {
+          "file": "segment-011.bin",
+          "bytes": 32450184,
+          "sha256": "51cfd86fe5bc84d86a5e36081eae385e2125537301fc8798ce025ada603f9d8e"
+        },
+        {
+          "file": "segment-012.bin",
+          "bytes": 32450184,
+          "sha256": "d7e1f6d91472f4b67e8273727b42ac318546e9bf1fcc12069f25e841846fa914"
+        },
+        {
+          "file": "segment-013.bin",
+          "bytes": 32450184,
+          "sha256": "532b4dd055af1493754c3b518fc1d221565b1939b5e3310c556b630a630855bc"
+        },
+        {
+          "file": "segment-014.bin",
+          "bytes": 32450184,
+          "sha256": "b2bbca65393c176b8909707b72466e22bdf983cf7afdd3a4d7fb88ad3703c9df"
+        },
+        {
+          "file": "segment-015.bin",
+          "bytes": 32450184,
+          "sha256": "d22ca3b8278c652738fe0242cd01e4d33495e26b6aa5163af3c9e8d4c478ad5b"
+        },
+        {
+          "file": "segment-016.bin",
+          "bytes": 32450184,
+          "sha256": "303ed5c915ca39c9be73c0ad9b48d000930e24e1067562a52a4559902df7837d"
+        },
+        {
+          "file": "segment-017.bin",
+          "bytes": 32450184,
+          "sha256": "c375575e1359d74a3ee585ce3bca135c77409c18050ee91dabbd7dc5fe2cdd99"
+        },
+        {
+          "file": "segment-018.bin",
+          "bytes": 32450184,
+          "sha256": "a4572b33c896eb580ca5101fbcbc218e5313e00304ef714c1704632f05b50f9f"
+        },
+        {
+          "file": "segment-019.bin",
+          "bytes": 32450184,
+          "sha256": "ffd104f3b8de5ecc1713ac86816a6e549240ad880943268f19cf78a9d68ff1c0"
+        },
+        {
+          "file": "segment-020.bin",
+          "bytes": 32450184,
+          "sha256": "22a589947aec1c685a5b8bcb8d21c160f073b26eca0c3be38388a7dafd9d6fd0"
+        },
+        {
+          "file": "segment-021.bin",
+          "bytes": 32450184,
+          "sha256": "a0e72d4b712d2a26a26d9adfde3281c2f368440cb271110117a89bcbdcd1fd6c"
+        },
+        {
+          "file": "segment-022.bin",
+          "bytes": 32450184,
+          "sha256": "6e29a4605b529d393215e29d97490d3184cb4f484e62efcc930b138ecaa7578e"
+        },
+        {
+          "file": "segment-023.bin",
+          "bytes": 32450184,
+          "sha256": "e3cd7815f96a9e95821279bb10bc153e8f87c1f28b841e4087fa63368ac79543"
+        },
+        {
+          "file": "segment-024.bin",
+          "bytes": 32450184,
+          "sha256": "741b6a25e1c3d797c17ae8eeff5dba4d4e149153c31ae021f655b6cb9b14b5b5"
+        },
+        {
+          "file": "segment-025.bin",
+          "bytes": 32450184,
+          "sha256": "29a3be7b8f5d4defbaa2153473e91d35789d3249a692742b856e98adfba018d6"
+        },
+        {
+          "file": "segment-026.bin",
+          "bytes": 32450184,
+          "sha256": "38dd1365831074eb8df083eb8bdb7a755a7d80218791229f40bea8013dfb068d"
+        },
+        {
+          "file": "segment-027.bin",
+          "bytes": 3292120,
+          "sha256": "98abbefffa1c5e503177ac2365fbdd92b78f1017bc3d629bab941fc21e0d7600"
+        }
+      ],
+      "segments": 28,
+      "bytes": 848412096
+    },
+    "timings": {
+      "work_s": 678.5162038803101,
+      "steps": {
+        "seqgen": {
+          "child_wall_seconds": 38.79860162734985,
+          "peak_rss_gib": 0.71,
+          "enforcement": "cgroup+watchdog",
+          "waited_s": 1057.6
+        },
+        "prove": {
+          "child_wall_seconds": 444.0387108325958,
+          "peak_rss_gib": 8.19,
+          "enforcement": "cgroup+watchdog",
+          "waited_s": 0.0
+        },
+        "verify": {
+          "child_wall_seconds": 66.13352370262146,
+          "peak_rss_gib": 2.31,
+          "enforcement": "cgroup+watchdog",
+          "waited_s": 0.0
+        },
+        "inowner": {
+          "child_wall_seconds": 64.68620109558105,
+          "peak_rss_gib": 2.3,
+          "enforcement": "cgroup+watchdog",
+          "waited_s": 0.0
+        },
+        "label": {
+          "child_wall_seconds": 64.85916662216187,
+          "peak_rss_gib": 2.31,
+          "enforcement": "cgroup+watchdog",
+          "waited_s": 0.0
+        }
+      }
+    },
+    "security": {
+      "whole_run_floor_bits": 96,
+      "min_bits_required": 95,
+      "privacy_status": "privacy statement pending"
+    },
+    "checks": {
+      "verify": {
+        "ok": true,
+        "by": "pinned r16b fresh process"
+      },
+      "content_binding": {
+        "ok": true
+      },
+      "category_aggregate": {
+        "result": {
+          "value": "no",
+          "proof": "accepted",
+          "bound_by_proof": true,
+          "policy_id": "shieldstral-1.0-3b-moderate-violence/1",
+          "development_only": false,
+          "flagged_ranges": [],
+          "chunks": 1
+        },
+        "statement_sha256": [
+          "ee0eb77706ea2c927f66f0637221008c8cbdbf01e843d8dd4946be154ad5a970"
+        ],
+        "total": 19
+      }
+    },
+    "content_length": {
+      "tokens": 19,
+      "total_tokens": 19,
+      "tokenizer": "pinned Tekken",
+      "tokenizer_sha256": "ceb11e85e44d7c91d051604d636d97b05aee59a907a0dc96a3c6e557d9634e18"
+    },
+    "chunk": {
+      "index": 1,
+      "start": 0,
+      "end": 19,
+      "category": "violence",
+      "category_chunk_index": 0,
+      "category_chunks": 1,
+      "content_total": 19,
+      "policy_id": "shieldstral-1.0-3b-moderate-violence/1",
+      "chunk_tokens": 55,
+      "overlap_tokens": 8,
+      "context_tokens": 128
+    },
+    "proved_at": "2026-10-30T21:30:28Z",
+    "created_at": "2026-10-30T21:30:28Z",
+    "schema": "proven-media-record/2",
+    "notes": [
+      "Real classifier testnet demo; privacy statement pending. Moderate product wording remains pending."
+    ]
+  },
+  "execution": {
+    "max_seconds": {
+      "inowner": 600,
+      "label": 1800,
+      "prove": 1200,
+      "seqgen": 600,
+      "verify": 600
+    },
+    "native_threads": 8,
+    "numpy_threads": 2,
+    "schema": "pm-classifier-execution/1"
+  },
+  "source_sha256": {
+    "apps/proven-media/proven_media/__init__.py": "0990ec46e2646a55706cb2c24a63be9303b335fd71dcd781dcf47c284182b65d",
+    "apps/proven-media/proven_media/app.py": "2ffa9c87591dd212f35c19daf680c93cec8ad634bea3b7be0d961ab37c6247f6",
+    "apps/proven-media/proven_media/auth.py": "1861c10dc753ebb38022354e684b89195ba438eddc4863124653a855b2feec7c",
+    "apps/proven-media/proven_media/base_sepolia.py": "5d5bffc438b27c343e339921b6c8cfbad1a4d9e41b2d5a4b698a29b9fe538886",
+    "apps/proven-media/proven_media/classifier_cli.py": "78a12f75f95df6f3899b62207e3766ca489d991cc7007edfb6a51fbca7eebd79",
+    "apps/proven-media/proven_media/classifier_prover.py": "3b36969f3889f8bdb2c5b61edf0f96d73f6bf7d053e3f1979e4adec20be5cf48",
+    "apps/proven-media/proven_media/config.py": "53566219e4b43fa42fae36a749454b95200f532a7c571158c93697a418699e62",
+    "apps/proven-media/proven_media/demo_reset.py": "b5095a58726e36bc1d50261f65d56319cde6711d3f5bf145ba7c151e6f377e9c",
+    "apps/proven-media/proven_media/hardware_profiles.py": "bbc4ca52aa0fba22b2333129d198dc6e774f0fd6923c29629c6c85312b616bfb",
+    "apps/proven-media/proven_media/image_preprocess.py": "45750962c0edd6f083531217e41520479abfb5a89f2c8e7455fe4ce02f9a8e69",
+    "apps/proven-media/proven_media/items.py": "0bd70050f252579b14ef45fbacaece62a266023d0fbfae4ac8848f5c7152b9ce",
+    "apps/proven-media/proven_media/jobs.py": "27afa7d12c4b2bf19ab767669d168ee62809ad158b911a8b3d7b1f18e1d87e7a",
+    "apps/proven-media/proven_media/manifest.py": "e8722a753c4156d54b532edcca70d00c399da2a276cb7191f9d095d9c267ef02",
+    "apps/proven-media/proven_media/prompting.py": "77dc8c08e45d0a677e691de80a8487672648ffbc1d6d85e43fc2bf7c3d49826e",
+    "apps/proven-media/proven_media/proof_plans.py": "2f586ccc429af60ae41ce87c89539bf2e1d685bbadf42ef7e428250a496ba71d",
+    "apps/proven-media/proven_media/provers.py": "0d92039c97b2bb831aa336b7acb38d83758ae20a8f29184aa44f3216da673acd",
+    "apps/proven-media/proven_media/publisher.py": "3433ce2d5de3c3d6457de928204c2a9f5738927b1e78e8d455587c359cdfb210",
+    "apps/proven-media/proven_media/records.py": "93d73246b84253bf79e30f0d0d95225b5246a3206330f00b5098a6806041c7d3",
+    "apps/proven-media/proven_media/sepolia_bridge.py": "f888fbbfd066bb11e653788541a0943e2e0b8a371f2647ab6e13257d1bf2e422",
+    "apps/proven-media/proven_media/shieldstral_prover.py": "f31d373368bff8ed7bb82abe2122df83eba7018c924854c01d3a373cc3acabb0",
+    "apps/proven-media/proven_media/shieldstral_runtime.py": "b0cbf83877d18e328b20eb5c26508cadc5e87e57d7bc66388399837e7e582f73",
+    "apps/proven-media/proven_media/shieldstral_text.py": "34f116d6c13bb342b471d50a8160c77a30907131a6e8a8cc964c327497353eae",
+    "apps/proven-media/proven_media/storage_policy.py": "28d647ea16e87d98f4c021285d8ca45ffd62dad645af7c9c0234822340670a52",
+    "apps/proven-media/proven_media/store.py": "47ca250eecbdb0f285514f13bef874a73f49396cf93520135b3bc1b8294daeaa",
+    "apps/proven-media/proven_media/testnet_publisher.py": "f2f4bad6e9ce217747e7d51ea643d48afbffdf1aeb9c2165428ece133230bdf8",
+    "apps/proven-media/proven_media/tokenizer.py": "1f093759158a2cc16b24545b45b0ab5b2e65bbabe82e2c0a89cf6db3e553e70c",
+    "apps/proven-media/tools/classifier_pipeline.py": "fd555a057a9202df6fbf6dac45bd5c43fb40b8bc0a2c74947fa618a85c0b5973",
+    "results/zk60_astra_20261026/run_durable_app_demo.py": "6c3ad742e66a7d5b2ed73f45d0a1d5002bcd7c5a2d5fe2983e9bf5fd5b6cb281"
+  }
+}

@@ -82,6 +82,26 @@
    "sha256": "d786b24b2f7270e2cc778850c65eeb7382f9a40d5f7e060103b64223fa35f2d7"
   },
   {
+   "path": "ops/zkp-mvp/gpu-classifier/results/zk60_attention_integration_20260919/block_public/block_receipt.bin",
+   "bytes": 2816472,
+   "sha256": "77186742500cbd6eea41d28868919fbad92b58e4ca83d2a9630dcdd2ed19fdf7"
+  },
+  {
+   "path": "ops/zkp-mvp/gpu-classifier/results/zk60_private_block_evidence/owner_run1/block_receipt.bin",
+   "bytes": 2816472,
+   "sha256": "190064a8faa314213817f0ebae444a3067ef7a49dbd0f339fa09d83055d3f857"
+  },
+  {
+   "path": "ops/zkp-mvp/gpu-classifier/results/zk60_rowfold_20260919/integration/native-block-0/block_receipt.bin",
+   "bytes": 2816472,
+   "sha256": "d97f1a36f749d926d5c48dea473e0fbc5ae7249bf63b3184945d38d2b2a398d5"
+  },
+  {
+   "path": "ops/zkp-mvp/gpu-classifier/results/zk60_rowfold_20260919/integration/native-block-1/block_receipt.bin",
+   "bytes": 2816472,
+   "sha256": "d786b24b2f7270e2cc778850c65eeb7382f9a40d5f7e060103b64223fa35f2d7"
+  },
+  {
    "path": "ops/zkp-mvp/gpu-zerocheck/results/zk60_attention_integration_20260919/block_public/block_receipt.bin",
    "bytes": 2816472,
    "sha256": "77186742500cbd6eea41d28868919fbad92b58e4ca83d2a9630dcdd2ed19fdf7"
@@ -14228,8 +14248,8 @@
   },
   {
    "path": "research/zkp-efficiency/FINDINGS.md",
-   "bytes": 1279527,
-   "sha256": "d36f44923a56e3601196d2aeb79ce933cf7fb2475f9b26b74bba2a46435af088"
+   "bytes": 1282651,
+   "sha256": "893d28b2a75d42f57117fcdaaff8f866baca97782855d6ff2bd488c9b69d7469"
   },
   {
    "path": "research/zkp-efficiency/experiments/a-overlap-support-20261029/probe",
@@ -46422,6 +46442,566 @@
    "sha256": "dcedc43a308ca6cf77eaa62d0bebb22c6d396c02d816f3320aa89a80e206b416"
   },
   {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/00/0046686865df30eec7597eb4c43b1d114ad57aa88f6bb651a62ca9ba7cbbdcd6",
+   "bytes": 32450184,
+   "sha256": "0046686865df30eec7597eb4c43b1d114ad57aa88f6bb651a62ca9ba7cbbdcd6"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/12/12bb56dcd1c10a308f0e451427aa7d607b92c8a4cbfb38d45eab01cf811d3bb6",
+   "bytes": 32450184,
+   "sha256": "12bb56dcd1c10a308f0e451427aa7d607b92c8a4cbfb38d45eab01cf811d3bb6"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/15/15b4409447d6b2766dbc9d2573e54f9bfd907e0717321b4c20ea2b582c3cdcec",
+   "bytes": 32450184,
+   "sha256": "15b4409447d6b2766dbc9d2573e54f9bfd907e0717321b4c20ea2b582c3cdcec"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/16/16978fdec84c193f00fffd6a427e512e176e51836863e6abc15a827f6ee89067",
+   "bytes": 32450184,
+   "sha256": "16978fdec84c193f00fffd6a427e512e176e51836863e6abc15a827f6ee89067"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/18/18ee8e11425e1dfd0af422932412fe7b2501cf950e902e8016018f432937c433",
+   "bytes": 32450184,
+   "sha256": "18ee8e11425e1dfd0af422932412fe7b2501cf950e902e8016018f432937c433"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/22/22a589947aec1c685a5b8bcb8d21c160f073b26eca0c3be38388a7dafd9d6fd0",
+   "bytes": 32450184,
+   "sha256": "22a589947aec1c685a5b8bcb8d21c160f073b26eca0c3be38388a7dafd9d6fd0"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/29/29a3be7b8f5d4defbaa2153473e91d35789d3249a692742b856e98adfba018d6",
+   "bytes": 32450184,
+   "sha256": "29a3be7b8f5d4defbaa2153473e91d35789d3249a692742b856e98adfba018d6"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/2a/2a5f579db8448c61a1338f8ca70c2332b23bd9fb101ebdaf88bfeb624ee65ba3",
+   "bytes": 32450184,
+   "sha256": "2a5f579db8448c61a1338f8ca70c2332b23bd9fb101ebdaf88bfeb624ee65ba3"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/2d/2d6b3496ed824c69f9b6aa4f25e35119795c22e85888c7c9ea978239a7081cc3",
+   "bytes": 32450184,
+   "sha256": "2d6b3496ed824c69f9b6aa4f25e35119795c22e85888c7c9ea978239a7081cc3"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/30/303ed5c915ca39c9be73c0ad9b48d000930e24e1067562a52a4559902df7837d",
+   "bytes": 32450184,
+   "sha256": "303ed5c915ca39c9be73c0ad9b48d000930e24e1067562a52a4559902df7837d"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/38/38dd1365831074eb8df083eb8bdb7a755a7d80218791229f40bea8013dfb068d",
+   "bytes": 32450184,
+   "sha256": "38dd1365831074eb8df083eb8bdb7a755a7d80218791229f40bea8013dfb068d"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/39/39a394292b13339e01a7b43b2503a5a1bc6e4f358d5c8fde185dfb651f5eaeae",
+   "bytes": 32450184,
+   "sha256": "39a394292b13339e01a7b43b2503a5a1bc6e4f358d5c8fde185dfb651f5eaeae"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/3c/3c099dc40d2301929e7ebb3d2c71b35ce348e8b172033eff124a5aa1791174c9",
+   "bytes": 32450184,
+   "sha256": "3c099dc40d2301929e7ebb3d2c71b35ce348e8b172033eff124a5aa1791174c9"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/3e/3effde7a066f71be782afd3231dc7be45e0c87141019faca40c2275315b5beeb",
+   "bytes": 32450184,
+   "sha256": "3effde7a066f71be782afd3231dc7be45e0c87141019faca40c2275315b5beeb"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/41/4109b20a8eaa3eae334396ba4ec6b14a932e9df437d53f7afe5d2c08798172f2",
+   "bytes": 32450184,
+   "sha256": "4109b20a8eaa3eae334396ba4ec6b14a932e9df437d53f7afe5d2c08798172f2"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/42/42a30885e903b15b2a88ef70feeb1851c34dd4763b0a0e656792616b440e48b5",
+   "bytes": 32450184,
+   "sha256": "42a30885e903b15b2a88ef70feeb1851c34dd4763b0a0e656792616b440e48b5"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/43/43d4e78c107aec3a924986e9cf1a431e86f4815ffe73b27870a85ce94512dab2",
+   "bytes": 32450184,
+   "sha256": "43d4e78c107aec3a924986e9cf1a431e86f4815ffe73b27870a85ce94512dab2"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/48/48321aafaadf3fe350f43794ed7e6d475f42b92c428991e0da1146beacd114a2",
+   "bytes": 32450184,
+   "sha256": "48321aafaadf3fe350f43794ed7e6d475f42b92c428991e0da1146beacd114a2"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/4e/4e8c09f6a02ee2581a457a02b6d7e23031a8fa1447267d561e2ff2d618b21967",
+   "bytes": 32450184,
+   "sha256": "4e8c09f6a02ee2581a457a02b6d7e23031a8fa1447267d561e2ff2d618b21967"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/4e/4ecdac3a3f9952501d3a3bd38eab59541093196f4414cf6bf3cf8df41f04bda4",
+   "bytes": 32450184,
+   "sha256": "4ecdac3a3f9952501d3a3bd38eab59541093196f4414cf6bf3cf8df41f04bda4"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/51/51cfd86fe5bc84d86a5e36081eae385e2125537301fc8798ce025ada603f9d8e",
+   "bytes": 32450184,
+   "sha256": "51cfd86fe5bc84d86a5e36081eae385e2125537301fc8798ce025ada603f9d8e"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/53/532b4dd055af1493754c3b518fc1d221565b1939b5e3310c556b630a630855bc",
+   "bytes": 32450184,
+   "sha256": "532b4dd055af1493754c3b518fc1d221565b1939b5e3310c556b630a630855bc"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/5f/5f7ea17ce657ab1663bb6f03289fcf0010ab725d2a8e5380377663e8be9da7c5",
+   "bytes": 32450184,
+   "sha256": "5f7ea17ce657ab1663bb6f03289fcf0010ab725d2a8e5380377663e8be9da7c5"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/60/60764e56ee07a9826bb3c66c8a2831569c42fe1f8e71134b05f0b949d07c48aa",
+   "bytes": 32450184,
+   "sha256": "60764e56ee07a9826bb3c66c8a2831569c42fe1f8e71134b05f0b949d07c48aa"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/63/638c95d8b63ba67353eba1f9c9900220b6174604a14e24e2e89e83a523275b43",
+   "bytes": 32450184,
+   "sha256": "638c95d8b63ba67353eba1f9c9900220b6174604a14e24e2e89e83a523275b43"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/69/6971f64a65ac18ea6a5a041beb37e66aa93d4498509d7fe9eb15db322d69f31c",
+   "bytes": 32450184,
+   "sha256": "6971f64a65ac18ea6a5a041beb37e66aa93d4498509d7fe9eb15db322d69f31c"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/6b/6b0e6dfc7a3662f8e3352da5377cfd9b0a2fcd4c676965712991ab04b439d914",
+   "bytes": 32450184,
+   "sha256": "6b0e6dfc7a3662f8e3352da5377cfd9b0a2fcd4c676965712991ab04b439d914"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/6d/6db1885c99a3d5d8319e30f93c96fc34e20da5b79e5335266c0975d79b795637",
+   "bytes": 32450184,
+   "sha256": "6db1885c99a3d5d8319e30f93c96fc34e20da5b79e5335266c0975d79b795637"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/6e/6e29a4605b529d393215e29d97490d3184cb4f484e62efcc930b138ecaa7578e",
+   "bytes": 32450184,
+   "sha256": "6e29a4605b529d393215e29d97490d3184cb4f484e62efcc930b138ecaa7578e"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/74/741b6a25e1c3d797c17ae8eeff5dba4d4e149153c31ae021f655b6cb9b14b5b5",
+   "bytes": 32450184,
+   "sha256": "741b6a25e1c3d797c17ae8eeff5dba4d4e149153c31ae021f655b6cb9b14b5b5"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/74/7453d46ad22477a02feb8ad7f881b5f4e57aba32d1a3023724ddf24f4121eb44",
+   "bytes": 3292120,
+   "sha256": "7453d46ad22477a02feb8ad7f881b5f4e57aba32d1a3023724ddf24f4121eb44"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/79/79279e00b3af4c9f4e10fb3f31ef794f82b859a319a6f9f13bc602be03d1b6d2",
+   "bytes": 32450184,
+   "sha256": "79279e00b3af4c9f4e10fb3f31ef794f82b859a319a6f9f13bc602be03d1b6d2"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/79/796503030ee330b46825bc82a9f60c4ba52c9082e90a722b4a8a7a2d5ecaf099",
+   "bytes": 32450184,
+   "sha256": "796503030ee330b46825bc82a9f60c4ba52c9082e90a722b4a8a7a2d5ecaf099"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/79/7971d01148d2fe235aceb31832549d988b9ba6f8f220e65a260c79759bd20599",
+   "bytes": 32450184,
+   "sha256": "7971d01148d2fe235aceb31832549d988b9ba6f8f220e65a260c79759bd20599"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/7d/7d5cee90fcf76750cb953dc371d5aab50a1c57d9d1c261eeb628f3a8054c4562",
+   "bytes": 32450184,
+   "sha256": "7d5cee90fcf76750cb953dc371d5aab50a1c57d9d1c261eeb628f3a8054c4562"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/7e/7e4228f784e3bab50abdc49e5b74d5f41b90c07340fa33552b0051deb5c072ec",
+   "bytes": 32450184,
+   "sha256": "7e4228f784e3bab50abdc49e5b74d5f41b90c07340fa33552b0051deb5c072ec"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/7e/7e76c0c57f571d19e659bacbe4c7c1f8cc111701b16ff3c23b1984a1d2581573",
+   "bytes": 32450184,
+   "sha256": "7e76c0c57f571d19e659bacbe4c7c1f8cc111701b16ff3c23b1984a1d2581573"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/80/8073922050f4f30a13a41c2ae18939462ab8a98c93167ff124431e11878838e8",
+   "bytes": 32450184,
+   "sha256": "8073922050f4f30a13a41c2ae18939462ab8a98c93167ff124431e11878838e8"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/81/81730e03829fb11524e878bae7c23f85ad154cb174bbc1e262b11b910cc5221b",
+   "bytes": 32450184,
+   "sha256": "81730e03829fb11524e878bae7c23f85ad154cb174bbc1e262b11b910cc5221b"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/86/86f7bd34debfcdadd58a0b9479772081042c837c31b84acb8267b582f1ed566e",
+   "bytes": 32450184,
+   "sha256": "86f7bd34debfcdadd58a0b9479772081042c837c31b84acb8267b582f1ed566e"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/8a/8a465455a7196876df56c734d6307b7e686c672ad3e768e5c4032758468cb371",
+   "bytes": 1415192,
+   "sha256": "8a465455a7196876df56c734d6307b7e686c672ad3e768e5c4032758468cb371"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/8c/8c0812603f469d6d85b8c851ce2dba15dc7230993cb1e013d66c41d467ec1488",
+   "bytes": 32450184,
+   "sha256": "8c0812603f469d6d85b8c851ce2dba15dc7230993cb1e013d66c41d467ec1488"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/8c/8c606333ca6781e3fa6cec14ce8e63e9c8b3db44b89c67c93d0c41e05902c3d8",
+   "bytes": 32450184,
+   "sha256": "8c606333ca6781e3fa6cec14ce8e63e9c8b3db44b89c67c93d0c41e05902c3d8"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/8c/8c775e36fbe8427dcb180367f5f9635be713b316c5d6db96f0adfe085fc321d2",
+   "bytes": 32450184,
+   "sha256": "8c775e36fbe8427dcb180367f5f9635be713b316c5d6db96f0adfe085fc321d2"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/93/93aa47e018bcffd8058a51a8cc25b5a1163ef1c8cbfd258783119a056b800601",
+   "bytes": 32450184,
+   "sha256": "93aa47e018bcffd8058a51a8cc25b5a1163ef1c8cbfd258783119a056b800601"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/94/94b07ae65e14aceddaf85a397686f85c43178b6e71c0c9d0d4bee8f32bbeba85",
+   "bytes": 32450184,
+   "sha256": "94b07ae65e14aceddaf85a397686f85c43178b6e71c0c9d0d4bee8f32bbeba85"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/98/98abbefffa1c5e503177ac2365fbdd92b78f1017bc3d629bab941fc21e0d7600",
+   "bytes": 3292120,
+   "sha256": "98abbefffa1c5e503177ac2365fbdd92b78f1017bc3d629bab941fc21e0d7600"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/9a/9ad80424828b615630ceb4db0557b7b96feb5a6e73642841edce5f79f8a561fa",
+   "bytes": 32450184,
+   "sha256": "9ad80424828b615630ceb4db0557b7b96feb5a6e73642841edce5f79f8a561fa"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/9f/9f2da7d360a3371d932828092dcd08ce7ee3ce058f2fe1f2b8c1cdf881439946",
+   "bytes": 32450184,
+   "sha256": "9f2da7d360a3371d932828092dcd08ce7ee3ce058f2fe1f2b8c1cdf881439946"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/a0/a0e72d4b712d2a26a26d9adfde3281c2f368440cb271110117a89bcbdcd1fd6c",
+   "bytes": 32450184,
+   "sha256": "a0e72d4b712d2a26a26d9adfde3281c2f368440cb271110117a89bcbdcd1fd6c"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/a4/a4572b33c896eb580ca5101fbcbc218e5313e00304ef714c1704632f05b50f9f",
+   "bytes": 32450184,
+   "sha256": "a4572b33c896eb580ca5101fbcbc218e5313e00304ef714c1704632f05b50f9f"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/a4/a4b163d4d27c8b7df55f45fec998da192d11e1e1f7c5dfbb22bc2a17197ddc7e",
+   "bytes": 32450184,
+   "sha256": "a4b163d4d27c8b7df55f45fec998da192d11e1e1f7c5dfbb22bc2a17197ddc7e"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/a6/a623e11960ad2616387147f56f69306e66dd0f42489964d46f69cd465b6add0c",
+   "bytes": 1415192,
+   "sha256": "a623e11960ad2616387147f56f69306e66dd0f42489964d46f69cd465b6add0c"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/ab/abf0d6aa596ca90b35b091bf5a54a607ef39a75bf2ba1755e097c525fcc311f5",
+   "bytes": 32450184,
+   "sha256": "abf0d6aa596ca90b35b091bf5a54a607ef39a75bf2ba1755e097c525fcc311f5"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/b2/b2bbca65393c176b8909707b72466e22bdf983cf7afdd3a4d7fb88ad3703c9df",
+   "bytes": 32450184,
+   "sha256": "b2bbca65393c176b8909707b72466e22bdf983cf7afdd3a4d7fb88ad3703c9df"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/bc/bc3db84e8c50866c2606082b879d454f53974dd32316659fa85546fe59cee2de",
+   "bytes": 32450184,
+   "sha256": "bc3db84e8c50866c2606082b879d454f53974dd32316659fa85546fe59cee2de"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/bc/bcbdeb927812998b4f1768b1bccf8e93fd891896d04f669bfa701067a0d8e71f",
+   "bytes": 32450184,
+   "sha256": "bcbdeb927812998b4f1768b1bccf8e93fd891896d04f669bfa701067a0d8e71f"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/bc/bcd7350d1c8ccc14c8ccd63569653fb6f3218f088c23207ef356bbd401170e84",
+   "bytes": 32450184,
+   "sha256": "bcd7350d1c8ccc14c8ccd63569653fb6f3218f088c23207ef356bbd401170e84"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/bc/bcfdec50eb2325fe34114c9860d6a1c41d6e561a8cf79a30046e0ec7b51de258",
+   "bytes": 32450184,
+   "sha256": "bcfdec50eb2325fe34114c9860d6a1c41d6e561a8cf79a30046e0ec7b51de258"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/bf/bfc6db042e2a2167431523793d7013ac0582ac5154a702caecb4945d77a7ea60",
+   "bytes": 32450184,
+   "sha256": "bfc6db042e2a2167431523793d7013ac0582ac5154a702caecb4945d77a7ea60"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/c2/c2fe0edb15622d9b13527eb9122bbbf0cc427e1e60c66ca02bb7b185638317fd",
+   "bytes": 32450184,
+   "sha256": "c2fe0edb15622d9b13527eb9122bbbf0cc427e1e60c66ca02bb7b185638317fd"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/c3/c375575e1359d74a3ee585ce3bca135c77409c18050ee91dabbd7dc5fe2cdd99",
+   "bytes": 32450184,
+   "sha256": "c375575e1359d74a3ee585ce3bca135c77409c18050ee91dabbd7dc5fe2cdd99"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/c4/c4a5b1b37106e4ed8b0f4ceabebdec0b4d0a0c70b2dc82bc8c1914794db6deda",
+   "bytes": 32450184,
+   "sha256": "c4a5b1b37106e4ed8b0f4ceabebdec0b4d0a0c70b2dc82bc8c1914794db6deda"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/c9/c952836072ab4177fc0042d35fce2dcf65e832f12f782e3bb01292ae290c37e1",
+   "bytes": 32450184,
+   "sha256": "c952836072ab4177fc0042d35fce2dcf65e832f12f782e3bb01292ae290c37e1"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/cb/cb3c2a1f800c00a33d5d453daf1676be0a7f64c05805d6897b221fe742206c0b",
+   "bytes": 32450184,
+   "sha256": "cb3c2a1f800c00a33d5d453daf1676be0a7f64c05805d6897b221fe742206c0b"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/d0/d054d849d1c2659548484b13a6c149ce51ea833a4142ffaeaf339bac0ebe4816",
+   "bytes": 32450184,
+   "sha256": "d054d849d1c2659548484b13a6c149ce51ea833a4142ffaeaf339bac0ebe4816"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/d0/d0a8f485be90fed8568ceae71ab9990414046bfb8d5bb9f586f1c024148574d3",
+   "bytes": 32450184,
+   "sha256": "d0a8f485be90fed8568ceae71ab9990414046bfb8d5bb9f586f1c024148574d3"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/d2/d22ca3b8278c652738fe0242cd01e4d33495e26b6aa5163af3c9e8d4c478ad5b",
+   "bytes": 32450184,
+   "sha256": "d22ca3b8278c652738fe0242cd01e4d33495e26b6aa5163af3c9e8d4c478ad5b"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/d3/d3693f68a052be02b8d83eeae2f797a07eef75fef91c95376837497ddb53b679",
+   "bytes": 32450184,
+   "sha256": "d3693f68a052be02b8d83eeae2f797a07eef75fef91c95376837497ddb53b679"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/d5/d517204e51137429dad00b0c5cb8b1e99706956a4967bcf691b3fc10ea42b455",
+   "bytes": 32450184,
+   "sha256": "d517204e51137429dad00b0c5cb8b1e99706956a4967bcf691b3fc10ea42b455"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/d7/d70614d7426932acc1712ca8707fdaa622006dd08f4ec38243c0c9e694367a03",
+   "bytes": 32450184,
+   "sha256": "d70614d7426932acc1712ca8707fdaa622006dd08f4ec38243c0c9e694367a03"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/d7/d73f5be07001dfd26943ad7ad833114d78563b0e05bcaecd57c28ea19cfcaa2c",
+   "bytes": 3292120,
+   "sha256": "d73f5be07001dfd26943ad7ad833114d78563b0e05bcaecd57c28ea19cfcaa2c"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/d7/d7e1f6d91472f4b67e8273727b42ac318546e9bf1fcc12069f25e841846fa914",
+   "bytes": 32450184,
+   "sha256": "d7e1f6d91472f4b67e8273727b42ac318546e9bf1fcc12069f25e841846fa914"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/d9/d9d4f92203008d598f0972dde23b91b3a91b0932eb55e333dfbf85db4d75bc91",
+   "bytes": 32450184,
+   "sha256": "d9d4f92203008d598f0972dde23b91b3a91b0932eb55e333dfbf85db4d75bc91"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/e3/e35131c0fda610f15fcbda457c4304c707545d9719d1e939aa1234b0dace0cfe",
+   "bytes": 32450184,
+   "sha256": "e35131c0fda610f15fcbda457c4304c707545d9719d1e939aa1234b0dace0cfe"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/e3/e3cd7815f96a9e95821279bb10bc153e8f87c1f28b841e4087fa63368ac79543",
+   "bytes": 32450184,
+   "sha256": "e3cd7815f96a9e95821279bb10bc153e8f87c1f28b841e4087fa63368ac79543"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/e6/e60c4d77580a4d14ba9fee4359c7c704bf8895dbef231ae09289f7ca22535c78",
+   "bytes": 32450184,
+   "sha256": "e60c4d77580a4d14ba9fee4359c7c704bf8895dbef231ae09289f7ca22535c78"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/e9/e9148727431ac6cf999a76a827d3cc31ad0ed5660fb308f52aa696da4885fcc7",
+   "bytes": 32450184,
+   "sha256": "e9148727431ac6cf999a76a827d3cc31ad0ed5660fb308f52aa696da4885fcc7"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/ea/ea3f7357b4d025e2356ba8912bd394c2501fcf1adf7ca45bb055e141290c3431",
+   "bytes": 1415192,
+   "sha256": "ea3f7357b4d025e2356ba8912bd394c2501fcf1adf7ca45bb055e141290c3431"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/ee/ee1a8acea3efac6012c30abfd9e640ee987a9e5df8b05c259c9d5df6d6ba75ac",
+   "bytes": 32450184,
+   "sha256": "ee1a8acea3efac6012c30abfd9e640ee987a9e5df8b05c259c9d5df6d6ba75ac"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/f8/f8e2c79d5c3e4542819e40cadb49aacbf67cd288738c3488a0194eff8ae781e4",
+   "bytes": 32450184,
+   "sha256": "f8e2c79d5c3e4542819e40cadb49aacbf67cd288738c3488a0194eff8ae781e4"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/fb/fb407b70564c9fecad8791605eb7f27d8aeba2868202261d75ae2dec93a7643a",
+   "bytes": 32450184,
+   "sha256": "fb407b70564c9fecad8791605eb7f27d8aeba2868202261d75ae2dec93a7643a"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/ff/ff4d795660ce0bbd5d42d26fc63281d1f0ff819edd48e246317fec0f8935ccb7",
+   "bytes": 32450184,
+   "sha256": "ff4d795660ce0bbd5d42d26fc63281d1f0ff819edd48e246317fec0f8935ccb7"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/bundle-store/objects/ff/ffd104f3b8de5ecc1713ac86816a6e549240ad880943268f19cf78a9d68ff1c0",
+   "bytes": 32450184,
+   "sha256": "ffd104f3b8de5ecc1713ac86816a6e549240ad880943268f19cf78a9d68ff1c0"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/verify-from-store/61ac12af82b9e6c3-c0-1793396693/run/segment-000.bin",
+   "bytes": 1415192,
+   "sha256": "8a465455a7196876df56c734d6307b7e686c672ad3e768e5c4032758468cb371"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/verify-from-store/61ac12af82b9e6c3-c0-1793396693/run/segment-001.bin",
+   "bytes": 32450184,
+   "sha256": "6971f64a65ac18ea6a5a041beb37e66aa93d4498509d7fe9eb15db322d69f31c"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/verify-from-store/61ac12af82b9e6c3-c0-1793396693/run/segment-002.bin",
+   "bytes": 32450184,
+   "sha256": "d9d4f92203008d598f0972dde23b91b3a91b0932eb55e333dfbf85db4d75bc91"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/verify-from-store/61ac12af82b9e6c3-c0-1793396693/run/segment-003.bin",
+   "bytes": 32450184,
+   "sha256": "8c775e36fbe8427dcb180367f5f9635be713b316c5d6db96f0adfe085fc321d2"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/verify-from-store/61ac12af82b9e6c3-c0-1793396693/run/segment-004.bin",
+   "bytes": 32450184,
+   "sha256": "d70614d7426932acc1712ca8707fdaa622006dd08f4ec38243c0c9e694367a03"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/verify-from-store/61ac12af82b9e6c3-c0-1793396693/run/segment-005.bin",
+   "bytes": 32450184,
+   "sha256": "7e76c0c57f571d19e659bacbe4c7c1f8cc111701b16ff3c23b1984a1d2581573"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/verify-from-store/61ac12af82b9e6c3-c0-1793396693/run/segment-006.bin",
+   "bytes": 32450184,
+   "sha256": "79279e00b3af4c9f4e10fb3f31ef794f82b859a319a6f9f13bc602be03d1b6d2"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/verify-from-store/61ac12af82b9e6c3-c0-1793396693/run/segment-007.bin",
+   "bytes": 32450184,
+   "sha256": "d3693f68a052be02b8d83eeae2f797a07eef75fef91c95376837497ddb53b679"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/verify-from-store/61ac12af82b9e6c3-c0-1793396693/run/segment-008.bin",
+   "bytes": 32450184,
+   "sha256": "d054d849d1c2659548484b13a6c149ce51ea833a4142ffaeaf339bac0ebe4816"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/verify-from-store/61ac12af82b9e6c3-c0-1793396693/run/segment-009.bin",
+   "bytes": 32450184,
+   "sha256": "0046686865df30eec7597eb4c43b1d114ad57aa88f6bb651a62ca9ba7cbbdcd6"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/verify-from-store/61ac12af82b9e6c3-c0-1793396693/run/segment-010.bin",
+   "bytes": 32450184,
+   "sha256": "a4b163d4d27c8b7df55f45fec998da192d11e1e1f7c5dfbb22bc2a17197ddc7e"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/verify-from-store/61ac12af82b9e6c3-c0-1793396693/run/segment-011.bin",
+   "bytes": 32450184,
+   "sha256": "8c606333ca6781e3fa6cec14ce8e63e9c8b3db44b89c67c93d0c41e05902c3d8"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/verify-from-store/61ac12af82b9e6c3-c0-1793396693/run/segment-012.bin",
+   "bytes": 32450184,
+   "sha256": "7d5cee90fcf76750cb953dc371d5aab50a1c57d9d1c261eeb628f3a8054c4562"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/verify-from-store/61ac12af82b9e6c3-c0-1793396693/run/segment-013.bin",
+   "bytes": 32450184,
+   "sha256": "12bb56dcd1c10a308f0e451427aa7d607b92c8a4cbfb38d45eab01cf811d3bb6"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/verify-from-store/61ac12af82b9e6c3-c0-1793396693/run/segment-014.bin",
+   "bytes": 32450184,
+   "sha256": "39a394292b13339e01a7b43b2503a5a1bc6e4f358d5c8fde185dfb651f5eaeae"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/verify-from-store/61ac12af82b9e6c3-c0-1793396693/run/segment-015.bin",
+   "bytes": 32450184,
+   "sha256": "d517204e51137429dad00b0c5cb8b1e99706956a4967bcf691b3fc10ea42b455"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/verify-from-store/61ac12af82b9e6c3-c0-1793396693/run/segment-016.bin",
+   "bytes": 32450184,
+   "sha256": "ee1a8acea3efac6012c30abfd9e640ee987a9e5df8b05c259c9d5df6d6ba75ac"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/verify-from-store/61ac12af82b9e6c3-c0-1793396693/run/segment-017.bin",
+   "bytes": 32450184,
+   "sha256": "e35131c0fda610f15fcbda457c4304c707545d9719d1e939aa1234b0dace0cfe"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/verify-from-store/61ac12af82b9e6c3-c0-1793396693/run/segment-018.bin",
+   "bytes": 32450184,
+   "sha256": "2d6b3496ed824c69f9b6aa4f25e35119795c22e85888c7c9ea978239a7081cc3"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/verify-from-store/61ac12af82b9e6c3-c0-1793396693/run/segment-019.bin",
+   "bytes": 32450184,
+   "sha256": "bcbdeb927812998b4f1768b1bccf8e93fd891896d04f669bfa701067a0d8e71f"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/verify-from-store/61ac12af82b9e6c3-c0-1793396693/run/segment-020.bin",
+   "bytes": 32450184,
+   "sha256": "bfc6db042e2a2167431523793d7013ac0582ac5154a702caecb4945d77a7ea60"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/verify-from-store/61ac12af82b9e6c3-c0-1793396693/run/segment-021.bin",
+   "bytes": 32450184,
+   "sha256": "48321aafaadf3fe350f43794ed7e6d475f42b92c428991e0da1146beacd114a2"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/verify-from-store/61ac12af82b9e6c3-c0-1793396693/run/segment-022.bin",
+   "bytes": 32450184,
+   "sha256": "6db1885c99a3d5d8319e30f93c96fc34e20da5b79e5335266c0975d79b795637"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/verify-from-store/61ac12af82b9e6c3-c0-1793396693/run/segment-023.bin",
+   "bytes": 32450184,
+   "sha256": "93aa47e018bcffd8058a51a8cc25b5a1163ef1c8cbfd258783119a056b800601"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/verify-from-store/61ac12af82b9e6c3-c0-1793396693/run/segment-024.bin",
+   "bytes": 32450184,
+   "sha256": "d0a8f485be90fed8568ceae71ab9990414046bfb8d5bb9f586f1c024148574d3"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/verify-from-store/61ac12af82b9e6c3-c0-1793396693/run/segment-025.bin",
+   "bytes": 32450184,
+   "sha256": "ff4d795660ce0bbd5d42d26fc63281d1f0ff819edd48e246317fec0f8935ccb7"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/verify-from-store/61ac12af82b9e6c3-c0-1793396693/run/segment-026.bin",
+   "bytes": 32450184,
+   "sha256": "8c0812603f469d6d85b8c851ce2dba15dc7230993cb1e013d66c41d467ec1488"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/base-sepolia/verify-from-store/61ac12af82b9e6c3-c0-1793396693/run/segment-027.bin",
+   "bytes": 3292120,
+   "sha256": "d73f5be07001dfd26943ad7ad833114d78563b0e05bcaecd57c28ea19cfcaa2c"
+  },
+  {
    "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c0/segment-000.bin",
    "bytes": 1415192,
    "sha256": "8a465455a7196876df56c734d6307b7e686c672ad3e768e5c4032758468cb371"
@@ -46560,6 +47140,286 @@
    "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c0/segment-027.bin",
    "bytes": 3292120,
    "sha256": "d73f5be07001dfd26943ad7ad833114d78563b0e05bcaecd57c28ea19cfcaa2c"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c1/segment-000.bin",
+   "bytes": 1415192,
+   "sha256": "a623e11960ad2616387147f56f69306e66dd0f42489964d46f69cd465b6add0c"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c1/segment-001.bin",
+   "bytes": 32450184,
+   "sha256": "94b07ae65e14aceddaf85a397686f85c43178b6e71c0c9d0d4bee8f32bbeba85"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c1/segment-002.bin",
+   "bytes": 32450184,
+   "sha256": "bc3db84e8c50866c2606082b879d454f53974dd32316659fa85546fe59cee2de"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c1/segment-003.bin",
+   "bytes": 32450184,
+   "sha256": "f8e2c79d5c3e4542819e40cadb49aacbf67cd288738c3488a0194eff8ae781e4"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c1/segment-004.bin",
+   "bytes": 32450184,
+   "sha256": "9f2da7d360a3371d932828092dcd08ce7ee3ce058f2fe1f2b8c1cdf881439946"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c1/segment-005.bin",
+   "bytes": 32450184,
+   "sha256": "6b0e6dfc7a3662f8e3352da5377cfd9b0a2fcd4c676965712991ab04b439d914"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c1/segment-006.bin",
+   "bytes": 32450184,
+   "sha256": "4e8c09f6a02ee2581a457a02b6d7e23031a8fa1447267d561e2ff2d618b21967"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c1/segment-007.bin",
+   "bytes": 32450184,
+   "sha256": "8073922050f4f30a13a41c2ae18939462ab8a98c93167ff124431e11878838e8"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c1/segment-008.bin",
+   "bytes": 32450184,
+   "sha256": "bcd7350d1c8ccc14c8ccd63569653fb6f3218f088c23207ef356bbd401170e84"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c1/segment-009.bin",
+   "bytes": 32450184,
+   "sha256": "c2fe0edb15622d9b13527eb9122bbbf0cc427e1e60c66ca02bb7b185638317fd"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c1/segment-010.bin",
+   "bytes": 32450184,
+   "sha256": "86f7bd34debfcdadd58a0b9479772081042c837c31b84acb8267b582f1ed566e"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c1/segment-011.bin",
+   "bytes": 32450184,
+   "sha256": "51cfd86fe5bc84d86a5e36081eae385e2125537301fc8798ce025ada603f9d8e"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c1/segment-012.bin",
+   "bytes": 32450184,
+   "sha256": "d7e1f6d91472f4b67e8273727b42ac318546e9bf1fcc12069f25e841846fa914"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c1/segment-013.bin",
+   "bytes": 32450184,
+   "sha256": "532b4dd055af1493754c3b518fc1d221565b1939b5e3310c556b630a630855bc"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c1/segment-014.bin",
+   "bytes": 32450184,
+   "sha256": "b2bbca65393c176b8909707b72466e22bdf983cf7afdd3a4d7fb88ad3703c9df"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c1/segment-015.bin",
+   "bytes": 32450184,
+   "sha256": "d22ca3b8278c652738fe0242cd01e4d33495e26b6aa5163af3c9e8d4c478ad5b"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c1/segment-016.bin",
+   "bytes": 32450184,
+   "sha256": "303ed5c915ca39c9be73c0ad9b48d000930e24e1067562a52a4559902df7837d"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c1/segment-017.bin",
+   "bytes": 32450184,
+   "sha256": "c375575e1359d74a3ee585ce3bca135c77409c18050ee91dabbd7dc5fe2cdd99"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c1/segment-018.bin",
+   "bytes": 32450184,
+   "sha256": "a4572b33c896eb580ca5101fbcbc218e5313e00304ef714c1704632f05b50f9f"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c1/segment-019.bin",
+   "bytes": 32450184,
+   "sha256": "ffd104f3b8de5ecc1713ac86816a6e549240ad880943268f19cf78a9d68ff1c0"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c1/segment-020.bin",
+   "bytes": 32450184,
+   "sha256": "22a589947aec1c685a5b8bcb8d21c160f073b26eca0c3be38388a7dafd9d6fd0"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c1/segment-021.bin",
+   "bytes": 32450184,
+   "sha256": "a0e72d4b712d2a26a26d9adfde3281c2f368440cb271110117a89bcbdcd1fd6c"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c1/segment-022.bin",
+   "bytes": 32450184,
+   "sha256": "6e29a4605b529d393215e29d97490d3184cb4f484e62efcc930b138ecaa7578e"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c1/segment-023.bin",
+   "bytes": 32450184,
+   "sha256": "e3cd7815f96a9e95821279bb10bc153e8f87c1f28b841e4087fa63368ac79543"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c1/segment-024.bin",
+   "bytes": 32450184,
+   "sha256": "741b6a25e1c3d797c17ae8eeff5dba4d4e149153c31ae021f655b6cb9b14b5b5"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c1/segment-025.bin",
+   "bytes": 32450184,
+   "sha256": "29a3be7b8f5d4defbaa2153473e91d35789d3249a692742b856e98adfba018d6"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c1/segment-026.bin",
+   "bytes": 32450184,
+   "sha256": "38dd1365831074eb8df083eb8bdb7a755a7d80218791229f40bea8013dfb068d"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c1/segment-027.bin",
+   "bytes": 3292120,
+   "sha256": "98abbefffa1c5e503177ac2365fbdd92b78f1017bc3d629bab941fc21e0d7600"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c2/segment-000.bin",
+   "bytes": 1415192,
+   "sha256": "ea3f7357b4d025e2356ba8912bd394c2501fcf1adf7ca45bb055e141290c3431"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c2/segment-001.bin",
+   "bytes": 32450184,
+   "sha256": "abf0d6aa596ca90b35b091bf5a54a607ef39a75bf2ba1755e097c525fcc311f5"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c2/segment-002.bin",
+   "bytes": 32450184,
+   "sha256": "5f7ea17ce657ab1663bb6f03289fcf0010ab725d2a8e5380377663e8be9da7c5"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c2/segment-003.bin",
+   "bytes": 32450184,
+   "sha256": "42a30885e903b15b2a88ef70feeb1851c34dd4763b0a0e656792616b440e48b5"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c2/segment-004.bin",
+   "bytes": 32450184,
+   "sha256": "cb3c2a1f800c00a33d5d453daf1676be0a7f64c05805d6897b221fe742206c0b"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c2/segment-005.bin",
+   "bytes": 32450184,
+   "sha256": "796503030ee330b46825bc82a9f60c4ba52c9082e90a722b4a8a7a2d5ecaf099"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c2/segment-006.bin",
+   "bytes": 32450184,
+   "sha256": "c952836072ab4177fc0042d35fce2dcf65e832f12f782e3bb01292ae290c37e1"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c2/segment-007.bin",
+   "bytes": 32450184,
+   "sha256": "e9148727431ac6cf999a76a827d3cc31ad0ed5660fb308f52aa696da4885fcc7"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c2/segment-008.bin",
+   "bytes": 32450184,
+   "sha256": "c4a5b1b37106e4ed8b0f4ceabebdec0b4d0a0c70b2dc82bc8c1914794db6deda"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c2/segment-009.bin",
+   "bytes": 32450184,
+   "sha256": "bcfdec50eb2325fe34114c9860d6a1c41d6e561a8cf79a30046e0ec7b51de258"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c2/segment-010.bin",
+   "bytes": 32450184,
+   "sha256": "4109b20a8eaa3eae334396ba4ec6b14a932e9df437d53f7afe5d2c08798172f2"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c2/segment-011.bin",
+   "bytes": 32450184,
+   "sha256": "43d4e78c107aec3a924986e9cf1a431e86f4815ffe73b27870a85ce94512dab2"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c2/segment-012.bin",
+   "bytes": 32450184,
+   "sha256": "fb407b70564c9fecad8791605eb7f27d8aeba2868202261d75ae2dec93a7643a"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c2/segment-013.bin",
+   "bytes": 32450184,
+   "sha256": "81730e03829fb11524e878bae7c23f85ad154cb174bbc1e262b11b910cc5221b"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c2/segment-014.bin",
+   "bytes": 32450184,
+   "sha256": "3c099dc40d2301929e7ebb3d2c71b35ce348e8b172033eff124a5aa1791174c9"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c2/segment-015.bin",
+   "bytes": 32450184,
+   "sha256": "18ee8e11425e1dfd0af422932412fe7b2501cf950e902e8016018f432937c433"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c2/segment-016.bin",
+   "bytes": 32450184,
+   "sha256": "15b4409447d6b2766dbc9d2573e54f9bfd907e0717321b4c20ea2b582c3cdcec"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c2/segment-017.bin",
+   "bytes": 32450184,
+   "sha256": "4ecdac3a3f9952501d3a3bd38eab59541093196f4414cf6bf3cf8df41f04bda4"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c2/segment-018.bin",
+   "bytes": 32450184,
+   "sha256": "7971d01148d2fe235aceb31832549d988b9ba6f8f220e65a260c79759bd20599"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c2/segment-019.bin",
+   "bytes": 32450184,
+   "sha256": "16978fdec84c193f00fffd6a427e512e176e51836863e6abc15a827f6ee89067"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c2/segment-020.bin",
+   "bytes": 32450184,
+   "sha256": "60764e56ee07a9826bb3c66c8a2831569c42fe1f8e71134b05f0b949d07c48aa"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c2/segment-021.bin",
+   "bytes": 32450184,
+   "sha256": "2a5f579db8448c61a1338f8ca70c2332b23bd9fb101ebdaf88bfeb624ee65ba3"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c2/segment-022.bin",
+   "bytes": 32450184,
+   "sha256": "9ad80424828b615630ceb4db0557b7b96feb5a6e73642841edce5f79f8a561fa"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c2/segment-023.bin",
+   "bytes": 32450184,
+   "sha256": "7e4228f784e3bab50abdc49e5b74d5f41b90c07340fa33552b0051deb5c072ec"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c2/segment-024.bin",
+   "bytes": 32450184,
+   "sha256": "e60c4d77580a4d14ba9fee4359c7c704bf8895dbef231ae09289f7ca22535c78"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c2/segment-025.bin",
+   "bytes": 32450184,
+   "sha256": "638c95d8b63ba67353eba1f9c9900220b6174604a14e24e2e89e83a523275b43"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c2/segment-026.bin",
+   "bytes": 32450184,
+   "sha256": "3effde7a066f71be782afd3231dc7be45e0c87141019faca40c2275315b5beeb"
+  },
+  {
+   "path": "results/zk60_astra_20261026/real_app_demo_2/public/runs/61ac12af82b9e6c36d95075db3fc91b9-c2/segment-027.bin",
+   "bytes": 3292120,
+   "sha256": "7453d46ad22477a02feb8ad7f881b5f4e57aba32d1a3023724ddf24f4121eb44"
   },
   {
    "path": "results/zk60_crash_recovery_20260930/demo/http-guarded-full-1/runs/acdc3d949c9942c793858cc8b083192c/artifacts/block_receipt.bin",
@@ -59937,6 +60797,16 @@
    "sha256": "ab81e88dddfec168696223d0c7a92c70a4467c06bae4f7056a60c3372a89fa4d"
   },
   {
+   "path": "results/zk60_gpu_classifier_20261030/bin/zk60_classify.gcl1-cpu.bin",
+   "bytes": 2743336,
+   "sha256": "fc1f3ea273d2308936502b36c928f91e5a70c9547ef84bdb8fc3733ffcf676c5"
+  },
+  {
+   "path": "results/zk60_gpu_classifier_20261030/bin/zk60_classify.gcl1-gpu.bin",
+   "bytes": 3259768,
+   "sha256": "2ed44258d51dacd31ad7ad2c8f1658207e23eccd0baee34277d679f7ba319905"
+  },
+  {
    "path": "results/zk60_gpu_zerocheck_20261017/bin/zk60_trained_block.gpu.release.bin",
    "bytes": 2526688,
    "sha256": "95b48294c80cf0ac274560177e00e44e176676b0f5d43382832e832ca0c0c0f9"
@@ -61153,8 +62023,8 @@
   },
   {
    "path": "results/zk60_resource_guard/history.jsonl",
-   "bytes": 4708789,
-   "sha256": "b22d69a779f58d1fca13629829cf01be5fad70d351bcf9337ae6385233d16fa9"
+   "bytes": 4757996,
+   "sha256": "a14098fb4716a7556bfcaaab7f689915d778597af76573da8bfea0d94970d701"
   },
   {
    "path": "results/zk60_shaped_integration_20260922/reviewed-source.tar.gz",

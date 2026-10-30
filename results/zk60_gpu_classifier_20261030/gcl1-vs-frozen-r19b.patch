@@ -1,0 +1,310 @@
+diff -u -r /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r19b/hashline/src/private_block/token_io/classify_cli.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-classifier/hashline/src/private_block/token_io/classify_cli.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r19b/hashline/src/private_block/token_io/classify_cli.rs	2026-10-30 08:03:30.783940886 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-classifier/hashline/src/private_block/token_io/classify_cli.rs	2026-10-30 14:00:33.357262675 -0700
+@@ -558,8 +558,18 @@
+     prove_with_public(f, None)
+ }
+ 
++/// [GPU-CLASSIFIER LANE, diagnostic only] one wall-clock line per CLI phase,
++/// printed only under `HL_PB_TIMING=1`; durations only, never a value
++fn cli_phase(side: &str, what: &str, t: &mut Instant) {
++    if super::super::timing::enabled() {
++        println!("PB-CLI {side} | {what} | {:.3} s", t.elapsed().as_secs_f64());
++    }
++    *t = Instant::now();
++}
++
+ fn prove_with_public(f: &[(String, String)], shared: Option<SharedProve<'_>>) -> Result<(), String> {
+     let t_all = Instant::now();
++    let mut tp = Instant::now();
+     let out = PathBuf::from(need(f, "--out")?);
+     let (incomplete, unverified) = (sibling(&out, ".incomplete"), sibling(&out, ".unverified-statement"));
+     if std::fs::symlink_metadata(&out).is_ok() {
+@@ -579,6 +589,7 @@
+         Some(s) => s.p,
+         None => { loaded_p = load_export(&export)?; &loaded_p }
+     };
++    cli_phase("prove", "args + directories + load_export (the digest pass)", &mut tp);
+     let sh = &p.sh;
+     // R-C2: the policy first (its yes / no ids and public margin scale), then
+     // the tables RE-DERIVED from the pinned tied tensor and compared with the
+@@ -593,6 +604,7 @@
+         }
+     };
+     bound.check_for(sh, p.profile, &p.model, &policy)?;
++    cli_phase("prove", "tied classifier tables (re-derived from the pinned checkpoint)", &mut tp);
+     let tables = bound.tables();
+     let loaded_whole;
+     let whole: &[u64] = match shared.as_ref() {
+@@ -613,10 +625,12 @@
+     if unpad(sh, &b_in) != x_in0 {
+         return Err("classifier run: the embedding table does not embed the item to the export's x_in_L00".into());
+     }
++    cli_phase("prove", "content, honest stage IN-C inputs, x_in load", &mut tp);
+     let mut seal_blocks = ExportTokenBlocks::new(p);
+     let x_last = seal_chain(p, &seq, &mut seal_blocks, x_in0.clone())?;
+     let seal_loads = seal_blocks.loads;
+     drop(seal_blocks);
++    cli_phase("prove", "seal_chain (every block: load, witness, int16, parity, CS-3)", &mut tp);
+     // the public verdict row (T - 1, or P0 + n + S - 1 for a short item)
+     let vr = cp.verdict_row();
+     let mut row = vec![0i64; cp.d_pad];
+@@ -635,6 +649,7 @@
+     let mut disk = run_sink::DirSink::create(&incomplete, p.layers.len() + 2)?;
+     let mut src = CliSource { p, seq: &seq, ids: Ids::new(sh)?, stage_in: Some((wit_in, b_in)), stage_out: Some(wout), x: x_in0, parity: 0, sealed: true };
+     let mut blocks = ExportTokenBlocks::new(p);
++    cli_phase("prove", "stage OUT-C values, input endpoint seal, statement", &mut tp);
+     let t = Instant::now();
+     let (_, dec) = prove_classify_run_with(&st, &mut blocks, bound, &mut src, owner, &mut |k, bytes| {
+         let n = bytes.len();
+@@ -643,6 +658,14 @@
+         Ok(())
+     })?;
+     let prove_s = t.elapsed().as_secs_f64();
++    cli_phase("prove", "the run (prove_classify_run_with: sealing pass, IN-C, 26 blocks, OUT-C)", &mut tp);
++    if super::super::timing::enabled() {
++        let s = crate::gpu::dev_stats();
++        println!(
++            "PB-CLI prove | gpu | {} | declines {} | h2d {:.3} s {} B | ntt {:.3} s | hash {:.3} s | d2h {:.3} s {} B | reenc {:.3} s | chunked {} | fold {:.3} s | vram_peak {} B",
++            crate::gpu::label(), crate::gpu::declines(), s.secs_h2d, s.bytes_h2d, s.secs_ntt, s.secs_hash, s.secs_d2h, s.bytes_d2h, s.secs_reenc, s.n_chunked, s.secs_fold, s.vram_peak
++        );
++    }
+     if src.parity != p.layers.len() {
+         return Err(format!("classifier run: parity was checked at {} of {} layers", src.parity, p.layers.len()));
+     }
+@@ -652,6 +675,7 @@
+     write_private(&owners_dir.join("input.dec"), &dec.to_bytes())?;
+     write_new(&unverified.join("statement.json"), render(p, &st, label, Writer::Prover)?.as_bytes())?;
+     std::fs::rename(&incomplete, &out).map_err(|e| format!("{} -> {}: {e}", incomplete.display(), out.display()))?;
++    cli_phase("prove", "owner file, unverified statement, rename", &mut tp);
+     // A5 (REVIEW finding 1, token round 18): a batch job's three directories
+     // join the batch's ONE claim BEFORE this job's own claim lets go of them;
+     // the batch releases them only just before `batch-proved`
+@@ -708,6 +732,9 @@
+     let t = Instant::now();
+     verify_classify_run_with(&d.st, &mut blocks, &d.tables, &d.segs, VerifierPolicy { min_whole_run_bits: d.min_bits })?;
+     let verify_s = t.elapsed().as_secs_f64();
++    if super::super::timing::enabled() {
++        println!("PB-CLI verify | the run (verify_classify_run_with) | {verify_s:.3} s");
++    }
+     drop(blocks);
+     Ok(Checked { st: d.st, p: d.p, label: d.label, verify_s, published: d.published })
+ }
+@@ -719,7 +746,9 @@
+     let art = art.to_path_buf();
+     let min_bits: u32 = flag(f, "--min-bits").unwrap_or("95").parse().map_err(|_| "--min-bits: an integer")?;
+     let label = label_of(f)?;
++    let mut tp = Instant::now();
+     let p = load_export(&export)?;
++    cli_phase("verify", "load_export (the digest pass)", &mut tp);
+     // D27: 93 bits only at the development rung; 95 at every other profile
+     let floor = super::classify_tied::min_bits_floor(p.profile);
+     if min_bits < floor {
+@@ -735,6 +764,7 @@
+     // table file that disagrees is refused (never trusted)
+     let policy = policy_by_id(need(f, "--policy")?)?;
+     let tables = super::classify_tied::load_tied_classifier_tables(&p, &export, Path::new(need(f, "--tables")?), &policy)?;
++    cli_phase("verify", "tied classifier tables (re-derived from the pinned checkpoint)", &mut tp);
+     let published_dir = art.join(run_sink::STATEMENT_DIR);
+     let (sdir, writer) = if std::fs::symlink_metadata(&published_dir).is_ok() { (published_dir.clone(), Writer::Verifier) } else { (sibling(&art, ".unverified-statement"), Writer::Prover) };
+     check_statement_dir(&sdir, &["statement.json"])?;
+@@ -762,6 +792,7 @@
+     for (path, n) in paths.iter().zip(lens.iter()) {
+         segs.push(read_regular_file_bounded(path, *n as u64, true)?);
+     }
++    cli_phase("verify", "statement door (re-render, byte compare) + segment reads", &mut tp);
+     Ok(DoorPassed { st, p, tables, segs, label: label.to_string(), min_bits, published: writer == Writer::Verifier })
+ }
+ 
+diff -u -r /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r19b/hashline/src/private_block/token_io/classify_r18_tests.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-classifier/hashline/src/private_block/token_io/classify_r18_tests.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r19b/hashline/src/private_block/token_io/classify_r18_tests.rs	2026-10-30 08:03:30.784200623 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-classifier/hashline/src/private_block/token_io/classify_r18_tests.rs	2026-10-30 14:03:15.603657489 -0700
+@@ -316,3 +316,39 @@
+     }
+     assert_ne!(tree(&post.outs[0]), tree(&post.outs[1]), "the two jobs' receipts are equal: the harness is not feeding distinct blocks");
+ }
++
++// ------------------------------------------------------------------ GPU classifier lane (D53), test only
++
++/// **[GPU-CLASSIFIER LANE, 2026-10-30] TEST ONLY, ignored.** Run only under
++/// `r18/tools/run_fixed.sh` with ONE 64-byte block file
++/// (`HL_R18_FIXED_ENTROPY=gcl64`): ONE rung single prove (chunk 0 of the rung
++/// post), then the SHA-256 of every file of its run directory, of its
++/// unverified `statement.json` and of the owner's `input.dec` are printed
++/// (`GCL-RUNG |` lines), so a CPU-path run and a GPU-path run (`HL_GPU=1
++/// HL_GPU_REQUIRED=1`) of the same test binary can be compared byte for byte;
++/// then the receipt is verified in this process by the CLI's own verify.
++/// Receipts made this way hide nothing (fixed public entropy).
++#[test]
++#[ignore]
++fn gcl_rung_single_prove_digests_under_fixed_entropy() {
++    assert_eq!(std::env::var("HL_R18_FIXED_ENTROPY").as_deref(), Ok("gcl64"), "run only under r18/tools/run_fixed.sh with a 64-byte block file (HL_R18_FIXED_ENTROPY=gcl64)");
++    let cc = Cc::new("gcl-rung");
++    let post = Post::new(&cc, "gclr", None);
++    let out = cc.root.join("gclr-single-c0");
++    let cf = cc.content_file(&post.whole);
++    let od = cc.owner_dir(&out);
++    let code = classify_prove_command(&s(&["--export", cc.export.to_str().unwrap(), "--tables", cc.tables.to_str().unwrap(), "--policy", POLICY_RUNG_DEV, "--content-file", cf.to_str().unwrap(), "--chunk", "0", "--seq-dir", post.seqs[0].to_str().unwrap(), "--out", out.to_str().unwrap(), "--owner-dir", od.to_str().unwrap()]));
++    assert_eq!(code, 0, "the rung single prove");
++    let mut t = tree(&out);
++    t.sort();
++    for (f, h) in &t {
++        eprintln!("GCL-RUNG | receipt | {f} | {h}");
++    }
++    let stmt = std::fs::read(sib(&out, ".unverified-statement").join("statement.json")).unwrap();
++    eprintln!("GCL-RUNG | statement | statement.json | {}", hex(&sha256(&stmt)));
++    eprintln!("GCL-RUNG | owner | input.dec | {}", hex(&sha256(&std::fs::read(od.join("input.dec")).unwrap())));
++    eprintln!("GCL-RUNG | backend | {} | declines {}", crate::gpu::label(), crate::gpu::declines());
++    let v = super::super::classify_verify_command(&s(&["--export", cc.verifier_copy.to_str().unwrap(), "--tables", cc.tables.to_str().unwrap(), "--policy", POLICY_RUNG_DEV, "--artifact", out.to_str().unwrap(), "--expect-statement", &cc.identity, "--min-bits", "93"]));
++    assert_eq!(v, 0, "the rung receipt verifies in this process");
++    eprintln!("GCL-RUNG | verify | exit {v} | {} receipt files", t.len());
++}
+diff -u -r /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r19b/hashline/src/private_block/token_io/classify_run.rs /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-classifier/hashline/src/private_block/token_io/classify_run.rs
+--- /home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/frozen-r19b/hashline/src/private_block/token_io/classify_run.rs	2026-10-30 08:03:30.784233248 -0700
++++ /home/victor/IntelligenceRegulation/ops/zkp-mvp/gpu-classifier/hashline/src/private_block/token_io/classify_run.rs	2026-10-30 14:00:15.005423527 -0700
+@@ -126,6 +126,7 @@
+         return Err("classifier run: the input endpoint owner is not the statement's".into());
+     }
+     // ---- THE SEALING PASS (H-1): every refusal before the run header
++    let t_seal = Instant::now();
+     let (win, b_in_plane) = src.stage_in()?;
+     if !cheating {
+         super::stage_in_c::lookup_misses(cp, tables, &win, &b_in_plane).map_err(|e| format!("{e} (refused in the sealing pass, before any header)"))?;
+@@ -143,6 +144,10 @@
+     if !cheating {
+         super::stage_out_c::seal_check(&out_lay, cp, tables, &wout, st.verdict()).map_err(|e| format!("{e} (refused in the sealing pass, before any header)"))?;
+     }
++    // [GPU-CLASSIFIER LANE, diagnostic only]
++    if timing::enabled() {
++        println!("PB-CLI prove | run sealing pass (every block loaded once, statement checks) | {:.3} s", t_seal.elapsed().as_secs_f64());
++    }
+     let mut rng = ZkRng::from_os(&super::super::hash_domain::run_seed_domain(st.profile())).map_err(|e| format!("classifier run randomness: {e}"))?;
+     let tag = sh.hash_tag();
+     let ntt = NttTables::new(st.ntt_log());
+@@ -178,6 +183,8 @@
+         tr.absorb(b"pb-run-block", &st.block_digests[k]);
+         let blk = blocks.block(k)?;
+         stage_block_is_the_statements(st, k, &blk, !cheating)?;
++        // [GPU-CLASSIFIER LANE, diagnostic only] phase marks (write-only recorder, inert unless HL_PB_TIMING=1)
++        ph.mark(timing::Half::Run, "run: block load + statement check", 1, "block");
+         let spec = st.boundary_spec(k + 1)?;
+         let plane = src.boundary_plane(k)?;
+         if plane.len() != spec.len() {
+@@ -185,25 +192,33 @@
+         }
+         let words: Vec<Fp> = plane.iter().map(|x| Fp::from_i64(i64::from(*x))).collect();
+         let cur = boundary::prepare(&spec, &words, &ntt, &mut rng, &tag)?;
++        ph.mark_bytes(timing::Half::Run, "run: boundary B_k commitment", spec.len() as u64, "words", 8 * spec.len() as u64);
+         protocol::absorb_root(&mut tr, b"B", &cur.root(), spec.commitment_rows(), spec.log_n());
+         let lay = st.block_layout(k)?;
+         let ssh = st.stage_shape(k)?;
+         let wit = src.witness(k, &blk, &ssh)?;
++        ph.mark(timing::Half::Run, "run: witness (CliSource)", 1, "block");
+         let core = protocol::prove_core(&ssh, &lay, &blk, wit, [prev.1.data(), cur.data()], &ntt, &mut rng, &mut tr, &mut ph, &mut phases, &mut tick)?;
+         let [ic, oc] = core.io_claims;
+         let mut claims = std::mem::take(&mut pending);
+         claims.extend(ic);
+         let (pspec, powner) = prev;
+         let in_open = powner.into_opening(&pspec, &claims, &mut tr)?;
++        ph.mark(timing::Half::Open, "run: boundary B_(k-1) opening", claims.len() as u64, "claims");
+         pending = oc;
+         let end = position_tag(&tr);
+         let seg = Segment { b_root: Some(cur.root()), a_root: core.a_root, h_root: core.h_root, mask_root: core.mask_root, slots: core.slots, mask_open: core.mask_open, a_open: core.a_open, h_open: core.h_open, in_open, out_open: None };
+         let bytes = wire::encode_segment(&seg, &lay, st.block_geom(k)?, &binding, &start, &end)?;
+         drop(seg);
++        let nbytes = bytes.len() as u64;
++        ph.mark(timing::Half::Frame, "frame: encode segment", nbytes, "bytes");
+         stats.segment_bytes.push(bytes.len());
+         sink(k + 1, bytes)?;
++        ph.mark(timing::Half::Frame, "sink: segment to disk", nbytes, "bytes");
+         prev = (spec, cur);
+         drop(blk);
++        ph.mark(timing::Half::Run, "run: drop block", 1, "block");
++        ph.report("prove", st.profile());
+         stats.prove_s.push(t0.elapsed().as_secs_f64());
+     }
+ 
+@@ -247,12 +262,18 @@
+     // exists — never against the run seed's shape. A streaming source reloads
+     // each block once more for it. Legacy profiles keep the per-stage check
+     // below only (their bytes and costs do not move).
++    use std::time::Instant;
++    let t_pre = Instant::now();
+     if sh.accuracy_stack() != super::super::accuracy_precision::Stack::Legacy {
+         for k in 0..l {
+             let blk = blocks.block(k)?;
+             stage_block_is_the_statements(st, k, &blk, true)?;
+         }
+     }
++    // [GPU-CLASSIFIER LANE, diagnostic only]
++    if timing::enabled() {
++        println!("PB-CLI verify | pre-header stage-shape check (every block loaded once) | {:.3} s", t_pre.elapsed().as_secs_f64());
++    }
+     let tables = tables.tables();
+     let tag = sh.hash_tag();
+     let ntt = NttTables::new(st.ntt_log());
+@@ -260,6 +281,7 @@
+     let binding = tr.state();
+ 
+     // ---- stage IN-C
++    let t_stage = Instant::now();
+     let in_lay = super::stage_in_c::layout(sh, cp);
+     let start = position_tag(&tr);
+     let (seg, end) = st.in_geom(&in_lay).decode(&segments[0], &binding, &start)?;
+@@ -276,16 +298,23 @@
+     #[cfg(test)]
+     super::super::run_capture::stage_end(0, end, &tr);
+     let mut prev: (BoundarySpec, Digest) = (b0, b_root);
++    // [GPU-CLASSIFIER LANE, diagnostic only]
++    if timing::enabled() {
++        println!("PB-CLI verify | stage IN-C | {:.3} s", t_stage.elapsed().as_secs_f64());
++    }
+ 
+     // ---- the blocks
+     for k in 0..l {
++        // [GPU-CLASSIFIER LANE, diagnostic only] the recorder starts before the block load
++        let mut ph = timing::Phases::start();
+         let blk = blocks.block(k)?;
+         stage_block_is_the_statements(st, k, &blk, true)?;
+-        let mut ph = timing::Phases::start();
++        ph.mark(timing::Half::Run, "run: block load + statement check", 1, "block");
+         let lay = st.block_layout(k)?;
+         let start = position_tag(&tr);
+         let (seg, end) = wire::decode_segment(&segments[k + 1], &lay, st.block_geom(k)?, &binding, &start)?;
+         super::super::hash_domain::segment_paths_are_the_tree_depth(&seg, sh)?;
++        ph.mark(timing::Half::Frame, "frame: decode segment + path depths", segments[k + 1].len() as u64, "bytes");
+         #[cfg(test)]
+         super::super::run_capture::stage_begin_stage(k + 1, "BLOCK", &segments[k + 1], start, seg.b_root, seg.a_root, seg.h_root, seg.mask_root, super::super::run_capture::StagePlanes::Block(&lay), &tr);
+         tr.absorb_u64(b"pb-run-stage", (k + 1) as u64);
+@@ -331,6 +360,7 @@
+             rc_before,
+             &tr,
+         );
++        ph.mark(timing::Half::Open, "verify boundary B_(k-1) opening (pcs::verify_zk)", claims.len() as u64, "claims");
+         pending = oc;
+         prev = (spec, root);
+         if position_tag(&tr) != end {
+@@ -338,10 +368,12 @@
+         }
+         #[cfg(test)]
+         super::super::run_capture::stage_end(k + 1, end, &tr);
++        ph.report("verify", st.profile());
+     }
+ 
+     // ---- stage OUT-C
+     let out_lay = super::stage_out_c::layout(sh, cp);
++    let t_stage = Instant::now();
+     let start = position_tag(&tr);
+     let (seg, end) = st.out_geom(&out_lay)?.decode(&segments[l + 1], &binding, &start)?;
+     let (bspec, broot) = prev;
+@@ -351,6 +383,10 @@
+     if position_tag(&tr) != end {
+         return Err("classifier run: stage OUT-C's trailer is not the verifier's own transcript position".into());
+     }
++    // [GPU-CLASSIFIER LANE, diagnostic only]
++    if timing::enabled() {
++        println!("PB-CLI verify | stage OUT-C | {:.3} s", t_stage.elapsed().as_secs_f64());
++    }
+     #[cfg(test)]
+     {
+         super::super::run_capture::stage_end(l + 1, end, &tr);

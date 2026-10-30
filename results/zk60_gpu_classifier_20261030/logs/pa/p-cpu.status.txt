@@ -1,0 +1,10 @@
+RAM   13.74 GiB available of 15.39; swap used 0.98 GiB
+BUDGET 0.7 of 11.89 GiB committed by guarded jobs
+  job  sol-r14-reference3-L24-1     light need 0.7G since 2026-10-30T21:09:18Z
+LOCKS heavy free, build free
+GPU   0 of 8188 MiB used
+DISK  /mnt/c 133.8 GiB free (heavy jobs wait under 40, any job is killed under 8)
+kernel memory cap available: True
+  rss    475 MiB  pid 2294    claude 
+  rss    455 MiB  pid 382048  /usr/bin/python3 /home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r14/reference_sequence_st
+  rss    263 MiB  pid 6847    /home/victor/.codex/packages/app-server-daemon/releases/0.166.0-x86_64-unknown-linux-musl/bin/codex app-server

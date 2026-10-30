@@ -1,0 +1,19 @@
+2026-10-30T21:09:39Z phase A start
+2026-10-30T21:09:39Z prepare
+2026-10-30T21:09:41Z activations
+2026-10-30T21:10:40Z p-cpu
+2026-10-30T21:18:36Z bytes-cpu
+2026-10-30T21:18:37Z v-cpu
+2026-10-30T21:19:44Z wait: hold /home/victor/IntelligenceRegulation/results/zk60_gpu_classifier_20261030/HOLD
+2026-10-30T21:24:44Z wait: astra app pm-classify-prove(cpu,10.4)
+2026-10-30T21:26:04Z release_hold: watching (HOLD stays until Astra demo processes and astra*/pm-* guard jobs are gone, 3 checks in a row)
+2026-10-30T21:26:04Z release_hold: waiting: run_durable_app_demo.py[365410]; classifier_pipeline.py[365438]; finish_durable_demo.py[371569]; pm-classify-prove(cpu,10.4)
+2026-10-30T21:29:44Z wait: hold /home/victor/IntelligenceRegulation/results/zk60_gpu_classifier_20261030/HOLD; astra app pm-classify-label(cpu,2.9)
+2026-10-30T21:31:04Z release_hold: waiting: finish_durable_demo.py[371569]
+2026-10-30T21:34:45Z wait: hold /home/victor/IntelligenceRegulation/results/zk60_gpu_classifier_20261030/HOLD; astra app pm-classify-prove(cpu,10.4)
+2026-10-30T21:36:05Z release_hold: waiting: finish_durable_demo.py[371569]; run_durable_app_demo.py[387126]; classifier_pipeline.py[387129]; pm-classify-prove(cpu,10.4)
+2026-10-30T21:39:45Z wait: hold /home/victor/IntelligenceRegulation/results/zk60_gpu_classifier_20261030/HOLD; astra app pm-classify-verify(cpu,2.9)
+2026-10-30T21:41:05Z release_hold: waiting: finish_durable_demo.py[371569]; run_durable_app_demo.py[387126]; classifier_pipeline.py[387129]; pm-classify-inowner(cpu,2.9)
+2026-10-30T21:44:45Z wait: hold /home/victor/IntelligenceRegulation/results/zk60_gpu_classifier_20261030/HOLD
+2026-10-30T21:46:05Z release_hold: waiting: finish_durable_demo.py[371569]; pm-verifypub-61ac12af82b9(cpu,2.9)
+2026-10-30T21:49:46Z wait: hold /home/victor/IntelligenceRegulation/results/zk60_gpu_classifier_20261030/HOLD; astra app pm-verifypub-61ac12af82b9(cpu,2.9)

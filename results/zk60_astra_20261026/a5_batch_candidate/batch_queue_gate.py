@@ -23,7 +23,8 @@ def reject_quarantined_source(path):
             'quarantined batch receipts cannot be published')
 
 
-def recover_batch(job, receipts, *, post_id, reserved_plan, reserved_context, terminal_confirmed):
+def recover_batch(job, receipts, *, post_id, reserved_plan, reserved_context, terminal_confirmed,
+                  terminal_exit=None):
     """Queue startup and normal termination share the exact same collector.
 
     Roots are provided by the queue, never taken from child stdout. A corrupt
@@ -31,6 +32,7 @@ def recover_batch(job, receipts, *, post_id, reserved_plan, reserved_context, te
     No outcome returned by this function permits automatic re-proving.
     """
     require(terminal_confirmed is True, 'live or uncertain batch blocks queue recovery')
+    require(terminal_exit is None or type(terminal_exit) is int, 'invalid supervisor exit')
     job, receipts = Path(job).resolve(), Path(receipts).resolve()
     require(job.name == 'batch' and job.parent.name == post_id, 'batch job differs from queue post')
     raw = json.loads((job/'cleanup-scope.json').read_text())
@@ -49,7 +51,7 @@ def recover_batch(job, receipts, *, post_id, reserved_plan, reserved_context, te
         return result
 
     # A completed quarantine is irreversible, even if a success log appears later.
-    if (job/'failed-batch-quarantine.json').exists():
+    if (job/'failed-batch-quarantine.json').exists() or terminal_exit not in (None, 0):
         return fail()
     try:
         require(reserved_context == records.screening_context(), 'original batch screening context changed')

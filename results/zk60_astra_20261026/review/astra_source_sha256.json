@@ -14,7 +14,7 @@
   "results/zk60_astra_20261026/check_shieldstral_text.py": "cdb0762101467e5fcbf769afdfb1fe12e53c20afcbdfeed0e22a560b2aec62ea",
   "results/zk60_astra_20261026/compare_toxicchat.py": "dbed9a81e1857e0c81a795b670cf601eae5883503580ecb5ec7e96cfff512848",
   "results/zk60_astra_20261026/drain_gpu_waiter_s8.py": "8c3fbf098f9c6da69a0e63eddf5b366570d76461cc5abe85496a1d5e2e3ce66c",
-  "results/zk60_astra_20261026/finish_durable_demo.py": "b9f8d58005c51eea07b4aa7d93b2821055bf515f6b52b1681ddf80e49421de50",
+  "results/zk60_astra_20261026/finish_durable_demo.py": "acbffd0f6235060dedf0ecd3fd3e0a3b43b7597b482d35254b2941dd1afdb7f1",
   "results/zk60_astra_20261026/inspect_durable_demo.py": "9647c0033c920bb06a845f0c1d9ba656ae35b794780a26e23e647d36625aa343",
   "results/zk60_astra_20261026/inspect_gpu_replay.py": "101f17308738bc6850df5b92270c4ca1fb0d3ac4ee258ca00285c546f2a7aaab",
   "results/zk60_astra_20261026/inventory_export_storage.py": "32df92e8dbacc1e0f86f7202d9921085f44a406f81c32d4b03c8d92cd3225107",

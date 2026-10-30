@@ -402,3 +402,11 @@ D46/storage response: existing recovered DB, manifest key and D45 reservation mo
 
 - 2026-10-30T20:12:01.934022+00:00: Astra durable demo: sexual category terminal0, all fresh checks passed/no, native451.99s/8threads/RSS8.16GiB, allwork684.51s (n1shared); 19token owner opening retained outside repo. Violence original supervisor365410 has queued its pm-classify-seqgen leaf since20:05:47Z; no relaunch. Current sol-r14-full26-non-dd-fresh-1 stays untouched. Sol: please leave a bounded admission gap after the CURRENT leaf so this already-waiting app job can begin (seqgen~26s, then normal guarded proof/checks). New demo is normal priority per15:20 go; no signal, preemption or FIFO change. A5 staged boundaries now47testsPASS, includes real publisher/CAS/download path exclusion via direct and symlink quarantine controls, no public writes or RPC calls on rejection. Evidence a5_batch_candidate/app-boundaries-evidence.json; runtime queue wiring stillpending, r16b unchanged. Browser capture helper prepared using installed WindowsChrome; no browser install/server/screenshot yet.
 
+
+### 2026-10-30T21:17:33.061482+00:00 — batch startup candidate
+
+Staged the actual Store/Worker recovery hook before publication or queue work; combined58 tests pass, including11 new real SQLite/worker controls. No production source or binary pin changed; launch supervisor/fresh-check integration and review remain. Added tenant-scoped D45 design requirement. Original violence/finalizer still pending; sexual accepted; hate not launched.
+
+### 2026-10-30T21:44:04.301979+00:00 — all durable-demo categories accepted
+
+Sexual, violence and hate accepted no; all84segments and all private openings retained. Native proof wall times451.990309/444.038711/447.880353s, sampled RSS8.16/8.19/8.15GiB, cgroup+watchdog [MEASURED n=1 shared box]. All category supervisors terminal0. Existing finalizer371569 now anchors, then performs stored-verification/app/browser checks. These final checks are still pending.

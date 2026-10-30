@@ -1,0 +1,177 @@
+{
+ "packet_binaries": {
+  "hashline.test.bin": true,
+  "zk60_split_stack.bin": true,
+  "zk60_trained_block.bin": true
+ },
+ "packet_tools": {
+  "capture_contract_v4.py": true,
+  "validate_capture_v4.py": true,
+  "native_mask_checks_v4.py": true,
+  "native_claim_checks_v4.py": true,
+  "local_row_rank_v4.py": true,
+  "test_capture_streams_v4.py": true,
+  "check_capture_transport_negatives_v4_2.py": true,
+  "generic_reference.py": true,
+  "final_census_checks.py": true,
+  "final_relation_checks.py": true,
+  "regression_checks_direct.py": true,
+  "final_arithmetic_checks.py": true,
+  "final_arithmetic_checks_v2.py": true,
+  "joint_receipt_checks.py": true,
+  "joint_receipt_checks_v2.py": true,
+  "joint_envelope_checks.py": true,
+  "full26_native_checks_v3.py": true,
+  "full26_capture_checks.py": true,
+  "full26_count.py": true,
+  "prepare_astra_prefix.py": true,
+  "reference_stack_v3.py": true,
+  "reference_sequence_step_v3.py": true,
+  "detached_stage.py": true,
+  "freeze_author_packet.py": true
+ },
+ "relations": {
+  "cases_in_json": 50,
+  "rejected_by_log": 50,
+  "problems": [],
+  "refusal_sites": [
+   "R14 H: pcs zk: group 11: <v, c> != combined claim",
+   "slot 18 [R14 03 D zero-check (hosts 12, 13D) Wide]: sumcheck round 0: s(0) + s(1) != claim",
+   "slot 19 [R14 03 D zero-check (hosts 12, 13D) Narrow]: sumcheck round 0: s(0) + s(1) != claim",
+   "slot 20 [R14 04 Q zero-check (hosts 09Q, 11) Whole]: sumcheck round 0: s(0) + s(1) != claim",
+   "slot 21 [R14 05 KV zero-check (hosts 09K, 09V) Whole]: sumcheck round 0: s(0) + s(1) != claim",
+   "slot 22 [R14 06 softmax zero-check (hosts 07, 10) Whole]: sumcheck round 0: s(0) + s(1) != claim",
+   "slot 23 [R14 14 F zero-check (hosts 13G, 13U) Wide]: sumcheck round 0: s(0) + s(1) != claim",
+   "slot 24 [R14 14 F zero-check (hosts 13G, 13U) Narrow]: sumcheck round 0: s(0) + s(1) != claim",
+   "slot 25 [R14 TAB table helper zero-check Whole]: sumcheck round 0: s(0) + s(1) != claim",
+   "slot 31 [R14 DD dictionary zero-check (division at every slot, byte helpers, table helper) Whole]: sumcheck round 0: s(0) + s(1) != claim"
+  ],
+  "alias": {
+   "accepted_by_log": true,
+   "tuples": "alias=true from=0 to=31 E_from=0 E_to=0 P_from=0 P_to=0 row_total=128 total_multiplicity=524288",
+   "statement_txt": "R14-public-synthetic-equivalent-dictionary-control/1\ncase=dictionary-alias-counts\nexpected_accept=true\n"
+  },
+  "dictionary_negative": {
+   "tuples": "alias=false from=1 to=31 E_from=512 E_to=0 P_from=4096 P_to=0 row_total=128 total_multiplicity=524288",
+   "refusal": "R14 H: pcs zk: group 11: <v, c> != combined claim"
+  }
+ },
+ "arithmetic": {
+  "malformed_rejected": 16,
+  "honest_group_contexts": 6,
+  "dense_ok": 2,
+  "problems": [
+   "dense-reference: binary path"
+  ],
+  "sites": {
+   "non-dd-per-piece-round-q": "slot 20 [R14 04 Q zero-check (hosts 09Q, 11) Whole]: sumcheck round 0: s(0) + s(1) != claim",
+   "non-dd-local-c2-ao": "slot 19 [R14 03 D zero-check (hosts 12, 13D) Narrow]: sumcheck round 0: s(0) + s(1) != claim",
+   "non-dd-one-piece-norm": "slot 2 [R14 02 norm squares zero-check (hosts 01, 01m) Whole]: sumcheck round 0: s(0) + s(1) != claim",
+   "non-dd-wrong-omitted-source-bit": "slot 20 [R14 04 Q zero-check (hosts 09Q, 11) Whole]: sumcheck round 0: s(0) + s(1) != claim",
+   "non-dd-missing-public-lift-gate": "slot 20 [R14 04 Q zero-check (hosts 09Q, 11) Whole]: sumcheck round 0: s(0) + s(1) != claim",
+   "non-dd-local-group-reset": "R14 H: pcs zk: group 10: <v, c> != combined claim",
+   "non-dd-wrong-feature-axis": "slot 20 [R14 04 Q zero-check (hosts 09Q, 11) Whole]: sumcheck round 0: s(0) + s(1) != claim",
+   "non-dd-wrong-global-fold-offset": "slot 20 [R14 04 Q zero-check (hosts 09Q, 11) Whole]: sumcheck round 0: s(0) + s(1) != claim",
+   "dd-per-piece-round-q": "slot 20 [R14 04 Q zero-check (hosts 09Q, 11) Whole]: sumcheck round 0: s(0) + s(1) != claim",
+   "dd-local-c2-ao": "slot 19 [R14 03 D zero-check (hosts 12, 13D) Narrow]: sumcheck round 0: s(0) + s(1) != claim",
+   "dd-one-piece-norm": "slot 2 [R14 02 norm squares zero-check (hosts 01, 01m) Whole]: sumcheck round 0: s(0) + s(1) != claim",
+   "dd-wrong-omitted-source-bit": "slot 20 [R14 04 Q zero-check (hosts 09Q, 11) Whole]: sumcheck round 0: s(0) + s(1) != claim",
+   "dd-missing-public-lift-gate": "slot 20 [R14 04 Q zero-check (hosts 09Q, 11) Whole]: sumcheck round 0: s(0) + s(1) != claim",
+   "dd-local-group-reset": "R14 H: pcs zk: group 11: <v, c> != combined claim",
+   "dd-wrong-feature-axis": "slot 20 [R14 04 Q zero-check (hosts 09Q, 11) Whole]: sumcheck round 0: s(0) + s(1) != claim",
+   "dd-wrong-global-fold-offset": "slot 20 [R14 04 Q zero-check (hosts 09Q, 11) Whole]: sumcheck round 0: s(0) + s(1) != claim"
+  }
+ },
+ "joint_receipts": {
+  "honest_accept": 4,
+  "merkle_reject": 16,
+  "sumcheck_reject": 2,
+  "other": []
+ },
+ "joint_envelopes": {
+  "honest_accept": 2,
+  "refused": 16,
+  "refusals": {
+   "non-dd-boundary-duplicate-endpoint-root": "R14 run: repeated commitment root",
+   "non-dd-boundary-duplicate-block-root": "R14 run: repeated commitment root",
+   "non-dd-boundary-drop-root": "fixture file is not bounded regular exact-size input",
+   "non-dd-endpoint-drop-opening": "fixture file is not bounded regular exact-size input",
+   "non-dd-endpoint-swap-roots": "fixture routing binding differs from verifier derivation",
+   "non-dd-endpoint-duplicate-root": "R14 run: repeated commitment root",
+   "non-dd-stage-swap": "fixture file is not bounded regular exact-size input",
+   "non-dd-stage-duplicate": "fixture file is not bounded regular exact-size input",
+   "dd-boundary-duplicate-endpoint-root": "R14 run: repeated commitment root",
+   "dd-boundary-duplicate-block-root": "R14 run: repeated commitment root",
+   "dd-boundary-drop-root": "fixture file is not bounded regular exact-size input",
+   "dd-endpoint-drop-opening": "fixture file is not bounded regular exact-size input",
+   "dd-endpoint-swap-roots": "fixture routing binding differs from verifier derivation",
+   "dd-endpoint-duplicate-root": "R14 run: repeated commitment root",
+   "dd-stage-swap": "fixture file is not bounded regular exact-size input",
+   "dd-stage-duplicate": "fixture file is not bounded regular exact-size input"
+  }
+ },
+ "full26": {
+  "non-dd": {
+   "segments": 26,
+   "bytes_sum": 895146288,
+   "prove_seconds": 350.719,
+   "total_seconds": 442.934,
+   "seal_seconds": 76.274,
+   "parity": "bit-exact at every layer",
+   "kept_witness_bytes": 0,
+   "vmhwm_mib": 5721,
+   "identity": "b7c7f557e3e4d58bdb1dcf51e9835082f74e4ffd9bde299d369c1c48b7f75fda",
+   "binding": "adca67d37691d21bcb9307d072280c8020bc5834ebe30e4319e639c25ac7dc48",
+   "fresh_verified": true,
+   "fresh_identity_matches": true,
+   "fresh_wall_seconds": 85.1,
+   "fresh_peak_rss_gib": 1.41,
+   "corrupt": "{\"event\":\"rejected\",\"error\":\"slot 0 [R14 01 SS row sums norm_a (private) Whole]: sumcheck round 0: s(0) + s(1) != claim\"}",
+   "corrupt_exit": 1,
+   "prove_binary": true,
+   "acceptance_bytes": 895146288,
+   "acceptance_bytes_match_log": true
+  },
+  "dd": {
+   "segments": 26,
+   "bytes_sum": 901256496,
+   "prove_seconds": 345.039,
+   "total_seconds": 436.132,
+   "seal_seconds": 75.465,
+   "parity": "bit-exact at every layer",
+   "kept_witness_bytes": 0,
+   "vmhwm_mib": 5820,
+   "identity": "3160d6ba66c13eb3d4a829647775f342be1951169c1edef8bd2f44a58a79778f",
+   "binding": "e53a727ead571b57f6b2536b90c0efa98434b6630722c52e76d13f93b8aee259",
+   "fresh_verified": true,
+   "fresh_identity_matches": true,
+   "fresh_wall_seconds": 87.95,
+   "fresh_peak_rss_gib": 1.38,
+   "corrupt": "{\"event\":\"rejected\",\"error\":\"slot 0 [R14 01 SS row sums norm_a (private) Whole]: sumcheck round 0: s(0) + s(1) != claim\"}",
+   "corrupt_exit": 1,
+   "prove_binary": true,
+   "acceptance_bytes": 901256496,
+   "acceptance_bytes_match_log": true
+  }
+ },
+ "suite_legacy_compat_source_86301542": {
+  "targets": 29,
+  "passed": 834,
+  "failed": 0,
+  "ignored": 71,
+  "all_ok": true
+ },
+ "suite_final_source_27b2a427": {
+  "targets": 29,
+  "passed": 838,
+  "failed": 0,
+  "ignored": 75,
+  "all_ok": true
+ },
+ "legacy_acceptance_source": "8630154267232d1abbd73658ba95d923e6982c7f126c341fc0933b49a0e25f2d",
+ "final_validation_binaries": {
+  "test": true,
+  "cli": true,
+  "legacy_cli": true
+ }
+}

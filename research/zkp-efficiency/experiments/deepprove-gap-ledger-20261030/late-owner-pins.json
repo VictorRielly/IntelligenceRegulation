@@ -1,0 +1,32 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_deepprove_gap_20261030/GAP_ANALYSIS.md",
+    "snapshot": "experiments/deepprove-gap-ledger-20261030/late-owner/0-GAP_ANALYSIS.md",
+    "sha256": "341c2b32ff553b34f9416e949e4d22e87a1e1e706f9584081b6375abd5a76922",
+    "bytes": 35873
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/handoffs/20261030-deepprove-gap.md",
+    "snapshot": "experiments/deepprove-gap-ledger-20261030/late-owner/1-20261030-deepprove-gap.md",
+    "sha256": "25f6c142994bcc5aa1b10b792faaf868643c6b4df570f2818a7675017b73c9ad",
+    "bytes": 4557
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_deepprove_gap_20261030/gap_calc.out",
+    "snapshot": "experiments/deepprove-gap-ledger-20261030/late-owner/2-gap_calc.out",
+    "sha256": "5a3ca7d8d8005c755f8da29d2a2f0c3e704a206fd26c36c058e85868795b8233",
+    "bytes": 5438
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_gpu_classifier_20261030/PROGRESS.md",
+    "snapshot": "experiments/deepprove-gap-ledger-20261030/late-owner/3-PROGRESS.md",
+    "sha256": "c10802508fa21c2362876deac5969883659f5f4e395c2f0bdf8bcf65155a2b87",
+    "bytes": 768
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/docs/zkmatrix-poc/ZK60_DECISIONS.md",
+    "snapshot": "experiments/deepprove-gap-ledger-20261030/late-owner/4-ZK60_DECISIONS.md",
+    "sha256": "5aa8865fb17c5626c6956fd2fc67cdd718acf9adc592a50541ecaaa2ea1133ea",
+    "bytes": 180649
+  }
+]

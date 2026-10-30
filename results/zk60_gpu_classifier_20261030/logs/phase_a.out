@@ -1,0 +1,8 @@
+[zk60-guard 14:09:39] START gcl-prepare class=light need=0.5G cap=1.5G enforce=cgroup+watchdog waited=0s run=7c1dfc559c7b
+[zk60-guard 14:09:40] END gcl-prepare exit=0 child_wall=1s peak_rss=0.18G min_avail=13.56G
+[zk60-guard 14:09:41] START gcl-act class=cpu need=1.5G cap=3G enforce=cgroup+watchdog waited=0s run=c4af71b374af
+[zk60-guard 14:10:40] END gcl-act exit=0 child_wall=59s peak_rss=0.71G min_avail=12.96G
+[zk60-guard 14:10:40] START gcl-p-cpu class=cpu need=10.4G cap=11.5G enforce=cgroup+watchdog waited=0s run=fea240e35e4f
+[zk60-guard 14:18:36] END gcl-p-cpu exit=0 child_wall=476s peak_rss=8.15G min_avail=5.55G
+[zk60-guard 14:18:37] START gcl-v-cpu class=cpu need=2.9G cap=7G enforce=cgroup+watchdog waited=0s run=55874292ef49
+[zk60-guard 14:19:44] END gcl-v-cpu exit=0 child_wall=67s peak_rss=2.32G min_avail=11.47G

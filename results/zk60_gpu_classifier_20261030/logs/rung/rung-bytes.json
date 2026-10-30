@@ -1,0 +1,21 @@
+{
+ "ok": true,
+ "files": 5,
+ "cpu": [
+  "GCL-RUNG | owner | input.dec | abbb44472eaeb406838dc8236408f580ce93aaca4abc23e2f0918e09066992fd",
+  "GCL-RUNG | receipt | segment-000.bin | ce97a59e6cfb6a840adab5d02696a08d59619e12b74f5fcbf5425544f02012e3",
+  "GCL-RUNG | receipt | segment-001.bin | bf180f3ef7e1ebd53100286adcec2a9308a10bbc5d7ef84408cb3129fa678f4f",
+  "GCL-RUNG | receipt | segment-002.bin | e9489661f7d33c33337f7e0837d778da3fbeec2e646c22f9d2e8d7dd45db6279",
+  "GCL-RUNG | statement | statement.json | db79a4ab0dc0c990b0ae0402c06cee74aa32d3ecffb2d6c22985f6bdb3fb9f03"
+ ],
+ "gpu": [
+  "GCL-RUNG | owner | input.dec | abbb44472eaeb406838dc8236408f580ce93aaca4abc23e2f0918e09066992fd",
+  "GCL-RUNG | receipt | segment-000.bin | ce97a59e6cfb6a840adab5d02696a08d59619e12b74f5fcbf5425544f02012e3",
+  "GCL-RUNG | receipt | segment-001.bin | bf180f3ef7e1ebd53100286adcec2a9308a10bbc5d7ef84408cb3129fa678f4f",
+  "GCL-RUNG | receipt | segment-002.bin | e9489661f7d33c33337f7e0837d778da3fbeec2e646c22f9d2e8d7dd45db6279",
+  "GCL-RUNG | statement | statement.json | db79a4ab0dc0c990b0ae0402c06cee74aa32d3ecffb2d6c22985f6bdb3fb9f03"
+ ],
+ "gpu_backend": [
+  "GCL-RUNG | backend | gpu: ON \u2014 NVIDIA GeForce RTX 4070 Laptop GPU (sm_89, 36 SMs, 8.6 GB) | declines 0"
+ ]
+}

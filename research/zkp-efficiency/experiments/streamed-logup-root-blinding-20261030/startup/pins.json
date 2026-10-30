@@ -1,0 +1,37 @@
+[
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/AGENDA.md",
+    "sha256": "9c499f9d2f68216f7d27b55d83a626b7e6f03399e674d5723832c83979a923f8",
+    "bytes": 7414
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/STATE.md",
+    "sha256": "896a86ab364959b3e105845fc7a8bcd8fb23fce76562b82ed6b1f2b7eb952dfd",
+    "bytes": 4827
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/FINDINGS.md",
+    "sha256": "893d28b2a75d42f57117fcdaaff8f866baca97782855d6ff2bd488c9b69d7469",
+    "bytes": 1282651
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/sources.jsonl",
+    "sha256": "9f6260da01c33efe8f987122347316ec157c408e4e06c34c82abc05644df5d63",
+    "bytes": 1445366
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/PROGRESS.md",
+    "sha256": "dccf110efab5ca7d9b227562dc9ad8978c6d5d081b7cdd1166b1d4a15ee30561",
+    "bytes": 2771
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/research/zkp-efficiency/handoffs/20261030-deepprove-gap.md",
+    "sha256": "25f6c142994bcc5aa1b10b792faaf868643c6b4df570f2818a7675017b73c9ad",
+    "bytes": 4557
+  },
+  {
+    "path": "/home/victor/IntelligenceRegulation/results/zk60_deepprove_gap_20261030/GAP_ANALYSIS.md",
+    "sha256": "341c2b32ff553b34f9416e949e4d22e87a1e1e706f9584081b6375abd5a76922",
+    "bytes": 35873
+  }
+]

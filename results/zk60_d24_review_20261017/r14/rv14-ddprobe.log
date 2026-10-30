@@ -1,0 +1,39 @@
+{
+ "slots": 96,
+ "queries": 36,
+ "moves_tried": 2280,
+ "equal_tuple_moves": 25,
+ "equal_tuple_moves_accepted": 25,
+ "distinct_tuple_moves": 2255,
+ "distinct_tuple_moves_accepted": 0,
+ "distinct_tuples_with_equal_compression": 0,
+ "named_cases": {
+  "alias_zero_to_pad": {
+   "from_tuple": [
+    512,
+    0,
+    0
+   ],
+   "to_tuple": [
+    512,
+    0,
+    0
+   ],
+   "identity_holds": true
+  },
+  "live_to_pad": {
+   "from_tuple": [
+    512,
+    512,
+    4096
+   ],
+   "to_tuple": [
+    512,
+    0,
+    0
+   ],
+   "identity_holds": false
+  }
+ },
+ "claim_holds": true
+}

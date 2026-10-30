@@ -1,0 +1,200 @@
+{
+  "at": "2026-10-30T21:43:15.509049+00:00",
+  "post_id": "61ac12af82b9e6c36d95075db3fc91b9",
+  "salt_opening_retained": true,
+  "categories": [
+    {
+      "category": "sexual",
+      "input_owner": {
+        "event": "content-checked",
+        "content_total": 19,
+        "chunk": 0,
+        "range": [
+          0,
+          19
+        ],
+        "verdict": "not-flagged",
+        "checked_against": "the verified statement's input root, re-verified against every segment in this process"
+      },
+      "private_opening_retained": true,
+      "private_opening_mode": "0600",
+      "guard": {
+        "ts_end": "2026-10-30T19:59:17Z",
+        "run_id": "2eee98ab9259",
+        "label": "pm-classify-inowner",
+        "class": "cpu",
+        "cmd": [
+          "/usr/bin/env",
+          "RAYON_NUM_THREADS=8",
+          "OPENBLAS_NUM_THREADS=2",
+          "OMP_NUM_THREADS=2",
+          "/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/cli/zk60_classify.r16b.release.bin",
+          "input-owner",
+          "--export",
+          "/home/victor/IntelligenceRegulation/results/zk60_shieldstral_export_20261026/native_low_h24_t128-verifier"
+        ],
+        "need_gib": 2.9,
+        "cap_gib": 7.0,
+        "exit": 0,
+        "child_rc": 0,
+        "guard_killed": null,
+        "child_wall_seconds": 67.37962937355042,
+        "refused": null,
+        "guard_error": null,
+        "guard_pid": 364211,
+        "boot_id": "4f7dab84-38e2-4f1a-9518-e305e81ef580",
+        "pid_ns": "pid:[4026532216]",
+        "guard_starttime_ticks": 5507695,
+        "lock_ids": {
+          "heavy": "2096:715313",
+          "build": "2096:715314"
+        },
+        "enforcement": "cgroup+watchdog",
+        "waited_s": 0.0,
+        "guard_wall_s": 67.4,
+        "stragglers_killed": 0,
+        "hard_killed": 0,
+        "scope_unit": "zk60-2eee98ab9259.scope",
+        "scope_adopted": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/zk60.slice/zk60-2eee98ab9259.scope",
+        "foreign_cgroups_refused": [],
+        "peak_rss_gib": 2.29,
+        "peak_cgroup_gib": 5.88,
+        "peak_vram_mib": null,
+        "min_mem_available_gib": 11.44,
+        "vram_drain_s": null,
+        "gpu_drain_failed": false,
+        "gpu_telemetry_lost": false,
+        "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache"
+      }
+    },
+    {
+      "category": "violence",
+      "input_owner": {
+        "event": "content-checked",
+        "content_total": 19,
+        "chunk": 0,
+        "range": [
+          0,
+          19
+        ],
+        "verdict": "not-flagged",
+        "checked_against": "the verified statement's input root, re-verified against every segment in this process"
+      },
+      "private_opening_retained": true,
+      "private_opening_mode": "0600",
+      "guard": {
+        "ts_end": "2026-10-30T21:29:20Z",
+        "run_id": "39f7fa8e121b",
+        "label": "pm-classify-inowner",
+        "class": "cpu",
+        "cmd": [
+          "/usr/bin/env",
+          "RAYON_NUM_THREADS=8",
+          "OPENBLAS_NUM_THREADS=2",
+          "OMP_NUM_THREADS=2",
+          "/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/cli/zk60_classify.r16b.release.bin",
+          "input-owner",
+          "--export",
+          "/home/victor/IntelligenceRegulation/results/zk60_shieldstral_export_20261026/native_low_h24_t128-verifier"
+        ],
+        "need_gib": 2.9,
+        "cap_gib": 7.0,
+        "exit": 0,
+        "child_rc": 0,
+        "guard_killed": null,
+        "child_wall_seconds": 64.68620109558105,
+        "refused": null,
+        "guard_error": null,
+        "guard_pid": 386681,
+        "boot_id": "4f7dab84-38e2-4f1a-9518-e305e81ef580",
+        "pid_ns": "pid:[4026532216]",
+        "guard_starttime_ticks": 6048207,
+        "lock_ids": {
+          "heavy": "2096:715313",
+          "build": "2096:715314"
+        },
+        "enforcement": "cgroup+watchdog",
+        "waited_s": 0.0,
+        "guard_wall_s": 64.7,
+        "stragglers_killed": 0,
+        "hard_killed": 0,
+        "scope_unit": "zk60-39f7fa8e121b.scope",
+        "scope_adopted": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/zk60.slice/zk60-39f7fa8e121b.scope",
+        "foreign_cgroups_refused": [],
+        "peak_rss_gib": 2.3,
+        "peak_cgroup_gib": 6.21,
+        "peak_vram_mib": null,
+        "min_mem_available_gib": 11.63,
+        "vram_drain_s": null,
+        "gpu_drain_failed": false,
+        "gpu_telemetry_lost": false,
+        "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache"
+      }
+    },
+    {
+      "category": "hate",
+      "input_owner": {
+        "event": "content-checked",
+        "content_total": 19,
+        "chunk": 0,
+        "range": [
+          0,
+          19
+        ],
+        "verdict": "not-flagged",
+        "checked_against": "the verified statement's input root, re-verified against every segment in this process"
+      },
+      "private_opening_retained": true,
+      "private_opening_mode": "0600",
+      "guard": {
+        "ts_end": "2026-10-30T21:41:55Z",
+        "run_id": "1c57b98cc233",
+        "label": "pm-classify-inowner",
+        "class": "cpu",
+        "cmd": [
+          "/usr/bin/env",
+          "RAYON_NUM_THREADS=8",
+          "OPENBLAS_NUM_THREADS=2",
+          "OMP_NUM_THREADS=2",
+          "/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/cli/zk60_classify.r16b.release.bin",
+          "input-owner",
+          "--export",
+          "/home/victor/IntelligenceRegulation/results/zk60_shieldstral_export_20261026/native_low_h24_t128-verifier"
+        ],
+        "need_gib": 2.9,
+        "cap_gib": 7.0,
+        "exit": 0,
+        "child_rc": 0,
+        "guard_killed": null,
+        "child_wall_seconds": 64.8140938282013,
+        "refused": null,
+        "guard_error": null,
+        "guard_pid": 388093,
+        "boot_id": "4f7dab84-38e2-4f1a-9518-e305e81ef580",
+        "pid_ns": "pid:[4026532216]",
+        "guard_starttime_ticks": 6123774,
+        "lock_ids": {
+          "heavy": "2096:715313",
+          "build": "2096:715314"
+        },
+        "enforcement": "cgroup+watchdog",
+        "waited_s": 0.0,
+        "guard_wall_s": 64.8,
+        "stragglers_killed": 0,
+        "hard_killed": 0,
+        "scope_unit": "zk60-1c57b98cc233.scope",
+        "scope_adopted": "/sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/zk60.slice/zk60-1c57b98cc233.scope",
+        "foreign_cgroups_refused": [],
+        "peak_rss_gib": 2.28,
+        "peak_cgroup_gib": 6.54,
+        "peak_vram_mib": null,
+        "min_mem_available_gib": 11.52,
+        "vram_drain_s": null,
+        "gpu_drain_failed": false,
+        "gpu_telemetry_lost": false,
+        "note": "exit 137 with no guard reason = kernel memory cap or an outside kill. peak_rss is the sum of process RSS sampled at 0.5 s (can under-read a fast spike); peak_cgroup is the kernel high-water mark and includes reclaimable page cache"
+      }
+    }
+  ],
+  "scope": "Public owner-check events and retention checks; no private opening bytes included."
+}

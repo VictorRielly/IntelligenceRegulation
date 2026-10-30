@@ -77,6 +77,18 @@ chain, network, wallet or real key.
 
    The item is never re-proved. Existing D45 reservation and retry rules remain:
    a retry is eligible only if no proof ever started and the reserved context matches.
+
+   **Tenant boundary before serving multiple platforms.** The current demo has one
+   tenant. A hosted deployment must scope duplicate-content reservations to an
+   authenticated tenant, rather than exposing a global duplicate lookup. Otherwise,
+   submitting known text could reveal that another platform had already proved it.
+   The tenant identity must come from server-side authentication and be included in
+   the reservation's uniqueness key, lookup, queue claim and retry checks; a request
+   field cannot select another tenant. Identical content in another tenant must not
+   change the response or expose the other tenant's post, status or reservation.
+   Before enabling multiple tenants, migrate existing reservations into an explicit
+   demo tenant and test cross-tenant isolation alongside the existing within-tenant
+   D45 refusal. This is a deployment requirement, not implemented multi-tenant support.
 6. **Viewer audience.** A pill in the top bar ("Viewing as Adult / Minor") and the "Your audience"
    panel select the profile:
    - **Adult** receives every labelled item and may additionally hide any category.

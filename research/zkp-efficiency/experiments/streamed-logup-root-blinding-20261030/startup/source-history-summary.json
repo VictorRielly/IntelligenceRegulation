@@ -1,0 +1,303 @@
+{
+  "records": 1168,
+  "all_records_parsed": true,
+  "last_ids": [
+    "cycle0172-source-1",
+    "cycle0172-source-2",
+    "cycle0172-source-3",
+    "cycle0172-source-4",
+    "cycle0172-source-5",
+    "cycle0172-source-6",
+    "cycle0172-source-7",
+    "cycle0172-source-8",
+    "cycle0172-source-9",
+    "cycle0172-source-10"
+  ],
+  "relevant": [
+    {
+      "id": "cycle12-cupqc-ntt-features",
+      "url": "https://docs.nvidia.com/cuda/cupqc/libraries/cupqc_ntt/cupqc_ntt_feature.html",
+      "assessment": "Official features and staged guide document inverse normalization at final store and fusion at load/store boundary. However custom prime p must be <2^62, excluding project Goldilocks p=2^64-2^32+1. The SDK is a design reference, not a drop-in kernel or performance result; listed GPU prerequisite stops at SM 90, so RTX 5090 support was not established."
+    },
+    {
+      "id": "cycle20-rust-zero-vector-specialization-boundary",
+      "url": "https://doc.rust-lang.org/src/alloc/vec/spec_from_elem.rs.html",
+      "assessment": "Generic Clone path allocates then extend_with; internal IsZero path has zeroed allocation. Fp is a custom transparent u64 wrapper, not listed primitive IsZero. Source-level inference only: compiler/backend may still transform fill, so actualzero traffic remains unknown. No implicitcalloc claim or speed prediction."
+    },
+    {
+      "id": "cycle24-cublas-pointer-batch-integer-contract",
+      "url": "https://docs.nvidia.com/cuda/cublas/index.html",
+      "assessment": null
+    },
+    {
+      "id": "cycle27-Rust-OnceLock-owner-clone-contract",
+      "url": "https://doc.rust-lang.org/std/sync/struct.OnceLock.html",
+      "assessment": "Supports review-only owner-local public digest candidate. Cloning before initialization still causes independent scans; initialized clone plus internal word mutation is stale. Python oracle does not test native concurrency or enforce Rust descendant access."
+    },
+    {
+      "id": "cycle37-new-cubutterfly-residence-boundary",
+      "url": "https://github.com/TruNcat3/cuButterfly",
+      "assessment": "New memory/NTT scheduling lead. Exact modulus/direction/layout/hiding compatibility not established; V100 FFT/NTT microbenchmarks do not imply native Goldilocks2 or private8B rate. Latest-version V100 GPU measurements remain pending per README. No downloaded scripts or calibrations executed. License/history/releases/CHANGELOG/capability fetch blockers recorded."
+    },
+    {
+      "id": "cycle39-efficient-sumcheck-compatibility-oracle",
+      "url": "https://github.com/compsec-epfl/efficient-sumcheck/blob/main/docs/compatibility.md",
+      "assessment": "Potential independent owner conformance reference without changing field/transcript. Minimal trait, canonical layout, extension nonresidue and terminal binding require audit. No package installed or library run; local schoolbook original-cube oracle is separately implemented."
+    },
+    {
+      "id": "cycle41-libra-older-sparse-bookkeeping",
+      "url": "https://eprint.iacr.org/2019/317",
+      "assessment": "New older source relative to prior 220-record URL inventory. Inspected Algorithm 4/5 and ZK outline: price equality precompute and sparse bookkeeping before timed rounds; sparsity applies to GKR wiring, not generic arbitrary softmax clauses. Their polynomial delegation/setup and masking construction are a high-cost architecture migration, not a drop-in cache or privacy permission. Author proof timings unreplicated. Useful next structural question: constant-axis Ht host evaluation, with native row-lift provenance and original-cube/refusal tests."
+    },
+    {
+      "id": "cycle48-coefficient-part-reduction-boundary",
+      "url": "https://github.com/compsec-epfl/efficient-sumcheck/blob/main/docs/design.md",
+      "assessment": "Refinement: library reduces per-pair coefficient contributions internally, but uses EvalsInfty wire and caller oracle checks. Native driver instead reduces five internal coefficients, evaluates unchanged integer samples and retains original recovery/final oracle. ZK and batching are outside this design; library SIMD/fuzzing claims do not establish our privacy, soundness or performance."
+    },
+    {
+      "id": "cycle62-deepprove-history-release-license-refresh",
+      "url": "https://github.com/Lagrange-Labs/deep-prove",
+      "assessment": "Known cycle55 licensing/history refreshed; a release-labelled commit does not establish a published release. No implementation or benchmark imported."
+    },
+    {
+      "id": "cycle64-new-older-arkworks-product-list-oracle",
+      "url": "https://github.com/arkworks-rs/sumcheck",
+      "assessment": "NEW older implementation absent from325-record inventory. Product-list oracle design is useful as an independent check, but source evaluates all addends at the common maximum degree and uses adjacent-bit pairs. Native MSB Fp2 grouping cannot be replaced by this LSB/base-field path. No benchmark, library or source executed/copied."
+    },
+    {
+      "id": "cycle68-zorch-natural-width-and-full-stage-negative",
+      "url": "https://github.com/fractalyze/openvm-zorch/issues/44",
+      "assessment": "Primary issue evidence only. Useful counterexample to equating device arithmetic time with enclosing phase, and supports charging dense padding. Native field/transcript/masking differ; no timing transferred or code executed."
+    },
+    {
+      "id": "cycle76-new-older-Spartan-source-and-recovery-baseline",
+      "url": "https://raw.githubusercontent.com/microsoft/Spartan/master/src/sumcheck.rs",
+      "assessment": "NEW older repository/code inspection absent400-record startup. It confirms claim recovery belongs in the comparison baseline and compressed arithmetic alone does not supply hiding. Curve/PCS/degree/transcript incompatible with native Goldilocks; no migration or security/performance claim imported."
+    },
+    {
+      "id": "cycle76-new-Pico3-batching-and-version-boundary",
+      "url": "https://blog.brevis.network/2026/09/30/pico-3-0-real-time-ethereum-proving-on-4-gpus-with-100-bit-provable-security/",
+      "assessment": "NEW recent announcement inspection; public repo knowncycle17. Concrete architecture questions retained: heterogeneous batches, public-setup residency and costed record compacting. Ethereum throughput, four-device system and different fields do not establish native complete private8B throughput or privacy. No externally claimed performance reproduced."
+    },
+    {
+      "id": "cycle78-new-recmo-Goldilocks-source-license-boundary",
+      "url": "https://github.com/recmo/goldilocks",
+      "assessment": "NEW repository/source inspection absent startup inventory. Same prime alone does not establish CUDA support, native layout, hiding or proof compatibility. lib wrapper inspected; requested underlying NTT source paths inaccessible/404. No implementation adopted/executed or performance reproduced."
+    },
+    {
+      "id": "cycle79-deepprove-softmax-current-readme-license",
+      "url": "https://github.com/Lagrange-Labs/deep-prove",
+      "assessment": "Known repository/history refreshed; concrete normalization documentation re-read. Older prose and current backend differ, so neither is a native exact-division adapter. Conceptual lookup comparison only; field, arithmetic/refusal, IO privacy and PCS composition remain separate. All candidate code here derives from existing local prototype, not foreign source."
+    },
+    {
+      "id": null,
+      "url": "https://doc.rust-lang.org/reference/destructors.html",
+      "assessment": "Variables belong to drop scopes; an explicit drop moves the public Array values before later work. Borrow lifetime ending does not by itself establish allocator/RSS release. Actual generated code and allocator effects remain unmeasured. No library source adopted."
+    },
+    {
+      "id": null,
+      "url": "https://doc.rust-lang.org/std/alloc/struct.System.html",
+      "assessment": "System delegates to platform allocator and permits tracking wrappers. Requested Layout bytes are not malloc usable size,RSS or GPU residency. Authored local wrapper forwards untouched Layouts; no library code installed or fetched."
+    },
+    {
+      "id": null,
+      "url": "https://github.com/succinctlabs/sp1/releases/tag/v6.9.0",
+      "assessment": "Release notes include NTT reorder removal and zerocheck evaluation work. Inspected full release commit only changes the supported CLI toolchain tag v2 to v3; it is not the GPU optimization diff. No native gain inferred."
+    },
+    {
+      "id": null,
+      "url": "https://blog.brevis.network/2026/09/30/pico-3-0-real-time-ethereum-proving-on-4-gpus-with-100-bit-provable-security/",
+      "assessment": "Author claims four-GPU Ethereum proving after replacing its pipeline with multilinear reductions, LogUp-GKR and WHIR, alongside larger chunks and lower traffic/recursion. Those claims are not private8B evidence. README describes KoalaBear and breaking2.x incompatibility; computed100-bit budget is not native128-bit target. Documentation fast mode uses one FRI query and reduced security, excluded from any comparison. Candidate: census native helper commitment bytes before considering additional GKR rounds/final openings and fresh masking. No implementation/performance reproduced."
+    },
+    {
+      "id": null,
+      "url": "https://eprint.iacr.org/2023/1284",
+      "assessment": "Author abstract replaces many lookup committed columns with fractional GKR sumchecks and one table-multiplicity column. Native helper commitment census and added-round/opening costs are prerequisites; current reciprocal helpers, adaptive challenge binding and joint private masks cannot be removed without protocol review. No code or performance reproduced."
+    },
+    {
+      "id": null,
+      "url": "https://github.com/succinctlabs/sp1/releases/tag/v6.9.0",
+      "assessment": "Official release lists NTT reorder removal and zerocheck simplification. Do not infer a removable native pass: native p1 is already fused. LogUp-GKR subcrate is different-field/protocol scaffolding; no native byte or whole-model speed claim."
+    },
+    {
+      "id": null,
+      "url": "https://eprint.iacr.org/2023/1284",
+      "assessment": "Author abstract claims only multiplicity extra column for M lookup columns. Candidate targets native recurring H helper commitments but requires additional GKR rounds/final claims and new masking/joint-view analysis. No direct production substitution or reproduced timing."
+    },
+    {
+      "id": null,
+      "url": "https://github.com/Lagrange-Labs/deep-prove",
+      "assessment": "Root claims fullLLM sumcheck/LogUp-GKR support; standalone server benchmarks are author evidence. No source imported/executed or throughput transferred. Cached/full inference discrepancy fix is a lead for parity requirements, not reviewed implementation."
+    },
+    {
+      "id": null,
+      "url": "https://github.com/fractalyze/openvm-zorch/issues/44",
+      "assessment": "Already assessed0068/0097. Author reports natural-width unrolled fractional sumcheck17.9ms vs prior97.4ms on RTX5090 real-fib and byte matches; also retracts earlier capture hypothesis. Different workload/field/backend, not reproduced. Reinforces charging launch/width costs rather than assuming removed H rows convert to total proof speed."
+    },
+    {
+      "id": null,
+      "url": "https://eprint.iacr.org/2023/1284",
+      "assessment": "Authors replace lookup reciprocal helper columns with a fractional GKR reduction and one multiplicity column. Local experiment counts private mixed-height layer servicing only, not the protocol. No author timing, masking construction, PCS or soundness claim transferred."
+    },
+    {
+      "id": null,
+      "url": "https://arxiv.org/abs/1109.6882",
+      "assessment": "Single-pass logarithmic-space verifier does not imply a low-memory private prover or one-pass source for this fraction-tree consumer. Abstract/metadata inspected; no code, theorem or performance reproduced."
+    },
+    {
+      "id": null,
+      "url": "https://eprint.iacr.org/2024/524",
+      "assessment": "Author single-multilinear time-space tradeoff is a source-access baseline, not a private cubic fraction-tree consumer bound. No implementation inspected or author performance reproduced. Paper CC BY."
+    },
+    {
+      "id": null,
+      "url": "https://eprint.iacr.org/2024/524",
+      "assessment": "Previously assessed; useful source-scan/checkpoint tradeoff baseline, not a masked cubic fraction-tree capacity theorem. No implementation or author runtime reproduced."
+    },
+    {
+      "id": null,
+      "url": "https://eprint.iacr.org/2023/1284",
+      "assessment": "Author fraction-GKR commitment reduction motivates the prospective consumer. It does not supply this native private circuit, CFS/PCS or ordered original-A binding. No author gain reproduced."
+    },
+    {
+      "id": null,
+      "url": "https://eprint.iacr.org/2026/1388",
+      "assessment": "Author BN254 Spartan chunk-to-resident/late-CPU sumcheck has enclosing proof measurements. It supports charging source scans and transition overhead; no timing or guarantee transfers to the native Goldilocks/private fraction-tree redesign."
+    },
+    {
+      "id": null,
+      "url": "https://github.com/openvm-org/stark-backend/blob/main/docs/interactions.md",
+      "assessment": "Primary docs distinguish fraction-tree proof from batched constraint sumcheck linking original interaction expressions, followed by stacked reduction and WHIR. Supports keeping native original-A/PCS costs unknown rather than claiming root-only membership. No native compatibility, guarantee or speed reproduced."
+    },
+    {
+      "id": null,
+      "url": "https://eprint.iacr.org/2023/1284",
+      "assessment": "Prior assessed lead. Author single extra multiplicity-column claim does not supply this code private recursion, CFS, reserved-pair or one-opening composition. No author performance or complete proof reproduced."
+    },
+    {
+      "id": null,
+      "url": "https://github.com/Lagrange-Labs/deep-prove",
+      "assessment": "README uses LogUp-GKR and HyperKZG/BN254; useful architecture comparison, no native integration. License permits stated internal evaluation and contains restrictions; no code copied or executed. Author cosine similarity is not D32 perplexity/LAMBADA."
+    },
+    {
+      "id": null,
+      "url": "https://eprint.iacr.org/2023/1284",
+      "assessment": "Known single-extra-column claim concerns lookup multiplicities in its protocol. Must retain leaf binding and current private PCS/masks; not a drop-in deletion of native H helpers. No author performance reproduced."
+    },
+    {
+      "id": null,
+      "url": "https://docs.nvidia.com/cuda/cupqc/libraries/cupqc_ntt/cupqc_ntt_feature.html",
+      "assessment": "Feature table explicitly states custom p<2^62 despite uint64 storage. Goldilocks p=2^64-2^32+1 exceeds it; uint64 support alone does not establish compatibility."
+    },
+    {
+      "id": null,
+      "url": "https://github.com/ingonyama-zk/icicle/blob/main/wrappers/rust/icicle-core/src/sumcheck/mod.rs",
+      "assessment": "Readhost/devicepointervalidation andproofround extraction interface. NoCPUtail threshold established fromthiswrapper. Replacingnative transcript/masker withgeneric library isnotauthorized."
+    },
+    {
+      "id": null,
+      "url": "https://github.com/BLAKE3-team/BLAKE3-specs/blob/master/blake3.tex",
+      "assessment": "Incremental/hash-tree reasoning assessed locally; row-bound capacity and no stale reads tested against an independent installed library. Native PDF search excerpt also discusses maximum-size-limited storage; current tex view truncates at memory section."
+    },
+    {
+      "id": null,
+      "url": "https://github.com/ingonyama-zk/icicle/releases",
+      "assessment": "No current keyed64-byte kernel capability established; historical2KiB limit not assumed current. No library replacement proposed; namespace/full-tree/opening costs remain. Inspected commit only bumps crate versions."
+    },
+    {
+      "id": null,
+      "url": "https://github.com/compsec-epfl/efficient-sumcheck/blob/main/CHANGELOG.md",
+      "assessment": "Current native0..degree sample bytes and final checks must remain. No library replacement; only an internal exact evaluator is proposed."
+    },
+    {
+      "id": null,
+      "url": "https://docs.rs/crate/sp1-gpu-logup-gkr/latest",
+      "assessment": "Potential GPU implementation reference only; no substitution for native Goldilocks Fp2 masks/PCS/order. Metadata disagreement blocks exact release source assessment here."
+    },
+    {
+      "id": "cycle0129-source-1",
+      "url": "https://eprint.iacr.org/2017/305",
+      "assessment": "Perfect ZK is stated in IPCP/oracle models. Native CFS/Libra-derived polynomial and compiled PCS need their own assumptions and joint-view gate. Only locally authored arithmetic/framing conformance reproduced; this is a newly inspected source, not a newly discovered native masking technique."
+    },
+    {
+      "id": "cycle0129-source-2",
+      "url": "https://eprint.iacr.org/2019/317",
+      "assessment": "Known prior source and already named in native comments. Optimal arithmetic prover and small masks do not remove current full-cube private factors or their commitments. No paper benchmark reproduced."
+    },
+    {
+      "id": "cycle0129-source-6",
+      "url": "https://github.com/Terminus-IMRC/tensor-core-ntt",
+      "assessment": "README links SCA/HPCAsia2026 DOI10.1145/3773656.3773673 and claims fewer redundant operations. Inspected friendly reduction/multiplier constructors explicitly cap62bits, rejecting native64-bit Goldilocks. General Montgomery path not audited: this does not reject the entire library. Next local inspect general64-bit exactness/carries before proposing native adapter; no GPU or author timing reproduced."
+    },
+    {
+      "id": "cycle0132-source-5",
+      "url": "https://arxiv.org/abs/2609.36437",
+      "assessment": "Known source. Operatorprecision and lookup fidelity can dominate; reducing bytewidth does not imply proportional proving savings. No calibration change,re-quantization,native implementation or author timing reproduced."
+    },
+    {
+      "id": "cycle0135-source-1",
+      "url": "https://docs.nvidia.com/cuda/cupqc/libraries/cupqc_ntt/cupqc_ntt_feature.html",
+      "assessment": "Official custom prime limit p<2^62 excludes native Goldilocks p=2^64-2^32+1. Montgomery-domain staged fusion is a design reference only; changing fields is a protocol fork, not authorized by this candidate."
+    },
+    {
+      "id": "cycle0136-source-2",
+      "url": "https://github.com/Oraclizer/statesync-gkr/releases/tag/v1.2.1",
+      "assessment": "Release adds external zkVM proof of its program identity; this is no new transformer/GPU measurement. Actual main LICENSE heading/parameters inspected: BusinessSourceLicense1.1, versions afterv1.1.0. No code adopted/executed. Observed full commit comes from release link; diff fetch failed."
+    },
+    {
+      "id": "cycle0140-source-5",
+      "url": "https://fhe.desilo.dev/2.0.0/release_notes/",
+      "assessment": "New here. GL means Gentry-Lee, not Goldilocks. FHE ciphertext operations do not replace native exact proof relation/PCS. Memory reduction can regress throughput; no binary installed or source implementation inspected."
+    },
+    {
+      "id": "cycle0141-source-2",
+      "url": "https://github.com/Oraclizer/statesync-gkr/releases",
+      "assessment": "Release attaches external program-identity proof; library/proof format unchanged from1.2.0. Not a new native prover algorithm or privacy result. No foreign code run."
+    },
+    {
+      "id": "cycle0152-source-6",
+      "url": "https://blog.brevis.network/2026/09/30/pico-3-0-real-time-ethereum-proving-on-4-gpus-with-100-bit-provable-security/",
+      "assessment": "NEW release/composition lead. Authors report bigger chunks, reduced PCIe records and lighter recursion with a replaced proving core. Native stack has different PCS and privacy obligations; no direct portability or complete8B rate claim. Useful architectural control: larger proof windows need real peak-memory and independent full receipts, not iteration counts."
+    },
+    {
+      "id": "cycle0153-source-1",
+      "url": "https://nvidia.github.io/cuPQC/releases/v0.6/",
+      "assessment": "Refreshed prior exclusion: published p<2^62 limit excludes current p=2^64-2^32+1. Device fusion and staged API remain design leads, not drop-in field replacements. No SDK/code execution or native speed estimate."
+    },
+    {
+      "id": "cycle0154-source-1",
+      "url": "https://arxiv.org/abs/2610.14849",
+      "assessment": "Refresh, not a newly assessed system. Author separates sparse memory/prepared service gains from proof delivery and says1.2.1 attaches an external program-identity proof while library/proof format remain1.2.0. No native transformer integration or private8B GPU performance reproduced. Prepared structure is not permission to reuse masks."
+    },
+    {
+      "id": "cycle0155-source-5",
+      "url": "https://arxiv.org/abs/2610.14849",
+      "assessment": "Authors keep proof format fixed while changing prepared arithmetic/service scheduling; completion is bound to request identifiers. Release1.2.1 adds an external program-identity proof and leaves library/proof format at1.2.0. This does not establish native transformer privacy, full-stackGPU speed or permission to reuse masks."
+    },
+    {
+      "id": "cycle0158-source-1",
+      "url": "https://doc.rust-lang.org/src/alloc/vec/spec_extend.rs.html",
+      "assessment": "Source specialization appends an IntoIter slice then deallocates it. A preallocated destination does not justify assuming the temporary allocation vanishes. This motivated local optimized allocation counters; those counters, not current rustdoc, establish the1.75 artifact results."
+    },
+    {
+      "id": "cycle0159-source-5",
+      "url": "https://github.com/Oraclizer/statesync-gkr/releases/tag/v1.2.1",
+      "assessment": "Release states library/proof format unchanged from1.2.0 and attaches a new program-identity proof. Current license body is BSL1.1 with restricted production proving and later Apache conversion. Preserve older license records as version-specific; do not carry them forward. No release proof or performance reproduced."
+    },
+    {
+      "id": "cycle0165-source-3",
+      "url": "https://github.com/Oraclizer/statesync-gkr/releases",
+      "assessment": "v1.2.1 attaches external proof evidence; release states library and proof format unchanged from1.2.0. Inner GKR rates exclude the external privacy wrapper; current source needs separate review. License body inspected; no code adopted."
+    },
+    {
+      "id": "cycle0166-source-5",
+      "url": "https://github.com/Oraclizer/statesync-gkr/releases",
+      "assessment": "v1.2.1 attaches external zkVM program-identity proof and says library/proof format unchanged. External privacy wrapper and inner service throughput are not private8B whole-stack evidence."
+    },
+    {
+      "id": "cycle0168-source-8",
+      "url": "https://docs.nvidia.com/cuda/cupqc/libraries/cupqc_ntt/cupqc_ntt_feature.html",
+      "assessment": "Custom p<2^62,cyclic transforms,Montgomery load/store and two-pass staged layout. uint64 storage does not admit native Goldilocks. No field/profile migration or installation."
+    }
+  ]
+}

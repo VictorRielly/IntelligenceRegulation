@@ -17,3 +17,40 @@ Required wiring before coordinator review:
 ## Publication exclusion follow-up
 
 `publication_exclusion.patch` now stages all three boundaries in copies of the actual app sources: local/testnet publish before any inventory reads, CAS put_file before writing a temporary object, and bundle download before constructing a stream (including each segment/statement and again before opening). Six focused tests exercise the copied implementations: ordinary publication still works; direct and symlink quarantine sources create no object, pending leaf or RPC call; quarantined archive roots/segment/statement aliases are refused before a response stream is made. This source patch is still unapplied while the new public demo holds its source pins. Production queue wiring, subprocess-liveness integration and the combined app-half review remain outstanding.
+
+## Queue startup follow-up, 2026-10-30
+
+`queue_startup.patch` now stages a recovery hook in copies of the real `Store`
+and `Worker.tick`. `batch_registry.py` atomically claims all original category
+jobs in SQLite before a future batch launch. The worker invokes recovery before
+its publisher tick, ordinary polling or any new launch. A reboot establishes
+termination; a same-boot missing PID or absent terminal record holds the queue.
+Same-boot completion requires the original launch/boot identity and an explicit
+children-reaped terminal record. A failed supervisor quarantines even when native
+stdout looks successful. All failed category jobs retain the D45 reservation and
+cannot be automatically retried.
+
+The combined 58 lightweight tests pass (`queue-startup-tests.log`, exact pins in
+`queue-startup-evidence.json`), including 11 new tests against the staged real
+SQLite store and queue worker. No native proof was launched. The staged hook
+deliberately holds successful transport at `unverified`: it cannot publish or
+claim fresh verification.
+
+Still required: a batch supervisor that owns/reaps every guarded child and writes
+the terminal contract; launch integration through this atomic registration;
+fresh verify/input-owner/category-label collection into every queue record;
+package-local imports when promoted; combined application tests and coordinator
+review. These candidates are not installed and do not close R18-1. The running
+demo remains pinned to the unchanged r16b per-category sources.
+
+`batch_supervisor.py` additionally stages the guarded-child lifecycle. It holds
+an exclusive supervisor lock, forwards termination only to its own guard and
+waits for cleanup, and writes a children-reaped terminal record only when the
+guard's matching boot/PID/completion evidence is present and cleanup is not
+uncertain. A missing result, foreign PID, or failed straggler sweep keeps the
+queue blocked. Nine tiny subprocess controls pass, including real SIGTERM
+forwarding and competing-supervisor exclusion. The combined suite is now 67
+tests (`lifecycle-evidence.json`). These use a simulated guard and launch no
+native proof; they do not replace guarded native integration. The lifecycle
+module still needs to be connected to the batch command plan and collector,
+and cannot currently be selected by the app factory.

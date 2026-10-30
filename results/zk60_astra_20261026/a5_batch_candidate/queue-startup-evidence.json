@@ -1,0 +1,30 @@
+{
+  "at": "2026-10-30T21:17:13.321401+00:00",
+  "exit": 0,
+  "command": [
+    "/home/victor/IntelligenceRegulation/apps/proven-media/.venv/bin/python",
+    "-m",
+    "unittest",
+    "test_batch_request",
+    "test_batch_cleanup",
+    "test_batch_queue_gate",
+    "test_publication_exclusion",
+    "test_batch_registry",
+    "-v"
+  ],
+  "tests": 58,
+  "new_registry_tests": 11,
+  "production_changed": false,
+  "native_proofs_launched": 0,
+  "source_sha256": {
+    "batch_registry.py": "77bfc1226a61ec3ae48a032f3929dba7b60afeb73ae20c93b12ccaf2fa0cbba0",
+    "batch_queue_gate.py": "fcb00b1153705e8b577d7d25cd3a6990e15d32da971096d1dbc5eae757336d4e",
+    "batch_request.py": "8286ded03de15815bed6d400e825a0869761b67c04dcc8db11ca9f5dda0f97d4",
+    "batch_cleanup.py": "df5ab991b4d14338d9b0964cd1d947373295be7a63ccde46f1838db0328f3a6d",
+    "stage_queue.py": "daf290764daa849d7da1ded8bb6832b04c03ab8d5990b75973106fdcb03886be",
+    "test_batch_registry.py": "f4722dee8652033989d0c7fcb285ba675b5adad7d8b0b242139ae51bfcd367c0",
+    "queue_candidate/jobs.py": "bdfa1b39493e189132a8d37174e2b9f7f8af215dba3e8522f5c095b0af74dd4d",
+    "queue_candidate/store.py": "b95477606b03a2970a35ad67ad9220e43bfce265f8428aba16dab6a98900bead",
+    "queue_startup.patch": "b84b0eabb1a90b5eb2eb776529f7b0629d8d268a4976017f7522cf1b6f1490af"
+  }
+}

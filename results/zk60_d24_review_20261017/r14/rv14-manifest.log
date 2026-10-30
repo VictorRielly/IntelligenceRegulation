@@ -1,0 +1,27 @@
+{
+ "entries": 1997,
+ "small_rehashed_ok": 1595,
+ "small_bad": [],
+ "missing": [],
+ "big_entries": 402,
+ "big_bytes": 16416943470,
+ "big_sizes_match": true,
+ "evidence_manifest_sha256": "2e8b76c2cb8f3ab5d73e534eb188f480ca4d99b02d08a47fc553cd7ad3cd51eb",
+ "manifest_matches_freeze": true,
+ "reviewer_used_files_in_manifest": {
+  "final-relations-1/ACCEPTANCE.json": true,
+  "final-relations-1/dd-dictionary-counts.log": true,
+  "final-relations-1/dd-dictionary-alias-counts.log": true,
+  "final-arithmetic-2/ACCEPTANCE.json": true,
+  "joint-receipts-2/ACCEPTANCE.json": true,
+  "joint-envelopes-1/ACCEPTANCE.json": true,
+  "full26-native-1/ACCEPTANCE.json": true,
+  "full26-native-1/non-dd-prove.log": true,
+  "full26-native-1/dd-prove.log": true,
+  "final-validation-1/suite.log": true,
+  "final-census-1/ACCEPTANCE.json": true,
+  "FULL26_ACTUAL_CONDITIONAL_COUNT.json": true,
+  "LEGACY_COMPATIBILITY_ACCEPTANCE.json": false,
+  "sol-r14-legacy-full-suite-3.log": false
+ }
+}

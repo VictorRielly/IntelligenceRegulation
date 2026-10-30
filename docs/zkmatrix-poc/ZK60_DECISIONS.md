@@ -1763,3 +1763,23 @@ Competitors' figures are the authors' claims; ours are measured, n = 1.
 - Explorer handoff: `research/zkp-efficiency/handoffs/20261030-deepprove-gap.md` (the LogUp-GKR prototype, with its kill
   rule). Not measured: DeepProve's paper body (403), Attestable's privacy model.
 
+**R14 independent soundness review (D24 class, 2026-10-30, recorded 21:33 UTC): ACCEPTED on soundness, no
+soundness finding** (`results/zk60_d24_review_20261017/REVIEW_R14.md`; the author packet
+`results/zk60_1b_native_20261017/r14/review-author-1/`, source 27b2a427 / 291; four experimental split profiles:
+Shieldstral T128 / T256 × DD / non-DD; T256 checked by definition and count only).
+- **The accepted 50th malicious receipt is settled.** The verifier enforces, for each distinct tuple value, that
+  the committed multiplicities on it equal its query count. A move between distinct values changes two totals by
+  ±1 and fails except with probability ≤ (N + 4·T_d − 1)/p². A move between equal tuples is a second valid witness
+  of a true statement. Exact probe: 25 / 25 equal-tuple moves keep the identity; 0 / 2,255 distinct-tuple moves do.
+- **Bits recounted independently:** 97.2589 / 97.3119 (with a zero-check and batching allowance: 97.2588 /
+  97.3118). That is +2.26 / +2.31 over D27's ~95 and +0.34 over R13 on the same full accounting (R13: 96.92 /
+  96.96). T256, counted only: 96.29 / 96.48. Assumptions: D19 random oracle, Fiat–Shamir per attempt, δ/3
+  proximity, the CFS lemma and the 4096 PCS ceiling carried unproved, a union over 26 blocks, backend only.
+- R13 → R14: 22 files new, 8 changed, 0 removed. New code is reachable only through `--experimental-r14`, legacy
+  branches are identical, the legacy goldens match 9 / 9, R13-F1 is fixed. The one-opening rule, root-before-challenge
+  absorption and fresh draws all hold. The evidence numbers match their logs.
+- **Low findings:** R14-F1 (the accepted control's `statement.txt` lacks the model identity, endpoint roots and
+  binding, so it cannot be fresh-verified); R14-F2 (the "generic dense" fixture's down output is 0 everywhere).
+- **Before registration (N-r14-5):** bind a security tier into the run statement (D27); the token lane recounts N
+  for R14's pieces; one native T256 proof; the privacy gate. Not a privacy acceptance and not a registration.
+

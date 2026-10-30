@@ -1,18 +1,10 @@
 {
-  "at": "2026-10-30T20:34:20.324343+00:00",
+  "at": "2026-10-30T21:44:04.301979+00:00",
   "goal_status": "active",
   "previous_goal_turn": "progress: recovered and anchored first real app post; applied/authenticated app verified; benchmark L06 checkpoint advanced",
   "own_live_jobs": [
     {
-      "kind": "durable-demo",
-      "category": "violence",
-      "pid": 365410,
-      "boot_id": "4f7dab84-38e2-4f1a-9518-e305e81ef580",
-      "worker_done": "/home/victor/IntelligenceRegulation/results/zk60_astra_20261026/real_app_demo_2/violence.supervisor.done"
-    },
-    {
       "kind": "durable-demo-finalizer",
-      "state": "waiting for all three category terminal0 markers",
       "pid": 371569,
       "boot_id": "4f7dab84-38e2-4f1a-9518-e305e81ef580",
       "worker_done": "/home/victor/IntelligenceRegulation/results/zk60_astra_20261026/real_app_demo_2/finalization/worker.done"
@@ -51,7 +43,7 @@
     "running_layer": null,
     "running_attempt": null
   },
-  "next_command": "Supervise original violence365410 and finalizer371569 (waiting). After violence terminal0 launch only hate: run_durable_app_demo.py category --category hate --native-threads 8 --detach. Finalizer then automatically anchors, verifies stored receipts, checks app, captures headless screenshots and reports. Do not modify its five pinned helper sources or active app sources until terminal. Next GPU L07attempt2 after shared-slot fairness.",
+  "next_command": "Supervise existing finalizer371569; all category supervisors terminal0. No new proof. Do not edit its pinned helpers until terminal; inspect/screenshots on completion, then refresh report and review handoffs.",
   "wallet": {
     "chain_id": 84532,
     "address": "0x775E8A2D741446d74E3f5a02244D1241eceB187d",
@@ -141,7 +133,7 @@
       "queued and collected job context checks"
     ],
     "full_app_tests": 199,
-    "test_evidence": "storage-wallet-suite.log",
+    "test_evidence": "storage-final-suite.log",
     "real_classifier_publication_pending": false,
     "live_database_migrated": false
   },
@@ -349,12 +341,34 @@
       "pid": 371569,
       "boot_id": "4f7dab84-38e2-4f1a-9518-e305e81ef580",
       "worker_done": "/home/victor/IntelligenceRegulation/results/zk60_astra_20261026/real_app_demo_2/finalization/worker.done"
-    }
+    },
+    "progress_note": "All three categories accepted no; all84segments. Hate native447.880353s/RSS8.15GiB, pipeline work676.014429s. All category supervisors terminal0. Finalizer371569 in anchor step; stored verification, app checks, screenshots still pending."
   },
   "admission_candidate": {
     "path": "admission_candidate",
     "tests": 9,
     "applied": false,
     "why": "Permit active light<=1GiB under existing lean rule, preserving all guard/cap/thread controls; current running pipeline remains untouched."
+  },
+  "a5_queue_startup_candidate": {
+    "tests": 67,
+    "new_registry_tests": 11,
+    "evidence": "a5_batch_candidate/lifecycle-evidence.json",
+    "production_changed": false,
+    "remaining": [
+      "connect lifecycle module to registered batch command plan",
+      "fresh native check and queue record integration",
+      "application suite and coordinator review"
+    ],
+    "new_supervisor_tests": 9
+  },
+  "single_copy_store": {
+    "coordinator_request": "2026-10-30T20:50:00Z",
+    "status": "queued after demo and R18-1; no receipt removed"
+  },
+  "tenant_reservation_design": {
+    "document": "apps/proven-media/DESIGN.md",
+    "implemented": false,
+    "current_demo": "single tenant"
   }
 }

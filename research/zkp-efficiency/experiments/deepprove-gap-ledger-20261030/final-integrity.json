@@ -1,0 +1,19 @@
+{
+  "status": "PASS",
+  "checkpoint_utc": "2026-10-30T20:55:27.715364+00:00",
+  "checks": {
+    "local_report_link": 20,
+    "new_findings_link": 3,
+    "source_count": 1,
+    "appended_sources": 1,
+    "hypothesis_history_preserved": 1,
+    "main_result": 1,
+    "audit_result": 1,
+    "native_snapshot_pin": 11,
+    "native_source_unchanged": 11,
+    "artifact_pin": 60,
+    "before_deadline": 1
+  },
+  "new_verified_positions": 0,
+  "late_owner_reconciled": true
+}

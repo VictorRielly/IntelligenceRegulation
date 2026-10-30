@@ -1,0 +1,4 @@
+/home/victor/IntelligenceRegulation/results/zk60_gpu_classifier_20261030/bin/zk60_classify.gcl1-cpu.bin: OK
+/home/victor/IntelligenceRegulation/results/zk60_gpu_classifier_20261030/bin/zk60_classify.gcl1-gpu.bin: OK
+/home/victor/IntelligenceRegulation/results/zk60_token_io_r1_20261017/cli/zk60_classify.r19b.release.bin: OK
+/home/victor/zk60-artifacts/gpu-classifier/ent/job0.bin: OK

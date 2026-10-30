@@ -1,0 +1,5 @@
+T128 dd=0 N=48,660,480 lookup 2^-97.7615 col 2^-99.029 sc 2^-112.9 zc 2^-112.7 pcs 2^-107.3 | run 97.2589 (+allowance 97.2588) | R13 same accounting 96.9209 | census True/True/True/True
+T128 dd=1 N=45,645,824 lookup 2^-97.8372 col 2^-99.029 sc 2^-112.8 zc 2^-112.7 pcs 2^-107.3 | run 97.3119 (+allowance 97.3118) | R13 same accounting 96.9627 | census True/True/True/True
+T256 dd=0 N=118,292,480 lookup 2^-96.4810 col 2^-99.288 sc 2^-112.8 zc 2^-112.7 pcs 2^-106.5 | run 96.2871 (+allowance 96.2871) | R13 same accounting 95.9432 | census True/True/True/True
+T256 dd=1 N=100,204,544 lookup 2^-96.7053 col 2^-99.288 sc 2^-112.7 zc 2^-112.6 pcs 2^-106.5 | run 96.4811 (+allowance 96.4811) | R13 same accounting 96.0939 | census True/True/True/True
+{"non-dd": {"recounted_total": 895146288, "acceptance_total": 895146288, "all_52_lengths_equal": true}, "dd": {"recounted_total": 901256496, "acceptance_total": 901256496, "all_52_lengths_equal": true}}

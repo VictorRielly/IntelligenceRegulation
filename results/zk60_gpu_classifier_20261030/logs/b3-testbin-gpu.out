@@ -1,0 +1,2 @@
+[zk60-guard 14:04:44] START gcl-b3-testbin-gpu class=build need=2.5G cap=5G enforce=cgroup+watchdog waited=0s run=0cceb7625bd7
+[zk60-guard 14:08:05] END gcl-b3-testbin-gpu exit=0 child_wall=201s peak_rss=2.28G min_avail=11.54G

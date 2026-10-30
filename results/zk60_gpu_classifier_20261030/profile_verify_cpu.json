@@ -1,0 +1,211 @@
+{
+ "log": "/home/victor/IntelligenceRegulation/results/zk60_gpu_classifier_20261030/logs/pa/v-cpu.log",
+ "side": "verify",
+ "blocks": 26,
+ "sum_block_walls_s": 21.604000000000003,
+ "phases": {
+  "run: block load + statement check": {
+   "seconds": 11.567,
+   "count": 26,
+   "half": "run (witness, boundary)"
+  },
+  "frame: decode segment + path depths": {
+   "seconds": 0.22200000000000011,
+   "count": 26,
+   "half": "frame"
+  },
+  "transcript header + the A and H roots": {
+   "seconds": 0.6910000000000004,
+   "count": 26,
+   "half": "setup"
+  },
+  "slot 00 01 SS row sums norm_a (private)": {
+   "seconds": 0.1940000000000001,
+   "count": 26,
+   "half": "norm"
+  },
+  "slot 01 01m SS row sums norm_m (private)": {
+   "seconds": 0.16100000000000003,
+   "count": 26,
+   "half": "norm"
+  },
+  "slot 02 02 norm squares zero-check (hosts 01, 01m)": {
+   "seconds": 0.0,
+   "count": 26,
+   "half": "norm"
+  },
+  "slot 03 08 limb zero-check": {
+   "seconds": 0.028000000000000018,
+   "count": 26,
+   "half": "norm"
+  },
+  "slot 04 07 masked row sums + selector (private)": {
+   "seconds": 0.14200000000000007,
+   "count": 26,
+   "half": "attention"
+  },
+  "slot 05 09Q matmul (private)": {
+   "seconds": 0.1800000000000001,
+   "count": 26,
+   "half": "attention"
+  },
+  "slot 06 09K matmul (private)": {
+   "seconds": 0.06600000000000003,
+   "count": 26,
+   "half": "attention"
+  },
+  "slot 07 09V matmul (private)": {
+   "seconds": 0.061000000000000026,
+   "count": 26,
+   "half": "attention"
+  },
+  "slot 08 10 score matmul (private, bilinear)": {
+   "seconds": 0.0,
+   "count": 26,
+   "half": "attention"
+  },
+  "slot 09 11 PV matmul (private, bilinear)": {
+   "seconds": 0.0,
+   "count": 26,
+   "half": "attention"
+  },
+  "slot 10 12 Wo matmul (private)": {
+   "seconds": 0.1850000000000001,
+   "count": 26,
+   "half": "attention"
+  },
+  "slot 11 13G gate matmul (private)": {
+   "seconds": 0.6730000000000004,
+   "count": 26,
+   "half": "feed-forward"
+  },
+  "slot 12 13U up matmul (private)": {
+   "seconds": 0.6640000000000004,
+   "count": 26,
+   "half": "feed-forward"
+  },
+  "slot 13 13D down matmul (private)": {
+   "seconds": 0.6500000000000002,
+   "count": 26,
+   "half": "feed-forward"
+  },
+  "slot 14 03 D zero-check (hosts 12, 13D)": {
+   "seconds": 0.4350000000000002,
+   "count": 26,
+   "half": "residual"
+  },
+  "slot 15 04 Q zero-check (hosts 09Q, 11)": {
+   "seconds": 0.3770000000000002,
+   "count": 26,
+   "half": "attention"
+  },
+  "slot 16 05 KV zero-check (hosts 09K, 09V)": {
+   "seconds": 0.14100000000000007,
+   "count": 26,
+   "half": "attention"
+  },
+  "slot 17 06 softmax zero-check (hosts 07, 10)": {
+   "seconds": 0.15600000000000008,
+   "count": 26,
+   "half": "attention"
+  },
+  "slot 18 14 F zero-check (hosts 13G, 13U)": {
+   "seconds": 1.813,
+   "count": 26,
+   "half": "feed-forward"
+  },
+  "slot 19 TAB table helper zero-check": {
+   "seconds": 0.14200000000000004,
+   "count": 26,
+   "half": "lookup-table"
+  },
+  "slot 20 ZS zero-sum row": {
+   "seconds": 0.03600000000000001,
+   "count": 26,
+   "half": "lookup-table"
+  },
+  "slot 21 IO-in endpoint equality": {
+   "seconds": 0.0,
+   "count": 26,
+   "half": "endpoints"
+  },
+  "slot 22 IO-out endpoint equality": {
+   "seconds": 0.0,
+   "count": 26,
+   "half": "endpoints"
+  },
+  "verify M (zk::mask_verify, ONE call)": {
+   "seconds": 0.10400000000000006,
+   "count": 26,
+   "half": "openings"
+  },
+  "verify A (schedule audit + pcs::verify_zk)": {
+   "seconds": 2.021,
+   "count": 26,
+   "half": "openings"
+  },
+  "verify H (schedule audit + pcs::verify_zk)": {
+   "seconds": 0.6610000000000004,
+   "count": 26,
+   "half": "openings"
+  },
+  "verify boundary B_(k-1) opening (pcs::verify_zk)": {
+   "seconds": 0.16000000000000006,
+   "count": 26,
+   "half": "openings"
+  }
+ },
+ "groups": {
+  "block load + statement check": 11.567,
+  "openings (prover) / PCS verify (verifier)": 2.7860000000000005,
+  "matmul slots 05-13 (weight folds + sumchecks)": 2.4790000000000014,
+  "zero-check slot 18": 1.813,
+  "setup + transcript": 0.6910000000000004,
+  "zero-check slot 14": 0.4350000000000002,
+  "norm slots 00-03": 0.3830000000000001,
+  "zero-check slot 15": 0.3770000000000002,
+  "frame encode/decode + disk": 0.22200000000000011,
+  "lookup-table slots 19-20": 0.17800000000000005,
+  "boundary opening / verify": 0.16000000000000006,
+  "zero-check slot 17": 0.15600000000000008,
+  "other slot 04 (attention)": 0.14200000000000007,
+  "zero-check slot 16": 0.14100000000000007,
+  "endpoint slots 21-22": 0.0
+ },
+ "slotsteps": {},
+ "stagesteps": {},
+ "cli": {
+  "load_export (the digest pass)": 25.775,
+  "tied classifier tables (re-derived from the pinned checkpoint)": 0.953,
+  "statement door (re-render, byte compare) + segment reads": 3.423,
+  "pre-header stage-shape check (every block loaded once)": 11.788,
+  "stage IN-C": 0.276,
+  "stage OUT-C": 0.019,
+  "the run (verify_classify_run_with)": 36.604
+ },
+ "gpu": null,
+ "events": [
+  {
+   "event": "classified",
+   "verdict": "not-flagged",
+   "chunk": 0,
+   "chunks": 1,
+   "policy": "shieldstral-1.0-3b-moderate-sexual/1",
+   "trained_statement_identity": "29aeba6c04a819cdbafde311f7c9d0c678d85aff22292ae6b9647761158a0bd1",
+   "input_token_endpoint_root": "5292ff14bd69b0ea839a6f5df0d03ad036fdc1907f46e5839410bcd53f8529e3",
+   "verify_seconds": 36.604,
+   "whole_run_floor_bits": 96,
+   "published_by": "this verifier"
+  }
+ ],
+ "segments": [],
+ "guard": {
+  "exit": 0,
+  "child_wall_seconds": 66.84522199630737,
+  "peak_rss_gib": 2.32,
+  "peak_cgroup_gib": 7.0,
+  "peak_vram_mib": null,
+  "enforcement": "cgroup+watchdog",
+  "min_mem_available_gib": 11.47
+ }
+}

@@ -1,0 +1,2 @@
+[zk60-guard 14:02:22] START gcl-b2-gpu class=build need=2.5G cap=5G enforce=cgroup+watchdog waited=0s run=ff3016ea059b
+[zk60-guard 14:03:47] END gcl-b2-gpu exit=0 child_wall=85s peak_rss=1.35G min_avail=12.28G

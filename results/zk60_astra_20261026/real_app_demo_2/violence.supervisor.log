@@ -19,3 +19,21 @@
 {"category": "violence", "pipeline": {"done": false, "exit": null, "step": "held", "step_since": 1793393610.0953424, "waiting_for_machine": false, "guard_line": "", "alive": true}}
 {"category": "violence", "pipeline": {"done": false, "exit": null, "step": "prove", "step_since": 1793393825.2153914, "waiting_for_machine": false, "guard_line": "", "alive": true}}
 {"category": "violence", "pipeline": {"done": false, "exit": null, "step": "held", "step_since": 1793393825.3392057, "waiting_for_machine": false, "guard_line": "", "alive": true}}
+{"category": "violence", "pipeline": {"done": false, "exit": null, "step": "prove", "step_since": 1793394035.423765, "waiting_for_machine": false, "guard_line": "", "alive": true}}
+{"category": "violence", "pipeline": {"done": false, "exit": null, "step": "held", "step_since": 1793394035.5162277, "waiting_for_machine": false, "guard_line": "", "alive": true}}
+{"category": "violence", "pipeline": {"done": false, "exit": null, "step": "prove", "step_since": 1793394255.61299, "waiting_for_machine": false, "guard_line": "", "alive": true}}
+{"category": "violence", "pipeline": {"done": false, "exit": null, "step": "held", "step_since": 1793394255.7232797, "waiting_for_machine": false, "guard_line": "", "alive": true}}
+{"category": "violence", "pipeline": {"done": false, "exit": null, "step": "prove", "step_since": 1793394490.9405131, "waiting_for_machine": false, "guard_line": "", "alive": true}}
+{"category": "violence", "pipeline": {"done": false, "exit": null, "step": "held", "step_since": 1793394491.0671363, "waiting_for_machine": false, "guard_line": "", "alive": true}}
+{"category": "violence", "pipeline": {"done": false, "exit": null, "step": "prove", "step_since": 1793394701.1270747, "waiting_for_machine": false, "guard_line": "", "alive": true}}
+{"category": "violence", "pipeline": {"done": false, "exit": null, "step": "held", "step_since": 1793394701.2863903, "waiting_for_machine": false, "guard_line": "", "alive": true}}
+{"category": "violence", "pipeline": {"done": false, "exit": null, "step": "prove", "step_since": 1793394866.282127, "waiting_for_machine": false, "guard_line": "", "alive": true}}
+{"category": "violence", "pipeline": {"done": false, "exit": null, "step": "held", "step_since": 1793394866.413318, "waiting_for_machine": false, "guard_line": "", "alive": true}}
+{"category": "violence", "pipeline": {"done": false, "exit": null, "step": "prove", "step_since": 1793395056.42363, "waiting_for_machine": false, "guard_line": "", "alive": true}}
+{"category": "violence", "pipeline": {"done": false, "exit": null, "step": "held", "step_since": 1793395056.5952451, "waiting_for_machine": false, "guard_line": "", "alive": true}}
+{"category": "violence", "pipeline": {"done": false, "exit": null, "step": "prove", "step_since": 1793395184.5715704, "waiting_for_machine": false, "guard_line": "[zk60-guard 14:19:44] START pm-classify-prove class=cpu need=10.4G cap=11.5G enforce=cgroup+watchdog waited=0s run=ab65c733010d", "alive": true}}
+{"category": "violence", "pipeline": {"done": false, "exit": null, "step": "verify", "step_since": 1793395629.0303748, "waiting_for_machine": false, "guard_line": "[zk60-guard 14:27:09] START pm-classify-verify class=cpu need=2.9G cap=7G enforce=cgroup+watchdog waited=0s run=91fcb89bb2b5", "alive": true}}
+{"category": "violence", "pipeline": {"done": false, "exit": null, "step": "inowner", "step_since": 1793395695.2807689, "waiting_for_machine": false, "guard_line": "[zk60-guard 14:28:15] START pm-classify-inowner class=cpu need=2.9G cap=7G enforce=cgroup+watchdog waited=0s run=39f7fa8e121b", "alive": true}}
+{"category": "violence", "pipeline": {"done": false, "exit": null, "step": "label", "step_since": 1793395760.6185691, "waiting_for_machine": false, "guard_line": "[zk60-guard 14:29:20] START pm-classify-label class=cpu need=2.9G cap=7G enforce=cgroup+watchdog waited=0s run=62f4c09ce38a", "alive": true}}
+{"category": "violence", "pipeline": {"done": true, "exit": 0, "step": "done", "step_since": null, "waiting_for_machine": false, "guard_line": "", "alive": null}}
+{"category": "violence", "verdict": "no", "receipt_bytes": 848412096, "work_s": 678.5162038803101}

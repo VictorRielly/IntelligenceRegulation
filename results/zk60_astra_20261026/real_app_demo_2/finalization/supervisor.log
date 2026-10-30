@@ -1,1 +1,11 @@
 {"status": "waiting for all three accepted categories; no proof launched"}
+{"step": "anchor", "status": "starting"}
+{"step": "anchor", "exit": 0, "at": "2026-10-30T21:44:24.797059+00:00"}
+{"step": "stored-verify", "status": "starting"}
+{"step": "stored-verify", "exit": 0, "at": "2026-10-30T21:49:53.942771+00:00"}
+{"step": "app-checks", "status": "starting"}
+{"step": "app-checks", "exit": 0, "at": "2026-10-30T21:50:25.192945+00:00"}
+{"step": "screenshots", "status": "starting"}
+{"step": "screenshots", "exit": 0, "at": "2026-10-30T21:50:43.588108+00:00"}
+{"step": "report", "status": "starting"}
+{"step": "report", "exit": 0, "at": "2026-10-30T21:50:43.608685+00:00"}

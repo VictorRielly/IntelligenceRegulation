@@ -1,0 +1,13 @@
+{
+ "root": "/home/victor/IntelligenceRegulation/results/zk60_1b_native_20261017/r13/frozen-tree",
+ "found": 269,
+ "manifest_count": 269,
+ "extra": [],
+ "n_extra": 0,
+ "missing": [],
+ "differ": [],
+ "tree_sha256_recomputed_single_space": "bb9eb2123c9350c738dafd19fe3b0133d6e2e7ab93f1e765cac4f20ccaed69ec",
+ "tree_sha256_recomputed_double_space": "a519f8f6cad276728d011288e150ca2c7ac27360a75ef03bfeedb9803bdb5952",
+ "tree_sha256_manifest": "bb9eb2123c9350c738dafd19fe3b0133d6e2e7ab93f1e765cac4f20ccaed69ec",
+ "match": true
+}
