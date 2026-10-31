@@ -429,6 +429,26 @@ legacy golden gate 8 / 8 with device evidence (`golden_m4i/`, binary `golden_bin
 `logs/m4i_*`; the profiler run and its reader are `kbench/profile_warm.py` and `kbench/sample_tree.py`, the
 flat self-time summary `kbench/m4i_profile_flat.txt` (the 27 MB sample text stayed in the session scratchpad).
 
+### Token scaling on Metal after M4i: T256 against T128 (a measurement, no code change)
+
+The registered `R13_SHIELD_T256_H24` profile (same geometry, 256 tokens, `log_cols` 15) in the same process as
+T128, three warm passes each (`logs/m4i_t256.log`; digests CPU = Metal at both, T256 `68edf250...`):
+
+| Shieldstral, Metal warm [n = 3, quiet box] | T128 | T256 | ratio |
+|---|---:|---:|---:|
+| prove core | 0.745-0.813 s (median 0.752) | 1.499-1.639 s (median 1.585) | 2.1x |
+| device sumcheck rounds | 0.24 s | 0.42 s | 1.75x |
+| witness planes + commit A (phase clock of the test) | 0.109-0.140 s | 0.308-0.320 s | 2.5-2.9x |
+| LogUp helpers + commit H | 0.099-0.120 s | 0.290-0.313 s | 2.6-2.9x |
+| 23 masked sumchecks (host side included) | 0.43-0.45 s | 0.74-0.81 s | 1.75x |
+
+Proof time is about LINEAR in the tokens of a block here (2.1x for 2x): the device rounds scale sublinearly,
+the commitments (2^15-column rows, a larger NTT) superlinearly, and every buffer was reused (pool 46 / 46).
+Longer blocks alone do not raise proved tokens per second on this design and this machine; at T128 the proof
+core is 0.75 s per Shieldstral block, about 19.6 s for 26 layers, about 6.5 proved tokens/s against the target of
+50 (7.7x short). Closing that needs the protocol-level levers (fewer commitments and openings per token, e.g.
+across layers) or a faster device, not more phase tuning.
+
 ## Open items
 
 1. **Backend label.** `trained_block.rs::backend_of_this_process` knows only the CPU and CUDA names, so a
