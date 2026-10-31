@@ -18,6 +18,7 @@ fn main() {
     let per: usize = a.get(6).map(|v| v.parse().unwrap()).unwrap_or(4);
     let cap_log: u32 = a.get(7).map(|v| v.parse().unwrap()).unwrap_or(15);
     let tgmax: u64 = a.get(8).map(|v| v.parse().unwrap()).unwrap_or(256);
+    let eval_one: u32 = a.get(9).map(|v| v.parse().unwrap()).unwrap_or(1);
     let cap = 1usize << log_cap;
     let dev = Device::system_default().unwrap();
     let t = Instant::now();
@@ -37,6 +38,8 @@ fn main() {
         let mut best = f64::MAX;
         let mut best_rounds: Vec<f64> = Vec::new();
         let mut sums = vec![0u64; d1 * 2];
+        // [M4g] one partials buffer for every round (a fresh buffer's first touch is slow here)
+        let part = dev.new_buffer(((cap / 4).max(1) * d1 * 16) as u64, MTLResourceOptions::StorageModeShared);
         for _rep in 0..3 {
         let mut total = 0.0;
         let mut rounds: Vec<f64> = Vec::new();
@@ -44,8 +47,7 @@ fn main() {
         let mut half = cap / 4;
         while half >= 1 {
             let nthreads = (half / per).clamp(1, 1 << cap_log);
-            let part = dev.new_buffer((nthreads * d1 * 16) as u64, MTLResourceOptions::StorageModeShared);
-            let args = RoundArgs { half: half as u64, cap: cap as u64, eval_one: 1, nthreads: nthreads as u32 };
+            let args = RoundArgs { half: half as u64, cap: cap as u64, eval_one, nthreads: nthreads as u32 };
             let cmd = q.new_command_buffer();
             let enc = cmd.new_compute_command_encoder();
             enc.set_compute_pipeline_state(&pipe);
@@ -54,7 +56,10 @@ fn main() {
             enc.set_buffer(2, Some(&cb_), 0);
             enc.set_bytes(3, std::mem::size_of::<RoundArgs>() as u64, &args as *const RoundArgs as *const _);
             // E/F kernels: one thread per (stride, point)
-            let grid = if name.starts_with("k_vE") || name.starts_with("k_vF") { (nthreads * d1) as u64 } else { nthreads as u64 };
+            let np = if eval_one != 0 { d1 } else { d1 - 1 };
+            let grid = if name.starts_with("k_vE") || name.starts_with("k_vF") || name == "k_vL" { (nthreads * d1) as u64 }
+                else if name.starts_with("k_vG") || name.starts_with("k_vH") || name == "k_vLG" { (nthreads.div_ceil(32) * 32 * np) as u64 }
+                else { nthreads as u64 };
             let tg = pipe.max_total_threads_per_threadgroup().min(tgmax).min(grid);
             enc.dispatch_threads(MTLSize::new(grid, 1, 1), MTLSize::new(tg, 1, 1));
             enc.end_encoding();
@@ -65,7 +70,7 @@ fn main() {
             total += e;
             rounds.push(e);
             let p = unsafe { std::slice::from_raw_parts(part.contents() as *const u64, nthreads * d1 * 2) };
-            for th in p.chunks_exact(d1 * 2) { for j in 0..d1 * 2 { sums[j] = add(sums[j], th[j]); } }
+            for th in p.chunks_exact(d1 * 2) { for j in 0..d1 * 2 { if eval_one != 0 || j / 2 != 1 { sums[j] = add(sums[j], th[j]); } } }
             half /= 2;
         }
         if total < best { best = total; best_rounds = rounds; }
@@ -73,6 +78,6 @@ fn main() {
         let total = best;
         let r: Vec<String> = best_rounds.iter().take(6).map(|x| format!("{:.4}", x)).collect();
         println!("  first rounds {} | rest {:.4}", r.join(" "), best_rounds.iter().skip(6).sum::<f64>());
-        println!("{name} per {per} cap 2^{cap_log} tg {tgmax}: rounds 1.. {:.4} s  max threads/group {}  sums {:016x} {:016x}", total, pipe.max_total_threads_per_threadgroup(), sums[0], sums[d1 * 2 - 1]);
+        println!("{name} per {per} cap 2^{cap_log} tg {tgmax}: rounds 1.. {:.4} s  max threads/group {}  eval_one {eval_one} sums {:016x} {:016x}", total, pipe.max_total_threads_per_threadgroup(), sums[0], sums[d1 * 2 - 1]);
     }
 }

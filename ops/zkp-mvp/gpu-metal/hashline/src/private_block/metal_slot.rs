@@ -176,6 +176,17 @@ fn gen_kernel(ir: &SlotIr, base: &[bool], name: &str) -> (String, Vec<Fp2>) {
     // `(gid, d)` lands where the M3 kernel put it. Measured on slot 14's later
     // rounds (64 tables, degree 5) in isolation: 0.170 s -> 0.059 s with one
     // pair per thread, against the M3 form's six points in sequence per thread.
+    //
+    // [M4g] ONE POINT PER SIMD GROUP: lanes `tid & 31` of group `tid >> 5`
+    // share the point `d` (no divergent branches in the line values), and
+    // when the round recovers s(1) from the claim (`eval_one == 0`, every
+    // later round of a closure slot) point 1 is not launched at all: the grid
+    // is `ceil(nthreads / 32) * 32 * np` with `np` the points evaluated, and
+    // `d` skips 1. Before, a sixth of every SIMD group idled at point 1, and
+    // the divergent form was slower still: slot 14's later rounds in the
+    // `kbench` harness with `eval_one == 0`, 0.087 s -> 0.050 s, equal sums.
+    // The partial `(gid, d)` lands where it did; point 1's is not written and
+    // the host does not read it (it uses the claim).
     let mut s = String::new();
     s.push_str(&format!(
         "// slot {} ({}) at {}: {} tables ({} base), {} nodes, {} terms\n",
@@ -196,8 +207,11 @@ fn gen_kernel(ir: &SlotIr, base: &[bool], name: &str) -> (String, Vec<Fp2>) {
         "                       constant ulong *cf [[buffer(2)]],\n",
         "                       constant RoundArgs &a [[buffer(3)]],\n",
         "                       uint tid [[thread_position_in_grid]]) {\n",
-        "    uint d = tid % (SC_D + 1u);\n",
-        "    uint gid = tid / (SC_D + 1u);\n",
+        "    uint np = a.eval_one != 0u ? SC_D + 1u : SC_D;\n",
+        "    uint grp = tid >> 5;\n",
+        "    uint di = grp % np;\n",
+        "    uint d = (a.eval_one != 0u || di == 0u) ? di : di + 1u;\n",
+        "    uint gid = (grp / np) * 32u + (tid & 31u);\n",
         "    if (gid >= a.nthreads) { return; }\n",
         "    ulong dd = ulong(d);\n",
         "    fp2 acc = f2(0UL, 0UL);\n",

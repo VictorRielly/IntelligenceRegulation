@@ -1141,8 +1141,10 @@ impl zkp_core::sumcheck::SumcheckRounds for MetalRounds {
                 enc.set_buffer(1, Some(&self.part), 0);
                 enc.set_buffer(2, Some(&self.coefs), 0);
                 set_args(enc, 3, &RoundArgs { half: half as u64, cap: self.cap as u64, eval_one: eval_one as u32, nthreads: nthreads as u32 });
-                // [M4e] one thread per (stride, evaluation point)
-                let grid = (nthreads * d1) as u64;
+                // [M4e] one thread per (stride, evaluation point); [M4g] 32
+                // lanes per point, point 1 not launched when the claim gives s(1)
+                let np = if eval_one { d1 } else { d1 - 1 };
+                let grid = (nthreads.div_ceil(32) * 32 * np) as u64;
                 let tg = pipe.max_total_threads_per_threadgroup().min(self.tg).min(grid);
                 enc.dispatch_threads(MTLSize::new(grid, 1, 1), MTLSize::new(tg, 1, 1));
                 Ok(())
@@ -1150,13 +1152,17 @@ impl zkp_core::sumcheck::SumcheckRounds for MetalRounds {
             .expect("metal sumcheck round");
             // [M4e] small rounds on this thread (a rayon region costs about
             // half a millisecond here), large ones in parallel; field addition
-            // is exact, so the grouping does not change the sums
+            // is exact, so the grouping does not change the sums. [M4g] Point
+            // 1 was not evaluated when the claim gives s(1): its partials are
+            // not read (the sum stays zero until the claim sets it below).
             let p = as_u64s(&self.part, nthreads * d1 * 2);
             let sum = |blk: &[u64]| -> Vec<Fp2> {
                 let mut acc = vec![Fp2::ZERO; d1];
                 for th in blk.chunks_exact(d1 * 2) {
                     for (d, s) in acc.iter_mut().enumerate() {
-                        *s = s.add(Fp2::new(Fp(th[2 * d]), Fp(th[2 * d + 1])));
+                        if d != 1 || eval_one {
+                            *s = s.add(Fp2::new(Fp(th[2 * d]), Fp(th[2 * d + 1])));
+                        }
                     }
                 }
                 acc

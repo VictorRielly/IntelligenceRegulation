@@ -312,6 +312,50 @@ binary `golden_binary_m4f.sha256`). Evidence: `logs/m4f_build.log`, `logs/m4f_un
 `logs/m4f_trained_1.log`, `logs/m4f_trained_2.log`, `logs/m4f_trained_nopool.log`, `logs/m4f_r13.log`;
 the bench is `kbench/alloc_bench_main.rs` with `kbench/alloc_bench_run.log`.
 
+### M4g: one evaluation point per SIMD group, point 1 not launched when the claim gives it (byte-identical)
+
+Every later round of a closure slot recovers s(1) from the claim (`eval_one == 0`), and the M4e kernel
+(point `tid % (D + 1)`) still launched point 1's threads, idle inside every SIMD group, with the line-value
+branches divergent across the group. The `kbench` harness on slot 14's library now takes `eval_one`
+(`kbench/gen2.py`, `kbench/sweep_m4g.log`, later rounds, best of three, sums equal):
+
+| Slot 14 later rounds, 64 tables, degree 5 [n = 3, min] | eval_one = 1 | eval_one = 0 (what the prover runs) |
+|---|---:|---:|
+| M4e form E (point `tid % (D + 1)`) | 0.059 s | **0.087 s** |
+| **G: 32 lanes share a point, point 1 not launched** | 0.059 s | **0.050 s** |
+| G with the step times `d` as a small-integer product (H) | 0.059 s | 0.049-0.050 s |
+| floor: E's or G's loads and line values, body replaced by a sum (L, LG) | 0.010 s | 0.009-0.011 s |
+
+So the M4e kernel ran at its WORST in the prover (the M4e split's 0.094 s for slot 14's later rounds
+matches the 0.087 s column, not the 0.059 s one it was chosen on), and the body's arithmetic, not the
+loads, is what is left (the floor is a fifth of G). `private_block/metal_slot.rs` now generates G:
+`grp = tid >> 5`, `np = D + 1` or `D`, `d` = the group's point skipping 1, `gid = (grp / np) * 32 + lane`;
+`gpu/metal.rs` launches `ceil(nthreads / 32) * 32 * np` threads and its host sum skips point 1's partial
+when the claim sets s(1) (the pooled buffer's word there is not written). H did not pay and was not taken.
+
+| Shieldstral, prover split (`HL_METAL_TIMING`, `logs/m4g_split.log`) | M4e/M4f | M4g |
+|---|---:|---:|
+| slot 14 (64 tables, degree 5): round 0 + later rounds | 0.024 + 0.094 s | **0.022 + 0.056 s** |
+| slot 18 (29 tables, degree 5, 2^21) | 0.12 s | **0.028 + 0.045 s** |
+| slots 15 / 16 / 17 | 0.021 / 0.012 / 0.023 s | 0.018 / 0.010 / 0.020 s |
+
+| Accuracy block, T128, Metal warm [the test's own clock, quiet box] | M4f (n = 2) | M4g (n = 4) |
+|---|---:|---:|
+| `R13_SHIELD_T128_H24` device sumcheck rounds | 0.318-0.332 s | **0.242-0.245 s** |
+| `R13_SHIELD_T128_H24` block | 1.098 / 1.130 s | **1.046-1.168 s, median 1.07** |
+| `R13_8B_T128_H24` device sumcheck rounds | 0.256-0.259 s | **0.199-0.200 s** |
+| `R13_8B_T128_H24` block | 1.134 / 1.136 s | **1.090-1.180 s, median 1.10** |
+
+The block gains less than its device rounds (0.04 s at the medians against 0.06-0.08 s), inside this box's
+run-to-run spread; unrelated phases (witness + commit A) moved by as much between runs. A new library compiles
+once per machine (6.3 s at the 8B shape, 1.0 s Shieldstral, then macOS caches it).
+
+Gates: unit `m4c_ m4d_ s28 slot_ir metal` 30 / 30; CPU vs Metal seeded bytes at the four development shapes;
+trained digests unchanged (`2b0d04bb...`, `678953f6...`) in all four runs; R13 classifier run proves and
+verifies; legacy golden gate 8 / 8 with device evidence (`golden_m4g/`, binary `golden_binary_m4g.sha256`).
+Evidence: `logs/m4g_build.log`, `logs/m4g_unit.log`, `logs/m4g_bytes.log`, `logs/m4g_trained_{1,2,3,4}.log`,
+`logs/m4g_split.log`, `logs/m4g_r13.log`.
+
 ## Open items
 
 1. **Backend label.** `trained_block.rs::backend_of_this_process` knows only the CPU and CUDA names, so a
