@@ -546,6 +546,10 @@ mod tests {
         let mut ph = crate::private_block::timing::Phases::start();
         let (mut phases, mut tick) = (Vec::new(), std::time::Instant::now());
         let core = crate::private_block::protocol::prove_core(sh, &lay, blk, w, [ein.as_slice(), eout.as_slice()], &ntt, &mut rng, &mut tr, &mut ph, &mut phases, &mut tick).expect("the seeded accuracy core proof");
+        if std::env::var("HL_M4_PHASES").map(|v| v == "1").unwrap_or(false) {
+            let row: Vec<String> = phases.iter().map(|(n, t)| format!("{n} {t:.3}")).collect();
+            eprintln!("M4-PHASES {} gpu={} | {}", sh.name, std::env::var("HL_GPU").unwrap_or_default(), row.join(" | "));
+        }
         let text = format!(
             "{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}",
             core.a_root, core.h_root, core.mask_root, core.slots, core.mask_open, core.a_open, core.h_open, core.io_claims, core.order, core.lookups, tr.state()

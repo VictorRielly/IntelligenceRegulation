@@ -411,11 +411,18 @@ fn row_log(sh: &Shape, cm: Cm) -> usize {
 }
 
 /// the mask pair's value at the claim's column tail
-fn mask_eval(sh: &Shape, p: &Priv, data: &[Fp], point: &[Fp2]) -> Fp2 {
+/// the coordinates of a claim point the reserved mask pair is read on (its
+/// last `min(log, row_log)` entries)
+fn mask_tail(sh: &Shape, p: &Priv, point: &[Fp2]) -> Vec<Fp2> {
+    let logm = p.log.min(row_log(sh, p.cm));
+    point[p.log - logm..].to_vec()
+}
+
+/// `(R_re + u R_im)~(tail)`, given `eq = eq_table_msb(tail)` — `mask_eval`
+/// with the eq table built by the caller, so tables sharing a tail share it
+fn mask_eval_eq(sh: &Shape, p: &Priv, data: &[Fp], eq: &[Fp2]) -> Fp2 {
     let (log_n, n) = (row_log(sh, p.cm), 1usize << row_log(sh, p.cm));
-    let logm = p.log.min(log_n);
     let c0 = if p.log < log_n { p.slices[0].0 % n } else { 0 };
-    let eq = eq_table_msb(&point[p.log - logm..]);
     let row = |r: usize| {
         data[r * n + c0..r * n + c0 + eq.len()].iter().zip(eq.iter()).fold(Fp2::ZERO, |a, (x, e)| a.add(e.mul_base(*x)))
     };
@@ -657,11 +664,39 @@ pub(crate) fn run_slot(side: &mut Side, acc: &mut Acc, mut def: SlotDef, tr: &mu
             let mut prev = rho.clone();
             super::timing::slot_step(s, "extension rounds (mask_eval + zk.rs)", ext as u64, || {
                 for m in 0..ext {
-                    let exts: Vec<Fp2> = def
+                    // [ZK60-METAL M4b] the reserved mask pair of every private
+                    // table masked in this round, read at its claim point's
+                    // tail: ONE eq table per distinct tail (most tables of a
+                    // slot share it) and the tables in parallel. Each value is
+                    // the same fold in the same order as before, and the
+                    // indexed collect keeps table order, so no byte moves.
+                    use rayon::prelude::*;
+                    let tails: Vec<Option<Vec<Fp2>>> = def
                         .tabs
                         .iter()
                         .map(|t| match t {
-                            Tab::Priv(p) if p.ext_round == m => mask_eval(&sh, p, pd.data[p.cm as usize], &claim_point(p, &rho)),
+                            Tab::Priv(p) if p.ext_round == m => Some(mask_tail(&sh, p, &claim_point(p, &rho))),
+                            _ => None,
+                        })
+                        .collect();
+                    let mut uniq: Vec<&Vec<Fp2>> = Vec::new();
+                    let which: Vec<usize> = tails
+                        .iter()
+                        .map(|t| match t {
+                            Some(tp) => uniq.iter().position(|u| *u == tp).unwrap_or_else(|| {
+                                uniq.push(tp);
+                                uniq.len() - 1
+                            }),
+                            None => usize::MAX,
+                        })
+                        .collect();
+                    let eqs: Vec<Vec<Fp2>> = uniq.par_iter().map(|u| eq_table_msb(u)).collect();
+                    let exts: Vec<Fp2> = def
+                        .tabs
+                        .par_iter()
+                        .zip(which.par_iter())
+                        .map(|(t, &k)| match t {
+                            Tab::Priv(p) if k != usize::MAX => mask_eval_eq(&sh, p, pd.data[p.cm as usize], &eqs[k]),
                             _ => Fp2::ZERO,
                         })
                         .collect();

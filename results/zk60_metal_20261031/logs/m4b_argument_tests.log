@@ -1,0 +1,9 @@
+
+running 4 tests
+test private_block::argument::accuracy::tests::accuracy_native_polynomials_obey_declared_degree_and_extension_zero_property ... ok
+test private_block::argument::accuracy::tests::accuracy_public_context_checks_stack_denominator_presence_and_symmetric_words ... ok
+test private_block::argument::accuracy::tests::accuracy_native_definitions_match_claim_schedules_for_both_stacks_dd_and_all_group_counts ... ok
+test private_block::argument::accuracy::tests::accuracy_honest_full_word_witness_satisfies_native_host_relations_and_new_limb_mutation_fails ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 897 filtered out; finished in 0.67s
+

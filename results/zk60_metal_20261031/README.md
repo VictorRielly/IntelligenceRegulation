@@ -133,7 +133,7 @@ legacy arms, so those five heavy zero-checks always stayed on the CPU.
 | R13 classifier run (`r16_an_r13_classifier_run_with_two_gate_denominators_proves_and_verifies`, `HL_GPU_REQUIRED=1`) | slots 14-18 pass the runtime guard and run on the device; proves and verifies | `logs/m4_r13.log` |
 | Seeded accuracy block, CPU vs Metal, 4 development shapes | byte-identical digests, device rounds > 0 | `logs/m4_bytes.log` |
 | Seeded accuracy block at trained T128 geometry, CPU vs Metal cold vs Metal warm | byte-identical digests | `logs/m4_trained2.log` |
-| Legacy golden gate (`run_golden.py`, 4 shapes x CPU/Metal, recorded digests) on the final binary | 8 / 8, Metal arms with device evidence | `logs/golden_*`, `golden_binary_m4.sha256`; the run before the single-compile change is in `golden_m4a_two_compiles/` (8 / 8) |
+| Legacy golden gate (`run_golden.py`, 4 shapes x CPU/Metal, recorded digests) on the M4 binary | 8 / 8, Metal arms with device evidence | `golden_m4/` (with its binary hash); the run before the single-compile change is in `golden_m4a_two_compiles/` (8 / 8) |
 
 Measured [n = 1, shared box, synthetic public weights (`grow_tests::tame_case`), 3 activation groups, seeded
 `prove_core` wall clock]:
@@ -146,6 +146,24 @@ Measured [n = 1, shared box, synthetic public weights (`grow_tests::tame_case`),
 A multi-layer run compiles each shape's slot kernels once per process (all layers share a shape), and macOS
 also caches compiled shaders across processes, so the warm column is the per-layer figure. One slot per block
 (19, the table helpers) has no IR and stays on the CPU.
+
+### M4b: the extension rounds' mask reads, shared and parallel (CPU code, both paths)
+
+After M4 a phase breakdown of the Metal Shieldstral block showed the CPU "extension rounds" at 0.49 s, as much
+as the device rounds. Almost all of it was `mask_eval`: each private table's reserved mask pair read at its claim
+point's tail, one table after another, each rebuilding the same 2^14-entry eq table (2.5 ms a table; 64 tables in
+slot 14). `argument.rs` now builds ONE eq table per distinct tail and evaluates the tables in parallel with an
+indexed collect. Each value is the same fold in the same order, so no byte moves. The digests are unchanged at
+all four development shapes, both trained shapes and the legacy golden gate (`logs/golden.done`).
+
+| Accuracy block, T128 [n = 1, shared box] | Mac CPU | Metal warm |
+|---|---:|---:|
+| `R13_8B_T128_H24` | 5.595 -> 5.118 s | 2.795 -> **2.217 s** |
+| `R13_SHIELD_T128_H24` | 5.644 -> 5.245 s | 2.860 -> **2.263 s** |
+
+Phase breakdown, Shieldstral, Metal warm: witness planes + commit A 0.378 s, LogUp helpers + commit H 0.483 s,
+23 masked sumchecks 1.028 s (device rounds 0.541 s), remainder (openings, IO) about 0.37 s.
+Evidence: `logs/m4b_bytes.log`, `logs/m4b_trained.log`.
 
 ## Open items
 
