@@ -1,6 +1,6 @@
 {
- "ts_end": "2026-10-31T11:07:52Z",
- "run_id": "27ff7e4162ad",
+ "ts_end": "2026-10-31T12:14:40Z",
+ "run_id": "9c0e0324f788",
  "label": "metal-golden-metal",
  "class": "gpu",
  "cmd": [
@@ -16,13 +16,13 @@
  "exit": 0,
  "child_rc": 0,
  "guard_killed": null,
- "child_wall_seconds": 2.636291265487671,
+ "child_wall_seconds": 2.6217281818389893,
  "refused": null,
  "guard_error": null,
- "guard_pid": 98712,
+ "guard_pid": 13086,
  "boot_id": "42BF5F64-F14C-467C-B343-44946D8FFC3F",
  "pid_ns": null,
- "guard_starttime_ticks": 1793444869,
+ "guard_starttime_ticks": 1793448878,
  "lock_ids": {
   "heavy": "16777233:54418473",
   "build": "16777233:54490092"
@@ -38,7 +38,7 @@
  "peak_rss_gib": 1.9,
  "peak_cgroup_gib": null,
  "peak_vram_mib": 4547,
- "min_mem_available_gib": 227.83,
+ "min_mem_available_gib": 227.68,
  "vram_drain_s": 0.0,
  "gpu_drain_failed": false,
  "gpu_telemetry_lost": false,

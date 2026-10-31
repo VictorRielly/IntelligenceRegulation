@@ -2201,10 +2201,11 @@ pub(crate) fn argument(side: &mut Side, ctx: &Ctx, tr: &mut Transcript, ph: &mut
     // dictionary zero-check on a DD profile (appended last)
     // [ZK60-METAL M3] the IR's own point record, carried beside `pts`
     #[cfg(feature = "gpu-metal")]
-    let metal_on = matches!(side, Side::Prove { .. })
-        && ctx.accuracy.is_none()
-        && sh.accuracy_stack() == crate::private_block::accuracy_precision::Stack::Legacy
-        && crate::gpu::enabled();
+    // Every profile is offered (legacy and the R13 accuracy stacks): whether a
+    // slot may run on the device is decided per slot by the runtime guard
+    // below (the IR must equal THIS definition's closure), so a slot whose
+    // IR does not model its profile stays on the CPU.
+    let metal_on = matches!(side, Side::Prove { .. }) && crate::gpu::enabled();
     #[cfg(feature = "gpu-metal")]
     let metal_diag = std::env::var("HL_METAL_TIMING").map(|v| v == "1").unwrap_or(false);
     #[cfg(feature = "gpu-metal")]

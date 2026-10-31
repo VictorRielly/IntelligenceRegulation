@@ -1,0 +1,269 @@
+
+running 10 tests
+S34 equality toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head): 23 slots, 217 tables, 120 of them base-field by the IR's derivation
+S34 export toy: 99232 bytes, sha256 12e7ed013f6ca106232e2f3be87ecce6a82e7382df75c45aabe0a13f358f6bfc
+S34 threads: 92 evaluations identical at 1, 2 and 8 threads (no rayon call exists in the IR path)
+test private_block::slot_ir_tests::the_slot_ir_is_thread_count_independent_because_nothing_in_it_is_parallel ... ok
+S34 field kind toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head): 120 of 217 tables base-field on both passes; 93 of the 97 extension tables carry a nonzero imaginary part on the honest witness; 2 base tables are identically zero there
+S34 equality development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): 23 slots, 234 tables, 134 of them base-field by the IR's derivation
+
+thread 'private_block::slot_ir::accuracy::tests::the_accuracy_ir_evaluates_to_the_r13_closure_at_every_development_shape_group_count_and_slot' (532749) panicked at src/private_block/slot_ir_accuracy.rs:499:29:
+assertion `left == right` failed: R13_RUNG_LOW ng1 slot5: the IR drew a different challenge count
+  left: Fp2 { c0: Fp(7771172242063750121), c1: Fp(11825746109329925678) }
+ right: Fp2 { c0: Fp(12565350870586193657), c1: Fp(10729477842411334781) }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test private_block::slot_ir::accuracy::tests::the_accuracy_ir_evaluates_to_the_r13_closure_at_every_development_shape_group_count_and_slot ... FAILED
+S34 equality development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): 23 slots, 234 tables, 134 of them base-field by the IR's derivation
+S34 equality development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads): 23 slots, 234 tables, 134 of them base-field by the IR's derivation
+S34 export rung: 109631 bytes, sha256 506d06db2158a16952975a29e5b36d7213761b2ce7fce28ba260d24e8bf774ad
+S34 equality development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads): 23 slots, 231 tables, 131 of them base-field by the IR's derivation
+S34 export rung_g: 109635 bytes, sha256 5cb8323a2a6607f38860e6c79ec1ee9b2f37fb4468cd7cf053fb77838f17d496
+S34 equality development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads): 23 slots, 229 tables, 131 of them base-field by the IR's derivation
+S34 field kind development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): 134 of 234 tables base-field on both passes; 100 of the 100 extension tables carry a nonzero imaginary part on the honest witness; 5 base tables are identically zero there
+S34 export rung_k4: 109637 bytes, sha256 e40501335cd10bfe75c04cf49d5b184426472e420658c8c7ade794a17a7f0401
+S34 equality development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads): 23 slots, 229 tables, 131 of them base-field by the IR's derivation
+S34 field-kind control: 12 tables the memo called base-field are caught by the oracle at rung-W14
+test private_block::slot_ir_tests::the_field_kind_oracle_rejects_the_memos_own_classification_of_the_twelve_tables ... ok
+S34 export rung_p2: 107276 bytes, sha256 fa11ed91ecf9662d446d123ee3c7b9ef190e099a8b40b3656ff92ab4ae80d677
+S34 equality development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads): 23 slots, 229 tables, 131 of them base-field by the IR's derivation
+S34 field kind development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads): 134 of 234 tables base-field on both passes; 100 of the 100 extension tables carry a nonzero imaginary part on the honest witness; 5 base tables are identically zero there
+S34 export rung_c6: 105384 bytes, sha256 120b116474c7265ebe75bbb122b87e2d5c1db10f068f5c951de2d133d2b4a9ba
+S34 export rung_w14: 105395 bytes, sha256 d207b45cae6a43a950cb641c75ad2f8c1c8d3698a4255bc61c973d0a6aa9d3ad
+S34 field kind development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads): 134 of 234 tables base-field on both passes; 100 of the 100 extension tables carry a nonzero imaginary part on the honest witness; 8 base tables are identically zero there
+S34 degree gap: development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) slot 14 [03 D zero-check (hosts 12, 13D)] declares 5, attains 4
+S34 degree gap: development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) slot 15 [04 Q zero-check (hosts 09Q, 11)] declares 5, attains 4
+S34 degree gap: development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) slot 16 [05 KV zero-check (hosts 09K, 09V)] declares 5, attains 4
+S34 degree gap: development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) slot 18 [14 F zero-check (hosts 13G, 13U)] declares 5, attains 4
+S34 degree gap: development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) slot 14 [03 D zero-check (hosts 12, 13D)] declares 5, attains 4
+S34 degree gap: development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) slot 15 [04 Q zero-check (hosts 09Q, 11)] declares 5, attains 4
+S34 degree gap: development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) slot 16 [05 KV zero-check (hosts 09K, 09V)] declares 5, attains 4
+S34 degree gap: development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads) slot 18 [14 F zero-check (hosts 13G, 13U)] declares 5, attains 4
+S34 degree gap: development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads) slot 14 [03 D zero-check (hosts 12, 13D)] declares 5, attains 4
+S34 degree gap: development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads) slot 15 [04 Q zero-check (hosts 09Q, 11)] declares 5, attains 4
+S34 degree gap: development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads) slot 16 [05 KV zero-check (hosts 09K, 09V)] declares 5, attains 4
+S34 degree gap: development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads) slot 18 [14 F zero-check (hosts 13G, 13U)] declares 5, attains 4
+S34 degree gap: development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads) slot 14 [03 D zero-check (hosts 12, 13D)] declares 5, attains 4
+S34 degree gap: development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads) slot 15 [04 Q zero-check (hosts 09Q, 11)] declares 5, attains 4
+S34 degree gap: development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) slot 14 [03 D zero-check (hosts 12, 13D)] declares 5, attains 4
+S34 degree gap: development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads) slot 15 [04 Q zero-check (hosts 09Q, 11)] declares 5, attains 4
+S34 degree gap: development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads) slot 14 [03 D zero-check (hosts 12, 13D)] declares 5, attains 4
+S34 degree gap: development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads) slot 15 [04 Q zero-check (hosts 09Q, 11)] declares 5, attains 4
+S34 degree gap: development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads) slot 14 [03 D zero-check (hosts 12, 13D)] declares 5, attains 4
+S34 degree gap: development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads) slot 15 [04 Q zero-check (hosts 09Q, 11)] declares 5, attains 4
+S34 degree gap: 125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads) slot 14 [03 D zero-check (hosts 12, 13D)] declares 5, attains 4
+S34 degree gap: 125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads) slot 15 [04 Q zero-check (hosts 09Q, 11)] declares 5, attains 4
+S34 degree: 207 (shape, slot) pairs measured by interpolation, 22 with a one-degree gap, none exceeding its declared degree
+test private_block::slot_ir_tests::the_declared_degree_bounds_the_closures_actual_degree_and_the_ir_computes_it_exactly ... ok
+S34 inventory graph difference: toy slot 02 [02 norm squares zero-check (hosts 01, 01m)]: sum nodes 9 here, 3 in the inventory
+S34 inventory graph difference: toy slot 03 [08 limb zero-check]: monomials 3 here, 8 in the inventory
+S34 inventory graph difference: toy slot 14 [03 D zero-check (hosts 12, 13D)]: affine forms 47 here, 51 in the inventory
+S34 inventory graph difference: toy slot 14 [03 D zero-check (hosts 12, 13D)]: sum nodes 34 here, 23 in the inventory
+S34 inventory graph difference: toy slot 14 [03 D zero-check (hosts 12, 13D)]: monomials 123 here, 218 in the inventory
+S34 inventory graph difference: toy slot 15 [04 Q zero-check (hosts 09Q, 11)]: affine forms 13 here, 16 in the inventory
+S34 inventory graph difference: toy slot 15 [04 Q zero-check (hosts 09Q, 11)]: sum nodes 11 here, 9 in the inventory
+S34 inventory graph difference: toy slot 15 [04 Q zero-check (hosts 09Q, 11)]: monomials 32 here, 63 in the inventory
+S34 inventory graph difference: toy slot 16 [05 KV zero-check (hosts 09K, 09V)]: affine forms 12 here, 15 in the inventory
+S34 inventory graph difference: toy slot 16 [05 KV zero-check (hosts 09K, 09V)]: sum nodes 10 here, 8 in the inventory
+S34 inventory graph difference: toy slot 16 [05 KV zero-check (hosts 09K, 09V)]: monomials 29 here, 59 in the inventory
+S34 inventory graph difference: toy slot 17 [06 softmax zero-check (hosts 07, 10)]: affine forms 18 here, 20 in the inventory
+S34 inventory graph difference: toy slot 17 [06 softmax zero-check (hosts 07, 10)]: sum nodes 18 here, 15 in the inventory
+S34 inventory graph difference: toy slot 17 [06 softmax zero-check (hosts 07, 10)]: monomials 48 here, 82 in the inventory
+S34 inventory graph difference: toy slot 18 [14 F zero-check (hosts 13G, 13U)]: affine forms 13 here, 14 in the inventory
+S34 inventory graph difference: toy slot 18 [14 F zero-check (hosts 13G, 13U)]: sum nodes 12 here, 9 in the inventory
+S34 inventory graph difference: toy slot 18 [14 F zero-check (hosts 13G, 13U)]: monomials 34 here, 56 in the inventory
+S34 inventory graph difference: toy slot 19 [TAB table helper zero-check]: monomials 6 here, 9 in the inventory
+S34 inventory graph difference: rung slot 02 [02 norm squares zero-check (hosts 01, 01m)]: sum nodes 9 here, 4 in the inventory
+S34 inventory graph difference: rung slot 02 [02 norm squares zero-check (hosts 01, 01m)]: monomials 40 here, 44 in the inventory
+S34 inventory graph difference: rung slot 03 [08 limb zero-check]: sum nodes 2 here, 3 in the inventory
+S34 inventory graph difference: rung slot 03 [08 limb zero-check]: monomials 5 here, 12 in the inventory
+S34 inventory graph difference: rung slot 14 [03 D zero-check (hosts 12, 13D)]: affine forms 49 here, 53 in the inventory
+S34 inventory graph difference: rung slot 14 [03 D zero-check (hosts 12, 13D)]: sum nodes 34 here, 24 in the inventory
+S34 inventory graph difference: rung slot 14 [03 D zero-check (hosts 12, 13D)]: monomials 158 here, 288 in the inventory
+S34 inventory graph difference: rung slot 15 [04 Q zero-check (hosts 09Q, 11)]: affine forms 15 here, 18 in the inventory
+S34 inventory graph difference: rung slot 15 [04 Q zero-check (hosts 09Q, 11)]: sum nodes 11 here, 10 in the inventory
+S34 inventory graph difference: rung slot 15 [04 Q zero-check (hosts 09Q, 11)]: monomials 39 here, 77 in the inventory
+S34 inventory graph difference: rung slot 16 [05 KV zero-check (hosts 09K, 09V)]: affine forms 14 here, 17 in the inventory
+S34 inventory graph difference: rung slot 16 [05 KV zero-check (hosts 09K, 09V)]: sum nodes 10 here, 9 in the inventory
+S34 inventory graph difference: rung slot 16 [05 KV zero-check (hosts 09K, 09V)]: monomials 35 here, 71 in the inventory
+S34 inventory graph difference: rung slot 17 [06 softmax zero-check (hosts 07, 10)]: affine forms 24 here, 26 in the inventory
+S34 inventory graph difference: rung slot 17 [06 softmax zero-check (hosts 07, 10)]: sum nodes 19 here, 17 in the inventory
+S34 inventory graph difference: rung slot 17 [06 softmax zero-check (hosts 07, 10)]: monomials 68 here, 121 in the inventory
+S34 inventory graph difference: rung slot 18 [14 F zero-check (hosts 13G, 13U)]: affine forms 15 here, 16 in the inventory
+S34 inventory graph difference: rung slot 18 [14 F zero-check (hosts 13G, 13U)]: sum nodes 12 here, 10 in the inventory
+S34 inventory graph difference: rung slot 18 [14 F zero-check (hosts 13G, 13U)]: monomials 45 here, 78 in the inventory
+S34 inventory graph difference: rung slot 19 [TAB table helper zero-check]: sum nodes 4 here, 5 in the inventory
+S34 inventory graph difference: rung slot 19 [TAB table helper zero-check]: monomials 12 here, 21 in the inventory
+S34 inventory graph difference: rung_g slot 02 [02 norm squares zero-check (hosts 01, 01m)]: sum nodes 9 here, 4 in the inventory
+S34 inventory graph difference: rung_g slot 02 [02 norm squares zero-check (hosts 01, 01m)]: monomials 40 here, 44 in the inventory
+S34 inventory graph difference: rung_g slot 03 [08 limb zero-check]: sum nodes 2 here, 3 in the inventory
+S34 inventory graph difference: rung_g slot 03 [08 limb zero-check]: monomials 5 here, 12 in the inventory
+S34 inventory graph difference: rung_g slot 14 [03 D zero-check (hosts 12, 13D)]: affine forms 49 here, 53 in the inventory
+S34 inventory graph difference: rung_g slot 14 [03 D zero-check (hosts 12, 13D)]: sum nodes 34 here, 24 in the inventory
+S34 inventory graph difference: rung_g slot 14 [03 D zero-check (hosts 12, 13D)]: monomials 158 here, 288 in the inventory
+S34 inventory graph difference: rung_g slot 15 [04 Q zero-check (hosts 09Q, 11)]: affine forms 15 here, 18 in the inventory
+S34 inventory graph difference: rung_g slot 15 [04 Q zero-check (hosts 09Q, 11)]: sum nodes 11 here, 10 in the inventory
+S34 inventory graph difference: rung_g slot 15 [04 Q zero-check (hosts 09Q, 11)]: monomials 39 here, 77 in the inventory
+S34 inventory graph difference: rung_g slot 16 [05 KV zero-check (hosts 09K, 09V)]: affine forms 14 here, 17 in the inventory
+S34 inventory graph difference: rung_g slot 16 [05 KV zero-check (hosts 09K, 09V)]: sum nodes 10 here, 9 in the inventory
+S34 inventory graph difference: rung_g slot 16 [05 KV zero-check (hosts 09K, 09V)]: monomials 35 here, 71 in the inventory
+S34 inventory graph difference: rung_g slot 17 [06 softmax zero-check (hosts 07, 10)]: affine forms 24 here, 26 in the inventory
+S34 inventory graph difference: rung_g slot 17 [06 softmax zero-check (hosts 07, 10)]: sum nodes 19 here, 17 in the inventory
+S34 inventory graph difference: rung_g slot 17 [06 softmax zero-check (hosts 07, 10)]: monomials 68 here, 121 in the inventory
+S34 inventory graph difference: rung_g slot 18 [14 F zero-check (hosts 13G, 13U)]: affine forms 15 here, 16 in the inventory
+S34 inventory graph difference: rung_g slot 18 [14 F zero-check (hosts 13G, 13U)]: sum nodes 12 here, 10 in the inventory
+S34 inventory graph difference: rung_g slot 18 [14 F zero-check (hosts 13G, 13U)]: monomials 45 here, 78 in the inventory
+S34 inventory graph difference: rung_g slot 19 [TAB table helper zero-check]: sum nodes 4 here, 5 in the inventory
+S34 inventory graph difference: rung_g slot 19 [TAB table helper zero-check]: monomials 12 here, 21 in the inventory
+S34 inventory graph difference: rung_k4 slot 02 [02 norm squares zero-check (hosts 01, 01m)]: sum nodes 9 here, 4 in the inventory
+S34 inventory graph difference: rung_k4 slot 02 [02 norm squares zero-check (hosts 01, 01m)]: monomials 40 here, 44 in the inventory
+S34 inventory graph difference: rung_k4 slot 03 [08 limb zero-check]: sum nodes 2 here, 3 in the inventory
+S34 inventory graph difference: rung_k4 slot 03 [08 limb zero-check]: monomials 5 here, 12 in the inventory
+S34 inventory graph difference: rung_k4 slot 14 [03 D zero-check (hosts 12, 13D)]: affine forms 49 here, 53 in the inventory
+S34 inventory graph difference: rung_k4 slot 14 [03 D zero-check (hosts 12, 13D)]: sum nodes 34 here, 24 in the inventory
+S34 inventory graph difference: rung_k4 slot 14 [03 D zero-check (hosts 12, 13D)]: monomials 158 here, 288 in the inventory
+S34 inventory graph difference: rung_k4 slot 15 [04 Q zero-check (hosts 09Q, 11)]: affine forms 15 here, 18 in the inventory
+S34 inventory graph difference: rung_k4 slot 15 [04 Q zero-check (hosts 09Q, 11)]: sum nodes 11 here, 10 in the inventory
+S34 inventory graph difference: rung_k4 slot 15 [04 Q zero-check (hosts 09Q, 11)]: monomials 39 here, 77 in the inventory
+S34 inventory graph difference: rung_k4 slot 16 [05 KV zero-check (hosts 09K, 09V)]: affine forms 14 here, 17 in the inventory
+S34 inventory graph difference: rung_k4 slot 16 [05 KV zero-check (hosts 09K, 09V)]: sum nodes 10 here, 9 in the inventory
+S34 inventory graph difference: rung_k4 slot 16 [05 KV zero-check (hosts 09K, 09V)]: monomials 35 here, 71 in the inventory
+S34 inventory graph difference: rung_k4 slot 17 [06 softmax zero-check (hosts 07, 10)]: affine forms 24 here, 26 in the inventory
+S34 inventory graph difference: rung_k4 slot 17 [06 softmax zero-check (hosts 07, 10)]: sum nodes 19 here, 17 in the inventory
+S34 inventory graph difference: rung_k4 slot 17 [06 softmax zero-check (hosts 07, 10)]: monomials 68 here, 121 in the inventory
+S34 inventory graph difference: rung_k4 slot 18 [14 F zero-check (hosts 13G, 13U)]: affine forms 15 here, 16 in the inventory
+S34 inventory graph difference: rung_k4 slot 18 [14 F zero-check (hosts 13G, 13U)]: sum nodes 12 here, 10 in the inventory
+S34 inventory graph difference: rung_k4 slot 18 [14 F zero-check (hosts 13G, 13U)]: monomials 45 here, 78 in the inventory
+S34 inventory graph difference: rung_k4 slot 19 [TAB table helper zero-check]: sum nodes 4 here, 5 in the inventory
+S34 inventory graph difference: rung_k4 slot 19 [TAB table helper zero-check]: monomials 12 here, 21 in the inventory
+S34 inventory graph difference: rung_p2 slot 02 [02 norm squares zero-check (hosts 01, 01m)]: sum nodes 9 here, 3 in the inventory
+S34 inventory graph difference: rung_p2 slot 03 [08 limb zero-check]: sum nodes 2 here, 3 in the inventory
+S34 inventory graph difference: rung_p2 slot 03 [08 limb zero-check]: monomials 5 here, 12 in the inventory
+S34 inventory graph difference: rung_p2 slot 14 [03 D zero-check (hosts 12, 13D)]: affine forms 49 here, 53 in the inventory
+S34 inventory graph difference: rung_p2 slot 14 [03 D zero-check (hosts 12, 13D)]: sum nodes 34 here, 24 in the inventory
+S34 inventory graph difference: rung_p2 slot 14 [03 D zero-check (hosts 12, 13D)]: monomials 158 here, 288 in the inventory
+S34 inventory graph difference: rung_p2 slot 15 [04 Q zero-check (hosts 09Q, 11)]: affine forms 15 here, 18 in the inventory
+S34 inventory graph difference: rung_p2 slot 15 [04 Q zero-check (hosts 09Q, 11)]: sum nodes 11 here, 10 in the inventory
+S34 inventory graph difference: rung_p2 slot 15 [04 Q zero-check (hosts 09Q, 11)]: monomials 39 here, 77 in the inventory
+S34 inventory graph difference: rung_p2 slot 16 [05 KV zero-check (hosts 09K, 09V)]: affine forms 12 here, 15 in the inventory
+S34 inventory graph difference: rung_p2 slot 16 [05 KV zero-check (hosts 09K, 09V)]: sum nodes 10 here, 8 in the inventory
+S34 inventory graph difference: rung_p2 slot 16 [05 KV zero-check (hosts 09K, 09V)]: monomials 29 here, 59 in the inventory
+S34 inventory graph difference: rung_p2 slot 17 [06 softmax zero-check (hosts 07, 10)]: affine forms 24 here, 26 in the inventory
+S34 inventory graph difference: rung_p2 slot 17 [06 softmax zero-check (hosts 07, 10)]: sum nodes 19 here, 17 in the inventory
+S34 inventory graph difference: rung_p2 slot 17 [06 softmax zero-check (hosts 07, 10)]: monomials 68 here, 121 in the inventory
+S34 inventory graph difference: rung_p2 slot 18 [14 F zero-check (hosts 13G, 13U)]: affine forms 13 here, 14 in the inventory
+S34 inventory graph difference: rung_p2 slot 18 [14 F zero-check (hosts 13G, 13U)]: sum nodes 12 here, 9 in the inventory
+S34 inventory graph difference: rung_p2 slot 18 [14 F zero-check (hosts 13G, 13U)]: monomials 34 here, 56 in the inventory
+S34 inventory graph difference: rung_p2 slot 19 [TAB table helper zero-check]: sum nodes 4 here, 5 in the inventory
+S34 inventory graph difference: rung_p2 slot 19 [TAB table helper zero-check]: monomials 12 here, 21 in the inventory
+S34 inventory graph difference: rung_c6 slot 02 [02 norm squares zero-check (hosts 01, 01m)]: sum nodes 9 here, 3 in the inventory
+S34 inventory graph difference: rung_c6 slot 03 [08 limb zero-check]: sum nodes 2 here, 3 in the inventory
+S34 inventory graph difference: rung_c6 slot 03 [08 limb zero-check]: monomials 5 here, 12 in the inventory
+S34 inventory graph difference: rung_c6 slot 14 [03 D zero-check (hosts 12, 13D)]: affine forms 45 here, 49 in the inventory
+S34 inventory graph difference: rung_c6 slot 14 [03 D zero-check (hosts 12, 13D)]: sum nodes 32 here, 22 in the inventory
+S34 inventory graph difference: rung_c6 slot 14 [03 D zero-check (hosts 12, 13D)]: monomials 152 here, 272 in the inventory
+S34 inventory graph difference: rung_c6 slot 15 [04 Q zero-check (hosts 09Q, 11)]: affine forms 15 here, 18 in the inventory
+S34 inventory graph difference: rung_c6 slot 15 [04 Q zero-check (hosts 09Q, 11)]: sum nodes 11 here, 10 in the inventory
+S34 inventory graph difference: rung_c6 slot 15 [04 Q zero-check (hosts 09Q, 11)]: monomials 39 here, 77 in the inventory
+S34 inventory graph difference: rung_c6 slot 16 [05 KV zero-check (hosts 09K, 09V)]: affine forms 12 here, 15 in the inventory
+S34 inventory graph difference: rung_c6 slot 16 [05 KV zero-check (hosts 09K, 09V)]: sum nodes 10 here, 8 in the inventory
+S34 inventory graph difference: rung_c6 slot 16 [05 KV zero-check (hosts 09K, 09V)]: monomials 29 here, 59 in the inventory
+S34 inventory graph difference: rung_c6 slot 17 [06 softmax zero-check (hosts 07, 10)]: affine forms 24 here, 26 in the inventory
+S34 inventory graph difference: rung_c6 slot 17 [06 softmax zero-check (hosts 07, 10)]: sum nodes 19 here, 17 in the inventory
+S34 inventory graph difference: rung_c6 slot 17 [06 softmax zero-check (hosts 07, 10)]: monomials 68 here, 121 in the inventory
+S34 inventory graph difference: rung_c6 slot 18 [14 F zero-check (hosts 13G, 13U)]: affine forms 13 here, 14 in the inventory
+S34 inventory graph difference: rung_c6 slot 18 [14 F zero-check (hosts 13G, 13U)]: sum nodes 12 here, 9 in the inventory
+S34 inventory graph difference: rung_c6 slot 18 [14 F zero-check (hosts 13G, 13U)]: monomials 34 here, 56 in the inventory
+S34 inventory graph difference: rung_c6 slot 19 [TAB table helper zero-check]: sum nodes 4 here, 5 in the inventory
+S34 inventory graph difference: rung_c6 slot 19 [TAB table helper zero-check]: monomials 12 here, 21 in the inventory
+S34 inventory graph difference: rung_w14 slot 02 [02 norm squares zero-check (hosts 01, 01m)]: sum nodes 9 here, 3 in the inventory
+S34 inventory graph difference: rung_w14 slot 03 [08 limb zero-check]: sum nodes 2 here, 3 in the inventory
+S34 inventory graph difference: rung_w14 slot 03 [08 limb zero-check]: monomials 5 here, 12 in the inventory
+S34 inventory graph difference: rung_w14 slot 14 [03 D zero-check (hosts 12, 13D)]: affine forms 45 here, 49 in the inventory
+S34 inventory graph difference: rung_w14 slot 14 [03 D zero-check (hosts 12, 13D)]: sum nodes 32 here, 22 in the inventory
+S34 inventory graph difference: rung_w14 slot 14 [03 D zero-check (hosts 12, 13D)]: monomials 152 here, 272 in the inventory
+S34 inventory graph difference: rung_w14 slot 15 [04 Q zero-check (hosts 09Q, 11)]: affine forms 15 here, 18 in the inventory
+S34 inventory graph difference: rung_w14 slot 15 [04 Q zero-check (hosts 09Q, 11)]: sum nodes 11 here, 10 in the inventory
+S34 inventory graph difference: rung_w14 slot 15 [04 Q zero-check (hosts 09Q, 11)]: monomials 39 here, 77 in the inventory
+S34 inventory graph difference: rung_w14 slot 16 [05 KV zero-check (hosts 09K, 09V)]: affine forms 12 here, 15 in the inventory
+S34 inventory graph difference: rung_w14 slot 16 [05 KV zero-check (hosts 09K, 09V)]: sum nodes 10 here, 8 in the inventory
+S34 inventory graph difference: rung_w14 slot 16 [05 KV zero-check (hosts 09K, 09V)]: monomials 29 here, 59 in the inventory
+S34 inventory graph difference: rung_w14 slot 17 [06 softmax zero-check (hosts 07, 10)]: affine forms 24 here, 26 in the inventory
+S34 inventory graph difference: rung_w14 slot 17 [06 softmax zero-check (hosts 07, 10)]: sum nodes 19 here, 17 in the inventory
+S34 inventory graph difference: rung_w14 slot 17 [06 softmax zero-check (hosts 07, 10)]: monomials 68 here, 121 in the inventory
+S34 inventory graph difference: rung_w14 slot 18 [14 F zero-check (hosts 13G, 13U)]: affine forms 13 here, 14 in the inventory
+S34 inventory graph difference: rung_w14 slot 18 [14 F zero-check (hosts 13G, 13U)]: sum nodes 12 here, 9 in the inventory
+S34 inventory graph difference: rung_w14 slot 18 [14 F zero-check (hosts 13G, 13U)]: monomials 34 here, 56 in the inventory
+S34 inventory graph difference: rung_w14 slot 19 [TAB table helper zero-check]: sum nodes 4 here, 5 in the inventory
+S34 inventory graph difference: rung_w14 slot 19 [TAB table helper zero-check]: monomials 12 here, 21 in the inventory
+S34 inventory graph difference: rung_e32 slot 02 [02 norm squares zero-check (hosts 01, 01m)]: sum nodes 9 here, 3 in the inventory
+S34 inventory graph difference: rung_e32 slot 03 [08 limb zero-check]: sum nodes 2 here, 3 in the inventory
+S34 inventory graph difference: rung_e32 slot 03 [08 limb zero-check]: monomials 5 here, 12 in the inventory
+S34 inventory graph difference: rung_e32 slot 14 [03 D zero-check (hosts 12, 13D)]: affine forms 45 here, 49 in the inventory
+S34 inventory graph difference: rung_e32 slot 14 [03 D zero-check (hosts 12, 13D)]: sum nodes 32 here, 22 in the inventory
+S34 inventory graph difference: rung_e32 slot 14 [03 D zero-check (hosts 12, 13D)]: monomials 152 here, 272 in the inventory
+S34 inventory graph difference: rung_e32 slot 15 [04 Q zero-check (hosts 09Q, 11)]: affine forms 15 here, 18 in the inventory
+S34 inventory graph difference: rung_e32 slot 15 [04 Q zero-check (hosts 09Q, 11)]: sum nodes 11 here, 10 in the inventory
+S34 inventory graph difference: rung_e32 slot 15 [04 Q zero-check (hosts 09Q, 11)]: monomials 39 here, 77 in the inventory
+S34 inventory graph difference: rung_e32 slot 16 [05 KV zero-check (hosts 09K, 09V)]: affine forms 12 here, 15 in the inventory
+S34 inventory graph difference: rung_e32 slot 16 [05 KV zero-check (hosts 09K, 09V)]: sum nodes 10 here, 8 in the inventory
+S34 inventory graph difference: rung_e32 slot 16 [05 KV zero-check (hosts 09K, 09V)]: monomials 29 here, 59 in the inventory
+S34 inventory graph difference: rung_e32 slot 17 [06 softmax zero-check (hosts 07, 10)]: affine forms 24 here, 26 in the inventory
+S34 inventory graph difference: rung_e32 slot 17 [06 softmax zero-check (hosts 07, 10)]: sum nodes 19 here, 17 in the inventory
+S34 inventory graph difference: rung_e32 slot 17 [06 softmax zero-check (hosts 07, 10)]: monomials 68 here, 121 in the inventory
+S34 inventory graph difference: rung_e32 slot 18 [14 F zero-check (hosts 13G, 13U)]: affine forms 13 here, 14 in the inventory
+S34 inventory graph difference: rung_e32 slot 18 [14 F zero-check (hosts 13G, 13U)]: sum nodes 12 here, 9 in the inventory
+S34 inventory graph difference: rung_e32 slot 18 [14 F zero-check (hosts 13G, 13U)]: monomials 34 here, 56 in the inventory
+S34 inventory graph difference: rung_e32 slot 19 [TAB table helper zero-check]: sum nodes 4 here, 5 in the inventory
+S34 inventory graph difference: rung_e32 slot 19 [TAB table helper zero-check]: monomials 12 here, 21 in the inventory
+S34 inventory graph difference: m125 slot 02 [02 norm squares zero-check (hosts 01, 01m)]: sum nodes 9 here, 3 in the inventory
+S34 inventory graph difference: m125 slot 03 [08 limb zero-check]: sum nodes 2 here, 3 in the inventory
+S34 inventory graph difference: m125 slot 03 [08 limb zero-check]: monomials 5 here, 12 in the inventory
+S34 inventory graph difference: m125 slot 14 [03 D zero-check (hosts 12, 13D)]: affine forms 45 here, 49 in the inventory
+S34 inventory graph difference: m125 slot 14 [03 D zero-check (hosts 12, 13D)]: sum nodes 32 here, 22 in the inventory
+S34 inventory graph difference: m125 slot 14 [03 D zero-check (hosts 12, 13D)]: monomials 152 here, 272 in the inventory
+S34 inventory graph difference: m125 slot 15 [04 Q zero-check (hosts 09Q, 11)]: affine forms 15 here, 18 in the inventory
+S34 inventory graph difference: m125 slot 15 [04 Q zero-check (hosts 09Q, 11)]: sum nodes 11 here, 10 in the inventory
+S34 inventory graph difference: m125 slot 15 [04 Q zero-check (hosts 09Q, 11)]: monomials 39 here, 77 in the inventory
+S34 inventory graph difference: m125 slot 16 [05 KV zero-check (hosts 09K, 09V)]: affine forms 12 here, 15 in the inventory
+S34 inventory graph difference: m125 slot 16 [05 KV zero-check (hosts 09K, 09V)]: sum nodes 10 here, 8 in the inventory
+S34 inventory graph difference: m125 slot 16 [05 KV zero-check (hosts 09K, 09V)]: monomials 29 here, 59 in the inventory
+S34 inventory graph difference: m125 slot 17 [06 softmax zero-check (hosts 07, 10)]: affine forms 24 here, 26 in the inventory
+S34 inventory graph difference: m125 slot 17 [06 softmax zero-check (hosts 07, 10)]: sum nodes 19 here, 17 in the inventory
+S34 inventory graph difference: m125 slot 17 [06 softmax zero-check (hosts 07, 10)]: monomials 68 here, 121 in the inventory
+S34 inventory graph difference: m125 slot 18 [14 F zero-check (hosts 13G, 13U)]: affine forms 13 here, 14 in the inventory
+S34 inventory graph difference: m125 slot 18 [14 F zero-check (hosts 13G, 13U)]: sum nodes 12 here, 9 in the inventory
+S34 inventory graph difference: m125 slot 18 [14 F zero-check (hosts 13G, 13U)]: monomials 34 here, 56 in the inventory
+S34 inventory graph difference: m125 slot 19 [TAB table helper zero-check]: sum nodes 4 here, 5 in the inventory
+S34 inventory graph difference: m125 slot 19 [TAB table helper zero-check]: monomials 12 here, 21 in the inventory
+S34 inventory: 207 (shape, slot) rows compared; table count, rounds, declared degree, term count and max product degree agree at every one
+S34 inventory: the base-field count differs at 90 rows, by 108 tables in all — the drafter's column is the MEMO's classification, which ruling I-2 corrects (finding IR-C1)
+test private_block::slot_ir_tests::the_slot_irs_counts_agree_with_the_drafters_inventory_except_where_the_arm_says_otherwise ... ok
+S34 group bits: 16 bilinear slots with a group gate, 2 without it (one key-value head)
+test private_block::slot_ir_tests::the_bilinear_slots_carry_the_shapes_key_value_group_bits_and_no_other_slot_does ... ok
+S34 equality 125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads): 23 slots, 229 tables, 131 of them base-field by the IR's derivation
+S34 pad branches, slot 03 [08 limb zero-check]: pad-on at 8 shapes, pad-off at 1 shapes
+S34 pad branches, slot 02 [02 norm squares zero-check (hosts 01, 01m)]: pad-on at 3 shapes, pad-off at 6 shapes
+S34 pad branches, slot 14 [03 D zero-check (hosts 12, 13D)]: pad-on at 8 shapes, pad-off at 1 shapes
+S34 pad branches, slot 15 [04 Q zero-check (hosts 09Q, 11)]: pad-on at 8 shapes, pad-off at 1 shapes
+S34 pad branches, slot 17 [06 softmax zero-check (hosts 07, 10)]: pad-on at 8 shapes, pad-off at 1 shapes
+S34 pad branches, slot 19 [TAB table helper zero-check]: pad-on at 8 shapes, pad-off at 1 shapes
+S34 equality: 207 (shape, slot) pairs, 1656 random points, every one equal
+test private_block::slot_ir_tests::the_slot_ir_evaluates_to_the_closure_at_every_registered_shape_and_slot ... ok
+S34 export rung_e32: 105393 bytes, sha256 500aefdcf6655f4c40aeb8a36d9651b51992f8427bd6aa6981eb0bbc031c04a7
+S34 field kind development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads): 131 of 231 tables base-field on both passes; 96 of the 100 extension tables carry a nonzero imaginary part on the honest witness; 8 base tables are identically zero there
+S34 IR-C19 premise: s(0) + s(1) == claim at all 379 rounds of 46 (shape, slot) pairs — the redundant evaluation R1d removes is recoverable at every one
+test private_block::slot_ir_tests::the_honest_round_polynomial_satisfies_s0_plus_s1_equals_the_running_claim_at_every_round ... ok
+S34 field kind development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads): 131 of 229 tables base-field on both passes; 94 of the 98 extension tables carry a nonzero imaginary part on the honest witness; 4 base tables are identically zero there
+S34 export m125: 105382 bytes, sha256 2e8cdb877d4938a63d92dc8f4b054e59ff296456c56063f61c1ad8e39e948d39
+test private_block::slot_ir_tests::the_slot_ir_export_is_canonical_and_its_digest_is_pinned_at_every_registered_shape ... ok
+S34 field kind development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads): 131 of 229 tables base-field on both passes; 94 of the 98 extension tables carry a nonzero imaginary part on the honest witness; 6 base tables are identically zero there
+S34 field kind development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads): 131 of 229 tables base-field on both passes; 94 of the 98 extension tables carry a nonzero imaginary part on the honest witness; 6 base tables are identically zero there
+test private_block::slot_ir_tests::every_table_the_ir_calls_base_field_is_base_field_in_the_tables_the_prover_builds ... ok
+
+failures:
+
+failures:
+    private_block::slot_ir::accuracy::tests::the_accuracy_ir_evaluates_to_the_r13_closure_at_every_development_shape_group_count_and_slot
+
+test result: FAILED. 9 passed; 1 failed; 0 ignored; 0 measured; 889 filtered out; finished in 0.63s
+

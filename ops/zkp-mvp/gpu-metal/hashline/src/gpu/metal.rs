@@ -744,6 +744,7 @@ inline fp2 f2_mulb(fp2 a, ulong b) { return f2(gl_mul(a.c0, b), gl_mul(a.c1, b))
 inline fp2 f2_addb(fp2 a, ulong b) { return f2(gl_add(a.c0, b), a.c1); }
 "#;
 
+#[allow(dead_code)] // the untyped kernel contract, kept as documentation
 const SC_ROUND: &str = r#"
 struct RoundArgs { ulong nhalf; ulong cap; uint eval_one; uint nthreads; };
 // One thread per stride of cube pairs: the round's evaluations at 0..=D along
@@ -804,33 +805,32 @@ pub fn sumcheck_stats() -> (f64, f64) {
 }
 
 fn sc_pipelines(c: &Ctx, kernel_src: &str, k: usize, degree: usize) -> Result<(ComputePipelineState, ComputePipelineState), String> {
-    let p0 = sc_pipeline_named(c, kernel_src, k, degree, "k_sc_round0")?;
-    let p1 = sc_pipeline_named(c, kernel_src, k, degree, "k_sc_round")?;
-    Ok((p0, p1))
-}
-
-fn sc_pipeline_named(c: &Ctx, kernel_src: &str, k: usize, degree: usize, name: &str) -> Result<ComputePipelineState, String> {
-    // the generated kernel carries its own k_sc_round (typed per table); the
-    // untyped SC_ROUND template is kept only as documentation of the contract
-    let _ = SC_ROUND;
+    // [M4] ONE library compile for both kernels: the round-0 and the later
+    // round kernel live in the same generated source, and compiling it once
+    // per kernel doubled the (dominant, cold) compile time of a large slot
     let src = format!("{}{SC_PRELUDE}\n#define SC_K {k}\n#define SC_D {degree}\n{kernel_src}", gl_header());
-    let key = format!("{name}\n{src}");
+    let names = ["k_sc_round0", "k_sc_round"];
+    let keys = names.map(|n| format!("{n}\n{src}"));
     let mut cache = c.sc_pipes.lock().map_err(|_| "metal: sumcheck kernel cache poisoned")?;
-    if let Some(p) = cache.get(&key) {
-        return Ok(p.clone());
+    if let (Some(p0), Some(p1)) = (cache.get(&keys[0]), cache.get(&keys[1])) {
+        return Ok((p0.clone(), p1.clone()));
     }
     let t = std::time::Instant::now();
-    let p = objc::rc::autoreleasepool(|| -> Result<ComputePipelineState, String> {
+    let (p0, p1) = objc::rc::autoreleasepool(|| -> Result<(ComputePipelineState, ComputePipelineState), String> {
         let lib = c.device.new_library_with_source(&src, &CompileOptions::new()).map_err(|e| format!("metal sumcheck compile: {e}"))?;
-        let f = lib.get_function(name, None).map_err(|e| format!("metal sumcheck function {name}: {e}"))?;
-        c.device.new_compute_pipeline_state_with_function(&f).map_err(|e| format!("metal sumcheck pipeline: {e}"))
+        let mk = |name: &str| -> Result<ComputePipelineState, String> {
+            let f = lib.get_function(name, None).map_err(|e| format!("metal sumcheck function {name}: {e}"))?;
+            c.device.new_compute_pipeline_state_with_function(&f).map_err(|e| format!("metal sumcheck pipeline: {e}"))
+        };
+        Ok((mk(names[0])?, mk(names[1])?))
     })?;
     SC_COMPILE_NS.fetch_add(t.elapsed().as_nanos() as u64, Ordering::Relaxed);
     if std::env::var("HL_METAL_TIMING").map(|v| v == "1").unwrap_or(false) {
-        eprintln!("[ZK60-METAL] compiled a slot kernel ({k} tables, degree {degree}, {} B of source) in {:.3} s", src.len(), t.elapsed().as_secs_f64());
+        eprintln!("[ZK60-METAL] compiled a slot library ({k} tables, degree {degree}, {} B of source, 2 kernels) in {:.3} s", src.len(), t.elapsed().as_secs_f64());
     }
-    cache.insert(key, p.clone());
-    Ok(p)
+    cache.insert(keys[0].clone(), p0.clone());
+    cache.insert(keys[1].clone(), p1.clone());
+    Ok((p0, p1))
 }
 
 /// A sumcheck whose tables live on the Apple GPU and whose round polynomial is

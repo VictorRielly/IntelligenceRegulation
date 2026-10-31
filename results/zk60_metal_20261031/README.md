@@ -109,11 +109,49 @@ Rounds 1.. use an all-extension kernel: **the first fold makes every table exten
 version typed every round and moved the golden digests (caught by the gate, never committed). Slot 18
 0.164 -> 0.077 s, slot 14 0.194 -> 0.147 s (device rounds). Golden gate 4 / 4 with device evidence.
 
+## M4: the R13 accuracy stack (the real classifier's zero-checks) on the Apple GPU
+
+Until M4 the device path was offered only to the legacy stack: the R13 accuracy stack (`argument_accuracy.rs`,
+which the MVP Shieldstral classifier runs) redefines slots 14-19 and DD slot 17, and the IR modelled only the
+legacy arms, so those five heavy zero-checks always stayed on the CPU.
+
+- `hashline/src/private_block/slot_ir_accuracy.rs` (new, child module of `slot_ir`): IR builders for the
+  accuracy `dzc` (slot 14), `qzc` (15, 16), `szc` non-DD (17) and `fzc` (18), each mirroring one function of
+  `argument_accuracy.rs` (same challenge draws and counts on the twin transcript, same table push order, same
+  polynomial). DD `szc`, the dictionary slot and the R13 table-helper slot (19) return an error and stay on the
+  CPU. `build_slot_ir` takes the accuracy arm first for a non-legacy stack.
+- `argument.rs`: the device path is offered to every profile; the per-slot runtime guard (IR == closure at eight
+  points) still decides each slot.
+- `metal.rs`: a slot's two kernels (round 0 typed, later rounds untyped) now come from ONE library compile, not
+  two. The doubled compile of the 64-table D kernel was why a first trained run was slower on Metal (8.10 s
+  against 5.59 s on the CPU).
+
+| Gate | Result | Evidence |
+|---|---|---|
+| Accuracy IR oracle: every development accuracy shape (LOW, H24, both DD), 1-4 activation groups, every slot, 12 random points each, degree bound, and transcribed arms draw exactly `define`'s challenge count | 72 transcribed + 272 legacy slot IRs equal their closures; 8 DD softmax slots refuse (CPU) | `logs/m4_oracle2.log` |
+| Existing IR tests (legacy shapes, pinned export digests) | 10 / 10 | same |
+| R13 classifier run (`r16_an_r13_classifier_run_with_two_gate_denominators_proves_and_verifies`, `HL_GPU_REQUIRED=1`) | slots 14-18 pass the runtime guard and run on the device; proves and verifies | `logs/m4_r13.log` |
+| Seeded accuracy block, CPU vs Metal, 4 development shapes | byte-identical digests, device rounds > 0 | `logs/m4_bytes.log` |
+| Seeded accuracy block at trained T128 geometry, CPU vs Metal cold vs Metal warm | byte-identical digests | `logs/m4_trained2.log` |
+| Legacy golden gate (`run_golden.py`, 4 shapes x CPU/Metal, recorded digests) on the final binary | 8 / 8, Metal arms with device evidence | `logs/golden_*`, `golden_binary_m4.sha256`; the run before the single-compile change is in `golden_m4a_two_compiles/` (8 / 8) |
+
+Measured [n = 1, shared box, synthetic public weights (`grow_tests::tame_case`), 3 activation groups, seeded
+`prove_core` wall clock]:
+
+| Accuracy block, T128 | Mac CPU | Metal cold (first kernel compile in this process) | Metal warm (cached kernels) |
+|---|---:|---:|---:|
+| `R13_8B_T128_H24` (8B geometry) | 5.595 s | 2.926 s (OS shader cache already warm) | 2.795 s |
+| `R13_SHIELD_T128_H24` (Shieldstral, the MVP classifier) | 5.644 s | 4.151 s (1.155 s of kernel compile) | **2.860 s** |
+
+A multi-layer run compiles each shape's slot kernels once per process (all layers share a shape), and macOS
+also caches compiled shaders across processes, so the warm column is the per-layer figure. One slot per block
+(19, the table helpers) has no IR and stays on the CPU.
+
 ## Open items
 
 1. **Backend label.** `trained_block.rs::backend_of_this_process` knows only the CPU and CUDA names, so a
    Metal-made run statement would say "built without gpu-cuda". Adding a Metal name changes what verifiers
    accept and needs Sol's lane and a review before any Metal-made receipt is published.
 2. **Next on the GPU:** the H helper inverses (batch inversion), the extension rounds, and fewer host round trips in the device sumcheck.
-4. **DD slot 17 and the dictionary slot** need IR coverage before DD profiles run fully on the device.
+4. **DD slot 17, the dictionary slot and the R13 table-helper slot (19)** need IR coverage before every slot of every profile runs on the device (legacy and accuracy alike).
 3. Buffer pooling (setup is about 15% of the Metal commit time).

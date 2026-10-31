@@ -50,6 +50,10 @@ use super::layout::*;
 use crate::field::Fp2;
 use crate::transcript::Transcript;
 
+// [ZK60-METAL M4] the R13 accuracy stack's redefined zero-checks as IR
+#[path = "slot_ir_accuracy.rs"]
+mod accuracy;
+
 // ---------------------------------------------------------------- the grammar
 
 /// A table's index in its slot's push order — which is also the index its
@@ -928,11 +932,17 @@ pub(super) fn build_slot_ir(slot: usize, ctx: &Ctx, pts: &mut IrPoints, tr: &mut
     let (ld, lf, lkv) = (lg(sh.d_pad), lg(sh.f_pad), lg(sh.kv_heads));
     let (ln, ls, lp) = (sh.limbs_norm(), sh.limbs_sigma_s(), sh.limbs_p());
     let pad_doms: Vec<Dom> = ALL_DOMS.into_iter().filter(|d| super::pad::pad_zero_host(*d) == slot && !super::pad::zero_rule_a_planes(sh, ids, *d).is_empty()).collect();
-    let pad_on = !pad_doms.is_empty();
+    let mut pad_on = !pad_doms.is_empty();
     let n_pad = usize::from(pad_on);
     let (main_rounds, extension_rounds, degree) = sh.slots()[slot];
     let mut group_bits: Option<usize> = None;
-    let (tables, nodes, terms) = match slot {
+    // [ZK60-METAL M4] an accuracy stack's redefined slot takes its own arm
+    // (`argument_accuracy::define_changed`), never the legacy one below
+    let acc = accuracy::build(slot, ctx, pts, tr, &mut b)?;
+    let (tables, nodes, terms) = if let Some((terms, acc_pad)) = acc {
+        pad_on = acc_pad;
+        (b.tables, b.nodes, terms)
+    } else { match slot {
         SC_SS | SC_SSM => {
             let point = tr.challenge_fp2_vec(lt);
             if slot == SC_SS {
@@ -1528,7 +1538,7 @@ pub(super) fn build_slot_ir(slot: usize, ctx: &Ctx, pts: &mut IrPoints, tr: &mut
             (b.tables, b.nodes, vec![SlotTerm { coef: Coef::one(), wrapper: vec![i_tau], inner: vec![fnd(d)], note: "the endpoint equality".to_string() }])
         }
         _ => return Err("private block IR: unknown slot".into()),
-    };
+    }};
     let ir = SlotIr {
         slot,
         name: SLOT_NAMES[slot],

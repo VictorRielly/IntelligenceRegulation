@@ -1,0 +1,81 @@
+
+running 1 test
+test private_block::token_io::classify_r16_tests::r16_an_r13_classifier_run_with_two_gate_denominators_proves_and_verifies ... [ZK60-METAL] commit 6 x 2^8 -> 2^11: setup 0.000 s, gpu total 0.011 s (inverse 0.001, init 0.000, forward 0.001, hash 0.000)
+[ZK60-METAL] commit 7 x 2^14 -> 2^16: setup 0.000 s, gpu total 0.001 s (inverse 0.000, init 0.000, forward 0.001, hash 0.000)
+[ZK60-METAL] commit 10 x 2^12 -> 2^14: setup 0.000 s, gpu total 0.001 s (inverse 0.000, init 0.000, forward 0.001, hash 0.000)
+[ZK60-METAL] commit 14 x 2^12 -> 2^14: setup 0.000 s, gpu total 0.001 s (inverse 0.000, init 0.000, forward 0.000, hash 0.000)
+[ZK60-METAL] store fold: 4 rho x 10 rows x 4096 cols (zk data) in 0.0002 s
+[ZK60-METAL] store columns: 256 x 10 rows in 0.0008 s
+[ZK60-METAL] store fold: 5 rho x 14 rows x 4096 cols (zk data) in 0.0003 s
+[ZK60-METAL] store columns: 256 x 14 rows in 0.0007 s
+[ZK60-METAL] store fold: 2 rho x 6 rows x 256 cols (zk data) in 0.0000 s
+[ZK60-METAL] store columns: 256 x 6 rows in 0.0008 s
+[ZK60-METAL] commit 7 x 2^14 -> 2^16: setup 0.000 s, gpu total 0.001 s (inverse 0.000, init 0.000, forward 0.001, hash 0.000)
+[ZK60-METAL] commit 437 x 2^14 -> 2^16: setup 0.003 s, gpu total 0.013 s (inverse 0.003, init 0.000, forward 0.008, hash 0.001)
+[ZK60-METAL] commit 248 x 2^14 -> 2^16: setup 0.002 s, gpu total 0.006 s (inverse 0.001, init 0.000, forward 0.004, hash 0.001)
+[ZK60-METAL] argument: prove=true accuracy_none=false legacy_stack=false gpu_enabled=true -> metal_on=true (R13_RUNG_H24)
+[ZK60-METAL] compiled a slot kernel (64 tables, degree 5, 53181 B of source) in 2.305 s
+[ZK60-METAL] compiled a slot kernel (64 tables, degree 5, 53181 B of source) in 3.678 s
+[ZK60-METAL] sumcheck setup: 64 tables x 2^14 in 0.0022 s
+[ZK60-METAL] sumcheck rounds: 64 tables, 14 rounds, degree 5 in 0.1239 s
+[ZK60-METAL] compiled a slot kernel (27 tables, degree 4, 24252 B of source) in 0.526 s
+[ZK60-METAL] compiled a slot kernel (27 tables, degree 4, 24252 B of source) in 0.581 s
+[ZK60-METAL] sumcheck setup: 27 tables x 2^15 in 0.0014 s
+[ZK60-METAL] sumcheck rounds: 27 tables, 15 rounds, degree 4 in 0.0442 s
+[ZK60-METAL] compiled a slot kernel (27 tables, degree 4, 24256 B of source) in 0.533 s
+[ZK60-METAL] compiled a slot kernel (27 tables, degree 4, 24256 B of source) in 0.590 s
+[ZK60-METAL] sumcheck setup: 27 tables x 2^14 in 0.0013 s
+[ZK60-METAL] sumcheck rounds: 27 tables, 14 rounds, degree 4 in 0.0358 s
+[ZK60-METAL] compiled a slot kernel (31 tables, degree 4, 27567 B of source) in 0.672 s
+[ZK60-METAL] compiled a slot kernel (31 tables, degree 4, 27567 B of source) in 0.824 s
+[ZK60-METAL] sumcheck setup: 31 tables x 2^14 in 0.0012 s
+[ZK60-METAL] sumcheck rounds: 31 tables, 14 rounds, degree 4 in 0.0427 s
+[ZK60-METAL] compiled a slot kernel (29 tables, degree 5, 26805 B of source) in 0.737 s
+[ZK60-METAL] compiled a slot kernel (29 tables, degree 5, 26805 B of source) in 0.985 s
+[ZK60-METAL] sumcheck setup: 29 tables x 2^15 in 0.0016 s
+[ZK60-METAL] sumcheck rounds: 29 tables, 15 rounds, degree 5 in 0.0495 s
+[ZK60-METAL] slot 19: no IR (R13 IR: the R13 table-helper slot is not transcribed)
+[ZK60-METAL] store fold: 37 rho x 437 rows x 16384 cols (zk data) in 0.0027 s
+[ZK60-METAL] store columns: 256 x 437 rows in 0.0027 s
+[ZK60-METAL] store fold: 10 rho x 248 rows x 16384 cols (zk data) in 0.0016 s
+[ZK60-METAL] store columns: 256 x 248 rows in 0.0017 s
+[ZK60-METAL] store fold: 3 rho x 7 rows x 16384 cols (zk data) in 0.0008 s
+[ZK60-METAL] store columns: 256 x 7 rows in 0.0007 s
+[ZK60-METAL] commit 7 x 2^14 -> 2^16: setup 0.000 s, gpu total 0.001 s (inverse 0.001, init 0.000, forward 0.000, hash 0.001)
+[ZK60-METAL] commit 437 x 2^14 -> 2^16: setup 0.003 s, gpu total 0.012 s (inverse 0.002, init 0.000, forward 0.008, hash 0.001)
+[ZK60-METAL] commit 248 x 2^14 -> 2^16: setup 0.002 s, gpu total 0.008 s (inverse 0.002, init 0.000, forward 0.005, hash 0.001)
+[ZK60-METAL] argument: prove=true accuracy_none=false legacy_stack=false gpu_enabled=true -> metal_on=true (R13_RUNG_H24)
+[ZK60-METAL] sumcheck setup: 64 tables x 2^14 in 0.0021 s
+[ZK60-METAL] sumcheck rounds: 64 tables, 14 rounds, degree 5 in 0.1083 s
+[ZK60-METAL] sumcheck setup: 27 tables x 2^15 in 0.0017 s
+[ZK60-METAL] sumcheck rounds: 27 tables, 15 rounds, degree 4 in 0.0315 s
+[ZK60-METAL] sumcheck setup: 27 tables x 2^14 in 0.0012 s
+[ZK60-METAL] sumcheck rounds: 27 tables, 14 rounds, degree 4 in 0.0275 s
+[ZK60-METAL] sumcheck setup: 31 tables x 2^14 in 0.0010 s
+[ZK60-METAL] sumcheck rounds: 31 tables, 14 rounds, degree 4 in 0.0326 s
+[ZK60-METAL] sumcheck setup: 29 tables x 2^15 in 0.0017 s
+[ZK60-METAL] sumcheck rounds: 29 tables, 15 rounds, degree 5 in 0.0391 s
+[ZK60-METAL] slot 19: no IR (R13 IR: the R13 table-helper slot is not transcribed)
+[ZK60-METAL] store fold: 37 rho x 437 rows x 16384 cols (zk data) in 0.0029 s
+[ZK60-METAL] store columns: 256 x 437 rows in 0.0018 s
+[ZK60-METAL] store fold: 10 rho x 248 rows x 16384 cols (zk data) in 0.0021 s
+[ZK60-METAL] store columns: 256 x 248 rows in 0.0009 s
+[ZK60-METAL] store fold: 3 rho x 7 rows x 16384 cols (zk data) in 0.0011 s
+[ZK60-METAL] store columns: 256 x 7 rows in 0.0007 s
+[ZK60-METAL] commit 76 x 2^12 -> 2^14: setup 0.000 s, gpu total 0.001 s (inverse 0.000, init 0.000, forward 0.001, hash 0.000)
+[ZK60-METAL] commit 38 x 2^12 -> 2^14: setup 0.000 s, gpu total 0.001 s (inverse 0.000, init 0.000, forward 0.000, hash 0.000)
+[ZK60-METAL] store fold: 17 rho x 76 rows x 4096 cols (zk data) in 0.0003 s
+[ZK60-METAL] store columns: 256 x 76 rows in 0.0009 s
+[ZK60-METAL] store fold: 6 rho x 38 rows x 4096 cols (zk data) in 0.0003 s
+[ZK60-METAL] store columns: 256 x 38 rows in 0.0008 s
+[ZK60-METAL] store fold: 3 rho x 7 rows x 16384 cols (zk data) in 0.0007 s
+[ZK60-METAL] store columns: 256 x 7 rows in 0.0007 s
+[ZK60-METAL] argument: prove=false accuracy_none=false legacy_stack=false gpu_enabled=true -> metal_on=false (R13_RUNG_H24)
+[ZK60-METAL] argument: prove=false accuracy_none=false legacy_stack=false gpu_enabled=true -> metal_on=false (R13_RUNG_H24)
+[ZK60-METAL] argument: prove=false accuracy_none=false legacy_stack=false gpu_enabled=true -> metal_on=false (R13_RUNG_H24)
+[ZK60-METAL] argument: prove=false accuracy_none=false legacy_stack=false gpu_enabled=true -> metal_on=false (R13_RUNG_H24)
+TOKEN-IO R16 | R13 rung | two stages at G 20 and G 21: prove 4 segments (35293200 B), fresh verify, owner check, changed byte refused; floor 100 bits
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 897 filtered out; finished in 15.76s
+
