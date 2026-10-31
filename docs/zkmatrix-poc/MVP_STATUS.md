@@ -5,21 +5,22 @@
   stayed on the CPU, because the GPU's expression description covered only the older stack. They now run on the
   GPU. The proof bytes are identical to the CPU's at every shape tested: four small development shapes, and the
   Shieldstral and 8B geometries at 128 tokens. The older proofs are unchanged (golden gate 8 of 8).
-  Record: `results/zk60_metal_20261031/README.md` (M4).
-- **Speed of one Shieldstral-shaped accuracy block at 128 tokens** [MEASURED, n=1, shared Mac; synthetic weights
-  at the true geometry; proof core only, so no witness or model loading]:
+  Record: `results/zk60_metal_20261031/README.md` (M4 to M4d).
+- **Speed of one Shieldstral-shaped accuracy block at 128 tokens** [MEASURED, n=1, Mac quiet at the time;
+  synthetic weights at the true geometry; proof core only, so no witness or model loading]:
 
   | Path | Block proof |
   |---|---:|
-  | Mac CPU, 32 threads | 5.12 s |
-  | Mac GPU, later blocks (the first block in a new process can add about 1.2 s of one-time kernel compile) | **2.10 s** |
+  | Mac CPU, 32 threads | 4.83 s |
+  | Mac GPU, later blocks (the first block in a new process can add about 1.2 s of one-time kernel compile) | **1.83 s** |
 
-  Two further fixes, in the extension rounds and in writing the LogUp helpers, took the GPU block from 2.86 s to
-  2.10 s. Both are CPU code used by both paths, and neither changes any bytes.
-  For the 26 layers at 128 tokens, that is about 55 s of proof core, or about 2.3 proved tokens per second. The
-  target is at least 50, so we are still more than 20 times short.
-- **Still on the CPU:** the witness, the LogUp helper inverses, the extension rounds, the openings, and one small
-  table slot per block. The DD softmax and dictionary slots also stay on the CPU.
+  CPU-side fixes used by both paths, none of which changes any bytes, took the GPU block from 2.86 s to 1.83 s:
+  the extension rounds, the LogUp helper columns (now written in one parallel pass), and the commitment masks'
+  fresh randomness (now drawn in parallel, the same stream).
+  For the 26 layers at 128 tokens, that is about 48 s of proof core, or about 2.7 proved tokens per second. The
+  target is at least 50, so we are still about 18 times short. The zero-checks are now more than half of a block.
+- **Still on the CPU:** the witness, the exp/activation helper inverses, the extension rounds, the openings, and
+  one small table slot per block. The DD softmax and dictionary slots also stay on the CPU.
 - **Sol and Astra** (Codex sessions on this Mac) have written nothing since about 08:45 UTC. Their processes are
   alive but idle and need a "continue" from Victor. Astra's 12-hour replay was prepared but has not been launched.
 

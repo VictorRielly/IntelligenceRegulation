@@ -558,6 +558,63 @@ mod tests {
         assert!(got.is_err());
     }
 
+    /// [M4d] the one-region writer equals the job-by-job loop: the same `H`
+    /// words (over a background that catches a stray write) and the same
+    /// result, on the fast path (unaligned disjoint offsets, columns of one to
+    /// several chunks, pairs and singles), at a zero denominator, and on the
+    /// fallback (a malformed job behind a zero denominator; overlapping jobs).
+    /// After a refusal only the refusal is compared: `H` is discarded then.
+    #[test]
+    fn m4d_batched_helper_write_equals_the_job_by_job_loop() {
+        use crate::private_block::protocol::{u8_denominator_inverses, write_helper_u8, write_helpers_u8, HelperJob};
+        let (alpha, g_u8) = (k(1_000_003).add(Fp2::U.mul(k(17))), k(29));
+        let col = |len: usize, m: usize, c: usize| -> Vec<i64> { (0..len).map(|i| ((i * m + c) % 290) as i64 - 17).collect() };
+        let lens = [5usize, 16_384, 40_000, 70_001, 3];
+        let cols: Vec<(Vec<i64>, Vec<i64>)> = lens.iter().enumerate().map(|(i, &l)| (col(l, 131 + 2 * i, 7 + i), col(l, 37 + 2 * i, 3 + i))).collect();
+        // disjoint, unaligned: job i's real row, a gap, its imaginary row, a gap
+        let mut offs = Vec::new();
+        let mut at = 11usize;
+        for &l in &lens {
+            offs.push((at + l + 5, at));
+            at += 2 * l + 13;
+        }
+        let size = at + 9;
+        let run = |jobs: &[HelperJob<'_>], al: Fp2, batched: bool| -> (Result<(), String>, Vec<Fp>) {
+            let tbl = u8_denominator_inverses(al, g_u8);
+            let mut h = vec![Fp::new(9); size];
+            let r = if batched {
+                write_helpers_u8(&mut h, jobs, al, g_u8, &tbl)
+            } else {
+                jobs.iter().try_for_each(|j| write_helper_u8(&mut h, j.off, j.a, j.b, al, g_u8, &tbl))
+            };
+            (r, h)
+        };
+        let jobs: Vec<HelperJob<'_>> = cols.iter().zip(&offs).enumerate().map(|(i, ((a, b), &off))| HelperJob { off, a, b: (i % 2 == 0).then_some(b.as_slice()) }).collect();
+        let (want, got) = (run(&jobs, alpha, false), run(&jobs, alpha, true));
+        assert!(want.0.is_ok() && got == want, "the fast path");
+        // a zero denominator in job 3 (value 300 is outside the byte table)
+        let alpha0 = k(300).add(g_u8);
+        let mut hit = cols[3].0.clone();
+        hit[50_000] = 300;
+        let mut jobs0: Vec<HelperJob<'_>> = cols.iter().zip(&offs).map(|((a, b), &off)| HelperJob { off, a, b: Some(b) }).collect();
+        jobs0[3].a = &hit;
+        let (w0, g0) = (run(&jobs0, alpha0, false), run(&jobs0, alpha0, true));
+        assert!(w0.0.is_err() && g0.0 == w0.0, "a zero denominator");
+        // a malformed job 4 behind job 3's zero denominator: the loop's refusal
+        let short = cols[4].1[..2].to_vec();
+        jobs0[4].b = Some(&short);
+        let (w1, g1) = (run(&jobs0, alpha0, false), run(&jobs0, alpha0, true));
+        // (after a refusal `H` is discarded, and the parallel loop stops at no
+        // fixed word, so only the refusal itself is compared)
+        assert!(w1.0.is_err() && g1.0 == w1.0, "the fallback's first refusal");
+        // jobs 1 and 2 overlap: the loop, word for word
+        let mut jobs2: Vec<HelperJob<'_>> = cols.iter().zip(&offs).map(|((a, b), &off)| HelperJob { off, a, b: Some(b) }).collect();
+        jobs2[2].off.1 = offs[1].1 + 7;
+        jobs2[2].off.0 = offs[1].1 + 7 + lens[2] + 1;
+        let (w2, g2) = (run(&jobs2, alpha, false), run(&jobs2, alpha, true));
+        assert!(w2.0.is_ok() && g2 == w2, "overlapping jobs");
+    }
+
     /// one seeded accuracy-stack block proof's digest (the recipe of
     /// `r12_golden_tests::digest_of_seeded_block`: roots, slot proofs,
     /// openings, IO claims, absorb order, lookups, final transcript state)

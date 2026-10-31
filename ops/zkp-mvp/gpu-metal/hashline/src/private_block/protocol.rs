@@ -896,6 +896,107 @@ pub(super) fn write_helper_u8(h: &mut [Fp], off: (usize, usize), a: &[i64], b: O
     })
 }
 
+/// [ZK60-METAL M4d] one LogUp helper column to write: `H`'s (real, imaginary)
+/// offsets and its one or two looked columns (see [`write_helper_u8`])
+pub(super) struct HelperJob<'a> {
+    pub(super) off: (usize, usize),
+    pub(super) a: &'a [i64],
+    pub(super) b: Option<&'a [i64]>,
+}
+
+/// [ZK60-METAL M4d] words per task of [`write_helpers_u8`]
+const HELPER_CHUNK: usize = 1 << 14;
+
+/// [ZK60-METAL M4d] Every job's [`write_helper_u8`] in ONE parallel region:
+/// the same words in the same places and the same result. On this Mac a rayon
+/// region costs about half a millisecond to start, and the Shieldstral block's
+/// 47 helper columns of 2^14..2^21 words each paid it once per column (and a
+/// per-word `try_for_each`), 0.13 s in all; chunks of all of them in one region
+/// take a few milliseconds.
+///
+/// **The same result.** The fast path runs only when every job is well formed
+/// (paired columns of equal length, real and imaginary rows apart) and all the
+/// target ranges are disjoint and inside `h`, so each word has one writer; the
+/// only error left is a zero denominator, which the job-by-job loop also
+/// returns (as the same string) exactly when some job meets one. Anything else
+/// takes that loop itself, so its refusal and its order are unchanged.
+pub(super) fn write_helpers_u8(h: &mut [Fp], jobs: &[HelperJob<'_>], alpha: Fp2, g_u8: Fp2, tbl: &[Option<Fp2>]) -> Result<(), String> {
+    let well_formed = jobs.iter().all(|j| {
+        let len = j.a.len();
+        j.b.is_none_or(|b| b.len() == len) && !(j.off.0 + len > j.off.1 && j.off.1 + len > j.off.0)
+    });
+    // (start, length, job, imaginary?) of every nonempty target range
+    let mut ranges: Vec<(usize, usize, usize, bool)> = Vec::with_capacity(2 * jobs.len());
+    for (i, j) in jobs.iter().enumerate() {
+        if !j.a.is_empty() {
+            ranges.push((j.off.0, j.a.len(), i, false));
+            ranges.push((j.off.1, j.a.len(), i, true));
+        }
+    }
+    ranges.sort_unstable();
+    let disjoint = ranges.windows(2).all(|w| w[0].0 + w[0].1 <= w[1].0) && ranges.last().is_none_or(|r| r.0 + r.1 <= h.len());
+    if !(well_formed && disjoint) {
+        for j in jobs {
+            write_helper_u8(h, j.off, j.a, j.b, alpha, g_u8, tbl)?;
+        }
+        return Ok(());
+    }
+    // carve the disjoint ranges out of `h`, in address order
+    let mut parts: Vec<[Option<&mut [Fp]>; 2]> = (0..jobs.len()).map(|_| [None, None]).collect();
+    let mut rest: &mut [Fp] = h;
+    let mut at = 0usize;
+    for &(start, len, i, im) in &ranges {
+        let tail = std::mem::take(&mut rest).split_at_mut(start - at).1;
+        let (mine, tail) = tail.split_at_mut(len);
+        parts[i][im as usize] = Some(mine);
+        rest = tail;
+        at = start + len;
+    }
+    type Item<'s> = (&'s mut [Fp], &'s mut [Fp], &'s [i64], Option<&'s [i64]>);
+    let mut items: Vec<Item<'_>> = Vec::new();
+    let mut words = 0usize;
+    for (j, [re, im]) in jobs.iter().zip(parts.iter_mut()) {
+        let (Some(re), Some(im)) = (re.take(), im.take()) else { continue };
+        words += re.len();
+        for (c, (r, m)) in re.chunks_mut(HELPER_CHUNK).zip(im.chunks_mut(HELPER_CHUNK)).enumerate() {
+            let (s, e) = (c * HELPER_CHUNK, c * HELPER_CHUNK + r.len());
+            items.push((r, m, &j.a[s..e], j.b.map(|b| &b[s..e])));
+        }
+    }
+    // one chunk; false at a zero denominator
+    let fill = |(r, m, a, b): Item<'_>| -> bool {
+        match b {
+            Some(b) => {
+                for i in 0..r.len() {
+                    let (Ok(x), Ok(y)) = (helper_one(a[i], alpha, g_u8, tbl), helper_one(b[i], alpha, g_u8, tbl)) else { return false };
+                    let v = x.add(y);
+                    r[i] = v.c0;
+                    m[i] = v.c1;
+                }
+            }
+            None => {
+                for i in 0..r.len() {
+                    let Ok(v) = helper_one(a[i], alpha, g_u8, tbl) else { return false };
+                    r[i] = v.c0;
+                    m[i] = v.c1;
+                }
+            }
+        }
+        true
+    };
+    let ok = if words < HELPER_PAR_MIN {
+        items.into_iter().map(fill).fold(true, |x, y| x && y)
+    } else {
+        use rayon::prelude::*;
+        items.into_par_iter().map(fill).reduce(|| true, |x, y| x && y)
+    };
+    if ok {
+        Ok(())
+    } else {
+        Err(ZERO_DENOMINATOR.to_string())
+    }
+}
+
 fn write_h(h: &mut [Fp], off: (usize, usize), col: &[Fp2]) {
     for (i, v) in col.iter().enumerate() {
         h[off.0 + i] = v.c0;
@@ -1161,9 +1262,9 @@ pub(crate) fn prove_core(
         a_data[lay.a_off[plane] + from] = Fp::new(m[from]);
         a_data[lay.a_off[plane] + to] = Fp::new(1);
     }
-    for x in &mut a_data[lay.a_mask_base * n..] {
-        *x = rng.fp();
-    }
+    // [ZK60-METAL M4d] the same draws in the same order, filled in parallel
+    // (`ZkRng::fill_fp` leaves the stream where the `fp()` loop left it)
+    rng.fill_fp(&mut a_data[lay.a_mask_base * n..]);
     ph.mark(Half::Commit, "A: mask + proximity rows (fresh randomness)", ((lay.a_rows - lay.a_mask_base) * n) as u64, "words");
     // STAGE 17 (ruling T-1): this profile's hash tag. At a legacy-rule
     // profile `HashTag::legacy()` makes this the identical unkeyed call.
@@ -1202,6 +1303,7 @@ pub(crate) fn prove_core(
     // word is a table build plus one indexed lookup per word. Same words, same
     // refusal (see [`helper_inverses_u8`]).
     let u8_inv = u8_denominator_inverses(alpha, g_u8);
+    let mut jobs: Vec<HelperJob<'_>> = Vec::new();
     for (dom, cols) in &looked {
         let (first, count) = lay.helpers(*dom);
         // **STAGE 28.** A helper column is the sum of the inverses of at most
@@ -1212,13 +1314,16 @@ pub(crate) fn prove_core(
         // copy in `Fp2` beside them). Columns are still visited in index
         // order, so a refusal is still the lowest-indexed column's.
         for k in 0..count {
-            // [ZK60-METAL M4c] straight into `H`'s re/im rows, in parallel: the
-            // words `helper_pair_inverses_u8` / `helper_inverses_u8` build, in
-            // the places `write_h` puts them, without the column-sized
-            // temporary and its single-threaded copy (same words, same refusal)
-            write_helper_u8(&mut h_data, lay.h_off[first + k], &cols[2 * k], cols.get(2 * k + 1).map(|c| c.as_slice()), alpha, g_u8, &u8_inv)?;
+            // [ZK60-METAL M4c] straight into `H`'s re/im rows: the words
+            // `helper_pair_inverses_u8` / `helper_inverses_u8` build, in the
+            // places `write_h` puts them, without the column-sized temporary
+            // and its single-threaded copy (same words, same refusal).
+            // [M4d] collected here and written in ONE parallel region below
+            jobs.push(HelperJob { off: lay.h_off[first + k], a: &cols[2 * k], b: cols.get(2 * k + 1).map(|c| c.as_slice()) });
         }
     }
+    write_helpers_u8(&mut h_data, &jobs, alpha, g_u8, &u8_inv)?;
+    drop(jobs);
     ph.mark_bytes(Half::Commit, "H: LogUp helper inverses (six lookup domains)", lookup_words, "words", 16 * lookup_words);
     let exp_den = deltas.iter().zip(wit.planes[ids.at(A_E)].iter()).map(|(d, e)| alpha.sub(Fp2::from_i64(*d).add(beta.mul(Fp2::from_i64(*e))).add(g_exp))).collect();
     write_h(&mut h_data, lay.h_off[hids.sexp()], &inverses(exp_den)?);
@@ -1316,17 +1421,14 @@ pub(crate) fn prove_core(
         let off = lay.h_off[plane];
         write_h(&mut h_data, (off.0 + to, off.1 + to), &[val]);
     }
-    for x in &mut h_data[lay.h_mask_base * n..] {
-        *x = rng.fp();
-    }
+    // [ZK60-METAL M4d] the same draws in the same order as the `fp()` loops:
+    // every mask row first, then each zero-sum row's first `n - 1` words
+    rng.fill_fp(&mut h_data[lay.h_mask_base * n..]);
     for r in lay.h_u_rows() {
-        let mut sum = Fp::ZERO;
-        for j in 0..n - 1 {
-            let v = rng.fp();
-            h_data[r * n + j] = v;
-            sum = sum.add(v);
-        }
-        h_data[r * n + n - 1] = sum.neg();
+        let row = &mut h_data[r * n..(r + 1) * n];
+        rng.fill_fp(&mut row[..n - 1]);
+        let sum = row[..n - 1].iter().fold(Fp::ZERO, |s, v| s.add(*v));
+        row[n - 1] = sum.neg();
     }
     ph.mark(Half::Commit, "H: mask rows + the zero-sum rows", ((lay.h_rows - lay.h_mask_base) * n) as u64, "words");
     let mut h = pcs::commit_zk_owned_tagged(&params, h_data, ntt, &zko, rng, &tag);

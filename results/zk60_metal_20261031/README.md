@@ -181,11 +181,56 @@ classifier run proves and verifies.
 
 Evidence: `logs/m4c_unit.log`, `logs/m4c_bytes.log`, `logs/m4c_trained.log`, `logs/m4c_r13.log`.
 
+### M4d: the prover's fresh randomness and the LogUp helpers in parallel (CPU code, both paths)
+
+Three findings from a phase probe on the quiet box (`HL_PB_TIMING=1`):
+
+- **The mask rows drew their randomness one word at a time** (`ZkRng::fp()`: a u128 remainder per word over a
+  serial blake3 stream), 25 ns per word: A's mask and proximity rows 0.119 s, H's 0.045 s. The stream is
+  counter mode (block `c` is `blake3(key || c)`, drawn in order), so word `t` from any state is a pure function
+  of the state. `zkp-core/src/rng.rs::fill_fp` rebuilds the blocks in parallel chunks and leaves the generator
+  in exactly the state the `fp()` loop leaves it in; `fp_vec` (the commitments' pads) uses it too. Test
+  `fill_fp_equals_the_draw_loop_and_leaves_the_same_state`: equal draws, equal `(counter, pos, buf)` and equal
+  later draws of every kind, from seven buffer alignments (including an odd word, so draws straddle blocks) and
+  eleven lengths around the chunk and block edges. A mask rows 0.119 -> 0.007 s, H 0.045 -> 0.004 s.
+- **A rayon region costs about half a millisecond to start on this Mac.** The 47 LogUp helper columns each
+  opened one (and paid a per-word `try_for_each`), 0.13 s in all, slower than one thread (a standalone bench:
+  17 columns of 2^19, one thread 0.015 s, per-column regions 0.043-0.068 s, one region 0.0023 s).
+  `protocol.rs::write_helpers_u8` writes every column's chunks in ONE region; it takes that path only when all
+  jobs are well formed and their target ranges disjoint, so the only error left is the zero denominator the
+  job-by-job loop also returns, and anything else runs that loop itself. Test
+  `m4d_batched_helper_write_equals_the_job_by_job_loop`. Page faults on the fresh 575 MB `H` buffer were ruled
+  out: touching every page in parallel takes 2-6 ms.
+- **The Metal upload of a commitment's data was one `memcpy`** (600 MB for A); now parallel above 2^20 words.
+
+`HL_METAL_TIMING=1` now also splits each device sumcheck into round 0, later rounds and folds (diagnostic;
+note that the same switch re-runs every commitment's GPU parts on scratch buffers, so never time with it).
+
+Gates: zkp-core rng tests 4 / 4; unit `m4c_ m4d_ s28 slot_ir` 30 / 30; CPU vs Metal seeded bytes at the four
+development shapes; the trained digests unchanged (`2b0d04bb...` Shieldstral, `678953f6...` 8B, CPU and Metal);
+R13 classifier run proves and verifies; legacy golden gate 8 / 8 with device evidence (`golden_m4d/`, binary
+`golden_binary_m4d.sha256`).
+
+| Accuracy block, T128 [n = 1, quiet box; the test's own clock] | Mac CPU | Metal cold | Metal warm |
+|---|---:|---:|---:|
+| `R13_8B_T128_H24` | 4.739 s | 1.859 s | 2.017 -> **1.766 s** |
+| `R13_SHIELD_T128_H24` | 4.834 s | 1.939 s | 2.098 -> **1.832 s** |
+
+Shieldstral warm phases: witness planes + commit A 0.264 s (was 0.379), LogUp helpers + commit H 0.237 s (was
+0.516), 23 masked sumchecks 0.994 s. The zero-checks are now more than half the block. Their split
+(`logs/m4d_trained.log`): slot 14 (64 tables, degree 5) round 0 0.033 s, rounds 1.. 0.165 s; slot 18 (29 tables
+x 2^21) 0.036 / 0.084 s; the small slots pay about 0.5 ms per round in fixed costs (two command buffers, a
+fresh partials buffer, a rayon reduction). The Goldilocks multiply itself is not the limit: a standalone bench
+does 96 G `gl_mul`/s on this GPU, and neither a 32-bit `mulhi` form nor 64-bit `mulhi` is faster (equal outputs).
+Evidence: `logs/m4d_core_rng.log`, `logs/m4d_unit.log`, `logs/m4d_bytes.log`, `logs/m4d_trained.log`,
+`logs/m4d_timing.log`, `logs/m4d_r13.log`.
+
 ## Open items
 
 1. **Backend label.** `trained_block.rs::backend_of_this_process` knows only the CPU and CUDA names, so a
    Metal-made run statement would say "built without gpu-cuda". Adding a Metal name changes what verifiers
    accept and needs Sol's lane and a review before any Metal-made receipt is published.
-2. **Next on the GPU:** the H helper inverses (batch inversion), the extension rounds, and fewer host round trips in the device sumcheck.
+2. **Next on the GPU:** the device sumcheck's later rounds (register pressure on wide slots; the per-round
+   fixed costs), the exp/activation helper inverses (0.055 s), and the openings (0.18 s).
 4. **DD slot 17, the dictionary slot and the R13 table-helper slot (19)** need IR coverage before every slot of every profile runs on the device (legacy and accuracy alike).
 3. Buffer pooling (setup is about 15% of the Metal commit time).

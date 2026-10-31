@@ -250,8 +250,18 @@ fn shared_buffer(c: &Ctx, bytes: u64) -> Result<Buffer, String> {
 fn upload(c: &Ctx, vals: &[Fp]) -> Result<Buffer, String> {
     let buf = shared_buffer(c, (vals.len() * 8) as u64)?;
     // SAFETY: the buffer is at least vals.len() * 8 bytes of shared, CPU-visible
-    // memory and Fp is repr(transparent) over u64.
-    unsafe { std::ptr::copy_nonoverlapping(vals.as_ptr() as *const u64, buf.contents() as *mut u64, vals.len()) };
+    // memory, not yet used by the GPU, and Fp is repr(transparent) over u64.
+    let dst = unsafe { std::slice::from_raw_parts_mut(buf.contents() as *mut u64, vals.len()) };
+    // [M4d] large uploads in parallel: the copy of a block's A matrix (600 MB at
+    // the Shieldstral shape) also takes the fresh buffer's first-touch faults
+    const UPLOAD_PAR_MIN: usize = 1 << 20;
+    const UPLOAD_CHUNK: usize = 1 << 17;
+    let src: &[u64] = unsafe { std::slice::from_raw_parts(vals.as_ptr() as *const u64, vals.len()) };
+    if vals.len() < UPLOAD_PAR_MIN {
+        dst.copy_from_slice(src);
+    } else {
+        dst.par_chunks_mut(UPLOAD_CHUNK).zip(src.par_chunks(UPLOAD_CHUNK)).for_each(|(d, s)| d.copy_from_slice(s));
+    }
     Ok(buf)
 }
 
@@ -856,6 +866,8 @@ pub struct MetalRounds {
     unmasked_claim: Option<Fp2>,
     /// nanoseconds spent in this sumcheck's rounds and folds (diagnostics)
     busy_ns: std::cell::Cell<u64>,
+    /// [M4d] the same split (diagnostics): round 0, later rounds, folds
+    split_ns: std::cell::Cell<[u64; 3]>,
 }
 
 /// `Ok(None)`: a table the kernel keeps as a base-field word has a nonzero
@@ -923,6 +935,7 @@ pub fn metal_rounds(kernel_src: &str, tables: &[Vec<Fp2>], degree: usize, coefs:
             recover_one: false,
             unmasked_claim: None,
             busy_ns: std::cell::Cell::new(0),
+            split_ns: std::cell::Cell::new([0; 3]),
         }))
     })
 }
@@ -1011,6 +1024,9 @@ impl zkp_core::sumcheck::SumcheckRounds for MetalRounds {
         let ns = t0.elapsed().as_nanos() as u64;
         SC_ROUND_NS.fetch_add(ns, Ordering::Relaxed);
         self.busy_ns.set(self.busy_ns.get() + ns);
+        let mut sp = self.split_ns.get();
+        sp[if j == 0 { 0 } else { 1 }] += ns;
+        self.split_ns.set(sp);
         sums
     }
 
@@ -1036,13 +1052,28 @@ impl zkp_core::sumcheck::SumcheckRounds for MetalRounds {
         let ns = t0.elapsed().as_nanos() as u64;
         SC_ROUND_NS.fetch_add(ns, Ordering::Relaxed);
         self.busy_ns.set(self.busy_ns.get() + ns);
+        let mut sp = self.split_ns.get();
+        sp[2] += ns;
+        self.split_ns.set(sp);
     }
 
     fn finals(&self) -> Vec<Fp2> {
         assert_eq!(self.next, self.n_vars, "finals need all folds");
         assert!(self.pending.is_none());
         if std::env::var("HL_METAL_TIMING").map(|v| v == "1").unwrap_or(false) {
-            eprintln!("[ZK60-METAL] sumcheck rounds: {} tables, {} rounds, degree {} in {:.4} s", self.k, self.n_vars, self.degree, self.busy_ns.get() as f64 * 1e-9);
+            let sp = self.split_ns.get();
+            eprintln!(
+                "[ZK60-METAL] sumcheck rounds: {} tables, {} rounds, degree {} in {:.4} s (round 0 {:.4}, rounds 1.. {:.4}, folds {:.4}; max threads/group {} / {})",
+                self.k,
+                self.n_vars,
+                self.degree,
+                self.busy_ns.get() as f64 * 1e-9,
+                sp[0] as f64 * 1e-9,
+                sp[1] as f64 * 1e-9,
+                sp[2] as f64 * 1e-9,
+                self.pipe0.max_total_threads_per_threadgroup(),
+                self.pipe.max_total_threads_per_threadgroup()
+            );
         }
         self.finals_inner()
     }
