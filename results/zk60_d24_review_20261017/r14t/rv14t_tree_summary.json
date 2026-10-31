@@ -1,0 +1,51 @@
+{
+ "pinned": 293,
+ "pin_mismatches": [],
+ "unpinned_extra_count": 264,
+ "unpinned_extra_prefixes": [
+  "results/r12-tied-44894",
+  "results/r12-tied-47408",
+  "results/r12-tied-49886",
+  "results/r12b-profile-fields",
+  "results/r12b-rope",
+  "results/r12b-tests",
+  "results/r13-array-tests"
+ ],
+ "code_changed_vs_f1f2_base": [
+  "hashline/Cargo.lock",
+  "hashline/Cargo.toml",
+  "hashline/src/private_block.rs",
+  "hashline/src/private_block/argument.rs",
+  "hashline/src/private_block/run_capture.rs",
+  "hashline/src/private_block/s25_tests.rs",
+  "hashline/src/private_block/split_capture.rs",
+  "hashline/src/private_block/split_run.rs",
+  "hashline/src/private_block/trained_block.rs",
+  "hashline/src/private_block/trained_split.rs"
+ ],
+ "code_added_vs_f1f2_base": [
+  "hashline/src/private_block/split_security.rs",
+  "hashline/src/private_block/split_security_tests.rs"
+ ],
+ "code_removed_vs_f1f2_base": [],
+ "patch_files": [
+  "hashline/Cargo.lock",
+  "hashline/Cargo.toml",
+  "hashline/src/private_block.rs",
+  "hashline/src/private_block/argument.rs",
+  "hashline/src/private_block/run_capture.rs",
+  "hashline/src/private_block/s25_tests.rs",
+  "hashline/src/private_block/split_capture.rs",
+  "hashline/src/private_block/split_run.rs",
+  "hashline/src/private_block/split_security.rs",
+  "hashline/src/private_block/split_security_tests.rs",
+  "hashline/src/private_block/trained_block.rs",
+  "hashline/src/private_block/trained_split.rs"
+ ],
+ "code_delta_equals_patch_files": true,
+ "patch_line_mismatches": [],
+ "f1f2_base_vs_accepted_r14_code_changes": [
+  "hashline/src/private_block/split_attack_tests.rs",
+  "hashline/src/private_block/split_dense_tests.rs"
+ ]
+}

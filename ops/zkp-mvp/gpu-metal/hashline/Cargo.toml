@@ -1,0 +1,64 @@
+[package]
+name = "hashline"
+version = "0.1.0"
+edition = "2021"
+description = "U-PERF3 lane UU: hash-based small-prime-field prover/verifier for the 125M FFN int8 statement (comparison row vs the lattice line)"
+
+[lib]
+name = "hashline"
+path = "src/lib.rs"
+
+[[bin]]
+name = "hashline"
+path = "src/bin/hashline.rs"
+
+[features]
+# Host-only, opt-in protected registration storage. No dependency enters zkp-core.
+stable-weight-storage = ["dep:chacha20poly1305", "dep:zeroize"]
+# [UPERF3-XX] The GPU port: CUDA via cudarc (driver API + NVRTC runtime
+# compilation of src/gpu/kernels.cu), the same toolchain zkmatrix-rs's
+# gpu-cuda feature uses on this box. Default OFF: the CPU build never sees
+# cudarc. With the feature on, the device path is still runtime-gated by
+# `HL_GPU=1` and falls back to the CPU kernels when no device initializes.
+# Build: CUDA_ROOT=/home/victor/cuda-root LD_LIBRARY_PATH=<driver+nvrtc>
+#   CARGO_TARGET_DIR=hashline/target-gpu cargo build --release --features gpu-cuda
+gpu-cuda = ["dep:cudarc"]
+# [ZK60-METAL, 2026-10-31] The Apple GPU (M3 Ultra): the commitment encode-and-
+# hash through Metal, kernels compiled at run time from src/gpu/metal_kernels.metal
+# (no Xcode toolchain needed). macOS-only dependencies; default OFF; runtime-gated
+# by HL_GPU=1 like the CUDA path. If both features are on, CUDA is used.
+gpu-metal = ["dep:metal", "dep:objc"]
+
+[dependencies]
+zkp-core = { path = "../zkp-core" }
+blake3 = "1.8"
+rayon = "1.11"
+sha2 = "0.10"
+chacha20poly1305 = { version = "0.10.1", default-features = false, features = ["alloc"], optional = true }
+zeroize = { version = "1.8.2", optional = true }
+# [UPERF3-XX] optional, only with `--features gpu-cuda` (see above).
+cudarc = { version = "0.13", default-features = false, features = ["driver", "nvrtc", "cuda-12040", "dynamic-linking", "std"], optional = true }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+# [ZK60-METAL] optional, only with `--features gpu-metal` (see above).
+metal = { version = "=0.29.0", optional = true }
+objc = { version = "0.2.7", optional = true }
+
+[dev-dependencies]
+# [ZK60 private block] the portable exact-integer reference kernel, used ONLY by
+# tests (witness-vs-kernel parity of the private block, disposition condition 6).
+# A path dependency inside this checkout: nothing is fetched, the offline build
+# resolves it, and no dependency enters the library or the binary.
+private-block-kernel = { path = "../private-block-kernel" }
+# [ZK60 job K] the SHAPE-DRIVEN reference kernel, a separate crate because
+# `private-block-kernel` is compiled into the zkVM guest and is byte-frozen at
+# commit 11c01b2. Also a test-only path dependency; it does not depend on the
+# frozen crate, so the guest still compiles that crate as a leaf.
+private-block-kernel-shaped = { path = "../private-block-kernel-shaped" }
+
+[profile.release]
+opt-level = 3
+codegen-units = 1
+lto = "fat"
+panic = "abort"
+debug = false

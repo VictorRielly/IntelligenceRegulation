@@ -1,0 +1,124 @@
+
+running 6 tests
+test device::m0_field_ops_match_the_cpu_on_edges_and_random_values ... FAILED
+test device::m1_keyed_zk_commit_and_opening_bytes_match_the_cpu ... FAILED
+test device::m1_plain_commit_leaves_root_columns_and_folds_match_the_cpu ... FAILED
+test device::m1_zk_commit_and_opening_bytes_match_the_cpu ... FAILED
+test device::m2_keyed_commit_timing_at_block_sizes ... ignored, heavy: multi-GB commitments; run through the resource guard
+test metal_required_gate_refuses_a_build_without_the_feature ... ok
+
+failures:
+
+---- device::m0_field_ops_match_the_cpu_on_edges_and_random_values stdout ----
+
+thread 'device::m0_field_ops_match_the_cpu_on_edges_and_random_values' (342036) panicked at tests/zk60_metal_commit.rs:64:13:
+no usable Metal device: metal compile: program_source:238:13: error: expecting input declarations with either all scalar types or all vector types with the same number of elements
+kernel void k_ntt_head(device const ulong *src [[buffer(0)]],
+            ^
+program_source:245:29: note: declaration with attribute 'threads_per_threadgroup' of type 'uint' (aka 'unsigned int') here
+                       uint nth [[threads_per_threadgroup]],
+                       ~~~~~^~~
+program_source:246:30: note: declaration with attribute 'threadgroup_position_in_grid' of type 'uint2' (vector of 2 'unsigned int' values) here
+                       uint2 tg [[threadgroup_position_in_grid]]) {
+                       ~~~~~~^~
+program_source:281:13: error: expecting input declarations with either all scalar types or all vector types with the same number of elements
+kernel void k_ntt_tail(device ulong *a [[buffer(0)]],
+            ^
+program_source:285:29: note: declaration with attribute 'threads_per_threadgroup' of type 'uint' (aka 'unsigned int') here
+                       uint nth [[threads_per_threadgroup]],
+                       ~~~~~^~~
+program_source:286:30: note: declaration with attribute 'threadgroup_position_in_grid' of type 'uint2' (vector of 2 'unsigned int' values) here
+                       uint2 tg [[threadgroup_position_in_grid]]) {
+                       ~~~~~~^~
+
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- device::m1_keyed_zk_commit_and_opening_bytes_match_the_cpu stdout ----
+
+thread 'device::m1_keyed_zk_commit_and_opening_bytes_match_the_cpu' (342055) panicked at tests/zk60_metal_commit.rs:64:13:
+no usable Metal device: metal compile: program_source:238:13: error: expecting input declarations with either all scalar types or all vector types with the same number of elements
+kernel void k_ntt_head(device const ulong *src [[buffer(0)]],
+            ^
+program_source:245:29: note: declaration with attribute 'threads_per_threadgroup' of type 'uint' (aka 'unsigned int') here
+                       uint nth [[threads_per_threadgroup]],
+                       ~~~~~^~~
+program_source:246:30: note: declaration with attribute 'threadgroup_position_in_grid' of type 'uint2' (vector of 2 'unsigned int' values) here
+                       uint2 tg [[threadgroup_position_in_grid]]) {
+                       ~~~~~~^~
+program_source:281:13: error: expecting input declarations with either all scalar types or all vector types with the same number of elements
+kernel void k_ntt_tail(device ulong *a [[buffer(0)]],
+            ^
+program_source:285:29: note: declaration with attribute 'threads_per_threadgroup' of type 'uint' (aka 'unsigned int') here
+                       uint nth [[threads_per_threadgroup]],
+                       ~~~~~^~~
+program_source:286:30: note: declaration with attribute 'threadgroup_position_in_grid' of type 'uint2' (vector of 2 'unsigned int' values) here
+                       uint2 tg [[threadgroup_position_in_grid]]) {
+                       ~~~~~~^~
+
+
+---- device::m1_plain_commit_leaves_root_columns_and_folds_match_the_cpu stdout ----
+
+thread 'device::m1_plain_commit_leaves_root_columns_and_folds_match_the_cpu' (342056) panicked at tests/zk60_metal_commit.rs:64:13:
+no usable Metal device: metal compile: program_source:238:13: error: expecting input declarations with either all scalar types or all vector types with the same number of elements
+kernel void k_ntt_head(device const ulong *src [[buffer(0)]],
+            ^
+program_source:245:29: note: declaration with attribute 'threads_per_threadgroup' of type 'uint' (aka 'unsigned int') here
+                       uint nth [[threads_per_threadgroup]],
+                       ~~~~~^~~
+program_source:246:30: note: declaration with attribute 'threadgroup_position_in_grid' of type 'uint2' (vector of 2 'unsigned int' values) here
+                       uint2 tg [[threadgroup_position_in_grid]]) {
+                       ~~~~~~^~
+program_source:281:13: error: expecting input declarations with either all scalar types or all vector types with the same number of elements
+kernel void k_ntt_tail(device ulong *a [[buffer(0)]],
+            ^
+program_source:285:29: note: declaration with attribute 'threads_per_threadgroup' of type 'uint' (aka 'unsigned int') here
+                       uint nth [[threads_per_threadgroup]],
+                       ~~~~~^~~
+program_source:286:30: note: declaration with attribute 'threadgroup_position_in_grid' of type 'uint2' (vector of 2 'unsigned int' values) here
+                       uint2 tg [[threadgroup_position_in_grid]]) {
+                       ~~~~~~^~
+
+
+---- device::m1_zk_commit_and_opening_bytes_match_the_cpu stdout ----
+
+thread 'device::m1_zk_commit_and_opening_bytes_match_the_cpu' (342057) panicked at tests/zk60_metal_commit.rs:64:13:
+no usable Metal device: metal compile: program_source:238:13: error: expecting input declarations with either all scalar types or all vector types with the same number of elements
+kernel void k_ntt_head(device const ulong *src [[buffer(0)]],
+            ^
+program_source:245:29: note: declaration with attribute 'threads_per_threadgroup' of type 'uint' (aka 'unsigned int') here
+                       uint nth [[threads_per_threadgroup]],
+                       ~~~~~^~~
+program_source:246:30: note: declaration with attribute 'threadgroup_position_in_grid' of type 'uint2' (vector of 2 'unsigned int' values) here
+                       uint2 tg [[threadgroup_position_in_grid]]) {
+                       ~~~~~~^~
+program_source:281:13: error: expecting input declarations with either all scalar types or all vector types with the same number of elements
+kernel void k_ntt_tail(device ulong *a [[buffer(0)]],
+            ^
+program_source:285:29: note: declaration with attribute 'threads_per_threadgroup' of type 'uint' (aka 'unsigned int') here
+                       uint nth [[threads_per_threadgroup]],
+                       ~~~~~^~~
+program_source:286:30: note: declaration with attribute 'threadgroup_position_in_grid' of type 'uint2' (vector of 2 'unsigned int' values) here
+                       uint2 tg [[threadgroup_position_in_grid]]) {
+                       ~~~~~~^~
+
+
+
+failures:
+    device::m0_field_ops_match_the_cpu_on_edges_and_random_values
+    device::m1_keyed_zk_commit_and_opening_bytes_match_the_cpu
+    device::m1_plain_commit_leaves_root_columns_and_folds_match_the_cpu
+    device::m1_zk_commit_and_opening_bytes_match_the_cpu
+
+test result: FAILED. 1 passed; 4 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.09s
+
+
+running 6 tests
+test device::m0_field_ops_match_the_cpu_on_edges_and_random_values ... ok
+test device::m1_keyed_zk_commit_and_opening_bytes_match_the_cpu ... ok
+test device::m1_plain_commit_leaves_root_columns_and_folds_match_the_cpu ... ok
+test device::m1_zk_commit_and_opening_bytes_match_the_cpu ... ok
+test device::m2_keyed_commit_timing_at_block_sizes ... ignored, heavy: multi-GB commitments; run through the resource guard
+test metal_required_gate_refuses_a_build_without_the_feature ... ok
+
+test result: ok. 5 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.67s
+

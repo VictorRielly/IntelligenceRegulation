@@ -1,0 +1,15 @@
+
+running 1 test
+test private_block::argument::split_security_tests::split_security_native_fresh_verify ... 
+thread 'private_block::argument::split_security_tests::split_security_native_fresh_verify' (371264) panicked at src/private_block/split_security_tests.rs:115:30:
+called `Result::unwrap()` on an `Err` value: "R14 security: receipt tier is below the verifier minimum"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    private_block::argument::split_security_tests::split_security_native_fresh_verify
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 777 filtered out; finished in 0.44s
+

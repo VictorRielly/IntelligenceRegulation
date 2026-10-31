@@ -1,0 +1,137 @@
+{
+ "binary": "/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/rv14t-target/release/deps/hashline-8b0361328548628d",
+ "binary_sha256": "88e905a6407e2c577845ca0ee755efd3093099f820e7325e96534546f26e060c",
+ "runs": [
+  {
+   "label": "unit-security",
+   "returncode": 0,
+   "seconds": 4.84,
+   "summary": [
+    "test result: ok. 5 passed; 0 failed; 3 ignored; 0 measured; 770 filtered out; finished in 3.77s"
+   ],
+   "expected": "pass",
+   "as_expected": true
+  },
+  {
+   "label": "unit-cli-policy",
+   "returncode": 0,
+   "seconds": 11.26,
+   "summary": [
+    "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 777 filtered out; finished in 11.25s"
+   ],
+   "expected": "pass",
+   "as_expected": true
+  },
+  {
+   "label": "unit-cli-policy-v1",
+   "returncode": 0,
+   "seconds": 0.0,
+   "summary": [
+    "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 777 filtered out; finished in 0.00s"
+   ],
+   "expected": "pass",
+   "as_expected": true
+  },
+  {
+   "label": "unit-publisher-liveness",
+   "returncode": 0,
+   "seconds": 1.1,
+   "summary": [
+    "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 777 filtered out; finished in 1.10s"
+   ],
+   "expected": "pass",
+   "as_expected": true
+  },
+  {
+   "label": "rv14t-library-minimum-0",
+   "returncode": 0,
+   "seconds": 1.77,
+   "summary": [
+    "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 777 filtered out; finished in 1.77s"
+   ],
+   "expected": "pass",
+   "as_expected": true
+  },
+  {
+   "label": "sol-fresh-95-0",
+   "returncode": 0,
+   "seconds": 1.49,
+   "summary": [
+    "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 777 filtered out; finished in 1.49s"
+   ],
+   "expected": "pass",
+   "as_expected": true
+  },
+  {
+   "label": "sol-fresh-100-0",
+   "returncode": 101,
+   "seconds": 0.44,
+   "summary": [
+    "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 777 filtered out; finished in 0.44s"
+   ],
+   "expected": "receipt tier is below the verifier minimum",
+   "as_expected": true
+  },
+  {
+   "label": "rv14t-library-minimum-1",
+   "returncode": 0,
+   "seconds": 1.82,
+   "summary": [
+    "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 777 filtered out; finished in 1.81s"
+   ],
+   "expected": "pass",
+   "as_expected": true
+  },
+  {
+   "label": "sol-fresh-95-1",
+   "returncode": 0,
+   "seconds": 1.5,
+   "summary": [
+    "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 777 filtered out; finished in 1.49s"
+   ],
+   "expected": "pass",
+   "as_expected": true
+  },
+  {
+   "label": "sol-fresh-100-1",
+   "returncode": 101,
+   "seconds": 0.44,
+   "summary": [
+    "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 777 filtered out; finished in 0.43s"
+   ],
+   "expected": "receipt tier is below the verifier minimum",
+   "as_expected": true
+  },
+  {
+   "label": "legacy-dictionary-alias",
+   "returncode": 0,
+   "seconds": 1.15,
+   "summary": [
+    "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 777 filtered out; finished in 1.14s"
+   ],
+   "expected": "pass",
+   "as_expected": true
+  },
+  {
+   "label": "legacy-dense-receipt-0",
+   "returncode": 0,
+   "seconds": 1.38,
+   "summary": [
+    "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 777 filtered out; finished in 1.37s"
+   ],
+   "expected": "pass",
+   "as_expected": true
+  },
+  {
+   "label": "legacy-dense-receipt-1",
+   "returncode": 0,
+   "seconds": 1.4,
+   "summary": [
+    "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 777 filtered out; finished in 1.39s"
+   ],
+   "expected": "pass",
+   "as_expected": true
+  }
+ ],
+ "all_as_expected": true
+}

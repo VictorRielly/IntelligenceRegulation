@@ -1,0 +1,9 @@
+
+running 1 test
+ZK60_METAL_BENCH {"log_cols":14,"rows":4608,"encoded_gb":2.42,"cpu_s":0.451,"metal_s":0.219,"speedup":2.06,"threads":32}
+ZK60_METAL_BENCH {"log_cols":15,"rows":4608,"encoded_gb":4.83,"cpu_s":0.894,"metal_s":0.394,"speedup":2.27,"threads":32}
+ZK60_METAL_BENCH {"log_cols":15,"rows":9216,"encoded_gb":9.66,"cpu_s":1.727,"metal_s":0.875,"speedup":1.97,"threads":32}
+test device::m2_keyed_commit_timing_at_block_sizes ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 5 filtered out; finished in 4.95s
+

@@ -1,0 +1,15 @@
+
+running 1 test
+[ZK60-METAL] commit 1 x 2^14 -> 2^16: setup 0.000 s, gpu total 0.005 s (inverse 0.000, init 0.000, forward 0.001, hash 0.000)
+[ZK60-METAL] commit 4608 x 2^14 -> 2^16: setup 0.030 s, gpu total 0.104 s (inverse 0.019, init 0.000, forward 0.074, hash 0.006)
+ZK60_METAL_BENCH {"log_cols":14,"rows":4608,"encoded_gb":2.42,"cpu_s":0.451,"metal_s":0.311,"speedup":1.45,"threads":32}
+[ZK60-METAL] commit 1 x 2^15 -> 2^17: setup 0.000 s, gpu total 0.001 s (inverse 0.000, init 0.000, forward 0.000, hash 0.000)
+[ZK60-METAL] commit 4608 x 2^15 -> 2^17: setup 0.059 s, gpu total 0.227 s (inverse 0.039, init 0.000, forward 0.165, hash 0.010)
+ZK60_METAL_BENCH {"log_cols":15,"rows":4608,"encoded_gb":4.83,"cpu_s":0.891,"metal_s":0.613,"speedup":1.45,"threads":32}
+[ZK60-METAL] commit 1 x 2^15 -> 2^17: setup 0.000 s, gpu total 0.006 s (inverse 0.000, init 0.000, forward 0.001, hash 0.000)
+[ZK60-METAL] commit 9216 x 2^15 -> 2^17: setup 0.156 s, gpu total 0.469 s (inverse 0.079, init 0.000, forward 0.336, hash 0.019)
+ZK60_METAL_BENCH {"log_cols":15,"rows":9216,"encoded_gb":9.66,"cpu_s":1.732,"metal_s":1.263,"speedup":1.37,"threads":32}
+test device::m2_keyed_commit_timing_at_block_sizes ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 5 filtered out; finished in 5.65s
+

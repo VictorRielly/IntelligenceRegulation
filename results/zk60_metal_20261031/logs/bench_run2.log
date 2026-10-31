@@ -1,0 +1,19 @@
+
+running 1 test
+[ZK60-METAL] commit 1 x 2^14 -> 2^16: setup 0.000 s, gpu total 0.006 s (inverse 0.000, forward 0.000, hash 0.000)
+[ZK60-METAL] commit 4608 x 2^14 -> 2^16: setup 0.030 s, gpu total 0.235 s (inverse 0.033, forward 0.106, hash 0.006)
+
+thread 'device::m2_keyed_commit_timing_at_block_sizes' (335787) panicked at tests/zk60_metal_commit.rs:248:13:
+assertion `left == right` failed: root at 2^14 x 4608
+  left: [161, 43, 240, 169, 91, 255, 151, 196, 84, 16, 215, 38, 155, 215, 123, 122, 48, 54, 254, 92, 42, 118, 140, 43, 55, 218, 12, 103, 88, 126, 182, 179]
+ right: [178, 157, 3, 53, 129, 146, 60, 40, 19, 220, 154, 94, 5, 15, 218, 173, 12, 248, 69, 237, 189, 94, 170, 119, 17, 204, 139, 141, 160, 55, 86, 187]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test device::m2_keyed_commit_timing_at_block_sizes ... FAILED
+
+failures:
+
+failures:
+    device::m2_keyed_commit_timing_at_block_sizes
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 5 filtered out; finished in 1.06s
+

@@ -1,0 +1,14 @@
+
+running 5 tests
+test device::m0_field_ops_match_the_cpu_on_edges_and_random_values ... ZK60_METAL_SUMMARY {"case":"m0-field","pairs":100144}
+ok
+test device::m1_keyed_zk_commit_and_opening_bytes_match_the_cpu ... ZK60_METAL_SUMMARY {"case":"m1-zk-keyed","shapes":9}
+ok
+test device::m1_plain_commit_leaves_root_columns_and_folds_match_the_cpu ... ZK60_METAL_SUMMARY {"case":"m1-plain","shapes":9}
+ok
+test device::m1_zk_commit_and_opening_bytes_match_the_cpu ... ZK60_METAL_SUMMARY {"case":"m1-zk","shapes":9}
+ok
+test metal_required_gate_refuses_a_build_without_the_feature ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.81s
+

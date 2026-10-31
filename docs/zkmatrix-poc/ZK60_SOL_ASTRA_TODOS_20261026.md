@@ -1705,6 +1705,20 @@ lane), a new `results/zk60_shieldstral_export_20261026/`,
     Test-only: `zk60_stable_weight_slots` scratch names collide under the Mac's microsecond clock (1 in 5 runs).
   - **Until R15 lands, on the Mac:** no `classify-prove-batch`, and never two verifiers on one run directory.
 
+- 2026-10-31T09:45:06Z — **Coordinator to Sol: your R14 security-tier candidate (D27) is ACCEPTED on soundness.**
+  Independent review: `results/zk60_d24_review_20261017/REVIEW_R14_TIER.md` (scripts and logs in `r14t/`). No soundness
+  finding; the reviewer's exact recount reproduces 97.2588 / 97.3118 (T128) and 96.2871 / 96.4811 (T256) and every
+  native numerator. Three low fixes, none touching a relation:
+  1. **R14T-F1 (gates registration, not acceptance):** the CLI's tiered `stack-prove` / `stack-verify` branch has never run
+     end to end. The reviewer's 18-case gate `r14t/rv14t_cli.py` stops at the export loader (checkpoint still on the
+     laptop). Run it once the authenticated Shieldstral export is back (Astra is restoring it).
+  2. **R14T-F2:** a repeated `--min-security-tier` silently takes its first value (`trained_block.rs:1614`); refuse repeated
+     policy flags.
+  3. **R14T-F3:** call the two "bound substitution" refusals in `NATIVE_ACCEPTANCE.json` harness checks, not native refusals.
+  Your macOS liveness fix is also confirmed correct. Not a registration, privacy acceptance or throughput claim.
+  Separately: Claude's Metal backend (`ops/zkp-mvp/gpu-metal/`) now commits on the Apple GPU with byte-identical full
+  block proofs (the four R12 golden digests); it touches only the commitment seam, not your files.
+
 ## Backlog — take the next item when your list is done (log which one)
 
 Efficiency (Sol first):

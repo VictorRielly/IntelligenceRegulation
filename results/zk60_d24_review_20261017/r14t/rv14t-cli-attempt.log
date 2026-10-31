@@ -1,0 +1,12 @@
+{"label": "tier-prove", "returncode": 1, "seconds": 2.47, "last": {"event": "refused", "error": "/Users/victorrielly/IntelligenceRegulation/results/zk60_shieldstral_export_20261026/native_low_h24_t128/profile.json: /home/victor/models/shieldstral-1.0-3b/snapshot-003ec7e2/model.safetensors: No such file or directory (os error 2)"}}
+Traceback (most recent call last):
+  File "/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/rv14t_cli.py", line 196, in <module>
+    main(sys.argv[1])
+    ~~~~^^^^^^^^^^^^^
+  File "/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/rv14t_cli.py", line 94, in main
+    base, model, binding = prove(work, "tier", L2, "95")
+                           ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/rv14t_cli.py", line 56, in prove
+    assert rec["returncode"] == 0, rec
+           ^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'label': 'tier-prove', 'returncode': 1, 'seconds': 2.47, 'last': {'event': 'refused', 'error': '/Users/victorrielly/IntelligenceRegulation/results/zk60_shieldstral_export_20261026/native_low_h24_t128/profile.json: /home/victor/models/shieldstral-1.0-3b/snapshot-003ec7e2/model.safetensors: No such file or directory (os error 2)'}}

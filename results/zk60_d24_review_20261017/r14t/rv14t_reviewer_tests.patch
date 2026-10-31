@@ -1,0 +1,109 @@
+--- /Users/victorrielly/IntelligenceRegulation/results/zk60_sol_20261031/r14-security-tier/source-tree/hashline/src/private_block/split_security_tests.rs	2026-10-31 00:39:09
++++ /private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/rv14t-src/hashline/src/private_block/split_security_tests.rs	2026-10-31 02:34:03
+@@ -117,3 +117,106 @@
+     super::split_run_tests::verify(&st, &blocks, &[bytes]).unwrap();
+     eprintln!("R14_TIER_FRESH_VERIFY minimum={}", minimum.bits());
+ }
++
++/// D24 reviewer additions (R14-tier review), in the reviewer's scratch copy only.
++mod rv14t {
++    use super::{dense, explicit_dd, plan, public_fixture};
++    use crate::private_block::{
++        run::BlockRef, shape::{self as shp, NormCalibration, Shape as Sh}, split_profile::SplitProfile,
++        split_run, split_security::{Counter, Tier}, BlockPublic,
++    };
++    struct Borrowed<'a>(&'a [BlockPublic]);
++    impl split_run::PublicBlockSource for Borrowed<'_> {
++        fn count(&self) -> usize { self.0.len() }
++        fn block(&mut self, k: usize) -> Result<BlockRef<'_>, String> {
++            self.0.get(k).map(BlockRef::Borrowed).ok_or_else(|| "rv14t: index".into())
++        }
++    }
++    fn profile(base: &'static str) -> SplitProfile {
++        let cal = NormCalibration { tn: 9, cn_a: 100, cn_m: 100, ceps: 1,
++            sh_ao: 7, sh_qkv: 8, sh_s: 6, sh_o: 9, sh_g: 8, sh_h: 14, sh_z: 6 };
++        SplitProfile::new(Sh::accuracy_trained(base, &cal, 9, 20).unwrap()).unwrap()
++    }
++
++    #[test]
++    fn rv14t_count_source_is_authenticated_and_counter_fails_closed() {
++        let (sh, blocks, model) = public_fixture(false);
++        // (a) A public block that is not the model-bound block cannot feed the count.
++        let mut forged = blocks.clone();
++        let mut b = forged[1].clone();
++        let g = &mut b.attention.gamma_a[0];
++        *g = if *g == 127 { 126 } else { *g + 1 };
++        assert_ne!(b.digest(), blocks[1].digest());
++        forged[1] = b;
++        let err = plan(&sh, &blocks, &model).with_security(Tier::Mvp95, &forged).err().unwrap();
++        assert!(err.contains("differs"), "{err}");
++        // (b) A source of the wrong length is refused.
++        let mut longer = blocks.clone();
++        longer.push(blocks[0].clone());
++        assert!(plan(&sh, &blocks, &model).with_security(Tier::Mvp95, &longer).is_err());
++        // (c) Counter refusals: group count, mixed geometry, block cap, empty.
++        let t128 = profile(shp::R13_SHIELD_T128_H24);
++        let t128dd = profile(shp::R13_SHIELD_T128_H24_DD);
++        let t256 = profile(shp::R13_SHIELD_T256_H24);
++        for g in [0usize, 5] { assert!(Counter::new().add(&t128, g).is_err()); }
++        let mut c = Counter::new(); c.add(&t128, 3).unwrap();
++        assert!(c.add(&t128dd, 3).unwrap_err().contains("mixed"));
++        let mut c = Counter::new(); c.add(&t128, 3).unwrap();
++        assert!(c.add(&t256, 3).unwrap_err().contains("mixed"));
++        let mut c = Counter::new();
++        for _ in 0..128 { c.add(&t128dd, 1).unwrap(); }
++        assert!(c.add(&t128dd, 1).is_err());
++        assert!(Counter::new().finish(Tier::Mvp95).is_err());
++        // (d) The admission threshold is live exactly where the reviewer's
++        // independent exact recount puts it (all-G4 workloads).
++        for (base, max) in [(shp::R13_SHIELD_T128_H24, 124usize), (shp::R13_SHIELD_T256_H24, 63),
++                            (shp::R13_SHIELD_T256_H24_DD, 72)] {
++            let p = profile(base);
++            let mut ok = Counter::new();
++            for _ in 0..max { ok.add(&p, 4).unwrap(); }
++            assert!(ok.finish(Tier::Mvp95).is_ok(), "{base} {max}");
++            let mut over = Counter::new();
++            for _ in 0..max + 1 { over.add(&p, 4).unwrap(); }
++            assert!(over.finish(Tier::Mvp95).err().unwrap().contains("does not meet"), "{base} {}", max + 1);
++        }
++        let mut full = Counter::new();
++        for _ in 0..128 { full.add(&t128dd, 4).unwrap(); }
++        assert!(full.finish(Tier::Mvp95).is_ok());
++        // (e) Tier parsing is exact; order is 95 < 100 < 128; unimplemented tiers refuse.
++        for bad in ["", "095", " 95", "95 ", "+95", "95.0", "96", "1e2"] { assert!(Tier::parse(bad).is_err(), "{bad:?}"); }
++        assert!(Tier::Mvp95 < Tier::Bits100 && Tier::Bits100 < Tier::Bits128);
++        for t in [Tier::Bits100, Tier::Bits128] {
++            let mut c = Counter::new(); c.add(&t128, 3).unwrap();
++            assert!(c.finish(t).is_err());
++        }
++        eprintln!("RV14T_COUNT_SOURCE_AND_COUNTER PASS");
++    }
++
++    /// Fresh verification of Sol's retained tiered frame through the library
++    /// minimum API (which refuses before any block I/O), with this build.
++    #[test]
++    #[ignore = "reviewer: retained tiered dense frame; explicit DD/input"]
++    fn rv14t_retained_frame_library_minimum() {
++        use crate::private_block::trained_block::{hex, unhex32};
++        let dir = std::path::PathBuf::from(std::env::var("HL_R14_TIER_INPUT").unwrap());
++        let text = std::fs::read_to_string(dir.join("statement.txt")).unwrap();
++        let f: std::collections::BTreeMap<_, _> = text.lines().skip(1).map(|l| l.split_once('=').unwrap()).collect();
++        let (sh, blocks, model, _) = dense(explicit_dd());
++        let p = plan(&sh, &blocks, &model).with_security_source(Tier::Mvp95, &mut Borrowed(&blocks)).unwrap();
++        assert_eq!(f["security"], hex(&p.security().unwrap().encode()));
++        let st = p.bind(unhex32(f["input_root"]).unwrap(), unhex32(f["output_root"]).unwrap()).unwrap();
++        assert_eq!(f["binding"], hex(&st.binding()));
++        let bytes = std::fs::read(dir.join("segment0.bin")).unwrap();
++        for (min, accept) in [(Tier::Mvp95, true), (Tier::Bits100, false), (Tier::Bits128, false)] {
++            let r = split_run::Verifier::with_source_minimum(&st, Box::new(Borrowed(&blocks)), min)
++                .and_then(|mut v| { v.verify_next(&bytes)?; v.finish() });
++            assert_eq!(r.is_ok(), accept, "{min:?}: {r:?}");
++        }
++        // The same frame under the untiered reconstruction is refused.
++        let old = plan(&sh, &blocks, &model).bind(unhex32(f["input_root"]).unwrap(), unhex32(f["output_root"]).unwrap()).unwrap();
++        let r = split_run::Verifier::with_source(&old, Box::new(Borrowed(&blocks)))
++            .and_then(|mut v| { v.verify_next(&bytes)?; v.finish() });
++        assert!(r.is_err());
++        eprintln!("RV14T_RETAINED_FRAME_LIBRARY_MINIMUM PASS dd={} untiered_refusal={:?}", explicit_dd(), r.err());
++    }
++}
