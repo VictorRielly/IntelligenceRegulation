@@ -615,6 +615,44 @@ mod tests {
         assert!(w2.0.is_ok() && g2 == w2, "overlapping jobs");
     }
 
+    /// [ZK60-METAL M4h] the chunked parallel batch inversion returns the
+    /// single-region inverses word for word, refuses a zero with the same
+    /// string, and the parallel `write_h` writes what the loop writes, with the
+    /// real row before or after the imaginary one
+    #[test]
+    fn m4h_parallel_inverses_and_h_writes_equal_the_sequential_forms() {
+        use crate::private_block::protocol::{inverses, write_h, INV_CHUNK, WRITE_H_PAR_MIN};
+        // long enough for both parallel forms (two inversion chunks, and the
+        // write_h column below)
+        let len = WRITE_H_PAR_MIN + INV_CHUNK + 5;
+        let den: Vec<Fp2> = (0..len).map(|i| k(i as i64 * 7919 + 3).add(Fp2::U.mul(k((i % 977) as i64 + 1)))).collect();
+        let mut want = den.clone();
+        crate::field::batch_inverse2_checked(&mut want).unwrap();
+        let got = inverses(den.clone()).unwrap();
+        assert_eq!(got, want, "the inverses");
+        assert!(got.iter().zip(&den).all(|(x, d)| x.mul(*d) == Fp2::ONE));
+        let mut zero = den.clone();
+        zero[2 * INV_CHUNK + 11] = Fp2::ZERO;
+        assert_eq!(inverses(zero).unwrap_err(), "zero LogUp denominator; discard attempt");
+        // short columns keep the single region (and its string)
+        let mut short = den[..100].to_vec();
+        short[40] = Fp2::ZERO;
+        assert_eq!(inverses(short).unwrap_err(), "zero LogUp denominator; discard attempt");
+        let col = &want[..WRITE_H_PAR_MIN + 77];
+        let n = col.len();
+        for off in [(13usize, 13 + n + 4), (2 * n + 9, 5)] {
+            let size = off.0.max(off.1) + n + 3;
+            let mut a = vec![Fp::new(5); size];
+            write_h(&mut a, off, col);
+            let mut b = vec![Fp::new(5); size];
+            for (i, v) in col.iter().enumerate() {
+                b[off.0 + i] = v.c0;
+                b[off.1 + i] = v.c1;
+            }
+            assert_eq!(a, b, "write_h at {off:?}");
+        }
+    }
+
     /// one seeded accuracy-stack block proof's digest (the recipe of
     /// `r12_golden_tests::digest_of_seeded_block`: roots, slot proofs,
     /// openings, IO claims, absorb order, lookups, final transcript state)

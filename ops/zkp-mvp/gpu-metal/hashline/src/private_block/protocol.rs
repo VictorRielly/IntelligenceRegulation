@@ -689,10 +689,26 @@ pub(super) fn exp_deltas(lay: &Layout, wit: &Witness) -> Vec<i64> {
         .collect()
 }
 
-fn inverses(mut den: Vec<Fp2>) -> Result<Vec<Fp2>, String> {
+pub(super) fn inverses(mut den: Vec<Fp2>) -> Result<Vec<Fp2>, String> {
+    // [ZK60-METAL M4h] a long column is inverted in rayon chunks, one batch
+    // inversion (and one field inversion) per chunk. An inverse is the unique
+    // field element, so every word is the same; a zero anywhere refuses with
+    // the same string (each chunk checks before it inverts, and a refused
+    // vector is dropped). The exp and activation helpers alone are 2.6 M
+    // extension elements at the T128 rungs, inverted on one thread before.
+    if den.len() >= 2 * INV_CHUNK {
+        use rayon::prelude::*;
+        den.par_chunks_mut(INV_CHUNK).try_for_each(batch_inverse2_checked).map_err(|_| ZERO_DENOMINATOR.to_string())?;
+        return Ok(den);
+    }
     batch_inverse2_checked(&mut den).map_err(|_| "zero LogUp denominator; discard attempt".to_string())?;
     Ok(den)
 }
+
+/// [M4h] the chunk of [`inverses`]' parallel form, and the column length from
+/// which [`write_h`] writes in parallel
+pub(super) const INV_CHUNK: usize = 1 << 14;
+pub(super) const WRITE_H_PAR_MIN: usize = 1 << 16;
 
 /// The one refusal string every LogUp denominator shares. It was written out
 /// twice before stage 28 and is written out once now, so the table path below
@@ -997,7 +1013,27 @@ pub(super) fn write_helpers_u8(h: &mut [Fp], jobs: &[HelperJob<'_>], alpha: Fp2,
     }
 }
 
-fn write_h(h: &mut [Fp], off: (usize, usize), col: &[Fp2]) {
+pub(super) fn write_h(h: &mut [Fp], off: (usize, usize), col: &[Fp2]) {
+    // [M4h] a long column in parallel when its re and im ranges are disjoint
+    // and in bounds (they always are); the same words in the same places.
+    // Anything else takes the loop below, which panics where it did.
+    let n = col.len();
+    if n >= WRITE_H_PAR_MIN {
+        let (lo, hi) = (off.0.min(off.1), off.0.max(off.1));
+        if lo + n <= hi && hi + n <= h.len() {
+            use rayon::prelude::*;
+            let (head, tail) = h.split_at_mut(hi);
+            let (first, second) = (&mut head[lo..lo + n], &mut tail[..n]);
+            let (re, im) = if off.0 <= off.1 { (first, second) } else { (second, first) };
+            re.par_chunks_mut(HELPER_CHUNK).zip(im.par_chunks_mut(HELPER_CHUNK)).zip(col.par_chunks(HELPER_CHUNK)).for_each(|((r, i), c)| {
+                for ((r, i), v) in r.iter_mut().zip(i.iter_mut()).zip(c.iter()) {
+                    *r = v.c0;
+                    *i = v.c1;
+                }
+            });
+            return;
+        }
+    }
     for (i, v) in col.iter().enumerate() {
         h[off.0 + i] = v.c0;
         h[off.1 + i] = v.c1;
@@ -1325,12 +1361,16 @@ pub(crate) fn prove_core(
     write_helpers_u8(&mut h_data, &jobs, alpha, g_u8, &u8_inv)?;
     drop(jobs);
     ph.mark_bytes(Half::Commit, "H: LogUp helper inverses (six lookup domains)", lookup_words, "words", 16 * lookup_words);
-    let exp_den = deltas.iter().zip(wit.planes[ids.at(A_E)].iter()).map(|(d, e)| alpha.sub(Fp2::from_i64(*d).add(beta.mul(Fp2::from_i64(*e))).add(g_exp))).collect();
+    // [M4h] the denominators element by element on rayon: indexed iterators,
+    // so the same elements in the same order (zip stops at the shorter side,
+    // as the sequential zip did)
+    use rayon::prelude::*;
+    let exp_den = deltas.par_iter().zip(wit.planes[ids.at(A_E)].par_iter()).map(|(d, e)| alpha.sub(Fp2::from_i64(*d).add(beta.mul(Fp2::from_i64(*e))).add(g_exp))).collect();
     write_h(&mut h_data, lay.h_off[hids.sexp()], &inverses(exp_den)?);
     let act_den = match blk.accuracy() {
         Some(data)=>super::accuracy_act::query_values(sh,data,&wit.planes[ids.at(A_G8)],&wit.planes[ids.at(A_A16)],beta,g_act)?
-            .into_iter().map(|query|alpha.sub(query)).collect(),
-        None=>act_idx.iter().zip(wit.planes[ids.at(A_A16)].iter()).map(|(i,a)|alpha.sub(Fp2::from_i64(*i).add(beta.mul(Fp2::from_i64(*a))).add(g_act))).collect(),
+            .into_par_iter().map(|query|alpha.sub(query)).collect(),
+        None=>act_idx.par_iter().zip(wit.planes[ids.at(A_A16)].par_iter()).map(|(i,a)|alpha.sub(Fp2::from_i64(*i).add(beta.mul(Fp2::from_i64(*a))).add(g_act))).collect(),
     };
     write_h(&mut h_data, lay.h_off[hids.fact()], &inverses(act_den)?);
     ph.mark_bytes(Half::Commit, "H: exp + activation helper inverses", (sh.size(Dom::S) + sh.size(Dom::F)) as u64, "words", 16 * (sh.size(Dom::S) + sh.size(Dom::F)) as u64);

@@ -356,6 +356,35 @@ verifies; legacy golden gate 8 / 8 with device evidence (`golden_m4g/`, binary `
 Evidence: `logs/m4g_build.log`, `logs/m4g_unit.log`, `logs/m4g_bytes.log`, `logs/m4g_trained_{1,2,3,4}.log`,
 `logs/m4g_split.log`, `logs/m4g_r13.log`.
 
+### M4h: the exp and activation helper inverses in parallel (byte-identical, CPU side)
+
+`H`'s exp and activation helper columns (2,621,440 extension elements at the T128 rungs) were built and
+batch-inverted on ONE thread (0.057-0.059 s of a warm block). `private_block/protocol.rs`: `inverses` now
+inverts a long column in rayon chunks of 2^14, one batch inversion (one field inversion) per chunk; an inverse
+is the unique field element, so the words are the same, and a zero anywhere refuses with the same string (each
+chunk checks before it inverts; a refused vector is dropped). The denominators are formed on indexed rayon
+iterators (same elements, same order; `zip` stops at the shorter side as before) and `write_h` writes a long
+column's re and im rows in parallel when they are disjoint and in bounds (always; anything else takes the old
+loop). The DD dictionary's helper columns use the same `inverses`. `slot_ir_accuracy.rs`:
+`m4h_parallel_inverses_and_h_writes_equal_the_sequential_forms` (word-for-word inverses against the
+single-region batch inversion, the zero refusal in both forms, `write_h` with the real row before and after the
+imaginary one). The phase: **0.057-0.059 s -> 0.024-0.025 s** (`logs/m4h_trained_phases.log`; the remainder is
+`accuracy_act::query_values`, a file of the accuracy lane, left as it is).
+
+| Accuracy block, T128, Metal warm [the test's own clock, quiet box] | M4g (n = 4) | M4h (n = 4) |
+|---|---:|---:|
+| `R13_SHIELD_T128_H24` | 1.046-1.168 s, median 1.07 | **0.980-1.023 s, median 1.005** |
+| `R13_8B_T128_H24` | 1.090-1.180 s, median 1.10 | **1.016-1.182 s, median 1.03** |
+
+The CPU path shares the change (Shieldstral CPU 4.2-4.8 s, one run 3.1 s; not a quiesced CPU ladder). The
+CPU-vs-Metal bytes test at the four development shapes went from 31-36 s to 7.4-7.7 s with the same four digests.
+
+Gates: unit `m4c_ m4d_ m4h_ s28 slot_ir metal` 31 / 31 (the first run of the new test failed on the TEST's own
+slice length, `logs/m4h_first_binary/`; fixed, rebuilt, every gate below re-run on the final binary except the
+three timing runs, whose prover code is the same); CPU vs Metal seeded bytes at the four development shapes;
+trained digests unchanged in all runs; R13 classifier run proves and verifies; legacy golden gate 8 / 8 with
+device evidence (`golden_m4h/`, binary `golden_binary_m4h.sha256`). Evidence: `logs/m4h_*`.
+
 ## Open items
 
 1. **Backend label.** `trained_block.rs::backend_of_this_process` knows only the CPU and CUDA names, so a

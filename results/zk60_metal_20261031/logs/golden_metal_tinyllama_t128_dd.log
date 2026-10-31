@@ -698,3 +698,143 @@ ok
 
 test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 902 filtered out; finished in 2.40s
 
+
+running 1 test
+test private_block::r12_golden_tests::r12_golden_seeded_tinyllama_t128_dd_block_is_byte_identical ... [ZK60-METAL] commit 1871 x 2^14 -> 2^16: setup 0.023 s, gpu total 0.060 s (inverse 0.008, init 0.000, forward 0.029, hash 0.003)
+[ZK60-METAL] commit 2026 x 2^14 -> 2^16: setup 0.025 s, gpu total 0.045 s (inverse 0.008, init 0.000, forward 0.031, hash 0.003)
+[ZK60-METAL] argument: prove=true accuracy_none=true legacy_stack=true gpu_enabled=true -> metal_on=true (TinyLlama-1.1B block geometry, trained calibration, DD (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads, 32-slot division dictionary))
+PB-SLOTSTEP slot 00 | tables: build (argument.rs)        |    0.000 s |       524288 |
+PB-SLOTSTEP slot 00 | claimed sum: total (argument.rs)   |    0.001 s |       262144 |
+[ZK60-METAL] compiled a slot library (2 tables, degree 3, 7359 B of source, 2 kernels) in 0.000 s
+[ZK60-METAL] sumcheck setup: 2 tables x 2^18 in 0.0004 s
+[ZK60-METAL] sumcheck rounds: 2 tables, 18 rounds, degree 3 in 0.0071 s (round 0 0.0016, rounds 1.. 0.0053, folds 0.0002; max threads/group 1024 / 1024)
+PB-SLOTSTEP slot 00 | masked sumcheck (zk.rs, shared)    |    0.008 s |       262144 |
+PB-SLOTSTEP slot 00 | extension rounds (mask_eval + zk.rs) |    0.003 s |            1 |
+PB-SLOTSTEP slot 01 | tables: build (argument.rs)        |    0.000 s |       524288 |
+PB-SLOTSTEP slot 01 | claimed sum: total (argument.rs)   |    0.001 s |       262144 |
+[ZK60-METAL] compiled a slot library (2 tables, degree 3, 7361 B of source, 2 kernels) in 0.000 s
+[ZK60-METAL] sumcheck setup: 2 tables x 2^18 in 0.0002 s
+[ZK60-METAL] sumcheck rounds: 2 tables, 18 rounds, degree 3 in 0.0069 s (round 0 0.0017, rounds 1.. 0.0050, folds 0.0002; max threads/group 1024 / 1024)
+PB-SLOTSTEP slot 01 | masked sumcheck (zk.rs, shared)    |    0.007 s |       262144 |
+PB-SLOTSTEP slot 01 | extension rounds (mask_eval + zk.rs) |    0.003 s |            1 |
+PB-SLOTSTEP slot 02 | tables: build (argument.rs)        |    0.000 s |         3200 |
+PB-SLOTSTEP slot 02 | claimed sum: total (argument.rs)   |    0.000 s |          128 |
+PB-SLOTSTEP slot 02 | masked sumcheck (zk.rs, shared)    |    0.000 s |          128 |
+PB-SLOTSTEP slot 02 | extension rounds (mask_eval + zk.rs) |    0.001 s |            1 |
+PB-SLOTSTEP slot 03 | tables: build (argument.rs)        |    0.003 s |        81920 |
+PB-SLOTSTEP slot 03 | claimed sum: total (argument.rs)   |    0.000 s |        16384 |
+PB-SLOTSTEP slot 03 | masked sumcheck (zk.rs, shared)    |    0.016 s |        16384 |
+PB-SLOTSTEP slot 03 | extension rounds (mask_eval + zk.rs) |    0.003 s |            1 |
+PB-SLOTSTEP slot 04 | tables: build (argument.rs)        |    0.001 s |      2097152 |
+PB-SLOTSTEP slot 04 | claimed sum: total (argument.rs)   |    0.002 s |       524288 |
+[ZK60-METAL] compiled a slot library (4 tables, degree 3, 7903 B of source, 2 kernels) in 0.000 s
+[ZK60-METAL] sumcheck setup: 4 tables x 2^19 in 0.0011 s
+[ZK60-METAL] sumcheck rounds: 4 tables, 19 rounds, degree 3 in 0.0076 s (round 0 0.0016, rounds 1.. 0.0057, folds 0.0002; max threads/group 1024 / 1024)
+PB-SLOTSTEP slot 04 | masked sumcheck (zk.rs, shared)    |    0.009 s |       524288 |
+PB-SLOTSTEP slot 04 | extension rounds (mask_eval + zk.rs) |    0.003 s |            1 |
+PB-SLOTSTEP slot 05 | tables: build (argument.rs)        |    0.001 s |         4096 |
+PB-SLOTSTEP slot 05 | claimed sum: total (argument.rs)   |    0.000 s |         2048 |
+PB-SLOTSTEP slot 05 | masked sumcheck (zk.rs, shared)    |    0.000 s |         2048 |
+PB-SLOTSTEP slot 05 | extension rounds (mask_eval + zk.rs) |    0.002 s |            1 |
+PB-SLOTSTEP slot 06 | tables: build (argument.rs)        |    0.001 s |         4096 |
+PB-SLOTSTEP slot 06 | claimed sum: total (argument.rs)   |    0.000 s |         2048 |
+PB-SLOTSTEP slot 06 | masked sumcheck (zk.rs, shared)    |    0.000 s |         2048 |
+PB-SLOTSTEP slot 06 | extension rounds (mask_eval + zk.rs) |    0.003 s |            1 |
+PB-SLOTSTEP slot 07 | tables: build (argument.rs)        |    0.001 s |         4096 |
+PB-SLOTSTEP slot 07 | claimed sum: total (argument.rs)   |    0.000 s |         2048 |
+PB-SLOTSTEP slot 07 | masked sumcheck (zk.rs, shared)    |    0.000 s |         2048 |
+PB-SLOTSTEP slot 07 | extension rounds (mask_eval + zk.rs) |    0.003 s |            1 |
+PB-SLOTSTEP slot 08 | tables: build (argument.rs)        |    0.001 s |          768 |
+PB-SLOTSTEP slot 08 | claimed sum: total (argument.rs)   |    0.000 s |          256 |
+PB-SLOTSTEP slot 08 | masked sumcheck (zk.rs, shared)    |    0.000 s |          256 |
+PB-SLOTSTEP slot 08 | extension rounds (mask_eval + zk.rs) |    0.006 s |            2 |
+PB-SLOTSTEP slot 09 | tables: build (argument.rs)        |    0.003 s |         1536 |
+PB-SLOTSTEP slot 09 | claimed sum: total (argument.rs)   |    0.000 s |          512 |
+PB-SLOTSTEP slot 09 | masked sumcheck (zk.rs, shared)    |    0.000 s |          512 |
+PB-SLOTSTEP slot 09 | extension rounds (mask_eval + zk.rs) |    0.006 s |            2 |
+PB-SLOTSTEP slot 10 | tables: build (argument.rs)        |    0.001 s |         4096 |
+PB-SLOTSTEP slot 10 | claimed sum: total (argument.rs)   |    0.000 s |         2048 |
+PB-SLOTSTEP slot 10 | masked sumcheck (zk.rs, shared)    |    0.000 s |         2048 |
+PB-SLOTSTEP slot 10 | extension rounds (mask_eval + zk.rs) |    0.002 s |            1 |
+PB-SLOTSTEP slot 11 | tables: build (argument.rs)        |    0.001 s |         4096 |
+PB-SLOTSTEP slot 11 | claimed sum: total (argument.rs)   |    0.000 s |         2048 |
+PB-SLOTSTEP slot 11 | masked sumcheck (zk.rs, shared)    |    0.000 s |         2048 |
+PB-SLOTSTEP slot 11 | extension rounds (mask_eval + zk.rs) |    0.003 s |            1 |
+PB-SLOTSTEP slot 12 | tables: build (argument.rs)        |    0.001 s |         4096 |
+PB-SLOTSTEP slot 12 | claimed sum: total (argument.rs)   |    0.000 s |         2048 |
+PB-SLOTSTEP slot 12 | masked sumcheck (zk.rs, shared)    |    0.000 s |         2048 |
+PB-SLOTSTEP slot 12 | extension rounds (mask_eval + zk.rs) |    0.002 s |            1 |
+PB-SLOTSTEP slot 13 | tables: build (argument.rs)        |    0.005 s |        16384 |
+PB-SLOTSTEP slot 13 | claimed sum: total (argument.rs)   |    0.000 s |         8192 |
+PB-SLOTSTEP slot 13 | masked sumcheck (zk.rs, shared)    |    0.001 s |         8192 |
+PB-SLOTSTEP slot 13 | extension rounds (mask_eval + zk.rs) |    0.003 s |            1 |
+PB-SLOTSTEP slot 14 | tables: build (argument.rs)        |    0.015 s |     15466496 |
+PB-SLOTSTEP slot 14 | claimed sum: total (argument.rs)   |    0.000 s |       262144 |
+[ZK60-METAL] compiled a slot library (59 tables, degree 4, 33837 B of source, 2 kernels) in 0.001 s
+[ZK60-METAL] sumcheck setup: 59 tables x 2^18 in 0.0179 s
+[ZK60-METAL] sumcheck rounds: 59 tables, 18 rounds, degree 4 in 0.0373 s (round 0 0.0059, rounds 1.. 0.0311, folds 0.0003; max threads/group 1024 / 1024)
+PB-SLOTSTEP slot 14 | masked sumcheck (zk.rs, shared)    |    0.058 s |       262144 |
+PB-SLOTSTEP slot 14 | extension rounds (mask_eval + zk.rs) |    0.004 s |            1 |
+PB-SLOTSTEP slot 15 | tables: build (argument.rs)        |    0.017 s |      5242880 |
+PB-SLOTSTEP slot 15 | claimed sum: total (argument.rs)   |    0.000 s |       262144 |
+[ZK60-METAL] compiled a slot library (20 tables, degree 4, 15477 B of source, 2 kernels) in 0.000 s
+[ZK60-METAL] sumcheck setup: 20 tables x 2^18 in 0.0050 s
+[ZK60-METAL] sumcheck rounds: 20 tables, 18 rounds, degree 4 in 0.0114 s (round 0 0.0024, rounds 1.. 0.0087, folds 0.0002; max threads/group 1024 / 1024)
+PB-SLOTSTEP slot 15 | masked sumcheck (zk.rs, shared)    |    0.017 s |       262144 |
+PB-SLOTSTEP slot 15 | extension rounds (mask_eval + zk.rs) |    0.004 s |            1 |
+PB-SLOTSTEP slot 16 | tables: build (argument.rs)        |    0.005 s |       589824 |
+PB-SLOTSTEP slot 16 | claimed sum: total (argument.rs)   |    0.000 s |        32768 |
+[ZK60-METAL] compiled a slot library (18 tables, degree 4, 14666 B of source, 2 kernels) in 0.000 s
+[ZK60-METAL] sumcheck setup: 18 tables x 2^15 in 0.0010 s
+[ZK60-METAL] sumcheck rounds: 18 tables, 15 rounds, degree 4 in 0.0072 s (round 0 0.0011, rounds 1.. 0.0059, folds 0.0002; max threads/group 1024 / 1024)
+PB-SLOTSTEP slot 16 | masked sumcheck (zk.rs, shared)    |    0.009 s |        32768 |
+PB-SLOTSTEP slot 16 | extension rounds (mask_eval + zk.rs) |    0.003 s |            1 |
+[ZK60-METAL] slot 17: the IR does not match this profile's closure; this slot runs on the CPU
+PB-SLOTSTEP slot 17 | tables: build (argument.rs)        |    0.011 s |      7864320 |
+PB-SLOTSTEP slot 17 | claimed sum: total (argument.rs)   |    0.000 s |       524288 |
+PB-SLOTSTEP slot 17 | masked sumcheck (zk.rs, shared)    |    0.221 s |       524288 |
+PB-SLOTSTEP slot 17 | extension rounds (mask_eval + zk.rs) |    0.003 s |            1 |
+PB-SLOTSTEP slot 18 | tables: build (argument.rs)        |    0.019 s |     22020096 |
+PB-SLOTSTEP slot 18 | claimed sum: total (argument.rs)   |    0.000 s |      1048576 |
+[ZK60-METAL] compiled a slot library (21 tables, degree 5, 16895 B of source, 2 kernels) in 0.000 s
+[ZK60-METAL] sumcheck setup: 21 tables x 2^20 in 0.0273 s
+[ZK60-METAL] sumcheck rounds: 21 tables, 20 rounds, degree 5 in 0.0394 s (round 0 0.0121, rounds 1.. 0.0271, folds 0.0003; max threads/group 1024 / 1024)
+PB-SLOTSTEP slot 18 | masked sumcheck (zk.rs, shared)    |    0.068 s |      1048576 |
+PB-SLOTSTEP slot 18 | extension rounds (mask_eval + zk.rs) |    0.003 s |            1 |
+PB-SLOTSTEP slot 19 | tables: build (argument.rs)        |    0.003 s |       180224 |
+PB-SLOTSTEP slot 19 | claimed sum: total (argument.rs)   |    0.000 s |        16384 |
+PB-SLOTSTEP slot 19 | masked sumcheck (zk.rs, shared)    |    0.043 s |        16384 |
+PB-SLOTSTEP slot 19 | extension rounds (mask_eval + zk.rs) |    0.003 s |            1 |
+PB-SLOTSTEP slot 20 | tables: build (argument.rs)        |    0.000 s |        32768 |
+PB-SLOTSTEP slot 20 | claimed sum: total (argument.rs)   |    0.000 s |        16384 |
+PB-SLOTSTEP slot 20 | masked sumcheck (zk.rs, shared)    |    0.002 s |        16384 |
+PB-SLOTSTEP slot 20 | extension rounds (mask_eval + zk.rs) |    0.003 s |            1 |
+PB-SLOTSTEP slot 21 | tables: build (argument.rs)        |    0.009 s |       786432 |
+PB-SLOTSTEP slot 21 | claimed sum: total (argument.rs)   |    0.000 s |       262144 |
+[ZK60-METAL] compiled a slot library (3 tables, degree 2, 7622 B of source, 2 kernels) in 0.000 s
+[ZK60-METAL] sumcheck setup: 3 tables x 2^18 in 0.0005 s
+[ZK60-METAL] sumcheck rounds: 3 tables, 18 rounds, degree 2 in 0.0093 s (round 0 0.0016, rounds 1.. 0.0074, folds 0.0003; max threads/group 1024 / 1024)
+PB-SLOTSTEP slot 21 | masked sumcheck (zk.rs, shared)    |    0.010 s |       262144 |
+PB-SLOTSTEP slot 21 | extension rounds (mask_eval + zk.rs) |    0.003 s |            1 |
+PB-SLOTSTEP slot 22 | tables: build (argument.rs)        |    0.011 s |       786432 |
+PB-SLOTSTEP slot 22 | claimed sum: total (argument.rs)   |    0.000 s |       262144 |
+[ZK60-METAL] compiled a slot library (3 tables, degree 2, 7624 B of source, 2 kernels) in 0.000 s
+[ZK60-METAL] sumcheck setup: 3 tables x 2^18 in 0.0002 s
+[ZK60-METAL] sumcheck rounds: 3 tables, 18 rounds, degree 2 in 0.0112 s (round 0 0.0017, rounds 1.. 0.0093, folds 0.0002; max threads/group 1024 / 1024)
+PB-SLOTSTEP slot 22 | masked sumcheck (zk.rs, shared)    |    0.012 s |       262144 |
+PB-SLOTSTEP slot 22 | extension rounds (mask_eval + zk.rs) |    0.003 s |            1 |
+[ZK60-METAL] slot 23: no IR (private block IR: unknown slot)
+PB-SLOTSTEP slot 23 | tables: build (argument.rs)        |    0.009 s |      2228224 |
+PB-SLOTSTEP slot 23 | claimed sum: total (argument.rs)   |    0.000 s |       131072 |
+PB-SLOTSTEP slot 23 | masked sumcheck (zk.rs, shared)    |    0.163 s |       131072 |
+PB-SLOTSTEP slot 23 | extension rounds (mask_eval + zk.rs) |    0.004 s |            1 |
+[ZK60-METAL] store fold: 39 rho x 1871 rows x 16384 cols (zk data) in 0.0079 s
+[ZK60-METAL] store columns: 256 x 1871 rows in 0.0090 s
+[ZK60-METAL] store fold: 11 rho x 2026 rows x 16384 cols (zk data) in 0.0094 s
+[ZK60-METAL] store columns: 256 x 2026 rows in 0.0072 s
+R12-GOLDEN hashline-zk-mr1/private-block-tinyllama-1.1b-t128-trained-ddict/1: 24 slots, 72 absorbs, debug text 83300975 B
+R12-GOLDEN-DIGEST tinyllama-t128-dd e50e71f86ab64c6f4d69c6bee1ec7881feef75b1dc4c3972e20a6810c4428324
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 903 filtered out; finished in 1.79s
+

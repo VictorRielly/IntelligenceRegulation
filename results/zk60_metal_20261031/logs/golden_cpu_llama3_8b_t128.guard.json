@@ -1,6 +1,6 @@
 {
- "ts_end": "2026-10-31T15:49:19Z",
- "run_id": "0fc648213b53",
+ "ts_end": "2026-10-31T15:59:44Z",
+ "run_id": "43a7f5c31186",
  "label": "metal-golden-cpu",
  "class": "cpu",
  "cmd": [
@@ -16,13 +16,13 @@
  "exit": 0,
  "child_rc": 0,
  "guard_killed": null,
- "child_wall_seconds": 5.328874111175537,
+ "child_wall_seconds": 5.335131883621216,
  "refused": null,
  "guard_error": null,
- "guard_pid": 44577,
+ "guard_pid": 48447,
  "boot_id": "42BF5F64-F14C-467C-B343-44946D8FFC3F",
  "pid_ns": null,
- "guard_starttime_ticks": 1793461754,
+ "guard_starttime_ticks": 1793462379,
  "lock_ids": {
   "heavy": "16777233:54418473",
   "build": "16777233:54490092"
@@ -35,10 +35,10 @@
  "scope_unit": null,
  "scope_adopted": null,
  "foreign_cgroups_refused": [],
- "peak_rss_gib": 6.05,
+ "peak_rss_gib": 6.1,
  "peak_cgroup_gib": null,
  "peak_vram_mib": null,
- "min_mem_available_gib": 226.78,
+ "min_mem_available_gib": 226.65,
  "vram_drain_s": null,
  "gpu_drain_failed": false,
  "gpu_telemetry_lost": false,
