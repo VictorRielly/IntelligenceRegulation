@@ -1,5 +1,27 @@
 # Where the MVP stands, in plain words
 
+**2026-10-31 (evening, Mac): the real classifier's zero-checks now run on the Mac's GPU too, byte for byte the same.**
+- **What changed.** The classifier (Shieldstral) uses the R13 accuracy stack. Its five heavy zero-checks had
+  stayed on the CPU, because the GPU's expression description covered only the older stack. They now run on the
+  GPU. The proof bytes are identical to the CPU's at every shape tested: four small development shapes, and the
+  Shieldstral and 8B geometries at 128 tokens. The older proofs are unchanged (golden gate 8 of 8).
+  Record: `results/zk60_metal_20261031/README.md` (M4).
+- **Speed of one Shieldstral-shaped accuracy block at 128 tokens** [MEASURED, n=1, shared Mac; synthetic weights
+  at the true geometry; proof core only, so no witness or model loading]:
+
+  | Path | Block proof |
+  |---|---:|
+  | Mac CPU, 32 threads | 5.64 s |
+  | Mac GPU, first block in a process (includes 1.2 s of one-time kernel compile) | 4.15 s |
+  | Mac GPU, later blocks | **2.86 s** |
+
+  For the 26 layers at 128 tokens, that is about 74 s of proof core, or about 1.7 proved tokens per second. The
+  target is at least 50, so we are still about 30 times short.
+- **Still on the CPU:** the witness, the LogUp helper inverses, the extension rounds, the openings, and one small
+  table slot per block. The DD softmax and dictionary slots also stay on the CPU.
+- **Sol and Astra** (Codex sessions on this Mac) have written nothing since about 08:45 UTC. Their processes are
+  alive but idle and need a "continue" from Victor. Astra's 12-hour replay was prepared but has not been launched.
+
 **2026-10-31 (afternoon, Mac): the prover runs on the Mac's GPU, byte for byte the same; R14's security tier is accepted.**
 - **Apple GPU (Metal), new.** The commitments and the five heavy zero-check sumchecks now run on the M3 Ultra's
   GPU. Four full block proofs made this way (TinyLlama and Llama-3-8B shapes at 128 tokens, with and without
