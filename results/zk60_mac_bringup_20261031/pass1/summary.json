@@ -1,0 +1,47 @@
+[
+ {
+  "job": "env",
+  "exit": 0,
+  "secs": 0.1
+ },
+ {
+  "job": "zkp_core_test",
+  "exit": 0,
+  "secs": 21.4
+ },
+ {
+  "job": "hashline_lib_test",
+  "exit": 101,
+  "secs": 309.3
+ },
+ {
+  "job": "hashline_all_test",
+  "exit": 101,
+  "secs": 234.6
+ },
+ {
+  "job": "hashline_storage_lib_test",
+  "exit": 101,
+  "secs": 324.0
+ },
+ {
+  "job": "build_cli_and_example",
+  "exit": 0,
+  "secs": 6.5
+ },
+ {
+  "job": "block_prove",
+  "exit": 0,
+  "secs": 0.5
+ },
+ {
+  "job": "block_verify_fresh_process",
+  "exit": 0,
+  "secs": 0.1
+ },
+ {
+  "job": "block_digests",
+  "exit": 0,
+  "secs": 0.0
+ }
+]

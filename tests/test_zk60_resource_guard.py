@@ -8,6 +8,7 @@ import fcntl
 import importlib.util
 import json
 import os
+import shutil
 import signal
 import subprocess
 import sys
@@ -384,8 +385,13 @@ class TestExclusionAndTracking(GuardCase):
                 "x = bytearray(400*1024*1024)\n"
                 "for i in range(0, len(x), 4096): x[i] = 1\n"
                 "time.sleep(60)" % str(pidfile))
+        if shutil.which("setsid"):
+            launch = f'setsid {sys.executable} -c "$0" & wait'
+        else:  # macOS ships no setsid(1): the child calls setsid(2) itself, same session escape
+            code = "import os; os.setsid()\n" + code
+            launch = f'{sys.executable} -c "$0" & wait'
         r = self.guard("run", "--class", "light", "--cap-gib", "0.15", "--no-cgroup", "--",
-                       "sh", "-c", f'setsid {sys.executable} -c "$0" & wait', code)
+                       "sh", "-c", launch, code)
         self.assertEqual(r.returncode, 75, r.stderr)
         pid = int(wait_for_file(pidfile))
         time.sleep(1)

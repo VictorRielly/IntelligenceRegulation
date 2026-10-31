@@ -1,0 +1,5 @@
+$ /private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/mac-gates/r19b/hashline/target/release/examples/zk60_private_block verify /private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/mac-gates/r19b/results/zk60_attention_integration_20260919/block_public
+ACCEPT: 2816472 bytes verified in 0.031 s
+refused: first root corrupted
+refused: an argument word corrupted
+refused: the last path byte corrupted

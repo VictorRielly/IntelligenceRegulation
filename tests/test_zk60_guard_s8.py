@@ -14,8 +14,11 @@ class SwapAdmission(unittest.TestCase):
     def verdict(self,available,swap,need=8.5,kind='cpu',live=(),ahead=(),gpu=(0,8192)):
         values={'MemTotal':16*guard.GIB,'MemAvailable':int(available*guard.GIB),
                 'SwapTotal':16*guard.GIB,'SwapFree':int((16-swap)*guard.GIB)}
+        # `gpu` simulates nvidia-smi on the 8 GB card; naming a non-default source
+        # keeps the 8 GB thresholds on a Mac too (the Apple GPU has its own; no-op on Linux).
         with mock.patch.object(guard,'meminfo',return_value=values), \
              mock.patch.object(guard,'_live_jobs',return_value=list(live)), \
+             mock.patch.object(guard,'NVIDIA_SMI','/simulated/nvidia-smi'), \
              mock.patch.object(guard,'gpu_used_mib',return_value=gpu):
             return guard._admission_reasons(kind,need,Path('/unused/private-fixture'),ahead)
 

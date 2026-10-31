@@ -1,0 +1,44 @@
+.............s.................s......s......s/Users/victorrielly/IntelligenceRegulation/tests/test_zk60_resource_guard.py:231: ResourceWarning: unclosed file <_io.TextIOWrapper name=3 encoding='UTF-8'>
+  self._sigkill_case(["--no-cgroup"])
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/Users/victorrielly/IntelligenceRegulation/tests/test_zk60_resource_guard.py:231: ResourceWarning: unclosed file <_io.TextIOWrapper name=5 encoding='UTF-8'>
+  self._sigkill_case(["--no-cgroup"])
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./opt/homebrew/Caskroom/miniconda/base/lib/python3.13/unittest/case.py:606: ResourceWarning: unclosed file <_io.TextIOWrapper name=3 encoding='UTF-8'>
+  if method() is not None:
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/opt/homebrew/Caskroom/miniconda/base/lib/python3.13/unittest/case.py:606: ResourceWarning: unclosed file <_io.TextIOWrapper name=5 encoding='UTF-8'>
+  if method() is not None:
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+./opt/homebrew/Caskroom/miniconda/base/lib/python3.13/unittest/case.py:606: ResourceWarning: unclosed file <_io.TextIOWrapper name=4 encoding='UTF-8'>
+  if method() is not None:
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/opt/homebrew/Caskroom/miniconda/base/lib/python3.13/unittest/case.py:606: ResourceWarning: unclosed file <_io.TextIOWrapper name=6 encoding='UTF-8'>
+  if method() is not None:
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+.........................[zk60-guard 01:10:29] START python3 class=cpu need=11G cap=11.5G enforce=watchdog-only waited=0s run=c519e1e75723
+cpu
+[zk60-guard 01:10:29] END python3 exit=0 child_wall=0s peak_rss=0.00G min_avail=12.00G
+.[zk60-guard 01:10:29] admission waiting: budget: scripted
+[zk60-guard 01:10:30] REFUSED: after waiting: budget: scripted
+[zk60-guard 01:10:30] admission waiting: budget: scripted
+[zk60-guard 01:10:31] REFUSED: after waiting: budget: scripted
+..[zk60-guard 01:10:31] admission waiting: budget: scripted
+[zk60-guard 01:10:31] START B class=build need=4G cap=5.5G enforce=watchdog-only waited=0s run=dc68464d52b8
+[zk60-guard 01:10:31] END B exit=0 child_wall=0s peak_rss=0.00G min_avail=12.00G
+.[zk60-guard 01:10:31] waiting for /var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/guardfix-witoyls5/heavy.lock (0s)
+[zk60-guard 01:10:33] REFUSED: terminated by signal 15 while waiting to start
+.[zk60-guard 01:10:33] admission waiting: budget: scripted
+[zk60-guard 01:10:33] REFUSED: terminated by signal 15 while waiting to start
+.[zk60-guard 01:10:33] admission waiting: budget: scripted
+[zk60-guard 01:10:34] REFUSED: after waiting: budget: scripted
+[zk60-guard 01:10:34] waiting for /var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/guardfix-kxg34y20/heavy.lock (0s)
+[zk60-guard 01:10:35] REFUSED: could not take /var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/guardfix-kxg34y20/heavy.lock within 1s
+.
+scenario exit codes (old == new): {'light-ok': 0, 'cpu-ok': 0, 'gpu-ok': 0, 'refused-memory': 70, 'refused-lock': 70, 'refused-number': 70, 'launch-failed': 127, 'killed-max-secs': 75, 'rc-3': 3}
+........................................
+----------------------------------------------------------------------
+Ran 120 tests in 235.045s
+
+OK (skipped=4)
+exit 0

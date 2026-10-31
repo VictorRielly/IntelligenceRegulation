@@ -1,0 +1,6 @@
+$ /bin/sh -c ls -l /private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/mac-gates/out/block; shasum -a 256 /private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/mac-gates/out/block/*
+total 5512
+-rw-r--r--  1 victorrielly  wheel      112 Oct 31 00:32 block_expected.bin
+-rw-r--r--  1 victorrielly  wheel  2816472 Oct 31 00:32 block_receipt.bin
+1ebcd177526478442bfbdf088a439f844b7802cd71c2b5f2594e4c71770b27ef  /private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/mac-gates/out/block/block_expected.bin
+fafb805999cd1aa7f4c8fd34b4ec24fe7b4a2b79f8ca7a647f94a4fd7d9f6cbb  /private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/mac-gates/out/block/block_receipt.bin

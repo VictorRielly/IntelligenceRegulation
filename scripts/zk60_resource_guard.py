@@ -84,6 +84,7 @@ import fcntl
 import json
 import math
 import os
+import re
 import signal
 import subprocess
 import sys
@@ -94,6 +95,15 @@ from pathlib import Path
 GIB = 1024 ** 3
 MIB = 1024 ** 2
 REPO = Path(__file__).resolve().parents[1]
+
+# macOS backend (2026-10-31, the M3 Ultra Mac Studio: no /proc, no systemd, no
+# nvidia-smi).  Every Linux probe keeps its body unchanged.  On Darwin a probe
+# reads the macOS equivalent ONLY while its source is still the built-in default
+# (MEMINFO, NVIDIA_SMI), so the regression tests' fakes keep exercising the Linux
+# parsers on any host.  Process probes (ps instead of /proc) switch on Darwin
+# alone: there is no fake /proc process table to honour.  Enforcement on Darwin
+# is "watchdog-only" (no kernel memory cap exists to adopt).
+DARWIN = sys.platform == "darwin"
 
 STATE_DIR = Path(os.environ.get("ZK60_GUARD_DIR", "/tmp/zk-guard"))
 HEAVY_LOCK = Path(os.environ.get("ZK60_HEAVY_LOCK", "/tmp/zk-heavy.lock"))
@@ -125,6 +135,7 @@ FLOOR_GIB = 1.2            # watchdog kills the job under this MemAvailable
 VRAM_IDLE_MIB = 400        # card counts as idle at or below this
 VRAM_CAP_MIB = 7400        # of 8,188: above this WSL starts thrashing the host
 GPU_BLIND_LIMIT = 5        # consecutive unreadable GPU samples (2 s apart) = kill
+PS_BLIND_LIMIT = 3         # Darwin: consecutive unreadable ps samples (0.5 s apart) = kill
 VRAM_DRAIN_SECS = float(os.environ.get("ZK60_GUARD_DRAIN_SECS", "180"))
 TERM_GRACE_SECS = float(os.environ.get("ZK60_GUARD_TERM_GRACE_SECS", "15"))
 
@@ -165,8 +176,12 @@ def _env_gib(name: str, default: float) -> float:
 # page file.  2026-10-29 it ran full and the laptop crashed: the page file could not
 # grow to back memory.  Heavy jobs wait while it is under DISK_FLOOR_GIB; a live job
 # of any class is killed under DISK_KILL_GIB.  A missing path (plain Linux box) or an
-# empty ZK60_GUARD_HOST_DRIVE switches both checks off.
-HOST_DRIVE = os.environ.get("ZK60_GUARD_HOST_DRIVE", "/mnt/c")
+# empty ZK60_GUARD_HOST_DRIVE switches both checks off.  On Darwin the default is
+# /System/Volumes/VM, the APFS volume holding the swap files (it shares its
+# container's free space with the Data volume, so a full disk stops swap growth
+# exactly as a full C: stopped the Windows page file).
+HOST_DRIVE = os.environ.get("ZK60_GUARD_HOST_DRIVE",
+                            "/System/Volumes/VM" if DARWIN else "/mnt/c")
 DISK_FLOOR_GIB = _env_gib("ZK60_GUARD_DISK_FLOOR_GIB", 40.0)
 DISK_KILL_GIB = _env_gib("ZK60_GUARD_DISK_KILL_GIB", 8.0)
 DISK_POLL_SECS = 5.0
@@ -222,6 +237,18 @@ def identity() -> dict:
         out["guard_starttime_ticks"] = int(stat[stat.rindex(")") + 2:].split()[19])
     except (OSError, ValueError, IndexError):
         out["guard_starttime_ticks"] = None
+    if DARWIN:
+        # macOS has one pid namespace (pid_ns stays None), the per-boot UUID
+        # kern.bootsessionuuid, and a whole-second process start time.  On
+        # Darwin guard_starttime_ticks therefore holds epoch SECONDS, not
+        # ticks since boot: an opaque identity value used with boot_id and the
+        # pid, never compared across hosts (the record shape is frozen, so the
+        # unit is documented here rather than in a new key).
+        try:
+            out["boot_id"] = _sysctl("kern.bootsessionuuid")
+        except OSError:
+            out["boot_id"] = None
+        out["guard_starttime_ticks"] = _darwin_start_epoch(os.getpid())
     ids = {}
     for name, p in LOCKS.items():
         try:
@@ -235,7 +262,89 @@ def identity() -> dict:
 
 # ---------------------------------------------------------------- probes ----
 
+_PROBE_ENV = dict(os.environ, LC_ALL="C")   # ps lstart, decimal points: parse in the C locale
+
+
+def _run_text(argv: list[str], timeout: float = 5) -> str:
+    """stdout of a short probe command (C locale, undecodable bytes replaced, as
+    the Linux /proc reads do); OSError when it cannot start, fails or times out."""
+    try:
+        r = subprocess.run(argv, capture_output=True, timeout=timeout, env=_PROBE_ENV)
+    except subprocess.TimeoutExpired as e:
+        raise OSError(f"{argv[0]} timed out") from e
+    if r.returncode != 0:
+        raise OSError(f"{' '.join(argv)} exited {r.returncode}")
+    return r.stdout.decode("utf-8", "replace")
+
+
+def _sysctl(name: str) -> str:
+    v = _run_text(["/usr/sbin/sysctl", "-n", name]).strip()
+    if not v:
+        raise OSError(f"sysctl {name} is empty")
+    return v
+
+
+def _darwin_start_epoch(pid: int) -> int | None:
+    try:
+        lstart = _run_text(["/bin/ps", "-o", "lstart=", "-p", str(pid)]).strip()
+        return int(time.mktime(time.strptime(lstart, "%a %b %d %H:%M:%S %Y")))
+    except (OSError, ValueError):
+        return None
+
+
+_DARWIN_MEMSIZE: int | None = None
+_SIZE_UNITS = {"K": 1024, "M": MIB, "G": GIB, "T": 1024 * GIB}
+
+
+def _darwin_meminfo() -> dict[str, int]:
+    """/proc/meminfo's keys, in bytes, from vm_stat and sysctl.
+
+    MemAvailable = free + speculative + min(inactive, file-backed - speculative)
+    pages.  The
+    inactive queue also holds anonymous pages, which the kernel can reclaim only
+    by compressing or swapping them, so inactive pages are counted only up to the
+    file-backed total (droppable without I/O to swap).  This is at or below the
+    kernel's own available-memory figure (free + speculative + all file-backed),
+    and under anonymous-memory pressure it falls with free memory, so the kill
+    floor still fires (review of 2026-10-31).  Swap comes from vm.swapusage; macOS
+    grows swap on demand, so SwapTotal is the current size, not a configured
+    maximum.  Any unreadable or unparsable source raises OSError, as a missing
+    /proc/meminfo does."""
+    global _DARWIN_MEMSIZE
+    try:
+        text = _run_text(["/usr/bin/vm_stat"])
+        lines = text.splitlines()
+        page = int(re.search(r"page size of (\d+) bytes", lines[0]).group(1))
+        pages: dict[str, int] = {}
+        for line in lines[1:]:
+            k, _, v = line.partition(":")
+            v = v.strip().rstrip(".")
+            if v.isdigit():
+                pages[k.strip().strip('"')] = int(v)
+        if _DARWIN_MEMSIZE is None:
+            _DARWIN_MEMSIZE = int(_sysctl("hw.memsize"))
+        swap = _sysctl("vm.swapusage")  # "total = 0.00M  used = 0.00M  free = 0.00M ..."
+
+        def size(key: str) -> int:
+            m = re.search(key + r" = ([\d.]+)([KMGT])", swap)
+            return int(float(m.group(1)) * _SIZE_UNITS[m.group(2)])
+
+        free = pages["Pages free"]
+        spec = pages.get("Pages speculative", 0)
+        # file-backed pages include the speculative ones: subtract them so no page
+        # is counted twice
+        avail = free + spec + min(pages["Pages inactive"],
+                                  max(0, pages["File-backed pages"] - spec))
+        return {"MemTotal": _DARWIN_MEMSIZE, "MemFree": free * page,
+                "MemAvailable": avail * page,
+                "SwapTotal": size("total"), "SwapFree": size("free")}
+    except (KeyError, ValueError, AttributeError, IndexError) as e:
+        raise OSError(f"macOS memory statistics unparsable: {e}") from e
+
+
 def meminfo() -> dict[str, int]:
+    if DARWIN and MEMINFO == "/proc/meminfo":
+        return _darwin_meminfo()
     out: dict[str, int] = {}
     with open(MEMINFO) as f:
         for line in f:
@@ -257,8 +366,77 @@ def host_drive_free_gib() -> float | None:
     return st.f_bavail * st.f_frsize / GIB
 
 
+def darwin_gpu_source() -> bool:
+    """True when GPU telemetry comes from the Apple GPU (ioreg), not nvidia-smi."""
+    return DARWIN and NVIDIA_SMI == "nvidia-smi"
+
+
+_DARWIN_GPU_BUDGET_MIB: int | None = None
+
+
+def _darwin_gpu_budget_mib() -> int:
+    """The Apple GPU's working-set budget in unified memory, MiB:
+    ZK60_GUARD_GPU_BUDGET_MIB, else iogpu.wired_limit_mb when an administrator
+    set it, else 3/4 of RAM (macOS's default GPU working-set limit on large-memory
+    Macs [MODEL]; a Metal backend should record recommendedMaxWorkingSetSize)."""
+    global _DARWIN_GPU_BUDGET_MIB
+    if _DARWIN_GPU_BUDGET_MIB is None:
+        env = os.environ.get("ZK60_GUARD_GPU_BUDGET_MIB", "")
+        if env.isdigit() and int(env) > 0:
+            budget = int(env)
+        else:
+            try:
+                wired = int(_sysctl("iogpu.wired_limit_mb"))
+            except (OSError, ValueError):
+                wired = 0
+            try:
+                budget = wired if wired > 0 else int(_sysctl("hw.memsize")) * 3 // 4 // MIB
+            except (OSError, ValueError):
+                return 0           # not cached: the next call probes again
+        _DARWIN_GPU_BUDGET_MIB = budget
+    return _DARWIN_GPU_BUDGET_MIB
+
+
+def _darwin_gpu_mib() -> tuple[int, int] | None:
+    """(used, budget) MiB for the Apple GPU.  `used` is IOAccelerator's
+    PerformanceStatistics "In use system memory": GPU allocations of every
+    process in unified memory, readable without root.  It is never zero: the
+    window server alone held about 1.2 GiB at idle on 2026-10-31, which is why
+    the Darwin idle threshold is higher (vram_idle_mib)."""
+    try:
+        text = _run_text(["/usr/sbin/ioreg", "-r", "-d", "1", "-w", "0", "-c", "IOAccelerator"],
+                         timeout=8)
+    except OSError:
+        return None
+    vals = [int(v) for v in re.findall(r'"In use system memory"=(\d+)', text)]
+    budget = _darwin_gpu_budget_mib()
+    if not vals or budget <= 0:
+        return None
+    return sum(vals) // MIB, budget
+
+
+def vram_idle_mib() -> int:
+    """GPU memory at or below which the device counts as idle."""
+    if darwin_gpu_source():
+        return int(_env_gib("ZK60_GUARD_VRAM_IDLE_MIB", 4096))
+    return VRAM_IDLE_MIB
+
+
+def vram_cap_mib() -> int:
+    """GPU memory above which a live gpu job is killed.  On Darwin it is 90% of
+    the GPU working-set budget; there the host MemAvailable floor also applies,
+    because GPU allocations come out of the same unified memory."""
+    if darwin_gpu_source():
+        return int(_env_gib("ZK60_GUARD_VRAM_CAP_MIB", _darwin_gpu_budget_mib() * 9 // 10))
+    return VRAM_CAP_MIB
+
+
 def gpu_used_mib() -> tuple[int, int] | None:
-    """(used, total) MiB from nvidia-smi, or None if it cannot be read."""
+    """(used, total) MiB from nvidia-smi (on Darwin by default: the Apple GPU's
+    in-use unified memory against its working-set budget), or None if it cannot
+    be read."""
+    if darwin_gpu_source():
+        return _darwin_gpu_mib()
     try:
         r = subprocess.run(
             [NVIDIA_SMI, "--query-gpu=memory.used,memory.total",
@@ -272,8 +450,40 @@ def gpu_used_mib() -> tuple[int, int] | None:
         return None
 
 
+def _darwin_ps(fields: str) -> list[list[str]]:
+    """Rows of `ps -Axo <fields>` (all processes, no header).  The last field may
+    contain spaces (command).  Raises OSError when ps cannot run: unlike reading
+    /proc, ps needs a fork, which fails exactly when a job exhausts the process
+    limit, so an empty table must never stand in for an unreadable one."""
+    text = _run_text(["/bin/ps", "-Axo", fields])
+    n = fields.count(",") + 1
+    return [line.split(None, n - 1) for line in text.splitlines() if line.strip()]
+
+
+def _darwin_proc_table() -> dict[int, tuple[int, int, int]]:
+    table: dict[int, tuple[int, int, int]] = {}
+    for row in _darwin_ps("pid=,ppid=,pgid=,rss="):
+        try:
+            pid, ppid, pgid, rss_kib = (int(x) for x in row)
+        except ValueError:
+            continue
+        table[pid] = (ppid, pgid, rss_kib * 1024)   # ps reports RSS in KiB
+    return table
+
+
+def _darwin_alive_pids() -> set[int]:
+    """Every existing process that is not a zombie."""
+    out = set()
+    for row in _darwin_ps("pid=,stat="):
+        if len(row) == 2 and row[0].isdigit() and not row[1].startswith("Z"):
+            out.add(int(row[0]))
+    return out
+
+
 def proc_table() -> dict[int, tuple[int, int, int]]:
     """pid -> (ppid, pgrp, rss_bytes) for every visible process."""
+    if DARWIN:
+        return _darwin_proc_table()
     table: dict[int, tuple[int, int, int]] = {}
     page = os.sysconf("SC_PAGE_SIZE")
     try:
@@ -296,6 +506,18 @@ def proc_table() -> dict[int, tuple[int, int, int]]:
 
 def top_processes(n: int = 6) -> list[dict]:
     rows = []
+    if DARWIN:
+        try:
+            listing = _darwin_ps("pid=,rss=,command=")
+        except OSError:
+            return rows        # status display only
+        for row in listing:
+            if len(row) == 3 and row[0].isdigit() and row[1].isdigit():
+                rss = int(row[1]) * 1024
+                if rss >= 200 * MIB:
+                    rows.append({"pid": int(row[0]), "rss_mib": rss // MIB, "cmd": row[2][:110]})
+        rows.sort(key=lambda r: -r["rss_mib"])
+        return rows[:n]
     for pid, (_pp, _pg, rss) in proc_table().items():
         if rss < 200 * MIB:
             continue
@@ -310,6 +532,8 @@ def top_processes(n: int = 6) -> list[dict]:
 
 
 def systemd_scope_ok() -> bool:
+    if DARWIN:
+        return False   # no systemd and no cgroups: watchdog-only enforcement
     try:
         r = subprocess.run(
             ["systemd-run", "--user", "--scope", "--quiet", "-p", "MemoryMax=64M", "true"],
@@ -321,6 +545,18 @@ def systemd_scope_ok() -> bool:
 
 def _alive(pid: int) -> bool:
     """Exists and is not a zombie."""
+    if DARWIN:
+        try:
+            os.kill(pid, 0)      # existence without a fork
+        except ProcessLookupError:
+            return False
+        except PermissionError:
+            pass                 # exists, owned by someone else
+        try:
+            st = _run_text(["/bin/ps", "-o", "stat=", "-p", str(pid)]).strip()
+        except OSError:          # vanished meanwhile, or ps cannot run: say alive,
+            return True          # so a kill is still attempted (fails closed)
+        return not st.startswith("Z")
     try:
         with open(f"/proc/{pid}/stat") as f:
             stat = f.read()
@@ -349,6 +585,8 @@ class Tracker:
         self.peak_cgroup = 0
         self.systemctl_tries = 0
         self.refused_cgroups: set[str] = set()
+        self.ps_failures = 0                   # Darwin: consecutive unreadable ps samples
+        self.last_sample: tuple[int, set[int]] = (0, {root_pid})
 
     def _accept(self, cand: Path) -> bool:
         if cand.name != self.unit or not (cand / "cgroup.procs").exists():
@@ -417,22 +655,55 @@ class Tracker:
         return found - mine
 
     def sample(self) -> tuple[int, set[int]]:
-        table = proc_table()
+        if DARWIN:
+            # ps can fail where /proc never does (fork exhaustion, a timeout).  A
+            # short blip reuses the last good sample; PS_BLIND_LIMIT in a row raise,
+            # which the watchdog turns into a kill (fails closed, as GPU blindness does).
+            try:
+                table = proc_table()
+            except OSError as e:
+                self.ps_failures += 1
+                if self.ps_failures >= PS_BLIND_LIMIT:
+                    raise OSError(f"process table unreadable {self.ps_failures} times: {e}") from e
+                return self.last_sample
+            self.ps_failures = 0
+        else:
+            table = proc_table()
         pids = self.pids(table)
         if self.cg:
             try:
                 self.peak_cgroup = max(self.peak_cgroup, int((self.cg / "memory.peak").read_text()))
             except (OSError, ValueError):
                 pass
-        return sum(table[p][2] for p in pids if p in table), pids
+        self.last_sample = (sum(table[p][2] for p in pids if p in table), pids)
+        return self.last_sample
 
     def live(self) -> set[int]:
+        if DARWIN:   # one ps call for the whole tree; raises OSError when ps cannot run
+            return self.pids(proc_table()) & _darwin_alive_pids()
         return {p for p in self.pids(proc_table()) if _alive(p)}
 
+    def _live_or_assumed(self) -> set[int]:
+        """live(); on Darwin, when ps cannot run, the root is assumed alive while
+        kill(2) still finds it, so a kill is never skipped for want of a ps."""
+        if not DARWIN:
+            return self.live()
+        try:
+            return self.live()
+        except OSError:
+            return {self.root} if _alive(self.root) else set()
+
     def _signal_all(self, sig: int) -> None:
-        for pid in self.live():
+        for pid in self._live_or_assumed():
             try:
                 os.kill(pid, sig)
+            except (ProcessLookupError, PermissionError):
+                pass
+        if DARWIN:
+            # the job runs in its own session (start_new_session), so its process
+            # group reaches every member that did not setsid, with no ps at all
+            try:
+                os.killpg(self.root, sig)
             except (ProcessLookupError, PermissionError):
                 pass
 
@@ -442,10 +713,10 @@ class Tracker:
         self._signal_all(signal.SIGTERM)
         t = now()
         while now() - t < TERM_GRACE_SECS:
-            if not self.live():
+            if not self._live_or_assumed():
                 return 0
             time.sleep(0.2)
-        left = self.live()
+        left = self._live_or_assumed()
         if not left:
             return 0
         if self.cg:
@@ -460,7 +731,7 @@ class Tracker:
             except (ProcessLookupError, PermissionError):
                 pass
         t = now()
-        while now() - t < 5 and self.live():
+        while now() - t < 5 and self._live_or_assumed():
             time.sleep(0.1)
         return len(left)
 
@@ -573,17 +844,22 @@ def _admission_reasons(cls: str, need_gib: float, jobs_dir: Path,
     if cls == "gpu":
         g = gpu_used_mib()
         if g is None:
-            reasons.append(("gpu", "nvidia-smi unreadable: cannot verify the card is idle"))
-        elif g[0] > VRAM_IDLE_MIB:
-            reasons.append(("gpu", f"VRAM {g[0]} MiB in use > idle {VRAM_IDLE_MIB} MiB"))
+            reasons.append(("gpu", ("Apple GPU statistics (ioreg) unreadable" if darwin_gpu_source()
+                                    else "nvidia-smi unreadable")
+                                   + ": cannot verify the card is idle"))
+        elif g[0] > vram_idle_mib():
+            reasons.append(("gpu", f"VRAM {g[0]} MiB in use > idle {vram_idle_mib()} MiB"))
         if any(j["class"] == "gpu" for j in live):
             reasons.append(("gpu", "another guarded gpu job is live"))
     if cls != "light":
         free = host_drive_free_gib()
         if free is not None and free < DISK_FLOOR_GIB:
             reasons.append(("disk", f"host drive {HOST_DRIVE} has {free:.1f} GiB free < floor "
-                                    f"{DISK_FLOOR_GIB:g} GiB (it holds the VM disk and the "
-                                    "Windows page file: free space there first)"))
+                                    f"{DISK_FLOOR_GIB:g} GiB " + (
+                                        "(its APFS container holds the swap files: free space "
+                                        "there first)" if DARWIN else
+                                        "(it holds the VM disk and the Windows page file: "
+                                        "free space there first)")))
         if any(j["class"] in HEAVY_CLASSES for j in live):
             reasons.append(("heavy", "another heavy guarded job is live (one heavy job at a time)"))
         elif any(t["class"] in HEAVY_CLASSES for t in ahead):
@@ -1012,8 +1288,8 @@ def cmd_run(args: argparse.Namespace) -> int:
                     if g:
                         gpu_blind = 0
                         peak_vram = max(peak_vram or 0, g[0])
-                        if g[0] > VRAM_CAP_MIB and not reason:
-                            reason = f"VRAM {g[0]} MiB > cap {VRAM_CAP_MIB} MiB"
+                        if g[0] > vram_cap_mib() and not reason:
+                            reason = f"VRAM {g[0]} MiB > cap {vram_cap_mib()} MiB"
                     else:
                         gpu_blind += 1
                         if gpu_blind >= GPU_BLIND_LIMIT and not reason:
@@ -1049,6 +1325,13 @@ def cmd_run(args: argparse.Namespace) -> int:
                 hard_killed += tracker.kill()
         except Exception as e:
             guard_error = guard_error or f"straggler sweep failed: {type(e).__name__}: {e}"
+            if DARWIN:
+                # ps could not run: the job's process group outlives its leader and
+                # keeps its id reserved, so killpg still reaches what is left
+                try:
+                    os.killpg(proc.pid, signal.SIGKILL)
+                except (ProcessLookupError, PermissionError):
+                    pass
         if out:
             out.close()
         if rc < 0:  # died from a signal: report it the way a shell does (128+N)
@@ -1061,14 +1344,16 @@ def cmd_run(args: argparse.Namespace) -> int:
             t = now()
             while now() - t < VRAM_DRAIN_SECS:
                 g = gpu_used_mib()
-                if g and g[0] <= VRAM_IDLE_MIB:
+                if g and g[0] <= vram_idle_mib():
                     drained = round(now() - t, 1)
                     break
                 time.sleep(2 if VRAM_DRAIN_SECS > 10 else 0.5)
             if drained is None:
                 drain_failed = True
                 log(f"WARNING: VRAM not idle/readable {VRAM_DRAIN_SECS:g}s after exit; "
-                    "do not start another GPU job until nvidia-smi reads idle")
+                    "do not start another GPU job until "
+                    + ("`zk60_resource_guard.py status` shows the Apple GPU idle"
+                       if darwin_gpu_source() else "nvidia-smi reads idle"))
 
         if guard_error:
             exit_code = EXIT_GUARD_ERROR
@@ -1114,7 +1399,8 @@ def cmd_run(args: argparse.Namespace) -> int:
     finally:
         for s, h in old_handlers.items():
             signal.signal(s, h)
-        if proc is not None and tracker is not None and tracker.live():
+        # Darwin: live() raises when ps cannot run; _live_or_assumed() never does
+        if proc is not None and tracker is not None and tracker._live_or_assumed():
             try:
                 tracker.kill()
             except Exception:

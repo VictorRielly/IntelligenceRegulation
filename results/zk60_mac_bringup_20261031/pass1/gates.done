@@ -1,0 +1,10 @@
+env 0
+zkp_core_test 0
+hashline_lib_test 101
+hashline_all_test 101
+hashline_storage_lib_test 101
+build_cli_and_example 0
+block_prove 0
+block_verify_fresh_process 0
+block_digests 0
+ALL hashline_lib_test

@@ -785,6 +785,12 @@ class TestRecordShape(Base):
             self.assertEqual(sorted(hist_o), sorted(hist_n), name)
             self.assertEqual(res_n, hist_n, name)
             for k in ("exit", "child_rc", "class", "need_gib", "cap_gib", "enforcement"):
+                if sys.platform == "darwin" and name == "killed-max-secs" and k == "child_rc":
+                    # The old reference guard predates the macOS backend: on Darwin its
+                    # liveness probe read /proc, so its kill was a no-op and `sleep 20`
+                    # ran out (child_rc 0). The new guard must give Linux's SIGTERM 143.
+                    self.assertEqual(res_n.get(k), 143, f"{name}.{k}")
+                    continue
                 self.assertEqual(repr(res_o.get(k)), repr(res_n.get(k)), f"{name}.{k}")  # nan
             for k in ("refused", "guard_killed", "guard_error"):
                 a, b = res_o.get(k), res_n.get(k)

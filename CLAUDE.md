@@ -4,6 +4,29 @@
 (plain words: what is built, the measured numbers, why the speed goal
 is hard, the open choices, the rules, a glossary).
 
+**Machine change, 2026-10-31 (Victor): work continues on the M3 Ultra Mac
+Studio** (macOS arm64, 256 GB unified memory, 32 CPU cores, 80-core GPU)
+until the RTX 5090 box is up; the WSL laptop is no longer reachable. Read
+`docs/zkmatrix-poc/ZK60_MAC_BRINGUP_20261031.md` before any build, proof or
+lane launch. In short:
+- The repo is `/Users/victorrielly/IntelligenceRegulation`. Every
+  `/home/victor/...` path below and in older docs/scripts means the laptop;
+  use the Mac path or the script's environment override.
+- The resource guard runs on macOS (`scripts/zk60_resource_guard.py`,
+  watchdog-only: no cgroup cap; probes via `ps`, `vm_stat`, `sysctl`,
+  `ioreg`). The guard rules below still apply.
+- No `setsid`, `flock` CLI, systemd, bubblewrap, `nvidia-smi` or CUDA here.
+  Detach with a `python3` runner using `subprocess.Popen(...,
+  start_new_session=True)`. The hourly explorer needs bubblewrap and is not
+  installed on the Mac.
+- `gpu-cuda` cannot build; the Apple GPU needs a Metal backend first
+  (`docs/zkmatrix-poc/ZK60_METAL_PORT_PLAN.md`).
+- About 446 GiB of large files (each > 1 MiB) and everything kept outside
+  the repo (`/home/victor/zk60-artifacts`, owner-private keys, salts and
+  openings) stayed on the laptop. `SNAPSHOT_20261017_EXCLUDED_LARGE_FILES.json`
+  lists the in-repo ones with hashes.
+- The 2026-10-30 HOLD was for the Windows restart; lanes resume from here.
+
 **Crash recovery, 2026-09-30 UTC:** Victor requested coordination between
 both interactive Codex sessions and Claude after the WSL restart. Before a
 native build/proof or checkpoint calibration, read and acknowledge

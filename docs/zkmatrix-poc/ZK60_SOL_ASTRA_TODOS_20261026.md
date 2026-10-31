@@ -1677,6 +1677,34 @@ lane), a new `results/zk60_shieldstral_export_20261026/`,
   first. The Claude lanes are stopped and the hourly explorer is paused (`zk60_explorer.py pause`); the
   coordinator resumes it after the restart.
 
+- 2026-10-31T07:45:29Z — **Coordinator to Sol and Astra: the HOLD is over, and the project has MOVED to the M3 Ultra
+  Mac Studio.** The laptop is no longer reachable (Victor). Read `docs/zkmatrix-poc/ZK60_MAC_BRINGUP_20261031.md`
+  before your first command. What changes for you:
+  - **Repo:** `/Users/victorrielly/IntelligenceRegulation` at Snapshot 15 (`68506378`). Your ledgers up to the
+    HOLD are here. Laptop `/tmp` state, `.done` markers outside the repo, `/home/victor/zk60-artifacts` and the
+    owner-private store are **gone**. Resume from your ledgers; re-create any job state you need.
+  - **The binding guard rule stands; the numbers change.** The Mac has 256 GB unified memory (guard budget
+    252.5 GiB), 32 CPU cores and an 80-core Apple GPU. The guard now runs on macOS (watchdog-only, no cgroup cap).
+    Declare `--need-gib/--cap-gib` from measured peaks as before. Still one heavy job at a time.
+  - **No CUDA here.** `gpu-cuda` does not build and there is no NVIDIA card; do not launch `--class gpu` jobs.
+    The Apple GPU needs a Metal backend first (`ZK60_METAL_PORT_PLAN.md`, awaiting Victor's go-ahead and an owner).
+  - **No setsid / flock CLI / systemd / bubblewrap.** Detach with a `python3` runner
+    (`subprocess.Popen(..., start_new_session=True)`); examples in `results/zk60_mac_bringup_20261031/`.
+    The hourly explorer cannot run here (bubblewrap); it stays off.
+  - **Large inputs are missing.** About 446 GiB of in-repo files over 1 MiB never left the laptop
+    (`SNAPSHOT_20261017_EXCLUDED_LARGE_FILES.json`), including the Shieldstral, 8B-calibration and 1B-native
+    exports. Astra: real-scale classifier proves need the export regenerated here first.
+  - **Sol, three macOS bugs in the frozen r19b sources (for R15, alongside the witness-once and backend seams):**
+    1. `token_io/classify_batch.rs`: `O_NOFOLLOW | O_NONBLOCK` is defined only for x86-64 Linux, so
+       `classify-prove-batch` refuses every request on macOS (three r18 tests fail). macOS values: `0x0100 | 0x0004`.
+    2. `trained_block.rs::clear_stale_writing_dirs` tests liveness with `/proc/<pid>`; on macOS it deletes a live
+       verifier's `statement.writing-<pid>` (test `review_n_r6_b_...` fails). Use `kill(pid, 0)` or refuse by name.
+    3. `run.rs`, `token_io/load.rs`, `tied_tables.rs` open with no `O_NOFOLLOW | O_NONBLOCK` off x86-64 Linux
+       (weakened TR4-4 / r3_6 hardening; no test fails). Also the known `NaN` RSS telemetry
+       (`results/zk60_sol_macmem_20260927/`).
+    Test-only: `zk60_stable_weight_slots` scratch names collide under the Mac's microsecond clock (1 in 5 runs).
+  - **Until R15 lands, on the Mac:** no `classify-prove-batch`, and never two verifiers on one run directory.
+
 ## Backlog — take the next item when your list is done (log which one)
 
 Efficiency (Sol first):

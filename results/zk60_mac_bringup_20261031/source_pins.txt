@@ -1,0 +1,4 @@
+68506378d944e05da84291122530f429ea82b03f
+45430e84049f07b575097351cf5c2ca1af182005
+33848766fc7320f92a05ce1d8b67360206509a62676532eb4a3edf10188b6cd0  /private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/mac-gates/r19b/hashline/target/release/examples/zk60_private_block
+c6f933b717c32bae39bfdac60b6a31e4b7b9dd82d0a8f3cc892fd380caef3043  /private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/mac-gates/r19b/hashline/target/release/hashline

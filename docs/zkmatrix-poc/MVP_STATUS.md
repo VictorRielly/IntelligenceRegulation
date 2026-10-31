@@ -1,5 +1,17 @@
 # Where the MVP stands, in plain words
 
+**2026-10-31 07:45 UTC: work moved to the M3 Ultra Mac Studio; the laptop is no longer reachable.**
+- **The code is all here.** The last push (Snapshot 15) is pulled. The production prover builds on the Mac and
+  passes its tests apart from three macOS bugs and some missing test files. Proofs made on the laptop verify on
+  the Mac. Record: `ZK60_MAC_BRINGUP_20261031.md`.
+- **What stayed on the laptop:** about 446 GiB of large files (model exports, captures, receipts) and everything
+  kept outside the repo. That includes the private store of the durable demo post, so **its openings are not
+  available from here**. Its anchor on Base Sepolia is unaffected. The app also kept the public segments
+  outside the repo (`~/zk60-artifacts/proven-media`), so those are on the laptop too.
+- **No GPU proving on the Mac yet.** The GPU code is NVIDIA-only; an Apple GPU (Metal) port is planned but not
+  started (`ZK60_METAL_PORT_PLAN.md`). The safety guard for heavy jobs now runs on macOS.
+- **Every number below was measured on the laptop.** None has been re-measured on the Mac.
+
 **2026-10-30 21:55 UTC: a second real post, now with durable openings; the R14 prover passes its soundness review.**
 - **Durable demo post** (Astra): 19 tokens, all three categories accepted as not flagged, 84 public segments
   (2.55 GB). Anchored on Base Sepolia, transaction `0x6e6d5166…8181`, block 52,373,745.
