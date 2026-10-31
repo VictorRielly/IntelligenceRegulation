@@ -385,6 +385,50 @@ three timing runs, whose prover code is the same); CPU vs Metal seeded bytes at 
 trained digests unchanged in all runs; R13 classifier run proves and verifies; legacy golden gate 8 / 8 with
 device evidence (`golden_m4h/`, binary `golden_binary_m4h.sha256`). Evidence: `logs/m4h_*`.
 
+### M4i: device tables built in place, witness planes in parallel, and a prove-core clock (byte-identical)
+
+A `sample` profile of six warm Shieldstral blocks (`kbench/`-free: macOS `sample` on the running test, 3252
+samples per thread) put the largest prover-side CPU cost in `argument::priv_table`, and 60% of THAT in
+`__bzero`: every slot table was a fresh `vec![Fp2::ZERO; 2^n]`, whose recycled pages macOS zeroes before the
+builder overwrites them, and the device path then copied every table into a shared buffer (0.045 s per block
+over the five device zero-checks). Two more single-threaded loops showed up: `A`'s witness planes were
+converted into their rows on one thread (0.075 s), and the test's own digest formats the whole proof as text.
+
+- **Tables in place** (`gpu/metal.rs::MetalTables`, `metal_rounds_owned`; `private_block/argument.rs`). A device
+  slot (host or standalone kind, so its claimed sum reads no table; above `2^18` terms, strictly above the test
+  oracle's size; census off) builds its tables straight into ONE pooled shared buffer viewed as `[Fp2]` (the
+  constructor checks `Fp2` is the two words `c0, c1`, else the old path runs), one rayon task per table.
+  `priv_table_into` / `eq_cube_into` write the words `priv_table` / `eq_cube` return: a plain-store private
+  table writes every element (its index map is a bijection onto the subsets of `used`, and the broadcast fills
+  the rest), an accumulating one is zeroed first, an eq cube is filled and doubled, a public table copied. The
+  base-typing check the copy made now reads the tables in place (0.003 s for slot 18). A device decline hands
+  the tables back (`to_vecs`) for the CPU evaluator. The stage-28 equality gates (`priv_table` against the
+  walked builder, `eq_cube` against the gathered one) still pass through the shared fill code.
+- **Witness planes** (`private_block/protocol.rs::write_planes`): the planes' ranges are checked in bounds and
+  disjoint, carved in address order and converted in one rayon region; anything else runs the old loop.
+- **Clock** (`slot_ir_accuracy.rs`): the trained test now prints `prove core`, the `prove_core` call alone. Its
+  older `metal-warm` figure also holds the test's NTT tables, endpoint rows and the digest's text (about
+  0.16 s): the M4-M4h rows above are that figure, and remain comparable with one another. `HL_M4_WARM_PASSES=n`
+  runs n warm passes per process.
+
+| Accuracy block, T128, Metal warm [quiet box; 9 warm passes in 3 processes] | M4h test clock (n = 4) | M4i test clock | **M4i prove core** |
+|---|---:|---:|---:|
+| `R13_SHIELD_T128_H24` | median 1.005 s | 0.889-1.095 s, median 0.917 | **0.727-0.927 s, median 0.753** |
+| `R13_8B_T128_H24` | median 1.03 s | 0.868-0.956 s, median 0.921 | **0.705-0.794 s, median 0.759** |
+
+Phase clock, Shieldstral warm (`HL_PB_TIMING`, `logs/m4h_trained_phases.log` -> `logs/m4i_trained_phases.log`,
+n = 1 each): the call 0.974 -> **0.801 s**; slot 18 0.131 -> 0.097 s, slot 14 0.124 -> 0.091 s, slots 15-17
+0.032 / 0.024 / 0.034 -> 0.028 / 0.019 / 0.030 s, `A: allocate + witness planes` 0.075 -> 0.027 s. The CPU
+path shares the plane write (Shieldstral CPU prove core 2.9 s in these runs; not a quiesced ladder).
+
+Gates: unit `m4c_ m4d_ m4h_ m4i_ s28 s29 slot_ir metal` 32 / 32 (including the stage-28 table equality gates
+and `m4i_in_place_tables_and_plane_writes_equal_the_host_forms`, which writes into a buffer of stale words);
+`cargo check` without the `gpu-metal` feature; CPU vs Metal seeded bytes at the four development shapes (the
+same four digests); trained digests unchanged in all 18 warm passes; R13 classifier run proves and verifies;
+legacy golden gate 8 / 8 with device evidence (`golden_m4i/`, binary `golden_binary_m4i.sha256`). Evidence:
+`logs/m4i_*`; the profiler run and its reader are `kbench/profile_warm.py` and `kbench/sample_tree.py`, the
+flat self-time summary `kbench/m4i_profile_flat.txt` (the 27 MB sample text stayed in the session scratchpad).
+
 ## Open items
 
 1. **Backend label.** `trained_block.rs::backend_of_this_process` knows only the CPU and CUDA names, so a

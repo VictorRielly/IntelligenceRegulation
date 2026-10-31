@@ -255,6 +255,23 @@ fn claim_point(p: &Priv, rho: &[Fp2]) -> Vec<Fp2> {
 /// Every word this returns is the word the walked form returned; the equality
 /// is a test (`s28_tests`), not a claim.
 pub(super) fn priv_table(p: &Priv, data: &[Fp], n_vars: usize) -> Vec<Fp2> {
+    let mut out = vec![Fp2::ZERO; 1usize << n_vars];
+    priv_table_fill(p, data, n_vars, &mut out, true);
+    out
+}
+
+/// **[ZK60-METAL M4i]** [`priv_table`] written into `out` (`2^n_vars`
+/// elements, whatever they held): the slot's device tables are built in place
+/// in a pooled device buffer. The same words: a plain-store table writes every
+/// element (its `idx -> x` map is a bijection onto the subsets of `used`, and
+/// the broadcast fills the rest from them), and an accumulating one starts from
+/// zeros, as the vector did.
+pub(super) fn priv_table_into(p: &Priv, data: &[Fp], n_vars: usize, out: &mut [Fp2]) {
+    assert_eq!(out.len(), 1usize << n_vars, "private block: table length");
+    priv_table_fill(p, data, n_vars, out, false);
+}
+
+fn priv_table_fill(p: &Priv, data: &[Fp], n_vars: usize, out: &mut [Fp2], zeroed: bool) {
     let fixed: Vec<Fp2> = p.coords.iter().filter_map(|c| if let Coord::Fixed(f) = c { Some(*f) } else { None }).collect();
     let eqf = eq_table_msb(&fixed);
     let mut used = 0usize;
@@ -263,7 +280,6 @@ pub(super) fn priv_table(p: &Priv, data: &[Fp], n_vars: usize) -> Vec<Fp2> {
             used |= 1usize << (n_vars - 1 - *k);
         }
     }
-    let mut out = vec![Fp2::ZERO; 1usize << n_vars];
     // the index maps, one per half of `idx`. Coordinate `j` reads bit
     // `p.log - 1 - j` of `idx`, so coordinates `0 .. hi` are the high half.
     let lo_len = p.log / 2;
@@ -296,6 +312,11 @@ pub(super) fn priv_table(p: &Priv, data: &[Fp], n_vars: usize) -> Vec<Fp2> {
     let moving = p.coords.iter().filter(|c| !matches!(c, Coord::Fixed(_))).count();
     let simple = eqf.len() == 1 && eqf[0] == Fp2::ONE && used.count_ones() as usize == moving;
     let one_slice = if p.slices.len() == 1 && p.slices[0].1 == Fp2::ONE { Some(p.slices[0].0) } else { None };
+    // [M4i] an accumulating table starts from zeros; a plain-store one writes
+    // every element below, so a reused buffer needs no clearing
+    if !zeroed && !simple {
+        out.fill(Fp2::ZERO);
+    }
     for idx in 0..1usize << p.log {
         let (x_hi, z_hi) = hi_map[idx >> lo_len];
         let (x_lo, z_lo) = lo_map[idx & lo_mask];
@@ -318,7 +339,6 @@ pub(super) fn priv_table(p: &Priv, data: &[Fp], n_vars: usize) -> Vec<Fp2> {
             }
         }
     }
-    out
 }
 
 /// **STAGE 28.** The `eq` table over the slot's cube: entry `x` is
@@ -349,6 +369,28 @@ pub(super) fn eq_cube(e: &[Fp2], n_vars: usize, start: usize) -> Vec<Fp2> {
         out.extend_from_within(..);
     }
     out
+}
+
+/// **[ZK60-METAL M4i]** [`eq_cube`] written into `out` (`2^n_vars` elements,
+/// whatever they held): the same block of `2^shift` copies per entry, doubled
+/// to the cube, so every element is written and the words are the same.
+pub(super) fn eq_cube_into(e: &[Fp2], n_vars: usize, start: usize, out: &mut [Fp2]) {
+    let bits = e.len().trailing_zeros() as usize;
+    assert!(
+        start + bits <= n_vars,
+        "private block: eq_cube precondition start + |point| <= n_vars violated (start {start}, |point| {bits}, n_vars {n_vars})"
+    );
+    let len = 1usize << n_vars;
+    assert_eq!(out.len(), len, "private block: table length");
+    let shift = n_vars - start - bits;
+    for (i, v) in e.iter().enumerate() {
+        out[i << shift..(i + 1) << shift].fill(*v);
+    }
+    let mut have = e.len() << shift;
+    while have < len {
+        out.copy_within(..have, have);
+        have *= 2;
+    }
 }
 
 /// **STAGE 28.** `take` is `Some` on the proving path, where the slot
@@ -390,6 +432,25 @@ pub(super) fn build_tables_at(tabs: &mut [Tab], n_vars: usize, pd: &ProverData, 
         return tabs.par_iter_mut().map(|t| table_of_taking(t, n_vars, pd)).collect();
     }
     tabs.iter_mut().map(|t| table_of_taking(t, n_vars, pd)).collect()
+}
+
+/// **[ZK60-METAL M4i]** one table of the slot written into `out` (its
+/// `2^n_vars` elements in the device buffer): the words [`table_of`] returns.
+/// A public table is copied (its length was checked on entry to `run_slot`).
+fn table_into(tab: &Tab, n_vars: usize, pd: &ProverData, out: &mut [Fp2]) {
+    match tab {
+        Tab::Eq { point, start } => eq_cube_into(&eq_table_msb(point), n_vars, *start, out),
+        Tab::Pub(v) => out.copy_from_slice(v),
+        Tab::Priv(p) => priv_table_into(p, pd.data[p.cm as usize], n_vars, out),
+    }
+}
+
+/// **[ZK60-METAL M4i]** [`build_tables_at`] into the slot's device tables, one
+/// rayon task per table (the tables are independent; each slice is its own).
+pub(super) fn build_tables_into(tabs: &[Tab], n_vars: usize, pd: &ProverData, out: Vec<&mut [Fp2]>) {
+    use rayon::prelude::*;
+    assert_eq!(tabs.len(), out.len(), "private block: device table count");
+    tabs.par_iter().zip(out.into_par_iter()).for_each(|(t, o)| table_into(t, n_vars, pd, o));
 }
 
 /// **FINDING S12-F2 (S12a), fixed here.** The ROW WIDTH a claim's reserved
@@ -505,6 +566,11 @@ fn sum_weights(sh: &Shape, slot: usize) -> Vec<Fp2> {
 /// below it the per-round launch overhead outweighs the work.
 #[cfg(feature = "gpu-metal")]
 const METAL_MIN_TERMS: usize = 1 << 18;
+/// [ZK60-METAL M4i] the slot size (tables x cube) ABOVE which a device slot's
+/// tables are built in place in device memory: strictly above the test
+/// oracle's `<= 2^18`, so a slot the oracle replays keeps its host tables
+#[cfg(feature = "gpu-metal")]
+const METAL_DIRECT_MIN: usize = 1 << 18;
 
 pub(crate) fn run_slot(side: &mut Side, acc: &mut Acc, mut def: SlotDef, tr: &mut Transcript) -> Result<(), String> {
     let s = def.slot;
@@ -553,8 +619,27 @@ pub(crate) fn run_slot(side: &mut Side, acc: &mut Acc, mut def: SlotDef, tr: &mu
             // crate's own rayon style. The iterator is INDEXED, so the table
             // set is the same set in the same order whatever the thread count
             // is; no randomness is drawn here, so no draw order can move.
-            let mut tables: Vec<Vec<Fp2>> =
-                super::timing::slot_step(s, "tables: build (argument.rs)", (def.tabs.len() << n) as u64, || build_tables_at(&mut def.tabs, n, pd, TABLES_PAR_MIN));
+            // [ZK60-METAL M4i] a DEVICE slot's tables are built in place in a
+            // pooled device buffer: no host vector per table (macOS zeroes a
+            // recycled one first) and no copy. Only a host or standalone slot
+            // (its claimed sum reads no table), above the test oracle's size,
+            // with the base-field census off; anything else, or a buffer the
+            // device cannot give, builds host vectors as before. Same words.
+            #[cfg(feature = "gpu-metal")]
+            let mut dev_tables: Option<crate::gpu::MetalTables> = None;
+            #[cfg(feature = "gpu-metal")]
+            let direct = def.metal.is_some() && kind != SlotKind::Private && (def.tabs.len() << n) > METAL_DIRECT_MIN && !super::timing::census_on(s);
+            let mut tables: Vec<Vec<Fp2>> = super::timing::slot_step(s, "tables: build (argument.rs)", (def.tabs.len() << n) as u64, || {
+                #[cfg(feature = "gpu-metal")]
+                if direct {
+                    if let Ok(mut mt) = crate::gpu::MetalTables::new(def.tabs.len(), 1usize << n) {
+                        build_tables_into(&def.tabs, n, pd, mt.tables_mut());
+                        dev_tables = Some(mt);
+                        return Vec::new();
+                    }
+                }
+                build_tables_at(&mut def.tabs, n, pd, TABLES_PAR_MIN)
+            });
             if tables.iter().any(|t| t.len() != 1usize << n) {
                 return Err(format!("private block: slot {s} table length"));
             }
@@ -604,7 +689,9 @@ pub(crate) fn run_slot(side: &mut Side, acc: &mut Acc, mut def: SlotDef, tr: &mu
                 // Compare bounded actual slot fixtures with the old prover
                 // at the same transcript/tables, including masked bytes.
                 #[cfg(test)]
-                let oracle = if tables.len() * (1usize << n) <= 1 << 18 {
+                // ([M4i] counted by the slot's table COUNT: a direct device
+                // build leaves `tables` empty and is above this size)
+                let oracle = if def.tabs.len() * (1usize << n) <= 1 << 18 {
                     let mut old_tables = tables.clone();
                     let mut old_tr = Transcript::clone_state(tr);
                     let old = crate::zk::masked_prove(&mut old_tables, degree, &poly, mask, c, &mut old_tr);
@@ -615,7 +702,28 @@ pub(crate) fn run_slot(side: &mut Side, acc: &mut Acc, mut def: SlotDef, tr: &mu
                 // would use (recovery for the closure path, full evaluation for
                 // the grouped path), the same driver. A decline runs the CPU.
                 #[cfg(feature = "gpu-metal")]
-                let metal_result = match &def.metal {
+                let metal_result = if let Some(mt) = dev_tables.take() {
+                    // [M4i] the tables already in device memory; a decline
+                    // hands them back for the CPU evaluator
+                    let (src, cf, base) = def.metal.as_ref().expect("a direct device build has the slot's kernels");
+                    match crate::gpu::metal_rounds_owned(src, mt, degree, cf, base) {
+                        Ok(ev) => {
+                            let mut ev = if def.groups.is_some() { ev } else { ev.recover_one(unmasked_claim) };
+                            let r = crate::zk::masked_prove_rounds(&mut ev, mask, c, tr);
+                            tables = ev.final_tables();
+                            Some(r)
+                        }
+                        Err((mt, why)) => {
+                            match why {
+                                None => super::metal_slot::note_cpu_slot(s, std::env::var("HL_METAL_TIMING").map(|v| v == "1").unwrap_or(false)),
+                                Some(e) => crate::gpu::declined("[ZK60-METAL] slot sumcheck", &e),
+                            }
+                            tables = mt.to_vecs();
+                            None
+                        }
+                    }
+                } else {
+                    match &def.metal {
                     Some((src, cf, base)) if tables.len() << n >= METAL_MIN_TERMS => {
                         match crate::gpu::metal_rounds(src, &tables, degree, cf, base) {
                             Ok(None) => {
@@ -637,6 +745,7 @@ pub(crate) fn run_slot(side: &mut Side, acc: &mut Acc, mut def: SlotDef, tr: &mu
                         }
                     }
                     _ => None,
+                    }
                 };
                 #[cfg(not(feature = "gpu-metal"))]
                 let metal_result: Option<_> = None;

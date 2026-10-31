@@ -1047,41 +1047,142 @@ pub fn metal_rounds(kernel_src: &str, tables: &[Vec<Fp2>], degree: usize, coefs:
         if std::env::var("HL_METAL_TIMING").map(|v| v == "1").unwrap_or(false) {
             eprintln!("[ZK60-METAL] sumcheck setup: {k} tables x 2^{} in {:.4} s", cap.trailing_zeros(), t_setup.elapsed().as_secs_f64());
         }
-        let mut cf: Vec<Fp> = coefs.iter().flat_map(|v| [v.c0, v.c1]).collect();
-        if cf.is_empty() {
-            cf.push(Fp::ZERO);
-        }
-        let coefs = upload(c, &cf)?;
-        // [M4e] one pair per thread up to 2^17 strides, groups of 64 (measured
-        // on slot 14's later rounds; HL_METAL_SC_THREADS / _PER / _TG override)
-        let cap_log: u32 = std::env::var("HL_METAL_SC_THREADS").ok().and_then(|v| v.parse().ok()).unwrap_or(17).clamp(8, 22);
-        let per: usize = std::env::var("HL_METAL_SC_PER").ok().and_then(|v| v.parse().ok()).unwrap_or(1).max(1);
-        let tg: u64 = std::env::var("HL_METAL_SC_TG").ok().and_then(|v| v.parse().ok()).unwrap_or(64).clamp(32, 1024);
-        let t0n = sc_threads(cap / 2, per, cap_log);
-        let part = shared_buffer(c, (t0n * (degree + 1) * 16) as u64)?;
-        Ok(Some(MetalRounds {
-            k,
-            n_vars: cap.trailing_zeros() as usize,
-            degree,
-            cap,
-            len: cap,
-            tabs,
-            coefs,
-            pipe0,
-            pipe,
-            next: 0,
-            pending: None,
-            recover_one: false,
-            unmasked_claim: None,
-            busy_ns: std::cell::Cell::new(0),
-            split_ns: std::cell::Cell::new([0; 3]),
-            cap_log,
-            per,
-            tg,
-            part,
-            fold_r: None,
-        }))
+        let parts = rounds_parts(c, cap, degree, coefs)?;
+        Ok(Some(assemble_rounds(tabs, k, cap, degree, pipe0, pipe, parts)))
     })
+}
+
+/// the coefficient buffer, the thread settings and the partials buffer of a
+/// device sumcheck (everything but its tables)
+struct RoundsParts {
+    coefs: PBuf,
+    cap_log: u32,
+    per: usize,
+    tg: u64,
+    part: PBuf,
+}
+
+fn rounds_parts(c: &Ctx, cap: usize, degree: usize, coefs: &[Fp2]) -> Result<RoundsParts, String> {
+    let mut cf: Vec<Fp> = coefs.iter().flat_map(|v| [v.c0, v.c1]).collect();
+    if cf.is_empty() {
+        cf.push(Fp::ZERO);
+    }
+    let coefs = upload(c, &cf)?;
+    // [M4e] one pair per thread up to 2^17 strides, groups of 64 (measured
+    // on slot 14's later rounds; HL_METAL_SC_THREADS / _PER / _TG override)
+    let cap_log: u32 = std::env::var("HL_METAL_SC_THREADS").ok().and_then(|v| v.parse().ok()).unwrap_or(17).clamp(8, 22);
+    let per: usize = std::env::var("HL_METAL_SC_PER").ok().and_then(|v| v.parse().ok()).unwrap_or(1).max(1);
+    let tg: u64 = std::env::var("HL_METAL_SC_TG").ok().and_then(|v| v.parse().ok()).unwrap_or(64).clamp(32, 1024);
+    let t0n = sc_threads(cap / 2, per, cap_log);
+    let part = shared_buffer(c, (t0n * (degree + 1) * 16) as u64)?;
+    Ok(RoundsParts { coefs, cap_log, per, tg, part })
+}
+
+fn assemble_rounds(tabs: PBuf, k: usize, cap: usize, degree: usize, pipe0: ComputePipelineState, pipe: ComputePipelineState, p: RoundsParts) -> MetalRounds {
+    MetalRounds {
+        k,
+        n_vars: cap.trailing_zeros() as usize,
+        degree,
+        cap,
+        len: cap,
+        tabs,
+        coefs: p.coefs,
+        pipe0,
+        pipe,
+        next: 0,
+        pending: None,
+        recover_one: false,
+        unmasked_claim: None,
+        busy_ns: std::cell::Cell::new(0),
+        split_ns: std::cell::Cell::new([0; 3]),
+        cap_log: p.cap_log,
+        per: p.per,
+        tg: p.tg,
+        part: p.part,
+        fold_r: None,
+    }
+}
+
+/// **[ZK60-METAL M4i]** A slot's `k` tables of `cap` extension elements in ONE
+/// pooled shared buffer, written IN PLACE by the slot's table builder and then
+/// handed to [`metal_rounds_owned`]: no host vector per table (whose fresh,
+/// recycled pages macOS zeroes first) and no copy into device memory. The
+/// buffer is viewed as `[Fp2]`, so the constructor checks that `Fp2` is the two
+/// words `c0, c1` and refuses otherwise (the caller then builds host vectors as
+/// before). A pooled buffer holds stale words, so the builder writes every
+/// element of every table.
+pub struct MetalTables {
+    buf: PBuf,
+    k: usize,
+    cap: usize,
+}
+
+impl MetalTables {
+    pub fn new(k: usize, cap: usize) -> Result<MetalTables, String> {
+        if std::mem::size_of::<Fp2>() != 16 || std::mem::offset_of!(Fp2, c0) != 0 || std::mem::offset_of!(Fp2, c1) != 8 || std::mem::align_of::<Fp2>() > 8 {
+            return Err("metal tables: Fp2 is not the two words c0, c1".into());
+        }
+        if k == 0 || cap < 2 || !cap.is_power_of_two() {
+            return Err("metal tables: table count or length".into());
+        }
+        let c = ctx()?;
+        let buf = objc::rc::autoreleasepool(|| shared_buffer(c, (k * cap * 16) as u64))?;
+        Ok(MetalTables { buf, k, cap })
+    }
+
+    /// the `k` tables as disjoint mutable slices of `cap` elements each
+    pub fn tables_mut(&mut self) -> Vec<&mut [Fp2]> {
+        // SAFETY: `k * cap * 16` bytes of shared, CPU-visible memory owned by
+        // `self` (page-aligned, so aligned for `Fp2`; the layout was checked in
+        // `new`) and not in use by the GPU; any two words are an `Fp2` value,
+        // and the builder overwrites every element before anything reads it.
+        let all = unsafe { std::slice::from_raw_parts_mut(self.buf.contents() as *mut Fp2, self.k * self.cap) };
+        all.chunks_mut(self.cap).collect()
+    }
+
+    /// host copies of the tables (the CPU path when the device declines)
+    pub fn to_vecs(&self) -> Vec<Vec<Fp2>> {
+        // SAFETY: as in `tables_mut`, read-only, after the builder wrote them
+        let all = unsafe { std::slice::from_raw_parts(self.buf.contents() as *const Fp2, self.k * self.cap) };
+        all.chunks(self.cap).map(|t| t.to_vec()).collect()
+    }
+}
+
+/// [`metal_rounds`] over tables already in device memory ([`MetalTables`]).
+/// `Err((tables, None))`: a table the kernel keeps as a base-field word has a
+/// nonzero imaginary part (the typed kernel does not apply; the CPU runs);
+/// `Err((tables, Some(e)))`: a device error. Either way the tables come back.
+pub fn metal_rounds_owned(kernel_src: &str, t: MetalTables, degree: usize, coefs: &[Fp2], base: &[bool]) -> Result<MetalRounds, (MetalTables, Option<String>)> {
+    let c = match ctx() {
+        Ok(c) => c,
+        Err(e) => return Err((t, Some(e))),
+    };
+    if degree == 0 || base.len() != t.k {
+        return Err((t, Some("metal sumcheck: degree 0 or base flags".into())));
+    }
+    let (pipe0, pipe) = match sc_pipelines(c, kernel_src, t.k, degree) {
+        Ok(p) => p,
+        Err(e) => return Err((t, Some(e))),
+    };
+    let t_setup = std::time::Instant::now();
+    let (k, cap) = (t.k, t.cap);
+    // the base-typing check the copy made, on the tables in place
+    let typed_ok = {
+        // SAFETY: as in `MetalTables::to_vecs`
+        let all = unsafe { std::slice::from_raw_parts(t.buf.contents() as *const Fp2, k * cap) };
+        all.par_chunks(cap).zip(base.par_iter()).all(|(tab, &b)| !b || tab.iter().all(|v| v.c1.0 == 0))
+    };
+    if !typed_ok {
+        return Err((t, None));
+    }
+    if std::env::var("HL_METAL_TIMING").map(|v| v == "1").unwrap_or(false) {
+        eprintln!("[ZK60-METAL] sumcheck setup (tables in place): {k} tables x 2^{} in {:.4} s", cap.trailing_zeros(), t_setup.elapsed().as_secs_f64());
+    }
+    let parts = match objc::rc::autoreleasepool(|| rounds_parts(c, cap, degree, coefs)) {
+        Ok(p) => p,
+        Err(e) => return Err((t, Some(e))),
+    };
+    Ok(assemble_rounds(t.buf, k, cap, degree, pipe0, pipe, parts))
 }
 
 impl MetalRounds {

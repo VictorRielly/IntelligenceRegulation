@@ -710,6 +710,48 @@ pub(super) fn inverses(mut den: Vec<Fp2>) -> Result<Vec<Fp2>, String> {
 pub(super) const INV_CHUNK: usize = 1 << 14;
 pub(super) const WRITE_H_PAR_MIN: usize = 1 << 16;
 
+/// [M4i] the word count from which [`write_planes`] runs in parallel
+pub(super) const PLANES_PAR_MIN: usize = 1 << 16;
+
+/// **[ZK60-METAL M4i]** `A`'s witness planes into their rows: `dst[off + i] =
+/// Fp::from_i64(plane[i])` for every `(off, plane)` job. When every range is in
+/// bounds and the ranges are pairwise disjoint (the layout's planes always are),
+/// the ranges are carved in address order and written in one rayon region of
+/// fixed chunks; the words and their places are the loop's. Anything else runs
+/// the jobs in order exactly as the loop did (a later job overwrites an earlier
+/// one where they overlap; an out-of-range write panics where it did).
+pub(super) fn write_planes(dst: &mut [Fp], jobs: &[(usize, &[i64])]) {
+    let total: usize = jobs.iter().map(|j| j.1.len()).sum();
+    let mut order: Vec<usize> = (0..jobs.len()).collect();
+    order.sort_by_key(|&k| jobs[k].0);
+    let in_bounds = jobs.iter().all(|(o, p)| o.checked_add(p.len()).is_some_and(|e| e <= dst.len()));
+    let disjoint = in_bounds && order.windows(2).all(|w| jobs[w[0]].0 + jobs[w[0]].1.len() <= jobs[w[1]].0);
+    if total < PLANES_PAR_MIN || !in_bounds || !disjoint {
+        for (off, plane) in jobs {
+            for (i, v) in plane.iter().enumerate() {
+                dst[off + i] = Fp::from_i64(*v);
+            }
+        }
+        return;
+    }
+    use rayon::prelude::*;
+    let mut items: Vec<(&mut [Fp], &[i64])> = Vec::with_capacity(total / HELPER_CHUNK + jobs.len());
+    let (mut rest, mut base) = (dst, 0usize);
+    for &k in &order {
+        let (off, plane) = jobs[k];
+        let (_, tail) = std::mem::take(&mut rest).split_at_mut(off - base);
+        let (mine, after) = tail.split_at_mut(plane.len());
+        items.extend(mine.chunks_mut(HELPER_CHUNK).zip(plane.chunks(HELPER_CHUNK)));
+        rest = after;
+        base = off + plane.len();
+    }
+    items.into_par_iter().for_each(|(d, p)| {
+        for (x, v) in d.iter_mut().zip(p.iter()) {
+            *x = Fp::from_i64(*v);
+        }
+    });
+}
+
 /// The one refusal string every LogUp denominator shares. It was written out
 /// twice before stage 28 and is written out once now, so the table path below
 /// cannot drift from [`inverses`].
@@ -1235,11 +1277,10 @@ pub(crate) fn prove_core(
 
     // ---- A: planes, the three committed histograms, every mask row drawn BEFORE the commitment ----
     let mut a_data = vec![Fp::ZERO; lay.a_rows * n];
-    for p in &committed {
-        for (i, v) in wit.planes[*p].iter().enumerate() {
-            a_data[lay.a_off[*p] + i] = Fp::from_i64(*v);
-        }
-    }
+    // [ZK60-METAL M4i] the same words in the same places, in one parallel pass
+    let plane_jobs: Vec<(usize, &[i64])> = committed.iter().map(|p| (lay.a_off[*p], wit.planes[*p].as_slice())).collect();
+    write_planes(&mut a_data, &plane_jobs);
+    drop(plane_jobs);
     ph.mark_bytes(Half::Commit, "A: allocate + witness planes -> committed rows", (lay.a_rows * n) as u64, "words", 8 * (lay.a_rows * n) as u64);
     // Histograms are indexed by registered table entries, never row width:
     // byte/exp and legacy ACT have 256 entries; ACT3 has groups*4096.

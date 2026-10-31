@@ -653,6 +653,84 @@ mod tests {
         }
     }
 
+    /// [ZK60-METAL M4i] the in-place table builders write, into a buffer full
+    /// of stale words, exactly the vectors the host builders return (plain
+    /// store, flipped, fixed, short-with-broadcast, duplicated-index and
+    /// two-slice private tables; every eq cube shape), and the parallel plane
+    /// write is the loop's, with the loop kept for overlapping or short jobs
+    #[test]
+    fn m4i_in_place_tables_and_plane_writes_equal_the_host_forms() {
+        use crate::private_block::argument::{eq_cube, eq_cube_into, priv_table, priv_table_into, Cm, Coord, Priv};
+        use crate::private_block::protocol::{write_planes, PLANES_PAR_MIN};
+        let junk = Fp2::new(Fp::new(123_456_789), Fp::new(987_654_321));
+        let f = |i: u64| Fp2::new(Fp::new(i * 1_000_003 + 7), Fp::new(i * 31 + 1));
+        for n_vars in [5usize, 9, 12] {
+            let data: Vec<Fp> = (0..(4usize << n_vars)).map(|i| Fp::new((i as u64).wrapping_mul(0x9E37_79B9) % 1_000_000_007)).collect();
+            let rho = |c: Vec<usize>| -> Vec<Coord> { c.into_iter().map(Coord::Rho).collect() };
+            let mut cases: Vec<(&str, Priv)> = Vec::new();
+            let mk = |slices: Vec<(usize, Fp2)>, log: usize, coords: Vec<Coord>| Priv { cm: Cm::A, slices, log, coords, mask_row: 0, ext_round: 0 };
+            cases.push(("plain", mk(vec![(3, Fp2::ONE)], n_vars, rho((0..n_vars).rev().collect()))));
+            let mut fl = rho((0..n_vars).collect());
+            fl[1] = Coord::Flip(1);
+            cases.push(("flipped", mk(vec![(1, f(2))], n_vars, fl)));
+            let mut fx = rho((1..n_vars).collect());
+            fx.insert(2, Coord::Fixed(f(3)));
+            cases.push(("fixed", mk(vec![(2, Fp2::ONE)], n_vars, fx)));
+            cases.push(("short, broadcast", mk(vec![(5, Fp2::ONE)], n_vars - 2, rho((0..n_vars - 2).collect()))));
+            let mut dup = rho((0..n_vars).collect());
+            dup[n_vars - 1] = Coord::Rho(0);
+            cases.push(("duplicated index", mk(vec![(2, Fp2::ONE)], n_vars, dup)));
+            cases.push(("two slices", mk(vec![(1, f(4)), (9, Fp2::U)], n_vars, rho((0..n_vars).collect()))));
+            for (name, p) in &cases {
+                let want = priv_table(p, &data, n_vars);
+                let mut got = vec![junk; 1usize << n_vars];
+                priv_table_into(p, &data, n_vars, &mut got);
+                assert_eq!(got, want, "{name} at 2^{n_vars}");
+                assert!(want.iter().any(|v| !v.is_zero()), "{name}: an all-zero fixture");
+            }
+            for plen in 0..=n_vars.min(6) {
+                for start in 0..=(n_vars - plen) {
+                    let point: Vec<Fp2> = (0..plen).map(|i| f(i as u64 + 11)).collect();
+                    let e = crate::mle::eq_table_msb(&point);
+                    let mut got = vec![junk; 1usize << n_vars];
+                    eq_cube_into(&e, n_vars, start, &mut got);
+                    assert_eq!(got, eq_cube(&e, n_vars, start), "eq cube 2^{n_vars} start {start} |point| {plen}");
+                }
+            }
+        }
+        // the plane write: disjoint unaligned jobs in shuffled order, then overlapping and short ones
+        let plane = |len: usize, m: i64| -> Vec<i64> { (0..len as i64).map(|i| (i * m) % 70_001 - 35_000).collect() };
+        let planes = [plane(PLANES_PAR_MIN + 3, 7), plane(40_000, 13), plane(5, 3), plane(PLANES_PAR_MIN / 2, 11)];
+        let offs = [200_000usize, 17, 150_007, 60_011];
+        let size = 300_000usize;
+        let looped = |jobs: &[(usize, &[i64])]| -> Vec<Fp> {
+            let mut d = vec![Fp::new(5); size];
+            for (off, p) in jobs {
+                for (i, v) in p.iter().enumerate() {
+                    d[off + i] = Fp::from_i64(*v);
+                }
+            }
+            d
+        };
+        let jobs: Vec<(usize, &[i64])> = offs.iter().zip(planes.iter()).map(|(o, p)| (*o, p.as_slice())).collect();
+        let mut got = vec![Fp::new(5); size];
+        write_planes(&mut got, &jobs);
+        assert_eq!(got, looped(&jobs), "disjoint jobs");
+        let mut over = jobs.clone();
+        over[3].0 = 20; // overlaps job 1: the loop's order decides
+        let mut got = vec![Fp::new(5); size];
+        write_planes(&mut got, &over);
+        assert_eq!(got, looped(&over), "overlapping jobs");
+        let short: Vec<(usize, &[i64])> = vec![(3, &planes[2][..]), (11, &planes[2][..])];
+        let mut got = vec![Fp::new(5); size];
+        write_planes(&mut got, &short);
+        assert_eq!(got, looped(&short), "short jobs");
+    }
+
+    /// [M4i] nanoseconds of the last `prove_core` call `seeded_accuracy_digest` made
+    #[cfg(feature = "gpu-metal")]
+    static LAST_CORE_NS: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+
     /// one seeded accuracy-stack block proof's digest (the recipe of
     /// `r12_golden_tests::digest_of_seeded_block`: roots, slot proofs,
     /// openings, IO claims, absorb order, lookups, final transcript state)
@@ -676,7 +754,11 @@ mod tests {
         tr.absorb(b"schedule", &lay.schedule_digest());
         let mut ph = crate::private_block::timing::Phases::start();
         let (mut phases, mut tick) = (Vec::new(), std::time::Instant::now());
+        let t_core = std::time::Instant::now();
         let core = crate::private_block::protocol::prove_core(sh, &lay, blk, w, [ein.as_slice(), eout.as_slice()], &ntt, &mut rng, &mut tr, &mut ph, &mut phases, &mut tick).expect("the seeded accuracy core proof");
+        // [M4i] the proof call alone: the test's own clock also holds the
+        // NTT tables, the endpoint rows and the digest's text below
+        LAST_CORE_NS.store(t_core.elapsed().as_nanos() as u64, std::sync::atomic::Ordering::Relaxed);
         if std::env::var("HL_M4_PHASES").map(|v| v == "1").unwrap_or(false) {
             let row: Vec<String> = phases.iter().map(|(n, t)| format!("{n} {t:.3}")).collect();
             eprintln!("M4-PHASES {} gpu={} | {}", sh.name, std::env::var("HL_GPU").unwrap_or_default(), row.join(" | "));
@@ -758,10 +840,15 @@ mod tests {
             let t = std::time::Instant::now();
             let cpu = seeded_accuracy_digest(&sh, &blk, w);
             let cpu_s = t.elapsed().as_secs_f64();
+            let cpu_core = LAST_CORE_NS.load(std::sync::atomic::Ordering::Relaxed) as f64 * 1e-9;
             // twice on the device: COLD (this process compiles the shape's slot
             // kernels) and WARM (the in-process pipeline cache holds them, as for
-            // every later layer of a multi-layer run)
-            for pass in ["cold", "warm"] {
+            // every later layer of a multi-layer run). [M4i] HL_M4_WARM_PASSES=n
+            // runs n warm passes (default 1): more samples per process, and a
+            // steady window for a profiler
+            let warm: usize = std::env::var("HL_M4_WARM_PASSES").ok().and_then(|v| v.parse().ok()).unwrap_or(1).max(1);
+            let passes: Vec<&str> = std::iter::once("cold").chain(std::iter::repeat("warm").take(warm)).collect();
+            for pass in passes {
                 let (before, compile0, cpu_slots0) = (crate::gpu::metal_sumcheck_stats().1, crate::gpu::metal_sumcheck_stats().0, crate::private_block::metal_slot::cpu_slots());
                 let pool0 = crate::gpu::metal_pool_stats();
                 std::env::set_var("HL_GPU", "1");
@@ -769,13 +856,14 @@ mod tests {
                 let t = std::time::Instant::now();
                 let metal = seeded_accuracy_digest(&sh, &blk, w);
                 let metal_s = t.elapsed().as_secs_f64();
+                let metal_core = LAST_CORE_NS.load(std::sync::atomic::Ordering::Relaxed) as f64 * 1e-9;
                 std::env::remove_var("HL_GPU");
                 let (ran, compile) = (crate::gpu::metal_sumcheck_stats().1 - before, crate::gpu::metal_sumcheck_stats().0 - compile0);
                 let cpu_slots = crate::private_block::metal_slot::cpu_slots() - cpu_slots0;
                 let pool = crate::gpu::metal_pool_stats();
                 let (hits, misses) = (pool.0 - pool0.0, pool.1 - pool0.1);
                 eprintln!(
-                    "M4-TRAINED {} cpu {cpu_s:.3} s metal-{pass} {metal_s:.3} s (kernel compile {compile:.3} s, device sumcheck rounds {ran:.3} s; {cpu_slots} slots without a matching IR; buffer pool {hits} reused / {misses} new) digest cpu {cpu} metal {metal}",
+                    "M4-TRAINED {} cpu {cpu_s:.3} s metal-{pass} {metal_s:.3} s (prove core cpu {cpu_core:.3} s metal {metal_core:.3} s; kernel compile {compile:.3} s, device sumcheck rounds {ran:.3} s; {cpu_slots} slots without a matching IR; buffer pool {hits} reused / {misses} new) digest cpu {cpu} metal {metal}",
                     sh.name
                 );
                 assert_eq!(cpu, metal, "{}: the Metal accuracy proof's bytes differ from the CPU's", sh.name);
