@@ -470,6 +470,27 @@ Gates (on the M4k binary): unit `m4c_ m4d_ m4h_ m4i_ m4j_ s28 s29 slot_ir metal`
 in all 18 warm passes; R13 classifier run proves and verifies; legacy golden gate 8 / 8 with device evidence
 (`golden_m4k/`, binary `golden_binary_m4k.sha256`).
 
+### M4l: eq tables' doubling steps on one thread below 2^15 (byte-identical)
+
+`zkp-core/src/mle.rs::eq_table` doubles its table once per variable and ran a step on rayon from length 4096
+(UPERF3-XX had already moved the smaller steps to one thread for the same reason). A rayon region costs about
+0.3 ms on this Mac and a step of length 2^14 about 0.15 ms on one thread, so the cutoff is now
+`EQ_TABLE_PAR_LEN = 2^15`. Eq tables are built all through a block (every opening group's 2^14 column weights,
+the extension rounds' mask tails, slot definitions, fixed coordinates), so the saving is spread wide. Same
+values: each entry is the same two products. New `zkp-core` test
+`eq_table_across_the_parallel_cutoff_matches_point` (2^14 and 2^17 tables against the product definition).
+
+| Prove core, T128, Metal warm [9 warm passes in 3 processes, quiet box] | M4k | **M4l** |
+|---|---:|---:|
+| `R13_SHIELD_T128_H24` median (min-max) | 0.711 (0.698-0.801) s | **0.656 (0.647-0.677) s** |
+| `R13_8B_T128_H24` median (min-max) | 0.686 (0.663-0.866) s | **0.622 (0.608-0.730) s** |
+
+The single instrumented run (`HL_PB_TIMING`) read 0.807 s against M4k's 0.776 s; single instrumented runs have
+varied by about 0.1 s all along, so the medians above are the figure. Gates: unit 33 / 33; `zkp-core` lib
+76 / 76; `cargo check` without `gpu-metal`; CPU vs Metal seeded bytes at the four development shapes; trained
+digests unchanged in all 18 warm passes; R13 classifier run proves and verifies; legacy golden gate 8 / 8 with
+device evidence (`golden_m4l/`, binary `golden_binary_m4l.sha256`). Evidence: `logs/m4l_*`.
+
 ### Token scaling on Metal after M4i: T256 against T128 (a measurement, no code change)
 
 The registered `R13_SHIELD_T256_H24` profile (same geometry, 256 tokens, `log_cols` 15) in the same process as
@@ -495,10 +516,22 @@ across layers) or a faster device, not more phase tuning.
 1. **Backend label.** `trained_block.rs::backend_of_this_process` knows only the CPU and CUDA names, so a
    Metal-made run statement would say "built without gpu-cuda". Adding a Metal name changes what verifiers
    accept and needs Sol's lane and a review before any Metal-made receipt is published.
-2. **Next on the GPU:** what is left of a 1.6 s block is spread out: the two commitments (~0.3 s together),
-   the zero-checks' host side (tables built on the CPU then copied, ~0.1 s; per-round sync ~0.3 ms), slots
-   14 and 18 (~0.12 s each), the openings (~0.18 s), the exp/activation helper inverses (0.055 s) and the
-   CPU-only TAB slot (0.05 s). None of these closes the ~16x gap to 50 proved tokens/s alone; that needs the
-   structural levers (batching tokens or proofs) the research agenda names.
-4. **DD slot 17, the dictionary slot and the R13 table-helper slot (19)** need IR coverage before every slot of every profile runs on the device (legacy and accuracy alike).
+2. **Next on the GPU (after M4k, a 0.71 s Shieldstral block):** slots 18 and 14 (~0.09-0.10 s each, their
+   later-round bodies still arithmetic-bound: an affine-extraction pass that turns each slot's affine
+   subexpressions into folded derived tables would cut the body's multiplications about 3-4x, est. 0.04-0.05 s),
+   the two commitments (~0.15 s: NTT and hash on the device, near this GPU's throughput, plus a 0.6 GB upload
+   copy each), the openings (~0.09 s), the 18 small slots (~0.15 s, mostly fixed per-slot costs), the CPU-only
+   TAB slot (0.02 s). Byte-identical tuning of all of it is worth perhaps another 15-25%.
 3. ~~Buffer pooling~~ done in M4f.
+4. **DD slot 17, the dictionary slot and the R13 table-helper slot (19)** need IR coverage before every slot of
+   every profile runs on the device (legacy and accuracy alike).
+5. **A structural lever for a ruling, not taken here (it changes the proof):** at the Shieldstral T128 shape
+   the byte lookups read 64.3 M words of `A`'s byte-sized planes (`A` is 75.0 M words; a plane under an int8 or
+   scaled bound is read twice, so the planes themselves are fewer words), and their LogUp helpers are 64.3 M of
+   `H`'s 71.9 M words (`logs/m4i_trained_phases.log`, the phase sizes). Most of what is committed is therefore
+   range-check limbs and their helpers. Wider limbs (16-bit, a 2^16-entry table) where a value is decomposed
+   into bytes would shrink both commitments, the openings and the helper writes roughly in proportion: a rough
+   estimate is 0.1-0.2 s of a 0.71 s block, to be counted from the layout before anyone relies on it. It is a
+   new layout, verifier and receipt format, so it needs Victor's ruling and Sol's lane; even with it, 50 proved
+   tokens/s needs more (cross-layer batching of commitments and openings, or a faster device), because proof
+   time is about linear in tokens (T256 above).

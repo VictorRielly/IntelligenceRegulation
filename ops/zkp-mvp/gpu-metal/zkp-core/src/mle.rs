@@ -5,6 +5,10 @@
 use crate::field::{Fp, Fp2};
 use rayon::prelude::*;
 
+/// [ZK60-METAL M4l] the doubling-step length from which `eq_table` runs a step
+/// on rayon (was 4096)
+pub const EQ_TABLE_PAR_LEN: usize = 1 << 15;
+
 /// eq(r, x) for all x in {0,1}^n, x indexed as an integer with bit 0 =
 /// the LAST variable?  No: convention here is x's bit i corresponds to
 /// r[n-1-i], i.e. r[0] is the MOST significant bit of the index. So a
@@ -22,8 +26,12 @@ pub fn eq_table(r: &[Fp2]) -> Vec<Fp2> {
         // [UPERF3-XX] small steps run sequentially: a rayon region per
         // doubling step cost ~0.3 ms of pool wake-up each and dominated
         // pcs::group_claims (37 claims x 2 tables x up to 14 steps per
-        // layer); same values.
-        if len < 4096 {
+        // layer); same values. [ZK60-METAL M4l] on the M3 Ultra a region
+        // still costs ~0.3 ms while a step of len 2^14 takes ~0.15 ms on one
+        // thread (two products per entry), so the break-even is ~2^15: every
+        // 2^14 column-weight table of an opening (36 groups x 2 steps per
+        // commitment) now stays on one thread; same values.
+        if len < EQ_TABLE_PAR_LEN {
             for (a, b) in lo.iter_mut().zip(hi.iter_mut()) {
                 let e = *a;
                 *b = e.mul(ri);
@@ -282,6 +290,24 @@ mod tests {
         for idx in 0..32usize {
             let bits: Vec<Fp2> = (0..5).map(|i| if (idx >> (4 - i)) & 1 == 1 { Fp2::ONE } else { Fp2::ZERO }).collect();
             assert_eq!(t[idx], eq_point(&r, &bits));
+        }
+    }
+
+    /// [ZK60-METAL M4l] on both sides of `EQ_TABLE_PAR_LEN` (a 2^17 table runs
+    /// its last two doubling steps on rayon, the rest on one thread) every
+    /// sampled entry is the product definition
+    #[test]
+    fn eq_table_across_the_parallel_cutoff_matches_point() {
+        assert!(1usize << 16 >= EQ_TABLE_PAR_LEN, "the fixture must cross the cutoff");
+        for n in [14usize, 17] {
+            let r = pt(9 + n as u64, n);
+            let t = eq_table_msb(&r);
+            assert_eq!(t.iter().fold(Fp2::ZERO, |a, b| a.add(*b)), Fp2::ONE);
+            for k in 0..600usize {
+                let idx = (k * 0x9E37_79B9) % (1usize << n);
+                let bits: Vec<Fp2> = (0..n).map(|i| if (idx >> (n - 1 - i)) & 1 == 1 { Fp2::ONE } else { Fp2::ZERO }).collect();
+                assert_eq!(t[idx], eq_point(&r, &bits), "2^{n} entry {idx}");
+            }
         }
     }
 
