@@ -1347,3 +1347,180 @@ impl zkp_core::sumcheck::SumcheckRounds for MetalRounds {
         self.finals_inner()
     }
 }
+
+// ------------------------------------------- M4k: the late rounds on the host
+
+/// [ZK60-METAL M4k] the host round a device round must beat: a device round
+/// costs about 0.35-0.4 ms here whatever its size (command buffer, wait,
+/// partial sum; `logs/m4g_split.log`, 18 rounds of 3 tables in 6.8 ms)
+const TAIL_ROUND_BUDGET_S: f64 = 2.5e-4;
+
+impl MetalRounds {
+    /// **[ZK60-METAL M4k]** this sumcheck, finished on the HOST from the first
+    /// round whose host cost (pairs x points evaluated x one evaluation of
+    /// `poly`, timed here on eight points) is under a device round's latency.
+    /// `poly` is the slot's own polynomial (the closure the IR was checked
+    /// against before this kernel was allowed to run), so a host round is the
+    /// `ClosureRounds` round over the same tables: the same unmasked values, the
+    /// same s(1) recovery, the same folds. Where the switch lands changes no
+    /// value. `HL_METAL_HOST_TAIL=0` keeps every round on the device.
+    pub fn with_host_tail(self, poly: &(dyn Fn(&[Fp2]) -> Fp2 + Sync)) -> TailedRounds<'_> {
+        let k = self.k;
+        let pts: Vec<Vec<Fp2>> = (0..8u64).map(|s| (0..k as u64).map(|t| Fp2::new(Fp::new(s * 7919 + t * 104_729 + 1), Fp::new(t + 3 * s + 1))).collect()).collect();
+        let t = std::time::Instant::now();
+        let mut sink = Fp2::ZERO;
+        for p in &pts {
+            sink = sink.add(poly(p));
+        }
+        std::hint::black_box(sink);
+        let per_eval = t.elapsed().as_secs_f64() / 8.0;
+        let on = std::env::var("HL_METAL_HOST_TAIL").map(|v| v != "0").unwrap_or(true);
+        let (degree, n_vars) = (self.degree, self.n_vars);
+        TailedRounds { dev: Some(self), host: Vec::new(), poly, per_eval, on, degree, n_vars, next: 0, pending: None, recover_one: false, unmasked_claim: None, host_rounds: 0 }
+    }
+
+    fn run_fold_now(&self, half: usize, r: Fp2) {
+        let c = ctx().expect("metal context");
+        objc::rc::autoreleasepool(|| {
+            run(c, |enc| {
+                enc.set_buffer(0, Some(&self.tabs), 0);
+                set_args(enc, 1, &FoldTabArgs { half: half as u64, cap: self.cap as u64, k: self.k as u64, r0: r.c0.0, r1: r.c1.0 });
+                dispatch_2d(c, enc, "k_fold_tables", half as u64, self.k as u64);
+                Ok(())
+            })
+            .expect("metal sumcheck fold");
+        });
+    }
+
+    /// [M4k] the current tables (`len` entries each) as host vectors, any
+    /// deferred fold run first, and the claim-recovery state
+    fn into_host(mut self) -> (Vec<Vec<Fp2>>, bool, Option<Fp2>) {
+        if let Some((fh, r)) = self.fold_r.take() {
+            self.run_fold_now(fh, r);
+        }
+        let raw = as_u64s(&self.tabs, self.k * self.cap * 2);
+        let tables = (0..self.k).map(|t| (0..self.len).map(|i| Fp2::new(Fp(raw[(t * self.cap + i) * 2]), Fp(raw[(t * self.cap + i) * 2 + 1]))).collect()).collect();
+        (tables, self.recover_one, self.unmasked_claim)
+    }
+}
+
+/// [`MetalRounds`] with its late rounds on the host ([`MetalRounds::with_host_tail`]).
+pub struct TailedRounds<'p> {
+    dev: Option<MetalRounds>,
+    host: Vec<Vec<Fp2>>,
+    poly: &'p (dyn Fn(&[Fp2]) -> Fp2 + Sync),
+    per_eval: f64,
+    on: bool,
+    degree: usize,
+    n_vars: usize,
+    next: usize,
+    pending: Option<Vec<Fp2>>,
+    recover_one: bool,
+    unmasked_claim: Option<Fp2>,
+    host_rounds: usize,
+}
+
+impl TailedRounds<'_> {
+    /// the folded tables after the last round, as [`MetalRounds::final_tables`]
+    pub fn final_tables(&self) -> Vec<Vec<Fp2>> {
+        match &self.dev {
+            Some(d) => d.final_tables(),
+            None => self.host.iter().map(|t| vec![t[0]]).collect(),
+        }
+    }
+
+    /// how many rounds ran on the host (diagnostics)
+    pub fn host_rounds(&self) -> usize {
+        self.host_rounds
+    }
+
+    /// `ClosureRounds::round` (zkp-core sumcheck/rounds.rs), one thread: the
+    /// small tables of the last rounds
+    fn host_round(&mut self) -> Vec<Fp2> {
+        let k = self.host.len();
+        let half = self.host[0].len() / 2;
+        let claim = if self.recover_one { self.unmasked_claim } else { None };
+        let eval_one = claim.is_none();
+        let mut acc = vec![Fp2::ZERO; self.degree + 1];
+        let (mut cur, mut dif) = (vec![Fp2::ZERO; k], vec![Fp2::ZERO; k]);
+        for i in 0..half {
+            for (t, tb) in self.host.iter().enumerate() {
+                cur[t] = tb[i];
+                dif[t] = tb[i + half].sub(tb[i]);
+            }
+            acc[0] = acc[0].add((self.poly)(&cur));
+            for d in 1..=self.degree {
+                for t in 0..k {
+                    cur[t] = cur[t].add(dif[t]);
+                }
+                if d != 1 || eval_one {
+                    acc[d] = acc[d].add((self.poly)(&cur));
+                }
+            }
+        }
+        if let Some(claim) = claim {
+            acc[1] = claim.sub(acc[0]);
+        }
+        self.pending = Some(acc.clone());
+        self.host_rounds += 1;
+        acc
+    }
+}
+
+impl zkp_core::sumcheck::SumcheckRounds for TailedRounds<'_> {
+    fn n_vars(&self) -> usize {
+        self.n_vars
+    }
+    fn degree(&self) -> usize {
+        self.degree
+    }
+
+    fn round(&mut self, j: usize) -> Vec<Fp2> {
+        assert_eq!(j, self.next, "sumcheck evaluator round order");
+        if let Some(d) = self.dev.as_mut() {
+            let half = d.len / 2;
+            let points = if d.recover_one && d.unmasked_claim.is_some() { self.degree } else { self.degree + 1 };
+            if !self.on || (half * points) as f64 * self.per_eval > TAIL_ROUND_BUDGET_S {
+                return d.round(j);
+            }
+            let (tables, recover_one, unmasked_claim) = self.dev.take().expect("the device evaluator").into_host();
+            self.host = tables;
+            self.recover_one = recover_one;
+            self.unmasked_claim = unmasked_claim;
+        }
+        assert!(self.pending.is_none(), "round needs the preceding fold");
+        self.host_round()
+    }
+
+    fn fold(&mut self, r: Fp2) {
+        match self.dev.as_mut() {
+            Some(d) => d.fold(r),
+            None => {
+                let sums = self.pending.take().expect("fold needs a round");
+                if self.recover_one {
+                    self.unmasked_claim = Some(zkp_core::mle::interpolate_eval(&sums, r));
+                }
+                let half = self.host[0].len() / 2;
+                for tb in self.host.iter_mut() {
+                    let (lo, hi) = tb.split_at_mut(half);
+                    for (a, b) in lo.iter_mut().zip(hi.iter()) {
+                        *a = a.add(r.mul(b.sub(*a)));
+                    }
+                    tb.truncate(half);
+                }
+            }
+        }
+        self.next += 1;
+    }
+
+    fn finals(&self) -> Vec<Fp2> {
+        assert_eq!(self.next, self.n_vars, "finals need all folds");
+        match &self.dev {
+            Some(d) => d.finals(),
+            None => {
+                assert!(self.pending.is_none());
+                self.host.iter().map(|t| t[0]).collect()
+            }
+        }
+    }
+}

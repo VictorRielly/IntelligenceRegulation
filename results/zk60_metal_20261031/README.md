@@ -429,6 +429,47 @@ legacy golden gate 8 / 8 with device evidence (`golden_m4i/`, binary `golden_bin
 `logs/m4i_*`; the profiler run and its reader are `kbench/profile_warm.py` and `kbench/sample_tree.py`, the
 flat self-time summary `kbench/m4i_profile_flat.txt` (the 27 MB sample text stayed in the session scratchpad).
 
+### M4j + M4k: table builders parallel over their output; the last, tiny rounds on the host (byte-identical)
+
+Gated together (one binary, `logs/m4k_*`, `golden_m4k/`); M4j alone was measured first on its own binary
+(`logs/m4j_*`, no golden of its own).
+
+- **M4j** (`private_block/argument.rs`). A slot's tables were built in parallel ACROSS tables only, so a slot
+  of three 2^19 tables used three threads. A plain-store private table's map `idx -> x` is a bit permutation
+  (one coordinate per bit, flipped for `Flip`), so its inverse is the same bit table read the other way, and
+  every cube entry is `value(inverse(x & used))`: the loop's store for x within `used` and the broadcast's
+  copy for every other x. Tables of `2^16` entries or more are now filled in parallel over the OUTPUT that
+  way; an eq cube likewise (`out[x] = e[(x >> shift) & (|e| - 1)]`, its own definition). Accumulating
+  tables (fixed coordinates, a repeated index) keep the loop. `priv_table_at`, `eq_cube_at` and the in-place
+  `_into_at` forms take the threshold as an argument; `m4j_parallel_table_builders_equal_the_sequential_ones`
+  forces both forms at 2^3, 2^8, 2^13 and 2^17 on seven descriptors (including an interleaved, flipped,
+  short one) and every eq cube shape. The builds were smaller than the profile suggested (0.076 -> 0.079 s
+  summed over a block's slots, within noise), so M4j's gain is small.
+- **M4k** (`gpu/metal.rs::TailedRounds`, `MetalRounds::with_host_tail`). A device round costs about
+  0.35-0.4 ms whatever its size (command buffer, wait, partial sum), so the last rounds of every device
+  sumcheck, and most rounds of the small ones, were pure latency. The device evaluator now hands over to the
+  host at the first round whose host cost (pairs x points evaluated x one evaluation of the slot's closure,
+  timed on eight points at construction) is under 0.25 ms: any deferred fold runs, the tables (by then a few
+  thousand entries) are read from shared memory, and the remaining rounds are `ClosureRounds`' rounds over
+  the slot's own polynomial (the closure the IR was checked against): the same unmasked values, the same s(1)
+  recovery, the same folds, so where the switch lands moves no byte. `HL_METAL_HOST_TAIL=0` keeps every round
+  on the device. The masked sumchecks' slot steps summed 0.294 -> 0.261 s; the "device sumcheck rounds"
+  statistic now counts only the rounds that stayed on the device (Shieldstral 0.24 -> 0.20 s, 8B 0.20 ->
+  0.16 s), and the per-sumcheck `HL_METAL_TIMING` split no longer prints for a sumcheck that finished on the
+  host.
+
+| Prove core, T128, Metal warm [9 warm passes in 3 processes, quiet box] | M4i | M4j | **M4k** |
+|---|---:|---:|---:|
+| `R13_SHIELD_T128_H24` median (min-max) | 0.753 s | 0.740 (0.725-0.757) s | **0.711 (0.698-0.801) s** |
+| `R13_8B_T128_H24` median (min-max) | 0.759 s | 0.719 (0.698-0.935) s | **0.686 (0.663-0.866) s** |
+
+Phase-clock call (Shieldstral, n = 1): 0.801 (M4i) -> 0.795 (M4j) -> 0.776 s (M4k).
+
+Gates (on the M4k binary): unit `m4c_ m4d_ m4h_ m4i_ m4j_ s28 s29 slot_ir metal` 33 / 33; `cargo check` without
+`gpu-metal`; CPU vs Metal seeded bytes at the four development shapes (same digests); trained digests unchanged
+in all 18 warm passes; R13 classifier run proves and verifies; legacy golden gate 8 / 8 with device evidence
+(`golden_m4k/`, binary `golden_binary_m4k.sha256`).
+
 ### Token scaling on Metal after M4i: T256 against T128 (a measurement, no code change)
 
 The registered `R13_SHIELD_T256_H24` profile (same geometry, 256 tokens, `log_cols` 15) in the same process as

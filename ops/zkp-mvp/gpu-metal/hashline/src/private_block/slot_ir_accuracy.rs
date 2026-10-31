@@ -653,6 +653,71 @@ mod tests {
         }
     }
 
+    /// [M4i/M4j] an extension element of the table fixtures
+    fn m4_f(i: u64) -> Fp2 {
+        Fp2::new(Fp::new(i * 1_000_003 + 7), Fp::new(i * 31 + 1))
+    }
+
+    /// [M4i/M4j] base data and private-table descriptors at `2^n_vars`: plain
+    /// store, flipped, fixed (accumulating), short with broadcast, duplicated
+    /// index (accumulating) and two slices; and a shuffled-order plain one
+    fn m4_priv_cases(n_vars: usize) -> (Vec<Fp>, Vec<(&'static str, crate::private_block::argument::Priv)>) {
+        use crate::private_block::argument::{Cm, Coord, Priv};
+        let f = m4_f;
+        let data: Vec<Fp> = (0..(4usize << n_vars)).map(|i| Fp::new((i as u64).wrapping_mul(0x9E37_79B9) % 1_000_000_007)).collect();
+        let rho = |c: Vec<usize>| -> Vec<Coord> { c.into_iter().map(Coord::Rho).collect() };
+        let mk = |slices: Vec<(usize, Fp2)>, log: usize, coords: Vec<Coord>| Priv { cm: Cm::A, slices, log, coords, mask_row: 0, ext_round: 0 };
+        let mut cases: Vec<(&'static str, Priv)> = Vec::new();
+        cases.push(("plain", mk(vec![(3, Fp2::ONE)], n_vars, rho((0..n_vars).rev().collect()))));
+        let mut fl = rho((0..n_vars).collect());
+        fl[1] = Coord::Flip(1);
+        cases.push(("flipped", mk(vec![(1, f(2))], n_vars, fl)));
+        let mut fx = rho((1..n_vars).collect());
+        fx.insert(2, Coord::Fixed(f(3)));
+        cases.push(("fixed", mk(vec![(2, Fp2::ONE)], n_vars, fx)));
+        cases.push(("short, broadcast", mk(vec![(5, Fp2::ONE)], n_vars - 2, rho((0..n_vars - 2).collect()))));
+        let mut dup = rho((0..n_vars).collect());
+        dup[n_vars - 1] = Coord::Rho(0);
+        cases.push(("duplicated index", mk(vec![(2, Fp2::ONE)], n_vars, dup)));
+        cases.push(("two slices", mk(vec![(1, f(4)), (9, Fp2::U)], n_vars, rho((0..n_vars).collect()))));
+        // a plain-store table whose coordinates are interleaved and partly flipped, short by one
+        let mut mixed: Vec<Coord> = (0..n_vars - 1).map(|j| if j % 2 == 0 { Coord::Rho((j * 7 + 3) % (n_vars - 1) + 1) } else { Coord::Flip((j * 7 + 3) % (n_vars - 1) + 1) }).collect();
+        mixed.reverse();
+        cases.push(("interleaved, flipped, short", mk(vec![(7, Fp2::ONE)], n_vars - 1, mixed)));
+        (data, cases)
+    }
+
+    /// [ZK60-METAL M4j] the parallel table builders (over the OUTPUT) are the
+    /// sequential ones word for word: every descriptor of `m4_priv_cases`, the
+    /// vector and the in-place forms, every eq cube shape, at widths on both
+    /// sides of the production threshold (forced either way by the argument)
+    #[test]
+    fn m4j_parallel_table_builders_equal_the_sequential_ones() {
+        use crate::private_block::argument::{eq_cube_at, eq_cube_into_at, priv_table_at, priv_table_into_at};
+        let junk = Fp2::new(Fp::new(55), Fp::new(66));
+        for n_vars in [3usize, 8, 13, 17] {
+            let (data, cases) = m4_priv_cases(n_vars);
+            for (name, p) in &cases {
+                let seq = priv_table_at(p, &data, n_vars, usize::MAX);
+                assert_eq!(priv_table_at(p, &data, n_vars, 0), seq, "{name} at 2^{n_vars}: vector");
+                let mut got = vec![junk; 1usize << n_vars];
+                priv_table_into_at(p, &data, n_vars, &mut got, 0);
+                assert_eq!(got, seq, "{name} at 2^{n_vars}: in place");
+                assert!(seq.iter().any(|v| !v.is_zero()), "{name}: an all-zero fixture");
+            }
+            for plen in 0..=n_vars.min(5) {
+                for start in [0, (n_vars - plen) / 2, n_vars - plen] {
+                    let e = crate::mle::eq_table_msb(&(0..plen).map(|i| m4_f(i as u64 + 5)).collect::<Vec<_>>());
+                    let seq = eq_cube_at(&e, n_vars, start, usize::MAX);
+                    assert_eq!(eq_cube_at(&e, n_vars, start, 0), seq, "eq 2^{n_vars} start {start} |point| {plen}");
+                    let mut got = vec![junk; 1usize << n_vars];
+                    eq_cube_into_at(&e, n_vars, start, &mut got, 0);
+                    assert_eq!(got, seq, "eq in place 2^{n_vars} start {start} |point| {plen}");
+                }
+            }
+        }
+    }
+
     /// [ZK60-METAL M4i] the in-place table builders write, into a buffer full
     /// of stale words, exactly the vectors the host builders return (plain
     /// store, flipped, fixed, short-with-broadcast, duplicated-index and
@@ -660,27 +725,12 @@ mod tests {
     /// write is the loop's, with the loop kept for overlapping or short jobs
     #[test]
     fn m4i_in_place_tables_and_plane_writes_equal_the_host_forms() {
-        use crate::private_block::argument::{eq_cube, eq_cube_into, priv_table, priv_table_into, Cm, Coord, Priv};
+        use crate::private_block::argument::{eq_cube, eq_cube_into, priv_table, priv_table_into};
         use crate::private_block::protocol::{write_planes, PLANES_PAR_MIN};
         let junk = Fp2::new(Fp::new(123_456_789), Fp::new(987_654_321));
-        let f = |i: u64| Fp2::new(Fp::new(i * 1_000_003 + 7), Fp::new(i * 31 + 1));
+        let f = m4_f;
         for n_vars in [5usize, 9, 12] {
-            let data: Vec<Fp> = (0..(4usize << n_vars)).map(|i| Fp::new((i as u64).wrapping_mul(0x9E37_79B9) % 1_000_000_007)).collect();
-            let rho = |c: Vec<usize>| -> Vec<Coord> { c.into_iter().map(Coord::Rho).collect() };
-            let mut cases: Vec<(&str, Priv)> = Vec::new();
-            let mk = |slices: Vec<(usize, Fp2)>, log: usize, coords: Vec<Coord>| Priv { cm: Cm::A, slices, log, coords, mask_row: 0, ext_round: 0 };
-            cases.push(("plain", mk(vec![(3, Fp2::ONE)], n_vars, rho((0..n_vars).rev().collect()))));
-            let mut fl = rho((0..n_vars).collect());
-            fl[1] = Coord::Flip(1);
-            cases.push(("flipped", mk(vec![(1, f(2))], n_vars, fl)));
-            let mut fx = rho((1..n_vars).collect());
-            fx.insert(2, Coord::Fixed(f(3)));
-            cases.push(("fixed", mk(vec![(2, Fp2::ONE)], n_vars, fx)));
-            cases.push(("short, broadcast", mk(vec![(5, Fp2::ONE)], n_vars - 2, rho((0..n_vars - 2).collect()))));
-            let mut dup = rho((0..n_vars).collect());
-            dup[n_vars - 1] = Coord::Rho(0);
-            cases.push(("duplicated index", mk(vec![(2, Fp2::ONE)], n_vars, dup)));
-            cases.push(("two slices", mk(vec![(1, f(4)), (9, Fp2::U)], n_vars, rho((0..n_vars).collect()))));
+            let (data, cases) = m4_priv_cases(n_vars);
             for (name, p) in &cases {
                 let want = priv_table(p, &data, n_vars);
                 let mut got = vec![junk; 1usize << n_vars];

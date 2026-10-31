@@ -255,8 +255,18 @@ fn claim_point(p: &Priv, rho: &[Fp2]) -> Vec<Fp2> {
 /// Every word this returns is the word the walked form returned; the equality
 /// is a test (`s28_tests`), not a claim.
 pub(super) fn priv_table(p: &Priv, data: &[Fp], n_vars: usize) -> Vec<Fp2> {
+    priv_table_at(p, data, n_vars, TABLE_PAR_MIN)
+}
+
+/// [ZK60-METAL M4j] the cube length from which one table is built in parallel
+/// over its OUTPUT (the plain-store private table, the eq cube)
+pub(super) const TABLE_PAR_MIN: usize = 1 << 16;
+
+/// [M4j] [`priv_table`] with the parallel threshold as an argument, so a test
+/// can drive both forms on the same descriptor
+pub(super) fn priv_table_at(p: &Priv, data: &[Fp], n_vars: usize, par_min: usize) -> Vec<Fp2> {
     let mut out = vec![Fp2::ZERO; 1usize << n_vars];
-    priv_table_fill(p, data, n_vars, &mut out, true);
+    priv_table_fill(p, data, n_vars, &mut out, true, par_min);
     out
 }
 
@@ -268,10 +278,16 @@ pub(super) fn priv_table(p: &Priv, data: &[Fp], n_vars: usize) -> Vec<Fp2> {
 /// zeros, as the vector did.
 pub(super) fn priv_table_into(p: &Priv, data: &[Fp], n_vars: usize, out: &mut [Fp2]) {
     assert_eq!(out.len(), 1usize << n_vars, "private block: table length");
-    priv_table_fill(p, data, n_vars, out, false);
+    priv_table_fill(p, data, n_vars, out, false, TABLE_PAR_MIN);
 }
 
-fn priv_table_fill(p: &Priv, data: &[Fp], n_vars: usize, out: &mut [Fp2], zeroed: bool) {
+/// [M4j] [`priv_table_into`] with the parallel threshold as an argument
+pub(super) fn priv_table_into_at(p: &Priv, data: &[Fp], n_vars: usize, out: &mut [Fp2], par_min: usize) {
+    assert_eq!(out.len(), 1usize << n_vars, "private block: table length");
+    priv_table_fill(p, data, n_vars, out, false, par_min);
+}
+
+fn priv_table_fill(p: &Priv, data: &[Fp], n_vars: usize, out: &mut [Fp2], zeroed: bool, par_min: usize) {
     let fixed: Vec<Fp2> = p.coords.iter().filter_map(|c| if let Coord::Fixed(f) = c { Some(*f) } else { None }).collect();
     let eqf = eq_table_msb(&fixed);
     let mut used = 0usize;
@@ -312,6 +328,52 @@ fn priv_table_fill(p: &Priv, data: &[Fp], n_vars: usize, out: &mut [Fp2], zeroed
     let moving = p.coords.iter().filter(|c| !matches!(c, Coord::Fixed(_))).count();
     let simple = eqf.len() == 1 && eqf[0] == Fp2::ONE && used.count_ones() as usize == moving;
     let one_slice = if p.slices.len() == 1 && p.slices[0].1 == Fp2::ONE { Some(p.slices[0].0) } else { None };
+    // [M4j] a large PLAIN-STORE table in parallel over its output. Its map
+    // `idx -> x` sends idx bit `log - 1 - j` to x bit `n_vars - 1 - k` (flipped
+    // for `Flip`), one coordinate per bit, so it is a bijection onto the subsets
+    // of `used` and its inverse is the same bit table read the other way:
+    // `out[x] = value(inverse(x & used))` is the loop's store for x within
+    // `used` and the broadcast's copy for every other x. Each entry is the same
+    // word, computed independently, so the order does not matter.
+    if simple && out.len() >= par_min {
+        use rayon::prelude::*;
+        let mut bit_of: Vec<Option<(usize, usize)>> = vec![None; n_vars];
+        for (j, c) in p.coords.iter().enumerate() {
+            match c {
+                Coord::Rho(k) => bit_of[n_vars - 1 - *k] = Some((p.log - 1 - j, 0)),
+                Coord::Flip(k) => bit_of[n_vars - 1 - *k] = Some((p.log - 1 - j, 1)),
+                Coord::Fixed(_) => unreachable!("a plain-store table has no fixed coordinate"),
+            }
+        }
+        let (xlo, xhi) = (n_vars / 2, n_vars - n_vars / 2);
+        let inverse_half = |shift: usize, bits: usize| -> Vec<usize> {
+            (0..1usize << bits)
+                .map(|v| {
+                    let mut idx = 0usize;
+                    for b in 0..bits {
+                        if let Some((ib, flip)) = bit_of[shift + b] {
+                            idx |= (((v >> b) & 1) ^ flip) << ib;
+                        }
+                    }
+                    idx
+                })
+                .collect()
+        };
+        let (inv_lo, inv_hi) = (inverse_half(0, xlo), inverse_half(xlo, xhi));
+        let lo_m = (1usize << xlo) - 1;
+        const CH: usize = 1 << 14;
+        out.par_chunks_mut(CH).enumerate().for_each(|(ci, ch)| {
+            for (i, o) in ch.iter_mut().enumerate() {
+                let xu = ((ci * CH) + i) & used;
+                let idx = inv_hi[xu >> xlo] | inv_lo[xu & lo_m];
+                *o = match one_slice {
+                    Some(off) => Fp2::from_base(data[off + idx]),
+                    None => p.slices.iter().fold(Fp2::ZERO, |a, (off, coef)| a.add(coef.mul_base(data[*off + idx]))),
+                };
+            }
+        });
+        return;
+    }
     // [M4i] an accumulating table starts from zeros; a plain-store one writes
     // every element below, so a reused buffer needs no clearing
     if !zeroed && !simple {
@@ -347,6 +409,12 @@ fn priv_table_fill(p: &Priv, data: &[Fp], n_vars: usize, out: &mut [Fp2], zeroed
 /// built by filling one block and doubling it, so the cube is memory traffic
 /// and not one index computation per entry. The words are the same words.
 pub(super) fn eq_cube(e: &[Fp2], n_vars: usize, start: usize) -> Vec<Fp2> {
+    eq_cube_at(e, n_vars, start, TABLE_PAR_MIN)
+}
+
+/// [M4j] [`eq_cube`] with the parallel threshold as an argument (a test drives
+/// both forms; production passes [`TABLE_PAR_MIN`])
+pub(super) fn eq_cube_at(e: &[Fp2], n_vars: usize, start: usize, par_min: usize) -> Vec<Fp2> {
     // **STAGE 29 (finding S28-R7).** The precondition, asserted rather than
     // assumed. The triple `(|point|, start, n_vars)` is SCHEDULE-DRIVEN and
     // PUBLIC — no frame and no witness can choose it — and every triple the
@@ -361,6 +429,16 @@ pub(super) fn eq_cube(e: &[Fp2], n_vars: usize, start: usize) -> Vec<Fp2> {
     );
     let len = 1usize << n_vars;
     let shift = n_vars - start - bits;
+    // [ZK60-METAL M4j] a large cube in parallel over its output: entry `x` is
+    // `e[(x >> shift) & (|e| - 1)]` (this function's own description), the
+    // same word the block-and-double build puts there
+    if len >= par_min {
+        use rayon::prelude::*;
+        let m = e.len() - 1;
+        let mut out: Vec<Fp2> = Vec::with_capacity(len);
+        out.par_extend((0..len).into_par_iter().map(|x| e[(x >> shift) & m]));
+        return out;
+    }
     let mut out: Vec<Fp2> = Vec::with_capacity(len);
     for v in e {
         out.resize(out.len() + (1usize << shift), *v);
@@ -375,6 +453,11 @@ pub(super) fn eq_cube(e: &[Fp2], n_vars: usize, start: usize) -> Vec<Fp2> {
 /// whatever they held): the same block of `2^shift` copies per entry, doubled
 /// to the cube, so every element is written and the words are the same.
 pub(super) fn eq_cube_into(e: &[Fp2], n_vars: usize, start: usize, out: &mut [Fp2]) {
+    eq_cube_into_at(e, n_vars, start, out, TABLE_PAR_MIN)
+}
+
+/// [M4j] [`eq_cube_into`] with the parallel threshold as an argument
+pub(super) fn eq_cube_into_at(e: &[Fp2], n_vars: usize, start: usize, out: &mut [Fp2], par_min: usize) {
     let bits = e.len().trailing_zeros() as usize;
     assert!(
         start + bits <= n_vars,
@@ -383,6 +466,18 @@ pub(super) fn eq_cube_into(e: &[Fp2], n_vars: usize, start: usize, out: &mut [Fp
     let len = 1usize << n_vars;
     assert_eq!(out.len(), len, "private block: table length");
     let shift = n_vars - start - bits;
+    // [M4j] large cubes in parallel over the output, as `eq_cube_at`
+    if len >= par_min {
+        use rayon::prelude::*;
+        let m = e.len() - 1;
+        const CH: usize = 1 << 14;
+        out.par_chunks_mut(CH).enumerate().for_each(|(ci, ch)| {
+            for (i, o) in ch.iter_mut().enumerate() {
+                *o = e[((ci * CH + i) >> shift) & m];
+            }
+        });
+        return;
+    }
     for (i, v) in e.iter().enumerate() {
         out[i << shift..(i + 1) << shift].fill(*v);
     }
@@ -708,7 +803,9 @@ pub(crate) fn run_slot(side: &mut Side, acc: &mut Acc, mut def: SlotDef, tr: &mu
                     let (src, cf, base) = def.metal.as_ref().expect("a direct device build has the slot's kernels");
                     match crate::gpu::metal_rounds_owned(src, mt, degree, cf, base) {
                         Ok(ev) => {
-                            let mut ev = if def.groups.is_some() { ev } else { ev.recover_one(unmasked_claim) };
+                            let ev = if def.groups.is_some() { ev } else { ev.recover_one(unmasked_claim) };
+                            // [M4k] the last, tiny rounds on the host (the same values)
+                            let mut ev = ev.with_host_tail(&*def.poly);
                             let r = crate::zk::masked_prove_rounds(&mut ev, mask, c, tr);
                             tables = ev.final_tables();
                             Some(r)
@@ -733,7 +830,9 @@ pub(crate) fn run_slot(side: &mut Side, acc: &mut Acc, mut def: SlotDef, tr: &mu
                                 None
                             }
                             Ok(Some(ev)) => {
-                                let mut ev = if def.groups.is_some() { ev } else { ev.recover_one(unmasked_claim) };
+                                let ev = if def.groups.is_some() { ev } else { ev.recover_one(unmasked_claim) };
+                                // [M4k] the last, tiny rounds on the host (the same values)
+                                let mut ev = ev.with_host_tail(&*def.poly);
                                 let r = crate::zk::masked_prove_rounds(&mut ev, mask, c, tr);
                                 tables = ev.final_tables();
                                 Some(r)
