@@ -11,12 +11,13 @@
 
   | Path | Block proof |
   |---|---:|
-  | Mac CPU, 32 threads | 5.64 s |
-  | Mac GPU, first block in a process (includes 1.2 s of one-time kernel compile) | 4.15 s |
-  | Mac GPU, later blocks | **2.86 s** |
+  | Mac CPU, 32 threads | 5.25 s |
+  | Mac GPU, later blocks (the first block in a new process can add about 1.2 s of one-time kernel compile) | **2.26 s** |
 
-  For the 26 layers at 128 tokens, that is about 74 s of proof core, or about 1.7 proved tokens per second. The
-  target is at least 50, so we are still about 30 times short.
+  A second fix in the extension rounds took the GPU block from 2.86 s to 2.26 s, and the CPU block from 5.64 s to
+  5.25 s. It is CPU code used by both paths, and it changes no bytes.
+  For the 26 layers at 128 tokens, that is about 59 s of proof core, or about 2.2 proved tokens per second. The
+  target is at least 50, so we are still more than 20 times short.
 - **Still on the CPU:** the witness, the LogUp helper inverses, the extension rounds, the openings, and one small
   table slot per block. The DD softmax and dictionary slots also stay on the CPU.
 - **Sol and Astra** (Codex sessions on this Mac) have written nothing since about 08:45 UTC. Their processes are
