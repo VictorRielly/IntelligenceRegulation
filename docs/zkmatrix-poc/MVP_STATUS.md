@@ -11,12 +11,12 @@
 
   | Path | Block proof |
   |---|---:|
-  | Mac CPU, 32 threads | 5.25 s |
-  | Mac GPU, later blocks (the first block in a new process can add about 1.2 s of one-time kernel compile) | **2.26 s** |
+  | Mac CPU, 32 threads | 5.12 s |
+  | Mac GPU, later blocks (the first block in a new process can add about 1.2 s of one-time kernel compile) | **2.10 s** |
 
-  A second fix in the extension rounds took the GPU block from 2.86 s to 2.26 s, and the CPU block from 5.64 s to
-  5.25 s. It is CPU code used by both paths, and it changes no bytes.
-  For the 26 layers at 128 tokens, that is about 59 s of proof core, or about 2.2 proved tokens per second. The
+  Two further fixes, in the extension rounds and in writing the LogUp helpers, took the GPU block from 2.86 s to
+  2.10 s. Both are CPU code used by both paths, and neither changes any bytes.
+  For the 26 layers at 128 tokens, that is about 55 s of proof core, or about 2.3 proved tokens per second. The
   target is at least 50, so we are still more than 20 times short.
 - **Still on the CPU:** the witness, the LogUp helper inverses, the extension rounds, the openings, and one small
   table slot per block. The DD softmax and dictionary slots also stay on the CPU.

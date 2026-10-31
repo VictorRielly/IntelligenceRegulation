@@ -750,6 +750,7 @@ pub(super) fn u8_denominator_inverses(alpha: Fp2, g_u8: Fp2) -> Vec<Option<Fp2>>
 /// The parallel form is the crate's (`rayon`, as `pcs.rs` and `zk.rs` use it)
 /// and is INDEXED, so the output vector is the same whatever the thread count
 /// is; no randomness is drawn here, so no draw order can move.
+#[cfg_attr(not(test), allow(dead_code))] // the reference form; production writes through `write_helper_u8`
 pub(super) fn helper_inverses_u8(col: &[i64], alpha: Fp2, g_u8: Fp2, tbl: &[Option<Fp2>]) -> Result<Vec<Fp2>, String> {
     helper_inverses_u8_at(col, alpha, g_u8, tbl, HELPER_PAR_MIN)
 }
@@ -799,6 +800,7 @@ pub(super) fn helper_inverses_u8_at(col: &[i64], alpha: Fp2, g_u8: Fp2, tbl: &[O
 /// elements does not depend on where they were stored. The refusal is
 /// [`helper_inverses_u8`]'s, unchanged: the first column is asked before the
 /// second at every index, and both must answer.
+#[cfg_attr(not(test), allow(dead_code))] // the reference form; production writes through `write_helper_u8`
 pub(super) fn helper_pair_inverses_u8(a: &[i64], b: &[i64], alpha: Fp2, g_u8: Fp2, tbl: &[Option<Fp2>]) -> Result<Vec<Fp2>, String> {
     helper_pair_inverses_u8_at(a, b, alpha, g_u8, tbl, HELPER_PAR_MIN)
 }
@@ -848,6 +850,50 @@ pub(crate) fn set_moved_multiplicity(v: Option<(usize, usize, usize)>) {
 #[cfg(test)]
 fn moved_multiplicity() -> Option<(usize, usize, usize)> {
     MOVED_MULTIPLICITY.with(|c| c.get())
+}
+
+/// [ZK60-METAL M4c] one LogUp helper column written straight into `h`: word `i`
+/// is `helper_one(a[i]) (+ helper_one(b[i]))`, its real part at `off.0 + i` and
+/// its imaginary part at `off.1 + i` — exactly what `write_h` of
+/// `helper_pair_inverses_u8` / `helper_inverses_u8` stores. Parallel above
+/// [`HELPER_PAR_MIN`] like those two; a zero denominator is the same refusal.
+pub(super) fn write_helper_u8(h: &mut [Fp], off: (usize, usize), a: &[i64], b: Option<&[i64]>, alpha: Fp2, g_u8: Fp2, tbl: &[Option<Fp2>]) -> Result<(), String> {
+    let len = a.len();
+    if b.is_some_and(|b| b.len() != len) {
+        return Err("private block: paired lookup columns of different lengths".into());
+    }
+    if off.0 + len > off.1 && off.1 + len > off.0 {
+        return Err("private block: a helper's real and imaginary rows overlap".into());
+    }
+    let (re, im): (&mut [Fp], &mut [Fp]) = if off.0 < off.1 {
+        let (lo, hi) = h.split_at_mut(off.1);
+        (&mut lo[off.0..off.0 + len], &mut hi[..len])
+    } else {
+        let (lo, hi) = h.split_at_mut(off.0);
+        (&mut hi[..len], &mut lo[off.1..off.1 + len])
+    };
+    let word = |i: usize| -> Result<Fp2, String> {
+        let x = helper_one(a[i], alpha, g_u8, tbl)?;
+        match b {
+            Some(b) => Ok(x.add(helper_one(b[i], alpha, g_u8, tbl)?)),
+            None => Ok(x),
+        }
+    };
+    if len < HELPER_PAR_MIN {
+        for (i, (r, m)) in re.iter_mut().zip(im.iter_mut()).enumerate() {
+            let v = word(i)?;
+            *r = v.c0;
+            *m = v.c1;
+        }
+        return Ok(());
+    }
+    use rayon::prelude::*;
+    re.par_iter_mut().zip(im.par_iter_mut()).enumerate().try_for_each(|(i, (r, m))| {
+        let v = word(i)?;
+        *r = v.c0;
+        *m = v.c1;
+        Ok(())
+    })
 }
 
 fn write_h(h: &mut [Fp], off: (usize, usize), col: &[Fp2]) {
@@ -1166,11 +1212,11 @@ pub(crate) fn prove_core(
         // copy in `Fp2` beside them). Columns are still visited in index
         // order, so a refusal is still the lowest-indexed column's.
         for k in 0..count {
-            let col = match cols.get(2 * k + 1) {
-                Some(second) => helper_pair_inverses_u8(&cols[2 * k], second, alpha, g_u8, &u8_inv)?,
-                None => helper_inverses_u8(&cols[2 * k], alpha, g_u8, &u8_inv)?,
-            };
-            write_h(&mut h_data, lay.h_off[first + k], &col);
+            // [ZK60-METAL M4c] straight into `H`'s re/im rows, in parallel: the
+            // words `helper_pair_inverses_u8` / `helper_inverses_u8` build, in
+            // the places `write_h` puts them, without the column-sized
+            // temporary and its single-threaded copy (same words, same refusal)
+            write_helper_u8(&mut h_data, lay.h_off[first + k], &cols[2 * k], cols.get(2 * k + 1).map(|c| c.as_slice()), alpha, g_u8, &u8_inv)?;
         }
     }
     ph.mark_bytes(Half::Commit, "H: LogUp helper inverses (six lookup domains)", lookup_words, "words", 16 * lookup_words);

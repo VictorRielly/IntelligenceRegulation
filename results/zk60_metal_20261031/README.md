@@ -154,7 +154,7 @@ as the device rounds. Almost all of it was `mask_eval`: each private table's res
 point's tail, one table after another, each rebuilding the same 2^14-entry eq table (2.5 ms a table; 64 tables in
 slot 14). `argument.rs` now builds ONE eq table per distinct tail and evaluates the tables in parallel with an
 indexed collect. Each value is the same fold in the same order, so no byte moves. The digests are unchanged at
-all four development shapes, both trained shapes and the legacy golden gate (`logs/golden.done`).
+all four development shapes, both trained shapes and the legacy golden gate (`golden_m4b/`, 8 / 8).
 
 | Accuracy block, T128 [n = 1, shared box] | Mac CPU | Metal warm |
 |---|---:|---:|
@@ -164,6 +164,22 @@ all four development shapes, both trained shapes and the legacy golden gate (`lo
 Phase breakdown, Shieldstral, Metal warm: witness planes + commit A 0.378 s, LogUp helpers + commit H 0.483 s,
 23 masked sumchecks 1.028 s (device rounds 0.541 s), remainder (openings, IO) about 0.37 s.
 Evidence: `logs/m4b_bytes.log`, `logs/m4b_trained.log`.
+
+### M4c: LogUp helper columns written straight into `H` (CPU code, both paths)
+
+Each helper column was built in parallel into a column-sized temporary (up to 2^21 `Fp2` words) and then copied
+into `H`'s real and imaginary rows on one thread. `protocol.rs::write_helper_u8` now writes each word straight
+into its two places in parallel (same words, same places, same refusal string). A unit test pins it against the
+reference functions (both row orders, below and above the parallel threshold, a zero denominator). The digests
+are unchanged at all six accuracy shapes and the legacy golden gate (`logs/golden.done`, 8 / 8). The R13
+classifier run proves and verifies.
+
+| Accuracy block, T128 [n = 1, shared box] | Mac CPU | Metal warm |
+|---|---:|---:|
+| `R13_8B_T128_H24` | 4.826 s | 2.217 -> **2.017 s** |
+| `R13_SHIELD_T128_H24` | 5.120 s | 2.263 -> **2.098 s** |
+
+Evidence: `logs/m4c_unit.log`, `logs/m4c_bytes.log`, `logs/m4c_trained.log`, `logs/m4c_r13.log`.
 
 ## Open items
 

@@ -1,0 +1,7 @@
+
+running 1 test
+test private_block::token_io::classify_r16_tests::r16_an_r13_classifier_run_with_two_gate_denominators_proves_and_verifies ... TOKEN-IO R16 | R13 rung | two stages at G 20 and G 21: prove 4 segments (35293200 B), fresh verify, owner check, changed byte refused; floor 100 bits
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 901 filtered out; finished in 3.19s
+

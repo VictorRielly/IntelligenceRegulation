@@ -522,6 +522,42 @@ mod tests {
         eprintln!("accuracy IR oracle: {transcribed} transcribed slot IRs and {legacy_matched} legacy slot IRs match; {dd_szc} DD softmax slots stay on the CPU");
     }
 
+    /// [M4c] the direct parallel helper write stores exactly the words the
+    /// reference pair / single helper plus `write_h` stored, in both row
+    /// orders, below and above the parallel threshold, and refuses a zero
+    /// denominator with the same string
+    #[test]
+    fn m4c_direct_helper_write_equals_the_reference_columns() {
+        use crate::private_block::protocol::{helper_inverses_u8, helper_pair_inverses_u8, u8_denominator_inverses, write_helper_u8, HELPER_PAR_MIN};
+        let (alpha, g_u8) = (k(1_000_003).add(Fp2::U.mul(k(17))), k(29));
+        let tbl = u8_denominator_inverses(alpha, g_u8);
+        for len in [5usize, HELPER_PAR_MIN - 1, HELPER_PAR_MIN + 77] {
+            let a: Vec<i64> = (0..len).map(|i| ((i * 131 + 7) % 300) as i64 - 20).collect();
+            let b: Vec<i64> = (0..len).map(|i| ((i * 37 + 3) % 256) as i64).collect();
+            for (o0, o1) in [(3usize, 3 + len + 11), (5 + len, 2)] {
+                for pair in [true, false] {
+                    let want = if pair { helper_pair_inverses_u8(&a, &b, alpha, g_u8, &tbl).unwrap() } else { helper_inverses_u8(&a, alpha, g_u8, &tbl).unwrap() };
+                    let mut h_want = vec![Fp::new(9); 2 * len + 40];
+                    for (i, v) in want.iter().enumerate() {
+                        h_want[o0 + i] = v.c0;
+                        h_want[o1 + i] = v.c1;
+                    }
+                    let mut h_got = vec![Fp::new(9); 2 * len + 40];
+                    write_helper_u8(&mut h_got, (o0, o1), &a, pair.then_some(b.as_slice()), alpha, g_u8, &tbl).unwrap();
+                    assert_eq!(h_got, h_want, "len {len} offsets ({o0}, {o1}) pair {pair}");
+                }
+            }
+        }
+        // a zero denominator: alpha chosen so value 300 hits it (outside the byte table)
+        let alpha0 = k(300).add(g_u8);
+        let tbl0 = u8_denominator_inverses(alpha0, g_u8);
+        let bad: Vec<i64> = (0..HELPER_PAR_MIN + 5).map(|i| if i == 4321 { 300 } else { (i % 256) as i64 }).collect();
+        let mut h = vec![Fp::ZERO; 2 * bad.len() + 8];
+        let got = write_helper_u8(&mut h, (0, bad.len() + 1), &bad, None, alpha0, g_u8, &tbl0);
+        assert_eq!(got, helper_inverses_u8(&bad, alpha0, g_u8, &tbl0).map(|_| ()));
+        assert!(got.is_err());
+    }
+
     /// one seeded accuracy-stack block proof's digest (the recipe of
     /// `r12_golden_tests::digest_of_seeded_block`: roots, slot proofs,
     /// openings, IO claims, absorb order, lookups, final transcript state)
@@ -549,6 +585,7 @@ mod tests {
         if std::env::var("HL_M4_PHASES").map(|v| v == "1").unwrap_or(false) {
             let row: Vec<String> = phases.iter().map(|(n, t)| format!("{n} {t:.3}")).collect();
             eprintln!("M4-PHASES {} gpu={} | {}", sh.name, std::env::var("HL_GPU").unwrap_or_default(), row.join(" | "));
+            ph.report(if std::env::var("HL_GPU").is_ok() { "prove-metal" } else { "prove-cpu" }, sh.profile);
         }
         let text = format!(
             "{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}|{:?}",
