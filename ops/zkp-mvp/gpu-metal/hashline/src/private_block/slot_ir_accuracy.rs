@@ -725,6 +725,7 @@ mod tests {
             // every later layer of a multi-layer run)
             for pass in ["cold", "warm"] {
                 let (before, compile0, cpu_slots0) = (crate::gpu::metal_sumcheck_stats().1, crate::gpu::metal_sumcheck_stats().0, crate::private_block::metal_slot::cpu_slots());
+                let pool0 = crate::gpu::metal_pool_stats();
                 std::env::set_var("HL_GPU", "1");
                 let w = wit();
                 let t = std::time::Instant::now();
@@ -733,8 +734,10 @@ mod tests {
                 std::env::remove_var("HL_GPU");
                 let (ran, compile) = (crate::gpu::metal_sumcheck_stats().1 - before, crate::gpu::metal_sumcheck_stats().0 - compile0);
                 let cpu_slots = crate::private_block::metal_slot::cpu_slots() - cpu_slots0;
+                let pool = crate::gpu::metal_pool_stats();
+                let (hits, misses) = (pool.0 - pool0.0, pool.1 - pool0.1);
                 eprintln!(
-                    "M4-TRAINED {} cpu {cpu_s:.3} s metal-{pass} {metal_s:.3} s (kernel compile {compile:.3} s, device sumcheck rounds {ran:.3} s; {cpu_slots} slots without a matching IR) digest cpu {cpu} metal {metal}",
+                    "M4-TRAINED {} cpu {cpu_s:.3} s metal-{pass} {metal_s:.3} s (kernel compile {compile:.3} s, device sumcheck rounds {ran:.3} s; {cpu_slots} slots without a matching IR; buffer pool {hits} reused / {misses} new) digest cpu {cpu} metal {metal}",
                     sh.name
                 );
                 assert_eq!(cpu, metal, "{}: the Metal accuracy proof's bytes differ from the CPU's", sh.name);

@@ -237,17 +237,107 @@ struct HashArgs {
     key: [u32; 8],
 }
 
-fn shared_buffer(c: &Ctx, bytes: u64) -> Result<Buffer, String> {
+/// [M4f] A shared buffer that goes back to a process-wide pool when dropped.
+///
+/// **Why.** The first touch of a FRESH shared Metal buffer is slow on this Mac:
+/// 74-78 ms to write 973 MB the first time, 5 ms the second (2.4 GB: 0.17-0.20
+/// s against 0.011 s; `results/zk60_metal_20261031/README.md`, M4f). A block
+/// allocates gigabytes of them (the commitments' data, row and encoded
+/// matrices, the zero-checks' tables), and the next block asks for the same
+/// sizes again, so reusing them skips that cost.
+///
+/// **Why it cannot change a byte.** A pooled buffer comes back with its last
+/// contents, so every user must write all it later reads: the upload copies
+/// every word, the NTT head writes every element of its rows (the padding as
+/// explicit zeros), the hash, gather and fold kernels write every output, the
+/// sumcheck tables are written whole, and each round's kernel writes the
+/// partial of every thread the host then reads. Nothing reads a buffer it has
+/// not written; the seeded byte gates and the golden gate hold this.
+/// `HL_METAL_POOL=0` turns the pool off; `HL_METAL_POOL_GIB` caps what it keeps
+/// (default 48 GiB of the 256).
+pub struct PBuf(Option<Buffer>);
+
+impl std::ops::Deref for PBuf {
+    type Target = Buffer;
+    fn deref(&self) -> &Buffer {
+        self.0.as_ref().expect("metal: pooled buffer taken")
+    }
+}
+
+impl PBuf {
+    /// keep the buffer outside the pool (a cache that lives for the process)
+    fn keep(mut self) -> Buffer {
+        self.0.take().expect("metal: pooled buffer taken")
+    }
+}
+
+impl Drop for PBuf {
+    fn drop(&mut self) {
+        if let Some(b) = self.0.take() {
+            pool_put(b);
+        }
+    }
+}
+
+/// free buffers and the bytes they hold
+static POOL: Mutex<(Vec<Buffer>, u64)> = Mutex::new((Vec::new(), 0));
+static POOL_HITS: AtomicU64 = AtomicU64::new(0);
+static POOL_MISSES: AtomicU64 = AtomicU64::new(0);
+
+fn pool_on() -> bool {
+    static ON: OnceLock<bool> = OnceLock::new();
+    *ON.get_or_init(|| std::env::var("HL_METAL_POOL").map(|v| v != "0").unwrap_or(true))
+}
+
+fn pool_cap() -> u64 {
+    static CAP: OnceLock<u64> = OnceLock::new();
+    *CAP.get_or_init(|| std::env::var("HL_METAL_POOL_GIB").ok().and_then(|v| v.parse::<u64>().ok()).unwrap_or(48) << 30)
+}
+
+/// the smallest free buffer of at least `bytes` and at most 1.25x that
+fn pool_take(bytes: u64) -> Option<Buffer> {
+    if !pool_on() {
+        return None;
+    }
+    let mut g = POOL.lock().ok()?;
+    let best = g.0.iter().enumerate().filter(|(_, b)| b.length() >= bytes && b.length() <= bytes + bytes / 4).min_by_key(|(_, b)| b.length()).map(|(i, _)| i)?;
+    let b = g.0.swap_remove(best);
+    g.1 -= b.length();
+    Some(b)
+}
+
+fn pool_put(b: Buffer) {
+    if !pool_on() {
+        return;
+    }
+    let Ok(mut g) = POOL.lock() else { return };
+    if g.1 + b.length() <= pool_cap() {
+        g.1 += b.length();
+        g.0.push(b);
+    }
+}
+
+/// (pool hits, misses) since the process started (diagnostics)
+pub fn pool_stats() -> (u64, u64) {
+    (POOL_HITS.load(Ordering::Relaxed), POOL_MISSES.load(Ordering::Relaxed))
+}
+
+fn shared_buffer(c: &Ctx, bytes: u64) -> Result<PBuf, String> {
     if bytes == 0 {
         return Err("metal: zero-length buffer".into());
     }
     if bytes > c.device.max_buffer_length() {
         return Err(format!("metal: buffer of {bytes} B exceeds the device maximum {} B", c.device.max_buffer_length()));
     }
-    Ok(c.device.new_buffer(bytes, MTLResourceOptions::StorageModeShared))
+    if let Some(b) = pool_take(bytes) {
+        POOL_HITS.fetch_add(1, Ordering::Relaxed);
+        return Ok(PBuf(Some(b)));
+    }
+    POOL_MISSES.fetch_add(1, Ordering::Relaxed);
+    Ok(PBuf(Some(c.device.new_buffer(bytes, MTLResourceOptions::StorageModeShared))))
 }
 
-fn upload(c: &Ctx, vals: &[Fp]) -> Result<Buffer, String> {
+fn upload(c: &Ctx, vals: &[Fp]) -> Result<PBuf, String> {
     let buf = shared_buffer(c, (vals.len() * 8) as u64)?;
     // SAFETY: the buffer is at least vals.len() * 8 bytes of shared, CPU-visible
     // memory, not yet used by the GPU, and Fp is repr(transparent) over u64.
@@ -277,8 +367,8 @@ fn twiddle_buffers(c: &Ctx, ntt: &NttTables) -> Result<(Buffer, Buffer), String>
         return Ok((f.clone(), i.clone()));
     }
     let (fw, inv) = ntt.twiddle_tables();
-    let f = upload(c, fw)?;
-    let i = upload(c, inv)?;
+    let f = upload(c, fw)?.keep();
+    let i = upload(c, inv)?.keep();
     map.insert(ntt.max_log, (f.clone(), i.clone()));
     Ok((f, i))
 }
@@ -355,10 +445,10 @@ pub struct MetalCommit {
     n: usize,
     nn: usize,
     ir: usize,
-    enc: Buffer,
+    enc: PBuf,
     /// Some(rows x n data) for the hiding form; None for the plain form, whose
     /// fold reads the systematic positions of the encoding.
-    data: Option<Buffer>,
+    data: Option<PBuf>,
 }
 
 impl MetalCommit {
@@ -880,8 +970,8 @@ pub struct MetalRounds {
     degree: usize,
     cap: usize,
     len: usize,
-    tabs: Buffer,
-    coefs: Buffer,
+    tabs: PBuf,
+    coefs: PBuf,
     /// round 0: typed by field (base tables as one word); rounds 1..: every
     /// table extension-valued (the first fold makes them so)
     pipe0: ComputePipelineState,
@@ -900,7 +990,7 @@ pub struct MetalRounds {
     per: usize,
     tg: u64,
     /// [M4e] the partials buffer, sized for round 0 and reused every round
-    part: Buffer,
+    part: PBuf,
     /// [M4e] a fold not yet run: (its half, its challenge). It is encoded in
     /// the next round's command buffer, ahead of that round; the last fold
     /// runs at once, since the final tables are read after it.

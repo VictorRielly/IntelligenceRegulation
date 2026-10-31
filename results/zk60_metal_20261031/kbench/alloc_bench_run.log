@@ -1,0 +1,6 @@
+537 MB rep 0: new_buffer 0.0001 s | first parallel write 0.0586 s | second 0.0033 s | drop 0.0027 s
+537 MB rep 1: new_buffer 0.0000 s | first parallel write 0.0420 s | second 0.0030 s | drop 0.0026 s
+973 MB rep 0: new_buffer 0.0000 s | first parallel write 0.0781 s | second 0.0051 s | drop 0.0045 s
+973 MB rep 1: new_buffer 0.0000 s | first parallel write 0.0740 s | second 0.0048 s | drop 0.0046 s
+2400 MB rep 0: new_buffer 0.0001 s | first parallel write 0.1964 s | second 0.0112 s | drop 0.0105 s
+2400 MB rep 1: new_buffer 0.0001 s | first parallel write 0.1699 s | second 0.0115 s | drop 0.0106 s

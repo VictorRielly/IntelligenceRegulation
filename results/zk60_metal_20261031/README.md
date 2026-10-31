@@ -275,6 +275,43 @@ Evidence: `logs/m4e_build3.log`, `logs/m4e_unit3.log`, `logs/m4e_bytes3.log`, `l
 `logs/m4e_trained_e2.log`, `logs/m4e_split3.log`, `logs/m4e_r13.log`; the Karatsuba-only intermediate in
 `logs/m4e_*2.log` and `logs/m4e_trained_k*.log` (Shieldstral warm 1.783 / 1.745 s).
 
+### M4f: a pool for the shared Metal buffers (byte-identical)
+
+The first touch of a FRESH shared Metal buffer is slow on this Mac, unlike ordinary memory (575 MB of
+`malloc`ed pages fault in, in parallel, in 2-6 ms). A standalone bench (`kbench/`-style, numbers below,
+n = 2): writing a new buffer the first time against the second time, in parallel:
+
+| Fresh shared buffer | new_buffer | first write | second write |
+|---|---:|---:|---:|
+| 537 MB | 0.0001 s | 0.042-0.059 s | 0.003 s |
+| 973 MB (slot 18's tables) | 0.0000 s | 0.074-0.078 s | 0.005 s |
+| 2.4 GB (A's encoded matrix) | 0.0001 s | 0.170-0.196 s | 0.011 s |
+
+A block allocates about 46 such buffers (the commitments' data, row and encoded matrices, leaves; the
+zero-checks' tables and partials), and the next block asks for the same sizes. `gpu/metal.rs::PBuf` hands a
+dropped buffer back to a process-wide pool, and `shared_buffer` takes the smallest free one between the
+requested size and 1.25x it. A reused buffer keeps its old contents, which is safe because every user
+writes everything it later reads (the upload copies every word; the NTT head writes every element, the
+padding as explicit zeros; the hash, gather and fold kernels write every output; the tables are written
+whole; each round writes the partial of every thread the host reads). `HL_METAL_POOL=0` turns it off,
+`HL_METAL_POOL_GIB` caps what it keeps (default 48). The trained test now prints the pool's reuse.
+
+| Accuracy block, T128 [n = 2, quiet box; the test's own clock] | Metal warm, pool off | Metal warm, pool on |
+|---|---:|---:|
+| `R13_8B_T128_H24` | 1.572 s | **1.136 / 1.134 s** |
+| `R13_SHIELD_T128_H24` | 1.594 s | **1.130 / 1.098 s** |
+
+A warm block reuses all 46 buffers; the first Metal block of a process (after the CPU run) finds 21 of 48,
+so in a 26-layer run only the first layer pays. Shieldstral warm phases: witness planes + commit A 0.157 s
+(was 0.25), LogUp helpers + commit H 0.141 s (was 0.235), 23 masked sumchecks 0.538 s (was 0.79). The cost is
+memory: the test's peak RSS 10.8 GB against 8.4 GB without the pool.
+
+Gates: unit 30 / 30; CPU vs Metal seeded bytes at the four development shapes; trained digests unchanged
+with the pool on and off; R13 classifier run proves and verifies; legacy golden gate 8 / 8 with device evidence (`golden_m4f/`,
+binary `golden_binary_m4f.sha256`). Evidence: `logs/m4f_build.log`, `logs/m4f_unit.log`, `logs/m4f_bytes.log`,
+`logs/m4f_trained_1.log`, `logs/m4f_trained_2.log`, `logs/m4f_trained_nopool.log`, `logs/m4f_r13.log`;
+the bench is `kbench/alloc_bench_main.rs` with `kbench/alloc_bench_run.log`.
+
 ## Open items
 
 1. **Backend label.** `trained_block.rs::backend_of_this_process` knows only the CPU and CUDA names, so a
@@ -286,4 +323,4 @@ Evidence: `logs/m4e_build3.log`, `logs/m4e_unit3.log`, `logs/m4e_bytes3.log`, `l
    CPU-only TAB slot (0.05 s). None of these closes the ~16x gap to 50 proved tokens/s alone; that needs the
    structural levers (batching tokens or proofs) the research agenda names.
 4. **DD slot 17, the dictionary slot and the R13 table-helper slot (19)** need IR coverage before every slot of every profile runs on the device (legacy and accuracy alike).
-3. Buffer pooling (setup is about 15% of the Metal commit time).
+3. ~~Buffer pooling~~ done in M4f.

@@ -11,3 +11,4 @@
   the form the prover now generates.
 - `gl_mul_bench_main.rs` / `gl_mul_bench_run.log`: the Goldilocks multiply three ways (equal outputs).
 - `helper_write_bench_main.rs`: the LogUp helper write per column vs one region (M4d).
+- `alloc_bench_main.rs` / `alloc_bench_run.log`: first and second touch of fresh shared Metal buffers (M4f).
