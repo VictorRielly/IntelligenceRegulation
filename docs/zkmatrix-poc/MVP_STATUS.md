@@ -1,5 +1,28 @@
 # Where the MVP stands, in plain words
 
+**2026-10-31 (afternoon, Mac): the prover runs on the Mac's GPU, byte for byte the same; R14's security tier is accepted.**
+- **Apple GPU (Metal), new.** The commitments and the five heavy zero-check sumchecks now run on the M3 Ultra's
+  GPU. Four full block proofs made this way (TinyLlama and Llama-3-8B shapes at 128 tokens, with and without
+  DD) are byte-identical to the proofs recorded on the Linux laptop. Record: `results/zk60_metal_20261031/README.md`.
+- **Speed of one 8B-shaped block at 128 tokens** [MEASURED, n=1, shared Mac; synthetic weights at the true
+  geometry]:
+
+  | Machine and path | Block proof |
+  |---|---:|
+  | Laptop CPU, 16 threads (historical) | ~12.3 s |
+  | Mac CPU, 32 threads | 4.66 s |
+  | Mac GPU (commitments + zero-checks) | 2.20 s |
+
+  That is about 1.8 proved positions per second for a 32-block 8B stack on the Mac, before witness and model
+  loading. Attestable claims 53 tokens/s on one H100 for a 31B model; we are still far from that.
+- **Not yet on the GPU:** the real classifier's accuracy-stack zero-checks (their expression IR is not written),
+  the witness, the LogUp helper inverses and the extension rounds. The DD profiles keep one slot on the CPU.
+- **R14 security tier (D27): accepted on soundness** by an independent review, three low fixes
+  (`results/zk60_d24_review_20261017/REVIEW_R14_TIER.md`). Registration still needs one CLI run on the restored
+  export and the privacy gate.
+- **Astra restored the Shieldstral native export** on the Mac (8.47 GB, every file hash-matched) and is
+  re-running the benchmark replay (about 12 h, CPU).
+
 **2026-10-31 07:45 UTC: work moved to the M3 Ultra Mac Studio; the laptop is no longer reachable.**
 - **The code is all here.** The last push (Snapshot 15) is pulled. The production prover builds on the Mac and
   passes its tests apart from three macOS bugs and some missing test files. Proofs made on the laptop verify on
