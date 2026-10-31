@@ -5,20 +5,22 @@
   stayed on the CPU, because the GPU's expression description covered only the older stack. They now run on the
   GPU. The proof bytes are identical to the CPU's at every shape tested: four small development shapes, and the
   Shieldstral and 8B geometries at 128 tokens. The older proofs are unchanged (golden gate 8 of 8).
-  Record: `results/zk60_metal_20261031/README.md` (M4 to M4d).
+  Record: `results/zk60_metal_20261031/README.md` (M4 to M4e).
 - **Speed of one Shieldstral-shaped accuracy block at 128 tokens** [MEASURED, n=1, Mac quiet at the time;
   synthetic weights at the true geometry; proof core only, so no witness or model loading]:
 
   | Path | Block proof |
   |---|---:|
-  | Mac CPU, 32 threads | 4.83 s |
-  | Mac GPU, later blocks (the first block in a new process can add about 1.2 s of one-time kernel compile) | **1.83 s** |
+  | Mac CPU, 32 threads | 4.80 s |
+  | Mac GPU, later blocks (a new GPU kernel's first compile on a machine can add up to a few seconds, once) | **1.61 s** |
 
-  CPU-side fixes used by both paths, none of which changes any bytes, took the GPU block from 2.86 s to 1.83 s:
-  the extension rounds, the LogUp helper columns (now written in one parallel pass), and the commitment masks'
-  fresh randomness (now drawn in parallel, the same stream).
-  For the 26 layers at 128 tokens, that is about 48 s of proof core, or about 2.7 proved tokens per second. The
-  target is at least 50, so we are still about 18 times short. The zero-checks are now more than half of a block.
+  Fixes that change no bytes took the GPU block from 2.86 s to 1.61 s: on the CPU side (used by both paths)
+  the extension rounds, the LogUp helper columns (one parallel pass) and the commitment masks' fresh
+  randomness (drawn in parallel, the same stream); on the GPU, the zero-check kernels now run one thread per
+  evaluation point, with fewer round trips (device rounds 0.52 -> 0.33 s per block).
+  For the 26 layers at 128 tokens, that is about 42 s of proof core, or about 3.0 proved tokens per second. The
+  target is at least 50, so we are still about 16 times short. What is left of a block is spread over many
+  small phases; closing the gap needs the structural levers (batching tokens or proofs), not more tuning.
 - **Still on the CPU:** the witness, the exp/activation helper inverses, the extension rounds, the openings, and
   one small table slot per block. The DD softmax and dictionary slots also stay on the CPU.
 - **Sol and Astra** (Codex sessions on this Mac) have written nothing since about 08:45 UTC. Their processes are

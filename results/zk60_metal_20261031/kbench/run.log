@@ -1,0 +1,6 @@
+compile 1.96 s
+k_sc_round: rounds 1.. 0.1965 s  max threads/group 1024  sums f71820ae36224189 90b29f3c1aeb5216
+k_vB: rounds 1.. 0.2668 s  max threads/group 1024  sums f71820ae36224189 90b29f3c1aeb5216
+k_vC: rounds 1.. 0.2522 s  max threads/group 1024  sums f71820ae36224189 90b29f3c1aeb5216
+k_vD: rounds 1.. 0.2379 s  max threads/group 1024  sums f71820ae36224189 90b29f3c1aeb5216
+k_sc_round: rounds 1.. 0.1692 s  max threads/group 1024  sums f71820ae36224189 90b29f3c1aeb5216

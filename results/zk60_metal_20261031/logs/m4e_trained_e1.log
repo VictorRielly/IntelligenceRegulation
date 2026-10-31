@@ -1,0 +1,18 @@
+
+running 1 test
+test private_block::slot_ir::accuracy::tests::m4_trained_accuracy_block_cpu_and_metal_digests_and_times ... M4-TRAINED R13_8B_T128_H24 setup 0.67 s
+M4-PHASES R13_8B_T128_H24 gpu= | witness planes + commit A 0.492 | commit M 0.012 | LogUp helpers + commit H 0.475 | 23 masked sumchecks 3.398
+M4-PHASES R13_8B_T128_H24 gpu=1 | witness planes + commit A 0.318 | commit M 0.011 | LogUp helpers + commit H 0.264 | 23 masked sumchecks 6.963
+M4-TRAINED R13_8B_T128_H24 cpu 4.705 s metal-cold 7.933 s (kernel compile 6.128 s, device sumcheck rounds 0.338 s; 1 slots without a matching IR) digest cpu 678953f646fcd15d28e9209984cb42ff8af8358b8bb657f0440fd51878f33d89 metal 678953f646fcd15d28e9209984cb42ff8af8358b8bb657f0440fd51878f33d89
+M4-PHASES R13_8B_T128_H24 gpu=1 | witness planes + commit A 0.260 | commit M 0.010 | LogUp helpers + commit H 0.239 | 23 masked sumchecks 0.741
+M4-TRAINED R13_8B_T128_H24 cpu 4.705 s metal-warm 1.562 s (kernel compile 0.000 s, device sumcheck rounds 0.267 s; 1 slots without a matching IR) digest cpu 678953f646fcd15d28e9209984cb42ff8af8358b8bb657f0440fd51878f33d89 metal 678953f646fcd15d28e9209984cb42ff8af8358b8bb657f0440fd51878f33d89
+M4-TRAINED R13_SHIELD_T128_H24 setup 0.51 s
+M4-PHASES R13_SHIELD_T128_H24 gpu= | witness planes + commit A 0.533 | commit M 0.008 | LogUp helpers + commit H 0.483 | 23 masked sumchecks 3.447
+M4-PHASES R13_SHIELD_T128_H24 gpu=1 | witness planes + commit A 0.275 | commit M 0.010 | LogUp helpers + commit H 0.255 | 23 masked sumchecks 1.774
+M4-TRAINED R13_SHIELD_T128_H24 cpu 4.798 s metal-cold 2.663 s (kernel compile 0.919 s, device sumcheck rounds 0.387 s; 1 slots without a matching IR) digest cpu 2b0d04bbf22b5e52faf1d0ce9a13d85c5587eac4a0c0b45d66b0fa1ec4731101 metal 2b0d04bbf22b5e52faf1d0ce9a13d85c5587eac4a0c0b45d66b0fa1ec4731101
+M4-PHASES R13_SHIELD_T128_H24 gpu=1 | witness planes + commit A 0.252 | commit M 0.010 | LogUp helpers + commit H 0.232 | 23 masked sumchecks 0.795
+M4-TRAINED R13_SHIELD_T128_H24 cpu 4.798 s metal-warm 1.615 s (kernel compile 0.000 s, device sumcheck rounds 0.322 s; 1 slots without a matching IR) digest cpu 2b0d04bbf22b5e52faf1d0ce9a13d85c5587eac4a0c0b45d66b0fa1ec4731101 metal 2b0d04bbf22b5e52faf1d0ce9a13d85c5587eac4a0c0b45d66b0fa1ec4731101
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 902 filtered out; finished in 27.10s
+

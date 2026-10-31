@@ -1,0 +1,11 @@
+[package]
+name = "kbench"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+metal = "=0.29.0"
+
+[profile.release]
+opt-level = 3

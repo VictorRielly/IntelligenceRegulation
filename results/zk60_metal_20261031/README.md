@@ -225,12 +225,65 @@ does 96 G `gl_mul`/s on this GPU, and neither a 32-bit `mulhi` form nor 64-bit `
 Evidence: `logs/m4d_core_rng.log`, `logs/m4d_unit.log`, `logs/m4d_bytes.log`, `logs/m4d_trained.log`,
 `logs/m4d_timing.log`, `logs/m4d_r13.log`.
 
+### M4e: the device sumcheck's later rounds, one thread per evaluation point (byte-identical)
+
+The M4d split showed the zero-checks' later rounds (every table extension-valued after the first fold)
+costing 2-5x round 0, and the small slots paying about 0.5 ms per round in fixed costs. Three changes:
+
+- **Host (`gpu/metal.rs::MetalRounds`).** A fold is encoded in the NEXT round's command buffer, ahead of
+  that round (the encoder runs its dispatches in order, as the NTT stages rely on); only the last fold runs
+  at once, since the final tables are read after it. One partials buffer per sumcheck instead of one per
+  round; small partial sums on one thread.
+- **Karatsuba `f2_mul`** (SC_PRELUDE): three base products and 7 bd by doublings, the same field elements.
+- **The generated kernels (`private_block/metal_slot.rs`) run one thread per (pair stride, evaluation
+  point)**, grid `nthreads * (D + 1)`, each table's value at `d` formed directly (`lo`, `hi`,
+  `lo + d (hi - lo)`: the element the CPU reaches by adding the step `d` times); one pair per thread up to
+  2^17 strides, threadgroups of 64 (`HL_METAL_SC_THREADS` / `_PER` / `_TG` override). Partial `(gid, d)`
+  lands where the M3 kernel put it.
+
+The kernel shape was chosen in a standalone harness on Shieldstral slot 14's dumped library
+(`kbench/`, all variants' sums equal), later rounds only, best of three:
+
+| Slot 14 later rounds, 64 tables, degree 5 [n = 3, min] | seconds |
+|---|---:|
+| M3 kernel, 4 pairs per thread, <= 2^15 threads, groups of 256 (the M4d setting) | 0.170 |
+| M3 kernel, 1 pair per thread, groups of 64 | 0.081 |
+| point outer / lazy loads / unrolled (B, C, D; single runs) | 0.24-0.27 |
+| **one thread per (pair, point), values loaded up front (E)** | **0.059** |
+
+Negative results kept for the record: a "v2" kernel (point loop outermost, SIMD-group partials) was built
+into the prover first and was SLOWER (Shieldstral device rounds 0.55 s against 0.47 s for the M3 kernel with
+the host changes, `logs/m4e_trained_v2.log` / `_v1.log`) with 2-7 s more cold compile, so it was removed;
+lazy loads were slower in the harness too, so register liveness was not the limit, the per-thread serial
+work of the small late rounds was. In those two logs and in `m4e_unit.log`, `m4e_bytes.log` and
+`m4e_split.log`, the FIRST run is the M4d binary (the first M4e build failed to compile and its queued
+gates ran on); the second is the M4e candidate named.
+
+| Accuracy block, T128 [n = 2, quiet box; the test's own clock] | Metal warm, M4d | Metal warm, M4e |
+|---|---:|---:|
+| `R13_8B_T128_H24` | 1.766 / 1.780 s | **1.562 / 1.563 s** |
+| `R13_SHIELD_T128_H24` | 1.832 / 1.862 s | **1.615 / 1.610 s** |
+
+Shieldstral device rounds 0.52 -> 0.33 s; slot 14 0.21 -> 0.12 s (round 0 0.024 s, later rounds 0.094 s),
+slot 18 0.13 -> 0.12 s, slots 15-17 0.040 / 0.029 / 0.049 -> 0.021 / 0.012 / 0.023 s (`logs/m4e_split3.log`).
+A new library's first compile is longer (up to 6 s at the 8B shape, once per machine; macOS caches it).
+
+Gates: unit `m4c_ m4d_ s28 slot_ir metal` 30 / 30; CPU vs Metal seeded bytes at the four development
+shapes; trained digests unchanged (`2b0d04bb...`, `678953f6...`) in every run; R13 classifier run proves and
+verifies; legacy golden gate 8 / 8 with device evidence (`golden_m4e/`, binary `golden_binary_m4e.sha256`).
+Evidence: `logs/m4e_build3.log`, `logs/m4e_unit3.log`, `logs/m4e_bytes3.log`, `logs/m4e_trained_e1.log`,
+`logs/m4e_trained_e2.log`, `logs/m4e_split3.log`, `logs/m4e_r13.log`; the Karatsuba-only intermediate in
+`logs/m4e_*2.log` and `logs/m4e_trained_k*.log` (Shieldstral warm 1.783 / 1.745 s).
+
 ## Open items
 
 1. **Backend label.** `trained_block.rs::backend_of_this_process` knows only the CPU and CUDA names, so a
    Metal-made run statement would say "built without gpu-cuda". Adding a Metal name changes what verifiers
    accept and needs Sol's lane and a review before any Metal-made receipt is published.
-2. **Next on the GPU:** the device sumcheck's later rounds (register pressure on wide slots; the per-round
-   fixed costs), the exp/activation helper inverses (0.055 s), and the openings (0.18 s).
+2. **Next on the GPU:** what is left of a 1.6 s block is spread out: the two commitments (~0.3 s together),
+   the zero-checks' host side (tables built on the CPU then copied, ~0.1 s; per-round sync ~0.3 ms), slots
+   14 and 18 (~0.12 s each), the openings (~0.18 s), the exp/activation helper inverses (0.055 s) and the
+   CPU-only TAB slot (0.05 s). None of these closes the ~16x gap to 50 proved tokens/s alone; that needs the
+   structural levers (batching tokens or proofs) the research agenda names.
 4. **DD slot 17, the dictionary slot and the R13 table-helper slot (19)** need IR coverage before every slot of every profile runs on the device (legacy and accuracy alike).
 3. Buffer pooling (setup is about 15% of the Metal commit time).

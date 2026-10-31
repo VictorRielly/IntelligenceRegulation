@@ -1,0 +1,10 @@
+compile 2.23 s
+k_sc_round per 1 cap 2^17 tg 64: rounds 1.. 0.1070 s  max threads/group 1024  sums f71820ae36224189 90b29f3c1aeb5216
+k_vE per 1 cap 2^17 tg 64: rounds 1.. 0.0886 s  max threads/group 1024  sums f71820ae36224189 90b29f3c1aeb5216
+k_vF per 1 cap 2^17 tg 64: rounds 1.. 0.1046 s  max threads/group 1024  sums f71820ae36224189 90b29f3c1aeb5216
+k_vE per 4 cap 2^15 tg 64: rounds 1.. 0.1072 s  max threads/group 1024  sums f71820ae36224189 90b29f3c1aeb5216
+k_vF per 4 cap 2^15 tg 64: rounds 1.. 0.0917 s  max threads/group 1024  sums f71820ae36224189 90b29f3c1aeb5216
+k_vE per 2 cap 2^16 tg 64: rounds 1.. 0.0949 s  max threads/group 1024  sums f71820ae36224189 90b29f3c1aeb5216
+k_vF per 2 cap 2^16 tg 64: rounds 1.. 0.0805 s  max threads/group 1024  sums f71820ae36224189 90b29f3c1aeb5216
+k_vE per 1 cap 2^17 tg 192: rounds 1.. 0.0923 s  max threads/group 1024  sums f71820ae36224189 90b29f3c1aeb5216
+k_vF per 1 cap 2^17 tg 192: rounds 1.. 0.0760 s  max threads/group 1024  sums f71820ae36224189 90b29f3c1aeb5216

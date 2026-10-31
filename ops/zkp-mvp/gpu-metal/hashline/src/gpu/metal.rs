@@ -743,18 +743,40 @@ inline fp2 f2(ulong a, ulong b) { fp2 r; r.c0 = a; r.c1 = b; return r; }
 inline fp2 f2_add(fp2 a, fp2 b) { return f2(gl_add(a.c0, b.c0), gl_add(a.c1, b.c1)); }
 inline fp2 f2_sub(fp2 a, fp2 b) { return f2(gl_sub(a.c0, b.c0), gl_sub(a.c1, b.c1)); }
 inline fp2 f2_neg(fp2 a) { return f2(gl_neg_sc(a.c0), gl_neg_sc(a.c1)); }
-// Fp2::mul: (a0 + a1 u)(b0 + b1 u), u^2 = 7
+// Fp2::mul: (a0 + a1 u)(b0 + b1 u), u^2 = 7. [M4e] Karatsuba: three base
+// products, the cross term as (a0 + a1)(b0 + b1) - ac - bd, and 7 bd as
+// 8 bd - bd by doublings: the same field elements as Fp2::mul (exact
+// arithmetic, every operation returns the canonical word), two products fewer.
+inline ulong gl_mul7(ulong x) { ulong x2 = gl_add(x, x); ulong x4 = gl_add(x2, x2); return gl_sub(gl_add(x4, x4), x); }
 inline fp2 f2_mul(fp2 a, fp2 b) {
-    ulong ac = gl_mul(a.c0, b.c0), bd = gl_mul(a.c1, b.c1), ad = gl_mul(a.c0, b.c1), bc = gl_mul(a.c1, b.c0);
-    return f2(gl_add(ac, gl_mul(bd, 7UL)), gl_add(ad, bc));
+    ulong ac = gl_mul(a.c0, b.c0), bd = gl_mul(a.c1, b.c1);
+    ulong cross = gl_mul(gl_add(a.c0, a.c1), gl_add(b.c0, b.c1));
+    return f2(gl_add(ac, gl_mul7(bd)), gl_sub(gl_sub(cross, ac), bd));
 }
 inline fp2 CF(constant ulong *cf, uint i) { return f2(cf[2 * i], cf[2 * i + 1]); }
 // [M3b] mixed operands: an extension value times / plus a base-field word
 inline fp2 f2_mulb(fp2 a, ulong b) { return f2(gl_mul(a.c0, b), gl_mul(a.c1, b)); }
 inline fp2 f2_addb(fp2 a, ulong b) { return f2(gl_add(a.c0, b), a.c1); }
+// [M4e] a table's value at point d of the pair's line (lo at 0, hi at 1,
+// lo + d (hi - lo) beyond: what the CPU reaches by adding the step d times)
+inline ulong ln_base(device const ulong *tabs, ulong lo, ulong hi, uint d, ulong dd) {
+    ulong l = tabs[lo];
+    if (d == 0u) { return l; }
+    ulong h = tabs[hi];
+    if (d == 1u) { return h; }
+    return gl_add(l, gl_mul(gl_sub(h, l), dd));
+}
+inline fp2 ln_ext(device const ulong *tabs, ulong lo, ulong hi, uint d, ulong dd) {
+    fp2 l = f2(tabs[lo], tabs[lo + 1]);
+    if (d == 0u) { return l; }
+    fp2 h = f2(tabs[hi], tabs[hi + 1]);
+    if (d == 1u) { return h; }
+    return f2_add(l, f2_mulb(f2_sub(h, l), dd));
+}
 "#;
 
-#[allow(dead_code)] // the untyped kernel contract, kept as documentation
+#[allow(dead_code)] // the M3 untyped kernel contract, kept as documentation; since
+// [M4e] the generated kernels run one thread per (stride, point) instead (metal_slot.rs)
 const SC_ROUND: &str = r#"
 struct RoundArgs { ulong nhalf; ulong cap; uint eval_one; uint nthreads; };
 // One thread per stride of cube pairs: the round's evaluations at 0..=D along
@@ -825,6 +847,10 @@ fn sc_pipelines(c: &Ctx, kernel_src: &str, k: usize, degree: usize) -> Result<(C
     if let (Some(p0), Some(p1)) = (cache.get(&keys[0]), cache.get(&keys[1])) {
         return Ok((p0.clone(), p1.clone()));
     }
+    // [M4e] DIAGNOSTIC: HL_METAL_DUMP=<dir> writes each compiled slot library
+    if let Ok(dir) = std::env::var("HL_METAL_DUMP") {
+        let _ = std::fs::write(format!("{dir}/slot_k{k}_d{degree}_{:016x}.metal", src.len() as u64 ^ (kernel_src.len() as u64) << 20), &src);
+    }
     let t = std::time::Instant::now();
     let (p0, p1) = objc::rc::autoreleasepool(|| -> Result<(ComputePipelineState, ComputePipelineState), String> {
         let lib = c.device.new_library_with_source(&src, &CompileOptions::new()).map_err(|e| format!("metal sumcheck compile: {e}"))?;
@@ -868,6 +894,22 @@ pub struct MetalRounds {
     busy_ns: std::cell::Cell<u64>,
     /// [M4d] the same split (diagnostics): round 0, later rounds, folds
     split_ns: std::cell::Cell<[u64; 3]>,
+    /// [M4e] threads per round: log2 cap, pairs per thread and the
+    /// threadgroup width (read once)
+    cap_log: u32,
+    per: usize,
+    tg: u64,
+    /// [M4e] the partials buffer, sized for round 0 and reused every round
+    part: Buffer,
+    /// [M4e] a fold not yet run: (its half, its challenge). It is encoded in
+    /// the next round's command buffer, ahead of that round; the last fold
+    /// runs at once, since the final tables are read after it.
+    fold_r: Option<(usize, Fp2)>,
+}
+
+/// threads of a round over `half` pairs (the per-thread pair count and the cap)
+fn sc_threads(half: usize, per: usize, cap_log: u32) -> usize {
+    (half / per).clamp(1, 1 << cap_log)
 }
 
 /// `Ok(None)`: a table the kernel keeps as a base-field word has a nonzero
@@ -920,6 +962,13 @@ pub fn metal_rounds(kernel_src: &str, tables: &[Vec<Fp2>], degree: usize, coefs:
             cf.push(Fp::ZERO);
         }
         let coefs = upload(c, &cf)?;
+        // [M4e] one pair per thread up to 2^17 strides, groups of 64 (measured
+        // on slot 14's later rounds; HL_METAL_SC_THREADS / _PER / _TG override)
+        let cap_log: u32 = std::env::var("HL_METAL_SC_THREADS").ok().and_then(|v| v.parse().ok()).unwrap_or(17).clamp(8, 22);
+        let per: usize = std::env::var("HL_METAL_SC_PER").ok().and_then(|v| v.parse().ok()).unwrap_or(1).max(1);
+        let tg: u64 = std::env::var("HL_METAL_SC_TG").ok().and_then(|v| v.parse().ok()).unwrap_or(64).clamp(32, 1024);
+        let t0n = sc_threads(cap / 2, per, cap_log);
+        let part = shared_buffer(c, (t0n * (degree + 1) * 16) as u64)?;
         Ok(Some(MetalRounds {
             k,
             n_vars: cap.trailing_zeros() as usize,
@@ -936,6 +985,11 @@ pub fn metal_rounds(kernel_src: &str, tables: &[Vec<Fp2>], degree: usize, coefs:
             unmasked_claim: None,
             busy_ns: std::cell::Cell::new(0),
             split_ns: std::cell::Cell::new([0; 3]),
+            cap_log,
+            per,
+            tg,
+            part,
+            fold_r: None,
         }))
     })
 }
@@ -956,6 +1010,7 @@ impl MetalRounds {
     }
 
     fn finals_inner(&self) -> Vec<Fp2> {
+        assert!(self.fold_r.is_none(), "metal sumcheck: a fold is still deferred");
         let raw = as_u64s(&self.tabs, self.k * self.cap * 2);
         (0..self.k).map(|t| Fp2::new(Fp(raw[t * self.cap * 2]), Fp(raw[t * self.cap * 2 + 1]))).collect()
     }
@@ -978,43 +1033,54 @@ impl zkp_core::sumcheck::SumcheckRounds for MetalRounds {
         let claim = if self.recover_one { self.unmasked_claim } else { None };
         let eval_one = claim.is_none();
         // threads per round: HL_METAL_SC_THREADS (log2, default 15) caps it
-        let cap_log: u32 = std::env::var("HL_METAL_SC_THREADS").ok().and_then(|v| v.parse().ok()).unwrap_or(15).clamp(8, 22);
-        let per: usize = std::env::var("HL_METAL_SC_PER").ok().and_then(|v| v.parse().ok()).unwrap_or(4).max(1);
-        let nthreads = (half / per).clamp(1, 1 << cap_log);
+        let nthreads = sc_threads(half, self.per, self.cap_log);
         let d1 = self.degree + 1;
+        let fold = self.fold_r.take();
         let sums = objc::rc::autoreleasepool(|| {
-            let part = shared_buffer(c, (nthreads * d1 * 16) as u64).expect("metal sumcheck partials");
             let pipe = if j == 0 { &self.pipe0 } else { &self.pipe };
             run(c, |enc| {
+                // [M4e] the previous round's fold, in this command buffer: the
+                // encoder runs its dispatches in order (as the NTT stages do)
+                if let Some((fh, r)) = fold {
+                    enc.set_buffer(0, Some(&self.tabs), 0);
+                    set_args(enc, 1, &FoldTabArgs { half: fh as u64, cap: self.cap as u64, k: self.k as u64, r0: r.c0.0, r1: r.c1.0 });
+                    dispatch_2d(c, enc, "k_fold_tables", fh as u64, self.k as u64);
+                }
                 enc.set_compute_pipeline_state(pipe);
                 enc.set_buffer(0, Some(&self.tabs), 0);
-                enc.set_buffer(1, Some(&part), 0);
+                enc.set_buffer(1, Some(&self.part), 0);
                 enc.set_buffer(2, Some(&self.coefs), 0);
                 set_args(enc, 3, &RoundArgs { half: half as u64, cap: self.cap as u64, eval_one: eval_one as u32, nthreads: nthreads as u32 });
-                let tg = pipe.max_total_threads_per_threadgroup().min(256).min(nthreads as u64);
-                enc.dispatch_threads(MTLSize::new(nthreads as u64, 1, 1), MTLSize::new(tg, 1, 1));
+                // [M4e] one thread per (stride, evaluation point)
+                let grid = (nthreads * d1) as u64;
+                let tg = pipe.max_total_threads_per_threadgroup().min(self.tg).min(grid);
+                enc.dispatch_threads(MTLSize::new(grid, 1, 1), MTLSize::new(tg, 1, 1));
                 Ok(())
             })
             .expect("metal sumcheck round");
-            let p = as_u64s(&part, nthreads * d1 * 2);
-            // parallel over thread blocks; field addition is exact, so the
-            // grouping does not change the sums
-            p.par_chunks(4096 * d1 * 2)
-                .map(|blk| {
-                    let mut acc = vec![Fp2::ZERO; d1];
-                    for th in blk.chunks_exact(d1 * 2) {
-                        for (d, s) in acc.iter_mut().enumerate() {
-                            *s = s.add(Fp2::new(Fp(th[2 * d]), Fp(th[2 * d + 1])));
-                        }
+            // [M4e] small rounds on this thread (a rayon region costs about
+            // half a millisecond here), large ones in parallel; field addition
+            // is exact, so the grouping does not change the sums
+            let p = as_u64s(&self.part, nthreads * d1 * 2);
+            let sum = |blk: &[u64]| -> Vec<Fp2> {
+                let mut acc = vec![Fp2::ZERO; d1];
+                for th in blk.chunks_exact(d1 * 2) {
+                    for (d, s) in acc.iter_mut().enumerate() {
+                        *s = s.add(Fp2::new(Fp(th[2 * d]), Fp(th[2 * d + 1])));
                     }
-                    acc
-                })
-                .reduce(|| vec![Fp2::ZERO; d1], |mut a, b| {
+                }
+                acc
+            };
+            if nthreads <= 1 << 14 {
+                sum(p)
+            } else {
+                p.par_chunks(4096 * d1 * 2).map(sum).reduce(|| vec![Fp2::ZERO; d1], |mut a, b| {
                     for (x, y) in a.iter_mut().zip(b.iter()) {
                         *x = x.add(*y);
                     }
                     a
                 })
+            }
         });
         let mut sums = sums;
         if let Some(claim) = claim {
@@ -1036,17 +1102,23 @@ impl zkp_core::sumcheck::SumcheckRounds for MetalRounds {
         if self.recover_one {
             self.unmasked_claim = Some(zkp_core::mle::interpolate_eval(&sums, r));
         }
-        let c = ctx().expect("metal context");
         let half = self.len / 2;
-        objc::rc::autoreleasepool(|| {
-            run(c, |enc| {
-                enc.set_buffer(0, Some(&self.tabs), 0);
-                set_args(enc, 1, &FoldTabArgs { half: half as u64, cap: self.cap as u64, k: self.k as u64, r0: r.c0.0, r1: r.c1.0 });
-                dispatch_2d(c, enc, "k_fold_tables", half as u64, self.k as u64);
-                Ok(())
-            })
-            .expect("metal sumcheck fold");
-        });
+        if self.next + 1 < self.n_vars {
+            // [M4e] encoded ahead of the next round, in its command buffer
+            self.fold_r = Some((half, r));
+        } else {
+            // the last fold: the final tables are read right after it
+            let c = ctx().expect("metal context");
+            objc::rc::autoreleasepool(|| {
+                run(c, |enc| {
+                    enc.set_buffer(0, Some(&self.tabs), 0);
+                    set_args(enc, 1, &FoldTabArgs { half: half as u64, cap: self.cap as u64, k: self.k as u64, r0: r.c0.0, r1: r.c1.0 });
+                    dispatch_2d(c, enc, "k_fold_tables", half as u64, self.k as u64);
+                    Ok(())
+                })
+                .expect("metal sumcheck fold");
+            });
+        }
         self.len = half;
         self.next += 1;
         let ns = t0.elapsed().as_nanos() as u64;
@@ -1059,7 +1131,7 @@ impl zkp_core::sumcheck::SumcheckRounds for MetalRounds {
 
     fn finals(&self) -> Vec<Fp2> {
         assert_eq!(self.next, self.n_vars, "finals need all folds");
-        assert!(self.pending.is_none());
+        assert!(self.pending.is_none() && self.fold_r.is_none());
         if std::env::var("HL_METAL_TIMING").map(|v| v == "1").unwrap_or(false) {
             let sp = self.split_ns.get();
             eprintln!(

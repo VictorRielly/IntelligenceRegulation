@@ -1,0 +1,76 @@
+
+running 1 test
+test private_block::slot_ir::accuracy::tests::m4_trained_accuracy_block_cpu_and_metal_digests_and_times ... M4-TRAINED R13_SHIELD_T128_H24 setup 0.52 s
+[ZK60-METAL] argument: prove=true accuracy_none=false legacy_stack=false gpu_enabled=false -> metal_on=false (R13_SHIELD_T128_H24)
+[ZK60-METAL] commit 4577 x 2^14 -> 2^16: setup 0.053 s, gpu total 0.118 s (inverse 0.019, init 0.000, forward 0.071, hash 0.006)
+[ZK60-METAL] commit 4390 x 2^14 -> 2^16: setup 0.043 s, gpu total 0.098 s (inverse 0.018, init 0.000, forward 0.068, hash 0.006)
+[ZK60-METAL] argument: prove=true accuracy_none=false legacy_stack=false gpu_enabled=true -> metal_on=true (R13_SHIELD_T128_H24)
+[ZK60-METAL] compiled a slot library (3 tables, degree 4, 7594 B of source, 2 kernels) in 0.000 s
+[ZK60-METAL] sumcheck setup: 3 tables x 2^19 in 0.0011 s
+[ZK60-METAL] sumcheck rounds: 3 tables, 19 rounds, degree 4 in 0.0126 s (round 0 0.0064, rounds 1.. 0.0060, folds 0.0002; max threads/group 1024 / 1024)
+[ZK60-METAL] compiled a slot library (3 tables, degree 4, 7596 B of source, 2 kernels) in 0.000 s
+[ZK60-METAL] sumcheck setup: 3 tables x 2^19 in 0.0013 s
+[ZK60-METAL] sumcheck rounds: 3 tables, 19 rounds, degree 4 in 0.0073 s (round 0 0.0010, rounds 1.. 0.0061, folds 0.0002; max threads/group 1024 / 1024)
+[ZK60-METAL] compiled a slot library (4 tables, degree 3, 8105 B of source, 2 kernels) in 0.000 s
+[ZK60-METAL] sumcheck setup: 4 tables x 2^19 in 0.0017 s
+[ZK60-METAL] sumcheck rounds: 4 tables, 19 rounds, degree 3 in 0.0074 s (round 0 0.0014, rounds 1.. 0.0058, folds 0.0002; max threads/group 1024 / 1024)
+[ZK60-METAL] compiled a slot library (64 tables, degree 5, 53616 B of source, 2 kernels) in 0.001 s
+[ZK60-METAL] sumcheck setup: 64 tables x 2^19 in 0.0372 s
+[ZK60-METAL] sumcheck rounds: 64 tables, 19 rounds, degree 5 in 0.1970 s (round 0 0.0391, rounds 1.. 0.1576, folds 0.0003; max threads/group 1024 / 1024)
+[ZK60-METAL] compiled a slot library (27 tables, degree 4, 24687 B of source, 2 kernels) in 0.000 s
+[ZK60-METAL] sumcheck setup: 27 tables x 2^19 in 0.0138 s
+[ZK60-METAL] sumcheck rounds: 27 tables, 19 rounds, degree 4 in 0.0390 s (round 0 0.0058, rounds 1.. 0.0329, folds 0.0003; max threads/group 1024 / 1024)
+[ZK60-METAL] compiled a slot library (27 tables, degree 4, 24691 B of source, 2 kernels) in 0.000 s
+[ZK60-METAL] sumcheck setup: 27 tables x 2^17 in 0.0037 s
+[ZK60-METAL] sumcheck rounds: 27 tables, 17 rounds, degree 4 in 0.0291 s (round 0 0.0028, rounds 1.. 0.0260, folds 0.0003; max threads/group 1024 / 1024)
+[ZK60-METAL] compiled a slot library (28 tables, degree 4, 25990 B of source, 2 kernels) in 0.000 s
+[ZK60-METAL] sumcheck setup: 28 tables x 2^19 in 0.0158 s
+[ZK60-METAL] sumcheck rounds: 28 tables, 19 rounds, degree 4 in 0.0492 s (round 0 0.0075, rounds 1.. 0.0416, folds 0.0002; max threads/group 1024 / 1024)
+[ZK60-METAL] compiled a slot library (29 tables, degree 5, 27240 B of source, 2 kernels) in 0.000 s
+[ZK60-METAL] sumcheck setup: 29 tables x 2^21 in 0.0596 s
+[ZK60-METAL] sumcheck rounds: 29 tables, 21 rounds, degree 5 in 0.1248 s (round 0 0.0295, rounds 1.. 0.0950, folds 0.0003; max threads/group 1024 / 1024)
+[ZK60-METAL] slot 19: no IR (R13 IR: the R13 table-helper slot is not transcribed)
+[ZK60-METAL] compiled a slot library (3 tables, degree 2, 7625 B of source, 2 kernels) in 0.000 s
+[ZK60-METAL] sumcheck setup: 3 tables x 2^19 in 0.0009 s
+[ZK60-METAL] sumcheck rounds: 3 tables, 19 rounds, degree 2 in 0.0213 s (round 0 0.0122, rounds 1.. 0.0089, folds 0.0002; max threads/group 1024 / 1024)
+[ZK60-METAL] compiled a slot library (3 tables, degree 2, 7627 B of source, 2 kernels) in 0.000 s
+[ZK60-METAL] sumcheck setup: 3 tables x 2^19 in 0.0008 s
+[ZK60-METAL] sumcheck rounds: 3 tables, 19 rounds, degree 2 in 0.0067 s (round 0 0.0012, rounds 1.. 0.0052, folds 0.0003; max threads/group 1024 / 1024)
+[ZK60-METAL] store fold: 37 rho x 4577 rows x 16384 cols (zk data) in 0.0169 s
+[ZK60-METAL] store columns: 256 x 4577 rows in 0.0186 s
+[ZK60-METAL] store fold: 10 rho x 4390 rows x 16384 cols (zk data) in 0.0208 s
+[ZK60-METAL] store columns: 256 x 4390 rows in 0.0229 s
+M4-TRAINED R13_SHIELD_T128_H24 cpu 4.790 s metal-cold 2.157 s (kernel compile 0.003 s, device sumcheck rounds 0.494 s; 1 slots without a matching IR) digest cpu 2b0d04bbf22b5e52faf1d0ce9a13d85c5587eac4a0c0b45d66b0fa1ec4731101 metal 2b0d04bbf22b5e52faf1d0ce9a13d85c5587eac4a0c0b45d66b0fa1ec4731101
+[ZK60-METAL] commit 4577 x 2^14 -> 2^16: setup 0.044 s, gpu total 0.104 s (inverse 0.019, init 0.000, forward 0.071, hash 0.006)
+[ZK60-METAL] commit 4390 x 2^14 -> 2^16: setup 0.044 s, gpu total 0.098 s (inverse 0.018, init 0.000, forward 0.068, hash 0.006)
+[ZK60-METAL] argument: prove=true accuracy_none=false legacy_stack=false gpu_enabled=true -> metal_on=true (R13_SHIELD_T128_H24)
+[ZK60-METAL] sumcheck setup: 3 tables x 2^19 in 0.0011 s
+[ZK60-METAL] sumcheck rounds: 3 tables, 19 rounds, degree 4 in 0.0127 s (round 0 0.0062, rounds 1.. 0.0063, folds 0.0002; max threads/group 1024 / 1024)
+[ZK60-METAL] sumcheck setup: 3 tables x 2^19 in 0.0012 s
+[ZK60-METAL] sumcheck rounds: 3 tables, 19 rounds, degree 4 in 0.0074 s (round 0 0.0013, rounds 1.. 0.0059, folds 0.0002; max threads/group 1024 / 1024)
+[ZK60-METAL] sumcheck setup: 4 tables x 2^19 in 0.0015 s
+[ZK60-METAL] sumcheck rounds: 4 tables, 19 rounds, degree 3 in 0.0079 s (round 0 0.0014, rounds 1.. 0.0062, folds 0.0002; max threads/group 1024 / 1024)
+[ZK60-METAL] sumcheck setup: 64 tables x 2^19 in 0.0376 s
+[ZK60-METAL] sumcheck rounds: 64 tables, 19 rounds, degree 5 in 0.1849 s (round 0 0.0310, rounds 1.. 0.1536, folds 0.0003; max threads/group 1024 / 1024)
+[ZK60-METAL] sumcheck setup: 27 tables x 2^19 in 0.0140 s
+[ZK60-METAL] sumcheck rounds: 27 tables, 19 rounds, degree 4 in 0.0399 s (round 0 0.0067, rounds 1.. 0.0330, folds 0.0003; max threads/group 1024 / 1024)
+[ZK60-METAL] sumcheck setup: 27 tables x 2^17 in 0.0037 s
+[ZK60-METAL] sumcheck rounds: 27 tables, 17 rounds, degree 4 in 0.0287 s (round 0 0.0026, rounds 1.. 0.0259, folds 0.0003; max threads/group 1024 / 1024)
+[ZK60-METAL] sumcheck setup: 28 tables x 2^19 in 0.0156 s
+[ZK60-METAL] sumcheck rounds: 28 tables, 19 rounds, degree 4 in 0.0492 s (round 0 0.0074, rounds 1.. 0.0416, folds 0.0002; max threads/group 1024 / 1024)
+[ZK60-METAL] sumcheck setup: 29 tables x 2^21 in 0.0582 s
+[ZK60-METAL] sumcheck rounds: 29 tables, 21 rounds, degree 5 in 0.1311 s (round 0 0.0358, rounds 1.. 0.0949, folds 0.0003; max threads/group 1024 / 1024)
+[ZK60-METAL] slot 19: no IR (R13 IR: the R13 table-helper slot is not transcribed)
+[ZK60-METAL] sumcheck setup: 3 tables x 2^19 in 0.0011 s
+[ZK60-METAL] sumcheck rounds: 3 tables, 19 rounds, degree 2 in 0.0107 s (round 0 0.0027, rounds 1.. 0.0077, folds 0.0002; max threads/group 1024 / 1024)
+[ZK60-METAL] sumcheck setup: 3 tables x 2^19 in 0.0009 s
+[ZK60-METAL] sumcheck rounds: 3 tables, 19 rounds, degree 2 in 0.0063 s (round 0 0.0013, rounds 1.. 0.0048, folds 0.0002; max threads/group 1024 / 1024)
+[ZK60-METAL] store fold: 37 rho x 4577 rows x 16384 cols (zk data) in 0.0153 s
+[ZK60-METAL] store columns: 256 x 4577 rows in 0.0156 s
+[ZK60-METAL] store fold: 10 rho x 4390 rows x 16384 cols (zk data) in 0.0223 s
+[ZK60-METAL] store columns: 256 x 4390 rows in 0.0195 s
+M4-TRAINED R13_SHIELD_T128_H24 cpu 4.790 s metal-warm 2.042 s (kernel compile 0.000 s, device sumcheck rounds 0.479 s; 1 slots without a matching IR) digest cpu 2b0d04bbf22b5e52faf1d0ce9a13d85c5587eac4a0c0b45d66b0fa1ec4731101 metal 2b0d04bbf22b5e52faf1d0ce9a13d85c5587eac4a0c0b45d66b0fa1ec4731101
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 902 filtered out; finished in 10.70s
+

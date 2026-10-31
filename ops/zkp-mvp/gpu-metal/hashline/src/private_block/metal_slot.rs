@@ -168,8 +168,14 @@ fn gen_kernel(ir: &SlotIr, base: &[bool], name: &str) -> (String, Vec<Fp2>) {
         let p = product(&t.coef, &fs, &mut cf);
         body.push_str(&format!("            out = f2_add(out, {});\n", ext_of(&p)));
     }
-    // the kernel: per pair, each table's line value and step, then the D + 1
-    // evaluations in the CPU's order (cur, then cur += dif)
+    // [M4e] the kernel: ONE THREAD PER (pair stride, evaluation point d), the
+    // grid `nthreads * (D + 1)` wide with `d = tid % (D + 1)`. Each table's
+    // value at `d` along the pair's line is formed directly: `lo` at 0, `hi` at
+    // 1, `lo + d (hi - lo)` beyond, the field element the CPU reaches by adding
+    // the step `d` times (`ln_base` / `ln_ext`, SC_PRELUDE). Partial
+    // `(gid, d)` lands where the M3 kernel put it. Measured on slot 14's later
+    // rounds (64 tables, degree 5) in isolation: 0.170 s -> 0.059 s with one
+    // pair per thread, against the M3 form's six points in sequence per thread.
     let mut s = String::new();
     s.push_str(&format!(
         "// slot {} ({}) at {}: {} tables ({} base), {} nodes, {} terms\n",
@@ -189,40 +195,28 @@ fn gen_kernel(ir: &SlotIr, base: &[bool], name: &str) -> (String, Vec<Fp2>) {
         "                       device ulong *part [[buffer(1)]],\n",
         "                       constant ulong *cf [[buffer(2)]],\n",
         "                       constant RoundArgs &a [[buffer(3)]],\n",
-        "                       uint gid [[thread_position_in_grid]]) {\n",
+        "                       uint tid [[thread_position_in_grid]]) {\n",
+        "    uint d = tid % (SC_D + 1u);\n",
+        "    uint gid = tid / (SC_D + 1u);\n",
         "    if (gid >= a.nthreads) { return; }\n",
-        "    fp2 acc[SC_D + 1];\n",
-        "    for (uint d = 0; d <= SC_D; d++) { acc[d] = f2(0UL, 0UL); }\n",
-        "    for (ulong i = ulong(gid); i < a.nhalf; i += ulong(a.nthreads)) {\n",
+        "    ulong dd = ulong(d);\n",
+        "    fp2 acc = f2(0UL, 0UL);\n",
+        "    if (d != 1u || a.eval_one != 0u) {\n",
+        "        for (ulong i = ulong(gid); i < a.nhalf; i += ulong(a.nthreads)) {\n",
     ));
     for t in 0..k {
-        if base[t] {
-            s.push_str(&format!(
-                "        ulong v{t} = tabs[({t}UL * a.cap + i) * 2UL];\n        ulong w{t} = gl_sub(tabs[({t}UL * a.cap + i + a.nhalf) * 2UL], v{t});\n"
-            ));
-        } else {
-            s.push_str(&format!(
-                "        fp2 v{t} = f2(tabs[({t}UL * a.cap + i) * 2UL], tabs[({t}UL * a.cap + i) * 2UL + 1UL]);\n        fp2 w{t} = f2_sub(f2(tabs[({t}UL * a.cap + i + a.nhalf) * 2UL], tabs[({t}UL * a.cap + i + a.nhalf) * 2UL + 1UL]), v{t});\n"
-            ));
-        }
+        let f = if base[t] { ("ulong", "ln_base") } else { ("fp2", "ln_ext") };
+        s.push_str(&format!("            {} v{t} = {}(tabs, ({t}UL * a.cap + i) * 2UL, ({t}UL * a.cap + i + a.nhalf) * 2UL, d, dd);\n", f.0, f.1));
     }
-    s.push_str("        for (uint d = 0; d <= SC_D; d++) {\n            if (d > 0u) {\n");
-    for t in 0..k {
-        if base[t] {
-            s.push_str(&format!("                v{t} = gl_add(v{t}, w{t});\n"));
-        } else {
-            s.push_str(&format!("                v{t} = f2_add(v{t}, w{t});\n"));
-        }
-    }
-    s.push_str("            }\n            if (d == 1u && a.eval_one == 0u) { continue; }\n");
     s.push_str(&body);
-    s.push_str("            acc[d] = f2_add(acc[d], out);\n        }\n    }\n");
     s.push_str(concat!(
-        "    for (uint d = 0; d <= SC_D; d++) {\n",
-        "        ulong o = (ulong(gid) * (SC_D + 1) + ulong(d)) * 2UL;\n",
-        "        part[o] = acc[d].c0;\n",
-        "        part[o + 1] = acc[d].c1;\n",
-        "    }\n}\n",
+        "            acc = f2_add(acc, out);\n",
+        "        }\n",
+        "    }\n",
+        "    ulong o = (ulong(gid) * (SC_D + 1) + ulong(d)) * 2UL;\n",
+        "    part[o] = acc.c0;\n",
+        "    part[o + 1] = acc.c1;\n",
+        "}\n",
     ));
     (s, cf)
 }

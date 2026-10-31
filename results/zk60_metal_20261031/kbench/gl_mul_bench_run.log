@@ -1,0 +1,4 @@
+k_a: 0.0056 s for 536870912 muls (96.53 Gmul/s), max threads/group 1024
+k_b: 0.0061 s for 536870912 muls (87.84 Gmul/s), max threads/group 1024
+k_c: 0.0061 s for 536870912 muls (88.61 Gmul/s), max threads/group 1024
+b == a: true  c == a: true
