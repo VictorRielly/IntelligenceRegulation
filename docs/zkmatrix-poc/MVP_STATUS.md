@@ -5,7 +5,7 @@
   stayed on the CPU, because the GPU's expression description covered only the older stack. They now run on the
   GPU. The proof bytes are identical to the CPU's at every shape tested: four small development shapes, and the
   Shieldstral and 8B geometries at 128 tokens. The older proofs are unchanged (golden gate 8 of 8).
-  Record: `results/zk60_metal_20261031/README.md` (M4 to M4i).
+  Record: `results/zk60_metal_20261031/README.md` (M4 to M4l).
 - **Speed of one Shieldstral-shaped accuracy block at 128 tokens** [MEASURED, GPU rows n=9 warm passes in three
   processes (median), Mac quiet at the time; synthetic weights at the true geometry; the proof call alone, so no
   witness, model loading or receipt assembly]:
@@ -13,21 +13,26 @@
   | Path | Block proof |
   |---|---:|
   | Mac CPU, 32 threads (n=4, not a quiesced ladder) | 2.9-4.5 s |
-  | Mac GPU, later blocks (a new GPU kernel's first compile on a machine can add a few seconds, once) | **0.73-0.93 s (median 0.75)** |
+  | Mac GPU, later blocks (a new GPU kernel's first compile on a machine can add a few seconds, once) | **0.65-0.68 s (median 0.656)** |
 
-  Fixes that change no bytes took the GPU block from 2.86 s to about 0.75 s (the older figures in the record
+  Fixes that change no bytes took the GPU block from 2.86 s to about 0.66 s (the older figures in the record
   also counted the test's own digest text, about 0.16 s): on the CPU side (used by both paths) the extension
   rounds, the LogUp helper columns, the commitment masks' randomness, the exp/activation helper inverses and the
   witness planes now run in parallel; on the GPU, the zero-check kernels run one thread per evaluation point,
   one point per group of 32 lanes, skipping the point the protocol recovers from the claim; the zero-check
-  tables are built straight into GPU memory instead of being built, zeroed and copied; GPU buffers are reused
+  tables are built straight into GPU memory instead of being built, zeroed and copied, and in parallel over
+  their entries; the last, tiny sumcheck rounds of each slot run on the CPU (a GPU round costs about 0.4 ms
+  whatever its size); small helper tables no longer pay a thread-pool start-up each; GPU buffers are reused
   from block to block (about 2.4 GB more peak memory).
-  For the 26 layers at 128 tokens that is about 19.6 s of proof core, or about **6.5 proved tokens per second**.
-  The target is at least 50, so we are still about **7.7 times short**.
+  For the 26 layers at 128 tokens that is about 17 s of proof core, or about **7.5 proved tokens per second**.
+  The target is at least 50, so we are still about **6.7 times short**.
 - **Longer blocks do not close the gap here** [MEASURED, n=3]: the same block at 256 tokens takes 1.59 s, 2.1
-  times the 128-token block, so proof time is about linear in tokens on this design. Closing the gap needs the
-  structural levers (fewer commitments and openings per token, for example across layers) or a faster GPU, not
-  more tuning of phases.
+  times the 128-token block (measured before the last three fixes), so proof time is about linear in tokens on
+  this design. Closing the gap needs the structural levers or a faster GPU, not more tuning of phases.
+- **A lever that needs Victor's ruling:** most of what each block commits is range-check byte limbs and their
+  lookup helpers (the lookups read 64.3 M of the 75.0 M words of `A`; their helpers are 64.3 M of the 71.9 M of
+  `H`). Wider limbs (16-bit) would shrink both commitments and openings roughly in proportion, a rough
+  estimate of 0.1-0.2 s per block. It changes the proof layout, verifier and receipts, so it is not done.
 - **Still on the CPU:** the witness, the LogUp helper inverses (in parallel), the extension rounds, the openings,
   and one small table slot per block. The DD softmax and dictionary slots also stay on the CPU.
 - **Sol and Astra** (Codex sessions on this Mac) have written nothing since about 08:45 UTC. Their processes are
