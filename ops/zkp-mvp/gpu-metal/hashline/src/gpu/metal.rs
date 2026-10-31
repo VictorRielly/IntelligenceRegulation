@@ -739,6 +739,9 @@ inline fp2 f2_mul(fp2 a, fp2 b) {
     return f2(gl_add(ac, gl_mul(bd, 7UL)), gl_add(ad, bc));
 }
 inline fp2 CF(constant ulong *cf, uint i) { return f2(cf[2 * i], cf[2 * i + 1]); }
+// [M3b] mixed operands: an extension value times / plus a base-field word
+inline fp2 f2_mulb(fp2 a, ulong b) { return f2(gl_mul(a.c0, b), gl_mul(a.c1, b)); }
+inline fp2 f2_addb(fp2 a, ulong b) { return f2(gl_add(a.c0, b), a.c1); }
 "#;
 
 const SC_ROUND: &str = r#"
@@ -800,23 +803,33 @@ pub fn sumcheck_stats() -> (f64, f64) {
     (SC_COMPILE_NS.load(Ordering::Relaxed) as f64 * 1e-9, SC_ROUND_NS.load(Ordering::Relaxed) as f64 * 1e-9)
 }
 
-fn sc_pipeline(c: &Ctx, poly_fn: &str, k: usize, degree: usize) -> Result<ComputePipelineState, String> {
-    let src = format!("{}{SC_PRELUDE}\n#define SC_K {k}\n#define SC_D {degree}\n{poly_fn}\n{SC_ROUND}", gl_header());
+fn sc_pipelines(c: &Ctx, kernel_src: &str, k: usize, degree: usize) -> Result<(ComputePipelineState, ComputePipelineState), String> {
+    let p0 = sc_pipeline_named(c, kernel_src, k, degree, "k_sc_round0")?;
+    let p1 = sc_pipeline_named(c, kernel_src, k, degree, "k_sc_round")?;
+    Ok((p0, p1))
+}
+
+fn sc_pipeline_named(c: &Ctx, kernel_src: &str, k: usize, degree: usize, name: &str) -> Result<ComputePipelineState, String> {
+    // the generated kernel carries its own k_sc_round (typed per table); the
+    // untyped SC_ROUND template is kept only as documentation of the contract
+    let _ = SC_ROUND;
+    let src = format!("{}{SC_PRELUDE}\n#define SC_K {k}\n#define SC_D {degree}\n{kernel_src}", gl_header());
+    let key = format!("{name}\n{src}");
     let mut cache = c.sc_pipes.lock().map_err(|_| "metal: sumcheck kernel cache poisoned")?;
-    if let Some(p) = cache.get(&src) {
+    if let Some(p) = cache.get(&key) {
         return Ok(p.clone());
     }
     let t = std::time::Instant::now();
     let p = objc::rc::autoreleasepool(|| -> Result<ComputePipelineState, String> {
         let lib = c.device.new_library_with_source(&src, &CompileOptions::new()).map_err(|e| format!("metal sumcheck compile: {e}"))?;
-        let f = lib.get_function("k_sc_round", None).map_err(|e| format!("metal sumcheck function: {e}"))?;
+        let f = lib.get_function(name, None).map_err(|e| format!("metal sumcheck function {name}: {e}"))?;
         c.device.new_compute_pipeline_state_with_function(&f).map_err(|e| format!("metal sumcheck pipeline: {e}"))
     })?;
     SC_COMPILE_NS.fetch_add(t.elapsed().as_nanos() as u64, Ordering::Relaxed);
     if std::env::var("HL_METAL_TIMING").map(|v| v == "1").unwrap_or(false) {
         eprintln!("[ZK60-METAL] compiled a slot kernel ({k} tables, degree {degree}, {} B of source) in {:.3} s", src.len(), t.elapsed().as_secs_f64());
     }
-    cache.insert(src, p.clone());
+    cache.insert(key, p.clone());
     Ok(p)
 }
 
@@ -833,14 +846,21 @@ pub struct MetalRounds {
     len: usize,
     tabs: Buffer,
     coefs: Buffer,
+    /// round 0: typed by field (base tables as one word); rounds 1..: every
+    /// table extension-valued (the first fold makes them so)
+    pipe0: ComputePipelineState,
     pipe: ComputePipelineState,
     next: usize,
     pending: Option<Vec<Fp2>>,
     recover_one: bool,
     unmasked_claim: Option<Fp2>,
+    /// nanoseconds spent in this sumcheck's rounds and folds (diagnostics)
+    busy_ns: std::cell::Cell<u64>,
 }
 
-pub fn metal_rounds(poly_fn: &str, tables: &[Vec<Fp2>], degree: usize, coefs: &[Fp2]) -> Result<MetalRounds, String> {
+/// `Ok(None)`: a table the kernel keeps as a base-field word has a nonzero
+/// imaginary part, so the typed kernel does not apply; the caller keeps the CPU.
+pub fn metal_rounds(kernel_src: &str, tables: &[Vec<Fp2>], degree: usize, coefs: &[Fp2], base: &[bool]) -> Result<Option<MetalRounds>, String> {
     let c = ctx()?;
     if tables.is_empty() || degree == 0 {
         return Err("metal sumcheck: no tables or degree 0".into());
@@ -850,22 +870,45 @@ pub fn metal_rounds(poly_fn: &str, tables: &[Vec<Fp2>], degree: usize, coefs: &[
         return Err("metal sumcheck: table lengths".into());
     }
     let k = tables.len();
-    let pipe = sc_pipeline(c, poly_fn, k, degree)?;
+    if base.len() != k {
+        return Err("metal sumcheck: base flags".into());
+    }
+    let (pipe0, pipe) = sc_pipelines(c, kernel_src, k, degree)?;
+    let t_setup = std::time::Instant::now();
     objc::rc::autoreleasepool(|| {
-        let mut flat: Vec<Fp> = Vec::with_capacity(k * cap * 2);
-        for t in tables {
-            for v in t {
-                flat.push(v.c0);
-                flat.push(v.c1);
+        // the tables straight into shared memory, one table per rayon task
+        let tabs = shared_buffer(c, (k * cap * 16) as u64)?;
+        {
+            // SAFETY: k * cap * 2 u64 of shared, CPU-visible memory, written
+            // once here before any GPU use; tasks write disjoint table ranges.
+            let dst = unsafe { std::slice::from_raw_parts_mut(tabs.contents() as *mut u64, k * cap * 2) };
+            let typed_ok: bool = dst
+                .par_chunks_mut(cap * 2)
+                .zip(tables.par_iter())
+                .zip(base.par_iter())
+                .map(|((d, t), &b)| {
+                    let mut ok = true;
+                    for (pair, v) in d.chunks_exact_mut(2).zip(t.iter()) {
+                        pair[0] = v.c0.0;
+                        pair[1] = v.c1.0;
+                        ok &= !b || v.c1.0 == 0;
+                    }
+                    ok
+                })
+                .reduce(|| true, |a, b| a && b);
+            if !typed_ok {
+                return Ok(None);
             }
         }
-        let tabs = upload(c, &flat)?;
+        if std::env::var("HL_METAL_TIMING").map(|v| v == "1").unwrap_or(false) {
+            eprintln!("[ZK60-METAL] sumcheck setup: {k} tables x 2^{} in {:.4} s", cap.trailing_zeros(), t_setup.elapsed().as_secs_f64());
+        }
         let mut cf: Vec<Fp> = coefs.iter().flat_map(|v| [v.c0, v.c1]).collect();
         if cf.is_empty() {
             cf.push(Fp::ZERO);
         }
         let coefs = upload(c, &cf)?;
-        Ok(MetalRounds {
+        Ok(Some(MetalRounds {
             k,
             n_vars: cap.trailing_zeros() as usize,
             degree,
@@ -873,12 +916,14 @@ pub fn metal_rounds(poly_fn: &str, tables: &[Vec<Fp2>], degree: usize, coefs: &[
             len: cap,
             tabs,
             coefs,
+            pipe0,
             pipe,
             next: 0,
             pending: None,
             recover_one: false,
             unmasked_claim: None,
-        })
+            busy_ns: std::cell::Cell::new(0),
+        }))
     })
 }
 
@@ -919,37 +964,53 @@ impl zkp_core::sumcheck::SumcheckRounds for MetalRounds {
         let half = self.len / 2;
         let claim = if self.recover_one { self.unmasked_claim } else { None };
         let eval_one = claim.is_none();
-        let nthreads = half.min(1 << 16).max(1);
+        // threads per round: HL_METAL_SC_THREADS (log2, default 15) caps it
+        let cap_log: u32 = std::env::var("HL_METAL_SC_THREADS").ok().and_then(|v| v.parse().ok()).unwrap_or(15).clamp(8, 22);
+        let per: usize = std::env::var("HL_METAL_SC_PER").ok().and_then(|v| v.parse().ok()).unwrap_or(4).max(1);
+        let nthreads = (half / per).clamp(1, 1 << cap_log);
         let d1 = self.degree + 1;
         let sums = objc::rc::autoreleasepool(|| {
             let part = shared_buffer(c, (nthreads * d1 * 16) as u64).expect("metal sumcheck partials");
+            let pipe = if j == 0 { &self.pipe0 } else { &self.pipe };
             run(c, |enc| {
-                enc.set_compute_pipeline_state(&self.pipe);
+                enc.set_compute_pipeline_state(pipe);
                 enc.set_buffer(0, Some(&self.tabs), 0);
                 enc.set_buffer(1, Some(&part), 0);
                 enc.set_buffer(2, Some(&self.coefs), 0);
                 set_args(enc, 3, &RoundArgs { half: half as u64, cap: self.cap as u64, eval_one: eval_one as u32, nthreads: nthreads as u32 });
-                let tg = self.pipe.max_total_threads_per_threadgroup().min(256).min(nthreads as u64);
+                let tg = pipe.max_total_threads_per_threadgroup().min(256).min(nthreads as u64);
                 enc.dispatch_threads(MTLSize::new(nthreads as u64, 1, 1), MTLSize::new(tg, 1, 1));
                 Ok(())
             })
             .expect("metal sumcheck round");
             let p = as_u64s(&part, nthreads * d1 * 2);
-            let mut sums = vec![Fp2::ZERO; d1];
-            for th in 0..nthreads {
-                for (d, s) in sums.iter_mut().enumerate() {
-                    let o = (th * d1 + d) * 2;
-                    *s = s.add(Fp2::new(Fp(p[o]), Fp(p[o + 1])));
-                }
-            }
-            sums
+            // parallel over thread blocks; field addition is exact, so the
+            // grouping does not change the sums
+            p.par_chunks(4096 * d1 * 2)
+                .map(|blk| {
+                    let mut acc = vec![Fp2::ZERO; d1];
+                    for th in blk.chunks_exact(d1 * 2) {
+                        for (d, s) in acc.iter_mut().enumerate() {
+                            *s = s.add(Fp2::new(Fp(th[2 * d]), Fp(th[2 * d + 1])));
+                        }
+                    }
+                    acc
+                })
+                .reduce(|| vec![Fp2::ZERO; d1], |mut a, b| {
+                    for (x, y) in a.iter_mut().zip(b.iter()) {
+                        *x = x.add(*y);
+                    }
+                    a
+                })
         });
         let mut sums = sums;
         if let Some(claim) = claim {
             sums[1] = claim.sub(sums[0]);
         }
         self.pending = Some(sums.clone());
-        SC_ROUND_NS.fetch_add(t0.elapsed().as_nanos() as u64, Ordering::Relaxed);
+        let ns = t0.elapsed().as_nanos() as u64;
+        SC_ROUND_NS.fetch_add(ns, Ordering::Relaxed);
+        self.busy_ns.set(self.busy_ns.get() + ns);
         sums
     }
 
@@ -972,12 +1033,17 @@ impl zkp_core::sumcheck::SumcheckRounds for MetalRounds {
         });
         self.len = half;
         self.next += 1;
-        SC_ROUND_NS.fetch_add(t0.elapsed().as_nanos() as u64, Ordering::Relaxed);
+        let ns = t0.elapsed().as_nanos() as u64;
+        SC_ROUND_NS.fetch_add(ns, Ordering::Relaxed);
+        self.busy_ns.set(self.busy_ns.get() + ns);
     }
 
     fn finals(&self) -> Vec<Fp2> {
         assert_eq!(self.next, self.n_vars, "finals need all folds");
         assert!(self.pending.is_none());
+        if std::env::var("HL_METAL_TIMING").map(|v| v == "1").unwrap_or(false) {
+            eprintln!("[ZK60-METAL] sumcheck rounds: {} tables, {} rounds, degree {} in {:.4} s", self.k, self.n_vars, self.degree, self.busy_ns.get() as f64 * 1e-9);
+        }
         self.finals_inner()
     }
 }

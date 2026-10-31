@@ -1,0 +1,55 @@
+
+running 1 test
+[ZK60-METAL] commit 1871 x 2^14 -> 2^16: setup 0.013 s, gpu total 0.058 s (inverse 0.008, init 0.000, forward 0.030, hash 0.003)
+[ZK60-METAL] commit 2026 x 2^14 -> 2^16: setup 0.014 s, gpu total 0.049 s (inverse 0.008, init 0.000, forward 0.031, hash 0.003)
+[ZK60-METAL] argument: prove=true accuracy_none=true legacy_stack=true gpu_enabled=true -> metal_on=true (TinyLlama-1.1B block geometry, trained calibration, DD (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads, 32-slot division dictionary))
+[ZK60-METAL] compiled a slot kernel (2 tables, degree 3, 5156 B of source) in 0.033 s
+[ZK60-METAL] sumcheck setup: 2 tables x 2^18 in 0.0004 s
+[ZK60-METAL] sumcheck rounds: 2 tables, 18 rounds, degree 3 in 0.0143 s
+[ZK60-METAL] compiled a slot kernel (2 tables, degree 3, 5157 B of source) in 0.011 s
+[ZK60-METAL] sumcheck setup: 2 tables x 2^18 in 0.0004 s
+[ZK60-METAL] sumcheck rounds: 2 tables, 18 rounds, degree 3 in 0.0106 s
+[ZK60-METAL] compiled a slot kernel (4 tables, degree 3, 5539 B of source) in 0.014 s
+[ZK60-METAL] sumcheck setup: 4 tables x 2^19 in 0.0012 s
+[ZK60-METAL] sumcheck rounds: 4 tables, 19 rounds, degree 3 in 0.0147 s
+[ZK60-METAL] compiled a slot kernel (59 tables, degree 4, 23556 B of source) in 0.118 s
+[ZK60-METAL] sumcheck setup: 59 tables x 2^18 in 0.0206 s
+[ZK60-METAL] sumcheck rounds: 59 tables, 18 rounds, degree 4 in 0.0788 s
+[ZK60-METAL] compiled a slot kernel (20 tables, degree 4, 11086 B of source) in 0.044 s
+[ZK60-METAL] sumcheck setup: 20 tables x 2^18 in 0.0053 s
+[ZK60-METAL] sumcheck rounds: 20 tables, 18 rounds, degree 4 in 0.0315 s
+[ZK60-METAL] compiled a slot kernel (18 tables, degree 4, 10468 B of source) in 0.041 s
+[ZK60-METAL] sumcheck setup: 18 tables x 2^15 in 0.0008 s
+[ZK60-METAL] sumcheck rounds: 18 tables, 15 rounds, degree 4 in 0.0240 s
+[ZK60-METAL] slot 17: the IR does not match this profile's closure; this slot runs on the CPU
+[ZK60-METAL] compiled a slot kernel (21 tables, degree 5, 11779 B of source) in 0.065 s
+[ZK60-METAL] sumcheck setup: 21 tables x 2^20 in 0.0252 s
+[ZK60-METAL] sumcheck rounds: 21 tables, 20 rounds, degree 5 in 0.0526 s
+[ZK60-METAL] compiled a slot kernel (3 tables, degree 2, 5345 B of source) in 0.011 s
+[ZK60-METAL] sumcheck setup: 3 tables x 2^18 in 0.0005 s
+[ZK60-METAL] sumcheck rounds: 3 tables, 18 rounds, degree 2 in 0.0177 s
+[ZK60-METAL] compiled a slot kernel (3 tables, degree 2, 5346 B of source) in 0.010 s
+[ZK60-METAL] sumcheck setup: 3 tables x 2^18 in 0.0005 s
+[ZK60-METAL] sumcheck rounds: 3 tables, 18 rounds, degree 2 in 0.0101 s
+[ZK60-METAL] slot 23: no IR (private block IR: unknown slot)
+[ZK60-METAL] store fold: 39 rho x 1871 rows x 16384 cols (zk data) in 0.0089 s
+[ZK60-METAL] store columns: 256 x 1871 rows in 0.0065 s
+[ZK60-METAL] store fold: 11 rho x 2026 rows x 16384 cols (zk data) in 0.0113 s
+[ZK60-METAL] store columns: 256 x 2026 rows in 0.0106 s
+R12-GOLDEN hashline-zk-mr1/private-block-tinyllama-1.1b-t128-trained-ddict/1: 24 slots, 72 absorbs, debug text 83302036 B
+R12-GOLDEN-DIGEST tinyllama-t128-dd 39a00ee00edca26576a53b85dc97e1bf24031c275cf51acce963a78c76f9654d
+
+thread 'private_block::r12_golden_tests::r12_golden_seeded_tinyllama_t128_dd_block_is_byte_identical' (477067) panicked at src/private_block/r12_golden_tests.rs:79:5:
+assertion `left == right` failed: tinyllama-t128-dd: the seeded core proof's bytes moved between R9 and R12
+  left: "39a00ee00edca26576a53b85dc97e1bf24031c275cf51acce963a78c76f9654d"
+ right: "e50e71f86ab64c6f4d69c6bee1ec7881feef75b1dc4c3972e20a6810c4428324"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test private_block::r12_golden_tests::r12_golden_seeded_tinyllama_t128_dd_block_is_byte_identical ... FAILED
+
+failures:
+
+failures:
+    private_block::r12_golden_tests::r12_golden_seeded_tinyllama_t128_dd_block_is_byte_identical
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 897 filtered out; finished in 2.91s
+

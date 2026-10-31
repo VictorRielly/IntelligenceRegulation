@@ -1,0 +1,46 @@
+
+running 1 test
+R12-GOLDEN 8B bands Bands { attn: 6, gate: 8, down: 2, gains: (40, 127), xmag: 6000 }
+[ZK60-METAL] commit 3405 x 2^14 -> 2^16: setup 0.023 s, gpu total 0.096 s (inverse 0.014, init 0.000, forward 0.053, hash 0.004)
+[ZK60-METAL] commit 3790 x 2^14 -> 2^16: setup 0.026 s, gpu total 0.084 s (inverse 0.015, init 0.000, forward 0.059, hash 0.005)
+[ZK60-METAL] argument: prove=true accuracy_none=true legacy_stack=true gpu_enabled=true -> metal_on=true (Llama-3-8B block geometry, trained calibration (T128 / d4096 / f14336, 32 heads of 128 over 8 KV heads))
+[ZK60-METAL] compiled a slot kernel (2 tables, degree 3, 5120 B of source) in 0.000 s
+[ZK60-METAL] sumcheck setup: 2 tables x 2^19 in 0.0008 s
+[ZK60-METAL] sumcheck rounds: 2 tables, 19 rounds, degree 3 in 0.0176 s
+[ZK60-METAL] compiled a slot kernel (2 tables, degree 3, 5121 B of source) in 0.000 s
+[ZK60-METAL] sumcheck setup: 2 tables x 2^19 in 0.0007 s
+[ZK60-METAL] sumcheck rounds: 2 tables, 19 rounds, degree 3 in 0.0102 s
+[ZK60-METAL] compiled a slot kernel (4 tables, degree 3, 5227 B of source) in 0.000 s
+[ZK60-METAL] sumcheck setup: 4 tables x 2^19 in 0.0014 s
+[ZK60-METAL] sumcheck rounds: 4 tables, 19 rounds, degree 3 in 0.0114 s
+[ZK60-METAL] compiled a slot kernel (59 tables, degree 4, 14706 B of source) in 0.001 s
+[ZK60-METAL] sumcheck setup: 59 tables x 2^19 in 0.0410 s
+[ZK60-METAL] sumcheck rounds: 59 tables, 19 rounds, degree 4 in 0.2067 s
+[ZK60-METAL] compiled a slot kernel (20 tables, degree 4, 8028 B of source) in 0.000 s
+[ZK60-METAL] sumcheck setup: 20 tables x 2^19 in 0.0104 s
+[ZK60-METAL] sumcheck rounds: 20 tables, 19 rounds, degree 4 in 0.0488 s
+[ZK60-METAL] compiled a slot kernel (18 tables, degree 4, 7751 B of source) in 0.000 s
+[ZK60-METAL] sumcheck setup: 18 tables x 2^17 in 0.0025 s
+[ZK60-METAL] sumcheck rounds: 18 tables, 17 rounds, degree 4 in 0.0318 s
+[ZK60-METAL] compiled a slot kernel (25 tables, degree 4, 9307 B of source) in 0.000 s
+[ZK60-METAL] sumcheck setup: 25 tables x 2^19 in 0.0132 s
+[ZK60-METAL] sumcheck rounds: 25 tables, 19 rounds, degree 4 in 0.0705 s
+[ZK60-METAL] compiled a slot kernel (21 tables, degree 5, 8667 B of source) in 0.000 s
+[ZK60-METAL] sumcheck setup: 21 tables x 2^21 in 0.0471 s
+[ZK60-METAL] sumcheck rounds: 21 tables, 21 rounds, degree 5 in 0.1565 s
+[ZK60-METAL] compiled a slot kernel (3 tables, degree 2, 5186 B of source) in 0.000 s
+[ZK60-METAL] sumcheck setup: 3 tables x 2^19 in 0.0008 s
+[ZK60-METAL] sumcheck rounds: 3 tables, 19 rounds, degree 2 in 0.0212 s
+[ZK60-METAL] compiled a slot kernel (3 tables, degree 2, 5187 B of source) in 0.000 s
+[ZK60-METAL] sumcheck setup: 3 tables x 2^19 in 0.0008 s
+[ZK60-METAL] sumcheck rounds: 3 tables, 19 rounds, degree 2 in 0.0123 s
+[ZK60-METAL] store fold: 37 rho x 3405 rows x 16384 cols (zk data) in 0.0150 s
+[ZK60-METAL] store columns: 256 x 3405 rows in 0.0133 s
+[ZK60-METAL] store fold: 10 rho x 3790 rows x 16384 cols (zk data) in 0.0177 s
+[ZK60-METAL] store columns: 256 x 3790 rows in 0.0165 s
+R12-GOLDEN hashline-zk-mr1/private-block-llama-3-8b-t128-trained/1: 23 slots, 69 absorbs, debug text 101397813 B
+R12-GOLDEN-DIGEST llama3-8b-t128 05a22d72a892aff5fb2e35da4d0ab0c894d696f2e6afa542b6ecece5aeb9f4db
+test private_block::r12_golden_tests::r12_golden_seeded_llama3_8b_t128_block_is_byte_identical ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 897 filtered out; finished in 4.11s
+

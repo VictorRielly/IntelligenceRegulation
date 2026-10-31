@@ -128,7 +128,7 @@ pub(crate) struct SlotDef {
     /// challenge or absorb of the real transcript moves). Only set on the prove
     /// side with HL_GPU=1; `None` keeps the CPU evaluator.
     #[cfg(feature = "gpu-metal")]
-    pub(crate) metal: Option<(String, Vec<Fp2>)>,
+    pub(crate) metal: Option<(String, Vec<Fp2>, Vec<bool>)>,
     /// **STEP C.** The slot schedule this definition was built against, so
     /// that `run_slot` reads the SHAPE's `(main, ext, degree)` and terminal
     /// counts instead of the toy constants. At the toy it is `Shape::toy()`
@@ -609,9 +609,15 @@ pub(crate) fn run_slot(side: &mut Side, acc: &mut Acc, mut def: SlotDef, tr: &mu
                 // the grouped path), the same driver. A decline runs the CPU.
                 #[cfg(feature = "gpu-metal")]
                 let metal_result = match &def.metal {
-                    Some((src, cf)) if tables.len() << n >= METAL_MIN_TERMS => {
-                        match crate::gpu::metal_rounds(src, &tables, degree, cf) {
-                            Ok(ev) => {
+                    Some((src, cf, base)) if tables.len() << n >= METAL_MIN_TERMS => {
+                        match crate::gpu::metal_rounds(src, &tables, degree, cf, base) {
+                            Ok(None) => {
+                                // a base-typed table is not base-field here:
+                                // the typed kernel does not apply, CPU slot
+                                super::metal_slot::note_cpu_slot(s, std::env::var("HL_METAL_TIMING").map(|v| v == "1").unwrap_or(false));
+                                None
+                            }
+                            Ok(Some(ev)) => {
                                 let mut ev = if def.groups.is_some() { ev } else { ev.recover_one(unmasked_claim) };
                                 let r = crate::zk::masked_prove_rounds(&mut ev, mask, c, tr);
                                 tables = ev.final_tables();
@@ -2249,7 +2255,8 @@ pub(crate) fn argument(side: &mut Side, ctx: &Ctx, tr: &mut Transcript, ph: &mut
             // survives a point with probability <= deg/|F|). The points come
             // from a local generator, never from the proof's randomness.
             if ir.tables.len() == def.tabs.len() && super::metal_slot::ir_matches_closure(&ir, &*def.poly, slot) {
-                def.metal = Some(super::metal_slot::msl_poly(&ir));
+                let (k0, k1, cf, base) = super::metal_slot::msl_round_kernels(&ir);
+                def.metal = Some((format!("{k0}\n{k1}"), cf, base));
             } else {
                 // NOT a device decline: this slot has no device path at this
                 // profile (the IR models the legacy slot set; a DD profile

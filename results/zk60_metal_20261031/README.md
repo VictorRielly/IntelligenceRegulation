@@ -93,12 +93,21 @@ These are block diagnostics: no full-stack Mac run exists yet (the 8B exports st
 |---|---:|
 | Mac CPU, 32 threads | 4.663 s |
 | Metal commitments | 4.348 s |
-| **Metal commitments + zero-checks** | **2.621 s** |
+| Metal commitments + zero-checks (M3) | 2.621 s |
+| **+ round 0 typed by field (M3b)** | **2.195 s** |
 | laptop, 16 threads (historical, per block of the 32-block stack) | ~12.3 s |
 
 Slot 14 (D) 0.93 -> 0.24 s, 18 (F) 0.60 -> 0.24, 17 (softmax) 0.37 -> 0.09, 15 (Q) 0.31 -> 0.07, 16 (KV)
 0.17 -> 0.03 (masked sumcheck sub-step). What remains on the CPU: the H helper inverses (~0.3 s), the
 extension rounds (~0.33 s), witness planes and mask rows, the openings.
+
+### M3b: round 0 typed by field
+
+The round-0 kernel keeps every base-field table (by IR provenance, checked `c1 = 0` on upload) as one word
+and types each expression, so a product with a base operand costs 2 or 1 field multiplications instead of 5.
+Rounds 1.. use an all-extension kernel: **the first fold makes every table extension-valued.** A first
+version typed every round and moved the golden digests (caught by the gate, never committed). Slot 18
+0.164 -> 0.077 s, slot 14 0.194 -> 0.147 s (device rounds). Golden gate 4 / 4 with device evidence.
 
 ## Open items
 

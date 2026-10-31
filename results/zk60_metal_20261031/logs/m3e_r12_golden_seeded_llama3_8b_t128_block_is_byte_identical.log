@@ -1,0 +1,56 @@
+
+running 1 test
+R12-GOLDEN 8B bands Bands { attn: 6, gate: 8, down: 2, gains: (40, 127), xmag: 6000 }
+[ZK60-METAL] commit 3405 x 2^14 -> 2^16: setup 0.023 s, gpu total 0.092 s (inverse 0.015, init 0.000, forward 0.054, hash 0.005)
+[ZK60-METAL] commit 3790 x 2^14 -> 2^16: setup 0.026 s, gpu total 0.083 s (inverse 0.016, init 0.000, forward 0.058, hash 0.005)
+[ZK60-METAL] argument: prove=true accuracy_none=true legacy_stack=true gpu_enabled=true -> metal_on=true (Llama-3-8B block geometry, trained calibration (T128 / d4096 / f14336, 32 heads of 128 over 8 KV heads))
+[ZK60-METAL] compiled a slot kernel (2 tables, degree 3, 6744 B of source) in 0.072 s
+[ZK60-METAL] compiled a slot kernel (2 tables, degree 3, 6744 B of source) in 0.048 s
+[ZK60-METAL] sumcheck setup: 2 tables x 2^19 in 0.0009 s
+[ZK60-METAL] sumcheck rounds: 2 tables, 19 rounds, degree 3 in 0.0426 s
+[ZK60-METAL] compiled a slot kernel (2 tables, degree 3, 6746 B of source) in 0.017 s
+[ZK60-METAL] compiled a slot kernel (2 tables, degree 3, 6746 B of source) in 0.000 s
+[ZK60-METAL] sumcheck setup: 2 tables x 2^19 in 0.0007 s
+[ZK60-METAL] sumcheck rounds: 2 tables, 19 rounds, degree 3 in 0.0145 s
+[ZK60-METAL] compiled a slot kernel (4 tables, degree 3, 7686 B of source) in 0.063 s
+[ZK60-METAL] compiled a slot kernel (4 tables, degree 3, 7686 B of source) in 0.081 s
+[ZK60-METAL] sumcheck setup: 4 tables x 2^19 in 0.0012 s
+[ZK60-METAL] sumcheck rounds: 4 tables, 19 rounds, degree 3 in 0.0274 s
+[ZK60-METAL] compiled a slot kernel (59 tables, degree 4, 46916 B of source) in 1.579 s
+[ZK60-METAL] compiled a slot kernel (59 tables, degree 4, 46916 B of source) in 2.044 s
+[ZK60-METAL] sumcheck setup: 59 tables x 2^19 in 0.0393 s
+[ZK60-METAL] sumcheck rounds: 59 tables, 19 rounds, degree 4 in 0.1466 s
+[ZK60-METAL] compiled a slot kernel (20 tables, degree 4, 19397 B of source) in 0.397 s
+[ZK60-METAL] compiled a slot kernel (20 tables, degree 4, 19397 B of source) in 0.402 s
+[ZK60-METAL] sumcheck setup: 20 tables x 2^19 in 0.0102 s
+[ZK60-METAL] sumcheck rounds: 20 tables, 19 rounds, degree 4 in 0.0423 s
+[ZK60-METAL] compiled a slot kernel (18 tables, degree 4, 18071 B of source) in 0.356 s
+[ZK60-METAL] compiled a slot kernel (18 tables, degree 4, 18071 B of source) in 0.360 s
+[ZK60-METAL] sumcheck setup: 18 tables x 2^17 in 0.0023 s
+[ZK60-METAL] sumcheck rounds: 18 tables, 17 rounds, degree 4 in 0.0326 s
+[ZK60-METAL] compiled a slot kernel (25 tables, degree 4, 23463 B of source) in 0.520 s
+[ZK60-METAL] compiled a slot kernel (25 tables, degree 4, 23463 B of source) in 0.620 s
+[ZK60-METAL] sumcheck setup: 25 tables x 2^19 in 0.0130 s
+[ZK60-METAL] sumcheck rounds: 25 tables, 19 rounds, degree 4 in 0.0560 s
+[ZK60-METAL] compiled a slot kernel (21 tables, degree 5, 20933 B of source) in 0.490 s
+[ZK60-METAL] compiled a slot kernel (21 tables, degree 5, 20933 B of source) in 0.603 s
+[ZK60-METAL] sumcheck setup: 21 tables x 2^21 in 0.0417 s
+[ZK60-METAL] sumcheck rounds: 21 tables, 21 rounds, degree 5 in 0.0765 s
+[ZK60-METAL] compiled a slot kernel (3 tables, degree 2, 7206 B of source) in 0.035 s
+[ZK60-METAL] compiled a slot kernel (3 tables, degree 2, 7206 B of source) in 0.028 s
+[ZK60-METAL] sumcheck setup: 3 tables x 2^19 in 0.0009 s
+[ZK60-METAL] sumcheck rounds: 3 tables, 19 rounds, degree 2 in 0.0228 s
+[ZK60-METAL] compiled a slot kernel (3 tables, degree 2, 7208 B of source) in 0.016 s
+[ZK60-METAL] compiled a slot kernel (3 tables, degree 2, 7208 B of source) in 0.000 s
+[ZK60-METAL] sumcheck setup: 3 tables x 2^19 in 0.0008 s
+[ZK60-METAL] sumcheck rounds: 3 tables, 19 rounds, degree 2 in 0.0121 s
+[ZK60-METAL] store fold: 37 rho x 3405 rows x 16384 cols (zk data) in 0.0149 s
+[ZK60-METAL] store columns: 256 x 3405 rows in 0.0114 s
+[ZK60-METAL] store fold: 10 rho x 3790 rows x 16384 cols (zk data) in 0.0190 s
+[ZK60-METAL] store columns: 256 x 3790 rows in 0.0164 s
+R12-GOLDEN hashline-zk-mr1/private-block-llama-3-8b-t128-trained/1: 23 slots, 69 absorbs, debug text 101397813 B
+R12-GOLDEN-DIGEST llama3-8b-t128 05a22d72a892aff5fb2e35da4d0ab0c894d696f2e6afa542b6ecece5aeb9f4db
+test private_block::r12_golden_tests::r12_golden_seeded_llama3_8b_t128_block_is_byte_identical ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 897 filtered out; finished in 11.68s
+

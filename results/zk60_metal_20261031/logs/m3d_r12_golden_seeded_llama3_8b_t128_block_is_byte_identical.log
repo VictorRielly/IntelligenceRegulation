@@ -1,0 +1,57 @@
+
+running 1 test
+R12-GOLDEN 8B bands Bands { attn: 6, gate: 8, down: 2, gains: (40, 127), xmag: 6000 }
+[ZK60-METAL] commit 3405 x 2^14 -> 2^16: setup 0.023 s, gpu total 0.091 s (inverse 0.015, init 0.000, forward 0.054, hash 0.004)
+[ZK60-METAL] commit 3790 x 2^14 -> 2^16: setup 0.025 s, gpu total 0.085 s (inverse 0.016, init 0.000, forward 0.059, hash 0.005)
+[ZK60-METAL] argument: prove=true accuracy_none=true legacy_stack=true gpu_enabled=true -> metal_on=true (Llama-3-8B block geometry, trained calibration (T128 / d4096 / f14336, 32 heads of 128 over 8 KV heads))
+[ZK60-METAL] compiled a slot kernel (2 tables, degree 3, 5146 B of source) in 0.066 s
+[ZK60-METAL] sumcheck setup: 2 tables x 2^19 in 0.0008 s
+[ZK60-METAL] sumcheck rounds: 2 tables, 19 rounds, degree 3 in 0.0173 s
+[ZK60-METAL] compiled a slot kernel (2 tables, degree 3, 5147 B of source) in 0.012 s
+[ZK60-METAL] sumcheck setup: 2 tables x 2^19 in 0.0008 s
+[ZK60-METAL] sumcheck rounds: 2 tables, 19 rounds, degree 3 in 0.0118 s
+[ZK60-METAL] compiled a slot kernel (4 tables, degree 3, 5529 B of source) in 0.060 s
+[ZK60-METAL] sumcheck setup: 4 tables x 2^19 in 0.0011 s
+[ZK60-METAL] sumcheck rounds: 4 tables, 19 rounds, degree 3 in 0.0156 s
+[ZK60-METAL] compiled a slot kernel (59 tables, degree 4, 23546 B of source) in 1.410 s
+[ZK60-METAL] sumcheck setup: 59 tables x 2^19 in 0.0395 s
+[ZK60-METAL] sumcheck rounds: 59 tables, 19 rounds, degree 4 in 0.1045 s
+[ZK60-METAL] compiled a slot kernel (20 tables, degree 4, 11076 B of source) in 0.346 s
+[ZK60-METAL] sumcheck setup: 20 tables x 2^19 in 0.0099 s
+[ZK60-METAL] sumcheck rounds: 20 tables, 19 rounds, degree 4 in 0.0372 s
+[ZK60-METAL] compiled a slot kernel (18 tables, degree 4, 10458 B of source) in 0.314 s
+[ZK60-METAL] sumcheck setup: 18 tables x 2^17 in 0.0023 s
+[ZK60-METAL] sumcheck rounds: 18 tables, 17 rounds, degree 4 in 0.0352 s
+[ZK60-METAL] compiled a slot kernel (25 tables, degree 4, 12945 B of source) in 0.455 s
+[ZK60-METAL] sumcheck setup: 25 tables x 2^19 in 0.0131 s
+[ZK60-METAL] sumcheck rounds: 25 tables, 19 rounds, degree 4 in 0.0398 s
+[ZK60-METAL] compiled a slot kernel (21 tables, degree 5, 11769 B of source) in 0.427 s
+[ZK60-METAL] sumcheck setup: 21 tables x 2^21 in 0.0413 s
+[ZK60-METAL] sumcheck rounds: 21 tables, 21 rounds, degree 5 in 0.0671 s
+[ZK60-METAL] compiled a slot kernel (3 tables, degree 2, 5335 B of source) in 0.028 s
+[ZK60-METAL] sumcheck setup: 3 tables x 2^19 in 0.0008 s
+[ZK60-METAL] sumcheck rounds: 3 tables, 19 rounds, degree 2 in 0.0143 s
+[ZK60-METAL] compiled a slot kernel (3 tables, degree 2, 5336 B of source) in 0.011 s
+[ZK60-METAL] sumcheck setup: 3 tables x 2^19 in 0.0008 s
+[ZK60-METAL] sumcheck rounds: 3 tables, 19 rounds, degree 2 in 0.0148 s
+[ZK60-METAL] store fold: 37 rho x 3405 rows x 16384 cols (zk data) in 0.0156 s
+[ZK60-METAL] store columns: 256 x 3405 rows in 0.0113 s
+[ZK60-METAL] store fold: 10 rho x 3790 rows x 16384 cols (zk data) in 0.0195 s
+[ZK60-METAL] store columns: 256 x 3790 rows in 0.0160 s
+R12-GOLDEN hashline-zk-mr1/private-block-llama-3-8b-t128-trained/1: 23 slots, 69 absorbs, debug text 101398269 B
+R12-GOLDEN-DIGEST llama3-8b-t128 5b71578636f0490be8beb5da60948ea2f55de1f61597e35036bd70d16e2de106
+
+thread 'private_block::r12_golden_tests::r12_golden_seeded_llama3_8b_t128_block_is_byte_identical' (476849) panicked at src/private_block/r12_golden_tests.rs:79:5:
+assertion `left == right` failed: llama3-8b-t128: the seeded core proof's bytes moved between R9 and R12
+  left: "5b71578636f0490be8beb5da60948ea2f55de1f61597e35036bd70d16e2de106"
+ right: "05a22d72a892aff5fb2e35da4d0ab0c894d696f2e6afa542b6ecece5aeb9f4db"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test private_block::r12_golden_tests::r12_golden_seeded_llama3_8b_t128_block_is_byte_identical ... FAILED
+
+failures:
+
+failures:
+    private_block::r12_golden_tests::r12_golden_seeded_llama3_8b_t128_block_is_byte_identical
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 897 filtered out; finished in 6.96s
+

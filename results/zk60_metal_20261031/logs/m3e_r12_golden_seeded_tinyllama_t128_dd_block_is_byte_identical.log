@@ -1,0 +1,53 @@
+
+running 1 test
+[ZK60-METAL] commit 1871 x 2^14 -> 2^16: setup 0.013 s, gpu total 0.054 s (inverse 0.008, init 0.000, forward 0.030, hash 0.003)
+[ZK60-METAL] commit 2026 x 2^14 -> 2^16: setup 0.014 s, gpu total 0.048 s (inverse 0.008, init 0.000, forward 0.032, hash 0.003)
+[ZK60-METAL] argument: prove=true accuracy_none=true legacy_stack=true gpu_enabled=true -> metal_on=true (TinyLlama-1.1B block geometry, trained calibration, DD (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads, 32-slot division dictionary))
+[ZK60-METAL] compiled a slot kernel (2 tables, degree 3, 6764 B of source) in 0.039 s
+[ZK60-METAL] compiled a slot kernel (2 tables, degree 3, 6764 B of source) in 0.000 s
+[ZK60-METAL] sumcheck setup: 2 tables x 2^18 in 0.0004 s
+[ZK60-METAL] sumcheck rounds: 2 tables, 18 rounds, degree 3 in 0.0151 s
+[ZK60-METAL] compiled a slot kernel (2 tables, degree 3, 6766 B of source) in 0.016 s
+[ZK60-METAL] compiled a slot kernel (2 tables, degree 3, 6766 B of source) in 0.000 s
+[ZK60-METAL] sumcheck setup: 2 tables x 2^18 in 0.0004 s
+[ZK60-METAL] sumcheck rounds: 2 tables, 18 rounds, degree 3 in 0.0131 s
+[ZK60-METAL] compiled a slot kernel (4 tables, degree 3, 7706 B of source) in 0.018 s
+[ZK60-METAL] compiled a slot kernel (4 tables, degree 3, 7706 B of source) in 0.000 s
+[ZK60-METAL] sumcheck setup: 4 tables x 2^19 in 0.0011 s
+[ZK60-METAL] sumcheck rounds: 4 tables, 19 rounds, degree 3 in 0.0147 s
+[ZK60-METAL] compiled a slot kernel (59 tables, degree 4, 46936 B of source) in 0.269 s
+[ZK60-METAL] compiled a slot kernel (59 tables, degree 4, 46936 B of source) in 0.000 s
+[ZK60-METAL] sumcheck setup: 59 tables x 2^18 in 0.0221 s
+[ZK60-METAL] sumcheck rounds: 59 tables, 18 rounds, degree 4 in 0.1101 s
+[ZK60-METAL] compiled a slot kernel (20 tables, degree 4, 19417 B of source) in 0.087 s
+[ZK60-METAL] compiled a slot kernel (20 tables, degree 4, 19417 B of source) in 0.000 s
+[ZK60-METAL] sumcheck setup: 20 tables x 2^18 in 0.0054 s
+[ZK60-METAL] sumcheck rounds: 20 tables, 18 rounds, degree 4 in 0.0364 s
+[ZK60-METAL] compiled a slot kernel (18 tables, degree 4, 18091 B of source) in 0.079 s
+[ZK60-METAL] compiled a slot kernel (18 tables, degree 4, 18091 B of source) in 0.000 s
+[ZK60-METAL] sumcheck setup: 18 tables x 2^15 in 0.0009 s
+[ZK60-METAL] sumcheck rounds: 18 tables, 15 rounds, degree 4 in 0.0251 s
+[ZK60-METAL] slot 17: the IR does not match this profile's closure; this slot runs on the CPU
+[ZK60-METAL] compiled a slot kernel (21 tables, degree 5, 20953 B of source) in 0.114 s
+[ZK60-METAL] compiled a slot kernel (21 tables, degree 5, 20953 B of source) in 0.000 s
+[ZK60-METAL] sumcheck setup: 21 tables x 2^20 in 0.0262 s
+[ZK60-METAL] sumcheck rounds: 21 tables, 20 rounds, degree 5 in 0.0660 s
+[ZK60-METAL] compiled a slot kernel (3 tables, degree 2, 7226 B of source) in 0.017 s
+[ZK60-METAL] compiled a slot kernel (3 tables, degree 2, 7226 B of source) in 0.000 s
+[ZK60-METAL] sumcheck setup: 3 tables x 2^18 in 0.0005 s
+[ZK60-METAL] sumcheck rounds: 3 tables, 18 rounds, degree 2 in 0.0144 s
+[ZK60-METAL] compiled a slot kernel (3 tables, degree 2, 7228 B of source) in 0.016 s
+[ZK60-METAL] compiled a slot kernel (3 tables, degree 2, 7228 B of source) in 0.000 s
+[ZK60-METAL] sumcheck setup: 3 tables x 2^18 in 0.0005 s
+[ZK60-METAL] sumcheck rounds: 3 tables, 18 rounds, degree 2 in 0.0125 s
+[ZK60-METAL] slot 23: no IR (private block IR: unknown slot)
+[ZK60-METAL] store fold: 39 rho x 1871 rows x 16384 cols (zk data) in 0.0079 s
+[ZK60-METAL] store columns: 256 x 1871 rows in 0.0066 s
+[ZK60-METAL] store fold: 11 rho x 2026 rows x 16384 cols (zk data) in 0.0117 s
+[ZK60-METAL] store columns: 256 x 2026 rows in 0.0092 s
+R12-GOLDEN hashline-zk-mr1/private-block-tinyllama-1.1b-t128-trained-ddict/1: 24 slots, 72 absorbs, debug text 83300975 B
+R12-GOLDEN-DIGEST tinyllama-t128-dd e50e71f86ab64c6f4d69c6bee1ec7881feef75b1dc4c3972e20a6810c4428324
+test private_block::r12_golden_tests::r12_golden_seeded_tinyllama_t128_dd_block_is_byte_identical ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 897 filtered out; finished in 3.28s
+
