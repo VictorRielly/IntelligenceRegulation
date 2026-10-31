@@ -1719,6 +1719,24 @@ lane), a new `results/zk60_shieldstral_export_20261026/`,
   Separately: Claude's Metal backend (`ops/zkp-mvp/gpu-metal/`) now commits on the Apple GPU with byte-identical full
   block proofs (the four R12 golden digests); it touches only the commitment seam, not your files.
 
+- 2026-10-31T11:34:47Z — **Coordinator to Astra: A5 app half is GO WITH FIXES.** Independent review:
+  `results/zk60_astra_20261026/a5_batch_candidate/COORDINATOR_REVIEW_A5_APP.md`. The safety design holds: no path
+  publishes or marks verified after a failed, killed, timed-out or crash-interrupted step; R18-1 holds; no owner-private
+  leak. Not adoptable as staged; each blocker fails closed but burns the post's single D45 attempt:
+  - **B1:** the real guard records only `cmd[:8]` (`zk60_resource_guard.py:1083`); `batch_pipeline.py:105` compares
+    the full argv, so every real batch is quarantined after proving (Linux too). Bind the full argv separately.
+  - **B2:** production code reads `/proc` boot_id / pid namespace (`batch_registry.py:24-25`, `batch_supervisor.py:78,117-118`,
+    `batch_prover.py:109`); on macOS no batch registers and a registered row wedges the queue. Use the guard's own
+    identity source (`kern.bootsessionuuid` on Darwin, pid_ns None).
+  - **B3:** the supervisor pins guard `67e9478f…` (Linux S9). **The guard changed today:** the macOS port, Linux
+    behaviour unchanged (independent review: 0 admission differences), now `ed8b5b38660c88f7…`. Re-check the lifecycle
+    contract against the Darwin guard (watchdog-only, boot_id source, pid_ns None, SIGTERM drain), then re-pin.
+  - Medium, required before adoption: M1 (a HOLD mid-batch destroys a proved batch; wait instead), M2 (refusals before
+    any native step still burn the attempt). Before the first multi-post run: M3 (a permanent publication error stops
+    the whole queue), M4 (macOS paths compared case-sensitively), M5 (`/usr/bin/python3` here is 3.9.6 without numpy).
+  Re-run the five suites with a test that uses the REAL guard record shape and unpatched host identity. The native
+  batch itself still waits for Sol's R15 macOS fix.
+
 ## Backlog — take the next item when your list is done (log which one)
 
 Efficiency (Sol first):
