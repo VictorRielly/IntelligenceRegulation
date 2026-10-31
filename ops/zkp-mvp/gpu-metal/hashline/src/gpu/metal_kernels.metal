@@ -418,6 +418,33 @@ kernel void k_fold_reduce(device const ulong *part [[buffer(0)]],
     out[o + 1] = s1;
 }
 
+// ------------------------------------------------- sumcheck table fold (M3)
+// tab[t][i] = lo + r * (hi - lo) for i < half, every table t (zkp-core
+// sumcheck/rounds.rs ClosureRounds::fold); tables are Fp2 (c0, c1) pairs, table
+// t at [t * cap, t * cap + len).
+inline ulong gl_neg(ulong a) { return a == 0UL ? 0UL : GL_P - a; }
+
+struct FoldTabArgs { ulong nhalf; ulong cap; ulong k; ulong r0; ulong r1; };
+
+kernel void k_fold_tables(device ulong *tabs [[buffer(0)]],
+                          constant FoldTabArgs &args [[buffer(1)]],
+                          uint2 gid [[thread_position_in_grid]]) {
+    ulong i = ulong(gid.x);
+    ulong t = ulong(gid.y);
+    if (i >= args.nhalf || t >= args.k) { return; }
+    ulong lo_i = (t * args.cap + i) * 2UL;
+    ulong hi_i = (t * args.cap + i + args.nhalf) * 2UL;
+    ulong l0 = tabs[lo_i], l1 = tabs[lo_i + 1];
+    ulong d0 = gl_sub(tabs[hi_i], l0), d1 = gl_sub(tabs[hi_i + 1], l1);
+    // r * d over Fp2 (u^2 = 7), as Fp2::mul
+    ulong ac = gl_mul(args.r0, d0), bd = gl_mul(args.r1, d1);
+    ulong ad = gl_mul(args.r0, d1), bc = gl_mul(args.r1, d0);
+    ulong m0 = gl_add(ac, gl_mul(bd, 7UL));
+    ulong m1 = gl_add(ad, bc);
+    tabs[lo_i] = gl_add(l0, m0);
+    tabs[lo_i + 1] = gl_add(l1, m1);
+}
+
 // --------------------------------------------------------- column gather
 // out[c * rows + i] = enc[i * nn + idx[c]]  (the opened columns, contiguous)
 struct GatherArgs { ulong rows; ulong nn; ulong nidx; };

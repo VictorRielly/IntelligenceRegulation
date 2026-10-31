@@ -68,10 +68,43 @@ One Llama-3-8B-geometry block at T128 (`ladder8b`, synthetic dense weights, phas
 For comparison, the laptop proved the 32-block 8B T128 stack in 393.8 s (about 12.3 s per block, 16 threads).
 These are block diagnostics: no full-stack Mac run exists yet (the 8B exports stayed on the laptop).
 
+## M3: the zero-checks on the Apple GPU (2026-10-31, later the same day)
+
+- **What:** each slot's polynomial is generated as Metal source from the slot expression IR
+  (`private_block/slot_ir.rs`, now also compiled under `gpu-metal`; codegen in `private_block/metal_slot.rs`).
+  The IR is built per slot on a CLONE of the transcript taken just before `define`, so it reads the challenge
+  values `define` draws and the real transcript is untouched. A generic device sumcheck (`gpu::MetalRounds`)
+  keeps the tables in GPU memory, runs each round with the generated kernel and folds on the device; it
+  implements zkp-core's `SumcheckRounds` with the CPU evaluator's exact s(1) rule.
+- **Runtime guard:** before a slot may run on the GPU, the IR is evaluated against THIS definition's closure
+  at eight pseudo-random points of the whole space (local generator, no proof randomness). A slot that fails,
+  or has no IR, stays on the CPU. On the DD profiles slot 17 (DD redefines it) stays on the CPU: the guard
+  caught exactly that on the first DD run.
+- **Fail-closed fix:** with `HL_GPU=1 HL_GPU_REQUIRED=1` a Metal device that fails to initialise now panics.
+  Before the fix, a kernel-library compile error made one "metal" golden round run silently on the CPU
+  (kept, marked invalid, in `golden_m3_cpu_fallback_invalid/`). The golden runner now also refuses a Metal
+  arm whose log lacks device evidence.
+- **Gates:** the four golden digests on Metal with commitments AND zero-checks on the device (device evidence
+  checked per arm): `logs/golden_*`. Equality tests unchanged and passing.
+
+8B-geometry block at T128 (`ladder8b`, block digest `8b6144ea…` on every arm) [MEASURED, n = 1]:
+
+| Configuration | Block wall (phase clock) |
+|---|---:|
+| Mac CPU, 32 threads | 4.663 s |
+| Metal commitments | 4.348 s |
+| **Metal commitments + zero-checks** | **2.621 s** |
+| laptop, 16 threads (historical, per block of the 32-block stack) | ~12.3 s |
+
+Slot 14 (D) 0.93 -> 0.24 s, 18 (F) 0.60 -> 0.24, 17 (softmax) 0.37 -> 0.09, 15 (Q) 0.31 -> 0.07, 16 (KV)
+0.17 -> 0.03 (masked sumcheck sub-step). What remains on the CPU: the H helper inverses (~0.3 s), the
+extension rounds (~0.33 s), witness planes and mask rows, the openings.
+
 ## Open items
 
 1. **Backend label.** `trained_block.rs::backend_of_this_process` knows only the CPU and CUDA names, so a
    Metal-made run statement would say "built without gpu-cuda". Adding a Metal name changes what verifiers
    accept and needs Sol's lane and a review before any Metal-made receipt is published.
-2. **Zero-checks on Metal** (about 60% of a block): next rung (M3).
+2. **Next on the GPU:** the H helper inverses (batch inversion), the extension rounds, and fewer host round trips in the device sumcheck.
+4. **DD slot 17 and the dictionary slot** need IR coverage before DD profiles run fully on the device.
 3. Buffer pooling (setup is about 15% of the Metal commit time).

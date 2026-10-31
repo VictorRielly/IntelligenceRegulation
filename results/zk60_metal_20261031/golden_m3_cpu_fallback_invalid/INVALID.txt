@@ -1,0 +1,1 @@
+These 'metal' arm runs executed on the CPU: the Metal kernel library failed to compile (MSL reserved word 'half'), gpu::enabled() was false, and HL_GPU_REQUIRED=1 did not catch it. Not Metal evidence.

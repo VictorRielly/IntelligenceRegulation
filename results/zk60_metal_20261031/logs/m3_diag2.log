@@ -1,0 +1,15 @@
+
+running 1 test
+[ZK60-METAL] commit 1993 x 2^14 -> 2^16: setup 0.014 s, gpu total 0.062 s (inverse 0.009, init 0.000, forward 0.032, hash 0.003)
+[ZK60-METAL] commit 2182 x 2^14 -> 2^16: setup 0.015 s, gpu total 0.049 s (inverse 0.009, init 0.000, forward 0.034, hash 0.003)
+[ZK60-METAL] argument: prove=true accuracy_none=true legacy_stack=true gpu_enabled=true -> metal_on=true (TinyLlama-1.1B block geometry, trained calibration (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads))
+[ZK60-METAL] store fold: 37 rho x 1993 rows x 16384 cols (zk data) in 0.0087 s
+[ZK60-METAL] store columns: 256 x 1993 rows in 0.0080 s
+[ZK60-METAL] store fold: 10 rho x 2182 rows x 16384 cols (zk data) in 0.0129 s
+[ZK60-METAL] store columns: 256 x 2182 rows in 0.0095 s
+R12-GOLDEN hashline-zk-mr1/private-block-tinyllama-1.1b-t128-trained-block/1: 23 slots, 69 absorbs, debug text 81760821 B
+R12-GOLDEN-DIGEST tinyllama-t128 782b64c97a88cba4c6c34a2fecb73132f26d5f54adc9bd159f3d6cf9df4205c0
+test private_block::r12_golden_tests::r12_golden_seeded_tinyllama_t128_block_is_byte_identical ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 897 filtered out; finished in 14.20s
+

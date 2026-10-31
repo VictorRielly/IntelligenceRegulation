@@ -1,0 +1,9 @@
+
+running 1 test
+[ZK60-METAL] argument: prove=true accuracy_none=true legacy_stack=true gpu_enabled=false -> metal_on=false (TinyLlama-1.1B block geometry, trained calibration (T128 / d2048 / f5632, 32 heads of 64 over 4 KV heads))
+R12-GOLDEN hashline-zk-mr1/private-block-tinyllama-1.1b-t128-trained-block/1: 23 slots, 69 absorbs, debug text 81760821 B
+R12-GOLDEN-DIGEST tinyllama-t128 782b64c97a88cba4c6c34a2fecb73132f26d5f54adc9bd159f3d6cf9df4205c0
+test private_block::r12_golden_tests::r12_golden_seeded_tinyllama_t128_block_is_byte_identical ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 897 filtered out; finished in 4.03s
+

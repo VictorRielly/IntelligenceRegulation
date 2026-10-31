@@ -123,6 +123,12 @@ pub(crate) struct SlotDef {
     groups: Option<(Vec<sumcheck::EqualityGroup>, GroupPoly)>,
     /// (hosted private slot, nu * kappa)
     pub hosted: Vec<(usize, Fp2)>,
+    /// [ZK60-METAL M3] the slot's polynomial as generated MSL plus its coefficient
+    /// buffer, built from the slot's expression IR on a TWIN transcript (so no
+    /// challenge or absorb of the real transcript moves). Only set on the prove
+    /// side with HL_GPU=1; `None` keeps the CPU evaluator.
+    #[cfg(feature = "gpu-metal")]
+    pub(crate) metal: Option<(String, Vec<Fp2>)>,
     /// **STEP C.** The slot schedule this definition was built against, so
     /// that `run_slot` reads the SHAPE's `(main, ext, degree)` and terminal
     /// counts instead of the toy constants. At the toy it is `Shape::toy()`
@@ -488,6 +494,11 @@ fn sum_weights(sh: &Shape, slot: usize) -> Vec<Fp2> {
 // into the table set instead of copying it (`table_of_taking`). The
 // definition is owned, and nothing reads a `Tab::Pub` payload after the
 // tables are built.
+/// [ZK60-METAL M3] the smallest slot (tables x cube) handed to the device:
+/// below it the per-round launch overhead outweighs the work.
+#[cfg(feature = "gpu-metal")]
+const METAL_MIN_TERMS: usize = 1 << 18;
+
 pub(crate) fn run_slot(side: &mut Side, acc: &mut Acc, mut def: SlotDef, tr: &mut Transcript) -> Result<(), String> {
     let s = def.slot;
     let sh = def.sh.clone();
@@ -592,7 +603,33 @@ pub(crate) fn run_slot(side: &mut Side, acc: &mut Acc, mut def: SlotDef, tr: &mu
                     let old = crate::zk::masked_prove(&mut old_tables, degree, &poly, mask, c, &mut old_tr);
                     Some((old, old_tr, old_tables))
                 } else { None };
-                let result = if let Some((groups, bracket)) = &def.groups {
+                // [ZK60-METAL M3] the device evaluator: the same unmasked rounds
+                // (values), the same s(1) rule as the CPU evaluator this slot
+                // would use (recovery for the closure path, full evaluation for
+                // the grouped path), the same driver. A decline runs the CPU.
+                #[cfg(feature = "gpu-metal")]
+                let metal_result = match &def.metal {
+                    Some((src, cf)) if tables.len() << n >= METAL_MIN_TERMS => {
+                        match crate::gpu::metal_rounds(src, &tables, degree, cf) {
+                            Ok(ev) => {
+                                let mut ev = if def.groups.is_some() { ev } else { ev.recover_one(unmasked_claim) };
+                                let r = crate::zk::masked_prove_rounds(&mut ev, mask, c, tr);
+                                tables = ev.final_tables();
+                                Some(r)
+                            }
+                            Err(e) => {
+                                crate::gpu::declined("[ZK60-METAL] slot sumcheck", &e);
+                                None
+                            }
+                        }
+                    }
+                    _ => None,
+                };
+                #[cfg(not(feature = "gpu-metal"))]
+                let metal_result: Option<_> = None;
+                let result = if let Some(r) = metal_result {
+                    r
+                } else if let Some((groups, bracket)) = &def.groups {
                     let mut evaluator = sumcheck::GroupedEqRounds::new(&mut tables, degree, groups.clone(), &**bracket);
                     crate::zk::masked_prove_rounds(&mut evaluator, mask, c, tr)
                 } else {
@@ -863,7 +900,16 @@ impl<'a> B<'a> {
         if self.ak != self.lay.a_sites()[self.slot] || self.hk != self.lay.h_sites()[self.slot] {
             return Err(format!("private block: slot {} uses {} A / {} H sites, schedule declares {} / {}", self.slot, self.ak, self.hk, self.lay.a_sites()[self.slot], self.lay.h_sites()[self.slot]));
         }
-        Ok(SlotDef { slot: self.slot, tabs: self.tabs, poly, groups: None, hosted, sh: self.lay.shape().clone() })
+        Ok(SlotDef {
+            slot: self.slot,
+            tabs: self.tabs,
+            poly,
+            groups: None,
+            hosted,
+            sh: self.lay.shape().clone(),
+            #[cfg(feature = "gpu-metal")]
+            metal: None,
+        })
     }
 }
 
@@ -2147,12 +2193,72 @@ pub(crate) fn argument(side: &mut Side, ctx: &Ctx, tr: &mut Transcript, ph: &mut
     let sh = ctx.lay.shape();
     // NATIVE R9: THIS profile's slots — the twenty-three, plus the
     // dictionary zero-check on a DD profile (appended last)
+    // [ZK60-METAL M3] the IR's own point record, carried beside `pts`
+    #[cfg(feature = "gpu-metal")]
+    let metal_on = matches!(side, Side::Prove { .. })
+        && ctx.accuracy.is_none()
+        && sh.accuracy_stack() == crate::private_block::accuracy_precision::Stack::Legacy
+        && crate::gpu::enabled();
+    #[cfg(feature = "gpu-metal")]
+    let metal_diag = std::env::var("HL_METAL_TIMING").map(|v| v == "1").unwrap_or(false);
+    #[cfg(feature = "gpu-metal")]
+    if metal_diag {
+        eprintln!(
+            "[ZK60-METAL] argument: prove={} accuracy_none={} legacy_stack={} gpu_enabled={} -> metal_on={metal_on} ({})",
+            matches!(side, Side::Prove { .. }),
+            ctx.accuracy.is_none(),
+            sh.accuracy_stack() == crate::private_block::accuracy_precision::Stack::Legacy,
+            crate::gpu::enabled(),
+            sh.name
+        );
+    }
+    #[cfg(feature = "gpu-metal")]
+    let mut ipts = super::slot_ir::IrPoints::default();
     for slot in 0..sh.n_slots() {
         #[cfg(test)]
         super::capture::start_slot(side, tr);
         #[cfg(test)]
         super::run_capture::start_slot(side, tr);
-        let def = define(slot, ctx, &mut pts, tr)?;
+        // The IR builder draws the same challenges, in the same order, as
+        // `define` (slot_ir.rs); it runs on a CLONE taken just before `define`,
+        // so it reads the very values `define` is about to draw and the real
+        // transcript is untouched. A slot without an IR keeps the CPU path.
+        #[cfg(feature = "gpu-metal")]
+        let metal_ir = if metal_on {
+            let mut twin = Transcript::clone_state(tr);
+            match super::slot_ir::build_slot_ir(slot, ctx, &mut ipts, &mut twin) {
+                Ok(ir) => Some(ir),
+                Err(e) => {
+                    if metal_diag {
+                        eprintln!("[ZK60-METAL] slot {slot}: no IR ({e})");
+                    }
+                    super::metal_slot::note_cpu_slot(slot, false);
+                    None
+                }
+            }
+        } else {
+            None
+        };
+        #[allow(unused_mut)]
+        let mut def = define(slot, ctx, &mut pts, tr)?;
+        #[cfg(feature = "gpu-metal")]
+        if let Some(ir) = metal_ir {
+            // RUNTIME GUARD: the IR (CPU interpreter) must equal THIS
+            // definition's closure at random points of the whole space before
+            // the device may evaluate it (Schwartz-Zippel: a wrong coefficient
+            // survives a point with probability <= deg/|F|). The points come
+            // from a local generator, never from the proof's randomness.
+            if ir.tables.len() == def.tabs.len() && super::metal_slot::ir_matches_closure(&ir, &*def.poly, slot) {
+                def.metal = Some(super::metal_slot::msl_poly(&ir));
+            } else {
+                // NOT a device decline: this slot has no device path at this
+                // profile (the IR models the legacy slot set; a DD profile
+                // redefines slot 17 and appends the dictionary slot). It stays
+                // on the CPU, which is correct; the guard's job is that a wrong
+                // IR never reaches the GPU. Counted for the run's report.
+                super::metal_slot::note_cpu_slot(slot, metal_diag);
+            }
+        }
         // ROUND 5: the slot's counted ELEMENT-TERMS, its sumcheck cube
         // `2^(main + extension rounds)` times its table count — a function of
         // the shape and the declared schedule, nothing private

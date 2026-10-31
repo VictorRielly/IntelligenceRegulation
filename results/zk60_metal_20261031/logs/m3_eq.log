@@ -1,0 +1,89 @@
+
+running 6 tests
+test device::m0_field_ops_match_the_cpu_on_edges_and_random_values ... FAILED
+test device::m1_keyed_zk_commit_and_opening_bytes_match_the_cpu ... FAILED
+test device::m1_plain_commit_leaves_root_columns_and_folds_match_the_cpu ... FAILED
+test device::m1_zk_commit_and_opening_bytes_match_the_cpu ... FAILED
+test device::m2_keyed_commit_timing_at_block_sizes ... ignored, heavy: multi-GB commitments; run through the resource guard
+test metal_required_gate_refuses_a_build_without_the_feature ... ok
+
+failures:
+
+---- device::m0_field_ops_match_the_cpu_on_edges_and_random_values stdout ----
+
+thread 'device::m0_field_ops_match_the_cpu_on_edges_and_random_values' (441258) panicked at tests/zk60_metal_commit.rs:64:13:
+no usable Metal device: metal compile: program_source:427:28: error: cannot combine with previous 'type-name' declaration specifier
+struct FoldTabArgs { ulong half; ulong cap; ulong k; ulong r0; ulong r1; };
+                           ^
+program_source:427:22: warning: declaration does not declare anything [-Wmissing-declarations]
+struct FoldTabArgs { ulong half; ulong cap; ulong k; ulong r0; ulong r1; };
+                     ^~~~~~~~~~
+program_source:434:19: error: expected unqualified-id
+    if (i >= args.half || t >= args.k) { return; }
+                  ^
+program_source:436:43: error: expected unqualified-id
+    ulong hi_i = (t * args.cap + i + args.half) * 2UL;
+                                          ^
+
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- device::m1_keyed_zk_commit_and_opening_bytes_match_the_cpu stdout ----
+
+thread 'device::m1_keyed_zk_commit_and_opening_bytes_match_the_cpu' (441266) panicked at tests/zk60_metal_commit.rs:64:13:
+no usable Metal device: metal compile: program_source:427:28: error: cannot combine with previous 'type-name' declaration specifier
+struct FoldTabArgs { ulong half; ulong cap; ulong k; ulong r0; ulong r1; };
+                           ^
+program_source:427:22: warning: declaration does not declare anything [-Wmissing-declarations]
+struct FoldTabArgs { ulong half; ulong cap; ulong k; ulong r0; ulong r1; };
+                     ^~~~~~~~~~
+program_source:434:19: error: expected unqualified-id
+    if (i >= args.half || t >= args.k) { return; }
+                  ^
+program_source:436:43: error: expected unqualified-id
+    ulong hi_i = (t * args.cap + i + args.half) * 2UL;
+                                          ^
+
+
+---- device::m1_plain_commit_leaves_root_columns_and_folds_match_the_cpu stdout ----
+
+thread 'device::m1_plain_commit_leaves_root_columns_and_folds_match_the_cpu' (441267) panicked at tests/zk60_metal_commit.rs:64:13:
+no usable Metal device: metal compile: program_source:427:28: error: cannot combine with previous 'type-name' declaration specifier
+struct FoldTabArgs { ulong half; ulong cap; ulong k; ulong r0; ulong r1; };
+                           ^
+program_source:427:22: warning: declaration does not declare anything [-Wmissing-declarations]
+struct FoldTabArgs { ulong half; ulong cap; ulong k; ulong r0; ulong r1; };
+                     ^~~~~~~~~~
+program_source:434:19: error: expected unqualified-id
+    if (i >= args.half || t >= args.k) { return; }
+                  ^
+program_source:436:43: error: expected unqualified-id
+    ulong hi_i = (t * args.cap + i + args.half) * 2UL;
+                                          ^
+
+
+---- device::m1_zk_commit_and_opening_bytes_match_the_cpu stdout ----
+
+thread 'device::m1_zk_commit_and_opening_bytes_match_the_cpu' (441268) panicked at tests/zk60_metal_commit.rs:64:13:
+no usable Metal device: metal compile: program_source:427:28: error: cannot combine with previous 'type-name' declaration specifier
+struct FoldTabArgs { ulong half; ulong cap; ulong k; ulong r0; ulong r1; };
+                           ^
+program_source:427:22: warning: declaration does not declare anything [-Wmissing-declarations]
+struct FoldTabArgs { ulong half; ulong cap; ulong k; ulong r0; ulong r1; };
+                     ^~~~~~~~~~
+program_source:434:19: error: expected unqualified-id
+    if (i >= args.half || t >= args.k) { return; }
+                  ^
+program_source:436:43: error: expected unqualified-id
+    ulong hi_i = (t * args.cap + i + args.half) * 2UL;
+                                          ^
+
+
+
+failures:
+    device::m0_field_ops_match_the_cpu_on_edges_and_random_values
+    device::m1_keyed_zk_commit_and_opening_bytes_match_the_cpu
+    device::m1_plain_commit_leaves_root_columns_and_folds_match_the_cpu
+    device::m1_zk_commit_and_opening_bytes_match_the_cpu
+
+test result: FAILED. 1 passed; 4 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.07s
+

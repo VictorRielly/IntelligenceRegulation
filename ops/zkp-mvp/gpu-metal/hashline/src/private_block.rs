@@ -378,8 +378,13 @@ mod s33_tests;
 // a module no production build compiles is the strongest form of it. The
 // base-field classification is DERIVED from each table's provenance and never
 // declared (ruling I-2, the check's finding IR-C1).
-#[cfg(test)]
+// [ZK60-METAL M3] also compiled under `gpu-metal`: the Apple GPU evaluates the
+// zero-checks from this IR (private_block/metal_slot.rs), and only when
+// HL_GPU=1. Default and CUDA builds still never compile it.
+#[cfg(any(test, feature = "gpu-metal"))]
 mod slot_ir;
+#[cfg(feature = "gpu-metal")]
+mod metal_slot;
 #[cfg(test)]
 mod slot_ir_tests;
 // STAGE 35 (stage 2 of ruling I-4 of the same disposition): lever (b) inside

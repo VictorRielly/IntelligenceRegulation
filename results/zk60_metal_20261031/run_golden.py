@@ -22,7 +22,12 @@ TESTS = [
     "r12_golden_seeded_llama3_8b_t128_dd_block_is_byte_identical",
 ]
 ARMS = [("cpu", "cpu", {"HL_PB_TIMING": "1"}),
-        ("metal", "gpu", {"HL_PB_TIMING": "1", "HL_GPU": "1", "HL_GPU_REQUIRED": "1"})]
+        ("metal", "gpu", {"HL_PB_TIMING": "1", "HL_GPU": "1", "HL_GPU_REQUIRED": "1", "HL_METAL_TIMING": "1"})]
+# A Metal arm counts only if its log PROVES the device ran: HL_GPU_REQUIRED=1
+# alone does not catch a device that never initialised (gpu::enabled() false
+# routes silently to the CPU; found 2026-10-31 when a kernel-library compile
+# error left an earlier "metal" arm entirely on the CPU).
+METAL_EVIDENCE = ["metal_on=true", "[ZK60-METAL] commit"]
 
 
 def child():
@@ -46,6 +51,13 @@ def child():
                    "--", BIN, "--ignored", "--nocapture", "--test-threads=1", "--exact",
                    f"private_block::r12_golden_tests::{t}"]
             rc = subprocess.run(cmd, env=env, stdout=subprocess.DEVNULL, stderr=open(stem + ".guard.err", "w")).returncode
+            if arm == "metal" and rc == 0:
+                text = open(stem + ".log", errors="replace").read()
+                missing = [e for e in METAL_EVIDENCE if e not in text]
+                if missing:
+                    rc = 99  # passed, but not on the device: not a Metal result
+                    with open(stem + ".no_device_evidence", "w") as f:
+                        f.write("missing: " + ", ".join(missing) + "\n")
             with open(part, "a") as f:
                 f.write(f"{arm} {t} {rc}\n")
             if rc != 0 and first is None:

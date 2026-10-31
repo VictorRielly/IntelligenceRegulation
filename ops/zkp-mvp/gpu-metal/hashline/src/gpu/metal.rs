@@ -29,7 +29,8 @@ use std::sync::{Mutex, OnceLock};
 use zkp_core::pcs::PcsParams;
 
 const SRC: &str = include_str!("metal_kernels.metal");
-const KERNELS: [&str; 13] = [
+const KERNELS: [&str; 14] = [
+    "k_fold_tables",
     "k_gather_cols",
     "k_fold_partial",
     "k_fold_reduce",
@@ -53,6 +54,8 @@ struct Ctx {
     pipes: HashMap<&'static str, ComputePipelineState>,
     /// (forward, inverse) twiddle buffers per NttTables::max_log
     twiddles: Mutex<HashMap<u32, (Buffer, Buffer)>>,
+    /// [M3] compiled sumcheck round kernels, one per generated slot polynomial
+    sc_pipes: Mutex<HashMap<String, ComputePipelineState>>,
 }
 
 static CTX: OnceLock<Result<Ctx, String>> = OnceLock::new();
@@ -70,7 +73,7 @@ fn ctx() -> Result<&'static Ctx, String> {
                 pipes.insert(k, p);
             }
             let queue = device.new_command_queue();
-            Ok(Ctx { device, queue, pipes, twiddles: Mutex::new(HashMap::new()) })
+            Ok(Ctx { device, queue, pipes, twiddles: Mutex::new(HashMap::new()), sc_pipes: Mutex::new(HashMap::new()) })
         })
     })
     .as_ref()
@@ -78,8 +81,24 @@ fn ctx() -> Result<&'static Ctx, String> {
 }
 
 /// `HL_GPU=1` and a Metal device whose kernels compiled.
+///
+/// FAILS CLOSED under `HL_GPU_REQUIRED=1`: a requested device that does not
+/// initialise (no device, a kernel-library compile error) panics here instead
+/// of silently routing every call to the CPU. Found 2026-10-31: a compile
+/// error left a whole "metal" golden arm on the CPU with REQUIRED set.
 pub fn enabled() -> bool {
-    std::env::var("HL_GPU").map(|v| v == "1").unwrap_or(false) && ctx().is_ok()
+    if !std::env::var("HL_GPU").map(|v| v == "1").unwrap_or(false) {
+        return false;
+    }
+    match ctx() {
+        Ok(_) => true,
+        Err(e) => {
+            if super::required() {
+                panic!("[ZK60-METAL] HL_GPU=1 and HL_GPU_REQUIRED=1 but the Metal device is unavailable: {e}");
+            }
+            false
+        }
+    }
 }
 
 /// Human-readable state (printed by the CLIs and recorded in run logs).
@@ -696,4 +715,269 @@ pub fn metal_commit_zk(
         return Err("metal zk: no pad symbols".into());
     }
     commit_impl(params, data, ntt, Init::Zk { pads, pows, q }, key)
+}
+
+// ------------------------------------------------------- M3: sumcheck rounds
+
+/// The Goldilocks section of `metal_kernels.metal` (everything before the
+/// field probe): the SAME field code the commitment kernels use and M0 checks.
+fn gl_header() -> &'static str {
+    let end = SRC.find("// ------------------------------------------------------------- field probe").expect("metal source layout");
+    &SRC[..end]
+}
+
+const SC_PRELUDE: &str = r#"
+inline ulong gl_neg_sc(ulong a) { return a == 0UL ? 0UL : GL_P - a; }
+struct fp2 { ulong c0; ulong c1; };
+inline fp2 f2(ulong a, ulong b) { fp2 r; r.c0 = a; r.c1 = b; return r; }
+inline fp2 f2_add(fp2 a, fp2 b) { return f2(gl_add(a.c0, b.c0), gl_add(a.c1, b.c1)); }
+inline fp2 f2_sub(fp2 a, fp2 b) { return f2(gl_sub(a.c0, b.c0), gl_sub(a.c1, b.c1)); }
+inline fp2 f2_neg(fp2 a) { return f2(gl_neg_sc(a.c0), gl_neg_sc(a.c1)); }
+// Fp2::mul: (a0 + a1 u)(b0 + b1 u), u^2 = 7
+inline fp2 f2_mul(fp2 a, fp2 b) {
+    ulong ac = gl_mul(a.c0, b.c0), bd = gl_mul(a.c1, b.c1), ad = gl_mul(a.c0, b.c1), bc = gl_mul(a.c1, b.c0);
+    return f2(gl_add(ac, gl_mul(bd, 7UL)), gl_add(ad, bc));
+}
+inline fp2 CF(constant ulong *cf, uint i) { return f2(cf[2 * i], cf[2 * i + 1]); }
+"#;
+
+const SC_ROUND: &str = r#"
+struct RoundArgs { ulong nhalf; ulong cap; uint eval_one; uint nthreads; };
+// One thread per stride of cube pairs: the round's evaluations at 0..=D along
+// each pair's line, exactly as ClosureRounds::round (cur, then cur += dif).
+kernel void k_sc_round(device const ulong *tabs [[buffer(0)]],
+                       device ulong *part [[buffer(1)]],
+                       constant ulong *cf [[buffer(2)]],
+                       constant RoundArgs &a [[buffer(3)]],
+                       uint gid [[thread_position_in_grid]]) {
+    if (gid >= a.nthreads) { return; }
+    fp2 acc[SC_D + 1];
+    for (uint d = 0; d <= SC_D; d++) { acc[d] = f2(0UL, 0UL); }
+    fp2 T[SC_K];
+    fp2 dif[SC_K];
+    for (ulong i = ulong(gid); i < a.nhalf; i += ulong(a.nthreads)) {
+        for (uint t = 0; t < SC_K; t++) {
+            ulong lo = (ulong(t) * a.cap + i) * 2UL;
+            ulong hi = (ulong(t) * a.cap + i + a.nhalf) * 2UL;
+            T[t] = f2(tabs[lo], tabs[lo + 1]);
+            dif[t] = f2_sub(f2(tabs[hi], tabs[hi + 1]), T[t]);
+        }
+        acc[0] = f2_add(acc[0], slot_poly(T, cf));
+        for (uint d = 1; d <= SC_D; d++) {
+            for (uint t = 0; t < SC_K; t++) { T[t] = f2_add(T[t], dif[t]); }
+            if (d != 1u || a.eval_one != 0u) { acc[d] = f2_add(acc[d], slot_poly(T, cf)); }
+        }
+    }
+    for (uint d = 0; d <= SC_D; d++) {
+        ulong o = (ulong(gid) * (SC_D + 1) + ulong(d)) * 2UL;
+        part[o] = acc[d].c0;
+        part[o + 1] = acc[d].c1;
+    }
+}
+"#;
+
+#[repr(C)]
+struct RoundArgs {
+    half: u64,
+    cap: u64,
+    eval_one: u32,
+    nthreads: u32,
+}
+#[repr(C)]
+struct FoldTabArgs {
+    half: u64,
+    cap: u64,
+    k: u64,
+    r0: u64,
+    r1: u64,
+}
+
+static SC_COMPILE_NS: AtomicU64 = AtomicU64::new(0);
+static SC_ROUND_NS: AtomicU64 = AtomicU64::new(0);
+
+/// (seconds compiling generated slot kernels, seconds in device rounds+folds)
+pub fn sumcheck_stats() -> (f64, f64) {
+    (SC_COMPILE_NS.load(Ordering::Relaxed) as f64 * 1e-9, SC_ROUND_NS.load(Ordering::Relaxed) as f64 * 1e-9)
+}
+
+fn sc_pipeline(c: &Ctx, poly_fn: &str, k: usize, degree: usize) -> Result<ComputePipelineState, String> {
+    let src = format!("{}{SC_PRELUDE}\n#define SC_K {k}\n#define SC_D {degree}\n{poly_fn}\n{SC_ROUND}", gl_header());
+    let mut cache = c.sc_pipes.lock().map_err(|_| "metal: sumcheck kernel cache poisoned")?;
+    if let Some(p) = cache.get(&src) {
+        return Ok(p.clone());
+    }
+    let t = std::time::Instant::now();
+    let p = objc::rc::autoreleasepool(|| -> Result<ComputePipelineState, String> {
+        let lib = c.device.new_library_with_source(&src, &CompileOptions::new()).map_err(|e| format!("metal sumcheck compile: {e}"))?;
+        let f = lib.get_function("k_sc_round", None).map_err(|e| format!("metal sumcheck function: {e}"))?;
+        c.device.new_compute_pipeline_state_with_function(&f).map_err(|e| format!("metal sumcheck pipeline: {e}"))
+    })?;
+    SC_COMPILE_NS.fetch_add(t.elapsed().as_nanos() as u64, Ordering::Relaxed);
+    if std::env::var("HL_METAL_TIMING").map(|v| v == "1").unwrap_or(false) {
+        eprintln!("[ZK60-METAL] compiled a slot kernel ({k} tables, degree {degree}, {} B of source) in {:.3} s", src.len(), t.elapsed().as_secs_f64());
+    }
+    cache.insert(src, p.clone());
+    Ok(p)
+}
+
+/// A sumcheck whose tables live on the Apple GPU and whose round polynomial is
+/// the generated MSL function `slot_poly(T, cf)` (`poly_fn`), with `coefs` as
+/// `cf`. The same contract as `ClosureRounds` (zkp-core sumcheck/rounds.rs):
+/// unmasked evaluations at 0..=degree, folding in most-significant-variable
+/// order, and the same s(1) recovery when `recover_one` is set.
+pub struct MetalRounds {
+    k: usize,
+    n_vars: usize,
+    degree: usize,
+    cap: usize,
+    len: usize,
+    tabs: Buffer,
+    coefs: Buffer,
+    pipe: ComputePipelineState,
+    next: usize,
+    pending: Option<Vec<Fp2>>,
+    recover_one: bool,
+    unmasked_claim: Option<Fp2>,
+}
+
+pub fn metal_rounds(poly_fn: &str, tables: &[Vec<Fp2>], degree: usize, coefs: &[Fp2]) -> Result<MetalRounds, String> {
+    let c = ctx()?;
+    if tables.is_empty() || degree == 0 {
+        return Err("metal sumcheck: no tables or degree 0".into());
+    }
+    let cap = tables[0].len();
+    if !cap.is_power_of_two() || cap < 2 || tables.iter().any(|t| t.len() != cap) {
+        return Err("metal sumcheck: table lengths".into());
+    }
+    let k = tables.len();
+    let pipe = sc_pipeline(c, poly_fn, k, degree)?;
+    objc::rc::autoreleasepool(|| {
+        let mut flat: Vec<Fp> = Vec::with_capacity(k * cap * 2);
+        for t in tables {
+            for v in t {
+                flat.push(v.c0);
+                flat.push(v.c1);
+            }
+        }
+        let tabs = upload(c, &flat)?;
+        let mut cf: Vec<Fp> = coefs.iter().flat_map(|v| [v.c0, v.c1]).collect();
+        if cf.is_empty() {
+            cf.push(Fp::ZERO);
+        }
+        let coefs = upload(c, &cf)?;
+        Ok(MetalRounds {
+            k,
+            n_vars: cap.trailing_zeros() as usize,
+            degree,
+            cap,
+            len: cap,
+            tabs,
+            coefs,
+            pipe,
+            next: 0,
+            pending: None,
+            recover_one: false,
+            unmasked_claim: None,
+        })
+    })
+}
+
+impl MetalRounds {
+    /// `ClosureRounds::recover_one`, the same semantics.
+    pub fn recover_one(mut self, initial_unmasked_claim: Option<Fp2>) -> Self {
+        assert!(self.degree >= 1, "claim recovery requires degree >= 1");
+        self.recover_one = true;
+        self.unmasked_claim = initial_unmasked_claim;
+        self
+    }
+
+    /// the folded tables after the last round (each of length 1), as the CPU
+    /// evaluator leaves its `tables`
+    pub fn final_tables(&self) -> Vec<Vec<Fp2>> {
+        self.finals_inner().into_iter().map(|v| vec![v]).collect()
+    }
+
+    fn finals_inner(&self) -> Vec<Fp2> {
+        let raw = as_u64s(&self.tabs, self.k * self.cap * 2);
+        (0..self.k).map(|t| Fp2::new(Fp(raw[t * self.cap * 2]), Fp(raw[t * self.cap * 2 + 1]))).collect()
+    }
+}
+
+impl zkp_core::sumcheck::SumcheckRounds for MetalRounds {
+    fn n_vars(&self) -> usize {
+        self.n_vars
+    }
+    fn degree(&self) -> usize {
+        self.degree
+    }
+
+    fn round(&mut self, j: usize) -> Vec<Fp2> {
+        assert_eq!(j, self.next, "sumcheck evaluator round order");
+        assert!(j < self.n_vars && self.pending.is_none(), "round needs the preceding fold");
+        let t0 = std::time::Instant::now();
+        let c = ctx().expect("metal context");
+        let half = self.len / 2;
+        let claim = if self.recover_one { self.unmasked_claim } else { None };
+        let eval_one = claim.is_none();
+        let nthreads = half.min(1 << 16).max(1);
+        let d1 = self.degree + 1;
+        let sums = objc::rc::autoreleasepool(|| {
+            let part = shared_buffer(c, (nthreads * d1 * 16) as u64).expect("metal sumcheck partials");
+            run(c, |enc| {
+                enc.set_compute_pipeline_state(&self.pipe);
+                enc.set_buffer(0, Some(&self.tabs), 0);
+                enc.set_buffer(1, Some(&part), 0);
+                enc.set_buffer(2, Some(&self.coefs), 0);
+                set_args(enc, 3, &RoundArgs { half: half as u64, cap: self.cap as u64, eval_one: eval_one as u32, nthreads: nthreads as u32 });
+                let tg = self.pipe.max_total_threads_per_threadgroup().min(256).min(nthreads as u64);
+                enc.dispatch_threads(MTLSize::new(nthreads as u64, 1, 1), MTLSize::new(tg, 1, 1));
+                Ok(())
+            })
+            .expect("metal sumcheck round");
+            let p = as_u64s(&part, nthreads * d1 * 2);
+            let mut sums = vec![Fp2::ZERO; d1];
+            for th in 0..nthreads {
+                for (d, s) in sums.iter_mut().enumerate() {
+                    let o = (th * d1 + d) * 2;
+                    *s = s.add(Fp2::new(Fp(p[o]), Fp(p[o + 1])));
+                }
+            }
+            sums
+        });
+        let mut sums = sums;
+        if let Some(claim) = claim {
+            sums[1] = claim.sub(sums[0]);
+        }
+        self.pending = Some(sums.clone());
+        SC_ROUND_NS.fetch_add(t0.elapsed().as_nanos() as u64, Ordering::Relaxed);
+        sums
+    }
+
+    fn fold(&mut self, r: Fp2) {
+        let t0 = std::time::Instant::now();
+        let sums = self.pending.take().expect("fold needs a round");
+        if self.recover_one {
+            self.unmasked_claim = Some(zkp_core::mle::interpolate_eval(&sums, r));
+        }
+        let c = ctx().expect("metal context");
+        let half = self.len / 2;
+        objc::rc::autoreleasepool(|| {
+            run(c, |enc| {
+                enc.set_buffer(0, Some(&self.tabs), 0);
+                set_args(enc, 1, &FoldTabArgs { half: half as u64, cap: self.cap as u64, k: self.k as u64, r0: r.c0.0, r1: r.c1.0 });
+                dispatch_2d(c, enc, "k_fold_tables", half as u64, self.k as u64);
+                Ok(())
+            })
+            .expect("metal sumcheck fold");
+        });
+        self.len = half;
+        self.next += 1;
+        SC_ROUND_NS.fetch_add(t0.elapsed().as_nanos() as u64, Ordering::Relaxed);
+    }
+
+    fn finals(&self) -> Vec<Fp2> {
+        assert_eq!(self.next, self.n_vars, "finals need all folds");
+        assert!(self.pending.is_none());
+        self.finals_inner()
+    }
 }
