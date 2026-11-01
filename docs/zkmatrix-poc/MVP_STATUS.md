@@ -12,8 +12,10 @@
   - one request's own blocks cannot overlap without Victor's ruling D55;
   - the biggest remaining step is the RTX 5090 with all of this work ported to CUDA.
 - **New research result (M18, D56 open question):** a 31-bit field (Mersenne-31 or BabyBear) multiplies 3.5–3.9x
-  faster than today's on this GPU, and its secure extension 1.8x faster [MEASURED]. That could roughly double the GPU
-  ceiling [MODEL], but it is a new proof system that would need Victor's decision and a full re-derivation and review.
+  faster than today's on this GPU, and its secure extension 1.8x faster [MEASURED]. A cost study the same day found
+  that the bit-exact arithmetic needs Goldilocks' 64-bit headroom: 15 relations exceed a 31-bit field (up to 2^49.8),
+  and carrying them as digits makes a block slower overall (about 0.24–0.34 s of GPU work against 0.165 s) [MODEL].
+  Recommendation: **not now** (`results/zk60_metal_20261031/D56_FIELD_SWITCH_STUDY.md`).
 - **W16 independent soundness review done (2026-11-01):**
   - **Verdict:** sound as built, about 0.9 bit better than R13 per block (LogUp 2^-102.92).
   - **Fixed:** the Medium finding F1 (two receipt guards missed the W16 profile names) and Lows F2 and F4. All

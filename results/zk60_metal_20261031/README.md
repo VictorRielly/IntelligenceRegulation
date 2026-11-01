@@ -991,5 +991,10 @@ threads. [MEASURED, `logs/m18field/bench.log`, warm rep]:
   - It needs new commitment parameters (BabyBear's 2^27 two-adic domain for the RS code) and new security
     accounting (challenges in QM31).
   - It needs an independent review before any receipt.
-- It is a protocol decision for Victor: recorded as open question D56 in `docs/zkmatrix-poc/ZK60_DECISIONS.md`. It is
-  the largest lever measured so far that does not need new hardware.
+- It is a protocol decision for Victor: recorded as open question D56 in `docs/zkmatrix-poc/ZK60_DECISIONS.md`.
+- **Cost study, the same day** (`D56_FIELD_SWITCH_STUDY.md`): the model above assumed today's witness survives the
+  switch, and it does not.
+  - 15 relations exceed BabyBear's p (the requantisations up to 2^49.8, the norm and SiLU product up to 2^48).
+  - Carrying them as digits multiplies the committed words, so the modelled GPU time is 0.24–0.34 s per block,
+    worse than today's 0.165 s.
+  - Recommendation: **not now.**
