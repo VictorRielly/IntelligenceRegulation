@@ -1,0 +1,373 @@
+diff --git a/ops/zkp-mvp/gpu-metal/hashline/src/gpu/metal.rs b/ops/zkp-mvp/gpu-metal/hashline/src/gpu/metal.rs
+index c3da5851..212440b5 100644
+--- a/ops/zkp-mvp/gpu-metal/hashline/src/gpu/metal.rs
++++ b/ops/zkp-mvp/gpu-metal/hashline/src/gpu/metal.rs
+@@ -29,7 +29,8 @@ use std::sync::{Mutex, OnceLock};
+ use zkp_core::pcs::PcsParams;
+ 
+ const SRC: &str = include_str!("metal_kernels.metal");
+-const KERNELS: [&str; 14] = [
++const KERNELS: [&str; 15] = [
++    "k_gather_plane",
+     "k_fold_tables",
+     "k_gather_cols",
+     "k_fold_partial",
+@@ -451,6 +452,161 @@ pub struct MetalCommit {
+     data: Option<PBuf>,
+ }
+ 
++// ------------------------------------------- M5a: resident committed data
++
++/// **[M5a] The hiding commitments' device data rows, by the HOST slice they
++/// were uploaded from** `(host ptr, host len, the same buffer)`. A slot's
++/// plain-store plane tables are then gathered on the device
++/// (`MetalTables::gather`) instead of copied word by word on the CPU (0.14 s of
++/// a W16 block's tables, `results/zk60_limb16_20261031/DESIGN.md`).
++///
++/// **Why a key can never name the wrong words.** An entry is added when its
++/// `MetalCommit` is made and removed in that commitment's `drop`, before its
++/// buffer can go back to the pool; and the host slice is the commitment's own
++/// data (`CommittedZk::data` is the `Vec` the upload read, moved, not copied),
++/// immutable for the commitment's life. `HL_METAL_GATHER=0` turns it off.
++static RESIDENT: Mutex<Vec<(usize, usize, Buffer)>> = Mutex::new(Vec::new());
++
++fn gather_on() -> bool {
++    static ON: OnceLock<bool> = OnceLock::new();
++    *ON.get_or_init(|| std::env::var("HL_METAL_GATHER").map(|v| v != "0").unwrap_or(true))
++}
++
++fn resident_add(data: &[Fp], d: &PBuf) {
++    if !gather_on() || data.is_empty() {
++        return;
++    }
++    if let Ok(mut g) = RESIDENT.lock() {
++        let key = data.as_ptr() as usize;
++        g.retain(|e| e.0 != key);
++        g.push((key, data.len(), (**d).clone()));
++    }
++}
++
++impl Drop for MetalCommit {
++    fn drop(&mut self) {
++        if let Some(d) = &self.data {
++            let p = d.contents() as usize;
++            if let Ok(mut g) = RESIDENT.lock() {
++                g.retain(|e| e.2.contents() as usize != p);
++            }
++        }
++    }
++}
++
++/// [M5a] one plain-store plane table to gather on the device into table
++/// `table` of a [`MetalTables`]: `out[x] = (data[off0 + idx], data[off1 + idx]
++/// or 0)`, `idx = inv_hi[xu >> xlo] | inv_lo[xu & (2^xlo - 1)]`, `xu = x & used`
++pub struct GatherJob<'a> {
++    pub table: usize,
++    pub data: &'a [Fp],
++    pub off: [usize; 2],
++    pub two: bool,
++    pub used: usize,
++    pub xlo: usize,
++    pub inv_lo: Vec<u32>,
++    pub inv_hi: Vec<u32>,
++}
++
++#[repr(C)]
++struct PlaneGatherArgs {
++    n: u32,
++    used: u32,
++    xlo: u32,
++    lo_mask: u32,
++    off0: u32,
++    off1: u32,
++    two: u32,
++    out_base: u32,
++}
++
++/// a u32 vector in a pooled shared buffer
++fn upload_u32(c: &Ctx, vals: &[u32]) -> Result<PBuf, String> {
++    let buf = shared_buffer(c, (vals.len().max(1) * 4) as u64)?;
++    // SAFETY: `vals.len() * 4` bytes of shared, CPU-visible memory owned here
++    let dst = unsafe { std::slice::from_raw_parts_mut(buf.contents() as *mut u32, vals.len()) };
++    dst.copy_from_slice(vals);
++    Ok(buf)
++}
++
++impl MetalTables {
++    /// **[M5a]** Gather every job whose data is resident on the device, in ONE
++    /// command buffer. Returns, per job, whether it was written; a job without
++    /// a resident buffer, or whose largest index leaves its data, is left for
++    /// the CPU builder. The words are copied from the committed rows, so a
++    /// gathered table is word for word the CPU's (`m5a_` tests).
++    pub fn gather(&mut self, jobs: &[GatherJob<'_>]) -> Result<Vec<bool>, String> {
++        let mut done = vec![false; jobs.len()];
++        if !gather_on() || jobs.is_empty() {
++            return Ok(done);
++        }
++        let c = ctx()?;
++        let reg: Vec<(usize, usize, Buffer)> = RESIDENT.lock().map_err(|_| "metal resident registry poisoned".to_string())?.clone();
++        let mut picks: Vec<(usize, Buffer, PBuf, PBuf, PlaneGatherArgs)> = Vec::new();
++        for (j, job) in jobs.iter().enumerate() {
++            let Some((_, _, src)) = reg.iter().find(|e| e.0 == job.data.as_ptr() as usize && e.1 == job.data.len()) else { continue };
++            let max_idx = job.inv_hi.iter().max().copied().unwrap_or(0) as usize | job.inv_lo.iter().max().copied().unwrap_or(0) as usize;
++            let reach = job.off[0].max(if job.two { job.off[1] } else { 0 }) + max_idx;
++            let out_base = job.table * self.cap;
++            if job.table >= self.k || reach >= job.data.len() || reach > u32::MAX as usize || 2 * (out_base + self.cap) > u32::MAX as usize
++                || job.inv_lo.len() != 1usize << job.xlo || job.used >= self.cap {
++                continue;
++            }
++            let args = PlaneGatherArgs {
++                n: self.cap as u32,
++                used: job.used as u32,
++                xlo: job.xlo as u32,
++                lo_mask: ((1usize << job.xlo) - 1) as u32,
++                off0: job.off[0] as u32,
++                off1: if job.two { job.off[1] as u32 } else { 0 },
++                two: job.two as u32,
++                out_base: out_base as u32,
++            };
++            picks.push((j, src.clone(), upload_u32(c, &job.inv_lo)?, upload_u32(c, &job.inv_hi)?, args));
++        }
++        if picks.is_empty() {
++            return Ok(done);
++        }
++        let out: &Buffer = &self.buf;
++        objc::rc::autoreleasepool(|| {
++            run(c, |enc| {
++                for (_, src, lo, hi, args) in &picks {
++                    enc.set_buffer(0, Some(src), 0);
++                    enc.set_buffer(1, Some(out), 0);
++                    enc.set_buffer(2, Some(lo), 0);
++                    enc.set_buffer(3, Some(hi), 0);
++                    set_args(enc, 4, args);
++                    dispatch_2d(c, enc, "k_gather_plane", self.cap as u64, 1);
++                }
++                Ok(())
++            })
++        })?;
++        for (j, ..) in &picks {
++            done[*j] = true;
++        }
++        Ok(done)
++    }
++}
++
++/// [M5a, tests] register `data` as resident (an upload, as a hiding commit
++/// makes) until the returned guard drops
++#[cfg(test)]
++pub fn resident_for_test(data: &[Fp]) -> Result<impl Drop, String> {
++    struct Guard(Buffer);
++    impl Drop for Guard {
++        fn drop(&mut self) {
++            let p = self.0.contents() as usize;
++            if let Ok(mut g) = RESIDENT.lock() {
++                g.retain(|e| e.2.contents() as usize != p);
++            }
++        }
++    }
++    let c = ctx()?;
++    let d = upload(c, data)?;
++    resident_add(data, &d);
++    Ok(Guard(d.keep()))
++}
++
+ impl MetalCommit {
+     /// `rho^T M` over the systematic data, the same arithmetic as zkp-core's
+     /// `fold_rows_host` (only the summation's chunking is the same too, so the
+@@ -785,6 +941,12 @@ fn commit_impl(
+         // SAFETY: nn * 32 bytes, completed command buffer
+         let raw = unsafe { std::slice::from_raw_parts(leaves_buf.contents() as *const u8, nn * 32) };
+         let leaves: Vec<Digest> = raw.chunks_exact(32).map(|ch| ch.try_into().expect("32-byte leaf")).collect();
++        // [M5a] a hiding commitment keeps its data rows on the device (the
++        // opening folds them): name them by the host slice they came from, so a
++        // slot's plane tables can be gathered from them (`MetalTables::gather`)
++        if zk_bufs.is_some() {
++            resident_add(data, &d);
++        }
+         let store = MetalCommit {
+             rows,
+             n,
+diff --git a/ops/zkp-mvp/gpu-metal/hashline/src/gpu/metal_kernels.metal b/ops/zkp-mvp/gpu-metal/hashline/src/gpu/metal_kernels.metal
+index ff2e032b..7255bde0 100644
+--- a/ops/zkp-mvp/gpu-metal/hashline/src/gpu/metal_kernels.metal
++++ b/ops/zkp-mvp/gpu-metal/hashline/src/gpu/metal_kernels.metal
+@@ -611,3 +611,27 @@ kernel void k_hash_cols(device const ulong *enc [[buffer(0)]],
+     b3_compress(out_cv, out_block, 0UL, out_len, out_flags | ROOT, root);
+     for (uint i = 0; i < 8; i++) { leaves[j * 8 + i] = root[i]; }
+ }
++
++// ------------------------------------------- M5a: plane tables gathered on the device
++// One plain-store plane table: `argument.rs`'s `priv_table_fill`, parallel
++// branch. out[x] = (data[off0 + idx], two ? data[off1 + idx] : 0), with
++// idx = inv_hi[xu >> xlo] | inv_lo[xu & lo_mask] and xu = x & used.
++// The words are COPIED, never computed: a plane's coefficients are 1 (an A
++// plane) or (1, u) (an H plane's real and imaginary rows), so its Fp2 entry is
++// the pair of committed words itself, exactly what the CPU stores.
++struct PlaneGatherArgs { uint n; uint used; uint xlo; uint lo_mask; uint off0; uint off1; uint two; uint out_base; };
++kernel void k_gather_plane(device const ulong *src [[buffer(0)]],
++                           device ulong *out [[buffer(1)]],
++                           device const uint *inv_lo [[buffer(2)]],
++                           device const uint *inv_hi [[buffer(3)]],
++                           constant PlaneGatherArgs &a [[buffer(4)]],
++                           uint2 gid [[thread_position_in_grid]]) {
++    uint x = gid.x;
++    if (x >= a.n) { return; }
++    uint xu = x & a.used;
++    uint idx = inv_hi[xu >> a.xlo] | inv_lo[xu & a.lo_mask];
++    ulong re = src[a.off0 + idx];
++    ulong im = a.two != 0u ? src[a.off1 + idx] : 0UL;
++    out[2u * (a.out_base + x)] = re;
++    out[2u * (a.out_base + x) + 1u] = im;
++}
+diff --git a/ops/zkp-mvp/gpu-metal/hashline/src/gpu/mod.rs b/ops/zkp-mvp/gpu-metal/hashline/src/gpu/mod.rs
+index a6f7a96e..b2fbe3fb 100644
+--- a/ops/zkp-mvp/gpu-metal/hashline/src/gpu/mod.rs
++++ b/ops/zkp-mvp/gpu-metal/hashline/src/gpu/mod.rs
+@@ -25,7 +25,9 @@ mod cuda;
+ #[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+ mod metal;
+ #[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+-pub use metal::{metal_commit, metal_commit_zk, metal_rounds, metal_rounds_owned, pool_stats as metal_pool_stats, probe_field as metal_probe_field, stats as metal_stats, sumcheck_stats as metal_sumcheck_stats, MetalCommit, MetalRounds, MetalTables, TailedRounds};
++pub use metal::{metal_commit, metal_commit_zk, metal_rounds, metal_rounds_owned, pool_stats as metal_pool_stats, probe_field as metal_probe_field, stats as metal_stats, sumcheck_stats as metal_sumcheck_stats, GatherJob, MetalCommit, MetalRounds, MetalTables, TailedRounds};
++#[cfg(all(test, feature = "gpu-metal", not(feature = "gpu-cuda")))]
++pub use metal::resident_for_test as metal_resident_for_test;
+ 
+ /// **ROUND 2 (R2-5): GPU MODE FAILS CLOSED.** Every place a device entry
+ /// point declines and the prover would silently take the CPU body reports
+diff --git a/ops/zkp-mvp/gpu-metal/hashline/src/private_block/argument.rs b/ops/zkp-mvp/gpu-metal/hashline/src/private_block/argument.rs
+index c919681c..bb959228 100644
+--- a/ops/zkp-mvp/gpu-metal/hashline/src/private_block/argument.rs
++++ b/ops/zkp-mvp/gpu-metal/hashline/src/private_block/argument.rs
+@@ -548,6 +548,64 @@ pub(super) fn build_tables_into(tabs: &[Tab], n_vars: usize, pd: &ProverData, ou
+     tabs.par_iter().zip(out.into_par_iter()).for_each(|(t, o)| table_into(t, n_vars, pd, o));
+ }
+ 
++/// **[M5a]** [`build_tables_into`] for the tables `done` does not mark (the
++/// device gathered those already; their slices are not touched).
++#[cfg(feature = "gpu-metal")]
++pub(super) fn build_tables_into_except(tabs: &[Tab], n_vars: usize, pd: &ProverData, out: Vec<&mut [Fp2]>, done: &[bool]) {
++    use rayon::prelude::*;
++    assert_eq!(tabs.len(), out.len(), "private block: device table count");
++    assert_eq!(tabs.len(), done.len(), "private block: gathered-table flags");
++    tabs.par_iter().zip(out.into_par_iter()).zip(done.par_iter()).filter(|(_, d)| !**d).for_each(|((t, o), _)| table_into(t, n_vars, pd, o));
++}
++
++/// **[M5a] The device gather of a PLAIN-STORE plane table**, or `None` where
++/// the CPU must build it. It is `priv_table_fill`'s parallel branch, stated
++/// again for the device: plain store (no fixed coordinate, no challenge index
++/// used twice), and a plane whose coefficients are exactly `1` (an `A` plane)
++/// or `(1, u)` (an `H` plane's real and imaginary rows), so each entry is the
++/// committed word pair itself, `(data[off0 + idx], data[off1 + idx] or 0)`.
++/// The inverse bit tables are the branch's `inverse_half`, as `u32`.
++#[cfg(feature = "gpu-metal")]
++pub(super) fn plane_gather<'a>(table: usize, p: &Priv, n_vars: usize, data: &'a [Fp]) -> Option<crate::gpu::GatherJob<'a>> {
++    if p.coords.iter().any(|c| matches!(c, Coord::Fixed(_))) {
++        return None;
++    }
++    let (off, two) = match p.slices.as_slice() {
++        [(o, c)] if *c == Fp2::ONE => ([*o, 0], false),
++        [(re, c0), (im, c1)] if *c0 == Fp2::ONE && *c1 == Fp2::U => ([*re, *im], true),
++        _ => return None,
++    };
++    let mut used = 0usize;
++    let mut bit_of: Vec<Option<(usize, usize)>> = vec![None; n_vars];
++    for (j, c) in p.coords.iter().enumerate() {
++        let (k, flip) = match c {
++            Coord::Rho(k) => (*k, 0),
++            Coord::Flip(k) => (*k, 1),
++            Coord::Fixed(_) => return None,
++        };
++        if k >= n_vars || bit_of[n_vars - 1 - k].is_some() {
++            return None; // an index used twice accumulates: not a plain store
++        }
++        used |= 1usize << (n_vars - 1 - k);
++        bit_of[n_vars - 1 - k] = Some((p.log - 1 - j, flip));
++    }
++    let (xlo, xhi) = (n_vars / 2, n_vars - n_vars / 2);
++    let inverse_half = |shift: usize, bits: usize| -> Vec<u32> {
++        (0..1usize << bits)
++            .map(|v| {
++                let mut idx = 0usize;
++                for b in 0..bits {
++                    if let Some((ib, flip)) = bit_of[shift + b] {
++                        idx |= (((v >> b) & 1) ^ flip) << ib;
++                    }
++                }
++                idx as u32
++            })
++            .collect()
++    };
++    Some(crate::gpu::GatherJob { table, data, off, two, used, xlo, inv_lo: inverse_half(0, xlo), inv_hi: inverse_half(xlo, xhi) })
++}
++
+ /// **FINDING S12-F2 (S12a), fixed here.** The ROW WIDTH a claim's reserved
+ /// pair is addressed in is the row width of the COMMITMENT the plane lives
+ /// in, and the two commitments do not share one: `A` and `H` are the block's
+@@ -728,7 +786,21 @@ pub(crate) fn run_slot(side: &mut Side, acc: &mut Acc, mut def: SlotDef, tr: &mu
+                 #[cfg(feature = "gpu-metal")]
+                 if direct {
+                     if let Ok(mut mt) = crate::gpu::MetalTables::new(def.tabs.len(), 1usize << n) {
+-                        build_tables_into(&def.tabs, n, pd, mt.tables_mut());
++                        // [M5a] the plain-store plane tables gathered on the
++                        // device from the commitment's resident rows (the same
++                        // words); the CPU builds every other table, and all of
++                        // them if the device declines
++                        let jobs: Vec<crate::gpu::GatherJob<'_>> = def.tabs.iter().enumerate()
++                            .filter_map(|(k, t)| match t { Tab::Priv(p) => plane_gather(k, p, n, pd.data[p.cm as usize]), _ => None })
++                            .collect();
++                        let mut done = vec![false; def.tabs.len()];
++                        if let Ok(flags) = mt.gather(&jobs) {
++                            for (job, f) in jobs.iter().zip(flags) {
++                                done[job.table] = f;
++                            }
++                        }
++                        drop(jobs);
++                        build_tables_into_except(&def.tabs, n, pd, mt.tables_mut(), &done);
+                         dev_tables = Some(mt);
+                         return Vec::new();
+                     }
+diff --git a/ops/zkp-mvp/gpu-metal/hashline/src/private_block/slot_ir_accuracy.rs b/ops/zkp-mvp/gpu-metal/hashline/src/private_block/slot_ir_accuracy.rs
+index c94c80d8..0885fcbd 100644
+--- a/ops/zkp-mvp/gpu-metal/hashline/src/private_block/slot_ir_accuracy.rs
++++ b/ops/zkp-mvp/gpu-metal/hashline/src/private_block/slot_ir_accuracy.rs
+@@ -1034,6 +1034,40 @@ mod tests {
+         (data, cases)
+     }
+ 
++    /// **[M5a] a device-gathered plane table is the CPU's, word for word.**
++    /// Every `m4_priv_cases` descriptor the gather accepts, plus an `H` plane's
++    /// `(re, 1), (im, u)` pair, at two widths, against `priv_table_into`; and the
++    /// gather refuses what it must leave to the CPU (a fixed coordinate, a
++    /// duplicated index, a coefficient other than 1 / u).
++    #[cfg(feature = "gpu-metal")]
++    #[test]
++    fn m5a_device_plane_gather_equals_the_cpu_tables() {
++        use crate::private_block::argument::{plane_gather, priv_table_into, Cm, Coord, Priv};
++        for n_vars in [10usize, 14] {
++            let (data, mut cases) = m4_priv_cases(n_vars);
++            cases.push(("an H plane's (re, 1), (im, u)", Priv { cm: Cm::H, slices: vec![(1, Fp2::ONE), (9, Fp2::U)], log: n_vars, coords: (0..n_vars).rev().map(Coord::Rho).collect(), mask_row: 0, ext_round: 0 }));
++            let _resident = crate::gpu::metal_resident_for_test(&data).expect("a Metal device");
++            let mut mt = crate::gpu::MetalTables::new(cases.len(), 1 << n_vars).unwrap();
++            let jobs: Vec<_> = cases.iter().enumerate().filter_map(|(k, (_, p))| plane_gather(k, p, n_vars, &data)).collect();
++            let names: Vec<&str> = jobs.iter().map(|j| cases[j.table].0).collect();
++            assert_eq!(names, vec!["plain", "short, broadcast", "interleaved, flipped, short", "an H plane's (re, 1), (im, u)"], "n_vars {n_vars}: the planes the gather takes");
++            let flags = mt.gather(&jobs).unwrap();
++            assert!(flags.iter().all(|f| *f), "n_vars {n_vars}: a resident gather was declined");
++            let got = mt.to_vecs();
++            for job in &jobs {
++                let (name, p) = &cases[job.table];
++                let mut want = vec![Fp2::ZERO; 1 << n_vars];
++                priv_table_into(p, &data, n_vars, &mut want);
++                assert!(got[job.table] == want, "n_vars {n_vars} {name}: the device gather differs from the CPU table");
++            }
++        }
++        // without a resident buffer nothing is gathered (the CPU builds it)
++        let (data, cases) = m4_priv_cases(10);
++        let mut mt = crate::gpu::MetalTables::new(1, 1 << 10).unwrap();
++        let job = plane_gather(0, &cases[0].1, 10, &data).unwrap();
++        assert_eq!(mt.gather(&[job]).unwrap(), vec![false]);
++    }
++
+     /// [ZK60-METAL M4j] the parallel table builders (over the OUTPUT) are the
+     /// sequential ones word for word: every descriptor of `m4_priv_cases`, the
+     /// vector and the in-place forms, every eq cube shape, at widths on both

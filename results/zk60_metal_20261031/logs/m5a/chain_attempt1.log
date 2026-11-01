@@ -1,0 +1,47 @@
+== build 22:39:31
+[zk60-guard 22:39:31] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 22:40:31] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 22:41:31] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 22:42:31] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 22:43:12] START m5a-gate-build class=build need=4G cap=10G enforce=watchdog-only waited=221s run=b95e0e2f75fd
+[zk60-guard 22:43:19] END m5a-gate-build exit=101 child_wall=8s peak_rss=1.25G min_avail=230.13G
+    = note: `GatherArgs` must be defined only once in the type namespace of this module
+
+warning: unused doc comment
+   --> src/private_block/token_io/run.rs:737:1
+--
+error[E0560]: struct `metal::GatherArgs` has no field named `rows`
+   --> src/gpu/metal.rs:749:42
+    |
+749 |             set_args(e, 3, &GatherArgs { rows: rows as u64, nn: nn as u64, nidx: idx.len() as u64 });
+    |                                          ^^^^ `metal::GatherArgs` does not have this field
+    |
+    = note: available fields are: `n`, `used`, `xlo`, `lo_mask`, `off0` ... and 3 others
+
+error[E0560]: struct `metal::GatherArgs` has no field named `nn`
+   --> src/gpu/metal.rs:749:61
+    |
+749 |             set_args(e, 3, &GatherArgs { rows: rows as u64, nn: nn as u64, nidx: idx.len() as u64 });
+    |                                                             ^^ unknown field
+    |
+help: a field with a similar name exists
+    |
+749 -             set_args(e, 3, &GatherArgs { rows: rows as u64, nn: nn as u64, nidx: idx.len() as u64 });
+749 +             set_args(e, 3, &GatherArgs { rows: rows as u64, n: nn as u64, nidx: idx.len() as u64 });
+    |
+
+error[E0560]: struct `metal::GatherArgs` has no field named `nidx`
+   --> src/gpu/metal.rs:749:76
+    |
+749 |             set_args(e, 3, &GatherArgs { rows: rows as u64, nn: nn as u64, nidx: idx.len() as u64 });
+    |                                                                            ^^^^ `metal::GatherArgs` does not have this field
+    |
+    = note: available fields are: `n`, `used`, `xlo`, `lo_mask`, `off0` ... and 3 others
+
+warning: unused variable: `ls`
+   --> src/private_block/argument_accuracy.rs:162:9
+    |
+162 |     let(ls,lp)=(sh.limbs_sigma_s(),sh.limbs_p());
+    |         ^^ help: if this is intentional, prefix it with an underscore: `_ls`
+--
+error: could not compile `hashline` (lib test) due to 4 previous errors; 20 warnings emitted

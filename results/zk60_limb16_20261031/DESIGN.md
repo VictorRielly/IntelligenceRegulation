@@ -44,7 +44,18 @@ builds) for most of its time. The byte-identical candidate it points to: have th
 committed planes in place instead of copying them into extension-field tables (about 0.05 s, estimated).
 
 **Next levers after W16, ranked** (estimates against the 0.578 s instrumented block, not measured):
-1. **Byte-identical: the first sumcheck round reads committed planes in place**, instead of copying each into an
+1. **TRIED, NO GAIN (M5a, 2026-11-01).** The plain-store plane tables were gathered on the device from the hiding
+   commitments' resident data rows. It was byte-identical (61/0 unit tests, dev-shape bytes, trained digests, R13
+   run, golden 8/8), but an A/B on one binary showed no gain [MEASURED, n=3 warm each, back to back, same conditions]:
+   - all table builds: off 0.121 s, on 0.131 s;
+   - warm prove core: off 0.565-0.592 s, on 0.580-0.628 s;
+   - slot 18's build alone went from 0.037 to 0.029 s, and the per-slot dispatch overhead cancelled that out.
+
+   Plane copies are therefore a small part of table building; eq tables and public copies dominate. Reverted; the
+   diff is kept at `results/zk60_metal_20261031/m5a_plane_gather_negative.patch`, the A/B logs at
+   `results/zk60_metal_20261031/logs/m5a/`. The next measurement is per-kind timing inside the table builds.
+
+   *Superseded wording:* **Byte-identical: the first sumcheck round reads committed planes in place**, instead of copying each into an
    extension-field device table. About 0.05 s: slots 14 and 18 spend 0.050 s building tables.
 2. **Byte-identical: the matmul slots' public weight folds on the GPU.** About 0.025 s: nine slots of 4-16 ms each,
    mostly an exact i8 transposed matrix-vector fold that is already parallel and deferred on the CPU. The verifier

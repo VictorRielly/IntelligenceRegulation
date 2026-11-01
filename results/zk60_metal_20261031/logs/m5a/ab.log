@@ -1,0 +1,4 @@
+[zk60-guard 23:03:52] START m5a-ab-off class=gpu need=60G cap=160G enforce=watchdog-only waited=0s run=a9df51681658
+[zk60-guard 23:04:01] END m5a-ab-off exit=0 child_wall=9s peak_rss=5.08G min_avail=224.16G peak_vram=6595MiB
+[zk60-guard 23:04:11] START m5a-ab-on class=gpu need=60G cap=160G enforce=watchdog-only waited=0s run=e4e673adc5a1
+[zk60-guard 23:04:20] END m5a-ab-on exit=0 child_wall=9s peak_rss=5.10G min_avail=224.45G peak_vram=6904MiB
