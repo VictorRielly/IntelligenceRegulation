@@ -14,6 +14,18 @@
 - **New research result (M18, D56 open question):** a 31-bit field (Mersenne-31 or BabyBear) multiplies 3.5–3.9x
   faster than today's on this GPU, and its secure extension 1.8x faster [MEASURED]. That could roughly double the GPU
   ceiling [MODEL], but it is a new proof system that would need Victor's decision and a full re-derivation and review.
+- **W16 independent soundness review done (2026-11-01):**
+  - **Verdict:** sound as built, about 0.9 bit better than R13 per block (LogUp 2^-102.92).
+  - **Fixed:** the Medium finding F1 (two receipt guards missed the W16 profile names) and Lows F2 and F4. All
+    gates pass.
+  - **Still owed before any W16 receipt:**
+    - the malicious-prover controls F3;
+    - the privacy gate run on W16, whose tooling must first learn W16's tables; the 16-bit histograms must be on
+      its list;
+    - registration;
+    - the DD variants.
+  - Report: `results/zk60_limb16_20261031/REVIEW_W16_20261101.md`.
+- **D55 design draft:** `docs/zkmatrix-poc/ZK60_D55_CONCURRENT_RUN_DESIGN.md` (one request's blocks proved at once).
 - **Tried this round and reverted (no gain, diffs kept):** Gruen's trick on the GPU zero-checks, and a host pool for
   the commitment matrices. Details: `results/zk60_metal_20261031/README.md` M6–M16.
 
