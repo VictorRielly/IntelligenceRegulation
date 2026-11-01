@@ -1031,6 +1031,16 @@ mod tests {
         let mut mixed: Vec<Coord> = (0..n_vars - 1).map(|j| if j % 2 == 0 { Coord::Rho((j * 7 + 3) % (n_vars - 1) + 1) } else { Coord::Flip((j * 7 + 3) % (n_vars - 1) + 1) }).collect();
         mixed.reverse();
         cases.push(("interleaved, flipped, short", mk(vec![(7, Fp2::ONE)], n_vars - 1, mixed)));
+        // [M9] accumulating tables that read EVERY cube variable once (the
+        // parallel accumulating form): a fixed coordinate high in the index,
+        // and one at the bottom with a flip and two slices
+        let mut fa = rho((0..n_vars).rev().collect());
+        fa.insert(1, Coord::Fixed(f(5)));
+        cases.push(("fixed, every variable", mk(vec![(4, f(6))], n_vars + 1, fa)));
+        let mut fb = rho((0..n_vars).collect());
+        fb[n_vars / 2] = Coord::Flip(n_vars / 2);
+        fb.push(Coord::Fixed(f(7)));
+        cases.push(("fixed low, flipped, two slices, every variable", mk(vec![(1, f(2)), (6, Fp2::U)], n_vars + 1, fb)));
         (data, cases)
     }
 

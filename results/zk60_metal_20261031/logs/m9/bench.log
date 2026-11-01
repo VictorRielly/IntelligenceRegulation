@@ -1,0 +1,12 @@
+   Compiling zkp-core v0.1.0 (/Users/victorrielly/IntelligenceRegulation/ops/zkp-mvp/gpu-metal/zkp-core)
+    Finished `release` profile [optimized] target(s) in 13.73s
+     Running unittests src/lib.rs (ops/zkp-mvp/gpu-metal/zkp-core/target/release/deps/zkp_core-68bf4449a8e0df65)
+
+running 1 test
+[M9 bench] rep 0: keyed tree 2^16 leaves: today 0.0091 s, min-len 1024 0.0040 s, one thread 0.0100 s
+[M9 bench] rep 1: keyed tree 2^16 leaves: today 0.0230 s, min-len 1024 0.0025 s, one thread 0.0042 s
+[M9 bench] rep 2: keyed tree 2^16 leaves: today 0.0143 s, min-len 1024 0.0024 s, one thread 0.0043 s
+test merkle::tests::m9_bench_keyed_tree_over_2_16_leaves ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 78 filtered out; finished in 0.09s
+

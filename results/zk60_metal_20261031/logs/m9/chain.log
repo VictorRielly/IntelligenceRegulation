@@ -1,0 +1,49 @@
+== build 00:48:48
+[zk60-guard 00:48:48] START m9-build class=build need=4G cap=10G enforce=watchdog-only waited=0s run=bf26cf63bad2
+[zk60-guard 00:51:00] END m9-build exit=0 child_wall=132s peak_rss=3.36G min_avail=227.76G
+133
+-rwxr-xr-x  1 victorrielly  staff  17390912 Nov  1 00:50 /Users/victorrielly/IntelligenceRegulation/ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-a90b6cf7715dc2a7
+== zkp-core 00:51:10
+[zk60-guard 00:51:10] START m9-zkpcore class=build need=4G cap=10G enforce=watchdog-only waited=0s run=d4411f9a795c
+[zk60-guard 00:51:24] END m9-zkpcore exit=0 child_wall=14s peak_rss=0.57G min_avail=230.49G
+test result: ok. 15 passed; 0 failed; 2 ignored; 0 measured; 62 filtered out; finished in 0.09s
+== bytes-default 00:51:35
+[zk60-guard 00:51:35] START m9-bytes-default class=gpu need=60G cap=160G enforce=watchdog-only waited=0s run=d49c1ad6d564
+[zk60-guard 00:51:41] END m9-bytes-default exit=0 child_wall=6s peak_rss=2.02G min_avail=226.19G peak_vram=3915MiB
+M4-ACCURACY-DIGEST R13_RUNG_LOW cpu 01fa1b2e
+M4-ACCURACY-DIGEST R13_RUNG_H24 cpu 992034f8
+M4-ACCURACY-DIGEST R13_RUNG_LOW_DD cpu 371e6b00
+M4-ACCURACY-DIGEST R13_RUNG_H24_DD cpu 3ab090df
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 916 filtered out; finished in 5.96s
+== bytes-0 00:51:51
+[zk60-guard 00:51:51] START m9-bytes-0 class=gpu need=60G cap=160G enforce=watchdog-only waited=0s run=4987c7b212b4
+[zk60-guard 00:51:57] END m9-bytes-0 exit=0 child_wall=6s peak_rss=1.77G min_avail=226.06G peak_vram=3915MiB
+M4-ACCURACY-DIGEST R13_RUNG_LOW cpu 01fa1b2e
+M4-ACCURACY-DIGEST R13_RUNG_H24 cpu 992034f8
+M4-ACCURACY-DIGEST R13_RUNG_LOW_DD cpu 371e6b00
+M4-ACCURACY-DIGEST R13_RUNG_H24_DD cpu 3ab090df
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 916 filtered out; finished in 5.95s
+== ab-old 00:52:07
+[zk60-guard 00:52:07] START m9-ab-old class=gpu need=60G cap=160G enforce=watchdog-only waited=0s run=79a48d585b16
+[zk60-guard 00:52:23] END m9-ab-old exit=0 child_wall=16s peak_rss=7.35G min_avail=220.63G peak_vram=7361MiB
+AB old W16_SHIELD_T128_H24 core-cpu 2.925 warm 0.576 core 0.444 rounds 0.087 cpu 01a6d51d metal 01a6d51d
+AB old W16_SHIELD_T128_H24 core-cpu 2.925 warm 0.558 core 0.429 rounds 0.085 cpu 01a6d51d metal 01a6d51d
+AB old W16_SHIELD_T128_H24 core-cpu 2.925 warm 0.561 core 0.432 rounds 0.085 cpu 01a6d51d metal 01a6d51d
+AB old W16_8B_T128_H24 core-cpu 2.826 warm 0.548 core 0.415 rounds 0.076 cpu c5e0bdac metal c5e0bdac
+AB old W16_8B_T128_H24 core-cpu 2.826 warm 0.551 core 0.422 rounds 0.076 cpu c5e0bdac metal c5e0bdac
+AB old W16_8B_T128_H24 core-cpu 2.826 warm 0.539 core 0.408 rounds 0.075 cpu c5e0bdac metal c5e0bdac
+== ab-new 00:52:34
+[zk60-guard 00:52:34] START m9-ab-new class=gpu need=60G cap=160G enforce=watchdog-only waited=0s run=3b0584703a71
+[zk60-guard 00:52:49] END m9-ab-new exit=0 child_wall=15s peak_rss=7.35G min_avail=220.53G peak_vram=7346MiB
+AB new W16_SHIELD_T128_H24 core-cpu 2.989 warm 0.543 core 0.414 rounds 0.086 cpu 01a6d51d metal 01a6d51d
+AB new W16_SHIELD_T128_H24 core-cpu 2.989 warm 0.512 core 0.383 rounds 0.084 cpu 01a6d51d metal 01a6d51d
+AB new W16_SHIELD_T128_H24 core-cpu 2.989 warm 0.520 core 0.387 rounds 0.086 cpu 01a6d51d metal 01a6d51d
+AB new W16_8B_T128_H24 core-cpu 2.624 warm 0.504 core 0.374 rounds 0.076 cpu c5e0bdac metal c5e0bdac
+AB new W16_8B_T128_H24 core-cpu 2.624 warm 0.501 core 0.373 rounds 0.077 cpu c5e0bdac metal c5e0bdac
+AB new W16_8B_T128_H24 core-cpu 2.624 warm 0.503 core 0.375 rounds 0.076 cpu c5e0bdac metal c5e0bdac
+== unit-default 00:52:59
+[zk60-guard 00:52:59] START m9-unit-default class=cpu need=8G cap=40G enforce=watchdog-only waited=0s run=a1b22d105ef6
+[zk60-guard 00:53:07] END m9-unit-default exit=101 child_wall=8s peak_rss=1.62G min_avail=228.55G
+test private_block::slot_ir::accuracy::tests::m4j_parallel_table_builders_equal_the_sequential_ones ... FAILED
+thread 'private_block::slot_ir::accuracy::tests::m4j_parallel_table_builders_equal_the_sequential_ones' (2243602) panicked at src/private_block/slot_ir_accuracy.rs:1041:11:
+test result: FAILED. 61 passed; 1 failed; 4 ignored; 0 measured; 851 filtered out; finished in 7.63s

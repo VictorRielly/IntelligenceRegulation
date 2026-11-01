@@ -23,6 +23,13 @@ measured context scaling shows that longer contexts buy little.**
   - **Small slots on the GPU.** A small zero-check step with an expensive polynomial now runs on the GPU: 8 → 2 ms.
   - **Faster weight fold.** The feed-forward weight fold adds exact integers and reduces once per row: 10 → 3.5 ms
     per 8B matrix, on dense weights.
+- **M9 (byte-identical, kept):** two CPU steps on the critical path fixed (the Merkle tree builder was split into
+  per-pair tasks, and one table builder ran on a single thread). W16 8B block 0.408–0.422 → **0.373–0.375 s**
+  [MEASURED, A/B on one binary, warm n=3, oracle off], about **10.7 proved tokens/s** for a 32-layer 8B stack
+  (about 10.3 with real dense weights).
+- **The CPU is mostly idle during a block proof** (the 24 worker threads idle in 99% of samples). Proving
+  independent requests at once should multiply throughput; measuring that next. Overlapping the blocks of ONE run
+  would need a protocol change (they share one transcript), which is Victor's ruling.
 - **Caveat on all block timings above.** The timing test's synthetic weights are diagonal, so weight folds are
   nearly free in it. A real 8B layer adds about 15 ms per block (about 35 ms before M8) [ESTIMATE]. So the real-weight
   8B figure is about 9–9.5 tokens/s at T128 and about 10 at T256, not 10 and 10.3.

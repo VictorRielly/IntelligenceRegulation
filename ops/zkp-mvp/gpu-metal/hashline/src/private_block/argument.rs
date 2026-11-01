@@ -287,6 +287,12 @@ pub(super) fn priv_table_into_at(p: &Priv, data: &[Fp], n_vars: usize, out: &mut
     priv_table_fill(p, data, n_vars, out, false, par_min);
 }
 
+/// [M9] the parallel accumulating table form (`HL_TABLE_ACC_PAR=0` turns it off)
+fn acc_par_on() -> bool {
+    static ON: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
+    *ON.get_or_init(|| std::env::var("HL_TABLE_ACC_PAR").map(|v| v != "0").unwrap_or(true))
+}
+
 fn priv_table_fill(p: &Priv, data: &[Fp], n_vars: usize, out: &mut [Fp2], zeroed: bool, par_min: usize) {
     let fixed: Vec<Fp2> = p.coords.iter().filter_map(|c| if let Coord::Fixed(f) = c { Some(*f) } else { None }).collect();
     let eqf = eq_table_msb(&fixed);
@@ -370,6 +376,69 @@ fn priv_table_fill(p: &Priv, data: &[Fp], n_vars: usize, out: &mut [Fp2], zeroed
                     Some(off) => Fp2::from_base(data[off + idx]),
                     None => p.slices.iter().fold(Fp2::ZERO, |a, (off, coef)| a.add(coef.mul_base(data[*off + idx]))),
                 };
+            }
+        });
+        return;
+    }
+    // [ZK60-METAL M9] a large ACCUMULATING table (fixed coordinates: a plane
+    // partially evaluated at a challenge point) in parallel over its output,
+    // when every cube variable is read by exactly one coordinate (no
+    // broadcast, no repeated index). Then `idx` splits into the moving bits,
+    // a bijection onto `x` (inverted as above), and the fixed bits `z`, so
+    // `out[x] = sum_z eqf[z] v(idx(x, z))`: exactly the terms the loop below
+    // adds into `out[x]`, in another order. Field addition is exact, so each
+    // entry is the same word. Every element is written: no clearing needed.
+    let full = if n_vars == 0 { 0 } else { usize::MAX >> (usize::BITS as usize - n_vars) };
+    // (the threshold is on the WORK, 2^log input entries: a matmul's plane
+    // table is a 2^12 output over a 2^19 plane)
+    // (`HL_TABLE_ACC_PAR=0` keeps the loop, for a same-binary A/B)
+    if !simple && used == full && used.count_ones() as usize == moving && (1usize << p.log) >= par_min && acc_par_on() {
+        use rayon::prelude::*;
+        let mut bit_of: Vec<Option<(usize, usize)>> = vec![None; n_vars];
+        let mut fpos: Vec<usize> = Vec::new();
+        for (j, c) in p.coords.iter().enumerate() {
+            match c {
+                Coord::Rho(k) => bit_of[n_vars - 1 - *k] = Some((p.log - 1 - j, 0)),
+                Coord::Flip(k) => bit_of[n_vars - 1 - *k] = Some((p.log - 1 - j, 1)),
+                Coord::Fixed(_) => fpos.push(p.log - 1 - j),
+            }
+        }
+        // z's bits in coordinate order, the first fixed coordinate the MSB
+        // (the loop's `z = (z << 1) | b`, `eq_table_msb`'s index order)
+        let nf = fpos.len();
+        let zbits: Vec<usize> = (0..1usize << nf).map(|z| (0..nf).fold(0usize, |a, t| a | (((z >> (nf - 1 - t)) & 1) << fpos[t]))).collect();
+        let (xlo, xhi) = (n_vars / 2, n_vars - n_vars / 2);
+        let inverse_half = |shift: usize, bits: usize| -> Vec<usize> {
+            (0..1usize << bits)
+                .map(|v| {
+                    let mut idx = 0usize;
+                    for b in 0..bits {
+                        if let Some((ib, flip)) = bit_of[shift + b] {
+                            idx |= (((v >> b) & 1) ^ flip) << ib;
+                        }
+                    }
+                    idx
+                })
+                .collect()
+        };
+        let (inv_lo, inv_hi) = (inverse_half(0, xlo), inverse_half(xlo, xhi));
+        let lo_m = (1usize << xlo) - 1;
+        // chunks scale with the output so a small table still splits
+        let ch_len = (out.len() / 256).clamp(16, 1 << 12);
+        out.par_chunks_mut(ch_len).enumerate().for_each(|(ci, ch)| {
+            for (i, o) in ch.iter_mut().enumerate() {
+                let x = (ci * ch_len) + i;
+                let im = inv_hi[x >> xlo] | inv_lo[x & lo_m];
+                let mut acc = Fp2::ZERO;
+                for (z, &zb) in zbits.iter().enumerate() {
+                    let idx = im | zb;
+                    let v = match one_slice {
+                        Some(off) => Fp2::from_base(data[off + idx]),
+                        None => p.slices.iter().fold(Fp2::ZERO, |a, (off, coef)| a.add(coef.mul_base(data[*off + idx]))),
+                    };
+                    acc = acc.add(eqf[z].mul(v));
+                }
+                *o = acc;
             }
         });
         return;

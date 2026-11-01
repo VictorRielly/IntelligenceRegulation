@@ -712,3 +712,48 @@ The block clock cannot resolve a few milliseconds at n=3 on the shared Mac; the 
 - trained digests R13 2b0d04bb / 678953f6 and W16 01a6d51d / c5e0bdac;
 - the R13 run test;
 - golden 8/8 (`golden_m8/`).
+
+## M9 (2026-11-01): Merkle levels in 1024-pair tasks; the accumulating plane table in parallel — kept
+
+Found with a `sample` of ten warm W16 8B passes (`logs/m9` profile notes below). The prover thread spends about 32%
+of its time waiting on the GPU, and the rayon workers are almost entirely idle: the block is latency-bound. Two
+serial or over-split CPU steps were on that critical path:
+1. **`MerkleTree::build{,_keyed}` (zkp-core).** Each level was split into one rayon task per node pair. A 2^16-leaf
+   keyed tree took 9–23 ms, slower than one thread (4.2 ms). With at least 1024 pairs per task it takes 2.4–4.0 ms:
+   the same hashes in the same order (`m9_bench_keyed_tree_over_2_16_leaves`, `logs/m9/bench.log`, n=3).
+   `HL_MERKLE_MIN_PAIRS=1` restores the old split.
+2. **`priv_table_fill`, accumulating form** (a plane partially evaluated at fixed challenge coordinates: the
+   matmuls' and other slots' plane tables). It was one sequential loop over 2^log entries. It now runs in parallel
+   over the output when every cube variable is read by exactly one coordinate:
+   `out[x] = sum_z eqf[z] v(idx(x, z))`, the same terms in another order (exact field addition).
+   - The threshold is on the work (2^log), not the output length.
+   - `HL_TABLE_ACC_PAR=0` keeps the loop.
+   - Two new M4j descriptors (a fixed coordinate high, and one low with a flip and two slices, each reading every
+     variable) check it word for word against the loop at n_vars 3, 8, 13 and 17.
+
+**A/B on one binary** [MEASURED, `HL_PB_ORACLE=0`, warm n=3, `logs/m9/ab_old.log` and `ab_new.log`]:
+
+| Block | old (both off) | new |
+|---|---:|---:|
+| W16 8B T128 | 0.408–0.422 s | **0.373–0.375 s** |
+| W16 Shieldstral T128 | 0.429–0.444 s | **0.383–0.414 s** |
+
+For a 32-layer 8B stack that is about **10.7 proved tokens/s** on the test's diagonal weights. With the dense-weight
+fold estimate (+15 ms, M8) it is about 10.3.
+
+**Gates** (`logs/m9b`, rebuilt after a fixture fix; the first chain's M4j run hit an out-of-range index in the NEW
+fixture at n_vars = 3, not in the prover), all passed:
+- zkp-core 15/0;
+- dev-shape bytes at the default budget and with every round batched;
+- unit tests 62/0 in both modes;
+- trained digests R13 2b0d04bb / 678953f6 and W16 01a6d51d / c5e0bdac;
+- the R13 run test;
+- golden 8/8 (`golden_m9/`).
+
+**The latency finding, for what comes next.** In the profile, the 24 rayon workers were idle for 71,626 of 72,382
+samples. A single block proof uses a small fraction of this machine. Two consequences:
+- **Independent proofs at once** (concurrent requests or stacks) should raise throughput a lot without any
+  protocol change. Measured next.
+- **Blocks within ONE run cannot overlap today.** `run.rs::prove_run_with` threads one transcript through every
+  block (block k continues block k-1's Fiat-Shamir state, and the boundary openings join claims from both sides).
+  Per-block transcripts would be a protocol change needing a soundness design and Victor's ruling.
