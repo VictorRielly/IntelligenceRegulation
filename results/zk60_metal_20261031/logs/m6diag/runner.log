@@ -1,0 +1,4 @@
+[zk60-guard 00:19:51] START m6diag-0 class=gpu need=60G cap=160G enforce=watchdog-only waited=0s run=ce8e508e2dce
+[zk60-guard 00:19:57] END m6diag-0 exit=0 child_wall=7s peak_rss=5.20G min_avail=219.73G peak_vram=9402MiB
+[zk60-guard 00:20:08] START m6diag-1 class=gpu need=60G cap=160G enforce=watchdog-only waited=0s run=d6d171ec2098
+[zk60-guard 00:20:14] END m6diag-1 exit=0 child_wall=7s peak_rss=5.00G min_avail=219.72G peak_vram=6269MiB

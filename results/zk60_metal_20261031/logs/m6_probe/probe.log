@@ -1,0 +1,15 @@
+
+running 1 test
+test private_block::slot_ir::accuracy::tests::m6_probe_dispatch_overhead ... [M6 probe] n 190 fold_half 2^10 rep 0: fs only 0.336 ms/round separate, 0.040 ms/round one buffer; fs+fold 0.286 separate, 0.046 one buffer
+[M6 probe] n 190 fold_half 2^10 rep 1: fs only 0.216 ms/round separate, 0.023 ms/round one buffer; fs+fold 0.219 separate, 0.028 one buffer
+[M6 probe] n 190 fold_half 2^10 rep 2: fs only 0.218 ms/round separate, 0.024 ms/round one buffer; fs+fold 0.222 separate, 0.030 one buffer
+[M6 probe] n 190 fold_half 2^14 rep 0: fs only 0.219 ms/round separate, 0.027 ms/round one buffer; fs+fold 0.230 separate, 0.039 one buffer
+[M6 probe] n 190 fold_half 2^14 rep 1: fs only 0.224 ms/round separate, 0.027 ms/round one buffer; fs+fold 0.239 separate, 0.041 one buffer
+[M6 probe] n 190 fold_half 2^14 rep 2: fs only 0.247 ms/round separate, 0.035 ms/round one buffer; fs+fold 0.273 separate, 0.057 one buffer
+[M6 probe] n 1000 fold_half 2^10 rep 0: fs only 0.210 ms/round separate, 0.024 ms/round one buffer; fs+fold 0.221 separate, 0.028 one buffer
+[M6 probe] n 1000 fold_half 2^10 rep 1: fs only 0.214 ms/round separate, 0.022 ms/round one buffer; fs+fold 0.222 separate, 0.027 one buffer
+[M6 probe] n 1000 fold_half 2^10 rep 2: fs only 0.213 ms/round separate, 0.022 ms/round one buffer; fs+fold 0.220 separate, 0.027 one buffer
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 916 filtered out; finished in 2.13s
+

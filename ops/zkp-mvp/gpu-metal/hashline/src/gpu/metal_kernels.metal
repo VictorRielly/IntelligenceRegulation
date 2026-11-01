@@ -690,3 +690,171 @@ kernel void k_fs_test(device const uint *st_in [[buffer(0)]],
     out[8] = r[0];
     out[9] = r[1];
 }
+
+// ------------------------------------------- M6: a sumcheck round's transcript step on the device
+// One round of zkp-core `prove_rounds` under the CFS masker, after the round kernel wrote its
+// partials: reduce the partials to the unmasked round s(0..=D) (s(1) from the claim when the
+// round recovers it), mask it (`CfsMasker::mask_round`: s + c g_j), absorb it as `sc-round`,
+// squeeze the challenge r, and update the running terms (the claim s(r), sum_{i<j} u_i(r_i),
+// prod_{i<j} r_i). The fold kernel below then reads r from `out`. The host replays every round
+// through the real transcript afterwards and refuses the attempt on any difference.
+//  fs:  [0..8) state words, [8..16) key words, [16] counter, [17] keyed, [18] recover_one,
+//       [19..21) the unmasked claim, [21..23) sum_{i<j} u_i(r_i), [23..25) prod_{i<j} r_i
+//  mk:  [0..2) c, [2..4) a', [4..4+d1) interpolation weights (base words), then per round j
+//       2 (2 + d1 + D) words: 2^(n-1-j), a_0 + sum_{i>j} u_i(1)/2, u_j(0..=D), a_{j,1..=D}
+//  out: per round j, 2 (2 d1 + 1) words: s(0..=D), the masked message, r
+struct fq2 { ulong c0; ulong c1; };
+inline fq2 q2(ulong a, ulong b) { fq2 r; r.c0 = a; r.c1 = b; return r; }
+inline fq2 q2_add(fq2 a, fq2 b) { return q2(gl_add(a.c0, b.c0), gl_add(a.c1, b.c1)); }
+inline fq2 q2_sub(fq2 a, fq2 b) { return q2(gl_sub(a.c0, b.c0), gl_sub(a.c1, b.c1)); }
+// Fp2::mul (u^2 = 7), schoolbook: the same field element as any other form
+inline fq2 q2_mul(fq2 a, fq2 b) {
+    ulong ac = gl_mul(a.c0, b.c0), bd = gl_mul(a.c1, b.c1);
+    ulong ad = gl_mul(a.c0, b.c1), bc = gl_mul(a.c1, b.c0);
+    return q2(gl_add(ac, gl_mul(bd, 7UL)), gl_add(ad, bc));
+}
+inline fq2 q2_mulb(fq2 a, ulong b) { return q2(gl_mul(a.c0, b), gl_mul(a.c1, b)); }
+inline fq2 q2_at(device const ulong *p, ulong w) { return q2(p[w], p[w + 1]); }
+
+struct FsStepArgs { uint nthreads; uint d1; uint j; uint eval_one; uint tgw; uint pad0; };
+
+kernel void k_sc_fs_step(device const ulong *part [[buffer(0)]],
+                         device ulong *fs [[buffer(1)]],
+                         device const ulong *mk [[buffer(2)]],
+                         device ulong *out [[buffer(3)]],
+                         constant FsStepArgs &a [[buffer(4)]],
+                         uint t [[thread_position_in_threadgroup]]) {
+    threadgroup ulong red[2 * 256];
+    threadgroup ulong tot[16];
+    uint d1 = a.d1;
+    // the partial sums, point by point: a strided sum per thread, then a tree
+    // (field addition is exact, so the grouping changes no value)
+    for (uint d = 0; d < d1; d++) {
+        fq2 acc = q2(0UL, 0UL);
+        if (d != 1u || a.eval_one != 0u) {
+            for (uint g = t; g < a.nthreads; g += a.tgw) { acc = q2_add(acc, q2_at(part, (ulong(g) * ulong(d1) + ulong(d)) * 2UL)); }
+        }
+        red[2u * t] = acc.c0;
+        red[2u * t + 1u] = acc.c1;
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+        for (uint s = a.tgw / 2u; s > 0u; s >>= 1) {
+            if (t < s) {
+                red[2u * t] = gl_add(red[2u * t], red[2u * (t + s)]);
+                red[2u * t + 1u] = gl_add(red[2u * t + 1u], red[2u * (t + s) + 1u]);
+            }
+            threadgroup_barrier(mem_flags::mem_threadgroup);
+        }
+        if (t == 0u) { tot[2u * d] = red[0]; tot[2u * d + 1u] = red[1]; }
+        threadgroup_barrier(mem_flags::mem_threadgroup);
+    }
+    if (t != 0u) { return; }
+    uint D = d1 - 1u;
+    fq2 s[8];
+    for (uint d = 0; d < d1; d++) { s[d] = q2(tot[2u * d], tot[2u * d + 1u]); }
+    fq2 claim = q2(fs[19], fs[20]);
+    if (a.eval_one == 0u) { s[1] = q2_sub(claim, s[0]); }
+    // the CFS mask's round message g_j(x) = 2^(n-1-j) (base + u_j(x)) + a' prod x
+    ulong rec = 4UL + ulong(d1) + ulong(a.j) * 2UL * ulong(2u + d1 + D);
+    fq2 c = q2_at(mk, 0UL), ap = q2_at(mk, 2UL);
+    fq2 scale = q2_at(mk, rec), stat = q2_at(mk, rec + 2UL);
+    fq2 pre = q2(fs[21], fs[22]), prod = q2(fs[23], fs[24]);
+    fq2 base = q2_add(stat, pre);
+    fq2 app = q2_mul(ap, prod);
+    ulong vals[16];
+    for (uint x = 0; x < d1; x++) {
+        fq2 g = q2_add(q2_mul(scale, q2_add(base, q2_at(mk, rec + 4UL + 2UL * ulong(x)))), q2_mulb(app, ulong(x)));
+        fq2 m = q2_add(s[x], q2_mul(c, g));
+        vals[2u * x] = m.c0;
+        vals[2u * x + 1u] = m.c1;
+    }
+    uint st[8], key[8];
+    for (uint i = 0; i < 8; i++) { st[i] = uint(fs[i]); key[i] = uint(fs[8u + i]); }
+    uint keyed = uint(fs[17]);
+    fs_absorb_round(st, vals, d1, keyed, key);
+    ulong rr[2];
+    fs_challenge(st, fs[16], keyed, key, rr);
+    fq2 r = q2(rr[0], rr[1]);
+    // the running terms of the next round: u_j(r), the product, the claim s(r)
+    fq2 uj = q2(0UL, 0UL), xp = q2(1UL, 0UL);
+    for (uint e = 0; e < D; e++) {
+        xp = q2_mul(xp, r);
+        uj = q2_add(uj, q2_mul(q2_at(mk, rec + 4UL + 2UL * ulong(d1) + 2UL * ulong(e)), xp));
+    }
+    pre = q2_add(pre, uj);
+    prod = q2_mul(prod, r);
+    if (fs[18] != 0UL) {
+        // zkp-core `mle::interpolate_eval` at r over the points 0..=D
+        fq2 acc = q2(0UL, 0UL);
+        for (uint i = 0; i < d1; i++) {
+            fq2 num = q2(1UL, 0UL);
+            for (uint m = 0; m < d1; m++) {
+                if (m != i) { num = q2_mul(num, q2(gl_sub(r.c0, ulong(m)), r.c1)); }
+            }
+            acc = q2_add(acc, q2_mulb(q2_mul(s[i], num), mk[4u + i]));
+        }
+        claim = acc;
+    }
+    for (uint i = 0; i < 8; i++) { fs[i] = ulong(st[i]); }
+    fs[16] = fs[16] + 1UL;
+    fs[19] = claim.c0; fs[20] = claim.c1;
+    fs[21] = pre.c0; fs[22] = pre.c1;
+    fs[23] = prod.c0; fs[24] = prod.c1;
+    ulong o = ulong(a.j) * 2UL * ulong(2u * d1 + 1u);
+    for (uint d = 0; d < d1; d++) {
+        out[o + 2UL * ulong(d)] = s[d].c0;
+        out[o + 2UL * ulong(d) + 1UL] = s[d].c1;
+        out[o + 2UL * ulong(d1 + d)] = vals[2u * d];
+        out[o + 2UL * ulong(d1 + d) + 1UL] = vals[2u * d + 1u];
+    }
+    out[o + 4UL * ulong(d1)] = r.c0;
+    out[o + 4UL * ulong(d1) + 1UL] = r.c1;
+}
+
+// k_fold_tables with the challenge read from device memory (`out` at word `roff`)
+struct FoldDevArgs { ulong nhalf; ulong cap; ulong k; ulong roff; };
+
+kernel void k_fold_tables_dev(device ulong *tabs [[buffer(0)]],
+                              constant FoldDevArgs &args [[buffer(1)]],
+                              device const ulong *rbuf [[buffer(2)]],
+                              uint2 gid [[thread_position_in_grid]]) {
+    ulong i = ulong(gid.x);
+    ulong t = ulong(gid.y);
+    if (i >= args.nhalf || t >= args.k) { return; }
+    ulong r0 = rbuf[args.roff], r1 = rbuf[args.roff + 1UL];
+    ulong lo_i = (t * args.cap + i) * 2UL;
+    ulong hi_i = (t * args.cap + i + args.nhalf) * 2UL;
+    ulong l0 = tabs[lo_i], l1 = tabs[lo_i + 1];
+    ulong d0 = gl_sub(tabs[hi_i], l0), d1 = gl_sub(tabs[hi_i + 1], l1);
+    ulong ac = gl_mul(r0, d0), bd = gl_mul(r1, d1);
+    ulong ad = gl_mul(r0, d1), bc = gl_mul(r1, d0);
+    ulong m0 = gl_add(ac, gl_mul(bd, 7UL));
+    ulong m1 = gl_add(ad, bc);
+    tabs[lo_i] = gl_add(l0, m0);
+    tabs[lo_i + 1] = gl_add(l1, m1);
+}
+
+// [M6] the first stage of a large round's partial-sum reduction, across the whole GPU: thread w
+// sums the partials w, w + width, ... of each point into part2[w]; the transcript step then
+// reduces `width` entries instead of `nthreads` in one threadgroup. Point 1 is skipped (written
+// as zero) when the round recovers s(1) from the claim. Field addition is exact: same sums.
+struct PartRedArgs { uint nthreads; uint d1; uint width; uint eval_one; };
+
+kernel void k_sc_part_reduce(device const ulong *part [[buffer(0)]],
+                             device ulong *part2 [[buffer(1)]],
+                             constant PartRedArgs &a [[buffer(2)]],
+                             uint w [[thread_position_in_grid]]) {
+    if (w >= a.width) { return; }
+    for (uint d = 0; d < a.d1; d++) {
+        ulong s0 = 0UL, s1 = 0UL;
+        if (d != 1u || a.eval_one != 0u) {
+            for (uint g = w; g < a.nthreads; g += a.width) {
+                ulong o = (ulong(g) * ulong(a.d1) + ulong(d)) * 2UL;
+                s0 = gl_add(s0, part[o]);
+                s1 = gl_add(s1, part[o + 1UL]);
+            }
+        }
+        ulong o2 = (ulong(w) * ulong(a.d1) + ulong(d)) * 2UL;
+        part2[o2] = s0;
+        part2[o2 + 1UL] = s1;
+    }
+}

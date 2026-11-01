@@ -1060,6 +1060,28 @@ mod tests {
         }
     }
 
+    /// **[M6, probe, ignored]** the fixed cost of a device round: one command
+    /// buffer per round against one for all of them, with and without a fold.
+    /// Prints only; run with `--ignored --nocapture`.
+    #[cfg(feature = "gpu-metal")]
+    #[test]
+    #[ignore]
+    fn m6_probe_dispatch_overhead() {
+        for (n, fh) in [(190usize, 1usize << 10), (190, 1 << 14), (1000, 1 << 10)] {
+            for rep in 0..3 {
+                let t = crate::gpu::metal_dispatch_overhead_probe(n, fh).expect("a Metal device");
+                eprintln!(
+                    "[M6 probe] n {n} fold_half 2^{} rep {rep}: fs only {:.3} ms/round separate, {:.3} ms/round one buffer; fs+fold {:.3} separate, {:.3} one buffer",
+                    fh.trailing_zeros(),
+                    t[0] * 1e3 / n as f64,
+                    t[1] * 1e3 / n as f64,
+                    t[2] * 1e3 / n as f64,
+                    t[3] * 1e3 / n as f64
+                );
+            }
+        }
+    }
+
     /// **[M5c] the split eq cube is the full table's broadcast, word for
     /// word**: every point length (odd and even splits), offset and cube size,
     /// including a point that covers the whole cube and broadcast ones.

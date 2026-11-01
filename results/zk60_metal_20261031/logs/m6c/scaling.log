@@ -1,0 +1,18 @@
+
+running 1 test
+test private_block::slot_ir::accuracy::tests::m4_trained_accuracy_block_cpu_and_metal_digests_and_times ... M4-TRAINED W16_SHIELD_T256_H24 setup 0.95 s
+M4-TRAINED W16_SHIELD_T256_H24 cpu 5.042 s metal-cold 5.745 s (prove core cpu 4.769 s metal 5.527 s; kernel compile 4.198 s, device sumcheck rounds 0.187 s; 0 slots without a matching IR; buffer pool 52 reused / 43 new) digest cpu 031cbe06ede0c54ed77613193d1becd75bf8331560c97aac90ad4bf291b2fde1 metal 031cbe06ede0c54ed77613193d1becd75bf8331560c97aac90ad4bf291b2fde1
+M4-TRAINED W16_SHIELD_T256_H24 cpu 5.042 s metal-warm 1.065 s (prove core cpu 4.769 s metal 0.849 s; kernel compile 0.000 s, device sumcheck rounds 0.163 s; 0 slots without a matching IR; buffer pool 89 reused / 4 new) digest cpu 031cbe06ede0c54ed77613193d1becd75bf8331560c97aac90ad4bf291b2fde1 metal 031cbe06ede0c54ed77613193d1becd75bf8331560c97aac90ad4bf291b2fde1
+M4-TRAINED W16_SHIELD_T256_H24 cpu 5.042 s metal-warm 1.008 s (prove core cpu 4.769 s metal 0.793 s; kernel compile 0.000 s, device sumcheck rounds 0.158 s; 0 slots without a matching IR; buffer pool 93 reused / 0 new) digest cpu 031cbe06ede0c54ed77613193d1becd75bf8331560c97aac90ad4bf291b2fde1 metal 031cbe06ede0c54ed77613193d1becd75bf8331560c97aac90ad4bf291b2fde1
+M4-TRAINED W16_8B_T256_H24 setup 1.12 s
+M4-TRAINED W16_8B_T256_H24 cpu 3.356 s metal-cold 1.837 s (prove core cpu 3.134 s metal 1.615 s; kernel compile 0.672 s, device sumcheck rounds 0.182 s; 0 slots without a matching IR; buffer pool 90 reused / 3 new) digest cpu 8d2a57ff9c561c30320b48ccb986dc8c79ef0539678ae730dbd19bb8e4b59afc metal 8d2a57ff9c561c30320b48ccb986dc8c79ef0539678ae730dbd19bb8e4b59afc
+M4-TRAINED W16_8B_T256_H24 cpu 3.356 s metal-warm 1.001 s (prove core cpu 3.134 s metal 0.780 s; kernel compile 0.000 s, device sumcheck rounds 0.145 s; 0 slots without a matching IR; buffer pool 93 reused / 0 new) digest cpu 8d2a57ff9c561c30320b48ccb986dc8c79ef0539678ae730dbd19bb8e4b59afc metal 8d2a57ff9c561c30320b48ccb986dc8c79ef0539678ae730dbd19bb8e4b59afc
+M4-TRAINED W16_8B_T256_H24 cpu 3.356 s metal-warm 0.993 s (prove core cpu 3.134 s metal 0.780 s; kernel compile 0.000 s, device sumcheck rounds 0.153 s; 0 slots without a matching IR; buffer pool 93 reused / 0 new) digest cpu 8d2a57ff9c561c30320b48ccb986dc8c79ef0539678ae730dbd19bb8e4b59afc metal 8d2a57ff9c561c30320b48ccb986dc8c79ef0539678ae730dbd19bb8e4b59afc
+M4-TRAINED W16_8B_T512_H24 setup 2.56 s
+M4-TRAINED W16_8B_T512_H24 cpu 6.988 s metal-cold 6.325 s (prove core cpu 6.605 s metal 5.939 s; kernel compile 3.412 s, device sumcheck rounds 0.324 s; 0 slots without a matching IR; buffer pool 86 reused / 16 new) digest cpu ea11129561e3a929acb5b521ccece86cb6f62df2bf96ae849a7dcf07140083ac metal ea11129561e3a929acb5b521ccece86cb6f62df2bf96ae849a7dcf07140083ac
+M4-TRAINED W16_8B_T512_H24 cpu 6.988 s metal-warm 2.424 s (prove core cpu 6.605 s metal 2.040 s; kernel compile 0.000 s, device sumcheck rounds 0.333 s; 0 slots without a matching IR; buffer pool 99 reused / 1 new) digest cpu ea11129561e3a929acb5b521ccece86cb6f62df2bf96ae849a7dcf07140083ac metal ea11129561e3a929acb5b521ccece86cb6f62df2bf96ae849a7dcf07140083ac
+M4-TRAINED W16_8B_T512_H24 cpu 6.988 s metal-warm 2.088 s (prove core cpu 6.605 s metal 1.703 s; kernel compile 0.000 s, device sumcheck rounds 0.304 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu ea11129561e3a929acb5b521ccece86cb6f62df2bf96ae849a7dcf07140083ac metal ea11129561e3a929acb5b521ccece86cb6f62df2bf96ae849a7dcf07140083ac
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 916 filtered out; finished in 59.10s
+

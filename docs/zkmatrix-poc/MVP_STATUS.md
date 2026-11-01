@@ -1,5 +1,26 @@
 # Where the MVP stands, in plain words
 
+**2026-11-01 (early morning, Mac): each step's GPU rounds now go to the GPU as one batch (about 7% faster), and
+measured context scaling shows that longer contexts buy little.**
+- **M6 (byte-identical, kept).**
+  - **Before:** every sumcheck round was its own GPU submission, costing about 0.21 ms of fixed overhead.
+  - **Now:** all of a step's GPU rounds go in one submission. The Fiat-Shamir hashing and masking run on the GPU, and
+    the CPU then replays every round to check each challenge, so a GPU fault cannot change a proof byte.
+  - **Speed** [MEASURED, A/B on one binary, warm n=3, shared Mac, prove core]:
+    - W16 8B 0.468–0.476 → **0.435–0.441 s**;
+    - W16 Shieldstral 0.476–0.519 → 0.446–0.484 s;
+    - on a quieter pass the W16 8B core was 0.400–0.403 s, about **10 proved tokens/s** for a 32-layer 8B stack
+      (block proofs only).
+  - **Gates:** all pass (dev-shape bytes, trained digests, R13 run, golden 8/8).
+- **M7 (measurement).** W16 8B blocks at longer contexts [MEASURED, warm n=2]:
+  - **T256:** 0.78 s, **10.3 tokens/s**, the best of the three;
+  - **T512:** 1.7–2.0 s, 7.8–9.4 tokens/s.
+
+  Cost grows almost linearly with context, so a longer workload is not the route to 50. The remaining factor of
+  about 5 must come from per-token work. The largest piece is now the CPU side of the 23 zero-check steps (about
+  0.125 s of 0.40 s: building their tables), then the two commitments (about 0.15 s).
+- Record: `results/zk60_metal_20261031/README.md` (M6, M7).
+
 **2026-11-01 (night, Mac): two more byte-identical speedups to the W16 format; an 8B-shaped block now proves in about 0.43 s on the GPU.**
 - **M5b** builds the activation lookup's queries in parallel.
 - **M5c** builds each large eq table from two small half-tables, one multiplication per entry, instead of a full

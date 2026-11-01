@@ -595,3 +595,81 @@ code are the building blocks.
 **Expected:** about 0.05 s per W16 block (about 190 rounds at about 0.3 ms of scheduling each). **Gates:** the usual
 byte identity, plus a unit test that the device transcript kernel equals `Transcript` on random states, labels,
 messages and keys.
+
+## M6 step 2 (2026-11-01, after midnight): a slot's device rounds in ONE command buffer — kept
+
+**What it does.** `TailedRounds::masked_prove` (`hashline/src/gpu/metal.rs`) replaces `zk::masked_prove_rounds` at the
+two device call sites in `argument.rs`. Rounds `0..nd` run in one command buffer, where `nd` is every round the host
+tail would not take at the batched budget. Each round in that buffer:
+1. runs the slot's round kernel;
+2. for a round with more than 4096 partials per point, runs `k_sc_part_reduce`, which reduces them across the
+   whole GPU to 4096;
+3. runs `k_sc_fs_step`, one threadgroup: tree-reduce the partials, recover s(1) from the claim, CFS-mask, absorb
+   `sc-round`, squeeze r, update the claim s(r), `sum u_i(r_i)` and `prod r_i`;
+4. runs `k_fold_tables_dev`, which folds by the device's r.
+
+The host then **replays** every device round through the real `Transcript` with the real `CfsMasker`. It recomputes
+s(1) from its own claim and requires each device challenge to equal its own; any difference panics before a later
+round, so a device fault refuses the attempt and cannot change a byte. The remaining small rounds run on the host as
+before (M4k). Knobs:
+- `HL_METAL_BATCH=0` restores one command buffer per round;
+- `HL_METAL_BATCH_TAIL_US` sets the batched host-tail budget, default 25 µs; 0 keeps every round on the device.
+
+zkp-core's `Transcript` gained two read-only accessors, `counter()` and `fs_key()`. The key is derived from the
+public profile tag.
+
+**Why it pays** [MEASURED, `logs/m6_probe`, the `m6_probe_dispatch_overhead` test]. A round in its own command
+buffer costs about 0.21 ms of fixed time; in a shared buffer it costs about 0.025 ms (190 and 1000 rounds, one-thread
+dispatches, with and without a fold).
+
+**First version, measured and fixed.** Without step 2, `k_sc_fs_step` reduced up to 2^17 x (D+1) partials in one
+threadgroup.
+- It was byte-identical: all gates passed (`logs/m6b`).
+- It gained only about 0.008 s.
+- `logs/m6diag` showed why: the 2^19-table slots spent 0.36 ms per batched round, the single threadgroup reading
+  the partials. The GPU-wide first stage fixed it.
+
+**A/B on one binary** [MEASURED, warm n=3, back to back, shared Mac, `logs/m6c/ab_off.log` and `ab_on.log`]:
+
+| Block | prove core, batch off | batch on | device rounds |
+|---|---:|---:|---:|
+| W16 8B T128 | 0.468–0.476 s | **0.435–0.441 s** | 0.100 → 0.076 s |
+| W16 Shieldstral T128 | 0.476–0.519 s | **0.446–0.484 s** | 0.110 → 0.085 s |
+
+In the later trained step (`logs/m6c/g_trained.log`, quieter box) the W16 8B core was 0.400–0.403 s. The phases, with
+`HL_M4_PHASES=1`, were:
+- witness planes + commit A 0.08 s;
+- commit M 0.007 s;
+- LogUp helpers + commit H 0.065–0.07 s;
+- 23 masked sumchecks 0.20 s, of which device rounds 0.075 s.
+
+**Gates** (`logs/m6c`), all passed:
+- build, with no new warnings;
+- dev-shape bytes 01fa1b2e / 992034f8 / 371e6b00 / 3ab090df, both at the default budget and with
+  `HL_METAL_BATCH_TAIL_US=0` (every round batched, including the final fold);
+- unit tests 62/0 in both modes (the slot oracle compares every small device slot with `zk::masked_prove`);
+- trained digests R13 2b0d04bb / 678953f6 and W16 01a6d51d / c5e0bdac;
+- the R13 run test;
+- golden 8/8 (`golden_m6/`).
+
+## M7 (2026-11-01): context scaling of a W16 block — measured; longer contexts buy little
+
+New measurement-only profiles in `shape.rs` (not registered for any receipt): `W16_SHIELD_T256_H24`,
+`W16_8B_T256_H24` and `W16_8B_T512_H24`. `log_cols` grows with T (15, 16), so a block keeps about 32 rows. The CPU
+and Metal digests are equal at all three (031cbe06, 8d2a57ff, ea111295).
+
+[MEASURED, Metal prove core, warm n=2, with M6, `logs/m6c/scaling.log`; tokens/s = T / (32 x core) for a
+32-layer 8B stack, block proofs only]:
+
+| Block | prove core | device rounds | x T128 | proved tokens/s (8B) |
+|---|---:|---:|---:|---:|
+| W16 8B T128 | 0.435–0.441 s (0.400 quiet) | 0.076 s | 1 | 9.1 (10.0 quiet) |
+| W16 8B T256 | 0.780 s | 0.145–0.153 s | x1.78 | **10.3** |
+| W16 8B T512 | 1.70–2.04 s | 0.30–0.33 s | x3.9–4.7 | 7.8–9.4 |
+| W16 Shieldstral T256 | 0.79–0.85 s | 0.16 s | x1.8–1.9 | (classifier) |
+
+**Reading.** A block's cost is nearly linear in T: no large per-block fixed cost waits to be amortized.
+- T256 is about 12% better per token than T128.
+- At T512 the quadratic attention terms take that back.
+- Longer workloads are therefore not a route to 50 tokens/s on this prover; the remaining factor of about 5 has to
+  come from per-token cost.

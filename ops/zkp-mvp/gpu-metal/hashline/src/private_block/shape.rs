@@ -223,10 +223,21 @@ pub(crate) fn accuracy_spec(profile:&str)->Option<&'static AccuracyProfile> {ACC
 pub(crate) const W16_RUNG_H24: &str = "hashline-zk-mr1/private-block-rung-lh-t32-w16-dev/1";
 pub(crate) const W16_SHIELD_T128_H24: &str = "hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-w16/1";
 pub(crate) const W16_8B_T128_H24: &str = "hashline-zk-mr1/private-block-llama-3-8b-t128-lh24-w16/1";
-pub(crate) const W16_PROFILES:[AccuracyProfile;3]=[
+// [ZK60-METAL M7] longer contexts of the same two geometries, for the
+// measured context scaling (the agenda's >= 50 proved tokens/s target allows
+// longer workloads). `log_cols` grows with T so a block keeps about 32 rows,
+// as R13_SHIELD_T256_H24 does. Measurement profiles: not registered for any
+// receipt (W16 itself is not yet registered, D54).
+pub(crate) const W16_SHIELD_T256_H24: &str = "hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-w16/1";
+pub(crate) const W16_8B_T256_H24: &str = "hashline-zk-mr1/private-block-llama-3-8b-t256-lh24-w16/1";
+pub(crate) const W16_8B_T512_H24: &str = "hashline-zk-mr1/private-block-llama-3-8b-t512-lh24-w16/1";
+pub(crate) const W16_PROFILES:[AccuracyProfile;6]=[
 AccuracyProfile{profile:W16_RUNG_H24,name:"W16_RUNG_H24",legacy:TRAINED_HD_RUNG_PROFILE,stack:super::accuracy_precision::Stack::LowH24,registry:super::accuracy_tables::Registry::Standard,tokens:32,width:384,hidden:768,q_heads:16,head_dim:64,kv_heads:8,log_cols:14},
 AccuracyProfile{profile:W16_SHIELD_T128_H24,name:"W16_SHIELD_T128_H24",legacy:SHIELDSTRAL_T128_TRAINED_PROFILE,stack:super::accuracy_precision::Stack::LowH24,registry:super::accuracy_tables::Registry::Shieldstral,tokens:128,width:3072,hidden:9216,q_heads:32,head_dim:128,kv_heads:8,log_cols:14},
 AccuracyProfile{profile:W16_8B_T128_H24,name:"W16_8B_T128_H24",legacy:LLAMA3_8B_T128_TRAINED_PROFILE,stack:super::accuracy_precision::Stack::LowH24,registry:super::accuracy_tables::Registry::Standard,tokens:128,width:4096,hidden:14336,q_heads:32,head_dim:128,kv_heads:8,log_cols:14},
+AccuracyProfile{profile:W16_SHIELD_T256_H24,name:"W16_SHIELD_T256_H24",legacy:SHIELDSTRAL_T128_TRAINED_PROFILE,stack:super::accuracy_precision::Stack::LowH24,registry:super::accuracy_tables::Registry::Shieldstral,tokens:256,width:3072,hidden:9216,q_heads:32,head_dim:128,kv_heads:8,log_cols:15},
+AccuracyProfile{profile:W16_8B_T256_H24,name:"W16_8B_T256_H24",legacy:LLAMA3_8B_T128_TRAINED_PROFILE,stack:super::accuracy_precision::Stack::LowH24,registry:super::accuracy_tables::Registry::Standard,tokens:256,width:4096,hidden:14336,q_heads:32,head_dim:128,kv_heads:8,log_cols:15},
+AccuracyProfile{profile:W16_8B_T512_H24,name:"W16_8B_T512_H24",legacy:LLAMA3_8B_T128_TRAINED_PROFILE,stack:super::accuracy_precision::Stack::LowH24,registry:super::accuracy_tables::Registry::Standard,tokens:512,width:4096,hidden:14336,q_heads:32,head_dim:128,kv_heads:8,log_cols:16},
 ];
 
 /// **The declared parameter class of a trained norm calibration** (the

@@ -874,7 +874,8 @@ pub(crate) fn run_slot(side: &mut Side, acc: &mut Acc, mut def: SlotDef, tr: &mu
                             let ev = if def.groups.is_some() { ev } else { ev.recover_one(unmasked_claim) };
                             // [M4k] the last, tiny rounds on the host (the same values)
                             let mut ev = ev.with_host_tail(&*def.poly);
-                            let r = crate::zk::masked_prove_rounds(&mut ev, mask, c, tr);
+                            // [M6] its device rounds in one submission, replayed on the host
+                            let r = ev.masked_prove(mask, c, tr);
                             tables = ev.final_tables();
                             Some(r)
                         }
@@ -901,7 +902,8 @@ pub(crate) fn run_slot(side: &mut Side, acc: &mut Acc, mut def: SlotDef, tr: &mu
                                 let ev = if def.groups.is_some() { ev } else { ev.recover_one(unmasked_claim) };
                                 // [M4k] the last, tiny rounds on the host (the same values)
                                 let mut ev = ev.with_host_tail(&*def.poly);
-                                let r = crate::zk::masked_prove_rounds(&mut ev, mask, c, tr);
+                                // [M6] its device rounds in one submission, replayed on the host
+                                let r = ev.masked_prove(mask, c, tr);
                                 tables = ev.final_tables();
                                 Some(r)
                             }

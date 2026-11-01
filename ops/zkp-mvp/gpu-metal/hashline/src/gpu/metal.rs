@@ -29,8 +29,11 @@ use std::sync::{Mutex, OnceLock};
 use zkp_core::pcs::PcsParams;
 
 const SRC: &str = include_str!("metal_kernels.metal");
-const KERNELS: [&str; 15] = [
+const KERNELS: [&str; 18] = [
     "k_fs_test",
+    "k_sc_fs_step",
+    "k_sc_part_reduce",
+    "k_fold_tables_dev",
     "k_fold_tables",
     "k_gather_cols",
     "k_fold_partial",
@@ -417,6 +420,62 @@ pub fn fs_round_for_test(state: [u8; 32], key: Option<[u8; 32]>, counter: u64, v
         st_out[4 * i..4 * i + 4].copy_from_slice(&(o[i] as u32).to_le_bytes());
     }
     Ok((st_out, Fp2::new(Fp::new(o[8]), Fp::new(o[9]))))
+}
+
+/// **[M6, probe] what a device round's fixed cost is made of.** `n` rounds of
+/// a one-thread `k_fs_test` dispatch, optionally followed by a fold of
+/// `fold_half` pairs over 3 tables: [0] each round in its own command buffer,
+/// waited (today's shape); [1] all rounds in one command buffer. [2]/[3] the
+/// same with the fold. Seconds; diagnostics only, values are not checked.
+#[cfg(test)]
+pub fn dispatch_overhead_probe(n: usize, fold_half: usize) -> Result<[f64; 4], String> {
+    #[repr(C)]
+    struct FsTestArgs {
+        n: u32,
+        keyed: u32,
+        counter: u64,
+    }
+    let c = ctx()?;
+    let st = shared_buffer(c, 32)?;
+    let kb = shared_buffer(c, 32)?;
+    let vb = shared_buffer(c, 16 * 8)?;
+    let out = shared_buffer(c, 10 * 8)?;
+    let cap = (2 * fold_half).max(2);
+    let tabs = shared_buffer(c, (3 * cap * 16) as u64)?;
+    let one = |enc: &metal::ComputeCommandEncoderRef, i: usize, fold: bool| {
+        enc.set_buffer(0, Some(&st), 0);
+        enc.set_buffer(1, Some(&kb), 0);
+        enc.set_buffer(2, Some(&vb), 0);
+        enc.set_buffer(3, Some(&out), 0);
+        set_args(enc, 4, &FsTestArgs { n: 4, keyed: 1, counter: i as u64 });
+        dispatch_2d(c, enc, "k_fs_test", 1, 1);
+        if fold {
+            enc.set_buffer(0, Some(&tabs), 0);
+            set_args(enc, 1, &FoldTabArgs { half: fold_half as u64, cap: cap as u64, k: 3, r0: 3, r1: 5 });
+            dispatch_2d(c, enc, "k_fold_tables", fold_half as u64, 3);
+        }
+    };
+    let mut t = [0f64; 4];
+    for (slot, fold) in [(0usize, false), (2, true)] {
+        // warm the pipelines once
+        objc::rc::autoreleasepool(|| run(c, |enc| { one(enc, 0, fold); Ok(()) }))?;
+        let t0 = std::time::Instant::now();
+        for i in 0..n {
+            objc::rc::autoreleasepool(|| run(c, |enc| { one(enc, i, fold); Ok(()) }))?;
+        }
+        t[slot] = t0.elapsed().as_secs_f64();
+        let t0 = std::time::Instant::now();
+        objc::rc::autoreleasepool(|| {
+            run(c, |enc| {
+                for i in 0..n {
+                    one(enc, i, fold);
+                }
+                Ok(())
+            })
+        })?;
+        t[slot + 1] = t0.elapsed().as_secs_f64();
+    }
+    Ok(t)
 }
 
 /// One command buffer, one serial compute encoder (each dispatch sees the
@@ -1595,5 +1654,302 @@ impl zkp_core::sumcheck::SumcheckRounds for TailedRounds<'_> {
                 self.host.iter().map(|t| t[0]).collect()
             }
         }
+    }
+}
+
+// ------------------------------------- M6: a sumcheck's device rounds in one submission
+
+/// **[ZK60-METAL M6]** the host-tail budget when the device rounds are
+/// batched. A batched device round costs about 0.025 ms of fixed time against
+/// about 0.21 ms in a command buffer of its own (`logs/m6_probe`, 190 and
+/// 1000 rounds), so the host takes only the rounds cheaper than that.
+/// `HL_METAL_BATCH_TAIL_US` overrides it (microseconds; 0 keeps every round
+/// on the device). Which side computes a round changes no byte (M4k).
+const BATCH_TAIL_BUDGET_S: f64 = 2.5e-5;
+
+fn batch_tail_budget_s() -> f64 {
+    static B: OnceLock<f64> = OnceLock::new();
+    *B.get_or_init(|| std::env::var("HL_METAL_BATCH_TAIL_US").ok().and_then(|v| v.parse::<f64>().ok()).filter(|v| v.is_finite() && *v >= 0.0).map(|us| us * 1e-6).unwrap_or(BATCH_TAIL_BUDGET_S))
+}
+
+/// `HL_METAL_BATCH=0` restores one command buffer per device round (M4).
+fn batch_on() -> bool {
+    static B: OnceLock<bool> = OnceLock::new();
+    *B.get_or_init(|| std::env::var("HL_METAL_BATCH").map(|v| v != "0").unwrap_or(true))
+}
+
+/// the widest round message the device transcript step absorbs (`fs_absorb_round`)
+const FS_MAX_POINTS: usize = 8;
+
+/// [M6] a round with more partials than this per point is first reduced
+/// across the whole GPU to `PART_RED_WIDTH` per point (`k_sc_part_reduce`):
+/// one threadgroup reading 2^17 x (D + 1) partials cost about 0.3 ms a round
+/// (`logs/m6diag`, the 2^19-table slots at 0.36 ms per batched round)
+const PART_RED_MIN: usize = 4096;
+const PART_RED_WIDTH: usize = 4096;
+
+#[repr(C)]
+struct PartRedArgs {
+    nthreads: u32,
+    d1: u32,
+    width: u32,
+    eval_one: u32,
+}
+
+#[repr(C)]
+struct FsStepArgs {
+    nthreads: u32,
+    d1: u32,
+    j: u32,
+    eval_one: u32,
+    tgw: u32,
+    pad0: u32,
+}
+#[repr(C)]
+struct FoldDevArgs {
+    half: u64,
+    cap: u64,
+    k: u64,
+    roff: u64,
+}
+
+static SC_BATCH_ROUNDS: AtomicU64 = AtomicU64::new(0);
+static SC_BATCHES: AtomicU64 = AtomicU64::new(0);
+
+/// (device sumchecks batched, their rounds) (diagnostics)
+pub fn batch_stats() -> (u64, u64) {
+    (SC_BATCHES.load(Ordering::Relaxed), SC_BATCH_ROUNDS.load(Ordering::Relaxed))
+}
+
+fn words_le(b: &[u8; 32]) -> [u64; 8] {
+    std::array::from_fn(|i| u32::from_le_bytes([b[4 * i], b[4 * i + 1], b[4 * i + 2], b[4 * i + 3]]) as u64)
+}
+
+impl MetalRounds {
+    /// **[M6]** rounds `0..nd` of this sumcheck in ONE command buffer: per
+    /// round the round kernel, the transcript step (`k_sc_fs_step`: reduce,
+    /// recover s(1), CFS-mask, absorb `sc-round`, squeeze) and the fold by the
+    /// device's challenge. Returns the device's unmasked rounds and
+    /// challenges, UNCHECKED: the caller replays them through `tr`. `tr` is
+    /// only read (its state, counter and key) and must not have a masker.
+    fn batched_rounds(&mut self, nd: usize, mask: &zkp_core::sumcheck::CfsMask, c: Fp2, tr: &crate::transcript::Transcript) -> Result<(Vec<Vec<Fp2>>, Vec<Fp2>), String> {
+        let cx = ctx()?;
+        let (d, d1) = (self.degree, self.degree + 1);
+        if self.next != 0 || self.pending.is_some() || self.fold_r.is_some() || nd == 0 || nd > self.n_vars || d1 > FS_MAX_POINTS || mask.degree != d || mask.n_vars < self.n_vars {
+            return Err("metal batched rounds: state, round count or mask shape".into());
+        }
+        let n = mask.n_vars;
+        // the mask's per-round terms that do not depend on the challenges
+        let a = |i: usize, e: usize| mask.coeffs[2 + i * d + (e - 1)];
+        let u = |i: usize, x: Fp2| {
+            let (mut acc, mut xp) = (Fp2::ZERO, Fp2::ONE);
+            for e in 1..=d {
+                xp = xp.mul(x);
+                acc = acc.add(a(i, e).mul(xp));
+            }
+            acc
+        };
+        let half_inv = Fp::new(2).inv();
+        let mut suffix = vec![Fp2::ZERO; n + 1];
+        for i in (0..n).rev() {
+            suffix[i] = suffix[i + 1].add(u(i, Fp2::ONE).mul_base(half_inv));
+        }
+        let mut mk: Vec<u64> = Vec::with_capacity(4 + d1 + nd * 2 * (2 + d1 + d));
+        let push = |mk: &mut Vec<u64>, v: Fp2| {
+            mk.push(v.c0.0);
+            mk.push(v.c1.0);
+        };
+        push(&mut mk, c);
+        push(&mut mk, mask.coeffs[1]);
+        for i in 0..d1 {
+            // zkp-core `mle::interpolate_eval`'s weights 1 / prod_{m != i} (i - m)
+            let mut den = Fp::ONE;
+            for m in 0..d1 {
+                if m != i {
+                    den = den.mul(Fp::from_i64(i as i64 - m as i64));
+                }
+            }
+            mk.push(den.inv().0);
+        }
+        for j in 0..nd {
+            push(&mut mk, Fp2::from_u64(1u64 << (n - 1 - j)));
+            push(&mut mk, mask.coeffs[0].add(suffix[j + 1]));
+            for x in 0..d1 {
+                push(&mut mk, u(j, Fp2::from_u64(x as u64)));
+            }
+            for e in 1..=d {
+                push(&mut mk, a(j, e));
+            }
+        }
+        let mut fs = [0u64; 32];
+        fs[..8].copy_from_slice(&words_le(&tr.state()));
+        let key = tr.fs_key();
+        fs[8..16].copy_from_slice(&words_le(&key.unwrap_or([0u8; 32])));
+        fs[16] = tr.counter();
+        fs[17] = key.is_some() as u64;
+        fs[18] = self.recover_one as u64;
+        if let Some(cl) = self.unmasked_claim.filter(|_| self.recover_one) {
+            fs[19] = cl.c0.0;
+            fs[20] = cl.c1.0;
+        }
+        fs[23] = 1; // the empty product of the challenges
+        let rec = 2 * (2 * d1 + 1);
+        let fs_pipe = &cx.pipes["k_sc_fs_step"];
+        let tg_max = fs_pipe.max_total_threads_per_threadgroup().min(256);
+        let tgw = 1u64 << (63 - tg_max.leading_zeros());
+        let t0 = std::time::Instant::now();
+        let (sums, rs) = objc::rc::autoreleasepool(|| -> Result<(Vec<Vec<Fp2>>, Vec<Fp2>), String> {
+            let mkb = upload(cx, &mk.iter().map(|&w| Fp(w)).collect::<Vec<Fp>>())?;
+            let fsb = upload(cx, &fs.iter().map(|&w| Fp(w)).collect::<Vec<Fp>>())?;
+            let out = shared_buffer(cx, (nd * rec * 8) as u64)?;
+            let part2 = shared_buffer(cx, (PART_RED_WIDTH * d1 * 16) as u64)?;
+            let mut claim_known = self.recover_one && self.unmasked_claim.is_some();
+            run(cx, |enc| {
+                for j in 0..=nd {
+                    if j > 0 {
+                        // the fold of round j - 1 by the device's challenge
+                        let hprev = (self.len >> (j - 1)) / 2;
+                        enc.set_buffer(0, Some(&self.tabs), 0);
+                        set_args(enc, 1, &FoldDevArgs { half: hprev as u64, cap: self.cap as u64, k: self.k as u64, roff: ((j - 1) * rec + 4 * d1) as u64 });
+                        enc.set_buffer(2, Some(&out), 0);
+                        dispatch_2d(cx, enc, "k_fold_tables_dev", hprev as u64, self.k as u64);
+                    }
+                    if j == nd {
+                        break;
+                    }
+                    let half = (self.len >> j) / 2;
+                    let eval_one = !claim_known;
+                    let nthreads = sc_threads(half, self.per, self.cap_log);
+                    let pipe = if j == 0 { &self.pipe0 } else { &self.pipe };
+                    enc.set_compute_pipeline_state(pipe);
+                    enc.set_buffer(0, Some(&self.tabs), 0);
+                    enc.set_buffer(1, Some(&self.part), 0);
+                    enc.set_buffer(2, Some(&self.coefs), 0);
+                    set_args(enc, 3, &RoundArgs { half: half as u64, cap: self.cap as u64, eval_one: eval_one as u32, nthreads: nthreads as u32 });
+                    let np = if eval_one { d1 } else { d1 - 1 };
+                    let grid = (nthreads.div_ceil(32) * 32 * np) as u64;
+                    let tg = pipe.max_total_threads_per_threadgroup().min(self.tg).min(grid);
+                    enc.dispatch_threads(MTLSize::new(grid, 1, 1), MTLSize::new(tg, 1, 1));
+                    // a large round's partials: first reduced across the GPU
+                    let (src, count) = if nthreads > PART_RED_MIN {
+                        enc.set_buffer(0, Some(&self.part), 0);
+                        enc.set_buffer(1, Some(&part2), 0);
+                        set_args(enc, 2, &PartRedArgs { nthreads: nthreads as u32, d1: d1 as u32, width: PART_RED_WIDTH as u32, eval_one: eval_one as u32 });
+                        dispatch_2d(cx, enc, "k_sc_part_reduce", PART_RED_WIDTH as u64, 1);
+                        (&part2, PART_RED_WIDTH)
+                    } else {
+                        (&self.part, nthreads)
+                    };
+                    enc.set_compute_pipeline_state(fs_pipe);
+                    enc.set_buffer(0, Some(src), 0);
+                    enc.set_buffer(1, Some(&fsb), 0);
+                    enc.set_buffer(2, Some(&mkb), 0);
+                    enc.set_buffer(3, Some(&out), 0);
+                    set_args(enc, 4, &FsStepArgs { nthreads: count as u32, d1: d1 as u32, j: j as u32, eval_one: eval_one as u32, tgw: tgw as u32, pad0: 0 });
+                    enc.dispatch_thread_groups(MTLSize::new(1, 1, 1), MTLSize::new(tgw, 1, 1));
+                    claim_known = self.recover_one;
+                }
+                Ok(())
+            })?;
+            let o = as_u64s(&out, nd * rec);
+            let at = |w: usize| Fp2::new(Fp(o[w]), Fp(o[w + 1]));
+            let sums = (0..nd).map(|j| (0..d1).map(|x| at(j * rec + 2 * x)).collect()).collect();
+            let rs = (0..nd).map(|j| at(j * rec + 4 * d1)).collect();
+            Ok((sums, rs))
+        })?;
+        self.len >>= nd;
+        self.next = nd;
+        let ns = t0.elapsed().as_nanos() as u64;
+        SC_ROUND_NS.fetch_add(ns, Ordering::Relaxed);
+        self.busy_ns.set(self.busy_ns.get() + ns);
+        SC_BATCHES.fetch_add(1, Ordering::Relaxed);
+        SC_BATCH_ROUNDS.fetch_add(nd as u64, Ordering::Relaxed);
+        Ok((sums, rs))
+    }
+}
+
+impl TailedRounds<'_> {
+    /// [M6] how many leading rounds run batched on the device: those the host
+    /// tail would not take at the batched budget (all of them when the tail
+    /// is off), 0 when batching does not apply
+    fn batched_round_count(&self) -> usize {
+        let Some(d) = self.dev.as_ref() else { return 0 };
+        if !batch_on() || d.next != 0 || d.pending.is_some() || d.fold_r.is_some() || self.degree + 1 > FS_MAX_POINTS {
+            return 0;
+        }
+        let budget = batch_tail_budget_s();
+        let mut claim_known = d.recover_one && d.unmasked_claim.is_some();
+        let mut nd = 0;
+        for j in 0..self.n_vars {
+            let half = d.len >> (j + 1);
+            let points = if claim_known { self.degree } else { self.degree + 1 };
+            if self.on && (half * points) as f64 * self.per_eval <= budget {
+                break;
+            }
+            nd += 1;
+            claim_known = d.recover_one;
+        }
+        nd
+    }
+
+    /// **[ZK60-METAL M6]** `crate::zk::masked_prove_rounds` for this
+    /// evaluator, with its device rounds in ONE command buffer
+    /// ([`MetalRounds::batched_rounds`]). The host then REPLAYS each device
+    /// round through `tr` with the real `CfsMasker`: s(1) recomputed from its
+    /// own claim, the masked message absorbed, the challenge drawn, and the
+    /// device's challenge required to equal it (the device folded by it). A
+    /// difference panics before any later round, so a device fault refuses
+    /// the attempt and never changes a byte. The remaining rounds run as
+    /// before (`round`/`fold`, the host tail). Returns (masked rounds,
+    /// challenges, finals), the transcript left exactly as the CPU leaves it.
+    pub fn masked_prove(&mut self, mask: &zkp_core::sumcheck::CfsMask, c: Fp2, tr: &mut crate::transcript::Transcript) -> (Vec<Vec<Fp2>>, Vec<Fp2>, Vec<Fp2>) {
+        let nd = self.batched_round_count();
+        if nd < 2 {
+            return crate::zk::masked_prove_rounds(self, mask, c, tr);
+        }
+        assert!(!c.is_zero(), "zero mask challenge: abandon proof attempt");
+        assert_eq!(self.degree, mask.degree, "masked evaluator degree mismatch");
+        assert!(self.n_vars <= mask.n_vars, "masked evaluator variable count");
+        let t0 = std::time::Instant::now();
+        let dev = self.dev.as_mut().expect("the device evaluator");
+        let (dev_sums, dev_r) = dev.batched_rounds(nd, mask, c, tr).expect("metal batched sumcheck rounds");
+        tr.set_masker(Box::new(zkp_core::sumcheck::CfsMasker { mask: mask.clone(), c, challenges: Vec::new() }));
+        let recover = dev.recover_one;
+        let mut claim = if recover { dev.unmasked_claim } else { None };
+        let mut challenges = Vec::with_capacity(self.n_vars);
+        for j in 0..nd {
+            let mut sums = dev_sums[j].clone();
+            if let Some(cl) = claim {
+                sums[1] = cl.sub(sums[0]);
+            }
+            assert!(sums == dev_sums[j], "[ZK60-METAL M6] the device's s(1) differs from the host's claim at round {j} of {}: the attempt is refused", self.n_vars);
+            tr.absorb_fp2(b"sc-round", &sums);
+            let r = tr.challenge_fp2();
+            assert!(r == dev_r[j], "[ZK60-METAL M6] the device transcript differs from the host's at round {j} of {}: the attempt is refused", self.n_vars);
+            if recover {
+                claim = Some(zkp_core::mle::interpolate_eval(&sums, r));
+            }
+            challenges.push(r);
+        }
+        if recover {
+            dev.unmasked_claim = claim;
+        }
+        self.next = nd;
+        let replay_s = t0.elapsed().as_secs_f64();
+        use zkp_core::sumcheck::SumcheckRounds;
+        for j in nd..self.n_vars {
+            let sums = self.round(j);
+            assert_eq!(sums.len(), self.degree + 1, "sumcheck evaluator round length");
+            tr.absorb_fp2(b"sc-round", &sums);
+            let r = tr.challenge_fp2();
+            self.fold(r);
+            challenges.push(r);
+        }
+        if std::env::var("HL_METAL_TIMING").map(|v| v == "1").unwrap_or(false) {
+            eprintln!("[ZK60-METAL M6] {} of {} rounds batched (degree {}), batch + replay {:.4} s, then {} host rounds", nd, self.n_vars, self.degree, replay_s, self.host_rounds);
+        }
+        let finals = self.finals();
+        let (_, masked) = tr.take_masker();
+        (masked, challenges, finals)
     }
 }
