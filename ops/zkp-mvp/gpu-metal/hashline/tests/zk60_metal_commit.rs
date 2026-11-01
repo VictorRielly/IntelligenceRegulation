@@ -254,4 +254,47 @@ mod device {
             );
         }
     }
+
+    /// [ZK60-METAL M21] Rate 1/2 against rate 1/4 at the W16 8B block's A
+    /// shape (2^14 columns x 2,504 rows). This is the falsification test of the
+    /// research handoff `research/zkp-efficiency/handoffs/20261101-gpu-work-per-block.md`:
+    /// predicted device total 27 -> 16.7 ms, kill above 19 ms. Roots are checked
+    /// CPU = Metal once per rate, then `HL_M21_REPS` warm device commits are
+    /// timed. A diagnostic, not a receipt; no proof format changes.
+    #[test]
+    #[ignore = "heavy: run through the resource guard"]
+    fn m21_commit_rate_half_against_quarter_at_the_w16_8b_a_shape() {
+        require_device();
+        let ntt = NttTables::new(18);
+        let tag = HashTag::for_profile("hashline-zk-mr1/metal-bench/1");
+        let backend = hashline::gpu::backend();
+        let reps: usize = std::env::var("HL_M21_REPS").ok().and_then(|s| s.parse().ok()).unwrap_or(5);
+        let rows = 2504usize;
+        for &inv_rate in &[4usize, 2, 4, 2] {
+            let p = PcsParams { log_cols: 14, inv_rate, num_col_checks: 256 };
+            let zk = ZkOpts { q_pad: 256, coset: Fp::new(7) };
+            let data = rnd(21 + inv_rate as u64, rows * p.cols());
+            let mut r1 = ZkRng::new(1, b"bench");
+            let cpu = pcs::commit_zk_owned_with_tag(&Cpu, &p, data.clone(), &ntt, &zk, &mut r1, &tag);
+            let _ = hashline::gpu::metal_commit_zk(&p, &data[..p.cols()], &vec![Fp::ZERO; 256], &pcs::coset_powers(Fp::new(7), p.enc_cols()), &ntt, None);
+            let mut times = Vec::with_capacity(reps);
+            for _ in 0..reps {
+                let d = data.clone();
+                let mut r2 = ZkRng::new(1, b"bench");
+                let t = std::time::Instant::now();
+                let dev = pcs::commit_zk_owned_with_tag(&backend, &p, d, &ntt, &zk, &mut r2, &tag);
+                times.push(t.elapsed().as_secs_f64() * 1e3);
+                assert!(matches!(dev.cm.store, Store::Device(_)));
+                assert_eq!(dev.commitment().root, cpu.commitment().root, "root at rate 1/{inv_rate}");
+            }
+            times.sort_by(|a, b| a.partial_cmp(b).unwrap());
+            println!(
+                "ZK60_METAL_M21 {{\"inv_rate\":{inv_rate},\"rows\":{rows},\"log_cols\":14,\"enc_cols\":{},\"reps\":{reps},\"min_ms\":{:.2},\"median_ms\":{:.2},\"max_ms\":{:.2}}}",
+                p.enc_cols(),
+                times[0],
+                times[reps / 2],
+                times[reps - 1]
+            );
+        }
+    }
 }

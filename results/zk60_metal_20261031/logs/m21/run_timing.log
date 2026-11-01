@@ -1,0 +1,42 @@
+
+running 1 test
+test device::m21_commit_rate_half_against_quarter_at_the_w16_8b_a_shape ... [ZK60-METAL] commit 1 x 2^14 -> 2^16: setup 0.000 s, gpu total 0.006 s (inverse 0.000, init 0.000, forward 0.001, hash 0.000)
+[ZK60-METAL] commit 2504 x 2^14 -> 2^16: setup 0.032 s, gpu total 0.063 s (inverse 0.011, init 0.000, forward 0.041, hash 0.003)
+[ZK60-METAL] commit 2504 x 2^14 -> 2^16: setup 0.025 s, gpu total 0.028 s (inverse 0.005, init 0.000, forward 0.019, hash 0.003)
+[ZK60-METAL] commit 2504 x 2^14 -> 2^16: setup 0.026 s, gpu total 0.028 s (inverse 0.005, init 0.000, forward 0.019, hash 0.003)
+[ZK60-METAL] commit 2504 x 2^14 -> 2^16: setup 0.003 s, gpu total 0.028 s (inverse 0.005, init 0.000, forward 0.019, hash 0.003)
+[ZK60-METAL] commit 2504 x 2^14 -> 2^16: setup 0.002 s, gpu total 0.028 s (inverse 0.005, init 0.000, forward 0.019, hash 0.003)
+[ZK60-METAL] commit 2504 x 2^14 -> 2^16: setup 0.003 s, gpu total 0.028 s (inverse 0.005, init 0.000, forward 0.019, hash 0.003)
+[ZK60-METAL] commit 2504 x 2^14 -> 2^16: setup 0.002 s, gpu total 0.028 s (inverse 0.005, init 0.000, forward 0.019, hash 0.003)
+ZK60_METAL_M21 {"inv_rate":4,"rows":2504,"log_cols":14,"enc_cols":65536,"reps":7,"min_ms":64.92,"median_ms":66.60,"max_ms":158.76}
+[ZK60-METAL] commit 1 x 2^14 -> 2^15: setup 0.000 s, gpu total 0.001 s (inverse 0.000, init 0.000, forward 0.000, hash 0.000)
+[ZK60-METAL] commit 2504 x 2^14 -> 2^15: setup 0.003 s, gpu total 0.034 s (inverse 0.005, init 0.000, forward 0.021, hash 0.002)
+[ZK60-METAL] commit 2504 x 2^14 -> 2^15: setup 0.002 s, gpu total 0.017 s (inverse 0.005, init 0.000, forward 0.009, hash 0.002)
+[ZK60-METAL] commit 2504 x 2^14 -> 2^15: setup 0.003 s, gpu total 0.017 s (inverse 0.005, init 0.000, forward 0.009, hash 0.002)
+[ZK60-METAL] commit 2504 x 2^14 -> 2^15: setup 0.002 s, gpu total 0.016 s (inverse 0.005, init 0.000, forward 0.009, hash 0.002)
+[ZK60-METAL] commit 2504 x 2^14 -> 2^15: setup 0.003 s, gpu total 0.017 s (inverse 0.005, init 0.000, forward 0.009, hash 0.002)
+[ZK60-METAL] commit 2504 x 2^14 -> 2^15: setup 0.003 s, gpu total 0.017 s (inverse 0.005, init 0.000, forward 0.009, hash 0.002)
+[ZK60-METAL] commit 2504 x 2^14 -> 2^15: setup 0.002 s, gpu total 0.017 s (inverse 0.005, init 0.000, forward 0.009, hash 0.002)
+ZK60_METAL_M21 {"inv_rate":2,"rows":2504,"log_cols":14,"enc_cols":32768,"reps":7,"min_ms":40.86,"median_ms":41.31,"max_ms":70.75}
+[ZK60-METAL] commit 1 x 2^14 -> 2^16: setup 0.000 s, gpu total 0.001 s (inverse 0.000, init 0.000, forward 0.000, hash 0.000)
+[ZK60-METAL] commit 2504 x 2^14 -> 2^16: setup 0.003 s, gpu total 0.032 s (inverse 0.005, init 0.000, forward 0.019, hash 0.003)
+[ZK60-METAL] commit 2504 x 2^14 -> 2^16: setup 0.002 s, gpu total 0.028 s (inverse 0.005, init 0.000, forward 0.019, hash 0.003)
+[ZK60-METAL] commit 2504 x 2^14 -> 2^16: setup 0.002 s, gpu total 0.028 s (inverse 0.005, init 0.000, forward 0.019, hash 0.003)
+[ZK60-METAL] commit 2504 x 2^14 -> 2^16: setup 0.003 s, gpu total 0.028 s (inverse 0.005, init 0.000, forward 0.019, hash 0.003)
+[ZK60-METAL] commit 2504 x 2^14 -> 2^16: setup 0.002 s, gpu total 0.028 s (inverse 0.005, init 0.000, forward 0.019, hash 0.003)
+[ZK60-METAL] commit 2504 x 2^14 -> 2^16: setup 0.003 s, gpu total 0.028 s (inverse 0.005, init 0.000, forward 0.019, hash 0.003)
+[ZK60-METAL] commit 2504 x 2^14 -> 2^16: setup 0.003 s, gpu total 0.028 s (inverse 0.005, init 0.000, forward 0.019, hash 0.003)
+ZK60_METAL_M21 {"inv_rate":4,"rows":2504,"log_cols":14,"enc_cols":65536,"reps":7,"min_ms":65.24,"median_ms":65.40,"max_ms":70.42}
+[ZK60-METAL] commit 1 x 2^14 -> 2^15: setup 0.000 s, gpu total 0.001 s (inverse 0.000, init 0.000, forward 0.000, hash 0.000)
+[ZK60-METAL] commit 2504 x 2^14 -> 2^15: setup 0.003 s, gpu total 0.020 s (inverse 0.005, init 0.000, forward 0.009, hash 0.002)
+[ZK60-METAL] commit 2504 x 2^14 -> 2^15: setup 0.003 s, gpu total 0.017 s (inverse 0.005, init 0.000, forward 0.009, hash 0.002)
+[ZK60-METAL] commit 2504 x 2^14 -> 2^15: setup 0.003 s, gpu total 0.017 s (inverse 0.005, init 0.000, forward 0.009, hash 0.002)
+[ZK60-METAL] commit 2504 x 2^14 -> 2^15: setup 0.002 s, gpu total 0.017 s (inverse 0.005, init 0.000, forward 0.009, hash 0.002)
+[ZK60-METAL] commit 2504 x 2^14 -> 2^15: setup 0.002 s, gpu total 0.017 s (inverse 0.005, init 0.000, forward 0.009, hash 0.002)
+[ZK60-METAL] commit 2504 x 2^14 -> 2^15: setup 0.002 s, gpu total 0.017 s (inverse 0.005, init 0.000, forward 0.009, hash 0.002)
+[ZK60-METAL] commit 2504 x 2^14 -> 2^15: setup 0.003 s, gpu total 0.017 s (inverse 0.005, init 0.000, forward 0.009, hash 0.002)
+ZK60_METAL_M21 {"inv_rate":2,"rows":2504,"log_cols":14,"enc_cols":32768,"reps":7,"min_ms":40.75,"median_ms":41.16,"max_ms":43.70}
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 2.63s
+

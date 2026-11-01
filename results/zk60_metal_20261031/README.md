@@ -998,3 +998,29 @@ threads. [MEASURED, `logs/m18field/bench.log`, warm rep]:
   - Carrying them as digits multiplies the committed words, so the modelled GPU time is 0.24–0.34 s per block,
     worse than today's 0.165 s.
   - Recommendation: **not now.**
+
+## M21 (2026-11-01, research): a rate-1/2 commitment at the W16 8B A shape — the falsification test passes
+
+The test of `research/zkp-efficiency/handoffs/20261101-gpu-work-per-block.md` §1. It adds the test-only bench
+`m21_commit_rate_half_against_quarter_at_the_w16_8b_a_shape` in `hashline/tests/zk60_metal_commit.rs`. Roots match
+CPU = Metal at both rates. No proof format changed. Logs: `logs/m21/`.
+
+Measured on the keyed hiding commitment, 2^14 columns × 2,504 rows, warm, n = 7 per arm, two interleaved rounds per
+rate, on a shared Mac:
+
+| Rate | Encoded width | Wall per commit (median) | GPU total (`HL_METAL_TIMING=1`, attribution only) |
+|---|---:|---:|---|
+| 1/4 (today) | 2^16 | 38.0 / 38.4 ms | 28 ms: inverse 5, forward 19, hash 3 |
+| 1/2 | 2^15 | 25.2 / 25.1 ms | 17 ms: inverse 5, forward 9, hash 2 |
+
+- **Result:** ×0.66 on wall time and ×0.61 on GPU total. The handoff predicted 27 → 16.7 ms and set the kill rule
+  at 19 ms, so the prediction holds and the lever survives.
+- **Still to come:** the coefficient-form variant, which drops the 5 ms inverse NTT, is not measured. It would give
+  about 12 ms [MODEL].
+- **What adopting it needs:**
+  - the security owner's sign-off on the δ/2 column-test lemma, so that Q = 260 keeps today's ~105.6 bits per
+    opening (without it, Q = 413 and about 29% more opening bytes);
+  - a new opt-in W16 rate-1/2 profile, with its own goldens, CPU = Metal digests, malicious controls and an
+    independent review.
+
+  Nothing changes in today's profiles.

@@ -1,0 +1,22 @@
+== build 15:14:18
+[zk60-guard 15:14:18] START m21-build class=build need=4G cap=10G enforce=watchdog-only waited=0s run=658200df6348
+[zk60-guard 15:15:08] END m21-build exit=0 child_wall=50s peak_rss=3.18G min_avail=225.17G
+-rwxr-xr-x@ 1 victorrielly  staff  1277552 Nov  1 15:15 /Users/victorrielly/IntelligenceRegulation/ops/zkp-mvp/gpu-metal/hashline/target/release/deps/zk60_metal_commit-e789d80bf83b2536
+test device::m21_commit_rate_half_against_quarter_at_the_w16_8b_a_shape
+== run-wall 15:15:14
+[zk60-guard 15:15:14] START m21-wall class=gpu need=30G cap=80G enforce=watchdog-only waited=0s run=5ddc884ac4bf
+[zk60-guard 15:15:16] END m21-wall exit=0 child_wall=2s peak_rss=3.48G min_avail=222.18G peak_vram=3696MiB
+test device::m21_commit_rate_half_against_quarter_at_the_w16_8b_a_shape ... ZK60_METAL_M21 {"inv_rate":4,"rows":2504,"log_cols":14,"enc_cols":65536,"reps":7,"min_ms":37.51,"median_ms":38.00,"max_ms":102.74}
+ZK60_METAL_M21 {"inv_rate":2,"rows":2504,"log_cols":14,"enc_cols":32768,"reps":7,"min_ms":23.58,"median_ms":25.23,"max_ms":35.75}
+ZK60_METAL_M21 {"inv_rate":4,"rows":2504,"log_cols":14,"enc_cols":65536,"reps":7,"min_ms":37.45,"median_ms":38.37,"max_ms":38.73}
+ZK60_METAL_M21 {"inv_rate":2,"rows":2504,"log_cols":14,"enc_cols":32768,"reps":7,"min_ms":23.74,"median_ms":25.05,"max_ms":29.45}
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 1.94s
+== run-timing 15:15:21
+[zk60-guard 15:15:21] START m21-timing class=gpu need=30G cap=80G enforce=watchdog-only waited=0s run=58b99a923608
+[zk60-guard 15:15:24] END m21-timing exit=0 child_wall=3s peak_rss=3.79G min_avail=220.02G peak_vram=5253MiB
+ZK60_METAL_M21 {"inv_rate":4,"rows":2504,"log_cols":14,"enc_cols":65536,"reps":7,"min_ms":64.92,"median_ms":66.60,"max_ms":158.76}
+ZK60_METAL_M21 {"inv_rate":2,"rows":2504,"log_cols":14,"enc_cols":32768,"reps":7,"min_ms":40.86,"median_ms":41.31,"max_ms":70.75}
+ZK60_METAL_M21 {"inv_rate":4,"rows":2504,"log_cols":14,"enc_cols":65536,"reps":7,"min_ms":65.24,"median_ms":65.40,"max_ms":70.42}
+ZK60_METAL_M21 {"inv_rate":2,"rows":2504,"log_cols":14,"enc_cols":32768,"reps":7,"min_ms":40.75,"median_ms":41.16,"max_ms":43.70}
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 2.63s
+== done 15:15:24

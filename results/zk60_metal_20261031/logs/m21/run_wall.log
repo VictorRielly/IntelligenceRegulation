@@ -1,0 +1,10 @@
+
+running 1 test
+test device::m21_commit_rate_half_against_quarter_at_the_w16_8b_a_shape ... ZK60_METAL_M21 {"inv_rate":4,"rows":2504,"log_cols":14,"enc_cols":65536,"reps":7,"min_ms":37.51,"median_ms":38.00,"max_ms":102.74}
+ZK60_METAL_M21 {"inv_rate":2,"rows":2504,"log_cols":14,"enc_cols":32768,"reps":7,"min_ms":23.58,"median_ms":25.23,"max_ms":35.75}
+ZK60_METAL_M21 {"inv_rate":4,"rows":2504,"log_cols":14,"enc_cols":65536,"reps":7,"min_ms":37.45,"median_ms":38.37,"max_ms":38.73}
+ZK60_METAL_M21 {"inv_rate":2,"rows":2504,"log_cols":14,"enc_cols":32768,"reps":7,"min_ms":23.74,"median_ms":25.05,"max_ms":29.45}
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 6 filtered out; finished in 1.94s
+
