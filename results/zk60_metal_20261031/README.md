@@ -535,3 +535,35 @@ across layers) or a faster device, not more phase tuning.
    new layout, verifier and receipt format, so it needs Victor's ruling and Sol's lane; even with it, 50 proved
    tokens/s needs more (cross-layer batching of commitments and openings, or a faster device), because proof
    time is about linear in tokens (T256 above).
+
+
+## M5a–M5e (2026-11-01 night) and the plan for M6
+
+**Measured on W16 blocks, Metal prove core, warm, shared Mac:**
+- **M5a (device plane gather): no gain, reverted.** A/B on one binary: all table builds 0.121 s without it, 0.131 s
+  with it. The diff is `m5a_plane_gather_negative.patch`.
+- **M5b (parallel activation queries): kept,** about −0.01 to −0.015 s.
+- **M5c (eq cubes split over halves): kept,** about −0.02 s.
+- **M5d (spin-wait on command buffers): kept,** about −0.01 to −0.015 s. Device rounds barely move, so the per-round
+  cost is GPU-side scheduling.
+- **M5e (host-tail budget knob): no better budget,** default kept.
+
+The W16 8B block is now 0.43–0.47 s depending on host load.
+
+**M6, next:** a slot's sumcheck rounds in ONE command buffer, with the Fiat-Shamir step on the device.
+
+Each round's host round trip (sum the partials, CFS-mask the message, absorb `sc-round`, squeeze the challenge,
+fold) costs about 0.3 ms of fixed scheduling. That is roughly 0.05 s over the roughly 190 device rounds of a W16
+block (researcher H113). Removing it means doing all of these on the device, in the CPU's exact order and bytes:
+- the partial-sum reduction;
+- the CFS mask's round polynomial (`RoundMask::mask_round`), from its committed coefficients and the challenges
+  so far;
+- the `Fp2::to_bytes` encoding;
+- the BLAKE3 absorb `state || len(label) || label || len(data) || data`, keyed under a tagged profile;
+- the squeeze `state || "squeeze" || counter`;
+- the 128-bit-to-Fp reduction (`Fp::from_u128`);
+- the claim recovery and the fold.
+
+The host then reads every round message and challenge back and replays the transcript to check it, so a device
+fault cannot reach the proof. The gate is the usual byte identity; the existing BLAKE3 column kernel and the field
+code are the building blocks.
