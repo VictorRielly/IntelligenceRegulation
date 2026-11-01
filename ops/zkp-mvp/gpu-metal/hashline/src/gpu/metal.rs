@@ -29,7 +29,8 @@ use std::sync::{Mutex, OnceLock};
 use zkp_core::pcs::PcsParams;
 
 const SRC: &str = include_str!("metal_kernels.metal");
-const KERNELS: [&str; 14] = [
+const KERNELS: [&str; 15] = [
+    "k_fs_test",
     "k_fold_tables",
     "k_gather_cols",
     "k_fold_partial",
@@ -371,6 +372,51 @@ fn twiddle_buffers(c: &Ctx, ntt: &NttTables) -> Result<(Buffer, Buffer), String>
     let i = upload(c, inv)?.keep();
     map.insert(ntt.max_log, (f.clone(), i.clone()));
     Ok((f, i))
+}
+
+/// **[M6, tests] one device Fiat-Shamir round step** (`k_fs_test`), from a
+/// transcript `state` and squeeze `counter`: `absorb_fp2(b"sc-round", vals)`
+/// then `challenge_fp2()`. Returns the new state and the challenge.
+#[cfg(test)]
+pub fn fs_round_for_test(state: [u8; 32], key: Option<[u8; 32]>, counter: u64, vals: &[Fp2]) -> Result<([u8; 32], Fp2), String> {
+    #[repr(C)]
+    struct FsTestArgs {
+        n: u32,
+        keyed: u32,
+        counter: u64,
+    }
+    if vals.is_empty() || vals.len() > 8 {
+        return Err("metal fs test: 1..=8 round values".into());
+    }
+    let c = ctx()?;
+    let words = |b: &[u8; 32]| -> Vec<u32> { (0..8).map(|i| u32::from_le_bytes([b[4 * i], b[4 * i + 1], b[4 * i + 2], b[4 * i + 3]])).collect() };
+    let put_u32 = |v: &[u32]| -> Result<PBuf, String> {
+        let buf = shared_buffer(c, (v.len() * 4) as u64)?;
+        // SAFETY: v.len() * 4 bytes of shared memory owned here
+        unsafe { std::slice::from_raw_parts_mut(buf.contents() as *mut u32, v.len()) }.copy_from_slice(v);
+        Ok(buf)
+    };
+    let st = put_u32(&words(&state))?;
+    let kb = put_u32(&words(&key.unwrap_or([0u8; 32])))?;
+    let flat: Vec<Fp> = vals.iter().flat_map(|x| [x.c0, x.c1]).collect();
+    let vb = upload(c, &flat)?;
+    let out = shared_buffer(c, 10 * 8)?;
+    run(c, |enc| {
+        enc.set_buffer(0, Some(&st), 0);
+        enc.set_buffer(1, Some(&kb), 0);
+        enc.set_buffer(2, Some(&vb), 0);
+        enc.set_buffer(3, Some(&out), 0);
+        set_args(enc, 4, &FsTestArgs { n: vals.len() as u32, keyed: key.is_some() as u32, counter });
+        dispatch_2d(c, enc, "k_fs_test", 1, 1);
+        Ok(())
+    })?;
+    // SAFETY: 10 words, completed command buffer
+    let o = unsafe { std::slice::from_raw_parts(out.contents() as *const u64, 10) };
+    let mut st_out = [0u8; 32];
+    for i in 0..8 {
+        st_out[4 * i..4 * i + 4].copy_from_slice(&(o[i] as u32).to_le_bytes());
+    }
+    Ok((st_out, Fp2::new(Fp::new(o[8]), Fp::new(o[9]))))
 }
 
 /// One command buffer, one serial compute encoder (each dispatch sees the

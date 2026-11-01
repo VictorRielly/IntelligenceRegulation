@@ -1,0 +1,9 @@
+
+running 4 tests
+test private_block::slot_ir::accuracy::tests::m4_accuracy_block_proofs_are_byte_identical_on_the_cpu_and_on_metal ... ignored, toggles HL_GPU in-process; run alone by name on a Mac
+test private_block::slot_ir::accuracy::tests::m4_trained_accuracy_block_cpu_and_metal_digests_and_times ... ignored, heavy, toggles HL_GPU in-process; run alone by name on a Mac
+test private_block::slot_ir::accuracy::tests::m5c_split_eq_cube_equals_the_full_table_broadcast ... ok
+test private_block::slot_ir::accuracy::tests::m6_device_fiat_shamir_step_equals_the_transcript ... ok
+
+test result: ok. 2 passed; 0 failed; 2 ignored; 0 measured; 912 filtered out; finished in 0.26s
+

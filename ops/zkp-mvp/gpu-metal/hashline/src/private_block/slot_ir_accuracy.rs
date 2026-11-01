@@ -1034,6 +1034,32 @@ mod tests {
         (data, cases)
     }
 
+    /// **[M6] the device Fiat-Shamir round step is the transcript's, byte for
+    /// byte**: `absorb_fp2(b"sc-round", ..)` then `challenge_fp2()`, plain and
+    /// keyed (a tagged profile), round degrees 1 to 7, squeeze counters 0 to 9.
+    #[cfg(feature = "gpu-metal")]
+    #[test]
+    fn m6_device_fiat_shamir_step_equals_the_transcript() {
+        use crate::transcript::Transcript;
+        let key = *blake3::hash(b"zk60 m6 key").as_bytes();
+        for keyed in [false, true] {
+            for (deg, before) in [(1usize, 0usize), (2, 3), (3, 0), (3, 5), (4, 1), (7, 9)] {
+                let mut tr = if keyed { Transcript::new_tagged(b"m6 fs", key) } else { Transcript::new(b"m6 fs") };
+                tr.absorb(b"seed", &[deg as u8, before as u8, keyed as u8]);
+                for _ in 0..before {
+                    tr.challenge_fp2();
+                }
+                let state = tr.state();
+                let vals: Vec<Fp2> = (0..=deg).map(|i| m4_f(97 * i as u64 + 13 * deg as u64 + before as u64 + 1)).collect();
+                let (st, r) = crate::gpu::metal_fs_round_for_test(state, keyed.then_some(key), before as u64, &vals).expect("a Metal device");
+                tr.absorb_fp2(b"sc-round", &vals);
+                let want = tr.challenge_fp2();
+                assert_eq!(r, want, "keyed {keyed} degree {deg} counter {before}: the device challenge");
+                assert_eq!(st, tr.state(), "keyed {keyed} degree {deg} counter {before}: the device state");
+            }
+        }
+    }
+
     /// **[M5c] the split eq cube is the full table's broadcast, word for
     /// word**: every point length (odd and even splits), offset and cube size,
     /// including a point that covers the whole cube and broadcast ones.

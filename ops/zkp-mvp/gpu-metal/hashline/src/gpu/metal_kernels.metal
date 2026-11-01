@@ -611,3 +611,82 @@ kernel void k_hash_cols(device const ulong *enc [[buffer(0)]],
     b3_compress(out_cv, out_block, 0UL, out_len, out_flags | ROOT, root);
     for (uint i = 0; i < 8; i++) { leaves[j * 8 + i] = root[i]; }
 }
+
+// ------------------------------------------- M6: the Fiat-Shamir step on the device
+// zkp-core `transcript.rs` on one thread, byte for byte.
+// - The message is at most one BLAKE3 chunk (1024 bytes): every block is
+//   compressed with chunk counter 0, CHUNK_START on the first block, and
+//   CHUNK_END | ROOT on the last; the key replaces the IV under KEYED_HASH.
+// - absorb: BLAKE3(state || le64(|label|) || label || le64(|data|) || data)
+// - squeeze: out = BLAKE3(state || "squeeze" || le64(counter)), and the state becomes out
+// - challenge: Fp2(reduce(out[0..16]), reduce(out[16..32])), `Fp::from_u128`
+inline void b3_hash_short(thread const uchar *msg, uint len, uint keyed, thread const uint *key, thread uint *out8) {
+    uint cv[8];
+    uint base = keyed != 0u ? KEYED_HASH : 0u;
+    for (uint i = 0; i < 8; i++) { cv[i] = keyed != 0u ? key[i] : B3_IV[i]; }
+    uint nblocks = len == 0u ? 1u : (len + 63u) / 64u;
+    for (uint b = 0; b < nblocks; b++) {
+        uint block[16];
+        for (uint i = 0; i < 16; i++) { block[i] = 0u; }
+        uint blen = len == 0u ? 0u : min(64u, len - 64u * b);
+        for (uint i = 0; i < blen; i++) { block[i / 4u] |= uint(msg[64u * b + i]) << (8u * (i % 4u)); }
+        uint fl = base | (b == 0u ? CHUNK_START : 0u) | (b == nblocks - 1u ? (CHUNK_END | ROOT) : 0u);
+        uint nxt[8];
+        b3_compress(cv, block, 0UL, blen, fl, nxt);
+        for (uint i = 0; i < 8; i++) { cv[i] = nxt[i]; }
+    }
+    for (uint i = 0; i < 8; i++) { out8[i] = cv[i]; }
+}
+
+inline void put_le64(thread uchar *dst, ulong v) {
+    for (uint i = 0; i < 8; i++) { dst[i] = uchar((v >> (8u * i)) & 0xFFUL); }
+}
+
+// absorb(b"sc-round", Fp2 values): `n` Fp2 words (c0, c1 interleaved) into `state` (8 words)
+inline void fs_absorb_round(thread uint *state, thread const ulong *vals, uint n, uint keyed, thread const uint *key) {
+    uchar msg[32 + 8 + 8 + 8 + 16 * 8];
+    uint at = 0;
+    for (uint i = 0; i < 8; i++) { for (uint b = 0; b < 4; b++) { msg[at++] = uchar((state[i] >> (8u * b)) & 0xFFu); } }
+    put_le64(msg + at, 8UL); at += 8;
+    uchar label[8] = {115, 99, 45, 114, 111, 117, 110, 100}; // "sc-round"
+    for (uint i = 0; i < 8; i++) { msg[at++] = label[i]; }
+    put_le64(msg + at, ulong(16u * n)); at += 8;
+    for (uint i = 0; i < 2u * n; i++) { put_le64(msg + at, vals[i]); at += 8; }
+    b3_hash_short(msg, at, keyed, key, state);
+}
+
+// squeeze + challenge_fp2: the new state, and the challenge (c0, c1)
+inline void fs_challenge(thread uint *state, ulong counter, uint keyed, thread const uint *key, thread ulong *r) {
+    uchar msg[32 + 7 + 8];
+    uint at = 0;
+    for (uint i = 0; i < 8; i++) { for (uint b = 0; b < 4; b++) { msg[at++] = uchar((state[i] >> (8u * b)) & 0xFFu); } }
+    uchar sq[7] = {115, 113, 117, 101, 101, 122, 101}; // "squeeze"
+    for (uint i = 0; i < 7; i++) { msg[at++] = sq[i]; }
+    put_le64(msg + at, counter); at += 8;
+    b3_hash_short(msg, at, keyed, key, state);
+    r[0] = gl_reduce128(ulong(state[0]) | (ulong(state[1]) << 32), ulong(state[2]) | (ulong(state[3]) << 32));
+    r[1] = gl_reduce128(ulong(state[4]) | (ulong(state[5]) << 32), ulong(state[6]) | (ulong(state[7]) << 32));
+}
+
+// TEST KERNEL: one round's absorb + challenge, as `Transcript::absorb_fp2(b"sc-round", ..)` then
+// `challenge_fp2()`. io: [0..8) state words in and out, [8] counter, [9] keyed, [10..18) key words,
+// [18] n, then 2n value words; out: [0..8) the new state, [8], [9] the challenge
+struct FsTestArgs { uint n; uint keyed; ulong counter; };
+kernel void k_fs_test(device const uint *st_in [[buffer(0)]],
+                      device const uint *key_in [[buffer(1)]],
+                      device const ulong *vals_in [[buffer(2)]],
+                      device ulong *out [[buffer(3)]],
+                      constant FsTestArgs &a [[buffer(4)]],
+                      uint2 gid [[thread_position_in_grid]]) {
+    if (gid.x != 0u) { return; }
+    uint state[8], key[8];
+    for (uint i = 0; i < 8; i++) { state[i] = st_in[i]; key[i] = key_in[i]; }
+    ulong vals[16];
+    for (uint i = 0; i < 2u * a.n && i < 16u; i++) { vals[i] = vals_in[i]; }
+    fs_absorb_round(state, vals, a.n, a.keyed, key);
+    ulong r[2];
+    fs_challenge(state, a.counter, a.keyed, key, r);
+    for (uint i = 0; i < 8; i++) { out[i] = ulong(state[i]); }
+    out[8] = r[0];
+    out[9] = r[1];
+}
