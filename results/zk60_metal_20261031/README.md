@@ -567,3 +567,31 @@ block (researcher H113). Removing it means doing all of these on the device, in 
 The host then reads every round message and challenge back and replays the transcript to check it, so a device
 fault cannot reach the proof. The gate is the usual byte identity; the existing BLAKE3 column kernel and the field
 code are the building blocks.
+
+**M6 spec (from the code, 2026-11-01).** The host loop to batch is zkp-core `sumcheck::prove_rounds`, called by
+`hashline/src/zk.rs::masked_prove_rounds` with a `CfsMasker` installed on the transcript. Per round j it does:
+1. **sums:** `evaluator.round()`. On Metal this is `MetalRounds` / `TailedRounds`, with `s(1)` recovered from the
+   claim (`eval_one = 0`).
+2. **mask:** `CfsMasker::mask_round`: `sums + c * g_j`.
+   - `g_j(x) = 2^(n-1-j) (base + u_j(x)) + coeffs[1] * prod(r_<j) * x`;
+   - `base = coeffs[0] + sum_{i<j} u_i(r_i) + sum_{i>j} u_i(1)/2` (`zkp-core/src/sumcheck.rs`, `CfsMask::round`).
+3. **absorb:** `tr.absorb_fp2(b"sc-round", masked)`:
+   `BLAKE3(state || le64(8) || "sc-round" || le64(16(d+1)) || LE bytes of each Fp2 (c0, c1))`, keyed BLAKE3 under
+   a tagged profile (`zkp-core/src/transcript.rs`).
+4. **squeeze:** `r = challenge_fp2()`:
+   - `out = BLAKE3(state || "squeeze" || le64(counter++))`, and the state becomes `out`;
+   - `r = (from_u128(out[0..16]), from_u128(out[16..32]))`;
+   - `note_challenge(r)`.
+5. **fold:** `evaluator.fold(r)`.
+
+**Device design:**
+- One command buffer per slot runs every device round. Each round is the partial-sum kernel, a one-thread
+  "transcript" kernel (reduce, recover `s(1)`, mask, BLAKE3 absorb and squeeze, reduce to Fp2, store), then the
+  fold kernel, which reads `r` from device memory.
+- The host tail (M4k) keeps the small rounds.
+- Afterwards the host replays steps 2-4 from the device's round messages, which is two BLAKE3 calls per round,
+  and refuses the attempt unless every challenge matches. A device fault therefore costs an attempt, never a byte.
+
+**Expected:** about 0.05 s per W16 block (about 190 rounds at about 0.3 ms of scheduling each). **Gates:** the usual
+byte identity, plus a unit test that the device transcript kernel equals `Transcript` on random states, labels,
+messages and keys.
