@@ -56,9 +56,15 @@ non-DD, two softmax remainder limbs):
 - A signed 16-bit word (`X, Y, AO, X1, YM, Z16, X2, Q8, QR8, O8, K8, V8, KR8, U16`)
   is one width-16 query on `word + 32768`. It needs no limb plane and no
   decomposition relation.
-- A 24-bit signed word (`H16` at LowH24) keeps one committed top limb `t`:
-  - one width-8 query on `t`;
-  - one width-16 query on `H16 + 2^23 − 2^16·t`.
+- A 24-bit signed word (`H16` at LowH24) keeps one committed, **signed** top
+  limb `t = floor(H16 / 2^16)` in `[−128, 127]`:
+  - one byte query on `t + 128`;
+  - one width-16 query on `H16 − 2^16·t`.
+
+  Together these prove `H16 + 2^23 ∈ [0, 2^24)`, as R13's three byte limbs
+  do. The top is signed so that a padded position, where the pad rule holds
+  both `H16` and `t` at zero, still hits both tables. An unsigned top would
+  give `0 + 2^23 − 0`, outside the 16-bit table.
 
 **Remainders.**
 - A remainder of `b ≤ 16` bits is one plane and one width-`b` query.
@@ -84,7 +90,7 @@ non-DD, two softmax remainder limbs):
 | F | RGL (gate shift) | 20 | 3 / 4 | 2 / 2 |
 | F | H16 + HL | 24 | 1 + 3 / 3 | 1 + 1 / 2 |
 | F | RH | 16 | 2 / 2 | 1 / 1 |
-| S | S8 (symmetric int8) | — | 1 / 2 | 1 / 1 |
+| S | S8 (symmetric int8) | — | 1 / 2 | 1 / 2 (kept: its two byte queries; a dedicated sym8 table would save one) |
 | S | ZSEL, E | — | 2 / 0 | 2 / 0 |
 | S | RSL (score) | 18 | 3 / 4 | 2 / 2 |
 | S | P + PL | 13 | 1 + 2 / 3 | 1 / 1 |

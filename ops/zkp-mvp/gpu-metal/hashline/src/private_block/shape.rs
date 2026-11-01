@@ -213,7 +213,21 @@ AccuracyProfile{profile:R13_RUNG_H24,name:"R13_RUNG_H24",legacy:TRAINED_HD_RUNG_
 AccuracyProfile{profile:R13_RUNG_LOW_DD,name:"R13_RUNG_LOW_DD",legacy:TRAINED_HD_RUNG_PROFILE,stack:super::accuracy_precision::Stack::Low,registry:super::accuracy_tables::Registry::Standard,tokens:32,width:384,hidden:768,q_heads:16,head_dim:64,kv_heads:8,log_cols:14},
 AccuracyProfile{profile:R13_RUNG_H24_DD,name:"R13_RUNG_H24_DD",legacy:TRAINED_HD_RUNG_PROFILE,stack:super::accuracy_precision::Stack::LowH24,registry:super::accuracy_tables::Registry::Standard,tokens:32,width:384,hidden:768,q_heads:16,head_dim:64,kv_heads:8,log_cols:14},
  ];
-pub(crate) fn accuracy_spec(profile:&str)->Option<&'static AccuracyProfile> {ACCURACY_PROFILES.iter().find(|s|s.profile==profile)}
+pub(crate) fn accuracy_spec(profile:&str)->Option<&'static AccuracyProfile> {ACCURACY_PROFILES.iter().chain(W16_PROFILES.iter()).find(|s|s.profile==profile)}
+
+// **W16 (D54): 16-bit tagged range lookups, opt-in by profile.** Each is an
+// R13 geometry under a NEW profile string, so its transcript can never be
+// confused with the R13 profile's; the R13 entries above are untouched and
+// the R13 sweeps (which iterate `ACCURACY_PROFILES`) never see these.
+// Design: `results/zk60_limb16_20261031/DESIGN.md`.
+pub(crate) const W16_RUNG_H24: &str = "hashline-zk-mr1/private-block-rung-lh-t32-w16-dev/1";
+pub(crate) const W16_SHIELD_T128_H24: &str = "hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-w16/1";
+pub(crate) const W16_8B_T128_H24: &str = "hashline-zk-mr1/private-block-llama-3-8b-t128-lh24-w16/1";
+pub(crate) const W16_PROFILES:[AccuracyProfile;3]=[
+AccuracyProfile{profile:W16_RUNG_H24,name:"W16_RUNG_H24",legacy:TRAINED_HD_RUNG_PROFILE,stack:super::accuracy_precision::Stack::LowH24,registry:super::accuracy_tables::Registry::Standard,tokens:32,width:384,hidden:768,q_heads:16,head_dim:64,kv_heads:8,log_cols:14},
+AccuracyProfile{profile:W16_SHIELD_T128_H24,name:"W16_SHIELD_T128_H24",legacy:SHIELDSTRAL_T128_TRAINED_PROFILE,stack:super::accuracy_precision::Stack::LowH24,registry:super::accuracy_tables::Registry::Shieldstral,tokens:128,width:3072,hidden:9216,q_heads:32,head_dim:128,kv_heads:8,log_cols:14},
+AccuracyProfile{profile:W16_8B_T128_H24,name:"W16_8B_T128_H24",legacy:LLAMA3_8B_T128_TRAINED_PROFILE,stack:super::accuracy_precision::Stack::LowH24,registry:super::accuracy_tables::Registry::Standard,tokens:128,width:4096,hidden:14336,q_heads:32,head_dim:128,kv_heads:8,log_cols:14},
+];
 
 /// **The declared parameter class of a trained norm calibration** (the
 /// validator's bounds; the no-wrap derivation in
@@ -663,6 +677,35 @@ impl Shape {
     /// R13 stack/registry are profile facts, never caller flags.
     pub(crate) fn accuracy_stack(&self) -> super::accuracy_precision::Stack {
         accuracy_spec(self.profile).map(|s|s.stack).unwrap_or(super::accuracy_precision::Stack::Legacy)
+    }
+    /// **W16 (D54):** does this profile use 16-bit tagged range lookups? A
+    /// profile fact, like the stack; false on every R13 and legacy profile.
+    pub(crate) fn range16(&self) -> bool {
+        W16_PROFILES.iter().any(|s| s.profile == self.profile)
+    }
+    /// **W16: the range families, the shape's independent statement** (from
+    /// its precision, gate shift and softmax window; `AccuracyIds::new_w16`
+    /// collects the same set from its lookups). Empty off a W16 profile, and
+    /// on a W16 shape whose precision does not derive (which `Ids::new` then
+    /// refuses).
+    pub(crate) fn range_families(&self) -> Vec<super::range16::Fam> {
+        if !self.range16() {
+            return Vec::new();
+        }
+        match self.accuracy_precision() {
+            Ok(p) => super::range16::families(&super::range16::widths(self.accuracy_stack(), &p, self.accuracy_gate_shift, self.wrho_s), self.log_cols),
+            Err(_) => Vec::new(),
+        }
+    }
+    /// W16: `range16::limbs_of` of this shape's windows, `(ao, down, score,
+    /// gate, sigma_s)`; `None` off a W16 profile or where the precision fails
+    fn w16_windows(&self) -> Option<(usize, usize, usize, usize, usize)> {
+        if !self.range16() || !(17..=24).contains(&self.accuracy_gate_shift) || !(9..=24).contains(&self.wrho_s) {
+            return None;
+        }
+        let p = self.accuracy_precision().ok()?;
+        let l = super::range16::limbs_of;
+        Some((l(p.ao), l(p.down), l(p.score), l(self.accuracy_gate_shift), l(self.wrho_s)))
     }
     pub(crate) fn accuracy_registry(&self) -> super::accuracy_tables::Registry {
         accuracy_spec(self.profile).map(|s|s.registry).unwrap_or_else(||
@@ -1622,7 +1665,9 @@ impl Shape {
     /// touch is re-run by rebuilding the plane maps (`Ids` / `HIds` refuse a
     /// list they cannot express).
     pub(crate) fn with_trained_calibration(mut self, cal: &NormCalibration) -> Result<Shape, String> {
-        if !TRAINED_CALIBRATION_PROFILES.contains(&self.profile) {
+        // W16 (D54): its profiles are trained-calibration profiles too, kept
+        // out of the counted R13 list so no R13 sweep reaches them
+        if !TRAINED_CALIBRATION_PROFILES.contains(&self.profile) && !W16_PROFILES.iter().any(|s| s.profile == self.profile) {
             return Err(format!("private block shape: the calibration of {} is frozen", self.profile));
         }
         if self.trained_calibration {
@@ -1669,7 +1714,9 @@ impl Shape {
     /// * `f_e` is in [`TRAINED_F_E_RANGE`], and `wrho_s` is the derived
     ///   `clog2(T) + f_e` and at most [`TRAINED_WRHO_S_MAX`] (three limbs).
     pub(crate) fn check_trained_class(&self) -> Result<(), String> {
-        if !TRAINED_CALIBRATION_PROFILES.contains(&self.profile) {
+        // W16 (D54): its profiles are trained-calibration profiles too (kept
+        // out of the counted list, as in `with_trained_calibration`)
+        if !TRAINED_CALIBRATION_PROFILES.contains(&self.profile) && !self.range16() {
             return Err(format!("private block shape: {} is not a trained-calibration profile", self.profile));
         }
         if self.accuracy_stack()!=super::accuracy_precision::Stack::Legacy {
@@ -2204,6 +2251,21 @@ impl Shape {
     pub(crate) fn a_plane_doms(&self) -> Vec<Dom> {
         if self.accuracy_stack()!=super::accuracy_precision::Stack::Legacy {
             let h24=self.accuracy_stack()==super::accuracy_precision::Stack::LowH24;
+            if let Some((ao,down,score,gate,ws))=self.w16_windows() {
+                // W16 (D54): seven 16-bit words and four two-limb norm
+                // remainders in D; three words and three one-limb remainders
+                // in Q and in Kv; the score's words and remainder (and the
+                // division unless the dictionary carries it) in S; the four
+                // feed-forward words, the gate / up / product remainders and
+                // the product's top limb in F; the range sub-planes in Tab
+                let rh=if h24 {1} else {2};
+                let mut v=vec![Dom::T;4];v.extend([Dom::Ht;2]);v.extend([Dom::L;2]);
+                v.extend(vec![Dom::D;7+8+ao+down]);v.extend([Dom::Q;6]);v.extend([Dom::Kv;6]);
+                v.extend(vec![Dom::S;if self.dd_cap>0 {4+score} else {4+score+2*ws}]);
+                v.extend(vec![Dom::F;4+gate+1+usize::from(h24)+rh]);
+                if self.dd_cap>0 {v.extend(vec![Dom::Dd;2+2*ws]);}
+                v.extend(vec![Dom::Tab;3+super::range16::sub_planes(&self.range_families()).len()]);return v;
+            }
             let mut v=vec![Dom::T;4];v.extend([Dom::Ht;2]);v.extend([Dom::L;2]);
             v.extend(vec![Dom::D;if h24 {39} else {38}]);v.extend([Dom::Q;14]);v.extend([Dom::Kv;14]);
             v.extend(vec![Dom::S;if self.dd_cap>0 {7} else {9+2*self.limbs_sigma_s()}]);v.extend([Dom::F;16]);
@@ -2242,6 +2304,16 @@ impl Shape {
     /// (`layout::lookups`), with the two shape-driven changes of §4
     pub(crate) fn lookups_per_position(&self, dom: Dom) -> usize {
         if self.accuracy_stack()!=super::accuracy_precision::Stack::Legacy {
+            if let Some((ao,down,score,gate,ws))=self.w16_windows() {
+                // W16: one query per 16-bit word and per remainder limb, two
+                // for the 24-bit product word, two for the int8 score
+                let h24=self.accuracy_stack()==super::accuracy_precision::Stack::LowH24;
+                let rh=if h24 {1} else {2};
+                return match dom {Dom::L=>2,Dom::D=>7+8+ao+down,Dom::Q|Dom::Kv=>6,
+                    Dom::F=>gate+1+1+(if h24 {2} else {1})+rh,
+                    Dom::S=>if self.dd_cap>0 {2+score} else {2+score+1+2*ws},
+                    Dom::Dd if self.dd_cap>0=>1+2*ws,_=>0};
+            }
             return match dom {Dom::L=>2,Dom::D=>if self.accuracy_stack()==super::accuracy_precision::Stack::LowH24 {34} else {33},
                 Dom::Q|Dom::Kv|Dom::F=>14,Dom::S=>if self.dd_cap>0 {6} else {11+2*self.limbs_sigma_s()},
                 Dom::Dd if self.dd_cap>0=>5+2*self.limbs_sigma_s(),_=>0};
@@ -2295,8 +2367,9 @@ impl Shape {
             v.extend(vec![Dom::Dd; self.helpers(Dom::Dd) + 1]);
         }
         // the three table helpers and the zero-sum pair `u` (P-3 / P-6: `u`
-        // stays the last plane, on `Dom::Tab`)
-        v.extend([Dom::Tab; 4]);
+        // stays the last plane, on `Dom::Tab`). W16: one table helper per
+        // range sub-plane, between the three and `u`
+        v.extend(vec![Dom::Tab; 4 + super::range16::sub_planes(&self.range_families()).len()]);
         v
     }
 
@@ -2336,8 +2409,10 @@ impl Shape {
         // + H_FACT
         a[SC_FZC] = self.a_planes_on(Dom::F);
         h[SC_FZC] = self.helpers(Dom::F) + 1;
-        a[SC_TAB] = 3;
-        h[SC_TAB] = 3;
+        // W16: one more multiplicity and table helper per range sub-plane
+        let n_range = super::range16::sub_planes(&self.range_families()).len();
+        a[SC_TAB] = 3 + n_range;
+        h[SC_TAB] = 3 + n_range;
         h[SC_ZS] = 1;
         a[SC_IO_IN] = 1;
         a[SC_IO_OUT] = 1;

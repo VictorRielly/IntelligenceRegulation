@@ -508,14 +508,46 @@ pub(super) fn assign(
 ) -> Result<Witness,String> {
     use crate::private_block::accuracy_layout::{AccuracyIds,Limbs as L};
     let g=Geom::new(sh);
-    let ids=AccuracyIds::new(data.stack(),sh.dd_cap>0,sh.limbs_sigma_s())?;
+    // W16 (D54): the 16-bit allocation; every other profile keeps R13's
+    let w16=sh.range16();
+    let ids=if w16 {AccuracyIds::new_w16(data.stack(),sh.dd_cap>0,&data.precision(),sh.accuracy_gate_shift,sh.wrho_s,sh.log_cols)?}
+        else {AccuracyIds::new(data.stack(),sh.dd_cap>0,sh.limbs_sigma_s())?};
     let mut planes:Vec<Vec<i64>>=ids.doms.iter().map(|&d| if d==Dom::Tab {Vec::new()} else {vec![0;g.len(d)]}).collect();
     let write=|planes:&mut Vec<Vec<i64>>,old:usize,words:Vec<i64>| -> Result<(),String> {
         let at=ids.map[old];
         if at==usize::MAX || words.len()!=g.len(ids.doms[at]) {return Err("R13 witness: word plane shape mismatch".into());}
         planes[at]=words; Ok(())
     };
+    // W16: a role of `count` 16-bit limbs. A role with no plane is a word
+    // looked up directly (range-checked here all the same); the product
+    // word's single plane at LowH24 is its TOP limb (`range16::word24`)
+    let role_dom=|role:L| -> Dom {
+        match role {
+            L::X|L::Y|L::Nr|L::Ns|L::Ao|L::Rao|L::X1|L::Ym|L::Mr|L::Ms|L::Z|L::Rd|L::X2=>Dom::D,
+            L::Q|L::Rq|L::Qr|L::Rqr|L::O|L::Ro=>Dom::Q,
+            L::K|L::Rk|L::V|L::Rv|L::Kr|L::Rkr=>Dom::Kv,
+            L::Rs=>Dom::S,
+            L::P|L::Sr|L::Sg=>if sh.dd_cap>0 {Dom::Dd} else {Dom::S},
+            L::Rg|L::Up|L::Ru|L::H|L::Rh=>Dom::F,
+        }
+    };
+    let decompose16=|planes:&mut Vec<Vec<i64>>,role:L,values:&[i64],bias:i64| -> Result<(),String> {
+        let (count,dom)=(ids.count(role),role_dom(role));
+        if values.len()!=g.len(dom) {return Err("W16 witness: limb source shape mismatch".into());}
+        let top_only=role==L::H && count==1;
+        // a word or one-limb remainder is 16 bits; a two-limb remainder and
+        // the product word are 24 (the lookups then pin each limb's width)
+        let width=if top_only || count==2 {24} else {16};
+        for i in g.support(dom) {
+            let value=values[i].checked_add(bias).filter(|&v| v>=0 && v<(1i64<<width))
+                .ok_or_else(||range("W16 limb decomposition"))?;
+            if top_only {planes[ids.limb(role,0)][i]=crate::private_block::range16::word24_top(values[i],bias); continue;}
+            for k in 0..count {planes[ids.limb(role,k)][i]=(value>>(16*k))&0xffff;}
+        }
+        Ok(())
+    };
     let decompose=|planes:&mut Vec<Vec<i64>>,role:L,values:&[i64],bias:i64| -> Result<(),String> {
+        if w16 {return decompose16(planes,role,values,bias);}
         let count=ids.count(role); let dom=ids.doms[ids.limb(role,0)];
         if values.len()!=g.len(dom) {return Err("R13 witness: limb source shape mismatch".into());}
         for i in g.support(dom) {

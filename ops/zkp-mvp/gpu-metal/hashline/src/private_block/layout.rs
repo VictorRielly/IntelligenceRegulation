@@ -361,7 +361,13 @@ impl Ids {
     pub(crate) fn new(sh: &super::shape::Shape) -> Result<Ids, String> {
         let (ln, ls, lp) = (sh.limbs_norm(), sh.limbs_sigma_s(), sh.limbs_p());
         if sh.accuracy_stack()!=super::accuracy_precision::Stack::Legacy {
-            let low=super::accuracy_layout::AccuracyIds::new(sh.accuracy_stack(),sh.dd_cap>0,ls)?;
+            let low=if sh.range16() {
+                // W16 (D54): the 16-bit allocation, whose range families must
+                // equal the shape's independently counted set
+                let low=super::accuracy_layout::AccuracyIds::new_w16(sh.accuracy_stack(),sh.dd_cap>0,&sh.accuracy_precision()?,sh.accuracy_gate_shift,sh.wrho_s,sh.log_cols)?;
+                if low.fams!=sh.range_families() {return Err("W16 range families differ from the independently counted shape list".into());}
+                low
+            } else {super::accuracy_layout::AccuracyIds::new(sh.accuracy_stack(),sh.dd_cap>0,ls)?};
             if low.doms!=sh.a_plane_doms() {return Err("R13 planes differ from the independently counted shape list".into());}
             return Ok(Ids{map:low.map.clone(),doms:low.doms.clone(),ln,ls,lp,pdict:low.pdict,mdd:low.mdd,accuracy:Some(low)});
         }
@@ -602,6 +608,9 @@ pub(crate) struct HIds {
     sexp: usize,
     fact: usize,
     gu8: usize,
+    /// W16: the range families' table helpers, one per `Dom::Tab` sub-plane,
+    /// right after the three (0 on every other profile)
+    n_range: usize,
     u: usize,
     /// NATIVE R9 (D30): the score entry's tuple helper, the dictionary's
     /// first byte helper and its TABLE helper (`usize::MAX` off a DD profile)
@@ -635,12 +644,13 @@ impl HIds {
         let first_f = seg(&mut doms, Dom::F, sh.helpers(Dom::F));
         let fact = seg(&mut doms, Dom::F, 1);
         let (first_dd, gdd) = if dd { (seg(&mut doms, Dom::Dd, sh.helpers(Dom::Dd)), seg(&mut doms, Dom::Dd, 1)) } else { (usize::MAX, usize::MAX) };
-        let gu8 = seg(&mut doms, Dom::Tab, 3);
+        let n_range = super::range16::sub_planes(&sh.range_families()).len();
+        let gu8 = seg(&mut doms, Dom::Tab, 3 + n_range);
         let u = seg(&mut doms, Dom::Tab, 1);
         if doms != sh.h_plane_doms() {
             return Err("private block: this shape's H plane list differs from the pinned one".into());
         }
-        Ok(HIds { doms, first_l, first_d, first_q, first_kv, first_s, first_f, sexp, fact, gu8, u, stuple, first_dd, gdd })
+        Ok(HIds { doms, first_l, first_d, first_q, first_kv, first_s, first_f, sexp, fact, gu8, n_range, u, stuple, first_dd, gdd })
     }
 
     /// the `k`-th LogUp helper of a lookup domain
@@ -673,6 +683,11 @@ impl HIds {
     pub(crate) fn table_helpers(&self) -> [usize; 3] {
         [self.gu8, self.gu8 + 1, self.gu8 + 2]
     }
+    /// W16: the range sub-planes' table helpers, in the order of
+    /// `AccuracyIds::range_planes` (empty on every other profile)
+    pub(crate) fn range_helpers(&self) -> std::ops::Range<usize> {
+        self.gu8 + 3..self.gu8 + 3 + self.n_range
+    }
     /// the zero-sum masking pair `u` (`H_U` at the toy)
     pub(crate) fn u(&self) -> usize {
         self.u
@@ -687,7 +702,7 @@ impl HIds {
     /// — NATIVE R9 (D30 condition 3, CHECK.md P-2 / E-2): the dictionary's
     /// table helper too, in the SINGLE value-0 sum claim
     pub(crate) fn is_table(&self, plane: usize) -> bool {
-        (self.gu8..self.gu8 + 3).contains(&plane) || (self.gdd != usize::MAX && plane == self.gdd)
+        (self.gu8..self.gu8 + 3 + self.n_range).contains(&plane) || (self.gdd != usize::MAX && plane == self.gdd)
     }
     /// NATIVE R9: the score entry's single tuple helper (a DD profile only)
     pub(crate) fn stuple(&self) -> usize {
@@ -701,23 +716,44 @@ impl HIds {
     }
 }
 
-// ---- lookups (all into the 256-entry U8 table; value = cst + sum coef * plane) ----
+// ---- lookups (value = cst + sum coef * plane, into the table family of `tag`) ----
+/// **W16 (D54).** The table family a lookup reads. Every legacy and R13
+/// lookup is `U8`, the 256-entry byte table. Only a W16 profile emits
+/// `Range(w)`, the `w`-bit range family of `range16.rs`.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub(crate) enum LkTag {
+    U8,
+    Range(u32),
+}
+
 #[derive(Clone, Debug)]
 pub(crate) struct Lk {
     pub terms: Vec<(usize, i64)>,
     pub cst: i64,
+    pub tag: LkTag,
+}
+
+impl Lk {
+    /// a byte-table lookup (every legacy and R13 lookup)
+    pub(crate) fn u8(terms: Vec<(usize, i64)>, cst: i64) -> Lk {
+        Lk { terms, cst, tag: LkTag::U8 }
+    }
+    /// a lookup into the family of `tag` (W16)
+    pub(crate) fn tagged(terms: Vec<(usize, i64)>, cst: i64, tag: LkTag) -> Lk {
+        Lk { terms, cst, tag }
+    }
 }
 
 fn byte(p: usize) -> Lk {
-    Lk { terms: vec![(p, 1)], cst: 0 }
+    Lk::u8(vec![(p, 1)], 0)
 }
 /// `k * plane` in U8: with `byte(plane)` this bounds the plane below `256 / k`
 fn scaled(p: usize, k: i64) -> Lk {
-    Lk { terms: vec![(p, k)], cst: 0 }
+    Lk::u8(vec![(p, k)], 0)
 }
 /// the attention int8 subset [-127, 127]
 fn sym(p: usize) -> [Lk; 2] {
-    [Lk { terms: vec![(p, 1)], cst: 127 }, Lk { terms: vec![(p, -1)], cst: 127 }]
+    [Lk::u8(vec![(p, 1)], 127), Lk::u8(vec![(p, -1)], 127)]
 }
 
 /// The U8 lookups of a domain, in helper order: helper k covers lookups

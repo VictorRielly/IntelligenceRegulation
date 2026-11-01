@@ -296,6 +296,13 @@ pub(crate) fn a_rule(s: &Shape, ids: &Ids, plane: usize) -> Option<Rule> {
     if !s.pads(dom) {
         return None;
     }
+    // W16 (D54): a range sub-plane whose every entry is a true table row has
+    // no padded copy to hold at zero (EXEMPT, as `A_E` is for its genuine
+    // row); a narrower family is ZERO above its own support, under its own
+    // indicator in `SC_TAB` (`argument_accuracy::tab_w16`)
+    if let Some(f) = ids.accuracy().ok().and_then(|a| a.range_fam_of(plane)) {
+        return Some(if super::range16::full(f, s.log_cols) { Rule::Exempt } else { Rule::Zero });
+    }
     if ids.is_multiplicity(plane) {
         // the three histograms are `Dom::Tab` planes and ARE proved zero
         // above index 255 — that is what makes the P-3 lift safe
@@ -324,7 +331,14 @@ pub(crate) fn h_rule(s: &Shape, doms: &[Dom], plane: usize) -> Option<Rule> {
     if plane == n - 1 {
         return Some(Rule::None);
     }
-    if plane >= n - 4 {
+    // W16 (D54): the range families' table helpers sit between the three and
+    // `u`, one per sub-plane, with the multiplicity's rule (`a_rule`)
+    let range = super::range16::sub_planes(&s.range_families());
+    if plane >= n - 1 - range.len() {
+        let (f, _) = range[plane - (n - 1 - range.len())];
+        return Some(if super::range16::full(f, s.log_cols) { Rule::Exempt } else { Rule::Zero });
+    }
+    if plane >= n - 4 - range.len() {
         return Some(Rule::Zero);
     }
     Some(Rule::Exempt)

@@ -65,6 +65,10 @@ mod accuracy_tables;
 mod accuracy_groups;
 mod accuracy_aligned;
 mod accuracy_layout;
+// W16 (D54): 16-bit tagged range lookups, opt-in by profile
+mod range16;
+#[cfg(test)]
+mod range16_tests;
 mod accuracy_fold;
 mod accuracy_act;
 mod accuracy_precision;

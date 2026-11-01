@@ -587,7 +587,8 @@ pub(crate) fn check_lookup_misses(sh: &Shape, lay: &Layout, blk: &BlockPublic, w
         Some(data)=>super::accuracy_act::histogram(sh,data,&wit.planes[ids.at(A_G8)],&wit.planes[ids.at(A_A16)])?,
         None=>act_histogram(&act_indices(lay,wit),&wit.planes[ids.at(A_A16)],&blk.feed_forward().act),
     };
-    refuse_lookup_misses(u8_misses_of(&looked, lookup_words), exp_missed, act_missed)?;
+    let u8_or_range_missed = if sh.range16() { w16_histograms(lay, &looked).2 } else { u8_misses_of(&looked, lookup_words) };
+    refuse_lookup_misses(u8_or_range_missed, exp_missed, act_missed)?;
     // NATIVE R9 (D30, CHECK.md B-8): the dictionary family, in the sealing
     // pass too, before `A` and before the header
     if sh.dd_cap > 0 {
@@ -668,6 +669,165 @@ pub(super) fn byte_histogram_at(looked: &[(Dom, Vec<Vec<i64>>)], lookup_words: u
         }
     }
     m_u8
+}
+
+// ---------------------------------------------------------------- W16 (D54)
+
+/// **W16: the byte histogram, one histogram per range family, and how many
+/// looked words lie outside their OWN family's table** (the miss count ruling
+/// CS-3 refuses on). Each column is binned by its lookup's tag. The bins are
+/// integer sums, so the parallel reduction's order changes no bin. A byte miss
+/// files in entry 0 as the byte histogram always has; a range miss files
+/// nowhere. Either way the honest prover refuses before `A`'s masks.
+pub(super) fn w16_histograms(lay: &Layout, looked: &[(Dom, Vec<Vec<i64>>)]) -> (Vec<u64>, Vec<Vec<u64>>, usize) {
+    use rayon::prelude::*;
+    let widths: Vec<u32> = lay.shape().range_families().iter().map(|f| f.width).collect();
+    let mut chunks: Vec<(&[i64], LkTag)> = Vec::new();
+    for (dom, cols) in looked {
+        for (c, l) in cols.iter().zip(lay.lookups(*dom)) {
+            chunks.extend(c.chunks(1 << 16).map(|ch| (ch, l.tag)));
+        }
+    }
+    let fresh = || (vec![0u64; U8_LEN], widths.iter().map(|w| vec![0u64; 1usize << w]).collect::<Vec<_>>(), 0usize);
+    chunks
+        .par_iter()
+        .fold(fresh, |mut acc, &(ch, tag)| {
+            match tag {
+                LkTag::U8 => {
+                    for v in ch {
+                        if (0..U8_LEN as i64).contains(v) {
+                            acc.0[*v as usize] += 1;
+                        } else {
+                            acc.0[0] += 1;
+                            acc.2 += 1;
+                        }
+                    }
+                }
+                LkTag::Range(w) => {
+                    let f = widths.iter().position(|x| *x == w).expect("a W16 lookup's width is one of the shape's range families");
+                    let n = 1i64 << w;
+                    for v in ch {
+                        if (0..n).contains(v) {
+                            acc.1[f][*v as usize] += 1;
+                        } else {
+                            acc.2 += 1;
+                        }
+                    }
+                }
+            }
+            acc
+        })
+        .reduce(fresh, |mut a, b| {
+            for (x, y) in a.0.iter_mut().zip(&b.0) {
+                *x += *y;
+            }
+            for (fa, fb) in a.1.iter_mut().zip(&b.1) {
+                for (x, y) in fa.iter_mut().zip(fb) {
+                    *x += *y;
+                }
+            }
+            a.2 += b.2;
+            a
+        })
+}
+
+/// W16: one looked column with its family's fold constant and inverse table
+pub(super) struct TaggedColumn<'a> {
+    pub(super) vals: &'a [i64],
+    pub(super) g: Fp2,
+    pub(super) tbl: &'a [Option<Fp2>],
+}
+
+/// W16: one helper column to write, at `H`'s (real, imaginary) offsets
+pub(super) struct HelperJobW16<'a> {
+    pub(super) off: (usize, usize),
+    pub(super) a: TaggedColumn<'a>,
+    pub(super) b: Option<TaggedColumn<'a>>,
+}
+
+/// W16: a looked column with its tag's fold constant and inverse table (the
+/// byte table's, or its range family's from `tabs`: `(width, g, inverses)`)
+fn tagged_column<'c>(vals: &'c [i64], tag: LkTag, g_u8: Fp2, u8_inv: &'c [Option<Fp2>], tabs: &'c [(u32, Fp2, Vec<Option<Fp2>>)]) -> Result<TaggedColumn<'c>, String> {
+    match tag {
+        LkTag::U8 => Ok(TaggedColumn { vals, g: g_u8, tbl: u8_inv }),
+        LkTag::Range(w) => {
+            let t = tabs.iter().find(|t| t.0 == w).ok_or("W16: a lookup width outside the shape's range families")?;
+            Ok(TaggedColumn { vals, g: t.1, tbl: &t.2 })
+        }
+    }
+}
+
+/// `1 / (alpha - (v + g))`: the table entry for a value inside the table, the
+/// arithmetic otherwise (the same refusal as [`helper_one`])
+fn helper_one_any(v: i64, alpha: Fp2, g: Fp2, tbl: &[Option<Fp2>]) -> Result<Fp2, String> {
+    match usize::try_from(v) {
+        Ok(k) if k < tbl.len() => tbl[k].ok_or_else(|| ZERO_DENOMINATOR.to_string()),
+        _ => {
+            let d = alpha.sub(Fp2::from_i64(v).add(g));
+            if d.is_zero() {
+                Err(ZERO_DENOMINATOR.to_string())
+            } else {
+                Ok(d.inv())
+            }
+        }
+    }
+}
+
+/// **W16: every helper column in ONE parallel region** ([`write_helpers_u8`]'s
+/// carving, with each looked column's own family). The layout builds only
+/// well-formed, disjoint jobs; anything else is refused rather than written.
+pub(super) fn write_helpers_w16(h: &mut [Fp], jobs: &[HelperJobW16<'_>], alpha: Fp2) -> Result<(), String> {
+    let mut ranges: Vec<(usize, usize, usize, bool)> = Vec::with_capacity(2 * jobs.len());
+    for (i, j) in jobs.iter().enumerate() {
+        let len = j.a.vals.len();
+        if j.b.as_ref().is_some_and(|b| b.vals.len() != len) || (j.off.0 + len > j.off.1 && j.off.1 + len > j.off.0) {
+            return Err("private block: a W16 helper job is malformed".into());
+        }
+        if len > 0 {
+            ranges.push((j.off.0, len, i, false));
+            ranges.push((j.off.1, len, i, true));
+        }
+    }
+    ranges.sort_unstable();
+    if !(ranges.windows(2).all(|w| w[0].0 + w[0].1 <= w[1].0) && ranges.last().is_none_or(|r| r.0 + r.1 <= h.len())) {
+        return Err("private block: W16 helper columns overlap or leave H".into());
+    }
+    let mut parts: Vec<[Option<&mut [Fp]>; 2]> = (0..jobs.len()).map(|_| [None, None]).collect();
+    let mut rest: &mut [Fp] = h;
+    let mut at = 0usize;
+    for &(start, len, i, im) in &ranges {
+        let tail = std::mem::take(&mut rest).split_at_mut(start - at).1;
+        let (mine, tail) = tail.split_at_mut(len);
+        parts[i][im as usize] = Some(mine);
+        rest = tail;
+        at = start + len;
+    }
+    type Item<'s, 'c> = (&'s mut [Fp], &'s mut [Fp], usize, &'c HelperJobW16<'c>);
+    let mut items: Vec<Item<'_, '_>> = Vec::new();
+    for (j, [re, im]) in jobs.iter().zip(parts.iter_mut()) {
+        let (Some(re), Some(im)) = (re.take(), im.take()) else { continue };
+        for (c, (r, m)) in re.chunks_mut(HELPER_CHUNK).zip(im.chunks_mut(HELPER_CHUNK)).enumerate() {
+            items.push((r, m, c * HELPER_CHUNK, j));
+        }
+    }
+    let fill = |(r, m, s, j): Item<'_, '_>| -> bool {
+        for i in 0..r.len() {
+            let Ok(mut v) = helper_one_any(j.a.vals[s + i], alpha, j.a.g, j.a.tbl) else { return false };
+            if let Some(b) = &j.b {
+                let Ok(y) = helper_one_any(b.vals[s + i], alpha, b.g, b.tbl) else { return false };
+                v = v.add(y);
+            }
+            r[i] = v.c0;
+            m[i] = v.c1;
+        }
+        true
+    };
+    use rayon::prelude::*;
+    if items.into_par_iter().map(fill).reduce(|| true, |x, y| x && y) {
+        Ok(())
+    } else {
+        Err(ZERO_DENOMINATOR.to_string())
+    }
 }
 
 /// the activation lookup's index column `g8 + 128` over the `Dom::F` cube
@@ -1289,7 +1449,11 @@ pub(crate) fn prove_core(
     // a public count: how many lookup words the six lookup domains carry at
     // THIS shape. It is a function of the geometry and of nothing private.
     let lookup_words: u64 = looked.iter().map(|(d, cols)| (cols.len() * sh.size(*d)) as u64).sum();
-    let mut m_u8 = byte_histogram_at(&looked, lookup_words, HISTOGRAM_PAR_MIN);
+    // W16 (D54): the byte histogram plus one histogram per range family, and
+    // the looked words outside their own table; every other profile keeps the
+    // byte histogram alone, unchanged
+    #[allow(unused_mut)]
+    let (mut m_u8, m_rng, w16_missed) = if sh.range16() { w16_histograms(lay, &looked) } else { (byte_histogram_at(&looked, lookup_words, HISTOGRAM_PAR_MIN), Vec::new(), 0) };
     ph.mark(Half::Commit, "A: lookup values + the byte histogram", lookup_words, "words");
     let deltas = exp_deltas(lay, &wit);
     let (mut m_exp, exp_missed) = exp_histogram(&deltas, &wit.planes[ids.at(A_E)], &public.exp);
@@ -1303,7 +1467,7 @@ pub(crate) fn prove_core(
     // named refusal HERE — after the three histograms, from values this
     // function already holds, and BEFORE the first draw of the `A` mask rows,
     // the `A` commitment and any absorb or challenge of this block's body.
-    refuse_lookup_misses(u8_misses_of(&looked, lookup_words), exp_missed, act_missed)?;
+    refuse_lookup_misses(if sh.range16() { w16_missed } else { u8_misses_of(&looked, lookup_words) }, exp_missed, act_missed)?;
     // NATIVE R9 (D30, CHECK.md B-8): at a DD profile, the score entries'
     // tuples against their rows' dictionaries — the same named refusal, its
     // own family (an admitted witness never misses: the builder writes the
@@ -1320,6 +1484,17 @@ pub(crate) fn prove_core(
     // committed multiplicity entries stay zero.
     for (i,&count) in m_act.iter().enumerate() {
         a_data[lay.a_off[ids.at(A_MACT)] + i]=Fp::new(count);
+    }
+    // W16: each range sub-plane's true rows; its padded copies stay zero
+    if sh.range16() {
+        let fams = sh.range_families();
+        for (f, s, plane) in ids.accuracy()?.range_planes() {
+            let m = &m_rng[fams.iter().position(|x| *x == f).ok_or("W16: a range sub-plane outside the shape's families")?];
+            let (base, sup) = (s << sh.log_cols, super::range16::support(f, sh.log_cols));
+            for i in 0..sup {
+                a_data[lay.a_off[plane] + i] = Fp::new(m[base + i]);
+            }
+        }
     }
     ph.mark(Half::Commit, "A: exp/act indices + their two histograms", (sh.size(Dom::S) + sh.size(Dom::F)) as u64, "words");
     // FINDING F-4, injection point 1 of 2 (test builds only): one count moves
@@ -1380,8 +1555,33 @@ pub(crate) fn prove_core(
     // word is a table build plus one indexed lookup per word. Same words, same
     // refusal (see [`helper_inverses_u8`]).
     let u8_inv = u8_denominator_inverses(alpha, g_u8);
+    // W16 (D54): each looked column folds its own family's tag, with that
+    // family's inverse table (2^w denominators, inverted once per proof)
+    if sh.range16() {
+        let tabs: Vec<(u32, Fp2, Vec<Option<Fp2>>)> = sh
+            .range_families()
+            .iter()
+            .map(|f| {
+                let g = super::range16::g_range(g_u8, f.width);
+                (f.width, g, super::range16::denominator_inverses(f.width, alpha, g))
+            })
+            .collect();
+        let mut wjobs: Vec<HelperJobW16<'_>> = Vec::new();
+        for (dom, cols) in &looked {
+            let tags: Vec<LkTag> = lay.lookups(*dom).iter().map(|l| l.tag).collect();
+            let (first, count) = lay.helpers(*dom);
+            for k in 0..count {
+                let b = match cols.get(2 * k + 1) {
+                    Some(c) => Some(tagged_column(c, tags[2 * k + 1], g_u8, &u8_inv, &tabs)?),
+                    None => None,
+                };
+                wjobs.push(HelperJobW16 { off: lay.h_off[first + k], a: tagged_column(&cols[2 * k], tags[2 * k], g_u8, &u8_inv, &tabs)?, b });
+            }
+        }
+        write_helpers_w16(&mut h_data, &wjobs, alpha)?;
+    }
     let mut jobs: Vec<HelperJob<'_>> = Vec::new();
-    for (dom, cols) in &looked {
+    for (dom, cols) in looked.iter().filter(|_| !sh.range16()) {
         let (first, count) = lay.helpers(*dom);
         // **STAGE 28.** A helper column is the sum of the inverses of at most
         // TWO looked columns, so it is built and written one helper at a time
@@ -1399,7 +1599,9 @@ pub(crate) fn prove_core(
             jobs.push(HelperJob { off: lay.h_off[first + k], a: &cols[2 * k], b: cols.get(2 * k + 1).map(|c| c.as_slice()) });
         }
     }
-    write_helpers_u8(&mut h_data, &jobs, alpha, g_u8, &u8_inv)?;
+    if !sh.range16() {
+        write_helpers_u8(&mut h_data, &jobs, alpha, g_u8, &u8_inv)?;
+    }
     drop(jobs);
     ph.mark_bytes(Half::Commit, "H: LogUp helper inverses (six lookup domains)", lookup_words, "words", 16 * lookup_words);
     // [M4h] the denominators element by element on rayon: indexed iterators,
@@ -1480,6 +1682,22 @@ pub(crate) fn prove_core(
         let col: Vec<Fp2> = inv.iter().zip(m.iter()).map(|(x, c)| x.mul_base(Fp::new(*c))).collect();
         write_h(&mut h_data, lay.h_off[plane], &col);
     }
+    // W16 (D54): one table helper per range sub-plane, `m / (alpha - t)` on
+    // its true rows and zero on its padded copies (whose multiplicity is zero);
+    // every entry's denominator is inverted, padded copies included, as the
+    // three tables' are
+    if sh.range16() {
+        let fams = sh.range_families();
+        let rh: Vec<usize> = hids.range_helpers().collect();
+        for (j, (f, s, _)) in ids.accuracy()?.range_planes().into_iter().enumerate() {
+            let m = &m_rng[fams.iter().position(|x| *x == f).ok_or("W16: a range sub-plane outside the shape's families")?];
+            let tv = super::range16::table_column(f, s, sh.log_cols, super::range16::g_range(g_u8, f.width));
+            let inv = inverses(tv.iter().map(|t| alpha.sub(*t)).collect())?;
+            let (base, sup) = (s << sh.log_cols, super::range16::support(f, sh.log_cols));
+            let col: Vec<Fp2> = inv.iter().enumerate().map(|(i, x)| if i < sup { x.mul_base(Fp::new(m[base + i])) } else { Fp2::ZERO }).collect();
+            write_h(&mut h_data, lay.h_off[rh[j]], &col);
+        }
+    }
     ph.mark(Half::Commit, "H: the three table helpers", 3 * sh.size(Dom::Tab) as u64, "words");
     // FINDING F-4, injection point 2 of 2 (test builds only): the padded row
     // the count moved to now needs its own helper `1 / (alpha - value)`, and
@@ -1559,7 +1777,8 @@ pub(crate) fn prove_core(
         h_open,
         io_claims: [ic, oc],
         order,
-        lookups: [m_u8.iter().sum::<u64>() as usize, m_exp.iter().sum::<u64>() as usize, m_act.iter().sum::<u64>() as usize],
+        // W16: the first total counts the byte and range lookups together
+        lookups: [(m_u8.iter().sum::<u64>() + m_rng.iter().flatten().sum::<u64>()) as usize, m_exp.iter().sum::<u64>() as usize, m_act.iter().sum::<u64>() as usize],
     })
 }
 

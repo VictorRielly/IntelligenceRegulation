@@ -31,6 +31,20 @@ pub(super) fn build(slot: usize, ctx: &Ctx, pts: &IrPoints, tr: &mut Transcript,
     }
     // `define_changed`'s preconditions draw nothing; the accuracy data must exist
     let data = ctx.accuracy.ok_or("R13 IR requires bound accuracy public data")?;
+    // W16 (D54): `argument_accuracy`'s `*_w16` relations; the DD softmax, the
+    // dictionary and the table slot stay on the CPU as they do on R13
+    if sh.range16() {
+        return match slot {
+            SC_DZC => dzc_w16(b, ctx, pts, tr).map(Some),
+            SC_FZC => fzc_w16(b, ctx, data, pts, tr).map(Some),
+            SC_QZC | SC_KVZC => qzc_w16(slot, b, ctx, pts, tr).map(Some),
+            SC_SZC if sh.dd_cap > 0 => Err("W16 IR: the DD softmax zero-check is not transcribed".into()),
+            SC_SZC => szc_w16(b, ctx, pts, tr).map(Some),
+            SC_DD => Err("W16 IR: the dictionary slot is not transcribed".into()),
+            SC_TAB => Err("W16 IR: the table-helper slot is not transcribed".into()),
+            _ => Ok(None),
+        };
+    }
     match slot {
         SC_DZC => dzc(b, ctx, pts, tr).map(Some),
         SC_FZC => fzc(b, ctx, data, pts, tr).map(Some),
@@ -400,6 +414,282 @@ fn szc(b: &mut IrB, ctx: &Ctx, pts: &IrPoints, tr: &mut Transcript) -> Result<(V
     // the two hosted groups of the grouped evaluator: nu0 ght (sum + lam), nu1 gs host_s
     let rs = b.sum("sum + lam_z".into(), vec![st(Coef::one(), vec![ft(isum)]), st(Coef::chal(lam, "lam_z"), vec![])]);
     let n_rsl = limbs_node(b, "rsl", &rsl);
+    let host_s = b.sum(
+        "host SC_SCORE: 2^score s8 + rsl - half".into(),
+        vec![st(base(b_shs), vec![ft(s8)]), st(Coef::one(), vec![fnd(n_rsl)]), st(base(-s_half), vec![])],
+    );
+    let gh: Vec<TableId> = ght.into_iter().collect();
+    let gsv: Vec<TableId> = gs.into_iter().collect();
+    let terms = vec![
+        SlotTerm { coef: Coef::one(), wrapper: vec![i_tau], inner: vec![fnd(zc)], note: "eq(tau) * zc".to_string() },
+        SlotTerm { coef: Coef::nu(0, nu[0]), wrapper: [vec![i_pht], gh].concat(), inner: vec![fnd(rs)], note: "host SC_RS".to_string() },
+        SlotTerm { coef: Coef::nu(1, nu[1]), wrapper: [vec![i_ps], gsv].concat(), inner: vec![fnd(host_s)], note: "host SC_SCORE".to_string() },
+    ];
+    Ok((terms, pad_on))
+}
+
+// ---------------------------------------------------------------- W16 (D54)
+//
+// `argument_accuracy`'s `*_w16` relations as IR: the R13 builders above with
+// the 16-bit words' decomposition clauses dropped (and their challenges), the
+// remainders' limbs at weight 2^16, and each lookup folding its own family tag
+// (`logup_subterms`). Table pushes are in the relations' order, as above.
+
+/// `2^s * x + limbs16(r) - 2^(s-1)`
+fn requant16(b: &mut IrB, label: &str, s: u32, x: TableId, r: &[usize]) -> NodeId {
+    let l = limbs16_node(b, &format!("16-bit limbs of {label}"), r);
+    b.sum(label.to_string(), vec![st(base(1i64 << s), vec![ft(x)]), st(Coef::one(), vec![fnd(l)]), st(base(-(1i64 << (s - 1))), vec![])])
+}
+
+fn dzc_w16(b: &mut IrB, ctx: &Ctx, pts: &IrPoints, tr: &mut Transcript) -> Result<(Vec<SlotTerm>, bool), String> {
+    let lay = ctx.lay;
+    let (sh, ids, hids) = (lay.shape(), lay.ids(), lay.hids());
+    let low = ids.accuracy()?;
+    let precision = sh.accuracy_precision()?;
+    let pad_on = !super::super::pad::zero_rule_a_planes(sh, ids, Dom::D).is_empty();
+    let n_help = sh.helpers(Dom::D);
+    let mu = tr.challenge_fp2_vec(6 + n_help + usize::from(pad_on));
+    let nu = nonzero(tr.challenge_fp2_vec(2))?;
+    let zeta = if pad_on { nonzero(tr.challenge_fp2_vec(1))?[0] } else { Fp2::ZERO };
+    let tau_len = tr.challenge_fp2_vec(sh.log(Dom::D)).len();
+    let i_tau = b.eq(tau_len, 0, "tau");
+    let i_pa = b.eq(pts.p_a, 0, "p_a");
+    let i_pz = b.eq(pts.p_z, 0, "p_z");
+    let ig = b.public_shape("gamma_a on the padded width");
+    let igm = b.public_shape("gamma_m on the padded width");
+    let range = ids.domain_range(Dom::D)?;
+    let idx = b.a_range(range.start, range.end - 1);
+    let (nr, ns, mr, ms) = (role(b, low, L::Nr)?, role(b, low, L::Ns)?, role(b, low, L::Mr)?, role(b, low, L::Ms)?);
+    let (ral, rdl) = (role(b, low, L::Rao)?, role(b, low, L::Rd)?);
+    let id = b.a_slice("A_D read on the row axis");
+    let idm = b.a_slice("A_DM read on the row axis");
+    let h0 = b.h(hids.first_helper(Dom::D));
+    for j in 1..n_help {
+        b.h(hids.helper(Dom::D, j));
+    }
+    let shaped = b.shaped.clone();
+    let gd = b.supp(Dom::D);
+    let mut pz = if pad_on { IrPad::new(Coef::mu(6 + n_help, mu[6 + n_help]), zeta) } else { IrPad::none() };
+    if pad_on {
+        let planes: Vec<usize> = super::super::pad::zero_rule_a_planes(sh, ids, Dom::D).iter().map(|p| b.tab(*p)).collect();
+        pz.add(gd, &planes);
+    }
+    let (num, num_m) = (2 * sh.norm_cn_a as i64, 2 * sh.norm_cn_m as i64);
+    let (dv, den) = (1i64 << precision.norm_tn, 1i64 << (precision.norm_tn + 1));
+    let (x, y, ao, x1, ym, z, x2) = (at(&idx, A_X)?, at(&idx, A_Y)?, at(&idx, A_AO)?, at(&idx, A_X1)?, at(&idx, A_YM)?, at(&idx, A_Z16)?, at(&idx, A_X2)?);
+    let (n_nr, n_ns, n_mr, n_ms) = (limbs16_node(b, "nr", &nr), limbs16_node(b, "ns", &ns), limbs16_node(b, "mr", &mr), limbs16_node(b, "ms", &ms));
+    let one = Coef::one;
+    let neg = Coef::neg_one;
+    let c0 = b.sum("c0".into(), vec![st(base(num), vec![ft(ig), ft(x)]), st(base(dv), vec![ft(id)]), st(base(-den), vec![ft(y), ft(id)]), st(neg(), vec![fnd(n_nr)])]);
+    let c1 = b.sum("c1".into(), vec![st(one(), vec![fnd(n_nr)]), st(one(), vec![fnd(n_ns)]), st(one(), vec![]), st(base(-den), vec![ft(id)])]);
+    let c2 = b.sum("c2: x1 - x - ao".into(), vec![st(one(), vec![ft(x1)]), st(neg(), vec![ft(x)]), st(neg(), vec![ft(ao)])]);
+    let c3 = b.sum("c3".into(), vec![st(base(num_m), vec![ft(igm), ft(x1)]), st(base(dv), vec![ft(idm)]), st(base(-den), vec![ft(ym), ft(idm)]), st(neg(), vec![fnd(n_mr)])]);
+    let c4 = b.sum("c4".into(), vec![st(one(), vec![fnd(n_mr)]), st(one(), vec![fnd(n_ms)]), st(one(), vec![]), st(base(-den), vec![ft(idm)])]);
+    let c5 = b.sum("c5: x2 - x1 - z".into(), vec![st(one(), vec![ft(x2)]), st(neg(), vec![ft(x1)]), st(neg(), vec![ft(z)])]);
+    let cl = batch(b, "the six W16 norm/residual clauses", &mu, &[c0, c1, c2, c3, c4, c5]);
+    let mut zt = logup_subterms(b, Dom::D, h0, ctx.alpha, ctx.g_u8, &|k| Coef::mu(6 + k, mu[6 + k]), &shaped, "D");
+    zt.extend(pz.subterms(b));
+    zt.push(gated(gd, cl));
+    let zc = b.sum("zc".into(), zt);
+    let host_o = requant16(b, "host SC_WO", precision.ao, ao, &ral);
+    let host_d = requant16(b, "host SC_DMM", precision.down, z, &rdl);
+    Ok((three_terms([i_tau, i_pa, i_pz], gd, zc, &nu, host_o, host_d), pad_on))
+}
+
+fn fzc_w16(b: &mut IrB, ctx: &Ctx, data: &crate::private_block::accuracy_public::AccuracyPublic, pts: &IrPoints, tr: &mut Transcript) -> Result<(Vec<SlotTerm>, bool), String> {
+    let lay = ctx.lay;
+    let (sh, ids, hids) = (lay.shape(), lay.ids(), lay.hids());
+    let low = ids.accuracy()?;
+    let precision = sh.accuracy_precision()?;
+    let pad_on = !super::super::pad::zero_rule_a_planes(sh, ids, Dom::F).is_empty();
+    let n_help = sh.helpers(Dom::F);
+    let mu = tr.challenge_fp2_vec(2 + n_help + usize::from(pad_on));
+    let nu = nonzero(tr.challenge_fp2_vec(2))?;
+    let zeta = if pad_on { nonzero(tr.challenge_fp2_vec(1))?[0] } else { Fp2::ZERO };
+    let tau_len = tr.challenge_fp2_vec(sh.log(Dom::F)).len();
+    let i_tau = b.eq(tau_len, 0, "tau");
+    let i_pg = b.eq(pts.p_g, 0, "p_g");
+    let i_pu = b.eq(pts.p_u, 0, "p_u");
+    let range = ids.domain_range(Dom::F)?;
+    let idx = b.a_range(range.start, range.end - 1);
+    let (rg, ru, rh) = (role(b, low, L::Rg)?, role(b, low, L::Ru)?, role(b, low, L::Rh)?);
+    let h0 = b.h(hids.first_helper(Dom::F));
+    for j in 1..n_help {
+        b.h(hids.helper(Dom::F, j));
+    }
+    let fact = b.h(hids.fact());
+    let shaped = b.shaped.clone();
+    let group = b.public_shape("the activation group column (public accuracy data)");
+    let gf = b.supp(Dom::F);
+    let mut pz = if pad_on { IrPad::new(Coef::mu(2 + n_help, mu[2 + n_help]), zeta) } else { IrPad::none() };
+    if pad_on {
+        let planes: Vec<usize> = super::super::pad::zero_rule_a_planes(sh, ids, Dom::F).iter().map(|p| b.tab(*p)).collect();
+        pz.add(gf, &planes);
+    }
+    let (r, gate) = (data.folds().product.shift, sh.accuracy_gate_shift);
+    let (alpha, beta, tag) = (ctx.alpha, ctx.beta, ctx.g_act);
+    let beta2 = beta.mul(beta);
+    let (g, a, u, h) = (at(&idx, A_G8)?, at(&idx, A_A16)?, at(&idx, A_U16)?, at(&idx, A_H16)?);
+    let n_rh = limbs16_node(b, "rh", &rh);
+    let f0 = b.sum(
+        "f0: a u - 2^r h - rh + 2^(r-1)".into(),
+        vec![st(Coef::one(), vec![ft(a), ft(u)]), st(base(-(1i64 << r)), vec![ft(h)]), st(Coef::neg_one(), vec![fnd(n_rh)]), st(base(1i64 << (r - 1)), vec![])],
+    );
+    let amq = b.affine(
+        "alpha - query".into(),
+        Coef::chal(alpha.sub(Fp2::from_i64(2048)).sub(tag), "alpha - 2048 - g_act"),
+        vec![(Coef::neg_one(), g), (Coef::chal(beta.neg(), "-beta"), a), (Coef::chal(beta2.neg(), "-beta^2"), group)],
+    );
+    let fa = b.sum("fa: fact (alpha - query) - 1".into(), vec![st(Coef::one(), vec![ft(fact), fnd(amq)]), st(Coef::neg_one(), vec![])]);
+    let ar = batch(b, "the W16 product clause", &mu, &[f0]);
+    let mut zt = logup_subterms(b, Dom::F, h0, alpha, ctx.g_u8, &|k| Coef::mu(2 + k, mu[2 + k]), &shaped, "F");
+    zt.push(st(Coef::mu(1, mu[1]), vec![fnd(fa)]));
+    zt.extend(pz.subterms(b));
+    zt.push(gated(gf, ar));
+    let zc = b.sum("zc".into(), zt);
+    let host_g = requant16(b, "host SC_GMM", gate, g, &rg);
+    let host_u = requant16(b, "host SC_UMM", precision.up, u, &ru);
+    Ok((three_terms([i_tau, i_pg, i_pu], gf, zc, &nu, host_g, host_u), pad_on))
+}
+
+fn qzc_w16(slot: usize, b: &mut IrB, ctx: &Ctx, pts: &IrPoints, tr: &mut Transcript) -> Result<(Vec<SlotTerm>, bool), String> {
+    let lay = ctx.lay;
+    let (sh, ids, hids) = (lay.shape(), lay.ids(), lay.hids());
+    let low = ids.accuracy()?;
+    let precision = sh.accuracy_precision()?;
+    let q = slot == SC_QZC;
+    let dom = if q { Dom::Q } else { Dom::Kv };
+    let log = sh.log(dom);
+    let pad_on = !super::super::pad::zero_rule_a_planes(sh, ids, dom).is_empty();
+    let n_help = sh.helpers(dom);
+    let mu = tr.challenge_fp2_vec(1 + n_help + usize::from(pad_on));
+    let nu = nonzero(tr.challenge_fp2_vec(2))?;
+    let zeta = if pad_on { nonzero(tr.challenge_fp2_vec(1))?[0] } else { Fp2::ZERO };
+    let tau_len = tr.challenge_fp2_vec(log).len();
+    let i_tau = b.eq(tau_len, 0, "tau");
+    let i_p1 = b.eq(if q { pts.pq } else { pts.pk }, 0, if q { "pq" } else { "pk" });
+    let i_p2 = b.eq(if q { pts.p_o } else { pts.pv }, 0, if q { "p_o" } else { "pv" });
+    let ic = b.public_shape("the RoPE cos table");
+    let is = b.public_shape("the RoPE sin table");
+    let range = ids.domain_range(dom)?;
+    let idx = b.a_range(range.start, range.end - 1);
+    let (source, rotated, rr, other, rsource, rother, s1, s2) = if q {
+        (A_Q8, A_QR8, L::Rqr, A_O8, L::Rq, L::Ro, precision.q, precision.pv)
+    } else {
+        (A_K8, A_KR8, L::Rkr, A_V8, L::Rk, L::Rv, precision.k, precision.v)
+    };
+    let (r1, r2, rotrem) = (role(b, low, rsource)?, role(b, low, rother)?, role(b, low, rr)?);
+    let flip = b.a_fixed(ids.at(source), 0, "the RoPE partner half (Coord::Flip at log - log2(head_dim))");
+    let h0 = b.h(hids.first_helper(dom));
+    for j in 1..n_help {
+        b.h(hids.helper(dom, j));
+    }
+    let shaped = b.shaped.clone();
+    let gate = b.supp(dom);
+    let mut pz = if pad_on { IrPad::new(Coef::mu(1 + n_help, mu[1 + n_help]), zeta) } else { IrPad::none() };
+    if pad_on {
+        let planes: Vec<usize> = super::super::pad::zero_rule_a_planes(sh, ids, dom).iter().map(|p| b.tab(*p)).collect();
+        pz.add(gate, &planes);
+    }
+    let (src, rot, oth) = (at(&idx, source)?, at(&idx, rotated)?, at(&idx, other)?);
+    let n_rr = limbs16_node(b, "the rotation remainder", &rotrem);
+    let rope = b.sum(
+        "rope: cos src + sin flip - 2^SH_ROPE rot - rem + 2^(SH_ROPE-1)".into(),
+        vec![
+            st(Coef::one(), vec![ft(ic), ft(src)]),
+            st(Coef::one(), vec![ft(is), ft(flip)]),
+            st(base(-(1i64 << SH_ROPE)), vec![ft(rot)]),
+            st(Coef::neg_one(), vec![fnd(n_rr)]),
+            st(base(1i64 << (SH_ROPE - 1)), vec![]),
+        ],
+    );
+    let ar = batch(b, "the W16 rope clause", &mu, &[rope]);
+    let mut zt = logup_subterms(b, dom, h0, ctx.alpha, ctx.g_u8, &|k| Coef::mu(1 + k, mu[1 + k]), &shaped, "QKV");
+    zt.extend(pz.subterms(b));
+    zt.push(gated(gate, ar));
+    let zc = b.sum("zc".into(), zt);
+    let host1 = requant16(b, "host 1", s1, src, &r1);
+    let host2 = requant16(b, "host 2", s2, oth, &r2);
+    Ok((three_terms([i_tau, i_p1, i_p2], gate, zc, &nu, host1, host2), pad_on))
+}
+
+fn szc_w16(b: &mut IrB, ctx: &Ctx, pts: &IrPoints, tr: &mut Transcript) -> Result<(Vec<SlotTerm>, bool), String> {
+    let lay = ctx.lay;
+    let (sh, ids, hids) = (lay.shape(), lay.ids(), lay.hids());
+    let low = ids.accuracy()?;
+    let precision = sh.accuracy_precision()?;
+    let (alpha, beta, g_exp) = (ctx.alpha, ctx.beta, ctx.g_exp);
+    let pad_on = ALL_DOMS
+        .into_iter()
+        .any(|d| super::super::pad::pad_zero_host(d) == SC_SZC && !super::super::pad::zero_rule_a_planes(sh, ids, d).is_empty());
+    let n_pad = usize::from(pad_on);
+    let tau_len = tr.challenge_fp2_vec(sh.log(Dom::S)).len();
+    let n_help = sh.helpers(Dom::S);
+    let mu = tr.challenge_fp2_vec(4 + n_help + 1 + n_pad);
+    let nu = nonzero(tr.challenge_fp2_vec(2))?;
+    let zeta = if pad_on { nonzero(tr.challenge_fp2_vec(1))?[0] } else { Fp2::ZERO };
+    let lam = pts.lam_z;
+    let i_tau = b.eq(tau_len, 0, "tau");
+    let i_pht = b.eq(pts.p_ht, 0, "p_ht");
+    let i_ps = b.eq(pts.p_s, 0, "p_s");
+    let im = b.public_shape("the causal mask");
+    let range = ids.domain_range(Dom::S)?;
+    let idx = b.a_range(range.start, range.end - 1);
+    let (i_sr, i_sg) = (role(b, low, L::Sr)?, role(b, low, L::Sg)?);
+    let imx = b.a_slice("A_MX on Dom::Ht");
+    let isum = b.a_slice("A_SUM on Dom::Ht");
+    let h0 = b.h(hids.first_helper(Dom::S));
+    for j in 1..n_help {
+        b.h(hids.helper(Dom::S, j));
+    }
+    let ihx = b.h(hids.sexp());
+    let shaped = b.shaped.clone();
+    let rsl = role(b, low, L::Rs)?;
+    let b_fp = 1i64 << sh.f_p();
+    let b_shs = 1i64 << precision.score;
+    let s_half = super::super::witness::half(precision.score);
+    let ght = b.supp(Dom::Ht);
+    let gs = b.supp(Dom::S);
+    let mut pz = if pad_on { IrPad::new(Coef::mu(4 + n_help + 1, mu[4 + n_help + 1]), zeta) } else { IrPad::none() };
+    if pad_on {
+        if super::super::pad::zero_rule_a_planes(sh, ids, Dom::Ht) != vec![ids.at(A_MX), ids.at(A_SUM)] {
+            return Err("W16 IR: a Dom::Ht plane is outside SC_SZC's pad-zero group".into());
+        }
+        pz.add(ght, &[usize::from(imx), usize::from(isum)]);
+        let planes: Vec<usize> = super::super::pad::zero_rule_a_planes(sh, ids, Dom::S).iter().map(|p| b.tab(*p)).collect();
+        pz.add(gs, &planes);
+    }
+    let (s8, zsel, e, p) = (at(&idx, A_S8)?, at(&idx, A_ZSEL)?, at(&idx, A_E)?, at(&idx, A_P)?);
+    let ms = -MASK_SCORE;
+    let delta = b.sum(
+        "delta".into(),
+        vec![st(Coef::one(), vec![ft(imx)]), st(Coef::neg_one(), vec![ft(im), ft(s8)]), st(base(-ms), vec![ft(im)]), st(base(ms), vec![])],
+    );
+    let n_sr = limbs16_node(b, "sr", &i_sr);
+    let n_sg = limbs16_node(b, "sg", &i_sg);
+    let c0 = b.sum("c0: zsel^2 - zsel".into(), vec![st(Coef::one(), vec![ft(zsel), ft(zsel)]), st(Coef::neg_one(), vec![ft(zsel)])]);
+    let c1 = b.sum("c1: zsel delta".into(), vec![st(Coef::one(), vec![ft(zsel), fnd(delta)])]);
+    let c2 = b.sum(
+        "c2: 2^f_p mask e - p sum - sr".into(),
+        vec![st(base(b_fp), vec![ft(im), ft(e)]), st(Coef::neg_one(), vec![ft(p), ft(isum)]), st(Coef::neg_one(), vec![fnd(n_sr)])],
+    );
+    let c3 = b.sum(
+        "c3: sg + sr + 1 - sum".into(),
+        vec![st(Coef::one(), vec![fnd(n_sg)]), st(Coef::one(), vec![fnd(n_sr)]), st(Coef::one(), vec![]), st(Coef::neg_one(), vec![ft(isum)])],
+    );
+    let amd = b.sum(
+        "alpha - delta - beta e - g_exp".into(),
+        vec![st(Coef::chal(alpha.sub(g_exp), "alpha - g_exp"), vec![]), st(Coef::neg_one(), vec![fnd(delta)]), st(Coef::chal(beta.neg(), "-beta"), vec![ft(e)])],
+    );
+    let cx = b.sum("cx".into(), vec![st(Coef::one(), vec![ft(ihx), fnd(amd)]), st(Coef::neg_one(), vec![])]);
+    let cl = batch(b, "the four W16 softmax clauses", &mu, &[c0, c1, c2, c3]);
+    let mut zt = logup_subterms(b, Dom::S, h0, alpha, ctx.g_u8, &|k| Coef::mu(4 + k, mu[4 + k]), &shaped, "S");
+    zt.push(st(Coef::mu(4 + n_help, mu[4 + n_help]), vec![fnd(cx)]));
+    zt.extend(pz.subterms(b));
+    zt.push(gated(gs, cl));
+    let zc = b.sum("zc".into(), zt);
+    let rs = b.sum("sum + lam_z".into(), vec![st(Coef::one(), vec![ft(isum)]), st(Coef::chal(lam, "lam_z"), vec![])]);
+    let n_rsl = limbs16_node(b, "rsl", &rsl);
     let host_s = b.sum(
         "host SC_SCORE: 2^score s8 + rsl - half".into(),
         vec![st(base(b_shs), vec![ft(s8)]), st(Coef::one(), vec![fnd(n_rsl)]), st(base(-s_half), vec![])],
@@ -865,7 +1155,13 @@ mod tests {
     fn m4_trained_accuracy_block_cpu_and_metal_digests_and_times() {
         let want = std::env::var("HL_M4_PROFILES").unwrap_or_else(|_| "R13_SHIELD_T128_H24".to_string());
         let want: Vec<&str> = want.split(',').collect();
-        let shapes: Vec<Shape> = crate::private_block::accuracy_profile_tests::registered_shapes().into_iter().filter(|s| want.contains(&s.name)).collect();
+        let mut shapes: Vec<Shape> = crate::private_block::accuracy_profile_tests::registered_shapes().into_iter().filter(|s| want.contains(&s.name)).collect();
+        // W16 (D54): its profiles by name too, at `registered_shapes`' own
+        // calibration rule (`accuracy_profile_tests::calibration`) and f_e
+        for spec in crate::private_block::shape::W16_PROFILES.iter().filter(|s| want.contains(&s.name)) {
+            let cal = crate::private_block::shape::NormCalibration { tn: if spec.width >= 3072 { 9 } else { 10 }, cn_a: 100, cn_m: 100, ceps: 1, sh_ao: 7, sh_qkv: 8, sh_s: 6, sh_o: 9, sh_g: 8, sh_h: 14, sh_z: 6 };
+            shapes.push(Shape::accuracy_trained(spec.profile, &cal, if spec.tokens == 32 { 12 } else { 9 }, 20).unwrap());
+        }
         assert_eq!(shapes.len(), want.len(), "HL_M4_PROFILES names an unregistered accuracy profile");
         for original in shapes {
             let t0 = std::time::Instant::now();

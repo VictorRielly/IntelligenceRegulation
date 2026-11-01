@@ -1222,10 +1222,17 @@ struct LkT {
 /// `Dom::F` and `Dom::Tab` plane by one and the wrong map indexes past the
 /// end, which is the panic the first honest rung proof produced.
 fn lk_tables(lay: &Layout, dom: Dom, shaped: &[usize], g_u8: Fp2) -> Vec<LkT> {
+    // W16 (D54): each lookup folds ITS family's tag; a U8 lookup's is `g_u8`
+    // itself, so every legacy and R13 constant is the element it always was
     lay.lookups(dom)
         .into_iter()
-        .map(|l| LkT { terms: l.terms.iter().map(|(p, c)| (shaped[*p], Fp::from_i64(*c))).collect(), cst: Fp2::from_i64(l.cst).add(g_u8) })
+        .map(|l| LkT { terms: l.terms.iter().map(|(p, c)| (shaped[*p], Fp::from_i64(*c))).collect(), cst: Fp2::from_i64(l.cst).add(super::range16::g_of(l.tag, g_u8)) })
         .collect()
+}
+
+/// W16: `sum_k v[ix[k]] * 2^(16 k)` — a 16-bit limb decomposition
+fn limbs16(v: &[Fp2], ix: &[usize]) -> Fp2 {
+    ix.iter().enumerate().fold(Fp2::ZERO, |a, (k, i)| a.add(v[*i].mul_base(Fp::new(1u64 << (16 * k)))))
 }
 
 /// sum_k mu_k * (the LogUp helper relation of helper k), helpers at tables h0, h0 + 1, ...

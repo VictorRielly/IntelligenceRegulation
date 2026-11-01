@@ -876,7 +876,10 @@ fn logup_subterms(b: &mut IrB, dom: Dom, h0: TableId, alpha: Fp2, g_u8: Fp2, mu:
             // `den = alpha - (cst + sum coef * plane)`, with the U8 tag folded
             // into `cst`: the constant is challenge-valued, every table
             // coefficient is a public integer of `layout::lookups_at`
-            let konst = Coef::chal(alpha.sub(Fp2::from_i64(l.cst).add(g_u8)), "alpha - (lookup cst + g_u8)");
+            // W16 (D54): the lookup's OWN family tag (`g_u8` itself for U8,
+            // so every legacy and R13 constant is unchanged). The label is
+            // part of the pinned IR export, so it keeps its R13 text.
+            let konst = Coef::chal(alpha.sub(Fp2::from_i64(l.cst).add(super::range16::g_of(l.tag, g_u8))), "alpha - (lookup cst + g_u8)");
             let terms: Vec<(Coef, TableId)> = l
                 .terms
                 .iter()
@@ -899,6 +902,16 @@ fn logup_subterms(b: &mut IrB, dom: Dom, h0: TableId, alpha: Fp2, g_u8: Fp2, mu:
 }
 
 /// `sum_k v[ix[k]] * 256^k` — `argument::limbs`, as one affine node
+/// W16 (D54): `sum_k v[ix[k]] * 2^(16 k)`, `argument::limbs16` as a node
+fn limbs16_node(b: &mut IrB, label: &str, ix: &[usize]) -> NodeId {
+    let terms: Vec<(Coef, TableId)> = ix
+        .iter()
+        .enumerate()
+        .map(|(k, i)| (Coef { value: Fp2::from_base(crate::field::Fp::new(1u64 << (16 * k))), prov: CoefProv::Base("a power of 2^16 of a 16-bit limb decomposition") }, *i as TableId))
+        .collect();
+    b.affine(label.to_string(), Coef::zero(), terms)
+}
+
 fn limbs_node(b: &mut IrB, label: &str, ix: &[usize]) -> NodeId {
     let terms: Vec<(Coef, TableId)> = ix
         .iter()
