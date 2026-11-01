@@ -71,9 +71,13 @@ pub(crate) fn histogram(sh:&Shape,a:&AccuracyPublic,gates:&[i64],outputs:&[i64])
 
 /// Field expression matches the ACT3 host polynomial even on a forged i64
 /// gate: addition happens in the field, never through wrapping signed i64.
+/// [ZK60-METAL M5b, researcher H114] an INDEXED parallel map: every query is
+/// the same element at the same index as the sequential form (one per F-cube
+/// position, 2^21 at the trained T128 shapes), so no byte moves.
 pub(crate) fn query_values(sh:&Shape,a:&AccuracyPublic,gates:&[i64],outputs:&[i64],beta:Fp2,tag:Fp2)->Result<Vec<Fp2>,String> {
+    use rayon::prelude::*;
     query_context(sh,a,gates,outputs)?;let beta2=beta.mul(beta);
-    Ok(gates.iter().zip(outputs).enumerate().map(|(i,(&gate,&output))|
+    Ok(gates.par_iter().zip(outputs.par_iter()).enumerate().map(|(i,(&gate,&output))|
         Fp2::from_i64(gate).add(Fp2::from_i64(2048)).add(beta.mul(Fp2::from_i64(output)))
             .add(beta2.mul(Fp2::from_i64(query_group(sh,a,i) as i64))).add(tag)).collect())
 }
