@@ -1375,6 +1375,13 @@ impl zkp_core::sumcheck::SumcheckRounds for MetalRounds {
 /// partial sum; `logs/m4g_split.log`, 18 rounds of 3 tables in 6.8 ms)
 const TAIL_ROUND_BUDGET_S: f64 = 2.5e-4;
 
+/// [M5e] the host-tail budget, overridable for an A/B (`HL_METAL_TAIL_BUDGET_US`,
+/// microseconds). Which side computes a round changes no byte (M4k).
+fn tail_round_budget_s() -> f64 {
+    static B: OnceLock<f64> = OnceLock::new();
+    *B.get_or_init(|| std::env::var("HL_METAL_TAIL_BUDGET_US").ok().and_then(|v| v.parse::<f64>().ok()).filter(|v| v.is_finite() && *v >= 0.0).map(|us| us * 1e-6).unwrap_or(TAIL_ROUND_BUDGET_S))
+}
+
 impl MetalRounds {
     /// **[ZK60-METAL M4k]** this sumcheck, finished on the HOST from the first
     /// round whose host cost (pairs x points evaluated x one evaluation of
@@ -1500,7 +1507,7 @@ impl zkp_core::sumcheck::SumcheckRounds for TailedRounds<'_> {
         if let Some(d) = self.dev.as_mut() {
             let half = d.len / 2;
             let points = if d.recover_one && d.unmasked_claim.is_some() { self.degree } else { self.degree + 1 };
-            if !self.on || (half * points) as f64 * self.per_eval > TAIL_ROUND_BUDGET_S {
+            if !self.on || (half * points) as f64 * self.per_eval > tail_round_budget_s() {
                 return d.round(j);
             }
             let (tables, recover_one, unmasked_claim) = self.dev.take().expect("the device evaluator").into_host();
