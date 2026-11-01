@@ -1,9 +1,37 @@
 # W16: 16-bit range-check limbs for the R13 accuracy block (design, D54)
 
-Status: **design, not built.** Victor approved this direction on 2026-10-31 (D54).
-It is a new proof format. It is built as a separate, opt-in profile beside
-R13/R14, and no existing profile changes a byte. Counts below are exact, from the
-layout formulas. Times are estimates from the M4l Metal phase profile.
+Status (2026-10-31 evening): **built as opt-in profiles and measured; not
+reviewed.** Victor approved this direction on 2026-10-31 (D54). It is a new
+proof format, built as separate profiles beside R13/R14 (`W16_RUNG_H24`,
+`W16_SHIELD_T128_H24`, `W16_8B_T128_H24` in the gpu-metal tree, commits
+9fcdac0c, 81291f49, 8416be7a). No existing profile changes a byte: the
+development-shape digests, the trained R13 digests, the R13 run and golden
+8/8 are unchanged (`logs/w16_gates.log`, `logs/tab/chain.log`).
+
+**Measured** [Metal prove core, T128, warm passes n=3, shared Mac]:
+
+| Block | R13 | W16 | |
+|---|---:|---:|---:|
+| Shieldstral | 0.654–0.667 s | 0.469–0.507 s | ×1.39 |
+| Llama-3-8B | 0.605–0.631 s | 0.467–0.482 s | ×1.30 |
+| Shieldstral, CPU only | 3.70 s | 1.54 s | ×2.4 |
+
+Counted words at both trained shapes: `A` 40,976,384 (0.546 of R13), `H`
+42,631,168 (0.593), lookups 32,276,480 (0.502). The first W16 build was ×1.2.
+The table-helper slot then held 15 triples on the CPU (0.18 s); its device IR
+(8416be7a) brought W16 to the estimate below.
+
+Evidence for the review:
+- the W16 rung core proves and verifies, and a changed root is refused;
+- seven cheating-prover range attacks are rejected by the verifier;
+- the W16 IR equals its closures at every redefined slot and group count;
+- CPU and Metal digests are equal at both trained W16 shapes.
+
+Still open: a run profile and receipt registration, the DD variants, the
+independent D24-class review and the privacy re-check (D54).
+
+The sections below are the design as written before the build. Its counts and
+estimate are what the measurements above check.
 
 ## Why
 

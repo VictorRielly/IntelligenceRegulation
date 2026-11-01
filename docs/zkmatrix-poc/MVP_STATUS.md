@@ -1,5 +1,38 @@
 # Where the MVP stands, in plain words
 
+**2026-10-31 (late evening, Mac): 16-bit range lookups (W16, D54) built and measured: a block now takes about 0.47 s on the GPU.**
+- **What changed.** Victor approved wider range-check limbs (D54).
+  - A new, opt-in proof format replaces most byte limbs with 16-bit range lookups.
+  - Its profiles: `W16_SHIELD_T128_H24`, `W16_8B_T128_H24`, and a development rung.
+  - Each block commits about half the words: `A` is 0.55 of R13, `H` 0.59, lookups 0.50.
+  - The existing proof formats are unchanged byte for byte (the development-shape digests, the trained R13
+    digests, the R13 run and golden 8/8 all pass).
+  - Design and evidence: `results/zk60_limb16_20261031/DESIGN.md`.
+- **Speed** [MEASURED, Metal prove core, T128, warm passes n=3, shared Mac; synthetic weights at the true geometry;
+  the proof call alone]:
+
+  | Block | R13 (today's format) | W16 |
+  |---|---:|---:|
+  | Shieldstral | 0.654–0.667 s | **0.469–0.507 s** (×1.39) |
+  | Llama-3-8B | 0.605–0.631 s | **0.467–0.482 s** (×1.30) |
+
+  For a 32-layer 8B stack that is about 15 s per 128 tokens, about **8.4 proved tokens per second** (was about 6.5),
+  still about 6 times short of 50. For the 26-layer classifier it is about 10 tokens per second.
+- **Before any receipt uses it:**
+  - a run profile and receipt registration;
+  - the DD variants;
+  - an independent soundness review;
+  - the privacy statements re-checked for the new plane list.
+
+  Tests already show the W16 core proves and verifies, and that out-of-range limbs from a cheating prover are
+  rejected.
+- **Next levers:**
+  - LogUp-GKR, which drops the committed helper column (needs Victor's ruling);
+  - non-power-of-two domains: Shieldstral's feed-forward axis is 44% padding;
+  - the RTX 5090.
+- **Lanes.** Sol and Astra are paused for their weekly limits (handoffs in their result directories). Their detached
+  runs continue: Astra's A2 replay, analysis, score-fix candidate and calibration replay.
+
 **2026-10-31 (evening, Mac): the real classifier's zero-checks now run on the Mac's GPU too, byte for byte the same.**
 - **What changed.** The classifier (Shieldstral) uses the R13 accuracy stack. Its five heavy zero-checks had
   stayed on the CPU, because the GPU's expression description covered only the older stack. They now run on the
