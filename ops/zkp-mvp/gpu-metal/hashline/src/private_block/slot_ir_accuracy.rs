@@ -1034,6 +1034,30 @@ mod tests {
         (data, cases)
     }
 
+    /// **[M5c] the split eq cube is the full table's broadcast, word for
+    /// word**: every point length (odd and even splits), offset and cube size,
+    /// including a point that covers the whole cube and broadcast ones.
+    #[test]
+    fn m5c_split_eq_cube_equals_the_full_table_broadcast() {
+        use crate::mle::eq_table_msb;
+        use crate::private_block::argument::{eq_cube_into, eq_cube_split_into};
+        for n_vars in [16usize, 17] {
+            for p in [2usize, 3, 7, 11, n_vars - 1, n_vars] {
+                for start in [0usize, 1, n_vars - p] {
+                    if start + p > n_vars {
+                        continue;
+                    }
+                    let point: Vec<Fp2> = (0..p).map(|i| m4_f(31 * i as u64 + 7 * p as u64 + start as u64 + 1)).collect();
+                    let mut want = vec![Fp2::ZERO; 1 << n_vars];
+                    eq_cube_into(&eq_table_msb(&point), n_vars, start, &mut want);
+                    let mut got = vec![Fp2::ONE; 1 << n_vars];
+                    eq_cube_split_into(&point, n_vars, start, &mut got);
+                    assert!(got == want, "n_vars {n_vars} p {p} start {start}: the split eq cube differs");
+                }
+            }
+        }
+    }
+
     /// [ZK60-METAL M4j] the parallel table builders (over the OUTPUT) are the
     /// sequential ones word for word: every descriptor of `m4_priv_cases`, the
     /// vector and the in-place forms, every eq cube shape, at widths on both

@@ -456,6 +456,37 @@ pub(super) fn eq_cube_into(e: &[Fp2], n_vars: usize, start: usize, out: &mut [Fp
     eq_cube_into_at(e, n_vars, start, out, TABLE_PAR_MIN)
 }
 
+/// **[M5c] `eq_cube_into(&eq_table_msb(point), ..)` without the full eq table.**
+/// Entry `x` is `e[y]` with `y = (x >> shift) & (2^p - 1)`, and `e[y]` is the
+/// product over the point's coordinates of `r_i` or `1 - r_i`, so it splits
+/// over the top and bottom halves of `y`: `e[y] = hi[y >> p_lo] * lo[y & ..]`
+/// with `hi`, `lo` the eq tables of the two halves of `point` (msb first).
+/// Field multiplication is exact and associative, so every entry is the same
+/// element as the full table's; there is no 2^p table to allocate (macOS zeroes
+/// a recycled one), fill step by step and copy, only two of about 2^(p/2)
+/// entries and one multiplication per output word (`m5c_` test).
+pub(super) fn eq_cube_split_into(point: &[Fp2], n_vars: usize, start: usize, out: &mut [Fp2]) {
+    use rayon::prelude::*;
+    let p = point.len();
+    assert!(start + p <= n_vars, "private block: eq_cube precondition start + |point| <= n_vars violated (start {start}, |point| {p}, n_vars {n_vars})");
+    assert_eq!(out.len(), 1usize << n_vars, "private block: table length");
+    let shift = n_vars - start - p;
+    let p_lo = p / 2;
+    let (hi, lo) = (eq_table_msb(&point[..p - p_lo]), eq_table_msb(&point[p - p_lo..]));
+    let (mask, lo_mask) = ((1usize << p) - 1, (1usize << p_lo) - 1);
+    const CH: usize = 1 << 14;
+    out.par_chunks_mut(CH).enumerate().for_each(|(ci, ch)| {
+        for (i, o) in ch.iter_mut().enumerate() {
+            let y = ((ci * CH + i) >> shift) & mask;
+            *o = hi[y >> p_lo].mul(lo[y & lo_mask]);
+        }
+    });
+}
+
+/// [M5c] the cube size from which an eq table is split (below it the full
+/// table is cheap and kept)
+pub(super) const EQ_SPLIT_MIN: usize = 1 << 16;
+
 /// [M4j] [`eq_cube_into`] with the parallel threshold as an argument
 pub(super) fn eq_cube_into_at(e: &[Fp2], n_vars: usize, start: usize, out: &mut [Fp2], par_min: usize) {
     let bits = e.len().trailing_zeros() as usize;
@@ -534,6 +565,8 @@ pub(super) fn build_tables_at(tabs: &mut [Tab], n_vars: usize, pd: &ProverData, 
 /// A public table is copied (its length was checked on entry to `run_slot`).
 fn table_into(tab: &Tab, n_vars: usize, pd: &ProverData, out: &mut [Fp2]) {
     match tab {
+        // [M5c] a large cube split over its point's halves (the same words)
+        Tab::Eq { point, start } if out.len() >= EQ_SPLIT_MIN && point.len() >= 2 => eq_cube_split_into(point, n_vars, *start, out),
         Tab::Eq { point, start } => eq_cube_into(&eq_table_msb(point), n_vars, *start, out),
         Tab::Pub(v) => out.copy_from_slice(v),
         Tab::Priv(p) => priv_table_into(p, pd.data[p.cm as usize], n_vars, out),
