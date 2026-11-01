@@ -1,0 +1,110 @@
+PASS unit/node1-fast-equals-combine 
+PASS tiny/n4/cfg0/optimized-equals-reference 
+PASS tiny/n4/cfg0/fast-equals-slow 
+PASS tiny/n4/cfg1/optimized-equals-reference 
+PASS tiny/n4/cfg1/fast-equals-slow 
+PASS tiny/n4/cfg2/optimized-equals-reference 
+PASS tiny/n4/cfg2/fast-equals-slow 
+PASS tiny/n4/reference-verifies Ok(())
+PASS tiny/n5/cfg0/optimized-equals-reference 
+PASS tiny/n5/cfg0/fast-equals-slow 
+PASS tiny/n5/cfg1/optimized-equals-reference 
+PASS tiny/n5/cfg1/fast-equals-slow 
+PASS tiny/n5/cfg2/optimized-equals-reference 
+PASS tiny/n5/cfg2/fast-equals-slow 
+PASS tiny/n5/reference-verifies Ok(())
+PASS tiny/n6/cfg0/optimized-equals-reference 
+PASS tiny/n6/cfg0/fast-equals-slow 
+PASS tiny/n6/cfg1/optimized-equals-reference 
+PASS tiny/n6/cfg1/fast-equals-slow 
+PASS tiny/n6/cfg2/optimized-equals-reference 
+PASS tiny/n6/cfg2/fast-equals-slow 
+PASS tiny/n6/reference-verifies Ok(())
+PASS tiny/n7/cfg0/optimized-equals-reference 
+PASS tiny/n7/cfg0/fast-equals-slow 
+PASS tiny/n7/cfg1/optimized-equals-reference 
+PASS tiny/n7/cfg1/fast-equals-slow 
+PASS tiny/n7/cfg2/optimized-equals-reference 
+PASS tiny/n7/cfg2/fast-equals-slow 
+PASS tiny/n7/reference-verifies Ok(())
+PASS tiny/n8/cfg0/optimized-equals-reference 
+PASS tiny/n8/cfg0/fast-equals-slow 
+PASS tiny/n8/cfg1/optimized-equals-reference 
+PASS tiny/n8/cfg1/fast-equals-slow 
+PASS tiny/n8/cfg2/optimized-equals-reference 
+PASS tiny/n8/cfg2/fast-equals-slow 
+PASS tiny/n8/reference-verifies Ok(())
+PASS tiny/n9/cfg0/optimized-equals-reference 
+PASS tiny/n9/cfg0/fast-equals-slow 
+PASS tiny/n9/cfg1/optimized-equals-reference 
+PASS tiny/n9/cfg1/fast-equals-slow 
+PASS tiny/n9/cfg2/optimized-equals-reference 
+PASS tiny/n9/cfg2/fast-equals-slow 
+PASS tiny/n9/reference-verifies Ok(())
+PASS tiny/n10/cfg0/optimized-equals-reference 
+PASS tiny/n10/cfg0/fast-equals-slow 
+PASS tiny/n10/cfg1/optimized-equals-reference 
+PASS tiny/n10/cfg1/fast-equals-slow 
+PASS tiny/n10/cfg2/optimized-equals-reference 
+PASS tiny/n10/cfg2/fast-equals-slow 
+PASS tiny/n10/reference-verifies Ok(())
+PASS tiny/n11/cfg0/optimized-equals-reference 
+PASS tiny/n11/cfg0/fast-equals-slow 
+PASS tiny/n11/cfg1/optimized-equals-reference 
+PASS tiny/n11/cfg1/fast-equals-slow 
+PASS tiny/n11/cfg2/optimized-equals-reference 
+PASS tiny/n11/cfg2/fast-equals-slow 
+PASS tiny/n11/reference-verifies Ok(())
+PASS medium/n12/lo4/optimized-equals-reference 
+PASS medium/n12/lo4/fast-equals-slow 
+PASS medium/n12/lo6/optimized-equals-reference 
+PASS medium/n12/lo6/fast-equals-slow 
+PASS medium/n12/lo10/optimized-equals-reference 
+PASS medium/n12/lo10/fast-equals-slow 
+PASS medium/n12/verifies Ok(())
+PASS medium/n13/lo4/optimized-equals-reference 
+PASS medium/n13/lo4/fast-equals-slow 
+PASS medium/n13/lo6/optimized-equals-reference 
+PASS medium/n13/lo6/fast-equals-slow 
+PASS medium/n13/lo10/optimized-equals-reference 
+PASS medium/n13/lo10/fast-equals-slow 
+PASS medium/n13/verifies Ok(())
+PASS medium/n14/lo4/optimized-equals-reference 
+PASS medium/n14/lo4/fast-equals-slow 
+PASS medium/n14/lo6/optimized-equals-reference 
+PASS medium/n14/lo6/fast-equals-slow 
+PASS medium/n14/lo10/optimized-equals-reference 
+PASS medium/n14/lo10/fast-equals-slow 
+PASS medium/n14/verifies Ok(())
+PASS tiny-n9/honest-verifies Ok(())
+PASS tiny-n9/honest-direct-sum-zero-and-root-matches 
+PASS tiny-n9/C1-out-of-table-breaks-identity Err("root numerator is nonzero: the lookup identity fails")
+PASS tiny-n9/C2-forged-root-refused Err("layer 1: final evaluation check fails")
+PASS tiny-n9/C3-wrong-multiplicity-refused Err("root numerator is nonzero: the lookup identity fails")
+PASS tiny-n9/C4-tampered-round-refused Err("layer 5 round 0: s(0)+s(1) != claim")
+PASS tiny-n9/C5-tampered-finals-refused Err("layer 8: final evaluation check fails")
+PASS tiny-n9/C6-zero-denominator-refused Err("root numerator is nonzero: the lookup identity fails")
+PASS tiny-n9/C7-other-leaves-refused-by-leaf-claim Err("leaf claim does not match the (committed) leaves")
+PASS tiny-n9/C8-cancelled-pair-refused-by-leaf-claim Err("leaf claim does not match the (committed) leaves")
+PASS medium-n14/honest-verifies Ok(())
+PASS medium-n14/honest-direct-sum-zero-and-root-matches 
+PASS medium-n14/C1-out-of-table-breaks-identity Err("root numerator is nonzero: the lookup identity fails")
+PASS medium-n14/C2-forged-root-refused Err("layer 1: final evaluation check fails")
+PASS medium-n14/C3-wrong-multiplicity-refused Err("root numerator is nonzero: the lookup identity fails")
+PASS medium-n14/C4-tampered-round-refused Err("layer 7 round 0: s(0)+s(1) != claim")
+PASS medium-n14/C5-tampered-finals-refused Err("layer 13: final evaluation check fails")
+PASS medium-n14/C6-zero-denominator-refused Err("root numerator is nonzero: the lookup identity fails")
+PASS medium-n14/C7-other-leaves-refused-by-leaf-claim Err("leaf claim does not match the (committed) leaves")
+PASS medium-n14/C8-cancelled-pair-refused-by-leaf-claim Err("leaf claim does not match the (committed) leaves")
+PASS w16-n18/fast-equals-slow 
+PASS w16-n18/honest-verifies Ok(())
+PASS w16-n18/honest-direct-sum-zero-and-root-matches 
+PASS w16-n18/C1-out-of-table-breaks-identity Err("root numerator is nonzero: the lookup identity fails")
+PASS w16-n18/C2-forged-root-refused Err("layer 1: final evaluation check fails")
+PASS w16-n18/C3-wrong-multiplicity-refused Err("root numerator is nonzero: the lookup identity fails")
+PASS w16-n18/C4-tampered-round-refused Err("layer 9 round 0: s(0)+s(1) != claim")
+PASS w16-n18/C5-tampered-finals-refused Err("layer 17: final evaluation check fails")
+PASS w16-n18/C6-zero-denominator-refused Err("root numerator is nonzero: the lookup identity fails")
+PASS w16-n18/C7-other-leaves-refused-by-leaf-claim Err("leaf claim does not match the (committed) leaves")
+PASS w16-n18/C8-cancelled-pair-refused-by-leaf-claim Err("leaf claim does not match the (committed) leaves")
+TESTS pass=109 fail=0

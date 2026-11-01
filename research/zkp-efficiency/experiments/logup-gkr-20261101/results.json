@@ -1,0 +1,1438 @@
+{
+ "host": "M3 Ultra Mac Studio, 24P+8E cores, shared with Astra's detached replay (heavy lock held by us during each run)",
+ "label": "MEASURED, diagnostic timing on a shared host; medians over n reps (rep 0 included)",
+ "runs": {
+  "t32": {
+   "log": "logs/bench_t32.log",
+   "sha256": "866e41cba14a89fea4a33b1dd0681b579a0146da7d1aee531c606444ff3056c9",
+   "sizes": {
+    "20": {
+     "witness": {
+      "log_leaves": 20,
+      "leaves": 1048576,
+      "queries": 917504,
+      "table_entries": 111028,
+      "special_per_half": 65536,
+      "threads": 32,
+      "gen_secs": 0.004,
+      "witness_heap_bytes": 9680701
+     },
+     "gkr": {
+      "n_reps": 5,
+      "threads": 32,
+      "prove_s_median": 0.023372,
+      "prove_s_min": 0.022471,
+      "prove_s_max": 0.023965,
+      "build_s_median": 0.003483,
+      "topdown_s_median": 0.019986,
+      "ns_per_leaf_median": 22.289,
+      "ns_per_query_median": 25.474,
+      "verify_rounds_s_median": 7.7e-05,
+      "verify_oracle_s_median": 0.001835,
+      "peak_heap_b_per_leaf": 20.0,
+      "proof_bytes": 13440,
+      "rounds": 190,
+      "parallel_rounds": 21,
+      "fp2_equiv_mul_per_leaf_COUNTED": 10.926,
+      "build_fp2_equiv_per_leaf_COUNTED": 1.7,
+      "top_fp2_equiv_per_leaf_COUNTED": 9.226,
+      "bytes_rd_per_leaf_COUNTED": 125.74,
+      "bytes_wr_per_leaf_COUNTED": 64.0,
+      "direct_check_rep0": {
+       "sum_is_zero": true,
+       "root_q_equals_product": true,
+       "secs": 0.0022
+      },
+      "last_layers_rep0_k_secs_parallel_rounds": [
+       [
+        14,
+        0.00112,
+        1
+       ],
+       [
+        15,
+        0.00166,
+        2
+       ],
+       [
+        16,
+        0.00271,
+        3
+       ],
+       [
+        17,
+        0.0031,
+        4
+       ],
+       [
+        18,
+        0.00435,
+        5
+       ],
+       [
+        19,
+        0.00573,
+        6
+       ]
+      ]
+     },
+     "helper": {
+      "n_reps": 5,
+      "threads": 32,
+      "inverse_tables_s_median": 0.001009,
+      "gather_write_s_median": 0.000985,
+      "batchinv_write_s_median": 0.00183,
+      "commit_s_median": 0.042119,
+      "ns_per_word_gather_median": 0.939,
+      "ns_per_word_batchinv_median": 1.745,
+      "ns_per_word_commit_median": 40.168,
+      "gather_equals_batchinv": true,
+      "peak_heap_commit_bytes": 42599296
+     }
+    },
+    "22": {
+     "witness": {
+      "log_leaves": 22,
+      "leaves": 4194304,
+      "queries": 4063232,
+      "table_entries": 111028,
+      "special_per_half": 65536,
+      "threads": 32,
+      "gen_secs": 0.012,
+      "witness_heap_bytes": 22265005
+     },
+     "gkr": {
+      "n_reps": 5,
+      "threads": 32,
+      "prove_s_median": 0.047167,
+      "prove_s_min": 0.046945,
+      "prove_s_max": 0.048368,
+      "build_s_median": 0.006218,
+      "topdown_s_median": 0.041148,
+      "ns_per_leaf_median": 11.245,
+      "ns_per_query_median": 11.608,
+      "verify_rounds_s_median": 8.6e-05,
+      "verify_oracle_s_median": 0.003071,
+      "peak_heap_b_per_leaf": 17.0,
+      "proof_bytes": 16192,
+      "rounds": 231,
+      "parallel_rounds": 36,
+      "fp2_equiv_mul_per_leaf_COUNTED": 10.51,
+      "build_fp2_equiv_per_leaf_COUNTED": 1.7,
+      "top_fp2_equiv_per_leaf_COUNTED": 8.81,
+      "bytes_rd_per_leaf_COUNTED": 118.56,
+      "bytes_wr_per_leaf_COUNTED": 64.0,
+      "direct_check_rep0": {
+       "sum_is_zero": true,
+       "root_q_equals_product": true,
+       "secs": 0.0061
+      },
+      "last_layers_rep0_k_secs_parallel_rounds": [
+       [
+        16,
+        0.00227,
+        3
+       ],
+       [
+        17,
+        0.00365,
+        4
+       ],
+       [
+        18,
+        0.00471,
+        5
+       ],
+       [
+        19,
+        0.0058,
+        6
+       ],
+       [
+        20,
+        0.01024,
+        7
+       ],
+       [
+        21,
+        0.01002,
+        8
+       ]
+      ]
+     },
+     "helper": {
+      "n_reps": 5,
+      "threads": 32,
+      "inverse_tables_s_median": 0.000895,
+      "gather_write_s_median": 0.001401,
+      "batchinv_write_s_median": 0.00438,
+      "commit_s_median": 0.054243,
+      "ns_per_word_gather_median": 0.334,
+      "ns_per_word_batchinv_median": 1.044,
+      "ns_per_word_commit_median": 12.933,
+      "gather_equals_batchinv": true,
+      "peak_heap_commit_bytes": 143704064
+     }
+    },
+    "24": {
+     "witness": {
+      "log_leaves": 24,
+      "leaves": 16777216,
+      "queries": 16646144,
+      "table_entries": 111028,
+      "special_per_half": 65536,
+      "threads": 32,
+      "gen_secs": 0.043,
+      "witness_heap_bytes": 72597421
+     },
+     "gkr": {
+      "n_reps": 5,
+      "threads": 32,
+      "prove_s_median": 0.104422,
+      "prove_s_min": 0.101538,
+      "prove_s_max": 0.111065,
+      "build_s_median": 0.012606,
+      "topdown_s_median": 0.091014,
+      "ns_per_leaf_median": 6.224,
+      "ns_per_query_median": 6.273,
+      "verify_rounds_s_median": 0.000104,
+      "verify_oracle_s_median": 0.007245,
+      "peak_heap_b_per_leaf": 16.25,
+      "proof_bytes": 19200,
+      "rounds": 276,
+      "parallel_rounds": 55,
+      "fp2_equiv_mul_per_leaf_COUNTED": 10.397,
+      "build_fp2_equiv_per_leaf_COUNTED": 1.7,
+      "top_fp2_equiv_per_leaf_COUNTED": 8.697,
+      "bytes_rd_per_leaf_COUNTED": 116.67,
+      "bytes_wr_per_leaf_COUNTED": 64.0,
+      "direct_check_rep0": {
+       "sum_is_zero": true,
+       "root_q_equals_product": true,
+       "secs": 0.0207
+      },
+      "last_layers_rep0_k_secs_parallel_rounds": [
+       [
+        18,
+        0.00502,
+        5
+       ],
+       [
+        19,
+        0.00618,
+        6
+       ],
+       [
+        20,
+        0.00972,
+        7
+       ],
+       [
+        21,
+        0.01439,
+        8
+       ],
+       [
+        22,
+        0.02454,
+        9
+       ],
+       [
+        23,
+        0.01984,
+        10
+       ]
+      ]
+     },
+     "helper": {
+      "n_reps": 5,
+      "threads": 32,
+      "inverse_tables_s_median": 0.000888,
+      "gather_write_s_median": 0.002469,
+      "batchinv_write_s_median": 0.014151,
+      "commit_s_median": 0.100575,
+      "ns_per_word_gather_median": 0.147,
+      "ns_per_word_batchinv_median": 0.843,
+      "ns_per_word_commit_median": 5.995,
+      "gather_equals_batchinv": true,
+      "peak_heap_commit_bytes": 560513024
+     }
+    },
+    "25": {
+     "witness": {
+      "log_leaves": 25,
+      "leaves": 33554432,
+      "queries": 33423360,
+      "table_entries": 111028,
+      "special_per_half": 65536,
+      "threads": 32,
+      "gen_secs": 0.089,
+      "witness_heap_bytes": 139707309
+     },
+     "gkr": {
+      "n_reps": 5,
+      "threads": 32,
+      "prove_s_median": 0.160019,
+      "prove_s_min": 0.156342,
+      "prove_s_max": 0.175277,
+      "build_s_median": 0.02034,
+      "topdown_s_median": 0.139733,
+      "ns_per_leaf_median": 4.769,
+      "ns_per_query_median": 4.788,
+      "verify_rounds_s_median": 0.00011,
+      "verify_oracle_s_median": 0.013159,
+      "peak_heap_b_per_leaf": 16.13,
+      "proof_bytes": 20800,
+      "rounds": 300,
+      "parallel_rounds": 66,
+      "fp2_equiv_mul_per_leaf_COUNTED": 10.377,
+      "build_fp2_equiv_per_leaf_COUNTED": 1.7,
+      "top_fp2_equiv_per_leaf_COUNTED": 8.677,
+      "bytes_rd_per_leaf_COUNTED": 116.34,
+      "bytes_wr_per_leaf_COUNTED": 64.0,
+      "direct_check_rep0": {
+       "sum_is_zero": true,
+       "root_q_equals_product": true,
+       "secs": 0.0396
+      },
+      "last_layers_rep0_k_secs_parallel_rounds": [
+       [
+        19,
+        0.007,
+        6
+       ],
+       [
+        20,
+        0.01026,
+        7
+       ],
+       [
+        21,
+        0.01354,
+        8
+       ],
+       [
+        22,
+        0.02091,
+        9
+       ],
+       [
+        23,
+        0.04067,
+        10
+       ],
+       [
+        24,
+        0.03363,
+        11
+       ]
+      ]
+     },
+     "helper": {
+      "n_reps": 5,
+      "threads": 32,
+      "inverse_tables_s_median": 0.000887,
+      "gather_write_s_median": 0.003057,
+      "batchinv_write_s_median": 0.026276,
+      "commit_s_median": 0.180355,
+      "ns_per_word_gather_median": 0.091,
+      "ns_per_word_batchinv_median": 0.783,
+      "ns_per_word_commit_median": 5.375,
+      "gather_equals_batchinv": true,
+      "peak_heap_commit_bytes": 1116258304
+     }
+    }
+   }
+  },
+  "t1": {
+   "log": "logs/bench_t1.log",
+   "sha256": "96e6f9c79704347ce66135bf7adf2fcdf8d7ca5f895cad90cca2001d8716b7f4",
+   "sizes": {
+    "22": {
+     "witness": {
+      "log_leaves": 22,
+      "leaves": 4194304,
+      "queries": 4063232,
+      "table_entries": 111028,
+      "special_per_half": 65536,
+      "threads": 1,
+      "gen_secs": 0.013,
+      "witness_heap_bytes": 22033721
+     },
+     "gkr": {
+      "n_reps": 3,
+      "threads": 1,
+      "prove_s_median": 0.230997,
+      "prove_s_min": 0.230814,
+      "prove_s_max": 0.233668,
+      "build_s_median": 0.027157,
+      "topdown_s_median": 0.203742,
+      "ns_per_leaf_median": 55.074,
+      "ns_per_query_median": 56.851,
+      "verify_rounds_s_median": 8.5e-05,
+      "verify_oracle_s_median": 0.032439,
+      "peak_heap_b_per_leaf": 17.0,
+      "proof_bytes": 16192,
+      "rounds": 231,
+      "parallel_rounds": 36,
+      "fp2_equiv_mul_per_leaf_COUNTED": 10.51,
+      "build_fp2_equiv_per_leaf_COUNTED": 1.7,
+      "top_fp2_equiv_per_leaf_COUNTED": 8.81,
+      "bytes_rd_per_leaf_COUNTED": 118.56,
+      "bytes_wr_per_leaf_COUNTED": 64.0,
+      "direct_check_rep0": {
+       "sum_is_zero": true,
+       "root_q_equals_product": true,
+       "secs": 0.1145
+      },
+      "last_layers_rep0_k_secs_parallel_rounds": [
+       [
+        16,
+        0.00412,
+        3
+       ],
+       [
+        17,
+        0.00821,
+        4
+       ],
+       [
+        18,
+        0.01631,
+        5
+       ],
+       [
+        19,
+        0.03243,
+        6
+       ],
+       [
+        20,
+        0.08188,
+        7
+       ],
+       [
+        21,
+        0.05592,
+        8
+       ]
+      ]
+     },
+     "helper": {
+      "n_reps": 3,
+      "threads": 1,
+      "inverse_tables_s_median": 0.00177,
+      "gather_write_s_median": 0.004553,
+      "batchinv_write_s_median": 0.07433,
+      "commit_s_median": 0.455947,
+      "ns_per_word_gather_median": 1.086,
+      "ns_per_word_batchinv_median": 17.722,
+      "ns_per_word_commit_median": 108.706,
+      "gather_equals_batchinv": true,
+      "peak_heap_commit_bytes": 143655808
+     }
+    },
+    "24": {
+     "witness": {
+      "log_leaves": 24,
+      "leaves": 16777216,
+      "queries": 16646144,
+      "table_entries": 111028,
+      "special_per_half": 65536,
+      "threads": 1,
+      "gen_secs": 0.044,
+      "witness_heap_bytes": 72367337
+     },
+     "gkr": {
+      "n_reps": 3,
+      "threads": 1,
+      "prove_s_median": 0.907723,
+      "prove_s_min": 0.907495,
+      "prove_s_max": 0.91018,
+      "build_s_median": 0.10761,
+      "topdown_s_median": 0.799761,
+      "ns_per_leaf_median": 54.104,
+      "ns_per_query_median": 54.531,
+      "verify_rounds_s_median": 9.9e-05,
+      "verify_oracle_s_median": 0.130117,
+      "peak_heap_b_per_leaf": 16.25,
+      "proof_bytes": 19200,
+      "rounds": 276,
+      "parallel_rounds": 55,
+      "fp2_equiv_mul_per_leaf_COUNTED": 10.397,
+      "build_fp2_equiv_per_leaf_COUNTED": 1.7,
+      "top_fp2_equiv_per_leaf_COUNTED": 8.697,
+      "bytes_rd_per_leaf_COUNTED": 116.67,
+      "bytes_wr_per_leaf_COUNTED": 64.0,
+      "direct_check_rep0": {
+       "sum_is_zero": true,
+       "root_q_equals_product": true,
+       "secs": 0.4583
+      },
+      "last_layers_rep0_k_secs_parallel_rounds": [
+       [
+        18,
+        0.01627,
+        5
+       ],
+       [
+        19,
+        0.03246,
+        6
+       ],
+       [
+        20,
+        0.06474,
+        7
+       ],
+       [
+        21,
+        0.12971,
+        8
+       ],
+       [
+        22,
+        0.32599,
+        9
+       ],
+       [
+        23,
+        0.21339,
+        10
+       ]
+      ]
+     },
+     "helper": {
+      "n_reps": 3,
+      "threads": 1,
+      "inverse_tables_s_median": 0.001771,
+      "gather_write_s_median": 0.016848,
+      "batchinv_write_s_median": 0.293325,
+      "commit_s_median": 1.65652,
+      "ns_per_word_gather_median": 1.004,
+      "ns_per_word_batchinv_median": 17.484,
+      "ns_per_word_commit_median": 98.736,
+      "gather_equals_batchinv": true,
+      "peak_heap_commit_bytes": 547881856
+     }
+    }
+   }
+  },
+  "t8": {
+   "log": "logs/bench_t8.log",
+   "sha256": "47f1c4173459c73cb793b8bdc928e061281f9d8a8a132313b2e6aec73f22b9bf",
+   "sizes": {
+    "22": {
+     "witness": {
+      "log_leaves": 22,
+      "leaves": 4194304,
+      "queries": 4063232,
+      "table_entries": 111028,
+      "special_per_half": 65536,
+      "threads": 8,
+      "gen_secs": 0.013,
+      "witness_heap_bytes": 22084977
+     },
+     "gkr": {
+      "n_reps": 3,
+      "threads": 8,
+      "prove_s_median": 0.043676,
+      "prove_s_min": 0.043211,
+      "prove_s_max": 0.045497,
+      "build_s_median": 0.004703,
+      "topdown_s_median": 0.038914,
+      "ns_per_leaf_median": 10.413,
+      "ns_per_query_median": 10.749,
+      "verify_rounds_s_median": 8.5e-05,
+      "verify_oracle_s_median": 0.004671,
+      "peak_heap_b_per_leaf": 17.0,
+      "proof_bytes": 16192,
+      "rounds": 231,
+      "parallel_rounds": 36,
+      "fp2_equiv_mul_per_leaf_COUNTED": 10.51,
+      "build_fp2_equiv_per_leaf_COUNTED": 1.7,
+      "top_fp2_equiv_per_leaf_COUNTED": 8.81,
+      "bytes_rd_per_leaf_COUNTED": 118.56,
+      "bytes_wr_per_leaf_COUNTED": 64.0,
+      "direct_check_rep0": {
+       "sum_is_zero": true,
+       "root_q_equals_product": true,
+       "secs": 0.0163
+      },
+      "last_layers_rep0_k_secs_parallel_rounds": [
+       [
+        16,
+        0.00151,
+        3
+       ],
+       [
+        17,
+        0.00229,
+        4
+       ],
+       [
+        18,
+        0.00349,
+        5
+       ],
+       [
+        19,
+        0.00586,
+        6
+       ],
+       [
+        20,
+        0.0131,
+        7
+       ],
+       [
+        21,
+        0.01,
+        8
+       ]
+      ]
+     },
+     "helper": {
+      "n_reps": 3,
+      "threads": 8,
+      "inverse_tables_s_median": 0.000885,
+      "gather_write_s_median": 0.000805,
+      "batchinv_write_s_median": 0.010597,
+      "commit_s_median": 0.070442,
+      "ns_per_word_gather_median": 0.192,
+      "ns_per_word_batchinv_median": 2.527,
+      "ns_per_word_commit_median": 16.795,
+      "gather_equals_batchinv": true,
+      "peak_heap_commit_bytes": 143655808
+     }
+    },
+    "24": {
+     "witness": {
+      "log_leaves": 24,
+      "leaves": 16777216,
+      "queries": 16646144,
+      "table_entries": 111028,
+      "special_per_half": 65536,
+      "threads": 8,
+      "gen_secs": 0.043,
+      "witness_heap_bytes": 72418593
+     },
+     "gkr": {
+      "n_reps": 3,
+      "threads": 8,
+      "prove_s_median": 0.144447,
+      "prove_s_min": 0.144092,
+      "prove_s_max": 0.146944,
+      "build_s_median": 0.017167,
+      "topdown_s_median": 0.127288,
+      "ns_per_leaf_median": 8.61,
+      "ns_per_query_median": 8.677,
+      "verify_rounds_s_median": 0.000106,
+      "verify_oracle_s_median": 0.018315,
+      "peak_heap_b_per_leaf": 16.25,
+      "proof_bytes": 19200,
+      "rounds": 276,
+      "parallel_rounds": 55,
+      "fp2_equiv_mul_per_leaf_COUNTED": 10.397,
+      "build_fp2_equiv_per_leaf_COUNTED": 1.7,
+      "top_fp2_equiv_per_leaf_COUNTED": 8.697,
+      "bytes_rd_per_leaf_COUNTED": 116.67,
+      "bytes_wr_per_leaf_COUNTED": 64.0,
+      "direct_check_rep0": {
+       "sum_is_zero": true,
+       "root_q_equals_product": true,
+       "secs": 0.0639
+      },
+      "last_layers_rep0_k_secs_parallel_rounds": [
+       [
+        18,
+        0.00336,
+        5
+       ],
+       [
+        19,
+        0.00584,
+        6
+       ],
+       [
+        20,
+        0.01091,
+        7
+       ],
+       [
+        21,
+        0.02009,
+        8
+       ],
+       [
+        22,
+        0.04752,
+        9
+       ],
+       [
+        23,
+        0.03269,
+        10
+       ]
+      ]
+     },
+     "helper": {
+      "n_reps": 3,
+      "threads": 8,
+      "inverse_tables_s_median": 0.00088,
+      "gather_write_s_median": 0.002662,
+      "batchinv_write_s_median": 0.041898,
+      "commit_s_median": 0.242876,
+      "ns_per_word_gather_median": 0.159,
+      "ns_per_word_batchinv_median": 2.497,
+      "ns_per_word_commit_median": 14.477,
+      "gather_equals_batchinv": true,
+      "peak_heap_commit_bytes": 547893248
+     }
+    }
+   }
+  },
+  "t16": {
+   "log": "logs/bench_t16.log",
+   "sha256": "329e097a398834fbe9f8d850f6d923245f3534e59fc79cf4dc119c10623346fd",
+   "sizes": {
+    "22": {
+     "witness": {
+      "log_leaves": 22,
+      "leaves": 4194304,
+      "queries": 4063232,
+      "table_entries": 111028,
+      "special_per_half": 65536,
+      "threads": 16,
+      "gen_secs": 0.013,
+      "witness_heap_bytes": 22144850
+     },
+     "gkr": {
+      "n_reps": 3,
+      "threads": 16,
+      "prove_s_median": 0.034749,
+      "prove_s_min": 0.034216,
+      "prove_s_max": 0.038618,
+      "build_s_median": 0.00362,
+      "topdown_s_median": 0.031047,
+      "ns_per_leaf_median": 8.285,
+      "ns_per_query_median": 8.552,
+      "verify_rounds_s_median": 8.7e-05,
+      "verify_oracle_s_median": 0.002859,
+      "peak_heap_b_per_leaf": 17.0,
+      "proof_bytes": 16192,
+      "rounds": 231,
+      "parallel_rounds": 36,
+      "fp2_equiv_mul_per_leaf_COUNTED": 10.51,
+      "build_fp2_equiv_per_leaf_COUNTED": 1.7,
+      "top_fp2_equiv_per_leaf_COUNTED": 8.81,
+      "bytes_rd_per_leaf_COUNTED": 118.56,
+      "bytes_wr_per_leaf_COUNTED": 64.0,
+      "direct_check_rep0": {
+       "sum_is_zero": true,
+       "root_q_equals_product": true,
+       "secs": 0.0086
+      },
+      "last_layers_rep0_k_secs_parallel_rounds": [
+       [
+        16,
+        0.00176,
+        3
+       ],
+       [
+        17,
+        0.00246,
+        4
+       ],
+       [
+        18,
+        0.00309,
+        5
+       ],
+       [
+        19,
+        0.00482,
+        6
+       ],
+       [
+        20,
+        0.00862,
+        7
+       ],
+       [
+        21,
+        0.00724,
+        8
+       ]
+      ]
+     },
+     "helper": {
+      "n_reps": 3,
+      "threads": 16,
+      "inverse_tables_s_median": 0.000887,
+      "gather_write_s_median": 0.000717,
+      "batchinv_write_s_median": 0.005744,
+      "commit_s_median": 0.042456,
+      "ns_per_word_gather_median": 0.171,
+      "ns_per_word_batchinv_median": 1.37,
+      "ns_per_word_commit_median": 10.122,
+      "gather_equals_batchinv": true,
+      "peak_heap_commit_bytes": 143655808
+     }
+    },
+    "24": {
+     "witness": {
+      "log_leaves": 24,
+      "leaves": 16777216,
+      "queries": 16646144,
+      "table_entries": 111028,
+      "special_per_half": 65536,
+      "threads": 16,
+      "gen_secs": 0.043,
+      "witness_heap_bytes": 72478466
+     },
+     "gkr": {
+      "n_reps": 3,
+      "threads": 16,
+      "prove_s_median": 0.094377,
+      "prove_s_min": 0.093089,
+      "prove_s_max": 0.098949,
+      "build_s_median": 0.010879,
+      "topdown_s_median": 0.082108,
+      "ns_per_leaf_median": 5.625,
+      "ns_per_query_median": 5.67,
+      "verify_rounds_s_median": 0.000102,
+      "verify_oracle_s_median": 0.009813,
+      "peak_heap_b_per_leaf": 16.25,
+      "proof_bytes": 19200,
+      "rounds": 276,
+      "parallel_rounds": 55,
+      "fp2_equiv_mul_per_leaf_COUNTED": 10.397,
+      "build_fp2_equiv_per_leaf_COUNTED": 1.7,
+      "top_fp2_equiv_per_leaf_COUNTED": 8.697,
+      "bytes_rd_per_leaf_COUNTED": 116.67,
+      "bytes_wr_per_leaf_COUNTED": 64.0,
+      "direct_check_rep0": {
+       "sum_is_zero": true,
+       "root_q_equals_product": true,
+       "secs": 0.0328
+      },
+      "last_layers_rep0_k_secs_parallel_rounds": [
+       [
+        18,
+        0.00316,
+        5
+       ],
+       [
+        19,
+        0.0046,
+        6
+       ],
+       [
+        20,
+        0.00763,
+        7
+       ],
+       [
+        21,
+        0.01265,
+        8
+       ],
+       [
+        22,
+        0.02699,
+        9
+       ],
+       [
+        23,
+        0.01975,
+        10
+       ]
+      ]
+     },
+     "helper": {
+      "n_reps": 3,
+      "threads": 16,
+      "inverse_tables_s_median": 0.000899,
+      "gather_write_s_median": 0.001779,
+      "batchinv_write_s_median": 0.021611,
+      "commit_s_median": 0.129747,
+      "ns_per_word_gather_median": 0.106,
+      "ns_per_word_batchinv_median": 1.288,
+      "ns_per_word_commit_median": 7.734,
+      "gather_equals_batchinv": true,
+      "peak_heap_commit_bytes": 552099840
+     }
+    }
+   }
+  },
+  "t16_n25": {
+   "log": "logs/bench_t16_n25.log",
+   "sha256": "80d2c02be13b1bedf253b786055caffca092a311fc5e1d5ecaa4637821d1cec2",
+   "sizes": {
+    "25": {
+     "witness": {
+      "log_leaves": 25,
+      "leaves": 33554432,
+      "queries": 33423360,
+      "table_entries": 111028,
+      "special_per_half": 65536,
+      "threads": 16,
+      "gen_secs": 0.089,
+      "witness_heap_bytes": 139588239
+     },
+     "gkr": {
+      "n_reps": 5,
+      "threads": 16,
+      "prove_s_median": 0.165946,
+      "prove_s_min": 0.165432,
+      "prove_s_max": 0.183405,
+      "build_s_median": 0.019668,
+      "topdown_s_median": 0.146236,
+      "ns_per_leaf_median": 4.946,
+      "ns_per_query_median": 4.965,
+      "verify_rounds_s_median": 0.00011,
+      "verify_oracle_s_median": 0.018825,
+      "peak_heap_b_per_leaf": 16.13,
+      "proof_bytes": 20800,
+      "rounds": 300,
+      "parallel_rounds": 66,
+      "fp2_equiv_mul_per_leaf_COUNTED": 10.377,
+      "build_fp2_equiv_per_leaf_COUNTED": 1.7,
+      "top_fp2_equiv_per_leaf_COUNTED": 8.677,
+      "bytes_rd_per_leaf_COUNTED": 116.34,
+      "bytes_wr_per_leaf_COUNTED": 64.0,
+      "direct_check_rep0": {
+       "sum_is_zero": true,
+       "root_q_equals_product": true,
+       "secs": 0.0656
+      },
+      "last_layers_rep0_k_secs_parallel_rounds": [
+       [
+        19,
+        0.00475,
+        6
+       ],
+       [
+        20,
+        0.00731,
+        7
+       ],
+       [
+        21,
+        0.01259,
+        8
+       ],
+       [
+        22,
+        0.02308,
+        9
+       ],
+       [
+        23,
+        0.05192,
+        10
+       ],
+       [
+        24,
+        0.03657,
+        11
+       ]
+      ]
+     },
+     "helper": {
+      "n_reps": 5,
+      "threads": 16,
+      "inverse_tables_s_median": 0.000881,
+      "gather_write_s_median": 0.003118,
+      "batchinv_write_s_median": 0.042249,
+      "commit_s_median": 0.263634,
+      "ns_per_word_gather_median": 0.093,
+      "ns_per_word_batchinv_median": 1.259,
+      "ns_per_word_commit_median": 7.857,
+      "gather_equals_batchinv": true,
+      "peak_heap_commit_bytes": 1099456512
+     }
+    }
+   }
+  },
+  "t32_parmin_2^10": {
+   "log": "logs/bench_pm10.log",
+   "sha256": "60f4b33bae862a4173fbd558e7733f78b2f1eabffaa1b7d86c1b4947b34b386a",
+   "sizes": {
+    "24": {
+     "witness": {
+      "log_leaves": 24,
+      "leaves": 16777216,
+      "queries": 16646144,
+      "table_entries": 111028,
+      "special_per_half": 65536,
+      "threads": 32,
+      "gen_secs": 0.068,
+      "witness_heap_bytes": 72597401
+     },
+     "gkr": {
+      "n_reps": 5,
+      "threads": 32,
+      "prove_s_median": 0.102139,
+      "prove_s_min": 0.097794,
+      "prove_s_max": 0.126721,
+      "build_s_median": 0.012725,
+      "topdown_s_median": 0.087236,
+      "ns_per_leaf_median": 6.088,
+      "ns_per_query_median": 6.136,
+      "verify_rounds_s_median": 0.000104,
+      "verify_oracle_s_median": 0.007562,
+      "peak_heap_b_per_leaf": 16.25,
+      "proof_bytes": 19200,
+      "rounds": 276,
+      "parallel_rounds": 91,
+      "fp2_equiv_mul_per_leaf_COUNTED": 10.397,
+      "build_fp2_equiv_per_leaf_COUNTED": 1.7,
+      "top_fp2_equiv_per_leaf_COUNTED": 8.697,
+      "bytes_rd_per_leaf_COUNTED": 116.67,
+      "bytes_wr_per_leaf_COUNTED": 64.0,
+      "direct_check_rep0": {
+       "sum_is_zero": true,
+       "root_q_equals_product": true,
+       "secs": 0.0206
+      },
+      "last_layers_rep0_k_secs_parallel_rounds": [
+       [
+        18,
+        0.00402,
+        8
+       ],
+       [
+        19,
+        0.00603,
+        9
+       ],
+       [
+        20,
+        0.00923,
+        10
+       ],
+       [
+        21,
+        0.01379,
+        11
+       ],
+       [
+        22,
+        0.02365,
+        12
+       ],
+       [
+        23,
+        0.02174,
+        13
+       ]
+      ]
+     }
+    },
+    "25": {
+     "witness": {
+      "log_leaves": 25,
+      "leaves": 33554432,
+      "queries": 33423360,
+      "table_entries": 111028,
+      "special_per_half": 65536,
+      "threads": 32,
+      "gen_secs": 0.083,
+      "witness_heap_bytes": 139707401
+     },
+     "gkr": {
+      "n_reps": 5,
+      "threads": 32,
+      "prove_s_median": 0.158845,
+      "prove_s_min": 0.154484,
+      "prove_s_max": 0.17226,
+      "build_s_median": 0.02036,
+      "topdown_s_median": 0.135013,
+      "ns_per_leaf_median": 4.734,
+      "ns_per_query_median": 4.753,
+      "verify_rounds_s_median": 0.000106,
+      "verify_oracle_s_median": 0.013304,
+      "peak_heap_b_per_leaf": 16.13,
+      "proof_bytes": 20800,
+      "rounds": 300,
+      "parallel_rounds": 105,
+      "fp2_equiv_mul_per_leaf_COUNTED": 10.377,
+      "build_fp2_equiv_per_leaf_COUNTED": 1.7,
+      "top_fp2_equiv_per_leaf_COUNTED": 8.677,
+      "bytes_rd_per_leaf_COUNTED": 116.34,
+      "bytes_wr_per_leaf_COUNTED": 64.0,
+      "direct_check_rep0": {
+       "sum_is_zero": true,
+       "root_q_equals_product": true,
+       "secs": 0.0403
+      },
+      "last_layers_rep0_k_secs_parallel_rounds": [
+       [
+        19,
+        0.007,
+        9
+       ],
+       [
+        20,
+        0.00924,
+        10
+       ],
+       [
+        21,
+        0.01276,
+        11
+       ],
+       [
+        22,
+        0.02116,
+        12
+       ],
+       [
+        23,
+        0.03943,
+        13
+       ],
+       [
+        24,
+        0.03201,
+        14
+       ]
+      ]
+     }
+    }
+   }
+  },
+  "t32_parmin_2^12": {
+   "log": "logs/bench_pm12.log",
+   "sha256": "cd53815f0bef882d62f7a008934aba29cbd9b1088da35acf1e1350f86a71ed71",
+   "sizes": {
+    "24": {
+     "witness": {
+      "log_leaves": 24,
+      "leaves": 16777216,
+      "queries": 16646144,
+      "table_entries": 111028,
+      "special_per_half": 65536,
+      "threads": 32,
+      "gen_secs": 0.046,
+      "witness_heap_bytes": 72597401
+     },
+     "gkr": {
+      "n_reps": 5,
+      "threads": 32,
+      "prove_s_median": 0.102822,
+      "prove_s_min": 0.098834,
+      "prove_s_max": 0.119886,
+      "build_s_median": 0.012774,
+      "topdown_s_median": 0.089072,
+      "ns_per_leaf_median": 6.129,
+      "ns_per_query_median": 6.177,
+      "verify_rounds_s_median": 0.000106,
+      "verify_oracle_s_median": 0.008159,
+      "peak_heap_b_per_leaf": 16.25,
+      "proof_bytes": 19200,
+      "rounds": 276,
+      "parallel_rounds": 66,
+      "fp2_equiv_mul_per_leaf_COUNTED": 10.397,
+      "build_fp2_equiv_per_leaf_COUNTED": 1.7,
+      "top_fp2_equiv_per_leaf_COUNTED": 8.697,
+      "bytes_rd_per_leaf_COUNTED": 116.67,
+      "bytes_wr_per_leaf_COUNTED": 64.0,
+      "direct_check_rep0": {
+       "sum_is_zero": true,
+       "root_q_equals_product": true,
+       "secs": 0.0205
+      },
+      "last_layers_rep0_k_secs_parallel_rounds": [
+       [
+        18,
+        0.00442,
+        6
+       ],
+       [
+        19,
+        0.00631,
+        7
+       ],
+       [
+        20,
+        0.00905,
+        8
+       ],
+       [
+        21,
+        0.0125,
+        9
+       ],
+       [
+        22,
+        0.025,
+        10
+       ],
+       [
+        23,
+        0.02257,
+        11
+       ]
+      ]
+     }
+    },
+    "25": {
+     "witness": {
+      "log_leaves": 25,
+      "leaves": 33554432,
+      "queries": 33423360,
+      "table_entries": 111028,
+      "special_per_half": 65536,
+      "threads": 32,
+      "gen_secs": 0.081,
+      "witness_heap_bytes": 139707401
+     },
+     "gkr": {
+      "n_reps": 5,
+      "threads": 32,
+      "prove_s_median": 0.159498,
+      "prove_s_min": 0.157644,
+      "prove_s_max": 0.176311,
+      "build_s_median": 0.020165,
+      "topdown_s_median": 0.138689,
+      "ns_per_leaf_median": 4.753,
+      "ns_per_query_median": 4.772,
+      "verify_rounds_s_median": 0.000106,
+      "verify_oracle_s_median": 0.01341,
+      "peak_heap_b_per_leaf": 16.13,
+      "proof_bytes": 20800,
+      "rounds": 300,
+      "parallel_rounds": 78,
+      "fp2_equiv_mul_per_leaf_COUNTED": 10.377,
+      "build_fp2_equiv_per_leaf_COUNTED": 1.7,
+      "top_fp2_equiv_per_leaf_COUNTED": 8.677,
+      "bytes_rd_per_leaf_COUNTED": 116.34,
+      "bytes_wr_per_leaf_COUNTED": 64.0,
+      "direct_check_rep0": {
+       "sum_is_zero": true,
+       "root_q_equals_product": true,
+       "secs": 0.0398
+      },
+      "last_layers_rep0_k_secs_parallel_rounds": [
+       [
+        19,
+        0.00607,
+        7
+       ],
+       [
+        20,
+        0.00913,
+        8
+       ],
+       [
+        21,
+        0.01474,
+        9
+       ],
+       [
+        22,
+        0.02103,
+        10
+       ],
+       [
+        23,
+        0.03999,
+        11
+       ],
+       [
+        24,
+        0.03261,
+        12
+       ]
+      ]
+     }
+    }
+   }
+  },
+  "t32_parmin_2^15": {
+   "log": "logs/bench_pm15.log",
+   "sha256": "48d6c9eadfdf4d1b75b3e2138a63a217f1058203ce518a07675a3a82414fcb72",
+   "sizes": {
+    "24": {
+     "witness": {
+      "log_leaves": 24,
+      "leaves": 16777216,
+      "queries": 16646144,
+      "table_entries": 111028,
+      "special_per_half": 65536,
+      "threads": 32,
+      "gen_secs": 0.046,
+      "witness_heap_bytes": 72597401
+     },
+     "gkr": {
+      "n_reps": 5,
+      "threads": 32,
+      "prove_s_median": 0.11262,
+      "prove_s_min": 0.108772,
+      "prove_s_max": 0.12979,
+      "build_s_median": 0.013107,
+      "topdown_s_median": 0.098473,
+      "ns_per_leaf_median": 6.713,
+      "ns_per_query_median": 6.766,
+      "verify_rounds_s_median": 0.0001,
+      "verify_oracle_s_median": 0.007335,
+      "peak_heap_b_per_leaf": 16.25,
+      "proof_bytes": 19200,
+      "rounds": 276,
+      "parallel_rounds": 36,
+      "fp2_equiv_mul_per_leaf_COUNTED": 10.397,
+      "build_fp2_equiv_per_leaf_COUNTED": 1.7,
+      "top_fp2_equiv_per_leaf_COUNTED": 8.697,
+      "bytes_rd_per_leaf_COUNTED": 116.67,
+      "bytes_wr_per_leaf_COUNTED": 64.0,
+      "direct_check_rep0": {
+       "sum_is_zero": true,
+       "root_q_equals_product": true,
+       "secs": 0.0208
+      },
+      "last_layers_rep0_k_secs_parallel_rounds": [
+       [
+        18,
+        0.00601,
+        3
+       ],
+       [
+        19,
+        0.00749,
+        4
+       ],
+       [
+        20,
+        0.0101,
+        5
+       ],
+       [
+        21,
+        0.01418,
+        6
+       ],
+       [
+        22,
+        0.02585,
+        7
+       ],
+       [
+        23,
+        0.02094,
+        8
+       ]
+      ]
+     }
+    },
+    "25": {
+     "witness": {
+      "log_leaves": 25,
+      "leaves": 33554432,
+      "queries": 33423360,
+      "table_entries": 111028,
+      "special_per_half": 65536,
+      "threads": 32,
+      "gen_secs": 0.081,
+      "witness_heap_bytes": 139707401
+     },
+     "gkr": {
+      "n_reps": 5,
+      "threads": 32,
+      "prove_s_median": 0.170275,
+      "prove_s_min": 0.167139,
+      "prove_s_max": 0.191857,
+      "build_s_median": 0.019834,
+      "topdown_s_median": 0.14999,
+      "ns_per_leaf_median": 5.075,
+      "ns_per_query_median": 5.094,
+      "verify_rounds_s_median": 0.000105,
+      "verify_oracle_s_median": 0.012942,
+      "peak_heap_b_per_leaf": 16.13,
+      "proof_bytes": 20800,
+      "rounds": 300,
+      "parallel_rounds": 45,
+      "fp2_equiv_mul_per_leaf_COUNTED": 10.377,
+      "build_fp2_equiv_per_leaf_COUNTED": 1.7,
+      "top_fp2_equiv_per_leaf_COUNTED": 8.677,
+      "bytes_rd_per_leaf_COUNTED": 116.34,
+      "bytes_wr_per_leaf_COUNTED": 64.0,
+      "direct_check_rep0": {
+       "sum_is_zero": true,
+       "root_q_equals_product": true,
+       "secs": 0.0405
+      },
+      "last_layers_rep0_k_secs_parallel_rounds": [
+       [
+        19,
+        0.00825,
+        4
+       ],
+       [
+        20,
+        0.01053,
+        5
+       ],
+       [
+        21,
+        0.014,
+        6
+       ],
+       [
+        22,
+        0.02274,
+        7
+       ],
+       [
+        23,
+        0.04138,
+        8
+       ],
+       [
+        24,
+        0.03607,
+        9
+       ]
+      ]
+     }
+    }
+   }
+  }
+ },
+ "tests": {
+  "log": "logs/test3.log",
+  "pass": 112,
+  "fail": 0,
+  "controls": [
+   "PASS tiny-n9/C1-out-of-table-breaks-identity Err(\"root numerator is nonzero: the lookup identity fails\")",
+   "PASS tiny-n9/C2-forged-root-refused Err(\"layer 1: final evaluation check fails\")",
+   "PASS tiny-n9/C3-wrong-multiplicity-refused Err(\"root numerator is nonzero: the lookup identity fails\")",
+   "PASS tiny-n9/C4-tampered-round-refused Err(\"layer 5 round 0: s(0)+s(1) != claim\")",
+   "PASS tiny-n9/C5-tampered-finals-refused Err(\"layer 8: final evaluation check fails\")",
+   "PASS tiny-n9/C6-zero-denominator-refused Err(\"root numerator is nonzero: the lookup identity fails\")",
+   "PASS tiny-n9/C9-zero-zero-leaf-refused-by-denominator-check Err(\"root denominator is zero: a zero LogUp denominator\")",
+   "PASS tiny-n9/C7-other-leaves-refused-by-leaf-claim Err(\"leaf claim does not match the (committed) leaves\")",
+   "PASS tiny-n9/C8-cancelled-pair-refused-by-leaf-claim Err(\"leaf claim does not match the (committed) leaves\")",
+   "PASS medium-n14/C1-out-of-table-breaks-identity Err(\"root numerator is nonzero: the lookup identity fails\")",
+   "PASS medium-n14/C2-forged-root-refused Err(\"layer 1: final evaluation check fails\")",
+   "PASS medium-n14/C3-wrong-multiplicity-refused Err(\"root numerator is nonzero: the lookup identity fails\")",
+   "PASS medium-n14/C4-tampered-round-refused Err(\"layer 7 round 0: s(0)+s(1) != claim\")",
+   "PASS medium-n14/C5-tampered-finals-refused Err(\"layer 13: final evaluation check fails\")",
+   "PASS medium-n14/C6-zero-denominator-refused Err(\"root numerator is nonzero: the lookup identity fails\")",
+   "PASS medium-n14/C9-zero-zero-leaf-refused-by-denominator-check Err(\"root denominator is zero: a zero LogUp denominator\")",
+   "PASS medium-n14/C7-other-leaves-refused-by-leaf-claim Err(\"leaf claim does not match the (committed) leaves\")",
+   "PASS medium-n14/C8-cancelled-pair-refused-by-leaf-claim Err(\"leaf claim does not match the (committed) leaves\")",
+   "PASS w16-n18/C1-out-of-table-breaks-identity Err(\"root numerator is nonzero: the lookup identity fails\")",
+   "PASS w16-n18/C2-forged-root-refused Err(\"layer 1: final evaluation check fails\")",
+   "PASS w16-n18/C3-wrong-multiplicity-refused Err(\"root numerator is nonzero: the lookup identity fails\")",
+   "PASS w16-n18/C4-tampered-round-refused Err(\"layer 9 round 0: s(0)+s(1) != claim\")",
+   "PASS w16-n18/C5-tampered-finals-refused Err(\"layer 17: final evaluation check fails\")",
+   "PASS w16-n18/C6-zero-denominator-refused Err(\"root numerator is nonzero: the lookup identity fails\")",
+   "PASS w16-n18/C9-zero-zero-leaf-refused-by-denominator-check Err(\"root denominator is zero: a zero LogUp denominator\")",
+   "PASS w16-n18/C7-other-leaves-refused-by-leaf-claim Err(\"leaf claim does not match the (committed) leaves\")",
+   "PASS w16-n18/C8-cancelled-pair-refused-by-leaf-claim Err(\"leaf claim does not match the (committed) leaves\")"
+  ]
+ }
+}

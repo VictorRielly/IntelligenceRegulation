@@ -1,0 +1,21 @@
+[package]
+name = "logup-gkr-w16-proto"
+version = "0.1.0"
+edition = "2021"
+publish = false
+description = "Research prototype: streamed LogUp-GKR fractional sumcheck for W16 tagged range lookups, against the committed-helper path (no production use)"
+
+[dependencies]
+# zkp-core's Goldilocks / Fp2 field, transcript, RNG and Ligero-form PCS (read-only path dependency; zkp-core is NOT edited)
+zkp-core = { path = "../../../../ops/zkp-mvp/gpu-metal/zkp-core" }
+rayon = "1.11"
+
+[profile.release]
+opt-level = 3
+codegen-units = 1
+lto = "fat"
+panic = "abort"
+debug = false
+
+# standalone: never join a parent workspace
+[workspace]

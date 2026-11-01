@@ -1,0 +1,145 @@
+{
+ "cpu_per_lookup_ns": {
+  "gkr_prove_MEASURED": 4.957758714704949,
+  "helper_gather_write_MEASURED": 0.09110569953918457,
+  "helper_commit_MEASURED": 5.374997854232788,
+  "helper_open_share_ESTIMATE": 0.5152622553722179,
+  "helper_zero_check_share_ESTIMATE_range": [
+   6.9146416308368055,
+   13.690092423650272
+  ],
+  "gkr_leaf_claim_terms_ESTIMATE_range": [
+   1.4177596147684126,
+   2.8069799126161623
+  ],
+  "helper_path_total_range": [
+   12.896007439980995,
+   19.671458232794464
+  ],
+  "gkr_path_total_range": [
+   6.375518329473361,
+   7.764738627321111
+  ],
+  "ratio_gkr_over_helper_full_range": [
+   0.32409993473918863,
+   0.6021040747269105
+  ],
+  "ratio_measured_parts_only": 0.907000510680733,
+  "note": "zero-check shares attribute the native CPU pass by tables per domain; the low end rescales the 3.049 s pass to DESIGN's 1.54 s CPU block; TAB slot (0.215 s CPU) excluded"
+ },
+ "bytes_per_lookup_COUNTED": {
+  "gkr": 187.4803654822335,
+  "helper": 132,
+  "helper_parts": {
+   "write (vals 4 rd + helper 8 wr)": 12,
+   "commit (8 rd + 32 encoded wr + 32 hash rd)": 72,
+   "zero-check (build 8 rd + 8 wr, rounds 16 rd + 8 wr)": 40,
+   "opening combination (8 rd)": 8
+  }
+ },
+ "fp2_equiv_mul_per_lookup_COUNTED": {
+  "gkr": 10.787865989847717,
+  "helper_commit": 8.6,
+  "helper_gather": 0.0,
+  "note": "commit: inverse NTT 2^14 + coset scaling + forward NTT 2^16 per row = ~43 base products per word (+ BLAKE3 over 32 B/word); zero-check helper terms not counted"
+ },
+ "kill_rule": {
+  "rule": "kill if GKR >= 0.7x the helper path per lookup on the CPU AND >= the same counted bytes per lookup",
+  "ratio_clause_full_accounting": false,
+  "ratio_clause_measured_parts_only": true,
+  "bytes_clause": true,
+  "verdict": "NOT KILLED (bytes clause holds, ratio clause fails under the full accounting)"
+ },
+ "metal_per_block_ESTIMATE": {
+  "helper_path_parts_s": {
+   "helper_inverses (native, measured phase)": 0.009,
+   "H commit, helper word share": 0.0340176515732924,
+   "open H, helper word share": 0.015874904067536454,
+   "zero-check helper table share": 0.04341564722617354,
+   "TAB slot (table helpers)": 0.008
+  },
+  "helper_path_s": 0.1103082028670024,
+  "gkr_base_muls": 1740971704.3200002,
+  "gkr_compute_s_at_60_30pct_of_kbench": [
+   0.03297294894545455,
+   0.0659458978909091
+  ],
+  "gkr_bandwidth_s_at_50pct": 0.0151280156672,
+  "gkr_gpu_scale_rounds": 66,
+  "round_latency_today_s": [
+   0.019799999999999998,
+   0.0231
+  ],
+  "round_latency_30us_s": 0.00198,
+  "gkr_cpu_small_rounds_s": [
+   0.005,
+   0.016
+  ],
+  "gkr_metal_s_range": [
+   0.03995294894545455,
+   0.1050458978909091
+  ],
+  "leaf_claim_terms_s": 0.009364722617354196,
+  "net_saving_s_range": [
+   -0.004102417641260897,
+   0.06099053130419365
+  ],
+  "block_speedup_range_on_0.47s": [
+   1.0,
+   1.1491176512335324
+  ],
+  "if_all_lookups_retire_H_extra_s": {
+   "rest of H commit": 0.0109823484267076,
+   "rest of open H": 0.005125095932463546,
+   "exp/act helper inverses": 0.02,
+   "exp/act helper zero-check share": 0.005105263157894737,
+   "ZS slot": 0.002,
+   "minus: 2^22 more GKR leaves (generic leaves, ~1/8 of the tree)": -0.009062427927272729
+  },
+  "M_rows_extra_s_if_on_critical_path": [
+   0.008639999999999998,
+   0.025919999999999995
+  ],
+  "prototype_rep0_last_layers_k_secs_parallel_rounds": [
+   [
+    19,
+    0.007,
+    6
+   ],
+   [
+    20,
+    0.01026,
+    7
+   ],
+   [
+    21,
+    0.01354,
+    8
+   ],
+   [
+    22,
+    0.02091,
+    9
+   ],
+   [
+    23,
+    0.04067,
+    10
+   ],
+   [
+    24,
+    0.03363,
+    11
+   ]
+  ],
+  "all_lookups_net_saving_s_range": [
+   0.030047861948532255,
+   0.0951408108939868
+  ]
+ },
+ "labels": {
+  "MEASURED": "this experiment's guarded runs (shared host, medians)",
+  "QUOTED": "results/zk60_limb16_20261031/logs/g_phases2.log",
+  "ESTIMATE": "every attribution, projection and range above"
+ }
+}

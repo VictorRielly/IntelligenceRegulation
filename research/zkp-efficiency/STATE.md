@@ -1,5 +1,47 @@
 # ZKP efficiency explorer — durable state
 
+## 2026-11-01: Claude researcher cycle (D50; the Codex explorer cannot run on the Mac)
+
+**COMPLETE.** **No measured proving improvement.** Only `research/zkp-efficiency/` was written. There was no native
+build, proof or GPU run, and no Git.
+
+**LogUp-GKR measured (H107 → H111).**
+- **What ran.** A streamed W16 LogUp-GKR prover and verifier on zkp-core's field, CPU, rayon.
+  - 112 checks pass, including an independent reference prover and 9 negative controls. An out-of-table leaf breaks
+    the identity, and a `(0,0)` leaf is caught only by the root-denominator check.
+- **Time at 2^25 leaves** (32 threads, shared M3 Ultra, medians, n = 5): **GKR 0.160 s against helper commit
+  0.180 s**, plus 0.003 s of helper writes.
+- **Counted per leaf:** 10.4 Fp2-eq multiplications, 180 B of traffic, 16.1 B of heap. Proof 20.8 KB unmasked.
+- **Kill rule: NOT KILLED.**
+  - The ratio is 0.32–0.60 under the full accounting (ESTIMATE: the helper zero-check share is attributed by table
+    count); on measured parts only it is 0.91.
+  - The bytes clause holds: 187 against 132 B/lookup.
+- **Metal (ESTIMATE):** range-only ×1.00–1.15; all lookups with `H` retired ×1.07–1.25.
+- **ZK note:**
+  - Libra's `Z` vanishes at the Boolean child bit, so take it over the parent coordinates only.
+  - Layer 1 gets two independent-scale blinding leaves.
+  - The leaf claim enters the domain zero-checks as one linear term each, with no new openings.
+  - +48 to 144 `M` rows; receipt about −5.1 MB per block.
+- [Experiment](experiments/logup-gkr-20261101/README.md) ·
+  [ZK note](experiments/logup-gkr-20261101/ZK_DESIGN_NOTE.md) ·
+  [Handoff](handoffs/20261101-logup-gkr-w16.md).
+
+**New hypotheses H111–H116** (116 in total). Top three:
+1. **H112, cross-block host/device pipelining.** Host phases are about 0.21 s of the 0.578 s instrumented block, so
+   overlapping them gives ×1.3–1.6 throughput. Byte-identical; no ruling.
+2. **H113, the device round-latency floor.** About 0.3 ms per round over about 190 rounds, about 0.057 s per block.
+3. **H114, exp/act helper inverses by public-table gather.** Byte-identical; −0.015 to −0.02 s.
+
+Then H115 (small-value zero-check rounds) and H111 (GKR, all lookups). H116 (small-field rebase) is parked.
+
+**Next.** The native owner should measure H112 (two concurrent W16 blocks on Metal) and H113 (GPU timestamps for slots
+00, 01 and 21). If H111 is pursued: a fan-in-4 bottom layer and a minimal Metal kernel for the two bottom layers.
+
+New full-stack proofs, passes and proved positions: **0 / 0 / 0**. The complete private 8B at ≥ 50 proved tokens/s
+on an RTX 5090 remains **unachieved**.
+
+## Previous state (cycle 0173, Codex explorer)
+
 Cycle0173 COMPLETE: 20261030T214123Z-4c34fc82.
 Start21:41:23Z; checkpoint2026-10-30T21:55:58.569107+00:00; deadline22:01:23Z.
 Next cycle no earlier2026-10-30T22:41:23Z. Read AGENDA.md EVERY cycle.

@@ -1,5 +1,47 @@
 # ZKP efficiency progress
 
+## 2026-11-01 — Claude researcher cycle (logup-gkr-20261101)
+
+**No measured proving improvement.** This cycle settled the LogUp-GKR question with a measurement instead of an
+estimate.
+
+**What ran.** A streamed LogUp-GKR prover and verifier for W16's 16-bit tagged range lookups. It runs on the CPU and
+matches an independent reference prover. One lookup outside the table breaks the identity and is refused.
+
+**Measured on one block's worth of lookups (2^25)** (shared Mac, n = 5, diagnostic):
+- The GKR proof takes **0.160 s**.
+- The committed-helper path it would replace spends **0.183 s** just writing and committing the helpers.
+- The GKR touches more memory per lookup (187 B against about 132 B).
+- The kill rule therefore does **not** fire, because GKR is cheaper once the helpers' share of the zero-checks is
+  counted. That share is an estimate.
+
+**What it is worth on the Metal GPU (projection):**
+- **×1.00–1.15 per block** for the range lookups alone;
+- **×1.07–1.25** if every lookup moves into the tree and the `H` commitment disappears.
+- That is not enough to justify a new proof format on its own.
+- A one-page zero-knowledge design is written, unreviewed. Its main open risk is the joint-view simulation.
+
+**Bigger, cheaper levers found while decomposing the gap after W16** (estimates):
+1. About a third of today's block is host-CPU work. Overlapping it with the next block's GPU work could raise
+   throughput ×1.3–1.6 without changing any proof byte.
+2. Each GPU sumcheck round has a fixed cost of about 0.3 ms, about 0.06 s per block.
+3. The exp/activation helper inverses could use precomputed table inverses, saving about 0.02 s byte-identically.
+
+**For ≥ 50 proved tokens/s on the complete private 8B.**
+- The target needs ×5.9 from today's 0.47 s block.
+- On the estimates above, it is plausible only if all of these land together:
+  - the byte-identical levers;
+  - host/GPU overlap;
+  - committing less;
+  - a ≥ ×3 device speedup from the RTX 5090.
+- It remains **unachieved**. New full-stack proofs, passes and proved positions: **0 / 0 / 0**.
+
+[Experiment](experiments/logup-gkr-20261101/README.md) ·
+[ZK note](experiments/logup-gkr-20261101/ZK_DESIGN_NOTE.md) ·
+[Handoff](handoffs/20261101-logup-gkr-w16.md).
+
+## Previous report
+
 Cycle 0173 complete — 20261030T214123Z-4c34fc82, 2026-10-30 UTC.
 
 **No measured proving improvement.** The streamed lookup arithmetic matches
