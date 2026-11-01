@@ -43,6 +43,21 @@ A `sample` of eight warm passes shows the prover thread waiting on the GPU (sumc
 builds) for most of its time. The byte-identical candidate it points to: have the first sumcheck round read the
 committed planes in place instead of copying them into extension-field tables (about 0.05 s, estimated).
 
+**Next levers after W16, ranked** (estimates against the 0.578 s instrumented block, not measured):
+1. **Byte-identical: the first sumcheck round reads committed planes in place**, instead of copying each into an
+   extension-field device table. About 0.05 s: slots 14 and 18 spend 0.050 s building tables.
+2. **Byte-identical: the matmul slots' public weight folds on the GPU.** About 0.025 s: nine slots of 4-16 ms each,
+   mostly an exact i8 transposed matrix-vector fold that is already parallel and deferred on the CPU. The verifier
+   keeps the CPU fold; field addition is exact, so the order does not move a byte.
+3. **Protocol: non-power-of-two domains.** About 10% at Shieldstral (its F axis is 44% padding), about 3% at 8B.
+   Needs a ruling.
+4. **Protocol: LogUp-GKR in place of the committed helpers.** After W16 the helpers cost about 0.13 s (commit,
+   inverses, opening and their share of the zero-checks). A GKR proof adds about 25 masked layer sumchecks, roughly
+   0.05-0.08 s on the GPU, so the net is about x1.1-1.2. That is smaller than the x1.37-1.57 the 2026-10-30 gap
+   study priced before W16. Needs a zero-knowledge design (root blinding, masked layers) and a ruling. The standalone
+   CPU prototype the explorer was handed (`research/zkp-efficiency/handoffs/20261030-deepprove-gap.md`) was never
+   run: the explorer needs bubblewrap and is not installed on the Mac.
+
 The sections below are the design as written before the build. Its counts and
 estimate are what the measurements above check.
 
