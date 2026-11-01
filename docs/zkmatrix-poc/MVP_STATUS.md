@@ -38,6 +38,11 @@ measured context scaling shows that longer contexts buy little.**
   multiply on the GPU was tried; there is no gain (the compiler already does it well). The big GPU kernels are near
   the multiply ceiling, so what is left on the GPU is algebra: fewer evaluation points (Gruen's trick) and a leaner
   NTT.
+- **M12 (kept, small):** the GPU transform reads its twiddles from a compact table, −1 ms per commitment.
+- **M13 (tried, reverted):** Gruen's trick on the GPU zero-checks was byte-identical but not faster (the GPU cost per
+  point is memory and latency as much as arithmetic); the diff is kept.
+- **M14 (measured):** at 256 tokens per block, one request now proves at **13.0 tokens/s** for a 32-layer 8B
+  stack (0.60 s per block). Six requests at once give 21 tokens/s aggregate.
 - **Open question for Victor (D55):** letting one request's blocks prove at the same time would need a new
   construction, because rule D12a makes a run one transcript.
 - **Caveat on all block timings above.** The timing test's synthetic weights are diagonal, so weight folds are

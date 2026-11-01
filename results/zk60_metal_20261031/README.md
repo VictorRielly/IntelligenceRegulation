@@ -886,3 +886,23 @@ Per slot (`logs/m13/slot_*.log`): slot 18 25.9 → 25.0 ms, slot 14 15.6 → 15.
 So the zero-check kernels' remaining lever is memory and latency (sharing each pair's table loads across points
 without the M3 form's register pressure), not arithmetic. Reverted; the binary was rebuilt at HEAD and the dev-shape
 bytes re-checked (`logs/m13/restore_*.log`).
+
+## M14 (2026-11-01): T256 re-measured with M8–M12 — 13.0 proved tokens/s for one request
+
+[MEASURED, `logs/m14t256/threads.log`, `m10_concurrent_block_proofs_throughput` at `W16_8B_T256_H24`,
+`HL_PB_ORACLE=0`, 3 proofs per thread, all equal to the solo proof, diagonal test weights]:
+
+| threads | blocks/s | proved tok/s (32-layer 8B, T256) | per-proof core median |
+|---:|---:|---:|---:|
+| 1 | 1.62 | **13.0** | 0.605 s |
+| 2 | 1.94 | 15.6 | 0.934 s |
+| 3 | 2.28 | 18.3 | 1.146 s |
+| 4 | 2.39 | 19.1 | 1.656 s |
+| 6 | 2.64 | 21.1 | 2.167 s |
+
+Reading:
+- **One request:** T256 is the best context per token, 13.0 tokens/s against 10.7 at T128 (M7 measured 10.3 at
+  T256 before M8–M12).
+- **Many requests:** the aggregate ceiling is unchanged at about 21–22 tokens/s, because the GPU's work per token
+  is about the same at either context.
+- **Real weights:** dense weights would add their folds (about +15–30 ms per T256 block [ESTIMATE]).

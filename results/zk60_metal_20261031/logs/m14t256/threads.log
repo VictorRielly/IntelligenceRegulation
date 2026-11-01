@@ -1,0 +1,12 @@
+
+running 1 test
+test private_block::slot_ir::accuracy::tests::m10_concurrent_block_proofs_throughput ... M10 W16_8B_T256_H24: solo cold 1.300 s, warm 0.663 s
+M10 W16_8B_T256_H24 threads 1 x 3: wall 1.847 s, 1.62 blocks/s (13.0 proved tok/s for 32 layers of T256), per-proof core min 0.602 median 0.605 max 0.605 s
+M10 W16_8B_T256_H24 threads 2 x 3: wall 3.086 s, 1.94 blocks/s (15.6 proved tok/s for 32 layers of T256), per-proof core min 0.809 median 0.934 max 1.206 s
+M10 W16_8B_T256_H24 threads 3 x 3: wall 3.943 s, 2.28 blocks/s (18.3 proved tok/s for 32 layers of T256), per-proof core min 1.015 median 1.146 max 1.388 s
+M10 W16_8B_T256_H24 threads 4 x 3: wall 5.027 s, 2.39 blocks/s (19.1 proved tok/s for 32 layers of T256), per-proof core min 1.356 median 1.656 max 1.940 s
+M10 W16_8B_T256_H24 threads 6 x 3: wall 6.811 s, 2.64 blocks/s (21.1 proved tok/s for 32 layers of T256), per-proof core min 1.999 median 2.167 max 2.427 s
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 919 filtered out; finished in 23.92s
+
