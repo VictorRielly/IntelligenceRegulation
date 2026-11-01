@@ -43,6 +43,8 @@ measured context scaling shows that longer contexts buy little.**
   point is memory and latency as much as arithmetic); the diff is kept.
 - **M14 (measured):** at 256 tokens per block, one request now proves at **13.0 tokens/s** for a 32-layer 8B
   stack (0.60 s per block). Six requests at once give 21 tokens/s aggregate.
+- **M15 (byte-identical, kept):** two CPU steps of the activation lookup are fused or made parallel; W16 8B T128
+  block **0.358 s** (about 11.2 tokens/s), from 0.380.
 - **Open question for Victor (D55):** letting one request's blocks prove at the same time would need a new
   construction, because rule D12a makes a run one transcript.
 - **Caveat on all block timings above.** The timing test's synthetic weights are diagonal, so weight folds are

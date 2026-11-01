@@ -462,6 +462,34 @@ fn refuse_lookup_misses(u8: usize, exp: usize, act: usize) -> Result<(), String>
 /// a miss is filed in entry 0, exactly as before). Shared by `prove_core`
 /// and [`check_lookup_misses`].
 fn exp_histogram(deltas: &[i64], e_plane: &[i64], exp: &[i64]) -> (Vec<u64>, usize) {
+    // [ZK60-METAL M15] long columns counted over 64 Ki chunks in parallel and
+    // summed (integer counts: the sequential loop's totals)
+    if deltas.len() >= 1 << 17 {
+        use rayon::prelude::*;
+        const CH: usize = 1 << 16;
+        return deltas
+            .par_chunks(CH)
+            .enumerate()
+            .map(|(ci, ds)| {
+                let mut m = vec![0u64; U8_LEN];
+                let mut missed = 0usize;
+                for (k, d) in ds.iter().enumerate() {
+                    let hit = (0..U8_LEN as i64).contains(d) && exp[*d as usize] == e_plane[ci * CH + k];
+                    missed += usize::from(!hit);
+                    m[if hit { *d as usize } else { 0 }] += 1;
+                }
+                (m, missed)
+            })
+            .reduce(
+                || (vec![0u64; U8_LEN], 0usize),
+                |(mut x, mx), (y, my)| {
+                    for (a, b) in x.iter_mut().zip(y) {
+                        *a += b;
+                    }
+                    (x, mx + my)
+                },
+            );
+    }
     let mut m = vec![0u64; U8_LEN];
     let mut missed = 0usize;
     for (x, d) in deltas.iter().enumerate() {
@@ -1611,8 +1639,9 @@ pub(crate) fn prove_core(
     let exp_den = deltas.par_iter().zip(wit.planes[ids.at(A_E)].par_iter()).map(|(d, e)| alpha.sub(Fp2::from_i64(*d).add(beta.mul(Fp2::from_i64(*e))).add(g_exp))).collect();
     write_h(&mut h_data, lay.h_off[hids.sexp()], &inverses(exp_den)?);
     let act_den = match blk.accuracy() {
-        Some(data)=>super::accuracy_act::query_values(sh,data,&wit.planes[ids.at(A_G8)],&wit.planes[ids.at(A_A16)],beta,g_act)?
-            .into_par_iter().map(|query|alpha.sub(query)).collect(),
+        // [ZK60-METAL M15] fused: one pass over the rows, no per-element
+        // divisions, no intermediate vector (`accuracy_act::denominators`)
+        Some(data)=>super::accuracy_act::denominators(sh,data,&wit.planes[ids.at(A_G8)],&wit.planes[ids.at(A_A16)],alpha,beta,g_act)?,
         None=>act_idx.par_iter().zip(wit.planes[ids.at(A_A16)].par_iter()).map(|(i,a)|alpha.sub(Fp2::from_i64(*i).add(beta.mul(Fp2::from_i64(*a))).add(g_act))).collect(),
     };
     write_h(&mut h_data, lay.h_off[hids.fact()], &inverses(act_den)?);

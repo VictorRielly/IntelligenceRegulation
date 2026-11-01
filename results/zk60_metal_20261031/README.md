@@ -906,3 +906,35 @@ Reading:
 - **Many requests:** the aggregate ceiling is unchanged at about 21–22 tokens/s, because the GPU's work per token
   is about the same at either context.
 - **Real weights:** dense weights would add their folds (about +15–30 ms per T256 block [ESTIMATE]).
+
+## M15 (2026-11-01): the activation helper's denominators fused; the activation and exp histograms in parallel — kept
+
+Found with temporary sub-step timers inside "H: exp + activation helper inverses" (18 ms for 2.6 M words, against
+9 ms for the 32 M words of the six LogUp domains). The activation denominators took 6.7–11.4 ms of it:
+- `query_values` collected into one fresh vector and `alpha - q` into a second;
+- each element paid two divisions (`index / f_pad`, `index % f_pad`) to find its group.
+
+Changes:
+1. **`accuracy_act::denominators`** forms `alpha - query` in ONE parallel pass over the F domain's rows, with the
+   group term `beta^2 group` precomputed per column. It is the same field expression, so the same words; unit test
+   `m15_fused_denominators_equal_alpha_minus_the_queries`, padding included.
+   [MEASURED, `logs/m15g/m15diag/`] 6.7–11.4 ms → 1.3–1.5 ms.
+2. **`accuracy_act::histogram` and `protocol::exp_histogram`** (columns of at least 2^17) count over 64 Ki chunks in
+   parallel and sum. The counts and misses are integers, so they equal the sequential loop's; unit test
+   `m15_parallel_histogram_equals_the_sequential_count`, with hits and misses.
+
+[MEASURED, phase report, `logs/m15g/phases.log`, W16 8B T128, oracle off, warm]:
+- "A: exp/act indices + their two histograms" 5 → 2 ms;
+- "H: exp + activation helper inverses" 18 → 8 ms;
+- the block 0.380 s (M12's report) → **0.358 s**.
+
+That is about 11.2 proved tokens/s for a 32-layer 8B stack at T128 (diagonal test weights).
+
+**Gates** (`logs/m15g`), all passed:
+- build and the no-feature check;
+- zkp-core 15/0;
+- dev-shape bytes in both modes;
+- unit tests 70/0 in both modes;
+- trained digests R13 + W16;
+- the R13 run test;
+- golden 8/8 (`golden_m15/`).

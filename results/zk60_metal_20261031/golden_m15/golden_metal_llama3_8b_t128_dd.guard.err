@@ -1,0 +1,2 @@
+[zk60-guard 01:29:04] START metal-golden-metal class=gpu need=8G cap=40G enforce=watchdog-only waited=0s run=3c0b8200aba1
+[zk60-guard 01:29:07] END metal-golden-metal exit=0 child_wall=3s peak_rss=3.97G min_avail=217.40G peak_vram=10656MiB
