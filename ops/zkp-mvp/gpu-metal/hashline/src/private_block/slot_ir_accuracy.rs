@@ -1187,6 +1187,133 @@ inline ulong vmul(ulong a, ulong b) {
         }
     }
 
+    /// **[M18, bench, ignored] field choice on this GPU**: dependent chains
+    /// `x = x * y + x` in Goldilocks (base, and Fp2 as today), Mersenne-31
+    /// (base, and its degree-4 extension QM31 = CM31[u]/(u^2 - (2 + i)), the
+    /// ~124-bit field a 31-bit design would draw challenges from) and BabyBear
+    /// (Montgomery base). The 31-bit chains are checked against CPU references.
+    /// Prints multiplies per second.
+    #[cfg(feature = "gpu-metal")]
+    #[test]
+    #[ignore]
+    fn m18_bench_field_choice_on_the_gpu() {
+        const P31: u64 = (1 << 31) - 1;
+        const PBB: u64 = 0x7800_0001;
+        // -p^-1 mod 2^32 for BabyBear (Newton on the inverse)
+        let mut inv: u32 = 1;
+        for _ in 0..6 {
+            inv = inv.wrapping_mul(2u32.wrapping_sub((PBB as u32).wrapping_mul(inv)));
+        }
+        let pbb_neg_inv = inv.wrapping_neg();
+        let m31 = r#"
+constant uint M31 = 0x7FFFFFFFu;
+inline uint m31_mul(uint a, uint b) {
+    uint lo = a * b, hi = mulhi(a, b);
+    uint s = (hi << 1) + (lo >> 31) + (lo & M31);
+    s = (s & M31) + (s >> 31);
+    return s >= M31 ? s - M31 : s;
+}
+inline uint m31_add(uint a, uint b) { uint s = a + b; return s >= M31 ? s - M31 : s; }
+inline uint m31_sub(uint a, uint b) { return a >= b ? a - b : a + M31 - b; }
+struct cm { uint a; uint b; };
+inline cm cm_add(cm x, cm y) { cm r; r.a = m31_add(x.a, y.a); r.b = m31_add(x.b, y.b); return r; }
+inline cm cm_sub(cm x, cm y) { cm r; r.a = m31_sub(x.a, y.a); r.b = m31_sub(x.b, y.b); return r; }
+// (a + b i)(c + d i), i^2 = -1, Karatsuba
+inline cm cm_mul(cm x, cm y) {
+    uint ac = m31_mul(x.a, y.a), bd = m31_mul(x.b, y.b);
+    uint t = m31_mul(m31_add(x.a, x.b), m31_add(y.a, y.b));
+    cm r; r.a = m31_sub(ac, bd); r.b = m31_sub(m31_sub(t, ac), bd); return r;
+}
+// times R = 2 + i
+inline cm cm_mul_r(cm x) { cm r; r.a = m31_sub(m31_add(x.a, x.a), x.b); r.b = m31_add(m31_add(x.b, x.b), x.a); return r; }
+struct qm { cm x; cm y; };
+inline qm qm_add(qm p, qm q) { qm r; r.x = cm_add(p.x, q.x); r.y = cm_add(p.y, q.y); return r; }
+inline qm qm_mul(qm p, qm q) {
+    cm a = cm_mul(p.x, q.x), b = cm_mul(p.y, q.y);
+    cm t = cm_mul(cm_add(p.x, p.y), cm_add(q.x, q.y));
+    qm r; r.x = cm_add(a, cm_mul_r(b)); r.y = cm_sub(cm_sub(t, a), b); return r;
+}
+"#;
+        let kernels: Vec<(&str, String)> = vec![
+            ("Goldilocks base", "kernel void k_bench(device ulong *buf [[buffer(0)]], constant uint &iters [[buffer(1)]], uint tid [[thread_position_in_grid]]) { ulong x = buf[4*tid], y = buf[4*tid+1]; for (uint i = 0; i < iters; i++) { x = gl_add(gl_mul(x, y), x); y = gl_add(y, 1UL); } buf[4*tid] = x; }".to_string()),
+            ("Goldilocks Fp2 (today)", "kernel void k_bench(device ulong *buf [[buffer(0)]], constant uint &iters [[buffer(1)]], uint tid [[thread_position_in_grid]]) { fp2 x = f2(buf[4*tid], buf[4*tid+1]), y = f2(buf[4*tid+2], buf[4*tid+3]); for (uint i = 0; i < iters; i++) { x = f2_add(f2_mul(x, y), x); y.c0 = gl_add(y.c0, 1UL); } buf[4*tid] = x.c0; buf[4*tid+1] = x.c1; }".to_string()),
+            ("M31 base", format!("{m31}\nkernel void k_bench(device ulong *buf [[buffer(0)]], constant uint &iters [[buffer(1)]], uint tid [[thread_position_in_grid]]) {{ uint x = uint(buf[4*tid]), y = uint(buf[4*tid+1]); for (uint i = 0; i < iters; i++) {{ x = m31_add(m31_mul(x, y), x); y = m31_add(y, 1u); }} buf[4*tid] = ulong(x); }}")),
+            ("QM31 (M31 degree-4 ext)", format!("{m31}\nkernel void k_bench(device ulong *buf [[buffer(0)]], constant uint &iters [[buffer(1)]], uint tid [[thread_position_in_grid]]) {{ qm x, y; x.x.a = uint(buf[4*tid]); x.x.b = uint(buf[4*tid] >> 32); x.y.a = uint(buf[4*tid+1]); x.y.b = uint(buf[4*tid+1] >> 32); y.x.a = uint(buf[4*tid+2]); y.x.b = uint(buf[4*tid+2] >> 32); y.y.a = uint(buf[4*tid+3]); y.y.b = uint(buf[4*tid+3] >> 32); for (uint i = 0; i < iters; i++) {{ x = qm_add(qm_mul(x, y), x); y.x.a = m31_add(y.x.a, 1u); }} buf[4*tid] = ulong(x.x.a) | (ulong(x.x.b) << 32); buf[4*tid+1] = ulong(x.y.a) | (ulong(x.y.b) << 32); }}")),
+            ("BabyBear base (Montgomery)", format!("constant uint PBB = 0x78000001u; constant uint PBB_NINV = {pbb_neg_inv}u;\ninline uint bb_mul(uint a, uint b) {{ uint lo = a * b, hi = mulhi(a, b); uint m = lo * PBB_NINV; uint mh = mulhi(m, PBB); uint u = hi + mh + (lo != 0u ? 1u : 0u); return u >= PBB ? u - PBB : u; }}\ninline uint bb_add(uint a, uint b) {{ uint s = a + b; return s >= PBB ? s - PBB : s; }}\nkernel void k_bench(device ulong *buf [[buffer(0)]], constant uint &iters [[buffer(1)]], uint tid [[thread_position_in_grid]]) {{ uint x = uint(buf[4*tid]), y = uint(buf[4*tid+1]); for (uint i = 0; i < iters; i++) {{ x = bb_add(bb_mul(x, y), x); y = bb_add(y, 1u); }} buf[4*tid] = ulong(x); }}")),
+        ];
+        let threads = 1usize << 20;
+        let mut z = 0x9E37_79B9_7F4A_7C15u64;
+        let mut next = move || {
+            z ^= z << 13;
+            z ^= z >> 7;
+            z ^= z << 17;
+            z
+        };
+        let init_gl: Vec<u64> = (0..4 * threads).map(|_| next() % crate::field::P).collect();
+        let w31 = |v: u64| (v % P31) | ((v >> 33) % P31) << 32;
+        let init_31: Vec<u64> = (0..4 * threads).map(|_| w31(next())).collect();
+        let init_bb: Vec<u64> = (0..4 * threads).map(|_| next() % PBB).collect();
+        // CPU references for the 31-bit chains (a few threads, few iterations)
+        let mm = |a: u64, b: u64| (a * b) % P31;
+        let ma = |a: u64, b: u64| (a + b) % P31;
+        let ms = |a: u64, b: u64| (a + P31 - b) % P31;
+        let cmul = |x: (u64, u64), y: (u64, u64)| (ms(mm(x.0, y.0), mm(x.1, y.1)), ma(mm(x.0, y.1), mm(x.1, y.0)));
+        let cadd = |x: (u64, u64), y: (u64, u64)| (ma(x.0, y.0), ma(x.1, y.1));
+        let qmul = |p: [(u64, u64); 2], q: [(u64, u64); 2]| {
+            let (a, b) = (cmul(p[0], q[0]), cmul(p[1], q[1]));
+            let rb = cmul(b, (2, 1));
+            [cadd(a, rb), cadd(cmul(p[0], q[1]), cmul(p[1], q[0]))]
+        };
+        for rep in 0..2 {
+            for (name, src) in &kernels {
+                let iters: u32 = if name.starts_with("QM31") || name.contains("Fp2") { 500 } else { 2000 };
+                let init = if name.starts_with("Goldilocks") { &init_gl } else if name.starts_with("BabyBear") { &init_bb } else { &init_31 };
+                let (secs, out) = crate::gpu::metal_src_bench_for_test(src, threads, iters, init).expect("a Metal device");
+                if rep == 0 && name.starts_with("M31") {
+                    for t in 0..16 {
+                        let (mut x, mut y) = (init[4 * t] & 0xFFFF_FFFF, init[4 * t + 1] & 0xFFFF_FFFF);
+                        for _ in 0..iters {
+                            x = ma(mm(x, y), x);
+                            y = ma(y, 1);
+                        }
+                        assert_eq!(out[4 * t], x, "M31 thread {t}");
+                    }
+                }
+                if rep == 0 && name.starts_with("QM31") {
+                    for t in 0..8 {
+                        let split = |w: u64| (w & 0xFFFF_FFFF, w >> 32);
+                        let mut x = [split(init[4 * t]), split(init[4 * t + 1])];
+                        let mut y = [split(init[4 * t + 2]), split(init[4 * t + 3])];
+                        for _ in 0..iters {
+                            let m = qmul(x, y);
+                            x = [cadd(m[0], x[0]), cadd(m[1], x[1])];
+                            y[0].0 = ma(y[0].0, 1);
+                        }
+                        assert_eq!((out[4 * t] & 0xFFFF_FFFF, out[4 * t] >> 32, out[4 * t + 1] & 0xFFFF_FFFF, out[4 * t + 1] >> 32), (x[0].0, x[0].1, x[1].0, x[1].1), "QM31 thread {t}");
+                    }
+                }
+                if rep == 0 && name.starts_with("BabyBear") {
+                    for t in 0..16 {
+                        let mont = |a: u64, b: u64| {
+                            let tt = a * b;
+                            let m = ((tt as u32).wrapping_mul(pbb_neg_inv)) as u64;
+                            let u = (tt + m * PBB) >> 32;
+                            if u >= PBB { u - PBB } else { u }
+                        };
+                        let (mut x, mut y) = (init[4 * t], init[4 * t + 1]);
+                        for _ in 0..iters {
+                            x = (mont(x, y) + x) % PBB;
+                            y = (y + 1) % PBB;
+                        }
+                        assert_eq!(out[4 * t], x, "BabyBear thread {t}");
+                    }
+                }
+                let muls = threads as f64 * iters as f64;
+                eprintln!("[M18 bench] rep {rep} {name}: {:.4} s, {:.1} G mul/s", secs, muls / secs * 1e-9);
+            }
+        }
+    }
+
     /// **[M5c] the split eq cube is the full table's broadcast, word for
     /// word**: every point length (odd and even splits), offset and cube size,
     /// including a point that covers the whole cube and broadcast ones.

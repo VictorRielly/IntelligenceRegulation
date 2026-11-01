@@ -11,6 +11,9 @@
   - the Mac's GPU caps the aggregate near 22 tokens/s;
   - one request's own blocks cannot overlap without Victor's ruling D55;
   - the biggest remaining step is the RTX 5090 with all of this work ported to CUDA.
+- **New research result (M18, D56 open question):** a 31-bit field (Mersenne-31 or BabyBear) multiplies 3.5–3.9x
+  faster than today's on this GPU, and its secure extension 1.8x faster [MEASURED]. That could roughly double the GPU
+  ceiling [MODEL], but it is a new proof system that would need Victor's decision and a full re-derivation and review.
 - **Tried this round and reverted (no gain, diffs kept):** Gruen's trick on the GPU zero-checks, and a host pool for
   the commitment matrices. Details: `results/zk60_metal_20261031/README.md` M6–M16.
 

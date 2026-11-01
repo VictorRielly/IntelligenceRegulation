@@ -1,0 +1,16 @@
+
+running 1 test
+test private_block::slot_ir::accuracy::tests::m18_bench_field_choice_on_the_gpu ... [M18 bench] rep 0 Goldilocks base: 0.0218 s, 96.3 G mul/s
+[M18 bench] rep 0 Goldilocks Fp2 (today): 0.0164 s, 31.9 G mul/s
+[M18 bench] rep 0 M31 base: 0.0038 s, 549.5 G mul/s
+[M18 bench] rep 0 QM31 (M31 degree-4 ext): 0.0088 s, 59.7 G mul/s
+[M18 bench] rep 0 BabyBear base (Montgomery): 0.0045 s, 468.1 G mul/s
+[M18 bench] rep 1 Goldilocks base: 0.0141 s, 149.1 G mul/s
+[M18 bench] rep 1 Goldilocks Fp2 (today): 0.0151 s, 34.7 G mul/s
+[M18 bench] rep 1 M31 base: 0.0036 s, 576.0 G mul/s
+[M18 bench] rep 1 QM31 (M31 degree-4 ext): 0.0085 s, 61.6 G mul/s
+[M18 bench] rep 1 BabyBear base (Montgomery): 0.0040 s, 521.7 G mul/s
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 922 filtered out; finished in 0.31s
+

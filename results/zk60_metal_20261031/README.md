@@ -964,3 +964,32 @@ every proof equal to the solo proof, diagonal test weights, shared Mac]:
 
 At the start of this session's work the T128 block took about 0.47 s (9.2 tokens/s). Dense real weights add their
 folds, about +15 ms per T128 block [ESTIMATE, M8].
+
+## M18 (2026-11-01, research): what a 31-bit field would buy on this GPU — measured
+
+Ignored bench `m18_bench_field_choice_on_the_gpu` (generic harness `src_bench_for_test`). It runs dependent chains
+`x = x y + x` over 2^20 threads. The M31, QM31 and BabyBear kernels are checked against CPU references on sampled
+threads. [MEASURED, `logs/m18field/bench.log`, warm rep]:
+
+| field | multiplies/s | relative |
+|---|---:|---:|
+| Goldilocks base (today's base field) | 149 G | 1 |
+| Goldilocks Fp2 (today's challenge field, ~128-bit) | 34.7 G | 1 |
+| Mersenne-31 base | 576 G | 3.9x base |
+| BabyBear base (Montgomery) | 522 G | 3.5x base |
+| QM31 = CM31[u]/(u^2 - (2 + i)) (~124-bit) | 61.6 G | 1.8x Fp2 |
+
+**Reading [MODEL, not measured].**
+- **What gets faster:**
+  - the commitments (base-field NTTs and hashing) about 2.5–3.5x, with half the bytes;
+  - the sumcheck rounds about 1.8x where tables are extension-valued, more in round 0 where most are base;
+  - so a block's GPU time of about 0.165 s → about 0.07–0.08 s, which would roughly double this Mac's
+    concurrent ceiling (about 22 → mid-to-high 40s of proved tokens/s for 8B).
+- **The cost: a new proof system.**
+  - Every no-wrap premise was derived for p ≈ 2^64; requantization products reach about 2^38, so they would need
+    decomposition into more lookups.
+  - It needs new commitment parameters (BabyBear's 2^27 two-adic domain for the RS code) and new security
+    accounting (challenges in QM31).
+  - It needs an independent review before any receipt.
+- It is a protocol decision for Victor: recorded as open question D56 in `docs/zkmatrix-poc/ZK60_DECISIONS.md`. It is
+  the largest lever measured so far that does not need new hardware.

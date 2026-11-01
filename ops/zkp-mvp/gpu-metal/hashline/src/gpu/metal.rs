@@ -538,6 +538,36 @@ pub fn mul_bench_for_test(variant: &str, threads: usize, iters: u32) -> Result<(
     Ok((secs, (0..threads).map(|i| o[2 * i]).collect()))
 }
 
+/// **[M18, bench] any arithmetic chain on the device.** Compiles `gl_header()`
+/// + `SC_PRELUDE` + `src`, which must define `kernel void k_bench(device ulong
+/// *buf [[buffer(0)]], constant uint &iters [[buffer(1)]], uint tid
+/// [[thread_position_in_grid]])` using `buf[4 tid .. 4 tid + 4)`; returns
+/// (seconds, the buffer after the run). `init` fills the buffer (4 words per
+/// thread).
+#[cfg(test)]
+pub fn src_bench_for_test(src: &str, threads: usize, iters: u32, init: &[u64]) -> Result<(f64, Vec<u64>), String> {
+    let c = ctx()?;
+    if init.len() != 4 * threads {
+        return Err("bench: 4 words per thread".into());
+    }
+    let full = format!("{}{SC_PRELUDE}\n{src}\n", gl_header());
+    let lib = c.device.new_library_with_source(&full, &CompileOptions::new()).map_err(|e| format!("bench compile: {e}"))?;
+    let f = lib.get_function("k_bench", None).map_err(|e| format!("bench function: {e}"))?;
+    let pipe = c.device.new_compute_pipeline_state_with_function(&f).map_err(|e| format!("bench pipeline: {e}"))?;
+    let buf = upload(c, &init.iter().map(|&w| Fp(w)).collect::<Vec<Fp>>())?;
+    let tg = pipe.max_total_threads_per_threadgroup().min(256);
+    let t = std::time::Instant::now();
+    run(c, |enc| {
+        enc.set_compute_pipeline_state(&pipe);
+        enc.set_buffer(0, Some(&buf), 0);
+        enc.set_bytes(1, 4, &iters as *const u32 as *const c_void);
+        enc.dispatch_threads(MTLSize::new(threads as u64, 1, 1), MTLSize::new(tg, 1, 1));
+        Ok(())
+    })?;
+    let secs = t.elapsed().as_secs_f64();
+    Ok((secs, as_u64s(&buf, 4 * threads).to_vec()))
+}
+
 /// One command buffer, one serial compute encoder (each dispatch sees the
 /// previous one's writes); `encode` records the dispatches.
 fn run(c: &Ctx, encode: impl FnOnce(&metal::ComputeCommandEncoderRef) -> Result<(), String>) -> Result<(), String> {
