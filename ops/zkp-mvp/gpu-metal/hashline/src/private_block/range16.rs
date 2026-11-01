@@ -23,7 +23,11 @@ use crate::field::{Fp, Fp2};
 use crate::tables_attn::TAG_U8;
 
 /// the first range-family tag; distinct mod p from every other LogUp tag
-/// (1, 2, 128..=134, 141)
+/// (`TAG_SILU` 1, `TAG_INT8` 2, `tables_attn` 128..=134, `TAG_EMB` 135,
+/// `TAG_DD` 141). **200..=224 is RESERVED for the range families**
+/// (`TAG_RANGE0 + width`, widths 1..=24): a new tag must lie outside it, and
+/// `the_range_tags_are_distinct_from_every_other_family` checks every
+/// constant (W16 review F4).
 pub(crate) const TAG_RANGE0: u64 = 200;
 
 /// the LogUp tag of a `width`-bit range family
@@ -228,10 +232,19 @@ mod tests {
 
     #[test]
     fn the_range_tags_are_distinct_from_every_other_family() {
-        let others = [1u64, 2, 128, 129, 130, 131, 132, 133, 134, 141];
+        // W16 review F4: the actual constants, so a new tag in 200..=224 fails here
+        use crate::tables_attn::{TAG_ACT, TAG_EXP, TAG_INT16A, TAG_INT8A, TAG_PROB, TAG_U16};
+        let others = [crate::layer::TAG_SILU, crate::layer::TAG_INT8, TAG_U16, TAG_EXP, TAG_PROB, TAG_INT8A, TAG_INT16A, TAG_U8, TAG_ACT, super::super::token_io::TAG_EMB, super::super::layout::TAG_DD];
+        let mut all: Vec<u64> = others.to_vec();
         for w in 1..=24 {
-            assert!(!others.contains(&tag_value(w)));
+            assert!(!others.contains(&tag_value(w)), "range width {w} collides with another family");
+            all.push(tag_value(w));
         }
+        let n = all.len();
+        all.sort_unstable();
+        all.dedup();
+        assert_eq!(all.len(), n, "two LogUp tags coincide");
+        assert!(others.iter().all(|t| !(TAG_RANGE0..=TAG_RANGE0 + 24).contains(t)), "a non-range tag lies in the reserved 200..=224");
         let g_u8 = Fp2::new(Fp::new(5), Fp::new(9));
         // gamma * TAG_U8 * (tag / TAG_U8) is gamma * tag
         let gamma = g_u8.mul_base(Fp::new(TAG_U8).inv());

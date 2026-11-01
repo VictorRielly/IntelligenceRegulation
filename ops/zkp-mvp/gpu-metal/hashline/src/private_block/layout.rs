@@ -1365,6 +1365,19 @@ impl Layout {
         // `hash_domain::imposed_at_shape_with` for why that is not a
         // weakening.
         super::hash_domain::imposed_at_shape(sh).refuse(&[("A", a_rows), ("H", h_rows), ("M", sh.m_rows()), ("endpoint", sh.endpoint_rows)])?;
+        // **W16 review F2 (2026-11-01).** Every lookup domain declares exactly
+        // ceil(lookups / 2) LogUp helpers: the helpers its relation constrains
+        // (`argument.rs`, two looked columns per helper). A surplus helper
+        // would be summed in the value-0 claim and constrained by no relation.
+        // Equal by construction at every registered shape (the shape's helper
+        // formula and the lookup lists agree term by term); refused by name if
+        // they ever drift apart.
+        for dom in sh.lookup_doms() {
+            let n_lk = lookups_at(sh, &ids, dom).len();
+            if sh.helpers(dom) != n_lk.div_ceil(2) {
+                return Err(format!("private block: {} declares {} LogUp helpers on {dom:?} for {n_lk} lookups (needs {})", sh.profile, sh.helpers(dom), n_lk.div_ceil(2)));
+            }
+        }
         Ok(Layout {
             a_off,
             a_data_rows,

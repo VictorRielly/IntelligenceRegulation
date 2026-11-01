@@ -41,11 +41,14 @@ exact-arithmetic recount):
     `shape::is_trained_profile_string`, now serves both sites. Test
     `w16_review_f1_a_non_door_shape_under_a_w16_profile_string_is_refused`; gates in
     `results/zk60_metal_20261031/logs/m19g`.
+  - **F2 (Low) — FIXED 2026-11-01.** `Layout::for_shape` refuses, by name, any lookup domain whose declared helper
+    count is not ceil(lookups/2). This applies at every profile, and every registered shape passes
+    (`results/zk60_metal_20261031/logs/m20g`).
+  - **F4 (Low) — FIXED.** The tag test checks every actual `TAG_*` constant for distinctness and keeps 200..=224
+    reserved for the range families.
   - **Still open (Low / Info):**
-    - F2: no verify-time refusal if the helper count is not ceil(lookups/2);
     - F3: three planned malicious controls missing (a moved width, a non-repeating pad, a histogram in a padded
       copy), plus single-limb and word overflow;
-    - F4: the tag-distinctness test omits `TAG_EMB`;
     - F5–F7: W16 DD paths untested, an RH-width literal unasserted, wording.
 - **For the privacy re-check:** the 16-bit range histograms (12 multiplicity planes in A and their helpers in H at
   T128) are a much finer view of the hidden activations than the byte histograms, and must be listed.
