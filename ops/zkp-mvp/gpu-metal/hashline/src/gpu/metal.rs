@@ -382,10 +382,30 @@ fn run(c: &Ctx, encode: impl FnOnce(&metal::ComputeCommandEncoderRef) -> Result<
     enc.end_encoding();
     r?;
     cb.commit();
-    cb.wait_until_completed();
+    wait_done(cb);
     match cb.status() {
         MTLCommandBufferStatus::Completed => Ok(()),
         s => Err(format!("metal: command buffer ended {s:?}")),
+    }
+}
+
+/// **[M5d] Wait for a committed command buffer by spinning on its status**
+/// instead of `waitUntilCompleted`, whose thread sleep and wake-up cost
+/// hundreds of microseconds per call. A block makes about 190 device sumcheck
+/// rounds, each ending in one such wait (researcher H113). Only the waiting
+/// changes: the same command buffer, the same results. `HL_METAL_SPIN=0`
+/// restores the blocking wait.
+fn wait_done(cb: &metal::CommandBufferRef) {
+    static SPIN: OnceLock<bool> = OnceLock::new();
+    if !*SPIN.get_or_init(|| std::env::var("HL_METAL_SPIN").map(|v| v != "0").unwrap_or(true)) {
+        cb.wait_until_completed();
+        return;
+    }
+    loop {
+        match cb.status() {
+            MTLCommandBufferStatus::Completed | MTLCommandBufferStatus::Error => return,
+            _ => std::hint::spin_loop(),
+        }
     }
 }
 
