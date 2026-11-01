@@ -1,0 +1,64 @@
+== build 01:24:58
+[zk60-guard 01:24:58] START m11g-build class=build need=4G cap=10G enforce=watchdog-only waited=0s run=37cebb9dc9e6
+[zk60-guard 01:27:08] END m11g-build exit=0 child_wall=130s peak_rss=3.35G min_avail=227.39G
+133
+-rwxr-xr-x  1 victorrielly  staff  17429136 Nov  1 01:27 /Users/victorrielly/IntelligenceRegulation/ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-a90b6cf7715dc2a7
+== zkp-core 01:27:18
+[zk60-guard 01:27:18] START m11g-zkpcore class=build need=4G cap=10G enforce=watchdog-only waited=0s run=239be9b61f79
+[zk60-guard 01:27:18] END m11g-zkpcore exit=0 child_wall=0s peak_rss=0.00G min_avail=231.15G
+test result: ok. 15 passed; 0 failed; 2 ignored; 0 measured; 62 filtered out; finished in 0.07s
+== bytes-default 01:27:28
+[zk60-guard 01:27:28] START m11g-bytes-default class=gpu need=60G cap=160G enforce=watchdog-only waited=0s run=9eaa51a5aa21
+[zk60-guard 01:27:35] END m11g-bytes-default exit=0 child_wall=7s peak_rss=1.79G min_avail=226.23G peak_vram=3288MiB
+M4-ACCURACY-DIGEST R13_RUNG_LOW cpu 01fa1b2e
+M4-ACCURACY-DIGEST R13_RUNG_H24 cpu 992034f8
+M4-ACCURACY-DIGEST R13_RUNG_LOW_DD cpu 371e6b00
+M4-ACCURACY-DIGEST R13_RUNG_H24_DD cpu 3ab090df
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 919 filtered out; finished in 6.14s
+== bytes-0 01:27:45
+[zk60-guard 01:27:45] START m11g-bytes-0 class=gpu need=60G cap=160G enforce=watchdog-only waited=0s run=3c5bb6d2bbf9
+[zk60-guard 01:27:51] END m11g-bytes-0 exit=0 child_wall=6s peak_rss=2.03G min_avail=226.01G peak_vram=3641MiB
+M4-ACCURACY-DIGEST R13_RUNG_LOW cpu 01fa1b2e
+M4-ACCURACY-DIGEST R13_RUNG_H24 cpu 992034f8
+M4-ACCURACY-DIGEST R13_RUNG_LOW_DD cpu 371e6b00
+M4-ACCURACY-DIGEST R13_RUNG_H24_DD cpu 3ab090df
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 919 filtered out; finished in 6.08s
+== unit-default 01:28:01
+[zk60-guard 01:28:01] START m11g-unit-default class=cpu need=8G cap=40G enforce=watchdog-only waited=0s run=8ac7b5bec5d2
+[zk60-guard 01:28:09] END m11g-unit-default exit=0 child_wall=8s peak_rss=1.57G min_avail=228.26G
+test result: ok. 63 passed; 0 failed; 6 ignored; 0 measured; 851 filtered out; finished in 7.69s
+== unit-0 01:28:19
+[zk60-guard 01:28:19] START m11g-unit-0 class=cpu need=8G cap=40G enforce=watchdog-only waited=0s run=d4b64207f27a
+[zk60-guard 01:28:27] END m11g-unit-0 exit=0 child_wall=8s peak_rss=1.70G min_avail=229.12G
+test result: ok. 63 passed; 0 failed; 6 ignored; 0 measured; 851 filtered out; finished in 7.70s
+== trained 01:28:37
+[zk60-guard 01:28:37] START m11g-trained class=gpu need=60G cap=160G enforce=watchdog-only waited=0s run=8584b046e840
+[zk60-guard 01:29:09] END m11g-trained exit=0 child_wall=32s peak_rss=10.96G min_avail=212.69G peak_vram=10781MiB
+M4-TRAINED R13_8B_T128_H24 cpu 4.221 s metal-warm 0.694 s (prove core cpu 4.052 s metal 0.525 s; kernel compile 0.000 s, device sumcheck rounds 0.132 s; 1 slots without a matching IR; buffer pool 92 reused / 1 new) digest cpu 678953f646fcd15d28e9209984cb42ff8a
+M4-TRAINED R13_8B_T128_H24 cpu 4.221 s metal-warm 0.691 s (prove core cpu 4.052 s metal 0.527 s; kernel compile 0.000 s, device sumcheck rounds 0.133 s; 1 slots without a matching IR; buffer pool 92 reused / 1 new) digest cpu 678953f646fcd15d28e9209984cb42ff8a
+M4-TRAINED R13_8B_T128_H24 cpu 4.221 s metal-warm 0.716 s (prove core cpu 4.052 s metal 0.554 s; kernel compile 0.037 s, device sumcheck rounds 0.136 s; 1 slots without a matching IR; buffer pool 94 reused / 2 new) digest cpu 678953f646fcd15d28e9209984cb42ff8a
+M4-TRAINED R13_SHIELD_T128_H24 cpu 3.807 s metal-warm 0.719 s (prove core cpu 3.641 s metal 0.554 s; kernel compile 0.000 s, device sumcheck rounds 0.173 s; 1 slots without a matching IR; buffer pool 98 reused / 2 new) digest cpu 2b0d04bbf22b5e52faf1d0ce9a13d8
+M4-TRAINED R13_SHIELD_T128_H24 cpu 3.807 s metal-warm 0.732 s (prove core cpu 3.641 s metal 0.568 s; kernel compile 0.014 s, device sumcheck rounds 0.174 s; 1 slots without a matching IR; buffer pool 98 reused / 2 new) digest cpu 2b0d04bbf22b5e52faf1d0ce9a13d8
+M4-TRAINED R13_SHIELD_T128_H24 cpu 3.807 s metal-warm 0.721 s (prove core cpu 3.641 s metal 0.553 s; kernel compile 0.000 s, device sumcheck rounds 0.170 s; 1 slots without a matching IR; buffer pool 93 reused / 0 new) digest cpu 2b0d04bbf22b5e52faf1d0ce9a13d8
+M4-TRAINED W16_SHIELD_T128_H24 cpu 1.577 s metal-warm 0.515 s (prove core cpu 1.446 s metal 0.388 s; kernel compile 0.000 s, device sumcheck rounds 0.087 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu 01a6d51d3b0476dac75ecaf0ff375
+M4-TRAINED W16_SHIELD_T128_H24 cpu 1.577 s metal-warm 0.525 s (prove core cpu 1.446 s metal 0.391 s; kernel compile 0.000 s, device sumcheck rounds 0.088 s; 0 slots without a matching IR; buffer pool 106 reused / 1 new) digest cpu 01a6d51d3b0476dac75ecaf0ff375
+M4-TRAINED W16_SHIELD_T128_H24 cpu 1.577 s metal-warm 0.509 s (prove core cpu 1.446 s metal 0.375 s; kernel compile 0.000 s, device sumcheck rounds 0.087 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu 01a6d51d3b0476dac75ecaf0ff375
+M4-TRAINED W16_8B_T128_H24 cpu 1.541 s metal-warm 0.505 s (prove core cpu 1.410 s metal 0.374 s; kernel compile 0.000 s, device sumcheck rounds 0.077 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu c5e0bdac78cc47bb4de6528a29e809f56
+M4-TRAINED W16_8B_T128_H24 cpu 1.541 s metal-warm 0.506 s (prove core cpu 1.410 s metal 0.375 s; kernel compile 0.000 s, device sumcheck rounds 0.078 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu c5e0bdac78cc47bb4de6528a29e809f56
+M4-TRAINED W16_8B_T128_H24 cpu 1.541 s metal-warm 0.502 s (prove core cpu 1.410 s metal 0.369 s; kernel compile 0.000 s, device sumcheck rounds 0.076 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu c5e0bdac78cc47bb4de6528a29e809f56
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 919 filtered out; finished in 32.11s
+== r13 01:29:19
+[zk60-guard 01:29:20] START m11g-r13 class=gpu need=8G cap=40G enforce=watchdog-only waited=0s run=7f13d317c4e2
+[zk60-guard 01:29:21] END m11g-r13 exit=0 child_wall=1s peak_rss=0.52G min_avail=228.46G peak_vram=3641MiB
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 919 filtered out; finished in 1.25s
+== golden 01:29:31
+cpu r12_golden_seeded_tinyllama_t128_block_is_byte_identical 0
+cpu r12_golden_seeded_tinyllama_t128_dd_block_is_byte_identical 0
+cpu r12_golden_seeded_llama3_8b_t128_block_is_byte_identical 0
+cpu r12_golden_seeded_llama3_8b_t128_dd_block_is_byte_identical 0
+metal r12_golden_seeded_tinyllama_t128_block_is_byte_identical 0
+metal r12_golden_seeded_tinyllama_t128_dd_block_is_byte_identical 0
+metal r12_golden_seeded_llama3_8b_t128_block_is_byte_identical 0
+metal r12_golden_seeded_llama3_8b_t128_dd_block_is_byte_identical 0
+ALL 0
+== done 01:29:56

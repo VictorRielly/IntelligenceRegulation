@@ -1,0 +1,2 @@
+[zk60-guard 01:29:37] START metal-golden-cpu class=cpu need=8G cap=40G enforce=watchdog-only waited=0s run=a4e9b2a8b29f
+[zk60-guard 01:29:42] END metal-golden-cpu exit=0 child_wall=5s peak_rss=6.06G min_avail=225.01G

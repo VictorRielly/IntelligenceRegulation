@@ -1,0 +1,6 @@
+
+running 1 test
+test private_block::slot_ir::accuracy::tests::m11_lazy_row_fold_equals_the_per_term_fold ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 919 filtered out; finished in 0.00s
+

@@ -1,0 +1,63 @@
+== build 01:22:55
+[zk60-guard 01:22:55] START m11g-build class=build need=4G cap=10G enforce=watchdog-only waited=0s run=465d1cc007f4
+[zk60-guard 01:23:03] END m11g-build exit=101 child_wall=8s peak_rss=2.49G min_avail=228.96G
+   |
+33 | pub(super) struct Loaded {
+   |                   ------ field in this struct
+34 |     pub accuracy: AccuracyPublic,
+35 |     pub sha256: Vec<(&'static str, [u8; 32])>,
+   |         ^^^^^^
+
+warning: function `load` is never used
+  --> src/private_block/trained_accuracy.rs:38:15
+   |
+38 | pub(super) fn load(
+   |               ^^^^
+
+warning: associated function `of` is never used
+    --> src/attention.rs:1593:8
+     |
+1585 | impl Recon {
+     | ---------- associated function in this implementation
+...
+1593 |     fn of(cp: &ClsPlane, first_idx: usize) -> Recon {
+     |        ^^
+
+warning: method `pd` is never used
+    --> src/attention.rs:1932:8
+     |
+1931 | impl<'a> Side<'a> {
+     | ----------------- method in this implementation
+1932 |     fn pd(&self) -> Option<&ProvData<'a>> {
+     |        ^^
+
+warning: `hashline` (lib) generated 92 warnings (1 duplicate) (run `cargo fix --lib -p hashline` to apply 16 suggestions)
+warning: `hashline` (lib) generated 92 warnings (91 duplicates) (run `cargo fix --lib -p hashline` to apply 1 suggestion)
+warning: variable does not need to be mutable
+    --> src/private_block/run.rs:1308:13
+     |
+1308 |         let mut tr = st.transcript()?;
+     |             ----^^
+     |             |
+     |             help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `hp`
+   --> src/private_block/rung_tests.rs:302:18
+    |
+302 |         let (tp, hp) = (sh.t_pad, sh.h_pad);
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_hp`
+
+warning: value assigned to `cached` is never read
+    --> src/private_block/run_capture.rs:2102:13
+     |
+2102 |             cached = None;
+     |             ^^^^^^
+     |
+     = help: maybe it is overwritten before being read?
+     = note: `#[warn(unused_assignments)]` (part of `#[warn(unused)]`) on by default
+
+For more information about this error, try `rustc --explain E0425`.
+warning: `hashline` (lib test) generated 20 warnings (13 duplicates)
+error: could not compile `hashline` (lib test) due to 1 previous error; 20 warnings emitted

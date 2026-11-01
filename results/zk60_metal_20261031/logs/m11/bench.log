@@ -1,0 +1,15 @@
+
+running 1 test
+test private_block::slot_ir::accuracy::tests::m11_bench_goldilocks_multiply_variants ... [M11 bench] rep 0 today: 0.0265 s for 2097152000 chained multiplies (79.3 G mul/s)
+[M11 bench] rep 0 explicit 32-bit + shift: 0.0151 s for 2097152000 chained multiplies (138.4 G mul/s)
+[M11 bench] rep 0 shift only: 0.0140 s for 2097152000 chained multiplies (149.4 G mul/s)
+[M11 bench] rep 1 today: 0.0140 s for 2097152000 chained multiplies (150.2 G mul/s)
+[M11 bench] rep 1 explicit 32-bit + shift: 0.0150 s for 2097152000 chained multiplies (139.5 G mul/s)
+[M11 bench] rep 1 shift only: 0.0133 s for 2097152000 chained multiplies (157.4 G mul/s)
+[M11 bench] rep 2 today: 0.0134 s for 2097152000 chained multiplies (156.7 G mul/s)
+[M11 bench] rep 2 explicit 32-bit + shift: 0.0146 s for 2097152000 chained multiplies (143.4 G mul/s)
+[M11 bench] rep 2 shift only: 0.0134 s for 2097152000 chained multiplies (157.0 G mul/s)
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 918 filtered out; finished in 0.27s
+

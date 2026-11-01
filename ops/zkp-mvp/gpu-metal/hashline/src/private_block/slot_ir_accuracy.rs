@@ -1092,6 +1092,101 @@ mod tests {
         }
     }
 
+    /// **[M11] the lazy opening fold is the per-term one, word for word**:
+    /// canonical words up to p - 1 in the data and the rho vectors (so the
+    /// u128 accumulators overflow), zero rho entries, strided (systematic)
+    /// and plain sources, one and several rho vectors, widths across a chunk
+    #[cfg(feature = "gpu-metal")]
+    #[test]
+    fn m11_lazy_row_fold_equals_the_per_term_fold() {
+        let pm1 = crate::field::P - 1;
+        for (rows, n, ir, k) in [(1usize, 1usize, 1usize, 1usize), (37, 300, 1, 3), (64, 513, 4, 2), (9, 256, 2, 5)] {
+            let nn = n * ir;
+            let src: Vec<u64> = (0..rows * nn).map(|i| if i % 5 == 0 { pm1 } else { (i as u64).wrapping_mul(0x9E37_79B9_7F4A_7C15) % crate::field::P }).collect();
+            let rhos: Vec<Vec<Fp2>> = (0..k)
+                .map(|g| {
+                    (0..rows)
+                        .map(|i| match (i + g) % 4 {
+                            0 => Fp2::new(Fp(pm1), Fp(pm1)),
+                            1 => Fp2::ZERO,
+                            _ => m4_f((i * 31 + g * 7) as u64 + 1),
+                        })
+                        .collect()
+                })
+                .collect();
+            let want = crate::gpu::metal_fold_rows_host_for_test(&src, rows, n, nn, ir, &rhos);
+            let got = crate::gpu::metal_fold_rows_host_lazy(&src, rows, n, nn, ir, &rhos);
+            assert!(got == want, "rows {rows} n {n} ir {ir} k {k}: the lazy fold differs");
+        }
+    }
+
+    /// **[M11, bench, ignored]** Goldilocks multiply variants on the device:
+    /// today's `gl_mul`, and one with explicit 32x32 -> 64 products (`mulhi`)
+    /// and the reduction's `x * (2^32 - 1)` as a shift and a subtract. The
+    /// outputs must be equal (the same field products); prints the times.
+    #[cfg(feature = "gpu-metal")]
+    #[test]
+    #[ignore]
+    fn m11_bench_goldilocks_multiply_variants() {
+        let today = "inline ulong vmul(ulong a, ulong b) { return gl_mul(a, b); }";
+        let explicit = r#"
+inline ulong vmul(ulong a, ulong b) {
+    uint a0 = uint(a), a1 = uint(a >> 32), b0 = uint(b), b1 = uint(b >> 32);
+    ulong p00 = ulong(a0 * b0) | (ulong(mulhi(a0, b0)) << 32);
+    ulong p01 = ulong(a0 * b1) | (ulong(mulhi(a0, b1)) << 32);
+    ulong p10 = ulong(a1 * b0) | (ulong(mulhi(a1, b0)) << 32);
+    ulong p11 = ulong(a1 * b1) | (ulong(mulhi(a1, b1)) << 32);
+    ulong mid = (p00 >> 32) + (p01 & 0xFFFFFFFFUL) + (p10 & 0xFFFFFFFFUL);
+    ulong lo = (p00 & 0xFFFFFFFFUL) | (mid << 32);
+    ulong hi = p11 + (p01 >> 32) + (p10 >> 32) + (mid >> 32);
+    ulong x_hi_hi = hi >> 32;
+    ulong x_hi_lo = hi & GL_EPS;
+    ulong t0 = lo - x_hi_hi;
+    if (lo < x_hi_hi) { t0 -= GL_EPS; }
+    ulong t1 = (x_hi_lo << 32) - x_hi_lo;
+    ulong res = t0 + t1;
+    if (res < t0) { res += GL_EPS; }
+    return gl_canon(res);
+}
+"#;
+        let shift_only = r#"
+inline ulong vmul(ulong a, ulong b) {
+    ulong lo, hi;
+    mul_64x64(a, b, lo, hi);
+    ulong x_hi_hi = hi >> 32;
+    ulong x_hi_lo = hi & GL_EPS;
+    ulong t0 = lo - x_hi_hi;
+    if (lo < x_hi_hi) { t0 -= GL_EPS; }
+    ulong t1 = (x_hi_lo << 32) - x_hi_lo;
+    ulong res = t0 + t1;
+    if (res < t0) { res += GL_EPS; }
+    return gl_canon(res);
+}
+"#;
+        let (threads, iters) = (1usize << 20, 2000u32);
+        let mut outs = Vec::new();
+        for rep in 0..3 {
+            for (name, v) in [("today", today), ("explicit 32-bit + shift", explicit), ("shift only", shift_only)] {
+                let (s, o) = crate::gpu::metal_mul_bench_for_test(v, threads, iters).expect("a Metal device");
+                eprintln!("[M11 bench] rep {rep} {name}: {:.4} s for {} chained multiplies ({:.1} G mul/s)", s, threads as u64 * iters as u64, threads as f64 * iters as f64 / s * 1e-9);
+                outs.push(o);
+            }
+        }
+        assert!(outs.iter().all(|o| *o == outs[0]), "the multiply variants differ");
+        // and the CPU's field product on a sample
+        let (_, o) = crate::gpu::metal_mul_bench_for_test(explicit, 64, 3).expect("a Metal device");
+        for t in 0..64u64 {
+            let (i0, i1) = (2 * t, 2 * t + 1);
+            let mut x = Fp::new(i0.wrapping_mul(0x9E37_79B9_7F4A_7C15) ^ (i0 << 7));
+            let mut y = Fp::new(i1.wrapping_mul(0x9E37_79B9_7F4A_7C15) ^ (i1 << 7));
+            for _ in 0..3 {
+                x = x.mul(y).add(x);
+                y = y.add(Fp::ONE);
+            }
+            assert_eq!(o[t as usize], x.0, "thread {t}: the device chain differs from the CPU's");
+        }
+    }
+
     /// **[M5c] the split eq cube is the full table's broadcast, word for
     /// word**: every point length (odd and even splits), offset and cube size,
     /// including a point that covers the whole cube and broadcast ones.
@@ -1210,14 +1305,11 @@ mod tests {
     #[cfg(feature = "gpu-metal")]
     static LAST_CORE_NS: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
 
-    /// one seeded accuracy-stack block proof's digest (the recipe of
-    /// `r12_golden_tests::digest_of_seeded_block`: roots, slot proofs,
-    /// openings, IO claims, absorb order, lookups, final transcript state)
-    #[cfg(feature = "gpu-metal")]
     /// [M10] the seeded core proof of `seeded_accuracy_digest`, returning
     /// only the final transcript state (it binds every absorbed message of
     /// the proof) and the proof call's seconds: no digest text, so N threads
     /// can prove at once without a formatting pass each
+    #[cfg(feature = "gpu-metal")]
     fn seeded_core_state(sh: &Shape, blk: &crate::private_block::BlockPublic, w: crate::private_block::witness::Witness) -> ([u8; 32], f64) {
         let lay = Layout::for_shape(sh).unwrap();
         let (rows, n) = (sh.endpoint_rows, 1usize << sh.endpoint_log_n);
@@ -1309,6 +1401,10 @@ mod tests {
         std::env::remove_var("HL_GPU");
     }
 
+    /// one seeded accuracy-stack block proof's digest (the recipe of
+    /// `r12_golden_tests::digest_of_seeded_block`: roots, slot proofs,
+    /// openings, IO claims, absorb order, lookups, final transcript state)
+    #[cfg(feature = "gpu-metal")]
     fn seeded_accuracy_digest(sh: &Shape, blk: &crate::private_block::BlockPublic, w: crate::private_block::witness::Witness) -> String {
         let lay = Layout::for_shape(sh).unwrap();
         let (rows, n) = (sh.endpoint_rows, 1usize << sh.endpoint_log_n);

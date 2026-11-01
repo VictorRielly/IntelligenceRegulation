@@ -784,3 +784,49 @@ proofs equal]:
   about 0.075 s, two commitments about 0.065 s, opening store folds about 0.025 s.
 - **So under concurrency the GPU kernels are the bottleneck:** sumcheck kernels (slot 18 about 25 ms, slot 14 about
   15 ms) and the commitment NTTs (forward about 18 ms each). The CPU has headroom left.
+
+## M11 (2026-11-01): the opening's row fold reduces once per entry (few rho vectors) — kept; multiply variants — no gain
+
+1. **`MetalCommit::fold_rows` on the host, lazy form** (`fold_rows_host_lazy`, used for up to 16 rho vectors). Each
+   component's sum is an exact integer:
+   - every product of two canonical words fits a u128, and the u128 overflows are counted in a u64 H;
+   - the result is `(L mod p) + H (2^128 mod p)`, the field sum.
+
+   Unit test `m11_lazy_row_fold_equals_the_per_term_fold` uses p-1 words in data and rho, so the accumulators
+   overflow, plus zero rho entries and strided and plain sources.
+
+   [MEASURED, `HL_METAL_TIMING` component clock, n=3 warm, `logs/m11/fold_*.log`]:
+   - 10 rho x 2606 rows: 13.3–13.5 ms → **8.4–8.5 ms**;
+   - 37 rho x 2504 rows: lazy is no faster (8.6–8.9 against 8.1–8.6 ms), and narrower chunks were worse (15 ms),
+     so many vectors keep the per-term form.
+
+   That is about −5 ms per block on the single-proof critical path. `HL_METAL_LAZY_FOLD=0` keeps the old form.
+2. **Goldilocks multiply variants on the device** (ignored bench `m11_bench_goldilocks_multiply_variants`,
+   `logs/m11/bench.log`):
+   - today's `gl_mul` runs at about 150–157 G multiplies/s;
+   - explicit 32-bit `mulhi` products are slightly slower (about 140);
+   - a shift for the reduction's `x (2^32 - 1)` is the same (about 157).
+
+   The compiler already does well; no change. It sizes the GPU work too:
+   - a forward commitment NTT is about half multiply-bound (1.37 G twiddle products, about 8.7 ms of 17);
+   - slot 14's generated kernel (36 tables, about 390 multiplies per evaluation, already factored with shared
+     subexpressions) is near the multiply ceiling.
+
+   The remaining GPU levers are algebraic: Gruen's eq-factor trick, one evaluation point fewer per zero-check round,
+   about −25% of those kernels; and radix-4 or trivial-twiddle skipping in the NTT.
+
+**Fix carried here.** The M10 commit (29525614) had inserted its helper between `seeded_accuracy_digest`'s doc
+comment and its `#[cfg(feature = "gpu-metal")]`. That broke the test build WITHOUT the feature (`cargo check
+--tests`), which the M10 run did not include. The attribute is back on its function, and the helper has its own. The
+first M11 chain caught it (`logs/m11g/failed_build_1/`).
+
+**Gates** (`logs/m11g`), all passed:
+- build (with the feature, and the no-feature check);
+- zkp-core 15/0;
+- dev-shape bytes at the default budget and with every round batched;
+- unit tests 63/0 in both modes;
+- trained digests R13 2b0d04bb / 678953f6 and W16 01a6d51d / c5e0bdac;
+- the R13 run test;
+- golden 8/8 (`golden_m11/`).
+
+The W16 8B core in the trained step, with the oracle on, was 0.369–0.375 s.

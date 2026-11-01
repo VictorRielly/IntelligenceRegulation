@@ -478,6 +478,37 @@ pub fn dispatch_overhead_probe(n: usize, fold_half: usize) -> Result<[f64; 4], S
     Ok(t)
 }
 
+/// **[M11, bench] Goldilocks multiply throughput on the device.** Compiles
+/// `gl_header()` + `variant` (which must define `inline ulong vmul(ulong a,
+/// ulong b)`), runs `threads` threads of an `iters`-long chain `x = vmul(x, y)
+/// + x` (a dependent chain, as a butterfly's), and returns (seconds, outputs).
+/// Two variants that compute the same field product return equal outputs.
+#[cfg(test)]
+pub fn mul_bench_for_test(variant: &str, threads: usize, iters: u32) -> Result<(f64, Vec<u64>), String> {
+    let c = ctx()?;
+    let src = format!(
+        "{}\n{variant}\nkernel void k_mul_bench(device ulong *buf [[buffer(0)]], constant uint &iters [[buffer(1)]], uint tid [[thread_position_in_grid]]) {{\n    ulong x = buf[2 * tid], y = buf[2 * tid + 1];\n    for (uint i = 0; i < iters; i++) {{ x = gl_add(vmul(x, y), x); y = gl_add(y, 1UL); }}\n    buf[2 * tid] = x;\n}}\n",
+        gl_header()
+    );
+    let lib = c.device.new_library_with_source(&src, &CompileOptions::new()).map_err(|e| format!("bench compile: {e}"))?;
+    let f = lib.get_function("k_mul_bench", None).map_err(|e| format!("bench function: {e}"))?;
+    let pipe = c.device.new_compute_pipeline_state_with_function(&f).map_err(|e| format!("bench pipeline: {e}"))?;
+    let vals: Vec<Fp> = (0..2 * threads as u64).map(|i| Fp::new(i.wrapping_mul(0x9E37_79B9_7F4A_7C15) ^ (i << 7))).collect();
+    let buf = upload(c, &vals)?;
+    let tg = pipe.max_total_threads_per_threadgroup().min(256);
+    let t = std::time::Instant::now();
+    run(c, |enc| {
+        enc.set_compute_pipeline_state(&pipe);
+        enc.set_buffer(0, Some(&buf), 0);
+        enc.set_bytes(1, 4, &iters as *const u32 as *const c_void);
+        enc.dispatch_threads(MTLSize::new(threads as u64, 1, 1), MTLSize::new(tg, 1, 1));
+        Ok(())
+    })?;
+    let secs = t.elapsed().as_secs_f64();
+    let o = as_u64s(&buf, 2 * threads);
+    Ok((secs, (0..threads).map(|i| o[2 * i]).collect()))
+}
+
 /// One command buffer, one serial compute encoder (each dispatch sees the
 /// previous one's writes); `encode` records the dispatches.
 fn run(c: &Ctx, encode: impl FnOnce(&metal::ComputeCommandEncoderRef) -> Result<(), String>) -> Result<(), String> {
@@ -599,7 +630,10 @@ impl MetalCommit {
         }
         let t = std::time::Instant::now();
         let src = as_u64s(buf, self.rows * nn);
-        let out = fold_rows_host(src, self.rows, self.n, nn, ir, rhos);
+        // [M11] the lazy form for a few rho vectors: 10 x 2606 rows 13.4 -> 8.7 ms;
+        // at 37 vectors it is no faster (8.3 -> 8.7 ms; narrower chunks 15 ms),
+        // so many vectors keep the per-term form (`logs/m11/fold_*.log`)
+        let out = if lazy_fold_on() && rhos.len() <= LAZY_FOLD_MAX_RHOS { fold_rows_host_lazy(src, self.rows, self.n, nn, ir, rhos) } else { fold_rows_host(src, self.rows, self.n, nn, ir, rhos) };
         if std::env::var("HL_METAL_TIMING").map(|v| v == "1").unwrap_or(false) {
             eprintln!("[ZK60-METAL] store fold: {} rho x {} rows x {} cols ({}) in {:.4} s", rhos.len(), self.rows, self.n, if self.data.is_some() { "zk data" } else { "systematic" }, t.elapsed().as_secs_f64());
         }
@@ -722,6 +756,75 @@ fn gather_columns_device(enc: &Buffer, rows: usize, nn: usize, idx: &[usize]) ->
         let o = as_u64s(&ob, idx.len() * rows);
         Ok(o.chunks_exact(rows).map(|col| col.iter().map(|&v| Fp(v)).collect()).collect())
     })
+}
+
+/// [M11] the most rho vectors the opening fold takes the lazy form for
+const LAZY_FOLD_MAX_RHOS: usize = 16;
+
+/// [M11] `HL_METAL_LAZY_FOLD=0` keeps the per-term field arithmetic of the
+/// opening's row fold, for a same-binary A/B
+fn lazy_fold_on() -> bool {
+    static ON: OnceLock<bool> = OnceLock::new();
+    *ON.get_or_init(|| std::env::var("HL_METAL_LAZY_FOLD").map(|v| v != "0").unwrap_or(true))
+}
+
+/// **[ZK60-METAL M11]** [`fold_rows_host`] with ONE reduction per output
+/// entry. Each component's sum `sum_i rho_g[i].c * src[i][j]` is formed as an
+/// exact integer: every product of two canonical words fits a u128, and the
+/// u128 overflows are counted in a u64 `H`, so the integer is `L + 2^128 H`.
+/// Its value mod p is `(L mod p) + H (2^128 mod p)`, which is the field sum
+/// the per-term form computes. The same chunking of the columns.
+pub fn fold_rows_host_lazy(src: &[u64], rows: usize, n: usize, nn: usize, ir: usize, rhos: &[Vec<Fp2>]) -> Vec<Vec<Fp2>> {
+    let k = rhos.len();
+    let chunk = 256usize.min(n);
+    let n_chunks = n.div_ceil(chunk);
+    let t64 = Fp::from_u128(1u128 << 64);
+    let c128 = t64.mul(t64);
+    let red = |l: u128, h: u64| Fp::from_u128(l).add(Fp::new(h).mul(c128));
+    let parts: Vec<Vec<Vec<Fp2>>> = (0..n_chunks)
+        .into_par_iter()
+        .map(|ci| {
+            let c0 = ci * chunk;
+            let w = chunk.min(n - c0);
+            let mut lo = vec![0u128; k * w * 2];
+            let mut hi = vec![0u64; k * w * 2];
+            for i in 0..rows {
+                let row = &src[i * nn..(i + 1) * nn];
+                for (g, rho) in rhos.iter().enumerate() {
+                    let r = rho[i];
+                    if r.is_zero() {
+                        continue;
+                    }
+                    let (r0, r1) = (r.c0.0 as u128, r.c1.0 as u128);
+                    let (lo_g, hi_g) = (&mut lo[g * w * 2..(g + 1) * w * 2], &mut hi[g * w * 2..(g + 1) * w * 2]);
+                    for j in 0..w {
+                        let v = row[(c0 + j) * ir] as u128;
+                        let (s0, o0) = lo_g[2 * j].overflowing_add(r0 * v);
+                        lo_g[2 * j] = s0;
+                        hi_g[2 * j] += o0 as u64;
+                        let (s1, o1) = lo_g[2 * j + 1].overflowing_add(r1 * v);
+                        lo_g[2 * j + 1] = s1;
+                        hi_g[2 * j + 1] += o1 as u64;
+                    }
+                }
+            }
+            (0..k).map(|g| (0..w).map(|j| Fp2::new(red(lo[g * w * 2 + 2 * j], hi[g * w * 2 + 2 * j]), red(lo[g * w * 2 + 2 * j + 1], hi[g * w * 2 + 2 * j + 1]))).collect()).collect()
+        })
+        .collect();
+    let mut out = vec![vec![Fp2::ZERO; n]; k];
+    for (ci, p) in parts.into_iter().enumerate() {
+        let c0 = ci * chunk;
+        for g in 0..k {
+            out[g][c0..c0 + p[g].len()].copy_from_slice(&p[g]);
+        }
+    }
+    out
+}
+
+/// [M11, tests] the per-term host fold, for the equality test
+#[cfg(test)]
+pub fn fold_rows_host_for_test(src: &[u64], rows: usize, n: usize, nn: usize, ir: usize, rhos: &[Vec<Fp2>]) -> Vec<Vec<Fp2>> {
+    fold_rows_host(src, rows, n, nn, ir, rhos)
 }
 
 /// zkp-core `pcs::fold_rows_host`, over raw canonical u64 values.
