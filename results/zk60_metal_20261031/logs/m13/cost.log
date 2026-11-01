@@ -1,0 +1,29 @@
+
+running 1 test
+test private_block::slot_ir::accuracy::tests::m13_gruen_split_costs_per_slot ... [M13] W16_8B_T128_H24 slot 00 (2 tables, degree 3): no tau-eq wrapper | node mults 0
+[M13] W16_8B_T128_H24 slot 01 (2 tables, degree 3): no tau-eq wrapper | node mults 0
+[M13] W16_8B_T128_H24 slot 02 (25 tables, degree 3): tau-eq table 0 | 1 A terms, 2 B terms | node mults: A-only 30 / B-reached 8 of 38
+[M13] W16_8B_T128_H24 slot 03 (5 tables, degree 4): tau-eq table 0 | 1 A terms, 0 B terms | node mults: A-only 11 / B-reached 0 of 11
+[M13] W16_8B_T128_H24 slot 04 (4 tables, degree 3): tau-eq table 0 | 1 A terms, 0 B terms | node mults: A-only 2 / B-reached 0 of 2
+[M13] W16_8B_T128_H24 slot 05 (2 tables, degree 2): no tau-eq wrapper | node mults 0
+[M13] W16_8B_T128_H24 slot 06 (2 tables, degree 2): no tau-eq wrapper | node mults 0
+[M13] W16_8B_T128_H24 slot 07 (2 tables, degree 2): no tau-eq wrapper | node mults 0
+[M13] W16_8B_T128_H24 slot 08 (3 tables, degree 3): no tau-eq wrapper | node mults 0
+[M13] W16_8B_T128_H24 slot 09 (3 tables, degree 3): no tau-eq wrapper | node mults 0
+[M13] W16_8B_T128_H24 slot 10 (2 tables, degree 2): no tau-eq wrapper | node mults 0
+[M13] W16_8B_T128_H24 slot 11 (2 tables, degree 2): no tau-eq wrapper | node mults 0
+[M13] W16_8B_T128_H24 slot 12 (2 tables, degree 2): no tau-eq wrapper | node mults 0
+[M13] W16_8B_T128_H24 slot 13 (2 tables, degree 2): no tau-eq wrapper | node mults 0
+[M13] W16_8B_T128_H24 slot 14 (36 tables, degree 4): tau-eq table 0 | 1 A terms, 2 B terms | node mults: A-only 99 / B-reached 8 of 107
+[M13] W16_8B_T128_H24 slot 15 (15 tables, degree 4): tau-eq table 0 | 1 A terms, 2 B terms | node mults: A-only 28 / B-reached 6 of 34
+[M13] W16_8B_T128_H24 slot 16 (15 tables, degree 4): tau-eq table 0 | 1 A terms, 2 B terms | node mults: A-only 28 / B-reached 6 of 34
+[M13] W16_8B_T128_H24 slot 17 (19 tables, degree 4): tau-eq table 0 | 1 A terms, 2 B terms | node mults: A-only 50 / B-reached 5 of 55
+[M13] W16_8B_T128_H24 slot 18 (19 tables, degree 5): tau-eq table 0 | 1 A terms, 2 B terms | node mults: A-only 51 / B-reached 7 of 58
+[M13] W16_8B_T128_H24 slot 19 (58 tables, degree 3): tau-eq table 0 | 1 A terms, 0 B terms | node mults: A-only 138 / B-reached 0 of 138
+[M13] W16_8B_T128_H24 slot 20 (2 tables, degree 2): no tau-eq wrapper | node mults 0
+[M13] W16_8B_T128_H24 slot 21 (3 tables, degree 2): tau-eq table 0 | 1 A terms, 0 B terms | node mults: A-only 1 / B-reached 0 of 1
+[M13] W16_8B_T128_H24 slot 22 (3 tables, degree 2): tau-eq table 0 | 1 A terms, 0 B terms | node mults: A-only 1 / B-reached 0 of 1
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 920 filtered out; finished in 0.24s
+

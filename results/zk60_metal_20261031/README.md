@@ -853,3 +853,36 @@ The gather was not the NTT's bottleneck: it is about half multiply-bound (M11). 
 - trained digests R13 + W16;
 - the R13 run test;
 - golden 8/8 (`golden_m12/`).
+
+## M13 (2026-11-01): Gruen's eq-factor trick on the device zero-checks — correct, no gain, reverted
+
+**What was built** (diff kept: `m13_gruen_negative.patch`):
+- **`metal_slot::gruen_split`** finds a zero-check's `eq(tau, .)` wrapper table: `TableKind::Eq { start: 0 }`, read
+  only as a wrapper, at most once per term. The IR marks it so.
+- **`msl_round_kernels_gruen`** emits kernels that write an `(A_d, B_d)` pair per point:
+  `A = sum (lo_eq + hi_eq) * (eq-free A-terms)` only where needed, and `B` (the hosted claims' terms) at every
+  point.
+- **The device transcript step** (gruen mode) rebuilds `s(d) = eq_j(d) A(d) + B(d)`, with `A(1)` from the claim
+  divided by `tau_j` and `A(D)` extrapolated.
+
+This saves one heavy evaluation point per round. The split was favourable: the A-only nodes hold 99 of 107
+multiplies at slot 14, 50 of 55 at slot 17, 51 of 58 at slot 18 and 138 of 138 at slot 19 (`logs/m13/cost.log`).
+
+**It was correct:**
+- dev-shape bytes passed at the default budget and with every round batched;
+- the trained W16 digests 01a6d51d / c5e0bdac were equal with it on (`logs/m13/bytes_*.log`, `ab_1.log`).
+
+**It was not faster** [MEASURED, A/B on one binary, `HL_PB_ORACLE=0`, warm n=4, `logs/m13/ab_*.log`]:
+- W16 8B device rounds 0.075–0.078 s off, 0.078–0.084 s on;
+- core 0.351–0.363 s off, 0.367–0.394 s on.
+
+Per slot (`logs/m13/slot_*.log`): slot 18 25.9 → 25.0 ms, slot 14 15.6 → 15.3, but slot 15 6.0 → 6.8 and slot 17
+8.0 → 8.9.
+
+**What it shows.** A device point's cost is not dominated by the heavy constraint's multiplies:
+- the per-point table loads and latency weigh as much;
+- the extra launched B-only points and the doubled partials cancel the saved point.
+
+So the zero-check kernels' remaining lever is memory and latency (sharing each pair's table loads across points
+without the M3 form's register pressure), not arithmetic. Reverted; the binary was rebuilt at HEAD and the dev-shape
+bytes re-checked (`logs/m13/restore_*.log`).

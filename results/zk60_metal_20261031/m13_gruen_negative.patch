@@ -1,0 +1,687 @@
+diff --git a/ops/zkp-mvp/gpu-metal/hashline/src/gpu/metal.rs b/ops/zkp-mvp/gpu-metal/hashline/src/gpu/metal.rs
+index bd55f667..ed83d911 100644
+--- a/ops/zkp-mvp/gpu-metal/hashline/src/gpu/metal.rs
++++ b/ops/zkp-mvp/gpu-metal/hashline/src/gpu/metal.rs
+@@ -1186,11 +1186,15 @@ pub fn sumcheck_stats() -> (f64, f64) {
+ }
+ 
+ fn sc_pipelines(c: &Ctx, kernel_src: &str, k: usize, degree: usize) -> Result<(ComputePipelineState, ComputePipelineState), String> {
++    sc_pipelines_named(c, kernel_src, k, degree, ["k_sc_round0", "k_sc_round"])
++}
++
++/// [M13] [`sc_pipelines`] for another pair of kernel names (the Gruen kernels)
++fn sc_pipelines_named(c: &Ctx, kernel_src: &str, k: usize, degree: usize, names: [&str; 2]) -> Result<(ComputePipelineState, ComputePipelineState), String> {
+     // [M4] ONE library compile for both kernels: the round-0 and the later
+     // round kernel live in the same generated source, and compiling it once
+     // per kernel doubled the (dominant, cold) compile time of a large slot
+     let src = format!("{}{SC_PRELUDE}\n#define SC_K {k}\n#define SC_D {degree}\n{kernel_src}", gl_header());
+-    let names = ["k_sc_round0", "k_sc_round"];
+     let keys = names.map(|n| format!("{n}\n{src}"));
+     let mut cache = c.sc_pipes.lock().map_err(|_| "metal: sumcheck kernel cache poisoned")?;
+     if let (Some(p0), Some(p1)) = (cache.get(&keys[0]), cache.get(&keys[1])) {
+@@ -1254,6 +1258,8 @@ pub struct MetalRounds {
+     /// the next round's command buffer, ahead of that round; the last fold
+     /// runs at once, since the final tables are read after it.
+     fold_r: Option<(usize, Fp2)>,
++    /// [M13] the Gruen round kernels, used by the batched rounds only
++    gruen: Option<Gruen>,
+ }
+ 
+ /// threads of a round over `half` pairs (the per-thread pair count and the cap)
+@@ -1359,6 +1365,7 @@ fn assemble_rounds(tabs: PBuf, k: usize, cap: usize, degree: usize, pipe0: Compu
+         tg: p.tg,
+         part: p.part,
+         fold_r: None,
++        gruen: None,
+     }
+ }
+ 
+@@ -1444,7 +1451,50 @@ pub fn metal_rounds_owned(kernel_src: &str, t: MetalTables, degree: usize, coefs
+     Ok(assemble_rounds(t.buf, k, cap, degree, pipe0, pipe, parts))
+ }
+ 
++/// [ZK60-METAL M13] a slot's Gruen kernels (`metal_slot::msl_round_kernels_gruen`):
++/// their pipelines and coefficients, a partials buffer twice as wide (an
++/// `(A, B)` pair per point) and `tau[j]`, the eq factor's coordinate for round j
++/// (the eq point's j-th entry, 1/2 past its end: there the table is constant
++/// in the variable, `(lo + hi) / 2` on both ends)
++struct Gruen {
++    pipe0: ComputePipelineState,
++    pipe: ComputePipelineState,
++    coefs: PBuf,
++    part: PBuf,
++    tau: Vec<Fp2>,
++}
++
+ impl MetalRounds {
++    /// **[M13]** attach the slot's Gruen kernels (used by the batched device
++    /// rounds; `HL_METAL_GRUEN=0` declines). `eq_point` is the point of the
++    /// eq table the split factors out (`Tab::Eq { point, start: 0 }`). A
++    /// compile or allocation failure leaves the standard kernels in place.
++    pub fn with_gruen(mut self, kernel_src: &str, coefs: &[Fp2], eq_point: &[Fp2]) -> Self {
++        static ON: OnceLock<bool> = OnceLock::new();
++        if !*ON.get_or_init(|| std::env::var("HL_METAL_GRUEN").map(|v| v != "0").unwrap_or(true)) {
++            return self;
++        }
++        let Ok(c) = ctx() else { return self };
++        let (pipe0, pipe) = match sc_pipelines_named(c, kernel_src, self.k, self.degree, ["k_sc_round0_g", "k_sc_round_g"]) {
++            Ok(p) => p,
++            Err(e) => {
++                crate::gpu::declined("[ZK60-METAL M13] Gruen kernels", &e);
++                return self;
++            }
++        };
++        let mut cf: Vec<Fp> = coefs.iter().flat_map(|v| [v.c0, v.c1]).collect();
++        if cf.is_empty() {
++            cf.push(Fp::ZERO);
++        }
++        let t0n = sc_threads(self.cap / 2, self.per, self.cap_log);
++        let bufs = objc::rc::autoreleasepool(|| -> Result<(PBuf, PBuf), String> { Ok((upload(c, &cf)?, shared_buffer(c, (t0n * (self.degree + 1) * 2 * 16) as u64)?)) });
++        let Ok((coefs, part)) = bufs else { return self };
++        let half = Fp2::from_base(Fp::new(2).inv());
++        let tau = (0..self.n_vars).map(|j| eq_point.get(j).copied().unwrap_or(half)).collect();
++        self.gruen = Some(Gruen { pipe0, pipe, coefs, part, tau });
++        self
++    }
++
+     /// `ClosureRounds::recover_one`, the same semantics.
+     pub fn recover_one(mut self, initial_unmasked_claim: Option<Fp2>) -> Self {
+         assert!(self.degree >= 1, "claim recovery requires degree >= 1");
+@@ -1837,7 +1887,8 @@ struct FsStepArgs {
+     j: u32,
+     eval_one: u32,
+     tgw: u32,
+-    pad0: u32,
++    /// [M13] 1: the partials are the Gruen kernel's (A, B) pairs
++    gruen: u32,
+ }
+ #[repr(C)]
+ struct FoldDevArgs {
+@@ -1888,7 +1939,7 @@ impl MetalRounds {
+         for i in (0..n).rev() {
+             suffix[i] = suffix[i + 1].add(u(i, Fp2::ONE).mul_base(half_inv));
+         }
+-        let mut mk: Vec<u64> = Vec::with_capacity(4 + d1 + nd * 2 * (2 + d1 + d));
++        let mut mk: Vec<u64> = Vec::with_capacity(4 + d1 + d + nd * 2 * (4 + d1 + d));
+         let push = |mk: &mut Vec<u64>, v: Fp2| {
+             mk.push(v.c0.0);
+             mk.push(v.c1.0);
+@@ -1905,9 +1956,24 @@ impl MetalRounds {
+             }
+             mk.push(den.inv().0);
+         }
++        // [M13] the Gruen step's extrapolation of A(D) from A(0..D-1):
++        // prod_{m != i, m < D} (D - m) / (i - m)
++        for i in 0..d {
++            let (mut num, mut den) = (Fp::ONE, Fp::ONE);
++            for m in 0..d {
++                if m != i {
++                    num = num.mul(Fp::from_i64(d as i64 - m as i64));
++                    den = den.mul(Fp::from_i64(i as i64 - m as i64));
++                }
++            }
++            mk.push(num.mul(den.inv()).0);
++        }
++        let gtau = |j: usize| self.gruen.as_ref().map(|g| g.tau[j]).unwrap_or(Fp2::ZERO);
+         for j in 0..nd {
+             push(&mut mk, Fp2::from_u64(1u64 << (n - 1 - j)));
+             push(&mut mk, mask.coeffs[0].add(suffix[j + 1]));
++            push(&mut mk, gtau(j));
++            push(&mut mk, if gtau(j).is_zero() { Fp2::ZERO } else { gtau(j).inv() });
+             for x in 0..d1 {
+                 push(&mut mk, u(j, Fp2::from_u64(x as u64)));
+             }
+@@ -1936,7 +2002,7 @@ impl MetalRounds {
+             let mkb = upload(cx, &mk.iter().map(|&w| Fp(w)).collect::<Vec<Fp>>())?;
+             let fsb = upload(cx, &fs.iter().map(|&w| Fp(w)).collect::<Vec<Fp>>())?;
+             let out = shared_buffer(cx, (nd * rec * 8) as u64)?;
+-            let part2 = shared_buffer(cx, (PART_RED_WIDTH * d1 * 16) as u64)?;
++            let part2 = shared_buffer(cx, (PART_RED_WIDTH * d1 * 2 * 16) as u64)?;
+             let mut claim_known = self.recover_one && self.unmasked_claim.is_some();
+             run(cx, |enc| {
+                 for j in 0..=nd {
+@@ -1954,32 +2020,42 @@ impl MetalRounds {
+                     let half = (self.len >> j) / 2;
+                     let eval_one = !claim_known;
+                     let nthreads = sc_threads(half, self.per, self.cap_log);
+-                    let pipe = if j == 0 { &self.pipe0 } else { &self.pipe };
++                    // [M13] the Gruen kernels where the slot has them (a claim
++                    // round needs tau_j != 0: A(1) is recovered through 1 / tau_j)
++                    let gr = self.gruen.as_ref().filter(|g| eval_one || !g.tau[j].is_zero());
++                    let (pipe, part, coefs) = match gr {
++                        Some(g) => (if j == 0 { &g.pipe0 } else { &g.pipe }, &g.part, &g.coefs),
++                        None => (if j == 0 { &self.pipe0 } else { &self.pipe }, &self.part, &self.coefs),
++                    };
+                     enc.set_compute_pipeline_state(pipe);
+                     enc.set_buffer(0, Some(&self.tabs), 0);
+-                    enc.set_buffer(1, Some(&self.part), 0);
+-                    enc.set_buffer(2, Some(&self.coefs), 0);
++                    enc.set_buffer(1, Some(part), 0);
++                    enc.set_buffer(2, Some(coefs), 0);
+                     set_args(enc, 3, &RoundArgs { half: half as u64, cap: self.cap as u64, eval_one: eval_one as u32, nthreads: nthreads as u32 });
+-                    let np = if eval_one { d1 } else { d1 - 1 };
++                    // the Gruen kernel launches every point (B is needed at each)
++                    let np = if gr.is_some() || eval_one { d1 } else { d1 - 1 };
+                     let grid = (nthreads.div_ceil(32) * 32 * np) as u64;
+                     let tg = pipe.max_total_threads_per_threadgroup().min(self.tg).min(grid);
+                     enc.dispatch_threads(MTLSize::new(grid, 1, 1), MTLSize::new(tg, 1, 1));
++                    // values per partial record: d1, or the (A, B) pairs of the
++                    // Gruen kernel (all written, so none is skipped)
++                    let (nv, red_eval_one) = if gr.is_some() { (2 * d1, true) } else { (d1, eval_one) };
+                     // a large round's partials: first reduced across the GPU
+                     let (src, count) = if nthreads > PART_RED_MIN {
+-                        enc.set_buffer(0, Some(&self.part), 0);
++                        enc.set_buffer(0, Some(part), 0);
+                         enc.set_buffer(1, Some(&part2), 0);
+-                        set_args(enc, 2, &PartRedArgs { nthreads: nthreads as u32, d1: d1 as u32, width: PART_RED_WIDTH as u32, eval_one: eval_one as u32 });
++                        set_args(enc, 2, &PartRedArgs { nthreads: nthreads as u32, d1: nv as u32, width: PART_RED_WIDTH as u32, eval_one: red_eval_one as u32 });
+                         dispatch_2d(cx, enc, "k_sc_part_reduce", PART_RED_WIDTH as u64, 1);
+                         (&part2, PART_RED_WIDTH)
+                     } else {
+-                        (&self.part, nthreads)
++                        (part, nthreads)
+                     };
+                     enc.set_compute_pipeline_state(fs_pipe);
+                     enc.set_buffer(0, Some(src), 0);
+                     enc.set_buffer(1, Some(&fsb), 0);
+                     enc.set_buffer(2, Some(&mkb), 0);
+                     enc.set_buffer(3, Some(&out), 0);
+-                    set_args(enc, 4, &FsStepArgs { nthreads: count as u32, d1: d1 as u32, j: j as u32, eval_one: eval_one as u32, tgw: tgw as u32, pad0: 0 });
++                    set_args(enc, 4, &FsStepArgs { nthreads: count as u32, d1: d1 as u32, j: j as u32, eval_one: eval_one as u32, tgw: tgw as u32, gruen: gr.is_some() as u32 });
+                     enc.dispatch_thread_groups(MTLSize::new(1, 1, 1), MTLSize::new(tgw, 1, 1));
+                     claim_known = self.recover_one;
+                 }
+diff --git a/ops/zkp-mvp/gpu-metal/hashline/src/gpu/metal_kernels.metal b/ops/zkp-mvp/gpu-metal/hashline/src/gpu/metal_kernels.metal
+index 4cf4fabb..43c1b87b 100644
+--- a/ops/zkp-mvp/gpu-metal/hashline/src/gpu/metal_kernels.metal
++++ b/ops/zkp-mvp/gpu-metal/hashline/src/gpu/metal_kernels.metal
+@@ -703,8 +703,13 @@ kernel void k_fs_test(device const uint *st_in [[buffer(0)]],
+ // through the real transcript afterwards and refuses the attempt on any difference.
+ //  fs:  [0..8) state words, [8..16) key words, [16] counter, [17] keyed, [18] recover_one,
+ //       [19..21) the unmasked claim, [21..23) sum_{i<j} u_i(r_i), [23..25) prod_{i<j} r_i
+-//  mk:  [0..2) c, [2..4) a', [4..4+d1) interpolation weights (base words), then per round j
+-//       2 (2 + d1 + D) words: 2^(n-1-j), a_0 + sum_{i>j} u_i(1)/2, u_j(0..=D), a_{j,1..=D}
++//  mk:  [0..2) c, [2..4) a', [4..4+d1) interpolation weights (base words), [4+d1..4+d1+D) the
++//       Gruen extrapolation weights of A(D) from A(0..D-1) (base words), then per round j
++//       2 (4 + d1 + D) words: 2^(n-1-j), a_0 + sum_{i>j} u_i(1)/2, tau_j, 1/tau_j, u_j(0..=D),
++//       a_{j,1..=D}
++//  [M13] gruen: the partials are (A_d, B_d) pairs of the Gruen kernel, and the round is
++//       s(d) = eq_j(d) A(d) + B(d), eq_j(X) = (1 - tau_j) + X (2 tau_j - 1); a claim round's A(1)
++//       is (claim - s(0) - B(1)) / tau_j, and A(D) is extrapolated (deg A <= D - 1)
+ //  out: per round j, 2 (2 d1 + 1) words: s(0..=D), the masked message, r
+ struct fq2 { ulong c0; ulong c1; };
+ inline fq2 q2(ulong a, ulong b) { fq2 r; r.c0 = a; r.c1 = b; return r; }
+@@ -719,7 +724,7 @@ inline fq2 q2_mul(fq2 a, fq2 b) {
+ inline fq2 q2_mulb(fq2 a, ulong b) { return q2(gl_mul(a.c0, b), gl_mul(a.c1, b)); }
+ inline fq2 q2_at(device const ulong *p, ulong w) { return q2(p[w], p[w + 1]); }
+ 
+-struct FsStepArgs { uint nthreads; uint d1; uint j; uint eval_one; uint tgw; uint pad0; };
++struct FsStepArgs { uint nthreads; uint d1; uint j; uint eval_one; uint tgw; uint gruen; };
+ 
+ kernel void k_sc_fs_step(device const ulong *part [[buffer(0)]],
+                          device ulong *fs [[buffer(1)]],
+@@ -728,14 +733,15 @@ kernel void k_sc_fs_step(device const ulong *part [[buffer(0)]],
+                          constant FsStepArgs &a [[buffer(4)]],
+                          uint t [[thread_position_in_threadgroup]]) {
+     threadgroup ulong red[2 * 256];
+-    threadgroup ulong tot[16];
++    threadgroup ulong tot[32];
+     uint d1 = a.d1;
+-    // the partial sums, point by point: a strided sum per thread, then a tree
++    uint nv = a.gruen != 0u ? 2u * d1 : d1;
++    // the partial sums, value by value: a strided sum per thread, then a tree
+     // (field addition is exact, so the grouping changes no value)
+-    for (uint d = 0; d < d1; d++) {
++    for (uint d = 0; d < nv; d++) {
+         fq2 acc = q2(0UL, 0UL);
+-        if (d != 1u || a.eval_one != 0u) {
+-            for (uint g = t; g < a.nthreads; g += a.tgw) { acc = q2_add(acc, q2_at(part, (ulong(g) * ulong(d1) + ulong(d)) * 2UL)); }
++        if (a.gruen != 0u || d != 1u || a.eval_one != 0u) {
++            for (uint g = t; g < a.nthreads; g += a.tgw) { acc = q2_add(acc, q2_at(part, (ulong(g) * ulong(nv) + ulong(d)) * 2UL)); }
+         }
+         red[2u * t] = acc.c0;
+         red[2u * t + 1u] = acc.c1;
+@@ -753,11 +759,34 @@ kernel void k_sc_fs_step(device const ulong *part [[buffer(0)]],
+     if (t != 0u) { return; }
+     uint D = d1 - 1u;
+     fq2 s[8];
+-    for (uint d = 0; d < d1; d++) { s[d] = q2(tot[2u * d], tot[2u * d + 1u]); }
+     fq2 claim = q2(fs[19], fs[20]);
+-    if (a.eval_one == 0u) { s[1] = q2_sub(claim, s[0]); }
++    ulong hdr = 4UL + ulong(d1) + ulong(D);
++    ulong rec = hdr + ulong(a.j) * 2UL * ulong(4u + d1 + D);
++    if (a.gruen != 0u) {
++        fq2 A[8], Bv[8];
++        for (uint d = 0; d < d1; d++) {
++            A[d] = q2(tot[4u * d], tot[4u * d + 1u]);
++            Bv[d] = q2(tot[4u * d + 2u], tot[4u * d + 3u]);
++        }
++        fq2 tau = q2_at(mk, rec + 4UL), itau = q2_at(mk, rec + 6UL);
++        fq2 om = q2_sub(q2(1UL, 0UL), tau);
++        fq2 sl = q2_sub(q2_add(tau, tau), q2(1UL, 0UL));
++        if (a.eval_one == 0u) {
++            fq2 s0 = q2_add(q2_mul(om, A[0]), Bv[0]);
++            A[1] = q2_mul(q2_sub(q2_sub(claim, s0), Bv[1]), itau);
++        }
++        fq2 ad = q2(0UL, 0UL);
++        for (uint i = 0; i < D; i++) { ad = q2_add(ad, q2_mulb(A[i], mk[4u + d1 + i])); }
++        A[D] = ad;
++        for (uint d = 0; d < d1; d++) {
++            fq2 e = q2_add(om, q2_mulb(sl, ulong(d)));
++            s[d] = q2_add(q2_mul(e, A[d]), Bv[d]);
++        }
++    } else {
++        for (uint d = 0; d < d1; d++) { s[d] = q2(tot[2u * d], tot[2u * d + 1u]); }
++        if (a.eval_one == 0u) { s[1] = q2_sub(claim, s[0]); }
++    }
+     // the CFS mask's round message g_j(x) = 2^(n-1-j) (base + u_j(x)) + a' prod x
+-    ulong rec = 4UL + ulong(d1) + ulong(a.j) * 2UL * ulong(2u + d1 + D);
+     fq2 c = q2_at(mk, 0UL), ap = q2_at(mk, 2UL);
+     fq2 scale = q2_at(mk, rec), stat = q2_at(mk, rec + 2UL);
+     fq2 pre = q2(fs[21], fs[22]), prod = q2(fs[23], fs[24]);
+@@ -765,7 +794,7 @@ kernel void k_sc_fs_step(device const ulong *part [[buffer(0)]],
+     fq2 app = q2_mul(ap, prod);
+     ulong vals[16];
+     for (uint x = 0; x < d1; x++) {
+-        fq2 g = q2_add(q2_mul(scale, q2_add(base, q2_at(mk, rec + 4UL + 2UL * ulong(x)))), q2_mulb(app, ulong(x)));
++        fq2 g = q2_add(q2_mul(scale, q2_add(base, q2_at(mk, rec + 8UL + 2UL * ulong(x)))), q2_mulb(app, ulong(x)));
+         fq2 m = q2_add(s[x], q2_mul(c, g));
+         vals[2u * x] = m.c0;
+         vals[2u * x + 1u] = m.c1;
+@@ -781,7 +810,7 @@ kernel void k_sc_fs_step(device const ulong *part [[buffer(0)]],
+     fq2 uj = q2(0UL, 0UL), xp = q2(1UL, 0UL);
+     for (uint e = 0; e < D; e++) {
+         xp = q2_mul(xp, r);
+-        uj = q2_add(uj, q2_mul(q2_at(mk, rec + 4UL + 2UL * ulong(d1) + 2UL * ulong(e)), xp));
++        uj = q2_add(uj, q2_mul(q2_at(mk, rec + 8UL + 2UL * ulong(d1) + 2UL * ulong(e)), xp));
+     }
+     pre = q2_add(pre, uj);
+     prod = q2_mul(prod, r);
+diff --git a/ops/zkp-mvp/gpu-metal/hashline/src/private_block/argument.rs b/ops/zkp-mvp/gpu-metal/hashline/src/private_block/argument.rs
+index df8648c5..26989dce 100644
+--- a/ops/zkp-mvp/gpu-metal/hashline/src/private_block/argument.rs
++++ b/ops/zkp-mvp/gpu-metal/hashline/src/private_block/argument.rs
+@@ -129,6 +129,10 @@ pub(crate) struct SlotDef {
+     /// side with HL_GPU=1; `None` keeps the CPU evaluator.
+     #[cfg(feature = "gpu-metal")]
+     pub(crate) metal: Option<(String, Vec<Fp2>, Vec<bool>)>,
++    /// [ZK60-METAL M13] the slot's Gruen kernels, their coefficients and the
++    /// index of the eq table they factor out (`metal_slot::gruen_split`)
++    #[cfg(feature = "gpu-metal")]
++    pub(crate) metal_g: Option<(String, Vec<Fp2>, usize)>,
+     /// **STEP C.** The slot schedule this definition was built against, so
+     /// that `run_slot` reads the SHAPE's `(main, ext, degree)` and terminal
+     /// counts instead of the toy constants. At the toy it is `Shape::toy()`
+@@ -810,6 +814,17 @@ const METAL_MIN_TERMS: usize = 1 << 18;
+ #[cfg(feature = "gpu-metal")]
+ const SMALL_SLOT_CPU_S: f64 = 2e-3;
+ 
++/// [ZK60-METAL M13] the slot's Gruen kernels on its device evaluator, when it
++/// has them and the table they factor out is `Tab::Eq { point, start: 0 }`
++/// (its point gives each round's `tau_j`)
++#[cfg(feature = "gpu-metal")]
++fn with_gruen(ev: crate::gpu::MetalRounds, def: &SlotDef) -> crate::gpu::MetalRounds {
++    match (&def.metal_g, &def.metal_g.as_ref().and_then(|g| def.tabs.get(g.2))) {
++        (Some((src, cf, _)), Some(Tab::Eq { point, start: 0 })) => ev.with_gruen(src, cf, point),
++        _ => ev,
++    }
++}
++
+ /// [M8] the estimated single-thread CPU cost of a slot's rounds: `2^n
+ /// (degree + 1)` evaluations of `poly` (the rounds' geometric sum), each
+ /// timed here on eight fixed points (no proof randomness is read or drawn)
+@@ -973,6 +988,7 @@ pub(crate) fn run_slot(side: &mut Side, acc: &mut Acc, mut def: SlotDef, tr: &mu
+                     match crate::gpu::metal_rounds_owned(src, mt, degree, cf, base) {
+                         Ok(ev) => {
+                             let ev = if def.groups.is_some() { ev } else { ev.recover_one(unmasked_claim) };
++                            let ev = with_gruen(ev, &def);
+                             // [M4k] the last, tiny rounds on the host (the same values)
+                             let mut ev = ev.with_host_tail(&*def.poly);
+                             // [M6] its device rounds in one submission, replayed on the host
+@@ -1001,6 +1017,7 @@ pub(crate) fn run_slot(side: &mut Side, acc: &mut Acc, mut def: SlotDef, tr: &mu
+                             }
+                             Ok(Some(ev)) => {
+                                 let ev = if def.groups.is_some() { ev } else { ev.recover_one(unmasked_claim) };
++                                let ev = with_gruen(ev, &def);
+                                 // [M4k] the last, tiny rounds on the host (the same values)
+                                 let mut ev = ev.with_host_tail(&*def.poly);
+                                 // [M6] its device rounds in one submission, replayed on the host
+@@ -1329,6 +1346,8 @@ impl<'a> B<'a> {
+             sh: self.lay.shape().clone(),
+             #[cfg(feature = "gpu-metal")]
+             metal: None,
++            #[cfg(feature = "gpu-metal")]
++            metal_g: None,
+         })
+     }
+ }
+@@ -2678,6 +2697,13 @@ pub(crate) fn argument(side: &mut Side, ctx: &Ctx, tr: &mut Transcript, ph: &mut
+             // from a local generator, never from the proof's randomness.
+             if ir.tables.len() == def.tabs.len() && super::metal_slot::ir_matches_closure(&ir, &*def.poly, slot) {
+                 let (k0, k1, cf, base) = super::metal_slot::msl_round_kernels(&ir);
++                // [M13] the Gruen kernels, where the polynomial splits around its eq(tau, .)
++                if let Some(g) = super::metal_slot::gruen_split(&ir) {
++                    if matches!(def.tabs.get(g.t_eq), Some(Tab::Eq { start: 0, .. })) {
++                        let (g0, g1, gcf) = super::metal_slot::msl_round_kernels_gruen(&ir, &g, &base);
++                        def.metal_g = Some((format!("{g0}\n{g1}"), gcf, g.t_eq));
++                    }
++                }
+                 def.metal = Some((format!("{k0}\n{k1}"), cf, base));
+             } else {
+                 // NOT a device decline: this slot has no device path at this
+diff --git a/ops/zkp-mvp/gpu-metal/hashline/src/private_block/metal_slot.rs b/ops/zkp-mvp/gpu-metal/hashline/src/private_block/metal_slot.rs
+index ac158e64..e2f9733f 100644
+--- a/ops/zkp-mvp/gpu-metal/hashline/src/private_block/metal_slot.rs
++++ b/ops/zkp-mvp/gpu-metal/hashline/src/private_block/metal_slot.rs
+@@ -21,7 +21,7 @@
+ //! Field arithmetic is exact, so these algebraically equal evaluations give the
+ //! same canonical elements.
+ 
+-use super::slot_ir::{Coef, CoefProv, Factor, FieldKind, NodeBody, SlotIr};
++use super::slot_ir::{Coef, CoefProv, Factor, FieldKind, NodeBody, SlotIr, TableKind};
+ use crate::field::Fp2;
+ 
+ /// a generated expression and whether its value is base-field
+@@ -102,6 +102,253 @@ fn product(c: &Coef, factors: &[Ex], cf: &mut Vec<Fp2>) -> Ex {
+     acc.unwrap_or_else(one)
+ }
+ 
++/// **[ZK60-METAL M13] the Gruen split of a slot polynomial.** `P = eqtau *
++/// A_inner + B`: `t_eq` is the ONE table that is a zero-check's `eq(tau, .)`
++/// over the leading variables (`TableKind::Eq { start: 0 }`) and enters the
++/// polynomial ONLY as a wrapper factor, at most once per term. `a_terms` are
++/// the terms it wraps; every other term is `B`. `b_nodes[n]`: node `n` is
++/// reached from a `B` term (it must be computed at every point); the rest is
++/// needed only where `A` is evaluated. `None`: no such table, so no split.
++pub(super) struct GruenSplit {
++    pub t_eq: usize,
++    pub a_terms: Vec<bool>,
++    pub b_nodes: Vec<bool>,
++}
++
++pub(super) fn gruen_split(ir: &SlotIr) -> Option<GruenSplit> {
++    let in_nodes = |t: usize| {
++        ir.nodes.iter().any(|n| match &n.body {
++            NodeBody::Affine { terms, .. } => terms.iter().any(|(_, x)| *x as usize == t),
++            NodeBody::Sum { subterms } => subterms.iter().any(|st| st.factors.iter().any(|f| matches!(f, Factor::Table(x) if *x as usize == t))),
++        })
++    };
++    for (t, tr) in ir.tables.iter().enumerate() {
++        if !matches!(tr.kind, TableKind::Eq { start: 0, .. }) || in_nodes(t) {
++            continue;
++        }
++        if ir.terms.iter().any(|term| term.inner.iter().any(|f| matches!(f, Factor::Table(x) if *x as usize == t)) || term.wrapper.iter().filter(|w| **w as usize == t).count() > 1) {
++            continue;
++        }
++        let a_terms: Vec<bool> = ir.terms.iter().map(|term| term.wrapper.iter().any(|w| *w as usize == t)).collect();
++        if !a_terms.iter().any(|a| *a) {
++            continue;
++        }
++        let mut b_nodes = vec![false; ir.nodes.len()];
++        for (term, a) in ir.terms.iter().zip(a_terms.iter()) {
++            if !*a {
++                for f in &term.inner {
++                    if let Factor::Node(nid) = f {
++                        b_nodes[*nid as usize] = true;
++                    }
++                }
++            }
++        }
++        for i in (0..ir.nodes.len()).rev() {
++            if !b_nodes[i] {
++                continue;
++            }
++            if let NodeBody::Sum { subterms } = &ir.nodes[i].body {
++                for st in subterms {
++                    for f in &st.factors {
++                        if let Factor::Node(nid) = f {
++                            b_nodes[*nid as usize] = true;
++                        }
++                    }
++                }
++            }
++        }
++        return Some(GruenSplit { t_eq: t, a_terms, b_nodes });
++    }
++    None
++}
++
++/// **[ZK60-METAL M13] the Gruen round kernels** for a split slot (`gruen_split`):
++/// (round-0 kernel typed as `msl_round_kernels`' round 0, later-round kernel)
++/// and their coefficient buffer. One thread per (pair stride, point d), every
++/// point `0..=D` launched; partial `(gid, d)` is the pair `(A_d, B_d)`:
++/// * `B_d = sum B-terms` at point d, always;
++/// * `A_d = sum (lo_eq + hi_eq) * (A-terms without their eq factor)` at point
++///   d, only where `needA`: `d < D`, and `d != 1` when the claim gives s(1).
++///
++/// Along a round's line the eq table is `(lo + hi) * eq_j(X)` exactly, so the
++/// round's sums are `s(d) = eq_j(d) A(d) + B(d)`; the transcript step
++/// (`k_sc_fs_step`, gruen mode) recovers `A(1)` from the claim and extrapolates
++/// `A(D)` (degree <= D-1). The nodes and tables only the A-terms reach are
++/// evaluated only at the `needA` points: one evaluation point fewer of the
++/// heavy part per round.
++pub(super) fn msl_round_kernels_gruen(ir: &SlotIr, g: &GruenSplit, base0: &[bool]) -> (String, String, Vec<Fp2>) {
++    let (k0, cf0) = gen_kernel_gruen(ir, g, base0, "k_sc_round0_g");
++    let (k1, cf1) = gen_kernel_gruen(ir, g, &vec![false; base0.len()], "k_sc_round_g");
++    assert_eq!(cf0.len(), cf1.len(), "both Gruen kernels read the same coefficient buffer");
++    (k0, k1, cf0)
++}
++
++fn gen_kernel_gruen(ir: &SlotIr, g: &GruenSplit, base: &[bool], name: &str) -> (String, Vec<Fp2>) {
++    let mut cf: Vec<Fp2> = Vec::new();
++    let k = ir.tables.len();
++    let tab = |t: usize| Ex { code: format!("v{t}"), base: base[t] };
++    let fac = |f: &Factor, nodes: &[Ex]| -> Ex {
++        match f {
++            Factor::Table(t) => tab(*t as usize),
++            Factor::Node(n) => nodes[*n as usize].clone(),
++        }
++    };
++    // which tables B reaches (its nodes' tables, its terms' wrappers and inner tables)
++    let mut b_tab = vec![false; k];
++    for (n, nb) in ir.nodes.iter().zip(g.b_nodes.iter()) {
++        if !*nb {
++            continue;
++        }
++        match &n.body {
++            NodeBody::Affine { terms, .. } => terms.iter().for_each(|(_, t)| b_tab[*t as usize] = true),
++            NodeBody::Sum { subterms } => subterms.iter().flat_map(|st| st.factors.iter()).for_each(|f| {
++                if let Factor::Table(t) = f {
++                    b_tab[*t as usize] = true;
++                }
++            }),
++        }
++    }
++    for (term, a) in ir.terms.iter().zip(g.a_terms.iter()) {
++        if *a {
++            continue;
++        }
++        term.wrapper.iter().for_each(|w| b_tab[*w as usize] = true);
++        term.inner.iter().for_each(|f| {
++            if let Factor::Table(t) = f {
++                b_tab[*t as usize] = true;
++            }
++        });
++    }
++    assert!(!b_tab[g.t_eq], "the split's eq table is not read by B");
++    let line = |t: usize| -> String {
++        let f = if base[t] { ("ulong", "ln_base") } else { ("fp2", "ln_ext") };
++        format!("            {} v{t} = {}(tabs, ({t}UL * a.cap + i) * 2UL, ({t}UL * a.cap + i + a.nhalf) * 2UL, d, dd);\n", f.0, f.1)
++    };
++    let emit_node = |n: &super::slot_ir::Node, nodes: &[Ex], cf: &mut Vec<Fp2>, indent: &str| -> (String, Ex) {
++        let val = match &n.body {
++            NodeBody::Affine { konst, terms } => {
++                let mut e = coef_ex(konst, cf).unwrap_or_else(one);
++                for (c, t) in terms {
++                    let p = product(c, &[tab(*t as usize)], cf);
++                    e = add(&e, &p);
++                }
++                e
++            }
++            NodeBody::Sum { subterms } => {
++                let mut e: Option<Ex> = None;
++                for st in subterms {
++                    let fs: Vec<Ex> = st.factors.iter().map(|f| fac(f, nodes)).collect();
++                    let p = product(&st.coef, &fs, cf);
++                    e = Some(match e {
++                        None => p,
++                        Some(a) => add(&a, &p),
++                    });
++                }
++                e.unwrap_or(Ex { code: "0UL".to_string(), base: true })
++            }
++        };
++        let ty = if val.base { "ulong" } else { "fp2" };
++        (format!("{indent}{ty} n{} = {};\n", n.id, val.code), Ex { code: format!("n{}", n.id), base: val.base })
++    };
++    // B: its tables, its nodes, its terms (every point)
++    let mut body = String::new();
++    for t in (0..k).filter(|t| b_tab[*t]) {
++        body.push_str(&line(t));
++    }
++    let mut nodes: Vec<Ex> = vec![Ex { code: String::new(), base: true }; ir.nodes.len()];
++    for (i, n) in ir.nodes.iter().enumerate() {
++        if g.b_nodes[i] {
++            let (code, ex) = emit_node(n, &nodes, &mut cf, "            ");
++            body.push_str(&code);
++            nodes[i] = ex;
++        }
++    }
++    body.push_str("            fp2 outB = f2(0UL, 0UL);\n");
++    for (term, a) in ir.terms.iter().zip(g.a_terms.iter()) {
++        if *a {
++            continue;
++        }
++        let mut fs: Vec<Ex> = term.wrapper.iter().map(|w| tab(*w as usize)).collect();
++        fs.extend(term.inner.iter().map(|f| fac(f, &nodes)));
++        let p = product(&term.coef, &fs, &mut cf);
++        body.push_str(&format!("            outB = f2_add(outB, {});\n", ext_of(&p)));
++    }
++    body.push_str("            accB = f2_add(accB, outB);\n");
++    // A: only where needed
++    body.push_str("            if (needA) {\n");
++    body.push_str(&format!(
++        "                fp2 eqE = f2_add(f2(tabs[({t}UL * a.cap + i) * 2UL], tabs[({t}UL * a.cap + i) * 2UL + 1UL]), f2(tabs[({t}UL * a.cap + i + a.nhalf) * 2UL], tabs[({t}UL * a.cap + i + a.nhalf) * 2UL + 1UL]));\n",
++        t = g.t_eq
++    ));
++    for t in (0..k).filter(|t| !b_tab[*t] && *t != g.t_eq) {
++        body.push_str(&format!("    {}", line(t)));
++    }
++    for (i, n) in ir.nodes.iter().enumerate() {
++        if !g.b_nodes[i] {
++            let (code, ex) = emit_node(n, &nodes, &mut cf, "                ");
++            body.push_str(&code);
++            nodes[i] = ex;
++        }
++    }
++    body.push_str("                fp2 outA = f2(0UL, 0UL);\n");
++    for (term, a) in ir.terms.iter().zip(g.a_terms.iter()) {
++        if !*a {
++            continue;
++        }
++        let mut fs: Vec<Ex> = term.wrapper.iter().filter(|w| **w as usize != g.t_eq).map(|w| tab(*w as usize)).collect();
++        fs.extend(term.inner.iter().map(|f| fac(f, &nodes)));
++        let p = product(&term.coef, &fs, &mut cf);
++        body.push_str(&format!("                outA = f2_add(outA, {});\n", ext_of(&p)));
++    }
++    body.push_str("                accA = f2_add(accA, f2_mul(eqE, outA));\n");
++    body.push_str("            }\n");
++    let mut s = String::new();
++    s.push_str(&format!("// slot {} ({}) at {}: Gruen split on table {} ({} tables)\n", ir.slot, ir.name, ir.profile, g.t_eq, k));
++    if name == "k_sc_round0_g" {
++        s.push_str("struct RoundArgs { ulong nhalf; ulong cap; uint eval_one; uint nthreads; };\n");
++    }
++    s.push_str(&format!("kernel void {name}(device const ulong *tabs [[buffer(0)]],\n"));
++    s.push_str(concat!(
++        "                       device ulong *part [[buffer(1)]],\n",
++        "                       constant ulong *cf [[buffer(2)]],\n",
++        "                       constant RoundArgs &a [[buffer(3)]],\n",
++        "                       uint tid [[thread_position_in_grid]]) {\n",
++        "    uint np = SC_D + 1u;\n",
++        "    uint grp = tid >> 5;\n",
++        "    uint d = grp % np;\n",
++        "    uint gid = (grp / np) * 32u + (tid & 31u);\n",
++        "    if (gid >= a.nthreads) { return; }\n",
++        "    ulong dd = ulong(d);\n",
++        "    bool needA = d < SC_D && (d != 1u || a.eval_one != 0u);\n",
++        "    fp2 accA = f2(0UL, 0UL);\n",
++        "    fp2 accB = f2(0UL, 0UL);\n",
++        "    for (ulong i = ulong(gid); i < a.nhalf; i += ulong(a.nthreads)) {\n",
++    ));
++    s.push_str(&body);
++    s.push_str(concat!(
++        "    }\n",
++        "    ulong o = ((ulong(gid) * (SC_D + 1) + ulong(d)) * 2UL) * 2UL;\n",
++        "    part[o] = accA.c0;\n",
++        "    part[o + 1] = accA.c1;\n",
++        "    part[o + 2] = accB.c0;\n",
++        "    part[o + 3] = accB.c1;\n",
++        "}\n",
++    ));
++    (s, cf)
++}
++
++/// [M13, diagnostics] multiplications in each node (coefficient products and
++/// factor products, as `gen_kernel` emits them)
++pub(super) fn node_mul_counts(ir: &SlotIr) -> Vec<usize> {
++    ir.nodes
++        .iter()
++        .map(|n| match &n.body {
++            NodeBody::Affine { terms, .. } => terms.iter().filter(|(c, _)| !matches!(c.prov, CoefProv::One)).count(),
++            NodeBody::Sum { subterms } => subterms.iter().map(|st| st.factors.len().saturating_sub(1) + !matches!(st.coef.prov, CoefProv::One) as usize).sum(),
++        })
++        .collect()
++}
++
+ /// The generated round kernels for `ir`: (round-0 kernel typed by field,
+ /// later-round kernel with every table extension-valued), the coefficient
+ /// buffer (shared: both kernels push the same coefficients in the same order)
+diff --git a/ops/zkp-mvp/gpu-metal/hashline/src/private_block/slot_ir_accuracy.rs b/ops/zkp-mvp/gpu-metal/hashline/src/private_block/slot_ir_accuracy.rs
+index bdd403ab..09e40c7f 100644
+--- a/ops/zkp-mvp/gpu-metal/hashline/src/private_block/slot_ir_accuracy.rs
++++ b/ops/zkp-mvp/gpu-metal/hashline/src/private_block/slot_ir_accuracy.rs
+@@ -809,6 +809,44 @@ mod tests {
+         (sh, data, public, ff)
+     }
+ 
++    /// **[M13, ignored] how much of each slot's polynomial a Gruen split
++    /// saves at the points where only `B` is needed**: per slot of a W16
++    /// profile (`HL_M13_PROFILE`, default W16_8B_T128_H24), the tau-eq table,
++    /// the A / B term counts and the multiplications in the nodes only `A`
++    /// reaches against those `B` reaches. Prints only.
++    #[cfg(feature = "gpu-metal")]
++    #[test]
++    #[ignore]
++    fn m13_gruen_split_costs_per_slot() {
++        let name = std::env::var("HL_M13_PROFILE").unwrap_or_else(|_| "W16_8B_T128_H24".to_string());
++        let spec = crate::private_block::shape::W16_PROFILES.iter().find(|s| s.name == name).expect("a W16 profile name");
++        let cal = crate::private_block::shape::NormCalibration { tn: if spec.width >= 3072 { 9 } else { 10 }, cn_a: 100, cn_m: 100, ceps: 1, sh_ao: 7, sh_qkv: 8, sh_s: 6, sh_o: 9, sh_g: 8, sh_h: 14, sh_z: 6 };
++        let original = Shape::accuracy_trained(spec.profile, &cal, if spec.tokens == 32 { 12 } else { 9 }, 20).unwrap();
++        let (sh, data, public, ff) = case(original, 3);
++        let lay = Layout::for_shape(&sh).unwrap();
++        let ctx = Ctx { accuracy: Some(&data), lay: &lay, public: &public, ff: &ff, alpha: k(7).add(Fp2::U), beta: k(11), g_u8: k(13), g_exp: k(17), g_act: k(19), g_dd: k(23) };
++        let (mut pts, mut ipts) = (Points::default(), IrPoints::default());
++        let mut tr = Transcript::new(sh.profile.as_bytes());
++        for slot in 0..sh.n_slots() {
++            let mut twin = Transcript::clone_state(&tr);
++            let ir = build_slot_ir(slot, &ctx, &mut ipts, &mut twin);
++            let _ = define(slot, &ctx, &mut pts, &mut tr).unwrap();
++            let Ok(ir) = ir else { continue };
++            let costs = crate::private_block::metal_slot::node_mul_counts(&ir);
++            let total: usize = costs.iter().sum();
++            match crate::private_block::metal_slot::gruen_split(&ir) {
++                Some(g) => {
++                    let b: usize = costs.iter().zip(g.b_nodes.iter()).filter(|(_, b)| **b).map(|(c, _)| *c).sum();
++                    eprintln!(
++                        "[M13] {name} slot {slot:02} ({} tables, degree {}): tau-eq table {} | {} A terms, {} B terms | node mults: A-only {} / B-reached {} of {}",
++                        ir.tables.len(), ir.degree, g.t_eq, g.a_terms.iter().filter(|a| **a).count(), g.a_terms.iter().filter(|a| !**a).count(), total - b, b, total
++                    );
++                }
++                None => eprintln!("[M13] {name} slot {slot:02} ({} tables, degree {}): no tau-eq wrapper | node mults {total}", ir.tables.len(), ir.degree),
++            }
++        }
++    }
++
+     #[test]
+     fn the_accuracy_ir_evaluates_to_the_r13_closure_at_every_development_shape_group_count_and_slot() {
+         let shapes: Vec<Shape> = crate::private_block::accuracy_profile_tests::registered_shapes().into_iter().filter(|s| s.tokens == 32).collect();
