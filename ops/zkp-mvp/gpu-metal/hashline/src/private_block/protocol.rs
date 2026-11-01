@@ -1310,7 +1310,8 @@ pub(crate) fn prove_inner(blk: &BlockPublic, wit: Witness, expected: &ExpectedIo
 /// a trained block is proved as a one-block (or longer) BOUND run.
 pub(crate) fn single_block_profile_allowed(sh: &Shape) -> Result<(), String> {
     // re-review R2-a: the profile STRING decides too, not only the door's flag
-    if sh.trained_calibration || super::shape::TRAINED_CALIBRATION_PROFILES.contains(&sh.profile) {
+    // (W16 review F1: the W16 profile strings too)
+    if sh.trained_calibration || super::shape::is_trained_profile_string(sh.profile) {
         return Err(format!(
             "private block: {} has a trained calibration; it proves only inside a run bound to its trained-model statement (a single-block receipt would carry the synthetic calibration literal, R2-4)",
             sh.profile

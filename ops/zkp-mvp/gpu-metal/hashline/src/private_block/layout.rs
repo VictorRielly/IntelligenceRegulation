@@ -1308,7 +1308,8 @@ impl Layout {
         // under that string would otherwise skip every class check), and the
         // softmax window is at most three limbs at EVERY shape (every
         // registered frozen shape has 14..=18 bits)
-        if !sh.trained_calibration && super::shape::TRAINED_CALIBRATION_PROFILES.contains(&sh.profile) {
+        // (W16 review F1: the W16 profile strings too)
+        if !sh.trained_calibration && super::shape::is_trained_profile_string(sh.profile) {
             return Err(format!("private block: {} is a trained-calibration profile, but this shape did not come through the trained door", sh.profile));
         }
         super::shape::Shape::check_softmax_window(sh)?;

@@ -27,8 +27,28 @@ Evidence for the review:
 - the W16 IR equals its closures at every redefined slot and group count;
 - CPU and Metal digests are equal at both trained W16 shapes.
 
-Still open: a run profile and receipt registration, the DD variants, the
-independent D24-class review and the privacy re-check (D54).
+Still open: a run profile and receipt registration, the DD variants and the
+privacy re-check (D54).
+
+**Independent review, 2026-11-01** (`REVIEW_W16_20261101.md`, a separate reviewer agent, read-only; it ran only an
+exact-arithmetic recount):
+- **Verdict:** sound as built for the registered non-DD LowH24 profiles; nothing broken, no constraint dropped.
+- **LogUp bound:** 2^-102.92 per block, against R13's 2^-102.00 under the same accounting; for a 32-block 8B run,
+  2^-97.92.
+- **Findings:**
+  - **F1 (Medium) — FIXED 2026-11-01.** The R2-a / R2-4 name guards keyed on `TRAINED_CALIBRATION_PROFILES`, which
+    excludes the W16 strings, so a non-door shape under a W16 string got past both. One predicate,
+    `shape::is_trained_profile_string`, now serves both sites. Test
+    `w16_review_f1_a_non_door_shape_under_a_w16_profile_string_is_refused`; gates in
+    `results/zk60_metal_20261031/logs/m19g`.
+  - **Still open (Low / Info):**
+    - F2: no verify-time refusal if the helper count is not ceil(lookups/2);
+    - F3: three planned malicious controls missing (a moved width, a non-repeating pad, a histogram in a padded
+      copy), plus single-limb and word overflow;
+    - F4: the tag-distinctness test omits `TAG_EMB`;
+    - F5–F7: W16 DD paths untested, an RH-width literal unasserted, wording.
+- **For the privacy re-check:** the 16-bit range histograms (12 multiplicity planes in A and their helpers in H at
+  T128) are a much finer view of the hidden activations than the byte histograms, and must be listed.
 
 **Where a W16 block's time goes** [MEASURED, one instrumented Metal pass, `logs/g_phases2.log`, 0.578 s wall against
 R13's 0.807 s]:

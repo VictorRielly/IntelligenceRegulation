@@ -140,6 +140,17 @@ pub(crate) const TINYLLAMA_DD_PROFILES: [&str; 1] = [TINYLLAMA_T128_DD_TRAINED_P
 pub(crate) const LLAMA3_8B_DD_PROFILES: [&str; 1] = [LLAMA3_8B_T128_DD_TRAINED_PROFILE];
 /// the profiles [`Shape::with_trained_calibration`] may give a non-frozen
 /// calibration to; every other profile's calibration is frozen
+/// **W16 review F1 (2026-11-01).** The profile STRINGS the R2-a / R2-4 name
+/// guards refuse without the trained door: every [`TRAINED_CALIBRATION_PROFILES`]
+/// entry and every W16 profile (deliberately kept out of that list so the R13
+/// sweeps never see them, which also kept them out of the two guards). One
+/// predicate for both sites (`Layout::for_shape`, `protocol::
+/// single_block_profile_allowed`), so a new trained family cannot be admitted
+/// at one and missed at the other.
+pub(crate) fn is_trained_profile_string(profile: &str) -> bool {
+    TRAINED_CALIBRATION_PROFILES.contains(&profile) || W16_PROFILES.iter().any(|s| s.profile == profile)
+}
+
 pub(crate) const TRAINED_CALIBRATION_PROFILES: [&str; 27] = [
     TINYLLAMA_T32_TRAINED_PROFILE,
     TRAINED_CALIB_RUNG_PROFILE,

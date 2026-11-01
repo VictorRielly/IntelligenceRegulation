@@ -467,6 +467,32 @@ fn review_g_the_class_corner_proves_and_its_neighbours_refuse() {
 /// profile string without the door is refused by `Layout::for_shape` and by
 /// every single-block entry point, and a softmax window above 24 bits is
 /// refused at EVERY shape (a frozen profile edited to `f_e = 50` too).
+/// **W16 review F1 (2026-11-01).** A frozen (non-door) shape carrying a W16
+/// profile string by a FIELD WRITE is refused by both name guards, as the R13
+/// strings are; a W16 shape that came through the trained door still lays out.
+#[test]
+fn w16_review_f1_a_non_door_shape_under_a_w16_profile_string_is_refused() {
+    use super::shape::{W16_PROFILES, W16_RUNG_H24};
+    for spec in W16_PROFILES.iter() {
+        let mut sh = Shape::rung_c6();
+        sh.profile = spec.profile;
+        assert!(!sh.trained_calibration && super::shape::is_trained_profile_string(sh.profile));
+        assert!(super::protocol::single_block_profile_allowed(&sh).is_err(), "{}: the single-block path admitted a W16 profile string", spec.name);
+        let e = Layout::for_shape(&sh).err().unwrap_or_else(|| panic!("{}: Layout::for_shape ACCEPTED a non-door shape under a W16 profile string", spec.name));
+        eprintln!("W16-F1 {}: {e}", spec.name);
+    }
+    // the guard itself, where nothing earlier refuses: the W16 rung string on
+    // the frozen rung shape names the trained door
+    let mut sh = Shape::rung_c6();
+    sh.profile = W16_RUNG_H24;
+    let e = Layout::for_shape(&sh).err().expect("the W16 rung string on a frozen shape was accepted");
+    assert!(e.contains("did not come through the trained door") || e.contains("ruling CS-8") || e.contains("ruling CS-9"), "{e}");
+    // positive control: the trained door's W16 rung still lays out
+    let cal = super::shape::NormCalibration { tn: 10, cn_a: 100, cn_m: 100, ceps: 1, sh_ao: 7, sh_qkv: 8, sh_s: 6, sh_o: 9, sh_g: 8, sh_h: 14, sh_z: 6 };
+    let door = Shape::accuracy_trained(W16_RUNG_H24, &cal, 12, 20).expect("the W16 rung through the trained door");
+    assert!(door.trained_calibration && Layout::for_shape(&door).is_ok());
+}
+
 #[test]
 fn review_r2_1_a_non_door_shape_under_a_trained_profile_string_is_refused() {
     use super::shape::TRAINED_CALIB_RUNG_PROFILE;
