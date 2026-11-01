@@ -1,0 +1,16 @@
+
+running 1 test
+test private_block::slot_ir::accuracy::tests::m4_trained_accuracy_block_cpu_and_metal_digests_and_times ... M4-TRAINED W16_SHIELD_T128_H24 setup 0.52 s
+TABLE-KINDS W16_SHIELD_T128_H24: cpu-seconds eq 0.0000 (0 tables) | public 0.0000 (0) | plane 0.0000 (0) | folded plane 0.0000 (0)
+TABLE-KINDS W16_SHIELD_T128_H24: cpu-seconds eq 0.2882 (18 tables) | public 0.1535 (35) | plane 1.2296 (116) | folded plane 0.0000 (0)
+M4-TRAINED W16_SHIELD_T128_H24 cpu 3.161 s metal-cold 0.921 s (prove core cpu 3.032 s metal 0.788 s; kernel compile 0.003 s, device sumcheck rounds 0.133 s; 0 slots without a matching IR; buffer pool 23 reused / 28 new) digest cpu 01a6d51d3b0476dac75ecaf0ff37541d191d18722aa6aa5293876fa0318d4eb2 metal 01a6d51d3b0476dac75ecaf0ff37541d191d18722aa6aa5293876fa0318d4eb2
+TABLE-KINDS W16_SHIELD_T128_H24: cpu-seconds eq 0.2571 (18 tables) | public 0.0060 (35) | plane 0.3574 (116) | folded plane 0.0000 (0)
+M4-TRAINED W16_SHIELD_T128_H24 cpu 3.161 s metal-warm 0.742 s (prove core cpu 3.032 s metal 0.614 s; kernel compile 0.000 s, device sumcheck rounds 0.120 s; 0 slots without a matching IR; buffer pool 49 reused / 0 new) digest cpu 01a6d51d3b0476dac75ecaf0ff37541d191d18722aa6aa5293876fa0318d4eb2 metal 01a6d51d3b0476dac75ecaf0ff37541d191d18722aa6aa5293876fa0318d4eb2
+TABLE-KINDS W16_SHIELD_T128_H24: cpu-seconds eq 0.2674 (18 tables) | public 0.0071 (35) | plane 0.3901 (116) | folded plane 0.0000 (0)
+M4-TRAINED W16_SHIELD_T128_H24 cpu 3.161 s metal-warm 0.718 s (prove core cpu 3.032 s metal 0.590 s; kernel compile 0.000 s, device sumcheck rounds 0.116 s; 0 slots without a matching IR; buffer pool 49 reused / 0 new) digest cpu 01a6d51d3b0476dac75ecaf0ff37541d191d18722aa6aa5293876fa0318d4eb2 metal 01a6d51d3b0476dac75ecaf0ff37541d191d18722aa6aa5293876fa0318d4eb2
+TABLE-KINDS W16_SHIELD_T128_H24: cpu-seconds eq 0.0905 (18 tables) | public 0.0113 (35) | plane 0.2332 (116) | folded plane 0.0000 (0)
+M4-TRAINED W16_SHIELD_T128_H24 cpu 3.161 s metal-warm 0.623 s (prove core cpu 3.032 s metal 0.494 s; kernel compile 0.000 s, device sumcheck rounds 0.115 s; 0 slots without a matching IR; buffer pool 49 reused / 0 new) digest cpu 01a6d51d3b0476dac75ecaf0ff37541d191d18722aa6aa5293876fa0318d4eb2 metal 01a6d51d3b0476dac75ecaf0ff37541d191d18722aa6aa5293876fa0318d4eb2
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 913 filtered out; finished in 8.49s
+

@@ -1156,6 +1156,8 @@ mod tests {
         // [M4i] the proof call alone: the test's own clock also holds the
         // NTT tables, the endpoint rows and the digest's text below
         LAST_CORE_NS.store(t_core.elapsed().as_nanos() as u64, std::sync::atomic::Ordering::Relaxed);
+        // DIAGNOSTIC ONLY (HL_TABLE_KIND_TIMING=1): this proof's direct table builds by kind
+        crate::private_block::argument::table_kind_report(sh.name);
         if std::env::var("HL_M4_PHASES").map(|v| v == "1").unwrap_or(false) {
             let row: Vec<String> = phases.iter().map(|(n, t)| format!("{n} {t:.3}")).collect();
             eprintln!("M4-PHASES {} gpu={} | {}", sh.name, std::env::var("HL_GPU").unwrap_or_default(), row.join(" | "));

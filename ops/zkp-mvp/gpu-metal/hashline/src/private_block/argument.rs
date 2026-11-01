@@ -545,7 +545,42 @@ fn table_into(tab: &Tab, n_vars: usize, pd: &ProverData, out: &mut [Fp2]) {
 pub(super) fn build_tables_into(tabs: &[Tab], n_vars: usize, pd: &ProverData, out: Vec<&mut [Fp2]>) {
     use rayon::prelude::*;
     assert_eq!(tabs.len(), out.len(), "private block: device table count");
+    if table_kind_timing() {
+        // DIAGNOSTIC ONLY (HL_TABLE_KIND_TIMING=1): CPU seconds per table kind,
+        // summed over the threads that built them; the words are unchanged
+        tabs.par_iter().zip(out.into_par_iter()).for_each(|(t, o)| {
+            let s = std::time::Instant::now();
+            table_into(t, n_vars, pd, o);
+            let kind = match t { Tab::Eq { .. } => 0, Tab::Pub(_) => 1, Tab::Priv(p) if p.coords.iter().any(|c| matches!(c, Coord::Fixed(_))) => 3, Tab::Priv(_) => 2 };
+            TABLE_KIND_NS[kind].fetch_add(s.elapsed().as_nanos() as u64, std::sync::atomic::Ordering::Relaxed);
+            TABLE_KIND_N[kind].fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+        });
+        return;
+    }
     tabs.par_iter().zip(out.into_par_iter()).for_each(|(t, o)| table_into(t, n_vars, pd, o));
+}
+
+/// DIAGNOSTIC ONLY: per-kind table build counters (eq, public, plane, folded plane)
+pub(super) static TABLE_KIND_NS: [std::sync::atomic::AtomicU64; 4] = [const { std::sync::atomic::AtomicU64::new(0) }; 4];
+pub(super) static TABLE_KIND_N: [std::sync::atomic::AtomicU64; 4] = [const { std::sync::atomic::AtomicU64::new(0) }; 4];
+
+pub(super) fn table_kind_timing() -> bool {
+    static ON: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
+    *ON.get_or_init(|| std::env::var("HL_TABLE_KIND_TIMING").map(|v| v == "1").unwrap_or(false))
+}
+
+/// DIAGNOSTIC ONLY: print and reset the per-kind counters (one line per call)
+pub(crate) fn table_kind_report(label: &str) {
+    if !table_kind_timing() {
+        return;
+    }
+    let take = |a: &std::sync::atomic::AtomicU64| a.swap(0, std::sync::atomic::Ordering::Relaxed);
+    let ns: Vec<u64> = TABLE_KIND_NS.iter().map(take).collect();
+    let n: Vec<u64> = TABLE_KIND_N.iter().map(take).collect();
+    eprintln!(
+        "TABLE-KINDS {label}: cpu-seconds eq {:.4} ({} tables) | public {:.4} ({}) | plane {:.4} ({}) | folded plane {:.4} ({})",
+        ns[0] as f64 * 1e-9, n[0], ns[1] as f64 * 1e-9, n[1], ns[2] as f64 * 1e-9, n[2], ns[3] as f64 * 1e-9, n[3]
+    );
 }
 
 /// **FINDING S12-F2 (S12a), fixed here.** The ROW WIDTH a claim's reserved
