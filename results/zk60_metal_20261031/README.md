@@ -938,3 +938,16 @@ That is about 11.2 proved tokens/s for a 32-layer 8B stack at T128 (diagonal tes
 - trained digests R13 + W16;
 - the R13 run test;
 - golden 8/8 (`golden_m15/`).
+
+## M16 (2026-11-01): a host pool for the A and H matrices — no gain, reverted
+
+Tried: reuse a block's 330 MB A/H matrix for the next block of the same length (zeroed in parallel), to avoid fresh
+pages (M4f measured slow first touches). The diff is kept: `m16_matrix_pool_negative.patch`.
+
+[MEASURED, phase report, `logs/m16/phases_*.log`, W16 8B T128, oracle off, warm]:
+- "A: allocate + witness planes" 16–18 ms without the pool, 19–21 ms with it;
+- the block 0.351–0.356 s without, 0.358–0.367 s with.
+
+The allocator's fresh pages are not this phase's cost (`write_planes` is already parallel); the parallel zero-fill
+only added work. Reverted (the binary is rebuilt at the next build). The dev-shape bytes were equal with it on
+(`logs/m16/bytes.log`).

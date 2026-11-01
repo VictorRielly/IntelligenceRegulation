@@ -1,0 +1,81 @@
+diff --git a/ops/zkp-mvp/gpu-metal/hashline/src/private_block/protocol.rs b/ops/zkp-mvp/gpu-metal/hashline/src/private_block/protocol.rs
+index de393ebc..de9775c5 100644
+--- a/ops/zkp-mvp/gpu-metal/hashline/src/private_block/protocol.rs
++++ b/ops/zkp-mvp/gpu-metal/hashline/src/private_block/protocol.rs
+@@ -461,6 +461,43 @@ fn refuse_lookup_misses(u8: usize, exp: usize, act: usize) -> Result<(), String>
+ /// count of looked pairs that are not a row of the table (ruling CS-3;
+ /// a miss is filed in entry 0, exactly as before). Shared by `prove_core`
+ /// and [`check_lookup_misses`].
++/// **[ZK60-METAL M16] the A and H matrices, reused across blocks.** A fresh
++/// `vec![0; len]` of a block's 330 MB matrix pays a page fault per page at its
++/// first write (on this Mac the first touch of fresh memory costs about 0.08
++/// ms per MB and does not parallelize well; M4f). A matrix of the same length
++/// returned by an earlier block (after its opening) is zeroed in parallel
++/// instead: the same words, `len` zeros. At most [`MATRIX_POOL_MAX`] are kept;
++/// `HL_MATRIX_POOL=0` allocates fresh every time.
++static MATRIX_POOL: std::sync::Mutex<Vec<Vec<Fp>>> = std::sync::Mutex::new(Vec::new());
++const MATRIX_POOL_MAX: usize = 4;
++
++fn matrix_pool_on() -> bool {
++    static ON: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
++    *ON.get_or_init(|| std::env::var("HL_MATRIX_POOL").map(|v| v != "0").unwrap_or(true))
++}
++
++fn matrix_take(len: usize) -> Vec<Fp> {
++    if matrix_pool_on() {
++        let reused = MATRIX_POOL.lock().ok().and_then(|mut pool| pool.iter().position(|v| v.len() == len).map(|i| pool.swap_remove(i)));
++        if let Some(mut v) = reused {
++            use rayon::prelude::*;
++            v.par_chunks_mut(1 << 16).for_each(|c| c.fill(Fp::ZERO));
++            return v;
++        }
++    }
++    vec![Fp::ZERO; len]
++}
++
++fn matrix_put(v: Vec<Fp>) {
++    if matrix_pool_on() && !v.is_empty() {
++        if let Ok(mut pool) = MATRIX_POOL.lock() {
++            if pool.len() < MATRIX_POOL_MAX {
++                pool.push(v);
++            }
++        }
++    }
++}
++
+ fn exp_histogram(deltas: &[i64], e_plane: &[i64], exp: &[i64]) -> (Vec<u64>, usize) {
+     // [ZK60-METAL M15] long columns counted over 64 Ki chunks in parallel and
+     // summed (integer counts: the sequential loop's totals)
+@@ -1464,7 +1501,7 @@ pub(crate) fn prove_core(
+     let zko = ZkOpts::standard(&params);
+ 
+     // ---- A: planes, the three committed histograms, every mask row drawn BEFORE the commitment ----
+-    let mut a_data = vec![Fp::ZERO; lay.a_rows * n];
++    let mut a_data = matrix_take(lay.a_rows * n);
+     // [ZK60-METAL M4i] the same words in the same places, in one parallel pass
+     let plane_jobs: Vec<(usize, &[i64])> = committed.iter().map(|p| (lay.a_off[*p], wit.planes[*p].as_slice())).collect();
+     write_planes(&mut a_data, &plane_jobs);
+@@ -1577,7 +1614,7 @@ pub(crate) fn prove_core(
+     let g_u8 = gamma.mul_base(Fp::new(TAG_U8));
+     let g_exp = gamma.mul_base(Fp::new(TAG_EXP));
+     let g_act = gamma.mul_base(Fp::new(TAG_ACT));
+-    let mut h_data = vec![Fp::ZERO; lay.h_rows * n];
++    let mut h_data = matrix_take(lay.h_rows * n);
+     // **STAGE 28.** The 256 byte-table denominators, inverted once for the
+     // whole of `H`: what was an element-wise batch inversion over every looked
+     // word is a table build plus one indexed lookup per word. Same words, same
+@@ -1787,12 +1824,14 @@ pub(crate) fn prove_core(
+     let [ac, hc, ic, oc] = finish_claims(acc.claims, lay);
+     check_opening(&ac, sh.log_cols, lay.a_rows, &lay.a_site_rows(), None, lay.a_prox, sh.a_groups(), tr)?;
+     let a_open = pcs::open_zk(&a, &ac, tr);
++    matrix_put(std::mem::take(&mut a.data));
+     drop(a);
+     // ROUND 5: counted as the committed words the opening combines
+     ph.mark_bytes(Half::Open, "open A (schedule audit + pcs::open_zk)", (lay.a_rows * lay.n()) as u64, "words", 8 * (lay.a_rows * lay.n()) as u64);
+     let _ = ac.len();
+     check_opening(&hc, sh.log_cols, lay.h_rows, &lay.h_site_rows(), Some(lay.h_u_rows()), lay.h_prox, sh.h_groups(), tr)?;
+     let h_open = pcs::open_zk(&h, &hc, tr);
++    matrix_put(std::mem::take(&mut h.data));
+     drop(h);
+     ph.mark_bytes(Half::Open, "open H (schedule audit + pcs::open_zk)", (lay.h_rows * lay.n()) as u64, "words", 8 * (lay.h_rows * lay.n()) as u64);
+     let _ = hc.len();
