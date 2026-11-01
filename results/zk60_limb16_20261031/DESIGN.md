@@ -30,6 +30,19 @@ Evidence for the review:
 Still open: a run profile and receipt registration, the DD variants, the
 independent D24-class review and the privacy re-check (D54).
 
+**Where a W16 block's time goes** [MEASURED, one instrumented Metal pass, `logs/g_phases2.log`, 0.578 s wall against
+R13's 0.807 s]:
+- **Zero-checks:** F (slot 18) 0.072 s and D (slot 14) 0.054 s. Each is about half table building (0.031 / 0.019 s,
+  copying committed planes into device tables) and half masked sumcheck.
+- **Commitments:** `A` 0.051 s and `H` 0.045 s.
+- **Small slots:** the nine matmuls 0.054 s together; the norm row sums and limb check 0.042 s.
+- **Openings:** 0.044 s.
+- **The rest:** the IO endpoints 0.029 s; the exp/activation helper inverses 0.020 s; the table slot 0.008 s.
+
+A `sample` of eight warm passes shows the prover thread waiting on the GPU (sumcheck rounds) and on rayon (table
+builds) for most of its time. The byte-identical candidate it points to: have the first sumcheck round read the
+committed planes in place instead of copying them into extension-field tables (about 0.05 s, estimated).
+
 The sections below are the design as written before the build. Its counts and
 estimate are what the measurements above check.
 
