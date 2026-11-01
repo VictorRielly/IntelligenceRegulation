@@ -1,133 +1,163 @@
-# EA Funds Transformative AI Fund: application draft (2026-11-01; supersedes the 10-28 draft)
+# EA Funds Transformative AI Fund: field-by-field starting answers (matched to the real form, 2026-11-01)
 
-**Why this one is early in the queue.**
-- The fund is always open. It calls itself "early-stage, fast, and tolerant of failure".
-- Individuals can apply.
-- Decisions come in weeks (UNVERIFIED), and there is a fast-response option for time-sensitive requests.
+**Form.** https://av20jp3z.paperform.co/?fund=Transformative%20AI%20Fund (no login).
+- **It cannot be edited after you submit.** Fields: `FORM_FIELDS.md` §7.
 
-**Form.** https://av20jp3z.paperform.co/?fund=Transformative%20AI%20Fund (open it in a desktop browser).
-- The field names below follow the fund's published guidance.
-- If `FORM_FIELDS.md` lists the real fields, use that mapping instead.
-- Paste each block into the field that matches.
+**Limits.**
+- **Total:** at most 10,000 characters, and they recommend 2,000–5,000. The text answers below are counted by script
+  (see the end).
+- **Short description:** 120 characters at most. It may be published without checking with you.
+- **Summary:** 1,000 characters at most. They read it first.
 
-**The ask.** $150,000 for 12 months, minimum $60,000. The fund's typical range is $10k–$150k.
+**Leave optional fields completely empty** rather than writing "N/A". They say "N/A" can delay processing.
+
+**Response times.** The form says they are "longer than usual at the moment". It offers a "decision within eight
+weeks" option only if you also tick the EA Infrastructure Fund, so skip that.
+
+Starting draft; rewrite freely.
 
 ---
 
-### Project title
-Hashline: open, reviewed zero-knowledge proofs that a stated AI model produced a stated result, without revealing the
-data
+**1. Fund:** Transformative AI Fund
 
-### One-sentence summary
-Hire an engineer to move a working zero-knowledge prover for private language-model inference onto NVIDIA GPUs,
-release it fully open source, and pay for an external security review. A proof shows which model produced which
-result, while the data stays hidden.
+**2. Confirmation of fund scope:** tick.
 
-### Project description
-Oversight of advanced AI rests on claims outsiders cannot check: which model was evaluated and what it scored,
-whether the deployed model is the audited one, what a safety filter decided. Checking such a claim today means
-trusting the operator or handing private data (user content, test sets) to an auditor. Trusted hardware moves the
-trust to a chip vendor.
+**3. Funding from Coefficient Giving:** INDIVIDUAL
 
-I built Hashline, a zero-knowledge prover for transformer inference that removes this trade-off. A proof shows that a
-stated model, run on a hidden input, produced a stated result. The verifier never sees the input, the output or any
-intermediate activation. The proof system is hash-based (no trusted setup), with soundness counted at about 97 bits
-per run.
+**4. Name:** Victor Rielly
 
-**What exists [MEASURED unless marked]:**
-- **Trained Llama-3-8B:** a private next-token proof in 192 s on a laptop CPU; verified in 43 s; 65 of 65 tamper
-  checks rejected (n=1).
-- **Real 3B safety classifier (Mistral's Shieldstral):** private proofs of its verdicts on a post, all 26 layers,
-  about 7.5 minutes per category on a laptop, anchored on a public testnet.
-- **Privacy:** two privacy statements accepted after independent internal reviews. There has been no external
-  audit; this grant pays for one.
-- **New GPU backend (this week):**
-  - one Llama-3-8B-sized layer over 128 hidden tokens proves in 0.36 s on an Apple M3 Ultra, down from 12 s on a
-    laptop CPU;
-  - that is about 11 proved tokens per second for a 32-layer model [MODEL from measured per-layer times], against a
-    target of 50.
+**5. Organization name:** leave empty.
 
-**What the grant buys (12 months):**
-1. The GPU prover ported to NVIDIA (RTX 5090, then H100), byte-identical to the CPU path, with published 8B
-   throughput. The target is ≥50 proved tokens per second on one card.
-2. The whole stack released open source: prover, verifier, a specification of the proof system and its privacy
-   statement, and reproducible benchmarks.
-3. An external cryptographic review of soundness and zero-knowledge, published with our fixes.
-4. Proofs of evaluation scores on hidden test sets, so an evaluator can publish a checkable score while keeping the
-   test items secret.
+**6. Grant program:** **Applied Transformative AI Grants** ("technical or applied governance projects"; the output is
+built and deployed).
 
-### Theory of change
-1. AI governance needs claims that can be checked without trusting one party and without leaking data. Examples:
-   evaluations, audits, deployment commitments, content-safety screening.
-2. A zero-knowledge proof makes such a claim checkable by anyone. It rests on a hash function, not on the operator or
-   a hardware vendor, and complements hardware-based verification.
-3. **Open release:** anyone can verify proofs independently. The only fast competitor I know of (Attestable, which
-   claims 53 tokens/s) is closed. Without an open alternative, the verification layer of AI governance would itself
-   rest on trusting one company.
-4. **External review:** makes the claims credible enough for evaluators, AI safety institutes, auditors and insurers
-   to rely on.
-5. **Speed:** GPU speed makes proofs routine. Evaluation scores and content verdicts are proved once per item, so
-   they are useful even at today's speed.
-6. **Next step (version 2): hidden weights.** Labs can then prove facts about confidential models, which outside
-   assessment of frontier labs needs.
+**8. Main collaborators:** leave empty. The collaborators are to be hired; this is covered in the goals.
 
-### Track record
-- **Education:** PhD in Applied Mathematics (Portland State University, 2025, machine-learning emphasis); B.S. in
-  Mathematics and Physics (salutatorian). I am a postdoctoral researcher at the Translational Genomics Research
-  Institute.
-- **Publications:** peer-reviewed papers in the Journal of Computational Physics and TMLR, a third accepted in a
-  SIAM journal, and two under review.
-- **Industry R&D:** internships at Intel and NASA; three years as lead engineer of a networked IoT device.
-- **This project (since December 2025, about 1,640 commits):**
-  - I led the design of the proof system and made every security and privacy ruling;
-  - I direct a team of AI coding agents under strict rules: byte-identity gates, independent soundness and privacy
-    reviews, and a recorded measurement behind every claim.
-- LinkedIn: https://www.linkedin.com/in/victor-rielly-50508b3a/
+**9. Email:** victor23@pdx.edu
 
-### Who will do the work
-- I keep my current job and lead the project part-time, about [V2: 10–15] hours a week. **The grant pays me
-  nothing.**
-- The money hires a GPU / zero-knowledge engineer on contract and pays for the external review.
-- I will recruit through the zero-knowledge community (ZK Hack, ZKProof, Ethereum research) and the academic groups
-  closest to this work.
-- The codebase is documented for newcomers, with a task board of exact commands and byte-identity acceptance.
+**10. Employed by CEA?** No, never.
 
-### Amount, and what different amounts buy
-| Amount | Buys |
-|---|---|
-| $60,000 (minimum) | A half-time engineer for 6 months: the NVIDIA port and the open release |
-| **$150,000 (requested)** | A half-time engineer for 12 months, plus the $50k external review, plus AI-agent and cloud GPU costs: deliverables 1–3 and most of 4 |
-| $300,000 | A full-time engineer, plus a quarter-time cryptographer, the review and the paper: the full plan |
+**11. Short description** (max 120):
+> Open, GPU-fast zero-knowledge proofs that a stated AI model produced a stated result, without revealing the data.
 
-Budget for $150k:
-- engineer, $75,000;
-- external review, $50,000;
-- AI agents and cloud GPU, $24,000;
-- accounting, $1,000.
+**12. Summary** (max 1,000):
+> I built Hashline, a zero-knowledge prover for transformer inference. A proof shows that a stated model, run on a
+> hidden input, produced a stated result. Anyone can verify it, while the input, output and activations stay hidden.
+> That lets evaluators, auditors and platforms make AI claims checkable without trusting the operator or disclosing
+> data.
+>
+> Working today:
+> - private proofs for a trained Llama-3-8B and a real 3B safety classifier;
+> - soundness counted at about 97 bits;
+> - a GPU backend at about 11 proved tokens/s for an 8B model on one Apple GPU.
+>
+> I lead part-time and take no salary. The grant hires an engineer to port the prover to NVIDIA GPUs (target 50
+> tokens/s), release it fully open source, and fund an external security review. The only fast competitor is closed
+> source.
 
-### Risks and premortem
-- **Speed:** 50 tokens/s may not be reached. The first uses work at today's speed, and every throughput figure is
-  measured and published either way.
-- **The review finds a flaw:** we fix it and publish both; that is why it is funded.
-- **Hiring:** if a full hire is slow, I pay contractors per milestone. The design and gates already exist, so a new
-  engineer is productive within the first week.
-- **Scope:** version 1 hides the data, not the weights.
-- **Fallback:** an open, externally reviewed prover and specification for private transformer inference is still a
-  public good.
+**13. Project goals:**
+> **Actions (12 months):**
+> 1. Port the GPU prover to NVIDIA (RTX 5090, then H100), byte-identical to the CPU path; publish 8B throughput.
+>    Target: 50 proved tokens/s on one card.
+> 2. Release the whole stack under a permissive licence, with a specification and reproducible benchmarks.
+> 3. Commission an external review of soundness and zero-knowledge, and publish it with fixes.
+> 4. Prove evaluation scores on hidden test sets.
+>
+> **Path to impact:** governance of advanced AI needs claims that can be checked without trusting one party or
+> leaking data. That covers evaluations, audits, deployment commitments and content screening. An open, reviewed,
+> fast prover makes such claims routinely checkable. Version 2 hides the weights too, so labs can prove facts about
+> confidential models.
+>
+> **How we will know:** a published benchmark anyone can rerun, a published external review, and outside parties
+> verifying proofs with the open verifier.
 
-### Other funding
-None received. Applying in parallel to: [keep current from `README.md`]. If two funders cover the same budget line, I
-will tell both and take only one.
+**14. Track record:**
+> - **Hashline (since December 2025):** I led the design, made every security and privacy ruling, and directed AI
+>   coding agents under strict rules (byte-identical outputs, independent soundness and privacy reviews, a recorded
+>   measurement behind every claim), about 1,640 commits.
+> - **Results:** a private next-token proof of trained Llama-3-8B (192 s on a laptop CPU, 43 s to verify), and a 34×
+>   per-layer speedup on GPU.
+> - **Failures:** a laptop crash lost demo artifacts, which led to durable storage; and several speed ideas measured
+>   no gain and were reverted and recorded.
+> - **Before this:** a PhD in applied mathematics (Portland State University, 2025); papers in the Journal of
+>   Computational Physics and TMLR; R&D at Intel and NASA.
+> - **Spending so far:** self-funded, with no staff.
 
-### Time sensitivity
-> Yes, moderately. A funded closed competitor exists, and the project is ready for engineers now: the prover and its
-> review process work. An answer within a few weeks lets me hire this winter.
+**15. Public portfolio:**
+> - arxiv.org/abs/2206.15215
+> - arxiv.org/abs/2306.10189
+> - arxiv.org/abs/2503.13791
+>
+> The prover is to be open-sourced; reviewers can have access on request.
 
-(Tick the fast-response option if the form offers it.)
+**16. Funding amount and breakdown:**
+> Requested: $150,000 for 12 months (budget sheet linked).
+> - 50% ($75,000): a half-time GPU / zero-knowledge engineer, on contract;
+> - 33% ($50,000): an external cryptographic review;
+> - 16% ($24,000): AI-agent usage and cloud GPU;
+> - 1% ($1,000): accounting.
+>
+> No salary for me. Range: $60,000 buys the NVIDIA port and the open release; $300,000 adds a full-time engineer, a
+> quarter-time cryptographer and a paper. The project's total budget is the same as this request.
 
-### Public reporting
-Allow a public payout report with the one-sentence summary.
+**Budget sheet link:** import `budget_ea_funds.csv` into Google Sheets, set it to "Anyone with the link can view", and
+paste the link here. [V]
 
-### References
-- Bruno Jedynak, Portland State University: bruno.jedynak@pdx.edu
-- Kamel Lahouel, Translational Genomics Research Institute: klahouel@tgen.org
+**17. Requested amount (USD):** 150000
+
+**18. Organizational budget:** leave empty.
+
+**19. Alternatives to funding:**
+> Without this grant the work continues part-time and slowly. Applications in the last 12 months: [V: update at
+> submission]. For example:
+> - GTR AI Safety Fund, Nov 2026, pending;
+> - Lightcone Commons, Nov 2026, pending;
+> - Y Combinator W27, Nov 2, pending (equity).
+>
+> No grant has been received.
+
+**20. Use for additional funding:**
+> A full-time engineer instead of half-time, a quarter-time applied cryptographer, and earlier work on hiding the
+> weights.
+
+**21. Confidential information:** leave empty.
+
+**22. LinkedIn/CV:** https://www.linkedin.com/in/victor-rielly-50508b3a/
+
+**23. File upload:** `Victor_Rielly_CV_grant.pdf` (optional).
+
+**24. Start date / end date:** 2027-01-01 / 2027-12-31 [V: adjust]
+
+**25. Currency:** USD
+
+**26. Location:** Portland, Oregon, USA (both)
+
+**27. China or India?** No
+
+**28. An award for past achievement?** No
+
+**29. Anyone under 18?** No
+
+**30. Lobbying?** leave empty (none).
+
+**31. References:**
+> - Bruno Jedynak, bruno.jedynak@pdx.edu: Portland State University; co-author of my research. [V: confirm the role,
+>   e.g. PhD advisor]
+> - Kamel Lahouel, klahouel@tgen.org: TGen; co-author and research colleague. [V: confirm]
+
+**32. Referral to other funders:** Forward.
+
+**33. Secondary fund (EA Infrastructure):** No.
+
+**34. How did you hear about EA Funds?** [V]
+
+**36. Public reporting:** PUBLIC.
+
+**37. Network sharing:** Yes.
+
+**38. Anything else:** leave empty.
+
+**39–40.** Tick both after re-reading.
+
+---
+Character counts (script, 2026-11-01): short description 113/120; summary 787/1,000; goals 934; track record 797; portfolio 153; budget 465; alternatives 290; additional 120; references 223. Total about 3,900 (recommended 2,000–5,000; maximum 10,000).
