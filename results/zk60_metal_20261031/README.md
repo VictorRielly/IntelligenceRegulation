@@ -757,3 +757,30 @@ samples. A single block proof uses a small fraction of this machine. Two consequ
 - **Blocks within ONE run cannot overlap today.** `run.rs::prove_run_with` threads one transcript through every
   block (block k continues block k-1's Fiat-Shamir state, and the boundary openings join claims from both sides).
   Per-block transcripts would be a protocol change needing a soundness design and Victor's ruling.
+
+## M10 (2026-11-01): independent block proofs at once — about 22 proved tokens/s aggregate, GPU-bound
+
+New ignored test `m10_concurrent_block_proofs_throughput` (`slot_ir_accuracy.rs`): one process and one shared
+warm-up, so the slot kernels compile once. Then N threads each prove the same seeded W16 block K times, and each
+proof's final transcript state must equal the solo proof's (it binds every absorbed message). There is no prover
+change. Separate processes are the wrong harness: a second process's cold pass stalled 10.3 s behind the first
+one's Metal compiles (`logs/m10conc/n2_p2.log`).
+
+[MEASURED, `logs/m10conc/threads.log`, W16 8B T128, `HL_PB_ORACLE=0`, K=4, shared Mac, diagonal test weights; all
+proofs equal]:
+
+| threads | wall (N x 4 proofs) | blocks/s | proved tok/s, 32-layer 8B (aggregate) | per-proof core median |
+|---:|---:|---:|---:|---:|
+| 1 | 1.504 s | 2.66 | 10.6 | 0.372 s |
+| 2 | 2.115 s | 3.78 | 15.1 | 0.523 s |
+| 3 | 2.532 s | 4.74 | 19.0 | 0.598 s |
+| 4 | 3.171 s | 5.05 | 20.2 | 0.741 s |
+| 6 | 4.335 s | **5.54** | **22.1** | 1.036 s |
+
+**Reading.**
+- **This is throughput over independent proofs** (separate requests or stacks), not one request's latency. One
+  run's blocks share a transcript and still prove one after another.
+- **It saturates near 5.5–6 blocks/s,** matching the GPU's own work per block, about 0.165 s: device rounds
+  about 0.075 s, two commitments about 0.065 s, opening store folds about 0.025 s.
+- **So under concurrency the GPU kernels are the bottleneck:** sumcheck kernels (slot 18 about 25 ms, slot 14 about
+  15 ms) and the commitment NTTs (forward about 18 ms each). The CPU has headroom left.

@@ -1214,6 +1214,101 @@ mod tests {
     /// `r12_golden_tests::digest_of_seeded_block`: roots, slot proofs,
     /// openings, IO claims, absorb order, lookups, final transcript state)
     #[cfg(feature = "gpu-metal")]
+    /// [M10] the seeded core proof of `seeded_accuracy_digest`, returning
+    /// only the final transcript state (it binds every absorbed message of
+    /// the proof) and the proof call's seconds: no digest text, so N threads
+    /// can prove at once without a formatting pass each
+    fn seeded_core_state(sh: &Shape, blk: &crate::private_block::BlockPublic, w: crate::private_block::witness::Witness) -> ([u8; 32], f64) {
+        let lay = Layout::for_shape(sh).unwrap();
+        let (rows, n) = (sh.endpoint_rows, 1usize << sh.endpoint_log_n);
+        let ids = Ids::new(sh).unwrap();
+        let io = |p: usize| -> Vec<Fp> {
+            let mut d = vec![Fp::ZERO; rows * n];
+            for (i, v) in w.planes[p].iter().enumerate().take(d.len()) {
+                d[i] = Fp::from_i64(*v);
+            }
+            d
+        };
+        let (ein, eout) = (io(ids.at(A_X)), io(ids.at(A_X2)));
+        let ntt = crate::ntt::NttTables::new(crate::private_block::protocol::ntt_log_at(sh));
+        let mut rng = crate::zk::ZkRng::new(20261031, b"zk60 metal m4 accuracy");
+        let mut tr = Transcript::new(b"zk60 metal m4 accuracy");
+        tr.absorb(b"profile", sh.profile.as_bytes());
+        tr.absorb(b"schedule", &lay.schedule_digest());
+        let mut ph = crate::private_block::timing::Phases::start();
+        let (mut phases, mut tick) = (Vec::new(), std::time::Instant::now());
+        let t_core = std::time::Instant::now();
+        crate::private_block::protocol::prove_core(sh, &lay, blk, w, [ein.as_slice(), eout.as_slice()], &ntt, &mut rng, &mut tr, &mut ph, &mut phases, &mut tick).expect("the seeded accuracy core proof");
+        (tr.state(), t_core.elapsed().as_secs_f64())
+    }
+
+    /// **[ZK60-METAL M10, ignored] throughput of INDEPENDENT block proofs at
+    /// once**: one process, one shared warm-up (the slot kernels compile once),
+    /// then N threads each proving the same seeded block K times. Each proof's
+    /// final transcript state must equal the solo proof's. Prints the wall
+    /// clock and blocks/s per N. `HL_M10_PROFILE` (default W16_8B_T128_H24),
+    /// `HL_M10_THREADS` (default 1,2,3,4,6), `HL_M10_PER_THREAD` (default 4).
+    #[cfg(feature = "gpu-metal")]
+    #[test]
+    #[ignore]
+    fn m10_concurrent_block_proofs_throughput() {
+        let name = std::env::var("HL_M10_PROFILE").unwrap_or_else(|_| "W16_8B_T128_H24".to_string());
+        let spec = crate::private_block::shape::W16_PROFILES.iter().find(|s| s.name == name).expect("a W16 profile name");
+        let cal = crate::private_block::shape::NormCalibration { tn: if spec.width >= 3072 { 9 } else { 10 }, cn_a: 100, cn_m: 100, ceps: 1, sh_ao: 7, sh_qkv: 8, sh_s: 6, sh_o: 9, sh_g: 8, sh_h: 14, sh_z: 6 };
+        let original = Shape::accuracy_trained(spec.profile, &cal, if spec.tokens == 32 { 12 } else { 9 }, 20).unwrap();
+        let (sh, data, public, ff) = case(original, 3);
+        let blk = crate::private_block::BlockPublic::new(public.clone(), ff.clone()).with_accuracy(data.clone());
+        let mut seed = 0usize;
+        let w0 = loop {
+            let input: Vec<i16> = (0..sh.tokens * sh.width).map(|i| ((i * 37 + 11 + seed) % (41 + 20 * (seed % 3))) as i16 - 20).collect();
+            match crate::private_block::witness::build_accuracy(&sh, &public, &ff, &data, &input) {
+                Ok(w) => break w,
+                Err(_) if seed < 6 => seed += 1,
+                Err(e) => panic!("{}: no admissible synthetic input: {e}", sh.name),
+            }
+        };
+        std::env::set_var("HL_GPU", "1");
+        let (want, cold) = seeded_core_state(&sh, &blk, w0.clone());
+        let (_, warm) = seeded_core_state(&sh, &blk, w0.clone());
+        eprintln!("M10 {name}: solo cold {cold:.3} s, warm {warm:.3} s");
+        let threads: Vec<usize> = std::env::var("HL_M10_THREADS").unwrap_or_else(|_| "1,2,3,4,6".into()).split(',').filter_map(|v| v.trim().parse().ok()).collect();
+        let k: usize = std::env::var("HL_M10_PER_THREAD").ok().and_then(|v| v.parse().ok()).unwrap_or(4).max(1);
+        for &n in &threads {
+            let t = std::time::Instant::now();
+            let cores: Vec<f64> = std::thread::scope(|s| {
+                let hs: Vec<_> = (0..n)
+                    .map(|_| {
+                        let (sh, blk, w0) = (&sh, &blk, &w0);
+                        s.spawn(move || {
+                            (0..k)
+                                .map(|_| {
+                                    let (st, secs) = seeded_core_state(sh, blk, w0.clone());
+                                    assert_eq!(st, want, "a concurrent proof's transcript differs from the solo proof's");
+                                    secs
+                                })
+                                .collect::<Vec<f64>>()
+                        })
+                    })
+                    .collect();
+                hs.into_iter().flat_map(|h| h.join().expect("a prover thread")).collect()
+            });
+            let wall = t.elapsed().as_secs_f64();
+            let mut c = cores.clone();
+            c.sort_by(|a, b| a.partial_cmp(b).unwrap());
+            let blocks = (n * k) as f64;
+            eprintln!(
+                "M10 {name} threads {n} x {k}: wall {wall:.3} s, {:.2} blocks/s ({:.1} proved tok/s for 32 layers of T{}), per-proof core min {:.3} median {:.3} max {:.3} s",
+                blocks / wall,
+                blocks / wall * sh.tokens as f64 / 32.0,
+                sh.tokens,
+                c[0],
+                c[c.len() / 2],
+                c[c.len() - 1]
+            );
+        }
+        std::env::remove_var("HL_GPU");
+    }
+
     fn seeded_accuracy_digest(sh: &Shape, blk: &crate::private_block::BlockPublic, w: crate::private_block::witness::Witness) -> String {
         let lay = Layout::for_shape(sh).unwrap();
         let (rows, n) = (sh.endpoint_rows, 1usize << sh.endpoint_log_n);
