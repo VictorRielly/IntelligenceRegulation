@@ -125,7 +125,7 @@ fn the_w16_ir_evaluates_to_the_w16_closure_at_every_slot() {
             let mut twin = Transcript::clone_state(&tr);
             let ir = build_slot_ir(slot, &ctx, &mut ipts, &mut twin);
             let def = define(slot, &ctx, &mut pts, &mut tr).unwrap_or_else(|e| panic!("W16 ng{ng} slot{slot}: {e}"));
-            let w16 = [SC_DZC, SC_FZC, SC_QZC, SC_KVZC, SC_SZC].contains(&slot);
+            let w16 = [SC_DZC, SC_FZC, SC_QZC, SC_KVZC, SC_SZC, SC_TAB].contains(&slot);
             match ir {
                 Ok(ir) => {
                     let at = format!("W16 ng{ng} slot{slot}");
@@ -144,7 +144,7 @@ fn the_w16_ir_evaluates_to_the_w16_closure_at_every_slot() {
             }
         }
     }
-    assert_eq!(transcribed, 4 * 5, "the five W16 zero-check slots at every group count");
+    assert_eq!(transcribed, 4 * 6, "the five W16 zero-checks and the table slot at every group count");
 }
 
 #[test]

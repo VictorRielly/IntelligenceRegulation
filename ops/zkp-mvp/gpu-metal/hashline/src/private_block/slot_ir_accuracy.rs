@@ -41,7 +41,7 @@ pub(super) fn build(slot: usize, ctx: &Ctx, pts: &IrPoints, tr: &mut Transcript,
             SC_SZC if sh.dd_cap > 0 => Err("W16 IR: the DD softmax zero-check is not transcribed".into()),
             SC_SZC => szc_w16(b, ctx, pts, tr).map(Some),
             SC_DD => Err("W16 IR: the dictionary slot is not transcribed".into()),
-            SC_TAB => Err("W16 IR: the table-helper slot is not transcribed".into()),
+            SC_TAB => tab_w16(b, ctx, tr).map(Some),
             _ => Ok(None),
         };
     }
@@ -702,6 +702,63 @@ fn szc_w16(b: &mut IrB, ctx: &Ctx, pts: &IrPoints, tr: &mut Transcript) -> Resul
         SlotTerm { coef: Coef::nu(1, nu[1]), wrapper: [vec![i_ps], gsv].concat(), inner: vec![fnd(host_s)], note: "host SC_SCORE".to_string() },
     ];
     Ok((terms, pad_on))
+}
+
+/// `argument_accuracy::tab_w16`: the three tables' and every range
+/// sub-plane's `h (alpha - t) - m`, and the pad groups (bytes, activation,
+/// then each narrow range family) in the relation's own order. W16's table
+/// slot carries five times R13's tables (0.18 s of a 0.76 s block on the CPU),
+/// which is why it has a device path where R13's has none.
+fn tab_w16(b: &mut IrB, ctx: &Ctx, tr: &mut Transcript) -> Result<(Vec<SlotTerm>, bool), String> {
+    use crate::private_block::range16;
+    let lay = ctx.lay;
+    let (sh, ids, hids) = (lay.shape(), lay.ids(), lay.hids());
+    let rp = ids.accuracy()?.range_planes();
+    let rh: Vec<usize> = hids.range_helpers().collect();
+    if rp.len() != rh.len() {
+        return Err("W16 IR: the range sub-planes and their table helpers differ in number".into());
+    }
+    let pad_on = !super::super::pad::zero_rule_a_planes(sh, ids, Dom::Tab).is_empty();
+    let tau_len = tr.challenge_fp2_vec(sh.log(Dom::Tab)).len();
+    let mu = tr.challenge_fp2_vec(3 + rp.len() + usize::from(pad_on));
+    let zeta = if pad_on { nonzero(tr.challenge_fp2_vec(1))?[0] } else { Fp2::ZERO };
+    let th = hids.table_helpers();
+    let i_tau = b.eq(tau_len, 0, "tau");
+    let mut triples: Vec<(TableId, TableId, TableId)> = Vec::with_capacity(3 + rp.len());
+    triples.push((b.a(ids.at(A_MU8)), b.h(th[0]), b.public_chal("the U8 tag g_u8", "the U8 table's value column")));
+    triples.push((b.a(ids.at(A_MEXP)), b.h(th[1]), b.public_chal("beta and the exp tag g_exp", "the exp table's value column")));
+    triples.push((b.a(ids.at(A_MACT)), b.h(th[2]), b.public_chal("beta and the activation tag g_act", "the activation table's value column")));
+    for (j, (_, _, plane)) in rp.iter().enumerate() {
+        triples.push((b.a(*plane), b.h(rh[j]), b.public_chal("a W16 range family's tag", "a W16 range sub-plane's value column")));
+    }
+    let mut pz = if pad_on { IrPad::new(Coef::mu(3 + rp.len(), mu[3 + rp.len()]), zeta) } else { IrPad::none() };
+    if pad_on {
+        let narrow: Vec<usize> = (0..rp.len()).filter(|&j| !range16::full(rp[j].0, sh.log_cols)).collect();
+        let a_decl: Vec<usize> = [ids.at(A_MU8), ids.at(A_MEXP), ids.at(A_MACT)].into_iter().chain(narrow.iter().map(|&j| rp[j].2)).collect();
+        let h_decl: Vec<usize> = th.into_iter().chain(narrow.iter().map(|&j| rh[j])).collect();
+        super::super::argument::tab_group_is_declared(sh, ids, &a_decl, &h_decl)?;
+        let bytes = b.supp(Dom::Tab);
+        let activation = Some(b.public_shape("the activation table's support column"));
+        let t = |k: usize| -> [usize; 2] { [usize::from(triples[k].0), usize::from(triples[k].1)] };
+        pz.add(bytes, &[t(0)[0], t(1)[0]]);
+        pz.add(bytes, &[t(0)[1], t(1)[1]]);
+        pz.add(activation, &[t(2)[0]]);
+        pz.add(activation, &[t(2)[1]]);
+        for &j in &narrow {
+            let support = Some(b.public_shape("a narrow W16 range family's support column"));
+            pz.add(support, &[t(3 + j)[0]]);
+            pz.add(support, &[t(3 + j)[1]]);
+        }
+    }
+    let mut zc_terms: Vec<SubTerm> = Vec::new();
+    for (k, &(m, h, tv)) in triples.iter().enumerate() {
+        let den = b.affine(format!("alpha - values[{k}]"), Coef::chal(ctx.alpha, "alpha"), vec![(Coef::neg_one(), tv)]);
+        let rel = b.sum(format!("r{k}: h (alpha - values) - m"), vec![st(Coef::one(), vec![ft(h), fnd(den)]), st(Coef::neg_one(), vec![ft(m)])]);
+        zc_terms.push(st(Coef::mu(k, mu[k]), vec![fnd(rel)]));
+    }
+    zc_terms.extend(pz.subterms(b));
+    let zc = b.sum("zc".into(), zc_terms);
+    Ok((vec![SlotTerm { coef: Coef::one(), wrapper: vec![i_tau], inner: vec![fnd(zc)], note: "the W16 table helpers' relations".to_string() }], pad_on))
 }
 
 #[cfg(test)]
