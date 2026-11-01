@@ -1,5 +1,23 @@
 # Where the MVP stands, in plain words
 
+**2026-11-01 (night, Mac): two more byte-identical speedups to the W16 format; an 8B-shaped block now proves in about 0.43 s on the GPU.**
+- **M5b** builds the activation lookup's queries in parallel.
+- **M5c** builds each large eq table from two small half-tables, one multiplication per entry, instead of a full
+  table plus a copy.
+- **M5a** (gathering plane tables on the GPU) was byte-identical but gave no gain in a side-by-side comparison on
+  one binary, so it was reverted and its diff kept.
+- **Gates:** every existing format's bytes are unchanged at each step (golden 8/8, trained digests, R13 run).
+- **Speed** [MEASURED, Metal prove core, T128, warm passes n=3, shared Mac]:
+  - W16 Shieldstral 0.452-0.469 s;
+  - W16 8B 0.432-0.435 s, about 9.2 proved tokens per second for a 32-layer 8B stack (proof call only), still
+    about 5.4 times short of 50.
+- **Researcher (D50).** A Claude researcher ran on the Mac, because the Codex explorer needs bubblewrap. It
+  measured LogUp-GKR against W16's helpers: marginal, about x1.00-1.25 (estimate), so not recommended
+  (`research/zkp-efficiency/handoffs/20261101-logup-gkr-w16.md`). Its top idea is overlapping the about 0.2 s of
+  host-CPU work with GPU work.
+- **Timing noise.** Spotlight re-indexing new build output slowed one run's CPU path about 2x. Excluding the repo
+  from Spotlight would help.
+
 **2026-10-31 (late evening, Mac): 16-bit range lookups (W16, D54) built and measured: a block now takes about 0.47 s on the GPU.**
 - **What changed.** Victor approved wider range-check limbs (D54).
   - A new, opt-in proof format replaces most byte limbs with 16-bit range lookups.
