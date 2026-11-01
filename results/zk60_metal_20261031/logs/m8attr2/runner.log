@@ -1,0 +1,4 @@
+[zk60-guard 00:40:24] START m8attr-base class=gpu need=60G cap=160G enforce=watchdog-only waited=0s run=15ff4a9fddb5
+[zk60-guard 00:40:32] END m8attr-base exit=0 child_wall=8s peak_rss=5.01G min_avail=223.43G peak_vram=7321MiB
+[zk60-guard 00:40:43] START m8attr-all class=gpu need=60G cap=160G enforce=watchdog-only waited=0s run=2f1153f1c27c
+[zk60-guard 00:40:51] END m8attr-all exit=0 child_wall=9s peak_rss=5.45G min_avail=223.32G peak_vram=7308MiB

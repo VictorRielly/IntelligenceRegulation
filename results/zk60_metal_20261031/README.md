@@ -673,3 +673,42 @@ and Metal digests are equal at all three (031cbe06, 8d2a57ff, ea111295).
 - At T512 the quadratic attention terms take that back.
 - Longer workloads are therefore not a route to 50 tokens/s on this prover; the remaining factor of about 5 has to
   come from per-token cost.
+
+## M8 (2026-11-01): small expensive slots on the device; exact deferred column fold; parallel class scan — kept
+
+**What changed** (all byte-identical):
+1. **Small slots go to the device when they would be slow on the CPU** (`argument.rs::small_slot_pays`). A slot below
+   2^18 terms now goes to the device when its estimated single-thread CPU cost is above 2 ms. The estimate is
+   `2^n (D+1)` evaluations of its polynomial, timed on eight fixed points; `HL_METAL_SMALL_SLOT_US` overrides the
+   budget. Since M6 a batched device round costs about 0.025 ms.
+   [MEASURED, `logs/m8attr2`, warm n=3] Slot 03 at W16 8B (5 tables x 2^14) went from 8 ms to 2 ms.
+2. **`fold_cols_i8` reduces once per output row** (zkp-core `mle.rs::fold_cols_deferred`). It forms the exact i128
+   integer sum and reduces it once, as `fold_rows_i8` already did. `HL_FSP_COL_FOLD=0` keeps the field form.
+   - Unit test `m8_deferred_column_fold_equals_the_field_fold`: zero, ±127 and p-1 coefficients.
+   - [MEASURED, `logs/m8/bench.log`, one 8B FFN matrix, 4096 x 14336 dense i8, n=3] 9.3–11.9 ms → 3.4–3.7 ms.
+3. **The R13 fold's class check `matrix.contains(&i8::MIN)` scans 1 MiB chunks in parallel.** It is the same
+   predicate and the same refusal: 2.1–2.4 → 0.8–1.2 ms per FFN matrix.
+4. **Test-only switch `HL_PB_ORACLE=0`.** It skips the `cfg(test)` CPU replay of small slots inside the timed
+   sumcheck step, which no production prover runs. Every gate keeps the default, on.
+
+**A caveat about every block timing in this file.** The trained timing test uses DIAGONAL synthetic weights
+(`grow_tests::tame_case`: 64 on the diagonal, 0 elsewhere). The public weight folds, which skip zeros, are therefore
+nearly free there, so the gain from (2) cannot show in it. A real trained 8B layer's dense weights cost about +15 ms
+per block after M8 (three FFN folds of about 4 ms, the attention projections' row folds about 2.5 ms), against about
++35 ms before M8 [ESTIMATE from the fold benchmark].
+
+**A/B on one binary** [MEASURED, `HL_PB_ORACLE=0`, warm n=3, `logs/m8/ab_*.log`]. W16 8B core:
+- base (rules 1 and 2 off) 0.414–0.424 s;
+- (2) only 0.418–0.426 s;
+- all 0.413–0.439 s.
+
+The block clock cannot resolve a few milliseconds at n=3 on the shared Mac; the per-slot clock can
+(`logs/m8attr2`: slot steps 0.159 → 0.151 s).
+
+**Gates** (`logs/m8`), all passed:
+- zkp-core 10/0;
+- dev-shape bytes at the default budget and with every round batched;
+- unit tests 62/0 in both modes;
+- trained digests R13 2b0d04bb / 678953f6 and W16 01a6d51d / c5e0bdac;
+- the R13 run test;
+- golden 8/8 (`golden_m8/`).

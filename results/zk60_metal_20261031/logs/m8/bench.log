@@ -1,0 +1,12 @@
+   Compiling zkp-core v0.1.0 (/Users/victorrielly/IntelligenceRegulation/ops/zkp-mvp/gpu-metal/zkp-core)
+    Finished `release` profile [optimized] target(s) in 13.67s
+     Running unittests src/lib.rs (ops/zkp-mvp/gpu-metal/zkp-core/target/release/deps/zkp_core-68bf4449a8e0df65)
+
+running 1 test
+[M8 bench] rep 0: column fold field 0.0119 s, deferred 0.0037 s; class scan one thread 0.0024 s, parallel 0.0012 s
+[M8 bench] rep 1: column fold field 0.0097 s, deferred 0.0034 s; class scan one thread 0.0021 s, parallel 0.0008 s
+[M8 bench] rep 2: column fold field 0.0093 s, deferred 0.0034 s; class scan one thread 0.0022 s, parallel 0.0009 s
+test mle::tests::m8_bench_column_fold_at_the_8b_ffn_shape ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 77 filtered out; finished in 0.10s
+

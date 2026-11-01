@@ -1,0 +1,18 @@
+   Compiling zkp-core v0.1.0 (/Users/victorrielly/IntelligenceRegulation/ops/zkp-mvp/gpu-metal/zkp-core)
+    Finished `release` profile [optimized] target(s) in 13.47s
+     Running unittests src/lib.rs (ops/zkp-mvp/gpu-metal/zkp-core/target/release/deps/zkp_core-68bf4449a8e0df65)
+
+running 10 tests
+test transcript::tests::the_unkeyed_transcript_is_unchanged ... ok
+test transcript::tests::deterministic_and_sensitive ... ok
+test mle::tests::eq_table_sums_to_one_and_matches_point ... ok
+test transcript::tests::a_keyed_transcript_separates_and_its_clone_does_not ... ok
+test mle::tests::matrix_folds_are_tensor_evaluations ... ok
+test mle::tests::m8_deferred_column_fold_equals_the_field_fold ... ok
+test mle::tests::eq_table_across_the_parallel_cutoff_matches_point ... ok
+test sumcheck::rounds::tests::masked_transcripts_and_one_or_two_extension_rounds_match ... ok
+test sumcheck::grouped::tests::native_masked_bytes_folds_finals_and_extensions_match ... ok
+test sumcheck::rounds::tests::parallel_and_serial_folds_match_original ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 67 filtered out; finished in 0.10s
+

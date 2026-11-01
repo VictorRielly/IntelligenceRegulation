@@ -19,7 +19,14 @@ measured context scaling shows that longer contexts buy little.**
   Cost grows almost linearly with context, so a longer workload is not the route to 50. The remaining factor of
   about 5 must come from per-token work. The largest piece is now the CPU side of the 23 zero-check steps (about
   0.125 s of 0.40 s: building their tables), then the two commitments (about 0.15 s).
-- Record: `results/zk60_metal_20261031/README.md` (M6, M7).
+- **M8 (byte-identical, kept).**
+  - **Small slots on the GPU.** A small zero-check step with an expensive polynomial now runs on the GPU: 8 → 2 ms.
+  - **Faster weight fold.** The feed-forward weight fold adds exact integers and reduces once per row: 10 → 3.5 ms
+    per 8B matrix, on dense weights.
+- **Caveat on all block timings above.** The timing test's synthetic weights are diagonal, so weight folds are
+  nearly free in it. A real 8B layer adds about 15 ms per block (about 35 ms before M8) [ESTIMATE]. So the real-weight
+  8B figure is about 9–9.5 tokens/s at T128 and about 10 at T256, not 10 and 10.3.
+- Record: `results/zk60_metal_20261031/README.md` (M6, M7, M8).
 
 **2026-11-01 (night, Mac): two more byte-identical speedups to the W16 format; an 8B-shaped block now proves in about 0.43 s on the GPU.**
 - **M5b** builds the activation lookup's queries in parallel.

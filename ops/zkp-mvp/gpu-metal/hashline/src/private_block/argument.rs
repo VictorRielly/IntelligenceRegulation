@@ -729,6 +729,35 @@ fn sum_weights(sh: &Shape, slot: usize) -> Vec<Fp2> {
 /// below it the per-round launch overhead outweighs the work.
 #[cfg(feature = "gpu-metal")]
 const METAL_MIN_TERMS: usize = 1 << 18;
+
+/// **[ZK60-METAL M8]** a slot below [`METAL_MIN_TERMS`] still goes to the
+/// device when its CPU rounds would cost more than this. Since M6 a batched
+/// device round costs about 0.025 ms, so a small slot whose polynomial is
+/// expensive pays: slot 03 at W16 8B (5 tables x 2^14) took 16 ms on the CPU
+/// (`results/zk60_metal_20261031/logs/m8attr`). `HL_METAL_SMALL_SLOT_US`
+/// overrides it (microseconds). Which side runs a slot changes no byte: the
+/// device evaluator has the CPU's contract (M3), and the IR was checked
+/// against this slot's closure before any kernel exists.
+#[cfg(feature = "gpu-metal")]
+const SMALL_SLOT_CPU_S: f64 = 2e-3;
+
+/// [M8] the estimated single-thread CPU cost of a slot's rounds: `2^n
+/// (degree + 1)` evaluations of `poly` (the rounds' geometric sum), each
+/// timed here on eight fixed points (no proof randomness is read or drawn)
+#[cfg(feature = "gpu-metal")]
+fn small_slot_pays(poly: &(dyn Fn(&[Fp2]) -> Fp2 + Sync), k: usize, n: usize, degree: usize) -> bool {
+    static BUDGET: std::sync::OnceLock<f64> = std::sync::OnceLock::new();
+    let budget = *BUDGET.get_or_init(|| std::env::var("HL_METAL_SMALL_SLOT_US").ok().and_then(|v| v.parse::<f64>().ok()).filter(|v| v.is_finite() && *v >= 0.0).map(|us| us * 1e-6).unwrap_or(SMALL_SLOT_CPU_S));
+    let pts: Vec<Vec<Fp2>> = (0..8u64).map(|s| (0..k as u64).map(|t| Fp2::new(Fp::new(s * 7919 + t * 104_729 + 1), Fp::new(t + 3 * s + 1))).collect()).collect();
+    let t = std::time::Instant::now();
+    let mut sink = Fp2::ZERO;
+    for p in &pts {
+        sink = sink.add(poly(p));
+    }
+    std::hint::black_box(sink);
+    let per_eval = t.elapsed().as_secs_f64() / 8.0;
+    ((1usize << n) * (degree + 1)) as f64 * per_eval > budget
+}
 /// [ZK60-METAL M4i] the slot size (tables x cube) ABOVE which a device slot's
 /// tables are built in place in device memory: strictly above the test
 /// oracle's `<= 2^18`, so a slot the oracle replays keeps its host tables
@@ -854,7 +883,10 @@ pub(crate) fn run_slot(side: &mut Side, acc: &mut Acc, mut def: SlotDef, tr: &mu
                 #[cfg(test)]
                 // ([M4i] counted by the slot's table COUNT: a direct device
                 // build leaves `tables` empty and is above this size)
-                let oracle = if def.tabs.len() * (1usize << n) <= 1 << 18 {
+                // ([M8] HL_PB_ORACLE=0 skips it in a TIMING run: the replay is
+                // a CPU sumcheck inside this timed step that no production
+                // prover runs; every gate keeps the default, on)
+                let oracle = if def.tabs.len() * (1usize << n) <= 1 << 18 && std::env::var("HL_PB_ORACLE").map(|v| v != "0").unwrap_or(true) {
                     let mut old_tables = tables.clone();
                     let mut old_tr = Transcript::clone_state(tr);
                     let old = crate::zk::masked_prove(&mut old_tables, degree, &poly, mask, c, &mut old_tr);
@@ -890,7 +922,7 @@ pub(crate) fn run_slot(side: &mut Side, acc: &mut Acc, mut def: SlotDef, tr: &mu
                     }
                 } else {
                     match &def.metal {
-                    Some((src, cf, base)) if tables.len() << n >= METAL_MIN_TERMS => {
+                    Some((src, cf, base)) if tables.len() << n >= METAL_MIN_TERMS || small_slot_pays(&*def.poly, tables.len(), n, degree) => {
                         match crate::gpu::metal_rounds(src, &tables, degree, cf, base) {
                             Ok(None) => {
                                 // a base-typed table is not base-field here:
