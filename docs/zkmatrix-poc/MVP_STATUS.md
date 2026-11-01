@@ -34,6 +34,12 @@ measured context scaling shows that longer contexts buy little.**
     transcript and still run one after another (changing that would need Victor's ruling).
   - **Bottleneck:** it saturates at the GPU's own work per block (about 0.165 s), so faster GPU kernels are now what
     raises throughput.
+- **M11 (byte-identical, kept):** the opening's row fold reduces once per entry: −5 ms per block. A faster field
+  multiply on the GPU was tried; there is no gain (the compiler already does it well). The big GPU kernels are near
+  the multiply ceiling, so what is left on the GPU is algebra: fewer evaluation points (Gruen's trick) and a leaner
+  NTT.
+- **Open question for Victor (D55):** letting one request's blocks prove at the same time would need a new
+  construction, because rule D12a makes a run one transcript.
 - **Caveat on all block timings above.** The timing test's synthetic weights are diagonal, so weight folds are
   nearly free in it. A real 8B layer adds about 15 ms per block (about 35 ms before M8) [ESTIMATE]. So the real-weight
   8B figure is about 9–9.5 tokens/s at T128 and about 10 at T256, not 10 and 10.3.
