@@ -1,5 +1,12 @@
 # Funding plan — 2026-10-28 (D43: funding first)
 
+> **RESUMED, 2026-11-01 (D57): the hold below is lifted.** Victor: submit as many applications as possible, needing
+> as little of his input as possible. He keeps his current job and leads the project part-time, and the money mainly
+> hires collaborators. The current material is in `results/zk60_funding_20261101/`. Start with its `README.md`
+> (ranked list and checklist); `APPLICATION_KIT.md` holds the shared paste-ready blocks. Applications needing a
+> full-time founder (YC W27, Alliance) no longer fit. Foresight call II (Oct 31) and the Anthropic Fellows (Oct 30)
+> have closed. This file's October numbers are superseded by the kit's evidence table.
+>
 > **ON HOLD, 2026-10-30 (D47).** Victor (Telegram, 2026-10-29 22:46 PDT): "For funding, I think I will hold
 > off until I can find a partner to work with me and they will receive the majority of the funding as I
 > will be starting a new job soon." No application below is pursued until then; the drafts stay as they are.
