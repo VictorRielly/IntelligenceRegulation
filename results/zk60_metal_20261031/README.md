@@ -951,3 +951,16 @@ pages (M4f measured slow first touches). The diff is kept: `m16_matrix_pool_nega
 The allocator's fresh pages are not this phase's cost (`write_planes` is already parallel); the parallel zero-fill
 only added work. Reverted (the binary is rebuilt at the next build). The dev-shape bytes were equal with it on
 (`logs/m16/bytes.log`).
+
+## Headline at HEAD (2026-11-01, after M15; M13 and M16 reverted)
+
+[MEASURED, `logs/m17head/`, `m10_concurrent_block_proofs_throughput`, `HL_PB_ORACLE=0`, 4 proofs per thread,
+every proof equal to the solo proof, diagonal test weights, shared Mac]:
+
+| block | one request: core, proved tok/s (32-layer 8B) | six at once: aggregate tok/s |
+|---|---|---|
+| W16 8B T128 | 0.356 s, **11.1** | 22.3 |
+| W16 8B T256 | 0.597 s, **13.2** | 20.8 |
+
+At the start of this session's work the T128 block took about 0.47 s (9.2 tokens/s). Dense real weights add their
+folds, about +15 ms per T128 block [ESTIMATE, M8].

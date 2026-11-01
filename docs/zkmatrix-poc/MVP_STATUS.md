@@ -1,5 +1,19 @@
 # Where the MVP stands, in plain words
 
+**2026-11-01 (Mac, latest): one request now proves at about 11 proved tokens/s (13 at 256 tokens per block), and about
+22 with six requests at once.**
+- **Measured** on the committed code [MEASURED, W16 8B blocks, every proof byte-identical to a solo proof, synthetic
+  diagonal weights]:
+  - T128: 0.356 s per block, **11.1 tokens/s** for a 32-layer stack; 22.3 tokens/s aggregate with six requests at
+    once;
+  - T256: 0.597 s per block, **13.2 tokens/s**; 20.8 tokens/s aggregate.
+- **The rest of the gap to 50** (Attestable: 53 on one H100):
+  - the Mac's GPU caps the aggregate near 22 tokens/s;
+  - one request's own blocks cannot overlap without Victor's ruling D55;
+  - the biggest remaining step is the RTX 5090 with all of this work ported to CUDA.
+- **Tried this round and reverted (no gain, diffs kept):** Gruen's trick on the GPU zero-checks, and a host pool for
+  the commitment matrices. Details: `results/zk60_metal_20261031/README.md` M6–M16.
+
 **2026-11-01 (early morning, Mac): each step's GPU rounds now go to the GPU as one batch (about 7% faster), and
 measured context scaling shows that longer contexts buy little.**
 - **M6 (byte-identical, kept).**
