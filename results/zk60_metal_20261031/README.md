@@ -830,3 +830,26 @@ first M11 chain caught it (`logs/m11g/failed_build_1/`).
 - golden 8/8 (`golden_m11/`).
 
 The W16 8B core in the trained step, with the oracle on, was 0.369–0.375 s.
+
+## M12 (2026-11-01): the NTT head reads compact twiddles — kept (small)
+
+The fused NTT head's stage s <= 11 read `tw[k << (max_log - s)]` from the full table: a gather whose stride is
+2^(max_log - s) words, 1024 cache lines in its last stage. It now reads the same words from `hw[k << (11 - s)]`, the
+1024 powers of the 2048th root (8 KB, contiguous, built once per table size; `head_twiddle_buffers`).
+`HL_METAL_HEAD_TW=0` keeps the old read.
+
+[MEASURED, `HL_METAL_TIMING` component clock, `logs/m12/commit_*.log`]:
+- the forward transform of each commitment went from 18–19 ms to 17–18 ms;
+- the inverse is unchanged at 5 ms.
+
+The gather was not the NTT's bottleneck: it is about half multiply-bound (M11). The block A/B is within noise
+(`logs/m12/ab_*.log`).
+
+**Gates** (`logs/m12g`), all passed:
+- build and the no-feature check;
+- zkp-core 15/0;
+- dev-shape bytes in both modes;
+- unit tests 63/0 in both modes;
+- trained digests R13 + W16;
+- the R13 run test;
+- golden 8/8 (`golden_m12/`).

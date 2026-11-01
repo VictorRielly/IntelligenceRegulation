@@ -211,7 +211,7 @@ kernel void k_init_zk_bitrev(device const ulong *coeffs [[buffer(0)]],
 #define TILE_LOG 11u
 #define TILE (1u << TILE_LOG)
 
-struct HeadArgs { ulong rows; uint log_n; uint log_src; uint mode; uint max_log; ulong q; ulong scale; uint apply_scale; uint pad0; };
+struct HeadArgs { ulong rows; uint log_n; uint log_src; uint mode; uint max_log; ulong q; ulong scale; uint apply_scale; uint use_hw; };
 
 inline ulong head_input(uint mode, device const ulong *src, device const ulong *pads, device const ulong *pows,
                         ulong r, ulong i, uint log_n, uint log_src, ulong q) {
@@ -241,6 +241,7 @@ kernel void k_ntt_head(device const ulong *src [[buffer(0)]],
                        device ulong *dst [[buffer(3)]],
                        device const ulong *tw [[buffer(4)]],
                        constant HeadArgs &args [[buffer(5)]],
+                       device const ulong *hw [[buffer(6)]],
                        uint2 tid2 [[thread_position_in_threadgroup]],
                        uint2 nth2 [[threads_per_threadgroup]],
                        uint2 tg [[threadgroup_position_in_grid]]) {
@@ -265,7 +266,9 @@ kernel void k_ntt_head(device const ulong *src [[buffer(0)]],
             uint grp = b >> (s - 1);
             uint k = b & (half_len - 1);
             uint i0 = (grp << s) + k;
-            ulong w = tw[ulong(k) * stride];
+            // [M12] the same word from the compact table: tw[k << (max_log - s)]
+            // = hw[k << (11 - s)], 8 KB of consecutive words
+            ulong w = args.use_hw != 0u ? hw[ulong(k) << (TILE_LOG - s)] : tw[ulong(k) * stride];
             ulong u = sh[i0];
             ulong v = gl_mul(sh[i0 + half_len], w);
             sh[i0] = gl_add(u, v);

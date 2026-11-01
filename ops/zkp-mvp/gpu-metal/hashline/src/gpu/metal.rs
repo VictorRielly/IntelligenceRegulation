@@ -58,6 +58,9 @@ struct Ctx {
     pipes: HashMap<&'static str, ComputePipelineState>,
     /// (forward, inverse) twiddle buffers per NttTables::max_log
     twiddles: Mutex<HashMap<u32, (Buffer, Buffer)>>,
+    /// [M12] the compact head twiddles (forward, inverse) per max_log: the
+    /// 1024 powers of the 2048th root the head's 11 stages use, contiguous
+    head_tw: Mutex<HashMap<u32, (Buffer, Buffer)>>,
     /// [M3] compiled sumcheck round kernels, one per generated slot polynomial
     sc_pipes: Mutex<HashMap<String, ComputePipelineState>>,
 }
@@ -77,7 +80,7 @@ fn ctx() -> Result<&'static Ctx, String> {
                 pipes.insert(k, p);
             }
             let queue = device.new_command_queue();
-            Ok(Ctx { device, queue, pipes, twiddles: Mutex::new(HashMap::new()), sc_pipes: Mutex::new(HashMap::new()) })
+            Ok(Ctx { device, queue, pipes, twiddles: Mutex::new(HashMap::new()), head_tw: Mutex::new(HashMap::new()), sc_pipes: Mutex::new(HashMap::new()) })
         })
     })
     .as_ref()
@@ -179,7 +182,8 @@ struct HeadArgs {
     q: u64,
     scale: u64,
     apply_scale: u32,
-    pad0: u32,
+    /// [M12] 1: the head reads the compact twiddles (buffer 6)
+    use_hw: u32,
 }
 #[repr(C)]
 struct TailArgs {
@@ -202,7 +206,7 @@ const MODE_ZK: u32 = 2;
 #[allow(clippy::too_many_arguments)]
 fn encode_fused(
     c: &Ctx, enc: &metal::ComputeCommandEncoderRef, src: &Buffer, pads: Option<&Buffer>, pows: Option<&Buffer>, dst: &Buffer,
-    tw: &Buffer, rows: u64, log_n: u32, log_src: u32, mode: u32, q: u64, max_log: u32, scale: Option<u64>,
+    tw: &Buffer, hw: Option<&Buffer>, rows: u64, log_n: u32, log_src: u32, mode: u32, q: u64, max_log: u32, scale: Option<u64>,
 ) {
     let l = log_n.min(TILE_LOG);
     let tile = 1u64 << l;
@@ -213,11 +217,12 @@ fn encode_fused(
     enc.set_buffer(2, Some(pows.unwrap_or(src)), 0);
     enc.set_buffer(3, Some(dst), 0);
     enc.set_buffer(4, Some(tw), 0);
+    enc.set_buffer(6, Some(hw.unwrap_or(tw)), 0);
     let head_scales = scale.is_some() && log_n <= TILE_LOG;
     set_args(
         enc,
         5,
-        &HeadArgs { rows, log_n, log_src, mode, max_log, q, scale: scale.unwrap_or(1), apply_scale: head_scales as u32, pad0: 0 },
+        &HeadArgs { rows, log_n, log_src, mode, max_log, q, scale: scale.unwrap_or(1), apply_scale: head_scales as u32, use_hw: hw.is_some() as u32 },
     );
     let th = (tile / 2).max(1).min(head.max_total_threads_per_threadgroup());
     enc.dispatch_thread_groups(MTLSize::new((1u64 << log_n) / tile, rows, 1), MTLSize::new(th, 1, 1));
@@ -375,6 +380,30 @@ fn twiddle_buffers(c: &Ctx, ntt: &NttTables) -> Result<(Buffer, Buffer), String>
     let i = upload(c, inv)?.keep();
     map.insert(ntt.max_log, (f.clone(), i.clone()));
     Ok((f, i))
+}
+
+/// **[ZK60-METAL M12]** the head stages' twiddles, compact: `hw[m] =
+/// tw[m << (max_log - 11)]` (= omega_2048^m) for m < 1024. Stage s <= 11 of
+/// the head reads `tw[k << (max_log - s)]` = `hw[k << (11 - s)]`, the same
+/// word, from 8 KB of consecutive words instead of a gather whose stride is
+/// 2^(max_log - s) words. `None` when the tables are smaller than a tile or
+/// `HL_METAL_HEAD_TW=0`.
+fn head_twiddle_buffers(c: &Ctx, ntt: &NttTables) -> Result<Option<(Buffer, Buffer)>, String> {
+    static ON: OnceLock<bool> = OnceLock::new();
+    if !*ON.get_or_init(|| std::env::var("HL_METAL_HEAD_TW").map(|v| v != "0").unwrap_or(true)) || ntt.max_log < TILE_LOG {
+        return Ok(None);
+    }
+    let mut map = c.head_tw.lock().map_err(|_| "metal: head twiddle cache poisoned")?;
+    if let Some((f, i)) = map.get(&ntt.max_log) {
+        return Ok(Some((f.clone(), i.clone())));
+    }
+    let (fw, inv) = ntt.twiddle_tables();
+    let sh = ntt.max_log - TILE_LOG;
+    let pick = |t: &[Fp]| -> Vec<Fp> { (0..1usize << (TILE_LOG - 1)).map(|m| t[m << sh]).collect() };
+    let f = upload(c, &pick(fw))?.keep();
+    let i = upload(c, &pick(inv))?.keep();
+    map.insert(ntt.max_log, (f.clone(), i.clone()));
+    Ok(Some((f, i)))
 }
 
 /// **[M6, tests] one device Fiat-Shamir round step** (`k_fs_test`), from a
@@ -904,6 +933,8 @@ fn commit_impl(
     let timing = std::env::var("HL_METAL_TIMING").map(|v| v == "1").unwrap_or(false);
     objc::rc::autoreleasepool(|| {
         let (tw_f, tw_i) = twiddle_buffers(c, ntt)?;
+        let hw = head_twiddle_buffers(c, ntt)?;
+        let (hw_f, hw_i) = (hw.as_ref().map(|h| &h.0), hw.as_ref().map(|h| &h.1));
         let d = upload(c, data)?;
         let t = shared_buffer(c, (rows * n * 8) as u64)?;
         let e = shared_buffer(c, (rows * nn * 8) as u64)?;
@@ -929,11 +960,11 @@ fn commit_impl(
         run(c, |enc| {
             if !staged {
                 // M2: two fused passes per transform (see metal_kernels.metal)
-                encode_fused(c, enc, &d, None, None, &t, &tw_i, rows64, log_n, log_n, MODE_COPY, 0, ntt.max_log, Some(ninv.0));
+                encode_fused(c, enc, &d, None, None, &t, &tw_i, hw_i, rows64, log_n, log_n, MODE_COPY, 0, ntt.max_log, Some(ninv.0));
                 match &zk_bufs {
-                    None => encode_fused(c, enc, &t, None, None, &e, &tw_f, rows64, log_nn, log_n, MODE_PLAIN, 0, ntt.max_log, None),
+                    None => encode_fused(c, enc, &t, None, None, &e, &tw_f, hw_f, rows64, log_nn, log_n, MODE_PLAIN, 0, ntt.max_log, None),
                     Some((pb, wb, q)) => {
-                        encode_fused(c, enc, &t, Some(pb), Some(wb), &e, &tw_f, rows64, log_nn, log_n, MODE_ZK, *q as u64, ntt.max_log, None)
+                        encode_fused(c, enc, &t, Some(pb), Some(wb), &e, &tw_f, hw_f, rows64, log_nn, log_n, MODE_ZK, *q as u64, ntt.max_log, None)
                     }
                 }
                 enc.set_buffer(0, Some(&e), 0);
@@ -993,11 +1024,11 @@ fn commit_impl(
                 Ok(s.elapsed().as_secs_f64())
             };
             let inv = part(&|enc| {
-                encode_fused(c, enc, &d, None, None, &t2, &tw_i, rows64, log_n, log_n, MODE_COPY, 0, ntt.max_log, Some(ninv.0));
+                encode_fused(c, enc, &d, None, None, &t2, &tw_i, hw_i, rows64, log_n, log_n, MODE_COPY, 0, ntt.max_log, Some(ninv.0));
             })?;
             let init = 0.0f64; // fused into the forward head on the default path
             let fwd = part(&|enc| {
-                encode_fused(c, enc, &t2, None, None, &e2, &tw_f, rows64, log_nn, log_n, MODE_PLAIN, 0, ntt.max_log, None);
+                encode_fused(c, enc, &t2, None, None, &e2, &tw_f, hw_f, rows64, log_nn, log_n, MODE_PLAIN, 0, ntt.max_log, None);
             })?;
             let hash = part(&|enc| {
                 enc.set_buffer(0, Some(&e2), 0);

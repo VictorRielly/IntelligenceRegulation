@@ -1,0 +1,74 @@
+
+running 69 tests
+test private_block::range16::tests::denominator_inverses_invert_every_nonzero_entry ... ok
+test private_block::range16::tests::the_range_tags_are_distinct_from_every_other_family ... ok
+test private_block::accuracy_layout::tests::malformed_lookup_context_is_refused_before_any_lookup_is_used ... ok
+test private_block::range16::tests::families_fill_whole_rows_and_small_widths_pad_by_repetition ... ok
+test private_block::range16_tests::the_w16_signed_top_limb_keeps_a_padded_position_inside_both_tables ... ok
+test private_block::s28_review_tests::a_run_directory_written_before_stage_28_verifies_under_the_stage_28_verifier ... ignored, S28 review: needs HL_PB_S28_REVIEW_RUN_DIR and about 10 minutes
+test private_block::s28_tests::a_zero_u8_denominator_refuses_through_the_table_helpers_even_when_no_column_carries_that_value ... ok
+test private_block::s29_tests::an_eq_point_wider_than_the_cube_panics_by_name - should panic ... ok
+test private_block::s29_tests::a_violated_eq_cube_precondition_panics_by_name - should panic ... ok
+test private_block::s29_tests::the_five_thresholds_are_the_constants_the_production_path_passes ... ok
+test private_block::s28_tests::the_eq_cube_builder_is_the_gathered_one_entry_for_entry ... ok
+test private_block::accuracy_layout::tests::removed_norm_limbs_are_absent_and_every_other_legacy_role_is_unique ... ok
+test private_block::s28_tests::the_private_table_builder_is_the_walked_one_entry_for_entry ... ok
+test private_block::slot_ir::accuracy::tests::m10_concurrent_block_proofs_throughput ... ignored
+test private_block::slot_ir::accuracy::tests::m11_bench_goldilocks_multiply_variants ... ignored
+test private_block::s28_review_tests::the_census_of_which_shape_crosses_which_stage_28_parallel_threshold ... ok
+test private_block::slot_ir::accuracy::tests::m4_accuracy_block_proofs_are_byte_identical_on_the_cpu_and_on_metal ... ignored, toggles HL_GPU in-process; run alone by name on a Mac
+test private_block::slot_ir::accuracy::tests::m4_trained_accuracy_block_cpu_and_metal_digests_and_times ... ignored, heavy, toggles HL_GPU in-process; run alone by name on a Mac
+test private_block::accuracy_layout::tests::every_remainder_top_pin_enforces_its_exact_window_including_full_bytes ... ok
+test private_block::s29_tests::the_eq_cube_agrees_with_the_79f0726_gather_on_every_admitted_triple ... ok
+test private_block::s28_review_tests::the_eq_cube_agrees_with_79f0726_at_every_width_including_the_degenerate_ones ... ok
+test private_block::s28_review_tests::the_private_table_builder_agrees_with_79f0726_on_randomised_descriptors ... ok
+test private_block::s28_review_tests::field_addition_is_associative_commutative_and_canonical_so_a_chunked_sum_is_the_same_word ... ok
+test private_block::accuracy_profile_tests::accuracy_native_legacy_comparison_census ... ok
+test private_block::s28_review_tests::whether_an_attempt_is_refused_still_depends_on_the_hidden_input_for_off_table_values ... ok
+test private_block::slot_ir::accuracy::tests::m6_probe_dispatch_overhead ... ignored
+test private_block::slot_ir::accuracy::tests::m11_lazy_row_fold_equals_the_per_term_fold ... ok
+test private_block::accuracy_layout::tests::every_allocated_role_and_lookup_count_matches_the_independent_inventory ... ok
+test private_block::accuracy_profile_tests::every_r13_profile_builds_exact_role_lookup_helper_and_claim_counts ... ok
+test private_block::accuracy_profile_tests::accuracy_native_layout_census_for_review ... ok
+test private_block::range16_tests::w16_layouts_build_and_cut_the_committed_words_against_r13 ... ok
+test private_block::slot_ir::accuracy::tests::m4i_in_place_tables_and_plane_writes_equal_the_host_forms ... ok
+test private_block::slot_ir::accuracy::tests::m4h_parallel_inverses_and_h_writes_equal_the_sequential_forms ... ok
+test private_block::s28_review_tests::every_helper_path_gives_the_same_words_and_the_same_refusal_under_one_two_and_eight_threads ... ok
+test private_block::slot_ir_tests::the_slot_ir_is_thread_count_independent_because_nothing_in_it_is_parallel ... ok
+test private_block::s29_tests::the_claimed_sum_is_the_79f0726_fold_through_both_branches_of_its_threshold ... ok
+test private_block::s28_tests::the_lookup_columns_are_the_serial_per_index_maps_they_were ... ok
+test private_block::trained_statement::accuracy_metadata_tests::accuracy_profiles_keep_their_legacy_model_and_tied_tensor_pins ... ok
+test private_block::s29_tests::the_slot_table_set_is_the_79f0726_one_through_both_branches_of_its_threshold ... ok
+test private_block::slot_ir::accuracy::tests::m6_device_fiat_shamir_step_equals_the_transcript ... ok
+test private_block::s28_review_tests::the_looked_columns_are_the_serial_maps_under_every_thread_count ... ok
+test private_block::slot_ir::accuracy::tests::m4c_direct_helper_write_equals_the_reference_columns ... ok
+test private_block::slot_ir::accuracy::tests::m5c_split_eq_cube_equals_the_full_table_broadcast ... ok
+test private_block::s29_tests::the_byte_histogram_is_the_79f0726_serial_count_through_both_branches ... ok
+test private_block::slot_ir::accuracy::tests::m4d_batched_helper_write_equals_the_job_by_job_loop ... ok
+test private_block::s28_tests::the_paired_helper_column_is_the_two_columns_inverted_and_added ... ok
+test private_block::s28_tests::a_zero_denominator_at_a_value_the_column_carries_is_refused_by_both_paths ... ok
+test private_block::s28_tests::the_helper_column_is_the_same_vector_whatever_the_thread_count_is ... ok
+test private_block::s29_tests::the_looked_columns_are_the_79f0726_serial_maps_through_both_branches ... ok
+test private_block::s28_tests::a_zero_denominator_at_a_value_no_column_carries_is_refused_by_neither_path ... ok
+test private_block::s28_tests::the_table_path_agrees_on_columns_that_carry_values_outside_the_byte_table ... ok
+test private_block::slot_ir_tests::the_field_kind_oracle_rejects_the_memos_own_classification_of_the_twelve_tables ... ok
+test private_block::token_io::classify_capture_tests::gate19::r17::r17_the_plane_index_builds_at_an_r13_shape_from_the_accuracy_layout ... ok
+test private_block::s28_tests::the_table_path_and_the_batch_inversion_agree_word_for_word_on_byte_columns ... ok
+test private_block::range16_tests::the_w16_ir_evaluates_to_the_w16_closure_at_every_slot ... ok
+test private_block::s29_tests::the_helper_columns_are_the_same_words_through_both_branches_of_their_threshold ... ok
+test private_block::s28_review_tests::an_out_of_table_value_whose_denominator_is_zero_is_refused_by_both_paths ... ok
+test private_block::slot_ir_tests::the_honest_round_polynomial_satisfies_s0_plus_s1_equals_the_running_claim_at_every_round ... ok
+test private_block::accuracy_profile_tests::the_common_gate_shift_is_constructor_checked_reconstructed_and_schedule_bound ... ok
+test private_block::slot_ir_tests::the_slot_irs_counts_agree_with_the_drafters_inventory_except_where_the_arm_says_otherwise ... ok
+test private_block::slot_ir_tests::the_bilinear_slots_carry_the_shapes_key_value_group_bits_and_no_other_slot_does ... ok
+test private_block::slot_ir::accuracy::tests::m4j_parallel_table_builders_equal_the_sequential_ones ... ok
+test private_block::slot_ir_tests::the_declared_degree_bounds_the_closures_actual_degree_and_the_ir_computes_it_exactly ... ok
+test private_block::slot_ir_tests::the_slot_ir_evaluates_to_the_closure_at_every_registered_shape_and_slot ... ok
+test private_block::slot_ir::accuracy::tests::the_accuracy_ir_evaluates_to_the_r13_closure_at_every_development_shape_group_count_and_slot ... ok
+test private_block::slot_ir_tests::the_slot_ir_export_is_canonical_and_its_digest_is_pinned_at_every_registered_shape ... ok
+test private_block::slot_ir_tests::every_table_the_ir_calls_base_field_is_base_field_in_the_tables_the_prover_builds ... ok
+test private_block::range16_tests::a_w16_rung_block_core_proves_and_verifies_and_a_changed_root_is_refused ... ok
+test private_block::range16_tests::w16_limbs_out_of_their_range_are_rejected_by_the_verifier ... ok
+
+test result: ok. 63 passed; 0 failed; 6 ignored; 0 measured; 851 filtered out; finished in 7.76s
+
