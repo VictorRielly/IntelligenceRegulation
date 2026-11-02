@@ -1,0 +1,310 @@
+[zk60-guard 06:55:05] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 06:56:06] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 06:56:11] START tsb-first-r13-rung-s0 class=cpu need=16G cap=96G enforce=watchdog-only waited=66s run=7d9a4cdd82e0
+[zk60-guard 07:01:55] END tsb-first-r13-rung-s0 exit=0 child_wall=344s peak_rss=11.59G min_avail=220.79G
+D55-0 integrity: PASS
+D55-1/2 facts: PASS
+D55-3 replay: PASS
+R13-H registered header: PASS
+R13-2 layout: PASS
+R13-3 terminals: PASS
+R13-6 per commitment: PASS
+R13-7 mask and CFS: PASS
+D55-IO joined claims from the forks: PASS
+D55-J joint rank: PASS
+D55-C replay controls: PASS
+PINS controls: PASS
+TS-1 terminal surjection and its pair-removed control: PASS
+CENSUS claim census: PASS
+HASH-1 hash layer: PASS
+HASH-2 hash census: PASS
+pins: 75 declared, 41 at r19b, 34 read here, 0 UNREAD []; self-read ['src/gpu/metal.rs', 'src/gpu/metal_kernels.metal', 'src/private_block/run_capture.rs']
+backend: proved_on_gpu False, admissible True
+status: D55-PASS (344.2 s) -> /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad5119ba9083f7dc7/results/zk60_d60_20261102/privacy_gate_tsbases/records/d55-first-r13-rung-s0.json
+[zk60-guard 07:01:55] START tsb-s25_w2 class=cpu need=4G cap=16G enforce=watchdog-only waited=0s run=e89feafce6db
+[zk60-guard 07:02:31] END tsb-s25_w2 exit=0 child_wall=35s peak_rss=4.27G min_avail=228.07G
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 990 filtered out; finished in 34.56s
+[zk60-guard 07:02:31] START tsb-write-tiny class=cpu need=32G cap=200G enforce=watchdog-only waited=0s run=f1656832980b
+[zk60-guard 07:02:47] END tsb-write-tiny exit=0 child_wall=17s peak_rss=12.37G min_avail=219.86G
+test private_block::run::fork::tests::d60_privacy_gate_write_registered_r13_fork_bundles ... D60-PG-BUNDLE R13_TINY_T128_LOW:0 -> /Users/victorrielly/zk60-artifacts/d60_20261102/pg_bundles_bases/d55-r13_tiny_t128_low-s0 | hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-tinyllama-1.1b-t128-low-stack-v01-run/1 | 3 forks, 9907279 stage bytes, tail 3128881 B, frames [144, 23545352, 23545352, 23545352, 3403888] B | 7.8 s | the registered TRAINED base hashline-zk-mr1/private-run-tinyllama-1.1b-t128-low-stack-v01-run/1 at its true geometry with ONE public synthetic block
+D60-PG-BUNDLE R13_TINY_T128_LOW:1 -> /Users/victorrielly/zk60-artifacts/d60_20261102/pg_bundles_bases/d55-r13_tiny_t128_low-s1 | hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-tinyllama-1.1b-t128-low-stack-v01-run/1 | 3 forks, 9905450 stage bytes, tail 3125580 B, frames [144, 23545352, 23545352, 23545352, 3403888] B | 7.7 s | the registered TRAINED base hashline-zk-mr1/private-run-tinyllama-1.1b-t128-low-stack-v01-run/1 at its true geometry with ONE public synthetic block at every layer (range16_tests::case, tame diagonal weights, 3 activation groups; no trained 
+D60-PG-RUST R13_TINY_T128_LOW D55-registered d55-r13_tiny_t128_low-s0: 12 checks, all PASS
+D60-PG-RUST R13_TINY_T128_LOW D55-registered d55-r13_tiny_t128_low-s1: 12 checks, all PASS
+D60-PG-RUST VERDICT 2 bundles, every check PASS and every control fired
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 990 filtered out; finished in 16.68s
+[zk60-guard 07:02:48] START tsb-write-shield128 class=cpu need=32G cap=200G enforce=watchdog-only waited=0s run=c834d1083249
+[zk60-guard 07:03:15] END tsb-write-shield128 exit=0 child_wall=28s peak_rss=20.83G min_avail=211.19G
+test private_block::run::fork::tests::d60_privacy_gate_write_registered_r13_fork_bundles ... D60-PG-BUNDLE R13_SHIELD_T128_H24:0 -> /Users/victorrielly/zk60-artifacts/d60_20261102/pg_bundles_bases/d55-r13_shield_t128_h24-s0 | hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-shieldstral-3b-t128-lowh24-blocks-run/1 | 3 forks, 10577495 stage bytes, tail 3481892 B, frames [144, 31432296, 31432296, 31432296, 3534960] B | 13.1 s | the registered TRAINED base hashline-zk-mr1/private-run-shieldstral-3b-t128-lowh24-blocks-run/1 at its true geometry with ONE public synthetic
+D60-PG-BUNDLE R13_SHIELD_T128_H24:1 -> /Users/victorrielly/zk60-artifacts/d60_20261102/pg_bundles_bases/d55-r13_shield_t128_h24-s1 | hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-shieldstral-3b-t128-lowh24-blocks-run/1 | 3 forks, 10577616 stage bytes, tail 3485548 B, frames [144, 31432296, 31432296, 31432296, 3534960] B | 13.0 s | the registered TRAINED base hashline-zk-mr1/private-run-shieldstral-3b-t128-lowh24-blocks-run/1 at its true geometry with ONE public synthetic block at every layer (range16_tests::case, tame diagonal weights, 3 activation groups; no tr
+D60-PG-RUST R13_SHIELD_T128_H24 D55-registered d55-r13_shield_t128_h24-s0: 12 checks, all PASS
+D60-PG-RUST R13_SHIELD_T128_H24 D55-registered d55-r13_shield_t128_h24-s1: 12 checks, all PASS
+D60-PG-RUST VERDICT 2 bundles, every check PASS and every control fired
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 990 filtered out; finished in 27.52s
+[zk60-guard 07:03:15] START tsb-write-shield256 class=cpu need=32G cap=200G enforce=watchdog-only waited=0s run=af03b11484f0
+[zk60-guard 07:04:04] END tsb-write-shield256 exit=0 child_wall=48s peak_rss=46.54G min_avail=185.58G
+test private_block::run::fork::tests::d60_privacy_gate_write_registered_r13_fork_bundles ... D60-PG-BUNDLE R13_SHIELD_T256_H24:0 -> /Users/victorrielly/zk60-artifacts/d60_20261102/pg_bundles_bases/d55-r13_shield_t256_h24-s0 | hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-shieldstral-3b-t256-lowh24-blocks-run/1 | 3 forks, 11165257 stage bytes, tail 3637501 B, frames [144, 46338904, 46338904, 46338904, 6189168] B | 23.4 s | the registered TRAINED base hashline-zk-mr1/private-run-shieldstral-3b-t256-lowh24-blocks-run/1 at its true geometry with ONE public synthetic
+D60-PG-BUNDLE R13_SHIELD_T256_H24:1 -> /Users/victorrielly/zk60-artifacts/d60_20261102/pg_bundles_bases/d55-r13_shield_t256_h24-s1 | hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-shieldstral-3b-t256-lowh24-blocks-run/1 | 3 forks, 11159943 stage bytes, tail 3637904 B, frames [144, 46338904, 46338904, 46338904, 6189168] B | 23.1 s | the registered TRAINED base hashline-zk-mr1/private-run-shieldstral-3b-t256-lowh24-blocks-run/1 at its true geometry with ONE public synthetic block at every layer (range16_tests::case, tame diagonal weights, 3 activation groups; no tr
+D60-PG-RUST R13_SHIELD_T256_H24 D55-registered d55-r13_shield_t256_h24-s0: 12 checks, all PASS
+D60-PG-RUST R13_SHIELD_T256_H24 D55-registered d55-r13_shield_t256_h24-s1: 12 checks, all PASS
+D60-PG-RUST VERDICT 2 bundles, every check PASS and every control fired
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 990 filtered out; finished in 48.30s
+[zk60-guard 07:04:04] START tsb-write-shield128own class=cpu need=32G cap=200G enforce=watchdog-only waited=0s run=a48559e5a0ae
+[zk60-guard 07:04:32] END tsb-write-shield128own exit=0 child_wall=28s peak_rss=20.89G min_avail=211.29G
+test private_block::run::fork::tests::d60_privacy_gate_write_registered_r13_fork_bundles ... D60-PG-BUNDLE R13_SHIELD_T128_H24:0:own -> /Users/victorrielly/zk60-artifacts/d60_20261102/pg_bundles_bases/d55-r13_shield_t128_h24-own-s0 | hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-shieldstral-3b-t128-lowh24-blocks-run/1 | 3 forks, 10578072 stage bytes, tail 3486390 B, frames [144, 31432296, 31432296, 31432296, 3534960] B | 13.1 s | the registered TRAINED base hashline-zk-mr1/private-run-shieldstral-3b-t128-lowh24-blocks-run/1 at its true geometry with ONE public s
+D60-PG-BUNDLE R13_SHIELD_T128_H24:1:own -> /Users/victorrielly/zk60-artifacts/d60_20261102/pg_bundles_bases/d55-r13_shield_t128_h24-own-s1 | hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-shieldstral-3b-t128-lowh24-blocks-run/1 | 3 forks, 10575103 stage bytes, tail 3484607 B, frames [144, 31432296, 31432296, 31432296, 3534960] B | 13.1 s | the registered TRAINED base hashline-zk-mr1/private-run-shieldstral-3b-t128-lowh24-blocks-run/1 at its true geometry with ONE public synthetic block at every layer (range16_tests::case, tame diagonal weights, 3 activation group
+D60-PG-RUST R13_SHIELD_T128_H24 D55-registered d55-r13_shield_t128_h24-own-s0: 12 checks, all PASS
+D60-PG-RUST R13_SHIELD_T128_H24 D55-registered d55-r13_shield_t128_h24-own-s1: 12 checks, all PASS
+D60-PG-RUST VERDICT 2 bundles, every check PASS and every control fired
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 990 filtered out; finished in 27.61s
+[zk60-guard 07:04:32] START tsb-py-r13-rung-s0 class=cpu need=16G cap=96G enforce=watchdog-only waited=0s run=9fd8f66edfa9
+[zk60-guard 07:10:17] END tsb-py-r13-rung-s0 exit=0 child_wall=346s peak_rss=11.61G min_avail=221.07G
+D55-0 integrity: PASS
+D55-1/2 facts: PASS
+D55-3 replay: PASS
+R13-H registered header: PASS
+R13-2 layout: PASS
+R13-3 terminals: PASS
+R13-6 per commitment: PASS
+R13-7 mask and CFS: PASS
+D55-IO joined claims from the forks: PASS
+D55-J joint rank: PASS
+D55-C replay controls: PASS
+PINS controls: PASS
+TS-1 terminal surjection and its pair-removed control: PASS
+CENSUS claim census: PASS
+HASH-1 hash layer: PASS
+HASH-2 hash census: PASS
+pins: 75 declared, 41 at r19b, 34 read here, 0 UNREAD []; self-read ['src/gpu/metal.rs', 'src/gpu/metal_kernels.metal', 'src/private_block/run_capture.rs']
+backend: proved_on_gpu False, admissible True
+status: D55-PASS (345.3 s) -> /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad5119ba9083f7dc7/results/zk60_d60_20261102/privacy_gate_tsbases/records/d55-py-r13-rung-s0.json
+[zk60-guard 07:10:17] START tsb-py-r13-rung-s1 class=cpu need=16G cap=96G enforce=watchdog-only waited=0s run=57252f10309a
+[zk60-guard 07:16:02] END tsb-py-r13-rung-s1 exit=0 child_wall=345s peak_rss=11.69G min_avail=220.97G
+D55-0 integrity: PASS
+D55-1/2 facts: PASS
+D55-3 replay: PASS
+R13-H registered header: PASS
+R13-2 layout: PASS
+R13-3 terminals: PASS
+R13-6 per commitment: PASS
+R13-7 mask and CFS: PASS
+D55-IO joined claims from the forks: PASS
+D55-J joint rank: PASS
+D55-C replay controls: PASS
+PINS controls: PASS
+TS-1 terminal surjection and its pair-removed control: PASS
+CENSUS claim census: PASS
+HASH-1 hash layer: PASS
+HASH-2 hash census: PASS
+pins: 75 declared, 41 at r19b, 34 read here, 0 UNREAD []; self-read ['src/gpu/metal.rs', 'src/gpu/metal_kernels.metal', 'src/private_block/run_capture.rs']
+backend: proved_on_gpu False, admissible True
+status: D55-PASS (345.0 s) -> /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad5119ba9083f7dc7/results/zk60_d60_20261102/privacy_gate_tsbases/records/d55-py-r13-rung-s1.json
+[zk60-guard 07:16:03] START tsb-py-tiny-t128-s0 class=cpu need=16G cap=96G enforce=watchdog-only waited=0s run=5523cb158665
+[zk60-guard 07:26:39] END tsb-py-tiny-t128-s0 exit=1 child_wall=636s peak_rss=11.67G min_avail=220.44G
+D55-0 integrity: PASS
+D55-1/2 facts: PASS
+D55-3 replay: PASS
+R13-H registered header: PASS
+R13-2 layout: PASS
+R13-3 terminals: PASS
+R13-6 per commitment: PASS
+R13-7 mask and CFS: PASS
+D55-IO joined claims from the forks: PASS
+D55-J joint rank: PASS
+D55-C replay controls: PASS
+PINS controls: PASS
+TS-1 terminal surjection and its pair-removed control: PASS
+CENSUS claim census: PASS
+HASH-1 hash layer: PASS
+HASH-2 hash census: FAIL
+pins: 75 declared, 41 at r19b, 34 read here, 0 UNREAD []; self-read ['src/gpu/metal.rs', 'src/gpu/metal_kernels.metal', 'src/private_block/run_capture.rs']
+backend: proved_on_gpu False, admissible True
+status: NOT-OK (636.0 s) -> /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad5119ba9083f7dc7/results/zk60_d60_20261102/privacy_gate_tsbases/records/d55-py-tiny-t128-s0.json
+[zk60-guard 07:26:39] START tsb-py-tiny-t128-s1 class=cpu need=16G cap=96G enforce=watchdog-only waited=0s run=edc29a26569e
+[zk60-guard 07:37:20] END tsb-py-tiny-t128-s1 exit=1 child_wall=641s peak_rss=11.03G min_avail=221.38G
+D55-0 integrity: PASS
+D55-1/2 facts: PASS
+D55-3 replay: PASS
+R13-H registered header: PASS
+R13-2 layout: PASS
+R13-3 terminals: PASS
+R13-6 per commitment: PASS
+R13-7 mask and CFS: PASS
+D55-IO joined claims from the forks: PASS
+D55-J joint rank: PASS
+D55-C replay controls: PASS
+PINS controls: PASS
+TS-1 terminal surjection and its pair-removed control: PASS
+CENSUS claim census: PASS
+HASH-1 hash layer: PASS
+HASH-2 hash census: FAIL
+pins: 75 declared, 41 at r19b, 34 read here, 0 UNREAD []; self-read ['src/gpu/metal.rs', 'src/gpu/metal_kernels.metal', 'src/private_block/run_capture.rs']
+backend: proved_on_gpu False, admissible True
+status: NOT-OK (641.1 s) -> /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad5119ba9083f7dc7/results/zk60_d60_20261102/privacy_gate_tsbases/records/d55-py-tiny-t128-s1.json
+[zk60-guard 07:37:20] START tsb-py-shield-t128-s0 class=cpu need=16G cap=96G enforce=watchdog-only waited=0s run=3d52fd22ab59
+[zk60-guard 07:52:58] END tsb-py-shield-t128-s0 exit=1 child_wall=937s peak_rss=11.03G min_avail=220.87G
+D55-0 integrity: PASS
+D55-1/2 facts: PASS
+D55-3 replay: PASS
+R13-H registered header: PASS
+R13-2 layout: PASS
+R13-3 terminals: PASS
+R13-6 per commitment: PASS
+R13-7 mask and CFS: PASS
+D55-IO joined claims from the forks: PASS
+D55-J joint rank: PASS
+D55-C replay controls: PASS
+PINS controls: PASS
+TS-1 terminal surjection and its pair-removed control: PASS
+CENSUS claim census: PASS
+HASH-1 hash layer: PASS
+HASH-2 hash census: FAIL
+pins: 75 declared, 41 at r19b, 34 read here, 0 UNREAD []; self-read ['src/gpu/metal.rs', 'src/gpu/metal_kernels.metal', 'src/private_block/run_capture.rs']
+backend: proved_on_gpu False, admissible True
+status: NOT-OK (937.1 s) -> /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad5119ba9083f7dc7/results/zk60_d60_20261102/privacy_gate_tsbases/records/d55-py-shield-t128-s0.json
+[zk60-guard 07:52:58] START tsb-py-shield-t128-s1 class=cpu need=16G cap=96G enforce=watchdog-only waited=0s run=7a5d38ef45fc
+[zk60-guard 08:08:39] END tsb-py-shield-t128-s1 exit=1 child_wall=941s peak_rss=11.12G min_avail=221.07G
+D55-0 integrity: PASS
+D55-1/2 facts: PASS
+D55-3 replay: PASS
+R13-H registered header: PASS
+R13-2 layout: PASS
+R13-3 terminals: PASS
+R13-6 per commitment: PASS
+R13-7 mask and CFS: PASS
+D55-IO joined claims from the forks: PASS
+D55-J joint rank: PASS
+D55-C replay controls: PASS
+PINS controls: PASS
+TS-1 terminal surjection and its pair-removed control: PASS
+CENSUS claim census: PASS
+HASH-1 hash layer: PASS
+HASH-2 hash census: FAIL
+pins: 75 declared, 41 at r19b, 34 read here, 0 UNREAD []; self-read ['src/gpu/metal.rs', 'src/gpu/metal_kernels.metal', 'src/private_block/run_capture.rs']
+backend: proved_on_gpu False, admissible True
+status: NOT-OK (940.9 s) -> /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad5119ba9083f7dc7/results/zk60_d60_20261102/privacy_gate_tsbases/records/d55-py-shield-t128-s1.json
+[zk60-guard 08:08:39] START tsb-py-shield-t128-own-s0 class=cpu need=16G cap=96G enforce=watchdog-only waited=0s run=5da511964d83
+[zk60-guard 08:24:13] END tsb-py-shield-t128-own-s0 exit=1 child_wall=934s peak_rss=10.99G min_avail=221.50G
+D55-0 integrity: PASS
+D55-1/2 facts: PASS
+D55-3 replay: PASS
+R13-H registered header: PASS
+R13-2 layout: PASS
+R13-3 terminals: PASS
+R13-6 per commitment: PASS
+R13-7 mask and CFS: PASS
+D55-IO joined claims from the forks: PASS
+D55-J joint rank: PASS
+D55-C replay controls: PASS
+PINS controls: PASS
+TS-1 terminal surjection and its pair-removed control: PASS
+CENSUS claim census: PASS
+HASH-1 hash layer: PASS
+HASH-2 hash census: FAIL
+pins: 75 declared, 41 at r19b, 34 read here, 0 UNREAD []; self-read ['src/gpu/metal.rs', 'src/gpu/metal_kernels.metal', 'src/private_block/run_capture.rs']
+backend: proved_on_gpu False, admissible True
+status: NOT-OK (933.7 s) -> /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad5119ba9083f7dc7/results/zk60_d60_20261102/privacy_gate_tsbases/records/d55-py-shield-t128-own-s0.json
+[zk60-guard 08:24:13] START tsb-py-shield-t128-own-s1 class=cpu need=16G cap=96G enforce=watchdog-only waited=0s run=fe697c075ffc
+[zk60-guard 08:39:40] END tsb-py-shield-t128-own-s1 exit=1 child_wall=927s peak_rss=11.16G min_avail=221.28G
+D55-0 integrity: PASS
+D55-1/2 facts: PASS
+D55-3 replay: PASS
+R13-H registered header: PASS
+R13-2 layout: PASS
+R13-3 terminals: PASS
+R13-6 per commitment: PASS
+R13-7 mask and CFS: PASS
+D55-IO joined claims from the forks: PASS
+D55-J joint rank: PASS
+D55-C replay controls: PASS
+PINS controls: PASS
+TS-1 terminal surjection and its pair-removed control: PASS
+CENSUS claim census: PASS
+HASH-1 hash layer: PASS
+HASH-2 hash census: FAIL
+pins: 75 declared, 41 at r19b, 34 read here, 0 UNREAD []; self-read ['src/gpu/metal.rs', 'src/gpu/metal_kernels.metal', 'src/private_block/run_capture.rs']
+backend: proved_on_gpu False, admissible True
+status: NOT-OK (927.1 s) -> /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad5119ba9083f7dc7/results/zk60_d60_20261102/privacy_gate_tsbases/records/d55-py-shield-t128-own-s1.json
+[zk60-guard 08:39:40] START tsb-py-r13-8b-s0 class=cpu need=16G cap=96G enforce=watchdog-only waited=0s run=32083a8bf12c
+[zk60-guard 08:54:29] END tsb-py-r13-8b-s0 exit=1 child_wall=889s peak_rss=10.89G min_avail=221.66G
+D55-0 integrity: PASS
+D55-1/2 facts: PASS
+D55-3 replay: PASS
+R13-H registered header: PASS
+R13-2 layout: PASS
+R13-3 terminals: PASS
+R13-6 per commitment: PASS
+R13-7 mask and CFS: PASS
+D55-IO joined claims from the forks: PASS
+D55-J joint rank: PASS
+D55-C replay controls: PASS
+PINS controls: PASS
+TS-1 terminal surjection and its pair-removed control: PASS
+CENSUS claim census: PASS
+HASH-1 hash layer: PASS
+HASH-2 hash census: FAIL
+pins: 75 declared, 41 at r19b, 34 read here, 0 UNREAD []; self-read ['src/gpu/metal.rs', 'src/gpu/metal_kernels.metal', 'src/private_block/run_capture.rs']
+backend: proved_on_gpu False, admissible True
+status: NOT-OK (888.4 s) -> /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad5119ba9083f7dc7/results/zk60_d60_20261102/privacy_gate_tsbases/records/d55-py-r13-8b-s0.json
+[zk60-guard 08:54:29] START tsb-py-r13-8b-s1 class=cpu need=16G cap=96G enforce=watchdog-only waited=0s run=707de3c82d0a
+[zk60-guard 09:09:16] END tsb-py-r13-8b-s1 exit=1 child_wall=887s peak_rss=10.94G min_avail=221.45G
+D55-0 integrity: PASS
+D55-1/2 facts: PASS
+D55-3 replay: PASS
+R13-H registered header: PASS
+R13-2 layout: PASS
+R13-3 terminals: PASS
+R13-6 per commitment: PASS
+R13-7 mask and CFS: PASS
+D55-IO joined claims from the forks: PASS
+D55-J joint rank: PASS
+D55-C replay controls: PASS
+PINS controls: PASS
+TS-1 terminal surjection and its pair-removed control: PASS
+CENSUS claim census: PASS
+HASH-1 hash layer: PASS
+HASH-2 hash census: FAIL
+pins: 75 declared, 41 at r19b, 34 read here, 0 UNREAD []; self-read ['src/gpu/metal.rs', 'src/gpu/metal_kernels.metal', 'src/private_block/run_capture.rs']
+backend: proved_on_gpu False, admissible True
+status: NOT-OK (886.8 s) -> /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad5119ba9083f7dc7/results/zk60_d60_20261102/privacy_gate_tsbases/records/d55-py-r13-8b-s1.json
+[zk60-guard 09:09:16] START tsb-py-shield-t256-s0 class=cpu need=24G cap=160G enforce=watchdog-only waited=0s run=a6f3e7829bc1
+[zk60-guard 09:50:11] END tsb-py-shield-t256-s0 exit=1 child_wall=2455s peak_rss=19.59G min_avail=213.03G
+D55-0 integrity: PASS
+D55-1/2 facts: PASS
+D55-3 replay: PASS
+R13-H registered header: PASS
+R13-2 layout: PASS
+R13-3 terminals: PASS
+R13-6 per commitment: PASS
+R13-7 mask and CFS: PASS
+D55-IO joined claims from the forks: PASS
+D55-J joint rank: PASS
+D55-C replay controls: PASS
+PINS controls: PASS
+TS-1 terminal surjection and its pair-removed control: PASS
+CENSUS claim census: PASS
+HASH-1 hash layer: PASS
+HASH-2 hash census: FAIL
+pins: 75 declared, 41 at r19b, 34 read here, 0 UNREAD []; self-read ['src/gpu/metal.rs', 'src/gpu/metal_kernels.metal', 'src/private_block/run_capture.rs']
+backend: proved_on_gpu False, admissible True
+status: NOT-OK (2455.0 s) -> /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad5119ba9083f7dc7/results/zk60_d60_20261102/privacy_gate_tsbases/records/d55-py-shield-t256-s0.json
+[zk60-guard 09:50:11] START tsb-py-shield-t256-s1 class=cpu need=24G cap=160G enforce=watchdog-only waited=0s run=281a7a7313ff
+[zk60-guard 10:30:56] END tsb-py-shield-t256-s1 exit=1 child_wall=2445s peak_rss=19.72G min_avail=212.46G
+D55-0 integrity: PASS
+D55-1/2 facts: PASS
+D55-3 replay: PASS
+R13-H registered header: PASS
+R13-2 layout: PASS
+R13-3 terminals: PASS
+R13-6 per commitment: PASS
+R13-7 mask and CFS: PASS
+D55-IO joined claims from the forks: PASS
+D55-J joint rank: PASS
+D55-C replay controls: PASS
+PINS controls: PASS
+TS-1 terminal surjection and its pair-removed control: PASS
+CENSUS claim census: PASS
+HASH-1 hash layer: PASS
+HASH-2 hash census: FAIL
+pins: 75 declared, 41 at r19b, 34 read here, 0 UNREAD []; self-read ['src/gpu/metal.rs', 'src/gpu/metal_kernels.metal', 'src/private_block/run_capture.rs']
+backend: proved_on_gpu False, admissible True
+status: NOT-OK (2444.7 s) -> /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad5119ba9083f7dc7/results/zk60_d60_20261102/privacy_gate_tsbases/records/d55-py-shield-t256-s1.json

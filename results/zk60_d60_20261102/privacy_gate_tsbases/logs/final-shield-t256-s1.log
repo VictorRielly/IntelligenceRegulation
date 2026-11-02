@@ -1,0 +1,28 @@
+   control honest reference: rank 65538 / expected-honest 65538, disclosed 0 (original form 0), expect surjective, disclosed 0
+   control C1 shared reserved pair: rank 65536 / expected-honest 65538, disclosed 2 (original form 2), expect fires
+   control C2 cm = 0 (pair removed): rank 65536 / expected-honest 65538, disclosed 2 (original form 2), expect fires
+   control C3 lambda_c = 0: rank 65538 / expected-honest 65538, disclosed 0 (original form 0), expect does not fire (as in the review of record)
+   control C6 cw = delta (one nonzero entry): rank 65538 / expected-honest 65538, disclosed 0 (original form 0), expect does not fire
+   control C8 pair weights Fp-dependent: rank 65538 / expected-honest 65538, disclosed 0 (original form 0), expect does not fire at an Fp2 column key (as in the review of record)
+   control G7-D1 duplicate claim: same data weights, its OWN reserved pair (cm, cm U): rank 65540 / expected-honest 65540, disclosed 0 (original form 0), expect surjective, disclosed 0
+   control G7-D2 duplicate claim: an exact copy (two identical coordinates, shared pair): rank 65538 / expected-honest 65540, disclosed 0 (original form 0), expect rank short by 2 of the onto-lemma's 2(N+m)-2; disclosed 0 (the repeated coordinate's equality holds for data too)
+   control G7-D3 control: a copy sharing the pair whose DATA weights differ in one row: rank 65538 / expected-honest 65540, disclosed 2 (original form 2), expect fires
+D55-0 integrity: PASS
+D55-1/2 facts: PASS
+D55-3 replay: PASS
+R13-H registered header: PASS
+R13-2 layout: PASS
+R13-3 terminals: PASS
+R13-6 per commitment: PASS
+R13-7 mask and CFS: PASS
+D55-IO joined claims from the forks: PASS
+D55-J joint rank: PASS
+D55-C replay controls: PASS
+PINS controls: PASS
+TS-1 terminal surjection and its pair-removed control: PASS
+CENSUS claim census: PASS
+HASH-1 hash layer: PASS
+HASH-2 hash census: PASS
+pins: 75 declared, 41 at r19b, 34 read here, 0 UNREAD []; self-read ['src/gpu/metal.rs', 'src/gpu/metal_kernels.metal', 'src/private_block/run_capture.rs']
+backend: proved_on_gpu False, admissible True
+status: D55-PASS (2432.9 s) -> /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ad5119ba9083f7dc7/results/zk60_d60_20261102/privacy_gate_tsbases/records_final/d55-final-shield-t256-s1.json
