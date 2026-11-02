@@ -1,0 +1,66 @@
+
+running 11 tests
+test private_block::run::fork::tests::d55_ab_one_request_serial_against_forks ... ignored, heavy: W16 8B T128 32-block runs; guarded, alone, HL_GPU=1 HL_PB_ORACLE=0
+test private_block::run::fork::tests::d55_control_a_boundary_root_absorbed_after_a_fork_is_rejected ... D55 CONTROL | RootAfterFork { boundary: 1 } | forged tags false | REJECTED: D55: the head's S0 tag is not the verifier's own S0 (every boundary root absorbed, in order, before any fork)
+D55 CONTROL | RootAfterFork { boundary: 1 } | forged tags true | REJECTED: D55: fork 0: slot 0 [01 SS row sums norm_a (private)]: sumcheck round 1: s(0) + s(1) != claim
+ok
+test private_block::run::fork::tests::d55_control_a_claim_raised_on_a_fork_but_not_joined_is_rejected ... D55 CONTROL | ClaimNotJoined { block: 1 } | forged tags false | REJECTED: D55 wire: the tail's S1 tag is not the verifier's own joined transcript position
+D55 CONTROL | ClaimNotJoined { block: 1 } | forged tags true | REJECTED: D55: boundary 0: pcs zk: group 0: <v, c> != combined claim
+D55 CONTROL | ClaimNotJoinedNorOpened { block: 0 } | REFUSED BY THE PROVER'S OWN AUDIT: D55: boundary 0: private block: mask schedule audit: a reserved pair is unused or shared between claims
+ok
+test private_block::run::fork::tests::d55_control_a_fork_index_swap_is_rejected ... D55 CONTROL | ForkIndexSwap { a: 0, b: 1 } | forged tags false | REJECTED: D55: fork 0: D55 wire: fork frame 0's start tag is not the verifier's own fork-0 position
+D55 CONTROL | ForkIndexSwap { a: 1, b: 2 } | forged tags true | REJECTED: D55: fork 1: slot 0 [01 SS row sums norm_a (private)]: sumcheck round 1: s(0) + s(1) != claim
+ok
+test private_block::run::fork::tests::d55_control_a_same_block_fork_swap_is_caught_only_by_the_index ... D55 CONTROL | ForkIndexSwap { a: 0, b: 2 } (one block at both forks) | forged tags true | REJECTED: D55: fork 0: slot 0 [01 SS row sums norm_a (private)]: sumcheck round 1: s(0) + s(1) != claim
+D55 CONTROL | ForkIndexSwap { a: 0, b: 2 } | the index dropped from the derivation (mutation) | VERIFIES — the control fails as it must: only the index separates two forks of one block
+D55 CONTROL | ForkIndexSwap { a: 1, b: 2 } (two different blocks) | the index dropped (mutation) | REJECTED by the digest: D55: fork 1: slot 0 [01 SS row sums norm_a (private)]: sumcheck round 1: s(0) + s(1) != claim
+ok
+test private_block::run::fork::tests::d55_control_a_stale_fork_state_is_rejected ... D55 CONTROL | StaleForkState { block: 1 } | forged tags false | REJECTED: D55 wire: the tail's S1 tag is not the verifier's own joined transcript position
+D55 CONTROL | StaleForkState { block: 1 } | forged tags true | REJECTED: D55: boundary 0: pcs zk: group 0: <v, c> != combined claim
+ok
+test private_block::run::fork::tests::d55_every_single_block_tamper_family_is_rejected_on_an_interior_fork ... D55 F1 TAMPER | a norm_a byte limb (300) in block 1, NO cheating switch | REFUSED BY THE FORK PROVER on its worker: D55: fork 1: private block: ruling CS-3 — the witness looks up a value that is not a row of its table; the table family that missed: the byte table (the class o
+D55 F1 TAMPER | the norm_a denominator in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | a norm_a byte limb in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the norm_a quotient in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | residual 1 in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the input plane in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | an int16 byte limb of x in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the Q projection in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the rotated query in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the K projection in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 16 [05 KV zero-check (hosts 09K, 09V)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the V projection in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the score in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the row maximum in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the exp value in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the softmax quotient in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the output projection in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the attention output in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | a biased attention remainder in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the norm_m denominator in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | a norm_m byte limb in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the norm_m quotient in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the gate output in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | a biased gate remainder in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the activation value in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the up output in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the gate-up product in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the feed-forward output in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | residual 2 in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | all 27 families rejected by verify_run_with_forks, 27 of them inside fork 1's own verify_core
+ok
+test private_block::run::fork::tests::d55_honest_fork_runs_verify_at_every_worker_count ... D55 | honest | L2 workers 2: 31258480 B (head 112 B, forks [14465864, 14465864] B, tail 2326640 B); preflight 0.01 s, commit 0.01 s, forks 0.25 s (core ["0.25", "0.25"]), join 0.01 s; verifies with 1 and 3 verifier threads; changed bytes refused (head: D55: the head's S0 tag is not the verifier's own S0 (every boundary root absorbed, in orde; last fork: D55: fork 1: A: pcs zk: group 26: <v, c> != combined claim; tail: D55: run input endpoint: pcs zk: group 0: <v, c> != combined claim)
+D55 | honest | L3 workers 1: 46678744 B (head 144 B, forks [14465864, 14465864, 14465864] B, tail 3281008 B); preflight 0.02 s, commit 0.02 s, forks 0.65 s (core ["0.21", "0.22", "0.21"]), join 0.01 s; verifies with 1 and 3 verifier threads; changed bytes refused (head: D55: the head's S0 tag is not the verifier's own S0 (every boundary root absorbed, in orde; last fork: D55: fork 2: A: pcs zk: group 26: <v, c> != combined claim; tail: D55: boundary 1: pcs zk: column index 53623 != sampled 38534)
+D55 | honest | L3 workers 2: 46678744 B (head 144 B, forks [14465864, 14465864, 14465864] B, tail 3281008 B); preflight 0.02 s, commit 0.02 s, forks 0.45 s (core ["0.24", "0.24", "0.21"]), join 0.01 s; verifies with 1 and 3 verifier threads; changed bytes refused (head: D55: the head's S0 tag is not the verifier's own S0 (every boundary root absorbed, in orde; last fork: D55: fork 2: A: pcs zk: group 26: <v, c> != combined claim; tail: D55: boundary 1: pcs zk: column index 46265 != sampled 46863)
+D55 | honest | L3 workers 3: 46678744 B (head 144 B, forks [14465864, 14465864, 14465864] B, tail 3281008 B); preflight 0.02 s, commit 0.02 s, forks 0.27 s (core ["0.27", "0.26", "0.25"]), join 0.01 s; verifies with 1 and 3 verifier threads; changed bytes refused (head: D55: the head's S0 tag is not the verifier's own S0 (every boundary root absorbed, in orde; last fork: D55: fork 2: A: pcs zk: group 26: <v, c> != combined claim; tail: D55: boundary 1: pcs zk: column index 62456 != sampled 21755)
+ok
+test private_block::run::fork::tests::d55_swapped_fork_frames_are_rejected ... D55 | swapped frames | REJECTED: D55: fork 0: D55 wire: frame 0 is not the 3-block run's fork 0
+ok
+test private_block::run::fork::tests::d55_the_d12a_run_is_unchanged_and_the_two_profiles_do_not_cross ... D55 | census | constructor 126 B (`hashline-v1/` + the 114 B D55 profile over hashline-zk-mr1/private-run-rung-lh-t32-dev/1); 44 absorb inputs held, the nearest 120 B (`sc-round` with 64 bytes, 6 bytes away); D55's own: `pb-fork-commit-root` 75, `pb-fork-s0` 66, `pb-run-fork` 67, `pb-run-fork-block` 97, `pb-join-fork` 68, `pb-join-state` 101, `pb-join-in-claims` (no claim) 73, `pb-join-in-claims` (one IO claim) 889, `pb-join-out-claims` (no claim) 74, `pb-join-out-claims` (one IO claim) 890, `pb-fork-s1` 66; seeds 196 / 211
+D55 | profiles | D12a L3 proves and verifies (46678552 B); fork binding and line differ; CS-7: private run: ruling CS-7 — "d55-commit-fork-join-runs/opt-in-prototype-unregiste; fork frames as D12a segments: private run wire: segment 0 is 14465864 B, the counted length is 15151976; D12a segments as forks: D55: fork 0: D55 wire: fork frame 0 is 15151976 B, the counted length is 14465864
+ok
+test private_block::run::fork::tests::d55_the_headline_negative_test_a_block_on_another_input_is_rejected_through_the_fork_path ... D55 F1 HEADLINE | (i) B_1 moved: block 1's output is not what the boundary holds | 2 prover workers | REJECTED by the verifier: D55: fork 1: slot 22 [IO-out endpoint equality]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 HEADLINE | (ii) block 2 run on something other than block 1's output | 3 prover workers | REJECTED by the verifier: D55: fork 2: slot 21 [IO-in endpoint equality]: sumcheck round 0: s(0) + s(1) != claim
+ok
+
+test result: ok. 10 passed; 0 failed; 1 ignored; 0 measured; 957 filtered out; finished in 28.02s
+

@@ -1,0 +1,146 @@
+
+running 24 tests
+test private_block::range16_tests::w16_limbs_out_of_their_range_are_rejected_by_the_verifier ... W16 LIMB W16_RUNG_H24 Nr: the verifier rejects: H: pcs zk: group 8: <v, c> != combined claim
+W16 LIMB W16_RUNG_H24 Ms: the verifier rejects: H: pcs zk: group 8: <v, c> != combined claim
+W16 LIMB W16_RUNG_H24 Rao: the verifier rejects: H: pcs zk: group 8: <v, c> != combined claim
+W16 LIMB W16_RUNG_H24 Rd: the verifier rejects: H: pcs zk: group 8: <v, c> != combined claim
+W16 LIMB W16_RUNG_H24 Rs: the verifier rejects: H: pcs zk: group 8: <v, c> != combined claim
+W16 LIMB W16_RUNG_H24 Rg: the verifier rejects: H: pcs zk: group 8: <v, c> != combined claim
+W16 LIMB W16_RUNG_H24 H top: the verifier rejects: H: pcs zk: group 8: <v, c> != combined claim
+ok
+test private_block::w16r2_tests::w16r2_a_shape_at_another_rate_or_q_under_a_w16r2_string_is_refused ... W16R2 (e) Shape::new at rate 1/4: private block shape: D59 — the W16R2 profile "hashline-zk-mr1/private-block-rung-lh-t32-w16r2-d/1" fixes rate 1/2 and Q = 280 at log_cols 14 for A, H, the boundaries and both endpoints; the shape declares rate 1/4 at log_cols 14, endpoints rate 1/4 at log_n 14
+W16R2 (e) a W16R2 shape written to rate 1/4, Q 256: private block shape: ruling CS-8 — "W16R2_RUNG_H24" is not a shape Shape::new builds: Shape::new refuses its own parameters (private block shape: D59 — the W16R2 profile "hashline-zk-mr1/private-block-rung-lh-t32-w16r2-d/1" fixes rate 1/2 and Q = 280 at log_cols 14 for A, H, the boundaries and both endpoints; the shape declares rate 1/4 at log_cols 14, endpoints rate 1/4 at log_n 14)
+W16R2 (e) a W16R2 shape written to Q 256: private block shape: ruling CS-8 — "W16R2_RUNG_H24" is not a shape Shape::new builds: its opened_cols differ from what Shape::new derives from its parameters
+ok
+test private_block::w16r2_tests::w16r2_ab_w16_against_w16r2_on_one_binary ... ignored, heavy: 8B T128 blocks on Metal, toggles HL_GPU in-process; run alone by name with HL_PB_ORACLE=0
+test private_block::w16r2_tests::w16r2_accounting_inputs_are_printed_from_the_code ... W16R2-ACCOUNTING {"name":"W16R2_RUNG_H24","profile":"hashline-zk-mr1/private-block-rung-lh-t32-w16r2-d/1","tokens":32,"regime":"UniqueDecoding","log_cols":14,"n":16384,"inv_rate":2,"N":32768,"Q":280,"q_pad":280,"K":16664,"e_unique":8052,"endpoint_log_n":14,"endpoint_inv_rate":2,"a_rows":317,"h_rows":198,"endpoint_rows":6,"m_rows":50,"mask_log_dom":12,"mask_log_msg":9,"mask_q":256,"lookup_words":1015808,"exp_queries":16384,"act_queries":32768,"range_families":[(1, 1), (2, 1), (4, 1), (5, 1), (7, 1), (12, 1), (13, 1), (15, 2), (16, 4)],"range_entries":110774,"slots":23,"sumcheck_main_ext_degree":924,"zerocheck_allowance":957,"column_log2":-113.9322,"endpoint_column_log2":-113.9322,"receipt_bytes_counted":15627000}
+W16R2-ACCOUNTING {"name":"W16_RUNG_H24","profile":"hashline-zk-mr1/private-block-rung-lh-t32-w16-dev/1","tokens":32,"regime":"GeneralCode","log_cols":14,"n":16384,"inv_rate":4,"N":65536,"Q":256,"q_pad":256,"K":16640,"e_unique":24448,"endpoint_log_n":14,"endpoint_inv_rate":4,"a_rows":317,"h_rows":198,"endpoint_rows":6,"m_rows":50,"mask_log_dom":12,"mask_log_msg":9,"mask_q":256,"lookup_words":1015808,"exp_queries":16384,"act_queries":32768,"range_families":[(1, 1), (2, 1), (4, 1), (5, 1), (7, 1), (12, 1), (13, 1), (15, 2), (16, 4)],"range_entries":110774,"slots":23,"sumcheck_main_ext_degree":924,"zerocheck_allowance":957,"column_log2":-105.6090,"endpoint_column_log2":-105.6090,"receipt_bytes_counted":15489080}
+W16R2-ACCOUNTING {"name":"W16R2_SHIELD_T128_H24","profile":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lh24-w16r2/1","tokens":128,"regime":"UniqueDecoding","log_cols":14,"n":16384,"inv_rate":2,"N":32768,"Q":280,"q_pad":280,"K":16664,"e_unique":8052,"endpoint_log_n":14,"endpoint_inv_rate":2,"a_rows":2501,"h_rows":2602,"endpoint_rows":37,"m_rows":50,"mask_log_dom":12,"mask_log_msg":9,"mask_q":256,"lookup_words":32276480,"exp_queries":524288,"act_queries":2097152,"range_families":[(2, 1), (4, 1), (5, 1), (7, 1), (12, 1), (13, 1), (15, 2), (16, 4)],"range_entries":110772,"slots":23,"sumcheck_main_ext_degree":1159,"zerocheck_allowance":1179,"column_log2":-113.9322,"endpoint_column_log2":-113.9322,"receipt_bytes_counted":26047864}
+W16R2-ACCOUNTING {"name":"W16_SHIELD_T128_H24","profile":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-w16/1","tokens":128,"regime":"GeneralCode","log_cols":14,"n":16384,"inv_rate":4,"N":65536,"Q":256,"q_pad":256,"K":16640,"e_unique":24448,"endpoint_log_n":14,"endpoint_inv_rate":4,"a_rows":2501,"h_rows":2602,"endpoint_rows":37,"m_rows":50,"mask_log_dom":12,"mask_log_msg":9,"mask_q":256,"lookup_words":32276480,"exp_queries":524288,"act_queries":2097152,"range_families":[(2, 1), (4, 1), (5, 1), (7, 1), (12, 1), (13, 1), (15, 2), (16, 4)],"range_entries":110772,"slots":23,"sumcheck_main_ext_degree":1159,"zerocheck_allowance":1179,"column_log2":-105.6090,"endpoint_column_log2":-105.6090,"receipt_bytes_counted":25017144}
+W16R2-ACCOUNTING {"name":"W16R2_8B_T128_H24","profile":"hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/1","tokens":128,"regime":"UniqueDecoding","log_cols":14,"n":16384,"inv_rate":2,"N":32768,"Q":280,"q_pad":280,"K":16664,"e_unique":8052,"endpoint_log_n":14,"endpoint_inv_rate":2,"a_rows":2501,"h_rows":2602,"endpoint_rows":37,"m_rows":50,"mask_log_dom":12,"mask_log_msg":9,"mask_q":256,"lookup_words":32276480,"exp_queries":524288,"act_queries":2097152,"range_families":[(2, 1), (4, 1), (5, 1), (7, 1), (12, 1), (13, 1), (15, 2), (16, 4)],"range_entries":110772,"slots":23,"sumcheck_main_ext_degree":1099,"zerocheck_allowance":1179,"column_log2":-113.9322,"endpoint_column_log2":-113.9322,"receipt_bytes_counted":26046904}
+W16R2-ACCOUNTING {"name":"W16_8B_T128_H24","profile":"hashline-zk-mr1/private-block-llama-3-8b-t128-lh24-w16/1","tokens":128,"regime":"GeneralCode","log_cols":14,"n":16384,"inv_rate":4,"N":65536,"Q":256,"q_pad":256,"K":16640,"e_unique":24448,"endpoint_log_n":14,"endpoint_inv_rate":4,"a_rows":2501,"h_rows":2602,"endpoint_rows":37,"m_rows":50,"mask_log_dom":12,"mask_log_msg":9,"mask_q":256,"lookup_words":32276480,"exp_queries":524288,"act_queries":2097152,"range_families":[(2, 1), (4, 1), (5, 1), (7, 1), (12, 1), (13, 1), (15, 2), (16, 4)],"range_entries":110772,"slots":23,"sumcheck_main_ext_degree":1099,"zerocheck_allowance":1179,"column_log2":-105.6090,"endpoint_column_log2":-105.6090,"receipt_bytes_counted":25016184}
+ok
+test private_block::w16r2_tests::w16r2_control_a_a_far_matrix_is_rejected_at_the_column_test ... W16R2 control (a) far matrix (8053 of 32768 columns off the code, e = 8052), 67 of 280 sampled columns in the far set: REJECTED: pcs zk: column 2468 disagrees with clear vector 0
+W16R2 control (a) toy rate 1/2 (n 16, N 32, Q 4, e 6): 14929 of 40000 far matrices accepted = 0.3732; the lemma's (1 - (e+1)/N)^Q = 0.3725 (sigma 0.0024)
+ok
+test private_block::w16r2_tests::w16r2_control_b_a_wrong_opened_column_is_rejected ... W16R2 control (b) an opened column with one entry changed: REJECTED: pcs zk: Merkle path for column 28681 fails
+W16R2 control (b) a committed column (valid path) at an undrawn index: REJECTED: pcs zk: column index 0 != sampled 28681
+W16R2 control (b) rung block, one A column entry changed: REJECTED: A: pcs zk: Merkle path for column 19283 fails
+W16R2 control (b) rung block, two A columns (each with its valid path) swapped: REJECTED: A: pcs zk: column index 29302 != sampled 19283
+W16R2 control (b) rung block, one H column entry changed: REJECTED: H: pcs zk: Merkle path for column 2137 fails
+W16R2 control (b) rung block, two H columns (each with its valid path) swapped: REJECTED: H: pcs zk: column index 11487 != sampled 2137
+ok
+test private_block::w16r2_tests::w16r2_control_c_a_column_set_chosen_before_the_challenge_is_rejected ... W16R2 control (c) 280 columns chosen before any challenge, the matrix honest on them and off the code on the other 32488 (every per-column check passes on the preset: positive control); 277 of the 280 transcript-drawn columns are off the code: REJECTED: pcs zk: column index 28887 != sampled 16806
+ok
+test private_block::w16r2_tests::w16r2_control_d_a_forged_pad_half_is_rejected ... W16R2 control (d) the group vector's first pad entry + 1 (absorbed, columns redrawn; the claim check passes): REJECTED: pcs zk: column 2 disagrees with clear vector 0
+W16R2 control (d) the proximity vector's first pad entry + 1 (absorbed, columns redrawn; the claim check passes): REJECTED: pcs zk: column 32223 disagrees with clear vector 1
+W16R2 control (d) profile geometry (n 16384, N 32768, Q 280, K 16664): the max-agreement forgery (honest U, a false claim, both vectors + dec(D0), D0 zero on K - 1 = 16663 columns) disagrees on exactly 16105 columns; accepted with probability ((K - 1)/N)^Q = 2^-273.179: REJECTED: pcs zk: column 21605 disagrees with clear vector 0
+W16R2 control (d) toy rate 1/2 (n 16, N 32, Q 4): the first pad entry + delta disagrees at all 32 columns on each of 4000 seeds, so it is accepted exactly never: 0 of 4000
+W16R2 control (d) toy rate 1/2: the max-agreement forgery (both vectors + dec(D0), D0 zero on K - 1 = 19 of 32 columns, a false claim): 2433 of 20000 accepted = 0.1216; exact ((K - 1)/N)^Q = 0.1243 (sigma 0.0023; tolerance 5 sigma both ways)
+W16R2 control (d) toy rate 1/2: the best pad-only forgery (the pad halves + delta, delta zero on q - 1 = 3 columns, the true claim): 2 of 20000 accepted; exact ((q - 1)/N)^Q = 7.725e-5, 1.54 expected (sd 1.24; tolerance 5 sd above)
+W16R2 control (d) rung block, A group vector 0's first pad entry + 1: REJECTED: A: pcs zk: column index 19283 != sampled 27105
+ok
+test private_block::w16r2_tests::w16r2_control_e_a_receipt_at_another_rate_or_q_is_rejected ... W16R2 control (e) the honest rate-1/4 (Q 256) W16 proof of the same block under the W16R2 verifier: REJECTED: private block: opened column 0 of the A commitment carries a Merkle path of 16 entries; this commitment's tree is 15 deep (T-4)
+W16R2 control (e) rung block, one A column dropped (Q - 1): REJECTED: A: pcs zk: wrong number of columns
+W16R2 control (e) rung block, one A column added (Q + 1): REJECTED: A: pcs zk: wrong number of columns
+W16R2 control (e) rung block, every A clear vector cut to n + 256 (256 pads): REJECTED: A: pcs zk: group vector 0 has length 16640
+W16R2 control (e) an honest opening made at rate 1/2, Q 256, 256 pads, under the W16R2 profile's verifier: REJECTED: pcs zk: group vector 0 has length 16640
+W16R2 control (e) an honest opening made at rate 1/2, Q 279, 280 pads, under the W16R2 profile's verifier: REJECTED: pcs zk: wrong number of columns
+W16R2 control (e) an honest opening made at rate 1/4, Q 280, 280 pads, under the W16R2 profile's verifier: REJECTED: pcs zk: opened column 0 carries a Merkle path of 16 entries; this commitment's tree is 15 deep
+ok
+test private_block::w16r2_tests::w16r2_control_f_the_lemmas_close_case_is_accepted_at_exactly_the_counted_rate ... W16R2 control (f) W16R2_RUNG_H24 (n 16384, N 32768, Q = q_pad 280, K 16664, e 8052): U = Enc + D0 on |S| = 8052 columns of row 0 (inside the unique-decoding radius), D0 zero on |Z| = K - 1 = 16663 columns, both vectors + dec(D0), a FALSE claim; POSITIVE CONTROL: they disagree with rho^T U on exactly the 8053 columns of R; 52 of 280 drawn columns in R: REJECTED: pcs zk: column 26975 disagrees with clear vector 0
+W16R2 control (f) W16R2_SHIELD_T128_H24 (n 16384, N 32768, Q = q_pad 280, K 16664, e 8052): U = Enc + D0 on |S| = 8052 columns of row 0 (inside the unique-decoding radius), D0 zero on |Z| = K - 1 = 16663 columns, both vectors + dec(D0), a FALSE claim; POSITIVE CONTROL: they disagree with rho^T U on exactly the 8053 columns of R; 66 of 280 drawn columns in R: REJECTED: pcs zk: column 15730 disagrees with clear vector 0
+W16R2 control (f) W16R2_8B_T128_H24 (n 16384, N 32768, Q = q_pad 280, K 16664, e 8052): U = Enc + D0 on |S| = 8052 columns of row 0 (inside the unique-decoding radius), D0 zero on |Z| = K - 1 = 16663 columns, both vectors + dec(D0), a FALSE claim; POSITIVE CONTROL: they disagree with rho^T U on exactly the 8053 columns of R; 73 of 280 drawn columns in R: REJECTED: pcs zk: column 29704 disagrees with clear vector 0
+W16R2 control (f) profile geometry: per opening the close case is accepted with (1 - |R|/N)^Q = 2^-113.932 (|R| = 8053 measured), the counted unique-decoding term is 2^-113.932: EQUAL: the count is attained (D0 built and checked in 0.10 s)
+W16R2 control (f) toy rate 1/2 (n 16, N 32, Q 4, K 20, e 6): 7483 of 20000 close-case false claims accepted = 0.3741; exact (1 - (e+1)/N)^Q = 0.3725 (sigma 0.0034; tolerance 5 sigma both ways)
+ok
+test private_block::w16r2_tests::w16r2_control_g_a_replay_at_the_same_geometry_under_another_profiles_keys_is_rejected ... W16R2 control (g) 1. committed under W16's column/leaf/node keys, opened on W16R2's transcript, at W16R2's geometry (rate 1/2, Q 280): REJECTED: pcs zk: Merkle path for column 17776 fails
+W16R2 control (g) 2. committed under W16R2's keys, opened on a transcript under W16's Fiat-Shamir key: REJECTED: pcs zk: group 0: <v, c> != combined claim
+W16R2 control (g) 3. W16R2's keys, the transcript constructed on the W16 profile string, verified on the W16R2 string: REJECTED: pcs zk: group 0: <v, c> != combined claim
+W16R2 control (g) 4. a whole W16-keyed opening at W16R2's geometry: REJECTED: pcs zk: group 0: <v, c> != combined claim
+ok
+test private_block::w16r2_tests::w16r2_f3_a_remainder_filed_in_a_wider_family_is_refused_by_the_tag_fold ... W16 F3 W16R2_RUNG_H24 RQL 16384 -> 49152 (R15 miss filed in R16), Q and QR -1: the honest prover refuses: prover: private block: ruling CS-3 — the witness looks up a value that is not a row of its table
+W16 F3 W16R2_RUNG_H24 RQL 16384 -> 49152 (R15 miss filed in R16), Q and QR -1: the verifier rejects: H: pcs zk: group 8: <v, c> != combined claim
+W16 F3 W16R2_RUNG_H24 RQL 16384 -> 49152 (R15 miss filed in R16), Q and QR -1: with the range tags collapsed to one, the same cheat is ACCEPTED (positive control)
+W16 F3 W16R2_RUNG_H24 RU 3456 -> 7552 (R12 miss filed in R16), U -1: the honest prover refuses: prover: private block: ruling CS-3 — the witness looks up a value that is not a row of its table
+W16 F3 W16R2_RUNG_H24 RU 3456 -> 7552 (R12 miss filed in R16), U -1: the verifier rejects: H: pcs zk: group 8: <v, c> != combined claim
+W16 F3 W16R2_RUNG_H24 RU 3456 -> 7552 (R12 miss filed in R16), U -1: with the range tags collapsed to one, the same cheat is ACCEPTED (positive control)
+ok
+test private_block::w16r2_tests::w16r2_f3_an_endpoint_policy_committed_at_rate_one_quarter_is_refused_by_cs4 ... W16R2 F3 (iv) | an endpoint policy committed at rate 1/4 handed to a W16R2 run | REFUSED before the run header: private run: private block: ruling CS-4 — the endpoint policy does not fit the shape it is proved at: its endpoint commitment parameters (log_n, rate, rows, opened columns) are (14, 4, 6, 256), this shape's are (14, 2, 6, 280)
+ok
+test private_block::w16r2_tests::w16r2_f3_b_a_word_at_plus_32768_is_rejected_by_the_verifier ... W16 F3 W16R2_RUNG_H24 U -40 -> +32768 (looked up as 65536), RU 3456 -> -134378112: the honest prover refuses: prover: private block: ruling CS-3 — the witness looks up a value that is not a row of its table
+W16 F3 W16R2_RUNG_H24 U -40 -> +32768 (looked up as 65536), RU 3456 -> -134378112: the verifier rejects: H: pcs zk: group 8: <v, c> != combined claim
+ok
+test private_block::w16r2_tests::w16r2_f3_c_a_count_moved_into_a_narrow_range_padded_copy_is_rejected ... W16 F3 W16R2_RUNG_H24 R1 count moved from row 0 to its padded copy 16382: the verifier rejects: slot 19 [TAB table helper zero-check]: sumcheck round 0: s(0) + s(1) != claim
+W16 F3 W16R2_RUNG_H24 R2 count moved from row 0 to its padded copy 16380: the verifier rejects: slot 19 [TAB table helper zero-check]: sumcheck round 0: s(0) + s(1) != claim
+W16 F3 W16R2_RUNG_H24 R3 count moved from row 0 to its padded copy 16376: the verifier rejects: slot 19 [TAB table helper zero-check]: sumcheck round 0: s(0) + s(1) != claim
+W16 F3 W16R2_RUNG_H24 R4 count moved from row 0 to its padded copy 16368: the verifier rejects: slot 19 [TAB table helper zero-check]: sumcheck round 0: s(0) + s(1) != claim
+W16 F3 W16R2_RUNG_H24 R5 count moved from row 0 to its padded copy 16352: the verifier rejects: slot 19 [TAB table helper zero-check]: sumcheck round 0: s(0) + s(1) != claim
+W16 F3 W16R2_RUNG_H24 R7 count moved from row 0 to its padded copy 16256: the verifier rejects: slot 19 [TAB table helper zero-check]: sumcheck round 0: s(0) + s(1) != claim
+W16 F3 W16R2_RUNG_H24 R12 count moved from row 0 to its padded copy 12288: the verifier rejects: slot 19 [TAB table helper zero-check]: sumcheck round 0: s(0) + s(1) != claim
+W16 F3 W16R2_RUNG_H24 R13 count moved from row 0 to its padded copy 8192: the verifier rejects: slot 19 [TAB table helper zero-check]: sumcheck round 0: s(0) + s(1) != claim
+W16 F3 (c) W16R2_RUNG_H24: narrow families exercised [1, 2, 3, 4, 5, 7, 12, 13]
+ok
+test private_block::w16r2_tests::w16r2_f3_d_a_direct_quotient_of_2_13_is_rejected_by_the_verifier ... W16 F3 W16R2_RUNG_H24 P 4096 -> 8192 (Sum 4096), SR 0 -> -16777216, SG 4095 -> 16781311: the honest prover refuses: prover: private block: ruling CS-3 — the witness looks up a value that is not a row of its table
+W16 F3 W16R2_RUNG_H24 P 4096 -> 8192 (Sum 4096), SR 0 -> -16777216, SG 4095 -> 16781311: the verifier rejects: H: pcs zk: group 8: <v, c> != combined claim
+ok
+test private_block::w16r2_tests::w16r2_f3_run_level_controls_under_the_d12a_run_verifier ... W16R2 F3 D12a | honest W16R2 rung L3 run: verifies (and re-encoded); segments [14950536, 15219400, 15911656] B = the codec's segment_len = the count (boundary opening 961152 B, endpoint opening 692288 B at Q 280)
+W16R2 F3 D12a | (i) W16's rate-1/4 B_1 opening spliced into segment 2 | REJECTED: private run wire: segment 2 is 15904872 B, the counted length is 15911656
+W16R2 F3 D12a | (i) W16's rate-1/4 B_1 opening spliced into segment 2, as a decoded opening | T-4: private block: opened column 0 of the incoming boundary or endpoint commitment carries a Merkle path of 16 entries; this commitment's tree is 15 deep (T-4); the encoder: private run wire: opening shape
+W16R2 F3 D12a | (i) W16's rate-1/4 output-endpoint opening spliced into segment 2 | REJECTED: private run wire: segment 2 is 15905448 B, the counted length is 15911656
+W16R2 F3 D12a | (i) W16's rate-1/4 output-endpoint opening spliced into segment 2, as a decoded opening | T-4: private block: opened column 0 of the run output endpoint commitment carries a Merkle path of 16 entries; this commitment's tree is 15 deep (T-4); the encoder: private run wire: opening shape
+W16R2 F3 D12a | (ii) one B_1 column entry + 1 | REJECTED: boundary 1: pcs zk: Merkle path for column 15690 fails
+W16R2 F3 D12a | (ii) one B_0 column entry + 1 | REJECTED: boundary 0: pcs zk: Merkle path for column 32155 fails
+W16R2 F3 D12a | (ii) one input-endpoint column entry + 1 | REJECTED: run input endpoint: pcs zk: Merkle path for column 20656 fails
+W16R2 F3 D12a | (ii) one output-endpoint column entry + 1 | REJECTED: run output endpoint: pcs zk: Merkle path for column 22196 fails
+W16R2 F3 D12a | (iii) B_1's proximity vector, first pad entry + 1 | REJECTED: boundary 1: pcs zk: column index 15690 != sampled 14674
+W16R2 F3 D12a | (iii) the output endpoint's proximity vector, first pad entry + 1 | REJECTED: run output endpoint: pcs zk: column index 22196 != sampled 28707
+ok
+test private_block::w16r2_tests::w16r2_f3_run_level_controls_under_the_d55_fork_verifier ... W16R2 F3 D55 | honest W16R2 rung L3 fork run: verifies (and re-encoded); head 144 B, forks [14258216, 14258216, 14258216] B, tail 3306992 B = the codec's counts = the count (boundary opening 961152 B, endpoint opening 692288 B at Q 280)
+W16R2 F3 D55 | (i) W16's rate-1/4 B_1 opening spliced into the tail | REJECTED: D55 wire: the tail is 3300208 B, the counted length is 3306992
+W16R2 F3 D55 | (i) W16's rate-1/4 B_1 opening spliced into the tail, as a decoded opening | T-4 at the verifier's `boundary 1` site: private block: opened column 0 of the boundary 1 commitment carries a Merkle path of 16 entries; this commitment's tree is 15 deep (T-4); the encoder: D55 wire: tail opening shape
+W16R2 F3 D55 | (i) W16's rate-1/4 output-endpoint opening spliced into the tail | REJECTED: D55 wire: the tail is 3300784 B, the counted length is 3306992
+W16R2 F3 D55 | (i) W16's rate-1/4 output-endpoint opening spliced into the tail, as a decoded opening | T-4 at the verifier's `run output endpoint` site: private block: opened column 0 of the run output endpoint commitment carries a Merkle path of 16 entries; this commitment's tree is 15 deep (T-4); the encoder: D55 wire: tail opening shape
+W16R2 F3 D55 | (ii) one B_1 column entry + 1 | REJECTED: D55: boundary 1: pcs zk: Merkle path for column 17058 fails
+W16R2 F3 D55 | (ii) one B_0 column entry + 1 | REJECTED: D55: boundary 0: pcs zk: Merkle path for column 23187 fails
+W16R2 F3 D55 | (ii) one input-endpoint column entry + 1 | REJECTED: D55: run input endpoint: pcs zk: Merkle path for column 15050 fails
+W16R2 F3 D55 | (ii) one output-endpoint column entry + 1 | REJECTED: D55: run output endpoint: pcs zk: Merkle path for column 978 fails
+W16R2 F3 D55 | (iii) B_1's proximity vector, first pad entry + 1 | REJECTED: D55: boundary 1: pcs zk: column index 17058 != sampled 17851
+W16R2 F3 D55 | (iii) the output endpoint's proximity vector, first pad entry + 1 | REJECTED: D55: run output endpoint: pcs zk: column index 978 != sampled 14150
+ok
+test private_block::w16r2_tests::w16r2_limbs_out_of_their_range_are_rejected_by_the_verifier ... W16 LIMB W16R2_RUNG_H24 Nr: the verifier rejects: H: pcs zk: group 8: <v, c> != combined claim
+W16 LIMB W16R2_RUNG_H24 Ms: the verifier rejects: H: pcs zk: group 8: <v, c> != combined claim
+W16 LIMB W16R2_RUNG_H24 Rao: the verifier rejects: H: pcs zk: group 8: <v, c> != combined claim
+W16 LIMB W16R2_RUNG_H24 Rd: the verifier rejects: H: pcs zk: group 8: <v, c> != combined claim
+W16 LIMB W16R2_RUNG_H24 Rs: the verifier rejects: H: pcs zk: group 8: <v, c> != combined claim
+W16 LIMB W16R2_RUNG_H24 Rg: the verifier rejects: H: pcs zk: group 8: <v, c> != combined claim
+W16 LIMB W16R2_RUNG_H24 H top: the verifier rejects: H: pcs zk: group 8: <v, c> != combined claim
+ok
+test private_block::w16r2_tests::w16r2_profiles_fix_rate_one_half_and_q_260_and_change_nothing_else ... 
+thread 'private_block::w16r2_tests::w16r2_profiles_fix_rate_one_half_and_q_260_and_change_nothing_else' (4236506) panicked at src/private_block/w16r2_tests.rs:175:9:
+assertion `left == right` failed: W16R2_RUNG_H24
+  left: (14, 2, 280, 14, 2)
+ right: (14, 2, 260, 14, 2)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+test private_block::w16r2_tests::w16r2_rung_core_proves_and_verifies_and_its_golden_digest_is_pinned ... W16R2-GOLDEN W16R2_RUNG_H24 cpu c6d5c2d8d3e6656ca9a51f1bb7c23418d238fe7fe66f3f9157a75f2a5e42bddf
+
+thread 'private_block::w16r2_tests::w16r2_rung_core_proves_and_verifies_and_its_golden_digest_is_pinned' (4236507) panicked at src/private_block/w16r2_tests.rs:287:5:
+the W16R2 rung's seeded digest moved: c6d5c2d8d3e6656ca9a51f1bb7c23418d238fe7fe66f3f9157a75f2a5e42bddf (pinned 334e168f)
+FAILED
+test private_block::w16r2_tests::w16r2_rung_cpu_and_metal_digests_equal_the_golden ... ignored, toggles HL_GPU in-process; run alone by name on a Mac
+test private_block::w16r2_tests::w16r2_the_codec_length_is_the_count_at_every_w16r2_shape ... W16R2 F4(b) W16R2_RUNG_H24: encoded_len = receipt_bytes().total = 15627000 B (A 10720768, H 3255360, M 243712, one endpoint opening 692288 B at Q 280)
+W16R2 F4(b) W16R2_SHIELD_T128_H24: encoded_len = receipt_bytes().total = 26047864 B (A 15612928, H 8640320, M 243712, one endpoint opening 761728 B at Q 280)
+W16R2 F4(b) W16R2_8B_T128_H24: encoded_len = receipt_bytes().total = 26046904 B (A 15612928, H 8640320, M 243712, one endpoint opening 761728 B at Q 280)
+ok
+test private_block::w16r2_tests::w16r2_the_lemmas_load_bearing_invariants_are_pinned ... W16R2 invariants: proximity weights = rows independent challenge_fp2 draws; indices after both absorbs in open_zk and verify_zk_tagged, and they move with the vectors; q_pad >= Q; A/H through verify_zk_tagged (path length checked) under each profile's keys
+ok
+
+failures:
+
+failures:
+    private_block::w16r2_tests::w16r2_profiles_fix_rate_one_half_and_q_260_and_change_nothing_else
+    private_block::w16r2_tests::w16r2_rung_core_proves_and_verifies_and_its_golden_digest_is_pinned
+
+test result: FAILED. 20 passed; 2 failed; 2 ignored; 0 measured; 944 filtered out; finished in 155.43s
+

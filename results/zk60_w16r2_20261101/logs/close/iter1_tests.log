@@ -1,0 +1,301 @@
+
+running 34 tests
+S33 S-6 [toy block (T32 / d16 / f16, 2 heads of 8 over 1 KV head)]: Dom::T at 2^5 against a row width of 2^8 — 3 bits of margin
+S33 S-6 [development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)]: Dom::T at 2^5 against a row width of 2^10 — 5 bits of margin
+S33 S-6 [development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)]: Dom::T at 2^5 against a row width of 2^10 — 5 bits of margin
+S33 S-6 [development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)]: Dom::T at 2^5 against a row width of 2^10 — 5 bits of margin
+S33 S-6 [development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads)]: Dom::T at 2^5 against a row width of 2^10 — 5 bits of margin
+S33 S-6 [development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads)]: Dom::T at 2^5 against a row width of 2^10 — 5 bits of margin
+S33 S-6 [development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads)]: Dom::T at 2^6 against a row width of 2^14 — 8 bits of margin
+S33 S-6 [development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads)]: Dom::T at 2^5 against a row width of 2^10 — 5 bits of margin
+S33 S-6 [125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)]: Dom::T at 2^9 against a row width of 2^14 — 5 bits of margin
+S33 S-6 refusal: 256 tokens at a row width of 2^8 is refused by name, 129 too (it pads to 256), 128 constructs; stage 24's old mask probe is refused by S-6 before C-4
+test private_block::s33_tests::no_registered_shape_reaches_the_first_arm_of_a_groups ... ok
+test private_block::s33_tests::a_shape_whose_padded_token_count_reaches_the_row_width_is_refused_by_name ... ok
+S33 J-7a control: 5 deliberately bad profile strings rejected by the ASCII check, all 8 registered ones accepted
+test private_block::s33_tests::the_ascii_premise_check_rejects_a_profile_with_a_nul_or_a_non_ascii_byte ... ok
+S33 J-7a: the declared 60-byte pair is separated at 14 positions — [33, 34, 35, 36, 37, 38, 39] in le64(|label|) and [45, 46, 47, 48, 49, 50, 51] in le64(|data|); the record's 'six NUL bytes' is an undercount (S33-F1)
+test private_block::s33_tests::the_declared_sixty_byte_pair_is_separated_at_the_positions_the_record_names ... ok
+S33 J-7a (M26; W16R2 review F5): the declared 63-byte rung pair at `hashline-zk-mr1/private-block-rung-lh-t32-w16-dev/1` is separated at 14 positions — [33, 34, 35, 36, 37, 38, 39] in le64(|label|) and [48, 49, 50, 51, 52, 53, 54] in le64(|data|)
+S33 J-7a (M26; W16R2 review F5): the declared 63-byte rung pair at `hashline-zk-mr1/private-block-rung-lh-t32-w16r2-d/1` is separated at 14 positions — [33, 34, 35, 36, 37, 38, 39] in le64(|label|) and [48, 49, 50, 51, 52, 53, 54] in le64(|data|)
+test private_block::s33_tests::the_declared_sixty_three_byte_w16_rung_pair_is_separated_at_the_positions_the_record_names ... ok
+    (the lemma below covers 88 registry profiles, 39 D55 fork-run constructor domains and 5 test-only run identities)
+      67 B  `hashline-zk-mr1/private-block-llama-3-8b-t128-ddict32/1` — 20 layouts, at least 14 separating positions each, the first at offset 33
+      68 B  `hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/1` — 21 layouts, at least 14 separating positions each, the first at offset 33
+      67 B  `hashline-zk-mr1/private-block-llama-3-8b-t128-lh24-dd/1` — 20 layouts, at least 14 separating positions each, the first at offset 33
+      67 B  `hashline-zk-mr1/private-block-llama-3-8b-t128-lh24-v1/1` — 20 layouts, at least 14 separating positions each, the first at offset 33
+      68 B  `hashline-zk-mr1/private-block-llama-3-8b-t128-lh24-w16/1` — 21 layouts, at least 14 separating positions each, the first at offset 33
+      67 B  `hashline-zk-mr1/private-block-llama-3-8b-t128-trained/1` — 20 layouts, at least 14 separating positions each, the first at offset 33
+      68 B  `hashline-zk-mr1/private-block-llama-3-8b-t256-lh24-w16/1` — 21 layouts, at least 14 separating positions each, the first at offset 33
+      66 B  `hashline-zk-mr1/private-block-llama-3-8b-t32-trained/1` — 19 layouts, at least 14 separating positions each, the first at offset 33
+      68 B  `hashline-zk-mr1/private-block-llama-3-8b-t512-lh24-w16/1` — 21 layouts, at least 14 separating positions each, the first at offset 33
+      66 B  `hashline-zk-mr1/private-block-llama-3-8b-t64-trained/1` — 19 layouts, at least 14 separating positions each, the first at offset 33
+      48 B  `hashline-zk-mr1/private-block-m125/1` — 1 layouts, at least 16 separating positions each, the first at offset 32
+      59 B  `hashline-zk-mr1/private-block-rung-c6-t32-dev/1` — 12 layouts, at least 14 separating positions each, the first at offset 33
+      59 B  `hashline-zk-mr1/private-block-rung-dd-t32-dev/1` — 12 layouts, at least 14 separating positions each, the first at offset 33
+      60 B  `hashline-zk-mr1/private-block-rung-e32-t32-dev/1` — 13 layouts, at least 14 separating positions each, the first at offset 33
+      58 B  `hashline-zk-mr1/private-block-rung-g-t24-dev/1` — 11 layouts, at least 14 separating positions each, the first at offset 33
+      59 B  `hashline-zk-mr1/private-block-rung-hd-t32-dev/1` — 12 layouts, at least 14 separating positions each, the first at offset 33
+      59 B  `hashline-zk-mr1/private-block-rung-hh-t32-dev/1` — 12 layouts, at least 14 separating positions each, the first at offset 33
+      59 B  `hashline-zk-mr1/private-block-rung-k4-t24-dev/1` — 12 layouts, at least 14 separating positions each, the first at offset 33
+      59 B  `hashline-zk-mr1/private-block-rung-ld-t32-dev/1` — 12 layouts, at least 14 separating positions each, the first at offset 33
+      59 B  `hashline-zk-mr1/private-block-rung-lh-t32-dev/1` — 12 layouts, at least 14 separating positions each, the first at offset 33
+      63 B  `hashline-zk-mr1/private-block-rung-lh-t32-w16-dev/1` — 16 layouts, at least 14 separating positions each, the first at offset 33
+      63 B  `hashline-zk-mr1/private-block-rung-lh-t32-w16r2-d/1` — 16 layouts, at least 14 separating positions each, the first at offset 33
+      59 B  `hashline-zk-mr1/private-block-rung-lo-t32-dev/1` — 12 layouts, at least 14 separating positions each, the first at offset 33
+      59 B  `hashline-zk-mr1/private-block-rung-p2-t32-dev/1` — 12 layouts, at least 14 separating positions each, the first at offset 33
+      56 B  `hashline-zk-mr1/private-block-rung-t24-dev/1` — 9 layouts, at least 14 separating positions each, the first at offset 33
+      59 B  `hashline-zk-mr1/private-block-rung-tc-t32-dev/1` — 12 layouts, at least 14 separating positions each, the first at offset 33
+      60 B  `hashline-zk-mr1/private-block-rung-w14-t64-dev/1` — 13 layouts, at least 14 separating positions each, the first at offset 33
+      74 B  `hashline-zk-mr1/private-block-shieldstral-3b-t128-lh24-w16r2/1` — 27 layouts, at least 14 separating positions each, the first at offset 33
+      77 B  `hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-blocks/1` — 30 layouts, at least 14 separating positions each, the first at offset 33
+      77 B  `hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-ddict1/1` — 30 layouts, at least 14 separating positions each, the first at offset 33
+      74 B  `hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-w16/1` — 27 layouts, at least 14 separating positions each, the first at offset 33
+      77 B  `hashline-zk-mr1/private-block-shieldstral-3b-t128-trained-block/1` — 30 layouts, at least 14 separating positions each, the first at offset 33
+      77 B  `hashline-zk-mr1/private-block-shieldstral-3b-t128-trained-ddict/1` — 30 layouts, at least 14 separating positions each, the first at offset 33
+      77 B  `hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-blocks/1` — 30 layouts, at least 14 separating positions each, the first at offset 33
+      77 B  `hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-ddict1/1` — 30 layouts, at least 14 separating positions each, the first at offset 33
+      74 B  `hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-w16/1` — 27 layouts, at least 14 separating positions each, the first at offset 33
+      77 B  `hashline-zk-mr1/private-block-shieldstral-3b-t256-trained-block/1` — 30 layouts, at least 14 separating positions each, the first at offset 33
+      77 B  `hashline-zk-mr1/private-block-shieldstral-3b-t256-trained-ddict/1` — 30 layouts, at least 14 separating positions each, the first at offset 33
+      51 B  `hashline-zk-mr1/private-block-t32-poc/1` — 4 layouts, at least 14 separating positions each, the first at offset 33
+      77 B  `hashline-zk-mr1/private-block-tinyllama-1.1b-t128-low-ddict-v01/1` — 30 layouts, at least 14 separating positions each, the first at offset 33
+      77 B  `hashline-zk-mr1/private-block-tinyllama-1.1b-t128-low-stack-v01/1` — 30 layouts, at least 14 separating positions each, the first at offset 33
+      77 B  `hashline-zk-mr1/private-block-tinyllama-1.1b-t128-trained-block/1` — 30 layouts, at least 14 separating positions each, the first at offset 33
+      77 B  `hashline-zk-mr1/private-block-tinyllama-1.1b-t128-trained-ddict/1` — 30 layouts, at least 14 separating positions each, the first at offset 33
+      70 B  `hashline-zk-mr1/private-block-tinyllama-1.1b-t32-trained/1` — 23 layouts, at least 14 separating positions each, the first at offset 33
+      70 B  `hashline-zk-mr1/private-block-tinyllama-1.1b-t64-trained/1` — 23 layouts, at least 14 separating positions each, the first at offset 33
+      77 B  `hashline-zk-mr1/private-classify-run-rung-lh-t32-public-row-tst/1` — 30 layouts, at least 14 separating positions each, the first at offset 33
+      77 B  `hashline-zk-mr1/private-classify-run-rung-tc-t32-public-row-dev/1` — 30 layouts, at least 14 separating positions each, the first at offset 33
+S33 S-6: the two arms of a_groups coincide on every (row width, padded token count) pair the refused family contains — the first arm is a shortcut, not a second behaviour
+S33 J-7a: 169 literals checked printable ASCII with no NUL — 88 registered profiles, 4 derive_key contexts, 22 transcript labels, 2 fixed transcript literals; and (D55 review F3) test private_block::s33_tests::the_refused_arm_and_the_live_arm_agree_wherever_both_are_defined ... ok
+39 opt-in D55 fork-run profile strings and its 9 own labels
+      85 B  `hashline-zk-mr1/private-classify-run-shieldstral-3b-t128-r13-public-row/1` — 38 layouts, at least 14 separating positions each, the first at offset 33
+test private_block::s33_tests::every_registered_profile_context_and_label_is_printable_ascii_with_no_nul ...       85ok
+ B  `hashline-zk-mr1/private-classify-run-shieldstral-3b-t256-r13-public-row/1` — 38 layouts, at least 14 separating positions each, the first at offset 33
+      75 B  `hashline-zk-mr1/private-run-llama-3-8b-t128-ddict32-statement/1` — 28 layouts, at least 14 separating positions each, the first at offset 33
+      75 B  `hashline-zk-mr1/private-run-llama-3-8b-t128-lh24-dd-statement/1` — 28 layouts, at least 14 separating positions each, the first at offset 33
+      75 B  `hashline-zk-mr1/private-run-llama-3-8b-t128-lh24-v1-statement/1` — 28 layouts, at least 14 separating positions each, the first at offset 33
+      75 B  `hashline-zk-mr1/private-run-llama-3-8b-t128-trained-statement/1` — 28 layouts, at least 14 separating positions each, the first at offset 33
+      74 B  `hashline-zk-mr1/private-run-llama-3-8b-t32-trained-statement/1` — 27 layouts, at least 14 separating positions each, the first at offset 33
+      74 B  `hashline-zk-mr1/private-run-llama-3-8b-t64-trained-statement/1` — 27 layouts, at least 14 separating positions each, the first at offset 33
+      46 B  `hashline-zk-mr1/private-run-m125/1` — below the shortest absorb input (48 B): no layout of this length exists
+      57 B  `hashline-zk-mr1/private-run-rung-c6-t32-dev/1` — 10 layouts, at least 14 separating positions each, the first at offset 33
+      57 B  `hashline-zk-mr1/private-run-rung-dd-t32-dev/1` — 10 layouts, at least 14 separating positions each, the first at offset 33
+      58 B  `hashline-zk-mr1/private-run-rung-e32-t32-dev/1` — 11 layouts, at least 14 separating positions each, the first at offset 33
+      56 B  `hashline-zk-mr1/private-run-rung-g-t24-dev/1` — 9 layouts, at least 14 separating positions each, the first at offset 33
+      57 B  `hashline-zk-mr1/private-run-rung-hd-t32-dev/1` — 10 layouts, at least 14 separating positions each, the first at offset 33
+      57 B  `hashline-zk-mr1/private-run-rung-hh-t32-dev/1` — 10 layouts, at least 14 separating positions each, the first at offset 33
+      57 B  `hashline-zk-mr1/private-run-rung-k4-t24-dev/1` — 10 layouts, at least 14 separating positions each, the first at offset 33
+      57 B  `hashline-zk-mr1/private-run-rung-ld-t32-dev/1` — 10 layouts, at least 14 separating positions each, the first at offset 33
+      57 B  `hashline-zk-mr1/private-run-rung-lh-t32-dev/1` — 10 layouts, at least 14 separating positions each, the first at offset 33
+      57 B  `hashline-zk-mr1/private-run-rung-lo-t32-dev/1` — 10 layouts, at least 14 separating positions each, the first at offset 33
+      57 B  `hashline-zk-mr1/private-run-rung-p2-t32-dev/1` — 10 layouts, at least 14 separating positions each, the first at offset 33
+      57 B  `hashline-zk-mr1/private-run-rung-tc-t32-dev/1` — 10 layouts, at least 14 separating positions each, the first at offset 33
+      58 B  `hashline-zk-mr1/private-run-rung-w14-t64-dev/1` — 11 layouts, at least 14 separating positions each, the first at offset 33
+      79 B  `hashline-zk-mr1/private-run-shieldstral-3b-t128-ddict32-statement/1` — 32 layouts, at least 14 separating positions each, the first at offset 33
+      79 B  `hashline-zk-mr1/private-run-shieldstral-3b-t128-lowh24-blocks-run/1` — 32 layouts, at least 14 separating positions each, the first at offset 33
+      79 B  `hashline-zk-mr1/private-run-shieldstral-3b-t128-lowh24-ddict1-run/1` — 32 layouts, at least 14 separating positions each, the first at offset 33
+      79 B  `hashline-zk-mr1/private-run-shieldstral-3b-t128-trained-statement/1` — 32 layouts, at least 14 separating positions each, the first at offset 33
+      79 B  `hashline-zk-mr1/private-run-shieldstral-3b-t256-ddict32-statement/1` — 32 layouts, at least 14 separating positions each, the first at offset 33
+      79 B  `hashline-zk-mr1/private-run-shieldstral-3b-t256-lowh24-blocks-run/1` — 32 layouts, at least 14 separating positions each, the first at offset 33
+      79 B  `hashline-zk-mr1/private-run-shieldstral-3b-t256-lowh24-ddict1-run/1` — 32 layouts, at least 14 separating positions each, the first at offset 33
+      79 B  `hashline-zk-mr1/private-run-shieldstral-3b-t256-trained-statement/1` — 32 layouts, at least 14 separating positions each, the first at offset 33
+      79 B  `hashline-zk-mr1/private-run-tinyllama-1.1b-t128-ddict32-statement/1` — 32 layouts, at least 14 separating positions each, the first at offset 33
+      79 B  `hashline-zk-mr1/private-run-tinyllama-1.1b-t128-low-ddict-v01-run/1` — 32 layouts, at least 14 separating positions each, the first at offset 33
+      79 B  `hashline-zk-mr1/private-run-tinyllama-1.1b-t128-low-stack-v01-run/1` — 32 layouts, at least 14 separating positions each, the first at offset 33
+      79 B  `hashline-zk-mr1/private-run-tinyllama-1.1b-t128-trained-statement/1` — 32 layouts, at least 14 separating positions each, the first at offset 33
+      78 B  `hashline-zk-mr1/private-run-tinyllama-1.1b-t32-trained-statement/1` — 31 layouts, at least 14 separating positions each, the first at offset 33
+      78 B  `hashline-zk-mr1/private-run-tinyllama-1.1b-t64-trained-statement/1` — 31 layouts, at least 14 separating positions each, the first at offset 33
+S33 J-7a control: a 48-byte profile whose bytes under the two length fields are NUL has NO separating position at the declared layout; one printable byte restores one
+       32test private_block::s33_tests::the_separation_lemma_collapses_on_a_deliberately_bad_profile ... ok
+ tokens (t_pad 32): accepted, 35 A opening groups, SC_TZC at 8
+      95 B  `hashline-zk-mr1/private-token-io-run-llama-3-8b-t128-trained-statement-public-row/1` — 48 layouts, at least 14 separating positions each, the first at offset 33
+       64 tokens (t_pad 64): accepted, 31 A opening groups, SC_TZC at 4
+      94 B  `hashline-zk-mr1/private-token-io-run-llama-3-8b-t32-trained-statement-public-row/1` — 47 layouts, at least 14 separating positions each, the first at offset 33
+      77 B  `hashline-zk-mr1/private-token-io-run-rung-tc-t32-public-row-dev/1` — 30 layouts, at least 14 separating positions each, the first at offset 33
+      128 tokens (t_pad 128): accepted, 29 A opening groups, SC_TZC at 2
+S33 S-6 sweep: the refusal is exactly `t_pad >= 2^log_cols` at the toy's axes, and every accepted shape's group count comes from the live arm
+      98 B  `hashline-zk-mr1/private-token-io-run-tinyllama-1.1b-t32-trained-statement-public-row/1` — 51 layouts, at least 14 separating positions each, the first at offset 33
+test private_block::s33_tests::the_s6_refusal_is_exactly_the_padded_token_counts_at_or_above_the_row_width ... ok
+      94 B  `hashline-zk-mr1/private-token-io-run-tinyllama-t128-trained-statement-public-row/1` — 47test private_block::w16r2_tests::w16r2_ab_w16_against_w16r2_on_one_binary ... ignored, heavy: 8B T128 blocks on Metal, toggles HL_GPU in-process; run alone by name with HL_PB_ORACLE=0
+ layouts, at least 14 separating positions each, the first at offset 33
+     144 B  `d55-commit-fork-join-runs/opt-in-prototype-unregistered/test-only/v1/hashline-zk-mr1/private-run-llama-3-8b-t128-ddict32-statement/1` — 97 layouts, at least 14 separating positions each, the first at offset 33
+     139 B  `d55-commit-fork-join-runs/opt-in-prototype-unregistered/test-only/v1/hashline-zk-mr1/private-run-llama-3-8b-t128-lh-w16r2-tst/1` — 92 layouts, at least 14 separating positions each, the first at offset 33
+     144 B  `d55-commit-fork-join-runs/opt-in-prototype-unregistered/test-only/v1/hashline-zk-mr1/private-run-llama-3-8b-t128-lh24-dd-statement/1` — 97 layouts, at least 14 separating positions each, the first at offset 33
+     144 B  `d55-commit-fork-join-runs/opt-in-prototype-unregistered/test-only/v1/hashline-zk-mr1/private-run-llama-3-8b-t128-lh24-v1-statement/1` — 97 layouts, at least 14 separating positions each, the first at offset 33
+W16R2-ACCOUNTING {"name":"W16R2_RUNG_H24","profile":"hashline-zk-mr1/private-block-rung-lh-t32-w16r2-d/1","tokens":32,"regime":"UniqueDecoding","log_cols":14,"n":16384,"inv_rate":2,"N":32768,"Q":260,"q_pad":260,"K":16644,"e_unique":8062,"endpoint_log_n":14,"endpoint_inv_rate":2,"a_rows":317,"h_rows":198,"endpoint_rows":6,"m_rows":50,"mask_log_dom":12,"mask_log_msg":9,"mask_q":256,"lookup_words":1015808,"exp_queries":16384,"act_queries":32768,"range_families":[(1, 1), (2, 1), (4, 1), (5, 1), (7, 1), (12, 1), (13, 1), (15, 2), (16, 4)],"range_entries":110774,"slots":23,"sumcheck_main_ext_degree":924,"zerocheck_allowance":957,"column_log2":-105.9460,"endpoint_column_log2":-105.9460,"receipt_bytes_counted":15484760}
+     139 B  `d55-commit-fork-join-runs/opt-in-prototype-unregistered/test-only/v1/hashline-zk-mr1/private-run-llama-3-8b-t128-lh24-w16-tst/1` — 92 layouts, at least 14 separating positions each, the first at offset 33
+     144 B  `d55-commit-fork-join-runs/opt-in-prototype-unregistered/test-only/v1/hashline-zk-mr1/private-run-llama-3-8b-t128-trained-statement/1` — 97 layouts, at least 14 separating positions each, the first at offset 33
+W16R2-ACCOUNTING {"name":"W16_RUNG_H24","profile":"hashline-zk-mr1/private-block-rung-lh-t32-w16-dev/1","tokens":32,"regime":"GeneralCode","log_cols":14,"n":16384,"inv_rate":4,"N":65536,"Q":256,"q_pad":256,"K":16640,"e_unique":24448,"endpoint_log_n":14,"endpoint_inv_rate":4,"a_rows":317,"h_rows":198,"endpoint_rows":6,"m_rows":50,"mask_log_dom":12,"mask_log_msg":9,"mask_q":256,"lookup_words":1015808,"exp_queries":16384,"act_queries":32768,"range_families":[(1, 1), (2, 1), (4, 1), (5, 1), (7, 1), (12, 1), (13, 1), (15, 2), (16, 4)],"range_entries":110774,"slots":23,"sumcheck_main_ext_degree":924,"zerocheck_allowance":957,"column_log2":-105.6090,"endpoint_column_log2":-105.6090,"receipt_bytes_counted":15489080}
+     143 B  `d55-commit-fork-join-runs/opt-in-prototype-unregistered/test-only/v1/hashline-zk-mr1/private-run-llama-3-8b-t32-trained-statement/1` — 96 layouts, at least 14 separating positions each, the first at offset 33
+     143 B  `d55-commit-fork-join-runs/opt-in-prototype-unregistered/test-only/v1/hashline-zk-mr1/private-run-llama-3-8b-t64-trained-statement/1` — 96 layouts, at least 14 separating positions each, the first at offset 33
+W16R2-ACCOUNTING {"name":"W16R2_SHIELD_T128_H24","profile":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lh24-w16r2/1","tokens":128,"regime":"UniqueDecoding","log_cols":14,"n":16384,"inv_rate":2,"N":32768,"Q":260,"q_pad":260,"K":16644,"e_unique":8062,"endpoint_log_n":14,"endpoint_inv_rate":2,"a_rows":2501,"h_rows":2602,"endpoint_rows":37,"m_rows":50,"mask_log_dom":12,"mask_log_msg":9,"mask_q":256,"lookup_words":32276480,"exp_queries":524288,"act_queries":2097152,"range_families":[(2, 1), (4, 1), (5, 1), (7, 1), (12, 1), (13, 1), (15, 2), (16, 4)],"range_entries":110772,"slots":23,"sumcheck_main_ext_degree":1159,"zerocheck_allowance":1179,"column_log2":-105.9460,"endpoint_column_log2":-105.9460,"receipt_bytes_counted":25161624}
+     115 B  `d55-commit-fork-join-runs/opt-in-prototype-unregistered/test-only/v1/hashline-zk-mr1/private-run-m125/1` — 68 layouts, at least 14 separating positions each, the first at offset 33
+     126 B  `d55-commit-fork-join-runs/opt-in-prototype-unregistered/test-only/v1/hashline-zk-mr1/private-run-rung-c6-t32-dev/1` — 79 layouts, at least 14 separating positions each, the first at offset 33
+     126 B  `d55-commit-fork-join-runs/opt-in-prototype-unregistered/test-only/v1/hashline-zk-mr1/private-run-rung-dd-t32-dev/1` — 79 layouts, at least 14 separating positions each, the first at offset 33
+     127 B  `d55-commit-fork-join-runs/opt-in-prototype-unregistered/test-only/v1/hashline-zk-mr1/private-run-rung-e32-t32-dev/1` — 80 layouts, at least 14 separating positions each, the first at offset 33
+W16R2-ACCOUNTING {"name":"W16_SHIELD_T128_H24","profile":"hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-w16/1","tokens":128,"regime":"GeneralCode","log_cols":14,"n":16384,"inv_rate":4,"N":65536,"Q":256,"q_pad":256,"K":16640,"e_unique":24448,"endpoint_log_n":14,"endpoint_inv_rate":4,"a_rows":2501,"h_rows":2602,"endpoint_rows":37,"m_rows":50,"mask_log_dom":12,"mask_log_msg":9,"mask_q":256,"lookup_words":32276480,"exp_queries":524288,"act_queries":2097152,"range_families":[(2, 1), (4, 1), (5, 1), (7, 1), (12, 1), (13, 1), (15, 2), (16, 4)],"range_entries":110772,"slots":23,"sumcheck_main_ext_degree":1159,"zerocheck_allowance":1179,"column_log2":-105.6090,"endpoint_column_log2":-105.6090,"receipt_bytes_counted":25017144}
+     125 B  `d55-commit-fork-join-runs/opt-in-prototype-unregistered/test-only/v1/hashline-zk-mr1/private-run-rung-g-t24-dev/1` — 78 layouts, at least 14 separating positions each, the first at offset 33
+     126 B  `d55-commit-fork-join-runs/opt-in-prototype-unregistered/test-only/v1/hashline-zk-mr1/private-run-rung-hd-t32-dev/1` — 79 layouts, at least 14 separating positions each, the first at offset 33
+     126 B  `d55-commit-fork-join-runs/opt-in-prototype-unregistered/test-only/v1/hashline-zk-mr1/private-run-rung-hh-t32-dev/1` — 79 layouts, at least 14 separating positions each, the first at offset 33
+     126 B  `d55-commit-fork-join-runs/opt-in-prototype-unregistered/test-only/v1/hashline-zk-mr1/private-run-rung-k4-t24-dev/1` — 79 layouts, at least 14 separating positions each, the first at offset 33
+     126 B  `d55-commit-fork-join-runs/opt-in-prototype-unregistered/test-only/v1/hashline-zk-mr1/private-run-rung-ld-t32-dev/1` — 79 layouts, at least 14 separating positions each, the first at offset 33
+W16R2-ACCOUNTING {"name":"W16R2_8B_T128_H24","profile":"hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/1","tokens":128,"regime":"UniqueDecoding","log_cols":14,"n":16384,"inv_rate":2,"N":32768,"Q":260,"q_pad":260,"K":16644,"e_unique":8062,"endpoint_log_n":14,"endpoint_inv_rate":2,"a_rows":2501,"h_rows":2602,"endpoint_rows":37,"m_rows":50,"mask_log_dom":12,"mask_log_msg":9,"mask_q":256,"lookup_words":32276480,"exp_queries":524288,"act_queries":2097152,"range_families":[(2, 1), (4, 1), (5, 1), (7, 1), (12, 1), (13, 1), (15, 2), (16, 4)],"range_entries":110772,"slots":23,"sumcheck_main_ext_degree":1099,"zerocheck_allowance":1179,"column_log2":-105.9460,"endpoint_column_log2":-105.9460,"receipt_bytes_counted":25160664}
+     126 B  `d55-commit-fork-join-runs/opt-in-prototype-unregistered/test-only/v1/hashline-zk-mr1/private-run-rung-lh-t32-dev/1` — 79 layouts, at least 14 separating positions each, the first at offset 33
+     130 B  `d55-commit-fork-join-runs/opt-in-prototype-unregistered/test-only/v1/hashline-zk-mr1/private-run-rung-lh-t32-w16-tst/1` — 83 layouts, at least 14 separating positions each, the first at offset 33
+     130 B  `d55-commit-fork-join-runs/opt-in-prototype-unregistered/test-only/v1/hashline-zk-mr1/private-run-rung-lh-t32-w16r2-t/1` — 83 layouts, at least 14 separating positions each, the first at offset 33
+     126 B  `d55-commit-fork-join-runs/opt-in-prototype-unregistered/test-only/v1/hashline-zk-mr1/private-run-rung-lo-t32-dev/1` — 79 layouts, at least 14 separating positions each, the first at offset 33
+W16R2-ACCOUNTING {"name":"W16_8B_T128_H24","profile":"hashline-zk-mr1/private-block-llama-3-8b-t128-lh24-w16/1","tokens":128,"regime":"GeneralCode","log_cols":14,"n":16384,"inv_rate":4,"N":65536,"Q":256,"q_pad":256,"K":16640,"e_unique":24448,"endpoint_log_n":14,"endpoint_inv_rate":4,"a_rows":2501,"h_rows":2602,"endpoint_rows":37,"m_rows":50,"mask_log_dom":12,"mask_log_msg":9,"mask_q":256,"lookup_words":32276480,"exp_queries":524288,"act_queries":2097152,"range_families":[(2, 1), (4, 1), (5, 1), (7, 1), (12, 1), (13, 1), (15, 2), (16, 4)],"range_entries":110772,"slots":23,"sumcheck_main_ext_degree":1099,"zerocheck_allowance":1179,"column_log2":-105.6090,"endpoint_column_log2":-105.6090,"receipt_bytes_counted":25016184}
+     126 B  `d55-commit-fork-join-runs/opt-in-prototype-unregistered/test-only/v1/hashline-zk-mr1/private-run-rung-p2-t32-dev/1` — 79 layouts, at least 14 separating positions each, the first at offset 33
+test private_block::w16r2_tests::w16r2_accounting_inputs_are_printed_from_the_code ... ok
+     126 B  `d55-commit-fork-join-runs/opt-in-prototype-unregistered/test-only/v1/hashline-zk-mr1/private-run-rung-tc-t32-dev/1` — 79 layouts, at least 14 separating positions each, the first at offset 33
+     127 B  `d55-commit-fork-join-runs/opt-in-prototype-unregistered/test-only/v1/hashline-zk-mr1/private-run-rung-w14-t64-dev/1` — 80 layouts, at least 14 separating positions each, the first at offset 33
+     148 B  `d55-commit-fork-join-runs/opt-in-prototype-unregistered/test-only/v1/hashline-zk-mr1/private-run-shieldstral-3b-t128-ddict32-statement/1` — 101 layouts, at least 14 separating positions each, the first at offset 33
+     148 B  `d55-commit-fork-join-runs/opt-in-prototype-unregistered/test-only/v1/hashline-zk-mr1/private-run-shieldstral-3b-t128-lowh24-blocks-run/1` — 101 layouts, at least 14 separating positions each, the first at offset 33
+     148 B  `d55-commit-fork-join-runs/opt-in-prototype-unregistered/test-only/v1/hashline-zk-mr1/private-run-shieldstral-3b-t128-lowh24-ddict1-run/1` — 101 layouts, at least 14 separating positions each, the first at offset 33
+     145 B  `d55-commit-fork-join-runs/opt-in-prototype-unregistered/test-only/v1/hashline-zk-mr1/private-run-shieldstral-3b-t128-lowh24-w16-tst/1` — 98 layouts, at least 14 separating positions each, the first at offset 33
+     148 B  `d55-commit-fork-join-runs/opt-in-prototype-unregistered/test-only/v1/hashline-zk-mr1/private-run-shieldstral-3b-t128-trained-statement/1` — 101 layouts, at least 14 separating positions each, the first at offset 33
+     148 B  `d55-commit-fork-join-runs/opt-in-prototype-unregistered/test-only/v1/hashline-zk-mr1/private-run-shieldstral-3b-t256-ddict32-statement/1` — 101 layouts, at least 14 separating positions each, the first at offset 33
+     148 B  `d55-commit-fork-join-runs/opt-in-prototype-unregistered/test-only/v1/hashline-zk-mr1/private-run-shieldstral-3b-t256-lowh24-blocks-run/1` — 101 layouts, at least 14 separating positions each, the first at offset 33
+     148 B  `d55-commit-fork-join-runs/opt-in-prototype-unregistered/test-only/v1/hashline-zk-mr1/private-run-shieldstral-3b-t256-lowh24-ddict1-run/1` — 101 layouts, at least 14 separating positions each, the first at offset 33
+     148 B  `d55-commit-fork-join-runs/opt-in-prototype-unregistered/test-only/v1/hashline-zk-mr1/private-run-shieldstral-3b-t256-trained-statement/1` — 101 layouts, at least 14 separating positions each, the first at offset 33
+     148 B  `d55-commit-fork-join-runs/opt-in-prototype-unregistered/test-only/v1/hashline-zk-mr1/private-run-tinyllama-1.1b-t128-ddict32-statement/1` — 101 layouts, at least 14 separating positions each, the first at offset 33
+     148 B  `d55-commit-fork-join-runs/opt-in-prototype-unregistered/test-only/v1/hashline-zk-mr1/private-run-tinyllama-1.1b-t128-low-ddict-v01-run/1` — 101 layouts, at least 14 separating positions each, the first at offset 33
+     148 B  `d55-commit-fork-join-runs/opt-in-prototype-unregistered/test-only/v1/hashline-zk-mr1/private-run-tinyllama-1.1b-t128-low-stack-v01-run/1` — 101 layouts, at least 14 separating positions each, the first at offset 33
+     148 B  `d55-commit-fork-join-runs/opt-in-prototype-unregistered/test-only/v1/hashline-zk-mr1/private-run-tinyllama-1.1b-t128-trained-statement/1` — 101 layouts, at least 14 separating positions each, the first at offset 33
+     147 B  `d55-commit-fork-join-runs/opt-in-prototype-unregistered/test-only/v1/hashline-zk-mr1/private-run-tinyllama-1.1b-t32-trained-statement/1` — 100 layouts, at least 14 separating positions each, the first at offset 33
+     147 B  `d55-commit-fork-join-runs/opt-in-prototype-unregistered/test-only/v1/hashline-zk-mr1/private-run-tinyllama-1.1b-t64-trained-statement/1` — 100 layouts, at least 14 separating positions each, the first at offset 33
+      70 B  `hashline-zk-mr1/private-run-llama-3-8b-t128-lh-w16r2-tst/1` — 23 layouts, at least 14 separating positions each, the first at offset 33
+      70 B  `hashline-zk-mr1/private-run-llama-3-8b-t128-lh24-w16-tst/1` — 23 layouts, at least 14 separating positions each, the first at offset 33
+      61 B  `hashline-zk-mr1/private-run-rung-lh-t32-w16-tst/1` — 14 layouts, at least 14 separating positions each, the first at offset 33
+      61 B  `hashline-zk-mr1/private-run-rung-lh-t32-w16r2-t/1` — 14 layouts, at least 14 separating positions each, the first at offset 33
+      76 B  `hashline-zk-mr1/private-run-shieldstral-3b-t128-lowh24-w16-tst/1` — 29 layouts, at least 14 separating positions each, the first at offset 33
+S33 J-7a lemma: 132 profiles (88 of the registry, 39 D55 fork-run constructor domains, 5 test-only run identities), 5633 absorb layouts, EVERY one separated; the thinnest is 14 forced-NUL positions at `hashline-zk-mr1/private-block-llama-3-8b-t128-ddict32/1`
+test private_block::s33_tests::no_transcript_constructor_input_can_equal_an_absorb_input_of_the_same_length ... ok
+W16R2 (e) Shape::new at rate 1/4: private block shape: D59 — the W16R2 profile "hashline-zk-mr1/private-block-rung-lh-t32-w16r2-d/1" fixes rate 1/2 and Q = 260 at log_cols 14 for A, H, the boundaries and both endpoints; the shape declares rate 1/4 at log_cols 14, endpoints rate 1/4 at log_n 14
+W16R2 (e) a W16R2 shape written to rate 1/4, Q 256: private block shape: ruling CS-8 — "W16R2_RUNG_H24" is not a shape Shape::new builds: Shape::new refuses its own parameters (private block shape: D59 — the W16R2 profile "hashline-zk-mr1/private-block-rung-lh-t32-w16r2-d/1" fixes rate 1/2 and Q = 260 at log_cols 14 for A, H, the boundaries and both endpoints; the shape declares rate 1/4 at log_cols 14, endpoints rate 1/4 at log_n 14)
+W16R2 (e) a W16R2 shape written to Q 256: private block shape: ruling CS-8 — "W16R2_RUNG_H24" is not a shape Shape::new builds: its opened_cols differ from what Shape::new derives from its parameters
+W16R2 control (a) far matrix (8063 of 32768 columns off the code, e = 8062), 60 of 260 sampled columns in the far set: REJECTED: pcs zk: column 13662 disagrees with clear vector 0
+W16R2 control (b) an opened column with one entry changed: REJECTED: pcs zk: Merkle path for column 30562 fails
+W16R2 control (b) a committed column (valid path) at an undrawn index: REJECTED: pcs zk: column index 0 != sampled 30562
+test private_block::w16r2_tests::w16r2_a_shape_at_another_rate_or_q_under_a_w16r2_string_is_refused ... ok
+W16 LIMB W16_RUNG_H24 Nr: the verifier rejects: H: pcs zk: group 8: <v, c> != combined claim
+W16R2 control (c) 260 columns chosen before any challenge, the matrix honest on them and off the code on the other 32508 (every per-column check passes on the preset: positive control); 254 of the 260 transcript-drawn columns are off the code: REJECTED: pcs zk: column index 28887 != sampled 21361
+test private_block::w16r2_tests::w16r2_control_c_a_column_set_chosen_before_the_challenge_is_rejected ... ok
+W16R2 control (d) the group vector's first pad entry + 1 (absorbed, columns redrawn; the claim check passes): REJECTED: pcs zk: column 29897 disagrees with clear vector 0
+W16R2 control (b) rung block, one A column entry changed: REJECTED: A: pcs zk: Merkle path for column 1095 fails
+W16R2 control (d) the proximity vector's first pad entry + 1 (absorbed, columns redrawn; the claim check passes): REJECTED: pcs zk: column 28847 disagrees with clear vector 1
+W16R2 control (b) rung block, two A columns (each with its valid path) swapped: REJECTED: A: pcs zk: column index 31986 != sampled 1095
+W16R2 control (d) profile geometry (n 16384, N 32768, Q 260, K 16644): the max-agreement forgery (honest U, a false claim, both vectors + dec(D0), D0 zero on K - 1 = 16643 columns) disagrees on exactly 16125 columns; accepted with probability ((K - 1)/N)^Q = 2^-254.117: REJECTED: pcs zk: column 14142 disagrees with clear vector 0
+W16R2 control (b) rung block, one H column entry changed: REJECTED: H: pcs zk: Merkle path for column 15737 fails
+W16R2 control (b) rung block, two H columns (each with its valid path) swapped: REJECTED: H: pcs zk: column index 4998 != sampled 15737
+test private_block::w16r2_tests::w16r2_control_b_a_wrong_opened_column_is_rejected ... ok
+W16 LIMB W16_RUNG_H24 Ms: the verifier rejects: H: pcs zk: group 8: <v, c> != combined claim
+W16R2 control (e) the honest rate-1/4 (Q 256) W16 proof of the same block under the W16R2 verifier: REJECTED: private block: opened column 0 of the A commitment carries a Merkle path of 16 entries; this commitment's tree is 15 deep (T-4)
+W16 LIMB W16_RUNG_H24 Rao: the verifier rejects: H: pcs zk: group 8: <v, c> != combined claim
+W16R2 control (e) rung block, one A column dropped (Q - 1): REJECTED: A: pcs zk: wrong number of columns
+W16R2 control (e) rung block, one A column added (Q + 1): REJECTED: A: pcs zk: wrong number of columns
+W16R2 control (e) rung block, every A clear vector cut to n + 256 (256 pads): REJECTED: A: pcs zk: group vector 0 has length 16640
+W16R2 control (e) an honest opening made at rate 1/2, Q 256, 256 pads, under the W16R2 profile's verifier: REJECTED: pcs zk: group vector 0 has length 16640
+W16R2 control (e) an honest opening made at rate 1/2, Q 259, 260 pads, under the W16R2 profile's verifier: REJECTED: pcs zk: wrong number of columns
+W16R2 control (e) an honest opening made at rate 1/4, Q 260, 260 pads, under the W16R2 profile's verifier: REJECTED: pcs zk: opened column 0 carries a Merkle path of 16 entries; this commitment's tree is 15 deep
+test private_block::w16r2_tests::w16r2_control_e_a_receipt_at_another_rate_or_q_is_rejected ... ok
+W16R2 control (f) W16R2_RUNG_H24 (n 16384, N 32768, Q = q_pad 260, K 16644, e 8062): U = Enc + D0 on |S| = 8062 columns of row 0 (inside the unique-decoding radius), D0 zero on |Z| = K - 1 = 16643 columns, both vectors + dec(D0), a FALSE claim; POSITIVE CONTROL: they disagree with rho^T U on exactly the 8063 columns of R; 67 of 260 drawn columns in R: REJECTED: pcs zk: column 18819 disagrees with clear vector 0
+W16 LIMB W16_RUNG_H24 Rd: the verifier rejects: H: pcs zk: group 8: <v, c> != combined claim
+W16R2 control (f) W16R2_SHIELD_T128_H24 (n 16384, N 32768, Q = q_pad 260, K 16644, e 8062): U = Enc + D0 on |S| = 8062 columns of row 0 (inside the unique-decoding radius), D0 zero on |Z| = K - 1 = 16643 columns, both vectors + dec(D0), a FALSE claim; POSITIVE CONTROL: they disagree with rho^T U on exactly the 8063 columns of R; 59 of 260 drawn columns in R: REJECTED: pcs zk: column 32055 disagrees with clear vector 0
+W16R2 control (f) W16R2_8B_T128_H24 (n 16384, N 32768, Q = q_pad 260, K 16644, e 8062): U = Enc + D0 on |S| = 8062 columns of row 0 (inside the unique-decoding radius), D0 zero on |Z| = K - 1 = 16643 columns, both vectors + dec(D0), a FALSE claim; POSITIVE CONTROL: they disagree with rho^T U on exactly the 8063 columns of R; 59 of 260 drawn columns in R: REJECTED: pcs zk: column 569 disagrees with clear vector 0
+W16R2 control (f) profile geometry: per opening the close case is accepted with (1 - |R|/N)^Q = 2^-105.946 (|R| = 8063 measured), the counted unique-decoding term is 2^-105.946: EQUAL: the count is attained (D0 built and checked in 0.11 s)
+W16R2 control (d) toy rate 1/2 (n 16, N 32, Q 4): the first pad entry + delta disagrees at all 32 columns on each of 4000 seeds, so it is accepted exactly never: 0 of 4000
+W16 LIMB W16_RUNG_H24 Rs: the verifier rejects: H: pcs zk: group 8: <v, c> != combined claim
+W16 LIMB W16_RUNG_H24 Rg: the verifier rejects: H: pcs zk: group 8: <v, c> != combined claim
+W16 LIMB W16_RUNG_H24 H top: the verifier rejects: H: pcs zk: group 8: <v, c> != combined claim
+test private_block::range16_tests::w16_limbs_out_of_their_range_are_rejected_by_the_verifier ... ok
+W16R2 control (g) 1. committed under W16's column/leaf/node keys, opened on W16R2's transcript, at W16R2's geometry (rate 1/2, Q 260): REJECTED: pcs zk: Merkle path for column 26477 fails
+W16R2 control (g) 2. committed under W16R2's keys, opened on a transcript under W16's Fiat-Shamir key: REJECTED: pcs zk: group 0: <v, c> != combined claim
+W16R2 control (g) 3. W16R2's keys, the transcript constructed on the W16 profile string, verified on the W16R2 string: REJECTED: pcs zk: group 0: <v, c> != combined claim
+W16R2 control (g) 4. a whole W16-keyed opening at W16R2's geometry: REJECTED: pcs zk: group 0: <v, c> != combined claim
+test private_block::w16r2_tests::w16r2_control_g_a_replay_at_the_same_geometry_under_another_profiles_keys_is_rejected ... ok
+W16 F3 W16R2_RUNG_H24 RQL 16384 -> 49152 (R15 miss filed in R16), Q and QR -1: the honest prover refuses: prover: private block: ruling CS-3 — the witness looks up a value that is not a row of its table
+W16 F3 W16R2_RUNG_H24 RQL 16384 -> 49152 (R15 miss filed in R16), Q and QR -1: the verifier rejects: H: pcs zk: group 8: <v, c> != combined claim
+W16 F3 W16R2_RUNG_H24 RQL 16384 -> 49152 (R15 miss filed in R16), Q and QR -1: with the range tags collapsed to one, the same cheat is ACCEPTED (positive control)
+W16 F3 W16R2_RUNG_H24 RU 3456 -> 7552 (R12 miss filed in R16), U -1: the honest prover refuses: prover: private block: ruling CS-3 — the witness looks up a value that is not a row of its table
+W16 F3 W16R2_RUNG_H24 RU 3456 -> 7552 (R12 miss filed in R16), U -1: the verifier rejects: H: pcs zk: group 8: <v, c> != combined claim
+W16 F3 W16R2_RUNG_H24 RU 3456 -> 7552 (R12 miss filed in R16), U -1: with the range tags collapsed to one, the same cheat is ACCEPTED (positive control)
+test private_block::w16r2_tests::w16r2_f3_a_remainder_filed_in_a_wider_family_is_refused_by_the_tag_fold ... ok
+W16R2 F3 (iv) | an endpoint policy committed at rate 1/4 handed to a W16R2 run | REFUSED before the run header: private run: private block: ruling CS-4 — the endpoint policy does not fit the shape it is proved at: its endpoint commitment parameters (log_n, rate, rows, opened columns) are (14, 4, 6, 256), this shape's are (14, 2, 6, 260)
+test private_block::w16r2_tests::w16r2_f3_an_endpoint_policy_committed_at_rate_one_quarter_is_refused_by_cs4 ... ok
+W16 F3 W16R2_RUNG_H24 U -40 -> +32768 (looked up as 65536), RU 3456 -> -134378112: the honest prover refuses: prover: private block: ruling CS-3 — the witness looks up a value that is not a row of its table
+W16 F3 W16R2_RUNG_H24 U -40 -> +32768 (looked up as 65536), RU 3456 -> -134378112: the verifier rejects: H: pcs zk: group 8: <v, c> != combined claim
+test private_block::w16r2_tests::w16r2_f3_b_a_word_at_plus_32768_is_rejected_by_the_verifier ... ok
+W16 F3 W16R2_RUNG_H24 R1 count moved from row 0 to its padded copy 16382: the verifier rejects: slot 19 [TAB table helper zero-check]: sumcheck round 0: s(0) + s(1) != claim
+W16 F3 W16R2_RUNG_H24 R2 count moved from row 0 to its padded copy 16380: the verifier rejects: slot 19 [TAB table helper zero-check]: sumcheck round 0: s(0) + s(1) != claim
+W16 F3 W16R2_RUNG_H24 R3 count moved from row 0 to its padded copy 16376: the verifier rejects: slot 19 [TAB table helper zero-check]: sumcheck round 0: s(0) + s(1) != claim
+W16 F3 W16R2_RUNG_H24 R4 count moved from row 0 to its padded copy 16368: the verifier rejects: slot 19 [TAB table helper zero-check]: sumcheck round 0: s(0) + s(1) != claim
+W16 F3 W16R2_RUNG_H24 R5 count moved from row 0 to its padded copy 16352: the verifier rejects: slot 19 [TAB table helper zero-check]: sumcheck round 0: s(0) + s(1) != claim
+W16 F3 W16R2_RUNG_H24 R7 count moved from row 0 to its padded copy 16256: the verifier rejects: slot 19 [TAB table helper zero-check]: sumcheck round 0: s(0) + s(1) != claim
+W16 F3 W16R2_RUNG_H24 R12 count moved from row 0 to its padded copy 12288: the verifier rejects: slot 19 [TAB table helper zero-check]: sumcheck round 0: s(0) + s(1) != claim
+W16 F3 W16R2_RUNG_H24 R13 count moved from row 0 to its padded copy 8192: the verifier rejects: slot 19 [TAB table helper zero-check]: sumcheck round 0: s(0) + s(1) != claim
+W16 F3 (c) W16R2_RUNG_H24: narrow families exercised [1, 2, 3, 4, 5, 7, 12, 13]
+test private_block::w16r2_tests::w16r2_f3_c_a_count_moved_into_a_narrow_range_padded_copy_is_rejected ... ok
+W16 F3 W16R2_RUNG_H24 P 4096 -> 8192 (Sum 4096), SR 0 -> -16777216, SG 4095 -> 16781311: the honest prover refuses: prover: private block: ruling CS-3 — the witness looks up a value that is not a row of its table
+W16 F3 W16R2_RUNG_H24 P 4096 -> 8192 (Sum 4096), SR 0 -> -16777216, SG 4095 -> 16781311: the verifier rejects: H: pcs zk: group 8: <v, c> != combined claim
+test private_block::w16r2_tests::w16r2_f3_d_a_direct_quotient_of_2_13_is_rejected_by_the_verifier ... ok
+W16R2 control (f) toy rate 1/2 (n 16, N 32, Q 4, K 20, e 6): 7483 of 20000 close-case false claims accepted = 0.3741; exact (1 - (e+1)/N)^Q = 0.3725 (sigma 0.0034; tolerance 5 sigma both ways)
+test private_block::w16r2_tests::w16r2_control_f_the_lemmas_close_case_is_accepted_at_exactly_the_counted_rate ... ok
+W16R2 control (d) toy rate 1/2: the max-agreement forgery (both vectors + dec(D0), D0 zero on K - 1 = 19 of 32 columns, a false claim): 2433 of 20000 accepted = 0.1216; exact ((K - 1)/N)^Q = 0.1243 (sigma 0.0023; tolerance 5 sigma both ways)
+W16R2 F3 D12a | honest W16R2 rung L3 run: verifies (and re-encoded); segments [14819176, 15087560, 15767816] B = the codec's segment_len = the count (boundary opening 948672 B, endpoint opening 680288 B at Q 260)
+W16R2 F3 D55 | honest W16R2 rung L3 fork run: verifies (and re-encoded); head 144 B, forks [14138856, 14138856, 14138856] B, tail 3258032 B = the codec's counts = the count (boundary opening 948672 B, endpoint opening 680288 B at Q 260)
+W16R2 F3 D55 | (i) W16's rate-1/4 B_1 opening spliced into the tail | REJECTED: D55 wire: the tail is 3263728 B, the counted length is 3258032
+W16R2 F3 D55 | (i) W16's rate-1/4 B_1 opening spliced into the tail, as a decoded opening | T-4 at the verifier's `boundary 1` site: private block: opened column 0 of the boundary 1 commitment carries a Merkle path of 16 entries; this commitment's tree is 15 deep (T-4); the encoder: D55 wire: tail opening shape
+W16R2 F3 D55 | (i) W16's rate-1/4 output-endpoint opening spliced into the tail | REJECTED: D55 wire: the tail is 3263824 B, the counted length is 3258032
+W16R2 F3 D55 | (i) W16's rate-1/4 output-endpoint opening spliced into the tail, as a decoded opening | T-4 at the verifier's `run output endpoint` site: private block: opened column 0 of the run output endpoint commitment carries a Merkle path of 16 entries; this commitment's tree is 15 deep (T-4); the encoder: D55 wire: tail opening shape
+W16R2 F3 D55 | (ii) one B_1 column entry + 1 | REJECTED: D55: boundary 1: pcs zk: Merkle path for column 9025 fails
+W16R2 F3 D55 | (ii) one B_0 column entry + 1 | REJECTED: D55: boundary 0: pcs zk: Merkle path for column 29082 fails
+W16R2 F3 D55 | (ii) one input-endpoint column entry + 1 | REJECTED: D55: run input endpoint: pcs zk: Merkle path for column 4553 fails
+W16R2 F3 D55 | (ii) one output-endpoint column entry + 1 | REJECTED: D55: run output endpoint: pcs zk: Merkle path for column 4906 fails
+W16R2 F3 D55 | (iii) B_1's proximity vector, first pad entry + 1 | REJECTED: D55: boundary 1: pcs zk: column index 9025 != sampled 12981
+W16R2 F3 D55 | (iii) the output endpoint's proximity vector, first pad entry + 1 | REJECTED: D55: run output endpoint: pcs zk: column index 4906 != sampled 22073
+W16R2 F3 D12a | (i) W16's rate-1/4 B_1 opening spliced into segment 2 | REJECTED: private run wire: segment 2 is 15773512 B, the counted length is 15767816
+W16R2 F3 D12a | (i) W16's rate-1/4 B_1 opening spliced into segment 2, as a decoded opening | T-4: private block: opened column 0 of the incoming boundary or endpoint commitment carries a Merkle path of 16 entries; this commitment's tree is 15 deep (T-4); the encoder: private run wire: opening shape
+test private_block::w16r2_tests::w16r2_f3_run_level_controls_under_the_d55_fork_verifier ... ok
+W16R2 F3 D12a | (i) W16's rate-1/4 output-endpoint opening spliced into segment 2 | REJECTED: private run wire: segment 2 is 15773608 B, the counted length is 15767816
+W16R2 F3 D12a | (i) W16's rate-1/4 output-endpoint opening spliced into segment 2, as a decoded opening | T-4: private block: opened column 0 of the run output endpoint commitment carries a Merkle path of 16 entries; this commitment's tree is 15 deep (T-4); the encoder: private run wire: opening shape
+W16R2 F3 D12a | (ii) one B_1 column entry + 1 | REJECTED: boundary 1: pcs zk: Merkle path for column 4201 fails
+W16R2 F3 D12a | (ii) one B_0 column entry + 1 | REJECTED: boundary 0: pcs zk: Merkle path for column 1831 fails
+W16 LIMB W16R2_RUNG_H24 Nr: the verifier rejects: H: pcs zk: group 8: <v, c> != combined claim
+W16R2 F3 D12a | (ii) one input-endpoint column entry + 1 | REJECTED: run input endpoint: pcs zk: Merkle path for column 22313 fails
+W16R2 F3 D12a | (ii) one output-endpoint column entry + 1 | REJECTED: run output endpoint: pcs zk: Merkle path for column 26056 fails
+W16R2 F3 D12a | (iii) B_1's proximity vector, first pad entry + 1 | REJECTED: boundary 1: pcs zk: column index 4201 != sampled 18119
+W16 LIMB W16R2_RUNG_H24 Ms: the verifier rejects: H: pcs zk: group 8: <v, c> != combined claim
+W16R2 F3 D12a | (iii) the output endpoint's proximity vector, first pad entry + 1 | REJECTED: run output endpoint: pcs zk: column index 26056 != sampled 3508
+test private_block::w16r2_tests::w16r2_f3_run_level_controls_under_the_d12a_run_verifier ... ok
+W16R2 W16R2_RUNG_H24 vs W16_RUNG_H24: rate 1/2 Q 260 column term 2^-105.946 (unique decoding) against 2^-105.609 (rate 1/4 Q 256, delta/3); A rows 317, H rows 198, receipt (counted) 15484760 B against 15489080 B
+W16R2 W16R2_SHIELD_T128_H24 vs W16_SHIELD_T128_H24: rate 1/2 Q 260 column term 2^-105.946 (unique decoding) against 2^-105.609 (rate 1/4 Q 256, delta/3); A rows 2501, H rows 2602, receipt (counted) 25161624 B against 25017144 B
+W16R2 W16R2_8B_T128_H24 vs W16_8B_T128_H24: rate 1/2 Q 260 column term 2^-105.946 (unique decoding) against 2^-105.609 (rate 1/4 Q 256, delta/3); A rows 2501, H rows 2602, receipt (counted) 25160664 B against 25016184 B
+W16R2 profiles: 3 at rate 1/2 Q 260; 42 other profiles unchanged at Q 256 under the delta/3 count
+test private_block::w16r2_tests::w16r2_profiles_fix_rate_one_half_and_q_260_and_change_nothing_else ... ok
+W16 LIMB W16R2_RUNG_H24 Rao: the verifier rejects: H: pcs zk: group 8: <v, c> != combined claim
+W16R2-GOLDEN W16R2_RUNG_H24 cpu 334e168fe8e989d17aea92175cdab3826f08e22b0ba6c1a421cb9b264a8b9973
+W16 LIMB W16R2_RUNG_H24 Rd: the verifier rejects: H: pcs zk: group 8: <v, c> != combined claim
+W16 LIMB W16R2_RUNG_H24 Rs: the verifier rejects: H: pcs zk: group 8: <v, c> != combined claim
+W16R2 rung core: prove 0.85 s, verify 0.11 s (CPU); core 14138736 B (A 10654048, H 3218400, M 243712, slots 22480); a changed A root: slot 0 [01 SS row sums norm_a (private)]: sumcheck round 1: s(0) + s(1) != claim
+test private_block::w16r2_tests::w16r2_rung_core_proves_and_verifies_and_its_golden_digest_is_pinned ... ok
+test private_block::w16r2_tests::w16r2_rung_cpu_and_metal_digests_equal_the_golden ... ignored, toggles HL_GPU in-process; run alone by name on a Mac
+W16R2 F4(b) W16R2_RUNG_H24: encoded_len = receipt_bytes().total = 15484760 B (A 10647808, H 3210080, M 243712, one endpoint opening 680288 B at Q 260)
+W16R2 F4(b) W16R2_SHIELD_T128_H24: encoded_len = receipt_bytes().total = 25161624 B (A 15190528, H 8210400, M 243712, one endpoint opening 744768 B at Q 260)
+W16R2 F4(b) W16R2_8B_T128_H24: encoded_len = receipt_bytes().total = 25160664 B (A 15190528, H 8210400, M 243712, one endpoint opening 744768 B at Q 260)
+test private_block::w16r2_tests::w16r2_the_codec_length_is_the_count_at_every_w16r2_shape ... ok
+W16R2 invariants: proximity weights = rows independent challenge_fp2 draws; indices after both absorbs in open_zk and verify_zk_tagged, and they move with the vectors; q_pad >= Q; A/H through verify_zk_tagged (path length checked) under each profile's keys
+test private_block::w16r2_tests::w16r2_the_lemmas_load_bearing_invariants_are_pinned ... ok
+W16 LIMB W16R2_RUNG_H24 Rg: the verifier rejects: H: pcs zk: group 8: <v, c> != combined claim
+W16 LIMB W16R2_RUNG_H24 H top: the verifier rejects: H: pcs zk: group 8: <v, c> != combined claim
+test private_block::w16r2_tests::w16r2_limbs_out_of_their_range_are_rejected_by_the_verifier ... ok
+W16R2 control (a) toy rate 1/2 (n 16, N 32, Q 4, e 6): 14929 of 40000 far matrices accepted = 0.3732; the lemma's (1 - (e+1)/N)^Q = 0.3725 (sigma 0.0024)
+test private_block::w16r2_tests::w16r2_control_a_a_far_matrix_is_rejected_at_the_column_test ... ok
+W16R2 control (d) toy rate 1/2: the best pad-only forgery (the pad halves + delta, delta zero on q - 1 = 3 columns, the true claim): 2 of 20000 accepted; exact ((q - 1)/N)^Q = 7.725e-5, 1.54 expected (sd 1.24; tolerance 5 sd above)
+W16R2 control (d) rung block, A group vector 0's first pad entry + 1: REJECTED: A: pcs zk: column index 1095 != sampled 27356
+test private_block::w16r2_tests::w16r2_control_d_a_forged_pad_half_is_rejected ... ok
+
+test result: ok. 32 passed; 0 failed; 2 ignored; 0 measured; 934 filtered out; finished in 42.42s
+
