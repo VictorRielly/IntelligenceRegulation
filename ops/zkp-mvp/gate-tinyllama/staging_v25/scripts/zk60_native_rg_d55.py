@@ -937,6 +937,36 @@ def d55_gate(bundle_dir: str, controls=True, r19b_manifest=None, other_dir=None,
                            "G_k in the clear: recovered on SC_FZC, not read from a bound line"] + pin_items
     if not joint:
         rec["not_here"].append("the run-level joint rank (D55-J), not requested")
+    # --- [NL-1 / PRE lane, 2026-11-02] begin
+    # At an R13 base, two more parts: NL-1 S1-S5 on the seven R13 slots of EVERY
+    # fork (`zk60_native_rg_d55nl`: gate round 22 item 3's run_r13, ported to the
+    # fork layout, at each fork's own calibration and the G_k R13-3 recovered),
+    # and the FULL zero-data preimage of every fork's A / H at MSG != PAD and every
+    # tail commitment, every opened column and its salted leaf
+    # (`zk60_native_rg_d55preimage`: the D12a run gate's stage 11, unchanged
+    # functions).  Both need the replay; NL-1 needs R13-3's record, the preimage
+    # the per-commitment views.  Each part that RAN leaves `not_here`.  These
+    # parts can only lower the status computed above: a false one makes the
+    # record NOT-OK; true ones leave it as it was.
+    if family == "R13":
+        import zk60_native_rg_d55nl as NLX
+        import zk60_native_rg_d55preimage as PRX
+        if parts["D55-3 replay"] and rec.get("R13-3 terminals") is not None:
+            rec[NLX.PART] = NLX.d55_nl1(b, rp, facts, NLX.gates_from_r13_3(rec["R13-3 terminals"]), controls=controls)
+            parts[NLX.PART] = bool(rec[NLX.PART]["ok"])
+            rec["not_here"] = [x for x in rec["not_here"] if x != NLX.NOT_HERE_CLOSED]
+        else:
+            parts[NLX.PART] = False
+        if parts["D55-3 replay"]:
+            rec[PRX.PART] = PRX.d55_full_preimage(b, views, controls=controls)
+            parts[PRX.PART] = bool(rec[PRX.PART]["ok"])
+            rec["not_here"] = [x for x in rec["not_here"] if x != PRX.NOT_HERE_CLOSED]
+        else:
+            parts[PRX.PART] = False
+        if not (parts[NLX.PART] and parts[PRX.PART]) and rec["status"] != "NOT-OK":
+            rec["status"] = "NOT-OK"
+            rec["status_means"] = "some part is false"
+    # --- [NL-1 / PRE lane, 2026-11-02] end
     rec["tool_sha256"] = W.tool_hashes()
     rec["seconds"] = round(time.time() - t0, 1)
     return rec
