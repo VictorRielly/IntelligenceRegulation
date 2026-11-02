@@ -22,7 +22,13 @@ WHAT IT RUNS (one record part each):
          lengths, schema strings, sizes against `run.json["shape"]`)
   W16-1  the profiles: the block profile is a W16 profile (`shape.rs`
          W16_PROFILES) and the run profile is one of the TEST-ONLY W16 run
-         identities (no production W16 run profile exists)
+         identities (no production W16 run profile exists).  [2026-11-02,
+         D59 condition (5)] Also a W16R2 profile (`W16R2_PROFILES`: W16 at
+         code rate 1/2), and the PCS geometry fact: the shape, every regular
+         opening (params, q_pad, columns, clear-vector lengths) and M carry
+         the family's rate and Q (W16 1/4 and 256, W16R2 1/2 and 260) and M's
+         own constants (2^12, 256).  The rank parts (W16-6) read the rate and
+         Q from the bundle, so they run at W16R2 unchanged.
   W16-2  the calibration, bound: `stagecal.schedule_digest` recomputed from
          run.json's own lines (the replayed header absorbs that digest), the
          R13-format calibration line parsed and its printed precision
@@ -67,7 +73,9 @@ SC_QZC 15, SC_KVZC 16, SC_SZC 17, SC_FZC 18, SC_TAB 19; `argument_accuracy.rs`
 dzc_w16 .. tab_w16), NL-1 S1-S5 on them, the joint checks, TS-1 and the claim
 census, the full preimage, the hash census, the reading of the twelve moved
 private_block pins, and the recorder pinning `range16.rs` (it does not: it is
-in neither `OWN_SOURCE_FILES` nor `SHARED_SOURCE_FILES`).
+in neither `OWN_SOURCE_FILES` nor `SHARED_SOURCE_FILES`).  [2026-11-02] That
+last item is closed in the Rust tree since M26 (`OWN_SOURCE_FILES` lists
+`range16.rs`): a bundle written now pins it, as one more UNREAD pin.
 """
 
 from __future__ import annotations
@@ -98,6 +106,14 @@ W16_BLOCK_PROFILES = {
     "hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-w16/1": ("W16_SHIELD_T256_H24", "LowH24", "shieldstral"),
     "hashline-zk-mr1/private-block-llama-3-8b-t256-lh24-w16/1": ("W16_8B_T256_H24", "LowH24", "standard"),
     "hashline-zk-mr1/private-block-llama-3-8b-t512-lh24-w16/1": ("W16_8B_T512_H24", "LowH24", "standard"),
+    # [2026-11-02, D59 condition (5)] shape.rs W16R2_PROFILES: W16 at code rate
+    # 1/2 (A, H, the boundaries and both endpoints at rate 1/2 with Q = 260
+    # opened columns and 260 pads per row; M unchanged).  The same geometry,
+    # planes, lookups and SC_TAB tables as the W16 sibling, so every W16 part
+    # below reads them unchanged; `W16R2_GEOMETRY` is what differs.
+    "hashline-zk-mr1/private-block-rung-lh-t32-w16r2-d/1": ("W16R2_RUNG_H24", "LowH24", "standard"),
+    "hashline-zk-mr1/private-block-shieldstral-3b-t128-lh24-w16r2/1": ("W16R2_SHIELD_T128_H24", "LowH24", "shieldstral"),
+    "hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/1": ("W16R2_8B_T128_H24", "LowH24", "standard"),
 }
 # w16_privacy_gate_tests.rs W16_TEST_RUN_PROFILES: TEST-ONLY run identities
 # (run.rs admits them under #[cfg(test)] only; no production build has them)
@@ -105,7 +121,26 @@ W16_TEST_RUN_PROFILES = {
     "hashline-zk-mr1/private-run-rung-lh-t32-w16-tst/1": "hashline-zk-mr1/private-block-rung-lh-t32-w16-dev/1",
     "hashline-zk-mr1/private-run-shieldstral-3b-t128-lowh24-w16-tst/1": "hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-w16/1",
     "hashline-zk-mr1/private-run-llama-3-8b-t128-lh24-w16-tst/1": "hashline-zk-mr1/private-block-llama-3-8b-t128-lh24-w16/1",
+    # [2026-11-02, D59] the W16R2 rung and 8B (W16R2 Shieldstral has none)
+    "hashline-zk-mr1/private-run-rung-lh-t32-w16r2-t/1": "hashline-zk-mr1/private-block-rung-lh-t32-w16r2-d/1",
+    "hashline-zk-mr1/private-run-llama-3-8b-t128-lh-w16r2-tst/1": "hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/1",
 }
+# [2026-11-02, D59] the PCS geometry of a W16-family profile's REGULAR
+# commitments (A, H, every boundary, both endpoints): (inv_rate, Q = pads).
+# shape.rs: W16 keeps COL_CHECKS = 256 at rate 1/4; W16R2_INV_RATE = 2 and
+# W16R2_OPENED_COLS = 260.  The masking commitment M keeps zk.rs's own
+# constants at every profile (MASK_LOG_DOM 12, MASK_Q 256).
+W16_GEOMETRY = (4, 256)
+W16R2_GEOMETRY = (2, 260)
+MASK_GEOMETRY = (12, 256)
+
+
+def is_w16r2_block_profile(profile: str) -> bool:
+    return profile in W16_BLOCK_PROFILES and W16_BLOCK_PROFILES[profile][0].startswith("W16R2_")
+
+
+def pcs_geometry_of(profile: str) -> tuple:
+    return W16R2_GEOMETRY if is_w16r2_block_profile(profile) else W16_GEOMETRY
 
 TAG_U8 = 133        # tables_attn.rs TAG_U8 (= zk60_native_rg_terminals.TAG_U8)
 TAG_RANGE0 = 200    # range16.rs:31
@@ -334,10 +369,59 @@ def w16_facts(bundle) -> dict:
     g = cal["gate_common"]
     if not (17 <= g <= 24):
         raise ValueError(f"W16-2: the gate shift {g} is outside 17..=24")
+    geom = pcs_geometry(bundle, block)
     return {"block_profile": block, "name": W16_BLOCK_PROFILES[block][0], "run_profile": bundle.profile,
             "run_profile_is_test_only": True, "stack": stack, "registry": cal["registry"], "base": cal["base"],
             "gate_shift": g, "precision": cal["precision"], "wrho_s": int(sh["wrho_s"]),
-            "log_cols": int(sh["log_cols"]), "schedule_digest_recomputed_equal": True}
+            "log_cols": int(sh["log_cols"]), "schedule_digest_recomputed_equal": True, "pcs_geometry": geom}
+
+
+def pcs_geometry(bundle, block: str) -> dict:
+    """[2026-11-02, D59] W16-1's geometry fact: the shape run.json declares
+    carries its family's rate and Q for the regular commitments (the endpoint
+    rate follows the core rate), and M carries its own constants; every
+    regular opening of every stage file declares the same (its `params`,
+    `q_pad`, column count and clear-vector lengths).  A ValueError otherwise."""
+    sh = bundle.run["shape"]
+    inv_rate, q = pcs_geometry_of(block)
+    if (int(sh["inv_rate"]), int(sh["opened_cols"]), int(sh["endpoint_inv_rate"])) != (inv_rate, q, inv_rate):
+        raise ValueError(f"W16-1: the shape declares rate 1/{sh['inv_rate']}, Q {sh['opened_cols']}, endpoint rate "
+                         f"1/{sh['endpoint_inv_rate']}; the profile family fixes rate 1/{inv_rate}, Q {q} for both")
+    md = bundle.run["mask_domain"]
+    if (int(md["log_dom"]), int(md["columns"])) != MASK_GEOMETRY:
+        raise ValueError(f"W16-1: the mask domain is {md}, M's own constants are log_dom {MASK_GEOMETRY[0]}, "
+                         f"columns {MASK_GEOMETRY[1]} at every profile")
+    openings = 0
+    for st in bundle.stages:
+        for r in st.roles:
+            check_opening_geometry(sh, st.name, r, inv_rate, q)
+            openings += 1
+        m = st.mask
+        if len(m["columns"]) != MASK_GEOMETRY[1] or any(c["index"] >= 1 << MASK_GEOMETRY[0] for c in m["columns"]):
+            raise ValueError(f"W16-1: {st.name} M opens {len(m['columns'])} columns, not its own {MASK_GEOMETRY[1]} "
+                             f"over 2^{MASK_GEOMETRY[0]}")
+    return {"family": "W16R2" if is_w16r2_block_profile(block) else "W16", "inv_rate": inv_rate, "q": q,
+            "pads": q, "endpoint_inv_rate": inv_rate, "mask_log_dom": MASK_GEOMETRY[0], "mask_columns": MASK_GEOMETRY[1],
+            "regular_openings_checked": openings}
+
+
+def check_opening_geometry(sh: dict, where: str, r: dict, inv_rate: int, q: int) -> None:
+    """[2026-11-02, D59] one regular opening against its family's geometry:
+    log n (the block's for A / H, the endpoint geometry's for a boundary or an
+    endpoint), rate, checks = pads = Q, Q columns inside the n * inv_rate
+    encoded columns, and every clear vector n + Q long.  A ValueError otherwise."""
+    p = r["params"]
+    log_n = int(sh["log_cols"]) if r["commitment_kind"] == "block" else int(sh["endpoint_log_n"])
+    n = 1 << log_n
+    if (p["log_cols"], p["inv_rate"], p["num_col_checks"], r["q_pad"], len(r["columns"])) != (log_n, inv_rate, q, q, q):
+        raise ValueError(f"W16-1: {where} {r['role']} opens at log {p['log_cols']} rate 1/{p['inv_rate']} "
+                         f"checks {p['num_col_checks']} pads {r['q_pad']} ({len(r['columns'])} columns), "
+                         f"not log {log_n} rate 1/{inv_rate} Q = pads = {q}")
+    lens = [len(g["vector"]) for g in r["groups"]] + [len(r["proximity_vector"])]
+    if any(x != n + q for x in lens):
+        raise ValueError(f"W16-1: {where} {r['role']}: clear vectors of {sorted(set(lens))} entries, not n + Q = {n + q}")
+    if any(c["index"] >= n * inv_rate for c in r["columns"]):
+        raise ValueError(f"W16-1: {where} {r['role']}: an opened column outside the {n * inv_rate} encoded columns")
 
 
 # ---------------------------------------------------------------- W16-4: the layout census
@@ -595,7 +679,11 @@ def w16_gate(bundle_dir: str, controls=True, r19b_manifest=None) -> dict:
         "NOT-OK": "some part is false"}[rec["status"]]
     rec["not_here"] = ["T-0 terminal identity of the seven W16-redefined slots", "NL-1 S1-S5 on them",
                        "joint checks", "TS-1 and the claim census", "full preimage", "hash census",
-                       "the reading of the unread pins", "the recorder pinning range16.rs"]
+                       "the reading of the unread pins"]
+    # [2026-11-02] closed in the Rust tree by M26 (OWN_SOURCE_FILES gained
+    # range16.rs); owed only for a bundle written before it
+    if not pins["range16_rs_pinned"]:
+        rec["not_here"].append("the recorder pinning range16.rs")
     rec["tool_sha256"] = tool_hashes()
     rec["seconds"] = round(time.time() - t0, 1)
     return rec

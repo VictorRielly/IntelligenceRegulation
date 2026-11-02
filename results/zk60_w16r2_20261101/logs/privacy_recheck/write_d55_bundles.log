@@ -1,0 +1,10 @@
+
+running 1 test
+test private_block::w16_privacy_gate_tests::d55_privacy_gate_write_the_fork_bundles ... D55-PG-BUNDLE W16_RUNG_H24 seed 0 -> /private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/bundles/d55-w16_rung_h24-s0 (3 forks, 11936882 stage bytes, tail 2791686 B, frames [144, 14131368, 14131368, 14131368, 3281008] B)
+D55-PG-BUNDLE W16_RUNG_H24 seed 1 -> /private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/bundles/d55-w16_rung_h24-s1 (3 forks, 11941462 stage bytes, tail 2790886 B, frames [144, 14131368, 14131368, 14131368, 3281008] B)
+D55-PG-BUNDLE W16R2_RUNG_H24 seed 0 -> /private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/bundles/d55-w16r2_rung_h24-s0 (3 forks, 11820493 stage bytes, tail 2677616 B, frames [144, 14138856, 14138856, 14138856, 3258032] B)
+D55-PG-BUNDLE W16R2_RUNG_H24 seed 1 -> /private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/bundles/d55-w16r2_rung_h24-s1 (3 forks, 11820786 stage bytes, tail 2680528 B, frames [144, 14138856, 14138856, 14138856, 3258032] B)
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 965 filtered out; finished in 10.25s
+

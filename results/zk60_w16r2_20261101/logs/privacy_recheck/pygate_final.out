@@ -1,0 +1,116 @@
+[zk60-guard 01:13:16] START pr-py-w16r2_rung_h24-s0 class=cpu need=4G cap=24G enforce=watchdog-only waited=0s run=448ff8e219b7
+[zk60-guard 01:14:15] END pr-py-w16r2_rung_h24-s0 exit=0 child_wall=59s peak_rss=0.46G min_avail=231.65G
+W16-0 integrity: PASS
+W16-1/2 facts: PASS
+W16-3 replay: PASS
+W16-4 layout: PASS
+W16-5 tab tables: PASS
+W16-6 per commitment: PASS
+W16-7 mask and CFS: PASS
+pins: 71 declared, 45 at r19b, 7 read here, 19 UNREAD: ['src/private_block/argument_accuracy.rs', 'src/private_block/accuracy_act.rs', 'src/private_block/accuracy_fold.rs', 'src/private_block/accuracy_layout.rs', 'src/private_block/run_capture.rs', 'src/private_block/run.rs', 'src/private_block/protocol.rs', 'src/private_block/argument.rs', 'src/private_block/layout.rs', 'src/private_block/plane_index.rs', 'src/private_block/shape.rs', 'src/private_block/wire.rs', 'src/private_block.rs', 'src/private_block/pad.rs', 'src/private_block/witness_accuracy.rs', 'src/private_block/range16.rs', 'src/private_block/slot_ir.rs', 'src/private_block/slot_ir_accuracy.rs', 'src/private_block/metal_slot.rs']
+status: W16-DEV-PASS (58.6 s) -> /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-acdb40abef543db2f/results/zk60_w16r2_20261101/privacy_recheck_gate/w16-cpu-w16r2_rung_h24-s0.json
+[zk60-guard 01:14:15] START pr-py-w16r2_rung_h24-s1 class=cpu need=4G cap=24G enforce=watchdog-only waited=0s run=3dadc2a92d16
+[zk60-guard 01:15:14] END pr-py-w16r2_rung_h24-s1 exit=0 child_wall=59s peak_rss=0.45G min_avail=231.19G
+W16-0 integrity: PASS
+W16-1/2 facts: PASS
+W16-3 replay: PASS
+W16-4 layout: PASS
+W16-5 tab tables: PASS
+W16-6 per commitment: PASS
+W16-7 mask and CFS: PASS
+pins: 71 declared, 45 at r19b, 7 read here, 19 UNREAD: ['src/private_block/argument_accuracy.rs', 'src/private_block/accuracy_act.rs', 'src/private_block/accuracy_fold.rs', 'src/private_block/accuracy_layout.rs', 'src/private_block/run_capture.rs', 'src/private_block/run.rs', 'src/private_block/protocol.rs', 'src/private_block/argument.rs', 'src/private_block/layout.rs', 'src/private_block/plane_index.rs', 'src/private_block/shape.rs', 'src/private_block/wire.rs', 'src/private_block.rs', 'src/private_block/pad.rs', 'src/private_block/witness_accuracy.rs', 'src/private_block/range16.rs', 'src/private_block/slot_ir.rs', 'src/private_block/slot_ir_accuracy.rs', 'src/private_block/metal_slot.rs']
+status: W16-DEV-PASS (58.6 s) -> /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-acdb40abef543db2f/results/zk60_w16r2_20261101/privacy_recheck_gate/w16-cpu-w16r2_rung_h24-s1.json
+[zk60-guard 01:15:14] START pr-py-w16r2_8b_t128_h24-s0 class=cpu need=4G cap=24G enforce=watchdog-only waited=0s run=90016eb59566
+[zk60-guard 01:16:12] END pr-py-w16r2_8b_t128_h24-s0 exit=0 child_wall=59s peak_rss=0.72G min_avail=230.68G
+W16-0 integrity: PASS
+W16-1/2 facts: PASS
+W16-3 replay: PASS
+W16-4 layout: PASS
+W16-5 tab tables: PASS
+W16-6 per commitment: PASS
+W16-7 mask and CFS: PASS
+pins: 71 declared, 45 at r19b, 7 read here, 19 UNREAD: ['src/private_block/argument_accuracy.rs', 'src/private_block/accuracy_act.rs', 'src/private_block/accuracy_fold.rs', 'src/private_block/accuracy_layout.rs', 'src/private_block/run_capture.rs', 'src/private_block/run.rs', 'src/private_block/protocol.rs', 'src/private_block/argument.rs', 'src/private_block/layout.rs', 'src/private_block/plane_index.rs', 'src/private_block/shape.rs', 'src/private_block/wire.rs', 'src/private_block.rs', 'src/private_block/pad.rs', 'src/private_block/witness_accuracy.rs', 'src/private_block/range16.rs', 'src/private_block/slot_ir.rs', 'src/private_block/slot_ir_accuracy.rs', 'src/private_block/metal_slot.rs']
+status: W16-DEV-PASS (58.4 s) -> /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-acdb40abef543db2f/results/zk60_w16r2_20261101/privacy_recheck_gate/w16-cpu-w16r2_8b_t128_h24-s0.json
+[zk60-guard 01:16:12] START pr-py-w16r2_8b_t128_h24-s1 class=cpu need=4G cap=24G enforce=watchdog-only waited=0s run=2e495a7b52f9
+[zk60-guard 01:17:11] END pr-py-w16r2_8b_t128_h24-s1 exit=0 child_wall=59s peak_rss=0.72G min_avail=231.70G
+W16-0 integrity: PASS
+W16-1/2 facts: PASS
+W16-3 replay: PASS
+W16-4 layout: PASS
+W16-5 tab tables: PASS
+W16-6 per commitment: PASS
+W16-7 mask and CFS: PASS
+pins: 71 declared, 45 at r19b, 7 read here, 19 UNREAD: ['src/private_block/argument_accuracy.rs', 'src/private_block/accuracy_act.rs', 'src/private_block/accuracy_fold.rs', 'src/private_block/accuracy_layout.rs', 'src/private_block/run_capture.rs', 'src/private_block/run.rs', 'src/private_block/protocol.rs', 'src/private_block/argument.rs', 'src/private_block/layout.rs', 'src/private_block/plane_index.rs', 'src/private_block/shape.rs', 'src/private_block/wire.rs', 'src/private_block.rs', 'src/private_block/pad.rs', 'src/private_block/witness_accuracy.rs', 'src/private_block/range16.rs', 'src/private_block/slot_ir.rs', 'src/private_block/slot_ir_accuracy.rs', 'src/private_block/metal_slot.rs']
+status: W16-DEV-PASS (58.5 s) -> /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-acdb40abef543db2f/results/zk60_w16r2_20261101/privacy_recheck_gate/w16-cpu-w16r2_8b_t128_h24-s1.json
+[zk60-guard 01:17:11] START pr-py-w16_rung_h24-s0 class=cpu need=4G cap=24G enforce=watchdog-only waited=0s run=ca05fc5cfe21
+[zk60-guard 01:18:08] END pr-py-w16_rung_h24-s0 exit=0 child_wall=57s peak_rss=0.44G min_avail=231.92G
+W16-0 integrity: PASS
+W16-1/2 facts: PASS
+W16-3 replay: PASS
+W16-4 layout: PASS
+W16-5 tab tables: PASS
+W16-6 per commitment: PASS
+W16-7 mask and CFS: PASS
+pins: 71 declared, 45 at r19b, 7 read here, 19 UNREAD: ['src/private_block/argument_accuracy.rs', 'src/private_block/accuracy_act.rs', 'src/private_block/accuracy_fold.rs', 'src/private_block/accuracy_layout.rs', 'src/private_block/run_capture.rs', 'src/private_block/run.rs', 'src/private_block/protocol.rs', 'src/private_block/argument.rs', 'src/private_block/layout.rs', 'src/private_block/plane_index.rs', 'src/private_block/shape.rs', 'src/private_block/wire.rs', 'src/private_block.rs', 'src/private_block/pad.rs', 'src/private_block/witness_accuracy.rs', 'src/private_block/range16.rs', 'src/private_block/slot_ir.rs', 'src/private_block/slot_ir_accuracy.rs', 'src/private_block/metal_slot.rs']
+status: W16-DEV-PASS (56.7 s) -> /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-acdb40abef543db2f/results/zk60_w16r2_20261101/privacy_recheck_gate/w16-cpu-w16_rung_h24-s0.json
+[zk60-guard 01:18:08] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 01:19:09] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 01:20:10] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 01:21:01] START pr-py-d55-w16_rung_h24-s0 class=cpu need=4G cap=24G enforce=watchdog-only waited=172s run=53df21e5549e
+[zk60-guard 01:22:18] END pr-py-d55-w16_rung_h24-s0 exit=0 child_wall=77s peak_rss=0.62G min_avail=231.79G
+D55-0 integrity: PASS
+D55-1/2 facts: PASS
+D55-3 replay: PASS
+W16-4 layout: PASS
+W16-5 tab tables: PASS
+W16-6 per commitment: PASS
+W16-7 mask and CFS: PASS
+D55-C replay controls: PASS
+pins: 74 declared, 45 at r19b, 7 read here, 22 UNREAD
+status: D55-DEV-PASS (76.7 s) -> /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-acdb40abef543db2f/results/zk60_w16r2_20261101/privacy_recheck_gate/d55-cpu-d55-w16_rung_h24-s0.json
+[zk60-guard 01:22:18] START pr-py-d55-w16_rung_h24-s1 class=cpu need=4G cap=24G enforce=watchdog-only waited=0s run=51afc99b36a6
+[zk60-guard 01:23:35] END pr-py-d55-w16_rung_h24-s1 exit=0 child_wall=77s peak_rss=0.61G min_avail=231.63G
+D55-0 integrity: PASS
+D55-1/2 facts: PASS
+D55-3 replay: PASS
+W16-4 layout: PASS
+W16-5 tab tables: PASS
+W16-6 per commitment: PASS
+W16-7 mask and CFS: PASS
+D55-C replay controls: PASS
+pins: 74 declared, 45 at r19b, 7 read here, 22 UNREAD
+status: D55-DEV-PASS (77.3 s) -> /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-acdb40abef543db2f/results/zk60_w16r2_20261101/privacy_recheck_gate/d55-cpu-d55-w16_rung_h24-s1.json
+[zk60-guard 01:23:35] START pr-py-d55-w16r2_rung_h24-s0 class=cpu need=4G cap=24G enforce=watchdog-only waited=0s run=ee7e9c5e0ff1
+[zk60-guard 01:24:53] END pr-py-d55-w16r2_rung_h24-s0 exit=0 child_wall=77s peak_rss=0.59G min_avail=232.01G
+D55-0 integrity: PASS
+D55-1/2 facts: PASS
+D55-3 replay: PASS
+W16-4 layout: PASS
+W16-5 tab tables: PASS
+W16-6 per commitment: PASS
+W16-7 mask and CFS: PASS
+D55-C replay controls: PASS
+pins: 74 declared, 45 at r19b, 7 read here, 22 UNREAD
+status: D55-DEV-PASS (77.1 s) -> /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-acdb40abef543db2f/results/zk60_w16r2_20261101/privacy_recheck_gate/d55-cpu-d55-w16r2_rung_h24-s0.json
+[zk60-guard 01:24:53] START pr-py-d55-w16r2_rung_h24-s1 class=cpu need=4G cap=24G enforce=watchdog-only waited=0s run=c029ccc41688
+[zk60-guard 01:26:09] END pr-py-d55-w16r2_rung_h24-s1 exit=0 child_wall=77s peak_rss=0.60G min_avail=231.70G
+D55-0 integrity: PASS
+D55-1/2 facts: PASS
+D55-3 replay: PASS
+W16-4 layout: PASS
+W16-5 tab tables: PASS
+W16-6 per commitment: PASS
+W16-7 mask and CFS: PASS
+D55-C replay controls: PASS
+pins: 74 declared, 45 at r19b, 7 read here, 22 UNREAD
+status: D55-DEV-PASS (76.5 s) -> /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-acdb40abef543db2f/results/zk60_w16r2_20261101/privacy_recheck_gate/d55-cpu-d55-w16r2_rung_h24-s1.json
+[zk60-guard 01:26:09] START pr-suite_v25_d55w16r2 class=cpu need=4G cap=24G enforce=watchdog-only waited=0s run=9d008177f4cb
+[zk60-guard 01:26:22] END pr-suite_v25_d55w16r2 exit=1 child_wall=12s peak_rss=0.39G min_avail=232.40G
+FAIL: test_r19b_self_check_and_its_control (test_v4_status_g10.ClassifierV24.test_r19b_self_check_and_its_control)
+Ran 131 tests in 11.705s
+FAILED (failures=1, skipped=71)
+[zk60-guard 01:26:22] START pr-suite_v25_d55w16 class=cpu need=4G cap=24G enforce=watchdog-only waited=0s run=155913903dd9
+[zk60-guard 01:26:34] END pr-suite_v25_d55w16 exit=1 child_wall=12s peak_rss=0.39G min_avail=232.34G
+FAIL: test_r19b_self_check_and_its_control (test_v4_status_g10.ClassifierV24.test_r19b_self_check_and_its_control)
+Ran 131 tests in 11.640s
+FAILED (failures=1, skipped=71)

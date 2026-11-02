@@ -1,0 +1,12 @@
+
+running 1 test
+test private_block::w16_privacy_gate_tests::w16_privacy_gate_write_the_w16_bundles ... W16-PG-BUNDLE W16_RUNG_H24 seed 0 -> /private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/bundles/w16_rung_h24-s0 (5365264 stage bytes, segments [15503528] B)
+W16-PG-BUNDLE W16_RUNG_H24 seed 1 -> /private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/bundles/w16_rung_h24-s1 (5366259 stage bytes, segments [15503528] B)
+W16-PG-BUNDLE W16R2_RUNG_H24 seed 0 -> /private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/bundles/w16r2_rung_h24-s0 (5276352 stage bytes, segments [15499432] B)
+W16-PG-BUNDLE W16R2_RUNG_H24 seed 1 -> /private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/bundles/w16r2_rung_h24-s1 (5269774 stage bytes, segments [15499432] B)
+W16-PG-BUNDLE W16R2_8B_T128_H24 seed 0 -> /private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/bundles/w16r2_8b_t128_h24-s0 (4809405 stage bytes, segments [25175336] B)
+W16-PG-BUNDLE W16R2_8B_T128_H24 seed 1 -> /private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/bundles/w16r2_8b_t128_h24-s1 (4814746 stage bytes, segments [25175336] B)
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 965 filtered out; finished in 17.08s
+

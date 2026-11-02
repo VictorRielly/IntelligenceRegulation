@@ -911,6 +911,14 @@ fn gate_at(rec: &mut Record, profile: &str, pair: bool) {
         None => capture_checks(rec, name, &a, None),
     }
     capture_controls(rec, name, &a, b.as_ref().and_then(|r| r.as_ref().ok()));
+    // D59 condition (5): at a W16R2 profile, the rate-1/2 openings' geometry
+    // and pad-block rank, and their controls (W16's own check list unchanged)
+    if shape::is_w16r2_profile(profile) {
+        r2_checks(rec, name, &a.sh, &capture_files(&a));
+        if let Some(Ok(b)) = &b {
+            rec.put(name, "PG-R2 geometry (second capture)", r2_geometry(&b.sh, &capture_files(b), PcsGeom::of(&b.sh)));
+        }
+    }
 }
 
 // ---------------------------------------------------------------- the tests
@@ -950,7 +958,8 @@ fn w16_privacy_gate_at_the_trained_t128_shapes() {
     let want = std::env::var("HL_W16PG_PROFILES").unwrap_or_else(|_| "W16_SHIELD_T128_H24,W16_8B_T128_H24".into());
     let pair = std::env::var("HL_W16PG_PAIR").map(|v| v == "1").unwrap_or(false);
     let mut rec = Record::default();
-    for spec in shape::W16_PROFILES.iter().filter(|s| want.split(',').any(|w| w == s.name)) {
+    // D59: a W16R2 (rate 1/2) profile by name too
+    for spec in shape::W16_PROFILES.iter().chain(shape::W16R2_PROFILES.iter()).filter(|s| want.split(',').any(|w| w == s.name)) {
         let t0 = std::time::Instant::now();
         gate_at(&mut rec, spec.profile, pair);
         eprintln!("W16-PG {} done ({:.0} s wall, shared Mac, not a timing)", spec.name, t0.elapsed().as_secs_f64());
@@ -963,9 +972,11 @@ fn w16_privacy_gate_at_the_trained_t128_shapes() {
 
 /// The W16 rung's synthetic public block ([`w16_case`]'s recipe) and an
 /// admissible honest chain of `l` layers of it, from the first input at or
-/// after `seed` whose whole chain the witness builder admits.
-fn w16_rung_chain(l: usize, seed: usize) -> Result<(Shape, BlockPublic, Vec<Witness>), String> {
-    let original = super::range16_tests::built(shape::W16_RUNG_H24);
+/// after `seed` whose whole chain the witness builder admits. **D59 condition
+/// (5), 2026-11-02:** at any rung-geometry W16-family profile (`W16_RUNG_H24`
+/// or the rate-1/2 `W16R2_RUNG_H24`); the recipe is the same at both.
+fn rung_chain_at(profile: &str, l: usize, seed: usize) -> Result<(Shape, BlockPublic, Vec<Witness>), String> {
+    let original = super::range16_tests::built(profile);
     let cal = NormCalibration { cn_a: 4000, cn_m: 4000, ..original.norm_calibration() };
     let original = Shape::accuracy_trained(original.profile, &cal, original.f_e, 20)?;
     let (sh, data, public, ff) = super::range16_tests::case(original, 3);
@@ -983,7 +994,7 @@ fn w16_rung_chain(l: usize, seed: usize) -> Result<(Shape, BlockPublic, Vec<Witn
             return Ok((sh, blk, ws));
         }
     }
-    Err(format!("no admissible {l}-layer W16 rung chain from seed {seed}"))
+    Err(format!("no admissible {l}-layer {} chain from seed {seed}", shape::accuracy_spec(profile).map(|s| s.name).unwrap_or(profile)))
 }
 
 /// a fork run's private inputs: every witness and every boundary plane
@@ -1018,9 +1029,9 @@ struct ForkCaptured {
 /// verify it again (forks on `l` worker threads) with a FORK-RUN recorder
 /// attached (array store and public-table values on), and replay the
 /// statement tables against the block's public data.
-fn prove_and_capture_d55(l: usize, seed: usize) -> Result<ForkCaptured, String> {
+fn prove_and_capture_d55_at(profile: &str, l: usize, seed: usize) -> Result<ForkCaptured, String> {
     use super::run::fork::{prove_run_with_forks, verify_run_with_forks, D55OptIn, ForkRun};
-    let (sh, blk, ws) = w16_rung_chain(l, seed)?;
+    let (sh, blk, ws) = rung_chain_at(profile, l, seed)?;
     let ids = Ids::new(&sh)?;
     let a_planes: Vec<Vec<Vec<i64>>> = ws.iter().map(|w| committed_a_planes(&sh, w)).collect::<Result<_, _>>()?;
     let input: Vec<i16> = ws[0].planes[ids.at(A_X)].iter().map(|&v| v as i16).collect();
@@ -1106,16 +1117,17 @@ fn fork_view(c: &ForkCaptured, k: usize) -> Captured {
 /// controls C-2 .. C-6 on fork 0's view, so the checks are shown to fire on
 /// a fork run's data. The Python gate's rank, mask / CFS, joint, NL-1 and
 /// terminal checks are not ported here.
-fn d55_gate_at_the_rung(rec: &mut Record, l: usize) {
-    let name = "W16_RUNG_H24 D55";
-    let a = match prove_and_capture_d55(l, 0) {
+fn d55_gate_at(rec: &mut Record, profile: &str, l: usize) -> Option<ForkCaptured> {
+    let name = &format!("{} D55", shape::accuracy_spec(profile).expect("a W16-family rung profile").name);
+    let name = name.as_str();
+    let a = match prove_and_capture_d55_at(profile, l, 0) {
         Ok(c) => c,
         Err(e) => {
             rec.put(name, "PG-6 capture", Err(e));
-            return;
+            return None;
         }
     };
-    let b = prove_and_capture_d55(l, 1);
+    let b = prove_and_capture_d55_at(profile, l, 1);
     let tail = a.bundle.fork_tail.clone().expect("a fork-run bundle has a tail");
     rec.put(
         name,
@@ -1180,6 +1192,7 @@ fn d55_gate_at_the_rung(rec: &mut Record, l: usize) {
     for (what, outcome) in &a.controls {
         control(rec, name, *what, outcome.clone());
     }
+    Some(a)
 }
 
 /// **D55 REVIEW F5: one honest D55 fork run CAPTURED at the W16 development
@@ -1191,7 +1204,7 @@ fn d55_gate_at_the_rung(rec: &mut Record, l: usize) {
 #[test]
 fn d55_fork_run_capture_passes_the_w16_gate_checks_at_the_development_rung() {
     let mut rec = Record::default();
-    d55_gate_at_the_rung(&mut rec, 3);
+    d55_gate_at(&mut rec, shape::W16_RUNG_H24, 3);
     rec.assert_all();
 }
 
@@ -1454,6 +1467,10 @@ fn metal_gate_at(rec: &mut Record, profile: &str) {
     // every capture-level check and control on the Metal-proved view
     capture_checks(rec, &mname, &m, None);
     capture_controls(rec, &mname, &m, Some(&a));
+    // D59 condition (5): the rate-1/2 openings of the Metal-proved view
+    if shape::is_w16r2_profile(profile) {
+        r2_checks(rec, &mname, &m.sh, &capture_files(&m));
+    }
     // MG-2 / MG-3: the Metal view against the CPU's
     let docs = |c: &Captured| -> Vec<Vec<u8>> { bundle_files(&c.bundle).into_iter().chain(std::iter::once(capture_side(c))).collect() };
     let (da, da2, da3, dm) = (docs(&a), docs(&a2), docs(&a3), docs(&m));
@@ -1513,7 +1530,8 @@ fn w16_privacy_gate_on_the_metal_path() {
     assert!(crate::gpu::required(), "run with HL_GPU_REQUIRED=1, so that no device decline falls back to the CPU unseen");
     let want = std::env::var("HL_W16PG_PROFILES").unwrap_or_else(|_| "W16_RUNG_H24".into());
     let mut rec = Record::default();
-    for spec in shape::W16_PROFILES.iter().filter(|s| want.split(',').any(|w| w == s.name)) {
+    // D59: a W16R2 (rate 1/2) profile by name too
+    for spec in shape::W16_PROFILES.iter().chain(shape::W16R2_PROFILES.iter()).filter(|s| want.split(',').any(|w| w == s.name)) {
         let t0 = std::time::Instant::now();
         metal_gate_at(&mut rec, spec.profile);
         eprintln!("W16-PG {}@metal done ({:.0} s wall, shared Mac, not a timing)", spec.name, t0.elapsed().as_secs_f64());
@@ -1536,7 +1554,8 @@ fn w16_privacy_gate_write_the_w16_bundles() {
     let root = std::path::PathBuf::from(std::env::var("HL_W16PG_CAPTURE_DIR").expect("HL_W16PG_CAPTURE_DIR is not set: this test writes a directory of evidence and will not choose one for you"));
     let want = std::env::var("HL_W16PG_PROFILES").unwrap_or_else(|_| "W16_RUNG_H24".into());
     let mut n = 0usize;
-    for spec in shape::W16_PROFILES.iter().filter(|s| want.split(',').any(|w| w == s.name)) {
+    // D59: a W16R2 (rate 1/2) profile by name too
+    for spec in shape::W16_PROFILES.iter().chain(shape::W16R2_PROFILES.iter()).filter(|s| want.split(',').any(|w| w == s.name)) {
         for seed in [0usize, 1] {
             let c = prove_and_capture(spec.profile, seed).unwrap_or_else(|e| panic!("{} seed {seed}: {e}", spec.name));
             let dir = root.join(format!("{}-s{seed}", spec.name.to_ascii_lowercase()));
@@ -1552,4 +1571,442 @@ fn w16_privacy_gate_write_the_w16_bundles() {
         }
     }
     assert!(n > 0, "HL_W16PG_PROFILES names no W16 profile");
+}
+
+// ---------------------------------------------------------------- D59 condition (5): the W16R2 openings (2026-11-02)
+
+/// **D59 condition (5), the privacy re-check of W16R2: the PCS geometry a
+/// capture's REGULAR hiding openings must carry** (`A`, `H`, every internal
+/// boundary and both external endpoints): rate `1 / inv_rate`, `q` opened
+/// columns and `q` pads per row. Taken from the SHAPE the gate built, never
+/// from the capture; the production `protocol::pcs_params_at` /
+/// `endpoint_pcs_params` and `ZkOpts::standard` are compared with it.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+struct PcsGeom {
+    inv_rate: usize,
+    q: usize,
+}
+
+impl PcsGeom {
+    fn of(sh: &Shape) -> PcsGeom {
+        PcsGeom { inv_rate: sh.inv_rate, q: sh.opened_cols }
+    }
+}
+
+/// the documents of a one-run capture that hold openings: its stage files
+fn capture_files(c: &Captured) -> Vec<(String, Vec<u8>)> {
+    c.bundle.stages.iter().enumerate().map(|(k, s)| (run_capture::stage_file(k), s.clone())).collect()
+}
+
+/// the documents of a fork-run capture that hold openings: every fork stage file, then the tail
+fn fork_capture_files(c: &ForkCaptured) -> Vec<(String, Vec<u8>)> {
+    let mut v: Vec<(String, Vec<u8>)> = c.bundle.stages.iter().enumerate().map(|(k, s)| (run_capture::stage_file(k), s.clone())).collect();
+    v.push((run_capture::D55_TAIL_FILE.to_string(), c.bundle.fork_tail.clone().expect("a fork-run bundle has a tail")));
+    v
+}
+
+/// where the value of `"key":` starts, at or after `from`
+fn value_at(b: &[u8], key: &str, from: usize) -> Result<usize, String> {
+    let pat = format!("\"{key}\":");
+    find_from(b, &pat, from).map(|p| p + pat.len()).ok_or_else(|| format!("no {key:?}"))
+}
+
+/// the entry count of the value at `b[at]`: an inline JSON list, or an
+/// `arrays.bin` reference `{"array":..,"elem":..,"len":N,..}`
+fn value_len(b: &[u8], at: usize) -> Result<usize, String> {
+    match b.get(at) {
+        Some(b'[') => Ok(entries(b, at).len()),
+        Some(b'{') => {
+            let end = b[at..].iter().position(|c| *c == b'}').ok_or("an unterminated array reference")? + at;
+            num(&b[at..=end], "len").map(|v| v as usize).ok_or_else(|| "an array reference without its length".to_string())
+        }
+        _ => Err("a value that is neither a list nor an array reference".into()),
+    }
+}
+
+/// the rank over `F_p` of a matrix given by its rows (Gaussian elimination)
+fn rank_fp(mut m: Vec<Vec<Fp>>) -> usize {
+    let cols = m.first().map(|r| r.len()).unwrap_or(0);
+    let mut rank = 0usize;
+    for c in 0..cols {
+        if rank == m.len() {
+            break;
+        }
+        let Some(p) = (rank..m.len()).find(|&r| !m[r][c].is_zero()) else { continue };
+        m.swap(rank, p);
+        let inv = m[rank][c].inv();
+        let pivot: Vec<Fp> = m[rank].iter().map(|x| x.mul(inv)).collect();
+        for r in rank + 1..m.len() {
+            let f = m[r][c];
+            if !f.is_zero() {
+                for (x, y) in m[r].iter_mut().zip(&pivot) {
+                    *x = x.sub(f.mul(*y));
+                }
+            }
+        }
+        m[rank] = pivot;
+        rank += 1;
+    }
+    rank
+}
+
+/// **THE PAD BLOCK OF THE PRODUCTION ENCODER** (`pcs::encode_row_zk`, the
+/// verifier's re-encoder and byte for byte the commitment's host encoder; the
+/// Metal path is byte-equal to it by MG-1): codeword `i` is the encoding of the
+/// ZERO message with the `i`-th unit pad, so its entry `j` is what pad symbol
+/// `i` adds at encoded position `j`. `coset: None` is the controls'
+/// systematic domain (every coset power 1, i.e. evaluation on `G_nn` itself).
+fn pad_codewords(log_n: usize, inv_rate: usize, q: usize, coset: Option<Fp>, ntt: &crate::ntt::NttTables) -> Vec<Vec<Fp>> {
+    let (n, nn) = (1usize << log_n, (1usize << log_n) * inv_rate);
+    let pows = match coset {
+        Some(h) => crate::pcs::coset_powers(h, nn),
+        None => vec![Fp::ONE; nn],
+    };
+    let zero = vec![Fp::ZERO; n];
+    (0..q)
+        .map(|i| {
+            let mut pad = vec![Fp::ZERO; q];
+            pad[i] = Fp::ONE;
+            let mut out = vec![Fp::ZERO; nn];
+            crate::pcs::encode_row_zk(ntt, &zero, &pad, &pows, &mut out);
+            out
+        })
+        .collect()
+}
+
+/// the rank of the pad block (its first `q_used` pad coordinates) at the opened positions `idx`
+fn pad_rank(cw: &[Vec<Fp>], idx: &[usize], q_used: usize) -> usize {
+    rank_fp(idx.iter().map(|&j| cw[..q_used].iter().map(|c| c[j]).collect()).collect())
+}
+
+/// one hiding opening of a capture, as PG-R2 reads it
+struct OpenedView {
+    file: String,
+    role: String,
+    kind: String,
+    log_n: usize,
+    inv_rate: usize,
+    checks: usize,
+    q_pad: usize,
+    /// the sampled column indices, in transcript order (with repeats)
+    idx: Vec<usize>,
+    /// every clear vector's length: the group vectors, then the proximity vector
+    vec_lens: Vec<usize>,
+}
+
+/// one `M` opening of a capture: its file, its column indices and its two vectors' lengths
+type MaskView = (String, Vec<usize>, usize, usize);
+
+/// every regular opening (`roles`) of the documents, and each document's `M` opening
+fn opened_views(files: &[(String, Vec<u8>)]) -> Result<(Vec<OpenedView>, Vec<MaskView>), String> {
+    let (mut out, mut masks) = (Vec::new(), Vec::new());
+    for (fname, b) in files {
+        let at = find_from(b, "\"roles\":[", 0).ok_or(format!("{fname}: no roles"))? + "\"roles\":".len();
+        for e in entries(b, at) {
+            let role = field_str(e, "role").ok_or(format!("{fname}: a role without its name"))?.to_string();
+            let kind = field_str(e, "commitment_kind").ok_or(format!("{fname} {role}: no commitment kind"))?.to_string();
+            let g = |k: &str| num(e, k).map(|v| v as usize).ok_or(format!("{fname} {role}: no {k}"));
+            let cols = value_at(e, "columns", 0)?;
+            let idx: Vec<usize> = entries(e, cols).iter().map(|c| num(c, "index").map(|v| v as usize).ok_or(format!("{fname} {role}: a column without its index"))).collect::<Result<_, _>>()?;
+            let gat = value_at(e, "groups", 0)?;
+            let mut vec_lens: Vec<usize> = entries(e, gat).iter().map(|gr| value_at(gr, "vector", 0).and_then(|v| value_len(gr, v))).collect::<Result<_, _>>()?;
+            vec_lens.push(value_len(e, value_at(e, "proximity_vector", 0)?)?);
+            let (log_n, inv_rate, checks, q_pad) = (g("log_cols")?, g("inv_rate")?, g("num_col_checks")?, g("q_pad")?);
+            out.push(OpenedView { file: fname.clone(), role, kind, log_n, inv_rate, checks, q_pad, idx, vec_lens });
+        }
+        if let Some(m) = find_from(b, "\"mask\":{", 0) {
+            let (q, prox) = (value_len(b, value_at(b, "q", m)?)?, value_len(b, value_at(b, "prox", m)?)?);
+            let cols = value_at(b, "columns", m)?;
+            let idx: Vec<usize> = entries(b, cols).iter().map(|c| num(c, "index").map(|v| v as usize).ok_or(format!("{fname} M: a column without its index"))).collect::<Result<_, _>>()?;
+            masks.push((fname.clone(), idx, q, prox));
+        }
+    }
+    Ok((out, masks))
+}
+
+fn distinct(idx: &[usize]) -> Vec<usize> {
+    let mut d = idx.to_vec();
+    d.sort_unstable();
+    d.dedup();
+    d
+}
+
+/// **PG-R2: the geometry of every hiding opening in a capture's documents,
+/// and the exact rank of the pad block at the positions it opened.** For each
+/// regular opening: rate `1 / want.inv_rate`, `want.q` checks and `want.q`
+/// pads (`q_pad`, and every clear vector `n + q` long), every index inside the
+/// `n inv_rate` encoded columns, and the pad block of the production encoder
+/// at the DISTINCT opened positions of full rank (= their number, so the
+/// opened entries of every row are uniform given the row's message, and no
+/// opened position is one where the pads give no randomness). For each `M`
+/// opening: `zk::MASK_Q` columns over `2^MASK_LOG_DOM` and its two
+/// `2 * 2^MASK_LOG_MSG`-long vectors, whatever the block's Q is.
+fn r2_geometry(sh: &Shape, files: &[(String, Vec<u8>)], want: PcsGeom) -> Result<String, String> {
+    use crate::pcs::ZkOpts;
+    // the production parameter functions at this shape agree with `want`
+    let (bp, ep) = (super::protocol::pcs_params_at(sh), super::protocol::endpoint_pcs_params(sh));
+    for (what, p, log_n) in [("pcs_params_at", bp, sh.log_cols), ("endpoint_pcs_params", ep, sh.endpoint_log_n)] {
+        if (p.log_cols as usize, p.inv_rate, p.num_col_checks) != (log_n, want.inv_rate, want.q) {
+            return Err(format!("protocol::{what} gives log {} rate 1/{} Q {}, the gate wants log {log_n} rate 1/{} Q {}", p.log_cols, p.inv_rate, p.num_col_checks, want.inv_rate, want.q));
+        }
+        if ZkOpts::standard(&p).q_pad != want.q {
+            return Err(format!("ZkOpts::standard at {what} gives {} pads for Q {}", ZkOpts::standard(&p).q_pad, want.q));
+        }
+    }
+    let coset = ZkOpts::standard(&bp).coset;
+    let (views, masks) = opened_views(files)?;
+    let lg = (sh.log_cols.max(sh.endpoint_log_n) + want.inv_rate.trailing_zeros() as usize) as u32;
+    let ntt = crate::ntt::NttTables::new(lg);
+    let mut cache: BTreeMap<usize, Vec<Vec<Fp>>> = BTreeMap::new();
+    let (mut lines, mut min_margin, mut repeats, mut checked) = (Vec::new(), usize::MAX, 0usize, 0usize);
+    for v in &views {
+        let log_n = if v.kind == "block" { sh.log_cols } else { sh.endpoint_log_n };
+        let (n, nn) = (1usize << log_n, (1usize << log_n) * want.inv_rate);
+        let at = format!("{} {} ({})", v.file, v.role, v.kind);
+        if (v.log_n, v.inv_rate, v.checks, v.q_pad) != (log_n, want.inv_rate, want.q, want.q) {
+            return Err(format!("{at}: log {} rate 1/{} checks {} pads {}, the shape fixes log {log_n} rate 1/{} and Q = pads = {}", v.log_n, v.inv_rate, v.checks, v.q_pad, want.inv_rate, want.q));
+        }
+        if v.idx.len() != want.q {
+            return Err(format!("{at}: {} opened columns for Q = {}", v.idx.len(), want.q));
+        }
+        if let Some(j) = v.idx.iter().find(|j| **j >= nn) {
+            return Err(format!("{at}: opened column {j} is outside the {nn} encoded columns"));
+        }
+        if let Some(l) = v.vec_lens.iter().find(|l| **l != n + want.q) {
+            return Err(format!("{at}: a clear vector of {l} entries, the code carries n + Q = {}", n + want.q));
+        }
+        let d = distinct(&v.idx);
+        if d.len() > v.q_pad {
+            return Err(format!("{at}: {} distinct opened columns against {} pads", d.len(), v.q_pad));
+        }
+        let cw = cache.entry(log_n).or_insert_with(|| pad_codewords(log_n, want.inv_rate, want.q, Some(coset), &ntt));
+        let r = pad_rank(cw, &d, want.q);
+        if r != d.len() {
+            return Err(format!("{at}: the pad block at the {} distinct opened positions has rank {r}", d.len()));
+        }
+        min_margin = min_margin.min(v.q_pad - d.len());
+        repeats += v.idx.len() - d.len();
+        checked += 1;
+        lines.push(format!("{} {}: {} distinct of {}, rank {r}", v.file.trim_end_matches(".json"), v.role, d.len(), v.idx.len()));
+    }
+    if checked == 0 {
+        return Err("no regular opening in the capture".into());
+    }
+    let mvec = 2usize << crate::zk::MASK_LOG_MSG;
+    for (f, idx, q, prox) in &masks {
+        let d = distinct(idx);
+        if idx.len() != crate::zk::MASK_Q || idx.iter().any(|j| *j >= 1usize << crate::zk::MASK_LOG_DOM) || d.len() > crate::zk::MASK_Q || *q != mvec || *prox != mvec {
+            return Err(format!("{f} M: {} columns ({} distinct) over 2^{}, q {q}, prox {prox}: not M's own constants (MASK_Q {}, vectors {mvec})", idx.len(), d.len(), crate::zk::MASK_LOG_DOM, crate::zk::MASK_Q));
+        }
+    }
+    Ok(format!(
+        "{checked} regular openings at rate 1/{}, Q = pads = {} (clear vectors n + {}); every pad block of the production encoder (coset {}) has full rank at its distinct opened positions (smallest pad margin {min_margin}, {repeats} repeated indices in all); {} M openings at MASK_Q {} over 2^{} with {mvec}-entry vectors: {}",
+        want.inv_rate,
+        want.q,
+        want.q,
+        coset.0,
+        masks.len(),
+        crate::zk::MASK_Q,
+        crate::zk::MASK_LOG_DOM,
+        lines.join("; ")
+    ))
+}
+
+/// PG-R2 and its three controls on one capture's documents: (a) the same
+/// opened positions on the SYSTEMATIC domain (no coset) lose rank — the check
+/// sees a position where the pads give no randomness; (b) W16's 256 pads
+/// against W16R2's opened positions lose rank — the check sees Q above the pad
+/// count; (c) the capture held to W16's geometry (rate 1/4, Q 256) is refused
+fn r2_checks(rec: &mut Record, name: &str, sh: &Shape, files: &[(String, Vec<u8>)]) {
+    let want = PcsGeom::of(sh);
+    rec.put(name, "PG-R2 geometry", r2_geometry(sh, files, want));
+    let first = opened_views(files).ok().and_then(|(v, _)| v.into_iter().find(|v| v.kind == "block"));
+    let Some(v) = first else {
+        rec.put(name, "C-R2 controls", Err("no block opening to doctor".into()));
+        return;
+    };
+    let d = distinct(&v.idx);
+    let lg = (sh.log_cols + want.inv_rate.trailing_zeros() as usize) as u32;
+    let ntt = crate::ntt::NttTables::new(lg);
+    let sys = pad_codewords(sh.log_cols, want.inv_rate, want.q, None, &ntt);
+    let r = pad_rank(&sys, &d, want.q);
+    control(rec, name, "C-R2a systematic-domain", if r == d.len() { Ok(format!("rank {r} of {} on the systematic domain", d.len())) } else { Err(format!("on the systematic domain the pad block at {}'s {} distinct opened positions has rank {r} (positions where the pads add nothing)", v.role, d.len())) });
+    let coset = crate::pcs::ZkOpts::standard(&super::protocol::pcs_params_at(sh)).coset;
+    let cw = pad_codewords(sh.log_cols, want.inv_rate, want.q, Some(coset), &ntt);
+    let short = 256usize.min(d.len().saturating_sub(1));
+    let r = pad_rank(&cw, &d, short);
+    control(rec, name, "C-R2b fewer-pads-than-opened", if r == d.len() { Ok(format!("rank {r} with {short} pads")) } else { Err(format!("with {short} pads (W16's 256, or d - 1) the pad block at {} distinct opened positions has rank {r}", d.len())) });
+    control(rec, name, "C-R2c w16-geometry", r2_geometry(sh, files, PcsGeom { inv_rate: 4, q: 256 }));
+}
+
+/// **D59 CONDITION (5): THE W16 PRIVACY GATE AT THE W16R2 DEVELOPMENT RUNG**
+/// (`W16R2_RUNG_H24`, rate 1/2, Q = 260): every W16 check (PG-1 .. PG-10) and
+/// control on two captured runs (two hidden inputs), plus PG-R2 and its
+/// controls C-R2a .. c. A mechanical check of one development shape's view:
+/// NOTHING HERE IS A PRIVACY STATEMENT.
+#[test]
+fn w16r2_privacy_gate_at_the_development_rung() {
+    let mut rec = Record::default();
+    gate_at(&mut rec, shape::W16R2_RUNG_H24, true);
+    rec.assert_all();
+}
+
+/// **D59 CONDITION (5) on the Metal path**: [`metal_gate_at`] at the W16R2
+/// rung (`HL_W16PG_PROFILES` may name a W16R2 T128 profile instead): MG-0 ..
+/// MG-3, the capture checks and controls on the Metal-proved view, and PG-R2
+/// on it. Toggles `HL_GPU` in-process: run alone by name with
+/// `HL_GPU_REQUIRED=1`, guarded.
+#[cfg(feature = "gpu-metal")]
+#[test]
+#[ignore = "toggles HL_GPU in-process; run alone by name on a Mac with HL_GPU_REQUIRED=1, guarded"]
+fn w16r2_privacy_gate_on_the_metal_path() {
+    assert!(crate::gpu::required(), "run with HL_GPU_REQUIRED=1, so that no device decline falls back to the CPU unseen");
+    let want = std::env::var("HL_W16PG_PROFILES").unwrap_or_else(|_| "W16R2_RUNG_H24".into());
+    let mut rec = Record::default();
+    for spec in shape::W16R2_PROFILES.iter().filter(|s| want.split(',').any(|w| w == s.name)) {
+        let t0 = std::time::Instant::now();
+        metal_gate_at(&mut rec, spec.profile);
+        eprintln!("W16-PG {}@metal done ({:.0} s wall, shared Mac, not a timing)", spec.name, t0.elapsed().as_secs_f64());
+    }
+    assert!(!rec.0.is_empty(), "HL_W16PG_PROFILES names no W16R2 profile");
+    rec.assert_all();
+}
+
+/// **D59 condition (5) with D55: one honest D55 fork run CAPTURED at the
+/// W16R2 rung** (three forks; every boundary and both endpoints at rate 1/2,
+/// opened once in the tail): the W16 gate's D55 checks (as at the W16 rung)
+/// and PG-R2 over every fork stage file and the tail.
+#[test]
+fn d55_fork_run_capture_passes_the_w16_gate_checks_at_the_w16r2_rung() {
+    let mut rec = Record::default();
+    if let Some(a) = d55_gate_at(&mut rec, shape::W16R2_RUNG_H24, 3) {
+        let name = "W16R2_RUNG_H24 D55";
+        r2_checks(&mut rec, name, &a.sh, &fork_capture_files(&a));
+        // the tail alone: L - 1 boundaries and both endpoints, each once
+        let tail = fork_capture_files(&a).split_off(a.bundle.stages.len());
+        rec.put(name, "PG-R2 tail (boundaries + endpoints)", r2_geometry(&a.sh, &tail, PcsGeom::of(&a.sh)).and_then(|d| {
+            let (v, _) = opened_views(&tail)?;
+            let kinds: Vec<&str> = v.iter().map(|o| o.kind.as_str()).collect();
+            let want: Vec<&str> = std::iter::repeat("internal-boundary").take(a.bundle.stages.len() - 1).chain(["external-endpoint", "external-endpoint"]).collect();
+            if kinds != want {
+                return Err(format!("the tail opens {kinds:?}, an {}-fork run opens {want:?}", a.bundle.stages.len()));
+            }
+            Ok(d)
+        }));
+    }
+    rec.assert_all();
+}
+
+// ---------------------------------------------------------------- D60's prerequisite: a D55 capture ON DISK
+
+/// **A D55 fork-run capture written to a directory** for the Python gate
+/// (D60: "before any receipt for real content, the Python privacy gate is run
+/// on a D55 capture"). `run_capture::write_bundle` refuses a fork-run bundle
+/// by design (the prototype's capture is in memory only), so this TEST-ONLY
+/// writer lays the same bytes out the way `write_bundle` lays a block run's:
+/// `run.json` (schema `SCHEMA_D55`), `stage-NN.json` per fork, `d55_tail.json`,
+/// `arrays.bin`, the receipt's frames under `receipt/`, `README.md`, then
+/// `manifest.json` LAST (every file's length and SHA-256; the source pins plus
+/// the D55 prototype's own files and this writer).
+fn write_fork_bundle(dir: &std::path::Path, c: &ForkCaptured, note: &str, command: &str) -> Result<(), String> {
+    use std::io::Write;
+    std::fs::create_dir_all(dir).map_err(|e| format!("{}: {e}", dir.display()))?;
+    let b = &c.bundle;
+    let tail = b.fork_tail.as_ref().ok_or("not a fork-run bundle")?;
+    let mut files: Vec<(String, usize, String)> = Vec::new();
+    let mut put = |name: String, bytes: &[u8]| -> Result<(), String> {
+        let path = dir.join(&name);
+        if let Some(p) = path.parent() {
+            std::fs::create_dir_all(p).map_err(|e| format!("{}: {e}", p.display()))?;
+        }
+        let mut f = std::fs::OpenOptions::new().create_new(true).write(true).open(&path).map_err(|e| format!("{}: {e}", path.display()))?;
+        f.write_all(bytes).map_err(|e| format!("{}: {e}", path.display()))?;
+        files.push((name, bytes.len(), crate::export_v3::sha256_hex(bytes)));
+        Ok(())
+    };
+    put("run.json".into(), &b.run_json)?;
+    for (k, s) in b.stages.iter().enumerate() {
+        put(run_capture::stage_file(k), s)?;
+    }
+    put(run_capture::D55_TAIL_FILE.into(), tail)?;
+    if b.arrays.is_on() {
+        put(run_capture::ARRAYS_FILE.into(), b.arrays.blob())?;
+    }
+    for (k, f) in c.frames.iter().enumerate() {
+        let name = if k == 0 {
+            "receipt/head.bin".to_string()
+        } else if k == c.frames.len() - 1 {
+            "receipt/tail.bin".to_string()
+        } else {
+            format!("receipt/fork-{:02}.bin", k - 1)
+        };
+        put(name, f)?;
+    }
+    let readme = format!(
+        "# ZK60 D55 fork-run capture bundle (TEST-ONLY)\n\n{note}\n\nWhat this is: the VERIFIER'S VIEW of one D55 \"commit, fork, join\" run of {} blocks, profile\n`{}`, recorded by `run_capture.rs`'s fork-run recorder (schema `{}`) and written by the\ntest-only `w16_privacy_gate_tests::write_fork_bundle` (`run_capture::write_bundle` refuses a\nfork-run bundle). NOT a privacy result.\n\nWhat made it:\n\n    {command}\n\nFiles: `run.json` (header, shape, endpoints, boundaries; the D55 transcript program), `stage-NN.json`\n(fork k: its roots, slots, M, A and H openings; it opens no boundary and no endpoint),\n`{}` (after S1: every boundary opened ONCE with both claims, then the input and output\nendpoints), `{}`, the receipt frames under `receipt/` (head, forks, tail), `manifest.json`.\n",
+        b.l,
+        b.profile,
+        run_capture::SCHEMA_D55,
+        run_capture::D55_TAIL_FILE,
+        run_capture::ARRAYS_FILE
+    );
+    put("README.md".into(), readme.as_bytes())?;
+    let mut pins = run_capture::source_pins()?;
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
+    for extra in ["src/private_block/run_fork.rs", "src/private_block/run_fork_wire.rs", "src/private_block/w16_privacy_gate_tests.rs"] {
+        let bytes = std::fs::read(root.join(extra)).map_err(|e| format!("source pin {extra}: {e}"))?;
+        pins.push((extra.to_string(), crate::export_v3::sha256_hex(&bytes)));
+    }
+    let mut m = Vec::new();
+    write!(m, "{{\"schema\":{:?},\"kind\":\"zk60-run-capture-manifest\",\"profile\":{:?},\"blocks\":{},\"source_commit\":{:?},\"writer\":\"w16_privacy_gate_tests::write_fork_bundle (test-only)\",\"source_pins\":[", run_capture::SCHEMA_D55, b.profile, b.l, std::env::var("HL_TEST_SOURCE_COMMIT").unwrap_or_else(|_| "uncommitted-test".into())).expect("write to a Vec");
+    for (i, (f, s)) in pins.iter().enumerate() {
+        write!(m, "{}{{\"file\":{f:?},\"sha256\":{s:?}}}", if i > 0 { "," } else { "" }).expect("write to a Vec");
+    }
+    write!(m, "],\"files\":[").expect("write to a Vec");
+    for (i, (f, n, s)) in files.iter().enumerate() {
+        write!(m, "{}{{\"file\":{f:?},\"bytes\":{n},\"sha256\":{s:?}}}", if i > 0 { "," } else { "" }).expect("write to a Vec");
+    }
+    writeln!(m, "],\"total_bytes\":{}}}", files.iter().map(|(_, n, _)| n).sum::<usize>()).expect("write to a Vec");
+    let path = dir.join("manifest.json");
+    let mut f = std::fs::OpenOptions::new().create_new(true).write(true).open(&path).map_err(|e| format!("{}: {e}", path.display()))?;
+    f.write_all(&m).map_err(|e| format!("{}: {e}", path.display()))
+}
+
+/// **D60's PREREQUISITE: D55 fork-run captures on disk** for the Python gate:
+/// per rung profile in `HL_W16PG_PROFILES` (default `W16_RUNG_H24,W16R2_RUNG_H24`),
+/// one honest `HL_D55PG_L`-fork run (default 3) per hidden input (seeds 0 and 1),
+/// captured as [`prove_and_capture_d55_at`] does and written by
+/// [`write_fork_bundle`] into `HL_W16PG_CAPTURE_DIR/d55-<shape>-s<seed>`.
+/// Test-only bundles; delete them once recorded.
+#[test]
+#[ignore = "writes D55 fork-run capture bundles; set HL_W16PG_CAPTURE_DIR"]
+fn d55_privacy_gate_write_the_fork_bundles() {
+    let root = std::path::PathBuf::from(std::env::var("HL_W16PG_CAPTURE_DIR").expect("HL_W16PG_CAPTURE_DIR is not set: this test writes a directory of evidence and will not choose one for you"));
+    let want = std::env::var("HL_W16PG_PROFILES").unwrap_or_else(|_| "W16_RUNG_H24,W16R2_RUNG_H24".into());
+    let l: usize = std::env::var("HL_D55PG_L").ok().and_then(|v| v.parse().ok()).unwrap_or(3);
+    let mut n = 0usize;
+    for spec in shape::W16_PROFILES.iter().chain(shape::W16R2_PROFILES.iter()).filter(|s| s.tokens == 32 && want.split(',').any(|w| w == s.name)) {
+        for seed in [0usize, 1] {
+            let c = prove_and_capture_d55_at(spec.profile, l, seed).unwrap_or_else(|e| panic!("{} seed {seed}: {e}", spec.name));
+            let dir = root.join(format!("d55-{}-s{seed}", spec.name.to_ascii_lowercase()));
+            let note = format!(
+                "D55 privacy gate fixture (D59 condition 5 / D60 prerequisite, 2026-11-02): one honest {l}-fork D55 run at the block profile `{}` under the D55 profile over the TEST-ONLY run identity `{}`, public synthetic weights (`range16_tests::case`), a hidden synthetic chain from seed {seed} (`w16_privacy_gate_tests::rung_chain_at`); proved on this path: {}. Test-only: delete once recorded.",
+                spec.profile,
+                run_profile_of(spec.profile),
+                crate::gpu::label()
+            );
+            write_fork_bundle(&dir, &c, &note, "HL_W16PG_CAPTURE_DIR=<dir> [HL_W16PG_PROFILES=<names>] [HL_D55PG_L=<L>] <hashline lib test binary> --ignored --exact --nocapture private_block::w16_privacy_gate_tests::d55_privacy_gate_write_the_fork_bundles").unwrap_or_else(|e| panic!("{} seed {seed}: {e}", spec.name));
+            eprintln!(
+                "D55-PG-BUNDLE {} seed {seed} -> {} ({} forks, {} stage bytes, tail {} B, frames {:?} B)",
+                spec.name,
+                dir.display(),
+                c.bundle.stages.len(),
+                c.bundle.stages.iter().map(|s| s.len()).sum::<usize>(),
+                c.bundle.fork_tail.as_ref().map(|t| t.len()).unwrap_or(0),
+                c.frames.iter().map(|f| f.len()).collect::<Vec<_>>()
+            );
+            n += 1;
+        }
+    }
+    assert!(n > 0, "HL_W16PG_PROFILES names no rung profile");
 }

@@ -74,7 +74,9 @@ Notes on the inputs:
 - **Exp and ACT queries** are the sizes of `Dom::S` and `Dom::F` (one exp query per score entry, one ACT query
   per padded hidden lane), as in REVIEW_W16 §1.
 - **Σ(main+ext)·deg** sums the slot table (`Shape::slots`) over the profile's slots (23, non-DD). It differs
-  between 8B and Shieldstral because their attention geometry differs.
+  between 8B and Shieldstral. *(Corrected 2026-11-02, re-check finding 1: the attention geometry is
+  identical. The +60 is Shieldstral's width 3,072 padding to 4,096, which adds one degree to three
+  D-domain slots, SS, SSM and DZC: 3 × 20.)*
 - **The row counts depend on the calibration's gate shift.** The rows above are at the trained door's shift
   20 (`range16_tests::built`, the shape the W16 review counted). The A/B's synthetic case commits 2,504
   `A` rows and 2,606 `H` rows; 2,606 is the lemma check's m. Rows enter only the reduction-bias factor and
@@ -159,7 +161,9 @@ The lemma check's table reproduces exactly:
 All entries are log2. Checks against earlier documents:
 - **W16 at 8B T128** reproduces the lemma check's §6 row "Today" (column 2^-98.73, PCS field 2^-106.97, whole
   2^-97.27).
-- **W16R2 at 8B T128** reproduces its row "#1" (2^-98.99, 2^-106.17, 2^-97.36). Its sumcheck input was an
+- **W16R2 at 8B T128** matches its row "#1" (2^-98.99, 2^-106.17, 2^-97.36) to the whole-run digit. *(Corrected
+  2026-11-02, re-check finding 2: not exactly. The exact integer column term is 2^-99.004; the lemma check
+  used the non-integer (1 − δ_t)^Q form, which gives 2^-98.992.)* Its sumcheck input was an
   estimate (2^-111.5, scaled from REVIEW_R14). The counted sum of the two small terms here is 2^-111.85, which
   moves no printed whole-run digit.
 - **The Shieldstral W16 column term** (2^-99.029) equals REVIEW_R14's (the same 79 + 26 openings at rate 1/4,
@@ -189,6 +193,10 @@ All entries are log2. Checks against earlier documents:
   - **(e) RS code.** The verifier's encoder is a bijection onto RS[D, n + q_pad]. This is unchanged code
     (`encode_row_zk`); W16R2 adds no new encoder.
   - (a) to (d) are pinned by `w16r2_the_lemmas_load_bearing_invariants_are_pinned`.
+  - **(f) The far and close cases exclude each other** (lemma check), so the per-opening bound is the larger
+    of the two, not their sum. "No bits traded" rests on this step. Without it an opening would be
+    2^-104.93, below W16's, though the 8B run would still be 2^-97.04. The re-check re-derived this step
+    and found it sound (re-check finding 7).
   - **Version caveat:** the BCIKS20 copy read is the July 2020 one. The 2021 revision says its main
     statements are unchanged (lemma check §9).
 - **A4.** Every count is below p, and multiplicities are committed before β, γ and α (unchanged from W16).
@@ -200,7 +208,17 @@ All entries are log2. Checks against earlier documents:
 
 ## What is not done here
 
-- **No independent re-check.** D59 condition (2) needs one.
+- **The independent re-check is done** (2026-11-02, `ACCOUNTING_RECHECK_20261102.md`): CONFIRMED WITH
+  CORRECTIONS. Every figure reproduces to the printed digit. The corrections are to the text (findings 1, 2
+  and 7, applied above).
+- **The token and classifier run counters still count δ/3 only** (`token_io.rs`, `token_io/run.rs`
+  `whole_run_of`, `classify.rs` `whole_run_of_classifier`). `ColumnRegime` is test-only. A W16R2 block in
+  such a run would be priced at 2^-67.2 per opening and refused by the D27 gate. That fails closed, but it
+  must be built before W16R2 serves token or classifier runs (re-check finding 3; lemma check §8 item 5).
+- **Older documents still describe δ/3 only:** the FABLE obligations, RECOUNT §5, MEMO_G02, D15's row text,
+  and the header comment of `pcs.rs`. They need pointers to this document (re-check finding 4).
+- **The invariant test does not cover the D55 fork verifier** (`run_fork.rs`). The code there is correct
+  today (`verify_zk_tagged` and the path checks); the test should pin it (re-check finding 5).
 - **No W16R2 profile at T256 or T512**, so no figure at D27's named workload. The lemma check's 2^-94.66 at
   8B T512 (R13 layout, Q = 258) is carried, not recounted.
 - **M under δ/2 is not counted.** The lemma check did not cover M. M keeps its current constants and its

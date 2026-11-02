@@ -1,0 +1,44 @@
+[zk60-guard 01:03:25] START pr-py-w16r2_rung_h24-s1 class=cpu need=4G cap=24G enforce=watchdog-only waited=0s run=654aba85d135
+[zk60-guard 01:04:24] END pr-py-w16r2_rung_h24-s1 exit=0 child_wall=59s peak_rss=0.45G min_avail=231.68G
+W16-0 integrity: PASS
+W16-1/2 facts: PASS
+W16-3 replay: PASS
+W16-4 layout: PASS
+W16-5 tab tables: PASS
+W16-6 per commitment: PASS
+W16-7 mask and CFS: PASS
+pins: 71 declared, 45 at r19b, 7 read here, 19 UNREAD: ['src/private_block/argument_accuracy.rs', 'src/private_block/accuracy_act.rs', 'src/private_block/accuracy_fold.rs', 'src/private_block/accuracy_layout.rs', 'src/private_block/run_capture.rs', 'src/private_block/run.rs', 'src/private_block/protocol.rs', 'src/private_block/argument.rs', 'src/private_block/layout.rs', 'src/private_block/plane_index.rs', 'src/private_block/shape.rs', 'src/private_block/wire.rs', 'src/private_block.rs', 'src/private_block/pad.rs', 'src/private_block/witness_accuracy.rs', 'src/private_block/range16.rs', 'src/private_block/slot_ir.rs', 'src/private_block/slot_ir_accuracy.rs', 'src/private_block/metal_slot.rs']
+status: W16-DEV-PASS (58.3 s) -> /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-acdb40abef543db2f/results/zk60_w16r2_20261101/privacy_recheck_gate/w16-cpu-w16r2_rung_h24-s1.json
+[zk60-guard 01:04:24] START pr-py-w16r2_8b_t128_h24-s0 class=cpu need=4G cap=24G enforce=watchdog-only waited=0s run=415e5f4413d9
+[zk60-guard 01:05:24] END pr-py-w16r2_8b_t128_h24-s0 exit=0 child_wall=60s peak_rss=0.70G min_avail=231.52G
+W16-0 integrity: PASS
+W16-1/2 facts: PASS
+W16-3 replay: PASS
+W16-4 layout: PASS
+W16-5 tab tables: PASS
+W16-6 per commitment: PASS
+W16-7 mask and CFS: PASS
+pins: 71 declared, 45 at r19b, 7 read here, 19 UNREAD: ['src/private_block/argument_accuracy.rs', 'src/private_block/accuracy_act.rs', 'src/private_block/accuracy_fold.rs', 'src/private_block/accuracy_layout.rs', 'src/private_block/run_capture.rs', 'src/private_block/run.rs', 'src/private_block/protocol.rs', 'src/private_block/argument.rs', 'src/private_block/layout.rs', 'src/private_block/plane_index.rs', 'src/private_block/shape.rs', 'src/private_block/wire.rs', 'src/private_block.rs', 'src/private_block/pad.rs', 'src/private_block/witness_accuracy.rs', 'src/private_block/range16.rs', 'src/private_block/slot_ir.rs', 'src/private_block/slot_ir_accuracy.rs', 'src/private_block/metal_slot.rs']
+status: W16-DEV-PASS (60.1 s) -> /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-acdb40abef543db2f/results/zk60_w16r2_20261101/privacy_recheck_gate/w16-cpu-w16r2_8b_t128_h24-s0.json
+[zk60-guard 01:05:24] START pr-py-w16r2_8b_t128_h24-s1 class=cpu need=4G cap=24G enforce=watchdog-only waited=0s run=d9460454f74a
+[zk60-guard 01:06:25] END pr-py-w16r2_8b_t128_h24-s1 exit=0 child_wall=60s peak_rss=0.70G min_avail=230.49G
+W16-0 integrity: PASS
+W16-1/2 facts: PASS
+W16-3 replay: PASS
+W16-4 layout: PASS
+W16-5 tab tables: PASS
+W16-6 per commitment: PASS
+W16-7 mask and CFS: PASS
+pins: 71 declared, 45 at r19b, 7 read here, 19 UNREAD: ['src/private_block/argument_accuracy.rs', 'src/private_block/accuracy_act.rs', 'src/private_block/accuracy_fold.rs', 'src/private_block/accuracy_layout.rs', 'src/private_block/run_capture.rs', 'src/private_block/run.rs', 'src/private_block/protocol.rs', 'src/private_block/argument.rs', 'src/private_block/layout.rs', 'src/private_block/plane_index.rs', 'src/private_block/shape.rs', 'src/private_block/wire.rs', 'src/private_block.rs', 'src/private_block/pad.rs', 'src/private_block/witness_accuracy.rs', 'src/private_block/range16.rs', 'src/private_block/slot_ir.rs', 'src/private_block/slot_ir_accuracy.rs', 'src/private_block/metal_slot.rs']
+status: W16-DEV-PASS (60.2 s) -> /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-acdb40abef543db2f/results/zk60_w16r2_20261101/privacy_recheck_gate/w16-cpu-w16r2_8b_t128_h24-s1.json
+[zk60-guard 01:06:25] START pr-py-w16_rung_h24-s0 class=cpu need=4G cap=24G enforce=watchdog-only waited=0s run=0fecdb01a95a
+[zk60-guard 01:07:23] END pr-py-w16_rung_h24-s0 exit=0 child_wall=58s peak_rss=0.45G min_avail=231.38G
+W16-0 integrity: PASS
+W16-1/2 facts: PASS
+W16-3 replay: PASS
+W16-4 layout: PASS
+W16-5 tab tables: PASS
+W16-6 per commitment: PASS
+W16-7 mask and CFS: PASS
+pins: 71 declared, 45 at r19b, 7 read here, 19 UNREAD: ['src/private_block/argument_accuracy.rs', 'src/private_block/accuracy_act.rs', 'src/private_block/accuracy_fold.rs', 'src/private_block/accuracy_layout.rs', 'src/private_block/run_capture.rs', 'src/private_block/run.rs', 'src/private_block/protocol.rs', 'src/private_block/argument.rs', 'src/private_block/layout.rs', 'src/private_block/plane_index.rs', 'src/private_block/shape.rs', 'src/private_block/wire.rs', 'src/private_block.rs', 'src/private_block/pad.rs', 'src/private_block/witness_accuracy.rs', 'src/private_block/range16.rs', 'src/private_block/slot_ir.rs', 'src/private_block/slot_ir_accuracy.rs', 'src/private_block/metal_slot.rs']
+status: W16-DEV-PASS (58.2 s) -> /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-acdb40abef543db2f/results/zk60_w16r2_20261101/privacy_recheck_gate/w16-cpu-w16_rung_h24-s0.json

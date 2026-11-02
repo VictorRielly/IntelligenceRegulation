@@ -1,0 +1,9 @@
+W16-0 integrity: PASS
+W16-1/2 facts: PASS
+W16-3 replay: PASS
+W16-4 layout: PASS
+W16-5 tab tables: PASS
+W16-6 per commitment: PASS
+W16-7 mask and CFS: PASS
+pins: 71 declared, 45 at r19b, 7 read here, 19 UNREAD: ['src/private_block/argument_accuracy.rs', 'src/private_block/accuracy_act.rs', 'src/private_block/accuracy_fold.rs', 'src/private_block/accuracy_layout.rs', 'src/private_block/run_capture.rs', 'src/private_block/run.rs', 'src/private_block/protocol.rs', 'src/private_block/argument.rs', 'src/private_block/layout.rs', 'src/private_block/plane_index.rs', 'src/private_block/shape.rs', 'src/private_block/wire.rs', 'src/private_block.rs', 'src/private_block/pad.rs', 'src/private_block/witness_accuracy.rs', 'src/private_block/range16.rs', 'src/private_block/slot_ir.rs', 'src/private_block/slot_ir_accuracy.rs', 'src/private_block/metal_slot.rs']
+status: W16-DEV-PASS (56.7 s) -> /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-acdb40abef543db2f/results/zk60_w16r2_20261101/privacy_recheck_gate/w16-cpu-w16_rung_h24-s0.json
