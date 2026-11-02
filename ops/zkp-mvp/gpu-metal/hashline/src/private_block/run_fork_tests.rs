@@ -917,6 +917,61 @@ fn d60_the_r13_limb_tamper_families_on_an_interior_fork_are_rejected_under_the_r
     eprintln!("D60 TAMPER | {rejected} R13 limb families rejected by verify_run_with_forks under {}, {in_fork_1} of them inside fork 1; not in this layout: {skipped:?}", run::RUN_PROFILE_D55_R13_RUNG_H24);
 }
 
+/// **D60: the capture writer and a fork run.** A registered R13-rung D55 run
+/// (`L = 3`), captured by the fork-run recorder (each fork on its own
+/// verifier worker) and export-replayed, is WRITTEN by
+/// `run_capture::write_bundle` (the D55 schema, the receipt's frames, the
+/// source pins with `run_fork.rs` / `run_fork_wire.rs` once each, the
+/// manifest last); the same base under its TEST-ONLY identity is REFUSED by
+/// that writer. (The Python D55 replay gate has been run on test-only W16 /
+/// W16R2 bundles only; a registered R13 bundle is its next input.)
+#[test]
+fn d60_the_capture_writer_writes_a_registered_fork_run_bundle_and_refuses_a_test_only_one() {
+    use crate::private_block::run_capture::{self as cap, CaptureOpts};
+    let capture = |fr: &ForkRun, blocks: &Vec<BlockPublic>, rc: &ForkReceipt| -> cap::Bundle {
+        let guard = cap::Recorder::attach();
+        cap::begin_fork_run_with(fr.capture_header().unwrap(), fr.binding().unwrap(), CaptureOpts { arrays: true, public_tables: true });
+        let v = verify_run_with_forks(fr, blocks, rc, 3);
+        let taken = cap::take();
+        drop(guard);
+        v.expect("the fork run verifies with a recorder attached");
+        let mut b = taken.expect("the fork-run recorder took the capture");
+        assert_eq!(b.stages.len(), 3, "the capture did not record every fork");
+        cap::export_replay(&mut b, &mut |k| ForkBlocks::get(blocks, k).cloned()).expect("the export replay of the fork run's statement tables");
+        b
+    };
+    let root = std::env::temp_dir().join(format!("d60-capture-writer-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&root);
+    // the registered profile: written
+    let mut r = rung(3, 180);
+    let (rc, _) = prove_forks(&mut r, 3);
+    let fr = ForkRun::new(&r.st, D55OptIn::registered_profile()).unwrap();
+    let b = capture(&fr, &r.blocks, &rc);
+    let frames: Vec<Vec<u8>> = rc.frames().cloned().collect();
+    let dir = root.join("registered");
+    cap::write_bundle(&dir, &b, &frames, "D60 test: a registered R13-rung D55 run (public synthetic fixture)", "run_fork_tests::d60_the_capture_writer_writes_a_registered_fork_run_bundle_and_refuses_a_test_only_one").unwrap_or_else(|e| panic!("the capture writer refused a REGISTERED D55 fork run: {e}"));
+    let manifest = std::fs::read_to_string(dir.join("manifest.json")).expect("the manifest is written last");
+    assert!(manifest.contains(cap::SCHEMA_D55) && manifest.contains(run::RUN_PROFILE_D55_R13_RUNG_H24), "{}", manifest.chars().take(300).collect::<String>());
+    for pin in ["\"file\":\"src/private_block/run_fork.rs\"", "\"file\":\"src/private_block/run_fork_wire.rs\""] {
+        assert_eq!(manifest.matches(pin).count(), 1, "{pin} is not pinned exactly once");
+    }
+    for f in ["run.json", "stage-00.json", "stage-02.json", cap::D55_TAIL_FILE, cap::ARRAYS_FILE, "receipt/head.bin", "receipt/fork-00.bin", "receipt/fork-02.bin", "receipt/tail.bin", "README.md"] {
+        assert!(dir.join(f).is_file(), "the registered bundle has no {f}");
+        assert!(manifest.contains(&format!("\"file\":\"{f}\"")), "the manifest does not list {f}");
+    }
+    let total: u64 = std::fs::read_dir(&dir).unwrap().filter_map(|e| e.ok()).filter_map(|e| e.metadata().ok()).filter(|m| m.is_file()).map(|m| m.len()).sum();
+    // the same base under its TEST-ONLY identity: refused by the writer
+    let mut t = rung(3, 181);
+    let ft = ForkRun::new_test_identity(&t.st).unwrap();
+    let (rt, _) = prove_run_with_forks(&ft, &t.blocks, &mut t.src, t.owners.take().unwrap(), 3).unwrap();
+    let bt = capture(&ft, &t.blocks, &rt);
+    let e = cap::write_bundle(&root.join("test-only"), &bt, &rt.frames().cloned().collect::<Vec<_>>(), "D60 test", "-").err().expect("THE CAPTURE WRITER WROTE A TEST-ONLY FORK IDENTITY'S BUNDLE");
+    assert!(e.contains("not a registered D55 run profile"), "{e}");
+    assert!(!root.join("test-only").exists(), "the refused bundle left a directory");
+    std::fs::remove_dir_all(&root).unwrap();
+    eprintln!("D60 CAPTURE | the registered R13-rung D55 run's bundle WRITTEN by run_capture::write_bundle ({} B outside receipt/, schema {}); the test-only identity's REFUSED: {}", total, cap::SCHEMA_D55, e.chars().take(120).collect::<String>());
+}
+
 /// the directory and its marker for the fresh-process receipts
 fn receipt_dir() -> PathBuf {
     PathBuf::from(std::env::var("HL_D60_RECEIPT_DIR").expect("HL_D60_RECEIPT_DIR names the directory of the D60 test receipts"))

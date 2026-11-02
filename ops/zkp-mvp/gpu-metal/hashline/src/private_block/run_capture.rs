@@ -4381,12 +4381,90 @@ pub(super) fn keys_of(bytes: &[u8]) -> Vec<String> {
 /// that were verified, a manifest with every file's SHA-256 and the source
 /// pins, and a README. The manifest is written LAST, so a directory without
 /// one is an incomplete bundle and not an accepted capture.
+/// **D60 (2026-11-02): a REGISTERED D55 fork run's bundle**, written by the
+/// capture writer itself (until D60 only the test-only
+/// `w16_privacy_gate_tests::write_fork_bundle` wrote one). The layout is that
+/// writer's, which the Python D55 replay gate
+/// (`staging_v25/scripts/zk60_native_rg_d55.py`) reads: `run.json` (schema
+/// [`SCHEMA_D55`]), `stage-NN.json` per fork, [`D55_TAIL_FILE`],
+/// [`ARRAYS_FILE`], the receipt's frames under `receipt/` (`head.bin`,
+/// `fork-NN.bin`, `tail.bin`), `README.md`, then `manifest.json` LAST (every
+/// file's length and SHA-256 and the source pins, which carry `run_fork.rs`
+/// and `run_fork_wire.rs` since D60). A bundle carrying statement-table
+/// values is written only after the export replay checked them, as a block
+/// run's is.
+fn write_fork_bundle(dir: &std::path::Path, b: &Bundle, frames: &[Vec<u8>], note: &str, command: &str) -> Result<(), String> {
+    use std::io::Write;
+    let tail = b.fork_tail.as_ref().ok_or("run capture: not a fork-run bundle")?;
+    if !b.statement.is_empty() && b.export_replay.is_none() {
+        return Err(format!("run capture: this fork-run bundle carries the values of {} statement tables, and they were not replayed against the export (token round 17: run_capture::export_replay); no bundle is written", b.statement.len()));
+    }
+    if frames.len() != b.stages.len() + 2 {
+        return Err(format!("run capture: {} receipt frames for a fork run of {} forks (the head, one per fork, the tail)", frames.len(), b.stages.len()));
+    }
+    std::fs::create_dir_all(dir).map_err(|e| format!("run capture: {}: {e}", dir.display()))?;
+    let mut files: Vec<(String, usize, String)> = Vec::new();
+    let mut put = |name: String, bytes: &[u8]| -> Result<(), String> {
+        let path = dir.join(&name);
+        if let Some(p) = path.parent() {
+            std::fs::create_dir_all(p).map_err(|e| format!("run capture: {}: {e}", p.display()))?;
+        }
+        let mut f = std::fs::OpenOptions::new().create_new(true).write(true).open(&path).map_err(|e| format!("run capture: {}: {e}", path.display()))?;
+        f.write_all(bytes).map_err(|e| format!("run capture: {}: {e}", path.display()))?;
+        files.push((name, bytes.len(), crate::export_v3::sha256_hex(bytes)));
+        Ok(())
+    };
+    put("run.json".into(), &b.run_json)?;
+    for (k, s) in b.stages.iter().enumerate() {
+        put(stage_file(k), s)?;
+    }
+    put(D55_TAIL_FILE.into(), tail)?;
+    if b.arrays.is_on() {
+        put(ARRAYS_FILE.into(), b.arrays.blob())?;
+    }
+    for (k, f) in frames.iter().enumerate() {
+        let name = if k == 0 {
+            "receipt/head.bin".to_string()
+        } else if k == frames.len() - 1 {
+            "receipt/tail.bin".to_string()
+        } else {
+            format!("receipt/fork-{:02}.bin", k - 1)
+        };
+        put(name, f)?;
+    }
+    let readme = format!(
+        "# ZK60 D55 fork-run capture bundle (a REGISTERED D55 run profile, D60)\n\n{note}\n\nWhat this is: the VERIFIER'S VIEW of one D55 \"commit, fork, join\" run of {} blocks, profile\n`{}`, recorded by `run_capture.rs`'s fork-run recorder (schema `{SCHEMA_D55}`) and written by\n`run_capture::write_bundle`. It is the INPUT to the privacy gate and NOT a privacy result.\n\nWhat made it:\n\n    {command}\n\nFiles: `run.json` (header, shape, endpoints, boundaries; the D55 transcript program), `stage-NN.json`\n(fork k: its roots, slots, M, A and H openings; it opens no boundary and no endpoint),\n`{D55_TAIL_FILE}` (after S1: every boundary opened ONCE with both claims, then the input and output\nendpoints), `{ARRAYS_FILE}`, the receipt frames under `receipt/` (head, forks, tail), `manifest.json`.\n",
+        b.l, b.profile
+    );
+    put("README.md".into(), readme.as_bytes())?;
+    let pins = source_pins()?;
+    let mut m = Vec::new();
+    write!(m, "{{\"schema\":{SCHEMA_D55:?},\"kind\":\"zk60-run-capture-manifest\",\"profile\":{:?},\"blocks\":{},\"source_commit\":{:?},\"writer\":\"run_capture::write_bundle (a registered D55 run profile, D60)\",\"source_pins\":[", b.profile, b.l, std::env::var("HL_TEST_SOURCE_COMMIT").unwrap_or_else(|_| "uncommitted-test".into())).expect("write to a Vec");
+    for (i, (f, s)) in pins.iter().enumerate() {
+        write!(m, "{}{{\"file\":{f:?},\"sha256\":{s:?}}}", if i > 0 { "," } else { "" }).expect("write to a Vec");
+    }
+    write!(m, "],\"files\":[").expect("write to a Vec");
+    for (i, (f, n, s)) in files.iter().enumerate() {
+        write!(m, "{}{{\"file\":{f:?},\"bytes\":{n},\"sha256\":{s:?}}}", if i > 0 { "," } else { "" }).expect("write to a Vec");
+    }
+    writeln!(m, "],\"total_bytes\":{}}}", files.iter().map(|(_, n, _)| n).sum::<usize>()).expect("write to a Vec");
+    let path = dir.join("manifest.json");
+    let mut f = std::fs::OpenOptions::new().create_new(true).write(true).open(&path).map_err(|e| format!("run capture: {}: {e}", path.display()))?;
+    f.write_all(&m).map_err(|e| format!("run capture: {}: {e}", path.display()))
+}
+
 pub(super) fn write_bundle(dir: &std::path::Path, b: &Bundle, segments: &[Vec<u8>], note: &str, command: &str) -> Result<(), String> {
-    // D55 review F5: a fork-run capture is an in-memory input of the Rust
-    // privacy-gate checks only (an unregistered prototype; the Python gate has
-    // no loader for its schema); it is never written as a bundle
+    // D55 review F5: a fork-run capture of a TEST-ONLY fork identity is an
+    // in-memory input of the Rust privacy-gate checks (or of the test-only
+    // writer in `w16_privacy_gate_tests`) and is never written here. D60
+    // (2026-11-02): a fork run under a REGISTERED D55 run profile is written
+    // by this writer ([`write_fork_bundle`]), `segments` being its receipt's
+    // frames in file order (head, forks, tail)
     if b.fork_tail.is_some() {
-        return Err("run capture: a D55 fork-run capture (an unregistered prototype) is checked in memory and never written as a bundle".into());
+        if !super::run::D55_RUN_PROFILES.iter().any(|(d, _)| *d == b.profile) {
+            return Err(format!("run capture: a D55 fork-run capture under {:?}, which is not a registered D55 run profile (a test-only fork identity), is checked in memory and never written by this writer", b.profile));
+        }
+        return write_fork_bundle(dir, b, segments, note, command);
     }
     // TOKEN ROUND 17: a bundle that carries the values of statement tables
     // (an R13 capture with public-table values) is written only after the

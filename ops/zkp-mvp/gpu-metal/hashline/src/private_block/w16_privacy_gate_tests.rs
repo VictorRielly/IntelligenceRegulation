@@ -1954,6 +1954,11 @@ fn write_fork_bundle(dir: &std::path::Path, c: &ForkCaptured, note: &str, comman
     let mut pins = run_capture::source_pins()?;
     let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
     for extra in ["src/private_block/run_fork.rs", "src/private_block/run_fork_wire.rs", "src/private_block/w16_privacy_gate_tests.rs"] {
+        // D60 (2026-11-02): `run_capture::OWN_SOURCE_FILES` pins the two D55
+        // files itself since registration; each is pinned once
+        if pins.iter().any(|(f, _)| f == extra) {
+            continue;
+        }
         let bytes = std::fs::read(root.join(extra)).map_err(|e| format!("source pin {extra}: {e}"))?;
         pins.push((extra.to_string(), crate::export_v3::sha256_hex(&bytes)));
     }

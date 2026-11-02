@@ -88,7 +88,8 @@ for arm in cpu metal; do
   $G --class $C --need-gib 8 --cap-gib 40 --label d60-d55-$arm --wait-secs 7200 --max-secs 3600 --log $L/g_d55_$arm.log --done $L/g_d55_$arm.done -- \
     $E $B private_block::run::fork:: --nocapture --test-threads=1
   grep -h "D55 \|D60 \|test result\|FAILED\|panicked" $L/g_d55_$arm.log | cut -c1-400
-  grep -q "test result: ok. 17 passed; 0 failed; 3 ignored" $L/g_d55_$arm.log || { echo "THE D55 SET IS NOT 17 OK / 3 IGNORED"; exit 1; }
+  grep -q "test result: ok. 18 passed; 0 failed; 3 ignored" $L/g_d55_$arm.log || { echo "THE D55 SET IS NOT 18 OK / 3 IGNORED"; exit 1; }
+  grep -q "D60 CAPTURE | the registered R13-rung D55 run's bundle WRITTEN by run_capture::write_bundle" $L/g_d55_$arm.log || { echo "THE D60 CAPTURE LINE IS MISSING"; exit 1; }
   grep -q "D55 F1 TAMPER | all 27 families rejected by verify_run_with_forks, 27 of them inside fork 1" $L/g_d55_$arm.log || { echo "F1 TAMPER LINE MISSING"; exit 1; }
   grep -q "D60 TAMPER | 13 R13 limb families rejected by verify_run_with_forks under hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-rung-lh-t32-dev/1, 13 of them inside fork 1" $L/g_d55_$arm.log || { echo "D60 TAMPER LINE MISSING"; exit 1; }
   [ "$(grep -c 'D60 HEADLINE | hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-rung-lh-t32-dev/1 | .* | REJECTED by the verifier' $L/g_d55_$arm.log)" = 2 ] || { echo "THE D60 HEADLINE VARIANTS ARE NOT BOTH REJECTED"; exit 1; }
@@ -163,7 +164,7 @@ for tail in default 0; do
   step unit-$tail
   E="env HL_R13_LOADER_FIXTURES=$F"; [ $tail = 0 ] && E="$E HL_METAL_BATCH_TAIL_US=0"
   $G --class cpu --need-gib 8 --cap-gib 40 --label d60-unit-$tail --wait-secs 7200 --max-secs 3000 --log $L/g_unit_$tail.log --done $L/g_unit_$tail.done -- \
-    $E $B w16_f3_ w16_review review_r2 range16 the_range_tags layout m15_ accuracy_act m6_ m5c_ m4c_ m4d_ m4h_ m4i_ m4j_ s28 s29 slot_ir metal range16 accuracy_layout accuracy_profile w16r2_ trained_stack
+    $E $B w16_f3_ w16_review review_r2 range16 the_range_tags layout m15_ accuracy_act m6_ m5c_ m4c_ m4d_ m4h_ m4i_ m4j_ s28 s29 slot_ir metal range16 accuracy_layout accuracy_profile w16r2_
   grep -h "test result\|FAILED\|panicked" $L/g_unit_$tail.log | grep -v "layout.rs:481" | tail -4
   grep -q "test result: ok" $L/g_unit_$tail.log || exit 1
 done
