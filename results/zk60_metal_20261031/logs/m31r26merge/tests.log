@@ -1,0 +1,178 @@
+
+running 155 tests
+test private_block::hash_domain::tests::every_absorb_label_on_the_path_is_in_the_table ... ok
+test private_block::hash_domain::tests::every_dangerous_row_count_is_refused_by_name_at_every_shape ... ok
+test private_block::hash_domain::tests::no_commitment_of_any_shape_collides_and_the_toy_is_clear ... ok
+test private_block::hash_domain::tests::the_completed_guard_refuses_geometries_the_constructions_can_actually_reach ... ok
+test private_block::hash_domain::tests::the_computed_length_set_is_pinned_at_every_shape ... ok
+test private_block::hash_domain::tests::the_constructors_guard_is_unchanged_under_the_legacy_rule ... ok
+test private_block::hash_domain::tests::the_constructors_guard_refuses_every_shape_free_dangerous_count ... ok
+test private_block::hash_domain::tests::the_length_formulas_are_still_the_ones_zkp_core_hashes ... ok
+test private_block::hash_domain::tests::the_length_guard_does_not_fire_at_a_tagged_profiles_statement_constructors ... ok
+test private_block::hash_domain::tests::the_runs_own_parameter_line_enters_the_length_set ... ok
+test private_block::hash_domain::tests::the_shape_free_dangerous_row_counts_are_the_memos_eight ... ok
+test private_block::hash_domain::tests::the_tree_depth_is_the_wire_formats_own_number ... ok
+test private_block::range16::tests::denominator_inverses_invert_every_nonzero_entry ... ok
+test private_block::range16::tests::families_fill_whole_rows_and_small_widths_pad_by_repetition ... ok
+test private_block::range16::tests::the_range_tags_are_distinct_from_every_other_family ... ok
+test private_block::hash_domain::tests::a_frame_one_path_entry_short_is_refused_at_decode ... ok
+test private_block::hash_domain::tests::a_short_or_long_merkle_path_is_refused_by_the_core_verifier_by_name ... ok
+test private_block::range16_tests::the_w16_signed_top_limb_keeps_a_padded_position_inside_both_tables ... ok
+test private_block::hash_domain::tests::a_short_or_long_merkle_path_is_refused_by_the_whole_verifier_by_name ... ok
+test private_block::range16_tests::the_w16_ir_evaluates_to_the_w16_closure_at_every_slot ... ok
+test private_block::range16_tests::w16_f3_b_a_word_at_plus_32768_is_rejected_by_the_verifier ... ok
+test private_block::range16_tests::w16_f3_d_a_direct_quotient_of_2_13_is_rejected_by_the_verifier ... ok
+test private_block::range16_tests::w16_layouts_build_and_cut_the_committed_words_against_r13 ... ok
+test private_block::range16_tests::a_w16_rung_block_core_proves_and_verifies_and_a_changed_root_is_refused ... ok
+test private_block::run::fork::tests::d55_ab_one_request_serial_against_forks ... ignored, heavy: W16 8B T128 32-block runs; guarded, alone, HL_GPU=1 HL_PB_ORACLE=0
+test private_block::range16_tests::w16_f3_a_remainder_filed_in_a_wider_family_is_refused_by_the_tag_fold ... ok
+test private_block::run::fork::tests::d55_control_a_boundary_root_absorbed_after_a_fork_is_rejected ... ok
+test private_block::run::fork::tests::d55_control_a_fork_index_swap_is_rejected ... ok
+test private_block::run::fork::tests::d55_control_a_claim_raised_on_a_fork_but_not_joined_is_rejected ... ok
+test private_block::range16_tests::w16_f3_c_a_count_moved_into_a_narrow_range_padded_copy_is_rejected ... ok
+test private_block::range16_tests::w16_limbs_out_of_their_range_are_rejected_by_the_verifier ... ok
+test private_block::run::fork::tests::d55_control_a_stale_fork_state_is_rejected ... ok
+test private_block::run::fork::tests::d55_control_a_same_block_fork_swap_is_caught_only_by_the_index ... ok
+test private_block::run::fork::tests::d55_swapped_fork_frames_are_rejected ... ok
+test private_block::run::fork::tests::d55_the_headline_negative_test_a_block_on_another_input_is_rejected_through_the_fork_path ... ok
+test private_block::run::fork::tests::d60_close_cli_in_the_test_binary ... ignored, D60 F2 cross-binary: HL_D60_CLI_ARGS, HL_D60_CLI_WANT
+test private_block::run::fork::tests::d60_close_f5_resident_bytes_of_one_public_block ... ignored, D60 F5: the resident bytes of one public block per profile
+test private_block::run::fork::tests::d60_close_write_r13_multi_layer_test_export ... ignored, D60 F2 tooling: HL_D60_EXPORT_DIR (new), HL_D60_EXPORT_L, HL_D60_EXPORT_UP_TO
+test private_block::run::fork::tests::d60_every_registered_d55_profile_is_the_marker_and_its_base ... ok
+test private_block::run::fork::tests::d55_the_d12a_run_is_unchanged_and_the_two_profiles_do_not_cross ... ok
+test private_block::run::fork::tests::d60_f3_the_cli_fails_closed_for_a_d55_run_until_the_privacy_gate_passes ... FAILED
+test private_block::run::fork::tests::d60_f4_a_fifo_or_symlink_swapped_in_after_the_check_is_refused_without_hanging ... ok
+test private_block::run::fork::tests::d60_f1_the_fork_verifier_refuses_blocks_that_are_not_the_statements ... ok
+test private_block::run::fork::tests::d60_f7_a_one_block_fork_run_verifies_and_a_changed_byte_is_refused ... ok
+test private_block::run::fork::tests::d55_honest_fork_runs_verify_at_every_worker_count ... ok
+test private_block::run::fork::tests::d60_f7_a_foreign_fork_frame_from_a_second_run_is_rejected_by_the_tag_and_then_by_the_chain ... ok
+test private_block::run::fork::tests::d60_f8_a_prover_whose_every_worker_panics_fails_and_does_not_hang ... ok
+test private_block::run::fork::tests::d60_fresh_process_verify_test_receipts ... ignored, D60 fresh-process receipts: run after d60_fresh_process_write_test_receipts, in another process
+test private_block::run::fork::tests::d60_fresh_process_write_test_receipts ... ignored, D60 fresh-process receipts: run with HL_D60_RECEIPT_DIR, then the verify test in another process
+test private_block::run::fork::tests::d60_privacy_gate_write_registered_r13_fork_bundles ... ignored, writes registered D55 R13 fork-run capture bundles; set HL_D60PG_CAPTURE_DIR
+test private_block::run::fork::tests::d60_f7_the_on_disk_reader_checks_each_header_before_it_reads_the_next_frame ... ok
+test private_block::run::fork::tests::d60_the_capture_writer_writes_a_registered_fork_run_bundle_and_refuses_a_test_only_one ... ok
+test private_block::run::fork::tests::d60_f7_a_receipt_under_another_profile_and_a_rewrapped_d12a_body_are_rejected_by_the_chain ... ok
+test private_block::run::fork::tests::d60_the_registered_door_refuses_a_base_with_no_registered_d55_profile ... ok
+test private_block::run_capture_tests::a_capture_directory_inside_the_repository_is_refused ... ok
+test private_block::run::fork::tests::d60_the_headline_negative_test_is_rejected_under_the_registered_profile ... ok
+test private_block::run_capture_tests::a_run_verifies_the_same_with_and_without_a_recorder ... ok
+test private_block::run_capture_tests::a_tampered_run_is_refused_and_no_bundle_is_written ... ok
+test private_block::run_capture_tests::capture_a_125m_run ... ignored, captures a 125M run; heavy. set HL_PB_CAPTURE_DIR (outside the repo) and HL_RUN_CAPTURE_PUBLIC_TABLES
+test private_block::run::fork::tests::d55_every_single_block_tamper_family_is_rejected_on_an_interior_fork ... ok
+test private_block::run_capture_tests::each_slots_terminal_vector_is_as_long_as_its_plane_list ... ok
+test private_block::run_capture_tests::every_plane_a_slot_references_is_in_the_plane_index ... ok
+test private_block::run_capture_tests::every_key_of_a_bundle_is_on_the_allow_list ... ok
+test private_block::run_capture_tests::the_bundle_pins_every_source_file_that_decides_its_contents ... ok
+test private_block::run_capture_tests::a_three_block_rung_g_run_is_captured_and_the_bundle_is_self_consistent ... ok
+test private_block::run_capture_tests::the_array_store_and_the_classic_encoding_carry_the_same_values ... ok
+test private_block::run_capture_tests::the_plane_index_tiles_the_a_and_h_commitments_of_the_rung_layout ... ok
+test private_block::run_capture_tests::the_refusal_replay_evaluates_in_the_order_the_openings_challenges_are_drawn ... ok
+test private_block::run_capture_tests::the_heavy_captures_code_path_works_at_a_development_shape ... ok
+test private_block::run_capture_tests::the_plane_index_is_the_same_in_two_independent_bundles ... ok
+test private_block::run_capture_tests::write_the_c6_gate_bundles ... ignored, writes the stage-31 rung-C6 gate bundles; set HL_RUN_CAPTURE_DIR and HL_RUN_CAPTURE_PUBLIC_TABLES=1
+test private_block::run_capture_tests::write_the_e32_gate_bundles ... ignored, writes the stage-33 rung-E32 gate bundles; set HL_RUN_CAPTURE_DIR and HL_RUN_CAPTURE_PUBLIC_TABLES=1
+test private_block::run_capture_tests::write_the_gate_bundles ... ignored, writes the gate bundles; set HL_RUN_CAPTURE_DIR
+test private_block::run_capture_tests::write_the_k4_gate_bundles ... ignored, writes the stage-22 rung-K4 gate bundles; set HL_RUN_CAPTURE_DIR and HL_RUN_CAPTURE_PUBLIC_TABLES=1
+test private_block::run_capture_tests::write_the_p2_gate_bundles ... ignored, writes the stage-30 rung-P2 gate bundles; set HL_RUN_CAPTURE_DIR and HL_RUN_CAPTURE_PUBLIC_TABLES=1
+test private_block::run_capture_tests::write_the_s20_gate_bundles ... ignored, writes the stage-21 gate bundles; set HL_RUN_CAPTURE_DIR and HL_RUN_CAPTURE_PUBLIC_TABLES=1
+test private_block::run_capture_tests::write_the_tagged_gate_bundles ... ignored, writes the tagged gate bundles; set HL_RUN_CAPTURE_DIR and HL_RUN_CAPTURE_PUBLIC_TABLES=1
+test private_block::run_capture_tests::write_the_w14_gate_bundles ... ignored, writes the stage-32 rung-W14 gate bundles (about 130 MB each, so OUTSIDE the repository); set HL_RUN_CAPTURE_DIR and HL_RUN_CAPTURE_PUBLIC_TABLES=1
+test private_block::run_capture_tests::the_replay_refuses_a_header_that_is_not_the_verifiers ... ok
+test private_block::s24_tests::a_shape_whose_mask_leaves_no_room_for_the_pads_is_refused_by_name ... ok
+test private_block::run_capture_tests::the_run_file_names_the_hash_rule_and_the_rebuilt_header_matched_under_it ... ok
+test private_block::s24_tests::every_registered_profile_is_covered_and_every_tagged_ones_keys_are_pairwise_distinct ... ok
+test private_block::s24_tests::every_slot_hosts_exactly_what_the_host_table_says_at_every_shape ... ok
+test private_block::s24_tests::no_registered_profiles_constructor_input_has_the_squeeze_length ... ok
+test private_block::s24_tests::the_capture_writer_pins_every_run_layer_source_it_depends_on ... ok
+test private_block::s24_tests::the_closure_vanishes_on_every_extension_round_vector_at_every_shape ... ok
+test private_block::s24_tests::the_mask_budget_holds_at_every_shape ... ok
+test private_block::s24_tests::the_s3_refusal_also_separates_the_two_rotary_claims_of_slots_15_and_16 ... ok
+test private_block::s25_tests::a_runs_imposed_set_carries_the_runs_own_statement_class ... ok
+test private_block::s25_tests::every_hash_call_site_in_the_lanes_own_sources_is_classified ... ok
+test private_block::s24_tests::a_segments_end_tag_is_the_next_segments_start_tag_in_a_rung_k4_run ... ok
+test private_block::s25_tests::no_profile_on_this_path_can_obtain_a_generator_other_than_from_the_operating_system ... ok
+test private_block::s25_tests::r18_the_census_reads_the_batch_files_through_their_path_lines ... ok
+test private_block::s25_tests::r18_the_path_child_reader_finds_production_children_and_skips_test_ones ... ok
+test private_block::s25_tests::r19_the_module_follower_fails_on_every_module_line_it_cannot_classify ... ok
+test private_block::s25_tests::r19_the_module_follower_finds_every_module_line_shape ... ok
+test private_block::s25_tests::r19b_every_rs_file_under_private_block_is_on_the_path_or_a_named_test_file ... ok
+test private_block::s25_tests::r19b_the_module_follower_refuses_include_outside_test_code ... ok
+test private_block::s25_tests::r19b_the_production_text_reads_every_item_after_the_tests_block_and_leaves_out_only_test_items ... ok
+test private_block::s25_tests::stage_24s_twelve_key_test_still_covers_every_tagged_profile ... ok
+test private_block::s25_tests::the_block_public_digest_input_length_formula_is_the_codes ... ok
+test private_block::s25_tests::the_draw_accounting_assertions_are_still_blocked_on_the_generators_accessor ... ok
+test private_block::s25_tests::the_generator_is_never_cloned_and_each_prover_constructs_exactly_one ... ok
+test private_block::s25_tests::the_legacy_length_guard_now_carries_the_statement_digests_and_the_seed_derivations ... ok
+test private_block::s25_tests::the_memos_length_table_is_re_derived_from_the_code ... ok
+test private_block::s24_tests::an_inadmissible_chain_is_refused_before_the_run_directory_exists ... ok
+test private_block::s25_tests::the_refusal_replay_re_issues_the_live_chains_next_points_and_leaves_it_untouched ... ok
+test private_block::s25_tests::the_statement_class_lengths_are_the_ones_the_code_hashes ... ok
+test private_block::s33_tests::a_shape_whose_padded_token_count_reaches_the_row_width_is_refused_by_name ... ok
+test private_block::s33_tests::every_registered_profile_context_and_label_is_printable_ascii_with_no_nul ... ok
+test private_block::s33_tests::no_registered_shape_reaches_the_first_arm_of_a_groups ... ok
+test private_block::s33_tests::no_transcript_constructor_input_can_equal_an_absorb_input_of_the_same_length ... ok
+test private_block::s33_tests::the_ascii_premise_check_rejects_a_profile_with_a_nul_or_a_non_ascii_byte ... ok
+test private_block::s33_tests::the_declared_sixty_byte_pair_is_separated_at_the_positions_the_record_names ... ok
+test private_block::s33_tests::the_declared_sixty_three_byte_w16_rung_pair_is_separated_at_the_positions_the_record_names ... ok
+test private_block::s33_tests::the_refused_arm_and_the_live_arm_agree_wherever_both_are_defined ... ok
+test private_block::s33_tests::the_s6_refusal_is_exactly_the_padded_token_counts_at_or_above_the_row_width ... ok
+test private_block::s33_tests::the_separation_lemma_collapses_on_a_deliberately_bad_profile ... ok
+test private_block::s25_tests::the_per_slot_terminal_absorb_lengths_are_printed_and_recorded_at_every_shape ... ok
+test private_block::tied_tables::derive::tests::r19b_checkpoint_open_refuses_a_symlinked_checkpoint_file ... ok
+test private_block::w16_privacy_gate_tests::d55_fork_run_capture_passes_the_w16_gate_checks_at_the_development_rung ... ok
+test private_block::run::fork::tests::d60_the_r13_limb_tamper_families_on_an_interior_fork_are_rejected_under_the_registered_profile ... ok
+test private_block::w16_privacy_gate_tests::d55_privacy_gate_write_the_fork_bundles ... ignored, writes D55 fork-run capture bundles; set HL_W16PG_CAPTURE_DIR
+test private_block::w16_privacy_gate_tests::w16_privacy_gate_at_the_development_rung ... ok
+test private_block::w16_privacy_gate_tests::w16_privacy_gate_at_the_trained_t128_shapes ... ignored, heavy: full W16 T128 runs captured on the CPU; run by name, guarded
+test private_block::w16_privacy_gate_tests::w16_privacy_gate_on_the_metal_path ... ignored, toggles HL_GPU in-process; run alone by name on a Mac with HL_GPU_REQUIRED=1, guarded
+test private_block::w16_privacy_gate_tests::w16_privacy_gate_write_the_w16_bundles ... ignored, writes the W16 gate bundles; set HL_W16PG_CAPTURE_DIR
+test private_block::tied_tables::derive::tests::r19b_checkpoint_open_refuses_a_same_size_file_that_is_not_the_pinned_checkpoint ... ok
+test private_block::w16_privacy_gate_tests::w16r2_privacy_gate_on_the_metal_path ... ignored, toggles HL_GPU in-process; run alone by name on a Mac with HL_GPU_REQUIRED=1, guarded
+test private_block::w16_privacy_gate_tests::d55_fork_run_capture_passes_the_w16_gate_checks_at_the_w16r2_rung ... ok
+test private_block::w16r2_tests::w16r2_ab_w16_against_w16r2_on_one_binary ... ignored, heavy: 8B T128 blocks on Metal, toggles HL_GPU in-process; run alone by name with HL_PB_ORACLE=0
+test private_block::w16r2_tests::w16r2_accounting_inputs_are_printed_from_the_code ... ok
+test private_block::w16r2_tests::w16r2_a_shape_at_another_rate_or_q_under_a_w16r2_string_is_refused ... ok
+test private_block::w16r2_tests::w16r2_control_b_a_wrong_opened_column_is_rejected ... ok
+test private_block::w16r2_tests::w16r2_control_c_a_column_set_chosen_before_the_challenge_is_rejected ... ok
+test private_block::w16_privacy_gate_tests::w16r2_privacy_gate_at_the_development_rung ... ok
+test private_block::w16r2_tests::w16r2_control_e_a_receipt_at_another_rate_or_q_is_rejected ... ok
+test private_block::w16r2_tests::w16r2_control_f_the_lemmas_close_case_is_accepted_at_exactly_the_counted_rate ... ok
+test private_block::w16r2_tests::w16r2_control_g_a_replay_at_the_same_geometry_under_another_profiles_keys_is_rejected ... ok
+test private_block::s25_tests::every_hash_input_kind_of_every_registered_profile_is_printed_with_its_length ... ok
+test private_block::w16r2_tests::w16r2_f3_an_endpoint_policy_committed_at_rate_one_quarter_is_refused_by_cs4 ... ok
+test private_block::w16r2_tests::w16r2_f3_b_a_word_at_plus_32768_is_rejected_by_the_verifier ... ok
+test private_block::w16r2_tests::w16r2_f3_a_remainder_filed_in_a_wider_family_is_refused_by_the_tag_fold ... ok
+test private_block::w16r2_tests::w16r2_f3_d_a_direct_quotient_of_2_13_is_rejected_by_the_verifier ... ok
+test private_block::w16r2_tests::w16r2_f3_c_a_count_moved_into_a_narrow_range_padded_copy_is_rejected ... ok
+test private_block::w16r2_tests::w16r2_control_a_a_far_matrix_is_rejected_at_the_column_test ... ok
+test private_block::w16r2_tests::w16r2_f3_run_level_controls_under_the_d12a_run_verifier ... ok
+test private_block::w16r2_tests::w16r2_profiles_fix_rate_one_half_and_q_260_and_change_nothing_else ... ok
+test private_block::w16r2_tests::w16r2_f3_run_level_controls_under_the_d55_fork_verifier ... ok
+test private_block::w16r2_tests::w16r2_rung_cpu_and_metal_digests_equal_the_golden ... ignored, toggles HL_GPU in-process; run alone by name on a Mac
+test private_block::w16r2_tests::w16r2_the_codec_length_is_the_count_at_every_w16r2_shape ... ok
+test private_block::w16r2_tests::w16r2_the_lemmas_load_bearing_invariants_are_pinned ... ok
+test private_block::w16r2_tests::w16r2_rung_core_proves_and_verifies_and_its_golden_digest_is_pinned ... ok
+test private_block::w16r2_tests::w16r2_control_d_a_forged_pad_half_is_rejected ... ok
+test private_block::w16r2_tests::w16r2_limbs_out_of_their_range_are_rejected_by_the_verifier ... ok
+
+failures:
+
+---- private_block::run::fork::tests::d60_f3_the_cli_fails_closed_for_a_d55_run_until_the_privacy_gate_passes stdout ----
+{"event":"refused","error":"D60 review F3: a D55 fork run is refused in this build — ruling D60 requires the privacy gate on a capture under a REGISTERED D55 run profile before any receipt for real content, and that gate has not passed (run_fork::D55_REAL_CONTENT_PRIVACY_GATE_PASSED is false); to prove a TEST receipt on public data, pass --d55-test-receipt-not-for-publication: the run directory is then marked D55_TEST_RECEIPT_NOT_FOR_PUBLICATION.txt and must not be published"}
+{"event":"refused","error":"--d55-test-receipt-not-for-publication acknowledges a D55 fork run's test receipt; it is given only with --d55-workers"}
+D60 F3 | stack-prove --d55-workers 1 without --d55-test-receipt-not-for-publication: REFUSED, nothing created; the flag without --d55-workers: REFUSED
+{"event":"refused","error":"HL_GPU_REQUIRED=1 but the GPU path is not live: gpu: off (built with gpu-metal; HL_GPU unset)"}
+
+thread 'private_block::run::fork::tests::d60_f3_the_cli_fails_closed_for_a_d55_run_until_the_privacy_gate_passes' (4695568) panicked at src/private_block/run_fork_tests.rs:1449:5:
+assertion `left == right` failed: stack-prove --d55-workers with the acknowledgement failed
+  left: 1
+ right: 0
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    private_block::run::fork::tests::d60_f3_the_cli_fails_closed_for_a_d55_run_until_the_privacy_gate_passes
+
+test result: FAILED. 131 passed; 1 failed; 23 ignored; 0 measured; 836 filtered out; finished in 126.58s
+

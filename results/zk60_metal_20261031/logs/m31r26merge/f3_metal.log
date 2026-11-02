@@ -1,0 +1,7 @@
+
+running 2 tests
+test private_block::run::fork::tests::d60_f3_the_cli_fails_closed_for_a_d55_run_until_the_privacy_gate_passes ... ok
+test private_block::run::fork::tests::d60_the_capture_writer_writes_a_registered_fork_run_bundle_and_refuses_a_test_only_one ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 989 filtered out; finished in 2.30s
+
