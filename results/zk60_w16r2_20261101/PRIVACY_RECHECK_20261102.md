@@ -457,5 +457,5 @@ as much as to W16):
 
 - `2196592d`: the Rust test additions (`w16_privacy_gate_tests.rs`), with the logs of the build, scans,
   dev bytes and Rust gates.
-- COMMIT2_PLACEHOLDER: the staging_v25 Python changes, the Python records, the remaining logs and this
+- `e50d2e0f`: the staging_v25 Python changes, the Python records, the remaining logs and this
   document.
