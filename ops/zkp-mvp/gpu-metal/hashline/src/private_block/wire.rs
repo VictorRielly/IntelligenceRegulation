@@ -14,9 +14,15 @@ use crate::zk::MaskOpening;
 
 const MAGIC: &[u8; 8] = b"HLPBLOK1";
 pub(crate) const HEADER: usize = 8 + 32;
-const MASK_VEC: usize = 1024;
-const MASK_DOM: usize = 4096;
-const MASK_PATH: usize = 12;
+/// **The masking commitment `M`'s frame geometry, from `zk.rs`'s OWN
+/// constants** (W16R2 review F5 (d), 2026-11-02; value-identical to the
+/// literals 1024 / 4096 / 12 they replace): its two clear vectors (`q'` and
+/// the proximity combination) are `2 * 2^MASK_LOG_MSG` Fp2 words, its
+/// encoding has `2^MASK_LOG_DOM` columns, and its tree is `MASK_LOG_DOM` deep
+/// (`zk::mask_open` / `zk::mask_verify_tagged`). No block shape enters.
+const MASK_VEC: usize = 2 << crate::zk::MASK_LOG_MSG;
+const MASK_DOM: usize = 1 << crate::zk::MASK_LOG_DOM;
+const MASK_PATH: usize = crate::zk::MASK_LOG_DOM as usize;
 /// **D59: the masking commitment's OWN opened-column count** (`zk::MASK_Q`).
 /// Until the W16R2 profiles it was read as the block's `Dim::checks`, which
 /// was the same 256 at every profile; at a W16R2 profile the block opens 260

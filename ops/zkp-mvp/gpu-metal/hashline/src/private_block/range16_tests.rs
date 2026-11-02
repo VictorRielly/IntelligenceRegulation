@@ -240,6 +240,9 @@ pub(super) fn limbs_out_of_their_range_are_rejected_at(profile: &str) {
             Ok(_) => panic!("{role:?}: a limb outside its table was accepted"),
             Err(e) => {
                 assert!(!e.starts_with("prover:"), "{role:?}: the cheating prover refused ({e}); the mutation must reach the verifier");
+                // W16R2 review F4 (c): AT the LogUp sum, so a rate-1/2 PCS
+                // artifact cannot pass for this rejection
+                assert!(at_the_logup_sum_claim(&e), "{role:?}: rejected, but not at the H opening's LogUp sum claim ({e}); a relation the mutation keeps true failed first");
                 eprintln!("W16 LIMB {} {role:?}: the verifier rejects: {e}", sh.name);
             }
         }
@@ -255,9 +258,17 @@ pub(super) fn limbs_out_of_their_range_are_rejected_at(profile: &str) {
         Ok(_) => panic!("a moved product top limb was accepted"),
         Err(e) => {
             assert!(!e.starts_with("prover:"), "the cheating prover refused the moved top limb ({e})");
+            assert!(at_the_logup_sum_claim(&e), "the moved top limb: rejected, but not at the H opening's LogUp sum claim ({e})");
             eprintln!("W16 LIMB {} H top: the verifier rejects: {e}", sh.name);
         }
     }
+}
+
+/// **W16R2 review F4 (c):** a limb outside its table, every relation kept
+/// true, is refused by the LogUp sum alone: the `H` opening's value-0 sum
+/// claim, `H: pcs zk: group <g>: <v, c> != combined claim`
+fn at_the_logup_sum_claim(e: &str) -> bool {
+    e.starts_with(&format!("{AT_THE_LOGUP_SUM}: group ")) && e.ends_with(": <v, c> != combined claim")
 }
 
 // ------------------------------------------------------------------- F3

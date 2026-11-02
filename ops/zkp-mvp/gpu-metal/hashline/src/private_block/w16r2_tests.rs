@@ -16,25 +16,48 @@
 //! * the verifier reads `(rate, Q)` from the profile: a shape that carries a
 //!   W16R2 string at any other geometry cannot be built, and receipts made
 //!   at another rate or `Q` are rejected (control (e));
-//! * the four D59 malicious controls, (a) a far matrix, (b) a wrong opened
-//!   column, (c) a column set chosen before the challenge, (d) a forged pad
-//!   half, at the profile's own PCS parameters and keys through
-//!   `pcs::verify_zk_tagged` (the function `verify_core` calls for `A` and
-//!   `H`, and a run for every boundary and endpoint), and on real block
-//!   proofs where a post-hoc edit can express the cheat; plus, at a toy
-//!   rate-1/2 geometry where the bound is measurable, the empirical
-//!   acceptance rate of (a) and (d) against `(1 - (e + 1)/N)^Q`;
+//! * the D59 malicious controls, (a) a far matrix, (b) a wrong opened
+//!   column, (c) a column set chosen before the challenge, (d) a forged
+//!   clear vector against an honest matrix (its pad half, and the
+//!   max-agreement forgery), (e) another rate or `Q`, and since the review
+//!   of 2026-11-02 (f) THE LEMMA'S CLOSE CASE (a matrix inside the
+//!   unique-decoding radius, both clear vectors moved by a codeword that
+//!   vanishes on `K - 1` columns, a false claim) and (g) a replay at the
+//!   same geometry under another profile's keys — at the profile's own PCS
+//!   parameters and keys through `pcs::verify_zk_tagged` (the function
+//!   `verify_core` calls for `A` and `H`, and a run for every boundary and
+//!   endpoint), and on real block proofs where a post-hoc edit can express
+//!   the cheat; plus, at a toy rate-1/2 geometry where the rates are
+//!   measurable, the acceptance rates of (a), (d) and (f) against their
+//!   EXACT values (`(1 - (e + 1)/N)^Q` for (a) and (f));
+//! * review F3: run-level controls on a W16R2 rung run (`L = 3`): its
+//!   boundaries and endpoints tampered or replaced by rate-1/4 ones, under
+//!   the D12a run verifier and the D55 fork verifier, and an endpoint policy
+//!   committed at rate 1/4 refused by CS-4;
+//! * review F4 (b): the codec length is the count at every W16R2 shape, and
+//!   every frame of a real W16R2 run has its counted length;
 //! * W16's own malicious controls (the out-of-range limbs and review F3's
 //!   four) ported to the W16R2 rung;
 //! * the dev rung's golden digest (CPU), and its CPU = Metal identity;
-//! * the lemma's load-bearing invariants, pinned;
+//! * the lemma's load-bearing invariants, pinned (`run_fork.rs` too);
 //! * the accounting inputs, printed from the code
 //!   (`results/zk60_w16r2_20261101/ACCOUNTING.md` reads them);
 //! * the A/B on one binary (W16 against W16R2 at 8B T128), ignored.
+//!
+//! **`Q` is ONE constant** (`shape::W16R2_OPENED_COLS`; review F2 may move it
+//! from 260 to 280). Every control added on 2026-11-02 derives `Q`, `K`, `e`
+//! and its expected probabilities from that constant and the shape. The
+//! deliberate literal pins of the profile facts (which a change of the
+//! constant must update by hand) are listed in
+//! `results/zk60_w16r2_20261101/FINDINGS_CLOSED_20261102.md`.
 use super::layout::*;
 use super::protocol::{self, CoreProof, CoreView};
 use super::range16_tests::{built, rung_case};
+use super::run::fork::{D55OptIn, ForkReceipt, ForkRun};
+use super::run::{RunShape, RunStatement};
 use super::shape::{self, ColumnRegime, Shape};
+use super::trained_statement::{IntegerCalibration, LayerRecord, ModelSource, Provenance, SourceKind, TrainedModelStatement};
+use super::wire;
 use super::witness::Witness;
 use super::*;
 use crate::field::{Fp, Fp2};
@@ -68,9 +91,12 @@ fn io_planes(sh: &Shape, w: &Witness) -> (Vec<Fp>, Vec<Fp>) {
     (io(ids.at(A_X)), io(ids.at(A_X2)))
 }
 
-/// the header both sides absorb (`range16_tests::prove_and_verify_core`'s)
+/// the header both sides absorb (`range16_tests::prove_and_verify_core`'s),
+/// under the profile's Fiat–Shamir key: `protocol::tagged_transcript`, as
+/// every production caller of `verify_core` builds its transcript (review
+/// F3: this harness was an untagged `Transcript::new`)
 fn header(sh: &Shape, lay: &Layout) -> Transcript {
-    let mut tr = Transcript::new(b"zk60 W16R2 core");
+    let mut tr = protocol::tagged_transcript(sh, b"zk60 W16R2 core");
     tr.absorb(b"profile", sh.profile.as_bytes());
     tr.absorb(b"schedule", &lay.schedule_digest());
     tr
@@ -332,9 +358,13 @@ impl Rig {
     fn bound(&self) -> f64 {
         2f64.powf(shape::column_term_log2(ColumnRegime::UniqueDecoding, self.params.log_cols as usize, self.params.inv_rate, self.params.num_col_checks))
     }
+    /// `K = n + q_pad`, the dimension of the row code
+    fn k(&self) -> usize {
+        self.n() + self.zko.q_pad
+    }
     /// `e = floor((N - K)/2)`, `K = n + q_pad`
     fn e(&self) -> usize {
-        (self.nn() - self.n() - self.zko.q_pad) / 2
+        (self.nn() - self.k()) / 2
     }
     fn matrix(&self, seed: u64) -> Vec<Fp> {
         let n = self.n();
@@ -420,6 +450,12 @@ struct Cheat {
     prox_pad: Option<Fp2>,
     /// open THESE columns instead of the ones the transcript draws
     preset: Option<Vec<usize>>,
+    /// open as if row 0 of `[data | pads]` were moved by THIS whole vector
+    /// (`n + q` entries): each clear vector moves by its own row-0 weight
+    /// times it (`lambda` for the group vector, `rho_0` for the proximity
+    /// vector) — control (f)'s close-case cheater and control (d)'s
+    /// forgeries (review F1)
+    row0_shift: Option<Vec<Fp>>,
 }
 
 /// `open_zk`'s transcript order, written out so a cheater can deviate: the
@@ -450,6 +486,13 @@ fn open_as(c: &CommittedZk<NoExternal>, tr: &mut Transcript, cheat: &Cheat) -> (
     }
     if let Some(d) = cheat.prox_pad {
         p[n] = p[n].add(d);
+    }
+    if let Some(d) = &cheat.row0_shift {
+        assert_eq!(d.len(), n + q, "a row-0 shift is one whole clear vector");
+        for (k, x) in d.iter().enumerate() {
+            g[k] = g[k].add(rho_g[0].mul_base(*x));
+            p[k] = p[k].add(rho_p[0].mul_base(*x));
+        }
     }
     tr.absorb_fp2(b"pcs-vec", &g);
     tr.absorb_fp2(b"pcs-prox", &p);
@@ -484,17 +527,20 @@ fn assert_the_replica_is_open_zk(rig: &Rig, seed: u64) {
 /// encoded rows are NOT close to codewords — `e + 1` columns off the honest
 /// encoding, `e = floor((N - K)/2)`, i.e. just beyond the unique-decoding
 /// radius the lemma counts at — and opens the honest clear vectors. At the
-/// W16R2 profile's own geometry (`n = 2^14`, `N = 2^15`, `Q = 260`, its
-/// keys) the verifier must reject at the column test; the miss probability
-/// is `(1 - (e+1)/N)^Q = 2^-105.95`. Then at a toy rate-1/2 geometry
-/// (`n = 16`, `N = 32`, `Q = 4`, `e = 6`) where that probability is 0.373,
-/// the empirical acceptance rate over 4,000 seeds must sit at the bound
-/// (for this attack the bound is exact).
+/// W16R2 profile's own geometry (`n = 2^14`, `N = 2^15`,
+/// `Q = W16R2_OPENED_COLS`, its keys) the verifier must reject at the column
+/// test; the miss probability is `(1 - (e+1)/N)^Q` (2^-105.95 at `Q = 260`).
+/// Then at a toy rate-1/2 geometry (`n = 16`, `N = 32`, `Q = 4`, `e = 6`)
+/// where that probability is 0.373, the empirical acceptance rate must sit
+/// at the bound (for this attack the bound is exact) within 5 sigma; review
+/// F7: 40,000 seeds (the first 4,000 sat 2 sigma low).
 #[test]
 fn w16r2_control_a_a_far_matrix_is_rejected_at_the_column_test() {
     let sh = built(shape::W16R2_RUNG_H24);
     let rig = Rig::profile(&sh);
-    assert_eq!((rig.n(), rig.nn(), rig.zko.q_pad, rig.e()), (1 << 14, 1 << 15, 260, 8062));
+    let (q, n) = (shape::W16R2_OPENED_COLS, 1usize << shape::W16R2_LOG_COLS);
+    let nn = n * shape::W16R2_INV_RATE;
+    assert_eq!((rig.n(), rig.nn(), rig.zko.q_pad, rig.e()), (n, nn, q, (nn - n - q) / 2));
     assert_the_replica_is_open_zk(&rig, 1);
     let data = rig.matrix(2);
     let claims = [rig.claim(&data)];
@@ -520,7 +566,7 @@ fn w16r2_control_a_a_far_matrix_is_rejected_at_the_column_test() {
     let toy = Rig::at(&sh, PcsParams { log_cols: 4, inv_rate: 2, num_col_checks: 4 }, 4);
     assert_eq!((toy.n(), toy.nn(), toy.e()), (16, 32, 6));
     assert_the_replica_is_open_zk(&toy, 8);
-    let trials = 4000u64;
+    let trials = 40_000u64;
     let mut accepted = 0u64;
     for t in 0..trials {
         let data = toy.matrix(100 + t);
@@ -634,17 +680,210 @@ fn w16r2_control_c_a_column_set_chosen_before_the_challenge_is_rejected() {
     eprintln!("W16R2 control (c) {q} columns chosen before any challenge, the matrix honest on them and off the code on the other {} (every per-column check passes on the preset: positive control); {caught} of the {q} transcript-drawn columns are off the code: REJECTED: {e}", rest.len());
 }
 
+// ------------------------------------------- the close-case machinery (F1)
+
+/// The evaluation point of each encoded column at `rig`'s geometry: column
+/// `j` of `encode_row_zk` is `f(h w^j)`, `h` the coset generator and `w` the
+/// size-`N` root `NttTables::forward` evaluates at (natural order; the
+/// tables' top root to the power `2^max_log / N`). Checked, not assumed:
+/// [`close_case`] asserts that a polynomial built from these points vanishes
+/// exactly where it was built to, through the production encoder.
+fn coset_points(rig: &Rig) -> Vec<Fp> {
+    let (nn, top) = (rig.nn(), rig.ntt.max_log as usize);
+    let w = rig.ntt.roots[top].pow(((1usize << top) / nn) as u64);
+    let mut x = rig.zko.coset;
+    (0..nn)
+        .map(|_| {
+            let v = x;
+            x = x.mul(w);
+            v
+        })
+        .collect()
+}
+
+/// `prod_{j in at} (X - xs[j])`, coefficients lowest first
+fn vanishing_on(xs: &[Fp], at: &[usize]) -> Vec<Fp> {
+    let mut c = Vec::with_capacity(at.len() + 1);
+    c.push(Fp::ONE);
+    for &j in at {
+        let x = xs[j];
+        c.push(Fp::ZERO);
+        for i in (1..c.len()).rev() {
+            c[i] = c[i - 1].sub(c[i].mul(x));
+        }
+        c[0] = c[0].mul(x).neg();
+    }
+    c
+}
+
+/// the `N` coset evaluations of a polynomial of degree `< N` (coefficients
+/// lowest first): `encode_row_zk`'s last two steps
+fn coset_evals(rig: &Rig, coeffs: &[Fp]) -> Vec<Fp> {
+    let pows = zpcs::coset_powers(rig.zko.coset, rig.nn());
+    let mut out = vec![Fp::ZERO; rig.nn()];
+    for (i, c) in coeffs.iter().enumerate() {
+        out[i] = c.mul(pows[i]);
+    }
+    rig.ntt.forward(&mut out);
+    out
+}
+
+/// `encode_row_zk` of one base-field clear vector `[message | pads]`
+fn encode_vec(rig: &Rig, v: &[Fp]) -> Vec<Fp> {
+    let n = rig.n();
+    let pows = zpcs::coset_powers(rig.zko.coset, rig.nn());
+    let mut out = vec![Fp::ZERO; rig.nn()];
+    zpcs::encode_row_zk(&rig.ntt, &v[..n], &v[n..], &pows, &mut out);
+    out
+}
+
+/// A polynomial of degree `< K = n + q` as the clear vector
+/// `[message | pads]` whose `encode_row_zk` it is. The encoder writes
+/// `f = f_data + (X^n - 1) g` with `f_data` the message's interpolant on
+/// `G_n` and `g` the pads as coefficients, so `g = f[n..n+q]`,
+/// `f_data = f[..n] + g` (on the low `q` coefficients), and the message is
+/// `f_data` on `G_n`.
+fn as_clear_vector(rig: &Rig, f: &[Fp]) -> Vec<Fp> {
+    let (n, q) = (rig.n(), rig.zko.q_pad);
+    assert!(f.len() <= n + q && q <= n, "a polynomial of {} coefficients is not below K = {}", f.len(), n + q);
+    let mut f = f.to_vec();
+    f.resize(n + q, Fp::ZERO);
+    let pads = f[n..].to_vec();
+    let mut msg = f[..n].to_vec();
+    for (m, p) in msg.iter_mut().zip(pads.iter()) {
+        *m = m.add(*p);
+    }
+    rig.ntt.forward(&mut msg);
+    msg.extend(pads);
+    msg
+}
+
+/// **THE POSITIVE CONTROL'S MEASUREMENT:** every encoded column at which
+/// either clear vector of `o` disagrees with `rho^T U`, `U` the COMMITTED
+/// encoded matrix — the columns `verify_zk_tagged` objects to when it draws
+/// one, computed over all `N` with the verifier's own algebra
+fn disagreeing_columns(rig: &Rig, c: &CommittedZk<NoExternal>, o: &OpeningZk, rhos: &[Vec<Fp2>; 2]) -> Vec<usize> {
+    let (rows, nn) = (c.cm.rows, rig.nn());
+    let Store::Host { encoded } = &c.cm.store else { panic!("a CPU commitment") };
+    let enc2 = |v: &[Fp2]| -> (Vec<Fp>, Vec<Fp>) {
+        let re: Vec<Fp> = v.iter().map(|x| x.c0).collect();
+        let im: Vec<Fp> = v.iter().map(|x| x.c1).collect();
+        (encode_vec(rig, &re), encode_vec(rig, &im))
+    };
+    let encs = [enc2(&o.group_vecs[0]), enc2(&o.prox_vec)];
+    (0..nn)
+        .filter(|&j| {
+            rhos.iter().zip(encs.iter()).any(|(rho, (re, im))| {
+                let acc = (0..rows).fold(Fp2::ZERO, |a, i| a.add(rho[i].mul_base(encoded[i * nn + j])));
+                acc != Fp2::new(re[j], im[j])
+            })
+        })
+        .collect()
+}
+
+/// a CLOSE matrix: row 0 of every listed encoded column moved by `by[j]`,
+/// then committed (re-rooted); the data, pads and salts are the honest ones
+fn shift_row0(c: &mut CommittedZk<NoExternal>, tag: &HashTag, cols: &[usize], by: &[Fp]) {
+    let Store::Host { encoded } = &mut c.cm.store else { panic!("a CPU commitment") };
+    for &j in cols {
+        encoded[j] = encoded[j].add(by[j]);
+    }
+    reroot(c, tag);
+}
+
+/// **The lemma's close case at one geometry** (the review's
+/// `review_logs/close_case_attack.py`, in the zkp-core encoder's own
+/// convention): the `N` columns split at random into `Z` (`K - 1` of them),
+/// `S` (`s_len`) and `R` (the rest, `N - K + 1 - s_len`), and
+/// `D0 = prod_{z in Z} (X - x_z)`, the codeword of degree `K - 1` that
+/// vanishes on `Z` and nowhere else.
+struct CloseCase {
+    s: Vec<usize>,
+    /// sorted
+    r: Vec<usize>,
+    /// `D0` on the coset (zero exactly on `Z`)
+    d0: Vec<Fp>,
+    /// `D0` as a clear vector `[message | pads]` (`n + q` entries)
+    dec: Vec<Fp>,
+}
+
+fn close_case(rig: &Rig, xs: &[Fp], s_len: usize, seed: u64) -> CloseCase {
+    let (nn, k) = (rig.nn(), rig.k());
+    let perm = distinct_columns(nn, nn, seed);
+    let (z, rest) = perm.split_at(k - 1);
+    let (s, r) = rest.split_at(s_len);
+    let coeffs = vanishing_on(xs, z);
+    assert_eq!(coeffs.len(), k, "D0 is not of degree K - 1");
+    let d0 = coset_evals(rig, &coeffs);
+    let mut zs = z.to_vec();
+    zs.sort_unstable();
+    let zeros: Vec<usize> = (0..nn).filter(|&j| d0[j].is_zero()).collect();
+    assert_eq!(zeros, zs, "D0 does not vanish exactly on Z: these are not the encoder's evaluation points");
+    let dec = as_clear_vector(rig, &coeffs);
+    assert_eq!(encode_vec(rig, &dec), d0, "dec(D0) does not encode to D0 under encode_row_zk's convention");
+    let mut r = r.to_vec();
+    r.sort_unstable();
+    CloseCase { s: s.to_vec(), r, d0, dec }
+}
+
+/// One attempt of the close-case cheater (control (f)), or, with `S` empty,
+/// of the max-agreement forger against an honest matrix (control (d)), at
+/// `rig`: a fresh honest matrix, its row 0 moved by `D0` on `S` and
+/// committed; a FALSE claim (the true value plus `<dec(D0)[..n], 1>`, which
+/// the moved group vector satisfies); both clear vectors moved by their
+/// row-0 weight times `dec(D0)`, absorbed, the drawn columns opened. Returns
+/// the verifier's verdict, the positive control (every column where a clear
+/// vector disagrees with `rho^T U`) and the drawn indices.
+fn close_attempt(rig: &Rig, cc: &CloseCase, seed: u64) -> (Result<(), String>, Vec<usize>, Vec<usize>) {
+    let n = rig.n();
+    let data = rig.matrix(seed);
+    let mut claim = rig.claim(&data);
+    let t0 = cc.dec[..n].iter().fold(Fp::ZERO, |a, x| a.add(*x));
+    assert!(!t0.is_zero(), "<dec(D0), 1> is zero: the moved claim would be the true one");
+    claim.value = claim.value.add(Fp2::from_base(t0));
+    let mut c = rig.commit(data, seed);
+    if !cc.s.is_empty() {
+        shift_row0(&mut c, &rig.tag, &cc.s, &cc.d0);
+    }
+    let com = c.commitment();
+    let (o, drawn, rhos) = open_as(&c, &mut rig.transcript(&com.root), &Cheat { row0_shift: Some(cc.dec.clone()), ..Cheat::default() });
+    let bad = disagreeing_columns(rig, &c, &o, &rhos);
+    (rig.verify(&com, &[claim], &o), bad, drawn)
+}
+
+/// `(rate, sigma)` of `accepted` of `trials` against an exact probability
+fn rate_and_sigma(accepted: u64, trials: u64, exact: f64) -> (f64, f64) {
+    (accepted as f64 / trials as f64, (exact * (1.0 - exact) / trials as f64).sqrt())
+}
+
 // ------------------------------------------------------------ control (d)
 
-/// **D59 control (d): a forged pad (hiding) half.** The pads are message
-/// symbols of the row code (`K = n + Q`), so a clear vector's pad entries
-/// are bound like its data entries. A cheater changes the first pad entry of
-/// the group vector (which `<v[..n], c>` never reads, so the claim check
-/// passes) — and, separately, of the proximity vector — absorbs the forged
-/// vector, opens the columns the transcript then draws: the column test must
-/// reject. At the toy geometry the acceptance rate over 4,000 seeds must sit
-/// at or below the lemma's `(1 - (e + 1)/N)^Q`. On a real block proof the
-/// edit is rejected too (there the redrawn indices object first).
+/// **D59 control (d): a forged clear vector against an honest matrix.** The
+/// pads are message symbols of the row code (`K = n + Q`), so a clear
+/// vector's pad entries are bound like its data entries. At the profile
+/// geometry, and on a real block proof: the first pad entry of a clear
+/// vector + 1 (which `<v[..n], c>` never reads, so the claim check passes),
+/// absorbed and the columns redrawn, is rejected at the column test.
+///
+/// **Review F1 (iii): that edit measures nothing as a rate.** It moves the
+/// encoding by `delta (x^n - 1)`, which is nonzero at EVERY point of the
+/// coset, so its acceptance is exactly 0 — asserted as such below (all `N`
+/// columns disagree), no longer as "below the bound". The forgeries whose
+/// rates DO measure the column test, at the toy rate-1/2 geometry over
+/// 20,000 seeds each, with the positive control (the disagreeing columns are
+/// exactly the predicted set) on every seed:
+/// * **the max-agreement forgery** (the review's fix): the honest matrix, a
+///   FALSE claim, both clear vectors moved by `dec(D0)`, `D0` the codeword
+///   vanishing on `K - 1` chosen columns: accepted at exactly
+///   `((K - 1)/N)^Q` (0.1243 at the toy), within 5 sigma both ways;
+/// * **the best PAD-ONLY forgery**: the pad halves moved by `delta`,
+///   `delta = prod (X - x_z)` over `q - 1` chosen columns — the most zeros a
+///   pad-only change can have, since `x^n - 1` has none on the coset — with
+///   the (true) claim: accepted at exactly `((q - 1)/N)^Q` (7.7e-5 at the
+///   toy, 1.5 expected acceptances), at most 5 sigma above.
+///
+/// At the profile geometry the max-agreement forgery is rejected too, its
+/// exact rate printed from `W16R2_OPENED_COLS`.
 #[test]
 fn w16r2_control_d_a_forged_pad_half_is_rejected() {
     let (sh, blk, w) = rung_case(shape::W16R2_RUNG_H24);
@@ -662,21 +901,72 @@ fn w16r2_control_d_a_forged_pad_half_is_rejected() {
         assert!(e.contains(&format!("disagrees with clear vector {vec}")), "{e}");
         eprintln!("W16R2 control (d) {what} (absorbed, columns redrawn; the claim check passes): REJECTED: {e}");
     }
-    // the measurable geometry
+    // the max-agreement forgery at the profile geometry
+    let (nn, k, q) = (rig.nn(), rig.k(), rig.zko.q_pad);
+    assert_eq!((rig.params.num_col_checks, q), (shape::W16R2_OPENED_COLS, shape::W16R2_OPENED_COLS));
+    let cc = close_case(&rig, &coset_points(&rig), 0, 32);
+    let (v, bad, _) = close_attempt(&rig, &cc, 33);
+    assert_eq!(bad, cc.r, "POSITIVE CONTROL: the max-agreement forgery does not fail exactly on the N - K + 1 columns outside Z");
+    let e = v.expect_err("CONTROL (d): THE MAX-AGREEMENT FORGERY WAS ACCEPTED AT THE PROFILE");
+    assert!(e.contains("disagrees with clear vector 0"), "{e}");
+    eprintln!(
+        "W16R2 control (d) profile geometry (n {n}, N {nn}, Q {q}, K {k}): the max-agreement forgery (honest U, a false claim, both vectors + dec(D0), D0 zero on K - 1 = {} columns) disagrees on exactly {} columns; accepted with probability ((K - 1)/N)^Q = 2^{:.3}: REJECTED: {e}",
+        k - 1,
+        bad.len(),
+        q as f64 * ((k - 1) as f64 / nn as f64).log2()
+    );
+    // ---- the measurable geometry
     let toy = Rig::at(&sh, PcsParams { log_cols: 4, inv_rate: 2, num_col_checks: 4 }, 4);
-    let trials = 4000u64;
+    let (tn, tnn, tk, tq) = (toy.n(), toy.nn(), toy.k(), toy.zko.q_pad);
+    assert_eq!((tn, tnn, tk, tq), (16, 32, 20, 4));
+    let xs = coset_points(&toy);
+    // (1) the +1 pad edit: every column disagrees, so the rate is exactly 0
     let mut accepted = 0u64;
-    for t in 0..trials {
+    for t in 0..4000u64 {
         let data = toy.matrix(200 + t);
         let claims = [toy.claim(&data)];
         let c = toy.commit(data, 200 + t);
         let delta = Fp2::new(Fp::new(1 + t), Fp::new(t / 3));
-        let (o, _, _) = open_as(&c, &mut toy.transcript(&c.commitment().root), &Cheat { group_pad: Some(delta), ..Cheat::default() });
+        let (o, _, rhos) = open_as(&c, &mut toy.transcript(&c.commitment().root), &Cheat { group_pad: Some(delta), ..Cheat::default() });
+        assert_eq!(disagreeing_columns(&toy, &c, &o, &rhos).len(), tnn, "toy seed {t}: a pad entry + delta agrees with the matrix at some column (x^n - 1 vanishes nowhere on the coset)");
         accepted += u64::from(toy.verify(&c.commitment(), &claims, &o).is_ok());
     }
-    let (rate, bound) = (accepted as f64 / trials as f64, toy.bound());
-    eprintln!("W16R2 control (d) toy rate 1/2 (n 16, N 32, Q 4): {accepted} of {trials} forged pad halves accepted = {rate:.4}; the lemma's bound {bound:.4}");
-    assert!(rate <= bound, "the forged-pad acceptance rate {rate} exceeds the lemma's bound {bound}");
+    assert_eq!(accepted, 0, "a pad entry + delta was accepted although it disagrees at every column");
+    eprintln!("W16R2 control (d) toy rate 1/2 (n 16, N 32, Q 4): the first pad entry + delta disagrees at all {tnn} columns on each of 4000 seeds, so it is accepted exactly never: {accepted} of 4000");
+    let trials = 20_000u64;
+    // (2) the max-agreement forgery
+    let mut accepted = 0u64;
+    for t in 0..trials {
+        let cc = close_case(&toy, &xs, 0, 500_000 + t);
+        let (v, bad, _) = close_attempt(&toy, &cc, 600_000 + t);
+        assert_eq!(bad, cc.r, "toy seed {t}: POSITIVE CONTROL: the max-agreement forgery does not fail exactly outside Z");
+        accepted += u64::from(v.is_ok());
+    }
+    let exact = ((tk - 1) as f64 / tnn as f64).powi(tq as i32);
+    let (rate, sigma) = rate_and_sigma(accepted, trials, exact);
+    eprintln!("W16R2 control (d) toy rate 1/2: the max-agreement forgery (both vectors + dec(D0), D0 zero on K - 1 = {} of {tnn} columns, a false claim): {accepted} of {trials} accepted = {rate:.4}; exact ((K - 1)/N)^Q = {exact:.4} (sigma {sigma:.4}; tolerance 5 sigma both ways)", tk - 1);
+    assert!(rate <= exact + 5.0 * sigma, "the max-agreement forgery is accepted ABOVE its exact rate: the column test is weaker than counted");
+    assert!(rate >= exact - 5.0 * sigma, "the max-agreement forgery is accepted BELOW its exact rate: the rig does not model it");
+    // (3) the best pad-only forgery
+    let mut accepted = 0u64;
+    for t in 0..trials {
+        let perm = distinct_columns(tnn, tnn, 700_000 + t);
+        let (zp, rest) = perm.split_at(tq - 1);
+        let mut shift = vec![Fp::ZERO; tn];
+        shift.extend(vanishing_on(&xs, zp));
+        let data = toy.matrix(800_000 + t);
+        let claims = [toy.claim(&data)];
+        let c = toy.commit(data, 800_000 + t);
+        let (o, _, rhos) = open_as(&c, &mut toy.transcript(&c.commitment().root), &Cheat { row0_shift: Some(shift), ..Cheat::default() });
+        let mut want = rest.to_vec();
+        want.sort_unstable();
+        assert_eq!(disagreeing_columns(&toy, &c, &o, &rhos), want, "toy seed {t}: POSITIVE CONTROL: the pad-only forgery does not agree on exactly its q - 1 chosen columns");
+        accepted += u64::from(toy.verify(&c.commitment(), &claims, &o).is_ok());
+    }
+    let exact = ((tq - 1) as f64 / tnn as f64).powi(tq as i32);
+    let (mean, sd) = (exact * trials as f64, (exact * (1.0 - exact) * trials as f64).sqrt());
+    eprintln!("W16R2 control (d) toy rate 1/2: the best pad-only forgery (the pad halves + delta, delta zero on q - 1 = {} columns, the true claim): {accepted} of {trials} accepted; exact ((q - 1)/N)^Q = {exact:.3e}, {mean:.2} expected (sd {sd:.2}; tolerance 5 sd above)", tq - 1);
+    assert!(accepted as f64 <= mean + 5.0 * sd, "the pad-only forgery is accepted above its exact rate: a pad half is not bound like a data half");
     // a real block proof
     let core = prove(&sh, &blk, w).unwrap();
     let mut bad = CoreProof { slots: core.slots.clone(), mask_open: core.mask_open.clone(), a_open: core.a_open.clone(), h_open: core.h_open.clone(), io_claims: core.io_claims.clone(), order: core.order.clone(), ..core };
@@ -691,12 +981,13 @@ fn w16r2_control_d_a_forged_pad_half_is_rejected() {
 /// **D59 control (e): a receipt at another rate or `Q` under the W16R2
 /// profile.** On real rung block proofs: the honest W16 (rate 1/4, `Q` 256)
 /// proof of the same block handed to the W16R2 verifier; the honest W16R2
-/// proof with one opened column dropped (`Q` 259) or added (261), or with
-/// its clear vectors cut to `n + 256` (256 pads). At the PCS level, honest
-/// openings genuinely made at rate 1/2 with `Q` 256, at `Q` 259 with 260
-/// pads, and at rate 1/4 with `Q` 260, each handed to the profile's
-/// verifier. Every one is rejected, because the verifier's rate and `Q` are
-/// the profile's and the receipt carries no say in them.
+/// proof with one opened column dropped (`Q - 1`) or added (`Q + 1`), or
+/// with its clear vectors cut to `n + 256` (256 pads, W16's count). At the
+/// PCS level, honest openings genuinely made at rate 1/2 with `Q` 256, at
+/// `Q - 1` with `Q` pads, and at rate 1/4 with `Q`, each handed to the
+/// profile's verifier (`Q = W16R2_OPENED_COLS` throughout since the review
+/// of 2026-11-02). Every one is rejected, because the verifier's rate and
+/// `Q` are the profile's and the receipt carries no say in them.
 #[test]
 fn w16r2_control_e_a_receipt_at_another_rate_or_q_is_rejected() {
     let (sh, blk, w) = rung_case(shape::W16R2_RUNG_H24);
@@ -709,8 +1000,8 @@ fn w16r2_control_e_a_receipt_at_another_rate_or_q_is_rejected() {
     let core = prove(&sh, &blk, w).unwrap();
     let n = 1usize << sh.log_cols;
     let edits: [(&str, fn(&mut OpeningZk, usize), &str); 3] = [
-        ("one A column dropped (Q 259)", |o, _| { o.columns.pop(); }, "A: pcs zk: wrong number of columns"),
-        ("one A column added (Q 261)", |o, _| { let c = o.columns[0].clone(); o.columns.push(c); }, "A: pcs zk: wrong number of columns"),
+        ("one A column dropped (Q - 1)", |o, _| { o.columns.pop(); }, "A: pcs zk: wrong number of columns"),
+        ("one A column added (Q + 1)", |o, _| { let c = o.columns[0].clone(); o.columns.push(c); }, "A: pcs zk: wrong number of columns"),
         ("every A clear vector cut to n + 256 (256 pads)", |o, n| { for v in o.group_vecs.iter_mut() { v.truncate(n + 256); } o.prox_vec.truncate(n + 256); }, "A: pcs zk: group vector 0 has length 16640"),
     ];
     for (what, edit, want) in edits {
@@ -723,10 +1014,11 @@ fn w16r2_control_e_a_receipt_at_another_rate_or_q_is_rejected() {
     verify(&sh, &blk, &core).expect("the unedited W16R2 core verifies");
     // genuinely re-proved openings at another geometry, under the W16R2 keys
     let rig = Rig::profile(&sh);
+    let q = shape::W16R2_OPENED_COLS;
     for (what, params, q_pad, want) in [
-        ("rate 1/2, Q 256, 256 pads", PcsParams { log_cols: 14, inv_rate: 2, num_col_checks: 256 }, 256, "group vector 0 has length 16640"),
-        ("rate 1/2, Q 259, 260 pads", PcsParams { log_cols: 14, inv_rate: 2, num_col_checks: 259 }, 260, "wrong number of columns"),
-        ("rate 1/4, Q 260, 260 pads", PcsParams { log_cols: 14, inv_rate: 4, num_col_checks: 260 }, 260, "Merkle path of 16 entries"),
+        ("rate 1/2, Q 256, 256 pads".to_string(), PcsParams { log_cols: 14, inv_rate: 2, num_col_checks: 256 }, 256, "group vector 0 has length 16640"),
+        (format!("rate 1/2, Q {}, {q} pads", q - 1), PcsParams { log_cols: 14, inv_rate: 2, num_col_checks: q - 1 }, q, "wrong number of columns"),
+        (format!("rate 1/4, Q {q}, {q} pads"), PcsParams { log_cols: 14, inv_rate: 4, num_col_checks: q }, q, "Merkle path of 16 entries"),
     ] {
         let other = Rig::at(&sh, params, q_pad);
         let data = other.matrix(41);
@@ -739,6 +1031,176 @@ fn w16r2_control_e_a_receipt_at_another_rate_or_q_is_rejected() {
         assert!(e.contains(want), "{what}: {e}");
         eprintln!("W16R2 control (e) an honest opening made at {what}, under the W16R2 profile's verifier: REJECTED: {e}");
     }
+}
+
+// ------------------------------------------------------------ control (f)
+
+/// **D59 control (f) (review F1): THE LEMMA'S CLOSE CASE, which delta/2
+/// makes load-bearing.** Under delta/3 the consistency half of the column
+/// round was 2^-248; under delta/2 it equals the column term, and it is
+/// ATTAINED (`review_logs/close_case_attack.py`):
+///
+/// 1. the cheater commits `U = Enc[M | P] + E`, `E` nonzero on row 0 only,
+///    equal to `D0` on `e` columns `S` — so `U` is within the unique-decoding
+///    radius — where `D0 = prod_{z in Z} (X - x_z)` over `K - 1` OTHER
+///    columns `Z`;
+/// 2. it opens `y_g = honest + lambda dec(D0)` and `y_p = honest + rho_0
+///    dec(D0)`;
+/// 3. it claims `value + <dec(D0)[..n], c>`, which is FALSE.
+///
+/// Both vectors then agree with `rho^T U` on `Z` (both sides zero) and on
+/// `S` (both sides `D0`), and disagree on the `N - K + 1 - e` columns of `R`,
+/// which is `e + 1` when `N - K` is even: the false claim is accepted with
+/// probability EXACTLY `(1 - (e + 1)/N)^Q`, the lemma's count.
+///
+/// * **Profile geometry** (`n = 2^14`, `N = 2^15`, `Q = q_pad =
+///   W16R2_OPENED_COLS`, at each W16R2 profile's keys): the positive control
+///   — the columns where either vector disagrees with `rho^T U` are exactly
+///   `R`, all `e + 1` of them — then `verify_zk_tagged` rejects at a column
+///   of `R` with "disagrees with clear vector 0", and the per-opening
+///   probability computed from the measured `R` equals the counted
+///   `column_term_log2(UniqueDecoding, ..)`.
+/// * **Toy rate-1/2 geometry** (`n = 16`, `N = 32`, `Q = 4`, `e = 6`), 20,000
+///   seeds, the positive control on every one: the acceptance rate must lie
+///   within 5 sigma of the exact `(1 - (e + 1)/N)^Q = 0.3725`. Above means
+///   the lemma is broken; below means the rig does not model the attack.
+#[test]
+fn w16r2_control_f_the_lemmas_close_case_is_accepted_at_exactly_the_counted_rate() {
+    // ---- the profile geometry
+    let q = shape::W16R2_OPENED_COLS;
+    let base = built(shape::W16R2_RUNG_H24);
+    assert_eq!((base.log_cols, base.inv_rate, base.opened_cols), (shape::W16R2_LOG_COLS, shape::W16R2_INV_RATE, q));
+    let rig = Rig::profile(&base);
+    let (n, nn, k, e) = (rig.n(), rig.nn(), rig.k(), rig.e());
+    assert_eq!(
+        (n, nn, rig.params.num_col_checks, rig.zko.q_pad, k, e),
+        (1 << base.log_cols, (1 << base.log_cols) * base.inv_rate, q, q, (1 << base.log_cols) + q, ((1 << base.log_cols) * (base.inv_rate - 1) - q) / 2),
+        "the rig is not at the profile's own PCS geometry with q_pad = Q"
+    );
+    assert_the_replica_is_open_zk(&rig, 60);
+    let t = std::time::Instant::now();
+    let cc = close_case(&rig, &coset_points(&rig), e, 61);
+    let build_s = t.elapsed().as_secs_f64();
+    assert_eq!((cc.s.len(), cc.r.len()), (e, nn - (k - 1) - e));
+    // the counted figure, and the one the measured R attains
+    let counted = shape::column_term_log2(ColumnRegime::UniqueDecoding, base.log_cols, base.inv_rate, q);
+    assert!((counted - base.regular_column_terms_log2().0).abs() < 1e-12, "the profile does not count its regular openings at the unique-decoding term");
+    let attained = q as f64 * (1.0 - cc.r.len() as f64 / nn as f64).log2();
+    if (nn - k) % 2 == 0 {
+        assert_eq!(cc.r.len(), e + 1, "N - K is even, so the cheater should fail on exactly e + 1 columns");
+        assert!((attained - counted).abs() < 1e-9, "the close case attains 2^{attained} per opening, the count is 2^{counted}");
+    } else {
+        assert!(attained <= counted + 1e-9, "the close case is accepted MORE often than counted: 2^{attained} > 2^{counted}");
+    }
+    for (i, spec) in shape::W16R2_PROFILES.iter().enumerate() {
+        let rig = Rig::profile(&built(spec.profile));
+        assert_eq!((rig.n(), rig.nn(), rig.k(), rig.e()), (n, nn, k, e), "{}: another geometry", spec.name);
+        let (v, bad, drawn) = close_attempt(&rig, &cc, 62 + i as u64);
+        assert_eq!(bad, cc.r, "{}: POSITIVE CONTROL: the cheater does not fail exactly on the columns outside Z and S", spec.name);
+        let err = v.expect_err("CONTROL (f): A FALSE CLAIM ON A CLOSE MATRIX WAS ACCEPTED AT THE PROFILE GEOMETRY");
+        assert!(err.contains("disagrees with clear vector 0"), "{}: {err}", spec.name);
+        let at: usize = err.strip_prefix("pcs zk: column ").and_then(|s| s.split(' ').next()).and_then(|s| s.parse().ok()).unwrap_or_else(|| panic!("{}: no column in `{err}`", spec.name));
+        assert!(cc.r.binary_search(&at).is_ok(), "{}: rejected at column {at}, which is not one of the e + 1 columns outside Z and S", spec.name);
+        let hit = drawn.iter().filter(|j| cc.r.binary_search(j).is_ok()).count();
+        eprintln!(
+            "W16R2 control (f) {} (n {n}, N {nn}, Q = q_pad {q}, K {k}, e {e}): U = Enc + D0 on |S| = {} columns of row 0 (inside the unique-decoding radius), D0 zero on |Z| = K - 1 = {} columns, both vectors + dec(D0), a FALSE claim; POSITIVE CONTROL: they disagree with rho^T U on exactly the {} columns of R; {hit} of {} drawn columns in R: REJECTED: {err}",
+            spec.name,
+            cc.s.len(),
+            k - 1,
+            cc.r.len(),
+            drawn.len()
+        );
+    }
+    let verdict = if (nn - k) % 2 == 0 { "EQUAL: the count is attained" } else { "the attack is one column short of the count (N - K odd)" };
+    eprintln!("W16R2 control (f) profile geometry: per opening the close case is accepted with (1 - |R|/N)^Q = 2^{attained:.3} (|R| = {} measured), the counted unique-decoding term is 2^{counted:.3}: {verdict} (D0 built and checked in {build_s:.2} s)", cc.r.len());
+    // ---- the measurable geometry
+    let toy = Rig::at(&base, PcsParams { log_cols: 4, inv_rate: 2, num_col_checks: 4 }, 4);
+    assert_the_replica_is_open_zk(&toy, 9);
+    let (tnn, tk, te, tq) = (toy.nn(), toy.k(), toy.e(), toy.zko.q_pad);
+    assert_eq!((toy.n(), tnn, tk, te, tq), (16, 32, 20, 6, 4));
+    let xs = coset_points(&toy);
+    let trials = 20_000u64;
+    let mut accepted = 0u64;
+    for t in 0..trials {
+        let cc = close_case(&toy, &xs, te, 300_000 + t);
+        let (v, bad, _) = close_attempt(&toy, &cc, 100_000 + t);
+        assert_eq!(bad, cc.r, "toy seed {t}: POSITIVE CONTROL: the cheater does not fail exactly on R");
+        accepted += u64::from(v.is_ok());
+    }
+    let r = tnn - (tk - 1) - te;
+    let exact = (1.0 - r as f64 / tnn as f64).powi(tq as i32);
+    let bound = toy.bound();
+    assert!((tnn - tk) % 2 == 0 && r == te + 1 && (exact - bound).abs() < 1e-12, "the toy's exact rate {exact} is not the lemma's bound {bound}");
+    let (rate, sigma) = rate_and_sigma(accepted, trials, exact);
+    eprintln!("W16R2 control (f) toy rate 1/2 (n 16, N 32, Q 4, K {tk}, e {te}): {accepted} of {trials} close-case false claims accepted = {rate:.4}; exact (1 - (e+1)/N)^Q = {exact:.4} (sigma {sigma:.4}; tolerance 5 sigma both ways)");
+    assert!(rate <= exact + 5.0 * sigma, "the close case is accepted ABOVE (1 - (e+1)/N)^Q: the lemma's bound is broken");
+    assert!(rate >= exact - 5.0 * sigma, "the close case is accepted BELOW its exact rate: the rig does not model the attack");
+}
+
+// ------------------------------------------------------------ control (g)
+
+/// **D59 control (g) (review F7): a replay at the SAME geometry under
+/// another profile's keys.** Control (e) rejects a W16 receipt under W16R2
+/// by its geometry (T-4 fires first). Here the geometry is W16R2's own —
+/// rate 1/2, `Q = q_pad = W16R2_OPENED_COLS` — and only the profile's keys
+/// differ, one mechanism at a time, each with its positive control (the same
+/// opening ACCEPTED when the verifier is handed the key it was made under, so
+/// the key is the only thing the rejection can be about):
+/// 1. the Merkle keys (column, leaf, node): committed under W16's, opened on
+///    W16R2's transcript: "Merkle path ... fails";
+/// 2. the Fiat–Shamir key: committed under W16R2's keys, opened on a
+///    transcript under W16's key: the group weight differs, so the claim
+///    check objects;
+/// 3. the transcript constructor's domain alone (W16R2's key, the W16
+///    profile string against the W16R2 one): the same;
+/// 4. all of them: a whole W16-keyed opening at W16R2's geometry.
+#[test]
+fn w16r2_control_g_a_replay_at_the_same_geometry_under_another_profiles_keys_is_rejected() {
+    let (r2s, w16s) = (built(shape::W16R2_RUNG_H24), built(shape::W16_RUNG_H24));
+    let r2 = Rig::profile(&r2s);
+    let w16 = Rig::at(&w16s, r2.params, r2.zko.q_pad);
+    let q = shape::W16R2_OPENED_COLS;
+    assert_eq!((r2.params.inv_rate, r2.params.num_col_checks, r2.zko.q_pad), (shape::W16R2_INV_RATE, q, q));
+    let (a, b) = (&r2.tag, &w16.tag);
+    assert!(a.column_key() != b.column_key() && a.leaf_key() != b.leaf_key() && a.node_key() != b.node_key() && a.transcript_key() != b.transcript_key(), "the two profiles share a key");
+    let data = r2.matrix(71);
+    let claims = [r2.claim(&data)];
+    let at_domain = |domain: &[u8], root: &[u8; 32]| {
+        let mut tr = protocol::tagged_transcript(&r2s, domain);
+        tr.absorb(b"root", root);
+        tr
+    };
+    let under = |tag: &HashTag, com: &Commitment, o: &OpeningZk, tr: &mut Transcript| zpcs::verify_zk_tagged(&r2.params, &r2.zko, com, &claims, o, &r2.ntt, tr, tag);
+    // 1. the Merkle keys alone
+    let c = w16.commit(data.clone(), 72);
+    let com = c.commitment();
+    let o = zpcs::open_zk(&c, &claims, &mut r2.transcript(&com.root));
+    under(b, &com, &o, &mut r2.transcript(&com.root)).expect("POSITIVE CONTROL: the opening verifies on W16R2's transcript with W16's Merkle keys");
+    let e = r2.verify(&com, &claims, &o).expect_err("CONTROL (g): AN OPENING UNDER W16'S MERKLE KEYS VERIFIED UNDER W16R2");
+    assert!(e.starts_with("pcs zk: Merkle path for column ") && e.ends_with(" fails"), "{e}");
+    eprintln!("W16R2 control (g) 1. committed under W16's column/leaf/node keys, opened on W16R2's transcript, at W16R2's geometry (rate 1/2, Q {q}): REJECTED: {e}");
+    // 2. the Fiat-Shamir key alone
+    let c = r2.commit(data.clone(), 73);
+    let com = c.commitment();
+    let o = zpcs::open_zk(&c, &claims, &mut w16.transcript(&com.root));
+    under(a, &com, &o, &mut w16.transcript(&com.root)).expect("POSITIVE CONTROL: the opening verifies under W16R2's Merkle keys on W16's transcript");
+    let e = r2.verify(&com, &claims, &o).expect_err("CONTROL (g): AN OPENING ON W16'S FIAT-SHAMIR KEY VERIFIED UNDER W16R2");
+    assert_eq!(e, "pcs zk: group 0: <v, c> != combined claim");
+    eprintln!("W16R2 control (g) 2. committed under W16R2's keys, opened on a transcript under W16's Fiat-Shamir key: REJECTED: {e}");
+    // 3. the constructor's domain alone
+    let o = zpcs::open_zk(&c, &claims, &mut at_domain(w16s.profile.as_bytes(), &com.root));
+    under(a, &com, &o, &mut at_domain(w16s.profile.as_bytes(), &com.root)).expect("POSITIVE CONTROL: the opening verifies on its own domain");
+    let e = under(a, &com, &o, &mut at_domain(r2s.profile.as_bytes(), &com.root)).expect_err("CONTROL (g): AN OPENING ON THE W16 DOMAIN VERIFIED ON THE W16R2 DOMAIN");
+    assert_eq!(e, "pcs zk: group 0: <v, c> != combined claim");
+    eprintln!("W16R2 control (g) 3. W16R2's keys, the transcript constructed on the W16 profile string, verified on the W16R2 string: REJECTED: {e}");
+    // 4. everything
+    let c = w16.commit(data, 74);
+    let com = c.commitment();
+    let o = zpcs::open_zk(&c, &claims, &mut w16.transcript(&com.root));
+    w16.verify(&com, &claims, &o).expect("POSITIVE CONTROL: the W16-keyed opening at this geometry verifies under W16's keys");
+    let e = r2.verify(&com, &claims, &o).expect_err("CONTROL (g): A W16-KEYED OPENING AT THE W16R2 GEOMETRY VERIFIED UNDER W16R2");
+    assert_eq!(e, "pcs zk: group 0: <v, c> != combined claim");
+    eprintln!("W16R2 control (g) 4. a whole W16-keyed opening at W16R2's geometry: REJECTED: {e}");
 }
 
 // ------------------------------------------------ W16's controls, ported
@@ -802,7 +1264,8 @@ fn body<'a>(text: &'a str, signature: &str) -> &'a str {
 /// * `q_pad >= Q` at every W16R2 commitment.
 /// * A W16R2 block verifies its `A` and `H` (and a run its boundaries and
 ///   endpoints) only through `verify_zk_tagged`, which checks the Merkle path
-///   length, under the profile's keys.
+///   length, under the profile's keys — in `protocol::verify_core`, in
+///   `run.rs`, and (review F4 (d)) in the D55 fork verifier `run_fork.rs`.
 #[test]
 fn w16r2_the_lemmas_load_bearing_invariants_are_pinned() {
     let pcs = source("../zkp-core/src/pcs.rs");
@@ -833,6 +1296,21 @@ fn w16r2_the_lemmas_load_bearing_invariants_are_pinned() {
     assert!(!vc.contains("pcs::verify_zk("), "verify_core calls the untagged verifier");
     let run = source("src/private_block/run.rs");
     assert!(!run.contains("pcs::verify_zk(&"), "a run verifies a boundary or an endpoint through the untagged verifier");
+    // review F4 (d) / the re-check's finding 5: the D55 fork verifier too (a
+    // D55 run can take a W16R2 base). Every boundary and both endpoints
+    // through `verify_zk_tagged` after T-4, and each fork's A and H through
+    // `verify_core` after T-4; never the untagged verifier
+    let fork = source("src/private_block/run_fork.rs");
+    assert!(!fork.contains("pcs::verify_zk(&") && !fork.contains("pcs::verify_zk("), "the D55 fork run calls the untagged verifier");
+    let vf = body(&fork, "pub(crate) fn verify_run_with_forks(");
+    assert_eq!(vf.matches("pcs::verify_zk_tagged(").count(), 3, "verify_run_with_forks does not open the boundaries, the input endpoint and the output endpoint through verify_zk_tagged (three sites)");
+    let first_open = vf.find("pcs::verify_zk_tagged(").unwrap();
+    for t4 in ["paths_are_the_tree_depth(&format!(\"boundary {k}\")", "paths_are_the_tree_depth(\"run input endpoint\"", "paths_are_the_tree_depth(\"run output endpoint\""] {
+        assert!(vf.find(t4).is_some_and(|i| i < first_open), "verify_run_with_forks: T-4 `{t4}` is gone or comes after an opening is verified");
+    }
+    let one = body(&fork, "fn verify_one_fork(");
+    let (t4a, t4h, vc) = (one.find("paths_are_the_tree_depth(\"A\"").expect("T-4 for A in a fork"), one.find("paths_are_the_tree_depth(\"H\"").expect("T-4 for H in a fork"), one.find("protocol::verify_core(").expect("a fork's verify_core"));
+    assert!(t4a < vc && t4h < vc && one.matches("protocol::verify_core(").count() == 1, "verify_one_fork does not check T-4 before its one verify_core");
     for spec in shape::W16R2_PROFILES.iter() {
         let s = built(spec.profile);
         let p = protocol::pcs_params_at(&s);
@@ -840,6 +1318,548 @@ fn w16r2_the_lemmas_load_bearing_invariants_are_pinned() {
         assert!(!s.hashes_under_the_legacy_rule() && s.hash_tag().column_key().is_some(), "{}: not a tagged profile", spec.name);
     }
     eprintln!("W16R2 invariants: proximity weights = rows independent challenge_fp2 draws; indices after both absorbs in open_zk and verify_zk_tagged, and they move with the vectors; q_pad >= Q; A/H through verify_zk_tagged (path length checked) under each profile's keys");
+}
+
+// ------------------------------------------------ the codec against the count (F4 (b))
+
+/// the counted bytes of one hiding opening at a W16R2 commitment of row
+/// width `2^log_n` and rate `1/inv_rate`: `groups + 1` clear vectors of
+/// `n + Q` Fp2 words, then `Q` columns, each its index, `rows` words, a salt
+/// and a path of the tree's depth (`OpeningZk::size_bytes`'s terms), `Q`
+/// being `W16R2_OPENED_COLS`
+fn w16r2_opening_bytes(log_n: usize, inv_rate: usize, groups: usize, rows: usize) -> usize {
+    let (q, n) = (shape::W16R2_OPENED_COLS, 1usize << log_n);
+    let depth = (n * inv_rate).trailing_zeros() as usize;
+    (groups + 1) * (n + q) * 16 + q * (8 + rows * 8 + 32 + depth * 32)
+}
+
+/// `M`'s counted opening, from its OWN `zk.rs` geometry (never the block's `Q`)
+fn mask_opening_bytes(m_rows: usize) -> usize {
+    use crate::zk::{MASK_LOG_DOM, MASK_LOG_MSG, MASK_Q};
+    2 * (2usize << MASK_LOG_MSG) * 16 + MASK_Q * (8 + m_rows * 8 + 32 + MASK_LOG_DOM as usize * 32)
+}
+
+/// **Review F4 (b): the codec length IS the count at every W16R2 shape.**
+/// `receipt_bytes` reads the shape's own `opened_cols` since D59, and
+/// `wire::encoded_len == receipt_bytes().total` was asserted only at four
+/// `Q = 256` shapes (`grow_tests::the_codec_length_is_the_models_at_every_shape`).
+/// Here at each W16R2 shape, and each opening's part against the formula
+/// from `W16R2_OPENED_COLS`, the row width and the tree depth; `M`'s part
+/// is its own `zk.rs` geometry. (W16R2 refuses a single-block receipt, so
+/// the frames a W16R2 proof really ships are a run's: their lengths are
+/// asserted against the same counts by the run-level tests below.)
+#[test]
+fn w16r2_the_codec_length_is_the_count_at_every_w16r2_shape() {
+    for spec in shape::W16R2_PROFILES.iter() {
+        let sh = built(spec.profile);
+        let lay = Layout::for_shape(&sh).unwrap();
+        let rb = sh.receipt_bytes();
+        assert_eq!(sh.opened_cols, shape::W16R2_OPENED_COLS, "{}", spec.name);
+        assert_eq!(wire::encoded_len(&lay), rb.total, "{}: the codec's frame length is not the counted receipt", spec.name);
+        assert_eq!(rb.a_opening, w16r2_opening_bytes(sh.log_cols, sh.inv_rate, sh.a_groups(), lay.a_rows), "{}: A", spec.name);
+        assert_eq!(rb.h_opening, w16r2_opening_bytes(sh.log_cols, sh.inv_rate, sh.h_groups(), lay.h_rows), "{}: H", spec.name);
+        let e_open = w16r2_opening_bytes(sh.endpoint_log_n, sh.endpoint_inv_rate, 1, sh.endpoint_rows);
+        assert_eq!(rb.endpoint_openings, 2 * e_open, "{}: the endpoints", spec.name);
+        assert_eq!(rb.mask_opening, mask_opening_bytes(lay.m_rows()), "{}: M", spec.name);
+        eprintln!("W16R2 F4(b) {}: encoded_len = receipt_bytes().total = {} B (A {}, H {}, M {}, one endpoint opening {} B at Q {})", spec.name, rb.total, rb.a_opening, rb.h_opening, rb.mask_opening, e_open, sh.opened_cols);
+    }
+}
+
+// ------------------------------------------------ run-level controls (F3)
+
+/// a padded `[t_pad, d_pad]` plane's true `[T, width]` words
+fn unpad(sh: &Shape, plane: &[i16]) -> Vec<i16> {
+    (0..sh.tokens).flat_map(|t| (0..sh.width).map(move |i| (t, i))).map(|(t, i)| plane[t * sh.d_pad + i]).collect()
+}
+
+/// a run's private inputs, every witness built before the run (the sealing
+/// pass)
+struct Chain {
+    witnesses: Vec<Option<Witness>>,
+    planes: Vec<Vec<i16>>,
+}
+
+impl super::run::RunWitnessSource for Chain {
+    fn witness(&mut self, k: usize) -> Result<Witness, String> {
+        self.witnesses.get_mut(k).and_then(Option::take).ok_or_else(|| format!("witness {k} was consumed"))
+    }
+    fn boundary_plane(&mut self, k: usize) -> Result<Vec<i16>, String> {
+        self.planes.get(k).cloned().ok_or_else(|| format!("no boundary {k}"))
+    }
+}
+
+/// **A W16-family rung run of `l` blocks at its own geometry** — the recipe
+/// of `run_fork_tests::d55_ab_one_request_serial_against_forks`, which is
+/// how the builder proved and verified the honest W16R2 `L = 3` run: ONE
+/// public synthetic block at every layer (`range16_tests::case`), the
+/// profile's test-only run identity (`W16_TEST_RUN_PROFILES`), a synthetic
+/// trained-model statement, and an honest witness chain from M10's
+/// admissible input. The run's transcript is the profile's tagged one
+/// (`RunStatement::transcript`, `ForkRun::transcript`).
+struct RungRun {
+    sh: Shape,
+    blk: BlockPublic,
+    data: super::accuracy_public::AccuracyPublic,
+    public: AttentionPublic,
+    ff: FeedForwardPublic,
+    l: usize,
+    run_profile: &'static str,
+    model: TrainedModelStatement,
+    xs: Vec<Vec<i16>>,
+    planes: Vec<Vec<i16>>,
+    input: Vec<i16>,
+    output: Vec<i16>,
+}
+
+impl RungRun {
+    fn new(profile: &str, l: usize) -> RungRun {
+        let (sh, data, public, ff) = super::range16_tests::case(built(profile), 3);
+        let blk = BlockPublic::new(public.clone(), ff.clone()).with_accuracy(data.clone());
+        let build = |x: &[i16]| super::witness::build_accuracy(&sh, &public, &ff, &data, x);
+        // M10's admissible input, then the honest chain through every layer
+        let mut s = 0usize;
+        let x0 = loop {
+            let input: Vec<i16> = (0..sh.tokens * sh.width).map(|i| ((i * 37 + 11 + s) % (41 + 20 * (s % 3))) as i16 - 20).collect();
+            match build(&input) {
+                Ok(_) => break input,
+                Err(_) if s < 6 => s += 1,
+                Err(e) => panic!("{}: no admissible synthetic input: {e}", sh.name),
+            }
+        };
+        let ids = Ids::new(&sh).unwrap();
+        let (mut xs, mut planes, mut input, mut output) = (vec![x0], Vec::new(), Vec::new(), Vec::new());
+        for k in 0..l {
+            let w = build(&xs[k]).unwrap_or_else(|e| panic!("{}: layer {k} of the synthetic chain is not admissible: {e}", sh.name));
+            if k == 0 {
+                input = w.planes[ids.at(A_X)].iter().map(|&v| v as i16).collect();
+            }
+            let out = w.output().unwrap();
+            xs.push(unpad(&sh, &out));
+            if k + 1 < l {
+                planes.push(out);
+            } else {
+                output = out;
+            }
+        }
+        let run_profile = super::w16_privacy_gate_tests::W16_TEST_RUN_PROFILES.iter().find(|(_, b)| *b == sh.profile).map(|(r, _)| *r).expect("a W16-family test-only run identity");
+        let mut prov = Provenance::recipe("W16R2 review F3 fixture (public synthetic)", 1.0, [3; 32], [4; 32]);
+        prov.rope_theta = shape::trained_rope_theta(sh.profile).expect("the profile's pinned RoPE base");
+        prov.rope_scaling = shape::trained_rope_scaling(sh.profile).expect("the profile's pinned RoPE transform");
+        let source = ModelSource { kind: SourceKind::PublicSyntheticRecipe, repo: "synthetic/w16r2-f3".into(), revision: "f3".into(), weights_sha256: [0; 32], config_sha256: [0; 32], checkpoint_parameters: 0, checkpoint_layers: l as u32 };
+        let r0 = LayerRecord::of_block(0, &blk, vec![]);
+        let records: Vec<LayerRecord> = (0..l)
+            .map(|i| {
+                let mut r = r0.clone();
+                r.index = i as u32;
+                r
+            })
+            .collect();
+        let model = TrainedModelStatement::new_synthetic_at_trained_profile_for_tests(&sh, run_profile, source, IntegerCalibration::as_the_code_proves(&sh, &prov), records).unwrap_or_else(|e| panic!("the synthetic {l}-layer statement: {e}"));
+        RungRun { sh, blk, data, public, ff, l, run_profile, model, xs, planes, input, output }
+    }
+    fn blocks(&self) -> Vec<BlockPublic> {
+        vec![self.blk.clone(); self.l]
+    }
+    /// every witness of one proof, built before the call
+    fn chain(&self) -> Chain {
+        let witnesses = (0..self.l).map(|k| Some(super::witness::build_accuracy(&self.sh, &self.public, &self.ff, &self.data, &self.xs[k]).expect("the chain was admissible"))).collect();
+        Chain { witnesses, planes: self.planes.clone() }
+    }
+    /// the run statement on an endpoint policy `expected` (ruling CS-4 runs
+    /// inside the constructor, before the run's header exists)
+    fn statement_on(&self, context: u8, expected: ExpectedIo) -> Result<RunStatement, String> {
+        RunStatement::new_bound_from_digests(RunShape::new(self.sh.clone(), self.l, self.run_profile)?, [context; 32], expected, vec![self.blk.digest(); self.l], &vec![(0, 0); self.l], &self.model)
+    }
+    /// the honest statement and its endpoint owners, at this profile's own policy
+    fn statement(&self, context: u8) -> (RunStatement, Endpoints) {
+        let (expected, owners) = prepare_endpoints(IoSpec::new_shaped(&self.sh, [context; 32], 0, 0).unwrap(), &self.input, &self.output).unwrap();
+        (self.statement_on(context, expected).expect("the honest run statement"), owners)
+    }
+    /// an honest D12a run: its statement and its `L` segments
+    fn d12a(&self, context: u8) -> (RunStatement, Vec<Vec<u8>>) {
+        let (st, owners) = self.statement(context);
+        let mut src = self.chain();
+        let mut segs: Vec<Vec<u8>> = Vec::new();
+        super::run::prove_run(&st, &self.blocks(), &mut src, owners, &mut |k, b| {
+            assert_eq!(k, segs.len());
+            segs.push(b);
+            Ok(())
+        })
+        .expect("the honest D12a run proves");
+        (st, segs)
+    }
+    /// an honest D55 fork run on `l` workers: its statement and its receipt
+    fn d55(&self, context: u8) -> (RunStatement, ForkReceipt) {
+        let (st, owners) = self.statement(context);
+        let mut src = self.chain();
+        let blocks = self.blocks();
+        let rc = {
+            let fr = ForkRun::new(&st, D55OptIn::unreviewed_prototype()).unwrap();
+            super::run::fork::prove_run_with_forks(&fr, &blocks, &mut src, owners, self.l).expect("the honest D55 fork run proves").0
+        };
+        (st, rc)
+    }
+    /// the rate, `Q` and keys every control below relies on
+    fn assert_the_profile(&self, inv_rate: usize, q: usize) {
+        let sh = &self.sh;
+        assert_eq!((sh.inv_rate, sh.endpoint_inv_rate, sh.opened_cols), (inv_rate, inv_rate, q), "{}: not the geometry this control is about", sh.name);
+        assert!(!sh.hashes_under_the_legacy_rule() && sh.hash_tag().transcript_key().is_some() && sh.hash_tag().column_key().is_some(), "{}: the run's transcript and hashes are not keyed", sh.name);
+    }
+}
+
+/// `(one internal boundary opening, one external endpoint opening)`, their
+/// counted bytes at a run of `st`: a boundary carries its two claim sites
+/// (`BOUNDARY_SITES` groups) over its own derived rows, an endpoint one
+fn run_opening_counts(st: &RunStatement) -> (usize, usize) {
+    let sh = st.rs().sh();
+    let b_rows = st.boundary_spec(0).unwrap().commitment_rows();
+    (w16r2_opening_bytes(sh.endpoint_log_n, sh.endpoint_inv_rate, super::run::BOUNDARY_SITES, b_rows), w16r2_opening_bytes(sh.endpoint_log_n, sh.endpoint_inv_rate, 1, sh.endpoint_rows))
+}
+
+/// One D12a segment, decoded with the verifier's own counts; its binding
+/// and start tag are read from its own header (`decode_segment` compares
+/// them, and the verifier compares them again), so an edit re-encoded here
+/// carries the honest header and trailer.
+struct SegFrame {
+    seg: wire::Segment,
+    lay: Layout,
+    g: wire::SegGeom,
+    binding: [u8; 32],
+    start: [u8; 32],
+    end: [u8; 32],
+}
+
+impl SegFrame {
+    fn decode(st: &RunStatement, bytes: &[u8], k: usize) -> SegFrame {
+        let l = st.rs().l();
+        let lay = Layout::for_shape(&st.stage_shape(k).unwrap()).unwrap();
+        let g = wire::SegGeom { l, k, boundary_rows: if l > 1 { st.boundary_spec(0).unwrap().commitment_rows() } else { 0 }, sites: super::run::BOUNDARY_SITES };
+        let binding: [u8; 32] = bytes[8..40].try_into().unwrap();
+        assert_eq!(binding, st.binding().unwrap(), "segment {k}'s binding is not where this harness reads it");
+        let start: [u8; 32] = bytes[wire::RUN_HEADER - 32..wire::RUN_HEADER].try_into().unwrap();
+        let (seg, end) = wire::decode_segment(bytes, &lay, g, &binding, &start).unwrap_or_else(|e| panic!("segment {k} does not decode: {e}"));
+        let f = SegFrame { seg, lay, g, binding, start, end };
+        assert_eq!(f.encode(), bytes, "segment {k} does not re-encode to its own bytes");
+        f
+    }
+    fn try_encode(&self) -> Result<Vec<u8>, String> {
+        wire::encode_segment(&self.seg, &self.lay, self.g, &self.binding, &self.start, &self.end)
+    }
+    fn encode(&self) -> Vec<u8> {
+        self.try_encode().unwrap()
+    }
+}
+
+/// `bytes` with the opening `old` (asserted to be at `at`) replaced by `new`
+fn splice_opening(bytes: &[u8], at: usize, old: &OpeningZk, new: &OpeningZk) -> Vec<u8> {
+    let (o, w) = (bytes_of(old), bytes_of(new));
+    assert_eq!(&bytes[at..at + o.len()], &o[..], "the opening is not at the offset this harness computed");
+    let mut b = bytes[..at].to_vec();
+    b.extend(w);
+    b.extend_from_slice(&bytes[at + o.len()..]);
+    b
+}
+
+/// one opened column's first entry + 1 (its Merkle path no longer opens it)
+fn bump_column(o: &mut OpeningZk) {
+    o.columns[0].1[0] = o.columns[0].1[0].add(Fp::ONE);
+}
+
+/// the proximity vector's first PAD entry + 1 (absorbed: the verifier
+/// redraws the columns, and the encoding moves at every coset point)
+fn bump_prox_pad(o: &mut OpeningZk, n: usize) {
+    o.prox_vec[n] = o.prox_vec[n].add(Fp2::ONE);
+}
+
+/// a column-test objection at `site`: the redrawn indices (`!= sampled`), or
+/// with probability `1/N` the disagreement the moved encoding has at EVERY
+/// column (both are `verify_zk_tagged`'s column round at that commitment)
+fn is_the_column_round_at(e: &str, site: &str) -> bool {
+    e.starts_with(&format!("{site}: pcs zk: ")) && (e.contains(" != sampled ") || e.contains(" disagrees with clear vector "))
+}
+
+/// **Review F3, the D12a run verifier.** A W16R2 rung run (`L = 3`: two
+/// internal boundaries and both endpoints at rate 1/2, `Q =
+/// W16R2_OPENED_COLS`, under the profile's tagged transcript and keys) and
+/// the same run at W16 (rate 1/4) for the splices. The honest receipt
+/// verifies, and so does its decode-and-re-encode; every frame has its
+/// counted length (F4 (b)). Each control is a complete receipt that the
+/// verifier REJECTS, at the site it asserts:
+/// * (i) W16's rate-1/4 `B_1` opening, and its rate-1/4 output-endpoint
+///   opening, spliced into the W16R2 receipt: the frame is not the counted
+///   length the verifier's OWN shape gives, so the wire refuses it before a
+///   byte is hashed; the frame format cannot even carry a 16-entry path, and
+///   handed the decoded opening the verifier's T-4 refuses "16 entries ... 15
+///   deep" (and the encoder will not write it);
+/// * (ii) one entry of one opened column of `B_1`, `B_0`, the input
+///   endpoint and the output endpoint: "Merkle path" at that site;
+/// * (iii) one pad entry of `B_1`'s, and of the output endpoint's, proximity
+///   vector + 1: the column round at that site.
+#[test]
+fn w16r2_f3_run_level_controls_under_the_d12a_run_verifier() {
+    let (r2, w16) = (RungRun::new(shape::W16R2_RUNG_H24, 3), RungRun::new(shape::W16_RUNG_H24, 3));
+    r2.assert_the_profile(shape::W16R2_INV_RATE, shape::W16R2_OPENED_COLS);
+    w16.assert_the_profile(4, 256);
+    let (st, segs) = r2.d12a(91);
+    let blocks = r2.blocks();
+    super::run::verify_run(&st, &blocks, &segs).expect("the honest W16R2 L3 D12a run verifies");
+    let l = st.rs().l();
+    // ---- F4 (b): every segment is the codec's length and the count's
+    let rb = r2.sh.receipt_bytes();
+    let (b_open, e_open) = run_opening_counts(&st);
+    let frames: Vec<SegFrame> = (0..l).map(|k| SegFrame::decode(&st, &segs[k], k)).collect();
+    for (k, f) in frames.iter().enumerate() {
+        let counted = wire::RUN_HEADER
+            + (if k + 1 < l { 32 } else { 0 })
+            + 3 * 32
+            + rb.slots
+            + mask_opening_bytes(f.lay.m_rows())
+            + w16r2_opening_bytes(r2.sh.log_cols, r2.sh.inv_rate, r2.sh.a_groups(), f.lay.a_rows)
+            + w16r2_opening_bytes(r2.sh.log_cols, r2.sh.inv_rate, r2.sh.h_groups(), f.lay.h_rows)
+            + (if k == 0 { e_open } else { b_open })
+            + (if k + 1 == l { e_open } else { 0 })
+            + wire::RUN_TRAILER;
+        assert_eq!((segs[k].len(), wire::segment_len(&f.lay, f.g)), (counted, counted), "segment {k}: the frame, the codec's segment_len and the count disagree");
+        assert_eq!((f.seg.a_open.size_bytes(), f.seg.h_open.size_bytes(), f.seg.mask_open.size_bytes()), (rb.a_opening, rb.h_opening, rb.mask_opening), "segment {k}: an opening is not its counted size");
+        assert_eq!(f.seg.in_open.size_bytes(), if k == 0 { e_open } else { b_open }, "segment {k}: the opening it closes");
+    }
+    let fresh: Vec<Vec<u8>> = frames.iter().map(SegFrame::encode).collect();
+    super::run::verify_run(&st, &blocks, &fresh).expect("the decoded and re-encoded honest receipt verifies");
+    eprintln!("W16R2 F3 D12a | honest W16R2 rung L{l} run: verifies (and re-encoded); segments {:?} B = the codec's segment_len = the count (boundary opening {b_open} B, endpoint opening {e_open} B at Q {})", segs.iter().map(Vec::len).collect::<Vec<_>>(), r2.sh.opened_cols);
+    // ---- the rate-1/4 run whose openings are spliced in
+    let (st4, segs4) = w16.d12a(92);
+    super::run::verify_run(&st4, &w16.blocks(), &segs4).expect("the honest W16 (rate 1/4) L3 run verifies under its own profile");
+    let last4 = SegFrame::decode(&st4, &segs4[l - 1], l - 1);
+    let (w16_b1, w16_out) = (last4.seg.in_open.clone(), last4.seg.out_open.clone().unwrap());
+    let reject = |what: &str, k: usize, bytes: Vec<u8>| -> String {
+        let mut bad = segs.clone();
+        bad[k] = bytes;
+        let e = super::run::verify_run(&st, &blocks, &bad).err().unwrap_or_else(|| panic!("RUN CONTROL (D12a) {what}: ACCEPTED"));
+        eprintln!("W16R2 F3 D12a | {what} | REJECTED: {e}");
+        e
+    };
+    let edited = |k: usize, edit: &dyn Fn(&mut wire::Segment)| -> Vec<u8> {
+        let mut f = SegFrame::decode(&st, &segs[k], k);
+        edit(&mut f.seg);
+        f.encode()
+    };
+    // ---- (i) the rate-1/4 openings spliced in
+    let (d4, d2) = (wire::path_len(&protocol::endpoint_pcs_params(&w16.sh)), wire::path_len(&protocol::endpoint_pcs_params(&r2.sh)));
+    assert_eq!((d4, d2), (16, 15));
+    let last = &frames[l - 1];
+    let out_len = last.seg.out_open.as_ref().unwrap().size_bytes();
+    let out_at = segs[l - 1].len() - wire::RUN_TRAILER - out_len;
+    let in_at = out_at - last.seg.in_open.size_bytes();
+    for (what, at, old, new, t4_site) in [
+        ("(i) W16's rate-1/4 B_1 opening spliced into segment 2", in_at, &last.seg.in_open, &w16_b1, "incoming boundary or endpoint"),
+        ("(i) W16's rate-1/4 output-endpoint opening spliced into segment 2", out_at, last.seg.out_open.as_ref().unwrap(), &w16_out, "run output endpoint"),
+    ] {
+        let bytes = splice_opening(&segs[l - 1], at, old, new);
+        let n_spliced = bytes.len();
+        let e = reject(what, l - 1, bytes);
+        assert_eq!(e, format!("private run wire: segment {} is {n_spliced} B, the counted length is {}", l - 1, segs[l - 1].len()), "{what}");
+        // the decoded opening, handed to the verifier's own T-4 and encoder
+        let mut f = SegFrame::decode(&st, &segs[l - 1], l - 1);
+        if t4_site == "run output endpoint" {
+            f.seg.out_open = Some(new.clone());
+        } else {
+            f.seg.in_open = new.clone();
+        }
+        let t4 = super::hash_domain::segment_paths_are_the_tree_depth(&f.seg, &r2.sh).expect_err("T-4 accepted a rate-1/4 path at a rate-1/2 commitment");
+        assert_eq!(t4, format!("private block: opened column 0 of the {t4_site} commitment carries a Merkle path of {d4} entries; this commitment's tree is {d2} deep (T-4)"));
+        assert_eq!(f.try_encode().err().as_deref(), Some("private run wire: opening shape"), "{what}: the encoder wrote it");
+        eprintln!("W16R2 F3 D12a | {what}, as a decoded opening | T-4: {t4}; the encoder: private run wire: opening shape");
+    }
+    // ---- (ii) one entry of one opened column (`out`: the segment's output
+    // endpoint opening, otherwise the opening it closes)
+    for (what, k, site, out) in [
+        ("(ii) one B_1 column entry + 1", 2usize, "boundary 1", false),
+        ("(ii) one B_0 column entry + 1", 1, "boundary 0", false),
+        ("(ii) one input-endpoint column entry + 1", 0, "run input endpoint", false),
+        ("(ii) one output-endpoint column entry + 1", 2, "run output endpoint", true),
+    ] {
+        let e = reject(what, k, edited(k, &|s: &mut wire::Segment| bump_column(if out { s.out_open.as_mut().unwrap() } else { &mut s.in_open })));
+        assert!(e.starts_with(&format!("{site}: pcs zk: Merkle path for column ")) && e.ends_with(" fails"), "{what}: rejected, but not at {site}'s Merkle path: {e}");
+    }
+    // ---- (iii) one pad entry of a proximity vector + 1
+    let n_e = 1usize << r2.sh.endpoint_log_n;
+    for (what, site, out) in [("(iii) B_1's proximity vector, first pad entry + 1", "boundary 1", false), ("(iii) the output endpoint's proximity vector, first pad entry + 1", "run output endpoint", true)] {
+        let e = reject(what, 2, edited(2, &|s: &mut wire::Segment| bump_prox_pad(if out { s.out_open.as_mut().unwrap() } else { &mut s.in_open }, n_e)));
+        assert!(is_the_column_round_at(&e, site), "{what}: rejected, but not at {site}'s column round: {e}");
+    }
+    super::run::verify_run(&st, &blocks, &segs).expect("the unedited receipt still verifies");
+}
+
+/// One D55 tail, decoded with the verifier's own counts (its binding and S1
+/// tag read from its own header, compared by `decode_tail` and again by the
+/// verifier), so an edit re-encoded here carries the honest header and end
+/// tag.
+struct TailBytes {
+    t: super::wire::fork::TailFrame,
+    sh: Shape,
+    l: usize,
+    boundary_rows: usize,
+    binding: [u8; 32],
+    s1: [u8; 32],
+    end: [u8; 32],
+}
+
+impl TailBytes {
+    fn decode(st: &RunStatement, rc: &ForkReceipt) -> TailBytes {
+        let fr = ForkRun::new(st, D55OptIn::unreviewed_prototype()).unwrap();
+        let (sh, l) = (st.rs().sh().clone(), st.rs().l());
+        let boundary_rows = st.boundary_spec(0).unwrap().commitment_rows();
+        let binding = fr.binding().unwrap();
+        assert_eq!(&rc.tail[8..40], &binding[..], "the tail's binding is not where this harness reads it");
+        let s1: [u8; 32] = rc.tail[48..80].try_into().unwrap();
+        let (t, end) = wire::fork::decode_tail(&rc.tail, &sh, &binding, l, boundary_rows, super::run::BOUNDARY_SITES, &s1).unwrap_or_else(|e| panic!("the tail does not decode: {e}"));
+        let b = TailBytes { t, sh, l, boundary_rows, binding, s1, end };
+        assert_eq!(b.encode(), rc.tail, "the tail does not re-encode to its own bytes");
+        b
+    }
+    fn try_encode(&self) -> Result<Vec<u8>, String> {
+        wire::fork::encode_tail(&self.t, &self.sh, &self.binding, self.l, self.boundary_rows, super::run::BOUNDARY_SITES, &self.s1, &self.end)
+    }
+    fn encode(&self) -> Vec<u8> {
+        self.try_encode().unwrap()
+    }
+}
+
+/// a D55 tail's openings in frame order: `B_0 .. B_{L-2}`, then the input
+/// endpoint (`L - 1`), then the output endpoint (`L`)
+fn tail_opening(t: &mut wire::fork::TailFrame, which: usize) -> &mut OpeningZk {
+    let b = t.boundary_opens.len();
+    if which < b {
+        &mut t.boundary_opens[which]
+    } else if which == b {
+        &mut t.in_open
+    } else {
+        &mut t.out_open
+    }
+}
+
+/// **Review F3, the D55 fork verifier.** The same W16R2 rung run (`L = 3`)
+/// proved as a D55 fork run, and the W16 one for the splices. The honest
+/// receipt verifies (and its re-encoded tail); the head, every fork frame and
+/// the tail have their counted lengths and `decode_fork`'s openings their
+/// counted sizes (F4 (b)). The controls, on the tail (which carries every
+/// boundary and endpoint opening), each REJECTED by `verify_run_with_forks`
+/// at the site asserted:
+/// * (i) W16's rate-1/4 `B_1` and output-endpoint openings spliced in: the
+///   tail is not its counted length; as decoded openings, T-4 "16 entries
+///   ... 15 deep" at the verifier's own site, and the encoder refuses them;
+/// * (ii) one opened column entry of `B_1`, `B_0`, the input endpoint and the
+///   output endpoint: "Merkle path" at that site;
+/// * (iii) one pad entry of `B_1`'s and of the output endpoint's proximity
+///   vector + 1: the column round at that site.
+#[test]
+fn w16r2_f3_run_level_controls_under_the_d55_fork_verifier() {
+    let (r2, w16) = (RungRun::new(shape::W16R2_RUNG_H24, 3), RungRun::new(shape::W16_RUNG_H24, 3));
+    r2.assert_the_profile(shape::W16R2_INV_RATE, shape::W16R2_OPENED_COLS);
+    w16.assert_the_profile(4, 256);
+    let (st, rc) = r2.d55(93);
+    let blocks = r2.blocks();
+    let fr = ForkRun::new(&st, D55OptIn::unreviewed_prototype()).unwrap();
+    super::run::fork::verify_run_with_forks(&fr, &blocks, &rc, 3).expect("the honest W16R2 L3 D55 fork run verifies");
+    let l = st.rs().l();
+    // ---- F4 (b): the head, the fork frames and the tail at their counts
+    let rb = r2.sh.receipt_bytes();
+    let (b_open, e_open) = run_opening_counts(&st);
+    let binding = fr.binding().unwrap();
+    assert_eq!(rc.head.len(), wire::fork::head_len(l));
+    assert_eq!(rc.head.len(), 8 + 32 + 8 + 32 * (l - 1) + 32);
+    for (k, bytes) in rc.forks.iter().enumerate() {
+        let lay = Layout::for_shape(&st.stage_shape(k).unwrap()).unwrap();
+        let counted = 8 + 32 + 8 + 8 + 32 + 3 * 32 + rb.slots + mask_opening_bytes(lay.m_rows()) + w16r2_opening_bytes(r2.sh.log_cols, r2.sh.inv_rate, r2.sh.a_groups(), lay.a_rows) + w16r2_opening_bytes(r2.sh.log_cols, r2.sh.inv_rate, r2.sh.h_groups(), lay.h_rows) + 32;
+        assert_eq!((bytes.len(), wire::fork::fork_len(&lay)), (counted, counted), "fork {k}: the frame, the codec's fork_len and the count disagree");
+        let start: [u8; 32] = bytes[56..88].try_into().unwrap();
+        let (f, _) = wire::fork::decode_fork(bytes, &lay, &binding, l, k, &start).unwrap_or_else(|e| panic!("fork {k} does not decode: {e}"));
+        assert_eq!((f.a_open.size_bytes(), f.h_open.size_bytes(), f.mask_open.size_bytes()), (rb.a_opening, rb.h_opening, rb.mask_opening), "fork {k}: an opening is not its counted size");
+    }
+    let tb = TailBytes::decode(&st, &rc);
+    let tail_counted = 8 + 32 + 8 + 32 + (l - 1) * b_open + 2 * e_open + 32;
+    assert_eq!((rc.tail.len(), wire::fork::tail_len(&r2.sh, l, tb.boundary_rows, super::run::BOUNDARY_SITES)), (tail_counted, tail_counted), "the tail, the codec's tail_len and the count disagree");
+    assert!(tb.t.boundary_opens.iter().all(|o| o.size_bytes() == b_open) && tb.t.in_open.size_bytes() == e_open && tb.t.out_open.size_bytes() == e_open);
+    super::run::fork::verify_run_with_forks(&fr, &blocks, &ForkReceipt { tail: tb.encode(), ..rc.clone() }, 3).expect("the re-encoded honest tail verifies");
+    eprintln!("W16R2 F3 D55 | honest W16R2 rung L{l} fork run: verifies (and re-encoded); head {} B, forks {:?} B, tail {} B = the codec's counts = the count (boundary opening {b_open} B, endpoint opening {e_open} B at Q {})", rc.head.len(), rc.forks.iter().map(Vec::len).collect::<Vec<_>>(), rc.tail.len(), r2.sh.opened_cols);
+    // ---- the rate-1/4 fork run whose openings are spliced in
+    let (st4, rc4) = w16.d55(94);
+    let fr4 = ForkRun::new(&st4, D55OptIn::unreviewed_prototype()).unwrap();
+    super::run::fork::verify_run_with_forks(&fr4, &w16.blocks(), &rc4, 3).expect("the honest W16 (rate 1/4) L3 fork run verifies under its own profile");
+    let tb4 = TailBytes::decode(&st4, &rc4);
+    let reject = |what: &str, tail: Vec<u8>| -> String {
+        let e = super::run::fork::verify_run_with_forks(&fr, &blocks, &ForkReceipt { tail, ..rc.clone() }, 3).err().unwrap_or_else(|| panic!("RUN CONTROL (D55) {what}: ACCEPTED"));
+        eprintln!("W16R2 F3 D55 | {what} | REJECTED: {e}");
+        e
+    };
+    let edited = |edit: &dyn Fn(&mut wire::fork::TailFrame)| -> Vec<u8> {
+        let mut b = TailBytes::decode(&st, &rc);
+        edit(&mut b.t);
+        b.encode()
+    };
+    // ---- (i) the rate-1/4 openings spliced in
+    let (d4, d2) = (wire::path_len(&protocol::endpoint_pcs_params(&w16.sh)), wire::path_len(&protocol::endpoint_pcs_params(&r2.sh)));
+    let ep = protocol::endpoint_pcs_params(&r2.sh);
+    let b1_at = 80 + b_open;
+    let out_at = rc.tail.len() - 32 - e_open;
+    for (what, at, old, new, site) in [
+        ("(i) W16's rate-1/4 B_1 opening spliced into the tail", b1_at, &tb.t.boundary_opens[1], &tb4.t.boundary_opens[1], "boundary 1"),
+        ("(i) W16's rate-1/4 output-endpoint opening spliced into the tail", out_at, &tb.t.out_open, &tb4.t.out_open, "run output endpoint"),
+    ] {
+        let tail = splice_opening(&rc.tail, at, old, new);
+        let n_spliced = tail.len();
+        let e = reject(what, tail);
+        assert_eq!(e, format!("D55 wire: the tail is {n_spliced} B, the counted length is {}", rc.tail.len()), "{what}");
+        let t4 = super::hash_domain::paths_are_the_tree_depth(site, &ep, new).expect_err("T-4 accepted a rate-1/4 path at a rate-1/2 commitment");
+        assert_eq!(t4, format!("private block: opened column 0 of the {site} commitment carries a Merkle path of {d4} entries; this commitment's tree is {d2} deep (T-4)"));
+        let mut b = TailBytes::decode(&st, &rc);
+        if site == "boundary 1" {
+            b.t.boundary_opens[1] = new.clone();
+        } else {
+            b.t.out_open = new.clone();
+        }
+        assert_eq!(b.try_encode().err().as_deref(), Some("D55 wire: tail opening shape"), "{what}: the encoder wrote it");
+        eprintln!("W16R2 F3 D55 | {what}, as a decoded opening | T-4 at the verifier's `{site}` site: {t4}; the encoder: D55 wire: tail opening shape");
+    }
+    // ---- (ii) one entry of one opened column (`which`: the tail's openings
+    // in frame order, B_0 .. B_{L-2}, then the input and output endpoints)
+    for (what, site, which) in [
+        ("(ii) one B_1 column entry + 1", "D55: boundary 1", 1usize),
+        ("(ii) one B_0 column entry + 1", "D55: boundary 0", 0),
+        ("(ii) one input-endpoint column entry + 1", "D55: run input endpoint", l - 1),
+        ("(ii) one output-endpoint column entry + 1", "D55: run output endpoint", l),
+    ] {
+        let e = reject(what, edited(&|t: &mut wire::fork::TailFrame| bump_column(tail_opening(t, which))));
+        assert!(e.starts_with(&format!("{site}: pcs zk: Merkle path for column ")) && e.ends_with(" fails"), "{what}: rejected, but not at {site}'s Merkle path: {e}");
+    }
+    // ---- (iii) one pad entry of a proximity vector + 1
+    let n_e = 1usize << r2.sh.endpoint_log_n;
+    for (what, site, which) in [("(iii) B_1's proximity vector, first pad entry + 1", "D55: boundary 1", 1usize), ("(iii) the output endpoint's proximity vector, first pad entry + 1", "D55: run output endpoint", l)] {
+        let e = reject(what, edited(&|t: &mut wire::fork::TailFrame| bump_prox_pad(tail_opening(t, which), n_e)));
+        assert!(is_the_column_round_at(&e, site), "{what}: rejected, but not at {site}'s column round: {e}");
+    }
+    super::run::fork::verify_run_with_forks(&fr, &blocks, &rc, 3).expect("the unedited fork receipt still verifies");
+}
+
+/// **Review F3 (iv): an endpoint policy whose endpoints were committed at
+/// rate 1/4** (W16's, at the same plane, under W16's keys) handed to a W16R2
+/// run: refused by ruling CS-4 (`policy_fits_the_shape`) inside the run
+/// statement's constructor — before the run's header transcript exists, so
+/// before any hash of the run. Both verifiers take that statement (D12a's
+/// `verify_run` and D55's `ForkRun::new`), so neither can be reached with
+/// it. The same planes under W16R2's own policy build a statement.
+#[test]
+fn w16r2_f3_an_endpoint_policy_committed_at_rate_one_quarter_is_refused_by_cs4() {
+    let r2 = RungRun::new(shape::W16R2_RUNG_H24, 3);
+    let w16sh = super::range16_tests::case(built(shape::W16_RUNG_H24), 3).0;
+    assert_eq!((w16sh.t_pad, w16sh.d_pad), (r2.sh.t_pad, r2.sh.d_pad), "the two rungs do not share the endpoint plane");
+    let (quarter, _) = prepare_endpoints(IoSpec::new_shaped(&w16sh, [95; 32], 0, 0).unwrap(), &r2.input, &r2.output).expect("the rate-1/4 endpoints commit");
+    let e = r2.statement_on(95, quarter).err().expect("RUN CONTROL (iv): A RATE-1/4 ENDPOINT POLICY WAS ACCEPTED BY A W16R2 RUN");
+    let (mine, theirs) = ((w16sh.endpoint_log_n, w16sh.endpoint_inv_rate, w16sh.endpoint_rows, w16sh.opened_cols), (r2.sh.endpoint_log_n, r2.sh.endpoint_inv_rate, r2.sh.endpoint_rows, r2.sh.opened_cols));
+    assert_eq!(e, format!("private run: {}: its endpoint commitment parameters (log_n, rate, rows, opened columns) are {mine:?}, this shape's are {theirs:?}", super::CS4_POLICY_REFUSAL));
+    eprintln!("W16R2 F3 (iv) | an endpoint policy committed at rate 1/4 handed to a W16R2 run | REFUSED before the run header: {e}");
+    let (st, _) = r2.statement(96);
+    assert_eq!(st.rs().sh().opened_cols, shape::W16R2_OPENED_COLS);
 }
 
 // ------------------------------------------------ the accounting inputs
