@@ -1,0 +1,88 @@
+== build 16:20:06
+[zk60-guard 16:20:06] START m22f3-build class=build need=4G cap=10G enforce=watchdog-only waited=0s run=0371de0c1f59
+[zk60-guard 16:22:17] END m22f3-build exit=0 child_wall=131s peak_rss=3.38G min_avail=220.89G
+134
+B=/Users/victorrielly/IntelligenceRegulation/ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-a90b6cf7715dc2a7
+-rwxr-xr-x  1 victorrielly  staff  17539008 Nov  1 16:22 /Users/victorrielly/IntelligenceRegulation/ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-a90b6cf7715dc2a7
+== zkp-core 16:22:27
+[zk60-guard 16:22:28] START m22f3-zkpcore class=build need=4G cap=10G enforce=watchdog-only waited=0s run=ccbd4dc1e7ab
+[zk60-guard 16:22:28] END m22f3-zkpcore exit=0 child_wall=0s peak_rss=0.00G min_avail=224.60G
+test result: ok. 15 passed; 0 failed; 2 ignored; 0 measured; 62 filtered out; finished in 0.07s
+== bytes-default 16:22:38
+[zk60-guard 16:22:38] START m22f3-bytes-default class=gpu need=60G cap=160G enforce=watchdog-only waited=0s run=29f0dae98b59
+[zk60-guard 16:22:44] END m22f3-bytes-default exit=0 child_wall=7s peak_rss=2.06G min_avail=219.37G peak_vram=4015MiB
+M4-ACCURACY-DIGEST R13_RUNG_LOW cpu 01fa1b2e
+M4-ACCURACY-DIGEST R13_RUNG_H24 cpu 992034f8
+M4-ACCURACY-DIGEST R13_RUNG_LOW_DD cpu 371e6b00
+M4-ACCURACY-DIGEST R13_RUNG_H24_DD cpu 3ab090df
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 927 filtered out; finished in 5.97s
+== bytes-0 16:22:55
+[zk60-guard 16:22:55] START m22f3-bytes-0 class=gpu need=60G cap=160G enforce=watchdog-only waited=0s run=9ce5d0bfa931
+[zk60-guard 16:23:01] END m22f3-bytes-0 exit=0 child_wall=6s peak_rss=2.06G min_avail=218.96G peak_vram=4501MiB
+M4-ACCURACY-DIGEST R13_RUNG_LOW cpu 01fa1b2e
+M4-ACCURACY-DIGEST R13_RUNG_H24 cpu 992034f8
+M4-ACCURACY-DIGEST R13_RUNG_LOW_DD cpu 371e6b00
+M4-ACCURACY-DIGEST R13_RUNG_H24_DD cpu 3ab090df
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 927 filtered out; finished in 5.94s
+== unit-default 16:23:11
+[zk60-guard 16:23:11] START m22f3-unit-default class=cpu need=8G cap=40G enforce=watchdog-only waited=0s run=f4618948658f
+[zk60-guard 16:23:36] END m22f3-unit-default exit=0 child_wall=25s peak_rss=4.81G min_avail=219.46G
+test result: ok. 99 passed; 0 failed; 8 ignored; 0 measured; 821 filtered out; finished in 24.73s
+== unit-0 16:23:46
+[zk60-guard 16:23:46] START m22f3-unit-0 class=cpu need=8G cap=40G enforce=watchdog-only waited=0s run=dfbc1a1d21dd
+[zk60-guard 16:24:11] END m22f3-unit-0 exit=0 child_wall=25s peak_rss=4.68G min_avail=219.06G
+test result: ok. 99 passed; 0 failed; 8 ignored; 0 measured; 821 filtered out; finished in 24.90s
+== f3 16:24:21
+[zk60-guard 16:24:21] START m22f3-f3 class=cpu need=8G cap=40G enforce=watchdog-only waited=0s run=c50aae2b0e2b
+[zk60-guard 16:24:35] END m22f3-f3 exit=0 child_wall=14s peak_rss=0.58G min_avail=223.49G
+test private_block::range16_tests::w16_f3_a_remainder_filed_in_a_wider_family_is_refused_by_the_tag_fold ... W16 F3 RQL 16384 -> 49152 (R15 miss filed in R16), Q and QR -1: the honest prover refuses: prover: private block: ruling CS-3 — the witness looks up a value that is not a row of its table
+W16 F3 RQL 16384 -> 49152 (R15 miss filed in R16), Q and QR -1: the verifier rejects: H: pcs zk: group 8: <v, c> != combined claim
+W16 F3 RQL 16384 -> 49152 (R15 miss filed in R16), Q and QR -1: with the range tags collapsed to one, the same cheat is ACCEPTED (positive control)
+W16 F3 RU 3456 -> 7552 (R12 miss filed in R16), U -1: the honest prover refuses: prover: private block: ruling CS-3 — the witness looks up a value that is not a row of its table
+W16 F3 RU 3456 -> 7552 (R12 miss filed in R16), U -1: the verifier rejects: H: pcs zk: group 8: <v, c> != combined claim
+W16 F3 RU 3456 -> 7552 (R12 miss filed in R16), U -1: with the range tags collapsed to one, the same cheat is ACCEPTED (positive control)
+test private_block::range16_tests::w16_f3_b_a_word_at_plus_32768_is_rejected_by_the_verifier ... W16 F3 U -40 -> +32768 (looked up as 65536), RU 3456 -> -134378112: the honest prover refuses: prover: private block: ruling CS-3 — the witness looks up a value that is not a row of its table
+W16 F3 U -40 -> +32768 (looked up as 65536), RU 3456 -> -134378112: the verifier rejects: H: pcs zk: group 8: <v, c> != combined claim
+test private_block::range16_tests::w16_f3_c_a_count_moved_into_a_narrow_range_padded_copy_is_rejected ... W16 F3 R1 count moved from row 0 to its padded copy 16382: the verifier rejects: slot 19 [TAB table helper zero-check]: sumcheck round 0: s(0) + s(1) != claim
+W16 F3 R2 count moved from row 0 to its padded copy 16380: the verifier rejects: slot 19 [TAB table helper zero-check]: sumcheck round 0: s(0) + s(1) != claim
+W16 F3 R3 count moved from row 0 to its padded copy 16376: the verifier rejects: slot 19 [TAB table helper zero-check]: sumcheck round 0: s(0) + s(1) != claim
+W16 F3 R4 count moved from row 0 to its padded copy 16368: the verifier rejects: slot 19 [TAB table helper zero-check]: sumcheck round 0: s(0) + s(1) != claim
+W16 F3 R5 count moved from row 0 to its padded copy 16352: the verifier rejects: slot 19 [TAB table helper zero-check]: sumcheck round 0: s(0) + s(1) != claim
+W16 F3 R7 count moved from row 0 to its padded copy 16256: the verifier rejects: slot 19 [TAB table helper zero-check]: sumcheck round 0: s(0) + s(1) != claim
+W16 F3 R12 count moved from row 0 to its padded copy 12288: the verifier rejects: slot 19 [TAB table helper zero-check]: sumcheck round 0: s(0) + s(1) != claim
+W16 F3 R13 count moved from row 0 to its padded copy 8192: the verifier rejects: slot 19 [TAB table helper zero-check]: sumcheck round 0: s(0) + s(1) != claim
+W16 F3 (c): narrow families exercised [1, 2, 3, 4, 5, 7, 12, 13]
+test private_block::range16_tests::w16_f3_d_a_direct_quotient_of_2_13_is_rejected_by_the_verifier ... W16 F3 P 4096 -> 8192 (Sum 4096), SR 0 -> -16777216, SG 4095 -> 16781311: the honest prover refuses: prover: private block: ruling CS-3 — the witness looks up a value that is not a row of its table
+W16 F3 P 4096 -> 8192 (Sum 4096), SR 0 -> -16777216, SG 4095 -> 16781311: the verifier rejects: H: pcs zk: group 8: <v, c> != combined claim
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 924 filtered out; finished in 13.74s
+== trained 16:24:45
+[zk60-guard 16:24:45] START m22f3-trained class=gpu need=60G cap=160G enforce=watchdog-only waited=0s run=cdb28027ef58
+[zk60-guard 16:25:16] END m22f3-trained exit=0 child_wall=31s peak_rss=10.89G min_avail=205.91G peak_vram=11728MiB
+M4-TRAINED R13_8B_T128_H24 cpu 4.224 s metal-warm 0.698 s (prove core cpu 4.056 s metal 0.534 s; kernel compile 0.000 s, device sumcheck rounds 0.139 s; 1 slots without a matching IR; buffer pool 93 reused / 0 new) digest cpu 678953f646fcd15d28e9209984cb42ff8a
+M4-TRAINED R13_8B_T128_H24 cpu 4.224 s metal-warm 0.672 s (prove core cpu 4.056 s metal 0.509 s; kernel compile 0.000 s, device sumcheck rounds 0.130 s; 1 slots without a matching IR; buffer pool 93 reused / 0 new) digest cpu 678953f646fcd15d28e9209984cb42ff8a
+M4-TRAINED R13_8B_T128_H24 cpu 4.224 s metal-warm 0.669 s (prove core cpu 4.056 s metal 0.507 s; kernel compile 0.000 s, device sumcheck rounds 0.131 s; 1 slots without a matching IR; buffer pool 93 reused / 0 new) digest cpu 678953f646fcd15d28e9209984cb42ff8a
+M4-TRAINED R13_SHIELD_T128_H24 cpu 2.744 s metal-warm 0.717 s (prove core cpu 2.580 s metal 0.549 s; kernel compile 0.000 s, device sumcheck rounds 0.165 s; 1 slots without a matching IR; buffer pool 93 reused / 0 new) digest cpu 2b0d04bbf22b5e52faf1d0ce9a13d8
+M4-TRAINED R13_SHIELD_T128_H24 cpu 2.744 s metal-warm 0.729 s (prove core cpu 2.580 s metal 0.561 s; kernel compile 0.000 s, device sumcheck rounds 0.167 s; 1 slots without a matching IR; buffer pool 93 reused / 0 new) digest cpu 2b0d04bbf22b5e52faf1d0ce9a13d8
+M4-TRAINED R13_SHIELD_T128_H24 cpu 2.744 s metal-warm 0.709 s (prove core cpu 2.580 s metal 0.545 s; kernel compile 0.000 s, device sumcheck rounds 0.165 s; 1 slots without a matching IR; buffer pool 93 reused / 0 new) digest cpu 2b0d04bbf22b5e52faf1d0ce9a13d8
+M4-TRAINED W16_SHIELD_T128_H24 cpu 1.751 s metal-warm 0.504 s (prove core cpu 1.621 s metal 0.376 s; kernel compile 0.000 s, device sumcheck rounds 0.086 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu 01a6d51d3b0476dac75ecaf0ff375
+M4-TRAINED W16_SHIELD_T128_H24 cpu 1.751 s metal-warm 0.536 s (prove core cpu 1.621 s metal 0.407 s; kernel compile 0.000 s, device sumcheck rounds 0.087 s; 0 slots without a matching IR; buffer pool 106 reused / 1 new) digest cpu 01a6d51d3b0476dac75ecaf0ff375
+M4-TRAINED W16_SHIELD_T128_H24 cpu 1.751 s metal-warm 0.508 s (prove core cpu 1.621 s metal 0.380 s; kernel compile 0.000 s, device sumcheck rounds 0.086 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu 01a6d51d3b0476dac75ecaf0ff375
+M4-TRAINED W16_8B_T128_H24 cpu 1.625 s metal-warm 0.496 s (prove core cpu 1.493 s metal 0.364 s; kernel compile 0.000 s, device sumcheck rounds 0.076 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu c5e0bdac78cc47bb4de6528a29e809f56
+M4-TRAINED W16_8B_T128_H24 cpu 1.625 s metal-warm 0.485 s (prove core cpu 1.493 s metal 0.355 s; kernel compile 0.000 s, device sumcheck rounds 0.076 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu c5e0bdac78cc47bb4de6528a29e809f56
+M4-TRAINED W16_8B_T128_H24 cpu 1.625 s metal-warm 0.489 s (prove core cpu 1.493 s metal 0.359 s; kernel compile 0.000 s, device sumcheck rounds 0.077 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu c5e0bdac78cc47bb4de6528a29e809f56
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 927 filtered out; finished in 31.29s
+== r13 16:25:26
+[zk60-guard 16:25:26] START m22f3-r13 class=gpu need=8G cap=40G enforce=watchdog-only waited=0s run=1fa290f04420
+[zk60-guard 16:25:28] END m22f3-r13 exit=0 child_wall=1s peak_rss=0.55G min_avail=221.47G peak_vram=4009MiB
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 927 filtered out; finished in 1.24s
+== golden 16:25:38
+cpu r12_golden_seeded_tinyllama_t128_block_is_byte_identical 0
+cpu r12_golden_seeded_tinyllama_t128_dd_block_is_byte_identical 0
+cpu r12_golden_seeded_llama3_8b_t128_block_is_byte_identical 0
+cpu r12_golden_seeded_llama3_8b_t128_dd_block_is_byte_identical 0
+metal r12_golden_seeded_tinyllama_t128_block_is_byte_identical 0
+metal r12_golden_seeded_tinyllama_t128_dd_block_is_byte_identical 0
+metal r12_golden_seeded_llama3_8b_t128_block_is_byte_identical 0
+metal r12_golden_seeded_llama3_8b_t128_dd_block_is_byte_identical 0
+ALL 0
+== done 16:26:02

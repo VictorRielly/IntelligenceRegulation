@@ -49,7 +49,43 @@ pub(crate) fn lk_tag(width: u32) -> LkTag {
 /// the verifier both call this one function, so the two sides fold the same
 /// element. It needs no new transcript draw and no new `Ctx` field.
 pub(crate) fn g_range(g_u8: Fp2, width: u32) -> Fp2 {
+    // (test builds: the F3 positive control folds every width with one tag)
+    #[cfg(test)]
+    let width = if COLLAPSED_TAGS.with(|c| c.get()) { 16 } else { width };
     g_u8.mul_base(Fp::new(tag_value(width)).mul(Fp::new(TAG_U8).inv()))
+}
+
+// W16 review F3 (a)'s POSITIVE control, TEST BUILDS ONLY: while a
+// [`CollapsedRangeTags`] guard lives on this thread, every range width folds
+// with the width-16 tag. Both sides fold through [`g_range`] alone (the
+// prover's helper and table columns, the verifier's `lk_tables` and
+// `tab_w16`, the device IR), so the honest statement is still consistent; a
+// cheat that only the tag fold refuses is then ACCEPTED, which is what shows
+// that the fold is the refusing term.
+#[cfg(test)]
+thread_local! {
+    static COLLAPSED_TAGS: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
+}
+
+/// While alive, this thread folds every range width with the width-16 tag
+/// (test only; see `COLLAPSED_TAGS`).
+#[cfg(test)]
+pub(crate) struct CollapsedRangeTags {
+    was: bool,
+}
+
+#[cfg(test)]
+impl CollapsedRangeTags {
+    pub(crate) fn on() -> CollapsedRangeTags {
+        CollapsedRangeTags { was: COLLAPSED_TAGS.with(|c| c.replace(true)) }
+    }
+}
+
+#[cfg(test)]
+impl Drop for CollapsedRangeTags {
+    fn drop(&mut self) {
+        COLLAPSED_TAGS.with(|c| c.set(self.was));
+    }
 }
 
 /// the fold constant of one lookup's tag

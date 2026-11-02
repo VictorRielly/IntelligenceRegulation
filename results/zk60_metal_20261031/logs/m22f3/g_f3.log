@@ -1,0 +1,28 @@
+
+running 4 tests
+test private_block::range16_tests::w16_f3_a_remainder_filed_in_a_wider_family_is_refused_by_the_tag_fold ... W16 F3 RQL 16384 -> 49152 (R15 miss filed in R16), Q and QR -1: the honest prover refuses: prover: private block: ruling CS-3 — the witness looks up a value that is not a row of its table
+W16 F3 RQL 16384 -> 49152 (R15 miss filed in R16), Q and QR -1: the verifier rejects: H: pcs zk: group 8: <v, c> != combined claim
+W16 F3 RQL 16384 -> 49152 (R15 miss filed in R16), Q and QR -1: with the range tags collapsed to one, the same cheat is ACCEPTED (positive control)
+W16 F3 RU 3456 -> 7552 (R12 miss filed in R16), U -1: the honest prover refuses: prover: private block: ruling CS-3 — the witness looks up a value that is not a row of its table
+W16 F3 RU 3456 -> 7552 (R12 miss filed in R16), U -1: the verifier rejects: H: pcs zk: group 8: <v, c> != combined claim
+W16 F3 RU 3456 -> 7552 (R12 miss filed in R16), U -1: with the range tags collapsed to one, the same cheat is ACCEPTED (positive control)
+ok
+test private_block::range16_tests::w16_f3_b_a_word_at_plus_32768_is_rejected_by_the_verifier ... W16 F3 U -40 -> +32768 (looked up as 65536), RU 3456 -> -134378112: the honest prover refuses: prover: private block: ruling CS-3 — the witness looks up a value that is not a row of its table
+W16 F3 U -40 -> +32768 (looked up as 65536), RU 3456 -> -134378112: the verifier rejects: H: pcs zk: group 8: <v, c> != combined claim
+ok
+test private_block::range16_tests::w16_f3_c_a_count_moved_into_a_narrow_range_padded_copy_is_rejected ... W16 F3 R1 count moved from row 0 to its padded copy 16382: the verifier rejects: slot 19 [TAB table helper zero-check]: sumcheck round 0: s(0) + s(1) != claim
+W16 F3 R2 count moved from row 0 to its padded copy 16380: the verifier rejects: slot 19 [TAB table helper zero-check]: sumcheck round 0: s(0) + s(1) != claim
+W16 F3 R3 count moved from row 0 to its padded copy 16376: the verifier rejects: slot 19 [TAB table helper zero-check]: sumcheck round 0: s(0) + s(1) != claim
+W16 F3 R4 count moved from row 0 to its padded copy 16368: the verifier rejects: slot 19 [TAB table helper zero-check]: sumcheck round 0: s(0) + s(1) != claim
+W16 F3 R5 count moved from row 0 to its padded copy 16352: the verifier rejects: slot 19 [TAB table helper zero-check]: sumcheck round 0: s(0) + s(1) != claim
+W16 F3 R7 count moved from row 0 to its padded copy 16256: the verifier rejects: slot 19 [TAB table helper zero-check]: sumcheck round 0: s(0) + s(1) != claim
+W16 F3 R12 count moved from row 0 to its padded copy 12288: the verifier rejects: slot 19 [TAB table helper zero-check]: sumcheck round 0: s(0) + s(1) != claim
+W16 F3 R13 count moved from row 0 to its padded copy 8192: the verifier rejects: slot 19 [TAB table helper zero-check]: sumcheck round 0: s(0) + s(1) != claim
+W16 F3 (c): narrow families exercised [1, 2, 3, 4, 5, 7, 12, 13]
+ok
+test private_block::range16_tests::w16_f3_d_a_direct_quotient_of_2_13_is_rejected_by_the_verifier ... W16 F3 P 4096 -> 8192 (Sum 4096), SR 0 -> -16777216, SG 4095 -> 16781311: the honest prover refuses: prover: private block: ruling CS-3 — the witness looks up a value that is not a row of its table
+W16 F3 P 4096 -> 8192 (Sum 4096), SR 0 -> -16777216, SG 4095 -> 16781311: the verifier rejects: H: pcs zk: group 8: <v, c> != combined claim
+ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 924 filtered out; finished in 13.74s
+

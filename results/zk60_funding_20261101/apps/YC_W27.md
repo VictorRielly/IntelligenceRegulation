@@ -215,3 +215,20 @@ and open-source funders) for open-source work and an external security review.
 > Next: NVIDIA GPUs, open source, and the first platforms. Thanks.
 
 That is about 130 words, roughly 55 seconds at a natural pace.
+
+---
+
+## Founder profile answers chosen by Victor (2026-11-01)
+
+**Most impressive thing (other than this startup):**
+> I founded and built a live translation system that streams a speaker's words, translated into many languages, to
+> listeners in real time, even over weak venue Wi-Fi. With no advertising, it has been used at more than ten
+> churches and a school across three states.
+
+**A non-computer system you hacked:**
+> I found that TD Ameritrade's options paper-trading simulator could be gamed. I built a strategy that reliably
+> doubled the paper account every day but made nothing with real money, because the simulator filled orders the
+> real market never would. It taught me to check claimed results against reality, which is what Hashline does for
+> AI.
+
+**Founder video:** `~/Downloads/Victor_YC_founder_video_take2.mp4` (59.6 s; audio normalized).

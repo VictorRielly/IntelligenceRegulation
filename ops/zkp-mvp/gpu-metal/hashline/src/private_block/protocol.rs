@@ -1082,6 +1082,9 @@ pub(super) fn helper_pair_inverses_u8_at(a: &[i64], b: &[i64], alpha: Fp2, g_u8:
 // It is `#[cfg(test)]` throughout: the state, the setter and both injection
 // points vanish from a release build, and no public API of this crate names
 // them. `(which histogram 0/1/2, true row < 256, padded position >= 256)`.
+// W16 review F3 (c) extends `which`: `3 + j` is range sub-plane `j` (in
+// `AccuracyIds::range_planes` order) of a NARROW family, the true row below
+// its support `2^w` and the padded position a copy `>= 2^w` of that row.
 #[cfg(test)]
 thread_local! {
     static MOVED_MULTIPLICITY: std::cell::Cell<Option<(usize, usize, usize)>> = const { std::cell::Cell::new(None) };
@@ -1096,6 +1099,42 @@ pub(crate) fn set_moved_multiplicity(v: Option<(usize, usize, usize)>) {
 #[cfg(test)]
 fn moved_multiplicity() -> Option<(usize, usize, usize)> {
     MOVED_MULTIPLICITY.with(|c| c.get())
+}
+
+// W16 review F3 (a), TEST BUILDS ONLY: a cheating prover that files each
+// width-`from` query MISSING its own table in the histogram of the width-`to`
+// range family, whose table holds the value. The query keeps its own tag and
+// the count sits under the other family's, so with every relation true the
+// tag fold `gamma tag(w)` is the only term left that can tell the two apart.
+// `(from, to)`; read on the proving thread, never inside a rayon region.
+#[cfg(test)]
+thread_local! {
+    static MISFILED_RANGE: std::cell::Cell<Option<(u32, u32)>> = const { std::cell::Cell::new(None) };
+}
+
+/// set or clear the hook above; a test MUST clear it before it returns
+#[cfg(test)]
+pub(crate) fn set_misfiled_range(v: Option<(u32, u32)>) {
+    MISFILED_RANGE.with(|c| c.set(v));
+}
+
+/// the range histograms with the hook above applied (returned unchanged
+/// while it is clear)
+#[cfg(test)]
+fn misfile_range_misses(lay: &Layout, looked: &[(Dom, Vec<Vec<i64>>)], mut m_rng: Vec<Vec<u64>>) -> Vec<Vec<u64>> {
+    let Some((from, to)) = MISFILED_RANGE.with(|c| c.get()) else { return m_rng };
+    let widths: Vec<u32> = lay.shape().range_families().iter().map(|f| f.width).collect();
+    let t = widths.iter().position(|w| *w == to).expect("the hook files into one of the shape's range families");
+    for (dom, cols) in looked {
+        for (c, l) in cols.iter().zip(lay.lookups(*dom)) {
+            if matches!(l.tag, LkTag::Range(w) if w == from) {
+                for v in c.iter().filter(|v| !(0..1i64 << from).contains(*v) && (0..1i64 << to).contains(*v)) {
+                    m_rng[t][*v as usize] += 1;
+                }
+            }
+        }
+    }
+    m_rng
 }
 
 /// [ZK60-METAL M4c] one LogUp helper column written straight into `h`: word `i`
@@ -1483,6 +1522,10 @@ pub(crate) fn prove_core(
     // byte histogram alone, unchanged
     #[allow(unused_mut)]
     let (mut m_u8, m_rng, w16_missed) = if sh.range16() { w16_histograms(lay, &looked) } else { (byte_histogram_at(&looked, lookup_words, HISTOGRAM_PAR_MIN), Vec::new(), 0) };
+    // W16 review F3 (test builds only): the cheating prover's misfiled range
+    // counts, and a binding the moved-multiplicity hook below may edit
+    #[cfg(test)]
+    let mut m_rng = misfile_range_misses(lay, &looked, m_rng);
     ph.mark(Half::Commit, "A: lookup values + the byte histogram", lookup_words, "words");
     let deltas = exp_deltas(lay, &wit);
     let (mut m_exp, exp_missed) = exp_histogram(&deltas, &wit.planes[ids.at(A_E)], &public.exp);
@@ -1535,7 +1578,15 @@ pub(crate) fn prove_core(
         let (plane, m) = match which {
             0 => (ids.at(A_MU8), &mut m_u8),
             1 => (ids.at(A_MEXP), &mut m_exp),
-            _ => (ids.at(A_MACT), &mut m_act),
+            2 => (ids.at(A_MACT), &mut m_act),
+            // W16 review F3 (c): `3 + j` is range sub-plane `j`, of a NARROW
+            // family (one sub-plane whose histogram is its support)
+            _ => {
+                let (f, s, plane) = ids.accuracy()?.range_planes()[which - 3];
+                assert!(s == 0 && !super::range16::full(f, sh.log_cols), "the hook moves a count of a NARROW range family only");
+                let fi = sh.range_families().iter().position(|x| *x == f).ok_or("W16: a range sub-plane outside the shape's families")?;
+                (plane, &mut m_rng[fi])
+            }
         };
         assert!(from < m.len() && to >= m.len() && to < sh.size(Dom::Tab), "the hook moves a count outside its family's registered support");
         assert!(m[from] > 0, "the hook's true row carries no multiplicity to move");
@@ -1740,10 +1791,16 @@ pub(crate) fn prove_core(
         let (plane, tv) = match which {
             0 => (gu8, super::argument::table_values_u8_at(tab_len, g_u8)),
             1 => (gexp, super::argument::table_values_exp_at(tab_len, public, beta, g_exp)),
-            _ => (gact,match blk.accuracy() {
+            2 => (gact,match blk.accuracy() {
                 Some(data)=>super::accuracy_act::table(data,tab_len,beta,g_act)?.compressed,
                 None=>super::argument::table_values_act_at(tab_len,ff,beta,g_act),
             }),
+            // W16 review F3 (c): the range sub-plane's own table helper and column
+            _ => {
+                let (f, s, _) = ids.accuracy()?.range_planes()[which - 3];
+                let helper = hids.range_helpers().nth(which - 3).ok_or("W16: a range sub-plane without its table helper")?;
+                (helper, super::range16::table_column(f, s, sh.log_cols, super::range16::g_range(g_u8, f.width)))
+            }
         };
         assert_eq!(tv[to], tv[from], "the padded row does not repeat its true row");
         let val = inverses(vec![alpha.sub(tv[to])])?[0];
