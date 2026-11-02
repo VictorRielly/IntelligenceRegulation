@@ -2674,6 +2674,32 @@ pub(crate) fn render_fork_frames_json(seen: &[(u64, String)]) -> String {
     format!("[\n {}\n]\n", segs.join(",\n "))
 }
 
+/// **D60 review F3: the operator's explicit acknowledgement that a D55 fork
+/// run is a TEST receipt, not for publication** (`stack-prove` only). While
+/// `run::fork::D55_REAL_CONTENT_PRIVACY_GATE_PASSED` is `false`,
+/// `stack-prove --d55-workers N` refuses to run without it.
+pub(crate) const D55_TEST_RECEIPT_FLAG: &str = "--d55-test-receipt-not-for-publication";
+
+/// **D60 review F3: whether `stack-prove` may run, and whether its receipt is
+/// a D55 TEST receipt** (`Ok(true)`: the run directory gets the marker
+/// `run::fork::D55_TEST_RECEIPT_MARKER_FILE`). `gate_passed` is
+/// `run::fork::D55_REAL_CONTENT_PRIVACY_GATE_PASSED` in production (a
+/// parameter only so the tests read both arms). Refused: a D55 fork run
+/// without the acknowledgement while the gate has not passed, and the
+/// acknowledgement without `--d55-workers`. A D12a run is never affected.
+pub(crate) fn d55_prove_admission(d55_workers: Option<usize>, acknowledged: bool, gate_passed: bool) -> Result<bool, String> {
+    match (d55_workers.is_some(), acknowledged) {
+        (false, false) => Ok(false),
+        (false, true) => Err(format!("{D55_TEST_RECEIPT_FLAG} acknowledges a D55 fork run's test receipt; it is given only with --d55-workers")),
+        (true, true) => Ok(true),
+        (true, false) if gate_passed => Ok(false),
+        (true, false) => Err(format!(
+            "D60 review F3: a D55 fork run is refused in this build — ruling D60 requires the privacy gate on a capture under a REGISTERED D55 run profile before any receipt for real content, and that gate has not passed (run_fork::D55_REAL_CONTENT_PRIVACY_GATE_PASSED is false); to prove a TEST receipt on public data, pass {D55_TEST_RECEIPT_FLAG}: the run directory is then marked {} and must not be published",
+            run::fork::D55_TEST_RECEIPT_MARKER_FILE
+        )),
+    }
+}
+
 /// `--d55-workers N` (D60): `None` without the flag; a fork run's worker
 /// count, 1 ..= 64, with it
 fn d55_workers_of(f: &[(String, String)]) -> Result<Option<usize>, String> {
@@ -2974,8 +3000,16 @@ const STACK_SCOPE: &str = "ALL the listed trained blocks of the export's model (
 /// frames (`d55-head.bin`, `d55-fork-NNN.bin`, `d55-tail.bin`) into `--out`;
 /// the statement names the D55 profile and its base. Every other step is the
 /// D12a run's. Not with `--lie-at-boundary` (a D12a control).
+///
+/// **D60 review F3:** while `run::fork::D55_REAL_CONTENT_PRIVACY_GATE_PASSED`
+/// is `false`, `--d55-workers` is REFUSED (before anything is read or
+/// created) unless `--d55-test-receipt-not-for-publication` is also given;
+/// with it, the run directory gets the marker
+/// `D55_TEST_RECEIPT_NOT_FOR_PUBLICATION.txt` after its frames (no frame,
+/// `segments.json` or `statement.json` byte carries it), and
+/// `stack-verify --d55-workers` reports it.
 pub fn trained_stack_prove_command(args: &[String]) -> i32 {
-    let f = match flags(args, &["--export", "--seq", "--seq-dir", "--out", "--layers", "--label", "--lie-at-boundary", "--witness-cache-gib", "--d55-workers"], &["--rope-from-export", "--verify-in-process", "--dd"]) {
+    let f = match flags(args, &["--export", "--seq", "--seq-dir", "--out", "--layers", "--label", "--lie-at-boundary", "--witness-cache-gib", "--d55-workers"], &["--rope-from-export", "--verify-in-process", "--dd", D55_TEST_RECEIPT_FLAG]) {
         Ok(f) => f,
         Err(e) => {
             eprintln!("zk60_trained_block stack-prove: {e}");
@@ -3013,6 +3047,10 @@ fn stack_prove_inner(f: &[(String, String)]) -> Result<(), String> {
     if d55_workers.is_some() && lie_at.is_some() {
         return Err("--lie-at-boundary is a D12a control; it does not combine with --d55-workers".into());
     }
+    // D60 review F3: a D55 fork run fails CLOSED until the real-content
+    // privacy gate has passed, unless the operator acknowledges a TEST receipt
+    // (refused here, before anything is read or created)
+    let test_receipt = d55_prove_admission(d55_workers, flag(f, D55_TEST_RECEIPT_FLAG).is_some(), run::fork::D55_REAL_CONTENT_PRIVACY_GATE_PASSED)?;
     let unverified = unverified_statement_dir(&out)?;
     if out.exists() || unverified.exists() {
         return Err(format!("{} (or its unverified statement directory) exists; the run directory must be new", out.display()));
@@ -3073,7 +3111,7 @@ fn stack_prove_inner(f: &[(String, String)]) -> Result<(), String> {
     let fork = match d55_workers {
         Some(n) => {
             let fr = run::fork::ForkRun::new(&rst, run::fork::D55OptIn::registered_profile())?;
-            println!("{{\"event\":\"d55\",\"run_profile\":{},\"base_run_profile\":{},\"workers\":{n}}}", js(fr.profile()), js(rst.rs().profile()));
+            println!("{{\"event\":\"d55\",\"run_profile\":{},\"base_run_profile\":{},\"workers\":{n},\"test_receipt_not_for_publication\":{test_receipt}}}", js(fr.profile()), js(rst.rs().profile()));
             Some((fr, n))
         }
         None => None,
@@ -3108,6 +3146,13 @@ fn stack_prove_inner(f: &[(String, String)]) -> Result<(), String> {
             let (blocks, load_s) = load_fork_blocks(&ex, &sh, &c, &layers, &digests, rope)?;
             let (rc, fs) = run::fork::prove_run_with_forks(fr, &blocks, &mut src, owners, *workers)?;
             let written = run::fork::write_fork_receipt(&out, &rc)?;
+            // D60 review F3: the not-for-publication marker, after the frames
+            // and before any verification or statement (a run that fails
+            // later is removed with it)
+            if test_receipt {
+                let p = run::fork::write_d55_test_receipt_marker(&out)?;
+                println!("{{\"event\":\"d55-test-receipt\",\"not_for_publication\":true,\"marker\":{},\"why\":\"D60 review F3: run_fork::D55_REAL_CONTENT_PRIVACY_GATE_PASSED is false in this build; the operator passed {D55_TEST_RECEIPT_FLAG}\"}}", js(&p.display().to_string()));
+            }
             let core: Vec<String> = fs.fork_core_s.iter().map(|s| format!("{s:.3}")).collect();
             println!(
                 "{{\"event\":\"d55-proved\",\"workers\":{},\"frames\":{},\"receipt_bytes\":{},\"block_load_seconds\":{load_s:.3},\"preflight_seconds\":{:.3},\"commit_seconds\":{:.3},\"forks_seconds\":{:.3},\"join_seconds\":{:.3},\"total_seconds\":{:.3},\"fork_prove_core_seconds\":[{}],\"generators\":{},\"join_claim_bytes\":{},\"vmhwm_mib\":{:.0}}}",
@@ -3242,7 +3287,11 @@ fn stack_prove_inner(f: &[(String, String)]) -> Result<(), String> {
 /// against its counted length) with the forks on `N` threads, and checks the
 /// statement as the D55 prover renders it. Without the flag the verifier is
 /// D12a's and refuses a fork run's directory; with it, a D12a run's. Not with
-/// `--controls` (D12a's run-level controls).
+/// `--controls` (D12a's run-level controls). **D60 review F3:** every D55
+/// verification prints a `d55-publication` event: whether the run directory
+/// carries the test-receipt marker (`present` / `ABSENT`) and whether this
+/// build's real-content privacy gate has passed; the verifier stays usable
+/// either way.
 pub fn trained_stack_verify_command(args: &[String]) -> i32 {
     let f = match flags(args, &["--export", "--artifact", "--expect-statement", "--layers", "--label", "--d55-workers"], &["--rope-from-export", "--controls", "--dd"]) {
         Ok(f) => f,
@@ -3357,6 +3406,24 @@ fn stack_verify_inner(f: &[(String, String)]) -> Result<(), String> {
         js(&hex(&st.identity())),
         js(stack_scope(ex.geometry))
     );
+    // D60 review F3: on EVERY verification of a D55 fork receipt, whether it
+    // is a test receipt (its marker) and whether this build's real-content
+    // privacy gate has passed; while it has not, no D55 receipt is for
+    // publication, marked or not
+    if fork.is_some() {
+        let marked = run::fork::d55_test_receipt_marker(&art)?;
+        let gate = run::fork::D55_REAL_CONTENT_PRIVACY_GATE_PASSED;
+        println!(
+            "{{\"event\":\"d55-publication\",\"not_for_publication\":{},\"test_receipt_marker\":{},\"real_content_privacy_gate_passed\":{gate},\"why\":{}}}",
+            marked || !gate,
+            js(if marked { "present" } else { "ABSENT" }),
+            js(match (marked, gate) {
+                (true, _) => "the run directory carries the D55 test-receipt marker (stack-prove --d55-test-receipt-not-for-publication): a TEST receipt, not for publication (D60 review F3)",
+                (false, false) => "the run directory carries no test-receipt marker, but this build's D60 real-content privacy gate has not passed (run_fork::D55_REAL_CONTENT_PRIVACY_GATE_PASSED is false): no D55 receipt is for publication (D60 review F3)",
+                (false, true) => "no test-receipt marker; the D60 real-content privacy gate has passed in this build",
+            })
+        );
+    }
     if flag(f, "--controls").is_some() {
         stack_controls(&ex, &c, &sh, &layers, &digests, rope, &loaded, &st, ctx, &expected, &art)?;
     }

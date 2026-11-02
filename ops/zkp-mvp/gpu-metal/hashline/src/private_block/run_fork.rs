@@ -69,9 +69,36 @@
 //!
 //! **What a fork receipt that verifies IS NOT**: a privacy statement. D60
 //! requires the Python privacy gate on a D55 capture before any receipt for
-//! real content.
+//! real content — and since the D60 review (F3) that precondition is in code:
+//! [`D55_REAL_CONTENT_PRIVACY_GATE_PASSED`].
 
 use super::super::hash_domain;
+
+/// **D60 REVIEW F3 (2026-11-02): RULING D60'S REAL-CONTENT PRECONDITION, IN
+/// CODE.** D60 registers the D55 profiles, and requires the Python privacy
+/// gate on a D55 capture before ANY receipt for real content. When D60 was
+/// built no gate had read a capture under a REGISTERED D55 profile string (the
+/// Rust gate and the Python D55 replay gate read W16 / W16R2 TEST-ONLY
+/// identities, whose header bytes differ: the parameter-line clause, the
+/// schedule literal and the counted schedule lines), and nothing refused a
+/// real-content run (`results/zk60_d60_20261102/REVIEW_D60_20261102.md` F3).
+///
+/// **While this is `false`**, `zk60_trained_block stack-prove --d55-workers N`
+/// REFUSES to run unless the operator passes the explicit test-receipt
+/// acknowledgement `--d55-test-receipt-not-for-publication`, and every run
+/// directory proved with it carries [`D55_TEST_RECEIPT_MARKER_FILE`], which
+/// `stack-verify --d55-workers` reports on every verification (and reports
+/// as ABSENT when a D55 directory lacks it). `stack-verify` itself stays usable.
+///
+/// **It waits for, and only a coordinator commit flips it on:** the Python
+/// D55 replay gate (`zk60_native_rg_d55.py`, extended to the R13 layout and
+/// the registered header) and the Rust gate's PG-7 allow-list and fork checks
+/// PASSING on a bundle written by `run_capture::write_bundle` for a REGISTERED
+/// R13 D55 profile (`run_fork_tests::d60_the_capture_writer_…`), with that
+/// verdict recorded in the D60 entry of `docs/zkmatrix-poc/ZK60_DECISIONS.md`.
+/// Flipping it moves no receipt or statement byte: it only lifts the CLI's
+/// refusal.
+pub(crate) const D55_REAL_CONTENT_PRIVACY_GATE_PASSED: bool = false;
 #[cfg(test)]
 use super::super::run_capture as capture;
 use super::super::wire::fork::{self as fw, ForkFrame, TailFrame};
@@ -172,6 +199,33 @@ const SEED_USE_FORK_BLOCK: &[u8] = b"hashline-zk-rng/private-block/d55-fork-run-
 #[cfg(test)]
 thread_local! {
     static DROP_FORK_INDEX: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
+    /// D60 review F8 (b), TEST BUILDS ONLY: while set (a [`PanicInEveryFork`]
+    /// guard, carried into the workers by [`ForkHooks`]), every fork's proof
+    /// PANICS before it starts
+    static PANIC_IN_FORK: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
+}
+
+/// **D60 review F8 (b), TEST BUILDS ONLY:** while alive, every fork this
+/// thread's prover hands out panics in its worker, so a test can show that a
+/// prover whose every worker panics FAILS (returns the panics as errors) and
+/// does not hang on its job queue.
+#[cfg(test)]
+pub(crate) struct PanicInEveryFork {
+    was: bool,
+}
+
+#[cfg(test)]
+impl PanicInEveryFork {
+    pub(crate) fn on() -> PanicInEveryFork {
+        PanicInEveryFork { was: PANIC_IN_FORK.with(|c| c.replace(true)) }
+    }
+}
+
+#[cfg(test)]
+impl Drop for PanicInEveryFork {
+    fn drop(&mut self) {
+        PANIC_IN_FORK.with(|c| c.set(self.was));
+    }
 }
 
 /// While alive, this thread derives every fork WITHOUT its index (the F2
@@ -209,17 +263,20 @@ impl Drop for DropForkIndex {
 pub(crate) struct ForkHooks {
     pub block: protocol::ThreadHooks,
     pub drop_fork_index: bool,
+    /// D60 review F8 (b): every fork's proof panics ([`PanicInEveryFork`])
+    pub panic_in_fork: bool,
 }
 
 #[cfg(test)]
 impl ForkHooks {
     pub(crate) fn capture() -> ForkHooks {
-        ForkHooks { block: protocol::ThreadHooks::capture(), drop_fork_index: DROP_FORK_INDEX.with(|c| c.get()) }
+        ForkHooks { block: protocol::ThreadHooks::capture(), drop_fork_index: DROP_FORK_INDEX.with(|c| c.get()), panic_in_fork: PANIC_IN_FORK.with(|c| c.get()) }
     }
     fn install(self) -> ForkHooksGuard {
         let block = self.block.install();
         let was = DROP_FORK_INDEX.with(|c| c.replace(self.drop_fork_index));
-        ForkHooksGuard { _block: block, was }
+        let was_panic = PANIC_IN_FORK.with(|c| c.replace(self.panic_in_fork));
+        ForkHooksGuard { _block: block, was, was_panic }
     }
 }
 
@@ -227,12 +284,14 @@ impl ForkHooks {
 struct ForkHooksGuard {
     _block: protocol::ThreadHooksGuard,
     was: bool,
+    was_panic: bool,
 }
 
 #[cfg(test)]
 impl Drop for ForkHooksGuard {
     fn drop(&mut self) {
         DROP_FORK_INDEX.with(|c| c.set(self.was));
+        PANIC_IN_FORK.with(|c| c.set(self.was_panic));
     }
 }
 
@@ -947,6 +1006,11 @@ struct ForkCtx<'c> {
 
 impl ForkCtx<'_> {
     fn prove_one(&self, k: usize, wit: Witness) -> Result<ForkOut, String> {
+        // D60 review F8 (b), test builds only: the every-fork-panics switch
+        #[cfg(test)]
+        if PANIC_IN_FORK.with(|c| c.get()) {
+            panic!("D60 F8 test switch: fork {k}'s worker panics");
+        }
         let st = self.fr.st;
         let l = st.rs.l;
         let (idx, skip, forge) = (self.cheat.fork_index(k), self.cheat.skipped_root(), self.cheat.forge());
@@ -1066,7 +1130,18 @@ fn prove_forks_inner(fr: &ForkRun, blocks: &dyn ForkBlocks, src: &mut dyn RunWit
                         loop {
                             let job = rx.lock().map_err(|_| "D55: the job queue's lock is poisoned".to_string()).and_then(|q| q.recv().map_err(|_| String::new()));
                             match job {
-                                Ok((k, wit)) => mine.push(ctx.prove_one(k, wit).map_err(|e| format!("D55: fork {k}: {e}"))),
+                                // D60 review F8 (b): a panic in one fork's
+                                // proof is that fork's ERROR, and this worker
+                                // goes on taking jobs, so the feeder never
+                                // blocks on a rendezvous no live worker will
+                                // take (it hung when every worker had
+                                // panicked). A release build has `panic =
+                                // "abort"`: there a panic ends the process
+                                // (F8 (a)). Both fail closed.
+                                Ok((k, wit)) => mine.push(match std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| ctx.prove_one(k, wit))) {
+                                    Ok(r) => r.map_err(|e| format!("D55: fork {k}: {e}")),
+                                    Err(p) => Err(format!("D55: fork {k}: its worker panicked: {}", p.downcast_ref::<String>().map(String::as_str).or_else(|| p.downcast_ref::<&str>().copied()).unwrap_or("(no message)"))),
+                                }),
                                 Err(e) if e.is_empty() => break,
                                 Err(e) => {
                                     mine.push(Err(e));
@@ -1176,6 +1251,10 @@ fn prove_forks_inner(fr: &ForkRun, blocks: &dyn ForkBlocks, src: &mut dyn RunWit
     Ok((ForkReceipt { head, forks, tail }, stats))
 }
 
+/// the refusal of a head whose S0 tag is not the verifier's own (the verifier
+/// and, before any fork frame is read, `read_fork_receipt`)
+const S0_TAG_REFUSAL: &str = "D55: the head's S0 tag is not the verifier's own S0 (every boundary root absorbed, in order, before any fork)";
+
 /// what the verifier keeps of one verified fork
 struct Seen {
     end: ([u8; 32], u64),
@@ -1238,7 +1317,7 @@ pub(crate) fn verify_run_with_forks(fr: &ForkRun, blocks: &dyn ForkBlocks, rc: &
     let (roots, s0_claimed) = fw::decode_head(&rc.head, &binding, l)?;
     absorb_commit(&mut tr, st, &roots, None)?;
     if position_tag(&tr) != s0_claimed {
-        return Err("D55: the head's S0 tag is not the verifier's own S0 (every boundary root absorbed, in order, before any fork)".into());
+        return Err(S0_TAG_REFUSAL.into());
     }
     // F5 (test builds): a fork-run recorder on this thread replays the
     // commit phase; its seed, if any, starts one per-fork recorder on
@@ -1416,6 +1495,65 @@ pub(crate) fn d55_file_names(l: usize) -> Vec<String> {
     std::iter::once(D55_HEAD_FILE.to_string()).chain((0..l).map(d55_fork_file_name)).chain(std::iter::once(D55_TAIL_FILE.to_string())).collect()
 }
 
+/// **D60 review F3: the not-for-publication marker of a D55 TEST receipt.**
+/// While [`D55_REAL_CONTENT_PRIVACY_GATE_PASSED`] is `false`, `stack-prove
+/// --d55-workers` runs only with `--d55-test-receipt-not-for-publication`, and
+/// then writes this file into the run directory, beside the receipt's frames
+/// and after them; `stack-verify --d55-workers` reports it on every
+/// verification. It is a FILE IN THE RUN DIRECTORY and nothing else: not a
+/// frame, not hashed into `segments.json`, not in `statement.json`, absorbed
+/// nowhere — so it changes no verified receipt or statement byte, and a
+/// marked receipt's frames are byte for byte what an unmarked one's would be.
+/// [`read_fork_receipt`] admits it beside the `L + 2` frames only as a
+/// regular file holding exactly [`D55_TEST_RECEIPT_MARKER_TEXT`].
+pub(crate) const D55_TEST_RECEIPT_MARKER_FILE: &str = "D55_TEST_RECEIPT_NOT_FOR_PUBLICATION.txt";
+
+/// the marker's one admitted content
+pub(crate) const D55_TEST_RECEIPT_MARKER_TEXT: &[u8] = b"D55 TEST RECEIPT, NOT FOR PUBLICATION.\n\
+This run directory was proved by `zk60_trained_block stack-prove --d55-workers N --d55-test-receipt-not-for-publication` \
+in a build whose ruling-D60 real-content precondition was unmet (run_fork::D55_REAL_CONTENT_PRIVACY_GATE_PASSED = false: \
+no privacy gate had yet passed on a capture under a registered D55 run profile; D60 review F3). It is a TEST receipt; \
+prove public data only, and do not publish it or its statement. `stack-verify --d55-workers` reports this marker on every \
+verification. The marker is not one of the receipt's frames: no verified receipt or statement byte carries it.\n";
+
+/// **Whether `dir` holds the test-receipt marker** (D60 review F3): `false`
+/// when no entry has its name; `true` when it is a regular file (never a
+/// link, FIFO or directory, refused before it is opened) holding exactly
+/// [`D55_TEST_RECEIPT_MARKER_TEXT`]; anything else under that name is
+/// REFUSED by name.
+pub(crate) fn d55_test_receipt_marker(dir: &Path) -> Result<bool, String> {
+    let p = dir.join(D55_TEST_RECEIPT_MARKER_FILE);
+    match std::fs::symlink_metadata(&p) {
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => return Ok(false),
+        Err(e) => return Err(format!("D55: the test-receipt marker {}: {e}", p.display())),
+        Ok(_) => {}
+    }
+    let found = super::read_regular_file_bounded(&p, D55_TEST_RECEIPT_MARKER_TEXT.len() as u64, true).map_err(|e| format!("D55: the test-receipt marker is not the marker this build writes: {e}"))?;
+    if found != D55_TEST_RECEIPT_MARKER_TEXT {
+        return Err(format!("D55: {} is not the test-receipt marker this build writes (other content of its length)", p.display()));
+    }
+    Ok(true)
+}
+
+/// **Write the test-receipt marker into a run directory** (D60 review F3),
+/// atomically (a temporary name, flushed, renamed into place), never over an
+/// existing entry.
+pub(crate) fn write_d55_test_receipt_marker(dir: &Path) -> Result<std::path::PathBuf, String> {
+    use std::io::Write;
+    let p = dir.join(D55_TEST_RECEIPT_MARKER_FILE);
+    if std::fs::symlink_metadata(&p).is_ok() {
+        return Err(format!("D55: {} exists; the marker is never replaced", p.display()));
+    }
+    let tmp = dir.join(format!("{D55_TEST_RECEIPT_MARKER_FILE}.partial"));
+    {
+        let mut f = std::fs::OpenOptions::new().write(true).create_new(true).open(&tmp).map_err(|e| format!("D55: {} cannot be created: {e}", tmp.display()))?;
+        f.write_all(D55_TEST_RECEIPT_MARKER_TEXT).map_err(|e| format!("D55: {} cannot be written: {e}", tmp.display()))?;
+        f.sync_all().map_err(|e| format!("D55: {} cannot be flushed: {e}", tmp.display()))?;
+    }
+    std::fs::rename(&tmp, &p).map_err(|e| format!("D55: {} cannot be renamed to {}: {e}", tmp.display(), p.display()))?;
+    Ok(p)
+}
+
 /// **Write a fork receipt into an EXISTING, EMPTY run directory**, each frame
 /// ATOMICALLY (a temporary name, flushed to the device, renamed into place,
 /// as `run_sink::DirSink` writes a segment), and return each frame's length
@@ -1461,14 +1599,10 @@ fn read_frame_bounded(what: &str, p: &Path, want: usize, ceiling: usize) -> Resu
     if meta.len() != want as u64 {
         return Err(format!("D55 wire: {what} is {} B, the counted length is {want}; refused before it is read", meta.len()));
     }
-    let mut opts = std::fs::OpenOptions::new();
-    opts.read(true);
-    #[cfg(all(target_os = "linux", target_arch = "x86_64"))]
-    {
-        use std::os::unix::fs::OpenOptionsExt;
-        opts.custom_flags(super::SEGMENT_OPEN_FLAGS);
-    }
-    let f = opts.open(p).map_err(|e| format!("D55: {what} ({}) cannot be opened as a regular file: {e}", p.display()))?;
+    // D60 review F4: `O_NOFOLLOW | O_NONBLOCK` on every target that defines
+    // them (macOS and aarch64 Linux too), so a link or FIFO swapped in after
+    // the `lstat` is refused, never followed or blocked on
+    let f = super::open_nofollow_nonblock(p).map_err(|e| format!("D55: {what} ({}) cannot be opened as a regular file: {e}", p.display()))?;
     let fm = f.metadata().map_err(|e| format!("D55: {what} ({}): {e}", p.display()))?;
     if !fm.file_type().is_file() || fm.len() != want as u64 {
         return Err(format!("D55 wire: {what} ({}) changed after its check; the counted length is {want}", p.display()));
@@ -1484,10 +1618,19 @@ fn read_frame_bounded(what: &str, p: &Path, want: usize, ceiling: usize) -> Resu
 /// **Read a fork receipt from a run directory.** The directory must hold
 /// exactly this run's `L + 2` frame files — `L` being the VERIFIER'S OWN —
 /// and nothing else but the one `statement` DIRECTORY
-/// (`run_sink::STATEMENT_DIR`); a missing frame is named, and any other entry
-/// (a D12a segment, a leftover `.partial`, a foreign file) is refused before
-/// a byte of any frame is read. Each frame is then read against its counted
-/// length. Returns the receipt and each frame's length and SHA-256.
+/// (`run_sink::STATEMENT_DIR`) and (D60 review F3) the test-receipt marker
+/// [`D55_TEST_RECEIPT_MARKER_FILE`], admitted only as the marker
+/// ([`d55_test_receipt_marker`]); a missing frame is named, and any other
+/// entry (a D12a segment, a leftover `.partial`, a foreign file) is refused
+/// before a byte of any frame is read. Each frame is then read against its
+/// counted length, and (D60 review F7) its HEADER is checked against the
+/// verifier's own values before the next frame is read: the head's magic,
+/// binding, `L` and S0 tag (every root absorbed), each fork frame's magic,
+/// binding, `L`, `k` and start tag, the tail's magic, binding and `L` — so a
+/// directory of correctly sized frames of another run costs one frame's read,
+/// not the whole receipt's. (The verifier checks every one of them again;
+/// nothing read here is adopted.) Returns the receipt and each frame's length
+/// and SHA-256.
 pub(crate) fn read_fork_receipt(fr: &ForkRun, dir: &Path) -> Result<(ForkReceipt, Vec<(u64, String)>), String> {
     let st = fr.st;
     let (sh, l) = (&st.rs.sh, st.rs.l);
@@ -1500,6 +1643,11 @@ pub(crate) fn read_fork_receipt(fr: &ForkRun, dir: &Path) -> Result<(ForkReceipt
             }
             return Err(format!("D55: the run directory {} holds a FILE called {n}; the only entry allowed beside this run's {} frames is the {} DIRECTORY", dir.display(), l + 2, super::run_sink::STATEMENT_DIR));
         }
+        // D60 review F3: the test-receipt marker, as the marker only
+        if n == D55_TEST_RECEIPT_MARKER_FILE {
+            d55_test_receipt_marker(dir)?;
+            continue;
+        }
         if !want.contains(n) {
             return Err(format!("D55: the run directory {} holds {n}, which is not one of this {l}-block fork run's {} frames", dir.display(), l + 2));
         }
@@ -1511,12 +1659,24 @@ pub(crate) fn read_fork_receipt(fr: &ForkRun, dir: &Path) -> Result<(ForkReceipt
     }
     let ceiling = super::wire::wire_ceiling(sh);
     let boundary_rows = if l > 1 { st.boundary_spec(0)?.commitment_rows() } else { 0 };
+    // D60 review F7: the verifier's own binding and S0, for the headers
+    let mut tr = fr.transcript()?;
+    let binding = tr.state();
     let head = read_frame_bounded("the head", &dir.join(D55_HEAD_FILE), fw::head_len(l), ceiling)?;
+    let (roots, s0_claimed) = fw::decode_head(&head, &binding, l)?;
+    absorb_commit(&mut tr, st, &roots, None)?;
+    if position_tag(&tr) != s0_claimed {
+        return Err(S0_TAG_REFUSAL.into());
+    }
+    drop(tr);
     let mut forks = Vec::with_capacity(l);
     for k in 0..l {
-        forks.push(read_frame_bounded(&format!("fork frame {k}"), &dir.join(d55_fork_file_name(k)), fw::fork_len(&st.stage_layout(k)?), ceiling)?);
+        let bytes = read_frame_bounded(&format!("fork frame {k}"), &dir.join(d55_fork_file_name(k)), fw::fork_len(&st.stage_layout(k)?), ceiling)?;
+        fw::check_fork_header(&bytes, &binding, l, k, &position_tag(&fr.fork(&roots, k, None)?))?;
+        forks.push(bytes);
     }
     let tail = read_frame_bounded("the tail", &dir.join(D55_TAIL_FILE), fw::tail_len(sh, l, boundary_rows, BOUNDARY_SITES), ceiling)?;
+    fw::check_tail_header(&tail, &binding, l)?;
     let rc = ForkReceipt { head, forks, tail };
     let seen = rc.frames().map(|b| (b.len() as u64, super::run_sink::digest_hex(b))).collect();
     Ok((rc, seen))

@@ -3,7 +3,7 @@
 //! Token tables are calibration outputs, not independent model weights.
 //! Their manifests alone cannot establish that they came from the tied tensor.
 
-use std::fs::{File, OpenOptions};
+use std::fs::File;
 use std::io::{Read, Seek, SeekFrom};
 use std::path::Path;
 use sha2::{Digest, Sha256};
@@ -25,14 +25,9 @@ fn regular(path: &Path, bound: u64, exact: bool) -> Result<File, String> {
     if before.len() > bound || (exact && before.len() != bound) {
         return Err(fail(format!("{} bytes; expected {} {bound}", before.len(), if exact { "exactly" } else { "at most" })));
     }
-    let mut options = OpenOptions::new();
-    options.read(true);
-    #[cfg(all(target_os = "linux", target_arch = "x86_64"))]
-    {
-        use std::os::unix::fs::OpenOptionsExt;
-        options.custom_flags(0x20000 | 0x800); // O_NOFOLLOW | O_NONBLOCK
-    }
-    let file = options.open(path).map_err(|e| fail(e.to_string()))?;
+    // O_NOFOLLOW | O_NONBLOCK on every target that defines them (D60 review
+    // F4: macOS and aarch64 Linux too, not x86-64 Linux only)
+    let file = super::run::open_nofollow_nonblock(path).map_err(|e| fail(e.to_string()))?;
     let after = file.metadata().map_err(|e| fail(e.to_string()))?;
     if !after.is_file() || after.len() != before.len() {
         return Err(fail("file changed while opening".into()));

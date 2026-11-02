@@ -3264,16 +3264,22 @@ fn write_run(r: &Rec) -> Vec<u8> {
     // carries `{"rule":"legacy"}` and nothing else.
     write_hash_tag(&mut out, sh);
     write!(out, ",\"transcript_labels\":[").expect("write to a Vec");
+    // D60 review closure (2026-11-02): a fork run under a REGISTERED D55 run
+    // profile is described as one (the prototype's wording stays on a
+    // test-only identity's bundle). Descriptive text only: no transcript
+    // byte, no verified byte, and no gate check reads it
+    let registered = fork && super::run::D55_RUN_PROFILES.iter().any(|(d, _)| *d == h.profile);
     let labels: &[(&str, &str)] = if fork { &D55_TRANSCRIPT_LABELS } else { &TRANSCRIPT_LABELS };
     for (i, (label, what)) in labels.iter().enumerate() {
         if i > 0 {
             write!(out, ",").expect("write to a Vec");
         }
+        let what: &str = if registered && *label == "parameters" { D55_REGISTERED_PARAMETERS_TEXT } else { what };
         write!(out, "{{\"label\":{label:?},\"what\":{what:?}}}").expect("write to a Vec");
     }
     write!(out, "],\"transcript_program\":").expect("write to a Vec");
     let program: &[&str] = if fork { &D55_TRANSCRIPT_PROGRAM } else { &TRANSCRIPT_PROGRAM };
-    strings(&mut out, &program.iter().map(|s| s.to_string()).collect::<Vec<_>>());
+    strings(&mut out, &program.iter().enumerate().map(|(i, s)| if registered && i == 0 { D55_REGISTERED_PROGRAM_HEAD.to_string() } else { s.to_string() }).collect::<Vec<_>>());
     write!(out, ",\"mask_domain\":{{\"log_dom\":{},\"columns\":{}}},", crate::zk::MASK_LOG_DOM, crate::zk::MASK_Q).expect("write to a Vec");
     // **STAGE 15.** The plane index table: a property of the SHAPE, so it
     // lives in the run file and not in a stage. `take` refuses a bundle
@@ -3357,6 +3363,12 @@ const D55_TRANSCRIPT_LABELS: [(&str, &str); 26] = [
     ("pb-join-out-claims", "phase 3: every public word of fork k's slot-22 claims"),
     ("pb-fork-s1", "phase 3: L, absorb_u64, after every fork; the state is S1"),
 ];
+
+/// D60 review closure: the first line of [`D55_TRANSCRIPT_PROGRAM`] and the
+/// `parameters` label's text in the bundle of a fork run under a REGISTERED
+/// D55 run profile (a test-only identity's bundle keeps the prototype's)
+const D55_REGISTERED_PROGRAM_HEAD: &str = "D55 REGISTERED OPT-IN RUN PROFILE (ruling D60; production prover and verifier): commit, fork, join. Every hash is BLAKE3 under the rule named in hash_tag, the block shape's.";
+const D55_REGISTERED_PARAMETERS_TEXT: &str = "header: the fork run's parameter line (it ends /d55-commit-fork-join-registered-d60)";
 
 /// **D55 REVIEW F5: a D55 fork run's transcript, in words.**
 const D55_TRANSCRIPT_PROGRAM: [&str; 10] = [

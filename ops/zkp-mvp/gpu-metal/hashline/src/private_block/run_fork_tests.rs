@@ -1053,6 +1053,507 @@ fn d60_fresh_process_verify_test_receipts() {
     eprintln!("D60 FRESH-PROCESS VERIFY | the D12a receipt VERIFIES under D12a; all four cross-checks refused");
 }
 
+// ------------------------------------------------------------------ D60 review closure (2026-11-02)
+
+/// a fresh scratch directory for one test (the trained tests' temp root)
+fn scratch(tag: &str) -> PathBuf {
+    crate::private_block::trained_block_tests::base_dir(&format!("d60-close-{tag}"))
+}
+
+/// **D60 REVIEW F1: THE FORK VERIFIER'S OWN PREFLIGHT HAS NEGATIVE CONTROLS.**
+/// At the R13 rung with `L = 3` and an HONEST receipt, the verifier is handed
+/// public blocks that are not the statement's, and each case is refused by
+/// its ruling BEFORE any frame is decoded (no `D55 wire:` text) — through
+/// `verify_run_with_forks` and through `verify_run_with_forks_from_dir`, the
+/// latter on the honest directory AND on a directory that does not exist
+/// (so the refusal comes before the directory is even listed):
+/// * (a1) blocks 0 and 1 swapped: block 1 (the other-gate twin) at stage 0
+///   meets stage 0's gate denominator (the R13 stage shape, CS-1's check);
+/// * (a2) block 1 with one public weight changed — the SAME stage shape,
+///   another digest: refused by CS-6 and by nothing else (the preflight with
+///   its digest loop off accepts it, so the loop is what this case pins);
+/// * (b) a list of two blocks: CS-6's count;
+/// * (c1) block 0 at stage 1 (a block that fits another stage's shape);
+/// * (c2) block 1 with a feed-forward word outside its support: ruling CS-1;
+/// * (d) two fork frames (and, on disk, a directory missing fork 2).
+///
+/// The honest prover refuses (a1), (a2) and (c2) by the same rulings.
+#[test]
+fn d60_f1_the_fork_verifier_refuses_blocks_that_are_not_the_statements() {
+    let mut r = rung(3, 190);
+    let (rc, _) = prove_forks(&mut r, 3);
+    let fr = ForkRun::new(&r.st, D55OptIn::registered_profile()).unwrap();
+    verify_run_with_forks(&fr, &r.blocks, &rc, 3).expect("the honest L3 receipt verifies");
+    let root = scratch("f1");
+    let dir = root.join("run");
+    std::fs::create_dir(&dir).unwrap();
+    write_fork_receipt(&dir, &rc).unwrap();
+    verify_run_with_forks_from_dir(&fr, &r.blocks, &dir, 3).expect("the honest L3 receipt verifies from its directory");
+    let missing = root.join("no-such-run-directory");
+    // the mutated block lists
+    let changed_weight = |blocks: &[BlockPublic]| -> Vec<BlockPublic> {
+        let mut v = blocks.to_vec();
+        let w = &mut v[1].attention.wq;
+        let i = w.iter().position(|&x| x != 0).expect("a nonzero wq word");
+        w[i] = if w[i] > 0 { w[i] - 1 } else { w[i] + 1 };
+        v
+    };
+    let ssh = r.st.stage_shape(1).unwrap();
+    let off_support = |blocks: &[BlockPublic]| -> Vec<BlockPublic> {
+        let mut v = blocks.to_vec();
+        let at = if ssh.d_pad > ssh.width { ssh.width * ssh.f_pad } else { ssh.hidden };
+        assert!(ssh.d_pad > ssh.width || ssh.f_pad > ssh.hidden, "the rung's feed-forward plane has no padding to write into");
+        v[1].feed_forward.wg_t[at] = 1;
+        v
+    };
+    let swapped = |blocks: &[BlockPublic]| -> Vec<BlockPublic> {
+        let mut v = blocks.to_vec();
+        v.swap(0, 1);
+        v
+    };
+    let a2 = changed_weight(&r.blocks[..]);
+    assert_ne!(a2[1].digest(), r.blocks[1].digest());
+    assert!(a2[1].check_for_shape(&ssh).is_ok(), "the changed-weight block does not fit its stage shape, so (a2) would not isolate CS-6");
+    let mut c1 = r.blocks.clone();
+    c1[1] = r.blocks[0].clone();
+    let cases: Vec<(&str, Vec<BlockPublic>, &str)> = vec![
+        ("(a1) blocks 0 and 1 swapped", swapped(&r.blocks[..]), "gate denominator differs from the stage shape"),
+        ("(a2) block 1 with one public weight changed", a2.clone(), "ruling CS-6 — block 1 handed to the run is not the block the run statement names"),
+        ("(b) two blocks for a three-block statement", r.blocks[..2].to_vec(), "ruling CS-6 — the run statement names 3 blocks and 2 public statements were handed"),
+        ("(c1) block 0 at stage 1", c1, "private run: block 1: R13 public folded gate denominator differs from the stage shape"),
+        ("(c2) block 1 with a feed-forward word outside its support", off_support(&r.blocks[..]), "ruling CS-1"),
+    ];
+    for (what, blocks, want) in &cases {
+        let e = verify_run_with_forks(&fr, blocks, &rc, 3).err().unwrap_or_else(|| panic!("{what}: THE FORK VERIFIER ACCEPTED BLOCKS THAT ARE NOT THE STATEMENT'S"));
+        assert!(e.contains(*want) && !e.contains("D55 wire:"), "{what}: not refused by its ruling before any frame was decoded: {e}");
+        for (d, which) in [(&dir, "the honest directory"), (&missing, "a directory that does not exist")] {
+            let e2 = verify_run_with_forks_from_dir(&fr, blocks, d, 3).err().unwrap_or_else(|| panic!("{what}: THE FORK VERIFIER ACCEPTED IT FROM {which}"));
+            assert_eq!(e2, e, "{what}: from {which}, the refusal is not the preflight's (before the directory is listed)");
+        }
+        eprintln!("D60 F1 | {what} | REFUSED by the preflight (in memory, from the directory and before a missing directory is listed): {e}");
+    }
+    // (a2) is refused by the digest loop ALONE: the preflight without it admits it
+    preflight(&r.st, &a2, false).expect("the preflight without its digest loop refuses the changed-weight block: (a2) does not isolate CS-6");
+    assert!(preflight(&r.st, &a2, true).unwrap_err().contains("ruling CS-6"));
+    // (d) the frame count: two fork frames, and a directory missing fork 2
+    let short = ForkReceipt { forks: rc.forks[..2].to_vec(), ..rc.clone() };
+    let e = verify_run_with_forks(&fr, &r.blocks, &short, 3).err().expect("TWO FORK FRAMES VERIFIED FOR A THREE-BLOCK RUN");
+    assert!(e.contains("2 fork frames were offered, this run has 3") && !e.contains("D55 wire:"), "{e}");
+    eprintln!("D60 F1 | (d) two fork frames for a three-block run | REFUSED before any frame is decoded: {e}");
+    let gone = root.join("run-missing-fork-2");
+    std::fs::create_dir(&gone).unwrap();
+    write_fork_receipt(&gone, &rc).unwrap();
+    std::fs::remove_file(gone.join(d55_fork_file_name(2))).unwrap();
+    let e = verify_run_with_forks_from_dir(&fr, &r.blocks, &gone, 3).err().expect("A DIRECTORY MISSING FORK 2 VERIFIED");
+    assert!(e.contains("is missing d55-fork-002.bin") && !e.contains("D55 wire:"), "{e}");
+    eprintln!("D60 F1 | (d) a directory missing fork 2 | REFUSED before any frame is read: {e}");
+    // the honest prover refuses the same lists by the same rulings
+    type Mutate<'m> = &'m dyn Fn(&[BlockPublic]) -> Vec<BlockPublic>;
+    let prover_cases: [(&str, Mutate, &str); 3] = [
+        ("(a1) blocks 0 and 1 swapped", &swapped, "gate denominator differs from the stage shape"),
+        ("(a2) block 1 with one public weight changed", &changed_weight, "ruling CS-6"),
+        ("(c2) a feed-forward word outside its support", &off_support, "ruling CS-1"),
+    ];
+    for (i, (what, mutate, want)) in prover_cases.into_iter().enumerate() {
+        let mut p = rung(3, 191 + i as u8);
+        let blocks = mutate(&p.blocks[..]);
+        let fp = ForkRun::new(&p.st, D55OptIn::registered_profile()).unwrap();
+        let e = prove_run_with_forks(&fp, &blocks, &mut p.src, p.owners.take().unwrap(), 3).err().unwrap_or_else(|| panic!("{what}: THE HONEST FORK PROVER PROVED A RUN OVER BLOCKS THAT ARE NOT THE STATEMENT'S"));
+        assert!(e.contains(want), "{what}: the prover's refusal is not its ruling: {e}");
+        eprintln!("D60 F1 | the honest prover on {what} | REFUSED: {e}");
+    }
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+/// **D60 REVIEW F3: THE CLI FAILS CLOSED FOR A D55 RUN UNTIL THE PRIVACY GATE
+/// HAS PASSED.** The admission rule in both arms of the production constant,
+/// then the CLI end to end on a copy of the public synthetic fixture (`L =
+/// 1`): (1) `stack-prove --d55-workers 1` WITHOUT the acknowledgement is
+/// refused and creates nothing; the acknowledgement without `--d55-workers`
+/// is refused too; (2) WITH it the run proves, and its directory holds the
+/// three frames and the marker and nothing else, while `segments.json` and
+/// `statement.json` name no marker; (3) `stack-verify --d55-workers` verifies
+/// and publishes the statement (its `d55-publication` event names the
+/// marker); (4) a copy with the marker removed still verifies against the
+/// SAME published statement and `segments.json` (so the marker is no
+/// verified byte) and is reported ABSENT; (5) a marker of other content, a
+/// link or a directory under the marker's name is refused by the reader; (6)
+/// `--verify-in-process` reads the marked directory.
+#[test]
+fn d60_f3_the_cli_fails_closed_for_a_d55_run_until_the_privacy_gate_passes() {
+    use crate::private_block::trained_block::{d55_prove_admission, trained_stack_prove_command, trained_stack_verify_command, D55_TEST_RECEIPT_FLAG};
+    use crate::private_block::trained_block_tests::{copy_tree_for_tests, verifier_copy};
+    // the production constant: false until the coordinator's commit
+    assert!(!D55_REAL_CONTENT_PRIVACY_GATE_PASSED, "D55_REAL_CONTENT_PRIVACY_GATE_PASSED was flipped: update this test with the gate verdict recorded in D60");
+    // the rule, both arms of the constant
+    for gate in [false, true] {
+        assert_eq!(d55_prove_admission(None, false, gate), Ok(false), "a D12a run is never affected");
+        assert!(d55_prove_admission(None, true, gate).unwrap_err().contains("only with --d55-workers"));
+        assert_eq!(d55_prove_admission(Some(3), true, gate), Ok(true), "the acknowledgement always marks a test receipt");
+    }
+    let e = d55_prove_admission(Some(3), false, false).unwrap_err();
+    assert!(e.contains("D60 review F3") && e.contains(D55_TEST_RECEIPT_FLAG), "{e}");
+    assert_eq!(d55_prove_admission(Some(3), false, true), Ok(false), "after the gate passes, a D55 run needs no acknowledgement");
+    // the CLI on a copy of the fixture
+    let root = scratch("f3");
+    let ex = root.join("r13-h24-wide");
+    copy_tree_for_tests(&fixtures().join("r13-h24-wide"), &ex);
+    let vc = verifier_copy(&ex);
+    let s = |v: &[&str]| -> Vec<String> { v.iter().map(|x| x.to_string()).collect() };
+    let (exd, vcd) = (ex.display().to_string(), vc.display().to_string());
+    let out = root.join("run");
+    let od = out.display().to_string();
+    let unverified = root.join("run.unverified-statement");
+    // (1) refused without the acknowledgement; nothing exists
+    assert_eq!(trained_stack_prove_command(&s(&["--export", &exd, "--seq", "public", "--out", &od, "--d55-workers", "1"])), 1, "A D55 FORK RUN PROVED WITHOUT THE TEST-RECEIPT ACKNOWLEDGEMENT");
+    assert!(!out.exists() && !unverified.exists(), "the refused prover created something");
+    assert_eq!(trained_stack_prove_command(&s(&["--export", &exd, "--seq", "public", "--out", &od, D55_TEST_RECEIPT_FLAG])), 1, "the acknowledgement was accepted without --d55-workers");
+    assert!(!out.exists() && !unverified.exists());
+    eprintln!("D60 F3 | stack-prove --d55-workers 1 without {D55_TEST_RECEIPT_FLAG}: REFUSED, nothing created; the flag without --d55-workers: REFUSED");
+    // (2) accepted with it; the marker beside the frames, nowhere else
+    assert_eq!(trained_stack_prove_command(&s(&["--export", &exd, "--seq", "public", "--out", &od, "--d55-workers", "1", D55_TEST_RECEIPT_FLAG])), 0, "stack-prove --d55-workers with the acknowledgement failed");
+    assert_eq!(std::fs::read(out.join(D55_TEST_RECEIPT_MARKER_FILE)).unwrap(), D55_TEST_RECEIPT_MARKER_TEXT);
+    let mut names: Vec<String> = std::fs::read_dir(&out).unwrap().map(|e| e.unwrap().file_name().to_string_lossy().to_string()).collect();
+    names.sort();
+    let mut want: Vec<String> = d55_file_names(1).into_iter().chain(std::iter::once(D55_TEST_RECEIPT_MARKER_FILE.to_string())).collect();
+    want.sort();
+    assert_eq!(names, want, "the marked run directory");
+    let segs = std::fs::read_to_string(unverified.join("segments.json")).unwrap();
+    let stmt = std::fs::read_to_string(unverified.join("statement.json")).unwrap();
+    assert!(!segs.contains("NOT_FOR_PUBLICATION") && !stmt.contains("NOT_FOR_PUBLICATION") && segs.matches("\"file\"").count() == 3, "the marker reached segments.json or statement.json");
+    let id = stmt.split("\"trained_statement_identity\": \"").nth(1).unwrap().split('"').next().unwrap().to_string();
+    assert!(run::fork::d55_test_receipt_marker(&out).unwrap());
+    // (3) the fresh verifier verifies, publishes, and reports the marker
+    assert_eq!(trained_stack_verify_command(&s(&["--export", &vcd, "--artifact", &od, "--expect-statement", &id, "--d55-workers", "1"])), 0, "stack-verify --d55-workers refused the marked test receipt");
+    assert!(out.join("statement").join("statement.json").exists() && !unverified.exists(), "the verified statement was not published");
+    assert!(run::fork::d55_test_receipt_marker(&out).unwrap(), "the marker did not survive the verification");
+    // (4) the marker is no verified byte: without it the same statement and
+    // segments.json still check, and it is reported ABSENT
+    let bare = root.join("run-without-marker");
+    copy_tree_for_tests(&out, &bare);
+    std::fs::remove_file(bare.join(D55_TEST_RECEIPT_MARKER_FILE)).unwrap();
+    assert!(!run::fork::d55_test_receipt_marker(&bare).unwrap());
+    assert_eq!(trained_stack_verify_command(&s(&["--export", &vcd, "--artifact", &bare.display().to_string(), "--expect-statement", &id, "--d55-workers", "1"])), 0, "without its marker, the receipt no longer checks against its own published statement");
+    // (5) anything else under the marker's name is refused by the reader
+    let marker = out.join(D55_TEST_RECEIPT_MARKER_FILE);
+    let mut other = D55_TEST_RECEIPT_MARKER_TEXT.to_vec();
+    other[0] ^= 0x20;
+    let elsewhere = root.join("elsewhere.txt");
+    std::fs::write(&elsewhere, D55_TEST_RECEIPT_MARKER_TEXT).unwrap();
+    for what in ["a marker of other content (its length)", "a symbolic link to a true marker", "a directory"] {
+        std::fs::remove_file(&marker).unwrap();
+        match what {
+            "a directory" => std::fs::create_dir(&marker).unwrap(),
+            "a symbolic link to a true marker" => std::os::unix::fs::symlink(&elsewhere, &marker).unwrap(),
+            _ => std::fs::write(&marker, &other).unwrap(),
+        }
+        assert_eq!(trained_stack_verify_command(&s(&["--export", &vcd, "--artifact", &od, "--expect-statement", &id, "--d55-workers", "1"])), 1, "{what} under the marker's name was accepted");
+        let e = d55_test_receipt_marker(&out).unwrap_err();
+        eprintln!("D60 F3 | {what} under the marker's name | REFUSED: {e}");
+        if marker.is_dir() {
+            std::fs::remove_dir(&marker).unwrap();
+        } else {
+            std::fs::remove_file(&marker).unwrap();
+        }
+        std::fs::write(&marker, D55_TEST_RECEIPT_MARKER_TEXT).unwrap();
+    }
+    assert_eq!(trained_stack_verify_command(&s(&["--export", &vcd, "--artifact", &od, "--expect-statement", &id, "--d55-workers", "1"])), 0, "the restored marked receipt no longer verifies");
+    // (6) --verify-in-process reads the marked directory
+    let o2 = root.join("run-in-process");
+    assert_eq!(trained_stack_prove_command(&s(&["--export", &exd, "--seq", "public", "--out", &o2.display().to_string(), "--d55-workers", "1", D55_TEST_RECEIPT_FLAG, "--verify-in-process"])), 0, "stack-prove --verify-in-process on a marked run failed");
+    assert!(o2.join("statement").join("statement.json").exists() && run::fork::d55_test_receipt_marker(&o2).unwrap());
+    eprintln!("D60 F3 | with {D55_TEST_RECEIPT_FLAG}: proved, the directory marked {D55_TEST_RECEIPT_MARKER_FILE} (3 frames + the marker; segments.json and statement.json name no marker); stack-verify verifies and reports it; the receipt without its marker checks against the same statement; other content, a link or a directory under its name is refused; --verify-in-process reads the marked directory");
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+/// **D60 REVIEW F4: A FIFO OR A SYMBOLIC LINK SWAPPED IN BETWEEN A BOUNDED
+/// READER'S CHECK AND ITS OPEN IS REFUSED, WITHOUT HANGING**, on this target
+/// (the macOS work box, where the open flags were x86-64-Linux-only). For the
+/// D55 frame reader, D12a's segment reader and regular-file reader, and the
+/// token-table reader: a regular file of the counted length passes the
+/// `lstat` checks, then the test hook (`run::before_open_hook_for_tests`)
+/// swaps in (i) a FIFO with no writer — without `O_NONBLOCK` the open would
+/// block for ever; the reader runs on its own thread and the test fails at a
+/// timeout instead of hanging — refused by the `fstat` re-check; (ii) a
+/// symbolic link to a regular file of the SAME length — without
+/// `O_NOFOLLOW` it would be followed and read — refused at the open
+/// (`ELOOP`).
+#[test]
+fn d60_f4_a_fifo_or_symlink_swapped_in_after_the_check_is_refused_without_hanging() {
+    use std::sync::atomic::AtomicBool;
+    use std::sync::Arc;
+    // (`HL_D60_F4_MUTANT=1` skips this precondition only, for the closure's
+    // mutation check: a build without the macOS values must then FAIL below)
+    if std::env::var("HL_D60_F4_MUTANT").is_err() {
+        assert!(run::NOFOLLOW_NONBLOCK.is_some(), "this target has no O_NOFOLLOW | O_NONBLOCK values: the window between the check and the open is unprotected (D60 review F4)");
+    }
+    let root = scratch("f4");
+    // the D12a segment reader's counted length, from a one-block rung statement
+    let seg_want = {
+        let r = rung(1, 195);
+        super::super::super::wire::segment_len(&r.st.stage_layout(0).unwrap(), r.st.seg_geom(0).unwrap())
+    };
+    let table_want = 4096usize;
+    // (`HL_D60_F4_SWAPS`, e.g. `symlink`, narrows the swaps for the mutation check)
+    let swaps: Vec<String> = std::env::var("HL_D60_F4_SWAPS").map(|v| v.split(',').map(str::to_string).collect()).unwrap_or_else(|_| vec!["FIFO".into(), "symlink".into()]);
+    for reader in ["D55 frame", "D12a segment", "D12a regular file", "token table"] {
+        for swap in swaps.iter().map(String::as_str) {
+            let tag = format!("{}-{}", reader.replace(' ', "-"), swap);
+            let p = root.join(format!("{tag}.bin"));
+            let decoy = root.join(format!("{tag}.decoy"));
+            let want = if reader == "D12a segment" { seg_want } else { table_want };
+            let bytes = vec![7u8; want];
+            std::fs::write(&p, &bytes).unwrap();
+            std::fs::write(&decoy, &bytes).unwrap();
+            let sha = crate::private_block::trained_block::hex(&crate::private_block::trained_block::sha256(&bytes));
+            let fired = Arc::new(AtomicBool::new(false));
+            let (tx, rx) = std::sync::mpsc::channel();
+            let (fired2, swap2, reader2) = (fired.clone(), swap.to_string(), reader.to_string());
+            std::thread::spawn(move || {
+                let st = (reader2 == "D12a segment").then(|| rung(1, 195).st);
+                run::before_open_hook_for_tests(Box::new(move |path: &std::path::Path| {
+                    std::fs::remove_file(path).unwrap();
+                    if swap2 == "FIFO" {
+                        assert!(std::process::Command::new("mkfifo").arg(path).status().map(|x| x.success()).unwrap_or(false), "mkfifo");
+                    } else {
+                        std::os::unix::fs::symlink(&decoy, path).unwrap();
+                    }
+                    fired2.store(true, Ordering::SeqCst);
+                }));
+                let r: Result<(), String> = match reader2.as_str() {
+                    "D55 frame" => read_frame_bounded("fork frame 0", &p, want, usize::MAX).map(|_| ()),
+                    "D12a segment" => run::read_segment_bounded(st.as_ref().unwrap(), 0, &p).map(|_| ()),
+                    "D12a regular file" => run::read_regular_file_bounded(&p, want as u64, true).map(|_| ()),
+                    _ => crate::private_block::token_io::load::read_exact_streamed(&p, want, &sha, |_| {}),
+                };
+                let _ = tx.send(r);
+            });
+            let r = rx.recv_timeout(std::time::Duration::from_secs(60)).unwrap_or_else(|_| panic!("{reader}, a {swap} swapped in after the check: THE READER HUNG (no O_NONBLOCK on this target?)"));
+            assert!(fired.load(Ordering::SeqCst), "{reader}, {swap}: the swap hook never ran (the reader did not open through run::open_nofollow_nonblock)");
+            let e = r.err().unwrap_or_else(|| panic!("{reader}: A {swap} SWAPPED IN AFTER THE CHECK WAS READ (no O_NOFOLLOW on this target?)"));
+            let wanted = if swap == "FIFO" { "changed after its check" } else { "cannot be opened as a regular file" };
+            assert!(e.contains(wanted), "{reader}, {swap}: refused, but not at the open / fstat re-check: {e}");
+            eprintln!("D60 F4 | {reader} | a {swap} swapped in between the lstat and the open | REFUSED without hanging: {e}");
+        }
+    }
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+/// **D60 REVIEW F7: the on-disk reader checks each frame's header against the
+/// verifier's own values before it reads the next frame.** A run directory
+/// whose frame `j` carries a wrong header is refused by THAT header, and a
+/// FIFO standing in for a LATER frame is never reached (its refusal would
+/// name it): the head's binding (the tail a FIFO), the head's S0 tag (fork 0
+/// a FIFO), fork 0's binding (fork 1 a FIFO), fork 1's start tag (fork 2 a
+/// FIFO), the tail's binding; the honest directory verifies.
+#[test]
+fn d60_f7_the_on_disk_reader_checks_each_header_before_it_reads_the_next_frame() {
+    let mut r = rung(3, 196);
+    let (rc, _) = prove_forks(&mut r, 3);
+    let fr = ForkRun::new(&r.st, D55OptIn::registered_profile()).unwrap();
+    let root = scratch("f7");
+    let flip = |p: &std::path::Path, at: usize| {
+        let mut b = std::fs::read(p).unwrap();
+        b[at] ^= 1;
+        std::fs::write(p, b).unwrap();
+    };
+    let head_len = super::super::super::wire::fork::head_len(3);
+    let cases: [(&str, String, usize, Option<String>, &str); 5] = [
+        ("the head's binding", D55_HEAD_FILE.to_string(), 8, Some(D55_TAIL_FILE.to_string()), "the head belongs to another run"),
+        ("the head's S0 tag", D55_HEAD_FILE.to_string(), head_len - 1, Some(d55_fork_file_name(0)), "the head's S0 tag is not the verifier's own S0"),
+        ("fork 0's binding", d55_fork_file_name(0), 8, Some(d55_fork_file_name(1)), "fork frame 0 belongs to another run"),
+        ("fork 1's start tag", d55_fork_file_name(1), 60, Some(d55_fork_file_name(2)), "fork frame 1's start tag is not the verifier's own fork-1 position"),
+        ("the tail's binding", D55_TAIL_FILE.to_string(), 8, None, "the tail belongs to another run"),
+    ];
+    for (i, (what, file, at, fifo, want)) in cases.iter().enumerate() {
+        let d = root.join(format!("case-{i}"));
+        std::fs::create_dir(&d).unwrap();
+        write_fork_receipt(&d, &rc).unwrap();
+        flip(&d.join(file), *at);
+        if let Some(f) = fifo {
+            std::fs::remove_file(d.join(f)).unwrap();
+            assert!(std::process::Command::new("mkfifo").arg(d.join(f)).status().map(|x| x.success()).unwrap_or(false), "mkfifo");
+        }
+        let e = read_fork_receipt(&fr, &d).err().unwrap_or_else(|| panic!("{what}: THE READER ACCEPTED A WRONG HEADER"));
+        assert!(e.contains(*want) && !e.contains("not a regular file"), "{what}: not refused by that header before the next frame was read: {e}");
+        let e2 = verify_run_with_forks_from_dir(&fr, &r.blocks, &d, 3).err().expect("verified");
+        assert_eq!(e2, e, "{what}: the directory verifier's refusal is not the reader's");
+        eprintln!("D60 F7 | {what} wrong{} | REFUSED by the reader at that header: {e}", fifo.as_ref().map(|f| format!(" ({f} a FIFO, never reached)")).unwrap_or_default());
+    }
+    let d = root.join("honest");
+    std::fs::create_dir(&d).unwrap();
+    write_fork_receipt(&d, &rc).unwrap();
+    verify_run_with_forks_from_dir(&fr, &r.blocks, &d, 3).expect("the honest directory verifies");
+    std::fs::remove_dir_all(&root).unwrap();
+}
+
+/// **D60 REVIEW F8 (b): a prover whose EVERY fork worker panics FAILS, and
+/// does not hang.** `L = 3` on two workers, so a third job waits on the
+/// rendezvous queue after both workers have panicked on their first (before
+/// the fix the feeder blocked there for ever, the receiver kept alive in its
+/// `Mutex`). The prover runs on its own thread and the test fails at a
+/// timeout instead of hanging.
+#[test]
+fn d60_f8_a_prover_whose_every_worker_panics_fails_and_does_not_hang() {
+    let (tx, rx) = std::sync::mpsc::channel();
+    std::thread::spawn(move || {
+        let mut r = rung(3, 197);
+        let fr = ForkRun::new(&r.st, D55OptIn::registered_profile()).unwrap();
+        let _p = PanicInEveryFork::on();
+        let res = prove_run_with_forks(&fr, &r.blocks, &mut r.src, r.owners.take().unwrap(), 2).map(|_| ());
+        let _ = tx.send(res);
+    });
+    let res = rx.recv_timeout(std::time::Duration::from_secs(120)).expect("THE FORK PROVER HUNG after every worker panicked (D60 review F8 (b))");
+    let e = res.err().expect("a prover whose every fork panicked returned a receipt");
+    assert!(e.contains("its worker panicked") && e.contains("D60 F8 test switch"), "{e}");
+    eprintln!("D60 F8 | every fork worker panics (L3, 2 workers) | the prover FAILS and returns: {e}");
+}
+
+/// **D60 REVIEW F2, tooling (`#[ignore]`d): write an `L`-layer R13 export
+/// from the public synthetic fixture `r13-h24-wide`** into
+/// `HL_D60_EXPORT_DIR` (a new directory, outside the repository), `L` =
+/// `HL_D60_EXPORT_L` (default 3): every layer is the fixture's layer 0 (its
+/// arrays copied, its manifest with `"layer": k`), the variant
+/// `r13-h24-wide-x<L>-d60`, and the public sequence `seq_public` chained by
+/// the native witness builder (`x_in` of layer `k + 1` is the builder's
+/// output of layer `k`; `stack-prove`'s parity pass checks each against the
+/// builder again). Public synthetic data only: no real content. With
+/// `HL_D60_EXPORT_UP_TO=1`, `L` is a MAXIMUM: the export holds the longest
+/// admissible prefix of the repeated-layer chain (the residual stream grows
+/// layer by layer until the norm's range refuses).
+#[test]
+#[ignore = "D60 F2 tooling: HL_D60_EXPORT_DIR (new), HL_D60_EXPORT_L, HL_D60_EXPORT_UP_TO"]
+fn d60_close_write_r13_multi_layer_test_export() {
+    use crate::private_block::trained_block::{hex, sha256};
+    let out = PathBuf::from(std::env::var("HL_D60_EXPORT_DIR").expect("HL_D60_EXPORT_DIR names the new export directory"));
+    let max_l: usize = env_or("HL_D60_EXPORT_L", 3usize);
+    let up_to = std::env::var("HL_D60_EXPORT_UP_TO").is_ok_and(|v| v == "1");
+    assert!(!out.exists(), "{} exists; the export is written into a new directory", out.display());
+    let src = fixtures().join("r13-h24-wide");
+    let p0 = rung_public(1);
+    let (x0, _) = p0.ex.load_seq(&p0.shapes[0], "public", 0).unwrap();
+    // the chain first: the longest admissible prefix (or exactly `max_l`)
+    let mut chain: Vec<(Vec<i16>, Vec<i16>)> = Vec::new();
+    let mut x = x0;
+    let lay = crate::private_block::layout::Layout::for_shape(&p0.shapes[0]).unwrap();
+    for k in 0..max_l {
+        // the sealing pass's two refusals: the builder's, and CS-3's lookup misses
+        let built = witness::build_for_block(&p0.shapes[0], &p0.blocks[0], &x).and_then(|w| crate::private_block::protocol::check_lookup_misses(&p0.shapes[0], &lay, &p0.blocks[0], &w).map(|_| w));
+        match built {
+            Ok(w) => {
+                let y = unpad(&p0.seed, &w.output().unwrap());
+                chain.push((x, y.clone()));
+                x = y;
+            }
+            Err(e) if up_to && k > 0 => {
+                eprintln!("D60 F2 EXPORT | layer {k} of the repeated-layer chain is not admissible ({e}); the export holds layers 0..{k}");
+                break;
+            }
+            Err(e) => panic!("layer {k} of the repeated-layer chain is not admissible: {e}"),
+        }
+    }
+    let l = chain.len();
+    let variant = format!("r13-h24-wide-x{l}-d60");
+    let manifest0 = std::fs::read_to_string(src.join("layer_00/manifest.json")).unwrap();
+    assert_eq!(manifest0.matches("\"layer\": 0\n}").count(), 1, "the fixture manifest's layer field");
+    let seq = out.join("seq_public");
+    std::fs::create_dir_all(&seq).unwrap();
+    let (mut layer_entries, mut arrays) = (Vec::new(), Vec::new());
+    let arr = |name: &str, b: &[u8]| format!("    \"{name}\": {{\n      \"dtype\": \"int16\",\n      \"file\": \"{name}.bin\",\n      \"sha256\": \"{}\",\n      \"shape\": [\n        {},\n        {}\n      ]\n    }}", hex(&sha256(b)), p0.seed.tokens, p0.seed.width);
+    for k in 0..l {
+        let ldir = out.join(format!("layer_{k:02}"));
+        std::fs::create_dir_all(&ldir).unwrap();
+        for e in std::fs::read_dir(src.join("layer_00")).unwrap() {
+            let e = e.unwrap();
+            if e.file_name() != "manifest.json" {
+                std::fs::copy(e.path(), ldir.join(e.file_name())).unwrap();
+            }
+        }
+        let m = manifest0.replace("\"layer\": 0\n}", &format!("\"layer\": {k}\n}}"));
+        std::fs::write(ldir.join("manifest.json"), &m).unwrap();
+        layer_entries.push(format!("    {{\n      \"dir\": \"layer_{k:02}\",\n      \"layer\": {k},\n      \"manifest_sha256\": \"{}\"\n    }}", hex(&sha256(m.as_bytes()))));
+        let (xk, yk) = &chain[k];
+        let (xi, xo): (Vec<u8>, Vec<u8>) = (xk.iter().flat_map(|v| v.to_le_bytes()).collect(), yk.iter().flat_map(|v| v.to_le_bytes()).collect());
+        for (name, b) in [(format!("x_in_L{k:02}"), &xi), (format!("x_out_L{k:02}"), &xo)] {
+            std::fs::write(seq.join(format!("{name}.bin")), b).unwrap();
+            arrays.push(arr(&name, b));
+        }
+    }
+    std::fs::write(seq.join("manifest.json"), format!("{{\n  \"arrays\": {{\n{}\n  }},\n  \"kind\": \"sequence\"\n}}\n", arrays.join(",\n"))).unwrap();
+    let profile = std::fs::read_to_string(src.join("profile.json")).unwrap();
+    let start = profile.find("\"layers\": [").expect("the fixture profile's layer list");
+    let end = start + profile[start..].find("\n  ],").expect("the end of the layer list") + "\n  ],".len();
+    let mut p = format!("{}\"layers\": [\n{}\n  ],{}", &profile[..start], layer_entries.join(",\n"), &profile[end..]);
+    assert_eq!(p.matches("\"variant\": \"r13-h24-wide\"").count(), 1);
+    p = p.replace("\"variant\": \"r13-h24-wide\"", &format!("\"variant\": \"{variant}\""));
+    std::fs::write(out.join("profile.json"), &p).unwrap();
+    let ex = TrainedExport::load(&out).unwrap_or_else(|e| panic!("the written {l}-layer export does not load: {e}"));
+    assert_eq!(ex.layers.len(), l);
+    let id = crate::private_block::trained_block::stack_identity_for_tests(&out).unwrap();
+    eprintln!("D60 F2 EXPORT | {} | variant {variant} | {l} layers (each the fixture's layer 0) | seq_public chained by the native builder | trained statement identity {} | public synthetic data, not for publication", out.display(), hex(&id));
+}
+
+/// **D60 REVIEW F2, the cross-binary check (`#[ignore]`d): ONE production
+/// CLI command run inside the TEST binary** (whose `cfg(test)` arms are
+/// compiled in, where the release CLI compiles the production ones):
+/// `HL_D60_CLI_ARGS` is the command and its flags, whitespace-separated
+/// (`stack-prove …` or `stack-verify …`), `HL_D60_CLI_WANT` the expected
+/// exit code (default 0). A receipt the release CLI proved is verified here,
+/// and one proved here by the release CLI.
+#[test]
+#[ignore = "D60 F2 cross-binary: HL_D60_CLI_ARGS, HL_D60_CLI_WANT"]
+fn d60_close_cli_in_the_test_binary() {
+    use crate::private_block::trained_block::{trained_stack_prove_command, trained_stack_verify_command};
+    let line = std::env::var("HL_D60_CLI_ARGS").expect("HL_D60_CLI_ARGS names the command");
+    let want: i32 = env_or("HL_D60_CLI_WANT", 0i32);
+    let args: Vec<String> = line.split_whitespace().map(str::to_string).collect();
+    let (cmd, rest) = args.split_first().expect("a command");
+    let got = match cmd.as_str() {
+        "stack-prove" => trained_stack_prove_command(rest),
+        "stack-verify" => trained_stack_verify_command(rest),
+        other => panic!("{other} is not stack-prove or stack-verify"),
+    };
+    eprintln!("D60 F2 TEST-BINARY CLI | {line} | exit {got} (want {want})");
+    assert_eq!(got, want, "the test binary's {cmd} exited {got}, not {want}");
+}
+
+/// **D60 REVIEW F5, the measurement's other half (`#[ignore]`d): the bytes
+/// ONE public block holds resident**, at each `HL_D60_F5_PROFILES` profile
+/// (default the R13 rung and Llama-3-8B T128), from the A/B's synthetic block
+/// at the profile's true padded geometry (`range16_tests::case`): every
+/// padded weight word (i8), the RoPE / exp tables (i64), the activation
+/// table and the encoded R13 accuracy data. `load_fork_blocks` holds `L` of
+/// them at once on every D55 CLI path; D12a's `BlockCache` holds one.
+#[test]
+#[ignore = "D60 F5: the resident bytes of one public block per profile"]
+fn d60_close_f5_resident_bytes_of_one_public_block() {
+    use crate::private_block::shape;
+    let names: String = env_or("HL_D60_F5_PROFILES", "R13_RUNG_H24,R13_8B_T128_H24".to_string());
+    for name in names.split(',') {
+        let spec = shape::ACCURACY_PROFILES.iter().find(|s| s.name == name).unwrap_or_else(|| panic!("{name} is not an R13 profile"));
+        let (sh, data, public, ff) = crate::private_block::range16_tests::case(crate::private_block::range16_tests::built(spec.profile), 3);
+        let blk = BlockPublic::new(public, ff).with_accuracy(data);
+        let a = &blk.attention;
+        let f = &blk.feed_forward;
+        let words = a.wq.len() + a.wk.len() + a.wv.len() + a.wo.len() + a.gamma_a.len() + f.gamma_m.len() + f.wg_t.len() + f.wu_t.len() + f.wd_t.len();
+        let tables = 8 * (a.rope_cos.len() + a.rope_sin.len() + a.exp.len()) + 2 * f.act.len();
+        let acc = blk.accuracy().map(|x| x.encode().len()).unwrap_or(0);
+        let total = words + tables + acc;
+        eprintln!(
+            "D60 F5 BLOCK | {name} (T{}, width {}, hidden {}; d_pad {}, f_pad {}) | one public block: {words} B of padded weight words + {tables} B of tables + {acc} B of accuracy data = {total} B ({:.3} GiB); x32 = {:.2} GiB, x22 = {:.2} GiB, x26 = {:.2} GiB",
+            sh.tokens,
+            sh.width,
+            sh.hidden,
+            sh.d_pad,
+            sh.f_pad,
+            total as f64 / (1u64 << 30) as f64,
+            32.0 * total as f64 / (1u64 << 30) as f64,
+            22.0 * total as f64 / (1u64 << 30) as f64,
+            26.0 * total as f64 / (1u64 << 30) as f64
+        );
+    }
+}
+
 // ------------------------------------------------------------------ the A/B
 
 fn env_or<T: std::str::FromStr>(name: &str, default: T) -> T {

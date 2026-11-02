@@ -195,17 +195,9 @@ pub(crate) fn encode_fork(f: &ForkFrame, lay: &Layout, binding: &Digest, l: usiz
     Ok(out)
 }
 
-/// Decode fork frame `k`; the header is compared against the verifier's own
-/// binding, `L`, `k` and its own fork-start position, and the end tag is
-/// returned to be compared after the fork is replayed.
-pub(crate) fn decode_fork(bytes: &[u8], lay: &Layout, binding: &Digest, l: usize, k: usize, start_tag: &[u8; 32]) -> Result<(ForkFrame, [u8; 32]), String> {
-    let sh = lay.shape();
-    let len = fork_len(lay);
-    if bytes.len() != len || len > wire_ceiling(sh) {
-        return Err(format!("D55 wire: fork frame {k} is {} B, the counted length is {len}", bytes.len()));
-    }
-    let bd = Dim::block(lay);
-    let mut r = Reader { bytes, pos: 0 };
+/// the first 88 bytes of fork frame `k` (magic, binding, `L`, `k`, start tag),
+/// COMPARED with the verifier's own values
+fn fork_header(r: &mut Reader, binding: &Digest, l: usize, k: usize, start_tag: &[u8; 32]) -> Result<(), String> {
     if &r.take::<8>()? != FORK_MAGIC {
         return Err("D55 wire: fork frame profile".into());
     }
@@ -218,6 +210,28 @@ pub(crate) fn decode_fork(bytes: &[u8], lay: &Layout, binding: &Digest, l: usize
     if &r.take::<32>()? != start_tag {
         return Err(format!("D55 wire: fork frame {k}'s start tag is not the verifier's own fork-{k} position"));
     }
+    Ok(())
+}
+
+/// **D60 review F7: fork frame `k`'s header alone**, checked by the on-disk
+/// reader as each frame is read, before the next one is (the same checks and
+/// refusals as [`decode_fork`], which makes them again with the body)
+pub(crate) fn check_fork_header(bytes: &[u8], binding: &Digest, l: usize, k: usize, start_tag: &[u8; 32]) -> Result<(), String> {
+    fork_header(&mut Reader { bytes, pos: 0 }, binding, l, k, start_tag)
+}
+
+/// Decode fork frame `k`; the header is compared against the verifier's own
+/// binding, `L`, `k` and its own fork-start position, and the end tag is
+/// returned to be compared after the fork is replayed.
+pub(crate) fn decode_fork(bytes: &[u8], lay: &Layout, binding: &Digest, l: usize, k: usize, start_tag: &[u8; 32]) -> Result<(ForkFrame, [u8; 32]), String> {
+    let sh = lay.shape();
+    let len = fork_len(lay);
+    if bytes.len() != len || len > wire_ceiling(sh) {
+        return Err(format!("D55 wire: fork frame {k} is {} B, the counted length is {len}", bytes.len()));
+    }
+    let bd = Dim::block(lay);
+    let mut r = Reader { bytes, pos: 0 };
+    fork_header(&mut r, binding, l, k, start_tag)?;
     let (a_root, h_root, mask_root) = (r.take::<32>()?, r.take::<32>()?, r.take::<32>()?);
     let mut slots = Vec::with_capacity(lay.n_slots());
     for s in 0..lay.n_slots() {
@@ -273,15 +287,8 @@ pub(crate) fn encode_tail(t: &TailFrame, sh: &Shape, binding: &Digest, l: usize,
     Ok(out)
 }
 
-/// Decode the tail; its S1 tag is compared against the verifier's own S1 and
-/// its end tag is returned to be compared after the last opening.
-pub(crate) fn decode_tail(bytes: &[u8], sh: &Shape, binding: &Digest, l: usize, boundary_rows: usize, sites: usize, s1_tag: &[u8; 32]) -> Result<(TailFrame, [u8; 32]), String> {
-    let len = tail_len(sh, l, boundary_rows, sites);
-    if bytes.len() != len || len > wire_ceiling(sh) {
-        return Err(format!("D55 wire: the tail is {} B, the counted length is {len}", bytes.len()));
-    }
-    let ed = endpoint_dim(sh);
-    let mut r = Reader { bytes, pos: 0 };
+/// the tail's magic, binding and `L`, COMPARED with the verifier's own values
+fn tail_header(r: &mut Reader, binding: &Digest, l: usize) -> Result<(), String> {
     if &r.take::<8>()? != TAIL_MAGIC {
         return Err("D55 wire: tail frame profile".into());
     }
@@ -291,6 +298,26 @@ pub(crate) fn decode_tail(bytes: &[u8], sh: &Shape, binding: &Digest, l: usize, 
     if u64::from_le_bytes(r.take::<8>()?) != l as u64 {
         return Err(format!("D55 wire: the tail is not an {l}-block run's"));
     }
+    Ok(())
+}
+
+/// **D60 review F7: the tail's header alone** (magic, binding, `L`; its S1
+/// tag needs every fork verified), checked by the on-disk reader as the tail
+/// is read (the same checks and refusals as [`decode_tail`])
+pub(crate) fn check_tail_header(bytes: &[u8], binding: &Digest, l: usize) -> Result<(), String> {
+    tail_header(&mut Reader { bytes, pos: 0 }, binding, l)
+}
+
+/// Decode the tail; its S1 tag is compared against the verifier's own S1 and
+/// its end tag is returned to be compared after the last opening.
+pub(crate) fn decode_tail(bytes: &[u8], sh: &Shape, binding: &Digest, l: usize, boundary_rows: usize, sites: usize, s1_tag: &[u8; 32]) -> Result<(TailFrame, [u8; 32]), String> {
+    let len = tail_len(sh, l, boundary_rows, sites);
+    if bytes.len() != len || len > wire_ceiling(sh) {
+        return Err(format!("D55 wire: the tail is {} B, the counted length is {len}", bytes.len()));
+    }
+    let ed = endpoint_dim(sh);
+    let mut r = Reader { bytes, pos: 0 };
+    tail_header(&mut r, binding, l)?;
     if &r.take::<32>()? != s1_tag {
         return Err("D55 wire: the tail's S1 tag is not the verifier's own joined transcript position".into());
     }

@@ -1622,12 +1622,61 @@ pub(crate) fn verify_run_from_dir_hashed_with(st: &RunStatement, blocks: &mut dy
     Ok(seen)
 }
 
-/// `O_NOFOLLOW | O_NONBLOCK` on x86-64 Linux (the open flags differ by
-/// architecture and this crate takes no `libc` dependency): a path swapped
-/// to a symbolic link after the `lstat` fails to open, and one swapped to a
-/// FIFO does not block the open. Elsewhere the `fstat` re-check below holds.
+/// **`O_NOFOLLOW | O_NONBLOCK` for this target** (the open flags differ by
+/// operating system and architecture, and this crate takes no `libc`
+/// dependency): a path swapped to a symbolic link after the `lstat` fails to
+/// open (`ELOOP`), and one swapped to a FIFO does not block the open (the
+/// `fstat` re-check then refuses it). **D60 review F4 (2026-11-02):** these
+/// were set on x86-64 Linux only, so on the macOS work box the window between
+/// the `lstat` and the open was unprotected (a FIFO swapped in hung the
+/// verifier); the values are now given for every target the project builds
+/// on — x86-64 Linux `0o400000 | 0o4000`, aarch64 Linux `0o100000 | 0o4000`
+/// (`0o400000` is `O_LARGEFILE` there), macOS (any architecture) `0x0100 |
+/// 0x0004` — and `None` elsewhere, where the `fstat` re-check alone holds.
+/// Every bounded reader of the crate opens through
+/// [`open_nofollow_nonblock`].
 #[cfg(all(target_os = "linux", target_arch = "x86_64"))]
-const SEGMENT_OPEN_FLAGS: i32 = 0o400000 | 0o4000;
+pub(crate) const NOFOLLOW_NONBLOCK: Option<i32> = Some(0o400000 | 0o4000);
+#[cfg(all(target_os = "linux", target_arch = "aarch64"))]
+pub(crate) const NOFOLLOW_NONBLOCK: Option<i32> = Some(0o100000 | 0o4000);
+#[cfg(target_os = "macos")]
+pub(crate) const NOFOLLOW_NONBLOCK: Option<i32> = Some(0x0100 | 0x0004);
+#[cfg(not(any(all(target_os = "linux", any(target_arch = "x86_64", target_arch = "aarch64")), target_os = "macos")))]
+pub(crate) const NOFOLLOW_NONBLOCK: Option<i32> = None;
+
+#[cfg(test)]
+thread_local! {
+    static BEFORE_OPEN_HOOK: std::cell::RefCell<Option<Box<dyn FnOnce(&std::path::Path)>>> = const { std::cell::RefCell::new(None) };
+}
+
+/// D60 review F4, TEST ONLY: `f` runs once, in this thread's next
+/// [`open_nofollow_nonblock`], between a bounded reader's `lstat` checks and
+/// its open — the window a writer of the directory races (the test swaps a
+/// FIFO or a symbolic link in there)
+#[cfg(test)]
+pub(crate) fn before_open_hook_for_tests(f: Box<dyn FnOnce(&std::path::Path)>) {
+    BEFORE_OPEN_HOOK.with(|h| *h.borrow_mut() = Some(f));
+}
+
+/// **Open `p` read-only with [`NOFOLLOW_NONBLOCK`]** (where the target
+/// defines it): the one open of every bounded reader (D12a's segment reader
+/// and regular-file reader, D55's frame reader, the token-table readers). The
+/// caller has already refused, from `lstat`, anything that is not a regular
+/// file, and re-checks the OPENED file (`fstat`) after this returns.
+pub(crate) fn open_nofollow_nonblock(p: &std::path::Path) -> std::io::Result<std::fs::File> {
+    #[cfg(test)]
+    if let Some(f) = BEFORE_OPEN_HOOK.with(|h| h.borrow_mut().take()) {
+        f(p);
+    }
+    let mut opts = std::fs::OpenOptions::new();
+    opts.read(true);
+    #[cfg(unix)]
+    if let Some(flags) = NOFOLLOW_NONBLOCK {
+        use std::os::unix::fs::OpenOptionsExt;
+        opts.custom_flags(flags);
+    }
+    opts.open(p)
+}
 
 /// **REVIEW r3 FINDING r3_6 (verifier DoS, not soundness; fixed in native
 /// round 5): THE BOUNDED SEGMENT READER.** The stack verifier read each
@@ -1643,11 +1692,12 @@ const SEGMENT_OPEN_FLAGS: i32 = 0o400000 | 0o4000;
 /// 2. `symlink_metadata`: anything that is not a regular file (a symbolic
 ///    link, FIFO, device, directory) is refused by name, unopened;
 /// 3. the metadata length must be exactly `want`;
-/// 4. the open does not follow a link nor block on a FIFO (x86-64 Linux),
-///    the OPENED file is re-checked (`fstat`: regular, length `want`), and
-///    the read is capped at `want + 1` bytes, so a file that grows or is
-///    swapped after the check is still refused (`decode_segment` re-checks
-///    the length too).
+/// 4. the open does not follow a link nor block on a FIFO
+///    ([`NOFOLLOW_NONBLOCK`]: x86-64 and aarch64 Linux and macOS since D60
+///    review F4), the OPENED file is re-checked (`fstat`: regular, length
+///    `want`), and the read is capped at `want + 1` bytes, so a file that
+///    grows or is swapped after the check is still refused (`decode_segment`
+///    re-checks the length too).
 pub(crate) fn read_segment_bounded(st: &RunStatement, k: usize, p: &std::path::Path) -> Result<Vec<u8>, String> {
     use std::io::Read;
     let want = wire::segment_len(&st.stage_layout(k)?, st.seg_geom(k)?);
@@ -1662,14 +1712,7 @@ pub(crate) fn read_segment_bounded(st: &RunStatement, k: usize, p: &std::path::P
     if meta.len() != want as u64 {
         return Err(format!("private run wire: segment {k} is {} B, the counted length is {want}; refused before it is read (review r3_6)", meta.len()));
     }
-    let mut opts = std::fs::OpenOptions::new();
-    opts.read(true);
-    #[cfg(all(target_os = "linux", target_arch = "x86_64"))]
-    {
-        use std::os::unix::fs::OpenOptionsExt;
-        opts.custom_flags(SEGMENT_OPEN_FLAGS);
-    }
-    let f = opts.open(p).map_err(|e| format!("private run: segment {k} ({}) cannot be opened as a regular file: {e}", p.display()))?;
+    let f = open_nofollow_nonblock(p).map_err(|e| format!("private run: segment {k} ({}) cannot be opened as a regular file: {e}", p.display()))?;
     let fm = f.metadata().map_err(|e| format!("private run: segment {k} ({}): {e}", p.display()))?;
     if !fm.file_type().is_file() || fm.len() != want as u64 {
         return Err(format!("private run wire: segment {k} ({}) changed after its check (now {} B, regular file {}); the counted length is {want}", p.display(), fm.len(), fm.file_type().is_file()));
@@ -1689,7 +1732,7 @@ pub(crate) fn read_segment_bounded(st: &RunStatement, k: usize, p: &std::path::P
 /// an artifact's policy and single segment): `symlink_metadata` refuses
 /// anything that is not a regular file and any length above `max` (or other
 /// than `max` when `exact`) BEFORE the open; the open follows no link and
-/// does not block on a FIFO (x86-64 Linux); the OPENED file is re-checked
+/// does not block on a FIFO ([`NOFOLLOW_NONBLOCK`]); the OPENED file is re-checked
 /// (`fstat`: regular, the same length); the read is capped at `max + 1`
 /// bytes and its length re-checked — so a path swapped between the check and
 /// the read is refused, never followed, blocked on or read without bound.
@@ -1706,14 +1749,7 @@ pub(crate) fn read_regular_file_bounded(path: &std::path::Path, max: u64, exact:
     if len > max {
         return Err(format!("{}: {len} bytes exceeds the bound {max}; refused before it is read", path.display()));
     }
-    let mut opts = std::fs::OpenOptions::new();
-    opts.read(true);
-    #[cfg(all(target_os = "linux", target_arch = "x86_64"))]
-    {
-        use std::os::unix::fs::OpenOptionsExt;
-        opts.custom_flags(SEGMENT_OPEN_FLAGS);
-    }
-    let f = opts.open(path).map_err(|e| format!("{}: cannot be opened as a regular file: {e}", path.display()))?;
+    let f = open_nofollow_nonblock(path).map_err(|e| format!("{}: cannot be opened as a regular file: {e}", path.display()))?;
     let fm = f.metadata().map_err(|e| format!("{}: {e}", path.display()))?;
     if !fm.file_type().is_file() || fm.len() != len {
         return Err(format!("{}: changed after its check; refused", path.display()));

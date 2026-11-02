@@ -38,16 +38,14 @@ const MAX_BATCH_BYTES: u64 = 64 << 10;
 const MAX_CONTENT: usize = 336;
 const BATCH_FLAGS: [&str; 5] = ["--export", "--tables", "--content-file", "--batch-file", "--label"];
 
-/// `O_NOFOLLOW | O_NONBLOCK` for the request's open (REVIEW A5 note 7): the
-/// x86-64 Linux values (`0o400000 | 0o4000` = 0x20800), the one target this
-/// command is built and tested for. Elsewhere the values differ (aarch64
-/// Linux: 0o400000 is `O_LARGEFILE`), so another target refuses every
-/// request at run time instead of following a symlink silently; the crate
-/// still builds there.
-#[cfg(all(target_os = "linux", target_arch = "x86_64"))]
-const NOFOLLOW_NONBLOCK: Option<i32> = Some(0o400000 | 0o4000);
-#[cfg(not(all(target_os = "linux", target_arch = "x86_64")))]
-const NOFOLLOW_NONBLOCK: Option<i32> = None;
+/// `O_NOFOLLOW | O_NONBLOCK` for the request's open (REVIEW A5 note 7). The
+/// values differ by target (aarch64 Linux: 0o400000 is `O_LARGEFILE`), so a
+/// target without known values refuses every request at run time instead of
+/// following a symlink silently; the crate still builds there. Since D60
+/// review F4 (2026-11-02) the values are the crate's one table,
+/// `run::NOFOLLOW_NONBLOCK`: x86-64 Linux (`0o400000 | 0o4000` = 0x20800, as
+/// before), aarch64 Linux and macOS, where this command was refused until then.
+const NOFOLLOW_NONBLOCK: Option<i32> = super::super::super::run::NOFOLLOW_NONBLOCK;
 
 /// TOKEN ROUND 18 (a test hook; no behaviour change): the run profile a batch
 /// admits, its T and its ONE fixed policy list (D45(2), D37 order). The CLI
