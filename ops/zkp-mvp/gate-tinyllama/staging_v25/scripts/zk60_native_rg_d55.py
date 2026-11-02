@@ -938,6 +938,34 @@ def d55_gate(bundle_dir: str, controls=True, r19b_manifest=None, other_dir=None,
     if not joint:
         rec["not_here"].append("the run-level joint rank (D55-J), not requested")
     rec["tool_sha256"] = W.tool_hashes()
+    # --- [TS / CENSUS lane, 2026-11-02] begin
+    # At an R13 base: TS-1 (the G-7 terminal surjection on every commitment the
+    # run opens, each fork's A and H and every tail opening, with control TS-1,
+    # its fidelity row and the review's controls) and the claim census
+    # (`zk60_native_rg_d55ts`); the hash layer (every opened column re-hashed
+    # and folded under the derived rule, with its controls) and the Python hash
+    # census (C-R1 / C-R2 / W-2 / s25's per-function rule, MEASURED on this
+    # process's own replay; `zk60_native_rg_d55hash`).  Computed only once the
+    # replay reproduced the transcript, as every other figure part.  Each is a
+    # part: a false one makes the record NOT-OK.  The items they cover leave
+    # `not_here`.  The W16 path is unchanged.
+    if family == "R13":
+        import zk60_native_rg_d55hash as HSH
+        import zk60_native_rg_d55ts as TSC
+        if parts["D55-3 replay"]:
+            ts_rec, cen_rec = TSC.d55_ts_census(b.dir, controls=controls)
+            hl_rec, hc_rec = HSH.d55_hash(b, controls=controls)
+        else:
+            ts_rec = cen_rec = hl_rec = hc_rec = {"skipped": "the D55 replay did not reproduce the transcript", "ok": False}
+        for name, part in (("TS-1 terminal surjection and its pair-removed control", ts_rec), ("CENSUS claim census", cen_rec),
+                           ("HASH-1 hash layer", hl_rec), ("HASH-2 hash census", hc_rec)):
+            rec[name] = part
+            parts[name] = bool(part.get("ok"))
+        rec["not_here"] = [x for x in rec["not_here"] if x not in ("TS-1 and the claim census", "the hash census on the Python side")]
+        if not all(parts.values()) and rec["status"] != "NOT-OK":
+            rec["status"] = "NOT-OK"
+            rec["status_means"] = "some part is false"
+    # --- [TS / CENSUS lane, 2026-11-02] end
     rec["seconds"] = round(time.time() - t0, 1)
     return rec
 
