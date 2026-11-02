@@ -1,0 +1,20 @@
+
+running 1 test
+test private_block::run::fork::tests::d55_ab_one_request_serial_against_forks ... D55-AB W16_8B_T128_H24 L4 T128: setup 2.9 s (one witness 0.30 GB; 4 alive per call)
+D55-AB W16_8B_T128_H24 L4 serial cold (kernel compiles): wall 2.567 s = 49.87 proved tok/s
+D55-AB W16_8B_T128_H24 L4 serial: verified (D12a verifier, one thread) in 1.00 s
+D55-AB W16_8B_T128_H24 L4 T128 serial pass 0: wall 1.619 s = 79.07 proved tok/s; receipt 98678784 B
+D55-AB W16_8B_T128_H24 L4 forks N1: verified (D55 verifier, 6 threads) in 0.56 s
+D55-AB W16_8B_T128_H24 L4 T128 forks N1 pass 0: wall 1.613 s = 79.36 proved tok/s; 1 workers; preflight 0.058 s, commit 0.034 s, forks 1.510 s, join 0.011 s; fork prove_core min 0.356 median 0.357 max 0.430 s; receipt 98678976 B
+D55-AB W16_8B_T128_H24 L4 forks N2: verified (D55 verifier, 6 threads) in 0.37 s
+D55-AB W16_8B_T128_H24 L4 T128 forks N2 pass 0: wall 1.223 s = 104.68 proved tok/s; 2 workers; preflight 0.058 s, commit 0.033 s, forks 1.120 s, join 0.012 s; fork prove_core min 0.446 median 0.647 max 0.668 s; receipt 98678976 B
+D55-AB SUMMARY W16_8B_T128_H24 L4 T128 (1 warm passes; best and mean wall; proved tokens/s per request = T / wall):
+D55-AB SUMMARY | serial (D12a)  | best 1.619 s = 79.07 tok/s | mean 1.619 s = 79.07 tok/s | 1.00x serial (best)
+D55-AB SUMMARY | forks N=1      | best 1.613 s = 79.36 tok/s | mean 1.613 s = 79.36 tok/s | 1.00x serial (best)
+D55-AB SUMMARY | forks N=2      | best 1.223 s = 104.68 tok/s | mean 1.223 s = 104.68 tok/s | 1.32x serial (best)
+D55-AB device evidence: HL_GPU=Some("1"), Metal kernel compile 0.692 s, device sumcheck rounds 1.384 s
+D55-AB W16_8B_T128_H24 L4: total 17.1 s
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 937 filtered out; finished in 17.07s
+

@@ -33,13 +33,21 @@ $G --class build --need-gib 4 --cap-gib 10 --label d55-zkpcore --wait-secs 7200 
 grep -h "test result\|FAILED\|panicked" $L/g_zkpcore.log | tail -3
 grep -q "test result: ok" $L/g_zkpcore.log || exit 1
 
-# ---- D55: the source-scan hooks (the new test-only files are accounted for; no production module moved)
+# ---- D55: the source-scan hooks (the new test-only files are accounted for; no production module moved).
+# Four of these five scans ALREADY FAIL at the base commit 7ee0fcda, for files of the Metal / W16 lanes
+# (metal_slot.rs and range16.rs absent from the production lists; range16_tests.rs and
+# w16_privacy_gate_tests.rs absent from TEST_ONLY_FILES; slot_ir.rs now on the path). The gate is therefore:
+# W-8(5) passes; no scan names a D55 file; r19b's complaint is exactly those three pre-existing files.
 sleep 10
 step d55-hooks
 $G --class cpu --need-gib 4 --cap-gib 20 --label d55-hooks --wait-secs 7200 --max-secs 1800 --log $L/g_d55_hooks.log --done $L/g_d55_hooks.done -- \
   $B r19b_every_rs_file_under_private_block the_capture_writer_pins_every_run_layer_source every_absorb_label_on_the_path_is_in_the_table no_profile_on_this_path_can_obtain_a_generator the_generator_is_never_cloned_and_each_prover_constructs_exactly_one --test-threads=1
-grep -h "test result\|FAILED\|panicked" $L/g_d55_hooks.log | tail -4
-grep -q "test result: ok. [1-9]" $L/g_d55_hooks.log || exit 1
+grep -h "^test \|test result" $L/g_d55_hooks.log | tail -6
+grep -q "the_generator_is_never_cloned_and_each_prover_constructs_exactly_one ... ok" $L/g_d55_hooks.log || exit 1
+grep -q "run_fork" $L/g_d55_hooks.log && { echo "A SOURCE SCAN NAMES A D55 FILE"; exit 1; }
+[ "$(grep 'is neither on the path nor a named test file\|is on the path AND listed' $L/g_d55_hooks.log | sort -u | wc -l | tr -d ' ')" = 3 ] || { echo "r19b's complaint is not the three pre-existing files"; exit 1; }
+for f in range16_tests.rs slot_ir.rs w16_privacy_gate_tests.rs; do grep -q "src/private_block/$f is" $L/g_d55_hooks.log || { echo "r19b moved: $f"; exit 1; }; done
+echo "hooks: W-8(5) ok; no scan names a D55 file; the four failing scans fail only on pre-existing Metal/W16 files"
 
 # ---- D55: the prototype's own tests, on the CPU and with the Metal device
 for arm in cpu metal; do

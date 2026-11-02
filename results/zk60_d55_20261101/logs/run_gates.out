@@ -1,0 +1,125 @@
+== build 19:04:49
+[zk60-guard 19:04:49] START d55-build class=build need=4G cap=10G enforce=watchdog-only waited=0s run=b1edbab1447c
+[zk60-guard 19:04:49] END d55-build exit=0 child_wall=0s peak_rss=0.00G min_avail=236.21G
+402
+B=/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af0bd172154265b70/ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-060554ced114139e
+-rwxr-xr-x  1 victorrielly  staff  17874640 Nov  1 18:49 /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-af0bd172154265b70/ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-060554ced114139e
+== zkp-core 19:04:59
+[zk60-guard 19:05:00] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 19:05:00] START d55-zkpcore class=build need=4G cap=10G enforce=watchdog-only waited=1s run=81490ce53976
+[zk60-guard 19:05:00] END d55-zkpcore exit=0 child_wall=0s peak_rss=0.00G min_avail=232.08G
+test result: ok. 15 passed; 0 failed; 2 ignored; 0 measured; 62 filtered out; finished in 0.07s
+test result: ok. 15 passed; 0 failed; 2 ignored; 0 measured; 62 filtered out; finished in 0.07s
+test result: ok. 15 passed; 0 failed; 2 ignored; 0 measured; 62 filtered out; finished in 0.07s
+== d55-hooks 19:05:10
+[zk60-guard 19:05:10] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 19:05:13] START d55-hooks class=cpu need=4G cap=20G enforce=watchdog-only waited=3s run=4e94f412eaa8
+[zk60-guard 19:05:13] END d55-hooks exit=101 child_wall=0s peak_rss=0.00G min_avail=231.20G
+test private_block::hash_domain::tests::every_absorb_label_on_the_path_is_in_the_table ... FAILED
+test private_block::s24_tests::the_capture_writer_pins_every_run_layer_source_it_depends_on ... FAILED
+test private_block::s25_tests::no_profile_on_this_path_can_obtain_a_generator_other_than_from_the_operating_system ... FAILED
+test private_block::s25_tests::r19b_every_rs_file_under_private_block_is_on_the_path_or_a_named_test_file ... FAILED
+test private_block::s25_tests::the_generator_is_never_cloned_and_each_prover_constructs_exactly_one ... ok
+test result: FAILED. 1 passed; 4 failed; 0 ignored; 0 measured; 933 filtered out; finished in 0.07s
+hooks: W-8(5) ok; no scan names a D55 file; the four failing scans fail only on pre-existing Metal/W16 files
+== d55-cpu 19:05:24
+[zk60-guard 19:05:24] START d55-tests-cpu class=cpu need=8G cap=40G enforce=watchdog-only waited=0s run=9bdca35462e9
+[zk60-guard 19:05:56] END d55-tests-cpu exit=0 child_wall=32s peak_rss=2.06G min_avail=234.01G
+test private_block::run::fork::tests::d55_control_a_boundary_root_absorbed_after_a_fork_is_rejected ... D55 CONTROL | RootAfterFork { boundary: 1 } | forged tags false | REJECTED: D55: the head's S0 tag is not the verifier's own S0 (every boundary root absorbed, in order, before any fork)
+D55 CONTROL | RootAfterFork { boundary: 1 } | forged tags true | REJECTED: D55: fork 0: slot 0 [01 SS row sums norm_a (private)]: sumcheck round 1: s(0) + s(1) != claim
+test private_block::run::fork::tests::d55_control_a_claim_raised_on_a_fork_but_not_joined_is_rejected ... D55 CONTROL | ClaimNotJoined { block: 1 } | forged tags false | REJECTED: D55 wire: the tail's S1 tag is not the verifier's own joined transcript position
+D55 CONTROL | ClaimNotJoined { block: 1 } | forged tags true | REJECTED: D55: boundary 0: pcs zk: group 0: <v, c> != combined claim
+D55 CONTROL | ClaimNotJoinedNorOpened { block: 0 } | REFUSED BY THE PROVER'S OWN AUDIT: D55: boundary 0: private block: mask schedule audit: a reserved pair is unused or shared between claims
+test private_block::run::fork::tests::d55_control_a_fork_index_swap_is_rejected ... D55 CONTROL | ForkIndexSwap { a: 0, b: 1 } | forged tags false | REJECTED: D55: fork 0: D55 wire: fork frame 0's start tag is not the verifier's own fork-0 position
+D55 CONTROL | ForkIndexSwap { a: 1, b: 2 } | forged tags true | REJECTED: D55: fork 1: slot 0 [01 SS row sums norm_a (private)]: sumcheck round 1: s(0) + s(1) != claim
+test private_block::run::fork::tests::d55_control_a_stale_fork_state_is_rejected ... D55 CONTROL | StaleForkState { block: 1 } | forged tags false | REJECTED: D55 wire: the tail's S1 tag is not the verifier's own joined transcript position
+D55 CONTROL | StaleForkState { block: 1 } | forged tags true | REJECTED: D55: boundary 0: pcs zk: group 0: <v, c> != combined claim
+test private_block::run::fork::tests::d55_honest_fork_runs_verify_at_every_worker_count ... D55 | honest | L2 workers 2: 31258480 B (head 112 B, forks [14465864, 14465864] B, tail 2326640 B); preflight 0.02 s, commit 0.01 s, forks 1.18 s (core ["1.17", "1.18"]), join 0.01 s; verifies with 1 and 3 verifier threads; changed bytes refused (head: D55: the head's S0 tag is not the verifier's own S0 (every boundary root absorbed, in orde; last fork: D55: fork 1: A: pcs zk: group 26: <v, c> != combined claim; tail: D55: run input endpoint: pcs zk: group 0: <v, c> != combined claim)
+D55 | honest | L3 workers 1: 46678744 B (head 144 B, forks [14465864, 14465864, 14465864] B, tail 3281008 B); preflight 0.02 s, commit 0.02 s, forks 2.87 s (core ["0.94", "0.95", "0.97"]), join 0.01 s; verifies with 1 and 3 verifier threads; changed bytes refused (head: D55: the head's S0 tag is not the verifier's own S0 (every boundary root absorbed, in orde; last fork: D55: fork 2: A: pcs zk: group 26: <v, c> != combined claim; tail: D55: boundary 1: pcs zk: column index 20475 != sampled 25612)
+D55 | honest | L3 workers 2: 46678744 B (head 144 B, forks [14465864, 14465864, 14465864] B, tail 3281008 B); preflight 0.02 s, commit 0.03 s, forks 2.09 s (core ["1.15", "1.15", "0.94"]), join 0.01 s; verifies with 1 and 3 verifier threads; changed bytes refused (head: D55: the head's S0 tag is not the verifier's own S0 (every boundary root absorbed, in orde; last fork: D55: fork 2: A: pcs zk: group 26: <v, c> != combined claim; tail: D55: boundary 1: pcs zk: column index 44140 != sampled 6323)
+D55 | honest | L3 workers 3: 46678744 B (head 144 B, forks [14465864, 14465864, 14465864] B, tail 3281008 B); preflight 0.02 s, commit 0.03 s, forks 1.40 s (core ["1.35", "1.35", "1.40"]), join 0.01 s; verifies with 1 and 3 verifier threads; changed bytes refused (head: D55: the head's S0 tag is not the verifier's own S0 (every boundary root absorbed, in orde; last fork: D55: fork 2: A: pcs zk: group 26: <v, c> != combined claim; tail: D55: boundary 1: pcs zk: column index 24152 != sampled 4058)
+test private_block::run::fork::tests::d55_swapped_fork_frames_are_rejected ... D55 | swapped frames | REJECTED: D55: fork 0: D55 wire: frame 0 is not the 3-block run's fork 0
+test private_block::run::fork::tests::d55_the_d12a_run_is_unchanged_and_the_two_profiles_do_not_cross ... D55 | census | constructor 57 B (hashline-zk-mr1/private-run-rung-lh-t32-dev/1); run-construction 153, parameters (the fork line) 317, pb-fork-commit-root 75, pb-fork-s0 66, pb-run-fork 67, pb-run-fork-block 97, pb-join-fork 68, pb-join-state 101, pb-join-in-claims (no claim) 73, pb-join-out-claims (no claim) 74, pb-fork-s1 66; one-claim lists >= 137; seeds 171 / 186
+D55 | profiles | D12a L3 proves and verifies (46678552 B); fork binding and line differ; CS-7: private run: ruling CS-7 — "d55-commit-fork-join-prototype-unregistered/hashline; fork frames as D12a segments: private run wire: segment 0 is 14465864 B, the counted length is 15151976; D12a segments as forks: D55: fork 0: D55 wire: fork frame 0 is 15151976 B, the counted length is 14465864
+test result: ok. 7 passed; 0 failed; 1 ignored; 0 measured; 930 filtered out; finished in 32.06s
+== d55-metal 19:06:06
+[zk60-guard 19:06:06] START d55-tests-metal class=gpu need=8G cap=40G enforce=watchdog-only waited=0s run=69586face717
+[zk60-guard 19:06:19] END d55-tests-metal exit=0 child_wall=13s peak_rss=1.83G min_avail=231.91G peak_vram=4848MiB
+test private_block::run::fork::tests::d55_control_a_boundary_root_absorbed_after_a_fork_is_rejected ... D55 CONTROL | RootAfterFork { boundary: 1 } | forged tags false | REJECTED: D55: the head's S0 tag is not the verifier's own S0 (every boundary root absorbed, in order, before any fork)
+D55 CONTROL | RootAfterFork { boundary: 1 } | forged tags true | REJECTED: D55: fork 0: slot 0 [01 SS row sums norm_a (private)]: sumcheck round 1: s(0) + s(1) != claim
+test private_block::run::fork::tests::d55_control_a_claim_raised_on_a_fork_but_not_joined_is_rejected ... D55 CONTROL | ClaimNotJoined { block: 1 } | forged tags false | REJECTED: D55 wire: the tail's S1 tag is not the verifier's own joined transcript position
+D55 CONTROL | ClaimNotJoined { block: 1 } | forged tags true | REJECTED: D55: boundary 0: pcs zk: group 0: <v, c> != combined claim
+D55 CONTROL | ClaimNotJoinedNorOpened { block: 0 } | REFUSED BY THE PROVER'S OWN AUDIT: D55: boundary 0: private block: mask schedule audit: a reserved pair is unused or shared between claims
+test private_block::run::fork::tests::d55_control_a_fork_index_swap_is_rejected ... D55 CONTROL | ForkIndexSwap { a: 0, b: 1 } | forged tags false | REJECTED: D55: fork 0: D55 wire: fork frame 0's start tag is not the verifier's own fork-0 position
+D55 CONTROL | ForkIndexSwap { a: 1, b: 2 } | forged tags true | REJECTED: D55: fork 1: slot 0 [01 SS row sums norm_a (private)]: sumcheck round 1: s(0) + s(1) != claim
+test private_block::run::fork::tests::d55_control_a_stale_fork_state_is_rejected ... D55 CONTROL | StaleForkState { block: 1 } | forged tags false | REJECTED: D55 wire: the tail's S1 tag is not the verifier's own joined transcript position
+D55 CONTROL | StaleForkState { block: 1 } | forged tags true | REJECTED: D55: boundary 0: pcs zk: group 0: <v, c> != combined claim
+test private_block::run::fork::tests::d55_honest_fork_runs_verify_at_every_worker_count ... D55 | honest | L2 workers 2: 31258480 B (head 112 B, forks [14465864, 14465864] B, tail 2326640 B); preflight 0.01 s, commit 0.01 s, forks 0.24 s (core ["0.23", "0.24"]), join 0.01 s; verifies with 1 and 3 verifier threads; changed bytes refused (head: D55: the head's S0 tag is not the verifier's own S0 (every boundary root absorbed, in orde; last fork: D55: fork 1: A: pcs zk: group 26: <v, c> != combined claim; tail: D55: run input endpoint: pcs zk: group 0: <v, c> != combined claim)
+D55 | honest | L3 workers 1: 46678744 B (head 144 B, forks [14465864, 14465864, 14465864] B, tail 3281008 B); preflight 0.02 s, commit 0.02 s, forks 0.61 s (core ["0.20", "0.20", "0.20"]), join 0.01 s; verifies with 1 and 3 verifier threads; changed bytes refused (head: D55: the head's S0 tag is not the verifier's own S0 (every boundary root absorbed, in orde; last fork: D55: fork 2: A: pcs zk: group 26: <v, c> != combined claim; tail: D55: boundary 1: pcs zk: column index 26535 != sampled 21412)
+D55 | honest | L3 workers 2: 46678744 B (head 144 B, forks [14465864, 14465864, 14465864] B, tail 3281008 B); preflight 0.02 s, commit 0.02 s, forks 0.46 s (core ["0.24", "0.24", "0.22"]), join 0.01 s; verifies with 1 and 3 verifier threads; changed bytes refused (head: D55: the head's S0 tag is not the verifier's own S0 (every boundary root absorbed, in orde; last fork: D55: fork 2: A: pcs zk: group 26: <v, c> != combined claim; tail: D55: boundary 1: pcs zk: column index 32109 != sampled 36446)
+D55 | honest | L3 workers 3: 46678744 B (head 144 B, forks [14465864, 14465864, 14465864] B, tail 3281008 B); preflight 0.02 s, commit 0.02 s, forks 0.26 s (core ["0.26", "0.25", "0.25"]), join 0.01 s; verifies with 1 and 3 verifier threads; changed bytes refused (head: D55: the head's S0 tag is not the verifier's own S0 (every boundary root absorbed, in orde; last fork: D55: fork 2: A: pcs zk: group 26: <v, c> != combined claim; tail: D55: boundary 1: pcs zk: column index 58289 != sampled 14965)
+test private_block::run::fork::tests::d55_swapped_fork_frames_are_rejected ... D55 | swapped frames | REJECTED: D55: fork 0: D55 wire: frame 0 is not the 3-block run's fork 0
+test private_block::run::fork::tests::d55_the_d12a_run_is_unchanged_and_the_two_profiles_do_not_cross ... D55 | census | constructor 57 B (hashline-zk-mr1/private-run-rung-lh-t32-dev/1); run-construction 153, parameters (the fork line) 317, pb-fork-commit-root 75, pb-fork-s0 66, pb-run-fork 67, pb-run-fork-block 97, pb-join-fork 68, pb-join-state 101, pb-join-in-claims (no claim) 73, pb-join-out-claims (no claim) 74, pb-fork-s1 66; one-claim lists >= 137; seeds 171 / 186
+D55 | profiles | D12a L3 proves and verifies (46678552 B); fork binding and line differ; CS-7: private run: ruling CS-7 — "d55-commit-fork-join-prototype-unregistered/hashline; fork frames as D12a segments: private run wire: segment 0 is 14465864 B, the counted length is 15151976; D12a segments as forks: D55: fork 0: D55 wire: fork frame 0 is 15151976 B, the counted length is 14465864
+test result: ok. 7 passed; 0 failed; 1 ignored; 0 measured; 930 filtered out; finished in 12.81s
+== d12a-run 19:06:29
+[zk60-guard 19:06:29] START d55-d12a-run class=cpu need=8G cap=40G enforce=watchdog-only waited=0s run=e1ce47f031f0
+[zk60-guard 19:06:34] END d55-d12a-run exit=0 child_wall=5s peak_rss=1.01G min_avail=235.59G
+test private_block::accuracy_proof_tests::accuracy_two_stage_private_boundary_with_different_gate_shifts_verifies ... R13 two-stage private boundary DD=false: G20 -> G21
+R13 two-stage private boundary DD=true: G20 -> G21
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 937 filtered out; finished in 4.95s
+== bytes-default 19:06:44
+[zk60-guard 19:06:44] START d55-bytes-default class=gpu need=60G cap=160G enforce=watchdog-only waited=0s run=ddc1fe5bb1e3
+[zk60-guard 19:06:53] END d55-bytes-default exit=0 child_wall=8s peak_rss=1.80G min_avail=231.43G peak_vram=3543MiB
+M4-ACCURACY-DIGEST R13_RUNG_LOW cpu 01fa1b2e
+M4-ACCURACY-DIGEST R13_RUNG_H24 cpu 992034f8
+M4-ACCURACY-DIGEST R13_RUNG_LOW_DD cpu 371e6b00
+M4-ACCURACY-DIGEST R13_RUNG_H24_DD cpu 3ab090df
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 937 filtered out; finished in 8.38s
+== bytes-0 19:07:03
+[zk60-guard 19:07:03] START d55-bytes-0 class=gpu need=60G cap=160G enforce=watchdog-only waited=0s run=b503c74a0ee3
+[zk60-guard 19:07:09] END d55-bytes-0 exit=0 child_wall=6s peak_rss=1.80G min_avail=231.35G peak_vram=3738MiB
+M4-ACCURACY-DIGEST R13_RUNG_LOW cpu 01fa1b2e
+M4-ACCURACY-DIGEST R13_RUNG_H24 cpu 992034f8
+M4-ACCURACY-DIGEST R13_RUNG_LOW_DD cpu 371e6b00
+M4-ACCURACY-DIGEST R13_RUNG_H24_DD cpu 3ab090df
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 937 filtered out; finished in 5.96s
+== unit-default 19:07:19
+[zk60-guard 19:07:19] START d55-unit-default class=cpu need=8G cap=40G enforce=watchdog-only waited=0s run=a0478d9893dc
+[zk60-guard 19:07:44] END d55-unit-default exit=0 child_wall=25s peak_rss=4.67G min_avail=231.44G
+test result: ok. 99 passed; 0 failed; 8 ignored; 0 measured; 831 filtered out; finished in 24.85s
+== unit-0 19:07:54
+[zk60-guard 19:07:54] START d55-unit-0 class=cpu need=8G cap=40G enforce=watchdog-only waited=0s run=567f305f9c81
+[zk60-guard 19:08:19] END d55-unit-0 exit=0 child_wall=25s peak_rss=4.70G min_avail=231.42G
+test result: ok. 99 passed; 0 failed; 8 ignored; 0 measured; 831 filtered out; finished in 24.71s
+== trained 19:08:29
+[zk60-guard 19:08:29] START d55-trained class=gpu need=60G cap=160G enforce=watchdog-only waited=0s run=6002aaa0e20a
+[zk60-guard 19:09:04] END d55-trained exit=0 child_wall=36s peak_rss=11.00G min_avail=217.89G peak_vram=10872MiB
+M4-TRAINED R13_8B_T128_H24 cpu 4.430 s metal-warm 0.728 s (prove core cpu 4.253 s metal 0.558 s; kernel compile 0.000 s, device sumcheck rounds 0.138 s; 1 slots without a matching IR; buffer pool 91 reused / 2 new) digest cpu 678953f646fcd15d28e9209984cb42ff8a
+M4-TRAINED R13_8B_T128_H24 cpu 4.430 s metal-warm 0.684 s (prove core cpu 4.253 s metal 0.509 s; kernel compile 0.000 s, device sumcheck rounds 0.131 s; 1 slots without a matching IR; buffer pool 92 reused / 1 new) digest cpu 678953f646fcd15d28e9209984cb42ff8a
+M4-TRAINED R13_8B_T128_H24 cpu 4.430 s metal-warm 0.697 s (prove core cpu 4.253 s metal 0.527 s; kernel compile 0.016 s, device sumcheck rounds 0.138 s; 1 slots without a matching IR; buffer pool 98 reused / 2 new) digest cpu 678953f646fcd15d28e9209984cb42ff8a
+M4-TRAINED R13_SHIELD_T128_H24 cpu 4.146 s metal-warm 0.736 s (prove core cpu 3.968 s metal 0.560 s; kernel compile 0.000 s, device sumcheck rounds 0.173 s; 1 slots without a matching IR; buffer pool 93 reused / 0 new) digest cpu 2b0d04bbf22b5e52faf1d0ce9a13d8
+M4-TRAINED R13_SHIELD_T128_H24 cpu 4.146 s metal-warm 0.716 s (prove core cpu 3.968 s metal 0.546 s; kernel compile 0.000 s, device sumcheck rounds 0.174 s; 1 slots without a matching IR; buffer pool 93 reused / 0 new) digest cpu 2b0d04bbf22b5e52faf1d0ce9a13d8
+M4-TRAINED R13_SHIELD_T128_H24 cpu 4.146 s metal-warm 0.735 s (prove core cpu 3.968 s metal 0.565 s; kernel compile 0.014 s, device sumcheck rounds 0.176 s; 1 slots without a matching IR; buffer pool 93 reused / 3 new) digest cpu 2b0d04bbf22b5e52faf1d0ce9a13d8
+M4-TRAINED W16_SHIELD_T128_H24 cpu 1.588 s metal-warm 0.528 s (prove core cpu 1.449 s metal 0.389 s; kernel compile 0.000 s, device sumcheck rounds 0.088 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu 01a6d51d3b0476dac75ecaf0ff375
+M4-TRAINED W16_SHIELD_T128_H24 cpu 1.588 s metal-warm 0.525 s (prove core cpu 1.449 s metal 0.388 s; kernel compile 0.014 s, device sumcheck rounds 0.090 s; 0 slots without a matching IR; buffer pool 105 reused / 2 new) digest cpu 01a6d51d3b0476dac75ecaf0ff375
+M4-TRAINED W16_SHIELD_T128_H24 cpu 1.588 s metal-warm 0.514 s (prove core cpu 1.449 s metal 0.374 s; kernel compile 0.000 s, device sumcheck rounds 0.089 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu 01a6d51d3b0476dac75ecaf0ff375
+M4-TRAINED W16_8B_T128_H24 cpu 1.598 s metal-warm 0.529 s (prove core cpu 1.458 s metal 0.380 s; kernel compile 0.000 s, device sumcheck rounds 0.078 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu c5e0bdac78cc47bb4de6528a29e809f56
+M4-TRAINED W16_8B_T128_H24 cpu 1.598 s metal-warm 0.494 s (prove core cpu 1.458 s metal 0.355 s; kernel compile 0.000 s, device sumcheck rounds 0.077 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu c5e0bdac78cc47bb4de6528a29e809f56
+M4-TRAINED W16_8B_T128_H24 cpu 1.598 s metal-warm 0.492 s (prove core cpu 1.458 s metal 0.354 s; kernel compile 0.000 s, device sumcheck rounds 0.077 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu c5e0bdac78cc47bb4de6528a29e809f56
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 937 filtered out; finished in 35.51s
+== r13 19:09:15
+[zk60-guard 19:09:15] START d55-r13 class=gpu need=8G cap=40G enforce=watchdog-only waited=0s run=4362ac364446
+[zk60-guard 19:09:16] END d55-r13 exit=0 child_wall=1s peak_rss=0.52G min_avail=233.69G peak_vram=3732MiB
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 937 filtered out; finished in 1.27s
+== golden 19:09:26
+cpu r12_golden_seeded_tinyllama_t128_block_is_byte_identical 0
+cpu r12_golden_seeded_tinyllama_t128_dd_block_is_byte_identical 0
+cpu r12_golden_seeded_llama3_8b_t128_block_is_byte_identical 0
+cpu r12_golden_seeded_llama3_8b_t128_dd_block_is_byte_identical 0
+metal r12_golden_seeded_tinyllama_t128_block_is_byte_identical 0
+metal r12_golden_seeded_tinyllama_t128_dd_block_is_byte_identical 0
+metal r12_golden_seeded_llama3_8b_t128_block_is_byte_identical 0
+metal r12_golden_seeded_llama3_8b_t128_dd_block_is_byte_identical 0
+ALL 0
+== done 19:09:54
