@@ -1,0 +1,21 @@
+
+running 1 test
+test private_block::w16r2_tests::w16r2_ab_w16_against_w16r2_on_one_binary ... W16R2-AB W16R2_8B_T128_H24 cold (kernel compiles) prove core 0.625 s
+W16R2-AB W16_8B_T128_H24 cold (kernel compiles) prove core 0.449 s
+W16R2-AB W16R2_8B_T128_H24 warm pass 0 prove core 0.348 s
+W16R2-AB W16_8B_T128_H24 warm pass 0 prove core 0.380 s
+W16R2-AB W16R2_8B_T128_H24 warm pass 1 prove core 0.345 s
+W16R2-AB W16_8B_T128_H24 warm pass 1 prove core 0.374 s
+W16R2-AB W16R2_8B_T128_H24 warm pass 2 prove core 0.337 s
+W16R2-AB W16_8B_T128_H24 warm pass 2 prove core 0.370 s
+W16R2-AB W16R2_8B_T128_H24 warm pass 3 prove core 0.337 s
+W16R2-AB W16_8B_T128_H24 warm pass 3 prove core 0.375 s
+W16R2-AB W16R2_8B_T128_H24 warm pass 4 prove core 0.337 s
+W16R2-AB W16_8B_T128_H24 warm pass 4 prove core 0.372 s
+W16R2-AB SUMMARY W16R2_8B_T128_H24 rate 1/2 Q 260 | prove core warm [0.348, 0.345, 0.337, 0.337, 0.337] s, median 0.337 s | verify core (CPU) [0.231, 0.224, 0.22] s, median 0.224 s | core bytes 23685680 (A open 15196768, H open 8218720, M open 243712, slots 26384) | one endpoint/boundary opening (counted) 744768 B | column term 2^-105.946
+W16R2-AB SUMMARY W16_8B_T128_H24 rate 1/4 Q 256 | prove core warm [0.38, 0.374, 0.37, 0.375, 0.372] s, median 0.374 s | verify core (CPU) [0.232, 0.224, 0.234] s, median 0.232 s | core bytes 23531376 (A open 15120384, H open 8140800, M open 243712, slots 26384) | one endpoint/boundary opening (counted) 749568 B | column term 2^-105.609
+W16R2-AB device evidence: Metal kernel compile 0.006 s, device sumcheck rounds 0.922 s
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 961 filtered out; finished in 12.85s
+

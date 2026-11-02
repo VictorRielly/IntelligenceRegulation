@@ -1,0 +1,302 @@
+== build 23:44:54
+[zk60-guard 23:44:54] START w16r2-build class=build need=4G cap=10G enforce=watchdog-only waited=0s run=c05d3222e89b
+[zk60-guard 23:45:02] END w16r2-build exit=0 child_wall=8s peak_rss=1.99G min_avail=231.55G
+136
+B=/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac8a2b43086591196/ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-15ecdaf490e4c989
+-rwxr-xr-x  1 victorrielly  staff  18565152 Nov  1 23:43 /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac8a2b43086591196/ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-15ecdaf490e4c989
+97ed46f4d1784bd5b698c87830ba1f1448044c58338426849a215e3433902dd6  /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac8a2b43086591196/ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-15ecdaf490e4c989
+== scans 23:45:07
+[zk60-guard 23:45:07] START w16r2-scans class=cpu need=4G cap=20G enforce=watchdog-only waited=0s run=ac0656a919ff
+[zk60-guard 23:45:43] END w16r2-scans exit=0 child_wall=36s peak_rss=4.91G min_avail=228.25G
+test result: ok. 58 passed; 0 failed; 0 ignored; 0 measured; 904 filtered out; finished in 35.48s
+[zk60-guard 23:45:43] START w16r2-scans-print class=cpu need=4G cap=20G enforce=watchdog-only waited=0s run=50c48ad229ce
+[zk60-guard 23:46:44] END w16r2-scans-print exit=0 child_wall=61s peak_rss=4.67G min_avail=228.43G
+S24 C-3 [development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)]: 6 hosts, 12 hosted claims, every private slot hosted exactly once
+S24 C-3 [development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)]: 6 hosts, 12 hosted claims, every private slot hosted exactly once
+S24 C-3 [development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)]: 6 hosts, 12 hosted claims, every private slot hosted exactly once
+S24 C-3 [development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads)]: 6 hosts, 12 hosted claims, every private slot hosted exactly once
+S24 C-3 [development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads)]: 6 hosts, 12 hosted claims, every private slot hosted exactly once
+S24 C-3 [development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads)]: 6 hosts, 12 hosted claims, every private slot hosted exactly once
+S24 C-3 [development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads)]: 6 hosts, 12 hosted claims, every private slot hosted exactly once
+S24 C-3 [125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)]: 6 hosts, 12 hosted claims, every private slot hosted exactly once
+S24 C-7 [development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)]: 75 evaluations, all zero; with only the public tables zeroed 0 slot(s) survive (none), so the mechanism is a public factor in every monomial
+S24 C-7 [development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)]: 75 evaluations, all zero; with only the public tables zeroed 0 slot(s) survive (none), so the mechanism is a public factor in every monomial
+S24 C-7 [development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)]: 75 evaluations, all zero; with only the public tables zeroed 0 slot(s) survive (none), so the mechanism is a public factor in every monomial
+S24 C-7 [development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads)]: 75 evaluations, all zero; with only the public tables zeroed 0 slot(s) survive (none), so the mechanism is a public factor in every monomial
+S24 C-7 [development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads)]: 75 evaluations, all zero; with only the public tables zeroed 0 slot(s) survive (none), so the mechanism is a public factor in every monomial
+S24 C-7 [development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads)]: 75 evaluations, all zero; with only the public tables zeroed 0 slot(s) survive (none), so the mechanism is a public factor in every monomial
+S24 C-7 [development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads)]: 75 evaluations, all zero; with only the public tables zeroed 0 slot(s) survive (none), so the mechanism is a public factor in every monomial
+S24 C-7 [125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)]: 75 evaluations, all zero; with only the public tables zeroed 0 slot(s) survive (none), so the mechanism is a public factor in every monomial
+S24 C-4 [development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)]: the longest mask is slot 17 [06 softmax zero-check (hosts 07, 10)] at 72 + 256 = 328 of 512
+S24 C-4 [development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)]: the longest mask is slot 17 [06 softmax zero-check (hosts 07, 10)] at 72 + 256 = 328 of 512
+S24 C-4 [development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)]: the longest mask is slot 17 [06 softmax zero-check (hosts 07, 10)] at 77 + 256 = 333 of 512
+S24 C-4 [development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads)]: the longest mask is slot 17 [06 softmax zero-check (hosts 07, 10)] at 77 + 256 = 333 of 512
+S24 C-4 [development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads)]: the longest mask is slot 14 [03 D zero-check (hosts 12, 13D)] at 77 + 256 = 333 of 512
+S24 C-4 [development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads)]: the longest mask is slot 14 [03 D zero-check (hosts 12, 13D)] at 87 + 256 = 343 of 512
+S24 C-4 [development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads)]: the longest mask is slot 14 [03 D zero-check (hosts 12, 13D)] at 82 + 256 = 338 of 512
+S24 C-4 [125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)]: the longest mask is slot 17 [06 softmax zero-check (hosts 07, 10)] at 117 + 256 = 373 of 512
+S24 C-2 [development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)]: slots 15 and 16 each raise two claims on one plane, differing at coordinate log-4 inside the last 10 of the point
+S24 C-2 [development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)]: slots 15 and 16 each raise two claims on one plane, differing at coordinate log-4 inside the last 10 of the point
+S24 C-2 [development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)]: slots 15 and 16 each raise two claims on one plane, differing at coordinate log-3 inside the last 10 of the point
+S24 C-2 [development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads)]: slots 15 and 16 each raise two claims on one plane, differing at coordinate log-3 inside the last 10 of the point
+S24 C-2 [development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads)]: slots 15 and 16 each raise two claims on one plane, differing at coordinate log-5 inside the last 10 of the point
+S24 C-2 [development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads)]: slots 15 and 16 each raise two claims on one plane, differing at coordinate log-6 inside the last 14 of the point
+S24 C-2 [development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads)]: slots 15 and 16 each raise two claims on one plane, differing at coordinate log-6 inside the last 10 of the point
+S24 C-2 [125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)]: slots 15 and 16 each raise two claims on one plane, differing at coordinate log-6 inside the last 14 of the point
+S25 W-2: 106 profiles, 11086 hash input kinds, 2814 pairs within one byte, 10 declared equal-length pairs
+S25 W-2 D55: the opt-in, unregistered fork run measured over 73 base run statements, each under its own constructor and held to the same per-function rule (one declared pair of its own: pb-fork-s0 / pb-fork-s1)
+S25 W-8(7) D55: the opt-in fork run's two generator sites are both `ZkRng::from_os` — src/private_block/run_fork.rs:719 in `ForkCtx::prove_one` (ONE per fork, built in its worker) and src/private_block/run_fork.rs:776 in `prove_forks_inner` (ONE for the commit phase, on the calling thread): L + 1 OS generators per run, none seeded, no ZkConfig
+S25 W-8(5) D55 (amended for the opt-in fork run): ONE from_os generator per prover thread — the commit phase's in prove_forks_inner (dropped before PHASE 2) and each fork's in ForkCtx::prove_one (built in its worker) — each handed on by &mut, none cloned, the workers' shared context carries none: L + 1 per run
+S33 J-7a lemma: 127 profiles (88 of the registry, 39 D55 fork-run constructor domains), 5530 absorb layouts, EVERY one separated; the thinnest is 14 forced-NUL positions at `hashline-zk-mr1/private-block-llama-3-8b-t128-ddict32/1`
+test result: ok. 58 passed; 0 failed; 0 ignored; 0 measured; 904 filtered out; finished in 60.74s
+== zkp-core 23:46:54
+[zk60-guard 23:46:54] START w16r2-zkpcore class=build need=4G cap=10G enforce=watchdog-only waited=0s run=6876084daa6c
+[zk60-guard 23:47:11] END w16r2-zkpcore exit=0 child_wall=17s peak_rss=0.56G min_avail=231.89G
+test result: ok. 15 passed; 0 failed; 2 ignored; 0 measured; 62 filtered out; finished in 0.08s
+== d55-cpu 23:47:21
+[zk60-guard 23:47:21] START w16r2-d55-cpu class=cpu need=8G cap=40G enforce=watchdog-only waited=0s run=7d73494af7fc
+[zk60-guard 23:48:21] END w16r2-d55-cpu exit=0 child_wall=60s peak_rss=2.17G min_avail=231.00G
+test private_block::run::fork::tests::d55_control_a_boundary_root_absorbed_after_a_fork_is_rejected ... D55 CONTROL | RootAfterFork { boundary: 1 } | forged tags false | REJECTED: D55: the head's S0 tag is not the verifier's own S0 (every boundary root absorbed, in order, before any fork)
+D55 CONTROL | RootAfterFork { boundary: 1 } | forged tags true | REJECTED: D55: fork 0: slot 0 [01 SS row sums norm_a (private)]: sumcheck round 1: s(0) + s(1) != claim
+test private_block::run::fork::tests::d55_control_a_claim_raised_on_a_fork_but_not_joined_is_rejected ... D55 CONTROL | ClaimNotJoined { block: 1 } | forged tags false | REJECTED: D55 wire: the tail's S1 tag is not the verifier's own joined transcript position
+D55 CONTROL | ClaimNotJoined { block: 1 } | forged tags true | REJECTED: D55: boundary 0: pcs zk: group 0: <v, c> != combined claim
+D55 CONTROL | ClaimNotJoinedNorOpened { block: 0 } | REFUSED BY THE PROVER'S OWN AUDIT: D55: boundary 0: private block: mask schedule audit: a reserved pair is unused or shared between claims
+test private_block::run::fork::tests::d55_control_a_fork_index_swap_is_rejected ... D55 CONTROL | ForkIndexSwap { a: 0, b: 1 } | forged tags false | REJECTED: D55: fork 0: D55 wire: fork frame 0's start tag is not the verifier's own fork-0 position
+D55 CONTROL | ForkIndexSwap { a: 1, b: 2 } | forged tags true | REJECTED: D55: fork 1: slot 0 [01 SS row sums norm_a (private)]: sumcheck round 1: s(0) + s(1) != claim
+test private_block::run::fork::tests::d55_control_a_same_block_fork_swap_is_caught_only_by_the_index ... D55 CONTROL | ForkIndexSwap { a: 0, b: 2 } (one block at both forks) | forged tags true | REJECTED: D55: fork 0: slot 0 [01 SS row sums norm_a (private)]: sumcheck round 1: s(0) + s(1) != claim
+D55 CONTROL | ForkIndexSwap { a: 0, b: 2 } | the index dropped from the derivation (mutation) | VERIFIES — the control fails as it must: only the index separates two forks of one block
+D55 CONTROL | ForkIndexSwap { a: 1, b: 2 } (two different blocks) | the index dropped (mutation) | REJECTED by the digest: D55: fork 1: slot 0 [01 SS row sums norm_a (private)]: sumcheck round 1: s(0) + s(1) != claim
+test private_block::run::fork::tests::d55_control_a_stale_fork_state_is_rejected ... D55 CONTROL | StaleForkState { block: 1 } | forged tags false | REJECTED: D55 wire: the tail's S1 tag is not the verifier's own joined transcript position
+D55 CONTROL | StaleForkState { block: 1 } | forged tags true | REJECTED: D55: boundary 0: pcs zk: group 0: <v, c> != combined claim
+test private_block::run::fork::tests::d55_every_single_block_tamper_family_is_rejected_on_an_interior_fork ... D55 F1 TAMPER | a norm_a byte limb (300) in block 1, NO cheating switch | REFUSED BY THE FORK PROVER on its worker: D55: fork 1: private block: ruling CS-3 — the witness looks up a value that is not a row of its table; the table family that missed: the byte table (the class o
+D55 F1 TAMPER | the norm_a denominator in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | a norm_a byte limb in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the norm_a quotient in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | residual 1 in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the input plane in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | an int16 byte limb of x in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the Q projection in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the rotated query in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the K projection in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 16 [05 KV zero-check (hosts 09K, 09V)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the V projection in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the score in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the row maximum in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the exp value in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the softmax quotient in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the output projection in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the attention output in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | a biased attention remainder in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the norm_m denominator in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | a norm_m byte limb in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the norm_m quotient in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the gate output in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | a biased gate remainder in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the activation value in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the up output in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the gate-up product in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the feed-forward output in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | residual 2 in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | all 27 families rejected by verify_run_with_forks, 27 of them inside fork 1's own verify_core
+test private_block::run::fork::tests::d55_honest_fork_runs_verify_at_every_worker_count ... D55 | honest | L2 workers 2: 31258480 B (head 112 B, forks [14465864, 14465864] B, tail 2326640 B); preflight 0.02 s, commit 0.01 s, forks 1.05 s (core ["1.05", "1.04"]), join 0.01 s; verifies with 1 and 3 verifier threads; changed bytes refused (head: D55: the head's S0 tag is not the verifier's own S0 (ev
+D55 | honest | L3 workers 1: 46678744 B (head 144 B, forks [14465864, 14465864, 14465864] B, tail 3281008 B); preflight 0.02 s, commit 0.02 s, forks 2.81 s (core ["0.93", "0.94", "0.94"]), join 0.01 s; verifies with 1 and 3 verifier threads; changed bytes refused (head: D55: the head's S0 tag is not the verifier's own S0 (every boundary root absorbed, in orde; last fork: D55: fork 2: A: pcs zk: gr
+D55 | honest | L3 workers 2: 46678744 B (head 144 B, forks [14465864, 14465864, 14465864] B, tail 3281008 B); preflight 0.02 s, commit 0.02 s, forks 2.09 s (core ["1.17", "1.15", "0.94"]), join 0.01 s; verifies with 1 and 3 verifier threads; changed bytes refused (head: D55: the head's S0 tag is not the verifier's own S0 (every boundary root absorbed, in orde; last fork: D55: fork 2: A: pcs zk: gr
+D55 | honest | L3 workers 3: 46678744 B (head 144 B, forks [14465864, 14465864, 14465864] B, tail 3281008 B); preflight 0.02 s, commit 0.02 s, forks 1.41 s (core ["1.40", "1.41", "1.41"]), join 0.01 s; verifies with 1 and 3 verifier threads; changed bytes refused (head: D55: the head's S0 tag is not the verifier's own S0 (every boundary root absorbed, in orde; last fork: D55: fork 2: A: pcs zk: gr
+test private_block::run::fork::tests::d55_swapped_fork_frames_are_rejected ... D55 | swapped frames | REJECTED: D55: fork 0: D55 wire: frame 0 is not the 3-block run's fork 0
+test private_block::run::fork::tests::d55_the_d12a_run_is_unchanged_and_the_two_profiles_do_not_cross ... D55 | census | constructor 126 B (`hashline-v1/` + the 114 B D55 profile over hashline-zk-mr1/private-run-rung-lh-t32-dev/1); 44 absorb inputs held, the nearest 120 B (`sc-round` with 64 bytes, 6 bytes away); D55's own: `pb-fork-commit-root` 75, `pb-fork-s0` 66, `pb-run-fork` 67, `pb-run-fork-
+D55 | profiles | D12a L3 proves and verifies (46678552 B); fork binding and line differ; CS-7: private run: ruling CS-7 — "d55-commit-fork-join-runs/opt-in-prototype-unregiste; fork frames as D12a segments: private run wire: segment 0 is 14465864 B, the counted length is 15151976; D12a segments as forks: D55: fork 0: D55 wire: fork frame 0 is 15151976 B, the counted length is 14465864
+test private_block::run::fork::tests::d55_the_headline_negative_test_a_block_on_another_input_is_rejected_through_the_fork_path ... D55 F1 HEADLINE | (i) B_1 moved: block 1's output is not what the boundary holds | 2 prover workers | REJECTED by the verifier: D55: fork 1: slot 22 [IO-out endpoint equality]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 HEADLINE | (ii) block 2 run on something other than block 1's output | 3 prover workers | REJECTED by the verifier: D55: fork 2: slot 21 [IO-in endpoint equality]: sumcheck round 0: s(0) + s(1) != claim
+test result: ok. 10 passed; 0 failed; 1 ignored; 0 measured; 951 filtered out; finished in 59.58s
+== d55-metal 23:48:31
+[zk60-guard 23:48:31] START w16r2-d55-metal class=gpu need=8G cap=40G enforce=watchdog-only waited=0s run=e77fc9cd3060
+[zk60-guard 23:49:00] END w16r2-d55-metal exit=0 child_wall=29s peak_rss=1.90G min_avail=227.75G peak_vram=5162MiB
+test private_block::run::fork::tests::d55_control_a_boundary_root_absorbed_after_a_fork_is_rejected ... D55 CONTROL | RootAfterFork { boundary: 1 } | forged tags false | REJECTED: D55: the head's S0 tag is not the verifier's own S0 (every boundary root absorbed, in order, before any fork)
+D55 CONTROL | RootAfterFork { boundary: 1 } | forged tags true | REJECTED: D55: fork 0: slot 0 [01 SS row sums norm_a (private)]: sumcheck round 1: s(0) + s(1) != claim
+test private_block::run::fork::tests::d55_control_a_claim_raised_on_a_fork_but_not_joined_is_rejected ... D55 CONTROL | ClaimNotJoined { block: 1 } | forged tags false | REJECTED: D55 wire: the tail's S1 tag is not the verifier's own joined transcript position
+D55 CONTROL | ClaimNotJoined { block: 1 } | forged tags true | REJECTED: D55: boundary 0: pcs zk: group 0: <v, c> != combined claim
+D55 CONTROL | ClaimNotJoinedNorOpened { block: 0 } | REFUSED BY THE PROVER'S OWN AUDIT: D55: boundary 0: private block: mask schedule audit: a reserved pair is unused or shared between claims
+test private_block::run::fork::tests::d55_control_a_fork_index_swap_is_rejected ... D55 CONTROL | ForkIndexSwap { a: 0, b: 1 } | forged tags false | REJECTED: D55: fork 0: D55 wire: fork frame 0's start tag is not the verifier's own fork-0 position
+D55 CONTROL | ForkIndexSwap { a: 1, b: 2 } | forged tags true | REJECTED: D55: fork 1: slot 0 [01 SS row sums norm_a (private)]: sumcheck round 1: s(0) + s(1) != claim
+test private_block::run::fork::tests::d55_control_a_same_block_fork_swap_is_caught_only_by_the_index ... D55 CONTROL | ForkIndexSwap { a: 0, b: 2 } (one block at both forks) | forged tags true | REJECTED: D55: fork 0: slot 0 [01 SS row sums norm_a (private)]: sumcheck round 1: s(0) + s(1) != claim
+D55 CONTROL | ForkIndexSwap { a: 0, b: 2 } | the index dropped from the derivation (mutation) | VERIFIES — the control fails as it must: only the index separates two forks of one block
+D55 CONTROL | ForkIndexSwap { a: 1, b: 2 } (two different blocks) | the index dropped (mutation) | REJECTED by the digest: D55: fork 1: slot 0 [01 SS row sums norm_a (private)]: sumcheck round 1: s(0) + s(1) != claim
+test private_block::run::fork::tests::d55_control_a_stale_fork_state_is_rejected ... D55 CONTROL | StaleForkState { block: 1 } | forged tags false | REJECTED: D55 wire: the tail's S1 tag is not the verifier's own joined transcript position
+D55 CONTROL | StaleForkState { block: 1 } | forged tags true | REJECTED: D55: boundary 0: pcs zk: group 0: <v, c> != combined claim
+test private_block::run::fork::tests::d55_every_single_block_tamper_family_is_rejected_on_an_interior_fork ... D55 F1 TAMPER | a norm_a byte limb (300) in block 1, NO cheating switch | REFUSED BY THE FORK PROVER on its worker: D55: fork 1: private block: ruling CS-3 — the witness looks up a value that is not a row of its table; the table family that missed: the byte table (the class o
+D55 F1 TAMPER | the norm_a denominator in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | a norm_a byte limb in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the norm_a quotient in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | residual 1 in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the input plane in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | an int16 byte limb of x in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the Q projection in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the rotated query in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the K projection in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 16 [05 KV zero-check (hosts 09K, 09V)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the V projection in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the score in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the row maximum in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the exp value in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the softmax quotient in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the output projection in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the attention output in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | a biased attention remainder in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the norm_m denominator in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | a norm_m byte limb in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the norm_m quotient in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the gate output in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | a biased gate remainder in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the activation value in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the up output in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the gate-up product in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the feed-forward output in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | residual 2 in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | all 27 families rejected by verify_run_with_forks, 27 of them inside fork 1's own verify_core
+test private_block::run::fork::tests::d55_honest_fork_runs_verify_at_every_worker_count ... D55 | honest | L2 workers 2: 31258480 B (head 112 B, forks [14465864, 14465864] B, tail 2326640 B); preflight 0.01 s, commit 0.01 s, forks 0.25 s (core ["0.25", "0.25"]), join 0.01 s; verifies with 1 and 3 verifier threads; changed bytes refused (head: D55: the head's S0 tag is not the verifier's own S0 (ev
+D55 | honest | L3 workers 1: 46678744 B (head 144 B, forks [14465864, 14465864, 14465864] B, tail 3281008 B); preflight 0.02 s, commit 0.02 s, forks 0.65 s (core ["0.21", "0.22", "0.22"]), join 0.01 s; verifies with 1 and 3 verifier threads; changed bytes refused (head: D55: the head's S0 tag is not the verifier's own S0 (every boundary root absorbed, in orde; last fork: D55: fork 2: A: pcs zk: gr
+D55 | honest | L3 workers 2: 46678744 B (head 144 B, forks [14465864, 14465864, 14465864] B, tail 3281008 B); preflight 0.02 s, commit 0.02 s, forks 0.47 s (core ["0.25", "0.25", "0.23"]), join 0.01 s; verifies with 1 and 3 verifier threads; changed bytes refused (head: D55: the head's S0 tag is not the verifier's own S0 (every boundary root absorbed, in orde; last fork: D55: fork 2: A: pcs zk: gr
+D55 | honest | L3 workers 3: 46678744 B (head 144 B, forks [14465864, 14465864, 14465864] B, tail 3281008 B); preflight 0.02 s, commit 0.02 s, forks 0.27 s (core ["0.25", "0.27", "0.27"]), join 0.01 s; verifies with 1 and 3 verifier threads; changed bytes refused (head: D55: the head's S0 tag is not the verifier's own S0 (every boundary root absorbed, in orde; last fork: D55: fork 2: A: pcs zk: gr
+test private_block::run::fork::tests::d55_swapped_fork_frames_are_rejected ... D55 | swapped frames | REJECTED: D55: fork 0: D55 wire: frame 0 is not the 3-block run's fork 0
+test private_block::run::fork::tests::d55_the_d12a_run_is_unchanged_and_the_two_profiles_do_not_cross ... D55 | census | constructor 126 B (`hashline-v1/` + the 114 B D55 profile over hashline-zk-mr1/private-run-rung-lh-t32-dev/1); 44 absorb inputs held, the nearest 120 B (`sc-round` with 64 bytes, 6 bytes away); D55's own: `pb-fork-commit-root` 75, `pb-fork-s0` 66, `pb-run-fork` 67, `pb-run-fork-
+D55 | profiles | D12a L3 proves and verifies (46678552 B); fork binding and line differ; CS-7: private run: ruling CS-7 — "d55-commit-fork-join-runs/opt-in-prototype-unregiste; fork frames as D12a segments: private run wire: segment 0 is 14465864 B, the counted length is 15151976; D12a segments as forks: D55: fork 0: D55 wire: fork frame 0 is 15151976 B, the counted length is 14465864
+test private_block::run::fork::tests::d55_the_headline_negative_test_a_block_on_another_input_is_rejected_through_the_fork_path ... D55 F1 HEADLINE | (i) B_1 moved: block 1's output is not what the boundary holds | 2 prover workers | REJECTED by the verifier: D55: fork 1: slot 22 [IO-out endpoint equality]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 HEADLINE | (ii) block 2 run on something other than block 1's output | 3 prover workers | REJECTED by the verifier: D55: fork 2: slot 21 [IO-in endpoint equality]: sumcheck round 0: s(0) + s(1) != claim
+test result: ok. 10 passed; 0 failed; 1 ignored; 0 measured; 951 filtered out; finished in 29.15s
+== d55-capture 23:49:10
+[zk60-guard 23:49:10] START w16r2-capture class=cpu need=8G cap=40G enforce=watchdog-only waited=0s run=301f4b33851b
+[zk60-guard 23:49:16] END w16r2-capture exit=0 child_wall=6s peak_rss=1.88G min_avail=231.28G
+W16-PG W16_RUNG_H24 D55 PG-7 allow-list (run, every fork, tail) PASS 50304 fields, every one on the allow-list; no forbidden word
+W16-PG W16_RUNG_H24 D55 fork 0 PG-8 masked-claims PASS 114 A and 46 H claims as captured, each on its own reserved pair; 14 histograms and 14 helpers, each read once, by SC_TAB, in (histogram, helper) pairs after the byte / exp / ACT pairs
+W16-PG W16_RUNG_H24 D55 fork 0 PG-9 public-tables PASS 14 range columns and 8 support columns rebuilt from the shape and gamma, byte-equal; SC_TAB statement tables [(1, "exp_values"), (2, "act3_values"), (18, "act_support")]; 45 distinct public tables, none equal to any of 68 non-constant A planes (
+W16-PG W16_RUNG_H24 D55 fork 0 PG-10 input-independent-shape PASS two hidden inputs: 16388 keys in the same order, the same array and table lengths, every slot's claims and mask pairs, segments [144, 14131368, 14131368, 14131368, 3281008] B; fork 0's hidden inputs differ and 14 of its 14 range histo
+W16-PG W16_RUNG_H24 D55 fork 1 PG-8 masked-claims PASS 114 A and 46 H claims as captured, each on its own reserved pair; 14 histograms and 14 helpers, each read once, by SC_TAB, in (histogram, helper) pairs after the byte / exp / ACT pairs
+W16-PG W16_RUNG_H24 D55 fork 1 PG-9 public-tables PASS 14 range columns and 8 support columns rebuilt from the shape and gamma, byte-equal; SC_TAB statement tables [(1, "exp_values"), (2, "act3_values"), (18, "act_support")]; 45 distinct public tables, none equal to any of 69 non-constant A planes (
+W16-PG W16_RUNG_H24 D55 fork 1 PG-10 input-independent-shape PASS two hidden inputs: 16388 keys in the same order, the same array and table lengths, every slot's claims and mask pairs, segments [144, 14131368, 14131368, 14131368, 3281008] B; fork 1's hidden inputs differ and 14 of its 14 range histo
+W16-PG W16_RUNG_H24 D55 fork 2 PG-8 masked-claims PASS 114 A and 46 H claims as captured, each on its own reserved pair; 14 histograms and 14 helpers, each read once, by SC_TAB, in (histogram, helper) pairs after the byte / exp / ACT pairs
+W16-PG W16_RUNG_H24 D55 fork 2 PG-9 public-tables PASS 14 range columns and 8 support columns rebuilt from the shape and gamma, byte-equal; SC_TAB statement tables [(1, "exp_values"), (2, "act3_values"), (18, "act_support")]; 45 distinct public tables, none equal to any of 69 non-constant A planes (
+W16-PG W16_RUNG_H24 D55 fork 2 PG-10 input-independent-shape PASS two hidden inputs: 16388 keys in the same order, the same array and table lengths, every slot's claims and mask pairs, segments [144, 14131368, 14131368, 14131368, 3281008] B; fork 2's hidden inputs differ and 14 of its 14 range histo
+W16-PG W16_RUNG_H24 D55 PG-10 tail input-independent-shape PASS two hidden inputs: the tail's 4526 keys in the same order, the same array and table lengths
+W16-PG W16_RUNG_H24 D55 fork 0 C-2 shared-mask-pair PASS fires: slot 19: two A claims share the mask pair at row 286
+W16-PG W16_RUNG_H24 D55 fork 0 C-3a collapsed-tags PASS fires: range column 0 (1-bit) differs
+W16-PG W16_RUNG_H24 D55 fork 0 C-3b wrong-gamma PASS fires: range column 0 (1-bit) differs
+W16-PG W16_RUNG_H24 D55 fork 0 C-4 planted-histogram PASS fires: a public table of the stage equals the committed A plane 61
+W16-PG W16_RUNG_H24 D55 fork 0 C-5 moved-pair PASS fires: stage 0: slot 0's table descriptors differ
+W16-PG W16_RUNG_H24 D55 fork 0 C-6 off-list-field PASS fires: run.json carries the field "histogram_values", which is not on the capture allow-list
+W16-PG W16_RUNG_H24 D55 C-7a a-block-run-recorder PASS fires: replay: a fork run's commit phase was offered to a block run's recorder
+W16-PG W16_RUNG_H24 D55 C-7b the-base-profile-header PASS fires: replay: the rebuilt run header is not the verifier's binding
+W16-PG VERDICT 20 checks, all PASS
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 961 filtered out; finished in 5.66s
+== d12a-run 23:49:26
+[zk60-guard 23:49:26] START w16r2-d12a-run class=cpu need=8G cap=40G enforce=watchdog-only waited=0s run=c79179798cb1
+[zk60-guard 23:49:31] END w16r2-d12a-run exit=0 child_wall=5s peak_rss=1.00G min_avail=232.24G
+test private_block::accuracy_proof_tests::accuracy_two_stage_private_boundary_with_different_gate_shifts_verifies ... R13 two-stage private boundary DD=false: G20 -> G21
+R13 two-stage private boundary DD=true: G20 -> G21
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 961 filtered out; finished in 4.98s
+== bytes-default 23:49:41
+[zk60-guard 23:49:41] START w16r2-bytes-default class=gpu need=60G cap=160G enforce=watchdog-only waited=0s run=264981a29f2c
+[zk60-guard 23:49:47] END w16r2-bytes-default exit=0 child_wall=6s peak_rss=1.97G min_avail=227.96G peak_vram=3736MiB
+M4-ACCURACY-DIGEST R13_RUNG_LOW cpu 01fa1b2e
+M4-ACCURACY-DIGEST R13_RUNG_H24 cpu 992034f8
+M4-ACCURACY-DIGEST R13_RUNG_LOW_DD cpu 371e6b00
+M4-ACCURACY-DIGEST R13_RUNG_H24_DD cpu 3ab090df
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 961 filtered out; finished in 5.82s
+== bytes-0 23:49:57
+[zk60-guard 23:49:57] START w16r2-bytes-0 class=gpu need=60G cap=160G enforce=watchdog-only waited=0s run=1f03d9f1b335
+[zk60-guard 23:50:03] END w16r2-bytes-0 exit=0 child_wall=6s peak_rss=1.86G min_avail=227.85G peak_vram=4280MiB
+M4-ACCURACY-DIGEST R13_RUNG_LOW cpu 01fa1b2e
+M4-ACCURACY-DIGEST R13_RUNG_H24 cpu 992034f8
+M4-ACCURACY-DIGEST R13_RUNG_LOW_DD cpu 371e6b00
+M4-ACCURACY-DIGEST R13_RUNG_H24_DD cpu 3ab090df
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 961 filtered out; finished in 5.91s
+== w16r2-rung-metal-default 23:50:13
+[zk60-guard 23:50:14] START w16r2-rung-metal-default class=gpu need=8G cap=40G enforce=watchdog-only waited=0s run=3bee09b27499
+[zk60-guard 23:50:15] END w16r2-rung-metal-default exit=0 child_wall=1s peak_rss=0.49G min_avail=231.59G peak_vram=1338MiB
+W16R2-RUNG-DIGEST W16R2_RUNG_H24 cpu 334e168fe8e989d17aea92175cdab3826f08e22b0ba6c1a421cb9b264a8b9973 metal 334e168f
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 961 filtered out; finished in 1.21s
+== w16r2-rung-metal-0 23:50:25
+[zk60-guard 23:50:25] START w16r2-rung-metal-0 class=gpu need=8G cap=40G enforce=watchdog-only waited=0s run=095f370a0e63
+[zk60-guard 23:50:27] END w16r2-rung-metal-0 exit=0 child_wall=1s peak_rss=0.48G min_avail=231.94G peak_vram=1341MiB
+W16R2-RUNG-DIGEST W16R2_RUNG_H24 cpu 334e168fe8e989d17aea92175cdab3826f08e22b0ba6c1a421cb9b264a8b9973 metal 334e168f
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 961 filtered out; finished in 1.32s
+== unit-default 23:50:37
+[zk60-guard 23:50:37] START w16r2-unit-default class=cpu need=8G cap=40G enforce=watchdog-only waited=0s run=ff240db3a8f6
+[zk60-guard 23:51:02] END w16r2-unit-default exit=0 child_wall=26s peak_rss=6.95G min_avail=225.87G
+test result: ok. 114 passed; 0 failed; 11 ignored; 0 measured; 837 filtered out; finished in 25.65s
+== unit-0 23:51:12
+[zk60-guard 23:51:12] START w16r2-unit-0 class=cpu need=8G cap=40G enforce=watchdog-only waited=0s run=fe99b4205869
+[zk60-guard 23:51:38] END w16r2-unit-0 exit=0 child_wall=26s peak_rss=6.78G min_avail=226.00G
+test result: ok. 114 passed; 0 failed; 11 ignored; 0 measured; 837 filtered out; finished in 25.69s
+== trained 23:51:48
+[zk60-guard 23:51:48] START w16r2-trained class=gpu need=60G cap=160G enforce=watchdog-only waited=0s run=f8fdb0b2d23b
+[zk60-guard 23:52:36] END w16r2-trained exit=0 child_wall=48s peak_rss=10.85G min_avail=214.80G peak_vram=10876MiB
+M4-TRAINED R13_8B_T128_H24 cpu 4.351 s metal-warm 0.702 s (prove core cpu 4.170 s metal 0.525 s; kernel compile 0.000 s, device sumcheck rounds 0.139 s; 1 slots without a matching IR; buffer pool 98 reused / 2 new) digest cpu 678953f646fcd15d28e9209984cb42ff8a
+M4-TRAINED R13_8B_T128_H24 cpu 4.351 s metal-warm 0.709 s (prove core cpu 4.170 s metal 0.522 s; kernel compile 0.000 s, device sumcheck rounds 0.138 s; 1 slots without a matching IR; buffer pool 92 reused / 1 new) digest cpu 678953f646fcd15d28e9209984cb42ff8a
+M4-TRAINED R13_8B_T128_H24 cpu 4.351 s metal-warm 0.681 s (prove core cpu 4.170 s metal 0.509 s; kernel compile 0.000 s, device sumcheck rounds 0.134 s; 1 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu 678953f646fcd15d28e9209984cb42ff8
+M4-TRAINED R13_SHIELD_T128_H24 cpu 2.844 s metal-warm 0.728 s (prove core cpu 2.661 s metal 0.551 s; kernel compile 0.000 s, device sumcheck rounds 0.173 s; 1 slots without a matching IR; buffer pool 93 reused / 0 new) digest cpu 2b0d04bbf22b5e52faf1d0ce9a13d8
+M4-TRAINED R13_SHIELD_T128_H24 cpu 2.844 s metal-warm 0.724 s (prove core cpu 2.661 s metal 0.551 s; kernel compile 0.000 s, device sumcheck rounds 0.178 s; 1 slots without a matching IR; buffer pool 93 reused / 0 new) digest cpu 2b0d04bbf22b5e52faf1d0ce9a13d8
+M4-TRAINED R13_SHIELD_T128_H24 cpu 2.844 s metal-warm 0.768 s (prove core cpu 2.661 s metal 0.591 s; kernel compile 0.038 s, device sumcheck rounds 0.177 s; 1 slots without a matching IR; buffer pool 95 reused / 5 new) digest cpu 2b0d04bbf22b5e52faf1d0ce9a13d8
+M4-TRAINED W16_SHIELD_T128_H24 cpu 2.049 s metal-warm 0.539 s (prove core cpu 1.910 s metal 0.400 s; kernel compile 0.000 s, device sumcheck rounds 0.088 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu 01a6d51d3b0476dac75ecaf0ff375
+M4-TRAINED W16_SHIELD_T128_H24 cpu 2.049 s metal-warm 0.514 s (prove core cpu 1.910 s metal 0.374 s; kernel compile 0.000 s, device sumcheck rounds 0.088 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu 01a6d51d3b0476dac75ecaf0ff375
+M4-TRAINED W16_SHIELD_T128_H24 cpu 2.049 s metal-warm 0.550 s (prove core cpu 1.910 s metal 0.410 s; kernel compile 0.030 s, device sumcheck rounds 0.090 s; 0 slots without a matching IR; buffer pool 114 reused / 0 new) digest cpu 01a6d51d3b0476dac75ecaf0ff375
+M4-TRAINED W16_8B_T128_H24 cpu 1.542 s metal-warm 0.494 s (prove core cpu 1.403 s metal 0.354 s; kernel compile 0.000 s, device sumcheck rounds 0.076 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu c5e0bdac78cc47bb4de6528a29e809f56
+M4-TRAINED W16_8B_T128_H24 cpu 1.542 s metal-warm 0.517 s (prove core cpu 1.403 s metal 0.376 s; kernel compile 0.000 s, device sumcheck rounds 0.076 s; 0 slots without a matching IR; buffer pool 99 reused / 1 new) digest cpu c5e0bdac78cc47bb4de6528a29e809f56f
+M4-TRAINED W16_8B_T128_H24 cpu 1.542 s metal-warm 0.501 s (prove core cpu 1.403 s metal 0.362 s; kernel compile 0.000 s, device sumcheck rounds 0.078 s; 0 slots without a matching IR; buffer pool 107 reused / 0 new) digest cpu c5e0bdac78cc47bb4de6528a29e809f56
+M4-TRAINED W16R2_RUNG_H24 cpu 0.429 s metal-warm 0.282 s (prove core cpu 0.338 s metal 0.191 s; kernel compile 0.000 s, device sumcheck rounds 0.044 s; 0 slots without a matching IR; buffer pool 65 reused / 0 new) digest cpu d6879fae5f35a2856b03c20c473da35abce
+M4-TRAINED W16R2_RUNG_H24 cpu 0.429 s metal-warm 0.272 s (prove core cpu 0.338 s metal 0.180 s; kernel compile 0.000 s, device sumcheck rounds 0.033 s; 0 slots without a matching IR; buffer pool 65 reused / 0 new) digest cpu d6879fae5f35a2856b03c20c473da35abce
+M4-TRAINED W16R2_RUNG_H24 cpu 0.429 s metal-warm 0.264 s (prove core cpu 0.338 s metal 0.172 s; kernel compile 0.000 s, device sumcheck rounds 0.032 s; 0 slots without a matching IR; buffer pool 65 reused / 0 new) digest cpu d6879fae5f35a2856b03c20c473da35abce
+M4-TRAINED W16R2_SHIELD_T128_H24 cpu 1.415 s metal-warm 0.516 s (prove core cpu 1.275 s metal 0.380 s; kernel compile 0.016 s, device sumcheck rounds 0.088 s; 0 slots without a matching IR; buffer pool 107 reused / 0 new) digest cpu e0bb5917ba14c4565fdc38e6ad4
+M4-TRAINED W16R2_SHIELD_T128_H24 cpu 1.415 s metal-warm 0.492 s (prove core cpu 1.275 s metal 0.355 s; kernel compile 0.000 s, device sumcheck rounds 0.089 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu e0bb5917ba14c4565fdc38e6ad4
+M4-TRAINED W16R2_SHIELD_T128_H24 cpu 1.415 s metal-warm 0.504 s (prove core cpu 1.275 s metal 0.368 s; kernel compile 0.000 s, device sumcheck rounds 0.089 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu e0bb5917ba14c4565fdc38e6ad4
+M4-TRAINED W16R2_8B_T128_H24 cpu 1.758 s metal-warm 0.524 s (prove core cpu 1.620 s metal 0.382 s; kernel compile 0.000 s, device sumcheck rounds 0.085 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu 5343008a1e5930af6eb70137aa9a414
+M4-TRAINED W16R2_8B_T128_H24 cpu 1.758 s metal-warm 0.488 s (prove core cpu 1.620 s metal 0.351 s; kernel compile 0.000 s, device sumcheck rounds 0.082 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu 5343008a1e5930af6eb70137aa9a414
+M4-TRAINED W16R2_8B_T128_H24 cpu 1.758 s metal-warm 0.490 s (prove core cpu 1.620 s metal 0.353 s; kernel compile 0.000 s, device sumcheck rounds 0.094 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu 5343008a1e5930af6eb70137aa9a414
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 961 filtered out; finished in 47.56s
+M4-TRAINED W16R2_8B_T128_H24 cpu 1.758 s metal-warm 0.488 s digest cpu 5343008a
+M4-TRAINED W16R2_8B_T128_H24 cpu 1.758 s metal-warm 0.490 s digest cpu 5343008a
+M4-TRAINED W16R2_8B_T128_H24 cpu 1.758 s metal-warm 0.524 s digest cpu 5343008a
+M4-TRAINED W16R2_RUNG_H24 cpu 0.429 s metal-warm 0.264 s digest cpu d6879fae
+M4-TRAINED W16R2_RUNG_H24 cpu 0.429 s metal-warm 0.272 s digest cpu d6879fae
+M4-TRAINED W16R2_RUNG_H24 cpu 0.429 s metal-warm 0.282 s digest cpu d6879fae
+M4-TRAINED W16R2_SHIELD_T128_H24 cpu 1.415 s metal-warm 0.492 s digest cpu e0bb5917
+M4-TRAINED W16R2_SHIELD_T128_H24 cpu 1.415 s metal-warm 0.504 s digest cpu e0bb5917
+M4-TRAINED W16R2_SHIELD_T128_H24 cpu 1.415 s metal-warm 0.516 s digest cpu e0bb5917
+== r13 23:52:46
+[zk60-guard 23:52:46] START w16r2-r13 class=gpu need=8G cap=40G enforce=watchdog-only waited=0s run=4a4800d6875c
+[zk60-guard 23:52:48] END w16r2-r13 exit=0 child_wall=1s peak_rss=0.53G min_avail=230.52G peak_vram=3732MiB
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 961 filtered out; finished in 1.26s
+== w16r2-run 23:52:58
+[zk60-guard 23:52:58] START w16r2-run class=gpu need=8G cap=40G enforce=watchdog-only waited=0s run=4086e5cd9afe
+[zk60-guard 23:53:00] END w16r2-run exit=0 child_wall=3s peak_rss=0.62G min_avail=230.85G peak_vram=2657MiB
+test private_block::run::fork::tests::d55_ab_one_request_serial_against_forks ... D55-AB W16R2_RUNG_H24 L3 T32: setup 0.1 s (one witness 0.01 GB; 3 alive per call)
+D55-AB W16R2_RUNG_H24 L3 serial cold (kernel compiles): wall 0.653 s = 48.98 proved tok/s
+D55-AB W16R2_RUNG_H24 L3 serial: verified (D12a verifier, one thread) in 0.41 s
+D55-AB W16R2_RUNG_H24 L3 T32 serial pass 0: wall 0.645 s = 49.61 proved tok/s; receipt 45674552 B
+D55-AB W16R2_RUNG_H24 L3 forks N2: verified (D55 verifier, 6 threads) in 0.19 s
+D55-AB W16R2_RUNG_H24 L3 T32 forks N2 pass 0: wall 0.458 s = 69.89 proved tok/s; 2 workers; preflight 0.019 s, commit 0.016 s, forks 0.414 s, join 0.008 s; fork prove_core min 0.191 median 0.219 max 0.219 s; receipt 45674744 B
+D55-AB SUMMARY W16R2_RUNG_H24 L3 T32 (1 warm passes; best and mean wall; proved tokens/s per request = T / wall):
+D55-AB SUMMARY | serial (D12a)  | best 0.645 s = 49.61 tok/s | mean 0.645 s = 49.61 tok/s | 1.00x serial (best)
+D55-AB SUMMARY | forks N=2      | best 0.458 s = 69.89 tok/s | mean 0.458 s = 69.89 tok/s | 1.41x serial (best)
+D55-AB device evidence: HL_GPU=Some("1"), Metal kernel compile 0.003 s, device sumcheck rounds 0.294 s
+D55-AB W16R2_RUNG_H24 L3: total 2.6 s
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 961 filtered out; finished in 2.57s
+== golden 23:53:11
+cpu r12_golden_seeded_tinyllama_t128_block_is_byte_identical 0
+cpu r12_golden_seeded_tinyllama_t128_dd_block_is_byte_identical 0
+cpu r12_golden_seeded_llama3_8b_t128_block_is_byte_identical 0
+cpu r12_golden_seeded_llama3_8b_t128_dd_block_is_byte_identical 0
+metal r12_golden_seeded_tinyllama_t128_block_is_byte_identical 0
+metal r12_golden_seeded_tinyllama_t128_dd_block_is_byte_identical 0
+metal r12_golden_seeded_llama3_8b_t128_block_is_byte_identical 0
+metal r12_golden_seeded_llama3_8b_t128_dd_block_is_byte_identical 0
+ALL 0
+== full-suite 23:53:46
+[zk60-guard 23:53:46] START w16r2-full class=cpu need=24G cap=160G enforce=watchdog-only waited=0s run=9742a2120912
+[zk60-guard 23:57:25] END w16r2-full exit=101 child_wall=219s peak_rss=9.13G min_avail=223.39G
+test result: FAILED. 872 passed; 6 failed; 84 ignored; 0 measured; 0 filtered out; finished in 218.83s
+full-suite failures:
+private_block::review_tests::a_toy_receipt_made_before_the_lane_still_verifies
+private_block::token_io::classify_cli::batch::r18::r18_a_rung_batch_proves_every_job_and_each_receipt_verifies_owner_checks_and_labels
+private_block::token_io::classify_cli::batch::r18::r18_each_batch_job_reloads_every_block_through_its_own_digest_checked_readers
+private_block::token_io::classify_cli::batch::r18::r18_the_request_reader_refuses_a_symlink_and_a_fifo_without_blocking
+private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces
+private_block::trained_stack_tests::review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name
+== done 23:57:25

@@ -1,0 +1,39 @@
+inputs: all 6 profiles' values equal the code's printed lines in /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-ac8a2b43086591196/results/zk60_w16r2_20261101/logs/accounting_inputs.log
+
+== per regular opening (A, H, a boundary, an endpoint)
+profile                  rule          n      N    Q      K      e     column      field       both
+W16R2_8B_T128_H24        delta/2   16384  32768  260  16644   8062   -105.946   -112.830   -105.934
+W16_8B_T128_H24          delta/3   16384  65536  256  16640  16298   -105.609   -113.684   -105.604
+W16R2_SHIELD_T128_H24    delta/2   16384  32768  260  16644   8062   -105.946   -112.830   -105.934
+W16_SHIELD_T128_H24      delta/3   16384  65536  256  16640  16298   -105.609   -113.684   -105.604
+W16R2_RUNG_H24           delta/2   16384  32768  260  16644   8062   -105.946   -112.830   -105.934
+W16_RUNG_H24             delta/3   16384  65536  256  16640  16298   -105.609   -113.684   -105.604
+M (both)                 delta/3     512   4096  256   1024   1024   -106.250   -115.678   -106.248
+
+== per block: LogUp, sumcheck, zero-check allowance
+W16R2_8B_T128_H24        N_lk  34,897,920 T_d  127,668  LogUp 2^-102.922  sumcheck 2^-117.898  zero-check 2^-117.797
+W16_8B_T128_H24          N_lk  34,897,920 T_d  127,668  LogUp 2^-102.922  sumcheck 2^-117.898  zero-check 2^-117.797
+W16R2_SHIELD_T128_H24    N_lk  34,897,920 T_d  127,668  LogUp 2^-102.922  sumcheck 2^-117.821  zero-check 2^-117.797
+W16_SHIELD_T128_H24      N_lk  34,897,920 T_d  127,668  LogUp 2^-102.922  sumcheck 2^-117.821  zero-check 2^-117.797
+W16R2_RUNG_H24           N_lk   1,064,960 T_d  127,670  LogUp 2^-107.412  sumcheck 2^-118.148  zero-check 2^-118.098
+W16_RUNG_H24             N_lk   1,064,960 T_d  127,670  LogUp 2^-107.412  sumcheck 2^-118.148  zero-check 2^-118.098
+
+== whole run (union bound), log2 of each term and of the sum
+profile                    L  openings    column   pcs fld     logup    sumchk   zerochk     WHOLE
+W16R2_8B_T128_H24         32    97+32M   -99.004  -106.166   -97.922  -112.898  -112.797   -97.361
+W16_8B_T128_H24           32    97+32M   -98.732  -106.969   -97.922  -112.898  -112.797   -97.269
+W16R2_SHIELD_T128_H24     26    79+26M   -99.301  -106.462   -98.222  -113.121  -113.096   -97.660
+W16_SHIELD_T128_H24       26    79+26M   -99.029  -107.266   -98.222  -113.121  -113.096   -97.568
+W16R2_RUNG_H24             1      4+1M  -103.680  -110.781  -107.412  -118.148  -118.098  -103.565
+W16R2_RUNG_H24             3     10+3M  -102.310  -109.449  -105.828  -116.563  -116.513  -102.180
+W16_RUNG_H24               1      4+1M  -103.394  -111.596  -107.412  -118.148  -118.098  -103.303
+W16_RUNG_H24               3     10+3M  -102.033  -110.257  -105.828  -116.563  -116.513  -101.928
+
+== W16R2 against W16, bits (positive = W16R2 stronger)
+W16R2_8B_T128_H24        per opening 105.934 vs 105.604 (+0.330); L32 whole run 97.361 vs 97.269 (+0.092)
+W16R2_SHIELD_T128_H24    per opening 105.934 vs 105.604 (+0.330); L26 whole run 97.660 vs 97.568 (+0.092)
+W16R2_RUNG_H24           per opening 105.934 vs 105.604 (+0.330); L1 whole run 103.565 vs 103.303 (+0.262); L3 whole run 102.180 vs 101.928 (+0.252)
+
+lemma-check cross-check: Q 260 2^-105.946 (stated 2^-105.946, exact form), Q 259 2^-105.539 (stated 2^-105.53, the (1 - delta/2)^Q form), W16 2^-105.609 (stated 2^-105.61)
+row-weight reduction bias (1 + p/2^128)^(2m) at m = 2606: 1 + 2^-51.65 (multiplies the column bound; negligible)
+powers of one challenge instead (BCIKS20 Thm 1.6), the field term would be (m - 1) N / p^2 = 2^-101.65 at m = 2606, N = 2^15

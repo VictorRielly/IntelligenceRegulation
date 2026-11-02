@@ -1,0 +1,17 @@
+
+running 1 test
+test private_block::run::fork::tests::d55_ab_one_request_serial_against_forks ... D55-AB W16R2_RUNG_H24 L3 T32: setup 0.1 s (one witness 0.01 GB; 3 alive per call)
+D55-AB W16R2_RUNG_H24 L3 serial cold (kernel compiles): wall 0.653 s = 48.98 proved tok/s
+D55-AB W16R2_RUNG_H24 L3 serial: verified (D12a verifier, one thread) in 0.41 s
+D55-AB W16R2_RUNG_H24 L3 T32 serial pass 0: wall 0.645 s = 49.61 proved tok/s; receipt 45674552 B
+D55-AB W16R2_RUNG_H24 L3 forks N2: verified (D55 verifier, 6 threads) in 0.19 s
+D55-AB W16R2_RUNG_H24 L3 T32 forks N2 pass 0: wall 0.458 s = 69.89 proved tok/s; 2 workers; preflight 0.019 s, commit 0.016 s, forks 0.414 s, join 0.008 s; fork prove_core min 0.191 median 0.219 max 0.219 s; receipt 45674744 B
+D55-AB SUMMARY W16R2_RUNG_H24 L3 T32 (1 warm passes; best and mean wall; proved tokens/s per request = T / wall):
+D55-AB SUMMARY | serial (D12a)  | best 0.645 s = 49.61 tok/s | mean 0.645 s = 49.61 tok/s | 1.00x serial (best)
+D55-AB SUMMARY | forks N=2      | best 0.458 s = 69.89 tok/s | mean 0.458 s = 69.89 tok/s | 1.41x serial (best)
+D55-AB device evidence: HL_GPU=Some("1"), Metal kernel compile 0.003 s, device sumcheck rounds 0.294 s
+D55-AB W16R2_RUNG_H24 L3: total 2.6 s
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 961 filtered out; finished in 2.57s
+
