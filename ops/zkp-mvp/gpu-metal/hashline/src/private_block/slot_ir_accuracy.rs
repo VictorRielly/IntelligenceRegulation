@@ -1472,7 +1472,8 @@ inline qm qm_mul(qm p, qm q) {
     #[ignore]
     fn m10_concurrent_block_proofs_throughput() {
         let name = std::env::var("HL_M10_PROFILE").unwrap_or_else(|_| "W16_8B_T128_H24".to_string());
-        let spec = crate::private_block::shape::W16_PROFILES.iter().find(|s| s.name == name).expect("a W16 profile name");
+        // D59: a W16R2 (rate 1/2) profile name too
+        let spec = crate::private_block::shape::W16_PROFILES.iter().chain(crate::private_block::shape::W16R2_PROFILES.iter()).find(|s| s.name == name).expect("a W16 or W16R2 profile name");
         let cal = crate::private_block::shape::NormCalibration { tn: if spec.width >= 3072 { 9 } else { 10 }, cn_a: 100, cn_m: 100, ceps: 1, sh_ao: 7, sh_qkv: 8, sh_s: 6, sh_o: 9, sh_g: 8, sh_h: 14, sh_z: 6 };
         let original = Shape::accuracy_trained(spec.profile, &cal, if spec.tokens == 32 { 12 } else { 9 }, 20).unwrap();
         let (sh, data, public, ff) = case(original, 3);
@@ -1617,7 +1618,8 @@ inline qm qm_mul(qm p, qm q) {
         let mut shapes: Vec<Shape> = crate::private_block::accuracy_profile_tests::registered_shapes().into_iter().filter(|s| want.contains(&s.name)).collect();
         // W16 (D54): its profiles by name too, at `registered_shapes`' own
         // calibration rule (`accuracy_profile_tests::calibration`) and f_e
-        for spec in crate::private_block::shape::W16_PROFILES.iter().filter(|s| want.contains(&s.name)) {
+        // D59: and the W16R2 (rate 1/2) profiles, by name, at the same rule
+        for spec in crate::private_block::shape::W16_PROFILES.iter().chain(crate::private_block::shape::W16R2_PROFILES.iter()).filter(|s| want.contains(&s.name)) {
             let cal = crate::private_block::shape::NormCalibration { tn: if spec.width >= 3072 { 9 } else { 10 }, cn_a: 100, cn_m: 100, ceps: 1, sh_ao: 7, sh_qkv: 8, sh_s: 6, sh_o: 9, sh_g: 8, sh_h: 14, sh_z: 6 };
             shapes.push(Shape::accuracy_trained(spec.profile, &cal, if spec.tokens == 32 { 12 } else { 9 }, 20).unwrap());
         }

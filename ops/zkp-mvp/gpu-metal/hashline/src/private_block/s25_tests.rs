@@ -2597,10 +2597,13 @@ fn r19b_the_module_follower_refuses_include_outside_test_code() {
 /// the path, each compiled as test code only (declared `#[cfg(test)]` by its
 /// parent: read for this list with `r19b/tools/mirror19b.py`). Paths are
 /// relative to `src/private_block/`.
-const TEST_ONLY_FILES: [&str; 80] = [
+const TEST_ONLY_FILES: [&str; 81] = [
     // D55 PROTOTYPE (2026-11-01): the unregistered "commit, fork, join" run
     // profile, declared `#[cfg(test)]` by `run.rs` and `wire.rs`
     "run_fork.rs", "run_fork_tests.rs", "run_fork_wire.rs",
+    // D59 (2026-11-01): the W16R2 (rate 1/2) acceptance tests and malicious
+    // controls, declared by a bare `#[cfg(test)]` in `private_block.rs`
+    "w16r2_tests.rs",
     // W16 (D54), M26 (2026-11-01): the W16 acceptance tests and the W16
     // privacy gate's checks (with its test-only run identities), each
     // declared by a bare `#[cfg(test)]` in `private_block.rs` and nowhere else

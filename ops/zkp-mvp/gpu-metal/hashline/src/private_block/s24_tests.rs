@@ -54,9 +54,12 @@ fn every_shape() -> Vec<Shape> {
 /// shape and no key — a fork run hashes under its base block shape's four
 /// keys — so this list does not carry it; since D55 review F3 it is its own
 /// transcript constructor domain, and s25's W-2 census and s33's J-7a premise
-/// and lemma read it from `run_fork.rs`.)
+/// and lemma read it from `run_fork.rs`.) **D59 (2026-11-01): and every entry
+/// of `shape::W16R2_PROFILES`** — W16 at code rate 1/2, the same opt-in,
+/// unregistered class, its strings in `shape.rs` beside W16's, each with its
+/// own four keys; measured here exactly as W16's are.
 pub(super) fn opt_in_unregistered_shapes() -> Vec<Shape> {
-    super::shape::W16_PROFILES.iter().map(|s| super::range16_tests::built(s.profile)).collect()
+    super::shape::W16_PROFILES.iter().chain(super::shape::W16R2_PROFILES.iter()).map(|s| super::range16_tests::built(s.profile)).collect()
 }
 
 /// `clog2`, as `Shape::natural_log` uses it
@@ -202,9 +205,12 @@ fn every_registered_profile_is_covered_and_every_tagged_ones_keys_are_pairwise_d
     // accuracy run. They are then measured with the registered ones (their
     // keys enter (3) below), and the registry comparison holds over both.
     let opt_in = opt_in_unregistered_shapes();
-    assert_eq!(opt_in.len(), super::shape::W16_PROFILES.len());
+    assert_eq!(opt_in.len(), super::shape::W16_PROFILES.len() + super::shape::W16R2_PROFILES.len());
     for sh in &opt_in {
         assert!(sh.range16(), "{}: an opt-in W16 profile does not build a W16 shape", sh.name);
+        // D59: a W16R2 entry is at rate 1/2 with its Q, every W16 one at 1/4 with 256
+        let want = if super::shape::is_w16r2_profile(sh.profile) { (super::shape::W16R2_INV_RATE, super::shape::W16R2_OPENED_COLS) } else { (4, 256) };
+        assert_eq!((sh.inv_rate, sh.opened_cols, sh.endpoint_inv_rate), (want.0, want.1, want.0), "{}: an opt-in profile's PCS geometry is not its family's", sh.name);
         assert!(!shapes.iter().any(|r| r.profile == sh.profile), "{}: a W16 profile is on a registered block list; it is no longer opt-in, so move it", sh.profile);
         assert!(!runs.contains(&sh.profile), "{}: a W16 profile is a registered run profile", sh.profile);
         assert!(super::run::accuracy_run_profile(sh.profile).is_none(), "{}: a W16 block profile has a registered run profile", sh.profile);

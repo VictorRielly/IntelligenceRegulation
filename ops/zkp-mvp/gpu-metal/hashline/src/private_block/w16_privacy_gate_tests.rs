@@ -68,10 +68,17 @@ use std::collections::{BTreeMap, HashSet};
 /// run profile yet (registration is still owed, D54), and a capture needs a
 /// run. `run.rs`'s `registered_block_shape` admits these in test builds only
 /// (CS-7: each names exactly its block shape); no production build has them.
-pub(super) const W16_TEST_RUN_PROFILES: [(&str, &str); 3] = [
+///
+/// **D59 (2026-11-01):** the same, over the W16R2 (rate 1/2) rung and 8B
+/// block profiles, so a W16R2 run (boundaries and endpoints at rate 1/2) can
+/// be proved and verified in tests and the D55 A/B can take a W16R2 base.
+/// Each string has its W16 twin's length.
+pub(super) const W16_TEST_RUN_PROFILES: [(&str, &str); 5] = [
     ("hashline-zk-mr1/private-run-rung-lh-t32-w16-tst/1", shape::W16_RUNG_H24),
     ("hashline-zk-mr1/private-run-shieldstral-3b-t128-lowh24-w16-tst/1", shape::W16_SHIELD_T128_H24),
     ("hashline-zk-mr1/private-run-llama-3-8b-t128-lh24-w16-tst/1", shape::W16_8B_T128_H24),
+    ("hashline-zk-mr1/private-run-rung-lh-t32-w16r2-t/1", shape::W16R2_RUNG_H24),
+    ("hashline-zk-mr1/private-run-llama-3-8b-t128-lh-w16r2-tst/1", shape::W16R2_8B_T128_H24),
 ];
 
 fn run_profile_of(block: &str) -> &'static str {

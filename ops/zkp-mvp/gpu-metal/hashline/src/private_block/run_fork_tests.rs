@@ -630,7 +630,8 @@ fn env_or<T: std::str::FromStr>(name: &str, default: T) -> T {
 fn d55_ab_one_request_serial_against_forks() {
     use crate::private_block::shape;
     let name: String = env_or("HL_D55_PROFILE", "W16_8B_T128_H24".to_string());
-    let spec = shape::W16_PROFILES.iter().find(|s| s.name == name).expect("a W16 profile name");
+    // D59: a W16R2 (rate 1/2) base too
+    let spec = shape::W16_PROFILES.iter().chain(shape::W16R2_PROFILES.iter()).find(|s| s.name == name).expect("a W16 or W16R2 profile name");
     let l: usize = env_or("HL_D55_L", 32usize);
     let workers: Vec<usize> = std::env::var("HL_D55_WORKERS").unwrap_or_else(|_| "1,2,4,6".into()).split(',').filter_map(|v| v.trim().parse().ok()).collect();
     let passes: usize = env_or("HL_D55_PASSES", 2usize).max(1);

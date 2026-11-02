@@ -165,7 +165,7 @@ fn the_w16_signed_top_limb_keeps_a_padded_position_inside_both_tables() {
 /// receipt (R2-4); its run binds the endpoints, which W16 does not change.
 /// `Err("prover: ..")` is a prover refusal, any other `Err` the verifier's.
 /// `tamper` edits the proof before it is verified.
-fn prove_and_verify_core(sh: &Shape, blk: &BlockPublic, w: Witness, tamper: impl FnOnce(&mut super::protocol::CoreProof)) -> Result<f64, String> {
+pub(super) fn prove_and_verify_core(sh: &Shape, blk: &BlockPublic, w: Witness, tamper: impl FnOnce(&mut super::protocol::CoreProof)) -> Result<f64, String> {
     use crate::field::Fp;
     use crate::transcript::Transcript;
     let lay = Layout::for_shape(sh)?;
@@ -213,17 +213,22 @@ fn a_w16_rung_block_core_proves_and_verifies_and_a_changed_root_is_refused() {
     eprintln!("W16 rung block core: prove {prove_s:.2} s (R13 rung {r13_s:.2} s, CPU, shared Mac)");
 }
 
+#[test]
+fn w16_limbs_out_of_their_range_are_rejected_by_the_verifier() {
+    limbs_out_of_their_range_are_rejected_at(shape::W16_RUNG_H24);
+}
+
 /// **The range lookups are what refuse each of these.** Every mutation keeps
 /// each relation true (a remainder's value, the product word's value) and
 /// moves one limb out of its table; the CHEATING prover skips the miss
-/// refusal, so the mutation reaches the verifier, which must reject.
-#[test]
-fn w16_limbs_out_of_their_range_are_rejected_by_the_verifier() {
+/// refusal, so the mutation reaches the verifier, which must reject. At the
+/// rung of `profile` (W16's, or since D59 W16R2's at rate 1/2).
+pub(super) fn limbs_out_of_their_range_are_rejected_at(profile: &str) {
     // a two-limb remainder: low += 2^16, top -= 1 at a true position. Its
     // value is unchanged; the low limb leaves [0, 2^16) where the top was
     // live, and the top leaves its own window (it becomes -1) where it was 0
     for role in [L::Nr, L::Ms, L::Rao, L::Rd, L::Rs, L::Rg] {
-        let (sh, blk, mut w) = rung_case(shape::W16_RUNG_H24);
+        let (sh, blk, mut w) = rung_case(profile);
         let ids = Ids::new(&sh).unwrap();
         let low = ids.accuracy().unwrap();
         assert_eq!(low.count(role), 2, "{role:?} is a two-limb remainder at this rung");
@@ -233,19 +238,25 @@ fn w16_limbs_out_of_their_range_are_rejected_by_the_verifier() {
         let _cheat = super::protocol::CheatingProver::on();
         match prove_and_verify_core(&sh, &blk, w, |_| {}) {
             Ok(_) => panic!("{role:?}: a limb outside its table was accepted"),
-            Err(e) => assert!(!e.starts_with("prover:"), "{role:?}: the cheating prover refused ({e}); the mutation must reach the verifier"),
+            Err(e) => {
+                assert!(!e.starts_with("prover:"), "{role:?}: the cheating prover refused ({e}); the mutation must reach the verifier");
+                eprintln!("W16 LIMB {} {role:?}: the verifier rejects: {e}", sh.name);
+            }
         }
     }
     // the product word's signed top limb moved by one: its low expression
     // `h - 2^16 t` leaves [0, 2^16)
-    let (sh, blk, mut w) = rung_case(shape::W16_RUNG_H24);
+    let (sh, blk, mut w) = rung_case(profile);
     let ids = Ids::new(&sh).unwrap();
     let top = ids.accuracy().unwrap().limb(L::H, 0);
     w.planes[top][0] += 1;
     let _cheat = super::protocol::CheatingProver::on();
     match prove_and_verify_core(&sh, &blk, w, |_| {}) {
         Ok(_) => panic!("a moved product top limb was accepted"),
-        Err(e) => assert!(!e.starts_with("prover:"), "the cheating prover refused the moved top limb ({e})"),
+        Err(e) => {
+            assert!(!e.starts_with("prover:"), "the cheating prover refused the moved top limb ({e})");
+            eprintln!("W16 LIMB {} H top: the verifier rejects: {e}", sh.name);
+        }
     }
 }
 
@@ -296,7 +307,7 @@ fn honest_prover_refuses(sh: &Shape, blk: &BlockPublic, w: &Witness, what: &str)
         Ok(_) => panic!("{what}: the honest prover proved a witness outside its tables"),
         Err(e) => {
             assert!(e.starts_with("prover: ") && e.contains(super::protocol::LOOKUP_MISS_REFUSAL), "{what}: not the CS-3 refusal ({e})");
-            eprintln!("W16 F3 {what}: the honest prover refuses: {}", &e[..e.find(';').unwrap_or(e.len())]);
+            eprintln!("W16 F3 {} {what}: the honest prover refuses: {}", sh.name, &e[..e.find(';').unwrap_or(e.len())]);
         }
     }
 }
@@ -317,7 +328,7 @@ fn verifier_rejects(sh: &Shape, blk: &BlockPublic, w: Witness, what: &str, at: &
         Err(e) => {
             assert!(!e.starts_with("prover:"), "{what}: the cheating prover refused ({e}); the mutation must reach the verifier");
             assert!(e.contains(at), "{what}: rejected, but not at `{at}` ({e}); a relation the mutation should keep true failed first");
-            eprintln!("W16 F3 {what}: the verifier rejects: {e}");
+            eprintln!("W16 F3 {} {what}: the verifier rejects: {e}", sh.name);
             e
         }
     }
@@ -359,8 +370,13 @@ fn inert_hidden_position(sh: &Shape, w: &Witness, ids: &Ids) -> usize {
 /// ACCEPTED, so the tag fold is the only term that refuses it.
 #[test]
 fn w16_f3_a_remainder_filed_in_a_wider_family_is_refused_by_the_tag_fold() {
+    f3_a_remainder_filed_in_a_wider_family_at(shape::W16_RUNG_H24);
+}
+
+/// F3 (a) at the rung of `profile` (W16's, or since D59 W16R2's)
+pub(super) fn f3_a_remainder_filed_in_a_wider_family_at(profile: &str) {
     let _hooks = F3Hooks;
-    let (sh, blk, honest) = rung_case(shape::W16_RUNG_H24);
+    let (sh, blk, honest) = rung_case(profile);
     let ids = Ids::new(&sh).unwrap();
     let low = ids.accuracy().unwrap();
     let p = sh.accuracy_precision().unwrap();
@@ -410,7 +426,7 @@ fn w16_f3_a_remainder_filed_in_a_wider_family_is_refused_by_the_tag_fold() {
         drop(collapsed);
         super::protocol::set_misfiled_range(None);
         assert!(accepted.is_ok(), "{what}: with the range tags collapsed the cheat was still refused ({:?}), so the tag fold is not the only objection", accepted.err());
-        eprintln!("W16 F3 {what}: with the range tags collapsed to one, the same cheat is ACCEPTED (positive control)");
+        eprintln!("W16 F3 {} {what}: with the range tags collapsed to one, the same cheat is ACCEPTED (positive control)", sh.name);
     }
 }
 
@@ -422,7 +438,12 @@ fn w16_f3_a_remainder_filed_in_a_wider_family_is_refused_by_the_tag_fold() {
 /// leaves R12 below zero as well.
 #[test]
 fn w16_f3_b_a_word_at_plus_32768_is_rejected_by_the_verifier() {
-    let (sh, blk, mut w) = rung_case(shape::W16_RUNG_H24);
+    f3_b_a_word_at_plus_32768_at(shape::W16_RUNG_H24);
+}
+
+/// F3 (b) at the rung of `profile` (W16's, or since D59 W16R2's)
+pub(super) fn f3_b_a_word_at_plus_32768_at(profile: &str) {
+    let (sh, blk, mut w) = rung_case(profile);
     let ids = Ids::new(&sh).unwrap();
     let low = ids.accuracy().unwrap();
     let p = sh.accuracy_precision().unwrap();
@@ -446,8 +467,13 @@ fn w16_f3_b_a_word_at_plus_32768_is_rejected_by_the_verifier() {
 /// indicator is the only thing that can object.
 #[test]
 fn w16_f3_c_a_count_moved_into_a_narrow_range_padded_copy_is_rejected() {
+    f3_c_a_count_moved_into_a_narrow_range_padded_copy_at(shape::W16_RUNG_H24);
+}
+
+/// F3 (c) at the rung of `profile` (W16's, or since D59 W16R2's)
+pub(super) fn f3_c_a_count_moved_into_a_narrow_range_padded_copy_at(profile: &str) {
     let _hooks = F3Hooks;
-    let (sh, blk, w) = rung_case(shape::W16_RUNG_H24);
+    let (sh, blk, w) = rung_case(profile);
     let lay = Layout::for_shape(&sh).unwrap();
     let ids = Ids::new(&sh).unwrap();
     let looked: Vec<(Dom, Vec<Vec<i64>>)> = lay.lookup_doms().iter().map(|d| (*d, super::protocol::lookup_values(&lay, &w, *d))).collect();
@@ -473,7 +499,7 @@ fn w16_f3_c_a_count_moved_into_a_narrow_range_padded_copy_is_rejected() {
         moved.push(f.width);
     }
     assert!(!moved.is_empty(), "the rung has no narrow range family");
-    eprintln!("W16 F3 (c): narrow families exercised {moved:?}");
+    eprintln!("W16 F3 (c) {}: narrow families exercised {moved:?}", sh.name);
     // and the hook, left clear, changes nothing: the honest proof verifies
     prove_and_verify_core(&sh, &blk, w, |_| {}).expect("the F3 hook left a trace behind it");
 }
@@ -485,7 +511,12 @@ fn w16_f3_c_a_count_moved_into_a_narrow_range_padded_copy_is_rejected() {
 /// of `P Sum + SR = mask E 2^f_p`, so SR and SG leave their windows too.
 #[test]
 fn w16_f3_d_a_direct_quotient_of_2_13_is_rejected_by_the_verifier() {
-    let (sh, blk, mut w) = rung_case(shape::W16_RUNG_H24);
+    f3_d_a_direct_quotient_of_2_13_at(shape::W16_RUNG_H24);
+}
+
+/// F3 (d) at the rung of `profile` (W16's, or since D59 W16R2's)
+pub(super) fn f3_d_a_direct_quotient_of_2_13_at(profile: &str) {
+    let (sh, blk, mut w) = rung_case(profile);
     let ids = Ids::new(&sh).unwrap();
     let low = ids.accuracy().unwrap();
     let p = sh.accuracy_precision().unwrap();

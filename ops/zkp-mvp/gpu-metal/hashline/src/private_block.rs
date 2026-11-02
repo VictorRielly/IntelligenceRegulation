@@ -69,6 +69,10 @@ mod accuracy_layout;
 mod range16;
 #[cfg(test)]
 mod range16_tests;
+// D59: W16 at code rate 1/2 (the W16R2 profiles): acceptance, malicious
+// controls, goldens and the accounting inputs, test builds only
+#[cfg(test)]
+mod w16r2_tests;
 mod accuracy_fold;
 mod accuracy_act;
 mod accuracy_precision;
