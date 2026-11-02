@@ -28,7 +28,7 @@
 //! and are outside the Fiat-Shamir chain: they localise a fault, the chain
 //! is what binds.
 
-use super::{wire_ceiling, Dim, Reader, MASK_DOM, MASK_PATH, MASK_VEC};
+use super::{wire_ceiling, Dim, Reader, MASK_CHECKS, MASK_DOM, MASK_PATH, MASK_VEC};
 use crate::merkle::Digest;
 use crate::pcs::OpeningZk;
 use crate::private_block::argument::SlotProof;
@@ -75,7 +75,7 @@ fn slots_len(lay: &Layout) -> usize {
 
 fn mask_len(lay: &Layout) -> usize {
     let bd = Dim::block(lay);
-    2 * MASK_VEC * 16 + bd.checks * (8 + lay.m_rows() * 8 + 32 + MASK_PATH * 32)
+    2 * MASK_VEC * 16 + MASK_CHECKS * (8 + lay.m_rows() * 8 + 32 + MASK_PATH * 32)
 }
 
 /// magic, binding, `L`, the `L - 1` roots, the S0 tag
@@ -153,7 +153,7 @@ fn validate_fork(f: &ForkFrame, lay: &Layout) -> Result<(), String> {
     let m = &f.mask_open;
     if m.q.len() != MASK_VEC
         || m.prox.len() != MASK_VEC
-        || m.columns.len() != bd.checks
+        || m.columns.len() != MASK_CHECKS
         || m.columns.iter().any(|(j, c, _, p)| *j >= MASK_DOM || c.len() != lay.m_rows() || p.len() != MASK_PATH)
         || !bd.hiding_ok(&f.a_open, sh.a_groups(), lay.a_rows)
         || !bd.hiding_ok(&f.h_open, sh.h_groups(), lay.h_rows)
@@ -229,7 +229,7 @@ pub(crate) fn decode_fork(bytes: &[u8], lay: &Layout, binding: &Digest, l: usize
     }
     let q = r.fp2_vec(MASK_VEC)?;
     let prox = r.fp2_vec(MASK_VEC)?;
-    let columns = (0..bd.checks).map(|_| r.column(lay.m_rows(), MASK_DOM, MASK_PATH)).collect::<Result<Vec<_>, String>>()?;
+    let columns = (0..MASK_CHECKS).map(|_| r.column(lay.m_rows(), MASK_DOM, MASK_PATH)).collect::<Result<Vec<_>, String>>()?;
     let mask_open = MaskOpening { q, prox, columns };
     let a_open = r.hiding(bd, sh.a_groups(), lay.a_rows)?;
     let h_open = r.hiding(bd, sh.h_groups(), lay.h_rows)?;

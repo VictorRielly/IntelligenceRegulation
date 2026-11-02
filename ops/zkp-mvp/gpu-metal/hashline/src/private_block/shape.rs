@@ -2787,7 +2787,8 @@ impl Shape {
         let path = clog2(n * self.inv_rate);
         let t = (self.a_data_and_site_rows(), self.h_data_and_site_rows());
         // D59: the shape's own opened columns (COL_CHECKS at every profile but
-        // a W16R2 one, so no other shape's count moves); M keeps COL_CHECKS
+        // a W16R2 one, so no other shape's count moves); M opens its own
+        // `zk::MASK_Q` (= MASK_PADS, 256 at every profile)
         let opening = |groups: usize, rows: usize, vc: usize, pth: usize| (groups + 1) * vc * 16 + self.opened_cols * (8 + rows * 8 + 32 + pth * 32);
         let e_n = 1usize << self.endpoint_log_n;
         let e_vec = e_n + self.opened_cols;
@@ -2798,7 +2799,7 @@ impl Shape {
         let parts = ReceiptBytes {
             header_and_three_roots: WIRE_HEADER + 3 * 32,
             slots: slot_words * 16,
-            mask_opening: 2 * MASK_VEC * 16 + COL_CHECKS * (8 + self.m_rows() * 8 + 32 + MASK_PATH * 32),
+            mask_opening: 2 * MASK_VEC * 16 + MASK_PADS * (8 + self.m_rows() * 8 + 32 + MASK_PATH * 32),
             a_opening: opening(self.a_groups(), t.0, vec_len, path),
             h_opening: opening(self.h_groups(), t.1, vec_len, path),
             endpoint_openings: 2 * opening(1, self.endpoint_rows, e_vec, e_path),
