@@ -13,7 +13,9 @@
 - **Open:** Victor's ruling on Q (260 counts the proven bound; 280 also matches today's design against the best known attack, for
   about +3.5% receipt bytes), and the token and classifier bit counters must learn the new count before registration.
 - **D55 is now registered (D60)** over the 12 R13 block-run profiles, with test receipts verified in a fresh process. On R13 8B T128 it
-  measures 7.59 → 11.95 proved tokens/s at six forks. Real-content receipts wait for the Python privacy gate to read an R13 fork bundle.
+  measures 7.59 → 11.95 proved tokens/s at six forks. Its independent review found no soundness defect or leak, and its findings are
+  closed. The Python privacy gate now reads registered R13 fork bundles: no leak found, DEV-PASS. The CLI refuses D55 real-content
+  runs until the moved source pins are read and the gate gives a full PASS.
 - **The Mac's ceiling is about 23 tokens/s per request.** 50 still needs the RTX 5090.
 
 **2026-11-01 (night): one request now proves at about 21 proved tokens/s with the D55 prototype (opt-in, unreviewed).**
