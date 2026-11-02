@@ -1,0 +1,2854 @@
+{
+ "what": "gate round 26, RUN-LEVEL reader: every moved run / wire / capture / I-O source pin, frozen-r19b -> HEAD (read hunk by hunk from the trees)",
+ "privacy_acceptance": false,
+ "reader": "run-level reader (Claude); the block-level pins are another reader's and are NOT read here",
+ "date_utc": "2026-11-02",
+ "method": "diff -u of frozen-r19b against `git show HEAD:<path>` (the working tree equals HEAD for every pin, checked); every hunk classified test-only / production privacy-neutral / privacy-relevant, and every privacy-relevant hunk decided safe with its argument and HEAD line numbers, or a finding. NEW files read in full and classified by section. Python only; no cargo run.",
+ "trees": {
+  "r19b": {
+   "tree": "results/zk60_token_io_r1_20261017/frozen-r19b",
+   "manifest": "results/zk60_token_io_r1_20261017/manifest_final_r19b.sha256",
+   "manifest_list_sha256": "cfae2d1e3c9f662b477bc7ba7ee418ed74c8732d0717732a74385cd8430b67b9",
+   "listed": 306,
+   "rehash_equal": 302,
+   "moved_or_missing": [
+    "results/zk60_attention_integration_20260919/block_public/block_receipt.bin",
+    "results/zk60_private_block_evidence/owner_run1/block_receipt.bin",
+    "results/zk60_rowfold_20260919/integration/native-block-0/block_receipt.bin",
+    "results/zk60_rowfold_20260919/integration/native-block-1/block_receipt.bin"
+   ],
+   "differing": [],
+   "missing": [
+    "results/zk60_attention_integration_20260919/block_public/block_receipt.bin",
+    "results/zk60_private_block_evidence/owner_run1/block_receipt.bin",
+    "results/zk60_rowfold_20260919/integration/native-block-0/block_receipt.bin",
+    "results/zk60_rowfold_20260919/integration/native-block-1/block_receipt.bin"
+   ],
+   "missing_listed_in_SNAPSHOT_20261017_EXCLUDED_LARGE_FILES": [
+    "results/zk60_attention_integration_20260919/block_public/block_receipt.bin",
+    "results/zk60_private_block_evidence/owner_run1/block_receipt.bin",
+    "results/zk60_rowfold_20260919/integration/native-block-0/block_receipt.bin",
+    "results/zk60_rowfold_20260919/integration/native-block-1/block_receipt.bin"
+   ],
+   "note": "the missing files are binary receipts under frozen-r19b/results/ (> 1 MiB) left on the laptop at the Mac move (CLAUDE.md, machine change 2026-10-31); no hashline/ or zkp-core/ source file is missing or differs",
+   "unlisted_on_disk_under_listed_roots": [],
+   "unlisted_count": 0,
+   "ok_for_every_source_file": true,
+   "ok": false
+  },
+  "head": {
+   "commit": "8b78aabd530e73fcc058dc29cd9c7df62fba0e28",
+   "source": "ops/zkp-mvp/gpu-metal/hashline (+ ../zkp-core)",
+   "worktree_equals_head_for_every_pin": true
+  },
+  "d60_bundles": {
+   "source_commit": "dd81ab4f",
+   "manifest": "results/zk60_d60_20261102/privacy_gate/bundle_manifests/d55-r13_rung_h24-s0/manifest.json",
+   "pins": 73
+  }
+ },
+ "capture_pins": {
+  "counts": {
+   "OWN_SOURCE_FILES": 44,
+   "SHARED_SOURCE_FILES": 29,
+   "CLASSIFY_SOURCE_FILES": 5
+  },
+  "total": 78,
+  "a_d55_bundle_pins": 73,
+  "moved_r19b_to_head": [
+   {
+    "file": "src/private_block/argument_accuracy.rs",
+    "list": "OWN_SOURCE_FILES",
+    "r19b": "a5e02391b61577c7041efc41c04cd2564610e3fbb26b188b66b1623a5b7940d9",
+    "head": "29a501d03b6f7a3455f0b191baf09ea3fd1854da30a0854f1cf0b3032cdb0763",
+    "d60_bundles": "29a501d03b6f7a3455f0b191baf09ea3fd1854da30a0854f1cf0b3032cdb0763",
+    "reader": "block-level reader (not read here)"
+   },
+   {
+    "file": "src/private_block/accuracy_act.rs",
+    "list": "OWN_SOURCE_FILES",
+    "r19b": "7ef5fe26fc9395817436fc55851dc1f2ea066bc06b8a5eaaa3e2c39a8045eb4e",
+    "head": "08b88855f522c54e0d169815ef756fe56b3195fec79f25d664e846e1087d1b5f",
+    "d60_bundles": "08b88855f522c54e0d169815ef756fe56b3195fec79f25d664e846e1087d1b5f",
+    "reader": "block-level reader (not read here)"
+   },
+   {
+    "file": "src/private_block/accuracy_fold.rs",
+    "list": "OWN_SOURCE_FILES",
+    "r19b": "53e2b5726440eb747f55d5d22bdd36929f8d17bba8b769d17162c0948890731a",
+    "head": "d260dd26686b46137544c22d767c9dbff5d2510f6dac75874217e0939e0a9b1b",
+    "d60_bundles": "d260dd26686b46137544c22d767c9dbff5d2510f6dac75874217e0939e0a9b1b",
+    "reader": "block-level reader (not read here)"
+   },
+   {
+    "file": "src/private_block/accuracy_layout.rs",
+    "list": "OWN_SOURCE_FILES",
+    "r19b": "37a3e3458e4961ddaab98440de114e575da3af21f7d872b532cb71a04ac788d3",
+    "head": "ad5214dee4ab17ad39e1378a54f7d8c0aa49b56e8cf185ac84c9ffe8390b97be",
+    "d60_bundles": "ad5214dee4ab17ad39e1378a54f7d8c0aa49b56e8cf185ac84c9ffe8390b97be",
+    "reader": "block-level reader (not read here)"
+   },
+   {
+    "file": "src/private_block/run_capture.rs",
+    "list": "OWN_SOURCE_FILES",
+    "r19b": "cce0fc2a4062fcb4c92e771b8d7ac7f996c9ccfbc985bfb6decd79b29fba7ddf",
+    "head": "cbb78dc04ac5ca62e56318ae6b2e844666ef3016e03a774e81d7e3d6dc569135",
+    "d60_bundles": "5d5fdfccb7a6c9d654668c75e0e5a01792f7c8420d33fad437bb10e5ec61fea9",
+    "reader": "run-level reader (this file)"
+   },
+   {
+    "file": "src/private_block/run.rs",
+    "list": "OWN_SOURCE_FILES",
+    "r19b": "3dc5393db188cdd92a775011318fc8d8031812ff7d8772d6528dbc3261efa99f",
+    "head": "0a8f261578cbff74161021f9802e2fabc4492c609e29ea4147734272a677b441",
+    "d60_bundles": "604b65b1e52b02ef5f68420a50971701b5ea149605a45147e6c39f226885ff73",
+    "reader": "run-level reader (this file)"
+   },
+   {
+    "file": "src/private_block/protocol.rs",
+    "list": "OWN_SOURCE_FILES",
+    "r19b": "1011441431a37f735999405986af6c9f11c2d303b48aa6d9cefae55b0311718d",
+    "head": "6f4d60f5d7fef8fad6a69ab7f78cc06ff3a8f947c8bac98d5bb01ed22b7af73c",
+    "d60_bundles": "6f4d60f5d7fef8fad6a69ab7f78cc06ff3a8f947c8bac98d5bb01ed22b7af73c",
+    "reader": "block-level reader (not read here)"
+   },
+   {
+    "file": "src/private_block/argument.rs",
+    "list": "OWN_SOURCE_FILES",
+    "r19b": "bc0332e39904ca881d26c255581aa1ab6a0e73899141689960ec2262f8561830",
+    "head": "86c9941de1996b555c90fcb79b24c8682651df1ff24efcdff0ff0238ea50e77b",
+    "d60_bundles": "86c9941de1996b555c90fcb79b24c8682651df1ff24efcdff0ff0238ea50e77b",
+    "reader": "block-level reader (not read here)"
+   },
+   {
+    "file": "src/private_block/layout.rs",
+    "list": "OWN_SOURCE_FILES",
+    "r19b": "8519a514b8d1f43ab51c86b0a8af955230a2eab4fff4fc4c594733c59dcfd0bf",
+    "head": "171656f83ebeb009573a81fd1c464d4b9173f3c6400fd93942fd70ca93677934",
+    "d60_bundles": "171656f83ebeb009573a81fd1c464d4b9173f3c6400fd93942fd70ca93677934",
+    "reader": "block-level reader (not read here)"
+   },
+   {
+    "file": "src/private_block/plane_index.rs",
+    "list": "OWN_SOURCE_FILES",
+    "r19b": "ce79803c86a80dde832dc92a262a023efdd52bb95b9a15f128791978c306ffac",
+    "head": "702fa81a94aec18dc5df6b2215945f7fb841478cee68d8cd74c87087c7ad64a8",
+    "d60_bundles": "702fa81a94aec18dc5df6b2215945f7fb841478cee68d8cd74c87087c7ad64a8",
+    "reader": "run-level reader (this file)"
+   },
+   {
+    "file": "src/private_block/shape.rs",
+    "list": "OWN_SOURCE_FILES",
+    "r19b": "8e00a144bd194fd5a3dd30c9aaece2869d43d461df623cdcfc5a9da59e51436b",
+    "head": "dce667f98b350c4ce2c841ce8c1308a8101e29b8106733ac16439945f5c6001a",
+    "d60_bundles": "dce667f98b350c4ce2c841ce8c1308a8101e29b8106733ac16439945f5c6001a",
+    "reader": "block-level reader (not read here)"
+   },
+   {
+    "file": "src/private_block/wire.rs",
+    "list": "OWN_SOURCE_FILES",
+    "r19b": "f312067871bb87dc93436263b5820e5f3fb9a9623f190efc924023a28c5d41d0",
+    "head": "b4377c6eddabbecc2ca2b891380c365a647628109aacbbf1da1f2035913b7af2",
+    "d60_bundles": "b4377c6eddabbecc2ca2b891380c365a647628109aacbbf1da1f2035913b7af2",
+    "reader": "run-level reader (this file)"
+   },
+   {
+    "file": "src/private_block/hash_domain.rs",
+    "list": "OWN_SOURCE_FILES",
+    "r19b": "2012142194303e3b7d4bf0757d89621ae9d78c000cd5b58aac33de43bd946214",
+    "head": "a777ebd0794131bcb3ba5c1bb2e6c1ea4a392cc111336ab3bffd12dff6cbb0e9",
+    "d60_bundles": "a777ebd0794131bcb3ba5c1bb2e6c1ea4a392cc111336ab3bffd12dff6cbb0e9",
+    "reader": "run-level reader (this file)"
+   },
+   {
+    "file": "src/private_block.rs",
+    "list": "OWN_SOURCE_FILES",
+    "r19b": "96c1cd16270b087ab56d8fd4cf3777009e5000800ab2d65afc1342ae555c6ac4",
+    "head": "7ec8b8552ea59035c78cc91416bd2dabb18348894f9374ef9b2cca92de3c0cb7",
+    "d60_bundles": "7ec8b8552ea59035c78cc91416bd2dabb18348894f9374ef9b2cca92de3c0cb7",
+    "reader": "run-level reader (this file)"
+   },
+   {
+    "file": "src/private_block/pad.rs",
+    "list": "OWN_SOURCE_FILES",
+    "r19b": "91141ea025d01257a5f0b5007e711d883af896b72d3c109badb6999f48d78967",
+    "head": "9a28b306667c5ee566d272198d5a32177ad6a179daf62c51649a79b4b5224c51",
+    "d60_bundles": "9a28b306667c5ee566d272198d5a32177ad6a179daf62c51649a79b4b5224c51",
+    "reader": "block-level reader (not read here)"
+   },
+   {
+    "file": "src/private_block/token_io/load.rs",
+    "list": "OWN_SOURCE_FILES",
+    "r19b": "67307f096ca4ea9dd12e182a9b173436fd0015e7367a3b444e5733d188a4ce79",
+    "head": "56bb29a4d9550f0d614594c847499d94d466f312ceb0a186936dd80c8ab1f282",
+    "d60_bundles": "67307f096ca4ea9dd12e182a9b173436fd0015e7367a3b444e5733d188a4ce79",
+    "reader": "run-level reader (this file)"
+   },
+   {
+    "file": "src/private_block/trained_block.rs",
+    "list": "OWN_SOURCE_FILES",
+    "r19b": "dc6e8772bf80ff3d16dff49b416667cf92bf58148da60d8695004df01900ca07",
+    "head": "9909e8835a1507fb2c6e120880e736f2aa62e0f9abc9d91101aef3931705e5b4",
+    "d60_bundles": "4d1e24bd98b06bdcb0ebd58196f848856e5217c37fb46d189cc98f7128997604",
+    "reader": "run-level reader (this file)"
+   },
+   {
+    "file": "src/private_block/tied_tables.rs",
+    "list": "OWN_SOURCE_FILES",
+    "r19b": "45fc3f0fe20c5d8b798f6bbc0fe3f1b7aa68f4427b0a3521c92ba83230b30e33",
+    "head": "4b8f215c04d7093fa10adb335a14450a37ef0b371f9bd4ece41feafa181a4050",
+    "d60_bundles": "45fc3f0fe20c5d8b798f6bbc0fe3f1b7aa68f4427b0a3521c92ba83230b30e33",
+    "reader": "run-level reader (this file)"
+   },
+   {
+    "file": "src/private_block/witness_accuracy.rs",
+    "list": "OWN_SOURCE_FILES",
+    "r19b": "8b03abadc73db1d46be642e32c83312c87e34bfa4d560ab8d8e2675b14abcf2a",
+    "head": "9c66f7622541b443c395baceaef8b4f01b00b85d1f3d72ad287c40ce4413b573",
+    "d60_bundles": "9c66f7622541b443c395baceaef8b4f01b00b85d1f3d72ad287c40ce4413b573",
+    "reader": "block-level reader (not read here)"
+   },
+   {
+    "file": "src/private_block/range16.rs",
+    "list": "OWN_SOURCE_FILES",
+    "r19b": null,
+    "head": "62061f62c9f96a162fd8eaf5d3ed53928bbfc73c6dad640ceee7603e25899466",
+    "d60_bundles": "62061f62c9f96a162fd8eaf5d3ed53928bbfc73c6dad640ceee7603e25899466",
+    "reader": "block-level reader (not read here)"
+   },
+   {
+    "file": "src/private_block/slot_ir.rs",
+    "list": "OWN_SOURCE_FILES",
+    "r19b": "e0746ff1b3533287cc4d20240ec7c9e0e0b1383195dc90824faf1a3eb5bd4f09",
+    "head": "8f9e283173ee989507a737f02d4cc63210058cee86bab9758e0d76c815e31d59",
+    "d60_bundles": "8f9e283173ee989507a737f02d4cc63210058cee86bab9758e0d76c815e31d59",
+    "reader": "block-level reader (not read here)"
+   },
+   {
+    "file": "src/private_block/slot_ir_accuracy.rs",
+    "list": "OWN_SOURCE_FILES",
+    "r19b": null,
+    "head": "25c08bb4c951a47dac928b6abd1c0827249b5ff4ca75887fd7e0be3db9c19e65",
+    "d60_bundles": "25c08bb4c951a47dac928b6abd1c0827249b5ff4ca75887fd7e0be3db9c19e65",
+    "reader": "block-level reader (not read here)"
+   },
+   {
+    "file": "src/private_block/metal_slot.rs",
+    "list": "OWN_SOURCE_FILES",
+    "r19b": null,
+    "head": "5ced3891eff3455121a0ade1bed614f6beb2a7852433cc4250d1e950bc6eaceb",
+    "d60_bundles": "5ced3891eff3455121a0ade1bed614f6beb2a7852433cc4250d1e950bc6eaceb",
+    "reader": "block-level reader (not read here)"
+   },
+   {
+    "file": "src/private_block/run_fork.rs",
+    "list": "OWN_SOURCE_FILES",
+    "r19b": null,
+    "head": "e2cb63282a177361b39d7d7216a269638c6759410087de7c8e2aa7b96b024c9e",
+    "d60_bundles": "e7b58ff765f87cb92bcf5d4f1690e0ebf69ffe05fdb34e225829726be268837a",
+    "reader": "run-level reader (this file)"
+   },
+   {
+    "file": "src/private_block/run_fork_wire.rs",
+    "list": "OWN_SOURCE_FILES",
+    "r19b": null,
+    "head": "08d93ecfdff450a364d0141fa9d0d32f56250f226cbef7361b5ebc178a83f927",
+    "d60_bundles": "a2dbc6f1241091e799572e75a3e8890a5a66a45ed2533bc1b8cad23a095244b8",
+    "reader": "run-level reader (this file)"
+   },
+   {
+    "file": "../zkp-core/src/merkle.rs",
+    "list": "SHARED_SOURCE_FILES",
+    "r19b": "6e7817bd767a883985bfcd62b7a387d0c5f4c361010c4c5db37f5087d965744a",
+    "head": "6b66c0bcf20042373794b30c1d04b7340163ae3e93117ed19166c593ebe819a7",
+    "d60_bundles": "6b66c0bcf20042373794b30c1d04b7340163ae3e93117ed19166c593ebe819a7",
+    "reader": "read at this digest in W16_READINGS (staging_v25 zk60_native_rg_w16.py)"
+   },
+   {
+    "file": "../zkp-core/src/mle.rs",
+    "list": "SHARED_SOURCE_FILES",
+    "r19b": "b20c8b75c9246471fe1cc395122558eba715f66d9efe1dc4cd5be1750f2e542e",
+    "head": "ed7f8849f48df402c08b0a74a8119a9eff9aeecf4535847bbeceafa93459cebd",
+    "d60_bundles": "ed7f8849f48df402c08b0a74a8119a9eff9aeecf4535847bbeceafa93459cebd",
+    "reader": "read at this digest in W16_READINGS (staging_v25 zk60_native_rg_w16.py)"
+   },
+   {
+    "file": "../zkp-core/src/pcs.rs",
+    "list": "SHARED_SOURCE_FILES",
+    "r19b": "5c9cfc4e9c84283309f4c47f87d4a9146e2c9c9f5b52aa608b4ce6a7588cd495",
+    "head": "856929b343335f44638f44d577af4808ce8efc3c4fae44634160efcf6876d224",
+    "d60_bundles": "856929b343335f44638f44d577af4808ce8efc3c4fae44634160efcf6876d224",
+    "reader": "read at this digest in W16_READINGS (staging_v25 zk60_native_rg_w16.py)"
+   },
+   {
+    "file": "../zkp-core/src/pcs/backend.rs",
+    "list": "SHARED_SOURCE_FILES",
+    "r19b": "ff2cb5c1806b34653f8a44ad82f54201fb5d9f6ba2602afe5efeae4d104e0103",
+    "head": "4f03047ac467bbb0a6c2c26341f414846577fee44e29a6c8f01d53f78c55b462",
+    "d60_bundles": "4f03047ac467bbb0a6c2c26341f414846577fee44e29a6c8f01d53f78c55b462",
+    "reader": "read at this digest in W16_READINGS (staging_v25 zk60_native_rg_w16.py)"
+   },
+   {
+    "file": "../zkp-core/src/rng.rs",
+    "list": "SHARED_SOURCE_FILES",
+    "r19b": "0d4a99abbc424286de60ec4bfbe1084dc2ccaa2db8c5380e5f4594157ccea9eb",
+    "head": "f6728bd2d5208bb5b81f999d59baae12eb760a27811bdd2e0a5c309beba98aa2",
+    "d60_bundles": "f6728bd2d5208bb5b81f999d59baae12eb760a27811bdd2e0a5c309beba98aa2",
+    "reader": "read at this digest in W16_READINGS (staging_v25 zk60_native_rg_w16.py)"
+   },
+   {
+    "file": "../zkp-core/src/transcript.rs",
+    "list": "SHARED_SOURCE_FILES",
+    "r19b": "cc9752d0ef9bcd6d7b20e94e611ff26748593a2ea1a4f55b63d8c221715f1967",
+    "head": "e766e9e14304a0d58bd17937f2afad490e0cc29e8c27094a0e8f14a96e8e134e",
+    "d60_bundles": "e766e9e14304a0d58bd17937f2afad490e0cc29e8c27094a0e8f14a96e8e134e",
+    "reader": "read at this digest in W16_READINGS (staging_v25 zk60_native_rg_w16.py)"
+   },
+   {
+    "file": "src/gpu/mod.rs",
+    "list": "SHARED_SOURCE_FILES",
+    "r19b": "d651be2ccf8f19ff75fe6bca5ad42f4b773b569d0ae2017306f0bf819c51b283",
+    "head": "d7812f7d9404b55963387a9f40270fbdd871f8b6c09378116967e5568643c4c6",
+    "d60_bundles": "d7812f7d9404b55963387a9f40270fbdd871f8b6c09378116967e5568643c4c6",
+    "reader": "read at this digest in W16_READINGS (staging_v25 zk60_native_rg_w16.py)"
+   },
+   {
+    "file": "src/private_block/token_io/classify_run.rs",
+    "list": "CLASSIFY_SOURCE_FILES",
+    "r19b": "8abbf72f1c8e18bea1ac99e93a82562bca793afb4d94ed27dea24403850523f9",
+    "head": "44550938378ee273f7a70d45636f0f1ec382fb11033d6a7fdc3a37953da0df1e",
+    "d60_bundles": null,
+    "reader": "run-level reader (this file)"
+   }
+  ],
+  "moved_counts": {
+   "total": 33,
+   "run_level_this_file": 12,
+   "already_read_W16_READINGS": 7,
+   "block_level_other_reader": 14
+  }
+ },
+ "diffs": [
+  {
+   "file": "hashline/src/private_block/run.rs",
+   "from": "r19b",
+   "to": "HEAD 8b78aabd",
+   "diff": "results/zk60_gate_tinyllama_20261017/round26/readings/run-r19b-head-run.rs.diff",
+   "sha256": "7da13982f2a1f469f448b638029a91611312b20946cf187e97ed74934b82e1c3",
+   "plus": 130,
+   "minus": 27,
+   "hunks": 8
+  },
+  {
+   "file": "hashline/src/private_block/run.rs",
+   "from": "dd81ab4f",
+   "to": "HEAD 8b78aabd",
+   "diff": "results/zk60_gate_tinyllama_20261017/round26/readings/run-dd81ab4f-head-run.rs.diff",
+   "sha256": "44b2e525601f50ec95a915fa90bb9c62706d3fa917561f1aabd88da2d4c4df8b",
+   "plus": 63,
+   "minus": 27,
+   "hunks": 5
+  },
+  {
+   "file": "hashline/src/private_block/run.rs",
+   "from": "r19b",
+   "to": "dd81ab4f",
+   "diff": "results/zk60_gate_tinyllama_20261017/round26/readings/run-r19b-dd81ab4f-run.rs.diff",
+   "sha256": "45371af9ceac8c1fd10329c1c4c11f94903f16d8890cf7fbfadf7354f60cbfd2",
+   "plus": 67,
+   "minus": 0,
+   "hunks": 3
+  },
+  {
+   "file": "hashline/src/private_block/run_fork.rs",
+   "from": "r19b",
+   "to": "HEAD 8b78aabd",
+   "diff": "results/zk60_gate_tinyllama_20261017/round26/readings/run-r19b-head-run_fork.rs.diff",
+   "sha256": "ce68bd814b8c8ec570b0ea5b4e10bd2f11ac20cdf2fd9ca1e4f6f10c50642c48",
+   "plus": 1698,
+   "minus": 0,
+   "hunks": 1
+  },
+  {
+   "file": "hashline/src/private_block/run_fork.rs",
+   "from": "dd81ab4f",
+   "to": "HEAD 8b78aabd",
+   "diff": "results/zk60_gate_tinyllama_20261017/round26/readings/run-dd81ab4f-head-run_fork.rs.diff",
+   "sha256": "593e030116f74d7658cbbb5a772a888a92e7b55a547546d3c8720aede0377a64",
+   "plus": 178,
+   "minus": 18,
+   "hunks": 13
+  },
+  {
+   "file": "hashline/src/private_block/run_fork.rs",
+   "from": "r19b",
+   "to": "dd81ab4f",
+   "diff": "results/zk60_gate_tinyllama_20261017/round26/readings/run-r19b-dd81ab4f-run_fork.rs.diff",
+   "sha256": "7c8590f3a4b48a346e8423dc7c5006e6e53d6bc34fce4f6898d060c174277f20",
+   "plus": 1538,
+   "minus": 0,
+   "hunks": 1
+  },
+  {
+   "file": "hashline/src/private_block/run_fork_wire.rs",
+   "from": "r19b",
+   "to": "HEAD 8b78aabd",
+   "diff": "results/zk60_gate_tinyllama_20261017/round26/readings/run-r19b-head-run_fork_wire.rs.diff",
+   "sha256": "6f2f0724db04b22170f32a8279df5de15fb3e55ea5e04eaee3e7722cd1ab9b48",
+   "plus": 332,
+   "minus": 0,
+   "hunks": 1
+  },
+  {
+   "file": "hashline/src/private_block/run_fork_wire.rs",
+   "from": "dd81ab4f",
+   "to": "HEAD 8b78aabd",
+   "diff": "results/zk60_gate_tinyllama_20261017/round26/readings/run-dd81ab4f-head-run_fork_wire.rs.diff",
+   "sha256": "99f1db8d10403746c6a8029b2d5b2f46435edc841dc31f9b92d4bd960113c74e",
+   "plus": 47,
+   "minus": 20,
+   "hunks": 4
+  },
+  {
+   "file": "hashline/src/private_block/run_fork_wire.rs",
+   "from": "r19b",
+   "to": "dd81ab4f",
+   "diff": "results/zk60_gate_tinyllama_20261017/round26/readings/run-r19b-dd81ab4f-run_fork_wire.rs.diff",
+   "sha256": "2cc6ba69419a24a3870628304fd6542ac6cbce81ea57f1ba23a02050d2c97ef5",
+   "plus": 305,
+   "minus": 0,
+   "hunks": 1
+  },
+  {
+   "file": "hashline/src/private_block/run_capture.rs",
+   "from": "r19b",
+   "to": "HEAD 8b78aabd",
+   "diff": "results/zk60_gate_tinyllama_20261017/round26/readings/run-r19b-head-run_capture.rs.diff",
+   "sha256": "cfdeadcea502525737bdea8be2a18b4a4816293734934688e9aadd3dd0ff1331",
+   "plus": 737,
+   "minus": 52,
+   "hunks": 28
+  },
+  {
+   "file": "hashline/src/private_block/run_capture.rs",
+   "from": "dd81ab4f",
+   "to": "HEAD 8b78aabd",
+   "diff": "results/zk60_gate_tinyllama_20261017/round26/readings/run-dd81ab4f-head-run_capture.rs.diff",
+   "sha256": "eb7dd33c4beb0902fd3c91334404298b8da028c6231f3a0199a46554291badb2",
+   "plus": 13,
+   "minus": 1,
+   "hunks": 2
+  },
+  {
+   "file": "hashline/src/private_block/run_capture.rs",
+   "from": "r19b",
+   "to": "dd81ab4f",
+   "diff": "results/zk60_gate_tinyllama_20261017/round26/readings/run-r19b-dd81ab4f-run_capture.rs.diff",
+   "sha256": "40c3a76c4a1479b67bbd4fbac6c8647115ae1e6bc5e6526c2ec432c529af0107",
+   "plus": 725,
+   "minus": 52,
+   "hunks": 28
+  },
+  {
+   "file": "hashline/src/private_block/wire.rs",
+   "from": "r19b",
+   "to": "HEAD 8b78aabd",
+   "diff": "results/zk60_gate_tinyllama_20261017/round26/readings/run-r19b-head-wire.rs.diff",
+   "sha256": "3076b49c9a239c2a97d03c216bb6c3d1c04fab1f0cbe7f9f4faf63eb79eccb66",
+   "plus": 26,
+   "minus": 9,
+   "hunks": 8
+  },
+  {
+   "file": "hashline/src/private_block/hash_domain.rs",
+   "from": "r19b",
+   "to": "HEAD 8b78aabd",
+   "diff": "results/zk60_gate_tinyllama_20261017/round26/readings/run-r19b-head-hash_domain.rs.diff",
+   "sha256": "f11043f538db731f209864cf45971e9f36ae0467be18453f580b2c48079def68",
+   "plus": 4,
+   "minus": 2,
+   "hunks": 1
+  },
+  {
+   "file": "hashline/src/private_block.rs",
+   "from": "r19b",
+   "to": "HEAD 8b78aabd",
+   "diff": "results/zk60_gate_tinyllama_20261017/round26/readings/run-r19b-head-private_block.rs.diff",
+   "sha256": "2e48ab55557540e9346a428678fb8a575cd114ea05c0205c5eeb1d84431d8aac",
+   "plus": 19,
+   "minus": 1,
+   "hunks": 3
+  },
+  {
+   "file": "hashline/src/private_block/trained_block.rs",
+   "from": "r19b",
+   "to": "HEAD 8b78aabd",
+   "diff": "results/zk60_gate_tinyllama_20261017/round26/readings/run-r19b-head-trained_block.rs.diff",
+   "sha256": "9e2ead12795ecd5b9fe61aed3d8f56630e0f28c13a8eb0b17fa8e46db419149a",
+   "plus": 245,
+   "minus": 34,
+   "hunks": 18
+  },
+  {
+   "file": "hashline/src/private_block/trained_block.rs",
+   "from": "dd81ab4f",
+   "to": "HEAD 8b78aabd",
+   "diff": "results/zk60_gate_tinyllama_20261017/round26/readings/run-dd81ab4f-head-trained_block.rs.diff",
+   "sha256": "ee7d28284a77441c2abf991836029fb08c7a92a0c3c52df30337f5bcc0945479",
+   "plus": 70,
+   "minus": 3,
+   "hunks": 7
+  },
+  {
+   "file": "hashline/src/private_block/trained_block.rs",
+   "from": "r19b",
+   "to": "dd81ab4f",
+   "diff": "results/zk60_gate_tinyllama_20261017/round26/readings/run-r19b-dd81ab4f-trained_block.rs.diff",
+   "sha256": "64f79deceafca5be9d1dfa0089b9725a4dd916151a9472f314fae04e531538f6",
+   "plus": 178,
+   "minus": 34,
+   "hunks": 17
+  },
+  {
+   "file": "hashline/src/private_block/plane_index.rs",
+   "from": "r19b",
+   "to": "HEAD 8b78aabd",
+   "diff": "results/zk60_gate_tinyllama_20261017/round26/readings/run-r19b-head-plane_index.rs.diff",
+   "sha256": "c94ea1d5c5562afa1e7a337072dafe3725345c9dd1556bae89ae5566d734c4d6",
+   "plus": 65,
+   "minus": 3,
+   "hunks": 5
+  },
+  {
+   "file": "hashline/src/private_block/tied_tables.rs",
+   "from": "r19b",
+   "to": "HEAD 8b78aabd",
+   "diff": "results/zk60_gate_tinyllama_20261017/round26/readings/run-r19b-head-tied_tables.rs.diff",
+   "sha256": "2c0416e81843297bab8f4ee8bcb8e4479645b17debcc718c3363cd4227fd7065",
+   "plus": 4,
+   "minus": 9,
+   "hunks": 2
+  },
+  {
+   "file": "hashline/src/private_block/token_io/load.rs",
+   "from": "r19b",
+   "to": "HEAD 8b78aabd",
+   "diff": "results/zk60_gate_tinyllama_20261017/round26/readings/run-r19b-head-token_io_load.rs.diff",
+   "sha256": "e22df3d107291880d896af7deffa22f8d663937bc7836cac4d91c80f16a7f4b3",
+   "plus": 4,
+   "minus": 13,
+   "hunks": 2
+  },
+  {
+   "file": "hashline/src/private_block/token_io/classify_run.rs",
+   "from": "r19b",
+   "to": "HEAD 8b78aabd",
+   "diff": "results/zk60_gate_tinyllama_20261017/round26/readings/run-r19b-head-token_io_classify_run.rs.diff",
+   "sha256": "fcc55e3250a39cceaa8bf14f4abe0d9bb4fabf3f7f1b8e831be97ad2554ffc77",
+   "plus": 37,
+   "minus": 1,
+   "hunks": 10
+  },
+  {
+   "file": "hashline/src/private_block/token_io/classify_batch.rs",
+   "from": "r19b",
+   "to": "HEAD 8b78aabd",
+   "diff": "results/zk60_gate_tinyllama_20261017/round26/readings/run-r19b-head-token_io_classify_batch.rs.diff",
+   "sha256": "f182a4301738e051749bcc3be0bb03915edfb1aae52b53728c970bf9d5b50a17",
+   "plus": 8,
+   "minus": 10,
+   "hunks": 1
+  },
+  {
+   "file": "hashline/src/private_block/token_io/classify_cli.rs",
+   "from": "r19b",
+   "to": "HEAD 8b78aabd",
+   "diff": "results/zk60_gate_tinyllama_20261017/round26/readings/run-r19b-head-token_io_classify_cli.rs.diff",
+   "sha256": "fec2974863d66a12be2b6376d51012df2a3019807cfe89c398b590d33317fb81",
+   "plus": 31,
+   "minus": 0,
+   "hunks": 11
+  }
+ ],
+ "readings": {
+  "src/private_block/run.rs": {
+   "r19b": "3dc5393db188cdd92a775011318fc8d8031812ff7d8772d6528dbc3261efa99f",
+   "head": "0a8f261578cbff74161021f9802e2fabc4492c609e29ea4147734272a677b441",
+   "d60_bundles": "604b65b1e52b02ef5f68420a50971701b5ea149605a45147e6c39f226885ff73",
+   "capture_pin": true,
+   "pinned_by": [
+    "OWN_SOURCE_FILES"
+   ],
+   "compiled": "production",
+   "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings/run-r19b-head-run.rs.diff",
+   "diff_stat": "+130 / -27, 8 hunk(s) against 3dc5393d (frozen-r19b)",
+   "unit": "hunk (diff -u)",
+   "hunks": [
+    {
+     "n": 1,
+     "head_lines": [
+      232,
+      289
+     ],
+     "r19b_at": 232,
+     "plus": 52,
+     "minus": 0,
+     "class": "privacy-relevant-safe",
+     "note": "D60's registry (:234-288): `D55_REGISTERED_MARKER` (50 bytes), the twelve `RUN_PROFILE_D55_R13_*` strings, `D55_RUN_PROFILES`, `d55_run_profile`. Each string becomes a fork run's transcript-constructor domain (what is absorbed / keyed). SAFE: public constants; checked here: every string = `hashline-zk-mr1/` + marker + its base's tail (12 / 12), constructor inputs 107 / 125 / 129 bytes (`ForkRun::census` holds them clear of every absorb length). No witness word; `registered_block_shape` (CS-7) names none, so no D12a run can hash under one"
+    },
+    {
+     "n": 2,
+     "head_lines": [
+      321,
+      333
+     ],
+     "r19b_at": 269,
+     "plus": 7,
+     "minus": 0,
+     "class": "test-only",
+     "note": "`#[cfg(test)]` arm in `registered_block_shape` admitting the W16 TEST-ONLY run identities (:324-330); absent from every production build"
+    },
+    {
+     "n": 3,
+     "head_lines": [
+      1622,
+      1683
+     ],
+     "r19b_at": 1563,
+     "plus": 54,
+     "minus": 5,
+     "class": "privacy-relevant-safe",
+     "note": "`NOFOLLOW_NONBLOCK` per target and `open_nofollow_nonblock` (:1625-1680), the one read-only open of every bounded reader (receipt segments and frames, statement files, token tables). SAFE: read-only, stricter (adds O_NOFOLLOW | O_NONBLOCK on macOS 0x0100 | 0x0004 and aarch64 Linux 0o100000 | 0o4000, checked against the platform ABI; x86-64 Linux unchanged 0o400000 | 0o4000); callers keep the lstat / fstat re-checks; the before-open hook is `#[cfg(test)]`"
+    },
+    {
+     "n": 4,
+     "head_lines": [
+      1692,
+      1703
+     ],
+     "r19b_at": 1584,
+     "plus": 6,
+     "minus": 5,
+     "class": "production-privacy-neutral",
+     "note": "doc comment of `read_segment_bounded` (:1695-1700)"
+    },
+    {
+     "n": 5,
+     "head_lines": [
+      1712,
+      1718
+     ],
+     "r19b_at": 1603,
+     "plus": 1,
+     "minus": 8,
+     "class": "privacy-relevant-safe",
+     "note": "`read_segment_bounded` opens through `open_nofollow_nonblock` (:1715); the error text is unchanged (segment index, path, OS error, lengths: no witness word, the verifier holds none)"
+    },
+    {
+     "n": 6,
+     "head_lines": [
+      1732,
+      1738
+     ],
+     "r19b_at": 1630,
+     "plus": 1,
+     "minus": 1,
+     "class": "production-privacy-neutral",
+     "note": "doc comment line (:1735)"
+    },
+    {
+     "n": 7,
+     "head_lines": [
+      1749,
+      1755
+     ],
+     "r19b_at": 1647,
+     "plus": 1,
+     "minus": 8,
+     "class": "privacy-relevant-safe",
+     "note": "`read_regular_file_bounded` opens through `open_nofollow_nonblock` (:1752); error text unchanged (path, OS error)"
+    },
+    {
+     "n": 8,
+     "head_lines": [
+      1761,
+      1771
+     ],
+     "r19b_at": 1666,
+     "plus": 8,
+     "minus": 0,
+     "class": "production-privacy-neutral",
+     "note": "`#[path = \"run_fork.rs\"] pub(crate) mod fork;` (:1764-1771): the declaration; the module is read in full under run_fork.rs"
+    }
+   ],
+   "counts": {
+    "units": 8,
+    "test_only": 1,
+    "production_privacy_neutral": 3,
+    "privacy_relevant": 4,
+    "privacy_relevant_safe": 4,
+    "findings": 0
+   },
+   "findings": [],
+   "verdict": "READ; safe (no finding)",
+   "readings": {
+    "0a8f261578cbff74161021f9802e2fabc4492c609e29ea4147734272a677b441": {
+     "base": "3dc5393db188cdd92a775011318fc8d8031812ff7d8772d6528dbc3261efa99f",
+     "diff_stat": "+130 / -27, 8 hunk(s) against 3dc5393d (frozen-r19b)",
+     "moves_a_receipt_byte": false,
+     "moves_a_block_stage_byte": false,
+     "new_receipt_kind": false,
+     "classification": "gated-on-new-profiles",
+     "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings/run-r19b-head-run.rs.diff",
+     "reading": "[GATE ROUND 26, run-level reader, frozen-r19b -> HEAD 8b78aabd] D60's registry of twelve D55 run profiles (public constructor domains, each = marker + base, checked) and the `mod fork` declaration; a `#[cfg(test)]` W16 run identity; D60 F4: one per-target O_NOFOLLOW | O_NONBLOCK table and `open_nofollow_nonblock` used by the segment and regular-file readers (error text unchanged). Header, stage order, boundary absorbs, position tags, opening order, `capture_header`, `prove_run_with` and the D12a verifier are outside the hunks: no byte of any existing receipt moves. No finding"
+    },
+    "604b65b1e52b02ef5f68420a50971701b5ea149605a45147e6c39f226885ff73": {
+     "base": "3dc5393db188cdd92a775011318fc8d8031812ff7d8772d6528dbc3261efa99f",
+     "diff_stat": "+67 / -0, 3 hunk(s) against 3dc5393d (frozen-r19b); dd81ab4f -> HEAD in results/zk60_gate_tinyllama_20261017/round26/readings/run-dd81ab4f-head-run.rs.diff",
+     "moves_a_receipt_byte": false,
+     "moves_a_block_stage_byte": false,
+     "new_receipt_kind": false,
+     "classification": "gated-on-new-profiles",
+     "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings/run-r19b-dd81ab4f-run.rs.diff",
+     "reading": "[GATE ROUND 26, run-level reader, the D60 bundles' digest (dd81ab4f)] The HEAD reading less commit ed519548's hunks, which are exactly: F3 (the real-content constant, the CLI admission and marker, the d55-publication event), F4 (the per-target open-flag table; at dd81ab4f the readers set O_NOFOLLOW | O_NONBLOCK on x86-64 Linux only, a DoS window on macOS, not a privacy term), F7 (header-first frame reader), F8 (catch_unwind in test builds) and the registered description text in run.json (text only). None of them changes what a receipt, statement or capture contains; the dd81ab4f binary lacks F3's refusal (an operating precondition, not a property of a capture). No finding"
+    }
+   }
+  },
+  "src/private_block/run_fork.rs": {
+   "r19b": null,
+   "head": "e2cb63282a177361b39d7d7216a269638c6759410087de7c8e2aa7b96b024c9e",
+   "d60_bundles": "e7b58ff765f87cb92bcf5d4f1690e0ebf69ffe05fdb34e225829726be268837a",
+   "capture_pin": true,
+   "pinned_by": [
+    "OWN_SOURCE_FILES"
+   ],
+   "compiled": "production (since D60), `#[path = \"run_fork.rs\"] pub(crate) mod fork;` in run.rs:1770-1771; tests and cheats `#[cfg(test)]`",
+   "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings/run-r19b-head-run_fork.rs.diff",
+   "diff_stat": "+1698 / -0, 1 hunk(s) against absent (frozen-r19b)",
+   "unit": "section (a NEW file: one diff hunk; classified by item, read in full)",
+   "sections": [
+    {
+     "head_lines": [
+      1,
+      73
+     ],
+     "class": "production-privacy-neutral",
+     "note": "module doc"
+    },
+    {
+     "head_lines": [
+      77,
+      101
+     ],
+     "class": "privacy-relevant-safe",
+     "note": "`D55_REAL_CONTENT_PRIVACY_GATE_PASSED = false` (:101): F3's precondition in code; only a coordinator commit flips it; flipping moves no receipt byte"
+    },
+    {
+     "head_lines": [
+      102,
+      147
+     ],
+     "class": "privacy-relevant-safe",
+     "note": "transcript identities: `D12A_LINE_TAIL`, `D55_LINE_TAIL` (36 B), `D55_SCHEDULE_LITERAL` (registered); the prototype's prefix, clause and literal and `d55_profile_of` / `fork_profile_for` are `#[cfg(test)]`. Public constants absorbed into the header"
+    },
+    {
+     "head_lines": [
+      149,
+      182
+     ],
+     "class": "production-privacy-neutral",
+     "note": "`D55_LABELS` and `io_claim_list_len`: census lengths"
+    },
+    {
+     "head_lines": [
+      184,
+      187
+     ],
+     "class": "privacy-relevant-safe",
+     "note": "the two generator domains (commit phase; one stream per fork)"
+    },
+    {
+     "head_lines": [
+      189,
+      296
+     ],
+     "class": "test-only",
+     "note": "`DROP_FORK_INDEX`, `PANIC_IN_FORK`, `PanicInEveryFork`, `DropForkIndex`, `ForkHooks` and its guard: all `#[cfg(test)]`"
+    },
+    {
+     "head_lines": [
+      298,
+      345
+     ],
+     "class": "production-privacy-neutral",
+     "note": "`D55OptIn` (production: `registered_profile()` only; `unreviewed_prototype()` is test-only), `no_registered_profile` (production arm refuses by name)"
+    },
+    {
+     "head_lines": [
+      347,
+      369
+     ],
+     "class": "privacy-relevant-safe",
+     "note": "`ForkRun` and THE RANDOMNESS NOTE (:361-369): L + 1 generators, each `ZkRng::from_os` under its own domain, built on the thread that uses it, none cloned or derived, no seeded arm"
+    },
+    {
+     "head_lines": [
+      371,
+      384
+     ],
+     "class": "privacy-relevant-safe",
+     "note": "`commit_seed_domain` / `fork_seed_domain`: SEED_USE \u2016 ROLE_RUN_PROVER \u2016 (k as u64 le) \u2016 profile -- domain separation on top of independent OS entropy"
+    },
+    {
+     "head_lines": [
+      386,
+      430
+     ],
+     "class": "production-privacy-neutral",
+     "note": "`ForkReceipt` (head, forks, tail) and `ForkStats` (prover-local timings, generator count, joined-claim byte lengths)"
+    },
+    {
+     "head_lines": [
+      432,
+      530
+     ],
+     "class": "production-privacy-neutral",
+     "note": "`ForkTamper` is `#[cfg(test)]`; `Cheat` in a production build is the honest prover's constants (`on` / `forge` false, `fork_index(k) = k`, `skipped_root` None, `claim_not_joined` / `claim_not_opened` false)"
+    },
+    {
+     "head_lines": [
+      532,
+      612
+     ],
+     "class": "production-privacy-neutral",
+     "note": "`ForkRun::new` (refuses token / classifier bases, a drifted registry entry, a string CS-7 admits; runs `parameter_line` and `census`), `new_test_identity` (test), `is_registered`, `line_tail`, `schedule_literal`"
+    },
+    {
+     "head_lines": [
+      614,
+      681
+     ],
+     "class": "production-privacy-neutral",
+     "note": "`census`: the W-2 length rule (constructor vs every absorb length; seed-derivation inputs not 64 / 40 / 47). Lengths only; a refusal"
+    },
+    {
+     "head_lines": [
+      683,
+      740
+     ],
+     "class": "privacy-relevant-safe",
+     "note": "`parameter_line` (D12a line with its last clause replaced), `schedule_digest` (BLAKE3 over the literal and u64-framed lines), `schedule_lines` (parameter line, `Layout::describe`, counts, each fork's D12a stage line, the phase-3 order): functions of the statement only"
+    },
+    {
+     "head_lines": [
+      742,
+      764
+     ],
+     "class": "privacy-relevant-safe",
+     "note": "`transcript`: the constructor domain = the D55 profile string under the block shape's key, then D12a's six header absorbs (run-shape = L + six public axes, expected-IO bytes, public-statement digest, the fork parameter line, calibration identity, the fork schedule digest). No witness word"
+    },
+    {
+     "head_lines": [
+      766,
+      787
+     ],
+     "class": "test-only",
+     "note": "`binding` and `capture_header`: `#[cfg(test)]`"
+    },
+    {
+     "head_lines": [
+      789,
+      839
+     ],
+     "class": "privacy-relevant-safe",
+     "note": "`s0`, `fork`, `absorb_commit` (per boundary: `pb-fork-commit-root` k, B root, rows, log-cols; then `pb-fork-s0` L), `absorb_one_root`, `absorb_fork_start` (`pb-run-fork` k -- always in production -- and block k's public digest). Roots are commitments the head publishes"
+    },
+    {
+     "head_lines": [
+      841,
+      875
+     ],
+     "class": "privacy-relevant-safe",
+     "note": "THE JOIN'S WORDS: `claim_bytes` (count; per claim value, part count; per part slice offset, log size, coefficient, point) and `absorb_join` (k, the fork transcript's 32-byte state \u2016 squeeze counter, slot-21 claims, slot-22 claims), `close_join`"
+    },
+    {
+     "head_lines": [
+      877,
+      955
+     ],
+     "class": "production-privacy-neutral",
+     "note": "`ForkBlocks` (public blocks by reference) and `RepeatBlock` (`#[cfg(test)]`)"
+    },
+    {
+     "head_lines": [
+      957,
+      974
+     ],
+     "class": "production-privacy-neutral",
+     "note": "`preflight`: CS-1 / CS-4 / CS-6 before anything is absorbed"
+    },
+    {
+     "head_lines": [
+      976,
+      1005
+     ],
+     "class": "production-privacy-neutral",
+     "note": "`ForkOut` / `ForkCtx`: carriers (the fork's frame bytes, end state, IO claims; shared read-only inputs with NO generator)"
+    },
+    {
+     "head_lines": [
+      1007,
+      1049
+     ],
+     "class": "privacy-relevant-safe",
+     "note": "`prove_one`: the fork transcript from public words; THE FORK'S OWN GENERATOR `ZkRng::from_os(fork_seed_domain(profile, k))` created inside the worker (:1022); `prove_core` with that generator and the boundary data planes (as D12a); the frame carries the roots, slots, M / A / H openings and tags but NOT the IO claims (:1035)"
+    },
+    {
+     "head_lines": [
+      1051,
+      1065
+     ],
+     "class": "production-privacy-neutral",
+     "note": "`prove_run_with_forks` (honest) and the tampered entry (`#[cfg(test)]`)"
+    },
+    {
+     "head_lines": [
+      1067,
+      1252
+     ],
+     "class": "privacy-relevant-safe",
+     "note": "`prove_forks_inner`: preflight, endpoint checks, header; PHASE 1 the commit generator (:1095) commits every B_k (`boundary::prepare`, unchanged since r19b) and is DROPPED before any fork (:1107); the head = binding, L, roots, S0 tag; PHASE 2 workers on a rendezvous channel, `catch_unwind` makes a test-build panic that fork's error (release: panic = abort, Cargo.toml:63), any error fails the whole run (:1186-1189); PHASE 3 joins each fork's END state and its own claims in block order, then opens each B_k ONCE with (k's slot 22, k+1's slot 21), the input endpoint with fork 0's slot 21, the output endpoint with fork L-1's slot 22, all after S1; the tail frame"
+    },
+    {
+     "head_lines": [
+      1254,
+      1291
+     ],
+     "class": "privacy-relevant-safe",
+     "note": "`verify_one_fork`: the verifier's own fork transcript; path-depth checks; `verify_core` returns the verifier's OWN [ic, oc] and end state; capture hooks `#[cfg(test)]`"
+    },
+    {
+     "head_lines": [
+      1300,
+      1478
+     ],
+     "class": "privacy-relevant-safe",
+     "note": "`verify_run_with_forks`: head and S0 compared; forks on workers; THE JOIN from the verifier's own `Seen` (end state, counter, claims) (:1391-1394); each B_k checked (`boundary::check_opening`) and verified with the claims the verifier derived (:1425-1453); endpoints (:1454-1469); end tag. Capture hooks `#[cfg(test)]`"
+    },
+    {
+     "head_lines": [
+      1480,
+      1496
+     ],
+     "class": "production-privacy-neutral",
+     "note": "frame file names (none is a D12a segment name)"
+    },
+    {
+     "head_lines": [
+      1498,
+      1555
+     ],
+     "class": "privacy-relevant-safe",
+     "note": "F3 MARKER: fixed text, written `create_new` to a `.partial` name, flushed, renamed, never over an existing entry; read back only as a regular file of exactly that text; absorbed nowhere, in no frame, not in segments.json or statement.json"
+    },
+    {
+     "head_lines": [
+      1557,
+      1583
+     ],
+     "class": "privacy-relevant-safe",
+     "note": "`write_fork_receipt`: the L + 2 frames into an EXISTING, EMPTY directory, each atomically (as `run_sink::DirSink`); writes receipt bytes only"
+    },
+    {
+     "head_lines": [
+      1585,
+      1694
+     ],
+     "class": "privacy-relevant-safe",
+     "note": "`read_frame_bounded` (lstat, counted length, `open_nofollow_nonblock`, fstat, capped read) and `read_fork_receipt` (directory must be exactly the L + 2 frames, the statement DIRECTORY and the marker; F7 header-first), `verify_run_with_forks_from_dir`. Error text: paths, entry names, lengths, k -- verifier-side, no witness word"
+    },
+    {
+     "head_lines": [
+      1696,
+      1698
+     ],
+     "class": "test-only",
+     "note": "`#[cfg(test)] mod tests;`"
+    }
+   ],
+   "counts": {
+    "units": 31,
+    "test_only": 3,
+    "production_privacy_neutral": 12,
+    "privacy_relevant": 16,
+    "privacy_relevant_safe": 16,
+    "findings": 0
+   },
+   "findings": [],
+   "verdict": "READ; safe (no finding)",
+   "readings": {
+    "e2cb63282a177361b39d7d7216a269638c6759410087de7c8e2aa7b96b024c9e": {
+     "base": null,
+     "diff_stat": "+1698 / -0, 1 hunk(s) against absent (frozen-r19b)",
+     "moves_a_receipt_byte": false,
+     "moves_a_block_stage_byte": false,
+     "new_receipt_kind": true,
+     "classification": "new-file",
+     "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings/run-r19b-head-run_fork.rs.diff",
+     "reading": "[GATE ROUND 26, run-level reader, frozen-r19b -> HEAD 8b78aabd] NEW (read in full, 1,698 lines): the D55 commit / fork / join prover and verifier, the frames on disk, the F3 marker. (1) What is absorbed: the D12a header's six words under the D55 constructor; every B_k root (public, in the head) before any fork; per fork k and block k's public digest; at the join each fork's transcript END state + squeeze counter and its slot-21 / slot-22 claim lists -- on the verifier side its OWN values (verify_core's [ic, oc] and its own fork transcript, :1284-1290, :1391-1394), so the prover can absorb only words the verifier recomputes from the receipt, and the claims are not written into any fork frame (ForkFrame has none). (2) What is opened: each B_k ONCE (k's slot 22 + k+1's slot 21: two sites, D12a's), each endpoint once, A / H / M once per fork -- the same commitments opened the same number of times as D12a, at the shape's Q. (3) Randomness: L + 1 generators, `ZkRng::from_os` each (commit phase :1095, dropped :1107 before any fork; one per fork inside its worker :1022); each draws 32 fresh bytes of /dev/urandom and keys BLAKE3 with them (zkp-core rng.rs:44-65, at the W16-read digest f6728bd2); ZkRng is not Clone (rng.rs:9-14); no `ZkRng::new` in the file. (4) Errors: prover-side errors go to the prover's stderr (`fail_run` writes no file); a test-build worker panic becomes that fork's error and fails the run, release builds abort (Cargo.toml:63) as D12a does; reader errors carry paths, lengths, entry names, k. (5) F3: the constant is false (:101); the marker is a fixed text written create_new + rename, absorbed nowhere. No finding"
+    },
+    "e7b58ff765f87cb92bcf5d4f1690e0ebf69ffe05fdb34e225829726be268837a": {
+     "base": null,
+     "diff_stat": "+1538 / -0, 1 hunk(s) against absent (frozen-r19b); dd81ab4f -> HEAD in results/zk60_gate_tinyllama_20261017/round26/readings/run-dd81ab4f-head-run_fork.rs.diff",
+     "moves_a_receipt_byte": false,
+     "moves_a_block_stage_byte": false,
+     "new_receipt_kind": true,
+     "classification": "new-file",
+     "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings/run-r19b-dd81ab4f-run_fork.rs.diff",
+     "reading": "[GATE ROUND 26, run-level reader, the D60 bundles' digest (dd81ab4f)] The HEAD reading less commit ed519548's hunks, which are exactly: F3 (the real-content constant, the CLI admission and marker, the d55-publication event), F4 (the per-target open-flag table; at dd81ab4f the readers set O_NOFOLLOW | O_NONBLOCK on x86-64 Linux only, a DoS window on macOS, not a privacy term), F7 (header-first frame reader), F8 (catch_unwind in test builds) and the registered description text in run.json (text only). None of them changes what a receipt, statement or capture contains; the dd81ab4f binary lacks F3's refusal (an operating precondition, not a property of a capture). No finding"
+    }
+   }
+  },
+  "src/private_block/run_fork_wire.rs": {
+   "r19b": null,
+   "head": "08d93ecfdff450a364d0141fa9d0d32f56250f226cbef7361b5ebc178a83f927",
+   "d60_bundles": "a2dbc6f1241091e799572e75a3e8890a5a66a45ed2533bc1b8cad23a095244b8",
+   "capture_pin": true,
+   "pinned_by": [
+    "OWN_SOURCE_FILES"
+   ],
+   "compiled": "production (since D60), `#[path = \"run_fork_wire.rs\"] pub(crate) mod fork;` in wire.rs:499-500",
+   "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings/run-r19b-head-run_fork_wire.rs.diff",
+   "diff_stat": "+332 / -0, 1 hunk(s) against absent (frozen-r19b)",
+   "unit": "section (a NEW file: one diff hunk; classified by item, read in full)",
+   "sections": [
+    {
+     "head_lines": [
+      1,
+      30
+     ],
+     "class": "production-privacy-neutral",
+     "note": "module doc"
+    },
+    {
+     "head_lines": [
+      32,
+      43
+     ],
+     "class": "production-privacy-neutral",
+     "note": "imports and the three magics (HLPFKHD1 / HLPFORK1 / HLPFKTL1)"
+    },
+    {
+     "head_lines": [
+      45,
+      66
+     ],
+     "class": "privacy-relevant-safe",
+     "note": "`ForkFrame` (a D12a segment without its boundary root and IO openings: NO IO claims) and `TailFrame` (B_0 .. B_{L-2} with two claim sites each, the two endpoints)"
+    },
+    {
+     "head_lines": [
+      68,
+      79
+     ],
+     "class": "privacy-relevant-safe",
+     "note": "`endpoint_dim` (= wire.rs `Dim::endpoint`: endpoint log_n, rate, `opened_cols`), `slots_len`, `mask_len` (M at MASK_CHECKS = zk::MASK_Q)"
+    },
+    {
+     "head_lines": [
+      81,
+      99
+     ],
+     "class": "privacy-relevant-safe",
+     "note": "counted lengths of head / fork / tail: functions of the statement only"
+    },
+    {
+     "head_lines": [
+      101,
+      139
+     ],
+     "class": "privacy-relevant-safe",
+     "note": "head encode / decode: binding, L, the L-1 roots, the S0 tag; trailing bytes refused"
+    },
+    {
+     "head_lines": [
+      141,
+      164
+     ],
+     "class": "privacy-relevant-safe",
+     "note": "`validate_fork`: slot shapes; M has MASK_VEC q / prox and exactly MASK_CHECKS columns of m_rows; A and H are hiding openings at the block's Q (`hiding_ok`)"
+    },
+    {
+     "head_lines": [
+      166,
+      196
+     ],
+     "class": "privacy-relevant-safe",
+     "note": "`encode_fork`: writes exactly the slot proofs (scalar, masked rounds, masked terms), the M opening, the A and H openings and the tags; length must equal the count"
+    },
+    {
+     "head_lines": [
+      198,
+      221
+     ],
+     "class": "production-privacy-neutral",
+     "note": "`fork_header` / `check_fork_header` (F7): comparisons and refusals"
+    },
+    {
+     "head_lines": [
+      223,
+      257
+     ],
+     "class": "privacy-relevant-safe",
+     "note": "`decode_fork`: counted length, header, body, re-validation; nothing read from the frame sizes an allocation"
+    },
+    {
+     "head_lines": [
+      259,
+      288
+     ],
+     "class": "privacy-relevant-safe",
+     "note": "`encode_tail`: every boundary opening a hiding opening with `sites` groups at the endpoint Q, each endpoint with one group; counted length"
+    },
+    {
+     "head_lines": [
+      290,
+      309
+     ],
+     "class": "production-privacy-neutral",
+     "note": "`tail_header` / `check_tail_header` (F7)"
+    },
+    {
+     "head_lines": [
+      311,
+      332
+     ],
+     "class": "privacy-relevant-safe",
+     "note": "`decode_tail`: S1 tag compared, openings read at counted sizes, trailing bytes refused"
+    }
+   ],
+   "counts": {
+    "units": 13,
+    "test_only": 0,
+    "production_privacy_neutral": 4,
+    "privacy_relevant": 9,
+    "privacy_relevant_safe": 9,
+    "findings": 0
+   },
+   "findings": [],
+   "verdict": "READ; safe (no finding)",
+   "readings": {
+    "08d93ecfdff450a364d0141fa9d0d32f56250f226cbef7361b5ebc178a83f927": {
+     "base": null,
+     "diff_stat": "+332 / -0, 1 hunk(s) against absent (frozen-r19b)",
+     "moves_a_receipt_byte": false,
+     "moves_a_block_stage_byte": false,
+     "new_receipt_kind": true,
+     "classification": "new-file",
+     "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings/run-r19b-head-run_fork_wire.rs.diff",
+     "reading": "[GATE ROUND 26, run-level reader, frozen-r19b -> HEAD 8b78aabd] NEW (read in full, 332 lines): the head (binding, L, roots, S0 tag), fork (D12a segment less boundary root and IO openings) and tail (every IO opening after S1) frames. Every field is a commitment root, a masked slot proof, a hiding opening at the shape's Q (A / H / B / endpoints) or MASK_Q (M), or a transcript position; every count is the verifier's. No new field kind relative to a D12a segment. No finding"
+    },
+    "a2dbc6f1241091e799572e75a3e8890a5a66a45ed2533bc1b8cad23a095244b8": {
+     "base": null,
+     "diff_stat": "+305 / -0, 1 hunk(s) against absent (frozen-r19b); dd81ab4f -> HEAD in results/zk60_gate_tinyllama_20261017/round26/readings/run-dd81ab4f-head-run_fork_wire.rs.diff",
+     "moves_a_receipt_byte": false,
+     "moves_a_block_stage_byte": false,
+     "new_receipt_kind": true,
+     "classification": "new-file",
+     "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings/run-r19b-dd81ab4f-run_fork_wire.rs.diff",
+     "reading": "[GATE ROUND 26, run-level reader, the D60 bundles' digest (dd81ab4f)] The HEAD reading less commit ed519548's hunks, which are exactly: F3 (the real-content constant, the CLI admission and marker, the d55-publication event), F4 (the per-target open-flag table; at dd81ab4f the readers set O_NOFOLLOW | O_NONBLOCK on x86-64 Linux only, a DoS window on macOS, not a privacy term), F7 (header-first frame reader), F8 (catch_unwind in test builds) and the registered description text in run.json (text only). None of them changes what a receipt, statement or capture contains; the dd81ab4f binary lacks F3's refusal (an operating precondition, not a property of a capture). No finding"
+    }
+   }
+  },
+  "src/private_block/run_capture.rs": {
+   "r19b": "cce0fc2a4062fcb4c92e771b8d7ac7f996c9ccfbc985bfb6decd79b29fba7ddf",
+   "head": "cbb78dc04ac5ca62e56318ae6b2e844666ef3016e03a774e81d7e3d6dc569135",
+   "d60_bundles": "5d5fdfccb7a6c9d654668c75e0e5a01792f7c8420d33fad437bb10e5ec61fea9",
+   "capture_pin": true,
+   "pinned_by": [
+    "OWN_SOURCE_FILES"
+   ],
+   "compiled": "TEST-ONLY module (`#[cfg(test)] mod run_capture;`, private_block.rs:266-267); its content IS what a capture contains",
+   "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings/run-r19b-head-run_capture.rs.diff",
+   "diff_stat": "+737 / -52, 28 hunk(s) against cce0fc2a (frozen-r19b)",
+   "unit": "hunk (diff -u)",
+   "hunks": [
+    {
+     "n": 1,
+     "head_lines": [
+      218,
+      224
+     ],
+     "r19b_at": 218,
+     "plus": 1,
+     "minus": 1,
+     "class": "capture-content-safe (test-only module; privacy-relevant: it changes what a capture writes)",
+     "note": "OWN_SOURCE_FILES [38] -> [44]: the manifest's `source_pins` list (public file names and their SHA-256). Capture metadata only"
+    },
+    {
+     "n": 2,
+     "head_lines": [
+      298,
+      324
+     ],
+     "r19b_at": 298,
+     "plus": 21,
+     "minus": 1,
+     "class": "capture-content-safe (test-only module; privacy-relevant: it changes what a capture writes)",
+     "note": "the six pins added: range16.rs, slot_ir.rs, slot_ir_accuracy.rs, metal_slot.rs (M26), run_fork.rs, run_fork_wire.rs (D60). Pure addition; no field renamed or removed"
+    },
+    {
+     "n": 3,
+     "head_lines": [
+      367,
+      375
+     ],
+     "r19b_at": 347,
+     "plus": 3,
+     "minus": 0,
+     "class": "test-only",
+     "note": "`#[derive(Clone)]` on `RunHeader` (per-fork recorders each hold a copy). No byte written"
+    },
+    {
+     "n": 4,
+     "head_lines": [
+      780,
+      839
+     ],
+     "r19b_at": 757,
+     "plus": 54,
+     "minus": 0,
+     "class": "capture-content-safe (test-only module; privacy-relevant: it changes what a capture writes)",
+     "note": "`ArrayStore::absorb_store` (:792-836): merges a per-fork recorder's array store into the run's. It copies only arrays a per-fork recorder already stored through the ordinary writer (verifier-view values), content-addressed (an array both hold is kept once; a length disagreement or an out-of-store offset is refused), and rewrites only the `offset` of each `{\"array\":...}` reference. Nothing is added that a recorder did not already write"
+    },
+    {
+     "n": 5,
+     "head_lines": [
+      931,
+      969
+     ],
+     "r19b_at": 854,
+     "plus": 31,
+     "minus": 0,
+     "class": "test-only",
+     "note": "`Rec.fork` and `ForkRec` (:931-969): recorder state between phases (the head's roots, the recorder's own S0 / S1, each fork's end position in its per-fork recorder's own replay, the tail's records). In memory; written only through H13 / H7's tail file"
+    },
+    {
+     "n": 6,
+     "head_lines": [
+      1022,
+      1062
+     ],
+     "r19b_at": 914,
+     "plus": 30,
+     "minus": 24,
+     "class": "test-only",
+     "note": "`rebuild_header` (:1026-1050) factored out of `begin_run_with`: the same seven / nine absorbs in the same order (moved text, compared line by line); `Rec` gains `fork: None`. A block, token or classifier capture replays byte for byte as before"
+    },
+    {
+     "n": 7,
+     "head_lines": [
+      1073,
+      1435
+     ],
+     "r19b_at": 959,
+     "plus": 357,
+     "minus": 0,
+     "class": "capture-content-safe (test-only module; privacy-relevant: it changes what a capture writes)",
+     "note": "THE FORK-RUN RECORDER (:1076-1432): `begin_fork_run_with` (refuses a token / classifier header), `replay_fork_commit`, `fork_commit` (the recorder's OWN S0, compared with the verifier's), `ForkSeed` (:1157: header, binding, roots, options -- public words only), `fork_seed`, `fork_stage_attach` (a FRESH recorder per verifier worker, its own transcript rebuilt from the public header and roots, then `pb-run-fork` k / `pb-run-fork-block`), `fork_stage_begin`, `ForkStageCapture`, `fork_stage_take`, `fork_stage_merge` (block order; plane index must equal the run's), `join_claim_words`, `fork_join` (own S0, each per-fork recorder's own END state and counter, and the verifier's claim lists -- public words the verifier computed), `fork_tail_end` (writes the tail file: schema, kind, blocks, end_tag, opening_order, header = S1 state and next challenge, roles = the ordinary `write_pcs` records of the B_k and endpoint openings, transcript_sites), `fork_stage_view` (in memory), `SCHEMA_D55`. Every key is on the unchanged `ALLOWED_KEYS` (:4035-4360). The recorder is attached ONLY on the verifier side (run_fork.rs capture call sites :1279-1476 are all in `verify_one_fork` / `verify_run_with_forks`); no prover value or randomness is reachable"
+    },
+    {
+     "n": 8,
+     "head_lines": [
+      1441,
+      1455
+     ],
+     "r19b_at": 970,
+     "plus": 9,
+     "minus": 1,
+     "class": "test-only",
+     "note": "`stage_begin` -> `stage_open(.., d12a_prefix = true)`: identical for a D12a stage"
+    },
+    {
+     "n": 9,
+     "head_lines": [
+      1514,
+      1528
+     ],
+     "r19b_at": 1035,
+     "plus": 9,
+     "minus": 7,
+     "class": "test-only",
+     "note": "the D12a locality absorbs (`pb-run-stage`, `pb-run-block`, B / rows / log-cols) behind `d12a_prefix`: identical replay for D12a; a fork's start absorbs were replayed at attach"
+    },
+    {
+     "n": 10,
+     "head_lines": [
+      1535,
+      1541
+     ],
+     "r19b_at": 1054,
+     "plus": 1,
+     "minus": 1,
+     "class": "test-only",
+     "note": "a closing brace"
+    },
+    {
+     "n": 11,
+     "head_lines": [
+      2205,
+      2211
+     ],
+     "r19b_at": 1724,
+     "plus": 1,
+     "minus": 1,
+     "class": "capture-content-safe (test-only module; privacy-relevant: it changes what a capture writes)",
+     "note": "the call site takes `statement_table_at(&def.sh, ..)`: which `Tab::Pub` tables are labelled statement tables (and so carry values only after the export replay)"
+    },
+    {
+     "n": 12,
+     "head_lines": [
+      2316,
+      2325
+     ],
+     "r19b_at": 1835,
+     "plus": 4,
+     "minus": 1,
+     "class": "capture-content-safe (test-only module; privacy-relevant: it changes what a capture writes)",
+     "note": "the `pcs` hook also records with no stage open when a fork run's tail is open (:2316-2325); a D12a / token / classifier recorder (fork = None) returns exactly as before"
+    },
+    {
+     "n": 13,
+     "head_lines": [
+      2345,
+      2363
+     ],
+     "r19b_at": 1861,
+     "plus": 13,
+     "minus": 0,
+     "class": "capture-content-safe (test-only module; privacy-relevant: it changes what a capture writes)",
+     "note": "the tail's openings go to `tail_roles` / `tail_sites` / `tail_role_names` (:2345-2363): the ordinary `write_pcs` record (claims, masked vectors, Q opened columns with their published salts and paths) and the before / after transcript states"
+    },
+    {
+     "n": 14,
+     "head_lines": [
+      2427,
+      2436
+     ],
+     "r19b_at": 1930,
+     "plus": 4,
+     "minus": 0,
+     "class": "test-only",
+     "note": "`Bundle.fork_tail` field"
+    },
+    {
+     "n": 15,
+     "head_lines": [
+      2452,
+      2467
+     ],
+     "r19b_at": 1951,
+     "plus": 7,
+     "minus": 2,
+     "class": "capture-content-safe (test-only module; privacy-relevant: it changes what a capture writes)",
+     "note": "`take()`: a fork run's bundle exists only once its tail closed (a refusal); every other Bundle gains `fork_tail: None`, byte for byte as before"
+    },
+    {
+     "n": 16,
+     "head_lines": [
+      2536,
+      2560
+     ],
+     "r19b_at": 2030,
+     "plus": 19,
+     "minus": 0,
+     "class": "capture-content-safe (test-only module; privacy-relevant: it changes what a capture writes)",
+     "note": "`statement_table_at` (:2548-2556): at a W16 shape SC_TAB's ACT support (index 4 + #sub, of 5 + #sub + #narrow) is the one statement table; R13 / legacy stages return `r13_statement_table` unchanged. Public tables only"
+    },
+    {
+     "n": 17,
+     "head_lines": [
+      2807,
+      2816
+     ],
+     "r19b_at": 2282,
+     "plus": 4,
+     "minus": 1,
+     "class": "test-only",
+     "note": "the export replay accepts W16's `act_support` as R13's fifth table (a check of recorded values, no write)"
+    },
+    {
+     "n": 18,
+     "head_lines": [
+      3056,
+      3063
+     ],
+     "r19b_at": 2528,
+     "plus": 2,
+     "minus": 1,
+     "class": "capture-content-safe (test-only module; privacy-relevant: it changes what a capture writes)",
+     "note": "`write_stage`: a fork stage file declares SCHEMA_D55 (a string)"
+    },
+    {
+     "n": 19,
+     "head_lines": [
+      3132,
+      3143
+     ],
+     "r19b_at": 2603,
+     "plus": 6,
+     "minus": 1,
+     "class": "capture-content-safe (test-only module; privacy-relevant: it changes what a capture writes)",
+     "note": "`write_run`: SCHEMA_D55 and `(in_at, out_at) = (L, L)` for a fork run; `(0, L-1)` otherwise (unchanged)"
+    },
+    {
+     "n": 20,
+     "head_lines": [
+      3189,
+      3195
+     ],
+     "r19b_at": 2655,
+     "plus": 1,
+     "minus": 1,
+     "class": "capture-content-safe (test-only module; privacy-relevant: it changes what a capture writes)",
+     "note": "`external_endpoints.opened_at_stage` first value from `in_at` (0 for every non-fork run, as before)"
+    },
+    {
+     "n": 21,
+     "head_lines": [
+      3198,
+      3204
+     ],
+     "r19b_at": 2664,
+     "plus": 1,
+     "minus": 1,
+     "class": "capture-content-safe (test-only module; privacy-relevant: it changes what a capture writes)",
+     "note": "second value `out_at` (L-1 for every non-fork run, as before)"
+    },
+    {
+     "n": 22,
+     "head_lines": [
+      3229,
+      3243
+     ],
+     "r19b_at": 2695,
+     "plus": 5,
+     "minus": 3,
+     "class": "capture-content-safe (test-only module; privacy-relevant: it changes what a capture writes)",
+     "note": "each boundary's `committed_at_stage` / `opened_at_stage` / `opening_in_stage_file`: 0 / L / L for a fork run (head, tail), i / i+1 / i+1 otherwise (as before). Public layout facts"
+    },
+    {
+     "n": 23,
+     "head_lines": [
+      3252,
+      3260
+     ],
+     "r19b_at": 2716,
+     "plus": 3,
+     "minus": 0,
+     "class": "capture-content-safe (test-only module; privacy-relevant: it changes what a capture writes)",
+     "note": "`stage_files` lists `d55_tail.json` after the L fork files (fork run only)"
+    },
+    {
+     "n": 24,
+     "head_lines": [
+      3264,
+      3286
+     ],
+     "r19b_at": 2725,
+     "plus": 11,
+     "minus": 3,
+     "class": "capture-content-safe (test-only module; privacy-relevant: it changes what a capture writes)",
+     "note": "`transcript_labels` / `transcript_program` from the D55 tables for a fork run, with the registered wording at line 0 and at `parameters` (text only; no transcript byte); `mask_domain.columns` = `zk::MASK_Q` (256) instead of `sh.opened_cols`: equal (256) at every shape but W16R2, where 256 is M's real opened-column count"
+    },
+    {
+     "n": 25,
+     "head_lines": [
+      3328,
+      3387
+     ],
+     "r19b_at": 2781,
+     "plus": 54,
+     "minus": 0,
+     "class": "capture-content-safe (test-only module; privacy-relevant: it changes what a capture writes)",
+     "note": "`D55_TAIL_FILE`, `D55_TRANSCRIPT_LABELS` [26], `D55_REGISTERED_PROGRAM_HEAD`, `D55_REGISTERED_PARAMETERS_TEXT`, `D55_TRANSCRIPT_PROGRAM` [10] (:3331-3387): descriptive text written into run.json"
+    },
+    {
+     "n": 26,
+     "head_lines": [
+      3623,
+      3629
+     ],
+     "r19b_at": 3022,
+     "plus": 1,
+     "minus": 1,
+     "class": "capture-content-safe (test-only module; privacy-relevant: it changes what a capture writes)",
+     "note": "token-run `mask_domain.columns` = `zk::MASK_Q` (value-identical: no token profile opens other than 256; W16R2 token runs are refused by the D27 counters)"
+    },
+    {
+     "n": 27,
+     "head_lines": [
+      3901,
+      3907
+     ],
+     "r19b_at": 3300,
+     "plus": 1,
+     "minus": 1,
+     "class": "capture-content-safe (test-only module; privacy-relevant: it changes what a capture writes)",
+     "note": "classifier-run `mask_domain.columns` = `zk::MASK_Q` (value-identical, as H26)"
+    },
+    {
+     "n": 28,
+     "head_lines": [
+      4393,
+      4483
+     ],
+     "r19b_at": 3792,
+     "plus": 84,
+     "minus": 0,
+     "class": "capture-content-safe (test-only module; privacy-relevant: it changes what a capture writes)",
+     "note": "`write_fork_bundle` (:4408-4466) and `write_bundle`'s dispatch (:4468-4480): a fork bundle is written only under a REGISTERED D55 profile (a test-only identity is refused) and only after the export replay if it carries statement-table values; files `run.json`, `stage-NN.json`, `d55_tail.json`, `arrays.bin`, the receipt's own frames under `receipt/` (head, forks, tail: exactly the bytes the verifier read -- a published receipt), `README.md` (caller's note and command), `manifest.json` LAST; every file `create_new` (never over an existing one)"
+    }
+   ],
+   "counts": {
+    "units": 28,
+    "test_only": 8,
+    "production_privacy_neutral": 0,
+    "privacy_relevant": 20,
+    "privacy_relevant_safe": 20,
+    "findings": 0
+   },
+   "findings": [],
+   "verdict": "READ; safe (no finding)",
+   "readings": {
+    "cbb78dc04ac5ca62e56318ae6b2e844666ef3016e03a774e81d7e3d6dc569135": {
+     "base": "cce0fc2a4062fcb4c92e771b8d7ac7f996c9ccfbc985bfb6decd79b29fba7ddf",
+     "diff_stat": "+737 / -52, 28 hunk(s) against cce0fc2a (frozen-r19b)",
+     "moves_a_receipt_byte": false,
+     "moves_a_block_stage_byte": false,
+     "new_receipt_kind": false,
+     "classification": "test-only",
+     "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings/run-r19b-head-run_capture.rs.diff",
+     "reading": "[GATE ROUND 26, run-level reader, frozen-r19b -> HEAD 8b78aabd] Capture writer of the D55 fork run (D55 review F5) and of a REGISTERED D55 run's bundle (D60), the W16 statement-table label, M's column count in `mask_domain`, six more source pins. Against `not_in_a_capture` (witness values, pad values, mask coefficients, unopened columns, unpublished salts, unmasked sumcheck rounds, hidden inputs / outputs / boundary planes, prover randomness; run_capture.rs:3288): a fork bundle's run.json is `write_run`'s (header words, layout, D55 label / program text, plane index, the same not_in_a_capture list); each fork's stage file is an ordinary stage record of that fork (roots, the 23 masked slot transcripts, M opening, A and H openings) less the boundary and IO openings; the tail file holds S1 and the B_k / endpoint openings as `write_pcs` writes a D12a IO opening (claims the verifier computed, masked vectors, Q opened columns with their published salts and paths); arrays.bin is the merged per-fork stores; `receipt/` is the receipt itself. Every key is on the UNCHANGED allow-list (ALLOWED_KEYS :4035-4360, no hunk). The recorder sees only the verifier: every capture call in run_fork.rs is in the verifier (:1279-1476); per-fork recorders are seeded from public words (`ForkSeed` :1157) on verifier workers. Block / token / classifier bundles are byte for byte r19b's except `mask_domain.columns`, which is value-identical (256) at every shape but W16R2. No finding"
+    },
+    "5d5fdfccb7a6c9d654668c75e0e5a01792f7c8420d33fad437bb10e5ec61fea9": {
+     "base": "cce0fc2a4062fcb4c92e771b8d7ac7f996c9ccfbc985bfb6decd79b29fba7ddf",
+     "diff_stat": "+725 / -52, 28 hunk(s) against cce0fc2a (frozen-r19b); dd81ab4f -> HEAD in results/zk60_gate_tinyllama_20261017/round26/readings/run-dd81ab4f-head-run_capture.rs.diff",
+     "moves_a_receipt_byte": false,
+     "moves_a_block_stage_byte": false,
+     "new_receipt_kind": false,
+     "classification": "test-only",
+     "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings/run-r19b-dd81ab4f-run_capture.rs.diff",
+     "reading": "[GATE ROUND 26, run-level reader, the D60 bundles' digest (dd81ab4f)] The HEAD reading less commit ed519548's hunks, which are exactly: F3 (the real-content constant, the CLI admission and marker, the d55-publication event), F4 (the per-target open-flag table; at dd81ab4f the readers set O_NOFOLLOW | O_NONBLOCK on x86-64 Linux only, a DoS window on macOS, not a privacy term), F7 (header-first frame reader), F8 (catch_unwind in test builds) and the registered description text in run.json (text only). None of them changes what a receipt, statement or capture contains; the dd81ab4f binary lacks F3's refusal (an operating precondition, not a property of a capture). No finding"
+    }
+   }
+  },
+  "src/private_block/wire.rs": {
+   "r19b": "f312067871bb87dc93436263b5820e5f3fb9a9623f190efc924023a28c5d41d0",
+   "head": "b4377c6eddabbecc2ca2b891380c365a647628109aacbbf1da1f2035913b7af2",
+   "d60_bundles": "b4377c6eddabbecc2ca2b891380c365a647628109aacbbf1da1f2035913b7af2",
+   "capture_pin": true,
+   "pinned_by": [
+    "OWN_SOURCE_FILES"
+   ],
+   "compiled": "production",
+   "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings/run-r19b-head-wire.rs.diff",
+   "diff_stat": "+26 / -9, 8 hunk(s) against f3120678 (frozen-r19b)",
+   "unit": "hunk (diff -u)",
+   "hunks": [
+    {
+     "n": 1,
+     "head_lines": [
+      14,
+      34
+     ],
+     "r19b_at": 14,
+     "plus": 15,
+     "minus": 3,
+     "class": "privacy-relevant-safe",
+     "note": "M's frame geometry from zk.rs's own constants (:16-31): MASK_VEC = 2 << MASK_LOG_MSG = 1024, MASK_DOM = 1 << MASK_LOG_DOM = 4096, MASK_PATH = 12 (value-identical to the literals), and MASK_CHECKS = zk::MASK_Q = 256 replacing the block's `bd.checks`. SAFE and protective: M's frame now carries exactly MASK_Q opened columns, which is the number of pads per M a-row (zk.rs:375, :445 / :496); at every pre-W16R2 profile bd.checks was 256 (no byte moves); at W16R2 (A / H / B / endpoints at Q = 260) M is never framed with more columns than it has pads"
+    },
+    {
+     "n": 2,
+     "head_lines": [
+      134,
+      140
+     ],
+     "r19b_at": 122,
+     "plus": 1,
+     "minus": 1,
+     "class": "privacy-relevant-safe",
+     "note": "D12a block-receipt counted length: M term uses MASK_CHECKS (:137)"
+    },
+    {
+     "n": 3,
+     "head_lines": [
+      154,
+      160
+     ],
+     "r19b_at": 142,
+     "plus": 1,
+     "minus": 1,
+     "class": "privacy-relevant-safe",
+     "note": "block validation: M columns must be MASK_CHECKS (:157)"
+    },
+    {
+     "n": 4,
+     "head_lines": [
+      262,
+      268
+     ],
+     "r19b_at": 250,
+     "plus": 1,
+     "minus": 1,
+     "class": "privacy-relevant-safe",
+     "note": "block decode reads MASK_CHECKS M columns (:265)"
+    },
+    {
+     "n": 5,
+     "head_lines": [
+      354,
+      360
+     ],
+     "r19b_at": 342,
+     "plus": 1,
+     "minus": 1,
+     "class": "privacy-relevant-safe",
+     "note": "segment counted length: M term uses MASK_CHECKS (:357)"
+    },
+    {
+     "n": 6,
+     "head_lines": [
+      389,
+      395
+     ],
+     "r19b_at": 377,
+     "plus": 1,
+     "minus": 1,
+     "class": "privacy-relevant-safe",
+     "note": "segment validation (:392)"
+    },
+    {
+     "n": 7,
+     "head_lines": [
+      478,
+      484
+     ],
+     "r19b_at": 466,
+     "plus": 1,
+     "minus": 1,
+     "class": "privacy-relevant-safe",
+     "note": "segment decode (:481)"
+    },
+    {
+     "n": 8,
+     "head_lines": [
+      493,
+      500
+     ],
+     "r19b_at": 481,
+     "plus": 5,
+     "minus": 0,
+     "class": "production-privacy-neutral",
+     "note": "`#[path = \"run_fork_wire.rs\"] pub(crate) mod fork;` (:496-500): the declaration; read in full under run_fork_wire.rs"
+    }
+   ],
+   "counts": {
+    "units": 8,
+    "test_only": 0,
+    "production_privacy_neutral": 1,
+    "privacy_relevant": 7,
+    "privacy_relevant_safe": 7,
+    "findings": 0
+   },
+   "findings": [],
+   "verdict": "READ; safe (no finding)",
+   "readings": {
+    "b4377c6eddabbecc2ca2b891380c365a647628109aacbbf1da1f2035913b7af2": {
+     "base": "f312067871bb87dc93436263b5820e5f3fb9a9623f190efc924023a28c5d41d0",
+     "diff_stat": "+26 / -9, 8 hunk(s) against f3120678 (frozen-r19b)",
+     "moves_a_receipt_byte": false,
+     "moves_a_block_stage_byte": false,
+     "new_receipt_kind": false,
+     "classification": "identity-at-captured-profiles",
+     "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings/run-r19b-head-wire.rs.diff",
+     "reading": "[GATE ROUND 26, run-level reader, frozen-r19b -> HEAD 8b78aabd] W16R2 review F5 (d) / D59: M's frame constants from zk.rs (value-identical) and M's opened-column count = zk::MASK_Q (256), no longer the block's Q; plus the `mod fork` declaration. Every pre-W16R2 profile's frames are byte for byte r19b's; M is never framed with more columns than its pads. No finding"
+    }
+   }
+  },
+  "src/private_block/hash_domain.rs": {
+   "r19b": "2012142194303e3b7d4bf0757d89621ae9d78c000cd5b58aac33de43bd946214",
+   "head": "a777ebd0794131bcb3ba5c1bb2e6c1ea4a392cc111336ab3bffd12dff6cbb0e9",
+   "d60_bundles": "a777ebd0794131bcb3ba5c1bb2e6c1ea4a392cc111336ab3bffd12dff6cbb0e9",
+   "capture_pin": true,
+   "pinned_by": [
+    "OWN_SOURCE_FILES"
+   ],
+   "compiled": "production",
+   "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings/run-r19b-head-hash_domain.rs.diff",
+   "diff_stat": "+4 / -2, 1 hunk(s) against 20121421 (frozen-r19b)",
+   "unit": "hunk (diff -u)",
+   "hunks": [
+    {
+     "n": 1,
+     "head_lines": [
+      449,
+      458
+     ],
+     "r19b_at": 449,
+     "plus": 4,
+     "minus": 2,
+     "class": "production-privacy-neutral",
+     "note": "`path_labels` is no longer `#[cfg(test)]` (:449-456): a pure function of the shape and the run parameter line returning label names and data LENGTHS; its one production caller is `ForkRun::census` (run_fork.rs:646), a refusal guard. Absorbs nothing, writes nothing"
+    }
+   ],
+   "counts": {
+    "units": 1,
+    "test_only": 0,
+    "production_privacy_neutral": 1,
+    "privacy_relevant": 0,
+    "privacy_relevant_safe": 0,
+    "findings": 0
+   },
+   "findings": [],
+   "verdict": "READ; safe (no finding)",
+   "readings": {
+    "a777ebd0794131bcb3ba5c1bb2e6c1ea4a392cc111336ab3bffd12dff6cbb0e9": {
+     "base": "2012142194303e3b7d4bf0757d89621ae9d78c000cd5b58aac33de43bd946214",
+     "diff_stat": "+4 / -2, 1 hunk(s) against 20121421 (frozen-r19b)",
+     "moves_a_receipt_byte": false,
+     "moves_a_block_stage_byte": false,
+     "new_receipt_kind": false,
+     "classification": "identity-at-captured-profiles",
+     "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings/run-r19b-head-hash_domain.rs.diff",
+     "reading": "[GATE ROUND 26, run-level reader, frozen-r19b -> HEAD 8b78aabd] `path_labels` compiled in production for `ForkRun::census` (label names and lengths; a refusal guard). No absorb, no byte. No finding"
+    }
+   }
+  },
+  "src/private_block.rs": {
+   "r19b": "96c1cd16270b087ab56d8fd4cf3777009e5000800ab2d65afc1342ae555c6ac4",
+   "head": "7ec8b8552ea59035c78cc91416bd2dabb18348894f9374ef9b2cca92de3c0cb7",
+   "d60_bundles": "7ec8b8552ea59035c78cc91416bd2dabb18348894f9374ef9b2cca92de3c0cb7",
+   "capture_pin": true,
+   "pinned_by": [
+    "OWN_SOURCE_FILES"
+   ],
+   "compiled": "production (module root)",
+   "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings/run-r19b-head-private_block.rs.diff",
+   "diff_stat": "+19 / -1, 3 hunk(s) against 96c1cd16 (frozen-r19b)",
+   "unit": "hunk (diff -u)",
+   "hunks": [
+    {
+     "n": 1,
+     "head_lines": [
+      65,
+      78
+     ],
+     "r19b_at": 65,
+     "plus": 8,
+     "minus": 0,
+     "class": "production-privacy-neutral",
+     "note": "`mod range16;` (W16, production declaration; reached only at the unregistered W16 profiles; the module is a block-level file, read by the other reader) and two `#[cfg(test)]` modules (range16_tests, w16r2_tests) (:68-75)"
+    },
+    {
+     "n": 2,
+     "head_lines": [
+      274,
+      284
+     ],
+     "r19b_at": 266,
+     "plus": 5,
+     "minus": 0,
+     "class": "test-only",
+     "note": "`#[cfg(test)] mod w16_privacy_gate_tests;` (:277-281)"
+    },
+    {
+     "n": 3,
+     "head_lines": [
+      391,
+      403
+     ],
+     "r19b_at": 378,
+     "plus": 6,
+     "minus": 1,
+     "class": "production-privacy-neutral",
+     "note": "`slot_ir` compiled under `any(test, feature = \"gpu-metal\")` and `metal_slot` under `gpu-metal` (:394-400): declarations; their content (the Metal round sums) is the block reader's. `ExpectedIo`, `IoSpec`, `calibration_identity` and `BlockPublic::digest` are outside the hunks; `#[cfg(test)] mod run_capture;` (:266-267) and `#[cfg(test)] mod plane_index;` (:275-276) unchanged"
+    }
+   ],
+   "counts": {
+    "units": 3,
+    "test_only": 1,
+    "production_privacy_neutral": 2,
+    "privacy_relevant": 0,
+    "privacy_relevant_safe": 0,
+    "findings": 0
+   },
+   "findings": [],
+   "verdict": "READ; safe (no finding)",
+   "readings": {
+    "7ec8b8552ea59035c78cc91416bd2dabb18348894f9374ef9b2cca92de3c0cb7": {
+     "base": "96c1cd16270b087ab56d8fd4cf3777009e5000800ab2d65afc1342ae555c6ac4",
+     "diff_stat": "+19 / -1, 3 hunk(s) against 96c1cd16 (frozen-r19b)",
+     "moves_a_receipt_byte": false,
+     "moves_a_block_stage_byte": false,
+     "new_receipt_kind": false,
+     "classification": "identity-at-captured-profiles",
+     "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings/run-r19b-head-private_block.rs.diff",
+     "reading": "[GATE ROUND 26, run-level reader, frozen-r19b -> HEAD 8b78aabd] Module declarations only: `mod range16` (W16), `slot_ir` / `metal_slot` under gpu-metal, and three `#[cfg(test)]` modules. Their contents are the block reader's. No item, absorbed word, `ExpectedIo` / `IoSpec` / `calibration_identity` byte or digest moves. No finding"
+    }
+   }
+  },
+  "src/private_block/trained_block.rs": {
+   "r19b": "dc6e8772bf80ff3d16dff49b416667cf92bf58148da60d8695004df01900ca07",
+   "head": "9909e8835a1507fb2c6e120880e736f2aa62e0f9abc9d91101aef3931705e5b4",
+   "d60_bundles": "4d1e24bd98b06bdcb0ebd58196f848856e5217c37fb46d189cc98f7128997604",
+   "capture_pin": true,
+   "pinned_by": [
+    "OWN_SOURCE_FILES"
+   ],
+   "compiled": "production (the CLI bridge)",
+   "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings/run-r19b-head-trained_block.rs.diff",
+   "diff_stat": "+245 / -34, 18 hunk(s) against dc6e8772 (frozen-r19b)",
+   "unit": "hunk (diff -u)",
+   "hunks": [
+    {
+     "n": 1,
+     "head_lines": [
+      2665,
+      2737
+     ],
+     "r19b_at": 2665,
+     "plus": 67,
+     "minus": 0,
+     "class": "privacy-relevant-safe",
+     "note": "`render_fork_frames_json` (the published segments.json of a D55 run: frame names, lengths, SHA-256), `D55_TEST_RECEIPT_FLAG`, `d55_prove_admission` (F3: (workers, no ack, gate false) -> Err; ack without workers -> Err; never affects D12a), `d55_workers_of` (1..=64), `load_fork_blocks` (public blocks, each digest-checked against the statement) (:2668-2735). SAFE: public words; fail-closed"
+    },
+    {
+     "n": 2,
+     "head_lines": [
+      2879,
+      2899
+     ],
+     "r19b_at": 2812,
+     "plus": 15,
+     "minus": 1,
+     "class": "privacy-relevant-safe",
+     "note": "`D55_RUN_CONSTRUCTION` and `render_stack_statement_for(.., fork)` (:2882-2896): a D55 statement adds `base_run_profile` and `run_construction` (public strings); with `fork = None` the fragment is `\"run_profile\": <js>`, so a D12a statement renders byte for byte as before (trained digests unchanged in the close gates)"
+    },
+    {
+     "n": 3,
+     "head_lines": [
+      2907,
+      2913
+     ],
+     "r19b_at": 2826,
+     "plus": 1,
+     "minus": 1,
+     "class": "privacy-relevant-safe",
+     "note": "statement format string takes the fragment (:2910)"
+    },
+    {
+     "n": 4,
+     "head_lines": [
+      2915,
+      2921
+     ],
+     "r19b_at": 2834,
+     "plus": 1,
+     "minus": 1,
+     "class": "privacy-relevant-safe",
+     "note": "the fragment argument (:2918)"
+    },
+    {
+     "n": 5,
+     "head_lines": [
+      2993,
+      3015
+     ],
+     "r19b_at": 2912,
+     "plus": 16,
+     "minus": 1,
+     "class": "production-privacy-neutral",
+     "note": "doc and the flag lists (`--d55-workers`, `--d55-test-receipt-not-for-publication`) (:2996-3015)"
+    },
+    {
+     "n": 6,
+     "head_lines": [
+      3042,
+      3056
+     ],
+     "r19b_at": 2946,
+     "plus": 9,
+     "minus": 0,
+     "class": "privacy-relevant-safe",
+     "note": "`--d55-workers` parse, `--lie-at-boundary` refusal, F3 admission BEFORE anything is read or created (:3045-3053)"
+    },
+    {
+     "n": 7,
+     "head_lines": [
+      3106,
+      3184
+     ],
+     "r19b_at": 3001,
+     "plus": 64,
+     "minus": 15,
+     "class": "privacy-relevant-safe",
+     "note": "the D55 proving pass (:3109-3184): `ForkRun::new(.., registered_profile())` before the directory exists; `prove_run_with_forks` over the same `StackSource` and endpoint owners as D12a; `write_fork_receipt`; the marker after the frames when acknowledged; stdout events `d55` and `d55-proved` (workers, frame count, receipt bytes, phase seconds, per-fork prove_core seconds, generator count, joined-claim byte total) -- prover stdout, prover-private by P-6 like D12a's per-segment `elapsed_seconds`. A failure removes the run directory (`fail_run`, errors to stderr only)"
+    },
+    {
+     "n": 8,
+     "head_lines": [
+      3190,
+      3203
+     ],
+     "r19b_at": 3036,
+     "plus": 8,
+     "minus": 2,
+     "class": "privacy-relevant-safe",
+     "note": "in-process verification of a fork run reads the frames back through the D55 directory reader (:3193-3201)"
+    },
+    {
+     "n": 9,
+     "head_lines": [
+      3219,
+      3226
+     ],
+     "r19b_at": 3059,
+     "plus": 2,
+     "minus": 1,
+     "class": "privacy-relevant-safe",
+     "note": "`segments.json` names the frames for a fork run (:3222-3223)"
+    },
+    {
+     "n": 10,
+     "head_lines": [
+      3229,
+      3243
+     ],
+     "r19b_at": 3068,
+     "plus": 4,
+     "minus": 4,
+     "class": "privacy-relevant-safe",
+     "note": "the statement and segments.json rendered for the fork run, in-process and unverified (:3232-3240)"
+    },
+    {
+     "n": 11,
+     "head_lines": [
+      3245,
+      3251
+     ],
+     "r19b_at": 3084,
+     "plus": 1,
+     "minus": 1,
+     "class": "production-privacy-neutral",
+     "note": "`receipt_bytes` in the `proved` event = the sum of the frames written (:3248)"
+    },
+    {
+     "n": 12,
+     "head_lines": [
+      3281,
+      3299
+     ],
+     "r19b_at": 3120,
+     "plus": 12,
+     "minus": 1,
+     "class": "production-privacy-neutral",
+     "note": "doc and the verify flag list (:3284-3296)"
+    },
+    {
+     "n": 13,
+     "head_lines": [
+      3314,
+      3324
+     ],
+     "r19b_at": 3142,
+     "plus": 5,
+     "minus": 0,
+     "class": "production-privacy-neutral",
+     "note": "`--d55-workers` at verify; refuses `--controls` with it (:3317-3321)"
+    },
+    {
+     "n": 14,
+     "head_lines": [
+      3376,
+      3404
+     ],
+     "r19b_at": 3199,
+     "plus": 19,
+     "minus": 3,
+     "class": "privacy-relevant-safe",
+     "note": "the D55 verifier from the artifact directory (:3379-3401): the registered door, fresh blocks, `verify_run_with_forks_from_dir`"
+    },
+    {
+     "n": 15,
+     "head_lines": [
+      3406,
+      3429
+     ],
+     "r19b_at": 3213,
+     "plus": 18,
+     "minus": 0,
+     "class": "privacy-relevant-safe",
+     "note": "F3: the `d55-publication` event on every D55 verification (:3409-3427): marker present / ABSENT, gate state, `not_for_publication = marked || !gate` -- true for every D55 receipt while the constant is false"
+    },
+    {
+     "n": 16,
+     "head_lines": [
+      3438,
+      3444
+     ],
+     "r19b_at": 3227,
+     "plus": 1,
+     "minus": 1,
+     "class": "privacy-relevant-safe",
+     "note": "the verifier's segments.json for a fork run (:3441)"
+    },
+    {
+     "n": 17,
+     "head_lines": [
+      3446,
+      3452
+     ],
+     "r19b_at": 3235,
+     "plus": 1,
+     "minus": 1,
+     "class": "privacy-relevant-safe",
+     "note": "the found statement must be, byte for byte, this verifier's fork-aware rendering (:3449)"
+    },
+    {
+     "n": 18,
+     "head_lines": [
+      3461,
+      3467
+     ],
+     "r19b_at": 3250,
+     "plus": 1,
+     "minus": 1,
+     "class": "privacy-relevant-safe",
+     "note": "the VERIFIER-written statement for the fork run (:3464)"
+    }
+   ],
+   "counts": {
+    "units": 18,
+    "test_only": 0,
+    "production_privacy_neutral": 4,
+    "privacy_relevant": 14,
+    "privacy_relevant_safe": 14,
+    "findings": 0
+   },
+   "findings": [],
+   "verdict": "READ; safe (no finding)",
+   "readings": {
+    "9909e8835a1507fb2c6e120880e736f2aa62e0f9abc9d91101aef3931705e5b4": {
+     "base": "dc6e8772bf80ff3d16dff49b416667cf92bf58148da60d8695004df01900ca07",
+     "diff_stat": "+245 / -34, 18 hunk(s) against dc6e8772 (frozen-r19b)",
+     "moves_a_receipt_byte": false,
+     "moves_a_block_stage_byte": false,
+     "new_receipt_kind": false,
+     "classification": "gated-on-new-profiles",
+     "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings/run-r19b-head-trained_block.rs.diff",
+     "reading": "[GATE ROUND 26, run-level reader, frozen-r19b -> HEAD 8b78aabd] D60: `stack-prove / stack-verify --d55-workers N` over the registered D55 profile (door before the run directory; same witness source and endpoint owners as D12a; frames written atomically; fresh-process verifier writes the statement); D60 review F3: fail-closed admission, the marker, the `d55-publication` event. A D12a statement renders byte for byte as before. Prover stdout events are prover-private (P-6). No finding"
+    },
+    "4d1e24bd98b06bdcb0ebd58196f848856e5217c37fb46d189cc98f7128997604": {
+     "base": "dc6e8772bf80ff3d16dff49b416667cf92bf58148da60d8695004df01900ca07",
+     "diff_stat": "+178 / -34, 17 hunk(s) against dc6e8772 (frozen-r19b); dd81ab4f -> HEAD in results/zk60_gate_tinyllama_20261017/round26/readings/run-dd81ab4f-head-trained_block.rs.diff",
+     "moves_a_receipt_byte": false,
+     "moves_a_block_stage_byte": false,
+     "new_receipt_kind": false,
+     "classification": "gated-on-new-profiles",
+     "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings/run-r19b-dd81ab4f-trained_block.rs.diff",
+     "reading": "[GATE ROUND 26, run-level reader, the D60 bundles' digest (dd81ab4f)] The HEAD reading less commit ed519548's hunks, which are exactly: F3 (the real-content constant, the CLI admission and marker, the d55-publication event), F4 (the per-target open-flag table; at dd81ab4f the readers set O_NOFOLLOW | O_NONBLOCK on x86-64 Linux only, a DoS window on macOS, not a privacy term), F7 (header-first frame reader), F8 (catch_unwind in test builds) and the registered description text in run.json (text only). None of them changes what a receipt, statement or capture contains; the dd81ab4f binary lacks F3's refusal (an operating precondition, not a property of a capture). No finding"
+    }
+   }
+  },
+  "src/private_block/plane_index.rs": {
+   "r19b": "ce79803c86a80dde832dc92a262a023efdd52bb95b9a15f128791978c306ffac",
+   "head": "702fa81a94aec18dc5df6b2215945f7fb841478cee68d8cd74c87087c7ad64a8",
+   "d60_bundles": "702fa81a94aec18dc5df6b2215945f7fb841478cee68d8cd74c87087c7ad64a8",
+   "capture_pin": true,
+   "pinned_by": [
+    "OWN_SOURCE_FILES"
+   ],
+   "compiled": "TEST-ONLY module (`#[cfg(test)] mod plane_index;`, private_block.rs:275-276); its table is written into every run.json",
+   "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings/run-r19b-head-plane_index.rs.diff",
+   "diff_stat": "+65 / -3, 5 hunk(s) against ce79803c (frozen-r19b)",
+   "unit": "hunk (diff -u)",
+   "hunks": [
+    {
+     "n": 1,
+     "head_lines": [
+      234,
+      255
+     ],
+     "r19b_at": 234,
+     "plus": 13,
+     "minus": 0,
+     "class": "capture-content-safe (test-only module; privacy-relevant: it changes what a capture writes)",
+     "note": "`build` -> `build_with(lay, true)`; the W16 additions apply only where `AccuracyIds::w16` is set (`w16_low`, :253): at every R13 and legacy layout the table is byte for byte r19b's"
+    },
+    {
+     "n": 2,
+     "head_lines": [
+      275,
+      289
+     ],
+     "r19b_at": 262,
+     "plus": 9,
+     "minus": 1,
+     "class": "capture-content-safe (test-only module; privacy-relevant: it changes what a capture writes)",
+     "note": "W16: one TABLE helper name `H_GR{w}_{s}` per range sub-plane spliced after `H_GACT` (:278-286): public plane names"
+    },
+    {
+     "n": 3,
+     "head_lines": [
+      319,
+      343
+     ],
+     "r19b_at": 298,
+     "plus": 15,
+     "minus": 1,
+     "class": "test-only",
+     "note": "W16: a refusal unless every range sub-plane is the pair (A_R, H_GR) on Dom::Tab (:322-335): a check"
+    },
+    {
+     "n": 4,
+     "head_lines": [
+      373,
+      385
+     ],
+     "r19b_at": 338,
+     "plus": 7,
+     "minus": 1,
+     "class": "capture-content-safe (test-only module; privacy-relevant: it changes what a capture writes)",
+     "note": "`slot_planes(lay, slot, w16)` signature and doc (:373-382): which push order a slot records"
+    },
+    {
+     "n": 5,
+     "head_lines": [
+      461,
+      487
+     ],
+     "r19b_at": 420,
+     "plus": 21,
+     "minus": 0,
+     "class": "capture-content-safe (test-only module; privacy-relevant: it changes what a capture writes)",
+     "note": "W16 push orders for SC_SZC (the whole Dom::S range, A_MX, A_SUM, helpers, H_SEXP) and SC_TAB (three pairs, then one (histogram, table helper) pair per range sub-plane) (:464-484); never taken at R13. Public layout (ids, names, rows)"
+    }
+   ],
+   "counts": {
+    "units": 5,
+    "test_only": 1,
+    "production_privacy_neutral": 0,
+    "privacy_relevant": 4,
+    "privacy_relevant_safe": 4,
+    "findings": 0
+   },
+   "findings": [],
+   "verdict": "READ; safe (no finding)",
+   "readings": {
+    "702fa81a94aec18dc5df6b2215945f7fb841478cee68d8cd74c87087c7ad64a8": {
+     "base": "ce79803c86a80dde832dc92a262a023efdd52bb95b9a15f128791978c306ffac",
+     "diff_stat": "+65 / -3, 5 hunk(s) against ce79803c (frozen-r19b)",
+     "moves_a_receipt_byte": false,
+     "moves_a_block_stage_byte": false,
+     "new_receipt_kind": false,
+     "classification": "test-only",
+     "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings/run-r19b-head-plane_index.rs.diff",
+     "reading": "[GATE ROUND 26, run-level reader, frozen-r19b -> HEAD 8b78aabd] W16 (D54) additions to the capture's plane index: range-table helper names and the SC_SZC / SC_TAB W16 push orders, switched on only where `AccuracyIds::w16` is set. At every R13 (the D55 registered bases) and legacy layout the table is r19b's byte for byte. Public layout only (ids, names, domains, rows, push order); allow-listed keys unchanged. No finding"
+    }
+   }
+  },
+  "src/private_block/tied_tables.rs": {
+   "r19b": "45fc3f0fe20c5d8b798f6bbc0fe3f1b7aa68f4427b0a3521c92ba83230b30e33",
+   "head": "4b8f215c04d7093fa10adb335a14450a37ef0b371f9bd4ece41feafa181a4050",
+   "d60_bundles": "45fc3f0fe20c5d8b798f6bbc0fe3f1b7aa68f4427b0a3521c92ba83230b30e33",
+   "capture_pin": true,
+   "pinned_by": [
+    "OWN_SOURCE_FILES"
+   ],
+   "compiled": "production",
+   "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings/run-r19b-head-tied_tables.rs.diff",
+   "diff_stat": "+4 / -9, 2 hunk(s) against 45fc3f0f (frozen-r19b)",
+   "unit": "hunk (diff -u)",
+   "hunks": [
+    {
+     "n": 1,
+     "head_lines": [
+      3,
+      9
+     ],
+     "r19b_at": 3,
+     "plus": 1,
+     "minus": 1,
+     "class": "production-privacy-neutral",
+     "note": "`use std::fs::File` (OpenOptions no longer used)"
+    },
+    {
+     "n": 2,
+     "head_lines": [
+      25,
+      33
+     ],
+     "r19b_at": 25,
+     "plus": 3,
+     "minus": 8,
+     "class": "production-privacy-neutral",
+     "note": "`regular()` opens through `run::open_nofollow_nonblock` (:30): the public checkpoint / table reader; size, regular-file and (dev, ino) identity re-checks unchanged; the bytes are then authenticated by the size / whole-file SHA-256 / tensor pins (derive.rs, unchanged at 1d615010). macOS now refuses a symlinked model FILE at open, as Linux x86-64 did (REVIEW_R19B N-6)"
+    }
+   ],
+   "counts": {
+    "units": 2,
+    "test_only": 0,
+    "production_privacy_neutral": 2,
+    "privacy_relevant": 0,
+    "privacy_relevant_safe": 0,
+    "findings": 0
+   },
+   "findings": [],
+   "verdict": "READ; safe (no finding)",
+   "readings": {
+    "4b8f215c04d7093fa10adb335a14450a37ef0b371f9bd4ece41feafa181a4050": {
+     "base": "45fc3f0fe20c5d8b798f6bbc0fe3f1b7aa68f4427b0a3521c92ba83230b30e33",
+     "diff_stat": "+4 / -9, 2 hunk(s) against 45fc3f0f (frozen-r19b)",
+     "moves_a_receipt_byte": false,
+     "moves_a_block_stage_byte": false,
+     "new_receipt_kind": false,
+     "classification": "identity-at-captured-profiles",
+     "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings/run-r19b-head-tied_tables.rs.diff",
+     "reading": "[GATE ROUND 26, run-level reader, frozen-r19b -> HEAD 8b78aabd] D60 F4: `regular()` opens through `run::open_nofollow_nonblock`. Public checkpoint and tables, authenticated by derive.rs's pins (unchanged). No finding"
+    }
+   }
+  },
+  "src/private_block/token_io/load.rs": {
+   "r19b": "67307f096ca4ea9dd12e182a9b173436fd0015e7367a3b444e5733d188a4ce79",
+   "head": "56bb29a4d9550f0d614594c847499d94d466f312ceb0a186936dd80c8ab1f282",
+   "d60_bundles": "67307f096ca4ea9dd12e182a9b173436fd0015e7367a3b444e5733d188a4ce79",
+   "capture_pin": true,
+   "pinned_by": [
+    "OWN_SOURCE_FILES"
+   ],
+   "compiled": "production",
+   "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings/run-r19b-head-token_io_load.rs.diff",
+   "diff_stat": "+4 / -13, 2 hunk(s) against 67307f09 (frozen-r19b)",
+   "unit": "hunk (diff -u)",
+   "hunks": [
+    {
+     "n": 1,
+     "head_lines": [
+      33,
+      38
+     ],
+     "r19b_at": 33,
+     "plus": 0,
+     "minus": 3,
+     "class": "production-privacy-neutral",
+     "note": "`TABLE_OPEN_FLAGS` removed (:33-35)"
+    },
+    {
+     "n": 2,
+     "head_lines": [
+      124,
+      133
+     ],
+     "r19b_at": 127,
+     "plus": 4,
+     "minus": 10,
+     "class": "production-privacy-neutral",
+     "note": "the token-table open goes through `run::open_nofollow_nonblock` (:130): public token tables, re-checked by fstat and then digest-checked as before; error text unchanged (path, OS error)"
+    }
+   ],
+   "counts": {
+    "units": 2,
+    "test_only": 0,
+    "production_privacy_neutral": 2,
+    "privacy_relevant": 0,
+    "privacy_relevant_safe": 0,
+    "findings": 0
+   },
+   "findings": [],
+   "verdict": "READ; safe (no finding)",
+   "readings": {
+    "56bb29a4d9550f0d614594c847499d94d466f312ceb0a186936dd80c8ab1f282": {
+     "base": "67307f096ca4ea9dd12e182a9b173436fd0015e7367a3b444e5733d188a4ce79",
+     "diff_stat": "+4 / -13, 2 hunk(s) against 67307f09 (frozen-r19b)",
+     "moves_a_receipt_byte": false,
+     "moves_a_block_stage_byte": false,
+     "new_receipt_kind": false,
+     "classification": "identity-at-captured-profiles",
+     "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings/run-r19b-head-token_io_load.rs.diff",
+     "reading": "[GATE ROUND 26, run-level reader, frozen-r19b -> HEAD 8b78aabd] D60 F4: the token-table reader opens through `run::open_nofollow_nonblock` (macOS / aarch64 now no-follow, non-blocking). Public tables, authenticated after the read as before. No finding"
+    }
+   }
+  },
+  "src/private_block/token_io/classify_run.rs": {
+   "r19b": "8abbf72f1c8e18bea1ac99e93a82562bca793afb4d94ed27dea24403850523f9",
+   "head": "44550938378ee273f7a70d45636f0f1ec382fb11033d6a7fdc3a37953da0df1e",
+   "d60_bundles": null,
+   "capture_pin": true,
+   "pinned_by": [
+    "CLASSIFY_SOURCE_FILES"
+   ],
+   "compiled": "production (classifier run)",
+   "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings/run-r19b-head-token_io_classify_run.rs.diff",
+   "diff_stat": "+37 / -1, 10 hunk(s) against 8abbf72f (frozen-r19b)",
+   "unit": "hunk (diff -u)",
+   "hunks": [
+    {
+     "n": 1,
+     "head_lines": [
+      126,
+      132
+     ],
+     "r19b_at": 126,
+     "plus": 1,
+     "minus": 0,
+     "class": "production-privacy-neutral",
+     "note": "`t_seal` (:129): a clock"
+    },
+    {
+     "n": 2,
+     "head_lines": [
+      144,
+      153
+     ],
+     "r19b_at": 143,
+     "plus": 4,
+     "minus": 0,
+     "class": "production-privacy-neutral",
+     "note": "sealing-pass duration printed only when `timing::enabled()` (HL_PB_TIMING) (:147-150)"
+    },
+    {
+     "n": 3,
+     "head_lines": [
+      183,
+      190
+     ],
+     "r19b_at": 178,
+     "plus": 2,
+     "minus": 0,
+     "class": "production-privacy-neutral",
+     "note": "`ph.mark` after the block load (:187): write-only, returns on its first line unless enabled (timing.rs:239-243)"
+    },
+    {
+     "n": 4,
+     "head_lines": [
+      192,
+      224
+     ],
+     "r19b_at": 185,
+     "plus": 8,
+     "minus": 0,
+     "class": "production-privacy-neutral",
+     "note": "phase marks (B_k commitment words, witness, B_(k-1) opening claim count, frame encode / sink bytes, drop) and `ph.report` (:195-221): public sizes and durations, env-gated, write-only"
+    },
+    {
+     "n": 5,
+     "head_lines": [
+      262,
+      278
+     ],
+     "r19b_at": 247,
+     "plus": 6,
+     "minus": 0,
+     "class": "production-privacy-neutral",
+     "note": "pre-header check duration (:265-276)"
+    },
+    {
+     "n": 6,
+     "head_lines": [
+      281,
+      287
+     ],
+     "r19b_at": 260,
+     "plus": 1,
+     "minus": 0,
+     "class": "production-privacy-neutral",
+     "note": "`t_stage` (:284)"
+    },
+    {
+     "n": 7,
+     "head_lines": [
+      298,
+      320
+     ],
+     "r19b_at": 276,
+     "plus": 8,
+     "minus": 1,
+     "class": "production-privacy-neutral",
+     "note": "stage IN-C duration; the verifier's phase recorder now starts before the block load (:301-307)"
+    },
+    {
+     "n": 8,
+     "head_lines": [
+      360,
+      366
+     ],
+     "r19b_at": 331,
+     "plus": 1,
+     "minus": 0,
+     "class": "production-privacy-neutral",
+     "note": "verifier phase mark for the B_(k-1) opening (:363)"
+    },
+    {
+     "n": 9,
+     "head_lines": [
+      368,
+      379
+     ],
+     "r19b_at": 338,
+     "plus": 2,
+     "minus": 0,
+     "class": "production-privacy-neutral",
+     "note": "`ph.report(\"verify\")` and `t_stage` (:371, :376)"
+    },
+    {
+     "n": 10,
+     "head_lines": [
+      383,
+      392
+     ],
+     "r19b_at": 351,
+     "plus": 4,
+     "minus": 0,
+     "class": "production-privacy-neutral",
+     "note": "stage OUT-C duration (:386-389)"
+    }
+   ],
+   "counts": {
+    "units": 10,
+    "test_only": 0,
+    "production_privacy_neutral": 10,
+    "privacy_relevant": 0,
+    "privacy_relevant_safe": 0,
+    "findings": 0
+   },
+   "findings": [],
+   "verdict": "READ; safe (no finding)",
+   "readings": {
+    "44550938378ee273f7a70d45636f0f1ec382fb11033d6a7fdc3a37953da0df1e": {
+     "base": "8abbf72f1c8e18bea1ac99e93a82562bca793afb4d94ed27dea24403850523f9",
+     "diff_stat": "+37 / -1, 10 hunk(s) against 8abbf72f (frozen-r19b)",
+     "moves_a_receipt_byte": false,
+     "moves_a_block_stage_byte": false,
+     "new_receipt_kind": false,
+     "classification": "identity-at-captured-profiles",
+     "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings/run-r19b-head-token_io_classify_run.rs.diff",
+     "reading": "[GATE ROUND 26, run-level reader, frozen-r19b -> HEAD 8b78aabd] GPU-classifier lane diagnostics only: HL_PB_TIMING-gated duration prints and write-only phase marks (sizes and durations). No absorb, draw, opening or byte moves; no branch on secret data. No finding"
+    }
+   }
+  },
+  "src/private_block/token_io/classify_batch.rs": {
+   "r19b": "707c8db27986a1fc265bad2ab5a0620382f44e40b1fa8b99c8fb886624a26efb",
+   "head": "55bfb418cd80ee4576a4aae91e84860328f91a4b0667ac002a4f03751cee89ea",
+   "d60_bundles": null,
+   "capture_pin": false,
+   "pinned_by": [],
+   "compiled": "production; NOT a capture pin",
+   "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings/run-r19b-head-token_io_classify_batch.rs.diff",
+   "diff_stat": "+8 / -10, 1 hunk(s) against 707c8db2 (frozen-r19b)",
+   "unit": "hunk (diff -u)",
+   "hunks": [
+    {
+     "n": 1,
+     "head_lines": [
+      38,
+      51
+     ],
+     "r19b_at": 38,
+     "plus": 8,
+     "minus": 10,
+     "class": "privacy-relevant-safe",
+     "note": "the batch request's open flags come from `run::NOFOLLOW_NONBLOCK` (:46-48): x86-64 Linux unchanged; macOS and aarch64 Linux now open the OWNER's private request file with O_NOFOLLOW | O_NONBLOCK instead of refusing every request at run time; a target without values still refuses (:119). SAFE: open-only change, the owner-only / regular / <= 64 KiB checks unchanged (:123-125), the request content is never echoed in an error (`batch request: {e}` is the OS error)"
+    }
+   ],
+   "counts": {
+    "units": 1,
+    "test_only": 0,
+    "production_privacy_neutral": 0,
+    "privacy_relevant": 1,
+    "privacy_relevant_safe": 1,
+    "findings": 0
+   },
+   "findings": [],
+   "verdict": "READ; safe (no finding)",
+   "readings": {
+    "55bfb418cd80ee4576a4aae91e84860328f91a4b0667ac002a4f03751cee89ea": {
+     "base": "707c8db27986a1fc265bad2ab5a0620382f44e40b1fa8b99c8fb886624a26efb",
+     "diff_stat": "+8 / -10, 1 hunk(s) against 707c8db2 (frozen-r19b)",
+     "moves_a_receipt_byte": false,
+     "moves_a_block_stage_byte": false,
+     "new_receipt_kind": false,
+     "classification": "identity-at-captured-profiles",
+     "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings/run-r19b-head-token_io_classify_batch.rs.diff",
+     "reading": "[GATE ROUND 26, run-level reader, frozen-r19b -> HEAD 8b78aabd] D60 F4: the batch request's open flags from the crate's one table; prove-batch's request reader now runs on macOS / aarch64 Linux instead of refusing. No finding"
+    }
+   }
+  },
+  "src/private_block/token_io/classify_cli.rs": {
+   "r19b": "616e33b95cb9ad67a49c2229fe1960b73b5fd2c0372c2432626a3f89202ff4b8",
+   "head": "9c464aa26010f670f2d807742bb9cd01bdeafac19ceb5867020d0f6c841fd249",
+   "d60_bundles": null,
+   "capture_pin": false,
+   "pinned_by": [],
+   "compiled": "production; NOT a capture pin (read for context: it holds `door`)",
+   "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings/run-r19b-head-token_io_classify_cli.rs.diff",
+   "diff_stat": "+31 / -0, 11 hunk(s) against 616e33b9 (frozen-r19b)",
+   "unit": "hunk (diff -u)",
+   "hunks": [
+    {
+     "n": 1,
+     "head_lines": [
+      558,
+      575
+     ],
+     "r19b_at": 558,
+     "plus": 10,
+     "minus": 0,
+     "class": "production-privacy-neutral",
+     "note": "`cli_phase` (:563-569): one wall-clock line per CLI phase under HL_PB_TIMING; durations only"
+    },
+    {
+     "n": 2,
+     "head_lines": [
+      589,
+      595
+     ],
+     "r19b_at": 579,
+     "plus": 1,
+     "minus": 0,
+     "class": "production-privacy-neutral",
+     "note": "a `cli_phase` / `tp` line (diagnostic)"
+    },
+    {
+     "n": 3,
+     "head_lines": [
+      604,
+      610
+     ],
+     "r19b_at": 593,
+     "plus": 1,
+     "minus": 0,
+     "class": "production-privacy-neutral",
+     "note": "a `cli_phase` / `tp` line (diagnostic)"
+    },
+    {
+     "n": 4,
+     "head_lines": [
+      625,
+      636
+     ],
+     "r19b_at": 613,
+     "plus": 2,
+     "minus": 0,
+     "class": "production-privacy-neutral",
+     "note": "a `cli_phase` / `tp` line (diagnostic)"
+    },
+    {
+     "n": 5,
+     "head_lines": [
+      649,
+      655
+     ],
+     "r19b_at": 635,
+     "plus": 1,
+     "minus": 0,
+     "class": "production-privacy-neutral",
+     "note": "a `cli_phase` / `tp` line (diagnostic)"
+    },
+    {
+     "n": 6,
+     "head_lines": [
+      658,
+      671
+     ],
+     "r19b_at": 643,
+     "plus": 8,
+     "minus": 0,
+     "class": "production-privacy-neutral",
+     "note": "GPU device statistics (seconds, byte counts, declines, VRAM peak) printed under HL_PB_TIMING (:663-668)"
+    },
+    {
+     "n": 7,
+     "head_lines": [
+      675,
+      681
+     ],
+     "r19b_at": 652,
+     "plus": 1,
+     "minus": 0,
+     "class": "production-privacy-neutral",
+     "note": "a `cli_phase` line (diagnostic)"
+    },
+    {
+     "n": 8,
+     "head_lines": [
+      732,
+      740
+     ],
+     "r19b_at": 708,
+     "plus": 3,
+     "minus": 0,
+     "class": "production-privacy-neutral",
+     "note": "verify duration under HL_PB_TIMING (:735-737)"
+    },
+    {
+     "n": 9,
+     "head_lines": [
+      746,
+      754
+     ],
+     "r19b_at": 719,
+     "plus": 2,
+     "minus": 0,
+     "class": "production-privacy-neutral",
+     "note": "INSIDE `door` (:743-798): `let mut tp` and `cli_phase(\"verify\", ..)` lines (:749-750, :767, :795) -- diagnostic only"
+    },
+    {
+     "n": 10,
+     "head_lines": [
+      764,
+      770
+     ],
+     "r19b_at": 735,
+     "plus": 1,
+     "minus": 0,
+     "class": "production-privacy-neutral",
+     "note": "INSIDE `door` (:743-798): `let mut tp` and `cli_phase(\"verify\", ..)` lines (:749-750, :767, :795) -- diagnostic only"
+    },
+    {
+     "n": 11,
+     "head_lines": [
+      792,
+      798
+     ],
+     "r19b_at": 762,
+     "plus": 1,
+     "minus": 0,
+     "class": "production-privacy-neutral",
+     "note": "INSIDE `door` (:743-798): `let mut tp` and `cli_phase(\"verify\", ..)` lines (:749-750, :767, :795) -- diagnostic only"
+    }
+   ],
+   "counts": {
+    "units": 11,
+    "test_only": 0,
+    "production_privacy_neutral": 11,
+    "privacy_relevant": 0,
+    "privacy_relevant_safe": 0,
+    "findings": 0
+   },
+   "findings": [],
+   "verdict": "READ; safe (no finding)",
+   "readings": {
+    "9c464aa26010f670f2d807742bb9cd01bdeafac19ceb5867020d0f6c841fd249": {
+     "base": "616e33b95cb9ad67a49c2229fe1960b73b5fd2c0372c2432626a3f89202ff4b8",
+     "diff_stat": "+31 / -0, 11 hunk(s) against 616e33b9 (frozen-r19b)",
+     "moves_a_receipt_byte": false,
+     "moves_a_block_stage_byte": false,
+     "new_receipt_kind": false,
+     "classification": "identity-at-captured-profiles",
+     "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings/run-r19b-head-token_io_classify_cli.rs.diff",
+     "reading": "[GATE ROUND 26, run-level reader, frozen-r19b -> HEAD 8b78aabd] GPU-classifier lane diagnostics only (HL_PB_TIMING), including three lines inside `door` (:743-798). Not pinned; round 24's `classify_cli_door_r17_equals_r19b` would now see the door text differ (diagnostic lines only). No finding"
+    }
+   }
+  }
+ },
+ "special_attention": {
+  "run_capture_vs_not_in_a_capture": "Nothing on the list is written. Fork stage files = ordinary stage records of each fork (masked slot transcripts, M / A / H openings with published salts); the tail = S1 and the B_k / endpoint openings as write_pcs writes a D12a IO opening; run.json = write_run's header words, layout, D55 text and the SAME not_in_a_capture list (run_capture.rs:3288); arrays.bin = merged per-fork stores (absorb_store copies only stored arrays, :792-836); receipt/ = the receipt's own frames. ALLOWED_KEYS (:4035-4360) has no hunk r19b -> HEAD, and every key the fork writers emit (tail: schema, kind, blocks, end_tag, opening_order, header, state, next, roles, transcript_sites, stage, site, before, after) is on it. The recorder is attached only on the verifier (run_fork.rs capture calls :1279-1476), seeded from public words (ForkSeed :1157).",
+  "fork_randomness": "L + 1 generators per run, each ZkRng::from_os under its own domain: the commit phase's (run_fork.rs:1095, used only by boundary::prepare for the L-1 boundaries :1104, dropped :1107 before any fork) and one per fork inside its worker (:1022, handed to prove_core by &mut). from_os reads 32 fresh bytes of /dev/urandom per call and keys BLAKE3 with them (zkp-core rng.rs:44-65; digest f6728bd2, read in W16_READINGS); the domains (SEED_USE \u2016 ROLE_RUN_PROVER \u2016 k \u2016 profile, :371-384) only add separation. ZkRng is not Clone (rng.rs:9-14); the file has no ZkRng::new; a production Cheat is the honest constants. Independence therefore rests on independent OS draws, as D12a's one run generator rests on one.",
+  "d55_join": "absorb_join (run_fork.rs:864-871) absorbs k, the fork transcript's 32-byte state \u2016 squeeze counter, and the slot-21 / slot-22 claim lists (claim_bytes :843-860: count, value, part count, slice offset, log size, coefficient, point). The verifier absorbs its OWN values (verify_one_fork :1284-1290 returns verify_core's [ic, oc] and its own end state; join :1391-1394), so the transcript only matches if the prover's words equal what the verifier recomputes from the receipt; the claims are the D12a IO claims (masked by their reserved pairs, PG-8), are not written into any fork frame (ForkFrame :47-55), and are opened only in the tail. Verifier-computable words only.",
+  "f3_marker": "D55_REAL_CONTENT_PRIVACY_GATE_PASSED = false (run_fork.rs:101). stack-prove --d55-workers is refused before anything is read unless --d55-test-receipt-not-for-publication is given (trained_block.rs d55_prove_admission :2690-2703, call :3053); the marker is a fixed text, create_new + flush + rename, never replaced (:1541-1555), admitted by the reader only as exactly that text (:1524-1536, :1646-1650), absorbed nowhere, in no frame, not in segments.json or statement.json; stack-verify reports it and prints not_for_publication = marked || !gate (:3409-3427). Operational, not cryptographic (N-R26-R3).",
+  "reader_error_messages": "Every new or changed reader error carries a path, a directory entry name, a byte length, an index k or L, or an OS error string: read_segment_bounded / read_regular_file_bounded (run.rs:1715, :1752, text unchanged), read_frame_bounded / read_fork_receipt / the marker (run_fork.rs:1590-1683, :1524-1536), decode_* (run_fork_wire.rs), token tables (load.rs:130), tied tables (tied_tables.rs:30), the batch request (classify_batch.rs:119-124, OS error only, content never echoed). The verifier holds no witness. Prover-side errors go to the prover's stderr; fail_run removes the run directory and writes no error file (trained_block.rs:2522-2531); a test-build worker panic message becomes that fork's error and fails the whole run, release builds abort (Cargo.toml:63) exactly as D12a.",
+  "timing": "No new branch on secret data: run_fork.rs schedules on public L / N / k; classify_run.rs / classify_cli.rs add HL_PB_TIMING-gated, write-only timers (timing.rs:239-252 return on their first line unless enabled) that print durations and public sizes to the prover's or verifier's own stdout."
+ },
+ "notes": [
+  {
+   "id": "N-R26-R1",
+   "severity": "Info",
+   "what": "The D60 privacy-gate records' bundles pin the dd81ab4f digests of five of these files (run.rs 604b65b1, run_capture.rs 5d5fdfcc, trained_block.rs 4d1e24bd, run_fork.rs e7b58ff7, run_fork_wire.rs a2dbc6f1); load.rs and tied_tables.rs are at r19b there, classify_batch.rs is unpinned. This file reads both the HEAD digests and (chained, dd81ab4f -> HEAD = commit ed519548's F3 / F4 / F7 / F8 and description-text hunks only) the dd81ab4f digests, so the coordinator can wire either. A bundle written at HEAD carries the HEAD digests."
+  },
+  {
+   "id": "N-R26-R2",
+   "severity": "Info",
+   "what": "The capture's join replay (`fork_join`, run_capture.rs:1338) takes the claim lists from the verifier rather than re-deriving them; they are public words the verifier computed, so this is a capture-independence point, not a leak. The Python gate's D55-IO part derives the joined claims from each fork's slot-21 / slot-22 terminals independently (privacy_gate/README.md section 2)."
+  },
+  {
+   "id": "N-R26-R3",
+   "severity": "Info",
+   "what": "The F3 marker is operational, not cryptographic: `--d55-test-receipt-not-for-publication` admits any content, and the marker is not bound to the frames (removing it leaves a receipt that verifies). While the constant is false, `stack-verify` prints `not_for_publication: true` for every D55 receipt, marked or not (trained_block.rs:3409-3427). D60's text already says so."
+  },
+  {
+   "id": "N-R26-R4",
+   "severity": "Info",
+   "what": "Prover stdout now carries per-fork `prove_core` seconds (`d55-proved`) and, under HL_PB_TIMING, per-phase durations and GPU byte counts (classify_run.rs, classify_cli.rs). Prover-private under P-6, the same class as D12a's per-segment `elapsed_seconds`; nothing enters a receipt, statement or capture. An app that relays prover stdout should keep treating it as private."
+  },
+  {
+   "id": "N-R26-R5",
+   "severity": "Info",
+   "what": "D60 F4 lifts the macOS run-time refusal of `prove-batch`'s request reader (classify_batch.rs:48, :119). prove-batch remains outside D58's accepted scope and R18-1 (the app's batch quarantine) is still open (round 24 section 6.5)."
+  },
+  {
+   "id": "N-R26-R6",
+   "severity": "Info",
+   "what": "`classify_cli::door` (not a capture pin) differs r19b -> HEAD by three HL_PB_TIMING lines; a tool that compares the door text against r17 / r19b (round 24's `classify_cli_door_r17_equals_r19b`) would report a difference that is diagnostic only."
+  },
+  {
+   "id": "N-R26-R7",
+   "severity": "Info (not privacy)",
+   "what": "`write_fork_receipt` creates each `.partial` with `File::create` after an emptiness check (run_fork.rs:1575), the same pattern as `run_sink::DirSink` (run_sink.rs:195); a symlink raced into the prover's own run directory would be followed. Receipt bytes are public, so this is write-path hygiene, not privacy."
+  }
+ ],
+ "not_read_here": {
+  "block_level_pins_moved": [
+   "src/private_block/argument_accuracy.rs",
+   "src/private_block/accuracy_act.rs",
+   "src/private_block/accuracy_fold.rs",
+   "src/private_block/accuracy_layout.rs",
+   "src/private_block/protocol.rs",
+   "src/private_block/argument.rs",
+   "src/private_block/layout.rs",
+   "src/private_block/shape.rs",
+   "src/private_block/pad.rs",
+   "src/private_block/witness_accuracy.rs",
+   "src/private_block/range16.rs",
+   "src/private_block/slot_ir.rs",
+   "src/private_block/slot_ir_accuracy.rs",
+   "src/private_block/metal_slot.rs"
+  ],
+  "why": "the other reader's files (task split)"
+ },
+ "wiring_w16_readings_style": {
+  "src/private_block/run.rs": [
+   [
+    "0a8f261578cb",
+    "HEAD 8b78aabd: D60's registry of twelve D55 run profiles (public constructor domains, each = marker + base, checked) and the `mod fork` declaration; a `#[cfg(test)]` W16 run identity; D60 F4: one per-target O_NOFOLLOW | O_NONBLOCK table and `open_nofollow_nonblock` used by the segment and regular-file readers (error text unchanged). Header, stage order, boundary absorbs, position tags, opening order, `capture_he"
+   ],
+   [
+    "604b65b1e52b",
+    "dd81ab4f (the D60 bundles): the HEAD reading less ed519548's F3 / F4 / F7 / F8 / text hunks; no capture byte differs"
+   ]
+  ],
+  "src/private_block/run_fork.rs": [
+   [
+    "e2cb63282a17",
+    "HEAD 8b78aabd: NEW (read in full, 1,698 lines): the D55 commit / fork / join prover and verifier, the frames on disk, the F3 marker. (1) What is absorbed: the D12a header's six words under the D55 constructor; every B_k root (public, in the head) before any fork; per fork k and block k's public digest; at the join each fork's transcript END state + squeeze counter and its slot-21 / slot-22 claim lists -- on the "
+   ],
+   [
+    "e7b58ff765f8",
+    "dd81ab4f (the D60 bundles): the HEAD reading less ed519548's F3 / F4 / F7 / F8 / text hunks; no capture byte differs"
+   ]
+  ],
+  "src/private_block/run_fork_wire.rs": [
+   [
+    "08d93ecfdff4",
+    "HEAD 8b78aabd: NEW (read in full, 332 lines): the head (binding, L, roots, S0 tag), fork (D12a segment less boundary root and IO openings) and tail (every IO opening after S1) frames. Every field is a commitment root, a masked slot proof, a hiding opening at the shape's Q (A / H / B / endpoints) or MASK_Q (M), or a transcript position; every count is the verifier's. No new field kind relative to a D12a segment. "
+   ],
+   [
+    "a2dbc6f12410",
+    "dd81ab4f (the D60 bundles): the HEAD reading less ed519548's F3 / F4 / F7 / F8 / text hunks; no capture byte differs"
+   ]
+  ],
+  "src/private_block/run_capture.rs": [
+   [
+    "cbb78dc04ac5",
+    "HEAD 8b78aabd: Capture writer of the D55 fork run (D55 review F5) and of a REGISTERED D55 run's bundle (D60), the W16 statement-table label, M's column count in `mask_domain`, six more source pins. Against `not_in_a_capture` (witness values, pad values, mask coefficients, unopened columns, unpublished salts, unmasked sumcheck rounds, hidden inputs / outputs / boundary planes, prover randomness; run_capture.rs:32"
+   ],
+   [
+    "5d5fdfccb7a6",
+    "dd81ab4f (the D60 bundles): the HEAD reading less ed519548's F3 / F4 / F7 / F8 / text hunks; no capture byte differs"
+   ]
+  ],
+  "src/private_block/wire.rs": [
+   [
+    "b4377c6eddab",
+    "HEAD 8b78aabd: W16R2 review F5 (d) / D59: M's frame constants from zk.rs (value-identical) and M's opened-column count = zk::MASK_Q (256), no longer the block's Q; plus the `mod fork` declaration. Every pre-W16R2 profile's frames are byte for byte r19b's; M is never framed with more columns than its pads. No finding"
+   ]
+  ],
+  "src/private_block/hash_domain.rs": [
+   [
+    "a777ebd07941",
+    "HEAD 8b78aabd: `path_labels` compiled in production for `ForkRun::census` (label names and lengths; a refusal guard). No absorb, no byte. No finding"
+   ]
+  ],
+  "src/private_block.rs": [
+   [
+    "7ec8b8552ea5",
+    "HEAD 8b78aabd: Module declarations only: `mod range16` (W16), `slot_ir` / `metal_slot` under gpu-metal, and three `#[cfg(test)]` modules. Their contents are the block reader's. No item, absorbed word, `ExpectedIo` / `IoSpec` / `calibration_identity` byte or digest moves. No finding"
+   ]
+  ],
+  "src/private_block/trained_block.rs": [
+   [
+    "9909e8835a15",
+    "HEAD 8b78aabd: D60: `stack-prove / stack-verify --d55-workers N` over the registered D55 profile (door before the run directory; same witness source and endpoint owners as D12a; frames written atomically; fresh-process verifier writes the statement); D60 review F3: fail-closed admission, the marker, the `d55-publication` event. A D12a statement renders byte for byte as before. Prover stdout events are prover-pri"
+   ],
+   [
+    "4d1e24bd98b0",
+    "dd81ab4f (the D60 bundles): the HEAD reading less ed519548's F3 / F4 / F7 / F8 / text hunks; no capture byte differs"
+   ]
+  ],
+  "src/private_block/plane_index.rs": [
+   [
+    "702fa81a94ae",
+    "HEAD 8b78aabd: W16 (D54) additions to the capture's plane index: range-table helper names and the SC_SZC / SC_TAB W16 push orders, switched on only where `AccuracyIds::w16` is set. At every R13 (the D55 registered bases) and legacy layout the table is r19b's byte for byte. Public layout only (ids, names, domains, rows, push order); allow-listed keys unchanged. No finding"
+   ]
+  ],
+  "src/private_block/tied_tables.rs": [
+   [
+    "4b8f215c04d7",
+    "HEAD 8b78aabd: D60 F4: `regular()` opens through `run::open_nofollow_nonblock`. Public checkpoint and tables, authenticated by derive.rs's pins (unchanged). No finding"
+   ]
+  ],
+  "src/private_block/token_io/load.rs": [
+   [
+    "56bb29a4d955",
+    "HEAD 8b78aabd: D60 F4: the token-table reader opens through `run::open_nofollow_nonblock` (macOS / aarch64 now no-follow, non-blocking). Public tables, authenticated after the read as before. No finding"
+   ]
+  ],
+  "src/private_block/token_io/classify_run.rs": [
+   [
+    "44550938378e",
+    "HEAD 8b78aabd: GPU-classifier lane diagnostics only: HL_PB_TIMING-gated duration prints and write-only phase marks (sizes and durations). No absorb, draw, opening or byte moves; no branch on secret data. No finding"
+   ]
+  ]
+ },
+ "summary": {
+  "files_read": 14,
+  "capture_pins_read": 12,
+  "unpinned_read_for_context": [
+   "src/private_block/token_io/classify_batch.rs",
+   "src/private_block/token_io/classify_cli.rs"
+  ],
+  "totals": {
+   "hunks_or_sections": 141,
+   "test_only": 14,
+   "production_privacy_neutral": 52,
+   "privacy_relevant": 75,
+   "privacy_relevant_safe": 75,
+   "findings": 0
+  },
+  "findings": 0,
+  "verdict": "every run-level, wire, capture and I-O pin that moved r19b -> HEAD is READ and SAFE; 0 findings; 7 Info notes",
+  "head_digests": {
+   "src/private_block/run.rs": "0a8f261578cbff74161021f9802e2fabc4492c609e29ea4147734272a677b441",
+   "src/private_block/run_fork.rs": "e2cb63282a177361b39d7d7216a269638c6759410087de7c8e2aa7b96b024c9e",
+   "src/private_block/run_fork_wire.rs": "08d93ecfdff450a364d0141fa9d0d32f56250f226cbef7361b5ebc178a83f927",
+   "src/private_block/run_capture.rs": "cbb78dc04ac5ca62e56318ae6b2e844666ef3016e03a774e81d7e3d6dc569135",
+   "src/private_block/wire.rs": "b4377c6eddabbecc2ca2b891380c365a647628109aacbbf1da1f2035913b7af2",
+   "src/private_block/hash_domain.rs": "a777ebd0794131bcb3ba5c1bb2e6c1ea4a392cc111336ab3bffd12dff6cbb0e9",
+   "src/private_block.rs": "7ec8b8552ea59035c78cc91416bd2dabb18348894f9374ef9b2cca92de3c0cb7",
+   "src/private_block/trained_block.rs": "9909e8835a1507fb2c6e120880e736f2aa62e0f9abc9d91101aef3931705e5b4",
+   "src/private_block/plane_index.rs": "702fa81a94aec18dc5df6b2215945f7fb841478cee68d8cd74c87087c7ad64a8",
+   "src/private_block/tied_tables.rs": "4b8f215c04d7093fa10adb335a14450a37ef0b371f9bd4ece41feafa181a4050",
+   "src/private_block/token_io/load.rs": "56bb29a4d9550f0d614594c847499d94d466f312ceb0a186936dd80c8ab1f282",
+   "src/private_block/token_io/classify_run.rs": "44550938378ee273f7a70d45636f0f1ec382fb11033d6a7fdc3a37953da0df1e",
+   "src/private_block/token_io/classify_batch.rs": "55bfb418cd80ee4576a4aae91e84860328f91a4b0667ac002a4f03751cee89ea",
+   "src/private_block/token_io/classify_cli.rs": "9c464aa26010f670f2d807742bb9cd01bdeafac19ceb5867020d0f6c841fd249"
+  },
+  "d60_bundle_digests_also_read": {
+   "src/private_block/run.rs": "604b65b1e52b02ef5f68420a50971701b5ea149605a45147e6c39f226885ff73",
+   "src/private_block/run_fork.rs": "e7b58ff765f87cb92bcf5d4f1690e0ebf69ffe05fdb34e225829726be268837a",
+   "src/private_block/run_fork_wire.rs": "a2dbc6f1241091e799572e75a3e8890a5a66a45ed2533bc1b8cad23a095244b8",
+   "src/private_block/run_capture.rs": "5d5fdfccb7a6c9d654668c75e0e5a01792f7c8420d33fad437bb10e5ec61fea9",
+   "src/private_block/trained_block.rs": "4d1e24bd98b06bdcb0ebd58196f848856e5217c37fb46d189cc98f7128997604"
+  }
+ }
+}

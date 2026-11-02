@@ -1,0 +1,214 @@
+--- frozen-r19b/hashline/src/private_block/run.rs
++++ HEAD 8b78aabd:ops/zkp-mvp/gpu-metal/hashline/src/private_block/run.rs
+@@ -232,6 +232,58 @@
+ ];
+ pub(crate) fn accuracy_run_profile(block:&str)->Option<&'static str> {
+     ACCURACY_RUN_PROFILES.iter().find(|(_,b)|*b==block).map(|(r,_)|*r)
++}
++
++// **D60 (Victor, 2026-11-01: "Go ahead and register D55"): THE REGISTERED
++// D55 "COMMIT, FORK, JOIN" RUN PROFILES**, one per eligible base. The eligible
++// bases are the twelve R13 blocks-only run profiles of
++// [`ACCURACY_RUN_PROFILES`] (registered under D12a); no token-I/O, classifier,
++// W16 or W16R2 base, and no older (pre-R13) run profile, has one. Each string
++// is `hashline-zk-mr1/` ‖ [`D55_REGISTERED_MARKER`] ‖ its base run profile
++// without the `hashline-zk-mr1/` prefix (asserted by
++// `run::fork::tests::d60_every_registered_d55_profile_is_the_marker_and_its_base`),
++// so each is its fork run's OWN transcript-constructor domain (D55 review F3:
++// `hashline-v1/` ‖ the string, under the base BLOCK shape's Fiat-Shamir key,
++// as every run profile). The marker is 50 bytes so that every constructor
++// input (`12 + |profile|`: 107 at the rungs, 125 at Llama-3-8B, 129 at
++// TinyLlama and Shieldstral) is at least two bytes from every absorb input of
++// a fork run (`ForkRun::census`, s25's W-2 census, s33's J-7a lemma). A D12a
++// run can never carry one of these strings: CS-7's [`registered_block_shape`]
++// names none of them, and `ForkRun::new` refuses one it would admit.
++pub(crate) const D55_REGISTERED_MARKER: &str = "d55-commit-fork-join-run/registered-opt-in-d60/v1/";
++pub(crate) const RUN_PROFILE_D55_R13_TINY_T128_LOW: &str = "hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-tinyllama-1.1b-t128-low-stack-v01-run/1";
++pub(crate) const RUN_PROFILE_D55_R13_TINY_T128_LOW_DD: &str = "hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-tinyllama-1.1b-t128-low-ddict-v01-run/1";
++pub(crate) const RUN_PROFILE_D55_R13_8B_T128_H24: &str = "hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-llama-3-8b-t128-lh24-v1-statement/1";
++pub(crate) const RUN_PROFILE_D55_R13_8B_T128_H24_DD: &str = "hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-llama-3-8b-t128-lh24-dd-statement/1";
++pub(crate) const RUN_PROFILE_D55_R13_SHIELD_T128_H24: &str = "hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-shieldstral-3b-t128-lowh24-blocks-run/1";
++pub(crate) const RUN_PROFILE_D55_R13_SHIELD_T128_H24_DD: &str = "hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-shieldstral-3b-t128-lowh24-ddict1-run/1";
++pub(crate) const RUN_PROFILE_D55_R13_SHIELD_T256_H24: &str = "hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-shieldstral-3b-t256-lowh24-blocks-run/1";
++pub(crate) const RUN_PROFILE_D55_R13_SHIELD_T256_H24_DD: &str = "hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-shieldstral-3b-t256-lowh24-ddict1-run/1";
++pub(crate) const RUN_PROFILE_D55_R13_RUNG_LOW: &str = "hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-rung-lo-t32-dev/1";
++pub(crate) const RUN_PROFILE_D55_R13_RUNG_H24: &str = "hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-rung-lh-t32-dev/1";
++pub(crate) const RUN_PROFILE_D55_R13_RUNG_LOW_DD: &str = "hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-rung-ld-t32-dev/1";
++pub(crate) const RUN_PROFILE_D55_R13_RUNG_H24_DD: &str = "hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-rung-hh-t32-dev/1";
++/// D60: each registered D55 run profile and the ONE base run profile it forks
++/// (CS-7's rule for a fork run: the D55 string names exactly one base, and
++/// the base names exactly one block shape)
++pub(crate) const D55_RUN_PROFILES: [(&str, &str); 12] = [
++    (RUN_PROFILE_D55_R13_TINY_T128_LOW, RUN_PROFILE_R13_TINY_T128_LOW),
++    (RUN_PROFILE_D55_R13_TINY_T128_LOW_DD, RUN_PROFILE_R13_TINY_T128_LOW_DD),
++    (RUN_PROFILE_D55_R13_8B_T128_H24, RUN_PROFILE_R13_8B_T128_H24),
++    (RUN_PROFILE_D55_R13_8B_T128_H24_DD, RUN_PROFILE_R13_8B_T128_H24_DD),
++    (RUN_PROFILE_D55_R13_SHIELD_T128_H24, RUN_PROFILE_R13_SHIELD_T128_H24),
++    (RUN_PROFILE_D55_R13_SHIELD_T128_H24_DD, RUN_PROFILE_R13_SHIELD_T128_H24_DD),
++    (RUN_PROFILE_D55_R13_SHIELD_T256_H24, RUN_PROFILE_R13_SHIELD_T256_H24),
++    (RUN_PROFILE_D55_R13_SHIELD_T256_H24_DD, RUN_PROFILE_R13_SHIELD_T256_H24_DD),
++    (RUN_PROFILE_D55_R13_RUNG_LOW, RUN_PROFILE_R13_RUNG_LOW),
++    (RUN_PROFILE_D55_R13_RUNG_H24, RUN_PROFILE_R13_RUNG_H24),
++    (RUN_PROFILE_D55_R13_RUNG_LOW_DD, RUN_PROFILE_R13_RUNG_LOW_DD),
++    (RUN_PROFILE_D55_R13_RUNG_H24_DD, RUN_PROFILE_R13_RUNG_H24_DD),
++];
++/// D60: the registered D55 run profile of a base run profile (`None`: the
++/// base is not eligible, and a production build makes no fork run over it)
++pub(crate) fn d55_run_profile(base: &str) -> Option<&'static str> {
++    D55_RUN_PROFILES.iter().find(|(_, b)| *b == base).map(|(d, _)| *d)
+ }
+ 
+ /// One run's geometry: the per-block shape, how many blocks, and the run's own
+@@ -269,6 +321,13 @@
+     if profile == RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST {
+         return Some(Shape::accuracy_trained(super::shape::R13_RUNG_H24, &cal, sh.f_e, sh.accuracy_gate_shift));
+     }
++    // W16 (D54), the privacy gate's W16 re-check: TEST-ONLY run identities over
++    // the W16 block profiles (W16 registers no run profile yet), so that the
++    // gate's tests can capture a W16 run; absent from every production build
++    #[cfg(test)]
++    if let Some((_, block)) = super::w16_privacy_gate_tests::W16_TEST_RUN_PROFILES.iter().find(|(run, _)| *run == profile) {
++        return Some(Shape::accuracy_trained(block, &cal, sh.f_e, sh.accuracy_gate_shift));
++    }
+     Some(match profile {
+         RUN_PROFILE_RUNG_G => Ok(Shape::rung_g()),
+         RUN_PROFILE_RUNG_K4 => Ok(Shape::rung_k4()),
+@@ -1563,13 +1622,62 @@
+     Ok(seen)
+ }
+ 
+-/// `O_NOFOLLOW | O_NONBLOCK` on x86-64 Linux (the open flags differ by
+-/// architecture and this crate takes no `libc` dependency): a path swapped
+-/// to a symbolic link after the `lstat` fails to open, and one swapped to a
+-/// FIFO does not block the open. Elsewhere the `fstat` re-check below holds.
++/// **`O_NOFOLLOW | O_NONBLOCK` for this target** (the open flags differ by
++/// operating system and architecture, and this crate takes no `libc`
++/// dependency): a path swapped to a symbolic link after the `lstat` fails to
++/// open (`ELOOP`), and one swapped to a FIFO does not block the open (the
++/// `fstat` re-check then refuses it). **D60 review F4 (2026-11-02):** these
++/// were set on x86-64 Linux only, so on the macOS work box the window between
++/// the `lstat` and the open was unprotected (a FIFO swapped in hung the
++/// verifier); the values are now given for every target the project builds
++/// on — x86-64 Linux `0o400000 | 0o4000`, aarch64 Linux `0o100000 | 0o4000`
++/// (`0o400000` is `O_LARGEFILE` there), macOS (any architecture) `0x0100 |
++/// 0x0004` — and `None` elsewhere, where the `fstat` re-check alone holds.
++/// Every bounded reader of the crate opens through
++/// [`open_nofollow_nonblock`].
+ #[cfg(all(target_os = "linux", target_arch = "x86_64"))]
+-const SEGMENT_OPEN_FLAGS: i32 = 0o400000 | 0o4000;
++pub(crate) const NOFOLLOW_NONBLOCK: Option<i32> = Some(0o400000 | 0o4000);
++#[cfg(all(target_os = "linux", target_arch = "aarch64"))]
++pub(crate) const NOFOLLOW_NONBLOCK: Option<i32> = Some(0o100000 | 0o4000);
++#[cfg(target_os = "macos")]
++pub(crate) const NOFOLLOW_NONBLOCK: Option<i32> = Some(0x0100 | 0x0004);
++#[cfg(not(any(all(target_os = "linux", any(target_arch = "x86_64", target_arch = "aarch64")), target_os = "macos")))]
++pub(crate) const NOFOLLOW_NONBLOCK: Option<i32> = None;
+ 
++#[cfg(test)]
++thread_local! {
++    static BEFORE_OPEN_HOOK: std::cell::RefCell<Option<Box<dyn FnOnce(&std::path::Path)>>> = const { std::cell::RefCell::new(None) };
++}
++
++/// D60 review F4, TEST ONLY: `f` runs once, in this thread's next
++/// [`open_nofollow_nonblock`], between a bounded reader's `lstat` checks and
++/// its open — the window a writer of the directory races (the test swaps a
++/// FIFO or a symbolic link in there)
++#[cfg(test)]
++pub(crate) fn before_open_hook_for_tests(f: Box<dyn FnOnce(&std::path::Path)>) {
++    BEFORE_OPEN_HOOK.with(|h| *h.borrow_mut() = Some(f));
++}
++
++/// **Open `p` read-only with [`NOFOLLOW_NONBLOCK`]** (where the target
++/// defines it): the one open of every bounded reader (D12a's segment reader
++/// and regular-file reader, D55's frame reader, the token-table readers). The
++/// caller has already refused, from `lstat`, anything that is not a regular
++/// file, and re-checks the OPENED file (`fstat`) after this returns.
++pub(crate) fn open_nofollow_nonblock(p: &std::path::Path) -> std::io::Result<std::fs::File> {
++    #[cfg(test)]
++    if let Some(f) = BEFORE_OPEN_HOOK.with(|h| h.borrow_mut().take()) {
++        f(p);
++    }
++    let mut opts = std::fs::OpenOptions::new();
++    opts.read(true);
++    #[cfg(unix)]
++    if let Some(flags) = NOFOLLOW_NONBLOCK {
++        use std::os::unix::fs::OpenOptionsExt;
++        opts.custom_flags(flags);
++    }
++    opts.open(p)
++}
++
+ /// **REVIEW r3 FINDING r3_6 (verifier DoS, not soundness; fixed in native
+ /// round 5): THE BOUNDED SEGMENT READER.** The stack verifier read each
+ /// segment file with an unbounded `std::fs::read` and compared its length
+@@ -1584,11 +1692,12 @@
+ /// 2. `symlink_metadata`: anything that is not a regular file (a symbolic
+ ///    link, FIFO, device, directory) is refused by name, unopened;
+ /// 3. the metadata length must be exactly `want`;
+-/// 4. the open does not follow a link nor block on a FIFO (x86-64 Linux),
+-///    the OPENED file is re-checked (`fstat`: regular, length `want`), and
+-///    the read is capped at `want + 1` bytes, so a file that grows or is
+-///    swapped after the check is still refused (`decode_segment` re-checks
+-///    the length too).
++/// 4. the open does not follow a link nor block on a FIFO
++///    ([`NOFOLLOW_NONBLOCK`]: x86-64 and aarch64 Linux and macOS since D60
++///    review F4), the OPENED file is re-checked (`fstat`: regular, length
++///    `want`), and the read is capped at `want + 1` bytes, so a file that
++///    grows or is swapped after the check is still refused (`decode_segment`
++///    re-checks the length too).
+ pub(crate) fn read_segment_bounded(st: &RunStatement, k: usize, p: &std::path::Path) -> Result<Vec<u8>, String> {
+     use std::io::Read;
+     let want = wire::segment_len(&st.stage_layout(k)?, st.seg_geom(k)?);
+@@ -1603,14 +1712,7 @@
+     if meta.len() != want as u64 {
+         return Err(format!("private run wire: segment {k} is {} B, the counted length is {want}; refused before it is read (review r3_6)", meta.len()));
+     }
+-    let mut opts = std::fs::OpenOptions::new();
+-    opts.read(true);
+-    #[cfg(all(target_os = "linux", target_arch = "x86_64"))]
+-    {
+-        use std::os::unix::fs::OpenOptionsExt;
+-        opts.custom_flags(SEGMENT_OPEN_FLAGS);
+-    }
+-    let f = opts.open(p).map_err(|e| format!("private run: segment {k} ({}) cannot be opened as a regular file: {e}", p.display()))?;
++    let f = open_nofollow_nonblock(p).map_err(|e| format!("private run: segment {k} ({}) cannot be opened as a regular file: {e}", p.display()))?;
+     let fm = f.metadata().map_err(|e| format!("private run: segment {k} ({}): {e}", p.display()))?;
+     if !fm.file_type().is_file() || fm.len() != want as u64 {
+         return Err(format!("private run wire: segment {k} ({}) changed after its check (now {} B, regular file {}); the counted length is {want}", p.display(), fm.len(), fm.file_type().is_file()));
+@@ -1630,7 +1732,7 @@
+ /// an artifact's policy and single segment): `symlink_metadata` refuses
+ /// anything that is not a regular file and any length above `max` (or other
+ /// than `max` when `exact`) BEFORE the open; the open follows no link and
+-/// does not block on a FIFO (x86-64 Linux); the OPENED file is re-checked
++/// does not block on a FIFO ([`NOFOLLOW_NONBLOCK`]); the OPENED file is re-checked
+ /// (`fstat`: regular, the same length); the read is capped at `max + 1`
+ /// bytes and its length re-checked — so a path swapped between the check and
+ /// the read is refused, never followed, blocked on or read without bound.
+@@ -1647,14 +1749,7 @@
+     if len > max {
+         return Err(format!("{}: {len} bytes exceeds the bound {max}; refused before it is read", path.display()));
+     }
+-    let mut opts = std::fs::OpenOptions::new();
+-    opts.read(true);
+-    #[cfg(all(target_os = "linux", target_arch = "x86_64"))]
+-    {
+-        use std::os::unix::fs::OpenOptionsExt;
+-        opts.custom_flags(SEGMENT_OPEN_FLAGS);
+-    }
+-    let f = opts.open(path).map_err(|e| format!("{}: cannot be opened as a regular file: {e}", path.display()))?;
++    let f = open_nofollow_nonblock(path).map_err(|e| format!("{}: cannot be opened as a regular file: {e}", path.display()))?;
+     let fm = f.metadata().map_err(|e| format!("{}: {e}", path.display()))?;
+     if !fm.file_type().is_file() || fm.len() != len {
+         return Err(format!("{}: changed after its check; refused", path.display()));
+@@ -1666,3 +1761,11 @@
+     }
+     Ok(bytes)
+ }
++
++// D55 "commit, fork, join" (Victor's ruling D55, 2026-11-01), REGISTERED as
++// an opt-in run profile by D60 (2026-11-02): production code since D60, over
++// the bases of `D55_RUN_PROFILES` only. Nothing above calls it: a D12a run
++// never reaches it, and a fork run is made only through `fork::ForkRun::new`
++// with an explicit opt-in; see `run_fork.rs`.
++#[path = "run_fork.rs"]
++pub(crate) mod fork;

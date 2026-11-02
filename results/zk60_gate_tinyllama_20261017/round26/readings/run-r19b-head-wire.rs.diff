@@ -1,0 +1,90 @@
+--- frozen-r19b/hashline/src/private_block/wire.rs
++++ HEAD 8b78aabd:ops/zkp-mvp/gpu-metal/hashline/src/private_block/wire.rs
+@@ -14,9 +14,21 @@
+ 
+ const MAGIC: &[u8; 8] = b"HLPBLOK1";
+ pub(crate) const HEADER: usize = 8 + 32;
+-const MASK_VEC: usize = 1024;
+-const MASK_DOM: usize = 4096;
+-const MASK_PATH: usize = 12;
++/// **The masking commitment `M`'s frame geometry, from `zk.rs`'s OWN
++/// constants** (W16R2 review F5 (d), 2026-11-02; value-identical to the
++/// literals 1024 / 4096 / 12 they replace): its two clear vectors (`q'` and
++/// the proximity combination) are `2 * 2^MASK_LOG_MSG` Fp2 words, its
++/// encoding has `2^MASK_LOG_DOM` columns, and its tree is `MASK_LOG_DOM` deep
++/// (`zk::mask_open` / `zk::mask_verify_tagged`). No block shape enters.
++const MASK_VEC: usize = 2 << crate::zk::MASK_LOG_MSG;
++const MASK_DOM: usize = 1 << crate::zk::MASK_LOG_DOM;
++const MASK_PATH: usize = crate::zk::MASK_LOG_DOM as usize;
++/// **D59: the masking commitment's OWN opened-column count** (`zk::MASK_Q`).
++/// Until the W16R2 profiles it was read as the block's `Dim::checks`, which
++/// was the same 256 at every profile; at a W16R2 profile the block opens 260
++/// columns and `M` still opens 256, so `M`'s count is its own constant. The
++/// value is 256 at every profile, so no frame length or byte moves.
++const MASK_CHECKS: usize = crate::zk::MASK_Q;
+ /// **THE TOY'S wire bound, unchanged in name and value for every existing
+ /// caller.** A toy frame over 4 MiB is refused exactly as it always was.
+ pub const MAX_WIRE_BYTES: usize = 4 * 1024 * 1024;
+@@ -122,7 +134,7 @@
+     let (bd, ed) = (Dim::block(lay), Dim::endpoint(lay));
+     let sl = lay.slots();
+     let slots: usize = (0..lay.n_slots()).map(|s| (1 + (sl[s].0 + sl[s].1) * (sl[s].2 + 1) + lay.slot_terms(s)) * 16).sum();
+-    let mask = 2 * MASK_VEC * 16 + bd.checks * (8 + lay.m_rows() * 8 + 32 + MASK_PATH * 32);
++    let mask = 2 * MASK_VEC * 16 + MASK_CHECKS * (8 + lay.m_rows() * 8 + 32 + MASK_PATH * 32);
+     HEADER + 3 * 32 + slots + mask + bd.opening_len(sh.a_groups(), lay.a_rows) + bd.opening_len(sh.h_groups(), lay.h_rows) + 2 * ed.opening_len(1, sh.endpoint_rows)
+ }
+ 
+@@ -142,7 +154,7 @@
+     let m = &r.mask_open;
+     if m.q.len() != MASK_VEC
+         || m.prox.len() != MASK_VEC
+-        || m.columns.len() != bd.checks
++        || m.columns.len() != MASK_CHECKS
+         || m.columns.iter().any(|(j, c, _, p)| *j >= MASK_DOM || c.len() != lay.m_rows() || p.len() != MASK_PATH)
+         || !bd.hiding_ok(&r.a_open, sh.a_groups(), lay.a_rows)
+         || !bd.hiding_ok(&r.h_open, sh.h_groups(), lay.h_rows)
+@@ -250,7 +262,7 @@
+     }
+     let q = r.fp2_vec(MASK_VEC)?;
+     let prox = r.fp2_vec(MASK_VEC)?;
+-    let columns = (0..bd.checks).map(|_| r.column(lay.m_rows(), MASK_DOM, MASK_PATH)).collect::<Result<Vec<_>, String>>()?;
++    let columns = (0..MASK_CHECKS).map(|_| r.column(lay.m_rows(), MASK_DOM, MASK_PATH)).collect::<Result<Vec<_>, String>>()?;
+     let mask_open = MaskOpening { q, prox, columns };
+     let a_open = r.hiding(bd, sh.a_groups(), lay.a_rows)?;
+     let h_open = r.hiding(bd, sh.h_groups(), lay.h_rows)?;
+@@ -342,7 +354,7 @@
+     let (bd, ed) = (Dim::block(lay), Dim::endpoint(lay));
+     let sl = lay.slots();
+     let slots: usize = (0..lay.n_slots()).map(|s| (1 + (sl[s].0 + sl[s].1) * (sl[s].2 + 1) + lay.slot_terms(s)) * 16).sum();
+-    let mask = 2 * MASK_VEC * 16 + bd.checks * (8 + lay.m_rows() * 8 + 32 + MASK_PATH * 32);
++    let mask = 2 * MASK_VEC * 16 + MASK_CHECKS * (8 + lay.m_rows() * 8 + 32 + MASK_PATH * 32);
+     let (gi, ri) = g.incoming(sh.endpoint_rows);
+     RUN_HEADER
+         + usize::from(g.commits_boundary()) * 32
+@@ -377,7 +389,7 @@
+     let (gi, ri) = g.incoming(sh.endpoint_rows);
+     if m.q.len() != MASK_VEC
+         || m.prox.len() != MASK_VEC
+-        || m.columns.len() != bd.checks
++        || m.columns.len() != MASK_CHECKS
+         || m.columns.iter().any(|(j, c, _, p)| *j >= MASK_DOM || c.len() != lay.m_rows() || p.len() != MASK_PATH)
+         || !bd.hiding_ok(&s.a_open, sh.a_groups(), lay.a_rows)
+         || !bd.hiding_ok(&s.h_open, sh.h_groups(), lay.h_rows)
+@@ -466,7 +478,7 @@
+     }
+     let q = r.fp2_vec(MASK_VEC)?;
+     let prox = r.fp2_vec(MASK_VEC)?;
+-    let columns = (0..bd.checks).map(|_| r.column(lay.m_rows(), MASK_DOM, MASK_PATH)).collect::<Result<Vec<_>, String>>()?;
++    let columns = (0..MASK_CHECKS).map(|_| r.column(lay.m_rows(), MASK_DOM, MASK_PATH)).collect::<Result<Vec<_>, String>>()?;
+     let mask_open = MaskOpening { q, prox, columns };
+     let a_open = r.hiding(bd, sh.a_groups(), lay.a_rows)?;
+     let h_open = r.hiding(bd, sh.h_groups(), lay.h_rows)?;
+@@ -481,3 +493,8 @@
+     validate_segment(&seg, lay, g)?;
+     Ok((seg, end_tag))
+ }
++
++// D55 (2026-11-01), registered by D60 (2026-11-02): the frames of a "commit,
++// fork, join" receipt, production code since D60; see `run_fork_wire.rs`.
++#[path = "run_fork_wire.rs"]
++pub(crate) mod fork;

@@ -1,0 +1,112 @@
+--- frozen-r19b/hashline/src/private_block/plane_index.rs
++++ HEAD 8b78aabd:ops/zkp-mvp/gpu-metal/hashline/src/private_block/plane_index.rs
+@@ -234,9 +234,22 @@
+ // ---------------------------------------------------------------- the table
+ 
+ pub(super) fn build(lay: &Layout) -> Result<PlaneIndex, String> {
++    build_with(lay, true)
++}
++
++/// **W16 (D54), the privacy gate's W16 re-check (2026-11-01).** [`build`]
++/// with the W16 additions switched on or off. `w16 = false` is the table as
++/// it stood before the re-check, which named no range table helper and gave
++/// `SC_TAB` three (histogram, helper) pairs; at a W16 layout it REFUSES
++/// (`w16_privacy_gate_tests`' control), and at every R13 and legacy layout
++/// the two settings build the same table byte for byte, because the
++/// additions apply only where `AccuracyIds::w16` is set.
++pub(super) fn build_with(lay: &Layout, w16: bool) -> Result<PlaneIndex, String> {
+     let sh = lay.shape();
+     let (ids, hids) = (lay.ids(), lay.hids());
+     let n = lay.n();
++    // W16: the 16-bit allocation, when the additions are on (never at R13)
++    let w16_low = if w16 { ids.accuracy().ok().filter(|low| low.w16) } else { None };
+     // ---- the A planes
+     // PRIVACY GATE ROUND 19 (test-only patch H19-3, the gate's capture tree
+     // only): at an R13 accuracy shape the A planes are `AccuracyIds`' own list
+@@ -262,7 +275,15 @@
+         a.push(APlane { id: p, name, dom, first_row: offset / n, rows: sh.rows_of(dom), offset, log_size: sh.log(dom) });
+     }
+     // ---- the H planes, each an `re` run then an `im` run of the same length
+-    let h_names = expand(&h_segments(sh));
++    let mut h_names = expand(&h_segments(sh));
++    // W16 (D54): one TABLE helper per range sub-plane, right after the three
++    // (`HIds::new`: `gu8 .. gu8 + 3 + n_range`), named after its histogram's
++    // family and sub-plane (`A_R16_0` is counted by `H_GR16_0`)
++    if let Some(low) = w16_low {
++        let at = h_names.iter().position(|(nm, _)| nm == "H_GACT").ok_or("private block: the H plane name table has no H_GACT")? + 1;
++        let range: Vec<(String, Dom)> = low.range_planes().iter().map(|(f, s, _)| (format!("H_GR{}_{s}", f.width), Dom::Tab)).collect();
++        h_names.splice(at..at, range);
++    }
+     if h_names.len() != hids.n_h() {
+         return Err(format!("private block: the H plane name table has {} names for {} planes", h_names.len(), hids.n_h()));
+     }
+@@ -298,11 +319,25 @@
+     }
+     if row != lay.h_data_rows {
+         return Err(format!("private block: the H planes tile {row} rows, the layout counts {}", lay.h_data_rows));
++    }
++    // ---- W16: every range sub-plane's histogram and table helper are the
++    // layout's own ids, by name and on `Dom::Tab` (a refusal, like the tiling)
++    if let Some(low) = w16_low {
++        let (rp, rh): (Vec<_>, Vec<usize>) = (low.range_planes(), hids.range_helpers().collect());
++        if rp.len() != rh.len() {
++            return Err(format!("private block: W16 has {} range sub-planes and {} range table helpers", rp.len(), rh.len()));
++        }
++        for (j, ((f, s, plane), hp)) in rp.iter().zip(&rh).enumerate() {
++            let (an, hn) = (format!("A_R{}_{s}", f.width), format!("H_GR{}_{s}", f.width));
++            if a[*plane].name != an || h[*hp].name != hn || a[*plane].dom != Dom::Tab || h[*hp].dom != Dom::Tab {
++                return Err(format!("private block: W16 range sub-plane {j} is not the pair ({an}, {hn}) on Dom::Tab in the plane index"));
++            }
++        }
+     }
+     // ---- the push order, and the cross-check against `Shape::claim_sites`
+     let mut slots: Vec<Vec<Ref>> = Vec::with_capacity(N_SLOTS);
+     for s in 0..N_SLOTS {
+-        slots.push(slot_planes(lay, s)?);
++        slots.push(slot_planes(lay, s, w16_low.is_some())?);
+     }
+     for (s, refs) in slots.iter().enumerate() {
+         let na = refs.iter().filter(|r| matches!(r, Ref::A(_))).count();
+@@ -338,7 +373,13 @@
+ /// eighteen limb sub-planes) or at a flipped coordinate (`SC_QZC` /
+ /// `SC_KVZC`'s RoPE partner) appears AGAIN, at its own position: the terminal
+ /// is another evaluation of the same committed plane.
+-fn slot_planes(lay: &Layout, slot: usize) -> Result<Vec<Ref>, String> {
++///
++/// `w16`: the W16 (D54) push orders of `argument_accuracy.rs` `szc_w16`
++/// (the whole `Dom::S` range: at W16 no legacy `sigma_s` limb id is mapped,
++/// so the legacy `A_S8 ..= sg(ls - 1)` range does not exist) and `tab_w16`
++/// (the three pairs, then one (histogram, table helper) pair per range
++/// sub-plane). Every other W16 slot pushes exactly what its R13 twin pushes.
++fn slot_planes(lay: &Layout, slot: usize, w16: bool) -> Result<Vec<Ref>, String> {
+     let (sh, ids, hids) = (lay.shape(), lay.ids(), lay.hids());
+     let ls = sh.limbs_sigma_s();
+     // H19-3: the R13 accuracy slots sweep their WHOLE domain range
+@@ -420,6 +461,27 @@
+             helpers(&mut v, Dom::F);
+             v.push(Ref::H(hids.fact()));
+         }
++        SC_SZC if w16 => {
++            let r = ids.domain_range(Dom::S)?;
++            range(&mut v, r.start, r.end - 1);
++            a(&mut v, A_MX);
++            a(&mut v, A_SUM);
++            helpers(&mut v, Dom::S);
++            v.push(Ref::H(hids.sexp()));
++        }
++        SC_TAB if w16 => {
++            let th = hids.table_helpers();
++            a(&mut v, A_MU8);
++            v.push(Ref::H(th[0]));
++            a(&mut v, A_MEXP);
++            v.push(Ref::H(th[1]));
++            a(&mut v, A_MACT);
++            v.push(Ref::H(th[2]));
++            for ((_, _, plane), hp) in ids.accuracy()?.range_planes().into_iter().zip(hids.range_helpers()) {
++                v.push(Ref::A(plane));
++                v.push(Ref::H(hp));
++            }
++        }
+         SC_DZC => {
+             range(&mut v, ids.at(A_X), ids.at(A_RDL));
+             a(&mut v, A_D);

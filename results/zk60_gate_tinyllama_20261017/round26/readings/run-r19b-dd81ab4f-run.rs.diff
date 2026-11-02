@@ -1,0 +1,87 @@
+--- frozen-r19b/hashline/src/private_block/run.rs
++++ dd81ab4f:ops/zkp-mvp/gpu-metal/hashline/src/private_block/run.rs
+@@ -234,6 +234,58 @@
+     ACCURACY_RUN_PROFILES.iter().find(|(_,b)|*b==block).map(|(r,_)|*r)
+ }
+ 
++// **D60 (Victor, 2026-11-01: "Go ahead and register D55"): THE REGISTERED
++// D55 "COMMIT, FORK, JOIN" RUN PROFILES**, one per eligible base. The eligible
++// bases are the twelve R13 blocks-only run profiles of
++// [`ACCURACY_RUN_PROFILES`] (registered under D12a); no token-I/O, classifier,
++// W16 or W16R2 base, and no older (pre-R13) run profile, has one. Each string
++// is `hashline-zk-mr1/` ‖ [`D55_REGISTERED_MARKER`] ‖ its base run profile
++// without the `hashline-zk-mr1/` prefix (asserted by
++// `run::fork::tests::d60_every_registered_d55_profile_is_the_marker_and_its_base`),
++// so each is its fork run's OWN transcript-constructor domain (D55 review F3:
++// `hashline-v1/` ‖ the string, under the base BLOCK shape's Fiat-Shamir key,
++// as every run profile). The marker is 50 bytes so that every constructor
++// input (`12 + |profile|`: 107 at the rungs, 125 at Llama-3-8B, 129 at
++// TinyLlama and Shieldstral) is at least two bytes from every absorb input of
++// a fork run (`ForkRun::census`, s25's W-2 census, s33's J-7a lemma). A D12a
++// run can never carry one of these strings: CS-7's [`registered_block_shape`]
++// names none of them, and `ForkRun::new` refuses one it would admit.
++pub(crate) const D55_REGISTERED_MARKER: &str = "d55-commit-fork-join-run/registered-opt-in-d60/v1/";
++pub(crate) const RUN_PROFILE_D55_R13_TINY_T128_LOW: &str = "hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-tinyllama-1.1b-t128-low-stack-v01-run/1";
++pub(crate) const RUN_PROFILE_D55_R13_TINY_T128_LOW_DD: &str = "hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-tinyllama-1.1b-t128-low-ddict-v01-run/1";
++pub(crate) const RUN_PROFILE_D55_R13_8B_T128_H24: &str = "hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-llama-3-8b-t128-lh24-v1-statement/1";
++pub(crate) const RUN_PROFILE_D55_R13_8B_T128_H24_DD: &str = "hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-llama-3-8b-t128-lh24-dd-statement/1";
++pub(crate) const RUN_PROFILE_D55_R13_SHIELD_T128_H24: &str = "hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-shieldstral-3b-t128-lowh24-blocks-run/1";
++pub(crate) const RUN_PROFILE_D55_R13_SHIELD_T128_H24_DD: &str = "hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-shieldstral-3b-t128-lowh24-ddict1-run/1";
++pub(crate) const RUN_PROFILE_D55_R13_SHIELD_T256_H24: &str = "hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-shieldstral-3b-t256-lowh24-blocks-run/1";
++pub(crate) const RUN_PROFILE_D55_R13_SHIELD_T256_H24_DD: &str = "hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-shieldstral-3b-t256-lowh24-ddict1-run/1";
++pub(crate) const RUN_PROFILE_D55_R13_RUNG_LOW: &str = "hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-rung-lo-t32-dev/1";
++pub(crate) const RUN_PROFILE_D55_R13_RUNG_H24: &str = "hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-rung-lh-t32-dev/1";
++pub(crate) const RUN_PROFILE_D55_R13_RUNG_LOW_DD: &str = "hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-rung-ld-t32-dev/1";
++pub(crate) const RUN_PROFILE_D55_R13_RUNG_H24_DD: &str = "hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-rung-hh-t32-dev/1";
++/// D60: each registered D55 run profile and the ONE base run profile it forks
++/// (CS-7's rule for a fork run: the D55 string names exactly one base, and
++/// the base names exactly one block shape)
++pub(crate) const D55_RUN_PROFILES: [(&str, &str); 12] = [
++    (RUN_PROFILE_D55_R13_TINY_T128_LOW, RUN_PROFILE_R13_TINY_T128_LOW),
++    (RUN_PROFILE_D55_R13_TINY_T128_LOW_DD, RUN_PROFILE_R13_TINY_T128_LOW_DD),
++    (RUN_PROFILE_D55_R13_8B_T128_H24, RUN_PROFILE_R13_8B_T128_H24),
++    (RUN_PROFILE_D55_R13_8B_T128_H24_DD, RUN_PROFILE_R13_8B_T128_H24_DD),
++    (RUN_PROFILE_D55_R13_SHIELD_T128_H24, RUN_PROFILE_R13_SHIELD_T128_H24),
++    (RUN_PROFILE_D55_R13_SHIELD_T128_H24_DD, RUN_PROFILE_R13_SHIELD_T128_H24_DD),
++    (RUN_PROFILE_D55_R13_SHIELD_T256_H24, RUN_PROFILE_R13_SHIELD_T256_H24),
++    (RUN_PROFILE_D55_R13_SHIELD_T256_H24_DD, RUN_PROFILE_R13_SHIELD_T256_H24_DD),
++    (RUN_PROFILE_D55_R13_RUNG_LOW, RUN_PROFILE_R13_RUNG_LOW),
++    (RUN_PROFILE_D55_R13_RUNG_H24, RUN_PROFILE_R13_RUNG_H24),
++    (RUN_PROFILE_D55_R13_RUNG_LOW_DD, RUN_PROFILE_R13_RUNG_LOW_DD),
++    (RUN_PROFILE_D55_R13_RUNG_H24_DD, RUN_PROFILE_R13_RUNG_H24_DD),
++];
++/// D60: the registered D55 run profile of a base run profile (`None`: the
++/// base is not eligible, and a production build makes no fork run over it)
++pub(crate) fn d55_run_profile(base: &str) -> Option<&'static str> {
++    D55_RUN_PROFILES.iter().find(|(_, b)| *b == base).map(|(d, _)| *d)
++}
++
+ /// One run's geometry: the per-block shape, how many blocks, and the run's own
+ /// profile id. A run is a NEW profile under D17 — its own transcript, its own
+ /// digests — so no byte of any single-block profile moves.
+@@ -268,6 +320,13 @@
+     #[cfg(test)]
+     if profile == RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST {
+         return Some(Shape::accuracy_trained(super::shape::R13_RUNG_H24, &cal, sh.f_e, sh.accuracy_gate_shift));
++    }
++    // W16 (D54), the privacy gate's W16 re-check: TEST-ONLY run identities over
++    // the W16 block profiles (W16 registers no run profile yet), so that the
++    // gate's tests can capture a W16 run; absent from every production build
++    #[cfg(test)]
++    if let Some((_, block)) = super::w16_privacy_gate_tests::W16_TEST_RUN_PROFILES.iter().find(|(run, _)| *run == profile) {
++        return Some(Shape::accuracy_trained(block, &cal, sh.f_e, sh.accuracy_gate_shift));
+     }
+     Some(match profile {
+         RUN_PROFILE_RUNG_G => Ok(Shape::rung_g()),
+@@ -1666,3 +1725,11 @@
+     }
+     Ok(bytes)
+ }
++
++// D55 "commit, fork, join" (Victor's ruling D55, 2026-11-01), REGISTERED as
++// an opt-in run profile by D60 (2026-11-02): production code since D60, over
++// the bases of `D55_RUN_PROFILES` only. Nothing above calls it: a D12a run
++// never reaches it, and a fork run is made only through `fork::ForkRun::new`
++// with an explicit opt-in; see `run_fork.rs`.
++#[path = "run_fork.rs"]
++pub(crate) mod fork;

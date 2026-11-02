@@ -1,0 +1,15 @@
+--- frozen-r19b/hashline/src/private_block/hash_domain.rs
++++ HEAD 8b78aabd:ops/zkp-mvp/gpu-metal/hashline/src/private_block/hash_domain.rs
+@@ -449,8 +449,10 @@
+ }
+ 
+ /// Every label on the path, at this shape — the two halves joined. It exists
+-/// for the source-scan test that keeps the table honest.
+-#[cfg(test)]
++/// for the source-scan test that keeps the table honest, and (D60) for the
++/// registered D55 fork run's own W-2 guard (`run::fork::ForkRun::census`),
++/// which holds its constructor against every absorb of the path in a
++/// production build too.
+ pub(crate) fn path_labels(sh: &Shape, run_parameter_line: Option<&str>) -> Vec<LabelUse> {
+     let mut v = fixed_labels();
+     v.extend(shape_labels(sh, run_parameter_line));

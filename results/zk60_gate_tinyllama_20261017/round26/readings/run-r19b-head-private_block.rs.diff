@@ -1,0 +1,44 @@
+--- frozen-r19b/hashline/src/private_block.rs
++++ HEAD 8b78aabd:ops/zkp-mvp/gpu-metal/hashline/src/private_block.rs
+@@ -65,6 +65,14 @@
+ mod accuracy_groups;
+ mod accuracy_aligned;
+ mod accuracy_layout;
++// W16 (D54): 16-bit tagged range lookups, opt-in by profile
++mod range16;
++#[cfg(test)]
++mod range16_tests;
++// D59: W16 at code rate 1/2 (the W16R2 profiles): acceptance, malicious
++// controls, goldens and the accounting inputs, test builds only
++#[cfg(test)]
++mod w16r2_tests;
+ mod accuracy_fold;
+ mod accuracy_act;
+ mod accuracy_precision;
+@@ -266,6 +274,11 @@
+ // every captured stage. A recorder's module, `cfg(test)` like `run_capture`.
+ #[cfg(test)]
+ mod plane_index;
++// W16 (D54): the privacy gate's mechanical checks at the W16 profiles (the
++// range histograms, their table helpers and the 16-bit range tables), and the
++// test-only W16 run identities those checks capture runs under.
++#[cfg(test)]
++mod w16_privacy_gate_tests;
+ // STAGE 17: the D19 SEPARATING HASH TAG (ruling T-6 as amended) — which
+ // profiles are tagged, their eight pinned keys, and the cross-rule rejection
+ // in both directions at rung-G. The isolated per-layer controls are in
+@@ -378,8 +391,13 @@
+ // a module no production build compiles is the strongest form of it. The
+ // base-field classification is DERIVED from each table's provenance and never
+ // declared (ruling I-2, the check's finding IR-C1).
+-#[cfg(test)]
++// [ZK60-METAL M3] also compiled under `gpu-metal`: the Apple GPU evaluates the
++// zero-checks from this IR (private_block/metal_slot.rs), and only when
++// HL_GPU=1. Default and CUDA builds still never compile it.
++#[cfg(any(test, feature = "gpu-metal"))]
+ mod slot_ir;
++#[cfg(feature = "gpu-metal")]
++mod metal_slot;
+ #[cfg(test)]
+ mod slot_ir_tests;
+ // STAGE 35 (stage 2 of ruling I-4 of the same disposition): lever (b) inside

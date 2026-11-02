@@ -1,0 +1,427 @@
+--- frozen-r19b/hashline/src/private_block/trained_block.rs
++++ HEAD 8b78aabd:ops/zkp-mvp/gpu-metal/hashline/src/private_block/trained_block.rs
+@@ -2665,6 +2665,73 @@
+     format!("[\n {}\n]\n", segs.join(",\n "))
+ }
+ 
++/// **D60: the `segments.json` of a D55 fork run** — one entry per FRAME of
++/// its receipt (the head, every fork, the tail; `run::fork::d55_file_names`),
++/// its file name, length and SHA-256, in the same form as a D12a run's
++pub(crate) fn render_fork_frames_json(seen: &[(u64, String)]) -> String {
++    let names = run::fork::d55_file_names(seen.len().saturating_sub(2));
++    let segs: Vec<String> = seen.iter().zip(names.iter()).map(|((n, h), f)| format!("{{\"file\":{},\"bytes\":{n},\"sha256\":{}}}", js(f), js(h))).collect();
++    format!("[\n {}\n]\n", segs.join(",\n "))
++}
++
++/// **D60 review F3: the operator's explicit acknowledgement that a D55 fork
++/// run is a TEST receipt, not for publication** (`stack-prove` only). While
++/// `run::fork::D55_REAL_CONTENT_PRIVACY_GATE_PASSED` is `false`,
++/// `stack-prove --d55-workers N` refuses to run without it.
++pub(crate) const D55_TEST_RECEIPT_FLAG: &str = "--d55-test-receipt-not-for-publication";
++
++/// **D60 review F3: whether `stack-prove` may run, and whether its receipt is
++/// a D55 TEST receipt** (`Ok(true)`: the run directory gets the marker
++/// `run::fork::D55_TEST_RECEIPT_MARKER_FILE`). `gate_passed` is
++/// `run::fork::D55_REAL_CONTENT_PRIVACY_GATE_PASSED` in production (a
++/// parameter only so the tests read both arms). Refused: a D55 fork run
++/// without the acknowledgement while the gate has not passed, and the
++/// acknowledgement without `--d55-workers`. A D12a run is never affected.
++pub(crate) fn d55_prove_admission(d55_workers: Option<usize>, acknowledged: bool, gate_passed: bool) -> Result<bool, String> {
++    match (d55_workers.is_some(), acknowledged) {
++        (false, false) => Ok(false),
++        (false, true) => Err(format!("{D55_TEST_RECEIPT_FLAG} acknowledges a D55 fork run's test receipt; it is given only with --d55-workers")),
++        (true, true) => Ok(true),
++        (true, false) if gate_passed => Ok(false),
++        (true, false) => Err(format!(
++            "D60 review F3: a D55 fork run is refused in this build — ruling D60 requires the privacy gate on a capture under a REGISTERED D55 run profile before any receipt for real content, and that gate has not passed (run_fork::D55_REAL_CONTENT_PRIVACY_GATE_PASSED is false); to prove a TEST receipt on public data, pass {D55_TEST_RECEIPT_FLAG}: the run directory is then marked {} and must not be published",
++            run::fork::D55_TEST_RECEIPT_MARKER_FILE
++        )),
++    }
++}
++
++/// `--d55-workers N` (D60): `None` without the flag; a fork run's worker
++/// count, 1 ..= 64, with it
++fn d55_workers_of(f: &[(String, String)]) -> Result<Option<usize>, String> {
++    match flag(f, "--d55-workers") {
++        None => Ok(None),
++        Some(v) => {
++            let n: usize = v.parse().map_err(|_| "--d55-workers is not an integer")?;
++            if !(1..=64).contains(&n) {
++                return Err("--d55-workers is outside 1..=64".into());
++            }
++            Ok(Some(n))
++        }
++    }
++}
++
++/// **D60: every block of a fork run, resident at once** (a fork run's
++/// workers share them read-only), each reloaded from the export exactly as
++/// the D12a block cache reloads one and refused unless its digest is the run
++/// statement's. Returns the blocks and the load seconds.
++fn load_fork_blocks(ex: &TrainedExport, sh: &Shape, c: &Constants, layers: &[u32], digests: &[Digest], rope_from_export: bool) -> Result<(Vec<BlockPublic>, f64), String> {
++    let t = Instant::now();
++    let mut v = Vec::with_capacity(layers.len());
++    for (k, &layer) in layers.iter().enumerate() {
++        let blk = ex.reload_block(sh, c, layer, rope_from_export)?;
++        if blk.digest() != digests[k] {
++            return Err(format!("trained stack: layer {layer}'s reloaded public statement is not the one the run statement binds"));
++        }
++        v.push(blk);
++    }
++    Ok((v, t.elapsed().as_secs_f64()))
++}
++
+ /// the text of the marker inside an unverified statement directory
+ const UNVERIFIED_TEXT: &[u8] = b"The prover wrote this statement WITHOUT verifying the run. It is not a public statement: only `stack-verify`, after a fresh-process verification of the run directory passes, writes <run>/statement/ itself (rulings M-9 / D12b(1); review r5_A).\n";
+ 
+@@ -2812,7 +2879,21 @@
+ }
+ 
+ #[allow(clippy::too_many_arguments)]
+-fn render_stack_statement(ex: &TrainedExport, sh: &Shape, layers: &[LayerMeta], st: &TrainedModelStatement, ctx: &Digest, expected: &ExpectedIo, label: &str, writer: StatementWriter, claims: &ProverClaims) -> String {
++/// D60: what a D55 fork run's statement says it is, beside its two profiles
++const D55_RUN_CONSTRUCTION: &str = "D55 commit, fork, join (a registered opt-in run profile, ruling D60): every internal boundary committed before any block challenge, each block proved on its own fork of that transcript, one joined opening phase; the frames are d55-head.bin, d55-fork-NNN.bin and d55-tail.bin";
++
++/// **The stack statement, for a D12a run (`fork` = `None`: byte for byte the
++/// statement every earlier round wrote) or (D60) for a D55 fork run** —
++/// `fork` = `(the D55 run profile, its base run profile)`: `run_profile` is
++/// then the D55 string and the statement also names the base and the
++/// construction, so a D12a statement and a D55 statement of the same run
++/// never render alike.
++#[allow(clippy::too_many_arguments)]
++fn render_stack_statement_for(ex: &TrainedExport, sh: &Shape, layers: &[LayerMeta], st: &TrainedModelStatement, ctx: &Digest, expected: &ExpectedIo, label: &str, writer: StatementWriter, claims: &ProverClaims, fork: Option<(&str, &str)>) -> String {
++    let run_fragment = match fork {
++        None => format!("\"run_profile\": {}", js(ex.run_profile())),
++        Some((d55, base)) => format!("\"run_profile\": {},\n \"base_run_profile\": {},\n \"run_construction\": {}", js(d55), js(base), js(D55_RUN_CONSTRUCTION)),
++    };
+     let c = sh.norm_calibration();
+     let recs: Vec<String> = layers
+         .iter()
+@@ -2826,7 +2907,7 @@
+         })
+         .collect();
+     format!(
+-        "{{\n \"schema\": \"{}\",\n \"scope\": {},\n \"statement_written_by\": {},\n \"prover_reported\": {{\"backend\": {}, \"gpu_declines\": {}, \"what\": {}}},\n \"block_profile\": {},\n \"run_profile\": {},\n \"blocks\": {},\n \"export_variant\": {},\n \"export_profile_sha256\": {},\n \"calibration_tool_sha256\": {},\n \"trained_statement_identity\": {},\n \"context_label\": {},\n \"context\": {},\n \"expected_io\": {},\n \"layers\": [\n  {}\n ],\n \"shape\": {{\"tokens\": {}, \"width\": {}, \"hidden\": {}, \"q_heads\": {}, \"kv_heads\": {}, \"head_dim\": {}, \"log_cols\": {}, \"inv_rate\": {}, \"opened_cols\": {}, \"f_e\": {}, \"wrho_s\": {}, \"norm_wrho\": {}, \"norm_tn\": {}, \"norm_cn_a\": {}, \"norm_cn_m\": {}, \"norm_ceps\": {}, \"sh_ao\": {}, \"sh_qkv\": {}, \"sh_s\": {}, \"sh_o\": {}, \"sh_g\": {}, \"sh_h\": {}, \"sh_z\": {}, \"d_max\": {}}}\n}}\n",
++        "{{\n \"schema\": \"{}\",\n \"scope\": {},\n \"statement_written_by\": {},\n \"prover_reported\": {{\"backend\": {}, \"gpu_declines\": {}, \"what\": {}}},\n \"block_profile\": {},\n {},\n \"blocks\": {},\n \"export_variant\": {},\n \"export_profile_sha256\": {},\n \"calibration_tool_sha256\": {},\n \"trained_statement_identity\": {},\n \"context_label\": {},\n \"context\": {},\n \"expected_io\": {},\n \"layers\": [\n  {}\n ],\n \"shape\": {{\"tokens\": {}, \"width\": {}, \"hidden\": {}, \"q_heads\": {}, \"kv_heads\": {}, \"head_dim\": {}, \"log_cols\": {}, \"inv_rate\": {}, \"opened_cols\": {}, \"f_e\": {}, \"wrho_s\": {}, \"norm_wrho\": {}, \"norm_tn\": {}, \"norm_cn_a\": {}, \"norm_cn_m\": {}, \"norm_ceps\": {}, \"sh_ao\": {}, \"sh_qkv\": {}, \"sh_s\": {}, \"sh_o\": {}, \"sh_g\": {}, \"sh_h\": {}, \"sh_z\": {}, \"d_max\": {}}}\n}}\n",
+         STACK_STATEMENT_SCHEMA,
+         js(stack_scope(ex.geometry)),
+         js(writer.text()),
+@@ -2834,7 +2915,7 @@
+         claims.gpu_declines,
+         js(PROVER_REPORTED_WHAT),
+         js(sh.profile),
+-        js(ex.run_profile()),
++        run_fragment,
+         layers.len(),
+         js(&ex.variant),
+         js(&hex(&ex.profile_sha256)),
+@@ -2912,8 +2993,23 @@
+ /// block K is off by one word, and the run must then FAIL to verify (exit 0
+ /// means the control behaved). stdout from a run on a hidden input is
+ /// prover-private (privacy review P-6).
++///
++/// **D60: `--d55-workers N`** proves the run under its base's REGISTERED D55
++/// "commit, fork, join" profile instead (refused by name over a base with
++/// none), the blocks on `N` fork workers, and writes the receipt's `L + 2`
++/// frames (`d55-head.bin`, `d55-fork-NNN.bin`, `d55-tail.bin`) into `--out`;
++/// the statement names the D55 profile and its base. Every other step is the
++/// D12a run's. Not with `--lie-at-boundary` (a D12a control).
++///
++/// **D60 review F3:** while `run::fork::D55_REAL_CONTENT_PRIVACY_GATE_PASSED`
++/// is `false`, `--d55-workers` is REFUSED (before anything is read or
++/// created) unless `--d55-test-receipt-not-for-publication` is also given;
++/// with it, the run directory gets the marker
++/// `D55_TEST_RECEIPT_NOT_FOR_PUBLICATION.txt` after its frames (no frame,
++/// `segments.json` or `statement.json` byte carries it), and
++/// `stack-verify --d55-workers` reports it.
+ pub fn trained_stack_prove_command(args: &[String]) -> i32 {
+-    let f = match flags(args, &["--export", "--seq", "--seq-dir", "--out", "--layers", "--label", "--lie-at-boundary", "--witness-cache-gib"], &["--rope-from-export", "--verify-in-process", "--dd"]) {
++    let f = match flags(args, &["--export", "--seq", "--seq-dir", "--out", "--layers", "--label", "--lie-at-boundary", "--witness-cache-gib", "--d55-workers"], &["--rope-from-export", "--verify-in-process", "--dd", D55_TEST_RECEIPT_FLAG]) {
+         Ok(f) => f,
+         Err(e) => {
+             eprintln!("zk60_trained_block stack-prove: {e}");
+@@ -2946,6 +3042,15 @@
+     if !(0.0..=64.0).contains(&budget_gib) {
+         return Err("--witness-cache-gib is outside 0..=64".into());
+     }
++    // D60: a D55 fork run (the registered profile of the run's base)
++    let d55_workers = d55_workers_of(f)?;
++    if d55_workers.is_some() && lie_at.is_some() {
++        return Err("--lie-at-boundary is a D12a control; it does not combine with --d55-workers".into());
++    }
++    // D60 review F3: a D55 fork run fails CLOSED until the real-content
++    // privacy gate has passed, unless the operator acknowledges a TEST receipt
++    // (refused here, before anything is read or created)
++    let test_receipt = d55_prove_admission(d55_workers, flag(f, D55_TEST_RECEIPT_FLAG).is_some(), run::fork::D55_REAL_CONTENT_PRIVACY_GATE_PASSED)?;
+     let unverified = unverified_statement_dir(&out)?;
+     if out.exists() || unverified.exists() {
+         return Err(format!("{} (or its unverified statement directory) exists; the run directory must be new", out.display()));
+@@ -3001,30 +3106,79 @@
+     let spec = IoSpec::new_shaped(&sh, ctx, 0, 0)?;
+     let (expected, owners) = prepare_endpoints(spec, &chain.first, &chain.last)?;
+     let rst = RunStatement::new_bound_from_digests(ex.geometry.run_shape(&sh, l)?, ctx, expected.clone(), digests.clone(), &vec![(0, 0); l], &st)?;
++    // D60: the fork run's door, BEFORE the run directory exists (an
++    // ineligible base is refused by name here)
++    let fork = match d55_workers {
++        Some(n) => {
++            let fr = run::fork::ForkRun::new(&rst, run::fork::D55OptIn::registered_profile())?;
++            println!("{{\"event\":\"d55\",\"run_profile\":{},\"base_run_profile\":{},\"workers\":{n},\"test_receipt_not_for_publication\":{test_receipt}}}", js(fr.profile()), js(rst.rs().profile()));
++            Some((fr, n))
++        }
++        None => None,
++    };
++    let fork_names = fork.as_ref().map(|(fr, _)| (fr.profile().to_string(), rst.rs().profile().to_string()));
++    let fork_names = fork_names.as_ref().map(|(d, b)| (d.as_str(), b.as_str()));
+     let cache = BlockCache::shared(&ex, &sh, &c, layers.clone(), digests.clone(), rope);
+     let mut src = StackSource::new(&sh, cache.clone(), l, chain, lie_at)?;
+     // ---- (3) the proving pass
+     std::fs::create_dir(&out).map_err(|e| format!("{}: {e}", out.display()))?;
+-    let mut disk = match super::run_sink::DirSink::create(&out, l) {
+-        Ok(d) => d,
+-        Err(e) => return Err(fail_run(&out, e)),
+-    };
+     let t = Instant::now();
+-    let stats = {
+-        let mut sink = |k: usize, bytes: Vec<u8>| -> Result<(), String> {
+-            let n = bytes.len();
+-            super::run_sink::SegmentSink::accept(&mut disk, k, bytes)?;
+-            println!("{{\"event\":\"segment\",\"index\":{k},\"layer\":{},\"bytes\":{n},\"elapsed_seconds\":{:.3},\"vmhwm_mib\":{:.0}}}", layers[k], t.elapsed().as_secs_f64(), peak_rss_mib());
+-            Ok(())
+-        };
+-        run::prove_run_with(&rst, &mut CacheBlocks(cache.clone()), &mut src, owners, &mut sink)
++    // the frames written (length, SHA-256), in file order: D12a's segments
++    // or (D60) the fork receipt's frames
++    let proved: Result<Vec<(u64, String)>, String> = match &fork {
++        None => {
++            let mut disk = match super::run_sink::DirSink::create(&out, l) {
++                Ok(d) => d,
++                Err(e) => return Err(fail_run(&out, e)),
++            };
++            let stats = {
++                let mut sink = |k: usize, bytes: Vec<u8>| -> Result<(), String> {
++                    let n = bytes.len();
++                    super::run_sink::SegmentSink::accept(&mut disk, k, bytes)?;
++                    println!("{{\"event\":\"segment\",\"index\":{k},\"layer\":{},\"bytes\":{n},\"elapsed_seconds\":{:.3},\"vmhwm_mib\":{:.0}}}", layers[k], t.elapsed().as_secs_f64(), peak_rss_mib());
++                    Ok(())
++                };
++                run::prove_run_with(&rst, &mut CacheBlocks(cache.clone()), &mut src, owners, &mut sink)
++            };
++            stats.map(|_| (0..l).map(|k| (disk.lengths()[k] as u64, disk.digests()[k].clone())).collect())
++        }
++        Some((fr, workers)) => (|| -> Result<Vec<(u64, String)>, String> {
++            let (blocks, load_s) = load_fork_blocks(&ex, &sh, &c, &layers, &digests, rope)?;
++            let (rc, fs) = run::fork::prove_run_with_forks(fr, &blocks, &mut src, owners, *workers)?;
++            let written = run::fork::write_fork_receipt(&out, &rc)?;
++            // D60 review F3: the not-for-publication marker, after the frames
++            // and before any verification or statement (a run that fails
++            // later is removed with it)
++            if test_receipt {
++                let p = run::fork::write_d55_test_receipt_marker(&out)?;
++                println!("{{\"event\":\"d55-test-receipt\",\"not_for_publication\":true,\"marker\":{},\"why\":\"D60 review F3: run_fork::D55_REAL_CONTENT_PRIVACY_GATE_PASSED is false in this build; the operator passed {D55_TEST_RECEIPT_FLAG}\"}}", js(&p.display().to_string()));
++            }
++            let core: Vec<String> = fs.fork_core_s.iter().map(|s| format!("{s:.3}")).collect();
++            println!(
++                "{{\"event\":\"d55-proved\",\"workers\":{},\"frames\":{},\"receipt_bytes\":{},\"block_load_seconds\":{load_s:.3},\"preflight_seconds\":{:.3},\"commit_seconds\":{:.3},\"forks_seconds\":{:.3},\"join_seconds\":{:.3},\"total_seconds\":{:.3},\"fork_prove_core_seconds\":[{}],\"generators\":{},\"join_claim_bytes\":{},\"vmhwm_mib\":{:.0}}}",
++                fs.workers,
++                written.len(),
++                rc.bytes(),
++                fs.preflight_s,
++                fs.commit_s,
++                fs.forks_s,
++                fs.join_s,
++                fs.total_s,
++                core.join(","),
++                fs.generators,
++                fs.join_claim_bytes.iter().map(|c| c[0] + c[1]).sum::<usize>(),
++                peak_rss_mib()
++            );
++            Ok(written)
++        })(),
+     };
+     let prove_s = t.elapsed().as_secs_f64();
+     let (rebuild_s, rebuilt) = (src.busy_s, src.chain.rebuilt);
+     drop(src);
+-    if let Err(e) = stats {
+-        return Err(fail_run(&out, format!("prove_run: {e}")));
+-    }
++    let sunk = match proved {
++        Ok(s) => s,
++        Err(e) => return Err(fail_run(&out, format!("prove_run: {e}"))),
++    };
+     let hwm = peak_rss_mib();
+     let (block_loads, block_load_s) = {
+         let cb = cache.borrow();
+@@ -3036,8 +3190,14 @@
+     let in_process = flag(f, "--verify-in-process").is_some() || lie_at.is_some();
+     let t = Instant::now();
+     let verdict = if in_process {
+-        let vcache = BlockCache::shared(&ex, &sh, &c, layers.clone(), digests.clone(), rope);
+-        run::verify_run_from_dir_hashed_with(&rst, &mut CacheBlocks(vcache), &out).map(Some)
++        match &fork {
++            None => {
++                let vcache = BlockCache::shared(&ex, &sh, &c, layers.clone(), digests.clone(), rope);
++                run::verify_run_from_dir_hashed_with(&rst, &mut CacheBlocks(vcache), &out).map(Some)
++            }
++            // D60: a fresh copy of every block, the frames read from the directory
++            Some((fr, workers)) => load_fork_blocks(&ex, &sh, &c, &layers, &digests, rope).and_then(|(b, _)| run::fork::verify_run_with_forks_from_dir(fr, &b, &out, *workers)).map(Some),
++        }
+     } else {
+         Ok(None)
+     };
+@@ -3059,7 +3219,8 @@
+     //      verification (M-9 / D12b(1)); otherwise beside the run, unverified.
+     //      NATIVE R6 (review r5_A): an in-process verification's segments.json
+     //      is the hashes of the bytes it verified, which must be the sink's
+-    let sunk: Vec<(u64, String)> = (0..l).map(|k| (disk.lengths()[k] as u64, disk.digests()[k].clone())).collect();
++    // (D60: a fork run's `segments.json` names its frames)
++    let frames_json = |seen: &[(u64, String)]| if fork.is_some() { render_fork_frames_json(seen) } else { render_segments_json(seen) };
+     let claims = ProverClaims::of_this_process();
+     // NATIVE R7 (Q-2): the prover writes only the build's constants
+     check_prover_reported(&claims.backend, claims.gpu_declines).map_err(|e| fail_run(&out, e))?;
+@@ -3068,15 +3229,15 @@
+             if seen != sunk {
+                 return Err(fail_run(&out, "in-process verification: the bytes it verified are not the bytes the prover wrote".into()));
+             }
+-            let stmt = render_stack_statement(&ex, &sh, &loaded, &st, &ctx, &expected, label, StatementWriter::InProcess, &claims);
+-            publish_statement_dir(&out, &[("expected.bin", &expected.to_bytes()), ("statement.json", stmt.as_bytes()), ("segments.json", render_segments_json(&seen).as_bytes())]).map_err(|e| fail_run(&out, e))?
++            let stmt = render_stack_statement_for(&ex, &sh, &loaded, &st, &ctx, &expected, label, StatementWriter::InProcess, &claims, fork_names);
++            publish_statement_dir(&out, &[("expected.bin", &expected.to_bytes()), ("statement.json", stmt.as_bytes()), ("segments.json", frames_json(&seen).as_bytes())]).map_err(|e| fail_run(&out, e))?
+         }
+         None => {
+             std::fs::create_dir(&unverified).map_err(|e| format!("{}: {e}", unverified.display()))?;
+             write_new(&unverified.join(UNVERIFIED_MARKER), UNVERIFIED_TEXT)?;
+             write_new(&unverified.join("expected.bin"), &expected.to_bytes())?;
+-            write_new(&unverified.join("statement.json"), render_stack_statement(&ex, &sh, &loaded, &st, &ctx, &expected, label, StatementWriter::Unverified, &claims).as_bytes())?;
+-            write_new(&unverified.join("segments.json"), render_segments_json(&sunk).as_bytes())?;
++            write_new(&unverified.join("statement.json"), render_stack_statement_for(&ex, &sh, &loaded, &st, &ctx, &expected, label, StatementWriter::Unverified, &claims, fork_names).as_bytes())?;
++            write_new(&unverified.join("segments.json"), frames_json(&sunk).as_bytes())?;
+             unverified.clone()
+         }
+     };
+@@ -3084,7 +3245,7 @@
+         "{{\"event\":\"proved\",\"gpu\":{},\"gpu_declines\":{},\"blocks\":{l},\"receipt_bytes\":{},\"prove_run_seconds\":{prove_s:.3},\"of_which_witness_seconds\":{rebuild_s:.3},\"rebuilt_witnesses\":{rebuilt},\"witness_seconds_per_block\":{:.3},\"of_which_block_load_seconds\":{block_load_s:.3},\"block_loads\":{block_loads},\"rayon_threads\":{},\"in_process_verified\":{in_process},\"in_process_verify_seconds\":{verify_s:.3},\"sealing_pass_seconds\":{:.3},\"sealing_witness_seconds\":{:.3},\"load_seconds\":{:.3},\"total_seconds\":{:.3},\"vmhwm_mib\":{hwm:.0},\"statement_identity\":{},\"statement_dir\":{},\"out\":{}}}",
+         js(&crate::gpu::label()),
+         crate::gpu::declines(),
+-        disk.total_bytes(),
++        sunk.iter().map(|(n, _)| *n).sum::<u64>(),
+         (seal.witness_s + rebuild_s) / l as f64,
+         rayon::current_num_threads(),
+         seal.wall_s,
+@@ -3120,8 +3281,19 @@
+ /// is then replaced by one the VERIFIER writes into a fresh directory and
+ /// renames to `<artifact>/statement/` (never over an existing one); an
+ /// existing `statement/` is only checked.
++///
++/// **D60: `--d55-workers N`** verifies a D55 fork receipt (the registered
++/// D55 profile of the run's base; its `L + 2` frames, each read bounded
++/// against its counted length) with the forks on `N` threads, and checks the
++/// statement as the D55 prover renders it. Without the flag the verifier is
++/// D12a's and refuses a fork run's directory; with it, a D12a run's. Not with
++/// `--controls` (D12a's run-level controls). **D60 review F3:** every D55
++/// verification prints a `d55-publication` event: whether the run directory
++/// carries the test-receipt marker (`present` / `ABSENT`) and whether this
++/// build's real-content privacy gate has passed; the verifier stays usable
++/// either way.
+ pub fn trained_stack_verify_command(args: &[String]) -> i32 {
+-    let f = match flags(args, &["--export", "--artifact", "--expect-statement", "--layers", "--label"], &["--rope-from-export", "--controls", "--dd"]) {
++    let f = match flags(args, &["--export", "--artifact", "--expect-statement", "--layers", "--label", "--d55-workers"], &["--rope-from-export", "--controls", "--dd"]) {
+         Ok(f) => f,
+         Err(e) => {
+             eprintln!("zk60_trained_block stack-verify: {e}");
+@@ -3142,6 +3314,11 @@
+     let art = PathBuf::from(need(f, "--artifact")?);
+     let pin = unhex32(need(f, "--expect-statement")?)?;
+     let label = label_of(f, &STACK_LABELS)?;
++    // D60: a D55 fork receipt's verifier
++    let d55_workers = d55_workers_of(f)?;
++    if d55_workers.is_some() && flag(f, "--controls").is_some() {
++        return Err("--controls are D12a's run-level controls; they do not combine with --d55-workers".into());
++    }
+     let t = Instant::now();
+     // R5b (P-5): the verifier's export holds no prover-private seq_* entry
+     refuse_prover_private_entries(&export)?;
+@@ -3199,13 +3376,29 @@
+         return Err("the artifact's endpoint policy carries another context".into());
+     }
+     let rst = RunStatement::new_bound_from_digests(ex.geometry.run_shape(&sh, l)?, ctx, expected.clone(), digests.clone(), &vec![(0, 0); l], &st)?;
++    // D60: the fork run's door (an ineligible base is refused by name)
++    let fork = match d55_workers {
++        Some(n) => Some((run::fork::ForkRun::new(&rst, run::fork::D55OptIn::registered_profile())?, n)),
++        None => None,
++    };
++    let fork_names = fork.as_ref().map(|(fr, _)| (fr.profile().to_string(), rst.rs().profile().to_string()));
++    let fork_names = fork_names.as_ref().map(|(d, b)| (d.as_str(), b.as_str()));
+     let load_s = t.elapsed().as_secs_f64();
+     let t = Instant::now();
+-    let vcache = BlockCache::shared(&ex, &sh, &c, layers.clone(), digests.clone(), rope);
+     // NATIVE R6 (r5_A (b)): the hashes of EXACTLY the bytes verified
+-    let seen = run::verify_run_from_dir_hashed_with(&rst, &mut CacheBlocks(vcache.clone()), &art)?;
++    let (seen, block_load_s) = match &fork {
++        None => {
++            let vcache = BlockCache::shared(&ex, &sh, &c, layers.clone(), digests.clone(), rope);
++            let seen = run::verify_run_from_dir_hashed_with(&rst, &mut CacheBlocks(vcache.clone()), &art)?;
++            let s = vcache.borrow().load_s;
++            (seen, s)
++        }
++        Some((fr, workers)) => {
++            let (blocks, s) = load_fork_blocks(&ex, &sh, &c, &layers, &digests, rope)?;
++            (run::fork::verify_run_with_forks_from_dir(fr, &blocks, &art, *workers)?, s)
++        }
++    };
+     let verify_s = t.elapsed().as_secs_f64();
+-    let block_load_s = vcache.borrow().load_s;
+     let total: u64 = seen.iter().map(|(n, _)| *n).sum();
+     println!(
+         "{{\"event\":\"verified\",\"blocks\":{l},\"receipt_bytes\":{total},\"load_seconds\":{load_s:.3},\"verify_seconds\":{verify_s:.3},\"of_which_block_load_seconds\":{block_load_s:.3},\"vmhwm_mib\":{:.0},\"statement_identity\":{},\"scope\":{}}}",
+@@ -3213,6 +3406,24 @@
+         js(&hex(&st.identity())),
+         js(stack_scope(ex.geometry))
+     );
++    // D60 review F3: on EVERY verification of a D55 fork receipt, whether it
++    // is a test receipt (its marker) and whether this build's real-content
++    // privacy gate has passed; while it has not, no D55 receipt is for
++    // publication, marked or not
++    if fork.is_some() {
++        let marked = run::fork::d55_test_receipt_marker(&art)?;
++        let gate = run::fork::D55_REAL_CONTENT_PRIVACY_GATE_PASSED;
++        println!(
++            "{{\"event\":\"d55-publication\",\"not_for_publication\":{},\"test_receipt_marker\":{},\"real_content_privacy_gate_passed\":{gate},\"why\":{}}}",
++            marked || !gate,
++            js(if marked { "present" } else { "ABSENT" }),
++            js(match (marked, gate) {
++                (true, _) => "the run directory carries the D55 test-receipt marker (stack-prove --d55-test-receipt-not-for-publication): a TEST receipt, not for publication (D60 review F3)",
++                (false, false) => "the run directory carries no test-receipt marker, but this build's D60 real-content privacy gate has not passed (run_fork::D55_REAL_CONTENT_PRIVACY_GATE_PASSED is false): no D55 receipt is for publication (D60 review F3)",
++                (false, true) => "no test-receipt marker; the D60 real-content privacy gate has passed in this build",
++            })
++        );
++    }
+     if flag(f, "--controls").is_some() {
+         stack_controls(&ex, &c, &sh, &layers, &digests, rope, &loaded, &st, ctx, &expected, &art)?;
+     }
+@@ -3227,7 +3438,7 @@
+     //      verifier's rendering (its own export, shape, identity, context and
+     //      policy) with the writer and prover self-reports it names, and the
+     //      found segments.json must be the hashes of the verified bytes.
+-    let segs_json = render_segments_json(&seen);
++    let segs_json = if fork.is_some() { render_fork_frames_json(&seen) } else { render_segments_json(&seen) };
+     let found_stmt = read_bounded(&sdir.join("statement.json"), MAX_JSON_BYTES)?;
+     let found_segs = read_bounded(&sdir.join("segments.json"), MAX_JSON_BYTES)?;
+     let (writer, claims) = ProverClaims::of_statement(&found_stmt).map_err(|e| format!("{}: {e} (review r5_A)", sdir.display()))?;
+@@ -3235,7 +3446,7 @@
+     if !allowed.contains(&writer) {
+         return Err(format!("{}: statement.json names the writer \"{}\", which does not write this directory (review r5_A)", sdir.display(), writer.text()));
+     }
+-    if render_stack_statement(&ex, &sh, &loaded, &st, &ctx, &expected, label, writer, &claims).as_bytes() != found_stmt.as_slice() {
++    if render_stack_statement_for(&ex, &sh, &loaded, &st, &ctx, &expected, label, writer, &claims, fork_names).as_bytes() != found_stmt.as_slice() {
+         return Err(format!("{}: statement.json is not, byte for byte, this verifier's rendering of the verified run (review r5_A)", sdir.display()));
+     }
+     if found_segs != segs_json.as_bytes() {
+@@ -3250,7 +3461,7 @@
+     }
+     // ---- publication: the VERIFIER writes <run>/statement/ itself, from its
+     //      own rendering and the bytes it verified, into a fresh directory
+-    let stmt = render_stack_statement(&ex, &sh, &loaded, &st, &ctx, &expected, label, StatementWriter::FreshVerify, &claims);
++    let stmt = render_stack_statement_for(&ex, &sh, &loaded, &st, &ctx, &expected, label, StatementWriter::FreshVerify, &claims, fork_names);
+     let published = publish_statement_dir(&art, &[("expected.bin", &expected_bytes), ("statement.json", stmt.as_bytes()), ("segments.json", segs_json.as_bytes())])?;
+     // then the prover's unverified directory goes: re-checked as a real
+     // directory, never followed (`remove_dir_all` removes a link itself)

@@ -1,0 +1,33 @@
+--- frozen-r19b/hashline/src/private_block/token_io/load.rs
++++ HEAD 8b78aabd:ops/zkp-mvp/gpu-metal/hashline/src/private_block/token_io/load.rs
+@@ -33,9 +33,6 @@
+ pub(crate) const MAX_MANIFEST_BYTES: u64 = 1 << 20;
+ /// the read chunk of the table files
+ const CHUNK: usize = 16 << 20;
+-/// `O_NOFOLLOW | O_NONBLOCK` (x86-64 Linux), as `run::read_regular_file_bounded`
+-#[cfg(all(target_os = "linux", target_arch = "x86_64"))]
+-const TABLE_OPEN_FLAGS: i32 = 0o400000 | 0o4000;
+ 
+ /// where the token tables are: the embedding's directory (with
+ /// `token_io.json`) and the head's (with `head_manifest.json`); the same
+@@ -127,16 +124,10 @@
+         return Err(format!("{}: {} bytes, the table is {len}", path.display(), meta.len()));
+     }
+     // review TR4-4: the open follows no link and does not block on a FIFO
+-    // (R7's segment open flags, `O_NOFOLLOW | O_NONBLOCK` on x86-64 Linux);
+-    // the opened file is re-checked below
+-    let mut opts = std::fs::OpenOptions::new();
+-    opts.read(true);
+-    #[cfg(all(target_os = "linux", target_arch = "x86_64"))]
+-    {
+-        use std::os::unix::fs::OpenOptionsExt;
+-        opts.custom_flags(TABLE_OPEN_FLAGS);
+-    }
+-    let mut f = opts.open(path).map_err(|e| format!("{}: cannot be opened as a regular file: {e}", path.display()))?;
++    // (R7's segment open flags, `O_NOFOLLOW | O_NONBLOCK`, since D60 review F4
++    // on every target that defines them: `run::open_nofollow_nonblock`); the
++    // opened file is re-checked below
++    let mut f = super::super::run::open_nofollow_nonblock(path).map_err(|e| format!("{}: cannot be opened as a regular file: {e}", path.display()))?;
+     let fm = f.metadata().map_err(|e| format!("{}: {e}", path.display()))?;
+     if !fm.file_type().is_file() || fm.len() != len as u64 {
+         return Err(format!("{}: changed after its check; refused", path.display()));
