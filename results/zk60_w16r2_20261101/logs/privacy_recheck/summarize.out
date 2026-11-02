@@ -1,0 +1,148 @@
+== d55-cpu-d55-w16_rung_h24-s0.json: D55-DEV-PASS (76.7 s) parts {'D55-0 integrity': True, 'D55-1/2 facts': True, 'D55-3 replay': True, 'D55-C replay controls': True, 'W16-4 layout': True, 'W16-5 tab tables': True, 'W16-6 per commitment': True, 'W16-7 mask and CFS': True}
+   geometry {'endpoint_inv_rate': 4, 'family': 'W16', 'inv_rate': 4, 'mask_columns': 256, 'mask_log_dom': 12, 'pads': 256, 'q': 256, 'regular_openings_checked': 10, 'tail_openings_checked': 4}
+   replay positions 376 challenges 4247 failures 0 s0 True s1 True tail end True tail openings 4
+   A@0       block              rows  320 data   90 disclosed 0 (want 0) distinct 255/256 pads 256 margin 1 Zn0 0 minor True/True hyp True col-id 28/28 findings 0
+   H@0       block              rows  202 data  106 disclosed 2 (want 2) distinct 256/256 pads 256 margin 0 Zn0 0 minor True/True hyp True col-id 28/28 findings 0
+   A@1       block              rows  320 data   90 disclosed 0 (want 0) distinct 256/256 pads 256 margin 0 Zn0 0 minor True/True hyp True col-id 28/28 findings 0
+   H@1       block              rows  202 data  106 disclosed 2 (want 2) distinct 256/256 pads 256 margin 0 Zn0 0 minor True/True hyp True col-id 28/28 findings 0
+   A@2       block              rows  320 data   90 disclosed 0 (want 0) distinct 256/256 pads 256 margin 0 Zn0 0 minor True/True hyp True col-id 28/28 findings 0
+   H@2       block              rows  202 data  106 disclosed 2 (want 2) distinct 256/256 pads 256 margin 0 Zn0 0 minor True/True hyp True col-id 28/28 findings 0
+   B0        internal-boundary  rows    7 data    1 disclosed 0 (want 0) distinct 255/256 pads 256 margin 1 Zn0 0 minor True/True hyp True col-id 21/21 findings 0
+   B1        internal-boundary  rows    7 data    1 disclosed 0 (want 0) distinct 255/256 pads 256 margin 1 Zn0 0 minor True/True hyp True col-id 21/21 findings 0
+   E-Input   external-endpoint  rows    6 data    1 disclosed 0 (want 0) distinct 256/256 pads 256 margin 0 Zn0 0 minor True/True hyp True col-id 14/14 findings 0
+   E-Output  external-endpoint  rows    6 data    1 disclosed 0 (want 0) distinct 256/256 pads 256 margin 0 Zn0 0 minor True/True hyp True col-id 14/14 findings 0
+   M@0       M rows 50 disclosed 0 opened 256
+   M@1       M rows 50 disclosed 0 opened 256
+   M@2       M rows 50 disclosed 0 opened 256
+   pad block {'commitment': 'B0', 'distinct_columns': 255, 'exact_rank_of_the_pad_block': 255, 'full_rank': True, 'pad_positions': 256, 'seconds': 30.4}
+   exclusivity controls ok True count 9
+   mask/CFS ok True entries 48375 differing 0 leaves 768 controls True
+   D55-C {'C1 a joined claim value moved': (True, 55), 'C2 the fork index dropped': (True, 5017)}
+   D55-0 files 12 tail ['B0', 'B1', 'E-Input', 'E-Output'] roots 10 twice False
+   pins 74 at r19b 45 read 7 unread ['src/private_block/argument_accuracy.rs', 'src/private_block/accuracy_act.rs', 'src/private_block/accuracy_fold.rs', 'src/private_block/accuracy_layout.rs', 'src/private_block/run_capture.rs', 'src/private_block/run.rs', 'src/private_block/protocol.rs', 'src/private_block/argument.rs', 'src/private_block/layout.rs', 'src/private_block/plane_index.rs', 'src/private_block/shape.rs', 'src/private_block/wire.rs', 'src/private_block.rs', 'src/private_block/pad.rs', 'src/private_block/witness_accuracy.rs', 'src/private_block/range16.rs', 'src/private_block/slot_ir.rs', 'src/private_block/slot_ir_accuracy.rs', 'src/private_block/metal_slot.rs', 'src/private_block/run_fork.rs', 'src/private_block/run_fork_wire.rs', 'src/private_block/w16_privacy_gate_tests.rs']
+== d55-cpu-d55-w16_rung_h24-s1.json: D55-DEV-PASS (77.3 s) parts {'D55-0 integrity': True, 'D55-1/2 facts': True, 'D55-3 replay': True, 'D55-C replay controls': True, 'W16-4 layout': True, 'W16-5 tab tables': True, 'W16-6 per commitment': True, 'W16-7 mask and CFS': True}
+   geometry {'endpoint_inv_rate': 4, 'family': 'W16', 'inv_rate': 4, 'mask_columns': 256, 'mask_log_dom': 12, 'pads': 256, 'q': 256, 'regular_openings_checked': 10, 'tail_openings_checked': 4}
+   replay positions 376 challenges 4247 failures 0 s0 True s1 True tail end True tail openings 4
+   A@0       block              rows  320 data   90 disclosed 0 (want 0) distinct 256/256 pads 256 margin 0 Zn0 0 minor True/True hyp True col-id 28/28 findings 0
+   H@0       block              rows  202 data  106 disclosed 2 (want 2) distinct 256/256 pads 256 margin 0 Zn0 0 minor True/True hyp True col-id 28/28 findings 0
+   A@1       block              rows  320 data   90 disclosed 0 (want 0) distinct 256/256 pads 256 margin 0 Zn0 0 minor True/True hyp True col-id 28/28 findings 0
+   H@1       block              rows  202 data  106 disclosed 2 (want 2) distinct 256/256 pads 256 margin 0 Zn0 0 minor True/True hyp True col-id 28/28 findings 0
+   A@2       block              rows  320 data   90 disclosed 0 (want 0) distinct 256/256 pads 256 margin 0 Zn0 0 minor True/True hyp True col-id 28/28 findings 0
+   H@2       block              rows  202 data  106 disclosed 2 (want 2) distinct 254/256 pads 256 margin 2 Zn0 0 minor True/True hyp True col-id 28/28 findings 0
+   B0        internal-boundary  rows    7 data    1 disclosed 0 (want 0) distinct 256/256 pads 256 margin 0 Zn0 0 minor True/True hyp True col-id 21/21 findings 0
+   B1        internal-boundary  rows    7 data    1 disclosed 0 (want 0) distinct 254/256 pads 256 margin 2 Zn0 0 minor True/True hyp True col-id 21/21 findings 0
+   E-Input   external-endpoint  rows    6 data    1 disclosed 0 (want 0) distinct 255/256 pads 256 margin 1 Zn0 0 minor True/True hyp True col-id 14/14 findings 0
+   E-Output  external-endpoint  rows    6 data    1 disclosed 0 (want 0) distinct 256/256 pads 256 margin 0 Zn0 0 minor True/True hyp True col-id 14/14 findings 0
+   M@0       M rows 50 disclosed 0 opened 256
+   M@1       M rows 50 disclosed 0 opened 256
+   M@2       M rows 50 disclosed 0 opened 256
+   pad block {'commitment': 'B0', 'distinct_columns': 256, 'exact_rank_of_the_pad_block': 256, 'full_rank': True, 'pad_positions': 256, 'seconds': 30.9}
+   exclusivity controls ok True count 9
+   mask/CFS ok True entries 48375 differing 0 leaves 768 controls True
+   D55-C {'C1 a joined claim value moved': (True, 55), 'C2 the fork index dropped': (True, 5017)}
+   D55-0 files 12 tail ['B0', 'B1', 'E-Input', 'E-Output'] roots 10 twice False
+   pins 74 at r19b 45 read 7 unread ['src/private_block/argument_accuracy.rs', 'src/private_block/accuracy_act.rs', 'src/private_block/accuracy_fold.rs', 'src/private_block/accuracy_layout.rs', 'src/private_block/run_capture.rs', 'src/private_block/run.rs', 'src/private_block/protocol.rs', 'src/private_block/argument.rs', 'src/private_block/layout.rs', 'src/private_block/plane_index.rs', 'src/private_block/shape.rs', 'src/private_block/wire.rs', 'src/private_block.rs', 'src/private_block/pad.rs', 'src/private_block/witness_accuracy.rs', 'src/private_block/range16.rs', 'src/private_block/slot_ir.rs', 'src/private_block/slot_ir_accuracy.rs', 'src/private_block/metal_slot.rs', 'src/private_block/run_fork.rs', 'src/private_block/run_fork_wire.rs', 'src/private_block/w16_privacy_gate_tests.rs']
+== d55-cpu-d55-w16r2_rung_h24-s0.json: D55-DEV-PASS (77.1 s) parts {'D55-0 integrity': True, 'D55-1/2 facts': True, 'D55-3 replay': True, 'D55-C replay controls': True, 'W16-4 layout': True, 'W16-5 tab tables': True, 'W16-6 per commitment': True, 'W16-7 mask and CFS': True}
+   geometry {'endpoint_inv_rate': 2, 'family': 'W16R2', 'inv_rate': 2, 'mask_columns': 256, 'mask_log_dom': 12, 'pads': 260, 'q': 260, 'regular_openings_checked': 10, 'tail_openings_checked': 4}
+   replay positions 376 challenges 4247 failures 0 s0 True s1 True tail end True tail openings 4
+   A@0       block              rows  320 data   90 disclosed 0 (want 0) distinct 259/260 pads 260 margin 1 Zn0 0 minor True/True hyp True col-id 28/28 findings 0
+   H@0       block              rows  202 data  106 disclosed 2 (want 2) distinct 259/260 pads 260 margin 1 Zn0 0 minor True/True hyp True col-id 28/28 findings 0
+   A@1       block              rows  320 data   90 disclosed 0 (want 0) distinct 260/260 pads 260 margin 0 Zn0 0 minor True/True hyp True col-id 28/28 findings 0
+   H@1       block              rows  202 data  106 disclosed 2 (want 2) distinct 258/260 pads 260 margin 2 Zn0 0 minor True/True hyp True col-id 28/28 findings 0
+   A@2       block              rows  320 data   90 disclosed 0 (want 0) distinct 258/260 pads 260 margin 2 Zn0 0 minor True/True hyp True col-id 28/28 findings 0
+   H@2       block              rows  202 data  106 disclosed 2 (want 2) distinct 259/260 pads 260 margin 1 Zn0 0 minor True/True hyp True col-id 28/28 findings 0
+   B0        internal-boundary  rows    7 data    1 disclosed 0 (want 0) distinct 259/260 pads 260 margin 1 Zn0 0 minor True/True hyp True col-id 21/21 findings 0
+   B1        internal-boundary  rows    7 data    1 disclosed 0 (want 0) distinct 260/260 pads 260 margin 0 Zn0 0 minor True/True hyp True col-id 21/21 findings 0
+   E-Input   external-endpoint  rows    6 data    1 disclosed 0 (want 0) distinct 259/260 pads 260 margin 1 Zn0 0 minor True/True hyp True col-id 14/14 findings 0
+   E-Output  external-endpoint  rows    6 data    1 disclosed 0 (want 0) distinct 258/260 pads 260 margin 2 Zn0 0 minor True/True hyp True col-id 14/14 findings 0
+   M@0       M rows 50 disclosed 0 opened 256
+   M@1       M rows 50 disclosed 0 opened 256
+   M@2       M rows 50 disclosed 0 opened 256
+   pad block {'commitment': 'B0', 'distinct_columns': 259, 'exact_rank_of_the_pad_block': 259, 'full_rank': True, 'pad_positions': 260, 'seconds': 31.2}
+   exclusivity controls ok True count 9
+   mask/CFS ok True entries 48375 differing 0 leaves 768 controls True
+   D55-C {'C1 a joined claim value moved': (True, 55), 'C2 the fork index dropped': (True, 5017)}
+   D55-0 files 12 tail ['B0', 'B1', 'E-Input', 'E-Output'] roots 10 twice False
+   pins 74 at r19b 45 read 7 unread ['src/private_block/argument_accuracy.rs', 'src/private_block/accuracy_act.rs', 'src/private_block/accuracy_fold.rs', 'src/private_block/accuracy_layout.rs', 'src/private_block/run_capture.rs', 'src/private_block/run.rs', 'src/private_block/protocol.rs', 'src/private_block/argument.rs', 'src/private_block/layout.rs', 'src/private_block/plane_index.rs', 'src/private_block/shape.rs', 'src/private_block/wire.rs', 'src/private_block.rs', 'src/private_block/pad.rs', 'src/private_block/witness_accuracy.rs', 'src/private_block/range16.rs', 'src/private_block/slot_ir.rs', 'src/private_block/slot_ir_accuracy.rs', 'src/private_block/metal_slot.rs', 'src/private_block/run_fork.rs', 'src/private_block/run_fork_wire.rs', 'src/private_block/w16_privacy_gate_tests.rs']
+== d55-cpu-d55-w16r2_rung_h24-s1.json: D55-DEV-PASS (76.5 s) parts {'D55-0 integrity': True, 'D55-1/2 facts': True, 'D55-3 replay': True, 'D55-C replay controls': True, 'W16-4 layout': True, 'W16-5 tab tables': True, 'W16-6 per commitment': True, 'W16-7 mask and CFS': True}
+   geometry {'endpoint_inv_rate': 2, 'family': 'W16R2', 'inv_rate': 2, 'mask_columns': 256, 'mask_log_dom': 12, 'pads': 260, 'q': 260, 'regular_openings_checked': 10, 'tail_openings_checked': 4}
+   replay positions 376 challenges 4247 failures 0 s0 True s1 True tail end True tail openings 4
+   A@0       block              rows  320 data   90 disclosed 0 (want 0) distinct 260/260 pads 260 margin 0 Zn0 0 minor True/True hyp True col-id 28/28 findings 0
+   H@0       block              rows  202 data  106 disclosed 2 (want 2) distinct 259/260 pads 260 margin 1 Zn0 0 minor True/True hyp True col-id 28/28 findings 0
+   A@1       block              rows  320 data   90 disclosed 0 (want 0) distinct 260/260 pads 260 margin 0 Zn0 0 minor True/True hyp True col-id 28/28 findings 0
+   H@1       block              rows  202 data  106 disclosed 2 (want 2) distinct 260/260 pads 260 margin 0 Zn0 0 minor True/True hyp True col-id 28/28 findings 0
+   A@2       block              rows  320 data   90 disclosed 0 (want 0) distinct 259/260 pads 260 margin 1 Zn0 0 minor True/True hyp True col-id 28/28 findings 0
+   H@2       block              rows  202 data  106 disclosed 2 (want 2) distinct 260/260 pads 260 margin 0 Zn0 0 minor True/True hyp True col-id 28/28 findings 0
+   B0        internal-boundary  rows    7 data    1 disclosed 0 (want 0) distinct 260/260 pads 260 margin 0 Zn0 0 minor True/True hyp True col-id 21/21 findings 0
+   B1        internal-boundary  rows    7 data    1 disclosed 0 (want 0) distinct 260/260 pads 260 margin 0 Zn0 0 minor True/True hyp True col-id 21/21 findings 0
+   E-Input   external-endpoint  rows    6 data    1 disclosed 0 (want 0) distinct 258/260 pads 260 margin 2 Zn0 0 minor True/True hyp True col-id 14/14 findings 0
+   E-Output  external-endpoint  rows    6 data    1 disclosed 0 (want 0) distinct 259/260 pads 260 margin 1 Zn0 0 minor True/True hyp True col-id 14/14 findings 0
+   M@0       M rows 50 disclosed 0 opened 256
+   M@1       M rows 50 disclosed 0 opened 256
+   M@2       M rows 50 disclosed 0 opened 256
+   pad block {'commitment': 'B0', 'distinct_columns': 260, 'exact_rank_of_the_pad_block': 260, 'full_rank': True, 'pad_positions': 260, 'seconds': 30.8}
+   exclusivity controls ok True count 9
+   mask/CFS ok True entries 48375 differing 0 leaves 768 controls True
+   D55-C {'C1 a joined claim value moved': (True, 55), 'C2 the fork index dropped': (True, 5017)}
+   D55-0 files 12 tail ['B0', 'B1', 'E-Input', 'E-Output'] roots 10 twice False
+   pins 74 at r19b 45 read 7 unread ['src/private_block/argument_accuracy.rs', 'src/private_block/accuracy_act.rs', 'src/private_block/accuracy_fold.rs', 'src/private_block/accuracy_layout.rs', 'src/private_block/run_capture.rs', 'src/private_block/run.rs', 'src/private_block/protocol.rs', 'src/private_block/argument.rs', 'src/private_block/layout.rs', 'src/private_block/plane_index.rs', 'src/private_block/shape.rs', 'src/private_block/wire.rs', 'src/private_block.rs', 'src/private_block/pad.rs', 'src/private_block/witness_accuracy.rs', 'src/private_block/range16.rs', 'src/private_block/slot_ir.rs', 'src/private_block/slot_ir_accuracy.rs', 'src/private_block/metal_slot.rs', 'src/private_block/run_fork.rs', 'src/private_block/run_fork_wire.rs', 'src/private_block/w16_privacy_gate_tests.rs']
+== w16-cpu-w16_rung_h24-s0.json: W16-DEV-PASS (56.7 s) parts {'W16-0 integrity': True, 'W16-1/2 facts': True, 'W16-3 replay': True, 'W16-4 layout': True, 'W16-5 tab tables': True, 'W16-6 per commitment': True, 'W16-7 mask and CFS': True}
+   geometry {'endpoint_inv_rate': 4, 'family': 'W16', 'inv_rate': 4, 'mask_columns': 256, 'mask_log_dom': 12, 'pads': 256, 'q': 256, 'regular_openings_checked': 4}
+   replay positions 127 challenges 1419 failures 0 s0 None s1 None tail end None tail openings None
+   A@0       block              rows  320 data   90 disclosed 0 (want 0) distinct 255/256 pads 256 margin 1 Zn0 0 minor True/True hyp True col-id 28/28 findings 0
+   H@0       block              rows  202 data  106 disclosed 2 (want 2) distinct 256/256 pads 256 margin 0 Zn0 0 minor True/True hyp True col-id 28/28 findings 0
+   E-Input   external-endpoint  rows    6 data    1 disclosed 0 (want 0) distinct 256/256 pads 256 margin 0 Zn0 0 minor True/True hyp True col-id 14/14 findings 0
+   E-Output  external-endpoint  rows    6 data    1 disclosed 0 (want 0) distinct 256/256 pads 256 margin 0 Zn0 0 minor True/True hyp True col-id 14/14 findings 0
+   M@0       M rows 50 disclosed 0 opened 256
+   pad block {'commitment': 'E-Input', 'distinct_columns': 256, 'exact_rank_of_the_pad_block': 256, 'full_rank': True, 'pad_positions': 256, 'seconds': 30.8}
+   exclusivity controls ok True count 9
+   mask/CFS ok True entries 16125 differing 0 leaves 256 controls True
+   pins 71 at r19b 45 read 7 unread ['src/private_block/argument_accuracy.rs', 'src/private_block/accuracy_act.rs', 'src/private_block/accuracy_fold.rs', 'src/private_block/accuracy_layout.rs', 'src/private_block/run_capture.rs', 'src/private_block/run.rs', 'src/private_block/protocol.rs', 'src/private_block/argument.rs', 'src/private_block/layout.rs', 'src/private_block/plane_index.rs', 'src/private_block/shape.rs', 'src/private_block/wire.rs', 'src/private_block.rs', 'src/private_block/pad.rs', 'src/private_block/witness_accuracy.rs', 'src/private_block/range16.rs', 'src/private_block/slot_ir.rs', 'src/private_block/slot_ir_accuracy.rs', 'src/private_block/metal_slot.rs']
+== w16-cpu-w16r2_8b_t128_h24-s0.json: W16-DEV-PASS (58.4 s) parts {'W16-0 integrity': True, 'W16-1/2 facts': True, 'W16-3 replay': True, 'W16-4 layout': True, 'W16-5 tab tables': True, 'W16-6 per commitment': True, 'W16-7 mask and CFS': True}
+   geometry {'endpoint_inv_rate': 2, 'family': 'W16R2', 'inv_rate': 2, 'mask_columns': 256, 'mask_log_dom': 12, 'pads': 260, 'q': 260, 'regular_openings_checked': 4}
+   replay positions 127 challenges 6211 failures 0 s0 None s1 None tail end None tail openings None
+   A@0       block              rows 2504 data 2280 disclosed 0 (want 0) distinct 257/260 pads 260 margin 3 Zn0 0 minor True/True hyp True col-id 28/28 findings 0
+   H@0       block              rows 2606 data 2514 disclosed 2 (want 2) distinct 260/260 pads 260 margin 0 Zn0 0 minor True/True hyp True col-id 28/28 findings 0
+   E-Input   external-endpoint  rows   37 data   32 disclosed 0 (want 0) distinct 258/260 pads 260 margin 2 Zn0 0 minor True/True hyp True col-id 14/14 findings 0
+   E-Output  external-endpoint  rows   37 data   32 disclosed 0 (want 0) distinct 259/260 pads 260 margin 1 Zn0 0 minor True/True hyp True col-id 14/14 findings 0
+   M@0       M rows 50 disclosed 0 opened 256
+   pad block {'commitment': 'E-Input', 'distinct_columns': 258, 'exact_rank_of_the_pad_block': 258, 'full_rank': True, 'pad_positions': 260, 'seconds': 30.5}
+   exclusivity controls ok True count 9
+   mask/CFS ok True entries 16374 differing 0 leaves 256 controls True
+   pins 71 at r19b 45 read 7 unread ['src/private_block/argument_accuracy.rs', 'src/private_block/accuracy_act.rs', 'src/private_block/accuracy_fold.rs', 'src/private_block/accuracy_layout.rs', 'src/private_block/run_capture.rs', 'src/private_block/run.rs', 'src/private_block/protocol.rs', 'src/private_block/argument.rs', 'src/private_block/layout.rs', 'src/private_block/plane_index.rs', 'src/private_block/shape.rs', 'src/private_block/wire.rs', 'src/private_block.rs', 'src/private_block/pad.rs', 'src/private_block/witness_accuracy.rs', 'src/private_block/range16.rs', 'src/private_block/slot_ir.rs', 'src/private_block/slot_ir_accuracy.rs', 'src/private_block/metal_slot.rs']
+== w16-cpu-w16r2_8b_t128_h24-s1.json: W16-DEV-PASS (58.5 s) parts {'W16-0 integrity': True, 'W16-1/2 facts': True, 'W16-3 replay': True, 'W16-4 layout': True, 'W16-5 tab tables': True, 'W16-6 per commitment': True, 'W16-7 mask and CFS': True}
+   geometry {'endpoint_inv_rate': 2, 'family': 'W16R2', 'inv_rate': 2, 'mask_columns': 256, 'mask_log_dom': 12, 'pads': 260, 'q': 260, 'regular_openings_checked': 4}
+   replay positions 127 challenges 6211 failures 0 s0 None s1 None tail end None tail openings None
+   A@0       block              rows 2504 data 2280 disclosed 0 (want 0) distinct 259/260 pads 260 margin 1 Zn0 0 minor True/True hyp True col-id 28/28 findings 0
+   H@0       block              rows 2606 data 2514 disclosed 2 (want 2) distinct 259/260 pads 260 margin 1 Zn0 0 minor True/True hyp True col-id 28/28 findings 0
+   E-Input   external-endpoint  rows   37 data   32 disclosed 0 (want 0) distinct 259/260 pads 260 margin 1 Zn0 0 minor True/True hyp True col-id 14/14 findings 0
+   E-Output  external-endpoint  rows   37 data   32 disclosed 0 (want 0) distinct 260/260 pads 260 margin 0 Zn0 0 minor True/True hyp True col-id 14/14 findings 0
+   M@0       M rows 50 disclosed 0 opened 256
+   pad block {'commitment': 'E-Input', 'distinct_columns': 259, 'exact_rank_of_the_pad_block': 259, 'full_rank': True, 'pad_positions': 260, 'seconds': 30.6}
+   exclusivity controls ok True count 9
+   mask/CFS ok True entries 16374 differing 0 leaves 256 controls True
+   pins 71 at r19b 45 read 7 unread ['src/private_block/argument_accuracy.rs', 'src/private_block/accuracy_act.rs', 'src/private_block/accuracy_fold.rs', 'src/private_block/accuracy_layout.rs', 'src/private_block/run_capture.rs', 'src/private_block/run.rs', 'src/private_block/protocol.rs', 'src/private_block/argument.rs', 'src/private_block/layout.rs', 'src/private_block/plane_index.rs', 'src/private_block/shape.rs', 'src/private_block/wire.rs', 'src/private_block.rs', 'src/private_block/pad.rs', 'src/private_block/witness_accuracy.rs', 'src/private_block/range16.rs', 'src/private_block/slot_ir.rs', 'src/private_block/slot_ir_accuracy.rs', 'src/private_block/metal_slot.rs']
+== w16-cpu-w16r2_rung_h24-s0.json: W16-DEV-PASS (58.6 s) parts {'W16-0 integrity': True, 'W16-1/2 facts': True, 'W16-3 replay': True, 'W16-4 layout': True, 'W16-5 tab tables': True, 'W16-6 per commitment': True, 'W16-7 mask and CFS': True}
+   geometry {'endpoint_inv_rate': 2, 'family': 'W16R2', 'inv_rate': 2, 'mask_columns': 256, 'mask_log_dom': 12, 'pads': 260, 'q': 260, 'regular_openings_checked': 4}
+   replay positions 127 challenges 1419 failures 0 s0 None s1 None tail end None tail openings None
+   A@0       block              rows  320 data   90 disclosed 0 (want 0) distinct 258/260 pads 260 margin 2 Zn0 0 minor True/True hyp True col-id 28/28 findings 0
+   H@0       block              rows  202 data  106 disclosed 2 (want 2) distinct 259/260 pads 260 margin 1 Zn0 0 minor True/True hyp True col-id 28/28 findings 0
+   E-Input   external-endpoint  rows    6 data    1 disclosed 0 (want 0) distinct 260/260 pads 260 margin 0 Zn0 0 minor True/True hyp True col-id 14/14 findings 0
+   E-Output  external-endpoint  rows    6 data    1 disclosed 0 (want 0) distinct 260/260 pads 260 margin 0 Zn0 0 minor True/True hyp True col-id 14/14 findings 0
+   M@0       M rows 50 disclosed 0 opened 256
+   pad block {'commitment': 'E-Input', 'distinct_columns': 260, 'exact_rank_of_the_pad_block': 260, 'full_rank': True, 'pad_positions': 260, 'seconds': 31.8}
+   exclusivity controls ok True count 9
+   mask/CFS ok True entries 16125 differing 0 leaves 256 controls True
+   pins 71 at r19b 45 read 7 unread ['src/private_block/argument_accuracy.rs', 'src/private_block/accuracy_act.rs', 'src/private_block/accuracy_fold.rs', 'src/private_block/accuracy_layout.rs', 'src/private_block/run_capture.rs', 'src/private_block/run.rs', 'src/private_block/protocol.rs', 'src/private_block/argument.rs', 'src/private_block/layout.rs', 'src/private_block/plane_index.rs', 'src/private_block/shape.rs', 'src/private_block/wire.rs', 'src/private_block.rs', 'src/private_block/pad.rs', 'src/private_block/witness_accuracy.rs', 'src/private_block/range16.rs', 'src/private_block/slot_ir.rs', 'src/private_block/slot_ir_accuracy.rs', 'src/private_block/metal_slot.rs']
+== w16-cpu-w16r2_rung_h24-s1.json: W16-DEV-PASS (58.6 s) parts {'W16-0 integrity': True, 'W16-1/2 facts': True, 'W16-3 replay': True, 'W16-4 layout': True, 'W16-5 tab tables': True, 'W16-6 per commitment': True, 'W16-7 mask and CFS': True}
+   geometry {'endpoint_inv_rate': 2, 'family': 'W16R2', 'inv_rate': 2, 'mask_columns': 256, 'mask_log_dom': 12, 'pads': 260, 'q': 260, 'regular_openings_checked': 4}
+   replay positions 127 challenges 1419 failures 0 s0 None s1 None tail end None tail openings None
+   A@0       block              rows  320 data   90 disclosed 0 (want 0) distinct 259/260 pads 260 margin 1 Zn0 0 minor True/True hyp True col-id 28/28 findings 0
+   H@0       block              rows  202 data  106 disclosed 2 (want 2) distinct 258/260 pads 260 margin 2 Zn0 0 minor True/True hyp True col-id 28/28 findings 0
+   E-Input   external-endpoint  rows    6 data    1 disclosed 0 (want 0) distinct 259/260 pads 260 margin 1 Zn0 0 minor True/True hyp True col-id 14/14 findings 0
+   E-Output  external-endpoint  rows    6 data    1 disclosed 0 (want 0) distinct 258/260 pads 260 margin 2 Zn0 0 minor True/True hyp True col-id 14/14 findings 0
+   M@0       M rows 50 disclosed 0 opened 256
+   pad block {'commitment': 'E-Input', 'distinct_columns': 259, 'exact_rank_of_the_pad_block': 259, 'full_rank': True, 'pad_positions': 260, 'seconds': 32.0}
+   exclusivity controls ok True count 9
+   mask/CFS ok True entries 16125 differing 0 leaves 256 controls True
+   pins 71 at r19b 45 read 7 unread ['src/private_block/argument_accuracy.rs', 'src/private_block/accuracy_act.rs', 'src/private_block/accuracy_fold.rs', 'src/private_block/accuracy_layout.rs', 'src/private_block/run_capture.rs', 'src/private_block/run.rs', 'src/private_block/protocol.rs', 'src/private_block/argument.rs', 'src/private_block/layout.rs', 'src/private_block/plane_index.rs', 'src/private_block/shape.rs', 'src/private_block/wire.rs', 'src/private_block.rs', 'src/private_block/pad.rs', 'src/private_block/witness_accuracy.rs', 'src/private_block/range16.rs', 'src/private_block/slot_ir.rs', 'src/private_block/slot_ir_accuracy.rs', 'src/private_block/metal_slot.rs']

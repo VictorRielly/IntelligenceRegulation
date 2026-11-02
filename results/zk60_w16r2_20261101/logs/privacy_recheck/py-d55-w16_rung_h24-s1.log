@@ -1,0 +1,10 @@
+D55-0 integrity: PASS
+D55-1/2 facts: PASS
+D55-3 replay: PASS
+W16-4 layout: PASS
+W16-5 tab tables: PASS
+W16-6 per commitment: PASS
+W16-7 mask and CFS: PASS
+D55-C replay controls: PASS
+pins: 74 declared, 45 at r19b, 7 read here, 22 UNREAD
+status: D55-DEV-PASS (77.3 s) -> /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-acdb40abef543db2f/results/zk60_w16r2_20261101/privacy_recheck_gate/d55-cpu-d55-w16_rung_h24-s1.json
