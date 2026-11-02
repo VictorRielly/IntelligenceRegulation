@@ -1673,3 +1673,10 @@ pub(crate) fn read_regular_file_bounded(path: &std::path::Path, max: u64, exact:
     }
     Ok(bytes)
 }
+
+// D55 PROTOTYPE (Victor's ruling, 2026-11-01): "commit, fork, join", an
+// opt-in, UNREGISTERED run profile in TEST BUILDS ONLY. Nothing above calls
+// it and no registered profile reaches it; see `run_fork.rs`.
+#[cfg(test)]
+#[path = "run_fork.rs"]
+pub(crate) mod fork;
