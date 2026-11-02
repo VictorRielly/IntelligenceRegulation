@@ -1,0 +1,718 @@
+--- frozen-r19b/hashline/src/private_block/argument.rs
++++ HEAD-8b78aabd/ops/zkp-mvp/gpu-metal/hashline/src/private_block/argument.rs
+@@ -100,6 +100,13 @@
+     DD_LAPSE.with(|c| c.set(v));
+ }
+ 
++/// TEST ONLY (D55 review F5): this thread's lapse bits, so that
++/// `protocol::ThreadHooks` can carry them into a worker thread
++#[cfg(test)]
++pub(crate) fn dd_lapse_bits() -> u8 {
++    DD_LAPSE.with(|c| c.get())
++}
++
+ /// whether a lapse bit is set (always `false` in a release build)
+ pub(crate) fn dd_lapse(bit: u8) -> bool {
+     #[cfg(test)]
+@@ -123,6 +130,12 @@
+     groups: Option<(Vec<sumcheck::EqualityGroup>, GroupPoly)>,
+     /// (hosted private slot, nu * kappa)
+     pub hosted: Vec<(usize, Fp2)>,
++    /// [ZK60-METAL M3] the slot's polynomial as generated MSL plus its coefficient
++    /// buffer, built from the slot's expression IR on a TWIN transcript (so no
++    /// challenge or absorb of the real transcript moves). Only set on the prove
++    /// side with HL_GPU=1; `None` keeps the CPU evaluator.
++    #[cfg(feature = "gpu-metal")]
++    pub(crate) metal: Option<(String, Vec<Fp2>, Vec<bool>)>,
+     /// **STEP C.** The slot schedule this definition was built against, so
+     /// that `run_slot` reads the SHAPE's `(main, ext, degree)` and terminal
+     /// counts instead of the toy constants. At the toy it is `Shape::toy()`
+@@ -249,6 +262,45 @@
+ /// Every word this returns is the word the walked form returned; the equality
+ /// is a test (`s28_tests`), not a claim.
+ pub(super) fn priv_table(p: &Priv, data: &[Fp], n_vars: usize) -> Vec<Fp2> {
++    priv_table_at(p, data, n_vars, TABLE_PAR_MIN)
++}
++
++/// [ZK60-METAL M4j] the cube length from which one table is built in parallel
++/// over its OUTPUT (the plain-store private table, the eq cube)
++pub(super) const TABLE_PAR_MIN: usize = 1 << 16;
++
++/// [M4j] [`priv_table`] with the parallel threshold as an argument, so a test
++/// can drive both forms on the same descriptor
++pub(super) fn priv_table_at(p: &Priv, data: &[Fp], n_vars: usize, par_min: usize) -> Vec<Fp2> {
++    let mut out = vec![Fp2::ZERO; 1usize << n_vars];
++    priv_table_fill(p, data, n_vars, &mut out, true, par_min);
++    out
++}
++
++/// **[ZK60-METAL M4i]** [`priv_table`] written into `out` (`2^n_vars`
++/// elements, whatever they held): the slot's device tables are built in place
++/// in a pooled device buffer. The same words: a plain-store table writes every
++/// element (its `idx -> x` map is a bijection onto the subsets of `used`, and
++/// the broadcast fills the rest from them), and an accumulating one starts from
++/// zeros, as the vector did.
++pub(super) fn priv_table_into(p: &Priv, data: &[Fp], n_vars: usize, out: &mut [Fp2]) {
++    assert_eq!(out.len(), 1usize << n_vars, "private block: table length");
++    priv_table_fill(p, data, n_vars, out, false, TABLE_PAR_MIN);
++}
++
++/// [M4j] [`priv_table_into`] with the parallel threshold as an argument
++pub(super) fn priv_table_into_at(p: &Priv, data: &[Fp], n_vars: usize, out: &mut [Fp2], par_min: usize) {
++    assert_eq!(out.len(), 1usize << n_vars, "private block: table length");
++    priv_table_fill(p, data, n_vars, out, false, par_min);
++}
++
++/// [M9] the parallel accumulating table form (`HL_TABLE_ACC_PAR=0` turns it off)
++fn acc_par_on() -> bool {
++    static ON: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
++    *ON.get_or_init(|| std::env::var("HL_TABLE_ACC_PAR").map(|v| v != "0").unwrap_or(true))
++}
++
++fn priv_table_fill(p: &Priv, data: &[Fp], n_vars: usize, out: &mut [Fp2], zeroed: bool, par_min: usize) {
+     let fixed: Vec<Fp2> = p.coords.iter().filter_map(|c| if let Coord::Fixed(f) = c { Some(*f) } else { None }).collect();
+     let eqf = eq_table_msb(&fixed);
+     let mut used = 0usize;
+@@ -257,7 +309,6 @@
+             used |= 1usize << (n_vars - 1 - *k);
+         }
+     }
+-    let mut out = vec![Fp2::ZERO; 1usize << n_vars];
+     // the index maps, one per half of `idx`. Coordinate `j` reads bit
+     // `p.log - 1 - j` of `idx`, so coordinates `0 .. hi` are the high half.
+     let lo_len = p.log / 2;
+@@ -290,6 +341,120 @@
+     let moving = p.coords.iter().filter(|c| !matches!(c, Coord::Fixed(_))).count();
+     let simple = eqf.len() == 1 && eqf[0] == Fp2::ONE && used.count_ones() as usize == moving;
+     let one_slice = if p.slices.len() == 1 && p.slices[0].1 == Fp2::ONE { Some(p.slices[0].0) } else { None };
++    // [M4j] a large PLAIN-STORE table in parallel over its output. Its map
++    // `idx -> x` sends idx bit `log - 1 - j` to x bit `n_vars - 1 - k` (flipped
++    // for `Flip`), one coordinate per bit, so it is a bijection onto the subsets
++    // of `used` and its inverse is the same bit table read the other way:
++    // `out[x] = value(inverse(x & used))` is the loop's store for x within
++    // `used` and the broadcast's copy for every other x. Each entry is the same
++    // word, computed independently, so the order does not matter.
++    if simple && out.len() >= par_min {
++        use rayon::prelude::*;
++        let mut bit_of: Vec<Option<(usize, usize)>> = vec![None; n_vars];
++        for (j, c) in p.coords.iter().enumerate() {
++            match c {
++                Coord::Rho(k) => bit_of[n_vars - 1 - *k] = Some((p.log - 1 - j, 0)),
++                Coord::Flip(k) => bit_of[n_vars - 1 - *k] = Some((p.log - 1 - j, 1)),
++                Coord::Fixed(_) => unreachable!("a plain-store table has no fixed coordinate"),
++            }
++        }
++        let (xlo, xhi) = (n_vars / 2, n_vars - n_vars / 2);
++        let inverse_half = |shift: usize, bits: usize| -> Vec<usize> {
++            (0..1usize << bits)
++                .map(|v| {
++                    let mut idx = 0usize;
++                    for b in 0..bits {
++                        if let Some((ib, flip)) = bit_of[shift + b] {
++                            idx |= (((v >> b) & 1) ^ flip) << ib;
++                        }
++                    }
++                    idx
++                })
++                .collect()
++        };
++        let (inv_lo, inv_hi) = (inverse_half(0, xlo), inverse_half(xlo, xhi));
++        let lo_m = (1usize << xlo) - 1;
++        const CH: usize = 1 << 14;
++        out.par_chunks_mut(CH).enumerate().for_each(|(ci, ch)| {
++            for (i, o) in ch.iter_mut().enumerate() {
++                let xu = ((ci * CH) + i) & used;
++                let idx = inv_hi[xu >> xlo] | inv_lo[xu & lo_m];
++                *o = match one_slice {
++                    Some(off) => Fp2::from_base(data[off + idx]),
++                    None => p.slices.iter().fold(Fp2::ZERO, |a, (off, coef)| a.add(coef.mul_base(data[*off + idx]))),
++                };
++            }
++        });
++        return;
++    }
++    // [ZK60-METAL M9] a large ACCUMULATING table (fixed coordinates: a plane
++    // partially evaluated at a challenge point) in parallel over its output,
++    // when every cube variable is read by exactly one coordinate (no
++    // broadcast, no repeated index). Then `idx` splits into the moving bits,
++    // a bijection onto `x` (inverted as above), and the fixed bits `z`, so
++    // `out[x] = sum_z eqf[z] v(idx(x, z))`: exactly the terms the loop below
++    // adds into `out[x]`, in another order. Field addition is exact, so each
++    // entry is the same word. Every element is written: no clearing needed.
++    let full = if n_vars == 0 { 0 } else { usize::MAX >> (usize::BITS as usize - n_vars) };
++    // (the threshold is on the WORK, 2^log input entries: a matmul's plane
++    // table is a 2^12 output over a 2^19 plane)
++    // (`HL_TABLE_ACC_PAR=0` keeps the loop, for a same-binary A/B)
++    if !simple && used == full && used.count_ones() as usize == moving && (1usize << p.log) >= par_min && acc_par_on() {
++        use rayon::prelude::*;
++        let mut bit_of: Vec<Option<(usize, usize)>> = vec![None; n_vars];
++        let mut fpos: Vec<usize> = Vec::new();
++        for (j, c) in p.coords.iter().enumerate() {
++            match c {
++                Coord::Rho(k) => bit_of[n_vars - 1 - *k] = Some((p.log - 1 - j, 0)),
++                Coord::Flip(k) => bit_of[n_vars - 1 - *k] = Some((p.log - 1 - j, 1)),
++                Coord::Fixed(_) => fpos.push(p.log - 1 - j),
++            }
++        }
++        // z's bits in coordinate order, the first fixed coordinate the MSB
++        // (the loop's `z = (z << 1) | b`, `eq_table_msb`'s index order)
++        let nf = fpos.len();
++        let zbits: Vec<usize> = (0..1usize << nf).map(|z| (0..nf).fold(0usize, |a, t| a | (((z >> (nf - 1 - t)) & 1) << fpos[t]))).collect();
++        let (xlo, xhi) = (n_vars / 2, n_vars - n_vars / 2);
++        let inverse_half = |shift: usize, bits: usize| -> Vec<usize> {
++            (0..1usize << bits)
++                .map(|v| {
++                    let mut idx = 0usize;
++                    for b in 0..bits {
++                        if let Some((ib, flip)) = bit_of[shift + b] {
++                            idx |= (((v >> b) & 1) ^ flip) << ib;
++                        }
++                    }
++                    idx
++                })
++                .collect()
++        };
++        let (inv_lo, inv_hi) = (inverse_half(0, xlo), inverse_half(xlo, xhi));
++        let lo_m = (1usize << xlo) - 1;
++        // chunks scale with the output so a small table still splits
++        let ch_len = (out.len() / 256).clamp(16, 1 << 12);
++        out.par_chunks_mut(ch_len).enumerate().for_each(|(ci, ch)| {
++            for (i, o) in ch.iter_mut().enumerate() {
++                let x = (ci * ch_len) + i;
++                let im = inv_hi[x >> xlo] | inv_lo[x & lo_m];
++                let mut acc = Fp2::ZERO;
++                for (z, &zb) in zbits.iter().enumerate() {
++                    let idx = im | zb;
++                    let v = match one_slice {
++                        Some(off) => Fp2::from_base(data[off + idx]),
++                        None => p.slices.iter().fold(Fp2::ZERO, |a, (off, coef)| a.add(coef.mul_base(data[*off + idx]))),
++                    };
++                    acc = acc.add(eqf[z].mul(v));
++                }
++                *o = acc;
++            }
++        });
++        return;
++    }
++    // [M4i] an accumulating table starts from zeros; a plain-store one writes
++    // every element below, so a reused buffer needs no clearing
++    if !zeroed && !simple {
++        out.fill(Fp2::ZERO);
++    }
+     for idx in 0..1usize << p.log {
+         let (x_hi, z_hi) = hi_map[idx >> lo_len];
+         let (x_lo, z_lo) = lo_map[idx & lo_mask];
+@@ -312,7 +477,6 @@
+             }
+         }
+     }
+-    out
+ }
+ 
+ /// **STAGE 28.** The `eq` table over the slot's cube: entry `x` is
+@@ -321,6 +485,12 @@
+ /// built by filling one block and doubling it, so the cube is memory traffic
+ /// and not one index computation per entry. The words are the same words.
+ pub(super) fn eq_cube(e: &[Fp2], n_vars: usize, start: usize) -> Vec<Fp2> {
++    eq_cube_at(e, n_vars, start, TABLE_PAR_MIN)
++}
++
++/// [M4j] [`eq_cube`] with the parallel threshold as an argument (a test drives
++/// both forms; production passes [`TABLE_PAR_MIN`])
++pub(super) fn eq_cube_at(e: &[Fp2], n_vars: usize, start: usize, par_min: usize) -> Vec<Fp2> {
+     // **STAGE 29 (finding S28-R7).** The precondition, asserted rather than
+     // assumed. The triple `(|point|, start, n_vars)` is SCHEDULE-DRIVEN and
+     // PUBLIC — no frame and no witness can choose it — and every triple the
+@@ -335,6 +505,16 @@
+     );
+     let len = 1usize << n_vars;
+     let shift = n_vars - start - bits;
++    // [ZK60-METAL M4j] a large cube in parallel over its output: entry `x` is
++    // `e[(x >> shift) & (|e| - 1)]` (this function's own description), the
++    // same word the block-and-double build puts there
++    if len >= par_min {
++        use rayon::prelude::*;
++        let m = e.len() - 1;
++        let mut out: Vec<Fp2> = Vec::with_capacity(len);
++        out.par_extend((0..len).into_par_iter().map(|x| e[(x >> shift) & m]));
++        return out;
++    }
+     let mut out: Vec<Fp2> = Vec::with_capacity(len);
+     for v in e {
+         out.resize(out.len() + (1usize << shift), *v);
+@@ -345,6 +525,76 @@
+     out
+ }
+ 
++/// **[ZK60-METAL M4i]** [`eq_cube`] written into `out` (`2^n_vars` elements,
++/// whatever they held): the same block of `2^shift` copies per entry, doubled
++/// to the cube, so every element is written and the words are the same.
++pub(super) fn eq_cube_into(e: &[Fp2], n_vars: usize, start: usize, out: &mut [Fp2]) {
++    eq_cube_into_at(e, n_vars, start, out, TABLE_PAR_MIN)
++}
++
++/// **[M5c] `eq_cube_into(&eq_table_msb(point), ..)` without the full eq table.**
++/// Entry `x` is `e[y]` with `y = (x >> shift) & (2^p - 1)`, and `e[y]` is the
++/// product over the point's coordinates of `r_i` or `1 - r_i`, so it splits
++/// over the top and bottom halves of `y`: `e[y] = hi[y >> p_lo] * lo[y & ..]`
++/// with `hi`, `lo` the eq tables of the two halves of `point` (msb first).
++/// Field multiplication is exact and associative, so every entry is the same
++/// element as the full table's; there is no 2^p table to allocate (macOS zeroes
++/// a recycled one), fill step by step and copy, only two of about 2^(p/2)
++/// entries and one multiplication per output word (`m5c_` test).
++pub(super) fn eq_cube_split_into(point: &[Fp2], n_vars: usize, start: usize, out: &mut [Fp2]) {
++    use rayon::prelude::*;
++    let p = point.len();
++    assert!(start + p <= n_vars, "private block: eq_cube precondition start + |point| <= n_vars violated (start {start}, |point| {p}, n_vars {n_vars})");
++    assert_eq!(out.len(), 1usize << n_vars, "private block: table length");
++    let shift = n_vars - start - p;
++    let p_lo = p / 2;
++    let (hi, lo) = (eq_table_msb(&point[..p - p_lo]), eq_table_msb(&point[p - p_lo..]));
++    let (mask, lo_mask) = ((1usize << p) - 1, (1usize << p_lo) - 1);
++    const CH: usize = 1 << 14;
++    out.par_chunks_mut(CH).enumerate().for_each(|(ci, ch)| {
++        for (i, o) in ch.iter_mut().enumerate() {
++            let y = ((ci * CH + i) >> shift) & mask;
++            *o = hi[y >> p_lo].mul(lo[y & lo_mask]);
++        }
++    });
++}
++
++/// [M5c] the cube size from which an eq table is split (below it the full
++/// table is cheap and kept)
++pub(super) const EQ_SPLIT_MIN: usize = 1 << 16;
++
++/// [M4j] [`eq_cube_into`] with the parallel threshold as an argument
++pub(super) fn eq_cube_into_at(e: &[Fp2], n_vars: usize, start: usize, out: &mut [Fp2], par_min: usize) {
++    let bits = e.len().trailing_zeros() as usize;
++    assert!(
++        start + bits <= n_vars,
++        "private block: eq_cube precondition start + |point| <= n_vars violated (start {start}, |point| {bits}, n_vars {n_vars})"
++    );
++    let len = 1usize << n_vars;
++    assert_eq!(out.len(), len, "private block: table length");
++    let shift = n_vars - start - bits;
++    // [M4j] large cubes in parallel over the output, as `eq_cube_at`
++    if len >= par_min {
++        use rayon::prelude::*;
++        let m = e.len() - 1;
++        const CH: usize = 1 << 14;
++        out.par_chunks_mut(CH).enumerate().for_each(|(ci, ch)| {
++            for (i, o) in ch.iter_mut().enumerate() {
++                *o = e[((ci * CH + i) >> shift) & m];
++            }
++        });
++        return;
++    }
++    for (i, v) in e.iter().enumerate() {
++        out[i << shift..(i + 1) << shift].fill(*v);
++    }
++    let mut have = e.len() << shift;
++    while have < len {
++        out.copy_within(..have, have);
++        have *= 2;
++    }
++}
++
+ /// **STAGE 28.** `take` is `Some` on the proving path, where the slot
+ /// definition is owned and dead after the tables are built: a PUBLIC table is
+ /// then MOVED into the table set instead of copied, which at the 125M shape
+@@ -384,8 +634,64 @@
+         return tabs.par_iter_mut().map(|t| table_of_taking(t, n_vars, pd)).collect();
+     }
+     tabs.iter_mut().map(|t| table_of_taking(t, n_vars, pd)).collect()
++}
++
++/// **[ZK60-METAL M4i]** one table of the slot written into `out` (its
++/// `2^n_vars` elements in the device buffer): the words [`table_of`] returns.
++/// A public table is copied (its length was checked on entry to `run_slot`).
++fn table_into(tab: &Tab, n_vars: usize, pd: &ProverData, out: &mut [Fp2]) {
++    match tab {
++        // [M5c] a large cube split over its point's halves (the same words)
++        Tab::Eq { point, start } if out.len() >= EQ_SPLIT_MIN && point.len() >= 2 => eq_cube_split_into(point, n_vars, *start, out),
++        Tab::Eq { point, start } => eq_cube_into(&eq_table_msb(point), n_vars, *start, out),
++        Tab::Pub(v) => out.copy_from_slice(v),
++        Tab::Priv(p) => priv_table_into(p, pd.data[p.cm as usize], n_vars, out),
++    }
++}
++
++/// **[ZK60-METAL M4i]** [`build_tables_at`] into the slot's device tables, one
++/// rayon task per table (the tables are independent; each slice is its own).
++pub(super) fn build_tables_into(tabs: &[Tab], n_vars: usize, pd: &ProverData, out: Vec<&mut [Fp2]>) {
++    use rayon::prelude::*;
++    assert_eq!(tabs.len(), out.len(), "private block: device table count");
++    if table_kind_timing() {
++        // DIAGNOSTIC ONLY (HL_TABLE_KIND_TIMING=1): CPU seconds per table kind,
++        // summed over the threads that built them; the words are unchanged
++        tabs.par_iter().zip(out.into_par_iter()).for_each(|(t, o)| {
++            let s = std::time::Instant::now();
++            table_into(t, n_vars, pd, o);
++            let kind = match t { Tab::Eq { .. } => 0, Tab::Pub(_) => 1, Tab::Priv(p) if p.coords.iter().any(|c| matches!(c, Coord::Fixed(_))) => 3, Tab::Priv(_) => 2 };
++            TABLE_KIND_NS[kind].fetch_add(s.elapsed().as_nanos() as u64, std::sync::atomic::Ordering::Relaxed);
++            TABLE_KIND_N[kind].fetch_add(1, std::sync::atomic::Ordering::Relaxed);
++        });
++        return;
++    }
++    tabs.par_iter().zip(out.into_par_iter()).for_each(|(t, o)| table_into(t, n_vars, pd, o));
++}
++
++/// DIAGNOSTIC ONLY: per-kind table build counters (eq, public, plane, folded plane)
++pub(super) static TABLE_KIND_NS: [std::sync::atomic::AtomicU64; 4] = [const { std::sync::atomic::AtomicU64::new(0) }; 4];
++pub(super) static TABLE_KIND_N: [std::sync::atomic::AtomicU64; 4] = [const { std::sync::atomic::AtomicU64::new(0) }; 4];
++
++pub(super) fn table_kind_timing() -> bool {
++    static ON: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
++    *ON.get_or_init(|| std::env::var("HL_TABLE_KIND_TIMING").map(|v| v == "1").unwrap_or(false))
+ }
+ 
++/// DIAGNOSTIC ONLY: print and reset the per-kind counters (one line per call)
++pub(crate) fn table_kind_report(label: &str) {
++    if !table_kind_timing() {
++        return;
++    }
++    let take = |a: &std::sync::atomic::AtomicU64| a.swap(0, std::sync::atomic::Ordering::Relaxed);
++    let ns: Vec<u64> = TABLE_KIND_NS.iter().map(take).collect();
++    let n: Vec<u64> = TABLE_KIND_N.iter().map(take).collect();
++    eprintln!(
++        "TABLE-KINDS {label}: cpu-seconds eq {:.4} ({} tables) | public {:.4} ({}) | plane {:.4} ({}) | folded plane {:.4} ({})",
++        ns[0] as f64 * 1e-9, n[0], ns[1] as f64 * 1e-9, n[1], ns[2] as f64 * 1e-9, n[2], ns[3] as f64 * 1e-9, n[3]
++    );
++}
++
+ /// **FINDING S12-F2 (S12a), fixed here.** The ROW WIDTH a claim's reserved
+ /// pair is addressed in is the row width of the COMMITMENT the plane lives
+ /// in, and the two commitments do not share one: `A` and `H` are the block's
+@@ -405,11 +711,18 @@
+ }
+ 
+ /// the mask pair's value at the claim's column tail
+-fn mask_eval(sh: &Shape, p: &Priv, data: &[Fp], point: &[Fp2]) -> Fp2 {
++/// the coordinates of a claim point the reserved mask pair is read on (its
++/// last `min(log, row_log)` entries)
++fn mask_tail(sh: &Shape, p: &Priv, point: &[Fp2]) -> Vec<Fp2> {
++    let logm = p.log.min(row_log(sh, p.cm));
++    point[p.log - logm..].to_vec()
++}
++
++/// `(R_re + u R_im)~(tail)`, given `eq = eq_table_msb(tail)` — `mask_eval`
++/// with the eq table built by the caller, so tables sharing a tail share it
++fn mask_eval_eq(sh: &Shape, p: &Priv, data: &[Fp], eq: &[Fp2]) -> Fp2 {
+     let (log_n, n) = (row_log(sh, p.cm), 1usize << row_log(sh, p.cm));
+-    let logm = p.log.min(log_n);
+     let c0 = if p.log < log_n { p.slices[0].0 % n } else { 0 };
+-    let eq = eq_table_msb(&point[p.log - logm..]);
+     let row = |r: usize| {
+         data[r * n + c0..r * n + c0 + eq.len()].iter().zip(eq.iter()).fold(Fp2::ZERO, |a, (x, e)| a.add(e.mul_base(*x)))
+     };
+@@ -488,6 +801,45 @@
+ // into the table set instead of copying it (`table_of_taking`). The
+ // definition is owned, and nothing reads a `Tab::Pub` payload after the
+ // tables are built.
++/// [ZK60-METAL M3] the smallest slot (tables x cube) handed to the device:
++/// below it the per-round launch overhead outweighs the work.
++#[cfg(feature = "gpu-metal")]
++const METAL_MIN_TERMS: usize = 1 << 18;
++
++/// **[ZK60-METAL M8]** a slot below [`METAL_MIN_TERMS`] still goes to the
++/// device when its CPU rounds would cost more than this. Since M6 a batched
++/// device round costs about 0.025 ms, so a small slot whose polynomial is
++/// expensive pays: slot 03 at W16 8B (5 tables x 2^14) took 16 ms on the CPU
++/// (`results/zk60_metal_20261031/logs/m8attr`). `HL_METAL_SMALL_SLOT_US`
++/// overrides it (microseconds). Which side runs a slot changes no byte: the
++/// device evaluator has the CPU's contract (M3), and the IR was checked
++/// against this slot's closure before any kernel exists.
++#[cfg(feature = "gpu-metal")]
++const SMALL_SLOT_CPU_S: f64 = 2e-3;
++
++/// [M8] the estimated single-thread CPU cost of a slot's rounds: `2^n
++/// (degree + 1)` evaluations of `poly` (the rounds' geometric sum), each
++/// timed here on eight fixed points (no proof randomness is read or drawn)
++#[cfg(feature = "gpu-metal")]
++fn small_slot_pays(poly: &(dyn Fn(&[Fp2]) -> Fp2 + Sync), k: usize, n: usize, degree: usize) -> bool {
++    static BUDGET: std::sync::OnceLock<f64> = std::sync::OnceLock::new();
++    let budget = *BUDGET.get_or_init(|| std::env::var("HL_METAL_SMALL_SLOT_US").ok().and_then(|v| v.parse::<f64>().ok()).filter(|v| v.is_finite() && *v >= 0.0).map(|us| us * 1e-6).unwrap_or(SMALL_SLOT_CPU_S));
++    let pts: Vec<Vec<Fp2>> = (0..8u64).map(|s| (0..k as u64).map(|t| Fp2::new(Fp::new(s * 7919 + t * 104_729 + 1), Fp::new(t + 3 * s + 1))).collect()).collect();
++    let t = std::time::Instant::now();
++    let mut sink = Fp2::ZERO;
++    for p in &pts {
++        sink = sink.add(poly(p));
++    }
++    std::hint::black_box(sink);
++    let per_eval = t.elapsed().as_secs_f64() / 8.0;
++    ((1usize << n) * (degree + 1)) as f64 * per_eval > budget
++}
++/// [ZK60-METAL M4i] the slot size (tables x cube) ABOVE which a device slot's
++/// tables are built in place in device memory: strictly above the test
++/// oracle's `<= 2^18`, so a slot the oracle replays keeps its host tables
++#[cfg(feature = "gpu-metal")]
++const METAL_DIRECT_MIN: usize = 1 << 18;
++
+ pub(crate) fn run_slot(side: &mut Side, acc: &mut Acc, mut def: SlotDef, tr: &mut Transcript) -> Result<(), String> {
+     let s = def.slot;
+     let sh = def.sh.clone();
+@@ -535,8 +887,27 @@
+             // crate's own rayon style. The iterator is INDEXED, so the table
+             // set is the same set in the same order whatever the thread count
+             // is; no randomness is drawn here, so no draw order can move.
+-            let mut tables: Vec<Vec<Fp2>> =
+-                super::timing::slot_step(s, "tables: build (argument.rs)", (def.tabs.len() << n) as u64, || build_tables_at(&mut def.tabs, n, pd, TABLES_PAR_MIN));
++            // [ZK60-METAL M4i] a DEVICE slot's tables are built in place in a
++            // pooled device buffer: no host vector per table (macOS zeroes a
++            // recycled one first) and no copy. Only a host or standalone slot
++            // (its claimed sum reads no table), above the test oracle's size,
++            // with the base-field census off; anything else, or a buffer the
++            // device cannot give, builds host vectors as before. Same words.
++            #[cfg(feature = "gpu-metal")]
++            let mut dev_tables: Option<crate::gpu::MetalTables> = None;
++            #[cfg(feature = "gpu-metal")]
++            let direct = def.metal.is_some() && kind != SlotKind::Private && (def.tabs.len() << n) > METAL_DIRECT_MIN && !super::timing::census_on(s);
++            let mut tables: Vec<Vec<Fp2>> = super::timing::slot_step(s, "tables: build (argument.rs)", (def.tabs.len() << n) as u64, || {
++                #[cfg(feature = "gpu-metal")]
++                if direct {
++                    if let Ok(mut mt) = crate::gpu::MetalTables::new(def.tabs.len(), 1usize << n) {
++                        build_tables_into(&def.tabs, n, pd, mt.tables_mut());
++                        dev_tables = Some(mt);
++                        return Vec::new();
++                    }
++                }
++                build_tables_at(&mut def.tabs, n, pd, TABLES_PAR_MIN)
++            });
+             if tables.iter().any(|t| t.len() != 1usize << n) {
+                 return Err(format!("private block: slot {s} table length"));
+             }
+@@ -586,13 +957,78 @@
+                 // Compare bounded actual slot fixtures with the old prover
+                 // at the same transcript/tables, including masked bytes.
+                 #[cfg(test)]
+-                let oracle = if tables.len() * (1usize << n) <= 1 << 18 {
++                // ([M4i] counted by the slot's table COUNT: a direct device
++                // build leaves `tables` empty and is above this size)
++                // ([M8] HL_PB_ORACLE=0 skips it in a TIMING run: the replay is
++                // a CPU sumcheck inside this timed step that no production
++                // prover runs; every gate keeps the default, on)
++                let oracle = if def.tabs.len() * (1usize << n) <= 1 << 18 && std::env::var("HL_PB_ORACLE").map(|v| v != "0").unwrap_or(true) {
+                     let mut old_tables = tables.clone();
+                     let mut old_tr = Transcript::clone_state(tr);
+                     let old = crate::zk::masked_prove(&mut old_tables, degree, &poly, mask, c, &mut old_tr);
+                     Some((old, old_tr, old_tables))
+                 } else { None };
+-                let result = if let Some((groups, bracket)) = &def.groups {
++                // [ZK60-METAL M3] the device evaluator: the same unmasked rounds
++                // (values), the same s(1) rule as the CPU evaluator this slot
++                // would use (recovery for the closure path, full evaluation for
++                // the grouped path), the same driver. A decline runs the CPU.
++                #[cfg(feature = "gpu-metal")]
++                let metal_result = if let Some(mt) = dev_tables.take() {
++                    // [M4i] the tables already in device memory; a decline
++                    // hands them back for the CPU evaluator
++                    let (src, cf, base) = def.metal.as_ref().expect("a direct device build has the slot's kernels");
++                    match crate::gpu::metal_rounds_owned(src, mt, degree, cf, base) {
++                        Ok(ev) => {
++                            let ev = if def.groups.is_some() { ev } else { ev.recover_one(unmasked_claim) };
++                            // [M4k] the last, tiny rounds on the host (the same values)
++                            let mut ev = ev.with_host_tail(&*def.poly);
++                            // [M6] its device rounds in one submission, replayed on the host
++                            let r = ev.masked_prove(mask, c, tr);
++                            tables = ev.final_tables();
++                            Some(r)
++                        }
++                        Err((mt, why)) => {
++                            match why {
++                                None => super::metal_slot::note_cpu_slot(s, std::env::var("HL_METAL_TIMING").map(|v| v == "1").unwrap_or(false)),
++                                Some(e) => crate::gpu::declined("[ZK60-METAL] slot sumcheck", &e),
++                            }
++                            tables = mt.to_vecs();
++                            None
++                        }
++                    }
++                } else {
++                    match &def.metal {
++                    Some((src, cf, base)) if tables.len() << n >= METAL_MIN_TERMS || small_slot_pays(&*def.poly, tables.len(), n, degree) => {
++                        match crate::gpu::metal_rounds(src, &tables, degree, cf, base) {
++                            Ok(None) => {
++                                // a base-typed table is not base-field here:
++                                // the typed kernel does not apply, CPU slot
++                                super::metal_slot::note_cpu_slot(s, std::env::var("HL_METAL_TIMING").map(|v| v == "1").unwrap_or(false));
++                                None
++                            }
++                            Ok(Some(ev)) => {
++                                let ev = if def.groups.is_some() { ev } else { ev.recover_one(unmasked_claim) };
++                                // [M4k] the last, tiny rounds on the host (the same values)
++                                let mut ev = ev.with_host_tail(&*def.poly);
++                                // [M6] its device rounds in one submission, replayed on the host
++                                let r = ev.masked_prove(mask, c, tr);
++                                tables = ev.final_tables();
++                                Some(r)
++                            }
++                            Err(e) => {
++                                crate::gpu::declined("[ZK60-METAL] slot sumcheck", &e);
++                                None
++                            }
++                        }
++                    }
++                    _ => None,
++                    }
++                };
++                #[cfg(not(feature = "gpu-metal"))]
++                let metal_result: Option<_> = None;
++                let result = if let Some(r) = metal_result {
++                    r
++                } else if let Some((groups, bracket)) = &def.groups {
+                     let mut evaluator = sumcheck::GroupedEqRounds::new(&mut tables, degree, groups.clone(), &**bracket);
+                     crate::zk::masked_prove_rounds(&mut evaluator, mask, c, tr)
+                 } else {
+@@ -614,11 +1050,39 @@
+             let mut prev = rho.clone();
+             super::timing::slot_step(s, "extension rounds (mask_eval + zk.rs)", ext as u64, || {
+                 for m in 0..ext {
+-                    let exts: Vec<Fp2> = def
++                    // [ZK60-METAL M4b] the reserved mask pair of every private
++                    // table masked in this round, read at its claim point's
++                    // tail: ONE eq table per distinct tail (most tables of a
++                    // slot share it) and the tables in parallel. Each value is
++                    // the same fold in the same order as before, and the
++                    // indexed collect keeps table order, so no byte moves.
++                    use rayon::prelude::*;
++                    let tails: Vec<Option<Vec<Fp2>>> = def
+                         .tabs
+                         .iter()
+                         .map(|t| match t {
+-                            Tab::Priv(p) if p.ext_round == m => mask_eval(&sh, p, pd.data[p.cm as usize], &claim_point(p, &rho)),
++                            Tab::Priv(p) if p.ext_round == m => Some(mask_tail(&sh, p, &claim_point(p, &rho))),
++                            _ => None,
++                        })
++                        .collect();
++                    let mut uniq: Vec<&Vec<Fp2>> = Vec::new();
++                    let which: Vec<usize> = tails
++                        .iter()
++                        .map(|t| match t {
++                            Some(tp) => uniq.iter().position(|u| *u == tp).unwrap_or_else(|| {
++                                uniq.push(tp);
++                                uniq.len() - 1
++                            }),
++                            None => usize::MAX,
++                        })
++                        .collect();
++                    let eqs: Vec<Vec<Fp2>> = uniq.par_iter().map(|u| eq_table_msb(u)).collect();
++                    let exts: Vec<Fp2> = def
++                        .tabs
++                        .par_iter()
++                        .zip(which.par_iter())
++                        .map(|(t, &k)| match t {
++                            Tab::Priv(p) if k != usize::MAX => mask_eval_eq(&sh, p, pd.data[p.cm as usize], &eqs[k]),
+                             _ => Fp2::ZERO,
+                         })
+                         .collect();
+@@ -863,7 +1327,16 @@
+         if self.ak != self.lay.a_sites()[self.slot] || self.hk != self.lay.h_sites()[self.slot] {
+             return Err(format!("private block: slot {} uses {} A / {} H sites, schedule declares {} / {}", self.slot, self.ak, self.hk, self.lay.a_sites()[self.slot], self.lay.h_sites()[self.slot]));
+         }
+-        Ok(SlotDef { slot: self.slot, tabs: self.tabs, poly, groups: None, hosted, sh: self.lay.shape().clone() })
++        Ok(SlotDef {
++            slot: self.slot,
++            tabs: self.tabs,
++            poly,
++            groups: None,
++            hosted,
++            sh: self.lay.shape().clone(),
++            #[cfg(feature = "gpu-metal")]
++            metal: None,
++        })
+     }
+ }
+ 
+@@ -927,10 +1400,17 @@
+ /// `Dom::F` and `Dom::Tab` plane by one and the wrong map indexes past the
+ /// end, which is the panic the first honest rung proof produced.
+ fn lk_tables(lay: &Layout, dom: Dom, shaped: &[usize], g_u8: Fp2) -> Vec<LkT> {
++    // W16 (D54): each lookup folds ITS family's tag; a U8 lookup's is `g_u8`
++    // itself, so every legacy and R13 constant is the element it always was
+     lay.lookups(dom)
+         .into_iter()
+-        .map(|l| LkT { terms: l.terms.iter().map(|(p, c)| (shaped[*p], Fp::from_i64(*c))).collect(), cst: Fp2::from_i64(l.cst).add(g_u8) })
++        .map(|l| LkT { terms: l.terms.iter().map(|(p, c)| (shaped[*p], Fp::from_i64(*c))).collect(), cst: Fp2::from_i64(l.cst).add(super::range16::g_of(l.tag, g_u8)) })
+         .collect()
++}
++
++/// W16: `sum_k v[ix[k]] * 2^(16 k)` — a 16-bit limb decomposition
++fn limbs16(v: &[Fp2], ix: &[usize]) -> Fp2 {
++    ix.iter().enumerate().fold(Fp2::ZERO, |a, (k, i)| a.add(v[*i].mul_base(Fp::new(1u64 << (16 * k)))))
+ }
+ 
+ /// sum_k mu_k * (the LogUp helper relation of helper k), helpers at tables h0, h0 + 1, ...
+@@ -2147,12 +2627,74 @@
+     let sh = ctx.lay.shape();
+     // NATIVE R9: THIS profile's slots — the twenty-three, plus the
+     // dictionary zero-check on a DD profile (appended last)
++    // [ZK60-METAL M3] the IR's own point record, carried beside `pts`
++    #[cfg(feature = "gpu-metal")]
++    // Every profile is offered (legacy and the R13 accuracy stacks): whether a
++    // slot may run on the device is decided per slot by the runtime guard
++    // below (the IR must equal THIS definition's closure), so a slot whose
++    // IR does not model its profile stays on the CPU.
++    let metal_on = matches!(side, Side::Prove { .. }) && crate::gpu::enabled();
++    #[cfg(feature = "gpu-metal")]
++    let metal_diag = std::env::var("HL_METAL_TIMING").map(|v| v == "1").unwrap_or(false);
++    #[cfg(feature = "gpu-metal")]
++    if metal_diag {
++        eprintln!(
++            "[ZK60-METAL] argument: prove={} accuracy_none={} legacy_stack={} gpu_enabled={} -> metal_on={metal_on} ({})",
++            matches!(side, Side::Prove { .. }),
++            ctx.accuracy.is_none(),
++            sh.accuracy_stack() == crate::private_block::accuracy_precision::Stack::Legacy,
++            crate::gpu::enabled(),
++            sh.name
++        );
++    }
++    #[cfg(feature = "gpu-metal")]
++    let mut ipts = super::slot_ir::IrPoints::default();
+     for slot in 0..sh.n_slots() {
+         #[cfg(test)]
+         super::capture::start_slot(side, tr);
+         #[cfg(test)]
+         super::run_capture::start_slot(side, tr);
+-        let def = define(slot, ctx, &mut pts, tr)?;
++        // The IR builder draws the same challenges, in the same order, as
++        // `define` (slot_ir.rs); it runs on a CLONE taken just before `define`,
++        // so it reads the very values `define` is about to draw and the real
++        // transcript is untouched. A slot without an IR keeps the CPU path.
++        #[cfg(feature = "gpu-metal")]
++        let metal_ir = if metal_on {
++            let mut twin = Transcript::clone_state(tr);
++            match super::slot_ir::build_slot_ir(slot, ctx, &mut ipts, &mut twin) {
++                Ok(ir) => Some(ir),
++                Err(e) => {
++                    if metal_diag {
++                        eprintln!("[ZK60-METAL] slot {slot}: no IR ({e})");
++                    }
++                    super::metal_slot::note_cpu_slot(slot, false);
++                    None
++                }
++            }
++        } else {
++            None
++        };
++        #[allow(unused_mut)]
++        let mut def = define(slot, ctx, &mut pts, tr)?;
++        #[cfg(feature = "gpu-metal")]
++        if let Some(ir) = metal_ir {
++            // RUNTIME GUARD: the IR (CPU interpreter) must equal THIS
++            // definition's closure at random points of the whole space before
++            // the device may evaluate it (Schwartz-Zippel: a wrong coefficient
++            // survives a point with probability <= deg/|F|). The points come
++            // from a local generator, never from the proof's randomness.
++            if ir.tables.len() == def.tabs.len() && super::metal_slot::ir_matches_closure(&ir, &*def.poly, slot) {
++                let (k0, k1, cf, base) = super::metal_slot::msl_round_kernels(&ir);
++                def.metal = Some((format!("{k0}\n{k1}"), cf, base));
++            } else {
++                // NOT a device decline: this slot has no device path at this
++                // profile (the IR models the legacy slot set; a DD profile
++                // redefines slot 17 and appends the dictionary slot). It stays
++                // on the CPU, which is correct; the guard's job is that a wrong
++                // IR never reaches the GPU. Counted for the run's report.
++                super::metal_slot::note_cpu_slot(slot, metal_diag);
++            }
++        }
+         // ROUND 5: the slot's counted ELEMENT-TERMS, its sumcheck cube
+         // `2^(main + extension rounds)` times its table count — a function of
+         // the shape and the declared schedule, nothing private

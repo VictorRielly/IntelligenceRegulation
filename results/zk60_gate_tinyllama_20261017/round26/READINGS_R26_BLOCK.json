@@ -1,0 +1,2998 @@
+{
+ "what": "gate round 26, BLOCK-LEVEL reader: every moved block-level prover / verifier source pin and every moved zkp-core / gpu pin, frozen-r19b -> HEAD (read hunk by hunk from the trees)",
+ "privacy_acceptance": false,
+ "reader": "block-level reader (Claude); the run-level, wire, capture and I/O pins are the other reader's (READINGS_R26_RUN.json, commit 49c2914c) and are NOT read here",
+ "date_utc": "2026-11-02",
+ "method": "diff -u of frozen-r19b against `git show 8b78aabd:<path>` (the working tree equals it for every file read, checked); every hunk (and every section of a NEW file) classified test-only / production privacy-neutral / privacy-relevant, and every privacy-relevant one decided safe with its argument and HEAD line numbers, or a finding. Privacy-relevant = it changes what is committed, opened, absorbed or exported, the PCS pads or masks or their sizes, a randomness source, the encoder, the opened-column count against the pads, the Metal path's equality with the CPU, or could put witness-dependent data in the clear. P1 (ZK60_PRIVACY_REQUIREMENTS.md) not reopened.",
+ "head": {
+  "commit": "8b78aabd530e73fcc058dc29cd9c7df62fba0e28",
+  "branch": "perf/zk-batch-optimizations",
+  "branch_tip_at_writing": "49c2914c368b04a39a705f83c1ee15c5594b7b01",
+  "sources_equal_at_tip": true,
+  "note": "the tip moved to 49c2914c during this reading (the run-level reader's records commit); no file under ops/zkp-mvp/gpu-metal/{hashline,zkp-core}/src differs between 8b78aabd and the tip"
+ },
+ "trees": {
+  "r19b": {
+   "tree": "results/zk60_token_io_r1_20261017/frozen-r19b",
+   "manifest": "results/zk60_token_io_r1_20261017/manifest_final_r19b.sha256",
+   "manifest_list_sha256": "cfae2d1e3c9f662b477bc7ba7ee418ed74c8732d0717732a74385cd8430b67b9",
+   "expected_list_sha256": "cfae2d1e3c9f662b477bc7ba7ee418ed74c8732d0717732a74385cd8430b67b9 (zk60_native_rg_r13_pins.TOKEN_R19B_LIST_SHA256)",
+   "files_read_rehash_equal_manifest": true
+  }
+ },
+ "capture_pins": {
+  "source": "HEAD run_capture.rs OWN_SOURCE_FILES (44) + SHARED_SOURCE_FILES (29) = 73 (the D60 bundles carry the same 73)",
+  "d60_bundles": "all four D60 bundles (results/zk60_d60_20261102/privacy_gate/bundle_manifests) pin every file read here at its HEAD digest",
+  "w16r2_recheck_bundles": "the ten bundles in results/zk60_w16r2_20261101/privacy_recheck_bundle_manifests pin every file read here at its HEAD digest except shape.rs (3b78b725, also read: comment-only difference)",
+  "moved_at_head_vs_r19b": [
+   {
+    "file": "src/private_block/argument_accuracy.rs",
+    "r19b": "a5e02391b61577c7041efc41c04cd2564610e3fbb26b188b66b1623a5b7940d9",
+    "head": "29a501d03b6f7a3455f0b191baf09ea3fd1854da30a0854f1cf0b3032cdb0763"
+   },
+   {
+    "file": "src/private_block/accuracy_act.rs",
+    "r19b": "7ef5fe26fc9395817436fc55851dc1f2ea066bc06b8a5eaaa3e2c39a8045eb4e",
+    "head": "08b88855f522c54e0d169815ef756fe56b3195fec79f25d664e846e1087d1b5f"
+   },
+   {
+    "file": "src/private_block/accuracy_fold.rs",
+    "r19b": "53e2b5726440eb747f55d5d22bdd36929f8d17bba8b769d17162c0948890731a",
+    "head": "d260dd26686b46137544c22d767c9dbff5d2510f6dac75874217e0939e0a9b1b"
+   },
+   {
+    "file": "src/private_block/accuracy_layout.rs",
+    "r19b": "37a3e3458e4961ddaab98440de114e575da3af21f7d872b532cb71a04ac788d3",
+    "head": "ad5214dee4ab17ad39e1378a54f7d8c0aa49b56e8cf185ac84c9ffe8390b97be"
+   },
+   {
+    "file": "src/private_block/run_capture.rs",
+    "r19b": "cce0fc2a4062fcb4c92e771b8d7ac7f996c9ccfbc985bfb6decd79b29fba7ddf",
+    "head": "cbb78dc04ac5ca62e56318ae6b2e844666ef3016e03a774e81d7e3d6dc569135"
+   },
+   {
+    "file": "src/private_block/run.rs",
+    "r19b": "3dc5393db188cdd92a775011318fc8d8031812ff7d8772d6528dbc3261efa99f",
+    "head": "0a8f261578cbff74161021f9802e2fabc4492c609e29ea4147734272a677b441"
+   },
+   {
+    "file": "src/private_block/protocol.rs",
+    "r19b": "1011441431a37f735999405986af6c9f11c2d303b48aa6d9cefae55b0311718d",
+    "head": "6f4d60f5d7fef8fad6a69ab7f78cc06ff3a8f947c8bac98d5bb01ed22b7af73c"
+   },
+   {
+    "file": "src/private_block/argument.rs",
+    "r19b": "bc0332e39904ca881d26c255581aa1ab6a0e73899141689960ec2262f8561830",
+    "head": "86c9941de1996b555c90fcb79b24c8682651df1ff24efcdff0ff0238ea50e77b"
+   },
+   {
+    "file": "src/private_block/layout.rs",
+    "r19b": "8519a514b8d1f43ab51c86b0a8af955230a2eab4fff4fc4c594733c59dcfd0bf",
+    "head": "171656f83ebeb009573a81fd1c464d4b9173f3c6400fd93942fd70ca93677934"
+   },
+   {
+    "file": "src/private_block/plane_index.rs",
+    "r19b": "ce79803c86a80dde832dc92a262a023efdd52bb95b9a15f128791978c306ffac",
+    "head": "702fa81a94aec18dc5df6b2215945f7fb841478cee68d8cd74c87087c7ad64a8"
+   },
+   {
+    "file": "src/private_block/shape.rs",
+    "r19b": "8e00a144bd194fd5a3dd30c9aaece2869d43d461df623cdcfc5a9da59e51436b",
+    "head": "dce667f98b350c4ce2c841ce8c1308a8101e29b8106733ac16439945f5c6001a"
+   },
+   {
+    "file": "src/private_block/wire.rs",
+    "r19b": "f312067871bb87dc93436263b5820e5f3fb9a9623f190efc924023a28c5d41d0",
+    "head": "b4377c6eddabbecc2ca2b891380c365a647628109aacbbf1da1f2035913b7af2"
+   },
+   {
+    "file": "src/private_block/hash_domain.rs",
+    "r19b": "2012142194303e3b7d4bf0757d89621ae9d78c000cd5b58aac33de43bd946214",
+    "head": "a777ebd0794131bcb3ba5c1bb2e6c1ea4a392cc111336ab3bffd12dff6cbb0e9"
+   },
+   {
+    "file": "src/private_block.rs",
+    "r19b": "96c1cd16270b087ab56d8fd4cf3777009e5000800ab2d65afc1342ae555c6ac4",
+    "head": "7ec8b8552ea59035c78cc91416bd2dabb18348894f9374ef9b2cca92de3c0cb7"
+   },
+   {
+    "file": "src/private_block/pad.rs",
+    "r19b": "91141ea025d01257a5f0b5007e711d883af896b72d3c109badb6999f48d78967",
+    "head": "9a28b306667c5ee566d272198d5a32177ad6a179daf62c51649a79b4b5224c51"
+   },
+   {
+    "file": "src/private_block/token_io/load.rs",
+    "r19b": "67307f096ca4ea9dd12e182a9b173436fd0015e7367a3b444e5733d188a4ce79",
+    "head": "56bb29a4d9550f0d614594c847499d94d466f312ceb0a186936dd80c8ab1f282"
+   },
+   {
+    "file": "src/private_block/trained_block.rs",
+    "r19b": "dc6e8772bf80ff3d16dff49b416667cf92bf58148da60d8695004df01900ca07",
+    "head": "9909e8835a1507fb2c6e120880e736f2aa62e0f9abc9d91101aef3931705e5b4"
+   },
+   {
+    "file": "src/private_block/tied_tables.rs",
+    "r19b": "45fc3f0fe20c5d8b798f6bbc0fe3f1b7aa68f4427b0a3521c92ba83230b30e33",
+    "head": "4b8f215c04d7093fa10adb335a14450a37ef0b371f9bd4ece41feafa181a4050"
+   },
+   {
+    "file": "src/private_block/witness_accuracy.rs",
+    "r19b": "8b03abadc73db1d46be642e32c83312c87e34bfa4d560ab8d8e2675b14abcf2a",
+    "head": "9c66f7622541b443c395baceaef8b4f01b00b85d1f3d72ad287c40ce4413b573"
+   },
+   {
+    "file": "src/private_block/range16.rs",
+    "r19b": null,
+    "head": "62061f62c9f96a162fd8eaf5d3ed53928bbfc73c6dad640ceee7603e25899466"
+   },
+   {
+    "file": "src/private_block/slot_ir.rs",
+    "r19b": "e0746ff1b3533287cc4d20240ec7c9e0e0b1383195dc90824faf1a3eb5bd4f09",
+    "head": "8f9e283173ee989507a737f02d4cc63210058cee86bab9758e0d76c815e31d59"
+   },
+   {
+    "file": "src/private_block/slot_ir_accuracy.rs",
+    "r19b": null,
+    "head": "25c08bb4c951a47dac928b6abd1c0827249b5ff4ca75887fd7e0be3db9c19e65"
+   },
+   {
+    "file": "src/private_block/metal_slot.rs",
+    "r19b": null,
+    "head": "5ced3891eff3455121a0ade1bed614f6beb2a7852433cc4250d1e950bc6eaceb"
+   },
+   {
+    "file": "src/private_block/run_fork.rs",
+    "r19b": null,
+    "head": "e2cb63282a177361b39d7d7216a269638c6759410087de7c8e2aa7b96b024c9e"
+   },
+   {
+    "file": "src/private_block/run_fork_wire.rs",
+    "r19b": null,
+    "head": "08d93ecfdff450a364d0141fa9d0d32f56250f226cbef7361b5ebc178a83f927"
+   },
+   {
+    "file": "../zkp-core/src/merkle.rs",
+    "r19b": "6e7817bd767a883985bfcd62b7a387d0c5f4c361010c4c5db37f5087d965744a",
+    "head": "6b66c0bcf20042373794b30c1d04b7340163ae3e93117ed19166c593ebe819a7"
+   },
+   {
+    "file": "../zkp-core/src/mle.rs",
+    "r19b": "b20c8b75c9246471fe1cc395122558eba715f66d9efe1dc4cd5be1750f2e542e",
+    "head": "ed7f8849f48df402c08b0a74a8119a9eff9aeecf4535847bbeceafa93459cebd"
+   },
+   {
+    "file": "../zkp-core/src/pcs.rs",
+    "r19b": "5c9cfc4e9c84283309f4c47f87d4a9146e2c9c9f5b52aa608b4ce6a7588cd495",
+    "head": "856929b343335f44638f44d577af4808ce8efc3c4fae44634160efcf6876d224"
+   },
+   {
+    "file": "../zkp-core/src/pcs/backend.rs",
+    "r19b": "ff2cb5c1806b34653f8a44ad82f54201fb5d9f6ba2602afe5efeae4d104e0103",
+    "head": "4f03047ac467bbb0a6c2c26341f414846577fee44e29a6c8f01d53f78c55b462"
+   },
+   {
+    "file": "../zkp-core/src/rng.rs",
+    "r19b": "0d4a99abbc424286de60ec4bfbe1084dc2ccaa2db8c5380e5f4594157ccea9eb",
+    "head": "f6728bd2d5208bb5b81f999d59baae12eb760a27811bdd2e0a5c309beba98aa2"
+   },
+   {
+    "file": "../zkp-core/src/transcript.rs",
+    "r19b": "cc9752d0ef9bcd6d7b20e94e611ff26748593a2ea1a4f55b63d8c221715f1967",
+    "head": "e766e9e14304a0d58bd17937f2afad490e0cc29e8c27094a0e8f14a96e8e134e"
+   },
+   {
+    "file": "src/gpu/mod.rs",
+    "r19b": "d651be2ccf8f19ff75fe6bca5ad42f4b773b569d0ae2017306f0bf819c51b283",
+    "head": "d7812f7d9404b55963387a9f40270fbdd871f8b6c09378116967e5568643c4c6"
+   }
+  ],
+  "read_here": [
+   "../zkp-core/src/merkle.rs",
+   "../zkp-core/src/mle.rs",
+   "../zkp-core/src/pcs.rs",
+   "../zkp-core/src/pcs/backend.rs",
+   "../zkp-core/src/rng.rs",
+   "../zkp-core/src/transcript.rs",
+   "src/gpu/mod.rs",
+   "src/private_block/accuracy_act.rs",
+   "src/private_block/accuracy_fold.rs",
+   "src/private_block/accuracy_layout.rs",
+   "src/private_block/argument.rs",
+   "src/private_block/argument_accuracy.rs",
+   "src/private_block/layout.rs",
+   "src/private_block/metal_slot.rs",
+   "src/private_block/pad.rs",
+   "src/private_block/protocol.rs",
+   "src/private_block/range16.rs",
+   "src/private_block/shape.rs",
+   "src/private_block/slot_ir.rs",
+   "src/private_block/slot_ir_accuracy.rs",
+   "src/private_block/witness_accuracy.rs"
+  ],
+  "the_other_readers_set": [
+   "src/private_block/run_capture.rs",
+   "src/private_block/run.rs",
+   "src/private_block/plane_index.rs",
+   "src/private_block/wire.rs",
+   "src/private_block/hash_domain.rs",
+   "src/private_block.rs",
+   "src/private_block/token_io/load.rs",
+   "src/private_block/trained_block.rs",
+   "src/private_block/tied_tables.rs",
+   "src/private_block/run_fork.rs",
+   "src/private_block/run_fork_wire.rs"
+  ],
+  "already_in_W16_READINGS_and_re_read_here_independently": [
+   "../zkp-core/src/merkle.rs",
+   "../zkp-core/src/mle.rs",
+   "../zkp-core/src/pcs.rs",
+   "../zkp-core/src/pcs/backend.rs",
+   "../zkp-core/src/rng.rs",
+   "../zkp-core/src/transcript.rs",
+   "src/gpu/mod.rs"
+  ],
+  "not_pinned_but_on_the_metal_receipt_path": [
+   "src/gpu/metal.rs",
+   "src/gpu/metal_kernels.metal"
+  ]
+ },
+ "diffs": [
+  {
+   "file": "hashline/src/private_block/protocol.rs",
+   "from": "frozen-r19b",
+   "to": "8b78aabd",
+   "diff": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-r19b-head-protocol.rs.diff",
+   "sha256": "4ea93531b322bd5a07d560110526608f1ecb0740b3dce5180472b6b1d8f3eae2",
+   "plus": 654,
+   "minus": 37,
+   "hunks": 21
+  },
+  {
+   "file": "hashline/src/private_block/layout.rs",
+   "from": "frozen-r19b",
+   "to": "8b78aabd",
+   "diff": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-r19b-head-layout.rs.diff",
+   "sha256": "83d33f0ee1620aaa912e6c73be1ced9c8b68aae06006fac59e696a65b3c502bd",
+   "plus": 59,
+   "minus": 9,
+   "hunks": 8
+  },
+  {
+   "file": "hashline/src/private_block/shape.rs",
+   "from": "frozen-r19b",
+   "to": "8b78aabd",
+   "diff": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-r19b-head-shape.rs.diff",
+   "sha256": "3ef7b4d8f4766bc9ff8db2e83e8cbb146307f04ddec36023ec49cf2ea9a5c3b5",
+   "plus": 245,
+   "minus": 12,
+   "hunks": 15
+  },
+  {
+   "file": "hashline/src/private_block/pad.rs",
+   "from": "frozen-r19b",
+   "to": "8b78aabd",
+   "diff": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-r19b-head-pad.rs.diff",
+   "sha256": "1f03d0308843b087d893776aa9c6154ba6417fd4139f799a87b8bed21b5584c5",
+   "plus": 15,
+   "minus": 1,
+   "hunks": 2
+  },
+  {
+   "file": "hashline/src/private_block/argument.rs",
+   "from": "frozen-r19b",
+   "to": "8b78aabd",
+   "diff": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-r19b-head-argument.rs.diff",
+   "sha256": "ca723b86eedc6a9f0bdd7a456c0afa9808c80e0212667255891f1c0a3ba120fc",
+   "plus": 556,
+   "minus": 14,
+   "hunks": 18
+  },
+  {
+   "file": "hashline/src/private_block/argument_accuracy.rs",
+   "from": "frozen-r19b",
+   "to": "8b78aabd",
+   "diff": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-r19b-head-argument_accuracy.rs.diff",
+   "sha256": "7783444ed0b909d5557aad0578ad39283c378fec24057788d970c025a85d3c9f",
+   "plus": 351,
+   "minus": 0,
+   "hunks": 2
+  },
+  {
+   "file": "hashline/src/private_block/accuracy_act.rs",
+   "from": "frozen-r19b",
+   "to": "8b78aabd",
+   "diff": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-r19b-head-accuracy_act.rs.diff",
+   "sha256": "aadc70dbcdcb3762364fc4631d2277220092737efdbb712ad14aed20c43559fc",
+   "plus": 83,
+   "minus": 9,
+   "hunks": 2
+  },
+  {
+   "file": "hashline/src/private_block/accuracy_fold.rs",
+   "from": "frozen-r19b",
+   "to": "8b78aabd",
+   "diff": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-r19b-head-accuracy_fold.rs.diff",
+   "sha256": "61123675a3a92394cec6066d7fd2e88487a517ab92df39fb0e51e72f7c4289df",
+   "plus": 9,
+   "minus": 1,
+   "hunks": 1
+  },
+  {
+   "file": "hashline/src/private_block/accuracy_layout.rs",
+   "from": "frozen-r19b",
+   "to": "8b78aabd",
+   "diff": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-r19b-head-accuracy_layout.rs.diff",
+   "sha256": "003206faaa0a58777f2d961b182c8a41b5ff3479e484b3785d73123899ed777e",
+   "plus": 182,
+   "minus": 8,
+   "hunks": 8
+  },
+  {
+   "file": "hashline/src/private_block/witness_accuracy.rs",
+   "from": "frozen-r19b",
+   "to": "8b78aabd",
+   "diff": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-r19b-head-witness_accuracy.rs.diff",
+   "sha256": "14302e476076532912ab362d7860262b205f519e6ca53b0b4076b313c98c774c",
+   "plus": 33,
+   "minus": 1,
+   "hunks": 1
+  },
+  {
+   "file": "hashline/src/private_block/slot_ir.rs",
+   "from": "frozen-r19b",
+   "to": "8b78aabd",
+   "diff": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-r19b-head-slot_ir.rs.diff",
+   "sha256": "d9b0fecd9a9d8ac65d7d4f1ac3b860d855e7a6926c0761637bfd37917e3c6e4e",
+   "plus": 27,
+   "minus": 4,
+   "hunks": 5
+  },
+  {
+   "file": "zkp-core/src/merkle.rs",
+   "from": "frozen-r19b",
+   "to": "8b78aabd",
+   "diff": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-r19b-head-zkp-core_merkle.rs.diff",
+   "sha256": "9801dacf9268fe4523404876a21e9ac3542972628c782eec3338082a3ba5e418",
+   "plus": 50,
+   "minus": 0,
+   "hunks": 4
+  },
+  {
+   "file": "zkp-core/src/mle.rs",
+   "from": "frozen-r19b",
+   "to": "8b78aabd",
+   "diff": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-r19b-head-zkp-core_mle.rs.diff",
+   "sha256": "e6f708bd3f84600a9bda61e5ed560d1e5fd17b56d41112fe003ada570076d1b3",
+   "plus": 132,
+   "minus": 2,
+   "hunks": 5
+  },
+  {
+   "file": "zkp-core/src/pcs.rs",
+   "from": "frozen-r19b",
+   "to": "8b78aabd",
+   "diff": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-r19b-head-zkp-core_pcs.rs.diff",
+   "sha256": "13ade33f16eb8b64410c5d78eb0a7ad3b09c6a83db1e810bfcc1a76f61da27da",
+   "plus": 1,
+   "minus": 1,
+   "hunks": 1
+  },
+  {
+   "file": "zkp-core/src/pcs/backend.rs",
+   "from": "frozen-r19b",
+   "to": "8b78aabd",
+   "diff": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-r19b-head-zkp-core_pcs_backend.rs.diff",
+   "sha256": "32b0cde09ef3916376b5fae9634615653c4e304c1432873898c8237df83e186c",
+   "plus": 8,
+   "minus": 0,
+   "hunks": 1
+  },
+  {
+   "file": "zkp-core/src/rng.rs",
+   "from": "frozen-r19b",
+   "to": "8b78aabd",
+   "diff": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-r19b-head-zkp-core_rng.rs.diff",
+   "sha256": "89c3f84d1b66a20c591eff1f9b0b469be50b8ae9d65a8fbe85998d0a4b095478",
+   "plus": 107,
+   "minus": 6,
+   "hunks": 4
+  },
+  {
+   "file": "zkp-core/src/transcript.rs",
+   "from": "frozen-r19b",
+   "to": "8b78aabd",
+   "diff": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-r19b-head-zkp-core_transcript.rs.diff",
+   "sha256": "90331905e3f1448b56709fd8086662fc052c6732cb5bd2816f16c8a80a776cab",
+   "plus": 14,
+   "minus": 0,
+   "hunks": 1
+  },
+  {
+   "file": "hashline/src/gpu/mod.rs",
+   "from": "frozen-r19b",
+   "to": "8b78aabd",
+   "diff": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-r19b-head-gpu_mod.rs.diff",
+   "sha256": "f1c4b3952b1aedbb949cb300a3603b6a091dd1750db20bf8f1ee8296219868b4",
+   "plus": 106,
+   "minus": 5,
+   "hunks": 5
+  },
+  {
+   "file": "hashline/src/private_block/shape.rs",
+   "from": "2196592d",
+   "to": "8b78aabd",
+   "diff": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-2196592d-head-shape.rs.diff",
+   "sha256": "4b8027c02872c7ffec97e486bcfd65bab476fbe947f1f396f6c6aa0f1dfa4018",
+   "plus": 12,
+   "minus": 3,
+   "hunks": 1
+  }
+ ],
+ "readings": {
+  "src/private_block/protocol.rs": {
+   "r19b": "1011441431a37f735999405986af6c9f11c2d303b48aa6d9cefae55b0311718d",
+   "head": "6f4d60f5d7fef8fad6a69ab7f78cc06ff3a8f947c8bac98d5bb01ed22b7af73c",
+   "d60_bundles": "6f4d60f5d7fef8fad6a69ab7f78cc06ff3a8f947c8bac98d5bb01ed22b7af73c",
+   "capture_pin": true,
+   "pinned_by": [
+    "OWN_SOURCE_FILES"
+   ],
+   "compiled": "production",
+   "git_path": "ops/zkp-mvp/gpu-metal/hashline/src/private_block/protocol.rs",
+   "head_lines": 2155,
+   "r19b_tree_rehash_equals_manifest": true,
+   "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-r19b-head-protocol.rs.diff",
+   "diff_sha256": "4ea93531b322bd5a07d560110526608f1ecb0740b3dce5180472b6b1d8f3eae2",
+   "diff_stat": "+654 / -37, 21 hunk(s) against 10114414 (frozen-r19b)",
+   "unit": "hunk (diff -u)",
+   "hunks": [
+    {
+     "n": 1,
+     "head_lines": [
+      462,
+      495
+     ],
+     "r19b_at": 462,
+     "plus": 28,
+     "minus": 0,
+     "class": "production-privacy-neutral",
+     "note": "[M15] `exp_histogram` counts columns of >= 2^17 words over 64 Ki chunks on rayon and sums them: integer bins and the miss count equal the sequential loop's (chunk index ci*CH+k is the loop's x). Prover side; feeds the committed MEXP plane and the CS-3 refusal; no draw, absorb or export."
+    },
+    {
+     "n": 2,
+     "head_lines": [
+      615,
+      622
+     ],
+     "r19b_at": 587,
+     "plus": 2,
+     "minus": 1,
+     "class": "production-privacy-neutral",
+     "note": "`check_lookup_misses` (the sealing pass, :618) at a W16 shape takes the W16 miss count (a looked word outside its OWN family's table) instead of the byte count. It refuses before any proof exists, and `refuse_lookup_misses` (:445-458) names only the class, never a count (ruling K-2). See Info F-B3 on the class name."
+    },
+    {
+     "n": 3,
+     "head_lines": [
+      657,
+      746
+     ],
+     "r19b_at": 628,
+     "plus": 82,
+     "minus": 0,
+     "class": "test-only",
+     "note": "`ThreadHooks` / `ThreadHooksGuard` (:662-743): every item `#[cfg(test)]` (D55 review F5: carries the thread-local test switches into worker threads). Absent from a release build."
+    },
+    {
+     "n": 4,
+     "head_lines": [
+      779,
+      943
+     ],
+     "r19b_at": 668,
+     "plus": 159,
+     "minus": 0,
+     "class": "privacy-relevant-safe",
+     "note": "W16's NEW witness-dependent data: `w16_histograms` (:792) bins every looked column by its lookup's tag into the byte histogram plus one histogram per range family (2^w bins each), with the miss count; `TaggedColumn` / `HelperJobW16` / `tagged_column` / `helper_one_any` / `write_helpers_w16` (:889) write each W16 LogUp helper (1/(alpha - (v + g_family)) summed over at most two looked columns) into H. Outputs go ONLY into rows of A (the multiplicities, written at :1642-1652) and H (the helpers), both hiding-committed through `pcs::commit_zk_owned_tagged` with `ZkOpts::standard` (:1686, :1902) and opened only through masked claims; nothing here is absorbed, returned to a receipt or exported. The miss count feeds only the refusal. Safe."
+    },
+    {
+     "n": 5,
+     "head_lines": [
+      959,
+      1027
+     ],
+     "r19b_at": 689,
+     "plus": 59,
+     "minus": 1,
+     "class": "production-privacy-neutral",
+     "note": "[M4h] `inverses` inverts columns of >= 2^15 elements in 2^14 chunks (unique inverses; the refusal is `ZERO_DENOMINATOR` (:1028), the same string as the serial branch). [M4i] `write_planes` writes dst[off+i] = Fp::from_i64(plane[i]) in address-ordered disjoint chunks, else the old loop: the same words in the same places."
+    },
+    {
+     "n": 6,
+     "head_lines": [
+      1078,
+      1084
+     ],
+     "r19b_at": 750,
+     "plus": 1,
+     "minus": 0,
+     "class": "production-privacy-neutral",
+     "note": "Lint attribute only (`#[cfg_attr(not(test), allow(dead_code))]`) on the reference helper `helper_inverses_u8`."
+    },
+    {
+     "n": 7,
+     "head_lines": [
+      1128,
+      1134
+     ],
+     "r19b_at": 799,
+     "plus": 1,
+     "minus": 0,
+     "class": "production-privacy-neutral",
+     "note": "Lint attribute only on the reference helper `helper_pair_inverses_u8`."
+    },
+    {
+     "n": 8,
+     "head_lines": [
+      1164,
+      1172
+     ],
+     "r19b_at": 834,
+     "plus": 3,
+     "minus": 0,
+     "class": "test-only",
+     "note": "Comment on the `#[cfg(test)]` MOVED_MULTIPLICITY hook (W16 review F3 (c) extends `which`)."
+    },
+    {
+     "n": 9,
+     "head_lines": [
+      1183,
+      1390
+     ],
+     "r19b_at": 850,
+     "plus": 202,
+     "minus": 1,
+     "class": "production-privacy-neutral",
+     "note": "`MISFILED_RANGE`, `set_misfiled_range`, `misfile_range_misses` are `#[cfg(test)]` (W16 F3 (a) cheating prover). Production: `write_helper_u8` / `HelperJob` / `write_helpers_u8` write helper_one(a[i]) (+ helper_one(b[i])) straight into H's re/im rows, the words `helper_(pair_)inverses_u8` + `write_h` stored, with the old job-by-job loop for any malformed or overlapping job; `write_h` takes a parallel path only when the re and im ranges are disjoint and in bounds (re/im mapped correctly for either order). Same words, same refusal, prover side; H's bytes are pinned by the dev-bytes and golden gates (CPU = Metal)."
+    },
+    {
+     "n": 10,
+     "head_lines": [
+      1431,
+      1438
+     ],
+     "r19b_at": 897,
+     "plus": 2,
+     "minus": 1,
+     "class": "production-privacy-neutral",
+     "note": "`single_block_profile_allowed` (:1432) also refuses the W16 / W16R2 strings (`is_trained_profile_string`, W16 review F1). A refusal widened; nothing proved or revealed."
+    },
+    {
+     "n": 11,
+     "head_lines": [
+      1587,
+      1596
+     ],
+     "r19b_at": 1052,
+     "plus": 4,
+     "minus": 5,
+     "class": "production-privacy-neutral",
+     "note": "A's committed witness rows written through `write_planes` (h5): the same words in the same places."
+    },
+    {
+     "n": 12,
+     "head_lines": [
+      1599,
+      1613
+     ],
+     "r19b_at": 1065,
+     "plus": 9,
+     "minus": 1,
+     "class": "privacy-relevant-safe",
+     "note": "At a W16 shape the byte histogram AND the per-family range histograms come from `w16_histograms` (:1606); every other profile keeps `byte_histogram_at` unchanged; the `#[cfg(test)]` misfile hook. The histograms only become committed A rows (h14). The lookup-word count beside it stays the public geometry count (:1603-1604)."
+    },
+    {
+     "n": 13,
+     "head_lines": [
+      1621,
+      1627
+     ],
+     "r19b_at": 1079,
+     "plus": 1,
+     "minus": 1,
+     "class": "production-privacy-neutral",
+     "note": "The CS-3 refusal before A's masks (:1624) uses the W16 miss count at a W16 shape (as h2): refused before the first mask draw, the A commitment or any challenge of the block."
+    },
+    {
+     "n": 14,
+     "head_lines": [
+      1639,
+      1655
+     ],
+     "r19b_at": 1097,
+     "plus": 11,
+     "minus": 0,
+     "class": "privacy-relevant-safe",
+     "note": "Each range sub-plane's multiplicities written into A at `lay.a_off[plane]` for i < support (:1642-1652); padded copies stay 0 (the pad rule's Zero / Exempt, pad.rs:303-305). These are NEW PRIVATE planes: they lie in A's data rows below `a_mask_base`, are hiding-committed with the rest of A, and are claimed only in SC_TAB through `b.a(plane)` (argument_accuracy.rs:752), so each claim carries its own reserved mask pair (`audit_claims` :240 refuses a shared, missing or unused pair). `Ids::is_multiplicity` (layout.rs:523-525) is `plane >= map[A_MU8]`, so the range planes are outside the witness-shape check (:1581-1584) and filled only here. No capture or receipt field carries them in the clear (PG-7 allow-list; the Python gate's per-commitment rank gives A disclosed 0 on W16 / W16R2 captures)."
+    },
+    {
+     "n": 15,
+     "head_lines": [
+      1660,
+      1674
+     ],
+     "r19b_at": 1107,
+     "plus": 9,
+     "minus": 1,
+     "class": "test-only",
+     "note": "F-4 injection point 1 (`#[cfg(test)]` block): `which = 3 + j` moves a count of a NARROW range family."
+    },
+    {
+     "n": 16,
+     "head_lines": [
+      1676,
+      1684
+     ],
+     "r19b_at": 1115,
+     "plus": 3,
+     "minus": 3,
+     "class": "privacy-relevant-safe",
+     "note": "A's mask and proximity rows: `rng.fill_fp(&mut a_data[lay.a_mask_base * n..])` (:1681) replaces the `rng.fp()` loop. `fill_fp` (zkp-core rng.rs:109-160) produces the identical stream and leaves the identical (buf, pos, counter) state (read below, and test `fill_fp_equals_the_draw_loop_and_leaves_the_same_state`, rng.rs:197), so the mask rows are the same fresh draws of the same OS-seeded generator (`ZkRng::from_os`, :1471, unchanged) in the same order, and every later draw (A's pads and salts, M, H) is unchanged."
+    },
+    {
+     "n": 17,
+     "head_lines": [
+      1717,
+      1749
+     ],
+     "r19b_at": 1156,
+     "plus": 27,
+     "minus": 1,
+     "class": "privacy-relevant-safe",
+     "note": "At W16 every looked column folds its OWN family's constant `range16::g_range(g_u8, w)` (= gamma * tag(w): no new draw, no new Ctx field) with that family's inverse table (`range16::denominator_inverses` over the public values 0..2^w) and is written by `write_helpers_w16`; at every other profile the jobs are collected for `write_helpers_u8` (h18). H rows only (committed, masked claims); the zero-denominator refusal is unchanged."
+    },
+    {
+     "n": 18,
+     "head_lines": [
+      1753,
+      1782
+     ],
+     "r19b_at": 1166,
+     "plus": 19,
+     "minus": 9,
+     "class": "production-privacy-neutral",
+     "note": "R13 / legacy helpers through `write_helpers_u8` in one parallel region (same words); the exp and activation denominators on rayon (indexed iterators: the same elements in the same order); `accuracy_act::denominators` (fused; equal to alpha - query_values word for word, test m15_fused_denominators_equal_alpha_minus_the_queries)."
+    },
+    {
+     "n": 19,
+     "head_lines": [
+      1845,
+      1866
+     ],
+     "r19b_at": 1248,
+     "plus": 16,
+     "minus": 0,
+     "class": "privacy-relevant-safe",
+     "note": "One W16 table helper per range sub-plane (:1848-1862): m/(alpha - t) on true rows and 0 on padded copies (whose multiplicity is 0); t = `range16::table_column` (public: shape and gamma). Written into H at `hids.range_helpers()`, claimed only through SC_TAB's `b.h(rh[j])` (masked)."
+    },
+    {
+     "n": 20,
+     "head_lines": [
+      1873,
+      1902
+     ],
+     "r19b_at": 1260,
+     "plus": 14,
+     "minus": 11,
+     "class": "privacy-relevant-safe",
+     "note": "F-4 injection point 2 (`#[cfg(test)]`) gains the range arm; AND H's mask rows and zero-sum rows (:1892-1900): `rng.fill_fp` over the mask rows, then for each u-row `fill_fp(row[..n-1])` and `row[n-1] = -sum`. The same draws in the same order as r19b's two `fp()` loops (every mask row first, then each u-row's n-1 words), so the zero-sum masking pair (H's disclosed dimension 2: its two public zero sums) is unchanged."
+    },
+    {
+     "n": 21,
+     "head_lines": [
+      1946,
+      1953
+     ],
+     "r19b_at": 1330,
+     "plus": 2,
+     "minus": 1,
+     "class": "production-privacy-neutral",
+     "note": "The lookup total in `CoreProof.lookups[0]` / `ProveStats.u8_lookups` adds the range counts to the byte count (:1950). With misses refused (:1624) every looked word is filed exactly once, so it is the public geometry count `lookup_words`; a prover statistic, not a receipt field."
+    }
+   ],
+   "counts": {
+    "units": 21,
+    "test_only": 3,
+    "production_privacy_neutral": 11,
+    "privacy_relevant": 7,
+    "privacy_relevant_safe": 7,
+    "findings": 0
+   },
+   "findings": [
+    "F-B3 (Info)"
+   ],
+   "verdict": "READ; safe; F-B3 (Info) (text only)",
+   "readings": {
+    "6f4d60f5d7fef8fad6a69ab7f78cc06ff3a8f947c8bac98d5bb01ed22b7af73c": {
+     "base": "1011441431a37f735999405986af6c9f11c2d303b48aa6d9cefae55b0311718d",
+     "diff_stat": "+654 / -37, 21 hunk(s) against 10114414 (frozen-r19b)",
+     "moves_a_receipt_byte": false,
+     "moves_a_block_stage_byte": false,
+     "new_receipt_kind": false,
+     "classification": "gated-on-new-profiles",
+     "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-r19b-head-protocol.rs.diff",
+     "reading": "[GATE ROUND 26, block readings, frozen-r19b -> HEAD 8b78aabd] The W16 multiplicities (one histogram per range family) and their helpers are new rows of the hiding-committed A and H, each reached only through a masked claim; A's and H's mask and zero-sum rows are the same draws of the same OS-seeded stream via `fill_fp`; everything else is a value-identical parallel rewrite of prover-side writes. `audit_claims`, `check_opening_challenges`, `pcs_params_at`, `endpoint_pcs_params`, `transcript` and `verify_core` are byte-identical to frozen-r19b's (compared function by function). No finding.",
+     "receipt_byte_note": "no byte moves at any registered (legacy / R13) profile: the dev-bytes gate is unchanged with CPU = Metal, golden 8/8, trained digests unchanged (HEAD commit 8b78aabd's own record and results/zk60_d60_20261102/privacy_gate/README.md section 8; not re-run here); W16 / W16R2 are unregistered new formats with their own goldens"
+    }
+   }
+  },
+  "src/private_block/argument.rs": {
+   "r19b": "bc0332e39904ca881d26c255581aa1ab6a0e73899141689960ec2262f8561830",
+   "head": "86c9941de1996b555c90fcb79b24c8682651df1ff24efcdff0ff0238ea50e77b",
+   "d60_bundles": "86c9941de1996b555c90fcb79b24c8682651df1ff24efcdff0ff0238ea50e77b",
+   "capture_pin": true,
+   "pinned_by": [
+    "OWN_SOURCE_FILES"
+   ],
+   "compiled": "production",
+   "git_path": "ops/zkp-mvp/gpu-metal/hashline/src/private_block/argument.rs",
+   "head_lines": 2712,
+   "r19b_tree_rehash_equals_manifest": true,
+   "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-r19b-head-argument.rs.diff",
+   "diff_sha256": "ca723b86eedc6a9f0bdd7a456c0afa9808c80e0212667255891f1c0a3ba120fc",
+   "diff_stat": "+556 / -14, 18 hunk(s) against bc0332e3 (frozen-r19b)",
+   "unit": "hunk (diff -u)",
+   "hunks": [
+    {
+     "n": 1,
+     "head_lines": [
+      100,
+      112
+     ],
+     "r19b_at": 100,
+     "plus": 7,
+     "minus": 0,
+     "class": "test-only",
+     "note": "`dd_lapse_bits` (:103-108) is `#[cfg(test)]` (D55 review F5)."
+    },
+    {
+     "n": 2,
+     "head_lines": [
+      130,
+      141
+     ],
+     "r19b_at": 123,
+     "plus": 6,
+     "minus": 0,
+     "class": "production-privacy-neutral",
+     "note": "`SlotDef.metal` (:133-138), `#[cfg(feature = \"gpu-metal\")]`: the generated MSL, its coefficient buffer and the base-typing flags; set only on the prove side with HL_GPU=1 (h18)."
+    },
+    {
+     "n": 3,
+     "head_lines": [
+      262,
+      306
+     ],
+     "r19b_at": 249,
+     "plus": 39,
+     "minus": 0,
+     "class": "production-privacy-neutral",
+     "note": "`priv_table` -> `priv_table_at` / `priv_table_into(_at)` / `acc_par_on` / `priv_table_fill` (:262-303): the private-table builder can write into a caller buffer (a pooled device buffer on the Metal path); `HL_TABLE_ACC_PAR` selects the parallel accumulating form. Same words."
+    },
+    {
+     "n": 4,
+     "head_lines": [
+      309,
+      314
+     ],
+     "r19b_at": 257,
+     "plus": 0,
+     "minus": 1,
+     "class": "production-privacy-neutral",
+     "note": "The output vector moved to the callers (h3)."
+    },
+    {
+     "n": 5,
+     "head_lines": [
+      341,
+      460
+     ],
+     "r19b_at": 290,
+     "plus": 114,
+     "minus": 0,
+     "class": "production-privacy-neutral",
+     "note": "[M4j] a plain-store table in parallel over its output (the idx<->x bit map is a bijection onto the subsets of `used`; the broadcast entries are copies) and [M9] an accumulating table in parallel when every cube variable is read exactly once: the same field sums in another order (exact). A reused buffer is zeroed where the sequential accumulating loop needs it. In-process tables of private planes; nothing absorbed or exported."
+    },
+    {
+     "n": 6,
+     "head_lines": [
+      477,
+      482
+     ],
+     "r19b_at": 312,
+     "plus": 0,
+     "minus": 1,
+     "class": "production-privacy-neutral",
+     "note": "End of the moved `out` (h3)."
+    },
+    {
+     "n": 7,
+     "head_lines": [
+      485,
+      496
+     ],
+     "r19b_at": 321,
+     "plus": 6,
+     "minus": 0,
+     "class": "production-privacy-neutral",
+     "note": "`eq_cube` -> `eq_cube_at` (threshold as an argument)."
+    },
+    {
+     "n": 8,
+     "head_lines": [
+      505,
+      520
+     ],
+     "r19b_at": 335,
+     "plus": 10,
+     "minus": 0,
+     "class": "production-privacy-neutral",
+     "note": "[M4j] an eq cube in parallel: entry x = e[(x >> shift) & (|e| - 1)], the function's own description; an eq table of a PUBLIC point."
+    },
+    {
+     "n": 9,
+     "head_lines": [
+      525,
+      600
+     ],
+     "r19b_at": 345,
+     "plus": 70,
+     "minus": 0,
+     "class": "production-privacy-neutral",
+     "note": "`eq_cube_into(_at)`, `eq_cube_split_into` (entry = hi[y >> p_lo] * lo[y & ..], the eq tables of the point's two halves), `EQ_SPLIT_MIN`: public eq tables into a caller buffer; every element written."
+    },
+    {
+     "n": 10,
+     "head_lines": [
+      634,
+      697
+     ],
+     "r19b_at": 384,
+     "plus": 56,
+     "minus": 0,
+     "class": "production-privacy-neutral",
+     "note": "`table_into` / `build_tables_into` (the device-buffer build, one rayon task per table); `TABLE_KIND_NS` / `TABLE_KIND_N` and `table_kind_report`: only with HL_TABLE_KIND_TIMING=1, stderr lines of CPU seconds and table COUNTS per kind, no table value."
+    },
+    {
+     "n": 11,
+     "head_lines": [
+      711,
+      728
+     ],
+     "r19b_at": 405,
+     "plus": 10,
+     "minus": 3,
+     "class": "privacy-relevant-safe",
+     "note": "`mask_eval` -> `mask_tail` + `mask_eval_eq` (:716-730): the reserved mask pair's value (R_re + u R_im)~(tail) that masks a private table's terminal in the extension rounds. Tail = point[p.log - min(p.log, row_log)..] and the fold over rows p.mask_row, p.mask_row + 1, columns c0..c0+|eq|, exactly r19b's `mask_eval` (r19b argument.rs:408-417); only the eq table is now built by the caller. The same element."
+    },
+    {
+     "n": 12,
+     "head_lines": [
+      801,
+      845
+     ],
+     "r19b_at": 488,
+     "plus": 39,
+     "minus": 0,
+     "class": "production-privacy-neutral",
+     "note": "`METAL_MIN_TERMS`, `small_slot_pays` (:824: times `poly` on eight FIXED points; reads and draws no proof randomness; its only output is a CPU/GPU routing bool; HL_METAL_SMALL_SLOT_US override), `METAL_DIRECT_MIN`; all `#[cfg(feature = \"gpu-metal\")]`."
+    },
+    {
+     "n": 13,
+     "head_lines": [
+      887,
+      913
+     ],
+     "r19b_at": 535,
+     "plus": 21,
+     "minus": 2,
+     "class": "privacy-relevant-safe",
+     "note": "Metal seam: a device slot's tables are built in place in a pooled Metal buffer (`MetalTables`, unified memory of the prover's own process) when `def.metal` is set, the slot kind is not Private, the slot is above 2^18 and the census is off (:899); a buffer the device cannot give falls back to host vectors. The same tables the CPU builds, held where the prover already holds them; nothing written to a file, absorbed or exported."
+    },
+    {
+     "n": 14,
+     "head_lines": [
+      957,
+      1034
+     ],
+     "r19b_at": 586,
+     "plus": 67,
+     "minus": 2,
+     "class": "privacy-relevant-safe",
+     "note": "Metal seam, masked sumcheck (:957-1031): `crate::gpu::metal_rounds(_owned)` returns UNMASKED round sums; `recover_one` keeps the CPU evaluator's s(1) rule; `with_host_tail` runs the last rounds on the host; `ev.masked_prove(mask, c, tr)` (gpu/metal.rs:2069-2118) installs zkp-core's own `CfsMasker` on the REAL transcript, recomputes s(1) from the claim, absorbs the MASKED message through the masker, draws the challenge and requires the device's challenge to equal it (an assert: the attempt is refused). So the masked round messages in the receipt come from the same host masker, the same mask (M) and the same c as the CPU's `crate::zk::masked_prove_rounds`. A decline returns the tables and the CPU evaluator runs; the transcript has not moved. The oracle replay is `#[cfg(test)]` (HL_PB_ORACLE only skips it). CPU = Metal bytes: the dev-bytes gate and the W16R2 goldens. gpu/metal.rs itself is not a source pin: finding F-B1."
+    },
+    {
+     "n": 15,
+     "head_lines": [
+      1050,
+      1088
+     ],
+     "r19b_at": 614,
+     "plus": 30,
+     "minus": 2,
+     "class": "privacy-relevant-safe",
+     "note": "Extension rounds (:1050-1095): one eq table per DISTINCT tail (exact Vec equality), the mask values in parallel, an indexed collect in table order; each `exts` value is the same element as r19b's `mask_eval` (h11) and `masked_terminal(v, x, e)` (:1090-1092) is unchanged, so the masked terminals in `SlotProof.terms` are unchanged."
+    },
+    {
+     "n": 16,
+     "head_lines": [
+      1327,
+      1342
+     ],
+     "r19b_at": 863,
+     "plus": 10,
+     "minus": 1,
+     "class": "production-privacy-neutral",
+     "note": "`SlotDef { .., metal: None }` under gpu-metal."
+    },
+    {
+     "n": 17,
+     "head_lines": [
+      1400,
+      1416
+     ],
+     "r19b_at": 927,
+     "plus": 8,
+     "minus": 1,
+     "class": "production-privacy-neutral",
+     "note": "`lk_tables` (:1402) folds each lookup's family constant `range16::g_of(tag, g_u8)` (= g_u8 for every legacy and R13 lookup: the same elements); `limbs16` (:1412, sum v[ix_k] 2^(16k)) for the W16 relations. Public constants of a relation; no table, claim or opening added."
+    },
+    {
+     "n": 18,
+     "head_lines": [
+      2627,
+      2700
+     ],
+     "r19b_at": 2147,
+     "plus": 63,
+     "minus": 1,
+     "class": "privacy-relevant-safe",
+     "note": "Metal seam, the IR twin (:2627-2700): `metal_on` = prove side && `gpu::enabled()` (HL_GPU=1 and a device). Per slot the IR is built on `Transcript::clone_state(tr)` (zkp-core transcript.rs:170-176: an independent copy of state, counter and key; it asserts no masker is installed; the real transcript is untouched), then `define()` runs on the real transcript as before; `metal_slot::ir_matches_closure` (a local splitmix stream seeded by the slot number, no proof randomness) decides whether `def.metal` is set, else the slot stays on the CPU. HL_METAL_TIMING prints booleans, the shape name, slot numbers and static IR error strings only. The prover's capture recorder runs on the VERIFY side only (run_capture.rs:2038-2047), so the twin never reaches a capture. `define()` (:1661-2615) is byte-identical to frozen-r19b's (955 lines; sha256 of the function text 8164dd26... in both)."
+    }
+   ],
+   "counts": {
+    "units": 18,
+    "test_only": 1,
+    "production_privacy_neutral": 12,
+    "privacy_relevant": 5,
+    "privacy_relevant_safe": 5,
+    "findings": 0
+   },
+   "findings": [],
+   "verdict": "READ; safe (no finding)",
+   "readings": {
+    "86c9941de1996b555c90fcb79b24c8682651df1ff24efcdff0ff0238ea50e77b": {
+     "base": "bc0332e39904ca881d26c255581aa1ab6a0e73899141689960ec2262f8561830",
+     "diff_stat": "+556 / -14, 18 hunk(s) against bc0332e3 (frozen-r19b)",
+     "moves_a_receipt_byte": false,
+     "moves_a_block_stage_byte": false,
+     "new_receipt_kind": false,
+     "classification": "identity-at-captured-profiles",
+     "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-r19b-head-argument.rs.diff",
+     "reading": "[GATE ROUND 26, block readings, frozen-r19b -> HEAD 8b78aabd] Outside `define` (byte-identical to r19b's repaired definition, read in the D60 gate record): value-identical table builders; the extension-round mask values (same elements); the Metal seam (twin-transcript IR, runtime guard, device round sums masked by the host's CfsMasker on the real transcript, decline -> CPU). No finding in this file; the unpinned Metal backend it calls is F-B1.",
+     "receipt_byte_note": "no byte moves at any registered (legacy / R13) profile: the dev-bytes gate is unchanged with CPU = Metal, golden 8/8, trained digests unchanged (HEAD commit 8b78aabd's own record and results/zk60_d60_20261102/privacy_gate/README.md section 8; not re-run here); W16 / W16R2 are unregistered new formats with their own goldens"
+    }
+   }
+  },
+  "src/private_block/layout.rs": {
+   "r19b": "8519a514b8d1f43ab51c86b0a8af955230a2eab4fff4fc4c594733c59dcfd0bf",
+   "head": "171656f83ebeb009573a81fd1c464d4b9173f3c6400fd93942fd70ca93677934",
+   "d60_bundles": "171656f83ebeb009573a81fd1c464d4b9173f3c6400fd93942fd70ca93677934",
+   "capture_pin": true,
+   "pinned_by": [
+    "OWN_SOURCE_FILES"
+   ],
+   "compiled": "production",
+   "git_path": "ops/zkp-mvp/gpu-metal/hashline/src/private_block/layout.rs",
+   "head_lines": 1707,
+   "r19b_tree_rehash_equals_manifest": true,
+   "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-r19b-head-layout.rs.diff",
+   "diff_sha256": "83d33f0ee1620aaa912e6c73be1ced9c8b68aae06006fac59e696a65b3c502bd",
+   "diff_stat": "+59 / -9, 8 hunk(s) against 8519a514 (frozen-r19b)",
+   "unit": "hunk (diff -u)",
+   "hunks": [
+    {
+     "n": 1,
+     "head_lines": [
+      361,
+      373
+     ],
+     "r19b_at": 361,
+     "plus": 7,
+     "minus": 1,
+     "class": "privacy-relevant-safe",
+     "note": "`Ids::new` at a W16 shape (:361-373): `AccuracyIds::new_w16`, refused unless its range families equal the shape's independently counted `range_families()` (and, as before, its domains equal `a_plane_doms`). Decides A's plane list: the 16-bit limb planes and the range sub-planes (private, committed)."
+    },
+    {
+     "n": 2,
+     "head_lines": [
+      608,
+      616
+     ],
+     "r19b_at": 602,
+     "plus": 3,
+     "minus": 0,
+     "class": "production-privacy-neutral",
+     "note": "`HIds.n_range` field."
+    },
+    {
+     "n": 3,
+     "head_lines": [
+      644,
+      656
+     ],
+     "r19b_at": 635,
+     "plus": 3,
+     "minus": 2,
+     "class": "privacy-relevant-safe",
+     "note": "`HIds::new` (:644-653): 3 + n_range table helpers before `u` (u stays the last plane), checked against the pinned `h_plane_doms`. Decides H's plane list."
+    },
+    {
+     "n": 4,
+     "head_lines": [
+      682,
+      692
+     ],
+     "r19b_at": 672,
+     "plus": 5,
+     "minus": 0,
+     "class": "production-privacy-neutral",
+     "note": "`range_helpers()` accessor."
+    },
+    {
+     "n": 5,
+     "head_lines": [
+      702,
+      708
+     ],
+     "r19b_at": 687,
+     "plus": 1,
+     "minus": 1,
+     "class": "privacy-relevant-safe",
+     "note": "`is_table` (:704) includes the range helpers: they enter the SINGLE value-0 LogUp sum claim (public value 0), masked by H's u zero-sum pair exactly as the three tables' helpers are. (Leaving them out would leave them unconstrained, a soundness matter, not an exposure.)"
+    },
+    {
+     "n": 6,
+     "head_lines": [
+      716,
+      759
+     ],
+     "r19b_at": 701,
+     "plus": 25,
+     "minus": 4,
+     "class": "production-privacy-neutral",
+     "note": "`LkTag {U8, Range(w)}` and `Lk.tag` (:716-756); every legacy / R13 constructor (`byte`, `scaled`, `sym`) is `Lk::u8`: the same terms and constant, tag U8."
+    },
+    {
+     "n": 7,
+     "head_lines": [
+      1308,
+      1315
+     ],
+     "r19b_at": 1272,
+     "plus": 2,
+     "minus": 1,
+     "class": "production-privacy-neutral",
+     "note": "The trained-door name guard also covers the W16 strings (W16 review F1)."
+    },
+    {
+     "n": 8,
+     "head_lines": [
+      1365,
+      1383
+     ],
+     "r19b_at": 1328,
+     "plus": 13,
+     "minus": 0,
+     "class": "production-privacy-neutral",
+     "note": "W16 review F2 (:1368-1380): refuse a lookup domain whose helper count is not ceil(lookups / 2). A refusal; equal by construction at every registered shape."
+    }
+   ],
+   "counts": {
+    "units": 8,
+    "test_only": 0,
+    "production_privacy_neutral": 5,
+    "privacy_relevant": 3,
+    "privacy_relevant_safe": 3,
+    "findings": 0
+   },
+   "findings": [],
+   "verdict": "READ; safe (no finding)",
+   "readings": {
+    "171656f83ebeb009573a81fd1c464d4b9173f3c6400fd93942fd70ca93677934": {
+     "base": "8519a514b8d1f43ab51c86b0a8af955230a2eab4fff4fc4c594733c59dcfd0bf",
+     "diff_stat": "+59 / -9, 8 hunk(s) against 8519a514 (frozen-r19b)",
+     "moves_a_receipt_byte": false,
+     "moves_a_block_stage_byte": false,
+     "new_receipt_kind": false,
+     "classification": "gated-on-new-profiles",
+     "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-r19b-head-layout.rs.diff",
+     "reading": "[GATE ROUND 26, block readings, frozen-r19b -> HEAD 8b78aabd] The W16 A / H plane lists (refused unless equal to the shape's independent counts), the range helpers in the value-0 LogUp sum claim, the lookup tag type (U8 at every legacy / R13 lookup), and two refusals. No finding.",
+     "receipt_byte_note": "no byte moves at any registered (legacy / R13) profile: the dev-bytes gate is unchanged with CPU = Metal, golden 8/8, trained digests unchanged (HEAD commit 8b78aabd's own record and results/zk60_d60_20261102/privacy_gate/README.md section 8; not re-run here); W16 / W16R2 are unregistered new formats with their own goldens"
+    }
+   }
+  },
+  "src/private_block/shape.rs": {
+   "r19b": "8e00a144bd194fd5a3dd30c9aaece2869d43d461df623cdcfc5a9da59e51436b",
+   "head": "dce667f98b350c4ce2c841ce8c1308a8101e29b8106733ac16439945f5c6001a",
+   "d60_bundles": "dce667f98b350c4ce2c841ce8c1308a8101e29b8106733ac16439945f5c6001a",
+   "capture_pin": true,
+   "pinned_by": [
+    "OWN_SOURCE_FILES"
+   ],
+   "compiled": "production",
+   "git_path": "ops/zkp-mvp/gpu-metal/hashline/src/private_block/shape.rs",
+   "head_lines": 2952,
+   "r19b_tree_rehash_equals_manifest": true,
+   "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-r19b-head-shape.rs.diff",
+   "diff_sha256": "3ef7b4d8f4766bc9ff8db2e83e8cbb146307f04ddec36023ec49cf2ea9a5c3b5",
+   "diff_stat": "+245 / -12, 15 hunk(s) against 8e00a144 (frozen-r19b)",
+   "unit": "hunk (diff -u)",
+   "hunks": [
+    {
+     "n": 1,
+     "head_lines": [
+      140,
+      157
+     ],
+     "r19b_at": 140,
+     "plus": 12,
+     "minus": 0,
+     "class": "production-privacy-neutral",
+     "note": "`is_trained_profile_string` (:150): TRAINED_CALIBRATION_PROFILES or a W16-family string; one predicate for both name guards."
+    },
+    {
+     "n": 2,
+     "head_lines": [
+      225,
+      344
+     ],
+     "r19b_at": 213,
+     "plus": 114,
+     "minus": 1,
+     "class": "privacy-relevant-safe",
+     "note": "The W16 (6) and W16R2 (3) profile registries: new strings over R13 geometries; `accuracy_spec` chains them AFTER the R13 list (every R13 lookup unchanged). `W16R2_INV_RATE = 2` (:293), `W16R2_OPENED_COLS = 260` (:298), `W16R2_LOG_COLS = 14`; `is_w16r2_profile` / `is_w16_family_profile`; `ColumnRegime` / `column_term_log2` (accounting only, dead in release: no verifier check). Q = 260 is what `pcs_params_at` puts in num_col_checks (protocol.rs:72-74) and `ZkOpts::standard` copies into q_pad (zkp-core pcs.rs:582-584): pads = Q by construction."
+    },
+    {
+     "n": 3,
+     "head_lines": [
+      649,
+      658
+     ],
+     "r19b_at": 524,
+     "plus": 4,
+     "minus": 1,
+     "class": "privacy-relevant-safe",
+     "note": "`trained_geometry` (:654) builds a W16R2 shape at inv_rate 2, every other at 4."
+    },
+    {
+     "n": 4,
+     "head_lines": [
+      791,
+      847
+     ],
+     "r19b_at": 663,
+     "plus": 50,
+     "minus": 0,
+     "class": "privacy-relevant-safe",
+     "note": "`range16()` (:797, a profile fact), `column_regime` / `regular_column_terms_log2` (accounting), `range_families()` (:826, the shape's independent list of range families: it decides which PUBLIC range tables exist and how many PRIVATE multiplicity planes), `w16_windows`."
+    },
+    {
+     "n": 5,
+     "head_lines": [
+      1010,
+      1035
+     ],
+     "r19b_at": 832,
+     "plus": 20,
+     "minus": 0,
+     "class": "privacy-relevant-safe",
+     "note": "`Shape::build` FIXES a W16R2 geometry (:1013-1033): refused unless rate 1/2, log_cols 14, and both endpoints at the same rate and row width; `opened_cols` = 260 there and COL_CHECKS (256) everywhere else. So Q = pads = 260 and n + Q = 16,644 <= N = 32,768 (room for the pads); the encoder is still the hiding coset encoder (`ZkOpts::standard`, coset 7); a receipt cannot choose Q (the verifier's parameters are the shape's)."
+    },
+    {
+     "n": 6,
+     "head_lines": [
+      1041,
+      1047
+     ],
+     "r19b_at": 843,
+     "plus": 1,
+     "minus": 1,
+     "class": "privacy-relevant-safe",
+     "note": "`opened_cols` field takes the value fixed in h5."
+    },
+    {
+     "n": 7,
+     "head_lines": [
+      1820,
+      1828
+     ],
+     "r19b_at": 1622,
+     "plus": 3,
+     "minus": 1,
+     "class": "production-privacy-neutral",
+     "note": "`with_trained_calibration` admits the W16 strings."
+    },
+    {
+     "n": 8,
+     "head_lines": [
+      1869,
+      1877
+     ],
+     "r19b_at": 1669,
+     "plus": 3,
+     "minus": 1,
+     "class": "production-privacy-neutral",
+     "note": "`check_trained_class` admits the W16 shapes."
+    },
+    {
+     "n": 9,
+     "head_lines": [
+      2406,
+      2426
+     ],
+     "r19b_at": 2204,
+     "plus": 15,
+     "minus": 0,
+     "class": "privacy-relevant-safe",
+     "note": "`a_plane_doms` at W16 (:2406-2422): the counted A plane list (structure of private planes; `Ids::new` refuses a mismatch)."
+    },
+    {
+     "n": 10,
+     "head_lines": [
+      2459,
+      2474
+     ],
+     "r19b_at": 2242,
+     "plus": 10,
+     "minus": 0,
+     "class": "privacy-relevant-safe",
+     "note": "`lookups_per_position` at W16 (:2459-2471): the counted lookups per domain, which fix the helper (H plane) counts."
+    },
+    {
+     "n": 11,
+     "head_lines": [
+      2522,
+      2530
+     ],
+     "r19b_at": 2295,
+     "plus": 3,
+     "minus": 2,
+     "class": "privacy-relevant-safe",
+     "note": "`h_plane_doms` (:2527): one table helper per range sub-plane between the three and u."
+    },
+    {
+     "n": 12,
+     "head_lines": [
+      2564,
+      2573
+     ],
+     "r19b_at": 2336,
+     "plus": 4,
+     "minus": 2,
+     "class": "privacy-relevant-safe",
+     "note": "SC_TAB's A and H site counts 3 + n_range (:2569): one reserved mask pair per claim (the layout reserves pairs from the site counts; `b.finish` refuses a slot whose A / H use differs from the schedule, argument.rs:1327-1329; `audit_claims` refuses a shared or missing pair)."
+    },
+    {
+     "n": 13,
+     "head_lines": [
+      2795,
+      2804
+     ],
+     "r19b_at": 2565,
+     "plus": 4,
+     "minus": 1,
+     "class": "production-privacy-neutral",
+     "note": "`receipt_bytes` uses the shape's `opened_cols` (a byte-count formula)."
+    },
+    {
+     "n": 14,
+     "head_lines": [
+      2808,
+      2814
+     ],
+     "r19b_at": 2575,
+     "plus": 1,
+     "minus": 1,
+     "class": "production-privacy-neutral",
+     "note": "`mask_opening` counts `MASK_PADS` (256 = COL_CHECKS at every profile; M untouched)."
+    },
+    {
+     "n": 15,
+     "head_lines": [
+      2906,
+      2912
+     ],
+     "r19b_at": 2673,
+     "plus": 1,
+     "minus": 1,
+     "class": "test-only",
+     "note": "`forced_legacy_hash_rule` made pub(crate) under its existing `#[cfg(test)]`."
+    }
+   ],
+   "counts": {
+    "units": 15,
+    "test_only": 1,
+    "production_privacy_neutral": 5,
+    "privacy_relevant": 9,
+    "privacy_relevant_safe": 9,
+    "findings": 0
+   },
+   "findings": [],
+   "verdict": "READ; safe (no finding)",
+   "readings": {
+    "dce667f98b350c4ce2c841ce8c1308a8101e29b8106733ac16439945f5c6001a": {
+     "base": "8e00a144bd194fd5a3dd30c9aaece2869d43d461df623cdcfc5a9da59e51436b",
+     "diff_stat": "+245 / -12, 15 hunk(s) against 8e00a144 (frozen-r19b)",
+     "moves_a_receipt_byte": false,
+     "moves_a_block_stage_byte": false,
+     "new_receipt_kind": false,
+     "classification": "gated-on-new-profiles",
+     "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-r19b-head-shape.rs.diff",
+     "reading": "[GATE ROUND 26, block readings, frozen-r19b -> HEAD 8b78aabd] The W16 / W16R2 profile registries and counts; D59's fixed geometry (rate 1/2, Q = pads = 260 at log_cols 14 for A, H, boundaries and endpoints, refused otherwise); accounting helpers; refusals. Every R13 / legacy profile keeps opened_cols = COL_CHECKS and rate 1/4. No finding.",
+     "receipt_byte_note": "no byte moves at any registered (legacy / R13) profile: the dev-bytes gate is unchanged with CPU = Metal, golden 8/8, trained digests unchanged (HEAD commit 8b78aabd's own record and results/zk60_d60_20261102/privacy_gate/README.md section 8; not re-run here); W16 / W16R2 are unregistered new formats with their own goldens"
+    },
+    "3b78b7255ded2e1ebd17fa06072959bfaa34517c444ad35b114382f47583553d": {
+     "base": "dce667f98b350c4ce2c841ce8c1308a8101e29b8106733ac16439945f5c6001a",
+     "diff_stat": "+12 / -3, 1 hunk against dce667f9 (HEAD): comment only",
+     "moves_a_receipt_byte": false,
+     "moves_a_block_stage_byte": false,
+     "new_receipt_kind": false,
+     "classification": "gated-on-new-profiles",
+     "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-2196592d-head-shape.rs.diff",
+     "reading": "[GATE ROUND 26, block readings, frozen-r19b -> HEAD 8b78aabd] 2196592d (the W16R2 privacy re-check bundles): the HEAD reading; the two texts differ only in one comment block (W16R2 review F5).",
+     "receipt_byte_note": "no byte moves at any registered (legacy / R13) profile: the dev-bytes gate is unchanged with CPU = Metal, golden 8/8, trained digests unchanged (HEAD commit 8b78aabd's own record and results/zk60_d60_20261102/privacy_gate/README.md section 8; not re-run here); W16 / W16R2 are unregistered new formats with their own goldens"
+    }
+   },
+   "also_read": {
+    "3b78b7255ded2e1ebd17fa06072959bfaa34517c444ad35b114382f47583553d": {
+     "where": "the shape.rs pin of the ten bundles in results/zk60_w16r2_20261101/privacy_recheck_bundle_manifests (source commit 2196592d)",
+     "against_head": "+12 / -3, 1 hunk: one comment block (W16R2 review F5: which hash inputs take new lengths); the production text is identical to HEAD dce667f9",
+     "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-2196592d-head-shape.rs.diff",
+     "diff_sha256": "4b8027c02872c7ffec97e486bcfd65bab476fbe947f1f396f6c6aa0f1dfa4018"
+    }
+   }
+  },
+  "src/private_block/pad.rs": {
+   "r19b": "91141ea025d01257a5f0b5007e711d883af896b72d3c109badb6999f48d78967",
+   "head": "9a28b306667c5ee566d272198d5a32177ad6a179daf62c51649a79b4b5224c51",
+   "d60_bundles": "9a28b306667c5ee566d272198d5a32177ad6a179daf62c51649a79b4b5224c51",
+   "capture_pin": true,
+   "pinned_by": [
+    "OWN_SOURCE_FILES"
+   ],
+   "compiled": "production",
+   "git_path": "ops/zkp-mvp/gpu-metal/hashline/src/private_block/pad.rs",
+   "head_lines": 1068,
+   "r19b_tree_rehash_equals_manifest": true,
+   "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-r19b-head-pad.rs.diff",
+   "diff_sha256": "1f03d0308843b087d893776aa9c6154ba6417fd4139f799a87b8bed21b5584c5",
+   "diff_stat": "+15 / -1, 2 hunk(s) against 91141ea0 (frozen-r19b)",
+   "unit": "hunk (diff -u)",
+   "hunks": [
+    {
+     "n": 1,
+     "head_lines": [
+      295,
+      307
+     ],
+     "r19b_at": 295,
+     "plus": 7,
+     "minus": 0,
+     "class": "production-privacy-neutral",
+     "note": "The pad RULE (padding positions of a domain, not the PCS pads): an A range sub-plane is Exempt when every entry is a true table row (`range16::full`), else Zero (:303-305). Positions proved zero are publicly known (`range16::support_column`); the pad term is a summand of SC_TAB's zero-check, not a new claim or opening. No witness value is revealed."
+    },
+    {
+     "n": 2,
+     "head_lines": [
+      331,
+      344
+     ],
+     "r19b_at": 324,
+     "plus": 8,
+     "minus": 1,
+     "class": "production-privacy-neutral",
+     "note": "H side (:336-345): the range table helpers (between the three and u) take the multiplicity's rule; the three helpers' Zero rule shifts by `range.len()` (0 off W16: byte-identical)."
+    }
+   ],
+   "counts": {
+    "units": 2,
+    "test_only": 0,
+    "production_privacy_neutral": 2,
+    "privacy_relevant": 0,
+    "privacy_relevant_safe": 0,
+    "findings": 0
+   },
+   "findings": [],
+   "verdict": "READ; safe (no finding)",
+   "readings": {
+    "9a28b306667c5ee566d272198d5a32177ad6a179daf62c51649a79b4b5224c51": {
+     "base": "91141ea025d01257a5f0b5007e711d883af896b72d3c109badb6999f48d78967",
+     "diff_stat": "+15 / -1, 2 hunk(s) against 91141ea0 (frozen-r19b)",
+     "moves_a_receipt_byte": false,
+     "moves_a_block_stage_byte": false,
+     "new_receipt_kind": false,
+     "classification": "gated-on-new-profiles",
+     "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-r19b-head-pad.rs.diff",
+     "reading": "[GATE ROUND 26, block readings, frozen-r19b -> HEAD 8b78aabd] The pad (padding-position) rule for the range sub-planes and their helpers; no claim, opening or PCS pad involved. No finding.",
+     "receipt_byte_note": "no byte moves at any registered (legacy / R13) profile: the dev-bytes gate is unchanged with CPU = Metal, golden 8/8, trained digests unchanged (HEAD commit 8b78aabd's own record and results/zk60_d60_20261102/privacy_gate/README.md section 8; not re-run here); W16 / W16R2 are unregistered new formats with their own goldens"
+    }
+   }
+  },
+  "src/private_block/argument_accuracy.rs": {
+   "r19b": "a5e02391b61577c7041efc41c04cd2564610e3fbb26b188b66b1623a5b7940d9",
+   "head": "29a501d03b6f7a3455f0b191baf09ea3fd1854da30a0854f1cf0b3032cdb0763",
+   "d60_bundles": "29a501d03b6f7a3455f0b191baf09ea3fd1854da30a0854f1cf0b3032cdb0763",
+   "capture_pin": true,
+   "pinned_by": [
+    "OWN_SOURCE_FILES"
+   ],
+   "compiled": "production",
+   "git_path": "ops/zkp-mvp/gpu-metal/hashline/src/private_block/argument_accuracy.rs",
+   "head_lines": 990,
+   "r19b_tree_rehash_equals_manifest": true,
+   "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-r19b-head-argument_accuracy.rs.diff",
+   "diff_sha256": "7783444ed0b909d5557aad0578ad39283c378fec24057788d970c025a85d3c9f",
+   "diff_stat": "+351 / -0, 2 hunk(s) against a5e02391 (frozen-r19b)",
+   "unit": "hunk (diff -u)",
+   "hunks": [
+    {
+     "n": 1,
+     "head_lines": [
+      14,
+      32
+     ],
+     "r19b_at": 14,
+     "plus": 13,
+     "minus": 0,
+     "class": "privacy-relevant-safe",
+     "note": "`define_changed` (:17-29): at a W16 shape the seven redefined slots take the `*_w16` relations, before (and instead of) the R13 match, which is unchanged."
+    },
+    {
+     "n": 2,
+     "head_lines": [
+      437,
+      780
+     ],
+     "r19b_at": 424,
+     "plus": 338,
+     "minus": 0,
+     "class": "privacy-relevant-safe",
+     "note": "The W16 relations (:440-777): `dzc_w16`, `fzc_w16`, `qzc_w16`, `szc_w16`, `szc_dd_w16`, `dd_w16`, `tab_w16`. Private tables enter only through the slot builder's `a` / `h` / `a_range` / `a_slice` (masked claims; `b.finish` checks the A / H site counts against the schedule). PUBLIC tables pushed: gamma_a / gamma_m (public block data), the activation group column, RoPE cos / sin, the causal mask, the dictionary e-column, the u8 / exp / act table values and act support, support indicators, and per range sub-plane `range16::table_column` (value + gamma tag(w), :752) and, for a narrow family, `range16::support_column` (shape only, :767): every one a function of the shape, the public block data and the transcript's challenges. The Python W16 gate rebuilds the range and support columns (zk60_native_rg_w16.py:467-518, check_tab_tables and tab_control) and the Rust gate checks them (PG-9). Challenge draws (mu, nu, zeta, tau) are the relation's own; hosted sub-claims are the R13 kinds. No witness value is placed in a public table."
+    }
+   ],
+   "counts": {
+    "units": 2,
+    "test_only": 0,
+    "production_privacy_neutral": 0,
+    "privacy_relevant": 2,
+    "privacy_relevant_safe": 2,
+    "findings": 0
+   },
+   "findings": [],
+   "verdict": "READ; safe (no finding)",
+   "readings": {
+    "29a501d03b6f7a3455f0b191baf09ea3fd1854da30a0854f1cf0b3032cdb0763": {
+     "base": "a5e02391b61577c7041efc41c04cd2564610e3fbb26b188b66b1623a5b7940d9",
+     "diff_stat": "+351 / -0, 2 hunk(s) against a5e02391 (frozen-r19b)",
+     "moves_a_receipt_byte": false,
+     "moves_a_block_stage_byte": false,
+     "new_receipt_kind": false,
+     "classification": "gated-on-new-profiles",
+     "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-r19b-head-argument_accuracy.rs.diff",
+     "reading": "[GATE ROUND 26, block readings, frozen-r19b -> HEAD 8b78aabd] The W16 relations of the seven redefined slots; every public table is a function of the shape, public block data and challenges; private tables only through masked claims. No finding.",
+     "receipt_byte_note": "no byte moves at any registered (legacy / R13) profile: the dev-bytes gate is unchanged with CPU = Metal, golden 8/8, trained digests unchanged (HEAD commit 8b78aabd's own record and results/zk60_d60_20261102/privacy_gate/README.md section 8; not re-run here); W16 / W16R2 are unregistered new formats with their own goldens"
+    }
+   }
+  },
+  "src/private_block/accuracy_act.rs": {
+   "r19b": "7ef5fe26fc9395817436fc55851dc1f2ea066bc06b8a5eaaa3e2c39a8045eb4e",
+   "head": "08b88855f522c54e0d169815ef756fe56b3195fec79f25d664e846e1087d1b5f",
+   "d60_bundles": "08b88855f522c54e0d169815ef756fe56b3195fec79f25d664e846e1087d1b5f",
+   "capture_pin": true,
+   "pinned_by": [
+    "OWN_SOURCE_FILES"
+   ],
+   "compiled": "production",
+   "git_path": "ops/zkp-mvp/gpu-metal/hashline/src/private_block/accuracy_act.rs",
+   "head_lines": 258,
+   "r19b_tree_rehash_equals_manifest": true,
+   "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-r19b-head-accuracy_act.rs.diff",
+   "diff_sha256": "aadc70dbcdcb3762364fc4631d2277220092737efdbb712ad14aed20c43559fc",
+   "diff_stat": "+83 / -9, 2 hunk(s) against 7ef5fe26 (frozen-r19b)",
+   "unit": "hunk (diff -u)",
+   "hunks": [
+    {
+     "n": 1,
+     "head_lines": [
+      56,
+      121
+     ],
+     "r19b_at": 56,
+     "plus": 47,
+     "minus": 9,
+     "class": "production-privacy-neutral",
+     "note": "[M15] `histogram` over 64 Ki chunks (integer counts and misses summed: the loop's totals); `query_values` as an indexed parallel map (same element per index); `denominators` (:100) fused alpha - query per F-row with the group term per column (`query_group` is group_ids[j] on t < tokens and j < hidden, else 0). Prover side; feeds the committed MACT plane and H's activation helper; equal word for word (tests below)."
+    },
+    {
+     "n": 2,
+     "head_lines": [
+      175,
+      216
+     ],
+     "r19b_at": 137,
+     "plus": 36,
+     "minus": 0,
+     "class": "test-only",
+     "note": "Tests m15_parallel_histogram_equals_the_sequential_count and m15_fused_denominators_equal_alpha_minus_the_queries."
+    }
+   ],
+   "counts": {
+    "units": 2,
+    "test_only": 1,
+    "production_privacy_neutral": 1,
+    "privacy_relevant": 0,
+    "privacy_relevant_safe": 0,
+    "findings": 0
+   },
+   "findings": [],
+   "verdict": "READ; safe (no finding)",
+   "readings": {
+    "08b88855f522c54e0d169815ef756fe56b3195fec79f25d664e846e1087d1b5f": {
+     "base": "7ef5fe26fc9395817436fc55851dc1f2ea066bc06b8a5eaaa3e2c39a8045eb4e",
+     "diff_stat": "+83 / -9, 2 hunk(s) against 7ef5fe26 (frozen-r19b)",
+     "moves_a_receipt_byte": false,
+     "moves_a_block_stage_byte": false,
+     "new_receipt_kind": false,
+     "classification": "identity-at-captured-profiles",
+     "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-r19b-head-accuracy_act.rs.diff",
+     "reading": "[GATE ROUND 26, block readings, frozen-r19b -> HEAD 8b78aabd] Parallel / fused forms of the ACT3 histogram, queries and denominators; equal values. No finding.",
+     "receipt_byte_note": "no byte moves at any registered (legacy / R13) profile: the dev-bytes gate is unchanged with CPU = Metal, golden 8/8, trained digests unchanged (HEAD commit 8b78aabd's own record and results/zk60_d60_20261102/privacy_gate/README.md section 8; not re-run here); W16 / W16R2 are unregistered new formats with their own goldens"
+    }
+   }
+  },
+  "src/private_block/accuracy_fold.rs": {
+   "r19b": "53e2b5726440eb747f55d5d22bdd36929f8d17bba8b769d17162c0948890731a",
+   "head": "d260dd26686b46137544c22d767c9dbff5d2510f6dac75874217e0939e0a9b1b",
+   "d60_bundles": "d260dd26686b46137544c22d767c9dbff5d2510f6dac75874217e0939e0a9b1b",
+   "capture_pin": true,
+   "pinned_by": [
+    "OWN_SOURCE_FILES"
+   ],
+   "compiled": "production",
+   "git_path": "ops/zkp-mvp/gpu-metal/hashline/src/private_block/accuracy_fold.rs",
+   "head_lines": 136,
+   "r19b_tree_rehash_equals_manifest": true,
+   "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-r19b-head-accuracy_fold.rs.diff",
+   "diff_sha256": "61123675a3a92394cec6066d7fd2e88487a517ab92df39fb0e51e72f7c4289df",
+   "diff_stat": "+9 / -1, 1 hunk(s) against 53e2b572 (frozen-r19b)",
+   "unit": "hunk (diff -u)",
+   "hunks": [
+    {
+     "n": 1,
+     "head_lines": [
+      36,
+      56
+     ],
+     "r19b_at": 36,
+     "plus": 9,
+     "minus": 1,
+     "class": "production-privacy-neutral",
+     "note": "`has_i8_min` (:42): the class scan for i8::MIN over 1 MiB chunks in parallel; the same predicate and refusal. It scans the PUBLIC weight matrix."
+    }
+   ],
+   "counts": {
+    "units": 1,
+    "test_only": 0,
+    "production_privacy_neutral": 1,
+    "privacy_relevant": 0,
+    "privacy_relevant_safe": 0,
+    "findings": 0
+   },
+   "findings": [],
+   "verdict": "READ; safe (no finding)",
+   "readings": {
+    "d260dd26686b46137544c22d767c9dbff5d2510f6dac75874217e0939e0a9b1b": {
+     "base": "53e2b5726440eb747f55d5d22bdd36929f8d17bba8b769d17162c0948890731a",
+     "diff_stat": "+9 / -1, 1 hunk(s) against 53e2b572 (frozen-r19b)",
+     "moves_a_receipt_byte": false,
+     "moves_a_block_stage_byte": false,
+     "new_receipt_kind": false,
+     "classification": "identity-at-captured-profiles",
+     "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-r19b-head-accuracy_fold.rs.diff",
+     "reading": "[GATE ROUND 26, block readings, frozen-r19b -> HEAD 8b78aabd] A parallel i8::MIN scan of the public weights. No finding.",
+     "receipt_byte_note": "no byte moves at any registered (legacy / R13) profile: the dev-bytes gate is unchanged with CPU = Metal, golden 8/8, trained digests unchanged (HEAD commit 8b78aabd's own record and results/zk60_d60_20261102/privacy_gate/README.md section 8; not re-run here); W16 / W16R2 are unregistered new formats with their own goldens"
+    }
+   }
+  },
+  "src/private_block/accuracy_layout.rs": {
+   "r19b": "37a3e3458e4961ddaab98440de114e575da3af21f7d872b532cb71a04ac788d3",
+   "head": "ad5214dee4ab17ad39e1378a54f7d8c0aa49b56e8cf185ac84c9ffe8390b97be",
+   "d60_bundles": "ad5214dee4ab17ad39e1378a54f7d8c0aa49b56e8cf185ac84c9ffe8390b97be",
+   "capture_pin": true,
+   "pinned_by": [
+    "OWN_SOURCE_FILES"
+   ],
+   "compiled": "production",
+   "git_path": "ops/zkp-mvp/gpu-metal/hashline/src/private_block/accuracy_layout.rs",
+   "head_lines": 349,
+   "r19b_tree_rehash_equals_manifest": true,
+   "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-r19b-head-accuracy_layout.rs.diff",
+   "diff_sha256": "003206faaa0a58777f2d961b182c8a41b5ff3479e484b3785d73123899ed777e",
+   "diff_stat": "+182 / -8, 8 hunk(s) against 37a3e345 (frozen-r19b)",
+   "unit": "hunk (diff -u)",
+   "hunks": [
+    {
+     "n": 1,
+     "head_lines": [
+      1,
+      8
+     ],
+     "r19b_at": 1,
+     "plus": 2,
+     "minus": 0,
+     "class": "production-privacy-neutral",
+     "note": "Module doc line."
+    },
+    {
+     "n": 2,
+     "head_lines": [
+      20,
+      31
+     ],
+     "r19b_at": 18,
+     "plus": 6,
+     "minus": 0,
+     "class": "production-privacy-neutral",
+     "note": "Fields `w16`, `fams`, `first_range`."
+    },
+    {
+     "n": 3,
+     "head_lines": [
+      44,
+      59
+     ],
+     "r19b_at": 36,
+     "plus": 5,
+     "minus": 2,
+     "class": "production-privacy-neutral",
+     "note": "`empty()`: the old initial values plus the new fields (false / empty / MAX); `new` unchanged otherwise."
+    },
+    {
+     "n": 4,
+     "head_lines": [
+      100,
+      186
+     ],
+     "r19b_at": 89,
+     "plus": 81,
+     "minus": 0,
+     "class": "privacy-relevant-safe",
+     "note": "`new_w16` (:113): the W16 allocation. No legacy LIMB id is mapped (checked :165-169); the range widths collected from its own lookups must equal `range16::widths` (independent count); the range sub-planes are appended as Dom::Tab words `R{w}_{s}`. Decides the new private planes."
+    },
+    {
+     "n": 5,
+     "head_lines": [
+      188,
+      222
+     ],
+     "r19b_at": 96,
+     "plus": 18,
+     "minus": 0,
+     "class": "production-privacy-neutral",
+     "note": "`division_w16`, `planes`, `range_planes` (:205), `range_fam_of`, and `lookups` dispatching to `lookups_w16` when `w16` (false on every R13 allocation)."
+    },
+    {
+     "n": 6,
+     "head_lines": [
+      225,
+      243
+     ],
+     "r19b_at": 115,
+     "plus": 4,
+     "minus": 4,
+     "class": "production-privacy-neutral",
+     "note": "`Lk{..}` -> `Lk::u8(..)`: the same terms and constant (tag U8)."
+    },
+    {
+     "n": 7,
+     "head_lines": [
+      267,
+      274
+     ],
+     "r19b_at": 157,
+     "plus": 2,
+     "minus": 2,
+     "class": "production-privacy-neutral",
+     "note": "`Lk{..}` -> `Lk::u8(..)` for the int8 score pair."
+    },
+    {
+     "n": 8,
+     "head_lines": [
+      278,
+      347
+     ],
+     "r19b_at": 168,
+     "plus": 64,
+     "minus": 0,
+     "class": "privacy-relevant-safe",
+     "note": "`lookups_w16` (:289): each W16 lookup's family (tag) and expression (word16 = word + 32768 at width 16; remainders per limb at their widths; the 24-bit product word as `word24`; the softmax quotient direct); every term must reference a plane of its own domain (refused otherwise). The tags select PUBLIC range tables only."
+    }
+   ],
+   "counts": {
+    "units": 8,
+    "test_only": 0,
+    "production_privacy_neutral": 6,
+    "privacy_relevant": 2,
+    "privacy_relevant_safe": 2,
+    "findings": 0
+   },
+   "findings": [],
+   "verdict": "READ; safe (no finding)",
+   "readings": {
+    "ad5214dee4ab17ad39e1378a54f7d8c0aa49b56e8cf185ac84c9ffe8390b97be": {
+     "base": "37a3e3458e4961ddaab98440de114e575da3af21f7d872b532cb71a04ac788d3",
+     "diff_stat": "+182 / -8, 8 hunk(s) against 37a3e345 (frozen-r19b)",
+     "moves_a_receipt_byte": false,
+     "moves_a_block_stage_byte": false,
+     "new_receipt_kind": false,
+     "classification": "gated-on-new-profiles",
+     "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-r19b-head-accuracy_layout.rs.diff",
+     "reading": "[GATE ROUND 26, block readings, frozen-r19b -> HEAD 8b78aabd] The W16 allocation and lookups; `Lk::u8` everywhere else. No finding.",
+     "receipt_byte_note": "no byte moves at any registered (legacy / R13) profile: the dev-bytes gate is unchanged with CPU = Metal, golden 8/8, trained digests unchanged (HEAD commit 8b78aabd's own record and results/zk60_d60_20261102/privacy_gate/README.md section 8; not re-run here); W16 / W16R2 are unregistered new formats with their own goldens"
+    }
+   }
+  },
+  "src/private_block/witness_accuracy.rs": {
+   "r19b": "8b03abadc73db1d46be642e32c83312c87e34bfa4d560ab8d8e2675b14abcf2a",
+   "head": "9c66f7622541b443c395baceaef8b4f01b00b85d1f3d72ad287c40ce4413b573",
+   "d60_bundles": "9c66f7622541b443c395baceaef8b4f01b00b85d1f3d72ad287c40ce4413b573",
+   "capture_pin": true,
+   "pinned_by": [
+    "OWN_SOURCE_FILES"
+   ],
+   "compiled": "production",
+   "git_path": "ops/zkp-mvp/gpu-metal/hashline/src/private_block/witness_accuracy.rs",
+   "head_lines": 987,
+   "r19b_tree_rehash_equals_manifest": true,
+   "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-r19b-head-witness_accuracy.rs.diff",
+   "diff_sha256": "14302e476076532912ab362d7860262b205f519e6ca53b0b4076b313c98c774c",
+   "diff_stat": "+33 / -1, 1 hunk(s) against 8b03abad (frozen-r19b)",
+   "unit": "hunk (diff -u)",
+   "hunks": [
+    {
+     "n": 1,
+     "head_lines": [
+      508,
+      553
+     ],
+     "r19b_at": 508,
+     "plus": 33,
+     "minus": 1,
+     "class": "production-privacy-neutral",
+     "note": "`build` at a W16 shape (:510-551): `AccuracyIds::new_w16`, and `decompose16` writes 16-bit limbs (or the signed top limb `range16::word24_top`) into private planes after a range check whose refusal is a static string (`fixed oracle range refusal: W16 limb decomposition`, witness.rs:227-229). The witness builder decides private values only."
+    }
+   ],
+   "counts": {
+    "units": 1,
+    "test_only": 0,
+    "production_privacy_neutral": 1,
+    "privacy_relevant": 0,
+    "privacy_relevant_safe": 0,
+    "findings": 0
+   },
+   "findings": [],
+   "verdict": "READ; safe (no finding)",
+   "readings": {
+    "9c66f7622541b443c395baceaef8b4f01b00b85d1f3d72ad287c40ce4413b573": {
+     "base": "8b03abadc73db1d46be642e32c83312c87e34bfa4d560ab8d8e2675b14abcf2a",
+     "diff_stat": "+33 / -1, 1 hunk(s) against 8b03abad (frozen-r19b)",
+     "moves_a_receipt_byte": false,
+     "moves_a_block_stage_byte": false,
+     "new_receipt_kind": false,
+     "classification": "gated-on-new-profiles",
+     "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-r19b-head-witness_accuracy.rs.diff",
+     "reading": "[GATE ROUND 26, block readings, frozen-r19b -> HEAD 8b78aabd] The W16 witness decomposition (private values; static refusal strings). No finding.",
+     "receipt_byte_note": "no byte moves at any registered (legacy / R13) profile: the dev-bytes gate is unchanged with CPU = Metal, golden 8/8, trained digests unchanged (HEAD commit 8b78aabd's own record and results/zk60_d60_20261102/privacy_gate/README.md section 8; not re-run here); W16 / W16R2 are unregistered new formats with their own goldens"
+    }
+   }
+  },
+  "src/private_block/range16.rs": {
+   "r19b": null,
+   "head": "62061f62c9f96a162fd8eaf5d3ed53928bbfc73c6dad640ceee7603e25899466",
+   "d60_bundles": "62061f62c9f96a162fd8eaf5d3ed53928bbfc73c6dad640ceee7603e25899466",
+   "capture_pin": true,
+   "pinned_by": [
+    "OWN_SOURCE_FILES"
+   ],
+   "compiled": "production",
+   "git_path": "ops/zkp-mvp/gpu-metal/hashline/src/private_block/range16.rs",
+   "head_lines": 317,
+   "r19b_tree_rehash_equals_manifest": true,
+   "diff_file": null,
+   "diff_sha256": null,
+   "diff_stat": "NEW at HEAD (absent from frozen-r19b): 317 lines, read in full; the evidence is the git blob 62061f62 at 8b78aabd",
+   "unit": "section of a new file (HEAD lines)",
+   "hunks": [
+    {
+     "n": 1,
+     "head_lines": [
+      1,
+      23
+     ],
+     "class": "production-privacy-neutral",
+     "note": "Module doc and imports."
+    },
+    {
+     "n": 2,
+     "head_lines": [
+      25,
+      56
+     ],
+     "class": "privacy-relevant-safe",
+     "note": "`TAG_RANGE0` = 200 (200..=224 reserved), `tag_value`, `lk_tag` (width 8 keeps the U8 family), `g_range(g_u8, w)` = g_u8 * tag(w) / TAG_U8 = gamma * tag(w): a public fold constant derived from the existing draw, no new transcript draw (one `#[cfg(test)] let` inside for the F3 positive control)."
+    },
+    {
+     "n": 3,
+     "head_lines": [
+      58,
+      103
+     ],
+     "class": "test-only",
+     "note": "`COLLAPSED_TAGS`, `CollapsedRangeTags`, `collapsed_range_tags`, `set_collapsed_range_tags`: every item `#[cfg(test)]`."
+    },
+    {
+     "n": 4,
+     "head_lines": [
+      105,
+      158
+     ],
+     "class": "production-privacy-neutral",
+     "note": "`g_of`, `limbs_of`, `rem_lookups`, `word16`, `word24`, `word24_top`, `direct`: lookup constructors and the witness-side top-limb formula (lookup expressions over private planes; the queries enter only H's helpers)."
+    },
+    {
+     "n": 5,
+     "head_lines": [
+      160,
+      231
+     ],
+     "class": "privacy-relevant-safe",
+     "note": "`widths` (the shape's independent statement of the range widths), `Fam`, `families`, `sub_planes`, `support`, `full`, `value`: which PUBLIC range tables exist (functions of the profile's precision, gate shift and softmax window) and their integer values (a padded position repeats an entry of the same sub-plane)."
+    },
+    {
+     "n": 6,
+     "head_lines": [
+      233,
+      242
+     ],
+     "class": "privacy-relevant-safe",
+     "note": "`table_column` (value + g) and `support_column` (1 on true rows, 0 on padded copies): the NEW PUBLIC tables of W16. Both are functions of the shape and gamma only; no witness input exists in their signatures. Rebuilt by the Python W16 gate (W16-5) and checked by the Rust PG-9."
+    },
+    {
+     "n": 7,
+     "head_lines": [
+      244,
+      264
+     ],
+     "class": "production-privacy-neutral",
+     "note": "`denominator_inverses(width, alpha, g)`: one batch inversion over 1/(alpha - (v + g)) for the public v in 0..2^w; None where zero (the prover then refuses, as the U8 table does). Prover-side helper of public values."
+    },
+    {
+     "n": 8,
+     "head_lines": [
+      266,
+      317
+     ],
+     "class": "test-only",
+     "note": "`#[cfg(test)] mod tests`."
+    }
+   ],
+   "counts": {
+    "units": 8,
+    "test_only": 2,
+    "production_privacy_neutral": 3,
+    "privacy_relevant": 3,
+    "privacy_relevant_safe": 3,
+    "findings": 0
+   },
+   "findings": [],
+   "verdict": "READ; safe (no finding)",
+   "readings": {
+    "62061f62c9f96a162fd8eaf5d3ed53928bbfc73c6dad640ceee7603e25899466": {
+     "base": null,
+     "diff_stat": "NEW at HEAD (absent from frozen-r19b): 317 lines, read in full; the evidence is the git blob 62061f62 at 8b78aabd",
+     "moves_a_receipt_byte": false,
+     "moves_a_block_stage_byte": false,
+     "new_receipt_kind": false,
+     "classification": "new-file",
+     "diff_file": null,
+     "reading": "[GATE ROUND 26, block readings, frozen-r19b -> HEAD 8b78aabd] W16's tags, public range / support tables and lookup constructors. The new public tables are functions of the shape and gamma only; the multiplicities are private A planes (protocol.rs). No finding.",
+     "receipt_byte_note": "no byte moves at any registered (legacy / R13) profile: the dev-bytes gate is unchanged with CPU = Metal, golden 8/8, trained digests unchanged (HEAD commit 8b78aabd's own record and results/zk60_d60_20261102/privacy_gate/README.md section 8; not re-run here); W16 / W16R2 are unregistered new formats with their own goldens"
+    }
+   }
+  },
+  "src/private_block/slot_ir.rs": {
+   "r19b": "e0746ff1b3533287cc4d20240ec7c9e0e0b1383195dc90824faf1a3eb5bd4f09",
+   "head": "8f9e283173ee989507a737f02d4cc63210058cee86bab9758e0d76c815e31d59",
+   "d60_bundles": "8f9e283173ee989507a737f02d4cc63210058cee86bab9758e0d76c815e31d59",
+   "capture_pin": true,
+   "pinned_by": [
+    "OWN_SOURCE_FILES"
+   ],
+   "compiled": "gpu-metal production (was test-only at r19b) + test",
+   "git_path": "ops/zkp-mvp/gpu-metal/hashline/src/private_block/slot_ir.rs",
+   "head_lines": 1571,
+   "r19b_tree_rehash_equals_manifest": true,
+   "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-r19b-head-slot_ir.rs.diff",
+   "diff_sha256": "d9b0fecd9a9d8ac65d7d4f1ac3b860d855e7a6926c0761637bfd37917e3c6e4e",
+   "diff_stat": "+27 / -4, 5 hunk(s) against e0746ff1 (frozen-r19b)",
+   "unit": "hunk (diff -u)",
+   "hunks": [
+    {
+     "n": 1,
+     "head_lines": [
+      50,
+      59
+     ],
+     "r19b_at": 50,
+     "plus": 4,
+     "minus": 0,
+     "class": "production-privacy-neutral",
+     "note": "`#[path = \"slot_ir_accuracy.rs\"] mod accuracy;`."
+    },
+    {
+     "n": 2,
+     "head_lines": [
+      876,
+      885
+     ],
+     "r19b_at": 872,
+     "plus": 4,
+     "minus": 1,
+     "class": "production-privacy-neutral",
+     "note": "The IR's lookup constant folds `range16::g_of(l.tag, g_u8)` (the same element for every legacy and R13 lookup; the IR label keeps its text)."
+    },
+    {
+     "n": 3,
+     "head_lines": [
+      902,
+      917
+     ],
+     "r19b_at": 895,
+     "plus": 10,
+     "minus": 0,
+     "class": "production-privacy-neutral",
+     "note": "`limbs16_node` (sum v[ix_k] 2^(16k) as one affine node; coefficients CoefProv::Base)."
+    },
+    {
+     "n": 4,
+     "head_lines": [
+      945,
+      961
+     ],
+     "r19b_at": 928,
+     "plus": 8,
+     "minus": 2,
+     "class": "production-privacy-neutral",
+     "note": "The accuracy arm first (`accuracy::build`), with its own pad flag; the legacy arms otherwise."
+    },
+    {
+     "n": 5,
+     "head_lines": [
+      1551,
+      1557
+     ],
+     "r19b_at": 1528,
+     "plus": 1,
+     "minus": 1,
+     "class": "production-privacy-neutral",
+     "note": "Closing brace of the new `else { match }`."
+    },
+    {
+     "n": "file",
+     "head_lines": [
+      1,
+      1571
+     ],
+     "class": "privacy-relevant-safe",
+     "note": "PROMOTION: the module was `#[cfg(test)]` at r19b and is compiled under `any(test, feature = \"gpu-metal\")` at HEAD (private_block.rs, the `mod slot_ir` declaration), so the whole file was read for its production role: grammar types, the interpreter `SlotIr::eval` (used by the runtime guard), the builder `IrB` and `build_slot_ir` (:939-1571) drawing challenges on the TWIN transcript only; `export_shape` (a JSON of IR coefficients) has no production caller. No witness access, no absorb, no file / env / print, no ZkRng. SAFE."
+    }
+   ],
+   "counts": {
+    "units": 6,
+    "test_only": 0,
+    "production_privacy_neutral": 5,
+    "privacy_relevant": 1,
+    "privacy_relevant_safe": 1,
+    "findings": 0
+   },
+   "findings": [
+    "F-B2 (Info)"
+   ],
+   "verdict": "READ; safe; F-B2 (Info) (text only)",
+   "readings": {
+    "8f9e283173ee989507a737f02d4cc63210058cee86bab9758e0d76c815e31d59": {
+     "base": "e0746ff1b3533287cc4d20240ec7c9e0e0b1383195dc90824faf1a3eb5bd4f09",
+     "diff_stat": "+27 / -4, 5 hunk(s) against e0746ff1 (frozen-r19b)",
+     "moves_a_receipt_byte": false,
+     "moves_a_block_stage_byte": false,
+     "new_receipt_kind": false,
+     "classification": "promoted-to-gpu-metal-production",
+     "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-r19b-head-slot_ir.rs.diff",
+     "reading": "[GATE ROUND 26, block readings, frozen-r19b -> HEAD 8b78aabd] At r19b the whole module was `#[cfg(test)]`; at HEAD it is compiled under `any(test, feature = \"gpu-metal\")` (private_block.rs, the `mod slot_ir` declaration), so the WHOLE file was read for its production role, not only the five hunks: the grammar, the interpreter (`SlotIr::eval`, used by the runtime guard), the builder (`build_slot_ir`, :939-1571) drawing on the twin transcript only; `export_shape` (JSON with coefficient values) has no production caller (tests only). No witness access, no absorb, no file / env / print, no ZkRng. Info F-B2: its module doc (:16-22) still says the whole module is test-only.",
+     "receipt_byte_note": "no byte moves at any registered (legacy / R13) profile: the dev-bytes gate is unchanged with CPU = Metal, golden 8/8, trained digests unchanged (HEAD commit 8b78aabd's own record and results/zk60_d60_20261102/privacy_gate/README.md section 8; not re-run here); W16 / W16R2 are unregistered new formats with their own goldens"
+    }
+   }
+  },
+  "src/private_block/slot_ir_accuracy.rs": {
+   "r19b": null,
+   "head": "25c08bb4c951a47dac928b6abd1c0827249b5ff4ca75887fd7e0be3db9c19e65",
+   "d60_bundles": "25c08bb4c951a47dac928b6abd1c0827249b5ff4ca75887fd7e0be3db9c19e65",
+   "capture_pin": true,
+   "pinned_by": [
+    "OWN_SOURCE_FILES"
+   ],
+   "compiled": "gpu-metal production + test",
+   "git_path": "ops/zkp-mvp/gpu-metal/hashline/src/private_block/slot_ir_accuracy.rs",
+   "head_lines": 1681,
+   "r19b_tree_rehash_equals_manifest": true,
+   "diff_file": null,
+   "diff_sha256": null,
+   "diff_stat": "NEW at HEAD (absent from frozen-r19b): 1681 lines, read in full; the evidence is the git blob 25c08bb4 at 8b78aabd",
+   "unit": "section of a new file (HEAD lines)",
+   "hunks": [
+    {
+     "n": 1,
+     "head_lines": [
+      1,
+      58
+     ],
+     "class": "privacy-relevant-safe",
+     "note": "Metal seam entry: `build` (reached only from `slot_ir::build_slot_ir`, i.e. only with HL_GPU=1 on the prove side, on the TWIN transcript). Returns Ok(None) at a legacy stack; Err for the slots without an IR (DD softmax, dictionary, R13 table), which then stay on the CPU."
+    },
+    {
+     "n": 2,
+     "head_lines": [
+      60,
+      121
+     ],
+     "class": "production-privacy-neutral",
+     "note": "Helpers (`nonzero`, `role`, `at`, `base`, `int16`, `requant`, `three_terms`, `batch`, `gated`): IR graph construction from table indices and PUBLIC coefficients (Coef::base / chal / mu / nu / zeta only)."
+    },
+    {
+     "n": 3,
+     "head_lines": [
+      123,
+      438
+     ],
+     "class": "production-privacy-neutral",
+     "note": "R13 IR builders `dzc`, `fzc`, `qzc`, `szc`: transcriptions of argument_accuracy.rs's relations (the same challenge draws on the twin, the same table pushes); no witness access (only Ctx's layout / public data and IrPoints), no absorb, no file, env or print."
+    },
+    {
+     "n": 4,
+     "head_lines": [
+      439,
+      762
+     ],
+     "class": "production-privacy-neutral",
+     "note": "W16 IR builders `requant16`, `dzc_w16`, `fzc_w16`, `qzc_w16`, `szc_w16`, `tab_w16` (tab_w16's tables are IDs; its public value columns are `public_chal` / `public_shape` placeholders, the values come from the real definition's tables). Guarded at run time by `ir_matches_closure`; a wrong IR only sends the slot to the CPU."
+    },
+    {
+     "n": 5,
+     "head_lines": [
+      764,
+      1681
+     ],
+     "class": "test-only",
+     "note": "`#[cfg(test)] mod tests` (the accuracy-stack IR oracle, the seeded CPU = Metal accuracy digest, benches; `ZkRng::new` seeded fixtures at :1453 and :1549 are inside it)."
+    }
+   ],
+   "counts": {
+    "units": 5,
+    "test_only": 1,
+    "production_privacy_neutral": 3,
+    "privacy_relevant": 1,
+    "privacy_relevant_safe": 1,
+    "findings": 0
+   },
+   "findings": [],
+   "verdict": "READ; safe (no finding)",
+   "readings": {
+    "25c08bb4c951a47dac928b6abd1c0827249b5ff4ca75887fd7e0be3db9c19e65": {
+     "base": null,
+     "diff_stat": "NEW at HEAD (absent from frozen-r19b): 1681 lines, read in full; the evidence is the git blob 25c08bb4 at 8b78aabd",
+     "moves_a_receipt_byte": false,
+     "moves_a_block_stage_byte": false,
+     "new_receipt_kind": false,
+     "classification": "new-file",
+     "diff_file": null,
+     "reading": "[GATE ROUND 26, block readings, frozen-r19b -> HEAD 8b78aabd] The accuracy-stack IR (R13 and W16), gpu-metal production via `slot_ir`; twin transcript only; public coefficients; tests in `mod tests`. No finding.",
+     "receipt_byte_note": "no byte moves at any registered (legacy / R13) profile: the dev-bytes gate is unchanged with CPU = Metal, golden 8/8, trained digests unchanged (HEAD commit 8b78aabd's own record and results/zk60_d60_20261102/privacy_gate/README.md section 8; not re-run here); W16 / W16R2 are unregistered new formats with their own goldens"
+    }
+   }
+  },
+  "src/private_block/metal_slot.rs": {
+   "r19b": null,
+   "head": "5ced3891eff3455121a0ade1bed614f6beb2a7852433cc4250d1e950bc6eaceb",
+   "d60_bundles": "5ced3891eff3455121a0ade1bed614f6beb2a7852433cc4250d1e950bc6eaceb",
+   "capture_pin": true,
+   "pinned_by": [
+    "OWN_SOURCE_FILES"
+   ],
+   "compiled": "gpu-metal production only",
+   "git_path": "ops/zkp-mvp/gpu-metal/hashline/src/private_block/metal_slot.rs",
+   "head_lines": 270,
+   "r19b_tree_rehash_equals_manifest": true,
+   "diff_file": null,
+   "diff_sha256": null,
+   "diff_stat": "NEW at HEAD (absent from frozen-r19b): 270 lines, read in full; the evidence is the git blob 5ced3891 at 8b78aabd",
+   "unit": "section of a new file (HEAD lines)",
+   "hunks": [
+    {
+     "n": 1,
+     "head_lines": [
+      1,
+      103
+     ],
+     "class": "production-privacy-neutral",
+     "note": "Doc; code-generation helpers `Ex`, `ext_of`, `mul`, `add`, `neg`, `one`, `coef_ex`, `product`: build MSL expression strings from IR nodes; every coefficient VALUE is pushed into the `cf` buffer and the source only indexes it (`cf[i]` / `CF(cf, i)`)."
+    },
+    {
+     "n": 2,
+     "head_lines": [
+      105,
+      236
+     ],
+     "class": "privacy-relevant-safe",
+     "note": "`msl_round_kernels` / `gen_kernel`: the device round kernel. Its source is a function of the IR's STRUCTURE (table count, nodes, terms, base typing; a coefficient is typed base when its public value has c1 = 0), never of a table value; the kernel reads tables and cf and writes per-thread partial round sums into `part`, which the host reads and sums. The source is what HL_METAL_DUMP may write to disk (gpu/metal.rs:1229-1232) and what the shader cache may hold: no witness and no challenge value."
+    },
+    {
+     "n": 3,
+     "head_lines": [
+      238,
+      255
+     ],
+     "class": "privacy-relevant-safe",
+     "note": "`ir_matches_closure`: the runtime guard, IR vs the slot's closure at eight points of a LOCAL splitmix stream seeded by the slot number; it draws nothing from the proof's transcript or ZkRng (so no pad, mask or salt draw moves) and its only output is a bool."
+    },
+    {
+     "n": 4,
+     "head_lines": [
+      257,
+      270
+     ],
+     "class": "production-privacy-neutral",
+     "note": "`CPU_SLOTS`, `note_cpu_slot` (a counter; with the diag flag one stderr line naming the slot number), `cpu_slots`."
+    }
+   ],
+   "counts": {
+    "units": 4,
+    "test_only": 0,
+    "production_privacy_neutral": 2,
+    "privacy_relevant": 2,
+    "privacy_relevant_safe": 2,
+    "findings": 0
+   },
+   "findings": [],
+   "verdict": "READ; safe (no finding)",
+   "readings": {
+    "5ced3891eff3455121a0ade1bed614f6beb2a7852433cc4250d1e950bc6eaceb": {
+     "base": null,
+     "diff_stat": "NEW at HEAD (absent from frozen-r19b): 270 lines, read in full; the evidence is the git blob 5ced3891 at 8b78aabd",
+     "moves_a_receipt_byte": false,
+     "moves_a_block_stage_byte": false,
+     "new_receipt_kind": false,
+     "classification": "new-file",
+     "diff_file": null,
+     "reading": "[GATE ROUND 26, block readings, frozen-r19b -> HEAD 8b78aabd] gpu-metal only (`#[cfg(feature = \"gpu-metal\")] mod metal_slot;`): MSL generation from the IR with coefficient values in a buffer, the runtime guard on a local splitmix stream, a CPU-slot counter. No witness- or challenge-dependent host-visible output. No finding.",
+     "receipt_byte_note": "no byte moves at any registered (legacy / R13) profile: the dev-bytes gate is unchanged with CPU = Metal, golden 8/8, trained digests unchanged (HEAD commit 8b78aabd's own record and results/zk60_d60_20261102/privacy_gate/README.md section 8; not re-run here); W16 / W16R2 are unregistered new formats with their own goldens"
+    }
+   }
+  },
+  "../zkp-core/src/merkle.rs": {
+   "r19b": "6e7817bd767a883985bfcd62b7a387d0c5f4c361010c4c5db37f5087d965744a",
+   "head": "6b66c0bcf20042373794b30c1d04b7340163ae3e93117ed19166c593ebe819a7",
+   "d60_bundles": "6b66c0bcf20042373794b30c1d04b7340163ae3e93117ed19166c593ebe819a7",
+   "capture_pin": true,
+   "pinned_by": [
+    "SHARED_SOURCE_FILES"
+   ],
+   "compiled": "production",
+   "git_path": "ops/zkp-mvp/gpu-metal/zkp-core/src/merkle.rs",
+   "head_lines": 211,
+   "r19b_tree_rehash_equals_manifest": true,
+   "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-r19b-head-zkp-core_merkle.rs.diff",
+   "diff_sha256": "9801dacf9268fe4523404876a21e9ac3542972628c782eec3338082a3ba5e418",
+   "diff_stat": "+50 / -0, 4 hunk(s) against 6e7817bd (frozen-r19b)",
+   "unit": "hunk (diff -u)",
+   "hunks": [
+    {
+     "n": 1,
+     "head_lines": [
+      31,
+      50
+     ],
+     "r19b_at": 31,
+     "plus": 14,
+     "minus": 0,
+     "class": "production-privacy-neutral",
+     "note": "`MERKLE_MIN_PAIRS_DEFAULT` = 1024 and `merkle_min_pairs()` (HL_MERKLE_MIN_PAIRS override)."
+    },
+    {
+     "n": 2,
+     "head_lines": [
+      54,
+      60
+     ],
+     "r19b_at": 40,
+     "plus": 1,
+     "minus": 0,
+     "class": "production-privacy-neutral",
+     "note": "`.with_min_len(..)` on the unkeyed level map: the same hashes in the same order, only the rayon split."
+    },
+    {
+     "n": 3,
+     "head_lines": [
+      72,
+      78
+     ],
+     "r19b_at": 57,
+     "plus": 1,
+     "minus": 0,
+     "class": "production-privacy-neutral",
+     "note": "The same on the keyed level map."
+    },
+    {
+     "n": 4,
+     "head_lines": [
+      129,
+      169
+     ],
+     "r19b_at": 113,
+     "plus": 34,
+     "minus": 0,
+     "class": "test-only",
+     "note": "`#[ignore]` bench test m9_bench_keyed_tree_over_2_16_leaves."
+    }
+   ],
+   "counts": {
+    "units": 4,
+    "test_only": 1,
+    "production_privacy_neutral": 3,
+    "privacy_relevant": 0,
+    "privacy_relevant_safe": 0,
+    "findings": 0
+   },
+   "findings": [],
+   "verdict": "READ; safe (no finding)",
+   "readings": {
+    "6b66c0bcf20042373794b30c1d04b7340163ae3e93117ed19166c593ebe819a7": {
+     "base": "6e7817bd767a883985bfcd62b7a387d0c5f4c361010c4c5db37f5087d965744a",
+     "diff_stat": "+50 / -0, 4 hunk(s) against 6e7817bd (frozen-r19b)",
+     "moves_a_receipt_byte": false,
+     "moves_a_block_stage_byte": false,
+     "new_receipt_kind": false,
+     "classification": "identity-at-captured-profiles",
+     "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-r19b-head-zkp-core_merkle.rs.diff",
+     "reading": "[GATE ROUND 26, block readings, frozen-r19b -> HEAD 8b78aabd] Rayon task split only; same tree. Agrees with W16_READINGS (6b66c0bcf200). No finding.",
+     "receipt_byte_note": "no byte moves at any registered (legacy / R13) profile: the dev-bytes gate is unchanged with CPU = Metal, golden 8/8, trained digests unchanged (HEAD commit 8b78aabd's own record and results/zk60_d60_20261102/privacy_gate/README.md section 8; not re-run here); W16 / W16R2 are unregistered new formats with their own goldens"
+    }
+   }
+  },
+  "../zkp-core/src/mle.rs": {
+   "r19b": "b20c8b75c9246471fe1cc395122558eba715f66d9efe1dc4cd5be1750f2e542e",
+   "head": "ed7f8849f48df402c08b0a74a8119a9eff9aeecf4535847bbeceafa93459cebd",
+   "d60_bundles": "ed7f8849f48df402c08b0a74a8119a9eff9aeecf4535847bbeceafa93459cebd",
+   "capture_pin": true,
+   "pinned_by": [
+    "SHARED_SOURCE_FILES"
+   ],
+   "compiled": "production",
+   "git_path": "ops/zkp-mvp/gpu-metal/zkp-core/src/mle.rs",
+   "head_lines": 513,
+   "r19b_tree_rehash_equals_manifest": true,
+   "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-r19b-head-zkp-core_mle.rs.diff",
+   "diff_sha256": "e6f708bd3f84600a9bda61e5ed560d1e5fd17b56d41112fe003ada570076d1b3",
+   "diff_stat": "+132 / -2, 5 hunk(s) against b20c8b75 (frozen-r19b)",
+   "unit": "hunk (diff -u)",
+   "hunks": [
+    {
+     "n": 1,
+     "head_lines": [
+      5,
+      14
+     ],
+     "r19b_at": 5,
+     "plus": 4,
+     "minus": 0,
+     "class": "production-privacy-neutral",
+     "note": "`EQ_TABLE_PAR_LEN` = 2^15."
+    },
+    {
+     "n": 2,
+     "head_lines": [
+      26,
+      37
+     ],
+     "r19b_at": 22,
+     "plus": 6,
+     "minus": 2,
+     "class": "production-privacy-neutral",
+     "note": "`eq_table` doubling steps below 2^15 stay on one thread: same values."
+    },
+    {
+     "n": 3,
+     "head_lines": [
+      149,
+      159
+     ],
+     "r19b_at": 141,
+     "plus": 5,
+     "minus": 0,
+     "class": "production-privacy-neutral",
+     "note": "`fold_cols_i8` takes `fold_cols_deferred` unless HL_FSP_COL_FOLD=0."
+    },
+    {
+     "n": 4,
+     "head_lines": [
+      246,
+      290
+     ],
+     "r19b_at": 233,
+     "plus": 39,
+     "minus": 0,
+     "class": "production-privacy-neutral",
+     "note": "`fold_cols_deferred` (:251-286): exact i128 sums of u64 coefficients times signed matrix values, reduced once per output (the same field element); bound checked (cols x u64::MAX x max_abs fits i128). The matrix is the PUBLIC weight matrix (D1: weights public); the zero skip depends on public weights only."
+    },
+    {
+     "n": 5,
+     "head_lines": [
+      334,
+      421
+     ],
+     "r19b_at": 282,
+     "plus": 78,
+     "minus": 0,
+     "class": "test-only",
+     "note": "Tests: the deferred fold equals the field fold; the eq table across the cutoff; an ignored bench."
+    }
+   ],
+   "counts": {
+    "units": 5,
+    "test_only": 1,
+    "production_privacy_neutral": 4,
+    "privacy_relevant": 0,
+    "privacy_relevant_safe": 0,
+    "findings": 0
+   },
+   "findings": [],
+   "verdict": "READ; safe (no finding)",
+   "readings": {
+    "ed7f8849f48df402c08b0a74a8119a9eff9aeecf4535847bbeceafa93459cebd": {
+     "base": "b20c8b75c9246471fe1cc395122558eba715f66d9efe1dc4cd5be1750f2e542e",
+     "diff_stat": "+132 / -2, 5 hunk(s) against b20c8b75 (frozen-r19b)",
+     "moves_a_receipt_byte": false,
+     "moves_a_block_stage_byte": false,
+     "new_receipt_kind": false,
+     "classification": "identity-at-captured-profiles",
+     "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-r19b-head-zkp-core_mle.rs.diff",
+     "reading": "[GATE ROUND 26, block readings, frozen-r19b -> HEAD 8b78aabd] eq-table threshold and a deferred integer column fold of the public weights; same values. Agrees with W16_READINGS (ed7f8849f48d). No finding.",
+     "receipt_byte_note": "no byte moves at any registered (legacy / R13) profile: the dev-bytes gate is unchanged with CPU = Metal, golden 8/8, trained digests unchanged (HEAD commit 8b78aabd's own record and results/zk60_d60_20261102/privacy_gate/README.md section 8; not re-run here); W16 / W16R2 are unregistered new formats with their own goldens"
+    }
+   }
+  },
+  "../zkp-core/src/pcs.rs": {
+   "r19b": "5c9cfc4e9c84283309f4c47f87d4a9146e2c9c9f5b52aa608b4ce6a7588cd495",
+   "head": "856929b343335f44638f44d577af4808ce8efc3c4fae44634160efcf6876d224",
+   "d60_bundles": "856929b343335f44638f44d577af4808ce8efc3c4fae44634160efcf6876d224",
+   "capture_pin": true,
+   "pinned_by": [
+    "SHARED_SOURCE_FILES"
+   ],
+   "compiled": "production",
+   "git_path": "ops/zkp-mvp/gpu-metal/zkp-core/src/pcs.rs",
+   "head_lines": 1772,
+   "r19b_tree_rehash_equals_manifest": true,
+   "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-r19b-head-zkp-core_pcs.rs.diff",
+   "diff_sha256": "13ade33f16eb8b64410c5d78eb0a7ad3b09c6a83db1e810bfcc1a76f61da27da",
+   "diff_stat": "+1 / -1, 1 hunk(s) against 5c9cfc4e (frozen-r19b)",
+   "unit": "hunk (diff -u)",
+   "hunks": [
+    {
+     "n": 1,
+     "head_lines": [
+      965,
+      971
+     ],
+     "r19b_at": 965,
+     "plus": 1,
+     "minus": 1,
+     "class": "privacy-relevant-safe",
+     "note": "The hiding opening's message half: a device store folds rho vectors in batches of `dc.fold_batch()` (usize::MAX on Metal) instead of 4: the same linear map rho^T D. The pad half is still computed on the host from the host-drawn pads (`fold_rows_multi_zk`, pcs.rs:960-976), and the opened columns, salts and paths are as before."
+    }
+   ],
+   "counts": {
+    "units": 1,
+    "test_only": 0,
+    "production_privacy_neutral": 0,
+    "privacy_relevant": 1,
+    "privacy_relevant_safe": 1,
+    "findings": 0
+   },
+   "findings": [],
+   "verdict": "READ; safe (no finding)",
+   "readings": {
+    "856929b343335f44638f44d577af4808ce8efc3c4fae44634160efcf6876d224": {
+     "base": "5c9cfc4e9c84283309f4c47f87d4a9146e2c9c9f5b52aa608b4ce6a7588cd495",
+     "diff_stat": "+1 / -1, 1 hunk(s) against 5c9cfc4e (frozen-r19b)",
+     "moves_a_receipt_byte": false,
+     "moves_a_block_stage_byte": false,
+     "new_receipt_kind": false,
+     "classification": "identity-at-captured-profiles",
+     "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-r19b-head-zkp-core_pcs.rs.diff",
+     "reading": "[GATE ROUND 26, block readings, frozen-r19b -> HEAD 8b78aabd] Device fold batching of the same linear map; the pad half stays host-computed. Agrees with W16_READINGS (856929b34333). No finding.",
+     "receipt_byte_note": "no byte moves at any registered (legacy / R13) profile: the dev-bytes gate is unchanged with CPU = Metal, golden 8/8, trained digests unchanged (HEAD commit 8b78aabd's own record and results/zk60_d60_20261102/privacy_gate/README.md section 8; not re-run here); W16 / W16R2 are unregistered new formats with their own goldens"
+    }
+   }
+  },
+  "../zkp-core/src/pcs/backend.rs": {
+   "r19b": "ff2cb5c1806b34653f8a44ad82f54201fb5d9f6ba2602afe5efeae4d104e0103",
+   "head": "4f03047ac467bbb0a6c2c26341f414846577fee44e29a6c8f01d53f78c55b462",
+   "d60_bundles": "4f03047ac467bbb0a6c2c26341f414846577fee44e29a6c8f01d53f78c55b462",
+   "capture_pin": true,
+   "pinned_by": [
+    "SHARED_SOURCE_FILES"
+   ],
+   "compiled": "production",
+   "git_path": "ops/zkp-mvp/gpu-metal/zkp-core/src/pcs/backend.rs",
+   "head_lines": 96,
+   "r19b_tree_rehash_equals_manifest": true,
+   "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-r19b-head-zkp-core_pcs_backend.rs.diff",
+   "diff_sha256": "32b0cde09ef3916376b5fae9634615653c4e304c1432873898c8237df83e186c",
+   "diff_stat": "+8 / -0, 1 hunk(s) against ff2cb5c1 (frozen-r19b)",
+   "unit": "hunk (diff -u)",
+   "hunks": [
+    {
+     "n": 1,
+     "head_lines": [
+      35,
+      48
+     ],
+     "r19b_at": 35,
+     "plus": 8,
+     "minus": 0,
+     "class": "production-privacy-neutral",
+     "note": "`EncodedStore::fold_batch()` defaulting to 4 (the batching hint pcs.rs reads)."
+    }
+   ],
+   "counts": {
+    "units": 1,
+    "test_only": 0,
+    "production_privacy_neutral": 1,
+    "privacy_relevant": 0,
+    "privacy_relevant_safe": 0,
+    "findings": 0
+   },
+   "findings": [],
+   "verdict": "READ; safe (no finding)",
+   "readings": {
+    "4f03047ac467bbb0a6c2c26341f414846577fee44e29a6c8f01d53f78c55b462": {
+     "base": "ff2cb5c1806b34653f8a44ad82f54201fb5d9f6ba2602afe5efeae4d104e0103",
+     "diff_stat": "+8 / -0, 1 hunk(s) against ff2cb5c1 (frozen-r19b)",
+     "moves_a_receipt_byte": false,
+     "moves_a_block_stage_byte": false,
+     "new_receipt_kind": false,
+     "classification": "identity-at-captured-profiles",
+     "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-r19b-head-zkp-core_pcs_backend.rs.diff",
+     "reading": "[GATE ROUND 26, block readings, frozen-r19b -> HEAD 8b78aabd] A batching hint with default 4. Agrees with W16_READINGS (4f03047ac467). No finding.",
+     "receipt_byte_note": "no byte moves at any registered (legacy / R13) profile: the dev-bytes gate is unchanged with CPU = Metal, golden 8/8, trained digests unchanged (HEAD commit 8b78aabd's own record and results/zk60_d60_20261102/privacy_gate/README.md section 8; not re-run here); W16 / W16R2 are unregistered new formats with their own goldens"
+    }
+   }
+  },
+  "../zkp-core/src/rng.rs": {
+   "r19b": "0d4a99abbc424286de60ec4bfbe1084dc2ccaa2db8c5380e5f4594157ccea9eb",
+   "head": "f6728bd2d5208bb5b81f999d59baae12eb760a27811bdd2e0a5c309beba98aa2",
+   "d60_bundles": "f6728bd2d5208bb5b81f999d59baae12eb760a27811bdd2e0a5c309beba98aa2",
+   "capture_pin": true,
+   "pinned_by": [
+    "SHARED_SOURCE_FILES"
+   ],
+   "compiled": "production",
+   "git_path": "ops/zkp-mvp/gpu-metal/zkp-core/src/rng.rs",
+   "head_lines": 236,
+   "r19b_tree_rehash_equals_manifest": true,
+   "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-r19b-head-zkp-core_rng.rs.diff",
+   "diff_sha256": "89c3f84d1b66a20c591eff1f9b0b469be50b8ae9d65a8fbe85998d0a4b095478",
+   "diff_stat": "+107 / -6, 4 hunk(s) against 0d4a99ab (frozen-r19b)",
+   "unit": "hunk (diff -u)",
+   "hunks": [
+    {
+     "n": 1,
+     "head_lines": [
+      15,
+      34
+     ],
+     "r19b_at": 15,
+     "plus": 14,
+     "minus": 0,
+     "class": "privacy-relevant-safe",
+     "note": "`FILL_PAR_MIN`, `FILL_CHUNK`, and `block_bytes(key, counter, out)` = the first |out| XOF bytes of blake3(key || counter_le): exactly what `refill` drew (r19b rng.rs:53-61)."
+    },
+    {
+     "n": 2,
+     "head_lines": [
+      65,
+      72
+     ],
+     "r19b_at": 51,
+     "plus": 1,
+     "minus": 5,
+     "class": "privacy-relevant-safe",
+     "note": "`refill` calls `block_bytes(&self.key, self.counter, &mut self.buf)` then increments the counter: the identical block."
+    },
+    {
+     "n": 3,
+     "head_lines": [
+      93,
+      161
+     ],
+     "r19b_at": 83,
+     "plus": 61,
+     "minus": 1,
+     "class": "privacy-relevant-safe",
+     "note": "`fp_vec` -> `fill_fp`; `fill_fp` (:109-160): below 2^15 draws the `fp()` loop; above, word t of the stream from the current state is cur[pos0 + 8t] for t < r = (RNG_BLOCK - pos)/8, else word (t - r) % W of block c0 + (t - r)/W (c0 = the counter refill would use next); draw i is words (2i, 2i+1) as (lo, hi), as `fp()`; the end state is (pos + 8*total) when total <= r, else buf = block c0 + nb - 1, counter = c0 + nb, pos = 8(used - (nb-1)W) with nb = ceil(used/W), which is the state the loop leaves (pos = RNG_BLOCK at an exact block end, lazily refilled). Read and checked here; also the test (h4). `from_os` / `new` unchanged: the same entropy source and domain separation, so the pads, masks and salts are the same stream."
+    },
+    {
+     "n": 4,
+     "head_lines": [
+      188,
+      225
+     ],
+     "r19b_at": 118,
+     "plus": 31,
+     "minus": 0,
+     "class": "test-only",
+     "note": "Test fill_fp_equals_the_draw_loop_and_leaves_the_same_state (leads and lengths around block and chunk edges; later draws of every kind agree)."
+    }
+   ],
+   "counts": {
+    "units": 4,
+    "test_only": 1,
+    "production_privacy_neutral": 0,
+    "privacy_relevant": 3,
+    "privacy_relevant_safe": 3,
+    "findings": 0
+   },
+   "findings": [],
+   "verdict": "READ; safe (no finding)",
+   "readings": {
+    "f6728bd2d5208bb5b81f999d59baae12eb760a27811bdd2e0a5c309beba98aa2": {
+     "base": "0d4a99abbc424286de60ec4bfbe1084dc2ccaa2db8c5380e5f4594157ccea9eb",
+     "diff_stat": "+107 / -6, 4 hunk(s) against 0d4a99ab (frozen-r19b)",
+     "moves_a_receipt_byte": false,
+     "moves_a_block_stage_byte": false,
+     "new_receipt_kind": false,
+     "classification": "identity-at-captured-profiles",
+     "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-r19b-head-zkp-core_rng.rs.diff",
+     "reading": "[GATE ROUND 26, block readings, frozen-r19b -> HEAD 8b78aabd] `fill_fp` reproduces the `fp()` stream and state exactly (index arithmetic read here); the generator's construction and entropy source are unchanged. Agrees with W16_READINGS (f6728bd2d520). No finding.",
+     "receipt_byte_note": "no byte moves at any registered (legacy / R13) profile: the dev-bytes gate is unchanged with CPU = Metal, golden 8/8, trained digests unchanged (HEAD commit 8b78aabd's own record and results/zk60_d60_20261102/privacy_gate/README.md section 8; not re-run here); W16 / W16R2 are unregistered new formats with their own goldens"
+    }
+   }
+  },
+  "../zkp-core/src/transcript.rs": {
+   "r19b": "cc9752d0ef9bcd6d7b20e94e611ff26748593a2ea1a4f55b63d8c221715f1967",
+   "head": "e766e9e14304a0d58bd17937f2afad490e0cc29e8c27094a0e8f14a96e8e134e",
+   "d60_bundles": "e766e9e14304a0d58bd17937f2afad490e0cc29e8c27094a0e8f14a96e8e134e",
+   "capture_pin": true,
+   "pinned_by": [
+    "SHARED_SOURCE_FILES"
+   ],
+   "compiled": "production",
+   "git_path": "ops/zkp-mvp/gpu-metal/zkp-core/src/transcript.rs",
+   "head_lines": 257,
+   "r19b_tree_rehash_equals_manifest": true,
+   "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-r19b-head-zkp-core_transcript.rs.diff",
+   "diff_sha256": "90331905e3f1448b56709fd8086662fc052c6732cb5bd2816f16c8a80a776cab",
+   "diff_stat": "+14 / -0, 1 hunk(s) against cc9752d0 (frozen-r19b)",
+   "unit": "hunk (diff -u)",
+   "hunks": [
+    {
+     "n": 1,
+     "head_lines": [
+      151,
+      170
+     ],
+     "r19b_at": 151,
+     "plus": 14,
+     "minus": 0,
+     "class": "production-privacy-neutral",
+     "note": "Read-only accessors `counter()` (:158) and `fs_key()` (:164) for the Metal device rounds. The counter is public transcript state and the key is the tagged profile's Fiat-Shamir key, derived from the public profile tag; absorb, squeeze, challenge_* and clone_state are byte-identical."
+    }
+   ],
+   "counts": {
+    "units": 1,
+    "test_only": 0,
+    "production_privacy_neutral": 1,
+    "privacy_relevant": 0,
+    "privacy_relevant_safe": 0,
+    "findings": 0
+   },
+   "findings": [],
+   "verdict": "READ; safe (no finding)",
+   "readings": {
+    "e766e9e14304a0d58bd17937f2afad490e0cc29e8c27094a0e8f14a96e8e134e": {
+     "base": "cc9752d0ef9bcd6d7b20e94e611ff26748593a2ea1a4f55b63d8c221715f1967",
+     "diff_stat": "+14 / -0, 1 hunk(s) against cc9752d0 (frozen-r19b)",
+     "moves_a_receipt_byte": false,
+     "moves_a_block_stage_byte": false,
+     "new_receipt_kind": false,
+     "classification": "identity-at-captured-profiles",
+     "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-r19b-head-zkp-core_transcript.rs.diff",
+     "reading": "[GATE ROUND 26, block readings, frozen-r19b -> HEAD 8b78aabd] Two read-only accessors of public state. Agrees with W16_READINGS (e766e9e14304). No finding.",
+     "receipt_byte_note": "no byte moves at any registered (legacy / R13) profile: the dev-bytes gate is unchanged with CPU = Metal, golden 8/8, trained digests unchanged (HEAD commit 8b78aabd's own record and results/zk60_d60_20261102/privacy_gate/README.md section 8; not re-run here); W16 / W16R2 are unregistered new formats with their own goldens"
+    }
+   }
+  },
+  "src/gpu/mod.rs": {
+   "r19b": "d651be2ccf8f19ff75fe6bca5ad42f4b773b569d0ae2017306f0bf819c51b283",
+   "head": "d7812f7d9404b55963387a9f40270fbdd871f8b6c09378116967e5568643c4c6",
+   "d60_bundles": "d7812f7d9404b55963387a9f40270fbdd871f8b6c09378116967e5568643c4c6",
+   "capture_pin": true,
+   "pinned_by": [
+    "SHARED_SOURCE_FILES"
+   ],
+   "compiled": "production (the Metal seam only under feature gpu-metal)",
+   "git_path": "ops/zkp-mvp/gpu-metal/hashline/src/gpu/mod.rs",
+   "head_lines": 880,
+   "r19b_tree_rehash_equals_manifest": true,
+   "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-r19b-head-gpu_mod.rs.diff",
+   "diff_sha256": "f1c4b3952b1aedbb949cb300a3603b6a091dd1750db20bf8f1ee8296219868b4",
+   "diff_stat": "+106 / -5, 5 hunk(s) against d651be2c (frozen-r19b)",
+   "unit": "hunk (diff -u)",
+   "hunks": [
+    {
+     "n": 1,
+     "head_lines": [
+      19,
+      42
+     ],
+     "r19b_at": 19,
+     "plus": 18,
+     "minus": 0,
+     "class": "privacy-relevant-safe",
+     "note": "`mod metal;` and its re-exports under `all(feature = \"gpu-metal\", not(feature = \"gpu-cuda\"))`, test-only re-exports under `cfg(all(test, ..))`. This brings src/gpu/metal.rs and src/gpu/metal_kernels.metal (include_str!, metal.rs:31) into a gpu-metal build; neither is a source pin (finding F-B1)."
+    },
+    {
+     "n": 2,
+     "head_lines": [
+      737,
+      819
+     ],
+     "r19b_at": 719,
+     "plus": 76,
+     "minus": 1,
+     "class": "privacy-relevant-safe",
+     "note": "The Metal seam (:744-806): `MetalCommit` is the `EncodedStore` (fold_rows over the DATA rows, columns of the device encoding, fold_batch usize::MAX); `MetalBackend::try_commit_zk(_keyed)` calls `metal_commit_zk(params, data, pads, pows, ntt, key)` with the pads and coset powers the HOST drew and computed (pcs.rs:766-801 draws the pads and salts first); a decline is reported through `declined` and the CPU body runs. `try_commit` (plain) is not reached by any private-block commitment (all use commit_zk_owned_tagged with ZkOpts::standard)."
+    },
+    {
+     "n": 3,
+     "head_lines": [
+      823,
+      833
+     ],
+     "r19b_at": 730,
+     "plus": 3,
+     "minus": 3,
+     "class": "production-privacy-neutral",
+     "note": "The no-feature seam's cfg widened to `not(any(gpu-cuda, gpu-metal))`."
+    },
+    {
+     "n": 4,
+     "head_lines": [
+      837,
+      850
+     ],
+     "r19b_at": 744,
+     "plus": 8,
+     "minus": 0,
+     "class": "production-privacy-neutral",
+     "note": "The no-feature `enabled()` / `label()` moved to `mod switch`; a gpu-metal build takes metal::{enabled, label} (enabled = HL_GPU=1 and a device; label text only)."
+    },
+    {
+     "n": 5,
+     "head_lines": [
+      877,
+      880
+     ],
+     "r19b_at": 776,
+     "plus": 1,
+     "minus": 1,
+     "class": "production-privacy-neutral",
+     "note": "The stub re-export list without enabled / label."
+    }
+   ],
+   "counts": {
+    "units": 5,
+    "test_only": 0,
+    "production_privacy_neutral": 3,
+    "privacy_relevant": 2,
+    "privacy_relevant_safe": 2,
+    "findings": 0
+   },
+   "findings": [
+    "F-B1 (Low)",
+    "F-B4 (Info)"
+   ],
+   "verdict": "READ; safe; F-B1 (Low: the UNPINNED Metal backend this file pulls in, not this file's hunks), F-B4 (Info: a stat correction of the existing W16 reading)",
+   "readings": {
+    "d7812f7d9404b55963387a9f40270fbdd871f8b6c09378116967e5568643c4c6": {
+     "base": "d651be2ccf8f19ff75fe6bca5ad42f4b773b569d0ae2017306f0bf819c51b283",
+     "diff_stat": "+106 / -5, 5 hunk(s) against d651be2c (frozen-r19b)",
+     "moves_a_receipt_byte": false,
+     "moves_a_block_stage_byte": false,
+     "new_receipt_kind": false,
+     "classification": "gated-on-new-profiles",
+     "diff_file": "results/zk60_gate_tinyllama_20261017/round26/readings_block/blk-r19b-head-gpu_mod.rs.diff",
+     "reading": "[GATE ROUND 26, block readings, frozen-r19b -> HEAD 8b78aabd] The Metal backend seam behind `feature = \"gpu-metal\"` (host-drawn pads and salts, hiding coset encode on the device, declines to the CPU). Agrees with W16_READINGS (d7812f7d9404), whose stat '+111 / -?' is +106 / -5 in 5 hunks by `diff -u` (Info F-B4). The two files it pulls in are unpinned: finding F-B1.",
+     "receipt_byte_note": "no byte moves at any registered (legacy / R13) profile: the dev-bytes gate is unchanged with CPU = Metal, golden 8/8, trained digests unchanged (HEAD commit 8b78aabd's own record and results/zk60_d60_20261102/privacy_gate/README.md section 8; not re-run here); W16 / W16R2 are unregistered new formats with their own goldens"
+    }
+   }
+  }
+ },
+ "special_attention": {
+  "w16_tagged_range_lookups": "New PUBLIC tables: range16::table_column (value + gamma tag(w)) and support_column (shape only), pushed in SC_TAB (argument_accuracy.rs:752, :767); functions of the shape and gamma only, rebuilt by the Python W16 gate and checked by the Rust PG-9. The 16-bit histograms are PRIVATE A planes (Dom::Tab sub-planes after MACT, Ids::is_multiplicity), written only at protocol.rs:1642-1652, each claimed once in SC_TAB with its own reserved mask pair; their table helpers are private H planes inside the value-0 LogUp sum. No multiplicity is exported; the only multiplicity-derived number outside A is the lookup total in ProveStats, the public geometry count. The g_range fold needs no new draw.",
+  "w16r2_rate_half": "Q = pads = 260 fixed by the W16R2 profile at log_cols 14 for A, H, every B_k and both endpoints (shape.rs:1023-1033, refused at any other geometry); pcs_params_at -> num_col_checks -> ZkOpts::standard q_pad (byte-identical functions); the hiding coset encoder (coset 7) unchanged; n + Q = 16,644 <= N = 32,768; M untouched (its own MASK_* constants; receipt_bytes counts MASK_PADS). Nothing in the files read lets a receipt choose Q.",
+  "metal_seam": "The slot IR is built on a TWIN transcript (clone_state: independent state / counter / key, no masker); the runtime guard uses a local splitmix stream (no proof randomness); the device returns UNMASKED round sums that the host masks with zkp-core's CfsMasker on the real transcript, checking every device challenge; device tables live in the prover's own unified memory; the generated kernel source holds no table or coefficient value (values in the cf buffer), which is all HL_METAL_DUMP can write. On the commitment side the host draws the pads and salts, computes the pad half of every clear vector and salts the leaves. The Metal backend files themselves are unpinned: F-B1 (Low).",
+  "masked_sumcheck_masking": "Unchanged: the mask-pair value (mask_eval_eq = r19b mask_eval), masked_terminal, the M commitment, audit_claims and check_opening_challenges; A's and H's mask rows and H's zero-sum rows are the same draws of the same stream through fill_fp.",
+  "argument_define": "byte-identical to frozen-r19b's (sha256 of the 955-line function text 8164dd26... in both); argument.rs was read OUTSIDE define here"
+ },
+ "checks_made": {
+  "protocol_functions_byte_identical_to_r19b": [
+   "audit_claims",
+   "check_opening_challenges",
+   "verify_core",
+   "pcs_params_at",
+   "endpoint_pcs_params",
+   "transcript"
+  ],
+  "commitment_calls": "every private-block commitment in the files read is pcs::commit_zk_owned_tagged with ZkOpts::standard (protocol.rs:1686, :1902) or zk::mask_commit_tagged for M (:1700); no pcs::commit( / hand-built ZkOpts / extra generator in production code of the files read (ZkRng::new appears only in slot_ir_accuracy.rs `mod tests`); ZkRng::from_os at protocol.rs:1471 unchanged",
+  "rng_fill_fp": "fill_fp's word index and end-state arithmetic checked against next_u64 / refill (r19b rng.rs:53-77)",
+  "metal_twin": "zkp-core transcript.rs:170-176; the capture recorder hooks the VERIFY side only (run_capture.rs:2038-2047)",
+  "d60_bundles_cpu_made": "results/zk60_d60_20261102/privacy_gate/logs/write.cmd: HL_GPU unset"
+ },
+ "findings": [
+  {
+   "id": "F-B1",
+   "severity": "Low",
+   "kind": "pin coverage (Metal backend unpinned)",
+   "files": [
+    "hashline/src/gpu/metal.rs (HEAD 92,982 B)",
+    "hashline/src/gpu/metal_kernels.metal (HEAD 39,117 B, include_str! at metal.rs:31)"
+   ],
+   "text": "In a gpu-metal binary run with HL_GPU=1 these two files decide receipt bytes: the hiding coset encoding of every regular commitment (`metal_commit_zk`, metal.rs:1099-1107, MODE_ZK at :997), the unsalted column leaves, the opened columns (`MetalCommit::columns`), the message half of every clear vector (`MetalCommit::fold_rows`), and the device sumcheck rounds with their Fiat-Shamir replay (`MetalRounds::masked_prove`, :2069-2118). Neither is a source pin (run_capture.rs OWN / SHARED lists; s24_tests.rs:584-593 records reasons for the CUDA exclusions but says nothing of Metal), while the M26 comment (run_capture.rs:306-315) says a Metal-built bundle is tied to its Metal sources through slot_ir*.rs / metal_slot.rs. Read here for the privacy-relevant paths, NO LEAK FOUND: the pads and salts are drawn on the host before the offer (pcs.rs:766-801); `metal_commit_zk` refuses q = 0 and n + q > nn (:975-979, :1103-1105); the pad half of every clear vector is computed on the host from the host pads (pcs.rs:960-976); leaves are salted on the host; the round messages are masked by zkp-core's CfsMasker on the real transcript and each device challenge must equal the host's (:2080-2092); HL_METAL_DUMP writes kernel SOURCE only (:1229-1232), which holds no table or coefficient value. Moreover, for a receipt that VERIFIES, the opened columns must satisfy rho_k^T col_j = Enc(v_k)[j] for FS-drawn rho and S after the root, so a device encoding that departed from Enc(D, host pads) at an opened column would be rejected with overwhelming probability: a verifying Metal receipt's hiding does not rest on these files. What remains: (a) the gate's pin argument is incomplete for Metal-made bundles (a DEV-PASS -> PASS on such a bundle would rest on unread code); (b) a non-verifying receipt written by a faulty device path is not covered by that argument. The D60 bundles were written with HL_GPU unset (privacy_gate/logs/write.cmd), so for them metal.rs only answers `enabled() == false`.",
+   "recommendation": "Pin src/gpu/metal.rs and src/gpu/metal_kernels.metal (pure addition to SHARED_SOURCE_FILES, with an s24 assertion), or record HL_GPU / gpu::label() in the capture manifest and have the gate refuse a Metal-made bundle until they are pinned and read. Not required for the D60 CPU-made bundles."
+  },
+  {
+   "id": "F-B2",
+   "severity": "Info",
+   "kind": "stale doc",
+   "files": [
+    "hashline/src/private_block/slot_ir.rs:16-22"
+   ],
+   "text": "The module doc still says 'The whole module is #[cfg(test)] ... nothing here can be reached from a production build at all'. Since ZK60-METAL M3 the module is compiled under `#[cfg(any(test, feature = \"gpu-metal\"))]` and `build_slot_ir` / `SlotIr::eval` run in a gpu-metal prover with HL_GPU=1. A reader trusting the doc would classify the file as test-only. Text only.",
+   "recommendation": "Correct the doc to say: test builds, plus gpu-metal builds where only the prover's Metal path (twin transcript, runtime guard) reaches it."
+  },
+  {
+   "id": "F-B3",
+   "severity": "Info",
+   "kind": "naming",
+   "files": [
+    "hashline/src/private_block/protocol.rs:445-458, :618, :1624, :1950"
+   ],
+   "text": "At a W16 shape a range-family miss is passed as the `u8` argument of `refuse_lookup_misses`, so the refusal names 'the byte table' for a miss in a range family; and `ProveStats.u8_lookups` counts byte + range lookups. Neither discloses a count or a value (K-2 class-only refusal; the total is the public geometry count). Merging two classes discloses less, not more. Text only.",
+   "recommendation": "Optional: name 'the byte or a range table' at W16."
+  },
+  {
+   "id": "F-B4",
+   "severity": "Info",
+   "kind": "record correction",
+   "files": [
+    "ops/zkp-mvp/gate-tinyllama/staging_v25/scripts/zk60_native_rg_w16.py W16_READINGS['src/gpu/mod.rs']"
+   ],
+   "text": "The existing reading's diff stat '+111 / -?' is +106 / -5 in 5 hunks (`diff -u` frozen-r19b -> d7812f7d). Its content is right. The other six W16_READINGS zkp-core entries agree with this round's independent re-read at the same digests.",
+   "recommendation": "Correct the stat when the readings are wired in."
+  }
+ ],
+ "not_read_here": {
+  "note": "the other reader's set (READINGS_R26_RUN.json covers all eleven); two of them were glanced at while scoping and are recorded only so the split is visible",
+  "src/private_block.rs": "7ec8b855: module declarations only (`mod range16;`; `#[cfg(test)]` range16_tests, w16r2_tests, w16_privacy_gate_tests; `mod slot_ir` widened to any(test, gpu-metal); `#[cfg(feature = \"gpu-metal\")] mod metal_slot;`)",
+  "src/private_block/hash_domain.rs": "a777ebd0: `path_labels` loses `#[cfg(test)]` (D60)"
+ },
+ "wiring_w16_readings_style": {
+  "src/private_block/protocol.rs": [
+   [
+    "6f4d60f5d7fe",
+    "HEAD 8b78aabd: The W16 multiplicities (one histogram per range family) and their helpers are new rows of the hiding-committed A and H, each reached only through a masked claim; A's and H's mask and zero-sum rows are the same draws of the same OS-seeded stream via `fill_fp`; everything else is a value-identical parallel rewrite of prover-side writes. `audit_claims`, `check_opening_challenges`, `pcs_params_at`, `endpoint_pcs_params`, `transcript` and `verify_core` are byte-identical to frozen-r19b's (compared function by function). No finding."
+   ]
+  ],
+  "src/private_block/argument.rs": [
+   [
+    "86c9941de199",
+    "HEAD 8b78aabd: Outside `define` (byte-identical to r19b's repaired definition, read in the D60 gate record): value-identical table builders; the extension-round mask values (same elements); the Metal seam (twin-transcript IR, runtime guard, device round sums masked by the host's CfsMasker on the real transcript, decline -> CPU). No finding in this file; the unpinned Metal backend it calls is F-B1."
+   ]
+  ],
+  "src/private_block/layout.rs": [
+   [
+    "171656f83ebe",
+    "HEAD 8b78aabd: The W16 A / H plane lists (refused unless equal to the shape's independent counts), the range helpers in the value-0 LogUp sum claim, the lookup tag type (U8 at every legacy / R13 lookup), and two refusals. No finding."
+   ]
+  ],
+  "src/private_block/shape.rs": [
+   [
+    "dce667f98b35",
+    "HEAD 8b78aabd: The W16 / W16R2 profile registries and counts; D59's fixed geometry (rate 1/2, Q = pads = 260 at log_cols 14 for A, H, boundaries and endpoints, refused otherwise); accounting helpers; refusals. Every R13 / legacy profile keeps opened_cols = COL_CHECKS and rate 1/4. No finding."
+   ],
+   [
+    "3b78b7255ded",
+    "2196592d (the W16R2 re-check bundles): the HEAD reading; differs from dce667f9 only in one comment block"
+   ]
+  ],
+  "src/private_block/pad.rs": [
+   [
+    "9a28b306667c",
+    "HEAD 8b78aabd: The pad (padding-position) rule for the range sub-planes and their helpers; no claim, opening or PCS pad involved. No finding."
+   ]
+  ],
+  "src/private_block/argument_accuracy.rs": [
+   [
+    "29a501d03b6f",
+    "HEAD 8b78aabd: The W16 relations of the seven redefined slots; every public table is a function of the shape, public block data and challenges; private tables only through masked claims. No finding."
+   ]
+  ],
+  "src/private_block/accuracy_act.rs": [
+   [
+    "08b88855f522",
+    "HEAD 8b78aabd: Parallel / fused forms of the ACT3 histogram, queries and denominators; equal values. No finding."
+   ]
+  ],
+  "src/private_block/accuracy_fold.rs": [
+   [
+    "d260dd26686b",
+    "HEAD 8b78aabd: A parallel i8::MIN scan of the public weights. No finding."
+   ]
+  ],
+  "src/private_block/accuracy_layout.rs": [
+   [
+    "ad5214dee4ab",
+    "HEAD 8b78aabd: The W16 allocation and lookups; `Lk::u8` everywhere else. No finding."
+   ]
+  ],
+  "src/private_block/witness_accuracy.rs": [
+   [
+    "9c66f7622541",
+    "HEAD 8b78aabd: The W16 witness decomposition (private values; static refusal strings). No finding."
+   ]
+  ],
+  "src/private_block/range16.rs": [
+   [
+    "62061f62c9f9",
+    "HEAD 8b78aabd: W16's tags, public range / support tables and lookup constructors. The new public tables are functions of the shape and gamma only; the multiplicities are private A planes (protocol.rs). No finding."
+   ]
+  ],
+  "src/private_block/slot_ir.rs": [
+   [
+    "8f9e283173ee",
+    "HEAD 8b78aabd: At r19b the whole module was `#[cfg(test)]`; at HEAD it is compiled under `any(test, feature = \"gpu-metal\")` (private_block.rs, the `mod slot_ir` declaration), so the WHOLE file was read for its production role, not only the five hunks: the grammar, the interpreter (`SlotIr::eval`, used by the runtime guard), the builder (`build_slot_ir`, :939-1571) drawing on the twin transcript only; `export_shape` (JSON with coefficient values) has no production caller (tests only). No witness access, no absorb, no file / env / print, no ZkRng. Info F-B2: its module doc (:16-22) still says the whole module is test-only."
+   ]
+  ],
+  "src/private_block/slot_ir_accuracy.rs": [
+   [
+    "25c08bb4c951",
+    "HEAD 8b78aabd: The accuracy-stack IR (R13 and W16), gpu-metal production via `slot_ir`; twin transcript only; public coefficients; tests in `mod tests`. No finding."
+   ]
+  ],
+  "src/private_block/metal_slot.rs": [
+   [
+    "5ced3891eff3",
+    "HEAD 8b78aabd: gpu-metal only (`#[cfg(feature = \"gpu-metal\")] mod metal_slot;`): MSL generation from the IR with coefficient values in a buffer, the runtime guard on a local splitmix stream, a CPU-slot counter. No witness- or challenge-dependent host-visible output. No finding."
+   ]
+  ],
+  "../zkp-core/src/merkle.rs": [
+   [
+    "6b66c0bcf200",
+    "HEAD 8b78aabd: Rayon task split only; same tree. Agrees with W16_READINGS (6b66c0bcf200). No finding."
+   ]
+  ],
+  "../zkp-core/src/mle.rs": [
+   [
+    "ed7f8849f48d",
+    "HEAD 8b78aabd: eq-table threshold and a deferred integer column fold of the public weights; same values. Agrees with W16_READINGS (ed7f8849f48d). No finding."
+   ]
+  ],
+  "../zkp-core/src/pcs.rs": [
+   [
+    "856929b34333",
+    "HEAD 8b78aabd: Device fold batching of the same linear map; the pad half stays host-computed. Agrees with W16_READINGS (856929b34333). No finding."
+   ]
+  ],
+  "../zkp-core/src/pcs/backend.rs": [
+   [
+    "4f03047ac467",
+    "HEAD 8b78aabd: A batching hint with default 4. Agrees with W16_READINGS (4f03047ac467). No finding."
+   ]
+  ],
+  "../zkp-core/src/rng.rs": [
+   [
+    "f6728bd2d520",
+    "HEAD 8b78aabd: `fill_fp` reproduces the `fp()` stream and state exactly (index arithmetic read here); the generator's construction and entropy source are unchanged. Agrees with W16_READINGS (f6728bd2d520). No finding."
+   ]
+  ],
+  "../zkp-core/src/transcript.rs": [
+   [
+    "e766e9e14304",
+    "HEAD 8b78aabd: Two read-only accessors of public state. Agrees with W16_READINGS (e766e9e14304). No finding."
+   ]
+  ],
+  "src/gpu/mod.rs": [
+   [
+    "d7812f7d9404",
+    "HEAD 8b78aabd: The Metal backend seam behind `feature = \"gpu-metal\"` (host-drawn pads and salts, hiding coset encode on the device, declines to the CPU). Agrees with W16_READINGS (d7812f7d9404), whose stat '+111 / -?' is +106 / -5 in 5 hunks by `diff -u` (Info F-B4). The two files it pulls in are unpinned: finding F-B1."
+   ]
+  ]
+ },
+ "summary": {
+  "files_read": 21,
+  "capture_pins_read": 21,
+  "unpinned_read_for_context": [
+   "src/gpu/metal.rs (the paths named in F-B1)"
+  ],
+  "totals": {
+   "units": 122,
+   "test_only": 12,
+   "production_privacy_neutral": 69,
+   "privacy_relevant": 41,
+   "privacy_relevant_safe": 41,
+   "findings": 0
+  },
+  "findings": {
+   "F-B1": "Low",
+   "F-B2": "Info",
+   "F-B3": "Info",
+   "F-B4": "Info"
+  },
+  "leaks_found": 0,
+  "verdict": "every moved block-level, zkp-core and gpu capture pin is READ and SAFE; no leak; 1 Low finding (F-B1: the Metal backend is unpinned) and 3 Info notes",
+  "head_digests": {
+   "src/private_block/protocol.rs": "6f4d60f5d7fef8fad6a69ab7f78cc06ff3a8f947c8bac98d5bb01ed22b7af73c",
+   "src/private_block/argument.rs": "86c9941de1996b555c90fcb79b24c8682651df1ff24efcdff0ff0238ea50e77b",
+   "src/private_block/layout.rs": "171656f83ebeb009573a81fd1c464d4b9173f3c6400fd93942fd70ca93677934",
+   "src/private_block/shape.rs": "dce667f98b350c4ce2c841ce8c1308a8101e29b8106733ac16439945f5c6001a",
+   "src/private_block/pad.rs": "9a28b306667c5ee566d272198d5a32177ad6a179daf62c51649a79b4b5224c51",
+   "src/private_block/argument_accuracy.rs": "29a501d03b6f7a3455f0b191baf09ea3fd1854da30a0854f1cf0b3032cdb0763",
+   "src/private_block/accuracy_act.rs": "08b88855f522c54e0d169815ef756fe56b3195fec79f25d664e846e1087d1b5f",
+   "src/private_block/accuracy_fold.rs": "d260dd26686b46137544c22d767c9dbff5d2510f6dac75874217e0939e0a9b1b",
+   "src/private_block/accuracy_layout.rs": "ad5214dee4ab17ad39e1378a54f7d8c0aa49b56e8cf185ac84c9ffe8390b97be",
+   "src/private_block/witness_accuracy.rs": "9c66f7622541b443c395baceaef8b4f01b00b85d1f3d72ad287c40ce4413b573",
+   "src/private_block/range16.rs": "62061f62c9f96a162fd8eaf5d3ed53928bbfc73c6dad640ceee7603e25899466",
+   "src/private_block/slot_ir.rs": "8f9e283173ee989507a737f02d4cc63210058cee86bab9758e0d76c815e31d59",
+   "src/private_block/slot_ir_accuracy.rs": "25c08bb4c951a47dac928b6abd1c0827249b5ff4ca75887fd7e0be3db9c19e65",
+   "src/private_block/metal_slot.rs": "5ced3891eff3455121a0ade1bed614f6beb2a7852433cc4250d1e950bc6eaceb",
+   "../zkp-core/src/merkle.rs": "6b66c0bcf20042373794b30c1d04b7340163ae3e93117ed19166c593ebe819a7",
+   "../zkp-core/src/mle.rs": "ed7f8849f48df402c08b0a74a8119a9eff9aeecf4535847bbeceafa93459cebd",
+   "../zkp-core/src/pcs.rs": "856929b343335f44638f44d577af4808ce8efc3c4fae44634160efcf6876d224",
+   "../zkp-core/src/pcs/backend.rs": "4f03047ac467bbb0a6c2c26341f414846577fee44e29a6c8f01d53f78c55b462",
+   "../zkp-core/src/rng.rs": "f6728bd2d5208bb5b81f999d59baae12eb760a27811bdd2e0a5c309beba98aa2",
+   "../zkp-core/src/transcript.rs": "e766e9e14304a0d58bd17937f2afad490e0cc29e8c27094a0e8f14a96e8e134e",
+   "src/gpu/mod.rs": "d7812f7d9404b55963387a9f40270fbdd871f8b6c09378116967e5568643c4c6"
+  }
+ }
+}

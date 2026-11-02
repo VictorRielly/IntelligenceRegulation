@@ -1,0 +1,175 @@
+--- frozen-r19b/zkp-core/src/mle.rs
++++ HEAD-8b78aabd/ops/zkp-mvp/gpu-metal/zkp-core/src/mle.rs
+@@ -5,6 +5,10 @@
+ use crate::field::{Fp, Fp2};
+ use rayon::prelude::*;
+ 
++/// [ZK60-METAL M4l] the doubling-step length from which `eq_table` runs a step
++/// on rayon (was 4096)
++pub const EQ_TABLE_PAR_LEN: usize = 1 << 15;
++
+ /// eq(r, x) for all x in {0,1}^n, x indexed as an integer with bit 0 =
+ /// the LAST variable?  No: convention here is x's bit i corresponds to
+ /// r[n-1-i], i.e. r[0] is the MOST significant bit of the index. So a
+@@ -22,8 +26,12 @@
+         // [UPERF3-XX] small steps run sequentially: a rayon region per
+         // doubling step cost ~0.3 ms of pool wake-up each and dominated
+         // pcs::group_claims (37 claims x 2 tables x up to 14 steps per
+-        // layer); same values.
+-        if len < 4096 {
++        // layer); same values. [ZK60-METAL M4l] on the M3 Ultra a region
++        // still costs ~0.3 ms while a step of len 2^14 takes ~0.15 ms on one
++        // thread (two products per entry), so the break-even is ~2^15: every
++        // 2^14 column-weight table of an opening (36 groups x 2 steps per
++        // commitment) now stays on one thread; same values.
++        if len < EQ_TABLE_PAR_LEN {
+             for (a, b) in lo.iter_mut().zip(hi.iter_mut()) {
+                 let e = *a;
+                 *b = e.mul(ri);
+@@ -141,6 +149,11 @@
+ pub fn fold_cols_i8(m: &[i8], rows: usize, cols: usize, c: &[Fp2]) -> Vec<Fp2> {
+     assert_eq!(m.len(), rows * cols);
+     assert_eq!(c.len(), cols);
++    if deferred_cols() {
++        if let Some(out) = fold_cols_deferred(m, rows, cols, c, 128, |v| v as i64) {
++            return out;
++        }
++    }
+     (0..rows).into_par_iter().map(|i| {
+         let row = &m[i * cols..(i + 1) * cols];
+         let mut acc = Fp2::ZERO;
+@@ -233,6 +246,45 @@
+     Some(out)
+ }
+ 
++/// [ZK60-METAL M8] `HL_FSP_COL_FOLD=0` keeps the per-element field arithmetic
++/// of `fold_cols_i8`, for a same-binary differential measurement.
++fn deferred_cols() -> bool {
++    static ON: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
++    *ON.get_or_init(|| std::env::var("HL_FSP_COL_FOLD").map(|v| v != "0").unwrap_or(true))
++}
++
++/// [ZK60-METAL M8] `fold_rows_deferred` for the other axis: each output row's
++/// dot product with `c` is the exact signed integer sum of the u64
++/// coefficients times the signed matrix values, reduced once per output. A
++/// field sum is that integer sum reduced mod p, so the values are unchanged.
++/// The same public bound (`cols` x u64::MAX x max_abs fits an i128) and the
++/// same zero skip as the row fold.
++fn fold_cols_deferred<T, F>(m: &[T], rows: usize, cols: usize, c: &[Fp2], max_abs: i64, value: F) -> Option<Vec<Fp2>>
++where
++    T: Copy + Sync,
++    F: Fn(T) -> i64 + Sync,
++{
++    if cols as u128 > i128::MAX as u128 / (u64::MAX as u128 * max_abs as u128) {
++        return None;
++    }
++    let reduce = |s: i128| {
++        if s == 0 { return Fp::ZERO; }
++        let magnitude = Fp::from_u128(s.unsigned_abs());
++        if s < 0 { Fp::ZERO.sub(magnitude) } else { magnitude }
++    };
++    Some((0..rows).into_par_iter().map(|i| {
++        let row = &m[i * cols..(i + 1) * cols];
++        let (mut s0, mut s1) = (0i128, 0i128);
++        for (&v, cw) in row.iter().zip(c.iter()) {
++            let v = value(v) as i128;
++            if v == 0 { continue; }
++            s0 += cw.c0.0 as i128 * v;
++            s1 += cw.c1.0 as i128 * v;
++        }
++        Fp2::new(reduce(s0), reduce(s1))
++    }).collect())
++}
++
+ pub fn fold_cols_i32(m: &[i32], rows: usize, cols: usize, c: &[Fp2]) -> Vec<Fp2> {
+     assert_eq!(m.len(), rows * cols);
+     assert_eq!(c.len(), cols);
+@@ -282,10 +334,88 @@
+         for idx in 0..32usize {
+             let bits: Vec<Fp2> = (0..5).map(|i| if (idx >> (4 - i)) & 1 == 1 { Fp2::ONE } else { Fp2::ZERO }).collect();
+             assert_eq!(t[idx], eq_point(&r, &bits));
++        }
++    }
++
++    /// [ZK60-METAL M4l] on both sides of `EQ_TABLE_PAR_LEN` (a 2^17 table runs
++    /// its last two doubling steps on rayon, the rest on one thread) every
++    /// sampled entry is the product definition
++    /// [ZK60-METAL M8] the deferred column fold is the field fold, word for
++    /// word: zero, negative and extreme weights, coefficients at p - 1, and
++    /// row counts on both sides of rayon's split
++    #[test]
++    fn m8_deferred_column_fold_equals_the_field_fold() {
++        let pm1 = Fp::ZERO.sub(Fp::ONE);
++        for (rows, cols) in [(1usize, 1usize), (3, 5), (16, 64), (7, 1000), (300, 33)] {
++            let m: Vec<i8> = (0..rows * cols).map(|i| (((i * 37 + 11) % 255) as i32 - 127) as i8).collect();
++            for extreme in [false, true] {
++                let c: Vec<Fp2> = if extreme { (0..cols).map(|j| if j % 2 == 0 { Fp2::new(pm1, pm1) } else { Fp2::new(pm1, Fp::ZERO) }).collect() } else { pt(9 + rows as u64, cols) };
++                let want: Vec<Fp2> = (0..rows)
++                    .map(|i| {
++                        let mut acc = Fp2::ZERO;
++                        for j in 0..cols {
++                            acc = acc.add(c[j].mul_base(Fp::from_i64(m[i * cols + j] as i64)));
++                        }
++                        acc
++                    })
++                    .collect();
++                let got = fold_cols_deferred(&m, rows, cols, &c, 128, |v| v as i64).expect("within the bound");
++                assert_eq!(got, want, "rows {rows} cols {cols} extreme {extreme}");
++                assert_eq!(fold_cols_i8(&m, rows, cols, &c), want, "rows {rows} cols {cols} extreme {extreme}: the public entry point");
++            }
+         }
+     }
+ 
++    /// [ZK60-METAL M8, bench, ignored] one 8B FFN fold (4096 x 14336 i8,
++    /// columns): the field form against the deferred one, and the class scan
++    /// on one thread against chunks in parallel. Prints only.
+     #[test]
++    #[ignore]
++    fn m8_bench_column_fold_at_the_8b_ffn_shape() {
++        let (rows, cols) = (4096usize, 14336usize);
++        let m: Vec<i8> = (0..rows * cols).map(|i| ((i.wrapping_mul(2654435761) >> 7) % 255) as i8).map(|v| if v == i8::MIN { 0 } else { v }).collect();
++        let c = pt(5, cols);
++        for rep in 0..3 {
++            let t = std::time::Instant::now();
++            let field: Vec<Fp2> = (0..rows).into_par_iter().map(|i| {
++                let mut acc = Fp2::ZERO;
++                for (&v, &cw) in m[i * cols..(i + 1) * cols].iter().zip(c.iter()) {
++                    if v != 0 { acc = acc.add(cw.mul_base(Fp::from_i64(v as i64))); }
++                }
++                acc
++            }).collect();
++            let t_field = t.elapsed().as_secs_f64();
++            let t = std::time::Instant::now();
++            let deferred = fold_cols_deferred(&m, rows, cols, &c, 128, |v| v as i64).unwrap();
++            let t_def = t.elapsed().as_secs_f64();
++            assert_eq!(field, deferred);
++            let t = std::time::Instant::now();
++            let a = m.contains(&i8::MIN);
++            let t_scan1 = t.elapsed().as_secs_f64();
++            let t = std::time::Instant::now();
++            let b = m.par_chunks(1 << 20).any(|ch| ch.contains(&i8::MIN));
++            let t_scanp = t.elapsed().as_secs_f64();
++            assert_eq!(a, b);
++            eprintln!("[M8 bench] rep {rep}: column fold field {:.4} s, deferred {:.4} s; class scan one thread {:.4} s, parallel {:.4} s", t_field, t_def, t_scan1, t_scanp);
++        }
++    }
++
++    #[test]
++    fn eq_table_across_the_parallel_cutoff_matches_point() {
++        assert!(1usize << 16 >= EQ_TABLE_PAR_LEN, "the fixture must cross the cutoff");
++        for n in [14usize, 17] {
++            let r = pt(9 + n as u64, n);
++            let t = eq_table_msb(&r);
++            assert_eq!(t.iter().fold(Fp2::ZERO, |a, b| a.add(*b)), Fp2::ONE);
++            for k in 0..600usize {
++                let idx = (k * 0x9E37_79B9) % (1usize << n);
++                let bits: Vec<Fp2> = (0..n).map(|i| if (idx >> (n - 1 - i)) & 1 == 1 { Fp2::ONE } else { Fp2::ZERO }).collect();
++                assert_eq!(t[idx], eq_point(&r, &bits), "2^{n} entry {idx}");
++            }
++        }
++    }
++
++    #[test]
+     fn mle_eval_at_boolean_points_is_lookup() {
+         let v: Vec<Fp> = (0..16).map(|i| Fp::new(i * i + 1)).collect();
+         for idx in 0..16usize {

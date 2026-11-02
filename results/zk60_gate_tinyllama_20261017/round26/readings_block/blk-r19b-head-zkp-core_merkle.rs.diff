@@ -1,0 +1,81 @@
+--- frozen-r19b/zkp-core/src/merkle.rs
++++ HEAD-8b78aabd/ops/zkp-mvp/gpu-metal/zkp-core/src/merkle.rs
+@@ -31,6 +31,20 @@
+     *h.finalize().as_bytes()
+ }
+ 
++/// [ZK60-METAL M9] the fewest node pairs one rayon task hashes. A task per
++/// pair (rayon's default split) made a 2^16-leaf tree take 9-23 ms, slower than
++/// one thread (4 ms); 1024 pairs per task take 2.4-4 ms (`m9_bench_keyed_tree_
++/// over_2_16_leaves`). The same hashes in the same order: the levels are
++/// unchanged, only how the work is split.
++const MERKLE_MIN_PAIRS_DEFAULT: usize = 1024;
++
++/// `HL_MERKLE_MIN_PAIRS` overrides it for a same-binary A/B (1 is rayon's
++/// per-pair split, the form before M9)
++fn merkle_min_pairs() -> usize {
++    static N: std::sync::OnceLock<usize> = std::sync::OnceLock::new();
++    *N.get_or_init(|| std::env::var("HL_MERKLE_MIN_PAIRS").ok().and_then(|v| v.parse().ok()).filter(|&v: &usize| v >= 1).unwrap_or(MERKLE_MIN_PAIRS_DEFAULT))
++}
++
+ impl MerkleTree {
+     pub fn build(leaves: Vec<Digest>) -> MerkleTree {
+         let n = leaves.len();
+@@ -40,6 +54,7 @@
+             let prev = levels.last().unwrap();
+             let next: Vec<Digest> = prev
+                 .par_chunks(2)
++                .with_min_len(merkle_min_pairs())
+                 .map(|pair| hash_pair(&pair[0], &pair[1]))
+                 .collect();
+             levels.push(next);
+@@ -57,6 +72,7 @@
+             let prev = levels.last().unwrap();
+             let next: Vec<Digest> = prev
+                 .par_chunks(2)
++                .with_min_len(merkle_min_pairs())
+                 .map(|pair| hash_pair_keyed(&pair[0], &pair[1], key))
+                 .collect();
+             levels.push(next);
+@@ -113,7 +129,41 @@
+ mod tests {
+     use super::*;
+ 
++    /// [ZK60-METAL M9, bench, ignored] a keyed tree over 2^16 leaves (one
++    /// commitment's columns): today's per-pair rayon tasks, the same map with
++    /// a minimum task length, and one thread. Prints only; checks the roots.
+     #[test]
++    #[ignore]
++    fn m9_bench_keyed_tree_over_2_16_leaves() {
++        use rayon::prelude::*;
++        let key = *blake3::hash(b"m9 node key").as_bytes();
++        let leaves: Vec<Digest> = (0..1u64 << 16).map(|i| *blake3::hash(&i.to_le_bytes()).as_bytes()).collect();
++        let levels_with = |min: usize| -> Digest {
++            let mut cur = leaves.clone();
++            while cur.len() > 1 {
++                cur = cur.par_chunks(2).with_min_len(min).map(|p| hash_pair_keyed(&p[0], &p[1], Some(&key))).collect();
++            }
++            cur[0]
++        };
++        for rep in 0..3 {
++            let t = std::time::Instant::now();
++            let a = MerkleTree::build_keyed(leaves.clone(), Some(&key)).root();
++            let t_now = t.elapsed().as_secs_f64();
++            let t = std::time::Instant::now();
++            let b = levels_with(1024);
++            let t_min = t.elapsed().as_secs_f64();
++            let t = std::time::Instant::now();
++            let mut cur = leaves.clone();
++            while cur.len() > 1 {
++                cur = cur.chunks(2).map(|p| hash_pair_keyed(&p[0], &p[1], Some(&key))).collect();
++            }
++            let t_one = t.elapsed().as_secs_f64();
++            assert!(a == b && a == cur[0]);
++            eprintln!("[M9 bench] rep {rep}: keyed tree 2^16 leaves: today {:.4} s, min-len 1024 {:.4} s, one thread {:.4} s", t_now, t_min, t_one);
++        }
++    }
++
++    #[test]
+     fn paths_verify_and_tampers_fail() {
+         let leaves: Vec<Digest> = (0..64u64).map(|i| *blake3::hash(&i.to_le_bytes()).as_bytes()).collect();
+         let t = MerkleTree::build(leaves.clone());

@@ -1,0 +1,121 @@
+--- frozen-r19b/hashline/src/private_block/accuracy_act.rs
++++ HEAD-8b78aabd/ops/zkp-mvp/gpu-metal/hashline/src/private_block/accuracy_act.rs
+@@ -56,28 +56,66 @@
+ /// Histogram includes every query, including padding. A miss is counted and
+ /// filed in bucket0, like the existing protocol; the caller's ordinary
+ /// refusal and test-only cheating-prover switch retain their meanings.
++/// [ZK60-METAL M15] counted over 64 Ki-query chunks in parallel and summed:
++/// counts and misses are integers, so the totals are the sequential loop's.
+ pub(crate) fn histogram(sh:&Shape,a:&AccuracyPublic,gates:&[i64],outputs:&[i64])->Result<(Vec<u64>,usize),String> {
++    use rayon::prelude::*;
+     query_context(sh,a,gates,outputs)?;
+-    let mut counts=vec![0;a.groups().len()*4096];let mut misses=0;
+-    for (i,(&gate,&output)) in gates.iter().zip(outputs).enumerate() {
+-        let group=query_group(sh,a,i);
+-        let key=gate.checked_add(2048).filter(|&v|(0..4096).contains(&v)).map(|v|v as usize);
+-        let hit=key.filter(|&key|a.scaled_tables()[group][key]==output);
+-        let bucket=match hit {Some(key)=>group*4096+key,None=>{misses+=1;0}};
+-        counts[bucket]+=1;
+-    }
++    const CH:usize=1<<16;
++    let nb=a.groups().len()*4096;
++    let (counts,misses)=gates.par_chunks(CH).zip(outputs.par_chunks(CH)).enumerate().map(|(ci,(gs,os))| {
++        let mut counts=vec![0u64;nb];let mut misses=0usize;
++        for (k,(&gate,&output)) in gs.iter().zip(os).enumerate() {
++            let group=query_group(sh,a,ci*CH+k);
++            let key=gate.checked_add(2048).filter(|&v|(0..4096).contains(&v)).map(|v|v as usize);
++            let hit=key.filter(|&key|a.scaled_tables()[group][key]==output);
++            let bucket=match hit {Some(key)=>group*4096+key,None=>{misses+=1;0}};
++            counts[bucket]+=1;
++        }
++        (counts,misses)
++    }).reduce(||(vec![0u64;nb],0usize),|(mut x,mx),(y,my)| {for (a,b) in x.iter_mut().zip(y) {*a+=b;} (x,mx+my)});
+     Ok((counts,misses))
+ }
+ 
+ /// Field expression matches the ACT3 host polynomial even on a forged i64
+ /// gate: addition happens in the field, never through wrapping signed i64.
++/// [ZK60-METAL M5b, researcher H114] an INDEXED parallel map: every query is
++/// the same element at the same index as the sequential form (one per F-cube
++/// position, 2^21 at the trained T128 shapes), so no byte moves.
+ pub(crate) fn query_values(sh:&Shape,a:&AccuracyPublic,gates:&[i64],outputs:&[i64],beta:Fp2,tag:Fp2)->Result<Vec<Fp2>,String> {
++    use rayon::prelude::*;
+     query_context(sh,a,gates,outputs)?;let beta2=beta.mul(beta);
+-    Ok(gates.iter().zip(outputs).enumerate().map(|(i,(&gate,&output))|
++    Ok(gates.par_iter().zip(outputs.par_iter()).enumerate().map(|(i,(&gate,&output))|
+         Fp2::from_i64(gate).add(Fp2::from_i64(2048)).add(beta.mul(Fp2::from_i64(output)))
+             .add(beta2.mul(Fp2::from_i64(query_group(sh,a,i) as i64))).add(tag)).collect())
+ }
+ 
++/// **[ZK60-METAL M15]** `alpha - query_values(..)[i]` for every query, in
++/// ONE parallel pass over the F domain's rows: the group term `beta^2 *
++/// group` is formed once per column (`query_group` is `group_ids[j]` on a row
++/// `t < tokens` and a column `j < hidden`, else 0), so no element pays the two
++/// divisions `query_group` makes, and no intermediate vector is collected. The
++/// same field expression per element (field addition is exact), so the same
++/// words; the same context refusal.
++pub(crate) fn denominators(sh:&Shape,a:&AccuracyPublic,gates:&[i64],outputs:&[i64],alpha:Fp2,beta:Fp2,tag:Fp2)->Result<Vec<Fp2>,String> {
++    use rayon::prelude::*;
++    query_context(sh,a,gates,outputs)?;let beta2=beta.mul(beta);
++    let fp=sh.f_pad;
++    if fp==0 || gates.len()%fp!=0 {return Err("R13 ACT: query rows".into());}
++    let col:Vec<Fp2>=(0..fp).map(|j| if j<sh.hidden {beta2.mul(Fp2::from_i64(a.group_ids()[j] as i64))} else {beta2.mul(Fp2::from_i64(0))}).collect();
++    let zero_group=beta2.mul(Fp2::from_i64(0));
++    let mut out=vec![Fp2::ZERO;gates.len()];
++    out.par_chunks_mut(fp).zip(gates.par_chunks(fp)).zip(outputs.par_chunks(fp)).enumerate().for_each(|(t,((o,g),u))| {
++        let live=t<sh.tokens;
++        for j in 0..fp {
++            let grp=if live {col[j]} else {zero_group};
++            let q=Fp2::from_i64(g[j]).add(Fp2::from_i64(2048)).add(beta.mul(Fp2::from_i64(u[j]))).add(grp).add(tag);
++            o[j]=alpha.sub(q);
++        }
++    });
++    Ok(out)
++}
++
+ #[cfg(test)]
+ mod tests {
+     use super::*;
+@@ -137,6 +175,42 @@
+         assert!(table(&a,4096,Fp2::ONE,Fp2::ZERO).is_err());
+         assert!(table(&a,8193,Fp2::ONE,Fp2::ZERO).is_err());
+     }
++    /// [M15] the parallel histogram is the sequential count, misses included
++    #[test]
++    fn m15_parallel_histogram_equals_the_sequential_count() {
++        let (sh,a)=native_query_fixture();
++        let n=sh.size(Dom::F);
++        // gates in and out of the table's range, outputs that hit and miss
++        let gates:Vec<i64>=(0..n).map(|i|((i*37+11)%5000) as i64-2400).collect();
++        let outputs:Vec<i64>=(0..n).map(|i| {
++            let g=((i*37+11)%5000) as i64-2400;
++            let key=g+2048;
++            if i%3!=0 && (0..4096).contains(&key) {a.scaled_tables()[query_group(&sh,&a,i)][key as usize]} else {(i as i64)%977-400}
++        }).collect();
++        let mut counts=vec![0u64;a.groups().len()*4096];let mut misses=0usize;
++        for (i,(&gate,&output)) in gates.iter().zip(&outputs).enumerate() {
++            let group=query_group(&sh,&a,i);
++            let key=gate.checked_add(2048).filter(|&v|(0..4096).contains(&v)).map(|v|v as usize);
++            let hit=key.filter(|&key|a.scaled_tables()[group][key]==output);
++            let bucket=match hit {Some(key)=>group*4096+key,None=>{misses+=1;0}};
++            counts[bucket]+=1;
++        }
++        assert!(misses>0 && counts.iter().filter(|c|**c>0).count()>1, "the fixture hits and misses");
++        assert_eq!(histogram(&sh,&a,&gates,&outputs).unwrap(),(counts,misses));
++    }
++
++    /// [M15] the fused denominators are `alpha - query_values`, word for word,
++    /// on the padded native fixture (padding rows and columns included)
++    #[test]
++    fn m15_fused_denominators_equal_alpha_minus_the_queries() {
++        let (sh,a)=native_query_fixture();
++        let n=sh.size(Dom::F);
++        let gates:Vec<i64>=(0..n).map(|i|((i*37+11)%4096) as i64-2048).collect();
++        let outputs:Vec<i64>=(0..n).map(|i|((i*101+7)%9000) as i64-4500).collect();
++        let (alpha,beta,tag)=(Fp2::new(crate::field::Fp::new(123_456_789),crate::field::Fp::new(42)),Fp2::from_i64(7),Fp2::from_i64(31));
++        let want:Vec<Fp2>=query_values(&sh,&a,&gates,&outputs,beta,tag).unwrap().into_iter().map(|q|alpha.sub(q)).collect();
++        assert!(denominators(&sh,&a,&gates,&outputs,alpha,beta,tag).unwrap()==want);
++    }
+     fn native_query_fixture()->(Shape,AccuracyPublic) {
+         let sh=crate::private_block::accuracy_profile_tests::registered_shapes().into_iter()
+             .find(|s|s.profile==crate::private_block::shape::R13_RUNG_H24).unwrap();

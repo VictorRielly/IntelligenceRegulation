@@ -1,0 +1,148 @@
+--- frozen-r19b/hashline/src/gpu/mod.rs
++++ HEAD-8b78aabd/ops/zkp-mvp/gpu-metal/hashline/src/gpu/mod.rs
+@@ -19,6 +19,24 @@
+ #[cfg(feature = "gpu-cuda")]
+ mod cuda;
+ 
++// [ZK60-METAL] the Apple GPU backend: commitments only (zkp-core's Backend
++// seam). Every other device entry point stays CUDA-only, so a gpu-metal build
++// runs those phases on the CPU. CUDA wins if both features are requested.
++#[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
++mod metal;
++#[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
++pub use metal::{batch_stats as metal_batch_stats, metal_commit, metal_commit_zk, metal_rounds, metal_rounds_owned, pool_stats as metal_pool_stats, probe_field as metal_probe_field, stats as metal_stats, sumcheck_stats as metal_sumcheck_stats, MetalCommit, MetalRounds, MetalTables, TailedRounds};
++#[cfg(all(test, feature = "gpu-metal", not(feature = "gpu-cuda")))]
++pub use metal::fs_round_for_test as metal_fs_round_for_test;
++#[cfg(all(test, feature = "gpu-metal", not(feature = "gpu-cuda")))]
++pub use metal::dispatch_overhead_probe as metal_dispatch_overhead_probe;
++#[cfg(all(test, feature = "gpu-metal", not(feature = "gpu-cuda")))]
++pub use metal::mul_bench_for_test as metal_mul_bench_for_test;
++#[cfg(all(test, feature = "gpu-metal", not(feature = "gpu-cuda")))]
++pub use metal::src_bench_for_test as metal_src_bench_for_test;
++#[cfg(all(test, feature = "gpu-metal", not(feature = "gpu-cuda")))]
++pub use metal::{fold_rows_host_for_test as metal_fold_rows_host_for_test, fold_rows_host_lazy as metal_fold_rows_host_lazy};
++
+ /// **ROUND 2 (R2-5): GPU MODE FAILS CLOSED.** Every place a device entry
+ /// point declines and the prover would silently take the CPU body reports
+ /// here. The decline is counted and logged; and when the caller CLAIMED the
+@@ -719,8 +737,83 @@
+ #[cfg(feature = "gpu-cuda")]
+ pub use seam::{backend, CudaBackend, DevStore};
+ 
+-#[cfg(not(feature = "gpu-cuda"))]
++/// [ZK60-METAL] The same seam on the Apple GPU: `MetalCommit` (the encoding in
++/// unified memory) is the store; a decline runs the CPU body with the exact
++/// messages' pattern the CUDA seam uses.
++#[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
+ mod seam {
++    use super::metal::{enabled, metal_commit, metal_commit_zk, MetalCommit};
++    use crate::field::{Fp, Fp2};
++    use crate::merkle::Digest;
++    use crate::ntt::NttTables;
++    use zkp_core::pcs::{Backend, EncodedStore, PcsParams};
++
++    pub type DevStore = MetalCommit;
++
++    pub struct MetalBackend;
++
++    pub fn backend() -> MetalBackend {
++        MetalBackend
++    }
++
++    impl EncodedStore for MetalCommit {
++        fn fold_rows(&self, rhos: &[Vec<Fp2>]) -> Result<Vec<Vec<Fp2>>, String> {
++            MetalCommit::fold_rows(self, rhos)
++        }
++        fn columns(&self, idx: &[usize]) -> Result<Vec<Vec<Fp>>, String> {
++            MetalCommit::columns(self, idx)
++        }
++        fn fold_batch(&self) -> usize {
++            usize::MAX // unified memory: one pass over the data for every vector
++        }
++    }
++
++    impl Backend for MetalBackend {
++        type Store = MetalCommit;
++        fn try_commit(&self, params: &PcsParams, data: &[Fp], ntt: &NttTables) -> Option<(MetalCommit, Vec<Digest>)> {
++            if !enabled() {
++                return None;
++            }
++            match metal_commit(params, data, ntt) {
++                Ok(x) => Some(x),
++                Err(e) => {
++                    super::declined("[ZK60-METAL] metal commit", &e);
++                    None
++                }
++            }
++        }
++        fn try_commit_zk_keyed(&self, params: &PcsParams, data: &[Fp], pads: &[Fp], pows: &[Fp], ntt: &NttTables, key: &[u8; 32]) -> Option<(MetalCommit, Vec<Digest>)> {
++            if !enabled() {
++                return None;
++            }
++            match metal_commit_zk(params, data, pads, pows, ntt, Some(key)) {
++                Ok(x) => Some(x),
++                Err(e) => {
++                    super::declined("[ZK60-METAL] keyed metal zk commit", &e);
++                    None
++                }
++            }
++        }
++        fn try_commit_zk(&self, params: &PcsParams, data: &[Fp], pads: &[Fp], pows: &[Fp], ntt: &NttTables) -> Option<(MetalCommit, Vec<Digest>)> {
++            if !enabled() {
++                return None;
++            }
++            match metal_commit_zk(params, data, pads, pows, ntt, None) {
++                Ok(x) => Some(x),
++                Err(e) => {
++                    super::declined("[ZK60-METAL] metal zk commit", &e);
++                    None
++                }
++            }
++        }
++    }
++}
++
++#[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
++pub use seam::{backend, DevStore, MetalBackend};
++
++#[cfg(not(any(feature = "gpu-cuda", feature = "gpu-metal")))]
++mod seam {
+     /// Without the feature no external store exists (the type has no values).
+     pub type DevStore = zkp_core::pcs::NoExternal;
+ 
+@@ -730,11 +823,11 @@
+     }
+ }
+ 
+-#[cfg(not(feature = "gpu-cuda"))]
++#[cfg(not(any(feature = "gpu-cuda", feature = "gpu-metal")))]
+ pub use seam::{backend, DevStore};
+ 
+-#[cfg(not(feature = "gpu-cuda"))]
+-mod stub {
++#[cfg(not(any(feature = "gpu-cuda", feature = "gpu-metal")))]
++mod switch {
+     /// The GPU path is never live without the `gpu-cuda` feature.
+     #[inline(always)]
+     pub fn enabled() -> bool {
+@@ -744,6 +837,14 @@
+     pub fn label() -> String {
+         "gpu: off (built without --features gpu-cuda)".to_string()
+     }
++}
++#[cfg(not(any(feature = "gpu-cuda", feature = "gpu-metal")))]
++pub use switch::{enabled, label};
++#[cfg(all(feature = "gpu-metal", not(feature = "gpu-cuda")))]
++pub use metal::{enabled, label};
++
++#[cfg(not(feature = "gpu-cuda"))]
++mod stub {
+     #[derive(Clone, Debug, Default)]
+     pub struct ProbeReport {
+         pub device: String,
+@@ -776,4 +877,4 @@
+ }
+ 
+ #[cfg(not(feature = "gpu-cuda"))]
+-pub use stub::{dev_stats, dev_stats_reset, enabled, label, probe, GpuStats, ProbeReport};
++pub use stub::{dev_stats, dev_stats_reset, probe, GpuStats, ProbeReport};

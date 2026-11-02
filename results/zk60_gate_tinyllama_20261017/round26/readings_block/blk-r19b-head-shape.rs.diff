@@ -1,0 +1,365 @@
+--- frozen-r19b/hashline/src/private_block/shape.rs
++++ HEAD-8b78aabd/ops/zkp-mvp/gpu-metal/hashline/src/private_block/shape.rs
+@@ -140,6 +140,18 @@
+ pub(crate) const LLAMA3_8B_DD_PROFILES: [&str; 1] = [LLAMA3_8B_T128_DD_TRAINED_PROFILE];
+ /// the profiles [`Shape::with_trained_calibration`] may give a non-frozen
+ /// calibration to; every other profile's calibration is frozen
++/// **W16 review F1 (2026-11-01).** The profile STRINGS the R2-a / R2-4 name
++/// guards refuse without the trained door: every [`TRAINED_CALIBRATION_PROFILES`]
++/// entry and every W16 profile (deliberately kept out of that list so the R13
++/// sweeps never see them, which also kept them out of the two guards). One
++/// predicate for both sites (`Layout::for_shape`, `protocol::
++/// single_block_profile_allowed`), so a new trained family cannot be admitted
++/// at one and missed at the other.
++pub(crate) fn is_trained_profile_string(profile: &str) -> bool {
++    // D59: the W16R2 strings too (`is_w16_family_profile`)
++    TRAINED_CALIBRATION_PROFILES.contains(&profile) || is_w16_family_profile(profile)
++}
++
+ pub(crate) const TRAINED_CALIBRATION_PROFILES: [&str; 27] = [
+     TINYLLAMA_T32_TRAINED_PROFILE,
+     TRAINED_CALIB_RUNG_PROFILE,
+@@ -213,7 +225,120 @@
+ AccuracyProfile{profile:R13_RUNG_LOW_DD,name:"R13_RUNG_LOW_DD",legacy:TRAINED_HD_RUNG_PROFILE,stack:super::accuracy_precision::Stack::Low,registry:super::accuracy_tables::Registry::Standard,tokens:32,width:384,hidden:768,q_heads:16,head_dim:64,kv_heads:8,log_cols:14},
+ AccuracyProfile{profile:R13_RUNG_H24_DD,name:"R13_RUNG_H24_DD",legacy:TRAINED_HD_RUNG_PROFILE,stack:super::accuracy_precision::Stack::LowH24,registry:super::accuracy_tables::Registry::Standard,tokens:32,width:384,hidden:768,q_heads:16,head_dim:64,kv_heads:8,log_cols:14},
+  ];
+-pub(crate) fn accuracy_spec(profile:&str)->Option<&'static AccuracyProfile> {ACCURACY_PROFILES.iter().find(|s|s.profile==profile)}
++pub(crate) fn accuracy_spec(profile:&str)->Option<&'static AccuracyProfile> {ACCURACY_PROFILES.iter().chain(W16_PROFILES.iter()).chain(W16R2_PROFILES.iter()).find(|s|s.profile==profile)}
++
++// **W16 (D54): 16-bit tagged range lookups, opt-in by profile.** Each is an
++// R13 geometry under a NEW profile string, so its transcript can never be
++// confused with the R13 profile's; the R13 entries above are untouched and
++// the R13 sweeps (which iterate `ACCURACY_PROFILES`) never see these.
++// Design: `results/zk60_limb16_20261031/DESIGN.md`.
++pub(crate) const W16_RUNG_H24: &str = "hashline-zk-mr1/private-block-rung-lh-t32-w16-dev/1";
++pub(crate) const W16_SHIELD_T128_H24: &str = "hashline-zk-mr1/private-block-shieldstral-3b-t128-lowh24-w16/1";
++pub(crate) const W16_8B_T128_H24: &str = "hashline-zk-mr1/private-block-llama-3-8b-t128-lh24-w16/1";
++// [ZK60-METAL M7] longer contexts of the same two geometries, for the
++// measured context scaling (the agenda's >= 50 proved tokens/s target allows
++// longer workloads). `log_cols` grows with T so a block keeps about 32 rows,
++// as R13_SHIELD_T256_H24 does. Measurement profiles: not registered for any
++// receipt (W16 itself is not yet registered, D54).
++pub(crate) const W16_SHIELD_T256_H24: &str = "hashline-zk-mr1/private-block-shieldstral-3b-t256-lowh24-w16/1";
++pub(crate) const W16_8B_T256_H24: &str = "hashline-zk-mr1/private-block-llama-3-8b-t256-lh24-w16/1";
++pub(crate) const W16_8B_T512_H24: &str = "hashline-zk-mr1/private-block-llama-3-8b-t512-lh24-w16/1";
++pub(crate) const W16_PROFILES:[AccuracyProfile;6]=[
++AccuracyProfile{profile:W16_RUNG_H24,name:"W16_RUNG_H24",legacy:TRAINED_HD_RUNG_PROFILE,stack:super::accuracy_precision::Stack::LowH24,registry:super::accuracy_tables::Registry::Standard,tokens:32,width:384,hidden:768,q_heads:16,head_dim:64,kv_heads:8,log_cols:14},
++AccuracyProfile{profile:W16_SHIELD_T128_H24,name:"W16_SHIELD_T128_H24",legacy:SHIELDSTRAL_T128_TRAINED_PROFILE,stack:super::accuracy_precision::Stack::LowH24,registry:super::accuracy_tables::Registry::Shieldstral,tokens:128,width:3072,hidden:9216,q_heads:32,head_dim:128,kv_heads:8,log_cols:14},
++AccuracyProfile{profile:W16_8B_T128_H24,name:"W16_8B_T128_H24",legacy:LLAMA3_8B_T128_TRAINED_PROFILE,stack:super::accuracy_precision::Stack::LowH24,registry:super::accuracy_tables::Registry::Standard,tokens:128,width:4096,hidden:14336,q_heads:32,head_dim:128,kv_heads:8,log_cols:14},
++AccuracyProfile{profile:W16_SHIELD_T256_H24,name:"W16_SHIELD_T256_H24",legacy:SHIELDSTRAL_T128_TRAINED_PROFILE,stack:super::accuracy_precision::Stack::LowH24,registry:super::accuracy_tables::Registry::Shieldstral,tokens:256,width:3072,hidden:9216,q_heads:32,head_dim:128,kv_heads:8,log_cols:15},
++AccuracyProfile{profile:W16_8B_T256_H24,name:"W16_8B_T256_H24",legacy:LLAMA3_8B_T128_TRAINED_PROFILE,stack:super::accuracy_precision::Stack::LowH24,registry:super::accuracy_tables::Registry::Standard,tokens:256,width:4096,hidden:14336,q_heads:32,head_dim:128,kv_heads:8,log_cols:15},
++AccuracyProfile{profile:W16_8B_T512_H24,name:"W16_8B_T512_H24",legacy:LLAMA3_8B_T128_TRAINED_PROFILE,stack:super::accuracy_precision::Stack::LowH24,registry:super::accuracy_tables::Registry::Standard,tokens:512,width:4096,hidden:14336,q_heads:32,head_dim:128,kv_heads:8,log_cols:16},
++];
++
++// **W16R2 (D59): W16 at code rate 1/2, opt-in by profile.** Each is a W16
++// geometry under a NEW profile string (so its own transcript domain and its
++// own four hash keys), proved exactly as W16 except for the PCS parameters of
++// its REGULAR commitments: `A`, `H`, every boundary `B_k` and both endpoints
++// are encoded at rate 1/2 (`inv_rate` 2) with `Q = 260` opened columns and
++// `Q` pads per row. The column test of those openings is counted at the
++// Reed–Solomon unique-decoding radius `delta_t = (1 - (n + Q)/N)/2` (BCIKS20
++// Thm 3.1; `research/zkp-efficiency/handoffs/20261101-delta-half-lemma-check.md`):
++// `(1 - (e + 1)/N)^Q` with `e = floor((N - K)/2)`, `K = n + Q`, which at
++// `n = 2^14`, `N = 2^15`, `Q = 260` is 2^-105.95 per opening against W16's
++// 2^-105.61 (D15's delta/3 count at rate 1/4, `Q = 256`). The masking
++// commitment `M` is NOT covered by that lemma and is untouched: its own
++// constants (`zk::MASK_*`, rate 1/4, `MASK_Q = 256`) never read a shape field.
++// Unregistered, as W16 is (no run profile, on no registered list; the source
++// scans carry them through `s24_tests::opt_in_unregistered_shapes`). Every
++// string has its W16 sibling's length, and the parameter line's
++// `inv_rate2/Q260` has `inv_rate4/Q256`'s, so the constructor input and the
++// `profile` / `parameters` absorbs keep W16's lengths. Other hash inputs on
++// the block path DO take new lengths (W16R2 review F5, 2026-11-02): each
++// clear vector the `pcs-vec` / `pcs-prox` absorbs carries `(n + Q)` Fp2
++// words (266,304 data bytes at `Q = 260`, against W16's 266,240), and the
++// tree has 2^15 leaves, not 2^16. Under the profile's tag that separates
++// nothing and matters for nothing (s25's W-2 census measures every one); the
++// one equal-length pair inside the transcript function, the W16R2 rung's
++// 63-byte constructor input against a 63-byte `pb-slot` absorb, is W16's own
++// M26 pair, separated the same way (s33's J-7a lemma; recorded in s25's
++// census row and pinned by s33's sixty-three-byte test for both rungs).
++// Accounting: `results/zk60_w16r2_20261101/ACCOUNTING.md`.
++pub(crate) const W16R2_RUNG_H24: &str = "hashline-zk-mr1/private-block-rung-lh-t32-w16r2-d/1";
++pub(crate) const W16R2_SHIELD_T128_H24: &str = "hashline-zk-mr1/private-block-shieldstral-3b-t128-lh24-w16r2/1";
++pub(crate) const W16R2_8B_T128_H24: &str = "hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/1";
++pub(crate) const W16R2_PROFILES:[AccuracyProfile;3]=[
++AccuracyProfile{profile:W16R2_RUNG_H24,name:"W16R2_RUNG_H24",legacy:TRAINED_HD_RUNG_PROFILE,stack:super::accuracy_precision::Stack::LowH24,registry:super::accuracy_tables::Registry::Standard,tokens:32,width:384,hidden:768,q_heads:16,head_dim:64,kv_heads:8,log_cols:14},
++AccuracyProfile{profile:W16R2_SHIELD_T128_H24,name:"W16R2_SHIELD_T128_H24",legacy:SHIELDSTRAL_T128_TRAINED_PROFILE,stack:super::accuracy_precision::Stack::LowH24,registry:super::accuracy_tables::Registry::Shieldstral,tokens:128,width:3072,hidden:9216,q_heads:32,head_dim:128,kv_heads:8,log_cols:14},
++AccuracyProfile{profile:W16R2_8B_T128_H24,name:"W16R2_8B_T128_H24",legacy:LLAMA3_8B_T128_TRAINED_PROFILE,stack:super::accuracy_precision::Stack::LowH24,registry:super::accuracy_tables::Registry::Standard,tokens:128,width:4096,hidden:14336,q_heads:32,head_dim:128,kv_heads:8,log_cols:14},
++];
++/// **D59: the code rate of a W16R2 profile's regular commitments** (`A`, `H`,
++/// the boundaries and both endpoints): `1 / W16R2_INV_RATE`
++pub(crate) const W16R2_INV_RATE: usize = 2;
++/// **D59: the opened columns of a W16R2 profile's regular commitments, and
++/// their pads per row** — the smallest `Q` whose unique-decoding column term
++/// at `n = 2^W16R2_LOG_COLS`, `N = 2n` is at least W16's per-opening figure
++/// (the lemma check's §5 table: 259 gives 2^-105.53, short of 2^-105.61)
++pub(crate) const W16R2_OPENED_COLS: usize = 260;
++/// the one row width [`W16R2_OPENED_COLS`] is counted for; every W16R2 profile
++/// is at it, and [`Shape::build`] refuses a W16R2 shape at any other
++pub(crate) const W16R2_LOG_COLS: usize = 14;
++/// **D59:** is this one of the rate-1/2 profiles? A profile fact, never a
++/// caller flag: `Shape::build` derives the rate's consequences from it.
++pub(crate) fn is_w16r2_profile(profile: &str) -> bool {
++    W16R2_PROFILES.iter().any(|s| s.profile == profile)
++}
++/// W16 (D54) or W16R2 (D59): a profile proved with 16-bit tagged range
++/// lookups. One predicate for every site that admits the W16 family, so the
++/// rate-1/2 strings cannot be admitted at one site and missed at another.
++pub(crate) fn is_w16_family_profile(profile: &str) -> bool {
++    W16_PROFILES.iter().chain(W16R2_PROFILES.iter()).any(|s| s.profile == profile)
++}
++/// **D59: the column-test regime a profile's regular openings are COUNTED
++/// under** (D27: a tier lever is a profile parameter, never a constant). It
++/// changes no verifier check — the verifier is the same `verify_zk_tagged` —
++/// only which lemma prices the column round.
++#[cfg_attr(not(test), allow(dead_code))]
++#[derive(Clone, Copy, Debug, PartialEq, Eq)]
++pub(crate) enum ColumnRegime {
++    /// D15: the Ligero / Brakedown `delta/3` count, `delta = 1 - (n + Q)/N`
++    GeneralCode,
++    /// D59: BCIKS20 Thm 3.1 at the unique-decoding radius, `delta_t = (1 - (n + Q)/N)/2`
++    UniqueDecoding,
++}
++/// **The per-opening column term, log2, of one regular commitment** under a
++/// regime: `n = 2^log_n` message symbols, `N = n inv_rate` encoded columns,
++/// `q` opened columns and `q` pads (so the code is `RS(n + q, N)`). The field
++/// terms are counted apart (`ACCOUNTING.md`).
++#[cfg_attr(not(test), allow(dead_code))]
++pub(crate) fn column_term_log2(regime: ColumnRegime, log_n: usize, inv_rate: usize, q: usize) -> f64 {
++    let n = (1usize << log_n) as f64;
++    let nn = n * inv_rate as f64;
++    let k = n + q as f64;
++    let miss = match regime {
++        // (1 - delta/3)^Q with delta = 1 - K/N: ((2N + K)/(3N))^Q
++        ColumnRegime::GeneralCode => (2.0 * nn + k) / (3.0 * nn),
++        // (1 - (e + 1)/N)^Q with e = floor((N - K)/2), the exact integer form
++        ColumnRegime::UniqueDecoding => 1.0 - (((nn - k) / 2.0).floor() + 1.0) / nn,
++    };
++    q as f64 * miss.log2()
++}
+ 
+ /// **The declared parameter class of a trained norm calibration** (the
+ /// validator's bounds; the no-wrap derivation in
+@@ -524,7 +649,10 @@
+ fn trained_geometry(profile: &str, f_e: u32) -> Option<Result<Shape, String>> {
+     if let Some(s)=accuracy_spec(profile) {
+         let rows=(s.tokens.next_power_of_two()*s.width.next_power_of_two()).div_ceil(1usize<<s.log_cols).max(1)+super::endpoint_g::MASK_ROWS;
+-        return Some(Shape::build(s.name,s.profile,s.tokens,s.width,s.hidden,s.q_heads,s.head_dim,s.kv_heads,s.log_cols,4,f_e,rows,None,None,None,None));
++        // D59: a W16R2 profile's registered rate is 1/2 (the endpoints follow
++        // the core rate, `endpoint_inv_rate: None`); every other one keeps 1/4
++        let inv_rate=if is_w16r2_profile(s.profile) {W16R2_INV_RATE} else {4};
++        return Some(Shape::build(s.name,s.profile,s.tokens,s.width,s.hidden,s.q_heads,s.head_dim,s.kv_heads,s.log_cols,inv_rate,f_e,rows,None,None,None,None));
+     }
+     let mask = super::endpoint_g::MASK_ROWS;
+     let tl = |name: &'static str, p: &'static str, tokens: usize, lc: usize| Shape::build(name, p, tokens, 2048, 5632, 32, 64, 4, lc, 4, f_e, ((tokens * 2048) >> lc) + mask, None, None, None, None);
+@@ -663,7 +791,57 @@
+     /// R13 stack/registry are profile facts, never caller flags.
+     pub(crate) fn accuracy_stack(&self) -> super::accuracy_precision::Stack {
+         accuracy_spec(self.profile).map(|s|s.stack).unwrap_or(super::accuracy_precision::Stack::Legacy)
++    }
++    /// **W16 (D54):** does this profile use 16-bit tagged range lookups? A
++    /// profile fact, like the stack; false on every R13 and legacy profile.
++    pub(crate) fn range16(&self) -> bool {
++        // D59: a W16R2 profile is W16 at rate 1/2, so it is a W16 shape too
++        is_w16_family_profile(self.profile)
++    }
++    /// **D59:** the regime this profile's regular openings are counted under
++    /// — unique decoding at a W16R2 profile, D15's general-code count at
++    /// every other. A profile fact, like the stack.
++    #[cfg_attr(not(test), allow(dead_code))]
++    pub(crate) fn column_regime(&self) -> ColumnRegime {
++        if is_w16r2_profile(self.profile) {
++            ColumnRegime::UniqueDecoding
++        } else {
++            ColumnRegime::GeneralCode
++        }
++    }
++    /// **D59:** the per-opening column term, log2, of this shape's `A` / `H`
++    /// openings and (at its endpoint geometry) its boundary and endpoint
++    /// openings, under [`Shape::column_regime`]. The masking commitment `M`
++    /// is counted apart, at its own constants.
++    #[cfg_attr(not(test), allow(dead_code))]
++    pub(crate) fn regular_column_terms_log2(&self) -> (f64, f64) {
++        let r = self.column_regime();
++        (column_term_log2(r, self.log_cols, self.inv_rate, self.opened_cols), column_term_log2(r, self.endpoint_log_n, self.endpoint_inv_rate, self.opened_cols))
++    }
++    /// **W16: the range families, the shape's independent statement** (from
++    /// its precision, gate shift and softmax window; `AccuracyIds::new_w16`
++    /// collects the same set from its lookups). Empty off a W16 profile, and
++    /// on a W16 shape whose precision does not derive (which `Ids::new` then
++    /// refuses).
++    pub(crate) fn range_families(&self) -> Vec<super::range16::Fam> {
++        if !self.range16() {
++            return Vec::new();
++        }
++        match self.accuracy_precision() {
++            Ok(p) => super::range16::families(&super::range16::widths(self.accuracy_stack(), &p, self.accuracy_gate_shift, self.wrho_s), self.log_cols),
++            Err(_) => Vec::new(),
++        }
+     }
++    /// W16: `range16::limbs_of` of this shape's windows, `(ao, down, score,
++    /// gate, sigma_s)`; `None` off a W16 profile or where the precision fails
++    fn w16_windows(&self) -> Option<(usize, usize, usize, usize, usize)> {
++        if !self.range16() || !(17..=24).contains(&self.accuracy_gate_shift) || !(9..=24).contains(&self.wrho_s) {
++            return None;
++        }
++        let p = self.accuracy_precision().ok()?;
++        let l = super::range16::limbs_of;
++        Some((l(p.ao), l(p.down), l(p.score), l(self.accuracy_gate_shift), l(self.wrho_s)))
++    }
+     pub(crate) fn accuracy_registry(&self) -> super::accuracy_tables::Registry {
+         accuracy_spec(self.profile).map(|s|s.registry).unwrap_or_else(||
+             if SHIELDSTRAL_PROFILES.contains(&self.profile) {super::accuracy_tables::Registry::Shieldstral}
+@@ -832,6 +1010,26 @@
+         }
+         let d_max = isqrt_i128(NORM_CEPS + width as i128 * INT16_MAX * INT16_MAX);
+         let (e_log_n, e_rate) = (endpoint_log_n.unwrap_or(log_cols), endpoint_inv_rate.unwrap_or(inv_rate));
++        // **D59: a W16R2 profile FIXES its regular commitments' geometry.** The
++        // rate, the opened columns (and pads) and the row width the lemma is
++        // counted at are the profile's, for `A`, `H`, the boundaries and both
++        // endpoints alike (the endpoint rate follows the core rate: a mixed
++        // geometry is not what the accounting counts). A W16R2 string at any
++        // other geometry is refused here, by name, at every construction —
++        // the registry's own entry included — so no shape, and so no
++        // verifier, can carry a W16R2 profile at a rate or `Q` the profile
++        // does not fix. The verifier's PCS parameters are the shape's
++        // (`protocol::pcs_params_at`), never a receipt's.
++        let opened_cols = if is_w16r2_profile(profile) {
++            if inv_rate != W16R2_INV_RATE || log_cols != W16R2_LOG_COLS || e_rate != inv_rate || e_log_n != log_cols {
++                return Err(format!(
++                    "private block shape: D59 — the W16R2 profile {profile:?} fixes rate 1/{W16R2_INV_RATE} and Q = {W16R2_OPENED_COLS} at log_cols {W16R2_LOG_COLS} for A, H, the boundaries and both endpoints; the shape declares rate 1/{inv_rate} at log_cols {log_cols}, endpoints rate 1/{e_rate} at log_n {e_log_n}"
++                ));
++            }
++            W16R2_OPENED_COLS
++        } else {
++            COL_CHECKS
++        };
+         let sh = Shape {
+             name,
+             profile,
+@@ -843,7 +1041,7 @@
+             kv_heads,
+             log_cols,
+             inv_rate,
+-            opened_cols: COL_CHECKS,
++            opened_cols,
+             f_e,
+             endpoint_rows,
+             endpoint_log_n: e_log_n,
+@@ -1622,7 +1820,9 @@
+     /// touch is re-run by rebuilding the plane maps (`Ids` / `HIds` refuse a
+     /// list they cannot express).
+     pub(crate) fn with_trained_calibration(mut self, cal: &NormCalibration) -> Result<Shape, String> {
+-        if !TRAINED_CALIBRATION_PROFILES.contains(&self.profile) {
++        // W16 (D54): its profiles are trained-calibration profiles too, kept
++        // out of the counted R13 list so no R13 sweep reaches them
++        if !TRAINED_CALIBRATION_PROFILES.contains(&self.profile) && !is_w16_family_profile(self.profile) {
+             return Err(format!("private block shape: the calibration of {} is frozen", self.profile));
+         }
+         if self.trained_calibration {
+@@ -1669,7 +1869,9 @@
+     /// * `f_e` is in [`TRAINED_F_E_RANGE`], and `wrho_s` is the derived
+     ///   `clog2(T) + f_e` and at most [`TRAINED_WRHO_S_MAX`] (three limbs).
+     pub(crate) fn check_trained_class(&self) -> Result<(), String> {
+-        if !TRAINED_CALIBRATION_PROFILES.contains(&self.profile) {
++        // W16 (D54): its profiles are trained-calibration profiles too (kept
++        // out of the counted list, as in `with_trained_calibration`)
++        if !TRAINED_CALIBRATION_PROFILES.contains(&self.profile) && !self.range16() {
+             return Err(format!("private block shape: {} is not a trained-calibration profile", self.profile));
+         }
+         if self.accuracy_stack()!=super::accuracy_precision::Stack::Legacy {
+@@ -2204,6 +2406,21 @@
+     pub(crate) fn a_plane_doms(&self) -> Vec<Dom> {
+         if self.accuracy_stack()!=super::accuracy_precision::Stack::Legacy {
+             let h24=self.accuracy_stack()==super::accuracy_precision::Stack::LowH24;
++            if let Some((ao,down,score,gate,ws))=self.w16_windows() {
++                // W16 (D54): seven 16-bit words and four two-limb norm
++                // remainders in D; three words and three one-limb remainders
++                // in Q and in Kv; the score's words and remainder (and the
++                // division unless the dictionary carries it) in S; the four
++                // feed-forward words, the gate / up / product remainders and
++                // the product's top limb in F; the range sub-planes in Tab
++                let rh=if h24 {1} else {2};
++                let mut v=vec![Dom::T;4];v.extend([Dom::Ht;2]);v.extend([Dom::L;2]);
++                v.extend(vec![Dom::D;7+8+ao+down]);v.extend([Dom::Q;6]);v.extend([Dom::Kv;6]);
++                v.extend(vec![Dom::S;if self.dd_cap>0 {4+score} else {4+score+2*ws}]);
++                v.extend(vec![Dom::F;4+gate+1+usize::from(h24)+rh]);
++                if self.dd_cap>0 {v.extend(vec![Dom::Dd;2+2*ws]);}
++                v.extend(vec![Dom::Tab;3+super::range16::sub_planes(&self.range_families()).len()]);return v;
++            }
+             let mut v=vec![Dom::T;4];v.extend([Dom::Ht;2]);v.extend([Dom::L;2]);
+             v.extend(vec![Dom::D;if h24 {39} else {38}]);v.extend([Dom::Q;14]);v.extend([Dom::Kv;14]);
+             v.extend(vec![Dom::S;if self.dd_cap>0 {7} else {9+2*self.limbs_sigma_s()}]);v.extend([Dom::F;16]);
+@@ -2242,6 +2459,16 @@
+     /// (`layout::lookups`), with the two shape-driven changes of §4
+     pub(crate) fn lookups_per_position(&self, dom: Dom) -> usize {
+         if self.accuracy_stack()!=super::accuracy_precision::Stack::Legacy {
++            if let Some((ao,down,score,gate,ws))=self.w16_windows() {
++                // W16: one query per 16-bit word and per remainder limb, two
++                // for the 24-bit product word, two for the int8 score
++                let h24=self.accuracy_stack()==super::accuracy_precision::Stack::LowH24;
++                let rh=if h24 {1} else {2};
++                return match dom {Dom::L=>2,Dom::D=>7+8+ao+down,Dom::Q|Dom::Kv=>6,
++                    Dom::F=>gate+1+1+(if h24 {2} else {1})+rh,
++                    Dom::S=>if self.dd_cap>0 {2+score} else {2+score+1+2*ws},
++                    Dom::Dd if self.dd_cap>0=>1+2*ws,_=>0};
++            }
+             return match dom {Dom::L=>2,Dom::D=>if self.accuracy_stack()==super::accuracy_precision::Stack::LowH24 {34} else {33},
+                 Dom::Q|Dom::Kv|Dom::F=>14,Dom::S=>if self.dd_cap>0 {6} else {11+2*self.limbs_sigma_s()},
+                 Dom::Dd if self.dd_cap>0=>5+2*self.limbs_sigma_s(),_=>0};
+@@ -2295,8 +2522,9 @@
+             v.extend(vec![Dom::Dd; self.helpers(Dom::Dd) + 1]);
+         }
+         // the three table helpers and the zero-sum pair `u` (P-3 / P-6: `u`
+-        // stays the last plane, on `Dom::Tab`)
+-        v.extend([Dom::Tab; 4]);
++        // stays the last plane, on `Dom::Tab`). W16: one table helper per
++        // range sub-plane, between the three and `u`
++        v.extend(vec![Dom::Tab; 4 + super::range16::sub_planes(&self.range_families()).len()]);
+         v
+     }
+ 
+@@ -2336,8 +2564,10 @@
+         // + H_FACT
+         a[SC_FZC] = self.a_planes_on(Dom::F);
+         h[SC_FZC] = self.helpers(Dom::F) + 1;
+-        a[SC_TAB] = 3;
+-        h[SC_TAB] = 3;
++        // W16: one more multiplicity and table helper per range sub-plane
++        let n_range = super::range16::sub_planes(&self.range_families()).len();
++        a[SC_TAB] = 3 + n_range;
++        h[SC_TAB] = 3 + n_range;
+         h[SC_ZS] = 1;
+         a[SC_IO_IN] = 1;
+         a[SC_IO_OUT] = 1;
+@@ -2565,7 +2795,10 @@
+         let vec_len = n + self.opened_cols;
+         let path = clog2(n * self.inv_rate);
+         let t = (self.a_data_and_site_rows(), self.h_data_and_site_rows());
+-        let opening = |groups: usize, rows: usize, vc: usize, pth: usize| (groups + 1) * vc * 16 + COL_CHECKS * (8 + rows * 8 + 32 + pth * 32);
++        // D59: the shape's own opened columns (COL_CHECKS at every profile but
++        // a W16R2 one, so no other shape's count moves); M opens its own
++        // `zk::MASK_Q` (= MASK_PADS, 256 at every profile)
++        let opening = |groups: usize, rows: usize, vc: usize, pth: usize| (groups + 1) * vc * 16 + self.opened_cols * (8 + rows * 8 + 32 + pth * 32);
+         let e_n = 1usize << self.endpoint_log_n;
+         let e_vec = e_n + self.opened_cols;
+         let e_path = clog2(e_n * self.endpoint_inv_rate);
+@@ -2575,7 +2808,7 @@
+         let parts = ReceiptBytes {
+             header_and_three_roots: WIRE_HEADER + 3 * 32,
+             slots: slot_words * 16,
+-            mask_opening: 2 * MASK_VEC * 16 + COL_CHECKS * (8 + self.m_rows() * 8 + 32 + MASK_PATH * 32),
++            mask_opening: 2 * MASK_VEC * 16 + MASK_PADS * (8 + self.m_rows() * 8 + 32 + MASK_PATH * 32),
+             a_opening: opening(self.a_groups(), t.0, vec_len, path),
+             h_opening: opening(self.h_groups(), t.1, vec_len, path),
+             endpoint_openings: 2 * opening(1, self.endpoint_rows, e_vec, e_path),
+@@ -2673,7 +2906,7 @@
+ }
+ 
+ #[cfg(test)]
+-fn forced_legacy_hash_rule() -> bool {
++pub(crate) fn forced_legacy_hash_rule() -> bool {
+     FORCE_LEGACY_HASH_RULE.with(|c| c.get())
+ }
+ 

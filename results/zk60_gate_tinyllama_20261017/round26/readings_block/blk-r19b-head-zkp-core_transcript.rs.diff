@@ -1,0 +1,23 @@
+--- frozen-r19b/zkp-core/src/transcript.rs
++++ HEAD-8b78aabd/ops/zkp-mvp/gpu-metal/zkp-core/src/transcript.rs
+@@ -151,6 +151,20 @@
+         self.state
+     }
+ 
++    /// [ZK60-METAL M6] the squeeze counter, read-only: a device that runs
++    /// this transcript's next sumcheck rounds starts from it. The host then
++    /// replays every such round through this transcript and checks each
++    /// device challenge, so no device value reaches the proof unchecked.
++    pub fn counter(&self) -> u64 {
++        self.counter
++    }
++
++    /// [ZK60-METAL M6] the Fiat-Shamir key of a tagged profile (public: it is
++    /// derived from the profile's tag), read-only, for the same device rounds
++    pub fn fs_key(&self) -> Option<[u8; 32]> {
++        self.key
++    }
++
+     /// [UPERF3-XX] A copy of the transcript (state + counter) so a device
+     /// attempt can be abandoned without disturbing the caller's transcript.
+     pub fn clone_state(tr: &Transcript) -> Transcript {

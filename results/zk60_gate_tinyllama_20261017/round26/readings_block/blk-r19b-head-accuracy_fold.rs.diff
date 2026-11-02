@@ -1,0 +1,25 @@
+--- frozen-r19b/hashline/src/private_block/accuracy_fold.rs
++++ HEAD-8b78aabd/ops/zkp-mvp/gpu-metal/hashline/src/private_block/accuracy_fold.rs
+@@ -36,13 +36,21 @@
+     let mut out=words;out.resize(len,0);Ok(out)
+ }
+ 
++/// [ZK60-METAL M8] `matrix.contains(&i8::MIN)`, over 1 MiB chunks in
++/// parallel: the same predicate (and so the same refusal), without one thread
++/// scanning every weight of the layer at every fold (an 8B layer is 218 MB)
++fn has_i8_min(matrix:&[i8])->bool {
++    use rayon::prelude::*;
++    matrix.par_chunks(1<<20).any(|c|c.contains(&i8::MIN))
++}
++
+ pub(crate) fn fold(
+     matrix:&[i8],rows:usize,cols:usize,axis:Axis,coefficients:&[u64],eq:&[Fp2],
+ )->Result<Vec<Fp2>,String> {
+     let outputs=if axis==Axis::Rows {rows} else {cols};
+     if !rows.is_power_of_two() || !cols.is_power_of_two() || rows.checked_mul(cols)!=Some(matrix.len())
+         || outputs!=coefficients.len() || outputs!=eq.len() || coefficients.iter().any(|&m|m>1<<14)
+-        || matrix.contains(&i8::MIN) {
++        || has_i8_min(matrix) {
+         return Err("R13 matrix fold: matrix/axis/coefficients outside the declared class".into());
+     }
+     let weighted:Vec<Fp2>=eq.iter().zip(coefficients).map(|(&e,&m)|e.mul_base(Fp2::from_i64(m as i64).c0)).collect();

@@ -1,0 +1,11 @@
+--- frozen-r19b/zkp-core/src/pcs.rs
++++ HEAD-8b78aabd/ops/zkp-mvp/gpu-metal/zkp-core/src/pcs.rs
+@@ -965,7 +965,7 @@
+         Store::Host { .. } => fold_rows_host(&cmz.data, rows, n, n, 1, rhos),
+         Store::Device(dc) => {
+             let mut m = Vec::with_capacity(rhos.len());
+-            for chunk in rhos.chunks(4) {
++            for chunk in rhos.chunks(dc.fold_batch().max(1)) {
+                 m.extend(dc.fold_rows(chunk).expect("pcs: external store row-combination"));
+             }
+             m

@@ -1,0 +1,17 @@
+--- frozen-r19b/zkp-core/src/pcs/backend.rs
++++ HEAD-8b78aabd/ops/zkp-mvp/gpu-metal/zkp-core/src/pcs/backend.rs
+@@ -35,6 +35,14 @@
+     /// The encoded columns at `idx`, each the commitment's `rows` entries,
+     /// in the order of `idx` (duplicates repeated).
+     fn columns(&self, idx: &[usize]) -> Result<Vec<Vec<Fp>>, String>;
++    /// [ZK60-METAL] How many rho vectors the hiding opening hands to one
++    /// `fold_rows` call. 4 is what the CUDA store has always received (its
++    /// fold kernel's width); a store in unified memory folds every vector in
++    /// one pass over the data. Values are identical either way: only the
++    /// batching of the same linear map changes.
++    fn fold_batch(&self) -> usize {
++        4
++    }
+ }
+ 
+ /// The store type of a backend that never takes over: no value of this
