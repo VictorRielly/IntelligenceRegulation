@@ -1,0 +1,19 @@
+{"event":"rejected","error":"D55: fork frame 1 (/Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T041530/probes/link/d55-fork-001.bin) is not a regular file (a symbolic link, FIFO, device or directory is refused before it is opened)"}
+        0.12 real         0.46 user         2.04 sys
+            56590336  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                4712  page reclaims
+                   1  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   5  voluntary context switches
+               19098  involuntary context switches
+          2115082132  instructions retired
+          8578623933  cycles elapsed
+            51298856  peak memory footprint

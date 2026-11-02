@@ -1,0 +1,8 @@
+
+running 1 test
+test private_block::accuracy_proof_tests::accuracy_two_stage_private_boundary_with_different_gate_shifts_verifies ... R13 two-stage private boundary DD=false: G20 -> G21
+R13 two-stage private boundary DD=true: G20 -> G21
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 990 filtered out; finished in 4.66s
+

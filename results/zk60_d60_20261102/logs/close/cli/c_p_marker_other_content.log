@@ -1,0 +1,19 @@
+{"event":"rejected","error":"D55: /Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T041530/probes/marker_other/D55_TEST_RECEIPT_NOT_FOR_PUBLICATION.txt is not the test-receipt marker this build writes (other content of its length)"}
+        0.14 real         0.62 user         2.20 sys
+            34947072  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                3217  page reclaims
+                   1  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   1  voluntary context switches
+               28280  involuntary context switches
+          2722532397  instructions retired
+          9667808933  cycles elapsed
+            29655568  peak memory footprint

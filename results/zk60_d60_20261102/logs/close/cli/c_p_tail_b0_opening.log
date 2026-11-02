@@ -1,0 +1,19 @@
+{"event":"rejected","error":"D55: boundary 0: pcs zk: group 0: <v, c> != combined claim"}
+        0.36 real         1.47 user         4.25 sys
+           289095680  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+               19186  page reclaims
+                   1  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   8  voluntary context switches
+               43594  involuntary context switches
+         15311584208  instructions retired
+         19600489830  cycles elapsed
+           283558656  peak memory footprint

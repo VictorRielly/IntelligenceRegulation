@@ -1,0 +1,24 @@
+{
+ "schema": "zk60-trained-stack-run/2",
+ "scope": "ALL the listed trained blocks of the export's model (TinyLlama-1.1B-Chat or Llama-3-8B) as ONE bound run at the export's T (one transcript, hidden internal boundaries); embedding, final norm, LM head and token selection are NOT covered (D13); CPU unless the run line says gpu; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement",
+ "statement_written_by": "stack-verify, after its fresh-process verification of the run directory, from its own data and the hashes of the bytes it verified",
+ "prover_reported": {"backend": "gpu: off (built without --features gpu-cuda)", "gpu_declines": 0, "what": "self-reports of the prover (privacy review P-7): a CPU proof and a GPU proof have the same form, so no verifier can check these fields"},
+ "block_profile": "hashline-zk-mr1/private-block-rung-lh-t32-dev/1",
+ "run_profile": "hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-rung-lh-t32-dev/1",
+ "base_run_profile": "hashline-zk-mr1/private-run-rung-lh-t32-dev/1",
+ "run_construction": "D55 commit, fork, join (a registered opt-in run profile, ruling D60): every internal boundary committed before any block challenge, each block proved on its own fork of that transcript, one joined opening phase; the frames are d55-head.bin, d55-fork-NNN.bin and d55-tail.bin",
+ "blocks": 3,
+ "export_variant": "r13-h24-wide-x3-d60",
+ "export_profile_sha256": "3e68ba7582788a599a0db9261e35b585f007265c104bf023bc43642f1f43e598",
+ "calibration_tool_sha256": "4abec5efb80985b54be4b276a8267b2e285a7ee101ce37e898eed4761bbc58ac",
+ "trained_statement_identity": "5effeb3417aae489c0f0c72a004a16e1ce07dcd933f7c7dfb1ebcefef8e1f79d",
+ "context_label": "zk60-trained-stack",
+ "context": "eef7e1dd519aeaae30b17880b71baa308d290dc01e2dde4e2e11de696e516680",
+ "expected_io": "48424c4b45585031eef7e1dd519aeaae30b17880b71baa308d290dc01e2dde4e2e11de696e5166800000000000000000ca18fa342934a747d63ba729c1cc3ef8370e7e82fdb8549d419218caf1fd329f02764201e27899dcb886e72568b1e45d8d913bc757d22e2d61595f182c93475a",
+ "layers": [
+  {"layer": 0, "block_digest": "98d82e8afe0b787c3f0caa667bf109164ce0830823e8e9f2557f15f9ddac907e", "manifest_sha256": "b193e4228fb54a68a577778245dda19fe4c2ea853ffc854610a8867b129a4aae", "silu_member": [-3, -11], "exp_e_s": 4, "accuracy_gate_shift": 20},
+  {"layer": 1, "block_digest": "98d82e8afe0b787c3f0caa667bf109164ce0830823e8e9f2557f15f9ddac907e", "manifest_sha256": "5438aa176aa113ae10d10e98089bcdbc8005b641fc1912f920918cf8c2c19836", "silu_member": [-3, -11], "exp_e_s": 4, "accuracy_gate_shift": 20},
+  {"layer": 2, "block_digest": "98d82e8afe0b787c3f0caa667bf109164ce0830823e8e9f2557f15f9ddac907e", "manifest_sha256": "2399a7b72aa04c1934a60a10e154cdd4df644c0e960705d9509c9f450ea7a140", "silu_member": [-3, -11], "exp_e_s": 4, "accuracy_gate_shift": 20}
+ ],
+ "shape": {"tokens": 32, "width": 384, "hidden": 768, "q_heads": 16, "kv_heads": 8, "head_dim": 64, "log_cols": 14, "inv_rate": 4, "opened_cols": 256, "f_e": 12, "wrho_s": 17, "norm_wrho": 31, "norm_tn": 10, "norm_cn_a": 10000, "norm_cn_m": 10000, "norm_ceps": 1, "sh_ao": 7, "sh_qkv": 8, "sh_s": 6, "sh_o": 9, "sh_g": 8, "sh_h": 14, "sh_z": 6, "d_max": 642119}
+}

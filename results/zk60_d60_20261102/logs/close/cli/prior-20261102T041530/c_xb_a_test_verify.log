@@ -1,0 +1,10 @@
+
+running 1 test
+test private_block::run::fork::tests::d60_close_cli_in_the_test_binary ... {"event":"verified","blocks":3,"receipt_bytes":46678744,"load_seconds":0.055,"verify_seconds":0.418,"of_which_block_load_seconds":0.062,"vmhwm_mib":NaN,"statement_identity":"5effeb3417aae489c0f0c72a004a16e1ce07dcd933f7c7dfb1ebcefef8e1f79d","scope":"ALL the listed trained blocks of the export's model (TinyLlama-1.1B-Chat or Llama-3-8B) as ONE bound run at the export's T (one transcript, hidden internal boundaries); embedding, final norm, LM head and token selection are NOT covered (D13); CPU unless the run line says gpu; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement"}
+{"event":"d55-publication","not_for_publication":true,"test_receipt_marker":"present","real_content_privacy_gate_passed":false,"why":"the run directory carries the D55 test-receipt marker (stack-prove --d55-test-receipt-not-for-publication): a TEST receipt, not for publication (D60 review F3)"}
+{"event":"statement-published","by":"stack-verify, from its own rendering and the hashes of the verified bytes","to":"/Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T034249/xb-a/statement","prover_statement_removed":"/Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T034249/xb-a.unverified-statement"}
+D60 F2 TEST-BINARY CLI | stack-verify --export /Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T034249/verifier-l3 --artifact /Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T034249/xb-a --expect-statement 5effeb3417aae489c0f0c72a004a16e1ce07dcd933f7c7dfb1ebcefef8e1f79d --d55-workers 2 | exit 0 (want 0)
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 988 filtered out; finished in 0.49s
+

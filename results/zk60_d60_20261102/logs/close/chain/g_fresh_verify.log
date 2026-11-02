@@ -1,0 +1,12 @@
+
+running 1 test
+test private_block::run::fork::tests::d60_fresh_process_verify_test_receipts ... D60 FRESH-PROCESS VERIFY | pid 13500 | the D55 receipt (hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-rung-lh-t32-dev/1) VERIFIES: 5 frames, 46678744 B
+D60 FRESH-PROCESS VERIFY | the D12a verifier on the D55 directory | REFUSED: private run: the run directory /Users/victorrielly/zk60-artifacts/d60_20261102/close/test-binary-20261102T041519/d55-run holds d55-fork-000.bin, which is not one of this run's 3 segments
+D60 FRESH-PROCESS VERIFY | the D12a verifier on the D55 fork frames as segments | REFUSED: private run wire: segment 0 is 14465864 B, the counted length is 15151976
+D60 FRESH-PROCESS VERIFY | the D55 verifier on the D12a directory | REFUSED: D55: the run directory /Users/victorrielly/zk60-artifacts/d60_20261102/close/test-binary-20261102T041519/d12a-run holds segment-000.bin, which is not one of this 3-block fork run's 5 frames
+D60 FRESH-PROCESS VERIFY | the D55 verifier on the D12a segments as forks | REFUSED: D55 wire: the head belongs to another run
+D60 FRESH-PROCESS VERIFY | the D12a receipt VERIFIES under D12a; all four cross-checks refused
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 990 filtered out; finished in 1.00s
+

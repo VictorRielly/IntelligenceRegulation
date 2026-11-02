@@ -1,0 +1,19 @@
+{"event":"rejected","error":"D55: the run directory /Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T041530/d12a-l3 holds segment-000.bin, which is not one of this 3-block fork run's 5 frames"}
+        0.14 real         0.61 user         2.25 sys
+            39141376  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                4101  page reclaims
+                   1  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+               28782  involuntary context switches
+          2772049324  instructions retired
+          9818153917  cycles elapsed
+            33849872  peak memory footprint

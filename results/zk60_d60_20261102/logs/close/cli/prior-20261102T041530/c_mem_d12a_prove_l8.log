@@ -1,0 +1,13 @@
+{"event":"prover_start","gpu":"gpu: off (built with gpu-metal; HL_GPU unset)","hl_gpu_required":false}
+{"event":"loaded","variant":"r13-h24-wide-x8-d60","layers":"0..8","blocks":8,"statement_identity":"42fb3f7850cc32d73c1e5021a1a1883f12a5a0a9965f0cd9e9c48c8668198eef","seconds":0.325,"hl_gpu":"unset","scope":"ALL the listed trained blocks of the export's model (TinyLlama-1.1B-Chat or Llama-3-8B) as ONE bound run at the export's T (one transcript, hidden internal boundaries); embedding, final norm, LM head and token selection are NOT covered (D13); CPU unless the run line says gpu; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement"}
+{"event":"sealed","from":"the witness builder's own pass over layers 0..8 (parity bit-exact at every layer, before the run header: ruling H-1)","seconds":0.325,"of_which_load_seconds":0.197,"of_which_witness_seconds":0.207,"kept_witnesses":8,"kept_witness_bytes":136388608,"rayon_threads":32}
+{"event":"parity","result":"bit-exact at every layer","layers":8,"words_per_layer":12288,"checked_before_the_run_header":true}
+{"event":"segment","index":0,"layer":0,"bytes":15151976,"elapsed_seconds":1.181,"vmhwm_mib":NaN}
+{"event":"segment","index":1,"layer":1,"bytes":15420264,"elapsed_seconds":2.155,"vmhwm_mib":NaN}
+{"event":"segment","index":2,"layer":2,"bytes":15420264,"elapsed_seconds":3.127,"vmhwm_mib":NaN}
+{"event":"segment","index":3,"layer":3,"bytes":15420264,"elapsed_seconds":4.116,"vmhwm_mib":NaN}
+{"event":"segment","index":4,"layer":4,"bytes":15420264,"elapsed_seconds":5.074,"vmhwm_mib":NaN}
+{"event":"segment","index":5,"layer":5,"bytes":15420264,"elapsed_seconds":6.059,"vmhwm_mib":NaN}
+{"event":"segment","index":6,"layer":6,"bytes":15420264,"elapsed_seconds":7.035,"vmhwm_mib":NaN}
+{"event":"segment","index":7,"layer":7,"bytes":16106312,"elapsed_seconds":8.005,"vmhwm_mib":NaN}
+{"event":"proved","gpu":"gpu: off (built with gpu-metal; HL_GPU unset)","gpu_declines":0,"blocks":8,"receipt_bytes":123779872,"prove_run_seconds":8.005,"of_which_witness_seconds":0.000,"rebuilt_witnesses":0,"witness_seconds_per_block":0.026,"of_which_block_load_seconds":0.301,"block_loads":16,"rayon_threads":32,"in_process_verified":false,"in_process_verify_seconds":0.000,"sealing_pass_seconds":0.325,"sealing_witness_seconds":0.207,"load_seconds":0.197,"total_seconds":8.376,"vmhwm_mib":NaN,"statement_identity":"42fb3f7850cc32d73c1e5021a1a1883f12a5a0a9965f0cd9e9c48c8668198eef","statement_dir":"/Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T034249/d12a-l8.unverified-statement","out":"/Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T034249/d12a-l8"}

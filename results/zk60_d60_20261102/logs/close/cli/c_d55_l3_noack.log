@@ -1,0 +1,19 @@
+{"event":"refused","error":"D60 review F3: a D55 fork run is refused in this build — ruling D60 requires the privacy gate on a capture under a REGISTERED D55 run profile before any receipt for real content, and that gate has not passed (run_fork::D55_REAL_CONTENT_PRIVACY_GATE_PASSED is false); to prove a TEST receipt on public data, pass --d55-test-receipt-not-for-publication: the run directory is then marked D55_TEST_RECEIPT_NOT_FOR_PUBLICATION.txt and must not be published"}
+        0.35 real         0.00 user         0.00 sys
+             6520832  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                 778  page reclaims
+                   1  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+                  21  involuntary context switches
+            40779389  instructions retired
+            21555268  cycles elapsed
+             1999256  peak memory footprint

@@ -1,0 +1,15 @@
+
+running 1 test
+test private_block::run::fork::tests::d60_f4_a_fifo_or_symlink_swapped_in_after_the_check_is_refused_without_hanging ... 
+thread 'private_block::run::fork::tests::d60_f4_a_fifo_or_symlink_swapped_in_after_the_check_is_refused_without_hanging' (4494580) panicked at src/private_block/run_fork_tests.rs:1331:92:
+D55 frame, a FIFO swapped in after the check: THE READER HUNG (no O_NONBLOCK on this target?)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    private_block::run::fork::tests::d60_f4_a_fifo_or_symlink_swapped_in_after_the_check_is_refused_without_hanging
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 989 filtered out; finished in 60.11s
+

@@ -1,0 +1,7 @@
+
+running 1 test
+test private_block::run::fork::tests::d60_close_write_r13_multi_layer_test_export ... D60 F2 EXPORT | /Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T041530/export-l3 | variant r13-h24-wide-x3-d60 | 3 layers (each the fixture's layer 0) | seq_public chained by the native builder | trained statement identity 5effeb3417aae489c0f0c72a004a16e1ce07dcd933f7c7dfb1ebcefef8e1f79d | public synthetic data, not for publication
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 990 filtered out; finished in 0.19s
+

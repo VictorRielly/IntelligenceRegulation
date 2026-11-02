@@ -1,0 +1,19 @@
+{"event":"rejected","error":"D55 wire: the tail's S1 tag is not the verifier's own joined transcript position"}
+        0.36 real         1.52 user         4.07 sys
+           289456128  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+               19300  page reclaims
+                   1  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   8  voluntary context switches
+               40960  involuntary context switches
+         15072263536  instructions retired
+         19125305731  cycles elapsed
+           283886288  peak memory footprint

@@ -1,0 +1,15 @@
+
+running 1 test
+test private_block::run::fork::tests::d60_close_write_r13_multi_layer_test_export ... 
+thread 'private_block::run::fork::tests::d60_close_write_r13_multi_layer_test_export' (4473891) panicked at src/private_block/run_fork_tests.rs:1444:95:
+layer 11 of the repeated-layer chain is not admissible: fixed oracle range refusal: norm quotient/remainder
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    private_block::run::fork::tests::d60_close_write_r13_multi_layer_test_export
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 988 filtered out; finished in 0.31s
+

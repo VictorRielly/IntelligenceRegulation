@@ -1,0 +1,8 @@
+
+running 1 test
+test private_block::run::fork::tests::d60_close_write_r13_multi_layer_test_export ... D60 F2 EXPORT | layer 11 of the repeated-layer chain is not admissible (fixed oracle range refusal: norm quotient/remainder); the export holds layers 0..11
+D60 F2 EXPORT | /Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T041530/export-big | variant r13-h24-wide-x11-d60 | 11 layers (each the fixture's layer 0) | seq_public chained by the native builder | trained statement identity 203ca71627c19d79c41547c4c20a1ae8c79370847cf599065082952661562bc0 | public synthetic data, not for publication
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 990 filtered out; finished in 0.56s
+

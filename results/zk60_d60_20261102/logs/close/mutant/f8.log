@@ -1,0 +1,21 @@
+
+running 1 test
+test private_block::run::fork::tests::d60_f8_a_prover_whose_every_worker_panics_fails_and_does_not_hang ... 
+thread '<unnamed>' (4496295) panicked at src/private_block/run_fork.rs:1012:13:
+D60 F8 test switch: fork 0's worker panics
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+thread '<unnamed>' (4496296) panicked at src/private_block/run_fork.rs:1012:13:
+D60 F8 test switch: fork 1's worker panics
+
+thread 'private_block::run::fork::tests::d60_f8_a_prover_whose_every_worker_panics_fails_and_does_not_hang' (4496260) panicked at src/private_block/run_fork_tests.rs:1406:68:
+THE FORK PROVER HUNG after every worker panicked (D60 review F8 (b)): Timeout
+FAILED
+
+failures:
+
+failures:
+    private_block::run::fork::tests::d60_f8_a_prover_whose_every_worker_panics_fails_and_does_not_hang
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 989 filtered out; finished in 120.01s
+

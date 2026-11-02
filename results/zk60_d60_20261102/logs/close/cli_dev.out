@@ -1,0 +1,158 @@
+artifacts: /Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T034249
+594292c6da1877a10c14e6100e73dc6704a3c4ab964305c559dc424b08a2784f  /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a2e328baa581cb5b0/ops/zkp-mvp/gpu-metal/hashline/target/release/examples/zk60_trained_block
+578c3d9e9fa03d737017b20d797b9f01fbb444bb42d6c7b53c67ab616841d42b  /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a2e328baa581cb5b0/ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-48a0f1849b7501c1
+== exports 03:42:49
+[zk60-guard 03:42:49] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 03:43:49] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 03:44:49] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 03:45:00] START d60close-export-l3 class=cpu need=4G cap=20G enforce=watchdog-only waited=131s run=8ef5c22a4009
+[zk60-guard 03:45:00] END d60close-export-l3 exit=0 child_wall=0s peak_rss=0.00G min_avail=230.66G
+test private_block::run::fork::tests::d60_close_write_r13_multi_layer_test_export ... D60 F2 EXPORT | /Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T034249/export-l3 | variant r13-h24-wide-x3-d60 | 3 layers (each the fixture's layer 0) | seq_public chained by the native builder | trained statement identity 5effeb3417aae489c0f0c72a004a16e1ce07dcd933f7c7dfb1ebcefef8e1f79d | public synthetic data, not for publication
+[zk60-guard 03:45:00] START d60close-export-l32 class=cpu need=4G cap=20G enforce=watchdog-only waited=0s run=965f219e01d6
+[zk60-guard 03:45:01] END d60close-export-l32 exit=101 child_wall=0s peak_rss=0.00G min_avail=231.66G
+thread 'private_block::run::fork::tests::d60_close_write_r13_multi_layer_test_export' (4473790) panicked at src/private_block/run_fork_tests.rs:1444:95:
+layer 11 of the repeated-layer chain is not admissible: fixed oracle range refusal: norm quotient/remainder
+[zk60-guard 03:45:01] START d60close-export-l16 class=cpu need=4G cap=20G enforce=watchdog-only waited=0s run=fa6937ee0a3a
+[zk60-guard 03:45:01] END d60close-export-l16 exit=101 child_wall=0s peak_rss=0.00G min_avail=231.63G
+thread 'private_block::run::fork::tests::d60_close_write_r13_multi_layer_test_export' (4473891) panicked at src/private_block/run_fork_tests.rs:1444:95:
+layer 11 of the repeated-layer chain is not admissible: fixed oracle range refusal: norm quotient/remainder
+[zk60-guard 03:45:01] START d60close-export-l8 class=cpu need=4G cap=20G enforce=watchdog-only waited=0s run=157b38a63a9c
+[zk60-guard 03:45:02] END d60close-export-l8 exit=0 child_wall=0s peak_rss=0.00G min_avail=231.60G
+the F5 export: L = 8
+test private_block::run::fork::tests::d60_close_write_r13_multi_layer_test_export ... D60 F2 EXPORT | /Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T034249/export-l8 | variant r13-h24-wide-x8-d60 | 8 layers (each the fixture's layer 0) | seq_public chained by the native builder | trained statement identity 42fb3f7850cc32d73c1e5021a1a1883f12a5a0a9965f0cd9e9c48c8668198eef | public synthetic data, not for publication
+== 1-refused-without-the-acknowledgement 03:45:02
+[zk60-guard 03:45:02] START d60close-cli-d55_l3_noack class=cpu need=4G cap=40G enforce=watchdog-only waited=0s run=34c38cba0b79
+[zk60-guard 03:45:02] END d60close-cli-d55_l3_noack exit=1 child_wall=0s peak_rss=0.00G min_avail=231.60G
+d55_l3_noack [rel]: exit 1 (want 1)  | {"event":"refused","error":"D60 review F3: a D55 fork run is refused in this build — ruling D60 requires the privacy gate on a capture under a REGISTERED D55 run profile before any receipt for real content, and that gate has not passed (run_fork::D55_REAL_CONTENT_PRIVACY_GATE_PASSED is false); to pr
+nothing created
+== 2-prove-l3-n3 03:45:02
+[zk60-guard 03:45:02] START d60close-cli-d55_l3_prove class=cpu need=4G cap=40G enforce=watchdog-only waited=0s run=f4db3cbe2238
+[zk60-guard 03:45:04] END d60close-cli-d55_l3_prove exit=0 child_wall=2s peak_rss=1.50G min_avail=230.15G
+d55_l3_prove [rel]: exit 0 (want 0)  | {"event":"proved","gpu":"gpu: off (built with gpu-metal; HL_GPU unset)","gpu_declines":0,"blocks":3,"receipt_bytes":46678744,"prove_run_seconds":1.593,"of_which_witness_seconds":0.000,"rebuilt_witnesses":0,"witness_seconds_per_block":0.021,"of_which_block_load_seconds":0.000,"block_loads":0,"rayon_t
+total 91200
+drwxr-xr-x  8 victorrielly  staff       256 Nov  2 03:45 .
+drwxr-xr-x  9 victorrielly  staff       288 Nov  2 03:45 ..
+-rw-r--r--  1 victorrielly  staff       632 Nov  2 03:45 D55_TEST_RECEIPT_NOT_FOR_PUBLICATION.txt
+-rw-r--r--  1 victorrielly  staff  14465864 Nov  2 03:45 d55-fork-000.bin
+-rw-r--r--  1 victorrielly  staff  14465864 Nov  2 03:45 d55-fork-001.bin
+-rw-r--r--  1 victorrielly  staff  14465864 Nov  2 03:45 d55-fork-002.bin
+-rw-r--r--  1 victorrielly  staff       144 Nov  2 03:45 d55-head.bin
+-rw-r--r--  1 victorrielly  staff   3281008 Nov  2 03:45 d55-tail.bin
+== 3-verify-l3-n3 03:45:04
+[zk60-guard 03:45:04] START d60close-cli-d55_l3_verify_n3 class=cpu need=4G cap=40G enforce=watchdog-only waited=0s run=9925e0b0108f
+[zk60-guard 03:45:05] END d60close-cli-d55_l3_verify_n3 exit=0 child_wall=0s peak_rss=0.00G min_avail=231.79G
+d55_l3_verify_n3 [rel]: exit 0 (want 0)  | {"event":"statement-published","by":"stack-verify, from its own rendering and the hashes of the verified bytes","to":"/Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T034249/d55-l3/statement","prover_statement_removed":"/Users/victorrielly/zk60-artifacts/d60_20261102/close/run-2026
+== 4-verify-l3-other-n 03:45:05
+[zk60-guard 03:45:05] START d60close-cli-d55_l3_verify_n1 class=cpu need=4G cap=40G enforce=watchdog-only waited=0s run=7d34b9cfe8f7
+[zk60-guard 03:45:05] END d60close-cli-d55_l3_verify_n1 exit=0 child_wall=1s peak_rss=0.16G min_avail=231.66G
+d55_l3_verify_n1 [rel]: exit 0 (want 0)  | {"event":"statement-checked","dir":"/Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T034249/d55-l3/statement","writer":"stack-verify, after its fresh-process verification of the run directory, from its own data and the hashes of the bytes it verified","result":"byte for byte this v
+[zk60-guard 03:45:05] START d60close-cli-d55_l3_verify_n2 class=cpu need=4G cap=40G enforce=watchdog-only waited=0s run=695160c18f33
+[zk60-guard 03:45:06] END d60close-cli-d55_l3_verify_n2 exit=0 child_wall=0s peak_rss=0.00G min_avail=231.80G
+d55_l3_verify_n2 [rel]: exit 0 (want 0)  | {"event":"statement-checked","dir":"/Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T034249/d55-l3/statement","writer":"stack-verify, after its fresh-process verification of the run directory, from its own data and the hashes of the bytes it verified","result":"byte for byte this v
+[zk60-guard 03:45:06] START d60close-cli-d55_l3_verify_n64 class=cpu need=4G cap=40G enforce=watchdog-only waited=0s run=e96667019680
+[zk60-guard 03:45:06] END d60close-cli-d55_l3_verify_n64 exit=0 child_wall=0s peak_rss=0.00G min_avail=231.81G
+d55_l3_verify_n64 [rel]: exit 0 (want 0)  | {"event":"statement-checked","dir":"/Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T034249/d55-l3/statement","writer":"stack-verify, after its fresh-process verification of the run directory, from its own data and the hashes of the bytes it verified","result":"byte for byte this v
+== 5-cross-binary-a-test-binary-verifies-the-release-receipt 03:45:06
+[zk60-guard 03:45:06] START d60close-cli-xb_a_test_verify class=cpu need=4G cap=40G enforce=watchdog-only waited=0s run=b7a59e7265e5
+[zk60-guard 03:45:07] END d60close-cli-xb_a_test_verify exit=0 child_wall=1s peak_rss=0.00G min_avail=231.86G
+xb_a_test_verify [test]: exit 0 (want 0)  | {"event":"statement-published","by":"stack-verify, from its own rendering and the hashes of the verified bytes","to":"/Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T034249/xb-a/statement","prover_statement_removed":"/Users/victorrielly/zk60-artifacts/d60_20261102/close/run-202611
+the test binary published byte-identical statement.json and segments.json
+== 6-cross-binary-b-release-verifies-the-test-binary-receipt 03:45:07
+[zk60-guard 03:45:07] START d60close-cli-xb_b_test_prove class=cpu need=4G cap=40G enforce=watchdog-only waited=0s run=968e07ebd33d
+[zk60-guard 03:45:09] END d60close-cli-xb_b_test_prove exit=0 child_wall=2s peak_rss=1.48G min_avail=230.45G
+xb_b_test_prove [test]: exit 0 (want 0)  | {"event":"proved","gpu":"gpu: off (built with gpu-metal; HL_GPU unset)","gpu_declines":0,"blocks":3,"receipt_bytes":46678744,"prove_run_seconds":1.677,"of_which_witness_seconds":0.000,"rebuilt_witnesses":0,"witness_seconds_per_block":0.026,"of_which_block_load_seconds":0.000,"block_loads":0,"rayon_t
+[zk60-guard 03:45:09] START d60close-cli-xb_b_rel_verify class=cpu need=4G cap=40G enforce=watchdog-only waited=0s run=7b4724b13a51
+[zk60-guard 03:45:10] END d60close-cli-xb_b_rel_verify exit=0 child_wall=0s peak_rss=0.00G min_avail=231.94G
+xb_b_rel_verify [rel]: exit 0 (want 0)  | {"event":"statement-published","by":"stack-verify, from its own rendering and the hashes of the verified bytes","to":"/Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T034249/xb-b/statement","prover_statement_removed":"/Users/victorrielly/zk60-artifacts/d60_20261102/close/run-202611
+== 7-d12a-at-l3 03:45:10
+[zk60-guard 03:45:10] START d60close-cli-d12a_l3_prove class=cpu need=4G cap=40G enforce=watchdog-only waited=0s run=ed4fcc3fb8f3
+[zk60-guard 03:45:13] END d60close-cli-d12a_l3_prove exit=0 child_wall=3s peak_rss=0.64G min_avail=231.34G
+d12a_l3_prove [rel]: exit 0 (want 0)  | {"event":"proved","gpu":"gpu: off (built with gpu-metal; HL_GPU unset)","gpu_declines":0,"blocks":3,"receipt_bytes":46678552,"prove_run_seconds":2.873,"of_which_witness_seconds":0.000,"rebuilt_witnesses":0,"witness_seconds_per_block":0.026,"of_which_block_load_seconds":0.108,"block_loads":6,"rayon_t
+[zk60-guard 03:45:13] START d60close-cli-d12a_l3_verify class=cpu need=4G cap=40G enforce=watchdog-only waited=0s run=f8788ebb1fce
+[zk60-guard 03:45:13] END d60close-cli-d12a_l3_verify exit=0 child_wall=1s peak_rss=0.15G min_avail=231.93G
+d12a_l3_verify [rel]: exit 0 (want 0)  | {"event":"statement-published","by":"stack-verify, from its own rendering and the hashes of the verified bytes","to":"/Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T034249/d12a-l3/statement","prover_statement_removed":"/Users/victorrielly/zk60-artifacts/d60_20261102/close/run-202
+[zk60-guard 03:45:14] START d60close-cli-d12a_on_d55_l3 class=cpu need=4G cap=40G enforce=watchdog-only waited=0s run=f266e0cc557c
+[zk60-guard 03:45:14] END d60close-cli-d12a_on_d55_l3 exit=1 child_wall=0s peak_rss=0.00G min_avail=232.08G
+d12a_on_d55_l3 [rel]: exit 1 (want 1)  | {"event":"rejected","error":"private run: the run directory /Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T034249/d55-l3 holds D55_TEST_RECEIPT_NOT_FOR_PUBLICATION.txt, which is not one of this run's 3 segments"}
+[zk60-guard 03:45:14] START d60close-cli-d55_on_d12a_l3 class=cpu need=4G cap=40G enforce=watchdog-only waited=0s run=d3ef4bd3941e
+[zk60-guard 03:45:14] END d60close-cli-d55_on_d12a_l3 exit=1 child_wall=0s peak_rss=0.00G min_avail=232.08G
+d55_on_d12a_l3 [rel]: exit 1 (want 1)  | {"event":"rejected","error":"D55: the run directory /Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T034249/d12a-l3 holds segment-000.bin, which is not one of this 3-block fork run's 5 frames"}
+== 8-probes-l3 03:45:14
+[zk60-guard 03:45:14] START d60close-cli-p_fork1_body class=cpu need=4G cap=40G enforce=watchdog-only waited=0s run=3b21383be2eb
+[zk60-guard 03:45:14] END d60close-cli-p_fork1_body exit=1 child_wall=0s peak_rss=0.00G min_avail=232.06G
+p_fork1_body [rel]: exit 1 (want nonzero)  | {"event":"rejected","error":"D55: fork 1: A: pcs zk: group 26: <v, c> != combined claim"}
+[zk60-guard 03:45:15] START d60close-cli-p_fork1_start_tag class=cpu need=4G cap=40G enforce=watchdog-only waited=0s run=06e1123ec523
+[zk60-guard 03:45:15] END d60close-cli-p_fork1_start_tag exit=1 child_wall=0s peak_rss=0.00G min_avail=232.08G
+p_fork1_start_tag [rel]: exit 1 (want nonzero)  | {"event":"rejected","error":"D55 wire: fork frame 1's start tag is not the verifier's own fork-1 position"}
+[zk60-guard 03:45:15] START d60close-cli-p_fork2_end_tag class=cpu need=4G cap=40G enforce=watchdog-only waited=0s run=1a37937dcb63
+[zk60-guard 03:45:15] END d60close-cli-p_fork2_end_tag exit=1 child_wall=0s peak_rss=0.00G min_avail=232.07G
+p_fork2_end_tag [rel]: exit 1 (want nonzero)  | {"event":"rejected","error":"D55: fork 2: fork 2's end tag is not the verifier's own fork-2 position"}
+[zk60-guard 03:45:15] START d60close-cli-p_head_root0 class=cpu need=4G cap=40G enforce=watchdog-only waited=0s run=ba494c09352e
+[zk60-guard 03:45:16] END d60close-cli-p_head_root0 exit=1 child_wall=0s peak_rss=0.00G min_avail=232.07G
+p_head_root0 [rel]: exit 1 (want nonzero)  | {"event":"rejected","error":"D55: the head's S0 tag is not the verifier's own S0 (every boundary root absorbed, in order, before any fork)"}
+[zk60-guard 03:45:16] START d60close-cli-p_head_s0_tag class=cpu need=4G cap=40G enforce=watchdog-only waited=0s run=6cd04145ee3f
+[zk60-guard 03:45:16] END d60close-cli-p_head_s0_tag exit=1 child_wall=0s peak_rss=0.00G min_avail=232.08G
+p_head_s0_tag [rel]: exit 1 (want nonzero)  | {"event":"rejected","error":"D55: the head's S0 tag is not the verifier's own S0 (every boundary root absorbed, in order, before any fork)"}
+[zk60-guard 03:45:16] START d60close-cli-p_tail_b0_opening class=cpu need=4G cap=40G enforce=watchdog-only waited=0s run=695d69f0901b
+[zk60-guard 03:45:16] END d60close-cli-p_tail_b0_opening exit=1 child_wall=0s peak_rss=0.00G min_avail=232.07G
+p_tail_b0_opening [rel]: exit 1 (want nonzero)  | {"event":"rejected","error":"D55: boundary 0: pcs zk: group 0: <v, c> != combined claim"}
+[zk60-guard 03:45:16] START d60close-cli-p_tail_s1_tag class=cpu need=4G cap=40G enforce=watchdog-only waited=0s run=b5f5712b6679
+[zk60-guard 03:45:17] END d60close-cli-p_tail_s1_tag exit=1 child_wall=0s peak_rss=0.00G min_avail=232.08G
+p_tail_s1_tag [rel]: exit 1 (want nonzero)  | {"event":"rejected","error":"D55 wire: the tail's S1 tag is not the verifier's own joined transcript position"}
+[zk60-guard 03:45:17] START d60close-cli-p_forks_0_2_swapped_same_block class=cpu need=4G cap=40G enforce=watchdog-only waited=0s run=c7f44088527a
+[zk60-guard 03:45:17] END d60close-cli-p_forks_0_2_swapped_same_block exit=1 child_wall=0s peak_rss=0.00G min_avail=232.07G
+p_forks_0_2_swapped_same_block [rel]: exit 1 (want nonzero)  | {"event":"rejected","error":"D55 wire: frame 0 is not the 3-block run's fork 0"}
+[zk60-guard 03:45:17] START d60close-cli-p_forks_0_1_swapped class=cpu need=4G cap=40G enforce=watchdog-only waited=0s run=9d4852ec452c
+[zk60-guard 03:45:17] END d60close-cli-p_forks_0_1_swapped exit=1 child_wall=0s peak_rss=0.00G min_avail=232.07G
+p_forks_0_1_swapped [rel]: exit 1 (want nonzero)  | {"event":"rejected","error":"D55 wire: frame 0 is not the 3-block run's fork 0"}
+[zk60-guard 03:45:17] START d60close-cli-p_fifo_fork1 class=cpu need=4G cap=40G enforce=watchdog-only waited=0s run=1ca04ac14c45
+[zk60-guard 03:45:18] END d60close-cli-p_fifo_fork1 exit=1 child_wall=0s peak_rss=0.00G min_avail=232.07G
+p_fifo_fork1 [rel]: exit 1 (want nonzero)  | {"event":"rejected","error":"D55: fork frame 1 (/Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T034249/probes/fifo/d55-fork-001.bin) is not a regular file (a symbolic link, FIFO, device or directory is refused before it is opened)"}
+[zk60-guard 03:45:18] START d60close-cli-p_symlink_fork1 class=cpu need=4G cap=40G enforce=watchdog-only waited=0s run=b908cddf9f55
+[zk60-guard 03:45:18] END d60close-cli-p_symlink_fork1 exit=1 child_wall=0s peak_rss=0.00G min_avail=232.08G
+p_symlink_fork1 [rel]: exit 1 (want nonzero)  | {"event":"rejected","error":"D55: fork frame 1 (/Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T034249/probes/link/d55-fork-001.bin) is not a regular file (a symbolic link, FIFO, device or directory is refused before it is opened)"}
+[zk60-guard 03:45:18] START d60close-cli-p_marker_removed class=cpu need=4G cap=40G enforce=watchdog-only waited=0s run=3fef7b3d37c4
+[zk60-guard 03:45:18] END d60close-cli-p_marker_removed exit=0 child_wall=0s peak_rss=0.00G min_avail=232.08G
+p_marker_removed [rel]: exit 0 (want 0)  | {"event":"statement-checked","dir":"/Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T034249/probes/marker_gone/statement","writer":"stack-verify, after its fresh-process verification of the run directory, from its own data and the hashes of the bytes it verified","result":"byte for
+[zk60-guard 03:45:19] START d60close-cli-p_marker_other_content class=cpu need=4G cap=40G enforce=watchdog-only waited=0s run=6afcedbf7b8e
+[zk60-guard 03:45:19] END d60close-cli-p_marker_other_content exit=1 child_wall=0s peak_rss=0.00G min_avail=232.07G
+p_marker_other_content [rel]: exit 1 (want nonzero)  | {"event":"rejected","error":"D55: /Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T034249/probes/marker_other/D55_TEST_RECEIPT_NOT_FOR_PUBLICATION.txt is not the test-receipt marker this build writes (other content of its length)"}
+[zk60-guard 03:45:19] START d60close-cli-p_extra_file class=cpu need=4G cap=40G enforce=watchdog-only waited=0s run=fd2d23e291c7
+[zk60-guard 03:45:19] END d60close-cli-p_extra_file exit=1 child_wall=0s peak_rss=0.00G min_avail=232.07G
+p_extra_file [rel]: exit 1 (want nonzero)  | {"event":"rejected","error":"D55: the run directory /Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T034249/probes/extra holds notes.txt, which is not one of this 3-block fork run's 5 frames"}
+{"event":"rejected","error":"D55 wire: frame 0 is not the 3-block run's fork 0"}
+== 9-n-independence 03:45:19
+[zk60-guard 03:45:19] START d60close-cli-p_fork1_body_n1 class=cpu need=4G cap=40G enforce=watchdog-only waited=0s run=9a0725ffb9fb
+[zk60-guard 03:45:20] END d60close-cli-p_fork1_body_n1 exit=1 child_wall=1s peak_rss=0.00G min_avail=231.87G
+p_fork1_body_n1 [rel]: exit 1 (want nonzero)  | {"event":"rejected","error":"D55: fork 1: A: pcs zk: group 26: <v, c> != combined claim"}
+N = 1 and N = 3 give the same refusal: {"event":"rejected","error":"D55: fork 1: A: pcs zk: group 26: <v, c> != combined claim"}
+== 10-memory-at-l8 03:45:20
+[zk60-guard 03:45:20] START d60close-cli-mem_d55_prove_l8_n6 class=cpu need=4G cap=40G enforce=watchdog-only waited=0s run=6022a01a0bd3
+[zk60-guard 03:45:24] END d60close-cli-mem_d55_prove_l8_n6 exit=0 child_wall=4s peak_rss=3.04G min_avail=228.97G
+mem_d55_prove_l8_n6 [rel]: exit 0 (want 0)  | {"event":"proved","gpu":"gpu: off (built with gpu-metal; HL_GPU unset)","gpu_declines":0,"blocks":8,"receipt_bytes":123780064,"prove_run_seconds":3.804,"of_which_witness_seconds":0.000,"rebuilt_witnesses":0,"witness_seconds_per_block":0.026,"of_which_block_load_seconds":0.000,"block_loads":0,"rayon_
+[zk60-guard 03:45:24] START d60close-cli-mem_d55_verify_l8_n6 class=cpu need=4G cap=40G enforce=watchdog-only waited=0s run=8867f1241ef0
+[zk60-guard 03:45:25] END d60close-cli-mem_d55_verify_l8_n6 exit=0 child_wall=1s peak_rss=0.18G min_avail=231.84G
+mem_d55_verify_l8_n6 [rel]: exit 0 (want 0)  | {"event":"statement-published","by":"stack-verify, from its own rendering and the hashes of the verified bytes","to":"/Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T034249/d55-l8/statement","prover_statement_removed":"/Users/victorrielly/zk60-artifacts/d60_20261102/close/run-2026
+[zk60-guard 03:45:25] START d60close-cli-mem_d55_verify_l8_n1 class=cpu need=4G cap=40G enforce=watchdog-only waited=0s run=35564c84cc02
+[zk60-guard 03:45:27] END d60close-cli-mem_d55_verify_l8_n1 exit=0 child_wall=1s peak_rss=0.27G min_avail=231.75G
+mem_d55_verify_l8_n1 [rel]: exit 0 (want 0)  | {"event":"statement-published","by":"stack-verify, from its own rendering and the hashes of the verified bytes","to":"/Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T034249/d55-l8-n1/statement","prover_statement_removed":"/Users/victorrielly/zk60-artifacts/d60_20261102/close/run-2
+[zk60-guard 03:45:27] START d60close-cli-mem_d12a_prove_l8 class=cpu need=4G cap=40G enforce=watchdog-only waited=0s run=815a4f4ddd65
+[zk60-guard 03:45:35] END d60close-cli-mem_d12a_prove_l8 exit=0 child_wall=8s peak_rss=0.79G min_avail=231.22G
+mem_d12a_prove_l8 [rel]: exit 0 (want 0)  | {"event":"proved","gpu":"gpu: off (built with gpu-metal; HL_GPU unset)","gpu_declines":0,"blocks":8,"receipt_bytes":123779872,"prove_run_seconds":8.005,"of_which_witness_seconds":0.000,"rebuilt_witnesses":0,"witness_seconds_per_block":0.026,"of_which_block_load_seconds":0.301,"block_loads":16,"rayon
+[zk60-guard 03:45:35] START d60close-cli-mem_d12a_verify_l8 class=cpu need=4G cap=40G enforce=watchdog-only waited=0s run=703b456ec36d
+[zk60-guard 03:45:37] END d60close-cli-mem_d12a_verify_l8 exit=0 child_wall=2s peak_rss=0.15G min_avail=231.80G
+mem_d12a_verify_l8 [rel]: exit 0 (want 0)  | {"event":"statement-published","by":"stack-verify, from its own rendering and the hashes of the verified bytes","to":"/Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T034249/d12a-l8/statement","prover_statement_removed":"/Users/victorrielly/zk60-artifacts/d60_20261102/close/run-202
+peak RSS (guard, sampled every 0.5 s) of the release CLI, R13 rung h24 (T32, width 384) exports, public synthetic
+d55_l3_prove                  | "receipt_bytes":46678744
+d55_l3_verify_n3              | "receipt_bytes":46678744
+d55_l3_verify_n1              | "receipt_bytes":46678744
+d12a_l3_prove                 | "receipt_bytes":46678552
+d12a_l3_verify                | "receipt_bytes":46678552
+mem_d55_prove_l8_n6           | "receipt_bytes":123780064
+mem_d55_verify_l8_n6          | "receipt_bytes":123780064
+mem_d55_verify_l8_n1          | "receipt_bytes":123780064
+mem_d12a_prove_l8             | "receipt_bytes":123779872
+mem_d12a_verify_l8            | "receipt_bytes":123779872
+118M	/Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T034249/d55-l8
+118M	/Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T034249/d12a-l8
+== done 03:45:37

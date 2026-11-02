@@ -1,0 +1,1 @@
+{"event":"rejected","error":"D55: the head's S0 tag is not the verifier's own S0 (every boundary root absorbed, in order, before any fork)"}

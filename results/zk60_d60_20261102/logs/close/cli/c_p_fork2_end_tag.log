@@ -1,0 +1,19 @@
+{"event":"rejected","error":"D55: fork 2: fork 2's end tag is not the verifier's own fork-2 position"}
+        0.36 real         1.57 user         4.07 sys
+           290586624  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+               19410  page reclaims
+                   1  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   8  voluntary context switches
+               43146  involuntary context switches
+         15259075148  instructions retired
+         19326955795  cycles elapsed
+           285033192  peak memory footprint

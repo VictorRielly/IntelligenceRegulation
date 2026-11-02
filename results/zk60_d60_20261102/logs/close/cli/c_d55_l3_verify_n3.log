@@ -1,0 +1,21 @@
+{"event":"verified","blocks":3,"receipt_bytes":46678744,"load_seconds":0.041,"verify_seconds":0.323,"of_which_block_load_seconds":0.056,"vmhwm_mib":NaN,"statement_identity":"5effeb3417aae489c0f0c72a004a16e1ce07dcd933f7c7dfb1ebcefef8e1f79d","scope":"ALL the listed trained blocks of the export's model (TinyLlama-1.1B-Chat or Llama-3-8B) as ONE bound run at the export's T (one transcript, hidden internal boundaries); embedding, final norm, LM head and token selection are NOT covered (D13); CPU unless the run line says gpu; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement"}
+{"event":"d55-publication","not_for_publication":true,"test_receipt_marker":"present","real_content_privacy_gate_passed":false,"why":"the run directory carries the D55 test-receipt marker (stack-prove --d55-test-receipt-not-for-publication): a TEST receipt, not for publication (D60 review F3)"}
+{"event":"statement-published","by":"stack-verify, from its own rendering and the hashes of the verified bytes","to":"/Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T041530/d55-l3/statement","prover_statement_removed":"/Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T041530/d55-l3.unverified-statement"}
+        0.40 real         1.59 user         4.01 sys
+           292798464  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+               19526  page reclaims
+                   1  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                  12  voluntary context switches
+               39845  involuntary context switches
+         15652266699  instructions retired
+         19230480812  cycles elapsed
+           287245056  peak memory footprint

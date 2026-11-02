@@ -1,0 +1,19 @@
+{"event":"rejected","error":"D55: fork 1: A: pcs zk: group 26: <v, c> != combined claim"}
+        0.37 real         1.20 user         4.28 sys
+           221642752  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+               15071  page reclaims
+                   1  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   9  voluntary context switches
+               49914  involuntary context switches
+         12885251475  instructions retired
+         18823480582  cycles elapsed
+           216056504  peak memory footprint

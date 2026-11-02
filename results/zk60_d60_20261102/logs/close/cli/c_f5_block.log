@@ -1,0 +1,8 @@
+
+running 1 test
+test private_block::run::fork::tests::d60_close_f5_resident_bytes_of_one_public_block ... D60 F5 BLOCK | R13_RUNG_H24 (T32, width 384, hidden 768; d_pad 512, f_pad 1024) | one public block: 3146752 B of padded weight words + 18944 B of tables + 39674 B of accuracy data = 3205370 B (0.003 GiB); x32 = 0.10 GiB, x22 = 0.07 GiB, x26 = 0.08 GiB
+D60 F5 BLOCK | R13_8B_T128_H24 (T128, width 4096, hidden 14336; d_pad 4096, f_pad 16384) | one public block: 243277824 B of padded weight words + 133632 B of tables + 225530 B of accuracy data = 243636986 B (0.227 GiB); x32 = 7.26 GiB, x22 = 4.99 GiB, x26 = 5.90 GiB
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 990 filtered out; finished in 0.19s
+

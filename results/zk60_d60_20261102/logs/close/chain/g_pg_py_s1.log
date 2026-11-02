@@ -1,0 +1,13 @@
+D55-0 integrity: PASS
+D55-1/2 facts: PASS
+D55-3 replay: PASS
+R13-H registered header: PASS
+R13-2 layout: PASS
+R13-3 terminals: PASS
+R13-6 per commitment: PASS
+R13-7 mask and CFS: PASS
+D55-IO joined claims from the forks: PASS
+D55-J joint rank: PASS
+D55-C replay controls: PASS
+pins: 73 declared, 41 at r19b, 7 read here, 25 UNREAD
+status: D55-DEV-PASS (96.4 s) -> /Users/victorrielly/zk60-artifacts/d60_20261102/close/pg-20261102T041619/evidence/d55-close-r13-rung-s1.json

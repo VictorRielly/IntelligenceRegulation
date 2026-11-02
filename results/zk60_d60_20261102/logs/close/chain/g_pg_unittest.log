@@ -1,0 +1,17 @@
+test_a_test_only_or_dd_identity_is_refused_by_name (test_d55_r13_gate.D55R13Bundle.test_a_test_only_or_dd_identity_is_refused_by_name) ... ok
+test_integrity_facts_replay_and_the_registered_header (test_d55_r13_gate.D55R13Bundle.test_integrity_facts_replay_and_the_registered_header) ... ok
+test_the_joined_claims_and_their_control (test_d55_r13_gate.D55R13Bundle.test_the_joined_claims_and_their_control) ... ok
+test_the_layout_and_one_forks_terminals (test_d55_r13_gate.D55R13Bundle.test_the_layout_and_one_forks_terminals) ... ok
+test_the_run_level_joint_rank_and_its_controls (test_d55_r13_gate.D55R13Bundle.test_the_run_level_joint_rank_and_its_controls) ... /opt/homebrew/Caskroom/miniconda/base/lib/python3.13/unittest/case.py:606: ResourceWarning: unclosed file <_io.BufferedReader name='/Users/victorrielly/zk60-artifacts/d60_20261102/close/pg-20261102T041619/bundles/d55-r13_rung_h24-s1/arrays.bin'>
+  if method() is not None:
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+ok
+test_the_joint_module_imports_v24s_rank_functions_unchanged (test_d55_r13_gate.D55R13Port.test_the_joint_module_imports_v24s_rank_functions_unchanged) ... ok
+test_the_registered_schedule_lines (test_d55_r13_gate.D55R13Port.test_the_registered_schedule_lines) ... ok
+test_the_registry_is_the_marker_and_its_base (test_d55_r13_gate.D55R13Port.test_the_registry_is_the_marker_and_its_base) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 54.829s
+
+OK
+<sys>:0: ResourceWarning: unclosed file <_io.BufferedReader name='/Users/victorrielly/zk60-artifacts/d60_20261102/close/pg-20261102T041619/bundles/d55-r13_rung_h24-s0/arrays.bin'>

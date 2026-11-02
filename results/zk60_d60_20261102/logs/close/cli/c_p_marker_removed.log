@@ -1,0 +1,21 @@
+{"event":"verified","blocks":3,"receipt_bytes":46678744,"load_seconds":0.043,"verify_seconds":0.329,"of_which_block_load_seconds":0.047,"vmhwm_mib":NaN,"statement_identity":"5effeb3417aae489c0f0c72a004a16e1ce07dcd933f7c7dfb1ebcefef8e1f79d","scope":"ALL the listed trained blocks of the export's model (TinyLlama-1.1B-Chat or Llama-3-8B) as ONE bound run at the export's T (one transcript, hidden internal boundaries); embedding, final norm, LM head and token selection are NOT covered (D13); CPU unless the run line says gpu; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement"}
+{"event":"d55-publication","not_for_publication":true,"test_receipt_marker":"ABSENT","real_content_privacy_gate_passed":false,"why":"the run directory carries no test-receipt marker, but this build's D60 real-content privacy gate has not passed (run_fork::D55_REAL_CONTENT_PRIVACY_GATE_PASSED is false): no D55 receipt is for publication (D60 review F3)"}
+{"event":"statement-checked","dir":"/Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T041530/probes/marker_gone/statement","writer":"stack-verify, after its fresh-process verification of the run directory, from its own data and the hashes of the bytes it verified","result":"byte for byte this verifier's rendering of the verified run"}
+        0.38 real         1.57 user         4.16 sys
+           293928960  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+               19739  page reclaims
+                   1  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                  10  voluntary context switches
+               42040  involuntary context switches
+         15742083631  instructions retired
+         19621844841  cycles elapsed
+           288359144  peak memory footprint

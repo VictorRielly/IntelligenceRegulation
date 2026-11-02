@@ -1,0 +1,9 @@
+total 91200
+drwxr-xr-x  8 victorrielly  staff       256 Nov  2 04:15 .
+drwxr-xr-x  9 victorrielly  staff       288 Nov  2 04:15 ..
+-rw-r--r--  1 victorrielly  staff       632 Nov  2 04:15 D55_TEST_RECEIPT_NOT_FOR_PUBLICATION.txt
+-rw-r--r--  1 victorrielly  staff  14465864 Nov  2 04:15 d55-fork-000.bin
+-rw-r--r--  1 victorrielly  staff  14465864 Nov  2 04:15 d55-fork-001.bin
+-rw-r--r--  1 victorrielly  staff  14465864 Nov  2 04:15 d55-fork-002.bin
+-rw-r--r--  1 victorrielly  staff       144 Nov  2 04:15 d55-head.bin
+-rw-r--r--  1 victorrielly  staff   3281008 Nov  2 04:15 d55-tail.bin

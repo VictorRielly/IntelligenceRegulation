@@ -1,0 +1,20 @@
+{"event":"verified","blocks":11,"receipt_bytes":170040664,"load_seconds":0.149,"verify_seconds":1.910,"of_which_block_load_seconds":0.424,"vmhwm_mib":NaN,"statement_identity":"203ca71627c19d79c41547c4c20a1ae8c79370847cf599065082952661562bc0","scope":"ALL the listed trained blocks of the export's model (TinyLlama-1.1B-Chat or Llama-3-8B) as ONE bound run at the export's T (one transcript, hidden internal boundaries); embedding, final norm, LM head and token selection are NOT covered (D13); CPU unless the run line says gpu; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement"}
+{"event":"statement-published","by":"stack-verify, from its own rendering and the hashes of the verified bytes","to":"/Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T041530/d12a-l11/statement","prover_statement_removed":"/Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T041530/d12a-l11.unverified-statement"}
+        2.08 real         6.65 user        24.13 sys
+           202768384  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+               14352  page reclaims
+                   1  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                  12  voluntary context switches
+              298708  involuntary context switches
+         66598570166  instructions retired
+        105664381355  cycles elapsed
+           197165728  peak memory footprint

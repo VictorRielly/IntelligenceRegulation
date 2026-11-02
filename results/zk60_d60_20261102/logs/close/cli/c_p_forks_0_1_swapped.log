@@ -1,0 +1,19 @@
+{"event":"rejected","error":"D55 wire: frame 0 is not the 3-block run's fork 0"}
+        0.13 real         0.48 user         2.10 sys
+            60866560  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                5093  page reclaims
+                   1  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   4  voluntary context switches
+               20267  involuntary context switches
+          2203710283  instructions retired
+          8875232634  cycles elapsed
+            55591488  peak memory footprint

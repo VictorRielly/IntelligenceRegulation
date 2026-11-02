@@ -1,0 +1,16 @@
+peak memory of the release CLI on R13 rung h24 (T32, width 384) exports, public synthetic, CPU path:
+maxrss = /usr/bin/time -l's maximum resident set size (exact, getrusage); guard = the guard's peak_rss (sampled every 0.5 s)
+d55_l3_prove               maxrss 1560.1 MiB guard 1.51G wall 1.8s "block_load_seconds":0.059 | "receipt_bytes":46678744
+d55_l3_verify_n3           maxrss 279.2 MiB guard 0.0G wall 0.4s  | "receipt_bytes":46678744
+d55_l3_verify_n1           maxrss 183.0 MiB guard 0.18G wall 0.5s  | "receipt_bytes":46678744
+d12a_l3_prove              maxrss 707.7 MiB guard 0.69G wall 3.2s  | "receipt_bytes":46678552
+d12a_l3_verify             maxrss 161.3 MiB guard 0.15G wall 0.6s  | "receipt_bytes":46678552
+mem_d55_prove_l11_n6       maxrss 3385.5 MiB guard 3.31G wall 5.5s "block_load_seconds":0.193 | "receipt_bytes":170040856
+mem_d55_verify_l11_n6      maxrss 605.3 MiB guard 0.57G wall 1.2s  | "receipt_bytes":170040856
+mem_d55_verify_l11_n1      maxrss 339.3 MiB guard 0.33G wall 2.0s  | "receipt_bytes":170040856
+mem_d12a_prove_l11         maxrss 862.4 MiB guard 0.83G wall 11.5s  | "receipt_bytes":170040664
+mem_d12a_verify_l11        maxrss 193.4 MiB guard 0.19G wall 2.1s  | "receipt_bytes":170040664
+D60 F5 BLOCK | R13_8B_T128_H24 (T128, width 4096, hidden 14336; d_pad 4096, f_pad 16384) | one public block: 243277824 B of padded weight words + 133632 B of tables + 225530 B of accuracy data = 243636986 B (0.227 GiB); x32 = 7.26 GiB, x22 = 4.99 GiB, x26 = 5.90 GiB
+162M	/Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T041530/d55-l11
+162M	/Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T041530/d12a-l11
+D60 F5 BLOCK | R13_RUNG_H24 (T32, width 384, hidden 768; d_pad 512, f_pad 1024) | one public block: 3146752 B of padded weight words + 18944 B of tables + 39674 B of accuracy data = 3205370 B (0.003 GiB); x32 = 0.10 GiB, x22 = 0.07 GiB, x26 = 0.08 GiB

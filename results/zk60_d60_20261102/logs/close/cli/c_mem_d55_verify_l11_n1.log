@@ -1,0 +1,21 @@
+{"event":"verified","blocks":11,"receipt_bytes":170040856,"load_seconds":0.120,"verify_seconds":1.821,"of_which_block_load_seconds":0.219,"vmhwm_mib":NaN,"statement_identity":"203ca71627c19d79c41547c4c20a1ae8c79370847cf599065082952661562bc0","scope":"ALL the listed trained blocks of the export's model (TinyLlama-1.1B-Chat or Llama-3-8B) as ONE bound run at the export's T (one transcript, hidden internal boundaries); embedding, final norm, LM head and token selection are NOT covered (D13); CPU unless the run line says gpu; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement"}
+{"event":"d55-publication","not_for_publication":true,"test_receipt_marker":"present","real_content_privacy_gate_passed":false,"why":"the run directory carries the D55 test-receipt marker (stack-prove --d55-test-receipt-not-for-publication): a TEST receipt, not for publication (D60 review F3)"}
+{"event":"statement-published","by":"stack-verify, from its own rendering and the hashes of the verified bytes","to":"/Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T041530/d55-l11-n1/statement","prover_statement_removed":"/Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T041530/d55-l11-n1.unverified-statement"}
+        1.96 real         6.16 user        20.99 sys
+           355827712  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+               24200  page reclaims
+                   1  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                  24  voluntary context switches
+              266915  involuntary context switches
+         64390290423  instructions retired
+         93285690856  cycles elapsed
+           350290712  peak memory footprint

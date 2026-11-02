@@ -1,0 +1,19 @@
+{"event":"rejected","error":"D55: the head's S0 tag is not the verifier's own S0 (every boundary root absorbed, in order, before any fork)"}
+        0.12 real         0.47 user         2.08 sys
+            40566784  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                3729  page reclaims
+                   1  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   2  voluntary context switches
+               18799  involuntary context switches
+          2068556283  instructions retired
+          8740372915  cycles elapsed
+            35275304  peak memory footprint

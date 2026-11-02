@@ -1,0 +1,34 @@
+{"event":"prover_start","gpu":"gpu: off (built with gpu-metal; HL_GPU unset)","hl_gpu_required":false}
+{"event":"loaded","variant":"r13-h24-wide-x11-d60","layers":"0..11","blocks":11,"statement_identity":"203ca71627c19d79c41547c4c20a1ae8c79370847cf599065082952661562bc0","seconds":0.426,"hl_gpu":"unset","scope":"ALL the listed trained blocks of the export's model (TinyLlama-1.1B-Chat or Llama-3-8B) as ONE bound run at the export's T (one transcript, hidden internal boundaries); embedding, final norm, LM head and token selection are NOT covered (D13); CPU unless the run line says gpu; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement"}
+{"event":"sealed","from":"the witness builder's own pass over layers 0..11 (parity bit-exact at every layer, before the run header: ruling H-1)","seconds":0.426,"of_which_load_seconds":0.246,"of_which_witness_seconds":0.279,"kept_witnesses":11,"kept_witness_bytes":187534336,"rayon_threads":32}
+{"event":"parity","result":"bit-exact at every layer","layers":11,"words_per_layer":12288,"checked_before_the_run_header":true}
+{"event":"segment","index":0,"layer":0,"bytes":15151976,"elapsed_seconds":1.251,"vmhwm_mib":NaN}
+{"event":"segment","index":1,"layer":1,"bytes":15420264,"elapsed_seconds":2.213,"vmhwm_mib":NaN}
+{"event":"segment","index":2,"layer":2,"bytes":15420264,"elapsed_seconds":3.182,"vmhwm_mib":NaN}
+{"event":"segment","index":3,"layer":3,"bytes":15420264,"elapsed_seconds":4.154,"vmhwm_mib":NaN}
+{"event":"segment","index":4,"layer":4,"bytes":15420264,"elapsed_seconds":5.124,"vmhwm_mib":NaN}
+{"event":"segment","index":5,"layer":5,"bytes":15420264,"elapsed_seconds":6.106,"vmhwm_mib":NaN}
+{"event":"segment","index":6,"layer":6,"bytes":15420264,"elapsed_seconds":7.090,"vmhwm_mib":NaN}
+{"event":"segment","index":7,"layer":7,"bytes":15420264,"elapsed_seconds":8.063,"vmhwm_mib":NaN}
+{"event":"segment","index":8,"layer":8,"bytes":15420264,"elapsed_seconds":9.045,"vmhwm_mib":NaN}
+{"event":"segment","index":9,"layer":9,"bytes":15420264,"elapsed_seconds":10.006,"vmhwm_mib":NaN}
+{"event":"segment","index":10,"layer":10,"bytes":16106312,"elapsed_seconds":10.984,"vmhwm_mib":NaN}
+{"event":"proved","gpu":"gpu: off (built with gpu-metal; HL_GPU unset)","gpu_declines":0,"blocks":11,"receipt_bytes":170040664,"prove_run_seconds":10.984,"of_which_witness_seconds":0.000,"rebuilt_witnesses":0,"witness_seconds_per_block":0.025,"of_which_block_load_seconds":0.424,"block_loads":22,"rayon_threads":32,"in_process_verified":false,"in_process_verify_seconds":0.000,"sealing_pass_seconds":0.426,"sealing_witness_seconds":0.279,"load_seconds":0.246,"total_seconds":11.455,"vmhwm_mib":NaN,"statement_identity":"203ca71627c19d79c41547c4c20a1ae8c79370847cf599065082952661562bc0","statement_dir":"/Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T041530/d12a-l11.unverified-statement","out":"/Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T041530/d12a-l11"}
+       11.46 real        54.56 user       176.45 sys
+           904265728  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+               60334  page reclaims
+                   1  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                 128  voluntary context switches
+             2168146  involuntary context switches
+        552125730081  instructions retired
+        790012061741  cycles elapsed
+           839451800  peak memory footprint

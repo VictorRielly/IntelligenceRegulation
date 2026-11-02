@@ -1,0 +1,13 @@
+peak RSS (guard, sampled every 0.5 s) of the release CLI, R13 rung h24 (T32, width 384) exports, public synthetic
+d55_l3_prove                  | "receipt_bytes":46678744
+d55_l3_verify_n3              | "receipt_bytes":46678744
+d55_l3_verify_n1              | "receipt_bytes":46678744
+d12a_l3_prove                 | "receipt_bytes":46678552
+d12a_l3_verify                | "receipt_bytes":46678552
+mem_d55_prove_l8_n6           | "receipt_bytes":123780064
+mem_d55_verify_l8_n6          | "receipt_bytes":123780064
+mem_d55_verify_l8_n1          | "receipt_bytes":123780064
+mem_d12a_prove_l8             | "receipt_bytes":123779872
+mem_d12a_verify_l8            | "receipt_bytes":123779872
+118M	/Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T034249/d55-l8
+118M	/Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T034249/d12a-l8

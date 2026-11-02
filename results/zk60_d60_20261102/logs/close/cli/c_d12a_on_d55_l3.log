@@ -1,0 +1,19 @@
+{"event":"rejected","error":"private run: the run directory /Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T041530/d55-l3 holds D55_TEST_RECEIPT_NOT_FOR_PUBLICATION.txt, which is not one of this run's 3 segments"}
+        0.13 real         0.61 user         2.08 sys
+            42680320  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+                3895  page reclaims
+                   1  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                   0  voluntary context switches
+               27142  involuntary context switches
+          2636659138  instructions retired
+          9226380751  cycles elapsed
+            37339664  peak memory footprint

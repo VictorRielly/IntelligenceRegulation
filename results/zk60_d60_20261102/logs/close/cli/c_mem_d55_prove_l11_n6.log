@@ -1,0 +1,26 @@
+{"event":"prover_start","gpu":"gpu: off (built with gpu-metal; HL_GPU unset)","hl_gpu_required":false}
+{"event":"loaded","variant":"r13-h24-wide-x11-d60","layers":"0..11","blocks":11,"statement_identity":"203ca71627c19d79c41547c4c20a1ae8c79370847cf599065082952661562bc0","seconds":0.433,"hl_gpu":"unset","scope":"ALL the listed trained blocks of the export's model (TinyLlama-1.1B-Chat or Llama-3-8B) as ONE bound run at the export's T (one transcript, hidden internal boundaries); embedding, final norm, LM head and token selection are NOT covered (D13); CPU unless the run line says gpu; NO privacy acceptance at this shape (D22 covers only the toy); float fidelity is the calibration lane's measurement"}
+{"event":"sealed","from":"the witness builder's own pass over layers 0..11 (parity bit-exact at every layer, before the run header: ruling H-1)","seconds":0.433,"of_which_load_seconds":0.241,"of_which_witness_seconds":0.289,"kept_witnesses":11,"kept_witness_bytes":187534336,"rayon_threads":32}
+{"event":"parity","result":"bit-exact at every layer","layers":11,"words_per_layer":12288,"checked_before_the_run_header":true}
+{"event":"d55","run_profile":"hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-rung-lh-t32-dev/1","base_run_profile":"hashline-zk-mr1/private-run-rung-lh-t32-dev/1","workers":6,"test_receipt_not_for_publication":true}
+{"event":"d55-test-receipt","not_for_publication":true,"marker":"/Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T041530/d55-l11/D55_TEST_RECEIPT_NOT_FOR_PUBLICATION.txt","why":"D60 review F3: run_fork::D55_REAL_CONTENT_PRIVACY_GATE_PASSED is false in this build; the operator passed --d55-test-receipt-not-for-publication"}
+{"event":"d55-proved","workers":6,"frames":13,"receipt_bytes":170040856,"block_load_seconds":0.193,"preflight_seconds":0.085,"commit_seconds":0.129,"forks_seconds":4.057,"join_seconds":0.028,"total_seconds":4.298,"fork_prove_core_seconds":[1.999,2.516,2.037,2.700,2.376,2.250,2.006,1.868,1.790,1.676,1.525],"generators":12,"join_claim_bytes":18128,"vmhwm_mib":NaN}
+{"event":"proved","gpu":"gpu: off (built with gpu-metal; HL_GPU unset)","gpu_declines":0,"blocks":11,"receipt_bytes":170040856,"prove_run_seconds":4.939,"of_which_witness_seconds":0.000,"rebuilt_witnesses":0,"witness_seconds_per_block":0.026,"of_which_block_load_seconds":0.000,"block_loads":0,"rayon_threads":32,"in_process_verified":false,"in_process_verify_seconds":0.000,"sealing_pass_seconds":0.433,"sealing_witness_seconds":0.289,"load_seconds":0.241,"total_seconds":5.416,"vmhwm_mib":NaN,"statement_identity":"203ca71627c19d79c41547c4c20a1ae8c79370847cf599065082952661562bc0","statement_dir":"/Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T041530/d55-l11.unverified-statement","out":"/Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T041530/d55-l11"}
+        5.43 real        48.93 user        77.88 sys
+          3549970432  maximum resident set size
+                   0  average shared memory size
+                   0  average unshared data size
+                   0  average unshared stack size
+              224218  page reclaims
+                   1  page faults
+                   0  swaps
+                   0  block input operations
+                   0  block output operations
+                   0  messages sent
+                   0  messages received
+                   0  signals received
+                 130  voluntary context switches
+              802951  involuntary context switches
+        466004381115  instructions retired
+        428909555526  cycles elapsed
+          3363867696  peak memory footprint

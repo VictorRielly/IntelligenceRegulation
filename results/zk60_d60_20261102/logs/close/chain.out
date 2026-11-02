@@ -1,0 +1,277 @@
+== build 04:10:30
+[zk60-guard 04:10:30] START d60close-build class=build need=4G cap=10G enforce=watchdog-only waited=0s run=3fc7035e4ec9
+[zk60-guard 04:10:30] END d60close-build exit=0 child_wall=0s peak_rss=0.00G min_avail=232.22G
+warnings: 133
+B=/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a2e328baa581cb5b0/ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-48a0f1849b7501c1
+-rwxr-xr-x  1 victorrielly  staff  19096992 Nov  2 04:05 /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a2e328baa581cb5b0/ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-48a0f1849b7501c1
+b6fc2fd7e1296fe546d33a87c7970e43a43c2fc5c17cfc53d8535a2526a11531  /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a2e328baa581cb5b0/ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-48a0f1849b7501c1
+[zk60-guard 04:10:30] START d60close-build-cli class=build need=4G cap=10G enforce=watchdog-only waited=0s run=031403fa0a2a
+[zk60-guard 04:10:30] END d60close-build-cli exit=0 child_wall=0s peak_rss=0.00G min_avail=232.20G
+594292c6da1877a10c14e6100e73dc6704a3c4ab964305c559dc424b08a2784f  /Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a2e328baa581cb5b0/ops/zkp-mvp/gpu-metal/hashline/target/release/examples/zk60_trained_block
+== scans 04:10:35
+[zk60-guard 04:10:35] START d60close-scans class=cpu need=4G cap=20G enforce=watchdog-only waited=0s run=60fe73643442
+[zk60-guard 04:11:11] END d60close-scans exit=0 child_wall=35s peak_rss=5.03G min_avail=226.90G
+test result: ok. 58 passed; 0 failed; 0 ignored; 0 measured; 933 filtered out; finished in 35.31s
+[zk60-guard 04:11:11] START d60close-scans-print class=cpu need=4G cap=20G enforce=watchdog-only waited=0s run=549fd407d40a
+[zk60-guard 04:12:11] END d60close-scans-print exit=0 child_wall=60s peak_rss=4.73G min_avail=226.89G
+== d55-cpu 04:12:17
+[zk60-guard 04:12:17] START d60close-d55-cpu class=cpu need=8G cap=40G enforce=watchdog-only waited=0s run=3b2edc25a6ae
+[zk60-guard 04:14:08] END d60close-d55-cpu exit=0 child_wall=112s peak_rss=2.36G min_avail=229.28G
+test private_block::run::fork::tests::d60_f1_the_fork_verifier_refuses_blocks_that_are_not_the_statements ... D60 F1 | (a1) blocks 0 and 1 swapped | REFUSED by the preflight (in memory, from the directory and before a missing directory is listed): private run: block 0: R13 public folded gate denomin
+D60 F1 | (a2) block 1 with one public weight changed | REFUSED by the preflight (in memory, from the directory and before a missing directory is listed): private run: ruling CS-6 — block 1 handed to the run is not the block the run statement names (its public digest begins a93afae34e73460e, the stat
+D60 F1 | (b) two blocks for a three-block statement | REFUSED by the preflight (in memory, from the directory and before a missing directory is listed): private run: ruling CS-6 — the run statement names 3 blocks and 2 public statements were handed
+D60 F1 | (c1) block 0 at stage 1 | REFUSED by the preflight (in memory, from the directory and before a missing directory is listed): private run: block 1: R13 public folded gate denominator differs from the stage shape
+D60 F1 | (c2) block 1 with a feed-forward word outside its support | REFUSED by the preflight (in memory, from the directory and before a missing directory is listed): private run: block 1: private block: ruling CS-1 — the feed-forward statement does not fit the shape it is proved at: private block:
+D60 F1 | (d) two fork frames for a three-block run | REFUSED before any frame is decoded: D55: 2 fork frames were offered, this run has 3
+D60 F1 | (d) a directory missing fork 2 | REFUSED before any frame is read: D55: the run directory /var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60-native-tiny-12067-1793621598263105000/d60-close-f1/run-missing-fork-2 is missing d55-fork-002.bin
+D60 F1 | the honest prover on (a1) blocks 0 and 1 swapped | REFUSED: private run: block 0: R13 public folded gate denominator differs from the stage shape
+D60 F1 | the honest prover on (a2) block 1 with one public weight changed | REFUSED: private run: ruling CS-6 — block 1 handed to the run is not the block the run statement names (its public digest begins a93afae34e73460e, the statement's 5fb08fa6a8e18edf); refused before anything is absorbed
+D60 F1 | the honest prover on (c2) a feed-forward word outside its support | REFUSED: private run: block 1: private block: ruling CS-1 — the feed-forward statement does not fit the shape it is proved at: private block: a public weight is nonzero at a padded width index
+D60 F3 | stack-prove --d55-workers 1 without --d55-test-receipt-not-for-publication: REFUSED, nothing created; the flag without --d55-workers: REFUSED
+D60 F3 | a marker of other content (its length) under the marker's name | REFUSED: D55: /var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60-native-tiny-12067-1793621599531468000/d60-close-f3/run/D55_TEST_RECEIPT_NOT_FOR_PUBLICATION.txt is not the test-receipt marker this build writes (other conten
+D60 F3 | a symbolic link to a true marker under the marker's name | REFUSED: D55: the test-receipt marker is not the marker this build writes: /var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60-native-tiny-12067-1793621599531468000/d60-close-f3/run/D55_TEST_RECEIPT_NOT_FOR_PUBLICATION.txt: not a 
+D60 F3 | a directory under the marker's name | REFUSED: D55: the test-receipt marker is not the marker this build writes: /var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60-native-tiny-12067-1793621599531468000/d60-close-f3/run/D55_TEST_RECEIPT_NOT_FOR_PUBLICATION.txt: not a regular file (a symbo
+D60 F3 | with --d55-test-receipt-not-for-publication: proved, the directory marked D55_TEST_RECEIPT_NOT_FOR_PUBLICATION.txt (3 frames + the marker; segments.json and statement.json name no marker); stack-verify verifies and reports it; the receipt without its marker checks against the same statement
+test private_block::run::fork::tests::d60_f4_a_fifo_or_symlink_swapped_in_after_the_check_is_refused_without_hanging ... D60 F4 | D55 frame | a FIFO swapped in between the lstat and the open | REFUSED without hanging: D55 wire: fork frame 0 (/var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60-nati
+D60 F4 | D55 frame | a symlink swapped in between the lstat and the open | REFUSED without hanging: D55: fork frame 0 (/var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60-native-tiny-12067-1793621602720650000/d60-close-f4/D55-frame-symlink.bin) cannot be opened as a regular file: Too many levels o
+D60 F4 | D12a segment | a FIFO swapped in between the lstat and the open | REFUSED without hanging: private run wire: segment 0 (/var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60-native-tiny-12067-1793621602720650000/d60-close-f4/D12a-segment-FIFO.bin) changed after its check (now 0 B, regular f
+D60 F4 | D12a segment | a symlink swapped in between the lstat and the open | REFUSED without hanging: private run: segment 0 (/var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60-native-tiny-12067-1793621602720650000/d60-close-f4/D12a-segment-symlink.bin) cannot be opened as a regular file: Too ma
+D60 F4 | D12a regular file | a FIFO swapped in between the lstat and the open | REFUSED without hanging: /var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60-native-tiny-12067-1793621602720650000/d60-close-f4/D12a-regular-file-FIFO.bin: changed after its check; refused
+D60 F4 | D12a regular file | a symlink swapped in between the lstat and the open | REFUSED without hanging: /var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60-native-tiny-12067-1793621602720650000/d60-close-f4/D12a-regular-file-symlink.bin: cannot be opened as a regular file: Too many levels of s
+D60 F4 | token table | a FIFO swapped in between the lstat and the open | REFUSED without hanging: /var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60-native-tiny-12067-1793621602720650000/d60-close-f4/token-table-FIFO.bin: changed after its check; refused
+D60 F4 | token table | a symlink swapped in between the lstat and the open | REFUSED without hanging: /var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60-native-tiny-12067-1793621602720650000/d60-close-f4/token-table-symlink.bin: cannot be opened as a regular file: Too many levels of symbolic link
+test private_block::run::fork::tests::d60_f7_a_foreign_fork_frame_from_a_second_run_is_rejected_by_the_tag_and_then_by_the_chain ... D60 F7 | a foreign fork frame from a second run, as it stands | REJECTED: D55: fork 1: D55 wire: fork frame 1 belongs to another run
+D60 F7 | a foreign fork frame from a second run, its binding rewritten | REJECTED: D55: fork 1: D55 wire: fork frame 1's start tag is not the verifier's own fork-1 position
+D60 F7 | a foreign fork frame from a second run, its binding and start tag rewritten | REJECTED: D55: fork 1: slot 0 [01 SS row sums norm_a (private)]: sumcheck round 1: s(0) + s(1) != claim
+test private_block::run::fork::tests::d60_f7_a_one_block_fork_run_verifies_and_a_changed_byte_is_refused ... D60 F7 | L1 | a changed byte in the head | REJECTED: D55 wire: the head is not an 1-block run's
+D60 F7 | L1 | a changed byte in the fork | REJECTED: D55: fork 0: A: pcs zk: group 26: <v, c> != combined claim
+D60 F7 | L1 | a changed byte in the tail | REJECTED: D55: run input endpoint: pcs zk: Merkle path for column 51657 fails
+D60 F7 | L1 | the honest one-block fork run verifies: 15838216 B (head 80 B, fork 14465864 B, tail 1372272 B)
+test private_block::run::fork::tests::d60_f7_a_receipt_under_another_profile_and_a_rewrapped_d12a_body_are_rejected_by_the_chain ... D60 F7 | the registered receipt under the test-only profile, as it stands | REJECTED: D55 wire: the head belongs to another run
+D60 F7 | the registered receipt under the test-only profile, every binding and S0 / start tag rewritten | REJECTED by the chain: D55: fork 0: slot 0 [01 SS row sums norm_a (private)]: sumcheck round 1: s(0) + s(1) != claim
+D60 F7 | a D12a stage-1 body re-wrapped to fork 1's length with the D55 verifier's own header and tags | REJECTED by the chain: D55: fork 1: slot 0 [01 SS row sums norm_a (private)]: sumcheck round 1: s(0) + s(1) != claim
+test private_block::run::fork::tests::d60_f7_the_on_disk_reader_checks_each_header_before_it_reads_the_next_frame ... D60 F7 | the head's binding wrong (d55-tail.bin a FIFO, never reached) | REFUSED by the reader at that header: D55 wire: the head belongs to another run
+D60 F7 | the head's S0 tag wrong (d55-fork-000.bin a FIFO, never reached) | REFUSED by the reader at that header: D55: the head's S0 tag is not the verifier's own S0 (every boundary root absorbed, in order, before any fork)
+D60 F7 | fork 0's binding wrong (d55-fork-001.bin a FIFO, never reached) | REFUSED by the reader at that header: D55 wire: fork frame 0 belongs to another run
+D60 F7 | fork 1's start tag wrong (d55-fork-002.bin a FIFO, never reached) | REFUSED by the reader at that header: D55 wire: fork frame 1's start tag is not the verifier's own fork-1 position
+D60 F7 | the tail's binding wrong | REFUSED by the reader at that header: D55 wire: the tail belongs to another run
+thread '<unnamed>' (4522795) panicked at src/private_block/run_fork.rs:1012:13:
+thread '<unnamed>' (4522796) panicked at src/private_block/run_fork.rs:1012:13:
+thread '<unnamed>' (4522796) panicked at src/private_block/run_fork.rs:1012:13:
+test result: ok. 23 passed; 0 failed; 7 ignored; 0 measured; 961 filtered out; finished in 111.46s
+== d55-metal 04:14:13
+[zk60-guard 04:14:13] START d60close-d55-metal class=gpu need=8G cap=40G enforce=watchdog-only waited=0s run=3cda8e1ed172
+[zk60-guard 04:15:03] END d60close-d55-metal exit=0 child_wall=50s peak_rss=2.03G min_avail=226.87G peak_vram=5522MiB
+test private_block::run::fork::tests::d60_f1_the_fork_verifier_refuses_blocks_that_are_not_the_statements ... D60 F1 | (a1) blocks 0 and 1 swapped | REFUSED by the preflight (in memory, from the directory and before a missing directory is listed): private run: block 0: R13 public folded gate denomin
+D60 F1 | (a2) block 1 with one public weight changed | REFUSED by the preflight (in memory, from the directory and before a missing directory is listed): private run: ruling CS-6 — block 1 handed to the run is not the block the run statement names (its public digest begins a93afae34e73460e, the stat
+D60 F1 | (b) two blocks for a three-block statement | REFUSED by the preflight (in memory, from the directory and before a missing directory is listed): private run: ruling CS-6 — the run statement names 3 blocks and 2 public statements were handed
+D60 F1 | (c1) block 0 at stage 1 | REFUSED by the preflight (in memory, from the directory and before a missing directory is listed): private run: block 1: R13 public folded gate denominator differs from the stage shape
+D60 F1 | (c2) block 1 with a feed-forward word outside its support | REFUSED by the preflight (in memory, from the directory and before a missing directory is listed): private run: block 1: private block: ruling CS-1 — the feed-forward statement does not fit the shape it is proved at: private block:
+D60 F1 | (d) two fork frames for a three-block run | REFUSED before any frame is decoded: D55: 2 fork frames were offered, this run has 3
+D60 F1 | (d) a directory missing fork 2 | REFUSED before any frame is read: D55: the run directory /var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60-native-tiny-12929-1793621683174920000/d60-close-f1/run-missing-fork-2 is missing d55-fork-002.bin
+D60 F1 | the honest prover on (a1) blocks 0 and 1 swapped | REFUSED: private run: block 0: R13 public folded gate denominator differs from the stage shape
+D60 F1 | the honest prover on (a2) block 1 with one public weight changed | REFUSED: private run: ruling CS-6 — block 1 handed to the run is not the block the run statement names (its public digest begins a93afae34e73460e, the statement's 5fb08fa6a8e18edf); refused before anything is absorbed
+D60 F1 | the honest prover on (c2) a feed-forward word outside its support | REFUSED: private run: block 1: private block: ruling CS-1 — the feed-forward statement does not fit the shape it is proved at: private block: a public weight is nonzero at a padded width index
+D60 F3 | stack-prove --d55-workers 1 without --d55-test-receipt-not-for-publication: REFUSED, nothing created; the flag without --d55-workers: REFUSED
+D60 F3 | a marker of other content (its length) under the marker's name | REFUSED: D55: /var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60-native-tiny-12929-1793621684401537000/d60-close-f3/run/D55_TEST_RECEIPT_NOT_FOR_PUBLICATION.txt is not the test-receipt marker this build writes (other conten
+D60 F3 | a symbolic link to a true marker under the marker's name | REFUSED: D55: the test-receipt marker is not the marker this build writes: /var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60-native-tiny-12929-1793621684401537000/d60-close-f3/run/D55_TEST_RECEIPT_NOT_FOR_PUBLICATION.txt: not a 
+D60 F3 | a directory under the marker's name | REFUSED: D55: the test-receipt marker is not the marker this build writes: /var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60-native-tiny-12929-1793621684401537000/d60-close-f3/run/D55_TEST_RECEIPT_NOT_FOR_PUBLICATION.txt: not a regular file (a symbo
+D60 F3 | with --d55-test-receipt-not-for-publication: proved, the directory marked D55_TEST_RECEIPT_NOT_FOR_PUBLICATION.txt (3 frames + the marker; segments.json and statement.json name no marker); stack-verify verifies and reports it; the receipt without its marker checks against the same statement
+test private_block::run::fork::tests::d60_f4_a_fifo_or_symlink_swapped_in_after_the_check_is_refused_without_hanging ... D60 F4 | D55 frame | a FIFO swapped in between the lstat and the open | REFUSED without hanging: D55 wire: fork frame 0 (/var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60-nati
+D60 F4 | D55 frame | a symlink swapped in between the lstat and the open | REFUSED without hanging: D55: fork frame 0 (/var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60-native-tiny-12929-1793621686124130000/d60-close-f4/D55-frame-symlink.bin) cannot be opened as a regular file: Too many levels o
+D60 F4 | D12a segment | a FIFO swapped in between the lstat and the open | REFUSED without hanging: private run wire: segment 0 (/var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60-native-tiny-12929-1793621686124130000/d60-close-f4/D12a-segment-FIFO.bin) changed after its check (now 0 B, regular f
+D60 F4 | D12a segment | a symlink swapped in between the lstat and the open | REFUSED without hanging: private run: segment 0 (/var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60-native-tiny-12929-1793621686124130000/d60-close-f4/D12a-segment-symlink.bin) cannot be opened as a regular file: Too ma
+D60 F4 | D12a regular file | a FIFO swapped in between the lstat and the open | REFUSED without hanging: /var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60-native-tiny-12929-1793621686124130000/d60-close-f4/D12a-regular-file-FIFO.bin: changed after its check; refused
+D60 F4 | D12a regular file | a symlink swapped in between the lstat and the open | REFUSED without hanging: /var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60-native-tiny-12929-1793621686124130000/d60-close-f4/D12a-regular-file-symlink.bin: cannot be opened as a regular file: Too many levels of s
+D60 F4 | token table | a FIFO swapped in between the lstat and the open | REFUSED without hanging: /var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60-native-tiny-12929-1793621686124130000/d60-close-f4/token-table-FIFO.bin: changed after its check; refused
+D60 F4 | token table | a symlink swapped in between the lstat and the open | REFUSED without hanging: /var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60-native-tiny-12929-1793621686124130000/d60-close-f4/token-table-symlink.bin: cannot be opened as a regular file: Too many levels of symbolic link
+test private_block::run::fork::tests::d60_f7_a_foreign_fork_frame_from_a_second_run_is_rejected_by_the_tag_and_then_by_the_chain ... D60 F7 | a foreign fork frame from a second run, as it stands | REJECTED: D55: fork 1: D55 wire: fork frame 1 belongs to another run
+D60 F7 | a foreign fork frame from a second run, its binding rewritten | REJECTED: D55: fork 1: D55 wire: fork frame 1's start tag is not the verifier's own fork-1 position
+D60 F7 | a foreign fork frame from a second run, its binding and start tag rewritten | REJECTED: D55: fork 1: slot 0 [01 SS row sums norm_a (private)]: sumcheck round 1: s(0) + s(1) != claim
+test private_block::run::fork::tests::d60_f7_a_one_block_fork_run_verifies_and_a_changed_byte_is_refused ... D60 F7 | L1 | a changed byte in the head | REJECTED: D55 wire: the head is not an 1-block run's
+D60 F7 | L1 | a changed byte in the fork | REJECTED: D55: fork 0: A: pcs zk: group 26: <v, c> != combined claim
+D60 F7 | L1 | a changed byte in the tail | REJECTED: D55: run input endpoint: pcs zk: Merkle path for column 12390 fails
+D60 F7 | L1 | the honest one-block fork run verifies: 15838216 B (head 80 B, fork 14465864 B, tail 1372272 B)
+test private_block::run::fork::tests::d60_f7_a_receipt_under_another_profile_and_a_rewrapped_d12a_body_are_rejected_by_the_chain ... D60 F7 | the registered receipt under the test-only profile, as it stands | REJECTED: D55 wire: the head belongs to another run
+D60 F7 | the registered receipt under the test-only profile, every binding and S0 / start tag rewritten | REJECTED by the chain: D55: fork 0: slot 0 [01 SS row sums norm_a (private)]: sumcheck round 1: s(0) + s(1) != claim
+D60 F7 | a D12a stage-1 body re-wrapped to fork 1's length with the D55 verifier's own header and tags | REJECTED by the chain: D55: fork 1: slot 0 [01 SS row sums norm_a (private)]: sumcheck round 1: s(0) + s(1) != claim
+test private_block::run::fork::tests::d60_f7_the_on_disk_reader_checks_each_header_before_it_reads_the_next_frame ... D60 F7 | the head's binding wrong (d55-tail.bin a FIFO, never reached) | REFUSED by the reader at that header: D55 wire: the head belongs to another run
+D60 F7 | the head's S0 tag wrong (d55-fork-000.bin a FIFO, never reached) | REFUSED by the reader at that header: D55: the head's S0 tag is not the verifier's own S0 (every boundary root absorbed, in order, before any fork)
+D60 F7 | fork 0's binding wrong (d55-fork-001.bin a FIFO, never reached) | REFUSED by the reader at that header: D55 wire: fork frame 0 belongs to another run
+D60 F7 | fork 1's start tag wrong (d55-fork-002.bin a FIFO, never reached) | REFUSED by the reader at that header: D55 wire: fork frame 1's start tag is not the verifier's own fork-1 position
+D60 F7 | the tail's binding wrong | REFUSED by the reader at that header: D55 wire: the tail belongs to another run
+thread '<unnamed>' (4525285) panicked at src/private_block/run_fork.rs:1012:13:
+thread '<unnamed>' (4525286) panicked at src/private_block/run_fork.rs:1012:13:
+thread '<unnamed>' (4525286) panicked at src/private_block/run_fork.rs:1012:13:
+test result: ok. 23 passed; 0 failed; 7 ignored; 0 measured; 961 filtered out; finished in 49.53s
+== d55-capture 04:15:08
+[zk60-guard 04:15:08] START d60close-capture class=cpu need=8G cap=40G enforce=watchdog-only waited=0s run=77fcd833f6d6
+[zk60-guard 04:15:14] END d60close-capture exit=0 child_wall=6s peak_rss=1.75G min_avail=230.32G
+== fresh-process 04:15:19
+[zk60-guard 04:15:19] START d60close-fresh-write class=cpu need=8G cap=40G enforce=watchdog-only waited=0s run=d5dd9a7a3898
+[zk60-guard 04:15:24] END d60close-fresh-write exit=0 child_wall=5s peak_rss=1.67G min_avail=230.46G
+[zk60-guard 04:15:24] START d60close-fresh-verify class=cpu need=8G cap=40G enforce=watchdog-only waited=0s run=95aa5e9475f0
+[zk60-guard 04:15:25] END d60close-fresh-verify exit=0 child_wall=1s peak_rss=0.28G min_avail=231.85G
+== cli 04:15:30
+[zk60-guard 04:15:48] END d60close-cli-p_forks_0_2_swapped_same_block exit=1 child_wall=0s peak_rss=0.00G min_avail=231.95G
+p_forks_0_2_swapped_same_block [rel]: exit 1 (want nonzero) guard_peak_rss=0.0G maxrss=54.0MiB | {"event":"rejected","error":"D55 wire: frame 0 is not the 3-block run's fork 0"}
+[zk60-guard 04:15:48] START d60close-cli-p_forks_0_1_swapped class=cpu need=4G cap=40G enforce=watchdog-only waited=0s run=86fbce2d1b17
+[zk60-guard 04:15:48] END d60close-cli-p_forks_0_1_swapped exit=1 child_wall=0s peak_rss=0.00G min_avail=231.94G
+p_forks_0_1_swapped [rel]: exit 1 (want nonzero) guard_peak_rss=0.0G maxrss=58.0MiB | {"event":"rejected","error":"D55 wire: frame 0 is not the 3-block run's fork 0"}
+[zk60-guard 04:15:48] START d60close-cli-p_fifo_fork1 class=cpu need=4G cap=40G enforce=watchdog-only waited=0s run=487fd0cb99bc
+[zk60-guard 04:15:48] END d60close-cli-p_fifo_fork1 exit=1 child_wall=0s peak_rss=0.00G min_avail=231.95G
+p_fifo_fork1 [rel]: exit 1 (want nonzero) guard_peak_rss=0.0G maxrss=53.6MiB | {"event":"rejected","error":"D55: fork frame 1 (/Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T041530/probes/fifo/d55-fork-001.bin) is not a regular file (a symbolic link, FIFO, device or directory is refused before it is opened)"}
+[zk60-guard 04:15:48] START d60close-cli-p_symlink_fork1 class=cpu need=4G cap=40G enforce=watchdog-only waited=0s run=d4407bcb8e5f
+[zk60-guard 04:15:48] END d60close-cli-p_symlink_fork1 exit=1 child_wall=0s peak_rss=0.00G min_avail=231.94G
+p_symlink_fork1 [rel]: exit 1 (want nonzero) guard_peak_rss=0.0G maxrss=54.0MiB | {"event":"rejected","error":"D55: fork frame 1 (/Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T041530/probes/link/d55-fork-001.bin) is not a regular file (a symbolic link, FIFO, device or directory is refused before it is opened)"}
+[zk60-guard 04:15:49] START d60close-cli-p_marker_removed class=cpu need=4G cap=40G enforce=watchdog-only waited=0s run=27fd0ab3bade
+[zk60-guard 04:15:49] END d60close-cli-p_marker_removed exit=0 child_wall=0s peak_rss=0.00G min_avail=231.95G
+p_marker_removed [rel]: exit 0 (want 0) guard_peak_rss=0.0G maxrss=280.3MiB | {"event":"statement-checked","dir":"/Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T041530/probes/marker_gone/statement","writer":"stack-verify, after its fresh-process verification of the run directory, from its own data and the hashes of the bytes it verified","result":"byte for
+[zk60-guard 04:15:49] START d60close-cli-p_marker_other_content class=cpu need=4G cap=40G enforce=watchdog-only waited=0s run=1af9ffe435c2
+[zk60-guard 04:15:49] END d60close-cli-p_marker_other_content exit=1 child_wall=0s peak_rss=0.00G min_avail=231.96G
+p_marker_other_content [rel]: exit 1 (want nonzero) guard_peak_rss=0.0G maxrss=33.3MiB | {"event":"rejected","error":"D55: /Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T041530/probes/marker_other/D55_TEST_RECEIPT_NOT_FOR_PUBLICATION.txt is not the test-receipt marker this build writes (other content of its length)"}
+[zk60-guard 04:15:49] START d60close-cli-p_extra_file class=cpu need=4G cap=40G enforce=watchdog-only waited=0s run=8540f5ac17f0
+[zk60-guard 04:15:50] END d60close-cli-p_extra_file exit=1 child_wall=0s peak_rss=0.00G min_avail=231.95G
+p_extra_file [rel]: exit 1 (want nonzero) guard_peak_rss=0.0G maxrss=34.8MiB | {"event":"rejected","error":"D55: the run directory /Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T041530/probes/extra holds notes.txt, which is not one of this 3-block fork run's 5 frames"}
+{"event":"rejected","error":"D55 wire: frame 0 is not the 3-block run's fork 0"}
+== 9-n-independence 04:15:50
+[zk60-guard 04:15:50] START d60close-cli-p_fork1_body_n1 class=cpu need=4G cap=40G enforce=watchdog-only waited=0s run=a5c28758b623
+[zk60-guard 04:15:50] END d60close-cli-p_fork1_body_n1 exit=1 child_wall=1s peak_rss=0.16G min_avail=231.81G
+p_fork1_body_n1 [rel]: exit 1 (want nonzero) guard_peak_rss=0.16G maxrss=166.8MiB | {"event":"rejected","error":"D55: fork 1: A: pcs zk: group 26: <v, c> != combined claim"}
+N = 1 and N = 3 give the same refusal: {"event":"rejected","error":"D55: fork 1: A: pcs zk: group 26: <v, c> != combined claim"}
+== 10-memory-at-l11 04:15:50
+[zk60-guard 04:15:50] START d60close-cli-mem_d55_prove_l11_n6 class=cpu need=4G cap=40G enforce=watchdog-only waited=0s run=41fa5caa5f2e
+[zk60-guard 04:15:56] END d60close-cli-mem_d55_prove_l11_n6 exit=0 child_wall=5s peak_rss=3.31G min_avail=228.65G
+mem_d55_prove_l11_n6 [rel]: exit 0 (want 0) guard_peak_rss=3.31G maxrss=3385.5MiB | {"event":"proved","gpu":"gpu: off (built with gpu-metal; HL_GPU unset)","gpu_declines":0,"blocks":11,"receipt_bytes":170040856,"prove_run_seconds":4.939,"of_which_witness_seconds":0.000,"rebuilt_witnesses":0,"witness_seconds_per_block":0.026,"of_which_block_load_seconds":0.000,"block_loads":0,"rayon
+[zk60-guard 04:15:56] START d60close-cli-mem_d55_verify_l11_n6 class=cpu need=4G cap=40G enforce=watchdog-only waited=0s run=84a233c79eeb
+[zk60-guard 04:15:57] END d60close-cli-mem_d55_verify_l11_n6 exit=0 child_wall=1s peak_rss=0.57G min_avail=231.39G
+mem_d55_verify_l11_n6 [rel]: exit 0 (want 0) guard_peak_rss=0.57G maxrss=605.3MiB | {"event":"statement-published","by":"stack-verify, from its own rendering and the hashes of the verified bytes","to":"/Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T041530/d55-l11/statement","prover_statement_removed":"/Users/victorrielly/zk60-artifacts/d60_20261102/close/run-202
+[zk60-guard 04:15:57] START d60close-cli-mem_d55_verify_l11_n1 class=cpu need=4G cap=40G enforce=watchdog-only waited=0s run=47a1397bf1e9
+[zk60-guard 04:15:59] END d60close-cli-mem_d55_verify_l11_n1 exit=0 child_wall=2s peak_rss=0.33G min_avail=231.63G
+mem_d55_verify_l11_n1 [rel]: exit 0 (want 0) guard_peak_rss=0.33G maxrss=339.3MiB | {"event":"statement-published","by":"stack-verify, from its own rendering and the hashes of the verified bytes","to":"/Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T041530/d55-l11-n1/statement","prover_statement_removed":"/Users/victorrielly/zk60-artifacts/d60_20261102/close/run-
+[zk60-guard 04:15:59] START d60close-cli-mem_d12a_prove_l11 class=cpu need=4G cap=40G enforce=watchdog-only waited=0s run=149a9186a4a7
+[zk60-guard 04:16:11] END d60close-cli-mem_d12a_prove_l11 exit=0 child_wall=12s peak_rss=0.83G min_avail=230.67G
+mem_d12a_prove_l11 [rel]: exit 0 (want 0) guard_peak_rss=0.83G maxrss=862.4MiB | {"event":"proved","gpu":"gpu: off (built with gpu-metal; HL_GPU unset)","gpu_declines":0,"blocks":11,"receipt_bytes":170040664,"prove_run_seconds":10.984,"of_which_witness_seconds":0.000,"rebuilt_witnesses":0,"witness_seconds_per_block":0.025,"of_which_block_load_seconds":0.424,"block_loads":22,"ray
+[zk60-guard 04:16:11] START d60close-cli-mem_d12a_verify_l11 class=cpu need=4G cap=40G enforce=watchdog-only waited=0s run=dbae6254e5ad
+[zk60-guard 04:16:13] END d60close-cli-mem_d12a_verify_l11 exit=0 child_wall=2s peak_rss=0.19G min_avail=231.72G
+mem_d12a_verify_l11 [rel]: exit 0 (want 0) guard_peak_rss=0.19G maxrss=193.4MiB | {"event":"statement-published","by":"stack-verify, from its own rendering and the hashes of the verified bytes","to":"/Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T041530/d12a-l11/statement","prover_statement_removed":"/Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20
+[zk60-guard 04:16:13] START d60close-f5-block class=cpu need=8G cap=40G enforce=watchdog-only waited=0s run=f0d87134a9e5
+[zk60-guard 04:16:14] END d60close-f5-block exit=0 child_wall=0s peak_rss=0.00G min_avail=231.95G
+peak memory of the release CLI on R13 rung h24 (T32, width 384) exports, public synthetic, CPU path:
+maxrss = /usr/bin/time -l's maximum resident set size (exact, getrusage); guard = the guard's peak_rss (sampled every 0.5 s)
+d55_l3_prove               maxrss 1560.1 MiB guard 1.51G wall 1.8s "block_load_seconds":0.059 | "receipt_bytes":46678744
+d55_l3_verify_n3           maxrss 279.2 MiB guard 0.0G wall 0.4s  | "receipt_bytes":46678744
+d55_l3_verify_n1           maxrss 183.0 MiB guard 0.18G wall 0.5s  | "receipt_bytes":46678744
+d12a_l3_prove              maxrss 707.7 MiB guard 0.69G wall 3.2s  | "receipt_bytes":46678552
+d12a_l3_verify             maxrss 161.3 MiB guard 0.15G wall 0.6s  | "receipt_bytes":46678552
+mem_d55_prove_l11_n6       maxrss 3385.5 MiB guard 3.31G wall 5.5s "block_load_seconds":0.193 | "receipt_bytes":170040856
+mem_d55_verify_l11_n6      maxrss 605.3 MiB guard 0.57G wall 1.2s  | "receipt_bytes":170040856
+mem_d55_verify_l11_n1      maxrss 339.3 MiB guard 0.33G wall 2.0s  | "receipt_bytes":170040856
+mem_d12a_prove_l11         maxrss 862.4 MiB guard 0.83G wall 11.5s  | "receipt_bytes":170040664
+mem_d12a_verify_l11        maxrss 193.4 MiB guard 0.19G wall 2.1s  | "receipt_bytes":170040664
+D60 F5 BLOCK | R13_8B_T128_H24 (T128, width 4096, hidden 14336; d_pad 4096, f_pad 16384) | one public block: 243277824 B of padded weight words + 133632 B of tables + 225530 B of accuracy data = 243636986 B (0.227 GiB); x32 = 7.26 GiB, x22 = 4.99 GiB, x26 = 5.90 GiB
+162M	/Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T041530/d55-l11
+162M	/Users/victorrielly/zk60-artifacts/d60_20261102/close/run-20261102T041530/d12a-l11
+== done 04:16:14
+== pygate 04:16:19
+[zk60-guard 04:16:19] START d60close-pg-write class=cpu need=8G cap=40G enforce=watchdog-only waited=0s run=89f77db83add
+[zk60-guard 04:16:24] END d60close-pg-write exit=0 child_wall=6s peak_rss=1.93G min_avail=230.01G
+"transcript_program":["D55 REGISTERED OPT-IN RUN PROFILE (ruling D60; production prover and verifier): commit, fork, join. Every hash is BLA
+[zk60-guard 04:16:25] START d60close-pg-py-s0 class=cpu need=4G cap=24G enforce=watchdog-only waited=0s run=e3f5707f4e70
+[zk60-guard 04:18:02] END d60close-pg-py-s0 exit=0 child_wall=97s peak_rss=0.59G min_avail=231.18G
+status: D55-DEV-PASS (97.0 s) -> /Users/victorrielly/zk60-artifacts/d60_20261102/close/pg-20261102T041619/evidence/d55-close-r13-rung-s0.json
+[zk60-guard 04:18:02] START d60close-pg-py-s1 class=cpu need=4G cap=24G enforce=watchdog-only waited=0s run=e675efbcbb0f
+[zk60-guard 04:19:39] END d60close-pg-py-s1 exit=0 child_wall=97s peak_rss=0.56G min_avail=231.29G
+status: D55-DEV-PASS (96.4 s) -> /Users/victorrielly/zk60-artifacts/d60_20261102/close/pg-20261102T041619/evidence/d55-close-r13-rung-s1.json
+[zk60-guard 04:19:39] START d60close-pg-unittest class=cpu need=4G cap=24G enforce=watchdog-only waited=0s run=aa5f375b4135
+[zk60-guard 04:20:34] END d60close-pg-unittest exit=0 child_wall=55s peak_rss=0.42G min_avail=231.39G
+Ran 8 tests in 54.829s
+
+OK
+<sys>:0: ResourceWarning: unclosed file <_io.BufferedReader name='/Users/victorrielly/zk60-artifacts/d60_20261102/close/pg-20261102T041619/bundles/d55-r13_rung_h24-s0/arrays.bin'>
+== d12a-run 04:20:39
+[zk60-guard 04:20:39] START d60close-d12a-run class=cpu need=8G cap=40G enforce=watchdog-only waited=0s run=a9a63fce6cbf
+[zk60-guard 04:20:43] END d60close-d12a-run exit=0 child_wall=5s peak_rss=0.98G min_avail=231.12G
+== bytes-default 04:20:49
+[zk60-guard 04:20:49] START d60close-bytes-default class=gpu need=60G cap=160G enforce=watchdog-only waited=0s run=d1b1c806c128
+[zk60-guard 04:20:55] END d60close-bytes-default exit=0 child_wall=6s peak_rss=2.08G min_avail=226.90G peak_vram=3736MiB
+M4-ACCURACY-DIGEST R13_RUNG_LOW cpu 01fa1b2e
+M4-ACCURACY-DIGEST R13_RUNG_H24 cpu 992034f8
+M4-ACCURACY-DIGEST R13_RUNG_LOW_DD cpu 371e6b00
+M4-ACCURACY-DIGEST R13_RUNG_H24_DD cpu 3ab090df
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 990 filtered out; finished in 5.97s
+== bytes-0 04:21:00
+[zk60-guard 04:21:00] START d60close-bytes-0 class=gpu need=60G cap=160G enforce=watchdog-only waited=0s run=d771ada5962c
+[zk60-guard 04:21:06] END d60close-bytes-0 exit=0 child_wall=6s peak_rss=1.84G min_avail=226.87G peak_vram=3414MiB
+M4-ACCURACY-DIGEST R13_RUNG_LOW cpu 01fa1b2e
+M4-ACCURACY-DIGEST R13_RUNG_H24 cpu 992034f8
+M4-ACCURACY-DIGEST R13_RUNG_LOW_DD cpu 371e6b00
+M4-ACCURACY-DIGEST R13_RUNG_H24_DD cpu 3ab090df
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 990 filtered out; finished in 6.09s
+== w16r2-rung-metal-default 04:21:11
+[zk60-guard 04:21:11] START d60close-r2rung-default class=gpu need=8G cap=40G enforce=watchdog-only waited=0s run=53aefd2fd508
+[zk60-guard 04:21:13] END d60close-r2rung-default exit=0 child_wall=1s peak_rss=0.47G min_avail=230.85G peak_vram=1338MiB
+== w16r2-rung-metal-0 04:21:18
+[zk60-guard 04:21:18] START d60close-r2rung-0 class=gpu need=8G cap=40G enforce=watchdog-only waited=0s run=a9eaabb8650f
+[zk60-guard 04:21:19] END d60close-r2rung-0 exit=0 child_wall=1s peak_rss=0.47G min_avail=230.86G peak_vram=1338MiB
+== trained 04:21:24
+[zk60-guard 04:21:24] START d60close-trained class=gpu need=60G cap=160G enforce=watchdog-only waited=0s run=e960a5059a1d
+[zk60-guard 04:22:12] END d60close-trained exit=0 child_wall=48s peak_rss=10.84G min_avail=213.67G peak_vram=10879MiB
+M4-TRAINED R13_8B_T128_H24 cpu 4.107 s metal-warm 0.705 s (prove core cpu 3.928 s metal 0.529 s; kernel compile 0.000 s, device sumcheck rounds 0.138 s; 1 slots without a matching IR; buffer pool 93 reused / 0 new) digest cpu 678953f646fcd15d28e9209984cb42ff8a
+M4-TRAINED R13_8B_T128_H24 cpu 4.107 s metal-warm 0.689 s (prove core cpu 3.928 s metal 0.517 s; kernel compile 0.000 s, device sumcheck rounds 0.136 s; 1 slots without a matching IR; buffer pool 93 reused / 0 new) digest cpu 678953f646fcd15d28e9209984cb42ff8a
+M4-TRAINED R13_8B_T128_H24 cpu 4.107 s metal-warm 0.690 s (prove core cpu 3.928 s metal 0.513 s; kernel compile 0.001 s, device sumcheck rounds 0.135 s; 1 slots without a matching IR; buffer pool 96 reused / 4 new) digest cpu 678953f646fcd15d28e9209984cb42ff8a
+M4-TRAINED R13_SHIELD_T128_H24 cpu 3.871 s metal-warm 0.749 s (prove core cpu 3.694 s metal 0.576 s; kernel compile 0.014 s, device sumcheck rounds 0.178 s; 1 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu 2b0d04bbf22b5e52faf1d0ce9a13d
+M4-TRAINED R13_SHIELD_T128_H24 cpu 3.871 s metal-warm 0.730 s (prove core cpu 3.694 s metal 0.558 s; kernel compile 0.000 s, device sumcheck rounds 0.173 s; 1 slots without a matching IR; buffer pool 93 reused / 0 new) digest cpu 2b0d04bbf22b5e52faf1d0ce9a13d8
+M4-TRAINED R13_SHIELD_T128_H24 cpu 3.871 s metal-warm 0.727 s (prove core cpu 3.694 s metal 0.549 s; kernel compile 0.000 s, device sumcheck rounds 0.172 s; 1 slots without a matching IR; buffer pool 92 reused / 1 new) digest cpu 2b0d04bbf22b5e52faf1d0ce9a13d8
+M4-TRAINED W16_SHIELD_T128_H24 cpu 1.923 s metal-warm 0.510 s (prove core cpu 1.775 s metal 0.375 s; kernel compile 0.000 s, device sumcheck rounds 0.086 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu 01a6d51d3b0476dac75ecaf0ff375
+M4-TRAINED W16_SHIELD_T128_H24 cpu 1.923 s metal-warm 0.535 s (prove core cpu 1.775 s metal 0.393 s; kernel compile 0.000 s, device sumcheck rounds 0.088 s; 0 slots without a matching IR; buffer pool 106 reused / 1 new) digest cpu 01a6d51d3b0476dac75ecaf0ff375
+M4-TRAINED W16_SHIELD_T128_H24 cpu 1.923 s metal-warm 0.513 s (prove core cpu 1.775 s metal 0.372 s; kernel compile 0.000 s, device sumcheck rounds 0.088 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu 01a6d51d3b0476dac75ecaf0ff375
+M4-TRAINED W16_8B_T128_H24 cpu 1.550 s metal-warm 0.502 s (prove core cpu 1.409 s metal 0.367 s; kernel compile 0.000 s, device sumcheck rounds 0.077 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu c5e0bdac78cc47bb4de6528a29e809f56
+M4-TRAINED W16_8B_T128_H24 cpu 1.550 s metal-warm 0.618 s (prove core cpu 1.409 s metal 0.482 s; kernel compile 0.000 s, device sumcheck rounds 0.077 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu c5e0bdac78cc47bb4de6528a29e809f56
+M4-TRAINED W16_8B_T128_H24 cpu 1.550 s metal-warm 0.505 s (prove core cpu 1.409 s metal 0.368 s; kernel compile 0.000 s, device sumcheck rounds 0.077 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu c5e0bdac78cc47bb4de6528a29e809f56
+M4-TRAINED W16R2_RUNG_H24 cpu 0.436 s metal-warm 0.267 s (prove core cpu 0.343 s metal 0.175 s; kernel compile 0.000 s, device sumcheck rounds 0.034 s; 0 slots without a matching IR; buffer pool 65 reused / 0 new) digest cpu d6879fae5f35a2856b03c20c473da35abce
+M4-TRAINED W16R2_RUNG_H24 cpu 0.436 s metal-warm 0.256 s (prove core cpu 0.343 s metal 0.164 s; kernel compile 0.000 s, device sumcheck rounds 0.029 s; 0 slots without a matching IR; buffer pool 65 reused / 0 new) digest cpu d6879fae5f35a2856b03c20c473da35abce
+M4-TRAINED W16R2_RUNG_H24 cpu 0.436 s metal-warm 0.273 s (prove core cpu 0.343 s metal 0.181 s; kernel compile 0.000 s, device sumcheck rounds 0.044 s; 0 slots without a matching IR; buffer pool 65 reused / 0 new) digest cpu d6879fae5f35a2856b03c20c473da35abce
+M4-TRAINED W16R2_SHIELD_T128_H24 cpu 1.505 s metal-warm 0.509 s (prove core cpu 1.363 s metal 0.368 s; kernel compile 0.000 s, device sumcheck rounds 0.089 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu e0bb5917ba14c4565fdc38e6ad4
+M4-TRAINED W16R2_SHIELD_T128_H24 cpu 1.505 s metal-warm 0.504 s (prove core cpu 1.363 s metal 0.363 s; kernel compile 0.000 s, device sumcheck rounds 0.089 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu e0bb5917ba14c4565fdc38e6ad4
+M4-TRAINED W16R2_SHIELD_T128_H24 cpu 1.505 s metal-warm 0.499 s (prove core cpu 1.363 s metal 0.362 s; kernel compile 0.000 s, device sumcheck rounds 0.088 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu e0bb5917ba14c4565fdc38e6ad4
+M4-TRAINED W16R2_8B_T128_H24 cpu 2.725 s metal-warm 0.501 s (prove core cpu 2.584 s metal 0.362 s; kernel compile 0.000 s, device sumcheck rounds 0.079 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu 5343008a1e5930af6eb70137aa9a414
+M4-TRAINED W16R2_8B_T128_H24 cpu 2.725 s metal-warm 0.492 s (prove core cpu 2.584 s metal 0.355 s; kernel compile 0.001 s, device sumcheck rounds 0.079 s; 0 slots without a matching IR; buffer pool 106 reused / 1 new) digest cpu 5343008a1e5930af6eb70137aa9a414
+M4-TRAINED W16R2_8B_T128_H24 cpu 2.725 s metal-warm 0.494 s (prove core cpu 2.584 s metal 0.357 s; kernel compile 0.000 s, device sumcheck rounds 0.081 s; 0 slots without a matching IR; buffer pool 107 reused / 0 new) digest cpu 5343008a1e5930af6eb70137aa9a414
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 990 filtered out; finished in 48.01s
+trained: R13_SHIELD_T128_H24 digest cpu = metal 2b0d04bb at 4 passes
+trained: R13_8B_T128_H24 digest cpu = metal 678953f6 at 4 passes
+trained: W16_SHIELD_T128_H24 digest cpu = metal 01a6d51d at 4 passes
+trained: W16_8B_T128_H24 digest cpu = metal c5e0bdac at 4 passes
+trained: W16R2_8B_T128_H24 digest cpu = metal 5343008a at 4 passes
+trained: W16R2_SHIELD_T128_H24 digest cpu = metal e0bb5917 at 4 passes
+trained: W16R2_RUNG_H24 digest cpu = metal d6879fae at 4 passes
+== r13 04:22:17
+[zk60-guard 04:22:18] START d60close-r13 class=gpu need=8G cap=40G enforce=watchdog-only waited=0s run=ebaffc51fb8d
+[zk60-guard 04:22:19] END d60close-r13 exit=0 child_wall=1s peak_rss=0.50G min_avail=229.33G peak_vram=3732MiB
+== w16r2-run 04:22:24
+[zk60-guard 04:22:24] START d60close-r2run class=gpu need=8G cap=40G enforce=watchdog-only waited=0s run=dc4929068bf0
+[zk60-guard 04:22:27] END d60close-r2run exit=0 child_wall=3s peak_rss=0.63G min_avail=230.13G peak_vram=2657MiB
+== golden 04:22:32
+cpu r12_golden_seeded_tinyllama_t128_block_is_byte_identical 0
+cpu r12_golden_seeded_tinyllama_t128_dd_block_is_byte_identical 0
+cpu r12_golden_seeded_llama3_8b_t128_block_is_byte_identical 0
+cpu r12_golden_seeded_llama3_8b_t128_dd_block_is_byte_identical 0
+metal r12_golden_seeded_tinyllama_t128_block_is_byte_identical 0
+metal r12_golden_seeded_tinyllama_t128_dd_block_is_byte_identical 0
+metal r12_golden_seeded_llama3_8b_t128_block_is_byte_identical 0
+metal r12_golden_seeded_llama3_8b_t128_dd_block_is_byte_identical 0
+ALL 0
+== full-suite 04:23:01
+[zk60-guard 04:23:01] START d60close-full class=cpu need=24G cap=160G enforce=watchdog-only waited=0s run=23dab7a05f76
+[zk60-guard 04:27:39] END d60close-full exit=101 child_wall=278s peak_rss=9.35G min_avail=222.18G
+test result: FAILED. 896 passed; 3 failed; 92 ignored; 0 measured; 0 filtered out; finished in 278.27s
+full-suite failures:
+private_block::review_tests::a_toy_receipt_made_before_the_lane_still_verifies
+private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces
+private_block::trained_stack_tests::review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name
+now passing among the known six:
+private_block::token_io::classify_cli::batch::r18::r18_a_rung_batch_proves_every_job_and_each_receipt_verifies_owner_checks_and_labels
+private_block::token_io::classify_cli::batch::r18::r18_each_batch_job_reloads_every_block_through_its_own_digest_checked_readers
+private_block::token_io::classify_cli::batch::r18::r18_the_request_reader_refuses_a_symlink_and_a_fifo_without_blocking
+== done 04:27:40
