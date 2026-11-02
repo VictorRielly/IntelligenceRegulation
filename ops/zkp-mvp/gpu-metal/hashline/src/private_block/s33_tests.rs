@@ -66,13 +66,21 @@ fn profile_literals(text: &str) -> Vec<String> {
 /// registry (the door refuses token-I/O and classifier runs) and W16's
 /// test-only run identities (the A/B's base). Not part of the registry (no
 /// literal in `shape.rs` / `run.rs`), so kept apart from [`registry_profiles`].
+///
+/// **D60 (2026-11-02):** the twelve REGISTERED D55 run profiles are literals
+/// of `run.rs`, so they are in [`registry_profiles`] and covered there; this
+/// list keeps the TEST-ONLY fork identities only (the bases with no
+/// registered D55 profile: the pre-R13 blocks-only runs and W16 / W16R2's
+/// test-only run identities), each the string `run_fork::fork_profile_for`
+/// gives.
 fn d55_profiles() -> Vec<String> {
     let mut bases: Vec<String> = registry_profiles()
         .into_iter()
-        .filter(|p| p.contains("/private-run-") && !super::run::TOKEN_IO_RUN_PROFILES.contains(&p.as_str()) && !super::run::is_classify_run_profile(p))
+        .filter(|p| p.contains("/private-run-") && !p.contains(super::run::D55_REGISTERED_MARKER) && !super::run::TOKEN_IO_RUN_PROFILES.contains(&p.as_str()) && !super::run::is_classify_run_profile(p))
         .collect();
     bases.extend(super::w16_privacy_gate_tests::W16_TEST_RUN_PROFILES.iter().map(|(r, _)| r.to_string()));
-    let mut v: Vec<String> = bases.iter().map(|b| super::run::fork::d55_profile_of(b)).collect();
+    let mut v: Vec<String> = bases.iter().filter(|b| super::run::d55_run_profile(b).is_none()).map(|b| super::run::fork::fork_profile_for(b)).collect();
+    assert!(v.iter().all(|p| p.starts_with(super::run::fork::D55_PROFILE_PREFIX)), "a test-only fork identity is not the prototype's prefix and its base");
     v.sort();
     v.dedup();
     v
@@ -172,6 +180,8 @@ fn every_registered_profile_context_and_label_is_printable_ascii_with_no_nul() {
     // TOKEN I/O ROUND 12: the classifier run profile(s)
     built.extend(super::token_io::classify::registered_classify_runs().iter().map(|(p, _)| p.to_string()));
     built.extend(super::accuracy_profile_tests::registered_runs().iter().map(|(p,_)|p.to_string()));
+    // D60 (2026-11-02): the registered D55 fork-run profiles (literals of run.rs)
+    built.extend(super::run::D55_RUN_PROFILES.iter().map(|(d, _)| d.to_string()));
     // M26 (2026-11-01): W16's opt-in, UNREGISTERED block profiles, whose
     // strings are in `shape.rs` (s24's H-4 test checks they are on no
     // registered list); a W16 proof hashes them, so the premise covers them

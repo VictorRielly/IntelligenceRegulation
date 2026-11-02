@@ -805,6 +805,10 @@ fn every_hash_input_kind_of_every_registered_profile_is_printed_with_its_length(
         all.push((p.to_string(), sh, kinds_of_classify(&st, &model, &tables)));
     }
     let mut measured: Vec<String> = all.iter().map(|(p, _, _)| p.clone()).collect();
+    // D60 (2026-11-02): the REGISTERED D55 run profiles are literals of the
+    // source registry; each is measured below, over every R13 base statement
+    // (asserted after that loop), so it is counted here
+    measured.extend(super::run::D55_RUN_PROFILES.iter().map(|(d, _)| d.to_string()));
     measured.sort();
     measured.dedup();
     assert_eq!(in_source, measured, "a profile in the source registry has no hash-input table here (or vice versa)");
@@ -826,9 +830,17 @@ fn every_hash_input_kind_of_every_registered_profile_is_printed_with_its_length(
     }
     d55_bases.extend(at_32.iter());
     let n_d55 = d55_bases.len();
+    let mut d55_registered_measured: Vec<String> = Vec::new();
     for st in d55_bases {
         let (p, kinds) = kinds_of_fork(st);
+        if super::run::D55_RUN_PROFILES.iter().any(|(d, _)| *d == p) {
+            d55_registered_measured.push(p.clone());
+        }
         all.push((p, st.rs().sh().clone(), kinds));
+    }
+    // D60: every registered D55 profile was measured (at L = 1, 22 and 32)
+    for (d, _) in super::run::D55_RUN_PROFILES {
+        assert_eq!(d55_registered_measured.iter().filter(|p| p.as_str() == d).count(), 3, "the registered D55 profile {d} was not measured at L = 1, 22 and 32");
     }
 
     let mut one_byte_rows: Vec<String> = Vec::new();
@@ -896,7 +908,7 @@ fn every_hash_input_kind_of_every_registered_profile_is_printed_with_its_length(
         assert!(margin_families.contains(&format!("{lo}|{hi}")), "the memo's one-byte margin {lo} vs {hi} ({what}) is not in the printout");
     }
     eprintln!("S25 W-2: {} profiles, {total_kinds} hash input kinds, {} pairs within one byte, {} declared equal-length pairs", profiles.len(), one_byte_rows.len(), DECLARED.len());
-    eprintln!("S25 W-2 D55: the opt-in, unregistered fork run measured over {n_d55} base run statements, each under its own constructor and held to the same per-function rule (one declared pair of its own: pb-fork-s0 / pb-fork-s1)");
+    eprintln!("S25 W-2 D55: the fork run measured over {n_d55} base run statements, each under its own constructor and held to the same per-function rule (one declared pair of its own: pb-fork-s0 / pb-fork-s1); D60: the {} registered D55 run profiles among them, each at L = 1, 22 and 32", super::run::D55_RUN_PROFILES.len());
 }
 
 /// **The memo's §5 and §5.1 tables, re-derived from the code.** Every fixed
@@ -1676,7 +1688,7 @@ fn stage_24s_twelve_key_test_still_covers_every_tagged_profile() {
     }
     assert_eq!(
         in_source.len(),
-        all_shapes.len() + every_run().len() + super::trained_calib_tests::registered_trained_runs().len() + super::token_io::registered_token_runs().len() + super::token_io::classify::registered_classify_runs().len() + super::accuracy_profile_tests::registered_runs().len(),
+        all_shapes.len() + every_run().len() + super::trained_calib_tests::registered_trained_runs().len() + super::token_io::registered_token_runs().len() + super::token_io::classify::registered_classify_runs().len() + super::accuracy_profile_tests::registered_runs().len() + super::run::D55_RUN_PROFILES.len(),
         "the source registry holds a profile this test does not measure (or vice versa)"
     );
     eprintln!(
@@ -1756,6 +1768,11 @@ fn production_sources() -> Vec<(String, String)> {
     want.extend(
         [
             ("src/private_block/argument.rs", "src/private_block/argument_accuracy.rs"),
+            // D60 (2026-11-02): the registered D55 fork run's prover /
+            // verifier and its frames, `#[path]` children of `run.rs` and
+            // `wire.rs` (test builds only until D60)
+            ("src/private_block/run.rs", "src/private_block/run_fork.rs"),
+            ("src/private_block/wire.rs", "src/private_block/run_fork_wire.rs"),
             ("src/private_block/slot_ir.rs", "src/private_block/slot_ir_accuracy.rs"),
             ("src/private_block/tied_tables.rs", "src/private_block/tied_tables/derive.rs"),
             ("src/private_block/token_io/classify_batch.rs", "src/private_block/token_io/classify_batch_plan.rs"),
@@ -1768,8 +1785,9 @@ fn production_sources() -> Vec<(String, String)> {
     );
     want.sort();
     assert_eq!(graph.edges, want, "the production module graph of the path moved (REVIEW A5 finding 2, REVIEW_R18 R18-2): read each new module, then list its edge here");
-    // M26: 47 + range16, slot_ir, metal_slot and slot_ir_accuracy
-    assert_eq!(graph.files.len(), 51, "the path's production files are no longer the 51 this census was written against");
+    // M26: 47 + range16, slot_ir, metal_slot and slot_ir_accuracy; D60: +
+    // run_fork and run_fork_wire
+    assert_eq!(graph.files.len(), 53, "the path's production files are no longer the 53 this census was written against");
     graph.files.into_iter().map(|(f, _)| {
         let t = source(&f);
         (f, t)
@@ -2597,10 +2615,12 @@ fn r19b_the_module_follower_refuses_include_outside_test_code() {
 /// the path, each compiled as test code only (declared `#[cfg(test)]` by its
 /// parent: read for this list with `r19b/tools/mirror19b.py`). Paths are
 /// relative to `src/private_block/`.
-const TEST_ONLY_FILES: [&str; 81] = [
-    // D55 PROTOTYPE (2026-11-01): the unregistered "commit, fork, join" run
-    // profile, declared `#[cfg(test)]` by `run.rs` and `wire.rs`
-    "run_fork.rs", "run_fork_tests.rs", "run_fork_wire.rs",
+const TEST_ONLY_FILES: [&str; 79] = [
+    // D55 (2026-11-01): the "commit, fork, join" run's tests, declared
+    // `#[cfg(test)]` by `run_fork.rs`. D60 (2026-11-02): `run_fork.rs` and
+    // `run_fork_wire.rs` LEFT this list — the registered D55 profile is
+    // production code, and both are on the path (`run.rs` / `wire.rs`)
+    "run_fork_tests.rs",
     // D59 (2026-11-01): the W16R2 (rate 1/2) acceptance tests and malicious
     // controls, declared by a bare `#[cfg(test)]` in `private_block.rs`
     "w16r2_tests.rs",
@@ -2767,8 +2787,12 @@ fn no_profile_on_this_path_can_obtain_a_generator_other_than_from_the_operating_
     // TOKEN I/O ROUND 12: a SEVENTH, `token_io/classify_run.rs`
     // (`prove_classify_run_with`: the classifier run's ONE stream,
     // `run_seed_domain(its profile)`)
-    assert_eq!(from_os_sites.len(), 7, "the scan's generator constructions moved: {from_os_sites:?}");
-    for want in ["protocol.rs", "src/private_block/run.rs", "endpoint_g.rs", "private_seam.rs", "token_io/run.rs", "token_io/classify_run.rs"] {
+    // D60 (2026-11-02): an EIGHTH and NINTH, `run_fork.rs` (the registered
+    // D55 fork run, production since D60): its commit phase's ONE stream and
+    // each fork's ONE stream, classified below as W-8(7) D55 always did
+    assert_eq!(from_os_sites.len(), 9, "the scan's generator constructions moved: {from_os_sites:?}");
+    assert_eq!(from_os_sites.iter().filter(|s| s.starts_with("src/private_block/run_fork.rs")).count(), 2, "the D55 fork run's two generator sites moved");
+    for want in ["protocol.rs", "src/private_block/run.rs", "endpoint_g.rs", "private_seam.rs", "token_io/run.rs", "token_io/classify_run.rs", "src/private_block/run_fork.rs"] {
         assert!(from_os_sites.iter().any(|s| s.contains(want)), "{want} no longer constructs a generator; the enumeration has moved");
     }
     assert_eq!(from_os_sites.iter().filter(|s| s.starts_with("src/private_seam.rs")).count(), 2, "the frozen seam's two generator sites moved");
@@ -2782,8 +2806,9 @@ fn no_profile_on_this_path_can_obtain_a_generator_other_than_from_the_operating_
         );
     }
     let on_path: Vec<&String> = from_os_sites.iter().filter(|s| s.as_str() != "src/private_seam.rs:349").collect();
-    // TOKEN I/O ROUND 12: six on the path — the four, the token-I/O run's and the classifier run's
-    assert_eq!(on_path.len(), 6, "the path's generators are no longer six (four, plus the token-I/O run's and the classifier run's): {on_path:?}");
+    // TOKEN I/O ROUND 12: six on the path — the four, the token-I/O run's and
+    // the classifier run's; D60: eight, with the D55 fork run's two
+    assert_eq!(on_path.len(), 8, "the path's generators are no longer eight (four, the token-I/O run's, the classifier run's and the D55 fork run's two): {on_path:?}");
     // `boundary::prepare` takes the caller's stream and makes none
     let boundary = source("src/private_block/boundary.rs");
     let btext = production_text("src/private_block/boundary.rs", &boundary);
@@ -2998,7 +3023,7 @@ fn the_draw_accounting_assertions_are_still_blocked_on_the_generators_accessor()
 /// — and the three `cfg(test)` modules that WRITE a retained bundle, because
 /// a retained capture counts as publishing and its digests are call sites
 /// like any other.
-const CALL_SITES: [(&str, &str, usize, &str); 23] = [
+const CALL_SITES: [(&str, &str, usize, &str); 24] = [
     // TOKEN I/O ROUND 12 (rung R-C1): the classifier run's statement digests,
     // unkeyed hashes of PUBLIC words, each under its own fixed literal: CL1 the
     // classifier profile's canonical text, CL2 the int16 embedding, CL3 the
@@ -3044,6 +3069,8 @@ const CALL_SITES: [(&str, &str, usize, &str); 23] = [
     ("src/private_block.rs", "blake3::Hasher::new(", 1, "D2 — the block's public/weights digest, unkeyed, over a 31-byte literal and the framed public tensors"),
     ("src/private_block/layout.rs", "blake3::Hasher::new(", 1, "D3 — the block's schedule digest, unkeyed, over a 33-byte literal and the framed description lines"),
     ("src/private_block/run.rs", "blake3::Hasher::new(", 2, "D4 and D5 — the run's public statement digest and its schedule digest, both unkeyed"),
+    // D60 (2026-11-02): the registered D55 fork run, production since D60
+    ("src/private_block/run_fork.rs", "blake3::Hasher::new(", 1, "D55 — the fork run's schedule digest, unkeyed, over its domain literal (`…/d55-registered-d60/1`, or a test-only identity's `…/d55-prototype/1`) and its length-prefixed lines; measured by W-2 as `the fork run's schedule digest`"),
     ("src/private_block/endpoint_g.rs", "blake3::Hasher::new(", 1, "D6 — the generalised endpoint's spec digest, unkeyed, 142 bytes"),
     ("src/private_block/boundary.rs", "blake3::Hasher::new(", 1, "D7 — the internal boundary's spec digest, unkeyed, 151 bytes"),
     ("src/private_seam.rs", "blake3::Hasher::new(", 1, "D8 — the frozen seam's spec digest, unkeyed, 128 bytes"),

@@ -218,7 +218,7 @@ pub(super) const SHARED_SOURCE_FILES: [&str; 29] = [
     "../zkp-core/src/tables.rs",
 ];
 
-pub(super) const OWN_SOURCE_FILES: [&str; 42] = [
+pub(super) const OWN_SOURCE_FILES: [&str; 44] = [
     "src/private_block/argument_accuracy.rs",
     "src/private_block/accuracy_act.rs",
     "src/private_block/accuracy_fold.rs",
@@ -313,6 +313,12 @@ pub(super) const OWN_SOURCE_FILES: [&str; 42] = [
     "src/private_block/slot_ir.rs",
     "src/private_block/slot_ir_accuracy.rs",
     "src/private_block/metal_slot.rs",
+    // D60 (2026-11-02): the registered D55 fork run — its prover / verifier
+    // (the commit, fork and join a fork-run bundle replays) and its frames
+    // (the head, fork and tail bytes a fork stage file pins). Production
+    // since D60. PURE ADDITION: bundles already recorded keep their pins.
+    "src/private_block/run_fork.rs",
+    "src/private_block/run_fork_wire.rs",
 ];
 
 /// **The production modules of `private_block` that are NOT source pins, with

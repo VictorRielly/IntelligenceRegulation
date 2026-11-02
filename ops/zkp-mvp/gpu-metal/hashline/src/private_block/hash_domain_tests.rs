@@ -379,7 +379,7 @@ fn every_absorb_label_on_the_path_is_in_the_table() {
         assert!(!u.label.is_empty() && !u.site.is_empty() && !u.data.is_empty(), "the table entry for `{}` is incomplete", u.label);
     }
     let table: Vec<String> = entries.iter().map(|u| u.label.to_string()).collect();
-    let lane: [(&str, &str); 51] = [
+    let lane: [(&str, &str); 53] = [
         ("argument_accuracy.rs", include_str!("argument_accuracy.rs")),
         ("accuracy_act.rs", include_str!("accuracy_act.rs")),
         ("accuracy_fold.rs", include_str!("accuracy_fold.rs")),
@@ -449,6 +449,13 @@ fn every_absorb_label_on_the_path_is_in_the_table() {
         ("slot_ir.rs", include_str!("slot_ir.rs")),
         ("slot_ir_accuracy.rs", include_str!("slot_ir_accuracy.rs")),
         ("metal_slot.rs", include_str!("metal_slot.rs")),
+        // D60 (2026-11-02): the registered D55 fork run, production since
+        // D60 (`#[path]` children of `run.rs` and `wire.rs`). The fork run's
+        // own labels are `run_fork::D55_LABELS` (allowed below for
+        // `run_fork.rs` only, and checked in both directions further down);
+        // the frames' file absorbs nothing
+        ("run_fork.rs", include_str!("run_fork.rs")),
+        ("run_fork_wire.rs", include_str!("run_fork_wire.rs")),
     ];
     // TOKEN ROUND 18 (REVIEW A5 finding 2) and ROUND 19 (REVIEW_R18 R18-2),
     // FAIL-CLOSED over every module line: every production FILE module a
@@ -482,8 +489,9 @@ fn every_absorb_label_on_the_path_is_in_the_table() {
     // private_block.rs's 31 production modules (M26: + range16, slot_ir,
     // metal_slot), token_io.rs's 11, and the seven others: tied_tables ->
     // derive, argument / witness / trained_block / slot_ir -> their accuracy
-    // children, classify_cli -> classify_batch -> classify_batch_plan
-    assert_eq!(followed, 49, "the scanned files' production modules moved");
+    // children, classify_cli -> classify_batch -> classify_batch_plan; D60:
+    // run -> run_fork and wire -> run_fork_wire
+    assert_eq!(followed, 51, "the scanned files' production modules moved");
     // TOKEN I/O ROUND 12: the classifier header's two labels are absorbed ONLY
     // by a classifier run's header (`ClassifyRunStatement::transcript`) and by
     // the run capture's rebuild of that header; the shared table, and so every
@@ -501,7 +509,8 @@ fn every_absorb_label_on_the_path_is_in_the_table() {
         for l in absorb_labels(name, src) {
             seen += 1;
             let classify_ok = (name == "token_io/classify.rs" || name == "run_capture.rs") && classify_header.contains(&l.as_str());
-            let d55_replay_ok = name == "run_capture.rs" && d55_labels.contains(&l.as_str());
+            // (D60: and the fork run's own file, production since D60)
+            let d55_replay_ok = (name == "run_capture.rs" || name == "run_fork.rs") && d55_labels.contains(&l.as_str());
             assert!(table.contains(&l) || classify_ok || d55_replay_ok, "{name} absorbs `{l}`, which the label table of hash_domain.rs does not carry");
         }
     }

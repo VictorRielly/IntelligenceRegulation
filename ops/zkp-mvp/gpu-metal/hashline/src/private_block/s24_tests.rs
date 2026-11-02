@@ -49,12 +49,13 @@ fn every_shape() -> Vec<Shape> {
 /// `shape::is_trained_profile_string`), so the registry tests MEASURE them
 /// beside the registered profiles rather than skip them: their four keys must
 /// be distinct from every other live key, and s25 prints their hash input
-/// kinds. (D55's fork run profile is in no `shape.rs` / `run.rs` literal: it
-/// is test-only, in `run_fork.rs`. It is a RUN profile and adds no block
-/// shape and no key — a fork run hashes under its base block shape's four
-/// keys — so this list does not carry it; since D55 review F3 it is its own
-/// transcript constructor domain, and s25's W-2 census and s33's J-7a premise
-/// and lemma read it from `run_fork.rs`.) **D59 (2026-11-01): and every entry
+/// kinds. (A D55 fork run profile is a RUN profile and adds no block shape
+/// and no key — a fork run hashes under its base block shape's four keys — so
+/// this list does not carry it. Since D60 (2026-11-02) the twelve REGISTERED
+/// D55 profiles are literals of `run.rs`, covered by the registry comparison
+/// and the key checks below like every run profile; the TEST-ONLY fork
+/// identities stay in `run_fork.rs`, read by s25's W-2 census and s33's J-7a
+/// premise and lemma.) **D59 (2026-11-01): and every entry
 /// of `shape::W16R2_PROFILES`** — W16 at code rate 1/2, the same opt-in,
 /// unregistered class, its strings in `shape.rs` beside W16's, each with its
 /// own four keys; measured here exactly as W16's are.
@@ -199,6 +200,10 @@ fn every_registered_profile_is_covered_and_every_tagged_ones_keys_are_pairwise_d
     // TOKEN I/O ROUND 12: the classifier run profile(s), their own list
     runs.extend(super::token_io::classify::registered_classify_runs().into_iter().map(|(p, _)| p));
     runs.extend(super::accuracy_profile_tests::registered_runs().into_iter().map(|(p,_)|p));
+    // D60 (2026-11-02): the REGISTERED D55 fork-run profiles, one per R13
+    // blocks-only base (literals of `run.rs`); each a run profile of its own
+    // domain under its base BLOCK shape's keys, measured in (4) and (5)
+    runs.extend(super::run::D55_RUN_PROFILES.iter().map(|(d, _)| *d));
     // M26 (2026-11-01): W16's opt-in block profiles are in `shape.rs` and are
     // UNREGISTERED. That is CHECKED here, not assumed: none is a registered
     // block profile, a registered run profile, or the block of a registered
@@ -273,6 +278,12 @@ fn every_registered_profile_is_covered_and_every_tagged_ones_keys_are_pairwise_d
     // TOKEN I/O ROUND 12: a classifier run is keyed by its BLOCK shape's key set too
     run_shapes.extend(super::token_io::classify::registered_classify_runs());
     run_shapes.extend(super::accuracy_profile_tests::registered_runs());
+    // D60: a registered D55 fork run is keyed by its BASE's block shape's key
+    // set too (`run_fork::ForkRun::transcript` builds it through
+    // `protocol::tagged_transcript` under the D55 string)
+    for (p, sh) in super::accuracy_profile_tests::registered_runs() {
+        run_shapes.push((super::run::d55_run_profile(p).expect("every R13 run profile has a registered D55 profile"), sh));
+    }
     for (rp, sh) in run_shapes {
         let live = super::protocol::tagged_transcript(&sh, rp.as_bytes()).state();
         let block_key = *sh.hash_tag().transcript_key().expect("a tagged block profile carries a transcript key");
