@@ -268,9 +268,18 @@ AccuracyProfile{profile:W16_8B_T512_H24,name:"W16_8B_T512_H24",legacy:LLAMA3_8B_
 // Unregistered, as W16 is (no run profile, on no registered list; the source
 // scans carry them through `s24_tests::opt_in_unregistered_shapes`). Every
 // string has its W16 sibling's length, and the parameter line's
-// `inv_rate2/Q260` has `inv_rate4/Q256`'s, so no new hash input length
-// appears on the block path. Accounting:
-// `results/zk60_w16r2_20261101/ACCOUNTING.md`.
+// `inv_rate2/Q260` has `inv_rate4/Q256`'s, so the constructor input and the
+// `profile` / `parameters` absorbs keep W16's lengths. Other hash inputs on
+// the block path DO take new lengths (W16R2 review F5, 2026-11-02): each
+// clear vector the `pcs-vec` / `pcs-prox` absorbs carries `(n + Q)` Fp2
+// words (266,304 data bytes at `Q = 260`, against W16's 266,240), and the
+// tree has 2^15 leaves, not 2^16. Under the profile's tag that separates
+// nothing and matters for nothing (s25's W-2 census measures every one); the
+// one equal-length pair inside the transcript function, the W16R2 rung's
+// 63-byte constructor input against a 63-byte `pb-slot` absorb, is W16's own
+// M26 pair, separated the same way (s33's J-7a lemma; recorded in s25's
+// census row and pinned by s33's sixty-three-byte test for both rungs).
+// Accounting: `results/zk60_w16r2_20261101/ACCOUNTING.md`.
 pub(crate) const W16R2_RUNG_H24: &str = "hashline-zk-mr1/private-block-rung-lh-t32-w16r2-d/1";
 pub(crate) const W16R2_SHIELD_T128_H24: &str = "hashline-zk-mr1/private-block-shieldstral-3b-t128-lh24-w16r2/1";
 pub(crate) const W16R2_8B_T128_H24: &str = "hashline-zk-mr1/private-block-llama-3-8b-t128-lh-w16r2/1";

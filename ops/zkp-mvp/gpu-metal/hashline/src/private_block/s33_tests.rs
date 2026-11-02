@@ -78,6 +78,19 @@ fn d55_profiles() -> Vec<String> {
     v
 }
 
+/// **W16R2 REVIEW F5 (c) (2026-11-02): the W16 / W16R2 TEST-ONLY run
+/// identities** (`w16_privacy_gate_tests::W16_TEST_RUN_PROFILES`). Under D12a
+/// each is a transcript constructor domain of its own (a D55 run prefixes
+/// it, which [`d55_profiles`] covers), and none has a literal in `shape.rs`
+/// or `run.rs`, so [`registry_profiles`] does not read them: the premise and
+/// the lemma below take them from here.
+fn test_only_run_profiles() -> Vec<String> {
+    let mut v: Vec<String> = super::w16_privacy_gate_tests::W16_TEST_RUN_PROFILES.iter().map(|(r, _)| r.to_string()).collect();
+    v.sort();
+    v.dedup();
+    v
+}
+
 /// The whole registry as STRINGS, read out of the two source files that hold
 /// it, so a profile added to `shape.rs` or `run.rs` is covered here whether or
 /// not anyone remembers this file.
@@ -190,6 +203,8 @@ fn every_registered_profile_context_and_label_is_printable_ascii_with_no_nul() {
     assert!(n_d55 > 0, "no D55 profile string was formed");
     strings.extend(d55.iter().map(|p| (format!("the D55 fork run's profile `{p}`"), p.clone())));
     strings.extend(super::run::fork::D55_LABELS.iter().map(|(l, _)| (format!("the D55 fork run's transcript label `{l}`"), l.to_string())));
+    // W16R2 review F5 (c): the test-only run identities, constructor domains too
+    strings.extend(test_only_run_profiles().into_iter().map(|p| (format!("the test-only run identity `{p}`"), p)));
     for (role, ctx) in [
         ("transcript", zkp_core::hashtag::CTX_TRANSCRIPT),
         ("column", zkp_core::hashtag::CTX_COLUMN),
@@ -276,7 +291,11 @@ fn no_transcript_constructor_input_can_equal_an_absorb_input_of_the_same_length(
     // too (each `hashline-v1/` ‖ the D55 profile string since F3)
     let n_registry = profiles.len();
     profiles.extend(d55_profiles());
-    eprintln!("    (the lemma below covers {n_registry} registry profiles and {} D55 fork-run constructor domains)", profiles.len() - n_registry);
+    // W16R2 review F5 (c): and every test-only run identity's own domain
+    let n_d55 = profiles.len() - n_registry;
+    profiles.extend(test_only_run_profiles());
+    let n_test_runs = profiles.len() - n_registry - n_d55;
+    eprintln!("    (the lemma below covers {n_registry} registry profiles, {n_d55} D55 fork-run constructor domains and {n_test_runs} test-only run identities)");
     let mut worst = usize::MAX;
     let mut worst_at = String::new();
     let mut layouts_total = 0usize;
@@ -310,7 +329,7 @@ fn no_transcript_constructor_input_can_equal_an_absorb_input_of_the_same_length(
             worst_at = p.clone();
         }
     }
-    eprintln!("S33 J-7a lemma: {} profiles ({n_registry} of the registry, {} D55 fork-run constructor domains), {layouts_total} absorb layouts, EVERY one separated; the thinnest is {worst} forced-NUL positions at `{worst_at}`", profiles.len(), profiles.len() - n_registry);
+    eprintln!("S33 J-7a lemma: {} profiles ({n_registry} of the registry, {n_d55} D55 fork-run constructor domains, {n_test_runs} test-only run identities), {layouts_total} absorb layouts, EVERY one separated; the thinnest is {worst} forced-NUL positions at `{worst_at}`", profiles.len());
     assert!(worst >= 1, "some profile length has a layout with no separating position");
 }
 
@@ -378,40 +397,46 @@ fn the_declared_sixty_byte_pair_is_separated_at_the_positions_the_record_names()
 /// 63-byte layout at that profile, and this test pins the declared row's
 /// length, layout and positions the way the sixty-byte test pins stage 32's,
 /// and shows the separation on real bytes with an adversarial state.
+///
+/// **W16R2 review F5 (a) (2026-11-02): the THIRD instance**, at the W16R2
+/// rung. `hashline-zk-mr1/private-block-rung-lh-t32-w16r2-d/1` has its W16
+/// sibling's 51 bytes, so it makes the same 63-byte pair; the same row covers
+/// it, and this test pins both rungs.
 #[test]
 fn the_declared_sixty_three_byte_w16_rung_pair_is_separated_at_the_positions_the_record_names() {
-    let p = super::shape::W16_RUNG_H24;
-    assert_eq!(p.len(), 51, "the W16 rung profile string is no longer 51 bytes, so s25's declared 63-byte row describes nothing");
-    let ctor: Vec<u8> = CTOR_PREFIX.iter().chain(p.as_bytes()).copied().collect();
-    assert_eq!(ctor.len(), 63, "the constructor input is not 63 bytes");
-    // the declared partner is on this profile's path: `pb-slot` with 8 bytes
-    let sh = super::range16_tests::built(p);
-    assert!(
-        hash_domain::path_labels(&sh, None).iter().any(|u| u.label == "pb-slot" && u.data.contains(&8)),
-        "`pb-slot` with 8 bytes of data is not on the W16 rung's path; the declared row describes nothing"
-    );
-    let (label, data_len) = (b"pb-slot".to_vec(), 8usize);
-    assert_eq!(48 + label.len() + data_len, ctor.len(), "the declared partner is not of the constructor input's length");
-    let sep = separating_positions(p.as_bytes(), label.len(), data_len);
-    // `le64(7)` at offset 32: seven NULs at 33..39; `le64(8)` at offset 47: seven at 48..54
-    let in_first: Vec<usize> = sep.iter().copied().filter(|q| (32..40).contains(q)).collect();
-    assert_eq!(in_first, (33..40).collect::<Vec<_>>(), "the first length field's forced NULs are not where the record says");
-    let in_second: Vec<usize> = sep.iter().copied().filter(|q| (47..55).contains(q)).collect();
-    assert_eq!(in_second, (48..55).collect::<Vec<_>>(), "the second length field's forced NULs are not where the record says");
-    assert_eq!(sep.len(), 14, "the declared pair's separating positions moved");
-    // ---- on real bytes, the state chosen adversarially
-    let mut absorb: Vec<u8> = ctor[..32].to_vec();
-    absorb.extend_from_slice(&(label.len() as u64).to_le_bytes());
-    absorb.extend_from_slice(&label);
-    absorb.extend_from_slice(&(data_len as u64).to_le_bytes());
-    absorb.extend_from_slice(&[0xffu8; 8]);
-    assert_eq!(absorb.len(), ctor.len(), "the two inputs are not the same length after all");
-    assert_ne!(absorb, ctor, "the declared pair's two inputs are EQUAL");
-    for q in &sep {
-        assert_eq!(absorb[*q], 0u8, "offset {q} is not a forced NUL of the absorb input");
-        assert_ne!(ctor[*q], 0u8, "offset {q} of the constructor input is a NUL");
+    for p in [super::shape::W16_RUNG_H24, super::shape::W16R2_RUNG_H24] {
+        assert_eq!(p.len(), 51, "{p}: the rung profile string is no longer 51 bytes, so s25's declared 63-byte row describes nothing");
+        let ctor: Vec<u8> = CTOR_PREFIX.iter().chain(p.as_bytes()).copied().collect();
+        assert_eq!(ctor.len(), 63, "{p}: the constructor input is not 63 bytes");
+        // the declared partner is on this profile's path: `pb-slot` with 8 bytes
+        let sh = super::range16_tests::built(p);
+        assert!(
+            hash_domain::path_labels(&sh, None).iter().any(|u| u.label == "pb-slot" && u.data.contains(&8)),
+            "`pb-slot` with 8 bytes of data is not on {p}'s path; the declared row describes nothing"
+        );
+        let (label, data_len) = (b"pb-slot".to_vec(), 8usize);
+        assert_eq!(48 + label.len() + data_len, ctor.len(), "the declared partner is not of the constructor input's length");
+        let sep = separating_positions(p.as_bytes(), label.len(), data_len);
+        // `le64(7)` at offset 32: seven NULs at 33..39; `le64(8)` at offset 47: seven at 48..54
+        let in_first: Vec<usize> = sep.iter().copied().filter(|q| (32..40).contains(q)).collect();
+        assert_eq!(in_first, (33..40).collect::<Vec<_>>(), "{p}: the first length field's forced NULs are not where the record says");
+        let in_second: Vec<usize> = sep.iter().copied().filter(|q| (47..55).contains(q)).collect();
+        assert_eq!(in_second, (48..55).collect::<Vec<_>>(), "{p}: the second length field's forced NULs are not where the record says");
+        assert_eq!(sep.len(), 14, "{p}: the declared pair's separating positions moved");
+        // ---- on real bytes, the state chosen adversarially
+        let mut absorb: Vec<u8> = ctor[..32].to_vec();
+        absorb.extend_from_slice(&(label.len() as u64).to_le_bytes());
+        absorb.extend_from_slice(&label);
+        absorb.extend_from_slice(&(data_len as u64).to_le_bytes());
+        absorb.extend_from_slice(&[0xffu8; 8]);
+        assert_eq!(absorb.len(), ctor.len(), "the two inputs are not the same length after all");
+        assert_ne!(absorb, ctor, "{p}: the declared pair's two inputs are EQUAL");
+        for q in &sep {
+            assert_eq!(absorb[*q], 0u8, "offset {q} is not a forced NUL of the absorb input");
+            assert_ne!(ctor[*q], 0u8, "{p}: offset {q} of the constructor input is a NUL");
+        }
+        eprintln!("S33 J-7a (M26; W16R2 review F5): the declared 63-byte rung pair at `{p}` is separated at {} positions — {in_first:?} in le64(|label|) and {in_second:?} in le64(|data|)", sep.len());
     }
-    eprintln!("S33 J-7a (M26): the declared 63-byte W16 rung pair is separated at {} positions — {in_first:?} in le64(|label|) and {in_second:?} in le64(|data|)", sep.len());
 }
 
 /// **THE LEMMA'S OWN CONTROL.** The separation is not a property of the

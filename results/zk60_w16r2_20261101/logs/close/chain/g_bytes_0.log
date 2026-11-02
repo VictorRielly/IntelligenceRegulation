@@ -1,0 +1,10 @@
+
+running 1 test
+test private_block::slot_ir::accuracy::tests::m4_accuracy_block_proofs_are_byte_identical_on_the_cpu_and_on_metal ... M4-ACCURACY-DIGEST R13_RUNG_LOW cpu 01fa1b2ed5e77d353815c5358a4688e41f5fa8bff1c6661df5a1b27adfa9f3e7 metal 01fa1b2ed5e77d353815c5358a4688e41f5fa8bff1c6661df5a1b27adfa9f3e7 (device sumcheck rounds 0.0480 s)
+M4-ACCURACY-DIGEST R13_RUNG_H24 cpu 992034f8cc01346e941599857a83c1069e82c43a1c7bb3bfb6284a18aabca450 metal 992034f8cc01346e941599857a83c1069e82c43a1c7bb3bfb6284a18aabca450 (device sumcheck rounds 0.0533 s)
+M4-ACCURACY-DIGEST R13_RUNG_LOW_DD cpu 371e6b00baf149b98e149dfed90480624306428987038be3883c6abe78ac2496 metal 371e6b00baf149b98e149dfed90480624306428987038be3883c6abe78ac2496 (device sumcheck rounds 0.0320 s)
+M4-ACCURACY-DIGEST R13_RUNG_H24_DD cpu 3ab090df674c9d4dd4187c07472f309fe7af69fee261927c4f793688799ffb7a metal 3ab090df674c9d4dd4187c07472f309fe7af69fee261927c4f793688799ffb7a (device sumcheck rounds 0.0328 s)
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 967 filtered out; finished in 5.92s
+

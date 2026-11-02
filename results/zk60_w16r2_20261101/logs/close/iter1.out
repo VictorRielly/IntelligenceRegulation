@@ -1,0 +1,8 @@
+[zk60-guard 01:34:31] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 01:35:32] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 01:36:33] START w16r2-close-iter-build class=build need=4G cap=10G enforce=watchdog-only waited=121s run=209c88e693a9
+[zk60-guard 01:38:44] END w16r2-close-iter-build exit=0 child_wall=131s peak_rss=3.57G min_avail=229.09G
+B=/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a212d1a7c4f5d315b/ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-090f733b2150ddfb
+[zk60-guard 01:38:44] START w16r2-close-iter-tests class=cpu need=8G cap=40G enforce=watchdog-only waited=0s run=4d8029feefe2
+[zk60-guard 01:39:27] END w16r2-close-iter-tests exit=0 child_wall=43s peak_rss=2.67G min_avail=229.73G
+test result: ok. 32 passed; 0 failed; 2 ignored; 0 measured; 934 filtered out; finished in 42.42s

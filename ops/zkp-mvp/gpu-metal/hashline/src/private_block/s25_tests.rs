@@ -712,12 +712,15 @@ fn every_hash_input_kind_of_every_registered_profile_is_printed_with_its_length(
         // argument, CHECKED the same way: s33's J-7a lemma covers every
         // 63-byte layout at that profile (it reads the registry from the
         // source), and s33's sixty-three-byte test pins this row's layout and
-        // positions on real bytes.
+        // positions on real bytes. **W16R2 review F5 (a) (2026-11-02):** the
+        // opt-in W16R2 rung `…private-block-rung-lh-t32-w16r2-d/1` has the same
+        // 51 bytes, so it makes the same pair; this row covers it and s33's
+        // test pins both rungs.
         (
             63,
             "the transcript constructor at",
             "the transcript absorb of `pb-slot`",
-            "le64(7) ‖ \"pb-slot\" ‖ le64(8) — fourteen positions forced to NUL inside the two length fields (33..39 and 48..54), where the constructor carries the profile string's own ASCII bytes (M26: the 51-byte opt-in W16 rung profile; CHECKED by s33's J-7a lemma over every registry length and every layout, and pinned by s33's sixty-three-byte test)",
+            "le64(7) ‖ \"pb-slot\" ‖ le64(8) — fourteen positions forced to NUL inside the two length fields (33..39 and 48..54), where the constructor carries the profile string's own ASCII bytes (M26: the 51-byte opt-in W16 rung profile; D59: the 51-byte opt-in W16R2 rung profile; CHECKED by s33's J-7a lemma over every registry length and every layout, and pinned for both rungs by s33's sixty-three-byte test)",
         ),
         (
             49,
