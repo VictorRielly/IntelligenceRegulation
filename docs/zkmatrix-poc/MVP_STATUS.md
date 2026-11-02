@@ -1,5 +1,16 @@
 # Where the MVP stands, in plain words
 
+**2026-11-01 (night): one request now proves at about 21 proved tokens/s with the D55 prototype (opt-in, unreviewed).**
+- **What changed:** Victor approved D55. Its "commit, fork, join" profile lets one request's 32 blocks prove concurrently.
+- **Speed** [MEASURED, W16 8B T128, synthetic weights, one process, best of 3]: one request goes from 10.57 tokens/s (serial) to 20.85 at
+  six forks (1.97×), and verification takes about 2.5 s against 4.8 s.
+- **Correctness:** the four malicious controls are rejected, and existing proof bytes and goldens are unchanged.
+- **Before any receipt uses it:** an independent review and a privacy re-check (`results/zk60_d55_20261101/SOUNDNESS_NOTE.md`).
+- **Housekeeping found by the D55 agent:** four source-scan tests (r19b, the s24 pin list, the s25 module graph, the absorb-label scan) fail on files added by
+  the Metal and W16 work. Those files need adding to the scans' lists.
+- **Also today:** the W16 privacy gate passes on the Metal path and in a Python v25 subset (no leak found).
+- **Still the gap to 50:** the RTX 5090 CUDA port.
+
 **2026-11-01 (evening): the Shieldstral classifier privacy statement is accepted (D58).** Victor accepted v3 with the checker's two text fixes. It is in force for the named CPU binaries at the moderate policy list; conditions C-7 and C-8 still stand before non-public posts, and GPU proving is not yet covered. W16's F3 malicious controls are closed. A funding push is under way (D57; `results/zk60_funding_20261101/`).
 
 **2026-11-01 (Mac, latest): one request now proves at about 11 proved tokens/s (13 at 256 tokens per block), and about
