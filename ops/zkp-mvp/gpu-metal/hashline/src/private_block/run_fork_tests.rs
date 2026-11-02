@@ -1085,6 +1085,12 @@ fn d60pg_rung(l: usize, context: u8, hidden: usize) -> (Rung, String) {
 ///   weights are on this host) and M10's admissible input family
 ///   (`((i 37 + 11 + s) mod (41 + 20 (s mod 3))) - 20`, the first admissible
 ///   `s` from `7 hidden`).
+/// * `PROFILE:hidden:own` (a trained base only; 2026-11-02, the TS / census /
+///   bases lane): the same, with layer 1 proved at its OWN norm constant
+///   (cn_a, cn_m or ceps, the first that passes the trained door; outside
+///   the R13 accuracy base, so the block and its digest are unchanged), so
+///   fork 1's stage line carries an own-calibration clause; written to
+///   `d55-<profile>-own-s<hidden>` and checked as its own PG-10 pair.
 ///
 /// Test-only synthetic bundles, not for publication; the Python gate reads
 /// them and they are deleted once recorded.
@@ -1101,10 +1107,22 @@ fn d60_privacy_gate_write_registered_r13_fork_bundles() {
     // per profile name: the run's shape and every bundle written for it
     let mut written: Vec<(String, crate::private_block::shape::Shape, Vec<PathBuf>)> = Vec::new();
     for case in cases.split(',').map(str::trim).filter(|c| !c.is_empty()) {
-        let (name, hidden) = case.split_once(':').unwrap_or((case, "0"));
+        // [TS / CENSUS / bases lane, 2026-11-02] `PROFILE:hidden[:own]`: the
+        // optional `own` variant (a trained base only) proves layer 1 at its
+        // OWN norm constant, so its stage line carries an own-calibration
+        // clause (the gate's per-layer path); without it nothing changes
+        let mut parts = case.splitn(3, ':');
+        let name = parts.next().unwrap_or(case);
+        let hidden = parts.next().unwrap_or("0");
+        let own_variant = match parts.next() {
+            None => false,
+            Some("own") => true,
+            Some(v) => panic!("{case}: unknown variant {v:?} (only `own`)"),
+        };
         let hidden: usize = hidden.parse().unwrap_or_else(|_| panic!("{case}: the hidden-input index is not a number"));
+        assert!(!(own_variant && name == "R13_RUNG_H24"), "{case}: the own-constant variant is for a trained base");
         let t0 = Instant::now();
-        let dir = root.join(format!("d55-{}-s{hidden}", name.to_ascii_lowercase()));
+        let dir = root.join(format!("d55-{}{}-s{hidden}", name.to_ascii_lowercase(), if own_variant { "-own" } else { "" }));
         let context = 210u8.wrapping_add((n as u8).wrapping_mul(3));
         let (rc, b, what, profile, base, run_sh) = if name == "R13_RUNG_H24" {
             let (mut r, what) = d60pg_rung(l, context, hidden);
@@ -1119,32 +1137,63 @@ fn d60_privacy_gate_write_registered_r13_fork_bundles() {
             let original = crate::private_block::range16_tests::built(spec.profile);
             let (sh, data, public, ff) = crate::private_block::range16_tests::case(original, 3);
             let blk = BlockPublic::new(public.clone(), ff.clone()).with_accuracy(data.clone());
-            let build = |x: &[i16]| witness::build_accuracy(&sh, &public, &ff, &data, x);
+            // the own-constant variant: layer 1 (or the last) at its own norm
+            // constant -- cn_a, cn_m or ceps, which are outside the R13
+            // accuracy base, so the block's public data (and its digest) are
+            // the same at every layer -- the first that passes the trained
+            // door (`Shape::with_layer_calibration`); every other layer, and
+            // every layer of a plain case, at the run's calibration
+            let own_layer = if own_variant { 1usize.min(l - 1) } else { usize::MAX };
+            let (own, own_what, own_shape) = if own_variant {
+                use crate::private_block::trained_statement::{apply_own, cal_field, OWN_FIELDS};
+                let base = sh.norm_calibration();
+                let mut found = None;
+                for (i, delta) in [(2usize, 1i64), (3, 1), (4, 1), (2, -1), (3, -1)] {
+                    let mut own = [None; 11];
+                    own[i] = Some(cal_field(&base, i) + delta);
+                    if let Ok(s1) = apply_own(&base, &own).and_then(|c| sh.with_layer_calibration(&c)) {
+                        found = Some((own, format!("layer {own_layer} at its OWN {} {} (the run's is {})", OWN_FIELDS[i].2, cal_field(&base, i) + delta, cal_field(&base, i)), s1));
+                        break;
+                    }
+                }
+                let (own, what, s1) = found.unwrap_or_else(|| panic!("{case}: no own norm constant passes the trained door"));
+                (own, what, Some(s1))
+            } else {
+                ([None; 11], String::new(), None)
+            };
+            let shape_at = |k: usize| -> crate::private_block::shape::Shape { if k == own_layer { own_shape.clone().expect("the own layer's shape") } else { sh.clone() } };
+            // the first admissible input of M10's family whose WHOLE chain
+            // builds (wherever the previous rule did not panic, this is its
+            // choice: it took the first input admissible at layer 0 and then
+            // required every later layer to build)
+            let ids = Ids::new(&sh).unwrap();
+            let chain = |x0: Vec<i16>| -> Result<(Vec<Option<Witness>>, Vec<Vec<i16>>, Vec<i16>, Vec<i16>), String> {
+                let (mut x, mut witnesses, mut planes, mut input, mut output) = (x0, Vec::new(), Vec::new(), Vec::new(), Vec::new());
+                for k in 0..l {
+                    let w = witness::build_accuracy(&shape_at(k), &public, &ff, &data, &x).map_err(|e| format!("layer {k}: {e}"))?;
+                    if k == 0 {
+                        input = w.planes[ids.at(A_X)].iter().map(|&v| v as i16).collect::<Vec<i16>>();
+                    }
+                    let out = w.output().unwrap();
+                    x = unpad(&sh, &out);
+                    if k + 1 < l {
+                        planes.push(out);
+                    } else {
+                        output = out;
+                    }
+                    witnesses.push(Some(w));
+                }
+                Ok((witnesses, planes, input, output))
+            };
             let mut s = 7 * hidden;
-            let x0 = loop {
-                let input: Vec<i16> = (0..sh.tokens * sh.width).map(|i| ((i * 37 + 11 + s) % (41 + 20 * (s % 3))) as i16 - 20).collect();
-                match build(&input) {
-                    Ok(_) => break input,
+            let (witnesses, planes, input, output) = loop {
+                let x0: Vec<i16> = (0..sh.tokens * sh.width).map(|i| ((i * 37 + 11 + s) % (41 + 20 * (s % 3))) as i16 - 20).collect();
+                match chain(x0) {
+                    Ok(c) => break c,
                     Err(_) if s < 7 * hidden + 6 => s += 1,
                     Err(e) => panic!("{case}: no admissible synthetic input: {e}"),
                 }
             };
-            let ids = Ids::new(&sh).unwrap();
-            let (mut x, mut witnesses, mut planes, mut input, mut output) = (x0, Vec::new(), Vec::new(), Vec::new(), Vec::new());
-            for k in 0..l {
-                let w = build(&x).unwrap_or_else(|e| panic!("{case}: layer {k} of the synthetic chain is not admissible: {e}"));
-                if k == 0 {
-                    input = w.planes[ids.at(A_X)].iter().map(|&v| v as i16).collect::<Vec<i16>>();
-                }
-                let out = w.output().unwrap();
-                x = unpad(&sh, &out);
-                if k + 1 < l {
-                    planes.push(out);
-                } else {
-                    output = out;
-                }
-                witnesses.push(Some(w));
-            }
             let run_profile = run::accuracy_run_profile(sh.profile).expect("an R13 base has a registered D12a run profile");
             let mut prov = Provenance::recipe("D60 privacy-gate fixture (public synthetic)", 1.0, [3; 32], [4; 32]);
             prov.rope_theta = shape::trained_rope_theta(sh.profile).expect("a trained profile's pinned RoPE base");
@@ -1155,6 +1204,9 @@ fn d60_privacy_gate_write_registered_r13_fork_bundles() {
                 .map(|i| {
                     let mut r = r0.clone();
                     r.index = i as u32;
+                    if i == own_layer {
+                        r.own = own;
+                    }
                     r
                 })
                 .collect();
@@ -1169,7 +1221,8 @@ fn d60_privacy_gate_write_registered_r13_fork_bundles() {
             let (rc, stats) = prove_run_with_forks(&fr, &rep, &mut src, owners, l).unwrap_or_else(|e| panic!("{case}: the honest fork run did not prove: {e}"));
             honest_stats_hold(&st, &stats);
             let b = d60pg_capture(&fr, &rep, &rc, l);
-            (rc, b, format!("the registered TRAINED base {run_profile} at its true geometry with ONE public synthetic block at every layer (range16_tests::case, tame diagonal weights, 3 activation groups; no trained weights); hidden input {hidden}: M10's input family at s = {s}"), fr.profile().to_string(), run_profile.to_string(), st.rs().sh().clone())
+            let own_note = if own_variant { format!("; {own_what}, so its stage line carries the own-calibration clause") } else { String::new() };
+            (rc, b, format!("the registered TRAINED base {run_profile} at its true geometry with ONE public synthetic block at every layer (range16_tests::case, tame diagonal weights, 3 activation groups; no trained weights){own_note}; hidden input {hidden}: M10's input family at s = {s}"), fr.profile().to_string(), run_profile.to_string(), st.rs().sh().clone())
         };
         let frames: Vec<Vec<u8>> = rc.frames().cloned().collect();
         let note = format!(
@@ -1185,9 +1238,11 @@ fn d60_privacy_gate_write_registered_r13_fork_bundles() {
             frames.iter().map(|f| f.len()).collect::<Vec<_>>(),
             t0.elapsed().as_secs_f64()
         );
-        match written.iter_mut().find(|(p, _, _)| p == name) {
+        // an own-constant variant is its own PG-10 pair
+        let wkey = if own_variant { format!("{name}+own") } else { name.to_string() };
+        match written.iter_mut().find(|(p, _, _)| *p == wkey) {
             Some((_, _, dirs)) => dirs.push(dir.clone()),
-            None => written.push((name.to_string(), run_sh, vec![dir.clone()])),
+            None => written.push((wkey, run_sh, vec![dir.clone()])),
         }
         n += 1;
     }
