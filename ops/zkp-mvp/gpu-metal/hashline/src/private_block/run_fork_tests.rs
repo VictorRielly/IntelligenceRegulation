@@ -960,6 +960,10 @@ fn d60_the_capture_writer_writes_a_registered_fork_run_bundle_and_refuses_a_test
         assert!(manifest.contains(&format!("\"file\":\"{f}\"")), "the manifest does not list {f}");
     }
     let total: u64 = std::fs::read_dir(&dir).unwrap().filter_map(|e| e.ok()).filter_map(|e| e.metadata().ok()).filter(|m| m.is_file()).map(|m| m.len()).sum();
+    // D60 review closure: the registered run's run.json describes it as
+    // registered (descriptive text only), not as the prototype
+    let run_json = std::fs::read_to_string(dir.join("run.json")).unwrap();
+    assert!(run_json.contains("D55 REGISTERED OPT-IN RUN PROFILE (ruling D60") && run_json.contains("it ends /d55-commit-fork-join-registered-d60") && !run_json.contains("D55 PROTOTYPE") && !run_json.contains("prototype-unregistered"), "the registered bundle's run.json still describes the prototype");
     // D60 review F3: the Rust gate's capture checks (the production writer's
     // manifest, PG-7 the allow-list over the run file, every fork and the
     // tail, PG-8 per fork, and their controls) on the bundle AS WRITTEN
