@@ -177,4 +177,11 @@ Notes on the measurement:
 - Condition (5): a privacy re-check of the changed code and padding.
   - `W16_TEST_RUN_PROFILES` now carries the W16R2 rung, so the W16 gate's `gate_at` can be pointed at it.
   - The capture writer's `mask_domain` column count is now M's own.
+  - **Done 2026-11-02, no leak found:** `PRIVACY_RECHECK_20261102.md`.
+    - It holds the theory from the code, and the Rust gate at W16R2 on the CPU and Metal (rung and 8B),
+      plus PG-R2, the pad block's exact rank.
+    - It also holds the v25 Python gate on the W16R2 captures and on four D55 captures (D60's
+      prerequisite).
+    - It is a mechanical re-check, not a privacy acceptance. The older W16 gate items it lists in §5 are
+      still owed.
 - Victor's registration ruling.

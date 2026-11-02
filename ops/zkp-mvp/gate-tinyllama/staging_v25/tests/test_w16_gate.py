@@ -99,6 +99,55 @@ class W16Port(unittest.TestCase):
             W.limbs_of(25)
         self.assertFalse(W.is_w16_block_profile("hashline-zk-mr1/private-block-rung-lh-t32-dev/1"))   # R13's rung
 
+    def test_the_w16r2_profiles_and_their_geometry(self):
+        # [2026-11-02, D59 condition (5)] shape.rs W16R2_PROFILES and the two
+        # test-only W16R2 run identities; rate 1/2 with Q = 260 against W16's
+        # 1/4 with 256; M's own constants at both
+        r2 = [p for p in W.W16_BLOCK_PROFILES if W.is_w16r2_block_profile(p)]
+        self.assertEqual(sorted(W.W16_BLOCK_PROFILES[p][0] for p in r2), ["W16R2_8B_T128_H24", "W16R2_RUNG_H24", "W16R2_SHIELD_T128_H24"])
+        for p in r2:
+            self.assertEqual(W.pcs_geometry_of(p), (2, 260))
+        self.assertEqual(W.pcs_geometry_of("hashline-zk-mr1/private-block-rung-lh-t32-w16-dev/1"), (4, 256))
+        self.assertEqual(W.MASK_GEOMETRY, (12, 256))
+        self.assertEqual(W.W16_TEST_RUN_PROFILES["hashline-zk-mr1/private-run-rung-lh-t32-w16r2-t/1"],
+                         "hashline-zk-mr1/private-block-rung-lh-t32-w16r2-d/1")
+        # every W16R2 run identity has its W16 twin's length (shape.rs: no new hash input length)
+        for run, block in W.W16_TEST_RUN_PROFILES.items():
+            if W.is_w16r2_block_profile(block):
+                twin = [r for r, b in W.W16_TEST_RUN_PROFILES.items() if not W.is_w16r2_block_profile(b)
+                        and W.W16_BLOCK_PROFILES[b][0] == W.W16_BLOCK_PROFILES[block][0].replace("W16R2_", "W16_")]
+                self.assertEqual(len(twin), 1)
+                self.assertEqual(len(run), len(twin[0]))
+
+    def test_the_opening_geometry_check_refuses_by_name(self):
+        sh = {"log_cols": 14, "endpoint_log_n": 14}
+        n = 1 << 14
+        role = {"role": "A", "commitment_kind": "block", "params": {"log_cols": 14, "inv_rate": 2, "num_col_checks": 260},
+                "q_pad": 260, "columns": [{"index": j} for j in range(260)],
+                "groups": [{"vector": [0] * (n + 260)}], "proximity_vector": [0] * (n + 260)}
+        W.check_opening_geometry(sh, "t", role, 2, 260)
+        for mutate in (lambda r: r["params"].__setitem__("inv_rate", 4), lambda r: r.__setitem__("q_pad", 256),
+                       lambda r: r["columns"].pop(), lambda r: r["proximity_vector"].pop(),
+                       lambda r: r["columns"][0].__setitem__("index", 2 * n)):
+            bad = copy.deepcopy(role)
+            mutate(bad)
+            with self.assertRaises(ValueError):
+                W.check_opening_geometry(sh, "t", bad, 2, 260)
+        with self.assertRaises(ValueError):          # the W16R2 opening held to W16's geometry
+            W.check_opening_geometry(sh, "t", role, 4, 256)
+
+    def test_the_d55_claim_encoding_and_schedule_lines(self):
+        import zk60_native_rg_d55 as D
+        # run_fork.rs claim_bytes: count, value, part count, (offset, log_size, coefficient, point length, point)
+        c = {"value": [1, 2], "parts": [{"offset": 3, "log_size": 4, "coefficient": [5, 6], "point": [[7, 8]]}]}
+        b = D.claim_bytes([c])
+        self.assertEqual(len(b), 8 + 16 + 8 + (8 + 8 + 16 + 8 + 16))
+        self.assertEqual(b[:8], (1).to_bytes(8, "little"))
+        self.assertEqual(b[8:16], (1).to_bytes(8, "little"))
+        self.assertEqual(D.claim_bytes([]), (0).to_bytes(8, "little"))
+        self.assertEqual(len(D.D55_LABELS), 26)
+        self.assertEqual(D.D55_LABELS[6:11], ("pb-fork-commit-root", "B", "pb-fork-s0", "pb-run-fork", "pb-run-fork-block"))
+
     def test_no_v24_module_is_changed_by_this_one(self):
         # the module only ADDS names; the v24 tables it reads are untouched
         import zk60_native_rg_r13slots as R
@@ -154,7 +203,75 @@ class W16RungBundle(unittest.TestCase):
         p = W.classify_pins(self.b, W.default_r19b_manifest())
         self.assertTrue(p["r19b_manifest_found"])
         self.assertEqual(p["pins"], p["at_r19b"] + len(p["read_here"]) + len(p["unread"]))
-        self.assertFalse(p["range16_rs_pinned"])
+        # [2026-11-02] a bundle written before M26 does not pin range16.rs; one
+        # written by a tree with M26's OWN_SOURCE_FILES (range16.rs added) does,
+        # and then it is one of the UNREAD pins (no r19b digest exists for it)
+        files = [x["file"] for x in self.b.manifest.get("source_pins", [])]
+        self.assertEqual(p["range16_rs_pinned"], "src/private_block/range16.rs" in files)
+        if p["range16_rs_pinned"]:
+            self.assertIn("src/private_block/range16.rs", [u["file"] for u in p["unread"]])
+
+
+R2_BUNDLE = os.environ.get("ZK60_W16R2_RUNG_BUNDLE", "")
+D55_BUNDLE = os.environ.get("ZK60_D55_BUNDLE", "")
+
+
+@unittest.skipUnless(R2_BUNDLE and os.path.isdir(R2_BUNDLE) and _blake3_present(),
+                     "set ZK60_W16R2_RUNG_BUNDLE to a W16R2 rung capture (and install blake3)")
+class W16R2RungBundle(unittest.TestCase):
+    """[2026-11-02, D59 condition (5)] the W16R2 rung capture's facts"""
+
+    @classmethod
+    def setUpClass(cls):
+        from zk60_native_rg_block import load_bundle
+        cls.b = load_bundle(R2_BUNDLE)
+        cls.facts = W.w16_facts(cls.b)
+
+    def test_facts_and_geometry(self):
+        self.assertEqual(self.facts["name"], "W16R2_RUNG_H24")
+        g = self.facts["pcs_geometry"]
+        self.assertEqual((g["family"], g["inv_rate"], g["q"], g["mask_columns"], g["regular_openings_checked"]), ("W16R2", 2, 260, 256, 4))
+        self.assertTrue(W.check_layout(self.b, self.facts)["ok"])
+
+    def test_a_w16r2_shape_at_w16s_rate_is_refused(self):
+        b = copy.copy(self.b)
+        b.run = copy.deepcopy(self.b.run)
+        b.run["shape"]["inv_rate"] = 4
+        with self.assertRaises(ValueError):
+            W.pcs_geometry(b, self.facts["block_profile"])
+
+
+@unittest.skipUnless(D55_BUNDLE and os.path.isdir(D55_BUNDLE) and _blake3_present(),
+                     "set ZK60_D55_BUNDLE to a D55 fork-run capture (and install blake3)")
+class D55Bundle(unittest.TestCase):
+    """[2026-11-02, D60's prerequisite] a D55 fork-run capture's integrity,
+    facts and replay, and the replay's two controls"""
+
+    @classmethod
+    def setUpClass(cls):
+        import zk60_native_rg_d55 as D
+        cls.D = D
+        cls.b = D.D55Bundle(D55_BUNDLE)
+
+    def test_integrity_facts_and_replay(self):
+        i = self.D.d55_integrity(self.b)
+        self.assertTrue(i["ok"], i["findings"])
+        f = self.D.d55_facts(self.b)
+        self.assertTrue(f["d55_schedule_digest"]["equal"])
+        rp = self.D.D55Replay(self.b).run()
+        s = rp.summary()
+        self.assertTrue(s["ok"], s["failures"][:3])
+        self.assertTrue(s["s0_tag_reproduced"] and s["s1_reproduced"] and s["tail_end_tag_reproduced"])
+        self.assertEqual(s["tail_openings_replayed"], self.b.blocks + 1)
+
+    def test_the_replay_controls_fire(self):
+        c = self.D.replay_controls(self.b)
+        self.assertTrue(c["ok"], c)
+
+    def test_a_block_run_loader_refuses_the_schema(self):
+        from zk60_native_rg_bundle import RunBundle
+        with self.assertRaises(ValueError):
+            RunBundle(D55_BUNDLE)
 
 
 if __name__ == "__main__":
