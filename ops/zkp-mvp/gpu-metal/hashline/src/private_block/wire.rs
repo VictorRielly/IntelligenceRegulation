@@ -481,3 +481,9 @@ pub(crate) fn decode_segment(bytes: &[u8], lay: &Layout, g: SegGeom, binding: &D
     validate_segment(&seg, lay, g)?;
     Ok((seg, end_tag))
 }
+
+// D55 PROTOTYPE (2026-11-01): the frames of a "commit, fork, join" receipt,
+// TEST BUILDS ONLY and unregistered; see `run_fork_wire.rs`.
+#[cfg(test)]
+#[path = "run_fork_wire.rs"]
+pub(crate) mod fork;

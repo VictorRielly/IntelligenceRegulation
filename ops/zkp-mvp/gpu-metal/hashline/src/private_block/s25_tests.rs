@@ -2477,7 +2477,10 @@ fn r19b_the_module_follower_refuses_include_outside_test_code() {
 /// the path, each compiled as test code only (declared `#[cfg(test)]` by its
 /// parent: read for this list with `r19b/tools/mirror19b.py`). Paths are
 /// relative to `src/private_block/`.
-const TEST_ONLY_FILES: [&str; 76] = [
+const TEST_ONLY_FILES: [&str; 79] = [
+    // D55 PROTOTYPE (2026-11-01): the unregistered "commit, fork, join" run
+    // profile, declared `#[cfg(test)]` by `run.rs` and `wire.rs`
+    "run_fork.rs", "run_fork_tests.rs", "run_fork_wire.rs",
     "accuracy_binding_tests.rs", "accuracy_layout_tests.rs", "accuracy_profile_tests.rs", "accuracy_proof_tests.rs",
     "c6_tests.rs", "cs_port_tests.rs", "dense_tests.rs", "e32_tests.rs", "grow_tests.rs", "hash_domain_tests.rs",
     "hash_tag_tests.rs", "k4_tests.rs", "ladder8b_tests.rs", "lane_c_tinyllama_tests.rs", "norm_alias.rs",
