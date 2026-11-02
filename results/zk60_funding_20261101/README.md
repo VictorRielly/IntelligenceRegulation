@@ -62,3 +62,4 @@ Each draft lists the other applications. After each submission, add it here, so 
 
 Submitted so far:
 - **Y Combinator W27**: submitted by Victor 2026-11-01. It included the founder video (take 2, 59.6 s) and the captioned demo video (1:41). Decision by Dec 11.
+- **Anthropic External Researcher Access** ($1,000 of API credits): submitted by Victor 2026-11-01, for the Mon Nov 2 monthly review.
