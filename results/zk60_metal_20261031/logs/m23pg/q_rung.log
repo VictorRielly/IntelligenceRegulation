@@ -1,0 +1,24 @@
+
+running 1 test
+test private_block::w16_privacy_gate_tests::w16_privacy_gate_at_the_development_rung ... W16-PG W16_RUNG_H24 PG-1 plane-index PASS 75 A planes (90 data rows), 46 H planes (108 data rows); tiling, domains and per-slot claim counts agree
+W16-PG W16_RUNG_H24 PG-2 names PASS 14 histograms (A, Dom::Tab, one row of 2^14 each) with their table helpers (H, Fp2): A_R1_0+H_GR1_0 A_R2_0+H_GR2_0 A_R3_0+H_GR3_0 A_R4_0+H_GR4_0 A_R5_0+H_GR5_0 A_R7_0+H_GR7_0 A_R12_0+H_GR12_0 A_R13_0+H_GR13_0 A_R15_0+H_GR15_0 A_R15_1+H_GR15_1 A_R16_0+H_GR16_0 A_R16_1+H_GR16_1 A_R16_2+H_GR16_2 A_R16_3+H_GR16_3
+W16-PG W16_RUNG_H24 PG-3 one-claim PASS 14 histograms and 14 helpers, each read once, by SC_TAB, in (histogram, helper) pairs after the byte / exp / ACT pairs; SC_TAB declares 17 A / 17 H sites
+W16-PG W16_RUNG_H24 PG-4 mask-pairs PASS A 114 sites on 114 distinct pairs, H 46 sites on 46 distinct pairs
+W16-PG W16_RUNG_H24 PG-5 definitions PASS 23 slots, 162 private tables, each slot's order equal to the index's
+W16-PG W16_RUNG_H24 C-1 pre-W16-index PASS fires: private block: the H plane name table has 32 names for 46 planes
+W16-PG W16_RUNG_H24 PG-6 capture FAIL replay: stage 0 (block 0) slot 19 [TAB table helper zero-check] public table 18 (act_support): no derivation from the export's layer: no export derivation is declared for slot 19 public table 18
+W16-PG R13+legacy A-1 index-unchanged PASS 15 shapes (9 with an index), each byte-identical with and without the W16 additions
+
+thread 'private_block::w16_privacy_gate_tests::w16_privacy_gate_at_the_development_rung' (3326429) panicked at src/private_block/w16_privacy_gate_tests.rs:104:9:
+W16 privacy gate: 1 of 8 checks FAILED:
+W16_RUNG_H24 PG-6 capture: replay: stage 0 (block 0) slot 19 [TAB table helper zero-check] public table 18 (act_support): no derivation from the export's layer: no export derivation is declared for slot 19 public table 18
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+FAILED
+
+failures:
+
+failures:
+    private_block::w16_privacy_gate_tests::w16_privacy_gate_at_the_development_rung
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 929 filtered out; finished in 1.47s
+

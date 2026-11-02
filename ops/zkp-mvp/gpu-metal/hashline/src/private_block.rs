@@ -270,6 +270,11 @@ mod run_capture_tests;
 // every captured stage. A recorder's module, `cfg(test)` like `run_capture`.
 #[cfg(test)]
 mod plane_index;
+// W16 (D54): the privacy gate's mechanical checks at the W16 profiles (the
+// range histograms, their table helpers and the 16-bit range tables), and the
+// test-only W16 run identities those checks capture runs under.
+#[cfg(test)]
+mod w16_privacy_gate_tests;
 // STAGE 17: the D19 SEPARATING HASH TAG (ruling T-6 as amended) — which
 // profiles are tagged, their eight pinned keys, and the cross-rule rejection
 // in both directions at rung-G. The isolated per-layer controls are in

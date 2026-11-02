@@ -1724,7 +1724,7 @@ pub(super) fn slot(def: &SlotDef, acc: &Acc, proof: &SlotProof, rho: &[Fp2], c: 
                 Tab::Eq { point, start } => write!(out, "{{\"kind\":\"eq\",\"start\":{start},\"point\":{:?}}}", fp2s(point)).expect("write to a Vec"),
                 Tab::Pub(v) => {
                     let sha256 = write_public_table(&mut out, &mut r.store, v, public_tables);
-                    if let (Some((stage, block, logup)), Some(what)) = (statement_stage.as_ref(), r13_statement_table(s, nth, n_pub)) {
+                    if let (Some((stage, block, logup)), Some(what)) = (statement_stage.as_ref(), statement_table_at(&def.sh, s, nth, n_pub)) {
                         r.statement.push(StatementTable { stage: *stage, block: *block, slot: s, nth, what, len: v.len(), sha256, draws: draws.clone(), logup: logup.clone(), sh: def.sh.clone() });
                     }
                     nth += 1;
@@ -2030,6 +2030,25 @@ fn r13_statement_table(slot: usize, nth: usize, n_pub: usize) -> Option<&'static
     })
 }
 
+/// **W16 (D54), the privacy gate's W16 re-check (2026-11-01).** The
+/// statement table at `(slot, nth)` of a stage at shape `sh`: R13's list,
+/// except `SC_TAB` at a W16 shape (`argument_accuracy.rs` `tab_w16`), whose
+/// public tables are the byte, exp and ACT3 tables, then one RANGE column per
+/// range sub-plane (a SHAPE table: `v + gamma tag(w)`, rebuilt by a reader
+/// from the shape and the LogUp challenges), then, when `Dom::Tab` pads, the
+/// byte support, the ACT support (the one statement table among them) and one
+/// support column per narrow range family (shape tables). R13 and legacy
+/// stages are labelled exactly as [`r13_statement_table`] labels them.
+fn statement_table_at(sh: &Shape, slot: usize, nth: usize, n_pub: usize) -> Option<&'static str> {
+    if !sh.range16() || slot != SC_TAB || nth < 3 {
+        return r13_statement_table(slot, nth, n_pub);
+    }
+    let fams = sh.range_families();
+    let nr = super::range16::sub_planes(&fams).len();
+    let narrow = fams.iter().filter(|f| !super::range16::full(**f, sh.log_cols)).count();
+    (nth == 4 + nr && n_pub == 5 + nr + narrow).then_some("act_support")
+}
+
 /// the `(slot, nth)` every R13 block stage must list (TAB's ACT support is
 /// optional: it exists only when `Dom::Tab` pads)
 const R13_REQUIRED_STATEMENT_TABLES: [(usize, usize); 16] = [
@@ -2282,7 +2301,10 @@ fn derive_statement_table(t: &StatementTable, blk: &BlockPublic) -> Result<Vec<F
             }
             Ok(out)
         }
-        (SC_TAB, n) if n == 1 || n == 2 || n == 4 => {
+        (SC_TAB, n) if n == 1 || n == 2 || n == 4 || t.what == "act_support" => {
+            // W16 (D54): the ACT support follows the range columns
+            // ([`statement_table_at`]); it is the same table as R13's fifth
+            let n = if t.what == "act_support" { 4 } else { n };
             if t.logup.len() != 3 {
                 return Err(format!("{} LogUp challenges recorded for the stage", t.logup.len()));
             }

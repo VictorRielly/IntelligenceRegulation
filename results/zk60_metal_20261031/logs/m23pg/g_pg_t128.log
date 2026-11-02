@@ -1,0 +1,43 @@
+
+running 1 test
+test private_block::w16_privacy_gate_tests::w16_privacy_gate_at_the_trained_t128_shapes ... W16-PG W16_SHIELD_T128_H24 PG-1 plane-index PASS 72 A planes (2280 data rows), 44 H planes (2516 data rows); tiling, domains and per-slot claim counts agree
+W16-PG W16_SHIELD_T128_H24 PG-2 names PASS 13 histograms (A, Dom::Tab, one row of 2^14 each) with their table helpers (H, Fp2): A_R2_0+H_GR2_0 A_R3_0+H_GR3_0 A_R4_0+H_GR4_0 A_R5_0+H_GR5_0 A_R7_0+H_GR7_0 A_R12_0+H_GR12_0 A_R13_0+H_GR13_0 A_R15_0+H_GR15_0 A_R15_1+H_GR15_1 A_R16_0+H_GR16_0 A_R16_1+H_GR16_1 A_R16_2+H_GR16_2 A_R16_3+H_GR16_3
+W16-PG W16_SHIELD_T128_H24 PG-3 one-claim PASS 13 histograms and 13 helpers, each read once, by SC_TAB, in (histogram, helper) pairs after the byte / exp / ACT pairs; SC_TAB declares 16 A / 16 H sites
+W16-PG W16_SHIELD_T128_H24 PG-4 mask-pairs PASS A 111 sites on 111 distinct pairs, H 44 sites on 44 distinct pairs
+W16-PG W16_SHIELD_T128_H24 PG-5 definitions PASS 23 slots, 157 private tables, each slot's order equal to the index's
+W16-PG W16_SHIELD_T128_H24 C-1 pre-W16-index PASS fires: private block: the H plane name table has 31 names for 44 planes
+W16-PG W16_SHIELD_T128_H24 PG-6 capture PASS an honest one-block run proved and verified; the recorder's own replay agreed at every site and every slot's private tables are the index's order; export replay 17 statement tables, 4546560 entries (act3_values x1, act_support x1, exp_values x1, fold(w_d) x1, fold(w_g) x1, fold(w_k) x1, fold(w_o) x1, fold(w_q) x1, fold(w_u) x1, fold(w_v) x1, gamma_a x1, gamma_m x1, group_column x1, rope_cos@Kv x1, rope_cos@Q x1, rope_sin@Kv x1, rope_sin@Q x1)
+W16-PG W16_SHIELD_T128_H24 PG-7 allow-list PASS 34001 fields, every one on the allow-list; no forbidden word
+W16-PG W16_SHIELD_T128_H24 PG-8 masked-claims PASS 111 A and 44 H claims as captured, each on its own reserved pair; 13 histograms and 13 helpers, each read once, by SC_TAB, in (histogram, helper) pairs after the byte / exp / ACT pairs
+W16-PG W16_SHIELD_T128_H24 PG-9 public-tables PASS 13 range columns and 7 support columns rebuilt from the shape and gamma, byte-equal; SC_TAB statement tables [(1, "exp_values"), (2, "act3_values"), (17, "act_support")]; 43 distinct public tables, none equal to any of 61 non-constant A planes (all 13 range histograms and the byte histogram among them, as the prover fills them; 11 constant planes skipped)
+W16-PG W16_SHIELD_T128_H24 PG-10 input-independent-shape PASS two hidden inputs: 34001 keys in the same order, the same array and table lengths, every slot's claims and mask pairs, segments [25031592] B; the hidden inputs differ and 11 of the 13 range histograms differ between them
+W16-PG W16_SHIELD_T128_H24 C-2 shared-mask-pair PASS fires: slot 19: two A claims share the mask pair at row 2472
+W16-PG W16_SHIELD_T128_H24 C-3a collapsed-tags PASS fires: range column 0 (2-bit) differs
+W16-PG W16_SHIELD_T128_H24 C-3b wrong-gamma PASS fires: range column 0 (2-bit) differs
+W16-PG W16_SHIELD_T128_H24 C-4 planted-histogram PASS fires: a public table of the stage equals the committed A plane 59
+W16-PG W16_SHIELD_T128_H24 C-5 moved-pair PASS fires: stage 0: slot 0's table descriptors differ
+W16-PG W16_SHIELD_T128_H24 C-6 off-list-field PASS fires: run.json carries the field "histogram_values", which is not on the capture allow-list
+W16-PG W16_SHIELD_T128_H24 done (16 s wall, shared Mac, not a timing)
+W16-PG W16_8B_T128_H24 PG-1 plane-index PASS 72 A planes (2280 data rows), 44 H planes (2516 data rows); tiling, domains and per-slot claim counts agree
+W16-PG W16_8B_T128_H24 PG-2 names PASS 13 histograms (A, Dom::Tab, one row of 2^14 each) with their table helpers (H, Fp2): A_R2_0+H_GR2_0 A_R3_0+H_GR3_0 A_R4_0+H_GR4_0 A_R5_0+H_GR5_0 A_R7_0+H_GR7_0 A_R12_0+H_GR12_0 A_R13_0+H_GR13_0 A_R15_0+H_GR15_0 A_R15_1+H_GR15_1 A_R16_0+H_GR16_0 A_R16_1+H_GR16_1 A_R16_2+H_GR16_2 A_R16_3+H_GR16_3
+W16-PG W16_8B_T128_H24 PG-3 one-claim PASS 13 histograms and 13 helpers, each read once, by SC_TAB, in (histogram, helper) pairs after the byte / exp / ACT pairs; SC_TAB declares 16 A / 16 H sites
+W16-PG W16_8B_T128_H24 PG-4 mask-pairs PASS A 111 sites on 111 distinct pairs, H 44 sites on 44 distinct pairs
+W16-PG W16_8B_T128_H24 PG-5 definitions PASS 23 slots, 157 private tables, each slot's order equal to the index's
+W16-PG W16_8B_T128_H24 C-1 pre-W16-index PASS fires: private block: the H plane name table has 31 names for 44 planes
+W16-PG W16_8B_T128_H24 PG-6 capture PASS an honest one-block run proved and verified; the recorder's own replay agreed at every site and every slot's private tables are the index's order; export replay 17 statement tables, 4546560 entries (act3_values x1, act_support x1, exp_values x1, fold(w_d) x1, fold(w_g) x1, fold(w_k) x1, fold(w_o) x1, fold(w_q) x1, fold(w_u) x1, fold(w_v) x1, gamma_a x1, gamma_m x1, group_column x1, rope_cos@Kv x1, rope_cos@Q x1, rope_sin@Kv x1, rope_sin@Q x1)
+W16-PG W16_8B_T128_H24 PG-7 allow-list PASS 33974 fields, every one on the allow-list; no forbidden word
+W16-PG W16_8B_T128_H24 PG-8 masked-claims PASS 111 A and 44 H claims as captured, each on its own reserved pair; 13 histograms and 13 helpers, each read once, by SC_TAB, in (histogram, helper) pairs after the byte / exp / ACT pairs
+W16-PG W16_8B_T128_H24 PG-9 public-tables PASS 13 range columns and 7 support columns rebuilt from the shape and gamma, byte-equal; SC_TAB statement tables [(1, "exp_values"), (2, "act3_values"), (17, "act_support")]; 42 distinct public tables, none equal to any of 60 non-constant A planes (all 13 range histograms and the byte histogram among them, as the prover fills them; 12 constant planes skipped)
+W16-PG W16_8B_T128_H24 PG-10 input-independent-shape PASS two hidden inputs: 33974 keys in the same order, the same array and table lengths, every slot's claims and mask pairs, segments [25030632] B; the hidden inputs differ and 11 of the 13 range histograms differ between them
+W16-PG W16_8B_T128_H24 C-2 shared-mask-pair PASS fires: slot 19: two A claims share the mask pair at row 2472
+W16-PG W16_8B_T128_H24 C-3a collapsed-tags PASS fires: range column 0 (2-bit) differs
+W16-PG W16_8B_T128_H24 C-3b wrong-gamma PASS fires: range column 0 (2-bit) differs
+W16-PG W16_8B_T128_H24 C-4 planted-histogram PASS fires: a public table of the stage equals the committed A plane 59
+W16-PG W16_8B_T128_H24 C-5 moved-pair PASS fires: stage 0: slot 0's table descriptors differ
+W16-PG W16_8B_T128_H24 C-6 off-list-field PASS fires: run.json carries the field "histogram_values", which is not on the capture allow-list
+W16-PG W16_8B_T128_H24 done (16 s wall, shared Mac, not a timing)
+W16-PG VERDICT 34 checks, all PASS
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 929 filtered out; finished in 32.29s
+

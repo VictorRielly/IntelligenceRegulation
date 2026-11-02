@@ -14,7 +14,7 @@ fn calibration(width: usize) -> NormCalibration {
     NormCalibration { tn: if width >= 3072 { 9 } else { 10 }, cn_a: 100, cn_m: 100, ceps: 1, sh_ao: 7, sh_qkv: 8, sh_s: 6, sh_o: 9, sh_g: 8, sh_h: 14, sh_z: 6 }
 }
 
-fn built(profile: &str) -> Shape {
+pub(super) fn built(profile: &str) -> Shape {
     let spec = shape::accuracy_spec(profile).expect("a registered accuracy profile");
     let fe = if spec.tokens == 32 { 12 } else { 9 };
     Shape::accuracy_trained(profile, &calibration(spec.width), fe, 20).expect("the shape builds")
@@ -22,7 +22,7 @@ fn built(profile: &str) -> Shape {
 
 /// `slot_ir_accuracy::tests::case` in substance: synthetic public data at the
 /// shape's true geometry, with `ng` activation groups
-fn case(mut sh: Shape, ng: usize) -> (Shape, AccuracyPublic, AttentionPublic, FeedForwardPublic) {
+pub(super) fn case(mut sh: Shape, ng: usize) -> (Shape, AccuracyPublic, AttentionPublic, FeedForwardPublic) {
     let geometry = Geometry { width: sh.width, query_width: sh.q_width(), kv_width: sh.kv_heads * sh.head_dim, hidden: sh.hidden };
     let sequence = |n, max| (0..n).map(|i| 1 + (i % max) as u16).collect();
     let m = Multipliers {
@@ -44,7 +44,7 @@ fn case(mut sh: Shape, ng: usize) -> (Shape, AccuracyPublic, AttentionPublic, Fe
 
 /// the M4 byte-identity gate's own recipe at a development shape: its norm
 /// calibration and its deterministic input
-fn rung_case(profile: &str) -> (Shape, BlockPublic, Witness) {
+pub(super) fn rung_case(profile: &str) -> (Shape, BlockPublic, Witness) {
     let original = built(profile);
     let cal = NormCalibration { cn_a: 4000, cn_m: 4000, ..original.norm_calibration() };
     let original = Shape::accuracy_trained(original.profile, &cal, original.f_e, 20).unwrap();

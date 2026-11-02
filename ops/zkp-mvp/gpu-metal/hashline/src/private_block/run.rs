@@ -269,6 +269,13 @@ fn registered_block_shape(profile: &str, sh: &Shape) -> Option<Result<Shape, Str
     if profile == RUN_PROFILE_CLASSIFY_R13_RUNG_H24_TEST {
         return Some(Shape::accuracy_trained(super::shape::R13_RUNG_H24, &cal, sh.f_e, sh.accuracy_gate_shift));
     }
+    // W16 (D54), the privacy gate's W16 re-check: TEST-ONLY run identities over
+    // the W16 block profiles (W16 registers no run profile yet), so that the
+    // gate's tests can capture a W16 run; absent from every production build
+    #[cfg(test)]
+    if let Some((_, block)) = super::w16_privacy_gate_tests::W16_TEST_RUN_PROFILES.iter().find(|(run, _)| *run == profile) {
+        return Some(Shape::accuracy_trained(block, &cal, sh.f_e, sh.accuracy_gate_shift));
+    }
     Some(match profile {
         RUN_PROFILE_RUNG_G => Ok(Shape::rung_g()),
         RUN_PROFILE_RUNG_K4 => Ok(Shape::rung_k4()),
