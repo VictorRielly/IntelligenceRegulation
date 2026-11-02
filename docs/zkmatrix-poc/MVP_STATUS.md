@@ -7,8 +7,13 @@
   goes from 20.8 to 22.9 proved tokens/s; receipts grow 0.6%.
 - **Soundness** [COUNTED, builder's recount]: 2^-105.93 per opening (was 2^-105.61); 8B whole run 2^-97.36 (was 2^-97.27).
 - **Correctness:** all D59 malicious controls are rejected; existing bytes and goldens are unchanged; full suite 872/6/84 (the known Mac-only six).
-- **Before any receipt uses it:** an independent re-check of the recount, an independent code review and a privacy re-check (all running).
-  D55 itself is reviewed (F1–F5 closed) and waiting on registration (D60).
+- **Due diligence, all done the same day:** the recount was independently re-checked (every figure reproduces); the independent code
+  review found no soundness defect, and its findings F1, F3–F5 and F7 are closed (including a built close-case attack that is rejected
+  at exactly the counted rate); the privacy re-check found no leak.
+- **Open:** Victor's ruling on Q (260 counts the proven bound; 280 also matches today's design against the best known attack, for
+  about +3.5% receipt bytes), and the token and classifier bit counters must learn the new count before registration.
+- **D55 is now registered (D60)** over the 12 R13 block-run profiles, with test receipts verified in a fresh process. On R13 8B T128 it
+  measures 7.59 → 11.95 proved tokens/s at six forks. Real-content receipts wait for the Python privacy gate to read an R13 fork bundle.
 - **The Mac's ceiling is about 23 tokens/s per request.** 50 still needs the RTX 5090.
 
 **2026-11-01 (night): one request now proves at about 21 proved tokens/s with the D55 prototype (opt-in, unreviewed).**
