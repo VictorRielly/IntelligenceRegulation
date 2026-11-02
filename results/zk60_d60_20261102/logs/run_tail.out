@@ -1,0 +1,74 @@
+TAIL: resuming at the trained step, B=/Users/victorrielly/IntelligenceRegulation/.claude/worktrees/agent-a13712d1ade4dcee1/ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-6970edfb2dc382ac
+== trained 02:17:46
+[zk60-guard 02:17:46] admission waiting: another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 02:17:54] START d60-trained class=gpu need=60G cap=160G enforce=watchdog-only waited=8s run=15b3240824e3
+[zk60-guard 02:18:42] END d60-trained exit=0 child_wall=48s peak_rss=10.98G min_avail=214.16G peak_vram=10876MiB
+M4-TRAINED R13_8B_T128_H24 cpu 4.159 s metal-warm 0.689 s (prove core cpu 3.987 s metal 0.523 s; kernel compile 0.000 s, device sumcheck rounds 0.132 s; 1 slots without a matching IR; buffer pool 93 reused / 0 new) digest cpu 678953f646fcd15d28e9209984cb42ff8a
+M4-TRAINED R13_8B_T128_H24 cpu 4.159 s metal-warm 0.691 s (prove core cpu 3.987 s metal 0.526 s; kernel compile 0.000 s, device sumcheck rounds 0.138 s; 1 slots without a matching IR; buffer pool 93 reused / 0 new) digest cpu 678953f646fcd15d28e9209984cb42ff8a
+M4-TRAINED R13_8B_T128_H24 cpu 4.159 s metal-warm 0.667 s (prove core cpu 3.987 s metal 0.504 s; kernel compile 0.000 s, device sumcheck rounds 0.130 s; 1 slots without a matching IR; buffer pool 93 reused / 0 new) digest cpu 678953f646fcd15d28e9209984cb42ff8a
+M4-TRAINED R13_SHIELD_T128_H24 cpu 4.177 s metal-warm 0.721 s (prove core cpu 4.004 s metal 0.557 s; kernel compile 0.000 s, device sumcheck rounds 0.168 s; 1 slots without a matching IR; buffer pool 93 reused / 0 new) digest cpu 2b0d04bbf22b5e52faf1d0ce9a13d8
+M4-TRAINED R13_SHIELD_T128_H24 cpu 4.177 s metal-warm 0.709 s (prove core cpu 4.004 s metal 0.544 s; kernel compile 0.000 s, device sumcheck rounds 0.169 s; 1 slots without a matching IR; buffer pool 93 reused / 0 new) digest cpu 2b0d04bbf22b5e52faf1d0ce9a13d8
+M4-TRAINED R13_SHIELD_T128_H24 cpu 4.177 s metal-warm 0.715 s (prove core cpu 4.004 s metal 0.550 s; kernel compile 0.000 s, device sumcheck rounds 0.173 s; 1 slots without a matching IR; buffer pool 93 reused / 0 new) digest cpu 2b0d04bbf22b5e52faf1d0ce9a13d8
+M4-TRAINED W16_SHIELD_T128_H24 cpu 1.682 s metal-warm 0.516 s (prove core cpu 1.548 s metal 0.379 s; kernel compile 0.000 s, device sumcheck rounds 0.088 s; 0 slots without a matching IR; buffer pool 99 reused / 1 new) digest cpu 01a6d51d3b0476dac75ecaf0ff3754
+M4-TRAINED W16_SHIELD_T128_H24 cpu 1.682 s metal-warm 0.547 s (prove core cpu 1.548 s metal 0.413 s; kernel compile 0.014 s, device sumcheck rounds 0.088 s; 0 slots without a matching IR; buffer pool 107 reused / 0 new) digest cpu 01a6d51d3b0476dac75ecaf0ff375
+M4-TRAINED W16_SHIELD_T128_H24 cpu 1.682 s metal-warm 0.514 s (prove core cpu 1.548 s metal 0.380 s; kernel compile 0.000 s, device sumcheck rounds 0.087 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu 01a6d51d3b0476dac75ecaf0ff375
+M4-TRAINED W16_8B_T128_H24 cpu 1.663 s metal-warm 0.489 s (prove core cpu 1.530 s metal 0.357 s; kernel compile 0.000 s, device sumcheck rounds 0.077 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu c5e0bdac78cc47bb4de6528a29e809f56
+M4-TRAINED W16_8B_T128_H24 cpu 1.663 s metal-warm 0.491 s (prove core cpu 1.530 s metal 0.360 s; kernel compile 0.000 s, device sumcheck rounds 0.075 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu c5e0bdac78cc47bb4de6528a29e809f56
+M4-TRAINED W16_8B_T128_H24 cpu 1.663 s metal-warm 0.494 s (prove core cpu 1.530 s metal 0.362 s; kernel compile 0.000 s, device sumcheck rounds 0.077 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu c5e0bdac78cc47bb4de6528a29e809f56
+M4-TRAINED W16R2_RUNG_H24 cpu 0.441 s metal-warm 0.265 s (prove core cpu 0.354 s metal 0.176 s; kernel compile 0.000 s, device sumcheck rounds 0.032 s; 0 slots without a matching IR; buffer pool 72 reused / 0 new) digest cpu d6879fae5f35a2856b03c20c473da35abce
+M4-TRAINED W16R2_RUNG_H24 cpu 0.441 s metal-warm 0.264 s (prove core cpu 0.354 s metal 0.176 s; kernel compile 0.000 s, device sumcheck rounds 0.031 s; 0 slots without a matching IR; buffer pool 65 reused / 0 new) digest cpu d6879fae5f35a2856b03c20c473da35abce
+M4-TRAINED W16R2_RUNG_H24 cpu 0.441 s metal-warm 0.273 s (prove core cpu 0.354 s metal 0.184 s; kernel compile 0.000 s, device sumcheck rounds 0.036 s; 0 slots without a matching IR; buffer pool 72 reused / 0 new) digest cpu d6879fae5f35a2856b03c20c473da35abce
+M4-TRAINED W16R2_SHIELD_T128_H24 cpu 1.973 s metal-warm 0.497 s (prove core cpu 1.839 s metal 0.364 s; kernel compile 0.000 s, device sumcheck rounds 0.089 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu e0bb5917ba14c4565fdc38e6ad4
+M4-TRAINED W16R2_SHIELD_T128_H24 cpu 1.973 s metal-warm 0.482 s (prove core cpu 1.839 s metal 0.353 s; kernel compile 0.000 s, device sumcheck rounds 0.087 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu e0bb5917ba14c4565fdc38e6ad4
+M4-TRAINED W16R2_SHIELD_T128_H24 cpu 1.973 s metal-warm 0.482 s (prove core cpu 1.839 s metal 0.349 s; kernel compile 0.000 s, device sumcheck rounds 0.087 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu e0bb5917ba14c4565fdc38e6ad4
+M4-TRAINED W16R2_8B_T128_H24 cpu 1.844 s metal-warm 0.472 s (prove core cpu 1.709 s metal 0.337 s; kernel compile 0.000 s, device sumcheck rounds 0.077 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu 5343008a1e5930af6eb70137aa9a414
+M4-TRAINED W16R2_8B_T128_H24 cpu 1.844 s metal-warm 0.485 s (prove core cpu 1.709 s metal 0.352 s; kernel compile 0.001 s, device sumcheck rounds 0.089 s; 0 slots without a matching IR; buffer pool 104 reused / 3 new) digest cpu 5343008a1e5930af6eb70137aa9a414
+M4-TRAINED W16R2_8B_T128_H24 cpu 1.844 s metal-warm 0.480 s (prove core cpu 1.709 s metal 0.349 s; kernel compile 0.000 s, device sumcheck rounds 0.077 s; 0 slots without a matching IR; buffer pool 100 reused / 0 new) digest cpu 5343008a1e5930af6eb70137aa9a414
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 975 filtered out; finished in 47.66s
+== r13 02:18:52
+[zk60-guard 02:18:52] admission waiting: another guarded gpu job is live; another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 02:19:52] admission waiting: another guarded gpu job is live; another heavy guarded job is live (one heavy job at a time)
+[zk60-guard 02:20:17] waiting for admission lock (0s)
+[zk60-guard 02:20:23] START d60-r13 class=gpu need=8G cap=40G enforce=watchdog-only waited=91s run=52340b86340e
+[zk60-guard 02:20:24] END d60-r13 exit=0 child_wall=1s peak_rss=0.55G min_avail=228.30G peak_vram=3739MiB
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 975 filtered out; finished in 1.24s
+== w16r2-run 02:20:34
+[zk60-guard 02:20:34] START d60-r2run class=gpu need=8G cap=40G enforce=watchdog-only waited=0s run=07e7401969f9
+[zk60-guard 02:20:37] END d60-r2run exit=0 child_wall=3s peak_rss=0.64G min_avail=230.51G peak_vram=2665MiB
+test private_block::run::fork::tests::d55_ab_one_request_serial_against_forks ... D55-AB W16R2_RUNG_H24 L3 T32: setup 0.1 s (one witness 0.01 GB; 3 alive per call)
+D55-AB W16R2_RUNG_H24 L3 serial cold (kernel compiles): wall 0.672 s = 47.62 proved tok/s
+D55-AB W16R2_RUNG_H24 L3 serial: verified (D12a verifier, one thread) in 0.41 s
+D55-AB W16R2_RUNG_H24 L3 T32 serial pass 0 (serial first): wall 0.633 s = 50.52 proved tok/s; receipt 45674552 B
+D55-AB W16R2_RUNG_H24 L3 forks N2: verified (D55 verifier, 6 threads) in 0.18 s
+D55-AB W16R2_RUNG_H24 L3 T32 forks N2 pass 0 (serial first): wall 0.468 s = 68.37 proved tok/s; 2 workers; preflight 0.016 s, commit 0.016 s, forks 0.427 s, join 0.009 s; fork prove_core min 0.191 median 0.233 max 0.241 s; receipt 45674744 B
+D55-AB ORDER serial-first | serial (D12a)  | 1 passes | best 0.633 s = 50.52 tok/s | mean 0.633 s = 50.52 tok/s
+D55-AB ORDER serial-first | forks N=2      | 1 passes | best 0.468 s = 68.37 tok/s | mean 0.468 s = 68.37 tok/s
+D55-AB W16R2_RUNG_H24 L3: the fork run's profile d55-commit-fork-join-runs/opt-in-prototype-unregistered/test-only/v1/hashline-zk-mr1/private-run-rung-lh-t32-w16r2-t/1 (registered: false)
+D55-AB SUMMARY W16R2_RUNG_H24 L3 T32 (1 warm passes; best and mean wall; proved tokens/s per request = T / wall):
+D55-AB SUMMARY | serial (D12a)  | best 0.633 s = 50.52 tok/s | mean 0.633 s = 50.52 tok/s | 1.00x serial (best)
+D55-AB SUMMARY | forks N=2      | best 0.468 s = 68.37 tok/s | mean 0.468 s = 68.37 tok/s | 1.35x serial (best)
+D55-AB device evidence: HL_GPU=Some("1"), Metal kernel compile 0.004 s, device sumcheck rounds 0.321 s
+D55-AB W16R2_RUNG_H24 L3: total 2.6 s
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 975 filtered out; finished in 2.61s
+== golden 02:20:47
+cpu r12_golden_seeded_tinyllama_t128_block_is_byte_identical 0
+cpu r12_golden_seeded_tinyllama_t128_dd_block_is_byte_identical 0
+cpu r12_golden_seeded_llama3_8b_t128_block_is_byte_identical 0
+cpu r12_golden_seeded_llama3_8b_t128_dd_block_is_byte_identical 0
+metal r12_golden_seeded_tinyllama_t128_block_is_byte_identical 0
+metal r12_golden_seeded_tinyllama_t128_dd_block_is_byte_identical 0
+metal r12_golden_seeded_llama3_8b_t128_block_is_byte_identical 0
+metal r12_golden_seeded_llama3_8b_t128_dd_block_is_byte_identical 0
+ALL 0
+== full-suite 02:21:22
+[zk60-guard 02:21:22] START d60-full class=cpu need=24G cap=160G enforce=watchdog-only waited=0s run=d45bb04f37d7
+[zk60-guard 02:25:28] END d60-full exit=101 child_wall=246s peak_rss=9.05G min_avail=223.53G
+test result: FAILED. 882 passed; 6 failed; 88 ignored; 0 measured; 0 filtered out; finished in 245.77s
+full-suite failures:
+private_block::review_tests::a_toy_receipt_made_before_the_lane_still_verifies
+private_block::token_io::classify_cli::batch::r18::r18_a_rung_batch_proves_every_job_and_each_receipt_verifies_owner_checks_and_labels
+private_block::token_io::classify_cli::batch::r18::r18_each_batch_job_reloads_every_block_through_its_own_digest_checked_readers
+private_block::token_io::classify_cli::batch::r18::r18_the_request_reader_refuses_a_symlink_and_a_fifo_without_blocking
+private_block::trained_block::accuracy::profile_tests::accuracy_v2_dense_witness_matches_all_nineteen_independent_integer_traces
+private_block::trained_stack_tests::review_n_r6_b_a_stale_statement_writing_dir_is_removed_or_refused_by_name
+== done 02:25:28

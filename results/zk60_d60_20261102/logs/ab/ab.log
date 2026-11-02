@@ -1,0 +1,56 @@
+
+running 1 test
+test private_block::run::fork::tests::d55_ab_one_request_serial_against_forks ... D55-AB R13_8B_T128_H24 L32 T128: setup 16.0 s (one witness 0.56 GB; 32 alive per call)
+D55-AB R13_8B_T128_H24 L32 serial cold (kernel compiles): wall 17.603 s = 7.27 proved tok/s
+D55-AB R13_8B_T128_H24 L32 serial: verified (D12a verifier, one thread) in 4.45 s
+D55-AB R13_8B_T128_H24 L32 T128 serial pass 0 (serial first): wall 17.308 s = 7.40 proved tok/s; receipt 1038856416 B
+D55-AB R13_8B_T128_H24 L32 forks N6: verified (D55 verifier, 6 threads) in 2.63 s
+D55-AB R13_8B_T128_H24 L32 T128 forks N6 pass 0 (serial first): wall 12.177 s = 10.51 proved tok/s; 6 workers; preflight 0.337 s, commit 0.311 s, forks 11.403 s, join 0.126 s; fork prove_core min 0.964 median 2.040 max 2.908 s; receipt 1038856608 B
+D55-AB R13_8B_T128_H24 L32 T128 forks N6 pass 1 (forks first): wall 10.756 s = 11.90 proved tok/s; 6 workers; preflight 0.335 s, commit 0.309 s, forks 10.017 s, join 0.094 s; fork prove_core min 0.860 median 1.772 max 2.164 s; receipt 1038856608 B
+D55-AB R13_8B_T128_H24 L32 T128 serial pass 1 (forks first): wall 17.564 s = 7.29 proved tok/s; receipt 1038856416 B
+D55-AB R13_8B_T128_H24 L32 T128 serial pass 2 (serial first): wall 16.575 s = 7.72 proved tok/s; receipt 1038856416 B
+D55-AB R13_8B_T128_H24 L32 T128 forks N6 pass 2 (serial first): wall 10.689 s = 11.97 proved tok/s; 6 workers; preflight 0.347 s, commit 0.302 s, forks 9.960 s, join 0.080 s; fork prove_core min 0.877 median 1.795 max 2.230 s; receipt 1038856608 B
+D55-AB R13_8B_T128_H24 L32 T128 forks N6 pass 3 (forks first): wall 10.319 s = 12.40 proved tok/s; 6 workers; preflight 0.348 s, commit 0.315 s, forks 9.514 s, join 0.142 s; fork prove_core min 0.924 median 1.668 max 2.092 s; receipt 1038856608 B
+D55-AB R13_8B_T128_H24 L32 T128 serial pass 3 (forks first): wall 17.255 s = 7.42 proved tok/s; receipt 1038856416 B
+D55-AB ORDER serial-first | serial (D12a)  | 2 passes | best 16.575 s = 7.72 tok/s | mean 16.942 s = 7.56 tok/s
+D55-AB ORDER serial-first | forks N=6      | 2 passes | best 10.689 s = 11.97 tok/s | mean 11.433 s = 11.20 tok/s
+D55-AB ORDER forks-first  | serial (D12a)  | 2 passes | best 17.255 s = 7.42 tok/s | mean 17.409 s = 7.35 tok/s
+D55-AB ORDER forks-first  | forks N=6      | 2 passes | best 10.319 s = 12.40 tok/s | mean 10.537 s = 12.15 tok/s
+D55-AB R13_8B_T128_H24 L32: the fork run's profile hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-llama-3-8b-t128-lh24-v1-statement/1 (registered: true)
+D55-AB SUMMARY R13_8B_T128_H24 L32 T128 (4 warm passes; best and mean wall; proved tokens/s per request = T / wall):
+D55-AB SUMMARY | serial (D12a)  | best 16.575 s = 7.72 tok/s | mean 17.176 s = 7.45 tok/s | 1.00x serial (best)
+D55-AB SUMMARY | forks N=6      | best 10.319 s = 12.40 tok/s | mean 10.985 s = 11.65 tok/s | 1.61x serial (best)
+D55-AB device evidence: HL_GPU=Some("1"), Metal kernel compile 0.091 s, device sumcheck rounds 101.163 s
+D55-AB R13_8B_T128_H24 L32: total 234.0 s
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 975 filtered out; finished in 233.99s
+
+
+running 1 test
+test private_block::run::fork::tests::d55_ab_one_request_serial_against_forks ... D55-AB R13_8B_T128_H24 L32 T128: setup 15.9 s (one witness 0.56 GB; 32 alive per call)
+D55-AB R13_8B_T128_H24 L32 serial cold (kernel compiles): wall 17.337 s = 7.38 proved tok/s
+D55-AB R13_8B_T128_H24 L32 serial: verified (D12a verifier, one thread) in 5.04 s
+D55-AB R13_8B_T128_H24 L32 T128 serial pass 0 (serial first): wall 17.097 s = 7.49 proved tok/s; receipt 1038856416 B
+D55-AB R13_8B_T128_H24 L32 forks N6: verified (D55 verifier, 6 threads) in 2.60 s
+D55-AB R13_8B_T128_H24 L32 T128 forks N6 pass 0 (serial first): wall 11.328 s = 11.30 proved tok/s; 6 workers; preflight 0.349 s, commit 0.315 s, forks 10.520 s, join 0.144 s; fork prove_core min 1.061 median 1.798 max 2.642 s; receipt 1038856608 B
+D55-AB R13_8B_T128_H24 L32 T128 forks N6 pass 1 (forks first): wall 10.708 s = 11.95 proved tok/s; 6 workers; preflight 0.358 s, commit 0.313 s, forks 9.940 s, join 0.097 s; fork prove_core min 0.907 median 1.860 max 2.139 s; receipt 1038856608 B
+D55-AB R13_8B_T128_H24 L32 T128 serial pass 1 (forks first): wall 16.946 s = 7.55 proved tok/s; receipt 1038856416 B
+D55-AB R13_8B_T128_H24 L32 T128 serial pass 2 (serial first): wall 16.874 s = 7.59 proved tok/s; receipt 1038856416 B
+D55-AB R13_8B_T128_H24 L32 T128 forks N6 pass 2 (serial first): wall 10.854 s = 11.79 proved tok/s; 6 workers; preflight 0.354 s, commit 0.312 s, forks 10.044 s, join 0.145 s; fork prove_core min 0.973 median 1.782 max 2.240 s; receipt 1038856608 B
+D55-AB R13_8B_T128_H24 L32 T128 forks N6 pass 3 (forks first): wall 10.759 s = 11.90 proved tok/s; 6 workers; preflight 0.353 s, commit 0.301 s, forks 10.019 s, join 0.087 s; fork prove_core min 0.925 median 1.867 max 2.184 s; receipt 1038856608 B
+D55-AB R13_8B_T128_H24 L32 T128 serial pass 3 (forks first): wall 16.951 s = 7.55 proved tok/s; receipt 1038856416 B
+D55-AB ORDER serial-first | serial (D12a)  | 2 passes | best 16.874 s = 7.59 tok/s | mean 16.985 s = 7.54 tok/s
+D55-AB ORDER serial-first | forks N=6      | 2 passes | best 10.854 s = 11.79 tok/s | mean 11.091 s = 11.54 tok/s
+D55-AB ORDER forks-first  | serial (D12a)  | 2 passes | best 16.946 s = 7.55 tok/s | mean 16.949 s = 7.55 tok/s
+D55-AB ORDER forks-first  | forks N=6      | 2 passes | best 10.708 s = 11.95 tok/s | mean 10.734 s = 11.93 tok/s
+D55-AB R13_8B_T128_H24 L32: the fork run's profile hashline-zk-mr1/d55-commit-fork-join-run/registered-opt-in-d60/v1/private-run-llama-3-8b-t128-lh24-v1-statement/1 (registered: true)
+D55-AB SUMMARY R13_8B_T128_H24 L32 T128 (4 warm passes; best and mean wall; proved tokens/s per request = T / wall):
+D55-AB SUMMARY | serial (D12a)  | best 16.874 s = 7.59 tok/s | mean 16.967 s = 7.54 tok/s | 1.00x serial (best)
+D55-AB SUMMARY | forks N=6      | best 10.708 s = 11.95 tok/s | mean 10.912 s = 11.73 tok/s | 1.58x serial (best)
+D55-AB device evidence: HL_GPU=Some("1"), Metal kernel compile 0.094 s, device sumcheck rounds 100.794 s
+D55-AB R13_8B_T128_H24 L32: total 232.1 s
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 975 filtered out; finished in 232.06s
+

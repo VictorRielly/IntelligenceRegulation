@@ -24,6 +24,9 @@ def child(jobs):
     for name in jobs:
         if name == "gates":
             cmd = ["bash", os.path.join(HERE, "d60_gates.sh")]
+        elif name == "tail":
+            # the gate chain resumed at its trained step, on the binary the full run recorded
+            cmd = ["bash", os.path.join(HERE, "d60_gates.sh"), "tail"]
         elif name == "ab":
             binary = open(os.path.join(LOGS, "chain", "binary.path")).read().strip()
             cmd = ["bash", os.path.join(HERE, "d60_ab.sh"), binary, "4"]

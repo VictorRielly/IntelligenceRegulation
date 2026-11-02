@@ -17,8 +17,14 @@ A=/Users/victorrielly/zk60-artifacts/d60_20261102
 MODE=${1:-full}
 mkdir -p $L
 step() { echo "== $1 $(date +%H:%M:%S)"; }
-# the guard APPENDS to a step's log: move any earlier attempt's step logs aside
-P=$L/prior-$(date +%Y%m%dT%H%M%S); for f in $L/g_*; do [ -e "$f" ] || continue; mkdir -p $P; mv "$f" $P/; done
+# the guard APPENDS to a step's log: move any earlier attempt's step logs aside. `tail` as $1 RESUMES at the
+# trained step on the binary the full run recorded (logs/chain/binary.path) and moves only its own step logs
+P=$L/prior-$(date +%Y%m%dT%H%M%S)
+if [ "$MODE" = tail ]; then
+  for f in $L/g_trained* $L/g_r13* $L/g_r2run* $L/g_full* $L/golden; do [ -e "$f" ] || continue; mkdir -p $P; mv "$f" $P/; done
+  B=$(cat $L/binary.path); echo "TAIL: resuming at the trained step, B=$B"
+else
+for f in $L/g_*; do [ -e "$f" ] || continue; mkdir -p $P; mv "$f" $P/; done
 
 step build
 $G --class build --need-gib 4 --cap-gib 10 --label d60-build --wait-secs 7200 --max-secs 3600 --log $L/g_build.log --done $L/g_build.done -- \
@@ -169,6 +175,7 @@ for tail in default 0; do
   grep -q "test result: ok" $L/g_unit_$tail.log || exit 1
 done
 
+fi # (the tail resumes here)
 sleep 10
 step trained
 $G --class gpu --need-gib 60 --cap-gib 160 --label d60-trained --wait-secs 7200 --max-secs 3000 --log $L/g_trained.log --done $L/g_trained.done -- \
@@ -180,7 +187,9 @@ grep -q "M4-TRAINED W16_SHIELD_T128_H24 .*digest cpu 01a6d51d" $L/g_trained.log 
 grep -q "M4-TRAINED W16_8B_T128_H24 .*digest cpu c5e0bdac" $L/g_trained.log || { echo "W16 8B DIGEST MOVED"; exit 1; }
 grep -q "M4-TRAINED W16R2_8B_T128_H24 .*digest cpu 5343008a" $L/g_trained.log || { echo "W16R2 8B DIGEST MOVED"; exit 1; }
 grep -q "M4-TRAINED W16R2_SHIELD_T128_H24 .*digest cpu e0bb5917" $L/g_trained.log || { echo "W16R2 SHIELD DIGEST MOVED"; exit 1; }
-grep -q "M4-TRAINED W16R2_RUNG_H24 .*digest cpu 334e168f" $L/g_trained.log || { echo "W16R2 RUNG DIGEST MOVED"; exit 1; }
+# (the trained test's W16R2 rung digest is its own recipe's, d6879fae as the W16R2 chain recorded it; the rung
+# GOLDEN 334e168f is the w16r2-rung-metal steps' above)
+grep -q "M4-TRAINED W16R2_RUNG_H24 .*digest cpu d6879fae" $L/g_trained.log || { echo "W16R2 RUNG TRAINED DIGEST MOVED"; exit 1; }
 grep -q "test result: ok" $L/g_trained.log || exit 1
 
 sleep 10

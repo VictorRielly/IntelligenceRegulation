@@ -1,0 +1,16 @@
+/Users/victorrielly/zk60-artifacts/d60_20261102/cli/d55-run:
+total 30952
+drwxr-xr-x@ 5 victorrielly  staff       160 Nov  2 01:30 .
+drwxr-xr-x  6 victorrielly  staff       192 Nov  2 01:30 ..
+-rw-r--r--@ 1 victorrielly  staff  14465864 Nov  2 01:30 d55-fork-000.bin
+-rw-r--r--@ 1 victorrielly  staff        80 Nov  2 01:30 d55-head.bin
+-rw-r--r--@ 1 victorrielly  staff   1372272 Nov  2 01:30 d55-tail.bin
+
+/Users/victorrielly/zk60-artifacts/d60_20261102/cli/d55-run.unverified-statement:
+total 32
+drwxr-xr-x@ 6 victorrielly  staff   192 Nov  2 01:30 .
+drwxr-xr-x  6 victorrielly  staff   192 Nov  2 01:30 ..
+-rw-r--r--@ 1 victorrielly  staff   112 Nov  2 01:30 expected.bin
+-rw-r--r--@ 1 victorrielly  staff   357 Nov  2 01:30 segments.json
+-rw-r--r--@ 1 victorrielly  staff  2713 Nov  2 01:30 statement.json
+-rw-r--r--@ 1 victorrielly  staff   243 Nov  2 01:30 UNVERIFIED.txt

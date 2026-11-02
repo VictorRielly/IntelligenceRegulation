@@ -1,0 +1,1 @@
+{"event":"rejected","error":"D55: the run directory /Users/victorrielly/zk60-artifacts/d60_20261102/cli/d12a-run holds segment-000.bin, which is not one of this 1-block fork run's 3 frames"}

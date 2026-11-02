@@ -1,0 +1,7 @@
+
+running 1 test
+test private_block::w16r2_tests::w16r2_rung_cpu_and_metal_digests_equal_the_golden ... W16R2-RUNG-DIGEST W16R2_RUNG_H24 cpu 334e168fe8e989d17aea92175cdab3826f08e22b0ba6c1a421cb9b264a8b9973 metal 334e168fe8e989d17aea92175cdab3826f08e22b0ba6c1a421cb9b264a8b9973 (device sumcheck rounds 0.0381 s)
+ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 975 filtered out; finished in 1.27s
+
