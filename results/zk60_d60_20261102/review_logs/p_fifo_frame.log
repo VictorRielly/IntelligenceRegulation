@@ -1,0 +1,1 @@
+{"event":"rejected","error":"D55: fork frame 0 (/private/tmp/claude-501/-Users-victorrielly-IntelligenceRegulation/01ce547c-a1e2-4e9f-8e3d-f16c477ac05b/scratchpad/d60_probes/fifo/d55-fork-000.bin) is not a regular file (a symbolic link, FIFO, device or directory is refused before it is opened)"}
