@@ -361,6 +361,9 @@ pub(super) struct BoundaryFacts {
 /// `RunStatement::capture_header` (its fields are private to `run.rs`). Every
 /// word the run header absorbs is here, in the order it is absorbed, so the
 /// recorder can rebuild the header transcript from scratch and compare.
+/// (`Clone` since D55 review F5: a fork run's per-fork recorders each hold a
+/// copy, on their own threads.)
+#[derive(Clone)]
 pub(super) struct RunHeader {
     pub profile: &'static str,
     pub l: usize,
@@ -771,6 +774,60 @@ impl ArrayStore {
         };
         write!(out, "{{\"array\":{sha:?},\"elem\":{elem:?},\"len\":{len},\"offset\":{offset},\"bytes\":{n}}}").expect("write to a Vec");
     }
+
+    /// **D55 review F5: another recorder's store merged into this one**, and
+    /// `json` (a file that recorder wrote against its own store) rewritten so
+    /// that every array reference names this store's offset. Arrays are
+    /// content-addressed, so an array both stores hold is kept once, and
+    /// merging per-fork stores in block order gives the store one recorder
+    /// writing the forks in that order would have. Both stores must agree on
+    /// whether they are on; a reference to an array the other store does not
+    /// hold, or whose length disagrees, refuses the merge.
+    fn absorb_store(&mut self, other: ArrayStore, json: &[u8]) -> Result<Vec<u8>, String> {
+        if other.on != self.on {
+            return Err("the two capture stores disagree on whether arrays are stored".into());
+        }
+        self.stored += other.stored;
+        self.inline += other.inline;
+        let mut by_offset: Vec<(&String, &(usize, usize))> = other.index.iter().collect();
+        by_offset.sort_by_key(|(_, (o, _))| *o);
+        let mut moved: std::collections::HashMap<String, usize> = std::collections::HashMap::new();
+        for (sha, &(off, n)) in by_offset {
+            let at = match self.index.get(sha) {
+                Some(&(at, m)) if m == n => {
+                    self.deduped += 1;
+                    at
+                }
+                Some(_) => return Err(format!("the array {sha} has two lengths")),
+                None => {
+                    let at = self.blob.len();
+                    self.blob.extend_from_slice(other.blob.get(off..off + n).ok_or("a stored array lies outside its store")?);
+                    self.index.insert(sha.clone(), (at, n));
+                    at
+                }
+            };
+            moved.insert(sha.clone(), at);
+        }
+        self.deduped += other.deduped;
+        // rewrite `{"array":"<sha>",...,"offset":<n>,...}` references
+        let text = std::str::from_utf8(json).map_err(|e| format!("a stage file is not UTF-8: {e}"))?;
+        let (key, off_key) = ("{\"array\":\"", ",\"offset\":");
+        let mut out = String::with_capacity(text.len());
+        let mut rest = text;
+        while let Some(i) = rest.find(key) {
+            let s = i + key.len();
+            let e = s + rest[s..].find('"').ok_or("an unterminated array reference")?;
+            let sha = &rest[s..e];
+            let o = e + rest[e..].find(off_key).ok_or("an array reference without an offset")? + off_key.len();
+            let oe = o + rest[o..].find(|c: char| !c.is_ascii_digit()).ok_or("an unterminated offset")?;
+            let at = moved.get(sha).ok_or_else(|| format!("a reference to the array {sha}, which its store does not hold"))?;
+            out.push_str(&rest[..o]);
+            out.push_str(&at.to_string());
+            rest = &rest[oe..];
+        }
+        out.push_str(rest);
+        Ok(out.into_bytes())
+    }
 }
 
 /// A base-field array: the store when it is on and the array is large, the
@@ -868,6 +925,37 @@ struct Rec {
     /// records at an R13 block stage, in recording order, for
     /// [`export_replay`].
     statement: Vec<StatementTable>,
+    /// **D55 REVIEW F5 (2026-11-01).** `Some` when this recorder observes a
+    /// D55 fork run (the opt-in, unregistered prototype, `run_fork.rs`):
+    /// the run-level replay state of its three phases. `None` for every
+    /// other run, whose bundle is byte for byte what it was.
+    fork: Option<ForkRec>,
+}
+
+/// **D55 REVIEW F5: what the recorder of a fork run keeps between its
+/// phases.** The fork stages themselves are recorded by per-fork recorders on
+/// the verifier's worker threads ([`fork_stage_attach`]) and merged here in
+/// block order ([`fork_stage_merge`]); the commit phase, the join and the
+/// tail's openings are replayed here, on the calling thread, from the
+/// recorder's OWN transcript.
+#[derive(Default)]
+struct ForkRec {
+    /// the head's roots, as the verifier absorbed them (public)
+    roots: Vec<Digest>,
+    /// the recorder's own `S0`, rebuilt from the header and the roots
+    s0: Option<Transcript>,
+    /// each fork's end position in the per-fork recorder's OWN replay
+    /// (state, squeeze counter), block order
+    ends: Vec<([u8; 32], u64)>,
+    /// the tail is open (after the join, until [`fork_tail_end`])
+    tail_open: bool,
+    /// the recorder's own `S1`
+    s1: Option<Transcript>,
+    tail_roles: Vec<Vec<u8>>,
+    tail_role_names: Vec<&'static str>,
+    tail_sites: Vec<Vec<u8>>,
+    /// the tail file, once the tail closed
+    tail_json: Option<Vec<u8>>,
 }
 
 thread_local! {
@@ -928,35 +1016,41 @@ pub(super) fn begin_run(header: RunHeader, binding: Digest) {
 /// The same, with both capture choices stated outright instead of read from
 /// the environment — so a test can capture one run BOTH ways in one process
 /// without touching a process-global.
+/// The run header's transcript, rebuilt from the header's public words alone.
+fn rebuild_header(header: &RunHeader) -> Transcript {
+    // STAGE 17 (ruling T-1): the recorder rebuilds the header under the
+    // SAME hash tag the run used, derived from the statement's own shape.
+    // A recorder on the legacy rule would fail the binding comparison
+    // below at every tagged profile, which is exactly the check that
+    // proves the rebuild is the verifier's.
+    let mut tr = super::protocol::tagged_transcript(&header.sh, header.profile.as_bytes());
+    let mut shape_bytes = Vec::with_capacity(header.run_shape_words.len() * 8);
+    for v in &header.run_shape_words {
+        shape_bytes.extend_from_slice(&v.to_le_bytes());
+    }
+    tr.absorb(b"run-shape", &shape_bytes);
+    tr.absorb(b"expected-IO", &header.expected_bytes);
+    tr.absorb(b"public-statement", &header.public_statement);
+    tr.absorb(b"parameters", header.parameter_line.as_bytes());
+    tr.absorb(b"calibration", &header.calibration);
+    tr.absorb(b"schedule", &header.schedule_digest);
+    // ROUND 12: a classifier run's header absorbs its public verdict and
+    // its chunk last (`ClassifyRunStatement::transcript`); the binding
+    // comparison below then re-checks the whole classifier header
+    if let Some(cf) = &header.classify {
+        tr.absorb(b"classify-verdict", &[cf.verdict]);
+        tr.absorb(b"classify-chunk", &cf.chunk_bytes());
+    }
+    tr
+}
+
 pub(super) fn begin_run_with(header: RunHeader, binding: Digest, opts: CaptureOpts) {
     REC.with(|s| {
         let mut cell = s.borrow_mut();
         assert!(cell.is_none(), "a run recorder is already seeded");
-        // STAGE 17 (ruling T-1): the recorder rebuilds the header under the
-        // SAME hash tag the run used, derived from the statement's own shape.
-        // A recorder on the legacy rule would fail the binding comparison
-        // below at every tagged profile, which is exactly the check that
-        // proves the rebuild is the verifier's.
-        let mut tr = super::protocol::tagged_transcript(&header.sh, header.profile.as_bytes());
-        let mut shape_bytes = Vec::with_capacity(header.run_shape_words.len() * 8);
-        for v in &header.run_shape_words {
-            shape_bytes.extend_from_slice(&v.to_le_bytes());
-        }
-        tr.absorb(b"run-shape", &shape_bytes);
-        tr.absorb(b"expected-IO", &header.expected_bytes);
-        tr.absorb(b"public-statement", &header.public_statement);
-        tr.absorb(b"parameters", header.parameter_line.as_bytes());
-        tr.absorb(b"calibration", &header.calibration);
-        tr.absorb(b"schedule", &header.schedule_digest);
-        // ROUND 12: a classifier run's header absorbs its public verdict and
-        // its chunk last (`ClassifyRunStatement::transcript`); the binding
-        // comparison below then re-checks the whole classifier header
-        if let Some(cf) = &header.classify {
-            tr.absorb(b"classify-verdict", &[cf.verdict]);
-            tr.absorb(b"classify-chunk", &cf.chunk_bytes());
-        }
+        let tr = rebuild_header(&header);
         let derived = header.classify.as_ref().map(|cf| cf.tables_derived);
-        let mut r = Rec { header, binding, own: tr, stages: Vec::new(), boundaries: Vec::new(), cur: None, closed: 0, failure: None, index: None, index_json: Vec::new(), store: ArrayStore::new(opts.arrays), public_tables: opts.public_tables, statement: Vec::new() };
+        let mut r = Rec { header, binding, own: tr, stages: Vec::new(), boundaries: Vec::new(), cur: None, closed: 0, failure: None, index: None, index_json: Vec::new(), store: ArrayStore::new(opts.arrays), public_tables: opts.public_tables, statement: Vec::new(), fork: None };
         if r.own.state() != r.binding {
             fail(&mut r, "replay: the rebuilt run header is not the verifier's binding".into());
         }
@@ -973,6 +1067,363 @@ pub(super) fn active() -> bool {
     REC.with(|s| s.borrow().is_some())
 }
 
+// ---------------------------------------------------------------- D55 review F5: a fork run
+
+/// **D55 REVIEW F5 (2026-11-01): the recorder of a D55 FORK RUN** (the
+/// opt-in, unregistered prototype, `run_fork.rs`, test builds only). The
+/// header is rebuilt exactly as a block run's — since D55 review F3 a fork
+/// run's header IS D12a's six absorbs, under its own constructor (the D55
+/// profile string, which `ForkRun::capture_header` puts in `profile`), with
+/// its own parameter line and schedule digest — and compared with the
+/// binding. What differs is the rest of the replay:
+///
+/// * **commit** ([`fork_commit`]): every boundary root, then `pb-fork-s0`;
+///   the recorder's own `S0` is compared with the verifier's;
+/// * **forks**: a recorder is THREAD-LOCAL and cannot cross a thread (its
+///   replay transcripts carry `zkp-core`'s round masker slot, which is not
+///   `Send`), so each fork is recorded by a FRESH recorder on the worker that
+///   verifies it ([`fork_stage_attach`]), seeded from the same public header
+///   and roots and replaying `fork(S0, k)` independently; it records the
+///   fork's slots, its `M` opening and its `A` / `H` openings through the
+///   ordinary hooks and closes one ordinary stage file, which the worker
+///   hands back ([`fork_stage_take`], `Send`) and this recorder merges in
+///   block order ([`fork_stage_merge`]);
+/// * **join** ([`fork_join`]): the recorder's own `S1`, from its own `S0`,
+///   each per-fork recorder's own END position and the verifier's claims;
+/// * **tail**: each boundary's and endpoint's one opening, replayed on the
+///   recorder's own transcript after `S1` through the ordinary [`pcs`] hook
+///   (into a tail file instead of a stage), then [`fork_tail_end`].
+///
+/// A bundle is taken only when all `L` forks were merged and the tail closed.
+pub(super) fn begin_fork_run_with(header: RunHeader, binding: Digest, opts: CaptureOpts) {
+    let is_block_run = header.token.is_none() && header.classify.is_none();
+    begin_run_with(header, binding, opts);
+    with(|r| {
+        if !is_block_run {
+            fail(r, "replay: a D55 fork run is a blocks-only run, and this header is a token-I/O or classifier run's".into());
+        }
+        r.fork = Some(ForkRec::default());
+    });
+}
+
+/// replay the commit phase on `own`: every root in boundary order, then the
+/// phase label (`run_fork.rs`'s `absorb_commit`, rebuilt here)
+fn replay_fork_commit(own: &mut Transcript, h: &RunHeader, roots: &[Digest]) -> Result<(), String> {
+    if roots.len() + 1 != h.l || h.boundaries.len() != roots.len() {
+        return Err(format!("replay: an {}-block fork run has {} boundary roots, the head carried {}", h.l, h.boundaries.len(), roots.len()));
+    }
+    for (k, root) in roots.iter().enumerate() {
+        own.absorb_u64(b"pb-fork-commit-root", k as u64);
+        own.absorb(b"B", root);
+        own.absorb_u64(b"rows", h.boundaries[k].rows as u64);
+        own.absorb_u64(b"log-cols", h.boundaries[k].log_n as u64);
+    }
+    own.absorb_u64(b"pb-fork-s0", h.l as u64);
+    Ok(())
+}
+
+/// **The commit phase of a fork run** (calling thread): the head's roots, and
+/// the verifier's transcript at `S0`.
+pub(super) fn fork_commit(roots: &[Digest], tr: &Transcript) {
+    with(|r| {
+        if r.failure.is_some() {
+            return;
+        }
+        if r.fork.is_none() {
+            fail(r, "replay: a fork run's commit phase was offered to a block run's recorder".into());
+            return;
+        }
+        let (h, own) = (&r.header, &mut r.own);
+        if let Err(e) = replay_fork_commit(own, h, roots) {
+            fail(r, e);
+            return;
+        }
+        at(r, "S0 (every boundary root, before any fork)", tr);
+        let s0 = Transcript::clone_state(&r.own);
+        let f = r.fork.as_mut().expect("a fork run");
+        f.roots = roots.to_vec();
+        f.s0 = Some(s0);
+    });
+}
+
+/// What a per-fork recorder is seeded from (`Send`: public words only).
+#[derive(Clone)]
+pub(super) struct ForkSeed {
+    header: RunHeader,
+    binding: Digest,
+    roots: Vec<Digest>,
+    opts: CaptureOpts,
+}
+
+/// the seed for the per-fork recorders, when a FORK-RUN recorder is attached
+/// on this thread and its commit phase replayed (`None` otherwise: no hook
+/// on a worker then does anything)
+pub(super) fn fork_seed() -> Option<ForkSeed> {
+    REC.with(|s| {
+        s.borrow().as_ref().and_then(|r| {
+            let f = r.fork.as_ref()?;
+            f.s0.as_ref()?;
+            Some(ForkSeed { header: r.header.clone(), binding: r.binding, roots: f.roots.clone(), opts: CaptureOpts { arrays: r.store.is_on(), public_tables: r.public_tables } })
+        })
+    })
+}
+
+/// **On a worker, before fork `k` is verified**: attach a FRESH recorder to
+/// this thread, its own transcript rebuilt independently — the header (and
+/// its binding compared), the commit phase, then `fork(S0, k)`'s two start
+/// absorbs — and its stage counter at `k`, so that the ordinary hooks record
+/// exactly this one fork as stage `k`.
+pub(super) fn fork_stage_attach(seed: &ForkSeed, k: usize) {
+    REC.with(|s| {
+        let mut cell = s.borrow_mut();
+        assert!(cell.is_none(), "a run recorder is already attached on this fork worker");
+        let mut own = rebuild_header(&seed.header);
+        let mut r = Rec {
+            header: seed.header.clone(),
+            binding: seed.binding,
+            own: Transcript::clone_state(&own),
+            stages: Vec::new(),
+            boundaries: Vec::new(),
+            cur: None,
+            closed: k,
+            failure: None,
+            index: None,
+            index_json: Vec::new(),
+            store: ArrayStore::new(seed.opts.arrays),
+            public_tables: seed.opts.public_tables,
+            statement: Vec::new(),
+            fork: Some(ForkRec::default()),
+        };
+        if own.state() != r.binding {
+            fail(&mut r, "replay: the rebuilt run header is not the verifier's binding (fork worker)".into());
+        }
+        if let Err(e) = replay_fork_commit(&mut own, &seed.header, &seed.roots) {
+            fail(&mut r, e);
+        }
+        match seed.header.block_digests.get(k) {
+            Some(d) => {
+                own.absorb_u64(b"pb-run-fork", k as u64);
+                own.absorb(b"pb-run-fork-block", d);
+            }
+            None => fail(&mut r, format!("replay: no block {k}")),
+        }
+        r.own = own;
+        *cell = Some(r);
+    });
+}
+
+/// **Fork `k` opens** (on its worker, after the frame is decoded and before
+/// `verify_core`): exactly a block stage's opening, less D12a's two locality
+/// words and boundary root (a fork's start absorbs were replayed at attach).
+#[allow(clippy::too_many_arguments)]
+pub(super) fn fork_stage_begin(k: usize, bytes: &[u8], start_tag: [u8; 32], a_root: Digest, h_root: Digest, mask_root: Digest, lay: &Layout, tr: &Transcript) {
+    with(|r| {
+        if r.fork.is_none() {
+            fail(r, format!("replay: fork {k} was offered to a block run's recorder"));
+            return;
+        }
+        stage_open(r, k, bytes, start_tag, None, a_root, h_root, mask_root, lay, tr, false);
+    });
+}
+
+/// One fork's record, handed from its worker to the run's recorder (`Send`).
+pub(super) struct ForkStageCapture {
+    k: usize,
+    stage: Vec<u8>,
+    store: ArrayStore,
+    statement: Vec<StatementTable>,
+    index: Option<PlaneIndex>,
+    index_json: Vec<u8>,
+    end: ([u8; 32], u64),
+}
+
+/// **On the worker, after fork `k`** (its stage closed by the ordinary
+/// [`stage_end`], or not): detach this thread's per-fork recorder and hand
+/// back its record. Always detaches, so the worker's next fork starts clean;
+/// `Err` when the replay failed or the fork's stage did not close.
+pub(super) fn fork_stage_take(k: usize) -> Result<ForkStageCapture, String> {
+    let r = REC.with(|s| s.borrow_mut().take()).ok_or_else(|| format!("replay: fork {k}'s recorder is not attached"))?;
+    if let Some(e) = r.failure {
+        return Err(e);
+    }
+    if r.closed != k + 1 || r.stages.len() != 1 || r.cur.is_some() {
+        return Err(format!("replay: fork {k}'s stage did not close ({} stage files, a stage open: {})", r.stages.len(), r.cur.is_some()));
+    }
+    let end = (r.own.state(), r.own.counter());
+    Ok(ForkStageCapture { k, stage: r.stages.into_iter().next().expect("one stage file"), store: r.store, statement: r.statement, index: r.index, index_json: r.index_json, end })
+}
+
+/// **Fork `k`'s record, merged into the run's recorder** (calling thread, in
+/// block order). The plane index must be the run's; the stage file's array
+/// references are rebased onto this recorder's store (content-addressed, so
+/// the result is the store one recorder writing every fork in order would
+/// have written).
+pub(super) fn fork_stage_merge(cap: Result<ForkStageCapture, String>) {
+    with(|r| {
+        if r.failure.is_some() {
+            return;
+        }
+        let cap = match cap {
+            Ok(c) => c,
+            Err(e) => {
+                fail(r, e);
+                return;
+            }
+        };
+        if r.fork.as_ref().map(|f| f.s0.is_none()).unwrap_or(true) {
+            fail(r, format!("replay: fork {} arrived before the commit phase was replayed", cap.k));
+            return;
+        }
+        if cap.k != r.closed {
+            fail(r, format!("replay: fork {} was merged after {} closed forks", cap.k, r.closed));
+            return;
+        }
+        match (&r.index, cap.index) {
+            (None, Some(idx)) => {
+                r.index = Some(idx);
+                r.index_json = cap.index_json;
+            }
+            (Some(_), Some(_)) if cap.index_json == r.index_json => {}
+            _ => {
+                fail(r, format!("replay: fork {}'s plane index is not the run's", cap.k));
+                return;
+            }
+        }
+        let stage = match r.store.absorb_store(cap.store, &cap.stage) {
+            Ok(s) => s,
+            Err(e) => {
+                fail(r, format!("replay: fork {}: {e}", cap.k));
+                return;
+            }
+        };
+        r.stages.push(stage);
+        r.statement.extend(cap.statement);
+        r.fork.as_mut().expect("a fork run").ends.push(cap.end);
+        r.closed += 1;
+    });
+}
+
+/// a claim list's public words, as a fork run's join absorbs them (the
+/// recorder's own encoding of `run_fork.rs`'s `claim_bytes`)
+fn join_claim_words(claims: &[ZClaim]) -> Vec<u8> {
+    let mut b = Vec::new();
+    b.extend_from_slice(&(claims.len() as u64).to_le_bytes());
+    for c in claims {
+        b.extend_from_slice(&c.value.to_bytes());
+        b.extend_from_slice(&(c.parts.len() as u64).to_le_bytes());
+        for p in &c.parts {
+            b.extend_from_slice(&(p.slice.offset as u64).to_le_bytes());
+            b.extend_from_slice(&u64::from(p.slice.log_size).to_le_bytes());
+            b.extend_from_slice(&p.coef.to_bytes());
+            b.extend_from_slice(&(p.point.len() as u64).to_le_bytes());
+            for x in &p.point {
+                b.extend_from_slice(&x.to_bytes());
+            }
+        }
+    }
+    b
+}
+
+/// **The join** (calling thread): the recorder's own `S1`, from its own `S0`,
+/// every fork's END position in its per-fork recorder's own replay and the
+/// verifier's own claims (`[slot 21, slot 22]` per fork, block order: public
+/// words the verifier computed), compared with the verifier's `S1`. The tail
+/// opens.
+pub(super) fn fork_join(claims: &[[Vec<ZClaim>; 2]], tr: &Transcript) {
+    with(|r| {
+        if r.failure.is_some() {
+            return;
+        }
+        let l = r.header.l;
+        let Some(f) = r.fork.as_ref() else {
+            fail(r, "replay: a fork run's join was offered to a block run's recorder".into());
+            return;
+        };
+        if r.closed != l || f.ends.len() != l || claims.len() != l {
+            fail(r, format!("replay: the join came after {} of {l} forks ({} claim pairs)", r.closed, claims.len()));
+            return;
+        }
+        let mut own = Transcript::clone_state(f.s0.as_ref().expect("S0 was replayed"));
+        for (k, ((state, counter), [ic, oc])) in f.ends.iter().zip(claims).enumerate() {
+            own.absorb_u64(b"pb-join-fork", k as u64);
+            let mut s = state.to_vec();
+            s.extend_from_slice(&counter.to_le_bytes());
+            own.absorb(b"pb-join-state", &s);
+            own.absorb(b"pb-join-in-claims", &join_claim_words(ic));
+            own.absorb(b"pb-join-out-claims", &join_claim_words(oc));
+        }
+        own.absorb_u64(b"pb-fork-s1", l as u64);
+        r.own = own;
+        at(r, "S1 (every fork joined)", tr);
+        let s1 = Transcript::clone_state(&r.own);
+        let f = r.fork.as_mut().expect("a fork run");
+        f.s1 = Some(s1);
+        f.tail_open = true;
+    });
+}
+
+/// **The tail closes** (calling thread): the verifier's end tag and final
+/// transcript; the tail file is written.
+pub(super) fn fork_tail_end(end_tag: [u8; 32], tr: &Transcript) {
+    with(|r| {
+        if r.failure.is_some() {
+            return;
+        }
+        if !r.fork.as_ref().map(|f| f.tail_open).unwrap_or(false) {
+            fail(r, "replay: a fork run's tail closed that was never opened".into());
+            return;
+        }
+        at(r, "the end of the tail", tr);
+        if r.failure.is_some() {
+            return;
+        }
+        let l = r.header.l;
+        let schema = SCHEMA_D55;
+        let f = r.fork.as_mut().expect("a fork run");
+        f.tail_open = false;
+        let want = l + 1;
+        if f.tail_roles.len() != want {
+            let n = f.tail_roles.len();
+            fail(r, format!("replay: the tail carried {n} openings, a fork run of {l} blocks has {want}"));
+            return;
+        }
+        let mut out = Vec::new();
+        write!(out, "{{\"schema\":{schema:?},\"kind\":\"zk60-d55-tail-observations\",\"blocks\":{l},\"end_tag\":{end_tag:?},\"opening_order\":{:?},", f.tail_role_names).expect("write to a Vec");
+        state(&mut out, "header", f.s1.as_ref().expect("S1 was replayed"));
+        write!(out, ",\"roles\":").expect("write to a Vec");
+        array(&mut out, &f.tail_roles);
+        write!(out, ",\"transcript_sites\":").expect("write to a Vec");
+        array(&mut out, &f.tail_sites);
+        writeln!(out, "}}").expect("write to a Vec");
+        f.tail_json = Some(out);
+    });
+}
+
+/// **D55 REVIEW F5: fork `k` of a fork-run bundle, as a one-stage bundle** —
+/// the run file, that fork's stage file and that fork's statement tables (no
+/// side store: the gate's per-stage checks read keys, lengths and digests).
+/// `None` for a bundle that is not a fork run's, or past its last fork.
+pub(super) fn fork_stage_view(b: &Bundle, k: usize) -> Option<Bundle> {
+    b.fork_tail.as_ref()?;
+    let stage = b.stages.get(k)?.clone();
+    Some(Bundle {
+        run_json: b.run_json.clone(),
+        stages: vec![stage],
+        profile: b.profile.clone(),
+        l: b.l,
+        arrays: ArrayStore::new(b.arrays.is_on()),
+        token: false,
+        statement: b.statement.iter().filter(|t| t.stage == k).cloned().collect(),
+        export_replay: None,
+        fork_tail: None,
+    })
+}
+
+/// **D55 REVIEW F5: a fork run's capture schema.** A NEW schema: a loader
+/// that knows block runs refuses it by version instead of misreading `L`
+/// fork stages and a tail as D12a stages.
+pub(super) const SCHEMA_D55: &str = "hashline-native-capture/8-d55-fork-run-prototype";
+
 /// TOKEN I/O (round 7): what the attached recorder holds — `(closed stages,
 /// a stage open, the first failure)` — so a test can show that a path
 /// recorded nothing; `None` without a recorder
@@ -984,7 +1435,15 @@ pub(super) fn recorded() -> Option<(usize, bool, Option<String>)> {
 /// transcript BEFORE the stage's two locality words are absorbed.
 #[allow(clippy::too_many_arguments)]
 pub(super) fn stage_begin(k: usize, bytes: &[u8], start_tag: [u8; 32], b_root: Option<Digest>, a_root: Digest, h_root: Digest, mask_root: Digest, lay: &Layout, tr: &Transcript) {
-    with(|r| {
+    with(|r| stage_open(r, k, bytes, start_tag, b_root, a_root, h_root, mask_root, lay, tr, true));
+}
+
+/// A block stage opens (D12a's `stage_begin`) or a D55 fork's stage opens
+/// (`d12a_prefix` false: a fork's start absorbs were replayed when its
+/// recorder was attached, and a fork commits no boundary).
+#[allow(clippy::too_many_arguments)]
+fn stage_open(r: &mut Rec, k: usize, bytes: &[u8], start_tag: [u8; 32], b_root: Option<Digest>, a_root: Digest, h_root: Digest, mask_root: Digest, lay: &Layout, tr: &Transcript, d12a_prefix: bool) {
+    {
         if r.cur.is_some() {
             fail(r, format!("replay: stage {k} opened while another stage is open"));
             return;
@@ -1049,13 +1508,15 @@ pub(super) fn stage_begin(k: usize, bytes: &[u8], start_tag: [u8; 32], b_root: O
         let (a_rows, h_rows) = (lay.a_rows, lay.h_rows);
         let boundary = r.cur.as_ref().and_then(|c| c.b_root);
         let digest = r.header.block_digests[k];
-        r.own.absorb_u64(b"pb-run-stage", k as u64);
-        r.own.absorb(b"pb-run-block", &digest);
-        if let Some(root) = boundary {
-            let facts = r.header.boundaries[k].clone();
-            r.own.absorb(b"B", &root);
-            r.own.absorb_u64(b"rows", facts.rows as u64);
-            r.own.absorb_u64(b"log-cols", facts.log_n as u64);
+        if d12a_prefix {
+            r.own.absorb_u64(b"pb-run-stage", k as u64);
+            r.own.absorb(b"pb-run-block", &digest);
+            if let Some(root) = boundary {
+                let facts = r.header.boundaries[k].clone();
+                r.own.absorb(b"B", &root);
+                r.own.absorb_u64(b"rows", facts.rows as u64);
+                r.own.absorb_u64(b"log-cols", facts.log_n as u64);
+            }
         }
         r.own.absorb(b"A", &a_root);
         r.own.absorb_u64(b"rows", a_rows as u64);
@@ -1068,7 +1529,7 @@ pub(super) fn stage_begin(k: usize, bytes: &[u8], start_tag: [u8; 32], b_root: O
         if let Some(c) = r.cur.as_mut() {
             c.logup = logup;
         }
-    });
+    }
 }
 
 /// **TOKEN I/O (round 7): how many stages a run's bundle closes** — `L` for a
@@ -1849,7 +2310,10 @@ pub(super) fn mask(specs: &[(usize, usize)], root: &Digest, fs: &[MaskFunctional
 pub(super) fn pcs(g: Geom, claims: &[ZClaim], opening: &OpeningZk, ntt: &NttTables, before: Option<Transcript>, after: &Transcript) {
     let Some(before) = before else { return };
     with(|r| {
-        if r.failure.is_some() || r.cur.is_none() {
+        // D55 review F5: a fork run's tail (its boundary and endpoint
+        // openings, after S1) is recorded here too, with no stage open
+        let tail = r.cur.is_none() && r.fork.as_ref().map(|f| f.tail_open).unwrap_or(false);
+        if r.failure.is_some() || (r.cur.is_none() && !tail) {
             return;
         }
         at(r, &format!("the {} opening", g.role), &before);
@@ -1875,6 +2339,19 @@ pub(super) fn pcs(g: Geom, claims: &[ZClaim], opening: &OpeningZk, ntt: &NttTabl
         }
         let mut out = Vec::new();
         write_pcs(&mut out, &mut r.store, &g, claims, opening, &replayed, &before, after);
+        if tail {
+            let mut s = Vec::new();
+            write!(s, "{{\"stage\":{},\"site\":{:?},", r.header.l, format!("{} opening", g.role)).expect("write to a Vec");
+            state(&mut s, "before", &before);
+            write!(s, ",").expect("write to a Vec");
+            state(&mut s, "after", after);
+            write!(s, "}}").expect("write to a Vec");
+            let f = r.fork.as_mut().expect("a fork run's tail");
+            f.tail_sites.push(s);
+            f.tail_roles.push(out);
+            f.tail_role_names.push(g.role);
+            return;
+        }
         site(r, &format!("{} opening", g.role), &before, after);
         let cur = r.cur.as_mut().expect("an open stage");
         cur.roles.push(out);
@@ -1944,6 +2421,10 @@ pub(super) struct Bundle {
     pub statement: Vec<StatementTable>,
     /// **TOKEN ROUND 17.** The export replay's result, once it passed.
     pub export_replay: Option<ExportReplay>,
+    /// **D55 REVIEW F5.** A fork run's tail file (its boundary and endpoint
+    /// openings, after `S1`); `None` for every other run. `stages` holds the
+    /// `L` fork stage files.
+    pub fork_tail: Option<Vec<u8>>,
 }
 
 pub(super) fn take() -> Result<Bundle, String> {
@@ -1965,11 +2446,16 @@ pub(super) fn take() -> Result<Bundle, String> {
     // run's, its own run file and schema)
     if r.header.classify.is_some() {
         let run_json = write_run_classify(&r);
-        return Ok(Bundle { run_json, stages: r.stages, profile: r.header.profile.to_string(), l: r.header.l, arrays: r.store, token: true, statement: r.statement, export_replay: None });
+        return Ok(Bundle { run_json, stages: r.stages, profile: r.header.profile.to_string(), l: r.header.l, arrays: r.store, token: true, statement: r.statement, export_replay: None, fork_tail: None });
     }
+    // D55 review F5: a fork run's bundle exists only once its tail closed
+    let fork_tail = match &r.fork {
+        None => None,
+        Some(f) => Some(f.tail_json.clone().ok_or("run capture: the fork run's tail did not close; no bundle is written")?),
+    };
     let run_json = if r.header.token.is_some() { write_run_token(&r) } else { write_run(&r) };
     let token = r.header.token.is_some();
-    Ok(Bundle { run_json, stages: r.stages, profile: r.header.profile.to_string(), l: r.header.l, arrays: r.store, token, statement: r.statement, export_replay: None })
+    Ok(Bundle { run_json, stages: r.stages, profile: r.header.profile.to_string(), l: r.header.l, arrays: r.store, token, statement: r.statement, export_replay: None, fork_tail })
 }
 
 // ---------------------------------------------------------------- token round 17: the export replay
@@ -2564,7 +3050,8 @@ fn row_kind(g: &Geom, row: usize) -> &'static str {
 fn write_stage(r: &Rec, cur: &StageRec) -> Vec<u8> {
     let mut out = Vec::new();
     let sh = &r.header.sh;
-    let schema = schema_of(r.store.is_on());
+    // D55 review F5: a fork run's stage files declare the fork run's schema
+    let schema = if r.fork.is_some() { SCHEMA_D55 } else { schema_of(r.store.is_on()) };
     write!(
         out,
         "{{\"schema\":{schema:?},\"kind\":\"zk60-run-stage-observations\",\"stage\":{},\"blocks\":{},\"block_digest\":{:?},\"segment_bytes\":{},\"segment_sha256\":{:?},\"start_tag\":{:?},\"end_tag\":{:?},\"boundary_committed\":{},\"a_root\":{:?},\"a_rows\":{},\"h_root\":{:?},\"h_rows\":{},\"mask_root\":{:?},\"log_cols\":{},\"logup_challenges\":{:?},\"layout_digest\":{:?},\"opening_order\":{},",
@@ -2639,7 +3126,12 @@ fn write_run(r: &Rec) -> Vec<u8> {
     let h = &r.header;
     let sh = &h.sh;
     let mut out = Vec::new();
-    let schema = schema_of(r.store.is_on());
+    // D55 review F5: a fork run's bundle declares its own schema, its own
+    // transcript program and labels, and where its openings are (the tail,
+    // file `L`); every other run's run file is byte for byte what it was
+    let fork = r.fork.is_some();
+    let schema = if fork { SCHEMA_D55 } else { schema_of(r.store.is_on()) };
+    let (in_at, out_at) = if fork { (h.l, h.l) } else { (0, h.l - 1) };
     write!(
         out,
         "{{\"schema\":{schema:?},\"kind\":\"zk60-run-verifier-observations\",\"coverage\":\"native-run-all-stages-v1\",\"profile\":{:?},\"transcript_domain\":{:?},\"block_profile\":{:?},\"blocks\":{},\"boundaries\":{},\"fully_verified\":true,\"privacy\":\"P1\",\"privacy_review_complete\":false,\"weight_policy\":\"public-statement\",\"field_modulus\":{},\"extension_nonresidue\":{},\"public_tables_included\":{},\"source_commit\":{:?},\"run_binding\":{:?},\"context\":{:?},\"calibration\":{:?},\"public_statement_digest\":{:?},\"parameter_line\":{:?},\"schedule_digest\":{:?},\"expected_policy\":{:?},\"expected_policy_sha256\":{:?},\"run_shape_words\":{:?},\"shape\":{{\"name\":{:?},\"profile\":{:?},\"tokens\":{},\"width\":{},\"hidden\":{},\"q_heads\":{},\"kv_heads\":{},\"head_dim\":{},\"t_pad\":{},\"d_pad\":{},\"h_pad\":{},\"f_pad\":{},\"log_cols\":{},\"cols\":{},\"inv_rate\":{},\"opened_cols\":{},\"f_e\":{},\"endpoint_rows\":{},\"endpoint_log_n\":{},\"endpoint_inv_rate\":{},\"endpoint_general\":{},\"norm_wrho\":{},\"wrho_s\":{},\"slots\":{:?},\"a_groups\":{},\"h_groups\":{},\"n_slots\":{N_SLOTS}}},",
@@ -2691,7 +3183,7 @@ fn write_run(r: &Rec) -> Vec<u8> {
     .expect("write to a Vec");
     write!(
         out,
-        "\"external_endpoints\":{{\"input_root\":{:?},\"output_root\":{:?},\"rows\":{},\"data_rows\":{},\"log_n\":{},\"inv_rate\":{},\"input_scale\":{},\"output_scale\":{},\"opened_at_stage\":[0,{}]}},\"block_digests\":[",
+        "\"external_endpoints\":{{\"input_root\":{:?},\"output_root\":{:?},\"rows\":{},\"data_rows\":{},\"log_n\":{},\"inv_rate\":{},\"input_scale\":{},\"output_scale\":{},\"opened_at_stage\":[{in_at},{}]}},\"block_digests\":[",
         h.external_input_root,
         h.external_output_root,
         h.external_rows,
@@ -2700,7 +3192,7 @@ fn write_run(r: &Rec) -> Vec<u8> {
         h.external_inv_rate,
         h.external_scales.0,
         h.external_scales.1,
-        h.l - 1
+        out_at
     )
     .expect("write to a Vec");
     for (i, d) in h.block_digests.iter().enumerate() {
@@ -2731,13 +3223,15 @@ fn write_run(r: &Rec) -> Vec<u8> {
             b.inv_rate,
             b.checks,
             b.digest,
-            i,
-            i + 1,
+            // a fork run commits every boundary in its head, before fork 0
+            // ("stage" 0 here), and opens it in its tail (file L)
+            if fork { 0 } else { i },
+            if fork { h.l } else { i + 1 },
             i,
             b.site_rows.first().copied().unwrap_or(0),
             i + 1,
             b.site_rows.get(2).copied().unwrap_or(0),
-            i + 1
+            if fork { h.l } else { i + 1 }
         )
         .expect("write to a Vec");
     }
@@ -2752,6 +3246,9 @@ fn write_run(r: &Rec) -> Vec<u8> {
         }
         write!(out, "{:?}", stage_file(k)).expect("write to a Vec");
     }
+    if fork {
+        write!(out, ",{D55_TAIL_FILE:?}").expect("write to a Vec");
+    }
     write!(out, "],\"transcript_domain_bytes\":{:?},", h.profile.as_bytes()).expect("write to a Vec");
     // **STAGE 17, ruling T-1 / T-7.** WHICH HASH RULE MADE THIS BUNDLE. The
     // four keys are public functions of public strings, so the hex is here
@@ -2761,14 +3258,16 @@ fn write_run(r: &Rec) -> Vec<u8> {
     // carries `{"rule":"legacy"}` and nothing else.
     write_hash_tag(&mut out, sh);
     write!(out, ",\"transcript_labels\":[").expect("write to a Vec");
-    for (i, (label, what)) in TRANSCRIPT_LABELS.iter().enumerate() {
+    let labels: &[(&str, &str)] = if fork { &D55_TRANSCRIPT_LABELS } else { &TRANSCRIPT_LABELS };
+    for (i, (label, what)) in labels.iter().enumerate() {
         if i > 0 {
             write!(out, ",").expect("write to a Vec");
         }
         write!(out, "{{\"label\":{label:?},\"what\":{what:?}}}").expect("write to a Vec");
     }
     write!(out, "],\"transcript_program\":").expect("write to a Vec");
-    strings(&mut out, &TRANSCRIPT_PROGRAM.iter().map(|s| s.to_string()).collect::<Vec<_>>());
+    let program: &[&str] = if fork { &D55_TRANSCRIPT_PROGRAM } else { &TRANSCRIPT_PROGRAM };
+    strings(&mut out, &program.iter().map(|s| s.to_string()).collect::<Vec<_>>());
     write!(out, ",\"mask_domain\":{{\"log_dom\":{},\"columns\":{}}},", crate::zk::MASK_LOG_DOM, sh.opened_cols).expect("write to a Vec");
     // **STAGE 15.** The plane index table: a property of the SHAPE, so it
     // lives in the run file and not in a stage. `take` refuses a bundle
@@ -2817,6 +3316,54 @@ const TRANSCRIPT_PROGRAM: [&str; 10] = [
     "  Then one PCS opening per role in opening_order after M: per group draw |members| lambdas, then draw `rows` proximity coefficients, then absorb pcs-vec per group, absorb pcs-prox, then draw num_col_checks column indices over cols*inv_rate.",
     "  Stage k's IO openings are: the Input role (the external input endpoint at k = 0, otherwise boundary k-1, whose claim list is complete only now) and, only at k = L-1, the Output role (the external output endpoint).",
     "  The segment header and trailer tags are COMPARED against the verifier's own transcript position and are outside the Fiat-Shamir chain.",
+];
+
+/// **D55 REVIEW F5: a fork run's tail file**, after its `L` stage files.
+pub(super) const D55_TAIL_FILE: &str = "d55_tail.json";
+
+/// **D55 REVIEW F5: every Fiat-Shamir label of a D55 fork run, as data** (D12a's
+/// less its two stage locality words, plus the fork run's own).
+const D55_TRANSCRIPT_LABELS: [(&str, &str); 26] = [
+    ("run-shape", "header: L and the six shape axes, seven u64 little-endian"),
+    ("expected-IO", "header: the endpoint policy bytes"),
+    ("public-statement", "header: H(block 1's digest || ... || block L's digest)"),
+    ("parameters", "header: the fork run's parameter line (it ends /d55-commit-fork-join-prototype-unregistered)"),
+    ("calibration", "header: the one calibration identity of the whole run"),
+    ("schedule", "header: the fork run's schedule digest (its parameter line, the layout lines, the three phases, one fork line per block)"),
+    ("pb-fork-commit-root", "phase 1 (commit): boundary k's index, absorb_u64; then B, rows, log-cols"),
+    ("B", "phase 1: boundary k's commitment root, then rows and log-cols"),
+    ("pb-fork-s0", "phase 1: L, absorb_u64, after every root; the state is S0"),
+    ("pb-run-fork", "phase 2: fork k's first absorb on S0, its index"),
+    ("pb-run-fork-block", "phase 2: fork k's second absorb, block k's public digest"),
+    ("A", "fork k: the A root, then rows and log-cols"),
+    ("M", "fork k: the masking commitment root; the three LogUp challenges follow"),
+    ("H", "fork k: the H root, then rows and log-cols"),
+    ("rows", "absorb_u64 after every commitment root"),
+    ("log-cols", "absorb_u64 after every commitment root's row count"),
+    ("pb-slot", "fork k, slot s: the slot index, absorb_u64; the CFS challenge c follows"),
+    ("pb-scalar", "fork k, slot s: the one published masked scalar"),
+    ("pb-term", "fork k, slot s: the masked terminals, after the sumcheck"),
+    ("mask-q", "fork k's M opening: theta is drawn first, then q is absorbed, then 2*slots+2 proximity challenges"),
+    ("mask-prox", "fork k's M opening: the proximity vector; the 256 column indices follow"),
+    ("pb-join-fork", "phase 3 (join, on the run transcript from S0): fork k's index"),
+    ("pb-join-state", "phase 3: fork k's final 32-byte state and its squeeze counter"),
+    ("pb-join-in-claims", "phase 3: every public word of fork k's slot-21 claims"),
+    ("pb-join-out-claims", "phase 3: every public word of fork k's slot-22 claims"),
+    ("pb-fork-s1", "phase 3: L, absorb_u64, after every fork; the state is S1"),
+];
+
+/// **D55 REVIEW F5: a D55 fork run's transcript, in words.**
+const D55_TRANSCRIPT_PROGRAM: [&str; 10] = [
+    "D55 PROTOTYPE (opt-in, unregistered, test builds only): commit, fork, join. Every hash is BLAKE3 under the rule named in hash_tag, the block shape's.",
+    "Transcript::new_tagged(the D55 profile string = transcript_domain_bytes; D55 review F3: its own constructor) then absorb run-shape, expected-IO, public-statement, parameters (the fork run's line), calibration, schedule (the fork run's digest). The state here is run_binding.",
+    "Phase 1 (commit): for each boundary k = 0 .. L-2 absorb pb-fork-commit-root(k), B(root), rows, log-cols; then pb-fork-s0(L). The state is S0. Every root is fixed before any fork exists.",
+    "Phase 2 (forks, each its own transcript): fork k = S0, then pb-run-fork(k), pb-run-fork-block(block_digests[k]). Stage file k is that fork, recorded on the worker that verified it.",
+    "  absorb A(root), rows, log-cols; absorb M(mask root); draw 3 Fp2 (the LogUp challenges); absorb H(root), rows, log-cols.",
+    "  For each slot s = 0 .. 22: draw the definition challenges; absorb pb-slot(s); draw c; absorb pb-scalar; per sumcheck round absorb sc-round then draw one Fp2; absorb pb-term(terminals).",
+    "  The M opening, then the A and H openings (opening_order); a fork opens no boundary and no endpoint.",
+    "Phase 3 (join, on the run transcript from S0, block order): absorb pb-join-fork(k), pb-join-state(fork k's final state and counter), pb-join-in-claims, pb-join-out-claims; then pb-fork-s1(L). The state is S1.",
+    "  The tail (d55_tail.json), all after S1: boundary k = 0 .. L-2 opened ONCE with fork k's slot-22 claims then fork k+1's slot-21 claims, then the external input endpoint with fork 0's slot-21 claims, then the external output endpoint with fork L-1's slot-22 claims.",
+    "  The head's S0 tag, every fork frame's start and end tags and the tail's S1 and end tags are COMPARED against the verifier's own transcript positions and are outside the Fiat-Shamir chain.",
 ];
 
 /// **TOKEN I/O (round 7; capture request 2.1(e)): the schema a token-I/O run's
@@ -3829,6 +4376,12 @@ pub(super) fn keys_of(bytes: &[u8]) -> Vec<String> {
 /// pins, and a README. The manifest is written LAST, so a directory without
 /// one is an incomplete bundle and not an accepted capture.
 pub(super) fn write_bundle(dir: &std::path::Path, b: &Bundle, segments: &[Vec<u8>], note: &str, command: &str) -> Result<(), String> {
+    // D55 review F5: a fork-run capture is an in-memory input of the Rust
+    // privacy-gate checks only (an unregistered prototype; the Python gate has
+    // no loader for its schema); it is never written as a bundle
+    if b.fork_tail.is_some() {
+        return Err("run capture: a D55 fork-run capture (an unregistered prototype) is checked in memory and never written as a bundle".into());
+    }
     // TOKEN ROUND 17: a bundle that carries the values of statement tables
     // (an R13 capture with public-table values) is written only after the
     // export replay checked every one of them; its README says so

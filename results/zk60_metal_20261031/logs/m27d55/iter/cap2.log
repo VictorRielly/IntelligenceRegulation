@@ -1,0 +1,67 @@
+
+running 25 tests
+test private_block::run_capture_tests::capture_a_125m_run ... ignored, captures a 125M run; heavy. set HL_PB_CAPTURE_DIR (outside the repo) and HL_RUN_CAPTURE_PUBLIC_TABLES
+test private_block::run_capture_tests::a_capture_directory_inside_the_repository_is_refused ... ok
+test private_block::run_capture_tests::every_plane_a_slot_references_is_in_the_plane_index ... ok
+test private_block::run_capture_tests::a_tampered_run_is_refused_and_no_bundle_is_written ... ok
+test private_block::run_capture_tests::the_bundle_pins_every_source_file_that_decides_its_contents ... ok
+test private_block::run_capture_tests::each_slots_terminal_vector_is_as_long_as_its_plane_list ... ok
+test private_block::run_capture_tests::a_run_verifies_the_same_with_and_without_a_recorder ... ok
+PLANE INDEX at the rung: 83 A planes tiling 377 rows, 52 H planes tiling 470 rows, row width 1024
+test private_block::run_capture_tests::the_plane_index_tiles_the_a_and_h_commitments_of_the_rung_layout ... ok
+ARRAY STORE at rung-K4, L=2: 1181 references in the stage files, 1181 arrays stored over 1131 distinct (50 deduplicated), 9472208 B of arrays.bin; stage JSON 31143935 B classic -> 6872832 B + arrays = 16345040 B (1.91x)
+ARRAY STORE  member prox                     2 references,     2 distinct,      32768 B
+ARRAY STORE  member proximity_rhos           4 references,     4 distinct,      46304 B
+ARRAY STORE  member proximity_vector         7 references,     7 distinct,     143360 B
+ARRAY STORE  member q                        2 references,     2 distinct,      32768 B
+ARRAY STORE  member values                1072 references,  1022 distinct,    7291888 B
+ARRAY STORE  member vector                  94 references,    94 distinct,    1925120 B
+test private_block::run_capture_tests::the_array_store_and_the_classic_encoding_carry_the_same_values ... ok
+test private_block::run_capture_tests::every_key_of_a_bundle_is_on_the_allow_list ... ok
+RUN CAPTURE L=3 at the rung-G shape: run.json 35811 B, stages [12554896, 12620290, 13295054] B, bundle on disk 38507654 B (38.5 MB); segments 12414440 B (pinned by digest, not written); public tables carried as length + digest only
+test private_block::run_capture_tests::a_three_block_rung_g_run_is_captured_and_the_bundle_is_self_consistent ... ok
+test private_block::run_capture_tests::write_the_c6_gate_bundles ... ignored, writes the stage-31 rung-C6 gate bundles; set HL_RUN_CAPTURE_DIR and HL_RUN_CAPTURE_PUBLIC_TABLES=1
+test private_block::run_capture_tests::write_the_e32_gate_bundles ... ignored, writes the stage-33 rung-E32 gate bundles; set HL_RUN_CAPTURE_DIR and HL_RUN_CAPTURE_PUBLIC_TABLES=1
+test private_block::run_capture_tests::write_the_gate_bundles ... ignored, writes the gate bundles; set HL_RUN_CAPTURE_DIR
+test private_block::run_capture_tests::write_the_k4_gate_bundles ... ignored, writes the stage-22 rung-K4 gate bundles; set HL_RUN_CAPTURE_DIR and HL_RUN_CAPTURE_PUBLIC_TABLES=1
+test private_block::run_capture_tests::write_the_p2_gate_bundles ... ignored, writes the stage-30 rung-P2 gate bundles; set HL_RUN_CAPTURE_DIR and HL_RUN_CAPTURE_PUBLIC_TABLES=1
+test private_block::run_capture_tests::write_the_s20_gate_bundles ... ignored, writes the stage-21 gate bundles; set HL_RUN_CAPTURE_DIR and HL_RUN_CAPTURE_PUBLIC_TABLES=1
+test private_block::run_capture_tests::write_the_tagged_gate_bundles ... ignored, writes the tagged gate bundles; set HL_RUN_CAPTURE_DIR and HL_RUN_CAPTURE_PUBLIC_TABLES=1
+test private_block::run_capture_tests::write_the_w14_gate_bundles ... ignored, writes the stage-32 rung-W14 gate bundles (about 130 MB each, so OUTSIDE the repository); set HL_RUN_CAPTURE_DIR and HL_RUN_CAPTURE_PUBLIC_TABLES=1
+GS-2 (rung-G, two-block fully dense run, stage 0): A = 36 groups over 623 rows, H = 9 groups over 576 rows, endpoint = 1 group over 9 rows; every group position and every row position swept
+test private_block::run_capture_tests::the_refusal_replay_evaluates_in_the_order_the_openings_challenges_are_drawn ... ok
+test private_block::run_capture_tests::the_replay_refuses_a_header_that_is_not_the_verifiers ... ok
+CAPTURE rehearsal rung-K4: L=3, witness=dense (generic), public tables=values, prove+verify+record 2.16 s, high-water mark NaN GiB
+CAPTURE rehearsal rung-K4: run.json 35807 B, stage files [3151826, 3161869, 3717388] B
+CAPTURE rehearsal rung-K4: arrays.bin 13412808 B over 1674 distinct arrays; 1771 references (97 deduplicated), 1817 small arrays inline
+CAPTURE rehearsal rung-K4: segments 13938872 B (pinned by digest, written only with HL_RUN_CAPTURE_SEGMENTS=1)
+test private_block::run_capture_tests::the_run_file_names_the_hash_rule_and_the_rebuilt_header_matched_under_it ... ok
+CAPTURE rehearsal rung-K4: 23482118 B on disk (23.5 MB) in /var/folders/_n/d0ccmygn58183vpm9745yg_40000gn/T/zk60-run-capture-s27-rehearsal-29125/m125-rehearsal, self-consistent, every key on the allow-list, every array reference resolved
+test private_block::run_capture_tests::the_heavy_captures_code_path_works_at_a_development_shape ... ok
+PLANE INDEX TABLE: 22411 B in run.json, run.json 34917 B in all
+test private_block::run_capture_tests::the_plane_index_is_the_same_in_two_independent_bundles ... ok
+W16-PG W16_RUNG_H24 D55 PG-6 capture PASS an honest 3-fork W16 rung D55 run proved on 3 workers and verified; with the recorder attached the verifier ran its forks on 3 worker threads, a per-fork recorder on each replayed its fork from the public header and roots, and the run's recorder replayed the header, S0, the join (from each per-fork recorder's own end state) and the tail on its own transcript; 3 fork stage files and the tail (4 openings) merged; export replay 51 statement tables, 652800 entries (act3_values x3, act_support x3, exp_values x3, fold(w_d) x3, fold(w_g) x3, fold(w_k) x3, fold(w_o) x3, fold(w_q) x3, fold(w_u) x3, fold(w_v) x3, gamma_a x3, gamma_m x3, group_column x3, rope_cos@Kv x3, rope_cos@Q x3, rope_sin@Kv x3, rope_sin@Q x3)
+W16-PG W16_RUNG_H24 D55 PG-7 allow-list (run, every fork, tail) PASS 50304 fields, every one on the allow-list; no forbidden word
+W16-PG W16_RUNG_H24 D55 fork 0 PG-8 masked-claims PASS 114 A and 46 H claims as captured, each on its own reserved pair; 14 histograms and 14 helpers, each read once, by SC_TAB, in (histogram, helper) pairs after the byte / exp / ACT pairs
+W16-PG W16_RUNG_H24 D55 fork 0 PG-9 public-tables PASS 14 range columns and 8 support columns rebuilt from the shape and gamma, byte-equal; SC_TAB statement tables [(1, "exp_values"), (2, "act3_values"), (18, "act_support")]; 45 distinct public tables, none equal to any of 68 non-constant A planes (all 14 range histograms and the byte histogram among them, as the prover fills them; 7 constant planes skipped)
+W16-PG W16_RUNG_H24 D55 fork 0 PG-10 input-independent-shape PASS two hidden inputs: 16388 keys in the same order, the same array and table lengths, every slot's claims and mask pairs, segments [144, 14131368, 14131368, 14131368, 3281008] B; fork 0's hidden inputs differ and 14 of its 14 range histograms differ
+W16-PG W16_RUNG_H24 D55 fork 1 PG-8 masked-claims PASS 114 A and 46 H claims as captured, each on its own reserved pair; 14 histograms and 14 helpers, each read once, by SC_TAB, in (histogram, helper) pairs after the byte / exp / ACT pairs
+W16-PG W16_RUNG_H24 D55 fork 1 PG-9 public-tables PASS 14 range columns and 8 support columns rebuilt from the shape and gamma, byte-equal; SC_TAB statement tables [(1, "exp_values"), (2, "act3_values"), (18, "act_support")]; 45 distinct public tables, none equal to any of 69 non-constant A planes (all 14 range histograms and the byte histogram among them, as the prover fills them; 6 constant planes skipped)
+W16-PG W16_RUNG_H24 D55 fork 1 PG-10 input-independent-shape PASS two hidden inputs: 16388 keys in the same order, the same array and table lengths, every slot's claims and mask pairs, segments [144, 14131368, 14131368, 14131368, 3281008] B; fork 1's hidden inputs differ and 14 of its 14 range histograms differ
+W16-PG W16_RUNG_H24 D55 fork 2 PG-8 masked-claims PASS 114 A and 46 H claims as captured, each on its own reserved pair; 14 histograms and 14 helpers, each read once, by SC_TAB, in (histogram, helper) pairs after the byte / exp / ACT pairs
+W16-PG W16_RUNG_H24 D55 fork 2 PG-9 public-tables PASS 14 range columns and 8 support columns rebuilt from the shape and gamma, byte-equal; SC_TAB statement tables [(1, "exp_values"), (2, "act3_values"), (18, "act_support")]; 45 distinct public tables, none equal to any of 69 non-constant A planes (all 14 range histograms and the byte histogram among them, as the prover fills them; 6 constant planes skipped)
+W16-PG W16_RUNG_H24 D55 fork 2 PG-10 input-independent-shape PASS two hidden inputs: 16388 keys in the same order, the same array and table lengths, every slot's claims and mask pairs, segments [144, 14131368, 14131368, 14131368, 3281008] B; fork 2's hidden inputs differ and 14 of its 14 range histograms differ
+W16-PG W16_RUNG_H24 D55 PG-10 tail input-independent-shape PASS two hidden inputs: the tail's 4526 keys in the same order, the same array and table lengths
+W16-PG W16_RUNG_H24 D55 fork 0 C-2 shared-mask-pair PASS fires: slot 19: two A claims share the mask pair at row 286
+W16-PG W16_RUNG_H24 D55 fork 0 C-3a collapsed-tags PASS fires: range column 0 (1-bit) differs
+W16-PG W16_RUNG_H24 D55 fork 0 C-3b wrong-gamma PASS fires: range column 0 (1-bit) differs
+W16-PG W16_RUNG_H24 D55 fork 0 C-4 planted-histogram PASS fires: a public table of the stage equals the committed A plane 61
+W16-PG W16_RUNG_H24 D55 fork 0 C-5 moved-pair PASS fires: stage 0: slot 0's table descriptors differ
+W16-PG W16_RUNG_H24 D55 fork 0 C-6 off-list-field PASS fires: run.json carries the field "histogram_values", which is not on the capture allow-list
+W16-PG W16_RUNG_H24 D55 C-7a a-block-run-recorder PASS fires: replay: a fork run's commit phase was offered to a block run's recorder
+W16-PG W16_RUNG_H24 D55 C-7b the-base-profile-header PASS fires: replay: the rebuilt run header is not the verifier's binding
+W16-PG VERDICT 20 checks, all PASS
+test private_block::w16_privacy_gate_tests::d55_fork_run_capture_passes_the_w16_gate_checks_at_the_development_rung ... ok
+
+test result: ok. 16 passed; 0 failed; 9 ignored; 0 measured; 920 filtered out; finished in 8.56s
+

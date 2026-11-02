@@ -659,6 +659,88 @@ impl Drop for CheatingProver {
     }
 }
 
+/// **D55 REVIEW F5 (2026-11-01), TEST BUILDS ONLY: every thread-local test
+/// switch that `prove_core` / `verify_core` (and what they call) read, as one
+/// value that can cross a thread boundary.** Each switch is a `thread_local`
+/// so that tests running in parallel never see each other's; the price is
+/// that a prover or verifier on a WORKER thread (the D55 fork pool) sees none
+/// of the calling test's switches, so a ported tamper test would silently run
+/// the honest fork body. A test path that spawns workers captures this on the
+/// calling thread and installs it in each worker ([`ThreadHooks::install`]).
+///
+/// Carried: the CS-3 / CS-6 cheating-prover switch, the moved-multiplicity
+/// hooks (D-8 and F-4), the W16 misfiled range, the D30 lapse bits
+/// (`argument.rs`), the W16 collapsed range tags (`range16.rs`), the forced
+/// legacy hash rule (`shape.rs`) and the timing override (`timing.rs`). Not
+/// carried: the witness builder's hooks (`witness.rs`' dictionary cheat and
+/// `review_d24_tests`' forged softmax), which act where a witness is BUILT,
+/// and a run source builds every witness on the calling thread.
+///
+/// A release build has none of this: the struct, its methods, the guard and
+/// every getter it reads are `#[cfg(test)]`.
+#[cfg(test)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub(crate) struct ThreadHooks {
+    pub cheating_prover: bool,
+    pub dd_moved_multiplicity: Option<(usize, usize)>,
+    pub moved_multiplicity: Option<(usize, usize, usize)>,
+    pub misfiled_range: Option<(u32, u32)>,
+    pub dd_lapse: u8,
+    pub collapsed_range_tags: bool,
+    pub force_legacy_hash_rule: bool,
+    pub timing_force: Option<bool>,
+}
+
+#[cfg(test)]
+impl ThreadHooks {
+    /// this thread's switches, as they stand
+    pub(crate) fn capture() -> ThreadHooks {
+        ThreadHooks {
+            cheating_prover: CHEATING_PROVER.with(|c| c.get()),
+            dd_moved_multiplicity: DD_MOVED_MULTIPLICITY.with(|c| c.get()),
+            moved_multiplicity: MOVED_MULTIPLICITY.with(|c| c.get()),
+            misfiled_range: MISFILED_RANGE.with(|c| c.get()),
+            dd_lapse: super::argument::dd_lapse_bits(),
+            collapsed_range_tags: super::range16::collapsed_range_tags(),
+            force_legacy_hash_rule: super::shape::forced_legacy_hash_rule(),
+            timing_force: super::timing::forced(),
+        }
+    }
+
+    /// Install these switches on THIS thread; the guard puts back what the
+    /// thread held before, on every path.
+    pub(crate) fn install(self) -> ThreadHooksGuard {
+        let was = ThreadHooks::capture();
+        self.set();
+        ThreadHooksGuard { was }
+    }
+
+    fn set(&self) {
+        CHEATING_PROVER.with(|c| c.set(self.cheating_prover));
+        DD_MOVED_MULTIPLICITY.with(|c| c.set(self.dd_moved_multiplicity));
+        MOVED_MULTIPLICITY.with(|c| c.set(self.moved_multiplicity));
+        MISFILED_RANGE.with(|c| c.set(self.misfiled_range));
+        super::argument::set_dd_lapse(self.dd_lapse);
+        super::range16::set_collapsed_range_tags(self.collapsed_range_tags);
+        super::shape::set_force_legacy_hash_rule(self.force_legacy_hash_rule);
+        super::timing::force(self.timing_force);
+    }
+}
+
+/// what [`ThreadHooks::install`] returns: dropping it restores the thread's
+/// own switches (test only)
+#[cfg(test)]
+pub(crate) struct ThreadHooksGuard {
+    was: ThreadHooks,
+}
+
+#[cfg(test)]
+impl Drop for ThreadHooksGuard {
+    fn drop(&mut self) {
+        self.was.set();
+    }
+}
+
 pub(super) fn byte_histogram_at(looked: &[(Dom, Vec<Vec<i64>>)], lookup_words: u64, par_min: u64) -> Vec<u64> {
     let bin = |v: &i64| -> usize {
         if (0..U8_LEN as i64).contains(v) {

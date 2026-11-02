@@ -57,6 +57,13 @@ pub(crate) fn force(v: Option<bool>) {
     FORCE.with(|c| c.set(v));
 }
 
+/// TEST ONLY (D55 review F5): this thread's override, read so that
+/// `protocol::ThreadHooks` can carry it into a worker thread
+#[cfg(test)]
+pub(crate) fn forced() -> Option<bool> {
+    FORCE.with(|c| c.get())
+}
+
 /// Read FRESH every time: a `OnceLock` would make the on/off parity test of
 /// stage 11 unwritable, and the cost is one environment lookup per proof.
 pub(crate) fn enabled() -> bool {

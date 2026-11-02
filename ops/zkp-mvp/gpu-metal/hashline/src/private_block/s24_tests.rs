@@ -50,7 +50,11 @@ fn every_shape() -> Vec<Shape> {
 /// beside the registered profiles rather than skip them: their four keys must
 /// be distinct from every other live key, and s25 prints their hash input
 /// kinds. (D55's fork run profile is in no `shape.rs` / `run.rs` literal: it
-/// is test-only, in `run_fork.rs`, and none of these tests reads it.)
+/// is test-only, in `run_fork.rs`. It is a RUN profile and adds no block
+/// shape and no key — a fork run hashes under its base block shape's four
+/// keys — so this list does not carry it; since D55 review F3 it is its own
+/// transcript constructor domain, and s25's W-2 census and s33's J-7a premise
+/// and lemma read it from `run_fork.rs`.)
 pub(super) fn opt_in_unregistered_shapes() -> Vec<Shape> {
     super::shape::W16_PROFILES.iter().map(|s| super::range16_tests::built(s.profile)).collect()
 }

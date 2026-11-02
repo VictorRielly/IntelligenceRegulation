@@ -58,6 +58,26 @@ fn profile_literals(text: &str) -> Vec<String> {
     out
 }
 
+/// **D55 REVIEW F3 (2026-11-01): the opt-in, UNREGISTERED fork run's profile
+/// strings** — since F3 each is a transcript CONSTRUCTOR domain of its own
+/// (`hashline-v1/` ‖ `run_fork::D55_PROFILE_PREFIX` ‖ the base run profile),
+/// so the premise and the lemma below cover them too. Every base a fork run
+/// can take in this build: every BLOCKS-ONLY run profile of the source
+/// registry (the door refuses token-I/O and classifier runs) and W16's
+/// test-only run identities (the A/B's base). Not part of the registry (no
+/// literal in `shape.rs` / `run.rs`), so kept apart from [`registry_profiles`].
+fn d55_profiles() -> Vec<String> {
+    let mut bases: Vec<String> = registry_profiles()
+        .into_iter()
+        .filter(|p| p.contains("/private-run-") && !super::run::TOKEN_IO_RUN_PROFILES.contains(&p.as_str()) && !super::run::is_classify_run_profile(p))
+        .collect();
+    bases.extend(super::w16_privacy_gate_tests::W16_TEST_RUN_PROFILES.iter().map(|(r, _)| r.to_string()));
+    let mut v: Vec<String> = bases.iter().map(|b| super::run::fork::d55_profile_of(b)).collect();
+    v.sort();
+    v.dedup();
+    v
+}
+
 /// The whole registry as STRINGS, read out of the two source files that hold
 /// it, so a profile added to `shape.rs` or `run.rs` is covered here whether or
 /// not anyone remembers this file.
@@ -163,6 +183,13 @@ fn every_registered_profile_context_and_label_is_printable_ascii_with_no_nul() {
 
     // ---- every string that is hashed as a fixed literal on the path
     let mut strings: Vec<(String, String)> = built.iter().map(|p| (format!("profile `{p}`"), p.clone())).collect();
+    // D55 REVIEW F3: the opt-in fork run's own constructor domains (the
+    // prefix and every base it can take), and its own transcript labels
+    let d55 = d55_profiles();
+    let n_d55 = d55.len();
+    assert!(n_d55 > 0, "no D55 profile string was formed");
+    strings.extend(d55.iter().map(|p| (format!("the D55 fork run's profile `{p}`"), p.clone())));
+    strings.extend(super::run::fork::D55_LABELS.iter().map(|(l, _)| (format!("the D55 fork run's transcript label `{l}`"), l.to_string())));
     for (role, ctx) in [
         ("transcript", zkp_core::hashtag::CTX_TRANSCRIPT),
         ("column", zkp_core::hashtag::CTX_COLUMN),
@@ -195,7 +222,7 @@ fn every_registered_profile_context_and_label_is_printable_ascii_with_no_nul() {
         }
         assert!(!s.as_bytes().contains(&0u8), "{what} contains a NUL byte");
     }
-    eprintln!("S33 J-7a: {} literals checked printable ASCII with no NUL — {n_profiles} registered profiles, 4 derive_key contexts, {n_labels} transcript labels, 2 fixed transcript literals", strings.len());
+    eprintln!("S33 J-7a: {} literals checked printable ASCII with no NUL — {n_profiles} registered profiles, 4 derive_key contexts, {n_labels} transcript labels, 2 fixed transcript literals; and (D55 review F3) {n_d55} opt-in D55 fork-run profile strings and its {} own labels", strings.len(), super::run::fork::D55_LABELS.len());
 }
 
 /// **THE CONTROL THAT MAKES THE PREMISE TEST BITE.** A premise that holds
@@ -243,8 +270,13 @@ fn the_ascii_premise_check_rejects_a_profile_with_a_nul_or_a_non_ascii_byte() {
 /// The test reports the worst case it finds; the ledger records it.
 #[test]
 fn no_transcript_constructor_input_can_equal_an_absorb_input_of_the_same_length() {
-    let profiles = registry_profiles();
+    let mut profiles = registry_profiles();
     assert!(!profiles.is_empty(), "the registry is empty");
+    // D55 REVIEW F3 (2026-11-01): every opt-in fork run constructor domain
+    // too (each `hashline-v1/` ‖ the D55 profile string since F3)
+    let n_registry = profiles.len();
+    profiles.extend(d55_profiles());
+    eprintln!("    (the lemma below covers {n_registry} registry profiles and {} D55 fork-run constructor domains)", profiles.len() - n_registry);
     let mut worst = usize::MAX;
     let mut worst_at = String::new();
     let mut layouts_total = 0usize;
@@ -278,7 +310,7 @@ fn no_transcript_constructor_input_can_equal_an_absorb_input_of_the_same_length(
             worst_at = p.clone();
         }
     }
-    eprintln!("S33 J-7a lemma: {} registered profiles, {layouts_total} absorb layouts, EVERY one separated; the thinnest is {worst} forced-NUL positions at `{worst_at}`", profiles.len());
+    eprintln!("S33 J-7a lemma: {} profiles ({n_registry} of the registry, {} D55 fork-run constructor domains), {layouts_total} absorb layouts, EVERY one separated; the thinnest is {worst} forced-NUL positions at `{worst_at}`", profiles.len(), profiles.len() - n_registry);
     assert!(worst >= 1, "some profile length has a layout with no separating position");
 }
 

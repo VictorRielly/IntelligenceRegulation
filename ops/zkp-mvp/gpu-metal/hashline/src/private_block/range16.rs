@@ -88,6 +88,20 @@ impl Drop for CollapsedRangeTags {
     }
 }
 
+/// TEST ONLY (D55 review F5): this thread's collapsed-tag switch, read so that
+/// `protocol::ThreadHooks` can carry it into a worker thread
+#[cfg(test)]
+pub(crate) fn collapsed_range_tags() -> bool {
+    COLLAPSED_TAGS.with(|c| c.get())
+}
+
+/// TEST ONLY (D55 review F5): set this thread's collapsed-tag switch (the
+/// install half of `protocol::ThreadHooks`; a test uses the guard above)
+#[cfg(test)]
+pub(crate) fn set_collapsed_range_tags(v: bool) {
+    COLLAPSED_TAGS.with(|c| c.set(v));
+}
+
 /// the fold constant of one lookup's tag
 pub(crate) fn g_of(tag: LkTag, g_u8: Fp2) -> Fp2 {
     match tag {

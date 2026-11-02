@@ -20,6 +20,18 @@
 //!   position tags and then with forged honest tags (so the rejection comes
 //!   from the Fiat-Shamir chain itself); a claim neither joined nor opened is
 //!   refused by the prover's own boundary audit.
+//! * **D55 review F2**: a fork-index swap of two forks that carry the SAME
+//!   block is rejected, and VERIFIES under the mutation that drops the index
+//!   from the derivation — so the index, and nothing else, separates them.
+//! * **D55 review F1**: FALSE statements through the fork path, at the rung-G
+//!   development run (`L = 3`, D12a's own harness): the headline negative
+//!   test at the interior boundary `B_1` (both variants) and all twenty-seven
+//!   single-block tamper families on the interior fork, each REJECTED by
+//!   `verify_run_with_forks` while the (cheating) prover makes the receipt;
+//!   and the F5 control that the CS-3 switch really reaches the fork worker.
+//! * **F3 / F4 / F5** in every honest proof's stats: `L + 1` generators, the
+//!   calling thread's switches in every fork, the joined claim lists at the
+//!   census formula's length.
 //!
 //! The `#[ignore]`d `d55_ab_one_request_serial_against_forks` is the A/B: one
 //! request, W16 8B T128 at its true geometry with synthetic (diagonal) public
@@ -126,7 +138,22 @@ fn rung(l: usize, context: u8) -> Rung {
 
 fn prove_forks(r: &mut Rung, workers: usize) -> (ForkReceipt, ForkStats) {
     let fr = ForkRun::new(&r.st, D55OptIn::unreviewed_prototype()).unwrap();
-    prove_run_with_forks(&fr, &r.blocks, &mut r.src, r.owners.take().unwrap(), workers, ForkRandomness::Os).expect("the honest D55 fork run proves")
+    let (rc, stats) = prove_run_with_forks(&fr, &r.blocks, &mut r.src, r.owners.take().unwrap(), workers).expect("the honest D55 fork run proves");
+    honest_stats_hold(&r.st, &stats);
+    (rc, stats)
+}
+
+/// What every honest proof's stats must say (D55 review F3, F4, F5): `L + 1`
+/// generators; every fork's worker held exactly the calling thread's test
+/// switches; every joined claim list is the census formula's length.
+fn honest_stats_hold(st: &RunStatement, stats: &ForkStats) {
+    let l = st.rs().l();
+    assert_eq!(stats.generators, l + 1, "an L{l} fork run did not construct exactly L + 1 generators (F4)");
+    let here = ForkHooks::capture();
+    assert_eq!(stats.fork_hooks.len(), l, "not every fork reported its switches (F5)");
+    assert!(stats.fork_hooks.iter().all(|h| *h == here), "a fork worker did not hold the calling thread's switches (F5): {:?} against {here:?}", stats.fork_hooks);
+    let want = io_claim_list_len(st.rs().sh());
+    assert!(stats.join_claim_bytes.iter().all(|c| *c == [want, want]), "a joined claim list is not the census formula's {want} bytes (F3): {:?}", stats.join_claim_bytes);
 }
 
 fn flipped(v: &[u8]) -> Vec<u8> {
@@ -196,6 +223,29 @@ fn d55_the_d12a_run_is_unchanged_and_the_two_profiles_do_not_cross() {
     let fra = ForkRun::new(&a.st, D55OptIn::unreviewed_prototype()).unwrap();
     eprintln!("D55 | census | {}", fra.census().unwrap());
     assert_ne!(fra.binding().unwrap(), a.st.binding().unwrap(), "the fork profile shares D12a's run binding");
+    // F3: the fork run's header is D12a's six absorbs under its OWN
+    // constructor — rebuilt here from the public words under the D55 profile
+    // string it is the binding, and under the base profile string it is not
+    assert_eq!(fra.profile(), d55_profile_of(a.st.rs().profile()), "the D55 profile string is not the prefix and the base");
+    assert_ne!(fra.profile(), a.st.rs().profile());
+    let header_under = |domain: &str| -> Digest {
+        let st = &a.st;
+        let sh = &st.rs.sh;
+        let mut tr = protocol::tagged_transcript(sh, domain.as_bytes());
+        let mut shape_bytes = Vec::new();
+        for v in [st.rs.l, sh.tokens, sh.width, sh.hidden, sh.q_heads, sh.kv_heads, sh.head_dim] {
+            shape_bytes.extend_from_slice(&(v as u64).to_le_bytes());
+        }
+        tr.absorb(b"run-shape", &shape_bytes);
+        tr.absorb(b"expected-IO", &st.expected.to_bytes());
+        tr.absorb(b"public-statement", &st.public_statement());
+        tr.absorb(b"parameters", fra.parameter_line().unwrap().as_bytes());
+        tr.absorb(b"calibration", &st.calibration);
+        tr.absorb(b"schedule", &fra.schedule_digest().unwrap());
+        tr.state()
+    };
+    assert_eq!(header_under(fra.profile()), fra.binding().unwrap(), "the fork run's transcript is not constructed under its own D55 profile string (F3)");
+    assert_ne!(header_under(a.st.rs().profile()), fra.binding().unwrap(), "the fork run's transcript is constructed under the BASE profile string (F3)");
     let (pl_a, pl_f) = (a.st.parameter_line().unwrap(), fra.parameter_line().unwrap());
     assert!(pl_a.ends_with("/one-run-one-transcript") && pl_f.ends_with("/d55-commit-fork-join-prototype-unregistered"), "{pl_a} / {pl_f}");
     assert_eq!(pl_a.strip_suffix("/one-run-one-transcript"), pl_f.strip_suffix("/d55-commit-fork-join-prototype-unregistered"), "the fork line moved more than its construction clause");
@@ -299,6 +349,264 @@ fn d55_swapped_fork_frames_are_rejected() {
     let e = verify_run_with_forks(&fr, &r.blocks, &rc, 3).err().expect("SWAPPED FORK FRAMES VERIFIED");
     assert!(e.contains("fork 0"), "{e}");
     eprintln!("D55 | swapped frames | REJECTED: {e}");
+}
+
+/// **Control 1b (D55 review F2): a fork-index swap of two forks that carry
+/// the SAME block.** At this rung stages 0 and 2 are both layer 0's block,
+/// so the two forks' block digests are equal and the index is the only thing
+/// that separates their derivations. With forged tags the swap is REJECTED by
+/// the chain. Then the MUTATION the review names — the index dropped from the
+/// fork derivation on both sides ([`DropForkIndex`], carried into every
+/// worker by the F5 hooks) — makes the very same cheat VERIFY, so this
+/// control is the one that shows the index is in the derivation; and under
+/// that mutation a swap of two forks with DIFFERENT blocks (1 and 2) is still
+/// rejected, by the digest.
+#[test]
+fn d55_control_a_same_block_fork_swap_is_caught_only_by_the_index() {
+    let t = ForkTamper::ForkIndexSwap { a: 0, b: 2 };
+    let mut r = rung(3, 111);
+    assert_eq!(r.st.block_digests[0], r.st.block_digests[2], "forks 0 and 2 do not carry the same block, so this control would not isolate the index");
+    assert_ne!(r.st.block_digests[1], r.st.block_digests[2]);
+    let fr = ForkRun::new(&r.st, D55OptIn::unreviewed_prototype()).unwrap();
+    let (rc, _) = prove_run_with_forks_tampered(&fr, &r.blocks, &mut r.src, r.owners.take().unwrap(), 3, t, true).expect("the cheating prover made a receipt");
+    let e = verify_run_with_forks(&fr, &r.blocks, &rc, 3).err().unwrap_or_else(|| panic!("THE SAME-BLOCK FORK SWAP {t:?} (forged tags) VERIFIED"));
+    assert!(e.contains("fork 0"), "{e}");
+    not_a_tag_refusal(t, &e);
+    eprintln!("D55 CONTROL | {t:?} (one block at both forks) | forged tags true | REJECTED: {e}");
+    // the mutation: no index in the derivation, prover and verifier alike
+    let _m = DropForkIndex::on();
+    let mut r = rung(3, 112);
+    let fr = ForkRun::new(&r.st, D55OptIn::unreviewed_prototype()).unwrap();
+    let (rc, stats) = prove_run_with_forks_tampered(&fr, &r.blocks, &mut r.src, r.owners.take().unwrap(), 3, t, true).expect("the cheating prover made a receipt");
+    assert!(stats.fork_hooks.iter().all(|h| h.drop_fork_index), "the mutation did not reach every fork worker (F5)");
+    verify_run_with_forks(&fr, &r.blocks, &rc, 3).unwrap_or_else(|e| panic!("under a derivation WITHOUT the index the same-block swap is still rejected ({e}), so this control does not isolate the index"));
+    eprintln!("D55 CONTROL | {t:?} | the index dropped from the derivation (mutation) | VERIFIES — the control fails as it must: only the index separates two forks of one block");
+    let t2 = ForkTamper::ForkIndexSwap { a: 1, b: 2 };
+    let mut r = rung(3, 113);
+    let fr = ForkRun::new(&r.st, D55OptIn::unreviewed_prototype()).unwrap();
+    let (rc, _) = prove_run_with_forks_tampered(&fr, &r.blocks, &mut r.src, r.owners.take().unwrap(), 3, t2, true).expect("the cheating prover made a receipt");
+    let e = verify_run_with_forks(&fr, &r.blocks, &rc, 3).err().unwrap_or_else(|| panic!("UNDER THE MUTATION THE DIFFERENT-BLOCK SWAP {t2:?} VERIFIED"));
+    assert!(e.contains("fork 1"), "{e}");
+    eprintln!("D55 CONTROL | {t2:?} (two different blocks) | the index dropped (mutation) | REJECTED by the digest: {e}");
+}
+
+// ------------------------------------------------------------------ F1: false statements through the fork path
+
+/// **D55 review F1: the rung-G development run's private side**, kept as
+/// D12a's `run_tests::Chain` keeps it (that harness is private to its own
+/// module, so this is the same few lines): `inputs[k]` is block `k`'s true
+/// hidden input, `planes` holds the `L + 1` padded planes (the external
+/// input, the `L - 1` boundaries, the external output), and a tamper
+/// `(block, plane, position, delta)` is applied to that block's witness
+/// after it is built. Every negative case is one deliberate disagreement
+/// between the two lists, or one tampered witness word.
+struct GChain {
+    sh: crate::private_block::shape::Shape,
+    public: crate::private_block::AttentionPublic,
+    ff: crate::private_block::FeedForwardPublic,
+    inputs: Vec<Vec<i16>>,
+    planes: Vec<Vec<i16>>,
+    tamper: Option<(usize, usize, usize, i64)>,
+}
+
+fn g_padded(w: &Witness, plane: usize) -> Vec<i16> {
+    w.planes[plane].iter().map(|v| i16::try_from(*v).expect("a plane word outside int16")).collect()
+}
+
+fn g_true_input(sh: &crate::private_block::shape::Shape, plane: &[i16]) -> Vec<i16> {
+    (0..sh.tokens).flat_map(|t| plane[t * sh.d_pad..t * sh.d_pad + sh.width].to_vec()).collect()
+}
+
+impl GChain {
+    /// the honest `l`-block chain from the rung's tame fixture
+    fn honest(l: usize) -> GChain {
+        let sh = crate::private_block::shape::Shape::rung_g();
+        let (public, ff, x0) = crate::private_block::grow_tests::tame_case(&sh);
+        let ids = Ids::new(&sh).expect("the rung-G plane map");
+        let (mut inputs, mut planes, mut x) = (Vec::new(), Vec::new(), x0);
+        for k in 0..l {
+            let w = witness::build_shaped(&sh, &public, &ff, &x).expect("an honest witness of the chain");
+            if k == 0 {
+                planes.push(g_padded(&w, ids.at(A_X)));
+            }
+            planes.push(g_padded(&w, ids.at(crate::private_block::layout::A_X2)));
+            inputs.push(x);
+            x = g_true_input(&sh, &w.output().expect("the block's hidden output"));
+        }
+        GChain { sh, public, ff, inputs, planes, tamper: None }
+    }
+    /// rebuild `planes[k+1 ..]` from `inputs[k]` (everything downstream of a
+    /// changed input honest again)
+    fn rechain_from(&mut self, k: usize) {
+        let ids = Ids::new(&self.sh).expect("the rung-G plane map");
+        let mut x = self.inputs[k].clone();
+        for j in k..self.inputs.len() {
+            let w = witness::build_shaped(&self.sh, &self.public, &self.ff, &x).expect("an honest witness of the chain");
+            self.inputs[j] = x;
+            self.planes[j + 1] = g_padded(&w, ids.at(crate::private_block::layout::A_X2));
+            x = g_true_input(&self.sh, &w.output().expect("the block's hidden output"));
+        }
+    }
+    fn blocks(&self) -> Vec<BlockPublic> {
+        (0..self.inputs.len()).map(|_| BlockPublic::new(self.public.clone(), self.ff.clone())).collect()
+    }
+    /// the rung-G run statement of this chain's planes, and its endpoint owners
+    fn statement(&self, context: u8) -> (RunStatement, Endpoints) {
+        let l = self.inputs.len();
+        let ctx = [context; 32];
+        let spec = IoSpec::new_shaped(&self.sh, ctx, 0, 0).expect("the run's endpoint spec");
+        let (expected, owners) = prepare_endpoints(spec, &self.planes[0], &self.planes[l]).expect("the run's external endpoint owners");
+        let st = RunStatement::new(RunShape::rung_g(l).expect("the rung-G run shape"), ctx, expected, &self.blocks(), &vec![(0, 0); l]).expect("the run statement");
+        (st, owners)
+    }
+}
+
+impl RunWitnessSource for GChain {
+    fn witness(&mut self, k: usize) -> Result<Witness, String> {
+        let mut w = witness::build_shaped(&self.sh, &self.public, &self.ff, &self.inputs[k])?;
+        if let Some((blk, plane, at, delta)) = self.tamper {
+            if blk == k {
+                w.planes[plane][at] += delta;
+            }
+        }
+        Ok(w)
+    }
+    fn boundary_plane(&mut self, k: usize) -> Result<Vec<i16>, String> {
+        Ok(self.planes[k + 1].clone())
+    }
+}
+
+/// prove a rung-G chain as a D55 fork run on `workers` workers (a cheating
+/// prover: no honest check of the chain, as D12a's negative tests), then
+/// verify it on three threads; `Err` is the PROVER's refusal, `Ok` the
+/// verifier's verdict and the stats
+fn g_fork_run(c: &mut GChain, context: u8, workers: usize) -> Result<(Result<(), String>, ForkStats), String> {
+    let (st, owners) = c.statement(context);
+    let blocks = c.blocks();
+    let fr = ForkRun::new(&st, D55OptIn::unreviewed_prototype())?;
+    let (rc, stats) = prove_run_with_forks(&fr, &blocks, c, owners, workers)?;
+    Ok((verify_run_with_forks(&fr, &blocks, &rc, 3), stats))
+}
+
+/// **THE HEADLINE NEGATIVE TEST, PORTED TO THE FORK PATH (D55 review F1).**
+/// D12a's `the_headline_negative_test_a_second_block_on_another_input_is_rejected_by_the_verifier`
+/// at an INTERIOR boundary of an `L = 3` rung-G run, the forks on two and on
+/// three workers. First the honest chain verifies (so the rejections below
+/// are about the change and nothing else), then both variants, which fail at
+/// different slots of different forks:
+///
+/// (i) `B_1` moved, at a true support position: block 2 is rebuilt on what
+///     `B_1` holds and everything downstream is honest, so only block 1's
+///     outgoing equality (fork 1, slot 22, `IO-out`) can object;
+/// (ii) block 2 run on something other than block 1's output, `B_1` keeping
+///     block 1's TRUE output: block 2's incoming equality (fork 2, slot 21,
+///     `IO-in`) objects.
+///
+/// In both the PROVER succeeds; only a refusal by `verify_run_with_forks` is
+/// a soundness statement (finding F-8's rule), and "the PROVER refused" fails
+/// the test.
+#[test]
+fn d55_the_headline_negative_test_a_block_on_another_input_is_rejected_through_the_fork_path() {
+    let mut honest = GChain::honest(3);
+    let (v, stats) = g_fork_run(&mut honest, 120, 3).expect("the honest rung-G fork run proves");
+    v.unwrap_or_else(|e| panic!("the honest L3 rung-G fork run does not verify: {e}"));
+    assert_eq!(stats.generators, 4);
+    for (variant, workers, fork, slot, context) in [
+        ("(i) B_1 moved: block 1's output is not what the boundary holds", 2usize, "fork 1", "IO-out", 121u8),
+        ("(ii) block 2 run on something other than block 1's output", 3, "fork 2", "IO-in", 122),
+    ] {
+        let mut c = GChain::honest(3);
+        let honest_b1 = c.planes[2].clone();
+        if variant.starts_with("(i)") {
+            c.planes[2][0] += 1;
+            c.inputs[2] = g_true_input(&c.sh, &c.planes[2]);
+            c.rechain_from(2);
+            assert_ne!(c.planes[2], honest_b1);
+        } else {
+            c.inputs[2][0] += 1;
+            c.rechain_from(2);
+            assert_eq!(c.planes[2], honest_b1, "variant (ii) must keep B_1 at block 1's true output");
+        }
+        let (v, _) = match g_fork_run(&mut c, context, workers) {
+            Err(e) => panic!("{variant}: the PROVER refused, so this case says nothing about the verifier: {e}"),
+            Ok(v) => v,
+        };
+        let e = v.err().unwrap_or_else(|| panic!("{variant}: A FORK RUN WHOSE BLOCKS ARE NOT CHAINED VERIFIED"));
+        assert!(e.contains(fork) && e.contains(slot), "{variant}: expected {fork}'s {slot} slot to object, got: {e}");
+        eprintln!("D55 F1 HEADLINE | {variant} | {workers} prover workers | REJECTED by the verifier: {e}");
+    }
+}
+
+/// **EVERY SINGLE-BLOCK TAMPER FAMILY, ON AN INTERIOR FORK (D55 review F1).**
+/// D12a's `every_single_block_tamper_family_is_still_rejected_inside_a_run`,
+/// its twenty-seven families on a true support position, applied to block 1
+/// of an `L = 3` rung-G fork run — the fork with a boundary on both sides —
+/// with every fork on its own worker. The prover is a cheating prover (CS-3's
+/// switch on, which the F5 hooks carry into the worker that proves fork 1:
+/// the stats must show it there, or the case says nothing); it must make the
+/// receipt, and `verify_run_with_forks` must refuse it.
+///
+/// And the F5 control: the one family the honest CS-3 check refuses (a byte
+/// limb of 300) is proved again with the switch OFF, and the fork prover on
+/// its worker refuses it by CS-3's name. So the check really runs inside the
+/// fork, and the switch the cheating cases rely on really reached it.
+#[test]
+fn d55_every_single_block_tamper_family_is_rejected_on_an_interior_fork() {
+    use crate::private_block::layout::*;
+    let sh = crate::private_block::shape::Shape::rung_g();
+    let ids = Ids::new(&sh).expect("the rung-G plane map");
+    // the F5 control first, with no switch on this thread
+    {
+        let mut c = GChain::honest(3);
+        c.tamper = Some((1, ids.at(A_LIMB), 0, 300));
+        let e = g_fork_run(&mut c, 130, 3).err().expect("WITHOUT THE CHEATING SWITCH THE FORK PROVER MADE A RECEIPT FOR A LOOKUP MISS");
+        assert!(e.contains("fork 1") && e.contains(crate::private_block::protocol::LOOKUP_MISS_REFUSAL), "{e}");
+        eprintln!("D55 F1 TAMPER | a norm_a byte limb (300) in block 1, NO cheating switch | REFUSED BY THE FORK PROVER on its worker: {}", e.chars().take(160).collect::<String>());
+    }
+    let cases: Vec<(&str, usize, i64)> = vec![
+        ("the norm_a denominator", ids.at(A_D), 1),
+        ("a norm_a byte limb", ids.at(A_LIMB), 300),
+        ("the norm_a quotient", ids.at(A_Y), 1),
+        ("residual 1", ids.at(A_X1), 1),
+        ("the input plane", ids.at(A_X), 1),
+        ("an int16 byte limb of x", ids.at(A_XL0), 300),
+        ("the Q projection", ids.at(A_Q8), 1),
+        ("the rotated query", ids.at(A_QR8), 1),
+        ("the K projection", ids.at(A_K8), 1),
+        ("the V projection", ids.at(A_V8), 1),
+        ("the score", ids.at(A_S8), 1),
+        ("the row maximum", ids.at(A_MX), 1),
+        ("the exp value", ids.at(A_E), 1),
+        ("the softmax quotient", ids.at(A_P), 1),
+        ("the output projection", ids.at(A_O8), 1),
+        ("the attention output", ids.at(A_AO), 1),
+        ("a biased attention remainder", ids.at(A_RAL), 1),
+        ("the norm_m denominator", ids.at(A_DM), 1),
+        ("a norm_m byte limb", ids.at(A_LIMBM), 300),
+        ("the norm_m quotient", ids.at(A_YM), 1),
+        ("the gate output", ids.at(A_G8), 1),
+        ("a biased gate remainder", ids.at(A_RGL), 1),
+        ("the activation value", ids.at(A_A16), 1),
+        ("the up output", ids.at(A_U16), 1),
+        ("the gate-up product", ids.at(A_H16), 1),
+        ("the feed-forward output", ids.at(A_Z16), 1),
+        ("residual 2", ids.at(A_X2), 1),
+    ];
+    let _cheating = crate::private_block::protocol::CheatingProver::on();
+    let mut in_fork_1 = 0usize;
+    for (i, (name, plane, delta)) in cases.iter().enumerate() {
+        let mut c = GChain::honest(3);
+        c.tamper = Some((1, *plane, 0, *delta));
+        let (v, stats) = match g_fork_run(&mut c, 131 + i as u8, 3) {
+            Err(e) => panic!("{name} in block 1: the PROVER refused, so this case says nothing about the verifier: {e}"),
+            Ok(v) => v,
+        };
+        assert!(stats.fork_hooks.iter().all(|h| h.block.cheating_prover), "{name}: the cheating switch did not reach every fork worker (F5): {:?}", stats.fork_hooks);
+        let e = v.err().unwrap_or_else(|| panic!("{name} in block 1 of a fork run: A TAMPERED FORK RUN VERIFIED"));
+        in_fork_1 += usize::from(e.contains("fork 1"));
+        eprintln!("D55 F1 TAMPER | {name} in block 1 (interior fork) | REJECTED by the verifier: {e}");
+    }
+    eprintln!("D55 F1 TAMPER | all {} families rejected by verify_run_with_forks, {in_fork_1} of them inside fork 1's own verify_core", cases.len());
 }
 
 // ------------------------------------------------------------------ the A/B
@@ -437,7 +745,7 @@ fn d55_ab_one_request_serial_against_forks() {
         let (st, owners) = statement(ctx);
         let fr = ForkRun::new(&st, D55OptIn::unreviewed_prototype()).unwrap();
         let t = Instant::now();
-        let (rc, stats) = prove_run_with_forks(&fr, &rep, &mut src, owners, n, ForkRandomness::Os).expect("the D55 fork run proves");
+        let (rc, stats) = prove_run_with_forks(&fr, &rep, &mut src, owners, n).expect("the D55 fork run proves");
         let wall = t.elapsed().as_secs_f64();
         if verify {
             let tv = Instant::now();

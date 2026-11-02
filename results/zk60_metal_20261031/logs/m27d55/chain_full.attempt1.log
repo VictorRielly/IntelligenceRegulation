@@ -1,0 +1,51 @@
+== build 21:20:42
+[zk60-guard 21:20:43] START m27d55-build class=build need=4G cap=10G enforce=watchdog-only waited=0s run=0e1aa8b7fe30
+[zk60-guard 21:22:59] END m27d55-build exit=0 child_wall=137s peak_rss=3.51G min_avail=231.88G
+134
+B=/Users/victorrielly/IntelligenceRegulation/ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-a90b6cf7715dc2a7
+-rwxr-xr-x  1 victorrielly  staff  18389744 Nov  1 21:22 /Users/victorrielly/IntelligenceRegulation/ops/zkp-mvp/gpu-metal/hashline/target/release/deps/hashline-a90b6cf7715dc2a7
+== scans 21:23:04
+[zk60-guard 21:23:04] START m27d55-scans class=cpu need=4G cap=20G enforce=watchdog-only waited=0s run=7340b4698380
+[zk60-guard 21:23:40] END m27d55-scans exit=0 child_wall=36s peak_rss=4.90G min_avail=230.65G
+test result: ok. 58 passed; 0 failed; 0 ignored; 0 measured; 887 filtered out; finished in 35.46s
+[zk60-guard 21:23:40] START m27d55-scans-print class=cpu need=4G cap=20G enforce=watchdog-only waited=0s run=033a684e8813
+[zk60-guard 21:24:41] END m27d55-scans-print exit=0 child_wall=61s peak_rss=4.69G min_avail=231.00G
+S24 C-3 [development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)]: 6 hosts, 12 hosted claims, every private slot hosted exactly once
+S24 C-3 [development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)]: 6 hosts, 12 hosted claims, every private slot hosted exactly once
+S24 C-3 [development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)]: 6 hosts, 12 hosted claims, every private slot hosted exactly once
+S24 C-3 [development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads)]: 6 hosts, 12 hosted claims, every private slot hosted exactly once
+S24 C-3 [development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads)]: 6 hosts, 12 hosted claims, every private slot hosted exactly once
+S24 C-3 [development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads)]: 6 hosts, 12 hosted claims, every private slot hosted exactly once
+S24 C-3 [development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads)]: 6 hosts, 12 hosted claims, every private slot hosted exactly once
+S24 C-3 [125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)]: 6 hosts, 12 hosted claims, every private slot hosted exactly once
+S24 C-7 [development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)]: 75 evaluations, all zero; with only the public tables zeroed 0 slot(s) survive (none), so the mechanism is a public factor in every monomial
+S24 C-7 [development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)]: 75 evaluations, all zero; with only the public tables zeroed 0 slot(s) survive (none), so the mechanism is a public factor in every monomial
+S24 C-7 [development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)]: 75 evaluations, all zero; with only the public tables zeroed 0 slot(s) survive (none), so the mechanism is a public factor in every monomial
+S24 C-7 [development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads)]: 75 evaluations, all zero; with only the public tables zeroed 0 slot(s) survive (none), so the mechanism is a public factor in every monomial
+S24 C-7 [development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads)]: 75 evaluations, all zero; with only the public tables zeroed 0 slot(s) survive (none), so the mechanism is a public factor in every monomial
+S24 C-7 [development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads)]: 75 evaluations, all zero; with only the public tables zeroed 0 slot(s) survive (none), so the mechanism is a public factor in every monomial
+S24 C-7 [development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads)]: 75 evaluations, all zero; with only the public tables zeroed 0 slot(s) survive (none), so the mechanism is a public factor in every monomial
+S24 C-7 [125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)]: 75 evaluations, all zero; with only the public tables zeroed 0 slot(s) survive (none), so the mechanism is a public factor in every monomial
+S24 C-4 [development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)]: the longest mask is slot 17 [06 softmax zero-check (hosts 07, 10)] at 72 + 256 = 328 of 512
+S24 C-4 [development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)]: the longest mask is slot 17 [06 softmax zero-check (hosts 07, 10)] at 72 + 256 = 328 of 512
+S24 C-4 [development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)]: the longest mask is slot 17 [06 softmax zero-check (hosts 07, 10)] at 77 + 256 = 333 of 512
+S24 C-4 [development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads)]: the longest mask is slot 17 [06 softmax zero-check (hosts 07, 10)] at 77 + 256 = 333 of 512
+S24 C-4 [development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads)]: the longest mask is slot 14 [03 D zero-check (hosts 12, 13D)] at 77 + 256 = 333 of 512
+S24 C-4 [development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads)]: the longest mask is slot 14 [03 D zero-check (hosts 12, 13D)] at 87 + 256 = 343 of 512
+S24 C-4 [development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads)]: the longest mask is slot 14 [03 D zero-check (hosts 12, 13D)] at 82 + 256 = 338 of 512
+S24 C-4 [125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)]: the longest mask is slot 17 [06 softmax zero-check (hosts 07, 10)] at 117 + 256 = 373 of 512
+S24 C-2 [development rung (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)]: slots 15 and 16 each raise two claims on one plane, differing at coordinate log-4 inside the last 10 of the point
+S24 C-2 [development rung, generalised endpoint (T24 / d96 / f192, 6 heads of 16 over 2 KV heads)]: slots 15 and 16 each raise two claims on one plane, differing at coordinate log-4 inside the last 10 of the point
+S24 C-2 [development rung, four key-value heads (T24 / d96 / f192, 12 heads of 8 over 4 KV heads)]: slots 15 and 16 each raise two claims on one plane, differing at coordinate log-3 inside the last 10 of the point
+S24 C-2 [development rung, both pad branches (T32 / d96 / f256, 12 heads of 8 over 4 KV heads)]: slots 15 and 16 each raise two claims on one plane, differing at coordinate log-3 inside the last 10 of the point
+S24 C-2 [development rung, full top norm byte (T32 / d384 / f512, 12 heads of 32 over 4 KV heads)]: slots 15 and 16 each raise two claims on one plane, differing at coordinate log-5 inside the last 10 of the point
+S24 C-2 [development rung, the 125M row width (T64 / d768 / f1024, 12 heads of 64 over 4 KV heads)]: slots 15 and 16 each raise two claims on one plane, differing at coordinate log-6 inside the last 14 of the point
+S24 C-2 [development rung, the 125M endpoint row count (T32 / d768 / f1024, 12 heads of 64 over 4 KV heads)]: slots 15 and 16 each raise two claims on one plane, differing at coordinate log-6 inside the last 10 of the point
+S24 C-2 [125M private block (T512 / d768 / f2048, 12 heads of 64 over 4 KV heads)]: slots 15 and 16 each raise two claims on one plane, differing at coordinate log-6 inside the last 14 of the point
+S25 W-2: 103 profiles, 10933 hash input kinds, 2777 pairs within one byte, 10 declared equal-length pairs
+S25 W-2 D55: the opt-in, unregistered fork run measured over 73 base run statements, each under its own constructor and held to the same per-function rule (one declared pair of its own: pb-fork-s0 / pb-fork-s1)
+S25 W-8(7) D55: the opt-in fork run's two generator sites are both `ZkRng::from_os` — src/private_block/run_fork.rs:719 in `ForkCtx::prove_one` (ONE per fork, built in its worker) and src/private_block/run_fork.rs:776 in `prove_forks_inner` (ONE for the commit phase, on the calling thread): L + 1 OS generators per run, none seeded, no ZkConfig
+S25 W-8(5) D55 (amended for the opt-in fork run): ONE from_os generator per prover thread — the commit phase's in prove_forks_inner (dropped before PHASE 2) and each fork's in ForkCtx::prove_one (built in its worker) — each handed on by &mut, none cloned, the workers' shared context carries none: L + 1 per run
+S33 J-7a lemma: 122 profiles (85 of the registry, 37 D55 fork-run constructor domains), 5291 absorb layouts, EVERY one separated; the thinnest is 14 forced-NUL positions at `hashline-zk-mr1/private-block-llama-3-8b-t128-ddict32/1`
+test result: ok. 58 passed; 0 failed; 0 ignored; 0 measured; 887 filtered out; finished in 60.83s
+A D55 SCAN LINE IS MISSING: ^D55 F3 label scan:

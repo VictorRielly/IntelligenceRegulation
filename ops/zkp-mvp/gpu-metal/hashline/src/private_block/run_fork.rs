@@ -39,28 +39,157 @@
 //!
 //! The verifier mirrors it, verifying the forks on a pool of threads.
 //!
+//! **The independent review's findings F1–F5 (2026-11-01,
+//! `results/zk60_d55_20261101/REVIEW_D55_20261101.md`), as closed here:**
+//! F3, the transcript is constructed under the D55 profile string itself
+//! ([`D55_PROFILE_PREFIX`]), not the base profile, and [`ForkRun::census`]
+//! holds that constructor against every absorb of the path; F4, the dead
+//! seeded generator arm is gone (`L + 1` OS generators, one per prover
+//! thread, which s25's W-8 census now scans); F5, the calling thread's test
+//! switches ([`ForkHooks`]) are installed in every prover and verifier
+//! worker, and a fork-run recorder (`run_capture::begin_fork_run_with`) is
+//! seeded into a per-fork recorder on each verifier worker; F2, the
+//! [`DropForkIndex`] mutation; F1, the false-statement controls in the tests.
+//!
 //! **What a fork receipt that verifies IS NOT**: an accepted construction, a
 //! privacy statement or a registered profile. See the soundness note.
 
 use super::super::hash_domain;
+use super::super::run_capture as capture;
 use super::super::wire::fork::{self as fw, ForkFrame, TailFrame};
 use super::*;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{mpsc, Mutex};
 use std::time::Instant;
 
-/// The fork profile string is this prefix and the base D12a run profile. It
-/// is a transcript DOMAIN only; it is never handed to `RunShape::new` and no
-/// registry names it.
-pub(crate) const D55_PROFILE_PREFIX: &str = "d55-commit-fork-join-prototype-unregistered/";
+/// **The D55 profile string is this prefix and the base D12a run profile**
+/// (D55 review F3, 2026-11-01: it is now the fork run's OWN transcript
+/// constructor domain, `hashline-v1/` ‖ this string under the block shape's
+/// Fiat-Shamir key, as T-1 / D17 ask of a new construction; until F3 the
+/// constructor was the BASE profile's and the fork run was separated only by
+/// a first absorb). It is never handed to `RunShape::new`, no registry names
+/// it, and [`ForkRun::new`] refuses a base under which CS-7 would admit it.
+/// Its length (69 bytes) was chosen so that the constructor input,
+/// `12 + 69 + |base|` bytes, is at least two bytes from every absorb input of
+/// a fork run at every blocks-only base this build registers (the census in
+/// [`ForkRun::census`], and s25's W-2 / s33's J-7a scans, which now read it).
+pub(crate) const D55_PROFILE_PREFIX: &str = "d55-commit-fork-join-runs/opt-in-prototype-unregistered/test-only/v1/";
 /// the D12a run parameter line's last clause, which a fork run replaces
 const D12A_LINE_TAIL: &str = "/one-run-one-transcript";
 const D55_LINE_TAIL: &str = "/d55-commit-fork-join-prototype-unregistered";
+
+/// the D55 profile string of a base run profile
+pub(crate) fn d55_profile_of(base: &str) -> String {
+    format!("{D55_PROFILE_PREFIX}{base}")
+}
+
+/// **D55 review F3: every transcript label this module absorbs beyond the
+/// D12a run header's six and the block's own** (`B`, `rows` and `log-cols` it
+/// absorbs through `protocol::absorb_root`, as D12a does), with its data
+/// length, or `None` for a claim list (`8 + Σ` of its claims' public words,
+/// [`io_claim_list_len`] at a shape). The absorb-label scan
+/// (`hash_domain_tests`) requires this table and the labels in this file's
+/// source to be the same set; s25's W-2 census measures them.
+pub(crate) const D55_LABELS: [(&str, Option<usize>); 9] = [
+    ("pb-fork-commit-root", Some(8)),
+    ("pb-fork-s0", Some(8)),
+    ("pb-run-fork", Some(8)),
+    ("pb-run-fork-block", Some(32)),
+    ("pb-join-fork", Some(8)),
+    ("pb-join-state", Some(40)),
+    ("pb-join-in-claims", None),
+    ("pb-join-out-claims", None),
+    ("pb-fork-s1", Some(8)),
+];
+
+/// The length of ONE IO slot's claim list as [`claim_bytes`] encodes it, at
+/// a shape: one claim (slot 21's on its input, slot 22's on its output), its
+/// value and part count, then the data slice over the whole padded `Dom::D`
+/// plane (`clog2(t_pad · d_pad)` coordinates) and the reserved pair's two
+/// parts (`min(that, endpoint_log_n)` coordinates each), every part framed
+/// by its offset, size, coefficient and point length (`argument.rs`'s
+/// `build_claim`). Checked against the claims a real fork run joins
+/// (`ForkStats::join_claim_bytes`).
+pub(crate) fn io_claim_list_len(sh: &Shape) -> usize {
+    let plane = sh.t_pad * sh.d_pad;
+    let log = plane.next_power_of_two().trailing_zeros() as usize;
+    let logm = log.min(sh.endpoint_log_n);
+    let part = |coords: usize| 8 + 8 + 16 + 8 + 16 * coords;
+    8 + 16 + 8 + part(log) + 2 * part(logm)
+}
 
 /// the commit phase's generator domain (the `L - 1` boundary commitments)
 const SEED_USE_FORK_COMMIT: &[u8] = b"hashline-zk-rng/private-block/d55-fork-run-commit-phase/v1/";
 /// one generator per fork, domain-separated by the block index
 const SEED_USE_FORK_BLOCK: &[u8] = b"hashline-zk-rng/private-block/d55-fork-run-one-stream-per-fork/v1/";
+
+// **D55 REVIEW F2 (2026-11-01): the MUTATION a same-block fork swap must
+// catch.** While a [`DropForkIndex`] guard lives on a thread, that thread's
+// fork derivation leaves the index out (`fork(S0, k)` = S0, then only the
+// block digest), on the prover's and the verifier's side alike. It exists so
+// that `d55_control_a_same_block_fork_swap_is_caught_only_by_the_index` can
+// show its control FAILS against a derivation without the index, i.e. that
+// the swap of two forks carrying the same block is refused by the index and
+// by nothing else. Carried into the fork workers with the protocol's own
+// switches ([`ForkHooks`]).
+thread_local! {
+    static DROP_FORK_INDEX: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
+}
+
+/// While alive, this thread derives every fork WITHOUT its index (the F2
+/// mutation; see `DROP_FORK_INDEX`).
+pub(crate) struct DropForkIndex {
+    was: bool,
+}
+
+impl DropForkIndex {
+    pub(crate) fn on() -> DropForkIndex {
+        DropForkIndex { was: DROP_FORK_INDEX.with(|c| c.replace(true)) }
+    }
+}
+
+impl Drop for DropForkIndex {
+    fn drop(&mut self) {
+        DROP_FORK_INDEX.with(|c| c.set(self.was));
+    }
+}
+
+/// **D55 REVIEW F5: the calling thread's test switches, carried into every
+/// fork worker** — the protocol's ([`protocol::ThreadHooks`]: the cheating
+/// prover, the injection hooks, the lapse and tag switches) and this
+/// module's F2 mutation. Every worker of the prover and of the verifier
+/// installs them before its first fork and restores its own on exit, so a
+/// test's cheat reaches `prove_core` / `verify_core` on whichever thread a
+/// fork lands. Each fork records what it saw ([`ForkStats::fork_hooks`]), so
+/// a test can assert the hooks were live in every fork before it trusts a
+/// rejection.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub(crate) struct ForkHooks {
+    pub block: protocol::ThreadHooks,
+    pub drop_fork_index: bool,
+}
+
+impl ForkHooks {
+    pub(crate) fn capture() -> ForkHooks {
+        ForkHooks { block: protocol::ThreadHooks::capture(), drop_fork_index: DROP_FORK_INDEX.with(|c| c.get()) }
+    }
+    fn install(self) -> ForkHooksGuard {
+        let block = self.block.install();
+        let was = DROP_FORK_INDEX.with(|c| c.replace(self.drop_fork_index));
+        ForkHooksGuard { _block: block, was }
+    }
+}
+
+struct ForkHooksGuard {
+    _block: protocol::ThreadHooksGuard,
+    was: bool,
+}
+
+impl Drop for ForkHooksGuard {
+    fn drop(&mut self) {
+        DROP_FORK_INDEX.with(|c| c.set(self.was));
+    }
+}
 
 /// **THE OPT-IN FLAG.** A value of this type is the only way to make a
 /// [`ForkRun`]; its one constructor says what the caller is accepting.
@@ -82,34 +211,24 @@ pub(crate) struct ForkRun<'a> {
     profile: String,
 }
 
-/// Where the provers' randomness comes from. `Os` is the construction: one
-/// fresh OS-seeded generator for the commit phase and one per fork. A fixture
-/// seed exists for nothing but a test's reproducibility (this whole module is
-/// test-only) and is never used by the measurement.
-#[derive(Clone, Copy, Debug)]
-pub(crate) enum ForkRandomness {
-    Os,
-    #[allow(dead_code)]
-    FixtureSeed(u64),
-}
+// **Where the provers' randomness comes from (D55 review F4, 2026-11-01).**
+// `L + 1` generators per run, each `ZkRng::from_os` under its own domain and
+// each built on the thread that uses it: ONE for the commit phase (the
+// `L - 1` boundary commitments, on the calling thread, dropped before any
+// fork starts) and ONE per fork (inside the worker that proves it, handed to
+// `prove_core` by `&mut`). None is cloned (`ZkRng` is neither `Clone` nor
+// `Copy`), shared or derived from another. There is no seeded arm: the dead
+// `FixtureSeed(ZkRng::new)` the review found is gone, and s25's W-8 census
+// now scans this file and counts the two construction sites.
 
-impl ForkRandomness {
-    fn stream(&self, domain: &[u8]) -> Result<ZkRng, String> {
-        match self {
-            ForkRandomness::Os => ZkRng::from_os(domain).map_err(|e| format!("D55 fork-run randomness: {e}")),
-            ForkRandomness::FixtureSeed(s) => Ok(ZkRng::new(*s, domain)),
-        }
-    }
-}
-
-fn commit_seed_domain(profile: &str) -> Vec<u8> {
+pub(crate) fn commit_seed_domain(profile: &str) -> Vec<u8> {
     let mut d = SEED_USE_FORK_COMMIT.to_vec();
     d.push(hash_domain::ROLE_RUN_PROVER);
     d.extend_from_slice(profile.as_bytes());
     d
 }
 
-fn fork_seed_domain(profile: &str, k: usize) -> Vec<u8> {
+pub(crate) fn fork_seed_domain(profile: &str, k: usize) -> Vec<u8> {
     let mut d = SEED_USE_FORK_BLOCK.to_vec();
     d.push(hash_domain::ROLE_RUN_PROVER);
     d.extend_from_slice(&(k as u64).to_le_bytes());
@@ -146,6 +265,16 @@ pub(crate) struct ForkStats {
     pub total_s: f64,
     /// `prove_core`'s own seconds on each fork, in block order
     pub fork_core_s: Vec<f64>,
+    /// D55 review F5: the test switches each fork's worker held while it
+    /// proved that fork, in block order (a test compares them with the
+    /// calling thread's before it trusts a cheat)
+    pub fork_hooks: Vec<ForkHooks>,
+    /// D55 review F4: how many generators this proof constructed (`L + 1`:
+    /// the commit phase's and one per fork)
+    pub generators: usize,
+    /// D55 review F3: the byte lengths of every fork's two joined claim lists
+    /// (`[slot 21, slot 22]`, block order), for the census's formula
+    pub join_claim_bytes: Vec<[usize; 2]>,
 }
 
 /// **The four malicious-receipt controls the D55 ruling names**, played by a
@@ -210,39 +339,51 @@ impl<'a> ForkRun<'a> {
         &self.profile
     }
 
-    /// **The W-2 rule for what this module adds** (stage 25's census, in the
-    /// small): the transcript constructor's input (`hashline-v1/` and the
-    /// BASE run profile, `12 + |profile|` bytes, already admitted by the base
-    /// profile's own census) must be neither the length of, nor one byte
-    /// from, any fixed-length absorb the fork run adds (`32 + 8 + |label| + 8
-    /// + |data|`); every non-empty claim-list absorb is longer than all of
-    /// them; and each generator's seed-derivation input (22 + its domain) is
-    /// clear of the three forbidden lengths (64, 40, 47). Returns the table.
+    /// **The W-2 rule at the fork run's OWN constructor** (stage 25's census,
+    /// in the small; D55 review F3). Since F3 the transcript constructor's
+    /// input is `hashline-v1/` and the D55 profile string, `12 + |D55
+    /// profile|` bytes — a length no base profile's census ever admitted —
+    /// so it is held against EVERY absorb input of a fork run, not only the
+    /// ones this module adds: it must be neither the length of, nor one byte
+    /// from, the squeeze (47 bytes), any absorb of D55's own labels
+    /// ([`D55_LABELS`], the claim lists at this shape's [`io_claim_list_len`]
+    /// and empty), or any absorb the block path carries at this shape with the
+    /// fork run's own parameter line (`hash_domain::path_labels`, which also
+    /// lists D12a's `pb-run-stage` / `pb-run-block`; a fork run absorbs
+    /// neither, and holding them too only makes the rule stricter). Each
+    /// generator's seed-derivation input (22 + its domain) must be clear of
+    /// the three forbidden lengths (64, 40, 47). Returns the table. The
+    /// whole-path census with declared pairs is s25's W-2, which measures the
+    /// fork run beside the registered profiles.
     pub(crate) fn census(&self) -> Result<String, String> {
-        let ctor = 12 + self.st.rs.profile.len();
+        let ctor = 12 + self.profile.len();
         let absorb = |label: &str, data: usize| 32 + 8 + label.len() + 8 + data;
-        let fixed: Vec<(&str, usize)> = vec![
-            ("run-construction", absorb("run-construction", self.profile.len())),
-            ("parameters (the fork line)", absorb("parameters", self.parameter_line()?.len())),
-            ("pb-fork-commit-root", absorb("pb-fork-commit-root", 8)),
-            ("pb-fork-s0", absorb("pb-fork-s0", 8)),
-            ("pb-run-fork", absorb("pb-run-fork", 8)),
-            ("pb-run-fork-block", absorb("pb-run-fork-block", 32)),
-            ("pb-join-fork", absorb("pb-join-fork", 8)),
-            ("pb-join-state", absorb("pb-join-state", 40)),
-            ("pb-join-in-claims (no claim)", absorb("pb-join-in-claims", 8)),
-            ("pb-join-out-claims (no claim)", absorb("pb-join-out-claims", 8)),
-            ("pb-fork-s1", absorb("pb-fork-s1", 8)),
-        ];
-        for (what, len) in &fixed {
-            if len.abs_diff(ctor) <= 1 {
-                return Err(format!("D55: the {what} absorb is {len} bytes, at most one byte from the {ctor}-byte transcript constructor of {} (W-2)", self.st.rs.profile));
+        let line = self.parameter_line()?;
+        let sh = &self.st.rs.sh;
+        let claims = io_claim_list_len(sh);
+        let mut fixed: Vec<(String, usize)> = vec![("a transcript squeeze".to_string(), 47)];
+        for (label, data) in D55_LABELS {
+            match data {
+                Some(d) => fixed.push((format!("`{label}`"), absorb(label, d))),
+                None => {
+                    fixed.push((format!("`{label}` (no claim)"), absorb(label, 8)));
+                    fixed.push((format!("`{label}` (one IO claim)"), absorb(label, claims)));
+                }
             }
         }
-        // the shortest claim list with one claim of one part on a 0-variable point
-        let nonempty_min = absorb("pb-join-in-claims", 8 + 16 + 8 + 8 + 8 + 16 + 8);
-        if nonempty_min <= ctor + 1 {
-            return Err(format!("D55: a one-claim absorb can be as short as {nonempty_min} bytes, within a byte of the {ctor}-byte constructor (W-2)"));
+        for u in hash_domain::path_labels(sh, Some(&line)) {
+            for d in &u.data {
+                // a run absorbs its OWN parameter line, never the block's
+                if u.label == "parameters" && *d != line.len() {
+                    continue;
+                }
+                fixed.push((format!("`{}` with {d} bytes", u.label), absorb(u.label, *d)));
+            }
+        }
+        for (what, len) in &fixed {
+            if len.abs_diff(ctor) <= 1 {
+                return Err(format!("D55: the {what} absorb is {len} bytes, at most one byte from the {ctor}-byte transcript constructor of {} (W-2)", self.profile));
+            }
         }
         let seeds = [("commit-phase generator", 22 + commit_seed_domain(&self.profile).len()), ("per-fork generator", 22 + fork_seed_domain(&self.profile, 0).len())];
         for (what, len) in seeds {
@@ -250,10 +391,21 @@ impl<'a> ForkRun<'a> {
                 return Err(format!("D55: the {what}'s seed-derivation input is {len} bytes, a forbidden length"));
             }
         }
-        let mut t = format!("constructor {ctor} B ({}); ", self.st.rs.profile);
-        t.push_str(&fixed.iter().map(|(w, l)| format!("{w} {l}")).collect::<Vec<_>>().join(", "));
-        t.push_str(&format!("; one-claim lists >= {nonempty_min}; seeds {} / {}", seeds[0].1, seeds[1].1));
-        Ok(t)
+        let nearest = fixed.iter().map(|(w, l)| (l.abs_diff(ctor), w.as_str(), *l)).min().expect("a non-empty table");
+        let mut d55: Vec<String> = fixed.iter().filter(|(w, _)| D55_LABELS.iter().any(|(l, _)| w.starts_with(&format!("`{l}`")))).map(|(w, l)| format!("{w} {l}")).collect();
+        d55.dedup();
+        Ok(format!(
+            "constructor {ctor} B (`hashline-v1/` + the {} B D55 profile over {}); {} absorb inputs held, the nearest {} B ({}, {} bytes away); D55's own: {}; seeds {} / {}",
+            self.profile.len(),
+            self.st.rs.profile,
+            fixed.len(),
+            nearest.2,
+            nearest.1,
+            nearest.0,
+            d55.join(", "),
+            seeds[0].1,
+            seeds[1].1
+        ))
     }
 
     /// the base D12a line with its one-transcript claim replaced by the D55
@@ -269,41 +421,48 @@ impl<'a> ForkRun<'a> {
     /// reserved pair rows of its two IO tabs and any per-layer calibration
     /// clause) under its fork's name.
     fn schedule_digest(&self) -> Result<Digest, String> {
-        let (st, l) = (self.st, self.st.rs.l);
+        let (literal, lines) = self.schedule_lines()?;
         let mut h = blake3::Hasher::new();
-        h.update(b"hashline/private-run-fork-schedule/d55-prototype/1");
-        let mut line = |s: &str| {
+        h.update(literal);
+        for s in &lines {
             h.update(&(s.len() as u64).to_le_bytes());
             h.update(s.as_bytes());
-        };
-        line(&self.parameter_line()?);
-        for s in Layout::for_shape(&st.rs.sh)?.describe() {
-            line(&s);
         }
-        line(&format!("phase 1 (commit): boundaries 0..{} committed in order on the run transcript, each root absorbed (pb-fork-commit-root, B), then pb-fork-s0 = {l}", l.saturating_sub(1)));
+        Ok(*h.finalize().as_bytes())
+    }
+
+    /// the schedule digest's domain literal and its lines, in order (the
+    /// digest frames each line by its little-endian `u64` length; s25's W-2
+    /// census measures the input from these)
+    pub(crate) fn schedule_lines(&self) -> Result<(&'static [u8], Vec<String>), String> {
+        let (st, l) = (self.st, self.st.rs.l);
+        let mut lines = vec![self.parameter_line()?];
+        lines.extend(Layout::for_shape(&st.rs.sh)?.describe());
+        lines.push(format!("phase 1 (commit): boundaries 0..{} committed in order on the run transcript, each root absorbed (pb-fork-commit-root, B), then pb-fork-s0 = {l}", l.saturating_sub(1)));
         for k in 0..l {
-            line(&format!("fork {k:02}: S0 then pb-run-fork {k} and pb-run-fork-block; the stage body and IO geometry of D12a's [{}]", st.stage_line(k)?));
+            lines.push(format!("fork {k:02}: S0 then pb-run-fork {k} and pb-run-fork-block; the stage body and IO geometry of D12a's [{}]", st.stage_line(k)?));
         }
-        line(&format!(
+        lines.push(format!(
             "phase 3 (join): forks 0..{} in order (pb-join-fork, pb-join-state, pb-join-in-claims, pb-join-out-claims), then pb-fork-s1 = {l}; open boundaries 0..{} once each (block k slot 22, then block k+1 slot 21), then the external input endpoint, then the external output endpoint",
             l - 1,
             l.saturating_sub(1)
         ));
-        Ok(*h.finalize().as_bytes())
+        Ok((b"hashline/private-run-fork-schedule/d55-prototype/1", lines))
     }
 
-    /// The fork run's header: the BASE run profile's transcript constructor
-    /// (so its input length is the one the base profile's W-2 census already
-    /// admitted against every hash-input kind of the run), then FIRST the
-    /// construction absorb `run-construction` = the fork profile string —
-    /// which separates every later state and challenge from D12a's — then
-    /// the D12a header's six absorbs with the fork run's own parameter line
-    /// and schedule digest.
+    /// The fork run's header: its OWN transcript constructor, `hashline-v1/`
+    /// ‖ the D55 profile string under the block shape's Fiat-Shamir key (D55
+    /// review F3: a new construction is a new profile and its own transcript,
+    /// T-1 / D17; the constructor alone separates every state and challenge
+    /// of a fork run from D12a's, from a single block's and from a fork run
+    /// on another base), then the D12a header's six absorbs with the fork
+    /// run's own parameter line and schedule digest. Until F3 the constructor
+    /// was the base profile's and a first absorb `run-construction` carried
+    /// the fork string; that absorb is gone, since the constructor carries it.
     fn transcript(&self) -> Result<Transcript, String> {
         let st = self.st;
         let sh = &st.rs.sh;
-        let mut tr = protocol::tagged_transcript(sh, st.rs.profile.as_bytes());
-        tr.absorb(b"run-construction", self.profile.as_bytes());
+        let mut tr = protocol::tagged_transcript(sh, self.profile.as_bytes());
         let mut shape_bytes = Vec::with_capacity(7 * 8);
         for v in [st.rs.l, sh.tokens, sh.width, sh.hidden, sh.q_heads, sh.kv_heads, sh.head_dim] {
             shape_bytes.extend_from_slice(&(v as u64).to_le_bytes());
@@ -322,6 +481,21 @@ impl<'a> ForkRun<'a> {
     /// D12a's for the same statement
     pub(crate) fn binding(&self) -> Result<Digest, String> {
         Ok(self.transcript()?.state())
+    }
+
+    /// **D55 review F5: the fork run's public words for the run capture** —
+    /// the base statement's header (`RunStatement::capture_header`) with the
+    /// fork run's own constructor domain (the D55 profile string, F3), its
+    /// parameter line and its schedule digest, so that the recorder rebuilds
+    /// this header exactly as it rebuilds a block run's and compares the
+    /// binding. The profile string is leaked to `'static` (test code; one
+    /// short string per capture).
+    pub(crate) fn capture_header(&self) -> Result<super::super::run_capture::RunHeader, String> {
+        let mut h = self.st.capture_header()?;
+        h.profile = Box::leak(self.profile.clone().into_boxed_str());
+        h.parameter_line = self.parameter_line()?;
+        h.schedule_digest = self.schedule_digest()?;
+        Ok(h)
     }
 
     /// `S0` from the public header and the roots (`skip`: a cheating prover
@@ -363,7 +537,11 @@ fn absorb_one_root(tr: &mut Transcript, st: &RunStatement, k: usize, root: &Dige
 
 fn absorb_fork_start(t: &mut Transcript, st: &RunStatement, idx: usize) -> Result<(), String> {
     let d = st.block_digests.get(idx).ok_or_else(|| format!("D55: no block {idx}"))?;
-    t.absorb_u64(b"pb-run-fork", idx as u64);
+    // (the F2 mutation, a test switch of this test-only module: off unless a
+    // `DropForkIndex` guard lives on this thread)
+    if !DROP_FORK_INDEX.with(|c| c.get()) {
+        t.absorb_u64(b"pb-run-fork", idx as u64);
+    }
     t.absorb(b"pb-run-fork-block", d);
     Ok(())
 }
@@ -509,9 +687,12 @@ struct ForkOut {
     /// `[slot 21, slot 22]`
     claims: [Vec<ZClaim>; 2],
     core_s: f64,
+    /// the test switches this fork's worker held (F5)
+    hooks: ForkHooks,
 }
 
-/// the shared, read-only inputs of the fork workers
+/// the shared, read-only inputs of the fork workers (no generator: each fork
+/// builds its own inside its worker)
 struct ForkCtx<'c> {
     fr: &'c ForkRun<'c>,
     blocks: &'c dyn ForkBlocks,
@@ -520,7 +701,6 @@ struct ForkCtx<'c> {
     out_data: Vec<&'c [Fp]>,
     ntt: &'c NttTables,
     binding: Digest,
-    rnd: ForkRandomness,
     tamper: Option<(ForkTamper, bool)>,
 }
 
@@ -535,7 +715,9 @@ impl ForkCtx<'_> {
         let mut f = self.fr.fork(self.roots, idx, skip)?;
         let start = (f.state(), f.counter());
         let start_tag = if forge && (idx != k || skip.is_some()) { position_tag(&self.fr.fork(self.roots, k, None)?) } else { position_tag(&f) };
-        let mut rng = self.rnd.stream(&fork_seed_domain(&self.fr.profile, k))?;
+        // this fork's ONE generator, built here in its worker (F4)
+        let mut rng = ZkRng::from_os(&fork_seed_domain(&self.fr.profile, k)).map_err(|e| format!("D55 fork-run randomness: {e}"))?;
+        let hooks = ForkHooks::capture();
         let lay = st.stage_layout(k)?;
         let ssh = st.stage_shape(k)?;
         let blk = self.blocks.get(k)?;
@@ -548,7 +730,7 @@ impl ForkCtx<'_> {
         let end_tag = position_tag(&f);
         let frame = ForkFrame { a_root: core.a_root, h_root: core.h_root, mask_root: core.mask_root, slots: core.slots, mask_open: core.mask_open, a_open: core.a_open, h_open: core.h_open };
         let bytes = fw::encode_fork(&frame, &lay, &self.binding, l, k, &start_tag, &end_tag)?;
-        Ok(ForkOut { k, bytes, start, end, claims: core.io_claims, core_s })
+        Ok(ForkOut { k, bytes, start, end, claims: core.io_claims, core_s, hooks })
     }
 }
 
@@ -557,22 +739,24 @@ impl ForkCtx<'_> {
 /// Metal context, as M10), phase 3 on the calling thread. The source is asked
 /// for every boundary plane first, then for every witness in block order;
 /// at most `workers + 1` witnesses are alive at once.
-pub(crate) fn prove_run_with_forks(fr: &ForkRun, blocks: &dyn ForkBlocks, src: &mut dyn RunWitnessSource, externals: Endpoints, workers: usize, rnd: ForkRandomness) -> Result<(ForkReceipt, ForkStats), String> {
-    prove_forks_inner(fr, blocks, src, externals, workers, rnd, None)
+pub(crate) fn prove_run_with_forks(fr: &ForkRun, blocks: &dyn ForkBlocks, src: &mut dyn RunWitnessSource, externals: Endpoints, workers: usize) -> Result<(ForkReceipt, ForkStats), String> {
+    prove_forks_inner(fr, blocks, src, externals, workers, None)
 }
 
 /// **A CHEATING FORK-RUN PROVER** for the D55 controls (`tamper`, and whether
 /// it forges the honest position tags where it can)
 pub(crate) fn prove_run_with_forks_tampered(fr: &ForkRun, blocks: &dyn ForkBlocks, src: &mut dyn RunWitnessSource, externals: Endpoints, workers: usize, tamper: ForkTamper, forge_tags: bool) -> Result<(ForkReceipt, ForkStats), String> {
-    prove_forks_inner(fr, blocks, src, externals, workers, ForkRandomness::Os, Some((tamper, forge_tags)))
+    prove_forks_inner(fr, blocks, src, externals, workers, Some((tamper, forge_tags)))
 }
 
-fn prove_forks_inner(fr: &ForkRun, blocks: &dyn ForkBlocks, src: &mut dyn RunWitnessSource, externals: Endpoints, workers: usize, rnd: ForkRandomness, tamper: Option<(ForkTamper, bool)>) -> Result<(ForkReceipt, ForkStats), String> {
+fn prove_forks_inner(fr: &ForkRun, blocks: &dyn ForkBlocks, src: &mut dyn RunWitnessSource, externals: Endpoints, workers: usize, tamper: Option<(ForkTamper, bool)>) -> Result<(ForkReceipt, ForkStats), String> {
     let t_all = Instant::now();
     let st = fr.st;
     let (sh, l) = (&st.rs.sh, st.rs.l);
     let workers = workers.clamp(1, l);
     let mut stats = ForkStats { workers, ..ForkStats::default() };
+    // F5: the calling thread's test switches, installed in every worker below
+    let hooks = ForkHooks::capture();
     // RULINGS CS-1, CS-4, CS-6 (the cheating switch skips CS-6, as D12a's)
     preflight(st, blocks, !protocol::cheating_prover_is_on())?;
     let [ein, eout] = protocol::check_endpoints(sh, &st.expected, externals)?;
@@ -588,7 +772,9 @@ fn prove_forks_inner(fr: &ForkRun, blocks: &dyn ForkBlocks, src: &mut dyn RunWit
 
     // ---------------- PHASE 1: commit every boundary, then S0
     let t1 = Instant::now();
-    let mut rng0 = rnd.stream(&commit_seed_domain(&fr.profile))?;
+    // the commit phase's ONE generator, on this thread (F4)
+    let mut rng0 = ZkRng::from_os(&commit_seed_domain(&fr.profile)).map_err(|e| format!("D55 fork-run randomness: {e}"))?;
+    stats.generators = 1;
     let mut bounds: Vec<(BoundarySpec, PreparedBoundary)> = Vec::with_capacity(l - 1);
     for k in 0..l - 1 {
         let spec = st.boundary_spec(k)?;
@@ -611,7 +797,7 @@ fn prove_forks_inner(fr: &ForkRun, blocks: &dyn ForkBlocks, src: &mut dyn RunWit
     let mut outs: Vec<ForkOut> = {
         let in_data: Vec<&[Fp]> = (0..l).map(|k| if k == 0 { &ein.data[..] } else { bounds[k - 1].1.data() }).collect();
         let out_data: Vec<&[Fp]> = (0..l).map(|k| if k + 1 == l { &eout.data[..] } else { bounds[k].1.data() }).collect();
-        let ctx = ForkCtx { fr, blocks, roots: &roots, in_data, out_data, ntt: &ntt, binding, rnd, tamper };
+        let ctx = ForkCtx { fr, blocks, roots: &roots, in_data, out_data, ntt: &ntt, binding, tamper };
         let (tx, rx) = mpsc::sync_channel::<(usize, Witness)>(0);
         let rx = Mutex::new(rx);
         let results: Vec<Result<ForkOut, String>> = std::thread::scope(|s| {
@@ -619,6 +805,7 @@ fn prove_forks_inner(fr: &ForkRun, blocks: &dyn ForkBlocks, src: &mut dyn RunWit
                 .map(|_| {
                     let (ctx, rx) = (&ctx, &rx);
                     s.spawn(move || {
+                        let _hooks = hooks.install();
                         let mut mine = Vec::new();
                         loop {
                             let job = rx.lock().map_err(|_| "D55: the job queue's lock is poisoned".to_string()).and_then(|q| q.recv().map_err(|_| String::new()));
@@ -677,6 +864,9 @@ fn prove_forks_inner(fr: &ForkRun, blocks: &dyn ForkBlocks, src: &mut dyn RunWit
     }
     stats.forks_s = t2.elapsed().as_secs_f64();
     stats.fork_core_s = outs.iter().map(|o| o.core_s).collect();
+    stats.fork_hooks = outs.iter().map(|o| o.hooks).collect();
+    stats.generators += outs.len();
+    stats.join_claim_bytes = outs.iter().map(|o| [claim_bytes(&o.claims[0]).len(), claim_bytes(&o.claims[1]).len()]).collect();
 
     // ---------------- PHASE 3: join, then every opening after S1
     let t3 = Instant::now();
@@ -751,6 +941,9 @@ fn verify_one_fork(fr: &ForkRun, blocks: &dyn ForkBlocks, roots: &[Digest], ntt:
     hash_domain::paths_are_the_tree_depth("A", &bp, &frame.a_open)?;
     hash_domain::paths_are_the_tree_depth("H", &bp, &frame.h_open)?;
     hash_domain::mask_paths_are_the_tree_depth(&frame.mask_open)?;
+    // F5: the fork's stage opens in this worker's per-fork recorder (a
+    // no-op unless one is attached on this thread)
+    capture::fork_stage_begin(k, bytes, start_tag, frame.a_root, frame.h_root, frame.mask_root, &lay, &f);
     let view = CoreView { a_root: frame.a_root, h_root: frame.h_root, mask_root: frame.mask_root, slots: &frame.slots, mask_open: &frame.mask_open, a_open: &frame.a_open, h_open: &frame.h_open };
     let blk = blocks.get(k)?;
     let ssh = st.stage_shape(k)?;
@@ -759,6 +952,7 @@ fn verify_one_fork(fr: &ForkRun, blocks: &dyn ForkBlocks, roots: &[Digest], ntt:
     if position_tag(&f) != end_tag {
         return Err(format!("fork {k}'s end tag is not the verifier's own fork-{k} position"));
     }
+    capture::stage_end(k, end_tag, &f);
     Ok(Seen { end: (f.state(), f.counter()), claims: [ic, oc] })
 }
 
@@ -784,35 +978,54 @@ pub(crate) fn verify_run_with_forks(fr: &ForkRun, blocks: &dyn ForkBlocks, rc: &
     if position_tag(&tr) != s0_claimed {
         return Err("D55: the head's S0 tag is not the verifier's own S0 (every boundary root absorbed, in order, before any fork)".into());
     }
+    // F5: a fork-run recorder on this thread replays the commit phase; its
+    // seed, if any, starts one per-fork recorder on whichever worker verifies
+    // each fork (every capture hook is a no-op without a recorder)
+    capture::fork_commit(&roots, &tr);
+    let seed = capture::fork_seed();
     // ---- phase 2: the forks
     let next = AtomicUsize::new(0);
     let workers = workers.clamp(1, l);
-    let mut results: Vec<(usize, Result<Seen, String>)> = std::thread::scope(|s| {
+    // F5: the calling thread's test switches, installed in every worker
+    let hooks = ForkHooks::capture();
+    type Verified = (usize, Result<Seen, String>, Option<Result<capture::ForkStageCapture, String>>);
+    let mut results: Vec<Verified> = std::thread::scope(|s| {
         let hs: Vec<_> = (0..workers)
             .map(|_| {
-                let (next, roots, ntt, binding) = (&next, &roots, &ntt, &binding);
+                let (next, roots, ntt, binding, seed) = (&next, &roots, &ntt, &binding, seed.as_ref());
                 s.spawn(move || {
-                    let mut mine = Vec::new();
+                    let _hooks = hooks.install();
+                    let mut mine: Vec<Verified> = Vec::new();
                     loop {
                         let k = next.fetch_add(1, Ordering::SeqCst);
                         if k >= l {
                             break;
                         }
-                        mine.push((k, verify_one_fork(fr, blocks, roots, ntt, binding, k, &rc.forks[k])));
+                        if let Some(sd) = seed {
+                            capture::fork_stage_attach(sd, k);
+                        }
+                        let v = verify_one_fork(fr, blocks, roots, ntt, binding, k, &rc.forks[k]);
+                        // always detaches this worker's per-fork recorder
+                        let cap = seed.map(|_| capture::fork_stage_take(k));
+                        mine.push((k, v, cap));
                     }
                     mine
                 })
             })
             .collect();
-        hs.into_iter().flat_map(|h| h.join().unwrap_or_else(|_| vec![(usize::MAX, Err("a fork verifier panicked".to_string()))])).collect()
+        hs.into_iter().flat_map(|h| h.join().unwrap_or_else(|_| vec![(usize::MAX, Err("a fork verifier panicked".to_string()), None)])).collect()
     });
-    results.sort_by_key(|(k, _)| *k);
+    results.sort_by_key(|(k, _, _)| *k);
     let mut seen: Vec<Seen> = Vec::with_capacity(l);
-    for (k, r) in results {
+    for (k, r, cap) in results {
         match r {
             Ok(s) if k == seen.len() => seen.push(s),
             Ok(_) => return Err("D55: the fork verifiers did not return one result per block".into()),
             Err(e) => return Err(format!("D55: fork {k}: {e}")),
+        }
+        // F5: fork k's record, merged into the run's recorder in block order
+        if let Some(cap) = cap {
+            capture::fork_stage_merge(cap);
         }
     }
     if seen.len() != l {
@@ -823,6 +1036,9 @@ pub(crate) fn verify_run_with_forks(fr: &ForkRun, blocks: &dyn ForkBlocks, rc: &
         absorb_join(&mut tr, k, &s.end.0, s.end.1, &s.claims[0], &s.claims[1]);
     }
     close_join(&mut tr, l);
+    if capture::active() {
+        capture::fork_join(&seen.iter().map(|s| s.claims.clone()).collect::<Vec<_>>(), &tr);
+    }
     let boundary_rows = if l > 1 { st.boundary_spec(0)?.commitment_rows() } else { 0 };
     let (tail, end_tag) = fw::decode_tail(&rc.tail, sh, &binding, l, boundary_rows, BOUNDARY_SITES, &position_tag(&tr))?;
     let ep = protocol::endpoint_pcs_params(sh);
@@ -831,6 +1047,22 @@ pub(crate) fn verify_run_with_forks(fr: &ForkRun, blocks: &dyn ForkBlocks, rc: &
     }
     hash_domain::paths_are_the_tree_depth("run input endpoint", &ep, &tail.in_open)?;
     hash_domain::paths_are_the_tree_depth("run output endpoint", &ep, &tail.out_open)?;
+    // F5: the tail's openings, each recorded by a fork-run recorder (the
+    // geometry is this verifier's own, from its statement)
+    let data_rows = st.rs.data_rows();
+    let endpoint_geom = |role: &'static str, root: Digest, sources: Vec<(usize, usize, usize)>| capture::Geom {
+        role,
+        commitment_kind: "external-endpoint",
+        params: e_params,
+        root,
+        rows: sh.endpoint_rows,
+        data_rows,
+        site_rows: vec![data_rows, data_rows + 1],
+        sum_rows: None,
+        prox_row: data_rows + 2,
+        boundary: None,
+        claim_sources: sources,
+    };
     for k in 0..l - 1 {
         let spec = st.boundary_spec(k)?;
         // the verifier's OWN claims, from both forks' slot terminals
@@ -839,19 +1071,40 @@ pub(crate) fn verify_run_with_forks(fr: &ForkRun, blocks: &dyn ForkBlocks, rc: &
         boundary::check_opening(&spec, &claims, &tr).map_err(|e| format!("D55: boundary {k}: {e}"))?;
         let params = spec.params();
         let cm = protocol::commitment(roots[k], spec.commitment_rows(), spec.log_n());
+        let before = capture::checkpoint(&tr);
         pcs::verify_zk_tagged(&params, &ZkOpts::standard(&params), &cm, &claims, &tail.boundary_opens[k], &ntt, &mut tr, &tag).map_err(|e| format!("D55: boundary {k}: {e}"))?;
+        let g = capture::Geom {
+            role: "Input",
+            commitment_kind: "internal-boundary",
+            params,
+            root: roots[k],
+            rows: spec.commitment_rows(),
+            data_rows: spec.data_rows(),
+            site_rows: spec.site_rows(),
+            sum_rows: None,
+            prox_row: spec.prox_row(),
+            boundary: Some(k),
+            claim_sources: vec![(k, super::super::layout::SC_IO_OUT, seen[k].claims[1].len()), (k + 1, super::super::layout::SC_IO_IN, seen[k + 1].claims[0].len())],
+        };
+        capture::pcs(g, &claims, &tail.boundary_opens[k], &ntt, before, &tr);
     }
     let ic = &seen[0].claims[0];
     protocol::check_endpoint_opening(ic, sh, &tr)?;
     let cm = protocol::commitment(st.expected.input, sh.endpoint_rows, sh.endpoint_log_n);
+    let before = capture::checkpoint(&tr);
     pcs::verify_zk_tagged(&e_params, &e_zko, &cm, ic, &tail.in_open, &ntt, &mut tr, &tag).map_err(|e| format!("D55: run input endpoint: {e}"))?;
+    capture::pcs(endpoint_geom("Input", st.expected.input, vec![(0, super::super::layout::SC_IO_IN, ic.len())]), ic, &tail.in_open, &ntt, before, &tr);
     let oc = &seen[l - 1].claims[1];
     protocol::check_endpoint_opening(oc, sh, &tr)?;
     let cm = protocol::commitment(st.expected.output, sh.endpoint_rows, sh.endpoint_log_n);
+    let before = capture::checkpoint(&tr);
     pcs::verify_zk_tagged(&e_params, &e_zko, &cm, oc, &tail.out_open, &ntt, &mut tr, &tag).map_err(|e| format!("D55: run output endpoint: {e}"))?;
+    capture::pcs(endpoint_geom("Output", st.expected.output, vec![(l - 1, super::super::layout::SC_IO_OUT, oc.len())]), oc, &tail.out_open, &ntt, before, &tr);
     if position_tag(&tr) != end_tag {
         return Err("D55: the tail's end tag is not the verifier's own transcript position".into());
     }
+    capture::fork_tail_end(end_tag, &tr);
+    capture::run_accepted();
     Ok(())
 }
 

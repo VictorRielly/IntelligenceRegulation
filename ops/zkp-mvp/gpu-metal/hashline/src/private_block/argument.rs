@@ -100,6 +100,13 @@ pub(crate) fn set_dd_lapse(v: u8) {
     DD_LAPSE.with(|c| c.set(v));
 }
 
+/// TEST ONLY (D55 review F5): this thread's lapse bits, so that
+/// `protocol::ThreadHooks` can carry them into a worker thread
+#[cfg(test)]
+pub(crate) fn dd_lapse_bits() -> u8 {
+    DD_LAPSE.with(|c| c.get())
+}
+
 /// whether a lapse bit is set (always `false` in a release build)
 pub(crate) fn dd_lapse(bit: u8) -> bool {
     #[cfg(test)]

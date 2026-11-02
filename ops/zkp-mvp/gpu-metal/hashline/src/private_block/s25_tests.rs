@@ -593,6 +593,52 @@ fn kinds_of_classify(st: &super::token_io::classify::ClassifyRunStatement, model
     out
 }
 
+/// **D55 REVIEW F3 (2026-11-01): every hash input kind of the opt-in,
+/// UNREGISTERED fork run (`run_fork.rs`, test builds only) over one base run
+/// statement**, the analogue of [`kinds_of`]. Since F3 a fork run has its OWN
+/// transcript constructor (`hashline-v1/` ‖ the D55 profile string), so it is
+/// a profile of its own here, measured beside the registered ones and held to
+/// the same per-function rule. It hashes exactly the base run's kinds less
+/// four (the base constructor, its parameter line, D12a's `pb-run-stage` /
+/// `pb-run-block` absorbs, the run's own seed derivation and schedule digest)
+/// and plus its own: its constructor, its parameter line, every label of
+/// `run_fork::D55_LABELS` (the claim lists at one IO claim each, the length
+/// `ForkStats::join_claim_bytes` is checked against in the D55 tests), its
+/// schedule digest and its two seed derivations (the commit phase's and the
+/// per-fork one).
+fn kinds_of_fork(st: &RunStatement) -> (String, Vec<Kind>) {
+    use super::run::fork::{commit_seed_domain, fork_seed_domain, io_claim_list_len, D55OptIn, ForkRun, D55_LABELS};
+    let (sh, base, l) = (st.rs().sh(), st.rs().profile(), st.rs().l());
+    let transcript_f = if sh.hashes_under_the_legacy_rule() { "F_U" } else { "F_T" };
+    let fr = ForkRun::new(st, D55OptIn::unreviewed_prototype()).unwrap_or_else(|e| panic!("{base} at L{l}: the D55 door refuses the base: {e}"));
+    let base_line = st.capture_header().expect("the base run's capture header").parameter_line;
+    let mut out: Vec<Kind> = kinds_of(sh, Some((base, l, st)))
+        .into_iter()
+        .filter(|k| {
+            !(k.what == format!("the transcript constructor at `{base}`")
+                || k.what.starts_with("the transcript absorb of `pb-run-stage`")
+                || k.what.starts_with("the transcript absorb of `pb-run-block`")
+                || k.what == format!("the transcript absorb of `parameters` with {} bytes of data", base_line.len())
+                || k.what == format!("the generator's seed derivation at `{base}` (run.rs)")
+                || k.what == "the run's schedule digest (D5)")
+        })
+        .collect();
+    let mut push = |what: String, func: &'static str, len: usize| out.push(Kind { what, func, len });
+    let p = fr.profile().to_string();
+    push(format!("the transcript constructor at `{p}`"), transcript_f, 12 + p.len());
+    let line = fr.parameter_line().expect("the fork run's parameter line");
+    push(format!("the transcript absorb of `parameters` with {} bytes of data", line.len()), transcript_f, 48 + "parameters".len() + line.len());
+    for (label, data) in D55_LABELS {
+        let d = data.unwrap_or_else(|| io_claim_list_len(sh));
+        push(format!("the transcript absorb of `{label}` with {d} bytes of data"), transcript_f, 48 + label.len() + d);
+    }
+    let (literal, lines) = fr.schedule_lines().expect("the fork run's schedule lines");
+    push(format!("the fork run's schedule digest over {l} blocks (D55)"), "F_U", schedule_digest_input_len(literal.len(), &lines));
+    push(format!("the generator's seed derivation at `{p}`, the commit phase (run_fork.rs)"), "R1", 22 + commit_seed_domain(&p).len());
+    push(format!("the generator's seed derivation at `{p}`, one per fork (run_fork.rs)"), "R1", 22 + fork_seed_domain(&p, 0).len());
+    (p, out)
+}
+
 /// **W-2, GENERALISED (the memo's §8 work list, as ruling J-7 rewrites it).**
 ///
 /// Ruling H-8's one-line test — "no registered profile's constructor input
@@ -618,7 +664,15 @@ fn every_hash_input_kind_of_every_registered_profile_is_printed_with_its_length(
     // function, each with what separates them. Anything else fails.
     // `(length, a, b, the separating literal)` — `a` and `b` are substrings
     // of the kinds' plain-words names.
-    const DECLARED: [(usize, &str, &str, &str); 9] = [
+    const DECLARED: [(usize, &str, &str, &str); 10] = [
+        // **D55 REVIEW F3 (2026-11-01), the opt-in fork run only.** Its two
+        // phase labels are both ten bytes and both absorb an eight-byte `L`,
+        // so `pb-fork-s0` and `pb-fork-s1` are 66-byte inputs of the
+        // transcript function. They are the same KIND of word (a phase
+        // marker) at two positions of one transcript, and their LABELS
+        // differ in the last byte (`0` against `1`, offset 49), a fixed
+        // literal inside the absorb input at every state.
+        (66, "`pb-fork-s0`", "`pb-fork-s1`", "the labels themselves: \"pb-fork-s0\" against \"pb-fork-s1\", which differ at offset 49 (after the state and le64(10)); the data is the same le64(L) in both"),
         // **STAGE 32, at the rung-W14 profile.** Its profile string is 48
         // bytes, so `Transcript::new`'s input — `b"hashline-v1/" ‖ profile`
         // — is 60 bytes, which is exactly what an absorb of the 4-byte
@@ -754,6 +808,28 @@ fn every_hash_input_kind_of_every_registered_profile_is_printed_with_its_length(
     measured.sort();
     measured.dedup();
     assert_eq!(in_source, measured, "a profile in the source registry has no hash-input table here (or vice versa)");
+    // **D55 REVIEW F3 (2026-11-01): the opt-in, UNREGISTERED fork run over
+    // every blocks-only base run statement measured above** (each at the `L`
+    // it is measured at), plus each native R13 run at the A/B's `L = 32`. Not
+    // in the source registry (its strings are `run_fork.rs`'s, formed from the
+    // base), so it is added after the registry comparison; each is held to
+    // the per-function rule below like every registered profile.
+    let mut d55_bases: Vec<&RunStatement> = profiles.iter().filter_map(|(_, _, run)| run.as_ref().map(|(_, _, st)| st)).collect();
+    let mut at_32: Vec<RunStatement> = Vec::new();
+    for (_, sh) in super::accuracy_profile_tests::registered_runs() {
+        let l = 32usize;
+        let spec = IoSpec::new_shaped(&sh, s25_context(), 0, 0).unwrap();
+        let model = super::trained_statement::accuracy_hash_model(&sh, l);
+        at_32.push(
+            RunStatement::new_bound_from_digests(RunShape::accuracy(sh.clone(), l).unwrap(), s25_context(), ExpectedIo::from_roots(spec, [1; 32], [2; 32]), model.layers.iter().map(|r| r.block_digest).collect(), &vec![super::ENDPOINT_SCALES; l], &model).unwrap(),
+        );
+    }
+    d55_bases.extend(at_32.iter());
+    let n_d55 = d55_bases.len();
+    for st in d55_bases {
+        let (p, kinds) = kinds_of_fork(st);
+        all.push((p, st.rs().sh().clone(), kinds));
+    }
 
     let mut one_byte_rows: Vec<String> = Vec::new();
     let mut margin_families: std::collections::BTreeSet<String> = std::collections::BTreeSet::new();
@@ -820,6 +896,7 @@ fn every_hash_input_kind_of_every_registered_profile_is_printed_with_its_length(
         assert!(margin_families.contains(&format!("{lo}|{hi}")), "the memo's one-byte margin {lo} vs {hi} ({what}) is not in the printout");
     }
     eprintln!("S25 W-2: {} profiles, {total_kinds} hash input kinds, {} pairs within one byte, {} declared equal-length pairs", profiles.len(), one_byte_rows.len(), DECLARED.len());
+    eprintln!("S25 W-2 D55: the opt-in, unregistered fork run measured over {n_d55} base run statements, each under its own constructor and held to the same per-function rule (one declared pair of its own: pb-fork-s0 / pb-fork-s1)");
 }
 
 /// **The memo's §5 and §5.1 tables, re-derived from the code.** Every fixed
@@ -2718,6 +2795,46 @@ fn no_profile_on_this_path_can_obtain_a_generator_other_than_from_the_operating_
     assert_eq!(zkrng_members("    let mut rng = ZkRng::new(7, b\"x\");"), vec!["new".to_string()], "the scan does not see a seeded construction");
     assert_eq!(zkrng_members("fn f(rng: &mut ZkRng) {}"), Vec::<String>::new(), "the scan mistakes a type mention for a construction");
     eprintln!("S25 W-8(7): the path's four generators are all `ZkRng::from_os` ({on_path:?}); a fifth site, src/private_seam.rs:349 in `private_seam::prove`, is off this path and no file on it names that function; no production file names ZkConfig");
+    // **D55 REVIEW F4 (2026-11-01): the opt-in, UNREGISTERED fork run.** Its
+    // three files are compiled in test builds only (`run.rs` and `wire.rs`
+    // declare them `#[cfg(test)]`, r19b's TEST_ONLY_FILES lists them), so
+    // [`production_sources`] does not reach them; a D55 receipt is still made
+    // by a prover in them, so the same assertion is held over their whole
+    // non-test text, and every generator site is CLASSIFIED rather than
+    // skipped. The review found `ZkRng::new` in a dead `FixtureSeed` arm
+    // there; it is gone, and this fails if a seeded construction returns.
+    let mut d55_sites: Vec<(String, String)> = Vec::new();
+    for path in ["src/private_block/run_fork.rs", "src/private_block/run_fork_wire.rs"] {
+        let text = production_text(path, &source(path));
+        for m in zkrng_members(&text) {
+            assert_eq!(m, "from_os", "{path} (D55): the fork run constructs a generator with `ZkRng::{m}`, which is not the operating system's");
+        }
+        let mut current_fn = String::new();
+        for (n, line) in text.lines().enumerate() {
+            let t = line.trim_start();
+            if t.starts_with("//") || t.starts_with('*') {
+                continue;
+            }
+            if let Some(i) = t.find("fn ") {
+                if t.starts_with("fn ") || t.starts_with("pub(crate) fn ") || t.starts_with("pub fn ") {
+                    current_fn = t[i + 3..].split('(').next().unwrap_or("").to_string();
+                }
+            }
+            assert!(!line.contains("ZkConfig"), "{path}:{} (D55): the fork run names ZkConfig, whose `rng` method reaches the seeded constructor", n + 1);
+            if line.contains("ZkRng::from_os") {
+                d55_sites.push((format!("{path}:{}", n + 1), current_fn.clone()));
+            }
+        }
+    }
+    // the two sites, each with its role: per run they make L + 1 generators
+    // (one commit-phase stream on the calling thread, one per fork inside its
+    // worker), which the D55 tests count at run time (`ForkStats::generators`)
+    let roles: Vec<&str> = d55_sites.iter().map(|(_, f)| f.as_str()).collect();
+    assert_eq!(roles, vec!["prove_one", "prove_forks_inner"], "the D55 fork run's generator sites moved; classify the new one: {d55_sites:?}");
+    eprintln!(
+        "S25 W-8(7) D55: the opt-in fork run's two generator sites are both `ZkRng::from_os` — {} in `ForkCtx::prove_one` (ONE per fork, built in its worker) and {} in `prove_forks_inner` (ONE for the commit phase, on the calling thread): L + 1 OS generators per run, none seeded, no ZkConfig",
+        d55_sites[0].0, d55_sites[1].0
+    );
 }
 
 /// **TOKEN ROUND 18 (REVIEW A5 finding 2): the census reads the batch's two
@@ -2814,6 +2931,35 @@ fn the_generator_is_never_cloned_and_each_prover_constructs_exactly_one() {
         assert!(body.contains("&mut rng"), "{what} does not hand its one generator on by mutable reference");
     }
     eprintln!("S25 W-8(5): ZkRng implements neither Clone nor Copy (type-level, with controls); prove_run and prove_inner_at construct exactly one generator each and pass it on by &mut");
+    // **D55 REVIEW F4 (2026-11-01): assertion 5 as AMENDED for the opt-in,
+    // unregistered fork run** (test builds only): not "each prover constructs
+    // exactly one generator" — a fork run constructs L + 1 — but "ONE
+    // `from_os` generator per prover THREAD, built in that thread, handed on by
+    // `&mut`, never cloned, shared or serialised". Read off the two bodies that
+    // construct them: the commit phase's in `prove_forks_inner` (the calling
+    // thread; dropped before the first fork starts) and each fork's in
+    // `ForkCtx::prove_one` (inside the worker that proves the fork). The
+    // workers' shared context carries no generator, so none crosses a thread.
+    let fork_src = source("src/private_block/run_fork.rs");
+    let body_of = |signature: &str| -> String {
+        let start = fork_src.find(signature).unwrap_or_else(|| panic!("run_fork.rs: `{signature}` is gone"));
+        let body = &fork_src[start..];
+        let end = body[1..].find("\n}\n").map(|i| i + 2).unwrap_or(body.len());
+        body[..end].to_string()
+    };
+    for (signature, what, hands_on) in [("fn prove_forks_inner(", "the commit phase (prove_forks_inner)", "&mut rng0"), ("    fn prove_one(", "one fork (ForkCtx::prove_one)", "&mut rng,")] {
+        let body = body_of(signature);
+        assert_eq!(body.matches("ZkRng::from_os").count(), 1, "D55 {what} does not construct exactly one generator");
+        assert_eq!(body.matches("ZkRng::new").count(), 0, "D55 {what} constructs a seeded generator");
+        assert_eq!(body.matches("rng.clone()").count() + body.matches("rng0.clone()").count(), 0, "D55 {what} clones its generator");
+        assert!(body.contains(hands_on), "D55 {what} does not hand its one generator on by mutable reference");
+    }
+    let inner = body_of("fn prove_forks_inner(");
+    let (made, dropped, phase2) = (inner.find("ZkRng::from_os").expect("the commit generator"), inner.find("drop(rng0);").expect("the commit generator is dropped"), inner.find("PHASE 2").expect("phase 2"));
+    assert!(made < dropped && dropped < phase2, "D55: the commit phase's generator is not dropped before the forks start, so it could be shared with them");
+    let ctx = fork_src.find("struct ForkCtx<'c> {").map(|s| &fork_src[s..s + fork_src[s..].find("\n}\n").expect("the struct closes")]).expect("ForkCtx is gone");
+    assert!(!ctx.contains("ZkRng"), "D55: the fork workers' shared context carries a generator: {ctx}");
+    eprintln!("S25 W-8(5) D55 (amended for the opt-in fork run): ONE from_os generator per prover thread — the commit phase's in prove_forks_inner (dropped before PHASE 2) and each fork's in ForkCtx::prove_one (built in its worker) — each handed on by &mut, none cloned, the workers' shared context carries none: L + 1 per run");
 }
 
 /// **What W-8 still OWES, and to whom** — so that the work list's row is not

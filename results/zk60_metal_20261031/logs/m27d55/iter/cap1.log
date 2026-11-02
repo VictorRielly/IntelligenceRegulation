@@ -1,0 +1,109 @@
+
+running 16 tests
+test private_block::run::fork::tests::d55_ab_one_request_serial_against_forks ... ignored, heavy: W16 8B T128 32-block runs; guarded, alone, HL_GPU=1 HL_PB_ORACLE=0
+D55 CONTROL | ForkIndexSwap { a: 0, b: 1 } | forged tags false | REJECTED: D55: fork 0: D55 wire: fork frame 0's start tag is not the verifier's own fork-0 position
+D55 CONTROL | ForkIndexSwap { a: 0, b: 2 } (one block at both forks) | forged tags true | REJECTED: D55: fork 0: slot 0 [01 SS row sums norm_a (private)]: sumcheck round 1: s(0) + s(1) != claim
+D55 CONTROL | RootAfterFork { boundary: 1 } | forged tags false | REJECTED: D55: the head's S0 tag is not the verifier's own S0 (every boundary root absorbed, in order, before any fork)
+D55 CONTROL | ClaimNotJoined { block: 1 } | forged tags false | REJECTED: D55 wire: the tail's S1 tag is not the verifier's own joined transcript position
+D55 CONTROL | RootAfterFork { boundary: 1 } | forged tags true | REJECTED: D55: fork 0: slot 0 [01 SS row sums norm_a (private)]: sumcheck round 1: s(0) + s(1) != claim
+test private_block::run::fork::tests::d55_control_a_boundary_root_absorbed_after_a_fork_is_rejected ... ok
+D55 CONTROL | ForkIndexSwap { a: 0, b: 2 } | the index dropped from the derivation (mutation) | VERIFIES — the control fails as it must: only the index separates two forks of one block
+D55 CONTROL | ForkIndexSwap { a: 1, b: 2 } | forged tags true | REJECTED: D55: fork 1: slot 0 [01 SS row sums norm_a (private)]: sumcheck round 1: s(0) + s(1) != claim
+test private_block::run::fork::tests::d55_control_a_fork_index_swap_is_rejected ... ok
+D55 CONTROL | ClaimNotJoined { block: 1 } | forged tags true | REJECTED: D55: boundary 0: pcs zk: group 0: <v, c> != combined claim
+D55 F1 TAMPER | a norm_a byte limb (300) in block 1, NO cheating switch | REFUSED BY THE FORK PROVER on its worker: D55: fork 1: private block: ruling CS-3 — the witness looks up a value that is not a row of its table; the table family that missed: the byte table (the class o
+D55 F1 TAMPER | the norm_a denominator in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+D55 CONTROL | StaleForkState { block: 1 } | forged tags false | REJECTED: D55 wire: the tail's S1 tag is not the verifier's own joined transcript position
+D55 CONTROL | ForkIndexSwap { a: 1, b: 2 } (two different blocks) | the index dropped (mutation) | REJECTED by the digest: D55: fork 1: slot 0 [01 SS row sums norm_a (private)]: sumcheck round 1: s(0) + s(1) != claim
+test private_block::run::fork::tests::d55_control_a_same_block_fork_swap_is_caught_only_by_the_index ... ok
+D55 CONTROL | ClaimNotJoinedNorOpened { block: 0 } | REFUSED BY THE PROVER'S OWN AUDIT: D55: boundary 0: private block: mask schedule audit: a reserved pair is unused or shared between claims
+test private_block::run::fork::tests::d55_control_a_claim_raised_on_a_fork_but_not_joined_is_rejected ... ok
+D55 F1 TAMPER | a norm_a byte limb in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the norm_a quotient in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+D55 | swapped frames | REJECTED: D55: fork 0: D55 wire: frame 0 is not the 3-block run's fork 0
+test private_block::run::fork::tests::d55_swapped_fork_frames_are_rejected ... ok
+D55 CONTROL | StaleForkState { block: 1 } | forged tags true | REJECTED: D55: boundary 0: pcs zk: group 0: <v, c> != combined claim
+test private_block::run::fork::tests::d55_control_a_stale_fork_state_is_rejected ... ok
+D55 | honest | L2 workers 2: 31258480 B (head 112 B, forks [14465864, 14465864] B, tail 2326640 B); preflight 0.05 s, commit 0.01 s, forks 3.08 s (core ["2.90", "3.07"]), join 0.01 s; verifies with 1 and 3 verifier threads; changed bytes refused (head: D55: the head's S0 tag is not the verifier's own S0 (every boundary root absorbed, in orde; last fork: D55: fork 1: A: pcs zk: group 26: <v, c> != combined claim; tail: D55: run input endpoint: pcs zk: group 0: <v, c> != combined claim)
+D55 F1 TAMPER | residual 1 in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the input plane in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 HEADLINE | (i) B_1 moved: block 1's output is not what the boundary holds | 2 prover workers | REJECTED by the verifier: D55: fork 1: slot 22 [IO-out endpoint equality]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | an int16 byte limb of x in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 HEADLINE | (ii) block 2 run on something other than block 1's output | 3 prover workers | REJECTED by the verifier: D55: fork 2: slot 21 [IO-in endpoint equality]: sumcheck round 0: s(0) + s(1) != claim
+test private_block::run::fork::tests::d55_the_headline_negative_test_a_block_on_another_input_is_rejected_through_the_fork_path ... ok
+D55 F1 TAMPER | the Q projection in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the rotated query in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim
+D55 | census | constructor 126 B (`hashline-v1/` + the 114 B D55 profile over hashline-zk-mr1/private-run-rung-lh-t32-dev/1); 44 absorb inputs held, the nearest 120 B (`sc-round` with 64 bytes, 6 bytes away); D55's own: `pb-fork-commit-root` 75, `pb-fork-s0` 66, `pb-run-fork` 67, `pb-run-fork-block` 97, `pb-join-fork` 68, `pb-join-state` 101, `pb-join-in-claims` (no claim) 73, `pb-join-in-claims` (one IO claim) 889, `pb-join-out-claims` (no claim) 74, `pb-join-out-claims` (one IO claim) 890, `pb-fork-s1` 66; seeds 196 / 211
+D55 F1 TAMPER | the K projection in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 16 [05 KV zero-check (hosts 09K, 09V)]: sumcheck round 0: s(0) + s(1) != claim
+D55 | honest | L3 workers 1: 46678744 B (head 144 B, forks [14465864, 14465864, 14465864] B, tail 3281008 B); preflight 0.03 s, commit 0.04 s, forks 5.55 s (core ["1.48", "1.69", "2.37"]), join 0.02 s; verifies with 1 and 3 verifier threads; changed bytes refused (head: D55: the head's S0 tag is not the verifier's own S0 (every boundary root absorbed, in orde; last fork: D55: fork 2: A: pcs zk: group 26: <v, c> != combined claim; tail: D55: boundary 1: pcs zk: column index 35009 != sampled 62179)
+D55 F1 TAMPER | the V projection in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim
+D55 | profiles | D12a L3 proves and verifies (46678552 B); fork binding and line differ; CS-7: private run: ruling CS-7 — "d55-commit-fork-join-runs/opt-in-prototype-unregiste; fork frames as D12a segments: private run wire: segment 0 is 14465864 B, the counted length is 15151976; D12a segments as forks: D55: fork 0: D55 wire: fork frame 0 is 15151976 B, the counted length is 14465864
+test private_block::run::fork::tests::d55_the_d12a_run_is_unchanged_and_the_two_profiles_do_not_cross ... ok
+W16-PG W16_RUNG_H24 PG-1 plane-index PASS 75 A planes (90 data rows), 46 H planes (108 data rows); tiling, domains and per-slot claim counts agree
+W16-PG W16_RUNG_H24 PG-2 names PASS 14 histograms (A, Dom::Tab, one row of 2^14 each) with their table helpers (H, Fp2): A_R1_0+H_GR1_0 A_R2_0+H_GR2_0 A_R3_0+H_GR3_0 A_R4_0+H_GR4_0 A_R5_0+H_GR5_0 A_R7_0+H_GR7_0 A_R12_0+H_GR12_0 A_R13_0+H_GR13_0 A_R15_0+H_GR15_0 A_R15_1+H_GR15_1 A_R16_0+H_GR16_0 A_R16_1+H_GR16_1 A_R16_2+H_GR16_2 A_R16_3+H_GR16_3
+W16-PG W16_RUNG_H24 PG-3 one-claim PASS 14 histograms and 14 helpers, each read once, by SC_TAB, in (histogram, helper) pairs after the byte / exp / ACT pairs; SC_TAB declares 17 A / 17 H sites
+W16-PG W16_RUNG_H24 PG-4 mask-pairs PASS A 114 sites on 114 distinct pairs, H 46 sites on 46 distinct pairs
+W16-PG W16_RUNG_H24 PG-5 definitions PASS 23 slots, 162 private tables, each slot's order equal to the index's
+W16-PG W16_RUNG_H24 C-1 pre-W16-index PASS fires: private block: the H plane name table has 32 names for 46 planes
+D55 F1 TAMPER | the score in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the row maximum in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+W16-PG W16_RUNG_H24 D55 PG-6 capture PASS an honest 3-fork W16 rung D55 run proved on 3 workers and verified; with the recorder attached the verifier ran its forks on 3 worker threads, a per-fork recorder on each replayed its fork from the public header and roots, and the run's recorder replayed the header, S0, the join (from each per-fork recorder's own end state) and the tail on its own transcript; 3 fork stage files and the tail (4 openings) merged; export replay 51 statement tables, 652800 entries (act3_values x3, act_support x3, exp_values x3, fold(w_d) x3, fold(w_g) x3, fold(w_k) x3, fold(w_o) x3, fold(w_q) x3, fold(w_u) x3, fold(w_v) x3, gamma_a x3, gamma_m x3, group_column x3, rope_cos@Kv x3, rope_cos@Q x3, rope_sin@Kv x3, rope_sin@Q x3)
+W16-PG W16_RUNG_H24 D55 PG-7 allow-list (run, every fork, tail) PASS 50304 fields, every one on the allow-list; no forbidden word
+W16-PG W16_RUNG_H24 D55 fork 0 PG-8 masked-claims PASS 114 A and 46 H claims as captured, each on its own reserved pair; 14 histograms and 14 helpers, each read once, by SC_TAB, in (histogram, helper) pairs after the byte / exp / ACT pairs
+W16-PG W16_RUNG_H24 D55 fork 0 PG-9 public-tables PASS 14 range columns and 8 support columns rebuilt from the shape and gamma, byte-equal; SC_TAB statement tables [(1, "exp_values"), (2, "act3_values"), (18, "act_support")]; 45 distinct public tables, none equal to any of 68 non-constant A planes (all 14 range histograms and the byte histogram among them, as the prover fills them; 7 constant planes skipped)
+W16-PG W16_RUNG_H24 D55 fork 0 PG-10 input-independent-shape PASS two hidden inputs: 16388 keys in the same order, the same array and table lengths, every slot's claims and mask pairs, segments [144, 14131368, 14131368, 14131368, 3281008] B; fork 0's hidden inputs differ and 14 of its 14 range histograms differ
+W16-PG W16_RUNG_H24 D55 fork 1 PG-8 masked-claims PASS 114 A and 46 H claims as captured, each on its own reserved pair; 14 histograms and 14 helpers, each read once, by SC_TAB, in (histogram, helper) pairs after the byte / exp / ACT pairs
+W16-PG W16_RUNG_H24 D55 fork 1 PG-9 public-tables PASS 14 range columns and 8 support columns rebuilt from the shape and gamma, byte-equal; SC_TAB statement tables [(1, "exp_values"), (2, "act3_values"), (18, "act_support")]; 45 distinct public tables, none equal to any of 69 non-constant A planes (all 14 range histograms and the byte histogram among them, as the prover fills them; 6 constant planes skipped)
+W16-PG W16_RUNG_H24 D55 fork 1 PG-10 input-independent-shape PASS two hidden inputs: 16388 keys in the same order, the same array and table lengths, every slot's claims and mask pairs, segments [144, 14131368, 14131368, 14131368, 3281008] B; fork 1's hidden inputs differ and 14 of its 14 range histograms differ
+W16-PG W16_RUNG_H24 D55 fork 2 PG-8 masked-claims PASS 114 A and 46 H claims as captured, each on its own reserved pair; 14 histograms and 14 helpers, each read once, by SC_TAB, in (histogram, helper) pairs after the byte / exp / ACT pairs
+D55 F1 TAMPER | the exp value in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 17 [06 softmax zero-check (hosts 07, 10)]: sumcheck round 0: s(0) + s(1) != claim
+W16-PG W16_RUNG_H24 D55 fork 2 PG-9 public-tables PASS 14 range columns and 8 support columns rebuilt from the shape and gamma, byte-equal; SC_TAB statement tables [(1, "exp_values"), (2, "act3_values"), (18, "act_support")]; 45 distinct public tables, none equal to any of 69 non-constant A planes (all 14 range histograms and the byte histogram among them, as the prover fills them; 6 constant planes skipped)
+W16-PG W16_RUNG_H24 D55 fork 2 PG-10 input-independent-shape PASS two hidden inputs: 16388 keys in the same order, the same array and table lengths, every slot's claims and mask pairs, segments [144, 14131368, 14131368, 14131368, 3281008] B; fork 2's hidden inputs differ and 14 of its 14 range histograms differ
+W16-PG W16_RUNG_H24 D55 PG-10 tail input-independent-shape PASS two hidden inputs: the tail's 4526 keys in the same order, the same array and table lengths
+W16-PG W16_RUNG_H24 D55 fork 0 C-2 shared-mask-pair PASS fires: slot 19: two A claims share the mask pair at row 286
+W16-PG W16_RUNG_H24 D55 fork 0 C-3a collapsed-tags PASS fires: range column 0 (1-bit) differs
+W16-PG W16_RUNG_H24 D55 fork 0 C-3b wrong-gamma PASS fires: range column 0 (1-bit) differs
+W16-PG W16_RUNG_H24 D55 fork 0 C-4 planted-histogram PASS fires: a public table of the stage equals the committed A plane 61
+W16-PG W16_RUNG_H24 D55 fork 0 C-5 moved-pair PASS fires: stage 0: slot 0's table descriptors differ
+W16-PG W16_RUNG_H24 D55 fork 0 C-6 off-list-field PASS fires: run.json carries the field "histogram_values", which is not on the capture allow-list
+W16-PG VERDICT 18 checks, all PASS
+test private_block::w16_privacy_gate_tests::d55_fork_run_capture_passes_the_w16_gate_checks_at_the_development_rung ... ok
+test private_block::w16_privacy_gate_tests::w16_privacy_gate_at_the_trained_t128_shapes ... ignored, heavy: full W16 T128 runs captured on the CPU; run by name, guarded
+test private_block::w16_privacy_gate_tests::w16_privacy_gate_on_the_metal_path ... ignored, toggles HL_GPU in-process; run alone by name on a Mac with HL_GPU_REQUIRED=1, guarded
+test private_block::w16_privacy_gate_tests::w16_privacy_gate_write_the_w16_bundles ... ignored, writes the W16 gate bundles; set HL_W16PG_CAPTURE_DIR
+D55 | honest | L3 workers 2: 46678744 B (head 144 B, forks [14465864, 14465864, 14465864] B, tail 3281008 B); preflight 0.03 s, commit 0.06 s, forks 3.93 s (core ["2.68", "2.42", "1.51"]), join 0.01 s; verifies with 1 and 3 verifier threads; changed bytes refused (head: D55: the head's S0 tag is not the verifier's own S0 (every boundary root absorbed, in orde; last fork: D55: fork 2: A: pcs zk: group 26: <v, c> != combined claim; tail: D55: boundary 1: pcs zk: column index 32479 != sampled 3072)
+D55 F1 TAMPER | the softmax quotient in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 15 [04 Q zero-check (hosts 09Q, 11)]: sumcheck round 0: s(0) + s(1) != claim
+W16-PG W16_RUNG_H24 PG-6 capture PASS an honest one-block run proved and verified; the recorder's own replay agreed at every site and every slot's private tables are the index's order; export replay 17 statement tables, 217600 entries (act3_values x1, act_support x1, exp_values x1, fold(w_d) x1, fold(w_g) x1, fold(w_k) x1, fold(w_o) x1, fold(w_q) x1, fold(w_u) x1, fold(w_v) x1, gamma_a x1, gamma_m x1, group_column x1, rope_cos@Kv x1, rope_cos@Q x1, rope_sin@Kv x1, rope_sin@Q x1)
+W16-PG W16_RUNG_H24 PG-7 allow-list PASS 18548 fields, every one on the allow-list; no forbidden word
+W16-PG W16_RUNG_H24 PG-8 masked-claims PASS 114 A and 46 H claims as captured, each on its own reserved pair; 14 histograms and 14 helpers, each read once, by SC_TAB, in (histogram, helper) pairs after the byte / exp / ACT pairs
+D55 F1 TAMPER | the output projection in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+W16-PG W16_RUNG_H24 PG-9 public-tables PASS 14 range columns and 8 support columns rebuilt from the shape and gamma, byte-equal; SC_TAB statement tables [(1, "exp_values"), (2, "act3_values"), (18, "act_support")]; 45 distinct public tables, none equal to any of 68 non-constant A planes (all 14 range histograms and the byte histogram among them, as the prover fills them; 7 constant planes skipped)
+W16-PG W16_RUNG_H24 PG-10 input-independent-shape PASS two hidden inputs: 18548 keys in the same order, the same array and table lengths, every slot's claims and mask pairs, segments [15503528] B; the hidden inputs differ and 14 of the 14 range histograms differ between them
+W16-PG W16_RUNG_H24 C-2 shared-mask-pair PASS fires: slot 19: two A claims share the mask pair at row 286
+W16-PG W16_RUNG_H24 C-3a collapsed-tags PASS fires: range column 0 (1-bit) differs
+W16-PG W16_RUNG_H24 C-3b wrong-gamma PASS fires: range column 0 (1-bit) differs
+W16-PG W16_RUNG_H24 C-4 planted-histogram PASS fires: a public table of the stage equals the committed A plane 61
+W16-PG W16_RUNG_H24 C-5 moved-pair PASS fires: stage 0: slot 0's table descriptors differ
+W16-PG W16_RUNG_H24 C-6 off-list-field PASS fires: run.json carries the field "histogram_values", which is not on the capture allow-list
+W16-PG R13+legacy A-1 index-unchanged PASS 15 shapes (9 with an index), each byte-identical with and without the W16 additions
+W16-PG VERDICT 18 checks, all PASS
+test private_block::w16_privacy_gate_tests::w16_privacy_gate_at_the_development_rung ... ok
+D55 F1 TAMPER | the attention output in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+D55 | honest | L3 workers 3: 46678744 B (head 144 B, forks [14465864, 14465864, 14465864] B, tail 3281008 B); preflight 0.03 s, commit 0.03 s, forks 1.77 s (core ["1.70", "1.77", "1.76"]), join 0.01 s; verifies with 1 and 3 verifier threads; changed bytes refused (head: D55: the head's S0 tag is not the verifier's own S0 (every boundary root absorbed, in orde; last fork: D55: fork 2: A: pcs zk: group 26: <v, c> != combined claim; tail: D55: boundary 1: pcs zk: column index 38695 != sampled 15367)
+test private_block::run::fork::tests::d55_honest_fork_runs_verify_at_every_worker_count ... ok
+D55 F1 TAMPER | a biased attention remainder in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the norm_m denominator in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | a norm_m byte limb in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 2 [02 norm squares zero-check (hosts 01, 01m)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the norm_m quotient in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the gate output in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | a biased gate remainder in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the activation value in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the up output in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 18 [14 F zero-check (hosts 13G, 13U)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the gate-up product in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | the feed-forward output in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | residual 2 in block 1 (interior fork) | REJECTED by the verifier: D55: fork 1: slot 14 [03 D zero-check (hosts 12, 13D)]: sumcheck round 0: s(0) + s(1) != claim
+D55 F1 TAMPER | all 27 families rejected by verify_run_with_forks, 27 of them inside fork 1's own verify_core
+test private_block::run::fork::tests::d55_every_single_block_tamper_family_is_rejected_on_an_interior_fork ... ok
+
+test result: ok. 12 passed; 0 failed; 4 ignored; 0 measured; 929 filtered out; finished in 39.95s
+

@@ -2770,7 +2770,7 @@ pub(crate) fn set_force_legacy_hash_rule(v: bool) {
 }
 
 #[cfg(test)]
-fn forced_legacy_hash_rule() -> bool {
+pub(crate) fn forced_legacy_hash_rule() -> bool {
     FORCE_LEGACY_HASH_RULE.with(|c| c.get())
 }
 

@@ -490,12 +490,19 @@ fn every_absorb_label_on_the_path_is_in_the_table() {
     // other profile's length set, does not carry them (s25's classifier
     // census lists them with their lengths). Anywhere else they fail here.
     let classify_header: [&str; 2] = ["classify-verdict", "classify-chunk"];
+    // D55 REVIEW F5 (2026-11-01): the run capture's recorder rebuilds a D55
+    // fork run's transcript INDEPENDENTLY (commit, fork start, join), so it
+    // absorbs the fork run's own labels — in `run_capture.rs` alone, and only
+    // the ones `run_fork::D55_LABELS` declares (checked below against the
+    // fork run's source)
+    let d55_labels: Vec<&str> = super::super::run::fork::D55_LABELS.iter().map(|(l, _)| *l).collect();
     let mut seen = 0usize;
     for (name, src) in lane {
         for l in absorb_labels(name, src) {
             seen += 1;
             let classify_ok = (name == "token_io/classify.rs" || name == "run_capture.rs") && classify_header.contains(&l.as_str());
-            assert!(table.contains(&l) || classify_ok, "{name} absorbs `{l}`, which the label table of hash_domain.rs does not carry");
+            let d55_replay_ok = name == "run_capture.rs" && d55_labels.contains(&l.as_str());
+            assert!(table.contains(&l) || classify_ok || d55_replay_ok, "{name} absorbs `{l}`, which the label table of hash_domain.rs does not carry");
         }
     }
     assert!(seen >= 40, "the lane source scan found only {seen} labelled absorbs; it has stopped working");
@@ -533,6 +540,42 @@ fn every_absorb_label_on_the_path_is_in_the_table() {
     for l in ["sc-round", "mask-q", "mask-prox", "pcs-vec", "pcs-prox"] {
         assert!(table.contains(&l.to_string()), "`{l}` left the table");
     }
+
+    // **D55 REVIEW F3 (2026-11-01): the opt-in, UNREGISTERED fork run** —
+    // three files compiled in test builds only, so not on the list above. A
+    // fork run absorbs the block path's labels through `prove_core` /
+    // `verify_core` and its own ones here; every literal label in their
+    // non-test text must be either in the block path's table or in
+    // `run_fork::D55_LABELS` (which s25's W-2 census measures), and every
+    // entry of `D55_LABELS` must be spelled in the source (both directions,
+    // so the table cannot drift from the code). D12a's stage locality words
+    // `pb-run-stage` / `pb-run-block` are NOT absorbed by a fork run, and the
+    // pre-F3 first absorb `run-construction` is gone; either one returning
+    // fails here.
+    let d55_files: [(&str, &str); 3] = [
+        ("run_fork.rs", include_str!("run_fork.rs")),
+        ("run_fork_wire.rs", include_str!("run_fork_wire.rs")),
+        // the wire module's parent `wire.rs` declares the frames' module
+        // only; it is scanned above as a lane file
+        ("run.rs", include_str!("run.rs")),
+    ];
+    let d55_table: Vec<&str> = super::super::run::fork::D55_LABELS.iter().map(|(l, _)| *l).collect();
+    let mut d55_seen: Vec<String> = Vec::new();
+    for (name, src) in &d55_files[..2] {
+        for l in absorb_labels(name, src) {
+            assert!(!["pb-run-stage", "pb-run-block", "run-construction"].contains(&l.as_str()), "{name} (D55) absorbs `{l}`, which a fork run must not");
+            assert!(table.contains(&l) || d55_table.contains(&l.as_str()), "{name} (D55) absorbs `{l}`, which is neither in hash_domain.rs's label table nor in run_fork::D55_LABELS");
+            d55_seen.push(l);
+        }
+    }
+    for l in &d55_table {
+        assert!(d55_seen.iter().any(|s| s == l), "run_fork::D55_LABELS carries `{l}`, which the fork run's source never absorbs");
+    }
+    // and `run.rs` absorbs none of D55's labels: the fork run's words stay in its own files
+    for l in absorb_labels(d55_files[2].0, d55_files[2].1) {
+        assert!(!d55_table.contains(&l.as_str()), "run.rs absorbs the D55 label `{l}`");
+    }
+    eprintln!("D55 F3 label scan: the fork run's files absorb {} literal labels, each in the block path's table or in D55_LABELS ({} entries, every one spelled in the source); none of pb-run-stage / pb-run-block / run-construction", d55_seen.len(), d55_table.len());
 }
 
 // =====================================================================  T-4

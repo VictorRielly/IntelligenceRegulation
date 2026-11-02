@@ -187,37 +187,41 @@ struct Captured {
 /// verify it bare, then verify it again with the recorder attached (array
 /// store and public-table values on) and replay the statement tables against
 /// the block's public data.
+/// The committed A planes as the PROVER writes them: the witness carries
+/// the multiplicity planes as placeholders, and `prove_core` fills the
+/// byte histogram and each range sub-plane's true rows from the looked
+/// columns (`protocol::w16_histograms`; padded copies stay zero).
+fn committed_a_planes(sh: &Shape, w: &Witness) -> Result<Vec<Vec<i64>>, String> {
+    let ids = Ids::new(sh)?;
+    let mut a_planes = w.planes.clone();
+    let lay = Layout::for_shape(sh)?;
+    let looked: Vec<(Dom, Vec<Vec<i64>>)> = lay.lookup_doms().iter().map(|d| (*d, super::protocol::lookup_values(&lay, w, *d))).collect();
+    let (m_u8, m_rng, missed) = super::protocol::w16_histograms(&lay, &looked);
+    if missed != 0 {
+        return Err(format!("{missed} looked words miss their table"));
+    }
+    let fams = sh.range_families();
+    for (f, s, plane) in ids.accuracy()?.range_planes() {
+        let m = &m_rng[fams.iter().position(|x| *x == f).ok_or("a range sub-plane outside the shape's families")?];
+        let (base, sup) = (s << sh.log_cols, super::range16::support(f, sh.log_cols));
+        let mut col = vec![0i64; 1usize << sh.log_cols];
+        for (i, c) in col.iter_mut().enumerate().take(sup) {
+            *c = m[base + i] as i64;
+        }
+        a_planes[plane] = col;
+    }
+    let mut col = vec![0i64; sh.size(Dom::Tab)];
+    for (i, c) in col.iter_mut().enumerate().take(U8_LEN) {
+        *c = m_u8[i] as i64;
+    }
+    a_planes[ids.at(A_MU8)] = col;
+    Ok(a_planes)
+}
+
 fn prove_and_capture(profile: &str, seed: usize) -> Result<Captured, String> {
     let (sh, blk, w) = w16_case(profile, seed);
     let ids = Ids::new(&sh)?;
-    // the committed A planes as the PROVER writes them: the witness carries
-    // the multiplicity planes as placeholders, and `prove_core` fills the
-    // byte histogram and each range sub-plane's true rows from the looked
-    // columns (`protocol::w16_histograms`; padded copies stay zero)
-    let mut a_planes = w.planes.clone();
-    {
-        let lay = Layout::for_shape(&sh)?;
-        let looked: Vec<(Dom, Vec<Vec<i64>>)> = lay.lookup_doms().iter().map(|d| (*d, super::protocol::lookup_values(&lay, &w, *d))).collect();
-        let (m_u8, m_rng, missed) = super::protocol::w16_histograms(&lay, &looked);
-        if missed != 0 {
-            return Err(format!("{missed} looked words miss their table"));
-        }
-        let fams = sh.range_families();
-        for (f, s, plane) in ids.accuracy()?.range_planes() {
-            let m = &m_rng[fams.iter().position(|x| *x == f).ok_or("a range sub-plane outside the shape's families")?];
-            let (base, sup) = (s << sh.log_cols, super::range16::support(f, sh.log_cols));
-            let mut col = vec![0i64; 1usize << sh.log_cols];
-            for (i, c) in col.iter_mut().enumerate().take(sup) {
-                *c = m[base + i] as i64;
-            }
-            a_planes[plane] = col;
-        }
-        let mut col = vec![0i64; sh.size(Dom::Tab)];
-        for (i, c) in col.iter_mut().enumerate().take(U8_LEN) {
-            *c = m_u8[i] as i64;
-        }
-        a_planes[ids.at(A_MU8)] = col;
-    }
+    let a_planes = committed_a_planes(&sh, &w)?;
     let input: Vec<i16> = w.planes[ids.at(A_X)].iter().map(|&v| v as i16).collect();
     let output: Vec<i16> = w.planes[ids.at(A_X2)].iter().map(|&v| v as i16).collect();
     let context = [59u8; 32];
@@ -945,6 +949,242 @@ fn w16_privacy_gate_at_the_trained_t128_shapes() {
         eprintln!("W16-PG {} done ({:.0} s wall, shared Mac, not a timing)", spec.name, t0.elapsed().as_secs_f64());
     }
     assert!(!rec.0.is_empty(), "HL_W16PG_PROFILES names no W16 profile");
+    rec.assert_all();
+}
+
+// ---------------------------------------------------------------- D55 review F5: a fork run captured
+
+/// The W16 rung's synthetic public block ([`w16_case`]'s recipe) and an
+/// admissible honest chain of `l` layers of it, from the first input at or
+/// after `seed` whose whole chain the witness builder admits.
+fn w16_rung_chain(l: usize, seed: usize) -> Result<(Shape, BlockPublic, Vec<Witness>), String> {
+    let original = super::range16_tests::built(shape::W16_RUNG_H24);
+    let cal = NormCalibration { cn_a: 4000, cn_m: 4000, ..original.norm_calibration() };
+    let original = Shape::accuracy_trained(original.profile, &cal, original.f_e, 20)?;
+    let (sh, data, public, ff) = super::range16_tests::case(original, 3);
+    let blk = BlockPublic::new(public.clone(), ff.clone()).with_accuracy(data.clone());
+    for s in seed..seed + 24 {
+        let mut x: Vec<i16> = (0..sh.tokens * sh.width).map(|i| ((i * (37 + 16 * s) + 11 + 5 * s) % 201) as i16 - 100).collect();
+        let mut ws: Vec<Witness> = Vec::with_capacity(l);
+        while ws.len() < l {
+            let Ok(w) = witness::build_accuracy(&sh, &public, &ff, &data, &x) else { break };
+            let out = w.output()?;
+            x = (0..sh.tokens).flat_map(|t| out[t * sh.d_pad..t * sh.d_pad + sh.width].to_vec()).collect();
+            ws.push(w);
+        }
+        if ws.len() == l {
+            return Ok((sh, blk, ws));
+        }
+    }
+    Err(format!("no admissible {l}-layer W16 rung chain from seed {seed}"))
+}
+
+/// a fork run's private inputs: every witness and every boundary plane
+struct ForkChain {
+    witnesses: Vec<Option<Witness>>,
+    planes: Vec<Vec<i16>>,
+}
+
+impl RunWitnessSource for ForkChain {
+    fn witness(&mut self, k: usize) -> Result<Witness, String> {
+        self.witnesses.get_mut(k).and_then(Option::take).ok_or_else(|| format!("witness {k} was consumed"))
+    }
+    fn boundary_plane(&mut self, k: usize) -> Result<Vec<i16>, String> {
+        self.planes.get(k).cloned().ok_or_else(|| format!("no boundary {k}"))
+    }
+}
+
+/// one captured D55 fork run: per fork the prover's committed A planes (for
+/// PG-9 only), the receipt's frames (head, forks, tail) and the bundle
+struct ForkCaptured {
+    sh: Shape,
+    a_planes: Vec<Vec<Vec<i64>>>,
+    frames: Vec<Vec<u8>>,
+    bundle: Bundle,
+    replay: String,
+    /// the recorder's own controls on this receipt (each must be REFUSED)
+    controls: Vec<(&'static str, Result<String, String>)>,
+}
+
+/// **Prove an honest `l`-block D55 fork run at the W16 rung** under its
+/// test-only run identity (the forks on `l` workers), verify it bare, then
+/// verify it again (forks on `l` worker threads) with a FORK-RUN recorder
+/// attached (array store and public-table values on), and replay the
+/// statement tables against the block's public data.
+fn prove_and_capture_d55(l: usize, seed: usize) -> Result<ForkCaptured, String> {
+    use super::run::fork::{prove_run_with_forks, verify_run_with_forks, D55OptIn, ForkRun};
+    let (sh, blk, ws) = w16_rung_chain(l, seed)?;
+    let ids = Ids::new(&sh)?;
+    let a_planes: Vec<Vec<Vec<i64>>> = ws.iter().map(|w| committed_a_planes(&sh, w)).collect::<Result<_, _>>()?;
+    let input: Vec<i16> = ws[0].planes[ids.at(A_X)].iter().map(|&v| v as i16).collect();
+    let outs: Vec<Vec<i16>> = ws.iter().map(|w| w.output()).collect::<Result<_, _>>()?;
+    let mut prov = Provenance::recipe("D55 W16 privacy gate fixture (public synthetic)", 1.0, [3; 32], [4; 32]);
+    prov.rope_theta = shape::trained_rope_theta(sh.profile).expect("a W16 profile's pinned RoPE base");
+    prov.rope_scaling = shape::trained_rope_scaling(sh.profile).expect("a W16 profile's pinned RoPE transform");
+    let source = ModelSource { kind: SourceKind::PublicSyntheticRecipe, repo: "synthetic/d55-w16-privacy-gate".into(), revision: "d55-gate".into(), weights_sha256: [0; 32], config_sha256: [0; 32], checkpoint_parameters: 0, checkpoint_layers: l as u32 };
+    let records: Vec<LayerRecord> = (0..l).map(|i| LayerRecord::of_block(i as u32, &blk, vec![])).collect();
+    let model = TrainedModelStatement::new_synthetic_at_trained_profile_for_tests(&sh, run_profile_of(sh.profile), source, IntegerCalibration::as_the_code_proves(&sh, &prov), records)?;
+    let context = [61u8 + seed as u8; 32];
+    let (expected, owners) = prepare_endpoints(IoSpec::new_shaped(&sh, context, 0, 0)?, &input, &outs[l - 1])?;
+    let blocks = vec![blk.clone(); l];
+    let st = RunStatement::new_bound(RunShape::new(sh.clone(), l, run_profile_of(sh.profile))?, context, expected, &blocks, &vec![(0, 0); l], &model)?;
+    let fr = ForkRun::new(&st, D55OptIn::unreviewed_prototype())?;
+    let mut src = ForkChain { witnesses: ws.into_iter().map(Some).collect(), planes: outs[..l - 1].to_vec() };
+    let (rc, _) = prove_run_with_forks(&fr, &blocks, &mut src, owners, l).map_err(|e| format!("the honest W16 D55 run does not prove: {e}"))?;
+    verify_run_with_forks(&fr, &blocks, &rc, l).map_err(|e| format!("the honest W16 D55 run does not verify: {e}"))?;
+    let guard = run_capture::Recorder::attach();
+    run_capture::begin_fork_run_with(fr.capture_header()?, fr.binding()?, CaptureOpts { arrays: true, public_tables: true });
+    let verdict = verify_run_with_forks(&fr, &blocks, &rc, l);
+    let taken = run_capture::take();
+    drop(guard);
+    verdict.map_err(|e| format!("the D55 run does not verify with a recorder attached: {e}"))?;
+    let mut bundle = taken.map_err(|e| format!("the recorder refused the D55 capture: {e}"))?;
+    // F5: the capture recorded EVERY fork (each on the worker that verified
+    // it) and the tail, before anything below trusts it
+    let tail = bundle.fork_tail.as_ref().ok_or("the D55 bundle has no tail")?;
+    if bundle.stages.len() != l {
+        return Err(format!("the D55 capture recorded {} of {l} forks", bundle.stages.len()));
+    }
+    let tail_roles = find_from(tail, "\"roles\":[", 0).map(|at| entries(tail, at + "\"roles\":".len()).len()).unwrap_or(0);
+    if tail_roles != l + 1 {
+        return Err(format!("the D55 tail recorded {tail_roles} openings, an {l}-fork run has {}", l + 1));
+    }
+    let rep = run_capture::export_replay(&mut bundle, &mut |k| if k < l { Ok(blk.clone()) } else { Err(format!("no block {k}")) })?;
+    let replay = format!("export replay {} statement tables, {} entries ({})", rep.tables, rep.entries, rep.per_kind.iter().map(|(k, n)| format!("{k} x{n}")).collect::<Vec<_>>().join(", "));
+    let mut frames = vec![rc.head.clone()];
+    frames.extend(rc.forks.iter().cloned());
+    frames.push(rc.tail.clone());
+    // the recorder's controls: a capture of this very receipt must be
+    // REFUSED by a recorder that does not replay it independently as a fork
+    // run — a block run's recorder (D12a's replay), and a fork-run recorder
+    // handed the BASE statement's header (the pre-F3 constructor) — while
+    // the verifier's own verdict does not move with a recorder attached
+    let mut controls = Vec::new();
+    for (what, fork_mode, base_header) in [("C-7a a-block-run-recorder", false, false), ("C-7b the-base-profile-header", true, true)] {
+        let guard = run_capture::Recorder::attach();
+        let header = if base_header { st.capture_header()? } else { fr.capture_header()? };
+        let opts = CaptureOpts { arrays: true, public_tables: true };
+        if fork_mode {
+            run_capture::begin_fork_run_with(header, fr.binding()?, opts);
+        } else {
+            run_capture::begin_run_with(header, fr.binding()?, opts);
+        }
+        let verdict = verify_run_with_forks(&fr, &blocks, &rc, l);
+        let taken = run_capture::take();
+        drop(guard);
+        verdict.map_err(|e| format!("{what}: the verifier's verdict moved with a recorder attached: {e}"))?;
+        controls.push((what, taken.map(|b| format!("a bundle of {} stage files was taken", b.stages.len()))));
+    }
+    Ok(ForkCaptured { sh, a_planes, frames, bundle, replay, controls })
+}
+
+/// fork `k` of a captured fork run, as the one-stage view the per-stage
+/// checks and controls read
+fn fork_view(c: &ForkCaptured, k: usize) -> Captured {
+    Captured {
+        sh: c.sh.clone(),
+        lay: Layout::for_shape(&c.sh).expect("the W16 layout"),
+        a_planes: c.a_planes[k].clone(),
+        segs: c.frames.clone(),
+        bundle: run_capture::fork_stage_view(&c.bundle, k).expect("a fork stage of a fork-run bundle"),
+        replay: c.replay.clone(),
+    }
+}
+
+/// **The W16 gate's checks on a captured D55 fork run** (D55 review F5 and
+/// §6 item 6 "owed"): PG-6 the capture; PG-7 the allow-list over the run
+/// file, EVERY fork stage file and the tail; per fork PG-8 the masked claims
+/// and PG-9 the public tables; per fork and for the tail PG-10, two captures
+/// on different hidden inputs with the same view structure; and the
+/// controls C-2 .. C-6 on fork 0's view, so the checks are shown to fire on
+/// a fork run's data. The Python gate's rank, mask / CFS, joint, NL-1 and
+/// terminal checks are not ported here.
+fn d55_gate_at_the_rung(rec: &mut Record, l: usize) {
+    let name = "W16_RUNG_H24 D55";
+    let a = match prove_and_capture_d55(l, 0) {
+        Ok(c) => c,
+        Err(e) => {
+            rec.put(name, "PG-6 capture", Err(e));
+            return;
+        }
+    };
+    let b = prove_and_capture_d55(l, 1);
+    let tail = a.bundle.fork_tail.clone().expect("a fork-run bundle has a tail");
+    rec.put(
+        name,
+        "PG-6 capture",
+        Ok(format!(
+            "an honest {l}-fork W16 rung D55 run proved on {l} workers and verified; with the recorder attached the verifier ran its forks on {l} worker threads, a per-fork recorder on each replayed its fork from the public header and roots, and the run's recorder replayed the header, S0, the join (from each per-fork recorder's own end state) and the tail on its own transcript; {l} fork stage files and the tail ({} openings) merged; {}",
+            l + 1,
+            a.replay
+        )),
+    );
+    let mut files: Vec<(&str, &[u8])> = vec![("run.json", a.bundle.run_json.as_slice())];
+    for s in &a.bundle.stages {
+        files.push(("fork stage", s.as_slice()));
+    }
+    files.push((run_capture::D55_TAIL_FILE, tail.as_slice()));
+    rec.put(name, "PG-7 allow-list (run, every fork, tail)", allow_list(&files));
+    let lay = Layout::for_shape(&a.sh).expect("the W16 layout");
+    let idx = plane_index::build(&lay).expect("the captured layout's index");
+    for k in 0..l {
+        let v = fork_view(&a, k);
+        let fork_name = format!("{name} fork {k}");
+        rec.put(&fork_name, "PG-8 masked-claims", masked_claims(&lay, &v.bundle.stages[0], &idx));
+        rec.put(&fork_name, "PG-9 public-tables", public_tables(&lay, &v.bundle.stages[0], &v.a_planes, &v.bundle.statement));
+        let r = match &b {
+            Ok(o) => {
+                let ov = fork_view(o, k);
+                let x = lay.ids().at(A_X);
+                let hist: Vec<usize> = lay.ids().accuracy().expect("a W16 layout").range_planes().iter().map(|(_, _, p)| *p).collect();
+                let moved = hist.iter().filter(|p| v.a_planes[**p] != ov.a_planes[**p]).count();
+                if v.a_planes[x] == ov.a_planes[x] || moved == 0 {
+                    Err(format!("the two captures do not hide different data at fork {k} (inputs equal: {}, histograms that differ: {moved})", v.a_planes[x] == ov.a_planes[x]))
+                } else {
+                    same_structure(a.sh.n_slots(), &bundle_files(&v.bundle), &seg_lens(&v), &bundle_files(&ov.bundle), &seg_lens(&ov)).map(|d| format!("{d}; fork {k}'s hidden inputs differ and {moved} of its {} range histograms differ", hist.len()))
+                }
+            }
+            Err(e) => Err(format!("the second capture: {e}")),
+        };
+        rec.put(&fork_name, "PG-10 input-independent-shape", r);
+    }
+    // the tail: the same keys, array lengths and table lengths across the two
+    rec.put(
+        name,
+        "PG-10 tail input-independent-shape",
+        match &b {
+            Ok(o) => {
+                let ot = o.bundle.fork_tail.clone().expect("a fork-run bundle has a tail");
+                let (kx, ky) = (run_capture::keys_of(&tail), run_capture::keys_of(&ot));
+                if kx != ky {
+                    Err("the tail files' key sequences differ".to_string())
+                } else if array_lengths(&tail) != array_lengths(&ot) || nums(&tail, "len") != nums(&ot, "len") {
+                    Err("the tail files' array or table lengths differ".to_string())
+                } else {
+                    Ok(format!("two hidden inputs: the tail's {} keys in the same order, the same array and table lengths", kx.len()))
+                }
+            }
+            Err(e) => Err(format!("the second capture: {e}")),
+        },
+    );
+    let v0 = fork_view(&a, 0);
+    let o0 = b.as_ref().ok().map(|o| fork_view(o, 0));
+    capture_controls(rec, &format!("{name} fork 0"), &v0, o0.as_ref());
+    for (what, outcome) in &a.controls {
+        control(rec, name, *what, outcome.clone());
+    }
+}
+
+/// **D55 REVIEW F5: one honest D55 fork run CAPTURED at the W16 development
+/// rung** (three forks, each verified on its own worker thread with its own
+/// per-fork recorder) and the W16 gate's Rust checks run on it. A mechanical
+/// consistency check of one development shape's view, like the W16 gate
+/// above: NOTHING HERE IS A PRIVACY STATEMENT, and the Python gate has not
+/// seen a D55 capture (a fork-run bundle is in memory only).
+#[test]
+fn d55_fork_run_capture_passes_the_w16_gate_checks_at_the_development_rung() {
+    let mut rec = Record::default();
+    d55_gate_at_the_rung(&mut rec, 3);
     rec.assert_all();
 }
 
