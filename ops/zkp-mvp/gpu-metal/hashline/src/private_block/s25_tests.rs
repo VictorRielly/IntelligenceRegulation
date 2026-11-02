@@ -3084,7 +3084,7 @@ const CALL_SITES: [(&str, &str, usize, &str); 24] = [
     // a token stage file's segment digest (`stage_begin_stage`) and the token
     // run file's endpoint-policy digest (`write_run_token`), SHA-256 over
     // bytes the bundle pins anyway
-    ("src/private_block/run_capture.rs", "sha256_hex(", 12, "C1 — the capture writer's file, public-word and array-store content digests (and, round 7, the token stage segment and token endpoint-policy digests; round 12, the classifier stage segment, the classifier run file's endpoint-policy digest and the classifier bundles' extra source pins; token round 17, the export replay's content digest of each statement table derived again from the export), SHA-256"),
+    ("src/private_block/run_capture.rs", "sha256_hex(", 13, "C1 — (D60: plus the registered D55 fork-run bundle writer's per-file manifest digest, `write_fork_bundle`) the capture writer's file, public-word and array-store content digests (and, round 7, the token stage segment and token endpoint-policy digests; round 12, the classifier stage segment, the classifier run file's endpoint-policy digest and the classifier bundles' extra source pins; token round 17, the export replay's content digest of each statement table derived again from the export), SHA-256"),
     ("src/private_block/run_statement_file.rs", "sha256_hex(", 5, "C1 — the retained run statement's file digests, SHA-256"),
     ("src/private_block/plane_index.rs", "sha256_hex(", 0, "no hash of its own: the plane index table is public layout data the capture writer digests"),
 ];
